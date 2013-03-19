@@ -1,0 +1,11 @@
+-main CommandLineTools
+-neko run.n
+-cp src
+-lib nme
+-lib format
+-lib swf
+-lib svg
+-lib xfl
+--remap flash:nme
+--remap browser:native
+-D nme_ver=3.6.0
