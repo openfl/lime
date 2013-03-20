@@ -825,6 +825,7 @@ class NMMLParser extends NMEProject {
 						
 						var haxelib = new Haxelib (name, version);
 						var path = PathHelper.getHaxelib (haxelib);
+						haxelibs.push (haxelib);
 						
 						if (FileSystem.exists (path + "/include.nmml")) {
 							
@@ -840,12 +841,10 @@ class NMMLParser extends NMEProject {
 								
 							}
 							
-							includeProject.sources.push (path);
+							includeProject.sources.unshift (path);
 							merge (includeProject);
 							
 						}
-						
-						haxelibs.push (haxelib);
 					
 					case "ndll":
 						
