@@ -372,7 +372,6 @@ class IOSPlatform implements IPlatformTool {
 				
 				PathHelper.mkdir (Path.directory (projectDirectory + "/assets/" + asset.flatName));
 				FileHelper.copyIfNewer (asset.sourcePath, projectDirectory + "/assets/" + asset.flatName);
-				FileHelper.copyIfNewer (asset.sourcePath, projectDirectory + "haxe/" + asset.sourcePath);
 				
 			} else {
 				

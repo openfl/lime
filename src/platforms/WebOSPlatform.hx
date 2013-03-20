@@ -105,25 +105,27 @@ class WebOSPlatform implements IPlatformTool {
 		
 		for (asset in project.assets) {
 			
-			PathHelper.mkdir (Path.directory (destination + asset.targetPath));
+			var path = PathHelper.combine (destination, asset.targetPath);
+			
+			PathHelper.mkdir (Path.directory (path));
 			
 			if (asset.type != AssetType.TEMPLATE) {
 				
 				if (asset.targetPath == "/appinfo.json") {
 					
-					FileHelper.copyAsset (asset, destination + asset.targetPath, context);
+					FileHelper.copyAsset (asset, path, context);
 					
 				} else {
 					
 					// going to root directory now, but should it be a forced "assets" folder later?
 					
-					FileHelper.copyAssetIfNewer (asset, destination + asset.targetPath);
+					FileHelper.copyAssetIfNewer (asset, path);
 					
 				}
 				
 			} else {
 				
-				FileHelper.copyAsset (asset, destination + asset.targetPath, context);
+				FileHelper.copyAsset (asset, path, context);
 				
 			}
 			

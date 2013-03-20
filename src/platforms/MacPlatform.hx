@@ -159,13 +159,13 @@ class MacPlatform implements IPlatformTool {
 			
 			if (asset.type != AssetType.TEMPLATE) {
 				
-				PathHelper.mkdir (Path.directory (contentDirectory + "/" + asset.targetPath));
-				FileHelper.copyAssetIfNewer (asset, contentDirectory + "/" + asset.targetPath);
+				PathHelper.mkdir (Path.directory (PathHelper.combine (contentDirectory, asset.targetPath)));
+				FileHelper.copyAssetIfNewer (asset, PathHelper.combine (contentDirectory, asset.targetPath));
 				
 			} else {
 				
-				PathHelper.mkdir (Path.directory (targetDirectory + "/" + asset.targetPath));
-				FileHelper.copyAsset (asset, targetDirectory + "/" + asset.targetPath, context);
+				PathHelper.mkdir (Path.directory (PathHelper.combine (targetDirectory, asset.targetPath)));
+				FileHelper.copyAsset (asset, PathHelper.combine (targetDirectory, asset.targetPath), context);
 				
 			}
 			

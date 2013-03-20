@@ -775,6 +775,12 @@ class CommandLineTools {
 					
 				}
 				
+				project.command = command;
+				project.debug = debug;
+				project.target = target;
+				project.targetFlags = targetFlags;
+				//project.templatePaths = project.templatePaths.concat ([ nme + "/templates/default", nme + "/tools/command-line" ]);
+				
 			}
 			
 		}
@@ -785,12 +791,6 @@ class CommandLineTools {
 			return null;
 			
 		}
-		
-		project.command = command;
-		project.debug = debug;
-		project.target = target;
-		project.targetFlags = targetFlags;
-		project.templatePaths = project.templatePaths.concat ([ nme + "/templates/default", nme + "/tools/command-line" ]);
 		
 		project.merge (config);
 		
@@ -1086,7 +1086,7 @@ class CommandLineTools {
 							name = name.substr (0, name.indexOf (":"));
 							
 						}
-
+						
 						haxelibs.push (new Haxelib (name, version));
 						
 					} else if (field == "source") {
@@ -1094,10 +1094,10 @@ class CommandLineTools {
 						sources.push (argValue);
 						
 					} else {
-
+						
 						projectDefines.set (field, argValue);
 					}
-
+					
 				} else {
 					
 					userDefines.set (argument.substr (0, equals), argValue);

@@ -209,15 +209,17 @@ class LinuxPlatform implements IPlatformTool {
 		
 		for (asset in project.assets) {
 			
+			var path = PathHelper.combine (applicationDirectory, asset.targetPath);
+			
 			if (asset.type != AssetType.TEMPLATE) {
 				
-				PathHelper.mkdir (Path.directory (applicationDirectory + "/" + asset.targetPath));
-				FileHelper.copyAssetIfNewer (asset, applicationDirectory + "/" + asset.targetPath);
+				PathHelper.mkdir (Path.directory (path));
+				FileHelper.copyAssetIfNewer (asset, path);
 				
 			} else {
 				
-				PathHelper.mkdir (Path.directory (applicationDirectory + "/" + asset.targetPath));
-				FileHelper.copyAsset (asset, applicationDirectory + "/" + asset.targetPath, context);
+				PathHelper.mkdir (Path.directory (path));
+				FileHelper.copyAsset (asset, path, context);
 				
 			}
 			

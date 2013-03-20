@@ -127,13 +127,15 @@ class HTML5Platform implements IPlatformTool {
 		
 		for (asset in project.assets) {
 			
+			var path = PathHelper.combine (destination, asset.targetPath);
+			
 			if (asset.type != AssetType.TEMPLATE) {
 				
-				PathHelper.mkdir (Path.directory (destination + asset.targetPath));
+				PathHelper.mkdir (Path.directory (path));
 				
 				if (asset.type != AssetType.FONT) {
 					
-					FileHelper.copyAssetIfNewer (asset, destination + asset.targetPath);
+					FileHelper.copyAssetIfNewer (asset, path);
 					
 				}
 				
@@ -153,10 +155,12 @@ class HTML5Platform implements IPlatformTool {
 		
 		for (asset in project.assets) {
 			
+			var path = PathHelper.combine (destination, asset.targetPath);
+			
 			if (asset.type == AssetType.TEMPLATE) {
 				
-				PathHelper.mkdir (Path.directory (destination + asset.targetPath));
-				FileHelper.copyAsset (asset, destination + asset.targetPath, context);
+				PathHelper.mkdir (Path.directory (path));
+				FileHelper.copyAsset (asset, path, context);
 				
 			}
 			
