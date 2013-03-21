@@ -395,16 +395,13 @@ class NMMLParser extends NMEProject {
 			
 			if (!FileSystem.isDirectory (path)) {
 				
-				var id = "";
+				var asset = new Asset (path, targetPath, type);
 				
 				if (element.has.id) {
 					
-					id = substitute (element.att.id);
+					asset.id = substitute (element.att.id);
 					
 				}
-				
-				var asset = new Asset (path, targetPath, type);
-				asset.id = id;
 				
 				if (glyphs != null) {
 					
