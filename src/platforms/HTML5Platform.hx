@@ -131,10 +131,9 @@ class HTML5Platform implements IPlatformTool {
 			
 			if (asset.type != AssetType.TEMPLATE) {
 				
-				PathHelper.mkdir (Path.directory (path));
-				
 				if (asset.type != AssetType.FONT) {
 					
+					PathHelper.mkdir (Path.directory (path));
 					FileHelper.copyAssetIfNewer (asset, path);
 					
 				}
