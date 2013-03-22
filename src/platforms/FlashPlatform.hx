@@ -97,11 +97,11 @@ class FlashPlatform implements IPlatformTool {
 			
 			switch (assetType) {
 				
-				case MUSIC : asset.flashClass = "nme.media.Sound";
-				case SOUND : asset.flashClass = "nme.media.Sound";
-				case IMAGE : asset.flashClass = "nme.display.BitmapData";
-				case FONT : asset.flashClass = "nme.text.Font";
-				default: asset.flashClass = "nme.utils.ByteArray";
+				case MUSIC : asset.flashClass = "flash.media.Sound";
+				case SOUND : asset.flashClass = "flash.media.Sound";
+				case IMAGE : asset.flashClass = "flash.display.BitmapData";
+				case FONT : asset.flashClass = "flash.text.Font";
+				default: asset.flashClass = "flash.utils.ByteArray";
 				
 			}
 			
