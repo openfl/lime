@@ -249,6 +249,7 @@ class FlashHelper {
 		} else if (type == AssetType.FONT) {
 			
 			// More code ripped off from "samhaxe"
+			
 			var src = name;
 			var font_name = Path.withoutExtension (name);
 			var font = Font.load (src);

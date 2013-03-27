@@ -431,7 +431,14 @@ class CommandLineTools {
 	
 	private static function generate ():Void {
 		
-		
+		if (targetFlags.exists ("font-hash")) {
+			
+			var sourcePath = words[0];
+			var glyphs = "32-255";
+			
+			ProcessHelper.runCommand (Path.directory (sourcePath), "neko", [ PathHelper.getHaxelib (new Haxelib ("pazu-tools")) + "/bin/hxswfml.n", "ttf2hash", Path.withoutDirectory (sourcePath), "-glyphs", glyphs ]);
+			
+		}
 		
 	}
 	
