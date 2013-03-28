@@ -79,13 +79,15 @@ class NMMLParser extends NMEProject {
 			
 		}
 		
-		if (targetFlags.exists ("cpp")) {
+		if (targetFlags.exists ("neko")) {
 			
-			localDefines.set ("cpp", "1");
-			
-		} else if (targetFlags.exists ("neko")) {
-			
+			localDefines.set ("native", "1");
 			localDefines.set ("neko", "1");
+			
+		} else if (targetFlags.exists ("cpp") || ((platformType == PlatformType.MOBILE || platformType == PlatformType.DESKTOP) && !targetFlags.exists("html5"))) {
+			
+			localDefines.set ("native", "1");
+			localDefines.set ("cpp", "1");
 			
 		}
 		
