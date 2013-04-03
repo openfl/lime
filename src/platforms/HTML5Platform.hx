@@ -125,6 +125,12 @@ class HTML5Platform implements IPlatformTool {
 		context.OUTPUT_DIR = outputDirectory;
 		context.OUTPUT_FILE = outputFile;
 		
+		if (project.targetFlags.exists ("webgl")) {
+			
+			context.CPP_DIR = project.app.path + "/html5/obj";
+			
+		}
+		
 		for (asset in project.assets) {
 			
 			var path = PathHelper.combine (destination, asset.targetPath);
@@ -147,8 +153,17 @@ class HTML5Platform implements IPlatformTool {
 		if (project.app.main != null) {
 			
 			FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", outputDirectory + "/haxe", context);
-			FileHelper.recursiveCopyTemplate (project.templatePaths, "html5/haxe", outputDirectory + "/haxe", context);
-			FileHelper.recursiveCopyTemplate (project.templatePaths, "html5/hxml", outputDirectory + "/haxe", context);
+			
+			if (!project.targetFlags.exists ("webgl")) {
+				
+				FileHelper.recursiveCopyTemplate (project.templatePaths, "html5/haxe", outputDirectory + "/haxe", context);
+				FileHelper.recursiveCopyTemplate (project.templatePaths, "html5/hxml", outputDirectory + "/haxe", context);
+				
+			} else {
+				
+				FileHelper.recursiveCopyTemplate (project.templatePaths, "webgl/hxml", outputDirectory + "/haxe", context);
+				
+			}
 			
 		}
 		
