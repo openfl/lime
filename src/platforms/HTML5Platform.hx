@@ -31,6 +31,12 @@ class HTML5Platform implements IPlatformTool {
 			
 		}
 		
+		if (project.targetFlags.exists ("webgl")) {
+			
+			FileHelper.copyFile (outputDirectory + "/obj/ApplicationMain.js", outputFile);
+			
+		}
+		
 		if (project.targetFlags.exists ("minify")) {
 			
 			HTML5Helper.minify (project, outputDirectory + "/bin/" + project.app.file + ".js");
@@ -161,6 +167,7 @@ class HTML5Platform implements IPlatformTool {
 				
 			} else {
 				
+				FileHelper.recursiveCopyTemplate (project.templatePaths, "html5/haxe", outputDirectory + "/haxe", context);
 				FileHelper.recursiveCopyTemplate (project.templatePaths, "webgl/hxml", outputDirectory + "/haxe", context);
 				
 			}
