@@ -91,6 +91,12 @@ class NMMLParser extends NMEProject {
 			
 		}
 		
+		if (target == Platform.EMSCRIPTEN) {
+			
+			localDefines.set ("native", "1");
+			
+		}
+		
 		localDefines.set ("haxe3", "1");
 		
 		if (command != null) {

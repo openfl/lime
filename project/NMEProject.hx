@@ -104,6 +104,7 @@ class NMEProject {
 				architectures = [];
 				
 			case HTML5:
+			case EMSCRIPTEN:
 				
 				platformType = PlatformType.WEB;
 				architectures = [];

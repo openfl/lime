@@ -68,18 +68,22 @@ class CommandLineTools {
 			case MAC:
 				
 				platform = new MacPlatform ();
-				
+			
 			case LINUX:
 				
 				platform = new LinuxPlatform ();
-				
+			
 			case FLASH:
 				
 				platform = new FlashPlatform ();
-				
+			
 			case HTML5:
 				
 				platform = new HTML5Platform ();
+			
+			case EMSCRIPTEN:
+				
+				platform = new EmscriptenPlatform ();
 			
 		}
 		

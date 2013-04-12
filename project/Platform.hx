@@ -12,5 +12,6 @@ enum Platform {
 	MAC;
 	WINDOWS;
 	WEBOS;
+	EMSCRIPTEN;
 
 }
