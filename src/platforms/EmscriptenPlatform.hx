@@ -31,6 +31,34 @@ class EmscriptenPlatform implements IPlatformTool {
 			
 		}
 		
+		ProcessHelper.runCommand ("", "emcc", [ outputDirectory + "/obj/Main.cpp", "-o", outputDirectory + "/obj/Main.o" ]);
+		
+		var paths = [ outputDirectory + "/obj/Main.o" ];
+		ProcessHelper.runCommand ("", "emar", [ "r", outputDirectory + "/obj/ApplicationMain.a" ].concat (paths));
+		var paths = [ outputDirectory + "/obj/Main.o" ];
+		
+		for (ndll in project.ndlls) {
+			
+			var path = PathHelper.getLibraryPath (ndll, "Emscripten", "", ".a", project.debug);
+			paths.push (path);
+			
+		}
+		
+		//var args = [ "r", outputDirectory + "/obj/ApplicationMain.a" ].concat (paths);
+		//Sys.println ("emar " + args.join (" "));
+		//ProcessHelper.runCommand ("", "emar", args);
+		
+		
+		
+		
+		var args = [ outputDirectory + "/obj/ApplicationMain.a" ].concat (paths);
+		args.push ("-o");
+		args.push (outputDirectory + "/obj/ApplicationMain.js");
+		
+		Sys.println ("emcc " + args.join (" "));
+		ProcessHelper.runCommand ("", "emcc", args);
+		
+		
 		//if (project.targetFlags.exists ("webgl")) {
 			
 			FileHelper.copyFile (outputDirectory + "/obj/ApplicationMain.js", outputFile);
@@ -169,11 +197,18 @@ class EmscriptenPlatform implements IPlatformTool {
 				
 				FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", outputDirectory + "/haxe", context);
 				FileHelper.recursiveCopyTemplate (project.templatePaths, "emscripten/hxml", outputDirectory + "/haxe", context);
+				FileHelper.recursiveCopyTemplate (project.templatePaths, "emscripten/cpp", outputDirectory + "/obj", context);
 				//FileHelper.recursiveCopyTemplate (project.templatePaths, "webgl/hxml", outputDirectory + "/haxe", context);
 				
 			//}
 			
 		}
+		
+		//for (ndll in project.ndlls) {
+			//
+			//FileHelper.copyLibrary (ndll, "Emscripten", "", ".js", destination, project.debug);
+			//
+		//}
 		
 		for (asset in project.assets) {
 			

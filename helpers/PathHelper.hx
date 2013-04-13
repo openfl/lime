@@ -411,7 +411,11 @@ class PathHelper {
 					
 				} else {
 					
-					FileSystem.deleteFile (path);
+					try {
+						
+						FileSystem.deleteFile (path);
+						
+					} catch (e:Dynamic) {}
 					
 				}
 				
@@ -419,7 +423,11 @@ class PathHelper {
 			
 			LogHelper.info ("", " - Removing directory: " + directory);
 			
-			FileSystem.deleteDirectory (directory);
+			try {
+				
+				FileSystem.deleteDirectory (directory);
+				
+			} catch (e:Dynamic) {}
 			
 		}
 		
