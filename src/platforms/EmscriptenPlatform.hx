@@ -38,7 +38,7 @@ class EmscriptenPlatform implements IPlatformTool {
 		
 		for (ndll in project.ndlls) {
 			
-			if (ndll.name != "nme") {
+			if (ndll.name == "std" || ndll.name == "regexp" || ndll.name == "zlib" /*|| ndll.name == "nme"*/) {
 			var path = PathHelper.getLibraryPath (ndll, "Emscripten", "", ".a", project.debug);
 			
 			args.push (path);
@@ -47,6 +47,8 @@ class EmscriptenPlatform implements IPlatformTool {
 			//args.push ("-l" + Path.withoutDirectory (path));
 			
 		}
+		
+		args.push (outputDirectory + "/obj/ApplicationMain.a");
 		
 		args.push ("-o");
 		args.push (outputDirectory + "/obj/ApplicationMain.o");
@@ -156,6 +158,7 @@ class EmscriptenPlatform implements IPlatformTool {
 		initialize (project);
 		
 		project = project.clone ();
+		project.ndlls = [ new project.NDLL ("std", new project.Haxelib ("hxcpp"), true), new project.NDLL ("regexp", new project.Haxelib ("hxcpp"), true), new project.NDLL ("zlib", new project.Haxelib ("hxcpp"), true), new project.NDLL ("nme", new project.Haxelib ("pazu-native"), true) ];
 		
 		var destination = outputDirectory + "/bin/";
 		PathHelper.mkdir (destination);
