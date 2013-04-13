@@ -24,71 +24,29 @@ class EmscriptenPlatform implements IPlatformTool {
 		
 		initialize (project);
 		
-		if (project.app.main != null) {
-			
-			var hxml = outputDirectory + "/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
-			ProcessHelper.runCommand ("", "haxe", [ hxml ] );
-			
-		}
+		var hxml = outputDirectory + "/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
+		ProcessHelper.runCommand ("", "haxe", [ hxml ] );
 		
-		//Sys.println ("clang++ " + ( [ outputDirectory + "/obj/Main.cpp", "-o", outputDirectory + "/obj/Main.o" ].join (" ")));
 		ProcessHelper.runCommand ("", "emcc", [ outputDirectory + "/obj/Main.cpp", "-o", outputDirectory + "/obj/Main.o" ]);
 		
-		var args = [ outputDirectory + "/obj/Main.o", outputDirectory + "/obj/ApplicationMain.a" ];
+		var args = [ outputDirectory + "/obj/Main.o" ];
 		
 		for (ndll in project.ndlls) {
 			
-			if (ndll.name == "std" || ndll.name == "regexp" || ndll.name == "zlib" /*|| ndll.name == "nme"*/) {
 			var path = PathHelper.getLibraryPath (ndll, "Emscripten", "", ".a", project.debug);
-			
 			args.push (path);
-			}
-			//args.push ("-L" + Path.directory (path));
-			//args.push ("-l" + Path.withoutDirectory (path));
 			
 		}
 		
-		args.push (outputDirectory + "/obj/ApplicationMain.a");
-		
-		args.push ("-o");
-		args.push (outputDirectory + "/obj/ApplicationMain.o");
+		args = args.concat ([ outputDirectory + "/obj/ApplicationMain.a", "-o", outputDirectory + "/obj/ApplicationMain.o" ]);
 		
 		Sys.println ("emcc " + args.join (" "));
 		ProcessHelper.runCommand ("", "emcc", args);
 		
-		Sys.println ("emcc " + ([ outputDirectory + "/obj/ApplicationMain.o", "-o", outputFile ].join (" ")));
-		ProcessHelper.runCommand ("", "emcc", [ outputDirectory + "/obj/ApplicationMain.o", "-o", outputFile ]);
-		
-		
-		
-		
-		/*ProcessHelper.runCommand ("", "emcc", [ outputDirectory + "/obj/Main.cpp", "-o", outputDirectory + "/obj/Main.o" ]);
-		ProcessHelper.runCommand ("", "emar", [ "r", outputDirectory + "/obj/ApplicationMain.a", outputDirectory + "/obj/Main.o" ]);
-		
-		var args = [ outputDirectory + "/obj/ApplicationMain.a" ];
-		
-		for (ndll in project.ndlls) {
-			
-			var path = PathHelper.getLibraryPath (ndll, "Emscripten", "", ".a", project.debug);
-			
-			//args.push ("-L" + Path.directory (path));
-			//args.push ("-l" + Path.withoutDirectory (path));
-			
-		}
-		
-		args.push ("-o");
-		//args.push (outputDirectory + "/obj/ApplicationMain.js");
-		args.push (outputFile);
+		args = [ outputDirectory + "/obj/ApplicationMain.o", "-o", outputFile ];
 		
 		Sys.println ("emcc " + args.join (" "));
-		ProcessHelper.runCommand ("", "emcc", args);*/
-		
-		
-		//if (project.targetFlags.exists ("webgl")) {
-			
-			//FileHelper.copyFile (outputDirectory + "/obj/ApplicationMain.js", outputFile);
-			
-		//}
+		ProcessHelper.runCommand ("", "emcc", args);
 		
 		if (project.targetFlags.exists ("minify")) {
 			
@@ -158,7 +116,6 @@ class EmscriptenPlatform implements IPlatformTool {
 		initialize (project);
 		
 		project = project.clone ();
-		project.ndlls = [ new project.NDLL ("std", new project.Haxelib ("hxcpp"), true), new project.NDLL ("regexp", new project.Haxelib ("hxcpp"), true), new project.NDLL ("zlib", new project.Haxelib ("hxcpp"), true), new project.NDLL ("nme", new project.Haxelib ("pazu-native"), true) ];
 		
 		var destination = outputDirectory + "/bin/";
 		PathHelper.mkdir (destination);
@@ -184,12 +141,7 @@ class EmscriptenPlatform implements IPlatformTool {
 		context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background, 6);
 		context.OUTPUT_DIR = outputDirectory;
 		context.OUTPUT_FILE = outputFile;
-		
-		//if (project.targetFlags.exists ("webgl")) {
-			
-			context.CPP_DIR = project.app.path + "/emscripten/obj";
-			
-		//}
+		context.CPP_DIR = project.app.path + "/emscripten/obj";
 		
 		for (asset in project.assets) {
 			
@@ -209,32 +161,9 @@ class EmscriptenPlatform implements IPlatformTool {
 		}
 		
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "emscripten/template", destination, context);
-		
-		if (project.app.main != null) {
-			
-			FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", outputDirectory + "/haxe", context);
-			
-			//if (!project.targetFlags.exists ("webgl")) {
-				//
-				//FileHelper.recursiveCopyTemplate (project.templatePaths, "html5/haxe", outputDirectory + "/haxe", context);
-				//FileHelper.recursiveCopyTemplate (project.templatePaths, "html5/hxml", outputDirectory + "/haxe", context);
-				//
-			//} else {
-				
-				FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", outputDirectory + "/haxe", context);
-				FileHelper.recursiveCopyTemplate (project.templatePaths, "emscripten/hxml", outputDirectory + "/haxe", context);
-				FileHelper.recursiveCopyTemplate (project.templatePaths, "emscripten/cpp", outputDirectory + "/obj", context);
-				//FileHelper.recursiveCopyTemplate (project.templatePaths, "webgl/hxml", outputDirectory + "/haxe", context);
-				
-			//}
-			
-		}
-		
-		//for (ndll in project.ndlls) {
-			//
-			//FileHelper.copyLibrary (ndll, "Emscripten", "", ".js", destination, project.debug);
-			//
-		//}
+		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", outputDirectory + "/haxe", context);
+		FileHelper.recursiveCopyTemplate (project.templatePaths, "emscripten/hxml", outputDirectory + "/haxe", context);
+		FileHelper.recursiveCopyTemplate (project.templatePaths, "emscripten/cpp", outputDirectory + "/obj", context);
 		
 		for (asset in project.assets) {
 			
