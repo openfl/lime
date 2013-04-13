@@ -31,37 +31,60 @@ class EmscriptenPlatform implements IPlatformTool {
 			
 		}
 		
+		//Sys.println ("clang++ " + ( [ outputDirectory + "/obj/Main.cpp", "-o", outputDirectory + "/obj/Main.o" ].join (" ")));
 		ProcessHelper.runCommand ("", "emcc", [ outputDirectory + "/obj/Main.cpp", "-o", outputDirectory + "/obj/Main.o" ]);
 		
-		var paths = [ outputDirectory + "/obj/Main.o" ];
-		ProcessHelper.runCommand ("", "emar", [ "r", outputDirectory + "/obj/ApplicationMain.a" ].concat (paths));
-		var paths = [ outputDirectory + "/obj/Main.o" ];
+		var args = [ outputDirectory + "/obj/Main.o", outputDirectory + "/obj/ApplicationMain.a" ];
 		
 		for (ndll in project.ndlls) {
 			
+			if (ndll.name != "nme") {
 			var path = PathHelper.getLibraryPath (ndll, "Emscripten", "", ".a", project.debug);
-			paths.push (path);
+			
+			args.push (path);
+			}
+			//args.push ("-L" + Path.directory (path));
+			//args.push ("-l" + Path.withoutDirectory (path));
 			
 		}
 		
-		//var args = [ "r", outputDirectory + "/obj/ApplicationMain.a" ].concat (paths);
-		//Sys.println ("emar " + args.join (" "));
-		//ProcessHelper.runCommand ("", "emar", args);
-		
-		
-		
-		
-		var args = [ outputDirectory + "/obj/ApplicationMain.a" ].concat (paths);
 		args.push ("-o");
-		args.push (outputDirectory + "/obj/ApplicationMain.js");
+		args.push (outputDirectory + "/obj/ApplicationMain.o");
 		
 		Sys.println ("emcc " + args.join (" "));
 		ProcessHelper.runCommand ("", "emcc", args);
 		
+		Sys.println ("emcc " + ([ outputDirectory + "/obj/ApplicationMain.o", "-o", outputFile ].join (" ")));
+		ProcessHelper.runCommand ("", "emcc", [ outputDirectory + "/obj/ApplicationMain.o", "-o", outputFile ]);
+		
+		
+		
+		
+		/*ProcessHelper.runCommand ("", "emcc", [ outputDirectory + "/obj/Main.cpp", "-o", outputDirectory + "/obj/Main.o" ]);
+		ProcessHelper.runCommand ("", "emar", [ "r", outputDirectory + "/obj/ApplicationMain.a", outputDirectory + "/obj/Main.o" ]);
+		
+		var args = [ outputDirectory + "/obj/ApplicationMain.a" ];
+		
+		for (ndll in project.ndlls) {
+			
+			var path = PathHelper.getLibraryPath (ndll, "Emscripten", "", ".a", project.debug);
+			
+			//args.push ("-L" + Path.directory (path));
+			//args.push ("-l" + Path.withoutDirectory (path));
+			
+		}
+		
+		args.push ("-o");
+		//args.push (outputDirectory + "/obj/ApplicationMain.js");
+		args.push (outputFile);
+		
+		Sys.println ("emcc " + args.join (" "));
+		ProcessHelper.runCommand ("", "emcc", args);*/
+		
 		
 		//if (project.targetFlags.exists ("webgl")) {
 			
-			FileHelper.copyFile (outputDirectory + "/obj/ApplicationMain.js", outputFile);
+			//FileHelper.copyFile (outputDirectory + "/obj/ApplicationMain.js", outputFile);
 			
 		//}
 		
