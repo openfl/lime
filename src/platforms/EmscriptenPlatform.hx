@@ -43,7 +43,7 @@ class EmscriptenPlatform implements IPlatformTool {
 		Sys.println ("emcc " + args.join (" "));
 		ProcessHelper.runCommand ("", "emcc", args);
 		
-		args = [ outputDirectory + "/obj/ApplicationMain.o", "-o", outputFile ];
+		args = [ outputDirectory + "/obj/ApplicationMain.o", "-o", outputFile, "-s", "FULL_ES2=1" ];
 		
 		Sys.println ("emcc " + args.join (" "));
 		ProcessHelper.runCommand ("", "emcc", args);
