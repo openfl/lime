@@ -1,6 +1,8 @@
 package;
 
 
+import flash.utils.ByteArray;
+import flash.utils.CompressionAlgorithm;
 import haxe.Serializer;
 import haxe.Unserializer;
 import haxe.io.Path;
@@ -144,6 +146,20 @@ class CommandLineTools {
 				}
 				
 			}
+			
+		}
+		
+	}
+	
+	
+	private static function compress () { 
+		
+		if (words.length > 0) {
+			
+			var bytes = new ByteArray ();
+			bytes.writeUTFBytes (words[0]);
+			bytes.compress (CompressionAlgorithm.ZLIB);
+			Sys.print (bytes.toString ());
 			
 		}
 		
@@ -951,11 +967,11 @@ class CommandLineTools {
 			case "":
 				
 				displayInfo (true);
-				
+			
 			case "help":
 				
 				//displayHelp ();
-				
+			
 			case "setup":
 				
 				platformSetup ();
@@ -963,15 +979,19 @@ class CommandLineTools {
 			case "document":
 				
 				document ();
-				
+			
 			case "generate":
 				
 				generate ();
+			
+			case "compress":
 				
+				compress ();
+			
 			case "create":
 				
 				createTemplate ();
-				
+			
 			case "clean", "update", "display", "build", "run", "rerun", "install", "uninstall", "trace", "test":
 				
 				if (words.length < 1 || words.length > 2) {
@@ -986,7 +1006,7 @@ class CommandLineTools {
 			case "installer", "copy-if-newer":
 				
 				// deprecated?
-				
+			
 			default:
 				
 				LogHelper.error ("'" + command + "' is not a valid command");

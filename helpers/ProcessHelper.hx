@@ -105,7 +105,29 @@ class ProcessHelper {
 	}
 	
 	
-	public static function runCommand (path:String, command:String, args:Array <String>, safeExecute:Bool = true, ignoreErrors:Bool = false):Void {
+	public static function runCommand (path:String, command:String, args:Array <String>, safeExecute:Bool = true, ignoreErrors:Bool = false, print:Bool = false):Void {
+		
+		if (print) {
+			
+			var message = command;
+			
+			for (arg in args) {
+				
+				if (arg.indexOf (" ") > -1) {
+					
+					message += " \"" + arg + "\"";
+					
+				} else {
+					
+					message += " " + arg;
+					
+				}
+				
+			}
+			
+			Sys.println (message);
+			
+		}
 		
 		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
 			

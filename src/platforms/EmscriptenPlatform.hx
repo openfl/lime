@@ -26,10 +26,9 @@ class EmscriptenPlatform implements IPlatformTool {
 		
 		var hxml = outputDirectory + "/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
 		ProcessHelper.runCommand ("", "haxe", [ hxml ] );
+		ProcessHelper.runCommand ("", "emcc", [ outputDirectory + "/obj/Main.cpp", "-o", outputDirectory + "/obj/Main.o" ], true, false, true);
 		
-		ProcessHelper.runCommand ("", "emcc", [ outputDirectory + "/obj/Main.cpp", "-o", outputDirectory + "/obj/Main.o" ]);
-		
-		var args = [ outputDirectory + "/obj/Main.o" ];
+		var args = [ "Main.o" ];
 		
 		for (ndll in project.ndlls) {
 			
@@ -38,21 +37,48 @@ class EmscriptenPlatform implements IPlatformTool {
 			
 		}
 		
-		args = args.concat ([ outputDirectory + "/obj/ApplicationMain.a", "-o", outputDirectory + "/obj/ApplicationMain.o" ]);
+		args = args.concat ([ "ApplicationMain.a", "-o", "ApplicationMain.o" ]);
+		ProcessHelper.runCommand (outputDirectory + "/obj", "emcc", args, true, false, true);
 		
-		Sys.println ("emcc " + args.join (" "));
-		ProcessHelper.runCommand ("", "emcc", args);
+		args = [ "ApplicationMain.o", "-s", "FULL_ES2=1" ];
 		
-		args = [ outputDirectory + "/obj/ApplicationMain.o", "-o", outputFile, "-s", "FULL_ES2=1" ];
-		
-		Sys.println ("emcc " + args.join (" "));
-		ProcessHelper.runCommand ("", "emcc", args);
+		if (!project.debug) {
+			
+			args.push ("-O2");
+			//args.push ("-s");
+			//args.push ("ASM_JS=1");
+			
+		} else {
+			
+			args.push ("-O1");
+			
+		}
 		
 		if (project.targetFlags.exists ("minify")) {
 			
-			HTML5Helper.minify (project, outputDirectory + "/bin/" + project.app.file + ".js");
+			//args.push ("--minify");
+			//args.push ("1");
+			//args.push ("--closure");
+			//args.push ("1");
+			//args.push ("--compression");
+			//args.push ("haxelib run pazu compress," + PathHelper.findTemplate (project.templatePaths, "resources/lzma-decoder.js") + ",LZMA.decompress");
 			
 		}
+		
+		args.push ("--jcache");
+		args.push ("--preload-file");
+		args.push ("assets");
+		args.push ("-o");
+		args.push ("../bin/" + project.app.file + ".js");
+		//args.push ("../bin/index.html");
+		
+		ProcessHelper.runCommand (outputDirectory + "/obj", "emcc", args, true, false, true);
+		
+		//if (project.targetFlags.exists ("minify")) {
+			
+			//HTML5Helper.minify (project, outputDirectory + "/bin/" + project.app.file + ".js");
+			
+		//}
 		
 	}
 	
@@ -117,6 +143,12 @@ class EmscriptenPlatform implements IPlatformTool {
 		
 		project = project.clone ();
 		
+		for (asset in project.assets) {
+			
+			asset.resourceName = "assets/" + asset.resourceName;
+			
+		}
+		
 		var destination = outputDirectory + "/bin/";
 		PathHelper.mkdir (destination);
 		
@@ -124,7 +156,7 @@ class EmscriptenPlatform implements IPlatformTool {
 			
 			if (asset.type == AssetType.FONT) {
 				
-				project.haxeflags.push (HTML5Helper.generateFontData (project, asset));
+				//project.haxeflags.push (HTML5Helper.generateFontData (project, asset));
 				
 			}
 			
@@ -145,7 +177,7 @@ class EmscriptenPlatform implements IPlatformTool {
 		
 		for (asset in project.assets) {
 			
-			var path = PathHelper.combine (destination, asset.targetPath);
+			var path = PathHelper.combine (outputDirectory + "/obj/assets", asset.targetPath);
 			
 			if (asset.type != AssetType.TEMPLATE) {
 				
