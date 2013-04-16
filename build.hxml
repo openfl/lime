@@ -1,7 +1,10 @@
 -main CommandLineTools
 -neko run.n
 -cp src
--lib nme
+#-lib nme
+#-lib pazu
+-D nme
+-lib pazu-native
 -lib format
 -lib swf
 -lib svg
