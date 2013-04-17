@@ -876,6 +876,7 @@ class NMMLParser extends NMEProject {
 						
 						var name = substitute (element.att.name);
 						var haxelib = null;
+						var registerStatics = true;
 						
 						if (element.has.haxelib) {
 							
@@ -889,7 +890,13 @@ class NMMLParser extends NMEProject {
 							
 						}
 						
-						var ndll = new NDLL (name, haxelib);
+						if (element.has.register) {
+							
+							registerStatics = (element.att.register == "true");
+							
+						}
+						
+						var ndll = new NDLL (name, haxelib, registerStatics);
 						ndll.extensionPath = extensionPath;
 						ndlls.push (ndll);
 					

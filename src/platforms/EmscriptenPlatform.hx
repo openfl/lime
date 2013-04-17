@@ -37,7 +37,7 @@ class EmscriptenPlatform implements IPlatformTool {
 			
 		}
 		
-		args = args.concat ([ "ApplicationMain.a", "-o", "ApplicationMain.o" ]);
+		args = args.concat ([ "ApplicationMain" + (project.debug ? "-debug" : "") + ".a", "-o", "ApplicationMain.o" ]);
 		ProcessHelper.runCommand (outputDirectory + "/obj", "emcc", args, true, false, true);
 		
 		args = [ "ApplicationMain.o", "-s", "FULL_ES2=1" ];
@@ -152,15 +152,15 @@ class EmscriptenPlatform implements IPlatformTool {
 		var destination = outputDirectory + "/bin/";
 		PathHelper.mkdir (destination);
 		
-		for (asset in project.assets) {
-			
-			if (asset.type == AssetType.FONT) {
-				
+		//for (asset in project.assets) {
+			//
+			//if (asset.type == AssetType.FONT) {
+				//
 				//project.haxeflags.push (HTML5Helper.generateFontData (project, asset));
-				
-			}
-			
-		}
+				//
+			//}
+			//
+		//}
 		
 		if (project.targetFlags.exists ("xml")) {
 			
@@ -181,12 +181,12 @@ class EmscriptenPlatform implements IPlatformTool {
 			
 			if (asset.type != AssetType.TEMPLATE) {
 				
-				if (asset.type != AssetType.FONT) {
+				//if (asset.type != AssetType.FONT) {
 					
 					PathHelper.mkdir (Path.directory (path));
 					FileHelper.copyAssetIfNewer (asset, path);
 					
-				}
+				//}
 				
 			}
 			
