@@ -47,13 +47,18 @@ class EmscriptenPlatform implements IPlatformTool {
 		
 		if (!project.debug) {
 			
+			args.push ("-s");
+			args.push ("DISABLE_EXCEPTION_CACHING=0");
 			args.push ("-O2");
 			//args.push ("-s");
 			//args.push ("ASM_JS=1");
 			
 		} else {
 			
-			args.push ("-O1");
+			args.push ("-s");
+			args.push ("DISABLE_EXCEPTION_CACHING=2");
+			args.push ("--minify");
+			args.push ("1");
 			
 		}
 		

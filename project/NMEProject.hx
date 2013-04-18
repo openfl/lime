@@ -98,12 +98,12 @@ class NMEProject {
 		
 		switch (target) {
 			
-			case FLASH, EMSCRIPTEN:
+			case FLASH:
 				
 				platformType = PlatformType.WEB;
 				architectures = [];
 				
-			case HTML5:
+			case HTML5, EMSCRIPTEN:
 				
 				platformType = PlatformType.WEB;
 				architectures = [];
