@@ -1,10 +1,13 @@
 package platforms;
 
 
+import flash.utils.ByteArray;
+import flash.utils.CompressionAlgorithm;
 import haxe.io.Path;
 import haxe.Template;
 import helpers.FileHelper;
 import helpers.HTML5Helper;
+import helpers.LogHelper;
 import helpers.PathHelper;
 import helpers.ProcessHelper;
 import project.AssetType;
@@ -25,8 +28,8 @@ class EmscriptenPlatform implements IPlatformTool {
 		initialize (project);
 		
 		var hxml = outputDirectory + "/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
-		ProcessHelper.runCommand ("", "haxe", [ hxml ] );
-		ProcessHelper.runCommand ("", "emcc", [ outputDirectory + "/obj/Main.cpp", "-o", outputDirectory + "/obj/Main.o" ], true, false, true);
+		//ProcessHelper.runCommand ("", "haxe", [ hxml ] );
+		//ProcessHelper.runCommand ("", "emcc", [ outputDirectory + "/obj/Main.cpp", "-o", outputDirectory + "/obj/Main.o" ], true, false, true);
 		
 		var args = [ "Main.o" ];
 		
@@ -38,7 +41,7 @@ class EmscriptenPlatform implements IPlatformTool {
 		}
 		
 		args = args.concat ([ "ApplicationMain" + (project.debug ? "-debug" : "") + ".a", "-o", "ApplicationMain.o" ]);
-		ProcessHelper.runCommand (outputDirectory + "/obj", "emcc", args, true, false, true);
+		//ProcessHelper.runCommand (outputDirectory + "/obj", "emcc", args, true, false, true);
 		
 		args = [ "ApplicationMain.o", "-s", "FULL_ES2=1" ];
 		
@@ -60,25 +63,61 @@ class EmscriptenPlatform implements IPlatformTool {
 			//args.push ("1");
 			//args.push ("--closure");
 			//args.push ("1");
-			//args.push ("--compression");
-			//args.push ("haxelib run pazu compress," + PathHelper.findTemplate (project.templatePaths, "resources/lzma-decoder.js") + ",LZMA.decompress");
 			
 		}
 		
 		args.push ("--jcache");
 		args.push ("--preload-file");
 		args.push ("assets");
-		args.push ("-o");
-		args.push ("../bin/" + project.app.file + ".js");
-		//args.push ("../bin/index.html");
 		
-		ProcessHelper.runCommand (outputDirectory + "/obj", "emcc", args, true, false, true);
+		if (LogHelper.verbose) args.push ("-v");
 		
-		//if (project.targetFlags.exists ("minify")) {
+		//if (project.targetFlags.exists ("compress")) {
+			//
+			//args.push ("--compression");
+			//args.push (PathHelper.findTemplate (project.templatePaths, "bin/utils/lzma/compress.exe") + "," + PathHelper.findTemplate (project.templatePaths, "resources/lzma-decoder.js") + ",LZMA.decompress");
+			//args.push ("haxelib run pazu compress," + PathHelper.findTemplate (project.templatePaths, "resources/lzma-decoder.js") + ",LZMA.decompress");
+			//args.push ("-o");
+			//args.push ("../bin/index.html");
+			//
+		//} else {
 			
-			//HTML5Helper.minify (project, outputDirectory + "/bin/" + project.app.file + ".js");
+			args.push ("-o");
+			args.push ("../bin/" + project.app.file + ".js");
 			
 		//}
+		
+		
+		
+		//args.push ("../bin/index.html");
+		
+		//ProcessHelper.runCommand (outputDirectory + "/obj", "emcc", args, true, false, true);
+		
+		if (project.targetFlags.exists ("minify")) {
+			
+			HTML5Helper.minify (project, outputDirectory + "/bin/" + project.app.file + ".js");
+			
+		}
+		
+		if (project.targetFlags.exists ("compress")) {
+			
+			if (FileSystem.exists (outputDirectory + "/bin/" + project.app.file + ".data")) {
+				
+				var byteArray = ByteArray.readFile (outputDirectory + "/bin/" + project.app.file + ".data");
+				byteArray.compress (CompressionAlgorithm.GZIP);
+				File.saveBytes (outputDirectory + "/bin/" + project.app.file + ".data.compress", byteArray);
+				
+			}
+			
+			var byteArray = ByteArray.readFile (outputDirectory + "/bin/" + project.app.file + ".js");
+			byteArray.compress (CompressionAlgorithm.GZIP);
+			File.saveBytes (outputDirectory + "/bin/" + project.app.file + ".js.compress", byteArray);
+			
+		} else {
+			
+			File.saveContent (outputDirectory + "/bin/.htaccess", "SetOutputFilter DEFLATE");
+			
+		}
 		
 	}
 	
@@ -174,6 +213,7 @@ class EmscriptenPlatform implements IPlatformTool {
 		context.OUTPUT_DIR = outputDirectory;
 		context.OUTPUT_FILE = outputFile;
 		context.CPP_DIR = project.app.path + "/emscripten/obj";
+		context.USE_COMPRESSION = project.targetFlags.exists ("compress");
 		
 		for (asset in project.assets) {
 			

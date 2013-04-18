@@ -156,10 +156,11 @@ class CommandLineTools {
 		
 		if (words.length > 0) {
 			
-			var bytes = new ByteArray ();
-			bytes.writeUTFBytes (words[0]);
-			bytes.compress (CompressionAlgorithm.ZLIB);
-			Sys.print (bytes.toString ());
+			//var bytes = new ByteArray ();
+			//bytes.writeUTFBytes (words[0]);
+			//bytes.compress (CompressionAlgorithm.LZMA);
+			//Sys.print (bytes.toString ());
+			//File.saveBytes (words[0] + ".compress", bytes);
 			
 		}
 		
