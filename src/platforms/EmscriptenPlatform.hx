@@ -43,12 +43,14 @@ class EmscriptenPlatform implements IPlatformTool {
 		args = args.concat ([ "ApplicationMain" + (project.debug ? "-debug" : "") + ".a", "-o", "ApplicationMain.o" ]);
 		ProcessHelper.runCommand (outputDirectory + "/obj", "emcc", args, true, false, true);
 		
-		args = [ "ApplicationMain.o", "-s", "FULL_ES2=1" ];
+		args = [ "ApplicationMain.o", "-s", "FULL_ES2=1", "-s", "ALLOW_MEMORY_GROWTH=1" ];
 		
 		if (project.targetFlags.exists ("asm")) {
 			
 			args.push ("-s");
 			args.push ("ASM_JS=1");
+			//args.push ("-s");
+			//args.push ("HAVE_SETJMP=0");
 			
 		}
 		
@@ -61,7 +63,6 @@ class EmscriptenPlatform implements IPlatformTool {
 			
 			args.push ("-s");
 			args.push ("DISABLE_EXCEPTION_CACHING=2");
-			
 			
 		}
 		
@@ -85,6 +86,8 @@ class EmscriptenPlatform implements IPlatformTool {
 			
 		}
 		
+		args.push ("--memory-init-file");
+		args.push ("1");
 		args.push ("--jcache");
 		args.push ("--preload-file");
 		args.push ("assets");
