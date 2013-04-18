@@ -28,8 +28,8 @@ class EmscriptenPlatform implements IPlatformTool {
 		initialize (project);
 		
 		var hxml = outputDirectory + "/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
-		//ProcessHelper.runCommand ("", "haxe", [ hxml ] );
-		//ProcessHelper.runCommand ("", "emcc", [ outputDirectory + "/obj/Main.cpp", "-o", outputDirectory + "/obj/Main.o" ], true, false, true);
+		ProcessHelper.runCommand ("", "haxe", [ hxml ] );
+		ProcessHelper.runCommand ("", "emcc", [ outputDirectory + "/obj/Main.cpp", "-o", outputDirectory + "/obj/Main.o" ], true, false, true);
 		
 		var args = [ "Main.o" ];
 		
@@ -41,7 +41,7 @@ class EmscriptenPlatform implements IPlatformTool {
 		}
 		
 		args = args.concat ([ "ApplicationMain" + (project.debug ? "-debug" : "") + ".a", "-o", "ApplicationMain.o" ]);
-		//ProcessHelper.runCommand (outputDirectory + "/obj", "emcc", args, true, false, true);
+		ProcessHelper.runCommand (outputDirectory + "/obj", "emcc", args, true, false, true);
 		
 		args = [ "ApplicationMain.o", "-s", "FULL_ES2=1" ];
 		
@@ -87,11 +87,9 @@ class EmscriptenPlatform implements IPlatformTool {
 			
 		//}
 		
-		
-		
 		//args.push ("../bin/index.html");
 		
-		//ProcessHelper.runCommand (outputDirectory + "/obj", "emcc", args, true, false, true);
+		ProcessHelper.runCommand (outputDirectory + "/obj", "emcc", args, true, false, true);
 		
 		if (project.targetFlags.exists ("minify")) {
 			
