@@ -828,7 +828,7 @@ class NMMLParser extends NMEProject {
 							
 						}
 						
-						if (name == "nme" && localDefines.exists ("PAZU_COMPATIBILITY")) {
+						if (name == "nme" && localDefines.exists ("pazu")) {
 							
 							name = "pazu-compatibility";
 							version = "";

@@ -793,7 +793,7 @@ class CommandLineTools {
 				
 				for (haxelib in project.haxelibs) {
 					
-					if (haxelib.name == "nme" && userDefines.exists ("PAZU_COMPATIBILITY")) {
+					if (haxelib.name == "nme" && userDefines.exists ("pazu")) {
 						
 						haxelib.name = "pazu-compatibility";
 						haxelib.version = "";
