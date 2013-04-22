@@ -1,8 +1,10 @@
 package;
 
 
+import flash.text.Font;
 import flash.utils.ByteArray;
 import flash.utils.CompressionAlgorithm;
+import haxe.Json;
 import haxe.Serializer;
 import haxe.Unserializer;
 import haxe.io.Path;
@@ -269,12 +271,12 @@ class CommandLineTools {
 			} else {
 				
 				var sampleName = words[0];
-				var sourcePath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("pazu-samples")), sampleName);
+				var samplePath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("pazu-samples")), sampleName);
 				
-				if (FileSystem.exists (sourcePath)) {
+				if (FileSystem.exists (samplePath)) {
 					
 					PathHelper.mkdir (sampleName);
-					FileHelper.recursiveCopy (sourcePath, Sys.getCwd () + "/" + sampleName);
+					FileHelper.recursiveCopy (samplePath, Sys.getCwd () + "/" + sampleName);
 					
 				} else {
 					
@@ -298,9 +300,11 @@ class CommandLineTools {
 			Sys.println ("Available samples:");
 			Sys.println ("");
 			
-			for (name in FileSystem.readDirectory (nme + "/samples")) {
+			var samplesPath = PathHelper.getHaxelib (new Haxelib ("pazu-samples"));
+			
+			for (name in FileSystem.readDirectory (samplesPath)) {
 				
-				if (FileSystem.isDirectory (nme + "/samples/" + name)) {
+				if (!StringTools.startsWith (name, ".") && FileSystem.isDirectory (samplesPath + "/" + name)) {
 					
 					Sys.println (" - " + name);
 					
@@ -459,6 +463,14 @@ class CommandLineTools {
 			var glyphs = "32-255";
 			
 			ProcessHelper.runCommand (Path.directory (sourcePath), "neko", [ PathHelper.getHaxelib (new Haxelib ("pazu-tools")) + "/bin/hxswfml.n", "ttf2hash", Path.withoutDirectory (sourcePath), "-glyphs", glyphs ]);
+			
+		} else if (targetFlags.exists ("font-details")) {
+			
+			var sourcePath = words[0];
+			
+			var details = Font.load (sourcePath);
+			var json = Json.stringify (details);
+			Sys.print (json);
 			
 		}
 		
