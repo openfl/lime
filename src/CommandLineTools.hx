@@ -269,11 +269,12 @@ class CommandLineTools {
 			} else {
 				
 				var sampleName = words[0];
+				var sourcePath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("pazu-samples")), sampleName);
 				
-				if (FileSystem.exists (nme + "/samples/" + sampleName)) {
+				if (FileSystem.exists (sourcePath)) {
 					
 					PathHelper.mkdir (sampleName);
-					FileHelper.recursiveCopy (nme + "/samples/" + sampleName, Sys.getCwd () + "/" + sampleName);
+					FileHelper.recursiveCopy (sourcePath, Sys.getCwd () + "/" + sampleName);
 					
 				} else {
 					
@@ -779,6 +780,13 @@ class CommandLineTools {
 			if (project != null) {
 				
 				for (haxelib in project.haxelibs) {
+					
+					if (haxelib.name == "nme" && userDefines.exists ("PAZU_COMPATIBILITY")) {
+						
+						haxelib.name = "pazu-compatibility";
+						haxelib.version = "";
+						
+					}
 					
 					var path = PathHelper.getHaxelib (haxelib);
 					

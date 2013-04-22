@@ -828,6 +828,13 @@ class NMMLParser extends NMEProject {
 							
 						}
 						
+						if (name == "nme" && localDefines.exists ("PAZU_COMPATIBILITY")) {
+							
+							name = "pazu-compatibility";
+							version = "";
+							
+						}
+						
 						var haxelib = new Haxelib (name, version);
 						var path = PathHelper.getHaxelib (haxelib);
 						haxelibs.push (haxelib);
