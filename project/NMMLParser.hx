@@ -336,7 +336,7 @@ class NMMLParser extends NMEProject {
 	private function parseAssetsElement (element:Fast, basePath:String = "", isTemplate:Bool = false):Void {
 		
 		var path = "";
-		var embed = "";
+		var embed = true;
 		var targetPath = "";
 		var glyphs = null;
 		var type = null;
@@ -349,7 +349,7 @@ class NMMLParser extends NMEProject {
 		
 		if (element.has.embed) {
 			
-			embed = substitute (element.att.embed);
+			embed = substitute (element.att.embed) == "true";
 			
 		}
 		
@@ -403,7 +403,7 @@ class NMMLParser extends NMEProject {
 			
 			if (!FileSystem.isDirectory (path)) {
 				
-				var asset = new Asset (path, targetPath, type);
+				var asset = new Asset (path, targetPath, type, embed);
 				
 				if (element.has.id) {
 					
@@ -512,7 +512,7 @@ class NMMLParser extends NMEProject {
 					
 					if (childElement.has.embed) {
 						
-						childEmbed = substitute (childElement.att.embed);
+						childEmbed = substitute (childElement.att.embed) == "true";
 						
 					}
 					
@@ -551,7 +551,7 @@ class NMMLParser extends NMEProject {
 						
 					}
 					
-					var asset = new Asset (path + childPath, targetPath + childTargetPath, childType);
+					var asset = new Asset (path + childPath, targetPath + childTargetPath, childType, childEmbed);
 					asset.id = id;
 					
 					if (childGlyphs != null) {
@@ -571,7 +571,7 @@ class NMMLParser extends NMEProject {
 	}
 	
 	
-	private function parseAssetsElementDirectory (path:String, targetPath:String, include:String, exclude:String, type:AssetType, embed:String, glyphs:String, recursive:Bool):Void {
+	private function parseAssetsElementDirectory (path:String, targetPath:String, include:String, exclude:String, type:AssetType, embed:Bool, glyphs:String, recursive:Bool):Void {
 		
 		var files = FileSystem.readDirectory (path);
 		
@@ -595,7 +595,7 @@ class NMMLParser extends NMEProject {
 				
 				if (filter (file, include.split ("|"), exclude.split ("|"))) {
 					
-					var asset = new Asset (path + "/" + file, targetPath + file, type);
+					var asset = new Asset (path + "/" + file, targetPath + file, type, embed);
 					
 					if (glyphs != null) {
 						
