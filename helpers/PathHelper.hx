@@ -401,6 +401,18 @@ class PathHelper {
 		
 		if (FileSystem.exists (directory)) {
 			
+			var files;
+			
+			try {
+				
+				files = FileSystem.readDirectory (directory);
+				
+			} catch (e:Dynamic) {
+				
+				return;
+				
+			}
+			
 			for (file in FileSystem.readDirectory (directory)) {
 				
 				var path = directory + "/" + file;
