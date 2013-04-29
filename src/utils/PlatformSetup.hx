@@ -10,6 +10,7 @@ import helpers.PathHelper;
 import helpers.PlatformHelper;
 import helpers.ProcessHelper;
 import neko.Lib;
+import project.Haxelib;
 import project.Platform;
 import sys.io.File;
 import sys.io.Process;
@@ -350,11 +351,11 @@ class PlatformSetup {
 				
 			}
 			
-			File.copy (CommandLineTools.nme + "\\tools\\command-line\\bin\\nme.bat", haxePath + "\\nme.bat");
+			File.copy (PathHelper.getHaxelib (new Haxelib ("pazu-tools")) + "\\bin\\nme.bat", haxePath + "\\nme.bat");
 			
 		} else {
 			
-			File.copy (CommandLineTools.nme + "/tools/command-line/bin/nme.sh", "/usr/lib/haxe/nme");
+			File.copy (PathHelper.getHaxelib (new Haxelib ("pazu-tools")) + "/bin/nme.sh", "/usr/lib/haxe/nme");
 			Sys.command ("chmod", [ "755", "/usr/lib/haxe/nme" ]);
 			link ("haxe", "nme", "/usr/bin");
 			
@@ -777,7 +778,7 @@ class PlatformSetup {
 			if (PlatformHelper.hostPlatform != Platform.WINDOWS && FileSystem.exists (Sys.getEnv ("HOME") + "/.android")) {
 				
 				ProcessHelper.runCommand ("", "chmod", [ "-R", "777", "~/.android" ], false);
-				ProcessHelper.runCommand ("", "cp", [ CommandLineTools.nme + "/tools/command-line/bin/debug.keystore", "~/.android/debug.keystore" ], false);
+				ProcessHelper.runCommand ("", "cp", [ PathHelper.getHaxelib (new Haxelib ("pazu-tools")) + "/bin/debug.keystore", "~/.android/debug.keystore" ], false);
 				
 			}
 			
