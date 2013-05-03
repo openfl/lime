@@ -227,6 +227,10 @@ class NMMLParser extends NMEProject {
 							
 							return includePath + "/include.nmml";
 							
+						} else if (FileSystem.exists (includePath + "/include.nmml")) {
+							
+							return includePath + "/include.xml";
+							
 						} else {
 							
 							return includePath;
@@ -246,6 +250,10 @@ class NMMLParser extends NMEProject {
 			if (FileSystem.exists (base + "/include.nmml")) {
 				
 				return base + "/include.nmml";
+				
+			} else if (FileSystem.exists (base + "/include.xml")) {
+				
+				return base + "/include.xml";
 				
 			} else {
 				
@@ -839,22 +847,38 @@ class NMMLParser extends NMEProject {
 						var path = PathHelper.getHaxelib (haxelib);
 						haxelibs.push (haxelib);
 						
+						var includePath = "";
+						
 						if (FileSystem.exists (path + "/include.nmml")) {
 							
-							var includeProject = new NMMLParser (path + "/include.nmml");
+							includePath = path + "/include.nmml";
 							
-							for (ndll in includeProject.ndlls) {
+						} else if (FileSystem.exists (path + "/include.xml")) {
+							
+							includePath = path + "/include.xml";
+							
+						}
+						
+						if (includePath != "") {
+							
+							var includeProject = new NMMLParser (includePath);
+							
+							if (includeProject != null) {
 								
-								if (ndll.haxelib == null) {
+								for (ndll in includeProject.ndlls) {
 									
-									ndll.haxelib = haxelib;
+									if (ndll.haxelib == null) {
+										
+										ndll.haxelib = haxelib;
+										
+									}
 									
 								}
 								
+								includeProject.sources.unshift (path);
+								merge (includeProject);
+								
 							}
-							
-							includeProject.sources.unshift (path);
-							merge (includeProject);
 							
 						}
 					

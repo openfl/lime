@@ -597,7 +597,7 @@ class CommandLineTools {
 		
 		// Fix for library search paths
 		
-		var path = PathHelper.getHaxelib (new Haxelib ("nme")) + "ndll/";
+		var path = PathHelper.getHaxelib (new Haxelib ("pazu-native")) + "ndll/";
 		
 		switch (PlatformHelper.hostPlatform) {
 			
@@ -852,9 +852,9 @@ class CommandLineTools {
 		project.haxelibs = project.haxelibs.concat(haxelibs);
 		project.sources = project.sources.concat(sources);
 		
-		project.haxedefs.set ("nme_install_tool", 1);
-		project.haxedefs.set ("nme_ver", version);
-		project.haxedefs.set ("nme" + version.split (".")[0], 1);
+		//project.haxedefs.set ("nme_install_tool", 1);
+		project.haxedefs.set ("pazu_ver", version);
+		//project.haxedefs.set ("nme" + version.split (".")[0], 1);
 		
 		for (haxedef in haxedefs) {
 
