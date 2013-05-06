@@ -93,9 +93,15 @@ class EmscriptenPlatform implements IPlatformTool {
 		
 		//args.push ("--memory-init-file");
 		//args.push ("1");
-		args.push ("--jcache");
-		args.push ("--preload-file");
-		args.push ("assets");
+		//args.push ("--jcache");
+		//args.push ("-g");
+		
+		if (FileSystem.exists (outputDirectory + "/obj/assets")) {
+			
+			args.push ("--preload-file");
+			args.push ("assets");
+			
+		}
 		
 		if (LogHelper.verbose) args.push ("-v");
 		
