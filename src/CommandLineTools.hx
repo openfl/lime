@@ -462,7 +462,7 @@ class CommandLineTools {
 			var sourcePath = words[0];
 			var glyphs = "32-255";
 			
-			ProcessHelper.runCommand (Path.directory (sourcePath), "neko", [ PathHelper.getHaxelib (new Haxelib ("pazu-tools")) + "/bin/hxswfml.n", "ttf2hash", Path.withoutDirectory (sourcePath), "-glyphs", glyphs ]);
+			ProcessHelper.runCommand (Path.directory (sourcePath), "neko", [ PathHelper.getHaxelib (new Haxelib ("pazu-tools")) + "/bin/hxswfml.n", "ttf2hash2", Path.withoutDirectory (sourcePath), Path.withoutDirectory (sourcePath) + ".hash", "-glyphs", glyphs ]);
 			
 		} else if (targetFlags.exists ("font-details")) {
 			
@@ -771,7 +771,7 @@ class CommandLineTools {
 			
 			var tempFile = PathHelper.getTemporaryFile (".n");
 			
-			ProcessHelper.runCommand ("", "haxe", [ name, "-main", "project.NMEProject", "-neko", tempFile, "-lib", "pazu-tools", "-lib", "nme", "-lib", "xfl", "-lib", "swf", "-lib", "svg", "--remap", "flash:nme" ]);
+			ProcessHelper.runCommand ("", "haxe", [ name, "-main", "project.NMEProject", "-neko", tempFile, "-lib", "pazu-tools", "-lib", "pazu", "-lib", "pazu-native", /*"-lib", "xfl", "-lib", "swf",*/ "-lib", "svg", "--remap", "flash:flash" ]);
 			
 			var process = new Process ("neko", [ FileSystem.fullPath (tempFile), name, NMEProject._command, Std.string (NMEProject._debug), Std.string (NMEProject._target), Serializer.run (NMEProject._targetFlags), Serializer.run (NMEProject._templatePaths) ]);
 			var output = process.stdout.readAll ().toString ();
@@ -922,7 +922,7 @@ class CommandLineTools {
 		StringMapHelper.copyKeys (userDefines, project.haxedefs);
 		
 		SWFHelper.preprocess (project);
-		XFLHelper.preprocess (project);
+		#if xfl XFLHelper.preprocess (project); #end
 		
 		// Better way to do this?
 		

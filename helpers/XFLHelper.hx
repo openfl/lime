@@ -1,4 +1,5 @@
 package helpers;
+#if xfl
 
 
 import format.xfl.dom.DOMBitmapItem;
@@ -128,3 +129,6 @@ class XFLHelper {
 	
 	
 }
+
+
+#end

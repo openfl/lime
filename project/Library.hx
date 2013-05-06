@@ -28,6 +28,8 @@ class Library {
 		
 		if (type == null) {
 			
+			#if (xfl && swf)
+			
 			if (Path.extension (sourcePath) == "swf") {
 				
 				this.type = LibraryType.SWF;
@@ -37,6 +39,16 @@ class Library {
 				this.type = LibraryType.XFL;
 				
 			}
+			
+			#elseif swf
+			
+			this.type = LibraryType.SWF;
+			
+			#elseif xfl
+			
+			this.type = LibraryType.XFL;
+			
+			#end
 			
 		} else {
 			

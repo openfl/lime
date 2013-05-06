@@ -4,7 +4,7 @@ package helpers;
 import neko.Lib;
 
 #if nme
-import nme.Loader;
+import native.Loader;
 #end
 
 

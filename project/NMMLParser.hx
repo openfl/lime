@@ -1,7 +1,6 @@
 package project;
 
 
-import format.XFL;
 import haxe.io.Path;
 import haxe.xml.Fast;
 import helpers.ArrayHelper;

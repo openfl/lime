@@ -1,7 +1,10 @@
 package helpers;
 
 
+import flash.utils.ByteArray;
+#if swf
 import format.SWF;
+#end
 #if swfdev
 import format.swf.exporters.SWFLiteExporter;
 import format.swf.lite.symbols.BitmapSymbol;
@@ -9,7 +12,6 @@ import format.swf.lite.symbols.BitmapSymbol;
 import haxe.io.Path;
 import haxe.Serializer;
 import haxe.Template;
-import nme.utils.ByteArray;
 import project.Asset;
 import project.AssetType;
 import project.Haxelib;
@@ -129,7 +131,7 @@ class SWFHelper {
 				
 				project.haxelibs.push (new Haxelib ("swf"));
 				
-				#if swfdev
+				#if (swf && swfdev)
 				if (project.target == Platform.HTML5) {
 					
 					var bytes = ByteArray.readFile (library.sourcePath);

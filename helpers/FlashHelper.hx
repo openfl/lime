@@ -1,17 +1,17 @@
 package helpers;
 
 
-import haxe.io.Bytes;
-import haxe.io.Path;
+import flash.text.Font;
+import flash.utils.ByteArray;
 import format.swf.Data;
 import format.swf.Constants;
 import format.swf.Reader;
 import format.swf.Writer;
 import format.wav.Data;
+import haxe.io.Bytes;
+import haxe.io.Path;
 import helpers.LogHelper;
 import helpers.ProcessHelper;
-import nme.text.Font;
-import nme.utils.ByteArray;
 import project.Asset;
 import project.AssetType;
 import project.NMEProject;

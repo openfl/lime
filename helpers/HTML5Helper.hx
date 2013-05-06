@@ -19,7 +19,7 @@ class HTML5Helper {
 		
 		//if (!FileSystem.exists (FileSystem.fullPath (sourcePath) + ".hash")) {
 			
-			ProcessHelper.runCommand (Path.directory (sourcePath), "neko", [ PathHelper.findTemplate (project.templatePaths, "bin/hxswfml.n"), "ttf2hash", Path.withoutDirectory (sourcePath), "-glyphs", font.glyphs ]);
+			ProcessHelper.runCommand (Path.directory (sourcePath), "neko", [ PathHelper.findTemplate (project.templatePaths, "bin/hxswfml.n"), "ttf2hash2", Path.withoutDirectory (sourcePath), FileSystem.fullPath (sourcePath) + ".hash", "-glyphs", font.glyphs ]);
 			
 		//}
 		

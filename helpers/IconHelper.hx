@@ -1,6 +1,11 @@
 package helpers;
 
 
+import flash.display.Bitmap;
+import flash.display.BitmapData;
+import flash.display.Shape;
+import flash.geom.Rectangle;
+import flash.utils.ByteArray;
 import format.SVG;
 import haxe.io.Bytes;
 import haxe.io.BytesOutput;
@@ -8,11 +13,6 @@ import haxe.io.Path;
 import helpers.FileHelper;
 import helpers.ImageHelper;
 import helpers.LogHelper;
-import nme.display.Bitmap;
-import nme.display.BitmapData;
-import nme.display.Shape;
-import nme.geom.Rectangle;
-import nme.utils.ByteArray;
 import project.Icon;
 import sys.io.File;
 import sys.FileSystem;

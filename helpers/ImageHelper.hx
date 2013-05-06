@@ -1,10 +1,10 @@
 package helpers;
 
 
+import flash.display.Bitmap;
+import flash.display.BitmapData;
+import flash.display.Shape;
 import format.SVG;
-import nme.display.Bitmap;
-import nme.display.BitmapData;
-import nme.display.Shape;
 
 
 class ImageHelper {
