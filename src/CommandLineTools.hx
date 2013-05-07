@@ -853,6 +853,7 @@ class CommandLineTools {
 		project.sources = project.sources.concat(sources);
 		
 		//project.haxedefs.set ("nme_install_tool", 1);
+		project.haxedefs.set ("tools", 1);
 		project.haxedefs.set ("pazu_ver", version);
 		//project.haxedefs.set ("nme" + version.split (".")[0], 1);
 		
