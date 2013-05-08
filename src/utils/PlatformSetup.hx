@@ -1108,23 +1108,37 @@ class PlatformSetup {
 						
 						switch (name) {
 						
-							case "QNX_HOST", "QNX_TARGET":
+							case "QNX_HOST", "QNX_TARGET", "QNX_HOST_VERSION", "QNX_TARGET_VERSION":
 								
 								var value = split[1];
 								
-								if (StringTools.startsWith (value, "\"")) {
+								if (StringTools.startsWith (value, "${") && split.length > 2) {
+									
+									if (defines.get (name) != null) {
+										
+										continue;
+									}
+									
+									value = split[2].substr (0, split[2].length - 1);
+									
+								}
+								
+								if (StringTools.startsWith(value, "\"")) {
 								
 									value = value.substr (1);
 									
 								}
 								
-								if (StringTools.endsWith (value, "\"")) {
+								if (StringTools.endsWith(value, "\"")) {
 								
 									value = value.substr (0, value.length - 1);
 									
 								}
 								
-								defines.set(name,value);
+								value = StringTools.replace (value, "$QNX_HOST_VERSION", defines.get ("QNX_HOST_VERSION"));
+								value = StringTools.replace (value, "$QNX_TARGET_VERSION", defines.get ("QNX_TARGET_VERSION"));
+								
+								defines.set (name, value);
 								
 						}
 						
