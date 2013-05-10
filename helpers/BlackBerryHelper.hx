@@ -241,10 +241,10 @@ class BlackBerryHelper {
 			try {
 				
 				while (true) {
-				
+					
 					var str = fin.readLine();
 					var split = str.split ("=");
-					var name = StringTools.trim (split[0].substr (split[0].indexOf (" ") + 1));
+					var name = StringTools.trim (split[0].substr (split[0].lastIndexOf (" ") + 1));
 					
 					switch (name) {
 						
@@ -253,11 +253,6 @@ class BlackBerryHelper {
 							var value = split[1];
 							
 							if (StringTools.startsWith (value, "${") && split.length > 2) {
-								
-								if (project.environment.get (name) != null) {
-									
-									continue;
-								}
 								
 								value = split[2].substr (0, split[2].length - 1);
 								
@@ -275,8 +270,22 @@ class BlackBerryHelper {
 								
 							}
 							
-							value = StringTools.replace (value, "$QNX_HOST_VERSION", project.environment.get ("QNX_HOST_VERSION"));
-							value = StringTools.replace (value, "$QNX_TARGET_VERSION", project.environment.get ("QNX_TARGET_VERSION"));
+							if (name == "QNX_TARGET_VERSION" || name == "QNX_HOST_VERSION") {
+								
+								if (project.environment.get (name) != null) {
+									
+									continue;
+									
+								}
+								
+							} else {
+								
+								value = StringTools.replace (value, "$QNX_HOST_VERSION", project.environment.get ("QNX_HOST_VERSION"));
+								value = StringTools.replace (value, "$QNX_TARGET_VERSION", project.environment.get ("QNX_TARGET_VERSION"));
+								value = StringTools.replace (value, "%QNX_HOST_VERSION%", project.environment.get ("QNX_HOST_VERSION"));
+								value = StringTools.replace (value, "%QNX_TARGET_VERSION%", project.environment.get ("QNX_TARGET_VERSION"));
+								
+							}
 							
 							project.environment.set (name, value);
 							

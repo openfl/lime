@@ -1104,7 +1104,7 @@ class PlatformSetup {
 					
 						var str = fin.readLine();
 						var split = str.split ("=");
-						var name = StringTools.trim (split[0].substr (split[0].indexOf (" ") + 1));
+						var name = StringTools.trim (split[0].substr (split[0].lastIndexOf (" ") + 1));
 						
 						switch (name) {
 						
@@ -1113,11 +1113,6 @@ class PlatformSetup {
 								var value = split[1];
 								
 								if (StringTools.startsWith (value, "${") && split.length > 2) {
-									
-									if (defines.get (name) != null) {
-										
-										continue;
-									}
 									
 									value = split[2].substr (0, split[2].length - 1);
 									
@@ -1135,8 +1130,21 @@ class PlatformSetup {
 									
 								}
 								
-								value = StringTools.replace (value, "$QNX_HOST_VERSION", defines.get ("QNX_HOST_VERSION"));
-								value = StringTools.replace (value, "$QNX_TARGET_VERSION", defines.get ("QNX_TARGET_VERSION"));
+								if (name == "QNX_HOST_VERSION" || name == "QNX_TARGET_VERSION") {
+									
+									if (defines.get (name) != null) {
+										
+										continue;
+									}
+									
+								} else {
+									
+									value = StringTools.replace (value, "$QNX_HOST_VERSION", defines.get ("QNX_HOST_VERSION"));
+									value = StringTools.replace (value, "$QNX_TARGET_VERSION", defines.get ("QNX_TARGET_VERSION"));
+									value = StringTools.replace (value, "%QNX_HOST_VERSION%", defines.get ("QNX_HOST_VERSION"));
+									value = StringTools.replace (value, "%QNX_TARGET_VERSION%", defines.get ("QNX_TARGET_VERSION"));
+									
+								}
 								
 								defines.set (name, value);
 								
