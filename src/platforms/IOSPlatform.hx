@@ -266,7 +266,7 @@ class IOSPlatform implements IPlatformTool {
 		
 		project = project.clone ();
 		
-		var nmeLib = new Haxelib ("nme");
+		var nmeLib = new Haxelib ("pazu-native");
 		
 		project.ndlls.push (new NDLL ("curl_ssl", nmeLib, false));
 		project.ndlls.push (new NDLL ("png", nmeLib, false));

@@ -246,7 +246,7 @@ class BlackBerryPlatform implements IPlatformTool {
 			}
 			
 			var ndlls = project.ndlls.copy ();
-			ndlls.push (new NDLL ("libTouchControlOverlay", new Haxelib ("nme")));
+			ndlls.push (new NDLL ("libTouchControlOverlay", new Haxelib ("pazu-native")));
 			
 			for (ndll in ndlls) {
 				
@@ -254,7 +254,7 @@ class BlackBerryPlatform implements IPlatformTool {
 				
 			}
 			
-			var linkedLibraries = [ new NDLL ("libSDL", new Haxelib ("nme")) ];
+			var linkedLibraries = [ new NDLL ("libSDL", new Haxelib ("pazu-native")) ];
 			
 			for (ndll in linkedLibraries) {
 				
