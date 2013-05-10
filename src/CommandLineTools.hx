@@ -23,14 +23,10 @@ class CommandLineTools {
 	public static var nme:String;
 	
 	private static var additionalArguments:Array <String>;
-	private static var architectures:Array <Architecture>;
 	private static var command:String;
 	private static var debug:Bool;
-	private static var sources:Array <String>;
-	private static var haxelibs:Array <Haxelib>;
-	private static var haxedefs:Array <String>;
-	private static var haxeflags:Array <String>;
 	private static var includePaths:Array <String>;
+	private static var overrides:NMEProject;
 	private static var project:NMEProject;
 	private static var projectDefines:Map <String, String>;
 	private static var targetFlags:Map <String, String>;
@@ -853,31 +849,19 @@ class CommandLineTools {
 		
 		project.merge (config);
 		
-		if (architectures.length > 0) {
-			
-			project.architectures = architectures;
-			
-		}
-		
-		project.haxeflags = project.haxeflags.concat (haxeflags);
-		project.haxelibs = project.haxelibs.concat(haxelibs);
-		project.sources = project.sources.concat(sources);
-		
 		//project.haxedefs.set ("nme_install_tool", 1);
 		project.haxedefs.set ("tools", 1);
 		project.haxedefs.set ("pazu_ver", version);
 		//project.haxedefs.set ("nme" + version.split (".")[0], 1);
 		
-		for (haxedef in haxedefs) {
-
-			if (!project.haxedefs.exists (haxedef)) {
-				
-				project.haxedefs.set (haxedef, 1);
-				
-			}
-
+		project.merge (overrides);
+		
+		if (overrides.architectures.length > 0) {
+			
+			project.architectures = overrides.architectures;
+			
 		}
-
+		
 		for (key in projectDefines.keys ()) {
 			
 			var components = key.split ("-");
@@ -895,8 +879,7 @@ class CommandLineTools {
 				attribute = components.join ("");
 				
 			}
-
-
+			
 			if (field == "template" && attribute == "path") {
 						
 				project.templatePaths.push (projectDefines.get (key));
@@ -971,14 +954,10 @@ class CommandLineTools {
 	public static function main ():Void {
 		
 		additionalArguments = new Array <String> ();
-		architectures = new Array <Architecture> ();
 		command = "";
 		debug = false;
-		sources = new Array <String> ();
-		haxelibs = new Array <Haxelib> ();
-		haxedefs = new Array <String> ();
-		haxeflags = new Array <String> ();
 		includePaths = new Array <String> ();
+		overrides = new NMEProject ();
 		projectDefines = new Map <String, String> ();
 		targetFlags = new Map <String, String> ();
 		traceEnabled = true;
@@ -1103,7 +1082,7 @@ class CommandLineTools {
 			
 			if (catchHaxeFlag) {
 				
-				haxeflags.push (argument);
+				overrides.haxeflags.push (argument);
 				catchHaxeFlag = false;
 				
 			} else if (catchArguments) {
@@ -1130,14 +1109,14 @@ class CommandLineTools {
 					//projectDefines.set (argument.substr (2, equals - 2), argValue);
 					
 					var field = argument.substr (2, equals - 2);
-
+					
 					if (field == "haxedef") {
-
-						haxedefs.push(argValue);
+						
+						overrides.haxedefs.set (argValue, 1);
 						
 					} else if (field == "haxeflag") {
 						
-						haxeflags.push (argValue);
+						overrides.haxeflags.push (argValue);
 						
 					} else if (field == "haxelib") {
 						
@@ -1151,15 +1130,34 @@ class CommandLineTools {
 							
 						}
 						
-						haxelibs.push (new Haxelib (name, version));
+						overrides.haxelibs.push (new Haxelib (name, version));
 						
 					} else if (field == "source") {
 						
-						sources.push (argValue);
+						overrides.sources.push (argValue);
+						
+					} else if (StringTools.startsWith (field, "certificate-")) {
+						
+						if (overrides.certificate == null) {
+							
+							overrides.certificate = new Keystore ("");
+							
+						}
+						
+						field = StringTools.replace (field, "certificate-", "");
+						
+						if (field == "alias-password") field = "aliasPassword";
+						
+						if (Reflect.hasField (overrides.certificate, field)) {
+							
+							Reflect.setField (overrides.certificate, field, argValue);
+							
+						}
 						
 					} else {
 						
 						projectDefines.set (field, argValue);
+						
 					}
 					
 				} else {
@@ -1175,17 +1173,17 @@ class CommandLineTools {
 				
 				if (value != null) {
 					
-					architectures.push (value);
+					overrides.architectures.push (value);
 					
 				}
 				
 			} else if (argument == "-64") {
 				
-				architectures.push (Architecture.X64);
+				overrides.architectures.push (Architecture.X64);
 				
 			} else if (argument == "-32") {
 				
-				architectures.push (Architecture.X86);
+				overrides.architectures.push (Architecture.X86);
 				
 			} else if (argument.substr (0, 2) == "-D") {
 				
@@ -1214,12 +1212,12 @@ class CommandLineTools {
 			} else if (command.length == 0) {
 				
 				command = argument;
-			
+				
 			} else if (argument.substr (0, 1) == "-") {
 				
 				if (argument.substr (1, 1) == "-") {
 					
-					haxeflags.push (argument);
+					overrides.haxeflags.push (argument);
 					
 					if (argument == "--remap" || argument == "--connect") {
 						

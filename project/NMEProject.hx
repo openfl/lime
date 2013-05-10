@@ -438,7 +438,16 @@ class NMEProject {
 			StringMapHelper.copyUniqueKeys (project.environment, environment);
 			StringMapHelper.copyUniqueKeys (project.haxedefs, haxedefs);
 			
-			ObjectHelper.copyUniqueFields (project.certificate, certificate, null);
+			if (certificate == null) {
+				
+				certificate = project.certificate;
+				
+			} else {
+				
+				ObjectHelper.copyUniqueFields (project.certificate, certificate, null);
+				
+			}
+			
 			config.merge (project.config);
 			
 			assets = ArrayHelper.concatUnique (assets, project.assets);

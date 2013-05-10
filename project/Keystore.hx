@@ -24,4 +24,17 @@ class Keystore {
 		
 	}
 	
+	public function merge (keystore:Keystore):Void {
+		
+		if (keystore != null) {
+			
+			if (keystore.path != "") path = keystore.path;
+			if (keystore.password != null) path = keystore.password;
+			if (keystore.alias != null) path = keystore.alias;
+			if (keystore.aliasPassword != null) path = keystore.aliasPassword;
+			
+		}
+		
+	}
+	
 }
