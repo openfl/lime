@@ -801,10 +801,21 @@ class CommandLineTools {
 					}
 					
 					var path = PathHelper.getHaxelib (haxelib);
+					var includePath = "";
 					
 					if (FileSystem.exists (path + "/include.nmml")) {
 						
-						var includeProject = new NMMLParser (path + "/include.nmml");
+						includePath = path + "/include.nmml";
+						
+					} else if (FileSystem.exists (path + "/include.xml")) {
+						
+						includePath = path + "/include.xml";
+						
+					}
+					
+					if (includePath != "") {
+						
+						var includeProject = new NMMLParser (includePath);
 						
 						for (ndll in includeProject.ndlls) {
 							

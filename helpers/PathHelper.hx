@@ -480,11 +480,11 @@ class PathHelper {
 			
 			var path = combine (getHaxelib (ndll.haxelib), "ndll/" + directoryName + "/" + filename);
 			
-			if (!FileSystem.exists (path)) {
+			//if (!FileSystem.exists (path)) {
 				
-				path = combine (getHaxelib (new Haxelib ("nmedev")), "ndll/" + directoryName + "/" + filename);
+				//path = combine (getHaxelib (new Haxelib ("nmedev")), "ndll/" + directoryName + "/" + filename);
 				
-			}
+			//}
 			
 			return path;
 			

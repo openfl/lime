@@ -920,6 +920,12 @@ class NMMLParser extends NMEProject {
 							
 						}
 						
+						if (haxelib != null && haxelib.name == "nme" && localDefines.exists ("pazu")) {
+							
+							haxelib = new Haxelib ("pazu-native");
+							
+						}
+						
 						if (element.has.register) {
 							
 							registerStatics = (element.att.register == "true");
