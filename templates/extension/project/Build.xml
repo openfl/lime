@@ -1,0 +1,46 @@
+<xml>
+	
+	<include name="${HXCPP}/build-tool/BuildCommon.xml"/>
+	
+	<set name="mobile" value="1" if="iphone"/>
+	<set name="mobile" value="1" if="android"/>
+	<set name="mobile" value="1" if="blackberry"/>
+	<set name="mobile" value="1" if="webos"/>
+	
+	<files id="common">
+		
+		<compilerflag value="-Iinclude"/>
+		
+		<file name="common/ExternalInterface.cpp"/>
+		<file name="common/::file::.cpp"/>
+		
+	</files>
+	
+	<set name="name_prefix" value="lib" if="iphone"/>
+	<set name="IOS_ARCH" value="-v7" if="HXCPP_ARMV7"/>
+	<set name="name_extra" value=".iphoneos${IOS_ARCH}" if="iphoneos"/>
+	<set name="name_extra" value=".iphonesim" if="iphonesim"/>
+	<set name="name_extra" value="-x86" if="simulator" unless="iphonesim" />
+	<set name="tool" value="exe" unless="iphone"/>
+	<set name="tool" value="static" if="iphone"/>
+	<set name="ndll-tool" value="dll" unless="iphone"/>
+	<set name="ndll-tool" value="static" if="iphone"/>
+	<set name="SLIBEXT" value=".lib" if="windows"/>
+	<set name="SLIBEXT" value=".a" unless="windows"/>
+	<set name="SLIBEXT" value=".so" if="webos"/>
+	
+	<target id="NDLL" output="${name_prefix}::file::${debug_extra}${name_extra}" tool="linker" toolid="${ndll-tool}">
+		
+		<outdir name="../ndll/${BINDIR}"/>
+		<ext value=".ndll" unless="mobile"/>
+		<files id="common"/>
+		
+	</target>
+	
+	<target id="default">
+		
+		<target id="NDLL"/>
+		
+	</target>
+	
+</xml>

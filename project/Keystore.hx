@@ -9,7 +9,7 @@ class Keystore {
 	public var path:String;
 	public var type:String;
 	
-	public function new (path:String, password:String = null, alias:String = null, aliasPassword:String = null) {
+	public function new (path:String = null, password:String = null, alias:String = null, aliasPassword:String = null) {
 		
 		this.path = path;
 		this.password = password;
@@ -28,7 +28,7 @@ class Keystore {
 		
 		if (keystore != null) {
 			
-			if (keystore.path != "") path = keystore.path;
+			if (keystore.path != null && keystore.path != "") path = keystore.path;
 			if (keystore.password != null) path = keystore.password;
 			if (keystore.alias != null) path = keystore.alias;
 			if (keystore.aliasPassword != null) path = keystore.aliasPassword;

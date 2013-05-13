@@ -444,7 +444,7 @@ class NMEProject {
 				
 			} else {
 				
-				ObjectHelper.copyUniqueFields (project.certificate, certificate, null);
+				certificate.merge (project.certificate);
 				
 			}
 			

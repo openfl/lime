@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	
+	<meta title="::title::" package="::packageName::" version="::version::" company="::company::" />
+	<app main="Main" path="Export" file="::file::" />
+	
+	<source path="Source" />
+	
+	<haxelib name="pazu" />
+	
+	<assets path="Assets" rename="assets" exclude="nme.svg" />
+	<icon path="Assets/nme.svg" />
+	
+</project>

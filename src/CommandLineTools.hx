@@ -214,7 +214,7 @@ class CommandLineTools {
 				}
 				
 				PathHelper.mkdir (title);
-				FileHelper.recursiveCopyTemplate ([ nme + "/templates/default" ], "project", title, context);
+				FileHelper.recursiveCopyTemplate ([ PathHelper.getHaxelib (new Haxelib ("pazu-tools")) + "/templates" ], "project", title, context);
 				
 				if (FileSystem.exists (title + "/Project.hxproj")) {
 					
@@ -244,7 +244,7 @@ class CommandLineTools {
 				context.extensionUpperCase = extension.toUpperCase ();
 				
 				PathHelper.mkdir (title);
-				FileHelper.recursiveCopyTemplate ([ nme + "/templates/default" ], "extension", title, context);
+				FileHelper.recursiveCopyTemplate ([ PathHelper.getHaxelib (new Haxelib ("pazu-tools"))  + "/templates" ], "extension", title, context);
 				
 				if (FileSystem.exists (title + "/Extension.hx")) {
 					
@@ -881,9 +881,9 @@ class CommandLineTools {
 			}
 			
 			if (field == "template" && attribute == "path") {
-						
+				
 				project.templatePaths.push (projectDefines.get (key));
-						
+				
 			} else {
 				
 				if (Reflect.hasField (project, field)) {
@@ -1140,7 +1140,7 @@ class CommandLineTools {
 						
 						if (overrides.certificate == null) {
 							
-							overrides.certificate = new Keystore ("");
+							overrides.certificate = new Keystore ();
 							
 						}
 						
