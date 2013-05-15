@@ -791,6 +791,8 @@ class CommandLineTools {
 					
 					if (haxelib.name == "nme" && userDefines.exists ("pazu")) {
 						
+						Sys.println ("SD!!!!!");
+						
 						haxelib.name = "pazu-compatibility";
 						haxelib.version = "";
 						
@@ -811,7 +813,7 @@ class CommandLineTools {
 					
 					if (includePath != "") {
 						
-						var includeProject = new NMMLParser (includePath);
+						var includeProject = new NMMLParser (includePath, userDefines);
 						
 						for (ndll in includeProject.ndlls) {
 							

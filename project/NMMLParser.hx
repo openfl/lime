@@ -125,7 +125,6 @@ class NMMLParser extends NMEProject {
 			
 			var value = element.x.get ("if");
 			var optionalDefines = value.split ("||");
-			var isValid = true;
 			
 			for (optional in optionalDefines) {
 				
@@ -137,7 +136,7 @@ class NMMLParser extends NMEProject {
 					
 					if (check != "" && !localDefines.exists (check)) {
 						
-						isValid = false;
+						return false;
 						
 					}
 					
@@ -145,15 +144,12 @@ class NMMLParser extends NMEProject {
 				
 			}
 			
-			return isValid;
-			
 		}
 		
 		if (element.has.unless) {
 			
 			var value = element.att.unless;
 			var optionalDefines = value.split ("||");
-			var isValid = true;
 			
 			for (optional in optionalDefines) {
 				
@@ -165,15 +161,13 @@ class NMMLParser extends NMEProject {
 					
 					if (check != "" && localDefines.exists (check)) {
 						
-						isValid = false;
+						return false;
 						
 					}
 					
 				}
 				
 			}
-			
-			return isValid;
 			
 		}
 		
@@ -212,29 +206,25 @@ class NMMLParser extends NMEProject {
 			
 		}
 		
-		if (base.substr (0, 1) != "/" && base.substr (0, 1) != "\\") {
+		if (base.substr (0, 1) != "/" && base.substr (0, 1) != "\\" && base.substr (1, 1) != ":") {
 			
-			if (base.substr (1, 1) != ":") {
+			for (path in includePaths) {
 				
-				for (path in includePaths) {
+				var includePath = path + "/" + base;
+				
+				if (FileSystem.exists (includePath)) {
 					
-					var includePath = path + "/" + base;
-					
-					if (FileSystem.exists (includePath)) {
+					if (FileSystem.exists (includePath + "/include.nmml")) {
 						
-						if (FileSystem.exists (includePath + "/include.nmml")) {
-							
-							return includePath + "/include.nmml";
-							
-						} else if (FileSystem.exists (includePath + "/include.nmml")) {
-							
-							return includePath + "/include.xml";
-							
-						} else {
-							
-							return includePath;
-							
-						}
+						return includePath + "/include.nmml";
+						
+					} else if (FileSystem.exists (includePath + "/include.nmml")) {
+						
+						return includePath + "/include.xml";
+						
+					} else {
+						
+						return includePath;
 						
 					}
 					
@@ -242,21 +232,33 @@ class NMMLParser extends NMEProject {
 				
 			}
 			
-		}
-		
-		if (FileSystem.exists (base)) {
+		} else {
 			
-			if (FileSystem.exists (base + "/include.nmml")) {
+			if (base.substr ( -1, 1) == "/") {
 				
-				return base + "/include.nmml";
+				base = base.substr (0, base.length - 1);
 				
-			} else if (FileSystem.exists (base + "/include.xml")) {
+			} else if (base.substr ( -1, 1) == "\\") {
 				
-				return base + "/include.xml";
+				base = base.substring (0, base.length - 1);
 				
-			} else {
+			}
+			
+			if (FileSystem.exists (base)) {
 				
-				return base;
+				if (FileSystem.exists (base + "/include.nmml")) {
+					
+					return base + "/include.nmml";
+					
+				} else if (FileSystem.exists (base + "/include.xml")) {
+					
+					return base + "/include.xml";
+					
+				} else {
+					
+					return base;
+					
+				}
 				
 			}
 			
@@ -502,7 +504,7 @@ class NMMLParser extends NMEProject {
 			for (childElement in element.elements) {
 				
 				var isValid = isValidElement (childElement, "");
-
+				
 				if (isValid) {
 					
 					var childPath = substitute (childElement.has.name ? childElement.att.name : childElement.att.path);
@@ -771,8 +773,14 @@ class NMMLParser extends NMEProject {
 					case "include":
 						
 						var path = "";
+						var addSourcePath = true;
 						
-						if (element.has.path) {
+						if (element.has.haxelib) {
+							
+							path = findIncludeFile (PathHelper.getHaxelib (new Haxelib (element.att.haxelib)));
+							addSourcePath = false;
+							
+						} else if (element.has.path) {
 							
 							var subPath = substitute (element.att.path);
 							if (subPath == "") subPath = element.att.path;
@@ -788,9 +796,17 @@ class NMMLParser extends NMEProject {
 							
 							var includeProject = new NMMLParser (path);
 							
-							var dir = Path.directory (path);
-							if (dir != "")
-								includeProject.sources.push (dir);
+							if (addSourcePath) {
+								
+								var dir = Path.directory (path);
+								
+								if (dir != "") {
+									
+									includeProject.sources.push (dir);
+									
+								}
+								
+							}
 							
 							merge (includeProject);
 							
@@ -1148,15 +1164,25 @@ class NMMLParser extends NMEProject {
 						
 						if (element.has.path) {
 							
-							var path = PathHelper.combine (extensionPath, substitute (element.att.path));
-							
-							if (FileSystem.exists (path) && !FileSystem.isDirectory (path)) {
+							if (element.has.haxelib) {
 								
-								parseAssetsElement (element, extensionPath, true);
+								var haxelibPath = PathHelper.getHaxelib (new Haxelib (element.att.haxelib));
+								var path = PathHelper.combine (haxelibPath, substitute (element.att.path));
+								templatePaths.push (path);
 								
 							} else {
 								
-								templatePaths.push (path);
+								var path = PathHelper.combine (extensionPath, substitute (element.att.path));
+								
+								if (FileSystem.exists (path) && !FileSystem.isDirectory (path)) {
+									
+									parseAssetsElement (element, extensionPath, true);
+									
+								} else {
+									
+									templatePaths.push (path);
+									
+								}
 								
 							}
 							
