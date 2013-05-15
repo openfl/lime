@@ -3,10 +3,6 @@ package helpers;
 
 import neko.Lib;
 
-#if nme
-import native.Loader;
-#end
-
 
 class LogHelper {
 	
@@ -90,8 +86,10 @@ class LogHelper {
 	}
 	
 	
-	#if nme
-	private static var nme_error_output = Loader.load ("nme_error_output", 1);
+	#if pazu
+	private static var nme_error_output = flash.Lib.load ("nme", "nme_error_output", 1);
+	#elseif nme
+	private static var nme_error_output = native.Loader.load ("nme_error_output", 1);
 	#end
 
 }
