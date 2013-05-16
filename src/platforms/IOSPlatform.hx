@@ -271,6 +271,7 @@ class IOSPlatform implements IPlatformTool {
 		project.ndlls.push (new NDLL ("curl_ssl", nmeLib, false));
 		project.ndlls.push (new NDLL ("png", nmeLib, false));
 		project.ndlls.push (new NDLL ("jpeg", nmeLib, false));
+		project.ndlls.push (new NDLL ("freetype", nmeLib, false));
 		
 		for (asset in project.assets) {
 			
