@@ -791,8 +791,6 @@ class CommandLineTools {
 					
 					if (haxelib.name == "nme" && userDefines.exists ("pazu")) {
 						
-						Sys.println ("SD!!!!!");
-						
 						haxelib.name = "pazu-compatibility";
 						haxelib.version = "";
 						
