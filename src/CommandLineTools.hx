@@ -1153,6 +1153,27 @@ class CommandLineTools {
 							Reflect.setField (overrides.certificate, field, argValue);
 							
 						}
+							
+					} else if (StringTools.startsWith (field, "app-") || StringTools.startsWith (field, "meta-") || StringTools.startsWith (field, "window-")) {
+						
+						var split = field.split ("-");
+						
+						var fieldName = split[0];
+						var property = split[1];
+						
+						for (i in 2...split.length) {
+							
+							property += split[i].substr (0, 1).toUpperCase () + split[i].substr (1, split[i].length - 1);
+							
+						}
+						
+						var fieldReference = Reflect.field (overrides, fieldName);
+						
+						if (Reflect.hasField (fieldReference, property)) {
+							
+							Reflect.setField (fieldReference, property, argValue);
+							
+						}
 						
 					} else {
 						
