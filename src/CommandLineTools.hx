@@ -420,7 +420,10 @@ class CommandLineTools {
 		} else {
 			
 			var files = FileSystem.readDirectory (path);
-			var matches = [];
+			var matches = new Map <String, Array <String>> ();
+			matches.set ("nmml", []);
+			matches.set ("xml", []);
+			matches.set ("hx", []);
 			
 			for (file in files) {
 				
@@ -428,9 +431,11 @@ class CommandLineTools {
 				
 				if (FileSystem.exists (path) && !FileSystem.isDirectory (path)) {
 					
-					if ((Path.extension (file) == "nmml" && file != "include.nmml") || Path.extension (file) == "hx") {
+					var extension = Path.extension (file);
+					
+					if ((extension == "nmml" && file != "include.nmml") || (extension == "xml" && file != "include.xml") || extension == "hx") {
 						
-						matches.push (path);
+						matches.get (extension).push (path);
 						
 					}
 					
@@ -438,9 +443,21 @@ class CommandLineTools {
 				
 			}
 			
-			if (matches.length > 0) {
+			if (matches.get ("nmml").length > 0) {
 				
-				return matches[0];
+				return matches.get ("nmml")[0];
+				
+			}
+			
+			if (matches.get ("xml").length > 0) {
+				
+				return matches.get ("xml")[0];
+				
+			}
+			
+			if (matches.get ("hx").length > 0) {
+				
+				return matches.get ("hx")[0];
 				
 			}
 			
