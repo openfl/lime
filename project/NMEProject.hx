@@ -127,6 +127,7 @@ class NMEProject {
 				defaultWindow.width = 0;
 				defaultWindow.height = 0;
 				defaultWindow.fullscreen = true;
+				defaultWindow.requireShaders = true;
 				
 			case WINDOWS, MAC, LINUX:
 				
