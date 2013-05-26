@@ -351,11 +351,11 @@ class PlatformSetup {
 				
 			}
 			
-			File.copy (PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "\\bin\\openfl.bat", haxePath + "\\openfl.bat");
+			File.copy (PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "\\templates\\\\bin\\openfl.bat", haxePath + "\\openfl.bat");
 			
 		} else {
 			
-			File.copy (PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/bin/openfl.sh", "/usr/lib/haxe/openfl");
+			File.copy (PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates/bin/openfl.sh", "/usr/lib/haxe/openfl");
 			Sys.command ("chmod", [ "755", "/usr/lib/haxe/nme" ]);
 			link ("haxe", "nme", "/usr/bin");
 			

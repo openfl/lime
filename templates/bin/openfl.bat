@@ -1,2 +1,2 @@
 @echo off
-haxelib run nme %*
+haxelib run openfl %*

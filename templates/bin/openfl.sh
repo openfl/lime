@@ -1,2 +1,2 @@
 #!/bin/sh
-haxelib run nme "$@"
+haxelib run openfl "$@"
