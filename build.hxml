@@ -1,8 +1,8 @@
 -main CommandLineTools
 -neko run.n
 -cp src
--lib pazu
--lib pazu-native
+-lib openfl
+-lib openfl-native
 -D nme
 -lib format
 #-lib swf

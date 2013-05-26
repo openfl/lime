@@ -109,7 +109,7 @@ class EmscriptenPlatform implements IPlatformTool {
 			//
 			//args.push ("--compression");
 			//args.push (PathHelper.findTemplate (project.templatePaths, "bin/utils/lzma/compress.exe") + "," + PathHelper.findTemplate (project.templatePaths, "resources/lzma-decoder.js") + ",LZMA.decompress");
-			//args.push ("haxelib run pazu compress," + PathHelper.findTemplate (project.templatePaths, "resources/lzma-decoder.js") + ",LZMA.decompress");
+			//args.push ("haxelib run openfl compress," + PathHelper.findTemplate (project.templatePaths, "resources/lzma-decoder.js") + ",LZMA.decompress");
 			//args.push ("-o");
 			//args.push ("../bin/index.html");
 			//

@@ -6,7 +6,7 @@
 	
 	<source path="Source" />
 	
-	<haxelib name="pazu" />
+	<haxelib name="openfl" />
 	
 	<assets path="Assets" rename="assets" exclude="nme.svg" />
 	<icon path="Assets/nme.svg" />

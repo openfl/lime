@@ -351,11 +351,11 @@ class PlatformSetup {
 				
 			}
 			
-			File.copy (PathHelper.getHaxelib (new Haxelib ("pazu-tools")) + "\\bin\\nme.bat", haxePath + "\\nme.bat");
+			File.copy (PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "\\bin\\openfl.bat", haxePath + "\\openfl.bat");
 			
 		} else {
 			
-			File.copy (PathHelper.getHaxelib (new Haxelib ("pazu-tools")) + "/bin/nme.sh", "/usr/lib/haxe/nme");
+			File.copy (PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/bin/openfl.sh", "/usr/lib/haxe/openfl");
 			Sys.command ("chmod", [ "755", "/usr/lib/haxe/nme" ]);
 			link ("haxe", "nme", "/usr/bin");
 			
@@ -778,7 +778,7 @@ class PlatformSetup {
 			if (PlatformHelper.hostPlatform != Platform.WINDOWS && FileSystem.exists (Sys.getEnv ("HOME") + "/.android")) {
 				
 				ProcessHelper.runCommand ("", "chmod", [ "-R", "777", "~/.android" ], false);
-				ProcessHelper.runCommand ("", "cp", [ PathHelper.getHaxelib (new Haxelib ("pazu-tools")) + "/bin/debug.keystore", "~/.android/debug.keystore" ], false);
+				ProcessHelper.runCommand ("", "cp", [ PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/bin/debug.keystore", "~/.android/debug.keystore" ], false);
 				
 			}
 			

@@ -851,9 +851,9 @@ class NMMLParser extends NMEProject {
 							
 						}
 						
-						if (name == "nme" && localDefines.exists ("pazu")) {
+						if (name == "nme" && localDefines.exists ("openfl")) {
 							
-							name = "pazu-compatibility";
+							name = "openfl-compatibility";
 							version = "";
 							
 						}
@@ -936,9 +936,9 @@ class NMMLParser extends NMEProject {
 							
 						}
 						
-						if (haxelib != null && haxelib.name == "nme" && localDefines.exists ("pazu")) {
+						if (haxelib != null && haxelib.name == "nme" && localDefines.exists ("openfl")) {
 							
-							haxelib = new Haxelib ("pazu-native");
+							haxelib = new Haxelib ("openfl-native");
 							
 						}
 						

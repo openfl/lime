@@ -214,7 +214,7 @@ class CommandLineTools {
 				}
 				
 				PathHelper.mkdir (title);
-				FileHelper.recursiveCopyTemplate ([ PathHelper.getHaxelib (new Haxelib ("pazu-tools")) + "/templates" ], "project", title, context);
+				FileHelper.recursiveCopyTemplate ([ PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates" ], "project", title, context);
 				
 				if (FileSystem.exists (title + "/Project.hxproj")) {
 					
@@ -244,7 +244,7 @@ class CommandLineTools {
 				context.extensionUpperCase = extension.toUpperCase ();
 				
 				PathHelper.mkdir (title);
-				FileHelper.recursiveCopyTemplate ([ PathHelper.getHaxelib (new Haxelib ("pazu-tools"))  + "/templates" ], "extension", title, context);
+				FileHelper.recursiveCopyTemplate ([ PathHelper.getHaxelib (new Haxelib ("openfl-tools"))  + "/templates" ], "extension", title, context);
 				
 				if (FileSystem.exists (title + "/Extension.hx")) {
 					
@@ -267,7 +267,7 @@ class CommandLineTools {
 			} else {
 				
 				var sampleName = words[0];
-				var samplePath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("pazu-samples")), sampleName);
+				var samplePath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("openfl-samples")), sampleName);
 				
 				if (FileSystem.exists (samplePath)) {
 					
@@ -296,7 +296,7 @@ class CommandLineTools {
 			Sys.println ("Available samples:");
 			Sys.println ("");
 			
-			var samplesPath = PathHelper.getHaxelib (new Haxelib ("pazu-samples"));
+			var samplesPath = PathHelper.getHaxelib (new Haxelib ("openfl-samples"));
 			
 			for (name in FileSystem.readDirectory (samplesPath)) {
 				
@@ -355,6 +355,7 @@ class CommandLineTools {
 		Sys.println ("");
 		Sys.println ("  android : Create Google Android applications");
 		Sys.println ("  blackberry : Create BlackBerry applications");
+		Sys.println ("  emscripten : Create Emscripten applications");
 		//Sys.println ("  cpp : Create application for the system you are compiling on");
 		Sys.println ("  flash : Create SWF applications for Adobe Flash Player");
 		Sys.println ("  html5 : Create HTML5 canvas applications");
@@ -392,11 +393,11 @@ class CommandLineTools {
 	
 	private static function displayInfo (showHint:Bool = false):Void {
 		
-		Sys.println ("Pazu Command-Line Tools (" + version + ")");
+		Sys.println ("OpenFL Command-Line Tools (" + version + ")");
 		
 		if (showHint) {
 			
-			//Sys.println ("Use \"pazu setup\" to configure Pazu or \"pazu help\" for more commands");
+			Sys.println ("Use \"openfl setup\" to configure OpenFL or \"openfl help\" for more commands");
 			
 		}
 		
@@ -458,7 +459,7 @@ class CommandLineTools {
 			var sourcePath = words[0];
 			var glyphs = "32-255";
 			
-			ProcessHelper.runCommand (Path.directory (sourcePath), "neko", [ PathHelper.getHaxelib (new Haxelib ("pazu-tools")) + "/templates/bin/hxswfml.n", "ttf2hash2", Path.withoutDirectory (sourcePath), Path.withoutDirectory (sourcePath) + ".hash", "-glyphs", glyphs ]);
+			ProcessHelper.runCommand (Path.directory (sourcePath), "neko", [ PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates/bin/hxswfml.n", "ttf2hash2", Path.withoutDirectory (sourcePath), Path.withoutDirectory (sourcePath) + ".hash", "-glyphs", glyphs ]);
 			
 		} else if (targetFlags.exists ("font-details")) {
 			
@@ -593,7 +594,7 @@ class CommandLineTools {
 		
 		// Fix for library search paths
 		
-		var path = PathHelper.getHaxelib (new Haxelib ("pazu-native")) + "ndll/";
+		var path = PathHelper.getHaxelib (new Haxelib ("openl-native")) + "ndll/";
 		
 		switch (PlatformHelper.hostPlatform) {
 			
@@ -767,7 +768,7 @@ class CommandLineTools {
 			
 			var tempFile = PathHelper.getTemporaryFile (".n");
 			
-			ProcessHelper.runCommand ("", "haxe", [ name, "-main", "project.NMEProject", "-neko", tempFile, "-lib", "pazu-tools", "-lib", "pazu", "-lib", "pazu-native", /*"-lib", "xfl", "-lib", "swf",*/ "-lib", "svg", "--remap", "flash:flash" ]);
+			ProcessHelper.runCommand ("", "haxe", [ name, "-main", "project.NMEProject", "-neko", tempFile, "-lib", "openfl-tools", "-lib", "openfl", "-lib", "openfl-native", /*"-lib", "xfl", "-lib", "swf",*/ "-lib", "svg", "--remap", "flash:flash" ]);
 			
 			var process = new Process ("neko", [ FileSystem.fullPath (tempFile), name, NMEProject._command, Std.string (NMEProject._debug), Std.string (NMEProject._target), Serializer.run (NMEProject._targetFlags), Serializer.run (NMEProject._templatePaths) ]);
 			var output = process.stdout.readAll ().toString ();
@@ -789,9 +790,9 @@ class CommandLineTools {
 				
 				for (haxelib in project.haxelibs) {
 					
-					if (haxelib.name == "nme" && userDefines.exists ("pazu")) {
+					if (haxelib.name == "nme" && userDefines.exists ("openfl")) {
 						
-						haxelib.name = "pazu-compatibility";
+						haxelib.name = "openfl-compatibility";
 						haxelib.version = "";
 						
 					}
@@ -851,7 +852,7 @@ class CommandLineTools {
 		
 		//project.haxedefs.set ("nme_install_tool", 1);
 		project.haxedefs.set ("tools", 1);
-		project.haxedefs.set ("pazu_ver", version);
+		project.haxedefs.set ("openfl_ver", version);
 		//project.haxedefs.set ("nme" + version.split (".")[0], 1);
 		
 		project.merge (overrides);
@@ -1032,7 +1033,7 @@ class CommandLineTools {
 		
 		var arguments = Sys.args ();
 		
-		nme = PathHelper.getHaxelib (new Haxelib ("pazu"));
+		nme = PathHelper.getHaxelib (new Haxelib ("openfl"));
 		
 		var lastCharacter = nme.substr ( -1, 1);
 		
