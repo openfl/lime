@@ -993,7 +993,7 @@ class CommandLineTools {
 			
 			case "help":
 				
-				//displayHelp ();
+				displayHelp ();
 			
 			case "setup":
 				
