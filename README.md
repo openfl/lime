@@ -1,5 +1,11 @@
-openfl-tools
-============
+Install
+-------
+
+https://github.com/openfl/openfl/wiki/Get-Started
+
+
+Development Build
+-----------------
 
     haxelib install format
     haxelib install svg
