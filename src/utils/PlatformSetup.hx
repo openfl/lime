@@ -341,6 +341,13 @@ class PlatformSetup {
 	
 	public static function installNME ():Void {
 		
+		Sys.command ("haxelib install openfl-tools");
+		Sys.command ("haxelib install openfl-html5");
+		Sys.command ("haxelib install openfl-samples");
+		Sys.command ("haxelib install openfl-compatibility");
+		Sys.command ("haxelib install openfl-native");
+		Sys.command ("haxelib install hxcpp");
+		
 		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
 			
 			var haxePath = Sys.getEnv ("HAXEPATH");
@@ -355,9 +362,19 @@ class PlatformSetup {
 			
 		} else {
 			
-			File.copy (PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates/bin/openfl.sh", "/usr/lib/haxe/openfl");
-			Sys.command ("chmod", [ "755", "/usr/lib/haxe/openfl" ]);
-			link ("haxe", "openfl", "/usr/bin");
+			try {
+				
+				File.copy (PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates/bin/openfl.sh", "/usr/lib/haxe/openfl");
+				Sys.command ("chmod", [ "755", "/usr/lib/haxe/openfl" ]);
+				link ("haxe", "openfl", "/usr/bin");
+				
+			} catch (e:Dynamic) {
+				
+				Sys.command ("sudo", [ "cp", PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates/bin/openfl.sh", "/usr/lib/haxe/openfl" ]);
+				Sys.command ("sudo chmod 755 /usr/lib/haxe/openfl");
+				Sys.command ("sudo ln -s /usr/lib/haxe/openfl /usr/bin/openfl");
+				
+			}
 			
 		}
 		
