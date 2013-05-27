@@ -347,7 +347,7 @@ class PlatformSetup {
 			
 			if (haxePath == null || haxePath == "") {
 				
-				haxePath = "C:\\Motion-Twin\\haxe\\";
+				haxePath = "C:\\HaxeToolkit\\haxe\\";
 				
 			}
 			
@@ -356,8 +356,8 @@ class PlatformSetup {
 		} else {
 			
 			File.copy (PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates/bin/openfl.sh", "/usr/lib/haxe/openfl");
-			Sys.command ("chmod", [ "755", "/usr/lib/haxe/nme" ]);
-			link ("haxe", "nme", "/usr/bin");
+			Sys.command ("chmod", [ "755", "/usr/lib/haxe/openfl" ]);
+			link ("haxe", "openfl", "/usr/bin");
 			
 		}
 		
