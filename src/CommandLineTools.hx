@@ -602,7 +602,7 @@ class CommandLineTools {
 		
 		// Fix for library search paths
 		
-		var path = PathHelper.getHaxelib (new Haxelib ("openl-native")) + "ndll/";
+		var path = PathHelper.getHaxelib (new Haxelib ("openfl-native")) + "ndll/";
 		
 		switch (PlatformHelper.hostPlatform) {
 			

@@ -14,7 +14,7 @@ class LogHelper {
 	
 	public static function error (message:String, verboseMessage:String = "", e:Dynamic = null):Void {
 		
-		#if nme
+		#if (nme || openfl)
 		if (message != "") {
 			
 			try {

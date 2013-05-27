@@ -3,7 +3,6 @@
 -cp src
 -lib openfl
 -lib openfl-native
--D nme
 -lib format
 #-lib swf
 -lib svg
