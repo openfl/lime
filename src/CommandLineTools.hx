@@ -288,9 +288,9 @@ class CommandLineTools {
 			Sys.println ("");
 			Sys.println ("Usage: ");
 			Sys.println ("");
-			Sys.println (" nme create project \"com.package.name\" \"Company Name\"");
-			Sys.println (" nme create extension \"ExtensionName\"");
-			Sys.println (" nme create SampleName");
+			Sys.println (" openfl create project \"com.package.name\" \"Company Name\"");
+			Sys.println (" openfl create extension \"ExtensionName\"");
+			Sys.println (" openfl create SampleName");
 			Sys.println ("");
 			Sys.println ("");
 			Sys.println ("Available samples:");
@@ -325,20 +325,20 @@ class CommandLineTools {
 		displayInfo ();
 		
 		Sys.println ("");
-		Sys.println (" Usage : nme setup (target)");
-		Sys.println (" Usage : nme help");
-		Sys.println (" Usage : nme [clean|update|build|run|test|display] <project> (target) [options]");
-		Sys.println (" Usage : nme create project <package> [options]");
-		Sys.println (" Usage : nme create extension <name>");
-		Sys.println (" Usage : nme create <sample>");
-		Sys.println (" Usage : nme rebuild <extension> (targets)");
+		Sys.println (" Usage : openfl setup (target)");
+		Sys.println (" Usage : openfl help");
+		Sys.println (" Usage : openfl [clean|update|build|run|test|display] <project> (target) [options]");
+		Sys.println (" Usage : openfl create project <package> [options]");
+		Sys.println (" Usage : openfl create extension <name>");
+		Sys.println (" Usage : openfl create <sample>");
+		Sys.println (" Usage : openfl rebuild <extension> (targets)");
 		//Sys.println (" Usage : nme document <project> (target)");
 		//Sys.println (" Usage : nme generate <args> [options]");
 		//Sys.println (" Usage : nme new file.nmml name1=value1 name2=value2 ...");
 		Sys.println ("");
 		Sys.println (" Commands : ");
 		Sys.println ("");
-		Sys.println ("  setup : Setup NME or a specific target");
+		Sys.println ("  setup : Setup OpenFL or a specific target");
 		Sys.println ("  help : Show this information");
 		Sys.println ("  clean : Remove the target build directory if it exists");
 		Sys.println ("  update : Copy assets for the specified project/target");
@@ -966,12 +966,14 @@ class CommandLineTools {
 		command = "";
 		debug = false;
 		includePaths = new Array <String> ();
-		overrides = new NMEProject ();
 		projectDefines = new Map <String, String> ();
 		targetFlags = new Map <String, String> ();
 		traceEnabled = true;
 		userDefines = new Map <String, Dynamic> ();
 		words = new Array <String> ();
+		
+		overrides = new NMEProject ();
+		overrides.architectures = [];
 		
 		processArguments ();
 		version = getVersion ();
