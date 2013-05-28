@@ -15,3 +15,7 @@ Development Build
 To rebuild the tools, use:
 
     openfl rebuild tools
+
+To return to a release build:
+
+    haxelib dev openfl-tools
