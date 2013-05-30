@@ -206,7 +206,7 @@ class NMMLParser extends NMEProject {
 			
 		}
 		
-		if (base.substr (0, 1) != "/" && base.substr (0, 1) != "\\" && base.substr (1, 1) != ":" && base.substr (1, 1) != ".") {
+		if (base.substr (0, 1) != "/" && base.substr (0, 1) != "\\" && base.substr (1, 1) != ":" && base.substr (0, 1) != ".") {
 			
 			for (path in includePaths) {
 				
