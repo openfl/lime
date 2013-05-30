@@ -206,7 +206,7 @@ class NMMLParser extends NMEProject {
 			
 		}
 		
-		if (base.substr (0, 1) != "/" && base.substr (0, 1) != "\\" && base.substr (1, 1) != ":") {
+		if (base.substr (0, 1) != "/" && base.substr (0, 1) != "\\" && base.substr (1, 1) != ":" && base.substr (1, 1) != ".") {
 			
 			for (path in includePaths) {
 				
@@ -739,7 +739,7 @@ class NMMLParser extends NMEProject {
 					case "error":
 						
 						LogHelper.error (substitute (element.att.value));
-	
+					
 					case "echo":
 						
 						Sys.println (substitute (element.att.value));
@@ -784,6 +784,7 @@ class NMMLParser extends NMEProject {
 							
 							var subPath = substitute (element.att.path);
 							if (subPath == "") subPath = element.att.path;
+							
 							path = findIncludeFile (PathHelper.combine (extensionPath, subPath));
 							
 						} else {
