@@ -362,19 +362,27 @@ class PlatformSetup {
 			
 		} else {
 			
-			try {
+			var haxePath = Sys.getEnv ("HAXEPATH");
+			
+			if (haxePath == null || haxePath == "") {
 				
-				File.copy (PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates/bin/openfl.sh", "/usr/lib/haxe/openfl");
-				Sys.command ("chmod", [ "755", "/usr/lib/haxe/openfl" ]);
-				link ("haxe", "openfl", "/usr/bin");
-				
-			} catch (e:Dynamic) {
-				
-				Sys.command ("sudo", [ "cp", PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates/bin/openfl.sh", "/usr/lib/haxe/openfl" ]);
-				Sys.command ("sudo chmod 755 /usr/lib/haxe/openfl");
-				Sys.command ("sudo ln -s /usr/lib/haxe/openfl /usr/bin/openfl");
+				haxePath = "/usr/lib/haxe";
 				
 			}
+			
+			//try {
+				//
+				//File.copy (PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates/bin/openfl.sh", "/usr/lib/haxe/openfl");
+				//Sys.command ("chmod", [ "755", "/usr/lib/haxe/openfl" ]);
+				//link ("haxe", "openfl", "/usr/bin");
+				//
+			//} catch (e:Dynamic) {
+				
+				Sys.command ("sudo", [ "cp", PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates/bin/openfl.sh", haxePath + "/openfl" ]);
+				Sys.command ("sudo chmod 755 " + haxePath + "/openfl");
+				Sys.command ("sudo ln -s " + haxePath + "/openfl /usr/bin/openfl");
+				
+			//}
 			
 		}
 		
