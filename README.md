@@ -8,6 +8,7 @@ Development Build
 -----------------
 
     haxelib install format
+    haxelib install swf
     haxelib install svg
     git clone https://github.com/openfl/openfl-tools
     haxelib dev openfl-tools openfl-tools
