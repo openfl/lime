@@ -170,7 +170,7 @@ class ProcessHelper {
 		
 		var oldPath:String = "";
 		
-		if (path != "") {
+		if (path != null && path != "") {
 			
 			LogHelper.info ("", " - Changing directory: " + path + "");
 			

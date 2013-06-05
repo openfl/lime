@@ -145,7 +145,7 @@ class PathHelper {
 	}
 	
 
-	public static function getHaxelib (haxelib:Haxelib):String {
+	public static function getHaxelib (haxelib:Haxelib, validate:Bool = false):String {
 		
 		var name = haxelib.name;
 		
@@ -189,13 +189,17 @@ class PathHelper {
 		
 		proc.close();
 		
-		if (result == "") {
+		if (validate) {
 			
-			LogHelper.error ("Could not find haxelib \"" + haxelib.name + "\", does it need to be installed?");
-			
-		} else {
-			
-			//LogHelper.info ("", " - Discovered haxelib \"" + name + "\" at \"" + result + "\"");
+			if (result == "") {
+				
+				LogHelper.error ("Could not find haxelib \"" + haxelib.name + "\", does it need to be installed?");
+				
+			} else if (result != null && result.indexOf ("is not installed") > -1) {
+				
+				LogHelper.error (result);
+				
+			}
 			
 		}
 		

@@ -14,25 +14,35 @@ class LogHelper {
 	
 	public static function error (message:String, verboseMessage:String = "", e:Dynamic = null):Void {
 		
-		#if (nme || openfl)
 		if (message != "") {
+			
+			var output;
+			
+			if (verbose && verboseMessage != "") {
+				
+				output = "Error: " + verboseMessage + "\n";
+				
+			} else {
+				
+				output = "Error: " + message + "\n";
+				
+			}
+			
+			#if (nme || openfl)
 			
 			try {
 				
-				if (verbose && verboseMessage != "") {
-					
-					nme_error_output ("Error: " + verboseMessage + "\n");
-					
-				} else {
-					
-					nme_error_output ("Error: " + message + "\n");
-					
-				}
+				nme_error_output (output);
 				
 			} catch (e:Dynamic) { }
 			
+			#else
+			
+			Sys.print (output);
+			
+			#end
+			
 		}
-		#end
 		
 		if (verbose && e != null) {
 			
