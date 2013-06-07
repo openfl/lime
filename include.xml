@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension>
 	
-	<haxeflag name="--remap" value="flash:flash" if="display" />
+	<haxedef name="display" if="display" />
+	<haxeflag name="--no-output" if="display" />
 	
 	<template path="templates" />
 	
