@@ -245,8 +245,20 @@ class BlackBerryPlatform implements IPlatformTool {
 				
 			}
 			
+			var haxelib = null;
+			
+			if (project.environment.exists ("nme_ver")) {
+				
+				haxelib = new Haxelib ("nme");
+				
+			} else {
+				
+				haxelib = new Haxelib ("openfl-native");
+				
+			}
+			
 			var ndlls = project.ndlls.copy ();
-			ndlls.push (new NDLL ("libTouchControlOverlay", new Haxelib ("openfl-native")));
+			ndlls.push (new NDLL ("libTouchControlOverlay", haxelib));
 			
 			for (ndll in ndlls) {
 				
@@ -254,7 +266,7 @@ class BlackBerryPlatform implements IPlatformTool {
 				
 			}
 			
-			var linkedLibraries = [ new NDLL ("libSDL", new Haxelib ("openfl-native")) ];
+			var linkedLibraries = [ new NDLL ("libSDL", haxelib) ];
 			
 			for (ndll in linkedLibraries) {
 				

@@ -52,6 +52,7 @@ class PlatformSetup {
 	private static var backedUpConfig:Bool = false;
 	private static var nme:String;
 	private static var triedSudo:Bool = false;
+	private static var userDefines:Map<String, Dynamic>;
 	
    static inline function readLine()
    {
@@ -341,11 +342,16 @@ class PlatformSetup {
 	
 	public static function installNME ():Void {
 		
-		Sys.command ("haxelib install openfl-tools");
-		Sys.command ("haxelib install openfl-html5");
-		Sys.command ("haxelib install openfl-samples");
-		Sys.command ("haxelib install openfl-compatibility");
-		Sys.command ("haxelib install openfl-native");
+		if (!userDefines.exists ("nme")) {
+			
+			Sys.command ("haxelib install openfl-tools");
+			Sys.command ("haxelib install openfl-html5");
+			Sys.command ("haxelib install openfl-samples");
+			Sys.command ("haxelib install openfl-compatibility");
+			Sys.command ("haxelib install openfl-native");
+			
+		}
+		
 		Sys.command ("haxelib install hxcpp");
 		
 		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
@@ -358,7 +364,15 @@ class PlatformSetup {
 				
 			}
 			
-			File.copy (PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "\\templates\\\\bin\\openfl.bat", haxePath + "\\openfl.bat");
+			if (!userDefines.exists ("nme")) {
+				
+				File.copy (PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "\\templates\\\\bin\\openfl.bat", haxePath + "\\openfl.bat");
+				
+			} else {
+				
+				File.copy (PathHelper.getHaxelib (new Haxelib ("nme")) + "\\tools\\command-line\\bin\\nme.bat", haxePath + "\\nme.bat");
+				
+			}
 			
 		} else {
 			
@@ -378,9 +392,19 @@ class PlatformSetup {
 				//
 			//} catch (e:Dynamic) {
 				
+			if (!userDefines.exists ("nme")) {
+				
 				Sys.command ("sudo", [ "cp", PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates/bin/openfl.sh", haxePath + "/openfl" ]);
 				Sys.command ("sudo chmod 755 " + haxePath + "/openfl");
 				Sys.command ("sudo ln -s " + haxePath + "/openfl /usr/bin/openfl");
+				
+			} else {
+				
+				Sys.command ("sudo", [ "cp", PathHelper.getHaxelib (new Haxelib ("nme")) + "/tools/command-line/bin/nme.sh", haxePath + "/nme" ]);
+				Sys.command ("sudo chmod 755 " + haxePath + "/nme");
+				Sys.command ("sudo ln -s " + haxePath + "/nme /usr/bin/nme");
+				
+			}
 				
 			//}
 			
@@ -459,7 +483,9 @@ class PlatformSetup {
 	}
 	
 	
-	public static function run (target:String = "") {
+	public static function run (target:String = "", userDefines:Map<String, Dynamic> = null) {
+		
+		PlatformSetup.userDefines = userDefines;
 		
 		try {
 			

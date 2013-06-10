@@ -99,7 +99,7 @@ class LogHelper {
 	#if openfl
 	private static var nme_error_output = flash.Lib.load ("nme", "nme_error_output", 1);
 	#elseif nme
-	private static var nme_error_output = native.Loader.load ("nme_error_output", 1);
+	private static var nme_error_output = nme.Loader.load ("nme_error_output", 1);
 	#end
 
 }

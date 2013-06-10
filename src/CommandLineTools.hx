@@ -267,7 +267,17 @@ class CommandLineTools {
 			} else {
 				
 				var sampleName = words[0];
-				var samplePath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("openfl-samples")), sampleName);
+				var samplePath;
+				
+				if (userDefines.exists ("nme")) {
+					
+					samplePath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("nme")) + "/samples", sampleName);
+					
+				} else {
+					
+					samplePath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("openfl-samples")), sampleName);
+					
+				}
 				
 				if (FileSystem.exists (samplePath)) {
 					
@@ -284,19 +294,31 @@ class CommandLineTools {
 			
 		} else {
 			
+			var alias = "openfl";
+			var samplesPath;
+			
+			if (userDefines.exists ("nme")) {
+				
+				alias = "nme";
+				samplesPath = PathHelper.getHaxelib (new Haxelib ("nme")) + "/samples";
+				
+			} else {
+				
+				samplesPath = PathHelper.getHaxelib (new Haxelib ("openfl-samples"));
+				
+			}
+			
 			Sys.println ("You must specify 'project' or a sample name when using the 'create' command.");
 			Sys.println ("");
 			Sys.println ("Usage: ");
 			Sys.println ("");
-			Sys.println (" openfl create project \"com.package.name\" \"Company Name\"");
-			Sys.println (" openfl create extension \"ExtensionName\"");
-			Sys.println (" openfl create SampleName");
+			Sys.println (" " + alias + " create project \"com.package.name\" \"Company Name\"");
+			Sys.println (" " + alias + " create extension \"ExtensionName\"");
+			Sys.println (" " + alias + " create SampleName");
 			Sys.println ("");
 			Sys.println ("");
 			Sys.println ("Available samples:");
 			Sys.println ("");
-			
-			var samplesPath = PathHelper.getHaxelib (new Haxelib ("openfl-samples"));
 			
 			for (name in FileSystem.readDirectory (samplesPath)) {
 				
@@ -324,21 +346,31 @@ class CommandLineTools {
 		
 		displayInfo ();
 		
+		var alias = "openfl";
+		var name = "OpenFL";
+		
+		if (userDefines.exists ("nme")) {
+			
+			alias = "nme";
+			name = "NME";
+			
+		}
+		
 		Sys.println ("");
-		Sys.println (" Usage : openfl setup (target)");
-		Sys.println (" Usage : openfl help");
-		Sys.println (" Usage : openfl [clean|update|build|run|test|display] <project> (target) [options]");
-		Sys.println (" Usage : openfl create project <package> [options]");
-		Sys.println (" Usage : openfl create extension <name>");
-		Sys.println (" Usage : openfl create <sample>");
-		Sys.println (" Usage : openfl rebuild <extension> (targets)");
+		Sys.println (" Usage : " + alias + " setup (target)");
+		Sys.println (" Usage : " + alias + " help");
+		Sys.println (" Usage : " + alias + " [clean|update|build|run|test|display] <project> (target) [options]");
+		Sys.println (" Usage : " + alias + " create project <package> [options]");
+		Sys.println (" Usage : " + alias + " create extension <name>");
+		Sys.println (" Usage : " + alias + " create <sample>");
+		Sys.println (" Usage : " + alias + " rebuild <extension> (targets)");
 		//Sys.println (" Usage : nme document <project> (target)");
 		//Sys.println (" Usage : nme generate <args> [options]");
 		//Sys.println (" Usage : nme new file.nmml name1=value1 name2=value2 ...");
 		Sys.println ("");
 		Sys.println (" Commands : ");
 		Sys.println ("");
-		Sys.println ("  setup : Setup OpenFL or a specific target");
+		Sys.println ("  setup : Setup " + name + " or a specific target");
 		Sys.println ("  help : Show this information");
 		Sys.println ("  clean : Remove the target build directory if it exists");
 		Sys.println ("  update : Copy assets for the specified project/target");
@@ -357,8 +389,14 @@ class CommandLineTools {
 		Sys.println ("  blackberry : Create BlackBerry applications");
 		Sys.println ("  emscripten : Create Emscripten applications");
 		//Sys.println ("  cpp : Create application for the system you are compiling on");
-		Sys.println ("  flash : Create SWF applications for Adobe Flash Player");
-		Sys.println ("  html5 : Create HTML5 canvas applications");
+		
+		if (!userDefines.exists ("nme")) {
+			
+			Sys.println ("  flash : Create SWF applications for Adobe Flash Player");
+			Sys.println ("  html5 : Create HTML5 canvas applications");
+			
+		}
+		
 		Sys.println ("  ios : Create Apple iOS applications");
 		Sys.println ("  linux : Create Linux applications");
 		Sys.println ("  mac : Create Apple Mac OS X applications");
@@ -381,8 +419,14 @@ class CommandLineTools {
 		//Sys.println ("  [flash] -web : Generate web template files");
 		//Sys.println ("  [flash] -chrome : Generate Google Chrome app template files");
 		//Sys.println ("  [flash] -opera : Generate an Opera Widget");
-		Sys.println ("  [html5] -minify : Minify output using the Google Closure compiler");
-		Sys.println ("  [html5] -minify -yui : Minify output using the YUI compressor");
+		
+		if (!userDefines.exists ("nme")) {
+			
+			Sys.println ("  [html5] -minify : Minify output using the Google Closure compiler");
+			Sys.println ("  [html5] -minify -yui : Minify output using the YUI compressor");
+			
+		}
+		
 		Sys.println ("  (display) -hxml : Print HXML information for the project");
 		Sys.println ("  (display) -nmml : Print NMML information for the project");
 		//Sys.println ("  (generate) -java-externs : Generate Haxe classes from compiled Java");
@@ -393,11 +437,40 @@ class CommandLineTools {
 	
 	private static function displayInfo (showHint:Bool = false):Void {
 		
-		Sys.println ("OpenFL Command-Line Tools (" + version + ")");
+		var alias = "openfl";
+		var name = "OpenFL";
+		
+		if (userDefines.exists ("nme")) {
+			
+			Sys.println (" _____________");
+			Sys.println ("|             |");
+			Sys.println ("|__  _  __  __|");
+			Sys.println ("|  \\| \\/  ||__|");
+			Sys.println ("|\\  \\  \\ /||__|");
+			Sys.println ("|_|\\_|\\/|_||__|");
+			Sys.println ("|             |");
+			Sys.println ("|_____________|");
+			Sys.println ("");
+			
+			alias = "nme";
+			name = "NME";
+			
+		} else {
+			
+			//Sys.println ("   ___                   _____ _     ");
+			//Sys.println ("  / _ \\ _ __   ___ _ __ |  ___| |    ");
+			//Sys.println (" | | | | '_ \\ / _ \\ '_ \\| |_  | |    ");
+			//Sys.println (" | |_| | |_) |  __/ | | |  _| | |___ ");
+			//Sys.println ("  \\___/| .__/ \\___|_| |_|_|   |_____|");
+			//Sys.println ("       |_|                           ");
+			
+		}
+		
+		Sys.println (name + " Command-Line Tools (" + version + ")");
 		
 		if (showHint) {
 			
-			Sys.println ("Use \"openfl setup\" to configure OpenFL or \"openfl help\" for more commands");
+			Sys.println ("Use \"" + alias + " setup\" to configure " + name + " or \"" + alias + " help\" for more commands");
 			
 		}
 		
@@ -591,7 +664,18 @@ class CommandLineTools {
 	
 	private static function getVersion ():String {
 		
-		var json = Json.parse (File.getContent (nme + "/haxelib.json"));
+		var json;
+		
+		if (userDefines.exists ("nme")) {
+			
+			json = Json.parse (File.getContent (PathHelper.getHaxelib (new Haxelib ("nme")) + "/haxelib.json"));
+			
+		} else {
+			
+			json = Json.parse (File.getContent (nme + "/haxelib.json"));
+			
+		}
+		
 		return json.version;
 		
 	}
@@ -858,10 +942,19 @@ class CommandLineTools {
 		
 		project.merge (config);
 		
-		//project.haxedefs.set ("nme_install_tool", 1);
 		project.haxedefs.set ("tools", 1);
-		project.haxedefs.set ("openfl_ver", version);
-		//project.haxedefs.set ("nme" + version.split (".")[0], 1);
+		
+		if (userDefines.exists ("nme")) {
+			
+			project.haxedefs.set ("nme_install_tool", 1);
+			project.haxedefs.set ("nme_ver", version);
+			project.haxedefs.set ("nme" + version.split (".")[0], 1);
+			
+		} else {
+			
+			project.haxedefs.set ("openfl_ver", version);
+			
+		}
 		
 		project.merge (overrides);
 		
@@ -1278,11 +1371,11 @@ class CommandLineTools {
 		
 		if (words.length == 0) {
 			
-			PlatformSetup.run ();
+			PlatformSetup.run ("", userDefines);
 			
 		} else if (words.length == 1) {
 			
-			PlatformSetup.run (words[0]);
+			PlatformSetup.run (words[0], userDefines);
 			
 		} else {
 			
