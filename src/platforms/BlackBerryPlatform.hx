@@ -206,7 +206,7 @@ class BlackBerryPlatform implements IPlatformTool {
 			
 			destination = outputDirectory + "/src/";
 			
-			context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background);
+			context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background, 6);
 			context.OUTPUT_DIR = outputDirectory;
 			context.OUTPUT_FILE = outputFile;
 			

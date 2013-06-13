@@ -69,7 +69,7 @@ class FlashPlatform implements IPlatformTool {
 		var hxml = PathHelper.findTemplate (project.templatePaths, "flash/hxml/" + (project.debug ? "debug" : "release") + ".hxml");
 		
 		var context = project.templateContext;
-		context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background);
+		context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background, 6);
 		
 		var template = new Template (File.getContent (hxml));
 		Sys.println (template.execute (context));
@@ -88,7 +88,7 @@ class FlashPlatform implements IPlatformTool {
 		}
 		
 		var context = project.templateContext;
-		context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background);
+		context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background, 6);
 		var assets:Array <Dynamic> = cast context.assets;
 		
 		for (asset in assets) {
