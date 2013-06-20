@@ -17,7 +17,7 @@ class ::className:: {
 	}
 	
 	
-	private static var ::extensionLowerCase::_sample_method = Lib.load ("::file::", "::extensionLowerCase::_sample_method", 1);
+	private static var ::extensionLowerCase::_sample_method = Lib.load ("::extensionLowerCase::", "::extensionLowerCase::_sample_method", 1);
 	
 	
 }
