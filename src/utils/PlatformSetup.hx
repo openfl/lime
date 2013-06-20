@@ -1,6 +1,7 @@
 package utils;
 
 
+import ext.Map;
 import haxe.Http;
 import haxe.io.Eof;
 import haxe.io.Path;
@@ -260,9 +261,19 @@ class PlatformSetup {
 		
 		var config = CommandLineTools.getHXCPPConfig ();
 		
-		var defines = config.environment;
+		var defines = null;
 		var env = Sys.environment ();
 		var path = "";
+		
+		if (config != null) {
+			
+			defines = config.environment;
+			
+		} else {
+			
+			defines = new Map <String, String> ();
+			
+		}
 		
 		if (!defines.exists ("HXCPP_CONFIG")) {
 			
