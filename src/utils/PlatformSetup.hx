@@ -1,7 +1,6 @@
 package utils;
 
 
-import ext.Map;
 import haxe.Http;
 import haxe.io.Eof;
 import haxe.io.Path;
