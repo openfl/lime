@@ -1,0 +1,6 @@
+-main ApplicationMain ::HAXE_FLAGS::
+-cp ::BUILD_DIR::/android/haxe
+-cpp ::CPP_DIR::
+-D android
+-debug
+--macro allowPackage("flash")

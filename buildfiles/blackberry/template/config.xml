@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:rim="http://www.blackberry.com/ns/widgets" version="::APP_VERSION::" id="::APP_PACKAGE::">
+	
+	<!-- <author href="http://www.example.com/" rim:copyright="Copyright 1998-2012 My Corp">My Corp</author>-->
+	<author>::APP_COMPANY::</author>
+	
+	<name>::APP_TITLE::</name>
+	
+	<description>::APP_DESCRIPTION::</description>
+	
+	<rim:permissions>
+		<!-- <rim:permit>access_shared</rim:permit>
+		<rim:permit>access_location_services</rim:permit>
+		<rim:permit>use_camera</rim:permit> -->
+	</rim:permissions>
+	
+::if (HAS_ICON)::::foreach ICONS::	<icon src="::__current__::" />::end::::end::
+	
+	<!-- <rim:splash src="splash-1280x768.png"/>
+	<rim:splash src="splash-768x1280.png"/> -->
+	
+	<content src="index.html" rim:allowInvokeParams="true"/>
+	
+	<feature id="blackberry.ui.dialog"/>
+	
+	::if (WIN_ORIENTATION == "landscape")::<feature id="blackberry.app.orientation">
+		<param name="mode" value="landscape" />
+	</feature>::end::
+	
+	::if (WIN_ORIENTATION == "portrait")::<feature id="blackberry.app.orientation">
+		<param name="mode" value="portrait" />
+	</feature>::end::
+	
+	<feature id="blackberry.app">
+		<param name="backgroundColor" value="0x::WIN_BACKGROUND::" />
+	</feature>
+	
+	<!-- <access uri="http://www.somedomain.com" subdomains="true">
+		<feature id="blackberry.app" required="true" version="1.0.0"/>
+		<feature id="blackberry.invoke" required="true" version="1.0.0"/>
+	</access> -->
+	
+	<!-- <license href="http://www.example.com/"/> -->
+	
+</widget>

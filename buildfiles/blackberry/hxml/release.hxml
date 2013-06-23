@@ -1,0 +1,5 @@
+-main ApplicationMain ::HAXE_FLAGS::
+-cp ::BUILD_DIR::/blackberry/cpp/haxe
+-cpp ::CPP_DIR::
+--macro allowPackage("flash")
+-D blackberry

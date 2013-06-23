@@ -1,0 +1,5 @@
+-main ApplicationMain ::HAXE_FLAGS::
+-cp ::BUILD_DIR::/neko/haxe
+-neko ::NEKO_FILE::
+--macro allowPackage("flash")
+-debug

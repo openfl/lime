@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	
+	<meta 
+          title="NMEGL Example - HerokuShaders" 
+          package="com.underscorediscovery.nmegl_example_herokushaders" 
+          version="1.0.0" 
+          company="underscorediscovery" 
+	/>
+
+	<app
+          main="Main"
+          path="bin"
+          file="nmegl_example_herokushaders"
+	/>
+
+	<window 
+          width="960" 
+          height="640" 
+          orientation="landscape" 
+          fps="60"
+          background="0x161616"
+          require_shaders="true"
+          resizable="true"
+          hardware="true"
+	/>
+	
+     <assets path="Assets" rename="assets" include="*"/>
+
+	<source path="src" />
+	
+	<haxelib name="nmegl" />
+	
+</project>

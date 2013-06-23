@@ -1,0 +1,6 @@
+-main ApplicationMain ::HAXE_FLAGS::
+-cp ::BUILD_DIR::/webos/haxe
+-cpp ::CPP_DIR::
+--macro allowPackage("flash")
+-D webos
+-D HXCPP_RTLD_LAZY

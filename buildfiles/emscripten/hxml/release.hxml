@@ -1,0 +1,7 @@
+-main ApplicationMain ::HAXE_FLAGS::
+-cp ::BUILD_DIR::/emscripten/haxe
+-cpp ::CPP_DIR::
+--macro allowPackage("flash")
+-lib openfl-native
+-D emscripten
+-D webgl
