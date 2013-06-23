@@ -354,7 +354,7 @@ class PlatformSetup {
 		
 		if (!userDefines.exists ("nme")) {
 			
-			Sys.command ("haxelib install openfl-tools");
+			//Sys.command ("haxelib install openfl-tools");
 			Sys.command ("haxelib install openfl-html5");
 			Sys.command ("haxelib install openfl-samples");
 			Sys.command ("haxelib install openfl-compatibility");
