@@ -110,17 +110,29 @@ class Main {
 			// Init the shaders and view
 		init();		
 
-			//Tell it to let us draw here
-		lib.set_render_function( on_render );
-		lib.set_update_function( on_update );
 	}
 
-	public function on_update() {
-		//called each frame by NMEGL for logic (called before render)
+        //called each frame by NMEGL for logic (called before render)        
+	public function update() {
+		
+        var time = haxe.Timer.stamp() - startTime;
+        if (time > maxTime && fragmentShaders.length > 1) {
+                
+                //Pick a random example to show
+            if( include_slow_expensive_examples ) {
+                currentIndex = Std.random( fragmentShaders.length - 1 );
+            } else {
+                currentIndex = slow_end_index + Std.random( (fragmentShaders.length - slow_end_index - 1) );
+            }
+
+            compile ();
+            
+        }
 
 	}
 
-	public function on_render() {
+        //Called each frame by NMEGL
+	public function render() {
         
         GL.viewport( 0, 0, lib.config.width, lib.config.height );
         
@@ -145,18 +157,7 @@ class Main {
         GL.clear (GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT );
         GL.drawArrays (GL.TRIANGLES, 0, 6);
         
-        if (time > maxTime && fragmentShaders.length > 1) {
-                
-                //Pick a random example to show
-            if( include_slow_expensive_examples ) {
-                currentIndex = Std.random( fragmentShaders.length - 1 );
-            } else {
-                currentIndex = slow_end_index + Std.random( (fragmentShaders.length - slow_end_index - 1) );
-            }
-
-            compile ();
-            
-        }
+        
  	
 	}
 

@@ -1,6 +1,6 @@
 package nmegl.gl;
 
-import nmegl.core.Libs;
+import nmegl.utils.Libs;
 
 // import flash.display.BitmapData;
 import nmegl.geometry.Matrix3D;

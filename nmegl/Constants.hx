@@ -1,4 +1,4 @@
-package nmegl.core;
+package nmegl;
 
     //Window constants
 class Window {

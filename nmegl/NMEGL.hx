@@ -1,11 +1,11 @@
 package nmegl;
 
-import nmegl.core.Constants;
-import nmegl.core.Libs;
+import nmegl.utils.Libs;
 
-import nmegl.core.RenderHandler;
-import nmegl.core.InputHandler;
-import nmegl.core.WindowHandler;
+import nmegl.Constants;
+import nmegl.RenderHandler;
+import nmegl.InputHandler;
+import nmegl.WindowHandler;
 
 import haxe.Timer;
 
@@ -20,9 +20,6 @@ class NMEGL {
     public var input   : InputHandler;
     public var render   : RenderHandler;
 	public var window 	: WindowHandler;
-
-        //Set user update function
-    public var user_update_function : Void->Void;
 
 //nme specifics
 
@@ -96,16 +93,23 @@ class NMEGL {
             //Since we are done...
         window.set_active(true);
 
-            //Tell the host application
-        Reflect.callMethod( host , "ready", null);
-
         _debug(':: NMEGL :: Ready.');
+
+           //Tell the host application we are ready
+        if(host.ready != null) {
+            host.ready();
+        }
 
     } //on_main_frame_created
 
     public function shutdown() {        
 
         shutting_down = true;
+
+            //tell the host game we are killing it
+        if(host.shutdown != null) {
+            host.shutdown();
+        }
 
             //We don't want to process much now
         window.set_active(false);
@@ -260,34 +264,14 @@ class NMEGL {
 
         if(!has_shutdown) {
             
-            if(user_update_function != null) {
-                user_update_function();
+            if(host.update != null) {
+                host.update();
             }
 
             do_render(_event);
         }
 
     } //on_update
-
-        //the API to allow render hooks
-    public function set_render_function( _func:Void->Void ) {
-
-        if(_func != null) {            
-            render.user_render_function = _func;
-        } else {
-            throw "Invalid render function passed to NMEGL";
-        }
-    }    
-
-        //the API to allow update hooks
-    public function set_update_function( _func:Void->Void ) {
-
-        if(_func != null) {            
-            user_update_function = _func;
-        } else {
-            throw "Invalid update function passed to NMEGL";
-        }
-    }
 
     //Render the window
     public function do_render( _event:Dynamic ) {
@@ -301,7 +285,7 @@ class NMEGL {
         if( window.invalidated ) {
             window.invalidated = false;
         }
-
+    
         render.on_render();
 
         nme_render_stage( stage_handle );
@@ -322,7 +306,7 @@ class NMEGL {
    		//temporary debugging with verbosity options
 
 	public var log : Bool = false;
-    public var verbose : Bool = true;
+    public var verbose : Bool = false;
     public var more_verbose : Bool = false;
     public function _debug(value:Dynamic, _verbose:Bool = false, _more_verbose:Bool = false) { 
         if(log) {            

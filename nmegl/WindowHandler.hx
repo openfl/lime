@@ -1,12 +1,12 @@
-package nmegl.core;
+package nmegl;
 
 import nmegl.NMEGL;
+import nmegl.utils.Libs;
 
 class WindowHandler {
 
     public var lib : NMEGL;
     public function new( _lib:NMEGL ) { lib = _lib; }
-
 
         //if the core is active
     public var active : Bool = false;

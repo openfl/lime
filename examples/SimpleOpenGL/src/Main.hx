@@ -40,13 +40,10 @@ class Main {
 			// Init the shaders and view
 		init();		
 
-			//Tell it to let us draw here
-		lib.set_render_function( on_render );
-		lib.set_update_function( on_update );
 	}
 
-	public function on_update() {
-		//called each frame by NMEGL for logic (called before render)
+        //Called each frame by NMEGL for logic (called before render)
+	public function update() {
 
 
 			//an awful magic number to change the value slowly
@@ -62,7 +59,8 @@ class Main {
 
 	}
 
-	public function on_render() {
+        //Called by NMEGL
+	public function render() {
 
  			//Set the viewport for GL
  		GL.viewport( 0, 0, lib.config.width, lib.config.height );

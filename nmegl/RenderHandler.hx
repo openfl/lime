@@ -1,7 +1,7 @@
-package nmegl.core;
+package nmegl;
 
 import nmegl.NMEGL;
-import nmegl.core.Libs;
+import nmegl.utils.Libs;
 
     //Import GL 
 import nmegl.gl.GL;
@@ -18,8 +18,6 @@ class RenderHandler {
         
     public var lib : NMEGL;
     public function new( _lib:NMEGL ) { lib = _lib; }
-
-    public var user_render_function : Void->Void;
 
         //direct_renderer_handle for NME
     public var direct_renderer_handle : Dynamic;
@@ -44,8 +42,8 @@ class RenderHandler {
     }
 
     public function on_render() {
-        if(user_render_function != null) {
-            user_render_function();
+        if( lib.host.render != null ) {
+            lib.host.render();
         }
     }
 

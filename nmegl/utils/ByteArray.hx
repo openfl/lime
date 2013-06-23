@@ -1,7 +1,7 @@
 package nmegl.utils;
 #if (cpp || neko)
 
-import nmegl.core.Libs;
+import nmegl.utils.Libs;
 
 import haxe.io.Bytes;
 import haxe.io.BytesData;

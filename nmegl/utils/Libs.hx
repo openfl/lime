@@ -1,4 +1,4 @@
-package nmegl.core;
+package nmegl.utils;
 
 import sys.io.Process;
 
