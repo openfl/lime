@@ -681,24 +681,21 @@ class CommandLineTools {
 	}
 	
 	
-	#if (neko && haxe_210)
+	#if (neko && (haxe_210 || haxe3))
 	public static function __init__ () {
 		
 		// Fix for library search paths
 		
-		var path = PathHelper.getHaxelib (new Haxelib ("openfl-native")) + "ndll/";
-		var path2 = PathHelper.getHaxelib (new Haxelib ("nme")) + "ndll/";
+		var path = PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/ndll/";
 		
 		switch (PlatformHelper.hostPlatform) {
 			
 			case WINDOWS:
 				
-				untyped $loader.path = $array (path2 + "Windows/", $loader.path);
 				untyped $loader.path = $array (path + "Windows/", $loader.path);
 				
 			case MAC:
 				
-				untyped $loader.path = $array (path2 + "Mac/", $loader.path);
 				untyped $loader.path = $array (path + "Mac/", $loader.path);
 				
 			case LINUX:
@@ -714,17 +711,14 @@ class CommandLineTools {
 				
 				if (raspberryPi) {
 					
-					untyped $loader.path = $array (path2 + "RPi/", $loader.path);
 					untyped $loader.path = $array (path + "RPi/", $loader.path);
 					
 				} else if (PlatformHelper.hostArchitecture == Architecture.X64) {
 					
-					untyped $loader.path = $array (path2 + "Linux64/", $loader.path);
 					untyped $loader.path = $array (path + "Linux64/", $loader.path);
 					
 				} else {
 					
-					untyped $loader.path = $array (path2 + "Linux/", $loader.path);
 					untyped $loader.path = $array (path + "Linux/", $loader.path);
 					
 				}
