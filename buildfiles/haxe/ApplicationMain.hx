@@ -11,7 +11,7 @@ class ApplicationMain {
 			//Create the runtime
 		_nmegl = new NMEGL();
 			//Create the game class, give it the runtime
-		_main_ = new ::APP_MAIN::( _nmegl );
+		_main_ = new ::APP_MAIN::();
 
 		var config = {
 			width : ::WIN_WIDTH::, 

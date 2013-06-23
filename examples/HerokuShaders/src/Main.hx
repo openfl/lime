@@ -97,16 +97,12 @@ class Main {
     private var startTime:Dynamic;
     private var vertexPosition:Dynamic;
 
-	public function new( _nmegl : NMEGL) {
+	public function new() {}
 
-		lib = _nmegl;
+	public function ready( _nmegl : NMEGL ) {
 
-		//NOTE : You cannot do anything before creating the actual window, which will call ready() for you when it is done		
-
-	}
-
-	public function ready() {
-
+        lib = _nmegl;
+        
 			// Init the shaders and view
 		init();		
 

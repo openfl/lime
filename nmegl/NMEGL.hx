@@ -97,7 +97,7 @@ class NMEGL {
 
            //Tell the host application we are ready
         if(host.ready != null) {
-            host.ready();
+            host.ready(this);
         }
 
     } //on_main_frame_created
