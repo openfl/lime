@@ -1,6 +1,6 @@
 #NMEGL
 
-A lightweight pure OpenGL wrapper for [NME](http://nme.io) and NME build tools.
+A lightweight pure OpenGL wrapper for [NME](http://github.com/haxenme/NME) and NME build tools.
 
 A good starting point for building OpenGL applications across Mac, Windows, Linux, Blackberry, HTML5(WebGL), Android, iOS.
 
