@@ -21,6 +21,8 @@
           fps="60"
           background="0x161616"
           require_shaders="true"
+          depth-buffer="true"
+          stencil-buffer="true"
           resizable="true"
           hardware="true"
 	/>
