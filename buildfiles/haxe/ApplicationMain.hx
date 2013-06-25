@@ -1,15 +1,15 @@
 import ::APP_MAIN::;
 
-import nmegl.NMEGL;
+import lime.LiME;
 
 class ApplicationMain {
 		
 	public static var _main_ : ::APP_MAIN::;
-	public static var _nmegl : NMEGL;
+	public static var _lime : LiME;
 
 	public static function main () {
 			//Create the runtime
-		_nmegl = new NMEGL();
+		_lime = new LiME();
 			//Create the game class, give it the runtime
 		_main_ = new ::APP_MAIN::();
 
@@ -20,7 +20,7 @@ class ApplicationMain {
 		};
 
 			//Start up
-		_nmegl.init( _main_, config );
+		_lime.init( _main_, config );
 	}
 	
 }

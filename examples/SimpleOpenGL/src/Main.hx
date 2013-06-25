@@ -1,19 +1,19 @@
 
-import nmegl.utils.Assets;
-import nmegl.NMEGL;
+import lime.utils.Assets;
+import lime.LiME;
 
-    //Import GL stuff from nme
-import nmegl.gl.GL;
-import nmegl.gl.GLBuffer;
-import nmegl.gl.GLProgram; 
+    //Import GL stuff from lime
+import lime.gl.GL;
+import lime.gl.GLBuffer;
+import lime.gl.GLProgram; 
 
     //utils
-import nmegl.utils.Float32Array;
-import nmegl.geometry.Matrix3D;
+import lime.utils.Float32Array;
+import lime.geometry.Matrix3D;
 
 class Main {
 
-	public var lib : NMEGL;
+	public var lib : LiME;
 
 		//Shader stuff for drawing
     private var shaderProgram:GLProgram;
@@ -29,17 +29,17 @@ class Main {
 
 	public function new() { }
 
-	public function ready( _nmegl : NMEGL ) {
+	public function ready( _lime : LiME ) {
 
             //Store a reference
-        lib = _nmegl;
+        lib = _lime;
 
 			// Init the shaders and view
 		init();		
 
 	}
 
-        //Called each frame by NMEGL for logic (called before render)
+        //Called each frame by lime for logic (called before render)
 	public function update() {
 
 
@@ -56,7 +56,7 @@ class Main {
 
 	}
 
-        //Called by NMEGL
+        //Called by lime
 	public function render() {
 
  			//Set the viewport for GL

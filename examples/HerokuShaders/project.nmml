@@ -2,7 +2,7 @@
 <project>
 	
 	<meta 
-          title="NMEGL Example - HerokuShaders" 
+          title="lime example - HerokuShaders" 
           package="com.underscorediscovery.nmegl_example_herokushaders" 
           version="1.0.0" 
           company="underscorediscovery" 
@@ -29,6 +29,6 @@
 
 	<source path="src" />
 	
-	<haxelib name="nmegl" />
+	<haxelib name="lime" />
 	
 </project>

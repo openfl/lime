@@ -2,7 +2,7 @@
 <project>
 	
 	<meta 
-          title="NMEGL Example - Simple OpenGL" 
+          title="lime example - Simple OpenGL" 
           package="com.underscorediscovery.nmegl_example_simple" 
           version="1.0.0" 
           company="underscorediscovery" 
@@ -11,7 +11,7 @@
 	<app
           main="Main"
           path="bin"
-          file="nmegl_example_simple"
+          file="lime_example_simple"
 	/>
 
 	<window 
@@ -31,6 +31,6 @@
 
 	<source path="src" />
 	
-	<haxelib name="nmegl" />
+	<haxelib name="lime" />
 	
 </project>

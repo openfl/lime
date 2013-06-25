@@ -1,7 +1,7 @@
 package nme;
 
 
-import nmegl.utils.Assets;
+import lime.utils.Assets;
 
 
 class AssetData {
