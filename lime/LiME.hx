@@ -46,23 +46,39 @@ class LiME {
     	_debug(':: lime :: initializing -');
         _debug(':: lime :: Creating window at ' + config.width + 'x' + config.height);
 
-        nme_create_main_frame( 
-            on_main_frame_created, 
-            config.width,                   //width
-            config.height,                  //height
-                Window.RESIZABLE | 
-                Window.HARDWARE | 
-                Window.VSYNC | 
-                Window.HW_AA | 
-                Window.HW_AA_HIRES | 
-                Window.ALLOW_SHADERS | 
-                Window.REQUIRE_SHADERS | 
-                Window.DEPTH_BUFFER | 
-                Window.STENCIL_BUFFER ,     //flags
-            config.title,                   //title
-            null                            //icon
+        #if lime_native
+            nme_create_main_frame( 
+                on_main_frame_created, 
+                config.width,                   //width
+                config.height,                  //height
+                    Window.RESIZABLE | 
+                    Window.HARDWARE | 
+                    Window.VSYNC | 
+                    Window.HW_AA | 
+                    Window.HW_AA_HIRES | 
+                    Window.ALLOW_SHADERS | 
+                    Window.REQUIRE_SHADERS | 
+                    Window.DEPTH_BUFFER | 
+                    Window.STENCIL_BUFFER ,     //flags
+                config.title,                   //title
+                null                            //icon
 
-        ); //nme_create_main_frame
+            ); //nme_create_main_frame
+        #end
+
+
+        #if lime_html5 
+            
+            var handle = null;
+
+            untyped {
+                js.Browser.document.body.onload = function (_) {
+                    var handle = js.Browser.document.getElementById('lime_canvas');
+                    on_main_frame_created( handle ); 
+                }
+           }
+            
+        #end //lime_html5
        	
     } //init
     
@@ -73,10 +89,14 @@ class LiME {
     
             //Store a reference to the handle            
         mainframe_handle = handle;
-        stage_handle = nme_get_frame_stage( mainframe_handle );
 
-            //Set the stage handler for NME to send us events
-        nme_set_stage_handler(stage_handle, on_stage_event, config.width, config.height);
+        #if lime_native
+            stage_handle = nme_get_frame_stage( mainframe_handle );
+
+                //Set the stage handler for NME to send us events
+            nme_set_stage_handler(stage_handle, on_stage_event, config.width, config.height);
+        #end
+
 
             //Create our input message handler class 
         input = new InputHandler( this );
@@ -99,6 +119,11 @@ class LiME {
         if(host.ready != null) {
             host.ready(this);
         }
+
+        #if lime_html5  
+            //start the run loop
+            js.Browser.window.requestAnimationFrame(on_update);
+        #end        
 
     } //on_main_frame_created
 
@@ -123,7 +148,9 @@ class LiME {
             //Ok kill it! 
             //Order matters for events coming
             //when things below are set to null.
-        nme_close();
+        #if lime_native            
+            nme_close();
+        #end
 
             //Flag it
         has_shutdown = true;
@@ -258,7 +285,11 @@ class LiME {
 
 
     	//Called when updated by the nme/sdl runtime
-    public function on_update(_event:Dynamic) { 
+    public function on_update(_event) { 
+
+        #if lime_html5
+            js.Browser.window.requestAnimationFrame(on_update);
+        #end
 
         _debug('on_update ' + Timer.stamp(), true, true); 
 
@@ -271,6 +302,9 @@ class LiME {
             do_render(_event);
         }
 
+        #if lime_html5
+            return true;
+        #end 
     } //on_update
 
     //Render the window
@@ -288,12 +322,16 @@ class LiME {
     
         render.on_render();
 
+#if lime_native
         nme_render_stage( stage_handle );
+#end //lime_native
 
     } //do_render    
 
 
 //Noisy stuff
+
+#if lime_native
 
     	//import nme_library functions
     private static var nme_render_stage             = Libs.load("nme","nme_render_stage", 1);
@@ -303,9 +341,11 @@ class LiME {
 
     private static var nme_create_main_frame        = Libs.load("nme","nme_create_main_frame", -1);        
 
+#end //lime_native
+
    		//temporary debugging with verbosity options
 
-	public var log : Bool = false;
+	public var log : Bool = true;
     public var verbose : Bool = false;
     public var more_verbose : Bool = false;
     public function _debug(value:Dynamic, _verbose:Bool = false, _more_verbose:Bool = false) { 

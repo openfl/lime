@@ -35,10 +35,15 @@ class WindowHandler {
         active = _active;
 
     	if(_active == false) {
+
+                //A window deactivate event comes through after we shut
+                //down the window, so if that is the case handle it by cleaning
+                //up the remaining values that we have reference to
     		if(lib.has_shutdown) {
     			lib.cleanup();
-    		}
-    	}
+    		} //has_shutdown
+
+    	} //if _active == false
     	
     } //set_active
 

@@ -1,5 +1,6 @@
 package lime.utils;
-#if (cpp || neko)
+// #if (cpp || neko)
+#if (lime_native || lime_html5)
 
 import lime.utils.Libs;
 
@@ -9,16 +10,20 @@ import haxe.io.BytesData;
 import lime.utils.CompressionAlgorithm;
 import lime.utils.IDataInput;
 
-#if neko
-import neko.Lib;
-import neko.zip.Compress;
-import neko.zip.Uncompress;
-import neko.zip.Flush;
-#else
-import cpp.Lib;
-import cpp.zip.Compress;
-import cpp.zip.Uncompress;
-import cpp.zip.Flush;
+#if !lime_html5
+
+   #if neko
+   import neko.Lib;
+   import neko.zip.Compress;
+   import neko.zip.Uncompress;
+   import neko.zip.Flush;
+   #else
+   import cpp.Lib;
+   import cpp.zip.Compress;
+   import cpp.zip.Uncompress;
+   import cpp.zip.Flush;
+   #end
+
 #end
 
 class ByteArray extends Bytes #if !haxe3 , #end implements ArrayAccess<Int> #if !haxe3 , #end implements IDataInput #if !haxe3 , #end implements IMemoryRange 
@@ -80,8 +85,10 @@ class ByteArray extends Bytes #if !haxe3 , #end implements ArrayAccess<Int> #if 
       var bytes = function(inArray:ByteArray) { return inArray==null ? null :  inArray.b; }
       var slen = function(inArray:ByteArray) { return inArray == null ? 0 : inArray.length; }
 
-      var init = Libs.load("nme", "nme_byte_array_init", 4);
-      init(factory, slen, resize, bytes);
+      #if !lime_html5
+         var init = Libs.load("nme", "nme_byte_array_init", 4);
+         init(factory, slen, resize, bytes);
+      #end //lime_html5
    }
    #end
 
@@ -112,6 +119,9 @@ class ByteArray extends Bytes #if !haxe3 , #end implements ArrayAccess<Int> #if 
       position = 0;
       length = 0;
    }
+
+#if !lime_html5
+//todo- sven
 
    public function compress(algorithm:CompressionAlgorithm = null) 
    {
@@ -156,6 +166,8 @@ class ByteArray extends Bytes #if !haxe3 , #end implements ArrayAccess<Int> #if 
       compress(CompressionAlgorithm.DEFLATE);
    }
 
+#end //!lime_html5
+
    /** @private */ private function ensureElem(inSize:Int, inUpdateLenght:Bool) {
       var len = inSize + 1;
 
@@ -189,10 +201,15 @@ class ByteArray extends Bytes #if !haxe3 , #end implements ArrayAccess<Int> #if 
    public function getByteBuffer():ByteArray { return this; }
    public function getStart():Int { return 0; }
 
-   public function inflate() 
-   {
+#if !lime_html5
+   
+   public function inflate() {
+
       uncompress(CompressionAlgorithm.DEFLATE);
+
    }
+
+#end //!lime_html5
    
    private inline function nmeFromBytes(inBytes:Bytes):Void
    {
@@ -241,17 +258,23 @@ class ByteArray extends Bytes #if !haxe3 , #end implements ArrayAccess<Int> #if 
 
    public function readDouble():Float 
    {
-      if (position + 8 > length)
-         ThrowEOFi();
+      #if !lime_html5
 
-      #if neko
-      var bytes = new Bytes(8, untyped __dollar__ssub(b, position, 8));
-      #elseif cpp
-      var bytes = new Bytes(8, b.slice(position, position + 8));
-      #end
+         if (position + 8 > length)
+            ThrowEOFi();
 
-      position += 8;
-      return _double_of_bytes(bytes.b, bigEndian);
+         #if neko
+         var bytes = new Bytes(8, untyped __dollar__ssub(b, position, 8));
+         #elseif cpp
+         var bytes = new Bytes(8, b.slice(position, position + 8));
+         #end
+
+         position += 8;
+         return _double_of_bytes(bytes.b, bigEndian);
+
+      #end //!lime_html5
+
+      return 0.0;
    }
 
    #if !no_nme_io
@@ -262,18 +285,24 @@ class ByteArray extends Bytes #if !haxe3 , #end implements ArrayAccess<Int> #if 
    #end
 
    public function readFloat():Float 
-   {
-      if (position + 4 > length)
-         ThrowEOFi();
+   {  
+      #if !lime_html5
+     
+         if (position + 4 > length)
+            ThrowEOFi();
 
-      #if neko
-      var bytes = new Bytes(4, untyped __dollar__ssub(b, position, 4));
-      #elseif cpp
-      var bytes = new Bytes(4, b.slice(position, position + 4));
-      #end
+         #if neko
+         var bytes = new Bytes(4, untyped __dollar__ssub(b, position, 4));
+         #elseif cpp
+         var bytes = new Bytes(4, b.slice(position, position + 4));
+         #end
 
-      position += 4;
-      return _float_of_bytes(bytes.b, bigEndian);
+         position += 4;
+         return _float_of_bytes(bytes.b, bigEndian);
+
+      #end //!lime_html5
+
+      return 0.0;
    }
 
    public function readInt():Int 
@@ -339,13 +368,20 @@ class ByteArray extends Bytes #if !haxe3 , #end implements ArrayAccess<Int> #if 
       var p = position;
       position += inLen;
 
-      #if neko
-      return new String(untyped __dollar__ssub(b, p, inLen));
-      #elseif cpp
-      var result:String="";
-      untyped __global__.__hxcpp_string_of_bytes(b, result, p, inLen);
-      return result;
+      #if lime_native
+
+         #if neko
+         return new String(untyped __dollar__ssub(b, p, inLen));
+         #elseif cpp
+         var result:String="";
+         untyped __global__.__hxcpp_string_of_bytes(b, result, p, inLen);
+         return result;
+         #end
+
+      #else 
+         return "-";
       #end
+
    }
 
    public function setLength(inLength:Int):Void 
@@ -393,6 +429,9 @@ class ByteArray extends Bytes #if !haxe3 , #end implements ArrayAccess<Int> #if 
       return 0;
    }
 
+#if !lime_html5
+//todo sven
+
    public function uncompress(algorithm:CompressionAlgorithm = null):Void 
    {
       if (algorithm == null) algorithm = CompressionAlgorithm.GZIP;
@@ -433,6 +472,8 @@ class ByteArray extends Bytes #if !haxe3 , #end implements ArrayAccess<Int> #if 
       #end
    }
 
+#end //!lime_html5
+
    /** @private */ inline function write_uncheck(inByte:Int) {
       #if cpp
       untyped b.__unsafe_set(position++, inByte);
@@ -467,14 +508,18 @@ class ByteArray extends Bytes #if !haxe3 , #end implements ArrayAccess<Int> #if 
    }
 
    public function writeDouble(x:Float) 
-   {
-      #if neko
-      var bytes = new Bytes(8, _double_bytes(x, bigEndian));
-      #elseif cpp
-      var bytes = Bytes.ofData(_double_bytes(x, bigEndian));
-      #end
+   {  
+      #if !lime_html5
 
-      writeBytes(bytes);
+         #if neko
+         var bytes = new Bytes(8, _double_bytes(x, bigEndian));
+         #elseif cpp
+         var bytes = Bytes.ofData(_double_bytes(x, bigEndian));
+         #end
+
+         writeBytes(bytes);
+
+      #end //!lime_html5
    }
 
    #if !no_nme_io
@@ -486,13 +531,17 @@ class ByteArray extends Bytes #if !haxe3 , #end implements ArrayAccess<Int> #if 
 
    public function writeFloat(x:Float) 
    {
-      #if neko
-      var bytes = new Bytes(4, _float_bytes(x, bigEndian));
-      #elseif cpp
-      var bytes = Bytes.ofData(_float_bytes(x, bigEndian));
-      #end
+      #if !lime_html5
 
-      writeBytes(bytes);
+         #if neko
+         var bytes = new Bytes(4, _float_bytes(x, bigEndian));
+         #elseif cpp
+         var bytes = Bytes.ofData(_float_bytes(x, bigEndian));
+         #end
+
+         writeBytes(bytes);
+
+      #end //!lime_html5
    }
 
    public function writeInt(value:Int) 

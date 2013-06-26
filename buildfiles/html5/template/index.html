@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>::APP_TITLE::</title>
+</head>
+<body style="padding: 0; margin: 0; background-color: #FFFFFF;">
+    
+    <!-- <div id="haxe:trace" style="position: absolute; z-index: 2147483647;::if !debug:: display: none;::end::"></div> -->
+    
+    ::if (LIB_NME)::
+    
+    <div id="haxe:jeash" style="background-color: #::WIN_FLASHBACKGROUND::; width: ::if (WIN_WIDTH == 0)::100%::else::::WIN_WIDTH::px::end::; height: ::if (WIN_HEIGHT == 0)::100%::else::::WIN_HEIGHT::px::end::" data-framerate="::WIN_FPS::"></div>
+    
+    ::if DEBUG::<script type="text/javascript" src="./webgl-debug.js"></script>::end::
+    
+    <script>function winParameters () { return ::WIN_PARAMETERS::; }</script>
+    <script id="haxe:jeash:script" type="text/javascript" src="./::APP_FILE::.js"></script>
+    
+    ::else::
+    
+    <script type="text/javascript" src="./::APP_FILE::.js"></script>
+    
+    ::end::
+
+    ::if DEBUG::<script type="text/javascript" src="./webgl-debug.js"></script>::end::
+    <canvas id="lime_canvas" width="::WIN_WIDTH::" height="::WIN_HEIGHT::">
+    </canvas>
+    
+</body>
+</html>

@@ -1,78 +1,58 @@
 package lime.gl;
 
+#if lime_native
 
-class GLObject {
-	
-	
-	public var id (default, null):Dynamic;
-	public var invalidated (get, null):Bool;
-	public var valid (get, null):Bool;
-	
-	private var version:Int;
-	
-	
-	private function new (version:Int, id:Dynamic) {
+	class GLObject {
 		
-		this.version = version;
-		this.id = id;
+		public var id (default, null):Dynamic;
+		public var invalidated (get, null):Bool;
+		public var valid (get, null):Bool;
 		
-	}
-	
-	
-	private function getType ():String {
+		private var version:Int;
 		
-		return "GLObject";
+		private function new (version:Int, id:Dynamic) {
+			
+			this.version = version;
+			this.id = id;
+			
+		}
 		
-	}
-	
-	
-	public function invalidate ():Void {
+		private function getType ():String {
+			return "GLObject";
+		}
 		
-		id = null;
+		public function invalidate ():Void {
+			id = null;
+		}
 		
-	}
-	
-	
-	public function isValid ():Bool {
+		public function isValid ():Bool {
+			return id != null && version == GL.version;
+		}
 		
-		return id != null && version == GL.version;
+		public function isInvalid ():Bool {
+			return !isValid ();
+		}
 		
-	}
-	
-	
-	public function isInvalid ():Bool {
+		public function toString ():String {
+			return getType () + "(" + id + ")";
+		}
 		
-		return !isValid ();
+		// Getters & Setters
 		
-	}
-	
-	
-	public function toString ():String {
+		private function get_invalidated ():Bool {
+			return isInvalid ();
+		}
 		
-		return getType () + "(" + id + ")";
+		private function get_valid ():Bool {
+			return isValid ();
+		}
 		
 	}
+
+#end //lime_native
+
+#if lime_html5
+
+	typedef GLObject = Dynamic;
 	
-	
-	
-	
-	// Getters & Setters
-	
-	
-	
-	
-	private function get_invalidated ():Bool {
-		
-		return isInvalid ();
-		
-	}
-	
-	
-	private function get_valid ():Bool {
-		
-		return isValid ();
-		
-	}
-	
-	
-}
+#end //lime_html5

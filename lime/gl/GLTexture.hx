@@ -1,21 +1,25 @@
 package lime.gl;
 
 
-class GLTexture extends GLObject {
-	
-	
-	public function new (version:Int, id:Dynamic) {
+#if lime_native
+
+	class GLTexture extends GLObject {
 		
-		super (version, id);
+		public function new (version:Int, id:Dynamic) {
+			super (version, id);
+		}
 		
-	}
-	
-	
-	override private function getType ():String {
-		
-		return "Texture";
+		override private function getType ():String {
+			return "Texture";
+		}
 		
 	}
-	
-	
-}
+
+#end //lime_native
+
+
+#if lime_html5
+
+	typedef GLTexture = js.html.webgl.Texture;
+
+#end //lime_html5

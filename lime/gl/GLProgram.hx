@@ -1,39 +1,34 @@
 package lime.gl;
 
 
-class GLProgram extends GLObject {
-	
-	
-	public var shaders:Array<GLShader>;
-	
-	
-	public function new (version:Int, id:Dynamic) {
+#if lime_native
+
+	class GLProgram extends GLObject {
 		
-		super (version, id);
-		shaders = new Array<GLShader> ();
+		public var shaders:Array<GLShader>;
 		
+		public function new (version:Int, id:Dynamic) {
+			super (version, id);
+			shaders = new Array<GLShader> ();
+		}
+		
+		public function attach (shader:GLShader):Void {
+			shaders.push (shader);
+		}
+		
+		public function getShaders ():Array<GLShader> {
+			return shaders.copy ();
+		}
+		
+		override private function getType ():String {
+			return "Program";
+		}
 	}
-	
-	
-	public function attach (shader:GLShader):Void {
-		
-		shaders.push (shader);
-		
-	}
-	
-	
-	public function getShaders ():Array<GLShader> {
-		
-		return shaders.copy ();
-		
-	}
-	
-	
-	override private function getType ():String {
-		
-		return "Program";
-		
-	}
-	
-	
-}
+
+#end //lime_native
+
+#if lime_html5
+
+	typedef GLProgram = js.html.webgl.Program;
+
+#end //lime_html5

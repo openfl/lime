@@ -25,7 +25,6 @@ class Main {
     	//Some value to mess with the clear color
     private var red_value : Float = 1.0;
     private var red_direction : Int = 1;
-    
 
 	public function new() { }
 
@@ -98,19 +97,19 @@ class Main {
         createProgram();
         
         	//Create a set of vertices
-        var vertices = [
+        var vertices : Float32Array = new Float32Array([
             100, 	100, 	0,
             -100, 	100, 	0,
             100, 	-100, 	0,
             -100, 	-100, 	0
-        ];
+        ]);
         	
         	//Create a buffer from OpenGL
         vertexBuffer = GL.createBuffer ();
         	//Bind it
         GL.bindBuffer (GL.ARRAY_BUFFER, vertexBuffer);  
         	//Point it to the vertex array!
-        GL.bufferData (GL.ARRAY_BUFFER, new Float32Array (vertices), GL.STATIC_DRAW);
+        GL.bufferData (GL.ARRAY_BUFFER, vertices, GL.STATIC_DRAW);
 
     }
 

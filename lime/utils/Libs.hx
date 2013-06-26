@@ -1,7 +1,5 @@
 package lime.utils;
 
-import sys.io.Process;
-
 class Libs {
 	
         //for Load function
@@ -13,29 +11,34 @@ class Libs {
 
     private static function tryLoad (name:String, library:String, func:String, args:Int):Dynamic {
         
-        try {
-            
-            #if cpp
-            var result = cpp.Lib.load (name, func, args);
-            #elseif (neko)
-            var result = neko.Lib.load (name, func, args);
-            #else
-            return null;
-            #end
-            
-            if (result != null) {
+
+        #if lime_native
+
+            try {
                 
-                loaderTrace ("Got result " + name);
-                __moduleNames.set (library, name);
-                return result;
+                #if cpp
+                var result = cpp.Lib.load (name, func, args);
+                #elseif (neko)
+                var result = neko.Lib.load (name, func, args);
+                #else
+                return null;
+                #end
+                
+                if (result != null) {
+                    
+                    loaderTrace ("Got result " + name);
+                    __moduleNames.set (library, name);
+                    return result;
+                    
+                }
+                
+            } catch (e:Dynamic) {
+                
+                loaderTrace ("Failed to load : " + name);
                 
             }
-            
-        } catch (e:Dynamic) {
-            
-            loaderTrace ("Failed to load : " + name);
-            
-        }
+
+        #end //lime_native
         
         return null;
         
@@ -66,35 +69,39 @@ class Libs {
         
         try {
             
-            var proc = new Process ("haxelib", [ "path", library ]);
+            #if lime_native
             
-            if (proc != null) {
+                var proc = new sys.io.Process ("haxelib", [ "path", library ]);
                 
-                var stream = proc.stdout;
-                
-                try {
+                if (proc != null) {
                     
-                    while (true) {
+                    var stream = proc.stdout;
+                    
+                    try {
                         
-                        var s = stream.readLine ();
-                        
-                        if (s.substr (0, 1) != "-") {
+                        while (true) {
                             
-                            stream.close ();
-                            proc.close ();
-                            loaderTrace ("Found haxelib " + s);
-                            return s;
+                            var s = stream.readLine ();
+                            
+                            if (s.substr (0, 1) != "-") {
+                                
+                                stream.close ();
+                                proc.close ();
+                                loaderTrace ("Found haxelib " + s);
+                                return s;
+                                
+                            }
                             
                         }
                         
-                    }
+                    } catch(e:Dynamic) { }
                     
-                } catch(e:Dynamic) { }
-                
-                stream.close ();
-                proc.close ();
-                
-            }
+                    stream.close ();
+                    proc.close ();
+                    
+                }
+
+            #end //lime_native
             
         } catch (e:Dynamic) { }
         
@@ -104,11 +111,19 @@ class Libs {
     
     private static function sysName ():String {
         
-        #if cpp
-        var sys_string = cpp.Lib.load ("std", "sys_string", 0);
-        return sys_string ();
-        #else
-        return Sys.systemName ();
+        #if lime_native
+            #if cpp
+            var sys_string = cpp.Lib.load ("std", "sys_string", 0);
+            return sys_string ();
+            #else
+            return Sys.systemName ();
+            #end
+        #end
+
+
+        #if lime_html5 
+            return "Lime_Browser_WebGL";
+            //todo get browser info
         #end
         
     }
@@ -181,18 +196,29 @@ class Libs {
 
     private static function loaderTrace (message:String) {
         
-        #if cpp
-        var get_env = cpp.Lib.load ("std", "get_env", 1);
-        var debug = (get_env ("OPENFL_LOAD_DEBUG") != null);
-        #else
-        var debug = (Sys.getEnv ("OPENFL_LOAD_DEBUG") !=null);
-        #end
-        
-        if (debug) {
-            
-            Sys.println (message);
-            
-        }
+        #if lime_native
+
+            #if cpp
+
+                var get_env = cpp.Lib.load ("std", "get_env", 1);
+                var debug = (get_env ("OPENFL_LOAD_DEBUG") != null);
+
+            #else //# not cpp
+
+                var debug = (Sys.getEnv ("OPENFL_LOAD_DEBUG") !=null);
+
+            #end //# if cpp
+
+            if (debug) {
+                Sys.println (message);
+            } //if debug
+
+        #end //lime_native
+
+
+        #if lime_html5
+            //todo leverage console.log somehow?
+        #end //lime_html5
         
     }    
 

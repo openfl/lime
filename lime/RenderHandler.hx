@@ -14,24 +14,44 @@ import lime.utils.Float32Array;
     //geometry
 import lime.geometry.Matrix3D;
 
+
+#if lime_html5
+
+    import js.Browser;
+    import js.html.CanvasElement;
+
+#end //lime_html5
+
+
 class RenderHandler {
         
     public var lib : LiME;
     public function new( _lib:LiME ) { lib = _lib; }
 
-        //direct_renderer_handle for NME
+        //direct_renderer_handle for drawing
     public var direct_renderer_handle : Dynamic;
 
     public function startup() {
 
-            //Set up the OpenGL View
-        direct_renderer_handle = nme_direct_renderer_create();
+        #if lime_native
 
-            //Add this to the main stage, so it will render
-        nme_doc_add_child( lib.stage_handle, direct_renderer_handle );
+                //Set up the OpenGL View
+            direct_renderer_handle = nme_direct_renderer_create();
 
-            //Set this handle to the real view with a render function
-        nme_direct_renderer_set( direct_renderer_handle, on_render );        
+                //Add this to the main stage, so it will render
+            nme_doc_add_child( lib.stage_handle, direct_renderer_handle );
+
+                //Set this handle to the real view with a render function
+            nme_direct_renderer_set( direct_renderer_handle, on_render );
+
+        #end //lime_native
+
+        #if lime_html5
+            
+            direct_renderer_handle = lib.mainframe_handle.getContext('webgl');
+            lime.gl.GL.nmeContext = direct_renderer_handle;
+
+        #end //lime_html5
 
             //Done.
         lib._debug(':: lime :: \t RenderHandler Initialized.');
@@ -48,9 +68,13 @@ class RenderHandler {
     }
 
 //nme functions
+#if lime_native
+
     private static var nme_doc_add_child            = Libs.load("nme","nme_doc_add_child", 2);
     private static var nme_direct_renderer_create   = Libs.load("nme","nme_direct_renderer_create", 0);
     private static var nme_direct_renderer_set      = Libs.load("nme","nme_direct_renderer_set", 2);
+
+#end //lime_native
 
 } 
 

@@ -1,5 +1,6 @@
 package lime.utils;
-#if (cpp || neko)
+// #if (cpp || neko)
+#if (lime_native || lime_html5)
 
 interface IDataInput 
 {

@@ -1,4 +1,6 @@
 package lime.utils;
+
+
 #if !macro
 
 
@@ -211,31 +213,33 @@ class Assets {
 			
 			#if flash
 			
-			return Type.createInstance(AssetData.className.get(id), []);
+				return Type.createInstance(AssetData.className.get(id), []);
 			
 			#elseif js
 
-			var bytes:ByteArray = null;
-			var data = ApplicationMain.urlLoaders.get(AssetData.path.get(id)).data;
-			if (Std.is(data, String)) {
-				var bytes = new ByteArray();
-				bytes.writeUTFBytes(data);
-			} else if (Std.is(data, ByteArray)) {
-				bytes = cast data;
-			} else {
-				bytes = null;
-			}
+				#if !lime_html5
+					var bytes:ByteArray = null;
+					var data = ApplicationMain.urlLoaders.get(AssetData.path.get(id)).data;
+					if (Std.is(data, String)) {
+						var bytes = new ByteArray();
+						bytes.writeUTFBytes(data);
+					} else if (Std.is(data, ByteArray)) {
+						bytes = cast data;
+					} else {
+						bytes = null;
+					}
 
-			if (bytes != null) {
-				bytes.position = 0;
-				return bytes;
-			} else {
-				return null;
-			}
+					if (bytes != null) {
+						bytes.position = 0;
+						return bytes;
+					} else {
+						return null;
+					}
+				#end //lime_html5
 			
-			#else
+			#else //js or flash
 			
-			return ByteArray.readFile(AssetData.path.get(id));
+				return ByteArray.readFile(AssetData.path.get(id));
 			
 			#end
 			
