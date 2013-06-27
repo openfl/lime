@@ -41,7 +41,6 @@ class Main {
         //Called each frame by lime for logic (called before render)
 	public function update() {
 
-
 			//an awful magic number to change the value slowly
 		red_value += red_direction * 0.005;
 
