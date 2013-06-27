@@ -2,6 +2,7 @@ package lime;
 
 import lime.LiME;
 import lime.utils.Libs;
+import lime.Constants;
 
 class WindowHandler {
 
@@ -14,15 +15,75 @@ class WindowHandler {
     public var invalidated : Bool = false;
 
     public function startup() {
-        lib._debug(':: lime :: \t WindowHandler Initialized.');
+        
+        lib._debug(':: lime :: \t WindowHandler Initializing...');
+
+        #if lime_native
+            nme_create_main_frame( 
+                lib.on_window_ready, 
+                lib.config.width,               //width
+                lib.config.height,              //height
+                    Window.RESIZABLE | 
+                    Window.HARDWARE | 
+                    Window.VSYNC | 
+                    Window.HW_AA | 
+                    Window.HW_AA_HIRES | 
+                    Window.ALLOW_SHADERS | 
+                    Window.REQUIRE_SHADERS | 
+                    Window.DEPTH_BUFFER | 
+                    Window.STENCIL_BUFFER ,     //flags
+                lib.config.title,               //title
+                null                            //icon
+
+            ); //nme_create_main_frame
+        #end
+
+
+        #if lime_html5 
+            
+            var handle = null;
+
+            untyped {
+                js.Browser.document.body.onload = function (_) {
+                    var handle = js.Browser.document.getElementById('lime_canvas');
+                    lib.on_window_ready( handle ); 
+                }
+           }
+            
+        #end //lime_html5
     }
 
     public function shutdown() {
+
+        #if lime_native            
+            nme_close();
+        #end
+
         lib._debug(':: lime :: \t WindowHandler shut down.');
     }
 
-    public function process() {
+    public function ready() {
+            //todo, neaten
+        #if lime_native        
+            lib.view_handle = nme_get_frame_stage( lib.window_handle );
+        #end //lime_native
+
+    }
+
+    public function post_ready() {
         
+        #if lime_native
+                //Set the stage handler for NME to send us events
+            nme_set_stage_handler(lib.view_handle, lib.on_lime_event, lib.config.width, lib.config.height);
+        #end
+
+        #if lime_html5  
+            //start the run loop on html5, as there is no
+            //window creation callback there.
+            js.Browser.window.requestAnimationFrame(lib.on_update);
+        #end         
+
+        lib._debug(':: lime :: \t WindowHandler Initialized.');
     }    
 
     	//Invalidate the window (forcing a redraw on next update)
@@ -82,10 +143,12 @@ class WindowHandler {
 
 
 //nme functions
-
+    private static var nme_set_stage_handler        = Libs.load("nme","nme_set_stage_handler",  4);
+    private static var nme_get_frame_stage          = Libs.load("nme","nme_get_frame_stage",    1);    
+    private static var nme_create_main_frame        = Libs.load("nme","nme_create_main_frame", -1);        
     private static var nme_pause_animation          = Libs.load("nme","nme_pause_animation",    0);
     private static var nme_resume_animation         = Libs.load("nme","nme_resume_animation",   0);
-
     private static var nme_terminate                = Libs.load("nme","nme_terminate", 0);
+    private static var nme_close                    = Libs.load("nme","nme_close", 0);
 
 }

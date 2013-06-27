@@ -24,9 +24,9 @@ class LiME {
 //nme specifics
 
 		//the handle to the window from nme
-    public var mainframe_handle : Dynamic;
+    public var window_handle : Dynamic;
     	//the handle to the nme stage
-    public var stage_handle : Dynamic;
+    public var view_handle : Dynamic;
 
 //flags
 	
@@ -46,65 +46,27 @@ class LiME {
     	_debug(':: lime :: initializing -');
         _debug(':: lime :: Creating window at ' + config.width + 'x' + config.height);
 
-        #if lime_native
-            nme_create_main_frame( 
-                on_main_frame_created, 
-                config.width,                   //width
-                config.height,                  //height
-                    Window.RESIZABLE | 
-                    Window.HARDWARE | 
-                    Window.VSYNC | 
-                    Window.HW_AA | 
-                    Window.HW_AA_HIRES | 
-                    Window.ALLOW_SHADERS | 
-                    Window.REQUIRE_SHADERS | 
-                    Window.DEPTH_BUFFER | 
-                    Window.STENCIL_BUFFER ,     //flags
-                config.title,                   //title
-                null                            //icon
-
-            ); //nme_create_main_frame
-        #end
-
-
-        #if lime_html5 
-            
-            var handle = null;
-
-            untyped {
-                js.Browser.document.body.onload = function (_) {
-                    var handle = js.Browser.document.getElementById('lime_canvas');
-                    on_main_frame_created( handle ); 
-                }
-           }
-            
-        #end //lime_html5
+            //Create our window handler class, 
+            //this will handle initialization
+        window = new WindowHandler( this );
+        window.startup();         
        	
     } //init
     
         //This gets called once the create_main_frame call inside new() 
         //comes back with our window
 
-    private function on_main_frame_created( handle:Dynamic ) {
+    public function on_window_ready( handle:Dynamic ) {
     
             //Store a reference to the handle            
-        mainframe_handle = handle;
-
-        #if lime_native
-            stage_handle = nme_get_frame_stage( mainframe_handle );
-
-                //Set the stage handler for NME to send us events
-            nme_set_stage_handler(stage_handle, on_stage_event, config.width, config.height);
-        #end
-
+        window_handle = handle;
+            
+            //do any on ready initialization for the window
+        window.ready();
 
             //Create our input message handler class 
         input = new InputHandler( this );
-        input.startup(); 
-
-            //Create our window message handler class 
-        window = new WindowHandler( this );
-        window.startup(); 
+        input.startup();         
 
             //Create our render message handler class
         render = new RenderHandler( this );
@@ -120,12 +82,11 @@ class LiME {
             host.ready(this);
         }
 
-        #if lime_html5  
-            //start the run loop
-            js.Browser.window.requestAnimationFrame(on_update);
-        #end        
+            //if any post ready things that need 
+            //to happen, do it here.
+       window.post_ready();      
 
-    } //on_main_frame_created
+    } //on_window_ready
 
     public function shutdown() {        
 
@@ -145,13 +106,6 @@ class LiME {
         input.shutdown();
         window.shutdown();
 
-            //Ok kill it! 
-            //Order matters for events coming
-            //when things below are set to null.
-        #if lime_native            
-            nme_close();
-        #end
-
             //Flag it
         has_shutdown = true;
 
@@ -164,7 +118,7 @@ class LiME {
         window = null;
     }
 
-    private function on_stage_event( _event:Dynamic ) : Dynamic {
+    public function on_lime_event( _event:Dynamic ) : Dynamic {
 
         var event_type:Int = Std.int(Reflect.field(_event, "type"));
         
@@ -272,7 +226,7 @@ class LiME {
         
         return null;
 
-    } //on_stage_event
+    } //on_lime_event
 
     	//Handle system/window messages
     public function on_syswm(ev:Dynamic) {
@@ -287,24 +241,19 @@ class LiME {
     	//Called when updated by the nme/sdl runtime
     public function on_update(_event) { 
 
-        #if lime_html5
-            js.Browser.window.requestAnimationFrame(on_update);
-        #end
-
         _debug('on_update ' + Timer.stamp(), true, true); 
 
         if(!has_shutdown) {
-            
+
             if(host.update != null) {
                 host.update();
             }
 
             do_render(_event);
+            
         }
-
-        #if lime_html5
-            return true;
-        #end 
+        
+        return true;
     } //on_update
 
     //Render the window
@@ -320,28 +269,11 @@ class LiME {
             window.invalidated = false;
         }
     
-        render.on_render();
-
-#if lime_native
-        nme_render_stage( stage_handle );
-#end //lime_native
+        render.render();
 
     } //do_render    
 
-
 //Noisy stuff
-
-#if lime_native
-
-    	//import nme_library functions
-    private static var nme_render_stage             = Libs.load("nme","nme_render_stage", 1);
-    private static var nme_set_stage_handler        = Libs.load("nme","nme_set_stage_handler",  4);
-    private static var nme_get_frame_stage          = Libs.load("nme","nme_get_frame_stage",    1);
-    private static var nme_close                    = Libs.load("nme","nme_close", 0);
-
-    private static var nme_create_main_frame        = Libs.load("nme","nme_create_main_frame", -1);        
-
-#end //lime_native
 
    		//temporary debugging with verbosity options
 
