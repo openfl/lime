@@ -10,7 +10,7 @@ class PlatformConfig {
 	public var android:AndroidConfig;
 	public var ios:IOSConfig;
 	
-	private static var defaultAndroid:AndroidConfig = { installLocation: "preferExternal" };
+	private static var defaultAndroid:AndroidConfig = { installLocation: "preferExternal", minimumSDKVersion: 8, targetSDKVersion: 8 };
 	private static var defaultIOS:IOSConfig = { compiler: "clang", deployment: /*3.2*/ 5, device: IOSConfigDevice.UNIVERSAL, linkerFlags: "", prerenderedIcon: false };
 	
 	
@@ -59,6 +59,8 @@ class PlatformConfig {
 typedef AndroidConfig = {
 	
 	@:optional var installLocation:String;
+	@:optional var minimumSDKVersion:Int;
+	@:optional var targetSDKVersion:Int;
 	
 }
 
