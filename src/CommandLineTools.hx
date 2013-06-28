@@ -15,6 +15,7 @@ import project.*;
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
+import utils.JavaExternGenerator;
 import utils.PlatformSetup;
 	
 	
@@ -558,6 +559,14 @@ class CommandLineTools {
 			var details = Font.load (sourcePath);
 			var json = Json.stringify (details);
 			Sys.print (json);
+			
+		} else if (targetFlags.exists ("java-externs")) {
+			
+			var config = getHXCPPConfig ();
+			var sourcePath = words[0];
+			var targetPath = words[1];
+			
+			new JavaExternGenerator (config, sourcePath, targetPath);
 			
 		}
 		
