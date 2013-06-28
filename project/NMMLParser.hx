@@ -1251,7 +1251,7 @@ class NMMLParser extends NMEProject {
 						
 						for (attribute in element.x.attributes ()) {
 							
-							var name = formatAttributeName (attribute);
+							var name = attribute;
 							var value = substitute (element.att.resolve (attribute));
 							
 							switch (name) {
