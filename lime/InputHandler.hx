@@ -94,7 +94,7 @@ class InputHandler {
 
 //Mouse
     
-    public function lime_mousemove(_event:Dynamic) {
+    public function lime_mousemove(_event:Dynamic) {        
         if(lib.host.onmousemove != null) {
             lib.host.onmousemove(_event);
         }
