@@ -3,6 +3,17 @@
 <head>
     <meta charset="utf-8">
     <title>::APP_TITLE::</title>
+
+    <style> 
+        #lime_canvas {
+            position: absolute;
+            display: block;
+            width: ::WIN_WIDTH::px;
+            height: ::WIN_HEIGHT::px;
+            margin-left:-50%;
+            left:50%;
+        }
+    </style>
 </head>
 <body style="padding: 0; margin: 0; background-color: #FFFFFF;">
     
@@ -24,7 +35,7 @@
     ::end::
 
     ::if DEBUG::<script type="text/javascript" src="./webgl-debug.js"></script>::end::
-    <canvas id="lime_canvas" width="::WIN_WIDTH::" height="::WIN_HEIGHT::">
+    <canvas id="lime_canvas" tabindex="1" width="::WIN_WIDTH::" height="::WIN_HEIGHT::">
     </canvas>
     
 </body>

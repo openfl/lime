@@ -291,10 +291,10 @@ class Matrix3D
 
       return invertable;
    }
-
-   /*public function pointAt(pos:Vector3D, ?at:Vector3D, ?up:Vector3D):Void {
-      if (at == null) at = new Vector3D(0,0,-1);
-      if (up == null) up = new Vector3D(0,-1,0);
+/*
+   public function pointAt(pos:phoenix.Vector, ?at:phoenix.Vector, ?up:phoenix.Vector):Matrix3D {
+      if (at == null) at = new phoenix.Vector(0,0,-1);
+      if (up == null) up = new phoenix.Vector(0,-1,0);
 
       //pos.x*=-1;
       //pos.y*=-1;
@@ -305,28 +305,28 @@ class Matrix3D
       //up.x*=-1;
       //up.y*=-1;
       //up.z*=-1;
-      var dir:Vector3D = at.subtract(pos);
-      var vup:Vector3D = up.clone();
-      var right:Vector3D;
+      var dir:phoenix.Vector = at.subtract(pos);
+      var vup:phoenix.Vector = up.clone();
+      var right:phoenix.Vector;
 
-      dir.normalize();
-      vup.normalize();
+      dir.normalized;
+      vup.normalized;
 
       var dir2 = dir.clone();
-      dir2.scaleBy(vup.dotProduct(dir));
+      dir2.multiply_(vup.dot(dir));
 
       vup = vup.subtract(dir2);
 
       if (vup.length > 0)
       {
-         vup.normalize();
+         vup.normalized;
       } else 
       {
-         vup = dir.x != 0 ? new Vector3D(-dir.y,dir.x,0) : new Vector3D(1,0,0);
+         vup = dir.x != 0 ? new phoenix.Vector(-dir.y,dir.x,0) : new phoenix.Vector(1,0,0);
       }
 
-      right = vup.crossProduct(dir);
-      right.normalize();
+      right = phoenix.Vector.Cross(vup, dir);
+      right.normalized;
 
       rawData[0] = right.x;
       rawData[4] = right.y;
@@ -344,8 +344,10 @@ class Matrix3D
       rawData[7] = pos.y;
       rawData[11] = pos.z;
       rawData[15] = 1.0;
-   }*/
 
+      return this;
+   }
+*/
    inline public function prepend(rhs:Matrix3D):Void 
    {
       var m111:Float = rhs.rawData[0], m121:Float = rhs.rawData[4], m131:Float = rhs.rawData[8], m141:Float = rhs.rawData[12],

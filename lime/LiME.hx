@@ -122,7 +122,9 @@ class LiME {
 
         var event_type:Int = Std.int(Reflect.field(_event, "type"));
         
-        _debug('event_from_stage : ' + event_type, true, true);
+        if(event_type != SystemEvents.poll) {
+            _debug('event_from_stage : ' + event_type, true, true);
+        }
 
         switch(event_type) {
 
@@ -136,64 +138,63 @@ class LiME {
 
     //keyboard
             case SystemEvents.char:
-                input.core_onchar(_event);
+                input.lime_onchar(_event);
 
             case SystemEvents.keydown:
-                input.core_onkeydown(_event);
+                input.lime_onkeydown(_event);
 
             case SystemEvents.keyup:
-                input.core_onkeyup(_event);
+                input.lime_onkeyup(_event);
                 
             case SystemEvents.gotinputfocus:
-            	input.core_gotinputfocus(_event);
+            	input.lime_gotinputfocus(_event);
 
             case SystemEvents.lostinputfocus:
-            	input.core_lostinputfocus(_event);
+            	input.lime_lostinputfocus(_event);
 
     //mouse             
             case SystemEvents.mousemove:
-                input.core_mousemove(_event);
+                input.lime_mousemove(_event);
 
             case SystemEvents.mousedown:
-            	input.core_mousedown(_event);
-                
+            	input.lime_mousedown(_event);
 
             case SystemEvents.mouseclick:
-            	input.core_mouseclick(_event);
+            	input.lime_mouseclick(_event);
 
             case SystemEvents.mouseup:
-            	input.core_mouseup(_event);
+            	input.lime_mouseup(_event);
                 
 
     //touch
             case SystemEvents.touchbegin:
-               	input.core_touchbegin(_event);
+               	input.lime_touchbegin(_event);
 
             case SystemEvents.touchmove:
-                input.core_touchmove(_event);
+                input.lime_touchmove(_event);
 
             case SystemEvents.touchend:
-                input.core_touchend(_event);
+                input.lime_touchend(_event);
 
             case SystemEvents.touchtap:
-                input.core_touchtap(_event);
+                input.lime_touchtap(_event);
 
     //joystick
 
             case SystemEvents.joyaxismove:
-                input.core_joyaxismove(_event);
+                input.lime_joyaxismove(_event);
 
             case SystemEvents.joyballmove:
-                input.core_joyballmove(_event);
+                input.lime_joyballmove(_event);
 
             case SystemEvents.joyhatmove:
-                input.core_joyhatmove(_event);
+                input.lime_joyhatmove(_event);
 
             case SystemEvents.joybuttondown:
-                input.core_joybuttondown(_event);
+                input.lime_joybuttondown(_event);
 
             case SystemEvents.joybuttonup:
-                input.core_joybuttonup(_event);
+                input.lime_joybuttonup(_event);
 
     //Window
 

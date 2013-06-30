@@ -347,18 +347,29 @@ class Assets {
 	 * @return		A new String object
 	 */
 	public static function getText(id:String):String {
-		
-		var bytes = getBytes(id);
-		
-		if (bytes == null) {
 			
-			return null;
-			
-		} else {
+		#if lime_native
+			var bytes = getBytes(id);
+			if (bytes == null) {
+				return null;
+			} else {
+				return bytes.readUTFBytes(bytes.length);
+			}
+		#end //lime_native
 
-			return bytes.readUTFBytes(bytes.length);
-	
-		}
+		#if lime_html5
+
+ 			var req = new haxe.Http(id);
+        	var results : Dynamic;
+
+        	req.async = false;
+        	req.onData = function(e) { results = e; }
+        	req.request();
+        	req = null;
+
+        	return results;
+
+		#end //lime_html5
 		
 	}
 	

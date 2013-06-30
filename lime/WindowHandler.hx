@@ -25,9 +25,9 @@ class WindowHandler {
                 lib.config.height,              //height
                     Window.RESIZABLE | 
                     Window.HARDWARE | 
-                    Window.VSYNC | 
+                    // Window.VSYNC | 
                     Window.HW_AA | 
-                    Window.HW_AA_HIRES | 
+                    // Window.HW_AA_HIRES | 
                     Window.ALLOW_SHADERS | 
                     Window.REQUIRE_SHADERS | 
                     Window.DEPTH_BUFFER | 

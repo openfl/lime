@@ -54,6 +54,30 @@ class Main {
 
 	}
 
+        //Called by lime 
+    public function onmousemove(_event:Dynamic) {
+        // trace(_event);
+    }    
+
+        //Called by lime 
+    public function onkeydown(_event:Dynamic) {
+        trace(_event);
+    }    
+
+        //Called by lime 
+    public function onkeyup(_event:Dynamic) {
+        // trace(_event);
+    }
+    
+        //Called by lime 
+    public function onmousedown(_event:Dynamic) {
+        // trace(_event);
+    }
+        //Called by lime 
+    public function onmouseup(_event:Dynamic) {
+        // trace(_event);
+    }
+
         //Called by lime
 	public function render() {
 

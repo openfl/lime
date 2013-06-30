@@ -9,6 +9,36 @@ class InputHandler {
 
     public function startup() {
         lib._debug(':: lime :: \t InputHandler Initialized.');
+
+        #if lime_html5
+            //on html5 we need to listen for events on the canvas
+            //lib.window_handle = canvas element
+            lib.window_handle.addEventListener('contextmenu', function(e){
+                e.preventDefault();
+            });
+
+            lib.window_handle.addEventListener('mousedown', function(e){
+                e.preventDefault();
+                lime_mousedown(e);
+            });
+            lib.window_handle.addEventListener('mousemove', function(e){
+                e.preventDefault();
+                lime_mousemove(e);
+            });
+            lib.window_handle.addEventListener('mouseup', function(e){
+                e.preventDefault();
+                lime_mouseup(e);
+            });
+
+            js.Browser.document.addEventListener('keydown', function(e){
+                e.value = e.which+32;
+                lime_onkeydown(e);
+            });
+            js.Browser.document.addEventListener('keyup', function(e){
+                e.value = e.which+32;
+                lime_onkeyup(e);
+            });
+        #end //lime_html5
     }
 
     public function shutdown() {
@@ -21,52 +51,84 @@ class InputHandler {
 
 //Keyboard
 
-    public function core_onchar(_event:Dynamic) {
+    public function lime_onchar(_event:Dynamic) {
+        if(lib.host.onchar != null) {
+            lib.host.onchar(_event);
+        }
+
+        lime_onkeydown(_event);
         //if (onKey != null) {
         //  untyped onKey(_event.code, _event.down, _event.char, _event.flags);
         //}     
     }
 
-    public function core_onkeydown(_event:Dynamic) {
+    public function lime_onkeydown(_event:Dynamic) {
+        if(lib.host.onkeydown != null) {
+            lib.host.onkeydown(_event);
+        }
         //nmeOnKey(_event, KeyboardEvent.KEY_DOWN);
     }
 
-    public function core_onkeyup(_event:Dynamic) {
+    public function lime_onkeyup(_event:Dynamic) {
+        if(lib.host.onkeyup != null) {
+            lib.host.onkeyup(_event);
+        }
         //nmeOnKey(_event, KeyboardEvent.KEY_UP);
     }
 
-    public function core_gotinputfocus(_event:Dynamic) {
+    public function lime_gotinputfocus(_event:Dynamic) {
+        if(lib.host.ongotinputfocus != null) {
+            lib.host.ongotinputfocus(_event);
+        }
         //var evt = new Event(FocusEvent.FOCUS_IN);
         //nmeDispatchEvent(evt);        
     }   
 
-    public function core_lostinputfocus(_event:Dynamic) {
+    public function lime_lostinputfocus(_event:Dynamic) {
+        if(lib.host.onlostinputfocus != null) {
+            lib.host.onlostinputfocus(_event);
+        }
         //var evt = new Event(FocusEvent.FOCUS_OUT);
         //nmeDispatchEvent(evt);
     }
 
 //Mouse
     
-    public function core_mousemove(_event:Dynamic) {
+    public function lime_mousemove(_event:Dynamic) {
+        if(lib.host.onmousemove != null) {
+            lib.host.onmousemove(_event);
+        }
         //nmeOnMouse(_event, MouseEvent.MOUSE_MOVE, true);
     }
 
-    public function core_mousedown(_event:Dynamic) {
+    public function lime_mousedown(_event:Dynamic) {
+        if(lib.host.onmousedown != null) {
+            lib.host.onmousedown(_event);
+        }
         //nmeOnMouse(_event, MouseEvent.MOUSE_DOWN, true);
     }
 
-    public function core_mouseclick(_event:Dynamic) {
+    public function lime_mouseclick(_event:Dynamic) {
+        if(lib.host.onmouseclick != null) {
+            lib.host.onmouseclick(_event);
+        }
         //nmeOnMouse(_event, MouseEvent.CLICK, true);
     }
 
-    public function core_mouseup(_event:Dynamic) {
+    public function lime_mouseup(_event:Dynamic) {
+        if(lib.host.onmouseup != null) {
+            lib.host.onmouseup(_event);
+        }
         //nmeOnMouse(_event, MouseEvent.MOUSE_UP, true);
     }
 
 //Touch
 
     
-    public function core_touchbegin(_event:Dynamic) {
+    public function lime_touchbegin(_event:Dynamic) {
+        if(lib.host.ontouchbegin != null) {
+            lib.host.ontouchbegin(_event);
+        }
             //var touchInfo = new TouchInfo();
             //nmeTouchInfo.set(_event.value, touchInfo);
             //nmeOnTouch(_event, TouchEvent.TOUCH_BEGIN, touchInfo);
@@ -75,12 +137,18 @@ class InputHandler {
             //  nmeOnMouse(_event, MouseEvent.MOUSE_DOWN, false);   
     }
 
-    public function core_touchmove(_event:Dynamic) {
+    public function lime_touchmove(_event:Dynamic) {
+        if(lib.host.ontouchmove != null) {
+            lib.host.ontouchmove(_event);
+        }
             //var touchInfo = nmeTouchInfo.get(_event.value);
              //nmeOnTouch(_event, TouchEvent.TOUCH_MOVE, touchInfo);        
     }
 
-    public function core_touchend(_event:Dynamic) {
+    public function lime_touchend(_event:Dynamic) {
+        if(lib.host.ontouchend != null) {
+            lib.host.ontouchend(_event);
+        }
         //var touchInfo = nmeTouchInfo.get(_event.value);
         //nmeOnTouch(_event, TouchEvent.TOUCH_END, touchInfo);
         //nmeTouchInfo.remove(_event.value);
@@ -89,29 +157,47 @@ class InputHandler {
         //  nmeOnMouse(_event, MouseEvent.MOUSE_UP, false);     
     }
 
-    public function core_touchtap(_event:Dynamic) {
+    public function lime_touchtap(_event:Dynamic) {
+        if(lib.host.ontouchtap != null) {
+            lib.host.ontouchtap(_event);
+        }
         //nmeOnTouchTap(_event.TouchEvent.TOUCH_TAP);
     }
 
 //Joystick
 
-    public function core_joyaxismove(_event:Dynamic) {
+    public function lime_joyaxismove(_event:Dynamic) {
+        if(lib.host.onjoyaxismove != null) {
+            lib.host.onjoyaxismove(_event);
+        }
         //nmeOnJoystick(_event, JoystickEvent.AXIS_MOVE);
     }
 
-    public function core_joyballmove(_event:Dynamic) {
+    public function lime_joyballmove(_event:Dynamic) {
+        if(lib.host.onjoyballmove != null) {
+            lib.host.onjoyballmove(_event);
+        }
         //nmeOnJoystick(_event, JoystickEvent.BALL_MOVE);
     }
 
-    public function core_joyhatmove(_event:Dynamic) {
+    public function lime_joyhatmove(_event:Dynamic) {
+        if(lib.host.onjoyhatmove != null) {
+            lib.host.onjoyhatmove(_event);
+        }
         //nmeOnJoystick(_event, JoystickEvent.HAT_MOVE);
     }
 
-    public function core_joybuttondown(_event:Dynamic) {
+    public function lime_joybuttondown(_event:Dynamic) {
+        if(lib.host.onjoybuttondown != null) {
+            lib.host.onjoybuttondown(_event);
+        }
         //nmeOnJoystick(_event, JoystickEvent.BUTTON_DOWN);
     }
 
-    public function core_joybuttonup(_event:Dynamic) {
+    public function lime_joybuttonup(_event:Dynamic) {
+        if(lib.host.onjoybuttonup != null) {
+            lib.host.onjoybuttonup(_event);
+        }
         //nmeOnJoystick(_event, JoystickEvent.BUTTON_UP);
     }
 
