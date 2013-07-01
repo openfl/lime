@@ -80,7 +80,7 @@ class WindowHandler {
         #if lime_html5  
             //start the run loop on html5, as there is no
             //window creation callback there.
-            js.Browser.window.requestAnimationFrame(lib.on_update);
+            lib.render.render();
         #end         
 
         lib._debug(':: lime :: \t WindowHandler Initialized.');
@@ -113,6 +113,12 @@ class WindowHandler {
     } //on_redraw
 
 	public function on_resize(_event:Dynamic) {
+            
+            //make sure the view is informed
+        lib.render.on_resize(_event);
+
+        //todo:
+
     	//nmeOnResize(_event.x, _event.y);
             //if (renderRequest == null)
             //  nmeRender(false);

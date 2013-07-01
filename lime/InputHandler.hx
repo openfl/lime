@@ -15,20 +15,44 @@ class InputHandler {
             //lib.window_handle = canvas element
             lib.window_handle.addEventListener('contextmenu', function(e){
                 e.preventDefault();
-            });
+            }); //contextmenu
 
+                //todo:better forward (more info passed on)
             lib.window_handle.addEventListener('mousedown', function(e){
-                e.preventDefault();
-                lime_mousedown(e);
-            });
+
+                e.preventDefault();     
+
+                lime_mousedown({
+                    x:e.pageX - lib.render.canvas_position.x, 
+                    y:e.pageY - lib.render.canvas_position.y, 
+                    button:e.button
+                }); //mousedown
+
+            }); //mousedown
+
             lib.window_handle.addEventListener('mousemove', function(e){
+
                 e.preventDefault();
-                lime_mousemove(e);
-            });
+
+                lime_mousemove({
+                    x:e.pageX - lib.render.canvas_position.x, 
+                    y:e.pageY - lib.render.canvas_position.y, 
+                    button:e.button
+                }); //lime_mousemove
+
+            }); //mousemove
+
             lib.window_handle.addEventListener('mouseup', function(e){
+
                 e.preventDefault();
-                lime_mouseup(e);
-            });
+
+                lime_mouseup({
+                    x:e.pageX - lib.render.canvas_position.x, 
+                    y:e.pageY - lib.render.canvas_position.y, 
+                    button:e.button
+                }); //lime_mouseup
+
+            }); //mouseup
 
             js.Browser.document.addEventListener('keydown', function(e){
                 e.value = e.which+32;

@@ -20,6 +20,16 @@ import lime.geometry.Matrix3D;
     import js.Browser;
     import js.html.CanvasElement;
 
+
+enum BrowserLike {
+    unknown;
+    chrome;
+    firefox;
+    opera;
+    ie;
+    safari;
+}
+
 #end //lime_html5
 
 
@@ -31,7 +41,13 @@ class RenderHandler {
         //direct_renderer_handle for drawing
     public var direct_renderer_handle : Dynamic;
 
-    public function startup() {
+    #if lime_html5
+        public var requestAnimFrame : Dynamic;
+        public var browser : BrowserLike;
+        public var canvas_position : Dynamic;
+    #end //lime_html5
+    
+    public function startup() { 
 
         #if lime_native
 
@@ -47,9 +63,43 @@ class RenderHandler {
         #end //lime_native
 
         #if lime_html5
-            
-            direct_renderer_handle = lib.window_handle.getContext('webgl');
+                //default to 0,0
+            canvas_position = {x:0, y:0};
+
+                //default to unknown
+            browser = BrowserLike.unknown;
+
+            var _window_handle : js.html.CanvasElement = cast lib.window_handle;
+            direct_renderer_handle = _window_handle.getContextWebGL({ alpha:false, premultipliedAlpha:false });
+
+                //for use with mouseoffsets and so on
+            update_canvas_position();
+
+            if(direct_renderer_handle == null) {
+                throw "WebGL is required to run this";
+            } 
+
             lime.gl.GL.nmeContext = direct_renderer_handle;
+
+            requestAnimFrame = js.Browser.window.requestAnimationFrame;
+            
+            if(requestAnimFrame != null) {
+                browser = BrowserLike.chrome;
+            } else {
+                
+                var _firefox = untyped js.Browser.window.mozRequestAnimationFrame;
+                var _safari = untyped js.Browser.window.webkitRequestAnimationFrame;
+                var _opera = untyped js.Browser.window.oRequestAnimationFrame;
+
+                if(_firefox) {
+                    browser = BrowserLike.firefox;
+                } else if(_safari) {
+                    browser = BrowserLike.safari;
+                } else if(_opera){
+                    browser = BrowserLike.opera;
+                }
+
+            } //else there is no RequestAnimationFrame
 
         #end //lime_html5
 
@@ -62,11 +112,95 @@ class RenderHandler {
         lib._debug(':: lime :: \t RenderHandler shut down.');
     }
 
+    public function on_resize(_event:Dynamic) {
+        #if lime_html5
+            update_canvas_position();
+        #end //lime_html5
+        //todo: more things?
+    }
+    
+#if lime_html5
+    
+    public function update_canvas_position() {
+        // see the following link for this implementation
+        // http://www.quirksmode.org/js/findpos.html
+
+        var curleft = 0;
+        var curtop = 0;
+
+            //start at the canvas
+        var _obj : Dynamic = lib.window_handle;
+        var _has_parent : Bool = true;
+        var _max_count = 0;
+
+        while(_has_parent == true) {
+
+            _max_count++;
+            
+            if(_max_count > 30) {
+                _has_parent = false;
+                break;
+            } //prevent rogue endless loops
+
+            if(_obj.offsetParent) {
+
+                    //it still has an offset parent, add it up
+                curleft += _obj.offsetLeft;
+                curtop += _obj.offsetTop;
+
+                    //then move onto the parent 
+                _obj = _obj.offsetParent;
+
+            } else {
+                    //we are done
+                _has_parent = false;
+
+            }
+        } //while
+
+        canvas_position = { x:curleft, y:curtop };
+    }
+
+    public function _requestAnimFrame(callback) {
+
+        if(browser == BrowserLike.chrome) {
+
+            requestAnimFrame(callback);
+
+        } else  //chrome
+        if(browser == BrowserLike.firefox) {
+
+            untyped {
+                js.Browser.window.mozRequestAnimationFrame(callback);
+            }
+
+        } else //firefox
+        if(browser == BrowserLike.safari) {
+
+            untyped {
+                js.Browser.window.webkitRequestAnimationFrame(callback);
+            }
+
+        } else //safari
+        if(browser == BrowserLike.opera) {
+
+            untyped {
+                js.Browser.window.oRequestAnimationFrame(callback);
+            }
+
+        } else { //opera
+
+            js.Browser.window.setTimeout(cast callback, 16);
+
+        } //no RAF? fall back to setTimeout for now
+    }
+#end //lime_html5
+
     public function render() {
 
         #if lime_html5
             on_render();
-            js.Browser.window.requestAnimationFrame(lib.on_update);
+            _requestAnimFrame( lib.on_update );
             return true;
         #end      
 
@@ -76,13 +210,13 @@ class RenderHandler {
 
     }
 
-    public function on_render() {   
+    public function on_render() {
 
         if( lib.host.render != null ) {
             lib.host.render();
         }
        
-    }
+    } //on_render
 
 //nme functions
 #if lime_native
@@ -90,7 +224,6 @@ class RenderHandler {
     private static var nme_doc_add_child            = Libs.load("nme","nme_doc_add_child", 2);
     private static var nme_direct_renderer_create   = Libs.load("nme","nme_direct_renderer_create", 0);
     private static var nme_direct_renderer_set      = Libs.load("nme","nme_direct_renderer_set", 2);
-
 #end //lime_native
 
 } 
