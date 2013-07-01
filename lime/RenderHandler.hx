@@ -161,7 +161,7 @@ class RenderHandler {
         canvas_position = { x:curleft, y:curtop };
     }
 
-    public function _requestAnimFrame(callback) {
+    public function _requestAnimFrame(callback:Dynamic) {
 
         if(browser == BrowserLike.chrome) {
 
@@ -190,7 +190,9 @@ class RenderHandler {
 
         } else { //opera
 
-            js.Browser.window.setTimeout(cast callback, 16);
+            js.Browser.window.setTimeout(function(){
+                callback();
+            }, 16);
 
         } //no RAF? fall back to setTimeout for now
     }

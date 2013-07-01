@@ -81,6 +81,7 @@ class Main {
         //Called by lime
 	public function render() {
 
+        trace('wtf');
  			//Set the viewport for GL
  		GL.viewport( 0, 0, lib.config.width, lib.config.height );
 
