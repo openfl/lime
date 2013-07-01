@@ -55,11 +55,21 @@ class InputHandler {
             }); //mouseup
 
             js.Browser.document.addEventListener('keydown', function(e){
-                e.value = e.which+32;
+                if (e.keyCode >= 65 && e.keyCode <= 122) {
+                    e.value = e.which+32;
+                } else {
+                    e.value = e.which;
+                }
+                
                 lime_onkeydown(e);
             });
             js.Browser.document.addEventListener('keyup', function(e){
-                e.value = e.which+32;
+                if (e.keyCode >= 65 && e.keyCode <= 122) {
+                    e.value = e.which+32;
+                } else {
+                    e.value = e.which;
+                }
+
                 lime_onkeyup(e);
             });
         #end //lime_html5
