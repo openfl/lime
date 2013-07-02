@@ -66,112 +66,127 @@ class FileHelper {
 	
 	public static function linkFile (source:String, destination:String, symbolic:Bool = true) {
 
-		var command:String = "/bin/ln";
-		var args:Array<String> = [];
-		if (symbolic) args.push("-s");
-		args.push(source);
-		args.push(destination);
-
-		ProcessHelper.runCommand (".", command, args);
-
-	}
-	
-	public static function copyFile (source:String, destination:String, context:Dynamic = null, process:Bool = true) {
-		
-		var extension = Path.extension (source);
-		
-		if (process && context != null && 
-            (extension == "xml" ||
-             extension == "java" ||
-             extension == "hx" ||
-             extension == "hxml" ||
-			 extension == "html" || 
-             extension == "ini" ||
-             extension == "gpe" ||
-             extension == "pch" ||
-             extension == "pbxproj" ||
-             extension == "plist" ||
-             extension == "json" ||
-             extension == "cpp" ||
-             extension == "mm" ||
-			 extension == "properties" ||
-			 extension == "hxproj" ||
-			 extension == "nmml" ||
-			 isText(source))) {
-			
-			LogHelper.info ("", " - Copying template file: " + source + " -> " + destination);
-			
-			var fileContents:String = File.getContent (source);
-			var template:Template = new Template (fileContents);
-			var result:String = template.execute (context);
-			var fileOutput:FileOutput = File.write (destination, true);
-			fileOutput.writeString (result);
-			fileOutput.close ();
-			
-		} else {
-			
-			copyIfNewer (source, destination);
-			
-		}
-		
-	}
-	
-	
-	public static function copyFileTemplate (templatePaths:Array <String>, source:String, destination:String, context:Dynamic = null, process:Bool = true) {
-		
-		var path = PathHelper.findTemplate (templatePaths, source);
-		
-		if (path != null) {
-			
-			copyFile (path, destination, context, process);
-			
-		}
-		
-	}
-	
-	
-	public static function copyIfNewer (source:String, destination:String) {
-      
-		//allFiles.push (destination);
-		
 		if (!isNewer (source, destination)) {
 			
 			return;
-			
+		
+		}
+
+		if (FileSystem.exists (destination)) {
+		
+			FileSystem.deleteFile(destination);
 		}
 		
-		PathHelper.mkdir (Path.directory (destination));
+		if (!FileSystem.exists(destination)) {
 		
-		LogHelper.info ("", " - Copying file: " + source + " -> " + destination);
-		File.copy (source, destination);
+			var command:String = "/bin/ln";
+			var args:Array<String> = [];
+			if (symbolic) args.push("-s");
+			args.push(source);
+			args.push(destination);
+
+			ProcessHelper.runCommand (".", command, args);
 		
-	}
-	
-	
-	public static function copyLibrary (ndll:NDLL, directoryName:String, namePrefix:String, nameSuffix:String, targetDirectory:String, allowDebug:Bool = false, targetSuffix:String = null) {
+		}
+
+		}
 		
-		var path = PathHelper.getLibraryPath (ndll, directoryName, namePrefix, nameSuffix, allowDebug);
-		
-		if (FileSystem.exists (path)) {
+		public static function copyFile (source:String, destination:String, context:Dynamic = null, process:Bool = true) {
 			
-			var targetPath = PathHelper.combine (targetDirectory, namePrefix + ndll.name);
+			var extension = Path.extension (source);
 			
-			if (targetSuffix != null) {
+			if (process && context != null && 
+		    (extension == "xml" ||
+		     extension == "java" ||
+		     extension == "hx" ||
+		     extension == "hxml" ||
+				 extension == "html" || 
+		     extension == "ini" ||
+		     extension == "gpe" ||
+		     extension == "pch" ||
+		     extension == "pbxproj" ||
+		     extension == "plist" ||
+		     extension == "json" ||
+		     extension == "cpp" ||
+		     extension == "mm" ||
+				 extension == "properties" ||
+				 extension == "hxproj" ||
+				 extension == "nmml" ||
+				 isText(source))) {
 				
-				targetPath += targetSuffix;
+				LogHelper.info ("", " - Copying template file: " + source + " -> " + destination);
+				
+				var fileContents:String = File.getContent (source);
+				var template:Template = new Template (fileContents);
+				var result:String = template.execute (context);
+				var fileOutput:FileOutput = File.write (destination, true);
+				fileOutput.writeString (result);
+				fileOutput.close ();
 				
 			} else {
 				
-				targetPath += nameSuffix;
+				copyIfNewer (source, destination);
 				
 			}
 			
-			PathHelper.mkdir (targetDirectory);
-			LogHelper.info ("", " - Copying library file: " + path + " -> " + targetPath);
-			File.copy (path, targetPath);
+		}
+		
+		
+		public static function copyFileTemplate (templatePaths:Array <String>, source:String, destination:String, context:Dynamic = null, process:Bool = true) {
 			
-		} else {
+			var path = PathHelper.findTemplate (templatePaths, source);
 			
+			if (path != null) {
+				
+				copyFile (path, destination, context, process);
+				
+			}
+			
+		}
+		
+		
+		public static function copyIfNewer (source:String, destination:String) {
+	      
+			//allFiles.push (destination);
+			
+			if (!isNewer (source, destination)) {
+				
+				return;
+				
+			}
+			
+			PathHelper.mkdir (Path.directory (destination));
+			
+			LogHelper.info ("", " - Copying file: " + source + " -> " + destination);
+			File.copy (source, destination);
+			
+		}
+		
+		
+		public static function copyLibrary (ndll:NDLL, directoryName:String, namePrefix:String, nameSuffix:String, targetDirectory:String, allowDebug:Bool = false, targetSuffix:String = null) {
+			
+			var path = PathHelper.getLibraryPath (ndll, directoryName, namePrefix, nameSuffix, allowDebug);
+			
+			if (FileSystem.exists (path)) {
+				
+				var targetPath = PathHelper.combine (targetDirectory, namePrefix + ndll.name);
+				
+				if (targetSuffix != null) {
+					
+					targetPath += targetSuffix;
+					
+				} else {
+					
+					targetPath += nameSuffix;
+					
+				}
+				
+				PathHelper.mkdir (targetDirectory);
+				LogHelper.info ("", " - Copying library file: " + path + " -> " + targetPath);
+				File.copy (path, targetPath);
+				
+			} else {
+				
 			LogHelper.error ("Source path \"" + path + "\" does not exist");
 			
 		}

@@ -701,10 +701,12 @@ class CommandLineTools {
 			
 			case WINDOWS:
 				
+				untyped $loader.path = $array (path2 + "Windows/", $loader.path);
 				untyped $loader.path = $array (path + "Windows/", $loader.path);
 				
 			case MAC:
 				
+				untyped $loader.path = $array (path2 + "Mac/", $loader.path);
 				untyped $loader.path = $array (path + "Mac/", $loader.path);
 				
 			case LINUX:
@@ -720,14 +722,17 @@ class CommandLineTools {
 				
 				if (raspberryPi) {
 					
+					untyped $loader.path = $array (path2 + "RPi/", $loader.path);
 					untyped $loader.path = $array (path + "RPi/", $loader.path);
 					
 				} else if (PlatformHelper.hostArchitecture == Architecture.X64) {
 					
+					untyped $loader.path = $array (path2 + "Linux64/", $loader.path);
 					untyped $loader.path = $array (path + "Linux64/", $loader.path);
 					
 				} else {
 					
+					untyped $loader.path = $array (path2 + "Linux/", $loader.path);
 					untyped $loader.path = $array (path + "Linux/", $loader.path);
 					
 				}
