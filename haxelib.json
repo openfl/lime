@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "Command-line tools for OpenFL",
-	"version": "1.0.0-rc.5",
-	"releasenote": "Initial release",
+	"version": "1.0.3",
+	"releasenote": "Minor update to support OUYA",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
 }

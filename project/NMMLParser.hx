@@ -1247,6 +1247,37 @@ class NMMLParser extends NMEProject {
 						
 						dependencies.push (substitute (element.att.name));
 					
+					case "android":
+						
+						for (attribute in element.x.attributes ()) {
+							
+							var name = attribute;
+							var value = substitute (element.att.resolve (attribute));
+							
+							switch (name) {
+								
+								case "minimum-sdk-version":
+									
+									config.android.minimumSDKVersion = Std.parseInt (value);
+								
+								case "target-sdk-version":
+									
+									config.android.targetSDKVersion = Std.parseInt (value);
+								
+								default:
+									
+									name = formatAttributeName (attribute);
+									
+									if (Reflect.hasField (config.android, name)) {
+										
+										Reflect.setField (config.android, name, value);
+										
+									}
+								
+							}
+							
+						}
+					
 					case "ios":
 						
 						if (target == Platform.IOS) {

@@ -260,9 +260,19 @@ class PlatformSetup {
 		
 		var config = CommandLineTools.getHXCPPConfig ();
 		
-		var defines = config.environment;
+		var defines = null;
 		var env = Sys.environment ();
 		var path = "";
+		
+		if (config != null) {
+			
+			defines = config.environment;
+			
+		} else {
+			
+			defines = new Map <String, String> ();
+			
+		}
 		
 		if (!defines.exists ("HXCPP_CONFIG")) {
 			
@@ -344,7 +354,7 @@ class PlatformSetup {
 		
 		if (!userDefines.exists ("nme")) {
 			
-			Sys.command ("haxelib install openfl-tools");
+			//Sys.command ("haxelib install openfl-tools");
 			Sys.command ("haxelib install openfl-html5");
 			Sys.command ("haxelib install openfl-samples");
 			Sys.command ("haxelib install openfl-compatibility");
