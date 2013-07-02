@@ -382,9 +382,15 @@ class IOSPlatform implements IPlatformTool {
 			
 			if (asset.type != AssetType.TEMPLATE) {
 				
-				PathHelper.mkdir (Path.directory (projectDirectory + "/assets/" + asset.flatName));
-				FileHelper.copyIfNewer (asset.sourcePath, projectDirectory + "/assets/" + asset.flatName);
+				var flatAssetPath:String = projectDirectory + "/assets/" + asset.flatName;
+				var sourceAssetPath:String = projectDirectory + "haxe/" + asset.sourcePath;
 				
+				PathHelper.mkdir (Path.directory (flatAssetPath));
+				FileHelper.copyIfNewer (asset.sourcePath, flatAssetPath);
+				
+				PathHelper.mkdir (Path.directory (sourceAssetPath));
+				FileHelper.linkFile (flatAssetPath, sourceAssetPath);
+
 			} else {
 				
 				PathHelper.mkdir (Path.directory (projectDirectory + "/" + asset.targetPath));

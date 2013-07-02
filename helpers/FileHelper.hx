@@ -14,7 +14,7 @@ import neko.Lib;
 
 class FileHelper {
 	
-	
+
 	public static function copyAsset (asset:Asset, destination:String, context:Dynamic = null) {
 		
 		if (asset.sourcePath != "") {
@@ -64,6 +64,17 @@ class FileHelper {
 		
 	}
 	
+	public static function linkFile (source:String, destination:String, symbolic:Bool = true) {
+
+		var command:String = "/bin/ln";
+		var args:Array<String> = [];
+		if (symbolic) args.push("-s");
+		args.push(source);
+		args.push(destination);
+
+		ProcessHelper.runCommand (".", command, args);
+
+	}
 	
 	public static function copyFile (source:String, destination:String, context:Dynamic = null, process:Bool = true) {
 		
