@@ -63,7 +63,33 @@ class FileHelper {
 		}
 		
 	}
-	
+
+	public static function linkFile (source:String, destination:String, symbolic:Bool = true) {
+
+		if (!isNewer (source, destination)) {
+			
+			return;
+		
+		}
+
+		if (FileSystem.exists (destination)) {
+		
+			FileSystem.deleteFile(destination);
+		}
+		
+		if (!FileSystem.exists(destination)) {
+		
+			var command:String = "/bin/ln";
+			var args:Array<String> = [];
+			if (symbolic) args.push("-s");
+			args.push(source);
+			args.push(destination);
+
+			ProcessHelper.runCommand (".", command, args);
+		
+		}
+
+	}	
 	
 	public static function copyFile (source:String, destination:String, context:Dynamic = null, process:Bool = true) {
 		
