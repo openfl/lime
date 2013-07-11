@@ -4,6 +4,7 @@ import lime.utils.Libs;
 
 import lime.Constants;
 import lime.RenderHandler;
+import lime.AudioHandler;
 import lime.InputHandler;
 import lime.WindowHandler;
 
@@ -17,7 +18,8 @@ class LiME {
 	public var config : Dynamic;
 
         //The handlers for the messages from NME
-    public var input   : InputHandler;
+    public var audio    : AudioHandler;
+    public var input    : InputHandler;
     public var render   : RenderHandler;
 	public var window 	: WindowHandler;
 
@@ -64,9 +66,16 @@ class LiME {
             //do any on ready initialization for the window
         window.ready();
 
+            //For the asset class to keep lists and such
+        nme.AssetData.initialize();
+
             //Create our input message handler class 
         input = new InputHandler( this );
         input.startup();         
+
+            //Create our audio message handler class
+        audio = new AudioHandler( this );
+        audio.startup();         
 
             //Create our render message handler class
         render = new RenderHandler( this );
