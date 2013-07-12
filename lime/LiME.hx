@@ -254,7 +254,9 @@ class LiME {
         _debug('on_update ' + Timer.stamp(), true, true); 
 
             //Keep the Timers updated. todo, tidy.
-        Timer.nmeCheckTimers();
+        #if lime_native
+            Timer.nmeCheckTimers();
+        #end
 
         if(!has_shutdown) {
 
