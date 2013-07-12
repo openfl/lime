@@ -630,5 +630,5 @@ class ByteArray extends Bytes #if !haxe3 , #end implements ArrayAccess<Int> #if 
 }
 
 #else
-typedef ByteArray = flash.utils.ByteArray;
+typedef ByteArray = Dynamic;//todo ; flash.utils.ByteArray;
 #end

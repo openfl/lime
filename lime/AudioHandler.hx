@@ -74,11 +74,11 @@ class AudioHandler {
 		sounds = new Map();		
 	}
 
-	public function create_sound(_name:String, _file:String ) {
+	public function create_sound(_name:String, _file:String, ?_music:Bool = false ) {
 		if(sounds.exists(_name)) {
 			throw ">>> Named sounds are not allowed to have duplicate names";
 		}
-		var _handle = nme_sound_from_file( nme.AssetData.path.get(_file), false);
+		var _handle = nme_sound_from_file( nme.AssetData.path.get(_file), _music);
 		var _sound = new Sound(_handle);
 		sounds.set(_name, _sound);
 	}

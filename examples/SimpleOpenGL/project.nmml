@@ -8,11 +8,7 @@
           company="underscorediscovery" 
 	/>
 
-	<app
-          main="Main"
-          path="bin"
-          file="lime_example_simple"
-	/>
+	<app main="Main" path="bin" file="lime_example_simple" />
 
 	<window 
           width="960" 

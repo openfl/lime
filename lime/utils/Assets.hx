@@ -517,6 +517,8 @@ enum LibraryType {
 #else
 
 
+#if flash
+
 import haxe.io.Bytes;
 import haxe.macro.Context;
 import haxe.macro.Expr;
@@ -761,5 +763,5 @@ class Assets {
 	
 }
 
-
+#end //if flash
 #end

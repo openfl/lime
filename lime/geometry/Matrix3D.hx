@@ -489,5 +489,5 @@ class Matrix3D
 }
 
 #else
-typedef Matrix3D = flash.geom.Matrix3D;
+typedef Matrix3D = Dynamic; //todo ; flash.geom.Matrix3D;
 #end
