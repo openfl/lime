@@ -21,6 +21,6 @@ class RunScript {
 			//enforce the folder to the current on
 		Sys.setCwd(cwd);
 			//and then execute
-		Sys.command("haxelib", full_args);
+		return Sys.command("haxelib", full_args);
 	}
 }
