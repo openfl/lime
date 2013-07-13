@@ -31,13 +31,12 @@ class IOSPlatform implements IPlatformTool {
 		
 		IOSHelper.build (project, project.app.path + "/ios");
 		
-        if (!project.targetFlags.exists ("simulator")) {
-            
-            var entitlements = targetDirectory + "/" + project.app.file + "/" + project.app.file + "-Entitlements.plist";
-            
-            IOSHelper.sign (project, targetDirectory + "/bin", entitlements);
-            
-        }
+		if (!project.targetFlags.exists ("simulator")) {
+			
+			var entitlements = targetDirectory + "/" + project.app.file + "/" + project.app.file + "-Entitlements.plist";
+			IOSHelper.sign (project, targetDirectory + "/bin", entitlements);
+			
+		}
 		
 	}
 	
@@ -96,7 +95,7 @@ class IOSPlatform implements IPlatformTool {
 		/*var deployment = Std.parseFloat (iosDeployment);
 		var binaries = iosBinaries;
 		var devices = iosDevices;
-
+		
 		if (binaries != "fat" && binaries != "armv7" && binaries != "armv6") {
 			
 			InstallerBase.error ("iOS binaries must be one of: \"fat\", \"armv6\", \"armv7\"");
@@ -128,7 +127,7 @@ class IOSPlatform implements IPlatformTool {
 			valid_archs.push("armv7");
 			
 		}
-
+		
 		if (iosCompiler == "llvm" || iosCompiler == "clang") {
 			
 			context.OBJC_ARC = true;
@@ -390,7 +389,7 @@ class IOSPlatform implements IPlatformTool {
 				
 				PathHelper.mkdir (Path.directory (sourceAssetPath));
 				FileHelper.linkFile (flatAssetPath, sourceAssetPath);
-
+				
 			} else {
 				
 				PathHelper.mkdir (Path.directory (projectDirectory + "/" + asset.targetPath));
@@ -399,12 +398,12 @@ class IOSPlatform implements IPlatformTool {
 			}
 			
 		}
-        
-        if (project.command == "update" && PlatformHelper.hostPlatform == Platform.MAC) {
-            
-            ProcessHelper.runCommand ("", "open", [ targetDirectory + "/" + project.app.file + ".xcodeproj" ] );
-            
-        }
+		
+		if (project.command == "update" && PlatformHelper.hostPlatform == Platform.MAC) {
+			
+			ProcessHelper.runCommand ("", "open", [ targetDirectory + "/" + project.app.file + ".xcodeproj" ] );
+			
+		}
 		
 	}
 	
@@ -416,7 +415,7 @@ class IOSPlatform implements IPlatformTool {
 		
 		var has_launch_image = false;
 		if (launchImages.length > 0) has_launch_image = true;
-
+		
 		for (launchImage in launchImages) {
 			
 			var splitPath = launchImage.name.split ("/");
@@ -424,7 +423,7 @@ class IOSPlatform implements IPlatformTool {
 			FileHelper.copyFile (launchImage.name, path, context, false);
 			
 		}
-
+		
 		context.HAS_LAUNCH_IMAGE = has_launch_image;
 		
 	}*/

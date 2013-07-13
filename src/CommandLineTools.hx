@@ -20,8 +20,7 @@ import utils.PlatformSetup;
 	
 	
 class CommandLineTools {
-
-	public static var nme:String;
+	
 	
 	private static var additionalArguments:Array <String>;
 	private static var command:String;
@@ -681,7 +680,7 @@ class CommandLineTools {
 			
 		} else {
 			
-			json = Json.parse (File.getContent (nme + "/haxelib.json"));
+			json = Json.parse (File.getContent (PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/haxelib.json"));
 			
 		}
 		
@@ -1145,16 +1144,6 @@ class CommandLineTools {
 		
 		var arguments = Sys.args ();
 		
-		nme = PathHelper.getHaxelib (new Haxelib ("openfl"));
-		
-		var lastCharacter = nme.substr ( -1, 1);
-		
-		if (lastCharacter == "/" || lastCharacter == "\\") {
-			
-			nme = nme.substr (0, -1);
-			
-		}
-
 		if (arguments.length > 0) {
 			
 			// When the command-line tools are called from haxelib, 
