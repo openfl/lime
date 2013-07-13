@@ -1,0 +1,4 @@
+-main RunScript
+-neko ../run.n
+-lib openfl-tools
+-cp src
