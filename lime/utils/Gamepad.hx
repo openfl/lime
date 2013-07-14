@@ -53,7 +53,7 @@ class Gamepad {
     	}
 
     	for(i in 0 ... max_hats) {
-    		Reflect.setProperty(this, 'hats' + i, hats[i]);
+    		Reflect.setProperty(this, 'hat' + i, hats[i]);
     	}
 
     } //set_profile
