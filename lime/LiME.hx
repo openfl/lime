@@ -233,7 +233,7 @@ class LiME {
                 on_change(_event);
 
         }
-        
+
         return null;
 
     } //on_lime_event
@@ -265,9 +265,12 @@ class LiME {
             }
 
             do_render(_event);
-            
-        }
-        
+
+            if(render != null) {
+                render.next_wake();
+            }
+        } // if !has_shutdown
+
         return true;
     } //on_update
 

@@ -220,12 +220,22 @@ class RenderHandler {
        
     } //on_render
 
+    public function next_wake(f:Float = 0) {
+
+        if(lib.shutting_down) return;
+
+        #if lime_native
+            // nme_stage_set_next_wake( direct_renderer_handle, 0.2 );
+        #end //lime_native
+    }
+
 //nme functions
 #if lime_native
     private static var nme_render_stage             = Libs.load("nme","nme_render_stage", 1);
     private static var nme_doc_add_child            = Libs.load("nme","nme_doc_add_child", 2);
     private static var nme_direct_renderer_create   = Libs.load("nme","nme_direct_renderer_create", 0);
     private static var nme_direct_renderer_set      = Libs.load("nme","nme_direct_renderer_set", 2);
+    private static var nme_stage_set_next_wake      = Libs.load("nme","nme_stage_set_next_wake", 2);    
 #end //lime_native
 
 } 

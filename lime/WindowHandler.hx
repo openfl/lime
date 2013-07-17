@@ -19,23 +19,32 @@ class WindowHandler {
         lib._debug(':: lime :: \t WindowHandler Initializing...');
 
         #if lime_native
-            nme_create_main_frame( 
+            nme_create_main_frame(
+
                 lib.on_window_ready, 
                 lib.config.width,               //width
                 lib.config.height,              //height
-                    Window.RESIZABLE | 
-                    Window.HARDWARE | 
-                    // Window.VSYNC | 
-                    Window.HW_AA | 
-                    // Window.HW_AA_HIRES | 
-                    Window.ALLOW_SHADERS | 
-                    Window.REQUIRE_SHADERS | 
-                    Window.DEPTH_BUFFER | 
-                    Window.STENCIL_BUFFER ,     //flags
+                                                //required flags
+
+                    Window.HARDWARE             | 
+                    Window.ALLOW_SHADERS        | 
+                    Window.REQUIRE_SHADERS      | 
+
+                                                //optional flags
+
+                    ( lib.config.resizable      ? Window.RESIZABLE      : 0) |  
+                    ( lib.config.AA             ? Window.HW_AA          : 0) | 
+                    ( lib.config.AA_HIRES       ? Window.HW_AA_HIRES    : 0) | 
+                    ( lib.config.depth_buffer   ? Window.DEPTH_BUFFER   : 0) | 
+                    ( lib.config.stencil_buffer ? Window.STENCIL_BUFFER : 0) |                      
+                    ( lib.config.vsync          ? Window.VSYNC          : 0), 
+
                 lib.config.title,               //title
                 null                            //icon
 
             ); //nme_create_main_frame
+
+
         #end
 
 
@@ -63,10 +72,24 @@ class WindowHandler {
     }
 
     public function ready() {
-            //todo, neaten
+
         #if lime_native        
+                //Fetch the stage handle
             lib.view_handle = nme_get_frame_stage( lib.window_handle );
+
+                //Make sure that our configs are up to date with the actual screen resolution
+                //not just the specified resolution in the project file
+            lib.config.width = nme_stage_get_stage_width(lib.view_handle);
+            lib.config.height = nme_stage_get_stage_height(lib.view_handle);
+
+                //Update the touch support
+            lib.config.multitouch_supported = nme_stage_get_multitouch_supported(lib.view_handle);
+            lib.config.multitouch = true;
+                //Enable it if needed
+            nme_stage_set_multitouch_active(lib.view_handle, true);
+
         #end //lime_native
+
 
     }
 
@@ -149,6 +172,10 @@ class WindowHandler {
 
 
 //nme functions
+    private static var nme_stage_get_stage_width    = Libs.load("nme","nme_stage_get_stage_width",  1);
+    private static var nme_stage_get_stage_height   = Libs.load("nme","nme_stage_get_stage_height",  1);
+    private static var nme_stage_get_multitouch_supported = Libs.load("nme","nme_stage_get_multitouch_supported",  1);
+    private static var nme_stage_set_multitouch_active = Libs.load("nme","nme_stage_set_multitouch_active",  2);
     private static var nme_set_stage_handler        = Libs.load("nme","nme_set_stage_handler",  4);
     private static var nme_get_frame_stage          = Libs.load("nme","nme_get_frame_stage",    1);    
     private static var nme_create_main_frame        = Libs.load("nme","nme_create_main_frame", -1);        

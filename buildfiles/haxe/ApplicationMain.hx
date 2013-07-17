@@ -14,9 +14,16 @@ class ApplicationMain {
 		_main_ = new ::APP_MAIN::();
 
 		var config = {
-			width : ::WIN_WIDTH::, 
-			height : ::WIN_HEIGHT::, 
-			title : "::APP_TITLE::"
+			fullscreen		: ::WIN_FULLSCREEN::,
+			resizable 		: ::WIN_RESIZABLE::,
+			borderless		: ::WIN_BORDERLESS::,
+			aliasing		: ::WIN_ANTIALIASING::,
+			stencil_buffer 	: ::WIN_STENCIL_BUFFER::,
+			depth_buffer 	: ::WIN_DEPTH_BUFFER::,
+			vsync 			: ::WIN_VSYNC::,
+			width 			: ::WIN_WIDTH::, 
+			height 			: ::WIN_HEIGHT::, 
+			title 			: "::APP_TITLE::"
 		};
 
 			//Start up

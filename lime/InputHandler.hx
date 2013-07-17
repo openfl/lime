@@ -8,8 +8,12 @@ class InputHandler {
     public var lib : LiME;
     public function new( _lib:LiME ) { lib = _lib; }
 
+    public var touch_map:Map<Int, Dynamic>;
+
     public function startup() {
         lib._debug(':: lime :: \t InputHandler Initialized.');
+
+        touch_map = new Map<Int, Dynamic>();
 
         #if lime_html5
             //on html5 we need to listen for events on the canvas
@@ -128,68 +132,153 @@ class InputHandler {
     }
 
 //Mouse
-    
-    public function lime_mousemove(_event:Dynamic) {        
-        if(lib.host.onmousemove != null) {
-            lib.host.onmousemove(_event);
+    private function mouse_button_from_id(id:Int) : Dynamic {
+        switch(id){
+            case 0 : return MouseButton.left;
+            case 1 : return MouseButton.middle;
+            case 2 : return MouseButton.right;
+            case 3 : return MouseButton.wheel_down;
+            case 4 : return MouseButton.wheel_up;
+            default : return id;
         }
-        //nmeOnMouse(_event, MouseEvent.MOUSE_MOVE, true);
     }
 
+    public function lime_mousemove(_event:Dynamic) {        
+        
+        if(lib.host.onmousemove != null) {
+            lib.host.onmousemove({
+                button : MouseButton.move,
+                state : MouseState.down,
+                x : _event.x,
+                y : _event.y,
+                flags : _event.flags,
+                ctrl_down :  (_event.flags & efCtrlDown > 0),
+                alt_down :   (_event.flags & efAltDown > 0),
+                shift_down : (_event.flags & efShiftDown > 0),
+                meta_down :  (_event.flags & efCommandDown > 0)                
+            });
+        } //if host onmousemove
+
+    } //lime_mousemove
+
     public function lime_mousedown(_event:Dynamic) {
+
         if(lib.host.onmousedown != null) {
-            lib.host.onmousedown(_event);
-        }
-        //nmeOnMouse(_event, MouseEvent.MOUSE_DOWN, true);
-    }
+            lib.host.onmousedown({
+                button : mouse_button_from_id(_event.value),
+                state : MouseState.down,
+                x : _event.x,
+                y : _event.y,
+                flags : _event.flags,
+                ctrl_down :  (_event.flags & efCtrlDown > 0),
+                alt_down :   (_event.flags & efAltDown > 0),
+                shift_down : (_event.flags & efShiftDown > 0),
+                meta_down :  (_event.flags & efCommandDown > 0)
+            });
+        } //if host onmousedown
+        
+    } //lime_mousedown
 
     public function lime_mouseclick(_event:Dynamic) {
         if(lib.host.onmouseclick != null) {
-            lib.host.onmouseclick(_event);
-        }
-        //nmeOnMouse(_event, MouseEvent.CLICK, true);
-    }
+            lib.host.onmouseclick({
+                button : _event.value,
+                state : MouseState.down,
+                x : _event.x,
+                y : _event.y,
+                flags : _event.flags,
+                ctrl_down :  (_event.flags & efCtrlDown > 0),
+                alt_down :   (_event.flags & efAltDown > 0),
+                shift_down : (_event.flags & efShiftDown > 0),
+                meta_down :  (_event.flags & efCommandDown > 0)                
+            });
+        } //if host onmouseclick
+
+    } //lime_mouseclick
 
     public function lime_mouseup(_event:Dynamic) {
         if(lib.host.onmouseup != null) {
-            lib.host.onmouseup(_event);
-        }
-        //nmeOnMouse(_event, MouseEvent.MOUSE_UP, true);
-    }
+            lib.host.onmouseup({
+                button : mouse_button_from_id(_event.value),
+                state : MouseState.up,
+                x : _event.x,
+                y : _event.y,
+                flags : _event.flags,
+                ctrl_down :  (_event.flags & efCtrlDown > 0),
+                alt_down :   (_event.flags & efAltDown > 0),
+                shift_down : (_event.flags & efShiftDown > 0),
+                meta_down :  (_event.flags & efCommandDown > 0)                
+            });
+        } //if host onmouseup  
+
+    } //lime_mouseup
 
 //Touch
 
-    
     public function lime_touchbegin(_event:Dynamic) {
+ 
+        var touch_item = {
+            state : TouchState.begin,
+            flags : _event.flags,
+            ID : _event.value,
+            x : _event.x,
+            y : _event.y
+        };
+
+            //store the touch in the set
+        touch_map.set( touch_item.ID, touch_item );
+
+            //forward to the host
         if(lib.host.ontouchbegin != null) {
-            lib.host.ontouchbegin(_event);
+            lib.host.ontouchbegin( touch_item );
         }
-            //var touchInfo = new TouchInfo();
-            //nmeTouchInfo.set(_event.value, touchInfo);
-            //nmeOnTouch(_event, TouchEvent.TOUCH_BEGIN, touchInfo);
-            //// trace("etTouchBegin : " + _event.value + "   " + _event.x + "," + _event.y+ " OBJ:" + _event.id + " sizeX:" + _event.sx + " sizeY:" + _event.sy );
-            //if ((_event.flags & 0x8000) > 0)
-            //  nmeOnMouse(_event, MouseEvent.MOUSE_DOWN, false);   
+
+            //forward the down event
+        if ((_event.flags & 0x8000) > 0) {
+            lime_mousedown(_event);
+        }
+
     }
 
     public function lime_touchmove(_event:Dynamic) {
+
+            //Get the touch item from the set
+        var touch_item = touch_map.get( _event.value );
+            //Update the values
+        touch_item.x = _event.x;
+        touch_item.y = _event.y;
+        touch_item.state = TouchState.move;
+        touch_item.flags = _event.flags;
+
+            //Call the host function
         if(lib.host.ontouchmove != null) {
-            lib.host.ontouchmove(_event);
+            lib.host.ontouchmove(touch_item);
         }
-            //var touchInfo = nmeTouchInfo.get(_event.value);
-             //nmeOnTouch(_event, TouchEvent.TOUCH_MOVE, touchInfo);        
+
     }
 
-    public function lime_touchend(_event:Dynamic) {
+    public function lime_touchend(_event:Dynamic) {  
+
+        //Get the touch item from the set
+        var touch_item = touch_map.get( _event.value );
+            //Update the values
+        touch_item.x = _event.x;
+        touch_item.y = _event.y;
+        touch_item.state = TouchState.end;
+        touch_item.flags = _event.flags;
+
         if(lib.host.ontouchend != null) {
-            lib.host.ontouchend(_event);
+            lib.host.ontouchend(touch_item);
         }
-        //var touchInfo = nmeTouchInfo.get(_event.value);
-        //nmeOnTouch(_event, TouchEvent.TOUCH_END, touchInfo);
-        //nmeTouchInfo.remove(_event.value);
-        //// trace("etTouchEnd : " + _event.value + "   " + _event.x + "," + _event.y + " OBJ:" + _event.id + " sizeX:" + _event.sx + " sizeY:" + _event.sy );
-        //if ((_event.flags & 0x8000) > 0)
-        //  nmeOnMouse(_event, MouseEvent.MOUSE_UP, false);     
+
+            //Forward the up event
+        if ((_event.flags & 0x8000) > 0) {
+            lime_mouseup(_event);
+        }   
+
+            //remove it from the map
+        touch_map.remove(_event.value);
+
     }
 
     public function lime_touchtap(_event:Dynamic) {
@@ -236,6 +325,55 @@ class InputHandler {
         //nmeOnJoystick(_event, JoystickEvent.BUTTON_UP);
     }
 
+    
+    private static var efLeftDown = 0x0001;
+    private static var efShiftDown = 0x0002;
+    private static var efCtrlDown = 0x0004;
+    private static var efAltDown = 0x0008;
+    private static var efCommandDown = 0x0010;
+
+
 }
 
+
+enum TouchState {
+    begin;
+    move;
+    end;
+}
+
+enum MouseState {
+    down;
+    move;
+    up;
+}
+
+enum MouseButton {
+    move;
+    left;
+    middle;
+    right;
+    wheel_up;
+    wheel_down;
+}
+
+typedef TouchEvent = {
+    var state : TouchState;
+    var flags : Int;
+    var ID : Int;
+    var x : Float;
+    var y : Float;
+};
+
+typedef MouseEvent = { 
+    var state : MouseState;
+    var flags : Int;
+    var button : MouseButton;
+    var x : Float;
+    var y : Float;
+}
+
+typedef GamepadEvent = { 
+
+}
 

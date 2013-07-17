@@ -17,6 +17,7 @@
 		
 	</section>
 	
+	<include haxelib="openfl-tools" />
 	<templatePath name="buildfiles" />
 	
 </extension>
