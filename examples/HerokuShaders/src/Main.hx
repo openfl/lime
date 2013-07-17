@@ -80,7 +80,11 @@ class Main {
 #end //if !mobile
 
         //The maximum time to spend on a shader example before cycling
+    #if !mobile
     private static var maxTime = 2;
+    #else 
+    private static var maxTime = 5;
+    #end
 
         //The current active shader example in the list
     private var currentIndex:Int;
@@ -114,12 +118,16 @@ class Main {
         var time = haxe.Timer.stamp() - startTime;
         if (time > maxTime && fragmentShaders.length > 1) {
                 
-                //Pick a random example to show
-            if( include_slow_expensive_examples ) {
+            #if !mobile
+                    //Pick a random example to show
+                if( include_slow_expensive_examples ) {
+                    currentIndex = Std.random( fragmentShaders.length - 1 );
+                } else {    
+                    currentIndex = slow_end_index + next ;
+                }
+            #else 
                 currentIndex = Std.random( fragmentShaders.length - 1 );
-            } else {
-                currentIndex = slow_end_index + Std.random( (fragmentShaders.length - slow_end_index - 1) );
-            }
+            #end
 
             compile ();
             
