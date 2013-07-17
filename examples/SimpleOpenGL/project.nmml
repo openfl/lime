@@ -3,7 +3,7 @@
 	
 	<meta 
           title="lime example - Simple OpenGL" 
-          package="com.underscorediscovery.nmegl_example_simple" 
+          package="com.underscorediscovery.limeexamplesimple" 
           version="1.0.0" 
           company="underscorediscovery" 
 	/>

@@ -3,7 +3,7 @@
 	
 	<meta 
           title="lime example - HerokuShaders" 
-          package="com.underscorediscovery.nmegl_example_herokushaders" 
+          package="com.underscorediscovery.limeexampleherokushaders" 
           version="1.0.0" 
           company="underscorediscovery" 
 	/>
