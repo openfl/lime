@@ -123,7 +123,7 @@ class Main {
                 if( include_slow_expensive_examples ) {
                     currentIndex = Std.random( fragmentShaders.length - 1 );
                 } else {    
-                    currentIndex = slow_end_index + next ;
+                    currentIndex = slow_end_index + Std.random( (fragmentShaders.length - slow_end_index - 1) );
                 }
             #else 
                 currentIndex = Std.random( fragmentShaders.length - 1 );
