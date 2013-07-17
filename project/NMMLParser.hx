@@ -795,7 +795,7 @@ class NMMLParser extends NMEProject {
 						
 						if (path != null && path != "" && FileSystem.exists (path)) {
 							
-							var includeProject = new NMMLParser (path);
+							var includeProject = new NMMLParser (path, localDefines);
 							
 							if (addSourcePath) {
 								
@@ -877,7 +877,7 @@ class NMMLParser extends NMEProject {
 						
 						if (includePath != "") {
 							
-							var includeProject = new NMMLParser (includePath);
+							var includeProject = new NMMLParser (includePath, localDefines);
 							
 							if (includeProject != null) {
 								
