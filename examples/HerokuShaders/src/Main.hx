@@ -161,8 +161,6 @@ class Main {
         GL.clear (GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT );
         GL.drawArrays (GL.TRIANGLES, 0, 6);
         
-        
- 	
 	}
 
 

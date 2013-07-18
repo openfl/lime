@@ -225,7 +225,8 @@ class RenderHandler {
         if(lib.shutting_down) return;
 
         #if lime_native
-            // nme_stage_set_next_wake( direct_renderer_handle, 0.2 );
+                //todo - sleep a tiny amount to not use 100% cpu
+            nme_stage_set_next_wake( lib.view_handle , 0.001 );
         #end //lime_native
     }
 

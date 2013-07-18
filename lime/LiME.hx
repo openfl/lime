@@ -266,9 +266,9 @@ class LiME {
 
             do_render(_event);
 
-            if(render != null) {
-                render.next_wake();
-            }
+                //make sure the c++ knows our sleep time
+            render.next_wake();
+
         } // if !has_shutdown
 
         return true;
