@@ -287,8 +287,7 @@ class LiME {
     
         render.render();
            //make sure the c++ knows our sleep time
-        // render.next_wake();
-
+        render.next_wake();
 
     } //do_render    
 

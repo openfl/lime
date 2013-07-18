@@ -62,7 +62,7 @@ class Main {
 
         //Called by lime 
     public function onkeydown(_event:Dynamic) {
-        trace(_event);
+        // trace(_event);
     }    
 
         //Called by lime 
