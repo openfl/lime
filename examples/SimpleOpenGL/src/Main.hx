@@ -11,6 +11,8 @@ import lime.gl.GLProgram;
 import lime.utils.Float32Array;
 import lime.geometry.Matrix3D;
 
+import motion.Actuate;
+
 class Main {
 
 	public var lib : LiME;
@@ -34,7 +36,18 @@ class Main {
         lib = _lime;
 
 			// Init the shaders and view
-		init();		
+		init();
+
+        lib.audio.create_sound('sound1', 'assets/music_credit.ogg');
+        lib.audio.create_sound('sound2', 'assets/shoot.wav');
+
+        lib.audio.sounds.get('sound1').volume = 1;
+        lib.audio.sounds.get('sound1').play();
+        lib.audio.sounds.get('sound2').play();
+
+        // Actuate.timer (0.5).repeat ().onRepeat(function(){
+        //     lib.audio.sounds.get('sound2').play();
+        // });
 
 	}
 

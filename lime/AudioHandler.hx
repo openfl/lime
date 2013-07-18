@@ -82,7 +82,7 @@ class AudioHandler {
 		var _sound = new Sound(_handle);
 		sounds.set(_name, _sound);
 	}
-
+	
 
    private static var nme_sound_from_file = Libs.load("nme","nme_sound_from_file", 2);
    private static var nme_sound_from_data = Libs.load("nme","nme_sound_from_data", 3);
