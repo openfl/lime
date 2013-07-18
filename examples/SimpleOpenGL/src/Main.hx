@@ -11,7 +11,6 @@ import lime.gl.GLProgram;
 import lime.utils.Float32Array;
 import lime.geometry.Matrix3D;
 
-import motion.Actuate;
 
 class Main {
 
