@@ -36,13 +36,6 @@ class Main {
 
 			// Init the shaders and view
 		init();
-
-        lib.audio.create_sound('sound1', 'assets/music_credit.ogg');
-        lib.audio.create_sound('sound2', 'assets/shoot.wav');
-
-        lib.audio.sounds.get('sound1').volume = 1;
-        lib.audio.sounds.get('sound1').play();
-        lib.audio.sounds.get('sound2').play();
         
 	}
 

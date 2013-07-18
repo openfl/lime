@@ -36,12 +36,19 @@ class Sound {
 
 	public function play(?_loops:Int = 0, ?_start:Float = 0.0) {
 		sound = null;
-		sound = nme_sound_channel_create(handle, _start, _loops, _transform);
+		
+		#if lime_native		
+			sound = nme_sound_channel_create(handle, _start, _loops, _transform);
+		#end //lime_native
 	}
 
 	public function stop() {
 		if(sound != null) {
-			nme_sound_channel_stop(sound);
+
+			#if lime_native		
+				nme_sound_channel_stop(sound);
+			#end //lime_native
+			
 			sound = null;
 		}
 	}
