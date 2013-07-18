@@ -48,18 +48,29 @@ class Sound {
 
 	public function set_volume(_v:Float) : Float {
 		_transform.volume = _v;
-		nme_sound_channel_set_transform(sound,_transform);
+
+		#if lime_native
+			nme_sound_channel_set_transform(sound,_transform);
+		#end //lime_native
+
 		return volume = _v;
 	}
 	public function set_pan(_p:Float) : Float {
 		_transform.pan = _p;
-		nme_sound_channel_set_transform(sound,_transform);
+	
+		#if lime_native
+			nme_sound_channel_set_transform(sound,_transform);
+		#end //lime_native
+
 		return pan = _p;
 	}
 
+#if lime_native
    private static var nme_sound_channel_create = Libs.load("nme","nme_sound_channel_create", 4);
    private static var nme_sound_channel_stop = Libs.load("nme","nme_sound_channel_stop", 1);
    private static var nme_sound_channel_set_transform = Libs.load("nme","nme_sound_channel_set_transform", 2);
+#end //lime_native
+
 }
 
 class AudioHandler {
@@ -75,16 +86,21 @@ class AudioHandler {
 	}
 
 	public function create_sound(_name:String, _file:String, ?_music:Bool = false ) {
+		
 		if(sounds.exists(_name)) {
 			throw ">>> Named sounds are not allowed to have duplicate names";
 		}
-		var _handle = nme_sound_from_file( nme.AssetData.path.get(_file), _music);
-		var _sound = new Sound(_handle);
-		sounds.set(_name, _sound);
+
+		#if lime_native
+			var _handle = nme_sound_from_file( nme.AssetData.path.get(_file), _music);
+			var _sound = new Sound(_handle);
+			sounds.set(_name, _sound);
+		#end //lime_native
 	}
 	
-
+#if lime_native
    private static var nme_sound_from_file = Libs.load("nme","nme_sound_from_file", 2);
    private static var nme_sound_from_data = Libs.load("nme","nme_sound_from_data", 3);
+#end //lime_native
 
 }
