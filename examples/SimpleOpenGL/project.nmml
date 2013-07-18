@@ -28,6 +28,5 @@
 	<source path="src" />
 	
      <haxelib name="lime" />
-	<haxelib name="actuate" />
 	
 </project>

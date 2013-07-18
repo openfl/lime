@@ -44,11 +44,7 @@ class Main {
         lib.audio.sounds.get('sound1').volume = 1;
         lib.audio.sounds.get('sound1').play();
         lib.audio.sounds.get('sound2').play();
-
-        // Actuate.timer (0.5).repeat ().onRepeat(function(){
-        //     lib.audio.sounds.get('sound2').play();
-        // });
-
+        
 	}
 
         //Called each frame by lime for logic (called before render)
