@@ -49,9 +49,10 @@ class Keys {
     public var key_T : Int = 116;
     public var key_U : Int = 117;
     public var key_V : Int = 118;
-    public var key_X : Int = 119;
-    public var key_Y : Int = 120;
-    public var key_Z : Int = 121;
+    public var key_W : Int = 119;
+    public var key_X : Int = 120;
+    public var key_Y : Int = 121;
+    public var key_Z : Int = 122;
 
     public var equals 	: Int = 187;
     public var minus 	: Int = 189;
