@@ -11,7 +11,7 @@
 	<app
           main="Main"
           path="bin"
-          file="nmegl_example_herokushaders"
+          file="lime_example_herokushaders"
 	/>
 
 	<window 
@@ -19,10 +19,7 @@
           height="640" 
           orientation="landscape" 
           fps="60"
-          background="0x161616"
-          require_shaders="true"
           resizable="true"
-          hardware="true"
 	/>
 	
      <assets path="Assets" rename="assets" include="*"/>
