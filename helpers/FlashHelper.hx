@@ -89,19 +89,22 @@ class FlashHelper {
 					switch (reader.readNext()) {
 						case Frame(frame):
 						if (frame.header.layer != mpeg.audio.Layer.Layer3) {
-							throw "Only Layer-III MP3 files are supported by Flash. File " + src + " is: " + frame.header.layer + ".";
+							Sys.println ("Warning: Could not embed \"" + name + "\" (Flash only supports Layer-III MP3 files, but file is " + frame.header.layer + ")");
+							return false;
 						}
 						var frameSamplingFrequency = frame.header.samplingFrequency;
 						if (samplingFrequency == -1) {
 							samplingFrequency = frameSamplingFrequency;
 						} else if (frameSamplingFrequency != samplingFrequency) {
-							throw "File " + src + " has a variable sampling frequency, which is not supported by Flash.";
+							Sys.println ("Warning: Could not embed \"" + name + "\" (Flash does not support MP3 audio with variable sampling frequencies)");
+							return false;
 						}
 						var frameIsStereo = frame.header.mode != mpeg.audio.Mode.SingleChannel;
 						if (isStereo == null) {
 							isStereo = frameIsStereo;
 						} else if (frameIsStereo != isStereo) {
-							throw "File " + src + " contains mixed mono and stereo frames, which is not supported by Flash.";
+							Sys.println ("Warning: Could not embed \"" + name + "\" (Flash does not support MP3 audio with mixed mono and stero frames)");
+							return false;
 						}
 						frameDataWriter.write(frame.frameData);
 						totalLengthSamples += mpeg.audio.Utils.lookupSamplesPerFrame(frame.header.version, frame.header.layer);
@@ -117,16 +120,22 @@ class FlashHelper {
 				}
 				
 				if (totalLengthSamples == 0) {
-					throw "File " + src + " does not contain any valid MP3 audio data!";
+					Sys.println ("Warning: Could not embed \"" + name + "\" (Could not find any valid MP3 audio data)");
+					return false;
 				}
 				
 				var flashSamplingFrequency = switch (samplingFrequency) {
 					case 11025: SR11k;
 					case 22050: SR22k;
 					case 44100: SR44k;
+					default: null;
+				}
+				
+				if (flashSamplingFrequency == null) {
 					
-					default: throw "Only 11025, 22050 and 44100kHz MP3 files are supported by Flash. "
-							+ "File " + src + " is: " + samplingFrequency + "kHz.";
+					Sys.println ("Warning: Could not embed \"" + name + "\" (Flash supports 11025, 22050 and 44100kHz MP3 files, but file is " + samplingFrequency + "kHz)");
+					return false;
+					
 				}
 				
 				var frameData = frameDataWriter.getBytes();
@@ -148,6 +157,7 @@ class FlashHelper {
 				if (input.readString (4) != "RIFF") {
 					
 					Sys.println ("Warning: Could not embed unrecognized WAV file \"" + name + "\"");
+					return false;
 					
 				} else {
 					
@@ -159,7 +169,8 @@ class FlashHelper {
 					
 					if (hdr.format != WF_PCM) {
 						
-						throw "Only PCM (uncompressed) wav files can be imported.";
+						Sys.println ("Warning: Could not embed \"" + name + "\" (Only PCM uncompressed WAV files are currently supported)");
+						return false;
 						
 					}
 					
@@ -170,11 +181,17 @@ class FlashHelper {
 						case 11025: SR11k;
 						case 22050: SR22k;
 						case 44100: SR44k;
-						default:
-							throw "Only 5512, 11025, 22050 and 44100 Hz wav files are supported by flash. Sampling rate of '" + src + "' is: " + hdr.samplingRate;
+						default: null;
 						
 					}
-
+					
+					if (flashRate == null) {
+						
+						Sys.println ("Warning: Could not embed \"" + name + "\" (Flash supports 5512, 11025, 22050 and 44100kHz WAV files, but file is " + hdr.samplingRate + "kHz)");
+						return false;
+						
+					}
+					
 					var isStereo = switch (hdr.channels) {
 						
 						case 1: false;
@@ -183,7 +200,7 @@ class FlashHelper {
 							throw "Number of channels should be 1 or 2, but for '" + src + "' it is " + hdr.channels;
 						
 					}
-
+					
 					var is16bit = switch (hdr.bitsPerSample) {
 						
 						case 8: false;
@@ -214,6 +231,7 @@ class FlashHelper {
 					} else {
 						
 						Sys.println ("Warning: Could not embed WAV file \"" + name + "\", the file may be corrupted");
+						return false;
 						
 					}
 					
@@ -408,8 +426,9 @@ class FlashHelper {
 	
 	
 	public static function embedAssets (targetPath:String, assets:Array <Asset>, packageName:String = ""):Void {
-
+		
 		try {
+			
 			var input = File.read (targetPath, true);
 			if (input != null) {
 				var reader = new Reader (input);
@@ -429,9 +448,17 @@ class FlashHelper {
 						
 						for (asset in assets) {
 							
-							if (asset.type != AssetType.TEMPLATE && embedAsset (asset, packageName, new_tags)) {
+							try {
 								
-								inserted = true;
+								if (asset.type != AssetType.TEMPLATE && embedAsset (asset, packageName, new_tags)) {
+									
+									inserted = true;
+									
+								}
+								
+							} catch (e:Dynamic) {
+								
+								Sys.println ("Error embedding \"" + asset.sourcePath + "\": " + e);
 								
 							}
 							
@@ -442,7 +469,7 @@ class FlashHelper {
 					new_tags.push (tag);
 					
 				}
-
+				
 				if (inserted) {
 					
 					swf.tags = new_tags;
@@ -452,11 +479,14 @@ class FlashHelper {
 					output.close ();
 					
 				}
+				
 			} else {
 				trace("Embedding assets failed! We encountered an error. Does '"+targetPath+"' exist?");
 			}
 		} catch (e:Dynamic) {
-			trace("Embedding assets failed! We encountered an error accessing '"+targetPath+"': " + e);
+			
+			trace("Embedding assets failed! We encountered an error accessing '" + targetPath + "': " + e);
+			
 		}
 		
 	}

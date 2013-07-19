@@ -179,7 +179,6 @@ class PathHelper {
 				if (line.substr (0, 1) != "-") {
 					
 					result = line;
-					break;
 					
 				}
 				

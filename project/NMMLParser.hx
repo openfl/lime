@@ -366,9 +366,9 @@ class NMMLParser extends NMEProject {
 			
 			targetPath = substitute (element.att.rename);
 			
-		} else {
+		} else if (element.has.path) {
 			
-			targetPath = path;
+			targetPath = substitute (element.att.path);
 			
 		}
 		
