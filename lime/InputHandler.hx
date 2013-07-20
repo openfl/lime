@@ -101,14 +101,18 @@ class InputHandler {
         //}     
     }
 
+    public var _down_keys : Map<Int,Bool>;
     public function lime_onkeydown(_event:Dynamic) {
-        if(lib.host.onkeydown != null) {
+        if(_down_keys == null) _down_keys = new Map();
+        if(lib.host.onkeydown != null && !_down_keys.exists(_event.value)) {
+            _down_keys.set(_event.value, true);
             lib.host.onkeydown(_event);
         }
         //nmeOnKey(_event, KeyboardEvent.KEY_DOWN);
     }
 
     public function lime_onkeyup(_event:Dynamic) {
+        _down_keys.remove(_event.value);
         if(lib.host.onkeyup != null) {
             lib.host.onkeyup(_event);
         }
