@@ -9,11 +9,13 @@ class InputHandler {
     public function new( _lib:LiME ) { lib = _lib; }
 
     public var touch_map:Map<Int, Dynamic>;
+    public var down_keys : Map<Int,Bool>;
 
     public function startup() {
         lib._debug(':: lime :: \t InputHandler Initialized.');
 
         touch_map = new Map<Int, Dynamic>();
+        down_keys = new Map();
 
         #if lime_html5
             //on html5 we need to listen for events on the canvas
@@ -101,18 +103,18 @@ class InputHandler {
         //}     
     }
 
-    public var _down_keys : Map<Int,Bool>;
+    
     public function lime_onkeydown(_event:Dynamic) {
-        if(_down_keys == null) _down_keys = new Map();
-        if(lib.host.onkeydown != null && !_down_keys.exists(_event.value)) {
-            _down_keys.set(_event.value, true);
+        
+        if(lib.host.onkeydown != null && !down_keys.exists(_event.value)) {
+            down_keys.set(_event.value, true);
             lib.host.onkeydown(_event);
         }
         //nmeOnKey(_event, KeyboardEvent.KEY_DOWN);
     }
 
     public function lime_onkeyup(_event:Dynamic) {
-        _down_keys.remove(_event.value);
+        down_keys.remove(_event.value);
         if(lib.host.onkeyup != null) {
             lib.host.onkeyup(_event);
         }
