@@ -127,6 +127,14 @@ class MacPlatform implements IPlatformTool {
 		
 		initialize (project);
 		
+		project = project.clone ();
+
+		if (!useNeko) {
+
+			project.haxedefs.set ("HXCPP_CLANG", "1");
+
+		}
+
 		if (project.targetFlags.exists ("xml")) {
 			
 			project.haxeflags.push ("-xml " + targetDirectory + "/types.xml");
