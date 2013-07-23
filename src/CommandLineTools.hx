@@ -705,6 +705,7 @@ class CommandLineTools {
 			case MAC:
 				
 				untyped $loader.path = $array (path + "Mac/", $loader.path);
+				untyped $loader.path = $array (path + "Mac64/", $loader.path);
 				
 			case LINUX:
 				

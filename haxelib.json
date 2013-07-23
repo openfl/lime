@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "Command-line tools for OpenFL",
-	"version": "1.0.4",
-	"releasenote": "Update SWF version",
+	"version": "1.0.6",
+	"releasenote": "Add support for 64-bit Neko on Mac",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
 }
