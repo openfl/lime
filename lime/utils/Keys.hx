@@ -9,6 +9,7 @@ class Keys {
     public var leftctrl : Int = 17;
     public var leftalt  : Int = 18;
     public var capslock : Int = 19;
+    public var escape   : Int = 27;
     public var space 	: Int = 32;
 
     public var left 	: Int = 37;
