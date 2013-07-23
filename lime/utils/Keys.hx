@@ -2,7 +2,7 @@ package lime.utils;
 
 class Keys {
 
-    public var tab 		: Int = 8;
+    public var tab 		: Int = 9;
     public var enter 	: Int = 13;
     public var meta 	: Int = 15;
     public var shift 	: Int = 16;
