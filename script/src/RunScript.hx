@@ -19,7 +19,9 @@ class RunScript {
 		var data2 = (args.length > 2) ? args[2] : '';
 
 		switch(command) {
+//create			
 			case "create":
+
 				var sample = data;
 				var name = data2;
 
@@ -36,10 +38,27 @@ class RunScript {
 					} else {
 						trace(' - creating template at ' + output_path);
 						FileHelper.recursiveCopy(sample_path, output_path);
-						trace('Done!');
+						trace(' - Done!');
 					}
 				} else {
 					throw "Sample project not found at : " + sample_path;
+				}
+
+				return true;
+//buildto
+			case "copy":
+				var target = data;
+				var dest = data2;
+					//lab copy html5 ~/Sven/Sites/out
+				var bin_dir = (target == 'html5') ? 'bin/' + target + '/bin' : 'bin/' + target + '/cpp/bin/';
+				var bin_path = cwd + bin_dir;
+
+				if(FileSystem.exists(bin_path)) {
+					trace(' - copying build output from ' + bin_path + ' to ' + dest);
+					FileHelper.recursiveCopy(bin_path, dest);
+					trace(' - Done!');
+				} else {
+					throw "Cannot copy build output, did you run build/test first? looking for : " + bin_path;
 				}
 
 				return true;
