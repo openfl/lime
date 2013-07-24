@@ -125,45 +125,42 @@ class SWFHelper {
 		
 		for (library in project.libraries) {
 			
+			#if swf
+			
 			if (library.type == LibraryType.SWF) {
 				
 				project.haxelibs.push (new Haxelib ("swf"));
+				project.assets.push (new Asset (library.sourcePath, "libraries/" + library.name + ".swf", AssetType.BINARY));
 				
-				#if swf
-				if (project.target == Platform.HTML5) {
+			} else if (library.type == LibraryType.SWF_LITE) {
+				
+				project.haxelibs.push (new Haxelib ("swf"));
+				
+				var bytes = ByteArray.readFile (library.sourcePath);
+				var swf = new SWF (bytes);
+				var exporter = new SWFLiteExporter (swf.data);
+				var swfLite = exporter.swfLite;
+				
+				for (id in exporter.bitmaps.keys ()) {
 					
-					var bytes = ByteArray.readFile (library.sourcePath);
-					var swf = new SWF (bytes);
-					var exporter = new SWFLiteExporter (swf.data);
-					var swfLite = exporter.swfLite;
+					var bitmapData = exporter.bitmaps.get (id);
+					var symbol:BitmapSymbol = cast swfLite.symbols.get (id);
+					symbol.path = "libraries/bin/" + id + ".png";
+					swfLite.symbols.set (id, symbol);
 					
-					for (id in exporter.bitmaps.keys ()) {
-						
-						var bitmapData = exporter.bitmaps.get (id);
-						var symbol:BitmapSymbol = cast swfLite.symbols.get (id);
-						symbol.path = "libraries/bin/" + id + ".png";
-						swfLite.symbols.set (id, symbol);
-						
-						var asset = new Asset ("", symbol.path, AssetType.IMAGE);
-						asset.data = bitmapData.encode ("png");
-						project.assets.push (asset);
-						
-					}
-					
-					var asset = new Asset ("", "libraries/" + library.name + ".dat", AssetType.TEXT);
-					asset.data = Serializer.run (swfLite);
+					var asset = new Asset ("", symbol.path, AssetType.IMAGE);
+					asset.data = bitmapData.encode ("png");
 					project.assets.push (asset);
 					
-				} else {
-				#end
-					
-					project.assets.push (new Asset (library.sourcePath, "libraries/" + library.name + ".swf", AssetType.BINARY));
-					
-				#if swf
 				}
-				#end
+				
+				var asset = new Asset ("", "libraries/" + library.name + ".dat", AssetType.TEXT);
+				asset.data = Serializer.run (swfLite);
+				project.assets.push (asset);
 				
 			}
+			
+			#end
 			
 		}
 		

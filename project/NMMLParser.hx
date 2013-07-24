@@ -1042,6 +1042,7 @@ class NMMLParser extends NMEProject {
 						
 						var path = PathHelper.combine (extensionPath, substitute (element.att.path));
 						var name = "";
+						var type = null;
 						
 						if (element.has.name) {
 							
@@ -1055,7 +1056,19 @@ class NMMLParser extends NMEProject {
 							
 						}
 						
-						libraries.push (new Library (path, name));
+						if (element.has.type) {
+							
+							switch (element.att.type) {
+								
+								case "swf": type = LibraryType.SWF;
+								case "swflite": type = LibraryType.SWF_LITE;
+								case "xfl": type = LibraryType.XFL;
+								
+							}
+							
+						}
+						
+						libraries.push (new Library (path, name, type));
 					
 					case "ssl":
 						

@@ -243,24 +243,32 @@ class FlashHelper {
 			
 		} else if (type == AssetType.IMAGE) {
 			
-			var src = name;
-			
-			if (ext == "jpg" || ext == "png" || ext == "gif") {
+			if (inAsset.data != null) {
 				
-				if (!FileSystem.exists (src)) {
-					
-					Sys.println ("Warning: Could not find image path \"" + src + "\"");
-					
-				} else {
-					
-					var bytes = File.getBytes (src);
-					outTags.push (TBitsJPEG (cid, JDJPEG2 (bytes)));
-					
-				}
+				outTags.push (TBitsJPEG (cid, JDJPEG2 (inAsset.data)));
 				
 			} else {
 				
-				throw ("Unknown image type:" + src );
+				var src = name;
+				
+				if (ext == "jpg" || ext == "png" || ext == "gif") {
+					
+					if (!FileSystem.exists (src)) {
+						
+						Sys.println ("Warning: Could not find image path \"" + src + "\"");
+						
+					} else {
+						
+						var bytes = File.getBytes (src);
+						outTags.push (TBitsJPEG (cid, JDJPEG2 (bytes)));
+						
+					}
+					
+				} else {
+					
+					throw ("Unknown image type:" + src );
+					
+				}
 				
 			}
 			
