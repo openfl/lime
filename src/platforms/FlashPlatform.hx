@@ -41,13 +41,6 @@ class FlashPlatform implements IPlatformTool {
 			
 		}
 		
-		if (project.targetFlags.exists ("web") || project.app.url != "") {
-			
-			PathHelper.mkdir (destination);
-			FileHelper.recursiveCopyTemplate (project.templatePaths, "flash/templates/web", destination, generateContext (project));
-			
-		}
-		
 	}
 	
 	
@@ -171,18 +164,25 @@ class FlashPlatform implements IPlatformTool {
 			}
 			
 		}
-		
-		for (asset in project.assets) {
+
+		if (project.targetFlags.exists ("web") || project.app.url != "") {
 			
-			if (asset.type == AssetType.TEMPLATE || asset.embed != true || !usesNME) {
+			PathHelper.mkdir (destination);
+			FileHelper.recursiveCopyTemplate (project.templatePaths, "flash/templates/web", destination, generateContext (project));
+
+			for (asset in project.assets) {
 				
-				var path = PathHelper.combine (destination, asset.targetPath);
-				
-				PathHelper.mkdir (Path.directory (path));
-				FileHelper.copyAsset (asset, path, context);
+				if (asset.type == AssetType.TEMPLATE || asset.embed != true || !usesNME) {
+					
+					var path = PathHelper.combine (destination, asset.targetPath);
+					
+					PathHelper.mkdir (Path.directory (path));
+					FileHelper.copyAsset (asset, path, context);
+					
+				}
 				
 			}
-			
+
 		}
 		
 		
