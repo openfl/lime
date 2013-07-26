@@ -1,6 +1,11 @@
 package lime.gl;
 
-#if lime_native
+
+#if lime_html5
+	
+	typedef GLFramebuffer = js.html.webgl.Framebuffer;
+
+#else
 
 	class GLFramebuffer extends GLObject {
 		
@@ -14,12 +19,5 @@ package lime.gl;
 		
 	} //GLFramebuffer
 
-
-#end //lime_native
-
-
-#if lime_html5
-	
-	typedef GLFramebuffer = js.html.webgl.Framebuffer;
 
 #end //lime_html5

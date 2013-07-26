@@ -1,7 +1,6 @@
 package lime;
 
 import lime.utils.Libs;
-import nme.AssetData;
 
 
 class SoundTransform {

@@ -4,10 +4,7 @@ package lime.utils;
         
     typedef Float32Array = js.html.Float32Array;
 
-#end //lime_html5
-
-
-#if lime_native 
+#else
 
     import lime.geometry.Matrix3D;
 

@@ -4,9 +4,7 @@ package lime.utils;
 
     typedef ArrayBufferView = js.html.ArrayBufferView;
 
-#end //lime_html5
-
-#if lime_native
+#else
 
         import lime.utils.ByteArray;
 

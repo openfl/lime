@@ -1,7 +1,10 @@
 package lime.gl;
 
+#if lime_html5
 
-#if lime_native
+	typedef GLRenderbuffer = js.html.webgl.Renderbuffer;
+
+#else //lime_html5
 
 	class GLRenderbuffer extends GLObject {
 		
@@ -17,8 +20,3 @@ package lime.gl;
 
 #end //lime_native
 
-#if lime_html5
-
-	typedef GLRenderbuffer = js.html.webgl.Renderbuffer;
-
-#end //lime_html5

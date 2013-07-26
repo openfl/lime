@@ -4,10 +4,7 @@ package lime.utils;
         
     typedef UInt8Array = js.html.Uint8Array;
 
-#end //lime_html5
-
-
-#if lime_native
+#else
 
     class UInt8Array extends ArrayBufferView implements ArrayAccess<Int> {
         

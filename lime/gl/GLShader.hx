@@ -1,7 +1,11 @@
 package lime.gl;
 
 
-#if lime_native
+#if lime_html5
+	
+	typedef GLShader = js.html.webgl.Shader;
+
+#else //lime_html5
 
 	class GLShader extends GLObject {
 		
@@ -17,8 +21,3 @@ package lime.gl;
 
 #end //lime_native
 
-#if lime_html5
-	
-	typedef GLShader = js.html.webgl.Shader;
-
-#end //lime_html5

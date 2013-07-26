@@ -1,6 +1,11 @@
 package lime.gl;
 
-#if lime_native
+
+#if lime_html5
+
+	typedef GLObject = Dynamic;
+	
+#else //lime_html5
 
 	class GLObject {
 		
@@ -50,9 +55,3 @@ package lime.gl;
 	}
 
 #end //lime_native
-
-#if lime_html5
-
-	typedef GLObject = Dynamic;
-	
-#end //lime_html5

@@ -1,7 +1,12 @@
 package lime.gl;
 
 
-#if lime_native
+
+#if lime_html5
+
+	typedef GLProgram = js.html.webgl.Program;
+
+#else //lime_html5
 
 	class GLProgram extends GLObject {
 		
@@ -26,9 +31,3 @@ package lime.gl;
 	}
 
 #end //lime_native
-
-#if lime_html5
-
-	typedef GLProgram = js.html.webgl.Program;
-
-#end //lime_html5
