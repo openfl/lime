@@ -104,6 +104,16 @@ class NMMLParser extends NMEProject {
 			
 		}
 		
+		if (debug) {
+			
+			localDefines.set ("debug", "1");
+			
+		} else {
+			
+			localDefines.set ("release", "1");
+			
+		}
+		
 		if (localDefines.exists ("SWF_PLAYER")) {
 			
 			environment.set ("SWF_PLAYER", localDefines.get ("SWF_PLAYER"));
