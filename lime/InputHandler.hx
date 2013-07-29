@@ -377,6 +377,10 @@ typedef MouseEvent = {
     var button : MouseButton;
     var x : Float;
     var y : Float;
+    var shift_down : Bool;
+    var ctrl_down : Bool;
+    var alt_down : Bool;
+    var meta_down : Bool;
 }
 
 typedef GamepadEvent = { 
