@@ -14,7 +14,7 @@ class InputHandler {
 
     public var last_mouse_x : Int = 0;
     public var last_mouse_y : Int = 0;
-
+    
     public function startup() {
 
         lib._debug(':: lime :: \t InputHandler Initialized.');
@@ -101,6 +101,9 @@ class InputHandler {
 
         last_mouse_x = _event.x;
         last_mouse_y = _event.y;
+
+        // trace("mouse moved, new : " + _event.x + ' ' + _event.y);
+        // trace("mouse moved, delta : " + deltaX + ' ' + deltaY);
 
         if(lib.host.onmousemove != null) {
 
@@ -363,11 +366,11 @@ class InputHandler {
 
             lib.window_handle.addEventListener('mousemove', function(_event){
 
-                var deltaX = 0;
-                var deltaY = 0;
+                var deltaX = untyped _event.movementX;
+                var deltaY = untyped _event.movementY;
                 
                 switch(lib.render.browser) {
-                    case BrowserLike.chrome, BrowserLike.safari:
+                    case BrowserLike.chrome, BrowserLike.safari, BrowserLike.opera:
                         deltaX = untyped _event.webkitMovementX;
                         deltaY = untyped _event.webkitMovementY;
 
@@ -375,8 +378,10 @@ class InputHandler {
                         deltaX = untyped _event.mozMovementX;
                         deltaY = untyped _event.mozMovementY;
 
-                    case BrowserLike.ie, BrowserLike.opera:
+                    case BrowserLike.ie:
                     default:
+                        deltaX = 0;
+                        deltaY = 0;
                 }
 
                 _event.preventDefault();

@@ -197,7 +197,9 @@ class WindowHandler {
 
     public function set_cursor_position_in_window(_x:Int = 0, _y:Int = 0) {
         #if lime_native
-            nme_stage_set_cursor_position_in_window(lib.view_handle, _x, _y);               
+            nme_stage_set_cursor_position_in_window(lib.view_handle, _x, _y);
+            lib.input.last_mouse_x = _x;
+            lib.input.last_mouse_y = _y;
         #end //lime_native
     }
 
