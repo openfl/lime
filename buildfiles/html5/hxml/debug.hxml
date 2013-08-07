@@ -4,6 +4,5 @@
 -D html5
 -D html
 --remap flash:lime
---remap native:lime
 -debug
 #--js-modern

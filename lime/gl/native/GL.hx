@@ -1,5 +1,7 @@
 package lime.gl.native;
 
+#if lime_native
+
 import lime.utils.Libs;
 
 // import flash.display.BitmapData;
@@ -11,9 +13,7 @@ import lime.utils.ArrayBufferView;
 import lime.utils.Float32Array;
 import lime.utils.IMemoryRange;
 
-
 class GL {
-    
     
     /* ClearBufferMask */
     public static inline var DEPTH_BUFFER_BIT                  = 0x00000100;
@@ -749,8 +749,9 @@ class GL {
 
     public static function getExtension(name:String):Dynamic 
     {
-        // Hmmm
+            //todo?!
         return null;
+        // return nme_gl_get_extension(name);
     }
 
     public static function getFramebufferAttachmentParameter(target:Int, attachment:Int, pname:Int):Dynamic 
@@ -1220,6 +1221,7 @@ class GL {
     private static var nme_gl_get_error = load("nme_gl_get_error", 0);
     private static var nme_gl_get_framebuffer_attachment_parameter = load("nme_gl_get_framebuffer_attachment_parameter", 3);
     private static var nme_gl_get_parameter = load("nme_gl_get_parameter", 1);
+    // private static var nme_gl_get_extension = load("nme_gl_get_extension", 1);    
     private static var nme_gl_get_program_info_log = load("nme_gl_get_program_info_log", 1);
     private static var nme_gl_get_program_parameter = load("nme_gl_get_program_parameter", 2);
     private static var nme_gl_get_render_buffer_parameter = load("nme_gl_get_render_buffer_parameter", 2);
@@ -1301,3 +1303,5 @@ typedef ShaderPrecisionFormat =
     precision : Int,
 
 };
+
+#end //lime_native

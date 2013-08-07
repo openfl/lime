@@ -1,6 +1,6 @@
 package lime.gl.html5;
-#if js
 
+#if lime_html5
 
 // import flash.display.BitmapData;
 import lime.geometry.Matrix3D;
@@ -11,7 +11,6 @@ import lime.utils.ArrayBuffer;
 import lime.utils.ArrayBufferView;
 import lime.utils.Int32Array;
 import lime.utils.Float32Array;
-
 
 class GL {
 	
@@ -899,9 +898,7 @@ class GL {
 	
 	public static function getExtension(name:String):Dynamic {
 		
-		// TODO
-		
-		return null;
+		return nmeContext.getExtension(name);
 		
 	}
 	
@@ -1461,4 +1458,4 @@ typedef ShaderPrecisionFormat = {
 };
 
 
-#end
+#end //lime_html5

@@ -1,6 +1,7 @@
 package lime;
 
 import lime.LiME;
+import lime.RenderHandler;
 
 
 class InputHandler {
@@ -11,75 +12,19 @@ class InputHandler {
     public var touch_map:Map<Int, Dynamic>;
     public var down_keys : Map<Int,Bool>;
 
+    public var last_mouse_x : Int = 0;
+    public var last_mouse_y : Int = 0;
+
     public function startup() {
+
         lib._debug(':: lime :: \t InputHandler Initialized.');
 
         touch_map = new Map<Int, Dynamic>();
         down_keys = new Map();
 
-        #if lime_html5
-            //on html5 we need to listen for events on the canvas
-            //lib.window_handle = canvas element
-            lib.window_handle.addEventListener('contextmenu', function(e){
-                e.preventDefault();
-            }); //contextmenu
-
-                //todo:better forward (more info passed on)
-            lib.window_handle.addEventListener('mousedown', function(e){
-
-                e.preventDefault();     
-
-                lime_mousedown({
-                    x:e.pageX - lib.render.canvas_position.x, 
-                    y:e.pageY - lib.render.canvas_position.y, 
-                    button:e.button
-                }); //mousedown
-
-            }); //mousedown
-
-            lib.window_handle.addEventListener('mousemove', function(e){
-
-                e.preventDefault();
-
-                lime_mousemove({
-                    x:e.pageX - lib.render.canvas_position.x, 
-                    y:e.pageY - lib.render.canvas_position.y, 
-                    button:e.button
-                }); //lime_mousemove
-
-            }); //mousemove
-
-            lib.window_handle.addEventListener('mouseup', function(e){
-
-                e.preventDefault();
-
-                lime_mouseup({
-                    x:e.pageX - lib.render.canvas_position.x, 
-                    y:e.pageY - lib.render.canvas_position.y, 
-                    button:e.button
-                }); //lime_mouseup
-
-            }); //mouseup
-
-            js.Browser.document.addEventListener('keydown', function(e){
-                if (e.keyCode >= 65 && e.keyCode <= 122) {
-                    e.value = e.which+32;
-                } else {
-                    e.value = e.which;
-                }
-                
-                lime_onkeydown(e);
-            });
-            js.Browser.document.addEventListener('keyup', function(e){
-                if (e.keyCode >= 65 && e.keyCode <= 122) {
-                    e.value = e.which+32;
-                } else {
-                    e.value = e.which;
-                }
-
-                lime_onkeyup(e);
-            });
-        #end //lime_html5
+       #if lime_html5   
+            lime_apply_input_listeners();
+       #end //lime_html5
     }
 
     public function shutdown() {
@@ -149,72 +94,122 @@ class InputHandler {
         }
     }
 
-    public function lime_mousemove(_event:Dynamic) {        
+    public function lime_mousemove(_event:Dynamic, ?_pass_through:Bool=false) {
         
+        var deltaX = _event.x - last_mouse_x;
+        var deltaY = _event.y - last_mouse_y;
+
+        last_mouse_x = _event.x;
+        last_mouse_y = _event.y;
+
         if(lib.host.onmousemove != null) {
-            lib.host.onmousemove({
-                button : MouseButton.move,
-                state : MouseState.down,
-                x : _event.x,
-                y : _event.y,
-                flags : _event.flags,
-                ctrl_down :  (_event.flags & efCtrlDown > 0),
-                alt_down :   (_event.flags & efAltDown > 0),
-                shift_down : (_event.flags & efShiftDown > 0),
-                meta_down :  (_event.flags & efCommandDown > 0)                
-            });
+
+            var _mouse_event = _event;
+
+            if(!_pass_through) {
+
+                _mouse_event = {
+                    button : MouseButton.move,
+                    state : MouseState.down,
+                    x : _event.x,
+                    y : _event.y,
+                    deltaX : deltaX,
+                    deltaY : deltaY,
+                    flags : _event.flags,
+                    ctrl_down :  (_event.flags & efCtrlDown > 0),
+                    alt_down :   (_event.flags & efAltDown > 0),
+                    shift_down : (_event.flags & efShiftDown > 0),
+                    meta_down :  (_event.flags & efCommandDown > 0)                
+                };
+            
+            } //_pass_through
+
+            lib.host.onmousemove( _mouse_event );
+
         } //if host onmousemove
 
     } //lime_mousemove
 
-    public function lime_mousedown(_event:Dynamic) {
+    public function lime_mousedown(_event:Dynamic, ?_pass_through:Bool=false) {
 
         if(lib.host.onmousedown != null) {
-            lib.host.onmousedown({
-                button : mouse_button_from_id(_event.value),
-                state : MouseState.down,
-                x : _event.x,
-                y : _event.y,
-                flags : _event.flags,
-                ctrl_down :  (_event.flags & efCtrlDown > 0),
-                alt_down :   (_event.flags & efAltDown > 0),
-                shift_down : (_event.flags & efShiftDown > 0),
-                meta_down :  (_event.flags & efCommandDown > 0)
-            });
+
+            var _mouse_event = _event;
+
+            if(!_pass_through) {
+
+                _mouse_event = {
+                    button : mouse_button_from_id(_event.value),
+                    state : MouseState.down,
+                    x : _event.x,
+                    y : _event.y,
+                    flags : _event.flags,
+                    ctrl_down :  (_event.flags & efCtrlDown > 0),
+                    alt_down :   (_event.flags & efAltDown > 0),
+                    shift_down : (_event.flags & efShiftDown > 0),
+                    meta_down :  (_event.flags & efCommandDown > 0)
+                }; //
+
+            } //_pass_through
+
+            lib.host.onmousedown( _mouse_event );
+
         } //if host onmousedown
         
     } //lime_mousedown
 
-    public function lime_mouseclick(_event:Dynamic) {
+    public function lime_mouseclick(_event:Dynamic, ?_pass_through:Bool=false) {
+        
         if(lib.host.onmouseclick != null) {
-            lib.host.onmouseclick({
-                button : _event.value,
-                state : MouseState.down,
-                x : _event.x,
-                y : _event.y,
-                flags : _event.flags,
-                ctrl_down :  (_event.flags & efCtrlDown > 0),
-                alt_down :   (_event.flags & efAltDown > 0),
-                shift_down : (_event.flags & efShiftDown > 0),
-                meta_down :  (_event.flags & efCommandDown > 0)                
-            });
+
+            var _mouse_event = _event;
+
+            if(!_pass_through) {
+
+                _mouse_event = {
+                    button : _event.value,
+                    state : MouseState.down,
+                    x : _event.x,
+                    y : _event.y,
+                    flags : _event.flags,
+                    ctrl_down :  (_event.flags & efCtrlDown > 0),
+                    alt_down :   (_event.flags & efAltDown > 0),
+                    shift_down : (_event.flags & efShiftDown > 0),
+                    meta_down :  (_event.flags & efCommandDown > 0)                
+                };          
+
+            } //_pass_through
+
+            lib.host.onmouseclick( _mouse_event );
+
         } //if host onmouseclick
 
     } //lime_mouseclick
 
-    public function lime_mouseup(_event:Dynamic) {
+    public function lime_mouseup(_event:Dynamic, ?_pass_through:Bool=false) {
+        
         if(lib.host.onmouseup != null) {
-            lib.host.onmouseup({
-                button : mouse_button_from_id(_event.value),
-                state : MouseState.up,
-                x : _event.x,
-                y : _event.y,
-                flags : _event.flags,
-                ctrl_down :  (_event.flags & efCtrlDown > 0),
-                alt_down :   (_event.flags & efAltDown > 0),
-                shift_down : (_event.flags & efShiftDown > 0),
-                meta_down :  (_event.flags & efCommandDown > 0)                
-            });
+
+            var _mouse_event = _event;
+
+            if(!_pass_through) {
+
+               _mouse_event = {
+                    button : mouse_button_from_id(_event.value),
+                    state : MouseState.up,
+                    x : _event.x,
+                    y : _event.y,
+                    flags : _event.flags,
+                    ctrl_down :  (_event.flags & efCtrlDown > 0),
+                    alt_down :   (_event.flags & efAltDown > 0),
+                    shift_down : (_event.flags & efShiftDown > 0),
+                    meta_down :  (_event.flags & efCommandDown > 0)                
+                };
+
+            } //pass through
+
+            lib.host.onmouseup( _mouse_event );
+
         } //if host onmouseup  
 
     } //lime_mouseup
@@ -338,8 +333,111 @@ class InputHandler {
     private static var efAltDown = 0x0008;
     private static var efCommandDown = 0x0010;
 
+    private function lime_apply_input_listeners() {
 
-}
+        #if lime_html5
+            //on html5 we need to listen for events on the canvas
+            //lib.window_handle = canvas element
+            lib.window_handle.addEventListener('contextmenu', function(e){
+                e.preventDefault();
+            }); //contextmenu
+
+                //todo:better forward (more info passed on)
+            lib.window_handle.addEventListener('mousedown', function(_event){
+
+                _event.preventDefault();     
+
+                lime_mousedown({
+                    button : mouse_button_from_id(_event.button),
+                    state : MouseState.down,
+                    x : _event.pageX - lib.render.canvas_position.x,
+                    y : _event.pageY - lib.render.canvas_position.y,
+                    flags : 0,
+                    ctrl_down : _event.ctrlKey,
+                    alt_down : _event.altKey,
+                    shift_down : _event.shiftKey,
+                    meta_down : _event.metaKey
+                }, true); //mousedown, true to forward event directly
+
+            }); //mousedown
+
+            lib.window_handle.addEventListener('mousemove', function(_event){
+
+                var deltaX = 0;
+                var deltaY = 0;
+                
+                switch(lib.render.browser) {
+                    case BrowserLike.chrome, BrowserLike.safari:
+                        deltaX = untyped _event.webkitMovementX;
+                        deltaY = untyped _event.webkitMovementY;
+
+                    case BrowserLike.firefox:
+                        deltaX = untyped _event.mozMovementX;
+                        deltaY = untyped _event.mozMovementY;
+
+                    case BrowserLike.ie, BrowserLike.opera:
+                    default:
+                }
+
+                _event.preventDefault();
+
+                lime_mousemove({
+                    button : MouseButton.move,
+                    state : MouseState.move,
+                    x : _event.pageX - lib.render.canvas_position.x,
+                    y : _event.pageY - lib.render.canvas_position.y,
+                    deltaX : deltaX,
+                    deltaY : deltaY,
+                    flags : 0,
+                    ctrl_down : _event.ctrlKey,
+                    alt_down : _event.altKey,
+                    shift_down : _event.shiftKey,
+                    meta_down : _event.metaKey
+                }, true); //lime_mousemove
+
+            }); //mousemove
+
+            lib.window_handle.addEventListener('mouseup', function(_event){
+
+                _event.preventDefault();
+
+                lime_mouseup({
+                    button : mouse_button_from_id(_event.button),
+                    state : MouseState.up,
+                    x : _event.pageX - lib.render.canvas_position.x,
+                    y : _event.pageY - lib.render.canvas_position.y,
+                    flags : 0,
+                    ctrl_down : _event.ctrlKey,
+                    alt_down : _event.altKey,
+                    shift_down : _event.shiftKey,
+                    meta_down : _event.metaKey
+                }, true); //lime_mouseup
+
+            }); //mouseup
+
+            js.Browser.document.addEventListener('keydown', function(e){
+                if (e.keyCode >= 65 && e.keyCode <= 122) {
+                    e.value = e.which+32;
+                } else {
+                    e.value = e.which;
+                }
+                
+                lime_onkeydown(e);
+            });
+            js.Browser.document.addEventListener('keyup', function(e){
+                if (e.keyCode >= 65 && e.keyCode <= 122) {
+                    e.value = e.which+32;
+                } else {
+                    e.value = e.which;
+                }
+
+                lime_onkeyup(e);
+            });
+        #end //lime_html5    
+
+    } //apply_input_listeners
+
+} //InputHandler
 
 
 enum TouchState {
@@ -377,6 +475,8 @@ typedef MouseEvent = {
     var button : MouseButton;
     var x : Float;
     var y : Float;
+    var deltaX : Float;
+    var deltaY : Float;
     var shift_down : Bool;
     var ctrl_down : Bool;
     var alt_down : Bool;
