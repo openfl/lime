@@ -388,7 +388,7 @@ class IOSPlatform implements IPlatformTool {
 				FileHelper.copyIfNewer (asset.sourcePath, flatAssetPath);
 				
 				PathHelper.mkdir (Path.directory (sourceAssetPath));
-				FileHelper.linkFile (flatAssetPath, sourceAssetPath);
+				FileHelper.linkFile (flatAssetPath, sourceAssetPath, true, true);
 				
 			} else {
 				
