@@ -1,7 +1,5 @@
 package lime.gl.html5;
 
-#if lime_html5
-
 // import flash.display.BitmapData;
 import lime.geometry.Matrix3D;
 import lime.utils.ByteArray;
@@ -1457,5 +1455,3 @@ typedef ShaderPrecisionFormat = {
    
 };
 
-
-#end //lime_html5

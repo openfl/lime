@@ -7,7 +7,11 @@ import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
 
-import helpers.*;
+#if pathtools
+import helpers.PathHelper;
+import helpers.FileHelper;
+#end 
+
 import project.Haxelib;
 
 class RunScript {
@@ -18,14 +22,16 @@ class RunScript {
 		var data = args[1];
 		var data2 = (args.length > 2) ? args[2] : '';
 
+		#if pathtools
 		switch(command) {
+			
 //create			
 			case "create":
 
 				var sample = data;
 				var name = data2;
 
-				var samples_path = PathHelper.getHaxelib (new Haxelib ("haxelab")) + 'samples/';
+				var samples_path = PathHelper.getHaxelib (new Haxelib ("luxe")) + 'samples/';
 				var sample_path = samples_path + sample + '/';
 
 				if(FileSystem.exists(sample_path)) {
@@ -45,6 +51,7 @@ class RunScript {
 				}
 
 				return true;
+
 //buildto
 			case "copy":
 				var target = data;
@@ -64,7 +71,7 @@ class RunScript {
 				return true;
 			default:
 				return false;
-		}
+		}#end
 
 		return false;
 	}

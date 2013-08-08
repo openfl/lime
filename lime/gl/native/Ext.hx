@@ -1,7 +1,5 @@
 package lime.gl.native;
 
-#if lime_native
-
 import lime.utils.Libs;
 
 class Ext {
@@ -58,5 +56,3 @@ class Ext {
     private static var nme_gl_ext_draw_buffers = load("nme_gl_ext_draw_buffers", 2);
 }
 
-
-#end //lime_native

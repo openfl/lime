@@ -1,7 +1,5 @@
 package lime.gl.native;
 
-#if lime_native
-
 import lime.utils.Libs;
 
 // import flash.display.BitmapData;
@@ -1304,4 +1302,3 @@ typedef ShaderPrecisionFormat =
 
 };
 
-#end //lime_native

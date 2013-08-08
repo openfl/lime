@@ -1,8 +1,6 @@
 package lime.gl.html5;
 
 
-#if lime_html5
-
 class Ext {
 
     public static function drawBuffers( n:Int, buffers:Int ){
@@ -60,4 +58,3 @@ class Ext {
     private static var ext_draw_buffers : Dynamic = null;
 }
 
-#end //lime_html5
