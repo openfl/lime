@@ -264,6 +264,17 @@ class CommandLineTools {
 					
 				}
 				
+				if (FileSystem.exists (title)) {
+					
+					PathHelper.mkdir (title + "/ndll");
+					PathHelper.mkdir (title + "/ndll/Linux");
+					PathHelper.mkdir (title + "/ndll/Linux64");
+					PathHelper.mkdir (title + "/ndll/Mac");
+					PathHelper.mkdir (title + "/ndll/Mac64");
+					PathHelper.mkdir (title + "/ndll/Windows");
+					
+				}
+				
 			} else {
 				
 				var sampleName = words[0];

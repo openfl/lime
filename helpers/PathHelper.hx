@@ -194,7 +194,7 @@ class PathHelper {
 				
 				LogHelper.error ("Could not find haxelib \"" + haxelib.name + "\", does it need to be installed?");
 				
-			} else if (result != null && result.indexOf ("is not installed") > -1) {
+			} else if (result != null && (result.indexOf ("is not installed") > -1 || result.indexOf ("does not have") > -1)) {
 				
 				LogHelper.error (result);
 				
