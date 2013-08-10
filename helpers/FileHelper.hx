@@ -168,7 +168,7 @@ class FileHelper {
 	}
 	
 	
-	public static function linkFile (source:String, destination:String, symbolic:Bool = true) {
+	public static function linkFile (source:String, destination:String, symbolic:Bool = true, overwrite:Bool = false) {
 		
 		if (!isNewer (source, destination)) {
 			
@@ -192,6 +192,12 @@ class FileHelper {
 				if (symbolic) {
 					
 					args.push ("-s");
+					
+				}
+				
+				if(overwrite){
+					
+					args.push("-f");
 					
 				}
 				
