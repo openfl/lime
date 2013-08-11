@@ -1169,7 +1169,17 @@ class NMMLParser extends NMEProject {
 					
 					case "dependency":
 						
-						dependencies.push (substitute (element.att.name));
+						var name = substitute (element.att.name);
+						
+						if (StringTools.endsWith (name, ".a")) {
+							
+							dependencies.push (PathHelper.combine (extensionPath, name));
+							
+						} else {
+							
+							dependencies.push (name);
+							
+						}
 					
 					case "android":
 						

@@ -86,7 +86,23 @@ class IOSPlatform implements IPlatformTool {
 			
 			if (!StringTools.endsWith (dependency, ".framework")) {
 				
-				context.linkedLibraries.push (dependency);
+				if (StringTools.endsWith (dependency, ".a")) {
+					
+					var name = Path.withoutDirectory (Path.withoutExtension (dependency));
+					
+					if (StringTools.startsWith (name, "lib")) {
+						
+						name = name.substring (3, name.length);
+						
+					}
+					
+					context.linkedLibraries.push (name);
+					
+				} else {
+					
+					context.linkedLibraries.push (dependency);
+					
+				}
 				
 			}
 			
@@ -368,6 +384,24 @@ class IOSPlatform implements IPlatformTool {
 						FileSystem.deleteFile (debugDest);
 						
 					}
+					
+				}
+				
+			}
+			
+			for (dependency in project.dependencies) {
+				
+				if (StringTools.endsWith (dependency, ".a")) {
+					
+					var fileName = Path.withoutDirectory (dependency);
+					
+					if (!StringTools.startsWith (fileName, "lib")) {
+						
+						fileName = "lib" + fileName;
+						
+					}
+					
+					FileHelper.copyIfNewer (dependency, projectDirectory + "/lib/" + arch + "/" + fileName);
 					
 				}
 				
