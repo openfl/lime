@@ -67,6 +67,7 @@ class IOSPlatform implements IPlatformTool {
 		
 		project = project.clone ();
 		project.sources = PathHelper.relocatePaths (project.sources, PathHelper.combine (project.app.path, "ios/" + project.app.file + "/haxe"));
+		project.dependencies.push ("c++");
 		
 		if (project.targetFlags.exists ("xml")) {
 			

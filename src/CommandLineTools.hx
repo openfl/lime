@@ -1250,6 +1250,10 @@ class CommandLineTools {
 						
 						overrides.sources.push (argValue);
 						
+					} else if (field == "dependency") {
+						
+						overrides.dependencies.push (argValue);
+						
 					} else if (StringTools.startsWith (field, "certificate-")) {
 						
 						if (overrides.certificate == null) {
