@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "Command-line tools for OpenFL",
-	"version": "1.0.7",
+	"version": "1.0.8",
 	"releasenote": "Extension fixes, iOS improvements and other minor changes",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
