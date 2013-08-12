@@ -186,7 +186,7 @@ class IOSHelper {
 			var launcher = PathHelper.findTemplate (project.templatePaths, "bin/ios-sim");
 			Sys.command ("chmod", [ "+x", launcher ]);
 			
-			ProcessHelper.runCommand ("", launcher, [ "launch", FileSystem.fullPath (applicationPath), "--sdk", project.environment.get ("IPHONE_VER"), "--family", family ] );
+			ProcessHelper.runCommand ("", launcher, [ "launch", FileSystem.fullPath (applicationPath), "--sdk", project.environment.get ("IPHONE_VER"), "--family", family, "--timeout", "60" ] );
 			
 		} else {
 			
