@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "Command-line tools for OpenFL",
-	"version": "1.0.6",
-	"releasenote": "Add support for 64-bit Neko on Mac",
+	"version": "1.0.7",
+	"releasenote": "Extension fixes, iOS improvements and other minor changes",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
 }
