@@ -420,19 +420,19 @@ class PathHelper {
 				
 				var path = directory + "/" + file;
 				
-				if (FileSystem.isDirectory (path)) {
+				try {
 					
-					removeDirectory (path);
-					
-				} else {
-					
-					try {
+					if (FileSystem.isDirectory (path)) {
+						
+						removeDirectory (path);
+						
+					} else {
 						
 						FileSystem.deleteFile (path);
 						
-					} catch (e:Dynamic) {}
+					}
 					
-				}
+				} catch (e:Dynamic) {}
 				
 			}
 			
