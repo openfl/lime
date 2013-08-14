@@ -13,7 +13,6 @@
 		<ndll name="zlib" haxelib="hxcpp" />
 		
 		<ndll name="nme" />
-		<ndll name="libfreetype" register="false" if="emscripten" />
 		
 	</section>
 	

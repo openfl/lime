@@ -128,29 +128,55 @@ class Libs {
         
     }
 
+#if lime_html5
+    
+    public static var _html5_libs:Map<String,Dynamic>;
+
+    public static function html5_add_lib( library:String, root:Dynamic ) {
+        
+        if(_html5_libs == null) {
+             _html5_libs = new Map<String,Dynamic>();
+        }
+
+        _html5_libs.set( library, root );
+
+        return true;
+    }
+
+    public static function html5_lib_load(library:String, method:String) {
+        
+        var _root = _html5_libs.get(library);        
+        if(_root != null) {
+            return Reflect.field(_root, method);
+        }
+
+        return null;
+
+    } //html5_lib_load
+
+#end //lime_html5
+
     public static function load (library:String, method:String, args:Int = 0):Dynamic {
         
         #if (iphone || emscripten || android)
-        return cpp.Lib.load (library, method, args);
+            return cpp.Lib.load (library, method, args);
         #end
+
+        #if lime_html5
+            var found_in_html5_libs = html5_lib_load( library, method );
+            if(found_in_html5_libs) return found_in_html5_libs;
+        #end //lime_html5
         
         if (__moduleNames == null) __moduleNames = new Map<String, String> ();
         if (__moduleNames.exists (library)) {
             
             #if cpp
-            return cpp.Lib.load (__moduleNames.get (library), method, args);
+                return cpp.Lib.load (__moduleNames.get (library), method, args);
             #elseif neko
-            return neko.Lib.load (__moduleNames.get (library), method, args);
+                return neko.Lib.load (__moduleNames.get (library), method, args);
             #end
             
         }
-        
-        #if waxe
-        if (library == "nme") {
-                //todo sven
-            // flash.Lib.load ("waxe", "wx_boot", 1);
-        }
-        #end
         
         __moduleNames.set (library, library);
         
@@ -171,7 +197,7 @@ class Libs {
         if (result == null) {
             
             var slash = (sysName ().substr (7).toLowerCase () == "windows") ? "\\" : "/";
-            var haxelib = findHaxeLib ("openfl-native");
+            var haxelib = findHaxeLib ("lime");
             
             if (haxelib != "") {
                 result = tryLoad (haxelib + slash + "ndll" + slash + sysName () + slash + library, library, method, args);
