@@ -113,11 +113,16 @@ class RenderHandler {
     }
 
     public function on_resize(_event:Dynamic) {
+
         #if lime_html5
             update_canvas_position();
         #end //lime_html5
-        //todo: more things?
-    }
+        
+        if(lib.host.onresize != null) {
+            lib.host.onresize(_event);
+        }
+
+    } //on_resize
     
 #if lime_html5
     
