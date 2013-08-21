@@ -136,6 +136,16 @@ class IOSHelper {
 	}
 	
 	
+	private static function getXcodeVersion ():String {
+		
+		var output = ProcessHelper.runProcess ("", "xcodebuild", [ "-version" ]);
+		var firstLine = output.split ("\n").shift ();
+		
+		return StringTools.trim (firstLine.substring ("Xcode".length, firstLine.length));
+		
+	}
+	
+	
 	private static function initialize (project:NMEProject):Void {
 		
 		if (!initialized) {
@@ -183,7 +193,16 @@ class IOSHelper {
 				
 			}
 			
-			var launcher = PathHelper.findTemplate (project.templatePaths, "bin/ios-sim");
+			var xcodeVersion = getXcodeVersion ();
+			var template = "bin/ios-sim";
+			
+			if (xcodeVersion.indexOf ("5.") > -1) {
+				
+				template += "5";
+					
+			}
+			
+			var launcher = PathHelper.findTemplate (project.templatePaths, template);
 			Sys.command ("chmod", [ "+x", launcher ]);
 			
 			ProcessHelper.runCommand ("", launcher, [ "launch", FileSystem.fullPath (applicationPath), "--sdk", project.environment.get ("IPHONE_VER"), "--family", family, "--timeout", "60" ] );
@@ -202,7 +221,7 @@ class IOSHelper {
 				
 			}
 			
-            var launcher = PathHelper.findTemplate (project.templatePaths, "bin/fruitstrap");
+            var launcher = PathHelper.findTemplate (project.templatePaths, "bin/ios-deploy");
 	        Sys.command ("chmod", [ "+x", launcher ]);
 	        
 	        if (project.debug) {

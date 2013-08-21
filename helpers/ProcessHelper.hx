@@ -1,8 +1,11 @@
 package helpers;
 
 
+import haxe.io.BytesOutput;
+import haxe.io.Eof;
 import haxe.io.Path;
 import project.Platform;
+import sys.io.Process;
 import sys.FileSystem;
 
 
@@ -145,7 +148,7 @@ class ProcessHelper {
 					
 				}
 				
-				_runCommand (path, command, args);
+				_runProcess (path, command, args, false, false);
 				
 			} catch (e:Dynamic) {
 				
@@ -159,14 +162,77 @@ class ProcessHelper {
 			
 		} else {
 			
-			_runCommand (path, command, args);
+			_runProcess (path, command, args, false, false);
 			
 		}
 	  
 	}
 	
 	
-	private static function _runCommand (path:String, command:String, args:Array<String>) {
+	public static function runProcess (path:String, command:String, args:Array <String>, waitForOutput:Bool = true, safeExecute:Bool = true, ignoreErrors:Bool = false, print:Bool = false):String {
+		
+		if (print) {
+			
+			var message = command;
+			
+			for (arg in args) {
+				
+				if (arg.indexOf (" ") > -1) {
+					
+					message += " \"" + arg + "\"";
+					
+				} else {
+					
+					message += " " + arg;
+					
+				}
+				
+			}
+			
+			Sys.println (message);
+			
+		}
+		
+		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
+			
+			command = StringTools.replace (command, ",", "^,");
+			
+		}
+		
+		if (safeExecute) {
+			
+			try {
+				
+				if (path != "" && !FileSystem.exists (FileSystem.fullPath (path)) && !FileSystem.exists (FileSystem.fullPath (new Path (path).dir))) {
+					
+					LogHelper.error ("The specified target path \"" + path + "\" does not exist");
+					
+				}
+				
+				return _runProcess (path, command, args, waitForOutput, true);
+				
+			} catch (e:Dynamic) {
+				
+				if (!ignoreErrors) {
+					
+					LogHelper.error ("", e);
+					
+				}
+				
+				return null;
+				
+			}
+			
+		} else {
+			
+			return _runProcess (path, command, args, waitForOutput, true);
+			
+		}
+		
+	}
+	
+	
+	private static function _runProcess (path:String, command:String, args:Array<String>, waitForOutput:Bool, runAsProcess:Bool):String {
 		
 		var oldPath:String = "";
 		
@@ -197,14 +263,66 @@ class ProcessHelper {
 		
 		LogHelper.info ("", " - Running command: " + command + argString);
 		
-		var result:Dynamic = Sys.command (command, args);
+		var result = 0;
+		var output = "";
 		
-		if (result == 0) {
+		if (runAsProcess) {
 			
-			//LogHelper.info("", "(Done)");
+			var process = new Process (command, args);
+			var buffer = new BytesOutput ();
+			
+			if (waitForOutput) {
+				
+				var waiting = true;
+				
+				while (waiting) {
+					
+					try  {
+						
+						var current = process.stdout.readAll (1024);
+						buffer.write (current);
+						
+						if (current.length == 0) {
+							
+							waiting = false;
+							
+						}
+						
+					} catch (e:Eof) {
+						
+						waiting = false;
+						
+					}
+					
+				}
+				
+				result = process.exitCode ();
+				
+				if (result == 0) {
+					
+					output = buffer.getBytes ().toString ();
+					
+					if (output == "") {
+						
+						var error = process.stderr.readAll ().toString ();
+						
+						if (error != "") {
+							
+							LogHelper.error (error);
+							
+						}
+						
+					}
+					
+				}
+				
+			}
+			
+		} else {
+			
+			var result:Dynamic = Sys.command (command, args);
 			
 		}
-			
 		
 		if (oldPath != "") {
 			
@@ -218,7 +336,9 @@ class ProcessHelper {
 			
 		}
 		
+		return output;
+		
 	}
 	
-
+	
 }

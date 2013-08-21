@@ -398,7 +398,7 @@ class CommandLineTools {
 		Sys.println ("");
 		Sys.println ("  android : Create Google Android applications");
 		Sys.println ("  blackberry : Create BlackBerry applications");
-		Sys.println ("  emscripten : Create Emscripten applications");
+		//Sys.println ("  emscripten : Create Emscripten applications");
 		//Sys.println ("  cpp : Create application for the system you are compiling on");
 		
 		if (!userDefines.exists ("nme")) {
@@ -411,7 +411,7 @@ class CommandLineTools {
 		Sys.println ("  ios : Create Apple iOS applications");
 		Sys.println ("  linux : Create Linux applications");
 		Sys.println ("  mac : Create Apple Mac OS X applications");
-		Sys.println ("  webos : Create HP webOS applications");
+		//Sys.println ("  webos : Create HP webOS applications");
 		Sys.println ("  windows : Create Microsoft Windows applications");
 		Sys.println ("");
 		Sys.println (" Options : ");
@@ -422,11 +422,13 @@ class CommandLineTools {
 		Sys.println ("  -clean : Add a \"clean\" action before running the current command");
 		Sys.println ("  -xml : Generate XML type information, useful for documentation");
 		Sys.println ("  [windows|mac|linux] -neko : Build with Neko instead of C++");
-		Sys.println ("  [linux] -64 : Compile for 64-bit instead of 32-bit");
-		Sys.println ("  [android] -arm7 : Compile for arm-7a and arm5");
-		Sys.println ("  [android] -arm7-only : Compile for arm-7a for testing");
+		Sys.println ("  [linux] -64 : Compile for 64-bit instead of OS default");
+		Sys.println ("  [linux] -32 : Compile for 32-bit instead of OS default");
+		//Sys.println ("  [android] -arm7 : Compile for arm-7a and arm5");
+		//Sys.println ("  [android] -arm7-only : Compile for arm-7a for testing");
 		Sys.println ("  [ios|blackberry] -simulator : Build/test for the device simulator");
 		Sys.println ("  [ios] -simulator -ipad : Build/test for the iPad Simulator");
+		Sys.println ("  [android] -emulator : Build/test for the device emulator");
 		//Sys.println ("  [flash] -web : Generate web template files");
 		//Sys.println ("  [flash] -chrome : Generate Google Chrome app template files");
 		//Sys.println ("  [flash] -opera : Generate an Opera Widget");

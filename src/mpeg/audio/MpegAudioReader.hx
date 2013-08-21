@@ -257,7 +257,7 @@ class MpegAudioReader {
 
             frameData = yieldBytes();
         }
-
+        
         var header = new FrameHeader(version, layer, hasCrc, bitrate, samplingFrequency, hasPadding,
                 privateBit, mode, modeExtension, copyright, original, emphasis);
 

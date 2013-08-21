@@ -23,13 +23,13 @@ class PlatformSetup {
 	private static var airMacPath = "http://airdownload.adobe.com/air/mac/download/latest/AdobeAIRSDK.tbz2";
 	private static var airWindowsPath = "http://airdownload.adobe.com/air/win/download/latest/AdobeAIRSDK.zip";
 	private static var androidLinuxNDKPath = "http://dl.google.com/android/ndk/android-ndk-r8b-linux-x86.tar.bz2";
-	private static var androidLinuxSDKPath = "http://dl.google.com/android/android-sdk_r20.0.3-linux.tgz";
+	private static var androidLinuxSDKPath = "http://dl.google.com/android/android-sdk_r22.0.5-linux.tgz";
 	private static var androidMacNDKPath = "http://dl.google.com/android/ndk/android-ndk-r8b-darwin-x86.tar.bz2";
-	private static var androidMacSDKPath = "http://dl.google.com/android/android-sdk_r20.0.3-macosx.zip";
+	private static var androidMacSDKPath = "http://dl.google.com/android/android-sdk_r22.0.5-macosx.zip";
 	private static var androidWindowsNDKPath = "http://dl.google.com/android/ndk/android-ndk-r8b-windows.zip";
-	private static var androidWindowsSDKPath = "http://dl.google.com/android/android-sdk_r20.0.3-windows.zip";
-	private static var apacheAntUnixPath = "http://archive.apache.org/dist/ant/binaries/apache-ant-1.8.4-bin.tar.gz";
-	private static var apacheAntWindowsPath = "http://archive.apache.org/dist/ant/binaries/apache-ant-1.8.4-bin.zip";
+	private static var androidWindowsSDKPath = "http://dl.google.com/android/android-sdk_r22.0.5-windows.zip";
+	private static var apacheAntUnixPath = "http://archive.apache.org/dist/ant/binaries/apache-ant-1.9.2-bin.tar.gz";
+	private static var apacheAntWindowsPath = "http://archive.apache.org/dist/ant/binaries/apache-ant-1.9.2-bin.zip";
 	private static var apacheCordovaPath = "http://www.apache.org/dist/incubator/cordova/cordova-2.1.0-incubating-src.zip";
 	private static var appleXcodeURL = "http://developer.apple.com/xcode/";
 	private static var blackBerryCodeSigningURL = "https://www.blackberry.com/SignedKeys/";
@@ -897,48 +897,48 @@ class PlatformSetup {
 			
 		}
 		
-		if (PlatformHelper.hostPlatform != Platform.MAC) {
+		if (answer == Always) {
 			
-			if (answer == Always) {
+			Lib.println ("Download and install Apache Ant? [y/n/a] a");
+		
+		} else {
+			
+			answer = ask ("Download and install Apache Ant?");
+			
+		}
+		
+		if (answer == Yes || answer == Always) {
+			
+			var downloadPath = "";
+			var defaultInstallPath = "";
+			var ignoreRootFolder = "apache-ant-1.9.2";
+		
+			if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
 				
-				Lib.println ("Download and install Apache Ant? [y/n/a] a");
+				downloadPath = apacheAntWindowsPath;
+				defaultInstallPath = "C:\\Development\\Apache Ant";
 			
 			} else {
 				
-				answer = ask ("Download and install Apache Ant?");
-			
-			}
-			
-			if (answer == Yes || answer == Always) {
-				
-				var downloadPath = "";
-				var defaultInstallPath = "";
-				var ignoreRootFolder = "apache-ant-1.8.4";
-			
-				if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
-					
-					downloadPath = apacheAntWindowsPath;
-					defaultInstallPath = "C:\\Development\\Apache Ant";
-				
-				} else {
-					
-					downloadPath = apacheAntUnixPath;
-					defaultInstallPath = "/opt/apache-ant";
-					
-				}
-				
-				downloadFile (downloadPath);
-				
-				var path = unescapePath (param ("Output directory [" + defaultInstallPath + "]"));
-				path = createPath (path, defaultInstallPath);
-				
-				extractFile (Path.withoutDirectory (downloadPath), path, ignoreRootFolder);
-				
-				setApacheAnt = true;
-				defines.set ("ANT_HOME", path);
-				writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+				downloadPath = apacheAntUnixPath;
+				defaultInstallPath = "/opt/apache-ant";
 				
 			}
+			
+			downloadFile (downloadPath);
+			
+			var path = unescapePath (param ("Output directory [" + defaultInstallPath + "]"));
+			path = createPath (path, defaultInstallPath);
+			
+			extractFile (Path.withoutDirectory (downloadPath), path, ignoreRootFolder);
+			
+			setApacheAnt = true;
+			defines.set ("ANT_HOME", path);
+			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			
+		}
+		
+		if (PlatformHelper.hostPlatform != Platform.MAC) {
 			
 			if (answer == Always) {
 			
@@ -987,7 +987,7 @@ class PlatformSetup {
 			
 		}
 		
-		if (PlatformHelper.hostPlatform != Platform.MAC && !setApacheAnt) {
+		if (/*PlatformHelper.hostPlatform != Platform.MAC &&*/ !setApacheAnt) {
 			
 			requiredVariables.push ("ANT_HOME");
 			requiredVariableDescriptions.push ("Path to Apache Ant");
@@ -1017,7 +1017,7 @@ class PlatformSetup {
 			
 			if (PlatformHelper.hostPlatform == Platform.MAC) {
 				
-				defines.remove ("ANT_HOME");
+				//defines.remove ("ANT_HOME");
 				defines.remove ("JAVA_HOME");
 				
 			}
