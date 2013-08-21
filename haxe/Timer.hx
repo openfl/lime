@@ -13,7 +13,7 @@ class Timer {
 	/**
 		Create a new timer that will run every [time_ms] (in milliseconds).
 	**/
-	public function new( time_ms : Int ){
+	public function new( time_ms : Float ){
 		#if flash9
 			var me = this;
 			id = untyped __global__["flash.utils.setInterval"](function() { me.run(); },time_ms);
