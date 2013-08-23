@@ -142,7 +142,7 @@ class ProcessHelper {
 			
 			try {
 				
-				if (path != "" && !FileSystem.exists (FileSystem.fullPath (path)) && !FileSystem.exists (FileSystem.fullPath (new Path (path).dir))) {
+				if (path != null && path != "" && !FileSystem.exists (FileSystem.fullPath (path)) && !FileSystem.exists (FileSystem.fullPath (new Path (path).dir))) {
 					
 					LogHelper.error ("The specified target path \"" + path + "\" does not exist");
 					
@@ -203,7 +203,7 @@ class ProcessHelper {
 			
 			try {
 				
-				if (path != "" && !FileSystem.exists (FileSystem.fullPath (path)) && !FileSystem.exists (FileSystem.fullPath (new Path (path).dir))) {
+				if (path != null && path != "" && !FileSystem.exists (FileSystem.fullPath (path)) && !FileSystem.exists (FileSystem.fullPath (new Path (path).dir))) {
 					
 					LogHelper.error ("The specified target path \"" + path + "\" does not exist");
 					
@@ -320,7 +320,15 @@ class ProcessHelper {
 			
 		} else {
 			
-			var result:Dynamic = Sys.command (command, args);
+			if (args != null && args.length > 0) {
+				
+				result = Sys.command (command, args);
+				
+			} else {
+				
+				result = Sys.command (command);
+				
+			}
 			
 		}
 		

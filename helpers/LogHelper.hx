@@ -14,7 +14,7 @@ class LogHelper {
 	
 	public static function error (message:String, verboseMessage:String = "", e:Dynamic = null):Void {
 		
-		if (message != "") {
+		if (message != "" && !mute) {
 			
 			var output;
 			
@@ -57,13 +57,17 @@ class LogHelper {
 	
 	public static function info (message:String, verboseMessage:String = ""):Void {
 		
-		if (verbose && verboseMessage != "") {
+		if (!mute) {
 			
-			Sys.println (verboseMessage);
-			
-		} else if (message != "") {
-			
-			Sys.println (message);
+			if (verbose && verboseMessage != "") {
+				
+				Sys.println (verboseMessage);
+				
+			} else if (message != "") {
+				
+				Sys.println (message);
+				
+			}
 			
 		}
 		
@@ -72,26 +76,30 @@ class LogHelper {
 	
 	public static function warn (message:String, verboseMessage:String = "", allowRepeat:Bool = false):Void {
 		
-		var output = "";
-		
-		if (verbose && verboseMessage != "") {
+		if (!mute) {
 			
-			output = "Warning: " + verboseMessage;
+			var output = "";
 			
-		} else if (message != "") {
+			if (verbose && verboseMessage != "") {
+				
+				output = "Warning: " + verboseMessage;
+				
+			} else if (message != "") {
+				
+				output = "Warning: " + message;
+				
+			}
 			
-			output = "Warning: " + message;
+			if (!allowRepeat && sentWarnings.exists (output)) {
+				
+				return;
+				
+			}
+			
+			sentWarnings.set (output, true);
+			Sys.println (output);
 			
 		}
-		
-		if (!allowRepeat && sentWarnings.exists (output)) {
-			
-			return;
-			
-		}
-		
-		sentWarnings.set (output, true);
-		Sys.println (output);
 		
 	}
 	

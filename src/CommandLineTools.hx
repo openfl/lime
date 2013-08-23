@@ -167,6 +167,8 @@ class CommandLineTools {
 	
 	private static function createTemplate () {
 		
+		LogHelper.info ("", "Running command: CREATE");
+		
 		if (words.length > 0) {
 			
 			if (words[0] == "project") {
@@ -1093,7 +1095,7 @@ class CommandLineTools {
 		processArguments ();
 		version = getVersion ();
 		
-		if (LogHelper.verbose) {
+		if (LogHelper.verbose && command != "") {
 			
 			displayInfo ();
 			Sys.println ("");
@@ -1384,6 +1386,8 @@ class CommandLineTools {
 	
 	
 	private static function platformSetup ():Void {
+		
+		LogHelper.info ("", "Running command: SETUP");
 		
 		if (words.length == 0) {
 			

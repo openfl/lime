@@ -6,6 +6,7 @@ import haxe.io.Eof;
 import haxe.io.Path;
 import haxe.zip.Reader;
 import helpers.BlackBerryHelper;
+import helpers.FileHelper;
 import helpers.PathHelper;
 import helpers.PlatformHelper;
 import helpers.ProcessHelper;
@@ -352,21 +353,20 @@ class PlatformSetup {
 	
 	public static function installNME ():Void {
 		
+		var haxePath = Sys.getEnv ("HAXEPATH");
+		
 		if (!userDefines.exists ("nme")) {
 			
-			//Sys.command ("haxelib install openfl-tools");
-			Sys.command ("haxelib install openfl-html5");
-			Sys.command ("haxelib install openfl-samples");
-			Sys.command ("haxelib install openfl-compatibility");
-			Sys.command ("haxelib install openfl-native");
+			ProcessHelper.runCommand (haxePath, "haxelib", [ "install", "openfl-native" ]);
+			ProcessHelper.runCommand (haxePath, "haxelib", [ "install", "openfl-html5" ]);
+			ProcessHelper.runCommand (haxePath, "haxelib", [ "install", "openfl-samples" ]);
+			ProcessHelper.runCommand (haxePath, "haxelib", [ "install", "openfl-compatibility" ]);
 			
 		}
 		
-		Sys.command ("haxelib install hxcpp");
+		ProcessHelper.runCommand (haxePath, "haxelib", [ "install", "hxcpp" ]);
 		
 		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
-			
-			var haxePath = Sys.getEnv ("HAXEPATH");
 			
 			if (haxePath == null || haxePath == "") {
 				
@@ -386,37 +386,61 @@ class PlatformSetup {
 			
 		} else {
 			
-			var haxePath = Sys.getEnv ("HAXEPATH");
-			
 			if (haxePath == null || haxePath == "") {
 				
 				haxePath = "/usr/lib/haxe";
 				
 			}
 			
-			//try {
-				//
-				//File.copy (PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates/bin/openfl.sh", "/usr/lib/haxe/openfl");
-				//Sys.command ("chmod", [ "755", "/usr/lib/haxe/openfl" ]);
-				//link ("haxe", "openfl", "/usr/bin");
-				//
-			//} catch (e:Dynamic) {
-				
+			
+			var installedCommand = false;
+			
 			if (!userDefines.exists ("nme")) {
 				
-				Sys.command ("sudo", [ "cp", PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates/bin/openfl.sh", haxePath + "/openfl" ]);
-				Sys.command ("sudo chmod 755 " + haxePath + "/openfl");
-				Sys.command ("sudo ln -s " + haxePath + "/openfl /usr/bin/openfl");
+				var answer = ask ("Do you want to install the \"openfl\" command?");
+				
+				if (answer == Yes || answer == Always) {
+					
+					try {
+						
+						ProcessHelper.runCommand ("", "sudo cp -f " + PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates/bin/openfl.sh /usr/bin/openfl", [], false);
+						ProcessHelper.runCommand ("", "sudo chmod 755 /usr/bin/openfl", [], false);
+						installedCommand = true;
+						
+					} catch (e:Dynamic) {}
+					
+				}
+				
+				if (!installedCommand) {
+					
+					Sys.println ("");
+					Sys.println ("To finish setup, we recommend you either...");
+					Sys.println ("");
+					Sys.println (" a) Manually add an alias called \"openfl\" to run \"haxelib run openfl\"");
+					Sys.println (" b) Run the following commands:");
+					Sys.println ("");
+					Sys.println ("sudo cp \"" + PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates/bin/openfl.sh\" /usr/bin/openfl");
+					Sys.println ("sudo chmod 755 /usr/bin/openfl");
+					Sys.println ("");
+					
+				}
 				
 			} else {
 				
-				Sys.command ("sudo", [ "cp", PathHelper.getHaxelib (new Haxelib ("nme")) + "/tools/command-line/bin/nme.sh", haxePath + "/nme" ]);
-				Sys.command ("sudo chmod 755 " + haxePath + "/nme");
-				Sys.command ("sudo ln -s " + haxePath + "/nme /usr/bin/nme");
+				var answer = ask ("Do you want to install the \"nme\" command?");
+				
+				if (answer == Yes || answer == Always) {
+					
+					try {
+						
+						ProcessHelper.runCommand ("", "sudo", [ "cp", PathHelper.getHaxelib (new Haxelib ("nme")) + "/templates/bin/nme.sh", "/usr/bin/nme" ], false);
+						ProcessHelper.runCommand ("", "sudo chmod 755 /usr/bin/nme", [], false);
+						
+					} catch (e:Dynamic) {}
+					
+				}
 				
 			}
-				
-			//}
 			
 		}
 		

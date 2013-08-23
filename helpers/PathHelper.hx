@@ -1,6 +1,8 @@
 package helpers;
 
 
+import helpers.LogHelper;
+import helpers.ProcessHelper;
 import project.Haxelib;
 import project.NDLL;
 import project.Platform;
@@ -167,26 +169,23 @@ class PathHelper {
 			
 		}
 		
-		var proc = new Process (combine (Sys.getEnv ("HAXEPATH"), "haxelib"), [ "path", name ]);
+		var cache = LogHelper.verbose;
+		LogHelper.verbose = false;
+		var output = ProcessHelper.runProcess (Sys.getEnv ("HAXEPATH"), "haxelib", [ "path", name ]);
+		LogHelper.verbose = cache;
+		
+		var lines = output.split ("\n");
 		var result = "";
 		
-		try {
+		for (i in 1...lines.length) {
 			
-			while (true) {
+			if (StringTools.trim (lines[i]) == "-D " + name) {
 				
-				var line = proc.stdout.readLine ();
-				
-				if (line.substr (0, 1) != "-") {
-					
-					result = line;
-					
-				}
+				result = lines[i - 1];
 				
 			}
 			
-		} catch (e:Dynamic) { };
-		
-		proc.close();
+		}
 		
 		if (validate) {
 			
