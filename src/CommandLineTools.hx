@@ -707,9 +707,38 @@ class CommandLineTools {
 	#if (neko && (haxe_210 || haxe3))
 	public static function __init__ () {
 		
-		// Fix for library search paths
+		var haxePath = Sys.getEnv ("HAXEPATH");
+		var command = (haxePath != null && haxePath != "") ? haxePath + "/haxelib" : "haxelib";
 		
-		var path = PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/ndll/";
+		var process = new Process (command, [ "path", "openfl-tools" ]);
+		var path = "";
+		
+		try {
+			
+			var lines = new Array <String> ();
+			
+			while (true) {
+				
+				var length = lines.length;
+				var line = process.stdout.readLine ();
+				
+				if (length > 0 && StringTools.trim (line) == "-D openfl-tools") {
+					
+					path = lines[length - 1];
+					
+				}
+				
+				lines.push (line);
+         		
+   			}
+   			
+		} catch (e:Dynamic) {
+			
+			process.close ();
+			
+		}
+		
+		path += "/ndll/";
 		
 		switch (PlatformHelper.hostPlatform) {
 			
