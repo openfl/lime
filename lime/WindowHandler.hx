@@ -139,7 +139,9 @@ class WindowHandler {
     public function set_cursor_visible(val:Bool = true) {
         
         #if lime_native
-            nme_stage_show_cursor(lib.view_handle, val);
+            if(nme_stage_show_cursor!=null) {
+                nme_stage_show_cursor(lib.view_handle, val);
+            }
         #end //lime_native
 
         cursor_visible = val;
@@ -148,7 +150,9 @@ class WindowHandler {
     public function constrain_cursor_to_window_frame( val:Bool = false ) {
         
         #if lime_native
-            nme_stage_constrain_cursor_to_window_frame(lib.view_handle, val);
+            if(nme_stage_constrain_cursor_to_window_frame!=null) {
+                nme_stage_constrain_cursor_to_window_frame(lib.view_handle, val);
+            }
         #end //lime_native
 
         #if lime_html5
@@ -197,7 +201,9 @@ class WindowHandler {
 
     public function set_cursor_position_in_window(_x:Int = 0, _y:Int = 0) {
         #if lime_native
-            nme_stage_set_cursor_position_in_window(lib.view_handle, _x, _y);
+            if(nme_stage_set_cursor_position_in_window!=null) {
+                nme_stage_set_cursor_position_in_window(lib.view_handle, _x, _y);
+            }
             lib.input.last_mouse_x = _x;
             lib.input.last_mouse_y = _y;
         #end //lime_native
