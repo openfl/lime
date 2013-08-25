@@ -181,7 +181,7 @@ class PathHelper {
 			
 			if (StringTools.trim (lines[i]) == "-D " + name) {
 				
-				result = lines[i - 1];
+				result = StringTools.trim (lines[i - 1]);
 				
 			}
 			
