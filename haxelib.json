@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "Command-line tools for OpenFL",
-	"version": "1.0.8",
-	"releasenote": "Extension fixes, iOS improvements and other minor changes",
+	"version": "1.0.9",
+	"releasenote": "Initial Android emulator support, fixes and minor improvements",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
 }

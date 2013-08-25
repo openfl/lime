@@ -724,7 +724,7 @@ class CommandLineTools {
 				
 				if (length > 0 && StringTools.trim (line) == "-D openfl-tools") {
 					
-					path = lines[length - 1];
+					path = StringTools.trim (lines[length - 1]);
 					
 				}
 				
