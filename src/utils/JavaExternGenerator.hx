@@ -716,7 +716,7 @@ class JavaExternGenerator
 					func_name = "_" + uniq_name + "_func";
 					output("		if (" + func_name + " == null)\n");
 					output("			" + func_name + " = openfl.utils.JNI." + (is_static?"createStaticMethod":"createMemberMethod"));
-					output("(\"" + mCurrentType + "\", \"" + mConstants[name_ref] + "\", \"" + mConstants[desc_ref] + "\", true);\n");
+					output("(\"" + StringTools.replace (mCurrentType, ".", "/") + "\", \"" + mConstants[name_ref] + "\", \"" + mConstants[desc_ref] + "\", true);\n");
 					
 					output("		var a = new Array<Dynamic>();\n");
 					
