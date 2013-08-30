@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "Command-line tools for OpenFL",
-	"version": "1.0.9",
-	"releasenote": "Initial Android emulator support, fixes and minor improvements",
+	"version": "1.0.10",
+	"releasenote": "Fix silent error when haxelib is not found",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
 }
