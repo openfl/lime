@@ -787,7 +787,7 @@ class NMMLParser extends NMEProject {
 						
 						if (element.has.haxelib) {
 							
-							path = findIncludeFile (PathHelper.getHaxelib (new Haxelib (element.att.haxelib)));
+							path = findIncludeFile (PathHelper.getHaxelib (new Haxelib (element.att.haxelib), true));
 							addSourcePath = false;
 							
 						} else if (element.has.path) {
@@ -858,7 +858,7 @@ class NMMLParser extends NMEProject {
 						}
 						
 						var haxelib = new Haxelib (name, version);
-						var path = PathHelper.getHaxelib (haxelib);
+						var path = PathHelper.getHaxelib (haxelib, true);
 						haxelibs.push (haxelib);
 						
 						var includePath = "";
@@ -1091,7 +1091,7 @@ class NMMLParser extends NMEProject {
 							
 							if (element.has.haxelib) {
 								
-								var haxelibPath = PathHelper.getHaxelib (new Haxelib (element.att.haxelib));
+								var haxelibPath = PathHelper.getHaxelib (new Haxelib (element.att.haxelib), true);
 								var path = PathHelper.combine (haxelibPath, substitute (element.att.path));
 								templatePaths.push (path);
 								

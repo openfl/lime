@@ -304,13 +304,13 @@ class ProcessHelper {
 					
 					if (output == "") {
 						
-						var error = process.stderr.readAll ().toString ();
+						output = process.stderr.readAll ().toString ();
 						
-						if (error != "") {
+						/*if (error != "") {
 							
 							LogHelper.error (error);
 							
-						}
+						}*/
 						
 					}
 					
@@ -338,7 +338,7 @@ class ProcessHelper {
 			
 		}
 		
-		if (result != 0) {
+		if (result != 0 && !runAsProcess) {
 			
 			throw ("Error running: " + command + " " + args.join (" ") + " [" + path + "]");
 			

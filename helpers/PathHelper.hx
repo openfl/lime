@@ -124,8 +124,6 @@ class PathHelper {
 		
 		for (templatePath in templatePaths) {
 			
-			//Sys.println ("
-			
 			var targetPath = combine (templatePath, path);
 			
 			if (FileSystem.exists (targetPath)) {
@@ -171,7 +169,14 @@ class PathHelper {
 		
 		var cache = LogHelper.verbose;
 		LogHelper.verbose = false;
-		var output = ProcessHelper.runProcess (Sys.getEnv ("HAXEPATH"), "haxelib", [ "path", name ]);
+		var output = "";
+		
+		try {
+			
+			output = ProcessHelper.runProcess (Sys.getEnv ("HAXEPATH"), "haxelib", [ "path", name ]);
+			
+		} catch (e:Dynamic) { }
+		
 		LogHelper.verbose = cache;
 		
 		var lines = output.split ("\n");
