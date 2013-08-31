@@ -145,6 +145,10 @@ class Libs {
 
     public static function html5_lib_load(library:String, method:String) {
         
+        if(_html5_libs == null) {
+             _html5_libs = new Map<String,Dynamic>();
+        }
+
         var _root = _html5_libs.get(library);        
         if(_root != null) {
             return Reflect.field(_root, method);
