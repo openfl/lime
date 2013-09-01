@@ -41,7 +41,8 @@ class PlatformSetup {
 	private static var blackBerryWindowsWebWorksSDKPath = "https://developer.blackberry.com/html5/downloads/fetch/BB10-WebWorks-SDK_1.0.4.7.exe";
 	private static var codeSourceryWindowsPath = "http://sourcery.mentor.com/public/gnu_toolchain/arm-none-linux-gnueabi/arm-2009q1-203-arm-none-linux-gnueabi.exe";
 	private static var javaJDKURL = "http://www.oracle.com/technetwork/java/javase/downloads/jdk6u37-downloads-1859587.html";
-	private static var linuxX64Packages = "ia32-libs-multiarch gcc-multilib g++-multilib";
+	private static var aptPackages = "ia32-libs-multiarch gcc-multilib g++-multilib";
+	private static var yumPackages = "gcc gcc-c++";
 	private static var webOSLinuxX64NovacomPath = "http://cdn.downloads.palm.com/sdkdownloads/3.0.4.669/sdkBinaries/palm-novacom_1.0.80_amd64.deb";
 	private static var webOSLinuxX86NovacomPath = "http://cdn.downloads.palm.com/sdkdownloads/3.0.4.669/sdkBinaries/palm-novacom_1.0.80_i386.deb";
 	private static var webOSLinuxSDKPath = "http://cdn.downloads.palm.com/sdkdownloads/3.0.5.676/sdkBinaries/palm-sdk_3.0.5-svn528736-pho676_i386.deb";
@@ -1648,10 +1649,27 @@ class PlatformSetup {
 
 
 	public static function setupLinux ():Void {
-		
-		var parameters = [ "apt-get", "install" ].concat (linuxX64Packages.split (" "));
-		ProcessHelper.runCommand ("", "sudo", parameters, false);
-		
+		// Install using apt-get if available.
+		var hasApt = ProcessHelper.runProcess("", "which", ["apt-get"], true, true, true) != null;
+		if(hasApt) {
+			var parameters = [ "apt-get", "install" ].concat (aptPackages.split (" "));
+			ProcessHelper.runCommand ("", "sudo", parameters, false);
+			return;
+		}
+
+		// Install using yum if available.
+		var hasYum = ProcessHelper.runProcess("", "which", ["yum"], true, true, true) != null;
+		if(hasYum) {
+			var parameters = [ "yum", "install" ].concat (yumPackages.split (" "));
+			ProcessHelper.runCommand ("", "sudo", parameters, false);
+			return;
+		}
+
+		// No supported package manager.
+		Lib.println("Unable to find a supported package manager on your Linux distribution.");
+		Lib.println("For now, only apt-get and yum are supported.");
+
+		Sys.exit (1);
 	}
 	
 	
