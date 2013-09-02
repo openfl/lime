@@ -1,14 +1,17 @@
+openfl-tools
+============
+[![Build Status](https://travis-ci.org/openfl/openfl-tools.png)](https://travis-ci.org/openfl/openfl-tools)
+
 Install
 -------
 
-https://github.com/openfl/openfl/wiki/Get-Started
+http://www.openfl.org/developer/documentation/get-started
 
 
 Development Build
 -----------------
 
     haxelib install format
-    haxelib install swf
     haxelib install svg
     git clone https://github.com/openfl/openfl-tools
     haxelib dev openfl-tools openfl-tools
@@ -17,6 +20,7 @@ To rebuild the tools, use:
 
     openfl rebuild tools
 
-To return to a release build:
+To return to release builds:
 
     haxelib dev openfl-tools
+
