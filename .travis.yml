@@ -9,6 +9,8 @@ before_install:
   - haxelib setup ~/haxelib
   - haxelib install openfl
   - haxelib install openfl-native
+  - haxelib install format
+  - haxelib install svg
   - haxelib dev openfl-tools $(pwd)
 
 script:
