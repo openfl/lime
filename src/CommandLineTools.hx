@@ -1093,7 +1093,7 @@ class CommandLineTools {
 	
 	private static function resolveClass (name:String):Class <Dynamic> {
 		
-		if (name.toLowerCase ().indexOf ("project") > -1) {
+		if (name.toLowerCase ().indexOf ("project") > -1 && name.indexOf ("project.") == -1) {
 			
 			return NMEProject;
 			
