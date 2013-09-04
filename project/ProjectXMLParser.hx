@@ -19,8 +19,8 @@ import sys.FileSystem;
 class ProjectXMLParser extends OpenFLProject {
 	
 	
-	public var localDefines:Map <String, Dynamic>;
 	public var includePaths:Array <String>;
+	public var localDefines:Map <String, Dynamic>;
 	
 	private static var varMatch = new EReg("\\${(.*?)}", "");
 	
