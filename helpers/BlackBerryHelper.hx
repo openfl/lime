@@ -7,7 +7,7 @@ import helpers.PathHelper;
 import helpers.PlatformHelper;
 import helpers.ProcessHelper;
 import helpers.ZipHelper;
-import project.NMEProject;
+import project.OpenFLProject;
 import project.Platform;
 import sys.FileSystem;
 import sys.io.File;
@@ -22,7 +22,7 @@ class BlackBerryHelper {
 	private static var targetFlags:Map <String, String>;
 	
 	
-	public static function createPackage (project:NMEProject, workingDirectory:String, descriptorFile:String, targetPath:String):Void {
+	public static function createPackage (project:OpenFLProject, workingDirectory:String, descriptorFile:String, targetPath:String):Void {
 		
 		var args = [ "-package", targetPath, descriptorFile ];
 		var password = null;
@@ -103,7 +103,7 @@ class BlackBerryHelper {
 	}
 	
 	
-	public static function createWebWorksPackage (project:NMEProject, sourceDirectory:String, targetPath:String):Void {
+	public static function createWebWorksPackage (project:OpenFLProject, sourceDirectory:String, targetPath:String):Void {
 		
 		var zipPath = PathHelper.combine (targetPath, PathHelper.safeFileName (project.app.file) + ".zip");
 		
@@ -179,7 +179,7 @@ class BlackBerryHelper {
 	}
 	
 	
-	public static function deploy (project:NMEProject, workingDirectory:String, targetPath:String, run:Bool = true):Void {
+	public static function deploy (project:OpenFLProject, workingDirectory:String, targetPath:String, run:Bool = true):Void {
 		
 		var deviceIP = project.environment.get ("BLACKBERRY_DEVICE_IP");
 		var devicePassword = project.environment.get ("BLACKBERRY_DEVICE_PASSWORD");
@@ -220,7 +220,7 @@ class BlackBerryHelper {
 	}
 	
 	
-	public static function initialize (project:NMEProject):Void {
+	public static function initialize (project:OpenFLProject):Void {
 		
 		if (project.environment.exists ("BLACKBERRY_NDK_ROOT") && (!project.environment.exists("QNX_HOST") || !project.environment.exists("QNX_TARGET"))) {
 			
@@ -304,7 +304,7 @@ class BlackBerryHelper {
 	}
 	
 	
-	public static function processDebugToken (project:NMEProject, workingDirectory:String = ""):BlackBerryDebugToken {
+	public static function processDebugToken (project:OpenFLProject, workingDirectory:String = ""):BlackBerryDebugToken {
 		
 		var data:BlackBerryDebugToken = { authorID: "", deviceIDs: new Array<String> () };
 		
@@ -407,7 +407,7 @@ class BlackBerryHelper {
 	}
 	
 	
-	public static function trace (project:NMEProject, workingDirectory:String, targetPath:String):Void {
+	public static function trace (project:OpenFLProject, workingDirectory:String, targetPath:String):Void {
 		
 		var deviceIP = project.environment.get ("BLACKBERRY_DEVICE_IP");
 		var devicePassword = project.environment.get ("BLACKBERRY_DEVICE_PASSWORD");

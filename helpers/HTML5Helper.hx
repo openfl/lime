@@ -6,14 +6,14 @@ import helpers.LogHelper;
 import helpers.PathHelper;
 import helpers.ProcessHelper;
 import project.Asset;
-import project.NMEProject;
+import project.OpenFLProject;
 import sys.FileSystem;
 
 
 class HTML5Helper {
 	
 	
-	public static function generateFontData (project:NMEProject, font:Asset):String {
+	public static function generateFontData (project:OpenFLProject, font:Asset):String {
 		
 		var sourcePath = font.sourcePath;
 		
@@ -28,7 +28,7 @@ class HTML5Helper {
 	}
 	
 	
-	public static function minify (project:NMEProject, sourceFile:String):Bool {
+	public static function minify (project:OpenFLProject, sourceFile:String):Bool {
 		
 		if (FileSystem.exists (sourceFile)) {
 			

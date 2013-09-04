@@ -13,7 +13,7 @@ import helpers.ProcessHelper;
 import project.AssetType;
 import project.Haxelib;
 import project.NDLL;
-import project.NMEProject;
+import project.OpenFLProject;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -25,7 +25,7 @@ class BlackBerryPlatform implements IPlatformTool {
 	private var outputFile:String;
 	
 	
-	public function build (project:NMEProject):Void {
+	public function build (project:OpenFLProject):Void {
 		
 		initialize (project);
 		
@@ -56,7 +56,7 @@ class BlackBerryPlatform implements IPlatformTool {
 	}
 	
 	
-	public function clean (project:NMEProject):Void {
+	public function clean (project:OpenFLProject):Void {
 		
 		initialize (project);
 		
@@ -69,7 +69,7 @@ class BlackBerryPlatform implements IPlatformTool {
 	}
 	
 	
-	public function display (project:NMEProject):Void {
+	public function display (project:OpenFLProject):Void {
 		
 		var hxml = "";
 		var context = project.templateContext;
@@ -95,7 +95,7 @@ class BlackBerryPlatform implements IPlatformTool {
 	}
 	
 	
-	private function initialize (project:NMEProject):Void {
+	private function initialize (project:OpenFLProject):Void {
 		
 		if (!project.environment.exists ("BLACKBERRY_SETUP")) {
 			
@@ -120,7 +120,7 @@ class BlackBerryPlatform implements IPlatformTool {
 	}
 	
 	
-	public function run (project:NMEProject, arguments:Array <String>):Void {
+	public function run (project:OpenFLProject, arguments:Array <String>):Void {
 		
 		initialize (project);
 		
@@ -137,7 +137,7 @@ class BlackBerryPlatform implements IPlatformTool {
 	}
 	
 	
-	public function trace (project:NMEProject):Void {
+	public function trace (project:OpenFLProject):Void {
 		
 		initialize (project);
 		
@@ -154,7 +154,7 @@ class BlackBerryPlatform implements IPlatformTool {
 	}
 	
 	
-	public function update (project:NMEProject):Void {
+	public function update (project:OpenFLProject):Void {
 		
 		project = project.clone ();
 		initialize (project);
@@ -337,8 +337,8 @@ class BlackBerryPlatform implements IPlatformTool {
 	
 	
 	public function new () {}
-	@ignore public function install (project:NMEProject):Void {}
-	@ignore public function uninstall (project:NMEProject):Void {}
+	@ignore public function install (project:OpenFLProject):Void {}
+	@ignore public function uninstall (project:OpenFLProject):Void {}
 	
 	
 }

@@ -22,21 +22,101 @@ import utils.PlatformSetup;
 class CommandLineTools {
 	
 	
-	private static var additionalArguments:Array <String>;
-	private static var command:String;
-	private static var debug:Bool;
-	private static var includePaths:Array <String>;
-	private static var overrides:NMEProject;
-	private static var project:NMEProject;
-	private static var projectDefines:Map <String, String>;
-	private static var targetFlags:Map <String, String>;
-	private static var traceEnabled:Bool;
-	private static var userDefines:Map <String, Dynamic>;
-	private static var version:String;
-	private static var words:Array <String>;
+	private var additionalArguments:Array <String>;
+	private var command:String;
+	private var debug:Bool;
+	private var includePaths:Array <String>;
+	private var overrides:OpenFLProject;
+	private var project:OpenFLProject;
+	private var projectDefines:Map <String, String>;
+	private var targetFlags:Map <String, String>;
+	private var traceEnabled:Bool;
+	private var userDefines:Map <String, Dynamic>;
+	private var version:String;
+	private var words:Array <String>;
 	
 	
-	private static function buildProject () {
+	public function new () {
+		
+		
+		additionalArguments = new Array <String> ();
+		command = "";
+		debug = false;
+		includePaths = new Array <String> ();
+		projectDefines = new Map <String, String> ();
+		targetFlags = new Map <String, String> ();
+		traceEnabled = true;
+		userDefines = new Map <String, Dynamic> ();
+		words = new Array <String> ();
+		
+		overrides = new OpenFLProject ();
+		overrides.architectures = [];
+		
+		processArguments ();
+		version = getVersion ();
+		
+		if (LogHelper.verbose && command != "") {
+			
+			displayInfo ();
+			Sys.println ("");
+			
+		}
+		
+		switch (command) {
+			
+			case "":
+				
+				displayInfo (true);
+			
+			case "help":
+				
+				displayHelp ();
+			
+			case "setup":
+				
+				platformSetup ();
+			
+			case "document":
+				
+				document ();
+			
+			case "generate":
+				
+				generate ();
+			
+			case "compress":
+				
+				compress ();
+			
+			case "create":
+				
+				createTemplate ();
+			
+			case "clean", "update", "display", "build", "run", "rerun", "install", "uninstall", "trace", "test":
+				
+				if (words.length < 1 || words.length > 2) {
+					
+					LogHelper.error ("Incorrect number of arguments for command '" + command + "'");
+					return;
+					
+				}
+				
+				buildProject ();
+			
+			case "installer", "copy-if-newer":
+				
+				// deprecated?
+			
+			default:
+				
+				LogHelper.error ("'" + command + "' is not a valid command");
+			
+		}
+		
+	}
+	
+	
+	private function buildProject () {
 		
 		var project = initializeProject ();
 		var platform:IPlatformTool = null;
@@ -150,7 +230,7 @@ class CommandLineTools {
 	}
 	
 	
-	private static function compress () { 
+	private function compress () { 
 		
 		if (words.length > 0) {
 			
@@ -165,7 +245,7 @@ class CommandLineTools {
 	}
 	
 	
-	private static function createTemplate () {
+	private function createTemplate () {
 		
 		LogHelper.info ("", "Running command: CREATE");
 		
@@ -349,13 +429,13 @@ class CommandLineTools {
 	}
 	
 	
-	private static function document ():Void {
+	private function document ():Void {
 	
 	
 	}
 	
 	
-	private static function displayHelp ():Void {
+	private function displayHelp ():Void {
 		
 		displayInfo ();
 		
@@ -450,7 +530,7 @@ class CommandLineTools {
 	}
 	
 	
-	private static function displayInfo (showHint:Bool = false):Void {
+	private function displayInfo (showHint:Bool = false):Void {
 		
 		var alias = "openfl";
 		var name = "OpenFL";
@@ -492,7 +572,7 @@ class CommandLineTools {
 	}
 	
 	
-	private static function findProjectFile (path:String):String {
+	private function findProjectFile (path:String):String {
 		
 		if (FileSystem.exists (PathHelper.combine (path, "Project.hx"))) {
 			
@@ -557,7 +637,7 @@ class CommandLineTools {
 	}
 	
 	
-	private static function generate ():Void {
+	private function generate ():Void {
 		
 		if (targetFlags.exists ("font-hash")) {
 			
@@ -587,7 +667,7 @@ class CommandLineTools {
 	}
 	
 	
-	private static function getBuildNumber (project:NMEProject, increment:Bool = true):Void {
+	private function getBuildNumber (project:OpenFLProject, increment:Bool = true):Void {
 		
 		if (project.meta.buildNumber == "1") {
 			
@@ -629,7 +709,7 @@ class CommandLineTools {
 	}
 	
 	
-	public static function getHXCPPConfig ():NMEProject {
+	public static function getHXCPPConfig ():OpenFLProject {
 		
 		var environment = Sys.environment ();
 		var config = "";
@@ -672,7 +752,7 @@ class CommandLineTools {
 			
 			LogHelper.info ("", "Reading HXCPP config: " + config);
 			
-			return new NMMLParser (config);
+			return new ProjectXMLParser (config);
 			
 		} else {
 			
@@ -685,7 +765,7 @@ class CommandLineTools {
 	}
 	
 	
-	private static function getVersion ():String {
+	private function getVersion ():String {
 		
 		var json;
 		
@@ -784,7 +864,7 @@ class CommandLineTools {
 	#end
 	
 	
-	private static function initializeProject ():NMEProject {
+	private function initializeProject ():OpenFLProject {
 		
 		LogHelper.info ("", "Initializing project...");
 		
@@ -892,19 +972,19 @@ class CommandLineTools {
 			
 		}
 		
-		NMEProject._command = command;
-		NMEProject._debug = debug;
-		NMEProject._target = target;
-		NMEProject._targetFlags = targetFlags;
-		//NMEProject._templatePaths = [ nme + "/templates/default", nme + "/tools/command-line" ];
+		OpenFLProject._command = command;
+		OpenFLProject._debug = debug;
+		OpenFLProject._target = target;
+		OpenFLProject._targetFlags = targetFlags;
+		//OpenFLProject._templatePaths = [ nme + "/templates/default", nme + "/tools/command-line" ];
 		
 		try { Sys.setCwd (Path.directory (projectFile)); } catch (e:Dynamic) {}
 		
-		var project:NMEProject = null;
+		var project:OpenFLProject = null;
 		
 		if (Path.extension (projectFile) == "nmml" || Path.extension (projectFile) == "xml") {
 			
-			project = new NMMLParser (Path.withoutDirectory (projectFile), userDefines, includePaths);
+			project = new ProjectXMLParser (Path.withoutDirectory (projectFile), userDefines, includePaths);
 			
 		} else if (Path.extension (projectFile) == "hx") {
 			
@@ -913,9 +993,9 @@ class CommandLineTools {
 			
 			var tempFile = PathHelper.getTemporaryFile (".n");
 			
-			ProcessHelper.runCommand ("", "haxe", [ name, "-main", "project.NMEProject", "-neko", tempFile, "-lib", "openfl-tools", "-lib", "openfl", "-lib", "openfl-native", /*"-lib", "xfl", "-lib", "swf",*/ "-lib", "svg", "--remap", "flash:flash" ]);
+			ProcessHelper.runCommand ("", "haxe", [ name, "-main", "project.OpenFLProject", "-neko", tempFile, "-lib", "openfl-tools", "-lib", "openfl", "-lib", "openfl-native", /*"-lib", "xfl", "-lib", "swf",*/ "-lib", "svg", "--remap", "flash:flash" ]);
 			
-			var process = new Process ("neko", [ FileSystem.fullPath (tempFile), name, NMEProject._command, Std.string (NMEProject._debug), Std.string (NMEProject._target), Serializer.run (NMEProject._targetFlags), Serializer.run (NMEProject._templatePaths) ]);
+			var process = new Process ("neko", [ FileSystem.fullPath (tempFile), name, OpenFLProject._command, Std.string (OpenFLProject._debug), Std.string (OpenFLProject._target), Serializer.run (OpenFLProject._targetFlags), Serializer.run (OpenFLProject._templatePaths) ]);
 			var output = process.stdout.readAll ().toString ();
 			var error = process.stderr.readAll ().toString ();
 			process.exitCode ();
@@ -957,7 +1037,7 @@ class CommandLineTools {
 					
 					if (includePath != "") {
 						
-						var includeProject = new NMMLParser (includePath, userDefines);
+						var includeProject = new ProjectXMLParser (includePath, userDefines);
 						
 						for (ndll in includeProject.ndlls) {
 							
@@ -1071,9 +1151,6 @@ class CommandLineTools {
 		
 		StringMapHelper.copyKeys (userDefines, project.haxedefs);
 		
-		SWFHelper.preprocess (project);
-		#if xfl XFLHelper.preprocess (project); #end
-		
 		// Better way to do this?
 		
 		switch (project.target) {
@@ -1091,11 +1168,11 @@ class CommandLineTools {
 	}
 	
 	
-	private static function resolveClass (name:String):Class <Dynamic> {
+	private function resolveClass (name:String):Class <Dynamic> {
 		
 		if (name.toLowerCase ().indexOf ("project") > -1 && name.indexOf ("project.") == -1) {
 			
-			return NMEProject;
+			return OpenFLProject;
 			
 		} else {
 			
@@ -1108,84 +1185,12 @@ class CommandLineTools {
 	
 	public static function main ():Void {
 		
-		additionalArguments = new Array <String> ();
-		command = "";
-		debug = false;
-		includePaths = new Array <String> ();
-		projectDefines = new Map <String, String> ();
-		targetFlags = new Map <String, String> ();
-		traceEnabled = true;
-		userDefines = new Map <String, Dynamic> ();
-		words = new Array <String> ();
-		
-		overrides = new NMEProject ();
-		overrides.architectures = [];
-		
-		processArguments ();
-		version = getVersion ();
-		
-		if (LogHelper.verbose && command != "") {
-			
-			displayInfo ();
-			Sys.println ("");
-			
-		}
-		
-		switch (command) {
-			
-			case "":
-				
-				displayInfo (true);
-			
-			case "help":
-				
-				displayHelp ();
-			
-			case "setup":
-				
-				platformSetup ();
-			
-			case "document":
-				
-				document ();
-			
-			case "generate":
-				
-				generate ();
-			
-			case "compress":
-				
-				compress ();
-			
-			case "create":
-				
-				createTemplate ();
-			
-			case "clean", "update", "display", "build", "run", "rerun", "install", "uninstall", "trace", "test":
-				
-				if (words.length < 1 || words.length > 2) {
-					
-					LogHelper.error ("Incorrect number of arguments for command '" + command + "'");
-					return;
-					
-				}
-				
-				buildProject ();
-			
-			case "installer", "copy-if-newer":
-				
-				// deprecated?
-			
-			default:
-				
-				LogHelper.error ("'" + command + "' is not a valid command");
-			
-		}
+		new CommandLineTools ();
 		
 	}
 	
 	
-	private static function processArguments ():Void {
+	private function processArguments ():Void {
 		
 		var arguments = Sys.args ();
 		
@@ -1414,7 +1419,7 @@ class CommandLineTools {
 	}
 	
 	
-	private static function platformSetup ():Void {
+	private function platformSetup ():Void {
 		
 		LogHelper.info ("", "Running command: SETUP");
 		

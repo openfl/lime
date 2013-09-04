@@ -15,7 +15,7 @@ import project.Architecture;
 import project.AssetType;
 import project.Haxelib;
 import project.NDLL;
-import project.NMEProject;
+import project.OpenFLProject;
 import project.Platform;
 import project.PlatformConfig;
 import sys.io.File;
@@ -25,7 +25,7 @@ import sys.FileSystem;
 class IOSPlatform implements IPlatformTool {
 	
 	
-	public function build (project:NMEProject):Void {
+	public function build (project:OpenFLProject):Void {
 		
 		var targetDirectory = PathHelper.combine (project.app.path, "ios");
 		
@@ -41,7 +41,7 @@ class IOSPlatform implements IPlatformTool {
 	}
 	
 	
-	public function clean (project:NMEProject):Void {
+	public function clean (project:OpenFLProject):Void {
 		
 		var targetPath = project.app.path + "/ios";
 		
@@ -54,7 +54,7 @@ class IOSPlatform implements IPlatformTool {
 	}
 	
 	
-	public function display (project:NMEProject):Void {
+	public function display (project:OpenFLProject):Void {
 		
 		var hxml = PathHelper.findTemplate (project.templatePaths, "iphone/PROJ/haxe/Build.hxml");
 		var template = new Template (File.getContent (hxml));
@@ -63,7 +63,7 @@ class IOSPlatform implements IPlatformTool {
 	}
 	
 	
-	private function generateContext (project:NMEProject):Dynamic {
+	private function generateContext (project:OpenFLProject):Dynamic {
 		
 		project = project.clone ();
 		project.sources = PathHelper.relocatePaths (project.sources, PathHelper.combine (project.app.path, "ios/" + project.app.file + "/haxe"));
@@ -271,14 +271,14 @@ class IOSPlatform implements IPlatformTool {
 	}
 	
 	
-	public function run (project:NMEProject, arguments:Array <String>):Void {
+	public function run (project:OpenFLProject, arguments:Array <String>):Void {
 		
 		IOSHelper.launch (project, PathHelper.combine (project.app.path, "ios"));
 		
 	}
 	
 	
-	public function update (project:NMEProject):Void {
+	public function update (project:OpenFLProject):Void {
 		
 		project = project.clone ();
 		
@@ -465,9 +465,9 @@ class IOSPlatform implements IPlatformTool {
 	
 	
 	public function new () {}
-	@ignore public function install (project:NMEProject):Void {}
-	@ignore public function trace (project:NMEProject):Void {}
-	@ignore public function uninstall (project:NMEProject):Void {}
+	@ignore public function install (project:OpenFLProject):Void {}
+	@ignore public function trace (project:OpenFLProject):Void {}
+	@ignore public function uninstall (project:OpenFLProject):Void {}
 	
 	
 }

@@ -9,10 +9,10 @@ class Library {
 	
 	public var name:String;
 	public var sourcePath:String;
-	public var type:LibraryType;
+	public var type:String;
 	
 	
-	public function new (sourcePath:String, name:String = "", type:LibraryType = null) {
+	public function new (sourcePath:String, name:String = "", type:String = null) {
 		
 		this.sourcePath = sourcePath;
 		
@@ -26,35 +26,7 @@ class Library {
 			
 		}
 		
-		if (type == null) {
-			
-			#if (xfl && swf)
-			
-			if (Path.extension (sourcePath) == "swf") {
-				
-				this.type = LibraryType.SWF;
-				
-			} else {
-				
-				this.type = LibraryType.XFL;
-				
-			}
-			
-			#elseif swf
-			
-			this.type = LibraryType.SWF;
-			
-			#elseif xfl
-			
-			this.type = LibraryType.XFL;
-			
-			#end
-			
-		} else {
-			
-			this.type = type;
-			
-		}
+		this.type = type;
 		
 	}
 	

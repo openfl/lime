@@ -9,7 +9,7 @@ import helpers.PathHelper;
 import helpers.ProcessHelper;
 import helpers.WebOSHelper;
 import project.AssetType;
-import project.NMEProject;
+import project.OpenFLProject;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -17,7 +17,7 @@ import sys.FileSystem;
 class WebOSPlatform implements IPlatformTool {
 	
 	
-	public function build (project:NMEProject):Void {
+	public function build (project:OpenFLProject):Void {
 		
 		var hxml = project.app.path + "/webos/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
 		ProcessHelper.runCommand ("", "haxe", [ hxml ] );
@@ -29,7 +29,7 @@ class WebOSPlatform implements IPlatformTool {
 	}
 	
 	
-	public function clean (project:NMEProject):Void {
+	public function clean (project:OpenFLProject):Void {
 		
 		var targetPath = project.app.path + "/webos";
 		
@@ -42,7 +42,7 @@ class WebOSPlatform implements IPlatformTool {
 	}
 	
 	
-	public function display (project:NMEProject):Void {
+	public function display (project:OpenFLProject):Void {
 		
 		var hxml = PathHelper.findTemplate (project.templatePaths, "webos/hxml/" + (project.debug ? "debug" : "release") + ".hxml");
 		
@@ -55,7 +55,7 @@ class WebOSPlatform implements IPlatformTool {
 	}
 	
 	
-	public function run (project:NMEProject, arguments:Array <String>):Void {
+	public function run (project:OpenFLProject, arguments:Array <String>):Void {
 		
 		WebOSHelper.install (project, project.app.path + "/webos");
 		WebOSHelper.launch (project);
@@ -63,14 +63,14 @@ class WebOSPlatform implements IPlatformTool {
 	}
 	
 	
-	public function trace (project:NMEProject):Void {
+	public function trace (project:OpenFLProject):Void {
 		
 		WebOSHelper.trace (project);
 		
 	}
 	
 	
-	public function update (project:NMEProject):Void {
+	public function update (project:OpenFLProject):Void {
 		
 		project = project.clone ();
 		var destination = project.app.path + "/webos/bin/";
@@ -135,8 +135,8 @@ class WebOSPlatform implements IPlatformTool {
 	
 	
 	public function new () {}
-	@ignore public function install (project:NMEProject):Void {}
-	@ignore public function uninstall (project:NMEProject):Void {}
+	@ignore public function install (project:OpenFLProject):Void {}
+	@ignore public function uninstall (project:OpenFLProject):Void {}
 	
 	
 }

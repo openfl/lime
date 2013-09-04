@@ -3,7 +3,7 @@ package helpers;
 
 import helpers.LogHelper;
 import helpers.ProcessHelper;
-import project.NMEProject;
+import project.OpenFLProject;
 import project.Platform;
 import sys.FileSystem;
 
@@ -19,7 +19,7 @@ class AndroidHelper {
 	private static var emulatorPath:String;
 	
 	
-	public static function build (project:NMEProject, projectDirectory:String):Void {
+	public static function build (project:OpenFLProject, projectDirectory:String):Void {
 		
 		if (project.environment.exists ("ANDROID_SDK")) {
 			
@@ -62,7 +62,7 @@ class AndroidHelper {
 	}
 	
 	
-	public static function initialize (project:NMEProject):Void {
+	public static function initialize (project:OpenFLProject):Void {
 		
 		adbPath = project.environment.get ("ANDROID_SDK") + "/tools/";
 		androidPath = project.environment.get ("ANDROID_SDK") + "/tools/";
@@ -103,7 +103,7 @@ class AndroidHelper {
 	}
 	
 	
-	public static function install (project:NMEProject, targetPath:String):String {
+	public static function install (project:OpenFLProject, targetPath:String):String {
 		
 		if (project.targetFlags.exists ("emulator") || project.targetFlags.exists ("simulator")) {
 			
@@ -246,7 +246,7 @@ class AndroidHelper {
 	}
 	
 	
-	public static function trace (project:NMEProject, debug:Bool, deviceID:String = null):Void {
+	public static function trace (project:OpenFLProject, debug:Bool, deviceID:String = null):Void {
 		
 		// Use -DFULL_LOGCAT or  <set name="FULL_LOGCAT" /> if you do not want to filter log messages
 		

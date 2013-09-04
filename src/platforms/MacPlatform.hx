@@ -10,7 +10,7 @@ import helpers.PathHelper;
 import helpers.PlatformHelper;
 import helpers.ProcessHelper;
 import project.AssetType;
-import project.NMEProject;
+import project.OpenFLProject;
 import project.Platform;
 import sys.io.File;
 import sys.FileSystem;
@@ -27,7 +27,7 @@ class MacPlatform implements IPlatformTool {
 	private var useNeko:Bool;
 	
 	
-	public function build (project:NMEProject):Void {
+	public function build (project:OpenFLProject):Void {
 		
 		initialize (project);
 		
@@ -56,7 +56,7 @@ class MacPlatform implements IPlatformTool {
 	}
 	
 	
-	public function clean (project:NMEProject):Void {
+	public function clean (project:OpenFLProject):Void {
 		
 		initialize (project);
 		
@@ -69,7 +69,7 @@ class MacPlatform implements IPlatformTool {
 	}
 	
 	
-	public function display (project:NMEProject):Void {
+	public function display (project:OpenFLProject):Void {
 		
 		initialize (project);
 		
@@ -80,7 +80,7 @@ class MacPlatform implements IPlatformTool {
 	}
 	
 	
-	private function generateContext (project:NMEProject):Dynamic {
+	private function generateContext (project:OpenFLProject):Dynamic {
 		
 		var context = project.templateContext;
 		context.NEKO_FILE = targetDirectory + "/obj/ApplicationMain.n";
@@ -92,7 +92,7 @@ class MacPlatform implements IPlatformTool {
 	}
 	
 	
-	private function initialize (project:NMEProject):Void {
+	private function initialize (project:OpenFLProject):Void {
 		
 		targetDirectory = project.app.path + "/mac/cpp";
 		
@@ -111,7 +111,7 @@ class MacPlatform implements IPlatformTool {
 	}
 	
 	
-	public function run (project:NMEProject, arguments:Array <String>):Void {
+	public function run (project:OpenFLProject, arguments:Array <String>):Void {
 		
 		if (project.target == PlatformHelper.hostPlatform) {
 			
@@ -123,7 +123,7 @@ class MacPlatform implements IPlatformTool {
 	}
 	
 	
-	public function update (project:NMEProject):Void {
+	public function update (project:OpenFLProject):Void {
 		
 		initialize (project);
 		
@@ -183,9 +183,9 @@ class MacPlatform implements IPlatformTool {
 	
 	
 	public function new () {}
-	@ignore public function install (project:NMEProject):Void {}
-	@ignore public function trace (project:NMEProject):Void {}
-	@ignore public function uninstall (project:NMEProject):Void {}
+	@ignore public function install (project:OpenFLProject):Void {}
+	@ignore public function trace (project:OpenFLProject):Void {}
+	@ignore public function uninstall (project:OpenFLProject):Void {}
 	
 	
 }

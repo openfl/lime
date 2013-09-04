@@ -14,7 +14,7 @@ import helpers.LogHelper;
 import helpers.ProcessHelper;
 import project.Asset;
 import project.AssetType;
-import project.NMEProject;
+import project.OpenFLProject;
 import sys.io.File;
 import sys.FileSystem;
 import sys.io.FileSeek;
@@ -507,7 +507,7 @@ class FlashHelper {
 	}
 	
 	
-	public static function run (project:NMEProject, workingDirectory:String, targetPath:String):Void {
+	public static function run (project:OpenFLProject, workingDirectory:String, targetPath:String):Void {
 		
 		var player:String = null;
 		

@@ -12,7 +12,7 @@ import helpers.PathHelper;
 import helpers.ProcessHelper;
 import project.Architecture;
 import project.AssetType;
-import project.NMEProject;
+import project.OpenFLProject;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -23,7 +23,7 @@ class AndroidPlatform implements IPlatformTool {
 	private var deviceID:String;
 	
 	
-	public function build (project:NMEProject):Void {
+	public function build (project:OpenFLProject):Void {
 		
 		initialize (project);
 		
@@ -68,7 +68,7 @@ class AndroidPlatform implements IPlatformTool {
 	}
 	
 	
-	public function clean (project:NMEProject):Void {
+	public function clean (project:OpenFLProject):Void {
 		
 		var targetPath = project.app.path + "/android";
 		
@@ -81,7 +81,7 @@ class AndroidPlatform implements IPlatformTool {
 	}
 	
 	
-	public function display (project:NMEProject):Void {
+	public function display (project:OpenFLProject):Void {
 		
 		var hxml = PathHelper.findTemplate (project.templatePaths, "android/hxml/" + (project.debug ? "debug" : "release") + ".hxml");
 		
@@ -94,7 +94,7 @@ class AndroidPlatform implements IPlatformTool {
 	}
 	
 	
-	public function install (project:NMEProject):Void {
+	public function install (project:OpenFLProject):Void {
 		
 		initialize (project);
 		
@@ -111,7 +111,7 @@ class AndroidPlatform implements IPlatformTool {
    }
 	
 	
-	private function initialize (project:NMEProject):Void {
+	private function initialize (project:OpenFLProject):Void {
 		
 		if (!project.environment.exists ("ANDROID_SETUP")) {
 			
@@ -124,7 +124,7 @@ class AndroidPlatform implements IPlatformTool {
 	}
 	
 	
-	public function run (project:NMEProject, arguments:Array <String>):Void {
+	public function run (project:OpenFLProject, arguments:Array <String>):Void {
 		
 		initialize (project);
 		
@@ -133,7 +133,7 @@ class AndroidPlatform implements IPlatformTool {
 	}
 	
 	
-	public function trace (project:NMEProject):Void {
+	public function trace (project:OpenFLProject):Void {
 		
 		initialize (project);
 		
@@ -142,7 +142,7 @@ class AndroidPlatform implements IPlatformTool {
 	}
 	
 	
-	public function uninstall (project:NMEProject):Void {
+	public function uninstall (project:OpenFLProject):Void {
 		
 		initialize (project);
 		
@@ -151,7 +151,7 @@ class AndroidPlatform implements IPlatformTool {
 	}
 	
 	
-	public function update (project:NMEProject):Void {
+	public function update (project:OpenFLProject):Void {
 		
 		project = project.clone ();
 		

@@ -3,35 +3,35 @@ package helpers;
 
 import helpers.PlatformHelper;
 import helpers.ProcessHelper;
-import project.NMEProject;
+import project.OpenFLProject;
 import project.Platform;
 
 
 class WebOSHelper {
 	
 	
-	public static function createPackage (project:NMEProject, workingDirectory:String, targetPath:String):Void {
+	public static function createPackage (project:OpenFLProject, workingDirectory:String, targetPath:String):Void {
 		
 		runPalmCommand (project, workingDirectory, "package" , [ targetPath ]);
 		
 	}
 	
 	
-	public static function install (project:NMEProject, workingDirectory:String):Void {
+	public static function install (project:OpenFLProject, workingDirectory:String):Void {
 		
 		runPalmCommand (project, workingDirectory, "install", [ project.meta.packageName + "_" + project.meta.version + "_all.ipk" ]);
 		
 	}
 	
 	
-	public static function launch (project:NMEProject):Void {
+	public static function launch (project:OpenFLProject):Void {
 		
 		runPalmCommand (project, "", "launch", [ project.meta.packageName ]);
 		
 	}
 	
 	
-	private static function runPalmCommand (project:NMEProject, workingDirectory:String, command:String, args:Array<String>):Void {
+	private static function runPalmCommand (project:OpenFLProject, workingDirectory:String, command:String, args:Array<String>):Void {
 		
 		var sdkDirectory = "";
 		
@@ -58,7 +58,7 @@ class WebOSHelper {
 	}
 	
 	
-	public static function trace (project:NMEProject, follow:Bool = true):Void {
+	public static function trace (project:OpenFLProject, follow:Bool = true):Void {
 		
 		var args = [];
 		
