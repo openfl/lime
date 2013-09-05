@@ -32,7 +32,7 @@ class RunScript {
 				var sample = data;
 				var name = data2;
 
-				var samples_path = PathHelper.getHaxelib (new Haxelib ("luxe")) + 'samples/';
+				var samples_path = PathHelper.getHaxelib (new Haxelib("luxe")) + 'project_templates/';
 				var sample_path = samples_path + sample + '/';
 
 				if(FileSystem.exists(sample_path)) {
