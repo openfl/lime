@@ -345,7 +345,56 @@ class InputHandler {
                 e.preventDefault();
             }); //contextmenu
 
-                //todo:better forward (more info passed on)
+            lib.window_handle.addEventListener('mousewheel', function(_event){
+
+                var va = _event.wheelDelta;               
+                var delta = Math.max(-1, Math.min(1, va));
+                var wheel_dir = lime.InputHandler.MouseButton.wheel_down;
+                if(delta < 1) {
+                    wheel_dir = lime.InputHandler.MouseButton.wheel_up; 
+                }
+                    //todo:make inverted for mac only
+                lime_mousedown({
+                    button : wheel_dir,
+                    state : MouseState.down,
+                    x : _event.pageX - lib.render.canvas_position.x,
+                    y : _event.pageY - lib.render.canvas_position.y,
+                    flags : 0,
+                    ctrl_down : _event.ctrlKey,
+                    alt_down : _event.altKey,
+                    shift_down : _event.shiftKey,
+                    meta_down : _event.metaKey
+                }, true);
+
+                _event.preventDefault();
+
+            });
+
+                lib.window_handle.addEventListener('DOMMouseScroll', function(_event){
+
+                    var va = -_event.detail;             
+                    var delta = Math.max(-1, Math.min(1, va));
+                    var wheel_dir = lime.InputHandler.MouseButton.wheel_down;
+                    if(delta < 1) {
+                        wheel_dir = lime.InputHandler.MouseButton.wheel_up; 
+                    }
+                        //todo:make inverted for mac only
+                    lime_mousedown({
+                        button : wheel_dir,
+                        state : MouseState.down,
+                        x : _event.pageX - lib.render.canvas_position.x,
+                        y : _event.pageY - lib.render.canvas_position.y,
+                        flags : 0,
+                        ctrl_down : _event.ctrlKey,
+                        alt_down : _event.altKey,
+                        shift_down : _event.shiftKey,
+                        meta_down : _event.metaKey
+                    }, true);
+
+                    _event.preventDefault();
+
+                });
+
             lib.window_handle.addEventListener('mousedown', function(_event){
 
                 _event.preventDefault();     
