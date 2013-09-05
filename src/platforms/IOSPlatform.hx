@@ -4,6 +4,7 @@ package platforms;
 import haxe.io.Path;
 import haxe.Template;
 import helpers.ArrayHelper;
+import helpers.AssetsHelper;
 import helpers.FileHelper;
 import helpers.IconHelper;
 import helpers.IOSHelper;
@@ -11,8 +12,8 @@ import helpers.PathHelper;
 import helpers.PlatformHelper;
 import helpers.ProcessHelper;
 import helpers.StringHelper;
+import openfl.Assets;
 import project.Architecture;
-import project.AssetType;
 import project.Haxelib;
 import project.NDLL;
 import project.OpenFLProject;
@@ -433,6 +434,8 @@ class IOSPlatform implements IPlatformTool {
 			}
 			
 		}
+		
+		AssetsHelper.createManifest (project, projectDirectory + "/assets/manifest"));
 		
 		if (project.command == "update" && PlatformHelper.hostPlatform == Platform.MAC) {
 			

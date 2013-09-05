@@ -3,6 +3,7 @@ package platforms;
 
 import haxe.io.Path;
 import haxe.Template;
+import helpers.AssetsHelper;
 import helpers.BlackBerryHelper;
 import helpers.FileHelper;
 import helpers.HTML5Helper;
@@ -10,7 +11,7 @@ import helpers.IconHelper;
 import helpers.LogHelper;
 import helpers.PathHelper;
 import helpers.ProcessHelper;
-import project.AssetType;
+import openfl.Assets;
 import project.Haxelib;
 import project.NDLL;
 import project.OpenFLProject;
@@ -332,6 +333,8 @@ class BlackBerryPlatform implements IPlatformTool {
 			}
 			
 		}
+		
+		AssetsHelper.createManifest (project, PathHelper.combine (destination, "manifest"));
 		
 	}
 	

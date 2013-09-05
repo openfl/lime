@@ -3,13 +3,14 @@ package platforms;
 
 import haxe.io.Path;
 import haxe.Template;
+import helpers.AssetHelper;
 import helpers.FileHelper;
 import helpers.IconHelper;
 import helpers.NekoHelper;
 import helpers.PathHelper;
 import helpers.PlatformHelper;
 import helpers.ProcessHelper;
-import project.AssetType;
+import openfl.Assets;
 import project.OpenFLProject;
 import sys.io.File;
 import sys.FileSystem;
@@ -181,6 +182,8 @@ class WindowsPlatform implements IPlatformTool {
 			}
 			
 		}
+		
+		AssetsHelper.createManifest (project, PathHelper.combine (applicationDirectory, "manifest"));
 		
 	}
 	

@@ -5,13 +5,14 @@ import haxe.io.Path;
 import haxe.Template;
 import helpers.AndroidHelper;
 import helpers.ArrayHelper;
+import helpers.AssetHelper;
 import helpers.FileHelper;
 import helpers.IconHelper;
 import helpers.LogHelper;
 import helpers.PathHelper;
 import helpers.ProcessHelper;
+import openfl.Assets;
 import project.Architecture;
-import project.AssetType;
 import project.OpenFLProject;
 import sys.io.File;
 import sys.FileSystem;
@@ -275,6 +276,8 @@ class AndroidPlatform implements IPlatformTool {
 			}
 			
 		}
+		
+		AssetHelper.createManifest (project, destination + "/assets/manifest"));
 		
 	}
 	

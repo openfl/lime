@@ -3,12 +3,13 @@ package platforms;
 
 import haxe.io.Path;
 import haxe.Template;
+import helpers.AssetHelper;
 import helpers.FileHelper;
 import helpers.IconHelper;
 import helpers.PathHelper;
 import helpers.ProcessHelper;
 import helpers.WebOSHelper;
-import project.AssetType;
+import openfl.Assets;
 import project.OpenFLProject;
 import sys.io.File;
 import sys.FileSystem;
@@ -130,6 +131,8 @@ class WebOSPlatform implements IPlatformTool {
 			}
 			
 		}
+		
+		AssetsHelper.createManifest (project, PathHelper.combine (destination, "manifest"));
 		
 	}
 	

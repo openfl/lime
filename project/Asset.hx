@@ -5,6 +5,7 @@ import haxe.io.Path;
 import helpers.FileHelper;
 import helpers.ObjectHelper;
 import helpers.StringHelper;
+import openfl.Assets;
 
 
 class Asset {

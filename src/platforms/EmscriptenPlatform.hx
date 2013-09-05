@@ -10,7 +10,7 @@ import helpers.HTML5Helper;
 import helpers.LogHelper;
 import helpers.PathHelper;
 import helpers.ProcessHelper;
-import project.AssetType;
+import openfl.Assets;
 import project.OpenFLProject;
 import sys.io.File;
 import sys.FileSystem;
