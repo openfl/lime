@@ -277,7 +277,7 @@ class AndroidPlatform implements IPlatformTool {
 			
 		}
 		
-		AssetHelper.createManifest (project, destination + "/assets/manifest"));
+		AssetHelper.createManifest (project, destination + "/assets/manifest");
 		
 	}
 	

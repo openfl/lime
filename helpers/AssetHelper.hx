@@ -4,6 +4,7 @@ package helpers;
 import haxe.Serializer;
 import openfl.Assets;
 import project.OpenFLProject;
+import sys.io.File;
 
 
 class AssetHelper {

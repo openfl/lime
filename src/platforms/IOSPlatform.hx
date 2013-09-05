@@ -4,7 +4,7 @@ package platforms;
 import haxe.io.Path;
 import haxe.Template;
 import helpers.ArrayHelper;
-import helpers.AssetsHelper;
+import helpers.AssetHelper;
 import helpers.FileHelper;
 import helpers.IconHelper;
 import helpers.IOSHelper;
@@ -435,7 +435,7 @@ class IOSPlatform implements IPlatformTool {
 			
 		}
 		
-		AssetsHelper.createManifest (project, projectDirectory + "/assets/manifest"));
+		AssetHelper.createManifest (project, projectDirectory + "/assets/manifest");
 		
 		if (project.command == "update" && PlatformHelper.hostPlatform == Platform.MAC) {
 			

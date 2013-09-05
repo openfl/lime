@@ -226,7 +226,7 @@ class LinuxPlatform implements IPlatformTool {
 			
 		}
 		
-		AssetsHelper.createManifest (project, PathHelper.combine (applicationDirectory, "manifest"));
+		AssetHelper.createManifest (project, PathHelper.combine (applicationDirectory, "manifest"));
 		
 	}
 	

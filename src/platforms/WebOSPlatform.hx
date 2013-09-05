@@ -1,3 +1,4 @@
+
 package platforms;
 
 
@@ -132,7 +133,7 @@ class WebOSPlatform implements IPlatformTool {
 			
 		}
 		
-		AssetsHelper.createManifest (project, PathHelper.combine (destination, "manifest"));
+		AssetHelper.createManifest (project, PathHelper.combine (destination, "manifest"));
 		
 	}
 	
