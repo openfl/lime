@@ -1075,17 +1075,13 @@ class CommandLineTools {
 		
 		project.merge (config);
 		
-		project.haxedefs.set ("tools", 1);
+		project.haxedefs.set ("tools", version);
 		
 		if (userDefines.exists ("nme")) {
 			
 			project.haxedefs.set ("nme_install_tool", 1);
 			project.haxedefs.set ("nme_ver", version);
 			project.haxedefs.set ("nme" + version.split (".")[0], 1);
-			
-		} else {
-			
-			project.haxedefs.set ("openfl_ver", version);
 			
 		}
 		
