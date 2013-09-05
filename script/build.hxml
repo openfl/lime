@@ -1,4 +1,5 @@
 -main RunScript
 -neko ../run.n
 -lib openfl-tools
+-D pathtools
 -cp src

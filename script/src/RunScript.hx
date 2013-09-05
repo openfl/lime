@@ -7,6 +7,7 @@ import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
 
+
 #if pathtools
 import helpers.PathHelper;
 import helpers.FileHelper;
@@ -105,7 +106,12 @@ class RunScript {
 			Sys.println("    commands : ");
 			Sys.println("\ttest <target> \n\t  Build and run");
 			Sys.println("\tbuild <target> \n\t  Build");
-			Sys.println("\tcreate <sample> <?name> \n\t  Create a copy of <sample> inside pwd");
+			
+			#if pathtools
+				Sys.println("\tcreate <sample> <?name> \n\t  Create a copy of <sample> inside present working directory");
+				Sys.println("\tcopy <target> <output_folder> \n\t  Copy the bin folder for <target> to <output_folder>");
+			#end
+
 			Sys.println("");
 			return 0;
 		} //if we have enough args
