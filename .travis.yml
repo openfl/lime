@@ -7,7 +7,7 @@ before_install:
   - sudo apt-get install haxe -y --force-yes
   - mkdir ~/haxelib
   - haxelib setup ~/haxelib
-  - haxelib install openfl
+  - haxelib git openfl https://github.com/openfl/openfl
   - haxelib install openfl-native
   - haxelib install format
   - haxelib install svg
