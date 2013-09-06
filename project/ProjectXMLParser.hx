@@ -362,7 +362,7 @@ class ProjectXMLParser extends OpenFLProject {
 		
 		if (element.has.path) {
 			
-			path = basePath + substitute (element.att.path);
+			path = PathHelper.combine (basePath, substitute (element.att.path));
 			
 		}
 		

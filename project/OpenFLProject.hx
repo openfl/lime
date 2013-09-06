@@ -623,9 +623,13 @@ class OpenFLProject {
 				
 				compilerFlags.push ("-D " + key);
 				
+				Reflect.setField (context, "DEFINE_" + key.toUpperCase (), true);
+				
 			} else {
 				
 				compilerFlags.push ("-D " + key + "=" + value);
+				
+				Reflect.setField (context, "DEFINE_" + key.toUpperCase (), value);
 				
 			}
 			
