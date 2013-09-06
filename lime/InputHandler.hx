@@ -9,7 +9,7 @@ class InputHandler {
     public var lib : LiME;
     public function new( _lib:LiME ) { lib = _lib; }
 
-    public var touch_map:Map<Int, Dynamic>;
+    public var touch_map : Map<Int, Dynamic>;
     public var down_keys : Map<Int,Bool>;
 
     public var last_mouse_x : Int = 0;
@@ -38,11 +38,19 @@ class InputHandler {
 //Keyboard
 
     public function lime_onchar(_event:Dynamic) {
+
         if(lib.host.onchar != null) {
-            lib.host.onchar(_event);
+            lib.host.onchar({
+                raw : _event,
+                code : _event.code,
+                char : _event.char,
+                value : _event.value,
+                flags : _event.flags,
+                key : lime.utils.Keys.toKeyValue(_event.value)
+            });
         }
 
-        lime_onkeydown(_event);
+        lime_onkeydown( _event );
         //if (onKey != null) {
         //  untyped onKey(_event.code, _event.down, _event.char, _event.flags);
         //}     
@@ -53,7 +61,14 @@ class InputHandler {
         
         if(lib.host.onkeydown != null && !down_keys.exists(_event.value)) {
             down_keys.set(_event.value, true);
-            lib.host.onkeydown(_event);
+            lib.host.onkeydown({
+                raw : _event,
+                code : _event.code,
+                char : _event.char,
+                value : _event.value,
+                flags : _event.flags,
+                key : lime.utils.Keys.toKeyValue(_event.value)
+            });
         }
         //nmeOnKey(_event, KeyboardEvent.KEY_DOWN);
     }
@@ -61,14 +76,28 @@ class InputHandler {
     public function lime_onkeyup(_event:Dynamic) {
         down_keys.remove(_event.value);
         if(lib.host.onkeyup != null) {
-            lib.host.onkeyup(_event);
+            lib.host.onkeyup({
+                raw : _event,
+                code : _event.code,
+                char : _event.char,
+                value : _event.value,
+                flags : _event.flags,
+                key : lime.utils.Keys.toKeyValue(_event.value)
+            });
         }
         //nmeOnKey(_event, KeyboardEvent.KEY_UP);
     }
 
     public function lime_gotinputfocus(_event:Dynamic) {
         if(lib.host.ongotinputfocus != null) {
-            lib.host.ongotinputfocus(_event);
+            lib.host.ongotinputfocus({
+                raw : _event,
+                code : _event.code,
+                char : _event.char,
+                value : _event.value,
+                flags : _event.flags,
+                key : lime.utils.Keys.toKeyValue(_event.value)
+            });
         }
         //var evt = new Event(FocusEvent.FOCUS_IN);
         //nmeDispatchEvent(evt);        
@@ -76,7 +105,14 @@ class InputHandler {
 
     public function lime_lostinputfocus(_event:Dynamic) {
         if(lib.host.onlostinputfocus != null) {
-            lib.host.onlostinputfocus(_event);
+            lib.host.onlostinputfocus({
+                raw : _event,
+                code : _event.code,
+                char : _event.char,
+                value : _event.value,
+                flags : _event.flags,
+                key : lime.utils.Keys.toKeyValue(_event.value)
+            });
         }
         //var evt = new Event(FocusEvent.FOCUS_OUT);
         //nmeDispatchEvent(evt);
@@ -112,6 +148,7 @@ class InputHandler {
             if(!_pass_through) {
 
                 _mouse_event = {
+                    raw : _event,
                     button : MouseButton.move,
                     state : MouseState.down,
                     x : _event.x,
@@ -142,6 +179,7 @@ class InputHandler {
             if(!_pass_through) {
 
                 _mouse_event = {
+                    raw : _event,
                     button : mouse_button_from_id(_event.value),
                     state : MouseState.down,
                     x : _event.x,
@@ -170,6 +208,7 @@ class InputHandler {
             if(!_pass_through) {
 
                 _mouse_event = {
+                    raw : _event,
                     button : _event.value,
                     state : MouseState.down,
                     x : _event.x,
@@ -198,6 +237,7 @@ class InputHandler {
             if(!_pass_through) {
 
                _mouse_event = {
+                    raw : _event,
                     button : mouse_button_from_id(_event.value),
                     state : MouseState.up,
                     x : _event.x,
@@ -355,6 +395,7 @@ class InputHandler {
                 }
                     //todo:make inverted for mac only
                 lime_mousedown({
+                    raw : _event,
                     button : wheel_dir,
                     state : MouseState.down,
                     x : _event.pageX - lib.render.canvas_position.x,
@@ -380,6 +421,7 @@ class InputHandler {
                     }
                         //todo:make inverted for mac only
                     lime_mousedown({
+                        raw : _event,
                         button : wheel_dir,
                         state : MouseState.down,
                         x : _event.pageX - lib.render.canvas_position.x,
@@ -400,6 +442,7 @@ class InputHandler {
                 _event.preventDefault();     
 
                 lime_mousedown({
+                    raw : _event,
                     button : mouse_button_from_id(_event.button),
                     state : MouseState.down,
                     x : _event.pageX - lib.render.canvas_position.x,
@@ -436,6 +479,7 @@ class InputHandler {
                 _event.preventDefault();
 
                 lime_mousemove({
+                    raw : _event,
                     button : MouseButton.move,
                     state : MouseState.move,
                     x : _event.pageX - lib.render.canvas_position.x,
@@ -456,6 +500,7 @@ class InputHandler {
                 _event.preventDefault();
 
                 lime_mouseup({
+                    raw : _event,
                     button : mouse_button_from_id(_event.button),
                     state : MouseState.up,
                     x : _event.pageX - lib.render.canvas_position.x,
@@ -515,15 +560,26 @@ enum MouseButton {
     wheel_down;
 }
 
+typedef KeyEvent = {
+    var raw : Dynamic;
+    var code : Int;
+    var char : Int;
+    var value : Int;
+    var flags : Int;
+    var key : lime.utils.Keys.KeyValue;
+};
+
 typedef TouchEvent = {
     var state : TouchState;
     var flags : Int;
     var ID : Int;
     var x : Float;
     var y : Float;
+    var raw : Dynamic;
 };
 
-typedef MouseEvent = { 
+typedef MouseEvent = {
+    var raw : Dynamic;
     var state : MouseState;
     var flags : Int;
     var button : MouseButton;
@@ -538,6 +594,6 @@ typedef MouseEvent = {
 }
 
 typedef GamepadEvent = { 
-
+    var raw : Dynamic;
 }
 
