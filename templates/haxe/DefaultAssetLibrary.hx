@@ -116,7 +116,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		if (Std.is (data, String)) {
 			
-			var bytes = new ByteArray ();
+			bytes = new ByteArray ();
 			bytes.writeUTFBytes (data);
 			
 		} else if (Std.is (data, ByteArray)) {
