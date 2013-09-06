@@ -23,21 +23,21 @@ class FlashPlatform implements IPlatformTool {
 		
 		ProcessHelper.runCommand ("", "haxe", [ hxml ] );
 		
-		var usesNME = false;
+		var usesOpenFL = false;
 		
 		for (haxelib in project.haxelibs) {
 			
 			if (haxelib.name == "nme" || haxelib.name == "openfl") {
 				
-				usesNME = true;
+				usesOpenFL = true;
 				
 			}
 			
 		}
 		
-		if (usesNME) {
+		if (usesOpenFL) {
 			
-			FlashHelper.embedAssets (destination + "/" + project.app.file + ".swf", project.assets, "nme.");
+			FlashHelper.embedAssets (destination + "/" + project.app.file + ".swf", project.assets);
 			
 		}
 		

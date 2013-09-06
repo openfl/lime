@@ -426,7 +426,7 @@ class FlashHelper {
 			
 		}
 		
-		outTags.push (TSymbolClass ( [ { cid:cid, className: packageName + "NME_" + flatName } ] ));
+		outTags.push (TSymbolClass ( [ { cid:cid, className: packageName + "__ASSET__" + flatName } ] ));
 		
 		return true;
 		
