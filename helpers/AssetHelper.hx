@@ -1,7 +1,9 @@
 package helpers;
 
 
+import haxe.io.Path;
 import haxe.Serializer;
+import haxe.Unserializer;
 import openfl.Assets;
 import project.OpenFLProject;
 import sys.io.File;
@@ -37,6 +39,60 @@ class AssetHelper {
 		}
 		
 		return data;
+		
+	}
+	
+	
+	public static function processLibraries (project:OpenFLProject):Void {
+		
+		var handlers = new Array <String> ();
+		
+		for (library in project.libraries) {
+			
+			var type = library.type;
+			
+			if (type == null) {
+				
+				type = Path.extension (library.sourcePath).toLowerCase ();
+				
+			}
+			
+			if (project.libraryHandlers.exists (type)) {
+				
+				var handler = project.libraryHandlers.get (type);
+				
+				handlers.remove (handler);
+				handlers.push (handler);
+				
+			}
+			
+		}
+		
+		if (handlers.length > 0) {
+			
+			var projectData = Serializer.run (project);
+			
+			for (handler in handlers) {
+				
+				var output = ProcessHelper.runProcess ("", "haxelib", [ "run", handler, "process", projectData ]);
+				//var output = "";
+				//ProcessHelper.runCommand ("", "haxelib", [ "run", handler, "process", projectData ]);
+				//Sys.exit (0);
+				
+				if (output != null && output != "") {
+					
+					try {
+						
+						var data:OpenFLProject = Unserializer.run (output);
+						project.merge (data);
+						
+					} catch (e:Dynamic) {}
+					
+				}
+				
+			}
+			
+		}
 		
 	}
 	

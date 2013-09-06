@@ -26,7 +26,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#if flash
 		
-		::if (assets != null)::::foreach assets::::if (embed)::className.set ("::id::", nme.NME_::flatName::);
+		::if (assets != null)::::foreach assets::::if (embed)::className.set ("::id::", __ASSET__::flatName::);
 		type.set ("::id::", Reflect.field (AssetType, "::type::".toUpperCase ()));
 		::end::::end::::end::
 		
@@ -187,7 +187,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 #if flash
 
-::foreach assets::::if (embed)::::if (type == "image")::class NME_::flatName:: extends flash.display.BitmapData { public function new () { super (0, 0); } }::else::class NME_::flatName:: extends ::flashClass:: { }::end::::end::
+::foreach assets::::if (embed)::::if (type == "image")::class __ASSET__::flatName:: extends flash.display.BitmapData { public function new () { super (0, 0); } }::else::class __ASSET__::flatName:: extends ::flashClass:: { }::end::::end::
 ::end::
 
 #elseif html5

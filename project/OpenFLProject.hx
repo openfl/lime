@@ -34,6 +34,7 @@ class OpenFLProject {
 	public var icons:Array <Icon>;
 	public var javaPaths:Array <String>;
 	public var libraries:Array <Library>;
+	public var libraryHandlers:Map <String, String>;
 	public var meta:MetaData;
 	public var ndlls:Array <NDLL>;
 	public var platformType:PlatformType;
@@ -163,6 +164,7 @@ class OpenFLProject {
 		icons = new Array <Icon> ();
 		javaPaths = new Array <String> ();
 		libraries = new Array <Library> ();
+		libraryHandlers = new Map <String, String> ();
 		ndlls = new Array <NDLL> ();
 		sources = new Array <String> ();
 		splashScreens = new Array <SplashScreen> ();
@@ -225,6 +227,12 @@ class OpenFLProject {
 		for (library in libraries) {
 			
 			project.libraries.push (library.clone ());
+			
+		}
+		
+		for (key in libraryHandlers.keys ()) {
+			
+			project.libraryHandlers.set (key, libraryHandlers.get (key));
 			
 		}
 		
@@ -439,6 +447,7 @@ class OpenFLProject {
 			
 			StringMapHelper.copyUniqueKeys (project.environment, environment);
 			StringMapHelper.copyUniqueKeys (project.haxedefs, haxedefs);
+			StringMapHelper.copyUniqueKeys (project.libraryHandlers, libraryHandlers);
 			
 			if (certificate == null) {
 				
@@ -567,7 +576,7 @@ class OpenFLProject {
 			
 		}
 		
-		context.libraries = new Array <Dynamic> ();
+		/*context.libraries = new Array <Dynamic> ();
 		
 		for (library in libraries) {
 			
@@ -576,7 +585,7 @@ class OpenFLProject {
 			libraryData.type = Std.string (library.type).toLowerCase ();
 			context.libraries.push (libraryData);
 			
-		}
+		}*/
 		
 		Reflect.setField (context, "ndlls", ndlls);
 		//Reflect.setField (context, "sslCaCert", sslCaCert);

@@ -38,7 +38,6 @@ class CommandLineTools {
 	
 	public function new () {
 		
-		
 		additionalArguments = new Array <String> ();
 		command = "";
 		debug = false;
@@ -1146,6 +1145,8 @@ class CommandLineTools {
 		}
 		
 		StringMapHelper.copyKeys (userDefines, project.haxedefs);
+		
+		AssetHelper.processLibraries (project);
 		
 		// Better way to do this?
 		

@@ -1050,29 +1050,41 @@ class ProjectXMLParser extends OpenFLProject {
 					
 					case "library", "swf":
 						
-						var path = PathHelper.combine (extensionPath, substitute (element.att.path));
-						var name = "";
-						var type = null;
-						
-						if (element.has.name) {
+						if (element.has.handler) {
 							
-							name = element.att.name;
+							if (element.has.type) {
+								
+								libraryHandlers.set (element.att.type, element.att.handler);
+								
+							}
+							
+						} else {
+							
+							var path = PathHelper.combine (extensionPath, substitute (element.att.path));
+							var name = "";
+							var type = null;
+							
+							if (element.has.name) {
+								
+								name = element.att.name;
+								
+							}
+							
+							if (element.has.id) {
+								
+								name = element.att.id;
+								
+							}
+							
+							if (element.has.type) {
+								
+								type = element.att.type;
+								
+							}
+							
+							libraries.push (new Library (path, name, type));
 							
 						}
-						
-						if (element.has.id) {
-							
-							name = element.att.id;
-							
-						}
-						
-						if (element.has.type) {
-							
-							type = element.att.type;
-							
-						}
-						
-						libraries.push (new Library (path, name, type));
 					
 					case "ssl":
 						
