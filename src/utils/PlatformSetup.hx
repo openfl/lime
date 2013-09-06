@@ -1040,6 +1040,28 @@ class PlatformSetup {
 			
 			defines.set ("ANDROID_SETUP", "true");
 			
+			if (!setApacheAnt) {
+				
+				try {
+					
+					var antPath = defines.get ("ANT_HOME");
+					
+					if (FileSystem.exists (antPath) && !FileSystem.isDirectory (antPath) && StringTools.endsWith (antPath, "ant")) {
+						
+						antPath = StringTools.replace (antPath, "\\", "/");
+						
+						var splitPath = antPath.split ("/");
+						splitPath.pop ();
+						splitPath.pop ();
+						
+						defines.set ("ANT_HOME", splitPath.join ("/"));
+						
+					}
+					
+				} catch (e:Dynamic) {}
+				
+			}
+			
 			if (PlatformHelper.hostPlatform == Platform.MAC) {
 				
 				//defines.remove ("ANT_HOME");
