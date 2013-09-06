@@ -536,6 +536,12 @@ class OpenFLProject {
 		
 		context.BUILD_DIR = app.path;
 		
+		for (key in environment.keys ()) { 
+			
+			Reflect.setField (context, "ENV_" + key, environment.get (key));
+			
+		}
+		
 		for (field in Reflect.fields (meta)) {
 			
 			Reflect.setField (context, "APP_" + StringHelper.formatUppercaseVariable (field), Reflect.field (meta, field));
