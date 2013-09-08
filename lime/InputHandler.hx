@@ -67,7 +67,11 @@ class InputHandler {
                 char : _event.char,
                 value : _event.value,
                 flags : _event.flags,
-                key : lime.utils.Keys.toKeyValue(_event.value)
+                key : lime.utils.Keys.toKeyValue(_event.value),
+                ctrl_down :  (_event.flags & efCtrlDown > 0),
+                alt_down :   (_event.flags & efAltDown > 0),
+                shift_down : (_event.flags & efShiftDown > 0),
+                meta_down :  (_event.flags & efCommandDown > 0)
             });
         }
         //nmeOnKey(_event, KeyboardEvent.KEY_DOWN);
@@ -82,7 +86,11 @@ class InputHandler {
                 char : _event.char,
                 value : _event.value,
                 flags : _event.flags,
-                key : lime.utils.Keys.toKeyValue(_event.value)
+                key : lime.utils.Keys.toKeyValue(_event.value),
+                ctrl_down :  (_event.flags & efCtrlDown > 0),
+                alt_down :   (_event.flags & efAltDown > 0),
+                shift_down : (_event.flags & efShiftDown > 0),
+                meta_down :  (_event.flags & efCommandDown > 0)
             });
         }
         //nmeOnKey(_event, KeyboardEvent.KEY_UP);
@@ -96,7 +104,11 @@ class InputHandler {
                 char : _event.char,
                 value : _event.value,
                 flags : _event.flags,
-                key : lime.utils.Keys.toKeyValue(_event.value)
+                key : lime.utils.Keys.toKeyValue(_event.value),
+                ctrl_down :  (_event.flags & efCtrlDown > 0),
+                alt_down :   (_event.flags & efAltDown > 0),
+                shift_down : (_event.flags & efShiftDown > 0),
+                meta_down :  (_event.flags & efCommandDown > 0)
             });
         }
         //var evt = new Event(FocusEvent.FOCUS_IN);
@@ -111,7 +123,11 @@ class InputHandler {
                 char : _event.char,
                 value : _event.value,
                 flags : _event.flags,
-                key : lime.utils.Keys.toKeyValue(_event.value)
+                key : lime.utils.Keys.toKeyValue(_event.value),
+                ctrl_down :  (_event.flags & efCtrlDown > 0),
+                alt_down :   (_event.flags & efAltDown > 0),
+                shift_down : (_event.flags & efShiftDown > 0),
+                meta_down :  (_event.flags & efCommandDown > 0)
             });
         }
         //var evt = new Event(FocusEvent.FOCUS_OUT);
@@ -567,6 +583,10 @@ typedef KeyEvent = {
     var value : Int;
     var flags : Int;
     var key : lime.utils.Keys.KeyValue;
+    var shift_down : Bool;
+    var ctrl_down : Bool;
+    var alt_down : Bool;
+    var meta_down : Bool;    
 };
 
 typedef TouchEvent = {
