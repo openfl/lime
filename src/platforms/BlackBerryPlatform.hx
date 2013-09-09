@@ -11,7 +11,7 @@ import helpers.IconHelper;
 import helpers.LogHelper;
 import helpers.PathHelper;
 import helpers.ProcessHelper;
-import openfl.Assets;
+import project.AssetType;
 import project.Haxelib;
 import project.NDLL;
 import project.OpenFLProject;

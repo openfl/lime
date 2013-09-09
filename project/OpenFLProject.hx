@@ -4,7 +4,6 @@ package project;
 import haxe.io.Path;
 import haxe.Serializer;
 import haxe.Unserializer;
-import openfl.Assets;
 import helpers.ArrayHelper;
 import helpers.LogHelper;
 import helpers.ObjectHelper;
@@ -12,6 +11,7 @@ import helpers.PathHelper;
 import helpers.PlatformHelper;
 import helpers.StringHelper;
 import helpers.StringMapHelper;
+import project.AssetType;
 import sys.FileSystem;
 
 

@@ -10,7 +10,7 @@ import helpers.NekoHelper;
 import helpers.PathHelper;
 import helpers.PlatformHelper;
 import helpers.ProcessHelper;
-import openfl.Assets;
+import project.AssetType;
 import project.OpenFLProject;
 import project.Platform;
 import sys.io.File;
