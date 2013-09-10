@@ -86,7 +86,11 @@ class AssetHelper {
 						var data:OpenFLProject = Unserializer.run (output);
 						project.merge (data);
 						
-					} catch (e:Dynamic) {}
+					} catch (e:Dynamic) {
+						
+						LogHelper.error (e);
+						
+					}
 					
 				}
 				

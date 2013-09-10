@@ -135,10 +135,12 @@ class ProjectXMLParser extends OpenFLProject {
 			
 			var value = element.x.get ("if");
 			var optionalDefines = value.split ("||");
+			var matchOptional = false;
 			
 			for (optional in optionalDefines) {
 				
 				var requiredDefines = optional.split (" ");
+				var matchRequired = true;
 				
 				for (required in requiredDefines) {
 					
@@ -146,11 +148,23 @@ class ProjectXMLParser extends OpenFLProject {
 					
 					if (check != "" && !localDefines.exists (check)) {
 						
-						return false;
+						matchRequired = false;
 						
 					}
 					
 				}
+				
+				if (matchRequired) {
+					
+					matchOptional = true;
+					
+				}
+				
+			}
+			
+			if (optionalDefines.length > 0 && !matchOptional) {
+				
+				return false;
 				
 			}
 			
@@ -160,22 +174,36 @@ class ProjectXMLParser extends OpenFLProject {
 			
 			var value = element.att.unless;
 			var optionalDefines = value.split ("||");
+			var matchOptional = false;
 			
 			for (optional in optionalDefines) {
 				
 				var requiredDefines = optional.split (" ");
+				var matchRequired = true;
 				
 				for (required in requiredDefines) {
 					
 					var check = StringTools.trim (required);
 					
-					if (check != "" && localDefines.exists (check)) {
+					if (check != "" && !localDefines.exists (check)) {
 						
-						return false;
+						matchRequired = false;
 						
 					}
 					
 				}
+				
+				if (matchRequired) {
+					
+					matchOptional = true;
+					
+				}
+				
+			}
+			
+			if (optionalDefines.length > 0 && matchOptional) {
+				
+				return false;
 				
 			}
 			
