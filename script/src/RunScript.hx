@@ -77,6 +77,36 @@ class RunScript {
 		return false;
 	}
 
+	public static function append_project_file(args:Array<String>) : Array<String> {
+		
+		var explicit_project = false;
+
+		for(i in 0...args.length) {
+			var arg = args[i];
+			if( arg.indexOf('.xml') != -1 ) {
+				
+				var prevarg = '';
+				if(i > 0) { prevarg = args[i-1]; }
+
+				if(prevarg.substr(0,2) != '--') {
+					explicit_project = true;
+				}
+
+			} //if there is an xml mentioned
+		} //for each argument
+
+		if(!explicit_project) {
+			#if luxe
+				args.insert(1,'project.luxe.xml');
+			#else 
+				args.insert(1,'project.lime.xml');
+			#end
+		}
+
+		return args;
+
+	} //append_project_file
+
 	public static var cwd : String = './';
 	public static function main() {
 			//take all args and forward them to build tools
@@ -91,18 +121,29 @@ class RunScript {
 			var local_command = process_command(args);
 			
 			if(!local_command) {
-				
+					//check if they specify a project file, if not, append our default
+				var args = append_project_file(args);
+
 					//make a full command line
 				var full_args = [ "run", "openfl-tools" ].concat(args);
 					//enforce the folder to the current on
 				Sys.setCwd(cwd);
 					//and then execute
 				return Sys.command("haxelib", full_args);
-			}
+
+			} //!local command
 
 		} else {
 			Sys.println("");
-			Sys.println("  lime build tools 1.0.1");
+			
+			var version = "1.0.2";
+
+			#if luxe
+				Sys.println("  luxe build tools " + version);
+			#else 
+				Sys.println("  lime build tools " + version);
+			#end
+
 			Sys.println("    commands : ");
 			Sys.println("\ttest <target> \n\t  Build and run");
 			Sys.println("\tbuild <target> \n\t  Build");

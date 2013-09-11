@@ -126,7 +126,7 @@ class LiME {
 
             //if any post ready things that need 
             //to happen, do it here.
-       window.post_ready();      
+       window.post_ready();
 
     } //on_window_ready
 
@@ -181,12 +181,27 @@ class LiME {
 
     //keyboard
             case SystemEvents.char:
+                _event.result = 1;
                 input.lime_onchar(_event);
 
             case SystemEvents.keydown:
+                
+                #if android
+                    if(_event.value == 27) {
+                        _event.result = 1;
+                    }
+                #end //android
+
                 input.lime_onkeydown(_event);
 
             case SystemEvents.keyup:
+                
+                #if android
+                    if(_event.value == 27) {
+                        _event.result = 1;
+                    }
+                #end //android
+
                 input.lime_onkeyup(_event);
                 
             case SystemEvents.gotinputfocus:
@@ -269,8 +284,7 @@ class LiME {
         }
 
         
-        result = __updateNextWake();
-        return result;
+        return __updateNextWake();
 
 
     } //on_lime_event
