@@ -184,7 +184,7 @@ class PathHelper {
 		
 		for (i in 1...lines.length) {
 			
-			if (StringTools.trim (lines[i]) == "-D " + name) {
+			if (StringTools.trim (lines[i]) == "-D " + haxelib.name) {
 				
 				result = StringTools.trim (lines[i - 1]);
 				
