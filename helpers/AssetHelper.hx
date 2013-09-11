@@ -4,6 +4,7 @@ package helpers;
 import haxe.io.Path;
 import haxe.Serializer;
 import haxe.Unserializer;
+import helpers.PathHelper;
 import openfl.Assets;
 import project.OpenFLProject;
 import sys.io.File;
@@ -34,6 +35,7 @@ class AssetHelper {
 		
 		if (targetPath != "") {
 			
+			PathHelper.mkdir (Path.directory (targetPath));
 			File.saveContent (targetPath, data);
 			
 		}
