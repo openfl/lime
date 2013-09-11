@@ -203,7 +203,19 @@ class RenderHandler {
     }
 #end //lime_html5
 
+    public function request_render() {
+
+        #if lime_native
+            trace('render.request_render');
+            nme_stage_request_render();
+        #end
+    }
+
     public function render() {
+
+        if( !lib.window.active ) {
+            return;
+        }
 
         #if lime_html5
             on_render();
@@ -212,7 +224,11 @@ class RenderHandler {
         #end      
 
         #if lime_native 
+            // trace("now doing render");
+            // nme_stage_request_render();
+            // trace('render.render');
             nme_render_stage( lib.view_handle );
+            // nme_stage_request_render();
         #end //lime_native
 
     }
@@ -222,6 +238,8 @@ class RenderHandler {
         if( lib.host.render != null ) {
             lib.host.render();
         }
+
+        // trace('render.on_render');
        
     } //on_render
 
@@ -230,13 +248,16 @@ class RenderHandler {
         if(lib.shutting_down) return;
 
         #if lime_native
-                //todo - sleep a tiny amount to not use 100% cpu
-            nme_stage_set_next_wake( lib.view_handle , 0.001 );
+                //todo - sleep a tiny amount to n   ot use 100% cpu
+            // nme_stage_set_next_wake( lib.view_handle , 0.001 );
         #end //lime_native
+
+        // trace('render.next_wake');
     }
 
 //nme functions
 #if lime_native
+    private static var nme_stage_request_render     = Libs.load("nme","nme_stage_request_render", 0);
     private static var nme_render_stage             = Libs.load("nme","nme_render_stage", 1);
     private static var nme_doc_add_child            = Libs.load("nme","nme_doc_add_child", 2);
     private static var nme_direct_renderer_create   = Libs.load("nme","nme_direct_renderer_create", 0);

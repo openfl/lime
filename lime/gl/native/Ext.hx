@@ -5,7 +5,9 @@ import lime.utils.Libs;
 class Ext {
 
     public static function drawBuffers( n:Int, buffers:Int ){ 
-        return nme_gl_ext_draw_buffers( n, buffers );
+        #if !android
+            return nme_gl_ext_draw_buffers( n, buffers );
+        #end
     }
 
     private static function load(inName:String, inArgCount:Int):Dynamic {
@@ -53,6 +55,9 @@ class Ext {
     public static inline var MAX_COLOR_ATTACHMENTS = 0x8CDF;
     public static inline var MAX_DRAW_BUFFERS      = 0x8824;
 
+#if !android
     private static var nme_gl_ext_draw_buffers = load("nme_gl_ext_draw_buffers", 2);
+#end 
+
 }
 

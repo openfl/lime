@@ -21,6 +21,7 @@ class ApplicationMain {
 			stencil_buffer 	: ::WIN_STENCIL_BUFFER::,
 			depth_buffer 	: ::WIN_DEPTH_BUFFER::,
 			vsync 			: ::WIN_VSYNC::,
+			fps				: ::WIN_FPS::,
 			width 			: ::WIN_WIDTH::, 
 			height 			: ::WIN_HEIGHT::, 
 			title 			: "::APP_TITLE::"

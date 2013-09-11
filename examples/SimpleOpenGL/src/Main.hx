@@ -27,6 +27,9 @@ class Main {
     private var red_value : Float = 1.0;
     private var red_direction : Int = 1;
 
+    var end_dt : Float = 0.016;
+    var dt : Float = 0.016;
+
 	public function new() { }
 
 	public function ready( _lime : LiME ) {
@@ -42,8 +45,11 @@ class Main {
         //Called each frame by lime for logic (called before render)
 	public function update() {
 
+        dt = haxe.Timer.stamp() - end_dt;
+        end_dt = haxe.Timer.stamp();
+
 			//an awful magic number to change the value slowly
-		red_value += red_direction * 0.005;
+		red_value += (red_direction * 0.3) * dt;
 
 		if(red_value >= 1) {
 			red_value = 1;
@@ -52,6 +58,8 @@ class Main {
 			red_value = 0;
 			red_direction = -red_direction;
 		}
+
+        // Sys.println(dt);
 
 	}
 
@@ -91,8 +99,8 @@ class Main {
         GL.clear( GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT  );
                 
             //Work out the middle of the viewport
-        var positionX = lib.config.width / 2;
-        var positionY = lib.config.height / 2;
+        var positionX = (lib.config.width / 2) * (red_value*2);
+        var positionY = (lib.config.height / 2) * (red_value*2);
         
         	//Create the projection and modelview matrices
         var projectionMatrix = Matrix3D.createOrtho (0, lib.config.width, lib.config.height, 0, 1000, -1000);
@@ -112,6 +120,7 @@ class Main {
         
         	//And finally, Draw the vertices with the applied shaders and view
         GL.drawArrays (GL.TRIANGLE_STRIP, 0, 4);
+
 	}
 
 

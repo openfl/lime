@@ -11,13 +11,14 @@
 	<app main="Main" path="bin" file="lime_example_simple" />
 
 	<window 
-          width="960" 
-          height="640" 
+          width="854" 
+          height="480" 
           orientation="landscape" 
-          fps="60"
           background="0x161616"
           require_shaders="true"
           depth-buffer="true"
+          fps="60" 
+          vsync="false" 
           stencil-buffer="true"
           resizable="true"
           hardware="true"

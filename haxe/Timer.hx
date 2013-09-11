@@ -13,7 +13,7 @@ class Timer {
 	/**
 		Create a new timer that will run every [time_ms] (in milliseconds).
 	**/
-	public function new( time_ms : Float ){
+	public function new( time_ms : Int ){
 		#if flash9
 			var me = this;
 			id = untyped __global__["flash.utils.setInterval"](function() { me.run(); },time_ms);
@@ -151,13 +151,14 @@ class Timer {
 	/**
 	 * @private
 	 */
-	static public function nmeNextWake (limit:Float):Float {
+	@:noCompletion static public function __nextWake (limit:Float):Float {
 		
 		var now = nme_time_stamp () * 1000.0;
+		var sleep;
 		
 		for (timer in sRunningTimers) {
 			
-			var sleep = timer.mFireAt - now;
+			sleep = timer.mFireAt - now;
 			
 			if (sleep < limit) {
 				
@@ -178,7 +179,7 @@ class Timer {
 	}
 	
 
-	function nmeCheck (inTime:Float) {
+	@:noCompletion function __check (inTime:Float) {
 		
 		if (inTime >= mFireAt) {
 			
@@ -193,13 +194,13 @@ class Timer {
 	/**
 	 * @private
 	 */
-	public static function nmeCheckTimers () {
+	@:noCompletion public static function __checkTimers () {
 		
 		var now = GetMS ();
 		
 		for (timer in sRunningTimers) {
 			
-			timer.nmeCheck (now);
+			timer.__check (now);
 			
 		}
 		
@@ -230,7 +231,7 @@ class Timer {
 	
 	static public function stamp ():Float {
 		
-		return nme_time_stamp();
+		return nme_time_stamp ();
 		
 	}
 	

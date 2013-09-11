@@ -210,7 +210,7 @@ class WindowHandler {
     }
 
     public function on_redraw( _event:Dynamic ) {
-    	lib.do_render(_event);
+        lib.render.render();
     } //on_redraw
 
 	public function on_resize(_event:Dynamic) {

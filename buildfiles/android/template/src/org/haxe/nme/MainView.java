@@ -173,7 +173,8 @@ class MainView extends GLSurfaceView {
         setFocusable(true);
         setFocusableInTouchMode(true);
         setRenderer(new Renderer(this));
-		  setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+      setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+		  // setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
        //Log.v("VIEW", "present on system: " + InputDevice.getDeviceIds());
       for (int i = 0; i < 4; i++) {
         //device = InputDevice.getDevice(i);
@@ -235,7 +236,7 @@ class MainView extends GLSurfaceView {
    // Called diectly by NME...
 	static public void renderNow()
 	{
-     //Log.v("VIEW","renderNow!!!");
+    // Log.i("trace","renderNow!!!");
 	  mRefreshView.requestRender();
 	}
 
@@ -340,7 +341,7 @@ class MainView extends GLSurfaceView {
              queueEvent(new Runnable() {
                  // This method will be called on the rendering thread:
                  public void run() {
-                     //me.HandleResult(NME.onKeyChange(keyCode,true));
+                     me.HandleResult(NME.onKeyChange(keyCode,true));
                      me.HandleResult(NME.onJoyChange(deviceId,keyCode,true));
                  }});
              return true;
@@ -361,7 +362,7 @@ class MainView extends GLSurfaceView {
              queueEvent(new Runnable() {
                  // This method will be called on the rendering thread:
                  public void run() {
-                     //me.HandleResult(NME.onKeyChange(keyCode,false));
+                     me.HandleResult(NME.onKeyChange(keyCode,false));
                      me.HandleResult(NME.onJoyChange(deviceId,keyCode,false));
                  }});
              return true;
@@ -376,10 +377,10 @@ class MainView extends GLSurfaceView {
         public Renderer(MainView inView) { mMainView = inView; }
 
         public void onDrawFrame(GL10 gl) {
-            //Log.v("VIEW","onDrawFrame !");
+            // Log.i("trace","onDrawFrame !");
             mMainView.HandleResult( NME.onRender() );
             Sound.checkSoundCompletion();
-            //Log.v("VIEW","onDrawFrame DONE!");
+            // Log.i("trace","onDrawFrame DONE!");
         }
 
         public void onSurfaceChanged(GL10 gl, int width, int height) {

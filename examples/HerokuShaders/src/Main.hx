@@ -244,7 +244,6 @@ class Main {
         
         if (GL.getShaderParameter (shader, GL.COMPILE_STATUS) == 0) {
             
-            trace (GL.getShaderInfoLog (shader));
             return null;
             
         }

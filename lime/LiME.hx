@@ -30,6 +30,25 @@ class LiME {
     	//the handle to the nme stage
     public var view_handle : Dynamic;
 
+// timing
+
+    public var frame_rate (default, set): Float;
+    public var render_request_function:Void -> Void; 
+
+    var frame_period : Float = 0.0;
+    var last_render_time : Float = 0.0;
+    @:noCompletion public static var early_wakeup = 0.005;
+    private function set_frame_rate (value:Float):Float {
+        
+        frame_rate = value;
+        frame_period = (frame_rate <= 0 ? frame_rate : 1.0 / frame_rate);
+        
+            _debug(':: lime :: frame rate set to ' + frame_rate);
+
+        return value;
+        
+    }
+    
 //flags
 	
 	   //if we have started a shutdown
@@ -47,6 +66,20 @@ class LiME {
 
     	_debug(':: lime :: initializing -');
         _debug(':: lime :: Creating window at ' + config.width + 'x' + config.height);
+
+            //default to 60 fps        
+        if( config.fps != null ) {
+            frame_rate = Std.parseFloat( config.fps );
+        } else { //config.fps
+            frame_rate = 60;    
+        }
+
+        #if android
+            render_request_function = nme_stage_request_render;
+        #else
+            render_request_function = null;
+        #end //android
+
 
             //Create our window handler class, 
             //this will handle initialization
@@ -129,6 +162,7 @@ class LiME {
 
     public function on_lime_event( _event:Dynamic ) : Dynamic {
 
+        var result = 0.0;
         var event_type:Int = Std.int(Reflect.field(_event, "type"));
         
         if(event_type != SystemEvents.poll) {
@@ -234,7 +268,10 @@ class LiME {
 
         }
 
-        return null;
+        
+        result = __updateNextWake();
+        return result;
+
 
     } //on_lime_event
 
@@ -253,43 +290,101 @@ class LiME {
 
         _debug('on_update ' + Timer.stamp(), true, true); 
 
-            //Keep the Timers updated. todo, tidy.
         #if lime_native
-            Timer.nmeCheckTimers();
+            Timer.__checkTimers();
         #end
 
         if(!has_shutdown) {
 
-            if(host.update != null) {
-                host.update();
-            }
+            var do_update = __checkRender();
 
-            do_render(_event);
+            if(do_update) {
 
+                if( host.update != null) {
+                    host.update();
+                }
+            
+                perform_render();
+
+            } //do_update?
 
         } // if !has_shutdown
 
         return true;
+
     } //on_update
 
-    //Render the window
-    public function do_render( _event:Dynamic ) {
+
+    public function perform_render() {
+        if (render_request_function != null) {
+            render_request_function();
+        } else {
+            render.render();
+        }
+    } //perform render
+
+    @:noCompletion private function __checkRender():Bool {
         
-        if( !window.active ) {
-            return;
+        #if emscripten 
+            render.render();
+            return true;
+        #end
+
+        if (frame_rate > 0) {
+            
+            var now = haxe.Timer.stamp();
+            if (now >= last_render_time + frame_period) {
+                
+                last_render_time = now;
+                
+                return true;
+
+            } //if now >= last + frame_period
+            
+        } else {
+
+            return true;
+
         }
 
-        _debug("render!", true, true);
+        return false;
+        
+    } //__checkRender
 
-        if( window.invalidated ) {
-            window.invalidated = false;
-        }
     
-        render.render();
-           //make sure the c++ knows our sleep time
-        render.next_wake();
+    @:noCompletion public function __updateNextWake():Float {
+        
+        var nextWake = haxe.Timer.__nextWake (315000000.0);
+        
+        nextWake = __nextFrameDue( nextWake );
+        nme_stage_set_next_wake( view_handle, nextWake );
+        
+        return nextWake;
+        
+    }
 
-    } //do_render    
+    @:noCompletion private function __nextFrameDue( _otherTimers:Float ) {
+        
+        if(has_shutdown) {
+            return _otherTimers;
+        }
+
+        if (!window.active) { // && pauseWhenDeactivated
+            return _otherTimers;
+        }
+        
+        if(frame_rate > 0) {
+
+            var next = last_render_time + frame_period - haxe.Timer.stamp() - early_wakeup;
+            if (next < _otherTimers) {
+                return next;
+            }
+
+        } //frame_rate
+        
+        return _otherTimers;
+
+    } //__nextFrameDue
 
 //Noisy stuff
 
@@ -312,4 +407,12 @@ class LiME {
             } //elses
         } //log
     } //_debug
+
+#if lime_native
+    private static var nme_stage_request_render = Libs.load("nme","nme_stage_request_render", 0);
+    private static var nme_stage_set_next_wake  = Libs.load("nme","nme_stage_set_next_wake", 2);        
+#end 
+    
 }
+
+
