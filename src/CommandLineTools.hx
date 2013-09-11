@@ -257,6 +257,7 @@ class CommandLineTools {
 				if (words.length > 1) {
 					
 					var name = words[1];
+					name = new EReg ("[^a-zA-Z0-9.]", "g").replace (name, "");
 					id = name.split (".");
 					
 					if (id.length < 3) {
@@ -277,8 +278,34 @@ class CommandLineTools {
 				
 				var context:Dynamic = { };
 				
-				var title = id[id.length - 1];
-				title = title.substr (0, 1).toUpperCase () + title.substr (1);
+				var name = words[1].split (".").pop ();
+				var alphaNumeric = new EReg ("[a-zA-Z0-9]", "g");
+				var title = "";
+				var capitalizeNext = true;
+				
+				for (i in 0...name.length) {
+					
+					if (alphaNumeric.match (name.charAt (i))) {
+						
+						if (capitalizeNext) {
+							
+							title += name.charAt (i).toUpperCase ();
+							
+						} else {
+							
+							title += name.charAt (i);
+							
+						}
+						
+						capitalizeNext = false;
+						
+					} else {
+						
+						capitalizeNext = true;
+						
+					}
+					
+				}
 				
 				var packageName = id.join (".").toLowerCase ();
 				
@@ -294,12 +321,14 @@ class CommandLineTools {
 					
 				}
 				
-				PathHelper.mkdir (title);
-				FileHelper.recursiveCopyTemplate ([ PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates" ], "project", title, context);
+				var folder = name;
 				
-				if (FileSystem.exists (title + "/Project.hxproj")) {
+				PathHelper.mkdir (folder);
+				FileHelper.recursiveCopyTemplate ([ PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates" ], "project", folder, context);
+				
+				if (FileSystem.exists (folder + "/Project.hxproj")) {
 					
-					FileSystem.rename (title + "/Project.hxproj", title + "/" + title + ".hxproj");
+					FileSystem.rename (folder + "/Project.hxproj", folder + "/" + title + ".hxproj");
 					
 				}
 				
