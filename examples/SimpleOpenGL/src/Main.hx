@@ -66,7 +66,7 @@ class Main {
         //Called by lime 
     public function onmousemove(_event:Dynamic) {
         // trace(_event);
-    }    
+    }
 
         //Called by lime 
     public function onkeydown(_event:Dynamic) {
