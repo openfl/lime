@@ -157,7 +157,7 @@ class RunScript {
 			Sys.println("    commands : ");
 			Sys.println("\ttest <target> \n\t  Build and run");
 			Sys.println("\tbuild <target> \n\t  Build");
-			Sys.println("\tserve \n\t  This is for html5 target, launches a server and opens the page. \n\ti.e luxe build html5 && luxe serve");
+			Sys.println("\tserve \n\t  This is for html5 target, launches a server and opens the page. \n\t  i.e luxe build html5 && luxe serve");
 			
 			#if pathtools
 				Sys.println("\tcreate <sample> <?name> \n\t  Create a copy of <sample> inside present working directory");
