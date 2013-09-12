@@ -72,19 +72,14 @@ class RunScript {
 
 				return true;
 
-			case "test":
-				if(data == 'html5') {
-					if(data2 == '-server') {
-							//check if the server note file exists 
-						var args = ['server', '-p', '55555', '-h', 'localhost' ,'-d' , cwd + 'bin/html5/bin/'];
-						new sys.io.Process('nekotools', args);
-						new sys.io.Process('open', ['http://localhost:55555/']);
-						return true;
-					}
-				}				
-				
-				return false;
+			case "serve":
 
+				var args = ['server', '-p', '55555', '-h', 'localhost' ,'-d' , cwd + 'bin/html5/bin/'];
+				new sys.io.Process('nekotools', args);
+				new sys.io.Process('open', ['http://localhost:55555/']);
+				
+				return true;
+				
 			default:
 				return false;
 		}#end
@@ -131,7 +126,7 @@ class RunScript {
 			//remove the CWD from the args
 		args = args.splice(0,args.length-1);
 
-		if(args.length-1 > 0) {
+		if(args.length-1 > 0 || args[0] == 'serve') {
 
 			var local_command = process_command(args);
 			
@@ -162,6 +157,7 @@ class RunScript {
 			Sys.println("    commands : ");
 			Sys.println("\ttest <target> \n\t  Build and run");
 			Sys.println("\tbuild <target> \n\t  Build");
+			Sys.println("\tserve \n\t  This is for html5 target, launches a server and opens the page. \n\ti.e luxe build html5 && luxe serve");
 			
 			#if pathtools
 				Sys.println("\tcreate <sample> <?name> \n\t  Create a copy of <sample> inside present working directory");
