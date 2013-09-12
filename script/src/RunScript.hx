@@ -75,8 +75,9 @@ class RunScript {
 			case "serve":
 
 				var args = ['server', '-p', '55555', '-h', 'localhost' ,'-d' , cwd + 'bin/html5/bin/'];
-				new sys.io.Process('nekotools', args);
+				// new sys.io.Process('nekotools', args);
 				new sys.io.Process('open', ['http://localhost:55555/']);
+				Sys.command("nekotools", args);
 				
 				return true;
 				
