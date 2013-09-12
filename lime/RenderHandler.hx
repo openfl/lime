@@ -206,31 +206,36 @@ class RenderHandler {
     public function request_render() {
 
         #if lime_native
-            trace('render.request_render');
             nme_stage_request_render();
         #end
     }
 
-    public function render() {
+    public function render() : Bool {
 
         if( !lib.window.active ) {
-            return;
+            return false;
         }
 
         #if lime_html5
+           
+            // trace('render.render');
+            
             on_render();
+            
             _requestAnimFrame( lib.on_update );
+            
             return true;
-        #end      
+        #end
 
         #if lime_native 
             // trace("now doing render");
             // nme_stage_request_render();
-            // trace('render.render');
+            
             nme_render_stage( lib.view_handle );
             // nme_stage_request_render();
         #end //lime_native
 
+        return true;
     }
 
     public function on_render() {
@@ -239,21 +244,8 @@ class RenderHandler {
             lib.host.render();
         }
 
-        // trace('render.on_render');
-       
     } //on_render
 
-    public function next_wake(f:Float = 0) {
-
-        if(lib.shutting_down) return;
-
-        #if lime_native
-                //todo - sleep a tiny amount to n   ot use 100% cpu
-            // nme_stage_set_next_wake( lib.view_handle , 0.001 );
-        #end //lime_native
-
-        // trace('render.next_wake');
-    }
 
 //nme functions
 #if lime_native

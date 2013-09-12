@@ -283,9 +283,7 @@ class LiME {
 
         }
 
-        
-        return __updateNextWake();
-
+            return __updateNextWake();
 
     } //on_lime_event
 
@@ -302,7 +300,7 @@ class LiME {
     	//Called when updated by the nme/sdl runtime
     public function on_update(_event) { 
 
-        _debug('on_update ' + Timer.stamp(), true, true); 
+        _debug('on_update ' + Timer.stamp(), true, false); 
 
         #if lime_native
             Timer.__checkTimers();
@@ -310,7 +308,11 @@ class LiME {
 
         if(!has_shutdown) {
 
-            var do_update = __checkRender();
+            #if lime_native
+                var do_update = __checkRender();
+            #else 
+                var do_update = true;
+            #end
 
             if(do_update) {
 
@@ -330,11 +332,13 @@ class LiME {
 
 
     public function perform_render() {
+
         if (render_request_function != null) {
             render_request_function();
         } else {
             render.render();
         }
+
     } //perform render
 
     @:noCompletion private function __checkRender():Bool {
@@ -368,12 +372,19 @@ class LiME {
     
     @:noCompletion public function __updateNextWake():Float {
         
-        var nextWake = haxe.Timer.__nextWake (315000000.0);
-        
-        nextWake = __nextFrameDue( nextWake );
-        nme_stage_set_next_wake( view_handle, nextWake );
-        
-        return nextWake;
+        #if lime_native
+
+            var nextWake = haxe.Timer.__nextWake (315000000.0);
+            
+            nextWake = __nextFrameDue( nextWake );
+            nme_stage_set_next_wake( view_handle, nextWake );
+            
+            return nextWake;
+
+        #else 
+            return null;
+        #end 
+
         
     }
 

@@ -55,6 +55,7 @@ class RunScript {
 
 //buildto
 			case "copy":
+
 				var target = data;
 				var dest = data2;
 					//lab copy html5 ~/Sven/Sites/out
@@ -70,6 +71,20 @@ class RunScript {
 				}
 
 				return true;
+
+			case "test":
+				if(data == 'html5') {
+					if(data2 == '-server') {
+							//check if the server note file exists 
+						var args = ['server', '-p', '55555', '-h', 'localhost' ,'-d' , cwd + 'bin/html5/bin/'];
+						new sys.io.Process('nekotools', args);
+						new sys.io.Process('open', ['http://localhost:55555/']);
+						return true;
+					}
+				}				
+				
+				return false;
+
 			default:
 				return false;
 		}#end
