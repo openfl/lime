@@ -74,9 +74,11 @@ class RunScript {
 
 			case "serve":
 
+					//non blocking open the page
+				new sys.io.Process('open', ['http://localhost:55555/']);	
+					//blocking server call
 				var args = ['server', '-p', '55555', '-h', 'localhost' ,'-d' , cwd + 'bin/html5/bin/'];
-				// new sys.io.Process('nekotools', args);
-				new sys.io.Process('open', ['http://localhost:55555/']);
+					//run the server
 				Sys.command("nekotools", args);
 				
 				return true;
