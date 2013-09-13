@@ -13,10 +13,11 @@
 		<ndll name="zlib" haxelib="hxcpp" />
 		
 		<ndll name="nme" />
+
+		<!-- <include haxelib="openfl-tools" /> -->
 		
 	</section>
 	
-	<include haxelib="openfl-tools" />
 	<templatePath name="buildfiles" />
 	
 </extension>
