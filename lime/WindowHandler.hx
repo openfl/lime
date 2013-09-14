@@ -235,21 +235,45 @@ class WindowHandler {
 
 	 	//Called when the application wants to go to the background and stop
     public function on_pause() { 
-        nme_pause_animation(); 
+        #if lime_native
+            nme_pause_animation(); 
+        #end //lime_native
     } //on_pause
 
         //Called when the application resumes operation from the background
     public function on_resume() { 
-        nme_resume_animation();  
+        #if lime_native
+            nme_resume_animation();  
+         #end //lime_native
     } //on_resume
 
         // Terminates the process straight away, bypassing graceful shutdown
-    public function on_force_close() {  
-        nme_terminate();
+    public function on_force_close() {
+        #if lime_native
+            nme_terminate();
+        #end //lime_native
     } //on_force_close
+
+    public function openURL( _url:String ) {
+
+        #if lime_native
+            nme_get_url( _url );
+        #end //lime_native
+
+        #if lime_html5
+        
+            untyped __js__('
+                var win = window.open( _url, "_blank" );
+                win.focus();
+            ');
+
+        #end //lime_html5
+
+    } //openURL
 
 
 //nme functions
+#if lime_native
 
     private static var nme_stage_get_stage_width    = Libs.load("nme","nme_stage_get_stage_width",  1);
     private static var nme_stage_get_stage_height   = Libs.load("nme","nme_stage_get_stage_height",  1);
@@ -260,6 +284,7 @@ class WindowHandler {
     private static var nme_resume_animation         = Libs.load("nme","nme_resume_animation",   0);
     private static var nme_terminate                = Libs.load("nme","nme_terminate", 0);
     private static var nme_close                    = Libs.load("nme","nme_close", 0);
+    private static var nme_get_url                  = Libs.load("nme","nme_get_url", 1);
 
         //Cursor control (desktop only obviously)
     private static var nme_stage_show_cursor                         = Libs.load("nme","nme_stage_show_cursor", 2);
@@ -269,5 +294,7 @@ class WindowHandler {
         //Multitouch
     private static var nme_stage_get_multitouch_supported   = Libs.load("nme","nme_stage_get_multitouch_supported",  1);
     private static var nme_stage_set_multitouch_active      = Libs.load("nme","nme_stage_set_multitouch_active",  2);
+
+#end //lime_native
 
 }
