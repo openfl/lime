@@ -5,7 +5,7 @@ import lime.utils.Libs;
 class Ext {
 
     public static function drawBuffers( n:Int, buffers:Int ){ 
-        #if !android
+        #if luxe_gl_extensions
             return nme_gl_ext_draw_buffers( n, buffers );
         #end
     }
@@ -55,7 +55,7 @@ class Ext {
     public static inline var MAX_COLOR_ATTACHMENTS = 0x8CDF;
     public static inline var MAX_DRAW_BUFFERS      = 0x8824;
 
-#if !android
+#if luxe_gl_extensions
     private static var nme_gl_ext_draw_buffers = load("nme_gl_ext_draw_buffers", 2);
 #end 
 
