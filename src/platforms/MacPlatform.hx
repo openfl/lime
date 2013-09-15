@@ -10,6 +10,7 @@ import helpers.NekoHelper;
 import helpers.PathHelper;
 import helpers.PlatformHelper;
 import helpers.ProcessHelper;
+import project.Architecture;
 import project.AssetType;
 import project.OpenFLProject;
 import project.Platform;
@@ -24,6 +25,7 @@ class MacPlatform implements IPlatformTool {
 	private var contentDirectory:String;
 	private var executableDirectory:String;
 	private var executablePath:String;
+	private var is64:Bool;
 	private var targetDirectory:String;
 	private var useNeko:Bool;
 	
@@ -86,7 +88,7 @@ class MacPlatform implements IPlatformTool {
 		var context = project.templateContext;
 		context.NEKO_FILE = targetDirectory + "/obj/ApplicationMain.n";
 		context.CPP_DIR = targetDirectory + "/obj/";
-		context.BUILD_DIR = project.app.path + "/mac";
+		context.BUILD_DIR = project.app.path + "/mac" + (is64 ? "64" : "");
 		
 		return context;
 		
@@ -95,11 +97,21 @@ class MacPlatform implements IPlatformTool {
 	
 	private function initialize (project:OpenFLProject):Void {
 		
-		targetDirectory = project.app.path + "/mac/cpp";
+		for (architecture in project.architectures) {
+			
+			if (architecture == Architecture.X64) {
+				
+				is64 = true;
+				
+			}
+			
+		}
+		
+		targetDirectory = project.app.path + "/mac" + (is64 ? "64" : "") + "/cpp";
 		
 		if (project.targetFlags.exists ("neko") || project.target != PlatformHelper.hostPlatform) {
 			
-			targetDirectory = project.app.path + "/mac/neko";
+			targetDirectory = project.app.path + "/mac" + (is64 ? "64" : "") + "/neko";
 			useNeko = true;
 			
 		}
@@ -129,6 +141,12 @@ class MacPlatform implements IPlatformTool {
 		initialize (project);
 		
 		project = project.clone ();
+		
+		if (is64) {
+			
+			project.haxedefs.set ("HXCPP_M64", 1);
+			
+		}
 
 		if (!useNeko) {
 
@@ -158,7 +176,7 @@ class MacPlatform implements IPlatformTool {
 		
 		for (ndll in project.ndlls) {
 			
-			FileHelper.copyLibrary (ndll, "Mac", "", (ndll.haxelib != null && ndll.haxelib.name == "hxcpp") ? ".dylib" : ".ndll", executableDirectory, project.debug);
+			FileHelper.copyLibrary (ndll, "Mac" + (is64 ? "64" : ""), "", (ndll.haxelib != null && ndll.haxelib.name == "hxcpp") ? ".dylib" : ".ndll", executableDirectory, project.debug);
 			
 		}
 		
