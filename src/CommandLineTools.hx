@@ -673,8 +673,15 @@ class CommandLineTools {
 				
 			case MAC:
 				
-				untyped $loader.path = $array (path + "Mac/", $loader.path);
-				untyped $loader.path = $array (path + "Mac64/", $loader.path);
+				if (PlatformHelper.hostArchitecture == Architecture.X64) {
+					
+					untyped $loader.path = $array (path + "Mac64/", $loader.path);
+					
+				} else {
+					
+					untyped $loader.path = $array (path + "Mac/", $loader.path);
+					
+				}
 				
 			case LINUX:
 				

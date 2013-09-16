@@ -36,7 +36,7 @@ class PlatformHelper {
 						
 					}
 					
-				case LINUX:
+				case LINUX, MAC:
 					
 					var process = new Process ("uname", [ "-m" ]);
 					var output = process.stdout.readAll ().toString ();
@@ -53,10 +53,6 @@ class PlatformHelper {
 						_hostArchitecture = Architecture.X86;
 						
 					}
-					
-				case MAC:
-					
-					_hostArchitecture = Architecture.X86;
 					
 				default:
 					

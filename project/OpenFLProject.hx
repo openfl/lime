@@ -135,7 +135,7 @@ class OpenFLProject {
 				
 				platformType = PlatformType.DESKTOP;
 				
-				if (target == Platform.LINUX) {
+				if (target == Platform.LINUX || target == Platform.MAC) {
 					
 					architectures = [ PlatformHelper.hostArchitecture ];
 					
