@@ -260,6 +260,7 @@ class LiME {
                 window.set_active(true);
 
             case SystemEvents.deactivate:
+                trace(window);
                 window.set_active(false);
 
             case SystemEvents.resize:
@@ -419,7 +420,7 @@ class LiME {
     public var verbose : Bool = false;
     public var more_verbose : Bool = false;
     public function _debug(value:Dynamic, _verbose:Bool = false, _more_verbose:Bool = false) { 
-        if(log) {            
+        if(log) {
             if(verbose && _verbose && !_more_verbose) {
                 trace(value);
             } else 
