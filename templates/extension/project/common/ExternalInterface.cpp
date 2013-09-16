@@ -25,7 +25,11 @@ DEFINE_PRIM (::extensionLowerCase::_sample_method, 1);
 
 
 
-extern "C" void ::extensionLowerCase::_main () {}
+extern "C" void ::extensionLowerCase::_main () {
+	
+	val_int(0); // Fix Neko init
+	
+}
 DEFINE_ENTRY_POINT (::extensionLowerCase::_main);
 
 
