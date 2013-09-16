@@ -367,7 +367,7 @@ class IOSPlatform implements IPlatformTool {
 			
 			for (ndll in project.ndlls) {
 				
-				if (ndll.haxelib != null) {
+				//if (ndll.haxelib != null) {
 					
 					var releaseLib = PathHelper.getLibraryPath (ndll, "iPhone", "lib", libExt);
 					var debugLib = PathHelper.getLibraryPath (ndll, "iPhone", "lib", libExt);
@@ -386,7 +386,7 @@ class IOSPlatform implements IPlatformTool {
 						
 					}
 					
-				}
+				//}
 				
 			}
 			
