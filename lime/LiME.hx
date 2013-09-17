@@ -100,7 +100,7 @@ class LiME {
         window.ready();
 
             //For the asset class to keep lists and such
-        nme.AssetData.initialize();
+        lime.AssetData.initialize();
 
             //Create our input message handler class 
         input = new InputHandler( this );

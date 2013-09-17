@@ -1,4 +1,4 @@
-package nme;
+package lime;
 
 
 import lime.utils.Assets;
@@ -6,16 +6,14 @@ import lime.utils.Assets;
 
 class AssetData {
 
-	
+	private static var initialized:Bool = false;
+
 	public static var className = new Map <String, Dynamic> ();
 	public static var library = new Map <String, LibraryType> ();
 	public static var path = new Map <String, String> ();
 	public static var type = new Map <String, AssetType> ();
 	
-	private static var initialized:Bool = false;
-	
-	
-	public static function initialize ():Void {
+	public static function initialize():Void {
 		
 		if (!initialized) {
 			
@@ -26,12 +24,12 @@ class AssetData {
 			::end::::end::
 			initialized = true;
 			
-		}
+		} //initialized
 		
-	}
+	} //initialize
 	
 	
-}
+} //AssetData
 
 
 ::foreach assets::::if (type == "font")::class NME_::flatName:: extends flash.text.Font { }::end::
