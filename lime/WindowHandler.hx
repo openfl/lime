@@ -37,6 +37,7 @@ class WindowHandler {
 
                                                 //optional flags
 
+                    ( lib.config.fullscreen     ? Window.FULLSCREEN     : 0) |  
                     ( lib.config.resizable      ? Window.RESIZABLE      : 0) |  
                     ( lib.config.AA             ? Window.HW_AA          : 0) | 
                     ( lib.config.AA_HIRES       ? Window.HW_AA_HIRES    : 0) | 

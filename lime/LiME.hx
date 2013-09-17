@@ -260,7 +260,6 @@ class LiME {
                 window.set_active(true);
 
             case SystemEvents.deactivate:
-                trace(window);
                 window.set_active(false);
 
             case SystemEvents.resize:
