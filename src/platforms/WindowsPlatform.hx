@@ -152,6 +152,17 @@ class WindowsPlatform implements IPlatformTool {
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", targetDirectory + "/haxe", context);
 		FileHelper.recursiveCopyTemplate (project.templatePaths, (useNeko ? "neko" : "cpp") + "/hxml", targetDirectory + "/haxe", context);
 		
+		for (dependency in project.dependencies) {
+			
+			if (StringTools.endsWith (dependency, ".dll")) {
+				
+				var fileName = Path.withoutDirectory (dependency);
+				FileHelper.copyIfNewer (dependency, applicationDirectory + "/" + fileName);
+				
+			}
+			
+		}
+		
 		for (ndll in project.ndlls) {
 			
 			FileHelper.copyLibrary (ndll, "Windows", "", (ndll.haxelib != null && ndll.haxelib.name == "hxcpp") ? ".dll" : ".ndll", applicationDirectory, project.debug);

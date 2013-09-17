@@ -1167,7 +1167,7 @@ class ProjectXMLParser extends OpenFLProject {
 					
 					case "section":
 						
-						parseXML (element, "");
+						parseXML (element, "", extensionPath);
 					
 					case "certificate":
 						
@@ -1205,7 +1205,7 @@ class ProjectXMLParser extends OpenFLProject {
 						
 						var name = substitute (element.att.name);
 						
-						if (StringTools.endsWith (name, ".a")) {
+						if (StringTools.endsWith (name, ".a") || StringTools.endsWith (name, ".dll")) {
 							
 							dependencies.push (PathHelper.combine (extensionPath, name));
 							
