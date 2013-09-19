@@ -11,7 +11,7 @@ class PlatformConfig {
 	public var ios:IOSConfig;
 	
 	private static var defaultAndroid:AndroidConfig = { installLocation: "preferExternal", minimumSDKVersion: 8, targetSDKVersion: 8 };
-	private static var defaultIOS:IOSConfig = { compiler: "gcc", deployment: /*3.2*/ 5, device: IOSConfigDevice.UNIVERSAL, linkerFlags: "", prerenderedIcon: false };
+	private static var defaultIOS:IOSConfig = { compiler: "clang", deployment: /*3.2*/ 5, device: IOSConfigDevice.UNIVERSAL, linkerFlags: "", prerenderedIcon: false };
 	
 	
 	public function new () {
