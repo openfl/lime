@@ -213,7 +213,7 @@ class IOSPlatform implements IPlatformTool {
 		}
 		
 		context.IOS_COMPILER = project.config.ios.compiler;
-		context.IOS_LINKER_FLAGS = project.config.ios.linkerFlags.split (" ").join (", ");
+		context.IOS_LINKER_FLAGS = "\"-stdlib=libc++\"," + project.config.ios.linkerFlags.split (" ").join (", ");
 		
 		switch (project.window.orientation) {
 			
