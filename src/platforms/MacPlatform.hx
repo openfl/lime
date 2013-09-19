@@ -41,8 +41,8 @@ class MacPlatform implements IPlatformTool {
 		
 		if (useNeko) {
 			
-			NekoHelper.createExecutable (project.templatePaths, "Mac", targetDirectory + "/obj/ApplicationMain.n", executablePath);
-			NekoHelper.copyLibraries (project.templatePaths, "Mac", executableDirectory);
+			NekoHelper.createExecutable (project.templatePaths, "Mac" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
+			NekoHelper.copyLibraries (project.templatePaths, "Mac" + (is64 ? "64" : ""), executableDirectory);
 			
 		} else {
 			
@@ -97,22 +97,29 @@ class MacPlatform implements IPlatformTool {
 	
 	private function initialize (project:OpenFLProject):Void {
 		
-		for (architecture in project.architectures) {
+		if (project.targetFlags.exists ("neko") || project.target != PlatformHelper.hostPlatform) {
 			
-			if (architecture == Architecture.X64) {
-				
-				is64 = true;
-				
-			}
+			useNeko = true;
 			
 		}
 		
-		targetDirectory = project.app.path + "/mac" + (is64 ? "64" : "") + "/cpp";
-		
-		if (project.targetFlags.exists ("neko") || project.target != PlatformHelper.hostPlatform) {
+		if (!useNeko) {
+			
+			for (architecture in project.architectures) {
+				
+				if (architecture == Architecture.X64) {
+					
+					is64 = true;
+					
+				}
+				
+			}
+			
+			targetDirectory = project.app.path + "/mac" + (is64 ? "64" : "") + "/cpp";
+			
+		} else {
 			
 			targetDirectory = project.app.path + "/mac" + (is64 ? "64" : "") + "/neko";
-			useNeko = true;
 			
 		}
 		
