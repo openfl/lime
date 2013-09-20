@@ -98,7 +98,7 @@ class AudioHandler {
 		}
 
 		#if lime_native
-			var _handle = nme_sound_from_file( nme.AssetData.path.get(_file), _music);
+			var _handle = nme_sound_from_file( lime.AssetData.path.get(_file), _music);
 			var _sound = new Sound(_handle);
 			sounds.set(_name, _sound);
 		#end //lime_native
