@@ -171,6 +171,8 @@ class IOSHelper {
             
         }
         
+        var xcodeVersion = getXcodeVersion ();
+        
 		if (project.targetFlags.exists ("simulator")) {
 			
 			var applicationPath = "";
@@ -193,7 +195,6 @@ class IOSHelper {
 				
 			}
 			
-			var xcodeVersion = getXcodeVersion ();
 			var template = "bin/ios-sim";
 			
 			if (xcodeVersion.indexOf ("5.") > -1) {
@@ -224,13 +225,15 @@ class IOSHelper {
             var launcher = PathHelper.findTemplate (project.templatePaths, "bin/ios-deploy");
 	        Sys.command ("chmod", [ "+x", launcher ]);
 	        
-	        if (project.debug) {
+	        if (xcodeVersion.charAt (0) == "4") {
 	            
 	            ProcessHelper.runCommand ("", launcher, [ "install", "--debug", "--timeout", "5", "--bundle", FileSystem.fullPath (applicationPath) ]);
 	            
 	        } else {
 	            
-	            ProcessHelper.runCommand ("", launcher, [ "install", "--debug", "--timeout", "5", "--bundle", FileSystem.fullPath (applicationPath) ]);
+	            // ios-deploy does not support debugging (running) installed applications with Xcode 5, since GDB was removed
+	            
+	            ProcessHelper.runCommand ("", launcher, [ "install", "--timeout", "5", "--bundle", FileSystem.fullPath (applicationPath) ]);
 	            
 	        }
             

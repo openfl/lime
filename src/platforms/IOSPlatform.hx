@@ -67,6 +67,8 @@ class IOSPlatform implements IPlatformTool {
 	private function generateContext (project:OpenFLProject):Dynamic {
 		
 		project = project.clone ();
+		
+		project.sources.unshift ("");
 		project.sources = PathHelper.relocatePaths (project.sources, PathHelper.combine (project.app.path, "ios/" + project.app.file + "/haxe"));
 		//project.dependencies.push ("stdc++");
 		
@@ -416,14 +418,14 @@ class IOSPlatform implements IPlatformTool {
 			
 			if (asset.type != AssetType.TEMPLATE) {
 				
-				var flatAssetPath:String = projectDirectory + "/assets/" + asset.flatName;
-				var sourceAssetPath:String = projectDirectory + "haxe/" + asset.sourcePath;
+				var targetPath = projectDirectory + "/assets/" + asset.flatName;
+				//var sourceAssetPath:String = projectDirectory + "haxe/" + asset.sourcePath;
 				
-				PathHelper.mkdir (Path.directory (flatAssetPath));
-				FileHelper.copyIfNewer (asset.sourcePath, flatAssetPath);
+				PathHelper.mkdir (Path.directory (targetPath));
+				FileHelper.copyAssetIfNewer (asset, targetPath);
 				
-				PathHelper.mkdir (Path.directory (sourceAssetPath));
-				FileHelper.linkFile (flatAssetPath, sourceAssetPath, true, true);
+				//PathHelper.mkdir (Path.directory (sourceAssetPath));
+				//FileHelper.linkFile (flatAssetPath, sourceAssetPath, true, true);
 				
 			} else {
 				
