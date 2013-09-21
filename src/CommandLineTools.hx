@@ -295,82 +295,102 @@ class CommandLineTools {
 		}
 		
 		Sys.println ("");
-		Sys.println (" Usage : " + alias + " setup (target)");
-		Sys.println (" Usage : " + alias + " help");
-		Sys.println (" Usage : " + alias + " [clean|update|build|run|test|display] <project> (target) [options]");
-		Sys.println (" Usage : " + alias + " create project <package> [options]");
-		Sys.println (" Usage : " + alias + " create extension <name>");
-		Sys.println (" Usage : " + alias + " create <sample>");
-		Sys.println (" Usage : " + alias + " rebuild <extension> (targets)");
+		Sys.println (" Usage: " + alias + " setup (target)");
+		Sys.println (" Usage: " + alias + " help");
+		Sys.println (" Usage: " + alias + " [clean|update|build|run|test|display] <project> (target) [options]");
+		Sys.println (" Usage: " + alias + " create project <package> [options]");
+		Sys.println (" Usage: " + alias + " create extension <name>");
+		Sys.println (" Usage: " + alias + " create <sample>");
+		Sys.println (" Usage: " + alias + " rebuild <extension> (targets)");
 		//Sys.println (" Usage : nme document <project> (target)");
 		//Sys.println (" Usage : nme generate <args> [options]");
 		//Sys.println (" Usage : nme new file.nmml name1=value1 name2=value2 ...");
 		Sys.println ("");
-		Sys.println (" Commands : ");
+		Sys.println (" Commands: ");
 		Sys.println ("");
-		Sys.println ("  setup : Setup " + name + " or a specific target");
-		Sys.println ("  help : Show this information");
-		Sys.println ("  clean : Remove the target build directory if it exists");
-		Sys.println ("  update : Copy assets for the specified project/target");
-		Sys.println ("  build : Compile and package for the specified project/target");
-		Sys.println ("  run : Install and run for the specified project/target");
-		Sys.println ("  test : Update, build and run in one command");
-		Sys.println ("  display : Display information for the specified project/target");
-		Sys.println ("  create : Create a new project or extension using templates");
-		Sys.println ("  rebuild : Recompile native binaries for extensions");
+		Sys.println ("  setup -- Setup " + name + " or a specific target");
+		Sys.println ("  help -- Show this information");
+		Sys.println ("  clean -- Remove the target build directory if it exists");
+		Sys.println ("  update -- Copy assets for the specified project/target");
+		Sys.println ("  build -- Compile and package for the specified project/target");
+		Sys.println ("  run -- Install and run for the specified project/target");
+		Sys.println ("  test -- Update, build and run in one command");
+		Sys.println ("  display -- Display information for the specified project/target");
+		Sys.println ("  create -- Create a new project or extension using templates");
+		Sys.println ("  rebuild -- Recompile native binaries for extensions");
 		//Sys.println ("  document : Generate documentation using haxedoc");
 		//Sys.println ("  generate : Tools to help create source code automatically");
 		Sys.println ("");
-		Sys.println (" Targets : ");
+		Sys.println (" Targets: ");
 		Sys.println ("");
-		Sys.println ("  android : Create Google Android applications");
-		Sys.println ("  blackberry : Create BlackBerry applications");
+		Sys.println ("  android -- Create Google Android applications");
+		Sys.println ("  blackberry -- Create BlackBerry applications");
 		//Sys.println ("  emscripten : Create Emscripten applications");
 		//Sys.println ("  cpp : Create application for the system you are compiling on");
 		
 		if (!userDefines.exists ("nme")) {
 			
-			Sys.println ("  flash : Create SWF applications for Adobe Flash Player");
-			Sys.println ("  html5 : Create HTML5 canvas applications");
+			Sys.println ("  flash -- Create SWF applications for Adobe Flash Player");
+			Sys.println ("  html5 -- Create HTML5 canvas applications");
 			
 		}
 		
-		Sys.println ("  ios : Create Apple iOS applications");
-		Sys.println ("  linux : Create Linux applications");
-		Sys.println ("  mac : Create Apple Mac OS X applications");
+		Sys.println ("  ios -- Create Apple iOS applications");
+		Sys.println ("  linux -- Create Linux applications");
+		Sys.println ("  mac -- Create Apple Mac OS X applications");
 		//Sys.println ("  webos : Create HP webOS applications");
-		Sys.println ("  windows : Create Microsoft Windows applications");
+		Sys.println ("  windows -- Create Microsoft Windows applications");
 		Sys.println ("");
-		Sys.println (" Options : ");
+		Sys.println (" Options: ");
 		Sys.println ("");
-		Sys.println ("  -D : Specify a define to use when processing other commands");
-		Sys.println ("  -debug : Use debug configuration instead of release");
-		Sys.println ("  -verbose : Print additional information (when available)");
-		Sys.println ("  -clean : Add a \"clean\" action before running the current command");
-		Sys.println ("  -xml : Generate XML type information, useful for documentation");
-		Sys.println ("  [windows|mac|linux] -neko : Build with Neko instead of C++");
-		Sys.println ("  [linux] -64 : Compile for 64-bit instead of OS default");
-		Sys.println ("  [linux] -32 : Compile for 32-bit instead of OS default");
-		//Sys.println ("  [android] -arm7 : Compile for arm-7a and arm5");
-		//Sys.println ("  [android] -arm7-only : Compile for arm-7a for testing");
-		Sys.println ("  [ios|blackberry] -simulator : Build/test for the device simulator");
-		Sys.println ("  [ios] -simulator -ipad : Build/test for the iPad Simulator");
-		Sys.println ("  [android] -emulator : Build/test for the device emulator");
-		//Sys.println ("  [flash] -web : Generate web template files");
-		//Sys.println ("  [flash] -chrome : Generate Google Chrome app template files");
-		//Sys.println ("  [flash] -opera : Generate an Opera Widget");
+		Sys.println ("  -D[value] -- Specify a define to use when processing other commands");
+		Sys.println ("  -debug -- Use debug configuration instead of release");
+		Sys.println ("  -verbose -- Print additional information (when available)");
+		Sys.println ("  -clean -- Add a \"clean\" action before running the current command");
+		Sys.println ("  -xml -- Generate XML type information, useful for documentation");
+		Sys.println ("  (windows|mac|linux) -neko -- Build with Neko instead of C++");
+		Sys.println ("  (mac|linux) -32 -- Compile for 32-bit instead of the OS default");
+		Sys.println ("  (mac|linux) -64 -- Compile for 64-bit instead of the OS default");
+		Sys.println ("  (ios|blackberry) -simulator -- Build/test for the device simulator");
+		Sys.println ("  (ios) -simulator -ipad -- Build/test for the iPad Simulator");
+		Sys.println ("  (android) -emulator -- Build/test for the device emulator");
 		
 		if (!userDefines.exists ("nme")) {
 			
-			Sys.println ("  [html5] -minify : Minify output using the Google Closure compiler");
-			Sys.println ("  [html5] -minify -yui : Minify output using the YUI compressor");
+			Sys.println ("  (html5) -minify -- Minify output using the Google Closure compiler");
+			Sys.println ("  (html5) -minify -yui -- Minify output using the YUI compressor");
 			
 		}
 		
-		Sys.println ("  (display) -hxml : Print HXML information for the project");
-		Sys.println ("  (display) -nmml : Print NMML information for the project");
+		
+		//Sys.println ("  [android] -arm7 : Compile for arm-7a and arm5");
+		//Sys.println ("  [android] -arm7-only : Compile for arm-7a for testing");
+		
+		//Sys.println ("  [flash] -web : Generate web template files");
+		//Sys.println ("  [flash] -chrome : Generate Google Chrome app template files");
+		//Sys.println ("  [flash] -opera : Generate an Opera Widget");
+		//Sys.println ("  (display) -hxml -- Print HXML information for the project");
+		//Sys.println ("  (display) -nmml -- Print NMML information for the project");
 		//Sys.println ("  (generate) -java-externs : Generate Haxe classes from compiled Java");
-		Sys.println ("  (run|test) -args a0 a1 ... : Pass remaining arguments to executable");
+		
+		if (userDefines.exists ("nme")) {
+			
+			Sys.println ("  (run|test) -args a0 a1... -- Pass remaining arguments to executable");
+			
+		}
+		
+		Sys.println ("");
+		Sys.println (" Project Overrides: ");
+		Sys.println ("");
+		Sys.println ("  --app-[option]=[value] -- Override a project <app /> setting");
+		Sys.println ("  --meta-[option]=[value] -- Override a project <meta /> setting");
+		Sys.println ("  --window-[option]=[value] -- Override a project <window /> setting");
+		Sys.println ("  --dependency=[value] -- Add an additional <dependency /> value");
+		Sys.println ("  --haxedef=[value] -- Add an additional <haxedef /> value");
+		Sys.println ("  --haxeflag=[value] -- Add an additional <haxeflag /> value");
+		Sys.println ("  --haxelib=[value] -- Add an additional <haxelib /> value");
+		Sys.println ("  --source=[value] -- Add an additional <source /> value");
+		Sys.println ("  --certificate-[option]=[value] -- Override a project <certificate /> setting");
 		
 	}
 	

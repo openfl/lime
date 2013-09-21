@@ -157,6 +157,12 @@ class CreateTemplate {
 		var sampleName = words[0];
 		var samplePath;
 		
+		if (sampleName == "samples" && words.length > 1) {
+			
+			sampleName = words[1];
+			
+		}
+		
 		if (userDefines.exists ("nme")) {
 			
 			samplePath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("nme")) + "/samples", sampleName);
@@ -184,11 +190,14 @@ class CreateTemplate {
 	public static function listSamples (userDefines:Map<String, Dynamic>) {
 		
 		var alias = "openfl";
+		var name = "OpenFL";
 		var samplesPath;
 		
 		if (userDefines.exists ("nme")) {
 			
 			alias = "nme";
+			name = "NME";
+			
 			samplesPath = PathHelper.getHaxelib (new Haxelib ("nme")) + "/samples";
 			
 		} else {
@@ -197,23 +206,20 @@ class CreateTemplate {
 			
 		}
 		
-		Sys.println ("You must specify 'project' or a sample name when using the 'create' command.");
+		Sys.println ("You must specify a template when using the 'create' command.");
 		Sys.println ("");
-		Sys.println ("Usage: ");
+		Sys.println ("Usage: " + alias + " create project \"com.package.name\" \"Company Name\"");
+		Sys.println ("Usage: " + alias + " create extension \"ExtensionName\"");
+		Sys.println ("Usage: " + alias + " create sample SampleName");
 		Sys.println ("");
-		Sys.println (" " + alias + " create project \"com.package.name\" \"Company Name\"");
-		Sys.println (" " + alias + " create extension \"ExtensionName\"");
-		Sys.println (" " + alias + " create SampleName");
-		Sys.println ("");
-		Sys.println ("");
-		Sys.println ("Available samples:");
+		Sys.println (" Available samples:");
 		Sys.println ("");
 		
 		for (name in FileSystem.readDirectory (samplesPath)) {
 			
 			if (!StringTools.startsWith (name, ".") && FileSystem.isDirectory (samplesPath + "/" + name)) {
 				
-				Sys.println (" - " + name);
+				Sys.println ("  - " + name);
 				
 			}
 			
