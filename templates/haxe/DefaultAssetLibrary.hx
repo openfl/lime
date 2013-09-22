@@ -11,6 +11,12 @@ import flash.utils.ByteArray;
 import haxe.Unserializer;
 import openfl.Assets;
 
+#if (flash || js)
+import flash.display.Loader;
+import flash.events.Event;
+import flash.net.URLLoader;
+#end
+
 
 class DefaultAssetLibrary extends AssetLibrary {
 	
@@ -176,6 +182,126 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#else
 		
 		return new Sound (new URLRequest (path.get (id)), null, type.get (id) == MUSIC);
+		
+		#end
+		
+	}
+	
+	
+	public override function loadBitmapData (id:String, handler:BitmapData -> Void):Void {
+		
+		#if (flash || js)
+		
+		if (path.exists (id)) {
+			
+			var loader = new Loader ();
+			loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event:Event) {
+				
+				handler (cast (event.currentTarget.content, Bitmap).bitmapData);
+				
+			});
+			loader.load (new URLRequest (path.get (id)));
+			
+		} else {
+			
+			handler (getBitmapData (id));
+			
+		}
+		
+		#else
+		
+		handler (getBitmapData (id));
+		
+		#end
+		
+	}
+	
+	
+	public override function loadBytes (id:String, handler:ByteArray -> Void):Void {
+		
+		#if (flash || js)
+		
+		if (path.exists (id)) {
+			
+			var loader = new URLLoader ();
+			loader.addEventListener (Event.COMPLETE, function (event:Event) {
+				
+				var bytes = new ByteArray ();
+				bytes.writeUTFBytes (event.currentTarget.data);
+				bytes.position = 0;
+				
+				handler (bytes);
+				
+			});
+			loader.load (new URLRequest (path.get (id)));
+			
+		} else {
+			
+			handler (getBytes (id));
+			
+		}
+		
+		#else
+		
+		handler (getBytes (id));
+		
+		#end
+		
+	}
+	
+	
+	public override function loadFont (id:String, handler:Font -> Void):Void {
+		
+		#if (flash || js)
+		
+		/*if (path.exists (id)) {
+			
+			var loader = new Loader ();
+			loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event) {
+				
+				handler (cast (event.currentTarget.content, Bitmap).bitmapData);
+				
+			});
+			loader.load (new URLRequest (path.get (id)));
+			
+		} else {*/
+			
+			handler (getFont (id));
+			
+		//}
+		
+		#else
+		
+		handler (getFont (id));
+		
+		#end
+		
+	}
+	
+	
+	public override function loadSound (id:String, handler:Sound -> Void):Void {
+		
+		#if (flash || js)
+		
+		/*if (path.exists (id)) {
+			
+			var loader = new Loader ();
+			loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event) {
+				
+				handler (cast (event.currentTarget.content, Bitmap).bitmapData);
+				
+			});
+			loader.load (new URLRequest (path.get (id)));
+			
+		} else {*/
+			
+			handler (getSound (id));
+			
+		//}
+		
+		#else
+		
+		handler (getSound (id));
 		
 		#end
 		
