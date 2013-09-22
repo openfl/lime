@@ -425,11 +425,11 @@ class CommandLineTools {
 			//Sys.println ("       |_|                           ");
 			//Sys.println ("");
 			
-			Sys.println ("   ____                    ______ _ ");
-			Sys.println ("  / __ \\____  ___  ____   / ____/ / ");
-			Sys.println (" / / / / __ \\/ _ \\/ __ \\ / /__ / /  ");
-			Sys.println ("/ /_/ / /_/ /  __/ / / // ___// /___");
-			Sys.println ("\\____/  ___/\\___/_/ /_//_/   /_____/");
+			Sys.println ("   ____                   ______ _ ");
+			Sys.println ("  / __ \\____  ___  ____  / ____/ / ");
+			Sys.println (" / / / / __ \\/ _ \\/ __ \\/ /__ / /  ");
+			Sys.println ("/ /_/ / /_/ /  __/ / / / ___// /___");
+			Sys.println ("\\____/  ___/\\___/_/ /_/_/   /_____/");
 			Sys.println ("    /_/");
 			//=Sys.println ("");
 			

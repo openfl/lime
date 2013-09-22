@@ -1,6 +1,7 @@
 package platforms;
 
 
+import flash.display.BitmapData;
 import haxe.io.Path;
 import haxe.Template;
 import helpers.ArrayHelper;
@@ -318,8 +319,8 @@ class IOSPlatform implements IPlatformTool {
 		PathHelper.mkdir (projectDirectory + "/haxe");
 		PathHelper.mkdir (projectDirectory + "/haxe/nme/installer");
 		
-		var iconNames = [ "Icon.png", "Icon@2x.png", "Icon-72.png", "Icon-72@2x.png" ];
-		var iconSizes = [ 57, 114, 72, 144 ];
+		var iconNames = [ "Icon.png", "Icon@2x.png", "Icon-60.png", "Icon-60@2x.png", "Icon-72.png", "Icon-72@2x.png", "Icon-76.png", "Icon-76@2x.png" ];
+		var iconSizes = [ 57, 114, 60, 120, 72, 144, 76, 152 ];
 		
 		context.HAS_ICON = true;
 		
@@ -333,12 +334,37 @@ class IOSPlatform implements IPlatformTool {
 			
 		}
 		
-		for (splashScreen in project.splashScreens) {
+		var splashScreenNames = [ "Default.png", "Default@2x.png", "Default-568h@2x.png", "Default-Portrait.png", "Default-Landscape.png", "Default-Portrait@2x.png", "Default-Landscape@2x.png" ];
+		var splashScreenWidth = [ 320, 640, 640, 768, 1024, 1536, 2048 ];
+		var splashScreenHeight = [ 480, 960, 1136, 1024, 768, 2048, 1536 ];
+		
+		for (i in 0...splashScreenNames.length) {
 			
-			FileHelper.copyFile (splashScreen.path, PathHelper.combine (projectDirectory, Path.withoutDirectory (splashScreen.path)));
-			context.HAS_LAUNCH_IMAGE = true;
+			var width = splashScreenWidth[i];
+			var height = splashScreenHeight[i];
+			var match = false;
+			
+			for (splashScreen in project.splashScreens) {
+				
+				if (splashScreen.width == width && splashScreen.height == height && Path.extension (splashScreen.path) == "png") {
+					
+					FileHelper.copyFile (splashScreen.path, PathHelper.combine (projectDirectory, splashScreenNames[i]));
+					match = true;
+					
+				}
+				
+			}
+			
+			if (!match) {
+				
+				var bitmapData = new BitmapData (width, height, false, (0xFF << 24) | (project.window.background & 0xFFFFFF));
+				File.saveBytes (PathHelper.combine (projectDirectory, splashScreenNames[i]), bitmapData.encode ("png"));
+				
+			}
 			
 		}
+		
+		context.HAS_LAUNCH_IMAGE = true;
 		
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "iphone/PROJ/haxe", projectDirectory + "/haxe", context);
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", projectDirectory + "/haxe", context);

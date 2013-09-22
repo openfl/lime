@@ -957,7 +957,7 @@ class ProjectXMLParser extends OpenFLProject {
 						ndll.extensionPath = extensionPath;
 						ndlls.push (ndll);
 					
-					case "launchImage":
+					case "launchImage", "splashScreen":
 						
 						var name:String = "";
 						
