@@ -323,23 +323,23 @@ class CommandLineTools {
 		Sys.println ("");
 		Sys.println (" Targets: ");
 		Sys.println ("");
-		Sys.println ("  android -- Create Google Android applications");
-		Sys.println ("  blackberry -- Create BlackBerry applications");
+		Sys.println ("  android -- Create an Android application");
+		Sys.println ("  blackberry -- Create a BlackBerry application");
 		//Sys.println ("  emscripten : Create Emscripten applications");
 		//Sys.println ("  cpp : Create application for the system you are compiling on");
 		
 		if (!userDefines.exists ("nme")) {
 			
-			Sys.println ("  flash -- Create SWF applications for Adobe Flash Player");
-			Sys.println ("  html5 -- Create HTML5 canvas applications");
+			Sys.println ("  flash -- Create a Flash SWF application");
+			Sys.println ("  html5 -- Create an HTML5 canvas application");
 			
 		}
 		
-		Sys.println ("  ios -- Create Apple iOS applications");
-		Sys.println ("  linux -- Create Linux applications");
-		Sys.println ("  mac -- Create Apple Mac OS X applications");
+		Sys.println ("  ios -- Create an iOS application");
+		Sys.println ("  linux -- Create a Linux application");
+		Sys.println ("  mac -- Create a Mac OS X application");
 		//Sys.println ("  webos : Create HP webOS applications");
-		Sys.println ("  windows -- Create Microsoft Windows applications");
+		Sys.println ("  windows -- Create a Windows application");
 		Sys.println ("");
 		Sys.println (" Options: ");
 		Sys.println ("");
