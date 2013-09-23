@@ -236,7 +236,7 @@ class AndroidPlatform implements IPlatformTool {
 				
 			} else {
 				
-				FileHelper.copyLibrary (ndll, "Android", "lib", "-v7.so", destination + "/libs/armeabi-v7a", project.debug);
+				FileHelper.copyLibrary (ndll, "Android", "lib", "-v7.so", destination + "/libs/armeabi-v7a", project.debug, ".so");
 				
 			}
 			
