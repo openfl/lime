@@ -17,8 +17,8 @@
 	</files>
 	
 	<set name="name_prefix" value="lib" if="iphone"/>
-	<set name="IOS_ARCH" value="-v7" if="HXCPP_ARMV7"/>
-	<set name="name_extra" value=".iphoneos${IOS_ARCH}" if="iphoneos"/>
+	<set name="ARM_ARCH" value="-v7" if="HXCPP_ARMV7"/>
+	<set name="name_extra" value=".iphoneos${ARM_ARCH}" if="iphoneos"/>
 	<set name="name_extra" value=".iphonesim" if="iphonesim"/>
 	<set name="name_extra" value="-x86" if="simulator" unless="iphonesim" />
 	<set name="tool" value="exe" unless="iphone"/>

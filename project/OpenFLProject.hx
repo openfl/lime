@@ -116,7 +116,7 @@ class OpenFLProject {
 				
 				platformType = PlatformType.MOBILE;
 				
-				if (target == Platform.IOS) {
+				if (target == Platform.IOS || target == Platform.ANDROID) {
 					
 					architectures = [ Architecture.ARMV7 ];
 					
