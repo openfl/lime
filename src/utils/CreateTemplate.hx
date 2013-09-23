@@ -157,7 +157,7 @@ class CreateTemplate {
 		var sampleName = words[0];
 		var samplePath;
 		
-		if (sampleName == "samples" && words.length > 1) {
+		if (sampleName == "sample" && words.length > 1) {
 			
 			sampleName = words[1];
 			
