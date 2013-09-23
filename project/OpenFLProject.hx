@@ -740,6 +740,12 @@ class OpenFLProject {
 				
 			}
 			
+			if (certificate.identity != null) {
+				
+				context.KEY_STORE_IDENTITY = certificate.identity;
+				
+			}
+			
 		}
 		
 		return context;

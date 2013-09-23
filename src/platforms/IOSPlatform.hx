@@ -16,6 +16,7 @@ import helpers.StringHelper;
 import project.Architecture;
 import project.AssetType;
 import project.Haxelib;
+import project.Keystore;
 import project.NDLL;
 import project.OpenFLProject;
 import project.Platform;
@@ -72,6 +73,13 @@ class IOSPlatform implements IPlatformTool {
 		project.sources.unshift ("");
 		project.sources = PathHelper.relocatePaths (project.sources, PathHelper.combine (project.app.path, "ios/" + project.app.file + "/haxe"));
 		//project.dependencies.push ("stdc++");
+		
+		if (project.certificate == null || project.certificate.identity == null) {
+			
+			project.certificate = new Keystore ();
+			project.certificate.identity = "iPhone Developer";
+			
+		}
 		
 		if (project.targetFlags.exists ("xml")) {
 			

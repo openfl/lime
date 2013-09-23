@@ -254,7 +254,15 @@ class IOSHelper {
             
         }
         
-        var commands = [ "-s", "iPhone Developer" ];
+        var identity = "iPhone Developer";
+        
+        if (project.certificate != null && project.certificate.identity != null) {
+			
+			identity = project.certificate.identity;
+			
+		}
+        
+        var commands = [ "-s", identity ];
         
         if (entitlementsPath != null) {
         	

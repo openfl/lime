@@ -1171,33 +1171,42 @@ class ProjectXMLParser extends OpenFLProject {
 					
 					case "certificate":
 						
-						certificate = new Keystore (substitute (element.att.path));
-						
-						if (element.has.type) {
+						if (element.has.path) {
 							
-							certificate.type = substitute (element.att.type);
+							certificate = new Keystore (substitute (element.att.path));
 							
-						}
-						
-						if (element.has.password) {
+							if (element.has.type) {
+								
+								certificate.type = substitute (element.att.type);
+								
+							}
 							
-							certificate.password = substitute (element.att.password);
+							if (element.has.password) {
+								
+								certificate.password = substitute (element.att.password);
+								
+							}
 							
-						}
-						
-						if (element.has.alias) {
+							if (element.has.alias) {
+								
+								certificate.alias = substitute (element.att.alias);
+								
+							}
 							
-							certificate.alias = substitute (element.att.alias);
+							if (element.has.resolve ("alias-password")) {
+								
+								certificate.aliasPassword = substitute (element.att.resolve ("alias-password"));
+								
+							} else if (element.has.alias_password) {
+								
+								certificate.aliasPassword = substitute (element.att.alias_password);
+								
+							}
 							
-						}
-						
-						if (element.has.resolve ("alias-password")) {
+						} else if (element.has.identity) {
 							
-							certificate.aliasPassword = substitute (element.att.resolve ("alias-password"));
-							
-						} else if (element.has.alias_password) {
-							
-							certificate.aliasPassword = substitute (element.att.alias_password);
+							certificate = new Keystore ();
+							certificate.identity = substitute (element.att.identity);
 							
 						}
 					
