@@ -116,6 +116,15 @@ class IOSHelper {
 	}
 	
 	
+	private static function getOSXVersion ():String {
+		
+		var output = ProcessHelper.runProcess ("", "sw_vers", [ "-productVersion" ]);
+		
+		return StringTools.trim (output);
+		
+	}
+	
+	
 	public static function getProvisioningFile ():String {
 		
 		var path = PathHelper.expand ("~/Library/MobileDevice/Provisioning Profiles");
@@ -171,7 +180,7 @@ class IOSHelper {
             
         }
         
-        var xcodeVersion = getXcodeVersion ();
+        
         
 		if (project.targetFlags.exists ("simulator")) {
 			
@@ -195,15 +204,7 @@ class IOSHelper {
 				
 			}
 			
-			var template = "bin/ios-sim";
-			
-			if (xcodeVersion.indexOf ("5.") > -1) {
-				
-				template += "5";
-					
-			}
-			
-			var launcher = PathHelper.findTemplate (project.templatePaths, template);
+			var launcher = PathHelper.findTemplate (project.templatePaths, "bin/ios-sim");
 			Sys.command ("chmod", [ "+x", launcher ]);
 			
 			ProcessHelper.runCommand ("", launcher, [ "launch", FileSystem.fullPath (applicationPath), "--sdk", project.environment.get ("IPHONE_VER"), "--family", family, "--timeout", "60" ] );
@@ -224,6 +225,8 @@ class IOSHelper {
 			
             var launcher = PathHelper.findTemplate (project.templatePaths, "bin/ios-deploy");
 	        Sys.command ("chmod", [ "+x", launcher ]);
+	        
+	        var xcodeVersion = getXcodeVersion ();
 	        
 	        if (xcodeVersion.charAt (0) == "4") {
 	            
