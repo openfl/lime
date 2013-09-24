@@ -76,7 +76,6 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		if (assetType != null) {
 			
-			
 			if (type == BINARY || assetType == type || type == SOUND && (assetType == MUSIC || assetType == SOUND)) {
 				
 				return true;

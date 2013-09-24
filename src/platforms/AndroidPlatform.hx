@@ -173,10 +173,10 @@ class AndroidPlatform implements IPlatformTool {
 				
 				switch (asset.type) {
 					
-					case SOUND, MUSIC:
+					//case SOUND, MUSIC:
 						
-						asset.resourceName = asset.id;
-						targetPath = destination + "/res/raw/" + asset.flatName + "." + Path.extension (asset.targetPath);
+						//asset.resourceName = asset.id;
+						//targetPath = destination + "/res/raw/" + asset.flatName + "." + Path.extension (asset.targetPath);
 					
 					default:
 						
@@ -234,7 +234,9 @@ class AndroidPlatform implements IPlatformTool {
 				
 				FileHelper.copyLibrary (ndll, "Android", "lib", ".so", destination + "/libs/armeabi", project.debug);
 				
-			} else {
+			}
+			
+			if (armv7) {
 				
 				FileHelper.copyLibrary (ndll, "Android", "lib", "-v7.so", destination + "/libs/armeabi-v7a", project.debug, ".so");
 				
