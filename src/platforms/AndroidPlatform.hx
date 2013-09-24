@@ -34,7 +34,7 @@ class AndroidPlatform implements IPlatformTool {
 		var armv5 = project.app.path + "/android/bin/libs/armeabi/libApplicationMain.so";
 		var armv7 = project.app.path + "/android/bin/libs/armeabi-v7a/libApplicationMain.so";
 		
-		if (ArrayHelper.containsValue (project.architectures, Architecture.ARMV6)) {
+		if (ArrayHelper.containsValue (project.architectures, Architecture.ARMV5) || ArrayHelper.containsValue (project.architectures, Architecture.ARMV6)) {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml ] );
 			FileHelper.copyIfNewer (project.app.path + "/android/obj/libApplicationMain" + (project.debug ? "-debug" : "") + ".so", armv5);
@@ -225,7 +225,7 @@ class AndroidPlatform implements IPlatformTool {
 		
 		//SWFHelper.generateSWFClasses (project, project.app.path + "/android/haxe");
 		
-		var armv5 = ArrayHelper.containsValue (project.architectures, Architecture.ARMV6);
+		var armv5 = ArrayHelper.containsValue (project.architectures, Architecture.ARMV5) || ArrayHelper.containsValue (project.architectures, Architecture.ARMV6);
 		var armv7 = ArrayHelper.containsValue (project.architectures, Architecture.ARMV7);
 		
 		for (ndll in project.ndlls) {

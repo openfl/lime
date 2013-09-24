@@ -956,6 +956,22 @@ class ProjectXMLParser extends OpenFLProject {
 						var ndll = new NDLL (name, haxelib, registerStatics);
 						ndll.extensionPath = extensionPath;
 						ndlls.push (ndll);
+						
+					case "architecture":
+						
+						var name = "";
+						
+						if (element.has.name) {
+							
+							name = element.att.name;
+							
+						}
+						
+						if (Reflect.hasField (Architecture, name.toUpperCase ())) {
+							
+							ArrayHelper.addUnique (architectures, Reflect.field (Architecture, name.toUpperCase ()));
+							
+						}
 					
 					case "launchImage", "splashScreen":
 						
