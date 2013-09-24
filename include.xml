@@ -5,7 +5,7 @@
 	<haxedef name="lime_native" if="native" />
 	<!-- <haxeflag name="-D" value="I_LIKE_SQUIRRELS" /> -->
 
-	<section unless="display">
+	
 		
 		<set name="std" value="hxcpp" />
 		<ndll name="std" haxelib="hxcpp" />
@@ -14,8 +14,8 @@
 		
 		<ndll name="nme" />
 
-		<!-- <include haxelib="openfl-tools" /> -->
-		
+	<section unless="display">
+		<include haxelib="openfl-tools" />
 	</section>
 	
 	<templatePath name="buildfiles" />
