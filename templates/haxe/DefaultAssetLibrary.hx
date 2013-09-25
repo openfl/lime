@@ -38,7 +38,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#elseif html5
 		
-		::if (assets != null)::::foreach assets::::if (embed)::::if (type == "font")::className.set ("::id::", nme.NME_::flatName::);::else::path.set ("::id::", "::resourceName::");::end::
+		::if (assets != null)::::foreach assets::::if (embed)::::if (type == "font")::className.set ("::id::", __ASSET__::flatName::);::else::path.set ("::id::", "::resourceName::");::end::
 		type.set ("::id::", Reflect.field (AssetType, "::type::".toUpperCase ()));
 		::end::::end::::end::
 		
@@ -317,7 +317,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 #elseif html5
 
-::foreach assets::::if (type == "font")::class NME_::flatName:: extends flash.text.Font { }::end::
+::foreach assets::::if (type == "font")::class __ASSET__::flatName:: extends flash.text.Font { }::end::
 ::end::
 
 #end
