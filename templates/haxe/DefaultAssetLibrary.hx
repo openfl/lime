@@ -76,11 +76,29 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		if (assetType != null) {
 			
-			if (type == BINARY || assetType == type || type == SOUND && (assetType == MUSIC || assetType == SOUND)) {
+			if (assetType == type || type == SOUND && (assetType == MUSIC || assetType == SOUND)) {
 				
 				return true;
 				
 			}
+			
+			#if flash
+			
+			if ((assetType == BINARY || assetType == TEXT) && type == BINARY) {
+				
+				return true;
+				
+			}
+			
+			#else
+			
+			if (type == BINARY) {
+				
+				return true;
+				
+			}
+			
+			#end
 			
 		}
 		
@@ -112,7 +130,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#if flash
 		
-		return Type.createInstance (className.get (id), []);
+		return cast (Type.createInstance (className.get (id), []), ByteArray);
 		
 		#elseif js
 
