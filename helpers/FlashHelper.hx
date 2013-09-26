@@ -13,6 +13,7 @@ import haxe.io.Path;
 import helpers.LogHelper;
 import helpers.ProcessHelper;
 import project.Asset;
+import project.AssetEncoding;
 import project.AssetType;
 import project.OpenFLProject;
 import sys.io.File;
@@ -245,7 +246,7 @@ class FlashHelper {
 			
 			if (inAsset.data != null) {
 				
-				if (inAsset.isBase64 && Std.is (inAsset.data, String)) {
+				if (inAsset.encoding == AssetEncoding.BASE64) {
 					
 					outTags.push (TBitsJPEG (cid, JDJPEG2 (StringHelper.base64Decode (inAsset.data))));
 					
@@ -412,7 +413,7 @@ class FlashHelper {
 			
 			if (inAsset.data != null) {
 				
-				if (inAsset.isBase64 && Std.is (inAsset.data, String)) {
+				if (inAsset.encoding == AssetEncoding.BASE64) {
 					
 					bytes = StringHelper.base64Decode (inAsset.data);
 					

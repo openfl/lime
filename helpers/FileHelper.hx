@@ -6,6 +6,7 @@ import haxe.io.Path;
 import haxe.Template;
 import helpers.StringHelper;
 import project.Asset;
+import project.AssetEncoding;
 import project.NDLL;
 import sys.io.File;
 import sys.io.FileOutput;
@@ -24,7 +25,7 @@ class FileHelper {
 			
 		} else {
 			
-			if (asset.isBase64 && Std.is (asset.data, String)) {
+			if (asset.encoding == AssetEncoding.BASE64) {
 				
 				File.saveBytes (destination, StringHelper.base64Decode (asset.data));
 				
@@ -55,7 +56,7 @@ class FileHelper {
 			
 		} else {
 			
-			if (asset.isBase64 && Std.is (asset.data, String)) {
+			if (asset.encoding == AssetEncoding.BASE64) {
 				
 				File.saveBytes (destination, StringHelper.base64Decode (asset.data));
 				
