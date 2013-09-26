@@ -245,7 +245,15 @@ class FlashHelper {
 			
 			if (inAsset.data != null) {
 				
-				outTags.push (TBitsJPEG (cid, JDJPEG2 (inAsset.data)));
+				if (inAsset.isBase64 && Std.is (inAsset.data, String)) {
+					
+					outTags.push (TBitsJPEG (cid, JDJPEG2 (StringHelper.base64Decode (inAsset.data))));
+					
+				} else {
+					
+					outTags.push (TBitsJPEG (cid, JDJPEG2 (inAsset.data)));
+					
+				}
 				
 			} else {
 				
@@ -404,7 +412,11 @@ class FlashHelper {
 			
 			if (inAsset.data != null) {
 				
-				if (Std.is (inAsset.data, Bytes)) {
+				if (inAsset.isBase64 && Std.is (inAsset.data, String)) {
+					
+					bytes = StringHelper.base64Decode (inAsset.data);
+					
+				} else if (Std.is (inAsset.data, Bytes)) {
 					
 					bytes = cast inAsset.data;
 					

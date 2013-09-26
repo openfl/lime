@@ -17,6 +17,7 @@ class Asset {
 	public var format:String;
 	public var glyphs:String;
 	public var id:String;
+	public var isBase64:Bool;
 	//public var path:String;
 	//public var rename:String;
 	public var resourceName:String;

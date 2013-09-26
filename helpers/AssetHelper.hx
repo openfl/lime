@@ -79,6 +79,7 @@ class AssetHelper {
 				var output = ProcessHelper.runProcess ("", "haxelib", [ "run", handler, "process", projectData ]);
 				//var output = "";
 				//ProcessHelper.runCommand ("", "haxelib", [ "run", handler, "process", projectData ]);
+				//Sys.println (output);
 				//Sys.exit (0);
 				
 				if (output != null && output != "") {

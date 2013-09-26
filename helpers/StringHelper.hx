@@ -1,11 +1,56 @@
 package helpers;
 
 
+import flash.utils.ByteArray;
+import haxe.crypto.BaseCode;
+import haxe.io.Bytes;
+
+
 class StringHelper {
 	
 	
 	private static var seedNumber = 0;
+	private static var base64Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	private static var base64Encoder:BaseCode;
 	private static var usedFlatNames = new Map <String, String> ();
+	
+	
+	public static function base64Decode (base64:String):ByteArray {
+		
+		base64 = StringTools.trim (base64);
+		base64 = StringTools.replace (base64, "=", "");
+		
+		if (base64Encoder == null) {
+			
+			base64Encoder = new BaseCode (Bytes.ofString (base64Chars));
+			
+		}
+		
+		var bytes = base64Encoder.decodeBytes (Bytes.ofString (base64));
+		return ByteArray.fromBytes (bytes);
+		
+	}
+	
+	
+	public static function base64Encode (bytes:ByteArray):String {
+		
+		var extension = switch (bytes.length % 3) {
+			
+			case 1: "==";
+			case 2: "=";
+			default: "";
+			
+		}
+		
+		if (base64Encoder == null) {
+			
+			base64Encoder = new BaseCode (Bytes.ofString (base64Chars));
+			
+		}
+		
+		return base64Encoder.encodeBytes (bytes).toString () + extension;
+		
+	}
 	
 	
 	public static function formatArray (array:Array <Dynamic>):String {
