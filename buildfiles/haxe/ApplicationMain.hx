@@ -24,7 +24,9 @@ class ApplicationMain {
 			fps				: ::WIN_FPS::,
 			width 			: ::WIN_WIDTH::, 
 			height 			: ::WIN_HEIGHT::, 
-			title 			: "::APP_TITLE::"
+			title 			: "::APP_TITLE::",
+			x				: ::WIN_X::,
+			y				: ::WIN_Y::
 		};
 
 			//Start up

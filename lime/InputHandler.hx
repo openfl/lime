@@ -58,7 +58,7 @@ class InputHandler {
 
     
     public function lime_onkeydown(_event:Dynamic) {
-        
+            
         if(lib.host.onkeydown != null && !down_keys.exists(_event.value)) {
             down_keys.set(_event.value, true);
             lib.host.onkeydown({

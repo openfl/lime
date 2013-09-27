@@ -113,7 +113,7 @@ class LiME {
             //Create our render message handler class
         render = new RenderHandler( this );
         render.startup();
-
+        
             //Since we are done...
         window.set_active(true);
 

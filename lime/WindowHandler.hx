@@ -24,6 +24,7 @@ class WindowHandler {
         lib._debug(':: lime :: \t WindowHandler Initializing...');
 
         #if lime_native
+
             nme_create_main_frame(
 
                 lib.on_window_ready, 
@@ -38,6 +39,7 @@ class WindowHandler {
                                                 //optional flags
 
                     ( lib.config.fullscreen     ? Window.FULLSCREEN     : 0) |  
+                    ( lib.config.borderless     ? Window.BORDERLESS     : 0) |  
                     ( lib.config.resizable      ? Window.RESIZABLE      : 0) |  
                     ( lib.config.AA             ? Window.HW_AA          : 0) | 
                     ( lib.config.AA_HIRES       ? Window.HW_AA_HIRES    : 0) | 
@@ -46,8 +48,8 @@ class WindowHandler {
                     ( lib.config.vsync          ? Window.VSYNC          : 0), 
 
                 lib.config.title,               //title
-                null                            //icon
-
+                null                           //icon
+                
             ); //nme_create_main_frame
 
 
@@ -79,7 +81,7 @@ class WindowHandler {
 
     public function ready() {
 
-        #if lime_native        
+        #if lime_native
                 //Fetch the stage handle
             lib.view_handle = nme_get_frame_stage( lib.window_handle );
 
@@ -87,6 +89,11 @@ class WindowHandler {
                 //not just the specified resolution in the project file
             lib.config.width = nme_stage_get_stage_width(lib.view_handle);
             lib.config.height = nme_stage_get_stage_height(lib.view_handle);
+
+                //move the window based on xml flags
+            if(lib.config.x != null && lib.config.y != null) {
+                set_window_position(lib.config.x, lib.config.y);
+            }
 
                 //Update the touch support
             lib.config.multitouch_supported = nme_stage_get_multitouch_supported(lib.view_handle);
@@ -163,6 +170,12 @@ class WindowHandler {
         cursor_locked = val;
     }
 
+    public function set_window_position( x:Int, y:Int ) {
+        #if lime_native
+            nme_stage_set_window_position(lib.view_handle, x, y);
+        #end //lime_native
+    }
+
 #if lime_html5
 
         //html5 api for querying html5
@@ -232,6 +245,8 @@ class WindowHandler {
     } //on_redraw
 
     public function on_focus( _event:Dynamic ) { 
+        trace("focus");
+        trace(_event);
     } //on_focus
 
 	 	//Called when the application wants to go to the background and stop
@@ -272,6 +287,27 @@ class WindowHandler {
 
     } //openURL
 
+    public function fileDialogOpen(_title:String, _text:String) : String {
+        #if lime_native
+            return nme_file_dialog_open(_title, _text, []);
+         #else
+            return "";
+        #end
+    }
+    public function fileDialogSave(_title:String, _text:String) : String {
+        #if lime_native
+            return nme_file_dialog_save(_title, _text, []);
+        #else
+            return "";
+        #end
+    }
+    public function fileDialogFolder(_title:String, _text:String) : String {
+        #if lime_native
+            return nme_file_dialog_folder(_title, _text);
+        #else
+            return "";
+        #end
+    }
 
 //nme functions
 #if lime_native
@@ -287,7 +323,14 @@ class WindowHandler {
     private static var nme_close                    = Libs.load("nme","nme_close", 0);
     private static var nme_get_url                  = Libs.load("nme","nme_get_url", 1);
 
-        //Cursor control (desktop only obviously)
+        //File Dialogs
+    private static var nme_file_dialog_save         = Libs.load("nme", "nme_file_dialog_save", 3);
+    private static var nme_file_dialog_open         = Libs.load("nme", "nme_file_dialog_open", 3);
+    private static var nme_file_dialog_folder       = Libs.load("nme", "nme_file_dialog_folder", 2);
+
+        //Cursor and window control (desktop only obviously)
+    private static var nme_stage_set_window_position                 = Libs.load("nme","nme_stage_set_window_position", 3);
+
     private static var nme_stage_show_cursor                         = Libs.load("nme","nme_stage_show_cursor", 2);
     private static var nme_stage_constrain_cursor_to_window_frame    = Libs.load("nme","nme_stage_constrain_cursor_to_window_frame", 2);
     private static var nme_stage_set_cursor_position_in_window       = Libs.load("nme","nme_stage_set_cursor_position_in_window", 3);
