@@ -481,11 +481,11 @@ class PathHelper {
 			
 		} else if (ndll.haxelib.name == "hxcpp") {
 			
-			return combine (getHaxelib (ndll.haxelib), "bin/" + directoryName + "/" + filename);
+			return combine (getHaxelib (ndll.haxelib, true), "bin/" + directoryName + "/" + filename);
 			
 		} else if (ndll.haxelib.name == "nme") {
 			
-			var path = combine (getHaxelib (ndll.haxelib), "ndll/" + directoryName + "/" + filename);
+			var path = combine (getHaxelib (ndll.haxelib, true), "ndll/" + directoryName + "/" + filename);
 			
 			//if (!FileSystem.exists (path)) {
 				
@@ -497,7 +497,7 @@ class PathHelper {
 			
 		} else {
 			
-			return combine (getHaxelib (ndll.haxelib), "ndll/" + directoryName + "/" + filename);
+			return combine (getHaxelib (ndll.haxelib, true), "ndll/" + directoryName + "/" + filename);
 			
 		}
 		
