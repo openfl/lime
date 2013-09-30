@@ -431,7 +431,7 @@ class CommandLineTools {
 			Sys.println ("/ /_/ / /_/ /  __/ / / / ___// /___");
 			Sys.println ("\\____/  ___/\\___/_/ /_/_/   /_____/");
 			Sys.println ("    /_/");
-			//=Sys.println ("");
+			Sys.println ("");
 			
 		}
 		
