@@ -973,7 +973,7 @@ class ProjectXMLParser extends OpenFLProject {
 							
 						}
 					
-					case "launchImage", "splashScreen":
+					case "launchImage", "splashscreen", "splashScreen":
 						
 						var name:String = "";
 						
