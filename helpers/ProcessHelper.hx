@@ -108,7 +108,7 @@ class ProcessHelper {
 	}
 	
 	
-	public static function runCommand (path:String, command:String, args:Array <String>, safeExecute:Bool = true, ignoreErrors:Bool = false, print:Bool = false):Void {
+	public static function runCommand (path:String, command:String, args:Array <String>, safeExecute:Bool = true, ignoreErrors:Bool = false, print:Bool = false):Int {
 		
 		if (print) {
 			
@@ -145,27 +145,91 @@ class ProcessHelper {
 				if (path != null && path != "" && !FileSystem.exists (FileSystem.fullPath (path)) && !FileSystem.exists (FileSystem.fullPath (new Path (path).dir))) {
 					
 					LogHelper.error ("The specified target path \"" + path + "\" does not exist");
+					return 1;
 					
 				}
 				
-				_runProcess (path, command, args, false, false);
+				return _runCommand (path, command, args);
 				
 			} catch (e:Dynamic) {
 				
 				if (!ignoreErrors) {
 					
 					LogHelper.error ("", e);
+					return 1;
 					
 				}
+				
+				return 0;
 				
 			}
 			
 		} else {
 			
-			_runProcess (path, command, args, false, false);
+			return _runCommand (path, command, args);
 			
 		}
 	  
+	}
+	
+	
+	private static function _runCommand (path:String, command:String, args:Array<String>):Int {
+		
+		var oldPath:String = "";
+		
+		if (path != null && path != "") {
+			
+			LogHelper.info ("", " - Changing directory: " + path + "");
+			
+			oldPath = Sys.getCwd ();
+			Sys.setCwd (path);
+			
+		}
+		
+		var argString = "";
+		
+		for (arg in args) {
+			
+			if (arg.indexOf (" ") > -1) {
+				
+				argString += " \"" + arg + "\"";
+				
+			} else {
+				
+				argString += " " + arg;
+				
+			}
+			
+		}
+		
+		LogHelper.info ("", " - Running command: " + command + argString);
+		
+		var result = 0;
+		
+		if (args != null && args.length > 0) {
+			
+			result = Sys.command (command, args);
+			
+		} else {
+			
+			result = Sys.command (command);
+			
+		}
+		
+		if (oldPath != "") {
+			
+			Sys.setCwd (oldPath);
+			
+		}
+		
+		if (result != 0) {
+			
+			throw ("Error running: " + command + " " + args.join (" ") + " [" + path + "]");
+			
+		}
+		
+		return result;
+		
 	}
 	
 	
@@ -209,7 +273,7 @@ class ProcessHelper {
 					
 				}
 				
-				return _runProcess (path, command, args, waitForOutput, true);
+				return _runProcess (path, command, args, waitForOutput);
 				
 			} catch (e:Dynamic) {
 				
@@ -225,14 +289,14 @@ class ProcessHelper {
 			
 		} else {
 			
-			return _runProcess (path, command, args, waitForOutput, true);
+			return _runProcess (path, command, args, waitForOutput);
 			
 		}
 		
 	}
 	
 	
-	private static function _runProcess (path:String, command:String, args:Array<String>, waitForOutput:Bool, runAsProcess:Bool):String {
+	private static function _runProcess (path:String, command:String, args:Array<String>, waitForOutput:Bool):String {
 		
 		var oldPath:String = "";
 		
@@ -261,72 +325,56 @@ class ProcessHelper {
 			
 		}
 		
-		LogHelper.info ("", " - Running command: " + command + argString);
+		LogHelper.info ("", " - Running process: " + command + argString);
 		
-		var result = 0;
 		var output = "";
+		var result = 0;
 		
-		if (runAsProcess) {
+		var process = new Process (command, args);
+		var buffer = new BytesOutput ();
+		
+		if (waitForOutput) {
 			
-			var process = new Process (command, args);
-			var buffer = new BytesOutput ();
+			var waiting = true;
 			
-			if (waitForOutput) {
+			while (waiting) {
 				
-				var waiting = true;
-				
-				while (waiting) {
+				try  {
 					
-					try  {
-						
-						var current = process.stdout.readAll (1024);
-						buffer.write (current);
-						
-						if (current.length == 0) {
-							
-							waiting = false;
-							
-						}
-						
-					} catch (e:Eof) {
+					var current = process.stdout.readAll (1024);
+					buffer.write (current);
+					
+					if (current.length == 0) {
 						
 						waiting = false;
 						
 					}
 					
-				}
-				
-				result = process.exitCode ();
-				
-				if (result == 0) {
+				} catch (e:Eof) {
 					
-					output = buffer.getBytes ().toString ();
-					
-					if (output == "") {
-						
-						output = process.stderr.readAll ().toString ();
-						
-						/*if (error != "") {
-							
-							LogHelper.error (error);
-							
-						}*/
-						
-					}
+					waiting = false;
 					
 				}
 				
 			}
 			
-		} else {
+			result = process.exitCode ();
 			
-			if (args != null && args.length > 0) {
+			if (result == 0) {
 				
-				result = Sys.command (command, args);
+				output = buffer.getBytes ().toString ();
 				
-			} else {
-				
-				result = Sys.command (command);
+				if (output == "") {
+					
+					output = process.stderr.readAll ().toString ();
+					
+					/*if (error != "") {
+						
+						LogHelper.error (error);
+						
+					}*/
+					
+				}
 				
 			}
 			
@@ -335,12 +383,6 @@ class ProcessHelper {
 		if (oldPath != "") {
 			
 			Sys.setCwd (oldPath);
-			
-		}
-		
-		if (result != 0 && !runAsProcess) {
-			
-			throw ("Error running: " + command + " " + args.join (" ") + " [" + path + "]");
 			
 		}
 		
