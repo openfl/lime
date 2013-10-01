@@ -100,7 +100,8 @@ class BlackBerryPlatform implements IPlatformTool {
 		
 		if (!project.environment.exists ("BLACKBERRY_SETUP")) {
 			
-			LogHelper.error ("You need to run \"nme setup blackberry\" before you can use the BlackBerry target");
+			var alias = !project.haxedefs.exists ("nme") ? "openfl" : "nme";
+			LogHelper.error ("You need to run \"" + alias + " setup blackberry\" before you can use the BlackBerry target");
 			
 		}
 		
