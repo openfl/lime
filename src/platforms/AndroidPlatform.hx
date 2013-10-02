@@ -204,6 +204,7 @@ class AndroidPlatform implements IPlatformTool {
 		context.ANDROID_INSTALL_LOCATION = project.config.android.installLocation;
 		context.ANDROID_MINIMUM_SDK_VERSION = project.config.android.minimumSDKVersion;
 		context.ANDROID_TARGET_SDK_VERSION = project.config.android.targetSDKVersion;
+		context.ANDROID_PERMISSIONS = project.config.android.permissions;
 		
 		var iconTypes = [ "ldpi", "mdpi", "hdpi", "xhdpi" ];
 		var iconSizes = [ 36, 48, 72, 96 ];

@@ -1257,6 +1257,10 @@ class ProjectXMLParser extends OpenFLProject {
 									
 									config.android.targetSDKVersion = Std.parseInt (value);
 								
+								case "permission":
+									
+									ArrayHelper.addUnique (config.android.permissions, value);
+								
 								default:
 									
 									name = formatAttributeName (attribute);

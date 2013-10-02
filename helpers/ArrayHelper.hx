@@ -31,6 +31,16 @@ class ArrayHelper {
 	
 	public static function concatUnique<T> (a:Array<T>, b:Array<T>):Array<T> {
 		
+		if (a == null && b == null) {
+			
+			return new Array<T> ();
+			
+		} else if (a == null && b != null) {
+			
+			return b;
+			
+		}
+		
 		var concat = a.copy ();
 		
 		for (bValue in b) {
