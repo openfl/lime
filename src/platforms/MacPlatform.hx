@@ -103,17 +103,19 @@ class MacPlatform implements IPlatformTool {
 			
 		}
 		
-		if (!useNeko) {
+		for (architecture in project.architectures) {
 			
-			for (architecture in project.architectures) {
+			if (architecture == Architecture.X64) {
 				
-				if (architecture == Architecture.X64) {
-					
-					is64 = true;
-					
-				}
+				is64 = true;
 				
 			}
+			
+		}
+		
+		if (!useNeko) {
+			
+			
 			
 			targetDirectory = project.app.path + "/mac" + (is64 ? "64" : "") + "/cpp";
 			
