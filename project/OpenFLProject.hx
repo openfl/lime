@@ -25,7 +25,7 @@ class OpenFLProject {
 	public var command:String;
 	public var config:PlatformConfig;
 	public var debug:Bool;
-	public var dependencies:Array <String>;
+	public var dependencies:Array <Dependency>;
 	public var environment:Map <String, String>;
 	public var haxedefs:Map <String, Dynamic>;
 	public var haxeflags:Array <String>;
@@ -156,7 +156,7 @@ class OpenFLProject {
 		ObjectHelper.copyFields (defaultWindow, window);
 		
 		assets = new Array <Asset> ();
-		dependencies = new Array <String> ();
+		dependencies = new Array <Dependency> ();
 		environment = Sys.environment ();
 		haxedefs = new Map <String, Dynamic> ();
 		haxeflags = new Array <String> ();
@@ -194,7 +194,12 @@ class OpenFLProject {
 		project.command = command;
 		project.config = config.clone ();
 		project.debug = debug;
-		project.dependencies = dependencies.copy ();
+		
+		for (dependency in dependencies) {
+			
+			project.dependencies.push (dependency.clone ());
+			
+		}
 		
 		for (key in environment.keys ()) {
 			

@@ -13,6 +13,7 @@ class PlatformConfig {
 	
 	private static var defaultAndroid:AndroidConfig = {
 		
+		extensions: [],
 		installLocation: "preferExternal",
 		minimumSDKVersion: 8,
 		permissions: [ "android.permission.WAKE_LOCK", "android.permission.INTERNET", "android.permission.VIBRATE", "android.permission.ACCESS_NETWORK_STATE" ],
@@ -56,8 +57,12 @@ class PlatformConfig {
 	
 	public function merge (config:PlatformConfig):Void {
 		
+		var extensions = ArrayHelper.concatUnique (android.extensions, config.android.extensions);
 		var permissions = ArrayHelper.concatUnique (android.permissions, config.android.permissions);
+		
 		ObjectHelper.copyUniqueFields (config.android, android, defaultAndroid);
+		
+		android.extensions = extensions;
 		android.permissions = permissions;
 		
 		ObjectHelper.copyUniqueFields (config.ios, ios, defaultIOS);
@@ -78,6 +83,7 @@ class PlatformConfig {
 
 typedef AndroidConfig = {
 	
+	@:optional var extensions:Array<String>;
 	@:optional var installLocation:String;
 	@:optional var minimumSDKVersion:Int;
 	@:optional var permissions:Array<String>;

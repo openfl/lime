@@ -97,11 +97,11 @@ class IOSPlatform implements IPlatformTool {
 		
 		for (dependency in project.dependencies) {
 			
-			if (!StringTools.endsWith (dependency, ".framework")) {
+			if (!StringTools.endsWith (dependency.name, ".framework")) {
 				
-				if (StringTools.endsWith (dependency, ".a")) {
+				if (dependency.path != "") {
 					
-					var name = Path.withoutDirectory (Path.withoutExtension (dependency));
+					var name = Path.withoutDirectory (Path.withoutExtension (dependency.path));
 					
 					if (StringTools.startsWith (name, "lib")) {
 						
@@ -111,9 +111,9 @@ class IOSPlatform implements IPlatformTool {
 					
 					context.linkedLibraries.push (name);
 					
-				} else {
+				} else if (dependency.name != "") {
 					
-					context.linkedLibraries.push (dependency);
+					context.linkedLibraries.push (dependency.name);
 					
 				}
 				
@@ -248,7 +248,7 @@ class IOSPlatform implements IPlatformTool {
 		
 		for (dependency in project.dependencies) {
 			
-			if (Path.extension (dependency) == "framework") {
+			if (Path.extension (dependency.name) == "framework") {
 				
 				var frameworkID = "11C0000000000018" + StringHelper.getUniqueID ();
 				var fileID = "11C0000000000018" + StringHelper.getUniqueID ();
@@ -428,9 +428,9 @@ class IOSPlatform implements IPlatformTool {
 			
 			for (dependency in project.dependencies) {
 				
-				if (StringTools.endsWith (dependency, ".a")) {
+				if (StringTools.endsWith (dependency.path, ".a")) {
 					
-					var fileName = Path.withoutDirectory (dependency);
+					var fileName = Path.withoutDirectory (dependency.path);
 					
 					if (!StringTools.startsWith (fileName, "lib")) {
 						
@@ -438,7 +438,7 @@ class IOSPlatform implements IPlatformTool {
 						
 					}
 					
-					FileHelper.copyIfNewer (dependency, projectDirectory + "/lib/" + arch + "/" + fileName);
+					FileHelper.copyIfNewer (dependency.path, projectDirectory + "/lib/" + arch + "/" + fileName);
 					
 				}
 				

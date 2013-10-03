@@ -1169,7 +1169,7 @@ class CommandLineTools {
 						
 					} else if (field == "dependency") {
 						
-						overrides.dependencies.push (argValue);
+						overrides.dependencies.push (new Dependency (argValue, ""));
 						
 					} else if (StringTools.startsWith (field, "certificate-")) {
 						

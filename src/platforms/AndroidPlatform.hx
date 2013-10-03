@@ -204,7 +204,25 @@ class AndroidPlatform implements IPlatformTool {
 		context.ANDROID_INSTALL_LOCATION = project.config.android.installLocation;
 		context.ANDROID_MINIMUM_SDK_VERSION = project.config.android.minimumSDKVersion;
 		context.ANDROID_TARGET_SDK_VERSION = project.config.android.targetSDKVersion;
+		context.ANDROID_EXTENSIONS = project.config.android.extensions;
 		context.ANDROID_PERMISSIONS = project.config.android.permissions;
+		context.ANDROID_LIBRARY_PROJECTS = [];
+		
+		var index = 1;
+		
+		for (dependency in project.dependencies) {
+			
+			if (dependency.path != "" && FileSystem.isDirectory (dependency.path) && FileSystem.exists (PathHelper.combine (dependency.path, "project.properties"))) {
+				
+				var name = dependency.name;
+				if (name == "") name = "project" + index;
+				
+				context.ANDROID_LIBRARY_PROJECTS.push ({ name: name, index: index, path: "deps/" + name, source: dependency.path });
+				index++;
+				
+			}
+			
+		}
 		
 		var iconTypes = [ "ldpi", "mdpi", "hdpi", "xhdpi" ];
 		var iconSizes = [ 36, 48, 72, 96 ];
@@ -273,6 +291,12 @@ class AndroidPlatform implements IPlatformTool {
 			//	throw"Could not find javaPath " + javaPath +" required by extension."; 
 				
 			//}
+			
+		}
+		
+		for (library in context.ANDROID_LIBRARY_PROJECTS) {
+			
+			FileHelper.recursiveCopy (library.source, destination + "/deps/" + library.name, context, true);
 			
 		}
 		

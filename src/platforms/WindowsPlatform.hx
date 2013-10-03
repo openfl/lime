@@ -154,10 +154,10 @@ class WindowsPlatform implements IPlatformTool {
 		
 		for (dependency in project.dependencies) {
 			
-			if (StringTools.endsWith (dependency, ".dll")) {
+			if (StringTools.endsWith (dependency.path, ".dll")) {
 				
-				var fileName = Path.withoutDirectory (dependency);
-				FileHelper.copyIfNewer (dependency, applicationDirectory + "/" + fileName);
+				var fileName = Path.withoutDirectory (dependency.path);
+				FileHelper.copyIfNewer (dependency.path, applicationDirectory + "/" + fileName);
 				
 			}
 			

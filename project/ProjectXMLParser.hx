@@ -9,6 +9,7 @@ import helpers.PathHelper;
 import helpers.StringMapHelper;
 import project.Asset;
 import project.AssetType;
+import project.Dependency;
 import project.Haxelib;
 import project.OpenFLProject;
 import project.PlatformConfig;
@@ -1228,17 +1229,32 @@ class ProjectXMLParser extends OpenFLProject {
 					
 					case "dependency":
 						
-						var name = substitute (element.att.name);
+						var name = "";
+						var path = "";
 						
-						if (StringTools.endsWith (name, ".a") || StringTools.endsWith (name, ".dll")) {
+						if (element.has.path) {
 							
-							dependencies.push (PathHelper.combine (extensionPath, name));
-							
-						} else {
-							
-							dependencies.push (name);
+							path = PathHelper.combine (extensionPath, substitute (element.att.path));
 							
 						}
+						
+						if (element.has.name) {
+							
+							var foundName = substitute (element.att.name);
+							
+							if (StringTools.endsWith (foundName, ".a") || StringTools.endsWith (foundName, ".dll")) {
+								
+								path = PathHelper.combine (extensionPath, foundName);
+								
+							} else {
+								
+								name = foundName;
+								
+							}
+							
+						}
+						
+						dependencies.push (new Dependency (name, path));
 					
 					case "android":
 						
@@ -1256,6 +1272,10 @@ class ProjectXMLParser extends OpenFLProject {
 								case "target-sdk-version":
 									
 									config.android.targetSDKVersion = Std.parseInt (value);
+									
+								case "extension":
+									
+									ArrayHelper.addUnique (config.android.extensions, value);
 								
 								case "permission":
 									
