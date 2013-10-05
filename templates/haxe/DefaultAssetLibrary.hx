@@ -92,7 +92,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 			#else
 			
-			if (type == BINARY) {
+			if (type == BINARY || type == null) {
 				
 				return true;
 				
@@ -182,6 +182,13 @@ class DefaultAssetLibrary extends AssetLibrary {
 		return new Font (path.get (id));
 		
 		#end
+		
+	}
+	
+	
+	public override function getPath (id:String):String {
+		
+		return path.get (id);
 		
 	}
 	
