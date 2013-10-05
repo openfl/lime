@@ -115,8 +115,6 @@ class MacPlatform implements IPlatformTool {
 		
 		if (!useNeko) {
 			
-			
-			
 			targetDirectory = project.app.path + "/mac" + (is64 ? "64" : "") + "/cpp";
 			
 		} else {

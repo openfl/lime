@@ -14,6 +14,7 @@ import helpers.PlatformHelper;
 import helpers.ProcessHelper;
 import helpers.StringHelper;
 import project.Architecture;
+import project.Asset;
 import project.AssetType;
 import project.Haxelib;
 import project.Keystore;
@@ -311,6 +312,13 @@ class IOSPlatform implements IPlatformTool {
 		project.ndlls.push (new NDLL ("jpeg", nmeLib, false));
 		project.ndlls.push (new NDLL ("freetype", nmeLib, false));
 		
+		var manifest = new Asset ();
+		manifest.id = "__manifest__";
+		manifest.data = AssetHelper.createManifest (project);
+		manifest.targetPath = "manifest";
+		manifest.type = AssetType.TEXT;
+		project.assets.push (manifest);
+		
 		for (asset in project.assets) {
 			
 			asset.resourceName = asset.flatName;
@@ -469,8 +477,6 @@ class IOSPlatform implements IPlatformTool {
 			}
 			
 		}
-		
-		AssetHelper.createManifest (project, projectDirectory + "/assets/manifest");
 		
 		if (project.command == "update" && PlatformHelper.hostPlatform == Platform.MAC) {
 			

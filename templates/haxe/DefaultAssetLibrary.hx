@@ -17,6 +17,10 @@ import flash.events.Event;
 import flash.net.URLLoader;
 #end
 
+#if ios
+import openfl.utils.SystemPath;
+#end
+
 
 class DefaultAssetLibrary extends AssetLibrary {
 	
@@ -188,7 +192,15 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	public override function getPath (id:String):String {
 		
+		#if ios
+		
+		return SystemPath.applicationDirectory + "/assets/" + path.get (id);
+		
+		#else
+		
 		return path.get (id);
+		
+		#end
 		
 	}
 	
