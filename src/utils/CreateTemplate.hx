@@ -33,7 +33,7 @@ class CreateTemplate {
 		context.extensionUpperCase = extension.toUpperCase ();
 		
 		PathHelper.mkdir (title);
-		FileHelper.recursiveCopyTemplate ([ PathHelper.getHaxelib (new Haxelib ("openfl-tools"))  + "/templates" ], "extension", title, context);
+		FileHelper.recursiveCopyTemplate ([ PathHelper.getHaxelib (new Haxelib ("openfl-tools"), true)  + "/templates" ], "extension", title, context);
 		
 		if (FileSystem.exists (title + "/Extension.hx")) {
 			
@@ -141,7 +141,7 @@ class CreateTemplate {
 		var folder = name;
 		
 		PathHelper.mkdir (folder);
-		FileHelper.recursiveCopyTemplate ([ PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates" ], "project", folder, context);
+		FileHelper.recursiveCopyTemplate ([ PathHelper.getHaxelib (new Haxelib ("openfl-tools"), true) + "/templates" ], "project", folder, context);
 		
 		if (FileSystem.exists (folder + "/Project.hxproj")) {
 			
@@ -165,11 +165,11 @@ class CreateTemplate {
 		
 		if (userDefines.exists ("nme")) {
 			
-			samplePath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("nme")) + "/samples", sampleName);
+			samplePath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("nme"), true) + "/samples", sampleName);
 			
 		} else {
 			
-			samplePath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("openfl-samples")), sampleName);
+			samplePath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("openfl-samples"), true), sampleName);
 			
 		}
 		
@@ -198,7 +198,7 @@ class CreateTemplate {
 			alias = "nme";
 			name = "NME";
 			
-			samplesPath = PathHelper.getHaxelib (new Haxelib ("nme")) + "/samples";
+			samplesPath = PathHelper.getHaxelib (new Haxelib ("nme"), true) + "/samples";
 			
 		} else {
 			
@@ -215,13 +215,23 @@ class CreateTemplate {
 		Sys.println (" Available samples:");
 		Sys.println ("");
 		
-		for (name in FileSystem.readDirectory (samplesPath)) {
+		if (samplesPath != "") {
 			
-			if (!StringTools.startsWith (name, ".") && FileSystem.isDirectory (samplesPath + "/" + name)) {
+			for (name in FileSystem.readDirectory (samplesPath)) {
 				
-				Sys.println ("  - " + name);
+				if (!StringTools.startsWith (name, ".") && FileSystem.isDirectory (samplesPath + "/" + name)) {
+					
+					Sys.println ("  - " + name);
+					
+				}
 				
 			}
+			
+		} else {
+			
+			Sys.println ("  (None)");
+			Sys.println ("");
+			Sys.println ("Install \"openfl-samples\" to create sample projects.");
 			
 		}
 		
