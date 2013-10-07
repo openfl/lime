@@ -146,7 +146,7 @@ class LinuxPlatform implements IPlatformTool {
 		
 		targetDirectory = project.app.path + "/linux" + (is64 ? "64" : "") + (isRaspberryPi ? "-rpi" : "") + "/" + (useNeko ? "neko" : "cpp");
 		applicationDirectory = targetDirectory + "/bin/";
-		executablePath = applicationDirectory + "/" + project.app.file;
+		executablePath = PathHelper.combine (applicationDirectory, project.app.file);
 		
 	}
 	

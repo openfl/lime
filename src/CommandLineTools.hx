@@ -189,6 +189,7 @@ class CommandLineTools {
 			if (!Reflect.hasField (metaFields.update, "ignore") && (command == "update" || command == "build" || command == "test")) {
 				
 				LogHelper.info ("", "\nRunning command: UPDATE");
+				AssetHelper.processLibraries (project);
 				platform.update (project);
 				
 			}
@@ -1027,8 +1028,6 @@ class CommandLineTools {
 		}
 		
 		StringMapHelper.copyKeys (userDefines, project.haxedefs);
-		
-		AssetHelper.processLibraries (project);
 		
 		// Better way to do this?
 		

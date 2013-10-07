@@ -76,7 +76,15 @@ class AssetHelper {
 			
 			for (handler in handlers) {
 				
+				LogHelper.info ("", " - Running external library handler: " + handler);
+				
+				var cache = LogHelper.verbose;
+				LogHelper.verbose = false;
+				
 				var output = ProcessHelper.runProcess ("", "haxelib", [ "run", handler, "process", projectData ]);
+				
+				LogHelper.verbose = cache;
+				
 				//var output = "";
 				//ProcessHelper.runCommand ("", "haxelib", [ "run", handler, "process", projectData ]);
 				//Sys.println (output);
