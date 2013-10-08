@@ -23,7 +23,7 @@ class HTML5Helper {
 			
 		//}
 		
-		return "-resource " + FileSystem.fullPath (sourcePath) + ".hash@NME_" + font.flatName;
+		return "-resource " + FileSystem.fullPath (sourcePath) + ".hash@__ASSET__" + font.flatName;
 		
 	}
 	
