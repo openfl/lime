@@ -307,10 +307,12 @@ class IOSPlatform implements IPlatformTool {
 			
 		}
 		
-		project.ndlls.push (new NDLL ("curl_ssl", nmeLib, false));
-		project.ndlls.push (new NDLL ("png", nmeLib, false));
-		project.ndlls.push (new NDLL ("jpeg", nmeLib, false));
-		project.ndlls.push (new NDLL ("freetype", nmeLib, false));
+		//project.ndlls.push (new NDLL ("curl_ssl", nmeLib, false));
+		//project.ndlls.push (new NDLL ("png", nmeLib, false));
+		//project.ndlls.push (new NDLL ("jpeg", nmeLib, false));
+		//project.ndlls.push (new NDLL ("freetype", nmeLib, false));
+		//project.ndlls.push (new NDLL ("ogg", nmeLib, false));
+		//project.ndlls.push (new NDLL ("vorbis", nmeLib, false));
 		
 		var manifest = new Asset ();
 		manifest.id = "__manifest__";
