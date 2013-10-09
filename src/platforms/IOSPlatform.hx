@@ -317,7 +317,7 @@ class IOSPlatform implements IPlatformTool {
 		var manifest = new Asset ();
 		manifest.id = "__manifest__";
 		manifest.data = AssetHelper.createManifest (project);
-		manifest.targetPath = "manifest";
+		manifest.flatName = "manifest";
 		manifest.type = AssetType.TEXT;
 		project.assets.push (manifest);
 		
