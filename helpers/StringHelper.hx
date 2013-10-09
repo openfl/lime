@@ -1,7 +1,9 @@
 package helpers;
 
 
+#if (flash || openfl || nme)
 import flash.utils.ByteArray;
+#end
 import haxe.crypto.BaseCode;
 import haxe.io.Bytes;
 
@@ -14,6 +16,8 @@ class StringHelper {
 	private static var base64Encoder:BaseCode;
 	private static var usedFlatNames = new Map <String, String> ();
 	
+	
+	#if (flash || openfl || nme)
 	
 	public static function base64Decode (base64:String):ByteArray {
 		
@@ -51,6 +55,23 @@ class StringHelper {
 		return base64Encoder.encodeBytes (bytes).toString () + extension;
 		
 	}
+	
+	#else
+	
+	public static function base64Decode (base64:String):haxe.io.Bytes {
+		
+		return null;
+		
+	}
+	
+	
+	public static function base64Encode (bytes:haxe.io.Bytes):String {
+		
+		return null;
+		
+	}
+	
+	#end
 	
 	
 	public static function formatArray (array:Array <Dynamic>):String {
