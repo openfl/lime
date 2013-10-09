@@ -254,10 +254,10 @@ class IOSPlatform implements IPlatformTool {
 				var frameworkID = "11C0000000000018" + StringHelper.getUniqueID ();
 				var fileID = "11C0000000000018" + StringHelper.getUniqueID ();
 				
-				context.ADDL_PBX_BUILD_FILE += "		" + frameworkID + " /* " + dependency + " in Frameworks */ = {isa = PBXBuildFile; fileRef = " + fileID + " /* " + dependency + " */; };\n";
-				context.ADDL_PBX_FILE_REFERENCE += "		" + fileID + " /* " + dependency + " */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = " + dependency + "; path = System/Library/Frameworks/" + dependency + "; sourceTree = SDKROOT; };\n";
-				context.ADDL_PBX_FRAMEWORKS_BUILD_PHASE += "				" + frameworkID + " /* " + dependency + " in Frameworks */,\n";
-				context.ADDL_PBX_FRAMEWORK_GROUP += "				" + fileID + " /* " + dependency + " */,\n";
+				context.ADDL_PBX_BUILD_FILE += "		" + frameworkID + " /* " + dependency.name + " in Frameworks */ = {isa = PBXBuildFile; fileRef = " + fileID + " /* " + dependency.name + " */; };\n";
+				context.ADDL_PBX_FILE_REFERENCE += "		" + fileID + " /* " + dependency.name + " */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = " + dependency.name + "; path = System/Library/Frameworks/" + dependency.name + "; sourceTree = SDKROOT; };\n";
+				context.ADDL_PBX_FRAMEWORKS_BUILD_PHASE += "				" + frameworkID + " /* " + dependency.name + " in Frameworks */,\n";
+				context.ADDL_PBX_FRAMEWORK_GROUP += "				" + fileID + " /* " + dependency.name + " */,\n";
 				
 			}
 			
