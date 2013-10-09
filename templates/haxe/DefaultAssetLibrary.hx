@@ -78,6 +78,20 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		var assetType = DefaultAssetLibrary.type.get (id);
 		
+		#if pixi
+		
+		if (assetType == IMAGE) {
+			
+			return true;
+			
+		} else {
+			
+			return false;
+			
+		}
+		
+		#end
+		
 		if (assetType != null) {
 			
 			if (assetType == type || type == SOUND && (assetType == MUSIC || assetType == SOUND)) {
@@ -113,7 +127,11 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	public override function getBitmapData (id:String):BitmapData {
 		
-		#if flash
+		#if pixi
+		
+		return BitmapData.fromImage (path.get (id));
+		
+		#elseif flash
 		
 		return cast (Type.createInstance (className.get (id), []), BitmapData);
 		
@@ -132,12 +150,16 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	public override function getBytes (id:String):ByteArray {
 		
-		#if flash
+		#if pixi
+		
+		return null;
+		
+		#elseif flash
 		
 		return cast (Type.createInstance (className.get (id), []), ByteArray);
 		
 		#elseif js
-
+		
 		var bytes:ByteArray = null;
 		var data = ApplicationMain.urlLoaders.get (path.get (id)).data;
 		
@@ -177,7 +199,11 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	public override function getFont (id:String):Font {
 		
-		#if (flash || js)
+		#if pixi
+		
+		return null;
+		
+		#elseif (flash || js)
 		
 		return cast (Type.createInstance (className.get (id), []), Font);
 		
@@ -207,7 +233,11 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	public override function getSound (id:String):Sound {
 		
-		#if flash
+		#if pixi
+		
+		return null;
+		
+		#elseif flash
 		
 		return cast (Type.createInstance (className.get (id), []), Sound);
 		
@@ -226,7 +256,11 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	public override function loadBitmapData (id:String, handler:BitmapData -> Void):Void {
 		
-		#if (flash || js)
+		#if pixi
+		
+		handler (getBitmapData (id));
+		
+		#elseif (flash || js)
 		
 		if (path.exists (id)) {
 			
@@ -255,7 +289,11 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	public override function loadBytes (id:String, handler:ByteArray -> Void):Void {
 		
-		#if (flash || js)
+		#if pixi
+		
+		handler (getBytes (id));
+		
+		#elseif (flash || js)
 		
 		if (path.exists (id)) {
 			
@@ -347,7 +385,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 }
 
 
-#if flash
+#if pixi
+#elseif flash
 
 ::foreach assets::::if (embed)::::if (type == "image")::class __ASSET__::flatName:: extends flash.display.BitmapData { public function new () { super (0, 0); } }::else::class __ASSET__::flatName:: extends ::flashClass:: { }::end::::end::
 ::end::
