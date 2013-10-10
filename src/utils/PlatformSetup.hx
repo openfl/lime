@@ -1878,10 +1878,11 @@ class PlatformSetup {
 		
 		var newContent = "";
 		var definesText = "";
+		var env = Sys.environment ();
 		
 		for (key in defines.keys ()) {
 			
-			if (key != "HXCPP_CONFIG") {
+			if (key != "HXCPP_CONFIG" && (!env.exists (key) || env.get (key) == defines.get (key))) {
 				
 				definesText += "		<set name=\"" + key + "\" value=\"" + stripQuotes (defines.get (key)) + "\" />\n";
 				
