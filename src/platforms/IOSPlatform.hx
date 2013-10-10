@@ -314,18 +314,18 @@ class IOSPlatform implements IPlatformTool {
 		//project.ndlls.push (new NDLL ("ogg", nmeLib, false));
 		//project.ndlls.push (new NDLL ("vorbis", nmeLib, false));
 		
-		var manifest = new Asset ();
-		manifest.id = "__manifest__";
-		manifest.data = AssetHelper.createManifest (project);
-		manifest.flatName = "manifest";
-		manifest.type = AssetType.TEXT;
-		project.assets.push (manifest);
-		
 		for (asset in project.assets) {
 			
 			asset.resourceName = asset.flatName;
 			
 		}
+		
+		var manifest = new Asset ();
+		manifest.id = "__manifest__";
+		manifest.data = AssetHelper.createManifest (project);
+		manifest.resourceName = manifest.flatName = "manifest";
+		manifest.type = AssetType.TEXT;
+		project.assets.push (manifest);
 		
 		var context = generateContext (project);
 		
