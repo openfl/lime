@@ -53,13 +53,22 @@ class DefaultAssetLibrary extends AssetLibrary {
 			var bytes = ByteArray.readFile ("manifest");
 			bytes.position = 0;
 			
-			var data = bytes.readUTFBytes (bytes.length);
-			var manifest:Array<AssetData> = Unserializer.run (data);
-			
-			for (asset in manifest) {
+			if (bytes.length > 0) {
 				
-				path.set (asset.id, asset.path);
-				type.set (asset.id, asset.type);
+				var data = bytes.readUTFBytes (bytes.length);
+				
+				if (data != null && data.length > 0) {
+					
+					var manifest:Array<AssetData> = Unserializer.run (data);
+					
+					for (asset in manifest) {
+						
+						path.set (asset.id, asset.path);
+						type.set (asset.id, asset.type);
+						
+					}
+					
+				}
 				
 			}
 			
