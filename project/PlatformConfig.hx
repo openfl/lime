@@ -15,9 +15,9 @@ class PlatformConfig {
 		
 		extensions: [],
 		installLocation: "preferExternal",
-		minimumSDKVersion: 8,
+		minimumSDKVersion: 10,
 		permissions: [ "android.permission.WAKE_LOCK", "android.permission.INTERNET", "android.permission.VIBRATE", "android.permission.ACCESS_NETWORK_STATE" ],
-		targetSDKVersion: 8
+		targetSDKVersion: 16
 		
 	};
 	
