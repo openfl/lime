@@ -155,7 +155,14 @@ class FlashHelper {
 				
 			} else {
 				
-				if (input.readString (4) != "RIFF") {
+				var header = input.readString (4);
+				
+				if (ext == "ogg" || header == "OggS") {
+					
+					Sys.println ("Warning: Skipping unsupported OGG file \"" + name + "\"");
+					return false;
+					
+				} else if (header != "RIFF") {
 					
 					Sys.println ("Warning: Could not embed unrecognized WAV file \"" + name + "\"");
 					return false;
