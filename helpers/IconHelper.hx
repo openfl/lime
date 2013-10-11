@@ -331,12 +331,10 @@ class IconHelper {
 	private static function getIconBitmap (icons:Array <Icon>, width:Int, height:Int, backgroundColor:Int = null):BitmapData {
 		
 		var icon = findMatch (icons, width, height);
-		var exactMatch = true;
 		
 		if (icon == null) {
 			
 			icon = findNearestMatch (icons, width, height);
-			exactMatch = false;
 			
 		}
 		
@@ -360,15 +358,7 @@ class IconHelper {
 			
 			case "png", "jpg", "jpeg":
 				
-				if (exactMatch ) {
-					
-					bitmapData = BitmapData.load (icon.path);
-					
-				} else {
-					
-					bitmapData = ImageHelper.resizeBitmapData (BitmapData.load (icon.path), width, height);
-					
-				}
+				bitmapData = ImageHelper.resizeBitmapData (BitmapData.load (icon.path), width, height);
 			
 			case "svg":
 				

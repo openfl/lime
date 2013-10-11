@@ -4,6 +4,7 @@ package helpers;
 import flash.display.Bitmap;
 import flash.display.BitmapData;
 import flash.display.Shape;
+import flash.geom.Matrix;
 import format.SVG;
 
 
@@ -31,14 +32,17 @@ class ImageHelper {
 	
 	public static function resizeBitmapData (bitmapData:BitmapData, width:Int, height:Int):BitmapData {
 		
-		var bitmap = new Bitmap (bitmapData);
+		if (bitmapData.width == width && bitmapData.height == height) {
+			
+			return bitmapData;
+			
+		}
 		
-		bitmap.smoothing = true;
-		bitmap.width = width;
-		bitmap.height = height;
+		var matrix = new Matrix ();
+		matrix.scale (width / bitmapData.width, height / bitmapData.height);
 		
 		var data = new BitmapData (width, height, true, 0x00FFFFFF);
-		data.draw (bitmap);
+		data.draw (bitmapData, matrix, null, null, null, true);
 		
 		return data;
 		
