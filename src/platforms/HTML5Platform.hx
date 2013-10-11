@@ -87,15 +87,7 @@ class HTML5Platform implements IPlatformTool {
 		
 		initialize (project);
 		
-		if (project.app.url != "") {
-			
-			ProcessHelper.openURL (project.app.url);
-			
-		} else {
-			
-			ProcessHelper.openFile (project.app.path + "/html5/bin", "index.html");
-			
-		}
+		HTML5Helper.launch (project, project.app.path + "/html5/bin");
 		
 	}
 	

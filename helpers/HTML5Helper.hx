@@ -28,6 +28,24 @@ class HTML5Helper {
 	}
 	
 	
+	public static function launch (project:OpenFLProject, path:String, port:Int = 3000):Void {
+		
+		if (project.app.url != "") {
+			
+			ProcessHelper.openURL (project.app.url);
+			
+		} else {
+			
+			LogHelper.info ("", " - Starting local web server: http://localhost:" + port);
+			
+			ProcessHelper.openURL ("http://localhost:" + port);
+			ProcessHelper.runProcess (path, "nekotools", [ "server", "-p", port + "" ]);
+			
+		}
+		
+	}
+	
+	
 	public static function minify (project:OpenFLProject, sourceFile:String):Bool {
 		
 		if (FileSystem.exists (sourceFile)) {
