@@ -132,11 +132,7 @@ class ProcessHelper {
 			
 		}
 		
-		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
-			
-			command = StringTools.replace (command, ",", "^,");
-			
-		}
+		command = PathHelper.escape (command);
 		
 		if (safeExecute) {
 			

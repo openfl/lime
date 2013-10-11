@@ -71,7 +71,9 @@ class PathHelper {
 			
 			path = StringTools.replace (path, " ", "\\ ");
 			
-			return expand (path);
+		} else {
+			
+			path = StringTools.replace (path, ",", "^,");
 			
 		}
 		

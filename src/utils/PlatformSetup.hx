@@ -404,8 +404,8 @@ class PlatformSetup {
 					
 					try {
 						
-						ProcessHelper.runCommand ("", "sudo cp -f " + PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates/bin/openfl.sh /usr/bin/openfl", [], false);
-						ProcessHelper.runCommand ("", "sudo chmod 755 /usr/bin/openfl", [], false);
+						ProcessHelper.runCommand ("", "sudo", [ "cp", "-f", PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates/bin/openfl.sh", "/usr/bin/openfl" ], false);
+						ProcessHelper.runCommand ("", "sudo", [ "chmod", "755", "/usr/bin/openfl" ], false);
 						installedCommand = true;
 						
 					} catch (e:Dynamic) {}
@@ -434,8 +434,8 @@ class PlatformSetup {
 					
 					try {
 						
-						ProcessHelper.runCommand ("", "sudo", [ "cp", PathHelper.getHaxelib (new Haxelib ("nme")) + "/templates/bin/nme.sh", "/usr/bin/nme" ], false);
-						ProcessHelper.runCommand ("", "sudo chmod 755 /usr/bin/nme", [], false);
+						ProcessHelper.runCommand ("", "sudo", [ "cp", "-f", PathHelper.getHaxelib (new Haxelib ("nme")) + "/templates/bin/nme.sh", "/usr/bin/nme" ], false);
+						ProcessHelper.runCommand ("", "sudo", [ "chmod", "755", "/usr/bin/nme" ], false);
 						
 					} catch (e:Dynamic) {}
 					
