@@ -5,17 +5,26 @@
 	<haxedef name="lime_native" if="native" />
 	<!-- <haxeflag name="-D" value="I_LIKE_SQUIRRELS" /> -->
 
-	
-		
-		<set name="std" value="hxcpp" />
-		<ndll name="std" haxelib="hxcpp" />
-		<ndll name="regexp" haxelib="hxcpp" />
-		<ndll name="zlib" haxelib="hxcpp" />
-		
-		<ndll name="nme" />
-
 	<section unless="display">
+
+		<ndll name="std" haxelib="hxcpp" unless="neko" />
+		<ndll name="regexp" haxelib="hxcpp" unless="neko" />
+		<ndll name="zlib" haxelib="hxcpp" unless="neko" />
+		
+		<ndll name="openal" register="false" if="android" />
+		<ndll name="libfreetype" register="false" if="emscripten" />
+		
+		<ndll name="curl_ssl" register="false" if="ios" />
+		<ndll name="png" register="false" if="ios" />
+		<ndll name="jpeg" register="false" if="ios" />
+		<ndll name="freetype" register="false" if="ios" />
+		<ndll name="ogg" register="false" if="ios" />
+		<ndll name="vorbis" register="false" if="ios" />
+		
+		<ndll name="nme" />		
+
 		<include haxelib="openfl-tools" />
+		
 	</section>
 	
 	<templatePath name="buildfiles" />

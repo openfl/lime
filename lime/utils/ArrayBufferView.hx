@@ -76,7 +76,7 @@ package lime.utils;
                 #end
                 
             }
-            
+
             
             public function getByteBuffer ():ByteArray {
                 

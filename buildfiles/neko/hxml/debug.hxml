@@ -2,4 +2,5 @@
 -cp ::BUILD_DIR::/neko/haxe
 -neko ::NEKO_FILE::
 --macro allowPackage("flash")
+--macro keep("::APP_MAIN::")
 -debug

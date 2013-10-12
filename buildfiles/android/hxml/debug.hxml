@@ -4,3 +4,4 @@
 -D android
 -debug
 --macro allowPackage("flash")
+--macro keep("::APP_MAIN::")

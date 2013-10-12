@@ -22,14 +22,19 @@
 		1EF0A83A000000001C000002 /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000002 /* Icon@2x.png */; };
 		1EF0A83A000000001C000003 /* Icon-72.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000003 /* Icon-72.png */; };
 		1EF0A83A000000001C000004 /* Icon-72@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000004 /* Icon-72@2x.png */; };
+		1EF0A83A000000001C000012 /* Icon-60.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000012 /* Icon-60.png */; };
+		1EF0A83A000000001C000013 /* Icon-60@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000013 /* Icon-60@2x.png */; };
+		1EF0A83A000000001C000014 /* Icon-76.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000014 /* Icon-76.png */; };
+		1EF0A83A000000001C000015 /* Icon-76@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000015 /* Icon-76@2x.png */; };
 		::end::
 		::if (HAS_LAUNCH_IMAGE)::
 		1EF0A83A000000001C000005 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000005 /* Default.png */; };
 		1EF0A83A000000001C000006 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000006 /* Default@2x.png */; };
-		1EF0A83A000000001C000007 /* Default-Portrait~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000007 /* Default-Portrait~ipad.png */; };
-		1EF0A83A000000001C000008 /* Default-Portrait@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000008 /* Default-Portrait@2x~ipad.png */; };
-		1EF0A83A000000001C000009 /* Default-Landscape~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000009 /* Default-Landscape~ipad.png */; };
-		1EF0A83A000000001C000010 /* Default-Landscape@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000010 /* Default-Landscape@2x~ipad.png */; };
+		1EF0A83A000000001C000007 /* Default-Portrait.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000007 /* Default-Portrait.png */; };
+		1EF0A83A000000001C000008 /* Default-Portrait@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000008 /* Default-Portrait@2x.png */; };
+		1EF0A83A000000001C000009 /* Default-Landscape.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000009 /* Default-Landscape.png */; };
+		1EF0A83A000000001C000010 /* Default-Landscape@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000010 /* Default-Landscape@2x.png */; };
+		1EF0A83A000000001C000011 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000011 /* Default-568h@2x.png */; };
 		::end::
 		1EF0A83A121ADB8E003F2F59 /* Main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1EF0A839121ADB8E003F2F59 /* Main.mm */; };
 		1EF0A83B121ADB8E003F2F59 /* haxe in Sources */ = {isa = PBXBuildFile; fileRef = 1E2E17A5141E8B5D0048F3C7 /* haxe */; };
@@ -64,14 +69,19 @@
         1EF0A83900000001C0000002 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Icon@2x.png"; sourceTree = SOURCE_ROOT; };
         1EF0A83900000001C0000003 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Icon-72.png"; sourceTree = SOURCE_ROOT; };
         1EF0A83900000001C0000004 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Icon-72@2x.png"; sourceTree = SOURCE_ROOT; };
+        1EF0A83900000001C0000012 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Icon-60.png"; sourceTree = SOURCE_ROOT; };
+        1EF0A83900000001C0000013 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Icon-60@2x.png"; sourceTree = SOURCE_ROOT; };
+        1EF0A83900000001C0000014 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Icon-76.png"; sourceTree = SOURCE_ROOT; };
+        1EF0A83900000001C0000015 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Icon-76@2x.png"; sourceTree = SOURCE_ROOT; };
 		::end::
 		::if (HAS_LAUNCH_IMAGE)::
         1EF0A83900000001C0000005 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Default.png"; sourceTree = SOURCE_ROOT; };
         1EF0A83900000001C0000006 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Default@2x.png"; sourceTree = SOURCE_ROOT; };
-        1EF0A83900000001C0000007 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Default-Portrait~ipad.png"; sourceTree = SOURCE_ROOT; };
-        1EF0A83900000001C0000008 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Default-Portrait@2x~ipad.png"; sourceTree = SOURCE_ROOT; };
-        1EF0A83900000001C0000009 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Default-Landscape~ipad.png"; sourceTree = SOURCE_ROOT; };
-        1EF0A83900000001C0000010 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Default-Landscape@2x~ipad.png"; sourceTree = SOURCE_ROOT; };
+        1EF0A83900000001C0000007 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Default-Portrait.png"; sourceTree = SOURCE_ROOT; };
+        1EF0A83900000001C0000008 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Default-Portrait@2x.png"; sourceTree = SOURCE_ROOT; };
+        1EF0A83900000001C0000009 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Default-Landscape.png"; sourceTree = SOURCE_ROOT; };
+        1EF0A83900000001C0000010 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Default-Landscape@2x.png"; sourceTree = SOURCE_ROOT; };
+        1EF0A83900000001C0000011 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Default-568h@2x.png"; sourceTree = SOURCE_ROOT; };
 		::end::
         1EF0A839121ADB8E003F2F59 /* Main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Main.mm; path = "::APP_FILE::/Classes/Main.mm"; sourceTree = SOURCE_ROOT; };
 		1E2E17A5141E8B5D0048F3C7 /* haxe */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "::APP_FILE::/haxe/build"; sourceTree = SOURCE_ROOT; };
@@ -168,14 +178,19 @@
                 1EF0A83900000001C0000002 /* Icon@2x.png */,
                 1EF0A83900000001C0000003 /* Icon-72.png */,
                 1EF0A83900000001C0000004 /* Icon-72@2x.png */,
+                1EF0A83900000001C0000012 /* Icon-60.png */,
+                1EF0A83900000001C0000013 /* Icon-60@2x.png */,
+                1EF0A83900000001C0000014 /* Icon-76.png */,
+                1EF0A83900000001C0000015 /* Icon-76@2x.png */,
 				::end::
 				::if (HAS_LAUNCH_IMAGE)::
                 1EF0A83900000001C0000005 /* Default.png */,
                 1EF0A83900000001C0000006 /* Default@2x.png */,
-                1EF0A83900000001C0000007 /* Default-Portrait~ipad.png */,
-                1EF0A83900000001C0000008 /* Default-Portrait@2x~ipad.png */,
-                1EF0A83900000001C0000009 /* Default-Landscape~ipad.png */,
-                1EF0A83900000001C0000010 /* Default-Landscape@2x~ipad.png */,
+                1EF0A83900000001C0000007 /* Default-Portrait.png */,
+                1EF0A83900000001C0000008 /* Default-Portrait@2x.png */,
+                1EF0A83900000001C0000009 /* Default-Landscape.png */,
+                1EF0A83900000001C0000010 /* Default-Landscape@2x.png */,
+                1EF0A83900000001C0000011 /* Default-568h@2x.png */,
 				::end::
 			);
 			name = Resources;
@@ -248,14 +263,19 @@
                 1EF0A83A000000001C000002 /* Icon@2x.png */,
                 1EF0A83A000000001C000003 /* Icon-72.png */,
                 1EF0A83A000000001C000004 /* Icon-72@2x.png */,
+                1EF0A83A000000001C000012 /* Icon-60.png */,
+                1EF0A83A000000001C000013 /* Icon-60@2x.png */,
+                1EF0A83A000000001C000014 /* Icon-76.png */,
+                1EF0A83A000000001C000015 /* Icon-76@2x.png */,
 				::end::
 				::if (HAS_LAUNCH_IMAGE)::
                 1EF0A83A000000001C000005 /* Default.png */,
                 1EF0A83A000000001C000006 /* Default@2x.png */,
-                1EF0A83A000000001C000007 /* Default-Portrait~ipad.png */,
-                1EF0A83A000000001C000008 /* Default-Portrait@2x~ipad.png */,
-                1EF0A83A000000001C000009 /* Default-Landscape~ipad.png */,
-                1EF0A83A000000001C000010 /* Default-Landscape@2x~ipad.png */,
+                1EF0A83A000000001C000007 /* Default-Portrait.png */,
+                1EF0A83A000000001C000008 /* Default-Portrait@2x.png */,
+                1EF0A83A000000001C000009 /* Default-Landscape.png */,
+                1EF0A83A000000001C000010 /* Default-Landscape@2x.png */,
+                1EF0A83A000000001C000011 /* Default-568h@2x.png */,
 				::end::
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -292,7 +312,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				::end::
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "::KEY_STORE_IDENTITY::";
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -323,7 +343,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				::end::
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "::KEY_STORE_IDENTITY::";
 				/* COMPRESS_PNG_FILES = NO; */
 				COPY_PHASE_STRIP = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;

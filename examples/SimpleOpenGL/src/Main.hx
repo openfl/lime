@@ -71,6 +71,17 @@ class Main {
         //Called by lime 
     public function onkeydown(_event:Dynamic) {
         // trace(_event);
+        //49
+
+        if(_event.value == 49) {
+           trace( "selected : " + lib.window.fileDialogOpen('open file!!!',' oenenenfelkes') );
+        }
+        if(_event.value == 50) {
+             trace( "selected : " + lib.window.fileDialogSave('select a save file','saveeeee') );
+        }
+        if(_event.value == 51) {
+             trace( "selected : " + lib.window.fileDialogFolder('Select folder2222','select a folder!!') );
+        }
     }    
 
         //Called by lime 

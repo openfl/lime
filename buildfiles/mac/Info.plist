@@ -24,5 +24,7 @@
 	<string>::APP_BUILD_NUMBER::</string>
 	<key>NSAppleScriptEnabled</key>
 	<string>NO</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.games</string>
 </dict>
 </plist>

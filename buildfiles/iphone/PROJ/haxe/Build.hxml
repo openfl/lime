@@ -2,3 +2,4 @@
 -D iphone
 -D ios
 --macro allowPackage("flash")
+--macro keep("::APP_MAIN::")
