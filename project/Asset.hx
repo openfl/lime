@@ -6,6 +6,7 @@ import helpers.FileHelper;
 import helpers.ObjectHelper;
 import helpers.StringHelper;
 import project.AssetType;
+import sys.FileSystem;
 
 
 class Asset {
@@ -61,9 +62,31 @@ class Asset {
 					
 					this.type = AssetType.FONT;
 				
-				case "wav", "ogg":
+				case "wav":
 					
 					this.type = AssetType.SOUND;
+					
+				case "ogg":
+					
+					if (FileSystem.exists (path)) {
+						
+						var stat = FileSystem.stat (path);
+						
+						if (stat.size > 1024 * 128) {
+							
+							this.type = AssetType.MUSIC;
+							
+						} else {
+							
+							this.type = AssetType.SOUND;
+							
+						}
+						
+					} else {
+						
+						this.type = AssetType.SOUND;
+						
+					}
 				
 				case "mp3", "mp2":
 					
