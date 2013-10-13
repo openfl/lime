@@ -173,7 +173,7 @@ class ProjectXMLParser extends OpenFLProject {
 		
 		if (element.has.unless) {
 			
-			var value = element.att.unless;
+			var value = substitute (element.att.unless);
 			var optionalDefines = value.split ("||");
 			var matchOptional = false;
 			
@@ -224,7 +224,7 @@ class ProjectXMLParser extends OpenFLProject {
 				
 			}
 			
-			if (element.att.id != section) {
+			if (substitute (element.att.id) != section) {
 				
 				return false;
 				
@@ -474,13 +474,13 @@ class ProjectXMLParser extends OpenFLProject {
 				
 				if (element.has.exclude) {
 					
-					exclude += "|" + element.att.exclude;
+					exclude += "|" + substitute (element.att.exclude);
 					
 				}
 				
 				if (element.has.include) {
 					
-					include = element.att.include;
+					include = substitute (element.att.include);
 					
 				} else {
 					
@@ -554,7 +554,7 @@ class ProjectXMLParser extends OpenFLProject {
 					
 					if (childElement.has.rename) {
 						
-						childTargetPath = childElement.att.rename;
+						childTargetPath = substitute (childElement.att.rename);
 						
 					}
 					
@@ -580,7 +580,7 @@ class ProjectXMLParser extends OpenFLProject {
 							
 							if (childElement.has.type) {
 								
-								childType = Reflect.field (AssetType, childElement.att.type.toUpperCase ());
+								childType = Reflect.field (AssetType, substitute (childElement.att.type).toUpperCase ());
 								
 							}
 						
@@ -769,7 +769,7 @@ class ProjectXMLParser extends OpenFLProject {
 							
 						}
 						
-						var name = element.att.name;
+						var name = substitute (element.att.name);
 						
 						localDefines.set (name, value);
 						environment.set (name, value);
@@ -816,7 +816,7 @@ class ProjectXMLParser extends OpenFLProject {
 						
 						if (element.has.haxelib) {
 							
-							path = findIncludeFile (PathHelper.getHaxelib (new Haxelib (element.att.haxelib), true));
+							path = findIncludeFile (PathHelper.getHaxelib (new Haxelib (substitute (element.att.haxelib)), true));
 							addSourcePath = false;
 							
 						} else if (element.has.path) {
@@ -950,7 +950,7 @@ class ProjectXMLParser extends OpenFLProject {
 						
 						if (element.has.register) {
 							
-							registerStatics = (element.att.register == "true");
+							registerStatics = (substitute (element.att.register) == "true");
 							
 						}
 						
@@ -964,7 +964,7 @@ class ProjectXMLParser extends OpenFLProject {
 						
 						if (element.has.name) {
 							
-							name = element.att.name;
+							name = substitute (element.att.name);
 							
 						}
 						
@@ -980,11 +980,11 @@ class ProjectXMLParser extends OpenFLProject {
 						
 						if (element.has.path) {
 							
-							name = substitute(element.att.path);
+							name = substitute (element.att.path);
 							
 						} else {
 							
-							name = substitute(element.att.name);
+							name = substitute (element.att.name);
 							
 						}
 						
@@ -1010,11 +1010,11 @@ class ProjectXMLParser extends OpenFLProject {
 						
 						if (element.has.path) {
 							
-							name = substitute(element.att.path);
+							name = substitute (element.att.path);
 							
 						} else {
 							
-							name = substitute(element.att.name);
+							name = substitute (element.att.name);
 							
 						}
 						
@@ -1099,7 +1099,7 @@ class ProjectXMLParser extends OpenFLProject {
 							
 							if (element.has.type) {
 								
-								libraryHandlers.set (element.att.type, element.att.handler);
+								libraryHandlers.set (substitute (element.att.type), substitute (element.att.handler));
 								
 							}
 							
@@ -1111,19 +1111,19 @@ class ProjectXMLParser extends OpenFLProject {
 							
 							if (element.has.name) {
 								
-								name = element.att.name;
+								name = substitute (element.att.name);
 								
 							}
 							
 							if (element.has.id) {
 								
-								name = element.att.id;
+								name = substitute (element.att.id);
 								
 							}
 							
 							if (element.has.type) {
 								
-								type = element.att.type;
+								type = substitute (element.att.type);
 								
 							}
 							
@@ -1142,7 +1142,7 @@ class ProjectXMLParser extends OpenFLProject {
 							
 							if (element.has.haxelib) {
 								
-								var haxelibPath = PathHelper.getHaxelib (new Haxelib (element.att.haxelib), true);
+								var haxelibPath = PathHelper.getHaxelib (new Haxelib (substitute (element.att.haxelib)), true);
 								var path = PathHelper.combine (haxelibPath, substitute (element.att.path));
 								templatePaths.push (path);
 								
