@@ -174,15 +174,22 @@ class AndroidPlatform implements IPlatformTool {
 				
 				switch (asset.type) {
 					
+					default:
 					//case SOUND, MUSIC:
+						
+						//var extension = Path.extension (asset.sourcePath);
+						//asset.flatName += ((extension != "") ? "." + extension : "");
+						
+						//asset.resourceName = asset.flatName;
+						targetPath = destination + "/assets/" + asset.resourceName;
 						
 						//asset.resourceName = asset.id;
 						//targetPath = destination + "/res/raw/" + asset.flatName + "." + Path.extension (asset.targetPath);
 					
-					default:
+					//default:
 						
-						asset.resourceName = asset.flatName;
-						targetPath = destination + "/assets/" + asset.resourceName;
+						//asset.resourceName = asset.flatName;
+						//targetPath = destination + "/assets/" + asset.resourceName;
 					
 				}
 				
