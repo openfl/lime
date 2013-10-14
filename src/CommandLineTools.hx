@@ -1205,7 +1205,25 @@ class CommandLineTools {
 						
 						if (Reflect.hasField (fieldReference, property)) {
 							
-							Reflect.setField (fieldReference, property, argValue);
+							var propertyReference = Reflect.field (fieldReference, property);
+							
+							if (Std.is (propertyReference, Bool)) {
+								
+								Reflect.setField (fieldReference, property, argValue == "true");
+								
+							} else if (Std.is (propertyReference, Int)) {
+								
+								Reflect.setField (fieldReference, property, Std.parseInt (argValue));
+								
+							} else if (Std.is (propertyReference, Float)) {
+								
+								Reflect.setField (fieldReference, property, Std.parseFloat (argValue));
+								
+							} else if (Std.is (propertyReference, String)) {
+								
+								Reflect.setField (fieldReference, property, argValue);
+								
+							}
 							
 						}
 						
