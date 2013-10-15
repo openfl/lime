@@ -73,7 +73,7 @@ class Asset {
 						var stat = FileSystem.stat (path);
 						
 						//if (stat.size > 1024 * 128) {
-						if (stat.size > 1024 * 512) {
+						if (stat.size > 1024 * 1024) {
 							
 							this.type = AssetType.MUSIC;
 							
