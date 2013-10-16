@@ -1108,6 +1108,7 @@ class ProjectXMLParser extends OpenFLProject {
 							var path = PathHelper.combine (extensionPath, substitute (element.att.path));
 							var name = "";
 							var type = null;
+							var embed = null;
 							
 							if (element.has.name) {
 								
@@ -1127,7 +1128,13 @@ class ProjectXMLParser extends OpenFLProject {
 								
 							}
 							
-							libraries.push (new Library (path, name, type));
+							if (element.has.embed) {
+								
+								embed = (substitute (element.att.embed) == "true");
+								
+							}
+							
+							libraries.push (new Library (path, name, type, embed));
 							
 						}
 					

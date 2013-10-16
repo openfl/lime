@@ -36,9 +36,9 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#if flash
 		
-		::if (assets != null)::::foreach assets::::if (embed)::className.set ("::id::", __ASSET__::flatName::);
+		::if (assets != null)::::foreach assets::::if (embed)::className.set ("::id::", __ASSET__::flatName::);::else::path.set ("::id::", "::resourceName::");::end::
 		type.set ("::id::", Reflect.field (AssetType, "::type::".toUpperCase ()));
-		::end::::end::::end::
+		::end::::end::
 		
 		#elseif html5
 		
@@ -112,6 +112,10 @@ class DefaultAssetLibrary extends AssetLibrary {
 			#if flash
 			
 			if ((assetType == BINARY || assetType == TEXT) && type == BINARY) {
+				
+				return true;
+				
+			} else if (path.exists (id)) {
 				
 				return true;
 				
@@ -259,6 +263,23 @@ class DefaultAssetLibrary extends AssetLibrary {
 		return new Sound (new URLRequest (path.get (id)), null, type.get (id) == MUSIC);
 		
 		#end
+		
+	}
+	
+	
+	public override function isLocal (id:String, type:AssetType):Bool {
+		
+		#if flash
+		
+		if (type != AssetType.MUSIC && type != AssetType.SOUND) {
+			
+			return className.exists (id);
+			
+		}
+		
+		#end
+		
+		return true;
 		
 	}
 	
