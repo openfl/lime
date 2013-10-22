@@ -323,6 +323,7 @@ class FileHelper {
 				
 				if (byte == 0) {
 					
+					input.close ();
 					return false;
 					
 				}
@@ -336,6 +337,8 @@ class FileHelper {
 			}
 			
 		} catch (e:Dynamic) { }
+		
+		input.close ();
 		
 		if (numBytes == 0 || (numChars / numBytes) > 0.7) {
 			
