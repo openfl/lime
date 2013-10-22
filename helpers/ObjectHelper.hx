@@ -1,7 +1,7 @@
 package helpers;
 
 
-class ObjectHelper {
+@:generic class ObjectHelper {
 	
 	
 	public static function copyFields<T> (source:T, destination:T):Void {

@@ -178,10 +178,11 @@ class OpenFLProject {
 		
 		ObjectHelper.copyFields (app, project.app);
 		project.architectures = architectures.copy ();
+		project.assets = assets.copy ();
 		
-		for (asset in assets) {
+		for (i in 0...assets.length) {
 			
-			project.assets.push (asset.clone ());
+			project.assets[i] = assets[i].clone ();
 			
 		}
 		

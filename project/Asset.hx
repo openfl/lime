@@ -27,7 +27,9 @@ class Asset {
 	public var type:AssetType;
 	
 	
-	public function new (path:String = "", rename:String = "", type:AssetType = null, embed:Bool = true) {
+	public function new (path:String = "", rename:String = "", type:AssetType = null, embed:Bool = true, setDefaults:Bool = true) {
+		
+		if (!setDefaults) return;
 		
 		this.embed = embed;
 		sourcePath = path;
@@ -122,8 +124,22 @@ class Asset {
 	
 	public function clone ():Asset {
 		
-		var asset = new Asset ();
-		ObjectHelper.copyFields (this, asset);
+		var asset = new Asset ("", "", null, false, false);
+		
+		asset.data = data;
+		asset.embed = embed;
+		asset.encoding = encoding;
+		asset.flatName = flatName;
+		asset.format = format;
+		asset.glyphs = glyphs;
+		asset.id = id;
+		asset.resourceName = resourceName;
+		asset.sourcePath = sourcePath;
+		asset.targetPath = targetPath;
+		asset.type = type;
+		
+		//ObjectHelper.copyFields (this, asset);
+		
 		return asset;
 		
 	}
