@@ -17,6 +17,10 @@ import neko.Lib;
 class FileHelper {
 	
 	
+	private static var binaryExtensions = [ "jpg", "jpeg", "png", "exe", "gif", "ini", "zip", "tar", "gz", "fla", "swf" ];
+	private static var textExtensions = [ "xml", "java", "hx", "hxml", "html", "ini", "gpe", "pch", "pbxproj", "plist", "json", "cpp", "mm", "properties", "hxproj", "nmml" ];
+	
+	
 	public static function copyAsset (asset:Asset, destination:String, context:Dynamic = null) {
 		
 		if (asset.sourcePath != "") {
@@ -50,7 +54,7 @@ class FileHelper {
 			
 			if (isNewer (asset.sourcePath, destination)) {
 				
-				copyFile (asset.sourcePath, destination);
+				copyFile (asset.sourcePath, destination, null, false);
 				
 			}
 			
@@ -79,39 +83,55 @@ class FileHelper {
 		
 		var extension = Path.extension (source);
 		
-		if (process && context != null && 
-            (extension == "xml" ||
-             extension == "java" ||
-             extension == "hx" ||
-             extension == "hxml" ||
-			 extension == "html" || 
-             extension == "ini" ||
-             extension == "gpe" ||
-             extension == "pch" ||
-             extension == "pbxproj" ||
-             extension == "plist" ||
-             extension == "json" ||
-             extension == "cpp" ||
-             extension == "mm" ||
-			 extension == "properties" ||
-			 extension == "hxproj" ||
-			 extension == "nmml" ||
-			 isText(source))) {
+		if (process && context != null) {
 			
-			LogHelper.info ("", " - Copying template file: " + source + " -> " + destination);
+			for (binary in binaryExtensions) {
+				
+				if (extension == binary) {
+					
+					copyIfNewer (source, destination);
+					return;
+					
+				}
+				
+			}
 			
-			var fileContents:String = File.getContent (source);
-			var template:Template = new Template (fileContents);
-			var result:String = template.execute (context);
-			var fileOutput:FileOutput = File.write (destination, true);
-			fileOutput.writeString (result);
-			fileOutput.close ();
+			var match = false;
 			
-		} else {
+			for (text in textExtensions) {
+				
+				if (extension == text) {
+					
+					match = true;
+					break;
+					
+				}
+				
+			}
 			
-			copyIfNewer (source, destination);
+			if (!match) {
+				
+				match = isText (source);
+				
+			}
+			
+			if (match) {
+				
+				LogHelper.info ("", " - Copying template file: " + source + " -> " + destination);
+				
+				var fileContents:String = File.getContent (source);
+				var template:Template = new Template (fileContents);
+				var result:String = template.execute (context);
+				var fileOutput:FileOutput = File.write (destination, true);
+				fileOutput.writeString (result);
+				fileOutput.close ();
+				return;
+				
+			}
 			
 		}
+		
+		copyIfNewer (source, destination);
 		
 	}
 	

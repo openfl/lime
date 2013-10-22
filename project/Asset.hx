@@ -99,15 +99,15 @@ class Asset {
 				
 				default:
 					
-					if (path != "" && FileHelper.isText (path)) {
+					/*if (path != "" && FileHelper.isText (path)) {
 						
 						this.type = AssetType.TEXT;
 						
-					} else {
+					} else {*/
 						
 						this.type = AssetType.BINARY;
 						
-					}
+					//}
 				
 			}
 			
