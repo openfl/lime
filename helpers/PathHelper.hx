@@ -198,7 +198,15 @@ class PathHelper {
 			
 			if (result == "") {
 				
-				LogHelper.error ("Could not find haxelib \"" + haxelib.name + "\", does it need to be installed?");
+				if (haxelib.version != "") {
+					
+					LogHelper.error ("Could not find haxelib \"" + haxelib.name + "\" version \"" + haxelib.version + "\", does it need to be installed?");
+					
+				} else {
+					
+					LogHelper.error ("Could not find haxelib \"" + haxelib.name + "\", does it need to be installed?");
+					
+				}
 				
 			} else if (result != null && (result.indexOf ("is not installed") > -1 || result.indexOf ("does not have") > -1)) {
 				
