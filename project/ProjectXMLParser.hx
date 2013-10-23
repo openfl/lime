@@ -832,7 +832,7 @@ class ProjectXMLParser extends OpenFLProject {
 							
 						}
 						
-						if (path != null && path != "" && FileSystem.exists (path)) {
+						if (path != null && path != "" && FileSystem.exists (path) && !FileSystem.isDirectory (path)) {
 							
 							var includeProject = new ProjectXMLParser (path, localDefines);
 							
@@ -852,7 +852,16 @@ class ProjectXMLParser extends OpenFLProject {
 							
 						} else if (!element.has.noerror) {
 							
-							LogHelper.error ("Could not find include file \"" + path + "\"");
+							if (path == "" || FileSystem.isDirectory (path)) {
+								
+								var errorPath = (element.has.path ? element.att.path : element.att.name);
+								LogHelper.error ("\"" + errorPath + "\" does not appear to be a valid <include /> path");
+								
+							} else {
+								
+								LogHelper.error ("Could not find include file \"" + path + "\"");
+								
+							}	
 							
 						}
 					
