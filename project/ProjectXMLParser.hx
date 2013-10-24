@@ -423,9 +423,7 @@ class ProjectXMLParser extends OpenFLProject {
 			
 		} else if (element.has.type) {
 			
-			Sys.println (element.att.type);
 			type = Reflect.field (AssetType, substitute (element.att.type).toUpperCase ());
-			Sys.println (type);
 			
 		}
 		
@@ -486,11 +484,11 @@ class ProjectXMLParser extends OpenFLProject {
 					
 				} else {
 					
-					if (type == null) {
+					//if (type == null) {
 						
 						include = "*";
 						
-					} else {
+					/*} else {
 						
 						switch (type) {
 							
@@ -520,7 +518,7 @@ class ProjectXMLParser extends OpenFLProject {
 							
 						}
 						
-					}
+					}*/
 					
 				}
 				
