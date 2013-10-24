@@ -423,7 +423,9 @@ class ProjectXMLParser extends OpenFLProject {
 			
 		} else if (element.has.type) {
 			
+			Sys.println (element.att.type);
 			type = Reflect.field (AssetType, substitute (element.att.type).toUpperCase ());
+			Sys.println (type);
 			
 		}
 		
@@ -502,7 +504,7 @@ class ProjectXMLParser extends OpenFLProject {
 							
 							case MUSIC:
 								
-								include = "*.mp2|*.mp3";
+								include = "*.mp2|*.mp3|*.ogg";
 							
 							case FONT:
 								
