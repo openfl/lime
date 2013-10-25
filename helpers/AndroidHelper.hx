@@ -167,13 +167,13 @@ class AndroidHelper {
 				
 			}
 			
-			ProcessHelper.runCommand (adbPath, adbName, [ "-s", emulator, "install", "-r", targetPath ]);
+			ProcessHelper.runCommand (adbPath, adbName, [ "-s", emulator, "install", "-r", "-d", targetPath ]);
 			
 			return emulator;
 			
 		} else {
 			
-			ProcessHelper.runCommand (adbPath, adbName, [ "install", "-r", targetPath ]);
+			ProcessHelper.runCommand (adbPath, adbName, [ "install", "-r", "-d", targetPath ]);
 			
 		}
 		
