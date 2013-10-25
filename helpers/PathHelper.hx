@@ -271,6 +271,15 @@ class PathHelper {
 	}
 	
 	
+	public static function getTemporaryDirectory ():String {
+		
+		var path = getTemporaryFile ();
+		mkdir (path);
+		return path;
+		
+	}
+	
+	
 	public static function isAbsolute (path:String):Bool {
 		
 		if (StringTools.startsWith (path, "/") || StringTools.startsWith (path, "\\")) {
