@@ -1,20 +1,20 @@
 package platforms;
 
 
-import project.OpenFLProject;
+import project.HXProject;
 
 
 interface IPlatformTool {
 	
 	
-	public function build (project:OpenFLProject):Void;
-	public function clean (project:OpenFLProject):Void;
-	public function display (project:OpenFLProject):Void;
-	public function install (project:OpenFLProject):Void;
-	public function run (project:OpenFLProject, arguments:Array <String>):Void;
-	public function trace (project:OpenFLProject):Void;
-	public function uninstall (project:OpenFLProject):Void;
-	public function update (project:OpenFLProject):Void;
+	public function build (project:HXProject):Void;
+	public function clean (project:HXProject):Void;
+	public function display (project:HXProject):Void;
+	public function install (project:HXProject):Void;
+	public function run (project:HXProject, arguments:Array <String>):Void;
+	public function trace (project:HXProject):Void;
+	public function uninstall (project:HXProject):Void;
+	public function update (project:HXProject):Void;
 	
 	
 }

@@ -11,7 +11,7 @@ import helpers.LogHelper;
 import helpers.PathHelper;
 import helpers.ProcessHelper;
 import project.AssetType;
-import project.OpenFLProject;
+import project.HXProject;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -23,7 +23,7 @@ class EmscriptenPlatform implements IPlatformTool {
 	private var outputFile:String;
 	
 	
-	public function build (project:OpenFLProject):Void {
+	public function build (project:HXProject):Void {
 		
 		initialize (project);
 		
@@ -153,7 +153,7 @@ class EmscriptenPlatform implements IPlatformTool {
 	}
 	
 	
-	public function clean (project:OpenFLProject):Void {
+	public function clean (project:HXProject):Void {
 		
 		var targetPath = project.app.path + "/emscripten";
 		
@@ -166,7 +166,7 @@ class EmscriptenPlatform implements IPlatformTool {
 	}
 	
 	
-	public function display (project:OpenFLProject):Void {
+	public function display (project:HXProject):Void {
 		
 		initialize (project);
 		
@@ -182,7 +182,7 @@ class EmscriptenPlatform implements IPlatformTool {
 	}
 	
 	
-	private function initialize (project:OpenFLProject):Void {
+	private function initialize (project:HXProject):Void {
 		
 		outputDirectory = project.app.path + "/emscripten";
 		outputFile = outputDirectory + "/bin/" + project.app.file + ".js";
@@ -190,7 +190,7 @@ class EmscriptenPlatform implements IPlatformTool {
 	}
 	
 	
-	public function run (project:OpenFLProject, arguments:Array < String > ):Void {
+	public function run (project:HXProject, arguments:Array < String > ):Void {
 		
 		initialize (project);
 		
@@ -207,7 +207,7 @@ class EmscriptenPlatform implements IPlatformTool {
 	}
 	
 	
-	public function update (project:OpenFLProject):Void {
+	public function update (project:HXProject):Void {
 		
 		initialize (project);
 		
@@ -285,9 +285,9 @@ class EmscriptenPlatform implements IPlatformTool {
 	
 	
 	public function new () {}
-	@ignore public function install (project:OpenFLProject):Void {}
-	@ignore public function trace (project:OpenFLProject):Void {}
-	@ignore public function uninstall (project:OpenFLProject):Void {}
+	@ignore public function install (project:HXProject):Void {}
+	@ignore public function trace (project:HXProject):Void {}
+	@ignore public function uninstall (project:HXProject):Void {}
 	
 	
 }

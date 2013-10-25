@@ -11,7 +11,7 @@ import helpers.PathHelper;
 import helpers.ProcessHelper;
 import helpers.WebOSHelper;
 import project.AssetType;
-import project.OpenFLProject;
+import project.HXProject;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -19,7 +19,7 @@ import sys.FileSystem;
 class WebOSPlatform implements IPlatformTool {
 	
 	
-	public function build (project:OpenFLProject):Void {
+	public function build (project:HXProject):Void {
 		
 		var hxml = project.app.path + "/webos/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
 		ProcessHelper.runCommand ("", "haxe", [ hxml ] );
@@ -31,7 +31,7 @@ class WebOSPlatform implements IPlatformTool {
 	}
 	
 	
-	public function clean (project:OpenFLProject):Void {
+	public function clean (project:HXProject):Void {
 		
 		var targetPath = project.app.path + "/webos";
 		
@@ -44,7 +44,7 @@ class WebOSPlatform implements IPlatformTool {
 	}
 	
 	
-	public function display (project:OpenFLProject):Void {
+	public function display (project:HXProject):Void {
 		
 		var hxml = PathHelper.findTemplate (project.templatePaths, "webos/hxml/" + (project.debug ? "debug" : "release") + ".hxml");
 		
@@ -57,7 +57,7 @@ class WebOSPlatform implements IPlatformTool {
 	}
 	
 	
-	public function run (project:OpenFLProject, arguments:Array <String>):Void {
+	public function run (project:HXProject, arguments:Array <String>):Void {
 		
 		WebOSHelper.install (project, project.app.path + "/webos");
 		WebOSHelper.launch (project);
@@ -65,14 +65,14 @@ class WebOSPlatform implements IPlatformTool {
 	}
 	
 	
-	public function trace (project:OpenFLProject):Void {
+	public function trace (project:HXProject):Void {
 		
 		WebOSHelper.trace (project);
 		
 	}
 	
 	
-	public function update (project:OpenFLProject):Void {
+	public function update (project:HXProject):Void {
 		
 		project = project.clone ();
 		var destination = project.app.path + "/webos/bin/";
@@ -139,8 +139,8 @@ class WebOSPlatform implements IPlatformTool {
 	
 	
 	public function new () {}
-	@ignore public function install (project:OpenFLProject):Void {}
-	@ignore public function uninstall (project:OpenFLProject):Void {}
+	@ignore public function install (project:HXProject):Void {}
+	@ignore public function uninstall (project:HXProject):Void {}
 	
 	
 }

@@ -27,8 +27,8 @@ class CommandLineTools {
 	private var command:String;
 	private var debug:Bool;
 	private var includePaths:Array <String>;
-	private var overrides:OpenFLProject;
-	private var project:OpenFLProject;
+	private var overrides:HXProject;
+	private var project:HXProject;
 	private var projectDefines:Map <String, String>;
 	private var targetFlags:Map <String, String>;
 	private var traceEnabled:Bool;
@@ -49,7 +49,7 @@ class CommandLineTools {
 		userDefines = new Map <String, Dynamic> ();
 		words = new Array <String> ();
 		
-		overrides = new OpenFLProject ();
+		overrides = new HXProject ();
 		overrides.architectures = [];
 		
 		processArguments ();
@@ -542,7 +542,7 @@ class CommandLineTools {
 	}
 	
 	
-	private function getBuildNumber (project:OpenFLProject, increment:Bool = true):Void {
+	private function getBuildNumber (project:HXProject, increment:Bool = true):Void {
 		
 		if (project.meta.buildNumber == "1") {
 			
@@ -584,7 +584,7 @@ class CommandLineTools {
 	}
 	
 	
-	public static function getHXCPPConfig ():OpenFLProject {
+	public static function getHXCPPConfig ():HXProject {
 		
 		var environment = Sys.environment ();
 		var config = "";
@@ -746,7 +746,7 @@ class CommandLineTools {
 	#end
 	
 	
-	private function initializeProject ():OpenFLProject {
+	private function initializeProject ():HXProject {
 		
 		LogHelper.info ("", "Initializing project...");
 		
@@ -854,15 +854,15 @@ class CommandLineTools {
 			
 		}
 		
-		OpenFLProject._command = command;
-		OpenFLProject._debug = debug;
-		OpenFLProject._target = target;
-		OpenFLProject._targetFlags = targetFlags;
-		//OpenFLProject._templatePaths = [ nme + "/templates/default", nme + "/tools/command-line" ];
+		HXProject._command = command;
+		HXProject._debug = debug;
+		HXProject._target = target;
+		HXProject._targetFlags = targetFlags;
+		//HXProject._templatePaths = [ nme + "/templates/default", nme + "/tools/command-line" ];
 		
 		try { Sys.setCwd (Path.directory (projectFile)); } catch (e:Dynamic) {}
 		
-		var project:OpenFLProject = null;
+		var project:HXProject = null;
 		
 		if (Path.extension (projectFile) == "nmml" || Path.extension (projectFile) == "xml") {
 			
@@ -875,9 +875,9 @@ class CommandLineTools {
 			
 			var tempFile = PathHelper.getTemporaryFile (".n");
 			
-			ProcessHelper.runCommand ("", "haxe", [ name, "-main", "project.OpenFLProject", "-neko", tempFile, "-lib", "hxtools", "-lib", "openfl", "-lib", "openfl-native", /*"-lib", "xfl", "-lib", "swf",*/ "-lib", "svg", "--remap", "flash:flash" ]);
+			ProcessHelper.runCommand ("", "haxe", [ name, "-main", "project.HXProject", "-neko", tempFile, "-lib", "hxtools", "-lib", "openfl", "-lib", "openfl-native", /*"-lib", "xfl", "-lib", "swf",*/ "-lib", "svg", "--remap", "flash:flash" ]);
 			
-			var process = new Process ("neko", [ FileSystem.fullPath (tempFile), name, OpenFLProject._command, Std.string (OpenFLProject._debug), Std.string (OpenFLProject._target), Serializer.run (OpenFLProject._targetFlags), Serializer.run (OpenFLProject._templatePaths) ]);
+			var process = new Process ("neko", [ FileSystem.fullPath (tempFile), name, HXProject._command, Std.string (HXProject._debug), Std.string (HXProject._target), Serializer.run (HXProject._targetFlags), Serializer.run (HXProject._templatePaths) ]);
 			var output = process.stdout.readAll ().toString ();
 			var error = process.stderr.readAll ().toString ();
 			process.exitCode ();
@@ -899,7 +899,7 @@ class CommandLineTools {
 					
 					if (haxelib.name == "nme" && userDefines.exists ("openfl")) {
 						
-						haxelib.name = "openfl-compatibility";
+						haxelib.name = "openfl-nme-compatibility";
 						haxelib.version = "";
 						
 					}
@@ -1050,7 +1050,7 @@ class CommandLineTools {
 		
 		if (name.toLowerCase ().indexOf ("project") > -1 && name.indexOf ("project.") == -1) {
 			
-			return OpenFLProject;
+			return HXProject;
 			
 		} else {
 			

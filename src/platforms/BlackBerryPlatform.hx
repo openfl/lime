@@ -13,8 +13,8 @@ import helpers.PathHelper;
 import helpers.ProcessHelper;
 import project.AssetType;
 import project.Haxelib;
+import project.HXProject;
 import project.NDLL;
-import project.OpenFLProject;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -26,7 +26,7 @@ class BlackBerryPlatform implements IPlatformTool {
 	private var outputFile:String;
 	
 	
-	public function build (project:OpenFLProject):Void {
+	public function build (project:HXProject):Void {
 		
 		initialize (project);
 		
@@ -57,7 +57,7 @@ class BlackBerryPlatform implements IPlatformTool {
 	}
 	
 	
-	public function clean (project:OpenFLProject):Void {
+	public function clean (project:HXProject):Void {
 		
 		initialize (project);
 		
@@ -70,7 +70,7 @@ class BlackBerryPlatform implements IPlatformTool {
 	}
 	
 	
-	public function display (project:OpenFLProject):Void {
+	public function display (project:HXProject):Void {
 		
 		var hxml = "";
 		var context = project.templateContext;
@@ -96,7 +96,7 @@ class BlackBerryPlatform implements IPlatformTool {
 	}
 	
 	
-	private function initialize (project:OpenFLProject):Void {
+	private function initialize (project:HXProject):Void {
 		
 		if (!project.environment.exists ("BLACKBERRY_SETUP")) {
 			
@@ -122,7 +122,7 @@ class BlackBerryPlatform implements IPlatformTool {
 	}
 	
 	
-	public function run (project:OpenFLProject, arguments:Array <String>):Void {
+	public function run (project:HXProject, arguments:Array <String>):Void {
 		
 		initialize (project);
 		
@@ -139,7 +139,7 @@ class BlackBerryPlatform implements IPlatformTool {
 	}
 	
 	
-	public function trace (project:OpenFLProject):Void {
+	public function trace (project:HXProject):Void {
 		
 		initialize (project);
 		
@@ -156,7 +156,7 @@ class BlackBerryPlatform implements IPlatformTool {
 	}
 	
 	
-	public function update (project:OpenFLProject):Void {
+	public function update (project:HXProject):Void {
 		
 		project = project.clone ();
 		initialize (project);
@@ -341,8 +341,8 @@ class BlackBerryPlatform implements IPlatformTool {
 	
 	
 	public function new () {}
-	@ignore public function install (project:OpenFLProject):Void {}
-	@ignore public function uninstall (project:OpenFLProject):Void {}
+	@ignore public function install (project:HXProject):Void {}
+	@ignore public function uninstall (project:HXProject):Void {}
 	
 	
 }

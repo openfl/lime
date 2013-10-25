@@ -11,13 +11,13 @@ import project.Asset;
 import project.AssetType;
 import project.Dependency;
 import project.Haxelib;
-import project.OpenFLProject;
+import project.HXProject;
 import project.PlatformConfig;
 import sys.io.File;
 import sys.FileSystem;
 
 
-class ProjectXMLParser extends OpenFLProject {
+class ProjectXMLParser extends HXProject {
 	
 	
 	public var includePaths:Array <String>;
@@ -890,7 +890,7 @@ class ProjectXMLParser extends OpenFLProject {
 						
 						if (name == "nme" && localDefines.exists ("openfl")) {
 							
-							name = "openfl-compatibility";
+							name = "openfl-nme-compatibility";
 							version = "";
 							
 						}

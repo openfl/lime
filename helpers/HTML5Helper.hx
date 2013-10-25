@@ -6,14 +6,14 @@ import helpers.LogHelper;
 import helpers.PathHelper;
 import helpers.ProcessHelper;
 import project.Asset;
-import project.OpenFLProject;
+import project.HXProject;
 import sys.FileSystem;
 
 
 class HTML5Helper {
 	
 	
-	public static function generateFontData (project:OpenFLProject, font:Asset):String {
+	public static function generateFontData (project:HXProject, font:Asset):String {
 		
 		var sourcePath = font.sourcePath;
 		
@@ -28,7 +28,7 @@ class HTML5Helper {
 	}
 	
 	
-	public static function launch (project:OpenFLProject, path:String, port:Int = 3000):Void {
+	public static function launch (project:HXProject, path:String, port:Int = 3000):Void {
 		
 		if (project.app.url != "") {
 			
@@ -46,7 +46,7 @@ class HTML5Helper {
 	}
 	
 	
-	public static function minify (project:OpenFLProject, sourceFile:String):Bool {
+	public static function minify (project:HXProject, sourceFile:String):Bool {
 		
 		if (FileSystem.exists (sourceFile)) {
 			

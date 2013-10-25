@@ -3,35 +3,35 @@ package helpers;
 
 import helpers.PlatformHelper;
 import helpers.ProcessHelper;
-import project.OpenFLProject;
+import project.HXProject;
 import project.Platform;
 
 
 class WebOSHelper {
 	
 	
-	public static function createPackage (project:OpenFLProject, workingDirectory:String, targetPath:String):Void {
+	public static function createPackage (project:HXProject, workingDirectory:String, targetPath:String):Void {
 		
 		runPalmCommand (project, workingDirectory, "package" , [ targetPath ]);
 		
 	}
 	
 	
-	public static function install (project:OpenFLProject, workingDirectory:String):Void {
+	public static function install (project:HXProject, workingDirectory:String):Void {
 		
 		runPalmCommand (project, workingDirectory, "install", [ project.meta.packageName + "_" + project.meta.version + "_all.ipk" ]);
 		
 	}
 	
 	
-	public static function launch (project:OpenFLProject):Void {
+	public static function launch (project:HXProject):Void {
 		
 		runPalmCommand (project, "", "launch", [ project.meta.packageName ]);
 		
 	}
 	
 	
-	private static function runPalmCommand (project:OpenFLProject, workingDirectory:String, command:String, args:Array<String>):Void {
+	private static function runPalmCommand (project:HXProject, workingDirectory:String, command:String, args:Array<String>):Void {
 		
 		var sdkDirectory = "";
 		
@@ -58,7 +58,7 @@ class WebOSHelper {
 	}
 	
 	
-	public static function trace (project:OpenFLProject, follow:Bool = true):Void {
+	public static function trace (project:HXProject, follow:Bool = true):Void {
 		
 		var args = [];
 		

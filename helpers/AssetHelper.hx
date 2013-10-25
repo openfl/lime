@@ -6,7 +6,7 @@ import haxe.Serializer;
 import haxe.Unserializer;
 import helpers.PathHelper;
 import openfl.Assets;
-import project.OpenFLProject;
+import project.HXProject;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -14,7 +14,7 @@ import sys.FileSystem;
 class AssetHelper {
 	
 	
-	public static function createManifest (project:OpenFLProject, targetPath:String = ""):String {
+	public static function createManifest (project:HXProject, targetPath:String = ""):String {
 		
 		var manifest = new Array <AssetData> ();
 		
@@ -46,7 +46,7 @@ class AssetHelper {
 	}
 	
 	
-	public static function processLibraries (project:OpenFLProject):Void {
+	public static function processLibraries (project:HXProject):Void {
 		
 		var handlers = new Array <String> ();
 		
@@ -98,7 +98,7 @@ class AssetHelper {
 					
 					try {
 						
-						var data:OpenFLProject = Unserializer.run (output);
+						var data:HXProject = Unserializer.run (output);
 						project.merge (data);
 						
 					} catch (e:Dynamic) {

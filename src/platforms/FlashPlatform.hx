@@ -8,7 +8,7 @@ import helpers.FlashHelper;
 import helpers.PathHelper;
 import helpers.ProcessHelper;
 import project.AssetType;
-import project.OpenFLProject;
+import project.HXProject;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -16,7 +16,7 @@ import sys.FileSystem;
 class FlashPlatform implements IPlatformTool {
 	
 	
-	public function build (project:OpenFLProject):Void {
+	public function build (project:HXProject):Void {
 		
 		var destination = project.app.path + "/flash/bin";
 		var hxml = project.app.path + "/flash/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
@@ -51,7 +51,7 @@ class FlashPlatform implements IPlatformTool {
 	}
 	
 	
-	public function clean (project:OpenFLProject):Void {
+	public function clean (project:HXProject):Void {
 		
 		var targetPath = project.app.path + "/flash";
 		
@@ -64,7 +64,7 @@ class FlashPlatform implements IPlatformTool {
 	}
 	
 	
-	public function display (project:OpenFLProject):Void {
+	public function display (project:HXProject):Void {
 		
 		var hxml = PathHelper.findTemplate (project.templatePaths, "flash/hxml/" + (project.debug ? "debug" : "release") + ".hxml");
 		
@@ -77,7 +77,7 @@ class FlashPlatform implements IPlatformTool {
 	}
 	
 	
-	private function generateContext (project:OpenFLProject):Dynamic {
+	private function generateContext (project:HXProject):Dynamic {
 		
 		project = project.clone ();
 		
@@ -112,7 +112,7 @@ class FlashPlatform implements IPlatformTool {
 	}
 	
 	
-	public function run (project:OpenFLProject, arguments:Array <String>):Void {
+	public function run (project:HXProject, arguments:Array <String>):Void {
 		
 		if (project.app.url != "") {
 			
@@ -136,7 +136,7 @@ class FlashPlatform implements IPlatformTool {
 	}
 	
 	
-	public function update (project:OpenFLProject):Void {
+	public function update (project:HXProject):Void {
 		
 		var destination = project.app.path + "/flash/bin/";
 		PathHelper.mkdir (destination);
@@ -207,9 +207,9 @@ class FlashPlatform implements IPlatformTool {
 	
 	
 	public function new () {}
-	@ignore public function install (project:OpenFLProject):Void { }
-	@ignore public function trace (project:OpenFLProject):Void { }
-	@ignore public function uninstall (project:OpenFLProject):Void { }
+	@ignore public function install (project:HXProject):Void { }
+	@ignore public function trace (project:HXProject):Void { }
+	@ignore public function uninstall (project:HXProject):Void { }
 	
 	
 	

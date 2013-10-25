@@ -4,7 +4,7 @@ package helpers;
 import haxe.io.Path;
 import helpers.PathHelper;
 import helpers.ProcessHelper;
-import project.OpenFLProject;
+import project.HXProject;
 import sys.io.Process;
 import sys.FileSystem;
 
@@ -15,7 +15,7 @@ class IOSHelper {
 	private static var initialized = false;
 	
 	
-	public static function build (project:OpenFLProject, workingDirectory:String, additionalArguments:Array <String> = null):Void {
+	public static function build (project:HXProject, workingDirectory:String, additionalArguments:Array <String> = null):Void {
 		
 		initialize (project);
 		
@@ -56,7 +56,7 @@ class IOSHelper {
 	}
 	
 	
-	public static function getSDKDirectory (project:OpenFLProject):String {
+	public static function getSDKDirectory (project:HXProject):String {
 		
 		initialize (project);
 		
@@ -84,7 +84,7 @@ class IOSHelper {
 	}
 	
 	
-	private static function getIOSVersion (project:OpenFLProject):Void {
+	private static function getIOSVersion (project:HXProject):Void {
 		
 		if (!project.environment.exists("IPHONE_VER")) {
 			if (!project.environment.exists("DEVELOPER_DIR")) {
@@ -155,7 +155,7 @@ class IOSHelper {
 	}
 	
 	
-	private static function initialize (project:OpenFLProject):Void {
+	private static function initialize (project:HXProject):Void {
 		
 		if (!initialized) {
 			
@@ -168,7 +168,7 @@ class IOSHelper {
 	}
 	
 	
-	public static function launch (project:OpenFLProject, workingDirectory:String):Void {
+	public static function launch (project:HXProject, workingDirectory:String):Void {
 		
 		initialize (project);
 		
@@ -245,7 +245,7 @@ class IOSHelper {
 	}
 	
 	
-	public static function sign (project:OpenFLProject, workingDirectory:String, entitlementsPath:String):Void {
+	public static function sign (project:HXProject, workingDirectory:String, entitlementsPath:String):Void {
 		
 		initialize (project);
 		

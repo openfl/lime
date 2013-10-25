@@ -13,7 +13,7 @@ import helpers.PathHelper;
 import helpers.ProcessHelper;
 import project.Architecture;
 import project.AssetType;
-import project.OpenFLProject;
+import project.HXProject;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -24,7 +24,7 @@ class AndroidPlatform implements IPlatformTool {
 	private var deviceID:String;
 	
 	
-	public function build (project:OpenFLProject):Void {
+	public function build (project:HXProject):Void {
 		
 		initialize (project);
 		
@@ -69,7 +69,7 @@ class AndroidPlatform implements IPlatformTool {
 	}
 	
 	
-	public function clean (project:OpenFLProject):Void {
+	public function clean (project:HXProject):Void {
 		
 		var targetPath = project.app.path + "/android";
 		
@@ -82,7 +82,7 @@ class AndroidPlatform implements IPlatformTool {
 	}
 	
 	
-	public function display (project:OpenFLProject):Void {
+	public function display (project:HXProject):Void {
 		
 		var hxml = PathHelper.findTemplate (project.templatePaths, "android/hxml/" + (project.debug ? "debug" : "release") + ".hxml");
 		
@@ -95,7 +95,7 @@ class AndroidPlatform implements IPlatformTool {
 	}
 	
 	
-	public function install (project:OpenFLProject):Void {
+	public function install (project:HXProject):Void {
 		
 		initialize (project);
 		
@@ -112,7 +112,7 @@ class AndroidPlatform implements IPlatformTool {
    }
 	
 	
-	private function initialize (project:OpenFLProject):Void {
+	private function initialize (project:HXProject):Void {
 		
 		if (!project.environment.exists ("ANDROID_SETUP")) {
 			
@@ -126,7 +126,7 @@ class AndroidPlatform implements IPlatformTool {
 	}
 	
 	
-	public function run (project:OpenFLProject, arguments:Array <String>):Void {
+	public function run (project:HXProject, arguments:Array <String>):Void {
 		
 		initialize (project);
 		
@@ -135,7 +135,7 @@ class AndroidPlatform implements IPlatformTool {
 	}
 	
 	
-	public function trace (project:OpenFLProject):Void {
+	public function trace (project:HXProject):Void {
 		
 		initialize (project);
 		
@@ -144,7 +144,7 @@ class AndroidPlatform implements IPlatformTool {
 	}
 	
 	
-	public function uninstall (project:OpenFLProject):Void {
+	public function uninstall (project:HXProject):Void {
 		
 		initialize (project);
 		
@@ -153,7 +153,7 @@ class AndroidPlatform implements IPlatformTool {
 	}
 	
 	
-	public function update (project:OpenFLProject):Void {
+	public function update (project:HXProject):Void {
 		
 		project = project.clone ();
 		

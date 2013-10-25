@@ -15,7 +15,7 @@ import project.AssetType;
 import sys.FileSystem;
 
 
-class OpenFLProject {
+class HXProject {
 	
 	
 	public var app:ApplicationData;
@@ -65,11 +65,11 @@ class OpenFLProject {
 		
 		if (args.length > 1) {
 			
-			OpenFLProject._command = args[1];
-			OpenFLProject._debug = (args[2] == "true");
-			OpenFLProject._target = Type.createEnum (Platform, args[3]);
-			OpenFLProject._targetFlags = Unserializer.run (args[4]);
-			OpenFLProject._templatePaths = Unserializer.run (args[5]);
+			HXProject._command = args[1];
+			HXProject._debug = (args[2] == "true");
+			HXProject._target = Type.createEnum (Platform, args[3]);
+			HXProject._targetFlags = Unserializer.run (args[4]);
+			HXProject._templatePaths = Unserializer.run (args[5]);
 			
 		}
 		
@@ -172,9 +172,9 @@ class OpenFLProject {
 	}
 	
 	
-	public function clone ():OpenFLProject {
+	public function clone ():HXProject {
 		
-		var project = new OpenFLProject ();
+		var project = new HXProject ();
 		
 		ObjectHelper.copyFields (app, project.app);
 		project.architectures = architectures.copy ();
@@ -443,7 +443,7 @@ class OpenFLProject {
 	}
 	
 	
-	public function merge (project:OpenFLProject):Void {
+	public function merge (project:HXProject):Void {
 		
 		if (project != null) {
 			

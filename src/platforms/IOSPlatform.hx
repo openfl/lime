@@ -17,9 +17,9 @@ import project.Architecture;
 import project.Asset;
 import project.AssetType;
 import project.Haxelib;
+import project.HXProject;
 import project.Keystore;
 import project.NDLL;
-import project.OpenFLProject;
 import project.Platform;
 import project.PlatformConfig;
 import sys.io.File;
@@ -29,7 +29,7 @@ import sys.FileSystem;
 class IOSPlatform implements IPlatformTool {
 	
 	
-	public function build (project:OpenFLProject):Void {
+	public function build (project:HXProject):Void {
 		
 		var targetDirectory = PathHelper.combine (project.app.path, "ios");
 		
@@ -45,7 +45,7 @@ class IOSPlatform implements IPlatformTool {
 	}
 	
 	
-	public function clean (project:OpenFLProject):Void {
+	public function clean (project:HXProject):Void {
 		
 		var targetPath = project.app.path + "/ios";
 		
@@ -58,7 +58,7 @@ class IOSPlatform implements IPlatformTool {
 	}
 	
 	
-	public function display (project:OpenFLProject):Void {
+	public function display (project:HXProject):Void {
 		
 		var hxml = PathHelper.findTemplate (project.templatePaths, "iphone/PROJ/haxe/Build.hxml");
 		var template = new Template (File.getContent (hxml));
@@ -67,7 +67,7 @@ class IOSPlatform implements IPlatformTool {
 	}
 	
 	
-	private function generateContext (project:OpenFLProject):Dynamic {
+	private function generateContext (project:HXProject):Dynamic {
 		
 		project = project.clone ();
 		
@@ -284,14 +284,14 @@ class IOSPlatform implements IPlatformTool {
 	}
 	
 	
-	public function run (project:OpenFLProject, arguments:Array <String>):Void {
+	public function run (project:HXProject, arguments:Array <String>):Void {
 		
 		IOSHelper.launch (project, PathHelper.combine (project.app.path, "ios"));
 		
 	}
 	
 	
-	public function update (project:OpenFLProject):Void {
+	public function update (project:HXProject):Void {
 		
 		project = project.clone ();
 		
@@ -511,9 +511,9 @@ class IOSPlatform implements IPlatformTool {
 	
 	
 	public function new () {}
-	@ignore public function install (project:OpenFLProject):Void {}
-	@ignore public function trace (project:OpenFLProject):Void {}
-	@ignore public function uninstall (project:OpenFLProject):Void {}
+	@ignore public function install (project:HXProject):Void {}
+	@ignore public function trace (project:HXProject):Void {}
+	@ignore public function uninstall (project:HXProject):Void {}
 	
 	
 }

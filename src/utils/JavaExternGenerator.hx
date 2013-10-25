@@ -14,7 +14,7 @@ import sys.io.Process;
 import sys.FileSystem;
 import neko.Lib;
 import neko.zip.Compress;
-import project.OpenFLProject;
+import project.HXProject;
 
 
 class JavaExternGenerator
@@ -32,7 +32,7 @@ class JavaExternGenerator
 	private static var base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	private static var fmatch = ~/^\((.*)\)(.*)/;
 	
-	private var config:OpenFLProject;
+	private var config:HXProject;
 	private var externPath:String;
 	private var extractedAndroidClasses:Bool;
 	private var extractedAndroidPaths:Array<String>;
@@ -48,7 +48,7 @@ class JavaExternGenerator
 	private var retType:JNIType;
 	
 	
-	public function new(config:OpenFLProject, javaPath:String, externPath:String)
+	public function new(config:HXProject, javaPath:String, externPath:String)
 	{
 		this.config = config;
 		this.javaPath = javaPath;
