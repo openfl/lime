@@ -519,7 +519,7 @@ class CommandLineTools {
 			var sourcePath = words[0];
 			var glyphs = "32-255";
 			
-			ProcessHelper.runCommand (Path.directory (sourcePath), "neko", [ PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates/bin/hxswfml.n", "ttf2hash2", Path.withoutDirectory (sourcePath), Path.withoutDirectory (sourcePath) + ".hash", "-glyphs", glyphs ]);
+			ProcessHelper.runCommand (Path.directory (sourcePath), "neko", [ PathHelper.getHaxelib (new Haxelib ("hxtools")) + "/templates/bin/hxswfml.n", "ttf2hash2", Path.withoutDirectory (sourcePath), Path.withoutDirectory (sourcePath) + ".hash", "-glyphs", glyphs ]);
 			
 		} else if (targetFlags.exists ("font-details")) {
 			
@@ -650,7 +650,7 @@ class CommandLineTools {
 			
 		} else {
 			
-			json = Json.parse (File.getContent (PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/haxelib.json"));
+			json = Json.parse (File.getContent (PathHelper.getHaxelib (new Haxelib ("hxtools")) + "/haxelib.json"));
 			
 		}
 		
@@ -665,7 +665,7 @@ class CommandLineTools {
 		var haxePath = Sys.getEnv ("HAXEPATH");
 		var command = (haxePath != null && haxePath != "") ? haxePath + "/haxelib" : "haxelib";
 		
-		var process = new Process (command, [ "path", "openfl-tools" ]);
+		var process = new Process (command, [ "path", "hxtools" ]);
 		var path = "";
 		
 		try {
@@ -677,7 +677,7 @@ class CommandLineTools {
 				var length = lines.length;
 				var line = process.stdout.readLine ();
 				
-				if (length > 0 && StringTools.trim (line) == "-D openfl-tools") {
+				if (length > 0 && StringTools.trim (line) == "-D hxtools") {
 					
 					path = StringTools.trim (lines[length - 1]);
 					
@@ -875,7 +875,7 @@ class CommandLineTools {
 			
 			var tempFile = PathHelper.getTemporaryFile (".n");
 			
-			ProcessHelper.runCommand ("", "haxe", [ name, "-main", "project.OpenFLProject", "-neko", tempFile, "-lib", "openfl-tools", "-lib", "openfl", "-lib", "openfl-native", /*"-lib", "xfl", "-lib", "swf",*/ "-lib", "svg", "--remap", "flash:flash" ]);
+			ProcessHelper.runCommand ("", "haxe", [ name, "-main", "project.OpenFLProject", "-neko", tempFile, "-lib", "hxtools", "-lib", "openfl", "-lib", "openfl-native", /*"-lib", "xfl", "-lib", "swf",*/ "-lib", "svg", "--remap", "flash:flash" ]);
 			
 			var process = new Process ("neko", [ FileSystem.fullPath (tempFile), name, OpenFLProject._command, Std.string (OpenFLProject._debug), Std.string (OpenFLProject._target), Serializer.run (OpenFLProject._targetFlags), Serializer.run (OpenFLProject._templatePaths) ]);
 			var output = process.stdout.readAll ().toString ();

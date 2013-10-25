@@ -33,7 +33,7 @@ class CreateTemplate {
 		context.extensionUpperCase = extension.toUpperCase ();
 		
 		PathHelper.mkdir (title);
-		FileHelper.recursiveCopyTemplate ([ PathHelper.getHaxelib (new Haxelib ("openfl-tools"), true)  + "/templates" ], "extension", title, context);
+		FileHelper.recursiveCopyTemplate ([ PathHelper.getHaxelib (new Haxelib ("hxtools"), true)  + "/templates" ], "extension", title, context);
 		
 		if (FileSystem.exists (title + "/Extension.hx")) {
 			
@@ -141,7 +141,7 @@ class CreateTemplate {
 		var folder = name;
 		
 		PathHelper.mkdir (folder);
-		FileHelper.recursiveCopyTemplate ([ PathHelper.getHaxelib (new Haxelib ("openfl-tools"), true) + "/templates" ], "project", folder, context);
+		FileHelper.recursiveCopyTemplate ([ PathHelper.getHaxelib (new Haxelib ("hxtools"), true) + "/templates" ], "project", folder, context);
 		
 		if (FileSystem.exists (folder + "/Project.hxproj")) {
 			

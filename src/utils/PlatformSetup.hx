@@ -377,7 +377,7 @@ class PlatformSetup {
 			
 			if (!userDefines.exists ("nme")) {
 				
-				File.copy (PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "\\templates\\\\bin\\openfl.bat", haxePath + "\\openfl.bat");
+				File.copy (PathHelper.getHaxelib (new Haxelib ("hxtools")) + "\\templates\\\\bin\\openfl.bat", haxePath + "\\openfl.bat");
 				
 			} else {
 				
@@ -404,7 +404,7 @@ class PlatformSetup {
 					
 					try {
 						
-						ProcessHelper.runCommand ("", "sudo", [ "cp", "-f", PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates/bin/openfl.sh", "/usr/bin/openfl" ], false);
+						ProcessHelper.runCommand ("", "sudo", [ "cp", "-f", PathHelper.getHaxelib (new Haxelib ("hxtools")) + "/templates/bin/openfl.sh", "/usr/bin/openfl" ], false);
 						ProcessHelper.runCommand ("", "sudo", [ "chmod", "755", "/usr/bin/openfl" ], false);
 						installedCommand = true;
 						
@@ -420,7 +420,7 @@ class PlatformSetup {
 					Sys.println (" a) Manually add an alias called \"openfl\" to run \"haxelib run openfl\"");
 					Sys.println (" b) Run the following commands:");
 					Sys.println ("");
-					Sys.println ("sudo cp \"" + PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates/bin/openfl.sh\" /usr/bin/openfl");
+					Sys.println ("sudo cp \"" + PathHelper.getHaxelib (new Haxelib ("hxtools")) + "/templates/bin/openfl.sh\" /usr/bin/openfl");
 					Sys.println ("sudo chmod 755 /usr/bin/openfl");
 					Sys.println ("");
 					
@@ -864,7 +864,7 @@ class PlatformSetup {
 			if (PlatformHelper.hostPlatform != Platform.WINDOWS && FileSystem.exists (Sys.getEnv ("HOME") + "/.android")) {
 				
 				ProcessHelper.runCommand ("", "chmod", [ "-R", "777", "~/.android" ], false);
-				ProcessHelper.runCommand ("", "cp", [ PathHelper.getHaxelib (new Haxelib ("openfl-tools")) + "/templates/bin/debug.keystore", "~/.android/debug.keystore" ], false);
+				ProcessHelper.runCommand ("", "cp", [ PathHelper.getHaxelib (new Haxelib ("hxtools")) + "/templates/bin/debug.keystore", "~/.android/debug.keystore" ], false);
 				
 			}
 			

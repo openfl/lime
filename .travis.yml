@@ -11,7 +11,7 @@ before_install:
   - haxelib install openfl-native
   - haxelib install format
   - haxelib install svg
-  - haxelib dev openfl-tools $(pwd)
+  - haxelib dev hxtools $(pwd)
 
 script:
   - haxelib run openfl rebuild tools

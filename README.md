@@ -1,6 +1,6 @@
-openfl-tools
+hxtools
 ============
-[![Build Status](https://travis-ci.org/openfl/openfl-tools.png)](https://travis-ci.org/openfl/openfl-tools)
+[![Build Status](https://travis-ci.org/openfl/hxtools.png)](https://travis-ci.org/openfl/hxtools)
 
 Install
 -------
@@ -13,8 +13,8 @@ Development Build
 
     haxelib install format
     haxelib install svg
-    git clone https://github.com/openfl/openfl-tools
-    haxelib dev openfl-tools openfl-tools
+    git clone https://github.com/openfl/hxtools
+    haxelib dev hxtools hxtools
 
 To rebuild the tools, use:
 
@@ -22,5 +22,5 @@ To rebuild the tools, use:
 
 To return to release builds:
 
-    haxelib dev openfl-tools
+    haxelib dev hxtools
 
