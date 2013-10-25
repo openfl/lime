@@ -1,11 +1,11 @@
 {
-	"name": "openfl-tools",
-	"url": "http://www.openfl.org",
+	"name": "hxtools",
+	"url": "https://github.com/openfl/hxtools",
 	"license": "MIT",
 	"tags": [],
-	"description": "Command-line tools for OpenFL",
+	"description": "Command-line tools for Haxe projects",
 	"version": "1.1.0",
-	"releasenote": "Fix silent error when haxelib is not found",
+	"releasenote": "Rename from openfl-tools",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
 }
