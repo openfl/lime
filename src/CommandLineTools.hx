@@ -870,37 +870,9 @@ class CommandLineTools {
 			
 		} else if (Path.extension (projectFile) == "hxp") {
 			
-			var path = FileSystem.fullPath (Path.withoutDirectory (projectFile));
-			var name = Path.withoutDirectory (Path.withoutExtension (projectFile));
-			name = name.substr (0, 1).toUpperCase () + name.substr (1);
-			
-			var tempDirectory = PathHelper.getTemporaryDirectory ();
-			var classFile = PathHelper.combine (tempDirectory, name + ".hx");
-			var nekoOutput = PathHelper.combine (tempDirectory, name + ".n");
-			
-			FileHelper.copyFile (path, classFile);
-			
-			ProcessHelper.runCommand (tempDirectory, "haxe", [ name, "-main", "project.HXProject", "-cp", path, "-cp", ".", "-neko", nekoOutput, "-lib", "hxtools", "-lib", "openfl", "-lib", "openfl-native", /*"-lib", "xfl", "-lib", "swf",*/ "-lib", "svg", "--remap", "flash:flash" ]);
-			
-			var process = new Process ("neko", [ FileSystem.fullPath (nekoOutput), name, HXProject._command, Std.string (HXProject._debug), Std.string (HXProject._target), Serializer.run (HXProject._targetFlags), Serializer.run (HXProject._templatePaths) ]);
-			var output = process.stdout.readAll ().toString ();
-			var error = process.stderr.readAll ().toString ();
-			process.exitCode ();
-			process.close ();
-			
-			try {
-				
-				var unserializer = new Unserializer (output);
-				unserializer.setResolver (cast { resolveEnum: Type.resolveEnum, resolveClass: resolveClass });
-				project = unserializer.unserialize ();
-				
-			} catch (e:Dynamic) {}
-			
-			PathHelper.removeDirectory (tempDirectory);
+			project = HXProject.fromFile (projectFile, userDefines, includePaths);
 			
 			if (project != null) {
-				
-				processHaxelibs (project);
 				
 				project.command = command;
 				project.debug = debug;
@@ -1006,21 +978,6 @@ class CommandLineTools {
 		}
 		
 		return project;
-		
-	}
-	
-	
-	private function resolveClass (name:String):Class <Dynamic> {
-		
-		if (name.toLowerCase ().indexOf ("project") > -1 && name.indexOf ("project.") == -1) {
-			
-			return HXProject;
-			
-		} else {
-			
-			return Type.resolveClass (name);
-			
-		}
 		
 	}
 	
@@ -1271,60 +1228,6 @@ class CommandLineTools {
 			} else {
 				
 				words.push (argument);
-				
-			}
-			
-		}
-		
-	}
-	
-	
-	private function processHaxelibs (project:HXProject):Void {
-		
-		for (haxelib in project.haxelibs) {
-					
-			if (haxelib.name == "nme" && userDefines.exists ("openfl")) {
-				
-				haxelib.name = "openfl-nme-compatibility";
-				haxelib.version = "";
-				
-			}
-			
-			var path = PathHelper.getHaxelib (haxelib);
-			var includePath = "";
-			
-			if (FileSystem.exists (path + "/include.nmml")) {
-				
-				includePath = path + "/include.nmml";
-				
-			} else if (FileSystem.exists (path + "/include.xml")) {
-				
-				includePath = path + "/include.xml";
-				
-			}
-			
-			if (includePath != "") {
-				
-				var includeProject = new ProjectXMLParser (includePath, userDefines);
-				
-				for (ndll in includeProject.ndlls) {
-					
-					if (ndll.haxelib == null) {
-						
-						ndll.haxelib = haxelib;
-						
-					}
-					
-				}
-				
-				includeProject.sources.push (path);
-				processHaxelibs (includeProject);
-				
-				project.merge (includeProject);
-				
-			} else {
-				
-				project.sources.push (path);
 				
 			}
 			
