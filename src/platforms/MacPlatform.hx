@@ -46,6 +46,29 @@ class MacPlatform implements IPlatformTool {
 			
 		} else {
 			
+			var args = [ "run", "hxlibc", "Build.xml" ];
+			
+			for (haxedef in project.haxedefs) {
+				
+				args.push ("-D" + haxedef);
+				
+			}
+			
+			if (is64) {
+				
+				args.push ("-DHXCPP_M64");
+				
+			}
+
+			if (!useNeko) {
+
+				args.push ("-DHXCPP_CLANG");
+
+			}
+			
+			Sys.println (args);
+			
+			ProcessHelper.runCommand (targetDirectory + "/obj", "haxelib", args);
 			FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : ""), executablePath);
 			
 		}
@@ -149,18 +172,6 @@ class MacPlatform implements IPlatformTool {
 		
 		project = project.clone ();
 		
-		if (is64) {
-			
-			project.haxedefs.set ("HXCPP_M64", 1);
-			
-		}
-
-		if (!useNeko) {
-
-			project.haxedefs.set ("HXCPP_CLANG", "1");
-
-		}
-
 		if (project.targetFlags.exists ("xml")) {
 			
 			project.haxeflags.push ("-xml " + targetDirectory + "/types.xml");
@@ -184,7 +195,7 @@ class MacPlatform implements IPlatformTool {
 		
 		for (ndll in project.ndlls) {
 			
-			FileHelper.copyLibrary (ndll, "Mac" + (is64 ? "64" : ""), "", (ndll.haxelib != null && ndll.haxelib.name == "hxcpp") ? ".dylib" : ".ndll", executableDirectory, project.debug);
+			FileHelper.copyLibrary (ndll, "Mac" + (is64 ? "64" : ""), "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dylib" : ".ndll", executableDirectory, project.debug);
 			
 		}
 		

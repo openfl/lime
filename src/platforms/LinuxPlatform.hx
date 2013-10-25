@@ -45,6 +45,21 @@ class LinuxPlatform implements IPlatformTool {
 			
 		} else {
 			
+			var args = [ "run", "hxlibc", "Build.xml" ];
+			
+			for (haxedef in project.haxedefs) {
+				
+				args.push ("-D" + haxedef);
+				
+			}
+			
+			if (is64) {
+				
+				args.push ("-DHXCPP_M64");
+				
+			}
+			
+			ProcessHelper.runCommand (targetDirectory + "/obj", "haxelib", args);
 			FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : ""), executablePath);
 			
 		}
@@ -168,12 +183,6 @@ class LinuxPlatform implements IPlatformTool {
 		project = project.clone ();
 		initialize (project);
 		
-		if (is64) {
-			
-			project.haxedefs.set ("HXCPP_M64", 1);
-			
-		}
-		
 		if (project.targetFlags.exists ("xml")) {
 			
 			project.haxeflags.push ("-xml " + targetDirectory + "/types.xml");
@@ -196,11 +205,11 @@ class LinuxPlatform implements IPlatformTool {
 			
 			if (isRaspberryPi) {
 				
-				FileHelper.copyLibrary (ndll, "RPi", "", (ndll.haxelib != null && ndll.haxelib.name == "hxcpp") ? ".dso" : ".ndll", applicationDirectory, project.debug);
+				FileHelper.copyLibrary (ndll, "RPi", "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dso" : ".ndll", applicationDirectory, project.debug);
 				
 			} else {
 				
-				FileHelper.copyLibrary (ndll, "Linux" + (is64 ? "64" : ""), "", (ndll.haxelib != null && ndll.haxelib.name == "hxcpp") ? ".dso" : ".ndll", applicationDirectory, project.debug);
+				FileHelper.copyLibrary (ndll, "Linux" + (is64 ? "64" : ""), "", (ndll.haxelib != null && ndll.haxelib.name == "hxlibc") ? ".dso" : ".ndll", applicationDirectory, project.debug);
 				
 			}
 			

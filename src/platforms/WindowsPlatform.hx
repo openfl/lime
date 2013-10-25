@@ -41,6 +41,21 @@ class WindowsPlatform implements IPlatformTool {
 			
 		} else {
 			
+			var args = [ "run", "hxlibc", "Build.xml" ];
+			
+			for (haxedef in project.haxedefs) {
+				
+				args.push ("-D" + haxedef);
+				
+			}
+			
+			if (!project.environment.exists ("SHOW_CONSOLE")) {
+				
+				args.push ("-Dno_console");
+				
+			}
+			
+			ProcessHelper.runCommand (targetDirectory + "/obj", "haxelib", args);
 			FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", executablePath);
 			
 			var iconPath = PathHelper.combine (applicationDirectory, "icon.ico");
@@ -126,12 +141,6 @@ class WindowsPlatform implements IPlatformTool {
 		
 		project = project.clone ();
 		
-		if (!project.environment.exists ("SHOW_CONSOLE")) {
-			
-			project.haxedefs.set ("no_console", 1);
-			
-		}
-		
 		if (project.targetFlags.exists ("xml")) {
 			
 			project.haxeflags.push ("-xml " + targetDirectory + "/types.xml");
@@ -165,7 +174,7 @@ class WindowsPlatform implements IPlatformTool {
 		
 		for (ndll in project.ndlls) {
 			
-			FileHelper.copyLibrary (ndll, "Windows", "", (ndll.haxelib != null && ndll.haxelib.name == "hxcpp") ? ".dll" : ".ndll", applicationDirectory, project.debug);
+			FileHelper.copyLibrary (ndll, "Windows", "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll", applicationDirectory, project.debug);
 			
 		}
 		
