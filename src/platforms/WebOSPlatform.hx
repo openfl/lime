@@ -24,7 +24,7 @@ class WebOSPlatform implements IPlatformTool {
 		var hxml = project.app.path + "/webos/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
 		ProcessHelper.runCommand ("", "haxe", [ hxml ] );
 		
-		var args = [ "run", "hxlibc", "Build.xml" ];
+		var args = [ "run", "hxlibc", "Build.xml", "-Dwebos", "-DHXCPP_LOAD_DEBUG", "-DHXCPP_RTLD_LAZY" ];
 		
 		for (haxedef in project.haxedefs) {
 			

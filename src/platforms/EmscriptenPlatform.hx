@@ -30,7 +30,7 @@ class EmscriptenPlatform implements IPlatformTool {
 		var hxml = outputDirectory + "/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
 		ProcessHelper.runCommand ("", "haxe", [ hxml ] );
 		
-		var args = [ "run", "hxlibc", "Build.xml" ];
+		var args = [ "run", "hxlibc", "Build.xml", "-Demscripten", "-Dwebgl" ];
 		
 		for (haxedef in project.haxedefs) {
 			

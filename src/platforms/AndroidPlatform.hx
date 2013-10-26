@@ -38,7 +38,7 @@ class AndroidPlatform implements IPlatformTool {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml ] );
 			
-			var args = [ "run", "hxlibc", "Build.xml" ];
+			var args = [ "run", "hxlibc", "Build.xml", "-Dandroid", "-Dandroid-9" ];
 			
 			for (haxedef in project.haxedefs) {
 				
@@ -69,7 +69,7 @@ class AndroidPlatform implements IPlatformTool {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "HXCPP_ARMV7" ] );
 			
-			var args = [ "run", "hxlibc", "Build.xml", "-DHXCPP_ARMV7" ];
+			var args = [ "run", "hxlibc", "Build.xml", "-Dandroid", "-Dandroid-9", "-DHXCPP_ARMV7" ];
 			
 			for (haxedef in project.haxedefs) {
 				

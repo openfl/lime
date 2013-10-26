@@ -39,7 +39,7 @@ class BlackBerryPlatform implements IPlatformTool {
 		
 		if (!project.targetFlags.exists ("html5")) {
 			
-			var args = [ "run", "hxlibc", "Build.xml" ];
+			var args = [ "run", "hxlibc", "Build.xml", "-Dblackberry" ];
 			
 			for (haxedef in project.haxedefs) {
 				
