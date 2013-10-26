@@ -46,6 +46,12 @@ class AndroidPlatform implements IPlatformTool {
 				
 			}
 			
+			if (project.debug) {
+				
+				args.push ("-Ddebug");
+				
+			}
+			
 			ProcessHelper.runCommand (project.app.path + "/android/obj", "haxelib", args);
 			FileHelper.copyIfNewer (project.app.path + "/android/obj/libApplicationMain" + (project.debug ? "-debug" : "") + ".so", armv5);
 			
@@ -62,7 +68,22 @@ class AndroidPlatform implements IPlatformTool {
 		if (ArrayHelper.containsValue (project.architectures, Architecture.ARMV7)) {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "HXCPP_ARMV7" ] );
-			ProcessHelper.runCommand (project.app.path + "/android/obj", "haxelib", [ "run", "hxlibc", "Build.xml" ]);
+			
+			var args = [ "run", "hxlibc", "Build.xml", "-DHXCPP_ARMV7" ];
+			
+			for (haxedef in project.haxedefs) {
+				
+				args.push ("-D" + haxedef);
+				
+			}
+			
+			if (project.debug) {
+				
+				args.push ("-Ddebug");
+				
+			}
+			
+			ProcessHelper.runCommand (project.app.path + "/android/obj", "haxelib", args);
 			FileHelper.copyIfNewer (project.app.path + "/android/obj/libApplicationMain" + (project.debug ? "-debug" : "") + "-v7.so", armv7);
 			
 		} else {

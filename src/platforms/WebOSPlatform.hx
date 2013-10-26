@@ -32,6 +32,12 @@ class WebOSPlatform implements IPlatformTool {
 			
 		}
 		
+		if (project.debug) {
+			
+			args.push ("-Ddebug");
+			
+		}
+		
 		ProcessHelper.runCommand (project.app.path + "/webos/obj", "haxelib", args);
 		
 		FileHelper.copyIfNewer (project.app.path + "/webos/obj/ApplicationMain" + (project.debug ? "-debug" : ""), project.app.path + "/webos/bin/" + project.app.file);

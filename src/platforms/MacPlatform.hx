@@ -66,7 +66,11 @@ class MacPlatform implements IPlatformTool {
 
 			}
 			
-			Sys.println (args);
+			if (project.debug) {
+				
+				args.push ("-Ddebug");
+				
+			}
 			
 			ProcessHelper.runCommand (targetDirectory + "/obj", "haxelib", args);
 			FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : ""), executablePath);

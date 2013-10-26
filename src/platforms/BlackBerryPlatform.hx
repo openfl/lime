@@ -47,6 +47,12 @@ class BlackBerryPlatform implements IPlatformTool {
 				
 			}
 			
+			if (project.debug) {
+				
+				args.push ("-Ddebug");
+				
+			}
+			
 			ProcessHelper.runCommand (outputDirectory + "/obj", "haxelib", args);
 			FileHelper.copyIfNewer (outputDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : ""), outputFile);
 			BlackBerryHelper.createPackage (project, outputDirectory, "bin/bar-descriptor.xml", project.meta.packageName + "_" + project.meta.version + ".bar");

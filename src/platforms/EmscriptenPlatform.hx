@@ -38,6 +38,12 @@ class EmscriptenPlatform implements IPlatformTool {
 			
 		}
 		
+		if (project.debug) {
+			
+			args.push ("-Ddebug");
+			
+		}
+		
 		ProcessHelper.runCommand (outputDirectory + "/obj", "haxelib", args);
 		ProcessHelper.runCommand ("", "emcc", [ outputDirectory + "/obj/Main.cpp", "-o", outputDirectory + "/obj/Main.o" ], true, false, true);
 		
