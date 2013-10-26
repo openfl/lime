@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "Command-line tools for Haxe projects",
-	"version": "1.1.1",
-	"releasenote": "Minor fix for native debug builds",
+	"version": "1.1.2",
+	"releasenote": "Fix for some Android SDK versions",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
 }
