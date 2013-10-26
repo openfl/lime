@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "Command-line tools for Haxe projects",
-	"version": "1.1.0",
-	"releasenote": "Rename from openfl-tools",
+	"version": "1.1.1",
+	"releasenote": "Minor fix for native debug builds",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
 }
