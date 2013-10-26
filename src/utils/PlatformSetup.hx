@@ -848,7 +848,7 @@ class PlatformSetup {
 			}
 			
 			Lib.println ("Launching the Android SDK Manager to install packages");
-			Lib.println ("Please install Android API 8 and SDK Platform-tools");
+			Lib.println ("Please install Android API 16 and SDK Platform-tools");
 			
 			if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
 				
