@@ -20,9 +20,19 @@ class CPPHelper {
 				
 			}
 			
-			for (haxedef in project.haxedefs) {
+			for (key in project.haxedefs.keys ()) {
 				
-				args.push ("-D" + haxedef);
+				var value = project.haxedefs.get (key);
+				
+				if (value == null || value == "") {
+					
+					args.push ("-D" + key);
+					
+				} else {
+					
+					args.push ("-D" + key + "=" + value);
+					
+				}
 				
 			}
 			

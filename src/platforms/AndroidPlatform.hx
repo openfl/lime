@@ -55,7 +55,7 @@ class AndroidPlatform implements IPlatformTool {
 		if (ArrayHelper.containsValue (project.architectures, Architecture.ARMV7)) {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "android", "-D", "android-9", "-D", "HXCPP_ARMV7" ] );
-			CPPHelper.compile (project, project.app.path + "/android/obj", [ "android", "android-9", "-DHXCPP_ARMV7" ]);
+			CPPHelper.compile (project, project.app.path + "/android/obj", [ "-Dandroid", "-Dandroid-9", "-DHXCPP_ARMV7" ]);
 			
 			FileHelper.copyIfNewer (project.app.path + "/android/obj/libApplicationMain" + (project.debug ? "-debug" : "") + "-v7.so", armv7);
 			
