@@ -4,6 +4,7 @@ package platforms;
 import haxe.io.Path;
 import haxe.Template;
 import helpers.AssetHelper;
+import helpers.CPPHelper;
 import helpers.FileHelper;
 import helpers.IconHelper;
 import helpers.NekoHelper;
@@ -32,36 +33,29 @@ class WindowsPlatform implements IPlatformTool {
 		var hxml = targetDirectory + "/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
 		
 		PathHelper.mkdir (targetDirectory);
-		ProcessHelper.runCommand ("", "haxe", [ hxml ]);
 		
 		if (useNeko) {
 			
+			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
 			NekoHelper.createExecutable (project.templatePaths, "windows", targetDirectory + "/obj/ApplicationMain.n", executablePath);
 			NekoHelper.copyLibraries (project.templatePaths, "windows", applicationDirectory);
 			
 		} else {
 			
-			var args = [ "run", "hxlibc", "Build.xml" ];
-			
-			for (haxedef in project.haxedefs) {
-				
-				args.push ("-D" + haxedef);
-				
-			}
+			var haxeArgs = [ hxml ];
+			var flags = [];
 			
 			if (!project.environment.exists ("SHOW_CONSOLE")) {
 				
-				args.push ("-Dno_console");
+				haxeArgs.push ("-D");
+				haxeArgs.push ("no_console");
+				flags.push ("-Dno_console");
 				
 			}
 			
-			if (project.debug) {
-				
-				args.push ("-Ddebug");
-				
-			}
+			ProcessHelper.runCommand ("", "haxe", haxeArgs);
+			CPPHelper.compile (project, targetDirectory + "/obj", flags);
 			
-			ProcessHelper.runCommand (targetDirectory + "/obj", "haxelib", args);
 			FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", executablePath);
 			
 			var iconPath = PathHelper.combine (applicationDirectory, "icon.ico");

@@ -901,6 +901,9 @@ class CommandLineTools {
 			project.haxedefs.set ("nme_ver", version);
 			project.haxedefs.set ("nme" + version.split (".")[0], 1);
 			
+			project.config.cpp.buildLibrary = "hxcpp";
+			project.config.cpp.requireBuild = false;
+			
 		}
 		
 		project.merge (overrides);

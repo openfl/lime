@@ -4,6 +4,7 @@ package platforms;
 import haxe.io.Path;
 import haxe.Template;
 import helpers.AssetHelper;
+import helpers.CPPHelper;
 import helpers.FileHelper;
 import helpers.NekoHelper;
 import helpers.PathHelper;
@@ -36,36 +37,26 @@ class LinuxPlatform implements IPlatformTool {
 		var hxml = targetDirectory + "/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
 		
 		PathHelper.mkdir (targetDirectory);
-		ProcessHelper.runCommand ("", "haxe", [ hxml ]);
 		
 		if (useNeko) {
 			
+			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
 			NekoHelper.createExecutable (project.templatePaths, "linux" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
 			NekoHelper.copyLibraries (project.templatePaths, "linux" + (is64 ? "64" : ""), applicationDirectory);
 			
 		} else {
 			
-			var args = [ "run", "hxlibc", "Build.xml" ];
-			
-			for (haxedef in project.haxedefs) {
-				
-				args.push ("-D" + haxedef);
-				
-			}
+			var haxeArgs = [ hxml ];
 			
 			if (is64) {
 				
-				args.push ("-DHXCPP_M64");
+				haxeArgs.push ("-D");
+				haxeArgs.push ("HXCPP_M64");
 				
 			}
 			
-			if (project.debug) {
-				
-				args.push ("-Ddebug");
-				
-			}
-			
-			ProcessHelper.runCommand (targetDirectory + "/obj", "haxelib", args);
+			ProcessHelper.runCommand ("", "haxe", haxeArgs);
+			CPPHelper.compile (project, targetDirectory + "/obj", [ is64 ? "-DHXCPP_M64" : "" ]);
 			FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : ""), executablePath);
 			
 		}
@@ -215,7 +206,7 @@ class LinuxPlatform implements IPlatformTool {
 				
 			} else {
 				
-				FileHelper.copyLibrary (ndll, "Linux" + (is64 ? "64" : ""), "", (ndll.haxelib != null && ndll.haxelib.name == "hxlibc") ? ".dso" : ".ndll", applicationDirectory, project.debug);
+				FileHelper.copyLibrary (ndll, "Linux" + (is64 ? "64" : ""), "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dso" : ".ndll", applicationDirectory, project.debug);
 				
 			}
 			

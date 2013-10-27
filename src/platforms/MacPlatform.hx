@@ -4,6 +4,7 @@ package platforms;
 import haxe.io.Path;
 import haxe.Template;
 import helpers.AssetHelper;
+import helpers.CPPHelper;
 import helpers.FileHelper;
 import helpers.IconHelper;
 import helpers.NekoHelper;
@@ -37,42 +38,28 @@ class MacPlatform implements IPlatformTool {
 		var hxml = targetDirectory + "/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
 		
 		PathHelper.mkdir (targetDirectory);
-		ProcessHelper.runCommand ("", "haxe", [ hxml ]);
 		
 		if (useNeko) {
 			
+			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
 			NekoHelper.createExecutable (project.templatePaths, "Mac" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
 			NekoHelper.copyLibraries (project.templatePaths, "Mac" + (is64 ? "64" : ""), executableDirectory);
 			
 		} else {
 			
-			var args = [ "run", "hxlibc", "Build.xml" ];
-			
-			for (haxedef in project.haxedefs) {
-				
-				args.push ("-D" + haxedef);
-				
-			}
+			var haxeArgs = [ hxml, "-D", "HXCPP_CLANG" ];
+			var flags = [ "-DHXCPP_CLANG" ];
 			
 			if (is64) {
 				
-				args.push ("-DHXCPP_M64");
-				
-			}
-
-			if (!useNeko) {
-
-				args.push ("-DHXCPP_CLANG");
-
-			}
-			
-			if (project.debug) {
-				
-				args.push ("-Ddebug");
+				haxeArgs.push ("-D");
+				haxeArgs.push ("HXCPP_M64");
+				flags.push ("-DHXCPP_M64");
 				
 			}
 			
-			ProcessHelper.runCommand (targetDirectory + "/obj", "haxelib", args);
+			ProcessHelper.runCommand ("", "haxe", haxeArgs);
+			CPPHelper.compile (project, targetDirectory + "/obj", flags);
 			FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : ""), executablePath);
 			
 		}

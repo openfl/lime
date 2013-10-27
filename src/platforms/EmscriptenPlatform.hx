@@ -5,6 +5,7 @@ import flash.utils.ByteArray;
 import flash.utils.CompressionAlgorithm;
 import haxe.io.Path;
 import haxe.Template;
+import helpers.CPPHelper;
 import helpers.FileHelper;
 import helpers.HTML5Helper;
 import helpers.LogHelper;
@@ -28,23 +29,10 @@ class EmscriptenPlatform implements IPlatformTool {
 		initialize (project);
 		
 		var hxml = outputDirectory + "/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
-		ProcessHelper.runCommand ("", "haxe", [ hxml ] );
 		
-		var args = [ "run", "hxlibc", "Build.xml", "-Demscripten", "-Dwebgl" ];
+		ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "emscripten", "-D", "webgl" ] );
+		CPPHelper.compile (project, outputDirectory + "/obj", [ "-Demscripten", "-Dwebgl" ]);
 		
-		for (haxedef in project.haxedefs) {
-			
-			args.push ("-D" + haxedef);
-			
-		}
-		
-		if (project.debug) {
-			
-			args.push ("-Ddebug");
-			
-		}
-		
-		ProcessHelper.runCommand (outputDirectory + "/obj", "haxelib", args);
 		ProcessHelper.runCommand ("", "emcc", [ outputDirectory + "/obj/Main.cpp", "-o", outputDirectory + "/obj/Main.o" ], true, false, true);
 		
 		var args = [ "Main.o" ];

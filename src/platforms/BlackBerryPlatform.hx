@@ -5,6 +5,7 @@ import haxe.io.Path;
 import haxe.Template;
 import helpers.AssetHelper;
 import helpers.BlackBerryHelper;
+import helpers.CPPHelper;
 import helpers.FileHelper;
 import helpers.HTML5Helper;
 import helpers.IconHelper;
@@ -33,27 +34,13 @@ class BlackBerryPlatform implements IPlatformTool {
 		if (project.app.main != null) {
 			
 			var hxml = outputDirectory + "/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
-			ProcessHelper.runCommand ("", "haxe", [ hxml ] );
+			ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "blackberry" ] );
 			
 		}
 		
 		if (!project.targetFlags.exists ("html5")) {
 			
-			var args = [ "run", "hxlibc", "Build.xml", "-Dblackberry" ];
-			
-			for (haxedef in project.haxedefs) {
-				
-				args.push ("-D" + haxedef);
-				
-			}
-			
-			if (project.debug) {
-				
-				args.push ("-Ddebug");
-				
-			}
-			
-			ProcessHelper.runCommand (outputDirectory + "/obj", "haxelib", args);
+			CPPHelper.compile (project, outputDirectory + "/obj", [ "-Dblackberry" ]);
 			FileHelper.copyIfNewer (outputDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : ""), outputFile);
 			BlackBerryHelper.createPackage (project, outputDirectory, "bin/bar-descriptor.xml", project.meta.packageName + "_" + project.meta.version + ".bar");
 			

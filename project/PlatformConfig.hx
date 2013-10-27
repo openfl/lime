@@ -9,6 +9,7 @@ class PlatformConfig {
 	
 	
 	public var android:AndroidConfig;
+	public var cpp:CPPConfig;
 	public var ios:IOSConfig;
 	
 	private static var defaultAndroid:AndroidConfig = {
@@ -20,6 +21,13 @@ class PlatformConfig {
 		targetSDKVersion: 16
 		
 	};
+	
+	private static var defaultCPP:CPPConfig = {
+		
+		buildLibrary: "hxlibc",
+		requireBuild: true
+		
+	}
 	
 	private static var defaultIOS:IOSConfig = {
 		
@@ -35,9 +43,11 @@ class PlatformConfig {
 	public function new () {
 		
 		android = { };
+		cpp = { };
 		ios = { };
 		
 		ObjectHelper.copyFields (defaultAndroid, android);
+		ObjectHelper.copyFields (defaultCPP, cpp);
 		ObjectHelper.copyFields (defaultIOS, ios);
 		
 	}
@@ -48,6 +58,7 @@ class PlatformConfig {
 		var copy = new PlatformConfig ();
 		
 		ObjectHelper.copyFields (android, copy.android);
+		ObjectHelper.copyFields (defaultCPP, copy.cpp);
 		ObjectHelper.copyFields (ios, copy.ios);
 		
 		return copy;
@@ -65,6 +76,7 @@ class PlatformConfig {
 		android.extensions = extensions;
 		android.permissions = permissions;
 		
+		ObjectHelper.copyUniqueFields (config.cpp, cpp, defaultCPP);
 		ObjectHelper.copyUniqueFields (config.ios, ios, defaultIOS);
 		
 	}
@@ -73,6 +85,7 @@ class PlatformConfig {
 	public function populate ():Void {
 		
 		ObjectHelper.copyMissingFields (android, defaultAndroid);
+		ObjectHelper.copyMissingFields (cpp, defaultCPP);
 		ObjectHelper.copyMissingFields (ios, defaultIOS);
 		
 	}
@@ -88,6 +101,14 @@ typedef AndroidConfig = {
 	@:optional var minimumSDKVersion:Int;
 	@:optional var permissions:Array<String>;
 	@:optional var targetSDKVersion:Int;
+	
+}
+
+
+typedef CPPConfig = {
+	
+	@:optional var buildLibrary:String;
+	@:optional var requireBuild:Bool;
 	
 }
 

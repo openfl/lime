@@ -361,10 +361,13 @@ class PlatformSetup {
 			ProcessHelper.runCommand (haxePath, "haxelib", [ "install", "openfl-native" ]);
 			ProcessHelper.runCommand (haxePath, "haxelib", [ "install", "openfl-samples" ]);
 			ProcessHelper.runCommand (haxePath, "haxelib", [ "install", "openfl-html5-dom" ]);
+			ProcessHelper.runCommand (haxePath, "haxelib", [ "install", "hxlibc" ]);
+			
+		} else {
+			
+			ProcessHelper.runCommand (haxePath, "haxelib", [ "install", "hxcpp" ]);
 			
 		}
-		
-		ProcessHelper.runCommand (haxePath, "haxelib", [ "install", "hxlibc" ]);
 		
 		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
 			

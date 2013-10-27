@@ -6,6 +6,7 @@ import haxe.Template;
 import helpers.AndroidHelper;
 import helpers.ArrayHelper;
 import helpers.AssetHelper;
+import helpers.CPPHelper;
 import helpers.FileHelper;
 import helpers.IconHelper;
 import helpers.LogHelper;
@@ -36,23 +37,9 @@ class AndroidPlatform implements IPlatformTool {
 		
 		if (ArrayHelper.containsValue (project.architectures, Architecture.ARMV5) || ArrayHelper.containsValue (project.architectures, Architecture.ARMV6)) {
 			
-			ProcessHelper.runCommand ("", "haxe", [ hxml ] );
+			ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "android", "-D", "android-9" ] );
+			CPPHelper.compile (project, project.app.path + "/android/obj", [ "-Dandroid", "-Dandroid-9" ]);
 			
-			var args = [ "run", "hxlibc", "Build.xml", "-Dandroid", "-Dandroid-9" ];
-			
-			for (haxedef in project.haxedefs) {
-				
-				args.push ("-D" + haxedef);
-				
-			}
-			
-			if (project.debug) {
-				
-				args.push ("-Ddebug");
-				
-			}
-			
-			ProcessHelper.runCommand (project.app.path + "/android/obj", "haxelib", args);
 			FileHelper.copyIfNewer (project.app.path + "/android/obj/libApplicationMain" + (project.debug ? "-debug" : "") + ".so", armv5);
 			
 		} else {
@@ -67,23 +54,9 @@ class AndroidPlatform implements IPlatformTool {
 		
 		if (ArrayHelper.containsValue (project.architectures, Architecture.ARMV7)) {
 			
-			ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "HXCPP_ARMV7" ] );
+			ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "android", "-D", "android-9", "-D", "HXCPP_ARMV7" ] );
+			CPPHelper.compile (project, project.app.path + "/android/obj", [ "android", "android-9", "-DHXCPP_ARMV7" ]);
 			
-			var args = [ "run", "hxlibc", "Build.xml", "-Dandroid", "-Dandroid-9", "-DHXCPP_ARMV7" ];
-			
-			for (haxedef in project.haxedefs) {
-				
-				args.push ("-D" + haxedef);
-				
-			}
-			
-			if (project.debug) {
-				
-				args.push ("-Ddebug");
-				
-			}
-			
-			ProcessHelper.runCommand (project.app.path + "/android/obj", "haxelib", args);
 			FileHelper.copyIfNewer (project.app.path + "/android/obj/libApplicationMain" + (project.debug ? "-debug" : "") + "-v7.so", armv7);
 			
 		} else {

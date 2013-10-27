@@ -5,6 +5,7 @@ package platforms;
 import haxe.io.Path;
 import haxe.Template;
 import helpers.AssetHelper;
+import helpers.CPPHelper;
 import helpers.FileHelper;
 import helpers.IconHelper;
 import helpers.PathHelper;
@@ -22,23 +23,9 @@ class WebOSPlatform implements IPlatformTool {
 	public function build (project:HXProject):Void {
 		
 		var hxml = project.app.path + "/webos/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
-		ProcessHelper.runCommand ("", "haxe", [ hxml ] );
 		
-		var args = [ "run", "hxlibc", "Build.xml", "-Dwebos", "-DHXCPP_LOAD_DEBUG", "-DHXCPP_RTLD_LAZY" ];
-		
-		for (haxedef in project.haxedefs) {
-			
-			args.push ("-D" + haxedef);
-			
-		}
-		
-		if (project.debug) {
-			
-			args.push ("-Ddebug");
-			
-		}
-		
-		ProcessHelper.runCommand (project.app.path + "/webos/obj", "haxelib", args);
+		ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "webos", "-D", "HXCPP_LOAD_DEBUG", "-D", "HXCPP_RTLD_LAZY" ] );
+		CPPHelper.compile (project, project.app.path + "/webos/obj", [ "-Dwebos", "-DHXCPP_LOAD_DEBUG", "-DHXCPP_RTLD_LAZY" ]);
 		
 		FileHelper.copyIfNewer (project.app.path + "/webos/obj/ApplicationMain" + (project.debug ? "-debug" : ""), project.app.path + "/webos/bin/" + project.app.file);
 		
