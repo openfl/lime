@@ -270,6 +270,16 @@ class PlatformSetup {
 			
 			defines = config.environment;
 			
+			for (key in defines.keys ()) {
+				
+				if (defines.get (key) == env.get (key)) {
+					
+					defines.remove (key);
+					
+				}
+				
+			}
+			
 		} else {
 			
 			defines = new Map <String, String> ();
@@ -1862,7 +1872,7 @@ class PlatformSetup {
 			path = "";
 			
 		}
-			
+		
 		path = StringTools.replace (path, "\\ ", " ");
 		
 		if (PlatformHelper.hostPlatform != Platform.WINDOWS && StringTools.startsWith (path, "~/")) {
@@ -1884,7 +1894,7 @@ class PlatformSetup {
 		
 		for (key in defines.keys ()) {
 			
-			if (key != "HXCPP_CONFIG" && (!env.exists (key) || env.get (key) == defines.get (key))) {
+			if (key != "HXCPP_CONFIG" && (!env.exists (key) || env.get (key) != defines.get (key))) {
 				
 				definesText += "		<set name=\"" + key + "\" value=\"" + stripQuotes (defines.get (key)) + "\" />\n";
 				
