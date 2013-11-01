@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "Command-line tools for Haxe projects",
-	"version": "1.1.4",
-	"releasenote": "Setup fix",
+	"version": "1.1.5",
+	"releasenote": "Fix some processes that weren't released",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
 }
