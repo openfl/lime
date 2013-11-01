@@ -355,6 +355,7 @@ class ProcessHelper {
 			}
 			
 			result = process.exitCode ();
+			process.close();
 			
 			if (result == 0) {
 				

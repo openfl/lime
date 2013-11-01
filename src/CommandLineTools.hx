@@ -689,10 +689,9 @@ class CommandLineTools {
    			
 		} catch (e:Dynamic) {
 			
-			process.close ();
-			
 		}
 		
+		process.close ();
 		path += "/ndll/";
 		
 		switch (PlatformHelper.hostPlatform) {
