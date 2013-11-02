@@ -610,13 +610,15 @@ class HXProject {
 	
 	@:noCompletion private static function resolveClass (name:String):Class <Dynamic> {
 		
-		if (name.toLowerCase ().indexOf ("project") > -1 && name.indexOf ("project.") == -1) {
+		var type = Type.resolveClass (name);
+		
+		if (type == null) {
 			
 			return HXProject;
 			
 		} else {
 			
-			return Type.resolveClass (name);
+			return type;
 			
 		}
 		
