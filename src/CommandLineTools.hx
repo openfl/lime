@@ -779,7 +779,7 @@ class CommandLineTools {
 		
 		if (projectFile == "") {
 			
-			LogHelper.error ("You must have a \"project.nmml\" file or specify another valid project file when using the '" + command + "' command");
+			LogHelper.error ("You must have a \"project.xml\" file or specify another valid project file when using the '" + command + "' command");
 			return null;
 			
 		} else {
@@ -879,13 +879,18 @@ class CommandLineTools {
 				project.targetFlags = targetFlags;
 				//project.templatePaths = project.templatePaths.concat ([ nme + "/templates/default", nme + "/tools/command-line" ]);
 				
+			} else {
+				
+				LogHelper.error ("Could not parse \"" + projectFile + "\"");
+				return null;
+				
 			}
 			
 		}
 		
 		if (project == null) {
 			
-			LogHelper.error ("You must have a \"project.nmml\" file or specify another NME project file when using the '" + command + "' command");
+			LogHelper.error ("You must have a \"project.xml\" file or specify another valid project file when using the '" + command + "' command");
 			return null;
 			
 		}
