@@ -881,7 +881,7 @@ class CommandLineTools {
 				
 			} else {
 				
-				LogHelper.error ("Could not parse \"" + projectFile + "\"");
+				LogHelper.error ("Could not process \"" + projectFile + "\"");
 				return null;
 				
 			}
