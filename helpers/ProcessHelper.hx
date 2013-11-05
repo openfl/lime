@@ -93,7 +93,7 @@ class ProcessHelper {
 		
 		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
 			
-			runCommand ("", url, []);
+			runCommand ("", "start", [ url ]);
 			
 		} else if (PlatformHelper.hostPlatform == Platform.MAC) {
 			
