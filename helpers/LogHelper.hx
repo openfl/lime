@@ -1,6 +1,7 @@
 package helpers;
 
 
+import haxe.io.Bytes;
 import neko.Lib;
 
 
@@ -28,19 +29,7 @@ class LogHelper {
 				
 			}
 			
-			#if (nme || openfl)
-			
-			try {
-				
-				nme_error_output (output);
-				
-			} catch (e:Dynamic) { }
-			
-			#else
-			
-			Sys.print (output);
-			
-			#end
+			Sys.stderr ().write (Bytes.ofString (output));
 			
 		}
 		
@@ -102,12 +91,5 @@ class LogHelper {
 		}
 		
 	}
-	
-	
-	#if openfl
-	private static var nme_error_output = flash.Lib.load ("nme", "nme_error_output", 1);
-	#elseif nme
-	private static var nme_error_output = nme.Loader.load ("nme_error_output", 1);
-	#end
 
 }
