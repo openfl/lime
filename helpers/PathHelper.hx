@@ -523,6 +523,27 @@ class PathHelper {
 	}
 	
 	
+	public static function standardize (path:String, trailingSlash:Bool = false):String {
+		
+		path = StringTools.replace (path, "\\", "/");
+		path = StringTools.replace (path, "//", "/");
+		path = StringTools.replace (path, "//", "/");
+		
+		if (!trailingSlash && StringTools.endsWith (path, "/")) {
+			
+			path = path.substr (0, path.length - 1);
+			
+		} else if (trailingSlash && !StringTools.endsWith (path, "/")) {
+			
+			path += "/";
+			
+		}
+		
+		return path;
+		
+	}
+	
+	
 	public static function tryFullPath (path:String):String {
 		
 		try {

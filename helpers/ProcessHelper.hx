@@ -12,6 +12,11 @@ import sys.FileSystem;
 class ProcessHelper {
 	
 	
+	public static var processorCores (get_processorCores, null):Int;
+	
+	private static var _processorCores:Int = 0;
+	
+	
 	public static function openFile (workingDirectory:String, targetPath:String, executable:String = ""):Void {
 		
 		if (executable == null) { 
@@ -384,6 +389,63 @@ class ProcessHelper {
 		}
 		
 		return output;
+		
+	}
+	
+	
+	
+	
+	// Get & Set Methods
+	
+	
+	
+	
+	public static function get_processorCores ():Int {
+		
+		if (_processorCores < 1) {
+			
+			var result = null;
+			
+			if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
+				
+				var env = Sys.getEnv ("NUMBER_OF_PROCESSORS");
+				
+				if (env != null) {
+					
+					result = env;
+					
+				}
+				
+			} else if (PlatformHelper.hostPlatform == Platform.LINUX) {
+				
+				result = runProcess ("", "nproc", []);
+				
+			} else if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
+				
+				var cores = ~/Total Number of Cores: (\d+)/;
+				var output = runProcess ("", "/usr/sbin/system_profiler", [ "-detailLevel", "full", "SPHardwareDataType" ]);
+				
+				if (cores.match (output)) {
+					
+					result = cores.matched (1);
+					
+				}
+				
+			}
+			
+			if (result == null || Std.parseInt (result) < 1) {
+				
+				_processorCores = 1;
+				
+			} else {
+				
+				_processorCores = Std.parseInt (result);
+				
+			}
+			
+		}
+		
+		return _processorCores;
 		
 	}
 	
