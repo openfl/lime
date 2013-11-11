@@ -3,6 +3,7 @@ package helpers;
 
 import helpers.LogHelper;
 import helpers.ProcessHelper;
+import project.Architecture;
 import project.Haxelib;
 import project.NDLL;
 import project.Platform;
@@ -11,6 +12,9 @@ import sys.FileSystem;
 
 
 class PathHelper {
+	
+	
+	private static var haxelibPaths = new Map<String, String> ();
 	
 	
 	public static function combine (firstPath:String, secondPath:String):String {
@@ -157,66 +161,94 @@ class PathHelper {
 			
 		}
 		
-		if (name == "nme") {
+		if (!haxelibPaths.exists (name)) {
 			
-			var nmePath = Sys.getEnv ("NMEPATH");
-			
-			if (nmePath != null && nmePath != "") {
+			if (name == "nme") {
 				
-				return nmePath;
+				var nmePath = Sys.getEnv ("NMEPATH");
 				
-			}
-			
-		}
-		
-		var cache = LogHelper.verbose;
-		LogHelper.verbose = false;
-		var output = "";
-		
-		try {
-			
-			output = ProcessHelper.runProcess (Sys.getEnv ("HAXEPATH"), "haxelib", [ "path", name ]);
-			
-		} catch (e:Dynamic) { }
-		
-		LogHelper.verbose = cache;
-		
-		var lines = output.split ("\n");
-		var result = "";
-		
-		for (i in 1...lines.length) {
-			
-			if (StringTools.trim (lines[i]) == "-D " + haxelib.name) {
-				
-				result = StringTools.trim (lines[i - 1]);
-				
-			}
-			
-		}
-		
-		if (validate) {
-			
-			if (result == "") {
-				
-				if (haxelib.version != "") {
+				if (nmePath != null && nmePath != "") {
 					
-					LogHelper.error ("Could not find haxelib \"" + haxelib.name + "\" version \"" + haxelib.version + "\", does it need to be installed?");
-					
-				} else {
-					
-					LogHelper.error ("Could not find haxelib \"" + haxelib.name + "\", does it need to be installed?");
+					haxelibPaths.set (name, nmePath);
 					
 				}
 				
-			} else if (result != null && (result.indexOf ("is not installed") > -1 || result.indexOf ("does not have") > -1)) {
+			} else {
 				
-				LogHelper.error (result);
+				var cache = LogHelper.verbose;
+				LogHelper.verbose = false;
+				var output = "";
+				
+				try {
+					
+					output = ProcessHelper.runProcess (Sys.getEnv ("HAXEPATH"), "haxelib", [ "path", name ]);
+					
+				} catch (e:Dynamic) { }
+				
+				LogHelper.verbose = cache;
+				
+				var lines = output.split ("\n");
+				var result = "";
+				
+				for (i in 1...lines.length) {
+					
+					if (StringTools.trim (lines[i]) == "-D " + haxelib.name) {
+						
+						result = StringTools.trim (lines[i - 1]);
+						
+					}
+					
+				}
+				
+				if (validate) {
+					
+					if (result == "") {
+						
+						if (output.indexOf ("does not have") > -1) {
+							
+							var directoryName = "";
+							
+							if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
+								
+								directoryName = "Windows";
+								
+							} else if (PlatformHelper.hostPlatform == Platform.MAC) {
+								
+								directoryName = PlatformHelper.hostArchitecture == Architecture.X64 ? "Mac64" : "Mac";
+								
+							} else {
+								
+								directoryName = PlatformHelper.hostArchitecture == Architecture.X64 ? "Linux64" : "Linux";
+								
+							}
+							
+							LogHelper.error ("haxelib \"" + haxelib.name + "\" does not have an \"ndll/" + directoryName + "\" directory");
+							
+						} else {
+							
+							if (haxelib.version != "") {
+								
+								LogHelper.error ("Could not find haxelib \"" + haxelib.name + "\" version \"" + haxelib.version + "\", does it need to be installed?");
+								
+							} else {
+								
+								LogHelper.error ("Could not find haxelib \"" + haxelib.name + "\", does it need to be installed?");
+								
+							}
+							
+						}
+						
+					}
+					
+				}
+				
+				haxelibPaths.set (name, result);
 				
 			}
 			
 		}
 		
-		return result;
+		return haxelibPaths.get (name);
 		
 	}
 	

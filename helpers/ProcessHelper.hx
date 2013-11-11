@@ -362,7 +362,7 @@ class ProcessHelper {
 			result = process.exitCode ();
 			process.close();
 			
-			if (result == 0) {
+			//if (result == 0) {
 				
 				output = buffer.getBytes ().toString ();
 				
@@ -378,7 +378,7 @@ class ProcessHelper {
 					
 				}
 				
-			}
+			//}
 			
 		}
 		
