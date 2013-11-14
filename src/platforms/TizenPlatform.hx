@@ -24,7 +24,7 @@ class TizenPlatform implements IPlatformTool {
 		var hxml = project.app.path + "/tizen/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
 		
 		ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "tizen" ] );
-		CPPHelper.compile (project, project.app.path + "/tizen/obj", [ "-Dtizen" ]);
+		CPPHelper.compile (project, project.app.path + "/tizen/obj", [ "-Dtizen", "-DAPP_ID=" + project.meta.packageName ]);
 		
 		FileHelper.copyIfNewer (project.app.path + "/tizen/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", project.app.path + "/tizen/bin/CommandLineBuild/" + project.app.file + ".exe");
 		
@@ -105,7 +105,7 @@ class TizenPlatform implements IPlatformTool {
 		
 		for (ndll in project.ndlls) {
 			
-			FileHelper.copyLibrary (ndll, "Tizen", "", ".so", destination + "bin/", project.debug);
+			FileHelper.copyLibrary (ndll, "Tizen", "", ".so", destination + "lib/", project.debug);
 			
 		}
 		
