@@ -10,6 +10,7 @@ enum Platform {
 	IOS;
 	LINUX;
 	MAC;
+	TIZEN;
 	WINDOWS;
 	WEBOS;
 	EMSCRIPTEN;

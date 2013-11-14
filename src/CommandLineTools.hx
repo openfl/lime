@@ -137,6 +137,10 @@ class CommandLineTools {
 				
 				platform = new IOSPlatform ();
 			
+			case TIZEN:
+				
+				platform = new TizenPlatform ();
+			
 			case WEBOS:
 				
 				platform = new WebOSPlatform ();
@@ -339,6 +343,7 @@ class CommandLineTools {
 		Sys.println ("  ios -- Create an iOS application");
 		Sys.println ("  linux -- Create a Linux application");
 		Sys.println ("  mac -- Create a Mac OS X application");
+		Sys.println ("  tizen -- Create a Tizen application");
 		//Sys.println ("  webos : Create HP webOS applications");
 		Sys.println ("  windows -- Create a Windows application");
 		Sys.println ("");

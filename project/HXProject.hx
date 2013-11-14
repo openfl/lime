@@ -118,7 +118,7 @@ class HXProject {
 				
 				defaultWindow.fps = 0;
 				
-			case ANDROID, BLACKBERRY, IOS, WEBOS:
+			case ANDROID, BLACKBERRY, IOS, TIZEN, WEBOS:
 				
 				platformType = PlatformType.MOBILE;
 				

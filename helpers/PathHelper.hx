@@ -181,7 +181,7 @@ class PathHelper {
 				
 				try {
 					
-					output = ProcessHelper.runProcess (Sys.getEnv ("HAXEPATH"), "haxelib", [ "path", name ]);
+					output = ProcessHelper.runProcess (Sys.getEnv ("HAXEPATH"), "haxelib", [ "path", name ], true, true, true);
 					
 				} catch (e:Dynamic) { }
 				
