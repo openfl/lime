@@ -91,9 +91,9 @@ class TizenPlatform implements IPlatformTool {
 		
 		PathHelper.mkdir (destination + "shared/res/screen-density-xhigh");
 		
-		if (IconHelper.createIcon (project.icons, 117, 117, PathHelper.combine (destination + "shared/res/screen-density-xhigh", "icon.png"))) {
+		if (IconHelper.createIcon (project.icons, 117, 117, PathHelper.combine (destination + "shared/res/screen-density-xhigh", "mainmenu.png"))) {
 			
-			context.APP_ICON = "icon.png";
+			context.APP_ICON = "mainmenu.png";
 			
 		}
 		

@@ -146,9 +146,10 @@ class TizenHelper {
 		
 		//var args = [ "--package", project.meta.packageName ];
 		//var args = [ "dlog", project.meta.packageName + ":V", "*:E" ];
-		var args = [ "dlog", "*:V" ];
+		var args = [ "dlog", project.app.file + ":V", "*:F" ];
 		
-		//ProcessHelper.runCommand ("", PathHelper.combine (sdkDirectory, "tools/sdb"), args);
+		ProcessHelper.runCommand ("", PathHelper.combine (sdkDirectory, "tools/sdb"), [ "dlog", "-c" ]);
+		ProcessHelper.runCommand ("", PathHelper.combine (sdkDirectory, "tools/sdb"), args);
 		//runCommand (project, "", "native-debug", [ "-p", project.meta.packageName ]);
 		
 	}
