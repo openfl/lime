@@ -288,6 +288,12 @@ class PathHelper {
 			
 			path = Sys.getEnv ("TMPDIR");
 			
+			if (path == null) {
+				
+				path = "/tmp";
+				
+			}
+			
 		}
 		
 		path += "/temp_" + Math.round (0xFFFFFF * Math.random ()) + extension;
