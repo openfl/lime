@@ -428,11 +428,7 @@ class ProcessHelper {
 				
 			} else if (PlatformHelper.hostPlatform == Platform.LINUX) {
 				
-				try {
-					
-					result = runProcess ("", "nproc", []);
-					
-				} catch (e:Dynamic) {}
+				result = runProcess ("", "nproc", [], true, true, true);
 				
 			} else if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
 				
