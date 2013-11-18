@@ -380,6 +380,8 @@ class ProcessHelper {
 						
 					}
 					
+					return null;
+					
 					/*if (error != "") {
 						
 						LogHelper.error (error);
@@ -429,6 +431,19 @@ class ProcessHelper {
 			} else if (PlatformHelper.hostPlatform == Platform.LINUX) {
 				
 				result = runProcess ("", "nproc", [], true, true, true);
+				
+				if (result == null) {
+					
+					var cpuinfo = runProcess ("", "cat", [ "/proc/cpuinfo" ], true, true, true);
+					
+					if (cpuinfo != null) {
+						
+						var split = cpuinfo.split ("processor");
+						result = Std.string (split.length - 1);
+						
+					}
+					
+				}
 				
 			} else if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
 				
