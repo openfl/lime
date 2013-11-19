@@ -1684,7 +1684,8 @@ class PlatformSetup {
 
 	public static function setupLinux ():Void {
 		// Install using apt-get if available.
-		var hasApt = ProcessHelper.runProcess("", "which", ["apt-get"], true, true, true) != null;
+		var whichAptGet = ProcessHelper.runProcess("", "which", ["apt-get"], true, true, true);
+		var hasApt = whichAptGet != null && whichAptGet != "";
 		if(hasApt) {
 			var parameters = [ "apt-get", "install" ].concat (aptPackages.split (" "));
 			ProcessHelper.runCommand ("", "sudo", parameters, false);
@@ -1692,7 +1693,8 @@ class PlatformSetup {
 		}
 
 		// Install using yum if available.
-		var hasYum = ProcessHelper.runProcess("", "which", ["yum"], true, true, true) != null;
+		var whichYum = ProcessHelper.runProcess("", "which", ["yum"], true, true, true);
+		var hasYum = whichYum != null && whichYum != "";
 		if(hasYum) {
 			var parameters = [ "yum", "install" ].concat (yumPackages.split (" "));
 			ProcessHelper.runCommand ("", "sudo", parameters, false);
