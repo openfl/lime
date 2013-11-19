@@ -3,6 +3,8 @@ package helpers;
 
 import helpers.ProcessHelper;
 import project.HXProject;
+import sys.io.File;
+import sys.FileSystem;
 
 
 class CPPHelper {
@@ -13,6 +15,35 @@ class CPPHelper {
 		if (project.config.cpp.requireBuild) {
 			
 			var args = [ "run", project.config.cpp.buildLibrary, buildFile ];
+			var foundOptions = false;
+			
+			try {
+				
+				var options = PathHelper.combine (path, "Options.txt");
+				
+				if (FileSystem.exists (options)) {
+					
+					var input = File.read (options, false);
+					var text = input.readLine ();
+					input.close ();
+					
+					var list = text.split (" ");
+					
+					for (option in list) {
+						
+						if (option != "" && !StringTools.startsWith (option, "-Dno_compilation") && !StringTools.startsWith (option, "-Dno-compilation")) {
+							
+							args.push (option);
+							
+						}
+						
+					}
+					
+					foundOptions = true;
+					
+				}
+				
+			} catch (e:Dynamic) {}
 			
 			if (flags != null) {
 				
@@ -20,17 +51,21 @@ class CPPHelper {
 				
 			}
 			
-			for (key in project.haxedefs.keys ()) {
+			if (!foundOptions) {
 				
-				var value = project.haxedefs.get (key);
-				
-				if (value == null || value == "") {
+				for (key in project.haxedefs.keys ()) {
 					
-					args.push ("-D" + key);
+					var value = project.haxedefs.get (key);
 					
-				} else {
-					
-					args.push ("-D" + key + "=" + value);
+					if (value == null || value == "") {
+						
+						args.push ("-D" + key);
+						
+					} else {
+						
+						args.push ("-D" + key + "=" + value);
+						
+					}
 					
 				}
 				
