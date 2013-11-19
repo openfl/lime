@@ -106,7 +106,7 @@ class ProcessHelper {
 			
 		} else {
 			
-			runCommand ("", "/usr/bin/xdg-open", [ url ]);
+			runCommand ("", "/usr/bin/xdg-open", [ url, "&" ]);
 			
 		}
 		
