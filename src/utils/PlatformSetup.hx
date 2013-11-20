@@ -130,6 +130,8 @@ class PlatformSetup {
 		var progress = new Progress (out);
 		var h = new Http (remotePath);
 		
+		h.cnxTimeout = 30;
+		
 		h.onError = function (e) {
 			progress.close();
 			FileSystem.deleteFile (localPath);
