@@ -17,11 +17,11 @@ class HTML5Helper {
 		
 		var sourcePath = font.sourcePath;
 		
-		//if (!FileSystem.exists (FileSystem.fullPath (sourcePath) + ".hash")) {
+		if (!FileSystem.exists (FileSystem.fullPath (sourcePath) + ".hash")) {
 			
 			ProcessHelper.runCommand (Path.directory (sourcePath), "neko", [ PathHelper.findTemplate (project.templatePaths, "bin/hxswfml.n"), "ttf2hash2", Path.withoutDirectory (sourcePath), FileSystem.fullPath (sourcePath) + ".hash", "-glyphs", font.glyphs ]);
 			
-		//}
+		}
 		
 		return "-resource " + FileSystem.fullPath (sourcePath) + ".hash@__ASSET__" + font.flatName;
 		
