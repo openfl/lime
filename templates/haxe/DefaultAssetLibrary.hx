@@ -50,7 +50,12 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		try {
 			
+			#if blackberry
+			var bytes = ByteArray.readFile ("app/native/manifest");
+			#else
 			var bytes = ByteArray.readFile ("manifest");
+			#end
+			
 			bytes.position = 0;
 			
 			if (bytes.length > 0) {
