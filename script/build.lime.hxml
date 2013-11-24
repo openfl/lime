@@ -1,5 +1,5 @@
 -main RunScript
 -neko ../run.n
--lib openfl-tools
+-lib hxtools
 -D pathtools
 -cp src

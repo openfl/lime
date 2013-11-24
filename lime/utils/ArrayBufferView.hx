@@ -85,13 +85,13 @@ package lime.utils;
             }
             
             
-            inline public function getFloat32 (position:Int):Float {
+            inline public function getFloat32(position:Int):Float {
                 
                 #if cpp
                 untyped return __global__.__hxcpp_memory_get_float (bytes, position + byteOffset);
                 #else
                 buffer.position = position + byteOffset;
-                return buffer.readFloat ();
+                return buffer.readFloat();
                 #end
                 
             }

@@ -19,14 +19,16 @@ default: debug_print
 
 ifeq ("$(BUILD_STYLE)","Debug")
    DEBUG := -debug
+   DEF_DEBUG := -Ddebug
    CONFIG := Debug
 else
    DEBUG :=
+   DEF_DEBUG :=
    CONFIG := Release
 endif
 
 ifeq ("$(CLANG_ENABLE_OBJC_ARC)", "YES")
-   HXCPP_CLANG := -D HXCPP_CLANG -D OBJC_ARC
+   HXCPP_CLANG := -DHXCPP_CLANG -DOBJC_ARC
 else
    HXCPP_CLANG := 
 endif
@@ -47,19 +49,22 @@ export HXCPP_COMPILE_THREADS := 2
 
 build-haxe-i386:
 	@echo "Haxe simulator build CONFIG : $(CONFIG)"
-	haxe Build.hxml -D simulator -cpp build/$(CONFIG) $(DEBUG) $(HXCPP_CLANG)
+	haxe Build.hxml -D simulator -cpp build/$(CONFIG) $(DEBUG)
+	cd build/$(CONFIG); haxelib run hxlibc Build.xml -Dios -Diphone -Dsimulator $(DEF_DEBUG) $(HXCPP_CLANG)
 	cp $(LIB_BASE).iphonesim.a ../lib/i386$(LIB_DEST)
 	touch ../Classes/Main.mm
 
 build-haxe-armv6:
 	@echo "Haxe armv6 build CONFIG : $(CONFIG)"
-	haxe Build.hxml -D HXCPP_ARMV6 -cpp build/$(CONFIG) $(DEBUG) $(HXCPP_CLANG)
+	haxe Build.hxml -D HXCPP_ARMV6 -cpp build/$(CONFIG) $(DEBUG)
+	cd build/$(CONFIG); haxelib run hxlibc Build.xml -Dios -Diphone -DHXCPP_ARMV6 $(DEF_DEBUG) $(HXCPP_CLANG)
 	cp $(LIB_BASE).iphoneos.a ../lib/armv6$(LIB_DEST)
 	touch ../Classes/Main.mm
 
 build-haxe-armv7:
 	@echo "Haxe armv7 build CONFIG : $(CONFIG)"
-	haxe Build.hxml -D HXCPP_ARMV7 -cpp build/$(CONFIG) $(DEBUG) $(HXCPP_CLANG)
+	haxe Build.hxml -D HXCPP_ARMV7 -cpp build/$(CONFIG) $(DEBUG)
+	cd build/$(CONFIG); haxelib run hxlibc Build.xml -Dios -Diphone -DHXCPP_ARMV7 $(DEF_DEBUG) $(HXCPP_CLANG)
 	cp $(LIB_BASE).iphoneos-v7.a ../lib/armv7$(LIB_DEST)
 	touch ../Classes/Main.mm
 

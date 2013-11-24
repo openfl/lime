@@ -23,6 +23,7 @@ package lime.utils;
             if (Std.is (bufferOrArray, Int)) {
                 
                 super (Std.int (bufferOrArray) * BYTES_PER_ELEMENT);
+                this.length = bufferOrArray;
                 
             } else if (Std.is (bufferOrArray, Array)) {
                 
@@ -76,9 +77,8 @@ package lime.utils;
         
             
         public function clear() {
-            // this.buffer.writeBytes(haxe.io.Bytes.alloc(0), 0, 0);
             length = 0;
-        }        
+        }
         
         public static function fromMatrix (matrix:Matrix3D):Float32Array {
             return new Float32Array (matrix.rawData);

@@ -287,7 +287,7 @@ class ByteArray extends Bytes #if !haxe3 , #end implements ArrayAccess<Int> #if 
    public function readFloat():Float 
    {  
       #if !lime_html5
-     
+
          if (position + 4 > length)
             ThrowEOFi();
 

@@ -3,17 +3,15 @@
 
 	<haxedef name="lime_html5" if="html5" />
 	<haxedef name="lime_native" if="native" />
-	<!-- <haxeflag name="-D" value="I_LIKE_SQUIRRELS" /> -->
+	<haxedef name="no-compilation" />
 
 	<section unless="display">
 
-		<ndll name="std" haxelib="hxcpp" unless="neko" />
-		<ndll name="regexp" haxelib="hxcpp" unless="neko" />
-		<ndll name="zlib" haxelib="hxcpp" unless="neko" />
+		<haxelib name="hxlibc" if="cpp" />
 		
 		<ndll name="openal" register="false" if="android" />
 		<ndll name="libfreetype" register="false" if="emscripten" />
-		
+
 		<ndll name="curl_ssl" register="false" if="ios" />
 		<ndll name="png" register="false" if="ios" />
 		<ndll name="jpeg" register="false" if="ios" />
@@ -21,9 +19,9 @@
 		<ndll name="ogg" register="false" if="ios" />
 		<ndll name="vorbis" register="false" if="ios" />
 		
-		<ndll name="nme" />		
+		<ndll name="nme" />
 
-		<include haxelib="openfl-tools" />
+		<include haxelib="hxtools" />
 		
 	</section>
 	

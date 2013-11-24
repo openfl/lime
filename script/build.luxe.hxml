@@ -1,6 +1,6 @@
 -main RunScript
 -neko ../../luxe/run.n
--lib openfl-tools
+-lib hxtools
 -D pathtools
 -D luxe
 -cp src

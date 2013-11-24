@@ -114,13 +114,13 @@ class RunScript {
 			} //if there is an xml mentioned
 		} //for each argument
 
-		if(!explicit_project) {
-			#if luxe
-				args.insert(1,'project.luxe.xml');
-			#else 
-				args.insert(1,'project.lime.xml');
-			#end
-		}
+		// if(!explicit_project) {
+		// 	#if luxe
+		// 		args.insert(1,'project.luxe.xml');
+		// 	#else 
+		// 		args.insert(1,'project.lime.xml');
+		// 	#end
+		// }
 
 		return args;
 
@@ -144,8 +144,8 @@ class RunScript {
 				var args = append_project_file(args);
 
 					//make a full command line
-				var full_args = [ "run", "openfl-tools" ].concat(args);
-					//enforce the folder to the current on
+				var full_args = [ "run", "hxtools" ].concat(args);
+					//enforce the folder to the current one
 				Sys.setCwd(cwd);
 					//and then execute
 				return Sys.command("haxelib", full_args);
@@ -155,7 +155,7 @@ class RunScript {
 		} else {
 			Sys.println("");
 			
-			var version = "1.0.2";
+			var version = "1.0.3";
 
 			#if luxe
 				Sys.println("  luxe build tools " + version);
