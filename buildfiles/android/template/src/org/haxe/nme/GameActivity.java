@@ -13,6 +13,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -21,6 +22,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import dalvik.system.DexClassLoader;
@@ -73,6 +75,7 @@ public class GameActivity extends Activity implements SensorEventListener {
 	
 	public Handler mHandler;
 	
+	private static MainView mMainView;
 	private MainView mView;
 	private Sound _sound;
 	
@@ -95,17 +98,40 @@ public class GameActivity extends Activity implements SensorEventListener {
 		//getResources().getAssets();
 		
 		requestWindowFeature (Window.FEATURE_NO_TITLE);
+		::if WIN_FULLSCREEN::
 		getWindow ().addFlags (WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		::end::
 		
 		metrics = new DisplayMetrics ();
 		getWindowManager ().getDefaultDisplay ().getMetrics (metrics);
 		
 		// Pre-load these, so the C++ knows where to find them
 		
-		::foreach ndlls::
-		System.loadLibrary ("::name::");::end::
-		HXCPP.run ("ApplicationMain");
+		//if (mMainView == null) {
+			
+			Log.d ("NME", "mMainView is NULL");
+			
+			::foreach ndlls::
+			System.loadLibrary ("::name::");::end::
+			HXCPP.run ("ApplicationMain");
+			
+			//mMainView = new MainView (getApplication (), this);
+			
+		/*} else {
+			
+			ViewGroup parent = (ViewGroup)mMainView.getParent ();
+			
+			if (parent != null) {
+				
+				parent.removeView (mMainView);
+				
+			}
+			
+			mMainView.onResume ();
+			
+		}
 		
+		mView = mMainView;*/
 		mView = new MainView (getApplication (), this);
 		setContentView (mView);
 		
@@ -210,6 +236,13 @@ public class GameActivity extends Activity implements SensorEventListener {
 			sensorManager.registerListener (this, sensorManager.getDefaultSensor (Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_GAME);
 			
 		}
+		
+	}
+	
+	
+	public static AssetManager getAssetManager () {
+		
+		return mAssets;
 		
 	}
 	
@@ -390,8 +423,8 @@ public class GameActivity extends Activity implements SensorEventListener {
 	
 	@Override protected void onPause () {
 		
-		super.onPause ();
 		doPause ();
+		super.onPause ();
 		
 		for (Extension extension : extensions) {
 			
@@ -456,8 +489,15 @@ public class GameActivity extends Activity implements SensorEventListener {
 		
 		super.onStart();
 		
-		for (Extension extension : extensions) {
+		::if WIN_FULLSCREEN::::if (ANDROID_TARGET_SDK_VERSION >= 16)::
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 			
+			getWindow().getDecorView().setSystemUiVisibility (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_FULLSCREEN);
+			
+		}
+		::end::::end::
+		
+		for (Extension extension : extensions) {
 			extension.onStart ();
 			
 		}

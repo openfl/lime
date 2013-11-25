@@ -501,9 +501,9 @@ class GL {
         nme_gl_buffer_data(target, data.getByteBuffer(), data.getStart(), data.getLength(), usage);
     }
 
-    public static function bufferSubData(target:Int, offset:Int, data:IMemoryRange):Void 
+    public static function bufferSubData(target:Int, offset:Int, data:IMemoryRange ):Void 
     {
-        nme_gl_buffer_sub_data(target, offset, data.getByteBuffer(), data.getStart(), data.getLength());
+        nme_gl_buffer_sub_data( target, offset, data.getByteBuffer(), data.getStart(), data.getLength() );
     }
 
     public static function checkFramebufferStatus(target:Int):Int 

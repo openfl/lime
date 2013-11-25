@@ -21,6 +21,10 @@
 		
 		<ndll name="nme" />
 
+		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
+		
+		<architecture name="armv7" if="android" />
+
 		<include haxelib="hxtools" />
 		
 	</section>
