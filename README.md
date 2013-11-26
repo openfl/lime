@@ -1,6 +1,6 @@
-hxtools
+lime-tools
 ============
-[![Build Status](https://travis-ci.org/openfl/hxtools.png)](https://travis-ci.org/openfl/hxtools)
+[![Build Status](https://travis-ci.org/openfl/lime-tools.png)](https://travis-ci.org/openfl/lime-tools)
 
 Install
 -------
@@ -13,8 +13,8 @@ Development Build
 
     haxelib install format
     haxelib install svg
-    git clone https://github.com/openfl/hxtools
-    haxelib dev hxtools hxtools
+    git clone https://github.com/openfl/lime-tools
+    haxelib dev lime-tools lime-tools
 
 To rebuild the tools, use:
 
@@ -22,5 +22,5 @@ To rebuild the tools, use:
 
 To return to release builds:
 
-    haxelib dev hxtools
+    haxelib dev lime-tools
 

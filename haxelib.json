@@ -1,6 +1,6 @@
 {
-	"name": "hxtools",
-	"url": "https://github.com/openfl/hxtools",
+	"name": "lime-tools",
+	"url": "https://github.com/openfl/lime-tools",
 	"license": "MIT",
 	"tags": [],
 	"description": "Command-line tools for Haxe projects",
