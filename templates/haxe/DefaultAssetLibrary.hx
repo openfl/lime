@@ -52,28 +52,40 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 			#if blackberry
 			var bytes = ByteArray.readFile ("app/native/manifest");
+			#elseif tizen
+			var bytes = ByteArray.readFile ("../res/manifest");
 			#else
 			var bytes = ByteArray.readFile ("manifest");
 			#end
 			
-			bytes.position = 0;
-			
-			if (bytes.length > 0) {
+			if (bytes != null) {
 				
-				var data = bytes.readUTFBytes (bytes.length);
+				bytes.position = 0;
 				
-				if (data != null && data.length > 0) {
+				if (bytes.length > 0) {
 					
-					var manifest:Array<AssetData> = Unserializer.run (data);
+					var data = bytes.readUTFBytes (bytes.length);
 					
-					for (asset in manifest) {
+					trace (data.length);
+					
+					if (data != null && data.length > 0) {
 						
-						path.set (asset.id, asset.path);
-						type.set (asset.id, asset.type);
+						var manifest:Array<AssetData> = Unserializer.run (data);
+						
+						for (asset in manifest) {
+							
+							path.set (asset.id, asset.path);
+							type.set (asset.id, asset.type);
+							
+						}
 						
 					}
 					
 				}
+				
+			} else {
+				
+				trace ("Warning: Could not load asset manifest");
 				
 			}
 			

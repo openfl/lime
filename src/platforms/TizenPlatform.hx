@@ -80,6 +80,12 @@ class TizenPlatform implements IPlatformTool {
 		var destination = project.app.path + "/tizen/bin/";
 		PathHelper.mkdir (destination);
 		
+		for (asset in project.assets) {
+			
+			asset.resourceName = "../res/" + asset.resourceName;
+			
+		}
+		
 		if (project.targetFlags.exists ("xml")) {
 			
 			project.haxeflags.push ("-xml " + project.app.path + "/tizen/types.xml");
