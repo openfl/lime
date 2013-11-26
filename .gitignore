@@ -2,3 +2,11 @@
 .DS_Store
 .DS_Store?
 bin/
+ndll/*/nme*
+ndll/*/libnme*
+project/all_objs
+project/obj
+project/vc*.pdb
+project/winrt/shaders/
+*.userprefs
+*.swp
