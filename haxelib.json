@@ -1,0 +1,11 @@
+{
+	"name": "lime",
+	"url": "http://www.limeframework.com",
+	"license": "MIT",
+	"tags": [],
+	"description": "A powerful native backend for Haxe projects",
+	"version": "1.0.0",
+	"releasenote": "Initial release",
+	"contributors": [ "singmajesty", "underscorediscovery" ],
+	"dependencies": {}
+}
