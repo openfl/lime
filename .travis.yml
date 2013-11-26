@@ -11,10 +11,11 @@ before_install:
   - haxelib setup ~/haxelib
   - haxelib git lime https://github.com/openfl/lime
   - haxelib git lime-build https://github.com/openfl/lime-build
-  - haxelib install openfl-native
+  - haxelib git openfl-native https://github.com/openfl/openfl-native
   - haxelib install format
   - haxelib install svg
   - haxelib dev lime-tools $(pwd)
+  - haxelib run lime rebuild linux
 
 script:
   - haxelib run lime rebuild tools
