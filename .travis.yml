@@ -11,6 +11,7 @@ before_install:
   - haxelib setup ~/haxelib
   - haxelib git lime https://github.com/openfl/lime
   - haxelib git lime-build https://github.com/openfl/lime-build
+  - haxelib git openfl https://github.com/openfl/openfl
   - haxelib git openfl-native https://github.com/openfl/openfl-native
   - haxelib install format
   - haxelib install hxlibc
