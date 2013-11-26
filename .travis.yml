@@ -5,14 +5,17 @@ before_install:
   - sudo add-apt-repository ppa:eyecreate/haxe -y
   - sudo apt-get update
   - sudo apt-get install haxe -y --force-yes
+  - sudo apt-get install g++-multilib gcc-multilib
+  - sudo apt-get install mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev -y
   - mkdir ~/haxelib
   - haxelib setup ~/haxelib
-  - haxelib git openfl https://github.com/openfl/openfl
+  - haxelib git lime https://github.com/openfl/lime
+  - haxelib git lime-build https://github.com/openfl/lime-build
   - haxelib install openfl-native
   - haxelib install format
   - haxelib install svg
-  - haxelib dev hxtools $(pwd)
+  - haxelib dev lime-tools $(pwd)
 
 script:
-  - haxelib run openfl rebuild tools
-  - haxelib run openfl
+  - haxelib run lime rebuild tools
+  - haxelib run lime
