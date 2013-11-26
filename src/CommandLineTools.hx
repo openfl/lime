@@ -524,7 +524,7 @@ class CommandLineTools {
 			var sourcePath = words[0];
 			var glyphs = "32-255";
 			
-			ProcessHelper.runCommand (Path.directory (sourcePath), "neko", [ PathHelper.getHaxelib (new Haxelib ("hxtools")) + "/templates/bin/hxswfml.n", "ttf2hash2", Path.withoutDirectory (sourcePath), Path.withoutDirectory (sourcePath) + ".hash", "-glyphs", glyphs ]);
+			ProcessHelper.runCommand (Path.directory (sourcePath), "neko", [ PathHelper.getHaxelib (new Haxelib ("lime-tools")) + "/templates/bin/hxswfml.n", "ttf2hash2", Path.withoutDirectory (sourcePath), Path.withoutDirectory (sourcePath) + ".hash", "-glyphs", glyphs ]);
 			
 		} else if (targetFlags.exists ("font-details")) {
 			
@@ -655,7 +655,7 @@ class CommandLineTools {
 			
 		} else {
 			
-			json = Json.parse (File.getContent (PathHelper.getHaxelib (new Haxelib ("hxtools")) + "/haxelib.json"));
+			json = Json.parse (File.getContent (PathHelper.getHaxelib (new Haxelib ("lime-tools")) + "/haxelib.json"));
 			
 		}
 		
@@ -670,7 +670,7 @@ class CommandLineTools {
 		var haxePath = Sys.getEnv ("HAXEPATH");
 		var command = (haxePath != null && haxePath != "") ? haxePath + "/haxelib" : "haxelib";
 		
-		var process = new Process (command, [ "path", "hxtools" ]);
+		var process = new Process (command, [ "path", "lime-tools" ]);
 		var path = "";
 		
 		try {
@@ -682,7 +682,7 @@ class CommandLineTools {
 				var length = lines.length;
 				var line = process.stdout.readLine ();
 				
-				if (length > 0 && StringTools.trim (line) == "-D hxtools") {
+				if (length > 0 && StringTools.trim (line) == "-D lime-tools") {
 					
 					path = StringTools.trim (lines[length - 1]);
 					
