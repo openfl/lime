@@ -14,7 +14,7 @@
 	<set name="iphoneos" value="1" if="ios" unless="simulator" />
 	<set name="win_desktop" value="1" if="windows" unless="winrt"/>
 	
-	<set name="NATIVE_DEV" value="${haxelib:openfl-native-dev}" unless="NATIVE_DEV" />
+	<set name="NATIVE_DEV" value="${haxelib:lime-build}" unless="NATIVE_DEV" />
 	<!-- <error value="Error: You must clone 'openfl-native-dev' and 'haxelib dev' the directory before you can rebuild openfl-native" unless="NATIVE_DEV" /> -->
 	
 	<set name="has_window" value="1" if="NME_SDL" />
