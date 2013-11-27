@@ -17,6 +17,9 @@
 
 using namespace nme;
 
+
+#ifndef NME_FORCE_GLES1
+
 #define INT(a) val_int(arg[a])
 
 // --- General -------------------------------------------
@@ -1707,6 +1710,8 @@ value nme_gl_get_tex_parameter(value inTarget,value inPname)
 }
 DEFINE_PRIM(nme_gl_get_tex_parameter,2);
 
+
+#endif
 
 
 

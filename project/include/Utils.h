@@ -23,15 +23,17 @@
 #define ELOG(args...) __android_log_print(ANDROID_LOG_ERROR, "NME",args)
 
 #elif defined(TIZEN)
-#include <FBase.h>
+
+extern "C" __attribute__ ((visibility("default"))) void AppLogInternal(const char* pFunction, int lineNumber, const char* pFormat, ...);
+extern "C" __attribute__ ((visibility("default"))) void AppLogDebugInternal(const char* pFunction, int lineNumber, const char* pFormat, ...);
 
 #ifdef VERBOSE
-#define VLOG(args...) AppLog(args)
+#define VLOG(...) AppLogInternal(__PRETTY_FUNCTION__, __LINE__, __VA_ARGS__)
 #else
-#define VLOG(args...)
+#define VLOG(...)
 #endif
 
-#define ELOG(args...) AppLogDebug(args)
+#define ELOG(...) AppLogDebugInternal(__PRETTY_FUNCTION__, __LINE__, __VA_ARGS__)
 
 #else
 
