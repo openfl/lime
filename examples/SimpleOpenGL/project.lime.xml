@@ -3,25 +3,23 @@
 	
 	<meta 
           title="lime example - Simple OpenGL" 
-          package="com.underscorediscovery.limeexamplesimple" 
+          package="com.limeframework.limeexamplesimple" 
           version="1.0.0" 
-          company="underscorediscovery" 
+          company="limeframework" 
 	/>
 
 	<app main="Main" path="bin" file="lime_example_simple" />
 
 	<window 
-          width="854" 
-          height="480" 
+          width="960" 
+          height="640" 
           orientation="landscape" 
           background="0x161616"
-          require_shaders="true"
           depth-buffer="true"
           fps="60" 
-          vsync="false" 
+          vsync="true" 
           stencil-buffer="true"
           resizable="true"
-          hardware="true"
 	/>
 	
      <assets path="Assets" rename="assets" include="*"/>

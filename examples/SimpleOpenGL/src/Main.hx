@@ -1,4 +1,7 @@
 
+    //Ported and modified from OpenFL samples
+    //underscorediscovery
+
 import lime.utils.Assets;
 import lime.LiME;
 
@@ -40,7 +43,30 @@ class Main {
 			// Init the shaders and view
 		init();
         
-	}
+	} //ready
+
+
+    public function init() {
+
+            //Set up shaders
+        createProgram();
+        
+            //Create a set of vertices
+        var vertices : Float32Array = new Float32Array([
+            100,    100,    0,
+            -100,   100,    0,
+            100,    -100,   0,
+            -100,   -100,   0
+        ]);
+            
+            //Create a buffer from OpenGL
+        vertexBuffer = GL.createBuffer ();
+            //Bind it
+        GL.bindBuffer (GL.ARRAY_BUFFER, vertexBuffer);  
+            //Point it to the vertex array!
+        GL.bufferData (GL.ARRAY_BUFFER, vertices, GL.STATIC_DRAW);
+
+    } //init
 
         //Called each frame by lime for logic (called before render)
 	public function update() {
@@ -59,33 +85,24 @@ class Main {
 			red_direction = -red_direction;
 		}
 
-        // Sys.println(dt);
-
-	}
+	} //update
 
         //Called by lime 
     public function onmousemove(_event:Dynamic) {
-        // trace(_event);
     }
-
-        //Called by lime 
-    public function onkeydown(_event:Dynamic) {
-        // trace(_event);
-    }    
-
-        //Called by lime 
-    public function onkeyup(_event:Dynamic) {
-        // trace(_event);
-    }
-    
         //Called by lime 
     public function onmousedown(_event:Dynamic) {
-        // trace(_event);
     }
         //Called by lime 
     public function onmouseup(_event:Dynamic) {
-        // trace(_event);
     }
+        //Called by lime 
+    public function onkeydown(_event:Dynamic) {
+    }    
+        //Called by lime 
+    public function onkeyup(_event:Dynamic) {
+    }
+
 
         //Called by lime
 	public function render() {
@@ -121,91 +138,71 @@ class Main {
         	//And finally, Draw the vertices with the applied shaders and view
         GL.drawArrays (GL.TRIANGLE_STRIP, 0, 4);
 
-	}
+	} //render
 
-
-	public function init() {
-
-			//Set up shaders
-        createProgram();
-        
-        	//Create a set of vertices
-        var vertices : Float32Array = new Float32Array([
-            100, 	100, 	0,
-            -100, 	100, 	0,
-            100, 	-100, 	0,
-            -100, 	-100, 	0
-        ]);
-        	
-        	//Create a buffer from OpenGL
-        vertexBuffer = GL.createBuffer ();
-        	//Bind it
-        GL.bindBuffer (GL.ARRAY_BUFFER, vertexBuffer);  
-        	//Point it to the vertex array!
-        GL.bufferData (GL.ARRAY_BUFFER, vertices, GL.STATIC_DRAW);
-
-    }
 
 		//Shader initialize
-
-	private function createProgram ():Void {
+	private function createProgram() : Void {
         
         var vertexShaderSource = 
             
             "attribute vec3 vertexPosition;
             
-            uniform mat4 modelViewMatrix;
-            uniform mat4 projectionMatrix;
+                uniform mat4 modelViewMatrix;
+                uniform mat4 projectionMatrix;
             
             void main(void) {
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(vertexPosition, 1.0);
             }";
-        
-        var vertexShader = GL.createShader (GL.VERTEX_SHADER);
-        GL.shaderSource (vertexShader, vertexShaderSource);
-        GL.compileShader (vertexShader);
-        
-        if (GL.getShaderParameter (vertexShader, GL.COMPILE_STATUS) == 0) {
-            
-            throw "Error compiling vertex shader";
-            
-        }
-        
+
         var fragmentShaderSource = 
-            
             "void main(void) {
                 gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
             }";
-        
-        var fragmentShader = GL.createShader (GL.FRAGMENT_SHADER);
-        
-        GL.shaderSource (fragmentShader, fragmentShaderSource);
-        GL.compileShader (fragmentShader);
-        
-        if (GL.getShaderParameter (fragmentShader, GL.COMPILE_STATUS) == 0) {
+
+            //Create the GPU shaders
+        var vertexShader = GL.createShader( GL.VERTEX_SHADER );
+        var fragmentShader = GL.createShader( GL.FRAGMENT_SHADER );
             
+                //Set the shader source and compile it
+        GL.shaderSource( vertexShader, vertexShaderSource );
+        GL.shaderSource( fragmentShader, fragmentShaderSource );
+            
+            //Try compiling the vertex shader    
+        GL.compileShader( vertexShader );
+        if (GL.getShaderParameter (vertexShader, GL.COMPILE_STATUS) == 0) {
+            throw "Error compiling vertex shader";
+        } //COMPILE_STATUS
+        
+            //Now try compile the fragment shader            
+        GL.compileShader( fragmentShader );
+        if (GL.getShaderParameter(fragmentShader, GL.COMPILE_STATUS) == 0) {
             throw "Error compiling fragment shader";
+        } //COMPILE_STATUS
             
-        }
-        
-        shaderProgram = GL.createProgram ();
-        GL.attachShader (shaderProgram, vertexShader);
-        GL.attachShader (shaderProgram, fragmentShader);
-        GL.linkProgram (shaderProgram);
-        
+            //Create the GPU program
+        shaderProgram = GL.createProgram();
+
+                //Attach the shader code to the program
+            GL.attachShader( shaderProgram, vertexShader );
+            GL.attachShader( shaderProgram, fragmentShader );
+
+            //And link the program
+        GL.linkProgram( shaderProgram );
         if (GL.getProgramParameter (shaderProgram, GL.LINK_STATUS) == 0) {
-            
             throw "Unable to initialize the shader program.";
+        } //LINK_STATUS
             
-        }
-        
-        GL.useProgram (shaderProgram);
+            //Set the shader active
+        GL.useProgram( shaderProgram );
+            //Fetch the vertex attribute
         vertexAttribute = GL.getAttribLocation (shaderProgram, "vertexPosition");
+            //And enable it (disable by default)
         GL.enableVertexAttribArray (vertexAttribute);
         
-    }
+    } //createProgram
 
 
-}
+} //Main
 
 

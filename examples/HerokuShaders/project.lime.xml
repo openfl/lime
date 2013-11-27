@@ -3,16 +3,12 @@
 	
 	<meta 
           title="lime example - HerokuShaders" 
-          package="com.underscorediscovery.limeexampleherokushaders" 
-          version="1.0.0" 
-          company="underscorediscovery" 
+          package="com.limeframework.limeexampleherokushaders" 
+          version="1.0.0"
+          company="limeframework" 
 	/>
 
-	<app
-          main="Main"
-          path="bin"
-          file="lime_example_herokushaders"
-	/>
+	<app main="Main" path="bin" file="lime_example_herokushaders" />
 
 	<window 
           width="960" 
