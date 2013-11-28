@@ -29,6 +29,6 @@
 		
 	</section>
 	
-	<templatePath name="buildfiles" />
+	<templatePath name="templates" />
 	
 </extension>
