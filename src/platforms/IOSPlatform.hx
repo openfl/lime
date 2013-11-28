@@ -335,7 +335,7 @@ class IOSPlatform implements IPlatformTool {
 		PathHelper.mkdir (targetDirectory);
 		PathHelper.mkdir (projectDirectory);
 		PathHelper.mkdir (projectDirectory + "/haxe");
-		PathHelper.mkdir (projectDirectory + "/haxe/nme/installer");
+		PathHelper.mkdir (projectDirectory + "/haxe/lime/installer");
 		
 		var iconNames = [ "Icon.png", "Icon@2x.png", "Icon-60.png", "Icon-60@2x.png", "Icon-72.png", "Icon-72@2x.png", "Icon-76.png", "Icon-76@2x.png" ];
 		var iconSizes = [ 57, 114, 60, 120, 72, 144, 76, 152 ];

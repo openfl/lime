@@ -533,8 +533,8 @@ class JavaExternGenerator
 			
 			java_out = File.write("stubs/" + java_name, true);
 			java_out.writeString("package " + dir_parts.join(".") + ";\n");
-			java_out.writeString("import org.haxe.nme.Value;\n");
-			java_out.writeString("import org.haxe.nme.NME;\n\n");
+			java_out.writeString("import org.haxe.lime.Value;\n");
+			java_out.writeString("import org.haxe.lime.Lime;\n\n");
 			java_out.writeString("import " + StringTools.replace (parts.join ("."), "$", ".") + ";\n\n");
 			java_out.writeString("class " + impl_name + " implements " + interface_name.split("$").join(".") + " {\n");
 			java_out.writeString("   long __haxeHandle;\n");
@@ -678,7 +678,7 @@ class JavaExternGenerator
 					if (!ret_void)
 						java_out.writeString("		return (" + javaType(retType) + ")" );
 					
-					java_out.writeString("		NME." + nmeCallType(retType) + "(__haxeHandle,\"" + uniq_name + "\",args)");
+					java_out.writeString("		Lime." + nmeCallType(retType) + "(__haxeHandle,\"" + uniq_name + "\",args)");
 					
 					if (!ret_void)
 						java_out.writeString(")");

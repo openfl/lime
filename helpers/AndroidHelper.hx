@@ -269,7 +269,7 @@ class AndroidHelper {
 		} else if (debug) {
 			
 			var filter = "*:E";
-			var includeTags = [ "NME", "Main", "GameActivity", "GLThread", "trace" ];
+			var includeTags = [ "lime", "Main", "GameActivity", "GLThread", "trace" ];
 			
 			for (tag in includeTags) {
 				
