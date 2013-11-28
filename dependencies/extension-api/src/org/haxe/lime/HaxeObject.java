@@ -1,4 +1,4 @@
-package org.haxe.nme;
+package org.haxe.lime;
 
 import android.util.Log;
 import java.lang.Boolean;
@@ -24,7 +24,7 @@ public class HaxeObject
 
    protected void finalize() throws Throwable {
     try {
-        NME.releaseReference(__haxeHandle);
+        Lime.releaseReference(__haxeHandle);
     } finally {
         super.finalize();
     }
@@ -32,14 +32,14 @@ public class HaxeObject
    public Object call0(String function)
    {
       //Log.e("HaxeObject","Calling obj0" + function + "()" );
-      return NME.callObjectFunction(__haxeHandle,function,new Object[0]);
+      return Lime.callObjectFunction(__haxeHandle,function,new Object[0]);
    }
    public Object call1(String function,Object arg0)
    {
       Object[] args = new Object[1];
       args[0] = arg0;
       //Log.e("HaxeObject","Calling obj1 " + function + "(" + arg0 + ")" );
-      return NME.callObjectFunction(__haxeHandle,function,args);
+      return Lime.callObjectFunction(__haxeHandle,function,args);
    }
    public Object call2(String function,Object arg0,Object arg1)
    {
@@ -47,7 +47,7 @@ public class HaxeObject
       args[0] = arg0;
       args[1] = arg1;
       //Log.e("HaxeObject","Calling obj2 " + function + "(" + arg0 + "," + arg1 + ")" );
-      return NME.callObjectFunction(__haxeHandle,function,args);
+      return Lime.callObjectFunction(__haxeHandle,function,args);
    }
    public Object call3(String function,Object arg0,Object arg1,Object arg2)
    {
@@ -56,7 +56,7 @@ public class HaxeObject
       args[1] = arg1;
       args[2] = arg2;
       //Log.e("HaxeObject","Calling obj3 " + function + "(" + arg0 + "," + arg1 + "," + arg2 + ")" );
-      return NME.callObjectFunction(__haxeHandle,function,args);
+      return Lime.callObjectFunction(__haxeHandle,function,args);
    }
    public Object call4(String function,Object arg0,Object arg1,Object arg2,Object arg3)
    {
@@ -66,20 +66,20 @@ public class HaxeObject
       args[2] = arg2;
       args[3] = arg3;
       //Log.e("HaxeObject","Calling obj4 " + function + "(" + arg0 + "," + arg1 + "," + arg2 + "," + arg3 + ")" );
-      return NME.callObjectFunction(__haxeHandle,function,args);
+      return Lime.callObjectFunction(__haxeHandle,function,args);
    }
 
    public double callD0(String function)
    {
       //Log.e("HaxeObject","Calling objD0 " + function + "()" );
-      return NME.callNumericFunction(__haxeHandle,function,new Object[0]);
+      return Lime.callNumericFunction(__haxeHandle,function,new Object[0]);
    }
    public double callD1(String function,Object arg0)
    {
       Object[] args = new Object[1];
       args[0] = arg0;
       //Log.e("HaxeObject","Calling D1 " + function + "(" + arg0 + ")" );
-      return NME.callNumericFunction(__haxeHandle,function,args);
+      return Lime.callNumericFunction(__haxeHandle,function,args);
    }
    public double callD2(String function,Object arg0,Object arg1)
    {
@@ -87,7 +87,7 @@ public class HaxeObject
       args[0] = arg0;
       args[1] = arg1;
       //Log.e("HaxeObject","Calling D2 " + function + "(" + arg0 + "," + arg1 + ")" );
-      return NME.callNumericFunction(__haxeHandle,function,args);
+      return Lime.callNumericFunction(__haxeHandle,function,args);
    }
    public double callD3(String function,Object arg0,Object arg1,Object arg2)
    {
@@ -96,7 +96,7 @@ public class HaxeObject
       args[1] = arg1;
       args[2] = arg2;
       //Log.e("HaxeObject","Calling D3 " + function + "(" + arg0 + "," + arg1 + "," + arg2 + ")" );
-      return NME.callNumericFunction(__haxeHandle,function,args);
+      return Lime.callNumericFunction(__haxeHandle,function,args);
    }
 
 
@@ -105,10 +105,10 @@ public class HaxeObject
 
    public Object call(String function, Object[] args)
    {
-      return NME.callObjectFunction(__haxeHandle,function,args);
+      return Lime.callObjectFunction(__haxeHandle,function,args);
    }
    public double callD(String function, Object[] args)
    {
-     return NME.callNumericFunction(__haxeHandle,function,args);
+     return Lime.callNumericFunction(__haxeHandle,function,args);
    }
 }

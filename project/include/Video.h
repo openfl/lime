@@ -3,7 +3,7 @@
 
 #include "Display.h"
 
-namespace nme {
+namespace lime {
 
 class Video : public DisplayObject {
 public:

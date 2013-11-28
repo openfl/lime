@@ -6,7 +6,7 @@
 #include "renderer/common/Surface.h"
 
 
-namespace nme {
+namespace lime {
 
 	
 	class BitmapCache {

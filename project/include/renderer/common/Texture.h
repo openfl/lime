@@ -2,7 +2,7 @@
 #define RENDERER_TEXTURE_H
 
 
-namespace nme {
+namespace lime {
 	
 	
 	extern int gTextureContextVersion;

@@ -17,17 +17,17 @@ class LiME {
         //the config passed to us on creation
 	public var config : Dynamic;
 
-        //The handlers for the messages from NME
+        //The handlers for the messages from lime
     public var audio    : AudioHandler;
     public var input    : InputHandler;
     public var render   : RenderHandler;
 	public var window 	: WindowHandler;
 
-//nme specifics
+//lime specifics
 
-		//the handle to the window from nme
+		//the handle to the window from lime
     public var window_handle : Dynamic;
-    	//the handle to the nme stage
+    	//the handle to the lime stage
     public var view_handle : Dynamic;
 
 // timing
@@ -75,7 +75,7 @@ class LiME {
         }
 
         #if android
-            render_request_function = nme_stage_request_render;
+            render_request_function = lime_stage_request_render;
         #else
             render_request_function = null;
         #end //android
@@ -297,7 +297,7 @@ class LiME {
     } //on_syswm
 
 
-    	//Called when updated by the nme/sdl runtime
+    	//Called when updated by the lime/sdl runtime
     public function on_update(_event) { 
 
         _debug('on_update ' + Timer.stamp(), true, false); 
@@ -377,7 +377,7 @@ class LiME {
             var nextWake = haxe.Timer.__nextWake (315000000.0);
             
             nextWake = __nextFrameDue( nextWake );
-            nme_stage_set_next_wake( view_handle, nextWake );
+            lime_stage_set_next_wake( view_handle, nextWake );
             
             return nextWake;
 
@@ -434,8 +434,8 @@ class LiME {
     } //_debug
 
 #if lime_native
-    private static var nme_stage_request_render = Libs.load("nme","nme_stage_request_render", 0);
-    private static var nme_stage_set_next_wake  = Libs.load("nme","nme_stage_set_next_wake", 2);        
+    private static var lime_stage_request_render = Libs.load("lime","lime_stage_request_render", 0);
+    private static var lime_stage_set_next_wake  = Libs.load("lime","lime_stage_set_next_wake", 2);        
 #end 
     
 }

@@ -1,7 +1,7 @@
 #include <Graphics.h>
 #include <stdio.h>
 
-namespace nme
+namespace lime
 {
 
 struct EdgePoint
@@ -575,4 +575,4 @@ void ConvertOutlineToTriangles(Vertices &ioOutline,const QuickVec<int> &inSubPol
    ioOutline.swap(triangles);
 }
 
-} // end namespace nme
+} // end namespace lime

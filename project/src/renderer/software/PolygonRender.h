@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 
-namespace nme
+namespace lime
 {
 
 enum IterateMode { itGetExtent, itCreateRenderer, itHitTest };
@@ -67,7 +67,7 @@ public:
 };
 
 
-} // end namespace nme
+} // end namespace lime
 
 
 #endif

@@ -35,9 +35,9 @@
 
 #include "ByteArray.h"
 
-#define NME_FREETYPE_FLAGS  (FT_LOAD_FORCE_AUTOHINT|FT_LOAD_DEFAULT)
+#define LIME_FREETYPE_FLAGS  (FT_LOAD_FORCE_AUTOHINT|FT_LOAD_DEFAULT)
 
-namespace nme
+namespace lime
 {
 
 FT_Library sgLibrary = 0;
@@ -60,7 +60,7 @@ public:
    bool LoadBitmap(int inChar)
    {
       int idx = FT_Get_Char_Index( mFace, inChar );
-      int err = FT_Load_Glyph( mFace, idx, NME_FREETYPE_FLAGS  );
+      int err = FT_Load_Glyph( mFace, idx, LIME_FREETYPE_FLAGS  );
       if (err)
          return false;
 
@@ -453,7 +453,7 @@ FontFace *FontFace::CreateFreeType(const TextFormat &inFormat,double inScale,Aut
 
 
 
-} // end namespace nme
+} // end namespace lime
 
 #include <hx/CFFI.h>
 
@@ -610,10 +610,10 @@ wchar_t *get_familyname_from_sfnt_name(FT_Face face)
 
 value freetype_init()
 {
-   if (!nme::sgLibrary)
-     FT_Init_FreeType( &nme::sgLibrary );
+   if (!lime::sgLibrary)
+     FT_Init_FreeType( &lime::sgLibrary );
 
-   return alloc_bool(nme::sgLibrary);
+   return alloc_bool(lime::sgLibrary);
 }
 DEFINE_PRIM(freetype_init, 0);
 
@@ -629,7 +629,7 @@ value freetype_import_font(value font_file, value char_vector, value em_size, va
    
    AutoGCRoot *bytes = !val_is_null(inBytes) ? new AutoGCRoot(inBytes) : NULL;
 
-   result = nme::MyNewFace(val_string(font_file), 0, &face, bytes);
+   result = lime::MyNewFace(val_string(font_file), 0, &face, bytes);
    
    if (result == FT_Err_Unknown_File_Format)
    {
@@ -677,7 +677,7 @@ value freetype_import_font(value font_file, value char_vector, value em_size, va
          FT_ULong    char_code = (FT_ULong)val_int(val_array_i(char_vector,i));
          FT_UInt     glyph_index = FT_Get_Char_Index(face, char_code);
 
-         if(glyph_index != 0 && FT_Load_Glyph(face, glyph_index, NME_FREETYPE_FLAGS) == 0)
+         if(glyph_index != 0 && FT_Load_Glyph(face, glyph_index, LIME_FREETYPE_FLAGS) == 0)
          {
             glyph *g = new glyph;
 
@@ -704,7 +704,7 @@ value freetype_import_font(value font_file, value char_vector, value em_size, va
       char_code = FT_Get_First_Char(face, &glyph_index);
       while(glyph_index != 0)
       {
-         if(FT_Load_Glyph(face, glyph_index, NME_FREETYPE_FLAGS) == 0)
+         if(FT_Load_Glyph(face, glyph_index, LIME_FREETYPE_FLAGS) == 0)
          {
             glyph *g = new glyph;
 
@@ -913,7 +913,7 @@ void ItererateFontDir(const std::string &inDir, value inFunc, int inMaxDepth)
 }
 #endif
 
-value nme_font_iterate_device_fonts(value inFunc)
+value lime_font_iterate_device_fonts(value inFunc)
 {
    #ifndef HX_WINRT
       #ifdef HX_WINDOWS
@@ -945,6 +945,6 @@ value nme_font_iterate_device_fonts(value inFunc)
    return alloc_null();
 }
 
-DEFINE_PRIM(nme_font_iterate_device_fonts,1)
+DEFINE_PRIM(lime_font_iterate_device_fonts,1)
 
 

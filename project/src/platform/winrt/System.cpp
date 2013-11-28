@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string>
 
-namespace nme
+namespace lime
 {
 
 bool LaunchBrowser(const char *inUtf8URL)

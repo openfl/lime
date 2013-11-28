@@ -1,7 +1,7 @@
 #include "TriangleLineRender.h"
 
 
-namespace nme
+namespace lime
 {
 	
 	TriangleLineRender::TriangleLineRender(const GraphicsJob &inJob, const GraphicsPath &inPath, Renderer *inSolid) : LineRender(inJob, inPath)

@@ -8,12 +8,12 @@
 #include <KeyCodes.h>
 #include <map>
 
-#ifdef NME_MIXER
+#ifdef LIME_MIXER
 #include <SDL_mixer.h>
 #endif
 
 
-namespace nme
+namespace lime
 {
 	
 
@@ -385,7 +385,7 @@ public:
 		if (mIsOpenGL)
 		{
 			#ifdef RASPBERRYPI
-			nmeEGLSwapBuffers();
+			limeEGLSwapBuffers();
 			#else
 			SDL_RenderPresent(mSDLRenderer);
 			#endif
@@ -985,7 +985,7 @@ void ProcessEvent(SDL_Event &inEvent)
 		}
 		case SDL_MOUSEWHEEL: 
 		{	
-				//previous behavior in nme was 3 for down, 4 for up
+				//previous behavior in lime was 3 for down, 4 for up
 			int event_dir = (inEvent.wheel.y > 0) ? 3 : 4;
 				//space to get the current mouse position, to make sure the values are sane
 			int _x = 0; 
@@ -1095,7 +1095,7 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
 	//SDL_EnableKeyRepeat(500,30);
 	//gSDLIsInit = true;
 
-	#ifdef NME_MIXER
+	#ifdef LIME_MIXER
 	#ifdef HX_WINDOWS
 	int chunksize = 2048;
 	#else
@@ -1218,12 +1218,12 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
 	sgIsOGL2 = false;
 
 	#ifdef RASPBERRYPI
-	bool nmeEgl = true;
+	bool limeEgl = true;
 	#else
-	bool nmeEgl = false;
+	bool limeEgl = false;
 	#endif
 
-	if (opengl && !nmeEgl)
+	if (opengl && !limeEgl)
 	{
 		int  aa_tries = (inFlags & wfHW_AA) ? ( (inFlags & wfHW_AA_HIRES) ? 2 : 1 ) : 0;
 	
@@ -1245,7 +1245,7 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
 
 		int oglLevelPasses = 1;
 
-		#if !defined(NME_FORCE_GLES1) && (defined(WEBOS) || defined(BLACKBERRY) || defined(EMSCRIPTEN))
+		#if !defined(LIME_FORCE_GLES1) && (defined(WEBOS) || defined(BLACKBERRY) || defined(EMSCRIPTEN))
 		// Try 2 then 1 ?
 		if ( (inFlags & wfAllowShaders) && !(inFlags & wfRequireShaders) )
 			oglLevelPasses = 2;
@@ -1255,7 +1255,7 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
 
 		for(int oglPass = 0; oglPass< oglLevelPasses && !is_opengl; oglPass++)
 		{
-			#ifdef NME_FORCE_GLES1
+			#ifdef LIME_FORCE_GLES1
 			int level = 1;
 			#else
 			int level = (inFlags & wfRequireShaders) ? 2 : (inFlags & wfAllowShaders) ? 2-oglPass : 1;
@@ -1325,7 +1325,7 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
  
 	if (!screen)
 	{
-		if (!opengl || !nmeEgl)
+		if (!opengl || !limeEgl)
 			sdl_flags |= SDL_DOUBLEBUF;
 
 		//screen = SDL_SetVideoMode( use_w, use_h, 32, sdl_flags );
@@ -1346,7 +1346,7 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
 			
 		use_w = screen->w;
 		use_h = screen->h;
-		bool ok = nmeEGLCreate( 0, use_w, use_h,
+		bool ok = limeEGLCreate( 0, use_w, use_h,
 								sgIsOGL2,
 								(inFlags & wfDepthBuffer) ? 16 : 0,
 								(inFlags & wfStencilBuffer) ? 8 : 0,
@@ -1439,7 +1439,7 @@ void ResumeAnimation() {}
 
 void StopAnimation()
 {
-	#ifdef NME_MIXER
+	#ifdef LIME_MIXER
 	Mix_CloseAudio();
 	#endif
 	sgDead = true;

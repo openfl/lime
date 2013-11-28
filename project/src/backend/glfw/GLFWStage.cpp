@@ -5,7 +5,7 @@
 #include "renderer/common/HardwareContext.h"
 #include <KeyCodes.h>
 
-namespace nme
+namespace lime
 {
 
 class GLFWFrame;

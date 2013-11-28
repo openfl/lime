@@ -2,8 +2,10 @@
 .DS_Store
 .DS_Store?
 bin/
+ndll/*/lime*
+ndll/*/liblime*
 ndll/*/nme*
-ndll/*/libnme*
+nddl/*/libnme*
 project/all_objs
 project/obj
 project/vc*.pdb

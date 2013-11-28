@@ -48,11 +48,11 @@ class Libs {
     #if neko
         private static function loadNekoAPI ():Void {
             
-            var init = load ("nme", "neko_init", 5);
+            var init = load ("lime", "neko_init", 5);
             
             if (init != null) {
                 
-                loaderTrace ("Found nekoapi @ " + __moduleNames.get ("nme"));
+                loaderTrace ("Found nekoapi @ " + __moduleNames.get ("lime"));
                 init (function(s) return new String (s), function (len:Int) { var r = []; if (len > 0) r[len - 1] = null; return r; }, null, true, false);
                 
             } else {
@@ -215,7 +215,7 @@ class Libs {
         loaderTrace ("Result : " + result);
         
         #if neko
-        if (library == "nme") {
+        if (library == "lime") {
             loadNekoAPI ();
         }
         #end

@@ -11,7 +11,7 @@
 #include <gl.h>
 
 
-namespace nme {
+namespace lime {
 	
 	
 	class TizenUIFrame : public Tizen::Ui::Controls::Frame {

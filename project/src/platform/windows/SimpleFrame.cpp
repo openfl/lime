@@ -9,7 +9,7 @@
 
 #include <gl/GL.h>
 
-namespace nme
+namespace lime
 {
 
 // --- DIB   ------------------------------------------------------------------------
@@ -516,7 +516,7 @@ void CreateMainFrame(FrameCreationCallback inOnCreate,int inWidth,int inHeight,u
    wc.hCursor = LoadCursor(0,IDC_ARROW);
    wc.hbrBackground = 0; //(HBRUSH)GetStockObject(WHITE_BRUSH);
    wc.lpfnWndProc =  DefWindowProc;
-   wc.lpszClassName = "NME";
+   wc.lpszClassName = "lime";
 
    RegisterClassEx(&wc);
 
@@ -531,7 +531,7 @@ void CreateMainFrame(FrameCreationCallback inOnCreate,int inWidth,int inHeight,u
 
    AdjustWindowRect (& r, style, FALSE);
 
-   HWND win = CreateWindowEx(ex_style, "NME", inTitle,
+   HWND win = CreateWindowEx(ex_style, "lime", inTitle,
                               style,
                               r.left, r.top, r.right-r.left, r.bottom-r.top,
                               0,
@@ -578,4 +578,4 @@ void StartAnimation()
    }
 }
 
-} // end namespace nme
+} // end namespace lime

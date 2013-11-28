@@ -2,7 +2,7 @@
 
 #include <map>
 
-namespace nme
+namespace lime
 {
 
 struct Edge
@@ -223,4 +223,4 @@ Renderer *CreateTriangleRenderer(const GraphicsJob &inJob, const GraphicsPath &i
 }
 
 
-} // end namespace nme
+} // end namespace lime

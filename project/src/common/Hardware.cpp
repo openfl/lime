@@ -8,7 +8,7 @@
 #endif
 
 
-namespace nme
+namespace lime
 {
 
 class HardwareBuilder
@@ -1428,5 +1428,5 @@ bool HardwareContext::Hits(const RenderState &inState, const HardwareCalls &inCa
 
 
 
-} // end namespace nme
+} // end namespace lime
 

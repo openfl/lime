@@ -6,7 +6,7 @@
 #include <hx/Thread.h>
 
 
-namespace nme
+namespace lime
 {
 
 bool gSDLIsInit = false;

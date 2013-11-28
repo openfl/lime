@@ -1,6 +1,6 @@
-#include <NMEThread.h>
+#include <LimeThread.h>
 
-namespace nme
+namespace lime
 {
 
 ThreadId GetThreadId()
@@ -27,4 +27,4 @@ bool IsMainThread()
 }
 
 
-} // end namespace nmE
+} // end namespace lime

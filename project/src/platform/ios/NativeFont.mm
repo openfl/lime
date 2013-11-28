@@ -1,7 +1,7 @@
 #include <Font.h>
 #include <Foundation/NSObject.h>
 
-namespace nme
+namespace lime
 {
 
 FontFace *FontFace::CreateNative(const TextFormat &inFormat,double inScale)

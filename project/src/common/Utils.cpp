@@ -30,7 +30,7 @@ typedef uint64_t __int64;
 
 #include "ByteArray.h"
 
-namespace nme
+namespace lime
 {
 
 #if defined(IPHONE)
@@ -39,8 +39,8 @@ std::string gAssetBase = "assets/";
 std::string gAssetBase = "";
 #endif
 
-std::string gCompany = "nme";
-std::string gPackage = "org.haxe.nme";
+std::string gCompany = "lime";
+std::string gPackage = "org.haxe.lime";
 std::string gVersion = "1.0.0";
 std::string gFile = "Application";
 

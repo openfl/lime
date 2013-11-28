@@ -6,13 +6,13 @@ class Ext {
 
     public static function drawBuffers( n:Int, buffers:Int ){ 
         #if luxe_gl_extensions
-            return nme_gl_ext_draw_buffers( n, buffers );
+            return lime_gl_ext_draw_buffers( n, buffers );
         #end
     }
 
     private static function load(inName:String, inArgCount:Int):Dynamic {
         try {
-            return Libs.load("nme", inName, inArgCount);
+            return Libs.load("lime", inName, inArgCount);
         } catch(e:Dynamic) {
             trace(e); return null;
         }
@@ -56,7 +56,7 @@ class Ext {
     public static inline var MAX_DRAW_BUFFERS      = 0x8824;
 
 #if luxe_gl_extensions
-    private static var nme_gl_ext_draw_buffers = load("nme_gl_ext_draw_buffers", 2);
+    private static var lime_gl_ext_draw_buffers = load("lime_gl_ext_draw_buffers", 2);
 #end 
 
 }

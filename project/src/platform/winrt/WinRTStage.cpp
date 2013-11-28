@@ -13,7 +13,7 @@
 #include "Direct3DBase.h"
 #include "Shaders.h"
 
-//using namespace nme;
+//using namespace lime;
 
 using namespace Windows::ApplicationModel;
 using namespace Windows::ApplicationModel::Core;
@@ -27,7 +27,7 @@ using namespace concurrency;
 using namespace DirectX;
 
 
-namespace nme
+namespace lime
 {
 
 
@@ -129,8 +129,8 @@ public:
    Quad( ComPtr<ID3D11Device1> inDevice, ComPtr<ID3D11DeviceContext1> inContext)
       : device(inDevice), context(inContext)
    {
-      m_vertexShader = nmeCreateVertexShader(inDevice,m_inputLayout,vsSimple);
-      m_pixelShader = nmeCreatePixelShader(inDevice,psSimple);
+      m_vertexShader = limeCreateVertexShader(inDevice,m_inputLayout,vsSimple);
+      m_pixelShader = limeCreatePixelShader(inDevice,psSimple);
 
       CD3D11_BUFFER_DESC constantBufferDesc(sizeof(ModelViewProjectionConstantBuffer),
                                             D3D11_BIND_CONSTANT_BUFFER);
@@ -329,7 +329,7 @@ public:
       //mDXContext->SetWindowSize(inWidth,inHeight);
       gTextureContextVersion++;
 
-      //nme_resize_id ++;
+      //lime_resize_id ++;
       mDXContext->DecRef();
       mDXContext = HardwareContext::CreateDX11(m_d3dDevice.Get(), m_d3dContext.Get());
       mDXContext->SetWindowSize(inWidth, inHeight);
@@ -497,7 +497,7 @@ public:
 
 
 
-} // end namespace nme
+} // end namespace lime
 
 
 
@@ -530,14 +530,14 @@ public:
       delete mFrame;
    }
 
-   void bootNME()
+   void bootlime()
    {
-      mFrame = new nme::WinRTFrame(flags,width,height);
+      mFrame = new lime::WinRTFrame(flags,width,height);
       mStage = mFrame->mStage;
-      if (nme::sgOnFrame)
+      if (lime::sgOnFrame)
       {
-         nme::sgOnFrame(mFrame);
-         nme::sgOnFrame = 0;
+         lime::sgOnFrame(mFrame);
+         lime::sgOnFrame = 0;
       }
    }
    
@@ -553,7 +553,7 @@ public:
       CoreApplication::Resuming +=
         ref new ::EventHandler<Platform::Object^>(this, &D3DApp::OnResuming);
 
-      bootNME();
+      bootlime();
    }
 
    virtual void SetWindow(Windows::UI::Core::CoreWindow^ window)
@@ -662,8 +662,8 @@ protected:
    }
 
 private:
-   nme::WinRTFrame *mFrame;
-   nme::WinRTStage *mStage;
+   lime::WinRTFrame *mFrame;
+   lime::WinRTStage *mStage;
    bool m_windowClosed;
    bool m_windowVisible;
 };
@@ -694,15 +694,15 @@ public:
 };
 
 
-// --- External NME code ---------------------------------
+// --- External lime code ---------------------------------
 
 
-namespace nme
+namespace lime
 {
 
 
-void CreateMainFrame(nme::FrameCreationCallback inOnFrame,int inWidth,int inHeight,
-   unsigned int inFlags, const char *inTitle, nme::Surface *inIcon )
+void CreateMainFrame(lime::FrameCreationCallback inOnFrame,int inWidth,int inHeight,
+   unsigned int inFlags, const char *inTitle, lime::Surface *inIcon )
 {
    sgOnFrame = inOnFrame;
    auto appSource = ref new D3DAppSource(inWidth,inHeight,inFlags);

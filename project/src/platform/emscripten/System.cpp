@@ -1,7 +1,7 @@
 #include <string>
 #include <cstdlib>
 
-namespace nme {
+namespace lime {
 	
 	
 	std::string CapabilitiesGetLanguage () {

@@ -17,14 +17,14 @@
 	<set name="NATIVE_DEV" value="${haxelib:lime-build}" unless="NATIVE_DEV" />
 	<!-- <error value="Error: You must clone 'openfl-native-dev' and 'haxelib dev' the directory before you can rebuild openfl-native" unless="NATIVE_DEV" /> -->
 	
-	<set name="has_window" value="1" if="NME_SDL" />
-	<set name="has_window" value="1" if="NME_SDL2" />
-	<set name="has_window" value="1" if="NME_GLFW" />
-	<set name="has_window" value="1" if="NME_DIRECTFB" />
-	<set name="sdl" value="1" if="NME_SDL" />
-	<set name="sdl2" value="1" if="NME_SDL2" />
-	<set name="glfw" value="1" if="NME_GLFW" />
-	<set name="directfb" value="1" if="NME_DIRECTFB" />
+	<set name="has_window" value="1" if="LIME_SDL" />
+	<set name="has_window" value="1" if="LIME_SDL2" />
+	<set name="has_window" value="1" if="LIME_GLFW" />
+	<set name="has_window" value="1" if="LIME_DIRECTFB" />
+	<set name="sdl" value="1" if="LIME_SDL" />
+	<set name="sdl2" value="1" if="LIME_SDL2" />
+	<set name="glfw" value="1" if="LIME_GLFW" />
+	<set name="directfb" value="1" if="LIME_DIRECTFB" />
 	
 	<set name="sdl" value="1" if="rpi" unless="has_window" />
 	<set name="has_window" value="1" if="sdl" />
@@ -49,21 +49,21 @@
 	<set name="ogl" value="1" if="iphone"/>
 	<set name="ogl" value="1" if="android"/>
 	<set name="ogl" value="1" if="tizen"/>
-	<set name="nmeegl" value="1" if="rpi"/>
-	<set name="nmeegl" value="1" if="tizen"/>
+	<set name="limeegl" value="1" if="rpi"/>
+	<set name="limeegl" value="1" if="tizen"/>
 	
 	<set name="nocurl" value="1" if="winrt"/>
 	<set name="nocurl" value="1" if="emscripten"/>
 	<!-- <set name="nocurl" value="1" if="macos" unless="HXCPP_M32" /> -->
 	<set name="nocurl" value="1" if="directfb" />
 	
-	<!-- <set name="NME_FORCE_GLES1" value="1" if="iphone" /> -->
+	<!-- <set name="LIME_FORCE_GLES1" value="1" if="iphone" /> -->
 	
 	<set name="sdl_image" value="1" if="emscripten" />
 	
-	<set name="ogl_shaders" value="1" unless="NME_FORCE_GLES1" />
+	<set name="ogl_shaders" value="1" unless="LIME_FORCE_GLES1" />
 	
-	<set name="openal" value="1" if="NME_OPENAL" />
+	<set name="openal" value="1" if="LIME_OPENAL" />
 	<set name="openal" value="1" if="android" />
 	<set name="openal" value="1" if="iphone" />
 	<set name="openal" value="1" if="tizen" />
@@ -145,7 +145,7 @@
 		<compilerflag value="-Iinclude"/>
 		<compilerflag value="-I${NATIVE_DEV}/include"/>
 		<compilerflag value="-Isrc/sound/openal"/>
-		<compilerflag value="-DNME_FORCE_GLES1" if="NME_FORCE_GLES1"/>
+		<compilerflag value="-DLIME_FORCE_GLES1" if="LIME_FORCE_GLES1"/>
 		<file name="src/platform/ios/UIStageView.mm"/>
 		<file name="src/platform/ios/UIDeviceHardware.mm"/>
 		<!-- <file name="src/platform/ios/SurfaceIO.mm"/> -->
@@ -271,12 +271,12 @@
 		<compilerflag value="-I${QNX_TARGET}/usr/include" if="blackberry"/>
 		<!-- <compilerflag value="-I${QNX_TARGET}/usr/include/GLES" if="blackberry"/> -->
 		<compilerflag value="-I${QNX_TARGET}/usr/include/GLES2" if="blackberry"/>
-		<compilerflag value="-DNME_DIRECTFB" if="directfb"/>
+		<compilerflag value="-DLIME_DIRECTFB" if="directfb"/>
 		<compilerflag value="-DSDL_OGL" if="sdl"/>
 		<compilerflag value="-DSDL_OGL" if="sdl2"/>
 		<compilerflag value="-DGLFW_OGL" if="glfw"/>
-		<compilerflag value="-DNME_CURL_SSL" if="ssl" unless="nocurl"/>
-		<compilerflag value="-DNME_FORCE_GLES1" if="NME_FORCE_GLES1"/>
+		<compilerflag value="-DLIME_CURL_SSL" if="ssl" unless="nocurl"/>
+		<compilerflag value="-DLIME_FORCE_GLES1" if="LIME_FORCE_GLES1"/>
 		<compilerflag value="-Wno-conversion" if="linux"/>
 		
 		<!-- <file name="src/common/Surface.cpp"/> -->
@@ -344,12 +344,12 @@
 		<compilerflag value="-I${QNX_TARGET}/usr/include/GLES2" if="blackberry"/>
 	  <compilerflag value="-I${TIZEN_SDK}/platforms/tizen2.2/rootstraps/tizen-device-2.2.native/usr/include" if="tizen" />
 	  <compilerflag value="-I${TIZEN_SDK}/platforms/tizen2.2/rootstraps/tizen-device-2.2.native/usr/include/osp" if="tizen" />
-		<compilerflag value="-DNME_DIRECTFB" if="directfb"/>
+		<compilerflag value="-DLIME_DIRECTFB" if="directfb"/>
 		<compilerflag value="-DSDL_OGL" if="sdl"/>
 		<compilerflag value="-DSDL_OGL" if="sdl2"/>
 		<compilerflag value="-DGLFW_OGL" if="glfw"/>
-		<compilerflag value="-DNME_CURL_SSL" if="ssl" unless="nocurl"/>
-		<compilerflag value="-DNME_FORCE_GLES1" if="NME_FORCE_GLES1"/>
+		<compilerflag value="-DLIME_CURL_SSL" if="ssl" unless="nocurl"/>
+		<compilerflag value="-DLIME_FORCE_GLES1" if="LIME_FORCE_GLES1"/>
 		<compilerflag value="-Wno-conversion" if="linux"/>
 		
 		<file name="src/renderer/opengl/OpenGLInit.cpp"/>
@@ -358,8 +358,8 @@
 		<file name="src/renderer/opengl/OpenGLTexture.cpp"/>
 		<file name="src/renderer/opengl/OpenGLProgram.cpp"/>
 		<file name="src/renderer/opengl/OpenGLShaders.cpp"/>
-		<file name="src/renderer/opengl/OGLExport.cpp" unless="NME_FORCE_GLES1"/>
-		<file name="src/renderer/opengl/Egl.cpp" if="nmeegl"/>
+		<file name="src/renderer/opengl/OGLExport.cpp" unless="LIME_FORCE_GLES1"/>
+		<file name="src/renderer/opengl/Egl.cpp" if="limeegl"/>
 	</files>
 	
 	<files id="common_lzma">
@@ -427,7 +427,7 @@
 		<compilerflag value="${sdl_dynamic_include1}" if="dynamic_sdl"/>
 		<compilerflag value="${sdl_dynamic_include2}" if="dynamic_sdl"/>
 		<compilerflag value="-DDYNAMIC_SDL" if="dynamic_sdl" />
-		<compilerflag value="-DNME_MIXER" />
+		<compilerflag value="-DLIME_MIXER" />
 		<compilerflag value="-DSDL_IMAGE" if="sdl_image" />
 		<file name="src/backend/sdl/SDLStage.cpp"/>
 		<file name="src/backend/sdl/SDLSound.cpp" unless="openal"/>
@@ -440,7 +440,7 @@
 		<compilerflag value="-Iinclude"/>
 		<compilerflag value="-I${NATIVE_DEV}/include"/>
 		<compilerflag value="-I${NATIVE_DEV}/include/SDL2"/>
-		<!-- <compilerflag value="-DNME_MIXER" /> -->
+		<!-- <compilerflag value="-DLIME_MIXER" /> -->
 		<file name="src/backend/sdl2/SDL2Stage.cpp"/>
 		<!-- <file name="src/backend/sdl/SDLSound.cpp" unless="openal"/> -->
 		<file name="src/common/empty/Sound.cpp" unless="openal" />
@@ -462,7 +462,7 @@
 		<compilerflag value="-Iinclude"/>
 		<compilerflag value="-I/usr/include/directfb" />
 		<compilerflag value="-I${NATIVE_DEV}/include"/>
-		<compilerflag value="-DNME_DIRECTFB"/>
+		<compilerflag value="-DLIME_DIRECTFB"/>
 		
 		<file name="src/backend/directfb/DirectFBHardware.cpp"/>
 		<file name="src/backend/directfb/DirectFBStage.cpp"/>
@@ -494,7 +494,7 @@
 	<set name="name_prefix" value="lib" if="iphone" />
 	
 	
-	<target id="NDLL" output="${name_prefix}nme${debug_extra}${ndll_name_extra}" tool="linker" toolid="${ndll-tool}">
+	<target id="NDLL" output="${name_prefix}lime${debug_extra}${ndll_name_extra}" tool="linker" toolid="${ndll-tool}">
 		
 		<outdir name="../ndll/${BINDIR}" />
 		<ext value=".ndll" unless="mobile"/>

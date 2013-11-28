@@ -15,10 +15,10 @@
 #endif
 
 
-namespace nme {
+namespace lime {
 	
 	
-	HardwareContext* nme::HardwareContext::current = NULL;
+	HardwareContext* lime::HardwareContext::current = NULL;
 	
 	
 	bool HasShaderSupport () {
@@ -31,7 +31,7 @@ namespace nme {
 		
 		//printf("GL_VERSION: %s\n", version);
 		
-		#if defined(NME_GLES) && !defined(TIZEN)
+		#if defined(LIME_GLES) && !defined(TIZEN)
 		glMajor = version[10];
 		glMinor = version[12];
 		#else
@@ -96,13 +96,13 @@ namespace nme {
 	
 	void ResetHardwareContext () {
 		
-		//__android_log_print(ANDROID_LOG_ERROR, "NME", "ResetHardwareContext");
+		//__android_log_print(ANDROID_LOG_ERROR, "lime", "ResetHardwareContext");
 		gTextureContextVersion++;
 		
 	}
 	
 	
-	#ifdef NME_USE_VBO
+	#ifdef LIME_USE_VBO
 	void ReleaseVertexBufferObject (unsigned int inVBO) {
 		
 		if (glDeleteBuffers)
@@ -117,10 +117,10 @@ namespace nme {
 		HardwareContext *ctx;
 		
 		#if defined (ANDROID) || defined (BLACKBERRY) || defined (IPHONE) || defined (WEBOS) || defined (TIZEN)
-		#ifdef NME_FORCE_GLES2
+		#ifdef LIME_FORCE_GLES2
 		//printf ("Force GLES2\n");
 		shaders = true;
-		#elif defined(NME_FORCE_GLES1)
+		#elif defined(LIME_FORCE_GLES1)
 		//printf ("Force GLES1\n");
 		shaders = false;
 		#endif

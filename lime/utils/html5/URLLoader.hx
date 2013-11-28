@@ -154,7 +154,7 @@ class URLLoader { //extends EventDispatcher {
 			
 			switch (dataFormat) {
 				
-				case BINARY: uri = data.nmeGetBuffer();
+				case BINARY: uri = data.limeGetBuffer();
 				default: uri = data.readUTFBytes(data.length);
 				
 			}
@@ -253,7 +253,7 @@ class URLLoader { //extends EventDispatcher {
 		
 		switch (dataFormat) {
 			
-			case BINARY: this.data = ByteArray.nmeOfBuffer(content);
+			case BINARY: this.data = ByteArray.limeOfBuffer(content);
 			default: this.data = Std.string(content);
 			
 		}

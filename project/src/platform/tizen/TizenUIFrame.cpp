@@ -6,7 +6,7 @@
 //using namespace Tizen::Ui::Controls;
 
 
-namespace nme {
+namespace lime {
 	
 	
 	TizenUIFrame::TizenUIFrame (void) {}

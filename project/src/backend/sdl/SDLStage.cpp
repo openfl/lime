@@ -28,7 +28,7 @@
 #include <emscripten.h>
 #endif
 
-#ifdef NME_MIXER
+#ifdef LIME_MIXER
 #include <SDL_mixer.h>
 #endif
 
@@ -70,7 +70,7 @@ void done_win32()
 #endif
 
 
-namespace nme
+namespace lime
 {
 
 static int sgDesktopWidth = 0;
@@ -371,11 +371,11 @@ public:
             if(SDL_GetWMInfo(&sysInfo)>0)
             {
                void *window = (void *)(size_t)sysInfo.info.x11.window;
-               nmeEGLResize(window, inWidth, inHeight);
+               limeEGLResize(window, inWidth, inHeight);
             }
             #endif
 
-            //nme_resize_id ++;
+            //lime_resize_id ++;
             mOpenGLContext->DecRef();
             mOpenGLContext = HardwareContext::CreateOpenGL(0, 0, sgIsOGL2);
             mOpenGLContext->SetWindowSize(inWidth, inHeight);
@@ -434,7 +434,7 @@ public:
          h = mSDLSurface->h;
          if (mIsOpenGL)
          {
-            //nme_resize_id ++;
+            //lime_resize_id ++;
             mOpenGLContext->DecRef();
             mOpenGLContext = HardwareContext::CreateOpenGL(0, 0, sgIsOGL2);
             mOpenGLContext->SetWindowSize(w, h);
@@ -534,7 +534,7 @@ public:
       if (mIsOpenGL)
       {
          #ifdef RASPBERRYPI
-         nmeEGLSwapBuffers();
+         limeEGLSwapBuffers();
          #else
          SDL_GL_SwapBuffers();
          #endif
@@ -1056,7 +1056,7 @@ void CreateMainFrame(FrameCreationCallback inOnFrame,int inWidth,int inHeight,
 
    gSDLIsInit = true;
 
-   #ifdef NME_MIXER
+   #ifdef LIME_MIXER
    
    #ifdef WEBOS
    int chunksize = 256;
@@ -1134,12 +1134,12 @@ void CreateMainFrame(FrameCreationCallback inOnFrame,int inWidth,int inHeight,
    sgIsOGL2 = false;
 
    #ifdef RASPBERRYPI
-   bool nmeEgl = true;
+   bool limeEgl = true;
    #else
-   bool nmeEgl = false;
+   bool limeEgl = false;
    #endif
 
-   if (opengl && !nmeEgl)
+   if (opengl && !limeEgl)
    {
       int  aa_tries = (inFlags & wfHW_AA) ? ( (inFlags & wfHW_AA_HIRES) ? 2 : 1 ) : 0;
    
@@ -1161,7 +1161,7 @@ void CreateMainFrame(FrameCreationCallback inOnFrame,int inWidth,int inHeight,
 
       int oglLevelPasses = 1;
 
-      #if !defined(NME_FORCE_GLES1) && (defined(WEBOS) || defined(BLACKBERRY) || defined(EMSCRIPTEN))
+      #if !defined(LIME_FORCE_GLES1) && (defined(WEBOS) || defined(BLACKBERRY) || defined(EMSCRIPTEN))
       // Try 2 then 1 ?
       if ( (inFlags & wfAllowShaders) && !(inFlags & wfRequireShaders) )
          oglLevelPasses = 2;
@@ -1171,7 +1171,7 @@ void CreateMainFrame(FrameCreationCallback inOnFrame,int inWidth,int inHeight,
 
       for(int oglPass = 0; oglPass< oglLevelPasses && !is_opengl; oglPass++)
       {
-         #ifdef NME_FORCE_GLES1
+         #ifdef LIME_FORCE_GLES1
          int level = 1;
          #else
          int level = (inFlags & wfRequireShaders) ? 2 : (inFlags & wfAllowShaders) ? 2-oglPass : 1;
@@ -1240,7 +1240,7 @@ void CreateMainFrame(FrameCreationCallback inOnFrame,int inWidth,int inHeight,
  
    if (!screen)
    {
-      if (!opengl || !nmeEgl)
+      if (!opengl || !limeEgl)
          sdl_flags |= SDL_DOUBLEBUF;
 
       screen = SDL_SetVideoMode( use_w, use_h, 32, sdl_flags );
@@ -1260,7 +1260,7 @@ void CreateMainFrame(FrameCreationCallback inOnFrame,int inWidth,int inHeight,
          
       use_w = screen->w;
       use_h = screen->h;
-      bool ok = nmeEGLCreate( 0, use_w, use_h,
+      bool ok = limeEGLCreate( 0, use_w, use_h,
                         sgIsOGL2,
                         (inFlags & wfDepthBuffer) ? 16 : 0,
                         (inFlags & wfStencilBuffer) ? 8 : 0,
@@ -1403,7 +1403,7 @@ void ResumeAnimation() {}
 
 void StopAnimation()
 {
-   #ifdef NME_MIXER
+   #ifdef LIME_MIXER
    Mix_CloseAudio();
    #endif
    #ifdef WEBOS
@@ -1524,7 +1524,7 @@ Frame *CreateTopLevelWindow(int inWidth,int inHeight,unsigned int inFlags, wchar
 
 */
 
-} // end namespace nme
+} // end namespace lime
 
 
          #if 0
@@ -1578,7 +1578,7 @@ Frame *CreateTopLevelWindow(int inWidth,int inHeight,unsigned int inFlags, wchar
 
 
 
-value nme_get_mouse_position()
+value lime_get_mouse_position()
 {
    int x,y;
 

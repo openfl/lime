@@ -19,7 +19,7 @@ class JNI {
         if (!initialized) {
             
             initialized = true;
-            var method = Lib.load ("nme", "nme_jni_init_callback", 1);
+            var method = Lib.load ("lime", "lime_jni_init_callback", 1);
             method (onCallback);
             
         }
@@ -47,7 +47,7 @@ class JNI {
         
         init ();
         
-        var method = new JNIMethod (nme_jni_create_method (className, memberName, signature, false));
+        var method = new JNIMethod (lime_jni_create_method (className, memberName, signature, false));
         return method.getMemberMethod (useArray);
         
     }
@@ -57,7 +57,7 @@ class JNI {
         
         init ();
         
-        var method = new JNIMethod (nme_jni_create_method (className, memberName, signature, true));
+        var method = new JNIMethod (lime_jni_create_method (className, memberName, signature, true));
         return method.getStaticMethod (useArray);
         
     }
@@ -70,7 +70,7 @@ class JNI {
     
     
     
-    private static var nme_jni_create_method = Lib.load ("nme", "nme_jni_create_method", 4);
+    private static var lime_jni_create_method = Lib.load ("lime", "lime_jni_create_method", 4);
     
     
 }
@@ -91,14 +91,14 @@ class JNIMethod {
     public function callMember (args:Array<Dynamic>):Dynamic {
         
         var jobject = args.shift ();
-        return nme_jni_call_member (method, jobject, args);
+        return lime_jni_call_member (method, jobject, args);
         
     }
     
     
     public function callStatic (args:Array<Dynamic>):Dynamic {
         
-        return nme_jni_call_static (method, args);
+        return lime_jni_call_static (method, args);
         
     }
     
@@ -140,8 +140,8 @@ class JNIMethod {
     
     
     
-    private static var nme_jni_call_member = Libs.load ("nme", "nme_jni_call_member", 3);
-    private static var nme_jni_call_static = Libs.load ("nme", "nme_jni_call_static", 2);
+    private static var lime_jni_call_member = Libs.load ("lime", "lime_jni_call_member", 3);
+    private static var lime_jni_call_static = Libs.load ("lime", "lime_jni_call_static", 2);
     
     
 }

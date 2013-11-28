@@ -1,7 +1,7 @@
-#ifndef NME_OBJECT_H
-#define NME_OBJECT_H
+#ifndef LIME_OBJECT_H
+#define LIME_OBJECT_H
 
-namespace nme
+namespace lime
 {
 
 class Object
@@ -18,7 +18,7 @@ protected:
    int mRefCount;
 };
 
-} // end namespace nme
+} // end namespace lime
 
 
 #endif

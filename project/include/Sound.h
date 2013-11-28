@@ -6,7 +6,7 @@
 #include "Object.h"
 #include "ByteArray.h"
 
-namespace nme
+namespace lime
 {
 
 struct SoundTransform
@@ -57,7 +57,7 @@ public:
    virtual SoundChannel *openChannel(double startTime, int loops, const SoundTransform &inTransform) = 0;
 };
 
-} // end namespace nme
+} // end namespace lime
 
 #endif
 

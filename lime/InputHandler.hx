@@ -74,7 +74,7 @@ class InputHandler {
                 meta_down :  (_event.flags & efCommandDown > 0)
             });
         }
-        //nmeOnKey(_event, KeyboardEvent.KEY_DOWN);
+        //limeOnKey(_event, KeyboardEvent.KEY_DOWN);
     }
 
     public function lime_onkeyup(_event:Dynamic) {
@@ -93,7 +93,7 @@ class InputHandler {
                 meta_down :  (_event.flags & efCommandDown > 0)
             });
         }
-        //nmeOnKey(_event, KeyboardEvent.KEY_UP);
+        //limeOnKey(_event, KeyboardEvent.KEY_UP);
     }
 
     public function lime_gotinputfocus(_event:Dynamic) {
@@ -112,7 +112,7 @@ class InputHandler {
             });
         }
         //var evt = new Event(FocusEvent.FOCUS_IN);
-        //nmeDispatchEvent(evt);        
+        //limeDispatchEvent(evt);        
     }   
 
     public function lime_lostinputfocus(_event:Dynamic) {
@@ -131,7 +131,7 @@ class InputHandler {
             });
         }
         //var evt = new Event(FocusEvent.FOCUS_OUT);
-        //nmeDispatchEvent(evt);
+        //limeDispatchEvent(evt);
     }
 
 //Mouse
@@ -345,7 +345,7 @@ class InputHandler {
         if(lib.host.ontouchtap != null) {
             lib.host.ontouchtap(_event);
         }
-        //nmeOnTouchTap(_event.TouchEvent.TOUCH_TAP);
+        //limeOnTouchTap(_event.TouchEvent.TOUCH_TAP);
     }
 
 //Joystick
@@ -354,35 +354,35 @@ class InputHandler {
         if(lib.host.onjoyaxismove != null) {
             lib.host.onjoyaxismove(_event);
         }
-        //nmeOnJoystick(_event, JoystickEvent.AXIS_MOVE);
+        //limeOnJoystick(_event, JoystickEvent.AXIS_MOVE);
     }
 
     public function lime_joyballmove(_event:Dynamic) {
         if(lib.host.onjoyballmove != null) {
             lib.host.onjoyballmove(_event);
         }
-        //nmeOnJoystick(_event, JoystickEvent.BALL_MOVE);
+        //limeOnJoystick(_event, JoystickEvent.BALL_MOVE);
     }
 
     public function lime_joyhatmove(_event:Dynamic) {
         if(lib.host.onjoyhatmove != null) {
             lib.host.onjoyhatmove(_event);
         }
-        //nmeOnJoystick(_event, JoystickEvent.HAT_MOVE);
+        //limeOnJoystick(_event, JoystickEvent.HAT_MOVE);
     }
 
     public function lime_joybuttondown(_event:Dynamic) {
         if(lib.host.onjoybuttondown != null) {
             lib.host.onjoybuttondown(_event);
         }
-        //nmeOnJoystick(_event, JoystickEvent.BUTTON_DOWN);
+        //limeOnJoystick(_event, JoystickEvent.BUTTON_DOWN);
     }
 
     public function lime_joybuttonup(_event:Dynamic) {
         if(lib.host.onjoybuttonup != null) {
             lib.host.onjoybuttonup(_event);
         }
-        //nmeOnJoystick(_event, JoystickEvent.BUTTON_UP);
+        //limeOnJoystick(_event, JoystickEvent.BUTTON_UP);
     }
 
     

@@ -1,7 +1,7 @@
 #include "renderer/opengl/OpenGLTexture.h"
 
 
-namespace nme {
+namespace lime {
 	
 	
 	bool gFullNPO2Support = false;
@@ -82,7 +82,7 @@ namespace nme {
 		int h = non_po2 ? mPixelHeight : UpToPower2 (mPixelHeight);
 		mCanRepeat = IsPower2 (w) && IsPower2 (h);
 		
-		//__android_log_print(ANDROID_LOG_ERROR, "NME",	"NewTexure %d %d", w, h);
+		//__android_log_print(ANDROID_LOG_ERROR, "lime",	"NewTexure %d %d", w, h);
 		
 		mTextureWidth = w;
 		mTextureHeight = h;
@@ -153,7 +153,7 @@ namespace nme {
 			
 		}
 		
-		/*#ifdef NME_PREMULTIPLIED_ALPHA
+		/*#ifdef LIME_PREMULTIPLIED_ALPHA
 		if (store_format != GL_ALPHA) {
 			
 			for (int i = 0; i < mTextureWidth * mTextureHeight * 4; i += 4) {
@@ -169,7 +169,7 @@ namespace nme {
 		#endif*/
 		
 		glGenTextures (1, &mTextureID);
-		// __android_log_print(ANDROID_LOG_ERROR, "NME", "CreateTexture %d (%dx%d)",
+		// __android_log_print(ANDROID_LOG_ERROR, "lime", "CreateTexture %d (%dx%d)",
 		//	mTextureID, mPixelWidth, mPixelHeight);
 		glBindTexture (GL_TEXTURE_2D, mTextureID);
 		mRepeat = mCanRepeat;
@@ -190,7 +190,7 @@ namespace nme {
 		glTexEnvx (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		#endif
 		
-		#ifndef NME_FORCE_GLES2
+		#ifndef LIME_FORCE_GLES2
 		glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		#endif
 		
@@ -204,7 +204,7 @@ namespace nme {
 		
 		if (mTextureID && mContextVersion == gTextureContextVersion && HardwareContext::current) {
 			
-			//__android_log_print(ANDROID_LOG_ERROR, "NME", "DeleteTexture %d (%dx%d)",
+			//__android_log_print(ANDROID_LOG_ERROR, "lime", "DeleteTexture %d (%dx%d)",
 			//mTextureID, mPixelWidth, mPixelHeight);
 			HardwareContext::current->DestroyNativeTexture ((void *)(size_t)mTextureID);
 			
@@ -231,7 +231,7 @@ namespace nme {
 		
 		if (inSurface->GetBase () && mDirtyRect.HasPixels ()) {
 			
-			//__android_log_print(ANDROID_LOG_INFO, "NME", "UpdateDirtyRect! %d %d",
+			//__android_log_print(ANDROID_LOG_INFO, "lime", "UpdateDirtyRect! %d %d",
 			//mPixelWidth, mPixelHeight);
 			
 			PixelFormat fmt = inSurface->Format ();
@@ -239,7 +239,7 @@ namespace nme {
 			glGetError ();
 			const uint8 *p0 = inSurface->Row (mDirtyRect.y) + (mDirtyRect.x * inSurface->BytesPP ());
 			
-			#if defined(NME_GLES)
+			#if defined(LIME_GLES)
 			// TODO: pixel transform & copy rect
 			for (int y = 0; y < mDirtyRect.h; y++) {
 				

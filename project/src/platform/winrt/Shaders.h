@@ -10,12 +10,12 @@ enum ShaderId
 };
 
 
-Microsoft::WRL::ComPtr<ID3D11VertexShader> nmeCreateVertexShader(
+Microsoft::WRL::ComPtr<ID3D11VertexShader> limeCreateVertexShader(
      Microsoft::WRL::ComPtr<ID3D11Device1> inDevice,
      Microsoft::WRL::ComPtr<ID3D11InputLayout> &outLayout,
      ShaderId inShader);
 
-Microsoft::WRL::ComPtr<ID3D11PixelShader> nmeCreatePixelShader(Microsoft::WRL::ComPtr<ID3D11Device1> inDevice, ShaderId inShader);
+Microsoft::WRL::ComPtr<ID3D11PixelShader> limeCreatePixelShader(Microsoft::WRL::ComPtr<ID3D11Device1> inDevice, ShaderId inShader);
 
 
 

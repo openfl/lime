@@ -29,7 +29,7 @@
 #include <URL.h>
 #include <ByteArray.h>
 #include <Lzma.h>
-#include <NMEThread.h>
+#include <LimeThread.h>
 
 
 
@@ -39,7 +39,7 @@
 #endif
 
 
-namespace nme
+namespace lime
 {
 
 static int _id_type;
@@ -587,7 +587,7 @@ void FromValue(value obj, URLRequest &request)
 }
 
 #define DO_PROP_READ(Obj,obj_prefix,prop,Prop,to_val) \
-value nme_##obj_prefix##_get_##prop(value inObj) \
+value lime_##obj_prefix##_get_##prop(value inObj) \
 { \
    Obj *obj; \
    if (AbstractToObject(inObj,obj)) \
@@ -595,11 +595,11 @@ value nme_##obj_prefix##_get_##prop(value inObj) \
    return alloc_float(0); \
 } \
 \
-DEFINE_PRIM(nme_##obj_prefix##_get_##prop,1)
+DEFINE_PRIM(lime_##obj_prefix##_get_##prop,1)
 
 #define DO_PROP(Obj,obj_prefix,prop,Prop,to_val,from_val) \
 DO_PROP_READ(Obj,obj_prefix,prop,Prop,to_val) \
-value nme_##obj_prefix##_set_##prop(value inObj,value inVal) \
+value lime_##obj_prefix##_set_##prop(value inObj,value inVal) \
 { \
    Obj *obj; \
    if (AbstractToObject(inObj,obj)) \
@@ -607,7 +607,7 @@ value nme_##obj_prefix##_set_##prop(value inObj,value inVal) \
    return alloc_null(); \
 } \
 \
-DEFINE_PRIM(nme_##obj_prefix##_set_##prop,2)
+DEFINE_PRIM(lime_##obj_prefix##_set_##prop,2)
 
 
 #define DO_DISPLAY_PROP(prop,Prop,to_val,from_val) \
@@ -617,22 +617,22 @@ DEFINE_PRIM(nme_##obj_prefix##_set_##prop,2)
    DO_PROP(Stage,stage,prop,Prop,to_val,from_val) 
 
 
-using namespace nme;
+using namespace lime;
 
 
-value nme_time_stamp()
+value lime_time_stamp()
 {
    return alloc_float( GetTimeStamp() );
 }
-DEFINE_PRIM(nme_time_stamp,0);
+DEFINE_PRIM(lime_time_stamp,0);
 
 
-value nme_error_output(value message)
+value lime_error_output(value message)
 {
    fprintf (stderr, "%s", val_string (message));
    return alloc_null();
 }
-DEFINE_PRIM(nme_error_output,1);
+DEFINE_PRIM(lime_error_output,1);
 
 
 
@@ -643,7 +643,7 @@ AutoGCRoot *gByteArrayLen = 0;
 AutoGCRoot *gByteArrayResize = 0;
 AutoGCRoot *gByteArrayBytes = 0;
 
-value nme_byte_array_init(value inFactory, value inLen, value inResize, value inBytes)
+value lime_byte_array_init(value inFactory, value inLen, value inResize, value inBytes)
 {
    gByteArrayCreate = new AutoGCRoot(inFactory);
    gByteArrayLen = new AutoGCRoot(inLen);
@@ -651,7 +651,7 @@ value nme_byte_array_init(value inFactory, value inLen, value inResize, value in
    gByteArrayBytes = new AutoGCRoot(inBytes);
    return alloc_null();
 }
-DEFINE_PRIM(nme_byte_array_init,4);
+DEFINE_PRIM(lime_byte_array_init,4);
 
 ByteArray::ByteArray(int inSize)
 {
@@ -714,7 +714,7 @@ unsigned char *ByteArray::Bytes()
 
 
 // [ddc]
-value nme_byte_array_overwrite_file(value inFilename, value inBytes)
+value lime_byte_array_overwrite_file(value inFilename, value inBytes)
 {
    // file is created if it doesn't exist,
    // if it exists, it is truncated to zero
@@ -738,14 +738,14 @@ value nme_byte_array_overwrite_file(value inFilename, value inBytes)
    fclose(file);
    return alloc_null();
 }
-DEFINE_PRIM(nme_byte_array_overwrite_file,2);
+DEFINE_PRIM(lime_byte_array_overwrite_file,2);
 
-value nme_byte_array_read_file(value inFilename)
+value lime_byte_array_read_file(value inFilename)
 {
    ByteArray result = ByteArray::FromFile(val_os_string(inFilename));
    return result.mValue;
 }
-DEFINE_PRIM(nme_byte_array_read_file,1);
+DEFINE_PRIM(lime_byte_array_read_file,1);
 
 
 struct ByteData
@@ -801,7 +801,7 @@ static void release_weak_ref_holder(value inValue)
    }
 }
 
-value nme_weak_ref_create(value inHolder,value inRef)
+value lime_weak_ref_create(value inHolder,value inRef)
 {
    int id = 0;
    if (!sFreeRefIDs.empty())
@@ -820,9 +820,9 @@ value nme_weak_ref_create(value inHolder,value inRef)
 
    return alloc_int(id);
 }
-DEFINE_PRIM(nme_weak_ref_create,2);
+DEFINE_PRIM(lime_weak_ref_create,2);
 
-value nme_weak_ref_get(value inValue)
+value lime_weak_ref_get(value inValue)
 {
    int id = val_int(inValue);
    if (sWeakRefs[id].mPtr==0)
@@ -833,11 +833,11 @@ value nme_weak_ref_get(value inValue)
    }
    return (value)( sWeakRefs[id].mPtr ^ PTR_MANGLE );
 }
-DEFINE_PRIM(nme_weak_ref_get,1);
+DEFINE_PRIM(lime_weak_ref_get,1);
 
 
 
-value nme_get_unique_device_identifier()
+value lime_get_unique_device_identifier()
 {
 #if defined(IPHONE)
   return alloc_string(GetUniqueDeviceIdentifier().c_str());
@@ -845,11 +845,11 @@ value nme_get_unique_device_identifier()
   return alloc_null();
 #endif
 }
-DEFINE_PRIM(nme_get_unique_device_identifier,0);
+DEFINE_PRIM(lime_get_unique_device_identifier,0);
 
 
 
-value nme_set_icon( value path ) {
+value lime_set_icon( value path ) {
    //printf( "setting icon\n" );
    #if defined( HX_WINDOWS ) || defined( HX_MACOS )
        SetIcon( val_string( path ) );
@@ -857,11 +857,11 @@ value nme_set_icon( value path ) {
    return alloc_null();
 }
 
-DEFINE_PRIM(nme_set_icon,1);
+DEFINE_PRIM(lime_set_icon,1);
 
-// --- nme.system.Capabilities -----------------------------------------------------
+// --- lime.system.Capabilities -----------------------------------------------------
 
-value nme_capabilities_get_screen_resolutions () {
+value lime_capabilities_get_screen_resolutions () {
    
 
    //Only really makes sense on PC platforms
@@ -887,47 +887,47 @@ value nme_capabilities_get_screen_resolutions () {
    
 }
 
-DEFINE_PRIM( nme_capabilities_get_screen_resolutions, 0 );
+DEFINE_PRIM( lime_capabilities_get_screen_resolutions, 0 );
 
 
-value nme_capabilities_get_pixel_aspect_ratio () {
+value lime_capabilities_get_pixel_aspect_ratio () {
    
    return alloc_float (CapabilitiesGetPixelAspectRatio ());
    
 }
-DEFINE_PRIM (nme_capabilities_get_pixel_aspect_ratio, 0);
+DEFINE_PRIM (lime_capabilities_get_pixel_aspect_ratio, 0);
 
-value nme_capabilities_get_screen_dpi () {
+value lime_capabilities_get_screen_dpi () {
    
    return alloc_float (CapabilitiesGetScreenDPI ());
    
 }
-DEFINE_PRIM (nme_capabilities_get_screen_dpi, 0);
+DEFINE_PRIM (lime_capabilities_get_screen_dpi, 0);
 
-value nme_capabilities_get_screen_resolution_x () {
+value lime_capabilities_get_screen_resolution_x () {
    
    return alloc_float (CapabilitiesGetScreenResolutionX ());
    
 }
-DEFINE_PRIM (nme_capabilities_get_screen_resolution_x, 0);
+DEFINE_PRIM (lime_capabilities_get_screen_resolution_x, 0);
 
-value nme_capabilities_get_screen_resolution_y () {
+value lime_capabilities_get_screen_resolution_y () {
    
    return alloc_float (CapabilitiesGetScreenResolutionY ());
    
 }
-DEFINE_PRIM (nme_capabilities_get_screen_resolution_y, 0);
+DEFINE_PRIM (lime_capabilities_get_screen_resolution_y, 0);
 
-value nme_capabilities_get_language() {
+value lime_capabilities_get_language() {
    
    return alloc_string(CapabilitiesGetLanguage().c_str());
    
 }
-DEFINE_PRIM (nme_capabilities_get_language, 0);
+DEFINE_PRIM (lime_capabilities_get_language, 0);
 
 
-// ---  nme.filesystem -------------------------------------------------------------
-value nme_get_resource_path()
+// ---  lime.filesystem -------------------------------------------------------------
+value lime_get_resource_path()
 {
 #if defined(IPHONE)
   return alloc_string(GetResourcePath().c_str());
@@ -935,9 +935,9 @@ value nme_get_resource_path()
   return alloc_null();
 #endif
 }
-DEFINE_PRIM(nme_get_resource_path,0);
+DEFINE_PRIM(lime_get_resource_path,0);
 
-value nme_filesystem_get_special_dir(value inWhich)
+value lime_filesystem_get_special_dir(value inWhich)
 {
    static std::string dirs[DIR_SIZE];
    int idx = val_int(inWhich);
@@ -947,12 +947,12 @@ value nme_filesystem_get_special_dir(value inWhich)
 
    return alloc_string(dirs[idx].c_str());
 }
-DEFINE_PRIM(nme_filesystem_get_special_dir,1);
+DEFINE_PRIM(lime_filesystem_get_special_dir,1);
 
-value nme_filesystem_get_volumes(value outVolumes, value inFactory)
+value lime_filesystem_get_volumes(value outVolumes, value inFactory)
 {
    std::vector<VolumeInfo> volumes;
-   nme::GetVolumeInfo(volumes);
+   lime::GetVolumeInfo(volumes);
    for(int v=0;v<volumes.size();v++)
    {
       VolumeInfo &info = volumes[v];
@@ -967,33 +967,33 @@ value nme_filesystem_get_volumes(value outVolumes, value inFactory)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_filesystem_get_volumes,2);
+DEFINE_PRIM(lime_filesystem_get_volumes,2);
 
 
 
 // --- getURL ----------------------------------------------------------------------
-value nme_get_url(value url)
+value lime_get_url(value url)
 {
    bool result=LaunchBrowser(val_string(url));
    return alloc_bool(result);
 }
-DEFINE_PRIM(nme_get_url,1);
+DEFINE_PRIM(lime_get_url,1);
 
 
 // --- Haptic Vibrate ---------------------------------------------------------------
 
-value nme_haptic_vibrate(value inPeriod, value inDuration)
+value lime_haptic_vibrate(value inPeriod, value inDuration)
 {
    #if defined(WEBOS) || defined(ANDROID)
    HapticVibrate (val_int(inPeriod), val_int(inDuration));
    #endif
    return alloc_null();
 }
-DEFINE_PRIM(nme_haptic_vibrate,2);
+DEFINE_PRIM(lime_haptic_vibrate,2);
 
 
 // --- SharedObject ----------------------------------------------------------------------
-value nme_set_user_preference(value inId,value inValue)
+value lime_set_user_preference(value inId,value inValue)
 {
    #if defined(IPHONE) || defined(ANDROID) || defined(WEBOS)
       bool result=SetUserPreference(val_string(inId),val_string(inValue));
@@ -1001,9 +1001,9 @@ value nme_set_user_preference(value inId,value inValue)
    #endif
    return alloc_bool(false);
 }
-DEFINE_PRIM(nme_set_user_preference,2);
+DEFINE_PRIM(lime_set_user_preference,2);
 
-value nme_get_user_preference(value inId)
+value lime_get_user_preference(value inId)
 {
    #if defined(IPHONE) || defined(ANDROID) || defined(WEBOS)
       std::string result=GetUserPreference(val_string(inId));
@@ -1011,9 +1011,9 @@ value nme_get_user_preference(value inId)
    #endif
    return alloc_null();
 }
-DEFINE_PRIM(nme_get_user_preference,1);
+DEFINE_PRIM(lime_get_user_preference,1);
 
-value nme_clear_user_preference(value inId)
+value lime_clear_user_preference(value inId)
 {
    #if defined(IPHONE) || defined(ANDROID) || defined(WEBOS)
       bool result=ClearUserPreference(val_string(inId));
@@ -1021,20 +1021,20 @@ value nme_clear_user_preference(value inId)
    #endif
    return alloc_bool(false);
 }
-DEFINE_PRIM(nme_clear_user_preference,1);
+DEFINE_PRIM(lime_clear_user_preference,1);
 
 // --- Stage ----------------------------------------------------------------------
 
-value nme_stage_set_fixed_orientation(value inValue)
+value lime_stage_set_fixed_orientation(value inValue)
 {
 #ifdef IPHONE
    gFixedOrientation = val_int(inValue);
 #endif
    return alloc_null();
 }
-DEFINE_PRIM(nme_stage_set_fixed_orientation,1);
+DEFINE_PRIM(lime_stage_set_fixed_orientation,1);
 
-value nme_get_frame_stage(value inValue)
+value lime_get_frame_stage(value inValue)
 {
    Frame *frame;
    if (!AbstractToObject(inValue,frame))
@@ -1042,7 +1042,7 @@ value nme_get_frame_stage(value inValue)
 
    return ObjectToAbstract(frame->GetStage());
 }
-DEFINE_PRIM(nme_get_frame_stage,1);
+DEFINE_PRIM(lime_get_frame_stage,1);
 
 
 AutoGCRoot *sOnCreateCallback = 0;
@@ -1056,7 +1056,7 @@ void OnMainFrameCreated(Frame *inFrame)
 }
 
 
-value nme_set_package(value inCompany,value inFile,value inPackage,value inVersion)
+value lime_set_package(value inCompany,value inFile,value inPackage,value inVersion)
 {
    gCompany = val_string(inCompany);
    gFile = val_string(inFile);
@@ -1064,10 +1064,10 @@ value nme_set_package(value inCompany,value inFile,value inPackage,value inVersi
    gVersion = val_string(inVersion);
    return val_null;
 }
-DEFINE_PRIM(nme_set_package,4);
+DEFINE_PRIM(lime_set_package,4);
 
 
-value nme_create_main_frame(value *arg, int nargs)
+value lime_create_main_frame(value *arg, int nargs)
 {
    if (!sgIDsInit)
       InitIDs();
@@ -1085,58 +1085,58 @@ value nme_create_main_frame(value *arg, int nargs)
    return alloc_null();
 }
 
-DEFINE_PRIM_MULT(nme_create_main_frame);
+DEFINE_PRIM_MULT(lime_create_main_frame);
 
-value nme_set_asset_base(value inBase)
+value lime_set_asset_base(value inBase)
 {
    gAssetBase = val_string(inBase);
    return val_null;
 }
-DEFINE_PRIM(nme_set_asset_base,1);
+DEFINE_PRIM(lime_set_asset_base,1);
 
-value nme_terminate()
+value lime_terminate()
 {
    exit(0);
    return alloc_null();
 }
-DEFINE_PRIM(nme_terminate,0);
+DEFINE_PRIM(lime_terminate,0);
 
-value nme_close( value force )
+value lime_close( value force )
 {
    StopAnimation();
    return alloc_null();
 }
-DEFINE_PRIM(nme_close,0);
+DEFINE_PRIM(lime_close,0);
 
-value nme_start_animation()
+value lime_start_animation()
 {
    StartAnimation();
    return alloc_null();
 }
-DEFINE_PRIM(nme_start_animation,0);
+DEFINE_PRIM(lime_start_animation,0);
 
-value nme_pause_animation()
+value lime_pause_animation()
 {
    PauseAnimation();
    return alloc_null();
 }
-DEFINE_PRIM(nme_pause_animation,0);
+DEFINE_PRIM(lime_pause_animation,0);
 
-value nme_resume_animation()
+value lime_resume_animation()
 {
    ResumeAnimation();
    return alloc_null();
 }
-DEFINE_PRIM(nme_resume_animation,0);
+DEFINE_PRIM(lime_resume_animation,0);
 
-value nme_stop_animation()
+value lime_stop_animation()
 {
    StopAnimation();
    return alloc_null();
 }
-DEFINE_PRIM(nme_stop_animation,0);
+DEFINE_PRIM(lime_stop_animation,0);
 
-value nme_stage_set_next_wake(value inStage, value inNextWake)
+value lime_stage_set_next_wake(value inStage, value inNextWake)
 {
    Stage *stage;
 
@@ -1148,9 +1148,9 @@ value nme_stage_set_next_wake(value inStage, value inNextWake)
    return alloc_null();
 }
 
-DEFINE_PRIM(nme_stage_set_next_wake,2);
+DEFINE_PRIM(lime_stage_set_next_wake,2);
 
-void external_handler( nme::Event &ioEvent, void *inUserData )
+void external_handler( lime::Event &ioEvent, void *inUserData )
 {
    AutoGCRoot *handler = (AutoGCRoot *)inUserData;
    if (ioEvent.type == etDestroyHandler)
@@ -1175,7 +1175,7 @@ void external_handler( nme::Event &ioEvent, void *inUserData )
 }
 
 
-value nme_set_stage_handler(value inStage,value inHandler,value inNomWidth, value inNomHeight)
+value lime_set_stage_handler(value inStage,value inHandler,value inNomWidth, value inNomHeight)
 {
    Stage *stage;
    if (!AbstractToObject(inStage,stage))
@@ -1189,10 +1189,10 @@ value nme_set_stage_handler(value inStage,value inHandler,value inNomWidth, valu
    return alloc_null();
 }
 
-DEFINE_PRIM(nme_set_stage_handler,4);
+DEFINE_PRIM(lime_set_stage_handler,4);
 
 
-value nme_render_stage(value inStage)
+value lime_render_stage(value inStage)
 {
    Stage *stage;
    if (AbstractToObject(inStage,stage))
@@ -1203,10 +1203,10 @@ value nme_render_stage(value inStage)
    return alloc_null();
 }
 
-DEFINE_PRIM(nme_render_stage,1);
+DEFINE_PRIM(lime_render_stage,1);
 
 
-value nme_stage_resize_window(value inStage, value inWidth, value inHeight)
+value lime_stage_resize_window(value inStage, value inWidth, value inHeight)
 {
    #if (defined(HX_WINDOWS) || defined(HX_MACOS) || defined(HX_LINUX))
    Stage *stage;
@@ -1217,10 +1217,10 @@ value nme_stage_resize_window(value inStage, value inWidth, value inHeight)
    #endif
    return alloc_null();
 }
-DEFINE_PRIM(nme_stage_resize_window,3);
+DEFINE_PRIM(lime_stage_resize_window,3);
 
 
-value nme_stage_get_focus_id(value inValue)
+value lime_stage_get_focus_id(value inValue)
 {
    int result = -1;
    Stage *stage;
@@ -1233,9 +1233,9 @@ value nme_stage_get_focus_id(value inValue)
 
    return alloc_int(result);
 }
-DEFINE_PRIM(nme_stage_get_focus_id,1);
+DEFINE_PRIM(lime_stage_get_focus_id,1);
 
-value nme_stage_set_focus(value inStage,value inObject,value inDirection)
+value lime_stage_set_focus(value inStage,value inObject,value inDirection)
 {
    Stage *stage;
    if (AbstractToObject(inStage,stage))
@@ -1246,7 +1246,7 @@ value nme_stage_set_focus(value inStage,value inObject,value inDirection)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_stage_set_focus,3);
+DEFINE_PRIM(lime_stage_set_focus,3);
 
 DO_STAGE_PROP(focus_rect,FocusRect,alloc_bool,val_bool)
 DO_STAGE_PROP(scale_mode,ScaleMode,alloc_int,val_int)
@@ -1260,7 +1260,7 @@ DO_PROP_READ(Stage,stage,dpi_scale,DPIScale,alloc_float);
 DO_PROP_READ(Stage,stage,multitouch_supported,MultitouchSupported,alloc_bool);
 
 
-value nme_stage_is_opengl(value inStage)
+value lime_stage_is_opengl(value inStage)
 {
    Stage *stage;
    if (AbstractToObject(inStage,stage))
@@ -1269,20 +1269,20 @@ value nme_stage_is_opengl(value inStage)
    }
    return alloc_bool(false);
 }
-DEFINE_PRIM(nme_stage_is_opengl,1);
+DEFINE_PRIM(lime_stage_is_opengl,1);
  
-namespace nme { void AndroidRequestRender(); }
-value nme_stage_request_render()
+namespace lime { void AndroidRequestRender(); }
+value lime_stage_request_render()
 {
    #ifdef ANDROID
    AndroidRequestRender();
    #endif
    return alloc_null();
 }
-DEFINE_PRIM(nme_stage_request_render,0);
+DEFINE_PRIM(lime_stage_request_render,0);
  
 
-value nme_stage_show_cursor(value inStage,value inShow)
+value lime_stage_show_cursor(value inStage,value inShow)
 {
    Stage *stage;
    if (AbstractToObject(inStage,stage))
@@ -1291,9 +1291,9 @@ value nme_stage_show_cursor(value inStage,value inShow)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_stage_show_cursor,2);
+DEFINE_PRIM(lime_stage_show_cursor,2);
 
-value nme_stage_constrain_cursor_to_window_frame(value inStage, value inLock)
+value lime_stage_constrain_cursor_to_window_frame(value inStage, value inLock)
 {
     Stage *stage;
     if (AbstractToObject(inStage,stage)) {       
@@ -1302,9 +1302,9 @@ value nme_stage_constrain_cursor_to_window_frame(value inStage, value inLock)
     }
     return alloc_null();
 }
-DEFINE_PRIM(nme_stage_constrain_cursor_to_window_frame,2);
+DEFINE_PRIM(lime_stage_constrain_cursor_to_window_frame,2);
 
-value nme_stage_set_cursor_position_in_window( value inStage, value inX, value inY )
+value lime_stage_set_cursor_position_in_window( value inStage, value inX, value inY )
 {
    Stage *stage;
    if (AbstractToObject(inStage,stage))
@@ -1315,9 +1315,9 @@ value nme_stage_set_cursor_position_in_window( value inStage, value inX, value i
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_stage_set_cursor_position_in_window,3);
+DEFINE_PRIM(lime_stage_set_cursor_position_in_window,3);
 
-value nme_stage_set_window_position( value inStage, value inX, value inY ) {
+value lime_stage_set_window_position( value inStage, value inX, value inY ) {
 
     Stage *stage;
    if (AbstractToObject(inStage,stage))
@@ -1328,10 +1328,10 @@ value nme_stage_set_window_position( value inStage, value inX, value inY ) {
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_stage_set_window_position,3);
+DEFINE_PRIM(lime_stage_set_window_position,3);
 
 
-value nme_stage_get_orientation() {
+value lime_stage_get_orientation() {
 
    #if defined(IPHONE) || defined(ANDROID) || defined(BLACKBERRY)
       return alloc_int( GetDeviceOrientation() );
@@ -1344,9 +1344,9 @@ value nme_stage_get_orientation() {
    
 }
 
-DEFINE_PRIM (nme_stage_get_orientation, 0);
+DEFINE_PRIM (lime_stage_get_orientation, 0);
 
-value nme_stage_get_normal_orientation() {
+value lime_stage_get_normal_orientation() {
 
    #if defined(ANDROID)
       return alloc_int( GetNormalOrientation() );
@@ -1357,23 +1357,23 @@ value nme_stage_get_normal_orientation() {
    #endif
 }
 
-DEFINE_PRIM (nme_stage_get_normal_orientation, 0);
+DEFINE_PRIM (lime_stage_get_normal_orientation, 0);
 
 
 // --- ManagedStage ----------------------------------------------------------------------
 
 #ifndef HX_WINRT
 
-value nme_managed_stage_create(value inW,value inH,value inFlags)
+value lime_managed_stage_create(value inW,value inH,value inFlags)
 {
    SetMainThread();
    ManagedStage *stage = new ManagedStage(val_int(inW),val_int(inH),val_int(inFlags));
    return ObjectToAbstract(stage);
 }
-DEFINE_PRIM(nme_managed_stage_create,3);
+DEFINE_PRIM(lime_managed_stage_create,3);
 
 
-value nme_managed_stage_pump_event(value inStage,value inEvent)
+value lime_managed_stage_pump_event(value inStage,value inEvent)
 {
    ManagedStage *stage;
    if (AbstractToObject(inStage,stage))
@@ -1384,7 +1384,7 @@ value nme_managed_stage_pump_event(value inStage,value inEvent)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_managed_stage_pump_event,2);
+DEFINE_PRIM(lime_managed_stage_pump_event,2);
 
 
 #endif
@@ -1394,7 +1394,7 @@ DEFINE_PRIM(nme_managed_stage_pump_event,2);
 
 // --- Input --------------------------------------------------------------
 
-value nme_input_get_acceleration()
+value lime_input_get_acceleration()
 {
    double x,y,z;
    if (!GetAcceleration(x,y,z))
@@ -1407,19 +1407,19 @@ value nme_input_get_acceleration()
    return obj;
 }
 
-DEFINE_PRIM(nme_input_get_acceleration,0);
+DEFINE_PRIM(lime_input_get_acceleration,0);
 
 
 // --- DisplayObject --------------------------------------------------------------
 
-value nme_create_display_object()
+value lime_create_display_object()
 {
    return ObjectToAbstract( new DisplayObject() );
 }
 
-DEFINE_PRIM(nme_create_display_object,0);
+DEFINE_PRIM(lime_create_display_object,0);
 
-value nme_display_object_get_graphics(value inObj)
+value lime_display_object_get_graphics(value inObj)
 {
    DisplayObject *obj;
    if (AbstractToObject(inObj,obj))
@@ -1428,9 +1428,9 @@ value nme_display_object_get_graphics(value inObj)
    return alloc_null();
 }
 
-DEFINE_PRIM(nme_display_object_get_graphics,1);
+DEFINE_PRIM(lime_display_object_get_graphics,1);
 
-value nme_display_object_draw_to_surface(value *arg,int count)
+value lime_display_object_draw_to_surface(value *arg,int count)
 {
    enum { aObject, aSurface, aMatrix, aColourTransform, aBlendMode, aClipRect, aSIZE};
 
@@ -1520,10 +1520,10 @@ value nme_display_object_draw_to_surface(value *arg,int count)
    return alloc_null();
 }
 
-DEFINE_PRIM_MULT(nme_display_object_draw_to_surface)
+DEFINE_PRIM_MULT(lime_display_object_draw_to_surface)
 
 
-value nme_display_object_get_id(value inObj)
+value lime_display_object_get_id(value inObj)
 {
    DisplayObject *obj;
    if (AbstractToObject(inObj,obj))
@@ -1532,9 +1532,9 @@ value nme_display_object_get_id(value inObj)
    return alloc_null();
 }
 
-DEFINE_PRIM(nme_display_object_get_id,1);
+DEFINE_PRIM(lime_display_object_get_id,1);
 
-value nme_display_object_global_to_local(value inObj,value ioPoint)
+value lime_display_object_global_to_local(value inObj,value ioPoint)
 {
    DisplayObject *obj;
    if (AbstractToObject(inObj,obj))
@@ -1549,22 +1549,22 @@ value nme_display_object_global_to_local(value inObj,value ioPoint)
    return alloc_null();
 }
 
-DEFINE_PRIM(nme_display_object_global_to_local,2);
+DEFINE_PRIM(lime_display_object_global_to_local,2);
 
 void print_field(value inObj, int id, void *cookie)
 {
    printf("Field : %d (%s)\n",id,val_string(val_field_name(id)));
 }
 
-value nme_type(value inObj)
+value lime_type(value inObj)
 {
    val_iter_fields(inObj, print_field, 0);
    return alloc_null();
 }
-DEFINE_PRIM(nme_type,1);
+DEFINE_PRIM(lime_type,1);
 
 
-value nme_display_object_local_to_global(value inObj,value ioPoint)
+value lime_display_object_local_to_global(value inObj,value ioPoint)
 {
    DisplayObject *obj;
    if (AbstractToObject(inObj,obj))
@@ -1579,11 +1579,11 @@ value nme_display_object_local_to_global(value inObj,value ioPoint)
    return alloc_null();
 }
 
-DEFINE_PRIM(nme_display_object_local_to_global,2);
+DEFINE_PRIM(lime_display_object_local_to_global,2);
 
 
 
-value nme_display_object_hit_test_point(
+value lime_display_object_hit_test_point(
             value inObj,value inX, value inY, value inShape, value inRecurse)
 {
    DisplayObject *obj;
@@ -1614,10 +1614,10 @@ value nme_display_object_hit_test_point(
 
    return alloc_null();
 }
-DEFINE_PRIM(nme_display_object_hit_test_point,5);
+DEFINE_PRIM(lime_display_object_hit_test_point,5);
 
 
-value nme_display_object_set_filters(value inObj,value inFilters)
+value lime_display_object_set_filters(value inObj,value inFilters)
 {
    DisplayObject *obj;
    if (AbstractToObject(inObj,obj))
@@ -1640,9 +1640,9 @@ value nme_display_object_set_filters(value inObj,value inFilters)
    return alloc_null();
 }
 
-DEFINE_PRIM(nme_display_object_set_filters,2);
+DEFINE_PRIM(lime_display_object_set_filters,2);
 
-value nme_display_object_set_scale9_grid(value inObj,value inRect)
+value lime_display_object_set_scale9_grid(value inObj,value inRect)
 {
    DisplayObject *obj;
    if (AbstractToObject(inObj,obj))
@@ -1658,9 +1658,9 @@ value nme_display_object_set_scale9_grid(value inObj,value inRect)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_display_object_set_scale9_grid,2);
+DEFINE_PRIM(lime_display_object_set_scale9_grid,2);
 
-value nme_display_object_set_scroll_rect(value inObj,value inRect)
+value lime_display_object_set_scroll_rect(value inObj,value inRect)
 {
    DisplayObject *obj;
    if (AbstractToObject(inObj,obj))
@@ -1676,9 +1676,9 @@ value nme_display_object_set_scroll_rect(value inObj,value inRect)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_display_object_set_scroll_rect,2);
+DEFINE_PRIM(lime_display_object_set_scroll_rect,2);
 
-value nme_display_object_set_mask(value inObj,value inMask)
+value lime_display_object_set_mask(value inObj,value inMask)
 {
    DisplayObject *obj;
    if (AbstractToObject(inObj,obj))
@@ -1689,10 +1689,10 @@ value nme_display_object_set_mask(value inObj,value inMask)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_display_object_set_mask,2);
+DEFINE_PRIM(lime_display_object_set_mask,2);
 
 
-value nme_display_object_set_matrix(value inObj,value inMatrix)
+value lime_display_object_set_matrix(value inObj,value inMatrix)
 {
    DisplayObject *obj;
    if (AbstractToObject(inObj,obj))
@@ -1704,9 +1704,9 @@ value nme_display_object_set_matrix(value inObj,value inMatrix)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_display_object_set_matrix,2);
+DEFINE_PRIM(lime_display_object_set_matrix,2);
 
-value nme_display_object_get_matrix(value inObj,value outMatrix, value inFull)
+value lime_display_object_get_matrix(value inObj,value outMatrix, value inFull)
 {
    DisplayObject *obj;
    if (AbstractToObject(inObj,obj))
@@ -1717,9 +1717,9 @@ value nme_display_object_get_matrix(value inObj,value outMatrix, value inFull)
 
    return alloc_null();
 }
-DEFINE_PRIM(nme_display_object_get_matrix,3);
+DEFINE_PRIM(lime_display_object_get_matrix,3);
 
-value nme_display_object_set_color_transform(value inObj,value inTrans)
+value lime_display_object_set_color_transform(value inObj,value inTrans)
 {
    DisplayObject *obj;
    if (AbstractToObject(inObj,obj))
@@ -1731,9 +1731,9 @@ value nme_display_object_set_color_transform(value inObj,value inTrans)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_display_object_set_color_transform,2);
+DEFINE_PRIM(lime_display_object_set_color_transform,2);
 
-value nme_display_object_get_color_transform(value inObj,value outTrans, value inFull)
+value lime_display_object_get_color_transform(value inObj,value outTrans, value inFull)
 {
    DisplayObject *obj;
    if (AbstractToObject(inObj,obj))
@@ -1745,15 +1745,15 @@ value nme_display_object_get_color_transform(value inObj,value outTrans, value i
 
    return alloc_null();
 }
-DEFINE_PRIM(nme_display_object_get_color_transform,3);
+DEFINE_PRIM(lime_display_object_get_color_transform,3);
 
-value nme_display_object_get_pixel_bounds(value inObj,value outBounds)
+value lime_display_object_get_pixel_bounds(value inObj,value outBounds)
 {
    return alloc_null();
 }
-DEFINE_PRIM(nme_display_object_get_pixel_bounds,2);
+DEFINE_PRIM(lime_display_object_get_pixel_bounds,2);
 
-value nme_display_object_get_bounds(value inObj, value inTarget, value outBounds, value inIncludeStroke)
+value lime_display_object_get_bounds(value inObj, value inTarget, value outBounds, value inIncludeStroke)
 {
    DisplayObject *obj;
    DisplayObject *target;
@@ -1777,10 +1777,10 @@ value nme_display_object_get_bounds(value inObj, value inTarget, value outBounds
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_display_object_get_bounds,4);
+DEFINE_PRIM(lime_display_object_get_bounds,4);
 
 
-value nme_display_object_request_soft_keyboard(value inObj)
+value lime_display_object_request_soft_keyboard(value inObj)
 {
    DisplayObject *obj;
    if (AbstractToObject(inObj,obj))
@@ -1796,10 +1796,10 @@ value nme_display_object_request_soft_keyboard(value inObj)
 
    return alloc_bool(false);
 }
-DEFINE_PRIM(nme_display_object_request_soft_keyboard,1);
+DEFINE_PRIM(lime_display_object_request_soft_keyboard,1);
 
 
-value nme_display_object_dismiss_soft_keyboard(value inObj)
+value lime_display_object_dismiss_soft_keyboard(value inObj)
 {
    DisplayObject *obj;
    if (AbstractToObject(inObj,obj))
@@ -1815,7 +1815,7 @@ value nme_display_object_dismiss_soft_keyboard(value inObj)
 
    return alloc_bool(false);
 }
-DEFINE_PRIM(nme_display_object_dismiss_soft_keyboard,1);
+DEFINE_PRIM(lime_display_object_dismiss_soft_keyboard,1);
 
 
 DO_DISPLAY_PROP(x,X,alloc_float,val_number)
@@ -1852,13 +1852,13 @@ void onDirectRender(void *inHandle,const Rect &inRect, const Transform &inTransf
    }
 }
 
-value nme_direct_renderer_create()
+value lime_direct_renderer_create()
 {
    return ObjectToAbstract( new DirectRenderer(onDirectRender) );
 }
-DEFINE_PRIM(nme_direct_renderer_create,0);
+DEFINE_PRIM(lime_direct_renderer_create,0);
 
-value nme_direct_renderer_set(value inRenderer, value inCallback)
+value lime_direct_renderer_set(value inRenderer, value inCallback)
 {
    DirectRenderer *renderer = 0;
 
@@ -1889,17 +1889,17 @@ value nme_direct_renderer_set(value inRenderer, value inCallback)
 
    return alloc_null();
 }
-DEFINE_PRIM(nme_direct_renderer_set,2);
+DEFINE_PRIM(lime_direct_renderer_set,2);
 
 // --- SimpleButton -----------------------------------------------------
 
-value nme_simple_button_create()
+value lime_simple_button_create()
 {
    return ObjectToAbstract( new SimpleButton() );
 }
-DEFINE_PRIM(nme_simple_button_create,0);
+DEFINE_PRIM(lime_simple_button_create,0);
 
-value nme_simple_button_set_state(value inButton, value inState, value inObject)
+value lime_simple_button_set_state(value inButton, value inState, value inObject)
 {
    SimpleButton *button = 0;
 
@@ -1912,7 +1912,7 @@ value nme_simple_button_set_state(value inButton, value inState, value inObject)
 
    return alloc_null();
 }
-DEFINE_PRIM(nme_simple_button_set_state,3);
+DEFINE_PRIM(lime_simple_button_set_state,3);
 
 
 
@@ -1922,14 +1922,14 @@ DO_PROP(SimpleButton,simple_button,hand_cursor,UseHandCursor,alloc_bool,val_bool
 
 // --- DisplayObjectContainer -----------------------------------------------------
 
-value nme_create_display_object_container()
+value lime_create_display_object_container()
 {
    return ObjectToAbstract( new DisplayObjectContainer() );
 }
 
-DEFINE_PRIM(nme_create_display_object_container,0);
+DEFINE_PRIM(lime_create_display_object_container,0);
 
-value nme_doc_add_child(value inParent, value inChild)
+value lime_doc_add_child(value inParent, value inChild)
 {
    DisplayObjectContainer *parent;
    DisplayObject *child;
@@ -1939,10 +1939,10 @@ value nme_doc_add_child(value inParent, value inChild)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_doc_add_child,2);
+DEFINE_PRIM(lime_doc_add_child,2);
 
 
-value nme_doc_swap_children(value inParent, value inChild0, value inChild1)
+value lime_doc_swap_children(value inParent, value inChild0, value inChild1)
 {
    DisplayObjectContainer *parent;
    if (AbstractToObject(inParent,parent))
@@ -1951,10 +1951,10 @@ value nme_doc_swap_children(value inParent, value inChild0, value inChild1)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_doc_swap_children,3);
+DEFINE_PRIM(lime_doc_swap_children,3);
 
 
-value nme_doc_remove_child(value inParent, value inPos)
+value lime_doc_remove_child(value inParent, value inPos)
 {
    DisplayObjectContainer *parent;
    if (AbstractToObject(inParent,parent))
@@ -1963,9 +1963,9 @@ value nme_doc_remove_child(value inParent, value inPos)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_doc_remove_child,2);
+DEFINE_PRIM(lime_doc_remove_child,2);
 
-value nme_doc_set_child_index(value inParent, value inChild, value inPos)
+value lime_doc_set_child_index(value inParent, value inChild, value inPos)
 {
    DisplayObjectContainer *parent;
    DisplayObject *child;
@@ -1975,7 +1975,7 @@ value nme_doc_set_child_index(value inParent, value inChild, value inPos)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_doc_set_child_index,3);
+DEFINE_PRIM(lime_doc_set_child_index,3);
 
 
 DO_PROP(DisplayObjectContainer,doc,mouse_children,MouseChildren,alloc_bool,val_bool);
@@ -1985,7 +1985,7 @@ DO_PROP(DisplayObjectContainer,doc,mouse_children,MouseChildren,alloc_bool,val_b
 
 AutoGCRoot *sExternalInterfaceHandler = 0;
 
-value nme_external_interface_add_callback (value inFunctionName, value inClosure)
+value lime_external_interface_add_callback (value inFunctionName, value inClosure)
 {
    #ifdef WEBOS
       if (sExternalInterfaceHandler == 0) {
@@ -1995,9 +1995,9 @@ value nme_external_interface_add_callback (value inFunctionName, value inClosure
    #endif
    return alloc_null();
 }
-DEFINE_PRIM(nme_external_interface_add_callback,2);
+DEFINE_PRIM(lime_external_interface_add_callback,2);
 
-value nme_external_interface_available ()
+value lime_external_interface_available ()
 {
    #ifdef WEBOS
       return alloc_bool(true);
@@ -2005,9 +2005,9 @@ value nme_external_interface_available ()
       return alloc_bool(false);
    #endif
 }
-DEFINE_PRIM(nme_external_interface_available,0);
+DEFINE_PRIM(lime_external_interface_available,0);
 
-value nme_external_interface_call (value inFunctionName, value args)
+value lime_external_interface_call (value inFunctionName, value args)
 {
    #ifdef WEBOS
       int n = val_array_size(args);
@@ -2019,30 +2019,30 @@ value nme_external_interface_call (value inFunctionName, value args)
    #endif
    return alloc_null();
 }
-DEFINE_PRIM(nme_external_interface_call,2);
+DEFINE_PRIM(lime_external_interface_call,2);
 
-value nme_external_interface_register_callbacks ()
+value lime_external_interface_register_callbacks ()
 {
    #ifdef WEBOS
       ExternalInterface_RegisterCallbacks ();
    #endif
    return alloc_null();
 }
-DEFINE_PRIM(nme_external_interface_register_callbacks,0);
+DEFINE_PRIM(lime_external_interface_register_callbacks,0);
 
 
 // --- Graphics -----------------------------------------------------
 
-value nme_gfx_clear(value inGfx)
+value lime_gfx_clear(value inGfx)
 {
    Graphics *gfx;
    if (AbstractToObject(inGfx,gfx))
       gfx->clear();
    return alloc_null();
 }
-DEFINE_PRIM(nme_gfx_clear,1);
+DEFINE_PRIM(lime_gfx_clear,1);
 
-value nme_gfx_begin_fill(value inGfx,value inColour, value inAlpha)
+value lime_gfx_begin_fill(value inGfx,value inColour, value inAlpha)
 {
    Graphics *gfx;
    if (AbstractToObject(inGfx,gfx))
@@ -2052,10 +2052,10 @@ value nme_gfx_begin_fill(value inGfx,value inColour, value inAlpha)
    return alloc_null();
 }
 
-DEFINE_PRIM(nme_gfx_begin_fill,3);
+DEFINE_PRIM(lime_gfx_begin_fill,3);
 
 
-void nme_gfx_begin_set_bitmap_fill(value inGfx,value inBMP, value inMatrix,
+void lime_gfx_begin_set_bitmap_fill(value inGfx,value inBMP, value inMatrix,
      value inRepeat, value inSmooth, bool inForSolid)
 {
    Graphics *gfx;
@@ -2073,25 +2073,25 @@ void nme_gfx_begin_set_bitmap_fill(value inGfx,value inBMP, value inMatrix,
    }
 }
 
-value nme_gfx_begin_bitmap_fill(value inGfx,value inBMP, value inMatrix,
+value lime_gfx_begin_bitmap_fill(value inGfx,value inBMP, value inMatrix,
      value inRepeat, value inSmooth)
 {
-   nme_gfx_begin_set_bitmap_fill(inGfx,inBMP,inMatrix,inRepeat,inSmooth,true);
+   lime_gfx_begin_set_bitmap_fill(inGfx,inBMP,inMatrix,inRepeat,inSmooth,true);
    return alloc_null();
 }
-DEFINE_PRIM(nme_gfx_begin_bitmap_fill,5);
+DEFINE_PRIM(lime_gfx_begin_bitmap_fill,5);
 
-value nme_gfx_line_bitmap_fill(value inGfx,value inBMP, value inMatrix,
+value lime_gfx_line_bitmap_fill(value inGfx,value inBMP, value inMatrix,
      value inRepeat, value inSmooth)
 {
-   nme_gfx_begin_set_bitmap_fill(inGfx,inBMP,inMatrix,inRepeat,inSmooth,false);
+   lime_gfx_begin_set_bitmap_fill(inGfx,inBMP,inMatrix,inRepeat,inSmooth,false);
    return alloc_null();
 }
-DEFINE_PRIM(nme_gfx_line_bitmap_fill,5);
+DEFINE_PRIM(lime_gfx_line_bitmap_fill,5);
 
 
 
-void nme_gfx_begin_set_gradient_fill(value *arg, int args, bool inForSolid)
+void lime_gfx_begin_set_gradient_fill(value *arg, int args, bool inForSolid)
 {
    enum { aGfx, aType, aColors, aAlphas, aRatios, aMatrix, aSpreadMethod, aInterpMethod,
           aFocal, aSIZE };
@@ -2120,33 +2120,33 @@ void nme_gfx_begin_set_gradient_fill(value *arg, int args, bool inForSolid)
    }
 }
 
-value nme_gfx_begin_gradient_fill(value *arg, int args)
+value lime_gfx_begin_gradient_fill(value *arg, int args)
 {
-   nme_gfx_begin_set_gradient_fill(arg,args, true);
+   lime_gfx_begin_set_gradient_fill(arg,args, true);
    return alloc_null();
 }
-DEFINE_PRIM_MULT(nme_gfx_begin_gradient_fill)
+DEFINE_PRIM_MULT(lime_gfx_begin_gradient_fill)
 
-value nme_gfx_line_gradient_fill(value *arg, int args)
+value lime_gfx_line_gradient_fill(value *arg, int args)
 {
-   nme_gfx_begin_set_gradient_fill(arg,args, false);
+   lime_gfx_begin_set_gradient_fill(arg,args, false);
    return alloc_null();
 }
-DEFINE_PRIM_MULT(nme_gfx_line_gradient_fill)
+DEFINE_PRIM_MULT(lime_gfx_line_gradient_fill)
 
 
 
-value nme_gfx_end_fill(value inGfx)
+value lime_gfx_end_fill(value inGfx)
 {
    Graphics *gfx;
    if (AbstractToObject(inGfx,gfx))
       gfx->endFill();
    return alloc_null();
 }
-DEFINE_PRIM(nme_gfx_end_fill,1);
+DEFINE_PRIM(lime_gfx_end_fill,1);
 
 
-value nme_gfx_line_style(value* arg, int nargs)
+value lime_gfx_line_style(value* arg, int nargs)
 {
    enum { argGfx, argThickness, argColour, argAlpha, argPixelHinting, argScaleMode, argCapsStyle,
           argJointStyle, argMiterLimit, argSIZE };
@@ -2170,13 +2170,13 @@ value nme_gfx_line_style(value* arg, int nargs)
    }
    return alloc_null();
 }
-DEFINE_PRIM_MULT(nme_gfx_line_style)
+DEFINE_PRIM_MULT(lime_gfx_line_style)
 
 
 
 
 
-value nme_gfx_move_to(value inGfx,value inX, value inY)
+value lime_gfx_move_to(value inGfx,value inX, value inY)
 {
    Graphics *gfx;
    if (AbstractToObject(inGfx,gfx))
@@ -2185,9 +2185,9 @@ value nme_gfx_move_to(value inGfx,value inX, value inY)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_gfx_move_to,3);
+DEFINE_PRIM(lime_gfx_move_to,3);
 
-value nme_gfx_line_to(value inGfx,value inX, value inY)
+value lime_gfx_line_to(value inGfx,value inX, value inY)
 {
    Graphics *gfx;
    if (AbstractToObject(inGfx,gfx))
@@ -2196,9 +2196,9 @@ value nme_gfx_line_to(value inGfx,value inX, value inY)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_gfx_line_to,3);
+DEFINE_PRIM(lime_gfx_line_to,3);
 
-value nme_gfx_curve_to(value inGfx,value inCX, value inCY, value inX, value inY)
+value lime_gfx_curve_to(value inGfx,value inCX, value inCY, value inX, value inY)
 {
    Graphics *gfx;
    if (AbstractToObject(inGfx,gfx))
@@ -2207,9 +2207,9 @@ value nme_gfx_curve_to(value inGfx,value inCX, value inCY, value inX, value inY)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_gfx_curve_to,5);
+DEFINE_PRIM(lime_gfx_curve_to,5);
 
-value nme_gfx_arc_to(value inGfx,value inCX, value inCY, value inX, value inY)
+value lime_gfx_arc_to(value inGfx,value inCX, value inCY, value inX, value inY)
 {
    Graphics *gfx;
    if (AbstractToObject(inGfx,gfx))
@@ -2218,9 +2218,9 @@ value nme_gfx_arc_to(value inGfx,value inCX, value inCY, value inX, value inY)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_gfx_arc_to,5);
+DEFINE_PRIM(lime_gfx_arc_to,5);
 
-value nme_gfx_draw_ellipse(value inGfx,value inX, value inY, value inWidth, value inHeight)
+value lime_gfx_draw_ellipse(value inGfx,value inX, value inY, value inWidth, value inHeight)
 {
    Graphics *gfx;
    if (AbstractToObject(inGfx,gfx))
@@ -2229,9 +2229,9 @@ value nme_gfx_draw_ellipse(value inGfx,value inX, value inY, value inWidth, valu
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_gfx_draw_ellipse,5);
+DEFINE_PRIM(lime_gfx_draw_ellipse,5);
 
-value nme_gfx_draw_rect(value inGfx,value inX, value inY, value inWidth, value inHeight)
+value lime_gfx_draw_rect(value inGfx,value inX, value inY, value inWidth, value inHeight)
 {
    Graphics *gfx;
    if (AbstractToObject(inGfx,gfx))
@@ -2240,9 +2240,9 @@ value nme_gfx_draw_rect(value inGfx,value inX, value inY, value inWidth, value i
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_gfx_draw_rect,5);
+DEFINE_PRIM(lime_gfx_draw_rect,5);
 
-value nme_gfx_draw_path(value inGfx, value inCommands, value inData, value inWinding)
+value lime_gfx_draw_path(value inGfx, value inCommands, value inData, value inWinding)
 {
    Graphics *gfx;
    if (AbstractToObject(inGfx,gfx))
@@ -2260,9 +2260,9 @@ value nme_gfx_draw_path(value inGfx, value inCommands, value inData, value inWin
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_gfx_draw_path, 4);
+DEFINE_PRIM(lime_gfx_draw_path, 4);
 
-value nme_gfx_draw_round_rect(value *arg, int args)
+value lime_gfx_draw_round_rect(value *arg, int args)
 {
    enum { aGfx, aX, aY, aW, aH, aRx, aRy, aSIZE };
    Graphics *gfx;
@@ -2272,9 +2272,9 @@ value nme_gfx_draw_round_rect(value *arg, int args)
    }
    return alloc_null();
 }
-DEFINE_PRIM_MULT(nme_gfx_draw_round_rect);
+DEFINE_PRIM_MULT(lime_gfx_draw_round_rect);
 
-value nme_gfx_draw_triangles(value *arg, int args )
+value lime_gfx_draw_triangles(value *arg, int args )
 {
 
    enum { aGfx, aVertices, aIndices, aUVData, aCull, aColours, aBlend, aViewport };
@@ -2299,10 +2299,10 @@ value nme_gfx_draw_triangles(value *arg, int args )
    
    return alloc_null();
 }
-DEFINE_PRIM_MULT(nme_gfx_draw_triangles);
+DEFINE_PRIM_MULT(lime_gfx_draw_triangles);
 
 
-value nme_gfx_draw_data(value inGfx,value inData)
+value lime_gfx_draw_data(value inGfx,value inData)
 {
    Graphics *gfx;
    if (AbstractToObject(inGfx,gfx))
@@ -2317,10 +2317,10 @@ value nme_gfx_draw_data(value inGfx,value inData)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_gfx_draw_data,2);
+DEFINE_PRIM(lime_gfx_draw_data,2);
 
 
-value nme_gfx_draw_datum(value inGfx,value inDatum)
+value lime_gfx_draw_datum(value inGfx,value inDatum)
 {
    Graphics *gfx;
    if (AbstractToObject(inGfx,gfx))
@@ -2331,9 +2331,9 @@ value nme_gfx_draw_datum(value inGfx,value inDatum)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_gfx_draw_datum,2);
+DEFINE_PRIM(lime_gfx_draw_datum,2);
 
-value nme_gfx_draw_tiles(value inGfx,value inSheet, value inXYIDs,value inFlags)
+value lime_gfx_draw_tiles(value inGfx,value inSheet, value inXYIDs,value inFlags)
 {
    Graphics *gfx;
    Tilesheet *sheet;
@@ -2513,13 +2513,13 @@ value nme_gfx_draw_tiles(value inGfx,value inSheet, value inXYIDs,value inFlags)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_gfx_draw_tiles,4);
+DEFINE_PRIM(lime_gfx_draw_tiles,4);
 
 
 static bool sNekoLutInit = false;
 static int sNekoLut[256];
 
-value nme_gfx_draw_points(value *arg, int nargs)
+value lime_gfx_draw_points(value *arg, int nargs)
 {
    enum { aGfx, aXYs, aRGBAs, aDefaultRGBA, aIs31Bits, aPointSize, aSIZE };
 
@@ -2554,7 +2554,7 @@ value nme_gfx_draw_points(value *arg, int nargs)
    }
    return alloc_null();
 }
-DEFINE_PRIM_MULT(nme_gfx_draw_points);
+DEFINE_PRIM_MULT(lime_gfx_draw_points);
 
 
 
@@ -2563,7 +2563,7 @@ DEFINE_PRIM_MULT(nme_gfx_draw_points);
 
 
 
-value nme_graphics_path_create(value inCommands,value inData,value inWinding)
+value lime_graphics_path_create(value inCommands,value inData,value inWinding)
 {
    GraphicsPath *result = new GraphicsPath();
 
@@ -2575,118 +2575,118 @@ value nme_graphics_path_create(value inCommands,value inData,value inWinding)
 
    return ObjectToAbstract(result);
 }
-DEFINE_PRIM(nme_graphics_path_create,3)
+DEFINE_PRIM(lime_graphics_path_create,3)
 
 
-value nme_graphics_path_curve_to(value inPath,value inX1, value inY1, value inX2, value inY2)
+value lime_graphics_path_curve_to(value inPath,value inX1, value inY1, value inX2, value inY2)
 {
    GraphicsPath *path;
    if (AbstractToObject(inPath,path))
       path->curveTo(val_number(inX1), val_number(inY1), val_number(inX2), val_number(inY2) );
    return alloc_null();
 }
-DEFINE_PRIM(nme_graphics_path_curve_to,5)
+DEFINE_PRIM(lime_graphics_path_curve_to,5)
 
 
 
-value nme_graphics_path_line_to(value inPath,value inX1, value inY1)
+value lime_graphics_path_line_to(value inPath,value inX1, value inY1)
 {
    GraphicsPath *path;
    if (AbstractToObject(inPath,path))
       path->lineTo(val_number(inX1), val_number(inY1));
    return alloc_null();
 }
-DEFINE_PRIM(nme_graphics_path_line_to,3)
+DEFINE_PRIM(lime_graphics_path_line_to,3)
 
-value nme_graphics_path_move_to(value inPath,value inX1, value inY1)
+value lime_graphics_path_move_to(value inPath,value inX1, value inY1)
 {
    GraphicsPath *path;
    if (AbstractToObject(inPath,path))
       path->moveTo(val_number(inX1), val_number(inY1));
    return alloc_null();
 }
-DEFINE_PRIM(nme_graphics_path_move_to,3)
+DEFINE_PRIM(lime_graphics_path_move_to,3)
 
 
    
-value nme_graphics_path_wline_to(value inPath,value inX1, value inY1)
+value lime_graphics_path_wline_to(value inPath,value inX1, value inY1)
 {
    GraphicsPath *path;
    if (AbstractToObject(inPath,path))
       path->wideLineTo(val_number(inX1), val_number(inY1));
    return alloc_null();
 }
-DEFINE_PRIM(nme_graphics_path_wline_to,3)
+DEFINE_PRIM(lime_graphics_path_wline_to,3)
 
-value nme_graphics_path_wmove_to(value inPath,value inX1, value inY1)
+value lime_graphics_path_wmove_to(value inPath,value inX1, value inY1)
 {
    GraphicsPath *path;
    if (AbstractToObject(inPath,path))
       path->wideMoveTo(val_number(inX1), val_number(inY1));
    return alloc_null();
 }
-DEFINE_PRIM(nme_graphics_path_wmove_to,3)
+DEFINE_PRIM(lime_graphics_path_wmove_to,3)
 
 
-value nme_graphics_path_get_commands(value inPath,value outCommands)
+value lime_graphics_path_get_commands(value inPath,value outCommands)
 {
    GraphicsPath *path;
    if (AbstractToObject(inPath,path))
       FillArrayInt(outCommands,path->commands);
    return alloc_null();
 }
-DEFINE_PRIM(nme_graphics_path_get_commands,2)
+DEFINE_PRIM(lime_graphics_path_get_commands,2)
 
-value nme_graphics_path_set_commands(value inPath,value inCommands)
+value lime_graphics_path_set_commands(value inPath,value inCommands)
 {
    GraphicsPath *path;
    if (AbstractToObject(inPath,path))
       FillArrayInt(path->commands,inCommands);
    return alloc_null();
 }
-DEFINE_PRIM(nme_graphics_path_set_commands,2)
+DEFINE_PRIM(lime_graphics_path_set_commands,2)
 
-value nme_graphics_path_get_data(value inPath,value outData)
+value lime_graphics_path_get_data(value inPath,value outData)
 {
    GraphicsPath *path;
    if (AbstractToObject(inPath,path))
       FillArrayDouble(outData,path->data);
    return alloc_null();
 }
-DEFINE_PRIM(nme_graphics_path_get_data,2)
+DEFINE_PRIM(lime_graphics_path_get_data,2)
 
-value nme_graphics_path_set_data(value inPath,value inData)
+value lime_graphics_path_set_data(value inPath,value inData)
 {
    GraphicsPath *path;
    if (AbstractToObject(inPath,path))
       FillArrayDouble(path->data,inData);
    return alloc_null();
 }
-DEFINE_PRIM(nme_graphics_path_set_data,2)
+DEFINE_PRIM(lime_graphics_path_set_data,2)
 
 
 
 // --- IGraphicsData - Fills ---------------------------------------------
 
-value nme_graphics_solid_fill_create(value inColour, value inAlpha)
+value lime_graphics_solid_fill_create(value inColour, value inAlpha)
 {
    GraphicsSolidFill *solid = new GraphicsSolidFill( val_int(inColour), val_number(inAlpha) );
    return ObjectToAbstract(solid);
 }
-DEFINE_PRIM(nme_graphics_solid_fill_create,2)
+DEFINE_PRIM(lime_graphics_solid_fill_create,2)
 
 
-value nme_graphics_end_fill_create()
+value lime_graphics_end_fill_create()
 {
    GraphicsEndFill *end = new GraphicsEndFill;
    return ObjectToAbstract(end);
 }
-DEFINE_PRIM(nme_graphics_end_fill_create,0)
+DEFINE_PRIM(lime_graphics_end_fill_create,0)
 
 
 // --- IGraphicsData - Stroke ---------------------------------------------
 
-value nme_graphics_stroke_create(value* arg, int nargs)
+value lime_graphics_stroke_create(value* arg, int nargs)
 {
    enum { argThickness, argPixelHinting, argScaleMode, argCapsStyle,
           argJointStyle, argMiterLimit, argFill, argSIZE };
@@ -2712,18 +2712,18 @@ value nme_graphics_stroke_create(value* arg, int nargs)
    return ObjectToAbstract(stroke);
 }
 
-DEFINE_PRIM_MULT(nme_graphics_stroke_create)
+DEFINE_PRIM_MULT(lime_graphics_stroke_create)
 
 
 
 // --- TextField --------------------------------------------------------------
 
-value nme_text_field_create()
+value lime_text_field_create()
 {
    TextField *text = new TextField();
    return ObjectToAbstract(text);
 }
-DEFINE_PRIM(nme_text_field_create,0)
+DEFINE_PRIM(lime_text_field_create,0)
 
 inline value alloc_wstring(const WString &inStr)
 {
@@ -2841,7 +2841,7 @@ void GetTextFormat(const TextFormat &inFormat, value &outValue, bool inIfSet = f
 }
 
 
-value nme_text_field_set_def_text_format(value inText,value inFormat)
+value lime_text_field_set_def_text_format(value inText,value inFormat)
 {
    TextField *text;
    if (AbstractToObject(inText,text))
@@ -2854,9 +2854,9 @@ value nme_text_field_set_def_text_format(value inText,value inFormat)
    return alloc_null();
 }
 
-DEFINE_PRIM(nme_text_field_set_def_text_format,2)
+DEFINE_PRIM(lime_text_field_set_def_text_format,2)
 
-value nme_text_field_get_text_format(value inText,value outFormat,value inStart,value inEnd)
+value lime_text_field_get_text_format(value inText,value outFormat,value inStart,value inEnd)
 {
    TextField *text;
    if (AbstractToObject(inText,text))
@@ -2867,10 +2867,10 @@ value nme_text_field_get_text_format(value inText,value outFormat,value inStart,
    return alloc_null();
 }
 
-DEFINE_PRIM(nme_text_field_get_text_format,4)
+DEFINE_PRIM(lime_text_field_get_text_format,4)
 
 
-value nme_text_field_set_text_format(value inText,value inFormat,value inStart,value inEnd)
+value lime_text_field_set_text_format(value inText,value inFormat,value inStart,value inEnd)
 {
    TextField *text;
    if (AbstractToObject(inText,text))
@@ -2883,10 +2883,10 @@ value nme_text_field_set_text_format(value inText,value inFormat,value inStart,v
    return alloc_null();
 }
 
-DEFINE_PRIM(nme_text_field_set_text_format,4)
+DEFINE_PRIM(lime_text_field_set_text_format,4)
 
 
-value nme_text_field_get_def_text_format(value inText,value outFormat)
+value lime_text_field_get_def_text_format(value inText,value outFormat)
 {
    TextField *text;
    if (AbstractToObject(inText,text))
@@ -2896,7 +2896,7 @@ value nme_text_field_get_def_text_format(value inText,value outFormat)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_text_field_get_def_text_format,2);
+DEFINE_PRIM(lime_text_field_get_def_text_format,2);
 
 
 void GetTextLineMetrics(const TextLineMetrics &inMetrics, value &outValue)
@@ -2909,7 +2909,7 @@ void GetTextLineMetrics(const TextLineMetrics &inMetrics, value &outValue)
    alloc_field(outValue,_id_leading, alloc_float(inMetrics.leading));
 }
 
-value nme_text_field_get_line_metrics(value inText,value inIndex,value outMetrics)
+value lime_text_field_get_line_metrics(value inText,value inIndex,value outMetrics)
 {
    TextField *text;
    if (AbstractToObject(inText,text))
@@ -2919,40 +2919,40 @@ value nme_text_field_get_line_metrics(value inText,value inIndex,value outMetric
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_text_field_get_line_metrics,3);
+DEFINE_PRIM(lime_text_field_get_line_metrics,3);
 
 
 #define TEXT_PROP_GET(prop,Prop,to_val) \
-value nme_text_field_get_##prop(value inHandle) \
+value lime_text_field_get_##prop(value inHandle) \
 { \
    TextField *t; \
    if (AbstractToObject(inHandle,t)) \
       return to_val(t->get##Prop()); \
    return alloc_null(); \
 } \
-DEFINE_PRIM(nme_text_field_get_##prop,1);
+DEFINE_PRIM(lime_text_field_get_##prop,1);
 
 
 #define TEXT_PROP(prop,Prop,to_val,from_val) \
    TEXT_PROP_GET(prop,Prop,to_val) \
-value nme_text_field_set_##prop(value inHandle,value inValue) \
+value lime_text_field_set_##prop(value inHandle,value inValue) \
 { \
    TextField *t; \
    if (AbstractToObject(inHandle,t)) \
       t->set##Prop(from_val(inValue)); \
    return alloc_null(); \
 } \
-DEFINE_PRIM(nme_text_field_set_##prop,2);
+DEFINE_PRIM(lime_text_field_set_##prop,2);
 
 #define TEXT_PROP_GET_IDX(prop,Prop,to_val) \
-value nme_text_field_get_##prop(value inHandle,value inIndex) \
+value lime_text_field_get_##prop(value inHandle,value inIndex) \
 { \
    TextField *t; \
    if (AbstractToObject(inHandle,t)) \
       return to_val(t->get##Prop(val_int(inIndex))); \
    return alloc_null(); \
 } \
-DEFINE_PRIM(nme_text_field_get_##prop,2);
+DEFINE_PRIM(lime_text_field_get_##prop,2);
 
 TEXT_PROP(text,Text,alloc_wstring,val2stdwstr);
 TEXT_PROP(html_text,HTMLText,alloc_wstring,val2stdwstr);
@@ -2981,7 +2981,7 @@ TEXT_PROP_GET_IDX(line_text,LineText,alloc_wstring);
 TEXT_PROP_GET_IDX(line_offset,LineOffset,alloc_int);
 
 
-value nme_bitmap_data_create(value* arg, int nargs)
+value lime_bitmap_data_create(value* arg, int nargs)
 {
    enum { aWidth, aHeight, aFlags, aRGB, aA, aGPU };
 
@@ -3006,36 +3006,36 @@ value nme_bitmap_data_create(value* arg, int nargs)
    }
    return ObjectToAbstract(result);
 }
-DEFINE_PRIM_MULT(nme_bitmap_data_create);
+DEFINE_PRIM_MULT(lime_bitmap_data_create);
 
-value nme_bitmap_data_width(value inHandle)
+value lime_bitmap_data_width(value inHandle)
 {
    Surface *surface;
    if (AbstractToObject(inHandle,surface))
       return alloc_int(surface->Width());
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_width,1);
+DEFINE_PRIM(lime_bitmap_data_width,1);
 
-value nme_bitmap_data_height(value inHandle)
+value lime_bitmap_data_height(value inHandle)
 {
    Surface *surface;
    if (AbstractToObject(inHandle,surface))
       return alloc_int(surface->Height());
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_height,1);
+DEFINE_PRIM(lime_bitmap_data_height,1);
 
-value nme_bitmap_data_clear(value inHandle,value inRGB)
+value lime_bitmap_data_clear(value inHandle,value inRGB)
 {
    Surface *surface;
    if (AbstractToObject(inHandle,surface))
       surface->Clear( val_int(inRGB) );
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_clear,2);
+DEFINE_PRIM(lime_bitmap_data_clear,2);
 
-value nme_bitmap_data_get_transparent(value inHandle,value inRGB)
+value lime_bitmap_data_get_transparent(value inHandle,value inRGB)
 {
    Surface *surface;
    if (AbstractToObject(inHandle,surface))
@@ -3043,20 +3043,20 @@ value nme_bitmap_data_get_transparent(value inHandle,value inRGB)
       return alloc_bool( surface->GetAllowTrans() );
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_get_transparent,1);
+DEFINE_PRIM(lime_bitmap_data_get_transparent,1);
 
-value nme_bitmap_data_set_flags(value inHandle,value inFlags)
+value lime_bitmap_data_set_flags(value inHandle,value inFlags)
 {
    Surface *surface;
    if (AbstractToObject(inHandle,surface))
       surface->SetFlags(val_int(inFlags));
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_set_flags,1);
+DEFINE_PRIM(lime_bitmap_data_set_flags,1);
 
 
 
-value nme_bitmap_data_fill(value inHandle, value inRect, value inRGB, value inA)
+value lime_bitmap_data_fill(value inHandle, value inRect, value inRGB, value inA)
 {
    Surface *surface;
    if (AbstractToObject(inHandle,surface))
@@ -3073,9 +3073,9 @@ value nme_bitmap_data_fill(value inHandle, value inRect, value inRGB, value inA)
    return alloc_null();
 
 }
-DEFINE_PRIM(nme_bitmap_data_fill,4);
+DEFINE_PRIM(lime_bitmap_data_fill,4);
 
-value nme_bitmap_data_load(value inFilename, value format)
+value lime_bitmap_data_load(value inFilename, value format)
 {
    Surface *surface = Surface::Load(val_os_string(inFilename));
    if (surface)
@@ -3092,9 +3092,9 @@ value nme_bitmap_data_load(value inFilename, value format)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_load,2);
+DEFINE_PRIM(lime_bitmap_data_load,2);
 
-value nme_bitmap_data_set_format(value inHandle, value format)
+value lime_bitmap_data_set_format(value inHandle, value format)
 {
    Surface *surface;
    if (AbstractToObject(inHandle,surface))
@@ -3106,9 +3106,9 @@ value nme_bitmap_data_set_format(value inHandle, value format)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_set_format,2);
+DEFINE_PRIM(lime_bitmap_data_set_format,2);
 
-value nme_bitmap_data_from_bytes(value inRGBBytes, value inAlphaBytes)
+value lime_bitmap_data_from_bytes(value inRGBBytes, value inAlphaBytes)
 {
    ByteData bytes;
    if (!FromValue(bytes,inRGBBytes))
@@ -3147,10 +3147,10 @@ value nme_bitmap_data_from_bytes(value inRGBBytes, value inAlphaBytes)
 
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_from_bytes,2);
+DEFINE_PRIM(lime_bitmap_data_from_bytes,2);
 
 
-value nme_bitmap_data_encode(value inSurface, value inFormat,value inQuality)
+value lime_bitmap_data_encode(value inSurface, value inFormat,value inQuality)
 {
    Surface *surf;
    if (!AbstractToObject(inSurface,surf))
@@ -3165,12 +3165,12 @@ value nme_bitmap_data_encode(value inSurface, value inFormat,value inQuality)
   
    return array.mValue;
 }
-DEFINE_PRIM(nme_bitmap_data_encode,3);
+DEFINE_PRIM(lime_bitmap_data_encode,3);
 
 
 
 
-value nme_bitmap_data_clone(value inSurface)
+value lime_bitmap_data_clone(value inSurface)
 {
    Surface *surf;
    if (AbstractToObject(inSurface,surf))
@@ -3182,10 +3182,10 @@ value nme_bitmap_data_clone(value inSurface)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_clone,1);
+DEFINE_PRIM(lime_bitmap_data_clone,1);
 
 
-value nme_bitmap_data_color_transform(value inSurface,value inRect, value inColorTransform)
+value lime_bitmap_data_color_transform(value inSurface,value inRect, value inColorTransform)
 {
    Surface *surf;
    if (AbstractToObject(inSurface,surf))
@@ -3200,10 +3200,10 @@ value nme_bitmap_data_color_transform(value inSurface,value inRect, value inColo
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_color_transform,3);
+DEFINE_PRIM(lime_bitmap_data_color_transform,3);
 
 
-value nme_bitmap_data_apply_filter(value inDest, value inSrc,value inRect, value inOffset, value inFilter)
+value lime_bitmap_data_apply_filter(value inDest, value inSrc,value inRect, value inOffset, value inFilter)
 {
    Surface *src;
    Surface *dest;
@@ -3222,11 +3222,11 @@ value nme_bitmap_data_apply_filter(value inDest, value inSrc,value inRect, value
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_apply_filter,5);
+DEFINE_PRIM(lime_bitmap_data_apply_filter,5);
 
 
 
-value nme_bitmap_data_copy(value inSource, value inSourceRect, value inTarget, value inOffset, value inMergeAlpha)
+value lime_bitmap_data_copy(value inSource, value inSourceRect, value inTarget, value inOffset, value inMergeAlpha)
 {
    Surface *source;
    Surface *dest;
@@ -3245,9 +3245,9 @@ value nme_bitmap_data_copy(value inSource, value inSourceRect, value inTarget, v
 
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_copy,5);
+DEFINE_PRIM(lime_bitmap_data_copy,5);
 
-value nme_bitmap_data_copy_channel(value* arg, int nargs)
+value lime_bitmap_data_copy_channel(value* arg, int nargs)
 {
    enum { aSrc, aSrcRect, aDest, aDestPoint, aSrcChannel, aDestChannel, aSIZE };
    Surface *source;
@@ -3266,10 +3266,10 @@ value nme_bitmap_data_copy_channel(value* arg, int nargs)
 
    return alloc_null();
 }
-DEFINE_PRIM_MULT(nme_bitmap_data_copy_channel);
+DEFINE_PRIM_MULT(lime_bitmap_data_copy_channel);
 
 
-value nme_bitmap_data_get_pixels(value inSurface, value inRect)
+value lime_bitmap_data_get_pixels(value inSurface, value inRect)
 {
    Surface *surf;
    if (AbstractToObject(inSurface,surf))
@@ -3289,9 +3289,9 @@ value nme_bitmap_data_get_pixels(value inSurface, value inRect)
 
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_get_pixels,2);
+DEFINE_PRIM(lime_bitmap_data_get_pixels,2);
 
-value nme_bitmap_data_get_array(value inSurface, value inRect, value outArray)
+value lime_bitmap_data_get_array(value inSurface, value inRect, value outArray)
 {
    Surface *surf;
    if (AbstractToObject(inSurface,surf))
@@ -3308,12 +3308,12 @@ value nme_bitmap_data_get_array(value inSurface, value inRect, value outArray)
 
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_get_array,3);
+DEFINE_PRIM(lime_bitmap_data_get_array,3);
 
 
 
 
-value nme_bitmap_data_get_color_bounds_rect(value inSurface, value inMask, value inCol, value inFind, value outRect)
+value lime_bitmap_data_get_color_bounds_rect(value inSurface, value inMask, value inCol, value inFind, value outRect)
 {
    Surface *surf;
    if (AbstractToObject(inSurface,surf))
@@ -3329,10 +3329,10 @@ value nme_bitmap_data_get_color_bounds_rect(value inSurface, value inMask, value
 
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_get_color_bounds_rect,5);
+DEFINE_PRIM(lime_bitmap_data_get_color_bounds_rect,5);
 
 
-value nme_bitmap_data_get_pixel(value inSurface, value inX, value inY)
+value lime_bitmap_data_get_pixel(value inSurface, value inX, value inY)
 {
    Surface *surf;
    if (AbstractToObject(inSurface,surf))
@@ -3340,9 +3340,9 @@ value nme_bitmap_data_get_pixel(value inSurface, value inX, value inY)
 
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_get_pixel,3);
+DEFINE_PRIM(lime_bitmap_data_get_pixel,3);
 
-value nme_bitmap_data_get_pixel32(value inSurface, value inX, value inY)
+value lime_bitmap_data_get_pixel32(value inSurface, value inX, value inY)
 {
    Surface *surf;
    if (AbstractToObject(inSurface,surf))
@@ -3350,10 +3350,10 @@ value nme_bitmap_data_get_pixel32(value inSurface, value inX, value inY)
 
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_get_pixel32,3);
+DEFINE_PRIM(lime_bitmap_data_get_pixel32,3);
 
 
-value nme_bitmap_data_get_pixel_rgba(value inSurface, value inX,value inY)
+value lime_bitmap_data_get_pixel_rgba(value inSurface, value inX,value inY)
 {
    Surface *surf;
    if (AbstractToObject(inSurface,surf))
@@ -3367,9 +3367,9 @@ value nme_bitmap_data_get_pixel_rgba(value inSurface, value inX,value inY)
 
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_get_pixel_rgba,3);
+DEFINE_PRIM(lime_bitmap_data_get_pixel_rgba,3);
 
-value nme_bitmap_data_scroll(value inSurface, value inDX, value inDY)
+value lime_bitmap_data_scroll(value inSurface, value inDX, value inDY)
 {
    Surface *surf;
    if (AbstractToObject(inSurface,surf))
@@ -3377,9 +3377,9 @@ value nme_bitmap_data_scroll(value inSurface, value inDX, value inDY)
 
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_scroll,3);
+DEFINE_PRIM(lime_bitmap_data_scroll,3);
 
-value nme_bitmap_data_set_pixel(value inSurface, value inX, value inY, value inRGB)
+value lime_bitmap_data_set_pixel(value inSurface, value inX, value inY, value inRGB)
 {
    Surface *surf;
    if (AbstractToObject(inSurface,surf))
@@ -3387,9 +3387,9 @@ value nme_bitmap_data_set_pixel(value inSurface, value inX, value inY, value inR
 
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_set_pixel,4);
+DEFINE_PRIM(lime_bitmap_data_set_pixel,4);
 
-value nme_bitmap_data_set_pixel32(value inSurface, value inX, value inY, value inRGB)
+value lime_bitmap_data_set_pixel32(value inSurface, value inX, value inY, value inRGB)
 {
    Surface *surf;
    if (AbstractToObject(inSurface,surf))
@@ -3397,10 +3397,10 @@ value nme_bitmap_data_set_pixel32(value inSurface, value inX, value inY, value i
 
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_set_pixel32,4);
+DEFINE_PRIM(lime_bitmap_data_set_pixel32,4);
 
 
-value nme_bitmap_data_set_pixel_rgba(value inSurface, value inX, value inY, value inRGBA)
+value lime_bitmap_data_set_pixel_rgba(value inSurface, value inX, value inY, value inRGBA)
 {
    Surface *surf;
    if (AbstractToObject(inSurface,surf))
@@ -3412,10 +3412,10 @@ value nme_bitmap_data_set_pixel_rgba(value inSurface, value inX, value inY, valu
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_set_pixel_rgba,4);
+DEFINE_PRIM(lime_bitmap_data_set_pixel_rgba,4);
 
 
-value nme_bitmap_data_set_bytes(value inSurface, value inRect, value inBytes,value inOffset)
+value lime_bitmap_data_set_bytes(value inSurface, value inRect, value inBytes,value inOffset)
 {
    Surface *surf;
    if (AbstractToObject(inSurface,surf))
@@ -3431,9 +3431,9 @@ value nme_bitmap_data_set_bytes(value inSurface, value inRect, value inBytes,val
 
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_set_bytes,4);
+DEFINE_PRIM(lime_bitmap_data_set_bytes,4);
 
-value nme_bitmap_data_set_array(value inSurface, value inRect, value inArray)
+value lime_bitmap_data_set_array(value inSurface, value inRect, value inArray)
 {
    Surface *surf;
    if (AbstractToObject(inSurface,surf))
@@ -3450,11 +3450,11 @@ value nme_bitmap_data_set_array(value inSurface, value inRect, value inArray)
 
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_set_array,3);
+DEFINE_PRIM(lime_bitmap_data_set_array,3);
 
 
 
-value nme_bitmap_data_generate_filter_rect(value inRect, value inFilter, value outRect)
+value lime_bitmap_data_generate_filter_rect(value inRect, value inFilter, value outRect)
 {
    Rect rect;
    FromValue(rect,inRect);
@@ -3471,11 +3471,11 @@ value nme_bitmap_data_generate_filter_rect(value inRect, value inFilter, value o
    ToValue(outRect,rect);
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_generate_filter_rect,3);
+DEFINE_PRIM(lime_bitmap_data_generate_filter_rect,3);
 
 
 
-value nme_bitmap_data_noise(value *args, int nArgs)
+value lime_bitmap_data_noise(value *args, int nArgs)
 {
    enum { aSurface, aRandomSeed, aLow, aHigh, aChannelOptions, aGrayScale };
 
@@ -3488,11 +3488,11 @@ value nme_bitmap_data_noise(value *args, int nArgs)
 
    return alloc_null();
 }
-DEFINE_PRIM_MULT(nme_bitmap_data_noise);
+DEFINE_PRIM_MULT(lime_bitmap_data_noise);
 
 
 
-value nme_bitmap_data_flood_fill(value inSurface, value inX, value inY, value inColor)
+value lime_bitmap_data_flood_fill(value inSurface, value inX, value inY, value inColor)
 {
    Surface *surf;
    if (AbstractToObject(inSurface,surf))
@@ -3551,10 +3551,10 @@ value nme_bitmap_data_flood_fill(value inSurface, value inX, value inY, value in
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_flood_fill,4);
+DEFINE_PRIM(lime_bitmap_data_flood_fill,4);
 
 
-value nme_bitmap_data_unmultiply_alpha(value inSurface)
+value lime_bitmap_data_unmultiply_alpha(value inSurface)
 {
    Surface *surf;
    if (AbstractToObject(inSurface,surf))
@@ -3563,10 +3563,10 @@ value nme_bitmap_data_unmultiply_alpha(value inSurface)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_unmultiply_alpha,1);
+DEFINE_PRIM(lime_bitmap_data_unmultiply_alpha,1);
 
 
-value nme_bitmap_data_multiply_alpha(value inSurface)
+value lime_bitmap_data_multiply_alpha(value inSurface)
 {
    Surface *surf;
    if (AbstractToObject(inSurface,surf))
@@ -3575,10 +3575,10 @@ value nme_bitmap_data_multiply_alpha(value inSurface)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_multiply_alpha,1);
+DEFINE_PRIM(lime_bitmap_data_multiply_alpha,1);
 
 
-value nme_bitmap_data_set_alpha_mode(value inHandle, value inAlphaMode)
+value lime_bitmap_data_set_alpha_mode(value inHandle, value inAlphaMode)
 {
    Surface *surface;
    if (AbstractToObject(inHandle,surface))
@@ -3594,10 +3594,10 @@ value nme_bitmap_data_set_alpha_mode(value inHandle, value inAlphaMode)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_set_alpha_mode,2);
+DEFINE_PRIM(lime_bitmap_data_set_alpha_mode,2);
 
 
-value nme_render_surface_to_surface(value* arg, int nargs)
+value lime_render_surface_to_surface(value* arg, int nargs)
 {
    enum { aTarget, aSurface, aMatrix, aColourTransform, aBlendMode, aClipRect, aSmooth, aSIZE};
 
@@ -3645,10 +3645,10 @@ value nme_render_surface_to_surface(value* arg, int nargs)
 
    return alloc_null();
 }
-DEFINE_PRIM_MULT(nme_render_surface_to_surface);
+DEFINE_PRIM_MULT(lime_render_surface_to_surface);
 
 
-value nme_bitmap_data_dispose(value inSurface)
+value lime_bitmap_data_dispose(value inSurface)
 {
    Surface *surf;
    if (AbstractToObject(inSurface, surf))
@@ -3657,29 +3657,29 @@ value nme_bitmap_data_dispose(value inSurface)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_dispose,1);
+DEFINE_PRIM(lime_bitmap_data_dispose,1);
 
 
-value nme_bitmap_data_destroy_hardware_surface(value inHandle)
+value lime_bitmap_data_destroy_hardware_surface(value inHandle)
 {
    Surface *surface;
    if (AbstractToObject(inHandle,surface))
       surface->destroyHardwareSurface();
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_destroy_hardware_surface,1);
+DEFINE_PRIM(lime_bitmap_data_destroy_hardware_surface,1);
 
-value nme_bitmap_data_create_hardware_surface(value inHandle)
+value lime_bitmap_data_create_hardware_surface(value inHandle)
 {
    Surface *surface;
    if (AbstractToObject(inHandle,surface))
       surface->createHardwareSurface();
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_create_hardware_surface,1);
+DEFINE_PRIM(lime_bitmap_data_create_hardware_surface,1);
 
 
-value nme_bitmap_data_dump_bits(value inSurface)
+value lime_bitmap_data_dump_bits(value inSurface)
 {
    Surface *surf;
    if (AbstractToObject(inSurface,surf))
@@ -3688,13 +3688,13 @@ value nme_bitmap_data_dump_bits(value inSurface)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_bitmap_data_dump_bits,1);
+DEFINE_PRIM(lime_bitmap_data_dump_bits,1);
 
 
 
 // --- Video --------------------------------------------------
 
-value nme_video_create(value inWidth, value inHeight)
+value lime_video_create(value inWidth, value inHeight)
 {
    Video *video = Video::Create( val_int(inWidth), val_int(inHeight) );
    if (video)
@@ -3704,49 +3704,49 @@ value nme_video_create(value inWidth, value inHeight)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_video_create,2);
+DEFINE_PRIM(lime_video_create,2);
 
-value nme_video_load(value inHandle, value inFilename)
+value lime_video_load(value inHandle, value inFilename)
 {
    Video *video;
    if (AbstractToObject(inHandle,video))
       video->Load(val_string(inFilename));
    return alloc_null();
 }
-DEFINE_PRIM(nme_video_load,2);
+DEFINE_PRIM(lime_video_load,2);
 
-value nme_video_play(value inHandle)
+value lime_video_play(value inHandle)
 {
    Video *video;
    if (AbstractToObject(inHandle,video))
       video->Play();
    return alloc_null();
 }
-DEFINE_PRIM(nme_video_play,1);
+DEFINE_PRIM(lime_video_play,1);
 
-value nme_video_clear(value inHandle)
+value lime_video_clear(value inHandle)
 {
    Video *video;
    if (AbstractToObject(inHandle,video))
       video->Clear();
    return alloc_null();
 }
-DEFINE_PRIM(nme_video_clear,1);
+DEFINE_PRIM(lime_video_clear,1);
 
-value nme_video_set_smoothing(value inHandle, value inSmoothing)
+value lime_video_set_smoothing(value inHandle, value inSmoothing)
 {
    Video *video;
    if (AbstractToObject(inHandle,video))
       video->smoothing = val_bool(inSmoothing);
    return alloc_null();
 }
-DEFINE_PRIM(nme_video_set_smoothing,2);
+DEFINE_PRIM(lime_video_set_smoothing,2);
 
 
 
 // --- Sound --------------------------------------------------
 
-value nme_sound_from_file(value inFilename,value inForceMusic)
+value lime_sound_from_file(value inFilename,value inForceMusic)
 {
    Sound *sound = val_is_null(inFilename) ? 0 :
                   Sound::Create( val_string(inFilename), val_bool(inForceMusic) );
@@ -3759,9 +3759,9 @@ value nme_sound_from_file(value inFilename,value inForceMusic)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_sound_from_file,2);
+DEFINE_PRIM(lime_sound_from_file,2);
 
-value nme_sound_from_data(value inData, value inLen, value inForceMusic)
+value lime_sound_from_data(value inData, value inLen, value inForceMusic)
 {
    int length = val_int(inLen);
    Sound *sound;
@@ -3784,13 +3784,13 @@ value nme_sound_from_data(value inData, value inLen, value inForceMusic)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_sound_from_data, 3);
+DEFINE_PRIM(lime_sound_from_data, 3);
 
 #define GET_ID3(name) \
   sound->getID3Value(name,val); \
   alloc_field(outVar, val_id(name), alloc_string(val.c_str() ) );
 
-value nme_sound_get_id3(value inSound, value outVar)
+value lime_sound_get_id3(value inSound, value outVar)
 {
    Sound *sound;
    if (AbstractToObject(inSound,sound))
@@ -3806,9 +3806,9 @@ value nme_sound_get_id3(value inSound, value outVar)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_sound_get_id3,2);
+DEFINE_PRIM(lime_sound_get_id3,2);
 
-value nme_sound_get_length(value inSound)
+value lime_sound_get_length(value inSound)
 {
    Sound *sound;
    if (AbstractToObject(inSound, sound))
@@ -3817,9 +3817,9 @@ value nme_sound_get_length(value inSound)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_sound_get_length,1);
+DEFINE_PRIM(lime_sound_get_length,1);
  
-value nme_sound_close(value inSound)
+value lime_sound_close(value inSound)
 {
    Sound *sound;
    if (AbstractToObject(inSound,sound))
@@ -3828,9 +3828,9 @@ value nme_sound_close(value inSound)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_sound_close,1);
+DEFINE_PRIM(lime_sound_close,1);
  
-value nme_sound_get_status(value inSound)
+value lime_sound_get_status(value inSound)
 {
    Sound *sound;
    if (AbstractToObject(inSound,sound))
@@ -3844,11 +3844,11 @@ value nme_sound_get_status(value inSound)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_sound_get_status,1);
+DEFINE_PRIM(lime_sound_get_status,1);
  
 // --- SoundChannel --------------------------------------------------------
 
-value nme_sound_channel_is_complete(value inChannel)
+value lime_sound_channel_is_complete(value inChannel)
 {
    SoundChannel *channel;
    if (AbstractToObject(inChannel,channel))
@@ -3857,9 +3857,9 @@ value nme_sound_channel_is_complete(value inChannel)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_sound_channel_is_complete,1);
+DEFINE_PRIM(lime_sound_channel_is_complete,1);
 
-value nme_sound_channel_get_left(value inChannel)
+value lime_sound_channel_get_left(value inChannel)
 {
    SoundChannel *channel;
    if (AbstractToObject(inChannel,channel))
@@ -3868,9 +3868,9 @@ value nme_sound_channel_get_left(value inChannel)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_sound_channel_get_left,1);
+DEFINE_PRIM(lime_sound_channel_get_left,1);
 
-value nme_sound_channel_get_right(value inChannel)
+value lime_sound_channel_get_right(value inChannel)
 {
    SoundChannel *channel;
    if (AbstractToObject(inChannel,channel))
@@ -3879,9 +3879,9 @@ value nme_sound_channel_get_right(value inChannel)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_sound_channel_get_right,1);
+DEFINE_PRIM(lime_sound_channel_get_right,1);
 
-value nme_sound_channel_get_position(value inChannel)
+value lime_sound_channel_get_position(value inChannel)
 {
    SoundChannel *channel;
    if (AbstractToObject(inChannel,channel))
@@ -3890,9 +3890,9 @@ value nme_sound_channel_get_position(value inChannel)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_sound_channel_get_position,1);
+DEFINE_PRIM(lime_sound_channel_get_position,1);
 
-value nme_sound_channel_set_position(value inChannel, value inFloat)
+value lime_sound_channel_set_position(value inChannel, value inFloat)
 {
    #ifdef HX_MACOS
    SoundChannel *channel;
@@ -3904,9 +3904,9 @@ value nme_sound_channel_set_position(value inChannel, value inFloat)
    #endif
    return alloc_null();
 }
-DEFINE_PRIM(nme_sound_channel_set_position,2);
+DEFINE_PRIM(lime_sound_channel_set_position,2);
 
-value nme_sound_channel_stop(value inChannel)
+value lime_sound_channel_stop(value inChannel)
 {
    SoundChannel *channel;
    if (AbstractToObject(inChannel,channel))
@@ -3915,9 +3915,9 @@ value nme_sound_channel_stop(value inChannel)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_sound_channel_stop,1);
+DEFINE_PRIM(lime_sound_channel_stop,1);
 
-value nme_sound_channel_set_transform(value inChannel, value inTransform)
+value lime_sound_channel_set_transform(value inChannel, value inTransform)
 {
    SoundChannel *channel;
    if (AbstractToObject(inChannel,channel))
@@ -3928,9 +3928,9 @@ value nme_sound_channel_set_transform(value inChannel, value inTransform)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_sound_channel_set_transform,2);
+DEFINE_PRIM(lime_sound_channel_set_transform,2);
 
-value nme_sound_channel_create(value inSound, value inStart, value inLoops, value inTransform)
+value lime_sound_channel_create(value inSound, value inStart, value inLoops, value inTransform)
 {
    Sound *sound;
    if (AbstractToObject(inSound,sound))
@@ -3946,12 +3946,12 @@ value nme_sound_channel_create(value inSound, value inStart, value inLoops, valu
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_sound_channel_create,4);
+DEFINE_PRIM(lime_sound_channel_create,4);
 
 // --- dynamic sound ---
 
 
-value nme_sound_channel_needs_data(value inChannel)
+value lime_sound_channel_needs_data(value inChannel)
 {
    SoundChannel *channel;
    if (AbstractToObject(inChannel,channel))
@@ -3960,10 +3960,10 @@ value nme_sound_channel_needs_data(value inChannel)
    }
    return alloc_bool(false);
 }
-DEFINE_PRIM(nme_sound_channel_needs_data,1);
+DEFINE_PRIM(lime_sound_channel_needs_data,1);
 
 
-value nme_sound_channel_add_data(value inChannel, value inBytes)
+value lime_sound_channel_add_data(value inChannel, value inBytes)
 {
    SoundChannel *channel;
    if (AbstractToObject(inChannel,channel))
@@ -3972,10 +3972,10 @@ value nme_sound_channel_add_data(value inChannel, value inBytes)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_sound_channel_add_data,2);
+DEFINE_PRIM(lime_sound_channel_add_data,2);
 
 
-value nme_sound_channel_get_data_position(value inChannel)
+value lime_sound_channel_get_data_position(value inChannel)
 {
    SoundChannel *channel;
    if (AbstractToObject(inChannel,channel))
@@ -3984,11 +3984,11 @@ value nme_sound_channel_get_data_position(value inChannel)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_sound_channel_get_data_position,1);
+DEFINE_PRIM(lime_sound_channel_get_data_position,1);
 
 
 
-value nme_sound_channel_create_dynamic(value inBytes, value inTransform)
+value lime_sound_channel_create_dynamic(value inBytes, value inTransform)
 {
    ByteArray bytes(inBytes);
    SoundTransform trans;
@@ -4001,12 +4001,12 @@ value nme_sound_channel_create_dynamic(value inBytes, value inTransform)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_sound_channel_create_dynamic,2);
+DEFINE_PRIM(lime_sound_channel_create_dynamic,2);
 
 
 // --- Tilesheet -----------------------------------------------
 
-value nme_tilesheet_create(value inSurface)
+value lime_tilesheet_create(value inSurface)
 {
    Surface *surface;
    if (AbstractToObject(inSurface,surface))
@@ -4018,9 +4018,9 @@ value nme_tilesheet_create(value inSurface)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_tilesheet_create,1);
+DEFINE_PRIM(lime_tilesheet_create,1);
 
-value nme_tilesheet_add_rect(value inSheet,value inRect, value inHotSpot)
+value lime_tilesheet_add_rect(value inSheet,value inRect, value inHotSpot)
 {
    Tilesheet *sheet;
    if (AbstractToObject(inSheet,sheet))
@@ -4035,20 +4035,20 @@ value nme_tilesheet_add_rect(value inSheet,value inRect, value inHotSpot)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_tilesheet_add_rect,3);
+DEFINE_PRIM(lime_tilesheet_add_rect,3);
 
 // --- URL ----------------------------------------------------------
 
-value nme_curl_initialize(value inCACertFilePath)
+value lime_curl_initialize(value inCACertFilePath)
 {
    #ifndef EMSCRIPTEN
    URLLoader::initialize(val_string(inCACertFilePath));
    #endif
    return alloc_null();
 }
-DEFINE_PRIM(nme_curl_initialize,1);
+DEFINE_PRIM(lime_curl_initialize,1);
 
-value nme_curl_create(value inURLRequest)
+value lime_curl_create(value inURLRequest)
 {
    #ifndef EMSCRIPTEN
    URLRequest request;
@@ -4058,18 +4058,18 @@ value nme_curl_create(value inURLRequest)
    #endif
    return alloc_null();
 }
-DEFINE_PRIM(nme_curl_create,1);
+DEFINE_PRIM(lime_curl_create,1);
 
-value nme_curl_process_loaders()
+value lime_curl_process_loaders()
 {
    #ifndef EMSCRIPTEN
    return alloc_bool(URLLoader::processAll());
    #endif
    return alloc_bool(true);
 }
-DEFINE_PRIM(nme_curl_process_loaders,0);
+DEFINE_PRIM(lime_curl_process_loaders,0);
 
-value nme_curl_update_loader(value inLoader,value outHaxeObj)
+value lime_curl_update_loader(value inLoader,value outHaxeObj)
 {
    #ifndef EMSCRIPTEN
    URLLoader *loader;
@@ -4082,9 +4082,9 @@ value nme_curl_update_loader(value inLoader,value outHaxeObj)
    #endif
    return alloc_null();
 }
-DEFINE_PRIM(nme_curl_update_loader,2);
+DEFINE_PRIM(lime_curl_update_loader,2);
 
-value nme_curl_get_error_message(value inLoader)
+value lime_curl_get_error_message(value inLoader)
 {
    #ifndef EMSCRIPTEN
    URLLoader *loader;
@@ -4095,9 +4095,9 @@ value nme_curl_get_error_message(value inLoader)
    #endif
    return alloc_null();
 }
-DEFINE_PRIM(nme_curl_get_error_message,1);
+DEFINE_PRIM(lime_curl_get_error_message,1);
 
-value nme_curl_get_code(value inLoader)
+value lime_curl_get_code(value inLoader)
 {
    #ifndef EMSCRIPTEN
    URLLoader *loader;
@@ -4108,10 +4108,10 @@ value nme_curl_get_code(value inLoader)
    #endif
    return alloc_null();
 }
-DEFINE_PRIM(nme_curl_get_code,1);
+DEFINE_PRIM(lime_curl_get_code,1);
 
 
-value nme_curl_get_data(value inLoader)
+value lime_curl_get_data(value inLoader)
 {
    #ifndef EMSCRIPTEN
    URLLoader *loader;
@@ -4123,9 +4123,9 @@ value nme_curl_get_data(value inLoader)
    #endif
    return alloc_null();
 }
-DEFINE_PRIM(nme_curl_get_data,1);
+DEFINE_PRIM(lime_curl_get_data,1);
 
-value nme_curl_get_cookies(value inLoader)
+value lime_curl_get_cookies(value inLoader)
 {
    #ifndef EMSCRIPTEN
    URLLoader *loader;
@@ -4141,28 +4141,28 @@ value nme_curl_get_cookies(value inLoader)
    #endif
    return alloc_array(0);
 }
-DEFINE_PRIM(nme_curl_get_cookies,1);
+DEFINE_PRIM(lime_curl_get_cookies,1);
 
-value nme_lzma_encode(value input_value)
+value lime_lzma_encode(value input_value)
 {
    buffer input_buffer = val_to_buffer(input_value);
    buffer output_buffer = alloc_buffer_len(0);
    Lzma::Encode(input_buffer, output_buffer);
    return buffer_val(output_buffer);
 }
-DEFINE_PRIM(nme_lzma_encode,1);
+DEFINE_PRIM(lime_lzma_encode,1);
 
-value nme_lzma_decode(value input_value)
+value lime_lzma_decode(value input_value)
 {
    buffer input_buffer = val_to_buffer(input_value);
    buffer output_buffer = alloc_buffer_len(0);
    Lzma::Decode(input_buffer, output_buffer);
    return buffer_val(output_buffer);
 }
-DEFINE_PRIM(nme_lzma_decode,1);
+DEFINE_PRIM(lime_lzma_decode,1);
 
 
-value nme_file_dialog_folder(value in_title, value in_text )
+value lime_file_dialog_folder(value in_title, value in_text )
 { 
     std::string _title( val_string( in_title ) );
     std::string _text( val_string( in_text ) );
@@ -4171,9 +4171,9 @@ value nme_file_dialog_folder(value in_title, value in_text )
 
     return alloc_string( path.c_str() );
 }
-DEFINE_PRIM(nme_file_dialog_folder,2);
+DEFINE_PRIM(lime_file_dialog_folder,2);
 
-value nme_file_dialog_open(value in_title, value in_text, value in_types )
+value lime_file_dialog_open(value in_title, value in_text, value in_types )
 { 
     std::string _title( val_string( in_title ) );
     std::string _text( val_string( in_text ) );
@@ -4184,9 +4184,9 @@ value nme_file_dialog_open(value in_title, value in_text, value in_types )
 
     return alloc_string( path.c_str() );
 }
-DEFINE_PRIM(nme_file_dialog_open,3);
+DEFINE_PRIM(lime_file_dialog_open,3);
 
-value nme_file_dialog_save(value in_title, value in_text, value in_types )
+value lime_file_dialog_save(value in_title, value in_text, value in_types )
 { 
     std::string _title( val_string( in_title ) );
     std::string _text( val_string( in_text ) );
@@ -4197,17 +4197,17 @@ value nme_file_dialog_save(value in_title, value in_text, value in_types )
 
     return alloc_string( path.c_str() );
 }
-DEFINE_PRIM(nme_file_dialog_save,3);
+DEFINE_PRIM(lime_file_dialog_save,3);
 
 // Reference this to bring in all the symbols for the static library
 #ifdef STATIC_LINK
-extern "C" int nme_oglexport_register_prims();
+extern "C" int lime_oglexport_register_prims();
 #endif
 
-extern "C" int nme_register_prims()
+extern "C" int lime_register_prims()
 {
    #ifdef STATIC_LINK
-   nme_oglexport_register_prims();
+   lime_oglexport_register_prims();
    #endif
    return 0;
 }

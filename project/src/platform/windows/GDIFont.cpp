@@ -6,7 +6,7 @@
 #undef min
 #endif
 
-namespace nme
+namespace lime
 {
 
 static HDC sgFontDC = 0;
@@ -174,4 +174,4 @@ FontFace *FontFace::CreateNative(const TextFormat &inFormat,double inScale)
    return new GDIFont(hfont,height);
 }
 
-} // end namespace nme
+} // end namespace lime

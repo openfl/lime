@@ -1,5 +1,5 @@
 
-namespace nme
+namespace lime
 {
 
 const char *sTextCursorData[] = {
@@ -77,4 +77,4 @@ const char *sHandCursorData[] = {
 
 
 
-} // end namespace nme
+} // end namespace lime

@@ -15,7 +15,7 @@ class WeakRef<T> {
         
         if (makeWeak) {
             
-            weakRef = nme_weak_ref_create (this, object);
+            weakRef = lime_weak_ref_create (this, object);
             hardRef = null;
             
         } else {
@@ -42,7 +42,7 @@ class WeakRef<T> {
             
         }
         
-        var result = nme_weak_ref_get (weakRef);
+        var result = lime_weak_ref_get (weakRef);
         if (result == null) {
             
             weakRef = -1;
@@ -71,8 +71,8 @@ class WeakRef<T> {
     
     // Native Methods
     
-    private static var nme_weak_ref_create:Dynamic = Libs.load ("nme", "nme_weak_ref_create", 2);
-    private static var nme_weak_ref_get:Dynamic = Libs.load ("nme", "nme_weak_ref_get", 1);
+    private static var lime_weak_ref_create:Dynamic = Libs.load ("lime", "lime_weak_ref_create", 2);
+    private static var lime_weak_ref_get:Dynamic = Libs.load ("lime", "lime_weak_ref_get", 1);
     
     
 }

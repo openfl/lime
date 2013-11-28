@@ -4,7 +4,7 @@
 #include <directfb.h>
 
 
-namespace nme
+namespace lime
 {
 
 
@@ -687,4 +687,4 @@ bool HardwareContext::Hits(const RenderState &inState, const HardwareCalls &inCa
 
 
 
-} // end namespace nme
+} // end namespace lime

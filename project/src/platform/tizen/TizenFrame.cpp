@@ -1,7 +1,7 @@
 #include "platform/tizen/TizenFrame.h"
 
 
-namespace nme {
+namespace lime {
 	
 	
 	TizenFrame::TizenFrame (int inW, int inH) {

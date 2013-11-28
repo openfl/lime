@@ -6,7 +6,7 @@
 #include <Object.h>
 
 
-namespace nme
+namespace lime
 {
 
 extern vkind gObjectKind;

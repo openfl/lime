@@ -5,7 +5,7 @@
 #include <FBase.h>
 
 
-namespace nme {
+namespace lime {
 	
 	
 	TizenStage::TizenStage (int inWidth, int inHeight) {
@@ -56,7 +56,7 @@ namespace nme {
 		
 		//AppLog ("Flip!");
 		
-		nmeEGLSwapBuffers ();
+		limeEGLSwapBuffers ();
 		
 	}
 	

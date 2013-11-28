@@ -1,5 +1,5 @@
-#ifndef NME_GEOM_H
-#define NME_GEOM_H
+#ifndef LIME_GEOM_H
+#define LIME_GEOM_H
 
 #include <vector>
 #include <math.h>
@@ -8,7 +8,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-namespace nme
+namespace lime
 {
 
 enum GlyphRotation { gr0, gr90, gr180, gr270 };
@@ -446,6 +446,6 @@ struct Tri
 };
 
 
-} // end namespace nme
+} // end namespace lime
 
 #endif

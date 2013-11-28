@@ -1,5 +1,5 @@
-#ifndef NME_QUICK_VEC
-#define NME_QUICK_VEC
+#ifndef LIME_QUICK_VEC
+#define LIME_QUICK_VEC
 
 #include <algorithm>
 #ifdef EPPC
@@ -9,7 +9,7 @@
 #endif
 #include <stdlib.h>
 
-namespace nme
+namespace lime
 {
 
 template<typename T>
@@ -448,6 +448,6 @@ public:
 
 };
 
-} // end namespace nme
+} // end namespace lime
 
 #endif

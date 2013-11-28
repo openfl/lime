@@ -3,7 +3,7 @@
 #include "renderer/common/SimpleSurface.h"
 #include <algorithm>
 
-namespace nme
+namespace lime
 {
 
 Tilesheet::Tilesheet(int inWidth,int inHeight,PixelFormat inFormat, bool inInitRef) : Object(inInitRef)
@@ -77,5 +77,5 @@ int Tilesheet::addTileRect(const Rect &inRect,float inOx, float inOy)
 
 
 
-} // end namespace nme
+} // end namespace lime
 

@@ -1,7 +1,7 @@
 #include <Input.h>
 
 
-namespace nme
+namespace lime
 {
 
 #if !defined(IPHONE) && !defined(WEBOS) && !defined(ANDROID) && !defined(BLACKBERRY)

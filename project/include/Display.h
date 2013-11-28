@@ -1,5 +1,5 @@
-#ifndef NME_DISPLAY_H
-#define NME_DISPLAY_H
+#ifndef LIME_DISPLAY_H
+#define LIME_DISPLAY_H
 
 #include <Object.h>
 #include <Utils.h>
@@ -9,7 +9,7 @@
 #include <string>
 #include <Filters.h>
 
-namespace nme
+namespace lime
 {
 
 enum
@@ -570,6 +570,6 @@ void CreateMainFrame( FrameCreationCallback inOnFrame, int inWidth,int inHeight,
    unsigned int inFlags, const char *inTitle, Surface *inIcon );
 
 
-} // end namespace nme
+} // end namespace lime
 
 #endif

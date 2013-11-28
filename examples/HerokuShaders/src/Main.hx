@@ -5,7 +5,7 @@
 import lime.utils.Assets;
 import lime.LiME;
 
-    //Import GL stuff from nme
+    //Import GL stuff from Lime
 import lime.gl.GL;
 import lime.gl.GLBuffer;
 import lime.gl.GLProgram; 

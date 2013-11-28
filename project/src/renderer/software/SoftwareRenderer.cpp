@@ -1,7 +1,7 @@
 #include <Graphics.h>
 #include "PolygonRender.h"
 
-namespace nme
+namespace lime
 {
 
 Renderer *CreateLineRenderer(const GraphicsJob &inJob, const GraphicsPath &inPath);
@@ -32,4 +32,4 @@ Renderer *Renderer::CreateSoftware(const GraphicsJob &inJob, const GraphicsPath 
 }
 
 
-} // end namespace nme
+} // end namespace lime

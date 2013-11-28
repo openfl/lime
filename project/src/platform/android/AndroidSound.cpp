@@ -9,10 +9,10 @@
 #undef LOGV
 #undef LOGE
 
-#define LOGV(msg,args...) __android_log_print(ANDROID_LOG_ERROR, "NME::AndroidSound", msg, ## args)
-#define LOGE(msg,args...) __android_log_print(ANDROID_LOG_ERROR, "NME::AndroidSound", msg, ## args)
+#define LOGV(msg,args...) __android_log_print(ANDROID_LOG_ERROR, "lime::AndroidSound", msg, ## args)
+#define LOGE(msg,args...) __android_log_print(ANDROID_LOG_ERROR, "lime::AndroidSound", msg, ## args)
 
-namespace nme
+namespace lime
 {
 	class AndroidSoundChannel : public SoundChannel
 	{
@@ -28,7 +28,7 @@ namespace nme
 			inSound->IncRef();
 			if (inHandle >= 0)
 			{
-			   	jclass cls = FindClass("org/haxe/nme/Sound");
+			   	jclass cls = FindClass("org/haxe/lime/Sound");
 	         	jmethodID mid = env->GetStaticMethodID(cls, "playSound", "(IDDI)I");
 	         	if (mid > 0) {
 					mStreamID = env->CallStaticIntMethod(cls, mid, inHandle, inTransform.volume*((1-inTransform.pan)/2), inTransform.volume*((inTransform.pan+1)/2), mLoop );
@@ -44,7 +44,7 @@ namespace nme
 		bool isComplete()
 		{
 			JNIEnv *env = GetEnv();
-		   	jclass cls = FindClass("org/haxe/nme/Sound");
+		   	jclass cls = FindClass("org/haxe/lime/Sound");
          	jmethodID mid = env->GetStaticMethodID(cls, "getSoundComplete", "(III)Z");
          	if (mid > 0) {
 				return env->CallStaticBooleanMethod(cls, mid, mSoundHandle, mStreamID, mLoop);
@@ -64,7 +64,7 @@ namespace nme
 		double getPosition()
 		{
 			JNIEnv *env = GetEnv();
-		   	jclass cls = FindClass("org/haxe/nme/Sound");
+		   	jclass cls = FindClass("org/haxe/lime/Sound");
          	jmethodID mid = env->GetStaticMethodID(cls, "getSoundPosition", "(III)I");
          	if (mid > 0) {
 				return env->CallStaticIntMethod(cls, mid, mSoundHandle, mStreamID, mLoop);
@@ -81,7 +81,7 @@ namespace nme
 			if (mStreamID > -1) {	
 				JNIEnv *env = GetEnv();
 
-				jclass cls = FindClass("org/haxe/nme/Sound");
+				jclass cls = FindClass("org/haxe/lime/Sound");
 			    jmethodID mid = env->GetStaticMethodID(cls, "stopSound", "(I)V");
 			    if (mid > 0){
 					env->CallStaticVoidMethod(cls, mid, mStreamID);
@@ -115,7 +115,7 @@ namespace nme
 			mSound = inSound;
 			inSound->IncRef();
 
-			jclass cls = FindClass("org/haxe/nme/Sound");
+			jclass cls = FindClass("org/haxe/lime/Sound");
 			jstring path = env->NewStringUTF(inPath.c_str());
 			jmethodID mid = env->GetStaticMethodID(cls, "playMusic", "(Ljava/lang/String;DDID)I");
 			if (mid > 0) {
@@ -132,7 +132,7 @@ namespace nme
 		bool isComplete()
 		{
 			JNIEnv *env = GetEnv();
-			jclass cls = FindClass("org/haxe/nme/Sound");
+			jclass cls = FindClass("org/haxe/lime/Sound");
 			jstring path = env->NewStringUTF(mSoundPath.c_str());
 			jmethodID mid = env->GetStaticMethodID(cls, "getComplete", "(Ljava/lang/String;)Z");
 			if (mid > 0) {
@@ -144,7 +144,7 @@ namespace nme
 		double getPosition()
 		{
 			JNIEnv *env = GetEnv();
-			jclass cls = FindClass("org/haxe/nme/Sound");
+			jclass cls = FindClass("org/haxe/lime/Sound");
 			jstring path = env->NewStringUTF(mSoundPath.c_str());
 			jmethodID mid = env->GetStaticMethodID(cls, "getPosition", "(Ljava/lang/String;)I");
 			if (mid > 0) {
@@ -155,7 +155,7 @@ namespace nme
 
 		double setPosition(const float &inFloat) {
 			JNIEnv *env = GetEnv();
-			jclass cls = FindClass("org/haxe/nme/Sound");
+			jclass cls = FindClass("org/haxe/lime/Sound");
 			jstring path = env->NewStringUTF(mSoundPath.c_str());
 			jmethodID mid = env->GetStaticMethodID(cls, "setPosition", "(Ljava/lang/String;)I");
 			if (mid > 0) {
@@ -167,7 +167,7 @@ namespace nme
 		double getLeft()
 		{
 			JNIEnv *env = GetEnv();
-			jclass cls = FindClass("org/haxe/nme/Sound");
+			jclass cls = FindClass("org/haxe/lime/Sound");
 			jstring path = env->NewStringUTF(mSoundPath.c_str());
 			jmethodID mid = env->GetStaticMethodID(cls, "getLeft", "(Ljava/lang/String;)D");
 			if (mid > 0) {
@@ -179,7 +179,7 @@ namespace nme
 		double getRight()
 		{
 			JNIEnv *env = GetEnv();
-			jclass cls = FindClass("org/haxe/nme/Sound");
+			jclass cls = FindClass("org/haxe/lime/Sound");
 			jstring path = env->NewStringUTF(mSoundPath.c_str());
 			jmethodID mid = env->GetStaticMethodID(cls, "getRight", "(Ljava/lang/String;)D");
 			if (mid > 0) {
@@ -192,7 +192,7 @@ namespace nme
 		{
 			JNIEnv *env = GetEnv();
 
-			jclass cls = FindClass("org/haxe/nme/Sound");
+			jclass cls = FindClass("org/haxe/lime/Sound");
 			jstring path = env->NewStringUTF(mSoundPath.c_str());
 			jmethodID mid = env->GetStaticMethodID(cls, "stopMusic", "(Ljava/lang/String;)V");
 			if (mid > 0) {
@@ -204,7 +204,7 @@ namespace nme
 		{
 			JNIEnv *env = GetEnv();
 
-			jclass cls = FindClass("org/haxe/nme/Sound");
+			jclass cls = FindClass("org/haxe/lime/Sound");
 			jstring path = env->NewStringUTF(mSoundPath.c_str());
 			jmethodID mid = env->GetStaticMethodID(cls, "setMusicTransform", "(Ljava/lang/String;DD)V");
 			if (mid > 0 ) {
@@ -238,7 +238,7 @@ namespace nme
 			mLength = 0;
 			mSoundPath = inPath;
 
-			jclass cls = FindClass("org/haxe/nme/Sound");
+			jclass cls = FindClass("org/haxe/lime/Sound");
 			jstring path = env->NewStringUTF(mSoundPath.c_str());
 
 			if (!inForceMusic) {
@@ -269,7 +269,7 @@ namespace nme
 			jbyteArray data = env->NewByteArray(len);
 			env->SetByteArrayRegion(data, 0, len, (const jbyte *)inData);
 
-			jclass cls = FindClass("org/haxe/nme/Sound");
+			jclass cls = FindClass("org/haxe/lime/Sound");
 			jmethodID mid = env->GetStaticMethodID(cls, "getSoundPathByByteArray", "([B)Ljava/lang/String;");
 			jstring jname = (jstring)env->CallStaticObjectMethod(cls, mid, data);
 			
@@ -280,7 +280,7 @@ namespace nme
 		void reloadSound()
 		{
 			JNIEnv *env = GetEnv();
-			jclass cls = FindClass("org/haxe/nme/Sound");
+			jclass cls = FindClass("org/haxe/lime/Sound");
 			jmethodID mid = env->GetStaticMethodID(cls, "getSoundHandle", "(Ljava/lang/String;)I");
 			if (mid > 0) {
 				jstring path = env->NewStringUTF(mSoundPath.c_str());
@@ -298,7 +298,7 @@ namespace nme
 		{
 			if (mLength == 0) {
 				JNIEnv *env = GetEnv();
-				jclass cls = FindClass("org/haxe/nme/Sound");
+				jclass cls = FindClass("org/haxe/lime/Sound");
 				jstring path = env->NewStringUTF(mSoundPath.c_str());
 				jmethodID mid = env->GetStaticMethodID(cls, "getDuration", "(Ljava/lang/String;)I");
 				if (mid > 0) {

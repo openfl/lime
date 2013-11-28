@@ -1,7 +1,7 @@
 /*
  *  Main.mm
  *
- *  Boot code for NME.
+ *  Boot code for lime.
  *
  */
 

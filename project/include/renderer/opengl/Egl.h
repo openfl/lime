@@ -1,10 +1,10 @@
-#ifndef NME_OPENGL_EGL
-#define NME_OPENGL_EGL
+#ifndef LIME_OPENGL_EGL
+#define LIME_OPENGL_EGL
 
-void nmeEGLDestroy();
-void nmeEGLSwapBuffers();
-bool nmeEGLResize(void *inX11Window, int &ioWidth, int &ioHeight);
-bool nmeEGLCreate(void *inX11Window, int &ioWidth, int &ioHeight,
+void limeEGLDestroy();
+void limeEGLSwapBuffers();
+bool limeEGLResize(void *inX11Window, int &ioWidth, int &ioHeight);
+bool limeEGLCreate(void *inX11Window, int &ioWidth, int &ioHeight,
                 int inOGLESVersion,
                 int inDepthBits,
                 int inStencilBits,

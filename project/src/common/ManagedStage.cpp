@@ -5,7 +5,7 @@
 #include <map>
 
 
-namespace nme
+namespace lime
 {
 
 
@@ -75,5 +75,5 @@ Surface *ManagedStage::GetPrimarySurface()
 }
 
 
-} // end namespace nme
+} // end namespace lime
 

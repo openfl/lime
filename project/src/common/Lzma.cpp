@@ -2,7 +2,7 @@
 #include "lzma/LzmaEnc.h"
 #include "lzma/LzmaDec.h"
 
-namespace nme
+namespace lime
 {
 	inline void WRITE_LE8 (unsigned char *ptr, char value) { *ptr = value; }
 	inline void WRITE_LE16(unsigned char *ptr, short value) { WRITE_LE8 ((ptr) + 0, ((value) >> 0)); WRITE_LE8 ((ptr) + 1, ((value) >>  8)); }

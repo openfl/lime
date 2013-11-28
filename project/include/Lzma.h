@@ -1,9 +1,9 @@
-#ifndef NME_LZMA_H
-#define NME_LZMA_H
+#ifndef LIME_LZMA_H
+#define LIME_LZMA_H
 
 #include <hx/CFFI.h>
 
-namespace nme {
+namespace lime {
 
 	class Lzma {
 		public:

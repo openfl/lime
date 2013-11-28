@@ -2,15 +2,15 @@
 #include <Graphics.h>
 #include "renderer/common/Surface.h"
 
-//using namespace nme;
+//using namespace lime;
 
 
-namespace nme
+namespace lime
 {
 
 
-void CreateMainFrame(nme::FrameCreationCallback inOnFrame,int inWidth,int inHeight,
-   unsigned int inFlags, const char *inTitle, nme::Surface *inIcon )
+void CreateMainFrame(lime::FrameCreationCallback inOnFrame,int inWidth,int inHeight,
+   unsigned int inFlags, const char *inTitle, lime::Surface *inIcon )
 {
 }
 

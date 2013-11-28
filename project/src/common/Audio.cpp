@@ -8,7 +8,7 @@
 //The audio interface is to embed functions which are to be implemented in 
 //the platform specific layers. 
 
-namespace nme
+namespace lime
 {
 	namespace Audio
 	{

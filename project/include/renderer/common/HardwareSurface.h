@@ -6,7 +6,7 @@
 #include "renderer/common/HardwareContext.h"
 
 
-namespace nme {
+namespace lime {
 	
 	
 	class HardwareSurface : public Surface {

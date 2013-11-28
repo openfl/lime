@@ -1,4 +1,4 @@
-package org.haxe.nme;
+package org.haxe.lime;
 
 import java.io.File;
 import java.io.FileInputStream;

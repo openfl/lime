@@ -6,7 +6,7 @@ import lime.utils.Libs;
 
 import haxe.io.Bytes;
 import haxe.io.BytesData;
-// import nme.errors.EOFError; // Ensure that the neko->haxe callbacks are initialized
+// import lime.errors.EOFError; // Ensure that the neko->haxe callbacks are initialized
 import lime.utils.CompressionAlgorithm;
 import lime.utils.IDataInput;
 
@@ -71,7 +71,7 @@ class ByteArray extends Bytes #if !haxe3 , #end implements ArrayAccess<Int> #if 
       #end
    }
 
-   #if !no_nme_io
+   #if !no_lime_io
    /** @private */ static function __init__() {
       var factory = function(inLen:Int) { return new ByteArray(inLen); };
       var resize = function(inArray:ByteArray, inLen:Int) 
@@ -86,7 +86,7 @@ class ByteArray extends Bytes #if !haxe3 , #end implements ArrayAccess<Int> #if 
       var slen = function(inArray:ByteArray) { return inArray == null ? 0 : inArray.length; }
 
       #if !lime_html5
-         var init = Libs.load("nme", "nme_byte_array_init", 4);
+         var init = Libs.load("lime", "lime_byte_array_init", 4);
          init(factory, slen, resize, bytes);
       #end //lime_html5
    }
@@ -135,7 +135,7 @@ class ByteArray extends Bytes #if !haxe3 , #end implements ArrayAccess<Int> #if 
 
       if (algorithm == CompressionAlgorithm.LZMA) 
       {
-         result = Bytes.ofData(nme_lzma_encode( cast src.getData()) );
+         result = Bytes.ofData(lime_lzma_encode( cast src.getData()) );
 
       } else 
       {
@@ -191,7 +191,7 @@ class ByteArray extends Bytes #if !haxe3 , #end implements ArrayAccess<Int> #if 
    static public function fromBytes(inBytes:Bytes) 
    {
       var result = new ByteArray( -1);
-     result.nmeFromBytes(inBytes);
+     result.limeFromBytes(inBytes);
       return result;
    }
 
@@ -211,7 +211,7 @@ class ByteArray extends Bytes #if !haxe3 , #end implements ArrayAccess<Int> #if 
 
 #end //!lime_html5
    
-   private inline function nmeFromBytes(inBytes:Bytes):Void
+   private inline function limeFromBytes(inBytes:Bytes):Void
    {
       b = inBytes.b;
       length = inBytes.length;
@@ -277,10 +277,10 @@ class ByteArray extends Bytes #if !haxe3 , #end implements ArrayAccess<Int> #if 
       return 0.0;
    }
 
-   #if !no_nme_io
+   #if !no_lime_io
    static public function readFile(inString:String):ByteArray 
    {
-      return nme_byte_array_read_file(inString);
+      return lime_byte_array_read_file(inString);
    }
    #end
 
@@ -446,7 +446,7 @@ class ByteArray extends Bytes #if !haxe3 , #end implements ArrayAccess<Int> #if 
 
       if (algorithm == CompressionAlgorithm.LZMA) 
       {
-         result = Bytes.ofData(nme_lzma_decode(src.getData()));
+         result = Bytes.ofData(lime_lzma_decode(src.getData()));
 
       } else 
       {
@@ -522,10 +522,10 @@ class ByteArray extends Bytes #if !haxe3 , #end implements ArrayAccess<Int> #if 
       #end //!lime_html5
    }
 
-   #if !no_nme_io
+   #if !no_lime_io
    public function writeFile(inString:String):Void 
    {
-      nme_byte_array_overwrite_file(inString, this);
+      lime_byte_array_overwrite_file(inString, this);
    }
    #end
 
@@ -621,12 +621,12 @@ class ByteArray extends Bytes #if !haxe3 , #end implements ArrayAccess<Int> #if 
    /** @private */ private static var _double_of_bytes = Libs.load("std", "double_of_bytes", 2);
    /** @private */ private static var _float_bytes =     Libs.load("std", "float_bytes", 2);
    /** @private */ private static var _float_of_bytes =  Libs.load("std", "float_of_bytes", 2);
-   #if !no_nme_io
-   private static var nme_byte_array_overwrite_file =    Libs.load("nme","nme_byte_array_overwrite_file", 2);
-   private static var nme_byte_array_read_file =         Libs.load("nme", "nme_byte_array_read_file", 1);
+   #if !no_lime_io
+   private static var lime_byte_array_overwrite_file =    Libs.load("lime","lime_byte_array_overwrite_file", 2);
+   private static var lime_byte_array_read_file =         Libs.load("lime", "lime_byte_array_read_file", 1);
    #end
-   private static var nme_lzma_encode = Libs.load("nme", "nme_lzma_encode", 1);
-   private static var nme_lzma_decode = Libs.load("nme", "nme_lzma_decode", 1);
+   private static var lime_lzma_encode = Libs.load("lime", "lime_lzma_encode", 1);
+   private static var lime_lzma_decode = Libs.load("lime", "lime_lzma_decode", 1);
 }
 
 #else

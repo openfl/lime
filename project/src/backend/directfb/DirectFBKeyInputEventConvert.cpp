@@ -7,7 +7,7 @@ bool DirectFBKeyInputEventConvert(const DFBInputEvent &src, Event &dest)
     // the 'left' version
     bool left = true;
 
-    // First set the NME Event's value to the key id
+    // First set the lime Event's value to the key id
 
     // Handle a - z 
     if ((src.key_id >= DIKI_A) && (src.key_id <= DIKI_Z)) {
@@ -57,7 +57,7 @@ bool DirectFBKeyInputEventConvert(const DFBInputEvent &src, Event &dest)
             break;
         case DIKI_NUM_LOCK:
         case DIKI_SCROLL_LOCK:
-            // Unknown to NME
+            // Unknown to lime
             return false;
         case DIKI_ESCAPE:
             dest.value = keyESCAPE;
@@ -106,7 +106,7 @@ bool DirectFBKeyInputEventConvert(const DFBInputEvent &src, Event &dest)
             break;
         case DIKI_PRINT:
         case DIKI_PAUSE:
-            // Unknown to NME
+            // Unknown to lime
             return false;
         case DIKI_QUOTE_LEFT:    /*  TLDE  */
             dest.value = keyQUOTE;
@@ -142,7 +142,7 @@ bool DirectFBKeyInputEventConvert(const DFBInputEvent &src, Event &dest)
             dest.value = keySLASH;
             break;
         case DIKI_LESS_SIGN:     /*  103rd  */
-            // Unknown to NME
+            // Unknown to lime
             return false;
         case DIKI_KP_DIV:
             dest.value = keyNUMPAD_DIVIDE;
@@ -171,7 +171,7 @@ bool DirectFBKeyInputEventConvert(const DFBInputEvent &src, Event &dest)
         case DIKI_KP_F4:
         case DIKI_KP_EQUAL:
         case DIKI_KP_SEPARATOR:
-            // Unknown to NME
+            // Unknown to lime
             return false;
         case DIKI_KP_DECIMAL:
             dest.value = keyNUMPAD_DECIMAL;
@@ -198,7 +198,7 @@ bool DirectFBKeyInputEventConvert(const DFBInputEvent &src, Event &dest)
         dest.flags |= efCommandDown;
     }
 
-    // Finally set the NME Event's code to the "symbol"
+    // Finally set the lime Event's code to the "symbol"
     dest.code = src.key_symbol;
 
     return true;

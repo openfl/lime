@@ -171,7 +171,7 @@ NSString * const DirectoryLocationDomain = @"DirectoryLocationDomain";
 
 @end
 
-namespace nme
+namespace lime
 {
 
 std::string GetApplicationSupportDirectory()

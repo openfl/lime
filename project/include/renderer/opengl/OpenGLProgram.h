@@ -5,7 +5,7 @@
 #include "renderer/opengl/OGL.h"
 
 
-namespace nme {
+namespace lime {
 	
 	
 	class OpenGLProgram : public GPUProg {

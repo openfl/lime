@@ -10,7 +10,7 @@
 //using namespace Tizen::Ui::Controls;
 
 
-namespace nme {
+namespace lime {
 	
 	
 	FrameCreationCallback sgCallback;

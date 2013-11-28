@@ -1,7 +1,7 @@
 #include "renderer/opengl/OpenGL2Context.h"
 
 
-namespace nme {
+namespace lime {
 	
 	
 	OpenGL2Context::OpenGL2Context (WinDC inDC, GLCtx inOGLCtx) : OpenGLContext (inDC, inOGLCtx) {
@@ -45,7 +45,7 @@ namespace nme {
 	void OpenGL2Context::FinishBitmapRender () {
 		
 		// TODO: Need replacement call for GLES2
-		//#ifndef NME_FORCE_GLES2
+		//#ifndef LIME_FORCE_GLES2
 		//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		//#endif
 		
@@ -77,7 +77,7 @@ namespace nme {
 		mBitmapSurface->Bind (*this, 0);
 		mCurrentProg->setTransform (mBitmapTrans);
 		// TODO: Need replacement call for GLES2
-		//#ifndef NME_FORCE_GLES2
+		//#ifndef LIME_FORCE_GLES2
 		//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		//#endif
 		

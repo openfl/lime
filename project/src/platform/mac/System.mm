@@ -5,7 +5,7 @@
 #include <sys/types.h>
 #include <sys/sysctl.h>
 
-namespace nme {
+namespace lime {
 
 bool LaunchBrowser(const char *inUtf8URL)
 {

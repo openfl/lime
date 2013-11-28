@@ -1,4 +1,4 @@
-package org.haxe.nme;
+package org.haxe.lime;
 
 
 import android.app.Activity;
@@ -58,13 +58,13 @@ class MainView extends GLSurfaceView {
 			
 			EGLConfig[] v2_configs = new EGLConfig[1];
 			int[] num_config = new int[1];
-			int[] attrs = { EGL10.EGL_RENDERABLE_TYPE, ::if DEFINE_NME_FORCE_GLES1::1::else::4::end:: /*EGL_OPENGL_ES2_BIT*/, EGL10.EGL_NONE };
+			int[] attrs = { EGL10.EGL_RENDERABLE_TYPE, ::if DEFINE_LIME_FORCE_GLES1::1::else::4::end:: /*EGL_OPENGL_ES2_BIT*/, EGL10.EGL_NONE };
 			egl.eglChooseConfig (display, attrs, v2_configs, 1, num_config);
 			
 			if (num_config[0]==1) {
 				
-				eglVersion = ::if DEFINE_NME_FORCE_GLES1::1::else::2::end::;
-				setEGLContextClientVersion (::if DEFINE_NME_FORCE_GLES1::1::else::2::end::);
+				eglVersion = ::if DEFINE_LIME_FORCE_GLES1::1::else::2::end::;
+				setEGLContextClientVersion (::if DEFINE_LIME_FORCE_GLES1::1::else::2::end::);
 				
 			}
 			
@@ -205,7 +205,7 @@ class MainView extends GLSurfaceView {
 			
 		}
 		
-		double wake = NME.getNextWake ();
+		double wake = Lime.getNextWake ();
 		final MainView me = this;
 		
 		if (wake <= 0) {
@@ -312,7 +312,7 @@ class MainView extends GLSurfaceView {
 							
 							public void run () {
 								
-								me.HandleResult (NME.onJoyMotion (deviceId, axis, ((value - range.getMin ()) / (range.getRange ())) * 65535 - 32768));
+								me.HandleResult (Lime.onJoyMotion (deviceId, axis, ((value - range.getMin ()) / (range.getRange ())) * 65535 - 32768));
 								
 							}
 							
@@ -324,7 +324,7 @@ class MainView extends GLSurfaceView {
 							
 							public void run () {
 								
-								me.HandleResult (NME.onJoyMotion (deviceId, axis, 0));
+								me.HandleResult (Lime.onJoyMotion (deviceId, axis, 0));
 								
 							}
 							
@@ -358,7 +358,7 @@ class MainView extends GLSurfaceView {
 					
 					public void run () {
 						
-						me.HandleResult (NME.onJoyChange (deviceId, inKeyCode, true));
+						me.HandleResult (Lime.onJoyChange (deviceId, inKeyCode, true));
 						
 					}
 					
@@ -378,7 +378,7 @@ class MainView extends GLSurfaceView {
 				
 				public void run () {
 					
-					me.HandleResult (NME.onKeyChange (keyCode, true));
+					me.HandleResult (Lime.onKeyChange (keyCode, true));
 					
 				}
 				
@@ -407,7 +407,7 @@ class MainView extends GLSurfaceView {
 					
 					public void run () {
 						
-						me.HandleResult (NME.onJoyChange (deviceId, inKeyCode, false));
+						me.HandleResult (Lime.onJoyChange (deviceId, inKeyCode, false));
 						
 					}
 					
@@ -427,7 +427,7 @@ class MainView extends GLSurfaceView {
 				
 				public void run () {
 					
-					me.HandleResult (NME.onKeyChange (keyCode, false));
+					me.HandleResult (Lime.onKeyChange (keyCode, false));
 					
 				}
 				
@@ -444,7 +444,7 @@ class MainView extends GLSurfaceView {
 	
 	void onPoll () {
 		
-		HandleResult (NME.onPoll ());
+		HandleResult (Lime.onPoll ());
 		
 	}
 	
@@ -483,7 +483,7 @@ class MainView extends GLSurfaceView {
 					
 					public void run () {
 						
-						me.HandleResult (NME.onTouch (t, x, y, id, sizeX, sizeY));
+						me.HandleResult (Lime.onTouch (t, x, y, id, sizeX, sizeY));
 						
 					}
 					
@@ -509,7 +509,7 @@ class MainView extends GLSurfaceView {
 				float x = ev.getX ();
 				float y = ev.getY ();
 				
-				me.HandleResult (NME.onTrackball (x, y));
+				me.HandleResult (Lime.onTrackball (x, y));
 				
 			}
 			
@@ -551,7 +551,7 @@ class MainView extends GLSurfaceView {
 			
 			public void run () {
 				
-				NME.onActivity (inActivity);
+				Lime.onActivity (inActivity);
 				
 			}
 			
@@ -601,7 +601,7 @@ class MainView extends GLSurfaceView {
 		
 		public void onDrawFrame (GL10 gl) {
 			
-			mMainView.HandleResult (NME.onRender ());
+			mMainView.HandleResult (Lime.onRender ());
 			Sound.checkSoundCompletion ();
 			
 		}
@@ -609,7 +609,7 @@ class MainView extends GLSurfaceView {
 		
 		public void onSurfaceChanged (GL10 gl, int width, int height) {
 			
-			mMainView.HandleResult (NME.onResize (width, height));
+			mMainView.HandleResult (Lime.onResize (width, height));
 			
 		}
 		

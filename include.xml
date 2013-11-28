@@ -19,7 +19,7 @@
 		<ndll name="ogg" register="false" if="ios" />
 		<ndll name="vorbis" register="false" if="ios" />
 		
-		<ndll name="nme" />
+		<ndll name="lime" />
 
 		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
 		

@@ -2,7 +2,7 @@
 #include "renderer/common/Surface.h"
 #include <Display.h>
 
-namespace nme
+namespace lime
 {
 
 void Graphics::OnChanged()
@@ -600,7 +600,7 @@ bool Graphics::Render( const RenderTarget &inTarget, const RenderState &inState 
 {
    Flush();
    
-   #ifdef NME_DIRECTFB
+   #ifdef LIME_DIRECTFB
    
    for(int i=0;i<mJobs.size();i++)
    {

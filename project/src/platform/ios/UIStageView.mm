@@ -25,15 +25,15 @@
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
 
-using namespace nme;
+using namespace lime;
 
 void EnableKeyboard(bool inEnable);
-extern "C" void nme_app_set_active(bool inActive);
+extern "C" void lime_app_set_active(bool inActive);
 
-namespace nme { int gFixedOrientation = -1; }
+namespace lime { int gFixedOrientation = -1; }
 
 
-@interface NMEAppDelegate : NSObject <UIApplicationDelegate>
+@interface LimeAppDelegate : NSObject <UIApplicationDelegate>
 {
    UIWindow *window;
    UIViewController *controller;
@@ -145,9 +145,9 @@ public:
    AlphaMode GetAlphaMode() const { return amStraight; }
    const uint8 *GetBase() const { return (const uint8 *)mBuffer; }
    int GetStride() const { return mWidth*4; }
-   void Clear(uint32 inColour,const nme::Rect *inRect)
+   void Clear(uint32 inColour,const lime::Rect *inRect)
    {
-      nme::Rect r = inRect ? *inRect : nme::Rect(Width(),Height());
+      lime::Rect r = inRect ? *inRect : lime::Rect(Width(),Height());
       int y1 = r.y1();
       //printf("Clear %d,%d %dx%d   %08x\n", r.x, r.y, r.w, r.h, inColour);
       for(int y=r.y;y<y1;y++)
@@ -163,33 +163,33 @@ public:
       }
    }
 
-   RenderTarget BeginRender(const nme::Rect &inRect, bool inForHitTest=false)
+   RenderTarget BeginRender(const lime::Rect &inRect, bool inForHitTest=false)
    {
-      return RenderTarget(nme::Rect(Width(),Height()), Format(), (uint8 *)mBuffer, mWidth*4);
+      return RenderTarget(lime::Rect(Width(),Height()), Format(), (uint8 *)mBuffer, mWidth*4);
    }
    void EndRender() { }
 
    void BlitTo(const RenderTarget &outTarget,
-               const nme::Rect &inSrcRect,int inPosX, int inPosY,
+               const lime::Rect &inSrcRect,int inPosX, int inPosY,
                BlendMode inBlend, const BitmapCache *inMask,
                uint32 inTint=0xffffff ) const
    {
    }
-	void BlitChannel(const RenderTarget &outTarget, const nme::Rect &inSrcRect,
+	void BlitChannel(const RenderTarget &outTarget, const lime::Rect &inSrcRect,
 									 int inPosX, int inPosY,
 									 int inSrcChannel, int inDestChannel ) const
 	{
 	}
 
    void StretchTo(const RenderTarget &outTarget,
-          const nme::Rect &inSrcRect, const DRect &inDestRect) const
+          const lime::Rect &inSrcRect, const DRect &inDestRect) const
    {
    }
 };
 
 
 
-class IOSStage : public nme::Stage
+class IOSStage : public lime::Stage
 {
 public:
 
@@ -200,7 +200,7 @@ public:
    bool multisampling;
    bool multisamplingEnabled;
 
-   IOSStage(CALayer *inLayer,bool inInitRef) : nme::Stage(inInitRef)
+   IOSStage(CALayer *inLayer,bool inInitRef) : lime::Stage(inInitRef)
    {
       defaultFramebuffer = 0;
       colorRenderbuffer = 0;
@@ -344,7 +344,7 @@ public:
    void RenderState()
    {
       if ( [sgMainView isAnimating] )
-         nme::Stage::RenderStage();
+         lime::Stage::RenderStage();
    }
    
    
@@ -736,7 +736,7 @@ public:
       return mSoftwareSurface;
    }
 
-   void SetCursor(nme::Cursor)
+   void SetCursor(lime::Cursor)
    {
       // No cursors on iPhone !
    }
@@ -1262,9 +1262,9 @@ public:
 
 double sgWakeUp = 0.0;
 
-// --- NMEAppDelegate ----------------------------------------------------------
+// --- LimeAppDelegate ----------------------------------------------------------
 
-class UIViewFrame : public nme::Frame
+class UIViewFrame : public lime::Frame
 {
 public:
    virtual void SetTitle()  { }
@@ -1273,12 +1273,12 @@ public:
 
 };
 
-@implementation NMEAppDelegate
+@implementation LimeAppDelegate
 
 @synthesize window;
 @synthesize controller;
 
-namespace nme {}
+namespace lime {}
 
 - (void) applicationDidFinishLaunching:(UIApplication *)application
 {
@@ -1289,7 +1289,7 @@ namespace nme {}
    controller = c;
    [win addSubview:c.view];
    self.window.rootViewController = c;
-   nme_app_set_active(true);
+   lime_app_set_active(true);
    application.idleTimerDisabled = YES;
    sOnFrame( new UIViewFrame() );
 }
@@ -1354,7 +1354,7 @@ namespace nme {}
    } else {
       [self stopAnimation];
    }
-   nme_app_set_active(isActive);
+   lime_app_set_active(isActive);
 }
 
 - (void) applicationWillResignActive:(UIApplication *)application {[self setActive:false];} 
@@ -1392,24 +1392,24 @@ extern "C"
 */
 
 
-namespace nme
+namespace lime
 {
 Stage *IPhoneGetStage() { return sgMainView->mStage; }
 
 void StartAnimation() {
-   NMEAppDelegate *appDelegate = (NMEAppDelegate *)[[UIApplication sharedApplication] delegate];
+   LimeAppDelegate *appDelegate = (LimeAppDelegate *)[[UIApplication sharedApplication] delegate];
    [appDelegate startAnimation];
 }
 void PauseAnimation() {
-   NMEAppDelegate *appDelegate = (NMEAppDelegate *)[[UIApplication sharedApplication] delegate];
+   LimeAppDelegate *appDelegate = (LimeAppDelegate *)[[UIApplication sharedApplication] delegate];
    [appDelegate pauseAnimation];
 }
 void ResumeAnimation() {
-   NMEAppDelegate *appDelegate = (NMEAppDelegate *)[[UIApplication sharedApplication] delegate];
+   LimeAppDelegate *appDelegate = (LimeAppDelegate *)[[UIApplication sharedApplication] delegate];
    [appDelegate resumeAnimation];
 }
 void StopAnimation() {
-   NMEAppDelegate *appDelegate = (NMEAppDelegate *)[[UIApplication sharedApplication] delegate];
+   LimeAppDelegate *appDelegate = (LimeAppDelegate *)[[UIApplication sharedApplication] delegate];
    [appDelegate stopAnimation];
 }
 void SetNextWakeUp(double inWakeUp) { sgWakeUp = inWakeUp; }
@@ -1498,7 +1498,7 @@ void CreateMainFrame(FrameCreationCallback inCallback,
    #ifndef OBJC_ARC
    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
    #endif
-   UIApplicationMain(argc, argv, nil, @"NMEAppDelegate");
+   UIApplicationMain(argc, argv, nil, @"LimeAppDelegate");
    #ifndef OBJC_ARC
    [pool release];
    #endif
@@ -1590,7 +1590,7 @@ FILE *OpenOverwrite(const char *inName)
 extern "C"
 {
 
-void nme_app_set_active(bool inActive)
+void lime_app_set_active(bool inActive)
 {
    if (IPhoneGetStage())
    {
@@ -1599,9 +1599,9 @@ void nme_app_set_active(bool inActive)
    }
 
    if (inActive)
-      nme::StartAnimation();
+      lime::StartAnimation();
    else
-      nme::StopAnimation();
+      lime::StopAnimation();
 }
 
 

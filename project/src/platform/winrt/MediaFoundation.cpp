@@ -3,7 +3,7 @@
 #include <Utils.h>
 
 
-namespace nme
+namespace lime
 {
 
 class MFSoundChannel : public SoundChannel

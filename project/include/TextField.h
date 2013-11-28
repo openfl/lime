@@ -1,5 +1,5 @@
-#ifndef NME_TEXT_FIELD_H
-#define NME_TEXT_FIELD_H
+#ifndef LIME_TEXT_FIELD_H
+#define LIME_TEXT_FIELD_H
 
 #include "Utils.h"
 #include "Graphics.h"
@@ -9,7 +9,7 @@
 
 class TiXmlNode;
 
-namespace nme
+namespace lime
 {
 
 
@@ -217,7 +217,7 @@ private:
    int mSelectKeyDown;
 };
 
-} // end namespace nme
+} // end namespace lime
 
 
 #endif

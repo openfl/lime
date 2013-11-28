@@ -1,5 +1,5 @@
-#ifndef NME_GRAPHICS_H
-#define NME_GRAPHICS_H
+#ifndef LIME_GRAPHICS_H
+#define LIME_GRAPHICS_H
 
 #include <Object.h>
 #include <QuickVec.h>
@@ -10,7 +10,7 @@
 typedef unsigned int uint32;
 typedef unsigned char uint8;
 
-namespace nme
+namespace lime
 {
 
 enum GraphicsAPIType { gatBase, gatInternal,  gatQuartz, gatCairo, gatOpenGL, gatOpenGLES };
@@ -580,7 +580,7 @@ public:
 
    virtual bool Hits(const RenderState &inState) { return false; }
    
-   #ifdef NME_DIRECTFB
+   #ifdef LIME_DIRECTFB
    static Renderer *CreateHardware(const class GraphicsJob &inJob,const GraphicsPath &inPath,HardwareContext &inHardware);
    #endif
    
@@ -601,7 +601,7 @@ struct GraphicsJob
    GraphicsStroke  *mStroke;
    IGraphicsFill   *mFill;
    GraphicsTrianglePath  *mTriangles;
-   #ifdef NME_DIRECTFB
+   #ifdef LIME_DIRECTFB
    class Renderer  *mHardwareRenderer;
    #endif
    class Renderer  *mSoftwareRenderer;
@@ -718,6 +718,6 @@ private:
 
 
 
-} // end namespace nme
+} // end namespace lime
 
 #endif

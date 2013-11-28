@@ -6,7 +6,7 @@
 #include "renderer/common/Texture.h"
 
 
-namespace nme {
+namespace lime {
 	
 	
 	class OpenGLTexture : public Texture {

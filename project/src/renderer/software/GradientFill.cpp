@@ -2,7 +2,7 @@
 #include "Render.h"
 
 
-namespace nme
+namespace lime
 {
 	
 	class GradientFillerBase : public Filler

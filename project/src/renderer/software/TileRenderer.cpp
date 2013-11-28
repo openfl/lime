@@ -4,7 +4,7 @@
 #include "renderer/common/AutoSurfaceRender.h"
 
 
-namespace nme
+namespace lime
 {
 
 const double one_on_255 = 1.0/255.0;
@@ -307,4 +307,4 @@ Renderer *CreateTileRenderer(const GraphicsJob &inJob, const GraphicsPath &inPat
 }
 
 
-} // end namespace anme
+} // end namespace lime

@@ -1,7 +1,7 @@
 #include "BitmapFill.h"
 
 
-namespace nme
+namespace lime
 {
    
    template<int EDGE,bool SMOOTH>

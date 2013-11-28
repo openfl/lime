@@ -12,7 +12,7 @@
 #include <ExternalInterface.h>
 
 
-namespace nme
+namespace lime
 {
 
 
@@ -94,7 +94,7 @@ public:
 
 AutoGCRoot *sCFFIFontFactory = 0;
 
-value nme_font_set_factory(value inFactory)
+value lime_font_set_factory(value inFactory)
 {
    if (!sCFFIFontFactory)
    {
@@ -117,7 +117,7 @@ value nme_font_set_factory(value inFactory)
    return alloc_null();
 }
 
-DEFINE_PRIM(nme_font_set_factory,1)
+DEFINE_PRIM(lime_font_set_factory,1)
 
 FontFace *FontFace::CreateCFFIFont(const TextFormat &inFormat,double inScale)
 {
@@ -444,15 +444,15 @@ Font *Font::Create(TextFormat &inFormat,double inScale,GlyphRotation inRotation,
 }
 
 
-value nme_font_register_font(value inFontName, value inBytes)
+value lime_font_register_font(value inFontName, value inBytes)
 {
    AutoGCRoot *bytes = new AutoGCRoot(inBytes);
    sgRegisteredFonts[std::string(val_string(inFontName))] = bytes;
    return alloc_null();
 }
-DEFINE_PRIM(nme_font_register_font,2)
+DEFINE_PRIM(lime_font_register_font,2)
 
 
 
-} // end namespace nme
+} // end namespace lime
 

@@ -72,7 +72,7 @@
 @end
 
 
-namespace nme
+namespace lime
 {
     
     
@@ -481,4 +481,4 @@ namespace nme
     }
     
     
-} // end namespace nme
+} // end namespace lime

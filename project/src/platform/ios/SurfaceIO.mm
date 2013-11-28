@@ -3,7 +3,7 @@
 #include <UIKit/UIImage.h>
 
 
-namespace nme {
+namespace lime {
 
 Surface *FromImage(UIImage *image)
 {

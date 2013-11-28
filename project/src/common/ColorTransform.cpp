@@ -1,7 +1,7 @@
 #include <Graphics.h>
 #include <map>
 
-namespace nme
+namespace lime
 {
 
 static void CombineCol(double &outMultiplier, double &outOff,  double inPMultiplier, double inPOff,
@@ -146,5 +146,5 @@ const uint8 *ColorTransform::GetC2LUT() const
 }
 
 
-} // end namespace nme
+} // end namespace lime
 

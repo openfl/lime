@@ -2,12 +2,12 @@
 #define RENDERER_OPENGL_CONTEXT_H
 
 
-#include <NMEThread.h>
+#include <LimeThread.h>
 #include "renderer/opengl/OGL.h"
 #include "renderer/common/HardwareContext.h"
 
 
-namespace nme {
+namespace lime {
 	
 	
 	class OpenGLContext : public HardwareContext {

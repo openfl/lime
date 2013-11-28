@@ -1,5 +1,5 @@
-#ifndef NME_URL_H
-#define NME_URL_H
+#ifndef LIME_URL_H
+#define LIME_URL_H
 
 #include "Object.h"
 #include "ByteArray.h"
@@ -8,7 +8,7 @@
 #include <hx/CFFI.h>
 
 
-namespace nme
+namespace lime
 {
 
 enum URLState

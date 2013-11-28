@@ -4,7 +4,7 @@
 #include <string>
 
 
-namespace nme {
+namespace lime {
 	
 	
 	AutoGCRoot *sExternalInterfaceHandler = 0;

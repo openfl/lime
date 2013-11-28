@@ -26,7 +26,7 @@ using namespace Microsoft::WRL;
 using namespace concurrency;
 using namespace DirectX;
 
-namespace nme
+namespace lime
 {
 
 
@@ -253,4 +253,4 @@ HardwareContext *HardwareContext::CreateDX11(void *inDevice, void *inContext)
    return new DX11Context(inDevice,inContext);
 }
 
-} // end namespace nme
+} // end namespace lime

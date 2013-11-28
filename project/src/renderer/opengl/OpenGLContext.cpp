@@ -6,7 +6,7 @@ int sgBufferCount = 0;
 int sgDrawBitmap = 0;
 
 
-namespace nme {
+namespace lime {
 	
 	
 	OpenGLContext::OpenGLContext (WinDC inDC, GLCtx inOGLCtx) {
@@ -34,7 +34,7 @@ namespace nme {
 		if (str && !strncmp (str, "Intel", 5))
 			mPointSmooth = false;
 		
-		#if defined(NME_GLES)
+		#if defined(LIME_GLES)
 		mQuality = sqLow;
 		#else
 		mQuality = sqBest;
@@ -73,7 +73,7 @@ namespace nme {
 		
 		if (!inForHitTest) {
 			
-			#ifndef NME_GLES
+			#ifndef LIME_GLES
 			#ifndef SDL_OGL
 			#ifndef GLFW_OGL
 			wglMakeCurrent (mDC, mOGLCtx);
@@ -103,7 +103,7 @@ namespace nme {
 			glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 			#endif
 			
-			#ifndef NME_FORCE_GLES2
+			#ifndef LIME_FORCE_GLES2
 			if (mQuality >= sqHigh && mPointSmooth)
 				glEnable (GL_POINT_SMOOTH);
 			
@@ -137,7 +137,7 @@ namespace nme {
 			
 		} else {
 			
-			#ifndef NME_FORCE_GLES2
+			#ifndef LIME_FORCE_GLES2
 			
 			// TODO: Clear with a rect
 			// TODO: Need replacement call for GLES2
@@ -174,7 +174,7 @@ namespace nme {
 	
 	void OpenGLContext::CombineModelView (const Matrix &inModelView) {
 		
-		#ifndef NME_FORCE_GLES2
+		#ifndef LIME_FORCE_GLES2
 		
 		// Do not combine ModelView and Projection in fixed-function
 		float matrix[] = {
@@ -239,7 +239,7 @@ namespace nme {
 	void OpenGLContext::FinishBitmapRender () {
 		
 		glDisable (GL_TEXTURE_2D);
-		#ifdef NME_DITHER
+		#ifdef LIME_DITHER
 		glEnable (GL_DITHER);
 		#endif
 		
@@ -248,7 +248,7 @@ namespace nme {
 	
 	void OpenGLContext::Flip () {
 		
-		#ifndef NME_GLES
+		#ifndef LIME_GLES
 		#ifndef SDL_OGL
 		#ifndef GLFW_OGL
 		SwapBuffers (mDC);
@@ -268,7 +268,7 @@ namespace nme {
 	
 	void OpenGLContext::OnBeginRender () {
 		
-		#ifndef NME_FORCE_GLES2
+		#ifndef LIME_FORCE_GLES2
 		glEnableClientState (GL_VERTEX_ARRAY);
 		#endif
 		
@@ -277,7 +277,7 @@ namespace nme {
 	
 	void OpenGLContext::PopBitmapMatrix () {
 		
-		#ifndef NME_FORCE_GLES2
+		#ifndef LIME_FORCE_GLES2
 		glPopMatrix ();
 		#endif
 		
@@ -286,7 +286,7 @@ namespace nme {
 	
 	void OpenGLContext::PrepareBitmapRender () {
 		
-		#ifndef NME_FORCE_GLES2
+		#ifndef LIME_FORCE_GLES2
 		float a = (float)((mTint >> 24) & 0xFF) * one_on_255;
 		float c0 = (float)((mTint >> 16) & 0xFF) * one_on_255;
 		float c1 = (float)((mTint >> 8) & 0xFF) * one_on_255;
@@ -297,7 +297,7 @@ namespace nme {
 			glColor4f (c0, c1, c2, a);
 		glEnable (GL_TEXTURE_2D);
 		glEnableClientState (GL_TEXTURE_COORD_ARRAY);
-		#ifdef NME_DITHER
+		#ifdef LIME_DITHER
 		if (!inSmooth)
 		  glDisable (GL_DITHER);
 		#endif
@@ -315,7 +315,7 @@ namespace nme {
 	
 	void OpenGLContext::PushBitmapMatrix () {
 		
-		#ifndef NME_FORCE_GLES2
+		#ifndef LIME_FORCE_GLES2
 		glPushMatrix ();
 		glLoadIdentity ();
 		#endif
@@ -383,7 +383,7 @@ namespace nme {
 				
 			}
 			
-			#ifdef NME_USE_VBO
+			#ifdef LIME_USE_VBO
 			if (!arrays.mVertexBO) {
 				
 				glGenBuffers (1, &arrays.mVertexBO);
@@ -455,7 +455,7 @@ namespace nme {
 				if (boundTexture) {
 					
 					boundTexture->BindFlags (draw.mBitmapRepeat, draw.mBitmapSmooth);
-					#ifdef NME_DITHER
+					#ifdef LIME_DITHER
 					if (!inSmooth)
 						glDisable (GL_DITHER);
 					#endif
@@ -523,7 +523,7 @@ namespace nme {
 				sgDrawCount++;
 				glDrawArrays (sgOpenglType[draw.mPrimType], draw.mFirst, draw.mCount);
 				
-				#ifdef NME_DITHER
+				#ifdef LIME_DITHER
 				if (boundTexture && !draw.mBitmapSmooth)
 					glEnable (GL_DITHER);
 				#endif
@@ -560,7 +560,7 @@ namespace nme {
 	
 	void OpenGLContext::SetBitmapData (const float *inPos, const float *inTex) {
 		
-		#ifndef NME_FORCE_GLES2
+		#ifndef LIME_FORCE_GLES2
 		glVertexPointer (2, GL_FLOAT, 0, inPos);
 		glTexCoordPointer (2, GL_FLOAT, 0, inTex);
 		#endif
@@ -570,7 +570,7 @@ namespace nme {
 	
 	void OpenGLContext::SetColourArray (const int *inData) {
 		
-		#ifndef NME_FORCE_GLES2
+		#ifndef LIME_FORCE_GLES2
 		if (inData) {
 			
 			mColourArrayEnabled = true;
@@ -593,7 +593,7 @@ namespace nme {
 		if (inWidth != mLineWidth) {
 			
 			double w = inWidth;
-			#ifndef NME_FORCE_GLES2
+			#ifndef LIME_FORCE_GLES2
 			if (mQuality >= sqBest) {
 				
 				if (w > 1) {
@@ -622,7 +622,7 @@ namespace nme {
 			glLineWidth (w);
 			
 			// TODO: Need replacement call for GLES2?
-			#ifndef NME_FORCE_GLES2
+			#ifndef LIME_FORCE_GLES2
 			if (mPointsToo)
 				glPointSize (inWidth);
 			#endif
@@ -634,7 +634,7 @@ namespace nme {
 	
 	void OpenGLContext::SetModulatingTransform (const ColorTransform *inTransform) {
 		
-		#ifndef NME_FORCE_GLES2
+		#ifndef LIME_FORCE_GLES2
 		if (inTransform) {
 			if (mAlphaMode == amPremultiplied)
 				glColor4f (inTransform->redMultiplier * inTransform->alphaMultiplier, inTransform->greenMultiplier * inTransform->alphaMultiplier, inTransform->blueMultiplier * inTransform->alphaMultiplier, inTransform->alphaMultiplier);
@@ -648,12 +648,12 @@ namespace nme {
 	
 	void OpenGLContext::setOrtho (float x0,float x1, float y0, float y1) {
 		
-		#ifndef NME_FORCE_GLES2
+		#ifndef LIME_FORCE_GLES2
 		
 		glMatrixMode (GL_PROJECTION);
 		glLoadIdentity ();
 		
-		#if defined (NME_GLES)
+		#if defined (LIME_GLES)
 		glOrthof (x0, x1, y0, y1, -1, 1);
 		#else
 		glOrtho (x0, x1, y0, y1, -1, 1);
@@ -671,7 +671,7 @@ namespace nme {
 	
 	void OpenGLContext::SetPositionData (const float *inData, bool inPerspective) {
 		
-		#ifndef NME_FORCE_GLES2
+		#ifndef LIME_FORCE_GLES2
 		glVertexPointer (inPerspective ? 4 : 2, GL_FLOAT, 0, inData);
 		#endif
 		
@@ -680,7 +680,7 @@ namespace nme {
 	
 	void OpenGLContext::SetQuality (StageQuality inQ) {
 		
-		#ifndef NME_FORCE_GLES2
+		#ifndef LIME_FORCE_GLES2
 		//inQ = sqMedium;
 		if (inQ != mQuality) {
 			
@@ -713,7 +713,7 @@ namespace nme {
 	
 	void OpenGLContext::SetSolidColour (unsigned int col) {
 		
-		#ifndef NME_FORCE_GLES2
+		#ifndef LIME_FORCE_GLES2
 		float a = (float)((col >> 24) & 0xFF) * one_on_255;
 		float c0 = (float)((col >> 16) & 0xFF) * one_on_255;
 		float c1 = (float)((col >> 8) & 0xFF) * one_on_255;
@@ -729,7 +729,7 @@ namespace nme {
 	
 	void OpenGLContext::SetTexture (Surface *inSurface, const float *inTexCoords) {
 		
-		#ifndef NME_FORCE_GLES2
+		#ifndef LIME_FORCE_GLES2
 		if (!inSurface) {
 			
 			glDisable (GL_TEXTURE_2D);
@@ -767,7 +767,7 @@ namespace nme {
 		mHeight = inHeight;
 		
 		#ifdef ANDROID
-		//__android_log_print(ANDROID_LOG_ERROR, "NME", "SetWindowSize %d %d", inWidth, inHeight);
+		//__android_log_print(ANDROID_LOG_ERROR, "lime", "SetWindowSize %d %d", inWidth, inHeight);
 		#endif
 		
 	}

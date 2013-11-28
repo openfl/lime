@@ -1,7 +1,7 @@
 #ifndef KEY_CODES_H
 #define KEY_CODES_H
 
-namespace nme
+namespace lime
 {
 
 enum KeyCode

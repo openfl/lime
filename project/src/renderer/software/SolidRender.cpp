@@ -1,7 +1,7 @@
 #include "PolygonRender.h"
 
 
-namespace nme
+namespace lime
 {   
 
 class SolidRender : public PolygonRender
@@ -122,6 +122,6 @@ Renderer *CreateSolidRenderer(const GraphicsJob &inJob, const GraphicsPath &inPa
 }
 
 
-} // end namespace nme
+} // end namespace lime
 
 

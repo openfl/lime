@@ -4,7 +4,7 @@
 using namespace Tizen::Graphics::Opengl;
 
 
-namespace nme {
+namespace lime {
 	
 	
 	FrameCreationCallback sgCallback;
@@ -137,7 +137,7 @@ namespace nme {
 		
 		mForm->AddKeyEventListener (*this);
 		
-		bool ok = nmeEGLCreate (mForm, sgWidth, sgHeight, 2, (sgFlags & wfDepthBuffer) ? 16 : 0, (sgFlags & wfStencilBuffer) ? 8 : 0, 0);
+		bool ok = limeEGLCreate (mForm, sgWidth, sgHeight, 2, (sgFlags & wfDepthBuffer) ? 16 : 0, (sgFlags & wfStencilBuffer) ? 8 : 0, 0);
 		//AppLog ("EGL OK? %d\n", ok);
 		
 		mTimer = new (std::nothrow) Tizen::Base::Runtime::Timer;

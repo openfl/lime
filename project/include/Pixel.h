@@ -1,12 +1,12 @@
-#ifndef NME_PIXEL_H
-#define NME_PIXEL_H
+#ifndef LIME_PIXEL_H
+#define LIME_PIXEL_H
 
 // The order or RGB or BGR is determined to the primary surface's
 //  native order - this allows most transfers to be donw without swapping R & B
 // When rendering from a source to a dest, the source is swapped to match in
 //  the blending code.
 
-namespace nme
+namespace lime
 {
 
 extern bool gC0IsRed;
@@ -289,6 +289,6 @@ inline void QBlendAlpha(Uint8 &ioDest, Uint8 inSrc)
 
 
 
-} // end namespace nme
+} // end namespace lime
 
 #endif

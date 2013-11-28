@@ -5,7 +5,7 @@
 #include "renderer/common/AutoSurfaceRender.h"
 #include <Pixel.h>
 
-namespace nme
+namespace lime
 {
 
 
@@ -712,6 +712,6 @@ Surface *FilterBitmap( const FilterList &inFilters, Surface *inBitmap,
 }
 
  
-} // end namespace nme
+} // end namespace lime
 
 

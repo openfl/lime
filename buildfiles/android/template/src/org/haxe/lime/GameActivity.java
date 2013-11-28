@@ -1,4 +1,4 @@
-package org.haxe.nme;
+package org.haxe.lime;
 
 
 import android.app.Activity;
@@ -109,7 +109,7 @@ public class GameActivity extends Activity implements SensorEventListener {
 		
 		//if (mMainView == null) {
 			
-			Log.d ("NME", "mMainView is NULL");
+			Log.d ("lime", "mMainView is NULL");
 			
 			::foreach ndlls::
 			System.loadLibrary ("::name::");::end::
@@ -210,7 +210,7 @@ public class GameActivity extends Activity implements SensorEventListener {
 		
 		_sound.doPause ();
 		
-		mView.sendActivity (NME.DEACTIVATE);
+		mView.sendActivity (Lime.DEACTIVATE);
 		mView.onPause ();
 		
 		if (sensorManager != null) {
@@ -228,7 +228,7 @@ public class GameActivity extends Activity implements SensorEventListener {
 		
 		_sound.doResume ();
 		
-		mView.sendActivity (NME.ACTIVATE);
+		mView.sendActivity (Lime.ACTIVATE);
 		
 		if (sensorManager != null) {
 			
@@ -367,7 +367,7 @@ public class GameActivity extends Activity implements SensorEventListener {
 		if (type == Sensor.TYPE_ACCELEROMETER) {
 			
 			accelData = event.values.clone ();
-			NME.onAccelerate (-accelData[0], -accelData[1], accelData[2]);
+			Lime.onAccelerate (-accelData[0], -accelData[1], accelData[2]);
 			
 		}
 		
@@ -414,7 +414,7 @@ public class GameActivity extends Activity implements SensorEventListener {
 		}
 		
 		// TODO: Wait for result?
-		mView.sendActivity (NME.DESTROY);
+		mView.sendActivity (Lime.DESTROY);
 		activity = null;
 		super.onDestroy ();
 		
@@ -473,14 +473,14 @@ public class GameActivity extends Activity implements SensorEventListener {
 			if (foundRotationMatrix) {
 				
 				SensorManager.getOrientation (rotationMatrix, orientData);
-				NME.onOrientationUpdate (orientData[0], orientData[1], orientData[2]);
+				Lime.onOrientationUpdate (orientData[0], orientData[1], orientData[2]);
 				
 			}
 			
 		}
 		
-		NME.onDeviceOrientationUpdate (prepareDeviceOrientation ());
-		NME.onNormalOrientationFound (bufferedNormalOrientation);
+		Lime.onDeviceOrientationUpdate (prepareDeviceOrientation ());
+		Lime.onNormalOrientationFound (bufferedNormalOrientation);
 		
 	}
 	
@@ -532,7 +532,7 @@ public class GameActivity extends Activity implements SensorEventListener {
 			
 			@Override public void run () {
 				
-				NME.onCallback (inHandle);
+				Lime.onCallback (inHandle);
 				
 			}
 			

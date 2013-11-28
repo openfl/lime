@@ -8,7 +8,7 @@
 #include <android/log.h>
 #include "AndroidCommon.h"
 
-using namespace nme;
+using namespace lime;
 
 enum JNIElement
 {
@@ -89,7 +89,7 @@ struct JNIType
       switch(element)
       {
          case jniObjectString: name += "java/lang/String"; break;
-         case jniObjectHaxe: name += "org/haxe/nme/HaxeObject"; break;
+         case jniObjectHaxe: name += "org/haxe/lime/HaxeObject"; break;
 
          case jniUnknown:
          case jniObject: name += "java/lang/Object"; break;
@@ -182,13 +182,13 @@ void JNIInit(JNIEnv *env)
 {
    if (sInit)
       return;
-   GameActivity = FindClass("org/haxe/nme/GameActivity");
+   GameActivity = FindClass("org/haxe/lime/GameActivity");
    postUICallback = env->GetStaticMethodID(GameActivity, "postUICallback", "(J)V");
 
    ObjectClass = FindClass("java/lang/Object");
 
    HaxeObject   = JNIType(jniObjectHaxe,0).getClass(env);
-   HaxeObject_create = env->GetStaticMethodID(HaxeObject, "create", "(J)Lorg/haxe/nme/HaxeObject;");
+   HaxeObject_create = env->GetStaticMethodID(HaxeObject, "create", "(J)Lorg/haxe/lime/HaxeObject;");
    __haxeHandle = env->GetFieldID(HaxeObject, "__haxeHandle", "J");
 
    JNIType::init(env);
@@ -196,13 +196,13 @@ void JNIInit(JNIEnv *env)
    sInit = true;
 }
 
-value nme_jni_init_callback(value inCallback)
+value lime_jni_init_callback(value inCallback)
 {
    if (!gCallback)
       gCallback = new AutoGCRoot(inCallback);
    return alloc_null();
 }
-DEFINE_PRIM(nme_jni_init_callback,1);
+DEFINE_PRIM(lime_jni_init_callback,1);
 
 
 struct JavaHaxeReference
@@ -265,7 +265,7 @@ void RemoveJavaHaxeObjectRef(value inValue)
 }
 
 
-struct JNIObject : public nme::Object
+struct JNIObject : public lime::Object
 {
    JNIObject(jobject inObject)
    {
@@ -498,7 +498,7 @@ const char *JNIParseType(const char *inStr, JNIType &outType,int inDepth=0)
             if (!strncmp(src,"java/lang/String;",17) ||
                 !strncmp(src,"java/lang/CharSequence;",23)  )
                outType = JNIType(jniObjectString,inDepth);
-            else if (!strncmp(src,"org/haxe/nme/HaxeObject;",24))
+            else if (!strncmp(src,"org/haxe/lime/HaxeObject;",24))
                outType = JNIType(jniObjectHaxe,inDepth);
             else
                outType = JNIType(jniObject,inDepth);
@@ -624,7 +624,7 @@ bool HaxeToJNI(JNIEnv *inEnv, value inValue, JNIType inType, jvalue &out)
 
 
 
-struct JNIField : public nme::Object
+struct JNIField : public lime::Object
 {
    JNIField(value inClass, value inField, value inSignature,bool inStatic)
    {
@@ -849,19 +849,19 @@ struct JNIField : public nme::Object
 };
 
 
-value nme_jni_create_field(value inClass, value inField, value inSig,value inStatic)
+value lime_jni_create_field(value inClass, value inField, value inSig,value inStatic)
 {
    JNIField *field = new JNIField(inClass,inField,inSig,val_bool(inStatic) );
    if (field->Ok())
       return ObjectToAbstract(field);
-   ELOG("nme_jni_create_field - failed");
+   ELOG("lime_jni_create_field - failed");
    delete field;
    return alloc_null();
 }
-DEFINE_PRIM(nme_jni_create_field,4);
+DEFINE_PRIM(lime_jni_create_field,4);
 
 
-value nme_jni_get_static(value inField)
+value lime_jni_get_static(value inField)
 {
    JNIField *field;
    if (!AbstractToObject(inField,field))
@@ -869,61 +869,61 @@ value nme_jni_get_static(value inField)
    value result = field->GetStatic();
    return result;
 }
-DEFINE_PRIM(nme_jni_get_static,1);
+DEFINE_PRIM(lime_jni_get_static,1);
 
 
-void nme_jni_set_static(value inField, value inValue)
+void lime_jni_set_static(value inField, value inValue)
 {
    JNIField *field;
    if (!AbstractToObject(inField,field))
       return;
    field->SetStatic(inValue);
 }
-DEFINE_PRIM(nme_jni_set_static,2);
+DEFINE_PRIM(lime_jni_set_static,2);
 
 
-value nme_jni_get_member(value inField, value inObject)
+value lime_jni_get_member(value inField, value inObject)
 {
    JNIField *field;
    jobject object;
    if (!AbstractToObject(inField,field))
    {
-      ELOG("nme_jni_get_member - not a field");
+      ELOG("lime_jni_get_member - not a field");
       return alloc_null();
    }
    if (!AbstractToJObject(inObject,object))
    {
-      ELOG("nme_jni_get_member - invalid this");
+      ELOG("lime_jni_get_member - invalid this");
       return alloc_null();
    }
    return field->GetMember(object);
 }
-DEFINE_PRIM(nme_jni_get_member,2);
+DEFINE_PRIM(lime_jni_get_member,2);
 
 
-void nme_jni_set_member(value inField, value inObject, value inValue)
+void lime_jni_set_member(value inField, value inObject, value inValue)
 {
    JNIField *field;
    jobject object;
    if (!AbstractToObject(inField,field))
    {
-      ELOG("nme_jni_set_member - not a field");
+      ELOG("lime_jni_set_member - not a field");
       return;
    }
    if (!AbstractToJObject(inObject,object))
    {
-      ELOG("nme_jni_set_member - invalid this");
+      ELOG("lime_jni_set_member - invalid this");
       return;
    }
    field->SetMember(object,inValue);
 }
-DEFINE_PRIM(nme_jni_set_member,3);
+DEFINE_PRIM(lime_jni_set_member,3);
 
 
 
 
 
-struct JNIMethod : public nme::Object
+struct JNIMethod : public lime::Object
 {
    enum { MAX = 20 };
 
@@ -1139,19 +1139,19 @@ struct JNIMethod : public nme::Object
 };
 
 
-value nme_jni_create_method(value inClass, value inMethod, value inSig,value inStatic)
+value lime_jni_create_method(value inClass, value inMethod, value inSig,value inStatic)
 {
    JNIMethod *method = new JNIMethod(inClass,inMethod,inSig,val_bool(inStatic) );
    if (method->Ok())
       return ObjectToAbstract(method);
-   ELOG("nme_jni_create_method - failed");
+   ELOG("lime_jni_create_method - failed");
    delete method;
    return alloc_null();
 }
-DEFINE_PRIM(nme_jni_create_method,4);
+DEFINE_PRIM(lime_jni_create_method,4);
 
 
-value nme_jni_call_static(value inMethod, value inArgs)
+value lime_jni_call_static(value inMethod, value inArgs)
 {
    JNIMethod *method;
    if (!AbstractToObject(inMethod,method))
@@ -1159,40 +1159,40 @@ value nme_jni_call_static(value inMethod, value inArgs)
    value result =  method->CallStatic(inArgs);
    return result;
 }
-DEFINE_PRIM(nme_jni_call_static,2);
+DEFINE_PRIM(lime_jni_call_static,2);
 
 
-value nme_jni_call_member(value inMethod, value inObject, value inArgs)
+value lime_jni_call_member(value inMethod, value inObject, value inArgs)
 {
    JNIMethod *method;
    jobject object;
    if (!AbstractToObject(inMethod,method))
    {
-      ELOG("nme_jni_call_member - not a method");
+      ELOG("lime_jni_call_member - not a method");
       return alloc_null();
    }
    if (!AbstractToJObject(inObject,object))
    {
-      ELOG("nme_jni_call_member - invalid this");
+      ELOG("lime_jni_call_member - invalid this");
       return alloc_null();
    }
    return method->CallMember(object,inArgs);
 }
-DEFINE_PRIM(nme_jni_call_member,3);
+DEFINE_PRIM(lime_jni_call_member,3);
 
 
 
 
 
-value nme_jni_get_env()
+value lime_jni_get_env()
 {
    JNIEnv *env = GetEnv();
    return alloc_int((int)env);
 }
-DEFINE_PRIM(nme_jni_get_env,0);
+DEFINE_PRIM(lime_jni_get_env,0);
 
 
-value nme_jni_get_jobject(value inValue)
+value lime_jni_get_jobject(value inValue)
 {
    jobject obj = 0;
    if (AbstractToJObject(inValue,obj))
@@ -1201,19 +1201,19 @@ value nme_jni_get_jobject(value inValue)
    }
    return alloc_null();
 }
-DEFINE_PRIM(nme_jni_get_jobject,1);
+DEFINE_PRIM(lime_jni_get_jobject,1);
 
 
 
 
 
-value nme_post_ui_callback(value inCallback)
+value lime_post_ui_callback(value inCallback)
 {
    JNIEnv *env = GetEnv();
    JNIInit(env);
 
    AutoGCRoot *root = new AutoGCRoot(inCallback);
-   ELOG("NME set onCallback %p",root);
+   ELOG("lime set onCallback %p",root);
    env->CallStaticVoidMethod(GameActivity, postUICallback, (jlong) root);
    jthrowable exc = env->ExceptionOccurred();
    if (exc)
@@ -1226,7 +1226,7 @@ value nme_post_ui_callback(value inCallback)
 
    return alloc_null();
 }
-DEFINE_PRIM(nme_post_ui_callback,1);
+DEFINE_PRIM(lime_post_ui_callback,1);
 
 
 extern "C"
@@ -1239,12 +1239,12 @@ extern "C"
 #endif
 
 
-JAVA_EXPORT void JNICALL Java_org_haxe_nme_NME_onCallback(JNIEnv * env, jobject obj, jlong handle)
+JAVA_EXPORT void JNICALL Java_org_haxe_lime_Lime_onCallback(JNIEnv * env, jobject obj, jlong handle)
 {
    int top = 0;
    gc_set_top_of_stack(&top,true);
 
-   ELOG("NME onCallback %p",(void *)handle);
+   ELOG("lime onCallback %p",(void *)handle);
    AutoGCRoot *root = (AutoGCRoot *)handle;
    val_call0( root->get() );
    delete root;
@@ -1252,7 +1252,7 @@ JAVA_EXPORT void JNICALL Java_org_haxe_nme_NME_onCallback(JNIEnv * env, jobject 
 }
 
 
-JAVA_EXPORT jobject JNICALL Java_org_haxe_nme_NME_releaseReference(JNIEnv * env, jobject obj, jlong handle)
+JAVA_EXPORT jobject JNICALL Java_org_haxe_lime_Lime_releaseReference(JNIEnv * env, jobject obj, jlong handle)
 {
    value val = (value)handle;
    RemoveJavaHaxeObjectRef(val);
@@ -1272,14 +1272,14 @@ value CallHaxe(JNIEnv * env, jobject obj, jlong handle, jstring function, jobjec
    }
    else
    {
-      ELOG("NME CallHaxe - init not called.");
+      ELOG("lime CallHaxe - init not called.");
       return alloc_null();
    }
 }
 
 
 
-JAVA_EXPORT jobject JNICALL Java_org_haxe_nme_NME_callObjectFunction(JNIEnv * env, jobject obj, jlong handle, jstring function, jobject args)
+JAVA_EXPORT jobject JNICALL Java_org_haxe_lime_Lime_callObjectFunction(JNIEnv * env, jobject obj, jlong handle, jstring function, jobject args)
 {
    int top = 0;
    gc_set_top_of_stack(&top,true);
@@ -1295,7 +1295,7 @@ JAVA_EXPORT jobject JNICALL Java_org_haxe_nme_NME_callObjectFunction(JNIEnv * en
 }
 
 
-JAVA_EXPORT jdouble JNICALL Java_org_haxe_nme_NME_callNumericFunction(JNIEnv * env, jobject obj, jlong handle, jstring function, jobject args)
+JAVA_EXPORT jdouble JNICALL Java_org_haxe_lime_Lime_callNumericFunction(JNIEnv * env, jobject obj, jlong handle, jstring function, jobject args)
 {
    int top = 0;
    gc_set_top_of_stack(&top,true);

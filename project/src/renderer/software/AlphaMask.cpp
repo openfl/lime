@@ -1,7 +1,7 @@
 #include "AlphaMask.h"
-#include <NMEThread.h>
+#include <LimeThread.h>
 
-namespace nme
+namespace lime
 {
    
    //QuickVec<AlphaMask *> sMaskCache;
@@ -669,4 +669,4 @@ AlphaMask *SpanRect::CreateMask(const Transform &inTransform, int inAlpha)
 
 
    
-} // end namespace nme
+} // end namespace lime

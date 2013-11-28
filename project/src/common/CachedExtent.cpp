@@ -1,6 +1,6 @@
 #include <CachedExtent.h>
 
-namespace nme
+namespace lime
 {
 
 int gCachedExtentID = 1;
@@ -86,5 +86,5 @@ bool CachedExtentRenderer::GetExtent(const Transform &inTransform,Extent2DF &ioE
    return true;
 }
 
-} // end namespace nme
+} // end namespace lime
 

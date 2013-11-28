@@ -6,7 +6,7 @@
 
 
 
-namespace nme
+namespace lime
 {
 
 // --- LineRender ---------------------------------------------------
@@ -547,4 +547,4 @@ Renderer *CreateTriangleLineRenderer(const GraphicsJob &inJob, const GraphicsPat
 
 
 
-} // end namespace nme
+} // end namespace lime

@@ -35,7 +35,7 @@ class ByteArray implements ArrayAccess<Int> {
 	
 	public function new():Void {
 		
-		_nmeResizeBuffer(allocated);
+		_limeResizeBuffer(allocated);
 		//this.byteView = untyped __new__("Uint8Array", allocated);
 		//this.data = untyped __new__("DataView", this.byteView.buffer);
 		
@@ -80,7 +80,7 @@ class ByteArray implements ArrayAccess<Int> {
 	}
 	
 	
-	private function _nmeResizeBuffer(len:Int):Void {
+	private function _limeResizeBuffer(len:Int):Void {
 		
 		var oldByteView:Uint8Array = this.byteView;
 		var newByteView:Uint8Array = untyped __new__("Uint8Array", len);
@@ -113,7 +113,7 @@ class ByteArray implements ArrayAccess<Int> {
 	static public function fromBytes(inBytes:Bytes) 
    {
       var result = new ByteArray();
-	  result.nmeFromBytes(inBytes);
+	  result.limeFromBytes(inBytes);
       return result;
    }
    
@@ -121,7 +121,7 @@ class ByteArray implements ArrayAccess<Int> {
    		return data.buffer;
    	}
 
-   private inline function nmeFromBytes(inBytes:Bytes):Void
+   private inline function limeFromBytes(inBytes:Bytes):Void
    {
 	  byteView = untyped __new__("Uint8Array", inBytes.getData());
 	  length = byteView.length;
@@ -129,7 +129,7 @@ class ByteArray implements ArrayAccess<Int> {
    }
 	
 	
-	public inline function nmeGet(pos:Int):Int {
+	public inline function limeGet(pos:Int):Int {
 		
 		var data:Dynamic = data;
 		return data.getUint8(pos);
@@ -137,14 +137,14 @@ class ByteArray implements ArrayAccess<Int> {
 	}
 	
 	
-	public inline function nmeGetBuffer() {
+	public inline function limeGetBuffer() {
 		
 		return data.buffer;
 		
 	}
 	
 	
-	public static function nmeOfBuffer(buffer:ArrayBuffer):ByteArray {
+	public static function limeOfBuffer(buffer:ArrayBuffer):ByteArray {
 		
 		var bytes = new ByteArray();
 		bytes.length = bytes.allocated ;//= buffer.byteLength; todo
@@ -155,7 +155,7 @@ class ByteArray implements ArrayAccess<Int> {
 	}
 	
 	
-	public inline function nmeSet(pos:Int, v:Int):Void {
+	public inline function limeSet(pos:Int, v:Int):Void {
 		
 		var data:Dynamic = data;
 		data.setUint8(pos, v);
@@ -502,9 +502,9 @@ class ByteArray implements ArrayAccess<Int> {
 	private inline function set_length(value:Int):Int {
 
 		if (allocated < value)
-			_nmeResizeBuffer(allocated = Std.int(Math.max(value, allocated * 2)));
+			_limeResizeBuffer(allocated = Std.int(Math.max(value, allocated * 2)));
 		else if (allocated > value)
-			_nmeResizeBuffer(allocated = value);
+			_limeResizeBuffer(allocated = value);
 		length = value;
 		return value;
 	}

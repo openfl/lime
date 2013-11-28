@@ -3,7 +3,7 @@
 #include "renderer/common/BitmapCache.h"
 #include "Render.h"
 
-namespace nme
+namespace lime
 {
 
 static inline bool IsPOW2(int inX)
@@ -378,4 +378,4 @@ public:
 };
 
 
-} // end namespace nme
+} // end namespace lime

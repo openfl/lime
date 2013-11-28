@@ -1,11 +1,11 @@
-#ifndef NME_BYTE_ARRAY_H
-#define NME_BYTE_ARRAY_H
+#ifndef LIME_BYTE_ARRAY_H
+#define LIME_BYTE_ARRAY_H
 
 #include "Object.h"
 #include "QuickVec.h"
 #include "Utils.h"
 
-namespace nme
+namespace lime
 {
 
 

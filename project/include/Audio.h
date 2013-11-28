@@ -23,7 +23,7 @@
 //#define LOG_SOUND(args...)  { }
 
 
-namespace nme
+namespace lime
 {
 	class AudioSample
 	{

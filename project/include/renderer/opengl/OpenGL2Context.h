@@ -5,7 +5,7 @@
 #include "OpenGLContext.h"
 
 
-namespace nme {
+namespace lime {
 	
 	
 	class OpenGL2Context : public OpenGLContext {

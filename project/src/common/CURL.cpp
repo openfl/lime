@@ -15,7 +15,7 @@
  * HTTP redirects
  */
 
-namespace nme
+namespace lime
 {
 
 
@@ -367,7 +367,7 @@ extern "C"
 extern get_file_callback_func get_file_callback;
 }
 
-#if (defined(HX_MACOS) || defined(ANDROID) ) && defined(NME_CURL_SSL)
+#if (defined(HX_MACOS) || defined(ANDROID) ) && defined(LIME_CURL_SSL)
 #define TRY_GET_FILE
 #endif
 

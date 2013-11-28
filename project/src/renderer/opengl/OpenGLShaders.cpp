@@ -2,7 +2,7 @@
 #include "renderer/opengl/OpenGLProgram.h"
 
 
-namespace nme {
+namespace lime {
 	
 	
 	const char *gSolidVert = 

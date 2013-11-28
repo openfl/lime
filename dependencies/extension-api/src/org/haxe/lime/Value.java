@@ -1,4 +1,4 @@
-package org.haxe.nme;
+package org.haxe.lime;
 
 
 public class Value {

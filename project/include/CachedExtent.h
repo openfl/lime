@@ -1,10 +1,10 @@
-#ifndef NME_CACHED_EXTENT_H
-#define NME_CACHED_EXTENT_H
+#ifndef LIME_CACHED_EXTENT_H
+#define LIME_CACHED_EXTENT_H
 
 #include <Graphics.h>
 #include <Scale9.h>
 
-namespace nme
+namespace lime
 {
 
 extern int gCachedExtentID;
@@ -40,6 +40,6 @@ private:
    CachedExtent mExtentCache[3];
 };
 
-} // end namespace NME
+} // end namespace lime
 
 #endif

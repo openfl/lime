@@ -1,7 +1,7 @@
 #include "PolygonRender.h"
 
 
-namespace nme
+namespace lime
 {
 
 class PointRenderer : public CachedExtentRenderer
@@ -185,7 +185,7 @@ Renderer *CreatePointRenderer(const GraphicsJob &inJob, const GraphicsPath &inPa
    return new PointRenderer(inJob,inPath);
 }
 
-} // end namespace nme
+} // end namespace lime
 
 
 

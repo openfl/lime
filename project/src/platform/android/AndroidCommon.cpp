@@ -5,7 +5,7 @@
 #include <stdint.h> 
 
 #undef LOGE
-#define LOGE(msg,args...) __android_log_print(ANDROID_LOG_ERROR, "NME::System", msg, ## args)
+#define LOGE(msg,args...) __android_log_print(ANDROID_LOG_ERROR, "lime::System", msg, ## args)
 
 JavaVM *_vm;
 std::map<std::string, jclass> jClassCache;

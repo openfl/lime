@@ -6,7 +6,7 @@
 #include <Graphics.h>
 
 
-namespace nme {
+namespace lime {
 	
 	
 	class HardwareContext : public Object {

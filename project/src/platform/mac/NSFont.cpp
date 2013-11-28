@@ -1,6 +1,6 @@
 #include <Font.h>
 
-namespace nme
+namespace lime
 {
 
 FontFace *FontFace::CreateNative(const TextFormat &inFormat,double inScale)

@@ -13,7 +13,7 @@
 #include <android/log.h>
 #endif
 
-namespace nme
+namespace lime
 {
 
 unsigned int gDisplayRefCounting = drDisplayChildRefs;
@@ -2013,5 +2013,5 @@ DisplayObject *Stage::HitTest(UserPoint inStage,DisplayObject *inRoot,bool inRec
    return state.mHitResult;
 }
 
-} // end namespace nme
+} // end namespace lime
 

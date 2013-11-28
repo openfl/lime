@@ -13,7 +13,7 @@
 #include <FGraphicsOpengl2.h>
 
 
-namespace nme {
+namespace lime {
 	
 	
 	class TizenApplication : public Tizen::App::UiApp, public Tizen::System::IScreenEventListener, public Tizen::Ui::IKeyEventListener, public Tizen::Base::Runtime::ITimerEventListener {

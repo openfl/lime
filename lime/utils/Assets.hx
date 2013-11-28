@@ -23,7 +23,7 @@ import lime.utils.ByteArray;
 	 * embedded images, fonts, sounds and other resource files.</p>
 	 * 
 	 * <p>The contents are populated automatically when an application
-	 * is compiled using the NME command-line tools, based on the
+	 * is compiled using the lime command-line tools, based on the
 	 * contents of the *.nmml project file.</p>
 	 * 
 	 * <p>For most platforms, the assets are included in the same directory

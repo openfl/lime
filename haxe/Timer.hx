@@ -44,7 +44,7 @@ package haxe;
 		 */
 		@:noCompletion static public function __nextWake( limit:Float ):Float {
 			
-			var now = nme_time_stamp () * 1000.0;
+			var now = lime_time_stamp () * 1000.0;
 			var sleep;
 			
 			for (timer in sRunningTimers) {
@@ -103,10 +103,10 @@ package haxe;
 		
 		
 		static public function stamp ():Float {
-			return nme_time_stamp ();
+			return lime_time_stamp ();
 		}
 
-		static var nme_time_stamp = lime.utils.Libs.load ("nme","nme_time_stamp", 0);
+		static var lime_time_stamp = lime.utils.Libs.load ("lime","lime_time_stamp", 0);
 		
 	} //Timer
 

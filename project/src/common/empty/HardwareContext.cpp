@@ -5,7 +5,7 @@
 #include "renderer/common/Texture.h"
 
 
-namespace nme
+namespace lime
 {
 
 
@@ -136,4 +136,4 @@ HardwareContext *HardwareContext::CreateOpenGL(void *inWindow, void *inGLCtx, bo
    return new EmptyHardwareContext();
 }
 
-} // end namespace nme
+} // end namespace lime

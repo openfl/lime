@@ -5,7 +5,7 @@
 #include "renderer/opengl/OpenGLProgram.h"
 
 
-namespace nme {
+namespace lime {
 	
 	
 	const float one_on_255 = 1.0 / 255.0;
@@ -48,7 +48,7 @@ namespace nme {
 		const char *source = inShader;
 		GLuint shader = glCreateShader (inType);
 		
-		#ifdef NME_GLES
+		#ifdef LIME_GLES
 		std::string sourceBuf;
 		if (inType == GL_FRAGMENT_SHADER) {
 			

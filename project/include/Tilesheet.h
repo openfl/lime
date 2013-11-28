@@ -1,10 +1,10 @@
-#ifndef NME_TILESHEET_H
-#define NME_TILESHEET_H
+#ifndef LIME_TILESHEET_H
+#define LIME_TILESHEET_H
 
 #include <Graphics.h>
 #include <Object.h>
 
-namespace nme
+namespace lime
 {
 
 struct Tile

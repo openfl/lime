@@ -2,7 +2,7 @@
 #include "renderer/common/BlendMode.h"
 
 
-namespace nme {
+namespace lime {
 	
 	
 	SimpleSurface::SimpleSurface (int inWidth, int inHeight, PixelFormat inPixelFormat, int inByteAlign, int inGPUFormat) {
@@ -426,10 +426,10 @@ namespace nme {
 	
 	void SimpleSurface::createHardwareSurface () {
 		
-		if (nme::HardwareContext::current == NULL)
+		if (lime::HardwareContext::current == NULL)
 			printf ("Null Hardware Context");
 		else
-			GetOrCreateTexture (*nme::HardwareContext::current);
+			GetOrCreateTexture (*lime::HardwareContext::current);
 		
 	}
 	

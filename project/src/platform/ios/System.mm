@@ -2,7 +2,7 @@
 #import <UIKit/UIKit.h>
 #include <Utils.h>
 
-namespace nme {
+namespace lime {
 
 bool LaunchBrowser(const char *inUtf8URL)
 {

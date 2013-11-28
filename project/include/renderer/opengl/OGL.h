@@ -3,9 +3,9 @@
 
 #if defined(BLACKBERRY) || defined(ANDROID) || defined(WEBOS) || defined(GPH) || defined(RASPBERRYPI) || defined(EMSCRIPTEN)
 
-#define NME_GLES
+#define LIME_GLES
 
-#ifdef NME_FORCE_GLES1
+#ifdef LIME_FORCE_GLES1
 
 #include <GLES/gl.h>
 #include <GLES/glext.h>
@@ -15,7 +15,7 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #define ALLOW_OGL2
-#define NME_FORCE_GLES2
+#define LIME_FORCE_GLES2
 
 #endif
 
@@ -29,9 +29,9 @@ using namespace Tizen::Graphics::Opengl;
 
 //#include <osp/gl2.h>
 //#define ALLOW_OGL2
-//#define NME_FORCE_GLES2
-#define NME_FORCE_GLES1
-#define NME_GLES
+//#define LIME_FORCE_GLES2
+#define LIME_FORCE_GLES1
+#define LIME_GLES
 
 #elif defined(IPHONE)
 
@@ -43,7 +43,7 @@ using namespace Tizen::Graphics::Opengl;
 
 //typedef CAEAGLLayer *WinDC;
 //typedef EAGLContext *GLCtx;
-#define NME_GLES
+#define LIME_GLES
 
 #elif !defined(HX_WINDOWS)
 
@@ -178,7 +178,7 @@ typedef void *GLCtx;
 
 
 #ifdef GPH
-#define NME_DITHER
+#define LIME_DITHER
 #endif
 
 #include <Graphics.h>
@@ -195,7 +195,7 @@ typedef void *GLCtx;
 #undef DECLARE_EXTENSION
 #endif
 
-namespace nme
+namespace lime
 {
 
 Texture *OGLCreateTexture(Surface *inSurface,unsigned int inFlags);
@@ -241,7 +241,7 @@ public:
 
 void InitOGL2Extensions();
 
-} // end namespace nme
+} // end namespace lime
 
 
 #endif // INCLUDED_OGL_H

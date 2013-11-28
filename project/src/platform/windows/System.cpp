@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace nme {
+namespace lime {
 	
 	bool LaunchBrowser(const char *inUtf8URL)
 	{

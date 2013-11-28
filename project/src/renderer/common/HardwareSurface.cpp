@@ -1,7 +1,7 @@
 #include "renderer/common/HardwareSurface.h"
 
 
-namespace nme {
+namespace lime {
 	
 	
 	HardwareSurface::HardwareSurface (HardwareContext *inContext) {

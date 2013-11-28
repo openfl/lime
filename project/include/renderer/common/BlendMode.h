@@ -6,7 +6,7 @@
 #include "renderer/common/BitmapCache.h"
 
 
-namespace nme {
+namespace lime {
 	
 	
 	struct NullMask

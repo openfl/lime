@@ -4,7 +4,7 @@
 #include "QuickVec.h"
 #include "Geom.h"
 
-namespace nme
+namespace lime
 {
 
 class Surface;
@@ -95,6 +95,6 @@ Surface *FilterBitmap(const FilterList &inList, Surface *inBitmap,
 
 Rect GetFilteredObjectRect(const FilterList &inList,const Rect &inRect);
 
-} // end namespace nme
+} // end namespace lime
 
 #endif

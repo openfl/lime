@@ -39,7 +39,7 @@ int        g_eglVersion = 1;
 #endif
 
 
-void nmeEGLDestroy()
+void limeEGLDestroy()
 {
    if (g_eglContext)
    {
@@ -53,14 +53,14 @@ void nmeEGLDestroy()
    }
 }
 
-void nmeEGLSwapBuffers()
+void limeEGLSwapBuffers()
 {
    eglSwapBuffers(g_eglDisplay, g_eglSurface);
 }
 
-bool nmeEGLResize(void *inWindow, int &ioWidth, int &ioHeight)
+bool limeEGLResize(void *inWindow, int &ioWidth, int &ioHeight)
 {
-   nmeEGLDestroy();
+   limeEGLDestroy();
 
    //printf("eglCreateWindowSurface %p %p %p\n", g_eglDisplay, g_eglConfig, inX11Window);
  
@@ -148,7 +148,7 @@ bool nmeEGLResize(void *inWindow, int &ioWidth, int &ioHeight)
 }
 
 
-bool nmeEGLCreate(void *inWindow, int &ioWidth, int &ioHeight,
+bool limeEGLCreate(void *inWindow, int &ioWidth, int &ioHeight,
                 int inOGLESVersion,
                 int inDepthBits,
                 int inStencilBits,
@@ -220,5 +220,5 @@ bool nmeEGLCreate(void *inWindow, int &ioWidth, int &ioHeight,
 
    g_eglVersion = inOGLESVersion;
 
-   return nmeEGLResize(inWindow, ioWidth, ioHeight);
+   return limeEGLResize(inWindow, ioWidth, ioHeight);
 }

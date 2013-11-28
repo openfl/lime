@@ -1,12 +1,12 @@
-package org.haxe.nme;
+package org.haxe.lime;
 
 // Wrapper for native library
 
-public class NME {
+public class Lime {
 
      static {
          System.loadLibrary("openal");
-         System.loadLibrary("nme");
+         System.loadLibrary("lime");
      }
 
      public static final int ACTIVATE   = 1;

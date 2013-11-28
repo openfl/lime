@@ -10,7 +10,7 @@ extern "C" {
 }
 #include <setjmp.h>
 
-using namespace nme;
+using namespace lime;
 
 struct ReadBuf
 {
@@ -532,7 +532,7 @@ static bool EncodePNG(Surface *inSurface, ByteArray *outBytes)
    return true;
 }
 
-namespace nme {
+namespace lime {
 
 Surface *Surface::Load(const OSChar *inFilename)
 {

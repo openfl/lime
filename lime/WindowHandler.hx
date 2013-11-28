@@ -25,7 +25,7 @@ class WindowHandler {
 
         #if lime_native
 
-            nme_create_main_frame(
+            lime_create_main_frame(
 
                 lib.on_window_ready, 
                 lib.config.width,               //width
@@ -50,7 +50,7 @@ class WindowHandler {
                 lib.config.title,               //title
                 null                           //icon
                 
-            ); //nme_create_main_frame
+            ); //lime_create_main_frame
 
 
         #end
@@ -73,7 +73,7 @@ class WindowHandler {
     public function shutdown() {
 
         #if lime_native            
-            nme_close();
+            lime_close();
         #end
 
         lib._debug(':: lime :: \t WindowHandler shut down.');
@@ -83,12 +83,12 @@ class WindowHandler {
 
         #if lime_native
                 //Fetch the stage handle
-            lib.view_handle = nme_get_frame_stage( lib.window_handle );
+            lib.view_handle = lime_get_frame_stage( lib.window_handle );
 
                 //Make sure that our configs are up to date with the actual screen resolution
                 //not just the specified resolution in the project file
-            lib.config.width = nme_stage_get_stage_width(lib.view_handle);
-            lib.config.height = nme_stage_get_stage_height(lib.view_handle);
+            lib.config.width = lime_stage_get_stage_width(lib.view_handle);
+            lib.config.height = lime_stage_get_stage_height(lib.view_handle);
 
                 //move the window based on xml flags
             if(lib.config.x != null && lib.config.y != null) {
@@ -96,10 +96,10 @@ class WindowHandler {
             }
 
                 //Update the touch support
-            lib.config.multitouch_supported = nme_stage_get_multitouch_supported(lib.view_handle);
+            lib.config.multitouch_supported = lime_stage_get_multitouch_supported(lib.view_handle);
             lib.config.multitouch = true;
                 //Enable it if needed
-            nme_stage_set_multitouch_active(lib.view_handle, true);
+            lime_stage_set_multitouch_active(lib.view_handle, true);
 
         #end //lime_native
 
@@ -109,8 +109,8 @@ class WindowHandler {
     public function post_ready() {
         
         #if lime_native
-                //Set the stage handler for NME to send us events
-            nme_set_stage_handler(lib.view_handle, lib.on_lime_event, lib.config.width, lib.config.height);
+                //Set the stage handler for lime to send us events
+            lime_set_stage_handler(lib.view_handle, lib.on_lime_event, lib.config.width, lib.config.height);
         #end
 
         #if lime_html5  
@@ -147,8 +147,8 @@ class WindowHandler {
     public function set_cursor_visible(val:Bool = true) {
         
         #if lime_native
-            if(nme_stage_show_cursor!=null) {
-                nme_stage_show_cursor(lib.view_handle, val);
+            if(lime_stage_show_cursor!=null) {
+                lime_stage_show_cursor(lib.view_handle, val);
             }
         #end //lime_native
 
@@ -158,8 +158,8 @@ class WindowHandler {
     public function constrain_cursor_to_window_frame( val:Bool = false ) {
         
         #if lime_native
-            if(nme_stage_constrain_cursor_to_window_frame!=null) {
-                nme_stage_constrain_cursor_to_window_frame(lib.view_handle, val);
+            if(lime_stage_constrain_cursor_to_window_frame!=null) {
+                lime_stage_constrain_cursor_to_window_frame(lib.view_handle, val);
             }
         #end //lime_native
 
@@ -172,7 +172,7 @@ class WindowHandler {
 
     public function set_window_position( x:Int, y:Int ) {
         #if lime_native
-            nme_stage_set_window_position(lib.view_handle, x, y);
+            lime_stage_set_window_position(lib.view_handle, x, y);
         #end //lime_native
     }
 
@@ -215,8 +215,8 @@ class WindowHandler {
 
     public function set_cursor_position_in_window(_x:Int = 0, _y:Int = 0) {
         #if lime_native
-            if(nme_stage_set_cursor_position_in_window!=null) {
-                nme_stage_set_cursor_position_in_window(lib.view_handle, _x, _y);
+            if(lime_stage_set_cursor_position_in_window!=null) {
+                lime_stage_set_cursor_position_in_window(lib.view_handle, _x, _y);
             }
             lib.input.last_mouse_x = _x;
             lib.input.last_mouse_y = _y;
@@ -234,9 +234,9 @@ class WindowHandler {
 
         //todo:
 
-    	//nmeOnResize(_event.x, _event.y);
+    	//limeOnResize(_event.x, _event.y);
             //if (renderRequest == null)
-            //  nmeRender(false);
+            //  limeRender(false);
     }    
 
     public function on_should_rotate( _event:Dynamic ) {
@@ -252,28 +252,28 @@ class WindowHandler {
 	 	//Called when the application wants to go to the background and stop
     public function on_pause() { 
         #if lime_native
-            nme_pause_animation(); 
+            lime_pause_animation(); 
         #end //lime_native
     } //on_pause
 
         //Called when the application resumes operation from the background
     public function on_resume() { 
         #if lime_native
-            nme_resume_animation();  
+            lime_resume_animation();  
          #end //lime_native
     } //on_resume
 
         // Terminates the process straight away, bypassing graceful shutdown
     public function on_force_close() {
         #if lime_native
-            nme_terminate();
+            lime_terminate();
         #end //lime_native
     } //on_force_close
 
     public function openURL( _url:String ) {
 
         #if lime_native
-            nme_get_url( _url );
+            lime_get_url( _url );
         #end //lime_native
 
         #if lime_html5
@@ -289,55 +289,55 @@ class WindowHandler {
 
     public function fileDialogOpen(_title:String, _text:String) : String {
         #if lime_native
-            return nme_file_dialog_open(_title, _text, []);
+            return lime_file_dialog_open(_title, _text, []);
          #else
             return "";
         #end
     }
     public function fileDialogSave(_title:String, _text:String) : String {
         #if lime_native
-            return nme_file_dialog_save(_title, _text, []);
+            return lime_file_dialog_save(_title, _text, []);
         #else
             return "";
         #end
     }
     public function fileDialogFolder(_title:String, _text:String) : String {
         #if lime_native
-            return nme_file_dialog_folder(_title, _text);
+            return lime_file_dialog_folder(_title, _text);
         #else
             return "";
         #end
     }
 
-//nme functions
+//lime functions
 #if lime_native
 
-    private static var nme_stage_get_stage_width    = Libs.load("nme","nme_stage_get_stage_width",  1);
-    private static var nme_stage_get_stage_height   = Libs.load("nme","nme_stage_get_stage_height",  1);
-    private static var nme_set_stage_handler        = Libs.load("nme","nme_set_stage_handler",  4);
-    private static var nme_get_frame_stage          = Libs.load("nme","nme_get_frame_stage",    1);    
-    private static var nme_create_main_frame        = Libs.load("nme","nme_create_main_frame", -1);        
-    private static var nme_pause_animation          = Libs.load("nme","nme_pause_animation",    0);
-    private static var nme_resume_animation         = Libs.load("nme","nme_resume_animation",   0);
-    private static var nme_terminate                = Libs.load("nme","nme_terminate", 0);
-    private static var nme_close                    = Libs.load("nme","nme_close", 0);
-    private static var nme_get_url                  = Libs.load("nme","nme_get_url", 1);
+    private static var lime_stage_get_stage_width    = Libs.load("lime","lime_stage_get_stage_width",  1);
+    private static var lime_stage_get_stage_height   = Libs.load("lime","lime_stage_get_stage_height",  1);
+    private static var lime_set_stage_handler        = Libs.load("lime","lime_set_stage_handler",  4);
+    private static var lime_get_frame_stage          = Libs.load("lime","lime_get_frame_stage",    1);    
+    private static var lime_create_main_frame        = Libs.load("lime","lime_create_main_frame", -1);        
+    private static var lime_pause_animation          = Libs.load("lime","lime_pause_animation",    0);
+    private static var lime_resume_animation         = Libs.load("lime","lime_resume_animation",   0);
+    private static var lime_terminate                = Libs.load("lime","lime_terminate", 0);
+    private static var lime_close                    = Libs.load("lime","lime_close", 0);
+    private static var lime_get_url                  = Libs.load("lime","lime_get_url", 1);
 
         //File Dialogs
-    private static var nme_file_dialog_save         = Libs.load("nme", "nme_file_dialog_save", 3);
-    private static var nme_file_dialog_open         = Libs.load("nme", "nme_file_dialog_open", 3);
-    private static var nme_file_dialog_folder       = Libs.load("nme", "nme_file_dialog_folder", 2);
+    private static var lime_file_dialog_save         = Libs.load("lime", "lime_file_dialog_save", 3);
+    private static var lime_file_dialog_open         = Libs.load("lime", "lime_file_dialog_open", 3);
+    private static var lime_file_dialog_folder       = Libs.load("lime", "lime_file_dialog_folder", 2);
 
         //Cursor and window control (desktop only obviously)
-    private static var nme_stage_set_window_position                 = Libs.load("nme","nme_stage_set_window_position", 3);
+    private static var lime_stage_set_window_position                 = Libs.load("lime","lime_stage_set_window_position", 3);
 
-    private static var nme_stage_show_cursor                         = Libs.load("nme","nme_stage_show_cursor", 2);
-    private static var nme_stage_constrain_cursor_to_window_frame    = Libs.load("nme","nme_stage_constrain_cursor_to_window_frame", 2);
-    private static var nme_stage_set_cursor_position_in_window       = Libs.load("nme","nme_stage_set_cursor_position_in_window", 3);
+    private static var lime_stage_show_cursor                         = Libs.load("lime","lime_stage_show_cursor", 2);
+    private static var lime_stage_constrain_cursor_to_window_frame    = Libs.load("lime","lime_stage_constrain_cursor_to_window_frame", 2);
+    private static var lime_stage_set_cursor_position_in_window       = Libs.load("lime","lime_stage_set_cursor_position_in_window", 3);
 
         //Multitouch
-    private static var nme_stage_get_multitouch_supported   = Libs.load("nme","nme_stage_get_multitouch_supported",  1);
-    private static var nme_stage_set_multitouch_active      = Libs.load("nme","nme_stage_set_multitouch_active",  2);
+    private static var lime_stage_get_multitouch_supported   = Libs.load("lime","lime_stage_get_multitouch_supported",  1);
+    private static var lime_stage_set_multitouch_active      = Libs.load("lime","lime_stage_set_multitouch_active",  2);
 
 #end //lime_native
 

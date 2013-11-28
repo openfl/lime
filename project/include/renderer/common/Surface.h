@@ -9,7 +9,7 @@
 #include "renderer/common/HardwareContext.h"
 
 
-namespace nme {
+namespace lime {
 	
 	
 	void HintColourOrder (bool inRedFirst);
@@ -65,7 +65,7 @@ namespace nme {
 			
 			void Bind (HardwareContext &inHardware, int inSlot = 0);
 			int BytesPP () const { return Format () == pfAlpha ? 1 : 4; }
-			bool Encode (nme::ByteArray *outBytes, bool inPNG, double inQuality);
+			bool Encode (lime::ByteArray *outBytes, bool inPNG, double inQuality);
 			Texture *GetOrCreateTexture (HardwareContext &inHardware);
 			Texture *GetTexture () { return mTexture; }
 			Surface *IncRef () { mRefCount++; return this; }

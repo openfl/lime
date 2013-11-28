@@ -4,7 +4,7 @@
 
 
 
-namespace nme
+namespace lime
 {
 
 
@@ -405,7 +405,7 @@ void PolygonRender::SetTransform(const Transform &inTransform)
       for (int i = 0; i < points; i++)
       {
          mTransformed[i] = mTransform.Apply(src[i].x, src[i].y);
-         //__android_log_print(ANDROID_LOG_ERROR, "nme", "%d/%d %f,%f -> %f,%f", i, points, src[i].x, src[i].y,
+         //__android_log_print(ANDROID_LOG_ERROR, "lime", "%d/%d %f,%f -> %f,%f", i, points, src[i].x, src[i].y,
                            //mTransformed[i].x, mTransformed[i].y );
       }
       
@@ -414,4 +414,4 @@ void PolygonRender::SetTransform(const Transform &inTransform)
 }
 
    
-} // end namespace nme
+} // end namespace lime

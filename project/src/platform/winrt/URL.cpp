@@ -1,6 +1,6 @@
 #include <URL.h>
 
-namespace nme
+namespace lime
 {
 
 

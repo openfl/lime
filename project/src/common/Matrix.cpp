@@ -5,7 +5,7 @@
 #define M_PI 3.141592653589793238462643
 #endif
 
-namespace nme
+namespace lime
 {
 
 UserPoint Matrix::Apply(float inX,float inY) const
@@ -233,5 +233,5 @@ Matrix &Matrix::createGradientBox(double inWidth, double inHeight,
 }
 
 
-} // end namespace nme
+} // end namespace lime
 

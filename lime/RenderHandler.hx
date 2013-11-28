@@ -52,13 +52,13 @@ class RenderHandler {
         #if lime_native
 
                 //Set up the OpenGL View
-            direct_renderer_handle = nme_direct_renderer_create();
+            direct_renderer_handle = lime_direct_renderer_create();
 
                 //Add this to the main stage, so it will render
-            nme_doc_add_child( lib.view_handle, direct_renderer_handle );
+            lime_doc_add_child( lib.view_handle, direct_renderer_handle );
 
                 //Set this handle to the real view with a render function
-            nme_direct_renderer_set( direct_renderer_handle, on_render );
+            lime_direct_renderer_set( direct_renderer_handle, on_render );
 
         #end //lime_native
 
@@ -79,7 +79,7 @@ class RenderHandler {
                 throw "WebGL is required to run this";
             } 
 
-            lime.gl.GL.nmeContext = direct_renderer_handle;
+            lime.gl.GL.limeContext = direct_renderer_handle;
 
             requestAnimFrame = js.Browser.window.requestAnimationFrame;
             
@@ -206,7 +206,7 @@ class RenderHandler {
     public function request_render() {
 
         #if lime_native
-            nme_stage_request_render();
+            lime_stage_request_render();
         #end
     }
 
@@ -229,10 +229,10 @@ class RenderHandler {
 
         #if lime_native 
             // trace("now doing render");
-            // nme_stage_request_render();
+            // lime_stage_request_render();
             
-            nme_render_stage( lib.view_handle );
-            // nme_stage_request_render();
+            lime_render_stage( lib.view_handle );
+            // lime_stage_request_render();
         #end //lime_native
 
         return true;
@@ -247,14 +247,14 @@ class RenderHandler {
     } //on_render
 
 
-//nme functions
+//lime functions
 #if lime_native
-    private static var nme_stage_request_render     = Libs.load("nme","nme_stage_request_render", 0);
-    private static var nme_render_stage             = Libs.load("nme","nme_render_stage", 1);
-    private static var nme_doc_add_child            = Libs.load("nme","nme_doc_add_child", 2);
-    private static var nme_direct_renderer_create   = Libs.load("nme","nme_direct_renderer_create", 0);
-    private static var nme_direct_renderer_set      = Libs.load("nme","nme_direct_renderer_set", 2);
-    private static var nme_stage_set_next_wake      = Libs.load("nme","nme_stage_set_next_wake", 2);    
+    private static var lime_stage_request_render     = Libs.load("lime","lime_stage_request_render", 0);
+    private static var lime_render_stage             = Libs.load("lime","lime_render_stage", 1);
+    private static var lime_doc_add_child            = Libs.load("lime","lime_doc_add_child", 2);
+    private static var lime_direct_renderer_create   = Libs.load("lime","lime_direct_renderer_create", 0);
+    private static var lime_direct_renderer_set      = Libs.load("lime","lime_direct_renderer_set", 2);
+    private static var lime_stage_set_next_wake      = Libs.load("lime","lime_stage_set_next_wake", 2);    
 #end //lime_native
 
 } 

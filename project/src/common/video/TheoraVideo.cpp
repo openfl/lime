@@ -9,7 +9,7 @@
 #define AUDIO_BUFFER_FRAMES 4096
 #define AUDIO_OUT_CHANNELS 2
 
-namespace nme
+namespace lime
 {
 
    class VideoSurface : public SimpleSurface
@@ -198,7 +198,7 @@ namespace nme
             return;
          }
 
-         mStartTime = nme::GetTimeStamp() * 1000;
+         mStartTime = lime::GetTimeStamp() * 1000;
          mPlaying = true;
       }
 
@@ -226,7 +226,7 @@ namespace nme
 
          HardwareContext *hardware = inTarget.IsHardware() ? inTarget.mHardware : 0;
 
-         const int elapsed = nme::GetTimeStamp() * 1000 - mStartTime;
+         const int elapsed = lime::GetTimeStamp() * 1000 - mStartTime;
 
          if (THEORAPLAY_isDecoding(mDecoder) && mPlaying)
          {

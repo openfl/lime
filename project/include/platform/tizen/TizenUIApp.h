@@ -15,7 +15,7 @@
 //#include "GlRendererTemplate.h"
 
 
-namespace nme {
+namespace lime {
 	
 	
 	class TizenUIApp : public Tizen::App::UiApp, public Tizen::System::IScreenEventListener, public Tizen::Ui::IKeyEventListener {

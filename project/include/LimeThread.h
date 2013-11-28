@@ -1,5 +1,5 @@
-#ifndef NME_THREAD_H
-#define NME_THREAD_H
+#ifndef LIME_THREAD_H
+#define LIME_THREAD_H
 
 #ifndef HX_WINDOWS
 #ifndef EPPC
@@ -11,7 +11,7 @@
 #undef max
 #endif
 
-namespace nme
+namespace lime
 {
 #ifndef HX_WINDOWS
 #ifdef EPPC

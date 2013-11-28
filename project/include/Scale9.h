@@ -1,10 +1,10 @@
-#ifndef NME_SCALE9_H
-#define NME_SCALE9_H
+#ifndef LIME_SCALE9_H
+#define LIME_SCALE9_H
 
 #include <Matrix.h>
 #include <Geom.h>
 
-namespace nme
+namespace lime
 {
 
 class Scale9
@@ -99,7 +99,7 @@ public:
 };
 
 
-} // end namespace nme
+} // end namespace lime
 
 
 #endif

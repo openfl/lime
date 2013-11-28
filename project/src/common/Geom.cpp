@@ -2,7 +2,7 @@
 #include <algorithm>
 
 
-namespace nme
+namespace lime
 {
 
 // --- Transform -------------------------------------------------------------------

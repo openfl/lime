@@ -1,5 +1,5 @@
-#ifndef NME_FONT_H
-#define NME_FONT_H
+#ifndef LIME_FONT_H
+#define LIME_FONT_H
 
 #include <Object.h>
 #include <Utils.h>
@@ -10,7 +10,7 @@
 #include <Geom.h>
 #include <ByteArray.h>
 
-namespace nme
+namespace lime
 {
 
 struct TextLineMetrics
@@ -205,6 +205,6 @@ class FontCache
 {
 };
 
-} // end namespace nme
+} // end namespace lime
 
 #endif

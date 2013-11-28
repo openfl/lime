@@ -7,7 +7,7 @@
 #include "renderer/common/HardwareContext.h"
 
 
-namespace nme {
+namespace lime {
 	
 	
 	class TizenStage : public Stage {

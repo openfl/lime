@@ -1,6 +1,6 @@
 #include <Graphics.h>
 
-namespace nme
+namespace lime
 {
 
 // --- GraphicsPath ------------------------------------------
@@ -270,5 +270,5 @@ GraphicsTrianglePath::GraphicsTrianglePath( const QuickVec<float> &inXYs,
 
 
 
-} // end namespace nme
+} // end namespace lime
 

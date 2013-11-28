@@ -1,7 +1,7 @@
 #include "renderer/common/Surface.h"
 
 
-namespace nme {
+namespace lime {
 	
 	
 	int gTextureContextVersion = 1;

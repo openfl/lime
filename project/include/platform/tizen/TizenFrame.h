@@ -6,7 +6,7 @@
 #include "platform/tizen/TizenStage.h"
 
 
-namespace nme {
+namespace lime {
 	
 	
 	class TizenFrame : public Frame {

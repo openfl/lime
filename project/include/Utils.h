@@ -1,5 +1,5 @@
-#ifndef NME_UTILS_H
-#define NME_UTILS_H
+#ifndef LIME_UTILS_H
+#define LIME_UTILS_H
 
 #include <hx/CFFI.h>
 #include <string>
@@ -15,12 +15,12 @@
 #include <android/log.h>
 
 #ifdef VERBOSE
-#define VLOG(args...) __android_log_print(ANDROID_LOG_INFO, "NME",args)
+#define VLOG(args...) __android_log_print(ANDROID_LOG_INFO, "lime",args)
 #else
 #define VLOG(args...)
 #endif
 
-#define ELOG(args...) __android_log_print(ANDROID_LOG_ERROR, "NME",args)
+#define ELOG(args...) __android_log_print(ANDROID_LOG_ERROR, "lime",args)
 
 #elif defined(TIZEN)
 
@@ -77,7 +77,7 @@ inline void DontLog(const char *inFormat,...) { }
 
 
 
-namespace nme
+namespace lime
 {
 
 extern std::string gAssetBase;
@@ -187,11 +187,11 @@ FILE *OpenOverwrite(const char *inName); // [ddc]
 extern int gFixedOrientation;
 
 #elif defined(HX_MACOS)
-} // close namespace nme
+} // close namespace lime
 extern "C" FILE *OpenRead(const char *inName);
 extern "C" bool GetBundleFilename(const char *inName, char *outBuffer,int inBufSize);
 extern "C" FILE *OpenOverwrite(const char *inName);
-namespace nme {
+namespace lime {
 #else
 #define OpenRead(x) fopen(x,"rb")
 #define OpenOverwrite(x) fopen(x,"wb") // [ddc]

@@ -4,7 +4,7 @@
 #include <Video.h>
 #include <Sound.h>
 
-namespace nme
+namespace lime
 {
 
    class VideoSurface : public SimpleSurface

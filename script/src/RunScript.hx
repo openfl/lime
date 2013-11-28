@@ -565,15 +565,15 @@ class RunScript {
 		
 		if (message != "") {
 			
-			if (nme_error_output == null) {
+			if (lime_error_output == null) {
 				
 				try {
 					
-					nme_error_output = Lib.load ("nme", "nme_error_output", 1);
+					lime_error_output = Lib.load ("lime", "lime_error_output", 1);
 					
 				} catch (e:Dynamic) {
 					
-					nme_error_output = Lib.println;
+					lime_error_output = Lib.println;
 					
 				}
 				
@@ -581,7 +581,7 @@ class RunScript {
 			
 			try {
 				
-				nme_error_output ("Error: " + message + "\n");
+				lime_error_output ("Error: " + message + "\n");
 				
 			} catch (e:Dynamic) {}
 			
@@ -1367,13 +1367,13 @@ class RunScript {
 				case "installer":
 					
 					var hxlibcPath = PathHelper.getHaxelib (new Haxelib ("hxlibc"));
-					var nmePath = PathHelper.getHaxelib (new Haxelib ("nme"));
+					var nmePath = PathHelper.getHaxelib (new Haxelib ("lime"));
 					var swfPath = PathHelper.getHaxelib (new Haxelib ("swf"));
 					var actuatePath = PathHelper.getHaxelib (new Haxelib ("actuate"));
 					var svgPath = PathHelper.getHaxelib (new Haxelib ("svg"));
 					
 					var hxlibcVersion = getVersion ("hxlibc", true);
-					var nmeVersion = getVersion ("nme", true);
+					var nmeVersion = getVersion ("lime", true);
 					var swfVersion = getVersion ("swf", true);
 					var actuateVersion = getVersion ("actuate", true);
 					var svgVersion = getVersion ("svg", true);
@@ -1401,7 +1401,7 @@ class RunScript {
 						recursiveCopy (svgPath, nmeDirectory + tempPath + "/resources/svg/usr/lib/haxe/lib/svg/" + svgVersion, [ ".git", ".svn" ]);
 						
 						File.saveContent (nmeDirectory + tempPath + "/resources/hxlibc/usr/lib/haxe/lib/hxlibc/.current", getVersion ("hxlibc"));
-						File.saveContent (nmeDirectory + tempPath + "/resources/nme/usr/lib/haxe/lib/nme/.current", getVersion ("nme"));
+						File.saveContent (nmeDirectory + tempPath + "/resources/nme/usr/lib/haxe/lib/nme/.current", getVersion ("lime"));
 						File.saveContent (nmeDirectory + tempPath + "/resources/swf/usr/lib/haxe/lib/swf/.current", getVersion ("swf"));
 						File.saveContent (nmeDirectory + tempPath + "/resources/actuate/usr/lib/haxe/lib/actuate/.current", getVersion ("actuate"));
 						File.saveContent (nmeDirectory + tempPath + "/resources/svg/usr/lib/haxe/lib/svg/.current", getVersion ("svg"));
@@ -1431,13 +1431,13 @@ class RunScript {
 						recursiveCopy (svgPath, nmeDirectory + tempPath + "/resources/svg/" + svgVersion, [ ".git", ".svn" ]);
 						
 						File.saveContent (nmeDirectory + tempPath + "/resources/hxlibc/.current", getVersion ("hxlibc"));
-						File.saveContent (nmeDirectory + tempPath + "/resources/nme/.current", getVersion ("nme"));
+						File.saveContent (nmeDirectory + tempPath + "/resources/nme/.current", getVersion ("lime"));
 						File.saveContent (nmeDirectory + tempPath + "/resources/swf/.current", getVersion ("swf"));
 						File.saveContent (nmeDirectory + tempPath + "/resources/actuate/.current", getVersion ("actuate"));
 						File.saveContent (nmeDirectory + tempPath + "/resources/svg/.current", getVersion ("svg"));
 						
-						var args = [ "/DVERSION=" + getVersion ("nme"), "/DVERSION_FOLDER=" + nmeVersion, "/DHAXE_VERSION=2.10", "/DNEKO_VERSION=1.8.2", "/DHXLIBC_VERSION=" + getVersion ("hxlibc"), "/DACTUATE_VERSION=" + getVersion ("actuate"), "/DSWF_VERSION=" + getVersion ("swf"), "/DSVG_VERSION=" + getVersion ("svg") ];
-						args.push ("/DOUTPUT_PATH=../NME-" + getVersion ("nme") + "-Windows.exe");
+						var args = [ "/DVERSION=" + getVersion ("lime"), "/DVERSION_FOLDER=" + nmeVersion, "/DHAXE_VERSION=2.10", "/DNEKO_VERSION=1.8.2", "/DHXLIBC_VERSION=" + getVersion ("hxlibc"), "/DACTUATE_VERSION=" + getVersion ("actuate"), "/DSWF_VERSION=" + getVersion ("swf"), "/DSVG_VERSION=" + getVersion ("svg") ];
+						args.push ("/DOUTPUT_PATH=../NME-" + getVersion ("lime") + "-Windows.exe");
 						args.push ("Installer.nsi");
 						
 						Sys.putEnv ("PATH", Sys.getEnv ("PATH") + ";C:\\Program Files (x86)\\NSIS");
@@ -1470,7 +1470,7 @@ class RunScript {
 	}
 	
 	
-	private static var nme_error_output;
+	private static var lime_error_output;
 	
 	
 }

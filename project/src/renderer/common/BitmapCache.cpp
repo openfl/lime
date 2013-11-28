@@ -1,7 +1,7 @@
 #include "renderer/common/BitmapCache.h"
 
 
-namespace nme {
+namespace lime {
 	
 	
 	static int sBitmapVersion = 1;

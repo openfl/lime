@@ -18,7 +18,7 @@ static const D3D11_INPUT_ELEMENT_DESC posTex[] =
 };
 
 
-ComPtr<ID3D11VertexShader> nmeCreateVertexShader(
+ComPtr<ID3D11VertexShader> limeCreateVertexShader(
     ComPtr<ID3D11Device1> inDevice,
     ComPtr<ID3D11InputLayout> &outLayout,
     ShaderId inShader)
@@ -52,7 +52,7 @@ ComPtr<ID3D11VertexShader> nmeCreateVertexShader(
 
 
 
-ComPtr<ID3D11PixelShader> nmeCreatePixelShader(ComPtr<ID3D11Device1> inDevice, ShaderId inShader)
+ComPtr<ID3D11PixelShader> limeCreatePixelShader(ComPtr<ID3D11Device1> inDevice, ShaderId inShader)
 {
    const BYTE *data = 0;
    int len = 0;

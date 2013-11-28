@@ -14,7 +14,7 @@
 #endif
 
 
-namespace nme
+namespace lime
 {
 
 int gPasswordChar = 42; // *
@@ -1990,5 +1990,5 @@ void CharGroup::ApplyFormat(TextFormat *inFormat)
    inFormat->url.Apply(mFormat->url);
 }
 
-} // end namespace nme
+} // end namespace lime
 

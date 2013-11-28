@@ -1,7 +1,7 @@
 #include <Graphics.h>
 #include "Render.h"
 
-namespace nme
+namespace lime
 {
 
 template<bool HAS_ALPHA>
@@ -45,4 +45,4 @@ Filler *Filler::Create(GraphicsSolidFill *inFill)
 }
 
 
-} // end namespace nme
+} // end namespace lime
