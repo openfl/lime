@@ -144,7 +144,7 @@ class InputHandler {
             case 4 : return MouseButton.wheel_up;
             default : return id;
         }
-    }
+    } //mouse_button_from_id
 
     public function lime_mousemove(_event:Dynamic, ?_pass_through:Bool=false) {
         
@@ -298,7 +298,7 @@ class InputHandler {
             lime_mousedown(_event);
         }
 
-    }
+    } //lime_touchbegin
 
     public function lime_touchmove(_event:Dynamic) {
 
@@ -315,7 +315,7 @@ class InputHandler {
             lib.host.ontouchmove(touch_item);
         }
 
-    }
+    } //lime_touchmove
 
     public function lime_touchend(_event:Dynamic) {  
 
@@ -339,51 +339,45 @@ class InputHandler {
             //remove it from the map
         touch_map.remove(_event.value);
 
-    }
+    } //lime_touchend
 
     public function lime_touchtap(_event:Dynamic) {
         if(lib.host.ontouchtap != null) {
             lib.host.ontouchtap(_event);
         }
-        //limeOnTouchTap(_event.TouchEvent.TOUCH_TAP);
-    }
+    } //lime_touchtap
 
-//Joystick
+//Gamepad
 
-    public function lime_joyaxismove(_event:Dynamic) {
-        if(lib.host.onjoyaxismove != null) {
-            lib.host.onjoyaxismove(_event);
+    public function lime_gamepadaxis(_event:Dynamic) {
+        if(lib.host.ongamepadaxis != null) {
+            lib.host.ongamepadaxis(_event);
         }
-        //limeOnJoystick(_event, JoystickEvent.AXIS_MOVE);
-    }
+    } //lime_gamepadaxis
 
-    public function lime_joyballmove(_event:Dynamic) {
-        if(lib.host.onjoyballmove != null) {
-            lib.host.onjoyballmove(_event);
+    public function lime_gamepadball(_event:Dynamic) {
+        if(lib.host.ongamepadball != null) {
+            lib.host.ongamepadball(_event);
         }
-        //limeOnJoystick(_event, JoystickEvent.BALL_MOVE);
-    }
+    } //lime_gamepadball
 
-    public function lime_joyhatmove(_event:Dynamic) {
-        if(lib.host.onjoyhatmove != null) {
-            lib.host.onjoyhatmove(_event);
+    public function lime_gamepadhat(_event:Dynamic) {
+        if(lib.host.ongamepadhat != null) {
+            lib.host.ongamepadhat(_event);
         }
-        //limeOnJoystick(_event, JoystickEvent.HAT_MOVE);
-    }
+    } //lime_gamepadhat
 
-    public function lime_joybuttondown(_event:Dynamic) {
-        if(lib.host.onjoybuttondown != null) {
-            lib.host.onjoybuttondown(_event);
+    public function lime_gamepadbuttondown(_event:Dynamic) {
+        if(lib.host.ongamepadbuttondown != null) {
+            lib.host.ongamepadbuttondown(_event);
         }
-        //limeOnJoystick(_event, JoystickEvent.BUTTON_DOWN);
-    }
+    } //lime_gamepadbuttondown
 
-    public function lime_joybuttonup(_event:Dynamic) {
-        if(lib.host.onjoybuttonup != null) {
-            lib.host.onjoybuttonup(_event);
+    public function lime_gamepadbuttonup(_event:Dynamic) {
+        if(lib.host.ongamepadbuttonup != null) {
+            lib.host.ongamepadbuttonup(_event);
         }
-        //limeOnJoystick(_event, JoystickEvent.BUTTON_UP);
-    }
+    } //lime_gamepadbuttonup
 
     
     private static var efLeftDown = 0x0001;

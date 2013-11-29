@@ -237,22 +237,22 @@ class LiME {
             case SystemEvents.touchtap:
                 input.lime_touchtap(_event);
 
-    //joystick
+    //gamepad/joystick
 
             case SystemEvents.joyaxismove:
-                input.lime_joyaxismove(_event);
+                input.lime_gamepadaxis(_event);
 
             case SystemEvents.joyballmove:
-                input.lime_joyballmove(_event);
+                input.lime_gamepadball(_event);
 
             case SystemEvents.joyhatmove:
-                input.lime_joyhatmove(_event);
+                input.lime_gamepadhat(_event);
 
             case SystemEvents.joybuttondown:
-                input.lime_joybuttondown(_event);
+                input.lime_gamepadbuttondown(_event);
 
             case SystemEvents.joybuttonup:
-                input.lime_joybuttonup(_event);
+                input.lime_gamepadbuttonup(_event);
 
     //Window
 
