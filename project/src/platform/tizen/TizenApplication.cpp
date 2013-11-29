@@ -23,8 +23,14 @@ namespace lime {
 		sgFlags = inFlags;
 		sgTitle = inTitle;
 		
-		sgWidth = 720;
-		sgHeight = 720;
+		if (sgWidth == 0 && sgHeight == 0) {
+			
+			// Hard code for now
+			
+			sgWidth = 720;
+			sgHeight = 1280;
+			
+		}
 		
 		Tizen::Base::Collection::ArrayList args (Tizen::Base::Collection::SingleObjectDeleter);
 		args.Construct ();
