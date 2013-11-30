@@ -215,22 +215,33 @@ namespace lime {
 	
 	void TizenApplication::OnTouchMoved (const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo) {
 		
-		AppLog ("OnTouchMoved: (%d x %d)", currentPosition.x, currentPosition.y);
+		Event mouse (etMouseMove, currentPosition.x, currentPosition.y);
+		mouse.value = touchInfo.GetPointId ();
+		mouse.flags |= efLeftDown;
+		
+		sgTizenFrame->HandleEvent (mouse);
 		
 	}
 	
 	
 	void TizenApplication::OnTouchPressed (const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo) {
 		
-		AppLog ("OnTouchPressed: (%d x %d)", currentPosition.x, currentPosition.y);
+		Event mouse (etMouseDown, currentPosition.x, currentPosition.y);
+		mouse.value = touchInfo.GetPointId ();
+		mouse.flags |= efLeftDown;
 		
+		sgTizenFrame->HandleEvent (mouse);
 		
 	}
 	
 	
 	void TizenApplication::OnTouchReleased (const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo) {
 		
-		AppLog ("OnTouchReleased: (%d x %d)", currentPosition.x, currentPosition.y);
+		Event mouse (etMouseUp, currentPosition.x, currentPosition.y);
+		mouse.value = touchInfo.GetPointId ();
+		mouse.flags |= efLeftDown;
+		
+		sgTizenFrame->HandleEvent (mouse);
 		
 	}
 	
