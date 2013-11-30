@@ -404,7 +404,7 @@ class InputHandler {
                     wheel_dir = lime.InputHandler.MouseButton.wheel_up; 
                 }
                     //todo:make inverted for mac only
-                lime_mousedown({
+                lime_mouseup({
                     raw : _event,
                     button : wheel_dir,
                     state : MouseState.down,
@@ -430,7 +430,7 @@ class InputHandler {
                         wheel_dir = lime.InputHandler.MouseButton.wheel_up; 
                     }
                         //todo:make inverted for mac only
-                    lime_mousedown({
+                    lime_mouseup({
                         raw : _event,
                         button : wheel_dir,
                         state : MouseState.down,
