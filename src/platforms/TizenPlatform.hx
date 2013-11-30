@@ -19,12 +19,15 @@ import sys.FileSystem;
 class TizenPlatform implements IPlatformTool {
 	
 	
+	private static var uuid:String = null;
+	
+	
 	public function build (project:HXProject):Void {
 		
 		var hxml = project.app.path + "/tizen/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
 		
 		ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "tizen" ] );
-		CPPHelper.compile (project, project.app.path + "/tizen/obj", [ "-Dtizen", "-DAPP_ID=" + project.meta.packageName ]);
+		CPPHelper.compile (project, project.app.path + "/tizen/obj", [ "-Dtizen", "-DAPP_ID=" + TizenHelper.getUUID (project) ]);
 		
 		FileHelper.copyIfNewer (project.app.path + "/tizen/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", project.app.path + "/tizen/bin/CommandLineBuild/" + project.app.file + ".exe");
 		
@@ -94,6 +97,7 @@ class TizenPlatform implements IPlatformTool {
 		
 		var context = project.templateContext;
 		context.CPP_DIR = project.app.path + "/tizen/obj";
+		context.APP_PACKAGE = TizenHelper.getUUID (project);
 		
 		PathHelper.mkdir (destination + "shared/res/screen-density-xhigh");
 		

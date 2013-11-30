@@ -15,6 +15,7 @@ class StringHelper {
 	private static var base64Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	private static var base64Encoder:BaseCode;
 	private static var usedFlatNames = new Map <String, String> ();
+	private static var uuidChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 	
 	
 	#if (flash || openfl || nme)
@@ -151,6 +152,42 @@ class StringHelper {
 		return variableName;
 		
 	}
+	
+	
+	public static function generateUUID (length:Int, radix:Null<Int> = null, seed:Null<Int> = null):String {
+		
+		var chars = uuidChars.split ("");
+		
+		if (radix == null || radix > chars.length) {
+			
+			radix = chars.length;
+			
+		} else if (radix < 2) {
+			
+			radix = 2;
+			
+		}
+		
+		if (seed == null) {
+			
+			seed = Math.floor (Math.random () * 2147483647.0);
+			
+		}
+		
+		var uuid = [];
+		var seedValue:Int = Math.round (Math.abs (seed));
+		
+		for (i in 0...length) {
+			
+			seedValue = Std.int ((seedValue * 16807.0) % 2147483647.0);
+			uuid[i] = chars[0 | Std.int ((seedValue / 2147483647.0) * radix)];
+			
+		}
+		
+		return uuid.join ("");
+		
+	}
+	
 	
 	
 	public static function getFlatName (name:String):String {

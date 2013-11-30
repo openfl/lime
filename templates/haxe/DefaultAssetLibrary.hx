@@ -66,8 +66,6 @@ class DefaultAssetLibrary extends AssetLibrary {
 					
 					var data = bytes.readUTFBytes (bytes.length);
 					
-					trace (data.length);
-					
 					if (data != null && data.length > 0) {
 						
 						var manifest:Array<AssetData> = Unserializer.run (data);
