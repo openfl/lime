@@ -193,6 +193,9 @@ extern "C" bool GetBundleFilename(const char *inName, char *outBuffer,int inBufS
 extern "C" FILE *OpenOverwrite(const char *inName);
 namespace lime {
 #else
+#ifdef TIZEN
+extern int gFixedOrientation;
+#endif
 #define OpenRead(x) fopen(x,"rb")
 #define OpenOverwrite(x) fopen(x,"wb") // [ddc]
 #endif

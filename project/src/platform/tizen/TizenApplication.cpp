@@ -7,6 +7,7 @@ using namespace Tizen::Graphics::Opengl;
 namespace lime {
 	
 	
+	int gFixedOrientation = -1;
 	FrameCreationCallback sgCallback;
 	unsigned int sgFlags;
 	int sgHeight;
@@ -29,6 +30,16 @@ namespace lime {
 			
 			sgWidth = 720;
 			sgHeight = 1280;
+			
+		}
+		
+		// For now, swap the width/height for proper EGL initialization, when landscape
+		
+		if (gFixedOrientation == 3 || gFixedOrientation == 4) {
+			
+			int temp = sgWidth;
+			sgWidth = sgHeight;
+			sgHeight = temp;
 			
 		}
 		
@@ -100,6 +111,13 @@ namespace lime {
 		
 		mForm = new (std::nothrow) TizenForm (this);
 		mForm->Construct (Tizen::Ui::Controls::FORM_STYLE_NORMAL);
+		
+		if (gFixedOrientation == 3 || gFixedOrientation == 4) {
+			
+			mForm->SetOrientation (Tizen::Ui::ORIENTATION_LANDSCAPE);
+			
+		}
+		
 		GetAppFrame ()->GetFrame ()->AddControl (mForm);
 		
 		mForm->AddKeyEventListener (*this);
