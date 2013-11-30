@@ -1,6 +1,0 @@
--main RunScript
--neko ../../luxe/run.n
--lib hxtools
--D pathtools
--D luxe
--cp src

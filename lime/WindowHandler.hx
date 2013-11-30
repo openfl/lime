@@ -330,7 +330,6 @@ class WindowHandler {
 
         //Cursor and window control (desktop only obviously)
     private static var lime_stage_set_window_position                 = Libs.load("lime","lime_stage_set_window_position", 3);
-
     private static var lime_stage_show_cursor                         = Libs.load("lime","lime_stage_show_cursor", 2);
     private static var lime_stage_constrain_cursor_to_window_frame    = Libs.load("lime","lime_stage_constrain_cursor_to_window_frame", 2);
     private static var lime_stage_set_cursor_position_in_window       = Libs.load("lime","lime_stage_set_cursor_position_in_window", 3);

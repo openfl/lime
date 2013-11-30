@@ -1,5 +1,0 @@
--main RunScript
--neko ../run.n
--lib hxtools
--D pathtools
--cp src
