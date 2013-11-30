@@ -959,9 +959,15 @@ class ProjectXMLParser extends HXProject {
 							
 						}
 						
-						if (haxelib != null && haxelib.name == "nme" && localDefines.exists ("openfl")) {
+						if (haxelib != null && haxelib.name == "nme" && !localDefines.exists ("nme")) {
 							
-							haxelib = new Haxelib ("openfl-native");
+							haxelib = new Haxelib ("lime");
+							
+						}
+						
+						if (name == "nme" && !localDefines.exists ("nme")) {
+							
+							name = "lime";
 							
 						}
 						
