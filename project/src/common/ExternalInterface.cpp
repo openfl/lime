@@ -1027,7 +1027,7 @@ DEFINE_PRIM(lime_clear_user_preference,1);
 
 value lime_stage_set_fixed_orientation(value inValue)
 {
-#ifdef IPHONE
+#if defined(IPHONE) || defined(TIZEN)
    gFixedOrientation = val_int(inValue);
 #endif
    return alloc_null();
