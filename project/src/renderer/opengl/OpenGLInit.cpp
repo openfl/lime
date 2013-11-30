@@ -128,17 +128,17 @@ namespace lime {
 		
 		if (shaders && HasShaderSupport ()) {
 			
-			#ifdef TIZEN
-			AppLog ("Using OGL2\n");
-			#endif
+			//#ifdef TIZEN
+			//AppLog ("Using OGL2\n");
+			//#endif
 			//printf("Using OGL2\n");
 			ctx = new OpenGL2Context ((WinDC)inWindow, (GLCtx)inGLCtx);
 			
 		} else {
 			
-			#ifdef TIZEN
-			AppLog ("Using OGL2\n");
-			#endif
+			//#ifdef TIZEN
+			//AppLog ("Using OGL2\n");
+			//#endif
 			//printf("Using OGL1\n");
 			ctx = new OpenGLContext ((WinDC)inWindow, (GLCtx)inGLCtx);
 			
