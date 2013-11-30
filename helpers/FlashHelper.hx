@@ -169,6 +169,7 @@ class FlashHelper {
 					
 				} else {
 					
+					input.close ();
 					input = File.read (src, true);
 					
 					var r = new format.wav.Reader (input);
