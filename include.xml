@@ -29,6 +29,6 @@
 		
 	</section>
 	
-	<templatePath name="templates" />
+	<templatePath name="templates" unless="openfl" />
 	
 </extension>
