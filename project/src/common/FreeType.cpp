@@ -312,6 +312,8 @@ bool GetFontFile(const std::string& inName,std::string &outFile)
          outFile = "/usr/share/fonts/times.ttf";
       #elif defined (BLACKBERRY)
          outFile = "/usr/fonts/font_repository/monotype/times.ttf";
+      #elif defined (TIZEN)
+         outFile = "/usr/share/fonts/TizenSansRegular.ttf";
       #else
          outFile = "/usr/share/fonts/truetype/freefont/FreeSerif.ttf";
       #endif
@@ -324,6 +326,8 @@ bool GetFontFile(const std::string& inName,std::string &outFile)
          outFile = "/usr/share/fonts/Prelude-Medium.ttf";
       #elif defined (BLACKBERRY)
          outFile = "/usr/fonts/font_repository/monotype/arial.ttf";
+      #elif defined (TIZEN)
+         outFile = "/usr/share/fonts/TizenSansRegular.ttf";
       #else
          outFile = "/usr/share/fonts/truetype/freefont/FreeSans.ttf";
       #endif
@@ -336,6 +340,8 @@ bool GetFontFile(const std::string& inName,std::string &outFile)
          outFile = "/usr/share/fonts/cour.ttf";
       #elif defined (BLACKBERRY)
          outFile = "/usr/fonts/font_repository/monotype/cour.ttf";
+      #elif defined (TIZEN)
+         outFile = "/usr/share/fonts/TizenSansRegular.ttf";
       #else
          outFile = "/usr/share/fonts/truetype/freefont/FreeMono.ttf";
       #endif
