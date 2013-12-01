@@ -20,10 +20,12 @@ class TizenHelper {
 	
 	public static function createPackage (project:HXProject, workingDirectory:String, targetPath:String):Void {
 		
+		var keystore = null;
 		var password = null;
 		
 		if (project.certificate != null) {
 			
+			keystore = project.certificate.path;
 			password = project.certificate.password;
 			
 			if (password == null) {
@@ -32,6 +34,13 @@ class TizenHelper {
 				Sys.println ("");
 				
 			}
+			
+		}
+		
+		if (keystore == null) {
+			
+			keystore = PathHelper.findTemplate (project.templatePaths, "bin/debug.p12");
+			password = "1234";
 			
 		}
 		
@@ -45,7 +54,7 @@ class TizenHelper {
 			
 		}
 		
-		runCommand (project, workingDirectory, "native-packaging" , [ "--sign-author-key", project.certificate.path, "--sign-author-pwd", password ]);
+		runCommand (project, workingDirectory, "native-packaging" , [ "--sign-author-key", keystore, "--sign-author-pwd", password ]);
 		
 	}
 	
