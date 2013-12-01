@@ -8,12 +8,15 @@ namespace lime {
 	
 	
 	int gFixedOrientation = -1;
+	int mSingleTouchID;
 	FrameCreationCallback sgCallback;
 	unsigned int sgFlags;
 	int sgHeight;
 	const char *sgTitle;
 	TizenFrame *sgTizenFrame;
 	int sgWidth;
+	
+	enum { NO_TOUCH = -1 };
 	
 	
 	void CreateMainFrame (FrameCreationCallback inOnFrame, int inWidth, int inHeight, unsigned int inFlags, const char *inTitle, Surface *inIcon) {
@@ -23,6 +26,8 @@ namespace lime {
 		sgHeight = inHeight;
 		sgFlags = inFlags;
 		sgTitle = inTitle;
+		
+		mSingleTouchID = NO_TOUCH;
 		
 		//if (sgWidth == 0 && sgHeight == 0) {
 			
@@ -233,9 +238,14 @@ namespace lime {
 	
 	void TizenApplication::OnTouchMoved (const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo) {
 		
-		Event mouse (etMouseMove, currentPosition.x, currentPosition.y);
+		Event mouse (etTouchMove, currentPosition.x, currentPosition.y);
 		mouse.value = touchInfo.GetPointId ();
-		mouse.flags |= efLeftDown;
+		
+		if (mSingleTouchID == NO_TOUCH || mouse.value == mSingleTouchID) {
+			
+			mouse.flags |= efPrimaryTouch;
+			
+		}
 		
 		sgTizenFrame->HandleEvent (mouse);
 		
@@ -244,9 +254,14 @@ namespace lime {
 	
 	void TizenApplication::OnTouchPressed (const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo) {
 		
-		Event mouse (etMouseDown, currentPosition.x, currentPosition.y);
+		Event mouse (etTouchBegin, currentPosition.x, currentPosition.y);
 		mouse.value = touchInfo.GetPointId ();
-		mouse.flags |= efLeftDown;
+		
+		if (mSingleTouchID == NO_TOUCH || mouse.value == mSingleTouchID) {
+			
+			mouse.flags |= efPrimaryTouch;
+			
+		}
 		
 		sgTizenFrame->HandleEvent (mouse);
 		
@@ -255,9 +270,20 @@ namespace lime {
 	
 	void TizenApplication::OnTouchReleased (const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo) {
 		
-		Event mouse (etMouseUp, currentPosition.x, currentPosition.y);
+		Event mouse (etTouchEnd, currentPosition.x, currentPosition.y);
 		mouse.value = touchInfo.GetPointId ();
-		mouse.flags |= efLeftDown;
+		
+		if (mSingleTouchID == NO_TOUCH || mouse.value == mSingleTouchID) {
+			
+			mouse.flags |= efPrimaryTouch;
+			
+		}
+		
+		if (mSingleTouchID == mouse.value) {
+			
+			mSingleTouchID = NO_TOUCH;
+			
+		}
 		
 		sgTizenFrame->HandleEvent (mouse);
 		

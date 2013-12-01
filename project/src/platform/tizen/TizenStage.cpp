@@ -64,6 +64,20 @@ namespace lime {
 	void TizenStage::GetMouse () {}
 	
 	
+	bool TizenStage::getMultitouchSupported () {
+		
+		return true;
+	}
+	
+	
+	bool TizenStage::getMultitouchActive () {
+		
+		//return mMultiTouch;
+		return true;
+		
+	}
+	
+	
 	void TizenStage::Resize (const int inWidth, const int inHeight) {
 		
 		AppLog ("Resize: %d x %d\n", inWidth, inHeight);
@@ -105,6 +119,13 @@ namespace lime {
 				break;
 			
 		}
+		
+	}
+	
+	
+	void TizenStage::setMultitouchActive (bool inActive) {
+		
+		//mMultiTouch = inActive;
 		
 	}
 	

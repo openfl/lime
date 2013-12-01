@@ -19,8 +19,11 @@ namespace lime {
 			
 			void Flip ();
 			void GetMouse ();
+			bool getMultitouchSupported ();
+			bool getMultitouchActive ();
 			void Resize (const int inWidth, const int inHeight);
 			void SetCursor (Cursor inCursor);
+			void setMultitouchActive (bool inActive);
 			
 			Surface *GetPrimarySurface () { return mPrimarySurface; }
 			bool isOpenGL () const { return true; }
