@@ -995,7 +995,7 @@ DEFINE_PRIM(lime_haptic_vibrate,2);
 // --- SharedObject ----------------------------------------------------------------------
 value lime_set_user_preference(value inId,value inValue)
 {
-   #if defined(IPHONE) || defined(ANDROID) || defined(WEBOS)
+   #if defined(IPHONE) || defined(ANDROID) || defined(WEBOS) || defined(TIZEN)
       bool result=SetUserPreference(val_string(inId),val_string(inValue));
       return alloc_bool(result);
    #endif
@@ -1005,7 +1005,7 @@ DEFINE_PRIM(lime_set_user_preference,2);
 
 value lime_get_user_preference(value inId)
 {
-   #if defined(IPHONE) || defined(ANDROID) || defined(WEBOS)
+   #if defined(IPHONE) || defined(ANDROID) || defined(WEBOS) || defined(TIZEN)
       std::string result=GetUserPreference(val_string(inId));
       return alloc_string(result.c_str());
    #endif
@@ -1015,7 +1015,7 @@ DEFINE_PRIM(lime_get_user_preference,1);
 
 value lime_clear_user_preference(value inId)
 {
-   #if defined(IPHONE) || defined(ANDROID) || defined(WEBOS)
+   #if defined(IPHONE) || defined(ANDROID) || defined(WEBOS) || defined(TIZEN)
       bool result=ClearUserPreference(val_string(inId));
       return alloc_bool(result);
    #endif

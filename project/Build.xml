@@ -223,6 +223,7 @@
 		<file name="src/platform/tizen/TizenUIFrame.cpp"/> -->
 		<file name="src/platform/tizen/TizenStage.cpp"/>
 		<file name="src/platform/tizen/TizenFrame.cpp"/>
+		<file name="src/platform/tizen/System.cpp" />
 		<file name="src/sound/openal/OpenALSound.cpp" if="openal"/>
 		
 	</files>
@@ -264,6 +265,8 @@
 		<compilerflag value="-I${NATIVE_DEV}/include/SDL12" if="sdl" unless="dynamic_sdl"/>
 		<compilerflag value="-I${NATIVE_DEV}/include/SDL2" if="sdl2" />
 		<compilerflag value="-I${GPH_ROOT}/gcc-4.2.4-glibc-2.7-eabi/arm-gph-linux-gnueabi/sys-root/usr/include" if="gph"/>
+		<compilerflag value="-I${TIZEN_SDK}/platforms/tizen2.2/rootstraps/tizen-device-2.2.native/usr/include" if="tizen" />
+		<compilerflag value="-I${TIZEN_SDK}/platforms/tizen2.2/rootstraps/tizen-device-2.2.native/usr/include/osp" if="tizen" />
 		<compilerflag value="-I/opt/vc/include" if="rpi"/>
 		<compilerflag value="-I/opt/vc/include/interface/vcos/pthreads/" if="rpi"/>
 		<compilerflag value="-I${GPH_ROOT}/include/freetype2" if="gph"/>
@@ -342,8 +345,8 @@
 		<compilerflag value="-I${QNX_TARGET}/usr/include" if="blackberry"/>
 		<!-- <compilerflag value="-I${QNX_TARGET}/usr/include/GLES" if="blackberry"/> -->
 		<compilerflag value="-I${QNX_TARGET}/usr/include/GLES2" if="blackberry"/>
-	  <compilerflag value="-I${TIZEN_SDK}/platforms/tizen2.2/rootstraps/tizen-device-2.2.native/usr/include" if="tizen" />
-	  <compilerflag value="-I${TIZEN_SDK}/platforms/tizen2.2/rootstraps/tizen-device-2.2.native/usr/include/osp" if="tizen" />
+		<compilerflag value="-I${TIZEN_SDK}/platforms/tizen2.2/rootstraps/tizen-device-2.2.native/usr/include" if="tizen" />
+		<compilerflag value="-I${TIZEN_SDK}/platforms/tizen2.2/rootstraps/tizen-device-2.2.native/usr/include/osp" if="tizen" />
 		<compilerflag value="-DLIME_DIRECTFB" if="directfb"/>
 		<compilerflag value="-DSDL_OGL" if="sdl"/>
 		<compilerflag value="-DSDL_OGL" if="sdl2"/>

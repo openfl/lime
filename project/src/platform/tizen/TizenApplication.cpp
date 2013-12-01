@@ -24,14 +24,14 @@ namespace lime {
 		sgFlags = inFlags;
 		sgTitle = inTitle;
 		
-		if (sgWidth == 0 && sgHeight == 0) {
+		//if (sgWidth == 0 && sgHeight == 0) {
 			
 			// Hard-code screen size for now
 			
 			sgWidth = 720;
 			sgHeight = 1280;
 			
-		}
+		//}
 		
 		// For now, swap the width/height for proper EGL initialization, when landscape
 		

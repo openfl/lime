@@ -24,6 +24,10 @@ typedef uint64_t __int64;
 #include <android/log.h>
 #endif
 
+#ifdef TIZEN
+#include <FSystem.h>
+#endif
+
 #ifdef IPHONE
 #include <QuartzCore/QuartzCore.h>
 #endif
@@ -379,6 +383,20 @@ void GetSpecialDir(SpecialDir inDir,std::string &outDir)
 	{
 		outDir = "shared/documents";
 	}
+#elif defined(TIZEN)
+   if (inDir == DIR_APP)
+   {
+      outDir = "../";
+   }
+   else if (inDir == DIR_STORAGE)
+   {
+      outDir = "../";
+   }
+   else if (inDir == DIR_USER || inDir == DIR_DOCS || inDir == DIR_DESKTOP)
+   {
+      std::wstring dir = std::wstring (Tizen::System::Environment::GetExternalStoragePath ().GetPointer ());
+      outDir = std::string (dir.begin (), dir.end ());
+   }
 #elif defined(WEBOS)
 	if (inDir == DIR_APP)
 	{
