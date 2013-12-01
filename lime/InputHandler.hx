@@ -22,7 +22,7 @@ class InputHandler {
         touch_map = new Map<Int, Dynamic>();
         down_keys = new Map();
 
-       #if lime_html5   
+       #if lime_html5
             lime_apply_input_listeners();
        #end //lime_html5
     }
@@ -154,7 +154,6 @@ class InputHandler {
         last_mouse_x = _event.x;
         last_mouse_y = _event.y;
 
-        // trace("mouse moved, new : " + _event.x + ' ' + _event.y);
         // trace("mouse moved, delta : " + deltaX + ' ' + deltaY);
 
         if(lib.host.onmousemove != null) {

@@ -38,6 +38,8 @@ class RenderHandler {
     public var lib : LiME;
     public function new( _lib:LiME ) { lib = _lib; }
 
+    public var __handle : Dynamic;
+
         //direct_renderer_handle for drawing
     public var direct_renderer_handle : Dynamic;
 
@@ -47,15 +49,23 @@ class RenderHandler {
         public var canvas_position : Dynamic;
     #end //lime_html5
     
+    
+    @:noCompletion private function __onRender(rect:Dynamic):Void {
+        
+
+    }
+
     public function startup() { 
 
         #if lime_native
+
+            __handle = lime_get_frame_stage( lib.window_handle );
 
                 //Set up the OpenGL View
             direct_renderer_handle = lime_direct_renderer_create();
 
                 //Add this to the main stage, so it will render
-            lime_doc_add_child( lib.view_handle, direct_renderer_handle );
+            lime_doc_add_child( __handle, direct_renderer_handle );
 
                 //Set this handle to the real view with a render function
             lime_direct_renderer_set( direct_renderer_handle, on_render );
@@ -218,27 +228,20 @@ class RenderHandler {
 
         #if lime_html5
            
-            // trace('render.render');
-            
-            on_render();
-            
+            on_render(null);
             _requestAnimFrame( lib.on_update );
             
             return true;
         #end
 
         #if lime_native 
-            // trace("now doing render");
-            // lime_stage_request_render();
-            
             lime_render_stage( lib.view_handle );
-            // lime_stage_request_render();
         #end //lime_native
 
         return true;
     }
 
-    public function on_render() {
+    public function on_render(rect:Dynamic):Void {
 
         if( lib.host.render != null ) {
             lib.host.render();
@@ -249,6 +252,7 @@ class RenderHandler {
 
 //lime functions
 #if lime_native
+    private static var lime_get_frame_stage          = Libs.load("lime","lime_get_frame_stage",    1);    
     private static var lime_stage_request_render     = Libs.load("lime","lime_stage_request_render", 0);
     private static var lime_render_stage             = Libs.load("lime","lime_render_stage", 1);
     private static var lime_doc_add_child            = Libs.load("lime","lime_doc_add_child", 2);

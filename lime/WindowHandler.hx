@@ -224,6 +224,7 @@ class WindowHandler {
     }
 
     public function on_redraw( _event:Dynamic ) {
+        trace(_event);
         lib.render.render();
     } //on_redraw
 

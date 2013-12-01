@@ -53,18 +53,18 @@ class Main {
         
             //Create a set of vertices
         var vertices : Float32Array = new Float32Array([
-            100,    100,    0,
-            -100,   100,    0,
-            100,    -100,   0,
-            -100,   -100,   0
+            100.0,    100.0,    0.0,
+            -100.0,   100.0,    0.0,
+            100.0,    -100.0,   0.0,
+            -100.0,   -100.0,   0.0
         ]);
             
             //Create a buffer from OpenGL
-        vertexBuffer = GL.createBuffer ();
+        vertexBuffer = GL.createBuffer();
             //Bind it
-        GL.bindBuffer (GL.ARRAY_BUFFER, vertexBuffer);  
+        GL.bindBuffer( GL.ARRAY_BUFFER, vertexBuffer );  
             //Point it to the vertex array!
-        GL.bufferData (GL.ARRAY_BUFFER, vertices, GL.STATIC_DRAW);
+        GL.bufferData( GL.ARRAY_BUFFER, vertices, GL.STATIC_DRAW );
 
     } //init
 

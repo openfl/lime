@@ -67,9 +67,13 @@ class LiME {
     	_debug(':: lime :: initializing -');
         _debug(':: lime :: Creating window at ' + config.width + 'x' + config.height);
 
-            //default to 60 fps        
+            //default to 60 fps
         if( config.fps != null ) {
-            frame_rate = Std.parseFloat( config.fps );
+            if(Std.is(config.fps, String)) {   
+                frame_rate = Std.parseFloat( config.fps );
+            } else {
+                frame_rate = config.fps;
+            }
         } else { //config.fps
             frame_rate = 60;    
         }
@@ -269,7 +273,7 @@ class LiME {
                 window.on_focus(_event);
 
             case SystemEvents.redraw:
-                window.on_redraw(true);
+                window.on_redraw(_event);
 
             case SystemEvents.shouldrotate:
                 window.on_should_rotate(_event);
