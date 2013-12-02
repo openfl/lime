@@ -34,4 +34,4 @@ For example, frameworks like [OpenFL](http://github.com/openfl) leverage lime to
 - lime exposes an API to talk to the windowing, audio and other API's across platforms.
 - native parts of lime were forked from [nme](http://github.com/haxenme/nme) (native media engine) and merged into  openfl-native - but now (and lastly) been merged into lime and joined forces to create an agnostic, cross platform starting point to widen the haxe landscape for all frameworks and framework developers.
 
-Expect docs, diagrams and breakdowns of how to get started using lime soon. See the examples/ folder for the 
+Expect docs, diagrams and breakdowns of how to get started using lime soon. See the examples/ folder for the basics for now.
