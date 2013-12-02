@@ -20,7 +20,11 @@ By setting up a bootstrap for your application, lime will handle all the low lev
 
 lime is a cross platform haxe library powered by [lime-tools](http://github.com/openfl/lime-tools), for building opengl across many platforms. 
 
-Frameworks like [OpenFL](http://github.com/openfl) leverage lime to implement a cross platform Flash API.
+### lime is two parts
+**One part** is the native code, the underlying platform templates and systems to expose the features. 
+**The second part** is the haxe wrapper, forwarding the events to your application.
+
+For example, frameworks like [OpenFL](http://github.com/openfl) leverage lime to implement a cross platform Flash API by leaning on the native portion, without using the current lime haxe classes at all.
 
 #Things to note
 
@@ -28,3 +32,6 @@ Frameworks like [OpenFL](http://github.com/openfl) leverage lime to implement a 
 - lime works by default by bootstrapping your application main class into the framework. 
 - lime will call functions into your class, for mouse, keys, gamepad and other system or windowing events (resizing, for example).
 - lime exposes an API to talk to the windowing, audio and other API's across platforms.
+- native parts of lime were forked from [nme](http://github.com/haxenme/nme) (native media engine) and merged into  openfl-native - but now (and lastly) been merged into lime and joined forces to create an agnostic, cross platform starting point to widen the haxe landscape for all frameworks and framework developers.
+
+Expect docs, diagrams and breakdowns of how to get started using lime soon. See the examples/ folder for the 
