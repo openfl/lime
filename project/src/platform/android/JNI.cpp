@@ -600,6 +600,12 @@ bool HaxeToJNI(JNIEnv *inEnv, value inValue, JNIType inType, jvalue &out)
                jobject obj = 0;
                if (!AbstractToJObject(inValue,obj))
                {
+                  if (val_is_string(inValue))
+                  {
+                    out.l = inEnv->NewStringUTF(val_string(inValue));
+                    return true;
+                  }
+
                   ELOG("HaxeToJNI : jniObject not an object %p", inValue);
                   return false;
                }
