@@ -16,6 +16,9 @@
 #ifdef IPHONE
 //#define LOG_SOUND(args,...) printf(args, ##__VA_ARGS__)
 #define LOG_SOUND(args...) { }
+#elif defined(TIZEN)
+#include <FBase.h>
+#define LOG_SOUND(args,...) AppLog(args, ##__VA_ARGS__)
 #else
 #define LOG_SOUND(args,...) printf(args, ##__VA_ARGS__)
 #endif

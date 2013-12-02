@@ -977,7 +977,7 @@ namespace lime
        if (mSuspend) return true;
        if (!mIsValid) return false;
       
-       int processed;
+       int processed = 0;
        bool active = true;
 
        alGetSourcei(source, AL_BUFFERS_PROCESSED, &processed);
@@ -985,21 +985,15 @@ namespace lime
        while(processed--) {
 
            ALuint buffer;
-           
            alSourceUnqueueBuffers(source, 1, &buffer);
-           check();
+           alGetError();
            
-           if (mIsValid)
+           if (buffer)
            {
               active = stream(buffer);
               
               alSourceQueueBuffers(source, 1, &buffer);
               check();
-           }
-           else
-           {
-              active = false;
-              break;
            }
        }
        

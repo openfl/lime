@@ -237,9 +237,6 @@ namespace lime {
 			
 		}
 		
-		Event poll (etPoll);
-		sgTizenFrame->HandleEvent (poll);
-		
 		double next = sgTizenFrame->GetStage ()->GetNextWake () - GetTimeStamp ();
 		
 		if (next > 0.001) {
@@ -251,6 +248,9 @@ namespace lime {
 			mTimer->Start (1);
 			
 		}
+		
+		Event poll (etPoll);
+		sgTizenFrame->HandleEvent (poll);
 		
 	}
 	
