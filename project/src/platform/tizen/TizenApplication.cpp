@@ -188,13 +188,13 @@ namespace lime {
 		
 		if (mTimer != null) {
 			
-			if (next > 0) {
+			if (next > 0.001) {
 				
 				mTimer->Start (next * 1000.0);
 				
 			} else {
 				
-				mTimer->Start (10);
+				mTimer->Start (1);
 				
 			}
 			
@@ -242,13 +242,13 @@ namespace lime {
 		
 		double next = sgTizenFrame->GetStage ()->GetNextWake () - GetTimeStamp ();
 		
-		if (next > 0) {
+		if (next > 0.001) {
 			
 			mTimer->Start (next * 1000.0);
 			
 		} else {
 			
-			mTimer->Start (10);
+			mTimer->Start (1);
 			
 		}
 		
