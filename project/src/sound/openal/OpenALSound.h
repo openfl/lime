@@ -24,7 +24,7 @@
 
 typedef unsigned char uint8;
 
-#define STREAM_BUFFER_SIZE (4096 * 4)
+#define STREAM_BUFFER_SIZE (4096 * 8)
 
 namespace lime
 {

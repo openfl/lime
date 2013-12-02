@@ -127,6 +127,7 @@ namespace lime {
 		
 		mForm->AddKeyEventListener (*this);
 		mForm->AddTouchEventListener (*this);
+		mForm->SetMultipointTouchEnabled (true);
 		
 		bool ok = limeEGLCreate (mForm, sgWidth, sgHeight, 2, (sgFlags & wfDepthBuffer) ? 16 : 0, (sgFlags & wfStencilBuffer) ? 8 : 0, 0);
 		
@@ -174,17 +175,30 @@ namespace lime {
 	
 	void TizenApplication::OnForeground (void) {
 		
-		if (mTimer != null) {
-			
-			mTimer->Start (10);
-			
-		}
-		
 		Event activate (etActivate);
 		sgTizenFrame->HandleEvent (activate);
 		
 		Event gotFocus (etGotInputFocus);
 		sgTizenFrame->HandleEvent (gotFocus);
+		
+		Event poll (etPoll);
+		sgTizenFrame->HandleEvent (poll);
+		
+		double next = sgTizenFrame->GetStage ()->GetNextWake () - GetTimeStamp ();
+		
+		if (mTimer != null) {
+			
+			if (next > 0) {
+				
+				mTimer->Start (next * 1000.0);
+				
+			} else {
+				
+				mTimer->Start (10);
+				
+			}
+			
+		}
 		
 	}
 	
@@ -223,10 +237,20 @@ namespace lime {
 			
 		}
 		
-		mTimer->Start (10);
-		
 		Event poll (etPoll);
 		sgTizenFrame->HandleEvent (poll);
+		
+		double next = sgTizenFrame->GetStage ()->GetNextWake () - GetTimeStamp ();
+		
+		if (next > 0) {
+			
+			mTimer->Start (next * 1000.0);
+			
+		} else {
+			
+			mTimer->Start (10);
+			
+		}
 		
 	}
 	
