@@ -18,7 +18,7 @@ By setting up a bootstrap for your application, lime will handle all the low lev
 
 #How it works
 
-lime is a cross platform haxe library powered by [lime-tools](http://github.com/openfl/lime-tools), for building opengl across many platforms. 
+lime is a cross platform haxe library powered by [lime-tools](http://github.com/openfl/lime-tools), for building upon opengl across many platforms. 
 
 ### lime is two parts
 **One part** is the native code, the underlying platform templates and systems to expose the features.    
