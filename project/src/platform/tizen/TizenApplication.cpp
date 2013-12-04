@@ -413,6 +413,23 @@ namespace lime {
 	}
 	
 	
+	bool LaunchBrowser (const char *inUtf8URL) {
+		
+		Tizen::Base::String uri = Tizen::Base::String(inUtf8URL);
+		Tizen::App::AppControl* pAc = Tizen::App::AppManager::FindAppControlN (L"tizen.internet", L"http://tizen.org/appcontrol/operation/view");
+		
+		if (pAc) {
+			
+			pAc->Start (&uri, null, null, null);
+			delete pAc;
+			
+		}
+		
+		return true;	
+		
+	}
+	
+	
 	bool SetUserPreference (const char *inId, const char *inPreference) {
 		
 		result r = E_SUCCESS;

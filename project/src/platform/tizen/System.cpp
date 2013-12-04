@@ -99,13 +99,6 @@ namespace lime {
 		
 	}
 	
-
-	bool LaunchBrowser (const char *inUtf8URL) {
-		
-		return false;	
-		
-	}
-	
 	
 }
 
