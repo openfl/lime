@@ -4,6 +4,7 @@ package helpers;
 import haxe.crypto.Crc32;
 import haxe.io.Bytes;
 import haxe.io.Eof;
+import helpers.PathHelper;
 import helpers.PlatformHelper;
 import helpers.ProcessHelper;
 import project.HXProject;
@@ -25,7 +26,7 @@ class TizenHelper {
 		
 		if (project.certificate != null) {
 			
-			keystore = project.certificate.path;
+			keystore = PathHelper.tryFullPath (project.certificate.path);
 			password = project.certificate.password;
 			
 			if (password == null) {
