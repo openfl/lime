@@ -11,12 +11,13 @@
 #include <FUiIme.h>
 #include <FGraphics.h>
 #include <FGraphicsOpengl2.h>
+//#include <FUix.h>
 
 
 namespace lime {
 	
 	
-	class TizenApplication : public Tizen::App::UiApp, public Tizen::System::IScreenEventListener, public Tizen::Ui::IKeyEventListener, public Tizen::Base::Runtime::ITimerEventListener, public Tizen::Ui::ITouchEventListener {
+	class TizenApplication : public Tizen::App::UiApp, public Tizen::System::IScreenEventListener, public Tizen::Ui::IKeyEventListener, public Tizen::Base::Runtime::ITimerEventListener, public Tizen::Ui::ITouchEventListener /*, public Tizen::Uix::Sensor::ISensorEventListener*/ {
 		
 		public:
 			
@@ -31,6 +32,7 @@ namespace lime {
 			//virtual bool OnAppWillTerminate (void); 
 			virtual void OnBackground (void);
 			virtual void OnBatteryLevelChanged (Tizen::System::BatteryLevel batteryLevel);
+			//virtual void OnDataReceived (Tizen::Uix::Sensor::SensorType sensorType, Tizen::Uix::Sensor::SensorData& sensorData, result r);
 			virtual void OnForeground (void);
 			virtual void OnLowMemory (void);
 			virtual void OnKeyLongPressed (const Tizen::Ui::Control& source, Tizen::Ui::KeyCode keyCode);
@@ -55,6 +57,7 @@ namespace lime {
 			Tizen::Graphics::Opengl::EGLConfig mEGLConfig;
 			Tizen::Graphics::Opengl::EGLContext mEGLContext;
 			Tizen::Ui::Controls::Form* mForm;
+			//Tizen::Uix::Sensor::SensorManager* mSensorManager;
 			Tizen::Base::Runtime::Timer* mTimer;
 		
 	};
