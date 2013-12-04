@@ -14,7 +14,7 @@ namespace lime {
 	
 	double CapabilitiesGetScreenDPI () {
 		
-		return 200;
+		return 306;
 		
 	}
 	
