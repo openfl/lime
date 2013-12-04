@@ -1028,15 +1028,16 @@ public:
       for(int i=0; i<[string length]; i++)
       {
          unichar c = [string characterAtIndex: i];
+         unichar v = TranslateASCIICodeToKeyCode(c);
 
          Event key_down(etKeyDown);
          key_down.code = c;
-         key_down.value = c;
+         key_down.value = v;
          mStage->OnEvent(key_down);
          
          Event key_up(etKeyUp);
          key_up.code = c;
-         key_up.value = c;
+         key_up.value = v;
          mStage->OnEvent(key_up);
       }
    }

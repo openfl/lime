@@ -310,6 +310,7 @@
 		<file name="src/common/CURL.cpp" unless="nocurl"/>
 		<file name="src/common/Lzma.cpp"/>
 		<file name="src/common/Thread.cpp"/>
+        <file name="src/common/KeyCodes.cpp"/>
 		<file name="src/common/Audio.cpp" if="openal"/>
 		<file name="src/common/video/TheoraVideo.cpp" if="theora" />
 		<file name="src/common/empty/Video.cpp" unless="theora" />

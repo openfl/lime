@@ -4,6 +4,8 @@
 namespace lime
 {
 
+int TranslateASCIICodeToKeyCode(int asciiCode);
+
 enum KeyCode
 {
 
