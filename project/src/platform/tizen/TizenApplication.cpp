@@ -156,7 +156,7 @@ namespace lime {
 		
 		mSensorManager->AddSensorListener (*this, Tizen::Uix::Sensor::SENSOR_TYPE_ACCELERATION, interval, true);*/
 		
-		bool ok = limeEGLCreate (mForm, sgWidth, sgHeight, 2, (sgFlags & wfDepthBuffer) ? 16 : 0, (sgFlags & wfStencilBuffer) ? 8 : 0, 0);
+		bool ok = limeEGLCreate (mForm, sgWidth, sgHeight, 1, (sgFlags & wfDepthBuffer) ? 16 : 0, (sgFlags & wfStencilBuffer) ? 8 : 0, 0);
 		
 		mTimer = new (std::nothrow) Tizen::Base::Runtime::Timer;
 		mTimer->Construct (*this);
