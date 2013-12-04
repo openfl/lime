@@ -1119,7 +1119,7 @@ struct JNIMethod : public lime::Object
             result = alloc_int(env->CallShortMethodA(inObject, mMethod, jargs));
             break;
          case jniInt:
-            result = alloc_int(env->CallIntMethodA(mClass, mMethod, jargs));
+            result = alloc_int(env->CallIntMethodA(inObject, mMethod, jargs));
             break;
          case jniLong:
             result = alloc_int(env->CallLongMethodA(inObject, mMethod, jargs));
