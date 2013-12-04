@@ -1,30 +1,31 @@
 #include <LimeThread.h>
 
-namespace lime
-{
 
-ThreadId GetThreadId()
-{
-   #ifdef HX_WINDOWS
-   return GetCurrentThreadId();
-   #else
-   return pthread_self();
-   #endif
-}
+namespace lime {
 
+    static ThreadId sMainThread = 0;
 
+    ThreadId GetThreadId() {
 
-static ThreadId sMainThread = 0;
+        #ifdef HX_WINDOWS
+            return GetCurrentThreadId();
+        #else
+            return pthread_self();
+        #endif
 
-void SetMainThread()
-{
-   sMainThread = GetThreadId();
-}
+    }
 
-bool IsMainThread()
-{
-   return sMainThread==GetThreadId();
-}
+    bool IsMainThread() {
+
+       return sMainThread == GetThreadId();
+
+    }
+    
+    void SetMainThread() {
+
+       sMainThread = GetThreadId();
+
+    }
 
 
 } // end namespace lime

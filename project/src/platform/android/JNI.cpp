@@ -1193,7 +1193,7 @@ DEFINE_PRIM(lime_jni_call_member,3);
 value lime_jni_get_env()
 {
    JNIEnv *env = GetEnv();
-   return alloc_int((int)env);
+   return alloc_int((intptr_t)env);
 }
 DEFINE_PRIM(lime_jni_get_env,0);
 
