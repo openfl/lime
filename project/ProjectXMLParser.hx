@@ -1228,7 +1228,7 @@ class ProjectXMLParser extends HXProject {
 						
 						if (element.has.path) {
 							
-							certificate = new Keystore (substitute (element.att.path));
+							certificate = new Keystore (PathHelper.combine (extensionPath, substitute (element.att.path)));
 							
 							if (element.has.type) {
 								
