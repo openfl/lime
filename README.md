@@ -1,4 +1,8 @@
-#lime - Light Media Engine
+#lime 
+---
+light media engine
+
+![lime](lime.png)
 
 A lightweight OpenGL framework for [haxe](http://haxe.org).
 
