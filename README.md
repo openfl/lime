@@ -1,10 +1,10 @@
 #lime 
 ---
 light media engine
+A lightweight OpenGL framework for [haxe](http://haxe.org).
 
 ![lime](lime.png)
 
-A lightweight OpenGL framework for [haxe](http://haxe.org).
 
 A starting point for building OpenGL applications across Mac, Windows, Linux, Blackberry, HTML5(WebGL), Android, iOS and more.
 
