@@ -118,7 +118,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		if (assetType != null) {
 			
-			if (assetType == type || type == SOUND && (assetType == MUSIC || assetType == SOUND)) {
+			if (assetType == type || ((type == SOUND || type == MUSIC) && (assetType == MUSIC || assetType == SOUND))) {
 				
 				return true;
 				
@@ -238,6 +238,29 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#else
 		
 		return new Font (path.get (id));
+		
+		#end
+		
+	}
+	
+	
+	public override function getMusic (id:String):Sound {
+		
+		#if pixi
+		
+		return null;
+		
+		#elseif flash
+		
+		return cast (Type.createInstance (className.get (id), []), Sound);
+		
+		#elseif js
+		
+		return new Sound (new URLRequest (path.get (id)));
+		
+		#else
+		
+		return new Sound (new URLRequest (path.get (id)), null, true);
 		
 		#end
 		
@@ -392,6 +415,35 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#else
 		
 		handler (getFont (id));
+		
+		#end
+		
+	}
+	
+	
+	public override function loadMusic (id:String, handler:Sound -> Void):Void {
+		
+		#if (flash || js)
+		
+		/*if (path.exists (id)) {
+			
+			var loader = new Loader ();
+			loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event) {
+				
+				handler (cast (event.currentTarget.content, Bitmap).bitmapData);
+				
+			});
+			loader.load (new URLRequest (path.get (id)));
+			
+		} else {*/
+			
+			handler (getMusic (id));
+			
+		//}
+		
+		#else
+		
+		handler (getMusic (id));
 		
 		#end
 		
