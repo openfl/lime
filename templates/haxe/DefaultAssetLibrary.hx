@@ -246,35 +246,23 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	public override function getMusic (id:String):Sound {
 		
-		var _the_sound = null;
-
 		#if pixi
-			
-			//return null;		
+		
+		//return null;		
 		
 		#elseif flash
 		
-			_the_sound = cast (Type.createInstance (className.get (id), []), Sound);
+		return cast (Type.createInstance (className.get (id), []), Sound);
 		
 		#elseif js
 		
-			_the_sound = new Sound (new URLRequest (path.get (id)));
+		return new Sound (new URLRequest (path.get (id)));
 		
 		#else
 		
-			_the_sound = new Sound (new URLRequest (path.get (id)), null, true);
+		return new Sound (new URLRequest (path.get (id)), null, true);
 		
 		#end
-
-
-			//Then set the type explicitly
-
-		if(_the_sound != null) {
-			_the_sound.__audio_type = InternalAudioType.music;
-		}
-
-
-		return _the_sound;
 		
 	}
 	
