@@ -90,6 +90,55 @@ const std::string GetUniqueDeviceIdentifier();
 const std::string &GetResourcePath();
 
 
+enum ScreenFormat
+{
+   PIXELFORMAT_UNKNOWN,
+   PIXELFORMAT_INDEX1LSB,
+   PIXELFORMAT_INDEX1MSB,
+   PIXELFORMAT_INDEX4LSB,
+   PIXELFORMAT_INDEX4MSB,
+   PIXELFORMAT_INDEX8,
+   PIXELFORMAT_RGB332,
+   PIXELFORMAT_RGB444,
+   PIXELFORMAT_RGB555,
+   PIXELFORMAT_BGR555,
+   PIXELFORMAT_ARGB4444,
+   PIXELFORMAT_RGBA4444,
+   PIXELFORMAT_ABGR4444,
+   PIXELFORMAT_BGRA4444,
+   PIXELFORMAT_ARGB1555,
+   PIXELFORMAT_RGBA5551,
+   PIXELFORMAT_ABGR1555,
+   PIXELFORMAT_BGRA5551,
+   PIXELFORMAT_RGB565,
+   PIXELFORMAT_BGR565,
+   PIXELFORMAT_RGB24,
+   PIXELFORMAT_BGR24,
+   PIXELFORMAT_RGB888,
+   PIXELFORMAT_RGBX8888,
+   PIXELFORMAT_BGR888,
+   PIXELFORMAT_BGRX8888,
+   PIXELFORMAT_ARGB8888,
+   PIXELFORMAT_RGBA8888,
+   PIXELFORMAT_ABGR8888,
+   PIXELFORMAT_BGRA8888,
+   PIXELFORMAT_ARGB2101010,
+   PIXELFORMAT_YV12,
+   PIXELFORMAT_IYUV,
+   PIXELFORMAT_YUY2,
+   PIXELFORMAT_UYVY,
+   PIXELFORMAT_YVYU
+};
+
+struct ScreenMode
+{
+   int width;
+   int height;
+   ScreenFormat format;
+   int refreshRate;
+};
+
+
 enum SpecialDir
 {
    DIR_APP,
@@ -152,6 +201,7 @@ double CapabilitiesGetScreenDPI ();
 double CapabilitiesGetScreenResolutionX ();
 double CapabilitiesGetScreenResolutionY ();
 QuickVec<int>* CapabilitiesGetScreenResolutions ();
+QuickVec<ScreenMode>* CapabilitiesGetScreenModes ();
 
 std::string CapabilitiesGetLanguage();
 
