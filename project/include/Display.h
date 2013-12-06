@@ -59,7 +59,10 @@ enum EventType
    etJoyButtonDown, // 27
    etJoyButtonUp, // 28
    
-   etSysWM, //29
+   etSysWM, // 29
+   
+   etRenderContextLost, // 30
+   etRenderContextRestored, // 31
 };
 
 enum EventFlags

@@ -360,6 +360,12 @@ public:
          // Calling this recreates the gl context and we loose all our textures and
          // display lists. So Work around it.
          gTextureContextVersion++;
+         
+         if (mIsOpenGL)
+         {
+            Event contextLost(etRenderContextLost);
+            ProcessEvent(contextLost);
+         }
  
          mSDLSurface = SDL_SetVideoMode(inWidth, inHeight, 32, mFlags);
   
@@ -374,7 +380,7 @@ public:
                limeEGLResize(window, inWidth, inHeight);
             }
             #endif
-
+            
             //lime_resize_id ++;
             mOpenGLContext->DecRef();
             mOpenGLContext = HardwareContext::CreateOpenGL(0, 0, sgIsOGL2);
@@ -382,6 +388,9 @@ public:
             mOpenGLContext->IncRef();
             mPrimarySurface->DecRef();
             mPrimarySurface = new HardwareSurface(mOpenGLContext);
+            
+            Event contextRestored(etRenderContextRestored);
+            ProcessEvent(contextRestored);
          }
          else
          {
@@ -413,6 +422,12 @@ public:
          // Calling this recreates the gl context and we loose all our textures and
          // display lists. So Work around it.
          gTextureContextVersion++;
+         
+         if (mIsOpenGL)
+         {
+            Event contextLost(etRenderContextLost);
+            ProcessEvent(contextLost);
+         }
 
          int w = mIsFullscreen ? sgDesktopWidth : mWidth;
          int h = mIsFullscreen ? sgDesktopHeight : mHeight;
@@ -441,6 +456,9 @@ public:
             mOpenGLContext->IncRef();
             mPrimarySurface->DecRef();
             mPrimarySurface = new HardwareSurface(mOpenGLContext);
+            
+            Event contextRestored(etRenderContextRestored);
+            ProcessEvent(contextRestored);
          }
          else
          {

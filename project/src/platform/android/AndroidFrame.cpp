@@ -113,7 +113,11 @@ public:
    void Resize(int inWidth,int inHeight)
    {
       ResetHardwareContext();
+      Event contextLost(etRenderContextLost);
+      HandleEvent(contextLost);
       mHardwareContext->SetWindowSize(inWidth,inHeight);
+      Event contextRestored(etRenderContextRestored);
+      HandleEvent(contextRestored);
       Event evt(etResize, inWidth, inHeight);
       HandleEvent(evt);
    }
@@ -314,7 +318,7 @@ public:
       }
       else
       {
-         ResetHardwareContext();
+         //ResetHardwareContext();
          sStage->Resize(inWidth,inHeight);
       }
    }
