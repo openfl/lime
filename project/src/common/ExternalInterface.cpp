@@ -748,6 +748,18 @@ value lime_byte_array_read_file(value inFilename)
 DEFINE_PRIM(lime_byte_array_read_file,1);
 
 
+value lime_byte_array_get_native_pointer(value inByteArray)
+{
+   ByteArray bytes (inByteArray);
+   if (!val_is_null (bytes.mValue))
+   {
+      return alloc_int((intptr_t)bytes.Bytes ());
+   }
+   return alloc_null();
+}
+DEFINE_PRIM(lime_byte_array_get_native_pointer,1);
+
+
 struct ByteData
 {
    uint8 *data;
@@ -3689,56 +3701,6 @@ value lime_bitmap_data_dump_bits(value inSurface)
    return alloc_null();
 }
 DEFINE_PRIM(lime_bitmap_data_dump_bits,1);
-
-
-value lime_surface_get_base(value inSurface)
-{
-   Surface *surf;
-   if (AbstractToObject(inSurface,surf))
-   {
-      return alloc_int((intptr_t)surf->GetBase());
-   }
-   return alloc_null();
-}
-DEFINE_PRIM(lime_surface_get_base,1);
-
-
-value lime_surface_get_stride(value inSurface)
-{
-   Surface *surf;
-   if (AbstractToObject(inSurface,surf))
-   {
-      return alloc_int(surf->GetStride());
-   }
-   return alloc_null();
-}
-DEFINE_PRIM(lime_surface_get_stride,1);
-
-
-value lime_surface_begin_render(value inSurface, value inRect)
-{
-   Surface *surf;
-   if (AbstractToObject(inSurface,surf))
-   {
-      Rect rect;
-      FromValue(rect,inRect);
-      surf->BeginRender(rect);
-   }
-   return alloc_null();
-}
-DEFINE_PRIM(lime_surface_begin_render,2);
-
-
-value lime_surface_end_render(value inSurface)
-{
-   Surface *surf;
-   if (AbstractToObject(inSurface,surf))
-   {
-      surf->EndRender();
-   }
-   return alloc_null();
-}
-DEFINE_PRIM(lime_surface_end_render,1);
 
 
 /*value lime_surface_get_pixel_format(value inSurface)
