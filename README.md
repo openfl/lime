@@ -32,10 +32,12 @@ For example, frameworks like [OpenFL](http://github.com/openfl) leverage lime to
 
 #Things to note
 
-- lime is low level. It does the bare minimum to give you access to the metal - without making it difficult.
-- lime works by default by bootstrapping your application main class into the framework. 
-- lime will call functions into your class, for mouse, keys, gamepad and other system or windowing events (resizing, for example).
-- lime exposes an API to talk to the windowing, audio and other API's across platforms.
-- native parts of lime were forked from [nme](http://github.com/haxenme/nme) (native media engine) and merged into  openfl-native - but now (and lastly) been merged into lime and joined forces to create an agnostic, cross platform starting point to widen the haxe landscape for all frameworks and framework developers.
+- lime (native, and wrapper) are low level. It does the bare minimum to give you access to the metal - without making it difficult.
+- The lime wrapper works by default by bootstrapping your application main class into the framework. 
+- The lime wrapper will call functions into your class, for mouse, keys, gamepad and other system or windowing events (resizing, for example). Then, you handle them.
+- The lime wrapper exposes an API to talk to the windowing, audio and other API's across platforms.
+
+- The lime GL wrapper code is based on WebGL Api. It matches very closely. Including types and constants.
+- The lime native parts were forked from [nme](http://github.com/haxenme/nme) (native media engine) and merged into  openfl-native - but now (and lastly) been merged into lime and joined forces to create an agnostic, cross platform starting point to widen the haxe landscape for all frameworks and framework developers.
 
 Expect docs, diagrams and breakdowns of how to get started using lime soon. See the examples/ folder for the basics for now.
