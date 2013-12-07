@@ -91,7 +91,7 @@
 		<compilerflag value="-I${NATIVE_DEV}/include/SDL12" if="sdl" />
 		<compilerflag value="-I${NATIVE_DEV}/include/SDL2" if="sdl2" />
 		<compilerflag value="-I${NATIVE_DEV}/include/openal" if="openal" />
-		<compilerflag value="-Isrc/sound/openal"/>
+		<compilerflag value="-Isrc/sound/openal"/>		
 		<file name="src/platform/windows/GDIFont.cpp"/>
 		<file name="src/platform/windows/System.cpp" />
 		<!-- Use SDL on windows too ? -->
@@ -281,7 +281,7 @@
 		<compilerflag value="-DLIME_CURL_SSL" if="ssl" unless="nocurl"/>
 		<compilerflag value="-DLIME_FORCE_GLES1" if="LIME_FORCE_GLES1"/>
 		<compilerflag value="-Wno-conversion" if="linux"/>
-		
+
 		<!-- <file name="src/common/Surface.cpp"/> -->
 		<file name="src/renderer/common/Surface.cpp"/>
 		<file name="src/renderer/common/HardwareSurface.cpp"/>
@@ -481,6 +481,7 @@
 		<compilerflag value="-I${NATIVE_DEV}/include/SDL2" if="sdl2" />
 		<compilerflag value="${sdl_dynamic_include2}" if="dynamic_sdl"/>
 		<compilerflag value="-Isrc/sound/openal"/>
+		<compilerflag value="-mmacosx-version-min=10.7" if="macos"/>
 		<file name="src/platform/mac/NSFont.cpp"/>
 		<file name="src/platform/mac/MacBoot.m" />
 		<file name="src/common/empty/URL.cpp" if="nocurl" />
@@ -609,6 +610,8 @@
 		<lib name="-lz" if="dynamic_sdl"/>
 		
 		<flag value="${sdl_dynamic_path}" if="dynamic_sdl"/>
+		
+		<flag value="-mmacosx-version-min=10.7" if="macos"/>
 		
 		<vflag name="-framework" value="IOKit" if="macos"/>
 		<vflag name="-framework" value="Foundation" if="macos"/>
