@@ -1074,6 +1074,11 @@ void ProcessEvent(SDL_Event &inEvent)
 
 void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight, unsigned int inFlags, const char *inTitle, Surface *inIcon)
 {
+
+#ifdef HX_MACOS
+   MacBoot();
+#endif
+	
 	bool fullscreen = (inFlags & wfFullScreen) != 0;
 	bool opengl = (inFlags & wfHardware) != 0;
 	bool resizable = (inFlags & wfResizable) != 0;

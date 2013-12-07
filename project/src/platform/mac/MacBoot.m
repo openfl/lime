@@ -161,9 +161,10 @@ FILE *OpenOverwrite(const char *inName)
 /* The main class of the application, the application's delegate */
 @implementation SDLMain
 
+
 /* Set the working directory to the .app's parent directory */
 - (void) setupWorkingDirectory:(BOOL)shouldChdir
-{
+{   
     if (shouldChdir)
     {
         //char parentdir[MAXPATHLEN];
@@ -177,11 +178,16 @@ FILE *OpenOverwrite(const char *inName)
 		  
 		CFBundleRef mainBundle = CFBundleGetMainBundle();
 		CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(mainBundle);
+
+        // NSLog( @"%s\n", CFStringGetCStringPtr(CFURLGetString(resourcesURL), kCFStringEncodingASCII)  );
+
 		char path[PATH_MAX];
 		if (!CFURLGetFileSystemRepresentation(resourcesURL, TRUE, (UInt8 *)path, PATH_MAX))
 		{
         	// error!
+            printf("error %s\n", path);
 		}
+
 		CFRelease(resourcesURL);
 		
 		chdir(path);
@@ -462,6 +468,7 @@ static void CustomApplicationMain (int argc, char **argv)
 
 void MacBoot()
 {
+
     //continueBoot = inFunc;
 
     /* Copy the arguments into a global variable */
