@@ -752,6 +752,10 @@ namespace lime
          ByteArray bytes = AndroidGetAssetBytes(inFilename.c_str());
          sound = new OpenALSound((float*)bytes.Bytes(), bytes.Size());
       }
+      else
+      {
+         sound = new OpenALSound(inFilename, inForceMusic);
+      }
       #else
       sound = new OpenALSound(inFilename, inForceMusic);
       #endif
