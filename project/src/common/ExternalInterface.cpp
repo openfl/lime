@@ -1224,7 +1224,7 @@ value lime_stage_resize_window(value inStage, value inWidth, value inHeight)
    Stage *stage;
    if (AbstractToObject(inStage,stage))
    {
-      stage->ResizeWindow(val_int(inHeight), val_int(inWidth));
+      stage->ResizeWindow(val_int(inWidth), val_int(inHeight));
    }
    #endif
    return alloc_null();
