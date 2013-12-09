@@ -7,8 +7,8 @@ enum KeyValue {
     enter;
     meta;
     shift;
-    leftctrl;
-    leftalt;
+    ctrl;
+    alt;
     capslock;
     escape;
     space;
@@ -59,6 +59,30 @@ enum KeyValue {
     equals;
     minus;
     tilde;
+    forward_slash;
+    back_slash;
+    semicolon;
+    single_quote;
+    comma;
+    period;
+    open_square_brace;
+    close_square_brace;
+
+    f1;
+    f2;
+    f3;
+    f4;
+    f5;
+    f6;
+    f7;
+    f8;
+    f9;
+    f10;
+    f11;
+    f12;
+    f13;
+    f14;
+    f15;
 }
 
 class Keys {
@@ -68,9 +92,9 @@ class Keys {
     static inline var _enter    : Int = 13;
     static inline var _meta     : Int = 15;
     static inline var _shift    : Int = 16;
-    static inline var _leftctrl : Int = 17;
-    static inline var _leftalt  : Int = 18;
-    static inline var _capslock : Int = 19;
+    static inline var _ctrl     : Int = 17;
+    static inline var _alt      : Int = 18;
+    static inline var _capslock : Int = 20;
     static inline var _escape   : Int = 27;
     static inline var _space    : Int = 32;
 
@@ -90,43 +114,67 @@ class Keys {
     static inline var _key_8 : Int = 56;
     static inline var _key_9 : Int = 57;
 
-    static inline var _key_A : Int = 97;
-    static inline var _key_B : Int = 98;
-    static inline var _key_C : Int = 99;
-    static inline var _key_D : Int = 100;
-    static inline var _key_E : Int = 101;
-    static inline var _key_F : Int = 102;
-    static inline var _key_G : Int = 103;
-    static inline var _key_H : Int = 104;
-    static inline var _key_I : Int = 105;
-    static inline var _key_J : Int = 106;
-    static inline var _key_K : Int = 107;
-    static inline var _key_L : Int = 108;
-    static inline var _key_M : Int = 109;
-    static inline var _key_N : Int = 110;
-    static inline var _key_O : Int = 111;
-    static inline var _key_P : Int = 112;
-    static inline var _key_Q : Int = 113;
-    static inline var _key_R : Int = 114;
-    static inline var _key_S : Int = 115;
-    static inline var _key_T : Int = 116;
-    static inline var _key_U : Int = 117;
-    static inline var _key_V : Int = 118;
-    static inline var _key_W : Int = 119;
-    static inline var _key_X : Int = 120;
-    static inline var _key_Y : Int = 121;
-    static inline var _key_Z : Int = 122;
+    static inline var _key_A : Int = 65;
+    static inline var _key_B : Int = 66;
+    static inline var _key_C : Int = 67;
+    static inline var _key_D : Int = 68;
+    static inline var _key_E : Int = 69;
+    static inline var _key_F : Int = 70;
+    static inline var _key_G : Int = 71;
+    static inline var _key_H : Int = 72;
+    static inline var _key_I : Int = 73;
+    static inline var _key_J : Int = 74;
+    static inline var _key_K : Int = 75;
+    static inline var _key_L : Int = 76;
+    static inline var _key_M : Int = 77;
+    static inline var _key_N : Int = 78;
+    static inline var _key_O : Int = 79;
+    static inline var _key_P : Int = 80;
+    static inline var _key_Q : Int = 81;
+    static inline var _key_R : Int = 82;
+    static inline var _key_S : Int = 83;
+    static inline var _key_T : Int = 84;
+    static inline var _key_U : Int = 85;
+    static inline var _key_V : Int = 86;
+    static inline var _key_W : Int = 87;
+    static inline var _key_X : Int = 88;
+    static inline var _key_Y : Int = 89;
+    static inline var _key_Z : Int = 90;
 
-    static inline var _equals   : Int = 187;
-    static inline var _minus    : Int = 189;
-    static inline var _tilde    : Int = 192;
+    static inline var _equals               : Int = 187;
+    static inline var _minus                : Int = 189;
+    static inline var _tilde                : Int = 192;
+    static inline var _forward_slash        : Int = 191;
+    static inline var _back_slash           : Int = 220;
+    static inline var _semicolon            : Int = 186;
+    static inline var _single_quote         : Int = 222;
+    static inline var _comma                : Int = 188;
+    static inline var _period               : Int = 190;
+    static inline var _open_square_brace    : Int = 219;
+    static inline var _close_square_brace   : Int = 221;
+    
+    static inline var _f1   : Int = 112;
+    static inline var _f2   : Int = 113;
+    static inline var _f3   : Int = 114;
+    static inline var _f4   : Int = 115;
+    static inline var _f5   : Int = 116;
+    static inline var _f6   : Int = 117;
+    static inline var _f7   : Int = 118;
+    static inline var _f8   : Int = 119;
+    static inline var _f9   : Int = 120;
+    static inline var _f10  : Int = 121;
+    static inline var _f11  : Int = 122;
+    static inline var _f12  : Int = 123;
+    static inline var _f13  : Int = 124;
+    static inline var _f14  : Int = 125;
+    static inline var _f15  : Int = 126;
 
     public var tab 		: Int = _tab;
     public var enter 	: Int = _enter;
     public var meta 	: Int = _meta;
     public var shift 	: Int = _shift;
-    public var leftctrl : Int = _leftctrl;
-    public var leftalt  : Int = _leftalt;
+    public var ctrl     : Int = _ctrl;
+    public var alt      : Int = _alt;
     public var capslock : Int = _capslock;
     public var escape   : Int = _escape;
     public var space 	: Int = _space;
@@ -174,12 +222,39 @@ class Keys {
     public var key_Y : Int = _key_Y;
     public var key_Z : Int = _key_Z;
 
-    public var equals 	: Int = _equals;
-    public var minus 	: Int = _minus;
-    public var tilde 	: Int = _tilde;
+    public var equals               : Int = _equals;
+    public var minus                : Int = _minus;
+    public var tilde                : Int = _tilde;
+    public var forward_slash        : Int = _forward_slash;
+    public var back_slash           : Int = _back_slash;
+    public var semicolon            : Int = _semicolon;
+    public var single_quote         : Int = _single_quote;
+    public var comma                : Int = _comma;
+    public var period               : Int = _period;
+    public var open_square_brace    : Int = _open_square_brace;
+    public var close_square_brace   : Int = _close_square_brace;
+    
+    public var f1  : Int = _f1;
+    public var f2  : Int = _f2;
+    public var f3  : Int = _f3;
+    public var f4  : Int = _f4;
+    public var f5  : Int = _f5;
+    public var f6  : Int = _f6;
+    public var f7  : Int = _f7;
+    public var f8  : Int = _f8;
+    public var f9  : Int = _f9;
+    public var f10 : Int = _f10;
+    public var f11 : Int = _f11;
+    public var f12 : Int = _f12;
+    public var f13 : Int = _f13;
+    public var f14 : Int = _f14;
+    public var f15 : Int = _f15;
 
     public function new() {}
-    public static function toKeyValue(_value:Int) : KeyValue {
+    public static function toKeyValue(_event:Dynamic) : KeyValue {
+
+        var _value = _event.value;
+
         switch(_value) {
             case _backspace:
                 return KeyValue.backspace;
@@ -191,10 +266,10 @@ class Keys {
                 return KeyValue.meta;
             case _shift:
                 return KeyValue.shift;
-            case _leftctrl:
-                return KeyValue.leftctrl;
-            case _leftalt:
-                return KeyValue.leftalt;
+            case _ctrl:
+                return KeyValue.ctrl;
+            case _alt:
+                return KeyValue.alt;
             case _capslock:
                 return KeyValue.capslock;
             case _escape:
@@ -291,6 +366,54 @@ class Keys {
                 return KeyValue.minus;
             case _tilde:
                 return KeyValue.tilde;
+
+            case _forward_slash :
+                return KeyValue.forward_slash;
+            case _back_slash :
+                return KeyValue.back_slash;
+            case _semicolon :
+                return KeyValue.semicolon;
+            case _single_quote :
+                return KeyValue.single_quote;
+            case _comma :
+                return KeyValue.comma;
+            case _period :
+                return KeyValue.period;
+            case _open_square_brace :
+                return KeyValue.open_square_brace;
+            case _close_square_brace :
+                return KeyValue.close_square_brace;
+    
+            case _f1 :
+                return KeyValue.f1; 
+            case _f2 :
+                return KeyValue.f2; 
+            case _f3 :
+                return KeyValue.f3; 
+            case _f4 :
+                return KeyValue.f4; 
+            case _f5 :
+                return KeyValue.f5; 
+            case _f6 :
+                return KeyValue.f6; 
+            case _f7 :
+                return KeyValue.f7; 
+            case _f8 :
+                return KeyValue.f8; 
+            case _f9 :
+                return KeyValue.f9; 
+            case _f10 :
+                return KeyValue.f10;
+            case _f11 :
+                return KeyValue.f11;
+            case _f12 :
+                return KeyValue.f12;
+            case _f13 :
+                return KeyValue.f13;
+            case _f14 :
+                return KeyValue.f14;
+            case _f15 :
+                return KeyValue.f15;
 
         } //switch
 

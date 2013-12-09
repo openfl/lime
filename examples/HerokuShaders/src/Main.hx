@@ -3,7 +3,7 @@
     //underscorediscovery
 
 import lime.utils.Assets;
-import lime.LiME;
+import lime.Lime;
 
     //Import GL stuff from Lime
 import lime.gl.GL;
@@ -42,7 +42,7 @@ import shaders.VertexShader;
 
 class Main {
 
-	public var lib : LiME;
+	public var lib : Lime;
     
 
            //A bunch of these shaders are expensive so for most users this is 
@@ -79,7 +79,7 @@ class Main {
 
         //Ready is called by lime when it has created the window etc.
         //We can start using GL here.
-	public function ready( _lime : LiME ) {
+	public function ready( _lime : Lime ) {
 
             //Store a reference, in case we want it
         lib = _lime;

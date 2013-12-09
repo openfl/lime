@@ -1,6 +1,6 @@
 package lime;
 
-import lime.LiME;
+import lime.Lime;
 import lime.utils.Libs;
 
     //Import GL 
@@ -35,8 +35,8 @@ enum BrowserLike {
 
 class RenderHandler {
         
-    public var lib : LiME;
-    public function new( _lib:LiME ) { lib = _lib; }
+    public var lib : Lime;
+    public function new( _lib:Lime ) { lib = _lib; }
 
     public var __handle : Dynamic;
 

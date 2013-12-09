@@ -1,13 +1,13 @@
 package lime;
 
-import lime.LiME;
+import lime.Lime;
 import lime.RenderHandler;
 
 
 class InputHandler {
 
-    public var lib : LiME;
-    public function new( _lib:LiME ) { lib = _lib; }
+    public var lib : Lime;
+    public function new( _lib:Lime ) { lib = _lib; }
 
     public var touch_map : Map<Int, Dynamic>;
     public var down_keys : Map<Int,Bool>;
@@ -46,7 +46,7 @@ class InputHandler {
                 char : _event.char,
                 value : _event.value,
                 flags : _event.flags,
-                key : lime.helpers.Keys.toKeyValue(_event.value)
+                key : lime.helpers.Keys.toKeyValue(_event)
             });
         }
 
@@ -67,7 +67,7 @@ class InputHandler {
                 char : _event.char,
                 value : _event.value,
                 flags : _event.flags,
-                key : lime.helpers.Keys.toKeyValue(_event.value),
+                key : lime.helpers.Keys.toKeyValue(_event),
                 ctrl_down :  (_event.flags & efCtrlDown > 0),
                 alt_down :   (_event.flags & efAltDown > 0),
                 shift_down : (_event.flags & efShiftDown > 0),
@@ -86,7 +86,7 @@ class InputHandler {
                 char : _event.char,
                 value : _event.value,
                 flags : _event.flags,
-                key : lime.helpers.Keys.toKeyValue(_event.value),
+                key : lime.helpers.Keys.toKeyValue(_event),
                 ctrl_down :  (_event.flags & efCtrlDown > 0),
                 alt_down :   (_event.flags & efAltDown > 0),
                 shift_down : (_event.flags & efShiftDown > 0),
@@ -104,7 +104,7 @@ class InputHandler {
                 char : _event.char,
                 value : _event.value,
                 flags : _event.flags,
-                key : lime.helpers.Keys.toKeyValue(_event.value),
+                key : lime.helpers.Keys.toKeyValue(_event),
                 ctrl_down :  (_event.flags & efCtrlDown > 0),
                 alt_down :   (_event.flags & efAltDown > 0),
                 shift_down : (_event.flags & efShiftDown > 0),
@@ -123,7 +123,7 @@ class InputHandler {
                 char : _event.char,
                 value : _event.value,
                 flags : _event.flags,
-                key : lime.helpers.Keys.toKeyValue(_event.value),
+                key : lime.helpers.Keys.toKeyValue(_event),
                 ctrl_down :  (_event.flags & efCtrlDown > 0),
                 alt_down :   (_event.flags & efAltDown > 0),
                 shift_down : (_event.flags & efShiftDown > 0),

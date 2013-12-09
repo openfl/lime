@@ -3,7 +3,7 @@
     //underscorediscovery
 
 import lime.utils.Assets;
-import lime.LiME;
+import lime.Lime;
 
     //Import GL stuff from lime
 import lime.gl.GL;
@@ -17,7 +17,7 @@ import lime.geometry.Matrix3D;
 
 class Main {
 
-	public var lib : LiME;
+	public var lib : Lime;
 
 		//Shader stuff for drawing
     private var shaderProgram:GLProgram;
@@ -35,7 +35,7 @@ class Main {
 
 	public function new() { }
 
-	public function ready( _lime : LiME ) {
+	public function ready( _lime : Lime ) {
 
             //Store a reference
         lib = _lime;

@@ -1,7 +1,7 @@
 #if lime_html5
 
 	import ::APP_MAIN_PACKAGE::::APP_MAIN_CLASS::;
-	import lime.LiME;
+	import lime.Lime;
 
 	class ApplicationMain {
 		
@@ -12,7 +12,7 @@
 				//Create the game class, give it the runtime			
 			var _main_ = Type.createInstance (::APP_MAIN::, []);
 				//Create an instance of lime
-			var _lime = new LiME();
+			var _lime = new Lime();
 
 				//Create the config from the project.nmml info
 			var config = {

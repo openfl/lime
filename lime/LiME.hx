@@ -10,7 +10,7 @@ import lime.WindowHandler;
 
 import haxe.Timer;
 
-class LiME {
+class Lime {
 
         //The host class of the application
     public var host : Dynamic;

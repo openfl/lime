@@ -1,14 +1,14 @@
 package lime;
 
-import lime.LiME;
+import lime.Lime;
 import lime.utils.Libs;
 import lime.Constants;
 
 
 class WindowHandler {
 
-    public var lib : LiME;
-    public function new( _lib:LiME ) { lib = _lib; }
+    public var lib : Lime;
+    public function new( _lib:Lime ) { lib = _lib; }
 
         //if the core is active
     public var active : Bool = false;
