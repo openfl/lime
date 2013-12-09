@@ -373,7 +373,7 @@ namespace lime {
 		//outZ = mAccelZ;
 		outX = 0;
 		outY = 0;
-		outZ = 1;
+		outZ = -1;
 		return true;
 		
 		//}
