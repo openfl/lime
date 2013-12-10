@@ -257,7 +257,7 @@ class BlackBerryPlatform implements IPlatformTool {
 				
 			} else {
 				
-				haxelib = new Haxelib ("openfl-native");
+				haxelib = new Haxelib ("lime");
 				
 			}
 			
