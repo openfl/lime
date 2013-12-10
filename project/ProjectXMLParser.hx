@@ -1458,6 +1458,10 @@ class ProjectXMLParser extends HXProject {
 						
 						Reflect.setField (window, name, value == "true");
 						
+					} else if (Reflect.hasField (window, formatAttributeName (name))) {
+						
+						Reflect.setField (window, formatAttributeName (name), value == "true");
+						
 					}
 				
 			}
