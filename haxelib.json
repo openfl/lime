@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "Command-line tools for Haxe projects",
-	"version": "1.2.0",
-	"releasenote": "New Tizen target",
+	"version": "1.2.1",
+	"releasenote": "Minor BlackBerry fix",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
 }
