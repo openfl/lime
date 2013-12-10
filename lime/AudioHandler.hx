@@ -179,11 +179,13 @@ class Sound {
 
     @:noCompletion public function do_check_complete ():Bool {
 
-        if( lime_sound_channel_is_complete(channel) ) {
-            handle = null;
-            channel = null;
-            return true;
-        }
+        #if lime_native
+            if( lime_sound_channel_is_complete(channel) ) {
+                handle = null;
+                channel = null;
+                return true;
+            }
+        #end
         
         return false;
         

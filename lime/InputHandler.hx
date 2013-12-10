@@ -525,7 +525,7 @@ class InputHandler {
 
             js.Browser.document.addEventListener('keydown', function(e){
                 if (e.keyCode >= 65 && e.keyCode <= 122) {
-                    e.value = e.which+32;
+                    e.value = e.which;
                 } else {
                     e.value = e.which;
                 }
@@ -534,7 +534,7 @@ class InputHandler {
             });
             js.Browser.document.addEventListener('keyup', function(e){
                 if (e.keyCode >= 65 && e.keyCode <= 122) {
-                    e.value = e.which+32;
+                    e.value = e.which;
                 } else {
                     e.value = e.which;
                 }
