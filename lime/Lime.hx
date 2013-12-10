@@ -307,8 +307,11 @@ class Lime {
         _debug('on_update ' + Timer.stamp(), true, false); 
 
         #if lime_native
-            Timer.__checkTimers();
+            Timer.__checkTimers();            
         #end
+
+            //process any audio
+        audio.update();
 
         if(!has_shutdown) {
 
