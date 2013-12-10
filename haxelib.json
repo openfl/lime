@@ -1,11 +1,11 @@
 {
 	"name": "lime",
-	"url": "http://www.limeframework.com",
+	"url": "http://github.com/openfl/lime",
 	"license": "MIT",
 	"tags": [],
 	"description": "A powerful native backend for Haxe projects",
-	"version": "1.0.0",
-	"releasenote": "Initial release",
+	"version": "0.9.0",
+	"releasenote": "Preliminary release",
 	"contributors": [ "singmajesty", "underscorediscovery" ],
 	"dependencies": {}
 }
