@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "Command-line tools for Haxe projects",
-	"version": "1.1.6",
-	"releasenote": "*.hxp project fixes",
+	"version": "1.2.0",
+	"releasenote": "New Tizen target",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
 }
