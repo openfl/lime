@@ -43,6 +43,7 @@ class PlatformSetup {
 	private static var javaJDKURL = "http://www.oracle.com/technetwork/java/javase/downloads/jdk6u37-downloads-1859587.html";
 	private static var aptPackages = "ia32-libs-multiarch gcc-multilib g++-multilib";
 	private static var yumPackages = "gcc gcc-c++";
+	private static var tizenSDKURL = "https://developer.tizen.org/downloads/tizen-sdk";
 	private static var webOSLinuxX64NovacomPath = "http://cdn.downloads.palm.com/sdkdownloads/3.0.4.669/sdkBinaries/palm-novacom_1.0.80_amd64.deb";
 	private static var webOSLinuxX86NovacomPath = "http://cdn.downloads.palm.com/sdkdownloads/3.0.4.669/sdkBinaries/palm-novacom_1.0.80_i386.deb";
 	private static var webOSLinuxSDKPath = "http://cdn.downloads.palm.com/sdkdownloads/3.0.5.676/sdkBinaries/palm-sdk_3.0.5-svn528736-pho676_i386.deb";
@@ -579,6 +580,10 @@ class PlatformSetup {
 						setupMac ();
 						
 					}
+				
+				case "tizen":
+					
+					setupTizen ();
 				
 				case "webos":
 					
@@ -1726,6 +1731,34 @@ class PlatformSetup {
 				ProcessHelper.runCommand ("", "open", [ appleXcodeURL ], false);
 				
 			}
+			
+		}
+		
+	}
+	
+	
+	public static function setupTizen ():Void {
+		
+		var answer = ask ("Download and install the Tizen SDK?");
+		
+		if (answer == Yes || answer == Always) {
+			
+			Lib.println ("You may download the Tizen SDK from the Tizen Developer portal.");
+			var secondAnswer = ask ("Would you like to open the download page?");
+			
+			if (secondAnswer != No) {
+				
+				ProcessHelper.runCommand ("", "open", [ tizenSDKURL ], false);
+				
+			}
+			
+		}
+		
+		var defines = getDefines ([ "TIZEN_SDK" ], [ "Path to Tizen SDK" ]);
+		
+		if (defines != null) {
+			
+			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
 			
 		}
 		
