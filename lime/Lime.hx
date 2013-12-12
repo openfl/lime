@@ -64,7 +64,7 @@ class Lime {
         config = _config;
     	host = _main_;
 
-    	_debug(':: lime :: initializing -');
+    	_debug(':: lime :: initializing - ');
         _debug(':: lime :: Creating window at ' + config.width + 'x' + config.height);
 
             //default to 60 fps

@@ -38,14 +38,14 @@ class WindowHandler {
 
                                                 //optional flags
 
-                    ( lib.config.fullscreen     ? Window.FULLSCREEN     : 0) |  
-                    ( lib.config.borderless     ? Window.BORDERLESS     : 0) |  
-                    ( lib.config.resizable      ? Window.RESIZABLE      : 0) |  
-                    ( lib.config.AA             ? Window.HW_AA          : 0) | 
-                    ( lib.config.AA_HIRES       ? Window.HW_AA_HIRES    : 0) | 
-                    ( lib.config.depth_buffer   ? Window.DEPTH_BUFFER   : 0) | 
-                    ( lib.config.stencil_buffer ? Window.STENCIL_BUFFER : 0) |                      
-                    ( lib.config.vsync          ? Window.VSYNC          : 0), 
+                    ( lib.config.fullscreen         ? Window.FULLSCREEN     : 0) |  
+                    ( lib.config.borderless         ? Window.BORDERLESS     : 0) |  
+                    ( lib.config.resizable          ? Window.RESIZABLE      : 0) |  
+                    ( lib.config.antialiasing == 2  ? Window.HW_AA          : 0) | 
+                    ( lib.config.antialiasing == 4  ? Window.HW_AA_HIRES    : 0) | 
+                    ( lib.config.depth_buffer       ? Window.DEPTH_BUFFER   : 0) | 
+                    ( lib.config.stencil_buffer     ? Window.STENCIL_BUFFER : 0) |                      
+                    ( lib.config.vsync              ? Window.VSYNC          : 0), 
 
                 lib.config.title,               //title
                 null                           //icon

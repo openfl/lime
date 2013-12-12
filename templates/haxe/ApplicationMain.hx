@@ -17,7 +17,7 @@ class ApplicationMain {
 			fullscreen		: ::WIN_FULLSCREEN::,
 			resizable 		: ::WIN_RESIZABLE::,
 			borderless		: ::WIN_BORDERLESS::,
-			aliasing		: ::WIN_ANTIALIASING::,
+			antialiasing    : ::WIN_ANTIALIASING::,
 			stencil_buffer 	: ::WIN_STENCIL_BUFFER::,
 			depth_buffer 	: ::WIN_DEPTH_BUFFER::,
 			vsync 			: ::WIN_VSYNC::,
