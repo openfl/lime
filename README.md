@@ -42,3 +42,29 @@ For example, frameworks like [OpenFL](http://github.com/openfl) leverage lime to
 - See the wiki for a 1.0 wrapper [roadmap](https://github.com/openfl/lime/wiki/lime-wrapper-1.0-Roadmap). 
 
 Expect docs, diagrams and breakdowns of how to get started using lime soon. See the examples/ folder for the basics for now.
+
+### Development Builds
+
+    git clone https://github.com/openfl/lime
+    haxelib dev lime lime
+    git clone https://github.com/openfl/lime-build
+    haxelib dev lime-build lime-build
+
+After cloning, "lime/ndll" will be empty. You can build binaries for a platform, use "lime rebuild" or "openfl rebuild", such as:
+
+    lime rebuild windows
+    lime rebuild windows,blackberry
+    lime rebuild linux -64
+    lime rebuild android -debug
+
+If you are running Linux, you will (probably) need to install additional packages to build from the source. For an Ubuntu system, it may look like this:
+
+    sudo apt-get install libgl1-mesa-dev libglu1-mesa-dev g++ g++-multilib gcc-multilib
+    
+For other platforms, the dependencies will be similar to compiling standard Lime/OpenFL applications for the platform, for example, you will need Visual Studio for Windows builds, Xcode for Mac and iOS builds, etc. Platforms which require "setup" step, such as Android, should have that completed, such as "lime setup android"
+
+The default "rebuild" for each target compiles all needed binaries, such as x86, armv5 and arm7 for release and debug. You can use "-debug", "-release", "-64" and "-32" to specify that you only want to rebuild one kind of binary. You can use commas to separate multiple builds.
+
+There is also a helpful "-rebuild" flag you can use in combination with other Lime/OpenFL commands, to rebuild the required binaries in addition to the meaning of the original command. For example, this will test the current application for Windows, while first building release platform binary before packaging:
+
+    lime test windows -rebuild
