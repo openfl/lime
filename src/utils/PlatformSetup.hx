@@ -42,6 +42,7 @@ class PlatformSetup {
 	private static var codeSourceryWindowsPath = "http://sourcery.mentor.com/public/gnu_toolchain/arm-none-linux-gnueabi/arm-2009q1-203-arm-none-linux-gnueabi.exe";
 	private static var javaJDKURL = "http://www.oracle.com/technetwork/java/javase/downloads/jdk6u37-downloads-1859587.html";
 	private static var aptPackages = "ia32-libs-multiarch gcc-multilib g++-multilib";
+	private static var ubuntuSaucyPackages = "gcc-multilib g++-multilib libxext-dev";
 	private static var yumPackages = "gcc gcc-c++";
 	private static var tizenSDKURL = "https://developer.tizen.org/downloads/tizen-sdk";
 	private static var webOSLinuxX64NovacomPath = "http://cdn.downloads.palm.com/sdkdownloads/3.0.4.669/sdkBinaries/palm-novacom_1.0.80_amd64.deb";
@@ -1733,7 +1734,18 @@ class PlatformSetup {
 		var whichAptGet = ProcessHelper.runProcess("", "which", ["apt-get"], true, true, true);
 		var hasApt = whichAptGet != null && whichAptGet != "";
 		if(hasApt) {
-			var parameters = [ "apt-get", "install" ].concat (aptPackages.split (" "));
+
+			// check if this is ubuntu saucy 64bit, which uses different packages.
+			var lsbId = ProcessHelper.runProcess("", "lsb_release", ["-si"], true, true, true);
+			var lsbRelease = ProcessHelper.runProcess("", "lsb_release", ["-sr"], true, true, true);
+			var arch = ProcessHelper.runProcess("", "uname", ["-m"], true, true, true);
+			var isSaucy = lsbId == "Ubuntu\n" &&  lsbRelease == "13.10\n" && arch == "x86_64\n";
+
+			var packages = isSaucy ? ubuntuSaucyPackages : aptPackages;
+
+			trace(packages);
+
+			var parameters = [ "apt-get", "install" ].concat (packages.split (" "));
 			ProcessHelper.runCommand ("", "sudo", parameters, false);
 			return;
 		}
