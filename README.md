@@ -68,3 +68,7 @@ The default "rebuild" for each target compiles all needed binaries, such as x86,
 There is also a helpful "-rebuild" flag you can use in combination with other Lime/OpenFL commands, to rebuild the required binaries in addition to the meaning of the original command. For example, this will test the current application for Windows, while first building release platform binary before packaging:
 
     lime test windows -rebuild
+    
+To return to release builds:
+
+    haxelib dev lime
