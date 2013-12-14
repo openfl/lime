@@ -289,31 +289,18 @@ class CommandLineTools {
 		
 		displayInfo ();
 		
-		var alias = "openfl";
-		var name = "OpenFL";
-		
-		if (userDefines.exists ("nme")) {
-			
-			alias = "nme";
-			name = "NME";
-			
-		}
-		
 		Sys.println ("");
-		Sys.println (" Usage: " + alias + " setup (target)");
-		Sys.println (" Usage: " + alias + " help");
-		Sys.println (" Usage: " + alias + " [clean|update|build|run|test|display] <project> (target) [options]");
-		Sys.println (" Usage: " + alias + " create project <package> [options]");
-		Sys.println (" Usage: " + alias + " create extension <name>");
-		Sys.println (" Usage: " + alias + " create <sample>");
-		Sys.println (" Usage: " + alias + " rebuild <extension> (targets)");
-		//Sys.println (" Usage : nme document <project> (target)");
-		//Sys.println (" Usage : nme generate <args> [options]");
-		//Sys.println (" Usage : nme new file.nmml name1=value1 name2=value2 ...");
+		Sys.println (" Usage: lime setup (target)");
+		Sys.println (" Usage: lime help");
+		Sys.println (" Usage: lime [clean|update|build|run|test|display] <project> (target) [options]");
+		Sys.println (" Usage: lime create project <package> [options]");
+		Sys.println (" Usage: lime create extension <name>");
+		Sys.println (" Usage: lime create <sample>");
+		Sys.println (" Usage: lime rebuild <extension> (targets)");
 		Sys.println ("");
 		Sys.println (" Commands: ");
 		Sys.println ("");
-		Sys.println ("  setup -- Setup " + name + " or a specific target");
+		Sys.println ("  setup -- Setup Lime or a specific target");
 		Sys.println ("  help -- Show this information");
 		Sys.println ("  clean -- Remove the target build directory if it exists");
 		Sys.println ("  update -- Copy assets for the specified project/target");
@@ -323,28 +310,18 @@ class CommandLineTools {
 		Sys.println ("  display -- Display information for the specified project/target");
 		Sys.println ("  create -- Create a new project or extension using templates");
 		Sys.println ("  rebuild -- Recompile native binaries for extensions");
-		//Sys.println ("  document : Generate documentation using haxedoc");
-		//Sys.println ("  generate : Tools to help create source code automatically");
 		Sys.println ("");
 		Sys.println (" Targets: ");
 		Sys.println ("");
 		Sys.println ("  android -- Create an Android application");
 		Sys.println ("  blackberry -- Create a BlackBerry application");
-		//Sys.println ("  emscripten : Create Emscripten applications");
-		//Sys.println ("  cpp : Create application for the system you are compiling on");
-		
-		if (!userDefines.exists ("nme")) {
-			
-			Sys.println ("  flash -- Create a Flash SWF application");
-			Sys.println ("  html5 -- Create an HTML5 canvas application");
-			
-		}
-		
+		Sys.println ("  flash -- Create a Flash SWF application");
+		Sys.println ("  html5 -- Create an HTML5 canvas application");
 		Sys.println ("  ios -- Create an iOS application");
 		Sys.println ("  linux -- Create a Linux application");
 		Sys.println ("  mac -- Create a Mac OS X application");
 		Sys.println ("  tizen -- Create a Tizen application");
-		//Sys.println ("  webos : Create HP webOS applications");
+		Sys.println ("  webos : Create HP webOS applications");
 		Sys.println ("  windows -- Create a Windows application");
 		Sys.println ("");
 		Sys.println (" Options: ");
@@ -357,34 +334,11 @@ class CommandLineTools {
 		Sys.println ("  (windows|mac|linux) -neko -- Build with Neko instead of C++");
 		Sys.println ("  (mac|linux) -32 -- Compile for 32-bit instead of the OS default");
 		Sys.println ("  (mac|linux) -64 -- Compile for 64-bit instead of the OS default");
-		Sys.println ("  (ios|blackberry) -simulator -- Build/test for the device simulator");
+		Sys.println ("  (ios|blackberry|webos) -simulator -- Build/test for the device simulator");
 		Sys.println ("  (ios) -simulator -ipad -- Build/test for the iPad Simulator");
 		Sys.println ("  (android) -emulator -- Build/test for the device emulator");
-		
-		if (!userDefines.exists ("nme")) {
-			
-			Sys.println ("  (html5) -minify -- Minify output using the Google Closure compiler");
-			Sys.println ("  (html5) -minify -yui -- Minify output using the YUI compressor");
-			
-		}
-		
-		
-		//Sys.println ("  [android] -arm7 : Compile for arm-7a and arm5");
-		//Sys.println ("  [android] -arm7-only : Compile for arm-7a for testing");
-		
-		//Sys.println ("  [flash] -web : Generate web template files");
-		//Sys.println ("  [flash] -chrome : Generate Google Chrome app template files");
-		//Sys.println ("  [flash] -opera : Generate an Opera Widget");
-		//Sys.println ("  (display) -hxml -- Print HXML information for the project");
-		//Sys.println ("  (display) -nmml -- Print NMML information for the project");
-		//Sys.println ("  (generate) -java-externs : Generate Haxe classes from compiled Java");
-		
-		if (userDefines.exists ("nme")) {
-			
-			Sys.println ("  (run|test) -args a0 a1... -- Pass remaining arguments to executable");
-			
-		}
-		
+		Sys.println ("  (html5) -minify -- Minify output using the Google Closure compiler");
+		Sys.println ("  (html5) -minify -yui -- Minify output using the YUI compressor");
 		Sys.println ("");
 		Sys.println (" Project Overrides: ");
 		Sys.println ("");
@@ -403,49 +357,17 @@ class CommandLineTools {
 	
 	private function displayInfo (showHint:Bool = false):Void {
 		
-		var alias = "openfl";
-		var name = "OpenFL";
+		Sys.println ("  __      ");
+		Sys.println ("  \\ \\  __  __ _ _  ____");
+		Sys.println ("   \\ \\ \\ \\ \\ \\ \\ \\ \\ -_\\");
+		Sys.println ("    \\_\\ \\_\\ \\_\\_\\_\\ \\__\\");
+		Sys.println ("");
 		
-		if (userDefines.exists ("nme")) {
-			
-			Sys.println (" _____________");
-			Sys.println ("|             |");
-			Sys.println ("|__  _  __  __|");
-			Sys.println ("|  \\| \\/  ||__|");
-			Sys.println ("|\\  \\  \\ /||__|");
-			Sys.println ("|_|\\_|\\/|_||__|");
-			Sys.println ("|             |");
-			Sys.println ("|_____________|");
-			Sys.println ("");
-			
-			alias = "nme";
-			name = "NME";
-			
-		} else {
-			
-			//Sys.println ("   ___                   _____ _     ");
-			//Sys.println ("  / _ \\ _ __   ___ _ __ |  ___| |    ");
-			//Sys.println (" | | | | '_ \\ / _ \\ '_ \\| |_  | |    ");
-			//Sys.println (" | |_| | |_) |  __/ | | |  _| | |__ ");
-			//Sys.println ("  \\___/| .__/ \\___|_| |_|_|   |____|");
-			//Sys.println ("       |_|                           ");
-			//Sys.println ("");
-			
-			Sys.println ("   ____                   ______ _ ");
-			Sys.println ("  / __ \\____  ___  ____  / ____/ / ");
-			Sys.println (" / / / / __ \\/ _ \\/ __ \\/ /__ / /  ");
-			Sys.println ("/ /_/ / /_/ /  __/ / / / ___// /___");
-			Sys.println ("\\____/  ___/\\___/_/ /_/_/   /_____/");
-			Sys.println ("    /_/");
-			Sys.println ("");
-			
-		}
-		
-		Sys.println (name + " Command-Line Tools (" + version + ")");
+		Sys.println ("Lime Command-Line Tools (" + version + ")");
 		
 		if (showHint) {
 			
-			Sys.println ("Use \"" + alias + " setup\" to configure " + name + " or \"" + alias + " help\" for more commands");
+			Sys.println ("Use \"lime setup\" to configure Lime or \"lime help\" for more commands");
 			
 		}
 		
@@ -647,18 +569,7 @@ class CommandLineTools {
 	
 	private function getVersion ():String {
 		
-		var json;
-		
-		if (userDefines.exists ("nme")) {
-			
-			json = Json.parse (File.getContent (PathHelper.getHaxelib (new Haxelib ("nme")) + "/haxelib.json"));
-			
-		} else {
-			
-			json = Json.parse (File.getContent (PathHelper.getHaxelib (new Haxelib ("lime-tools")) + "/haxelib.json"));
-			
-		}
-		
+		var json = Json.parse (File.getContent (PathHelper.getHaxelib (new Haxelib ("lime-tools")) + "/haxelib.json"));
 		return json.version;
 		
 	}
@@ -904,7 +815,7 @@ class CommandLineTools {
 		
 		project.haxedefs.set ("tools", version);
 		
-		if (userDefines.exists ("nme")) {
+		/*if (userDefines.exists ("nme")) {
 			
 			project.haxedefs.set ("nme_install_tool", 1);
 			project.haxedefs.set ("nme_ver", version);
@@ -913,7 +824,7 @@ class CommandLineTools {
 			project.config.cpp.buildLibrary = "hxcpp";
 			project.config.cpp.requireBuild = false;
 			
-		}
+		}*/
 		
 		project.merge (overrides);
 		

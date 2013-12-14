@@ -558,12 +558,12 @@ class HXProject {
 		
 		for (haxelib in project.haxelibs) {
 					
-			if (haxelib.name == "nme" && userDefines.exists ("openfl")) {
+			/*if (haxelib.name == "nme" && userDefines.exists ("openfl")) {
 				
 				haxelib.name = "openfl-nme-compatibility";
 				haxelib.version = "";
 				
-			}
+			}*/
 			
 			var path = PathHelper.getHaxelib (haxelib);
 			var includePath = "";
