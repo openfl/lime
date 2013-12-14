@@ -201,7 +201,7 @@ namespace lime
 			
 			//Get the file information
 			//vorbis data
-			vorbis_info *pInfo = ov_info(&oggFile, -1);            
+			vorbis_info *pInfo = ov_info(&oggFile, -1);
 			//Make sure this is a valid file
 			if (pInfo == NULL)
 			{
@@ -212,7 +212,7 @@ namespace lime
 			//The number of channels
 			*channels = pInfo->channels;  
 			//default to 16? todo 
-			*bitsPerSample = 16;          
+			*bitsPerSample = 16;
 			//Return the same rate as well
 			*outSampleRate = pInfo->rate;
 			
@@ -220,11 +220,13 @@ namespace lime
 			{
 				// Read up to a buffer's worth of decoded sound data
 				bytes = ov_read(&oggFile, array, BUFFER_SIZE, endian, 2, 1, &bitStream);
-				// Append to end of buffer
-				outBuffer.InsertAt(outBuffer.size(), (unsigned char*)array, bytes);
+				if (bytes)
+				{
+					outBuffer.Set((unsigned char*)array, bytes);
+				}
 			}
 			
-			ov_clear(&oggFile);         
+			ov_clear(&oggFile);
 			
 			#undef BUFFER_SIZE
 			
