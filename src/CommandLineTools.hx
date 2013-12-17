@@ -256,11 +256,14 @@ class CommandLineTools {
 		
 		if (words.length > 0) {
 			
-			if (words[0] == "project") {
+			var projectName = words[0].substring (0, words[0].indexOf (":"));
+			var sampleName = words[0].substr (words[0].indexOf (":") + 1);
+			
+			if (sampleName == "project") {
 				
 				CreateTemplate.createProject (words, userDefines);
 				
-			} else if (words[0] == "extension") {
+			} else if (sampleName == "extension") {
 				
 				CreateTemplate.createExtension (words, userDefines);
 				

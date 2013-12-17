@@ -70,85 +70,117 @@ class CreateTemplate {
 	
 	public static function createProject (words:Array <String>, userDefines:Map<String, Dynamic>):Void {
 		
-		var id = [ "com", "example", "project" ];
+		var projectName = words[0].substring (0, words[0].indexOf (":"));
+		var sampleName = words[0].substr (words[0].indexOf (":") + 1);
 		
-		if (words.length > 1) {
+		var files = [ "include.lime", "include.nmml", "include.xml" ];
+		var found = false;
+		
+		if (projectName != null && projectName != "" && sampleName == "project") {
 			
-			var name = words[1];
-			name = new EReg ("[^a-zA-Z0-9.]", "g").replace (name, "");
-			id = name.split (".");
+			var path = PathHelper.getHaxelib (new Haxelib (projectName), true);
 			
-			if (id.length < 3) {
+			for (file in files) {
 				
-				id = [ "com", "example" ].concat (id);
-				
-			}
-			
-		}
-		
-		var company = "Company Name";
-		
-		if (words.length > 2) {
-			
-			company = words[2];
-			
-		}
-		
-		var context:Dynamic = { };
-		
-		var name = words[1].split (".").pop ();
-		var alphaNumeric = new EReg ("[a-zA-Z0-9]", "g");
-		var title = "";
-		var capitalizeNext = true;
-		
-		for (i in 0...name.length) {
-			
-			if (alphaNumeric.match (name.charAt (i))) {
-				
-				if (capitalizeNext) {
+				if (!found && FileSystem.exists (PathHelper.combine (path, file))) {
 					
-					title += name.charAt (i).toUpperCase ();
-					
-				} else {
-					
-					title += name.charAt (i);
+					found = true;
+					path = PathHelper.combine (path, file);
 					
 				}
 				
-				capitalizeNext = false;
+			}
+			
+			if (found) {
 				
-			} else {
+				var project = new ProjectXMLParser (path);
+				var id = [ "com", "example", "project" ];
 				
-				capitalizeNext = true;
+				if (words.length > 1) {
+					
+					var name = words[1];
+					name = new EReg ("[^a-zA-Z0-9.]", "g").replace (name, "");
+					id = name.split (".");
+					
+					if (id.length < 3) {
+						
+						id = [ "com", "example" ].concat (id);
+						
+					}
+					
+				}
+				
+				var company = "Company Name";
+				
+				if (words.length > 2) {
+					
+					company = words[2];
+					
+				}
+				
+				var context:Dynamic = { };
+				
+				var name = words[1].split (".").pop ();
+				var alphaNumeric = new EReg ("[a-zA-Z0-9]", "g");
+				var title = "";
+				var capitalizeNext = true;
+				
+				for (i in 0...name.length) {
+					
+					if (alphaNumeric.match (name.charAt (i))) {
+						
+						if (capitalizeNext) {
+							
+							title += name.charAt (i).toUpperCase ();
+							
+						} else {
+							
+							title += name.charAt (i);
+							
+						}
+						
+						capitalizeNext = false;
+						
+					} else {
+						
+						capitalizeNext = true;
+						
+					}
+					
+				}
+				
+				var packageName = id.join (".").toLowerCase ();
+				
+				context.title = title;
+				context.packageName = packageName;
+				context.version = "1.0.0";
+				context.company = company;
+				context.file = StringTools.replace (title, " ", "");
+				
+				for (define in userDefines.keys ()) {
+					
+					Reflect.setField (context, define, userDefines.get (define));
+					
+				}
+				
+				var folder = name;
+				
+				PathHelper.mkdir (folder);
+				FileHelper.recursiveCopyTemplate (project.templatePaths, "project", folder, context);
+				
+				if (FileSystem.exists (folder + "/Project.hxproj")) {
+					
+					FileSystem.rename (folder + "/Project.hxproj", folder + "/" + title + ".hxproj");
+					
+				}
 				
 			}
 			
-		}
-		
-		var packageName = id.join (".").toLowerCase ();
-		
-		context.title = title;
-		context.packageName = packageName;
-		context.version = "1.0.0";
-		context.company = company;
-		context.file = StringTools.replace (title, " ", "");
-		
-		for (define in userDefines.keys ()) {
-			
-			Reflect.setField (context, define, userDefines.get (define));
+			return;
 			
 		}
 		
-		var folder = name;
-		
-		PathHelper.mkdir (folder);
-		FileHelper.recursiveCopyTemplate ([ PathHelper.getHaxelib (new Haxelib ("lime-tools"), true) + "/templates" ], "project", folder, context);
-		
-		if (FileSystem.exists (folder + "/Project.hxproj")) {
-			
-			FileSystem.rename (folder + "/Project.hxproj", folder + "/" + title + ".hxproj");
-			
-		}
+		LogHelper.error ("Could not find project \"" + projectName + "\"");
 	
 	}
 	
@@ -208,14 +240,14 @@ class CreateTemplate {
 			
 		}
 		
-		LogHelper.error ("Could not find project \"" + projectName + "\"");
+		LogHelper.error ("You must specify a project name when using \"lime create\"");
 		
 	}
 	
 	
 	public static function listSamples (userDefines:Map<String, Dynamic>) {
 		
-		var alias = "openfl";
+		/*var alias = "openfl";
 		var name = "OpenFL";
 		var samplesPath;
 		
@@ -259,7 +291,7 @@ class CreateTemplate {
 			Sys.println ("");
 			Sys.println ("Install \"openfl-samples\" to create sample projects.");
 			
-		}
+		}*/
 		
 	}
 	
