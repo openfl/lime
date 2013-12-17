@@ -904,7 +904,18 @@ class ProjectXMLParser extends HXProject {
 						}*/
 						
 						var haxelib = new Haxelib (name, version);
-						var path = PathHelper.getHaxelib (haxelib, true);
+						var path;
+						
+						if (localDefines.exists ("setup")) {
+							
+							path = PathHelper.getHaxelib (haxelib);
+							
+						} else {
+							
+							path = PathHelper.getHaxelib (haxelib, true);
+							
+						}
+						
 						haxelibs.push (haxelib);
 						
 						var includePath = "";

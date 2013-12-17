@@ -1179,11 +1179,11 @@ class CommandLineTools {
 		
 		if (words.length == 0) {
 			
-			PlatformSetup.run ("", userDefines);
+			PlatformSetup.run ("", userDefines, targetFlags);
 			
 		} else if (words.length == 1) {
 			
-			PlatformSetup.run (words[0], userDefines);
+			PlatformSetup.run (words[0], userDefines, targetFlags);
 			
 		} else {
 			
