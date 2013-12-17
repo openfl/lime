@@ -253,11 +253,15 @@ class ProjectXMLParser extends HXProject {
 				
 				if (FileSystem.exists (includePath)) {
 					
-					if (FileSystem.exists (includePath + "/include.nmml")) {
+					if (FileSystem.exists (includePath + "/include.lime")) {
+						
+						return includePath + "/include.lime";
+						
+					} else if (FileSystem.exists (includePath + "/include.nmml")) {
 						
 						return includePath + "/include.nmml";
 						
-					} else if (FileSystem.exists (includePath + "/include.nmml")) {
+					} else if (FileSystem.exists (includePath + "/include.xml")) {
 						
 						return includePath + "/include.xml";
 						
@@ -285,7 +289,11 @@ class ProjectXMLParser extends HXProject {
 			
 			if (FileSystem.exists (base)) {
 				
-				if (FileSystem.exists (base + "/include.nmml")) {
+				if (FileSystem.exists (base + "/include.lime")) {
+					
+					return base + "/include.lime";
+					
+				} else if (FileSystem.exists (base + "/include.nmml")) {
 					
 					return base + "/include.nmml";
 					
@@ -888,12 +896,12 @@ class ProjectXMLParser extends HXProject {
 							
 						}
 						
-						if (name == "nme" && localDefines.exists ("openfl")) {
+						/*if (name == "nme" && localDefines.exists ("openfl")) {
 							
 							name = "openfl-nme-compatibility";
 							version = "";
 							
-						}
+						}*/
 						
 						var haxelib = new Haxelib (name, version);
 						var path = PathHelper.getHaxelib (haxelib, true);
@@ -901,7 +909,11 @@ class ProjectXMLParser extends HXProject {
 						
 						var includePath = "";
 						
-						if (FileSystem.exists (path + "/include.nmml")) {
+						if (FileSystem.exists (path + "/include.lime")) {
+							
+							includePath = path + "/include.lime";
+							
+						} else if (FileSystem.exists (path + "/include.nmml")) {
 							
 							includePath = path + "/include.nmml";
 							
@@ -947,19 +959,19 @@ class ProjectXMLParser extends HXProject {
 						
 						if (haxelib == null && (name == "std" || name == "regexp" || name == "zlib")) {
 							
-							if (localDefines.exists ("nme")) {
+							/*if (localDefines.exists ("nme")) {
 								
 								haxelib = new Haxelib ("hxcpp");
 								
 							} else {
-								
+								*/
 								haxelib = new Haxelib ("hxlibc");
 								
-							}
+							//}
 							
 						}
 						
-						if (haxelib != null && haxelib.name == "nme" && !localDefines.exists ("nme")) {
+						/*if (haxelib != null && haxelib.name == "nme" && !localDefines.exists ("nme")) {
 							
 							haxelib = new Haxelib ("lime");
 							
@@ -969,7 +981,7 @@ class ProjectXMLParser extends HXProject {
 							
 							name = "lime";
 							
-						}
+						}*/
 						
 						if (element.has.register) {
 							

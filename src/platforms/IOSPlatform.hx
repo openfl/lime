@@ -295,25 +295,6 @@ class IOSPlatform implements IPlatformTool {
 		
 		project = project.clone ();
 		
-		var nmeLib = null;
-		
-		if (project.environment.exists ("nme_ver")) {
-			
-			nmeLib = new Haxelib ("nme");
-			
-		} else {
-			
-			nmeLib = new Haxelib ("openfl-native");
-			
-		}
-		
-		//project.ndlls.push (new NDLL ("curl_ssl", nmeLib, false));
-		//project.ndlls.push (new NDLL ("png", nmeLib, false));
-		//project.ndlls.push (new NDLL ("jpeg", nmeLib, false));
-		//project.ndlls.push (new NDLL ("freetype", nmeLib, false));
-		//project.ndlls.push (new NDLL ("ogg", nmeLib, false));
-		//project.ndlls.push (new NDLL ("vorbis", nmeLib, false));
-		
 		for (asset in project.assets) {
 			
 			asset.resourceName = asset.flatName;

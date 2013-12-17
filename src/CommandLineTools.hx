@@ -384,6 +384,10 @@ class CommandLineTools {
 			
 			return PathHelper.combine (path, "project.hxp");
 			
+		} else if (FileSystem.exists (PathHelper.combine (path, "project.lime"))) {
+			
+			return PathHelper.combine (path, "project.lime");
+			
 		} else if (FileSystem.exists (PathHelper.combine (path, "project.nmml"))) {
 			
 			return PathHelper.combine (path, "project.nmml");
@@ -397,6 +401,7 @@ class CommandLineTools {
 			var files = FileSystem.readDirectory (path);
 			var matches = new Map <String, Array <String>> ();
 			matches.set ("hxp", []);
+			matches.set ("lime", []);
 			matches.set ("nmml", []);
 			matches.set ("xml", []);
 			
@@ -408,7 +413,7 @@ class CommandLineTools {
 					
 					var extension = Path.extension (file);
 					
-					if ((extension == "nmml" && file != "include.nmml") || (extension == "xml" && file != "include.xml") || extension == "hxp") {
+					if ((extension == "lime" && file != "include.lime") || (extension == "nmml" && file != "include.nmml") || (extension == "xml" && file != "include.xml") || extension == "hxp") {
 						
 						matches.get (extension).push (path);
 						
@@ -421,6 +426,12 @@ class CommandLineTools {
 			if (matches.get ("hxp").length > 0) {
 				
 				return matches.get ("hxp")[0];
+				
+			}
+			
+			if (matches.get ("lime").length > 0) {
+				
+				return matches.get ("lime")[0];
 				
 			}
 			
@@ -777,13 +788,12 @@ class CommandLineTools {
 		HXProject._debug = debug;
 		HXProject._target = target;
 		HXProject._targetFlags = targetFlags;
-		//HXProject._templatePaths = [ nme + "/templates/default", nme + "/tools/command-line" ];
 		
 		try { Sys.setCwd (Path.directory (projectFile)); } catch (e:Dynamic) {}
 		
 		var project:HXProject = null;
 		
-		if (Path.extension (projectFile) == "nmml" || Path.extension (projectFile) == "xml") {
+		if (Path.extension (projectFile) == "lime" || Path.extension (projectFile) == "nmml" || Path.extension (projectFile) == "xml") {
 			
 			project = new ProjectXMLParser (Path.withoutDirectory (projectFile), userDefines, includePaths);
 			
@@ -797,7 +807,6 @@ class CommandLineTools {
 				project.debug = debug;
 				project.target = target;
 				project.targetFlags = targetFlags;
-				//project.templatePaths = project.templatePaths.concat ([ nme + "/templates/default", nme + "/tools/command-line" ]);
 				
 			} else {
 				

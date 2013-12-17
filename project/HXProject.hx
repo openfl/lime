@@ -572,7 +572,11 @@ class HXProject {
 			var path = PathHelper.getHaxelib (haxelib);
 			var includePath = "";
 			
-			if (FileSystem.exists (path + "/include.nmml")) {
+			if (FileSystem.exists (path + "/include.lime")) {
+				
+				includePath = path + "/include.lime";
+				
+			} else if (FileSystem.exists (path + "/include.nmml")) {
 				
 				includePath = path + "/include.nmml";
 				

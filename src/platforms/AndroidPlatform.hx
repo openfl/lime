@@ -121,8 +121,7 @@ class AndroidPlatform implements IPlatformTool {
 		
 		if (!project.environment.exists ("ANDROID_SETUP")) {
 			
-			var alias = !project.haxedefs.exists ("nme") ? "openfl" : "nme";
-			LogHelper.error ("You need to run \"" + alias + " setup android\" before you can use the Android target");
+			LogHelper.error ("You need to run \"lime setup android\" before you can use the Android target");
 			
 		}
 		

@@ -544,18 +544,6 @@ class PathHelper {
 			
 			return combine (getHaxelib (ndll.haxelib, true), "bin/" + directoryName + "/" + filename);
 			
-		} else if (ndll.haxelib.name == "nme") {
-			
-			var path = combine (getHaxelib (ndll.haxelib, true), "ndll/" + directoryName + "/" + filename);
-			
-			//if (!FileSystem.exists (path)) {
-				
-				//path = combine (getHaxelib (new Haxelib ("nmedev")), "ndll/" + directoryName + "/" + filename);
-				
-			//}
-			
-			return path;
-			
 		} else {
 			
 			return combine (getHaxelib (ndll.haxelib, true), "ndll/" + directoryName + "/" + filename);
