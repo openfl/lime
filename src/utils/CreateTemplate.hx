@@ -5,6 +5,7 @@ import helpers.FileHelper;
 import helpers.LogHelper;
 import helpers.PathHelper;
 import project.Haxelib;
+import project.ProjectXMLParser;
 import sys.FileSystem;
 
 
@@ -154,35 +155,60 @@ class CreateTemplate {
 	
 	public static function createSample (words:Array <String>, userDefines:Map<String, Dynamic>) {
 		
-		var sampleName = words[0];
-		var samplePath;
+		var projectName = words[0].substring (0, words[0].indexOf (":"));
+		var sampleName = words[0].substr (words[0].indexOf (":") + 1);
 		
-		if (sampleName == "sample" && words.length > 1) {
+		var files = [ "include.lime", "include.nmml", "include.xml" ];
+		var found = false;
+		
+		if (projectName != null && projectName != "") {
 			
-			sampleName = words[1];
+			var path = PathHelper.getHaxelib (new Haxelib (projectName), true);
+			
+			if (sampleName != null && sampleName != "") {
+				
+				for (file in files) {
+					
+					if (!found && FileSystem.exists (PathHelper.combine (path, file))) {
+						
+						found = true;
+						path = PathHelper.combine (path, file);
+						
+					}
+					
+				}
+				
+				if (found) {
+					
+					var project = new ProjectXMLParser (path);
+					var samplePaths = project.samplePaths.copy ();
+					samplePaths.reverse ();
+					
+					for (samplePath in samplePaths) {
+						
+						var targetPath = PathHelper.combine (samplePath, sampleName);
+						
+						if (FileSystem.exists (targetPath)) {
+							
+							PathHelper.mkdir (sampleName);
+							FileHelper.recursiveCopy (targetPath, Sys.getCwd () + "/" + sampleName);
+							return;
+							
+						}
+						
+					}
+					
+				}
+				
+				LogHelper.error ("Could not find sample \"" + sampleName + "\" in project \"" + projectName + "\"");
+				
+			}
+			
+			LogHelper.error ("You must specify a sample name to copy when using \"lime create\"");
 			
 		}
 		
-		if (userDefines.exists ("nme")) {
-			
-			samplePath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("nme"), true) + "/samples", sampleName);
-			
-		} else {
-			
-			samplePath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("openfl-samples"), true), sampleName);
-			
-		}
-		
-		if (FileSystem.exists (samplePath)) {
-			
-			PathHelper.mkdir (sampleName);
-			FileHelper.recursiveCopy (samplePath, Sys.getCwd () + "/" + sampleName);
-			
-		} else {
-			
-			LogHelper.error ("Could not find sample project \"" + sampleName + "\"");
-			
-		}
+		LogHelper.error ("Could not find project \"" + projectName + "\"");
 		
 	}
 	

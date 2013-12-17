@@ -1174,6 +1174,10 @@ class ProjectXMLParser extends HXProject {
 						//if (wantSslCertificate())
 						   //parseSsl (element);
 					
+					case "sample":
+						
+						samplePaths.push (PathHelper.combine (extensionPath, substitute (element.att.path)));
+					
 					case "template":
 						
 						if (element.has.path) {
@@ -1498,15 +1502,26 @@ class ProjectXMLParser extends HXProject {
 		
 		while (varMatch.match (newString)) {
 			
-			newString = localDefines.get (varMatch.matched (1));
+			var substring = varMatch.matched (1);
 			
-			if (newString == null) {
+			if (substring.substr (0, 8) == "haxelib:") {
 				
-				newString = "";
+				var path = PathHelper.getHaxelib (new Haxelib (substring.substr (8)), true);
+				substring = PathHelper.standardize (path);
+				
+			} else {
+				
+				substring = localDefines.get (substring);
 				
 			}
 			
-			newString = varMatch.matchedLeft () + newString + varMatch.matchedRight ();
+			if (substring == null) {
+				
+				substring = "";
+				
+			}
+			
+			newString = varMatch.matchedLeft () + substring + varMatch.matchedRight ();
 			
 		}
 		

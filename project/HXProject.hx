@@ -44,6 +44,7 @@ class HXProject {
 	public var meta:MetaData;
 	public var ndlls:Array <NDLL>;
 	public var platformType:PlatformType;
+	public var samplePaths:Array <String>;
 	public var sources:Array <String>;
 	public var splashScreens:Array <SplashScreen>;
 	public var target:Platform;
@@ -173,6 +174,7 @@ class HXProject {
 		libraryHandlers = new Map <String, String> ();
 		ndlls = new Array <NDLL> ();
 		sources = new Array <String> ();
+		samplePaths = new Array <String> ();
 		splashScreens = new Array <SplashScreen> ();
 		
 	}
@@ -257,6 +259,7 @@ class HXProject {
 		}
 		
 		project.platformType = platformType;
+		project.samplePaths = samplePaths.copy ();
 		project.sources = sources.copy ();
 		
 		for (splashScreen in splashScreens) {
@@ -528,6 +531,7 @@ class HXProject {
 			javaPaths = ArrayHelper.concatUnique (javaPaths, project.javaPaths);
 			libraries = ArrayHelper.concatUnique (libraries, project.libraries);
 			ndlls = ArrayHelper.concatUnique (ndlls, project.ndlls);
+			samplePaths = ArrayHelper.concatUnique (samplePaths, project.samplePaths);
 			sources = ArrayHelper.concatUnique (sources, project.sources);
 			splashScreens = ArrayHelper.concatUnique (splashScreens, project.splashScreens);
 			templatePaths = ArrayHelper.concatUnique (templatePaths, project.templatePaths);
