@@ -293,9 +293,7 @@ class CommandLineTools {
 		Sys.println (" Usage: lime setup (target)");
 		Sys.println (" Usage: lime help");
 		Sys.println (" Usage: lime [clean|update|build|run|test|display] <project> (target) [options]");
-		Sys.println (" Usage: lime create project <package> [options]");
-		Sys.println (" Usage: lime create extension <name>");
-		Sys.println (" Usage: lime create <sample>");
+		Sys.println (" Usage: lime create project:template [options]");
 		Sys.println (" Usage: lime rebuild <extension> (targets)");
 		Sys.println ("");
 		Sys.println (" Commands: ");
@@ -321,7 +319,7 @@ class CommandLineTools {
 		Sys.println ("  linux -- Create a Linux application");
 		Sys.println ("  mac -- Create a Mac OS X application");
 		Sys.println ("  tizen -- Create a Tizen application");
-		Sys.println ("  webos : Create HP webOS applications");
+		Sys.println ("  webos -- Create a webOS application");
 		Sys.println ("  windows -- Create a Windows application");
 		Sys.println ("");
 		Sys.println (" Options: ");
