@@ -357,10 +357,14 @@ class CommandLineTools {
 	
 	private function displayInfo (showHint:Bool = false):Void {
 		
-		Sys.println ("  __      ");
-		Sys.println ("  \\ \\  __  __ _ _  ____");
-		Sys.println ("   \\ \\ \\ \\ \\ \\ \\ \\ \\ -_\\");
-		Sys.println ("    \\_\\ \\_\\ \\_\\_\\_\\ \\__\\");
+		Sys.println ("");
+		Sys.println (" |. _ _  _");
+		Sys.println (" ||| | ||_|");
+		Sys.println (" ||| | ||_.");
+		//Sys.println ("  __      ");
+		//Sys.println ("  \\ \\  __  __ _ _  ____");
+		//Sys.println ("   \\ \\ \\ \\ \\ \\ \\ \\ \\ -_\\");
+		//Sys.println ("    \\_\\ \\_\\ \\_\\_\\_\\ \\__\\");
 		Sys.println ("");
 		
 		Sys.println ("Lime Command-Line Tools (" + version + ")");
