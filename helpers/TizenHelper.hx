@@ -45,11 +45,25 @@ class TizenHelper {
 			
 		}
 		
-		if (FileSystem.exists (PathHelper.combine (workingDirectory, getUUID (project) + "-" + project.meta.version + "-arm.tpk"))) {
+		var packageName = getUUID (project) + "-" + project.meta.version + "-";
+		
+		if (project.targetFlags.exists ("simulator")) {
+			
+			packageName += "i386";
+			
+		} else {
+			
+			packageName += "arm";
+			
+		}
+		
+		packageName += ".tpk";
+		
+		if (FileSystem.exists (PathHelper.combine (workingDirectory, packageName))) {
 			
 			try {
 				
-				FileSystem.deleteFile ((PathHelper.combine (workingDirectory, getUUID (project) + "-" + project.meta.version + "-arm.tpk")));
+				FileSystem.deleteFile ((PathHelper.combine (workingDirectory, packageName)));
 				
 			} catch (e:Dynamic) {}
 			
@@ -87,7 +101,21 @@ class TizenHelper {
 	
 	public static function install (project:HXProject, workingDirectory:String):Void {
 		
-		runCommand (project, "", "native-install", [ "--package", FileSystem.fullPath (workingDirectory + "/" + getUUID (project) + "-" + project.meta.version + "-arm.tpk") ]);
+		var packageName = getUUID (project) + "-" + project.meta.version + "-";
+		
+		if (project.targetFlags.exists ("simulator")) {
+			
+			packageName += "i386";
+			
+		} else {
+			
+			packageName += "arm";
+			
+		}
+		
+		packageName += ".tpk";
+		
+		runCommand (project, "", "native-install", [ "--package", FileSystem.fullPath (workingDirectory + "/" + packageName) ]);
 		
 	}
 	

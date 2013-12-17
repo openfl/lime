@@ -107,6 +107,7 @@ class TizenPlatform implements IPlatformTool {
 		var context = project.templateContext;
 		context.CPP_DIR = project.app.path + "/tizen/obj";
 		context.APP_PACKAGE = TizenHelper.getUUID (project);
+		context.SIMULATOR = project.targetFlags.exists ("simulator");
 		
 		PathHelper.mkdir (destination + "shared/res/screen-density-xhigh");
 		
@@ -132,7 +133,7 @@ class TizenPlatform implements IPlatformTool {
 		
 		for (ndll in project.ndlls) {
 			
-			FileHelper.copyLibrary (ndll, "Tizen", "", arch + ".so", destination + "lib/", project.debug);
+			FileHelper.copyLibrary (ndll, "Tizen", "", arch + ".so", destination + "lib/", project.debug, ".so");
 			
 		}
 		
