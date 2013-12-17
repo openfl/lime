@@ -27,7 +27,16 @@ class TizenPlatform implements IPlatformTool {
 		var hxml = project.app.path + "/tizen/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
 		
 		ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "tizen" ] );
-		CPPHelper.compile (project, project.app.path + "/tizen/obj", [ "-Dtizen", "-DAPP_ID=" + TizenHelper.getUUID (project) ]);
+		
+		var args = [ "-Dtizen", "-DAPP_ID=" + TizenHelper.getUUID (project) ];
+		
+		if (project.targetFlags.exists ("simulator")) {
+			
+			args.push ("-Dsimulator");
+			
+		}
+		
+		CPPHelper.compile (project, project.app.path + "/tizen/obj", args);
 		
 		FileHelper.copyIfNewer (project.app.path + "/tizen/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", project.app.path + "/tizen/bin/CommandLineBuild/" + project.app.file + ".exe");
 		
@@ -113,9 +122,17 @@ class TizenPlatform implements IPlatformTool {
 		
 		//SWFHelper.generateSWFClasses (project, project.app.path + "/tizen/haxe");
 		
+		var arch = "";
+		
+		if (project.targetFlags.exists ("simulator")) {
+			
+			arch = "-x86";
+			
+		}
+		
 		for (ndll in project.ndlls) {
 			
-			FileHelper.copyLibrary (ndll, "Tizen", "", ".so", destination + "lib/", project.debug);
+			FileHelper.copyLibrary (ndll, "Tizen", "", arch + ".so", destination + "lib/", project.debug);
 			
 		}
 		
