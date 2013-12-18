@@ -10,6 +10,6 @@
 	<haxelib name="format" />
 	
 	<assets path="Assets" rename="assets" exclude="*.svg" />
-	<!-- <icon path="Assets/lime.svg" /> -->
+	<icon path="Assets/lime.svg" />
 	
 </project>
