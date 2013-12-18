@@ -337,7 +337,7 @@ class CommandLineTools {
 		Sys.println ("  (mac|linux) -64 -- Compile for 64-bit instead of the OS default");
 		Sys.println ("  (ios|blackberry|tizen|webos) -simulator -- Target the device simulator");
 		Sys.println ("  (ios) -simulator -ipad -- Build/test for the iPad Simulator");
-		Sys.println ("  (android) -emulator -- Target for the device emulator");
+		Sys.println ("  (android) -emulator -- Target the device emulator");
 		Sys.println ("  (html5) -minify -- Minify output using the Google Closure compiler");
 		Sys.println ("  (html5) -minify -yui -- Minify output using the YUI compressor");
 		Sys.println ("");
