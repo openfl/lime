@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A powerful native backend for Haxe projects",
-	"version": "0.9.0",
-	"releasenote": "Preliminary release",
+	"version": "0.9.1",
+	"releasenote": "Minor update",
 	"contributors": [ "singmajesty", "underscorediscovery" ],
 	"dependencies": {}
 }
