@@ -821,10 +821,12 @@ class ProjectXMLParser extends HXProject {
 						
 						var path = "";
 						var addSourcePath = true;
+						var haxelib = null;
 						
 						if (element.has.haxelib) {
 							
-							path = findIncludeFile (PathHelper.getHaxelib (new Haxelib (substitute (element.att.haxelib)), true));
+							haxelib = new Haxelib (substitute (element.att.haxelib));
+							path = findIncludeFile (PathHelper.getHaxelib (haxelib, true));
 							addSourcePath = false;
 							
 						} else if (element.has.path) {
@@ -843,6 +845,20 @@ class ProjectXMLParser extends HXProject {
 						if (path != null && path != "" && FileSystem.exists (path) && !FileSystem.isDirectory (path)) {
 							
 							var includeProject = new ProjectXMLParser (path, localDefines);
+							
+							if (includeProject != null && haxelib != null) {
+								
+								for (ndll in includeProject.ndlls) {
+									
+									if (ndll.haxelib == null) {
+										
+										ndll.haxelib = haxelib;
+										
+									}
+									
+								}
+								
+							}
 							
 							if (addSourcePath) {
 								

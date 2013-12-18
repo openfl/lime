@@ -76,6 +76,12 @@ class CreateTemplate {
 		var files = [ "include.lime", "include.nmml", "include.xml" ];
 		var found = false;
 		
+		if (projectName == "") {
+			
+			projectName = "lime";
+			
+		}
+		
 		if (projectName != null && projectName != "" && sampleName == "project") {
 			
 			var path = PathHelper.getHaxelib (new Haxelib (projectName), true);
@@ -192,6 +198,12 @@ class CreateTemplate {
 		
 		var files = [ "include.lime", "include.nmml", "include.xml" ];
 		var found = false;
+		
+		if (projectName == "") {
+			
+			projectName = "lime";
+			
+		}
 		
 		if (projectName != null && projectName != "") {
 			
