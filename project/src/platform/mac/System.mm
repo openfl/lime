@@ -51,22 +51,28 @@ namespace lime {
 		
 		NSScreen *screen = [NSScreen mainScreen];
 		NSDictionary *description = [screen deviceDescription];
-		NSSize displayPixelSize = [[description objectForKey:NSDeviceSize] sizeValue];
-		CGSize displayPhysicalSize = 
-				CGDisplayScreenSize( [[description objectForKey:@"NSScreenNumber"] unsignedIntValue] );
-		double result = ((displayPixelSize.width / displayPhysicalSize.width) + (displayPixelSize.height / displayPhysicalSize.height)) * 0.5 * 25.4;
-		
+
 		float displayScale = 1;
 		if ([screen respondsToSelector:@selector(backingScaleFactor)]) {
 			displayScale = [screen backingScaleFactor];
 		}
+
+		NSSize displayPixelSize = [[description objectForKey:NSDeviceSize] sizeValue];
+
+		displayPixelSize.width *= displayScale;
+		displayPixelSize.height *= displayScale;
+
+		CGSize displayPhysicalSize = 
+				CGDisplayScreenSize( [[description objectForKey:@"NSScreenNumber"] unsignedIntValue] );
+		double diagonalRes = sqrt(displayPixelSize.width * displayPixelSize.width + displayPixelSize.height * displayPixelSize.height);
+		// size is reported in millimeters, mutliply with magic number to get inches
+		double diagonalSize = sqrt(displayPhysicalSize.width * displayPhysicalSize.width + displayPhysicalSize.height * displayPhysicalSize.height) * 0.0393701;		
 		
 		#ifndef OBJC_ARC
 			[pool drain];
 		#endif
 
-		return result * displayScale;
-
+		return diagonalRes / diagonalSize;
 	}
 
 	double CapabilitiesGetPixelAspectRatio() {
