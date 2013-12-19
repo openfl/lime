@@ -528,6 +528,7 @@ public:
 		int width, height;
 		SDL_GL_GetDrawableSize(mSDLWindow, &width, &height);
 		fprintf(stderr, "updateScaleRatio: %d %d\n", width, height);
+		SDL_GetWindowSize(mSDLWindow, &mRequestedWidth, &mRequestedHeight);
 
 		mScaleRatio = width / mRequestedWidth;
 		fprintf(stderr, "mScaleRatio: %f\n", mScaleRatio);
