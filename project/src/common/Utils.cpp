@@ -390,7 +390,7 @@ void GetSpecialDir(SpecialDir inDir,std::string &outDir)
    }
    else if (inDir == DIR_STORAGE)
    {
-      outDir = "../";
+      outDir = "../data";
    }
    else if (inDir == DIR_USER || inDir == DIR_DOCS || inDir == DIR_DESKTOP)
    {
