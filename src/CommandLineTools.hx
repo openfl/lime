@@ -300,9 +300,9 @@ class CommandLineTools {
 		Sys.println (" Usage: lime setup (target)");
 		Sys.println (" Usage: lime help");
 		Sys.println (" Usage: lime [clean|update|build|run|test|display] <project> (target) [options]");
-		Sys.println (" Usage: lime create project:template [options]");
-		Sys.println (" Usage: lime [install|remove|upgrade] <library>");
+		Sys.println (" Usage: lime create library:template (directory)");
 		Sys.println (" Usage: lime rebuild <extension> (targets)");
+		Sys.println (" Usage: lime [install|remove|upgrade] <library>");
 		Sys.println ("");
 		Sys.println (" Commands: ");
 		Sys.println ("");
@@ -315,10 +315,10 @@ class CommandLineTools {
 		Sys.println ("  test -- Update, build and run in one command");
 		Sys.println ("  display -- Display information for the specified project/target");
 		Sys.println ("  create -- Create a new project or extension using templates");
+		Sys.println ("  rebuild -- Recompile native binaries for extensions");
 		Sys.println ("  install -- Install a library from haxelib, plus dependencies");
 		Sys.println ("  remove -- Remove a library from haxelib");
 		Sys.println ("  upgrade -- Upgrade a library from haxelib");
-		Sys.println ("  rebuild -- Recompile native binaries for extensions");
 		Sys.println ("");
 		Sys.println (" Targets: ");
 		Sys.println ("");

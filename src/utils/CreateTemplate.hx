@@ -230,12 +230,19 @@ class CreateTemplate {
 					
 					for (samplePath in samplePaths) {
 						
-						var targetPath = PathHelper.combine (samplePath, sampleName);
+						var sourcePath = PathHelper.combine (samplePath, sampleName);
+						var targetName = sampleName;
 						
-						if (FileSystem.exists (targetPath)) {
+						if (words.length > 1) {
 							
-							PathHelper.mkdir (sampleName);
-							FileHelper.recursiveCopy (targetPath, Sys.getCwd () + "/" + sampleName);
+							targetName = words[1];
+							
+						}
+						
+						if (FileSystem.exists (sourcePath)) {
+							
+							PathHelper.mkdir (targetName);
+							FileHelper.recursiveCopy (sourcePath, PathHelper.tryFullPath (targetName));
 							return;
 							
 						}
