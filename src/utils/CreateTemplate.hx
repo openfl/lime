@@ -224,7 +224,10 @@ class CreateTemplate {
 				
 				if (found) {
 					
-					var project = new ProjectXMLParser (path);
+					var defines = new Map <String, Dynamic> ();
+					defines.set ("create", 1);
+					
+					var project = new ProjectXMLParser (path, defines);
 					var samplePaths = project.samplePaths.copy ();
 					samplePaths.reverse ();
 					
