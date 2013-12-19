@@ -13,7 +13,7 @@ class ArrayHelper {
 			if (arrayValue == value) {
 				
 				exists = true;
-				
+				break;
 			}
 			
 		}
