@@ -56,11 +56,16 @@ namespace lime {
 				CGDisplayScreenSize( [[description objectForKey:@"NSScreenNumber"] unsignedIntValue] );
 		double result = ((displayPixelSize.width / displayPhysicalSize.width) + (displayPixelSize.height / displayPhysicalSize.height)) * 0.5 * 25.4;
 		
+		float displayScale = 1;
+		if ([screen respondsToSelector:@selector(backingScaleFactor)]) {
+			displayScale = [screen backingScaleFactor];
+		}
+		
 		#ifndef OBJC_ARC
 			[pool drain];
 		#endif
 
-		return result;
+		return result * displayScale;
 
 	}
 
