@@ -186,9 +186,9 @@ class SDLStage : public Stage
 public:
 	SDLStage(SDL_Window *inWindow, SDL_Renderer *inRenderer, uint32 inWindowFlags, bool inIsOpenGL, int inWidth, int inHeight)
 	{
-		mWidth = inWidth;
-		mHeight = inHeight;
-		
+		mRequestedWidth = inWidth;
+		mRequestedHeight = inHeight;
+
 		mIsOpenGL = inIsOpenGL;
 		mSDLWindow = inWindow;
 		mSDLRenderer = inRenderer;
@@ -197,9 +197,12 @@ public:
 		mShowCursor = true;
 		mCurrentCursor = curPointer;
 		
+		SDL_GL_GetDrawableSize(mSDLWindow, &mWidth, &mHeight);
 		mIsFullscreen = (mWindowFlags & SDL_WINDOW_FULLSCREEN || mWindowFlags & SDL_WINDOW_FULLSCREEN_DESKTOP);
 		if (mIsFullscreen)
 			displayState = sdsFullscreenInteractive;
+
+		updateScaleRatio();
 		
 		if (mIsOpenGL)
 		{
@@ -256,12 +259,11 @@ public:
 	
 	void Resize(int inWidth, int inHeight)
 	{
-		mWidth = inWidth;
-		mHeight = inHeight;
+		SDL_GL_GetDrawableSize(mSDLWindow, &mWidth, &mHeight);
 		
 		if (mIsOpenGL)
 		{
-			mOpenGLContext->SetWindowSize(inWidth, inHeight);
+			mOpenGLContext->SetWindowSize(mWidth, mHeight);
 		}
 		else
 		{
@@ -276,6 +278,8 @@ public:
 			mSoftwareTexture = SDL_CreateTexture(mSDLRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, mWidth, mHeight);
 			((SDLSurf*)mPrimarySurface)->mSurf = mSoftwareSurface;
 		}
+
+		updateScaleRatio();
 	}
 	
 	
@@ -313,11 +317,17 @@ public:
 				
 				SDL_DisplayMode mode;
 				SDL_GetCurrentDisplayMode(0, &mode);
+				
 				mode.w = sgDesktopWidth;
 				mode.h = sgDesktopHeight;
+				mRequestedWidth = sgDesktopWidth;
+				mRequestedHeight = sgDesktopHeight;
+
 				SDL_SetWindowDisplayMode(mSDLWindow, &mode);
 				
-				SDL_SetWindowFullscreen(mSDLWindow, SDL_WINDOW_FULLSCREEN /*SDL_WINDOW_FULLSCREEN_DESKTOP*/);
+				SDL_SetWindowFullscreen(mSDLWindow, SDL_WINDOW_FULLSCREEN_DESKTOP /*SDL_WINDOW_FULLSCREEN_DESKTOP*/);
+
+				updateScaleRatio();
 			}
 			else
 			{
@@ -326,6 +336,7 @@ public:
 				{
 					SDL_SetWindowSize(mSDLWindow, sgWindowRect.w, sgWindowRect.h);
 				}
+				updateScaleRatio();
 				#ifndef HX_LINUX
 				SDL_SetWindowPosition(mSDLWindow, sgWindowRect.x, sgWindowRect.y);
 				#endif
@@ -512,7 +523,15 @@ public:
 	{
 		return mPrimarySurface;
 	}
-	
+
+	void updateScaleRatio(){
+		int width, height;
+		SDL_GL_GetDrawableSize(mSDLWindow, &width, &height);
+		fprintf(stderr, "updateScaleRatio: %d %d\n", width, height);
+
+		mScaleRatio = width / mRequestedWidth;
+		fprintf(stderr, "mScaleRatio: %f\n", mScaleRatio);
+	}
 	
 	HardwareContext *mOpenGLContext;
 	SDL_Window *mSDLWindow;
@@ -529,6 +548,11 @@ public:
 	unsigned int mWindowFlags;
 	int			 mWidth;
 	int			 mHeight;
+
+
+	float mScaleRatio;
+	int	mRequestedWidth;
+	int mRequestedHeight;
 };
 
 
@@ -581,7 +605,10 @@ public:
 	{
 		return mStage;
 	}
-	
+
+	float GetScaleRatio(){
+		return mStage->mScaleRatio;
+	}
 	
 	SDLStage *mStage;
 	bool mIsOpenGL;
@@ -950,7 +977,7 @@ void ProcessEvent(SDL_Event &inEvent)
 		}
 		case SDL_MOUSEMOTION:
 		{
-			Event mouse(etMouseMove, inEvent.motion.x, inEvent.motion.y);
+			Event mouse(etMouseMove, inEvent.motion.x * sgSDLFrame->GetScaleRatio(), inEvent.motion.y * sgSDLFrame->GetScaleRatio());
 			#if defined(WEBOS) || defined(BLACKBERRY)
 			mouse.value = inEvent.motion.which;
 			mouse.flags |= efLeftDown;
@@ -962,7 +989,7 @@ void ProcessEvent(SDL_Event &inEvent)
 		}
 		case SDL_MOUSEBUTTONDOWN:
 		{
-			Event mouse(etMouseDown, inEvent.button.x, inEvent.button.y, inEvent.button.button - 1);
+			Event mouse(etMouseDown, inEvent.button.x * sgSDLFrame->GetScaleRatio(), inEvent.button.y * sgSDLFrame->GetScaleRatio(), inEvent.button.button - 1);
 			#if defined(WEBOS) || defined(BLACKBERRY)
 			mouse.value = inEvent.motion.which;
 			mouse.flags |= efLeftDown;
@@ -974,7 +1001,7 @@ void ProcessEvent(SDL_Event &inEvent)
 		}
 		case SDL_MOUSEBUTTONUP:
 		{
-			Event mouse(etMouseUp, inEvent.button.x, inEvent.button.y, inEvent.button.button - 1);
+			Event mouse(etMouseUp, inEvent.button.x * sgSDLFrame->GetScaleRatio(), inEvent.button.y * sgSDLFrame->GetScaleRatio(), inEvent.button.button - 1);
 			#if defined(WEBOS) || defined(BLACKBERRY)
 			mouse.value = inEvent.motion.which;
 			#else
@@ -993,7 +1020,7 @@ void ProcessEvent(SDL_Event &inEvent)
 				//fetch the mouse position
 			SDL_GetMouseState(&_x,&_y);
 				//create the event
-			Event mouse(etMouseUp, _x, _y, event_dir);
+			Event mouse(etMouseUp, _x * sgSDLFrame->GetScaleRatio(), _y * sgSDLFrame->GetScaleRatio(), event_dir);
 				//add flags for modifier keys
 			AddModStates(mouse.flags);
 				//and done.
@@ -1132,6 +1159,8 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
 	if (resizable) windowFlags |= SDL_WINDOW_RESIZABLE;
 	if (borderless) windowFlags |= SDL_WINDOW_BORDERLESS;
 	if (fullscreen) windowFlags |= SDL_WINDOW_FULLSCREEN; //SDL_WINDOW_FULLSCREEN_DESKTOP;
+
+	windowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
 	
 	if (opengl)
 	{
@@ -1210,23 +1239,8 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
 		}
 		SDL_JoystickEventState(SDL_TRUE);
 	}
-	
-	int width, height;
-	if (windowFlags & SDL_WINDOW_FULLSCREEN || windowFlags & SDL_WINDOW_FULLSCREEN_DESKTOP)
-	{
-		//SDL_DisplayMode mode;
-		//SDL_GetCurrentDisplayMode(0, &mode);
-		//width = mode.w;
-		//height = mode.h;
-		width = sgDesktopWidth;
-		height = sgDesktopHeight;
-	}
-	else
-	{
-		SDL_GetWindowSize(window, &width, &height);
-	}
-	
-	sgSDLFrame = new SDLFrame(window, renderer, windowFlags, opengl, width, height);
+		
+	sgSDLFrame = new SDLFrame(window, renderer, windowFlags, opengl, setWidth, setHeight);
 	inOnFrame(sgSDLFrame);
 	StartAnimation();
 }
@@ -1263,14 +1277,14 @@ QuickVec<int>* CapabilitiesGetScreenResolutions()
 double CapabilitiesGetScreenResolutionX()
 {
 	InitSDL();	
-	return sgDesktopWidth;
+	return sgDesktopWidth * sgSDLFrame->GetScaleRatio();
 }
 
 
 double CapabilitiesGetScreenResolutionY()
 {	
 	InitSDL();	
-	return sgDesktopHeight;
+	return sgDesktopHeight * sgSDLFrame->GetScaleRatio();
 }
 
 
