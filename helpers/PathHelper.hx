@@ -155,13 +155,19 @@ class PathHelper {
 	}
 	
 
-	public static function getHaxelib (haxelib:Haxelib, validate:Bool = false):String {
+	public static function getHaxelib (haxelib:Haxelib, validate:Bool = false, clearCache:Bool = false):String {
 		
 		var name = haxelib.name;
 		
 		if (haxelib.version != "") {
 			
 			name += ":" + haxelib.version;
+			
+		}
+		
+		if (clearCache) {
+			
+			haxelibPaths.remove (name);
 			
 		}
 		

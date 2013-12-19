@@ -91,8 +91,12 @@ class CommandLineTools {
 			case "create":
 				
 				createTemplate ();
+				
+			case "install", "remove", "upgrade":
+				
+				updateLibrary ();
 			
-			case "clean", "update", "display", "build", "run", "rerun", "install", "uninstall", "trace", "test":
+			case "clean", "update", "display", "build", "run", "rerun", /*"install",*/ "uninstall", "trace", "test":
 				
 				if (words.length < 1 || words.length > 2) {
 					
@@ -297,6 +301,7 @@ class CommandLineTools {
 		Sys.println (" Usage: lime help");
 		Sys.println (" Usage: lime [clean|update|build|run|test|display] <project> (target) [options]");
 		Sys.println (" Usage: lime create project:template [options]");
+		Sys.println (" Usage: lime [install|remove|upgrade] <library>");
 		Sys.println (" Usage: lime rebuild <extension> (targets)");
 		Sys.println ("");
 		Sys.println (" Commands: ");
@@ -310,6 +315,9 @@ class CommandLineTools {
 		Sys.println ("  test -- Update, build and run in one command");
 		Sys.println ("  display -- Display information for the specified project/target");
 		Sys.println ("  create -- Create a new project or extension using templates");
+		Sys.println ("  install -- Install a library from haxelib, plus dependencies");
+		Sys.println ("  remove -- Remove a library from haxelib");
+		Sys.println ("  upgrade -- Upgrade a library from haxelib");
 		Sys.println ("  rebuild -- Recompile native binaries for extensions");
 		Sys.println ("");
 		Sys.println (" Targets: ");
@@ -1189,6 +1197,68 @@ class CommandLineTools {
 			
 			LogHelper.error ("Incorrect number of arguments for command 'setup'");
 			return;
+			
+		}
+		
+	}
+	
+	
+	private function updateLibrary ():Void {
+		
+		if ((words.length < 1 && command != "upgrade") || words.length > 1) {
+			
+			LogHelper.error ("Incorrect number of arguments for command '" + command + "'");
+			return;
+			
+		}
+		
+		LogHelper.info ("", "Running command: " + command.toUpperCase ());
+		
+		var name = "lime";
+		
+		if (words.length > 0) {
+			
+			name = words[0];
+			
+		}
+		
+		var path = PathHelper.getHaxelib (new Haxelib (name));
+		
+		switch (command) {
+			
+			case "install":
+				
+				if (path == null || path == "") {
+					
+					var haxePath = Sys.getEnv ("HAXEPATH");
+					ProcessHelper.runCommand (haxePath, "haxelib", [ "install", name ]);
+					
+				}
+				
+				PlatformSetup.run (name, userDefines, targetFlags);
+			
+			case "remove":
+				
+				if (path != null && path != "") {
+					
+					var haxePath = Sys.getEnv ("HAXEPATH");
+					ProcessHelper.runCommand (haxePath, "haxelib", [ "remove", name ]);
+					
+				}
+			
+			case "upgrade":
+				
+				if (path != null && path != "") {
+					
+					var haxePath = Sys.getEnv ("HAXEPATH");
+					ProcessHelper.runCommand (haxePath, "haxelib", [ "update", name ]);
+					
+					var defines = StringMapHelper.copy (userDefines);
+					defines.set ("upgrade", 1);
+					
+					PlatformSetup.run (name, defines, targetFlags);
+					
+				}
 			
 		}
 		

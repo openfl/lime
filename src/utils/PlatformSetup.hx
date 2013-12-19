@@ -501,7 +501,7 @@ class PlatformSetup {
 				
 				default:
 					
-					var path = PathHelper.getHaxelib (new Haxelib (target));
+					var path = PathHelper.getHaxelib (new Haxelib (target), false, true);
 					
 					if (path != null && path != "") {
 						
@@ -530,9 +530,9 @@ class PlatformSetup {
 								
 								for (haxelib in project.haxelibs) {
 									
-									var lib = PathHelper.getHaxelib (haxelib);
+									var lib = PathHelper.getHaxelib (haxelib, false, true);
 									
-									if (lib == null || lib == "") {
+									if (lib == null || lib == "" || (haxelib.version != null && haxelib.version != "")) {
 										
 										var name = haxelib.name;
 										
@@ -545,20 +545,24 @@ class PlatformSetup {
 										var haxePath = Sys.getEnv ("HAXEPATH");
 										ProcessHelper.runCommand (haxePath, "haxelib", [ "install", name ]);
 										
+									} else if (userDefines.exists ("upgrade")) {
+										
+										var haxePath = Sys.getEnv ("HAXEPATH");
+										ProcessHelper.runCommand (haxePath, "haxelib", [ "update", haxelib.name ]);
+										
 									}
 									
 								}
-								
-								return;
 								
 							}
 							
 						}
 						
+					} else {
+						
+						Lib.println ("No setup is required for " + target + ", or it is not a valid target");
+						
 					}
-					
-					Lib.println ("No setup is required for " + target + ", or it is not a valid target");
-					return;
 				
 			}
 			
