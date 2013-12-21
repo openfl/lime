@@ -1076,7 +1076,7 @@ class ProjectXMLParser extends HXProject {
 					
 					case "icon":
 						
-						var name = "";
+						var path = "";
 						
 						if (element.has.path) {
 							
@@ -1088,7 +1088,7 @@ class ProjectXMLParser extends HXProject {
 							
 						}
 						
-						var icon = new Icon (name);
+						var icon = new Icon (path);
 						
 						if (element.has.size) {
 							
