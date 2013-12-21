@@ -1080,11 +1080,11 @@ class ProjectXMLParser extends HXProject {
 						
 						if (element.has.path) {
 							
-							name = substitute (element.att.path);
+							path = PathHelper.combine (extensionPath, substitute (element.att.path));
 							
 						} else {
 							
-							name = substitute (element.att.name);
+							path = PathHelper.combine (extensionPath, substitute (element.att.name));
 							
 						}
 						
