@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "Command-line tools for Haxe projects",
-	"version": "1.2.3",
-	"releasenote": "Add install, remove, upgrade commands for package management",
+	"version": "1.2.4",
+	"releasenote": "Minor fixes",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
 }
