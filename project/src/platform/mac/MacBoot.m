@@ -392,11 +392,23 @@ static void CustomApplicationMain (int argc, char **argv)
     return TRUE;
 }
 
+- (void) windowDidChangeBackingProperties: (NSNotification *) note
+{
+    NSLog( @"windowDidChangeBackingProperties\n");
+}
+
 
 /* Called when the internal event loop has just started running */
 - (void) applicationDidFinishLaunching: (NSNotification *) note
 {
     int status;
+
+    /* Request notifications when the window PPI changes (when the window moves between high/low dpi screens) */
+    [[NSNotificationCenter defaultCenter] 
+        addObserver:self 
+        selector:@selector(windowDidChangeBackingProperties:) 
+        name:NSWindowDidChangeBackingPropertiesNotification 
+        object:nil];
 
     /* Set the working directory to the .app's parent directory */
     [self setupWorkingDirectory:gFinderLaunch];
