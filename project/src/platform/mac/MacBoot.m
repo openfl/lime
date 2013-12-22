@@ -392,9 +392,15 @@ static void CustomApplicationMain (int argc, char **argv)
     return TRUE;
 }
 
+/* Called when the windows PPI changes */
 - (void) windowDidChangeBackingProperties: (NSNotification *) note
 {
-    NSLog( @"windowDidChangeBackingProperties\n");
+    // Get the current window and set it to the same size it currently is to trigger a resize event 
+    // This will update the context and resize it accordingly
+    SDL_Window *window = SDL_GL_GetCurrentWindow();
+    int w, h;
+    SDL_GetWindowSize(window, &w, &h);
+    SDL_SetWindowSize(window, w, h);
 }
 
 
