@@ -273,13 +273,33 @@ class CommandLineTools {
 				
 			} else {
 				
-				CreateTemplate.createSample (words, userDefines);
+				if (projectName == "") {
+					
+					if (FileSystem.exists (PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "samples/" + sampleName))) {
+						
+						CreateTemplate.createSample (words, userDefines);
+						
+					} else if (PathHelper.getHaxelib (new Haxelib (sampleName)) != "") {
+						
+						CreateTemplate.listSamples (sampleName, userDefines);
+						
+					} else {
+						
+						CreateTemplate.listSamples ("lime", userDefines);
+						
+					}
+					
+				} else {
+					
+					CreateTemplate.createSample (words, userDefines);
+					
+				}
 				
 			}
 			
 		} else {
 			
-			CreateTemplate.listSamples (userDefines);
+			CreateTemplate.listSamples ("lime", userDefines);
 			
 		}
 		

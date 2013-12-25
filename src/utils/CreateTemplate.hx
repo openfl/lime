@@ -267,53 +267,76 @@ class CreateTemplate {
 	}
 	
 	
-	public static function listSamples (userDefines:Map<String, Dynamic>) {
-		
-		/*var alias = "openfl";
-		var name = "OpenFL";
-		var samplesPath;
-		
-		if (userDefines.exists ("nme")) {
-			
-			alias = "nme";
-			name = "NME";
-			
-			samplesPath = PathHelper.getHaxelib (new Haxelib ("nme"), true) + "/samples";
-			
-		} else {
-			
-			samplesPath = PathHelper.getHaxelib (new Haxelib ("openfl-samples"));
-			
-		}
+	public static function listSamples (projectName:String, userDefines:Map<String, Dynamic>) {
 		
 		Sys.println ("You must specify a template when using the 'create' command.");
 		Sys.println ("");
-		Sys.println ("Usage: " + alias + " create project \"com.package.name\" \"Company Name\"");
-		Sys.println ("Usage: " + alias + " create extension \"ExtensionName\"");
-		Sys.println ("Usage: " + alias + " create sample SampleName");
-		Sys.println ("");
-		Sys.println (" Available samples:");
-		Sys.println ("");
+		Sys.println ("Usage: lime create library:project \"com.package.name\" \"Company Name\"");
+		Sys.println ("Usage: lime create library:sample \"OptionalOutputDirectory\"");
+		Sys.println ("Usage: lime create extension \"ExtensionName\"");
 		
-		if (samplesPath != "") {
+		var files = [ "include.lime", "include.nmml", "include.xml" ];
+		var found = false;
+		
+		if (projectName != null && projectName != "") {
 			
-			for (name in FileSystem.readDirectory (samplesPath)) {
+			Sys.println ("");
+			Sys.println (" Available samples: (" + projectName + ")");
+			Sys.println ("");
+			
+			var path = PathHelper.getHaxelib (new Haxelib (projectName), true);
+			
+			for (file in files) {
 				
-				if (!StringTools.startsWith (name, ".") && FileSystem.isDirectory (samplesPath + "/" + name)) {
+				if (!found && FileSystem.exists (PathHelper.combine (path, file))) {
 					
-					Sys.println ("  - " + name);
+					found = true;
+					path = PathHelper.combine (path, file);
 					
 				}
 				
 			}
 			
-		} else {
+			if (found) {
+				
+				var defines = new Map <String, Dynamic> ();
+				defines.set ("create", 1);
+				
+				var project = new ProjectXMLParser (path, defines);
+				var samplePaths = project.samplePaths.copy ();
+				
+				if (samplePaths.length > 0) {
+					
+					samplePaths.reverse ();
+					
+					for (samplePath in samplePaths) {
+						
+						var path = PathHelper.tryFullPath (samplePath);
+						
+						for (name in FileSystem.readDirectory (path)) {
+							
+							if (!StringTools.startsWith (name, ".") && FileSystem.isDirectory (path + "/" + name)) {
+								
+								Sys.println ("  - " + name);
+								
+							}
+							
+						}
+						
+					}
+					
+					Sys.println ("");
+					
+				} else {
+					
+					Sys.println ("  (None)");
+					Sys.println ("");
+					
+				}
+				
+			}
 			
-			Sys.println ("  (None)");
-			Sys.println ("");
-			Sys.println ("Install \"openfl-samples\" to create sample projects.");
-			
-		}*/
+		}
 		
 	}
 	
