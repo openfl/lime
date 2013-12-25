@@ -386,6 +386,47 @@ class HXProject {
 		
 	}
 	
+	
+	public static function fromHaxelib (haxelib:Haxelib, userDefines:Map <String, Dynamic> = null, clearCache:Bool = false):HXProject {
+		
+		if (haxelib.name == null || haxelib.name == "") {
+			
+			return null;
+			
+		}
+		
+		var path = PathHelper.getHaxelib (haxelib, false, clearCache);
+		
+		if (path == null || path == "") {
+			
+			return null;
+			
+		}
+		
+		var files = [ "include.lime", "include.nmml", "include.xml" ];
+		var found = false;
+		
+		for (file in files) {
+			
+			if (!found && FileSystem.exists (PathHelper.combine (path, file))) {
+				
+				found = true;
+				path = PathHelper.combine (path, file);
+				
+			}
+			
+		}
+		
+		if (found) {
+			
+			return new ProjectXMLParser (path, userDefines);
+			
+		}
+		
+		return null;
+		
+	}
+	
 	#end
 	
 	
@@ -570,25 +611,9 @@ class HXProject {
 			}*/
 			
 			var path = PathHelper.getHaxelib (haxelib);
-			var includePath = "";
+			var includeProject = HXProject.fromHaxelib (haxelib, userDefines);
 			
-			if (FileSystem.exists (path + "/include.lime")) {
-				
-				includePath = path + "/include.lime";
-				
-			} else if (FileSystem.exists (path + "/include.nmml")) {
-				
-				includePath = path + "/include.nmml";
-				
-			} else if (FileSystem.exists (path + "/include.xml")) {
-				
-				includePath = path + "/include.xml";
-				
-			}
-			
-			if (includePath != "") {
-				
-				var includeProject = new ProjectXMLParser (includePath, userDefines);
+			if (includeProject != null) {
 				
 				for (ndll in includeProject.ndlls) {
 					

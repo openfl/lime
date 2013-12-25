@@ -12,8 +12,8 @@ import helpers.PlatformHelper;
 import helpers.ProcessHelper;
 import neko.Lib;
 import project.Haxelib;
+import project.HXProject;
 import project.Platform;
-import project.ProjectXMLParser;
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
@@ -501,58 +501,33 @@ class PlatformSetup {
 				
 				default:
 					
-					var path = PathHelper.getHaxelib (new Haxelib (target), false, true);
+					var defines = new Map <String, Dynamic> ();
+					defines.set ("setup", 1);
+					var project = HXProject.fromHaxelib (new Haxelib (target), defines, true);
 					
-					if (path != null && path != "") {
+					if (project != null && project.haxelibs.length > 0) {
 						
-						var files = [ "include.lime", "include.nmml", "include.xml" ];
-						var found = false;
-						
-						for (file in files) {
+						for (haxelib in project.haxelibs) {
 							
-							if (!found && FileSystem.exists (PathHelper.combine (path, file))) {
+							var lib = PathHelper.getHaxelib (haxelib, false, true);
+							
+							if (lib == null || lib == "" || (haxelib.version != null && haxelib.version != "")) {
 								
-								found = true;
-								path = PathHelper.combine (path, file);
+								var name = haxelib.name;
 								
-							}
-							
-						}
-						
-						if (found) {
-							
-							var defines = new Map <String, Dynamic> ();
-							defines.set ("setup", 1);
-							
-							var project = new ProjectXMLParser (path, defines);
-							
-							if (project.haxelibs.length > 0) {
-								
-								for (haxelib in project.haxelibs) {
+								if (haxelib.version != null && haxelib.version != "") {
 									
-									var lib = PathHelper.getHaxelib (haxelib, false, true);
-									
-									if (lib == null || lib == "" || (haxelib.version != null && haxelib.version != "")) {
-										
-										var name = haxelib.name;
-										
-										if (haxelib.version != null && haxelib.version != "") {
-											
-											name += ":" + haxelib.version;
-											
-										}
-										
-										var haxePath = Sys.getEnv ("HAXEPATH");
-										ProcessHelper.runCommand (haxePath, "haxelib", [ "install", name ]);
-										
-									} else if (userDefines.exists ("upgrade")) {
-										
-										var haxePath = Sys.getEnv ("HAXEPATH");
-										ProcessHelper.runCommand (haxePath, "haxelib", [ "update", haxelib.name ]);
-										
-									}
+									name += ":" + haxelib.version;
 									
 								}
+								
+								var haxePath = Sys.getEnv ("HAXEPATH");
+								ProcessHelper.runCommand (haxePath, "haxelib", [ "install", name ]);
+								
+							} else if (userDefines.exists ("upgrade")) {
+								
+								var haxePath = Sys.getEnv ("HAXEPATH");
+								ProcessHelper.runCommand (haxePath, "haxelib", [ "update", haxelib.name ]);
 								
 							}
 							

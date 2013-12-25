@@ -934,41 +934,21 @@ class ProjectXMLParser extends HXProject {
 						
 						haxelibs.push (haxelib);
 						
-						var includePath = "";
+						var includeProject = HXProject.fromHaxelib (haxelib);
 						
-						if (FileSystem.exists (path + "/include.lime")) {
+						if (includeProject != null) {
 							
-							includePath = path + "/include.lime";
-							
-						} else if (FileSystem.exists (path + "/include.nmml")) {
-							
-							includePath = path + "/include.nmml";
-							
-						} else if (FileSystem.exists (path + "/include.xml")) {
-							
-							includePath = path + "/include.xml";
-							
-						}
-						
-						if (includePath != "") {
-							
-							var includeProject = new ProjectXMLParser (includePath, localDefines);
-							
-							if (includeProject != null) {
+							for (ndll in includeProject.ndlls) {
 								
-								for (ndll in includeProject.ndlls) {
+								if (ndll.haxelib == null) {
 									
-									if (ndll.haxelib == null) {
-										
-										ndll.haxelib = haxelib;
-										
-									}
+									ndll.haxelib = haxelib;
 									
 								}
 								
-								merge (includeProject);
-								
 							}
+							
+							merge (includeProject);
 							
 						}
 					

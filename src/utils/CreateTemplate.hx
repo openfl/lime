@@ -5,7 +5,7 @@ import helpers.FileHelper;
 import helpers.LogHelper;
 import helpers.PathHelper;
 import project.Haxelib;
-import project.ProjectXMLParser;
+import project.HXProject;
 import sys.FileSystem;
 
 
@@ -73,33 +73,14 @@ class CreateTemplate {
 		var projectName = words[0].substring (0, words[0].indexOf (":"));
 		var sampleName = words[0].substr (words[0].indexOf (":") + 1);
 		
-		var files = [ "include.lime", "include.nmml", "include.xml" ];
-		var found = false;
-		
-		if (projectName == "") {
-			
-			projectName = "lime";
-			
-		}
-		
 		if (projectName != null && projectName != "" && sampleName == "project") {
 			
-			var path = PathHelper.getHaxelib (new Haxelib (projectName), true);
+			var defines = new Map <String, Dynamic> ();
+			defines.set ("create", 1);
+			var project = HXProject.fromHaxelib (new Haxelib (projectName), defines);
 			
-			for (file in files) {
+			if (project != null) {
 				
-				if (!found && FileSystem.exists (PathHelper.combine (path, file))) {
-					
-					found = true;
-					path = PathHelper.combine (path, file);
-					
-				}
-				
-			}
-			
-			if (found) {
-				
-				var project = new ProjectXMLParser (path);
 				var id = [ "com", "example", "project" ];
 				
 				if (words.length > 1) {
@@ -180,9 +161,9 @@ class CreateTemplate {
 					
 				}
 				
+				return;
+				
 			}
-			
-			return;
 			
 		}
 		
@@ -196,73 +177,53 @@ class CreateTemplate {
 		var projectName = words[0].substring (0, words[0].indexOf (":"));
 		var sampleName = words[0].substr (words[0].indexOf (":") + 1);
 		
-		var files = [ "include.lime", "include.nmml", "include.xml" ];
-		var found = false;
-		
-		if (projectName == "") {
+		if (projectName == null && projectName == "") {
 			
-			projectName = "lime";
+			LogHelper.error ("You must specify a project name when using \"lime create\"");
+			return;
 			
 		}
 		
-		if (projectName != null && projectName != "") {
+		if (sampleName == null || sampleName == "") {
 			
-			var path = PathHelper.getHaxelib (new Haxelib (projectName), true);
+			LogHelper.error ("You must specify a sample name to copy when using \"lime create\"");
+			return;
 			
-			if (sampleName != null && sampleName != "") {
+		}
+		
+		var defines = new Map <String, Dynamic> ();
+		defines.set ("create", 1);
+		var project = HXProject.fromHaxelib (new Haxelib (projectName), defines);
+		
+		if (project != null) {
+			
+			var samplePaths = project.samplePaths.copy ();
+			samplePaths.reverse ();
+			
+			for (samplePath in samplePaths) {
 				
-				for (file in files) {
+				var sourcePath = PathHelper.combine (samplePath, sampleName);
+				var targetName = sampleName;
+				
+				if (words.length > 1) {
 					
-					if (!found && FileSystem.exists (PathHelper.combine (path, file))) {
-						
-						found = true;
-						path = PathHelper.combine (path, file);
-						
-					}
+					targetName = words[1];
 					
 				}
 				
-				if (found) {
+				if (FileSystem.exists (sourcePath)) {
 					
-					var defines = new Map <String, Dynamic> ();
-					defines.set ("create", 1);
-					
-					var project = new ProjectXMLParser (path, defines);
-					var samplePaths = project.samplePaths.copy ();
-					samplePaths.reverse ();
-					
-					for (samplePath in samplePaths) {
-						
-						var sourcePath = PathHelper.combine (samplePath, sampleName);
-						var targetName = sampleName;
-						
-						if (words.length > 1) {
-							
-							targetName = words[1];
-							
-						}
-						
-						if (FileSystem.exists (sourcePath)) {
-							
-							PathHelper.mkdir (targetName);
-							FileHelper.recursiveCopy (sourcePath, PathHelper.tryFullPath (targetName));
-							return;
-							
-						}
-						
-					}
+					PathHelper.mkdir (targetName);
+					FileHelper.recursiveCopy (sourcePath, PathHelper.tryFullPath (targetName));
+					return;
 					
 				}
-				
-				LogHelper.error ("Could not find sample \"" + sampleName + "\" in project \"" + projectName + "\"");
 				
 			}
 			
-			LogHelper.error ("You must specify a sample name to copy when using \"lime create\"");
-			
 		}
 		
-		LogHelper.error ("You must specify a project name when using \"lime create\"");
+		LogHelper.error ("Could not find sample \"" + sampleName + "\" in project \"" + projectName + "\"");
 		
 	}
 	
@@ -275,34 +236,18 @@ class CreateTemplate {
 		Sys.println ("Usage: lime create library:sample \"OptionalOutputDirectory\"");
 		Sys.println ("Usage: lime create extension \"ExtensionName\"");
 		
-		var files = [ "include.lime", "include.nmml", "include.xml" ];
-		var found = false;
-		
 		if (projectName != null && projectName != "") {
 			
 			Sys.println ("");
 			Sys.println (" Available samples: (" + projectName + ")");
 			Sys.println ("");
 			
-			var path = PathHelper.getHaxelib (new Haxelib (projectName), true);
+			var defines = new Map <String, Dynamic> ();
+			defines.set ("create", 1);
+			var project = HXProject.fromHaxelib (new Haxelib (projectName), defines);
 			
-			for (file in files) {
+			if (project != null) {
 				
-				if (!found && FileSystem.exists (PathHelper.combine (path, file))) {
-					
-					found = true;
-					path = PathHelper.combine (path, file);
-					
-				}
-				
-			}
-			
-			if (found) {
-				
-				var defines = new Map <String, Dynamic> ();
-				defines.set ("create", 1);
-				
-				var project = new ProjectXMLParser (path, defines);
 				var samplePaths = project.samplePaths.copy ();
 				
 				if (samplePaths.length > 0) {
