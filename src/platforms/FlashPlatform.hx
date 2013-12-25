@@ -114,7 +114,7 @@ class FlashPlatform implements IPlatformTool {
 	
 	public function run (project:HXProject, arguments:Array <String>):Void {
 		
-		if (project.app.url != "") {
+		if (project.app.url != null && project.app.url != "") {
 			
 			ProcessHelper.openURL (project.app.url);
 			
