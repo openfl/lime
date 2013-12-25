@@ -1356,6 +1356,33 @@ class ProjectXMLParser extends HXProject {
 							
 						}
 					
+					case "cpp":
+						
+						for (attribute in element.x.attributes ()) {
+							
+							var name = attribute;
+							var value = substitute (element.att.resolve (attribute));
+							
+							switch (name) {
+								
+								case "build-library":
+									
+									config.cpp.buildLibrary = value;
+									
+								default:
+									
+									name = formatAttributeName (attribute);
+									
+									if (Reflect.hasField (config.android, name)) {
+										
+										Reflect.setField (config.android, name, value);
+										
+									}
+								
+							}
+							
+						}
+					
 					case "ios":
 						
 						if (target == Platform.IOS) {

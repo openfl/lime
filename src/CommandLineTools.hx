@@ -1113,6 +1113,10 @@ class CommandLineTools {
 							
 						}
 						
+					} else if (field == "build-library") {
+						
+						overrides.config.cpp.buildLibrary = argValue;
+						
 					} else {
 						
 						projectDefines.set (field, argValue);
