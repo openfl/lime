@@ -30,7 +30,7 @@ class HTML5Helper {
 	
 	public static function launch (project:HXProject, path:String, port:Int = 3000):Void {
 		
-		if (project.app.url != "") {
+		if (project.app.url != null && project.app.url != "") {
 			
 			ProcessHelper.openURL (project.app.url);
 			
