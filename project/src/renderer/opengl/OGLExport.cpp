@@ -57,9 +57,9 @@ DEFINE_PRIM(lime_gl_version,0);
 
 value lime_gl_enable(value inCap)
 {
-   #ifndef LIME_FORCE_GLES2
+   //#ifndef LIME_FORCE_GLES2
    glEnable(val_int(inCap));
-   #endif
+   //#endif
    return alloc_null();
 }
 DEFINE_PRIM(lime_gl_enable,1);
@@ -67,9 +67,9 @@ DEFINE_PRIM(lime_gl_enable,1);
 
 value lime_gl_disable(value inCap)
 {
-   #ifndef LIME_FORCE_GLES2
+   //#ifndef LIME_FORCE_GLES2
    glDisable(val_int(inCap));
-   #endif
+   //#endif
    return alloc_null();
 }
 DEFINE_PRIM(lime_gl_disable,1);
