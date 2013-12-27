@@ -41,7 +41,7 @@ class FlashHelper {
 			
 		}
 		
-		LogHelper.info ("", " - Embedding asset: [" + type + "] " + name);
+		LogHelper.info ("", " - \x1b[1mEmbedding asset:\x1b[0m \x1b[3;37m(" + type + ")\x1b[0m " + name);
 		
 		var cid = nextAssetID ();
 		

@@ -384,7 +384,7 @@ class PathHelper {
 				
 				if (!FileSystem.exists (total)) {
 					
-					LogHelper.info ("", " - Creating directory: " + total);
+					LogHelper.info ("", " - \x1b[1mCreating directory:\x1b[0m " + total);
 					
 					FileSystem.createDirectory (total);
 					
@@ -507,7 +507,7 @@ class PathHelper {
 				
 			}
 			
-			LogHelper.info ("", " - Removing directory: " + directory);
+			LogHelper.info ("", " - \x1b[1mRemoving directory:\x1b[0m " + directory);
 			
 			try {
 				

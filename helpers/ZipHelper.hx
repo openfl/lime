@@ -54,7 +54,7 @@ class ZipHelper {
 			
 		}*/
 		
-		LogHelper.info ("", " - Writing file: " + targetPath);
+		LogHelper.info ("", " - \x1b[1mWriting file:\x1b[0m " + targetPath);
 		
 		var writer = new Writer (output);
 		writer.write (cast files);
@@ -97,7 +97,7 @@ class ZipHelper {
 			//var date = FileSystem.stat (directory + "/" + file).ctime;
 			var date = Date.now ();
 			
-			LogHelper.info ("", " - Compressing file: " + fullPath);
+			LogHelper.info ("", " - \x1b[1mCompressing file:\x1b[0m " + fullPath);
 			
 			var input = File.read (fullPath, true);
 			var data = input.readAll ();

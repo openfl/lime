@@ -125,7 +125,7 @@ class CommandLineTools {
 		var project = initializeProject ();
 		var platform:IPlatformTool = null;
 		
-		LogHelper.info ("", "Using target platform: " + project.target);
+		LogHelper.info ("", "\x1b[32;1mUsing target platform: " + project.target + "\x1b[0m");
 		
 		switch (project.target) {
 			
@@ -189,14 +189,14 @@ class CommandLineTools {
 			
 			if (!Reflect.hasField (metaFields.clean, "ignore") && (command == "clean" || targetFlags.exists ("clean"))) {
 				
-				LogHelper.info ("", "\nRunning command: CLEAN");
+				LogHelper.info ("", "\n\x1b[32;1mRunning command: CLEAN\x1b[0m");
 				platform.clean (project);
 				
 			}
 			
 			if (!Reflect.hasField (metaFields.update, "ignore") && (command == "update" || command == "build" || command == "test")) {
 				
-				LogHelper.info ("", "\nRunning command: UPDATE");
+				LogHelper.info ("", "\n\x1b[32;1mRunning command: UPDATE\x1b[0m");
 				AssetHelper.processLibraries (project);
 				platform.update (project);
 				
@@ -204,21 +204,21 @@ class CommandLineTools {
 			
 			if (!Reflect.hasField (metaFields.build, "ignore") && (command == "build" || command == "test")) {
 				
-				LogHelper.info ("", "\nRunning command: BUILD");
+				LogHelper.info ("", "\n\x1b[32;1mRunning command: BUILD\x1b[0m");
 				platform.build (project);
 				
 			}
 			
 			if (!Reflect.hasField (metaFields.install, "ignore") && (command == "install" || command == "run" || command == "test")) {
 				
-				LogHelper.info ("", "\nRunning command: INSTALL");
+				LogHelper.info ("", "\n\x1b[32;1mRunning command: INSTALL\x1b[0m");
 				platform.install (project);
 				
 			}
 		
 			if (!Reflect.hasField (metaFields.run, "ignore") && (command == "run" || command == "rerun" || command == "test")) {
 				
-				LogHelper.info ("", "\nRunning command: RUN");
+				LogHelper.info ("", "\n\x1b[32;1mRunning command: RUN\x1b[0m");
 				platform.run (project, additionalArguments);
 				
 			}
@@ -227,7 +227,7 @@ class CommandLineTools {
 				
 				if (traceEnabled || command == "trace") {
 					
-					LogHelper.info ("", "\nRunning command: TRACE");
+					LogHelper.info ("", "\n\x1b[32;1mRunning command: TRACE\x1b[0m");
 					platform.trace (project);
 					
 				}
@@ -256,7 +256,7 @@ class CommandLineTools {
 	
 	private function createTemplate () {
 		
-		LogHelper.info ("", "Running command: CREATE");
+		LogHelper.info ("", "\x1b[32;1mRunning command: CREATE\x1b[0m");
 		
 		if (words.length > 0) {
 			
@@ -621,7 +621,7 @@ class CommandLineTools {
 		
 		if (FileSystem.exists (config)) {
 			
-			LogHelper.info ("", "Reading HXCPP config: " + config);
+			LogHelper.info ("", "\x1b[32;1mReading HXCPP config: " + config + "\x1b[0m");
 			
 			return new ProjectXMLParser (config);
 			
@@ -732,7 +732,7 @@ class CommandLineTools {
 	
 	private function initializeProject ():HXProject {
 		
-		LogHelper.info ("", "Initializing project...");
+		LogHelper.info ("", "\x1b[32;1mInitializing project...\x1b[0m");
 		
 		var projectFile = "";
 		var targetName = "";
@@ -769,7 +769,7 @@ class CommandLineTools {
 			
 		} else {
 			
-			LogHelper.info ("", "Using project file: " + projectFile);
+			LogHelper.info ("", "\x1b[32;1mUsing project file: " + projectFile + "\x1b[0m");
 			
 		}
 		
@@ -1232,7 +1232,7 @@ class CommandLineTools {
 	
 	private function platformSetup ():Void {
 		
-		LogHelper.info ("", "Running command: SETUP");
+		LogHelper.info ("", "\x1b[32;1mRunning command: SETUP\x1b[0m");
 		
 		if (words.length == 0) {
 			
@@ -1261,7 +1261,7 @@ class CommandLineTools {
 			
 		}
 		
-		LogHelper.info ("", "Running command: " + command.toUpperCase ());
+		LogHelper.info ("", "\x1b[32;1mRunning command: " + command.toUpperCase () + "\x1b[0m");
 		
 		var name = "lime";
 		

@@ -80,7 +80,7 @@ class AssetHelper {
 			
 			for (handler in handlers) {
 				
-				LogHelper.info ("", " - Running external library handler: " + handler);
+				LogHelper.info ("", " - \x1b[1mRunning external library handler:\x1b[0m " + handler);
 				
 				var cache = LogHelper.verbose;
 				LogHelper.verbose = false;

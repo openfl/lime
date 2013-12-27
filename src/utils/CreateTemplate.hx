@@ -230,16 +230,16 @@ class CreateTemplate {
 	
 	public static function listSamples (projectName:String, userDefines:Map<String, Dynamic>) {
 		
-		Sys.println ("You must specify a template when using the 'create' command.");
+		Sys.println ("\x1b[1mYou must specify a template when using the 'create' command.\x1b[0m");
 		Sys.println ("");
-		Sys.println ("Usage: lime create library:project \"com.package.name\" \"Company Name\"");
-		Sys.println ("Usage: lime create library:sample \"OptionalOutputDirectory\"");
-		Sys.println ("Usage: lime create extension \"ExtensionName\"");
+		Sys.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create library:project \"com.package.name\" \x1b[3;37m\"Company Name\"\x1b[0m");
+		Sys.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create library:sample \x1b[3;37m\"OutputDirectory\"\x1b[0m");
+		Sys.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create extension \"ExtensionName\"");
 		
 		if (projectName != null && projectName != "") {
 			
 			Sys.println ("");
-			Sys.println (" Available samples: (" + projectName + ")");
+			Sys.println (" \x1b[32;1mAvailable Samples:\x1b[0m \x1b[3m" + projectName + "\x1b[0m");
 			Sys.println ("");
 			
 			var defines = new Map <String, Dynamic> ();

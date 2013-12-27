@@ -60,7 +60,7 @@ class PlatformHelper {
 				
 			}
 			
-			LogHelper.info ("", " - Detected host architecture: " + StringHelper.formatEnum (_hostArchitecture));
+			LogHelper.info ("", " - \x1b[1mDetected host architecture:\x1b[0m " + StringHelper.formatEnum (_hostArchitecture));
 			
 		}
 		
@@ -87,7 +87,7 @@ class PlatformHelper {
 				
 			}
 			
-			LogHelper.info ("", " - Detected host platform: " + StringHelper.formatEnum (_hostPlatform));
+			LogHelper.info ("", " - \x1b[1mDetected host platform:\x1b[0m " + StringHelper.formatEnum (_hostPlatform));
 			
 		}
 		

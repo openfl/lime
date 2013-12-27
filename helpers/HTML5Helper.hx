@@ -36,7 +36,7 @@ class HTML5Helper {
 			
 		} else {
 			
-			LogHelper.info ("", " - Starting local web server: http://localhost:" + port);
+			LogHelper.info ("", " - \x1b[1mStarting local web server:\x1b[0m http://localhost:" + port);
 			
 			ProcessHelper.openURL ("http://localhost:" + port);
 			ProcessHelper.runProcess (path, "nekotools", [ "server", "-p", port + "" ]);

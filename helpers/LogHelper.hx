@@ -25,11 +25,17 @@ class LogHelper {
 			
 			if (verbose && verboseMessage != "") {
 				
-				output = "Error: " + verboseMessage + "\n";
+				output = "\x1b[31;1mError:\x1b[0m\x1b[1m " + verboseMessage + "\x1b[0m\n";
 				
 			} else {
 				
-				output = "Error: " + message + "\n";
+				output = "\x1b[31;1mError:\x1b[0m \x1b[1m" + message + "\x1b[0m\n";
+				
+			}
+			
+			if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
+				
+				output = asciiCode.replace (message, "");
 				
 			}
 			
@@ -54,11 +60,11 @@ class LogHelper {
 			
 			if (verbose && verboseMessage != "") {
 				
-				Sys.println (verboseMessage);
+				println (verboseMessage);
 				
 			} else if (message != "") {
 				
-				Sys.println (message);
+				println (message);
 				
 			}
 			
@@ -105,11 +111,11 @@ class LogHelper {
 			
 			if (verbose && verboseMessage != "") {
 				
-				output = "Warning: " + verboseMessage;
+				output = "\x1b[33;1mWarning:\x1b[0m \x1b[33m" + verboseMessage + "\x1b[0m";
 				
 			} else if (message != "") {
 				
-				output = "Warning: " + message;
+				output = "\x1b[33;1mWarning:\x1b[0m \x1b[33m" + message + "\x1b[0m";
 				
 			}
 			
@@ -120,7 +126,7 @@ class LogHelper {
 			}
 			
 			sentWarnings.set (output, true);
-			Sys.println (output);
+			println (output);
 			
 		}
 		

@@ -117,7 +117,7 @@ class FileHelper {
 			
 			if (match) {
 				
-				LogHelper.info ("", " - Copying template file: " + source + " -> " + destination);
+				LogHelper.info ("", " - \x1b[1mCopying template file:\x1b[0m " + source + " \x1b[3;37m->\x1b[0m " + destination);
 				
 				var fileContents:String = File.getContent (source);
 				var template:Template = new Template (fileContents);
@@ -161,7 +161,7 @@ class FileHelper {
 		
 		PathHelper.mkdir (Path.directory (destination));
 		
-		LogHelper.info ("", " - Copying file: " + source + " -> " + destination);
+		LogHelper.info ("", " - \x1b[1mCopying file:\x1b[0m " + source + " \x1b[3;37m->\x1b[0m " + destination);
 		File.copy (source, destination);
 		
 	}
@@ -186,7 +186,7 @@ class FileHelper {
 			}
 			
 			PathHelper.mkdir (targetDirectory);
-			LogHelper.info ("", " - Copying library file: " + path + " -> " + targetPath);
+			LogHelper.info ("", " - \x1b[1mCopying library file:\x1b[0m " + path + " \x1b[3;37m->\x1b[0m " + targetPath);
 			File.copy (path, targetPath);
 			
 		} else {
