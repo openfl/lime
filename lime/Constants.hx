@@ -47,6 +47,8 @@ class SystemEvents {
     static public var joyhatmove        = 26;
     static public var joybuttondown     = 27;
     static public var joybuttonup       = 28;
-    static public var syswm             = 29;
+    static public var joydeviceadded    = 29;
+    static public var joydeviceremoved  = 30;
+    static public var syswm             = 31;
 
 }
