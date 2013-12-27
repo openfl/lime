@@ -2,7 +2,9 @@ package helpers;
 
 
 import haxe.io.Bytes;
+import helpers.PlatformHelper;
 import neko.Lib;
+import project.Platform;
 
 
 class LogHelper {
@@ -10,6 +12,8 @@ class LogHelper {
 	
 	public static var mute:Bool;
 	public static var verbose:Bool = false;
+	
+	private static var asciiCode:EReg = ~/\x1b\[[^m]+m/g;
 	private static var sentWarnings:Map <String, Bool> = new Map <String, Bool> ();
 	
 	
@@ -57,6 +61,36 @@ class LogHelper {
 				Sys.println (message);
 				
 			}
+			
+		}
+		
+	}
+	
+	
+	public static function print (message:String):Void {
+		
+		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
+			
+			Sys.print (asciiCode.replace (message, ""));
+			
+		} else {
+			
+			Sys.print (message);
+			
+		}
+		
+	}
+	
+	
+	public static function println (message:String):Void {
+		
+		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
+			
+			Sys.println (asciiCode.replace (message, ""));
+			
+		} else {
+			
+			Sys.println (message);
 			
 		}
 		

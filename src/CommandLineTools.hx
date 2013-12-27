@@ -312,74 +312,87 @@ class CommandLineTools {
 	}
 	
 	
+	private function ascii (text:String):String {
+		
+		if (PlatformHelper.hostPlatform != Platform.WINDOWS) {
+			
+			return text;
+			
+		}
+		
+		return "";
+		
+	}
+	
+	
 	private function displayHelp ():Void {
 		
 		displayInfo ();
 		
-		Sys.println ("");
-		Sys.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m setup \x1b[3;37m(target)\x1b[0m");
-		Sys.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m clean|update|build|run|test|display \x1b[3;37m<project>\x1b[0m (target) \x1b[3;37m[options]\x1b[0m");
-		Sys.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create library:template \x1b[3;37m(directory)\x1b[0m");
-		Sys.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m rebuild \x1b[3;37m<extension>\x1b[0m (target)\x1b[3;37m,(target),...\x1b[0m");
-		Sys.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m install|remove|upgrade <library>");
-		Sys.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m help");
-		Sys.println ("");
-		Sys.println (" \x1b[32;1mCommands:\x1b[0m ");
-		Sys.println ("");
-		Sys.println ("  \x1b[1msetup\x1b[0m -- Setup Lime or a specific target");
-		Sys.println ("  \x1b[1mclean\x1b[0m -- Remove the target build directory if it exists");
-		Sys.println ("  \x1b[1mupdate\x1b[0m -- Copy assets for the specified project/target");
-		Sys.println ("  \x1b[1mbuild\x1b[0m -- Compile and package for the specified project/target");
-		Sys.println ("  \x1b[1mrun\x1b[0m -- Install and run for the specified project/target");
-		Sys.println ("  \x1b[1mtest\x1b[0m -- Update, build and run in one command");
-		Sys.println ("  \x1b[1mdisplay\x1b[0m -- Display information for the specified project/target");
-		Sys.println ("  \x1b[1mcreate\x1b[0m -- Create a new project or extension using templates");
-		Sys.println ("  \x1b[1mrebuild\x1b[0m -- Recompile native binaries for extensions");
-		Sys.println ("  \x1b[1minstall\x1b[0m -- Install a library from haxelib, plus dependencies");
-		Sys.println ("  \x1b[1mremove\x1b[0m -- Remove a library from haxelib");
-		Sys.println ("  \x1b[1mupgrade\x1b[0m -- Upgrade a library from haxelib");
-		Sys.println ("  \x1b[1mhelp\x1b[0m -- Show this information");
-		Sys.println ("");
-		Sys.println (" \x1b[32;1mTargets:\x1b[0m ");
-		Sys.println ("");
-		Sys.println ("  \x1b[1mandroid\x1b[0m -- Create an Android application");
-		Sys.println ("  \x1b[1mblackberry\x1b[0m -- Create a BlackBerry application");
-		Sys.println ("  \x1b[1mflash\x1b[0m -- Create a Flash SWF application");
-		Sys.println ("  \x1b[1mhtml5\x1b[0m -- Create an HTML5 canvas application");
-		Sys.println ("  \x1b[1mios\x1b[0m -- Create an iOS application");
-		Sys.println ("  \x1b[1mlinux\x1b[0m -- Create a Linux application");
-		Sys.println ("  \x1b[1mmac\x1b[0m -- Create a Mac OS X application");
-		Sys.println ("  \x1b[1mtizen\x1b[0m -- Create a Tizen application");
-		Sys.println ("  \x1b[1mwebos\x1b[0m -- Create a webOS application");
-		Sys.println ("  \x1b[1mwindows\x1b[0m -- Create a Windows application");
-		Sys.println ("");
-		Sys.println (" \x1b[32;1mOptions:\x1b[0m ");
-		Sys.println ("");
-		Sys.println ("  \x1b[1m-D\x1b[0;3mvalue\x1b[0m -- Specify a define to use when processing other commands");
-		Sys.println ("  \x1b[1m-debug\x1b[0m -- Use debug configuration instead of release");
-		Sys.println ("  \x1b[1m-verbose\x1b[0m -- Print additional information (when available)");
-		Sys.println ("  \x1b[1m-clean\x1b[0m -- Add a \"clean\" action before running the current command");
-		Sys.println ("  \x1b[1m-xml\x1b[0m -- Generate XML type information, useful for documentation");
-		Sys.println ("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-neko\x1b[0m -- Build with Neko instead of C++");
-		Sys.println ("  \x1b[3m(mac|linux)\x1b[0m \x1b[1m-32\x1b[0m -- Compile for 32-bit instead of the OS default");
-		Sys.println ("  \x1b[3m(mac|linux)\x1b[0m \x1b[1m-64\x1b[0m -- Compile for 64-bit instead of the OS default");
-		Sys.println ("  \x1b[3m(ios|blackberry|tizen|webos)\x1b[0m \x1b[1m-simulator\x1b[0m -- Target the device simulator");
-		Sys.println ("  \x1b[3m(ios)\x1b[0m \x1b[1m-simulator -ipad\x1b[0m -- Build/test for the iPad Simulator");
-		Sys.println ("  \x1b[3m(android)\x1b[0m \x1b[1m-emulator\x1b[0m -- Target the device emulator");
-		Sys.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-minify\x1b[0m -- Minify output using the Google Closure compiler");
-		Sys.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-minify -yui\x1b[0m -- Minify output using the YUI compressor");
-		Sys.println ("");
-		Sys.println (" \x1b[32;1mProject Overrides:\x1b[0m ");
-		Sys.println ("");
-		Sys.println ("  \x1b[1m--app-\x1b[0;3moption=value\x1b[0m -- Override a project <app /> setting");
-		Sys.println ("  \x1b[1m--meta-\x1b[0;3moption=value\x1b[0m -- Override a project <meta /> setting");
-		Sys.println ("  \x1b[1m--window-\x1b[0;3moption=value\x1b[0m -- Override a project <window /> setting");
-		Sys.println ("  \x1b[1m--dependency\x1b[0;3m=value\x1b[0m -- Add an additional <dependency /> value");
-		Sys.println ("  \x1b[1m--haxedef\x1b[0;3m=value\x1b[0m -- Add an additional <haxedef /> value");
-		Sys.println ("  \x1b[1m--haxeflag\x1b[0;3m=value\x1b[0m -- Add an additional <haxeflag /> value");
-		Sys.println ("  \x1b[1m--haxelib\x1b[0;3m=value\x1b[0m -- Add an additional <haxelib /> value");
-		Sys.println ("  \x1b[1m--source\x1b[0;3m=value\x1b[0m -- Add an additional <source /> value");
-		Sys.println ("  \x1b[1m--certificate-\x1b[0;3moption=value\x1b[0m -- Override a project <certificate /> setting");
+		LogHelper.println ("");
+		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m setup \x1b[3;37m(target)\x1b[0m");
+		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m clean|update|build|run|test|display \x1b[3;37m<project>\x1b[0m (target) \x1b[3;37m[options]\x1b[0m");
+		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create library:template \x1b[3;37m(directory)\x1b[0m");
+		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m rebuild \x1b[3;37m<extension>\x1b[0m (target)\x1b[3;37m,(target),...\x1b[0m");
+		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m install|remove|upgrade <library>");
+		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m help");
+		LogHelper.println ("");
+		LogHelper.println (" \x1b[32;1mCommands:\x1b[0m ");
+		LogHelper.println ("");
+		LogHelper.println ("  \x1b[1msetup\x1b[0m -- Setup Lime or a specific target");
+		LogHelper.println ("  \x1b[1mclean\x1b[0m -- Remove the target build directory if it exists");
+		LogHelper.println ("  \x1b[1mupdate\x1b[0m -- Copy assets for the specified project/target");
+		LogHelper.println ("  \x1b[1mbuild\x1b[0m -- Compile and package for the specified project/target");
+		LogHelper.println ("  \x1b[1mrun\x1b[0m -- Install and run for the specified project/target");
+		LogHelper.println ("  \x1b[1mtest\x1b[0m -- Update, build and run in one command");
+		LogHelper.println ("  \x1b[1mdisplay\x1b[0m -- Display information for the specified project/target");
+		LogHelper.println ("  \x1b[1mcreate\x1b[0m -- Create a new project or extension using templates");
+		LogHelper.println ("  \x1b[1mrebuild\x1b[0m -- Recompile native binaries for extensions");
+		LogHelper.println ("  \x1b[1minstall\x1b[0m -- Install a library from haxelib, plus dependencies");
+		LogHelper.println ("  \x1b[1mremove\x1b[0m -- Remove a library from haxelib");
+		LogHelper.println ("  \x1b[1mupgrade\x1b[0m -- Upgrade a library from haxelib");
+		LogHelper.println ("  \x1b[1mhelp\x1b[0m -- Show this information");
+		LogHelper.println ("");
+		LogHelper.println (" \x1b[32;1mTargets:\x1b[0m ");
+		LogHelper.println ("");
+		LogHelper.println ("  \x1b[1mandroid\x1b[0m -- Create an Android application");
+		LogHelper.println ("  \x1b[1mblackberry\x1b[0m -- Create a BlackBerry application");
+		LogHelper.println ("  \x1b[1mflash\x1b[0m -- Create a Flash SWF application");
+		LogHelper.println ("  \x1b[1mhtml5\x1b[0m -- Create an HTML5 canvas application");
+		LogHelper.println ("  \x1b[1mios\x1b[0m -- Create an iOS application");
+		LogHelper.println ("  \x1b[1mlinux\x1b[0m -- Create a Linux application");
+		LogHelper.println ("  \x1b[1mmac\x1b[0m -- Create a Mac OS X application");
+		LogHelper.println ("  \x1b[1mtizen\x1b[0m -- Create a Tizen application");
+		LogHelper.println ("  \x1b[1mwebos\x1b[0m -- Create a webOS application");
+		LogHelper.println ("  \x1b[1mwindows\x1b[0m -- Create a Windows application");
+		LogHelper.println ("");
+		LogHelper.println (" \x1b[32;1mOptions:\x1b[0m ");
+		LogHelper.println ("");
+		LogHelper.println ("  \x1b[1m-D\x1b[0;3mvalue\x1b[0m -- Specify a define to use when processing other commands");
+		LogHelper.println ("  \x1b[1m-debug\x1b[0m -- Use debug configuration instead of release");
+		LogHelper.println ("  \x1b[1m-verbose\x1b[0m -- Print additional information (when available)");
+		LogHelper.println ("  \x1b[1m-clean\x1b[0m -- Add a \"clean\" action before running the current command");
+		LogHelper.println ("  \x1b[1m-xml\x1b[0m -- Generate XML type information, useful for documentation");
+		LogHelper.println ("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-neko\x1b[0m -- Build with Neko instead of C++");
+		LogHelper.println ("  \x1b[3m(mac|linux)\x1b[0m \x1b[1m-32\x1b[0m -- Compile for 32-bit instead of the OS default");
+		LogHelper.println ("  \x1b[3m(mac|linux)\x1b[0m \x1b[1m-64\x1b[0m -- Compile for 64-bit instead of the OS default");
+		LogHelper.println ("  \x1b[3m(ios|blackberry|tizen|webos)\x1b[0m \x1b[1m-simulator\x1b[0m -- Target the device simulator");
+		LogHelper.println ("  \x1b[3m(ios)\x1b[0m \x1b[1m-simulator -ipad\x1b[0m -- Build/test for the iPad Simulator");
+		LogHelper.println ("  \x1b[3m(android)\x1b[0m \x1b[1m-emulator\x1b[0m -- Target the device emulator");
+		LogHelper.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-minify\x1b[0m -- Minify output using the Google Closure compiler");
+		LogHelper.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-minify -yui\x1b[0m -- Minify output using the YUI compressor");
+		LogHelper.println ("");
+		LogHelper.println (" \x1b[32;1mProject Overrides:\x1b[0m ");
+		LogHelper.println ("");
+		LogHelper.println ("  \x1b[1m--app-\x1b[0;3moption=value\x1b[0m -- Override a project <app /> setting");
+		LogHelper.println ("  \x1b[1m--meta-\x1b[0;3moption=value\x1b[0m -- Override a project <meta /> setting");
+		LogHelper.println ("  \x1b[1m--window-\x1b[0;3moption=value\x1b[0m -- Override a project <window /> setting");
+		LogHelper.println ("  \x1b[1m--dependency\x1b[0;3m=value\x1b[0m -- Add an additional <dependency /> value");
+		LogHelper.println ("  \x1b[1m--haxedef\x1b[0;3m=value\x1b[0m -- Add an additional <haxedef /> value");
+		LogHelper.println ("  \x1b[1m--haxeflag\x1b[0;3m=value\x1b[0m -- Add an additional <haxeflag /> value");
+		LogHelper.println ("  \x1b[1m--haxelib\x1b[0;3m=value\x1b[0m -- Add an additional <haxelib /> value");
+		LogHelper.println ("  \x1b[1m--source\x1b[0;3m=value\x1b[0m -- Add an additional <source /> value");
+		LogHelper.println ("  \x1b[1m--certificate-\x1b[0;3moption=value\x1b[0m -- Override a project <certificate /> setting");
 		
 	}
 	
@@ -387,9 +400,9 @@ class CommandLineTools {
 	private function displayInfo (showHint:Bool = false):Void {
 		
 		//Sys.println ("");
-		Sys.println ("\x1b[32;1m |. _ _  _");
-		Sys.println (" ||| | ||_|");
-		Sys.println (" ||| | ||_.\x1b[0m");
+		LogHelper.println ("\x1b[32;1m |. _ _  _");
+		LogHelper.println (" ||| | ||_|");
+		LogHelper.println (" ||| | ||_.\x1b[0m");
 		//Sys.println ("  __      ");
 		//Sys.println ("  \\ \\  __  __ _ _  ____");
 		//Sys.println ("   \\ \\ \\ \\ \\ \\ \\ \\ \\ -_\\");
@@ -399,12 +412,12 @@ class CommandLineTools {
 		//Sys.println ("");
 		//Sys.println ("\x1b[102m");
 		//Sys.println ("");
-		Sys.println ("\x1b[102m\x1b[1mLime Command-Line Tools\x1b[0;1m (" + version + ")\x1b[0m");
+		LogHelper.println ("\x1b[102m\x1b[1mLime Command-Line Tools\x1b[0;1m (" + version + ")\x1b[0m");
 		
 		
 		if (showHint) {
 			
-			Sys.println ("Use \x1b[3mlime setup\x1b[0m to configure Lime or \x1b[3mlime help\x1b[0m for more commands");
+			LogHelper.println ("Use \x1b[3mlime setup\x1b[0m to configure Lime or \x1b[3mlime help\x1b[0m for more commands");
 			
 		}
 		
