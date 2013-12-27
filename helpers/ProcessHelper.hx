@@ -441,7 +441,7 @@ class ProcessHelper {
 					
 				}
 				
-			} else if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
+			} else if (PlatformHelper.hostPlatform == Platform.MAC) {
 				
 				var cores = ~/Total Number of Cores: (\d+)/;
 				var output = runProcess ("", "/usr/sbin/system_profiler", [ "-detailLevel", "full", "SPHardwareDataType" ]);

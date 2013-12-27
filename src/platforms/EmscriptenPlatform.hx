@@ -5,6 +5,7 @@ import flash.utils.ByteArray;
 import flash.utils.CompressionAlgorithm;
 import haxe.io.Path;
 import haxe.Template;
+import helpers.AssetHelper;
 import helpers.CPPHelper;
 import helpers.FileHelper;
 import helpers.HTML5Helper;
@@ -198,7 +199,7 @@ class EmscriptenPlatform implements IPlatformTool {
 		
 		initialize (project);
 		
-		if (project.app.url != "") {
+		if (project.app.url != null && project.app.url != "") {
 			
 			ProcessHelper.openURL (project.app.url);
 			
@@ -284,6 +285,8 @@ class EmscriptenPlatform implements IPlatformTool {
 			}
 			
 		}
+		
+		AssetHelper.createManifest (project, PathHelper.combine (outputDirectory + "/obj/assets", "manifest"));
 		
 	}
 	

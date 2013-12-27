@@ -84,7 +84,7 @@ class ProjectXMLParser extends HXProject {
 			localDefines.set ("native", "1");
 			localDefines.set ("neko", "1");
 			
-		} else if (targetFlags.exists ("cpp") || ((platformType == PlatformType.MOBILE || platformType == PlatformType.DESKTOP) && !targetFlags.exists("html5"))) {
+		} else if (targetFlags.exists ("cpp") || ((platformType == PlatformType.MOBILE || platformType == PlatformType.DESKTOP) && !targetFlags.exists("html5")) || target == Platform.EMSCRIPTEN) {
 			
 			localDefines.set ("native", "1");
 			localDefines.set ("cpp", "1");
