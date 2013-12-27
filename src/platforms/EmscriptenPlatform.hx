@@ -68,6 +68,8 @@ class EmscriptenPlatform implements IPlatformTool {
 			
 			args.push ("-s");
 			args.push ("DISABLE_EXCEPTION_CACHING=0");
+			//args.push ("-s");
+			//args.push ("OUTLINING_LIMIT=70000");
 			
 		} else {
 			
