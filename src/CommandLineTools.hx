@@ -399,7 +399,12 @@ class CommandLineTools {
 	
 	private function displayInfo (showHint:Bool = false):Void {
 		
-		//Sys.println ("");
+		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
+			
+			LogHelper.println ("");
+			
+		}
+		
 		LogHelper.println ("\x1b[32;1m |. _ _  _");
 		LogHelper.println (" ||| | ||_|");
 		LogHelper.println (" ||| | ||_.\x1b[0m");
@@ -414,11 +419,7 @@ class CommandLineTools {
 		//Sys.println ("  \\ \\  __  __ _ _  ____");
 		//Sys.println ("   \\ \\ \\ \\ \\ \\ \\ \\ \\ -_\\");
 		//Sys.println ("    \\_\\ \\_\\ \\_\\_\\_\\ \\__\\");
-		//Sys.println ("\x1b[0m");
 		
-		//Sys.println ("");
-		//Sys.println ("\x1b[102m");
-		//Sys.println ("");
 		LogHelper.println ("\x1b[102m\x1b[1mLime Command-Line Tools\x1b[0;1m (" + version + ")\x1b[0m");
 		
 		
