@@ -1,5 +1,6 @@
 #include <string>
 #include <cstdlib>
+#include <vector>
 
 namespace lime {
 	
@@ -71,6 +72,19 @@ namespace lime {
 		//
 		//return (result == BPS_SUCCESS);
 		
+	}
+	
+	
+	std::string FileDialogFolder( const std::string &title, const std::string &text ) {
+		return ""; 
+	}
+	
+	std::string FileDialogOpen( const std::string &title, const std::string &text, const std::vector<std::string> &fileTypes ) { 
+		return ""; 
+	}
+	
+	std::string FileDialogSave( const std::string &title, const std::string &text, const std::vector<std::string> &fileTypes ) { 
+		return ""; 
 	}
 	
 

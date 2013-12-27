@@ -238,9 +238,11 @@ namespace lime {
 	
 	void OpenGLContext::FinishBitmapRender () {
 		
+		#ifndef LIME_FORCE_GLES2
 		glDisable (GL_TEXTURE_2D);
 		#ifdef LIME_DITHER
 		glEnable (GL_DITHER);
+		#endif
 		#endif
 		
 	}
@@ -455,9 +457,11 @@ namespace lime {
 				if (boundTexture) {
 					
 					boundTexture->BindFlags (draw.mBitmapRepeat, draw.mBitmapSmooth);
+					#ifndef LIME_FORCE_GLES2
 					#ifdef LIME_DITHER
 					if (!inSmooth)
 						glDisable (GL_DITHER);
+					#endif
 					#endif
 					
 				} else {
