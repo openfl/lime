@@ -240,12 +240,12 @@ namespace lime {
 	
 	void OpenGLContext::FinishBitmapRender () {
 		
-		//#ifndef LIME_FORCE_GLES2
+		#ifndef LIME_FORCE_GLES2
 		glDisable (GL_TEXTURE_2D);
 		#ifdef LIME_DITHER
 		glEnable (GL_DITHER);
 		#endif
-		//#endif
+		#endif
 		
 	}
 	
