@@ -92,7 +92,9 @@ namespace lime {
 			mViewport.w = -1;
 			SetViewport (inRect);
 			
+			//#ifndef LIME_FORCE_GLES2
 			glEnable (GL_BLEND);
+			//#endif
 			
 			if (mAlphaMode == amPremultiplied)
 				glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -238,9 +240,11 @@ namespace lime {
 	
 	void OpenGLContext::FinishBitmapRender () {
 		
+		#ifndef LIME_FORCE_GLES2
 		glDisable (GL_TEXTURE_2D);
 		#ifdef LIME_DITHER
 		glEnable (GL_DITHER);
+		#endif
 		#endif
 		
 	}
@@ -325,7 +329,9 @@ namespace lime {
 	
 	void OpenGLContext::Render (const RenderState &inState, const HardwareCalls &inCalls) {
 		
+		//#ifndef LIME_FORCE_GLES2
 		glEnable (GL_BLEND);
+		//#endif
 		SetViewport (inState.mClipRect);
 
 		if (mModelView != *inState.mTransform.mMatrix) {
@@ -455,9 +461,11 @@ namespace lime {
 				if (boundTexture) {
 					
 					boundTexture->BindFlags (draw.mBitmapRepeat, draw.mBitmapSmooth);
+					#ifndef LIME_FORCE_GLES2
 					#ifdef LIME_DITHER
 					if (!inSmooth)
 						glDisable (GL_DITHER);
+					#endif
 					#endif
 					
 				} else {
@@ -523,10 +531,12 @@ namespace lime {
 				sgDrawCount++;
 				glDrawArrays (sgOpenglType[draw.mPrimType], draw.mFirst, draw.mCount);
 				
+				//#ifndef LIME_FORCE_GLES2
 				#ifdef LIME_DITHER
 				if (boundTexture && !draw.mBitmapSmooth)
 					glEnable (GL_DITHER);
 				#endif
+				//#endif
 				
 			}
 			

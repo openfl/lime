@@ -192,12 +192,17 @@ namespace lime
 		bool loadOggSample(OggVorbis_File &oggFile, QuickVec<unsigned char> &outBuffer, int *channels, int *bitsPerSample, int* outSampleRate)
 		{
 			// 0 for Little-Endian, 1 for Big-Endian
-			int endian = 0;
+			#ifdef HXCPP_BIG_ENDIAN
+			#define BUFFER_READ_TYPE 1
+			#else
+			#define BUFFER_READ_TYPE 0
+			#endif
+			
 			int bitStream;
 			long bytes = 1;
+			int totalBytes = 0;
 			
 			#define BUFFER_SIZE 32768
-			char array[BUFFER_SIZE]; 
 			
 			//Get the file information
 			//vorbis data
@@ -210,23 +215,31 @@ namespace lime
 			}
 			
 			//The number of channels
-			*channels = pInfo->channels;  
+			*channels = pInfo->channels;
 			//default to 16? todo 
-			*bitsPerSample = 16;          
+			*bitsPerSample = 16;
 			//Return the same rate as well
 			*outSampleRate = pInfo->rate;
 			
+			// Seem to need four times the read PCM total
+			outBuffer.resize(ov_pcm_total(&oggFile, -1)*4);
+			
 			while (bytes > 0)
 			{
+				if (outBuffer.size() < totalBytes + BUFFER_SIZE)
+				{
+					outBuffer.resize(totalBytes + BUFFER_SIZE);
+				}
 				// Read up to a buffer's worth of decoded sound data
-				bytes = ov_read(&oggFile, array, BUFFER_SIZE, endian, 2, 1, &bitStream);
-				// Append to end of buffer
-				outBuffer.InsertAt(outBuffer.size(), (unsigned char*)array, bytes);
+				bytes = ov_read(&oggFile, (char*)outBuffer.begin() + totalBytes, BUFFER_SIZE, BUFFER_READ_TYPE, 2, 1, &bitStream);
+				totalBytes += bytes;
 			}
 			
-			ov_clear(&oggFile);         
+			outBuffer.resize(totalBytes);
+			ov_clear(&oggFile);
 			
 			#undef BUFFER_SIZE
+			#undef BUFFER_READ_TYPE
 			
 			return true;
 		}

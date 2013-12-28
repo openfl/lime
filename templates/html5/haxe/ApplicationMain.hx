@@ -1,7 +1,7 @@
 #if lime_html5
 
 	import ::APP_MAIN_PACKAGE::::APP_MAIN_CLASS::;
-	import lime.LiME;
+	import lime.Lime;
 
 	class ApplicationMain {
 		
@@ -12,13 +12,20 @@
 				//Create the game class, give it the runtime			
 			var _main_ = Type.createInstance (::APP_MAIN::, []);
 				//Create an instance of lime
-			var _lime = new LiME();
+			var _lime = new Lime();
 
 				//Create the config from the project.nmml info
 			var config = {
-				width : ::WIN_WIDTH::, 
-				height : ::WIN_HEIGHT::,
-				title : "::APP_TITLE::"
+				fullscreen		: ::WIN_FULLSCREEN::,
+				resizable 		: ::WIN_RESIZABLE::,
+				borderless		: ::WIN_BORDERLESS::,
+				antialiasing	: ::WIN_ANTIALIASING::,
+				stencil_buffer 	: ::WIN_STENCIL_BUFFER::,
+				depth_buffer 	: ::WIN_DEPTH_BUFFER::,
+				vsync 			: ::WIN_VSYNC::,
+				width 			: ::WIN_WIDTH::, 
+				height 			: ::WIN_HEIGHT::, 
+				title 			: "::APP_TITLE::"
 			};
 
 				//Start up

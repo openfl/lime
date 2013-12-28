@@ -537,8 +537,8 @@
 		<lib name="${THIRDPARTY_LIBS}libz${name_extra}${SLIBEXT}" if="linux" unless="dynamic_sdl"/>
 		<lib name="${THIRDPARTY_LIBS}libz${name_extra}${SLIBEXT}" if="tizen" />
 		
-		<lib name="${THIRDPARTY_LIBS}libSDL_mixer${name_extra}${SLIBEXT}" if="sdl" unless="dynamic_sdl" />
-		<lib name="${THIRDPARTY_LIBS}libSDL_image${name_extra}${SLIBEXT}" if="sdl_image" unless="emscripten" />
+		<lib name="${THIRDPARTY_LIBS}libSDL_mixer${name_extra}${SLIBEXT}" if="sdl" unless="dynamic_sdl || emscripten" />
+		<lib name="${THIRDPARTY_LIBS}libSDL_image${name_extra}${SLIBEXT}" if="sdl_image" unless="dynamic_sdl || emscripten" />
 		<lib name="${THIRDPARTY_LIBS}libSDL${name_extra}${SLIBEXT}" if="sdl_static" unless="blackberry" />
 		<lib name="${THIRDPARTY_LIBS}libSDL2${name_extra}${SLIBEXT}" if="sdl2" />
 		<!-- <lib name="${THIRDPARTY_LIBS}libSDL2main${name_extra}${SLIBEXT}" if="windows" unless="sdl" /> -->

@@ -19,14 +19,14 @@ package lime.utils;
         public function new (bufferOrArray:Dynamic, start:Int = 0, length:Null<Int> = null) {
             
             BYTES_PER_ELEMENT = 4;
-            
+
             if (Std.is (bufferOrArray, Int)) {
                 
                 super (Std.int (bufferOrArray) * BYTES_PER_ELEMENT);
                 this.length = bufferOrArray;
                 
             } else if (Std.is (bufferOrArray, Array)) {
-                
+
                 var floats:Array<Float> = bufferOrArray;
                 
                 if (length != null) {
@@ -56,8 +56,8 @@ package lime.utils;
                 }
                 
             } else {
-                
-                super (bufferOrArray, start, length);
+
+                super (bufferOrArray, start, length << 2 );
                 
                 if ((byteLength & 0x03) > 0) {
                     

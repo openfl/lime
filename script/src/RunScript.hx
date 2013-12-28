@@ -438,12 +438,14 @@ class RunScript {
 				if (!flags.exists ("debug")) {
 					
 					runCommand (path, "haxelib", [ "run", "hxlibc", buildFile, "-Dtizen" ].concat (defines));
+					runCommand (path, "haxelib", [ "run", "hxlibc", buildFile, "-Dtizen", "-Dsimulator" ].concat (defines));
 					
 				}
 				
 				if (!flags.exists ("release")) {
 					
 					runCommand (path, "haxelib", [ "run", "hxlibc", buildFile, "-Dtizen", "-Dfulldebug" ].concat (defines));
+					runCommand (path, "haxelib", [ "run", "hxlibc", buildFile, "-Dtizen", "-Dsimulator", "-Dfulldebug" ].concat (defines));
 					
 				}
 			

@@ -30,5 +30,6 @@
 	</section>
 	
 	<templatePath name="templates" unless="openfl" />
+	<sample path="samples" />
 	
 </extension>

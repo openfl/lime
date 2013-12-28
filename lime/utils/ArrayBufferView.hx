@@ -56,9 +56,8 @@ package lime.utils;
                         byteLength = buffer.length - byteOffset;
                         
                     } else {
-                        
+                                                
                         byteLength = length;
-                        
                         if (byteLength + byteOffset > buffer.length) {
                             
                             throw ("Invalid buffer length");

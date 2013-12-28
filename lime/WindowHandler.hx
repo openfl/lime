@@ -1,14 +1,14 @@
 package lime;
 
-import lime.LiME;
+import lime.Lime;
 import lime.utils.Libs;
 import lime.Constants;
 
 
 class WindowHandler {
 
-    public var lib : LiME;
-    public function new( _lib:LiME ) { lib = _lib; }
+    public var lib : Lime;
+    public function new( _lib:Lime ) { lib = _lib; }
 
         //if the core is active
     public var active : Bool = false;
@@ -38,14 +38,14 @@ class WindowHandler {
 
                                                 //optional flags
 
-                    ( lib.config.fullscreen     ? Window.FULLSCREEN     : 0) |  
-                    ( lib.config.borderless     ? Window.BORDERLESS     : 0) |  
-                    ( lib.config.resizable      ? Window.RESIZABLE      : 0) |  
-                    ( lib.config.AA             ? Window.HW_AA          : 0) | 
-                    ( lib.config.AA_HIRES       ? Window.HW_AA_HIRES    : 0) | 
-                    ( lib.config.depth_buffer   ? Window.DEPTH_BUFFER   : 0) | 
-                    ( lib.config.stencil_buffer ? Window.STENCIL_BUFFER : 0) |                      
-                    ( lib.config.vsync          ? Window.VSYNC          : 0), 
+                    ( lib.config.fullscreen         ? Window.FULLSCREEN     : 0) |  
+                    ( lib.config.borderless         ? Window.BORDERLESS     : 0) |  
+                    ( lib.config.resizable          ? Window.RESIZABLE      : 0) |  
+                    ( lib.config.antialiasing == 2  ? Window.HW_AA          : 0) | 
+                    ( lib.config.antialiasing == 4  ? Window.HW_AA_HIRES    : 0) | 
+                    ( lib.config.depth_buffer       ? Window.DEPTH_BUFFER   : 0) | 
+                    ( lib.config.stencil_buffer     ? Window.STENCIL_BUFFER : 0) |                      
+                    ( lib.config.vsync              ? Window.VSYNC          : 0), 
 
                 lib.config.title,               //title
                 null                           //icon
