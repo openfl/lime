@@ -7,6 +7,7 @@ import haxe.io.Path;
 import haxe.zip.Reader;
 import helpers.BlackBerryHelper;
 import helpers.FileHelper;
+import helpers.LogHelper;
 import helpers.PathHelper;
 import helpers.PlatformHelper;
 import helpers.ProcessHelper;
@@ -69,7 +70,7 @@ class PlatformSetup {
 		
 		while (true) {
 			
-			Lib.print (question + " [y/n/a] ? ");
+			LogHelper.print ("\x1b[1m" + question + "\x1b[0m \x1b[3;37m[y/n/a]\x1b[0m ? ");
 			
 			switch (readLine ()) {
 				case "n": return No;
@@ -349,7 +350,7 @@ class PlatformSetup {
 				
 			}
 			
-			value = unescapePath (param (description + " [" + value + "]"));
+			value = unescapePath (param ("\x1b[1m" + description + "\x1b[0m \x1b[37;3m[" + value + "]\x1b[0m"));
 			
 			if (value != "") {
 				
@@ -404,7 +405,7 @@ class PlatformSetup {
 	
 	private static function param (name:String, ?passwd:Bool):String {
 		
-		Lib.print (name + ": ");
+		LogHelper.print (name + ": ");
 		
 		if (passwd) {
 			var s = new StringBuf ();

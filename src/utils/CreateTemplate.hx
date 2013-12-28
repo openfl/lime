@@ -230,17 +230,17 @@ class CreateTemplate {
 	
 	public static function listSamples (projectName:String, userDefines:Map<String, Dynamic>) {
 		
-		Sys.println ("\x1b[1mYou must specify a template when using the 'create' command.\x1b[0m");
-		Sys.println ("");
-		Sys.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create library:project \"com.package.name\" \x1b[3;37m\"Company Name\"\x1b[0m");
-		Sys.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create library:sample \x1b[3;37m\"OutputDirectory\"\x1b[0m");
-		Sys.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create extension \"ExtensionName\"");
+		LogHelper.println ("\x1b[1mYou must specify a template when using the 'create' command.\x1b[0m");
+		LogHelper.println ("");
+		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create library:project \"com.package.name\" \x1b[3;37m\"Company Name\"\x1b[0m");
+		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create library:sample \x1b[3;37m\"OutputDirectory\"\x1b[0m");
+		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create extension \"ExtensionName\"");
 		
 		if (projectName != null && projectName != "") {
 			
-			Sys.println ("");
-			Sys.println (" \x1b[32;1mAvailable Samples:\x1b[0m \x1b[3m" + projectName + "\x1b[0m");
-			Sys.println ("");
+			LogHelper.println ("");
+			LogHelper.println (" \x1b[32;1mAvailable Samples:\x1b[0m \x1b[3m" + projectName + "\x1b[0m");
+			LogHelper.println ("");
 			
 			var defines = new Map <String, Dynamic> ();
 			defines.set ("create", 1);

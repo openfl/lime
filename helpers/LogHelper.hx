@@ -111,11 +111,11 @@ class LogHelper {
 			
 			if (verbose && verboseMessage != "") {
 				
-				output = "\x1b[33;1mWarning:\x1b[0m \x1b[33m" + verboseMessage + "\x1b[0m";
+				output = "\x1b[33;1mWarning:\x1b[0m \x1b[1m" + verboseMessage + "\x1b[0m";
 				
 			} else if (message != "") {
 				
-				output = "\x1b[33;1mWarning:\x1b[0m \x1b[33m" + message + "\x1b[0m";
+				output = "\x1b[33;1mWarning:\x1b[0m \x1b[1m" + message + "\x1b[0m";
 				
 			}
 			

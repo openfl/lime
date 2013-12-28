@@ -34,6 +34,8 @@ class EmscriptenPlatform implements IPlatformTool {
 		ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "emscripten", "-D", "webgl" ] );
 		CPPHelper.compile (project, outputDirectory + "/obj", [ "-Demscripten", "-Dwebgl" ]);
 		
+		Sys.putEnv ("EMCC_LLVM_TARGET", "i386-pc-linux-gnu");
+		
 		ProcessHelper.runCommand ("", "emcc", [ outputDirectory + "/obj/Main.cpp", "-o", outputDirectory + "/obj/Main.o" ], true, false, true);
 		
 		var args = [ "Main.o" ];
