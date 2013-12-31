@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "Command-line tools for Haxe projects",
-	"version": "1.2.5",
-	"releasenote": "*.hxp, Mac, Emscripten fixes",
+	"version": "1.2.6",
+	"releasenote": "Restored Emscripten support",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
 }
