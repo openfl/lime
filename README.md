@@ -5,7 +5,7 @@ Introduction
 
 Lime (Light Media Engine) is an abstraction layer that makes it simple to go cross-platform with only one codebase; without the compromise of relying upon a scripting language or a virtual machine.
 
-Lime leverages the power of the [Haxe](http://haxe.org/) programming language, compiling Haxe code directly to C++, JavaScript and other target languages. Haxe is a flexible, robust language, and the resulting applications are truly native.
+Lime leverages the power of the [Haxe](http://haxe.org/) programming language, compiling directly to C++, JavaScript and other target languages. Haxe is a flexible, robust language, and the resulting applications are truly native.
 
 Platforms
 =========
