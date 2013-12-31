@@ -56,7 +56,7 @@ The **second** is a native layer, which handles rendering, sound and other featu
 
 The **third** is a Haxe wrapper (under development), which exposes this functionality and helps abstract differences (such as HTML5 vs native builds)
 
-Lime is designed to power higher-level frameworks, in addition to exposing a sensible cross-platform API for "more direct" development. Most popularly, Lime is also used as the foundation for [OpenFL](https://github.com/openfl/openfl) which is an open-source, accelerated version of the Flash API, supporting all of the Lime targets as well as an HTML5 canvas implementations of the Flash API as well.
+Lime is designed to power higher-level frameworks, in addition to exposing a sensible cross-platform API for "more direct" development. Most popularly, Lime is also used as the foundation for [OpenFL](https://github.com/openfl/openfl) which is an open-source, accelerated version of the Flash API, supporting all of the Lime targets as well as an HTML5 canvas implementation of the API as well.
 
 License
 -------
@@ -148,4 +148,4 @@ If you do not prefer a low-level API, [OpenFL](https://github.com/openfl/openfl)
     var bitmap = new Bitmap (Assets.getBitmapData ("image.png"));
     addChild (bitmap);
 
-This is far fewer steps than using OpenGL directly, so you should decide what level of API you prefer, even if you are not familiar (or do not prefer) the Flash API, as OpenFL also allows direct OpenGL calls using "OpenGLView" if you prefer.
+This is far fewer steps than using OpenGL directly, so you should decide what level of API you prefer. Even if you are not familiar with the Flash API, OpenFL should be easy-to-use.
