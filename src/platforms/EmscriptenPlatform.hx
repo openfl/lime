@@ -199,19 +199,11 @@ class EmscriptenPlatform implements IPlatformTool {
 	}
 	
 	
-	public function run (project:HXProject, arguments:Array < String > ):Void {
+	public function run (project:HXProject, arguments:Array <String>):Void {
 		
 		initialize (project);
 		
-		if (project.app.url != null && project.app.url != "") {
-			
-			ProcessHelper.openURL (project.app.url);
-			
-		} else {
-			
-			ProcessHelper.openFile (project.app.path + "/emscripten/bin", "index.html");
-			
-		}
+		HTML5Helper.launch (project, project.app.path + "/emscripten/bin");
 		
 	}
 	

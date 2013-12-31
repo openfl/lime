@@ -42,6 +42,7 @@ class PlatformSetup {
 	private static var blackBerryWindowsNativeSDKPath = "http://developer.blackberry.com/native/downloads/fetch/installer-bbndk-2.1.0-win32-1032-201209271809-201209280007.exe";
 	private static var blackBerryWindowsWebWorksSDKPath = "https://developer.blackberry.com/html5/downloads/fetch/BB10-WebWorks-SDK_1.0.4.7.exe";
 	private static var codeSourceryWindowsPath = "http://sourcery.mentor.com/public/gnu_toolchain/arm-none-linux-gnueabi/arm-2009q1-203-arm-none-linux-gnueabi.exe";
+	private static var emscriptenSDKURL = "https://github.com/kripken/emscripten/wiki/Emscripten-SDK";
 	private static var javaJDKURL = "http://www.oracle.com/technetwork/java/javase/downloads/jdk6u37-downloads-1859587.html";
 	private static var aptPackages = "ia32-libs-multiarch gcc-multilib g++-multilib";
 	private static var ubuntuSaucyPackages = "gcc-multilib g++-multilib libxext-dev";
@@ -451,6 +452,10 @@ class PlatformSetup {
 				case "blackberry":
 					
 					setupBlackBerry ();
+				
+				case "emscripten":
+					
+					setupEmscripten ();
 				
 				//case "html5":
 					
@@ -1505,6 +1510,34 @@ class PlatformSetup {
 	}
 	
 	
+	public static function setupEmscripten ():Void {
+		
+		var answer = ask ("Download and install Emscripten?");
+		
+		if (answer == Yes || answer == Always) {
+			
+			Lib.println ("You may find instructions for installing Emscripten on the website.");
+			var secondAnswer = ask ("Would you like to open the wiki page now?");
+			
+			if (secondAnswer != No) {
+				
+				ProcessHelper.openURL (emscriptenSDKURL);
+				
+			}
+			
+		}
+		
+		var defines = getDefines ([ "EMSCRIPTEN_SDK" ], [ "Path to Emscripten SDK" ]);
+		
+		if (defines != null) {
+			
+			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			
+		}
+		
+	}
+	
+	
 	public static function setupHTML5 ():Void {
 		
 		var setApacheCordova = false;
@@ -1754,7 +1787,7 @@ class PlatformSetup {
 			
 			if (secondAnswer != No) {
 				
-				ProcessHelper.runCommand ("", "open", [ appleXcodeURL ], false);
+				ProcessHelper.openURL (appleXcodeURL);
 				
 			}
 			
@@ -1774,7 +1807,7 @@ class PlatformSetup {
 			
 			if (secondAnswer != No) {
 				
-				ProcessHelper.runCommand ("", "open", [ tizenSDKURL ], false);
+				ProcessHelper.openURL (tizenSDKURL);
 				
 			}
 			
@@ -1788,7 +1821,7 @@ class PlatformSetup {
 			
 		}
 		
-	}	
+	}
 	
 	
 	public static function setupWebOS ():Void {
