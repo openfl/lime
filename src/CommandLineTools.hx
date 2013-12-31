@@ -357,6 +357,7 @@ class CommandLineTools {
 		LogHelper.println ("");
 		LogHelper.println ("  \x1b[1mandroid\x1b[0m -- Create an Android application");
 		LogHelper.println ("  \x1b[1mblackberry\x1b[0m -- Create a BlackBerry application");
+		LogHelper.println ("  \x1b[1memscripten\x1b[0m -- Create an Emscripten application");
 		LogHelper.println ("  \x1b[1mflash\x1b[0m -- Create a Flash SWF application");
 		LogHelper.println ("  \x1b[1mhtml5\x1b[0m -- Create an HTML5 canvas application");
 		LogHelper.println ("  \x1b[1mios\x1b[0m -- Create an iOS application");
