@@ -51,7 +51,7 @@ The **first** are [command-line tools](https://github.com/openfl/lime-tools), wh
 
 The **second** is the native layer, which handles rendering, sound and other features with hand-written C++ (with a small amount of Objective-C and Java) in order to handle the core of each platform. This layer is not used when targeting HTML5. You can find this in the repository under "project"
 
-The **third** is a Haxe wrapper (under development), which exposes this functionality and helps abstract differences (such as HTML5 vs. native builds)
+The **third** is a Haxe wrapper (under development), which exposes this functionality and helps abstract differences (such as HTML5 vs. native builds). The Lime wrapper itself does not support Flash, but frameworks above Lime can add support (such as [OpenFL](https://github.com/openfl/openfl))
 
 Lime is designed to power higher-level frameworks, in addition to exposing a sensible cross-platform API for "more direct" development. Most popularly, Lime is also used as the foundation for [OpenFL](https://github.com/openfl/openfl) which is an open-source, accelerated version of the Flash API, supporting all of the Lime targets as well as an HTML5 canvas implementation of the API as well.
 
