@@ -1,17 +1,14 @@
-Lime
-====
-
-![Lime](lime.png)
+<p align="center"><img src="lime.png"/></p>
 
 Introduction
-------------
+============
 
 Lime (Light Media Engine) is an abstraction layer that makes it simple to go cross-platform with only one codebase; without the compromise of relying upon a scripting language or a virtual machine.
 
 Lime leverages the power of the [Haxe](http://haxe.org/) programming language, compiling Haxe code directly to C++, JavaScript and other target languages. Haxe is a flexible, robust language, and the resulting applications are truly native.
 
 Platforms
----------
+=========
 
 Lime currently supports the following platforms:
 
@@ -31,7 +28,7 @@ With legacy support for:
  * Flash
 
 What It Does
-------------
+============
 
 Lime exposes the following:
 
@@ -46,25 +43,25 @@ By setting up a bootstrap for your application, Lime will handle all of the low-
 The rendering API is very similar to WebGL, which in turn is similar to OpenGL ES. This enables us to support your code on platforms using OpenGL, OpenGL ES and WebGL. 
 
 How It Works
-------------
+============
 
 Lime comes together in three different parts.
 
-The **first** are command-line tools, which manage the build, package, install and run process for each support platform.
+The **first** are [command-line tools](https://github.com/openfl/lime-tools), which manage the build, package, install and run process for each support platform.
 
-The **second** is a native layer, which handles rendering, sound and other features with hand-written C++ (with a small amount of Objective-C and Java) in order to handle the core of each platform. This layer is not used when targeting HTML5.
+The **second** is the native layer, which handles rendering, sound and other features with hand-written C++ (with a small amount of Objective-C and Java) in order to handle the core of each platform. This layer is not used when targeting HTML5. You can find this in the repository under "project"
 
-The **third** is a Haxe wrapper (under development), which exposes this functionality and helps abstract differences (such as HTML5 vs native builds)
+The **third** is a Haxe wrapper (under development), which exposes this functionality and helps abstract differences (such as HTML5 vs. native builds)
 
 Lime is designed to power higher-level frameworks, in addition to exposing a sensible cross-platform API for "more direct" development. Most popularly, Lime is also used as the foundation for [OpenFL](https://github.com/openfl/openfl) which is an open-source, accelerated version of the Flash API, supporting all of the Lime targets as well as an HTML5 canvas implementation of the API as well.
 
 License
--------
+=======
 
-Lime is free, open-source software under the MIT license.
+Lime is free, open-source software under the [MIT license](LICENSE.md).
 
 Installing Lime
----------------
+===============
 
 First you will need to first install Haxe 3.0 for [Windows](http://haxe.org/file/haxe-3.0.0-win.exe), [Mac](http://haxe.org/file/haxe-3.0.0-osx-installer.dmg) or [Linux](http://www.openfl.org/download_file/view/726/12426/).
 
@@ -85,7 +82,7 @@ Some platforms will require some additional setup before you can use them. For e
 In order to build for Mac or iOS, you should already have a recent version of Xcode installed. In order to build for Linux, usually only g++ is required, which may be installed with your distribution already. No setup is required for these platforms.
 
 Development Builds
-------------------
+==================
 
 If you would like to begin using Lime directly from the repository, or want to help contribute to its development, you will first want to clone the repository (or your fork of the repository) then tell "haxelib" where your development version is installed. You will also need to clone [lime-build](https://github.com/openfl/lime-build), which includes static libraries and headers required to recompile the Lime native layer from the source.
 
@@ -116,7 +113,7 @@ To return to release builds of Lime, use:
     haxelib dev lime
 
 Using Lime
-----------
+==========
 
 If you prefer a low-level API, you may want to use Lime directly. The Lime 1.0 wrapper is still under development, you can see the wiki for the 1.0 [roadmap](https://github.com/openfl/lime/wiki/lime-wrapper-1.0-Roadmap).
 
