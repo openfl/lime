@@ -111,6 +111,8 @@ There is also a helpful "-rebuild" flag you can use, that rebuilds only the requ
 To return to release builds of Lime, use:
 
     haxelib dev lime
+    
+Usually, you will _not_ need to use development versions of the Lime command-line tools as well, but if you would like, you can find instructions at the [lime-tools](https://github.com/openfl/lime-tools) repository.
 
 Using Lime
 ==========
