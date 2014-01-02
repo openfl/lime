@@ -600,6 +600,12 @@ bool HaxeToJNI(JNIEnv *inEnv, value inValue, JNIType inType, jvalue &out)
                jobject obj = 0;
                if (!AbstractToJObject(inValue,obj))
                {
+                  if (val_is_string(inValue))
+                  {
+                    out.l = inEnv->NewStringUTF(val_string(inValue));
+                    return true;
+                  }
+
                   ELOG("HaxeToJNI : jniObject not an object %p", inValue);
                   return false;
                }
@@ -1113,7 +1119,7 @@ struct JNIMethod : public lime::Object
             result = alloc_int(env->CallShortMethodA(inObject, mMethod, jargs));
             break;
          case jniInt:
-            result = alloc_int(env->CallIntMethodA(mClass, mMethod, jargs));
+            result = alloc_int(env->CallIntMethodA(inObject, mMethod, jargs));
             break;
          case jniLong:
             result = alloc_int(env->CallLongMethodA(inObject, mMethod, jargs));

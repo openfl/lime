@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
 
 
 public class Extension {
@@ -16,6 +17,7 @@ public class Extension {
 	public static Handler callbackHandler;
 	public static Activity mainActivity;
 	public static Context mainContext;
+	public static View mainView;
 	
 	
 	/**
