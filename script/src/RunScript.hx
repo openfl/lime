@@ -120,10 +120,10 @@ class RunScript {
 				var directories = [ PathHelper.combine (path, "obj") ];
 				var files = [ PathHelper.combine (path, "all_objs"), PathHelper.combine (path, "vc100.pdb"), PathHelper.combine (path, "vc110.pdb") ];
 				
-				if (PathHelper.getHaxelib (new Haxelib ("openfl-wiiu")) != "") {
+				if (PathHelper.getHaxelib (new Haxelib ("lime-wiiu")) != "") {
 					
-					directories.push (PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("openfl-wiiu")), "project/obj"));
-					directories.push (PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("openfl-wiiu")), "project/all_objs"));
+					directories.push (PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime-wiiu")), "project/obj"));
+					directories.push (PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime-wiiu")), "project/all_objs"));
 					
 				}
 				
@@ -227,7 +227,7 @@ class RunScript {
 		
 		if (target == "wiiu" && path == PathHelper.combine (limeDirectory, "project")) {
 			
-			path = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("openfl-wiiu"), true), "project");
+			path = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime-wiiu"), true), "project");
 			
 		}
 		
@@ -531,13 +531,13 @@ class RunScript {
 				
 				if (!flags.exists ("debug")) {
 					
-					runCommand (path, "haxelib", [ "run", "hxlibc", buildFile, "-Dnintendo", "-Dwiiu", "-Dtoolchain=wiiu", "-I" + PathHelper.getHaxelib (new Haxelib ("openfl-wiiu")) + "/toolchain" ].concat (defines));
+					runCommand (path, "haxelib", [ "run", "hxlibc", buildFile, "-Dnintendo", "-Dwiiu", "-Dtoolchain=wiiu", "-I" + PathHelper.getHaxelib (new Haxelib ("lime-wiiu")) + "/toolchain" ].concat (defines));
 					
 				}
 				
 				if (!flags.exists ("release")) {
 					
-					runCommand (path, "haxelib", [ "run", "hxlibc", buildFile, "-Dnintendo", "-Dwiiu", "-Dfulldebug", "-Dtoolchain=wiiu", "-I" + PathHelper.getHaxelib (new Haxelib ("openfl-wiiu")) + "/toolchain" ].concat (defines));
+					runCommand (path, "haxelib", [ "run", "hxlibc", buildFile, "-Dnintendo", "-Dwiiu", "-Dfulldebug", "-Dtoolchain=wiiu", "-I" + PathHelper.getHaxelib (new Haxelib ("lime-wiiu")) + "/toolchain" ].concat (defines));
 					
 				}
 			
