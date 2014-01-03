@@ -1,5 +1,6 @@
 #include "OpenALSound.h"
 
+#include <math.h>
 
 namespace lime
 {
@@ -45,7 +46,8 @@ namespace lime
          // set some basic source prefs
          alSourcef(mSourceID, AL_PITCH, 1.0f);
          alSourcef(mSourceID, AL_GAIN, inTransform.volume);
-         alSource3f(mSourceID, AL_POSITION, inTransform.pan * 1, 0, 0);
+         alSource3f(mSourceID, AL_POSITION, (float) cos((inTransform.pan - 1) * (1.5707)), 0, (float) sin((inTransform.pan + 1) * (1.5707)));
+
          // TODO: not right!
          //if (inLoops>1)
             //alSourcei(mSourceID, AL_LOOPING, AL_TRUE);
@@ -139,7 +141,7 @@ namespace lime
          // set some basic source prefs
          alSourcef(mSourceID, AL_PITCH, 1.0f);
          alSourcef(mSourceID, AL_GAIN, inTransform.volume);
-         alSource3f(mSourceID, AL_POSITION, inTransform.pan * 1, 0, 0);
+         alSource3f(mSourceID, AL_POSITION, (float) cos((inTransform.pan - 1) * (1.5707)), 0, (float) sin((inTransform.pan + 1) * (1.5707)));
          
          alSourcePlay(mSourceID);
       }
@@ -1153,7 +1155,7 @@ namespace lime
       if (!mSuspend)
       {
          alSourcef(source, AL_GAIN, inTransform.volume);
-         alSource3f(source, AL_POSITION, inTransform.pan * 1, 0, 0);
+         alSource3f(source, AL_POSITION, (float) cos((inTransform.pan - 1) * (1.5707)), 0, (float) sin((inTransform.pan + 1) * (1.5707)));
       }
    }
    
