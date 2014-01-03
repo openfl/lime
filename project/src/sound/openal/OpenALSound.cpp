@@ -1155,6 +1155,7 @@ namespace lime
       if (!mSuspend)
       {
          alSourcef(source, AL_GAIN, inTransform.volume);
+             //magic number : Half PI 
          alSource3f(source, AL_POSITION, (float) cos((inTransform.pan - 1) * (1.5707)), 0, (float) sin((inTransform.pan + 1) * (1.5707)));
       }
    }
