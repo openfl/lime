@@ -3,4 +3,9 @@
 	
 	<ndll name="::extensionLowerCase::" />
 	
+	<!-- Use the following for an Android Java extension, not needed otherwise -->
+	
+	<dependency name="::extensionLowerCase::" path="dependencies/android" if="android" />
+	<android extension="org.haxe.extension.::className::" />
+	
 </project>

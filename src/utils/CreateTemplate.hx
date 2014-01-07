@@ -32,6 +32,7 @@ class CreateTemplate {
 		context.className = className;
 		context.extensionLowerCase = extension.toLowerCase ();
 		context.extensionUpperCase = extension.toUpperCase ();
+		context.ANDROID_TARGET_SDK_VERSION = "::ANDROID_TARGET_SDK_VERSION::";
 		
 		PathHelper.mkdir (title);
 		FileHelper.recursiveCopyTemplate ([ PathHelper.getHaxelib (new Haxelib ("lime-tools"), true)  + "/templates" ], "extension", title, context);
@@ -51,6 +52,12 @@ class CreateTemplate {
 		if (FileSystem.exists (title + "/project/include/Extension.h")) {
 			
 			FileSystem.rename (title + "/project/include/Extension.h", title + "/project/include/" + file + ".h");
+			
+		}
+		
+		if (FileSystem.exists (title + "/dependencies/android/src/org/haxe/extension/Extension.java")) {
+			
+			FileSystem.rename (title + "/dependencies/android/src/org/haxe/extension/Extension.java", title + "/dependencies/android/src/org/haxe/extension/" + file + ".java");
 			
 		}
 		
