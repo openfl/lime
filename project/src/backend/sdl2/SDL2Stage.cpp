@@ -1068,6 +1068,22 @@ void ProcessEvent(SDL_Event &inEvent)
 			sgSDLFrame->ProcessEvent(joystick);
 			break;
 		}
+		case SDL_JOYDEVICEADDED:
+		{
+			Event joystick(etJoyDeviceAdded);
+			joystick.id = inEvent.jdevice.which;
+			sgJoystick = SDL_JoystickOpen(inEvent.jdevice.which);
+			sgSDLFrame->ProcessEvent(joystick);
+			break;
+		}
+		case SDL_JOYDEVICEREMOVED
+		{
+			Event joystick(etJoyDeviceRemoved);
+			joystick.id = inEvent.jdevice.which;
+			sgSDLFrame->ProcessEvent(joystick);
+			sgJoystick = SDL_JoystickClose(inEvent.jdevice.which);
+			break;
+		}
 	}
 };
 
@@ -1364,6 +1380,7 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
 	HintColourOrder( is_opengl || screen->format->Rmask==0xff );
 */
 	
+	//this might need to go with SDL_JOYDEVICEADDED handling added: when SDL first inits the joystick subsystem, it emits SDL_JOYDEVICEADDED events for every joystick currently on the system
 	int numJoysticks = SDL_NumJoysticks();
 	
 	if (sgJoystickEnabled && numJoysticks > 0)
