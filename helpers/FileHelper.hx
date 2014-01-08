@@ -60,6 +60,8 @@ class FileHelper {
 			
 		} else {
 			
+			PathHelper.mkdir (Path.directory (destination));
+			
 			if (asset.encoding == AssetEncoding.BASE64) {
 				
 				File.saveBytes (destination, StringHelper.base64Decode (asset.data));
