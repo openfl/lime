@@ -80,24 +80,13 @@ class AssetHelper {
 			
 			for (handler in handlers) {
 				
-				LogHelper.info ("", " - \x1b[1mRunning external library handler:\x1b[0m " + handler);
+				ProcessHelper.runCommand ("", "haxelib", [ "run", handler, "process", temporaryFile ]);
 				
-				var cache = LogHelper.verbose;
-				LogHelper.verbose = false;
-				
-				var output = ProcessHelper.runProcess ("", "haxelib", [ "run", handler, "process", temporaryFile ]);
-				
-				LogHelper.verbose = cache;
-				
-				//var output = "";
-				//ProcessHelper.runCommand ("", "haxelib", [ "run", handler, "process", temporaryFile ]);
-				//Sys.println (output);
-				//Sys.exit (0);
-				
-				if (output != null && output != "") {
+				if (FileSystem.exists (temporaryFile)) {
 					
 					try {
 						
+						var output = File.getContent (temporaryFile);
 						var data:HXProject = Unserializer.run (output);
 						project.merge (data);
 						

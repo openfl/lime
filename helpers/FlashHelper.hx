@@ -510,11 +510,11 @@ class FlashHelper {
 				}
 				
 			} else {
-				trace("Embedding assets failed! We encountered an error. Does '"+targetPath+"' exist?");
+				trace ("Embedding assets failed! We encountered an error. Does '"+targetPath+"' exist?");
 			}
 		} catch (e:Dynamic) {
 			
-			trace("Embedding assets failed! We encountered an error accessing '" + targetPath + "': " + e);
+			trace ("Embedding assets failed! We encountered an error accessing '" + targetPath + "': " + e);
 			
 		}
 		
