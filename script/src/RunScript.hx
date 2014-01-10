@@ -1000,7 +1000,7 @@ class RunScript {
 			
 			if (args.length == 2 + ignoreLength) {
 				
-				if (FileSystem.exists (PathHelper.tryFullPath ("include.nmml"))) {
+				if (FileSystem.exists (PathHelper.tryFullPath ("include.xml"))) {
 					
 					path = PathHelper.tryFullPath ("project");
 					
