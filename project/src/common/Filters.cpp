@@ -328,19 +328,26 @@ void ColorMatrixFilter::DoApply(const Surface *inSrc,Surface *outDest,ImagePoint
 {
    int w = outDest->Width();
    int h = outDest->Height();
+   int sw = inSrc->Width();
+   int sh = inSrc->Height();
+   
+   //outDest->Zero();
+   
+   int filter_w = std::min(sw,w);
+   int filter_h = std::min(sh,h);
    
    AutoSurfaceRender render(outDest);
    const RenderTarget &target = render.Target();
-   for(int y=0;y<h;y++)
+   for(int y=0;y<filter_h;y++)
    {
       ARGB *src = (ARGB *)inSrc -> Row(y);
       ARGB *dest = (ARGB *)target.Row(y);
-      for(int x=0;x<w;x++)
+      for(int x=0;x<filter_w;x++)
       {
-		 dest -> a = (mMatrix[15] * src -> c0) + (mMatrix[16] * src -> c1) + (mMatrix[17] * src -> c2) + (mMatrix[18] * src -> a) + mMatrix[19];
-		 dest -> c0 = (mMatrix[0]  * src -> c0) + (mMatrix[1]  * src -> c1) + (mMatrix[2]  * src -> c2) + (mMatrix[3]  * src -> a) + mMatrix[4];
-		 dest -> c1 = (mMatrix[5]  * src -> c0) + (mMatrix[6]  * src -> c1) + (mMatrix[7]  * src -> c2) + (mMatrix[8]  * src -> a) + mMatrix[9];
-		 dest -> c2 = (mMatrix[10] * src -> c0) + (mMatrix[11] * src -> c1) + (mMatrix[12] * src -> c2) + (mMatrix[13] * src -> a) + mMatrix[14];
+         dest -> a = ((mMatrix[15] * src -> c0) + (mMatrix[16] * src -> c1) + (mMatrix[17] * src -> c2) + (mMatrix[18] * src -> a) + mMatrix[19]);
+         dest -> c0 = ((mMatrix[0]  * src -> c0) + (mMatrix[1]  * src -> c1) + (mMatrix[2]  * src -> c2) + (mMatrix[3]  * src -> a) + mMatrix[4]);
+         dest -> c1 = ((mMatrix[5]  * src -> c0) + (mMatrix[6]  * src -> c1) + (mMatrix[7]  * src -> c2) + (mMatrix[8]  * src -> a) + mMatrix[9]);
+         dest -> c2 = ((mMatrix[10] * src -> c0) + (mMatrix[11] * src -> c1) + (mMatrix[12] * src -> c2) + (mMatrix[13] * src -> a) + mMatrix[14]);
          src++;
          dest++;
       }
