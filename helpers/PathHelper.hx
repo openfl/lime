@@ -173,78 +173,64 @@ class PathHelper {
 		
 		if (!haxelibPaths.exists (name)) {
 			
-			if (name == "nme") {
+			var cache = LogHelper.verbose;
+			LogHelper.verbose = false;
+			var output = "";
+			
+			try {
 				
-				var nmePath = Sys.getEnv ("NMEPATH");
+				output = ProcessHelper.runProcess (Sys.getEnv ("HAXEPATH"), "haxelib", [ "path", name ], true, true, true);
 				
-				if (nmePath != null && nmePath != "") {
+			} catch (e:Dynamic) { }
+			
+			LogHelper.verbose = cache;
+			
+			var lines = output.split ("\n");
+			var result = "";
+			
+			for (i in 1...lines.length) {
+				
+				if (StringTools.trim (lines[i]) == "-D " + haxelib.name) {
 					
-					haxelibPaths.set (name, nmePath);
-					
-				}
-				
-			} else {
-				
-				var cache = LogHelper.verbose;
-				LogHelper.verbose = false;
-				var output = "";
-				
-				try {
-					
-					output = ProcessHelper.runProcess (Sys.getEnv ("HAXEPATH"), "haxelib", [ "path", name ], true, true, true);
-					
-				} catch (e:Dynamic) { }
-				
-				LogHelper.verbose = cache;
-				
-				var lines = output.split ("\n");
-				var result = "";
-				
-				for (i in 1...lines.length) {
-					
-					if (StringTools.trim (lines[i]) == "-D " + haxelib.name) {
-						
-						result = StringTools.trim (lines[i - 1]);
-						
-					}
+					result = StringTools.trim (lines[i - 1]);
 					
 				}
 				
-				if (validate) {
+			}
+			
+			if (validate) {
+				
+				if (result == "") {
 					
-					if (result == "") {
+					if (output.indexOf ("does not have") > -1) {
 						
-						if (output.indexOf ("does not have") > -1) {
+						var directoryName = "";
+						
+						if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
 							
-							var directoryName = "";
+							directoryName = "Windows";
 							
-							if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
-								
-								directoryName = "Windows";
-								
-							} else if (PlatformHelper.hostPlatform == Platform.MAC) {
-								
-								directoryName = PlatformHelper.hostArchitecture == Architecture.X64 ? "Mac64" : "Mac";
-								
-							} else {
-								
-								directoryName = PlatformHelper.hostArchitecture == Architecture.X64 ? "Linux64" : "Linux";
-								
-							}
+						} else if (PlatformHelper.hostPlatform == Platform.MAC) {
 							
-							LogHelper.error ("haxelib \"" + haxelib.name + "\" does not have an \"ndll/" + directoryName + "\" directory");
+							directoryName = PlatformHelper.hostArchitecture == Architecture.X64 ? "Mac64" : "Mac";
 							
 						} else {
 							
-							if (haxelib.version != "") {
-								
-								LogHelper.error ("Could not find haxelib \"" + haxelib.name + "\" version \"" + haxelib.version + "\", does it need to be installed?");
-								
-							} else {
-								
-								LogHelper.error ("Could not find haxelib \"" + haxelib.name + "\", does it need to be installed?");
-								
-							}
+							directoryName = PlatformHelper.hostArchitecture == Architecture.X64 ? "Linux64" : "Linux";
+							
+						}
+						
+						LogHelper.error ("haxelib \"" + haxelib.name + "\" does not have an \"ndll/" + directoryName + "\" directory");
+						
+					} else {
+						
+						if (haxelib.version != "") {
+							
+							LogHelper.error ("Could not find haxelib \"" + haxelib.name + "\" version \"" + haxelib.version + "\", does it need to be installed?");
+							
+						} else {
+							
+							LogHelper.error ("Could not find haxelib \"" + haxelib.name + "\", does it need to be installed?");
 							
 						}
 						
@@ -252,9 +238,9 @@ class PathHelper {
 					
 				}
 				
-				haxelibPaths.set (name, result);
-				
 			}
+			
+			haxelibPaths.set (name, result);
 			
 		}
 		
