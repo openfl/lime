@@ -12,6 +12,7 @@ import helpers.PathHelper;
 import helpers.PlatformHelper;
 import helpers.ProcessHelper;
 import project.AssetType;
+import project.Haxelib;
 import project.HXProject;
 import sys.io.File;
 import sys.FileSystem;
@@ -62,7 +63,8 @@ class WindowsPlatform implements IPlatformTool {
 			
 			if (IconHelper.createWindowsIcon (project.icons, iconPath)) {
 				
-				ProcessHelper.runCommand ("", PathHelper.findTemplate (project.templatePaths, "bin/ReplaceVistaIcon.exe"), [ executablePath, iconPath ], true, true);
+				var templates = [ PathHelper.getHaxelib (new Haxelib ("lime-tools")) + "/templates" ].concat (project.templatePaths);
+				ProcessHelper.runCommand ("", PathHelper.findTemplate (templates, "bin/ReplaceVistaIcon.exe"), [ executablePath, iconPath ], true, true);
 				
 			}
 			

@@ -780,6 +780,12 @@ class HXProject {
 			
 			Reflect.setField (context, "LIB_" + haxelib.name.toUpperCase (), true);
 			
+			if (name == "nme") {
+				
+				context.EMBED_ASSETS = false;
+				
+			}
+			
 		}
 		
 		for (source in sources) {
