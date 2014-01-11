@@ -13,7 +13,8 @@ class LogHelper {
 	public static var mute:Bool;
 	public static var verbose:Bool = false;
 	
-	private static var asciiCode:EReg = ~/\x1b\[[^m]+m/g;
+	private static var colorCodes:EReg = ~/\x1b\[[^m]+m/g;
+	private static var colorSupported:Null<Bool>;
 	private static var sentWarnings:Map <String, Bool> = new Map <String, Bool> ();
 	
 	
@@ -33,13 +34,7 @@ class LogHelper {
 				
 			}
 			
-			if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
-				
-				output = asciiCode.replace (message, "");
-				
-			}
-			
-			Sys.stderr ().write (Bytes.ofString (output));
+			Sys.stderr ().write (Bytes.ofString (stripColor (output)));
 			
 		}
 		
@@ -75,28 +70,33 @@ class LogHelper {
 	
 	public static function print (message:String):Void {
 		
-		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
-			
-			Sys.print (asciiCode.replace (message, ""));
-			
-		} else {
-			
-			Sys.print (message);
-			
-		}
+		Sys.print (stripColor (message));
 		
 	}
 	
 	
 	public static function println (message:String):Void {
 		
-		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
+		Sys.println (stripColor (message));
+		
+	}
+	
+	
+	private static function stripColor (output:String):String {
+		
+		if (colorSupported == null) {
 			
-			Sys.println (asciiCode.replace (message, ""));
+			colorSupported = (PlatformHelper.hostPlatform != Platform.WINDOWS || Sys.getEnv ("ANSICON") != null);
+			
+		}
+		
+		if (colorSupported) {
+			
+			return output;
 			
 		} else {
 			
-			Sys.println (message);
+			return colorCodes.replace (output, "");
 			
 		}
 		
