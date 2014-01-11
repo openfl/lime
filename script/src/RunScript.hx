@@ -1000,11 +1000,11 @@ class RunScript {
 			
 			if (args.length == 2 + ignoreLength) {
 				
-				if (FileSystem.exists (PathHelper.tryFullPath ("include.xml"))) {
+				//if (FileSystem.exists (PathHelper.tryFullPath ("include.xml"))) {
 					
-					path = PathHelper.tryFullPath ("project");
+					//path = PathHelper.tryFullPath ("project");
 					
-				} else {
+				//} else {
 					
 					if (!FileSystem.exists (PathHelper.combine (limeDirectory, "project"))) {
 						
@@ -1015,7 +1015,7 @@ class RunScript {
 					
 					path = PathHelper.combine (limeDirectory, "project");
 					
-				}
+				//}
 				
 				targets = args[1].split (",");
 				
