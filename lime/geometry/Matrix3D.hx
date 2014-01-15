@@ -292,7 +292,7 @@ class Matrix3D
       return invertable;
    }
 
-   inline public function pointAt(pos : Vector3D, ?at : Vector3D, ?up : Vector3D) : Matrix3D {
+   inline public function pointAt(pos : Vector3D, at : Vector3D, up : Vector3D) : Matrix3D {
       var zaxis = at.subtract(pos);
       zaxis.normalize();
       var xaxis = zaxis.crossProduct(up);
