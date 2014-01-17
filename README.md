@@ -18,7 +18,7 @@ Development Build
 
 To rebuild the tools, use:
 
-    openfl rebuild tools
+    lime rebuild tools
 
 To return to release builds:
 
