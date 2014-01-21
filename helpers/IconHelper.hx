@@ -268,13 +268,23 @@ class IconHelper {
 		
 		for (icon in icons) {
 			
-			if (match == null && icon.width == 0 && icon.height == 0) {
+			if (icon.width == width && icon.height == height) {
 				
 				match = icon;
 				
-			} else if (icon.width == width && icon.height == height) {
+			}
+			
+		}
+		
+		if (match == null) {
+			
+			for (icon in icons) {
 				
-				match = icon;
+				if (icon.width == 0 && icon.height == 0) {
+					
+					match = icon;
+					
+				}
 				
 			}
 			
