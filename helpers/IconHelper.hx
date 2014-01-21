@@ -268,23 +268,9 @@ class IconHelper {
 		
 		for (icon in icons) {
 			
-			if (icon.width == width && icon.height == height) {
+			if ((icon.width == 0 && icon.height == 0) || (icon.width == width && icon.height == height)) {
 				
 				match = icon;
-				
-			}
-			
-		}
-		
-		if (match == null) {
-			
-			for (icon in icons) {
-				
-				if (icon.width == 0 && icon.height == 0) {
-					
-					match = icon;
-					
-				}
 				
 			}
 			
