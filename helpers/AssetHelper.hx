@@ -80,13 +80,14 @@ class AssetHelper {
 			
 			for (handler in handlers) {
 				
-				ProcessHelper.runCommand ("", "haxelib", [ "run", handler, "process", temporaryFile ]);
+				var outputFile = PathHelper.getTemporaryFile ();
+				ProcessHelper.runCommand ("", "haxelib", [ "run", handler, "process", temporaryFile, outputFile ]);
 				
-				if (FileSystem.exists (temporaryFile)) {
+				if (FileSystem.exists (outputFile)) {
 					
 					try {
 						
-						var output = File.getContent (temporaryFile);
+						var output = File.getContent (outputFile);
 						var data:HXProject = Unserializer.run (output);
 						project.merge (data);
 						
@@ -95,6 +96,12 @@ class AssetHelper {
 						LogHelper.error (e);
 						
 					}
+					
+					try {
+						
+						FileSystem.deleteFile (outputFile);
+						
+					} catch (e:Dynamic) {}
 					
 				}
 				
