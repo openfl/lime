@@ -18,6 +18,7 @@ namespace lime {
 			virtual void CombineModelView (const Matrix &inModelView);
 			virtual void FinishBitmapRender ();
 			virtual void FinishDrawing ();
+			virtual void OnBeginRender ();
 			virtual void PopBitmapMatrix ();
 			virtual void PrepareBitmapRender ();
 			virtual bool PrepareDrawing ();

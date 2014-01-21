@@ -60,6 +60,9 @@ namespace lime {
 	}
 	
 	
+	void OpenGL2Context::OnBeginRender () {}
+	
+	
 	void OpenGL2Context::PopBitmapMatrix () {}
 	
 	
