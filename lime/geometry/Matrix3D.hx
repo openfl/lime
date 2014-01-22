@@ -291,63 +291,34 @@ class Matrix3D
 
       return invertable;
    }
-/*
-   public function pointAt(pos:phoenix.Vector, ?at:phoenix.Vector, ?up:phoenix.Vector):Matrix3D {
-      if (at == null) at = new phoenix.Vector(0,0,-1);
-      if (up == null) up = new phoenix.Vector(0,-1,0);
 
-      //pos.x*=-1;
-      //pos.y*=-1;
-      //pos.z*=-1;
-      //at.x*=-1;
-      //at.y*=-1;
-      //at.z*=-1;
-      //up.x*=-1;
-      //up.y*=-1;
-      //up.z*=-1;
-      var dir:phoenix.Vector = at.subtract(pos);
-      var vup:phoenix.Vector = up.clone();
-      var right:phoenix.Vector;
+   inline public function pointAt(pos : Vector3D, at : Vector3D, up : Vector3D) : Matrix3D {
+      var zaxis = at.subtract(pos);
+      zaxis.normalize();
+      var xaxis = zaxis.crossProduct(up);
+      xaxis.normalize();
+      var yaxis = xaxis.crossProduct(zaxis);
 
-      dir.normalized;
-      vup.normalized;
-
-      var dir2 = dir.clone();
-      dir2.multiply_(vup.dot(dir));
-
-      vup = vup.subtract(dir2);
-
-      if (vup.length > 0)
-      {
-         vup.normalized;
-      } else 
-      {
-         vup = dir.x != 0 ? new phoenix.Vector(-dir.y,dir.x,0) : new phoenix.Vector(1,0,0);
-      }
-
-      right = phoenix.Vector.Cross(vup, dir);
-      right.normalized;
-
-      rawData[0] = right.x;
-      rawData[4] = right.y;
-      rawData[8] = right.z;
-      rawData[12] = 0.0;
-      rawData[1] = vup.x;
-      rawData[5] = vup.y;
-      rawData[9] = vup.z;
-      rawData[13] = 0.0;
-      rawData[2] = dir.x;
-      rawData[6] = dir.y;
-      rawData[10] = dir.z;
-      rawData[14] = 0.0;
-      rawData[3] = pos.x;
-      rawData[7] = pos.y;
-      rawData[11] = pos.z;
+      rawData[0] = xaxis.x;
+      rawData[1] = yaxis.x;
+      rawData[2] = zaxis.x;
+      rawData[3] = 0.0;
+      rawData[4] = xaxis.y;
+      rawData[5] = yaxis.y;
+      rawData[6] = zaxis.y;
+      rawData[7] = 0.0;
+      rawData[8] = xaxis.z;
+      rawData[9] = yaxis.z;
+      rawData[10] = zaxis.z;
+      rawData[11] = 0.0;
+      rawData[12] = -xaxis.dotProduct(pos);
+      rawData[13] = -yaxis.dotProduct(pos);
+      rawData[14] = -zaxis.dotProduct(pos);
       rawData[15] = 1.0;
 
       return this;
    }
-*/
+
    inline public function prepend(rhs:Matrix3D):Void 
    {
       var m111:Float = rhs.rawData[0], m121:Float = rhs.rawData[4], m131:Float = rhs.rawData[8], m141:Float = rhs.rawData[12],
