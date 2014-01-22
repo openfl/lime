@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A powerful native backend for Haxe projects",
-	"version": "0.9.2",
-	"releasenote": "Restore Emscripten support",
+	"version": "0.9.3",
+	"releasenote": "Binary update",
 	"contributors": [ "singmajesty", "underscorediscovery" ],
 	"dependencies": {}
 }
