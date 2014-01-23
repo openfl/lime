@@ -30,7 +30,6 @@ class DefaultAssetLibrary extends AssetLibrary {
 	public static var path (default, null) = new Map <String, String> ();
 	public static var type (default, null) = new Map <String, AssetType> ();
 	
-	
 	public function new () {
 		
 		super ();
@@ -48,6 +47,11 @@ class DefaultAssetLibrary extends AssetLibrary {
 		::end::::end::::end::::end::
 		
 		#else
+		
+		::if (assets != null)::::foreach assets::::if (embed)::
+		className.set ("::id::", __ASSET__::flatName::);
+		type.set ("::id::", Reflect.field (AssetType, "::type::".toUpperCase ()));
+		::end::::end::::end::
 		
 		try {
 			
@@ -75,9 +79,12 @@ class DefaultAssetLibrary extends AssetLibrary {
 						
 						for (asset in manifest) {
 							
-							path.set (asset.id, asset.path);
-							type.set (asset.id, asset.type);
+							if (!className.exists(asset.id)) {
 							
+								path.set (asset.id, asset.path);
+								type.set (asset.id, asset.type);
+							
+							}
 						}
 						
 					}
@@ -176,7 +183,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		return BitmapData.fromImage (path.get (id));
 		
-		#elseif flash
+		#elseif (flash)
 		
 		return cast (Type.createInstance (className.get (id), []), BitmapData);
 		
@@ -190,7 +197,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		return BitmapData.load (path.get (id));
+		if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), BitmapData);
+		else return BitmapData.load (path.get (id));
 		
 		#end
 		
@@ -203,7 +211,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		return null;
 		
-		#elseif flash
+		#elseif (flash)
 		
 		return cast (Type.createInstance (className.get (id), []), ByteArray);
 		
@@ -243,7 +251,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		return ByteArray.readFile (path.get (id));
+		if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), ByteArray);
+		else return ByteArray.readFile (path.get (id));
 		
 		#end
 		
@@ -262,7 +271,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		return new Font (path.get (id));
+		if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), Font);
+		else return new Font (path.get (id));
 		
 		#end
 		
@@ -275,7 +285,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		return null;
 		
-		#elseif flash
+		#elseif (flash)
 		
 		return cast (Type.createInstance (className.get (id), []), Sound);
 		
@@ -292,7 +302,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		return new Sound (new URLRequest (path.get (id)), null, true);
+		if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), Sound);
+		else return new Sound (new URLRequest (path.get (id)), null, true);
 		
 		#end
 		
@@ -320,7 +331,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		return null;
 		
-		#elseif flash
+		#elseif (flash)
 		
 		return cast (Type.createInstance (className.get (id), []), Sound);
 		
@@ -330,7 +341,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		return new Sound (new URLRequest (path.get (id)), null, type.get (id) == MUSIC);
+		if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), Sound);
+		else return new Sound (new URLRequest (path.get (id)), null, type.get (id) == MUSIC);
 		
 		#end
 		
@@ -617,5 +629,15 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 ::foreach assets::::if (type == "font")::@:keep class __ASSET__::flatName:: extends flash.text.Font { }::end::
 ::end::
+
+#else
+
+::if (assets != null)::
+::foreach assets::::if (embed)::::if (type == "image")::@:bitmap("::sourcePath::") class __ASSET__::flatName:: extends flash.display.BitmapData {}
+::elseif (type == "sound")::@:sound("::sourcePath::") class __ASSET__::flatName:: extends flash.media.Sound {}
+::elseif (type == "music")::@:sound("::sourcePath::") class __ASSET__::flatName:: extends flash.media.Sound {}
+::elseif (type == "font")::@:font("::sourcePath::") class __ASSET__::flatName:: extends flash.text.Font {}
+::else::@:file("::sourcePath::") class __ASSET__::flatName:: extends flash.utils.ByteArray {}
+::end::::end::::end::::end::
 
 #end

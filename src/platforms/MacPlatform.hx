@@ -194,18 +194,21 @@ class MacPlatform implements IPlatformTool {
 		
 		for (asset in project.assets) {
 			
-			if (asset.type != AssetType.TEMPLATE) {
-				
-				PathHelper.mkdir (Path.directory (PathHelper.combine (contentDirectory, asset.targetPath)));
-				FileHelper.copyAssetIfNewer (asset, PathHelper.combine (contentDirectory, asset.targetPath));
-				
-			} else {
-				
-				PathHelper.mkdir (Path.directory (PathHelper.combine (targetDirectory, asset.targetPath)));
-				FileHelper.copyAsset (asset, PathHelper.combine (targetDirectory, asset.targetPath), context);
-				
-			}
+			if (!asset.embed) {
 			
+				if (asset.type != AssetType.TEMPLATE) {
+				
+					PathHelper.mkdir (Path.directory (PathHelper.combine (contentDirectory, asset.targetPath)));
+					FileHelper.copyAssetIfNewer (asset, PathHelper.combine (contentDirectory, asset.targetPath));
+				
+				} else {
+				
+					PathHelper.mkdir (Path.directory (PathHelper.combine (targetDirectory, asset.targetPath)));
+					FileHelper.copyAsset (asset, PathHelper.combine (targetDirectory, asset.targetPath), context);
+				
+				}
+			
+			}
 			
 		}
 		
