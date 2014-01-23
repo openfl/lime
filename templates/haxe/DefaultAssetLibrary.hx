@@ -48,59 +48,64 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
+		var loadManifest = false;
 		::if (assets != null)::::foreach assets::::if (embed)::
 		className.set ("::id::", __ASSET__::flatName::);
 		type.set ("::id::", Reflect.field (AssetType, "::type::".toUpperCase ()));
+		::else::loadManifest = true;
 		::end::::end::::end::
 		
-		try {
+		if (loadManifest) {
+			try {
 			
-			#if blackberry
-			var bytes = ByteArray.readFile ("app/native/manifest");
-			#elseif tizen
-			var bytes = ByteArray.readFile ("../res/manifest");
-			#elseif emscripten
-			var bytes = ByteArray.readFile ("assets/manifest");
-			#else
-			var bytes = ByteArray.readFile ("manifest");
-			#end
+				#if blackberry
+				var bytes = ByteArray.readFile ("app/native/manifest");
+				#elseif tizen
+				var bytes = ByteArray.readFile ("../res/manifest");
+				#elseif emscripten
+				var bytes = ByteArray.readFile ("assets/manifest");
+				#else
+				var bytes = ByteArray.readFile ("manifest");
+				#end
 			
-			if (bytes != null) {
+				if (bytes != null) {
 				
-				bytes.position = 0;
+					bytes.position = 0;
 				
-				if (bytes.length > 0) {
+					if (bytes.length > 0) {
 					
-					var data = bytes.readUTFBytes (bytes.length);
+						var data = bytes.readUTFBytes (bytes.length);
 					
-					if (data != null && data.length > 0) {
+						if (data != null && data.length > 0) {
 						
-						var manifest:Array<AssetData> = Unserializer.run (data);
+							var manifest:Array<AssetData> = Unserializer.run (data);
 						
-						for (asset in manifest) {
+							for (asset in manifest) {
 							
-							if (!className.exists(asset.id)) {
+								if (!className.exists(asset.id)) {
 							
-								path.set (asset.id, asset.path);
-								type.set (asset.id, asset.type);
+									path.set (asset.id, asset.path);
+									type.set (asset.id, asset.type);
 							
+								}
 							}
-						}
 						
-					}
+						}
 					
+					}
+				
+				} else {
+				
+					trace ("Warning: Could not load asset manifest");
+				
 				}
-				
-			} else {
-				
+			
+			} catch (e:Dynamic) {
+			
 				trace ("Warning: Could not load asset manifest");
-				
+			
 			}
-			
-		} catch (e:Dynamic) {
-			
-			trace ("Warning: Could not load asset manifest");
-			
+		
 		}
 		
 		#end
