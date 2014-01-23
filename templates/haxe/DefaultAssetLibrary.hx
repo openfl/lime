@@ -271,8 +271,11 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), Font);
-		else return new Font (path.get (id));
+		if (className.exists(id)) {
+			var fontClass = className.get(id);
+			Font.registerFont(fontClass);
+			return cast (Type.createInstance (fontClass, []), Font);
+		} else return new Font (path.get (id));
 		
 		#end
 		
