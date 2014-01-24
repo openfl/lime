@@ -208,7 +208,12 @@ public:
          }
       }
 
-      mMapper.Translate(0.5,0.5);
+      if (mBitmap->smooth)
+      {
+         // map from pixel centers? this breaks nearest-neighbor mapping badly.
+         // not sure if mBitmap->smooth is the right thing to switch this on/off.
+         mMapper.Translate(0.5,0.5);
+      }
 
       if (!mPerspective || inComponents<3)
       {

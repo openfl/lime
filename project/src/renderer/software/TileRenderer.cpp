@@ -238,8 +238,8 @@ public:
                SpanRect *span = new SpanRect(alpha_rect,aa);
                for(int i=0;i<4;i++)
                   span->Line00(
-                       Fixed10( p[i].x + 0.5 , p[i].y + 0.5  ),
-                       Fixed10( p[(i+1)&3].x + 0.5 , p[(i+1)&3].y + 0.5 ) );
+                       Fixed10( p[i].x , p[i].y  ),
+                       Fixed10( p[(i+1)&3].x , p[(i+1)&3].y ) );
                
                AlphaMask *alpha = span->CreateMask(inState.mTransform,tile_alpha);
                delete span;
