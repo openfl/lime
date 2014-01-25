@@ -2,42 +2,99 @@ package lime;
 
 import lime.Lime;
 import lime.RenderHandler;
-
+import lime.helpers.Keys;
 
 class InputHandler {
 
     public var lib : Lime;
-    public function new( _lib:Lime ) { lib = _lib; }
-
     public var touch_map : Map<Int, Dynamic>;
-    public var down_keys : Map<Int,Bool>;
+
+        //this is a code/scan specific key repeate map
+    public var keys_down : Map<Int, Bool>;
+        //this is the enum based flags for keypressed/keyreleased/keydown
+    public var key_value_down : Map<KeyValue, Bool>;
+    public var key_value_pressed : Map<KeyValue, Bool>;
+    public var key_value_released : Map<KeyValue, Bool>;
 
     public var last_mouse_x : Int = 0;
     public var last_mouse_y : Int = 0;
     
-    public function startup() {
+    public function new( _lib:Lime ) {
+
+        lib = _lib; 
+
+    } //new
+
+//Public facing API
+
+//Down / Pressed / Released helpers
+
+    public function keypressed( _value:KeyValue ) {
+        return key_value_pressed.exists(_value);
+    } //keypressed
+
+    public function keyreleased( _value:KeyValue ) {
+        return key_value_released.exists(_value);
+    } //keyreleased
+
+    public function keydown( _value:KeyValue ) {
+       return key_value_down.exists(_value);
+    } //keydown
+
+//Internal API
+
+    @:noCompletion public function startup() {
 
         lib._debug(':: lime :: \t InputHandler Initialized.');
 
         touch_map = new Map<Int, Dynamic>();
-        down_keys = new Map();
+        keys_down = new Map();
+    
+        key_value_pressed = new Map();        
+        key_value_down = new Map();
+        key_value_released = new Map();
 
        #if lime_html5
             lime_apply_input_listeners();
        #end //lime_html5
-    }
 
-    public function shutdown() {
-        lib._debug(':: lime :: \t InputHandler shut down.');
-    }
+    } //startup
 
-    public function process() {
+    @:noCompletion public function shutdown() {
         
-    }    
+        lib._debug(':: lime :: \t InputHandler shut down.');
+
+    } //shutdown
+
+    @:noCompletion public function update() {
+
+        for(_value in key_value_pressed.keys()){
+
+            var _flag : Bool = key_value_pressed.get(_value);            
+            if(_flag){
+                key_value_pressed.remove(_value);
+            } else {
+                key_value_pressed.set(_value, true);
+            }
+
+        } //each pressed_value
+
+        for(_value in key_value_released.keys()){
+
+            var _flag : Bool = key_value_released.get(_value);            
+            if(_flag){
+                key_value_released.remove(_value);
+            } else {
+                key_value_released.set(_value, true);
+            }
+
+        } //each pressed_value
+
+    } //update
 
 //Keyboard
 
-    public function lime_onchar(_event:Dynamic) {
+    @:noCompletion public function lime_onchar(_event:Dynamic) {
 
         if(lib.host.onchar != null) {
             lib.host.onchar({
@@ -51,53 +108,77 @@ class InputHandler {
         }
 
         lime_onkeydown( _event );
-        //if (onKey != null) {
-        //  untyped onKey(_event.code, _event.down, _event.char, _event.flags);
-        //}     
-    }
+        
+    } //lime_onchar
 
     
-    public function lime_onkeydown(_event:Dynamic) {
+    @:noCompletion public function lime_onkeydown(_event:Dynamic) {
             
-        if(lib.host.onkeydown != null && !down_keys.exists(_event.value)) {
-            down_keys.set(_event.value, true);
+        if(lib.host.onkeydown != null && !keys_down.exists(_event.value)) {
+
+            var _keyvalue = lime.helpers.Keys.toKeyValue(_event);
+            
+            keys_down.set(_event.value, true);
+
+                //flag the key as pressed, but unprocessed (false)
+            key_value_pressed.set(_keyvalue, false);
+                //flag it as down, because keyup removes it
+            key_value_down.set(_keyvalue, true);
+
             lib.host.onkeydown({
                 raw : _event,
                 code : _event.code,
                 char : _event.char,
                 value : _event.value,
                 flags : _event.flags,
-                key : lime.helpers.Keys.toKeyValue(_event),
+                key : _keyvalue,
                 ctrl_down :  (_event.flags & efCtrlDown > 0),
                 alt_down :   (_event.flags & efAltDown > 0),
                 shift_down : (_event.flags & efShiftDown > 0),
                 meta_down :  (_event.flags & efCommandDown > 0)
             });
-        }
-        //limeOnKey(_event, KeyboardEvent.KEY_DOWN);
-    }
 
-    public function lime_onkeyup(_event:Dynamic) {
-        down_keys.remove(_event.value);
+        } //key is down and !repeated
+
+    } //lime_onkeydown
+
+    @:noCompletion public function lime_onkeyup(_event:Dynamic) {
+        
+        var _keyvalue = lime.helpers.Keys.toKeyValue(_event);
+
+            //no longer flagged as down
+        keys_down.remove(_event.value);    
+            
+            //flag it as released but unprocessed
+        key_value_released.set(_keyvalue, false);
+            //remove the down flag
+        key_value_down.remove(_keyvalue);
+
+            //pass to the host
         if(lib.host.onkeyup != null) {
+
             lib.host.onkeyup({
                 raw : _event,
                 code : _event.code,
                 char : _event.char,
                 value : _event.value,
                 flags : _event.flags,
-                key : lime.helpers.Keys.toKeyValue(_event),
+                key : _keyvalue,
                 ctrl_down :  (_event.flags & efCtrlDown > 0),
                 alt_down :   (_event.flags & efAltDown > 0),
                 shift_down : (_event.flags & efShiftDown > 0),
                 meta_down :  (_event.flags & efCommandDown > 0)
             });
-        }
-        //limeOnKey(_event, KeyboardEvent.KEY_UP);
-    }
 
-    public function lime_gotinputfocus(_event:Dynamic) {
+        } //lib.host.onkeyup != null
+        
+    } //lime_onkeyup
+
+    @:noCompletion public function lime_gotinputfocus(_event:Dynamic) {
+
+            //pass to the host
         if(lib.host.ongotinputfocus != null) {
+
             lib.host.ongotinputfocus({
                 raw : _event,
                 code : _event.code,
@@ -110,13 +191,16 @@ class InputHandler {
                 shift_down : (_event.flags & efShiftDown > 0),
                 meta_down :  (_event.flags & efCommandDown > 0)
             });
-        }
-        //var evt = new Event(FocusEvent.FOCUS_IN);
-        //limeDispatchEvent(evt);        
-    }   
 
-    public function lime_lostinputfocus(_event:Dynamic) {
+        } //host.ongotinputfocus
+
+    } //lime_onkeyup
+
+    @:noCompletion public function lime_lostinputfocus(_event:Dynamic) {
+
+            //pass to the host
         if(lib.host.onlostinputfocus != null) {
+
             lib.host.onlostinputfocus({
                 raw : _event,
                 code : _event.code,
@@ -129,24 +213,30 @@ class InputHandler {
                 shift_down : (_event.flags & efShiftDown > 0),
                 meta_down :  (_event.flags & efCommandDown > 0)
             });
-        }
-        //var evt = new Event(FocusEvent.FOCUS_OUT);
-        //limeDispatchEvent(evt);
-    }
+
+        } //host.onlostinputfocus
+        
+    } //lime_lostinputfocus
 
 //Mouse
-    private function mouse_button_from_id(id:Int) : Dynamic {
-        switch(id){
+
+    function mouse_button_from_id( id:Int ) : Dynamic {
+        
+        switch(id) {
+
             case 0 : return MouseButton.left;
             case 1 : return MouseButton.middle;
             case 2 : return MouseButton.right;
             case 3 : return MouseButton.wheel_down;
             case 4 : return MouseButton.wheel_up;
+
             default : return id;
-        }
+        
+        } //switch id
+
     } //mouse_button_from_id
 
-    public function lime_mousemove(_event:Dynamic, ?_pass_through:Bool=false) {
+    @:noCompletion public function lime_mousemove( _event:Dynamic, ?_pass_through:Bool=false ) : Void {
         
         var deltaX = _event.x - last_mouse_x;
         var deltaY = _event.y - last_mouse_y;
@@ -185,7 +275,7 @@ class InputHandler {
 
     } //lime_mousemove
 
-    public function lime_mousedown(_event:Dynamic, ?_pass_through:Bool=false) {
+    @:noCompletion public function lime_mousedown( _event:Dynamic, ?_pass_through:Bool=false ) : Void {
 
         if(lib.host.onmousedown != null) {
 
@@ -214,7 +304,7 @@ class InputHandler {
         
     } //lime_mousedown
 
-    public function lime_mouseclick(_event:Dynamic, ?_pass_through:Bool=false) {
+    @:noCompletion public function lime_mouseclick( _event:Dynamic, ?_pass_through:Bool=false ) : Void {
         
         if(lib.host.onmouseclick != null) {
 
@@ -243,7 +333,7 @@ class InputHandler {
 
     } //lime_mouseclick
 
-    public function lime_mouseup(_event:Dynamic, ?_pass_through:Bool=false) {
+    @:noCompletion public function lime_mouseup( _event:Dynamic, ?_pass_through:Bool=false ) : Void {
         
         if(lib.host.onmouseup != null) {
 
@@ -274,7 +364,7 @@ class InputHandler {
 
 //Touch
 
-    public function lime_touchbegin(_event:Dynamic) {
+    @:noCompletion public function lime_touchbegin(_event:Dynamic) : Void {
  
         var touch_item = {
             state : TouchState.begin,
@@ -299,7 +389,7 @@ class InputHandler {
 
     } //lime_touchbegin
 
-    public function lime_touchmove(_event:Dynamic) {
+    @:noCompletion public function lime_touchmove(_event:Dynamic) : Void {
 
             //Get the touch item from the set
         var touch_item = touch_map.get( _event.value );
@@ -316,7 +406,7 @@ class InputHandler {
 
     } //lime_touchmove
 
-    public function lime_touchend(_event:Dynamic) {  
+    @:noCompletion public function lime_touchend(_event:Dynamic) : Void {  
 
         //Get the touch item from the set
         var touch_item = touch_map.get( _event.value );
@@ -340,7 +430,7 @@ class InputHandler {
 
     } //lime_touchend
 
-    public function lime_touchtap(_event:Dynamic) {
+    @:noCompletion public function lime_touchtap(_event:Dynamic) : Void {
         if(lib.host.ontouchtap != null) {
             lib.host.ontouchtap(_event);
         }
@@ -348,44 +438,37 @@ class InputHandler {
 
 //Gamepad
 
-    public function lime_gamepadaxis(_event:Dynamic) {
+    @:noCompletion public function lime_gamepadaxis(_event:Dynamic) : Void {
         if(lib.host.ongamepadaxis != null) {
             lib.host.ongamepadaxis(_event);
         }
     } //lime_gamepadaxis
 
-    public function lime_gamepadball(_event:Dynamic) {
+    @:noCompletion public function lime_gamepadball(_event:Dynamic) : Void {
         if(lib.host.ongamepadball != null) {
             lib.host.ongamepadball(_event);
         }
     } //lime_gamepadball
 
-    public function lime_gamepadhat(_event:Dynamic) {
+    @:noCompletion public function lime_gamepadhat(_event:Dynamic) : Void {
         if(lib.host.ongamepadhat != null) {
             lib.host.ongamepadhat(_event);
         }
     } //lime_gamepadhat
 
-    public function lime_gamepadbuttondown(_event:Dynamic) {
+    @:noCompletion public function lime_gamepadbuttondown(_event:Dynamic) : Void {
         if(lib.host.ongamepadbuttondown != null) {
             lib.host.ongamepadbuttondown(_event);
         }
     } //lime_gamepadbuttondown
 
-    public function lime_gamepadbuttonup(_event:Dynamic) {
+    @:noCompletion public function lime_gamepadbuttonup(_event:Dynamic) : Void {
         if(lib.host.ongamepadbuttonup != null) {
             lib.host.ongamepadbuttonup(_event);
         }
     } //lime_gamepadbuttonup
 
-    
-    private static var efLeftDown = 0x0001;
-    private static var efShiftDown = 0x0002;
-    private static var efCtrlDown = 0x0004;
-    private static var efAltDown = 0x0008;
-    private static var efCommandDown = 0x0010;
-
-    private function lime_apply_input_listeners() {
+    function lime_apply_input_listeners() {
 
         #if lime_html5
             //on html5 we need to listen for events on the canvas
@@ -544,6 +627,12 @@ class InputHandler {
         #end //lime_html5    
 
     } //apply_input_listeners
+
+    private static var efLeftDown = 0x0001;
+    private static var efShiftDown = 0x0002;
+    private static var efCtrlDown = 0x0004;
+    private static var efAltDown = 0x0008;
+    private static var efCommandDown = 0x0010;
 
 } //InputHandler
 

@@ -112,7 +112,7 @@ class Lime {
 
             //Create our audio message handler class
         audio = new AudioHandler( this );
-        audio.startup();         
+        audio.startup();
 
             //Create our render message handler class
         render = new RenderHandler( this );
@@ -287,7 +287,7 @@ class Lime {
 
         }
 
-            return __updateNextWake();
+        return __updateNextWake();
 
     } //on_lime_event
 
@@ -301,17 +301,13 @@ class Lime {
     } //on_syswm
 
 
-    	//Called when updated by the lime/sdl runtime
     public function on_update(_event) { 
 
-        _debug('on_update ' + Timer.stamp(), true, false); 
+        _debug('on_update ' + Timer.stamp(), true, false);         
 
         #if lime_native
             Timer.__checkTimers();            
         #end
-
-            //process any audio
-        audio.update();
 
         if(!has_shutdown) {
 
@@ -321,17 +317,25 @@ class Lime {
                 var do_update = true;
             #end
 
-            if(do_update) {
+            if(do_update) {                
 
+                    //process any audio 
+                    // :todo: this might want to be outside the loop like before
+                audio.update();        
+                    //process any input state
+                input.update();
+
+                    //call the host update
                 if( host.update != null) {
                     host.update();
                 }
-            
+                    
+                    //make a render happen
                 perform_render();
 
             } //do_update?
 
-        } // if !has_shutdown
+        } // if !has_shutdown        
 
         return true;
 
