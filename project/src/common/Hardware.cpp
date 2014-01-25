@@ -333,8 +333,13 @@ public:
   {
       Vertices &vertices = mArrays->mVertices;
       Vertices &tex = mArrays->mTexCoords;
-      UserPoint *point = (UserPoint *)inData;
+      Colours &colours = mArrays->mColours;
+      const UserPoint *point = (const UserPoint *)inData;
       mElement.mFirst = vertices.size();
+
+      vertices.reserve(vertices.size() + (6 * inCount));
+      tex.reserve(tex.size() + (6 * inCount));
+      colours.reserve(colours.size() + (6 * inCount));
 
       for(int i=0;i<inCount;i++)
       {
@@ -352,64 +357,64 @@ public:
             case pcTileCol:
             case pcTileTransCol:
                {
-                  UserPoint pos(point[0]);
-                  UserPoint tex_pos(point[1]);
-                  UserPoint size(point[2]);
+                  const UserPoint &pos = point[0];
+                  const UserPoint &tex_pos = point[1];
+                  const UserPoint &size = point[2];
                   point += 3;
 				  
                   if (inCommands[i]&pcTile_Trans_Bit)
                   {
-                     UserPoint trans_x = *point++;
-                     UserPoint trans_y = *point++;
+                     const UserPoint &trans_x = *point++;
+                     const UserPoint &trans_y = *point++;
 
-                     UserPoint p1(pos.x + size.x*trans_x.x,
-                                  pos.y + size.x*trans_x.y);
-                     UserPoint p2(pos.x + size.x*trans_x.x + size.y*trans_y.x,
-                                  pos.y + size.x*trans_x.y + size.y*trans_y.y );
-                     UserPoint p3(pos.x + size.y*trans_y.x,
-                                  pos.y + size.y*trans_y.y );
+                     const UserPoint p1(pos.x + size.x*trans_x.x,
+                                        pos.y + size.x*trans_x.y);
+                     const UserPoint p2(pos.x + size.x*trans_x.x + size.y*trans_y.x,
+                                        pos.y + size.x*trans_x.y + size.y*trans_y.y);
+                     const UserPoint p3(pos.x + size.y*trans_y.x,
+                                        pos.y + size.y*trans_y.y);
 
                      vertices.push_back( pos );
                      vertices.push_back( p1 );
                      vertices.push_back( p2 );
-                     vertices.push_back( pos) ;
+                     vertices.push_back( pos );
                      vertices.push_back( p2 );
                      vertices.push_back( p3 );
                   }
                   else
                   {
-                     vertices.push_back(pos);
+                     vertices.push_back( pos );
                      vertices.push_back( UserPoint(pos.x+size.x,pos.y) );
                      vertices.push_back( UserPoint(pos.x+size.x,pos.y+size.y) );
-                     vertices.push_back(pos);
+                     vertices.push_back( pos );
                      vertices.push_back( UserPoint(pos.x+size.x,pos.y+size.y) );
                      vertices.push_back( UserPoint(pos.x,pos.y+size.y) );
                   }
 
+                  const UserPoint tp1 = mTexture->PixelToTex(tex_pos);
+                  const UserPoint tp2 = mTexture->PixelToTex(UserPoint(tex_pos.x+size.x,tex_pos.y+size.y));
 
-                  pos = tex_pos;
-                  tex.push_back( mTexture->PixelToTex(pos) );
-                  tex.push_back( mTexture->PixelToTex(UserPoint(pos.x+size.x,pos.y)) );
-                  tex.push_back( mTexture->PixelToTex(UserPoint(pos.x+size.x,pos.y+size.y)) );
-                  tex.push_back( mTexture->PixelToTex(pos) );
-                  tex.push_back( mTexture->PixelToTex(UserPoint(pos.x+size.x,pos.y+size.y)) );
-                  tex.push_back( mTexture->PixelToTex(UserPoint(pos.x,pos.y+size.y)) );
+                  tex.push_back( tp1 );
+                  tex.push_back( mTexture->PixelToTex(UserPoint(tex_pos.x+size.x,tex_pos.y)) );
+                  tex.push_back( tp2 );
+                  tex.push_back( tp1 );
+                  tex.push_back( tp2 );
+                  tex.push_back( mTexture->PixelToTex(UserPoint(tex_pos.x,tex_pos.y+size.y)) );
 
                   if (inCommands[i]&pcTile_Col_Bit)
                   {
-                     UserPoint rg = *point++;
-                     UserPoint ba = *point++;
-                     Colours &colours = mArrays->mColours;
+                     const UserPoint &rg = *point++;
+                     const UserPoint &ba = *point++;
                      #ifdef BLACKBERRY
-                     uint32 col = ((int)(rg.x*255)) |
-                                  (((int)(rg.y*255))<<8) |
-                                  (((int)(ba.x*255))<<16) |
-                                  (((int)(ba.y*255))<<24);
+                     const uint32 col = ((int)(rg.x*255)) |
+                                        (((int)(rg.y*255))<<8) |
+                                        (((int)(ba.x*255))<<16) |
+                                        (((int)(ba.y*255))<<24);
                      #else
-                     uint32 col = ((rg.x<0 ? 0 : rg.x>1?255 : (int)(rg.x*255))) |
-                                  ((rg.y<0 ? 0 : rg.y>1?255 : (int)(rg.y*255))<<8) |
-                                  ((ba.x<0 ? 0 : ba.x>1?255 : (int)(ba.x*255))<<16) |
-                                  ((ba.y<0 ? 0 : ba.y>1?255 : (int)(ba.y*255))<<24);
+                     const uint32 col = ((rg.x<0 ? 0 : rg.x>1?255 : (int)(rg.x*255))) |
+                                        ((rg.y<0 ? 0 : rg.y>1?255 : (int)(rg.y*255))<<8) |
+                                        ((ba.x<0 ? 0 : ba.x>1?255 : (int)(ba.x*255))<<16) |
+                                        ((ba.y<0 ? 0 : ba.y>1?255 : (int)(ba.y*255))<<24);
                      #endif
                      colours.push_back( col );
                      colours.push_back( col );
