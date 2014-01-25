@@ -224,7 +224,7 @@ class WindowHandler {
     }
 
     public function on_redraw( _event:Dynamic ) {
-        trace(_event);
+        // trace(_event);
         lib.render.render();
     } //on_redraw
 
@@ -246,8 +246,8 @@ class WindowHandler {
     } //on_redraw
 
     public function on_focus( _event:Dynamic ) { 
-        trace("focus");
-        trace(_event);
+        // trace("focus");
+        // trace(_event);
     } //on_focus
 
 	 	//Called when the application wants to go to the background and stop
