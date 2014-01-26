@@ -421,7 +421,8 @@ class CommandLineTools {
 		//Sys.println ("   \\ \\ \\ \\ \\ \\ \\ \\ \\ -_\\");
 		//Sys.println ("    \\_\\ \\_\\ \\_\\_\\_\\ \\__\\");
 		
-		LogHelper.println ("\x1b[102m\x1b[1mLime Command-Line Tools\x1b[0;1m (" + version + ")\x1b[0m");
+		LogHelper.println ("");
+		LogHelper.println ("\x1b[1mLime Command-Line Tools\x1b[0;1m (" + version + ")\x1b[0m");
 		
 		
 		if (showHint) {
