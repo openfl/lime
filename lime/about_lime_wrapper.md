@@ -16,7 +16,8 @@ The lime wrapper consistents of :
 - ***feature***Handler.hx 
   - The _feature_ handler, which implements the internal and external API
 - **helpers/**
-  - helpers to define enums, values or types and to convert values to and from the types. Also where the implementation for specific platforms is held, if needed
+  - helpers to define enums, values or types and to convert values to and from the types. 
+  - Also where the implementation for specific platforms is held, if needed
 - **gl/**
   - The OpenGL bindings api, based directly on the WebGL spec
 - **utils/**
