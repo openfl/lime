@@ -17,19 +17,29 @@ import lime.utils.Libs;
 class AudioHandler {
     
     public var lib : Lime;
-    public function new( _lib:Lime ) { lib = _lib; }
+    public var sounds : Map<String, Sound>;
+
+    public function new( _lib:Lime ) {
+        lib = _lib; 
+    }
 
 #if (!audio_thread_disabled && lime_native)
     
     @:noCompletion public static var audio_state:AudioThreadState;
-
     @:noCompletion public static var audio_message_check_complete = 1;    
     @:noCompletion public static var audio_thread_is_idle:Bool = true;
     @:noCompletion public static var audio_thread_running:Bool = false;
 
 #end        
 
-    public var sounds : Map<String, Sound>;
+
+#if lime_html5
+
+    public static var soundManager : Dynamic;
+    var html5_audio_ready : Bool = false;
+
+#end 
+
     public function startup() {
 
         sounds = new Map();     
@@ -42,15 +52,43 @@ class AudioHandler {
             audio_state.audio_thread = Thread.create( audio_thread_handler );
         #end //#(!audio_thread_disabled && lime_native)
 
+        #if lime_html5
+
+                //init sound manager
+            soundManager = untyped js.Browser.window.soundManager;
+            if(soundManager != null) {
+                soundManager.setup({
+                    url: './lib/soundmanager/swf/',
+                    flashVersion: 9, 
+                    debugMode : false,
+                    preferFlash: false,
+                    onready : html5_on_audio_ready
+                });
+            }
+
+        #end //lime_html5
+
     } //startup
 
     @:noCompletion public function update() {
-        for(sound in sounds) {
-            if(sound.ismusic) {
-                sound.check_complete();
+        
+        #if lime_native
+
+            for(sound in sounds) {
+                if(sound.ismusic) {
+                    sound.check_complete();
+                }
             }
-        }
+        
+        #end //lime_native
+
     }
+
+#if lime_html5
+    function html5_on_audio_ready() {
+        html5_audio_ready = true;
+    }
+#end //lime_html5
 
     public function create(_name:String, _file:String, ?_music:Bool = false ) {
         
@@ -66,6 +104,25 @@ class AudioHandler {
                 sounds.set(_name, _sound);
 
         #end //lime_native
+
+        #if lime_html5 
+            
+            var _sound_handle = soundManager.createSound({
+
+                url: _file,
+                id: _name,                
+                autoLoad : true,
+                autoPlay : false,
+                multiShot : !_music,
+                stream : _music
+
+            });
+
+            var _sound = new Sound(_name, _sound_handle, _music);
+                sounds.set( _name, _sound );
+
+        #end //lime_html5
+
     }
 
     public function get( _name:String ) : Sound {
@@ -137,33 +194,52 @@ class Sound {
 
 			//reuse.
 		_transform = new SoundTransform(volume,pan);
+
 	}
 
 	public function play(?_loops:Int = 0, ?_start:Float = 0.0) {
-
-		channel = null;
 		
 		#if lime_native		
+
+            channel = null;
 			channel = lime_sound_channel_create(handle, _start, _loops, _transform);
+
 		#end //lime_native
+
+        #if lime_html5
+
+            handle.play({ loops:_loops });
+
+        #end //lime_html5
 	}
 
 	public function stop() {
 
-		if(channel != null) {
+        #if lime_native
 
-            #if (!audio_thread_disabled && lime_native)
-                if( ismusic ) {
-                    AudioHandler.audio_state.remove(this);
-                }
-            #end
+    		if(channel != null) {
 
-			#if lime_native		
-				lime_sound_channel_stop(channel);
-			#end //lime_native
-			
-			channel = null;
-		}
+                #if (!audio_thread_disabled && lime_native)
+                    if( ismusic ) {
+                        AudioHandler.audio_state.remove(this);
+                    }
+                #end
+
+    			
+    				lime_sound_channel_stop(channel);
+    			
+    			
+    			channel = null;
+
+    		} //channel != null
+
+        #end //lime_native
+
+        #if lime_html5
+
+            handle.stop();
+
+        #end //lime_html5
 	}
 
     @:noCompletion public function do_on_complete() {
@@ -198,7 +274,6 @@ class Sound {
             if (added_to_thread || (channel != null && ismusic)) {
                 
                 if (!added_to_thread) {
-                    trace('adding to a thread ' + name);
                     AudioHandler.audio_state.add( this );
                     added_to_thread = true;
                 }
@@ -227,14 +302,23 @@ class Sound {
 			lime_sound_channel_set_transform(channel,_transform);
 		#end //lime_native
 
+        #if lime_html5
+            AudioHandler.soundManager.setVolume(name, _v * 100);
+        #end //lime_html5
+
 		return volume = _v;
 	}
     function set_pan(_p:Float) : Float {
+
         _transform.pan = _p;
     
         #if lime_native
             lime_sound_channel_set_transform(channel,_transform);
         #end //lime_native
+
+        #if lime_html5
+            AudioHandler.soundManager.setVolume(name, _p * 100);
+        #end //lime_html5
 
         return pan = _p;
     }
@@ -245,6 +329,10 @@ class Sound {
             lime_sound_channel_set_position(channel, _p);
         #end //lime_native
 
+        #if lime_html5
+            AudioHandler.soundManager.setPosition(name, _p);
+        #end //lime_html5
+
         return position = _p;
     }
 
@@ -253,6 +341,10 @@ class Sound {
 		#if lime_native
 			position = lime_sound_channel_get_position(channel);
 		#end //lime_native
+
+        #if lime_html5
+            position = handle.position;
+        #end //lime_html5
 
 		return position;
 	}
