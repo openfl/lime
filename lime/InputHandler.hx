@@ -3,25 +3,33 @@ package lime;
 import lime.Lime;
 import lime.RenderHandler;
 import lime.helpers.Keys;
+import lime.helpers.InputHelper;
 
 class InputHandler {
 
     public var lib : Lime;
-    public var touch_map : Map<Int, Dynamic>;
 
-        //this is a code/scan specific key repeate map
+        //the active touches at any point
+    public var touches_active : Map<Int, Dynamic>;
+
+        //this is a code/scan specific key repeat map
     public var keys_down : Map<Int, Bool>;
         //this is the enum based flags for keypressed/keyreleased/keydown
     public var key_value_down : Map<KeyValue, Bool>;
     public var key_value_pressed : Map<KeyValue, Bool>;
     public var key_value_released : Map<KeyValue, Bool>;
-
+        //previous move x/y
     public var last_mouse_x : Int = 0;
     public var last_mouse_y : Int = 0;
-    
+        
+        //input helper for diff platforms
+    public var helper : InputHelper;
+
     public function new( _lib:Lime ) {
 
         lib = _lib; 
+
+        helper = new InputHelper( lib );
 
     } //new
 
@@ -47,16 +55,14 @@ class InputHandler {
 
         lib._debug(':: lime :: \t InputHandler Initialized.');
 
-        touch_map = new Map<Int, Dynamic>();
+        touches_active = new Map<Int, Dynamic>();
         keys_down = new Map();
     
         key_value_pressed = new Map();        
         key_value_down = new Map();
         key_value_released = new Map();
 
-       #if lime_html5
-            lime_apply_input_listeners();
-       #end //lime_html5
+       helper.startup();
 
     } //startup
 
@@ -220,7 +226,7 @@ class InputHandler {
 
 //Mouse
 
-    function mouse_button_from_id( id:Int ) : Dynamic {
+    @:noCompletion public function mouse_button_from_id( id:Int ) : Dynamic {
         
         switch(id) {
 
@@ -338,12 +344,22 @@ class InputHandler {
         if(lib.host.onmouseup != null) {
 
             var _mouse_event = _event;
+            var _button = mouse_button_from_id(_event.value);
+
+                //on native platforms, the wheel can come from mouseup events
+                //so we watch for those and forward it to wheel instead
+            if( _button == MouseButton.wheel_down || _button == MouseButton.wheel_up ) {
+                
+                return lime_mousewheel( _event, _pass_through);
+
+            } //wheel event
+
 
             if(!_pass_through) {
 
                _mouse_event = {
                     raw : _event,
-                    button : mouse_button_from_id(_event.value),
+                    button : _button,
                     state : MouseState.up,
                     x : _event.x,
                     y : _event.y,
@@ -356,11 +372,41 @@ class InputHandler {
 
             } //pass through
 
+            
             lib.host.onmouseup( _mouse_event );
+
+        } //if host onmouseup
+
+    } //lime_mouseup
+
+    @:noCompletion public function lime_mousewheel( _event:Dynamic, ?_pass_through:Bool=false ) : Void {
+        
+        if(lib.host.onmousewheel != null) {
+
+            var _mouse_event = _event;
+
+            if(!_pass_through) {
+
+               _mouse_event = {
+                    raw : _event,
+                    button : mouse_button_from_id(_event.value),
+                    state : MouseState.wheel,
+                    x : _event.x,
+                    y : _event.y,
+                    flags : _event.flags,
+                    ctrl_down :  (_event.flags & efCtrlDown > 0),
+                    alt_down :   (_event.flags & efAltDown > 0),
+                    shift_down : (_event.flags & efShiftDown > 0),
+                    meta_down :  (_event.flags & efCommandDown > 0)                
+                };
+
+            } //pass through
+
+            lib.host.onmousewheel( _mouse_event );
 
         } //if host onmouseup  
 
-    } //lime_mouseup
+    } //lime_mousewheel
 
 //Touch
 
@@ -375,7 +421,7 @@ class InputHandler {
         };
 
             //store the touch in the set
-        touch_map.set( touch_item.ID, touch_item );
+        touches_active.set( touch_item.ID, touch_item );
 
             //forward to the host
         if(lib.host.ontouchbegin != null) {
@@ -392,7 +438,7 @@ class InputHandler {
     @:noCompletion public function lime_touchmove(_event:Dynamic) : Void {
 
             //Get the touch item from the set
-        var touch_item = touch_map.get( _event.value );
+        var touch_item = touches_active.get( _event.value );
             //Update the values
         touch_item.x = _event.x;
         touch_item.y = _event.y;
@@ -409,7 +455,7 @@ class InputHandler {
     @:noCompletion public function lime_touchend(_event:Dynamic) : Void {  
 
         //Get the touch item from the set
-        var touch_item = touch_map.get( _event.value );
+        var touch_item = touches_active.get( _event.value );
             //Update the values
         touch_item.x = _event.x;
         touch_item.y = _event.y;
@@ -426,14 +472,16 @@ class InputHandler {
         }   
 
             //remove it from the map
-        touch_map.remove(_event.value);
+        touches_active.remove(_event.value);
 
     } //lime_touchend
 
     @:noCompletion public function lime_touchtap(_event:Dynamic) : Void {
+
         if(lib.host.ontouchtap != null) {
             lib.host.ontouchtap(_event);
         }
+
     } //lime_touchtap
 
 //Gamepad
@@ -468,166 +516,6 @@ class InputHandler {
         }
     } //lime_gamepadbuttonup
 
-    function lime_apply_input_listeners() {
-
-        #if lime_html5
-            //on html5 we need to listen for events on the canvas
-            //lib.window_handle = canvas element
-            lib.window_handle.addEventListener('contextmenu', function(e){
-                e.preventDefault();
-            }); //contextmenu
-
-            lib.window_handle.addEventListener('mousewheel', function(_event){
-
-                var va = _event.wheelDelta;               
-                var delta = Math.max(-1, Math.min(1, va));
-                var wheel_dir = lime.InputHandler.MouseButton.wheel_down;
-                if(delta < 1) {
-                    wheel_dir = lime.InputHandler.MouseButton.wheel_up; 
-                }
-                    //todo:make inverted for mac only
-                lime_mouseup({
-                    raw : _event,
-                    button : wheel_dir,
-                    state : MouseState.down,
-                    x : _event.pageX - lib.render.canvas_position.x,
-                    y : _event.pageY - lib.render.canvas_position.y,
-                    flags : 0,
-                    ctrl_down : _event.ctrlKey,
-                    alt_down : _event.altKey,
-                    shift_down : _event.shiftKey,
-                    meta_down : _event.metaKey
-                }, true);
-
-                _event.preventDefault();
-
-            });
-
-                lib.window_handle.addEventListener('DOMMouseScroll', function(_event){
-
-                    var va = -_event.detail;             
-                    var delta = Math.max(-1, Math.min(1, va));
-                    var wheel_dir = lime.InputHandler.MouseButton.wheel_down;
-                    if(delta < 1) {
-                        wheel_dir = lime.InputHandler.MouseButton.wheel_up; 
-                    }
-                        //todo:make inverted for mac only
-                    lime_mouseup({
-                        raw : _event,
-                        button : wheel_dir,
-                        state : MouseState.down,
-                        x : _event.pageX - lib.render.canvas_position.x,
-                        y : _event.pageY - lib.render.canvas_position.y,
-                        flags : 0,
-                        ctrl_down : _event.ctrlKey,
-                        alt_down : _event.altKey,
-                        shift_down : _event.shiftKey,
-                        meta_down : _event.metaKey
-                    }, true);
-
-                    _event.preventDefault();
-
-                });
-
-            lib.window_handle.addEventListener('mousedown', function(_event){
-
-                _event.preventDefault();     
-
-                lime_mousedown({
-                    raw : _event,
-                    button : mouse_button_from_id(_event.button),
-                    state : MouseState.down,
-                    x : _event.pageX - lib.render.canvas_position.x,
-                    y : _event.pageY - lib.render.canvas_position.y,
-                    flags : 0,
-                    ctrl_down : _event.ctrlKey,
-                    alt_down : _event.altKey,
-                    shift_down : _event.shiftKey,
-                    meta_down : _event.metaKey
-                }, true); //mousedown, true to forward event directly
-
-            }); //mousedown
-
-            lib.window_handle.addEventListener('mousemove', function(_event){
-
-                var deltaX = untyped _event.movementX;
-                var deltaY = untyped _event.movementY;
-                
-                switch(lib.render.browser) {
-                    case BrowserLike.chrome, BrowserLike.safari, BrowserLike.opera:
-                        deltaX = untyped _event.webkitMovementX;
-                        deltaY = untyped _event.webkitMovementY;
-
-                    case BrowserLike.firefox:
-                        deltaX = untyped _event.mozMovementX;
-                        deltaY = untyped _event.mozMovementY;
-
-                    case BrowserLike.ie:
-                    default:
-                        deltaX = 0;
-                        deltaY = 0;
-                }
-
-                _event.preventDefault();
-
-                lime_mousemove({
-                    raw : _event,
-                    button : MouseButton.move,
-                    state : MouseState.move,
-                    x : _event.pageX - lib.render.canvas_position.x,
-                    y : _event.pageY - lib.render.canvas_position.y,
-                    deltaX : deltaX,
-                    deltaY : deltaY,
-                    flags : 0,
-                    ctrl_down : _event.ctrlKey,
-                    alt_down : _event.altKey,
-                    shift_down : _event.shiftKey,
-                    meta_down : _event.metaKey
-                }, true); //lime_mousemove
-
-            }); //mousemove
-
-            lib.window_handle.addEventListener('mouseup', function(_event){
-
-                _event.preventDefault();
-
-                lime_mouseup({
-                    raw : _event,
-                    button : mouse_button_from_id(_event.button),
-                    state : MouseState.up,
-                    x : _event.pageX - lib.render.canvas_position.x,
-                    y : _event.pageY - lib.render.canvas_position.y,
-                    flags : 0,
-                    ctrl_down : _event.ctrlKey,
-                    alt_down : _event.altKey,
-                    shift_down : _event.shiftKey,
-                    meta_down : _event.metaKey
-                }, true); //lime_mouseup
-
-            }); //mouseup
-
-            js.Browser.document.addEventListener('keydown', function(e){
-                if (e.keyCode >= 65 && e.keyCode <= 122) {
-                    e.value = e.which;
-                } else {
-                    e.value = e.which;
-                }
-                
-                lime_onkeydown(e);
-            });
-            js.Browser.document.addEventListener('keyup', function(e){
-                if (e.keyCode >= 65 && e.keyCode <= 122) {
-                    e.value = e.which;
-                } else {
-                    e.value = e.which;
-                }
-
-                lime_onkeyup(e);
-            });
-        #end //lime_html5    
-
-    } //apply_input_listeners
-
     private static var efLeftDown = 0x0001;
     private static var efShiftDown = 0x0002;
     private static var efCtrlDown = 0x0004;
@@ -646,6 +534,7 @@ enum TouchState {
 enum MouseState {
     down;
     move;
+    wheel;
     up;
 }
 
