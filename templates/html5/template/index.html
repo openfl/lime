@@ -1,43 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>::APP_TITLE::</title>
 
-    <style> 
-        #lime_canvas {
-            position: absolute;
-            display: block;
-            width: ::WIN_WIDTH::px;
-            height: ::WIN_HEIGHT::px;
-            margin-left:-50%;
-            left:50%;
-        }
-    </style>
-</head>
-<body style="padding: 0; margin: 0; background-color: #FFFFFF;">
-    
-    <!-- <div id="haxe:trace" style="position: absolute; z-index: 2147483647;::if !debug:: display: none;::end::"></div> -->
-    
-    ::if (LIB_NME)::
-    
-    <div id="haxe:jeash" style="background-color: #::WIN_FLASHBACKGROUND::; width: ::if (WIN_WIDTH == 0)::100%::else::::WIN_WIDTH::px::end::; height: ::if (WIN_HEIGHT == 0)::100%::else::::WIN_HEIGHT::px::end::" data-framerate="::WIN_FPS::"></div>
-    
-    ::if DEBUG::<script type="text/javascript" src="./webgl-debug.js"></script>::end::
-    
-    <script>function winParameters () { return ::WIN_PARAMETERS::; }</script>
-    <script id="haxe:jeash:script" type="text/javascript" src="./::APP_FILE::.js"></script>
-    
-    ::else::
-    
-    <script type="text/javascript" src="./lib/soundmanager/soundmanager2-nodebug-jsmin.js"></script>
-    <script type="text/javascript" src="./::APP_FILE::.js"></script>    
-    
-    ::end::
+    <head>
 
-    ::if DEBUG::<script type="text/javascript" src="./webgl-debug.js"></script>::end::
-    <canvas id="lime_canvas" tabindex="1" width="::WIN_WIDTH::" height="::WIN_HEIGHT::">
-    </canvas>
-    
-</body>
+        <meta charset="utf-8">
+        <title>::APP_TITLE::</title>
+
+        <style>
+
+            #lime_canvas {
+                display: block;
+                height: 640px;
+                margin-left: auto;
+                margin-right: auto;
+                margin-top: 2em;
+                position: relative;
+                width: 960px;
+            }
+
+        </style>
+
+        <script type="text/javascript" src="./lib/soundmanager/soundmanager2-nodebug-jsmin.js"></script>        
+
+    </head>
+
+    <body style="padding: 0; margin: 0; background-color: #FFFFFF;">
+        
+        <script type="text/javascript" src="./::APP_FILE::.js"></script>    
+
+        <canvas id="lime_canvas" tabindex="1" width="::WIN_WIDTH::" height="::WIN_HEIGHT::"> </canvas>
+        
+    </body>
+
 </html>
