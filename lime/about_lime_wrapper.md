@@ -27,7 +27,7 @@ The lime wrapper consistents of :
 
 ---
 
-##Bootstrap?
+##Bootstrapped?
 
 Traditionally [bootstrapping](https://en.wikipedia.org/wiki/Bootstrapping) is characterized by a few things, but specifically in our case :
 
