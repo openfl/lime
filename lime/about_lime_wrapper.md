@@ -45,8 +45,8 @@ The flow is simple, lime starts, handles any setup necessary, and immediately ca
 When the term native is used, it refers to the cpp targets, such as _mac_, _windows_, _linux_, _tizen_, _android_, _iOS_, and so on.
 
 - Audio - Handled by OpenAL on all platforms
-- Input - Handled by SDL or lime native code
-- Windowing - Handled by SDL or lime native code
+- Input - Handled by SDL and lime native code
+- Windowing - Handled by SDL and lime native code
 - Rendering - OpenGL exposed via the wrapper as WebGL
 
 ###html5
