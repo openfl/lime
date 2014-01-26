@@ -3,7 +3,7 @@ package lime.gl.native;
 import lime.utils.Libs;
 
 // import flash.display.BitmapData;
-import lime.geometry.Matrix3D;
+import lime.utils.Matrix3D;
 // import flash.utils.ByteArray;
 
 import lime.utils.ArrayBuffer;

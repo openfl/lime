@@ -1,4 +1,4 @@
-package lime.geometry;
+package lime.utils;
 // #if (cpp || neko)
 #if (lime_native || lime_html5)
 

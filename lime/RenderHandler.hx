@@ -12,7 +12,7 @@ import lime.gl.GLProgram;
 import lime.utils.Float32Array;
 
     //geometry
-import lime.geometry.Matrix3D;
+import lime.utils.Matrix3D;
 
 
 #if lime_html5

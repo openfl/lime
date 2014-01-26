@@ -1,9 +1,10 @@
-package lime.geometry;
+package lime.utils;
 
 // #if (cpp || neko)
 #if (lime_native || lime_html5)
 
 import lime.utils.Vector;
+import lime.utils.Vector3D;
 
 class Matrix3D 
 {

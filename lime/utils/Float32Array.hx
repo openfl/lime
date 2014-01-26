@@ -6,7 +6,7 @@ package lime.utils;
 
 #else
 
-    import lime.geometry.Matrix3D;
+    import lime.utils.Matrix3D;
 
 
     class Float32Array extends ArrayBufferView implements ArrayAccess<Float> {

@@ -1,7 +1,7 @@
 package lime.gl.html5;
 
 // import flash.display.BitmapData;
-import lime.geometry.Matrix3D;
+import lime.utils.Matrix3D;
 import lime.utils.ByteArray;
 // import lime.Lib;
 import js.html.webgl.RenderingContext;
