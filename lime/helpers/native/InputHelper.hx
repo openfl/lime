@@ -12,7 +12,11 @@ class InputHelper {
 
     } //new
 
-    public function startup() {
+    @:noCompletion public function startup() {
+        
+    }
+    
+    @:noCompletion public function update() {
         
     }
 

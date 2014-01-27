@@ -74,6 +74,12 @@ class InputHandler {
 
     @:noCompletion public function update() {
 
+            //update any helper stuff
+        helper.update();
+
+            //remove any stale key pressed value
+            //unless it wasn't alive for a full frame yet,
+            //then flag it so that it may be
         for(_value in key_value_pressed.keys()){
 
             var _flag : Bool = key_value_pressed.get(_value);            
@@ -85,6 +91,9 @@ class InputHandler {
 
         } //each pressed_value
 
+            //remove any stale key released value
+            //unless it wasn't alive for a full frame yet,
+            //then flag it so that it may be
         for(_value in key_value_released.keys()){
 
             var _flag : Bool = key_value_released.get(_value);            
@@ -486,11 +495,76 @@ class InputHandler {
 
 //Gamepad
 
-    @:noCompletion public function lime_gamepadaxis(_event:Dynamic) : Void {
+    @:noCompletion public function lime_gamepadaxis( _event:Dynamic, ?_pass_through:Bool=false ) : Void {
+        
         if(lib.host.ongamepadaxis != null) {
-            lib.host.ongamepadaxis(_event);
-        }
+
+            var _gamepad_event = _event;
+
+            if(!_pass_through) {
+
+                _gamepad_event = {
+                    raw : _event,
+                    axis : _event.code,
+                    value : (_event.value / 32767),
+                    gamepad : _event.id
+                }
+
+            } //pass through
+
+            lib.host.ongamepadaxis( _gamepad_event );
+
+        } //lib.host.ongamepadaxis != null
+
     } //lime_gamepadaxis
+
+    @:noCompletion public function lime_gamepadbuttondown( _event:Dynamic, ?_pass_through:Bool=false ) : Void {
+        
+        if(lib.host.ongamepadbuttondown != null) {
+
+            var _gamepad_event = _event;
+
+            if(!_pass_through) {
+
+                _gamepad_event = {
+                    raw : _event,                        
+                    state : ButtonState.down,
+                    value : 0,
+                    button : _event.code,
+                    gamepad : _event.id
+                };
+
+            }
+
+            lib.host.ongamepadbuttondown( _gamepad_event );
+
+        }
+
+    } //lime_gamepadbuttondown
+
+    @:noCompletion public function lime_gamepadbuttonup( _event:Dynamic, ?_pass_through:Bool=false ) : Void {
+        
+        if(lib.host.ongamepadbuttonup != null) {
+            
+            var _gamepad_event = _event;
+
+            if(!_pass_through) {
+
+                _gamepad_event = {
+                    raw : _event,
+                    state : ButtonState.up,
+                    value : 1,
+                    button : _event.code,
+                    gamepad : _event.id
+                };
+
+            }
+
+            lib.host.ongamepadbuttonup( _gamepad_event );
+
+        }
+
+    } //lime_gamepadbuttonup
 
     @:noCompletion public function lime_gamepadball(_event:Dynamic) : Void {
         if(lib.host.ongamepadball != null) {
@@ -503,18 +577,6 @@ class InputHandler {
             lib.host.ongamepadhat(_event);
         }
     } //lime_gamepadhat
-
-    @:noCompletion public function lime_gamepadbuttondown(_event:Dynamic) : Void {
-        if(lib.host.ongamepadbuttondown != null) {
-            lib.host.ongamepadbuttondown(_event);
-        }
-    } //lime_gamepadbuttondown
-
-    @:noCompletion public function lime_gamepadbuttonup(_event:Dynamic) : Void {
-        if(lib.host.ongamepadbuttonup != null) {
-            lib.host.ongamepadbuttonup(_event);
-        }
-    } //lime_gamepadbuttonup
 
     private static var efLeftDown = 0x0001;
     private static var efShiftDown = 0x0002;
@@ -535,6 +597,11 @@ enum MouseState {
     down;
     move;
     wheel;
+    up;
+}
+
+enum ButtonState {
+    down;
     up;
 }
 
@@ -586,5 +653,21 @@ typedef MouseEvent = {
 
 typedef GamepadEvent = { 
     var raw : Dynamic;
+    var gamepad : Int;
+}
+
+typedef GamepadButtonEvent = { 
+    var raw : Dynamic;
+    var gamepad : Int;
+    var button : Int;
+    var value : Float;
+    var state : ButtonState;
+}
+
+typedef GamepadAxisEvent = { 
+    var raw : Dynamic;
+    var gamepad : Int;
+    var axis : Int;
+    var value : Float;
 }
 
