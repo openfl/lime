@@ -186,9 +186,9 @@ class SDLStage : public Stage
 public:
 	SDLStage(SDL_Window *inWindow, SDL_Renderer *inRenderer, uint32 inWindowFlags, bool inIsOpenGL, int inWidth, int inHeight)
 	{
-		mWidth = inWidth;
-		mHeight = inHeight;
-		
+		mRequestedWidth = inWidth;
+		mRequestedHeight = inHeight;
+
 		mIsOpenGL = inIsOpenGL;
 		mSDLWindow = inWindow;
 		mSDLRenderer = inRenderer;
@@ -197,9 +197,12 @@ public:
 		mShowCursor = true;
 		mCurrentCursor = curPointer;
 		
+		SDL_GL_GetDrawableSize(mSDLWindow, &mWidth, &mHeight);
 		mIsFullscreen = (mWindowFlags & SDL_WINDOW_FULLSCREEN || mWindowFlags & SDL_WINDOW_FULLSCREEN_DESKTOP);
 		if (mIsFullscreen)
 			displayState = sdsFullscreenInteractive;
+
+		updateScaleRatio();
 		
 		if (mIsOpenGL)
 		{
@@ -256,12 +259,11 @@ public:
 	
 	void Resize(int inWidth, int inHeight)
 	{
-		mWidth = inWidth;
-		mHeight = inHeight;
+		SDL_GL_GetDrawableSize(mSDLWindow, &mWidth, &mHeight);
 		
 		if (mIsOpenGL)
 		{
-			mOpenGLContext->SetWindowSize(inWidth, inHeight);
+			mOpenGLContext->SetWindowSize(mWidth, mHeight);
 		}
 		else
 		{
@@ -276,6 +278,8 @@ public:
 			mSoftwareTexture = SDL_CreateTexture(mSDLRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, mWidth, mHeight);
 			((SDLSurf*)mPrimarySurface)->mSurf = mSoftwareSurface;
 		}
+
+		updateScaleRatio();
 	}
 	
 	
@@ -313,11 +317,17 @@ public:
 				
 				SDL_DisplayMode mode;
 				SDL_GetCurrentDisplayMode(0, &mode);
+				
 				mode.w = sgDesktopWidth;
 				mode.h = sgDesktopHeight;
+				mRequestedWidth = sgDesktopWidth;
+				mRequestedHeight = sgDesktopHeight;
+
 				SDL_SetWindowDisplayMode(mSDLWindow, &mode);
 				
-				SDL_SetWindowFullscreen(mSDLWindow, SDL_WINDOW_FULLSCREEN /*SDL_WINDOW_FULLSCREEN_DESKTOP*/);
+				SDL_SetWindowFullscreen(mSDLWindow, SDL_WINDOW_FULLSCREEN_DESKTOP /*SDL_WINDOW_FULLSCREEN_DESKTOP*/);
+
+				updateScaleRatio();
 			}
 			else
 			{
@@ -326,6 +336,7 @@ public:
 				{
 					SDL_SetWindowSize(mSDLWindow, sgWindowRect.w, sgWindowRect.h);
 				}
+				updateScaleRatio();
 				#ifndef HX_LINUX
 				SDL_SetWindowPosition(mSDLWindow, sgWindowRect.x, sgWindowRect.y);
 				#endif
@@ -512,7 +523,14 @@ public:
 	{
 		return mPrimarySurface;
 	}
-	
+
+	void updateScaleRatio()
+	{
+		int width, height;
+		SDL_GL_GetDrawableSize(mSDLWindow, &width, &height);
+		SDL_GetWindowSize(mSDLWindow, &mRequestedWidth, &mRequestedHeight);
+		mScaleRatio = width / mRequestedWidth;
+	}
 	
 	HardwareContext *mOpenGLContext;
 	SDL_Window *mSDLWindow;
@@ -529,6 +547,11 @@ public:
 	unsigned int mWindowFlags;
 	int			 mWidth;
 	int			 mHeight;
+
+
+	float mScaleRatio;
+	int	mRequestedWidth;
+	int mRequestedHeight;
 };
 
 
@@ -581,7 +604,10 @@ public:
 	{
 		return mStage;
 	}
-	
+
+	float GetScaleRatio(){
+		return mStage->mScaleRatio;
+	}
 	
 	SDLStage *mStage;
 	bool mIsOpenGL;
@@ -950,7 +976,7 @@ void ProcessEvent(SDL_Event &inEvent)
 		}
 		case SDL_MOUSEMOTION:
 		{
-			Event mouse(etMouseMove, inEvent.motion.x, inEvent.motion.y);
+			Event mouse(etMouseMove, inEvent.motion.x * sgSDLFrame->GetScaleRatio(), inEvent.motion.y * sgSDLFrame->GetScaleRatio());
 			#if defined(WEBOS) || defined(BLACKBERRY)
 			mouse.value = inEvent.motion.which;
 			mouse.flags |= efLeftDown;
@@ -962,7 +988,7 @@ void ProcessEvent(SDL_Event &inEvent)
 		}
 		case SDL_MOUSEBUTTONDOWN:
 		{
-			Event mouse(etMouseDown, inEvent.button.x, inEvent.button.y, inEvent.button.button - 1);
+			Event mouse(etMouseDown, inEvent.button.x * sgSDLFrame->GetScaleRatio(), inEvent.button.y * sgSDLFrame->GetScaleRatio(), inEvent.button.button - 1);
 			#if defined(WEBOS) || defined(BLACKBERRY)
 			mouse.value = inEvent.motion.which;
 			mouse.flags |= efLeftDown;
@@ -974,7 +1000,7 @@ void ProcessEvent(SDL_Event &inEvent)
 		}
 		case SDL_MOUSEBUTTONUP:
 		{
-			Event mouse(etMouseUp, inEvent.button.x, inEvent.button.y, inEvent.button.button - 1);
+			Event mouse(etMouseUp, inEvent.button.x * sgSDLFrame->GetScaleRatio(), inEvent.button.y * sgSDLFrame->GetScaleRatio(), inEvent.button.button - 1);
 			#if defined(WEBOS) || defined(BLACKBERRY)
 			mouse.value = inEvent.motion.which;
 			#else
@@ -993,7 +1019,7 @@ void ProcessEvent(SDL_Event &inEvent)
 				//fetch the mouse position
 			SDL_GetMouseState(&_x,&_y);
 				//create the event
-			Event mouse(etMouseUp, _x, _y, event_dir);
+			Event mouse(etMouseUp, _x * sgSDLFrame->GetScaleRatio(), _y * sgSDLFrame->GetScaleRatio(), event_dir);
 				//add flags for modifier keys
 			AddModStates(mouse.flags);
 				//and done.
@@ -1132,6 +1158,8 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
 	if (resizable) windowFlags |= SDL_WINDOW_RESIZABLE;
 	if (borderless) windowFlags |= SDL_WINDOW_BORDERLESS;
 	if (fullscreen) windowFlags |= SDL_WINDOW_FULLSCREEN; //SDL_WINDOW_FULLSCREEN_DESKTOP;
+
+	windowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
 	
 	if (opengl)
 	{
@@ -1197,173 +1225,9 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
 	if (!renderer) return;
 	
 	if (opengl) {
-		
 		sgIsOGL2 = (inFlags & (wfAllowShaders | wfRequireShaders));
+	}
 		
-	}
-	
-	
-/*#if defined(IPHONE) || defined(BLACKBERRY) || defined(EMSCRIPTEN)
-	sdl_flags |= SDL_NOFRAME;
-#else
-	if (inIcon)
-	{
-		SDL_Surface *sdl = SurfaceToSDL(inIcon);
-		SDL_WM_SetIcon( sdl, NULL );
-	}
-#endif
-
-
-	#if defined (HX_WINDOWS) || defined (HX_LINUX)
-	//SDL_WM_SetCaption( inTitle, 0 );
-	#endif
-
-	SDL_Surface* screen = 0;
-	bool is_opengl = false;
-	sgIsOGL2 = false;
-
-	#ifdef RASPBERRYPI
-	bool limeEgl = true;
-	#else
-	bool limeEgl = false;
-	#endif
-
-	if (opengl && !limeEgl)
-	{
-		int  aa_tries = (inFlags & wfHW_AA) ? ( (inFlags & wfHW_AA_HIRES) ? 2 : 1 ) : 0;
-	
-		//int bpp = info->vfmt->BitsPerPixel;
-		int startingPass = 0;
-
-		// Try for 24:8  depth:stencil
-		if (inFlags & wfStencilBuffer)
-			startingPass = 1;
- 
-		#if defined (WEBOS) || defined (BLACKBERRY) || defined(EMSCRIPTEN)
-		// Start at 16 bits...
-		startingPass = 2;
-		#endif
-
-		// No need to loop over depth
-		if (!(inFlags & wfDepthBuffer))
-			startingPass = 2;
-
-		int oglLevelPasses = 1;
-
-		#if !defined(LIME_FORCE_GLES1) && (defined(WEBOS) || defined(BLACKBERRY) || defined(EMSCRIPTEN))
-		// Try 2 then 1 ?
-		if ( (inFlags & wfAllowShaders) && !(inFlags & wfRequireShaders) )
-			oglLevelPasses = 2;
-		#endif
-
-		// Find config...
-
-		for(int oglPass = 0; oglPass< oglLevelPasses && !is_opengl; oglPass++)
-		{
-			#ifdef LIME_FORCE_GLES1
-			int level = 1;
-			#else
-			int level = (inFlags & wfRequireShaders) ? 2 : (inFlags & wfAllowShaders) ? 2-oglPass : 1;
-			#endif
-		  
-	
-			for(int depthPass=startingPass;depthPass<3 && !is_opengl;depthPass++)
-			{
-				// Initialize the display
-				for(int aa_pass = aa_tries; aa_pass>=0 && !is_opengl; --aa_pass)
-				{
-					SDL_GL_SetAttribute(SDL_GL_RED_SIZE,  8 );
-					SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,8 );
-					SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8 );
-	
-					#if defined(WEBOS) || defined(BLACKBERRY) || defined(EMSCRIPTEN)
-					SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, level);
-					#endif
-					// try 32 24 or 16 bit depth...
-					if (inFlags & wfDepthBuffer)
-						SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,  32 - depthPass*8 );
-	
-					if (inFlags & wfStencilBuffer)
-						SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8 );
-	
-					SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-				
-					if (aa_tries > 0)
-					{
-						SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, aa_pass>0);
-						SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES,  1<<aa_pass );
-					}
-					
-					#ifndef EMSCRIPTEN
-					if ( inFlags & wfVSync )
-					{
-						SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
-					}
-					#endif
-	
-					sdl_flags |= SDL_OPENGL;
-				
-					//if (!(screen = SDL_SetVideoMode( use_w, use_h, 32, sdl_flags)))
-					if (!(screen = SDL_CreateWindow(inTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, use_w, use_h, sdl_flags)))
-					{
-						if (depthPass==2 && aa_pass==0 && oglPass==oglLevelPasses-1)
-						{
-							sdl_flags &= ~SDL_OPENGL;
-							fprintf(stderr, "Couldn't set OpenGL mode32: %s\n", SDL_GetError());
-						}
-					}
-					else
-					{
-						is_opengl = true;
-						#if defined(WEBOS) || defined(BLACKBERRY) || defined(EMSCRIPTEN)
-						sgIsOGL2 = level==2;
-						#else
-						// TODO: check extensions support
-						sgIsOGL2 = (inFlags & (wfAllowShaders | wfRequireShaders) );
-						#endif
-						break;
-					}
-				}
-			}
-		}
-	}
- 
-	if (!screen)
-	{
-		if (!opengl || !limeEgl)
-			sdl_flags |= SDL_DOUBLEBUF;
-
-		//screen = SDL_SetVideoMode( use_w, use_h, 32, sdl_flags );
-		screen = SDL_CreateWindow(inTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, use_w, use_h, sdl_flags);
-		if (!screen)
-		{
-			fprintf(stderr, "Couldn't set video mode: %s\n", SDL_GetError());
-			inOnFrame(0);
-			gSDLIsInit = false;
-			return;
-		}
-	}
-
-	#ifdef RASPBERRYPI
-	if (opengl)
-	{
-		sgIsOGL2 = (inFlags & (wfAllowShaders | wfRequireShaders) );
-			
-		use_w = screen->w;
-		use_h = screen->h;
-		bool ok = limeEGLCreate( 0, use_w, use_h,
-								sgIsOGL2,
-								(inFlags & wfDepthBuffer) ? 16 : 0,
-								(inFlags & wfStencilBuffer) ? 8 : 0,
-								0 );
-		if (ok)
-			is_opengl = true;
-	}
-	#endif
-	
-	HintColourOrder( is_opengl || screen->format->Rmask==0xff );
-*/
-	
 	int numJoysticks = SDL_NumJoysticks();
 	
 	if (sgJoystickEnabled && numJoysticks > 0)
@@ -1374,23 +1238,8 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
 		}
 		SDL_JoystickEventState(SDL_TRUE);
 	}
-	
-	int width, height;
-	if (windowFlags & SDL_WINDOW_FULLSCREEN || windowFlags & SDL_WINDOW_FULLSCREEN_DESKTOP)
-	{
-		//SDL_DisplayMode mode;
-		//SDL_GetCurrentDisplayMode(0, &mode);
-		//width = mode.w;
-		//height = mode.h;
-		width = sgDesktopWidth;
-		height = sgDesktopHeight;
-	}
-	else
-	{
-		SDL_GetWindowSize(window, &width, &height);
-	}
-	
-	sgSDLFrame = new SDLFrame(window, renderer, windowFlags, opengl, width, height);
+		
+	sgSDLFrame = new SDLFrame(window, renderer, windowFlags, opengl, setWidth, setHeight);
 	inOnFrame(sgSDLFrame);
 	StartAnimation();
 }
@@ -1427,14 +1276,14 @@ QuickVec<int>* CapabilitiesGetScreenResolutions()
 double CapabilitiesGetScreenResolutionX()
 {
 	InitSDL();	
-	return sgDesktopWidth;
+	return sgDesktopWidth * sgSDLFrame->GetScaleRatio();
 }
 
 
 double CapabilitiesGetScreenResolutionY()
 {	
 	InitSDL();	
-	return sgDesktopHeight;
+	return sgDesktopHeight * sgSDLFrame->GetScaleRatio();
 }
 
 

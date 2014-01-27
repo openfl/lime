@@ -9,6 +9,7 @@
 #import <SDL.h>
 #import <sys/param.h> /* for MAXPATHLEN */
 #import <unistd.h>
+#import <objc/runtime.h>
 
 //#import <SDLMain.h>
 #ifdef IPHONE
@@ -343,6 +344,25 @@ static void CustomApplicationMain (int argc, char **argv)
 
 #endif
 
+static BOOL SupportsBackingPropertiesChangedNotification() {
+  // windowDidChangeBackingProperties: method has been added to the
+  // NSWindowDelegate protocol in 10.7.3, at the same time as the
+  // NSWindowDidChangeBackingPropertiesNotification notification was added.
+  // If the protocol contains this method description, the notification should
+  // be supported as well.
+  Protocol* windowDelegateProtocol = NSProtocolFromString(@"NSWindowDelegate");
+  struct objc_method_description methodDescription =
+      protocol_getMethodDescription(
+          windowDelegateProtocol,
+          @selector(windowDidChangeBackingProperties:),
+          NO,
+          YES);
+
+  // If the protocol does not contain the method, the returned method
+  // description is {NULL, NULL}
+  return methodDescription.name != NULL || methodDescription.types != NULL;
+}
+
 
 /*
  * Catch document open requests...this lets us notice files when the app
@@ -392,11 +412,31 @@ static void CustomApplicationMain (int argc, char **argv)
     return TRUE;
 }
 
+/* Called when the windows PPI changes */
+- (void) windowDidChangeBackingProperties: (NSNotification *) note
+{
+    // Get the current window and set it to the same size it currently is to trigger a resize event 
+    // This will update the context and resize it accordingly
+    SDL_Window *window = SDL_GL_GetCurrentWindow();
+    int w, h;
+    SDL_GetWindowSize(window, &w, &h);
+    SDL_SetWindowSize(window, w, h);
+}
+
 
 /* Called when the internal event loop has just started running */
 - (void) applicationDidFinishLaunching: (NSNotification *) note
 {
     int status;
+
+    /* Request notifications when the window PPI changes (when the window moves between high/low dpi screens) */
+    if (SupportsBackingPropertiesChangedNotification()){
+        [[NSNotificationCenter defaultCenter] 
+            addObserver:self 
+            selector:@selector(windowDidChangeBackingProperties:) 
+            name:NSWindowDidChangeBackingPropertiesNotification 
+            object:nil];
+    }
 
     /* Set the working directory to the .app's parent directory */
     [self setupWorkingDirectory:gFinderLaunch];
