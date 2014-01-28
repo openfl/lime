@@ -45,11 +45,13 @@ class AudioHandler {
         sounds = new Map();     
 
         #if (!audio_thread_disabled && lime_native)
+
             audio_state = new AudioThreadState ();
             audio_thread_running = true;
             audio_thread_is_idle = false;
             audio_state.main_thread = Thread.current ();
             audio_state.audio_thread = Thread.create( audio_thread_handler );
+
         #end //#(!audio_thread_disabled && lime_native)
 
         #if lime_html5
@@ -69,6 +71,12 @@ class AudioHandler {
         #end //lime_html5
 
     } //startup
+
+    @:noCompletion public function shutdown() {
+        
+        audio_thread_running = false;        
+
+    }
 
     @:noCompletion public function update() {
         
@@ -132,11 +140,16 @@ class AudioHandler {
 #if (!audio_thread_disabled && lime_native)
 
     public function audio_thread_handler() {
+        
+        #if debug
+            lib._debug("lime: Audio background thread started.");
+        #end //debug
 
+        var thread_message : Dynamic;
         while (audio_thread_running) {      
             
-            var thread_message:Dynamic = Thread.readMessage (false);
-                
+            thread_message = Thread.readMessage (false);
+
             if (thread_message == audio_message_check_complete) {
                 audio_state.check();
             }
@@ -152,6 +165,10 @@ class AudioHandler {
         
         audio_thread_running = false;
         audio_thread_is_idle = true;
+
+        #if debug
+            lib._debug("lime: Audio background thread shutdown.");
+        #end //debug
         
     }
     

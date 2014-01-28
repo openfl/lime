@@ -10,12 +10,30 @@ import lime.WindowHandler;
 
 import haxe.Timer;
 
+typedef LimeConfig = {
+    ? host                  : Dynamic,
+    ? fullscreen            : Bool,
+    ? resizable             : Bool,
+    ? borderless            : Bool,
+    ? antialiasing          : Int,
+    ? stencil_buffer        : Bool,
+    ? depth_buffer          : Bool,
+    ? vsync                 : Bool,
+    ? multitouch_supported  : Bool,
+    ? multitouch            : Bool,
+    ? fps                   : Int,
+    ? width                 : Int,
+    ? height                : Int,
+    ? title                 : String,
+    ? orientation           : String
+}
+
 class Lime {
 
         //The host class of the application
     public var host : Dynamic;
         //the config passed to us on creation
-	public var config : Dynamic;
+	public var config : LimeConfig;
 
         //The handlers for the messages from lime
     public var audio    : AudioHandler;
@@ -43,7 +61,9 @@ class Lime {
         frame_rate = value;
         frame_period = (frame_rate <= 0 ? frame_rate : 1.0 / frame_rate);
         
+        #if debug
             _debug(':: lime :: frame rate set to ' + frame_rate);
+        #end
 
         return value;
         
@@ -59,21 +79,19 @@ class Lime {
     public function new() {} //new
 
     	//Initialize
-    public function init( _main_, _config : Dynamic ) {
+    public function init( _main_, _config : LimeConfig ) {
 
         config = _config;
     	host = _main_;
 
-    	_debug(':: lime :: initializing - ');
-        _debug(':: lime :: Creating window at ' + config.width + 'x' + config.height);
+        #if debug
+    	   _debug(':: lime :: initializing - ');
+            _debug(':: lime :: Creating window at ' + config.width + 'x' + config.height);
+        #end
 
             //default to 60 fps
         if( config.fps != null ) {
-            if(Std.is(config.fps, String)) {   
-                frame_rate = Std.parseFloat( config.fps );
-            } else {
-                frame_rate = config.fps;
-            }
+            frame_rate = config.fps;
         } else { //config.fps
             frame_rate = 60;    
         }
@@ -121,7 +139,9 @@ class Lime {
             //Since we are done...
         window.set_active(true);
 
-        _debug(':: lime :: Ready.');
+        #if debug
+            _debug(':: lime :: Ready.');
+        #end
 
            //Tell the host application we are ready
         if(host.ready != null) {
@@ -147,7 +167,7 @@ class Lime {
         window.set_active(false);
 
     		//Order is imporant here too
-
+        audio.shutdown();
         render.shutdown();
         input.shutdown();
         window.shutdown();
@@ -155,7 +175,9 @@ class Lime {
             //Flag it
         has_shutdown = true;
 
-        _debug(':: lime :: Goodbye.');
+        #if debug
+            _debug(':: lime :: Goodbye.');
+        #end
     }
 
     public function cleanup() {
@@ -169,9 +191,11 @@ class Lime {
         var result = 0.0;
         var event_type:Int = Std.int(Reflect.field(_event, "type"));
         
-        if(event_type != SystemEvents.poll) {
-            _debug('event_from_stage : ' + event_type, true, true);
-        }
+        #if debug
+            if(event_type != SystemEvents.poll) {
+                _debug('event_from_stage : ' + event_type, true, true);
+            }
+        #end
 
         switch(event_type) {
 
@@ -287,23 +311,30 @@ class Lime {
 
         }
 
-        return __updateNextWake();
+        __updateNextWake();
+        return null;
 
     } //on_lime_event
 
     	//Handle system/window messages
     public function on_syswm(ev:Dynamic) {
-        _debug('syswm event');
+        #if debug
+            _debug('syswm event');
+        #end
     } //on_syswm    
 
     public function on_change(ev:Dynamic) {
-        _debug('change event');
+        #if debug
+            _debug('change event');
+        #end 
     } //on_syswm
 
 
     public function on_update(_event) { 
 
-        _debug('on_update ' + Timer.stamp(), true, false);         
+        #if debug
+            _debug('on_update ' + Timer.stamp(), true, false);
+        #end //debug
 
         #if lime_native
             Timer.__checkTimers();            
@@ -321,7 +352,7 @@ class Lime {
 
                     //process any audio 
                     // :todo: this might want to be outside the loop like before
-                audio.update();        
+                audio.update();
                     //process any input state
                 input.update();
 
@@ -392,12 +423,12 @@ class Lime {
             
             return nextWake;
 
-        #else 
+        #else //lime_native
             return null;
-        #end 
+        #end //!lime_native
 
         
-    }
+    } //__updateNextWake
 
     @:noCompletion private function __nextFrameDue( _otherTimers:Float ) {
         
@@ -424,31 +455,37 @@ class Lime {
 
 //Noisy stuff
 
+    #if lime_native
+
+        private static var lime_stage_request_render = Libs.load("lime","lime_stage_request_render", 0);
+        private static var lime_stage_set_next_wake  = Libs.load("lime","lime_stage_set_next_wake", 2); 
+
+    #end //lime_native
+
    		//temporary debugging with verbosity options
 
-	public var log : Bool = false;
-    public var verbose : Bool = false;
-    public var more_verbose : Bool = false;
-    public function _debug(value:Dynamic, _verbose:Bool = false, _more_verbose:Bool = false) { 
-        if(log) {
-            if(verbose && _verbose && !_more_verbose) {
-                trace(value);
-            } else 
-            if(more_verbose && _more_verbose) {
-                trace(value);
-            } else {
-                if(!_verbose && !_more_verbose) {
-                    trace(value);
-                }
-            } //elses
-        } //log
-    } //_debug
+    #if debug
 
-#if lime_native
-    private static var lime_stage_request_render = Libs.load("lime","lime_stage_request_render", 0);
-    private static var lime_stage_set_next_wake  = Libs.load("lime","lime_stage_set_next_wake", 2);        
-#end 
-    
-}
+    	public var log : Bool = false;
+        public var verbose : Bool = false;
+        public var more_verbose : Bool = false;
+        public function _debug(value:Dynamic, _verbose:Bool = false, _more_verbose:Bool = false) { 
+            if(log) {
+                if(verbose && _verbose && !_more_verbose) {
+                    trace(value);
+                } else 
+                if(more_verbose && _more_verbose) {
+                    trace(value);
+                } else {
+                    if(!_verbose && !_more_verbose) {
+                        trace(value);
+                    }
+                } //elses
+            } //log
+        } //_debug
+
+    #end //debug
+
+} //Lime
 
 

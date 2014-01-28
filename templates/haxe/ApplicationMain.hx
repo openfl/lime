@@ -10,21 +10,23 @@ class ApplicationMain {
 	public static function main () {
 			//Create the runtime
 		_lime = new Lime();
-			//Create the game class, give it the runtime
+			//Create the app class, give it to the bootstrapper
 		_main_ = new ::APP_MAIN::();
 
-		var config = {
+		var config : LimeConfig = {
+			host 			: _main_,
 			fullscreen		: ::WIN_FULLSCREEN::,
 			resizable 		: ::WIN_RESIZABLE::,
 			borderless		: ::WIN_BORDERLESS::,
-			antialiasing    : ::WIN_ANTIALIASING::,
+			antialiasing    : Std.int(::WIN_ANTIALIASING::),
 			stencil_buffer 	: ::WIN_STENCIL_BUFFER::,
 			depth_buffer 	: ::WIN_DEPTH_BUFFER::,
 			vsync 			: ::WIN_VSYNC::,
-			fps				: ::WIN_FPS::,
-			width 			: ::WIN_WIDTH::, 
-			height 			: ::WIN_HEIGHT::, 
-			title 			: "::APP_TITLE::"
+			fps				: Std.int(::WIN_FPS::),
+			width 			: Std.int(::WIN_WIDTH::), 
+			height 			: Std.int(::WIN_HEIGHT::), 
+			orientation		: "::WIN_ORIENTATION::",
+			title 			: "::APP_TITLE::",
 		};
 
 			//Start up

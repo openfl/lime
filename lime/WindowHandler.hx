@@ -21,7 +21,9 @@ class WindowHandler {
 
     public function startup() {
         
-        lib._debug(':: lime :: \t WindowHandler Initializing...');
+        #if debug
+            lib._debug(':: lime :: \t WindowHandler Initializing...');
+        #end //debug
 
         #if lime_native
 
@@ -76,7 +78,9 @@ class WindowHandler {
             lime_close();
         #end
 
-        lib._debug(':: lime :: \t WindowHandler shut down.');
+        #if debug
+            lib._debug(':: lime :: \t WindowHandler shut down.');
+        #end //debug
     }
 
     public function ready() {
@@ -84,16 +88,17 @@ class WindowHandler {
         #if lime_native
                 //Fetch the stage handle
             lib.view_handle = lime_get_frame_stage( lib.window_handle );
-
+                //Make sure nothing silly is happening to the stage scale
+            lime_stage_set_scale_mode(lib.view_handle, 1);
                 //Make sure that our configs are up to date with the actual screen resolution
                 //not just the specified resolution in the project file
             lib.config.width = lime_stage_get_stage_width(lib.view_handle);
             lib.config.height = lime_stage_get_stage_height(lib.view_handle);
 
                 //move the window based on xml flags
-            if(lib.config.x != null && lib.config.y != null) {
-                set_window_position(lib.config.x, lib.config.y);
-            }
+            // if(lib.config.x != null && lib.config.y != null) {
+                // set_window_position(lib.config.x, lib.config.y);
+            // }
 
                 //Update the touch support
             lib.config.multitouch_supported = lime_stage_get_multitouch_supported(lib.view_handle);
@@ -102,7 +107,6 @@ class WindowHandler {
             lime_stage_set_multitouch_active(lib.view_handle, true);
 
         #end //lime_native
-
 
     }
 
@@ -119,7 +123,9 @@ class WindowHandler {
             lib.render.render();
         #end         
 
-        lib._debug(':: lime :: \t WindowHandler Initialized.');
+        #if debug
+            lib._debug(':: lime :: \t WindowHandler Initialized.');
+        #end //debug
     }    
 
     	//Invalidate the window (forcing a redraw on next update)
@@ -312,7 +318,7 @@ class WindowHandler {
 
 //lime functions
 #if lime_native
-
+    private static var lime_stage_set_scale_mode     = Libs.load ("lime", "lime_stage_set_scale_mode", 2);
     private static var lime_stage_get_stage_width    = Libs.load("lime","lime_stage_get_stage_width",  1);
     private static var lime_stage_get_stage_height   = Libs.load("lime","lime_stage_get_stage_height",  1);
     private static var lime_set_stage_handler        = Libs.load("lime","lime_set_stage_handler",  4);

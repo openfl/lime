@@ -114,12 +114,16 @@ class RenderHandler {
         #end //lime_html5
 
             //Done.
-        lib._debug(':: lime :: \t RenderHandler Initialized.');
+        #if debug
+            lib._debug(':: lime :: \t RenderHandler Initialized.');
+        #end //debug
     }
 
 
     public function shutdown() {
-        lib._debug(':: lime :: \t RenderHandler shut down.');
+        #if debug
+            lib._debug(':: lime :: \t RenderHandler shut down.');
+        #end //debug
     }
 
     public function on_resize(_event:Dynamic) {

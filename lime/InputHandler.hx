@@ -53,7 +53,9 @@ class InputHandler {
 
     @:noCompletion public function startup() {
 
-        lib._debug(':: lime :: \t InputHandler Initialized.');
+        #if debug
+            lib._debug(':: lime :: \t InputHandler Initialized.');
+        #end //debug
 
         touches_active = new Map<Int, Dynamic>();
         keys_down = new Map();
@@ -68,7 +70,9 @@ class InputHandler {
 
     @:noCompletion public function shutdown() {
         
-        lib._debug(':: lime :: \t InputHandler shut down.');
+        #if debug
+            lib._debug(':: lime :: \t InputHandler shut down.');
+        #end //debug
 
     } //shutdown
 
