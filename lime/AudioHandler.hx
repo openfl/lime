@@ -74,7 +74,9 @@ class AudioHandler {
 
     @:noCompletion public function shutdown() {
         
-        audio_thread_running = false;        
+        #if (!audio_thread_disabled && lime_native)
+            audio_thread_running = false;        
+        #end //(!audio_thread_disabled && lime_native)
 
     }
 
