@@ -321,7 +321,10 @@ class Lime {
 
                     //process any audio 
                     // :todo: this might want to be outside the loop like before
-                audio.update();        
+                if(!shutting_down) {
+                    audio.update();
+                }
+                
                     //process any input state
                 input.update();
 
