@@ -402,15 +402,10 @@ static Surface *TryPNG(FILE *inFile,const uint8 *inData, int inDataLen)
    png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,
        &interlace_type, NULL, NULL);
 
-   // check if paletted has transparency (necessary for software-mode alpha to work right)
-   png_bytep trans = NULL;
-   int num_trans = NULL;
-   png_color_16p trans_values = NULL;
-   png_get_tRNS(png_ptr, info_ptr, &trans, &num_trans, &trans_values);
-
    bool has_alpha = color_type== PNG_COLOR_TYPE_GRAY_ALPHA ||
                     color_type==PNG_COLOR_TYPE_RGB_ALPHA ||
-                    num_trans > 0;
+                    png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS);
+   
    /* Add filler (or alpha) byte (before/after each RGB triplet) */
    png_set_expand(png_ptr);
    png_set_filler(png_ptr, 0xff, PNG_FILLER_AFTER);
