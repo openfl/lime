@@ -1,475 +1,185 @@
 package lime;
 
 import lime.utils.Libs;
-
-
-#if (!audio_thread_disabled && lime_native)
-    #if neko
-        import neko.vm.Thread;
-        import neko.vm.Mutex;
-    #else
-        import cpp.vm.Thread;
-        import cpp.vm.Mutex;
-    #end 
-#end //audio_thread_disabled
-
+import lime.helpers.AudioHelper;
+import lime.helpers.AudioHelper.Sound;
 
 class AudioHandler {
     
     public var lib : Lime;
+
     public var sounds : Map<String, Sound>;
+    public var helper : lime.helpers.AudioHelper;
 
     public function new( _lib:Lime ) {
-        lib = _lib; 
+        lib = _lib;
+            //create the helper, this defers based on platform inside AudioHelper
+        helper = new AudioHelper( lib );
     }
-
-#if (!audio_thread_disabled && lime_native)
-    
-    @:noCompletion public static var audio_state:AudioThreadState;
-    @:noCompletion public static var audio_message_check_complete = 1;    
-    @:noCompletion public static var audio_thread_is_idle:Bool = true;
-    @:noCompletion public static var audio_thread_running:Bool = false;
-
-#end        
-
-
-#if lime_html5
-
-    public static var soundManager : Dynamic;
-    var html5_audio_ready : Bool = false;
-
-#end 
 
     public function startup() {
 
         sounds = new Map();     
 
-        #if (!audio_thread_disabled && lime_native)
-
-            audio_state = new AudioThreadState ();
-            audio_thread_running = true;
-            audio_thread_is_idle = false;
-            audio_state.main_thread = Thread.current ();
-            audio_state.audio_thread = Thread.create( audio_thread_handler );
-
-        #end //#(!audio_thread_disabled && lime_native)
-
-        #if lime_html5
-
-                //init sound manager
-            soundManager = untyped js.Browser.window.soundManager;
-            if(soundManager != null) {
-                soundManager.setup({
-                    url: './lib/soundmanager/swf/',
-                    flashVersion: 9, 
-                    debugMode : false,
-                    preferFlash: false,
-                    onready : html5_on_audio_ready
-                });
-            }
-
-        #end //lime_html5
+        helper.startup();        
 
     } //startup
 
     @:noCompletion public function shutdown() {
         
-        #if (!audio_thread_disabled && lime_native)
-            audio_thread_running = false;        
-        #end //(!audio_thread_disabled && lime_native)
+       helper.shutdown();
 
-    }
+    } //shutdown
 
     @:noCompletion public function update() {
         
+        helper.update();
+
         #if lime_native
 
             for(sound in sounds) {
-                if(sound.ismusic) {
-                    sound.check_complete();
-                }
-            }
-        
+                sound.check_complete();
+            } //each sound
+
         #end //lime_native
 
-    }
+    } //update
 
-#if lime_html5
-    function html5_on_audio_ready() {
-        html5_audio_ready = true;
-    }
-#end //lime_html5
-
-    public function create(_name:String, _file:String, ?_music:Bool = false ) {
+    public function create( _name:String, _file:String, ?_music:Bool = false ) {
         
-        if(sounds.exists(_name)) {
-            throw ">>> Named sounds are not allowed to have duplicate names";
+        if( sounds.exists(_name) ) {
+            throw "lime : audio : Named sounds are not allowed to have duplicate names for now";
+        }        
+
+        var sound_instance = helper.create( _name, _file, _music );
+
+        if(sound_instance != null) {
+            sounds.set( _name, sound_instance );
         }
 
-        #if lime_native
+        return sound_instance;
 
-            var _handle = lime_sound_from_file( lime.AssetData.path.get(_file), _music );
-            var _sound = new Sound(_name, _handle, _music);
+    } //create
 
-                sounds.set(_name, _sound);
+        //fetch a named sound, or null if not found (see also exists)
+    public function sound( _name:String ) : Sound {
 
-        #end //lime_native
-
-        #if lime_html5 
-            
-            var _sound_handle = soundManager.createSound({
-
-                url: _file,
-                id: _name,                
-                autoLoad : true,
-                autoPlay : false,
-                multiShot : !_music,
-                stream : _music
-
-            });
-
-            var _sound = new Sound(_name, _sound_handle, _music);
-                sounds.set( _name, _sound );
-
-        #end //lime_html5
-
-    }
-
-    public function get( _name:String ) : Sound {
         return sounds.get(_name);
-    }
 
-#if (!audio_thread_disabled && lime_native)
-
-    public function audio_thread_handler() {
+    } //sound
         
-        #if debug
-            lib._debug("lime: Audio background thread started.");
-        #end //debug
+    public function loop( _name:String ) {
 
-        var thread_message : Dynamic;
-        while (audio_thread_running) {      
-            
-            thread_message = Thread.readMessage (false);
+        var _sound = sound(_name);
 
-            if (thread_message == audio_message_check_complete) {
-                audio_state.check();
-            }
-            
-            if (!audio_thread_is_idle) {
-                audio_state.update();
-                Sys.sleep (0.01);
-            } else {
-                Sys.sleep (0.2);
-            }
-            
+        if(_sound != null) {
+                //set the looping flag so it continues to loop
+            _sound.looping = true;
+                //:todo: start position for looping?
+            _sound.play(); 
+
+        } else {
+            trace('Audio :: Sound does not exist, use Luxe.audio.create() first : ' + _name);
         }
-        
-        audio_thread_running = false;
-        audio_thread_is_idle = true;
 
-        #if debug
-            lib._debug("lime: Audio background thread shutdown.");
-        #end //debug
-        
-    }
-    
-#end //(!audio_thread_disabled && lime_native)
+    } //loop
 
-    
-#if lime_native
-   private static var lime_sound_from_file = Libs.load("lime","lime_sound_from_file", 2);
-   private static var lime_sound_from_data = Libs.load("lime","lime_sound_from_data", 3);
-#end //lime_native
+    public function stop( _name:String ) {
+
+         var _sound = sound(_name);
+
+        if(_sound != null) {
+            _sound.stop();
+        } else {
+            trace('lime : audio : sound does not exist for stop(' + _name + '), use audio.create() first');
+        }
+
+    } //stop
+
+    public function play( _name:String, ?_number_of_times:Int=1, ?_start_position_in_ms:Float = 0 ) {
+
+        var _sound = sound(_name);
+
+        if(_sound != null) {
+            _sound.play( _number_of_times , _start_position_in_ms );
+        } else {
+            trace('lime : audio : sound does not exist for play(' + _name + '), use audio.create() first');
+        }
+
+    } //play
+
+        //true or false if a sound is playing
+    public function playing( _name:String ) {
+
+        var s = sound(_name);
+        if(s != null) {
+            return s.playing;
+        }
+
+        return false;
+
+    } //playing
+
+    public function exists( _name:String ) : Bool { 
+        
+        return sound( _name ) != null;
+
+    } //exists
+
+        //without expressing a value for volume, 
+        //a sound will return it's volume
+    public function volume( _name:String, ?_volume:Float = null ) : Float {
+
+        var _sound = sound(_name);
+        if(_sound == null) {
+            trace('lime : audio : sound does not exist for volume(' + _name + '), use audio.create() first');
+            return 0.0;
+        }
+            
+        if(_volume != null) {
+            _sound.volume = _volume;            
+        }
+
+        return _sound.volume;
+            
+    } //volume
+
+        //without expressing a value for pan, 
+        //a sound will return it's pan
+    public function pan( _name:String, ?_pan:Float = null ) : Float  {
+
+        var _sound = sound(_name);
+        if(_sound == null) {
+            trace('lime : audio : sound does not exist for pan(' + _name + '), use audio.create() first');
+            return 0.0;
+        }
+
+        if(_pan != null) {
+            _sound.pan = _pan;
+        }
+
+        return _sound.pan;
+
+    } //pan
+
+        //without expressing a value for position, 
+        //a sound will return it's position
+    public function position( _name:String, ?_pos:Float = null ) : Float {
+
+        var _sound = sound(_name);
+        if(_sound == null) {
+            trace('lime : audio : sound does not exist for position(' + _name + '), use Luxe.audio.create() first');
+            return 0.0;
+        }
+
+        if(_pos != null) {
+            _sound.position = _pos;
+        }
+
+        return _sound.position;
+
+    } //position
 
 } //AudioHandler
 
 
-class Sound {
-
-    public var name : String;
-    public var handle : Dynamic;
-	public var channel : Dynamic;
-    public var ismusic : Bool = false;
-
-    var on_complete_handler : Sound->Void;
-
-	@:isVar public var volume(default, set) : Float = 1.0;
-    @:isVar public var pan(default, set) : Float = 0.0;
-	@:isVar public var position(get, set) : Float = 0.0;
-
-#if (!audio_thread_disabled && lime_native)
-    @:noCompletion private var added_to_thread:Bool;
-#end 
-
-	private var _transform:SoundTransform;
-
-	public function new(_name:String, _handle:Dynamic, ?_music:Bool = false, ?_sound:Dynamic = null) {
-
-        name = _name;
-		handle = _handle;
-		channel = _sound;
-        ismusic = _music;
-
-			//reuse.
-		_transform = new SoundTransform(volume,pan);
-
-	}
-
-	public function play(?_loops:Int = 0, ?_start:Float = 0.0) {
-		
-		#if lime_native		
-
-            channel = null;
-			channel = lime_sound_channel_create(handle, _start, _loops, _transform);
-
-		#end //lime_native
-
-        #if lime_html5
-
-            handle.play({ loops:_loops });
-
-        #end //lime_html5
-	}
-
-	public function stop() {
-
-        #if lime_native
-
-    		if(channel != null) {
-
-                #if (!audio_thread_disabled && lime_native)
-                    if( ismusic ) {
-                        AudioHandler.audio_state.remove(this);
-                    }
-                #end
-
-    			
-    				lime_sound_channel_stop(channel);
-    			
-    			
-    			channel = null;
-
-    		} //channel != null
-
-        #end //lime_native
-
-        #if lime_html5
-
-            handle.stop();
-
-        #end //lime_html5
-	}
-
-    @:noCompletion public function do_on_complete() {
-        if(on_complete_handler != null) {
-            on_complete_handler(this);
-        }
-    }
-
-    public function on_complete(_function:Sound->Void) {        
-        on_complete_handler = _function;
-    }
-
-
-    @:noCompletion public function do_check_complete ():Bool {
-
-        #if lime_native
-            if( lime_sound_channel_is_complete(channel) ) {
-                handle = null;
-                channel = null;
-                return true;
-            }
-        #end
-        
-        return false;
-        
-    } //do_check_complete
-
-    @:noCompletion public function check_complete() {
-
-        #if (!audio_thread_disabled && lime_native)
-
-            if (added_to_thread || (channel != null && ismusic)) {
-                
-                if (!added_to_thread) {
-                    AudioHandler.audio_state.add( this );
-                    added_to_thread = true;
-                }
-
-                AudioHandler.audio_state.audio_thread.sendMessage( AudioHandler.audio_message_check_complete );
-
-                return false;
-            }
-
-        #else
-            
-            if( do_check_complete() ) {
-                do_on_complete();
-                return true;
-            }
-
-        #end
-        
-        return false;    
-    }
-
-	function set_volume(_v:Float) : Float {
-		_transform.volume = _v;
-
-		#if lime_native
-			lime_sound_channel_set_transform(channel,_transform);
-		#end //lime_native
-
-        #if lime_html5
-            AudioHandler.soundManager.setVolume(name, _v * 100);
-        #end //lime_html5
-
-		return volume = _v;
-	}
-    function set_pan(_p:Float) : Float {
-
-        _transform.pan = _p;
-    
-        #if lime_native
-            lime_sound_channel_set_transform(channel,_transform);
-        #end //lime_native
-
-        #if lime_html5
-            AudioHandler.soundManager.setVolume(name, _p * 100);
-        #end //lime_html5
-
-        return pan = _p;
-    }
-
-    function set_position(_p:Float) : Float {
-    
-        #if lime_native
-            lime_sound_channel_set_position(channel, _p);
-        #end //lime_native
-
-        #if lime_html5
-            AudioHandler.soundManager.setPosition(name, _p);
-        #end //lime_html5
-
-        return position = _p;
-    }
-
-	function get_position() : Float {
-	
-		#if lime_native
-			position = lime_sound_channel_get_position(channel);
-		#end //lime_native
-
-        #if lime_html5
-            position = handle.position;
-        #end //lime_html5
-
-		return position;
-	}
-
-#if lime_native
-    private static var lime_sound_channel_is_complete = Libs.load ("lime", "lime_sound_channel_is_complete", 1);
-    private static var lime_sound_channel_create = Libs.load("lime","lime_sound_channel_create", 4);
-    private static var lime_sound_channel_stop = Libs.load("lime","lime_sound_channel_stop", 1);
-    private static var lime_sound_channel_set_transform = Libs.load("lime","lime_sound_channel_set_transform", 2);
-    private static var lime_sound_channel_get_position = Libs.load ("lime", "lime_sound_channel_get_position", 1);
-    private static var lime_sound_channel_set_position = Libs.load ("lime", "lime_sound_channel_set_position", 2);    
-#end //lime_native
-
-}
-
-
-class SoundTransform {
-
-   public var pan:Float;
-   public var volume:Float;
-
-   public function new(vol:Float = 1.0, panning:Float = 0.0) {
-      volume = vol;
-      pan = panning;
-   }
-
-   public function clone() {
-      return new SoundTransform(volume, pan);
-   }
-
-} //SoundTransform
-
-
-
-#if (!audio_thread_disabled && lime_native)
-
-class AudioThreadState {
-    
-    public var audio_thread:Thread;
-    public var sound_list:Map <Sound, Bool>;
-    public var main_thread:Thread;
-    public var mutex:Mutex;
-    
-    public function new () {
-        mutex = new Mutex ();
-        sound_list = new Map ();
-    }
-    
-    public function add (sound:Sound):Void {
-        
-        mutex.acquire ();
-            
-            if (!sound_list.exists(sound)) {
-                sound_list.set (sound, false);
-                AudioHandler.audio_thread_is_idle = false;
-            }
-        
-        mutex.release ();
-        
-    }
-    
-    public function check() {
-        
-        for (sound in sound_list.keys()) {
-
-            var is_complete = sound_list.get(sound);
-            if (is_complete) {
-                sound.do_on_complete();
-                
-                mutex.acquire ();
-                    sound_list.remove( sound );
-                mutex.release ();
-                
-            } //isComplete
-        }
-            
-    }
-    
-    public function remove( sound:Sound ):Void {
-        
-        mutex.acquire ();
-        
-            if( sound_list.exists(sound) ) {
-                sound_list.remove(sound);           
-                if (Lambda.count (sound_list) == 0) {
-                    AudioHandler.audio_thread_is_idle = true;
-                }
-            }
-            
-        mutex.release ();
-        
-    }
-    
-    public function update() {
-        
-        mutex.acquire ();
-            
-            for (sound in sound_list.keys()) {
-                var is_complete = sound.do_check_complete();
-                sound_list.set( sound, is_complete );
-            }
-            
-        mutex.release ();
-        
-    }
-    
-} //AudioThreadState
-
-#end // (!audio_thread_disabled && lime_native)
