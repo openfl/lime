@@ -145,7 +145,7 @@ class Sound {
         channel = null;
 
         if(on_complete_handler != null) {
-            on_complete_handler(this);
+            on_complete_handler( this );
         }
 
     } //do_on_complete

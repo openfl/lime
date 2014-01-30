@@ -2,7 +2,7 @@
     //Ported and modified from OpenFL samples
     //underscorediscovery
 
-import lime.AudioHandler.Sound;
+import lime.helpers.AudioHelper.Sound;
 import lime.utils.Assets;
 import lime.Lime;
 
@@ -41,8 +41,8 @@ class Main {
         lib.audio.create('sound', 'assets/sound.ogg', false);
         lib.audio.create('sound_wav', 'assets/sound.wav', false);
 
-        lib.audio.get('music').play(5);
-        lib.audio.get('music').on_complete(function(sound:Sound){
+        lib.audio.play('music', 5);
+        lib.audio.sound('music').on_complete( function(sound:Sound){
             trace("music complete!");
         });
        
@@ -72,14 +72,14 @@ class Main {
     }
         //Called by lime 
     public function onmousedown(_event:Dynamic) {
-        lib.audio.get('sound').play(3,0);        
+        lib.audio.play('sound', 0.0);  
     }
         //Called by lime 
     public function onmouseup(_event:Dynamic) {
     }
         //Called by lime 
     public function onkeydown(_event:Dynamic) {
-        lib.audio.get('music').position = 0.0;
+        lib.audio.position('music', 0.0);
     }    
         //Called by lime 
     public function onkeyup(_event:Dynamic) {
@@ -97,7 +97,6 @@ class Main {
         	//Clear the buffers
         GL.clear( GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT  );
                 
-        
 
 	} //render
 
