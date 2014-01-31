@@ -7,8 +7,6 @@
 #include <ExternalInterface.h>
 #include <KeyCodes.h>
 #include <map>
-#include <vector>
-using std::vector;
 
 #ifdef LIME_MIXER
 #include <SDL_mixer.h>
@@ -604,9 +602,9 @@ extern "C" void MacBoot( /*void (*)()*/ );
 SDLFrame *sgSDLFrame = 0;
 #ifndef EMSCRIPTEN
 SDL_Joystick *sgJoystick;
-vector<SDL_Joystick *> sgJoysticks;
-vector<int> sgJoysticksId;
-vector<int> sgJoysticksIndex;
+QuickVec<SDL_Joystick *> sgJoysticks;
+QuickVec<int> sgJoysticksId;
+QuickVec<int> sgJoysticksIndex;
 #endif
 
 
@@ -1079,7 +1077,7 @@ void ProcessEvent(SDL_Event &inEvent)
 			break;
 		}
 		case SDL_JOYDEVICEADDED:
-	    {
+	    	{
 	    	int joyId = -1;
 	    	for (int i = 0; i < sgJoysticksId.size(); i++) {
 	    		if (sgJoysticksIndex[i] == i) {
@@ -1088,7 +1086,7 @@ void ProcessEvent(SDL_Event &inEvent)
 	    		}
 	    	}
 	    	if (joyId == -1) {
-				Event joystick(etJoyDeviceAdded);
+			Event joystick(etJoyDeviceAdded);
 	 	    	sgJoystick = SDL_JoystickOpen(inEvent.jdevice.which); //which: joystick device index
 	 	    	joystick.id = SDL_JoystickInstanceID(sgJoystick);
 	 	    	sgJoysticks.push_back(sgJoystick);
@@ -1097,9 +1095,9 @@ void ProcessEvent(SDL_Event &inEvent)
 		    	sgSDLFrame->ProcessEvent(joystick);
 	    	}
 		    break;
-    	}
-	    case SDL_JOYDEVICEREMOVED:
-	    {
+    		}
+	    	case SDL_JOYDEVICEREMOVED:
+	    	{
 		    Event joystick(etJoyDeviceRemoved);
 		    joystick.id = inEvent.jdevice.which; //which: instance id
 	 	    int j = 0;
@@ -1110,12 +1108,12 @@ void ProcessEvent(SDL_Event &inEvent)
 		    	}
 		    	j++;
 		    }
-		    sgJoysticksId.erase(sgJoysticksId.begin()+j);
-		    sgJoysticks.erase(sgJoysticks.begin()+j);
-		   	sgJoysticksIndex.erase(sgJoysticksIndex.begin()+j);
+		    sgJoysticksId.erase(j,1);
+		    sgJoysticks.erase(j,1);
+		    sgJoysticksIndex.erase(j,1);
 		    sgSDLFrame->ProcessEvent(joystick);
 		    break;
-	    }
+		 }
 	}
 };
 
@@ -1436,10 +1434,10 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
 			sgJoystick = SDL_JoystickOpen(i);
 			Event joystick(etJoyDeviceAdded);
 			joystick.id = SDL_JoystickInstanceID(sgJoystick);
-	 	    sgJoysticks.push_back(sgJoystick);
-	 	    sgJoysticksId.push_back(joystick.id);
-	 	    sgJoysticksIndex.push_back(i);
-		    sgSDLFrame->ProcessEvent(joystick);
+			sgJoysticks.push_back(sgJoystick);
+			sgJoysticksId.push_back(joystick.id);
+			sgJoysticksIndex.push_back(i);
+			sgSDLFrame->ProcessEvent(joystick);
 		}
 	}
 	
