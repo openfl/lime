@@ -31,6 +31,7 @@ class HXProject {
 	public var command:String;
 	public var config:PlatformConfig;
 	public var debug:Bool;
+	public var defines:Map <String, Dynamic>;
 	public var dependencies:Array <Dependency>;
 	public var environment:Map <String, String>;
 	public var haxedefs:Map <String, Dynamic>;
@@ -163,6 +164,7 @@ class HXProject {
 		ObjectHelper.copyFields (defaultWindow, window);
 		
 		assets = new Array <Asset> ();
+		defines = new Map <String, Dynamic> ();
 		dependencies = new Array <Dependency> ();
 		environment = Sys.environment ();
 		haxedefs = new Map <String, Dynamic> ();
@@ -203,6 +205,12 @@ class HXProject {
 		project.command = command;
 		project.config = config.clone ();
 		project.debug = debug;
+		
+		for (key in defines.keys ()) {
+			
+			project.defines.set (key, defines.get (key));
+			
+		}
 		
 		for (dependency in dependencies) {
 			
@@ -548,6 +556,7 @@ class HXProject {
 			ObjectHelper.copyUniqueFields (project.app, app, project.defaultApp);
 			ObjectHelper.copyUniqueFields (project.window, window, project.defaultWindow);
 			
+			StringMapHelper.copyUniqueKeys (project.defines, defines);
 			StringMapHelper.copyUniqueKeys (project.environment, environment);
 			StringMapHelper.copyUniqueKeys (project.haxedefs, haxedefs);
 			StringMapHelper.copyUniqueKeys (project.libraryHandlers, libraryHandlers);
@@ -565,17 +574,17 @@ class HXProject {
 			config.merge (project.config);
 			
 			assets = ArrayHelper.concatUnique (assets, project.assets);
-			dependencies = ArrayHelper.concatUnique (dependencies, project.dependencies);
+			dependencies = ArrayHelper.concatUnique (dependencies, project.dependencies, true);
 			haxeflags = ArrayHelper.concatUnique (haxeflags, project.haxeflags);
-			haxelibs = ArrayHelper.concatUnique (haxelibs, project.haxelibs);
+			haxelibs = ArrayHelper.concatUnique (haxelibs, project.haxelibs, true, "name");
 			icons = ArrayHelper.concatUnique (icons, project.icons);
-			javaPaths = ArrayHelper.concatUnique (javaPaths, project.javaPaths);
-			libraries = ArrayHelper.concatUnique (libraries, project.libraries);
+			javaPaths = ArrayHelper.concatUnique (javaPaths, project.javaPaths, true);
+			libraries = ArrayHelper.concatUnique (libraries, project.libraries, true);
 			ndlls = ArrayHelper.concatUnique (ndlls, project.ndlls);
-			samplePaths = ArrayHelper.concatUnique (samplePaths, project.samplePaths);
-			sources = ArrayHelper.concatUnique (sources, project.sources);
+			samplePaths = ArrayHelper.concatUnique (samplePaths, project.samplePaths, true);
+			sources = ArrayHelper.concatUnique (sources, project.sources, true);
 			splashScreens = ArrayHelper.concatUnique (splashScreens, project.splashScreens);
-			templatePaths = ArrayHelper.concatUnique (templatePaths, project.templatePaths);
+			templatePaths = ArrayHelper.concatUnique (templatePaths, project.templatePaths, true);
 			
 		}
 		
@@ -791,6 +800,22 @@ class HXProject {
 		for (source in sources) {
 			
 			compilerFlags.push ("-cp " + source);
+			
+		}
+		
+		for (key in defines.keys ()) {
+			
+			var value = defines.get (key);
+			
+			if (value == null || value == "") {
+				
+				Reflect.setField (context, "SET_" + key.toUpperCase (), true);
+				
+			} else {
+				
+				Reflect.setField (context, "SET_" + key.toUpperCase (), value);
+				
+			}
 			
 		}
 		

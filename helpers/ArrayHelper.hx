@@ -29,7 +29,7 @@ class ArrayHelper {
 	}
 	
 	
-	public static function concatUnique<T> (a:Array<T>, b:Array<T>):Array<T> {
+	public static function concatUnique<T> (a:Array<T>, b:Array<T>, adjustOrder:Bool = false, key:String = null):Array<T> {
 		
 		if (a == null && b == null) {
 			
@@ -49,11 +49,34 @@ class ArrayHelper {
 			
 			for (aValue in a) {
 				
-				if (aValue == bValue) {
+				if (key != null) {
+					
+					if (Reflect.field (aValue, key) == Reflect.field (bValue, key)) {
+						
+						if (adjustOrder) {
+							
+							concat.remove (aValue);
+							
+						} else {
+							
+							hasValue = true;
+							
+						}
+						
+					}
+					
+				} else if (aValue == bValue) {
 					
 					hasValue = true;
 					
 				}
+				
+			}
+			
+			if (adjustOrder && hasValue) {
+				
+				concat.remove (bValue);
+				hasValue = false;
 				
 			}
 			

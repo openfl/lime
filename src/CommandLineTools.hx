@@ -1073,6 +1073,8 @@ class CommandLineTools {
 							
 						}
 						
+						var i = 0;
+						
 						overrides.haxelibs.push (new Haxelib (name, version));
 						
 					} else if (field == "source") {
