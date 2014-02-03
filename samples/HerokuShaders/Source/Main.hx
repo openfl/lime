@@ -7,7 +7,7 @@ import lime.gl.GLBuffer;
 import lime.gl.GLProgram;
 import lime.gl.GLShader;
 import lime.gl.GLUniformLocation;
-import lime.geometry.Matrix3D;
+import lime.utils.Matrix3D;
 import lime.utils.Float32Array;
 import lime.utils.Assets;
 import lime.Lime;
