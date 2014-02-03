@@ -1126,12 +1126,12 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
 		sgDesktopHeight = currentMode.h;
 	}
 	
-	int windowFlags = 0;
+	int windowFlags, requestWindowFlags = 0;
 	
-	if (opengl) windowFlags |= SDL_WINDOW_OPENGL;
-	if (resizable) windowFlags |= SDL_WINDOW_RESIZABLE;
-	if (borderless) windowFlags |= SDL_WINDOW_BORDERLESS;
-	if (fullscreen) windowFlags |= SDL_WINDOW_FULLSCREEN; //SDL_WINDOW_FULLSCREEN_DESKTOP;
+	if (opengl) requestWindowFlags |= SDL_WINDOW_OPENGL;
+	if (resizable) requestWindowFlags |= SDL_WINDOW_RESIZABLE;
+	if (borderless) requestWindowFlags |= SDL_WINDOW_BORDERLESS;
+	if (fullscreen) requestWindowFlags |= SDL_WINDOW_FULLSCREEN; //SDL_WINDOW_FULLSCREEN_DESKTOP;
 	
 	if (opengl)
 	{
@@ -1167,39 +1167,64 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
 	int setHeight = fullscreen ? sgDesktopHeight : inHeight;
 	#endif
 	
-	SDL_Window *window = SDL_CreateWindow (inTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, setWidth, setHeight, windowFlags);
-	
-	if (!window) return;
-	windowFlags = SDL_GetWindowFlags (window);
-	
-	if (fullscreen) {
+	SDL_Window *window = NULL;
+	SDL_Renderer *renderer = NULL;
+
+	while (!window || !renderer) 
+	{
+		// if there's an old window around from a failed attempt, destroy it
+		if (window) 
+		{
+			SDL_DestroyWindow(window);
+			window = NULL;
+		}
+
+		window = SDL_CreateWindow (inTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, setWidth, setHeight, requestWindowFlags);
 		
-		sgWindowRect = Rect(SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, inWidth, inHeight);
-		
-	}
-	
-	int renderFlags = 0;
-	
-	if (opengl) renderFlags |= SDL_RENDERER_ACCELERATED;
-	if (vsync) renderFlags |= SDL_RENDERER_PRESENTVSYNC;
-	
-	SDL_Renderer *renderer = SDL_CreateRenderer (window, -1, renderFlags);
-	
-	if (!renderer && opengl) {
-		
-		opengl = false;
-		renderFlags &= ~SDL_RENDERER_ACCELERATED;
-		
+		// retrieve the actual window flags (as opposed to the requested ones)
+		windowFlags = SDL_GetWindowFlags (window);
+		if (fullscreen) sgWindowRect = Rect(SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, inWidth, inHeight);
+
+		int renderFlags = 0;
+		if (opengl) renderFlags |= SDL_RENDERER_ACCELERATED;
+		if (vsync) renderFlags |= SDL_RENDERER_PRESENTVSYNC;
+
 		renderer = SDL_CreateRenderer (window, -1, renderFlags);
 		
+		if (opengl) sgIsOGL2 = (inFlags & (wfAllowShaders | wfRequireShaders));
+		
+		if (!renderer && (inFlags & wfHW_AA_HIRES || inFlags & wfHW_AA)) {
+			// if no window was created and AA was enabled, disable AA and try again
+			fprintf(stderr, "Multisampling is not available. Retrying without. (%s)\n", SDL_GetError());
+			SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, false);
+			SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
+			inFlags &= ~wfHW_AA_HIRES;
+			inFlags &= ~wfHW_AA;
+		}
+		else if (!renderer && opengl) 
+		{
+			// if opengl is enabled and no window was created, disable it and try again
+			fprintf(stderr, "OpenGL is not available. Retrying without. (%s)\n", SDL_GetError());
+			opengl = false;
+			renderFlags &= ~SDL_RENDERER_ACCELERATED;
+		}
+		else 
+		{
+			// no more things to try, break out of the loop
+			break;
+		}
 	}
+
+	if (!window)
+	{
+		fprintf(stderr, "Failed to create SDL window: %s\n", SDL_GetError());
+		return;
+	}	
 	
-	if (!renderer) return;
-	
-	if (opengl) {
-		
-		sgIsOGL2 = (inFlags & (wfAllowShaders | wfRequireShaders));
-		
+	if (!renderer)
+	{
+		fprintf(stderr, "Failed to create SDL renderer: %s\n", SDL_GetError());
+		return;
 	}
 	
 	
