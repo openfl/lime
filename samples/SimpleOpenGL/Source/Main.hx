@@ -8,7 +8,7 @@ import lime.gl.GL;
 import lime.gl.GLBuffer;
 import lime.gl.GLProgram;
 import lime.gl.GLTexture;
-import lime.geometry.Matrix3D;
+import lime.utils.Matrix3D;
 import lime.utils.Assets;
 import lime.utils.Float32Array;
 import lime.utils.UInt8Array;
