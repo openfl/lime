@@ -37,6 +37,7 @@ jclass FindClass(const char *className)
         jclass tmp = env->FindClass(className);
         ret = (jclass)env->NewGlobalRef(tmp);
         jClassCache[cppClassName] = ret;
+        env->DeleteLocalRef(tmp);
     }
     return ret;
 }
