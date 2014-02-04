@@ -439,7 +439,7 @@ void Graphics::drawTriangles(const QuickVec<float> &inXYs,
             const QuickVec<int> &inIndices,
             const QuickVec<float> &inUVT, int inCull,
             const QuickVec<int> &inColours,
-            int blendMode, const QuickVec<float,4> &inViewport )
+            int blendMode)
 {
 	Flush( );
 	
@@ -451,7 +451,7 @@ void Graphics::drawTriangles(const QuickVec<float> &inXYs,
 	IGraphicsFill *fill = mFillJob.mFill;
 
    GraphicsTrianglePath *path = new GraphicsTrianglePath(inXYs,
-           inIndices, inUVT, inCull, inColours, blendMode, inViewport );
+           inIndices, inUVT, inCull, inColours, blendMode );
    GraphicsJob job;
    path->IncRef();
 

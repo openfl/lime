@@ -308,7 +308,7 @@ public:
             const QuickVec<int> &inIndixes,
             const QuickVec<float> &inUVT, int inCull,
             const QuickVec<int> &inColours,
-            int blendMode, const QuickVec<float,4> &inViewport );
+            int blendMode);
 
    VertexType       mType;
    int              mTriangleCount;
@@ -316,7 +316,6 @@ public:
    QuickVec<float>  mUVT;
    QuickVec<uint32> mColours;
    int mBlendMode;
-   QuickVec<float,4> mViewport;
 };
 
 // ----------------------------------------------------------------------
@@ -509,7 +508,6 @@ struct HardwareArrays
    Vertices     mVertices;
    TexCoords    mTexCoords;
 	Colours      mColours;
-   QuickVec<float,4> mViewport;
    Surface      *mSurface;
    unsigned int mFlags;
    //unsigned int mVertexBO;
@@ -669,7 +667,7 @@ public:
    void drawPoints(QuickVec<float> inXYs, QuickVec<int> inRGBAs, unsigned int inDefaultRGBA=0xffffffff, double inSize=-1.0 );
    void drawTriangles(const QuickVec<float> &inXYs, const QuickVec<int> &inIndixes,
             const QuickVec<float> &inUVT, int inCull, const QuickVec<int> &inColours,
-            int blendMode, const QuickVec<float,4> &inViewport );
+            int blendMode);
 
    const Extent2DF &GetExtent0(double inRotation);
    bool  HitTest(const UserPoint &inPoint);

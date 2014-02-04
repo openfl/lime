@@ -172,7 +172,7 @@ GraphicsTrianglePath::GraphicsTrianglePath( const QuickVec<float> &inXYs,
             const QuickVec<int> &inIndices,
             const QuickVec<float> &inUVT, int inCull,
             const QuickVec<int> &inColours,
-            int inBlendMode, const QuickVec<float,4> &inViewport )
+            int inBlendMode)
 {
 	UserPoint *v = (UserPoint *) &inXYs[0];
     uint32 *c = (uint32 *) &inColours[0];
@@ -183,7 +183,6 @@ GraphicsTrianglePath::GraphicsTrianglePath( const QuickVec<float> &inXYs,
 	const float *uvt = &inUVT[0];
 
 	mBlendMode = inBlendMode;
-	mViewport = inViewport;
 	
 	if (inIndices.empty())
 	{

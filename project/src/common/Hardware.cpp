@@ -253,9 +253,6 @@ public:
       mElement.mFirst = vertices.size() / (persp?2:1);
       mElement.mPrimType = ptTriangles;
       
-      //Just overwriting viewport
-      mArrays->mViewport = inPath->mViewport;
-      
       const float *t = &inPath->mUVT[0];
       for(int v=0;v<inPath->mVertices.size();v++)
       {
@@ -292,9 +289,6 @@ public:
       DrawElements &elements = mArrays->mElements;
       mElement.mFirst = vertices.size();
       mElement.mPrimType = ptLines;
-      
-      //Just overwriting blend mode and viewport
-      mArrays->mViewport = inPath->mViewport;
       
       int tri_count = inPath->mVertices.size()/3;
       UserPoint *tri =  &inPath->mVertices[0];

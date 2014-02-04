@@ -2289,7 +2289,7 @@ DEFINE_PRIM_MULT(lime_gfx_draw_round_rect);
 value lime_gfx_draw_triangles(value *arg, int args )
 {
 
-   enum { aGfx, aVertices, aIndices, aUVData, aCull, aColours, aBlend, aViewport };
+   enum { aGfx, aVertices, aIndices, aUVData, aCull, aColours, aBlend };
    
    Graphics *gfx;
    if (AbstractToObject(arg[aGfx],gfx))
@@ -2298,15 +2298,13 @@ value lime_gfx_draw_triangles(value *arg, int args )
       QuickVec<int> indices;
       QuickVec<float> uvt;
       QuickVec<int> colours;
-      QuickVec<float,4> viewport;
       
       FillArrayDouble(vertices,arg[aVertices]);
       FillArrayInt(indices,arg[aIndices]);
       FillArrayDouble(uvt,arg[aUVData]);
       FillArrayInt(colours, arg[aColours]);
-      FillArrayDoubleN<float,4>(viewport, arg[aViewport] );
       
-      gfx->drawTriangles(vertices, indices, uvt, val_int(arg[aCull]), colours, val_int( arg[ aBlend ] ), viewport );
+      gfx->drawTriangles(vertices, indices, uvt, val_int(arg[aCull]), colours, val_int( arg[ aBlend ] ) );
    }
    
    return alloc_null();
