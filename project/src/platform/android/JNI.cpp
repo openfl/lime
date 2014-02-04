@@ -1257,28 +1257,21 @@ DEFINE_PRIM(lime_post_ui_callback,1);
 extern "C"
 {
 
-#ifdef __GNUC__
-  #define JAVA_EXPORT __attribute__ ((visibility("default"))) JNIEXPORT
-#else
-  #define JAVA_EXPORT JNIEXPORT
-#endif
-
 
 JAVA_EXPORT void JNICALL Java_org_haxe_lime_Lime_onCallback(JNIEnv * env, jobject obj, jlong handle)
 {
-   int top = 0;
-   gc_set_top_of_stack(&top,true);
+   AutoHaxe haxe("onCallback");
 
    ELOG("lime onCallback %p",(void *)handle);
    AutoGCRoot *root = (AutoGCRoot *)handle;
    val_call0( root->get() );
    delete root;
-   gc_set_top_of_stack(0,true);
 }
 
 
 JAVA_EXPORT jobject JNICALL Java_org_haxe_lime_Lime_releaseReference(JNIEnv * env, jobject obj, jlong handle)
 {
+   AutoHaxe haxe("releaseReference");
    value val = (value)handle;
    RemoveJavaHaxeObjectRef(val);
    return 0;
@@ -1306,8 +1299,7 @@ value CallHaxe(JNIEnv * env, jobject obj, jlong handle, jstring function, jobjec
 
 JAVA_EXPORT jobject JNICALL Java_org_haxe_lime_Lime_callObjectFunction(JNIEnv * env, jobject obj, jlong handle, jstring function, jobject args)
 {
-   int top = 0;
-   gc_set_top_of_stack(&top,true);
+   AutoHaxe haxe("callObject");
 
    value result = CallHaxe(env,obj,handle,function,args);
 
@@ -1323,22 +1315,19 @@ JAVA_EXPORT jobject JNICALL Java_org_haxe_lime_Lime_callObjectFunction(JNIEnv * 
       ELOG("only string return is supported");
    }
    //jobject val = JAnonToHaxe(result);
-
-   gc_set_top_of_stack(0,true);
+   
    return val;
 }
 
 
 JAVA_EXPORT jdouble JNICALL Java_org_haxe_lime_Lime_callNumericFunction(JNIEnv * env, jobject obj, jlong handle, jstring function, jobject args)
 {
-   int top = 0;
-   gc_set_top_of_stack(&top,true);
+   AutoHaxe haxe("callNumeric");
 
    value result = CallHaxe(env,obj,handle,function,args);
 
    double val = val_number(result);
 
-   gc_set_top_of_stack(0,true);
    return val;
 }
 

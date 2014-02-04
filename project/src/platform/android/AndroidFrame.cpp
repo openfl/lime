@@ -478,163 +478,121 @@ bool GetAcceleration(double& outX, double& outY, double& outZ) {
 extern "C"
 {
 
-#ifdef __GNUC__
-  #define JAVA_EXPORT __attribute__ ((visibility("default"))) JNIEXPORT
-#else
-  #define JAVA_EXPORT JNIEXPORT
-#endif
 
 JAVA_EXPORT int JNICALL Java_org_haxe_lime_Lime_onResize(JNIEnv * env, jobject obj,  jint width, jint height)
 {
-   env->GetJavaVM(&gJVM);
-   int top = 0;
-   gc_set_top_of_stack(&top,true);
-   __android_log_print(ANDROID_LOG_INFO, "Resize", "%p  %d,%d", lime::sFrame, width, height);
+   AutoHaxe haxe("onResize");
    if (lime::sFrame)
       lime::sFrame->onResize(width,height);
-   gc_set_top_of_stack(0,true);
    return lime::GetResult();
 }
 
 
 JAVA_EXPORT int JNICALL Java_org_haxe_lime_Lime_onRender(JNIEnv * env, jobject obj)
 {
-   env->GetJavaVM(&gJVM);
-   int top = 0;
-   gc_set_top_of_stack(&top,true);
+   AutoHaxe haxe("onRender");
    //double t0 = lime::GetTimeStamp();
    //__android_log_print(ANDROID_LOG_INFO, "lime", "lime onRender: %p", lime::sStage );
    if (lime::sStage)
       lime::sStage->OnRender();
    //__android_log_print(ANDROID_LOG_INFO, "lime", "Haxe Time: %f", lime::GetTimeStamp()-t0);
-   gc_set_top_of_stack(0,true);
    return lime::GetResult();
 }
 
 JAVA_EXPORT int JNICALL Java_org_haxe_lime_Lime_onNormalOrientationFound(JNIEnv * env, jobject obj, jint orientation)
 {
-   int top = 0;
-   gc_set_top_of_stack(&top,true);
+   AutoHaxe haxe("onOrientation");
    if (lime::sStage)
       lime::sStage->OnNormalOrientationFound(orientation);
-   gc_set_top_of_stack(0,true);
    return lime::GetResult();
 }
 
 JAVA_EXPORT int JNICALL Java_org_haxe_lime_Lime_onDeviceOrientationUpdate(JNIEnv * env, jobject obj, jint orientation)
 {
-   int top = 0;
-   gc_set_top_of_stack(&top,true);
+   AutoHaxe haxe("onDeviceOrientation");
    if (lime::sStage)
       lime::sStage->OnDeviceOrientationUpdate(orientation);
-   gc_set_top_of_stack(0,true);
    return lime::GetResult();
 }
 
 JAVA_EXPORT int JNICALL Java_org_haxe_lime_Lime_onOrientationUpdate(JNIEnv * env, jobject obj, jfloat x, jfloat y, jfloat z)
 {
-   int top = 0;
-   gc_set_top_of_stack(&top,true);
+   AutoHaxe haxe("onUpdateOrientation");
    if (lime::sStage)
       lime::sStage->OnOrientationUpdate(x,y,z);
-   gc_set_top_of_stack(0,true);
    return lime::GetResult();
 }
 
 JAVA_EXPORT int JNICALL Java_org_haxe_lime_Lime_onAccelerate(JNIEnv * env, jobject obj, jfloat x, jfloat y, jfloat z)
 {
-   int top = 0;
-   gc_set_top_of_stack(&top,true);
+   AutoHaxe haxe("onAcceration");
    if (lime::sStage)
       lime::sStage->OnAccelerate(x,y,z);
-   gc_set_top_of_stack(0,true);
    return lime::GetResult();
 }
 
 JAVA_EXPORT int JNICALL Java_org_haxe_lime_Lime_onTouch(JNIEnv * env, jobject obj, jint type, jfloat x, jfloat y, jint id, jfloat sizeX, jfloat sizeY)
 {
-   int top = 0;
-   gc_set_top_of_stack(&top,true);
+   AutoHaxe haxe("onTouch");
    if (lime::sStage)
       lime::sStage->OnTouch(type,x,y,id,sizeX,sizeY);
-   gc_set_top_of_stack(0,true);
    return lime::GetResult();
 }
 
 JAVA_EXPORT int JNICALL Java_org_haxe_lime_Lime_onTrackball(JNIEnv * env, jobject obj, jfloat dx, jfloat dy)
 {
-   int top = 0;
-   gc_set_top_of_stack(&top,true);
+   AutoHaxe haxe("onTrackball");
    if (lime::sStage)
       lime::sStage->OnTrackball(dx,dy);
-   gc_set_top_of_stack(0,true);
    return lime::GetResult();
 }
 
 JAVA_EXPORT int JNICALL Java_org_haxe_lime_Lime_onKeyChange(JNIEnv * env, jobject obj, int code, bool down)
 {
-   int top = 0;
-   gc_set_top_of_stack(&top,true);
+   AutoHaxe haxe("onKey");
    if (lime::sStage)
       lime::sStage->OnKey(code,down);
-   gc_set_top_of_stack(0,true);
    return lime::GetResult();
 }
 
 JAVA_EXPORT int JNICALL Java_org_haxe_lime_Lime_onJoyChange(JNIEnv * env, jobject obj, int deviceId, int code, bool down)
 {
-   int top = 0;
-   gc_set_top_of_stack(&top,true);
+   AutoHaxe haxe("onJoy");
    if (lime::sStage)
       lime::sStage->OnJoy(deviceId,code,down);
-   gc_set_top_of_stack(0,true);
    return lime::GetResult();
 }
 
 JAVA_EXPORT int JNICALL Java_org_haxe_lime_Lime_onJoyMotion(JNIEnv * env, jobject obj, int deviceId, int axis, float value)
 {
-   int top = 0;
-   gc_set_top_of_stack(&top,true);
+   AutoHaxe haxe("onJoyMotion");
    if (lime::sStage)
       lime::sStage->OnJoyMotion(deviceId,axis,value);
-   gc_set_top_of_stack(0,true);
    return lime::GetResult();
 }
 
 JAVA_EXPORT int JNICALL Java_org_haxe_lime_Lime_onPoll(JNIEnv * env, jobject obj)
 {
-   env->GetJavaVM(&gJVM);
-   int top = 0;
-   gc_set_top_of_stack(&top,true);
+   AutoHaxe haxe("onPoll");
    if (lime::sStage)
       lime::sStage->OnPoll();
-   gc_set_top_of_stack(0,true);
    return lime::GetResult();
 }
 
 JAVA_EXPORT double JNICALL Java_org_haxe_lime_Lime_getNextWake(JNIEnv * env, jobject obj)
 {
-   env->GetJavaVM(&gJVM);
-   int top = 0;
-   gc_set_top_of_stack(&top,true);
+   AutoHaxe haxe("onGetNextWake");
    if (lime::sStage)
-	{
-      double delta = lime::sStage->GetNextWake()-lime::GetTimeStamp();
-      gc_set_top_of_stack(0,true);
-      return delta;
-	}
-   gc_set_top_of_stack(0,true);
+      return lime::sStage->GetNextWake()-lime::GetTimeStamp();
    return 3600*100000;
 }
 
 
 JAVA_EXPORT int JNICALL Java_org_haxe_lime_Lime_onActivity(JNIEnv * env, jobject obj, int inVal)
 {
-   int top = 0;
-   gc_set_top_of_stack(&top,true);
+   AutoHaxe haxe("onActivity");
    if (lime::sStage)
       lime::sStage->onActivityEvent(inVal);
-   gc_set_top_of_stack(0,true);
    return lime::GetResult();
 }
 
