@@ -15,6 +15,7 @@ enum JNIElement
    jniUnknown,
    jniObjectString,
    jniObjectHaxe,
+   jniValueObject,
    jniObject,
    jniPODStart,
    jniBoolean = jniPODStart,
@@ -35,6 +36,7 @@ jclass GameActivity;
 jclass ObjectClass;
 jmethodID postUICallback;
 jclass HaxeObject;
+jclass ValueObject;
 jmethodID HaxeObject_create;
 jfieldID __haxeHandle;
 
@@ -90,6 +92,7 @@ struct JNIType
       {
          case jniObjectString: name += "java/lang/String"; break;
          case jniObjectHaxe: name += "org/haxe/lime/HaxeObject"; break;
+         case jniValueObject: name += "org/haxe/lime/Value"; break;
 
          case jniUnknown:
          case jniObject: name += "java/lang/Object"; break;
@@ -107,10 +110,14 @@ struct JNIType
             mClasses[*this] = 0;
             return 0;
       }
-
-      jclass result = FindClass(name.c_str());
-      mClasses[*this] = result;
-      return result;
+      
+      jclass result = inEnv->FindClass(name.c_str());
+      if (result)
+      {
+         mClasses[*this] = (jclass)inEnv->NewGlobalRef(result);
+         inEnv->DeleteLocalRef(result);
+      }
+      return mClasses[*this];
    }
 
    static void init(JNIEnv *inEnv)
@@ -159,6 +166,8 @@ struct JNIType
          }
          CheckException(inEnv,false);
       }
+      
+      elementGetValue[jniValueObject] = inEnv->GetMethodID(elementClass[jniValueObject],"getDouble","()D");
    }
 
 
@@ -186,6 +195,7 @@ void JNIInit(JNIEnv *env)
    postUICallback = env->GetStaticMethodID(GameActivity, "postUICallback", "(J)V");
 
    ObjectClass = FindClass("java/lang/Object");
+   ValueObject = FindClass("org/haxe/lime/Value");
 
    HaxeObject   = JNIType(jniObjectHaxe,0).getClass(env);
    HaxeObject_create = env->GetStaticMethodID(HaxeObject, "create", "(J)Lorg/haxe/lime/HaxeObject;");
@@ -350,7 +360,9 @@ value JObjectToHaxeObject(JNIEnv *env,jobject inObject)
 value JObjectToHaxe(JNIEnv *inEnv,JNIType inType,jobject inObject)
 {
    if (inObject==0)
+   {
       return alloc_null();
+   }
 
    if (inType.isUnknownType())
    {
@@ -383,7 +395,9 @@ value JObjectToHaxe(JNIEnv *inEnv,JNIType inType,jobject inObject)
       }
 
       if (inType.isUnknownType())
+      {
          inType = JNIType(jniObject,0);
+      }
    }
 
    if (inType.arrayDepth>1 || (inType.arrayDepth==1 && inType.element<jniPODStart) )
@@ -423,6 +437,7 @@ value JObjectToHaxe(JNIEnv *inEnv,JNIType inType,jobject inObject)
                    inEnv->ReleaseByteArrayElements((jbyteArray)inObject,data,JNI_ABORT);
                }
             }
+            break;
       }
       return result;
    }
@@ -451,6 +466,7 @@ value JObjectToHaxe(JNIEnv *inEnv,JNIType inType,jobject inObject)
       case jniLong:
       case jniFloat:
       case jniDouble:
+      case jniValueObject:
           return alloc_float(inEnv->CallDoubleMethod(inObject, JNIType::elementGetValue[inType.element] ) );
 
 
@@ -643,7 +659,9 @@ struct JNIField : public lime::Object
       
       const char *field = val_string(inField);
       
-      mClass = (jclass)env->NewGlobalRef(env->FindClass(val_string(inClass)));
+      jclass tmp = env->FindClass(val_string(inClass));
+      mClass = (jclass)env->NewGlobalRef(tmp);
+      env->DeleteLocalRef(tmp);
       const char *signature = val_string(inSignature);
       if (mClass)
       {
@@ -945,9 +963,10 @@ struct JNIMethod : public lime::Object
 
       const char *method = val_string(inMethod);
       mIsConstructor = !strncmp(method,"<init>",6);
-
-
-      mClass = (jclass)env->NewGlobalRef(env->FindClass(val_string(inClass)));
+      
+      jclass tmp = env->FindClass(val_string(inClass));
+      mClass = (jclass)env->NewGlobalRef(tmp);
+      env->DeleteLocalRef(tmp);
       const char *signature = val_string(inSignature);
       if (mClass)
       {
@@ -1267,13 +1286,13 @@ JAVA_EXPORT jobject JNICALL Java_org_haxe_lime_Lime_releaseReference(JNIEnv * en
 
 value CallHaxe(JNIEnv * env, jobject obj, jlong handle, jstring function, jobject inArgs)
 {
-   ELOG("CallHaxe %p", gCallback);
+   //ELOG("CallHaxe %p", gCallback);
    if (gCallback)
    {
       value objValue = (value)handle;
       value funcName = JStringToHaxe(env,function);
       value args = JObjectToHaxe(env,JNIType(jniUnknown,1),inArgs);
-      ELOG("Using %d args", val_array_size(args) );
+      //ELOG("Using %d args", val_array_size(args) );
       return val_call3(gCallback->get(),objValue,funcName,args);
    }
    else
@@ -1292,9 +1311,18 @@ JAVA_EXPORT jobject JNICALL Java_org_haxe_lime_Lime_callObjectFunction(JNIEnv * 
 
    value result = CallHaxe(env,obj,handle,function,args);
 
-   // TODO:
-   //jobject val = JAnonToHaxe(result);
    jobject val = 0;
+   // TODO - other cases
+   if (val_is_string(result))
+   {
+      const char *string = val_string(result);
+      val = env->NewStringUTF(string);
+   }
+   else if (!val_is_null(result))
+   {
+      ELOG("only string return is supported");
+   }
+   //jobject val = JAnonToHaxe(result);
 
    gc_set_top_of_stack(0,true);
    return val;
