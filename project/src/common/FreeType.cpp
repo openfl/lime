@@ -281,24 +281,47 @@ bool GetFontFile(const std::string& inName,std::string &outFile)
 #else
 #define FONT_BASE "/Library/Fonts/"
 #endif
-
-   if (!strcasecmp(inName.c_str(),"_serif") || !strcasecmp(inName.c_str(),"times.ttf") || !strcasecmp(inName.c_str(),"times"))
-      outFile = FONT_BASE "Georgia.ttf";
-   else if (!strcasecmp(inName.c_str(),"_sans") || !strcasecmp(inName.c_str(),"helvetica.ttf"))
-      outFile = FONT_BASE "Arial Unicode.ttf"; // Helvetica.dfont does not render
-   else if (!strcasecmp(inName.c_str(),"_typewriter") || !strcasecmp(inName.c_str(),"courier.ttf"))
-      outFile = FONT_BASE "Courier New.ttf";
-   else if (!strcasecmp(inName.c_str(),"arial.ttf"))
-      outFile = FONT_BASE "Arial Unicode.ttf";
-   else
+   
+   outFile = FONT_BASE + inName;
+   FILE *file = fopen(outFile.c_str(), "rb");
+   if (file)
    {
-      outFile = FONT_BASE + inName;
+      fclose(file);
       return true;
-      //VLOG("Unfound font: %s\n",inName.c_str());
-      return false;
+   }
+   
+   const char *serifFonts[] = { "Georgia.ttf", "Times.ttf", "Times New Roman.ttf", 0 };
+   const char *sansFonts[] = { "Arial Unicode.ttf", "Arial.ttf", "Helvetica.ttf", 0 };
+   const char *fixedFonts[] = { "Courier New.ttf", "Courier.ttf", 0 };
+   
+   const char **fontSet = 0;
+   
+   if (!strcasecmp(inName.c_str(),"_serif") || !strcasecmp(inName.c_str(),"times.ttf") || !strcasecmp(inName.c_str(),"times"))
+      fontSet = serifFonts;
+   else if (!strcasecmp(inName.c_str(),"_sans") || !strcasecmp(inName.c_str(),"helvetica.ttf"))
+      fontSet = sansFonts;
+   else if (!strcasecmp(inName.c_str(),"_typewriter") || !strcasecmp(inName.c_str(),"courier.ttf"))
+      fontSet = fixedFonts;
+   else if (!strcasecmp(inName.c_str(),"arial.ttf"))
+      fontSet = sansFonts;
+   
+   if (fontSet)
+   {
+      while (*fontSet)
+      {
+         outFile = FONT_BASE + std::string(*fontSet);
+         
+         FILE *file = fopen(outFile.c_str(), "rb");
+         if (file)
+         {
+            fclose(file);
+            return true;
+         }
+         fontSet++;
+      }
    }
 
-   return true;
+   return false;
 }
 #else
 
