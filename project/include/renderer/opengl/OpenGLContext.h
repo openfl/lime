@@ -17,34 +17,21 @@ namespace lime {
 			OpenGLContext (WinDC inDC, GLCtx inOGLCtx);
 			~OpenGLContext ();
 			
-			virtual void CombineModelView (const Matrix &inModelView);
-			virtual void FinishDrawing ();
-			virtual void FinishBitmapRender ();
-			virtual void OnBeginRender ();
-			virtual void PopBitmapMatrix ();
-			virtual void PrepareBitmapRender ();
-			virtual bool PrepareDrawing ();
-			virtual void PushBitmapMatrix ();
-			virtual void SetBitmapData (const float *inPos, const float *inTex);
-			virtual void SetColourArray (const int *inData);
-			virtual void SetModulatingTransform (const ColorTransform *inTransform);
-			virtual void setOrtho (float x0,float x1, float y0, float y1);
-			virtual void SetPositionData (const float *inData, bool inPerspective);
-			virtual void SetRadialGradient (bool inIsRadial, float inFocus);
-			virtual void SetSolidColour (unsigned int col);
-			virtual void SetTexture (Surface *inSurface, const float *inTexCoords);
-			
 			void BeginBitmapRender (Surface *inSurface, uint32 inTint, bool inRepeat, bool inSmooth);
 			void BeginRender (const Rect &inRect, bool inForHitTest);
 			void Clear (uint32 inColour, const Rect *inRect);
+			void CombineModelView (const Matrix &inModelView);
 			Texture *CreateTexture (Surface *inSurface, unsigned int inFlags);
 			void DestroyNativeTexture (void *inNativeTexture);
+			void DestroyVbo (unsigned int inVbo);
 			void EndBitmapRender ();
 			void EndRender ();
 			void Flip ();
-			void Render (const RenderState &inState, const HardwareCalls &inCalls);
+			void Render (const RenderState &inState, const HardwareData &inData);
 			void RenderBitmap (const Rect &inSrc, int inX, int inY);
+			void RenderData (const HardwareData &inData, const ColorTransform *ctrans, const Trans4x4 &inTrans);
 			void SetLineWidth (double inWidth);
+			void setOrtho (float x0, float x1, float y0, float y1);
 			void SetQuality (StageQuality inQ);
 			void SetViewport (const Rect &inRect);
 			void SetWindowSize (int inWidth, int inHeight);
@@ -52,10 +39,9 @@ namespace lime {
 			int Height () const { return mHeight; }
 			int Width () const { return mWidth; }
 			
-			AlphaMode mAlphaMode;
-			Surface *mBitmapSurface;
+			HardwareData mBitmapBuffer;
 			Texture *mBitmapTexture;
-			bool mColourArrayEnabled;
+			Trans4x4 mBitmapTrans;
 			WinDC mDC;
 			int mHeight;
 			double mLineScaleH;
@@ -63,21 +49,25 @@ namespace lime {
 			double mLineScaleV;
 			double mLineWidth;
 			Matrix mModelView;
+			double mOffsetX;
+			double mOffsetY;
 			GLCtx mOGLCtx;
-			bool mPointSmooth;
-			bool mPointsToo;
+			GPUProg *mProg[PROG_COUNT];
 			StageQuality mQuality;
+			double mScaleX;
+			double mScaleY;
 			ThreadId mThreadId;
-			uint32 mTint;
-			bool mUsingBitmapMatrix;
+			Trans4x4 mTrans;
 			Rect mViewport;
 			int mWidth;
 			QuickVec<GLuint> mZombieTextures;
-			
+			QuickVec<GLuint> mZombieVbos;
+		
 	};
 	
 	
 	const double one_on_255 = 1.0 / 255.0;
+	const double one_on_256 = 1.0 / 256.0;
 	static GLuint sgOpenglType[] = { GL_TRIANGLE_FAN, GL_TRIANGLE_STRIP, GL_TRIANGLES, GL_LINE_STRIP, GL_POINTS, GL_LINES };
 	
 	

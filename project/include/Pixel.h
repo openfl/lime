@@ -27,14 +27,6 @@ enum PixelFormat
    pfSwapRB       = 0x02,
 };
 
-enum AlphaMode
-{
-   amUnknown = 0x00,
-   amPremultiplied = 0x01,
-   amStraight = 0x02,
-   amIgnore = 0x03,
-};
-
 
 typedef unsigned char Uint8;
 

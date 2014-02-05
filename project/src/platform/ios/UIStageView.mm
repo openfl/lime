@@ -142,7 +142,6 @@ public:
    int Width() const  { return mWidth; }
    int Height() const  { return mHeight; }
    PixelFormat Format()  const { return pfXRGB; }
-   AlphaMode GetAlphaMode() const { return amStraight; }
    const uint8 *GetBase() const { return (const uint8 *)mBuffer; }
    int GetStride() const { return mWidth*4; }
    void Clear(uint32 inColour,const lime::Rect *inRect)

@@ -456,83 +456,9 @@ struct RenderState
 };
 
 
-void ResetHardwareContext();
+class HardwareData;
+class HardwareContext;
 
-
-
-enum PrimType { ptTriangleFan, ptTriangleStrip, ptTriangles, ptLineStrip, ptPoints, ptLines };
-
-struct DrawElement
-{
-   uint8    mPrimType;
-   bool     mBitmapRepeat;
-   bool     mBitmapSmooth;
-   int      mFirst;
-   int      mCount;
-   uint32   mColour;
-   float    mWidth;
-   StrokeScaleMode mScaleMode;
-};
-
-typedef QuickVec<DrawElement> DrawElements;
-typedef QuickVec<UserPoint>   Vertices;
-typedef QuickVec<UserPoint>   TexCoords;
-typedef QuickVec<int>         Colours;
-
-void ReleaseVertexBufferObject(unsigned int inVBO);
-
-void ConvertOutlineToTriangles(Vertices &ioOutline,const QuickVec<int> &inSubPolys);
-
-struct HardwareArrays
-{
-   enum
-   {
-     BM_ADD      = 0x00000001,
-     PERSPECTIVE = 0x00000002,
-     RADIAL      = 0x00000004,
-     BM_MULTIPLY = 0x00000008,
-     BM_SCREEN   = 0x00000010,
-     
-     AM_PREMULTIPLIED = 0x00000100,
-
-     FOCAL_MASK  = 0x0000ff00,
-     FOCAL_SIGN  = 0x00010000,
-   };
-
-   HardwareArrays(Surface *inSurface,unsigned int inFlags);
-   ~HardwareArrays();
-   bool ColourMatch(bool inWantColour);
-
-
-   DrawElements mElements;
-   Vertices     mVertices;
-   TexCoords    mTexCoords;
-	Colours      mColours;
-   Surface      *mSurface;
-   unsigned int mFlags;
-   //unsigned int mVertexBO;
-};
-
-typedef QuickVec<HardwareArrays *> HardwareCalls;
-
-class HardwareData
-{
-public:
-   ~HardwareData();
-
-   HardwareArrays &GetArrays(Surface *inSurface,bool inWithColour,unsigned int inFlags);
-
-   HardwareCalls mCalls;
-   
-};
-
-
-
-
-extern HardwareContext *gDirectRenderContext;
-
-void BuildHardwareJob(const class GraphicsJob &inJob,const GraphicsPath &inPath,
-                      HardwareData &ioData, HardwareContext &inHardware);
 
 int UpToPower2(int inX);
 inline int IsPower2(unsigned int inX) { return (inX & (inX-1))==0; }

@@ -1430,6 +1430,8 @@ void TextField::Render( const RenderTarget &inTarget, const RenderState &inState
 
    int line = 0;
    int last_line = mLines.size()-1;
+   Surface *hardwareSurface = 0;
+   uint32  hardwareTint = 0;
    for(int g=0;g<mCharGroups.size();g++)
    {
       CharGroup &group = *mCharGroups[g];
@@ -1457,9 +1459,15 @@ void TextField::Render( const RenderTarget &inTarget, const RenderState &inState
                uint32 tint = cid>=mSelectMin && cid<mSelectMax ? 0xffffffff : group_tint;
                if (hardware)
                {
-                  // todo - better to wizz though and do all of the same surface first?
-                  // ok to call this multiple times with same data
-                  hardware->BeginBitmapRender(tile.mSurface,tint);
+                  if (hardwareSurface!=tile.mSurface || hardwareTint!=tint)
+                  {
+                     if (hardwareSurface)
+                        hardware->EndBitmapRender();
+
+                     hardwareSurface = tile.mSurface;
+                     hardwareTint = tint;
+                     hardware->BeginBitmapRender(tile.mSurface,tint);
+                  }
                   hardware->RenderBitmap(tile.mRect, (int)p.x, (int)p.y);
                }
                else
@@ -1475,7 +1483,7 @@ void TextField::Render( const RenderTarget &inTarget, const RenderState &inState
    }
 
 
-   if (hardware)
+   if (hardwareSurface)
       hardware->EndBitmapRender();
 }
 

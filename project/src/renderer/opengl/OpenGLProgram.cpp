@@ -1,5 +1,4 @@
 #include "renderer/opengl/OGL.h"
-#ifdef ALLOW_OGL2
 
 
 #include "renderer/opengl/OpenGLProgram.h"
@@ -11,16 +10,24 @@ namespace lime {
 	const float one_on_255 = 1.0 / 255.0;
 	
 	
-	OpenGLProgram::OpenGLProgram (const char *inVertProg, const char *inFragProg, AlphaMode inAlphaMode) {
+	OpenGLProgram::OpenGLProgram (const std::string &inVertProg, const std::string &inFragProg) {
 		
 		mVertProg = inVertProg;
 		mFragProg = inFragProg;
-		mAlphaMode = inAlphaMode;
 		mVertId = 0;
 		mFragId = 0;
-		mTexCoordSlot = -1;
-		mTextureSlot = -1;
+		
+		mImageSlot = -1;
 		mColourTransform = 0;
+		
+		vertexSlot = -1;
+		textureSlot = -1;
+		normalSlot = -1;
+		colourSlot = -1;
+		
+		//printf("%s", inVertProg.c_str());
+		//printf("%s", inFragProg.c_str());
+		
 		recreate ();
 		
 	}
@@ -47,16 +54,6 @@ namespace lime {
 		
 		const char *source = inShader;
 		GLuint shader = glCreateShader (inType);
-		
-		#ifdef LIME_GLES
-		std::string sourceBuf;
-		if (inType == GL_FRAGMENT_SHADER) {
-			
-			sourceBuf = std::string ("precision mediump float;\n") + inShader;
-			source = sourceBuf.c_str ();
-			
-		}
-		#endif
 		
 		glShaderSource (shader, 1, &source, 0);
 		glCompileShader (shader);
@@ -91,23 +88,38 @@ namespace lime {
 	}
 	
 	
-	void OpenGLProgram::finishDrawing () {
+	void OpenGLProgram::disableSlots () {
 		
-		if (mColourArraySlot >= 0)
-			glDisableVertexAttribArray (mColourArraySlot);
+		if (vertexSlot >= 0) {
+			
+			glDisableVertexAttribArray (vertexSlot);
+			
+		}
 		
-		if (mTexCoordSlot >= 0)
-			glDisableVertexAttribArray (mTexCoordSlot);
+		if (normalSlot >= 0) {
+			
+			glDisableVertexAttribArray (normalSlot);
+			
+		}
 		
-		if (mVertexSlot >= 0)
-			glDisableVertexAttribArray (mVertexSlot);
+		if (colourSlot >= 0) {
+			
+			glDisableVertexAttribArray (colourSlot);
+				
+		}
+		
+		if (textureSlot >= 0) {
+			
+			glDisableVertexAttribArray (textureSlot);
+			
+		}
 		
 	}
 	
 	
 	int OpenGLProgram::getTextureSlot () {
 		
-		return mTextureSlot;
+		return mImageSlot;
 		
 	}
 	
@@ -117,10 +129,10 @@ namespace lime {
 		mContextVersion = gTextureContextVersion;
 		mProgramId = 0;
 		
-		mVertId = createShader (GL_VERTEX_SHADER, mVertProg);
+		mVertId = createShader (GL_VERTEX_SHADER, mVertProg.c_str ());
 		if (!mVertId)
 			return;
-		mFragId = createShader (GL_FRAGMENT_SHADER, mFragProg);
+		mFragId = createShader (GL_FRAGMENT_SHADER, mFragProg.c_str ());
 		if (!mFragId)
 			return;
 		
@@ -154,8 +166,8 @@ namespace lime {
 				char *log = new char[logLen];
 				glGetProgramInfoLog (mProgramId, logLen, &logLen, log);
 				ELOG ("----");
-				ELOG ("VERT: %s", mVertProg);
-				ELOG ("FRAG: %s", mFragProg);
+				ELOG ("VERT: %s", mVertProg.c_str ());
+				ELOG ("FRAG: %s", mFragProg.c_str ());
 				ELOG ("ERROR:\n%s\n", log);
 				delete [] log;
 				
@@ -168,57 +180,58 @@ namespace lime {
 			
 		}
 		
-		mVertexSlot = glGetAttribLocation (mProgramId, "aVertex");
-		mTexCoordSlot = glGetAttribLocation (mProgramId, "aTexCoord");
+		vertexSlot = glGetAttribLocation(mProgramId, "aVertex");
+		textureSlot = glGetAttribLocation(mProgramId, "aTexCoord");
+		colourSlot = glGetAttribLocation(mProgramId, "aColourArray");
+		normalSlot = glGetAttribLocation(mProgramId, "aNormal");
+		
 		mTransformSlot = glGetUniformLocation (mProgramId, "uTransform");
-		mTintSlot = glGetUniformLocation (mProgramId, "uTint");
-		mColourArraySlot = glGetAttribLocation (mProgramId, "aColourArray");
-		mTextureSlot = glGetUniformLocation (mProgramId, "uImage0");
+		mImageSlot = glGetUniformLocation(mProgramId, "uImage0");
 		mColourOffsetSlot = glGetUniformLocation (mProgramId, "uColourOffset");
 		mColourScaleSlot = glGetUniformLocation (mProgramId, "uColourScale");
 		mFXSlot = glGetUniformLocation (mProgramId, "mFX");
 		mASlot = glGetUniformLocation (mProgramId, "mA");
 		mOn2ASlot = glGetUniformLocation (mProgramId, "mOn2A");
 		
+		glUseProgram (mProgramId);
+	    
+	    if (mImageSlot >= 0) {
+	    	
+	    	glUniform1i (mImageSlot, 0);
+	    	
+	    }
+	    
 	}
 	
 	
-	void OpenGLProgram::setColourData (const int *inData) {
+	void OpenGLProgram::setColourTransform (const ColorTransform *inTransform, uint32 inColor) {
 		
-		if (inData && mColourArraySlot >= 0) {
+		float rf, gf, bf, af;
+		
+		if (inColor == 0xFFFFFFFF) {
 			
-			glVertexAttribPointer (mColourArraySlot, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, inData);
-			glEnableVertexAttribArray (mColourArraySlot);
+			rf = gf = bf = af = 1.0;
 			
-		} else if (mColourArraySlot >= 0) {
+		} else {
 			
-			glDisableVertexAttribArray (mColourArraySlot);
+			rf = ((inColor >> 16) & 0xFF) * one_on_255;
+			gf = ((inColor >> 8) & 0xFF) * one_on_255;
+			bf = (inColor & 0xFF) * one_on_255;
+			af = ((inColor >> 24) & 0xFF) * one_on_255;
 			
 		}
 		
-	}
-	
-	
-	void OpenGLProgram::setColourTransform (const ColorTransform *inTransform) {
-		
-		mColourTransform = inTransform;
 		if (inTransform && !inTransform->IsIdentity ()) {
 			
 			if (mColourOffsetSlot >= 0) {
 				
-				if (mAlphaMode == amPremultiplied)
-					glUniform4f (mColourOffsetSlot, inTransform->redOffset * one_on_255 * inTransform->alphaMultiplier, inTransform->greenOffset * one_on_255 * inTransform->alphaMultiplier, inTransform->blueOffset * one_on_255 * inTransform->alphaMultiplier, inTransform->alphaOffset * one_on_255);
-				else
-					glUniform4f (mColourOffsetSlot, inTransform->redOffset * one_on_255, inTransform->greenOffset * one_on_255, inTransform->blueOffset * one_on_255, inTransform->alphaOffset * one_on_255);
+				glUniform4f (mColourOffsetSlot, inTransform->redOffset * one_on_255, inTransform->greenOffset * one_on_255, inTransform->blueOffset * one_on_255, inTransform->alphaOffset * one_on_255);
 				
 			}
 			
 			if (mColourScaleSlot >= 0) {
 				
-				if (mAlphaMode == amPremultiplied)
-					glUniform4f (mColourScaleSlot, inTransform->redMultiplier * inTransform->alphaMultiplier, inTransform->greenMultiplier * inTransform->alphaMultiplier, inTransform->blueMultiplier * inTransform->alphaMultiplier, inTransform->alphaMultiplier);
-				else
-					glUniform4f (mColourScaleSlot, inTransform->redMultiplier, inTransform->greenMultiplier, inTransform->blueMultiplier, inTransform->alphaMultiplier);
+				glUniform4f (mColourScaleSlot, inTransform->redMultiplier * rf, inTransform->greenMultiplier * gf, inTransform->blueMultiplier * bf, inTransform->alphaMultiplier * af);
 				
 			}
 			
@@ -227,7 +240,7 @@ namespace lime {
 			if (mColourOffsetSlot >= 0)
 				glUniform4f (mColourOffsetSlot, 0, 0, 0, 0);
 			if (mColourScaleSlot >= 0)
-				glUniform4f (mColourScaleSlot, 1, 1, 1, 1);
+				glUniform4f (mColourScaleSlot, rf, gf, bf, af);
 			
 		}
 		
@@ -257,45 +270,6 @@ namespace lime {
 	}
 	
 	
-	void OpenGLProgram::setPositionData (const float *inData, bool inIsPerspective) {
-		
-		glVertexAttribPointer (mVertexSlot, inIsPerspective ? 4 : 2, GL_FLOAT, GL_FALSE, 0, inData);
-		glEnableVertexAttribArray (mVertexSlot);
-		
-	}
-	
-	
-	void OpenGLProgram::setTexCoordData (const float *inData) {
-		
-		if (inData) {
-			
-			glVertexAttribPointer (mTexCoordSlot, 2, GL_FLOAT, GL_FALSE, 0, inData);
-			glEnableVertexAttribArray (mTexCoordSlot);
-			glUniform1i (mTextureSlot, 0);
-			
-		}
-		
-	}
-	
-	
-	void OpenGLProgram::setTint (unsigned int inColour) {
-		
-		if (mTintSlot >= 0) {
-			
-			float a = ((inColour >> 24) & 0xff) * one_on_255;
-			float c0 = ((inColour >> 16) & 0xff) * one_on_255;
-			float c1 = ((inColour >> 8) & 0xff) * one_on_255;
-			float c2 = (inColour & 0xff) * one_on_255;
-			if (mAlphaMode == amPremultiplied)
-				glUniform4f (mTintSlot, c0 * a, c1 * a, c2 * a, a);
-			else
-				glUniform4f (mTintSlot, c0, c1, c2, a);
-			
-		}
-		
-	}
-	
-	
 	void OpenGLProgram::setTransform (const Trans4x4 &inTrans) {
 		
 		glUniformMatrix4fv (mTransformSlot, 1, 0, inTrans[0]);
@@ -304,6 +278,3 @@ namespace lime {
 	
 	
 }
-
-
-#endif

@@ -6,7 +6,6 @@ namespace lime {
 	
 	HardwareSurface::HardwareSurface (HardwareContext *inContext) {
 		
-		mAlphaMode = amUnknown;
 		mHardware = inContext;
 		mHardware->IncRef ();
 		
@@ -24,7 +23,6 @@ namespace lime {
 		
 		// This is not really a clone...
 		Surface *copy = new HardwareSurface (mHardware);
-		copy->setAlphaMode (mAlphaMode);
 		copy->IncRef ();
 		return copy;
 		

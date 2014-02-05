@@ -7,7 +7,6 @@
 #endif
 
 #include "renderer/opengl/OpenGLContext.h"
-#include "renderer/opengl/OpenGL2Context.h"
 #include "renderer/opengl/OpenGLTexture.h"
 
 #ifdef TIZEN
@@ -126,15 +125,15 @@ namespace lime {
 		#endif
 		#endif
 		
-		if (shaders && HasShaderSupport ()) {
+		//if (shaders && HasShaderSupport ()) {
 			
 			//#ifdef TIZEN
 			//AppLog ("Using OGL2\n");
 			//#endif
 			//printf("Using OGL2\n");
-			ctx = new OpenGL2Context ((WinDC)inWindow, (GLCtx)inGLCtx);
+			//ctx = new OpenGL2Context ((WinDC)inWindow, (GLCtx)inGLCtx);
 			
-		} else {
+		//} else {
 			
 			//#ifdef TIZEN
 			//AppLog ("Using OGL2\n");
@@ -142,7 +141,11 @@ namespace lime {
 			//printf("Using OGL1\n");
 			ctx = new OpenGLContext ((WinDC)inWindow, (GLCtx)inGLCtx);
 			
-		}
+		//} else {
+			
+		//	return 0;
+			
+		//}
 		
 		InitExtensions ();
 		return ctx;

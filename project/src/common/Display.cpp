@@ -1494,7 +1494,8 @@ public:
       mSurface = inStage->GetPrimarySurface();
       mToFlip = inStage;
       mTarget = mSurface->BeginRender( Rect(mSurface->Width(),mSurface->Height()),false );
-      mSurface->Clear(inRGB | 0xff000000 );
+
+      mSurface->Clear( (inRGB | 0xff000000) & inStage->getBackgroundMask() );
    }
    int Width() const { return mSurface->Width(); }
    int Height() const { return mSurface->Height(); }

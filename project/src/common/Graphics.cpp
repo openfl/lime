@@ -2,6 +2,7 @@
 #include "renderer/common/Surface.h"
 #include <Display.h>
 
+
 namespace lime
 {
 
@@ -638,18 +639,23 @@ bool Graphics::Render( const RenderTarget &inTarget, const RenderState &inState 
    {
       if (!mHardwareData)
          mHardwareData = new HardwareData();
+      else if (!mHardwareData->isScaleOk(inState))
+      {
+         mHardwareData->clear();
+         mBuiltHardware = 0;
+      }
       
       while(mBuiltHardware<mJobs.size())
       {
-         BuildHardwareJob(mJobs[mBuiltHardware++],*mPathData,*mHardwareData,*inTarget.mHardware);
+         BuildHardwareJob(mJobs[mBuiltHardware++],*mPathData,*mHardwareData,*inTarget.mHardware,inState);
       }
       
-      if (mHardwareData->mCalls.size())
+      if (mHardwareData && !mHardwareData->mElements.empty())
       {
          if (inState.mPhase==rpHitTest)
-            return inTarget.mHardware->Hits(inState,mHardwareData->mCalls);
+            return inTarget.mHardware->Hits(inState,*mHardwareData);
          else
-            inTarget.mHardware->Render(inState,mHardwareData->mCalls);
+            inTarget.mHardware->Render(inState,*mHardwareData);
       }
    }
    else

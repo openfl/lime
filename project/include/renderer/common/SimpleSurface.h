@@ -19,7 +19,6 @@ namespace lime {
 			virtual void colorTransform (const Rect &inRect, ColorTransform &inTransform);
 			virtual void StretchTo (const RenderTarget &outTarget, const Rect &inSrcRect, const DRect &inDestRect) const;
 			
-			virtual void setAlphaMode (AlphaMode am) { mAlphaMode = am; }
 			virtual void setGPUFormat (PixelFormat pf) { mGPUPixelFormat = pf; }
 			
 			void applyFilter (Surface *inSrc, const Rect &inRect, ImagePoint inOffset, Filter *inFilter);
@@ -43,7 +42,6 @@ namespace lime {
 			void Zero ();
 			
 			PixelFormat Format () const { return mPixelFormat; }
-			AlphaMode GetAlphaMode () const { return mAlphaMode; }
 			const uint8 *GetBase () const { return mBase; }
 			int GetStride () const { return mStride; }
 			int	GPUFormat () const { return mGPUPixelFormat; }
@@ -54,7 +52,6 @@ namespace lime {
 			
 			~SimpleSurface ();
 			
-			AlphaMode mAlphaMode;
 			uint8 *mBase;
 			int mGPUPixelFormat;
 			int	mHeight;

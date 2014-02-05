@@ -436,6 +436,8 @@ public:
    virtual bool getMultitouchSupported() { return false; }
    virtual void setMultitouchActive(bool inActive) {  }
    virtual bool getMultitouchActive() {  return false; }
+   
+   virtual uint32 getBackgroundMask() { return 0xffffffff; }
 
    Matrix GetFullMatrix(bool inStageScaling);
    bool FinishEditOnEnter();

@@ -12,7 +12,6 @@ namespace lime {
 		mTexture = 0;
 		mPixelFormat = inPixelFormat;
 		mGPUPixelFormat = inPixelFormat;
-		mAlphaMode = amUnknown;
 		
 		if (inGPUFormat == -1) {
 			
@@ -653,8 +652,6 @@ namespace lime {
 		
 		if (!mBase)
 			return;
-		if (mAlphaMode == amIgnore || mAlphaMode == amPremultiplied)
-			return;
 		Rect r = Rect (0, 0, mWidth, mHeight);
 		mVersion++;
 		if (mTexture)
@@ -685,8 +682,6 @@ namespace lime {
 			}
 			
 		}
-		
-		mAlphaMode = amPremultiplied;
 		
 	}
 	
@@ -1011,8 +1006,6 @@ namespace lime {
 		
 		if (!mBase)
 			return;
-		if (mAlphaMode == amIgnore || mAlphaMode == amStraight)
-			return;
 		Rect r = Rect (0, 0, mWidth, mHeight);
 		mVersion++;
 		if (mTexture)
@@ -1043,8 +1036,6 @@ namespace lime {
 			}
 			
 		}
-		
-		mAlphaMode = amStraight;
 		
 	}
 	

@@ -1,5 +1,6 @@
 #include <Graphics.h>
 #include <stdio.h>
+#include <Hardware.h>
 
 namespace lime
 {

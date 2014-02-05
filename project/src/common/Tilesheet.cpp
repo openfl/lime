@@ -12,7 +12,7 @@ Tilesheet::Tilesheet(int inWidth,int inHeight,PixelFormat inFormat, bool inInitR
 	mCurrentY = 0;
 	mMaxHeight = 0;
 	mSheet = new SimpleSurface(inWidth,inHeight,inFormat);
-
+	mSheet->IncRef();
 }
 
 Tilesheet::Tilesheet(Surface *inSurface,bool inInitRef) : Object(inInitRef)

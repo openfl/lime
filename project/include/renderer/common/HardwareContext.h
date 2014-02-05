@@ -23,12 +23,13 @@ namespace lime {
 			virtual void Clear (uint32 inColour, const Rect *inRect = 0) = 0;
 			virtual class Texture *CreateTexture (class Surface *inSurface, unsigned int inFlags) = 0;
 			virtual void DestroyNativeTexture (void *inNativeTexture) = 0;
+			virtual void DestroyVbo (unsigned int inVbo) = 0;
 			virtual void EndBitmapRender () = 0;
 			virtual void EndRender () = 0;
 			virtual void Flip () = 0;
 			virtual int Height () const = 0;
-			virtual bool Hits (const RenderState &inState, const HardwareCalls &inCalls);
-			virtual void Render (const RenderState &inState, const HardwareCalls &inCalls) = 0;
+			virtual bool Hits (const RenderState &inState, const HardwareData &inData);
+			virtual void Render (const RenderState &inState, const HardwareData &inData) = 0;
 			virtual void RenderBitmap (const Rect &inSrc, int inX, int inY) = 0;
 			virtual void SetQuality (StageQuality inQuality) = 0;
 			virtual void SetViewport (const Rect &inRect) = 0;

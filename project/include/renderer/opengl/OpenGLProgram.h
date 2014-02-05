@@ -12,24 +12,19 @@ namespace lime {
 		
 		public:
 			
-			OpenGLProgram (const char *inVertProg, const char *inFragProg, AlphaMode inAlphaMode);
+			OpenGLProgram (const std::string &inVertProg, const std::string &inFragProg);
 			virtual ~OpenGLProgram ();
 			
 			virtual bool bind ();
 			virtual void setGradientFocus (float inFocus);
 			
 			GLuint createShader (GLuint inType, const char *inShader);
-			void finishDrawing ();
+			void disableSlots ();
 			int getTextureSlot ();
 			void recreate ();
-			void setColourData (const int *inData);
-			void setColourTransform (const ColorTransform *inTransform);
-			void setPositionData (const float *inData, bool inIsPerspective);
-			void setTexCoordData (const float *inData);
-			void setTint (unsigned int inColour);
+			void setColourTransform (const ColorTransform *inTransform, unsigned int inColour);
 			void setTransform (const Trans4x4 &inTrans);
 			
-			AlphaMode mAlphaMode;
 			GLint mASlot;
 			GLint mColourArraySlot;
 			GLint mColourOffsetSlot;
@@ -37,17 +32,19 @@ namespace lime {
 			const ColorTransform *mColourTransform;
 			int mContextVersion;
 			GLuint mFragId;
-			const char *mFragProg;
+			std::string mFragProg;
 			GLint mFXSlot;
+			GLint mImageSlot;
 			GLint mOn2ASlot;
 			GLuint mProgramId;
-			GLint mTexCoordSlot;
-			GLint mTextureSlot;
-			GLint mTintSlot;
 			GLint mTransformSlot;
 			GLuint mVertId;
-			const char *mVertProg;
-			GLint mVertexSlot;
+			std::string mVertProg;
+			
+			//GLint colourSlot;
+			//GLint normalSlot;
+			//GLint textureSlot;
+			//GLint vertexSlot;
 		
 	};
 	

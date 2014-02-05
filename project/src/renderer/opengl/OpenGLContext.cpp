@@ -2,7 +2,6 @@
 
 
 int sgDrawCount = 0;
-int sgBufferCount = 0;
 int sgDrawBitmap = 0;
 
 
@@ -17,22 +16,11 @@ namespace lime {
 		mWidth = 0;
 		mHeight = 0;
 		mLineWidth = -1;
-		mPointsToo = true;
-		mBitmapSurface = 0;
 		mBitmapTexture = 0;
-		mUsingBitmapMatrix = false;
 		mLineScaleNormal = -1;
 		mLineScaleV = -1;
 		mLineScaleH = -1;
-		mPointSmooth = true;
-		mColourArrayEnabled = false;
 		mThreadId = GetThreadId ();
-		mAlphaMode = amUnknown;
-		
-		const char *str = (const char *)glGetString (GL_VENDOR);
-		
-		if (str && !strncmp (str, "Intel", 5))
-			mPointSmooth = false;
 		
 		#if defined(LIME_GLES)
 		mQuality = sqLow;
@@ -40,31 +28,77 @@ namespace lime {
 		mQuality = sqBest;
 		#endif
 		
+		for (int i = 0; i < PROG_COUNT; i++) {
+			
+			mProg[i] = 0;
+			
+		}
+		
+		for (int i = 0; i < 4; i++) {
+			
+			for (int j = 0; j < 4; j++) {
+				
+				mBitmapTrans[i][j] = mTrans[i][j] = (i == j);
+				
+			}
+			
+		}
+		
+		mBitmapBuffer.mElements.resize (1);
+		DrawElement &e = mBitmapBuffer.mElements[0];
+		memset (&e, 0, sizeof (DrawElement));
+		e.mCount = 0;
+		e.mFlags = DRAW_HAS_TEX;
+		e.mPrimType = ptTriangles;
+		e.mVertexOffset = 0;
+		e.mColour = 0xff000000;
+		e.mTexOffset = sizeof (float) * 2;
+		e.mStride = sizeof (float) * 4;
+		
 	}
 	
 	
-	OpenGLContext::~OpenGLContext () {}
+	OpenGLContext::~OpenGLContext () {
+		
+		for (int i = 0; i < PROG_COUNT; i++) {
+			
+			delete mProg[i];
+			
+		}
+		
+	}
 	
 	
 	void OpenGLContext::BeginBitmapRender (Surface *inSurface, uint32 inTint, bool inRepeat, bool inSmooth) {
 		
-		if (!mUsingBitmapMatrix) {
+		mBitmapBuffer.mArray.resize (0);
+		mBitmapBuffer.mRendersWithoutVbo = -999;
+		DrawElement &e = mBitmapBuffer.mElements[0];
+		e.mCount = 0;
+		
+		e.mColour = inTint;
+		if (e.mSurface) {
 			
-			mUsingBitmapMatrix = true;
-			PushBitmapMatrix ();
+			e.mSurface->DecRef ();
+		}
+		
+		e.mSurface = inSurface;
+		e.mSurface->IncRef ();
+		e.mFlags = (e.mFlags & ~(DRAW_BMP_REPEAT|DRAW_BMP_SMOOTH));
+		
+		if (inRepeat) {
+			
+			e.mFlags |= DRAW_BMP_REPEAT;
 			
 		}
 		
-		if (mBitmapSurface == inSurface && mTint == inTint)
-			return;
+		if (inSmooth) {
+			
+			e.mFlags |= DRAW_BMP_SMOOTH;
+			
+		}
 		
-		mTint = inTint;
-		mBitmapSurface = inSurface;
-		inSurface->Bind (*this, 0);
 		mBitmapTexture = inSurface->GetOrCreateTexture (*this);
-		mBitmapTexture->BindFlags (inRepeat, inSmooth);
-		
-		PrepareBitmapRender ();
 		
 	}
 	
@@ -88,29 +122,21 @@ namespace lime {
 				
 			}
 			
+			if (mZombieVbos.size ()) {
+				
+				glDeleteTextures (mZombieVbos.size (), &mZombieVbos[0]);
+				mZombieVbos.resize (0);
+				
+			}
+			
 			// Force dirty
 			mViewport.w = -1;
 			SetViewport (inRect);
 			
-			//#ifndef LIME_FORCE_GLES2
 			glEnable (GL_BLEND);
-			//#endif
-			
-			if (mAlphaMode == amPremultiplied)
-				glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-			else
-				glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			
 			#ifdef WEBOS
 			glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
-			#endif
-			
-			#ifndef LIME_FORCE_GLES2
-			if (mQuality >= sqHigh && mPointSmooth)
-				glEnable (GL_POINT_SMOOTH);
-			
-			if (mQuality >= sqBest)
-				glEnable (GL_LINE_SMOOTH);
 			#endif
 			
 			mLineWidth = 99999;
@@ -118,9 +144,6 @@ namespace lime {
 			// printf("DrawArrays: %d, DrawBitmaps:%d  Buffers:%d\n", sgDrawCount, sgDrawBitmap, sgBufferCount );
 			sgDrawCount = 0;
 			sgDrawBitmap = 0;
-			sgBufferCount = 0;
-			
-			OnBeginRender ();
 			
 		}
 		
@@ -130,38 +153,25 @@ namespace lime {
 	void OpenGLContext::Clear (uint32 inColour, const Rect *inRect) {
 		
 		Rect r = inRect ? *inRect : Rect (mWidth, mHeight);
+	  	
 		glViewport (r.x, mHeight - r.y1 (), r.w, r.h);
+		
+		float alpha = ((inColour >> 24) & 0xFF) / 255.0;
+		float red = ((inColour >> 16) & 0xFF) / 255.0;
+		float green = ((inColour >> 8) & 0xFF) / 255.0;
+		float blue = (inColour & 0xFF) / 255.0;
+		red *= alpha;
+		green *= alpha;
+		blue *= alpha;
 		
 		if (r == Rect (mWidth, mHeight)) {
 			
-			glClearColor ((GLclampf)(((inColour >> 16) & 0xff) / 255.0), (GLclampf)(((inColour >> 8) & 0xff) / 255.0), (GLclampf)(((inColour) & 0xff) / 255.0), (GLclampf)1.0);
+			glClearColor (red, green, blue, alpha );
 			glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
 		} else {
 			
-			#ifndef LIME_FORCE_GLES2
-			
-			// TODO: Clear with a rect
-			// TODO: Need replacement call for GLES2
-			glColor4f ((GLclampf)(((inColour >> 16) & 0xff) / 255.0), (GLclampf)(((inColour >> 8) & 0xff) / 255.0), (GLclampf)(((inColour) & 0xff) / 255.0), (GLclampf)1.0);
-			
-			glMatrixMode (GL_MODELVIEW);
-			glPushMatrix ();
-			glLoadIdentity ();
-			glMatrixMode (GL_PROJECTION);
-			glPushMatrix ();
-			glLoadIdentity ();
-			
-			glDisable (GL_TEXTURE_2D);
-			static GLfloat rect[4][2] = { { -2, -2 }, { 2, -2 }, { 2, 2 }, { -2, 2 } };
-			glVertexPointer (2, GL_FLOAT, 0, rect[0]);
-			glDrawArrays (GL_TRIANGLE_FAN, 0, 4);
-			
-			glPopMatrix ();
-			glMatrixMode (GL_MODELVIEW);
-			glPopMatrix ();
-			
-			#endif
+			//printf(" - partial clear\n");
 			
 		}
 		
@@ -176,20 +186,15 @@ namespace lime {
 	
 	void OpenGLContext::CombineModelView (const Matrix &inModelView) {
 		
-		#ifndef LIME_FORCE_GLES2
+		mTrans[0][0] = inModelView.m00 * mScaleX;
+		mTrans[0][1] = inModelView.m01 * mScaleX;
+		mTrans[0][2] = 0;
+		mTrans[0][3] = inModelView.mtx * mScaleX + mOffsetX;
 		
-		// Do not combine ModelView and Projection in fixed-function
-		float matrix[] = {
-			
-			mModelView.m00, mModelView.m10, 0, 0,
-			mModelView.m01, mModelView.m11, 0, 0,
-			0, 0, 1, 0,
-			mModelView.mtx, mModelView.mty, 0, 1
-			
-		};
-		
-		glLoadMatrixf (matrix);
-		#endif
+		mTrans[1][0] = inModelView.m10 * mScaleY;
+		mTrans[1][1] = inModelView.m11 * mScaleY;
+		mTrans[1][2] = 0;
+		mTrans[1][3] = inModelView.mty * mScaleY + mOffsetY;
 		
 	}
 	
@@ -217,35 +222,50 @@ namespace lime {
 		}
 		
 	}
-	
-	
-	void OpenGLContext::EndBitmapRender () {
+
+
+	void OpenGLContext::DestroyVbo (unsigned int inVbo) {
 		
-		if (mUsingBitmapMatrix) {
+		if (!IsMainThread ()) {
 			
-			mUsingBitmapMatrix = false;
-			PopBitmapMatrix ();
+			mZombieVbos.push_back (inVbo);
+			
+		} else {
+			
+			glDeleteBuffers (1, &inVbo);
 			
 		}
-		
-		mBitmapTexture = 0;
-		mBitmapSurface = 0;
-		FinishBitmapRender ();
 		
 	}
 	
 	
-	void OpenGLContext::EndRender () {}
-	
-	
-	void OpenGLContext::FinishBitmapRender () {
+	void OpenGLContext::EndBitmapRender () {
 		
-		#ifndef LIME_FORCE_GLES2
-		glDisable (GL_TEXTURE_2D);
-		#ifdef LIME_DITHER
-		glEnable (GL_DITHER);
-		#endif
-		#endif
+		DrawElement &e = mBitmapBuffer.mElements[0];
+		
+		if (e.mCount) {
+			
+			RenderData (mBitmapBuffer, 0, mBitmapTrans);
+			e.mCount = 0;
+			
+		}
+		
+		if (e.mSurface) {
+			
+			e.mSurface->DecRef ();
+			e.mSurface = 0;
+			
+		}
+		
+		mBitmapBuffer.mArray.resize (0);
+		mBitmapTexture = 0;
+		
+	}
+	
+	
+	void OpenGLContext::EndRender () {
+		
+		
 		
 	}
 	
@@ -263,77 +283,16 @@ namespace lime {
 	}
 	
 	
-	void OpenGLContext::FinishDrawing () {
+	void OpenGLContext::Render (const RenderState &inState, const HardwareData &inData) {
 		
-		SetColourArray (0);
+		if (!inData.mArray.size ()) {
+			
+			return;
+			
+		}
 		
-	}
-	
-	
-	void OpenGLContext::OnBeginRender () {
-		
-		#ifndef LIME_FORCE_GLES2
-		glEnableClientState (GL_VERTEX_ARRAY);
-		#endif
-		
-	}
-	
-	
-	void OpenGLContext::PopBitmapMatrix () {
-		
-		#ifndef LIME_FORCE_GLES2
-		glPopMatrix ();
-		#endif
-		
-	}
-	
-	
-	void OpenGLContext::PrepareBitmapRender () {
-		
-		#ifndef LIME_FORCE_GLES2
-		float a = (float)((mTint >> 24) & 0xFF) * one_on_255;
-		float c0 = (float)((mTint >> 16) & 0xFF) * one_on_255;
-		float c1 = (float)((mTint >> 8) & 0xFF) * one_on_255;
-		float c2 = (float)(mTint & 0xFF) * one_on_255;
-		if (mAlphaMode == amPremultiplied)
-			glColor4f (c0 * a, c1 * a, c2 * a, a);
-		else
-			glColor4f (c0, c1, c2, a);
-		glEnable (GL_TEXTURE_2D);
-		glEnableClientState (GL_TEXTURE_COORD_ARRAY);
-		#ifdef LIME_DITHER
-		if (!inSmooth)
-		  glDisable (GL_DITHER);
-		#endif
-		#endif
-		
-	}
-	
-	
-	bool OpenGLContext::PrepareDrawing () {
-		
-		return true;
-		
-	}
-	
-	
-	void OpenGLContext::PushBitmapMatrix () {
-		
-		#ifndef LIME_FORCE_GLES2
-		glPushMatrix ();
-		glLoadIdentity ();
-		#endif
-		
-	}
-	
-	
-	void OpenGLContext::Render (const RenderState &inState, const HardwareCalls &inCalls) {
-		
-		//#ifndef LIME_FORCE_GLES2
-		glEnable (GL_BLEND);
-		//#endif
 		SetViewport (inState.mClipRect);
-
+		
 		if (mModelView != *inState.mTransform.mMatrix) {
 			
 			mModelView = *inState.mTransform.mMatrix;
@@ -344,416 +303,362 @@ namespace lime {
 			
 		}
 		
-		uint32 last_col = 0;
+		const ColorTransform *ctrans = inState.mColourTransform;
 		
-		for (int c = 0; c < inCalls.size (); c++) {
+		if (ctrans && ctrans->IsIdentity ()) {
 			
-			HardwareArrays &arrays = *inCalls[c];
-			DrawElements &elements = arrays.mElements;
-			if (elements.empty ())
-				continue;
-			
-			Vertices &vert = arrays.mVertices;
-			Vertices &tex_coords = arrays.mTexCoords;
-			bool persp = arrays.mFlags & HardwareArrays::PERSPECTIVE;
-			
-			if (arrays.mFlags & HardwareArrays::BM_ADD) {
-				
-				glBlendFunc (GL_SRC_ALPHA, GL_ONE);
-				
-			} else if (arrays.mFlags & HardwareArrays::BM_MULTIPLY) {
-				
-				glBlendFunc (GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-				
-			} else if (arrays.mFlags & HardwareArrays::BM_SCREEN) {
-				
-				glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_COLOR);
-				
-			} else if (arrays.mFlags & HardwareArrays::AM_PREMULTIPLIED) {
-				
-				//printf("Premultiplied\n");
-				mAlphaMode = amPremultiplied;
-				glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-				
-			} else {
-				
-				//printf("Straight\n");
-				mAlphaMode = amStraight;
-				glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
-				
-			}
-			
-			#ifdef LIME_USE_VBO
-			if (!arrays.mVertexBO) {
-				
-				glGenBuffers (1, &arrays.mVertexBO);
-				glBindBuffer (GL_ARRAY_BUFFER, arrays.mVertexBO);
-				glBufferData (GL_ARRAY_BUFFER, sizeof(float) * (persp ? 4 : 2) * vert.size (), &vert[0].x, GL_STATIC_DRAW);
-				
-			} else {
-				
-				glBindBuffer (GL_ARRAY_BUFFER, arrays.mVertexBO);
-				
-			}
-			
-			glVertexPointer (persp ? 4 : 2, GL_FLOAT, 0, 0);
-			glBindBuffer (GL_ARRAY_BUFFER, 0);
-			#else
-			SetPositionData (&vert[0].x, persp);
-			#endif
-			
-			Texture *boundTexture = 0;
-			bool tex = arrays.mSurface && tex_coords.size ();
-			if (tex) {
-				
-				boundTexture = arrays.mSurface->GetOrCreateTexture (*this);
-				SetTexture (arrays.mSurface, &tex_coords[0].x);
-				last_col = -1;
-				SetModulatingTransform (inState.mColourTransform);
-				
-				if (arrays.mFlags & HardwareArrays::RADIAL) {
-					
-					float focus = ((arrays.mFlags & HardwareArrays::FOCAL_MASK) >> 8) / 256.0;
-					if (arrays.mFlags & HardwareArrays::FOCAL_SIGN)
-						focus = -focus;
-					SetRadialGradient (true, focus);
-					
-				} else {
-					
-					SetRadialGradient (0, 0);
-					
-				}
-				
-			} else {
-				
-				boundTexture = 0;
-				SetTexture (0, 0);
-				SetModulatingTransform (0);
-				
-			}
-			
-			if (arrays.mColours.size () == vert.size ()) {
-				
-				SetColourArray (&arrays.mColours[0]);
-				SetModulatingTransform (inState.mColourTransform);
-				
-			} else {
-				
-				SetColourArray (0);
-				
-			}
-			
-			int n = elements.size ();
-			if (!PrepareDrawing ())
-				n = 0;
-			
-			sgBufferCount++;
-			for (int e = 0; e < n; e++) {
-				
-				DrawElement draw = elements[e];
-				
-				if (boundTexture) {
-					
-					boundTexture->BindFlags (draw.mBitmapRepeat, draw.mBitmapSmooth);
-					#ifndef LIME_FORCE_GLES2
-					#ifdef LIME_DITHER
-					if (!inSmooth)
-						glDisable (GL_DITHER);
-					#endif
-					#endif
-					
-				} else {
-					
-					int col = inState.mColourTransform->Transform (draw.mColour);
-					if (c == 0 || last_col != col) {
-						
-						last_col = col; 
-						SetSolidColour (col);
-						
-					}
-					
-				}
-				
-				if ((draw.mPrimType == ptLineStrip || draw.mPrimType == ptPoints || draw.mPrimType == ptLines) && draw.mCount > 1) {
-					
-					if (draw.mWidth < 0) {
-						
-						SetLineWidth (1.0);
-						
-					} else if (draw.mWidth == 0) {
-						
-						SetLineWidth (0.0);
-						
-					} else {
-						
-						switch (draw.mScaleMode) {
-							
-							case ssmNone:
-								SetLineWidth (draw.mWidth);
-								break;
-							
-							case ssmNormal:
-							case ssmOpenGL:
-								if (mLineScaleNormal < 0)
-									mLineScaleNormal = sqrt (0.5 * ((mModelView.m00 * mModelView.m00) + (mModelView.m01 * mModelView.m01) + (mModelView.m10 * mModelView.m10) + (mModelView.m11 * mModelView.m11)));
-								SetLineWidth (draw.mWidth * mLineScaleNormal);
-								break;
-							
-							case ssmVertical:
-								if (mLineScaleV < 0)
-									mLineScaleV = sqrt ((mModelView.m00 * mModelView.m00) + (mModelView.m01 * mModelView.m01));
-								SetLineWidth (draw.mWidth * mLineScaleV);
-								break;
-							
-							case ssmHorizontal:
-								if (mLineScaleH <0)
-									mLineScaleH = sqrt ((mModelView.m10 * mModelView.m10) + (mModelView.m11 * mModelView.m11));
-								SetLineWidth (draw.mWidth * mLineScaleH);
-								break;
-							
-						}
-						
-					}
-					
-					if (mPointsToo && mLineWidth > 1.5 && draw.mPrimType != ptLines)
-						glDrawArrays (GL_POINTS, draw.mFirst, draw.mCount);
-					
-				}
-				
-				//printf("glDrawArrays %d : %d x %d\n", draw.mPrimType, draw.mFirst, draw.mCount );
-				
-				sgDrawCount++;
-				glDrawArrays (sgOpenglType[draw.mPrimType], draw.mFirst, draw.mCount);
-				
-				//#ifndef LIME_FORCE_GLES2
-				#ifdef LIME_DITHER
-				if (boundTexture && !draw.mBitmapSmooth)
-					glEnable (GL_DITHER);
-				#endif
-				//#endif
-				
-			}
-			
-			FinishDrawing ();
+			ctrans = 0;
 			
 		}
+		
+		RenderData (inData, ctrans, mTrans);
 		
 	}
 	
 	
 	void OpenGLContext::RenderBitmap (const Rect &inSrc, int inX, int inY) {
 		
-		UserPoint vertex[4];
+		DrawElement &e = mBitmapBuffer.mElements[0];
+		mBitmapBuffer.mArray.resize ((e.mCount + 6) * e.mStride);
+		UserPoint *p = (UserPoint *)&mBitmapBuffer.mArray[e.mCount * e.mStride];
+		e.mCount += 6;
+		
+		UserPoint corners[4];
 		UserPoint tex[4];
 		
 		for (int i = 0; i < 4; i++) {
 			
-			UserPoint t (inSrc.x + ((i & 1) ? inSrc.w : 0), inSrc.y + ((i > 1) ? inSrc.h : 0)); 
-			tex[i] = mBitmapTexture->PixelToTex (t);
-			vertex[i] = UserPoint (inX + ((i & 1) ? inSrc.w : 0), inY + ((i > 1) ? inSrc.h : 0));
+			corners[i] = UserPoint (inX + ((i & 1) ? inSrc.w : 0), inY + ((i > 1) ? inSrc.h : 0)); 
+			tex[i] = mBitmapTexture->PixelToTex (UserPoint (inSrc.x + ((i & 1) ? inSrc.w : 0), inSrc.y + ((i > 1) ? inSrc.h : 0)));
 			 
 		}
 		
-		SetBitmapData (&vertex[0].x, &tex[0].x);
+		*p++ = corners[0];
+		*p++ = tex[0];
+		*p++ = corners[1];
+		*p++ = tex[1];
+		*p++ = corners[2];
+		*p++ = tex[2];
 		
-		glDrawArrays (GL_TRIANGLE_STRIP, 0, 4);
-		sgDrawBitmap++;
+		*p++ = corners[1];
+		*p++ = tex[1];
+		*p++ = corners[2];
+		*p++ = tex[2];
+		*p++ = corners[3];
+		*p++ = tex[3];
 		
 	}
 	
 	
-	void OpenGLContext::SetBitmapData (const float *inPos, const float *inTex) {
+	void OpenGLContext::RenderData (const HardwareData &inData, const ColorTransform *ctrans, const Trans4x4 &inTrans) {
 		
-		#ifndef LIME_FORCE_GLES2
-		glVertexPointer (2, GL_FLOAT, 0, inPos);
-		glTexCoordPointer (2, GL_FLOAT, 0, inTex);
-		#endif
+		const uint8 *data = 0;
 		
-	}
-	
-	
-	void OpenGLContext::SetColourArray (const int *inData) {
-		
-		#ifndef LIME_FORCE_GLES2
-		if (inData) {
+		if (inData.mVertexBo) {
 			
-			mColourArrayEnabled = true;
-			glEnableClientState (GL_COLOR_ARRAY);
-			glColorPointer (4, GL_UNSIGNED_BYTE, 0, inData);
+			glBindBuffer (GL_ARRAY_BUFFER, inData.mVertexBo);
 			
-		} else if (mColourArrayEnabled) {
+		} else {
 			
-			mColourArrayEnabled = false;
-			glDisableClientState (GL_COLOR_ARRAY);
+			data = &inData.mArray[0];
+			inData.mRendersWithoutVbo++;
+			
+			if (inData.mRendersWithoutVbo > 4) {
+				
+				glGenBuffers (1, &inData.mVertexBo);
+				inData.mVboOwner = this;
+				IncRef ();
+				glBindBuffer (GL_ARRAY_BUFFER, inData.mVertexBo);
+				// printf ("VBO DATA %d\n", inData.mArray.size ());
+				glBufferData (GL_ARRAY_BUFFER, inData.mArray.size (), data, GL_STATIC_DRAW);
+				data = 0;
+				
+			}
 			
 		}
-		#endif
 		
-	}
-	
-	
-	void OpenGLContext::SetLineWidth (double inWidth) {
-		
-		if (inWidth != mLineWidth) {
+		GPUProg *lastProg = 0;
+ 		
+		for (int e = 0; e < inData.mElements.size (); e++) {
 			
-			double w = inWidth;
-			#ifndef LIME_FORCE_GLES2
-			if (mQuality >= sqBest) {
+			const DrawElement &element = inData.mElements[e];
+			int n = element.mCount;
+			
+			if (!n) {
 				
-				if (w > 1) {
+				continue;
+				
+			}
+			
+			switch (element.mBlendMode) {
+				
+				case bmAdd:
 					
-					glDisable (GL_LINE_SMOOTH);
+					glBlendFunc (GL_SRC_ALPHA, GL_ONE);
+					break;
+				
+				case bmMultiply:
+					
+					glBlendFunc (GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+					break;
+				
+				case bmScreen:
+					
+					glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_COLOR);
+					break;
+				
+				default:
+					
+					glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+					break;
+				
+			}
+			
+			int progId = 0;
+			
+			if ((element.mFlags & DRAW_HAS_TEX) && element.mSurface) {
+				
+				progId |= PROG_TEXTURE;
+				if (element.mSurface->BytesPP () == 1) {
+					
+					progId |= PROG_ALPHA_TEXTURE;
+					
+				}
+				
+			}
+			
+			if (element.mFlags & DRAW_HAS_COLOUR) {
+				
+				progId |= PROG_COLOUR_PER_VERTEX;
+				
+			}
+			
+			if (element.mFlags & DRAW_HAS_NORMAL) {
+				
+				progId |= PROG_NORMAL_DATA;
+				
+			}
+			
+			if (element.mFlags & DRAW_RADIAL) {
+				
+				progId |= PROG_RADIAL;
+				if (element.mRadialPos != 0) {
+					
+					progId |= PROG_RADIAL_FOCUS;
+					
+				}
+				
+			}
+			
+			if (ctrans || element.mColour != 0xFFFFFFFF) {
+				
+				progId |= PROG_TINT;
+				if (ctrans && ctrans->HasOffset ())
+					progId |= PROG_COLOUR_OFFSET;
+				
+			}
+			
+			bool persp = element.mFlags & DRAW_HAS_PERSPECTIVE;
+			GPUProg *prog = mProg[progId];
+			
+			if (!prog) {
+				
+				mProg[progId] = prog = GPUProg::create (progId);
+				
+			}
+			
+			if (!prog) {
+				
+				continue;
+				
+			}
+			
+			if (prog != lastProg) {
+				
+				if (lastProg) {
+					
+					lastProg->disableSlots ();
+					
+				}
+				
+				prog->bind ();
+				prog->setTransform (inTrans);
+				lastProg = prog;
+				
+			}
+			
+			int stride = element.mStride;
+			if (prog->vertexSlot >= 0) {
+				
+				glVertexAttribPointer (prog->vertexSlot, persp ? 4 : 2 , GL_FLOAT, GL_FALSE, stride, data + element.mVertexOffset);
+				glEnableVertexAttribArray (prog->vertexSlot);
+				
+			}
+			
+			if (prog->textureSlot >= 0) {
+				
+				glVertexAttribPointer (prog->textureSlot,  2 , GL_FLOAT, GL_FALSE, stride, data + element.mTexOffset);
+				glEnableVertexAttribArray (prog->textureSlot);
+				
+				if (element.mSurface) {
+					
+					Texture *boundTexture = element.mSurface->GetOrCreateTexture (*this);
+					element.mSurface->Bind (*this, 0);
+					boundTexture->BindFlags (element.mFlags & DRAW_BMP_REPEAT, element.mFlags & DRAW_BMP_SMOOTH);
+					
+				}
+				
+			}
+			
+			if (prog->colourSlot >= 0) {
+				
+				glVertexAttribPointer (prog->colourSlot, 4, GL_UNSIGNED_BYTE, GL_TRUE, stride, data + element.mColourOffset);
+				glEnableVertexAttribArray (prog->colourSlot);
+				
+			}
+			
+			if (prog->normalSlot >= 0) {
+				
+				glVertexAttribPointer (prog->normalSlot, 2, GL_FLOAT, GL_FALSE, stride, data + element.mNormalOffset);
+				glEnableVertexAttribArray (prog->normalSlot);
+				
+			}
+			
+			if (element.mFlags & DRAW_RADIAL) {
+				
+				prog->setGradientFocus (element.mRadialPos * one_on_256);
+				
+			}
+			
+			if (progId & (PROG_TINT | PROG_COLOUR_OFFSET)) {
+				
+				prog->setColourTransform (ctrans, element.mColour);
+				
+			}
+			
+			if ((element.mPrimType == ptLineStrip || element.mPrimType == ptPoints || element.mPrimType == ptLines) && element.mCount > 1) {
+				
+				if (element.mWidth < 0) {
+					
+					SetLineWidth (1.0);
+					
+				} else if (element.mWidth == 0) {
+					
+					SetLineWidth (0.0);
 					
 				} else {
 					
-					w = 1;
-					if (inWidth == 0) {
+					switch (element.mScaleMode) {
 						
-						glDisable (GL_LINE_SMOOTH);
+						case ssmNone: SetLineWidth (element.mWidth); break;
+							
+						case ssmNormal:
+						case ssmOpenGL:
+							
+							if (mLineScaleNormal < 0) {
+								
+								mLineScaleNormal = sqrt (0.5 * ((mModelView.m00 * mModelView.m00) + (mModelView.m01 * mModelView.m01) + (mModelView.m10 * mModelView.m10) + (mModelView.m11 * mModelView.m11)));
+								
+							}
+							
+							SetLineWidth (element.mWidth * mLineScaleNormal);
+							break;
 						
-					} else {
+						case ssmVertical:
+							
+							if (mLineScaleV < 0) {
+								
+								mLineScaleV = sqrt ((mModelView.m00 * mModelView.m00) + (mModelView.m01 * mModelView.m01));
+								
+							}
+							
+							SetLineWidth (element.mWidth * mLineScaleV);
+							break;
 						
-						glEnable (GL_LINE_SMOOTH);
+						case ssmHorizontal:
+							
+							if (mLineScaleH<0) {
+								
+								mLineScaleH = sqrt ((mModelView.m10 * mModelView.m10) + (mModelView.m11 * mModelView.m11));
+								
+							}
+							
+							SetLineWidth (element.mWidth * mLineScaleH);
+							break;
 						
 					}
 					
 				}
 				
 			}
-			#endif
+				
+			//printf("glDrawArrays %d : %d x %d\n", element.mPrimType, element.mFirst, element.mCount );
 			
+			sgDrawCount++;
+			glDrawArrays (sgOpenglType[element.mPrimType], 0, element.mCount);
+			
+		}
+		
+		if (lastProg) {
+			
+			lastProg->disableSlots ();
+			
+		}
+		
+		if (inData.mVertexBo) {
+			
+			glBindBuffer (GL_ARRAY_BUFFER, 0);
+			
+		}
+		
+	}
+	
+	
+	inline void OpenGLContext::SetLineWidth (double inWidth) {
+		
+		if (inWidth != mLineWidth) {
+			
+			// TODO mQuality -> tessellate_lines/tessellate_lines_aa
 			mLineWidth = inWidth;
-			glLineWidth (w);
-			
-			// TODO: Need replacement call for GLES2?
-			#ifndef LIME_FORCE_GLES2
-			if (mPointsToo)
-				glPointSize (inWidth);
-			#endif
+			glLineWidth (inWidth);
 			
 		}
 		
 	}
 	
 	
-	void OpenGLContext::SetModulatingTransform (const ColorTransform *inTransform) {
+	void OpenGLContext::setOrtho (float x0, float x1, float y0, float y1) {
 		
-		#ifndef LIME_FORCE_GLES2
-		if (inTransform) {
-			if (mAlphaMode == amPremultiplied)
-				glColor4f (inTransform->redMultiplier * inTransform->alphaMultiplier, inTransform->greenMultiplier * inTransform->alphaMultiplier, inTransform->blueMultiplier * inTransform->alphaMultiplier, inTransform->alphaMultiplier);
-			else
-				glColor4f (inTransform->redMultiplier, inTransform->greenMultiplier, inTransform->blueMultiplier, inTransform->alphaMultiplier);
-		}
-		#endif
-		
-	}
-	
-	
-	void OpenGLContext::setOrtho (float x0,float x1, float y0, float y1) {
-		
-		#ifndef LIME_FORCE_GLES2
-		
-		glMatrixMode (GL_PROJECTION);
-		glLoadIdentity ();
-		
-		#if defined (LIME_GLES)
-		glOrthof (x0, x1, y0, y1, -1, 1);
-		#else
-		glOrtho (x0, x1, y0, y1, -1, 1);
-		#endif
-		
-		glMatrixMode (GL_MODELVIEW);
-		glLoadIdentity ();
-		
-		#endif
-		
+		mScaleX = 2.0 / (x1 - x0);
+		mScaleY = 2.0 / (y1 - y0);
+		mOffsetX = (x0 + x1) / (x0 - x1);
+		mOffsetY = (y0 + y1) / (y0 - y1);
 		mModelView = Matrix ();
 		
-	}
-	
-	
-	void OpenGLContext::SetPositionData (const float *inData, bool inPerspective) {
+		mBitmapTrans[0][0] = mScaleX;
+		mBitmapTrans[0][3] = mOffsetX;
+		mBitmapTrans[1][1] = mScaleY;
+		mBitmapTrans[1][3] = mOffsetY;
 		
-		#ifndef LIME_FORCE_GLES2
-		glVertexPointer (inPerspective ? 4 : 2, GL_FLOAT, 0, inData);
-		#endif
+		CombineModelView (mModelView);
 		
-	}
+	} 
 	
 	
 	void OpenGLContext::SetQuality (StageQuality inQ) {
 		
-		#ifndef LIME_FORCE_GLES2
-		//inQ = sqMedium;
 		if (inQ != mQuality) {
 			
 			mQuality = inQ;
-			if (mQuality >= sqHigh) {
-				
-				if (mPointSmooth)
-					glEnable (GL_POINT_SMOOTH);
-				
-			} else {
-				
-				glDisable (GL_POINT_SMOOTH);
-				
-			}
-			
-			if (mQuality >= sqBest)
-				glEnable (GL_LINE_SMOOTH);
-			else
-				glDisable (GL_LINE_SMOOTH);
 			mLineWidth = 99999;
 			
 		}
-		#endif
-		
-	}
-	
-	
-	void OpenGLContext::SetRadialGradient (bool inIsRadial, float inFocus) {};
-	
-	
-	void OpenGLContext::SetSolidColour (unsigned int col) {
-		
-		#ifndef LIME_FORCE_GLES2
-		float a = (float)((col >> 24) & 0xFF) * one_on_255;
-		float c0 = (float)((col >> 16) & 0xFF) * one_on_255;
-		float c1 = (float)((col >> 8) & 0xFF) * one_on_255;
-		float c2 = (float)(col & 0xFF) * one_on_255;
-		if (mAlphaMode == amPremultiplied)
-			glColor4f (c0 * a, c1 * a,c2 * a, a);
-		else
-			glColor4f (c0, c1, c2, a);
-		#endif
-		
-	}
-	
-	
-	void OpenGLContext::SetTexture (Surface *inSurface, const float *inTexCoords) {
-		
-		#ifndef LIME_FORCE_GLES2
-		if (!inSurface) {
-			
-			glDisable (GL_TEXTURE_2D);
-			glDisableClientState (GL_TEXTURE_COORD_ARRAY);
-			
-		} else {
-			
-			glEnable (GL_TEXTURE_2D);
-			inSurface->Bind (*this, 0);
-			glEnableClientState (GL_TEXTURE_COORD_ARRAY);
-			glTexCoordPointer (2, GL_FLOAT, 0, inTexCoords);
-			
-		}
-		#endif
 		
 	}
 	
 	
 	void OpenGLContext::SetViewport (const Rect &inRect) {
-
+		
 		if (inRect != mViewport) {
 			
 			setOrtho (inRect.x, inRect.x1 (), inRect.y1 (), inRect.y);
@@ -763,18 +668,17 @@ namespace lime {
 		}
 		
 	}
-	
-	
+
+
 	void OpenGLContext::SetWindowSize (int inWidth, int inHeight) {
 		
 		mWidth = inWidth;
 		mHeight = inHeight;
-		
 		#ifdef ANDROID
-		//__android_log_print(ANDROID_LOG_ERROR, "lime", "SetWindowSize %d %d", inWidth, inHeight);
+		//__android_log_print(ANDROID_LOG_ERROR, "Lime", "SetWindowSize %d %d", inWidth, inHeight);
 		#endif
 		
 	}
 	
-	
+		
 }
