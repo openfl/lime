@@ -122,7 +122,7 @@ public:
             mPerpLen += 0.5/mScale;
             mElement.mWidth += 1.0/mScale;
             mElement.mFlags |= DRAW_HAS_NORMAL;
-            mElement.mNormalOffset += mElement.mVertexOffset + mElement.mStride;
+            mElement.mNormalOffset = mElement.mVertexOffset + mElement.mStride;
             mElement.mStride += sizeof(float)*2.0;
             mAlphaAA = true;
          }
@@ -1346,11 +1346,10 @@ public:
       PushElement();
       
       int extra = added * mElement.mStride;
+      mElement.mVertexOffset += extra;
 
       if (mElement.mNormalOffset)
          mElement.mNormalOffset += extra;
-      if (mElement.mVertexOffset)
-         mElement.mVertexOffset += extra;
       if (mElement.mTexOffset)
          mElement.mTexOffset += extra;
       if (mElement.mColourOffset)
