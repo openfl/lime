@@ -363,7 +363,7 @@ namespace lime {
 			data = &inData.mArray[0];
 			inData.mRendersWithoutVbo++;
 			
-			if (inData.mRendersWithoutVbo > 4) {
+			if (false && inData.mRendersWithoutVbo > 4) {
 				
 				glGenBuffers (1, &inData.mVertexBo);
 				inData.mVboOwner = this;
