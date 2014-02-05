@@ -89,6 +89,7 @@ bool IsEar(EdgePoint *concaveHead,EdgePoint *pi)
       return true;
    }
 
+   // TODO - speed this up
    for(EdgePoint *concave = concaveHead->nextConcave;
        concave!=concaveHead; concave = concave->nextConcave)
    {
