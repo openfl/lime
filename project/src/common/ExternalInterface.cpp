@@ -1267,7 +1267,7 @@ value lime_stage_get_joystick_name(value inStage, value inId)
    if (AbstractToObject(inStage,stage))
    {
       const char *joystickName = stage->getJoystickName(val_int(inId));
-      return alloc_string(joystickName);
+      if (joystickName != NULL) return alloc_string(joystickName);
    }
    #endif
    return alloc_null();
