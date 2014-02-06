@@ -584,7 +584,7 @@ class HXProject {
 			samplePaths = ArrayHelper.concatUnique (samplePaths, project.samplePaths, true);
 			sources = ArrayHelper.concatUnique (sources, project.sources, true);
 			splashScreens = ArrayHelper.concatUnique (splashScreens, project.splashScreens);
-			templatePaths = ArrayHelper.concatUnique (templatePaths, project.templatePaths, false);
+			templatePaths = ArrayHelper.concatUnique (templatePaths, project.templatePaths, true);
 			
 		}
 		
