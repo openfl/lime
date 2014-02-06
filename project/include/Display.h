@@ -437,6 +437,8 @@ public:
    virtual void setMultitouchActive(bool inActive) {  }
    virtual bool getMultitouchActive() {  return false; }
 
+   virtual const char *getJoystickName(int id) { return ""; }
+
    Matrix GetFullMatrix(bool inStageScaling);
    bool FinishEditOnEnter();
 

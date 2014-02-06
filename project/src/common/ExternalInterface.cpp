@@ -1260,6 +1260,20 @@ value lime_stage_set_focus(value inStage,value inObject,value inDirection)
 }
 DEFINE_PRIM(lime_stage_set_focus,3);
 
+value lime_stage_get_joystick_name(value inStage, value inId)
+{
+   #if (defined(HX_WINDOWS) || defined(HX_MACOS) || defined(HX_LINUX))
+   Stage *stage;
+   if (AbstractToObject(inStage,stage))
+   {
+      const char *joystickName = stage->getJoystickName(val_int(inId));
+      return alloc_string(joystickName);
+   }
+   #endif
+   return alloc_null();
+}
+DEFINE_PRIM(lime_stage_get_joystick_name,2);
+
 DO_STAGE_PROP(focus_rect,FocusRect,alloc_bool,val_bool)
 DO_STAGE_PROP(scale_mode,ScaleMode,alloc_int,val_int)
 DO_STAGE_PROP(align,Align,alloc_int,val_int)
