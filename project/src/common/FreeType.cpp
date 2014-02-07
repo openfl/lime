@@ -46,8 +46,8 @@ FT_Library sgLibrary = 0;
 class FreeTypeFont : public FontFace
 {
 public:
-   FreeTypeFont(FT_Face inFace, int inPixelHeight, int inTransform) :
-     mFace(inFace), mPixelHeight(inPixelHeight),mTransform(inTransform)
+   FreeTypeFont(FT_Face inFace, int inPixelHeight, int inTransform, void* inBuffer) :
+     mFace(inFace), mPixelHeight(inPixelHeight),mTransform(inTransform), mBuffer(inBuffer)
    {
    }
 
@@ -55,6 +55,7 @@ public:
    ~FreeTypeFont()
    {
       FT_Done_Face(mFace);
+	  if (mBuffer) free(mBuffer);
    }
 
    bool LoadBitmap(int inChar)
@@ -155,16 +156,18 @@ public:
       }
    }
 
-
+   
+   void* mBuffer;
    FT_Face  mFace;
    uint32 mTransform;
    int    mPixelHeight;
 
 };
 
-int MyNewFace(const std::string &inFace, int inIndex, FT_Face *outFace, AutoGCRoot *inBytes)
+int MyNewFace(const std::string &inFace, int inIndex, FT_Face *outFace, AutoGCRoot *inBytes, void** outBuffer)
 {
    *outFace = 0;
+   *outBuffer = 0;
    int result = 0;
    result = FT_New_Face(sgLibrary, inFace.c_str(), inIndex, outFace);
    if (*outFace==0)
@@ -188,6 +191,7 @@ int MyNewFace(const std::string &inFace, int inIndex, FT_Face *outFace, AutoGCRo
          // The font owns the bytes here - so we just leak (fonts are not actually cleaned)
          if (!*outFace)
             free(buf);
+         else *outBuffer = buf;
       }
    }
    return result;
@@ -197,10 +201,12 @@ int MyNewFace(const std::string &inFace, int inIndex, FT_Face *outFace, AutoGCRo
 
 
 
-static FT_Face OpenFont(const std::string &inFace, unsigned int inFlags, AutoGCRoot *inBytes)
+static FT_Face OpenFont(const std::string &inFace, unsigned int inFlags, AutoGCRoot *inBytes, void** outBuffer)
 {
+   *outBuffer = 0;
    FT_Face face = 0;
-   MyNewFace(inFace.c_str(), 0, &face, inBytes);
+   void* pBuffer = 0;
+   MyNewFace(inFace.c_str(), 0, &face, inBytes, &pBuffer);
    if (face && inFlags!=0 && face->num_faces>1)
    {
       int n = face->num_faces;
@@ -208,10 +214,14 @@ static FT_Face OpenFont(const std::string &inFace, unsigned int inFlags, AutoGCR
       for(int f=1;f<n;f++)
       {
          FT_Face test = 0;
-         MyNewFace(inFace.c_str(), f, &test, NULL);
+         void* pTestBuffer = 0;
+         MyNewFace(inFace.c_str(), f, &test, NULL, &pTestBuffer);
          if (test && test->style_flags == inFlags)
          {
             // A goodie!
+            FT_Done_Face(face);
+            if (pBuffer) free(pBuffer);
+            *outBuffer = pTestBuffer;
             return test;
          }
          else if (test)
@@ -219,6 +229,7 @@ static FT_Face OpenFont(const std::string &inFace, unsigned int inFlags, AutoGCR
       }
       // The original face will have to do...
    }
+   *outBuffer = pBuffer;
    return face;
 }
 
@@ -411,7 +422,7 @@ std::string ToAssetName(const std::string &inPath)
 #endif
 }
 
-FT_Face FindFont(const std::string &inFontName, unsigned int inFlags, AutoGCRoot *inBytes)
+FT_Face FindFont(const std::string &inFontName, unsigned int inFlags, AutoGCRoot *inBytes, void** pBuffer)
 {
    std::string fname = inFontName;
    
@@ -420,20 +431,20 @@ FT_Face FindFont(const std::string &inFontName, unsigned int inFlags, AutoGCRoot
       fname += ".ttf";
    #endif
      
-   FT_Face font = OpenFont(fname,inFlags,inBytes);
+   FT_Face font = OpenFont(fname,inFlags,inBytes, pBuffer);
 
    if (font==0 && fname.find("\\")==std::string::npos && fname.find("/")==std::string::npos)
    {
       std::string file_name;
 
       #if HX_MACOS
-      font = OpenFont(ToAssetName(fname).c_str(),inFlags,NULL);
+      font = OpenFont(ToAssetName(fname).c_str(),inFlags,NULL,pBuffer);
       #endif
 
       if (font==0 && GetFontFile(fname,file_name))
       {
          // printf("Found font in %s\n", file_name.c_str());
-         font = OpenFont(file_name.c_str(),inFlags,NULL);
+         font = OpenFont(file_name.c_str(),inFlags,NULL,pBuffer);
 
          // printf("Opened : %p\n", font);
       }
@@ -461,8 +472,9 @@ FontFace *FontFace::CreateFreeType(const TextFormat &inFormat,double inScale,Aut
       flags |= ffBold;
    if (inFormat.italic)
       flags |= ffItalic;
-
-   face = FindFont(str,flags,inBytes);
+   
+   void* pBuffer = 0;
+   face = FindFont(str,flags,inBytes,&pBuffer);
    if (!face)
       return 0;
 
@@ -475,7 +487,7 @@ FontFace *FontFace::CreateFreeType(const TextFormat &inFormat,double inScale,Aut
       transform |= ffBold;
    if ( !(face->style_flags & ffItalic) && inFormat.italic )
       transform |= ffItalic;
-   return new FreeTypeFont(face,height,transform);
+   return new FreeTypeFont(face,height,transform,pBuffer);
 }
 
 
@@ -658,7 +670,8 @@ value freetype_import_font(value font_file, value char_vector, value em_size, va
    
    AutoGCRoot *bytes = !val_is_null(inBytes) ? new AutoGCRoot(inBytes) : NULL;
 
-   result = lime::MyNewFace(val_string(font_file), 0, &face, bytes);
+   void* pBuffer = 0;
+   result = lime::MyNewFace(val_string(font_file), 0, &face, bytes, &pBuffer);
    
    if (result == FT_Err_Unknown_File_Format)
    {
@@ -674,6 +687,7 @@ value freetype_import_font(value font_file, value char_vector, value em_size, va
    if (!FT_IS_SCALABLE(face))
    {
       FT_Done_Face(face);
+      if (pBuffer) free(pBuffer);
       
       val_throw(alloc_string("Font is not scalable!"));
       return alloc_null();
@@ -843,6 +857,7 @@ value freetype_import_font(value font_file, value char_vector, value em_size, va
       alloc_field(ret, val_id("kerning"), alloc_null());
 
    FT_Done_Face(face);
+   if (pBuffer) free(pBuffer);
    
    return ret;
 }

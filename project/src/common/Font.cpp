@@ -154,6 +154,7 @@ Font::~Font()
 {
    for(int i=0;i<mSheets.size();i++)
       mSheets[i]->DecRef();
+   if (mFace) delete mFace;
 }
 
 
