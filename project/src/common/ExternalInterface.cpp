@@ -2343,7 +2343,7 @@ value lime_gfx_draw_datum(value inGfx,value inDatum)
 }
 DEFINE_PRIM(lime_gfx_draw_datum,2);
 
-value lime_gfx_draw_tiles(value inGfx,value inSheet, value inXYIDs,value inFlags)
+value lime_gfx_draw_tiles(value inGfx,value inSheet, value inXYIDs,value inFlags,value inDataSize)
 {
    Graphics *gfx;
    Tilesheet *sheet;
@@ -2402,7 +2402,9 @@ value lime_gfx_draw_tiles(value inGfx,value inSheet, value inXYIDs,value inFlags
       if (flags & TILE_ALPHA)
          components++;
 
-      int n = val_array_size(inXYIDs)/components;
+      int n = val_int(inDataSize);
+      if (n < 0) n = val_array_size(inXYIDs);
+      n /= components;
       double *vals = val_array_double(inXYIDs);
       float *fvals = val_array_float(inXYIDs);
       int max = sheet->Tiles();
@@ -2523,7 +2525,7 @@ value lime_gfx_draw_tiles(value inGfx,value inSheet, value inXYIDs,value inFlags
    }
    return alloc_null();
 }
-DEFINE_PRIM(lime_gfx_draw_tiles,4);
+DEFINE_PRIM(lime_gfx_draw_tiles,5);
 
 
 static bool sNekoLutInit = false;
