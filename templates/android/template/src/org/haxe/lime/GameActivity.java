@@ -115,7 +115,6 @@ public class GameActivity extends Activity implements SensorEventListener {
 		System.loadLibrary ("::name::");::end::
 		HXCPP.run ("ApplicationMain");
 
-		mView = mMainView;*/
 		mView = new MainView (getApplication (), this);
 		setContentView (mView);
 
