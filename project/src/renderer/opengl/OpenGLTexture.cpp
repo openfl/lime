@@ -270,21 +270,67 @@ namespace lime {
 			//mPixelWidth, mPixelHeight);
 			
 			PixelFormat fmt = inSurface->Format ();
+			int pw = inSurface->BytesPP ();
 			GLuint store_format = (fmt == pfAlpha ? GL_ALPHA : GL_RGBA);
 			glGetError ();
-			const uint8 *p0 = inSurface->Row (mDirtyRect.y) + (mDirtyRect.x * inSurface->BytesPP ());
+			
+			int x0 = mDirtyRect.x;
+			int y0 = mDirtyRect.y;
+			int dw = mDirtyRect.w;
+			int dh = mDirtyRect.h;
 			
 			#if defined(LIME_GLES)
-			// TODO: pixel transform & copy rect
-			for (int y = 0; y < mDirtyRect.h; y++) {
+			
+			uint8 *buffer = 0;
+			if (pw == 1) {
 				
-				glTexSubImage2D (GL_TEXTURE_2D, 0, mDirtyRect.x, mDirtyRect.y + y, mDirtyRect.w, 1, store_format, GL_UNSIGNED_BYTE, p0 + (y * inSurface->GetStride ()));
+				// Make unpack align a multiple of 4 ...
+				if (inSurface->Width () > 3) {
+					
+					dw = (dw + 3) & ~3;
+					if (x0 + dw > inSurface->Width ()) {
+						
+						x0 = inSurface->Width () - dw;
+						
+					}
+					
+				}
+				
+				const uint8 *p0 = inSurface->Row (y0) + (x0 * pw);
+				buffer = (uint8 *)malloc (pw * dw * dh);
+				
+				for (int y = 0; y < dh; y++) {
+					
+					memcpy (buffer + (y * dw), p0, dw);
+					p0 += inSurface->GetStride ();
+					
+				}
+				
+			} else {
+				
+				// TODO: pre-alpha ?
+				buffer = (uint8 *)malloc (pw * dw * dh);
+				const uint8 *p0 = inSurface->Row (y0) + (x0 * pw);
+				
+				for (int y = 0; y < mDirtyRect.h; y++) {
+					
+					memcpy (buffer + (y * dw * pw), p0, dw * pw);
+					p0 += inSurface->GetStride ();
+					
+				}
 				
 			}
+			
+			glTexSubImage2D (GL_TEXTURE_2D, 0, x0, y0, dw, dh, store_format, GL_UNSIGNED_BYTE, buffer);
+			free (buffer);
+			
 			#else
+			
+			const uint8 *p0 = inSurface->Row (y0) + (x0 * pw);
 			glPixelStorei (GL_UNPACK_ROW_LENGTH, inSurface->Width ());
-			glTexSubImage2D (GL_TEXTURE_2D, 0, mDirtyRect.x, mDirtyRect.y, mDirtyRect.w, mDirtyRect.h, store_format, GL_UNSIGNED_BYTE, p0);
+			glTexSubImage2D (GL_TEXTURE_2D, 0, x0, y0, dw, dh, store_format, GL_UNSIGNED_BYTE, p0);
 			glPixelStorei (GL_UNPACK_ROW_LENGTH, 0);
+			
 			#endif
 			
 			int err = glGetError ();
