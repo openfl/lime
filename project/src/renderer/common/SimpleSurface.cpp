@@ -652,6 +652,9 @@ namespace lime {
 		
 		if (!mBase)
 			return;
+		if (mFlags & SURF_FLAGS_HAS_PREMULTIPLIED_ALPHA)
+			return;
+		
 		Rect r = Rect (0, 0, mWidth, mHeight);
 		mVersion++;
 		if (mTexture)
@@ -682,6 +685,8 @@ namespace lime {
 			}
 			
 		}
+		
+		mFlags |= SURF_FLAGS_HAS_PREMULTIPLIED_ALPHA;
 		
 	}
 	
@@ -1036,6 +1041,8 @@ namespace lime {
 			}
 			
 		}
+		
+		mFlags &= ~SURF_FLAGS_HAS_PREMULTIPLIED_ALPHA;
 		
 	}
 	

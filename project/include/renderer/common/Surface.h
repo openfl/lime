@@ -14,7 +14,14 @@ namespace lime {
 	
 	
 	void HintColourOrder (bool inRedFirst);
-	enum { SURF_FLAGS_NOT_REPEAT_IF_NON_PO2 = 0x0001 };
+	
+	enum {
+		
+		SURF_FLAGS_NOT_REPEAT_IF_NON_PO2 = 0x0001,
+		SURF_FLAGS_USE_PREMULTIPLIED_ALPHA  = 0x0002,
+		SURF_FLAGS_HAS_PREMULTIPLIED_ALPHA  = 0x0004
+		
+	};
 	
 	
 	class Surface : public Object {
