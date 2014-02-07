@@ -147,6 +147,9 @@ public class GameActivity extends Activity implements SensorEventListener {
 	// IMMERSIVE MODE SUPPORT
 	::if (ANDROID_TARGET_SDK_VERSION >= 19)::
 
+	// immersive mode should only trigger when user wants to have fullscreen
+	::if (WIN_FULLSCREEN)::
+
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
@@ -167,7 +170,7 @@ public class GameActivity extends Activity implements SensorEventListener {
 			| View.SYSTEM_UI_FLAG_FULLSCREEN
 			| View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 	}
-
+	::end::
 	::end::
 
 	public static double CapabilitiesGetPixelAspectRatio () {
