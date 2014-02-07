@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/openfl/lime.png?label=ready)](https://waffle.io/openfl/lime)
 <p align="center"><img src="lime.png"/></p>
 
 Introduction
