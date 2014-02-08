@@ -448,7 +448,7 @@ public:
         if (inLock != mLockCursor) 
         {
            mLockCursor = inLock;
-           SDL_SetRelativeMouseMode( inLock ? SDL_FALSE : SDL_TRUE );
+           SDL_SetRelativeMouseMode( inLock ? SDL_TRUE : SDL_FALSE );
         }
     }
    
