@@ -427,6 +427,8 @@ public:
    virtual void   setOpaqueBackground(uint32 inBG);
    DisplayObject *HitTest(UserPoint inPoint,DisplayObject *inRoot=0,bool inRecurse=true);
    virtual void SetFullscreen(bool inFullscreen) { }
+   virtual void SetResolution(int inWidth, int inHeight) { }
+   virtual void SetScreenMode(ScreenMode mode) { }
    virtual void ShowCursor(bool inShow) { };
    virtual void SetCursor(Cursor inCursor)=0;
    virtual void EnablePopupKeyboard(bool inEnable) { }

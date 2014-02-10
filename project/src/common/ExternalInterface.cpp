@@ -877,7 +877,7 @@ value lime_capabilities_get_screen_resolutions () {
    
 
    //Only really makes sense on PC platforms
-   #if defined( HX_WINDOWS ) || defined( HX_MACOS )
+   #if defined( HX_WINDOWS ) || defined( HX_MACOS ) || defined( HX_LINUX )
    
       
       QuickVec<int>* res = CapabilitiesGetScreenResolutions();
@@ -900,6 +900,37 @@ value lime_capabilities_get_screen_resolutions () {
 }
 
 DEFINE_PRIM( lime_capabilities_get_screen_resolutions, 0 );
+
+
+value lime_capabilities_get_screen_modes () {
+
+
+   //Only really makes sense on PC platforms
+   #if defined( HX_WINDOWS ) || defined( HX_MACOS ) || defined( HX_LINUX )
+
+
+      QuickVec<ScreenMode>* modes = CapabilitiesGetScreenModes();
+
+      value result = alloc_array( modes->size() * 4 );
+
+      for(int i=0;i<modes->size();i++) {
+         ScreenMode mode = (*modes)[ i ];
+         val_array_set_i(result,i * 4 + 0,alloc_int( mode.width ) );
+         val_array_set_i(result,i * 4 + 1,alloc_int( mode.height ) );
+         val_array_set_i(result,i * 4 + 2,alloc_int( mode.refreshRate ) );
+         val_array_set_i(result,i * 4 + 3,alloc_int( (int)mode.format ) );
+      }
+    
+      return result;
+    
+    #endif
+  
+    return alloc_null();
+  
+  
+}
+
+DEFINE_PRIM( lime_capabilities_get_screen_modes, 0 );
 
 
 value lime_capabilities_get_pixel_aspect_ratio () {
@@ -1230,6 +1261,52 @@ value lime_stage_resize_window(value inStage, value inWidth, value inHeight)
    return alloc_null();
 }
 DEFINE_PRIM(lime_stage_resize_window,3);
+
+
+value lime_stage_set_resolution(value inStage, value inWidth, value inHeight)
+{
+   #if (defined(HX_WINDOWS) || defined(HX_MACOS) || defined(HX_LINUX))
+   Stage *stage;
+   if (AbstractToObject(inStage,stage))
+   {
+      stage->SetResolution(val_int(inWidth), val_int(inHeight));
+   }
+   #endif
+   return alloc_null();
+}
+DEFINE_PRIM(lime_stage_set_resolution,3);
+
+
+value lime_stage_set_screenmode(value inStage, value inWidth, value inHeight, value inRefresh, value inFormat)
+{printf("lime_stage_set_screenmode");
+   #if (defined(HX_WINDOWS) || defined(HX_MACOS) || defined(HX_LINUX))
+   Stage *stage;
+   if (AbstractToObject(inStage,stage)){
+      ScreenMode mode;
+      mode.width = val_int(inWidth);
+      mode.height = val_int(inHeight);
+      mode.refreshRate = val_int(inRefresh);
+      mode.format = (ScreenFormat)val_int(inFormat);
+      stage->SetScreenMode(mode);
+   }
+   #endif
+   return alloc_null();
+}
+DEFINE_PRIM(lime_stage_set_screenmode,5);
+
+
+value lime_stage_set_fullscreen(value inStage, value inFull)
+{
+   #if (defined(HX_WINDOWS) || defined(HX_MACOS) || defined(HX_LINUX))
+   Stage *stage;
+   if (AbstractToObject(inStage,stage))
+   {
+      stage->setDisplayState(val_bool(inFull) ? sdsFullscreenInteractive : sdsNormal);
+   }
+   #endif
+   return alloc_null();
+}
+DEFINE_PRIM(lime_stage_set_fullscreen,2);
 
 
 value lime_stage_get_focus_id(value inValue)

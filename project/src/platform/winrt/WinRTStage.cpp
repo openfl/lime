@@ -723,6 +723,19 @@ QuickVec<int> *CapabilitiesGetScreenResolutions()
    return out;
 }
 
+QuickVec<ScreenMode>* CapabilitiesGetScreenModes()
+{
+   // TODO
+   QuickVec<ScreenMode> *out = new QuickVec<ScreenMode>();
+   ScreenMode screenMode;
+   screenMode.width = 1024;
+   screenMode.height = 768;
+   screenMode.format = PIXELFORMAT_UNKNOWN;
+   screenMode.refreshRate = 60;
+   out->push_back(screenMode);
+   return out;
+}
+
 double CapabilitiesGetScreenResolutionX() { return sgDesktopWidth; }
 double CapabilitiesGetScreenResolutionY() { return sgDesktopHeight; }
 void PauseAnimation() {}
