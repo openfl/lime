@@ -581,6 +581,18 @@ class InputHandler {
             lib.host.ongamepadhat(_event);
         }
     } //lime_gamepadhat
+  
+    public function lime_gamepaddeviceadded(_event:Dynamic) {
+        if(lib.host.ongamepaddeviceadded != null) {
+            lib.host.ongamepaddeviceadded(_event);
+        }
+    } //lime_gamepaddeviceadded
+
+    public function lime_gamepaddeviceremoved(_event:Dynamic) {
+        if(lib.host.ongamepaddeviceremoved != null) {
+            lib.host.ongamepaddeviceremoved(_event);
+        }
+    } //lime_gamepaddeviceremoved
 
     private static var efLeftDown = 0x0001;
     private static var efShiftDown = 0x0002;

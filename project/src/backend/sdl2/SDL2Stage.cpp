@@ -738,7 +738,10 @@ extern "C" void MacBoot( /*void (*)()*/ );
 
 SDLFrame *sgSDLFrame = 0;
 #ifndef EMSCRIPTEN
-SDL_Joystick *sgJoystick = 0;
+SDL_Joystick *sgJoystick;
+QuickVec<SDL_Joystick *> sgJoysticks;
+QuickVec<int> sgJoysticksId;
+QuickVec<int> sgJoysticksIndex;
 #endif
 
 
@@ -1193,7 +1196,12 @@ void ProcessEvent(SDL_Event &inEvent)
 			Event joystick(etJoyButtonUp);
 			joystick.id = inEvent.jbutton.which;
 			joystick.code = inEvent.jbutton.button;
-			sgSDLFrame->ProcessEvent(joystick);
+			for (int i = 0; i < sgJoysticksId.size(); i++) { //if SDL_JOYDEVICEREMOVED is triggered, up is fired on all buttons, so we need to counter the effect
+		    	if (sgJoysticksId[i] == joystick.id) {
+		    		sgSDLFrame->ProcessEvent(joystick);
+		    		break;
+		    	}
+		    }
 			break;
 		}
 		case SDL_JOYHATMOTION:
@@ -1205,6 +1213,44 @@ void ProcessEvent(SDL_Event &inEvent)
 			sgSDLFrame->ProcessEvent(joystick);
 			break;
 		}
+		case SDL_JOYDEVICEADDED:
+	    	{
+	    	int joyId = -1;
+	    	for (int i = 0; i < sgJoysticksId.size(); i++) {
+	    		if (sgJoysticksIndex[i] == i) {
+	    			joyId = i;
+	    			break;
+	    		}
+	    	}
+	    	if (joyId == -1) {
+			Event joystick(etJoyDeviceAdded);
+	 	    	sgJoystick = SDL_JoystickOpen(inEvent.jdevice.which); //which: joystick device index
+	 	    	joystick.id = SDL_JoystickInstanceID(sgJoystick);
+	 	    	sgJoysticks.push_back(sgJoystick);
+	 	    	sgJoysticksId.push_back(joystick.id);
+	 	    	sgJoysticksIndex.push_back(inEvent.jdevice.which);
+		    	sgSDLFrame->ProcessEvent(joystick);
+	    	}
+		    break;
+    		}
+	    	case SDL_JOYDEVICEREMOVED:
+	    	{
+		    Event joystick(etJoyDeviceRemoved);
+		    joystick.id = inEvent.jdevice.which; //which: instance id
+	 	    int j = 0;
+		    for (int i = 0; i < sgJoysticksId.size(); i++) {
+		    	if (sgJoysticksId[i] == joystick.id) {
+		    		SDL_JoystickClose(sgJoysticks[i]);
+		    		break;	
+		    	}
+		    	j++;
+		    }
+		    sgJoysticksId.erase(j,1);
+		    sgJoysticks.erase(j,1);
+		    sgJoysticksIndex.erase(j,1);
+		    sgSDLFrame->ProcessEvent(joystick);
+		    break;
+		 }
 	}
 };
 
@@ -1524,19 +1570,7 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
 	#endif
 	
 	HintColourOrder( is_opengl || screen->format->Rmask==0xff );
-*/
-	
-	int numJoysticks = SDL_NumJoysticks();
-	
-	if (sgJoystickEnabled && numJoysticks > 0)
-	{
-		for (int i = 0; i < numJoysticks; i++)
-		{
-			sgJoystick = SDL_JoystickOpen(i);
-		}
-		SDL_JoystickEventState(SDL_TRUE);
-	}
-	
+*/	
 	int width, height;
 	if (windowFlags & SDL_WINDOW_FULLSCREEN || windowFlags & SDL_WINDOW_FULLSCREEN_DESKTOP)
 	{
@@ -1554,6 +1588,21 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
 	
 	sgSDLFrame = new SDLFrame(window, renderer, windowFlags, opengl, width, height);
 	inOnFrame(sgSDLFrame);
+
+	int numJoysticks = SDL_NumJoysticks();
+	if (sgJoystickEnabled && numJoysticks > 0) {
+		SDL_JoystickEventState(SDL_TRUE);
+		for (int i = 0; i < numJoysticks; i++) {
+			sgJoystick = SDL_JoystickOpen(i);
+			Event joystick(etJoyDeviceAdded);
+			joystick.id = SDL_JoystickInstanceID(sgJoystick);
+			sgJoysticks.push_back(sgJoystick);
+			sgJoysticksId.push_back(joystick.id);
+			sgJoysticksIndex.push_back(i);
+			sgSDLFrame->ProcessEvent(joystick);
+		}
+	}
+	
 	StartAnimation();
 }
 

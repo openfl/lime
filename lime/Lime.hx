@@ -282,6 +282,12 @@ class Lime {
             case SystemEvents.joybuttonup:
                 input.lime_gamepadbuttonup(_event);
 
+            case SystemEvents.joydeviceadded:
+                input.lime_gamepaddeviceadded(_event);
+            
+            case SystemEvents.joydeviceremoved:
+                input.lime_gamepaddeviceremoved(_event);
+
     //Window
 
             case SystemEvents.activate:

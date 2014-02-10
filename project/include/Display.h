@@ -58,11 +58,13 @@ enum EventType
    etJoyHatMove, // 26
    etJoyButtonDown, // 27
    etJoyButtonUp, // 28
+   etJoyDeviceAdded, //29
+   etJoyDeviceRemoved, //30
    
-   etSysWM, // 29
+   etSysWM, // 31
    
-   etRenderContextLost, // 30
-   etRenderContextRestored, // 31
+   etRenderContextLost, // 32
+   etRenderContextRestored, // 33
 };
 
 enum EventFlags
