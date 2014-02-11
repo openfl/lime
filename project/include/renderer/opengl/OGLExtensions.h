@@ -75,6 +75,7 @@ OGL_EXT(glBufferSubData,void,(GLenum, GLintptr, GLsizeiptr, const GLvoid *));
 OGL_EXT(glGetBufferParameteriv,void,(GLenum, GLenum, GLint *));
 OGL_EXT(glBindFramebuffer,void,(GLenum, GLuint));
 OGL_EXT(glGenFramebuffers,void,(GLsizei, GLuint *));
+OGL_EXT(glDeleteFramebuffers,void,(GLsizei, const GLuint *));
 OGL_EXT(glBindRenderbuffer,void,(GLenum, GLuint));
 OGL_EXT(glFramebufferRenderbuffer,void,(GLenum, GLenum, GLenum, GLuint));
 OGL_EXT(glFramebufferTexture2D,void,(GLenum, GLenum, GLenum, GLuint, GLint));
@@ -85,6 +86,7 @@ OGL_EXT(glCompressedTexSubImage2D,void,(GLenum, GLint, GLint, GLint, GLsizei, GL
 OGL_EXT(glCompressedTexImage2D,void,(GLenum, GLint, GLenum, GLsizei, GLsizei, GLint, GLsizei, const GLvoid *));
 OGL_EXT(glGenerateMipmap,void,(GLenum));
 OGL_EXT(glGenRenderbuffers,void,(GLsizei, GLuint *));
+OGL_EXT(glDeleteRenderbuffers,void,(GLsizei, const GLuint *));
 OGL_EXT(glGetFramebufferAttachmentParameteriv,void,(GLenum, GLenum, GLenum, GLint *));
 OGL_EXT(glGetRenderbufferParameteriv,void,(GLenum, GLenum, GLint *));
 
