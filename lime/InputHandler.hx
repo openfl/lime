@@ -263,7 +263,13 @@ class InputHandler {
         last_mouse_x = _event.x;
         last_mouse_y = _event.y;
 
-        // trace("mouse moved, delta : " + deltaX + ' ' + deltaY);
+            //locked cursor gives us the delta directly from sdl
+        #if lime_native
+            if(lib.window.cursor_locked) {
+                deltaX = _event.deltaX;
+                deltaY = _event.deltaY;
+            }
+        #end //lime_native
 
         if(lib.host.onmousemove != null) {
 

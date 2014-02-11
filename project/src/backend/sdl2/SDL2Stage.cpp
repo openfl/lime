@@ -1089,8 +1089,19 @@ void ProcessEvent(SDL_Event &inEvent)
 			}
 		}
 		case SDL_MOUSEMOTION:
-		{
-			Event mouse(etMouseMove, inEvent.motion.x, inEvent.motion.y);
+		{	
+				//default to 0
+			int deltaX = 0;
+			int deltaY = 0;
+
+				//but if we are locking the cursor,
+				//pass the delta in as well through as deltaX
+			if(SDL_GetRelativeMouseMode()) {
+				SDL_GetRelativeMouseState( &deltaX, &deltaY );
+			}
+
+				//int inValue=0, int inID=0, int inFlags=0, float inScaleX=1,float inScaleY=1, int inDeltaX=0,int inDeltaY=0
+			Event mouse(etMouseMove, inEvent.motion.x, inEvent.motion.y, 0, 0, 0, 1.0f, 1.0f, deltaX, deltaY);
 			#if defined(WEBOS) || defined(BLACKBERRY)
 			mouse.value = inEvent.motion.which;
 			mouse.flags |= efLeftDown;

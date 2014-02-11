@@ -193,8 +193,8 @@ public:
                }
                mouse.value = inID;
                
-               mouse.sx = sizeX;
-               mouse.sy = sizeY;
+               mouse.scaleX = sizeX;
+               mouse.scaleY = sizeY;
 
                //if (inType==etTouchBegin)
                   //ELOG("DOWN %d %f,%f (%s) %f,%f", inID, inX, inY, (mouse.flags & efPrimaryTouch) ? "P":"S", sizeX, sizeY );

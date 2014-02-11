@@ -46,8 +46,10 @@ static int _id_type;
 static int _id_x;
 static int _id_y;
 static int _id_z;
-static int _id_sx;
-static int _id_sy;
+static int _id_scaleX;
+static int _id_scaleY;
+static int _id_deltaX;
+static int _id_deltaY;
 static int _id_width;
 static int _id_height;
 static int _id_length;
@@ -137,8 +139,10 @@ extern "C" void InitIDs()
    _id_x = val_id("x");
    _id_y = val_id("y");
    _id_z = val_id("z");
-   _id_sx = val_id("sx");
-   _id_sy = val_id("sy");
+   _id_scaleX = val_id("scaleX");
+   _id_scaleY = val_id("scaleY");
+   _id_deltaX = val_id("deltaX");
+   _id_deltaY = val_id("deltaY");
    _id_width = val_id("width");
    _id_height = val_id("height");
    _id_length = val_id("length");
@@ -1211,8 +1215,10 @@ void external_handler( lime::Event &ioEvent, void *inUserData )
    alloc_field(o,_id_flags,alloc_int(ioEvent.flags));
    alloc_field(o,_id_code,alloc_int(ioEvent.code));
    alloc_field(o,_id_result,alloc_int(ioEvent.result));
-   alloc_field(o,_id_sx,alloc_float(ioEvent.sx));
-   alloc_field(o,_id_sy,alloc_float(ioEvent.sy));
+   alloc_field(o,_id_scaleX,alloc_float(ioEvent.scaleX));
+   alloc_field(o,_id_scaleY,alloc_float(ioEvent.scaleY));
+   alloc_field(o,_id_deltaX,alloc_float(ioEvent.deltaX));
+   alloc_field(o,_id_deltaY,alloc_float(ioEvent.deltaY));
    val_call1(handler->get(), o);
    ioEvent.result = (EventResult)val_int( val_field(o,_id_result) );
 }
