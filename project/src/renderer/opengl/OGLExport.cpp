@@ -222,7 +222,7 @@ value lime_gl_get_parameter(value pname_val)
       //case GL_MAX_VARYING_VECTORS:
       case GL_MAX_VERTEX_ATTRIBS:
       case GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS:
-      //case GL_MAX_VERTEX_UNIFORM_VECTORS:
+      case GL_MAX_VERTEX_UNIFORM_VECTORS:
       case GL_NUM_COMPRESSED_TEXTURE_FORMATS:
       case GL_PACK_ALIGNMENT:
       case GL_RED_BITS:
@@ -1284,6 +1284,16 @@ value lime_gl_create_framebuffer( )
 }
 DEFINE_PRIM(lime_gl_create_framebuffer,0);
 
+value lime_gl_delete_framebuffer(value target)
+{
+   #ifndef HX_LINUX
+   GLuint id = val_int(target);
+   if (&glDeleteFramebuffers) glDeleteFramebuffers(1, &id);
+   #endif
+   return alloc_null();
+}
+DEFINE_PRIM(lime_gl_delete_framebuffer,1);
+
 value lime_gl_create_render_buffer( )
 {
    GLuint id = 0;
@@ -1293,6 +1303,16 @@ value lime_gl_create_render_buffer( )
    return alloc_int(id);
 }
 DEFINE_PRIM(lime_gl_create_render_buffer,0);
+
+value lime_gl_delete_render_buffer(value target)
+{
+   #ifndef HX_LINUX
+   GLuint id = val_int(target);
+   if (&glDeleteRenderbuffers) glDeleteRenderbuffers(1, &id);
+   #endif
+   return alloc_null();
+}
+DEFINE_PRIM(lime_gl_delete_render_buffer,1);
 
 value lime_gl_framebuffer_renderbuffer(value target, value attachment, value renderbuffertarget, value renderbuffer)
 {
@@ -1461,6 +1481,13 @@ value lime_gl_depth_range(value inNear, value inFar)
 }
 DEFINE_PRIM(lime_gl_depth_range,2);
 
+
+value lime_gl_cull_face(value mode)
+{
+   glCullFace(val_int(mode));
+   return alloc_null();
+}
+DEFINE_PRIM(lime_gl_cull_face,1);
 
 
 value lime_gl_polygon_offset(value factor, value units)

@@ -70,7 +70,9 @@ using namespace Tizen::Graphics::Opengl;
   #define glBindFramebuffer glBindFramebufferEXT
   #define glBindRenderbuffer glBindRenderbufferEXT
   #define glGenFramebuffers glGenFramebuffersEXT
+  #define glDeleteFramebuffers glDeleteFramebuffersEXT
   #define glGenRenderbuffers glGenRenderbuffersEXT
+  #define glDeleteRenderbuffers glDeleteRenderbuffersEXT
   #define glFramebufferRenderbuffer glFramebufferRenderbufferEXT
   #define glFramebufferTexture2D glFramebufferTexture2DEXT
   #define glRenderbufferStorage glRenderbufferStorageEXT
