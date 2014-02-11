@@ -348,7 +348,7 @@ public:
 	{
 		if (m.width <= 1 || m.height <= 1)
 		{
-			fprintf(stderr, "Stop calling me\n");
+			//fprintf(stderr, "Stop calling me\n");
 			return;
 		}
 		SDL_DisplayMode mode;
