@@ -127,7 +127,7 @@ public:
       //__android_log_print(ANDROID_LOG_INFO, "lime", "OnKey %d %d", inCode, inDown);
       Event key( inDown ? etKeyDown : etKeyUp );
       key.code = inCode;
-      key.value = inCode;
+      key.value = TranslateASCIICodeToKeyCode(inCode);
       HandleEvent(key);
    }
 
