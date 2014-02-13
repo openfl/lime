@@ -17,7 +17,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.Message;
 import android.os.Vibrator;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -99,6 +98,7 @@ public class GameActivity extends Activity implements SensorEventListener {
 		//getResources().getAssets();
 		
 		requestWindowFeature (Window.FEATURE_NO_TITLE);
+		
 		::if WIN_FULLSCREEN::
 			::if (ANDROID_TARGET_SDK_VERSION < 19)::
 				getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN
@@ -138,6 +138,8 @@ public class GameActivity extends Activity implements SensorEventListener {
 		mView = mMainView;*/
 		mView = new MainView (getApplication (), this);
 		setContentView (mView);
+
+		Extension.mainView = mView;
 		
 		sensorManager = (SensorManager)activity.getSystemService (Context.SENSOR_SERVICE);
 		
@@ -165,7 +167,7 @@ public class GameActivity extends Activity implements SensorEventListener {
 	}
 	
 	// IMMERSIVE MODE SUPPORT
-	::if (ANDROID_TARGET_SDK_VERSION >= 19)::
+	::if (WIN_FULLSCREEN)::::if (ANDROID_TARGET_SDK_VERSION >= 19)::
 	
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
@@ -188,7 +190,7 @@ public class GameActivity extends Activity implements SensorEventListener {
 			| View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 	}
 	
-	::end::
+	::end::::end::
 	
 	public static double CapabilitiesGetPixelAspectRatio () {
 		
@@ -716,6 +718,12 @@ public class GameActivity extends Activity implements SensorEventListener {
 	
 	
 	public static void showKeyboard (boolean show) {
+		
+		if (activity == null) {
+			
+			return;
+			
+		}
 		
 		InputMethodManager mgr = (InputMethodManager)activity.getSystemService (Context.INPUT_METHOD_SERVICE);
 		mgr.hideSoftInputFromWindow (activity.mView.getWindowToken (), 0);

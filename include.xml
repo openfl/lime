@@ -29,7 +29,7 @@
 		
 	</section>
 	
-	<templatePath name="templates" unless="openfl" />
+	<templatePath name="templates" />
 	<sample path="samples" unless="openfl" />
 	
 </extension>

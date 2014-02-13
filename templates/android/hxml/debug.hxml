@@ -4,4 +4,4 @@
 -D android
 -D android-9
 -debug
--D no-compilation
+--macro keep("::APP_MAIN::")

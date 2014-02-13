@@ -22,7 +22,6 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.opengles.GL10;
-import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -36,15 +35,28 @@ class MainView extends GLSurfaceView {
 	static final int etTouchTap = 18;
 	static final int resTerminate = -1;
 	
+	boolean isPollImminent;
 	Activity mActivity;
 	static MainView mRefreshView;
 	Timer mTimer = new Timer ();
 	int mTimerID = 0;
+	TimerTask pendingTimer;
+	Runnable pollMe;
+	boolean renderPending = false;
 	
 	
 	public MainView (Context context, Activity inActivity) {
 		
 		super (context);
+		
+		isPollImminent = false;
+		final MainView me = this;
+		
+		pollMe = new Runnable () {
+			
+			@Override public void run () { me.onPoll (); }
+			
+		};
 		
 		int eglVersion = 1;
 		
@@ -196,6 +208,7 @@ class MainView extends GLSurfaceView {
 	}
 	
 	
+	// Haxe Thread
 	public void HandleResult (int inCode) {
 		
 		if (inCode == resTerminate) {
@@ -206,39 +219,38 @@ class MainView extends GLSurfaceView {
 		}
 		
 		double wake = Lime.getNextWake ();
-		final MainView me = this;
+		int delayMS = (int)(wake * 1000);
 		
-		if (wake <= 0) {
+		if (renderPending && delayMS < 5) {
 			
-			queueEvent (new Runnable () {
-				
-				public void run () {
-					
-					me.onPoll ();
-					
-				}
-				
-			});
+			delayMS = 5;
+			
+		}
+		
+		if (delayMS <= 1) {
+			
+			queuePoll ();
 			
 		} else {
 			
-			final int tid = ++mTimerID;
-			Date end = new Date ();
-			end.setTime (end.getTime () + (int)(wake * 1000));
-			
-			mTimer.schedule (new TimerTask () {
+			if (pendingTimer != null) {
 				
-				public void run () {
+				pendingTimer.cancel ();
+				
+			}
+			
+			final MainView me = this;
+			pendingTimer = new TimerTask () {
+				
+				@Override public void run () { 
 					
-					if (tid == me.mTimerID) {
-						
-						me.queuePoll ();
-						
-					}
+					me.queuePoll ();
 					
 				}
 				
-			}, end);
+			};
+			
+			mTimer.schedule (pendingTimer, delayMS);
 			
 		}
 		
@@ -303,34 +315,18 @@ class MainView extends GLSurfaceView {
 				
 				if (range != null) {
 					
-					final float flat = range.getFlat ();
 					final float value = event.getAxisValue (axis);
 					
-					if (Math.abs (value) > flat) {
+					queueEvent (new Runnable () {
 						
-						queueEvent (new Runnable () {
+						public void run () {
 							
-							public void run () {
-								
-								me.HandleResult (Lime.onJoyMotion (deviceId, axis, ((value - range.getMin ()) / (range.getRange ())) * 65535 - 32768));
-								
-							}
+							me.HandleResult (Lime.onJoyMotion (deviceId, axis, ((value - range.getMin ()) / (range.getRange ())) * 65535 - 32768));
 							
-						});
+						}
 						
-					} else {
+					});
 						
-						queueEvent (new Runnable () {
-							
-							public void run () {
-								
-								me.HandleResult (Lime.onJoyMotion (deviceId, axis, 0));
-								
-							}
-							
-						});
-						
-					}
 				}
 				
 			}
@@ -442,8 +438,10 @@ class MainView extends GLSurfaceView {
 	}
 	
 	
+	// Haxe Thread
 	void onPoll () {
 		
+		isPollImminent = false;
 		HandleResult (Lime.onPoll ());
 		
 	}
@@ -520,19 +518,15 @@ class MainView extends GLSurfaceView {
 	}
 	
 	
+	// GUI/Timer Thread
 	void queuePoll () {
 		
-		final MainView me = this;
-		
-		queueEvent (new Runnable () {
+		if (!isPollImminent) {
 			
-			public void run () {
-				
-				me.onPoll ();
-				
-			}
+			isPollImminent = true;
+			queueEvent (pollMe);
 			
-		});
+		}
 		
 	}
 	
@@ -540,6 +534,7 @@ class MainView extends GLSurfaceView {
 	
 	static public void renderNow () { //Called directly from C++
 		
+		mRefreshView.renderPending = true;
 		mRefreshView.requestRender ();
 		
 	}
@@ -601,6 +596,7 @@ class MainView extends GLSurfaceView {
 		
 		public void onDrawFrame (GL10 gl) {
 			
+			mMainView.renderPending = false;
 			mMainView.HandleResult (Lime.onRender ());
 			Sound.checkSoundCompletion ();
 			
