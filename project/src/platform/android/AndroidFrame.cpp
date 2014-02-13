@@ -126,7 +126,7 @@ public:
    {
       //__android_log_print(ANDROID_LOG_INFO, "lime", "OnKey %d %d", inCode, inDown);
       Event key( inDown ? etKeyDown : etKeyUp );
-      key.code = inCharCode
+      key.code = inCharCode;
       key.value = inKeyCode;
       HandleEvent(key);
    }
@@ -547,11 +547,11 @@ JAVA_EXPORT int JNICALL Java_org_haxe_lime_Lime_onTrackball(JNIEnv * env, jobjec
    return lime::GetResult();
 }
 
-JAVA_EXPORT int JNICALL Java_org_haxe_lime_Lime_onKeyChange(JNIEnv * env, jobject obj, int code, bool down)
+JAVA_EXPORT int JNICALL Java_org_haxe_lime_Lime_onKeyChange(JNIEnv * env, jobject obj, int keyCode, int charCode, bool down)
 {
    AutoHaxe haxe("onKey");
    if (lime::sStage)
-      lime::sStage->OnKey(code,down);
+      lime::sStage->OnKey(keyCode, charCode,down);
    return lime::GetResult();
 }
 
