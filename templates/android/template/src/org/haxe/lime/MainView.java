@@ -366,15 +366,16 @@ class MainView extends GLSurfaceView {
 			
 		}::end::
 		
-		final int charCode = translateKey (inKeyCode, event);
+		final int keyCode = translateKeyCode (inKeyCode, event);
+		final int charCode = translateCharCode (inKeyCode, event);
 		
-		if (charCode != 0) {
+		if (keyCode != 0) {
 			
 			queueEvent (new Runnable () {
 				
 				public void run () {
 					
-					me.HandleResult (Lime.onKeyChange (inKeyCode, charCode, true));
+					me.HandleResult (Lime.onKeyChange (keyCode, charCode, true));
 					
 				}
 				
@@ -415,15 +416,16 @@ class MainView extends GLSurfaceView {
 			
 		}::end::
 		
-		final int charCode = translateKey (inKeyCode, event);
+		final int keyCode = translateKeyCode (inKeyCode, event);
+		final int charCode = translateCharCode (inKeyCode, event);
 		
-		if (charCode != 0) {
+		if (keyCode != 0) {
 			
 			queueEvent (new Runnable () {
 				
 				public void run () {
 					
-					me.HandleResult (Lime.onKeyChange (inKeyCode, charCode, false));
+					me.HandleResult (Lime.onKeyChange (keyCode, charCode, false));
 					
 				}
 				
@@ -555,13 +557,13 @@ class MainView extends GLSurfaceView {
 	}
 	
 	
-	public int translateKey(int inCode, KeyEvent event) {
+	public int translateCharCode (int inCode, KeyEvent event) {
 		
 		switch (inCode) {
 			
-			case KeyEvent.KEYCODE_BACK: return 27; /* Fake Escape */
-			case KeyEvent.KEYCODE_MENU: return 0x01000012; /* Fake MENU */
-			case KeyEvent.KEYCODE_DEL: return 8;
+			case KeyEvent.KEYCODE_BACK: return 0; /* Fake Escape */
+			case KeyEvent.KEYCODE_MENU: return 0; /* Fake MENU */
+			case KeyEvent.KEYCODE_DEL: return 0;
 			
 		}
 		
@@ -575,6 +577,85 @@ class MainView extends GLSurfaceView {
 		}
 		
 		return result;
+		
+	}
+	
+	
+	public int translateKeyCode (int inCode, KeyEvent event) {
+		
+		switch (inCode) {
+			
+			case KeyEvent.KEYCODE_BACK: return 27; /* Fake Escape */
+			case KeyEvent.KEYCODE_MENU: return 0x01000012; /* Fake MENU */
+			case KeyEvent.KEYCODE_DEL: return 8;
+			
+		}
+		
+		if (inCode >= 7 && inCode <= 16) {
+			
+			return inCode + 41; // 1-9
+		
+		} else if (inCode >= 29 && inCode <= 54) {
+			
+			return inCode + 36; // a-z
+			
+		} else if (inCode >= 131 && inCode <= 142) {
+			
+			return inCode - 19; // F1-F12
+			
+		} else if (inCode >= 144 && inCode <= 153) {
+			
+			return inCode - 96; // 1-9
+			
+		}
+		
+		switch (inCode) {
+			
+			case 66:
+			case 160: return 13; // enter
+			case 111: return 27; // escape
+			case 67: return 8; // backspace
+			case 61: return 9; // tab
+			case 62: return 32; // space
+			case 69:
+			case 156: return 189; // -_
+			case 70:
+			case 161: return 187; // +=
+			case 71: return 219; // [{
+			case 72: return 221; // ]}
+			case 73: return 220; // \|
+			case 74: return 186; // ;:
+			case 75: return 222; // '"
+			case 68: return 192; // `~
+			case 55:
+			case 159: return 188; // ,<
+			case 56:
+			case 158: return 190; // .>
+			case 76: return 191; // /?
+			case 115: return 20; // caps lock
+			case 116: return 145; // scroll lock
+			case 121: return 19; // pause/break
+			case 124: return 45; // insert
+			case 122: return 36; // home
+			case 92: return 34; // page down
+			case 93: return 33; // page up
+			case 112: return 46; // delete
+			case 123: return 35; // end
+			case 22: return 39; // right arrow
+			case 21: return 37; // left arrow
+			case 20: return 40; // down arrow
+			case 19: return 38; // up arrow
+			case 143: return 144; // num lock
+			case 113:
+			case 114: return 17; // ctrl
+			case 59:
+			case 60: return 16; // shift
+			case 57:
+			case 58: return 18; // alt
+			
+		}
+		
+		return inCode;
 		
 	}
 	
