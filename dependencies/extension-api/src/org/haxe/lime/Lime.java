@@ -22,7 +22,7 @@ public class Lime {
      public static native int onTrackball(float x,float y);
      public static native int onJoyChange(int inDeviceID, int inCode, boolean inIsDown);
      public static native int onJoyMotion(int inDeviceID, int axis, float value);
-     public static native int onKeyChange(int inCode, boolean inIsDown);
+     public static native int onKeyChange(int inKeyCode, int inCharCode, boolean inIsDown);
      public static native int onRender();
      public static native int onPoll();
      public static native double getNextWake();

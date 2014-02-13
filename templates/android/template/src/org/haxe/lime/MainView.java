@@ -368,7 +368,7 @@ class MainView extends GLSurfaceView {
 		
 		final int charCode = translateKey (inKeyCode, event);
 		
-		if (keyCode != 0) {
+		if (charCode != 0) {
 			
 			queueEvent (new Runnable () {
 				
@@ -417,7 +417,7 @@ class MainView extends GLSurfaceView {
 		
 		final int charCode = translateKey (inKeyCode, event);
 		
-		if (keyCode != 0) {
+		if (charCode != 0) {
 			
 			queueEvent (new Runnable () {
 				
