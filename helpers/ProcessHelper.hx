@@ -61,7 +61,7 @@ class ProcessHelper {
 				
 			}
 			
-			if (targetPath.substr (0) == "/") {
+			if (targetPath.substr (0, 1) == "/") {
 				
 				runCommand (workingDirectory, executable, [ targetPath ]);
 				
@@ -79,7 +79,7 @@ class ProcessHelper {
 				
 			}
 			
-			if (targetPath.substr (0) == "/") {
+			if (targetPath.substr (0, 1) == "/") {
 				
 				runCommand (workingDirectory, executable, [ targetPath ]);
 				

@@ -578,7 +578,17 @@ class PlatformSetup {
 				
 				Lib.println (message);
 				Sys.command ("chmod", [ "755", path ]);
-				ProcessHelper.runCommand ("", "./" + path, [], false);
+				
+				if (path.substr (0, 1) == "/") {
+					
+					ProcessHelper.runCommand ("", path, [], false);
+					
+				} else {
+					
+					ProcessHelper.runCommand ("", "./" + path, [], false);
+					
+				}
+				
 				Lib.println ("Done");
 				
 			}
