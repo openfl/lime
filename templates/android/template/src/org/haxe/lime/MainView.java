@@ -366,7 +366,7 @@ class MainView extends GLSurfaceView {
 			
 		}::end::
 		
-		final int keyCode = translateKey (inKeyCode, event);
+		final int charCode = translateKey (inKeyCode, event);
 		
 		if (keyCode != 0) {
 			
@@ -374,7 +374,7 @@ class MainView extends GLSurfaceView {
 				
 				public void run () {
 					
-					me.HandleResult (Lime.onKeyChange (keyCode, true));
+					me.HandleResult (Lime.onKeyChange (inKeyCode, charCode, true));
 					
 				}
 				
@@ -384,7 +384,7 @@ class MainView extends GLSurfaceView {
 			
 		}
 		
-		return super.onKeyDown(inKeyCode, event);
+		return super.onKeyDown (inKeyCode, event);
 		
 	}
 	
@@ -415,7 +415,7 @@ class MainView extends GLSurfaceView {
 			
 		}::end::
 		
-		final int keyCode = translateKey (inKeyCode, event);
+		final int charCode = translateKey (inKeyCode, event);
 		
 		if (keyCode != 0) {
 			
@@ -423,7 +423,7 @@ class MainView extends GLSurfaceView {
 				
 				public void run () {
 					
-					me.HandleResult (Lime.onKeyChange (keyCode, false));
+					me.HandleResult (Lime.onKeyChange (inKeyCode, charCode, false));
 					
 				}
 				
@@ -433,7 +433,7 @@ class MainView extends GLSurfaceView {
 			
 		}
 		
-		return super.onKeyDown(inKeyCode, event);
+		return super.onKeyDown (inKeyCode, event);
 		
 	}
 	

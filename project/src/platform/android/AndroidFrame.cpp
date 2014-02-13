@@ -122,12 +122,12 @@ public:
       HandleEvent(evt);
    }
 
-   void OnKey(int inCode, bool inDown)
+   void OnKey(int inKeyCode, int inCharCode, bool inDown)
    {
       //__android_log_print(ANDROID_LOG_INFO, "lime", "OnKey %d %d", inCode, inDown);
       Event key( inDown ? etKeyDown : etKeyUp );
-      key.code = inCode;
-      key.value = inCode;
+      key.code = inCharCode
+      key.value = inKeyCode;
       HandleEvent(key);
    }
 
