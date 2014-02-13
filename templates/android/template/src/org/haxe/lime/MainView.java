@@ -559,20 +559,24 @@ class MainView extends GLSurfaceView {
 	
 	public int translateCharCode (int inCode, KeyEvent event) {
 		
-		switch (inCode) {
-			
-			case KeyEvent.KEYCODE_BACK: return 0; /* Fake Escape */
-			case KeyEvent.KEYCODE_MENU: return 0; /* Fake MENU */
-			case KeyEvent.KEYCODE_DEL: return 0;
-			
-		}
-		
 		int result = event.getUnicodeChar (event.getMetaState ());
 		
 		if (result == KeyCharacterMap.COMBINING_ACCENT) {
 			
 			//TODO
 			return 0;
+			
+		}
+		
+		switch (inCode) {
+			
+			case 66:
+			case 160: return 13; // enter
+			case 111: return 27; // escape
+			case 67: return 8; // backspace
+			case 61: return 9; // tab
+			case 62: return 32; // space
+			case 112: return 127; // delete
 			
 		}
 		
