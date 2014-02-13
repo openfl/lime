@@ -1223,7 +1223,7 @@ void DisplayObjectContainer::Render( const RenderTarget &inTarget, const RenderS
                bitmap->IncRef();
 
                if (bg && obj->IsBitmapRender(inTarget.IsHardware()))
-                  bitmap->Clear(obj->opaqueBackground | 0xff000000,0);
+                  bitmap->Clear(obj->opaqueBackground | 0xff000000);
                else
                   bitmap->Zero();
                // debug ...
