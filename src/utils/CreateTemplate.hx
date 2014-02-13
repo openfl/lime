@@ -251,7 +251,7 @@ class CreateTemplate {
 				
 				if (projectTemplate != null) {
 					
-					templates.push ("project");
+					templates.push (projectName + ":project");
 					
 				}
 				
