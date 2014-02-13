@@ -45,7 +45,7 @@ class AudioHandler {
 
     } //update
 
-    public function create( _name:String, _file:String, ?_music:Bool = false ) {
+    public function create( _name:String, _file:String, ?_music:Bool = false ) : Sound {
         
         if( sounds.exists(_name) ) {
             throw "lime : audio : Named sounds are not allowed to have duplicate names for now";
@@ -68,7 +68,7 @@ class AudioHandler {
 
     } //sound
         
-    public function loop( _name:String ) {
+    public function loop( _name:String ) : Void {
 
         var _sound = sound(_name);
 
@@ -84,7 +84,7 @@ class AudioHandler {
 
     } //loop
 
-    public function stop( _name:String ) {
+    public function stop( _name:String ) : Void {
 
          var _sound = sound(_name);
 
@@ -96,7 +96,7 @@ class AudioHandler {
 
     } //stop
 
-    public function play( _name:String, ?_number_of_times:Int=1, ?_start_position_in_ms:Float = 0 ) {
+    public function play( _name:String, ?_number_of_times:Int=1, ?_start_position_in_ms:Float = 0 ) : Void {
 
         var _sound = sound(_name);
 
@@ -109,7 +109,7 @@ class AudioHandler {
     } //play
 
         //true or false if a sound is playing
-    public function playing( _name:String ) {
+    public function playing( _name:String ) : Bool {
 
         var s = sound(_name);
         if(s != null) {
