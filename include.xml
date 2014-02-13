@@ -30,6 +30,6 @@
 	</section>
 	
 	<templatePath name="templates" unless="openfl" />
-	<sample path="samples" />
+	<sample path="samples" unless="openfl" />
 	
 </extension>
