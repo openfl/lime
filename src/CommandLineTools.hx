@@ -283,9 +283,13 @@ class CommandLineTools {
 						
 						CreateTemplate.listSamples (sampleName, userDefines);
 						
-					} else {
+					} else if (sampleName == "") {
 						
 						CreateTemplate.listSamples ("lime", userDefines);
+						
+					} else {
+						
+						CreateTemplate.listSamples (null, userDefines);
 						
 					}
 					

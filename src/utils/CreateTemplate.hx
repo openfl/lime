@@ -237,23 +237,23 @@ class CreateTemplate {
 	
 	public static function listSamples (projectName:String, userDefines:Map<String, Dynamic>) {
 		
-		LogHelper.println ("\x1b[1mYou must specify a template when using the 'create' command.\x1b[0m");
-		LogHelper.println ("");
-		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create library:project \"com.package.name\" \x1b[3;37m\"Company Name\"\x1b[0m");
-		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create library:sample \x1b[3;37m\"OutputDirectory\"\x1b[0m");
-		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create extension \"ExtensionName\"");
+		var templates = [];
 		
 		if (projectName != null && projectName != "") {
-			
-			LogHelper.println ("");
-			LogHelper.println (" \x1b[32;1mAvailable Samples:\x1b[0m \x1b[3m" + projectName + "\x1b[0m");
-			LogHelper.println ("");
 			
 			var defines = new Map <String, Dynamic> ();
 			defines.set ("create", 1);
 			var project = HXProject.fromHaxelib (new Haxelib (projectName), defines);
 			
 			if (project != null) {
+				
+				var projectTemplate = PathHelper.findTemplate (project.templatePaths, "project", false);
+				
+				if (projectTemplate != null) {
+					
+					templates.push ("project");
+					
+				}
 				
 				var samplePaths = project.samplePaths.copy ();
 				
@@ -269,7 +269,7 @@ class CreateTemplate {
 							
 							if (!StringTools.startsWith (name, ".") && FileSystem.isDirectory (path + "/" + name)) {
 								
-								Sys.println ("  - " + name);
+								templates.push (projectName + ":" + name);
 								
 							}
 							
@@ -277,18 +277,41 @@ class CreateTemplate {
 						
 					}
 					
-					Sys.println ("");
-					
-				} else {
-					
-					Sys.println ("  (None)");
-					Sys.println ("");
-					
 				}
+				
+				templates.push ("extension");
 				
 			}
 			
 		}
+		
+		if (templates.length == 0) {
+			
+			projectName = "library";
+			
+		}
+		
+		LogHelper.println ("\x1b[1mYou must specify a template when using the 'create' command.\x1b[0m");
+		LogHelper.println ("");
+		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create " + projectName + ":project \"com.package.name\" \x1b[3;37m\"Company Name\"\x1b[0m");
+		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create " + projectName + ":(sample) \x1b[3;37m\"OutputDirectory\"\x1b[0m");
+		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create extension \"ExtensionName\"");
+		
+		if (templates.length > 0) {
+			
+			LogHelper.println ("");
+			LogHelper.println (" \x1b[32;1mAvailable Templates:\x1b[0m");
+			LogHelper.println ("");
+			
+			for (template in templates) {
+				
+				Sys.println ("  * " + template);
+				
+			}
+			
+		}
+		
+		Sys.println ("");
 		
 	}
 	
