@@ -67,7 +67,10 @@ namespace lime
          {
             //alSourceQueueBuffers(mSourceID, 1, &inBufferID);
             alSourcePlay(mSourceID);
-            alSourcef(mSourceID, AL_BYTE_OFFSET, seek * mSize);
+            if (seek != 0)
+            {
+               alSourcef(mSourceID, AL_BYTE_OFFSET, seek * mSize);
+            }
          }
          
          mWasPlaying = true;
