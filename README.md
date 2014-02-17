@@ -1,4 +1,4 @@
-[![Stories in Ready](https://badge.waffle.io/openfl/lime.png?label=ready)](https://waffle.io/openfl/lime)
+[![Stories in Ready](https://badge.waffle.io/openfl/lime.png?label=ready)](https://waffle.io/openfl/lime) [![Build Status](https://travis-ci.org/openfl/lime.png?branch=master)](https://travis-ci.org/openfl/lime)
 <p align="center"><img src="lime.png"/></p>
 
 Introduction
