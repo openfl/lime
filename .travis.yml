@@ -8,15 +8,14 @@ env:
 before_install:
 - wget -c http://nekovm.org/_media/neko-2.0.0-osx.tar.gz
 - sudo mkdir /usr/lib/neko
-- tar xvzf neko-2.0.0-osx.tar.gz
-- sudo cp -r neko-2.0.0-osx/* /usr/lib/neko
+- sudo tar xvzf neko-2.0.0-osx.tar.gz -C /usr/lib/neko --strip-components=1
 - sudo ln -s /usr/lib/neko/neko /usr/bin/neko
 - sudo ln -s /usr/lib/neko/nekoc /usr/bin/nekoc
 - sudo ln -s /usr/lib/neko/nekotools /usr/bin/nekotools
 - sudo ln -s /usr/lib/neko/libneko.so /usr/lib/libneko.so
 - wget -c http://haxe.org/file/haxe-3.0.1-osx.tar.gz
 - sudo mkdir /usr/lib/haxe
-- sudo tar xvzf haxe-3.0.1-osx.tar.gz -C /usr/lib/haxe
+- sudo tar xvzf haxe-3.0.1-osx.tar.gz -C /usr/lib/haxe --strip-components=1
 - sudo ln -s /usr/lib/haxe/haxe /usr/bin/haxe
 - sudo ln -s /usr/lib/haxe/haxelib /usr/bin/haxelib
 - mkdir ~/haxelib
