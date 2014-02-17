@@ -30,13 +30,13 @@ script:
 - haxelib run lime rebuild mac
 - haxelib run lime rebuild ios
 after_success:
-- travis-artifacts upload --path ndll/Mac/lime.ndll --target-path artifacts/$TRAVIS_COMMIT/Mac/lime.ndll"
-- travis-artifacts upload --path ndll/Mac/lime-debug.ndll --target-path artifacts/$TRAVIS_COMMIT/Mac/lime-debug.ndll"
-- travis-artifacts upload --path ndll/Mac64/lime.ndll --target-path artifacts/$TRAVIS_COMMIT/Mac64/lime.ndll"
-- travis-artifacts upload --path ndll/Mac64/lime-debug.ndll --target-path artifacts/$TRAVIS_COMMIT/Mac64/lime-debug.ndll"
-- travis-artifacts upload --path ndll/iPhone/liblime.iphoneos.a --target-path artifacts/$TRAVIS_COMMIT/iPhone/liblime.iphoneos.a"
-- travis-artifacts upload --path ndll/iPhone/liblime.iphoneos-v7.a --target-path artifacts/$TRAVIS_COMMIT/iPhone/liblime.iphoneos-v7.a"
-- travis-artifacts upload --path ndll/iPhone/liblime.iphonesim.a --target-path artifacts/$TRAVIS_COMMIT/iPhone/liblime.iphonesim.a"
-- travis-artifacts upload --path ndll/iPhone/liblime-debug.iphoneos.a --target-path artifacts/$TRAVIS_COMMIT/iPhone/liblime-debug.iphoneos.a"
-- travis-artifacts upload --path ndll/iPhone/liblime-debug.iphoneos-v7.a --target-path artifacts/$TRAVIS_COMMIT/iPhone/liblime-debug.iphoneos-v7.a"
-- travis-artifacts upload --path ndll/iPhone/liblime-debug.iphonesim.a --target-path artifacts/$TRAVIS_COMMIT/iPhone/liblime-debug.iphonesim.a"
+- travis-artifacts upload --path ndll/Mac/lime.ndll --target-path artifacts/$TRAVIS_COMMIT/Mac
+- travis-artifacts upload --path ndll/Mac/lime-debug.ndll --target-path artifacts/$TRAVIS_COMMIT/Mac
+- travis-artifacts upload --path ndll/Mac64/lime.ndll --target-path artifacts/$TRAVIS_COMMIT/Mac64
+- travis-artifacts upload --path ndll/Mac64/lime-debug.ndll --target-path artifacts/$TRAVIS_COMMIT/Mac64
+- travis-artifacts upload --path ndll/iPhone/liblime.iphoneos.a --target-path artifacts/$TRAVIS_COMMIT/iPhone
+- travis-artifacts upload --path ndll/iPhone/liblime.iphoneos-v7.a --target-path artifacts/$TRAVIS_COMMIT/iPhone
+- travis-artifacts upload --path ndll/iPhone/liblime.iphonesim.a --target-path artifacts/$TRAVIS_COMMIT/iPhone
+- travis-artifacts upload --path ndll/iPhone/liblime-debug.iphoneos.a --target-path artifacts/$TRAVIS_COMMIT/iPhone
+- travis-artifacts upload --path ndll/iPhone/liblime-debug.iphoneos-v7.a --target-path artifacts/$TRAVIS_COMMIT/iPhone
+- travis-artifacts upload --path ndll/iPhone/liblime-debug.iphonesim.a --target-path artifacts/$TRAVIS_COMMIT/iPhone
