@@ -17,7 +17,7 @@ before_install:
 - sudo mkdir /usr/lib/haxe
 - sudo tar xvzf haxe-3.0.1-osx.tar.gz -C /usr/lib/haxe --strip-components=1
 - sudo ln -s /usr/lib/haxe/haxe /usr/bin/haxe
-- sudo ln -s /usr/lib/haxe/haxelib /usr/bin/haxelib
+- /usr/lib/haxe/haxelib selfupdate
 - mkdir ~/haxelib
 - haxelib setup ~/haxelib
 - haxelib git hxlibc https://github.com/openfl/hxlibc
