@@ -17,11 +17,13 @@ before_install:
 - sudo mkdir /usr/lib/haxe
 - sudo tar xvzf haxe-3.0.1-osx.tar.gz -C /usr/lib/haxe --strip-components=1
 - sudo ln -s /usr/lib/haxe/haxe /usr/bin/haxe
-- /usr/lib/haxe/haxelib selfupdate
+- sudo ln -s /usr/lib/haxe/haxelib /usr/bin/haxelib
 - mkdir ~/haxelib
 - haxelib setup ~/haxelib
-- haxelib git hxlibc https://github.com/openfl/hxlibc
-- haxelib git lime-build https://github.com/openfl/lime-build
+- git clone https://github.com/openfl/hxlibc ~/hxlibc
+- haxelib dev hxlibc ~/hxlibc
+- git clone https://github.com/openfl/lime-build ~/lime-build
+- haxelib dev lime-build ~/lime-build
 - haxelib dev lime $(pwd)
 - gem install travis-artifacts
 script:
