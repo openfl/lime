@@ -1,0 +1,13 @@
+language: objective-c
+
+before_install:
+  - brew install haxe
+  - mkdir ~/haxelib
+  - haxelib setup ~/haxelib
+  - haxelib git hxlibc https://github.com/openfl/hxlibc
+  - haxelib git lime-build https://github.com/openfl/lime-build
+  - haxelib dev lime $(pwd)
+
+script:
+  - haxelib run lime rebuild mac
+  - haxelib run lime rebuild ios
