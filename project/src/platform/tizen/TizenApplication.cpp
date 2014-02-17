@@ -24,6 +24,8 @@ namespace lime {
 	
 	void CreateMainFrame (FrameCreationCallback inOnFrame, int inWidth, int inHeight, unsigned int inFlags, const char *inTitle, Surface *inIcon) {
 		
+		AppLog ("Hello1");
+		
 		sgCallback = inOnFrame;
 		sgWidth = inWidth;
 		sgHeight = inHeight;
@@ -65,6 +67,8 @@ namespace lime {
 	
 	
 	TizenApplication::TizenApplication (void) {
+		
+		AppLog ("Hello");
 		
 		//mAccelX = 0;
 		//mAccelY = 0;
@@ -124,6 +128,8 @@ namespace lime {
 	
 	bool TizenApplication::OnAppInitializing (Tizen::App::AppRegistry& appRegistry) {
 		
+		AppLog ("Init!");
+		
 		Tizen::Ui::Controls::Frame* appFrame = new (std::nothrow) Tizen::Ui::Controls::Frame ();
 		appFrame->Construct ();
 		this->AddFrame (*appFrame);
@@ -156,7 +162,9 @@ namespace lime {
 		
 		mSensorManager->AddSensorListener (*this, Tizen::Uix::Sensor::SENSOR_TYPE_ACCELERATION, interval, true);*/
 		
-		bool ok = limeEGLCreate (mForm, sgWidth, sgHeight, 1, (sgFlags & wfDepthBuffer) ? 16 : 0, (sgFlags & wfStencilBuffer) ? 8 : 0, 0);
+		AppLog ("2");
+		
+		bool ok = limeEGLCreate (mForm, sgWidth, sgHeight, 2, (sgFlags & wfDepthBuffer) ? 16 : 0, (sgFlags & wfStencilBuffer) ? 8 : 0, 0);
 		
 		mTimer = new (std::nothrow) Tizen::Base::Runtime::Timer;
 		mTimer->Construct (*this);

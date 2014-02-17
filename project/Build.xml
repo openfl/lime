@@ -562,6 +562,7 @@
 	  <lib name="-losp-appfw" if="tizen" />
 	  <lib name="-losp-image" if="tizen" />
 	  <lib name="-losp-ime" if="tizen" />
+	  <lib name="-losp-json" if="tizen" />
 	  <lib name="-losp-net" if="tizen" />
 	  <lib name="-losp-content" if="tizen" />
 	  <lib name="-losp-locations" if="tizen" />

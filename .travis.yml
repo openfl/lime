@@ -1,13 +1,28 @@
 language: objective-c
-
 before_install:
-  - brew install haxe
-  - mkdir ~/haxelib
-  - haxelib setup ~/haxelib
-  - haxelib git hxlibc https://github.com/openfl/hxlibc
-  - haxelib git lime-build https://github.com/openfl/lime-build
-  - haxelib dev lime $(pwd)
-
+- gem install travis-artifacts
+- brew install haxe
+- mkdir ~/haxelib
+- haxelib setup ~/haxelib
+- haxelib git hxlibc https://github.com/openfl/hxlibc
+- haxelib git lime-build https://github.com/openfl/lime-build
+- haxelib dev lime $(pwd)
 script:
-  - haxelib run lime rebuild mac
-  - haxelib run lime rebuild ios
+- haxelib run lime rebuild mac
+- haxelib run lime rebuild ios
+after_success:
+- travis-artifacts upload --path ndll/Mac/lime.ndll --target-path artifacts/$TRAVIS_COMMIT/Mac/lime.ndll"
+- travis-artifacts upload --path ndll/Mac/lime-debug.ndll --target-path artifacts/$TRAVIS_COMMIT/Mac/lime-debug.ndll"
+- travis-artifacts upload --path ndll/Mac64/lime.ndll --target-path artifacts/$TRAVIS_COMMIT/Mac64/lime.ndll"
+- travis-artifacts upload --path ndll/Mac64/lime-debug.ndll --target-path artifacts/$TRAVIS_COMMIT/Mac64/lime-debug.ndll"
+- travis-artifacts upload --path ndll/iPhone/liblime.iphoneos.a --target-path artifacts/$TRAVIS_COMMIT/iPhone/liblime.iphoneos.a"
+- travis-artifacts upload --path ndll/iPhone/liblime.iphoneos-v7.a --target-path artifacts/$TRAVIS_COMMIT/iPhone/liblime.iphoneos-v7.a"
+- travis-artifacts upload --path ndll/iPhone/liblime.iphonesim.a --target-path artifacts/$TRAVIS_COMMIT/iPhone/liblime.iphonesim.a"
+- travis-artifacts upload --path ndll/iPhone/liblime-debug.iphoneos.a --target-path artifacts/$TRAVIS_COMMIT/iPhone/liblime-debug.iphoneos.a"
+- travis-artifacts upload --path ndll/iPhone/liblime-debug.iphoneos-v7.a --target-path artifacts/$TRAVIS_COMMIT/iPhone/liblime-debug.iphoneos-v7.a"
+- travis-artifacts upload --path ndll/iPhone/liblime-debug.iphonesim.a --target-path artifacts/$TRAVIS_COMMIT/iPhone/liblime-debug.iphonesim.a"
+  global:
+  - ARTIFACTS_AWS_REGION=us-west-2
+  - ARTIFACTS_S3_BUCKET=lime-osx-travis
+  - secure: DXYUyMpbecZVlLUHHSrTFyUeaOor2hBIktXgv2AnwbzTgiJeFshUbWA0hu2j3pnGDNlJJpmrdyKJPTsT1hGFZ9tLm5J6Q8j4wA04GBp+dJl0+7RBs/R767XcyIRkJNw4a1hZJCQgv++wWvJ4GhW/KM1uUUHL5dh+McfNBz6SXLs=
+  - secure: f0ps0Vor8x1p6rdzpAP67o6HkMIO2e3qFUiYIj+QJXkdzmmy7V3UHW3NxkOerzsiVkxksmB2MOocRCVlseWP72i/4qPrw/r8BpkmkO1SY/HdR1yv0g0DHwJw8i/zhRF390dvNQh/HR0SZrAeDQvKapwzkvQkUvwwp51O5xBLMbs=
