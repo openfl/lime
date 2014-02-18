@@ -40,4 +40,4 @@ after_success:
 - travis-artifacts upload --path ndll/iPhone/liblime-debug.iphoneos.a --target-path artifacts/$TRAVIS_COMMIT
 - travis-artifacts upload --path ndll/iPhone/liblime-debug.iphoneos-v7.a --target-path artifacts/$TRAVIS_COMMIT
 - travis-artifacts upload --path ndll/iPhone/liblime-debug.iphonesim.a --target-path artifacts/$TRAVIS_COMMIT
-- wget -q0- http://www.openfl.org/lime-post-hook.php?commit=$TRAVIS_COMMIT
+- wget -qO- http://www.openfl.org/lime-post-hook.php?commit=$TRAVIS_COMMIT
