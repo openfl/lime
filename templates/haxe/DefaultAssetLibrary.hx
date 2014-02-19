@@ -250,7 +250,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#if pixi
 		
-		//return null;		
+		return null;
 		
 		#elseif flash
 		
