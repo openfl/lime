@@ -48,12 +48,20 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
+        #if (windows || mac || linux)
+
 		var loadManifest = false;
 		::if (assets != null)::::foreach assets::::if (embed)::
 		className.set ("::id::", __ASSET__::flatName::);
 		type.set ("::id::", Reflect.field (AssetType, "::type::".toUpperCase ()));
 		::else::loadManifest = true;
 		::end::::end::::end::
+
+        #else
+
+        var loadManifest = true;
+
+        #end
 		
 		if (loadManifest) {
 			try {
@@ -638,7 +646,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 ::foreach assets::::if (type == "font")::@:keep class __ASSET__::flatName:: extends flash.text.Font { }::end::
 ::end::
 
-#else
+#elseif (windows || mac || linux)
 
 ::if (assets != null)::
 ::foreach assets::::if (embed)::::if (type == "image")::@:bitmap("::sourcePath::") class __ASSET__::flatName:: extends flash.display.BitmapData {}
