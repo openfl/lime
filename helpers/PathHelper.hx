@@ -389,6 +389,79 @@ class PathHelper {
 	}
 	
 	
+	public static function readDirectory (directory:String, ignore:Array<String> = null, paths:Array<String> = null):Array<String> {
+		
+		if (FileSystem.exists (directory)) {
+			
+			if (paths == null) {
+				
+				paths = [];
+				
+			}
+			
+			var files;
+			
+			try {
+				
+				files = FileSystem.readDirectory (directory);
+				
+			} catch (e:Dynamic) {
+				
+				return paths;
+				
+			}
+			
+			for (file in FileSystem.readDirectory (directory)) {
+				
+				if (ignore != null) {
+					
+					var filtered = false;
+					
+					for (filter in ignore) {
+						
+						if (filter == file) {
+							
+							filtered = true;
+							
+						}
+						
+					}
+					
+					if (filtered) continue;
+					
+				}
+				
+				var path = directory + "/" + file;
+				
+				try {
+					
+					if (FileSystem.isDirectory (path)) {
+						
+						readDirectory (path, ignore, paths);
+						
+					} else {
+						
+						paths.push (path);
+						
+					}
+					
+				} catch (e:Dynamic) {
+					
+					return paths;
+					
+				}
+				
+			}
+			
+			return paths;
+			
+		}
+		
+		return null;
+		
+	}
+	
+	
 	public static function relocatePath (path:String, targetDirectory:String):String {
 		
 		// this should be improved for target directories that are outside the current working path
