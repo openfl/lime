@@ -11,7 +11,7 @@ class Matrix
 public:
    Matrix(double inSX=1,double inSY=1, double inTX=0, double inTY=0) :
        m00(inSX), m01(0), mtx(inTX),
-       m10(0), m11(inSY), mty(inTY)
+       m10(0), m11(inSY), mty(inTY), mtz(0)
    {
    }
 
@@ -79,6 +79,7 @@ public:
 
    double m00, m01, mtx;
    double m10, m11, mty;
+   double mtz;
 };
 
 

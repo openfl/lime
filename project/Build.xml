@@ -170,6 +170,7 @@
 		<file name="src/platform/android/AndroidFrame.cpp"/>
 		<file name="src/platform/android/JNI.cpp"/>
 		<file name="src/platform/android/System.cpp"/>
+		<file name="src/platform/android/AndroidS3D.cpp"/>
 		<file name="src/sound/openal/OpenALSound.cpp" if="openal"/>
 		<compilerflag value="-DAL_LIBTYPE_STATIC" if="openal"/>
 		
@@ -331,6 +332,8 @@
 		<file name="src/renderer/software/SolidRender.cpp"/>
 		<file name="src/renderer/software/TileRenderer.cpp"/>
 		<file name="src/renderer/software/TriangleRender.cpp"/>
+
+		<file name="src/common/empty/S3D.cpp" unless="android"/>
 	</files>
 	
 	<files id="opengl">
@@ -358,6 +361,7 @@
 		<file name="src/renderer/opengl/OpenGLInit.cpp"/>
 		<file name="src/renderer/opengl/OpenGLContext.cpp"/>
 		<!-- <file name="src/renderer/opengl/OpenGL2Context.cpp"/> -->
+		<file name="src/renderer/opengl/OpenGLS3D.cpp"/>
 		<file name="src/renderer/opengl/OpenGLTexture.cpp"/>
 		<file name="src/renderer/opengl/OpenGLProgram.cpp"/>
 		<file name="src/renderer/opengl/OpenGLShaders.cpp"/>

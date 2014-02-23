@@ -1,4 +1,6 @@
 #include "renderer/opengl/OpenGLContext.h"
+#include "renderer/common/S3D.h"
+#include "renderer/common/S3DEye.h"
 
 
 int sgDrawCount = 0;
@@ -54,7 +56,9 @@ namespace lime {
 		e.mColour = 0xff000000;
 		e.mTexOffset = sizeof (float) * 2;
 		e.mStride = sizeof (float) * 4;
-		
+
+		mS3D.Init ();
+
 	}
 	
 	
@@ -65,7 +69,7 @@ namespace lime {
 			delete mProg[i];
 			
 		}
-		
+
 	}
 	
 	
@@ -185,16 +189,25 @@ namespace lime {
 	
 	
 	void OpenGLContext::CombineModelView (const Matrix &inModelView) {
-		
+
+		float eyeOffset = mS3D.GetEyeOffset ();
+
 		mTrans[0][0] = inModelView.m00 * mScaleX;
 		mTrans[0][1] = inModelView.m01 * mScaleX;
 		mTrans[0][2] = 0;
-		mTrans[0][3] = inModelView.mtx * mScaleX + mOffsetX;
-		
+		mTrans[0][3] = (inModelView.mtx + eyeOffset) * mScaleX + mOffsetX;
+
 		mTrans[1][0] = inModelView.m10 * mScaleY;
 		mTrans[1][1] = inModelView.m11 * mScaleY;
 		mTrans[1][2] = 0;
 		mTrans[1][3] = inModelView.mty * mScaleY + mOffsetY;
+
+		mTrans[2][0] = 0;
+		mTrans[2][1] = 0;
+		mTrans[2][2] = -1;
+		mTrans[2][3] = inModelView.mtz;
+
+		mS3D.FocusEye (mTrans);
 		
 	}
 	
@@ -686,8 +699,28 @@ namespace lime {
 		#ifdef ANDROID
 		//__android_log_print(ANDROID_LOG_ERROR, "Lime", "SetWindowSize %d %d", inWidth, inHeight);
 		#endif
+
+		if (mWidth > mHeight) {
+			S3D::SetOrientation (S3D_ORIENTATION_VERTICAL);
+		} else {
+			S3D::SetOrientation (S3D_ORIENTATION_HORIZONTAL);
+		}
+
+		mS3D.Resize (inWidth, inHeight);
 		
 	}
 	
+	void OpenGLContext::EndS3DRender() {
+
+		setOrtho (0, mWidth, 0, mHeight);
+		mS3D.EndS3DRender (mWidth, mHeight, mTrans);
+		
+	}
+	
+	void OpenGLContext::SetS3DEye(int eye) {
+
+		mS3D.SetS3DEye (eye);
+
+	}
 		
 }

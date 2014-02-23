@@ -5,6 +5,8 @@
 #include <LimeThread.h>
 #include "renderer/opengl/OGL.h"
 #include "renderer/common/HardwareContext.h"
+#include "renderer/opengl/OpenGLProgram.h"
+#include "renderer/opengl/OpenGLS3D.h"
 
 
 namespace lime {
@@ -35,6 +37,9 @@ namespace lime {
 			void SetQuality (StageQuality inQ);
 			void SetViewport (const Rect &inRect);
 			void SetWindowSize (int inWidth, int inHeight);
+
+			void EndS3DRender ();
+			void SetS3DEye (int eye);
 			
 			int Height () const { return mHeight; }
 			int Width () const { return mWidth; }
@@ -62,7 +67,8 @@ namespace lime {
 			int mWidth;
 			QuickVec<GLuint> mZombieTextures;
 			QuickVec<GLuint> mZombieVbos;
-		
+
+			OpenGLS3D mS3D;
 	};
 	
 	

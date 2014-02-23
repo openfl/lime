@@ -80,6 +80,8 @@ Matrix Matrix::Mult(const Matrix &inRHS) const
    t.m11 = m10*inRHS.m01 + m11*inRHS.m11;
    t.mty = m10*inRHS.mtx + m11*inRHS.mty + mty;
 
+   t.mtz = inRHS.mtz + mtz;
+
    return t;
 }
 
