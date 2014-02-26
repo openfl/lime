@@ -246,19 +246,21 @@ namespace lime {
 	
 	void TizenApplication::OnKeyPressed (const Tizen::Ui::Control& source, Tizen::Ui::KeyCode keyCode) {
 		
-		
+        Event key( etKeyDown);
+        key.code = keyCode;
+        key.value = keyCode;
+        sgTizenFrame->HandleEvent(key);
 		
 	}
 	
 	
 	void TizenApplication::OnKeyReleased (const Tizen::Ui::Control& source, Tizen::Ui::KeyCode keyCode) {
 		
-		if (keyCode == Tizen::Ui::KEY_BACK || keyCode == Tizen::Ui::KEY_ESC) {
-			
-			Terminate ();
-			
-		}
-		
+        Event key( etKeyUp);
+        key.code = keyCode;
+        key.value = keyCode;
+        sgTizenFrame->HandleEvent(key);
+        
 	}
 	
 	
