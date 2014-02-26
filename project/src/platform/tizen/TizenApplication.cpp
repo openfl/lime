@@ -1,9 +1,6 @@
 #include "platform/tizen/TizenApplication.h"
 
 
-using namespace Tizen::Graphics::Opengl;
-
-
 namespace lime {
 	
 	
@@ -69,10 +66,6 @@ namespace lime {
 		//mAccelX = 0;
 		//mAccelY = 0;
 		//mAccelZ = 0;
-		mEGLDisplay = EGL_NO_DISPLAY;
-		mEGLSurface = EGL_NO_SURFACE;
-		mEGLConfig = null;
-		mEGLContext = EGL_NO_CONTEXT;
 		mForm = null;
 		mTimer = null;
 		

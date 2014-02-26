@@ -130,7 +130,7 @@ bool limeEGLResize(void *inWindow, int &ioWidth, int &ioHeight)
 
      // Use GLES version 1.x
    EGLint contextParams[] = {EGL_CONTEXT_CLIENT_VERSION, g_eglVersion, EGL_NONE};
-   g_eglContext = eglCreateContext(g_eglDisplay, g_eglConfig, NULL, NULL);
+   g_eglContext = eglCreateContext(g_eglDisplay, g_eglConfig, EGL_NO_CONTEXT, contextParams);
    if (g_eglContext == EGL_NO_CONTEXT)
    {
       printf("Unable to create GLES context!\n");

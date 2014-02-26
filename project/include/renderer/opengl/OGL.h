@@ -23,9 +23,9 @@
 
 //#include <osp/gl.h>
 //#include <FGraphicsOpengl.h>
-#include <FGraphicsOpengl2.h>
+#include <gl2.h>
 
-using namespace Tizen::Graphics::Opengl;
+//using namespace Tizen::Graphics::Opengl;
 
 //#include <osp/gl2.h>
 #define ALLOW_OGL2

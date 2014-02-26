@@ -10,7 +10,6 @@
 #include <FUi.h>
 #include <FUiIme.h>
 #include <FGraphics.h>
-#include <FGraphicsOpengl2.h>
 //#include <FUix.h>
 
 
@@ -52,10 +51,6 @@ namespace lime {
 			
 			void Cleanup (void);
 			
-			Tizen::Graphics::Opengl::EGLDisplay mEGLDisplay;
-			Tizen::Graphics::Opengl::EGLSurface mEGLSurface;
-			Tizen::Graphics::Opengl::EGLConfig mEGLConfig;
-			Tizen::Graphics::Opengl::EGLContext mEGLContext;
 			Tizen::Ui::Controls::Form* mForm;
 			//Tizen::Uix::Sensor::SensorManager* mSensorManager;
 			Tizen::Base::Runtime::Timer* mTimer;
