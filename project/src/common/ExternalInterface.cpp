@@ -3234,10 +3234,11 @@ value lime_bitmap_data_from_bytes(value inRGBBytes, value inAlphaBytes)
       return alloc_null();
 
    Surface *surface = Surface::LoadFromBytes(bytes.data,bytes.length);
-   surface->SetAllowTrans(true);
+   
    
    if (surface)
    {
+      surface->SetAllowTrans(true);	
       if (!val_is_null(inAlphaBytes))
       {
          ByteData alphabytes;
