@@ -243,69 +243,69 @@ namespace lime {
 	
 	void TizenApplication::OnKeyLongPressed (const Tizen::Ui::Control& source, Tizen::Ui::KeyCode keyCode) {}
 	
-    #define TIZEN_TRANS(x) case Tizen::Ui::KEY_##x: return key##x;
+	#define TIZEN_TRANS(x) case Tizen::Ui::KEY_##x: return key##x;
 	#define TIZEN_TRANS_TO(x,y) case Tizen::Ui::KEY_##x: return key##y;
 	#define TIZEN_KEY(x) Tizen::Ui::KEY_##x
-    
+	
 	int TizenKeyToFlash(int inKey, bool &outRight) {
 		
 		outRight = (inKey == TIZEN_KEY(RIGHT_SHIFT) || inKey == TIZEN_KEY(RIGHT_CTRL) ||
 					inKey == TIZEN_KEY(RIGHT_ALT) || inKey == TIZEN_KEY(RIGHT_WIN));
-        
-        
+		
+		
 		if (inKey >= TIZEN_KEY(A) && inKey <= TIZEN_KEY(Z))
 		  return inKey - TIZEN_KEY(A) + keyA;
-        
+		
 		if (inKey >= TIZEN_KEY(0) && inKey <= TIZEN_KEY(9))
 		  return inKey - TIZEN_KEY(0) + keyNUMBER_0;
-        
+		
 		if (inKey >= TIZEN_KEY(NUMPAD_0) && inKey <= TIZEN_KEY(NUMPAD_9))
 		  return inKey - TIZEN_KEY(NUMPAD_0) + keyNUMPAD_0;
-        
+		
 		if (inKey >= TIZEN_KEY(FN_1) && inKey <= TIZEN_KEY(FN_5))
 		  return inKey - TIZEN_KEY(FN_1) + keyF1;
-        
-        // Fun, There are some random key mappings between F5 and F6
-        if (inKey >= TIZEN_KEY(FN_6) && inKey <= TIZEN_KEY(FN_12))
+		
+		// Fun, There are some random key mappings between F5 and F6
+		if (inKey >= TIZEN_KEY(FN_6) && inKey <= TIZEN_KEY(FN_12))
 		  return inKey - TIZEN_KEY(FN_6) + keyF6;
-        
-        
+		
+		
 		switch (inKey)
 		{
 		  case TIZEN_KEY(RIGHT_ALT):
 		  case TIZEN_KEY(LEFT_ALT):
-			 return keyALTERNATE;
+			return keyALTERNATE;
 		  case TIZEN_KEY(RIGHT_SHIFT):
 		  case TIZEN_KEY(LEFT_SHIFT):
-			 return keySHIFT;
+			return keySHIFT;
 		  case TIZEN_KEY(RIGHT_CTRL):
 		  case TIZEN_KEY(LEFT_CTRL):
-			 return keyCONTROL;
+			return keyCONTROL;
 		  case TIZEN_KEY(RIGHT_WIN):
 		  case TIZEN_KEY(LEFT_WIN):
-			 return keyCOMMAND;
+			return keyCOMMAND;
 
-          TIZEN_TRANS_TO(LEFT_BRACKET,  LEFTBRACKET)
-          TIZEN_TRANS_TO(RIGHT_BRACKET, RIGHTBRACKET)
-          TIZEN_TRANS_TO(APOSTROPHE,    QUOTE)
-          TIZEN_TRANS_TO(GRAVE,         BACKQUOTE)
+		  TIZEN_TRANS_TO(LEFT_BRACKET,  LEFTBRACKET)
+		  TIZEN_TRANS_TO(RIGHT_BRACKET, RIGHTBRACKET)
+		  TIZEN_TRANS_TO(APOSTROPHE,    QUOTE)
+		  TIZEN_TRANS_TO(GRAVE,         BACKQUOTE)
 		  TIZEN_TRANS_TO(CAPSLOCK,      CAPS_LOCK)
-          TIZEN_TRANS_TO(MOVE_END,      END)
-          TIZEN_TRANS_TO(ESC,           ESCAPE)
-          TIZEN_TRANS_TO(MOVE_HOME,     HOME)
-          TIZEN_TRANS_TO(DOT,           PERIOD)
-          TIZEN_TRANS_TO(NUMPAD_DOT,    NUMPAD_DECIMAL)
-          
-          TIZEN_TRANS(BACKSLASH)
+		  TIZEN_TRANS_TO(MOVE_END,      END)
+		  TIZEN_TRANS_TO(ESC,           ESCAPE)
+		  TIZEN_TRANS_TO(MOVE_HOME,     HOME)
+		  TIZEN_TRANS_TO(DOT,           PERIOD)
+		  TIZEN_TRANS_TO(NUMPAD_DOT,    NUMPAD_DECIMAL)
+		  
+		  TIZEN_TRANS(BACKSLASH)
 		  TIZEN_TRANS(BACKSPACE)
 		  TIZEN_TRANS(COMMA)
 		  TIZEN_TRANS(DELETE)
 		  TIZEN_TRANS(ENTER)
 		  TIZEN_TRANS(INSERT)
-          TIZEN_TRANS(DOWN)
+		  TIZEN_TRANS(DOWN)
 		  TIZEN_TRANS(LEFT)
 		  TIZEN_TRANS(RIGHT)
-          TIZEN_TRANS(UP)
+		  TIZEN_TRANS(UP)
 		  TIZEN_TRANS(MINUS)
 		  TIZEN_TRANS(PAGE_UP)
 		  TIZEN_TRANS(PAGE_DOWN)
@@ -314,45 +314,44 @@ namespace lime {
 		  TIZEN_TRANS(SPACE)
 		  TIZEN_TRANS(TAB)
 		  
-          TIZEN_TRANS(NUMPAD_ADD)
-          TIZEN_TRANS(NUMPAD_DIVIDE)
-          TIZEN_TRANS(NUMPAD_ENTER)
-          TIZEN_TRANS(NUMPAD_MULTIPLY)
-          TIZEN_TRANS(NUMPAD_SUBTRACT)
-          
+		  TIZEN_TRANS(NUMPAD_ADD)
+		  TIZEN_TRANS(NUMPAD_DIVIDE)
+		  TIZEN_TRANS(NUMPAD_ENTER)
+		  TIZEN_TRANS(NUMPAD_MULTIPLY)
+		  TIZEN_TRANS(NUMPAD_SUBTRACT)
 		}
+        
 		return inKey;
-		
 	}
 	
 	void TizenApplication::OnKeyPressed (const Tizen::Ui::Control& source, Tizen::Ui::KeyCode keyCode) {
-        Event key(etKeyDown);
-        key.code = keyCode;
-        
-        bool right;
-        key.value = TizenKeyToFlash(keyCode, right);
-        
-        if (right)
-            key.flags |= efLocationRight;
-        
-        sgTizenFrame->HandleEvent(key);
+		Event key(etKeyDown);
+		key.code = keyCode;
+		
+		bool right;
+		key.value = TizenKeyToFlash(keyCode, right);
+		
+		if (right)
+			key.flags |= efLocationRight;
+		
+		sgTizenFrame->HandleEvent(key);
 	}
 	
 	
 	void TizenApplication::OnKeyReleased (const Tizen::Ui::Control& source, Tizen::Ui::KeyCode keyCode) {
-        Event key(etKeyUp);
-        key.code = keyCode;
-        
-        bool right;
-        key.value = TizenKeyToFlash(keyCode, right);
-        
-        if (right)
-            key.flags |= efLocationRight;
-        
-        sgTizenFrame->HandleEvent(key);
+		Event key(etKeyUp);
+		key.code = keyCode;
+		
+		bool right;
+		key.value = TizenKeyToFlash(keyCode, right);
+		
+		if (right)
+			key.flags |= efLocationRight;
+		
+		sgTizenFrame->HandleEvent(key);
 	}
-    
-    
+	
+	
 	void TizenApplication::OnLowMemory (void) {}
 	void TizenApplication::OnScreenOn (void) {}
 	void TizenApplication::OnScreenOff (void) {}
