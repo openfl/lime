@@ -34,6 +34,12 @@ class EmscriptenPlatform implements IPlatformTool {
 		ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "emscripten", "-D", "webgl" ] );
 		CPPHelper.compile (project, outputDirectory + "/obj", [ "-Demscripten", "-Dwebgl" ]);
 		
+		if (project.environment.exists ("EMSCRIPTEN_SDK")) {
+			
+			project.path (project.environment.get ("EMSCRIPTEN_SDK"));
+			
+		}
+		
 		Sys.putEnv ("EMCC_LLVM_TARGET", "i386-pc-linux-gnu");
 		
 		ProcessHelper.runCommand ("", "emcc", [ outputDirectory + "/obj/Main.cpp", "-o", outputDirectory + "/obj/Main.o" ], true, false, true);
@@ -192,7 +198,7 @@ class EmscriptenPlatform implements IPlatformTool {
 	
 	
 	private function initialize (project:HXProject):Void {
-		
+				
 		outputDirectory = project.app.path + "/emscripten";
 		outputFile = outputDirectory + "/bin/" + project.app.file + ".js";
 		
