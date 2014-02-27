@@ -119,12 +119,14 @@ class InputHandler {
             lib.host.onchar({
                 raw : _event,
                 code : _event.code,
-                char : _event.char,
+                char : _event.code,
                 value : _event.value,
                 flags : _event.flags,
                 key : lime.helpers.Keys.toKeyValue(_event)
             });
         }
+
+        _event.char = _event.code;
 
         lime_onkeydown( _event );
         
@@ -132,7 +134,7 @@ class InputHandler {
 
     
     @:noCompletion public function lime_onkeydown(_event:Dynamic) {
-            
+
         if(lib.host.onkeydown != null && !keys_down.exists(_event.value)) {
 
             var _keyvalue = lime.helpers.Keys.toKeyValue(_event);
@@ -143,6 +145,13 @@ class InputHandler {
             key_value_pressed.set(_keyvalue, false);
                 //flag it as down, because keyup removes it
             key_value_down.set(_keyvalue, true);
+
+                //some characters can come directly, not via the onchar,
+                //but we want end user to only require one check,
+                //if(event.char != 0) { //printable key } else { //other keys }
+            if(_event.char == null) {
+                _event.char = 0;
+            }
 
             lib.host.onkeydown({
                 raw : _event,
