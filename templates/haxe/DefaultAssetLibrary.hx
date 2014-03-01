@@ -42,9 +42,9 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#elseif html5
 		
-		::if (assets != null)::::foreach assets::::if (embed)::::if (type == "font")::className.set ("::id::", __ASSET__::flatName::);::else::path.set ("::id::", "::resourceName::");::end::
-		type.set ("::id::", Reflect.field (AssetType, "::type::".toUpperCase ()));
-		::end::::end::::end::
+		::if (assets != null)::::foreach assets::::if (embed)::::if (type == "font")::addEmbed("::id::", "::type::", __ASSET__::flatName::);
+		::else::addExternal("::id::", "::type::", "::resourceName::");
+		::end::::end::::end::::end::
 		
 		#else
 		
@@ -98,6 +98,20 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#end
 		
 	}
+	
+	
+	#if html5
+	private function addEmbed(id:String, kind:String, value:Dynamic):Void {
+		className.set(id, value);
+		type.set(id, Reflect.field(AssetType, kind.toUpperCase()));
+	}
+	
+	
+	private function addExternal(id:String, kind:String, value:String):Void {
+		path.set(id, value);
+		type.set(id, Reflect.field(AssetType, kind.toUpperCase()));
+	}
+	#end
 	
 	
 	public override function exists (id:String, type:AssetType):Bool {
