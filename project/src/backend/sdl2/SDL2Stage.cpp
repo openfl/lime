@@ -599,7 +599,6 @@ public:
 		SDL_WarpMouseInWindow( mSDLWindow, inX, inY );
     }	
 	
-      //Note that this fires a mouse event, see the SDL_WarpMouseInWindow docs
     void SetStageWindowPosition(int inX, int inY) 
     {
 		SDL_SetWindowPosition( mSDLWindow, inX, inY );
