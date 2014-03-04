@@ -9,17 +9,17 @@
 
 		<haxelib name="hxlibc" if="cpp" />
 		
+		<ndll name="lime" />
+		
 		<ndll name="openal" register="false" if="android" />
 		<ndll name="libfreetype" register="false" if="emscripten" />
-
+		
 		<ndll name="curl_ssl" register="false" if="ios" />
 		<ndll name="png" register="false" if="ios" />
 		<ndll name="jpeg" register="false" if="ios" />
 		<ndll name="freetype" register="false" if="ios" />
 		<ndll name="ogg" register="false" if="ios" />
 		<ndll name="vorbis" register="false" if="ios" />
-		
-		<ndll name="lime" />
 
 		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
 		
