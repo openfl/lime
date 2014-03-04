@@ -360,7 +360,7 @@ class PathHelper {
 			
 			if (part != "." && part != "") {
 				
-				if (total != "") {
+				if (total != "" && total != "/") {
 					
 					total += "/";
 					
