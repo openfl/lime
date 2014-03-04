@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A powerful native backend for Haxe projects",
-	"version": "0.9.4",
-	"releasenote": "Updates to Lime wrapper, minor native improvements",
+	"version": "0.9.5",
+	"releasenote": "Rendering improvements, Android fixes",
 	"contributors": [ "singmajesty", "underscorediscovery" ],
 	"dependencies": {}
 }
