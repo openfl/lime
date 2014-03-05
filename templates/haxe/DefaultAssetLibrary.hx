@@ -179,6 +179,10 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		return cast (Type.createInstance (className.get (id), []), BitmapData);
 		
+		#elseif openfl_html5
+		
+		return BitmapData.fromImage (ApplicationMain.images.get (path.get (id)));
+		
 		#elseif js
 		
 		return cast (ApplicationMain.loaders.get (path.get (id)).contentLoaderInfo.content, Bitmap).bitmapData;
@@ -201,6 +205,10 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#elseif flash
 		
 		return cast (Type.createInstance (className.get (id), []), ByteArray);
+		
+		#elseif openfl_html5
+		
+		return null;
 		
 		#elseif js
 		
