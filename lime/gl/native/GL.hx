@@ -989,9 +989,9 @@ class GL {
         lime_gl_uniform1f(location, x);
     }
 
-    public static function uniform1fv(location:GLUniformLocation, x:Array<Float>):Void 
+    public static function uniform1fv(location:GLUniformLocation, x:Float32Array):Void 
     {
-        lime_gl_uniform1fv(location, x);
+        lime_gl_uniform1fv(location, x.getByteBuffer());
     }
 
     public static function uniform1i(location:GLUniformLocation, x:Int):Void 
@@ -1009,9 +1009,9 @@ class GL {
         lime_gl_uniform2f(location, x, y);
     }
 
-    public static function uniform2fv(location:GLUniformLocation, v:Array<Float>):Void 
+    public static function uniform2fv(location:GLUniformLocation, v:Float32Array):Void 
     {
-        lime_gl_uniform2fv(location, v);
+        lime_gl_uniform2fv(location, v.getByteBuffer());
     }
 
     public static function uniform2i(location:GLUniformLocation, x:Int, y:Int):Void 
@@ -1029,9 +1029,9 @@ class GL {
         lime_gl_uniform3f(location, x, y, z);
     }
 
-    public static function uniform3fv(location:GLUniformLocation, v:Array<Float>):Void 
+    public static function uniform3fv(location:GLUniformLocation, v:Float32Array):Void 
     {
-        lime_gl_uniform3fv(location, v);
+        lime_gl_uniform3fv(location, v.getByteBuffer());
     }
 
     public static function uniform3i(location:GLUniformLocation, x:Int, y:Int, z:Int):Void 
@@ -1049,9 +1049,9 @@ class GL {
         lime_gl_uniform4f(location, x, y, z, w);
     }
 
-    public static function uniform4fv(location:GLUniformLocation, v:Array<Float>):Void 
+    public static function uniform4fv(location:GLUniformLocation, v:Float32Array):Void 
     {
-        lime_gl_uniform4fv(location, v);
+        lime_gl_uniform4fv(location, v.getByteBuffer());
     }
 
     public static function uniform4i(location:GLUniformLocation, x:Int, y:Int, z:Int, w:Int):Void 
@@ -1099,9 +1099,9 @@ class GL {
         lime_gl_vertex_attrib1f(indx, x);
     }
 
-    public static function vertexAttrib1fv(indx:Int, values:Array<Float>):Void 
+    public static function vertexAttrib1fv(indx:Int, values:Float32Array):Void 
     {
-        lime_gl_vertex_attrib1fv(indx, values);
+        lime_gl_vertex_attrib1fv(indx, values.getByteBuffer());
     }
 
     public static function vertexAttrib2f(indx:Int, x:Float, y:Float):Void 
@@ -1109,9 +1109,9 @@ class GL {
         lime_gl_vertex_attrib2f(indx, x, y);
     }
 
-    public static function vertexAttrib2fv(indx:Int, values:Array<Float>):Void 
+    public static function vertexAttrib2fv(indx:Int, values:Float32Array):Void 
     {
-        lime_gl_vertex_attrib2fv(indx, values);
+        lime_gl_vertex_attrib2fv(indx, values.getByteBuffer());
     }
 
     public static function vertexAttrib3f(indx:Int, x:Float, y:Float, z:Float):Void 
@@ -1119,9 +1119,9 @@ class GL {
         lime_gl_vertex_attrib3f(indx, x, y, z);
     }
 
-    public static function vertexAttrib3fv(indx:Int, values:Array<Float>):Void 
+    public static function vertexAttrib3fv(indx:Int, values:Float32Array):Void 
     {
-        lime_gl_vertex_attrib3fv(indx, values);
+        lime_gl_vertex_attrib3fv(indx, values.getByteBuffer());
     }
 
     public static function vertexAttrib4f(indx:Int, x:Float, y:Float, z:Float, w:Float):Void 
@@ -1129,9 +1129,9 @@ class GL {
         lime_gl_vertex_attrib4f(indx, x, y, z, w);
     }
 
-    public static function vertexAttrib4fv(indx:Int, values:Array<Float>):Void 
+    public static function vertexAttrib4fv(indx:Int, values:Float32Array):Void 
     {
-        lime_gl_vertex_attrib4fv(indx, values);
+        lime_gl_vertex_attrib4fv(indx, values.getByteBuffer());
     }
 
     public static function vertexAttribPointer(indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void 
