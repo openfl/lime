@@ -9,9 +9,10 @@
 
 		<haxelib name="hxlibc" if="cpp" />
 		
+		<ndll name="openal" register="false" if="android" />
+		
 		<ndll name="lime" />
 		
-		<ndll name="openal" register="false" if="android" />
 		<ndll name="libfreetype" register="false" if="emscripten" />
 		
 		<ndll name="curl_ssl" register="false" if="ios" />
