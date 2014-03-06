@@ -106,11 +106,11 @@ class CreateTemplate {
 				
 				var company = "Company Name";
 				
-				if (words.length > 2) {
+				/*if (words.length > 2) {
 					
 					company = words[2];
 					
-				}
+				}*/
 				
 				var context:Dynamic = { };
 				
@@ -158,6 +158,12 @@ class CreateTemplate {
 				}
 				
 				var folder = name;
+				
+				if (words.length > 2) {
+					
+					folder = PathHelper.tryFullPath (words[2]);
+					
+				}
 				
 				PathHelper.mkdir (folder);
 				FileHelper.recursiveCopyTemplate (project.templatePaths, "project", folder, context);
@@ -293,7 +299,7 @@ class CreateTemplate {
 		
 		LogHelper.println ("\x1b[1mYou must specify a template when using the 'create' command.\x1b[0m");
 		LogHelper.println ("");
-		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create " + projectName + ":project \"com.package.name\" \x1b[3;37m\"Company Name\"\x1b[0m");
+		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create " + projectName + ":project \"com.package.name\" \x1b[3;37m\"OutputDirectory\"\x1b[0m");
 		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create " + projectName + ":(sample) \x1b[3;37m\"OutputDirectory\"\x1b[0m");
 		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create extension \"ExtensionName\"");
 		
