@@ -50,6 +50,8 @@ class AndroidPlatform implements IPlatformTool {
 				
 			}
 			
+			armv7 = armv5; // Must use armeabi folder if only one architecture exists
+			
 		}
 		
 		if (ArrayHelper.containsValue (project.architectures, Architecture.ARMV7)) {
@@ -274,7 +276,15 @@ class AndroidPlatform implements IPlatformTool {
 			
 			if (armv7) {
 				
-				FileHelper.copyLibrary (ndll, "Android", "lib", "-v7.so", destination + "/libs/armeabi-v7a", project.debug, ".so");
+				if (armv5) {
+					
+					FileHelper.copyLibrary (ndll, "Android", "lib", "-v7.so", destination + "/libs/armeabi-v7a", project.debug, ".so");
+					
+				} else {
+					
+					FileHelper.copyLibrary (ndll, "Android", "lib", "-v7.so", destination + "/libs/armeabi", project.debug, ".so");
+					
+				}
 				
 			}
 			

@@ -1000,7 +1000,9 @@ class ProjectXMLParser extends HXProject {
 								
 							}
 							
-						} else if (element.has.exclude) {
+						}
+						
+						if (element.has.exclude) {
 							
 							var exclude = substitute (element.att.exclude);
 							
