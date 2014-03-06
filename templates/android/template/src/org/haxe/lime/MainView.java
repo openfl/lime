@@ -435,7 +435,7 @@ class MainView extends GLSurfaceView {
 			
 		}
 		
-		return super.onKeyDown (inKeyCode, event);
+		return super.onKeyUp (inKeyCode, event);
 		
 	}
 	
