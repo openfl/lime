@@ -451,7 +451,7 @@ int GetNormalOrientation() {
 	return 0;
 }
 
-int GetOrientation(double& outX, double& outY, double& outZ) {
+bool GetOrientation(double& outX, double& outY, double& outZ) {
 	if (sStage) {
 		outX = sStage->mOrientationX;
 		outY = sStage->mOrientationY;
