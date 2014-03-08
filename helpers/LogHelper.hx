@@ -5,6 +5,7 @@ import haxe.io.Bytes;
 import helpers.PlatformHelper;
 import neko.Lib;
 import project.Platform;
+import sys.io.Process;
 
 
 class LogHelper {
@@ -86,7 +87,25 @@ class LogHelper {
 		
 		if (colorSupported == null) {
 			
-			colorSupported = (PlatformHelper.hostPlatform != Platform.WINDOWS || Sys.getEnv ("ANSICON") != null);
+			if (PlatformHelper.hostPlatform != Platform.WINDOWS) {
+				
+				var result = -1;
+				
+				try {
+					
+					var process = new Process ("tput", [ "colors" ]);
+					result = process.exitCode ();
+					process.close ();
+				
+				} catch (e:Dynamic) {};
+				
+				colorSupported = (result == 0);
+				
+			} else {
+				
+				colorSupported = (Sys.getEnv ("ANSICON") != null);
+				
+			}
 			
 		}
 		
