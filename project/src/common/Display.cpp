@@ -1652,7 +1652,7 @@ void Stage::HandleEvent(Event &inEvent)
          mFocusObject->OnKey(inEvent);
       #ifdef ANDROID
       // Non-cancelled back key ...
-      if (inEvent.result==0 && inEvent.code==27 && inEvent.type == etKeyUp)
+      if (inEvent.result==0 && inEvent.value==27 && inEvent.type == etKeyUp)
       {
           StopAnimation();
       }
