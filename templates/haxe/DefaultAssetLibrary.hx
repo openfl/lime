@@ -329,6 +329,56 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
+	public override function getText (id:String):String {
+		
+		#if js
+		
+		var bytes:ByteArray = null;
+		var data = ApplicationMain.urlLoaders.get (path.get (id)).data;
+		
+		if (Std.is (data, String)) {
+			
+			return cast data;
+			
+		} else if (Std.is (data, ByteArray)) {
+			
+			bytes = cast data;
+			
+		} else {
+			
+			bytes = null;
+			
+		}
+
+		if (bytes != null) {
+			
+			bytes.position = 0;
+			return bytes.readUTFBytes (bytes.length);
+			
+		} else {
+			
+			return null;
+		}
+		
+		#else
+		
+		var bytes = getBytes (id);
+		
+		if (bytes == null) {
+			
+			return null;
+			
+		} else {
+			
+			return bytes.readUTFBytes (bytes.length);
+			
+		}
+		
+		#end
+		
+	}
+	
+	
 	public override function isLocal (id:String, type:AssetType):Bool {
 		
 		#if flash
@@ -497,6 +547,49 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#else
 		
 		handler (getSound (id));
+		
+		#end
+		
+	}
+	
+	
+	public override function loadText (id:String, handler:String -> Void):Void {
+		
+		#if js
+		
+		if (path.exists (id)) {
+			
+			var loader = new URLLoader ();
+			loader.addEventListener (Event.COMPLETE, function (event:Event) {
+				
+				handler (event.currentTarget.data);
+				
+			});
+			loader.load (new URLRequest (path.get (id)));
+			
+		} else {
+			
+			handler (getText (id));
+			
+		}
+		
+		#else
+		
+		var callback = function (bytes:ByteArray):Void {
+			
+			if (bytes == null) {
+				
+				handler (null);
+				
+			} else {
+				
+				handler (bytes.readUTFBytes (bytes.length));
+				
+			}
+			
+		}
+		
+		loadBytes (id, callback);
 		
 		#end
 		
