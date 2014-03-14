@@ -683,6 +683,10 @@ public:
 
    double mDownX;
    double mDownY;
+   
+   const char *getJoystickName(int id) {
+      return SDL_JoystickNameForIndex(id);
+   }
 
    Surface *GetPrimarySurface()
    {

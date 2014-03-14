@@ -447,6 +447,8 @@ public:
    
    virtual uint32 getBackgroundMask() { return 0xffffffff; }
 
+   virtual const char *getJoystickName(int id) { return NULL; }
+
    Matrix GetFullMatrix(bool inStageScaling);
    bool FinishEditOnEnter();
 
