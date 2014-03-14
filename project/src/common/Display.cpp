@@ -30,8 +30,7 @@ DisplayObject::DisplayObject(bool inInitRef) : Object(inInitRef)
    mParent = 0;
    mGfx = 0;
    mDirtyFlags = 0;
-   x = y = 0;
-   z = 0.1;
+   x = y = z = 0;
    scaleX = scaleY = 1.0;
    rotation = 0;
    visible = true;

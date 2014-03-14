@@ -272,7 +272,7 @@ void OpenGLS3D::FocusEye (Trans4x4 &outTrans) {
       outTrans[0][0] = (a*n);
       outTrans[0][1] = (b*n);
       outTrans[0][2] = m;
-      outTrans[0][3] = (n*tx + m*tz);
+      outTrans[0][3] = (n*tx + m*-tz);
       
       outTrans[1][0] = c;
       outTrans[1][1] = d;
@@ -282,7 +282,7 @@ void OpenGLS3D::FocusEye (Trans4x4 &outTrans) {
       outTrans[2][0] = -a*m;
       outTrans[2][1] = -b*m;
       outTrans[2][2] = -n;
-      outTrans[2][3] = -(n*tz-m*tx);
+      outTrans[2][3] = -(n*-tz-m*tx);
 
    }
 }
