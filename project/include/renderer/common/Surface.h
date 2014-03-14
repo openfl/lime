@@ -28,7 +28,11 @@ namespace lime {
 		
 		public:
 			
+			#ifdef LIME_PREMULTIPLIED_ALPHA
+			Surface () : mTexture (0), mVersion (0), mFlags (SURF_FLAGS_NOT_REPEAT_IF_NON_PO2 | SURF_FLAGS_USE_PREMULTIPLIED_ALPHA), mAllowTrans (true) {}; // Non-PO2 will generate dodgy repeating anyhow...
+			#else
 			Surface () : mTexture (0), mVersion (0), mFlags (SURF_FLAGS_NOT_REPEAT_IF_NON_PO2), mAllowTrans (true) {}; // Non-PO2 will generate dodgy repeating anyhow...
+			#endif
 			
 			virtual RenderTarget BeginRender (const Rect &inRect, bool inForHitTest = false) = 0;
 			virtual void BlitChannel (const RenderTarget &outTarget, const Rect &inSrcRect, int inPosX, int inPosY, int inSrcChannel, int inDestChannel) const = 0;

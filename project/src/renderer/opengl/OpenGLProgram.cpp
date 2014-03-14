@@ -231,7 +231,11 @@ namespace lime {
 			
 			if (mColourScaleSlot >= 0) {
 				
+				#ifdef LIME_PREMULTIPLIED_ALPHA
+				glUniform4f (mColourScaleSlot, inTransform->redMultiplier * inTransform->alphaMultiplier * rf, inTransform->greenMultiplier * inTransform->alphaMultiplier * gf, inTransform->blueMultiplier * inTransform->alphaMultiplier * bf, inTransform->alphaMultiplier * af);
+				#else
 				glUniform4f (mColourScaleSlot, inTransform->redMultiplier * rf, inTransform->greenMultiplier * gf, inTransform->blueMultiplier * bf, inTransform->alphaMultiplier * af);
+				#endif
 				
 			}
 			

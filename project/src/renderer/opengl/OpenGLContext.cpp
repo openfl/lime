@@ -404,7 +404,11 @@ namespace lime {
 			}
 			
 			int progId = 0;
+			#ifdef LIME_PREMULTIPLIED_ALPHA
+			bool premAlpha = true;
+			#else
 			bool premAlpha = false;
+			#endif
 			
 			if ((element.mFlags & DRAW_HAS_TEX) && element.mSurface) {
 				
