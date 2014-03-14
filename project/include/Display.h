@@ -165,6 +165,8 @@ public:
    void   setX(double inValue);
    double getY();
    void   setY(double inValue);
+   double getZ();
+   void   setZ(double inValue);
    virtual double getHeight();
    virtual void   setHeight(double inValue);
    virtual double getWidth();
@@ -314,6 +316,7 @@ protected:
    // Decomp
    double x;
    double y;
+   double z;
    double scaleX;
    double scaleY;
    double rotation;
@@ -447,6 +450,8 @@ public:
    Matrix GetFullMatrix(bool inStageScaling);
    bool FinishEditOnEnter();
 
+   void setAutoS3D(bool enabled) { autos3d = enabled; }
+   bool getAutoS3D() const { return autos3d; }
    void setFocusRect(bool inVal) { focusRect = inVal; }
    bool getFocusRect() const { return focusRect; }
    UserPoint getMousePos() const { return mLastMousePos; }
@@ -478,6 +483,7 @@ protected:
    EventHandler mHandler;
    void         *mHandlerData;
    bool         focusRect;
+   bool         autos3d;
    UserPoint    mLastMousePos;
    StageScaleMode scaleMode;
    StageAlign     align;

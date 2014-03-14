@@ -3,6 +3,8 @@
 #include "renderer/common/SimpleSurface.h"
 #include "renderer/common/AutoSurfaceRender.h"
 #include "renderer/common/BitmapCache.h"
+#include "renderer/common/S3D.h"
+#include "renderer/common/S3DEye.h"
 #include <math.h>
 
 #ifndef M_PI
@@ -29,6 +31,7 @@ DisplayObject::DisplayObject(bool inInitRef) : Object(inInitRef)
    mGfx = 0;
    mDirtyFlags = 0;
    x = y = 0;
+   z = 0.1;
    scaleX = scaleY = 1.0;
    rotation = 0;
    visible = true;
@@ -334,6 +337,7 @@ Matrix &DisplayObject::GetLocalMatrix()
       mLocalMatrix.m11 = c*scaleY;
       mLocalMatrix.mtx = x;
       mLocalMatrix.mty = y;
+      mLocalMatrix.mtz = z;
    }
    return mLocalMatrix;
 }
@@ -354,6 +358,7 @@ void DisplayObject::UpdateDecomp()
       mDirtyFlags ^= dirtDecomp;
       x = mLocalMatrix.mtx;
       y = mLocalMatrix.mty;
+      z = mLocalMatrix.mtz;
       scaleX = sqrt( mLocalMatrix.m00*mLocalMatrix.m00 +
                      mLocalMatrix.m10*mLocalMatrix.m10 );
       scaleY = sqrt( mLocalMatrix.m01*mLocalMatrix.m01 +
@@ -534,6 +539,23 @@ void DisplayObject::setScaleY(double inValue)
       mDirtyFlags |= dirtLocalMatrix;
       scaleY = inValue;
       DirtyCache();
+   }
+}
+
+double DisplayObject::getZ()
+{
+   UpdateDecomp();
+   return z;
+}
+
+void DisplayObject::setZ(double inValue)
+{
+   UpdateDecomp();
+   if (z!=inValue)
+   {
+      mDirtyFlags |= dirtLocalMatrix;
+      z = inValue;
+      DirtyCache(true);
    }
 }
 
@@ -1526,6 +1548,7 @@ Stage::Stage(bool inInitRef) : DisplayObjectContainer(inInitRef)
    mNextWake = 0.0;
    displayState = sdsNormal;
    align = saTopLeft;
+   autos3d = true;
 
    #if defined(IPHONE) || defined(ANDROID) || defined(WEBOS) || defined(TIZEN)
    quality = sqLow;
@@ -1673,8 +1696,8 @@ void Stage::HandleEvent(Event &inEvent)
    {
       UserPoint pixels(inEvent.x,inEvent.y);
       hit_obj = HitTest(pixels);
-      //if (inEvent.type!=etTouchMove)
-        //ELOG("  type=%d %d,%d obj=%p (%S)", inEvent.type, inEvent.x, inEvent.y, hit_obj, hit_obj?hit_obj->name.c_str():L"(none)");
+      // if (inEvent.type!=etTouchMove)
+      //   ELOG("  type=%d %d,%d obj=%p (%S)", inEvent.type, inEvent.x, inEvent.y, hit_obj, hit_obj?hit_obj->name.c_str():L"(none)");
 
       SimpleButton *but = hit_obj ? dynamic_cast<SimpleButton *>(hit_obj) : 0;
       inEvent.id = hit_obj ? hit_obj->id : id;
@@ -1918,21 +1941,41 @@ void Stage::RenderStage()
 {
    ColorTransform::TidyCache();
    AutoStageRender render(this,opaqueBackground);
-   if (render.Target().IsHardware())
-      render.Target().mHardware->SetQuality(quality);
 
-   RenderState state(0, GetAA() );
+   S3DEye start = EYE_MIDDLE;
+   S3DEye end = EYE_MIDDLE;
+   if(autos3d && S3D::GetEnabled()) {
 
-   state.mTransform.mMatrix = &mStageScale;
+      start = EYE_LEFT;
+      end = EYE_RIGHT;
+      
+   }
 
-   state.mClipRect = Rect( render.Width(), render.Height() );
+   for(int eye = start; eye <= end; eye++) {
 
-   state.mPhase = rpBitmap;
-   state.mRoundSizeToPOW2 = render.Target().IsHardware();
-   Render(render.Target(),state);
+      render.Target().mHardware->SetS3DEye(eye);
 
-   state.mPhase = rpRender;
-   Render(render.Target(),state);
+      if (render.Target().IsHardware())
+         render.Target().mHardware->SetQuality(quality);
+
+      RenderState state(0, GetAA() );
+
+      state.mTransform.mMatrix = &mStageScale;
+
+      state.mClipRect = Rect( render.Width(), render.Height() );
+
+      state.mPhase = rpBitmap;
+      state.mRoundSizeToPOW2 = render.Target().IsHardware();
+      Render(render.Target(),state);
+
+      state.mPhase = rpRender;
+      Render(render.Target(),state);
+      
+   }
+
+   if(autos3d && S3D::GetEnabled()) {
+      render.Target().mHardware->EndS3DRender();
+   }
 
    // Clear alpha masks
 }

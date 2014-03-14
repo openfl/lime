@@ -13,3 +13,5 @@ project/vc*.pdb
 project/winrt/shaders/
 *.userprefs
 *.swp
+.idea/
+*.iml

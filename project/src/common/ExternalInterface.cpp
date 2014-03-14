@@ -1344,11 +1344,12 @@ value lime_stage_set_focus(value inStage,value inObject,value inDirection)
 DEFINE_PRIM(lime_stage_set_focus,3);
 
 DO_STAGE_PROP(focus_rect,FocusRect,alloc_bool,val_bool)
-DO_STAGE_PROP(scale_mode,ScaleMode,alloc_int,val_int)
+DO_STAGE_PROP(autos3d,AutoS3D,alloc_bool,val_bool)
 DO_STAGE_PROP(align,Align,alloc_int,val_int)
 DO_STAGE_PROP(quality,Quality,alloc_int,val_int)
 DO_STAGE_PROP(display_state,DisplayState,alloc_int,val_int)
 DO_STAGE_PROP(multitouch_active,MultitouchActive,alloc_bool,val_bool)
+DO_STAGE_PROP(scale_mode,ScaleMode,alloc_int,val_int)
 DO_PROP_READ(Stage,stage,stage_width,StageWidth,alloc_float);
 DO_PROP_READ(Stage,stage,stage_height,StageHeight,alloc_float);
 DO_PROP_READ(Stage,stage,dpi_scale,DPIScale,alloc_float);
@@ -1915,6 +1916,7 @@ DEFINE_PRIM(lime_display_object_dismiss_soft_keyboard,1);
 
 DO_DISPLAY_PROP(x,X,alloc_float,val_number)
 DO_DISPLAY_PROP(y,Y,alloc_float,val_number)
+DO_DISPLAY_PROP(z,Z,alloc_float,val_number)
 DO_DISPLAY_PROP(scale_x,ScaleX,alloc_float,val_number)
 DO_DISPLAY_PROP(scale_y,ScaleY,alloc_float,val_number)
 DO_DISPLAY_PROP(rotation,Rotation,alloc_float,val_number)
@@ -3075,6 +3077,11 @@ TEXT_PROP(max_chars,MaxChars,alloc_int,val_int);
 TEXT_PROP_GET_IDX(line_text,LineText,alloc_wstring);
 TEXT_PROP_GET_IDX(line_offset,LineOffset,alloc_int);
 
+value lime_bitmap_data_set_alpha_mode(value a, value b)
+{
+   return alloc_null();
+}
+DEFINE_PRIM(lime_bitmap_data_set_alpha_mode,2);
 
 value lime_bitmap_data_create(value* arg, int nargs)
 {

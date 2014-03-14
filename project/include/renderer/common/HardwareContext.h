@@ -35,7 +35,10 @@ namespace lime {
 			virtual void SetViewport (const Rect &inRect) = 0;
 			virtual void SetWindowSize (int inWidth, int inHeight) = 0;
 			virtual int Width () const = 0;
-		
+
+			virtual void EndS3DRender () { };
+			virtual void SetS3DEye (int eye) { };
+
 	};
 	
 	
