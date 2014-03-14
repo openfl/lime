@@ -579,7 +579,7 @@ class MainView extends GLSurfaceView {
 			case 112: return 127; // delete
 			
 		}
-		
+	
 		return result;
 		
 	}
@@ -592,9 +592,16 @@ class MainView extends GLSurfaceView {
 			case KeyEvent.KEYCODE_BACK: return 27; /* Fake Escape */
 			case KeyEvent.KEYCODE_MENU: return 0x01000012; /* Fake MENU */
 			case KeyEvent.KEYCODE_DEL: return 8;
+
+			// These will be ignored by the app and passed to the default handler
+			case KeyEvent.KEYCODE_VOLUME_UP:
+			case KeyEvent.KEYCODE_VOLUME_DOWN:
+			case KeyEvent.KEYCODE_VOLUME_MUTE: 
+				return 0;
 			
 		}
-		
+
+
 		if (inCode >= 7 && inCode <= 16) {
 			
 			return inCode + 41; // 1-9
