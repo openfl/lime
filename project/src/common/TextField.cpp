@@ -298,6 +298,8 @@ void TextField::setTextColor(int inCol)
    {
       defaultTextFormat = defaultTextFormat->COW();
       defaultTextFormat->color = inCol;
+      mGfxDirty = true;
+      DirtyCache();
    }
 }
 
