@@ -22,6 +22,7 @@ import openfl.utils.SystemPath;
 #end
 
 
+@:access(flash.media.Sound)
 class DefaultAssetLibrary extends AssetLibrary {
 	
 	
@@ -277,6 +278,13 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#elseif flash
 		
 		return cast (Type.createInstance (className.get (id), []), Sound);
+		
+		#elseif openfl_html5
+		
+		var sound = new Sound ();
+		sound.__buffer = true;
+		sound.load (new URLRequest (path.get (id)));
+		return sound; 
 		
 		#elseif js
 		
@@ -602,12 +610,12 @@ class DefaultAssetLibrary extends AssetLibrary {
 #if pixi
 #elseif flash
 
-::foreach assets::::if (embed)::::if (type == "image")::class __ASSET__::flatName:: extends flash.display.BitmapData { public function new () { super (0, 0); } }::else::class __ASSET__::flatName:: extends ::flashClass:: { }::end::::end::
+::foreach assets::::if (embed)::::if (type == "image")::@:keep class __ASSET__::flatName:: extends flash.display.BitmapData { public function new () { super (0, 0); } }::else::@:keep class __ASSET__::flatName:: extends ::flashClass:: { }::end::::end::
 ::end::
 
 #elseif html5
 
-::foreach assets::::if (type == "font")::class __ASSET__::flatName:: extends flash.text.Font { }::end::
+::foreach assets::::if (type == "font")::@:keep class __ASSET__::flatName:: extends flash.text.Font { }::end::
 ::end::
 
 #end
