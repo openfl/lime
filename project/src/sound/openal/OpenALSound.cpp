@@ -1009,13 +1009,13 @@ namespace lime
        if (active && !playing())
          alSourcePlay(source);
        
-       if (!active && mLoops > 0)
+       /*if (!active && mLoops > 0)
        {
          mLoops --;
          double seek = mStartTime * 0.001;
          ov_time_seek(oggStream, seek);
          return update();
-       }
+       }*/
        
        return active;
 
@@ -1037,7 +1037,13 @@ namespace lime
                size += result;
            else
                if(result < 0) {
+
+                  if ( mLoops > 0 ) {
+                     mLoops --;
+                     ov_time_seek(oggStream, 0);
+                  }else{
                    break;
+                  }
                    //LOG_SOUND ("Result is less than 0");
                    //throw errorString(result);
                }
@@ -1045,8 +1051,16 @@ namespace lime
                    break;
        }
        if(size <= 0) {
-           alSourceStop(source);
-           return false;
+         if ( mLoops > 0 ) {
+            mLoops --;
+            ov_time_seek(oggStream, 0);
+            return stream( buffer );
+         }else{
+            alSourceStop(source);
+            return false;
+         }
+           
+           
       }
       
        alBufferData(buffer, format, pcm, size, vorbisInfo->rate);
