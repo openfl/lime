@@ -309,6 +309,8 @@ value lime_gl_s3d_set_focal_length (value length)
 
    }
 
+   return alloc_null ();
+   
 }
 DEFINE_PRIM (lime_gl_s3d_set_focal_length,1);
 
@@ -337,6 +339,8 @@ value lime_gl_s3d_set_eye_separation (value separation)
 
    }
 
+   return alloc_null ();
+   
 }
 DEFINE_PRIM (lime_gl_s3d_set_eye_separation,1);
 
