@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A powerful native backend for Haxe projects",
-	"version": "0.9.5",
-	"releasenote": "Rendering improvements, Android fixes",
+	"version": "0.9.6",
+	"releasenote": "Add S3D support, minor update",
 	"contributors": [ "singmajesty", "underscorediscovery" ],
 	"dependencies": {}
 }
