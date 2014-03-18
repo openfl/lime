@@ -5,6 +5,7 @@ enum Platform {
 	
 	ANDROID;
 	BLACKBERRY;
+	FIREFOXOS;
 	FLASH;
 	HTML5;
 	IOS;

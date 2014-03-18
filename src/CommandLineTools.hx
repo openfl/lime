@@ -169,6 +169,10 @@ class CommandLineTools {
 				
 				platform = new HTML5Platform ();
 			
+			case FIREFOXOS:
+				
+				platform = new FirefoxOSPlatform ();
+			
 			case EMSCRIPTEN:
 				
 				platform = new EmscriptenPlatform ();
