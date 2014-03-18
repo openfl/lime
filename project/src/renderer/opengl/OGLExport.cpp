@@ -139,7 +139,7 @@ value lime_gl_get_parameter(value pname_val)
 {
    int floats = 0;
    int ints = 0;
-   int strings = 1;
+   int strings = 0;
    int pname = val_int(pname_val);
 
    switch(pname)
