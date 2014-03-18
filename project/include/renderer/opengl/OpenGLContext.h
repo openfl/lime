@@ -67,8 +67,10 @@ namespace lime {
 			int mWidth;
 			QuickVec<GLuint> mZombieTextures;
 			QuickVec<GLuint> mZombieVbos;
-
-			OpenGLS3D mS3D;
+			
+			#ifdef ANDROID
+			OpenGLS3D *mS3D;
+			#endif
 	};
 	
 	

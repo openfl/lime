@@ -363,7 +363,7 @@
 		<file name="src/renderer/opengl/OpenGLInit.cpp"/>
 		<file name="src/renderer/opengl/OpenGLContext.cpp"/>
 		<!-- <file name="src/renderer/opengl/OpenGL2Context.cpp"/> -->
-		<file name="src/renderer/opengl/OpenGLS3D.cpp"/>
+		<file name="src/renderer/opengl/OpenGLS3D.cpp" if="android" />
 		<file name="src/renderer/opengl/OpenGLTexture.cpp"/>
 		<file name="src/renderer/opengl/OpenGLProgram.cpp"/>
 		<file name="src/renderer/opengl/OpenGLShaders.cpp"/>
