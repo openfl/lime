@@ -69,7 +69,7 @@ namespace lime {
 			QuickVec<GLuint> mZombieVbos;
 			
 			#ifdef ANDROID
-			OpenGLS3D *mS3D;
+			OpenGLS3D mS3D;
 			#endif
 	};
 	

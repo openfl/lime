@@ -685,7 +685,11 @@ public:
    double mDownY;
    
    const char *getJoystickName(int id) {
+      #if !defined(BLACKBERRY) && !defined(EMSCRIPTEN)
       return SDL_JoystickNameForIndex(id);
+      #else
+      return "";
+      #endif
    }
 
    Surface *GetPrimarySurface()
