@@ -662,26 +662,26 @@ namespace lime {
 		
 		if (mPixelFormat == pfAlpha)
 			return;
-		int a;
-		double multiply;
+			
+		//converted to uint 
+		//converted to float
+		//got rid of the premultiply so that we can allow compiler to pipeline computation
+		//cuz ARM instr have that mul load shift greatness
+		uint8 a;
+		float multiply = 0.0f;
+		int stride = mStride;
+		uint8 *dest = 0;
 		
 		for (int y = 0; y < r.h; y++) {
+			dest = mBase + ((r.y + y) * stride) + (r.x << 2);
 			
-			uint8 *dest = mBase + ((r.y + y) * mStride) + (r.x * 4);
 			for (int x = 0; x < r.w; x++) {
-				
 				a = *(dest + 3);
-				if (a < 255.0) {
-					
-					multiply = a / 255.0;
-					*dest = sgClamp0255[int((*dest) * multiply)];
-					*(dest + 1) = sgClamp0255[int(*(dest + 1) * multiply)];
-					*(dest + 2) = sgClamp0255[int(*(dest + 2) * multiply)];
-					
-				}
+				*dest = (uint8) (*dest * a * 0.0039215686274509803921568627451f);
+				*(dest + 1) = (uint8) (*(dest + 1) * a * 0.0039215686274509803921568627451f);
+				*(dest + 2) = (uint8) (*(dest + 2) * a * 0.0039215686274509803921568627451f);
 				
 				dest += 4;
-				
 			}
 			
 		}
