@@ -658,27 +658,29 @@ DEFINE_PRIM(lime_gl_get_active_uniform,2);
 
 
 
+//only float arrays accepted
+//passe the full arrays instead of single element
+//if double should be accepted, it is highly important that whole arrays are passed
+// inTranspose = true crashes on mobile and_eq should be adequately forbidden by haxe headers
+value lime_gl_uniform_matrix(value inLocation, value inTranspose, value inBytes,value inCount){
+	
+	int loc = val_int(inLocation);
+	int count = val_int(inCount);
+	
+	bool trans = val_bool(inTranspose);
 
-value lime_gl_uniform_matrix(value inLocation, value inTranspose, value inBytes,value inCount)
-{
-   int loc = val_int(inLocation);
-   int count = val_int(inCount);
-   ByteArray bytes(inBytes);
-   int size = bytes.Size();
+	ByteArray bytes(inBytes);
+	int size = bytes.Size();
+	const float *data = (float *)bytes.Bytes();
+	int nbElems = size / sizeof(float);
 
-   if (size>=count*4*4)
-   {
-      const float *data = (float *)bytes.Bytes();
+	switch(count){
+		case 2: glUniformMatrix2fv(loc,nbElems>>2	,trans,data);
+		case 3: glUniformMatrix3fv(loc,nbElems/9	,trans,data);
+		case 4: glUniformMatrix4fv(loc,nbElems>>4	,trans,data);
+	}
 
-      bool trans = val_bool(inTranspose);
-      if (count==2)
-         glUniformMatrix2fv(loc,1,trans,data);
-      else if (count==3)
-         glUniformMatrix3fv(loc,1,trans,data);
-      else if (count==4)
-         glUniformMatrix4fv(loc,1,trans,data);
-   }
-   return alloc_null();
+	return alloc_null();
 }
 DEFINE_PRIM(lime_gl_uniform_matrix,4);
 
@@ -771,77 +773,69 @@ DEFINE_PRIM(lime_gl_uniform4iv,2);
 
 
 
-value lime_gl_uniform1fv(value inLocation,value inArray)
+value lime_gl_uniform1fv(value inLocation,value inByteBuffer)
 {
-   float *f = val_array_float(inArray);
-   if (f)
-      glUniform1fv(val_int(inLocation),1,f);
-   else
-   {
-      double *d = val_array_double(inArray);
-      if (d)
-         glUniform1f(val_int(inLocation),d[0]);
-      else
-         lime_gl_uniform1f(inLocation,val_array_i(inArray,0));
-   }
-   return alloc_null();
+	int loc = val_int(inLocation);
+
+	ByteArray bytes(inByteBuffer);
+	int size = bytes.Size();
+	const float *data = (float *)bytes.Bytes();
+	int nbElems = size / sizeof(float);
+
+	glUniform1fv(loc,nbElems,data);
+
+	return alloc_null();
 }
 DEFINE_PRIM(lime_gl_uniform1fv,2);
 
 
 
-value lime_gl_uniform2fv(value inLocation,value inArray)
+value lime_gl_uniform2fv(value inLocation,value inByteBuffer)
 {
-   float *f = val_array_float(inArray);
-   if (f)
-      glUniform2fv(val_int(inLocation),1,f);
-   else
-   {
-      double *d = val_array_double(inArray);
-      if (d)
-         glUniform2f(val_int(inLocation),d[0],d[1]);
-      else
-         lime_gl_uniform2f(inLocation,val_array_i(inArray,0),val_array_i(inArray,1));
-   }
-   return alloc_null();
+	int loc = val_int(inLocation);
+
+	ByteArray bytes(inByteBuffer);
+	int size = bytes.Size();
+	const float *data = (float *)bytes.Bytes();
+	int nbElems = size / sizeof(float);
+
+	glUniform2fv(loc,nbElems>>1,data);
+
+	return alloc_null();
 }
 DEFINE_PRIM(lime_gl_uniform2fv,2);
 
 
 
-value lime_gl_uniform3fv(value inLocation,value inArray)
+value lime_gl_uniform3fv(value inLocation,value inByteBuffer)
 {
-   float *f = val_array_float(inArray);
-   if (f)
-      glUniform3fv(val_int(inLocation),1,f);
-   else
-   {
-      double *d = val_array_double(inArray);
-      if (d)
-         glUniform3f(val_int(inLocation),d[0],d[1],d[2]);
-      else
-         lime_gl_uniform3f(inLocation,val_array_i(inArray,0),val_array_i(inArray,1),val_array_i(inArray,2));
-   }
-   return alloc_null();
+	int loc = val_int(inLocation);
+
+	ByteArray bytes(inByteBuffer);
+	int size = bytes.Size();
+	const float *data = (float *)bytes.Bytes();
+	int nbElems = size / sizeof(float);
+
+	glUniform3fv(loc,nbElems/3,data);
+
+	return alloc_null();
 }
 DEFINE_PRIM(lime_gl_uniform3fv,2);
 
 
 
-value lime_gl_uniform4fv(value inLocation,value inArray)
+value lime_gl_uniform4fv(value inLocation,value inByteBuffer)
 {
-   float *f = val_array_float(inArray);
-   if (f)
-      glUniform4fv(val_int(inLocation),1,f);
-   else
-   {
-      double *d = val_array_double(inArray);
-      if (d)
-         glUniform4f(val_int(inLocation),d[0],d[1],d[2],d[3]);
-      else
-         lime_gl_uniform4f(inLocation,val_array_i(inArray,0),val_array_i(inArray,1),val_array_i(inArray,2),val_array_i(inArray,3));
-   }
-   return alloc_null();
+	int loc = val_int(inLocation);
+
+	ByteArray bytes(inByteBuffer);
+	int size = bytes.Size();
+	const float *data = (float *)bytes.Bytes();
+	int nbElems = size / sizeof(float);
+
+	glUniform4fv(loc,nbElems>>2,data);
+
+	return alloc_null();
 }
 DEFINE_PRIM(lime_gl_uniform4fv,2);
 
@@ -889,41 +883,33 @@ DEFINE_PRIM(lime_gl_vertex_attrib4f,5);
 
 
 
-value lime_gl_vertex_attrib1fv(value inLocation,value inArray)
+value lime_gl_vertex_attrib1fv(value inLocation,value inByteBuffer)
 {
-   #ifndef EMSCRIPTEN
-   float *f = val_array_float(inArray);
-   if (f)
-      glVertexAttrib1fv(val_int(inLocation),f);
-   else
-   {
-      double *d = val_array_double(inArray);
-      if (d)
-         glVertexAttrib1f(val_int(inLocation),d[0]);
-      else
-         lime_gl_vertex_attrib1f(inLocation,val_array_i(inArray,0));
-   }
-   #endif
-   return alloc_null();
+	#ifndef EMSCRIPTEN
+	int loc = val_int(inLocation);
+	
+	ByteArray bytes(inByteBuffer);
+	int size = bytes.Size();
+	const float *data = (float *)bytes.Bytes();
+	
+	glVertexAttrib1fv(loc,data);
+	#endif
+	return alloc_null();
 }
 DEFINE_PRIM(lime_gl_vertex_attrib1fv,2);
 
 
 
-value lime_gl_vertex_attrib2fv(value inLocation,value inArray)
+value lime_gl_vertex_attrib2fv(value inLocation,value inByteBuffer)
 {
    #ifndef EMSCRIPTEN
-   float *f = val_array_float(inArray);
-   if (f)
-      glVertexAttrib2fv(val_int(inLocation),f);
-   else
-   {
-      double *d = val_array_double(inArray);
-      if (d)
-         glVertexAttrib2f(val_int(inLocation),d[0],d[1]);
-      else
-         lime_gl_vertex_attrib2f(inLocation,val_array_i(inArray,0),val_array_i(inArray,1));
-   }
+	int loc = val_int(inLocation);
+
+	ByteArray bytes(inByteBuffer);
+	int size = bytes.Size();
+	const float *data = (float *)bytes.Bytes();
+
+	glVertexAttrib2fv(loc,data);
    #endif
    return alloc_null();
 }
@@ -931,20 +917,16 @@ DEFINE_PRIM(lime_gl_vertex_attrib2fv,2);
 
 
 
-value lime_gl_vertex_attrib3fv(value inLocation,value inArray)
+value lime_gl_vertex_attrib3fv(value inLocation,value inByteBuffer)
 {
    #ifndef EMSCRIPTEN
-   float *f = val_array_float(inArray);
-   if (f)
-      glVertexAttrib3fv(val_int(inLocation),f);
-   else
-   {
-      double *d = val_array_double(inArray);
-      if (d)
-         glVertexAttrib3f(val_int(inLocation),d[0],d[1],d[2]);
-      else
-         lime_gl_vertex_attrib3f(inLocation,val_array_i(inArray,0),val_array_i(inArray,1),val_array_i(inArray,2));
-   }
+	int loc = val_int(inLocation);
+	
+	ByteArray bytes(inByteBuffer);
+	int size = bytes.Size();
+	const float *data = (float *)bytes.Bytes();
+	
+	glVertexAttrib3fv(loc,data);
    #endif
    return alloc_null();
 }
@@ -952,20 +934,16 @@ DEFINE_PRIM(lime_gl_vertex_attrib3fv,2);
 
 
 
-value lime_gl_vertex_attrib4fv(value inLocation,value inArray)
+value lime_gl_vertex_attrib4fv(value inLocation,value inByteBuffer)
 {
    #ifndef EMSCRIPTEN
-   float *f = val_array_float(inArray);
-   if (f)
-      glVertexAttrib4fv(val_int(inLocation),f);
-   else
-   {
-      double *d = val_array_double(inArray);
-      if (d)
-         glVertexAttrib4f(val_int(inLocation),d[0],d[1],d[2],d[3]);
-      else
-         lime_gl_vertex_attrib4f(inLocation,val_array_i(inArray,0),val_array_i(inArray,1),val_array_i(inArray,2),val_array_i(inArray,3));
-   }
+    int loc = val_int(inLocation);
+	
+	ByteArray bytes(inByteBuffer);
+	int size = bytes.Size();
+	const float *data = (float *)bytes.Bytes();
+	
+	glVertexAttrib4fv(loc,data);
    #endif
    return alloc_null();
 }
