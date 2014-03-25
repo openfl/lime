@@ -1,6 +1,7 @@
 package helpers;
 
 
+import helpers.LogHelper;
 import helpers.ProcessHelper;
 import project.HXProject;
 import sys.io.File;
@@ -74,6 +75,12 @@ class CPPHelper {
 			if (project.debug) {
 				
 				args.push ("-Ddebug");
+				
+			}
+			
+			if (LogHelper.verbose) {
+				
+				args.push ("-verbose");
 				
 			}
 			

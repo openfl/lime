@@ -170,7 +170,7 @@ class ProcessHelper {
 			return _runCommand (path, command, args);
 			
 		}
-	  
+		
 	}
 	
 	

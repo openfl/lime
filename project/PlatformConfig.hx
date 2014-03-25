@@ -24,7 +24,7 @@ class PlatformConfig {
 	
 	private static var defaultCPP:CPPConfig = {
 		
-		buildLibrary: "hxlibc",
+		buildLibrary: "hxcpp",
 		requireBuild: true
 		
 	}
