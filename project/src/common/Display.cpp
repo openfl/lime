@@ -1952,10 +1952,11 @@ void Stage::RenderStage()
 
    for(int eye = start; eye <= end; eye++) {
 
-      render.Target().mHardware->SetS3DEye(eye);
-
       if (render.Target().IsHardware())
+      {
+         render.Target().mHardware->SetS3DEye(eye);
          render.Target().mHardware->SetQuality(quality);
+      }
 
       RenderState state(0, GetAA() );
 

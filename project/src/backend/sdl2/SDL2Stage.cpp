@@ -1403,12 +1403,13 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
 
 		int renderFlags = 0;
 		if (opengl) renderFlags |= SDL_RENDERER_ACCELERATED;
-		if (vsync) renderFlags |= SDL_RENDERER_PRESENTVSYNC;
+		if (opengl && vsync) renderFlags |= SDL_RENDERER_PRESENTVSYNC;
 
 		renderer = SDL_CreateRenderer (window, -1, renderFlags);
 		
 		if (opengl) sgIsOGL2 = (inFlags & (wfAllowShaders | wfRequireShaders));
-		
+		else sgIsOGL2 = false;
+
 		if (!renderer && (inFlags & wfHW_AA_HIRES || inFlags & wfHW_AA)) {
 			// if no window was created and AA was enabled, disable AA and try again
 			fprintf(stderr, "Multisampling is not available. Retrying without. (%s)\n", SDL_GetError());
@@ -1422,7 +1423,7 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
 			// if opengl is enabled and no window was created, disable it and try again
 			fprintf(stderr, "OpenGL is not available. Retrying without. (%s)\n", SDL_GetError());
 			opengl = false;
-			renderFlags &= ~SDL_RENDERER_ACCELERATED;
+			requestWindowFlags &= ~SDL_WINDOW_OPENGL;
 		}
 		else 
 		{
