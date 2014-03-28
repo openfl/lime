@@ -1,7 +1,7 @@
 package lime.utils;
 #if (android)
 
-import lime.core.Libs;
+import lime.utils.Libs;
 
 import cpp.zip.Uncompress;
 import haxe.crypto.BaseCode;
@@ -19,7 +19,7 @@ class JNI {
         if (!initialized) {
             
             initialized = true;
-            var method = Lib.load ("lime", "lime_jni_init_callback", 1);
+            var method = Libs.load ("lime", "lime_jni_init_callback", 1);
             method (onCallback);
             
         }
@@ -70,7 +70,7 @@ class JNI {
     
     
     
-    private static var lime_jni_create_method = Lib.load ("lime", "lime_jni_create_method", 4);
+    private static var lime_jni_create_method = Libs.load ("lime", "lime_jni_create_method", 4);
     
     
 }
