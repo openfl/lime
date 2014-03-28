@@ -74,11 +74,6 @@ extern "C" { \
 
 // Define common CFFI NME calls
 
-#ifdef NME_S3D
-DEFINE_LIME_PRIM_0(get_s3d_enabled);
-DEFINE_LIME_PRIM_1(set_s3d_enabled);
-DEFINE_LIME_PRIM_0(get_s3d_supported);
-#endif
 #ifdef ANDROID
 DEFINE_LIME_PRIM_1(jni_init_callback);
 DEFINE_LIME_PRIM_4(jni_create_field);
@@ -222,6 +217,7 @@ DEFINE_LIME_PROP(display_object,moves_for_soft_keyboard);
 DEFINE_LIME_PROP_READ(display_object,mouse_x);
 DEFINE_LIME_PROP_READ(display_object,mouse_y);
 DEFINE_LIME_PRIM_0(direct_renderer_create);
+DEFINE_LIME_PRIM_2(direct_renderer_set);
 DEFINE_LIME_PRIM_0(simple_button_create);
 DEFINE_LIME_PRIM_3(simple_button_set_state);
 DEFINE_LIME_PROP(simple_button,enabled);
@@ -307,7 +303,7 @@ DEFINE_LIME_PRIM_1(bitmap_data_height);
 DEFINE_LIME_PRIM_1(bitmap_data_get_prem_alpha);
 DEFINE_LIME_PRIM_2(bitmap_data_set_prem_alpha);
 DEFINE_LIME_PRIM_2(bitmap_data_clear);
-DEFINE_LIME_PRIM_2(bitmap_data_get_transparent);
+DEFINE_LIME_PRIM_1(bitmap_data_get_transparent);
 DEFINE_LIME_PRIM_2(bitmap_data_set_flags);
 DEFINE_LIME_PRIM_4(bitmap_data_fill);
 DEFINE_LIME_PRIM_2(bitmap_data_load);
@@ -479,6 +475,7 @@ namespace nme {
 	DEFINE_LIME_PRIM_1(gl_depth_mask);
 	DEFINE_LIME_PRIM_2(gl_depth_range);
 	DEFINE_LIME_PRIM_2(gl_polygon_offset);
+	DEFINE_LIME_PRIM_MULT(gl_read_pixels);
 	DEFINE_LIME_PRIM_2(gl_pixel_storei);
 	DEFINE_LIME_PRIM_2(gl_sample_coverage);
 	DEFINE_LIME_PRIM_1(gl_active_texture);
@@ -518,5 +515,19 @@ namespace nme {
 	DEFINE_LIME_PRIM_4(gl_uniform3f);
 	DEFINE_LIME_PRIM_5(gl_uniform4i);
 	DEFINE_LIME_PRIM_5(gl_uniform4f);
+	
+	
+	namespace S3D {
+		
+		
+		#ifdef NME_S3D
+		DEFINE_LIME_PRIM_0(get_s3d_enabled);
+		DEFINE_LIME_PRIM_1(set_s3d_enabled);
+		DEFINE_LIME_PRIM_0(get_s3d_supported);
+		#endif
+	
+		
+	}
+	
 	
 }
