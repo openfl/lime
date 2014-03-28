@@ -456,6 +456,7 @@ namespace nme {
 	DEFINE_LIME_PRIM_2(gl_get_buffer_parameter);
 	DEFINE_LIME_PRIM_2(gl_bind_framebuffer);
 	DEFINE_LIME_PRIM_2(gl_bind_renderbuffer);
+	DEFINE_LIME_PRIM_1(gl_delete_render_buffer);
 	DEFINE_LIME_PRIM_4(gl_framebuffer_renderbuffer);
 	DEFINE_LIME_PRIM_5(gl_framebuffer_texture2D);
 	DEFINE_LIME_PRIM_4(gl_renderbuffer_storage);
@@ -474,6 +475,7 @@ namespace nme {
 	DEFINE_LIME_PRIM_1(gl_depth_func);
 	DEFINE_LIME_PRIM_1(gl_depth_mask);
 	DEFINE_LIME_PRIM_2(gl_depth_range);
+	DEFINE_LIME_PRIM_1(gl_cull_face);
 	DEFINE_LIME_PRIM_2(gl_polygon_offset);
 	DEFINE_LIME_PRIM_MULT(gl_read_pixels);
 	DEFINE_LIME_PRIM_2(gl_pixel_storei);
