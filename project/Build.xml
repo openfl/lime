@@ -1,7 +1,6 @@
 <xml>
 	
-	<set name="HX_LIME" value="1" />
-	
+	<set name="lime" value="1" />
 	<include name="${haxelib:nme}/project/Build.xml"/>
 	
 </xml>
