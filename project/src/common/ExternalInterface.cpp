@@ -3192,7 +3192,7 @@ value lime_bitmap_data_set_flags(value inHandle,value inFlags)
       surface->SetFlags(val_int(inFlags));
    return alloc_null();
 }
-DEFINE_PRIM(lime_bitmap_data_set_flags,1);
+DEFINE_PRIM(lime_bitmap_data_set_flags,2);
 
 
 
