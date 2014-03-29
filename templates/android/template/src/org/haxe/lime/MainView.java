@@ -596,7 +596,7 @@ class MainView extends GLSurfaceView {
 			// These will be ignored by the app and passed to the default handler
 			case KeyEvent.KEYCODE_VOLUME_UP:
 			case KeyEvent.KEYCODE_VOLUME_DOWN:
-			case KeyEvent.KEYCODE_VOLUME_MUTE: 
+			::if (ANDROID_TARGET_SDK_VERSION > 10)::case KeyEvent.KEYCODE_VOLUME_MUTE:::end:: 
 				return 0;
 			
 		}
