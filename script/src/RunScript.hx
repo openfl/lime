@@ -227,7 +227,7 @@ class RunScript {
 		}
 		
 		var buildSharedLibs = (path == PathHelper.combine (limeDirectory, "project"));
-		var sharedLibsPath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("nme-state"), true), "project");
+		var sharedLibsPath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("nme-dev"), buildSharedLibs), "project");
 		
 		if (target == "wiiu" && path == PathHelper.combine (limeDirectory, "project")) {
 			
