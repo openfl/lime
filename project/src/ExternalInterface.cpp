@@ -150,6 +150,11 @@ DEFINE_LIME_PROP(stage,focus_rect);
 DEFINE_LIME_PROP(stage,scale_mode);
 #ifdef NME_S3D
 DEFINE_LIME_PROP(stage,autos3d);
+#else
+value nme_stage_get_autos3d(value inHandle) { return alloc_bool(false); }
+value nme_stage_set_autos3d(value inHandle, value inVal) { return inVal; }
+DEFINE_LIME_PRIM(stage_get_autos3d,1);
+DEFINE_LIME_PRIM(stage_set_autos3d,2);
 #endif
 DEFINE_LIME_PROP(stage,align);
 DEFINE_LIME_PROP(stage,quality);
@@ -197,6 +202,11 @@ DEFINE_LIME_PROP(display_object,x);
 DEFINE_LIME_PROP(display_object,y);
 #ifdef NME_S3D
 DEFINE_LIME_PROP(display_object,z);
+#else
+value nme_display_object_get_z(value inHandle) { return alloc_int(0); }
+value nme_display_object_set_z(value inHandle, value inVal) { return inVal; }
+DEFINE_LIME_PRIM(display_object_get_z,1);
+DEFINE_LIME_PRIM(display_object_set_z,2);
 #endif
 DEFINE_LIME_PROP(display_object,scale_x);
 DEFINE_LIME_PROP(display_object,scale_y);
@@ -523,6 +533,13 @@ namespace nme {
 		
 		
 		#ifdef NME_S3D
+		DEFINE_LIME_PRIM_0(get_s3d_enabled);
+		DEFINE_LIME_PRIM_1(set_s3d_enabled);
+		DEFINE_LIME_PRIM_0(get_s3d_supported);
+		#else
+		value nme_get_s3d_enabled() { return alloc_bool(false); }
+		value nme_set_s3d_enabled(value inVal) { return inVal; }
+		value nme_get_s3d_supported() { return alloc_bool(false); }
 		DEFINE_LIME_PRIM_0(get_s3d_enabled);
 		DEFINE_LIME_PRIM_1(set_s3d_enabled);
 		DEFINE_LIME_PRIM_0(get_s3d_supported);
