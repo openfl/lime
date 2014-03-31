@@ -515,24 +515,12 @@ class RunScript {
 				
 				if (!flags.exists ("debug")) {
 					
-					if (buildSharedLibs) {
-						
-						runCommand (sharedLibsPath, "neko", [ "build.n", "-Dwebos" ].concat (defines));
-						
-					}
-					
 					runCommand (path, "haxelib", [ "run", buildLib, buildFile, "-Dwebos" ].concat (defines));
 					synchronizeNDLL ("webOS/lime.so");
 					
 				}
 				
 				if (!flags.exists ("release")) {
-					
-					if (buildSharedLibs) {
-						
-						runCommand (sharedLibsPath, "neko", [ "build.n", "-Dwebos", "-Dfulldebug" ].concat (defines));
-						
-					}
 					
 					runCommand (path, "haxelib", [ "run", buildLib, buildFile, "-Dwebos", "-Dfulldebug" ].concat (defines));
 					synchronizeNDLL ("webOS/lime-debug.so");
@@ -545,7 +533,7 @@ class RunScript {
 				
 				if (buildSharedLibs) {
 					
-					runCommand (sharedLibsPath, "neko", [ "windows" ].concat (defines));
+					runCommand (sharedLibsPath, "neko", [ "build.n", "windows" ].concat (defines));
 					
 				}
 				
@@ -609,7 +597,7 @@ class RunScript {
 				
 				if (buildSharedLibs) {
 					
-					runCommand (sharedLibsPath, "neko", [ "wiiu" ].concat (defines));
+					runCommand (sharedLibsPath, "neko", [ "build.n", "wiiu" ].concat (defines));
 					
 				}
 				
