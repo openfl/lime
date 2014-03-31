@@ -1128,6 +1128,8 @@ class RunScript {
 					
 				} else {
 					
+					var haxelib = PathHelper.getHaxelib (new Haxelib (path));
+					
 					if (FileSystem.isDirectory (path)) {
 						
 						path = PathHelper.combine (path, "project");
@@ -1135,6 +1137,12 @@ class RunScript {
 					} else {
 						
 						path = PathHelper.combine (Path.directory (path), "project");
+						
+					}
+					
+					if (!FileSystem.exists (path) && haxelib != null) {
+						
+						path = PathHelper.combine (haxelib, "project");
 						
 					}
 					
