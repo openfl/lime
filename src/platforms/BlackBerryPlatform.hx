@@ -258,7 +258,7 @@ class BlackBerryPlatform implements IPlatformTool {
 				
 			}
 			
-			var linkedLibraries = [ new NDLL ("libSDL", haxelib) ];
+			var linkedLibraries = [ new NDLL ("libSDL", haxelib), new NDLL ("libOpenAL", haxelib) ];
 			
 			for (ndll in linkedLibraries) {
 				
