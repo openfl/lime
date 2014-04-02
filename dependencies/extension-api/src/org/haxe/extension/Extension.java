@@ -109,8 +109,10 @@ public class Extension {
 	
 	
 	/**
-	 * Called when This is called when the overall system is running low on memory, 
+	 * Called when the overall system is running low on memory, 
 	 * and actively running processes should trim their memory usage.
+	 * This is a backwards compatibility method as it is called at the same time as 
+	 * onTrimMemory(TRIM_MEMORY_COMPLETE).
 	 */
 	public void onLowMemory () {
 		
@@ -118,9 +120,12 @@ public class Extension {
 		
 	}
 
+
 	/**
 	 * Called when the operating system has determined that it is a
 	 * good time for a process to trim unneeded memory from its process.
+	 * 
+	 * See http://developer.android.com/reference/android/content/ComponentCallbacks2.html for the level explanation.
 	 */
 	public void onTrimMemory (int level) {
 		
