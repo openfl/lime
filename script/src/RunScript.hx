@@ -330,7 +330,7 @@ class RunScript {
 				
 				if (buildSharedLibs) {
 					
-					runCommand (sharedLibsPath, "neko", [ "build.n", "ios" ].concat (defines));
+					runCommand (sharedLibsPath, "neko", [ "build.n", "ios", "-DHXCPP_CPP11" ].concat (defines));
 					
 				}
 				
@@ -338,22 +338,22 @@ class RunScript {
 				
 				if (!flags.exists ("debug")) {
 					
-					runCommand (path, "haxelib", [ "run", buildLib, buildFile, "-Diphoneos" ].concat (defines));
+					runCommand (path, "haxelib", [ "run", buildLib, buildFile, "-Diphoneos", "-DHXCPP_CPP11" ].concat (defines));
 					synchronizeNDLL ("iPhone/liblime.iphoneos.a");
-					runCommand (path, "haxelib", [ "run", buildLib, buildFile, "-Diphoneos", "-DHXCPP_ARMV7" ].concat (defines));
+					runCommand (path, "haxelib", [ "run", buildLib, buildFile, "-Diphoneos", "-DHXCPP_CPP11", "-DHXCPP_ARMV7" ].concat (defines));
 					synchronizeNDLL ("iPhone/liblime.iphoneos-v7.a");
-					runCommand (path, "haxelib", [ "run", buildLib, buildFile, "-Diphonesim" ].concat (defines));
+					runCommand (path, "haxelib", [ "run", buildLib, buildFile, "-Diphonesim", "-DHXCPP_CPP11" ].concat (defines));
 					synchronizeNDLL ("iPhone/liblime.iphonesim.a");
 					
 				}
 				
 				if (!flags.exists ("release")) {
 					
-					runCommand (path, "haxelib", [ "run", buildLib, buildFile, "-Diphoneos", "-Dfulldebug" ].concat (defines));
+					runCommand (path, "haxelib", [ "run", buildLib, buildFile, "-Diphoneos", "-DHXCPP_CPP11", "-Dfulldebug" ].concat (defines));
 					synchronizeNDLL ("iPhone/liblime-debug.iphoneos.a");
-					runCommand (path, "haxelib", [ "run", buildLib, buildFile, "-Diphoneos", "-DHXCPP_ARMV7", "-Dfulldebug" ].concat (defines));
+					runCommand (path, "haxelib", [ "run", buildLib, buildFile, "-Diphoneos", "-DHXCPP_CPP11", "-DHXCPP_ARMV7", "-Dfulldebug" ].concat (defines));
 					synchronizeNDLL ("iPhone/liblime-debug.iphoneos-v7.a");
-					runCommand (path, "haxelib", [ "run", buildLib, buildFile, "-Diphonesim", "-Dfulldebug" ].concat (defines));
+					runCommand (path, "haxelib", [ "run", buildLib, buildFile, "-Diphonesim", "-DHXCPP_CPP11", "-Dfulldebug" ].concat (defines));
 					synchronizeNDLL ("iPhone/liblime-debug.iphonesim.a");
 					
 				}

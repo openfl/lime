@@ -6,18 +6,18 @@
 #ifdef STATIC_LINK
 
 #define DEFINE_LIME_PRIM_MULT(func) value nme_##func(value *arg, int args); \
-int __reg_lime_##func = hx_register_prim(nme_#func "__MULT",(void *)(&nme_##func)); \
+int __reg_lime_##func = hx_register_prim("nme_" #func "__MULT",(void *)(&nme_##func)); \
 
 #define DEFINE_LIME_PRIM(func,nargs) \
-int __reg_lime_##func = hx_register_prim(nme_#func "__" #nargs,(void *)(&nme_##func)); \
+int __reg_lime_##func = hx_register_prim("nme_" #func "__" #nargs,(void *)(&nme_##func)); \
 
 #define DEFINE_LIME_PRIM_MULT_NATIVE(func,ext) \
-int __reg_lime_##func = hx_register_prim(nme_#func "__MULT",(void *)(&nme_##func)) + \
-                   hx_register_prim(nme_#func "__"  #ext,(void *)(&nme_##func##_##ext)) ; 
+int __reg_lime_##func = hx_register_prim("nme_" #func "__" MULT,(void *)(&nme_##func)) + \
+                   hx_register_prim("nme_" #func "__" #ext,(void *)(&nme_##func##_##ext)) ; 
 
 #define DEFINE_LIME_PRIM_NATIVE(func,nargs,ext) \
-int __reg_lime_##func = hx_register_prim(nme_#func "__" #nargs,(void *)(&nme_##func)) + \
-                   hx_register_prim(nme_#func "__" #ext,(void *)(&nme_##func##_##ext)) ; 
+int __reg_lime_##func = hx_register_prim("nme_" #func "__" #nargs,(void *)(&nme_##func)) + \
+                   hx_register_prim("nme_" #func "__" #ext,(void *)(&nme_##func##_##ext)) ; 
 
 #else
 
