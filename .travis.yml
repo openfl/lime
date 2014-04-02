@@ -17,7 +17,8 @@ before_install:
 - sudo mkdir /usr/lib/haxe
 - sudo tar xvzf haxe-3.1.2-osx.tar.gz -C /usr/lib/haxe --strip-components=1
 - sudo ln -s /usr/lib/haxe/haxe /usr/bin/haxe
-- cd /usr/lib/haxe/extra/haxelib_src
+- git clone https://github.com/HaxeFoundation/haxelib ~/haxelib --depth 1
+- cd ~/haxelib
 - haxe haxelib.hxml
 - cd bin
 - nekotools boot haxelib.n
