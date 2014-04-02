@@ -25,7 +25,6 @@ before_install:
 - sudo cp haxelib /usr/lib/haxe/haxelib
 - cd $(pwd)
 - sudo ln -s /usr/lib/haxe/haxelib /usr/bin/haxelib
-- mkdir ~/haxelib
 - haxelib setup ~/haxelib
 - git clone https://github.com/HaxeFoundation/hxcpp ~/hxcpp --depth 1
 - haxelib dev hxcpp ~/hxcpp
