@@ -697,14 +697,31 @@ class MainView extends GLSurfaceView {
 		
 		public void onSurfaceChanged (GL10 gl, int width, int height) {
 			
+			::if (DEBUG)::
+			Log.v("VIEW","onSurfaceChanged " + width +"," + height);
+			Log.v("VIEW", "Thread = " + java.lang.Thread.currentThread ().getId ());
+			::end::
+			
 			mMainView.HandleResult (Lime.onResize (width, height));
+			
+			/*if (GameActivity.activity != null) {
+				
+				GameActivity.activity.onResizeAsync(width,height);
+				
+			}*/
 			
 		}
 		
 		
 		public void onSurfaceCreated (GL10 gl, EGLConfig config) {
 			
-			
+			mMainView.isPollImminent = false;
+			mMainView.renderPending = false;
+			::if (DEBUG)::
+			Log.v("VIEW","onSurfaceCreated");
+			Log.v("VIEW", "Thread = " + java.lang.Thread.currentThread ().getId ());
+			::end::
+			mMainView.HandleResult (Lime.onContextLost ());
 			
 		}
 		

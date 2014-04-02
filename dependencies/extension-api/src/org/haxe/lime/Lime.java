@@ -19,6 +19,7 @@ public class Lime {
      public static native int onAccelerate(float x, float y, float z);
      public static native int onTouch(int type, float x, float y, int id, float sizeX, float sizeY);
      public static native int onResize(int width, int height);
+     public static native int onContextLost();
      public static native int onTrackball(float x,float y);
      public static native int onJoyChange(int inDeviceID, int inCode, boolean inIsDown);
      public static native int onJoyMotion(int inDeviceID, int axis, float value);
