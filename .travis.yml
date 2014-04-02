@@ -22,7 +22,7 @@ before_install:
 - haxe haxelib.hxml
 - cd bin
 - nekotools boot haxelib.n
-- cp haxelib /usr/lib/haxe/haxelib
+- sudo cp haxelib /usr/lib/haxe/haxelib
 - cd $(pwd)
 - sudo ln -s /usr/lib/haxe/haxelib /usr/bin/haxelib
 - mkdir ~/haxelib
