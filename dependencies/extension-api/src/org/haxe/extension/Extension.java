@@ -108,4 +108,23 @@ public class Extension {
 	}
 	
 	
+	/**
+	 * Called when This is called when the overall system is running low on memory, 
+	 * and actively running processes should trim their memory usage.
+	 */
+	public void onLowMemory () {
+		
+		
+		
+	}
+
+	/**
+	 * Called when the operating system has determined that it is a
+	 * good time for a process to trim unneeded memory from its process.
+	 */
+	public void onTrimMemory (int level) {
+		
+		
+		
+	}
 }

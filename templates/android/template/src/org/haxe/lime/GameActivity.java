@@ -492,6 +492,31 @@ public class GameActivity extends Activity implements SensorEventListener {
 		
 	}
 	
+
+	@Override public void onLowMemory () {
+		
+		super.onLowMemory ();
+
+		for (Extension extension : extensions) {
+			
+			extension.onLowMemory ();
+			
+		}
+	}
+
+
+	@Override public void onTrimMemory (int level) {
+
+		super.onTrimMemory (level);
+
+		for (Extension extension : extensions) {
+			
+			extension.onTrimMemory (level);
+			
+		}
+
+	}
+	
 	
 	@Override public void onSensorChanged (SensorEvent event) {
 		
