@@ -33,7 +33,7 @@ before_install:
 - git clone https://github.com/haxenme/nme-dev ~/nme-dev --depth 1
 - haxelib dev nme-dev ~/nme-dev
 - haxelib dev lime $(pwd)
-- cd script
+- cd $(pwd)/script
 - haxe build.hxml
 - gem install travis-artifacts --no-ri --no-rdoc
 script:
