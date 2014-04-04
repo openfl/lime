@@ -29,17 +29,25 @@ class FileHelper {
 			
 		} else {
 			
-			if (asset.encoding == AssetEncoding.BASE64) {
+			try {
 				
-				File.saveBytes (destination, StringHelper.base64Decode (asset.data));
+				if (asset.encoding == AssetEncoding.BASE64) {
+					
+					File.saveBytes (destination, StringHelper.base64Decode (asset.data));
+					
+				} else if (Std.is (asset.data, Bytes)) {
+					
+					File.saveBytes (destination, cast asset.data);
+					
+				} else {
+					
+					File.saveContent (destination, Std.string (asset.data));
+					
+				}
 				
-			} else if (Std.is (asset.data, Bytes)) {
+			} catch (e:Dynamic) {
 				
-				File.saveBytes (destination, cast asset.data);
-				
-			} else {
-				
-				File.saveContent (destination, Std.string (asset.data));
+				LogHelper.error ("Cannot write to file \"" + destination + "\"");
 				
 			}
 			
@@ -62,17 +70,25 @@ class FileHelper {
 			
 			PathHelper.mkdir (Path.directory (destination));
 			
-			if (asset.encoding == AssetEncoding.BASE64) {
+			try {
 				
-				File.saveBytes (destination, StringHelper.base64Decode (asset.data));
+				if (asset.encoding == AssetEncoding.BASE64) {
+					
+					File.saveBytes (destination, StringHelper.base64Decode (asset.data));
+					
+				} else if (Std.is (asset.data, Bytes)) {
+					
+					File.saveBytes (destination, cast asset.data);
+					
+				} else {
+					
+					File.saveContent (destination, Std.string (asset.data));
+					
+				}
 				
-			} else if (Std.is (asset.data, Bytes)) {
+			} catch (e:Dynamic) {
 				
-				File.saveBytes (destination, cast asset.data);
-				
-			} else {
-				
-				File.saveContent (destination, Std.string (asset.data));
+				LogHelper.error ("Cannot write to file \"" + destination + "\"");
 				
 			}
 			
@@ -124,9 +140,19 @@ class FileHelper {
 				var fileContents:String = File.getContent (source);
 				var template:Template = new Template (fileContents);
 				var result:String = template.execute (context);
-				var fileOutput:FileOutput = File.write (destination, true);
-				fileOutput.writeString (result);
-				fileOutput.close ();
+				
+				try {
+					
+					var fileOutput:FileOutput = File.write (destination, true);
+					fileOutput.writeString (result);
+					fileOutput.close ();
+					
+				} catch (e:Dynamic) {
+					
+					LogHelper.error ("Cannot write to file \"" + destination + "\"");
+					
+				}
+				
 				return;
 				
 			}
@@ -164,7 +190,27 @@ class FileHelper {
 		PathHelper.mkdir (Path.directory (destination));
 		
 		LogHelper.info ("", " - \x1b[1mCopying file:\x1b[0m " + source + " \x1b[3;37m->\x1b[0m " + destination);
-		File.copy (source, destination);
+		
+		try {
+			
+			File.copy (source, destination);
+			
+		} catch (e:Dynamic) {
+			
+			try {
+				
+				if (FileSystem.exists (destination)) {
+					
+					LogHelper.error ("Cannot copy to \"" + destination + "\", is the file in use?");
+					return;
+					
+				} else {}
+				
+			} catch (e:Dynamic) {}
+			
+			LogHelper.error ("Cannot open \"" + destination + "\" for writing, do you have correct access permissions?");
+			
+		}
 		
 	}
 	
@@ -189,7 +235,16 @@ class FileHelper {
 			
 			PathHelper.mkdir (targetDirectory);
 			LogHelper.info ("", " - \x1b[1mCopying library file:\x1b[0m " + path + " \x1b[3;37m->\x1b[0m " + targetPath);
-			File.copy (path, targetPath);
+			
+			try {
+				
+				File.copy (path, targetPath);
+				
+			} catch (e:Dynamic) {
+				
+				LogHelper.error ("Cannot copy library to \"" + targetPath + "\"");
+				
+			}
 			
 		} else {
 			
