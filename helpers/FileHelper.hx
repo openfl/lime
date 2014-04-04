@@ -242,7 +242,7 @@ class FileHelper {
 				
 			} catch (e:Dynamic) {
 				
-				LogHelper.error ("Cannot copy library to \"" + targetPath + "\"");
+				LogHelper.error ("Cannot copy to \"" + targetPath + "\", is the file in use?");
 				
 			}
 			
