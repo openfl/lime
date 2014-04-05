@@ -364,8 +364,8 @@ class RunScript {
 					
 					if (buildSharedLibs) {
 						
-						if (isRunning64 ()) runCommand (sharedLibsPath, "neko", [ "build.n", "linux-x64" ].concat (defines));
-						runCommand (sharedLibsPath, "neko", [ "build.n", "linux-x86" ].concat (defines));
+						if (isRunning64 ()) runCommand (sharedLibsPath, "neko", [ "build.n", "linux-m64" ].concat (defines));
+						runCommand (sharedLibsPath, "neko", [ "build.n", "linux-m32" ].concat (defines));
 						
 					}
 					
