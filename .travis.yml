@@ -26,7 +26,7 @@ before_install:
   - haxelib install format
   - haxelib install svg
   - haxelib dev lime-tools $(pwd)
-  - haxelib run lime rebuild hxcpp linux
+  - haxelib run lime rebuild hxcpp linux -Dstatic_link
   - cd ~/nme-dev/project
   - neko build.n
   - haxelib run lime rebuild linux
