@@ -954,15 +954,15 @@ class ProjectXMLParser extends HXProject {
 						
 						if (haxelib == null && (name == "std" || name == "regexp" || name == "zlib")) {
 							
-							/*if (defines.exists ("nme")) {
+							if (config.cpp.buildLibrary != null) {
+								
+								haxelib = new Haxelib (config.cpp.buildLibrary);
+								
+							} else {
 								
 								haxelib = new Haxelib ("hxcpp");
 								
-							} else {
-								*/
-								haxelib = new Haxelib ("hxlibc");
-								
-							//}
+							}
 							
 						}
 						

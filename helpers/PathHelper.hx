@@ -198,6 +198,20 @@ class PathHelper {
 				
 			}
 			
+			if (result == "") {
+				
+				for (line in lines) {
+					
+					if (line != "" && line.substr (0, 1) != "-") {
+						
+						result = line;
+						
+					}
+					
+				}
+				
+			}
+			
 			if (validate) {
 				
 				if (result == "") {
