@@ -3183,7 +3183,7 @@ value lime_bitmap_data_get_transparent(value inHandle,value inRGB)
       return alloc_bool( surface->GetAllowTrans() );
    return alloc_null();
 }
-DEFINE_PRIM(lime_bitmap_data_get_transparent,1);
+DEFINE_PRIM(lime_bitmap_data_get_transparent,2);
 
 value lime_bitmap_data_set_flags(value inHandle,value inFlags)
 {
