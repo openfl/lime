@@ -866,7 +866,22 @@ class ProjectXMLParser extends HXProject {
 							
 							if (path == "" || FileSystem.isDirectory (path)) {
 								
-								var errorPath = (element.has.path ? element.att.path : element.att.name);
+								var errorPath = "";
+								
+								if (element.has.path) {
+									
+									errorPath = element.att.path;
+									
+								} else if (element.has.name) {
+									
+									errorPath = element.att.name;
+									
+								} else {
+									
+									errorPath = Std.string (element);
+									
+								}
+								
 								LogHelper.error ("\"" + errorPath + "\" does not appear to be a valid <include /> path");
 								
 							} else {

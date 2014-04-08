@@ -204,7 +204,15 @@ class PathHelper {
 					
 					if (line != "" && line.substr (0, 1) != "-") {
 						
-						result = line;
+						try {
+							
+							if (FileSystem.exists (line)) {
+								
+								result = line;
+								
+							}
+							
+						} catch (e:Dynamic) {}
 						
 					}
 					
