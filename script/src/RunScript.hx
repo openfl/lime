@@ -1061,7 +1061,23 @@ class RunScript {
 					
 				} else if (StringTools.startsWith (arg, "-")) {
 					
-					flags.set (arg.substr (1), "");
+					switch (arg) {
+						
+						case "-v", "-verbose":
+							
+							flags.set ("verbose", "");
+							defines.push ("-verbose");
+						
+						case "-d", "-debug":
+							
+							flags.set ("debug", "");
+						
+						default:
+							
+							flags.set (arg.substr (1), "");
+						
+					}
+					
 					ignoreLength++;
 					
 				}
@@ -1186,6 +1202,10 @@ class RunScript {
 					case "-d", "-debug":
 						
 						flags.set ("debug", "");
+					
+					case "-v", "-verbose":
+						
+						flags.set ("verbose", "");
 					
 					default:
 						
