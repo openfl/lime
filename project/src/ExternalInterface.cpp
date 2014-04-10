@@ -550,3 +550,10 @@ namespace nme {
 	
 	
 }
+
+
+extern "C"
+{
+	int nme_register_prims();
+	#define lime_register_prims nme_register_prims
+}
