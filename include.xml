@@ -8,6 +8,9 @@
 	<section unless="display">
 
 		<haxelib name="hxcpp" if="cpp" />
+		<ndll name="std" haxelib="hxcpp" if="cpp" />
+		<ndll name="regexp" haxelib="hxcpp" if="cpp" />
+		<ndll name="zlib" haxelib="hxcpp" if="cpp" />
 		
 		<ndll name="openal" register="false" if="android" />
 		
