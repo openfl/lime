@@ -326,7 +326,12 @@ public:
 				SDL_SetWindowPosition(mSDLWindow, sgWindowRect.x, sgWindowRect.y);
 				#endif
 			}
+
+			    //Make sure visible state remains as expected
+        	SDL_ShowCursor( mShowCursor );
+        	
 		}
+		
 	}
 
 
