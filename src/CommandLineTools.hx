@@ -1154,6 +1154,10 @@ class CommandLineTools {
 						
 						overrides.config.cpp.buildLibrary = argValue;
 						
+					} else if (field == "device") {
+						
+						targetFlags.set ("device", argValue);
+						
 					} else {
 						
 						projectDefines.set (field, argValue);

@@ -62,6 +62,17 @@ class AndroidHelper {
 	}
 	
 	
+	private static function connect (deviceID:String):Void {
+		
+		if (deviceID != null && deviceID != "") {
+			
+			ProcessHelper.runProcess (adbPath, adbName, [ "connect", deviceID ]);
+			
+		}
+		
+	}
+	
+	
 	public static function initialize (project:HXProject):Void {
 		
 		adbPath = project.environment.get ("ANDROID_SDK") + "/tools/";
@@ -103,20 +114,19 @@ class AndroidHelper {
 	}
 	
 	
-	public static function install (project:HXProject, targetPath:String):String {
+	public static function install (project:HXProject, targetPath:String, deviceID:String = null):String {
 		
 		if (project.targetFlags.exists ("emulator") || project.targetFlags.exists ("simulator")) {
 			
 			LogHelper.info ("", "Searching for Android emulator");
 			
 			var devices = listDevices ();
-			var emulator = null;
 			
 			for (device in devices) {
 				
 				if (device.indexOf ("emulator") > -1) {
 					
-					emulator = device;
+					deviceID = device;
 					
 				}
 				
@@ -124,7 +134,7 @@ class AndroidHelper {
 			
 			//TODO: Check emulator capabilities, if it is GPU enabled and if API LEVEL >15 (http://developer.android.com/tools/devices/emulator.html)
 			
-			if (emulator == null) {
+			if (deviceID == null) {
 				
 				var avds = listAVDs ();
 				
@@ -138,7 +148,7 @@ class AndroidHelper {
 				
 				ProcessHelper.runProcess (emulatorPath, emulatorName, [ "-avd", avds[0], "-gpu", "on" ], false);
 				
-				while (emulator == null) {
+				while (deviceID == null) {
 					
 					devices = listDevices ();
 					
@@ -146,13 +156,13 @@ class AndroidHelper {
 						
 						if (device.indexOf ("emulator") > -1) {
 							
-							emulator = device;
+							deviceID = device;
 							
 						}
 						
 					}
 					
-					if (emulator == null) {
+					if (deviceID == null) {
 						
 						Sys.sleep (3);
 						Sys.print (".");
@@ -167,19 +177,23 @@ class AndroidHelper {
 				
 			}
 			
-			//ProcessHelper.runCommand (adbPath, adbName, [ "-s", emulator, "install", "-r", "-d", targetPath ]);
-			ProcessHelper.runCommand (adbPath, adbName, [ "-s", emulator, "install", "-r", targetPath ]);
+		}
+		
+		//var args = [ "install", "-r", "-d", targetPath ];
+		var args = [ "install", "-r", targetPath ];
+		
+		if (deviceID != null && deviceID != "") {
 			
-			return emulator;
+			args.unshift (deviceID);
+			args.unshift ("-s");
 			
-		} else {
-			
-			//ProcessHelper.runCommand (adbPath, adbName, [ "install", "-r", "-d", targetPath ]);
-			ProcessHelper.runCommand (adbPath, adbName, [ "install", "-r", targetPath ]);
+			connect (deviceID);
 			
 		}
 		
-		return null;
+		ProcessHelper.runCommand (adbPath, adbName, args);
+		
+		return deviceID;
 		
 	}
 	
@@ -241,6 +255,8 @@ class AndroidHelper {
 			args.unshift (deviceID);
 			args.unshift ("-s");
 			
+			connect (deviceID);
+			
 		}
 		
 		ProcessHelper.runCommand (adbPath, adbName, args);
@@ -258,6 +274,8 @@ class AndroidHelper {
 			
 			args.unshift (deviceID);
 			args.unshift ("-s");
+			
+			connect (deviceID);
 			
 		}
 		
@@ -298,6 +316,8 @@ class AndroidHelper {
 			
 			args.unshift (deviceID);
 			args.unshift ("-s");
+			
+			connect (deviceID);
 			
 		}
 		

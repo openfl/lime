@@ -114,7 +114,7 @@ class AndroidPlatform implements IPlatformTool {
 			
 		}
 		
-		deviceID = AndroidHelper.install (project, FileSystem.fullPath (project.app.path) + "/android/bin/bin/" + project.app.file + "-" + build + ".apk");
+		deviceID = AndroidHelper.install (project, FileSystem.fullPath (project.app.path) + "/android/bin/bin/" + project.app.file + "-" + build + ".apk", deviceID);
 		
    }
 	
@@ -128,6 +128,12 @@ class AndroidPlatform implements IPlatformTool {
 		}
 		
 		AndroidHelper.initialize (project);
+		
+		if (deviceID == null && project.targetFlags.exists ("device")) {
+			
+			deviceID = project.targetFlags.get ("device") + ":5555";
+			
+		}
 		
 	}
 	
