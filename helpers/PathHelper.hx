@@ -1,6 +1,7 @@
 package helpers;
 
 
+import haxe.io.Path;
 import helpers.LogHelper;
 import helpers.ProcessHelper;
 import project.Architecture;
@@ -629,7 +630,17 @@ class PathHelper {
 			
 		} else if (ndll.haxelib.name == "hxcpp") {
 			
-			return combine (getHaxelib (ndll.haxelib, true), "bin/" + directoryName + "/" + filename);
+			var extension = Path.extension (filename);
+			
+			if (extension == "a" || extension == "lib") {
+				
+				return combine (getHaxelib (ndll.haxelib, true), "lib/" + directoryName + "/" + filename);
+				
+			} else {
+				
+				return combine (getHaxelib (ndll.haxelib, true), "bin/" + directoryName + "/" + filename);
+				
+			}
 			
 		} else {
 			
