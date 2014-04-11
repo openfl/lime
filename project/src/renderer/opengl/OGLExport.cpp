@@ -1030,10 +1030,20 @@ DEFINE_PRIM(lime_gl_get_shader_parameter,2);
 value lime_gl_get_shader_info_log(value inId)
 {
    int id = val_int(inId);
-   char buf[1024] = "";
-   glGetShaderInfoLog(id,1024,0,buf);
+   int len=0;
+   glGetShaderiv(id,GL_INFO_LOG_LENGTH,&len);
+   if (len==0)
+      return alloc_null();
+	  
+   len++;
+   char *buf = new char[len+1];
+	  
+   glGetShaderInfoLog(id,len,0,buf);
 
-   return alloc_string(buf);
+   value result = alloc_string(buf);
+   delete [] buf;
+
+   return result;
 }
 DEFINE_PRIM(lime_gl_get_shader_info_log,1);
 
