@@ -18,8 +18,6 @@
 		
 		<ndll name="libfreetype" register="false" if="emscripten" />
 		
-		<dependency name="MediaPlayer.framework" if="ios" />
-		
 		<ndll name="curl_ssl" register="false" if="ios" />
 		<ndll name="png" register="false" if="ios" />
 		<ndll name="jpeg" register="false" if="ios" />
