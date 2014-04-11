@@ -552,7 +552,6 @@ namespace nme {
 }
 
 
-<<<<<<< HEAD
 extern "C" int nme_register_prims();
 
 extern "C" int lime_register_prims()
@@ -560,16 +559,3 @@ extern "C" int lime_register_prims()
 	nme_register_prims();
 	return 0;
 }
-=======
-#ifdef STATIC_LINK
-    
-    extern "C" int nme_register_prims();
-    extern "C" int lime_register_prims()
-    {
-        nme_register_prims();
-
-        return 0;
-    }
-
-#endif //STATIC_LINK
->>>>>>> 0b3e4ad2a15f7336d45d67f0ffba6eae6fd52b8e
