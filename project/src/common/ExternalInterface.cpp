@@ -3175,7 +3175,7 @@ value lime_bitmap_data_clear(value inHandle,value inRGB)
 }
 DEFINE_PRIM(lime_bitmap_data_clear,2);
 
-value lime_bitmap_data_get_transparent(value inHandle,value inRGB)
+value lime_bitmap_data_get_transparent(value inHandle)
 {
    Surface *surface;
    if (AbstractToObject(inHandle,surface))
