@@ -36,6 +36,7 @@ struct URLRequest
    const char *contentType;
    ByteArray  postData;
    bool       debug;
+   bool       followRedirects;
    QuickVec<URLRequestHeader> headers; 
 };
 
