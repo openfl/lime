@@ -959,6 +959,7 @@ class ProjectXMLParser extends HXProject {
 						
 						var name = substitute (element.att.name);
 						var haxelib = null;
+						var type = NDLLType.AUTO;
 						var registerStatics = true;
 						
 						if (element.has.haxelib) {
@@ -993,13 +994,19 @@ class ProjectXMLParser extends HXProject {
 							
 						}*/
 						
+						if (element.has.type) {
+							
+							type = Reflect.field (NDLLType, substitute (element.att.type).toUpperCase ());
+							
+						}
+						
 						if (element.has.register) {
 							
 							registerStatics = (substitute (element.att.register) == "true");
 							
 						}
 						
-						var ndll = new NDLL (name, haxelib, registerStatics);
+						var ndll = new NDLL (name, haxelib, type, registerStatics);
 						ndll.extensionPath = extensionPath;
 						ndlls.push (ndll);
 						
