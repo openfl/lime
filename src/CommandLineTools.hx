@@ -1287,7 +1287,8 @@ class CommandLineTools {
 			
 		}
 		
-		var path = PathHelper.getHaxelib (new Haxelib (name));
+		var haxelib = new Haxelib (name);
+		var path = PathHelper.getHaxelib (haxelib);
 		
 		switch (command) {
 			
@@ -1295,12 +1296,15 @@ class CommandLineTools {
 				
 				if (path == null || path == "") {
 					
-					var haxePath = Sys.getEnv ("HAXEPATH");
-					ProcessHelper.runCommand (haxePath, "haxelib", [ "install", name ]);
+					PlatformSetup.installHaxelib (haxelib);
+					
+				} else {
+					
+					PlatformSetup.updateHaxelib (haxelib);
 					
 				}
 				
-				PlatformSetup.run (name, userDefines, targetFlags);
+				PlatformSetup.setupHaxelib (haxelib);
 			
 			case "remove":
 				
@@ -1315,13 +1319,12 @@ class CommandLineTools {
 				
 				if (path != null && path != "") {
 					
-					var haxePath = Sys.getEnv ("HAXEPATH");
-					ProcessHelper.runCommand (haxePath, "haxelib", [ "update", name ]);
+					PlatformSetup.updateHaxelib (haxelib);
+					PlatformSetup.setupHaxelib (haxelib);
 					
-					var defines = StringMapHelper.copy (userDefines);
-					defines.set ("upgrade", 1);
+				} else {
 					
-					PlatformSetup.run (name, defines, targetFlags);
+					LogHelper.warn ("\"" + haxelib.name + "\" is not a valid haxelib, or has not been installed");
 					
 				}
 			

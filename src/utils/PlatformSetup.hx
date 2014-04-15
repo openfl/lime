@@ -61,6 +61,7 @@ class PlatformSetup {
 	private static var triedSudo:Bool = false;
 	private static var userDefines:Map<String, Dynamic>;
 	private static var targetFlags:Map<String, Dynamic>;
+	private static var setupHaxelibs = new Map<String, Bool> ();
 	
    static inline function readLine()
    {
@@ -370,6 +371,21 @@ class PlatformSetup {
 	}
 	
 	
+	public static function installHaxelib (haxelib:Haxelib):Void {
+		
+		var name = haxelib.name;
+		
+		if (haxelib.version != null && haxelib.version != "") {
+			
+			name += ":" + haxelib.version;
+			
+		}
+		
+		ProcessHelper.runCommand (Sys.getEnv ("HAXEPATH"), "haxelib", [ "install", name ]);
+		
+	}
+	
+	
 	private static function link (dir:String, file:String, dest:String):Void {
 		
 		Sys.command("rm -rf " + dest + "/" + file);
@@ -507,43 +523,7 @@ class PlatformSetup {
 				
 				default:
 					
-					var defines = new Map <String, Dynamic> ();
-					defines.set ("setup", 1);
-					var project = HXProject.fromHaxelib (new Haxelib (target), defines, true);
-					
-					if (project != null && project.haxelibs.length > 0) {
-						
-						for (haxelib in project.haxelibs) {
-							
-							var lib = PathHelper.getHaxelib (haxelib, false, true);
-							
-							if (lib == null || lib == "" || (haxelib.version != null && haxelib.version != "")) {
-								
-								var name = haxelib.name;
-								
-								if (haxelib.version != null && haxelib.version != "") {
-									
-									name += ":" + haxelib.version;
-									
-								}
-								
-								var haxePath = Sys.getEnv ("HAXEPATH");
-								ProcessHelper.runCommand (haxePath, "haxelib", [ "install", name ]);
-								
-							} else if (userDefines.exists ("upgrade")) {
-								
-								var haxePath = Sys.getEnv ("HAXEPATH");
-								ProcessHelper.runCommand (haxePath, "haxelib", [ "update", haxelib.name ]);
-								
-							}
-							
-						}
-						
-					} else {
-						
-						Lib.println ("No setup is required for " + target + ", or it is not a valid target");
-						
-					}
+					setupHaxelib (new Haxelib (target));
 				
 			}
 			
@@ -1548,6 +1528,44 @@ class PlatformSetup {
 	}
 	
 	
+	public static function setupHaxelib (haxelib:Haxelib, dependency:Bool = false):Void {
+		
+		setupHaxelibs.set (haxelib.name, true);
+		var defines = new Map <String, Dynamic> ();
+		defines.set ("setup", 1);
+		var project = HXProject.fromHaxelib (haxelib, defines, true);
+		
+		if (project != null && project.haxelibs.length > 0) {
+			
+			for (haxelib in project.haxelibs) {
+				
+				if (setupHaxelibs.exists (haxelib.name)) continue;
+				
+				var lib = PathHelper.getHaxelib (haxelib, false, true);
+				
+				if (lib == null || lib == "" || (haxelib.version != null && haxelib.version != "")) {
+					
+					installHaxelib (haxelib);
+					
+				} else /*if (userDefines.exists ("upgrade"))*/ {
+					
+					updateHaxelib (haxelib);
+					
+				}
+				
+				setupHaxelib (haxelib, true);
+				
+			}
+			
+		} else if (!dependency) {
+			
+			LogHelper.warn ("No setup is required for " + haxelib.name + ", or it is not a valid target");
+			
+		}
+		
+	}
+	
+	
 	public static function setupHTML5 ():Void {
 		
 		var setApacheCordova = false;
@@ -1668,14 +1686,9 @@ class PlatformSetup {
 	
 	public static function setupLime ():Void {
 		
-		var haxePath = Sys.getEnv ("HAXEPATH");
-		var checkPath = PathHelper.getHaxelib (new Haxelib ("hxlibc"));
+		setupHaxelib (new Haxelib ("lime"));
 		
-		if (checkPath == null || checkPath == "") {
-			
-			ProcessHelper.runCommand (haxePath, "haxelib", [ "install", "hxlibc" ]);
-			
-		}
+		var haxePath = Sys.getEnv ("HAXEPATH");
 		
 		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
 			
@@ -1988,6 +2001,37 @@ class PlatformSetup {
 		}
 		
 		return path;
+		
+	}
+	
+	
+	public static function updateHaxelib (haxelib:Haxelib):Void {
+		
+		var basePath = ProcessHelper.runProcess (Sys.getEnv ("HAXEPATH"), "haxelib", [ "config" ]);
+		if (basePath != null) {
+			
+			basePath = basePath.split ("\n")[0];
+			
+		}
+		
+		var lib = PathHelper.getHaxelib (haxelib, false, true);
+		
+		if (StringTools.startsWith (lib, basePath)) {
+			
+			ProcessHelper.runCommand (Sys.getEnv ("HAXEPATH"), "haxelib", [ "update", haxelib.name ]);
+			
+		} else {
+			
+			var git = PathHelper.combine (lib, ".git");
+			
+			if (FileSystem.exists (git)) {
+				
+				LogHelper.info ("\x1b[32;1mUpdating \"" + haxelib.name + "\"\x1b[0m");
+				ProcessHelper.runCommand (lib, "git", [ "pull" ]);
+				
+			}
+			
+		}
 		
 	}
 	
