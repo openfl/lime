@@ -12,19 +12,31 @@ before_install:
 - sudo ln -s /usr/lib/neko/neko /usr/bin/neko
 - sudo ln -s /usr/lib/neko/nekoc /usr/bin/nekoc
 - sudo ln -s /usr/lib/neko/nekotools /usr/bin/nekotools
-- sudo ln -s /usr/lib/neko/libneko.so /usr/lib/libneko.so
-- wget -c http://haxe.org/file/haxe-3.0.1-osx.tar.gz
+- sudo ln -s /usr/lib/neko/libneko.dylib /usr/lib/libneko.dylib
+- wget -c http://haxe.org/file/haxe-3.1.2-osx.tar.gz
 - sudo mkdir /usr/lib/haxe
-- sudo tar xvzf haxe-3.0.1-osx.tar.gz -C /usr/lib/haxe --strip-components=1
+- sudo tar xvzf haxe-3.1.2-osx.tar.gz -C /usr/lib/haxe --strip-components=1
 - sudo ln -s /usr/lib/haxe/haxe /usr/bin/haxe
+- git clone https://github.com/HaxeFoundation/haxelib ~/haxelib --depth 1
+- cd ~/haxelib
+- haxe haxelib.hxml
+- cd bin
+- nekotools boot haxelib.n
+- sudo cp haxelib /usr/lib/haxe/haxelib
+- cd $(pwd)
 - sudo ln -s /usr/lib/haxe/haxelib /usr/bin/haxelib
-- mkdir ~/haxelib
 - haxelib setup ~/haxelib
-- git clone https://github.com/openfl/hxlibc ~/hxlibc
-- haxelib dev hxlibc ~/hxlibc
-- git clone https://github.com/openfl/lime-build ~/lime-build
-- haxelib dev lime-build ~/lime-build
-- haxelib dev lime $(pwd)
+- git clone https://github.com/HaxeFoundation/hxcpp ~/hxcpp --depth 1
+- haxelib dev hxcpp ~/hxcpp
+- git clone https://github.com/haxenme/nme ~/nme --depth 1
+- haxelib dev nme ~/nme
+- git clone https://github.com/haxenme/nme-dev ~/nme-dev --depth 1
+- haxelib dev nme-dev ~/nme-dev
+- git clone https://github.com/openfl/lime-tools ~/lime-tools --depth 1
+- haxelib dev lime-tools ~/lime-tools
+- haxelib dev lime $TRAVIS_BUILD_DIR
+- cd $TRAVIS_BUILD_DIR/script
+- haxe build.hxml
 - gem install travis-artifacts --no-ri --no-rdoc
 script:
 - haxelib run lime rebuild mac

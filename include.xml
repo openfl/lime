@@ -7,7 +7,10 @@
 
 	<section unless="display">
 
-		<haxelib name="hxlibc" if="cpp" />
+		<haxelib name="hxcpp" if="cpp" />
+		<ndll name="std" haxelib="hxcpp" if="cpp" />
+		<ndll name="regexp" haxelib="hxcpp" if="cpp" />
+		<ndll name="zlib" haxelib="hxcpp" if="cpp" />
 		
 		<ndll name="openal" register="false" if="android" />
 		
@@ -27,6 +30,7 @@
 		<architecture name="armv7" if="android" />
 
 		<include haxelib="lime-tools" />
+		<haxelib name="lime-tools" if="setup" />
 		
 	</section>
 	
