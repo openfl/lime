@@ -95,47 +95,29 @@ public class GameActivity extends Activity implements SensorEventListener {
 		Extension.mainContext = this;
 		
 		_sound = new Sound (getApplication ());
-		//getResources().getAssets();
 		
 		requestWindowFeature (Window.FEATURE_NO_TITLE);
 		
+
 		::if WIN_FULLSCREEN::
-			::if (ANDROID_TARGET_SDK_VERSION < 19)::
-				getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN
-					| WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-			::end::
-		::end::
+ 			::if (ANDROID_TARGET_SDK_VERSION < 19)::
+ 				getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN
+ 					| WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+ 			::end::
+ 		::end::
+
 		
 		metrics = new DisplayMetrics ();
 		getWindowManager ().getDefaultDisplay ().getMetrics (metrics);
 		
-		// Pre-load these, so the C++ knows where to find them
+	
+		Log.d ("lime", "mMainView is NULL");
+			
+		::foreach ndlls::
+		System.loadLibrary ("::name::");
+		::end::
+		HXCPP.run ("ApplicationMain");
 		
-		//if (mMainView == null) {
-			
-			Log.d ("lime", "mMainView is NULL");
-			
-			::foreach ndlls::
-			System.loadLibrary ("::name::");::end::
-			HXCPP.run ("ApplicationMain");
-			
-			//mMainView = new MainView (getApplication (), this);
-			
-		/*} else {
-			
-			ViewGroup parent = (ViewGroup)mMainView.getParent ();
-			
-			if (parent != null) {
-				
-				parent.removeView (mMainView);
-				
-			}
-			
-			mMainView.onResume ();
-			
-		}
-		
-		mView = mMainView;*/
 		mView = new MainView (getApplication (), this);
 		setContentView (mView);
 
@@ -149,6 +131,8 @@ public class GameActivity extends Activity implements SensorEventListener {
 			sensorManager.registerListener (this, sensorManager.getDefaultSensor (Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_GAME);
 			
 		}
+		
+		Extension.PACKAGE_NAME = getApplicationContext().getPackageName();
 		
 		if (extensions == null) {
 			
@@ -418,6 +402,19 @@ public class GameActivity extends Activity implements SensorEventListener {
 		
 	}
 	
+	@Override
+    	protected void onNewIntent(final Intent intent) {
+ 		for (Extension extension : extensions) {
+ 			extension.onNewIntent (intent);
+ 		}
+ 		super.onNewIntent (intent);
+     	}
+ 	
+ 	@Override 
+ 	public void onBackPressed() {
+ 		
+ 	}
+ 
 	
 	@Override protected void onActivityResult (int requestCode, int resultCode, Intent data) {
 		
