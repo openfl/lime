@@ -30,6 +30,7 @@
 		<architecture name="armv7" if="android" />
 
 		<include haxelib="lime-tools" />
+		<haxelib name="lime-tools" if="setup" />
 		
 	</section>
 	
