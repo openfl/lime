@@ -194,7 +194,7 @@ class MacPlatform implements IPlatformTool {
 		
 		for (asset in project.assets) {
 			
-			if (!asset.embed) {
+			if (asset.embed != true) {
 			
 				if (asset.type != AssetType.TEMPLATE) {
 				

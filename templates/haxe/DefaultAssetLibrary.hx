@@ -36,13 +36,13 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#if flash
 		
-		::if (assets != null)::::foreach assets::::if (embed)::className.set ("::id::", __ASSET__::flatName::);::else::path.set ("::id::", "::resourceName::");::end::
+		::if (assets != null)::::foreach assets::::if (embed != false)::className.set ("::id::", __ASSET__::flatName::);::else::path.set ("::id::", "::resourceName::");::end::
 		type.set ("::id::", Reflect.field (AssetType, "::type::".toUpperCase ()));
 		::end::::end::
 		
 		#elseif html5
 		
-		::if (assets != null)::::foreach assets::::if (embed)::::if (type == "font")::addEmbed("::id::", "::type::", __ASSET__::flatName::);
+		::if (assets != null)::::foreach assets::::if (embed != false)::::if (type == "font")::addEmbed("::id::", "::type::", __ASSET__::flatName::);
 		::else::addExternal("::id::", "::type::", "::resourceName::");
 		::end::::end::::end::::end::
 		
@@ -51,7 +51,7 @@ class DefaultAssetLibrary extends AssetLibrary {
         #if (windows || mac || linux)
 
 		var loadManifest = false;
-		::if (assets != null)::::foreach assets::::if (embed)::
+		::if (assets != null)::::foreach assets::::if (embed == true)::
 		className.set ("::id::", __ASSET__::flatName::);
 		type.set ("::id::", Reflect.field (AssetType, "::type::".toUpperCase ()));
 		::else::loadManifest = true;
@@ -638,7 +638,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 #if pixi
 #elseif flash
 
-::foreach assets::::if (embed)::::if (type == "image")::@:keep class __ASSET__::flatName:: extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }::else::@:keep class __ASSET__::flatName:: extends ::flashClass:: { }::end::::end::
+::foreach assets::::if (embed != false)::::if (type == "image")::@:keep class __ASSET__::flatName:: extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }::else::@:keep class __ASSET__::flatName:: extends ::flashClass:: { }::end::::end::
 ::end::
 
 #elseif html5
@@ -649,7 +649,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 #elseif (windows || mac || linux)
 
 ::if (assets != null)::
-::foreach assets::::if (embed)::::if (type == "image")::@:bitmap("::sourcePath::") class __ASSET__::flatName:: extends flash.display.BitmapData {}
+::foreach assets::::if (embed == true)::::if (type == "image")::@:bitmap("::sourcePath::") class __ASSET__::flatName:: extends flash.display.BitmapData {}
 ::elseif (type == "sound")::@:sound("::sourcePath::") class __ASSET__::flatName:: extends flash.media.Sound {}
 ::elseif (type == "music")::@:sound("::sourcePath::") class __ASSET__::flatName:: extends flash.media.Sound {}
 ::elseif (type == "font")::@:font("::sourcePath::") class __ASSET__::flatName:: extends flash.text.Font {}

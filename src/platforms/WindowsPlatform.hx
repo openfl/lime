@@ -189,7 +189,7 @@ class WindowsPlatform implements IPlatformTool {
 		
 		for (asset in project.assets) {
 			
-			if (!asset.embed) {
+			if (asset.embed != true) {
 			
 				var path = PathHelper.combine (applicationDirectory, asset.targetPath);
 			

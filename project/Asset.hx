@@ -14,7 +14,7 @@ class Asset {
 	
 	
 	public var data:Dynamic;
-	public var embed:Bool;
+	public var embed:Null<Bool>;
 	public var encoding:AssetEncoding;
 	public var flatName:String;
 	public var format:String;
@@ -28,7 +28,7 @@ class Asset {
 	public var type:AssetType;
 	
 	
-	public function new (path:String = "", rename:String = "", type:AssetType = null, embed:Bool = true, setDefaults:Bool = true) {
+	public function new (path:String = "", rename:String = "", type:AssetType = null, embed:Null<Bool> = null, setDefaults:Bool = true) {
 		
 		if (!setDefaults) return;
 		
@@ -125,7 +125,7 @@ class Asset {
 	
 	public function clone ():Asset {
 		
-		var asset = new Asset ("", "", null, false, false);
+		var asset = new Asset ("", "", null, null, false);
 		
 		asset.data = data;
 		asset.embed = embed;

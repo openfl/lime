@@ -217,7 +217,7 @@ class LinuxPlatform implements IPlatformTool {
 			
 			var path = PathHelper.combine (applicationDirectory, asset.targetPath);
 			
-			if (!asset.embed) {
+			if (asset.embed != true) {
 			
 				if (asset.type != AssetType.TEMPLATE) {
 				

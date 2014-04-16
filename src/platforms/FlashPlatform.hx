@@ -134,17 +134,6 @@ class FlashPlatform implements IPlatformTool {
 		var destination = project.app.path + "/flash/bin/";
 		PathHelper.mkdir (destination);
 		
-		/*for (asset in assets) {
-			
-			if (!asset.embed) {
-				
-				PathHelper.mkdir (Path.directory (destination + asset.targetPath));
-				FileHelper.copyIfNewer (asset.sourcePath, destination + asset.targetPath);
-				
-			}
-			
-		}*/
-		
 		var context = generateContext (project);
 		
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", project.app.path + "/flash/haxe", context);
@@ -172,7 +161,7 @@ class FlashPlatform implements IPlatformTool {
 
 			for (asset in project.assets) {
 				
-				if (asset.type == AssetType.TEMPLATE || asset.embed != true || !usesNME) {
+				if (asset.type == AssetType.TEMPLATE || asset.embed == false || !usesNME) {
 					
 					var path = PathHelper.combine (destination, asset.targetPath);
 					

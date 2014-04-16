@@ -35,7 +35,7 @@ class FlashHelper {
 		var flatName = inAsset.flatName;
 		var ext = inAsset.format;
 		
-		if (!embed) {
+		if (embed == false) {
 			
 			return false;
 			

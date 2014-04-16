@@ -380,7 +380,7 @@ class ProjectXMLParser extends HXProject {
 	private function parseAssetsElement (element:Fast, basePath:String = "", isTemplate:Bool = false):Void {
 		
 		var path = "";
-		var embed = true;
+		var embed:Null<Bool> = null;
 		var targetPath = "";
 		var glyphs = null;
 		var type = null;
@@ -615,7 +615,7 @@ class ProjectXMLParser extends HXProject {
 	}
 	
 	
-	private function parseAssetsElementDirectory (path:String, targetPath:String, include:String, exclude:String, type:AssetType, embed:Bool, glyphs:String, recursive:Bool):Void {
+	private function parseAssetsElementDirectory (path:String, targetPath:String, include:String, exclude:String, type:AssetType, embed:Null<Bool>, glyphs:String, recursive:Bool):Void {
 		
 		var files = FileSystem.readDirectory (path);
 		
