@@ -10,7 +10,7 @@ before_install:
   - haxelib setup ~/haxelib
   - git clone https://github.com/openfl/lime ~/lime
   - cd ~/lime
-  - git checkout nme-collab
+  #- git checkout nme-collab
   - cd $TRAVIS_BUILD_DIR
   - haxelib dev lime ~/lime
   - git clone https://github.com/haxenme/nme ~/nme --depth 1
