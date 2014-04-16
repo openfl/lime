@@ -66,7 +66,13 @@ class AndroidHelper {
 		
 		if (deviceID != null && deviceID != "") {
 			
-			ProcessHelper.runProcess (adbPath, adbName, [ "connect", deviceID ]);
+			if (deviceID.indexOf (":") > 0) {
+				
+				deviceID = deviceID.substr (0, deviceID.indexOf (":"));
+				
+			}
+			
+			ProcessHelper.runCommand (adbPath, adbName, [ "connect", deviceID ]);
 			
 		}
 		
