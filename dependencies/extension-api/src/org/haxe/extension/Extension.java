@@ -18,8 +18,8 @@ public class Extension {
 	public static Activity mainActivity;
 	public static Context mainContext;
 	public static View mainView;
+	public static String packageName;
 	
-	public static String PACKAGE_NAME;
 	
 	/**
 	 * Called when an activity you launched exits, giving you the requestCode 
@@ -47,6 +47,29 @@ public class Extension {
 	 * Perform any final cleanup before an activity is destroyed.
 	 */
 	public void onDestroy () {
+		
+		
+		
+	}
+	
+	
+	/**
+	 * Called when the overall system is running low on memory, 
+	 * and actively running processes should trim their memory usage.
+	 * This is a backwards compatibility method as it is called at the same time as 
+	 * onTrimMemory(TRIM_MEMORY_COMPLETE).
+	 */
+	public void onLowMemory () {
+		
+		
+		
+	}
+	
+	
+	/**
+	 * Called when the a new Intent is received
+	 */
+	public void onNewIntent (Intent intent) {
 		
 		
 		
@@ -110,19 +133,6 @@ public class Extension {
 	
 	
 	/**
-	 * Called when the overall system is running low on memory, 
-	 * and actively running processes should trim their memory usage.
-	 * This is a backwards compatibility method as it is called at the same time as 
-	 * onTrimMemory(TRIM_MEMORY_COMPLETE).
-	 */
-	public void onLowMemory () {
-		
-		
-		
-	}
-
-
-	/**
 	 * Called when the operating system has determined that it is a
 	 * good time for a process to trim unneeded memory from its process.
 	 * 
@@ -134,12 +144,5 @@ public class Extension {
 		
 	}
 	
-	/**
-	 * Called when the a new Intent is received
-	 */
-	public void onNewIntent (Intent intent) {
-		
-		
-	}
 	
 }
