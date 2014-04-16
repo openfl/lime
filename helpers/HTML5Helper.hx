@@ -55,7 +55,8 @@ class HTML5Helper {
 			
 		}
 		
-		ProcessHelper.runCommand ("", PathHelper.findTemplate (project.templatePaths, "bin/webify" + suffix), [ FileSystem.fullPath (font.sourcePath) ]);
+		var output = ProcessHelper.runProcess ("", PathHelper.findTemplate (project.templatePaths, "bin/webify" + suffix), [ FileSystem.fullPath (font.sourcePath) ]);
+		LogHelper.info ("", output);
 		
 	}
 	
