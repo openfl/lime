@@ -643,7 +643,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 #elseif html5
 
-::foreach assets::::if (type == "font")::@:keep class __ASSET__::flatName:: extends flash.text.Font { }::end::
+::foreach assets::::if (type == "font")::@:keep class __ASSET__::flatName:: extends flash.text.Font { public function new () { super (); fontName = "::id::"; } }::end::
 ::end::
 
 #elseif (windows || mac || linux)

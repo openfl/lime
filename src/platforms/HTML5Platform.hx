@@ -101,11 +101,32 @@ class HTML5Platform implements IPlatformTool {
 		var destination = outputDirectory + "/bin/";
 		PathHelper.mkdir (destination);
 		
+		var useWebfonts = true;
+		
+		for (haxelib in project.haxelibs) {
+			
+			if (haxelib.name == "openfl-html5-dom" || haxelib.name == "openfl-bitfive") {
+				
+				useWebfonts = false;
+				
+			}
+			
+		}
+		
 		for (asset in project.assets) {
 			
 			if (asset.type == AssetType.FONT) {
 				
-				project.haxeflags.push (HTML5Helper.generateFontData (project, asset));
+				if (useWebfonts) {
+					
+					HTML5Helper.generateWebfonts (project, asset);
+					asset.targetPath = Path.withoutExtension (asset.targetPath);
+					
+				} else {
+					
+					project.haxeflags.push (HTML5Helper.generateFontData (project, asset));
+					
+				}
 				
 			}
 			
@@ -139,6 +160,17 @@ class HTML5Platform implements IPlatformTool {
 					
 					PathHelper.mkdir (Path.directory (path));
 					FileHelper.copyAssetIfNewer (asset, path);
+					
+				} else if (useWebfonts) {
+					
+					PathHelper.mkdir (Path.directory (path));
+					var source = Path.withoutExtension (asset.sourcePath);
+					
+					for (ext in [ ".ttf", ".eot", ".woff", ".svg" ]) {
+						
+						FileHelper.copyFile (source + ext, path + ext);
+						
+					}
 					
 				}
 				
