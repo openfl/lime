@@ -380,6 +380,7 @@ DEFINE_LIME_PRIM_1(curl_get_error_message);
 DEFINE_LIME_PRIM_1(curl_get_code);
 DEFINE_LIME_PRIM_1(curl_get_data);
 DEFINE_LIME_PRIM_1(curl_get_cookies);
+DEFINE_LIME_PRIM_1(curl_get_headers);
 DEFINE_LIME_PRIM_1(lzma_encode);
 DEFINE_LIME_PRIM_1(lzma_decode);
 DEFINE_LIME_PRIM_2(file_dialog_folder);
