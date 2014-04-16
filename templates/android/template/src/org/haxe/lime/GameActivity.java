@@ -98,21 +98,16 @@ public class GameActivity extends Activity implements SensorEventListener {
 		
 		requestWindowFeature (Window.FEATURE_NO_TITLE);
 		
-
 		::if WIN_FULLSCREEN::
- 			::if (ANDROID_TARGET_SDK_VERSION < 19)::
- 				getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN
- 					| WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
- 			::end::
- 		::end::
-
+			::if (ANDROID_TARGET_SDK_VERSION < 19)::
+				getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN
+					| WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+			::end::
+		::end::
 		
 		metrics = new DisplayMetrics ();
 		getWindowManager ().getDefaultDisplay ().getMetrics (metrics);
 		
-	
-		Log.d ("lime", "mMainView is NULL");
-			
 		::foreach ndlls::
 		System.loadLibrary ("::name::");
 		::end::
@@ -120,7 +115,7 @@ public class GameActivity extends Activity implements SensorEventListener {
 		
 		mView = new MainView (getApplication (), this);
 		setContentView (mView);
-
+		
 		Extension.mainView = mView;
 		
 		sensorManager = (SensorManager)activity.getSystemService (Context.SENSOR_SERVICE);
@@ -132,11 +127,11 @@ public class GameActivity extends Activity implements SensorEventListener {
 			
 		}
 		
-		Extension.PACKAGE_NAME = getApplicationContext().getPackageName();
+		Extension.packageName = getApplicationContext ().getPackageName ();
 		
 		if (extensions == null) {
 			
-			extensions = new ArrayList<Extension>();
+			extensions = new ArrayList<Extension> ();
 			::if (ANDROID_EXTENSIONS != null)::::foreach ANDROID_EXTENSIONS::
 			extensions.add (new ::__current__:: ());::end::::end::
 			
@@ -402,19 +397,6 @@ public class GameActivity extends Activity implements SensorEventListener {
 		
 	}
 	
-	@Override
-    	protected void onNewIntent(final Intent intent) {
- 		for (Extension extension : extensions) {
- 			extension.onNewIntent (intent);
- 		}
- 		super.onNewIntent (intent);
-     	}
- 	
- 	@Override 
- 	public void onBackPressed() {
- 		
- 	}
- 
 	
 	@Override protected void onActivityResult (int requestCode, int resultCode, Intent data) {
 		
@@ -445,6 +427,32 @@ public class GameActivity extends Activity implements SensorEventListener {
 		mView.sendActivity (Lime.DESTROY);
 		activity = null;
 		super.onDestroy ();
+		
+	}
+	
+	
+	@Override public void onLowMemory () {
+		
+		super.onLowMemory ();
+		
+		for (Extension extension : extensions) {
+			
+			extension.onLowMemory ();
+			
+		}
+		
+	}
+	
+	
+	@Override protected void onNewIntent (final Intent intent) {
+		
+		for (Extension extension : extensions) {
+			
+			extension.onNewIntent (intent);
+			
+		}
+		
+		super.onNewIntent (intent);
 		
 	}
 	
@@ -487,31 +495,6 @@ public class GameActivity extends Activity implements SensorEventListener {
 			
 		}
 		
-	}
-	
-
-	@Override public void onLowMemory () {
-		
-		super.onLowMemory ();
-
-		for (Extension extension : extensions) {
-			
-			extension.onLowMemory ();
-			
-		}
-	}
-
-
-	@Override public void onTrimMemory (int level) {
-
-		super.onTrimMemory (level);
-
-		for (Extension extension : extensions) {
-			
-			extension.onTrimMemory (level);
-			
-		}
-
 	}
 	
 	
@@ -565,6 +548,19 @@ public class GameActivity extends Activity implements SensorEventListener {
 		for (Extension extension : extensions) {
 			
 			extension.onStop ();
+			
+		}
+		
+	}
+	
+	
+	@Override public void onTrimMemory (int level) {
+		
+		super.onTrimMemory (level);
+		
+		for (Extension extension : extensions) {
+			
+			extension.onTrimMemory (level);
 			
 		}
 		
