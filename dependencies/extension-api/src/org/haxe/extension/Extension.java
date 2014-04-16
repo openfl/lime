@@ -19,6 +19,7 @@ public class Extension {
 	public static Context mainContext;
 	public static View mainView;
 	
+	public static String PACKAGE_NAME;
 	
 	/**
 	 * Called when an activity you launched exits, giving you the requestCode 
@@ -132,4 +133,13 @@ public class Extension {
 		
 		
 	}
+	
+	/**
+	 * Called when the a new Intent is received
+	 */
+	public void onNewIntent (Intent intent) {
+		
+		
+	}
+	
 }
