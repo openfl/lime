@@ -800,7 +800,7 @@ class GL {
         return lime_gl_get_render_buffer_parameter(target, pname);
     }
 
-    public static function getShaderInfoLog(shader:GLShader):String 
+    public static function getShaderInfoLog(shader:GLShader):Null<String> 
     {
         return lime_gl_get_shader_info_log(shader.id);
     }
@@ -815,7 +815,7 @@ class GL {
         return lime_gl_get_shader_precision_format(shadertype, precisiontype);
     }
 
-    public static function getShaderSource(shader:GLShader):String 
+    public static function getShaderSource(shader:GLShader):Null<String> 
     {
         return lime_gl_get_shader_source(shader.id);
     }
