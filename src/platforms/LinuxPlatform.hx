@@ -213,27 +213,29 @@ class LinuxPlatform implements IPlatformTool {
 		}
 		
 		//context.HAS_ICON = IconHelper.createIcon (project.icons, 256, 256, PathHelper.combine (applicationDirectory, "icon.png"));
-		
 		for (asset in project.assets) {
 			
 			var path = PathHelper.combine (applicationDirectory, asset.targetPath);
 			
-			if (asset.type != AssetType.TEMPLATE) {
+			if (!asset.embed) {
+			
+				if (asset.type != AssetType.TEMPLATE) {
 				
-				PathHelper.mkdir (Path.directory (path));
-				FileHelper.copyAssetIfNewer (asset, path);
+					PathHelper.mkdir (Path.directory (path));
+					FileHelper.copyAssetIfNewer (asset, path);
 				
-			} else {
+				} else {
 				
-				PathHelper.mkdir (Path.directory (path));
-				FileHelper.copyAsset (asset, path, context);
+					PathHelper.mkdir (Path.directory (path));
+					FileHelper.copyAsset (asset, path, context);
+				
+				}
 				
 			}
 			
 		}
 		
 		AssetHelper.createManifest (project, PathHelper.combine (applicationDirectory, "manifest"));
-		
 	}
 	
 	

@@ -189,18 +189,22 @@ class WindowsPlatform implements IPlatformTool {
 		
 		for (asset in project.assets) {
 			
-			var path = PathHelper.combine (applicationDirectory, asset.targetPath);
+			if (!asset.embed) {
 			
-			if (asset.type != AssetType.TEMPLATE) {
+				var path = PathHelper.combine (applicationDirectory, asset.targetPath);
+			
+				if (asset.type != AssetType.TEMPLATE) {
 				
-				PathHelper.mkdir (Path.directory (path));
-				FileHelper.copyAssetIfNewer (asset, path);
+					PathHelper.mkdir (Path.directory (path));
+					FileHelper.copyAssetIfNewer (asset, path);
 				
-			} else {
+				} else {
 				
-				PathHelper.mkdir (Path.directory (path));
-				FileHelper.copyAsset (asset, path, context);
+					PathHelper.mkdir (Path.directory (path));
+					FileHelper.copyAsset (asset, path, context);
 				
+				}
+			
 			}
 			
 		}

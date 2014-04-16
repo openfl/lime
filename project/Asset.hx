@@ -5,6 +5,7 @@ import haxe.io.Path;
 import helpers.FileHelper;
 import helpers.ObjectHelper;
 import helpers.StringHelper;
+import helpers.PathHelper;
 import project.AssetType;
 import sys.FileSystem;
 
@@ -32,7 +33,7 @@ class Asset {
 		if (!setDefaults) return;
 		
 		this.embed = embed;
-		sourcePath = path;
+		sourcePath = PathHelper.standardize(path);
 		
 		if (rename == "") {
 			

@@ -30,7 +30,6 @@ class DefaultAssetLibrary extends AssetLibrary {
 	public static var path (default, null) = new Map <String, String> ();
 	public static var type (default, null) = new Map <String, AssetType> ();
 	
-	
 	public function new () {
 		
 		super ();
@@ -49,51 +48,72 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		try {
+        #if (windows || mac || linux)
+
+		var loadManifest = false;
+		::if (assets != null)::::foreach assets::::if (embed)::
+		className.set ("::id::", __ASSET__::flatName::);
+		type.set ("::id::", Reflect.field (AssetType, "::type::".toUpperCase ()));
+		::else::loadManifest = true;
+		::end::::end::::end::
+
+        #else
+
+        var loadManifest = true;
+
+        #end
+		
+		if (loadManifest) {
+			try {
 			
-			#if blackberry
-			var bytes = ByteArray.readFile ("app/native/manifest");
-			#elseif tizen
-			var bytes = ByteArray.readFile ("../res/manifest");
-			#elseif emscripten
-			var bytes = ByteArray.readFile ("assets/manifest");
-			#else
-			var bytes = ByteArray.readFile ("manifest");
-			#end
+				#if blackberry
+				var bytes = ByteArray.readFile ("app/native/manifest");
+				#elseif tizen
+				var bytes = ByteArray.readFile ("../res/manifest");
+				#elseif emscripten
+				var bytes = ByteArray.readFile ("assets/manifest");
+				#else
+				var bytes = ByteArray.readFile ("manifest");
+				#end
 			
-			if (bytes != null) {
+				if (bytes != null) {
 				
-				bytes.position = 0;
+					bytes.position = 0;
 				
-				if (bytes.length > 0) {
+					if (bytes.length > 0) {
 					
-					var data = bytes.readUTFBytes (bytes.length);
+						var data = bytes.readUTFBytes (bytes.length);
 					
-					if (data != null && data.length > 0) {
+						if (data != null && data.length > 0) {
 						
-						var manifest:Array<AssetData> = Unserializer.run (data);
+							var manifest:Array<AssetData> = Unserializer.run (data);
 						
-						for (asset in manifest) {
+							for (asset in manifest) {
 							
-							path.set (asset.id, asset.path);
-							type.set (asset.id, asset.type);
+								if (!className.exists(asset.id)) {
 							
+									path.set (asset.id, asset.path);
+									type.set (asset.id, asset.type);
+							
+								}
+							}
+						
 						}
-						
-					}
 					
+					}
+				
+				} else {
+				
+					trace ("Warning: Could not load asset manifest");
+				
 				}
-				
-			} else {
-				
+			
+			} catch (e:Dynamic) {
+			
 				trace ("Warning: Could not load asset manifest");
-				
+			
 			}
-			
-		} catch (e:Dynamic) {
-			
-			trace ("Warning: Could not load asset manifest");
-			
+		
 		}
 		
 		#end
@@ -176,7 +196,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		return BitmapData.fromImage (path.get (id));
 		
-		#elseif flash
+		#elseif (flash)
 		
 		return cast (Type.createInstance (className.get (id), []), BitmapData);
 		
@@ -190,7 +210,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		return BitmapData.load (path.get (id));
+		if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), BitmapData);
+		else return BitmapData.load (path.get (id));
 		
 		#end
 		
@@ -203,7 +224,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		return null;
 		
-		#elseif flash
+		#elseif (flash)
 		
 		return cast (Type.createInstance (className.get (id), []), ByteArray);
 		
@@ -243,7 +264,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		return ByteArray.readFile (path.get (id));
+		if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), ByteArray);
+		else return ByteArray.readFile (path.get (id));
 		
 		#end
 		
@@ -262,7 +284,11 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		return new Font (path.get (id));
+		if (className.exists(id)) {
+			var fontClass = className.get(id);
+			Font.registerFont(fontClass);
+			return cast (Type.createInstance (fontClass, []), Font);
+		} else return new Font (path.get (id));
 		
 		#end
 		
@@ -275,7 +301,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		return null;
 		
-		#elseif flash
+		#elseif (flash)
 		
 		return cast (Type.createInstance (className.get (id), []), Sound);
 		
@@ -292,7 +318,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		return new Sound (new URLRequest (path.get (id)), null, true);
+		if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), Sound);
+		else return new Sound (new URLRequest (path.get (id)), null, true);
 		
 		#end
 		
@@ -320,7 +347,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		return null;
 		
-		#elseif flash
+		#elseif (flash)
 		
 		return cast (Type.createInstance (className.get (id), []), Sound);
 		
@@ -330,7 +357,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		return new Sound (new URLRequest (path.get (id)), null, type.get (id) == MUSIC);
+		if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), Sound);
+		else return new Sound (new URLRequest (path.get (id)), null, type.get (id) == MUSIC);
 		
 		#end
 		
@@ -617,5 +645,15 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 ::foreach assets::::if (type == "font")::@:keep class __ASSET__::flatName:: extends flash.text.Font { }::end::
 ::end::
+
+#elseif (windows || mac || linux)
+
+::if (assets != null)::
+::foreach assets::::if (embed)::::if (type == "image")::@:bitmap("::sourcePath::") class __ASSET__::flatName:: extends flash.display.BitmapData {}
+::elseif (type == "sound")::@:sound("::sourcePath::") class __ASSET__::flatName:: extends flash.media.Sound {}
+::elseif (type == "music")::@:sound("::sourcePath::") class __ASSET__::flatName:: extends flash.media.Sound {}
+::elseif (type == "font")::@:font("::sourcePath::") class __ASSET__::flatName:: extends flash.text.Font {}
+::else::@:file("::sourcePath::") class __ASSET__::flatName:: extends flash.utils.ByteArray {}
+::end::::end::::end::::end::
 
 #end
