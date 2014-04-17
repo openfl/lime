@@ -119,7 +119,7 @@ Usually, you will _not_ need to use development versions of the Lime command-lin
 Using Lime
 ==========
 
-If you prefer a low-level API, you may want to use Lime directly. The Lime 1.0 wrapper is still under development, you can see the wiki for the 1.0 [roadmap](https://github.com/openfl/lime/wiki/lime-wrapper-1.0-Roadmap).
+If you prefer a low-level API, you may want to use Lime directly. The Lime 1.0 wrapper is still under development, you can see the wiki for the 1.0 [roadmap](https://github.com/openfl/lime/wiki/Roadmap).
 
 You can get a taste by trying the "SimpleOpenGL" or "HerokuShaders" samples:
 
