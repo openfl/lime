@@ -766,6 +766,13 @@ class HXProject {
 				
 				var embeddedAsset:Dynamic = { };
 				ObjectHelper.copyFields (asset, embeddedAsset);
+				
+				if (asset.embed == null) {
+					
+					embeddedAsset.embed = (platformType == PlatformType.WEB);
+					
+				}
+				
 				embeddedAsset.type = Std.string (asset.type).toLowerCase ();
 				context.assets.push (embeddedAsset);
 				
