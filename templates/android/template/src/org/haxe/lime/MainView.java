@@ -344,7 +344,7 @@ class MainView extends GLSurfaceView {
 		
 		final MainView me = this;
 		
-		::if (ANDROID_TARGET_SDK_VERSION > 11)::if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1 && (event.isGamepadButton (inKeyCode) || (inKeyCode >= 19 && inKeyCode <= 22))) {
+		::if (ANDROID_TARGET_SDK_VERSION > 11)::if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1 && (event.isGamepadButton (inKeyCode) || (inKeyCode >= 19 && inKeyCode <=22))) {
 			
 			if (event.getRepeatCount () == 0) {
 				
@@ -362,7 +362,11 @@ class MainView extends GLSurfaceView {
 				
 			}
 			
-			return true;
+			if (inKeyCode < 19 || inKeyCode > 22) {
+				
+				return true;
+				
+			}
 			
 		}::end::
 		
@@ -394,7 +398,7 @@ class MainView extends GLSurfaceView {
 		
 		final MainView me = this;
 		
-		::if (ANDROID_TARGET_SDK_VERSION > 11)::if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1 && (event.isGamepadButton (inKeyCode) || (inKeyCode >= 19 && inKeyCode <= 22))) {
+		::if (ANDROID_TARGET_SDK_VERSION > 11)::if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1 && (event.isGamepadButton (inKeyCode) || (inKeyCode >= 19 && inKeyCode <=22))) {
 			
 			if (event.getRepeatCount () == 0) {
 				
@@ -412,7 +416,11 @@ class MainView extends GLSurfaceView {
 				
 			}
 			
-			return true;
+			if (inKeyCode < 19 || inKeyCode > 22) {
+				
+				return true;
+				
+			}
 			
 		}::end::
 		
@@ -589,6 +597,7 @@ class MainView extends GLSurfaceView {
 		
 		switch (inCode) {
 			
+			case KeyEvent.KEYCODE_DPAD_CENTER: return 13; // Enter
 			case KeyEvent.KEYCODE_BACK: return 27; /* Fake Escape */
 			case KeyEvent.KEYCODE_MENU: return 0x01000012; /* Fake MENU */
 			case KeyEvent.KEYCODE_DEL: return 8;
