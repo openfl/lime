@@ -164,11 +164,16 @@ class HTML5Platform implements IPlatformTool {
 				} else if (useWebfonts) {
 					
 					PathHelper.mkdir (Path.directory (path));
+					var ext = "." + Path.extension (asset.sourcePath);
 					var source = Path.withoutExtension (asset.sourcePath);
 					
-					for (ext in [ ".ttf", ".eot", ".woff", ".svg" ]) {
+					for (extension in [ ext, ".eot", ".woff", ".svg" ]) {
 						
-						FileHelper.copyFile (source + ext, path + ext);
+						if (FileSystem.exists (source + extension)) {
+							
+							FileHelper.copyFile (source + extension, path + extension);
+							
+						}
 						
 					}
 					
