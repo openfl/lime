@@ -544,7 +544,7 @@ class ProjectXMLParser extends HXProject {
 					
 					var childPath = substitute (childElement.has.name ? childElement.att.name : childElement.att.path);
 					var childTargetPath = childPath;
-					var childEmbed = embed;
+					var childEmbed:Null<Bool> = embed;
 					var childType = type;
 					var childGlyphs = glyphs;
 					
@@ -1170,7 +1170,7 @@ class ProjectXMLParser extends HXProject {
 							var path = PathHelper.combine (extensionPath, substitute (element.att.path));
 							var name = "";
 							var type = null;
-							var embed = null;
+							var embed:Null<Bool> = null;
 							
 							if (element.has.name) {
 								
