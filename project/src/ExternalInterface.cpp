@@ -550,6 +550,14 @@ namespace nme {
 	}
 	
 	
+	#ifdef NME_S3D
+	DEFINE_LIME_PRIM_0(gl_s3d_get_eye_separation);
+	DEFINE_LIME_PRIM_1(gl_s3d_set_eye_separation);
+	DEFINE_LIME_PRIM_0(gl_s3d_get_focal_length);
+	DEFINE_LIME_PRIM_1(gl_s3d_set_focal_length);
+	#endif
+	
+	
 }
 
 
