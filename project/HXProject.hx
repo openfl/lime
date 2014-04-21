@@ -762,16 +762,19 @@ class HXProject {
 		for (field in Reflect.fields (window[0])) {
 			
 			Reflect.setField (context, "WIN_" + StringHelper.formatUppercaseVariable (field), Reflect.field (window[0], field));
+			Reflect.setField (context, "WINDOW_" + StringHelper.formatUppercaseVariable (field), Reflect.field (window[0], field));
 			
 		}
 		
 		if (window[0].orientation == Orientation.LANDSCAPE || window[0].orientation == Orientation.PORTRAIT) {
 			
 			context.WIN_ORIENTATION = Std.string (window[0].orientation).toLowerCase ();
+			context.WINDOW_ORIENTATION = Std.string (window[0].orientation).toLowerCase ();
 			
 		} else {
 			
 			context.WIN_ORIENTATION = "";
+			context.WINDOW_ORIENTATION = "";
 			
 		}
 		
@@ -779,17 +782,17 @@ class HXProject {
 			
 			for (field in Reflect.fields (window[i])) {
 				
-				Reflect.setField (context, "WIN" + i + "_" + StringHelper.formatUppercaseVariable (field), Reflect.field (window[i], field));
+				Reflect.setField (context, "WINDOW_" + StringHelper.formatUppercaseVariable (field) + "_" + i, Reflect.field (window[i], field));
 				
 			}
 			
 			if (window[i].orientation == Orientation.LANDSCAPE || window[i].orientation == Orientation.PORTRAIT) {
 				
-				Reflect.setField (context, "WIN" + i + "_ORIENTATION", Std.string (window[i].orientation).toLowerCase ());
+				Reflect.setField (context, "WINDOW_ORIENTATION_" + i, Std.string (window[i].orientation).toLowerCase ());
 				
 			} else {
 				
-				Reflect.setField (context, "WIN" + i + "_ORIENTATION", "");
+				Reflect.setField (context, "WINDOW_ORIENTATION_" + i, "");
 				
 			}
 			
