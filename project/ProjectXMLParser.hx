@@ -5,6 +5,7 @@ import haxe.io.Path;
 import haxe.xml.Fast;
 import helpers.ArrayHelper;
 import helpers.LogHelper;
+import helpers.ObjectHelper;
 import helpers.PathHelper;
 import helpers.StringMapHelper;
 import project.Asset;
@@ -1469,6 +1470,20 @@ class ProjectXMLParser extends HXProject {
 	
 	private function parseWindowElement (element:Fast):Void {
 		
+		var id = 0;
+		
+		if (element.has.id) {
+			
+			id = Std.parseInt (substitute (element.att.id));
+			
+		}
+		
+		while (id > window.length) {
+			
+			window.push (ObjectHelper.copyFields (defaultWindow, {}));
+			
+		}
+		
 		for (attribute in element.x.attributes ()) {
 			
 			var name = formatAttributeName (attribute);
@@ -1486,7 +1501,7 @@ class ProjectXMLParser extends HXProject {
 						
 					}
 					
-					window.background = Std.parseInt (value);
+					window[id].background = Std.parseInt (value);
 				
 				case "orientation":
 					
@@ -1494,35 +1509,35 @@ class ProjectXMLParser extends HXProject {
 					
 					if (orientation != null) {
 						
-						window.orientation = orientation;
+						window[id].orientation = orientation;
 						
 					}
 				
 				case "height", "width", "fps", "antialiasing":
 					
-					if (Reflect.hasField (window, name)) {
+					if (Reflect.hasField (window[id], name)) {
 						
-						Reflect.setField (window, name, Std.parseInt (value));
+						Reflect.setField (window[id], name, Std.parseInt (value));
 						
 					}
 				
 				case "parameters":
 					
-					if (Reflect.hasField (window, name)) {
+					if (Reflect.hasField (window[id], name)) {
 						
-						Reflect.setField (window, name, Std.string (value));
+						Reflect.setField (window[id], name, Std.string (value));
 						
 					}
 				
 				default:
 					
-					if (Reflect.hasField (window, name)) {
+					if (Reflect.hasField (window[id], name)) {
 						
-						Reflect.setField (window, name, value == "true");
+						Reflect.setField (window[id], name, value == "true");
 						
-					} else if (Reflect.hasField (window, formatAttributeName (name))) {
+					} else if (Reflect.hasField (window[id], formatAttributeName (name))) {
 						
-						Reflect.setField (window, formatAttributeName (name), value == "true");
+						Reflect.setField (window[id], formatAttributeName (name), value == "true");
 						
 					}
 				

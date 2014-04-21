@@ -4,7 +4,7 @@ package helpers;
 @:generic class ObjectHelper {
 	
 	
-	public static function copyFields<T> (source:T, destination:T):Void {
+	public static function copyFields<T> (source:T, destination:T):T {
 		
 		for (field in Reflect.fields (source)) {
 			
@@ -12,10 +12,12 @@ package helpers;
 			
 		}
 		
+		return destination;
+		
 	}
 	
 	
-	public static function copyMissingFields<T> (source:T, destination:T):Void {
+	public static function copyMissingFields<T> (source:T, destination:T):T {
 		
 		for (field in Reflect.fields (source)) {
 			
@@ -27,10 +29,12 @@ package helpers;
 			
 		}
 		
+		return destination;
+		
 	}
 	
 	
-	public static function copyUniqueFields<T> (source:T, destination:T, defaultInstance:T):Void {
+	public static function copyUniqueFields<T> (source:T, destination:T, defaultInstance:T):T {
 		
 		for (field in Reflect.fields (source)) {
 			
@@ -43,6 +47,8 @@ package helpers;
 			}
 			
 		}
+		
+		return destination;
 		
 	}
 	

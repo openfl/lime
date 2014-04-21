@@ -228,7 +228,7 @@ class IOSPlatform implements IPlatformTool {
 		context.CPP_BUILD_LIBRARY = project.config.cpp.buildLibrary;
 		context.IOS_LINKER_FLAGS = "\"-stdlib=libc++\"," + project.config.ios.linkerFlags.split (" ").join (", ");
 		
-		switch (project.window.orientation) {
+		switch (project.window[0].orientation) {
 			
 			case PORTRAIT:
 				context.IOS_APP_ORIENTATION = "<array><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationPortraitUpsideDown</string></array>";
@@ -357,7 +357,7 @@ class IOSPlatform implements IPlatformTool {
 			
 			if (!match) {
 				
-				var bitmapData = new BitmapData (width, height, false, (0xFF << 24) | (project.window.background & 0xFFFFFF));
+				var bitmapData = new BitmapData (width, height, false, (0xFF << 24) | (project.window[0].background & 0xFFFFFF));
 				File.saveBytes (PathHelper.combine (projectDirectory, splashScreenNames[i]), bitmapData.encode ("png"));
 				
 			}

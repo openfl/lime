@@ -140,7 +140,7 @@ class HTML5Platform implements IPlatformTool {
 		
 		var context = project.templateContext;
 		
-		context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background, 6);
+		context.WIN_FLASHBACKGROUND = StringTools.hex (project.window[0].background, 6);
 		context.OUTPUT_DIR = outputDirectory;
 		context.OUTPUT_FILE = outputFile;
 		

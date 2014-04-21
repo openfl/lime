@@ -14,6 +14,7 @@ class ArrayHelper {
 				
 				exists = true;
 				break;
+				
 			}
 			
 		}
