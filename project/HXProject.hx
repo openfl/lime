@@ -296,9 +296,9 @@ class HXProject {
 		
 		project.templatePaths = templatePaths.copy ();
 		
-		for (item in window) {
+		for (i in 0...window.length) {
 			
-			project.window.push (ObjectHelper.copyFields (item, {}));
+			project.window[i] = (ObjectHelper.copyFields (window[i], {}));
 			
 		}
 		

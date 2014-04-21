@@ -1478,7 +1478,7 @@ class ProjectXMLParser extends HXProject {
 			
 		}
 		
-		while (id > window.length) {
+		while (id >= window.length) {
 			
 			window.push (ObjectHelper.copyFields (defaultWindow, {}));
 			

@@ -48,24 +48,24 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-        #if (windows || mac || linux)
-
+		#if (windows || mac || linux)
+		
 		var loadManifest = false;
 		::if (assets != null)::::foreach assets::::if (embed)::
 		className.set ("::id::", __ASSET__::flatName::);
 		type.set ("::id::", Reflect.field (AssetType, "::type::".toUpperCase ()));
 		::else::loadManifest = true;
 		::end::::end::::end::
-
-        #else
-
-        var loadManifest = true;
-
-        #end
+		
+		#else
+		
+		var loadManifest = true;
+		
+		#end
 		
 		if (loadManifest) {
 			try {
-			
+				
 				#if blackberry
 				var bytes = ByteArray.readFile ("app/native/manifest");
 				#elseif tizen
@@ -75,26 +75,26 @@ class DefaultAssetLibrary extends AssetLibrary {
 				#else
 				var bytes = ByteArray.readFile ("manifest");
 				#end
-			
+				
 				if (bytes != null) {
-				
+					
 					bytes.position = 0;
-				
+					
 					if (bytes.length > 0) {
-					
+						
 						var data = bytes.readUTFBytes (bytes.length);
-					
+						
 						if (data != null && data.length > 0) {
-						
+							
 							var manifest:Array<AssetData> = Unserializer.run (data);
-						
+							
 							for (asset in manifest) {
-							
+								
 								if (!className.exists(asset.id)) {
-							
+									
 									path.set (asset.id, asset.path);
 									type.set (asset.id, asset.type);
-							
+									
 								}
 							}
 						
@@ -385,7 +385,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			bytes = null;
 			
 		}
-
+		
 		if (bytes != null) {
 			
 			bytes.position = 0;
