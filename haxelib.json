@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A powerful native backend for Haxe projects",
-	"version": "0.9.6",
-	"releasenote": "Add S3D support, minor update",
+	"version": "0.9.7",
+	"releasenote": "Move to collaborative C++ backend",
 	"contributors": [ "singmajesty", "underscorediscovery" ],
 	"dependencies": {}
 }
