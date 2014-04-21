@@ -87,6 +87,13 @@ class ConfigData implements Dynamic {
 	}
 	
 	
+	public function merge (config:ConfigData):Void {
+		
+		
+		
+	}
+	
+	
 	public function set (type:String, id:String, value:Dynamic):Void {
 		
 		var object = getObject (type, id);

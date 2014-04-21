@@ -119,7 +119,7 @@ import haxe.ds.StringMap;
 			
 			return result;
 			
-		} else if(Type.getClass(v) == null) { // anonymous object
+		} else if (Type.getClass(v) == null) { // anonymous object
 			
 			var obj:Dynamic = {};
 			

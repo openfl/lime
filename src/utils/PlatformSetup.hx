@@ -1531,29 +1531,50 @@ class PlatformSetup {
 	public static function setupHaxelib (haxelib:Haxelib, dependency:Bool = false):Void {
 		
 		setupHaxelibs.set (haxelib.name, true);
+		
 		var defines = new Map <String, Dynamic> ();
 		defines.set ("setup", 1);
+		
+		var basePath = ProcessHelper.runProcess (Sys.getEnv ("HAXEPATH"), "haxelib", [ "config" ]);
+		if (basePath != null) {
+			
+			basePath = basePath.split ("\n")[0];
+			
+		}
+		var lib = PathHelper.getHaxelib (haxelib, false, true);
+		if (lib != null && !StringTools.startsWith (lib, basePath)) {
+			
+			defines.set ("dev", 1);
+			
+		}
+		
 		var project = HXProject.fromHaxelib (haxelib, defines, true);
 		
 		if (project != null && project.haxelibs.length > 0) {
 			
-			for (haxelib in project.haxelibs) {
+			for (lib in project.haxelibs) {
 				
-				if (setupHaxelibs.exists (haxelib.name)) continue;
+				if (setupHaxelibs.exists (lib.name)) continue;
 				
-				var lib = PathHelper.getHaxelib (haxelib, false, true);
+				var path = PathHelper.getHaxelib (lib, false, true);
 				
-				if (lib == null || lib == "" || (haxelib.version != null && haxelib.version != "")) {
+				if (path == null || path == "" || (lib.version != null && lib.version != "")) {
 					
-					installHaxelib (haxelib);
+					if (defines.exists ("dev")) {
+						
+						LogHelper.error ("Could not find dependency \"" + lib.name + "\" for library \"" + haxelib.name + "\"");
+						
+					}
+					
+					installHaxelib (lib);
 					
 				} else /*if (userDefines.exists ("upgrade"))*/ {
 					
-					updateHaxelib (haxelib);
+					updateHaxelib (lib);
 					
 				}
 				
-				setupHaxelib (haxelib, true);
+				setupHaxelib (lib, true);
 				
 			}
 			
@@ -2072,7 +2093,11 @@ class PlatformSetup {
 			
 			}
 			
+			#if (haxe_ver > 3.102)
+			var content = bytes.getString (0, bytes.length);
+			#else
 			var content = bytes.readString (0, bytes.length);
+			#end
 			
 			var startIndex = content.indexOf ("<section id=\"vars\">");
 			var endIndex = content.indexOf ("</section>", startIndex);
