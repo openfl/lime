@@ -78,7 +78,9 @@ extern "C" { \
 DEFINE_LIME_PRIM_1(jni_init_callback);
 DEFINE_LIME_PRIM_4(jni_create_field);
 DEFINE_LIME_PRIM_1(jni_get_static);
+DEFINE_LIME_PRIM_2(jni_set_static);
 DEFINE_LIME_PRIM_2(jni_get_member);
+DEFINE_LIME_PRIM_3(jni_set_member);
 DEFINE_LIME_PRIM_5(jni_create_method);
 DEFINE_LIME_PRIM_2(jni_call_static);
 DEFINE_LIME_PRIM_3(jni_call_member);
