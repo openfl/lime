@@ -1538,11 +1538,11 @@ class PlatformSetup {
 		var basePath = ProcessHelper.runProcess (Sys.getEnv ("HAXEPATH"), "haxelib", [ "config" ]);
 		if (basePath != null) {
 			
-			basePath = basePath.split ("\n")[0];
+			basePath = StringTools.trim (basePath.split ("\n")[0]);
 			
 		}
 		var lib = PathHelper.getHaxelib (haxelib, false, true);
-		if (lib != null && !StringTools.startsWith (lib, basePath)) {
+		if (lib != null && !StringTools.startsWith (PathHelper.standardize (lib), PathHelper.standardize (basePath))) {
 			
 			defines.set ("dev", 1);
 			
@@ -2031,13 +2031,13 @@ class PlatformSetup {
 		var basePath = ProcessHelper.runProcess (Sys.getEnv ("HAXEPATH"), "haxelib", [ "config" ]);
 		if (basePath != null) {
 			
-			basePath = basePath.split ("\n")[0];
+			basePath = StringTools.trim (basePath.split ("\n")[0]);
 			
 		}
 		
 		var lib = PathHelper.getHaxelib (haxelib, false, true);
 		
-		if (StringTools.startsWith (lib, basePath)) {
+		if (StringTools.startsWith (PathHelper.standardize (lib), PathHelper.standardize (basePath))) {
 			
 			ProcessHelper.runCommand (Sys.getEnv ("HAXEPATH"), "haxelib", [ "update", haxelib.name ]);
 			
