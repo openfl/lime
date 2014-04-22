@@ -63,8 +63,15 @@ class HTML5Helper {
 			
 		}
 		
-		var output = ProcessHelper.runProcess ("", webify, [ FileSystem.fullPath (font.sourcePath) ]);
-		LogHelper.info ("", output);
+		if (LogHelper.verbose) {
+			
+			ProcessHelper.runCommand ("", webify, [ FileSystem.fullPath (font.sourcePath) ]);
+			
+		} else {
+			
+			ProcessHelper.runProcess ("", webify, [ FileSystem.fullPath (font.sourcePath) ]);
+			
+		}
 		
 	}
 	
