@@ -4,6 +4,7 @@ package helpers;
 import haxe.io.Path;
 import helpers.LogHelper;
 import helpers.PathHelper;
+import helpers.PlatformHelper;
 import helpers.ProcessHelper;
 import project.Architecture;
 import project.Asset;
@@ -55,7 +56,14 @@ class HTML5Helper {
 			
 		}
 		
-		var output = ProcessHelper.runProcess ("", PathHelper.findTemplate (project.templatePaths, "bin/webify" + suffix), [ FileSystem.fullPath (font.sourcePath) ]);
+		var webify = PathHelper.findTemplate (project.templatePaths, "bin/webify" + suffix);
+		if (PlatformHelper.hostPlatform != Platform.WINDOWS) {
+			
+			Sys.command ("chmod", [ "+x", webify ]);
+			
+		}
+		
+		var output = ProcessHelper.runProcess ("", webify, [ FileSystem.fullPath (font.sourcePath) ]);
 		LogHelper.info ("", output);
 		
 	}
