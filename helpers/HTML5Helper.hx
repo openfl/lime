@@ -69,7 +69,7 @@ class HTML5Helper {
 			
 		} else {
 			
-			ProcessHelper.runProcess ("", webify, [ FileSystem.fullPath (font.sourcePath) ]);
+			ProcessHelper.runProcess ("", webify, [ FileSystem.fullPath (font.sourcePath) ], true, true, true);
 			
 		}
 		
