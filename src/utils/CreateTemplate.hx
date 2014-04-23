@@ -14,7 +14,7 @@ class CreateTemplate {
 	
 	public static function createExtension (words:Array <String>, userDefines:Map<String, Dynamic>):Void {
 		
-		var title = "Extension";
+		var title = "SampleExtension";
 		
 		if (words.length > 1) {
 			
