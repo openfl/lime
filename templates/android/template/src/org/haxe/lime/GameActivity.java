@@ -554,6 +554,7 @@ public class GameActivity extends Activity implements SensorEventListener {
 	}
 	
 	
+	::if (ANDROID_TARGET_SDK_VERSION >= 14)::
 	@Override public void onTrimMemory (int level) {
 		
 		super.onTrimMemory (level);
@@ -565,6 +566,7 @@ public class GameActivity extends Activity implements SensorEventListener {
 		}
 		
 	}
+	::end::
 	
 	
 	public static void popView () {
