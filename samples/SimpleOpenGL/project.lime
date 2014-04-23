@@ -4,6 +4,8 @@
 	<meta title="Simple OpenGLView" package="com.limeframework.samples.simpleopengl" version="1.0.0" company="OpenFL Technologies" />
 	<app main="Main" path="Export" file="SimpleOpenGL" />
 	
+	<window width="800" height="600" if="html5"/>
+	
 	<source path="Source" />
 	
 	<haxelib name="lime" />
