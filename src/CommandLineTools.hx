@@ -662,10 +662,9 @@ class CommandLineTools {
 		
 		var process = new Process (command, [ "path", "lime-tools" ]);
 		var path = "";
+		var lines = new Array <String> ();
 		
 		try {
-			
-			var lines = new Array <String> ();
 			
 			while (true) {
 				
@@ -683,6 +682,28 @@ class CommandLineTools {
    			}
    			
 		} catch (e:Dynamic) {
+			
+		}
+		
+		if (path == "") {
+			
+			for (line in lines) {
+				
+				if (line != "" && line.substr (0, 1) != "-") {
+					
+					try {
+						
+						if (FileSystem.exists (line)) {
+							
+							path = line;
+							
+						}
+						
+					} catch (e:Dynamic) {}
+					
+				}
+				
+			}
 			
 		}
 		

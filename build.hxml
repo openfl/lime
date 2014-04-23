@@ -6,3 +6,5 @@
 -lib format
 -lib svg
 --remap flash:flash
+-D openfl
+-D openfl_native
