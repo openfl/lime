@@ -2,11 +2,6 @@
 	
 	<include name="${HXCPP}/build-tool/BuildCommon.xml"/>
 	
-	<set name="mobile" value="1" if="iphone"/>
-	<set name="mobile" value="1" if="android"/>
-	<set name="mobile" value="1" if="blackberry"/>
-	<set name="mobile" value="1" if="webos"/>
-	
 	<files id="common">
 		
 		<compilerflag value="-Iinclude"/>
@@ -16,23 +11,16 @@
 		
 	</files>
 	
-	<set name="name_prefix" value="lib" if="iphone"/>
-	<set name="ARM_ARCH" value="-v7" if="HXCPP_ARMV7"/>
-	<set name="name_extra" value=".iphoneos${ARM_ARCH}" if="iphoneos"/>
-	<set name="name_extra" value=".iphonesim" if="iphonesim"/>
-	<set name="name_extra" value="-x86" if="simulator" unless="iphonesim" />
-	<set name="tool" value="exe" unless="iphone"/>
-	<set name="tool" value="static_link" if="iphone"/>
-	<set name="ndll-tool" value="dll" unless="iphone"/>
-	<set name="ndll-tool" value="static_link" if="iphone"/>
 	<set name="SLIBEXT" value=".lib" if="windows"/>
 	<set name="SLIBEXT" value=".a" unless="windows"/>
 	<set name="SLIBEXT" value=".so" if="webos"/>
 	
-	<target id="NDLL" output="${name_prefix}::extensionLowerCase::${debug_extra}${name_extra}" tool="linker" toolid="${ndll-tool}">
+	<set name="DEBUGEXTRA" value="-debug" if="fulldebug" />
+	
+	<target id="NDLL" output="${LIBPREFIX}::extensionLowerCase::${MSVC_LIB_VERSION}${DEBUGEXTRA}${LIBEXTRA}" tool="linker" toolid="${STD_MODULE_LINK}">
 		
 		<outdir name="../ndll/${BINDIR}"/>
-		<ext value=".ndll" unless="mobile"/>
+		<ext value=".ndll" if="windows || mac || linux"/>
 		<files id="common"/>
 		
 	</target>
