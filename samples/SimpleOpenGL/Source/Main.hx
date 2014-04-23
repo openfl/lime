@@ -96,7 +96,7 @@ class Main {
 			uniform mat4 uModelViewMatrix;
 			uniform mat4 uProjectionMatrix;
 			
-			void main(void) {
+			void main() {
 				vTexCoord = aTexCoord;
 				gl_Position = uProjectionMatrix * uModelViewMatrix * vec4 (aVertexPosition, 1.0);
 			}";
@@ -113,12 +113,13 @@ class Main {
 		
 		var fragmentShaderSource = 
 			
-			"varying vec2 vTexCoord;
+			"precision mediump float;
+			varying vec2 vTexCoord;
 			uniform sampler2D uImage0;
 			
-			void main(void)
+			void main()
 			{
-				gl_FragColor = texture2D (uImage0, vTexCoord).bgra;
+				gl_FragColor = texture2D (uImage0, vTexCoord);
 			}";
 		
 		var fragmentShader = GL.createShader (GL.FRAGMENT_SHADER);
