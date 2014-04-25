@@ -1823,7 +1823,7 @@ class PlatformSetup {
 
 		// No supported package manager.
 		Lib.println("Unable to find a supported package manager on your Linux distribution.");
-		Lib.println("For now, only apt-get and yum are supported.");
+		Lib.println("For now, only apt-get, yum, and pacman are supported.");
 
 		Sys.exit (1);
 	}
