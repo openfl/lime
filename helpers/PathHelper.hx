@@ -210,6 +210,7 @@ class PathHelper {
 							if (FileSystem.exists (line)) {
 								
 								result = line;
+								break;
 								
 							}
 							
