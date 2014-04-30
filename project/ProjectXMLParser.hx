@@ -93,6 +93,12 @@ class ProjectXMLParser extends HXProject {
 			
 		}
 		
+		if (target == Platform.FIREFOXOS) {
+			
+			defines.set ("html5", "1");
+			
+		}
+		
 		defines.set ("haxe3", "1");
 		
 		if (debug) {
