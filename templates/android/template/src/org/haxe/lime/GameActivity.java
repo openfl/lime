@@ -313,7 +313,7 @@ public class GameActivity extends Activity implements SensorEventListener {
 	
 	static public String getSpecialDir (int inWhich) {
 		
-		Log.v ("GameActivity", "Get special Dir " + inWhich);
+		//Log.v ("GameActivity", "Get special Dir " + inWhich);
 		File path = null;
 		
 		switch (inWhich) {
