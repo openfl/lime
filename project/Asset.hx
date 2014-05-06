@@ -96,7 +96,7 @@ class Asset {
 					
 					this.type = AssetType.MUSIC;
 				
-				case "text", "txt", "json", "xml", "svg", "css":
+				case "text", "txt", "json", "xml", "svg", "css", "plist":
 					
 					this.type = AssetType.TEXT;
 				
