@@ -12,13 +12,12 @@ import helpers.IconHelper;
 import helpers.LogHelper;
 import helpers.PathHelper;
 import helpers.ProcessHelper;
-import project.AssetType;
 import project.Haxelib;
 import project.HXProject;
 import project.NDLL;
 import sys.io.File;
 import sys.FileSystem;
-
+import AssetData;
 
 class BlackBerryPlatform implements IPlatformTool {
 	

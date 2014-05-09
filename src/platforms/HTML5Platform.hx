@@ -7,11 +7,10 @@ import helpers.FileHelper;
 import helpers.HTML5Helper;
 import helpers.PathHelper;
 import helpers.ProcessHelper;
-import project.AssetType;
 import project.HXProject;
 import sys.io.File;
 import sys.FileSystem;
-
+import AssetData;
 
 class HTML5Platform implements IPlatformTool {
 	

@@ -12,11 +12,10 @@ import helpers.HTML5Helper;
 import helpers.LogHelper;
 import helpers.PathHelper;
 import helpers.ProcessHelper;
-import project.AssetType;
 import project.HXProject;
 import sys.io.File;
 import sys.FileSystem;
-
+import AssetData;
 
 class EmscriptenPlatform implements IPlatformTool {
 	

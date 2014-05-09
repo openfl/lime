@@ -11,8 +11,8 @@ import helpers.PathHelper;
 import helpers.PlatformHelper;
 import helpers.StringHelper;
 import helpers.StringMapHelper;
-import project.AssetType;
 import sys.FileSystem;
+import AssetData;
 
 #if openfl_native
 import helpers.FileHelper;

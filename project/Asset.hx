@@ -6,9 +6,8 @@ import helpers.FileHelper;
 import helpers.ObjectHelper;
 import helpers.StringHelper;
 import helpers.PathHelper;
-import project.AssetType;
 import sys.FileSystem;
-
+import AssetData;
 
 class Asset {
 	

@@ -5,11 +5,10 @@ import haxe.io.Path;
 import haxe.Serializer;
 import haxe.Unserializer;
 import helpers.PathHelper;
-import openfl.Assets;
 import project.HXProject;
 import sys.io.File;
 import sys.FileSystem;
-
+import AssetData;
 
 class AssetHelper {
 	

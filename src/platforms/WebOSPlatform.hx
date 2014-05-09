@@ -11,11 +11,10 @@ import helpers.IconHelper;
 import helpers.PathHelper;
 import helpers.ProcessHelper;
 import helpers.WebOSHelper;
-import project.AssetType;
 import project.HXProject;
 import sys.io.File;
 import sys.FileSystem;
-
+import AssetData;
 
 class WebOSPlatform implements IPlatformTool {
 	
