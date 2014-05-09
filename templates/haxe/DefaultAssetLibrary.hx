@@ -1,3 +1,16 @@
+/*
+
+
+This file is included for compatibility with older versions of OpenFL, that do not include
+their own DefaultAssetLibrary.hx file. From OpenFL 1.4 forward, this file is being included
+within the `openfl` repository, and overrides this one. This file should be removed at a 
+later date.
+
+
+*/
+
+
+
 package;
 
 
@@ -87,8 +100,12 @@ class DefaultAssetLibrary extends AssetLibrary {
 						if (data != null && data.length > 0) {
 							
 							var unserializer = new Unserializer (data);
+							
 							unserializer.setResolver (cast { resolveEnum: resolveEnum, resolveClass: resolveClass });
+							
+
 							var manifest:Array<AssetData> = unserializer.unserialize();
+
 							
 							for (asset in manifest) {
 								
@@ -121,43 +138,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#end
 		
 	}
-	
-	private static function resolveClass (name:String):Class <Dynamic> {
-		
-		#if openfl
-			name = "openfl." + name;
-		#end
 
-		trace("resolveClass from lime-tools");
-
-		return Type.resolveClass (name);
-		
-	}
 	
-	
-	private static function resolveEnum (name:String):Enum <Dynamic> {
-		
-		#if openfl
-			name = "openfl." + name;
-		#end
-
-		var value = Type.resolveEnum (name);
-		
-		#if flash
-		
-		if (value == null) {
-			
-			return cast Type.resolveClass (name);
-			
-		}
-		
-		#end
-		
-		return value;
-		
-	}
-	
-
 	#if html5
 	private function addEmbed(id:String, kind:String, value:Dynamic):Void {
 		className.set(id, value);
@@ -665,6 +647,46 @@ class DefaultAssetLibrary extends AssetLibrary {
 		loadBytes (id, callback);
 		
 		#end
+		
+	}
+
+
+	private static function resolveClass (name:String):Class <Dynamic> {
+		
+		var value = Type.resolveClass (name);
+
+		if (value == null) {
+			
+			value = Type.resolveClass ("openfl." + name);
+			
+		}
+
+		return value;
+
+	}
+	
+	
+	private static function resolveEnum (name:String):Enum <Dynamic> {
+		
+		var value = Type.resolveEnum (name);
+
+		if (value == null) {
+			
+			value = Type.resolveClass ("openfl." + name);
+			
+		}
+		
+		#if flash
+		
+		if (value == null) {
+			
+			return cast Type.resolveClass (name);
+			
+		}
+		
+		#end
+		
+		return value;
 		
 	}
 	
