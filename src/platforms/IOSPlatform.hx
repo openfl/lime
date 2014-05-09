@@ -295,11 +295,6 @@ class IOSPlatform implements IPlatformTool {
 		
 		project = project.clone ();
 		
-		// for (asset in project.assets) {
-			
-		// 	asset.resourceName = asset.flatName;
-			
-		// }
 		
 		var manifest = new Asset ();
 		manifest.id = "__manifest__";
