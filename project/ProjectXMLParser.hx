@@ -1463,7 +1463,17 @@ class ProjectXMLParser extends HXProject {
 							}
 							
 						}
-					
+
+					case "config": 
+
+						configData.parse( element );
+
+					default :
+
+						if(StringTools.startsWith(element.name, "config:")) {
+							configData.parse( element );
+						}
+
 				}
 				
 			}

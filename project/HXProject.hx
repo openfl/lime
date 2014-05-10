@@ -30,6 +30,7 @@ class HXProject {
 	public var certificate:Keystore;
 	public var command:String;
 	public var config:PlatformConfig;
+	public var configData:ConfigData;
 	public var debug:Bool;
 	public var defines:Map <String, Dynamic>;
 	public var dependencies:Array <Dependency>;
@@ -97,6 +98,7 @@ class HXProject {
 		
 		command = _command;
 		config = new PlatformConfig ();
+		configData = new ConfigData ();
 		debug = _debug;
 		target = _target;
 		targetFlags = StringMapHelper.copy (_targetFlags);
@@ -214,6 +216,7 @@ class HXProject {
 		
 		project.command = command;
 		project.config = config.clone ();
+		project.configData = configData.clone ();
 		project.debug = debug;
 		
 		for (key in defines.keys ()) {
@@ -599,6 +602,7 @@ class HXProject {
 			}
 			
 			config.merge (project.config);
+			configData.merge (project.configData);
 			
 			assets = ArrayHelper.concatUnique (assets, project.assets);
 			dependencies = ArrayHelper.concatUnique (dependencies, project.dependencies, true);
