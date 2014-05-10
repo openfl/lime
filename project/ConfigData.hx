@@ -59,7 +59,7 @@ class ConfigData {
 
 			//no leafs? just fetch a value
 		if(tree.length <= 1) {
-			return Reflect.hasField(from_config, value);
+			return Reflect.field(from_config, value);
 		}
 
 			//for each leaf in the tree the current advances till the last one
@@ -86,7 +86,9 @@ class ConfigData {
 	
 	public function merge (other:ConfigData):Void {
 		
-		ObjectHelper.copyFieldsPreferObjectOverValue( other.config, config );
+		if(other != null) {
+			ObjectHelper.copyFieldsPreferObjectOverValue( other.config, config );
+		}
 		
 	}
 
