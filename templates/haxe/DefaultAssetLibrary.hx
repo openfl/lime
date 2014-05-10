@@ -99,20 +99,14 @@ class DefaultAssetLibrary extends AssetLibrary {
 						
 						if (data != null && data.length > 0) {
 							
-							var unserializer = new Unserializer (data);
-							
-							unserializer.setResolver (cast { resolveEnum: resolveEnum, resolveClass: resolveClass });
-							
-
-							var manifest:Array<AssetData> = unserializer.unserialize();
-
+							var manifest:Array<Dynamic> = Unserializer.run(data);
 							
 							for (asset in manifest) {
-								
+
 								if (!className.exists(asset.id)) {
 									
 									path.set (asset.id, asset.path);
-									type.set (asset.id, asset.type);
+									type.set (asset.id, Type.createEnum(AssetType, asset.type));
 									
 								}
 							}
@@ -650,45 +644,6 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 	}
 
-
-	private static function resolveClass (name:String):Class <Dynamic> {
-		
-		var value = Type.resolveClass (name);
-
-		if (value == null) {
-			
-			value = Type.resolveClass ("openfl." + name);
-			
-		}
-
-		return value;
-
-	}
-	
-	
-	private static function resolveEnum (name:String):Enum <Dynamic> {
-		
-		var value = Type.resolveEnum (name);
-
-		if (value == null) {
-			
-			value = Type.resolveClass ("openfl." + name);
-			
-		}
-		
-		#if flash
-		
-		if (value == null) {
-			
-			return cast Type.resolveClass (name);
-			
-		}
-		
-		#end
-		
-		return value;
-		
-	}
 	
 	
 }

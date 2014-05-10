@@ -10,10 +10,10 @@ import helpers.IconHelper;
 import helpers.PathHelper;
 import helpers.ProcessHelper;
 import helpers.TizenHelper;
+import project.AssetType;
 import project.HXProject;
 import sys.io.File;
 import sys.FileSystem;
-import AssetData;
 
 
 class TizenPlatform implements IPlatformTool {

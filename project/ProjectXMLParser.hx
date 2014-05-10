@@ -9,13 +9,13 @@ import helpers.ObjectHelper;
 import helpers.PathHelper;
 import helpers.StringMapHelper;
 import project.Asset;
+import project.AssetType;
 import project.Dependency;
 import project.Haxelib;
 import project.HXProject;
 import project.PlatformConfig;
 import sys.io.File;
 import sys.FileSystem;
-import AssetData;
 
 class ProjectXMLParser extends HXProject {
 	

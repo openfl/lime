@@ -11,11 +11,11 @@ import helpers.NekoHelper;
 import helpers.PathHelper;
 import helpers.PlatformHelper;
 import helpers.ProcessHelper;
+import project.AssetType;
 import project.Haxelib;
 import project.HXProject;
 import sys.io.File;
 import sys.FileSystem;
-import AssetData;
 
 class WindowsPlatform implements IPlatformTool {
 	

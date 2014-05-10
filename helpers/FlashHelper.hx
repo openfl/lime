@@ -14,11 +14,11 @@ import helpers.LogHelper;
 import helpers.ProcessHelper;
 import project.Asset;
 import project.AssetEncoding;
+import project.AssetType;
 import project.HXProject;
 import sys.io.File;
 import sys.FileSystem;
 import sys.io.FileSeek;
-import AssetData;
 
 class FlashHelper {
 	

@@ -15,6 +15,7 @@ import helpers.ProcessHelper;
 import helpers.StringHelper;
 import project.Architecture;
 import project.Asset;
+import project.AssetType;
 import project.Haxelib;
 import project.HXProject;
 import project.Keystore;
@@ -23,7 +24,6 @@ import project.Platform;
 import project.PlatformConfig;
 import sys.io.File;
 import sys.FileSystem;
-import AssetData;
 
 class IOSPlatform implements IPlatformTool {
 	
