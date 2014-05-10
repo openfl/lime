@@ -7,7 +7,7 @@ import helpers.ObjectHelper;
 
 	
 	//this class wraps up the dynamic return with access to 
-private class ConfigDataValue implements Dynamic {
+private class ConfigDataValue {
 
 	public var configValue : Dynamic;
 
