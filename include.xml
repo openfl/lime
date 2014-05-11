@@ -29,7 +29,7 @@
 		
 		<architecture name="armv7" if="android" />
 
-		<include haxelib="lime-tools" />
+		<include haxelib="lime-tools" unless="openfl" />
 		<haxelib name="lime-tools" if="setup" />
 		
 		<haxelib name="nme" if="dev setup" />
