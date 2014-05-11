@@ -19,7 +19,6 @@ import project.NDLL;
 import sys.io.File;
 import sys.FileSystem;
 
-
 class BlackBerryPlatform implements IPlatformTool {
 	
 	

@@ -25,7 +25,6 @@ import project.PlatformConfig;
 import sys.io.File;
 import sys.FileSystem;
 
-
 class IOSPlatform implements IPlatformTool {
 	
 	
@@ -304,11 +303,6 @@ class IOSPlatform implements IPlatformTool {
 		
 		project = project.clone ();
 		
-		for (asset in project.assets) {
-			
-			asset.resourceName = asset.flatName;
-			
-		}
 		
 		var manifest = new Asset ();
 		manifest.id = "__manifest__";
@@ -452,7 +446,7 @@ class IOSPlatform implements IPlatformTool {
 			
 			if (asset.type != AssetType.TEMPLATE) {
 				
-				var targetPath = projectDirectory + "/assets/" + asset.flatName;
+				var targetPath = projectDirectory + "/assets/" + asset.resourceName;
 				//var sourceAssetPath:String = projectDirectory + "haxe/" + asset.sourcePath;
 				
 				PathHelper.mkdir (Path.directory (targetPath));

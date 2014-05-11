@@ -18,7 +18,6 @@ import project.HXProject;
 import sys.io.File;
 import sys.FileSystem;
 
-
 class AndroidPlatform implements IPlatformTool {
 	
 	

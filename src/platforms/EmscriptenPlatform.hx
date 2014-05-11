@@ -17,7 +17,6 @@ import project.HXProject;
 import sys.io.File;
 import sys.FileSystem;
 
-
 class EmscriptenPlatform implements IPlatformTool {
 	
 	

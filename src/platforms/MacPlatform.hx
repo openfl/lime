@@ -11,13 +11,12 @@ import helpers.NekoHelper;
 import helpers.PathHelper;
 import helpers.PlatformHelper;
 import helpers.ProcessHelper;
-import project.Architecture;
 import project.AssetType;
+import project.Architecture;
 import project.HXProject;
 import project.Platform;
 import sys.io.File;
 import sys.FileSystem;
-
 
 class MacPlatform implements IPlatformTool {
 	

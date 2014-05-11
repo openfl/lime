@@ -12,7 +12,6 @@ import project.HXProject;
 import sys.io.File;
 import sys.FileSystem;
 
-
 class HTML5Platform implements IPlatformTool {
 	
 	

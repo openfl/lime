@@ -16,7 +16,6 @@ import project.HXProject;
 import sys.io.File;
 import sys.FileSystem;
 
-
 class WebOSPlatform implements IPlatformTool {
 	
 	

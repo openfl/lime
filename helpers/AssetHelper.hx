@@ -5,27 +5,29 @@ import haxe.io.Path;
 import haxe.Serializer;
 import haxe.Unserializer;
 import helpers.PathHelper;
-import openfl.Assets;
 import project.HXProject;
+import project.AssetType;
 import sys.io.File;
 import sys.FileSystem;
-
 
 class AssetHelper {
 	
 	
 	public static function createManifest (project:HXProject, targetPath:String = ""):String {
 		
-		var manifest = new Array <AssetData> ();
+		var manifest = new Array <Dynamic> ();
 		
 		for (asset in project.assets) {
-			
+				
+
 			if (asset.type != AssetType.TEMPLATE) {
 				
-				var data = new AssetData ();
-				data.id = asset.id;
-				data.path = asset.resourceName;
-				data.type = asset.type;
+				var data = {
+					id : asset.id,
+					path : asset.resourceName,
+					type : Std.string(asset.type)
+				}
+
 				manifest.push (data);
 				
 			}

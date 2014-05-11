@@ -1,3 +1,16 @@
+/*
+
+
+This file is included for compatibility with older versions of OpenFL, that do not include
+their own DefaultAssetLibrary.hx file. From OpenFL 1.4 forward, this file is being included
+within the `openfl` repository, and overrides this one. This file should be removed at a 
+later date.
+
+
+*/
+
+
+
 package;
 
 
@@ -86,14 +99,14 @@ class DefaultAssetLibrary extends AssetLibrary {
 						
 						if (data != null && data.length > 0) {
 							
-							var manifest:Array<AssetData> = Unserializer.run (data);
+							var manifest:Array<Dynamic> = Unserializer.run(data);
 							
 							for (asset in manifest) {
-								
+
 								if (!className.exists(asset.id)) {
 									
 									path.set (asset.id, asset.path);
-									type.set (asset.id, asset.type);
+									type.set (asset.id, Type.createEnum(AssetType, asset.type));
 									
 								}
 							}
@@ -104,13 +117,13 @@ class DefaultAssetLibrary extends AssetLibrary {
 				
 				} else {
 				
-					trace ("Warning: Could not load asset manifest");
+					trace ("Warning: Could not load asset manifest (bytes was null)");
 				
 				}
 			
 			} catch (e:Dynamic) {
 			
-				trace ("Warning: Could not load asset manifest");
+				trace ('Warning: Could not load asset manifest (${e})');
 			
 			}
 		
@@ -119,7 +132,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#end
 		
 	}
-	
+
 	
 	#if html5
 	private function addEmbed(id:String, kind:String, value:Dynamic):Void {
@@ -630,6 +643,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#end
 		
 	}
+
 	
 	
 }

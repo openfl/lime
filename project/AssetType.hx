@@ -1,15 +1,7 @@
 package project;
 
-
-#if openfl
-
-import openfl.Assets;
-typedef AssetType = openfl.AssetType;
-
-#else
-
 enum AssetType {
-	
+
 	BINARY;
 	FONT;
 	IMAGE;
@@ -18,7 +10,5 @@ enum AssetType {
 	SOUND;
 	TEMPLATE;
 	TEXT;
-	
-}
 
-#end
+}
