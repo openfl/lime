@@ -1721,6 +1721,7 @@ class PlatformSetup {
 			}
 			
 			File.copy (PathHelper.getHaxelib (new Haxelib ("lime-tools")) + "\\templates\\\\bin\\lime.bat", haxePath + "\\lime.bat");
+			File.copy (PathHelper.getHaxelib (new Haxelib ("lime-tools")) + "\\templates\\\\bin\\lime.sh", haxePath + "\\lime");
 			
 		} else {
 			
