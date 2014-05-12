@@ -102,6 +102,9 @@ class IOSPlatform implements IPlatformTool {
 				if (dependency.path != "") {
 					
 					var name = Path.withoutDirectory (Path.withoutExtension (dependency.path));
+
+                    project.config.ios.linkerFlags.push ("-force_load $SRCROOT/$PRODUCT_NAME/lib/$ARCHS/" + 
+                            Path.withoutDirectory (dependency.path));
 					
 					if (StringTools.startsWith (name, "lib")) {
 						
@@ -225,8 +228,8 @@ class IOSPlatform implements IPlatformTool {
 		
 		context.IOS_COMPILER = project.config.ios.compiler;
 		context.CPP_BUILD_LIBRARY = project.config.cpp.buildLibrary;
-		context.IOS_LINKER_FLAGS = "\"-stdlib=libc++\"," + project.config.ios.linkerFlags.split (" ").join (", ");
-		
+		context.IOS_LINKER_FLAGS = ["-stdlib=libc++"].concat (project.config.ios.linkerFlags);
+
 		switch (project.window[0].orientation) {
 			
 			case PORTRAIT:

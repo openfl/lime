@@ -1458,7 +1458,7 @@ class ProjectXMLParser extends HXProject {
 							
 							if (element.has.resolve ("linker-flags")) {
 								
-								config.ios.linkerFlags = substitute (element.att.resolve ("linker-flags"));
+								config.ios.linkerFlags.push (substitute (element.att.resolve ("linker-flags")));
 								
 							}
 							

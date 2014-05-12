@@ -34,7 +34,7 @@ class PlatformConfig {
 		compiler: "clang",
 		deployment: /*3.2*/ 5,
 		device: IOSConfigDevice.UNIVERSAL,
-		linkerFlags: "",
+		linkerFlags: [],
 		prerenderedIcon: false
 		
 	};
@@ -75,9 +75,13 @@ class PlatformConfig {
 		
 		android.extensions = extensions;
 		android.permissions = permissions;
-		
+
+		var linkerFlags = ArrayHelper.concatUnique (ios.linkerFlags, config.ios.linkerFlags);
+
 		ObjectHelper.copyUniqueFields (config.cpp, cpp, defaultCPP);
 		ObjectHelper.copyUniqueFields (config.ios, ios, defaultIOS);
+
+        ios.linkerFlags = linkerFlags;
 		
 	}
 	
@@ -118,7 +122,7 @@ typedef IOSConfig = {
 	@:optional var compiler:String;
 	@:optional var deployment:Float;
 	@:optional var device:IOSConfigDevice;
-	@:optional var linkerFlags:String;
+	@:optional var linkerFlags:Array<String>;
 	@:optional var prerenderedIcon:Bool;
 	
 }
