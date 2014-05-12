@@ -139,7 +139,7 @@ class FileHelper {
 				
 				var fileContents:String = File.getContent (source);
 				var template:Template = new Template (fileContents);
-				var result:String = template.execute (context);
+				var result:String = template.execute (context, { upper: function (_, s) return s.toUpperCase () });
 				
 				try {
 					
