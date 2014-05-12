@@ -247,15 +247,23 @@ class IOSPlatform implements IPlatformTool {
 		context.ADDL_PBX_FRAMEWORKS_BUILD_PHASE = "";
 		context.ADDL_PBX_FRAMEWORK_GROUP = "";
 		
+        context.frameworkSearchPaths = [];
+
 		for (dependency in project.dependencies) {
 			
 			if (Path.extension (dependency.name) == "framework") {
 				
 				var frameworkID = "11C0000000000018" + StringHelper.getUniqueID ();
 				var fileID = "11C0000000000018" + StringHelper.getUniqueID ();
+
+                var path = "System/Library/Frameworks/";
+                if (dependency.path != null) {
+                    path = dependency.path.substr(0, dependency.path.lastIndexOf("/")+1);
+                    context.frameworkSearchPaths.push(path);
+                }
 				
 				context.ADDL_PBX_BUILD_FILE += "		" + frameworkID + " /* " + dependency.name + " in Frameworks */ = {isa = PBXBuildFile; fileRef = " + fileID + " /* " + dependency.name + " */; };\n";
-				context.ADDL_PBX_FILE_REFERENCE += "		" + fileID + " /* " + dependency.name + " */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = " + dependency.name + "; path = System/Library/Frameworks/" + dependency.name + "; sourceTree = SDKROOT; };\n";
+				context.ADDL_PBX_FILE_REFERENCE += "		" + fileID + " /* " + dependency.name + " */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = " + dependency.name + "; path = " + path + dependency.name + "; sourceTree = SDKROOT; };\n";
 				context.ADDL_PBX_FRAMEWORKS_BUILD_PHASE += "				" + frameworkID + " /* " + dependency.name + " in Frameworks */,\n";
 				context.ADDL_PBX_FRAMEWORK_GROUP += "				" + fileID + " /* " + dependency.name + " */,\n";
 				
