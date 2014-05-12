@@ -60,6 +60,8 @@ class PlatformConfig {
 		ObjectHelper.copyFields (android, copy.android);
 		ObjectHelper.copyFields (defaultCPP, copy.cpp);
 		ObjectHelper.copyFields (ios, copy.ios);
+
+		copy.ios.linkerFlags = ios.linkerFlags.copy ();
 		
 		return copy;
 		
@@ -81,7 +83,7 @@ class PlatformConfig {
 		ObjectHelper.copyUniqueFields (config.cpp, cpp, defaultCPP);
 		ObjectHelper.copyUniqueFields (config.ios, ios, defaultIOS);
 
-        ios.linkerFlags = linkerFlags;
+		ios.linkerFlags = linkerFlags;
 		
 	}
 	
