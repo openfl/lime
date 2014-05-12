@@ -392,13 +392,13 @@ class IOSPlatform implements IPlatformTool {
 				//if (ndll.haxelib != null) {
 					
 					var releaseLib = PathHelper.getLibraryPath (ndll, "iPhone", "lib", libExt);
-					var debugLib = PathHelper.getLibraryPath (ndll, "iPhone", "lib", libExt);
+					var debugLib = PathHelper.getLibraryPath (ndll, "iPhone", "lib", libExt, true);
 					var releaseDest = projectDirectory + "/lib/" + arch + "/lib" + ndll.name + ".a";
 					var debugDest = projectDirectory + "/lib/" + arch + "-debug/lib" + ndll.name + ".a";
 					
 					FileHelper.copyIfNewer (releaseLib, releaseDest);
 					
-					if (FileSystem.exists (debugLib)) {
+					if (FileSystem.exists (debugLib) && debugLib != releaseLib) {
 						
 						FileHelper.copyIfNewer (debugLib, debugDest);
 						
