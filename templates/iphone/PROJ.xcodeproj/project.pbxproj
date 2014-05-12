@@ -401,7 +401,8 @@
 					::foreach linkedLibraries:: "-l::__current__::",
 					::end::
 					"-lApplicationMain",
-					::IOS_LINKER_FLAGS::
+					::foreach IOS_LINKER_FLAGS:: "::__current__::",
+					::end::
 				);
 			};
 			name = Debug;
@@ -433,7 +434,8 @@
 					::foreach linkedLibraries:: "-l::__current__::",
 					::end::
 					"-lApplicationMain",
-					::IOS_LINKER_FLAGS::
+					::foreach IOS_LINKER_FLAGS:: "::__current__::",
+					::end::
 				);
 			};
 			name = Release;
