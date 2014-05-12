@@ -47,6 +47,7 @@ class PlatformSetup {
 	private static var aptPackages = "ia32-libs-multiarch gcc-multilib g++-multilib";
 	private static var ubuntuSaucyPackages = "gcc-multilib g++-multilib libxext-dev";
 	private static var yumPackages = "gcc gcc-c++";
+	private static var pacmanPackages = "multilib-devel lib32-mesa lib32-mesa-libgl lib32-glu";
 	private static var tizenSDKURL = "https://developer.tizen.org/downloads/tizen-sdk";
 	private static var webOSLinuxX64NovacomPath = "http://cdn.downloads.palm.com/sdkdownloads/3.0.4.669/sdkBinaries/palm-novacom_1.0.80_amd64.deb";
 	private static var webOSLinuxX86NovacomPath = "http://cdn.downloads.palm.com/sdkdownloads/3.0.4.669/sdkBinaries/palm-novacom_1.0.80_i386.deb";
@@ -1811,9 +1812,18 @@ class PlatformSetup {
 			return;
 		}
 
+		// Install using pacman if available.
+		var whichPacman = ProcessHelper.runProcess("", "which", ["pacman"], true, true, true);
+		var hasPacman = whichPacman != null && whichPacman != "";
+		if(hasPacman) {
+			var parameters = [ "pacman", "-S", "--needed" ].concat (pacmanPackages.split (" "));
+			ProcessHelper.runCommand ("", "sudo", parameters, false);
+			return;
+		}
+
 		// No supported package manager.
 		Lib.println("Unable to find a supported package manager on your Linux distribution.");
-		Lib.println("For now, only apt-get and yum are supported.");
+		Lib.println("For now, only apt-get, yum, and pacman are supported.");
 
 		Sys.exit (1);
 	}
