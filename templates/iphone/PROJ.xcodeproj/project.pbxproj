@@ -395,6 +395,11 @@
 					"\"$(SRCROOT)/::APP_FILE::/lib/i386-debug\"",
 					"\"$(SRCROOT)/::APP_FILE::/lib/i386\"",
 				);
+                FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+                    ::foreach frameworkSearchPaths:: "::__current__::",
+					::end::
+                );
 		        OTHER_LDFLAGS = (
 					::foreach ndlls:: "-l::name::",
 					::end::
@@ -428,6 +433,11 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/::APP_FILE::/lib/i386\"",
 				);
+                FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+                    ::foreach frameworkSearchPaths:: "::__current__::",
+					::end::
+                );
 				OTHER_LDFLAGS = (
 					::foreach ndlls:: "-l::name::",
 					::end::
