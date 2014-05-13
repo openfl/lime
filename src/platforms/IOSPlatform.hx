@@ -97,7 +97,8 @@ class IOSPlatform implements IPlatformTool {
 		
 		for (dependency in project.dependencies) {
 			
-			if (!StringTools.endsWith (dependency.name, ".framework")) {
+			if (!StringTools.endsWith (dependency.name, ".framework") && 
+                    !StringTools.endsWith (dependency.path, ".framework")) {
 				
 				if (dependency.path != "") {
 					
@@ -259,7 +260,7 @@ class IOSPlatform implements IPlatformTool {
 			if (Path.extension (dependency.name) == "framework") {
 				
 				name = dependency.name;
-				path = "System/Library/Frameworks/" + dependency.name;
+				path = "/System/Library/Frameworks/" + dependency.name;
 
 			} else if (Path.extension (dependency.path) == "framework") {
 				
