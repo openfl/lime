@@ -198,14 +198,14 @@ class PathHelper {
 				}
 				
 			}
-			
+
 			if (result == "") {
 				
-				for (line in lines) {
+				try {
 					
-					if (line != "" && line.substr (0, 1) != "-") {
+					for (line in lines) {
 						
-						try {
+						if (line != "" && line.substr (0, 1) != "-") {
 							
 							if (FileSystem.exists (line)) {
 								
@@ -214,11 +214,11 @@ class PathHelper {
 								
 							}
 							
-						} catch (e:Dynamic) {}
+						}
 						
 					}
-					
-				}
+
+				} catch (e:Dynamic) {}
 				
 			}
 			
