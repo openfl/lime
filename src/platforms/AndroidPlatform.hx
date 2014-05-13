@@ -31,40 +31,69 @@ class AndroidPlatform implements IPlatformTool {
 		var destination = project.app.path + "/android/bin";
 		var hxml = project.app.path + "/android/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
 		
-		var armv5 = project.app.path + "/android/bin/libs/armeabi/libApplicationMain.so";
-		var armv7 = project.app.path + "/android/bin/libs/armeabi-v7a/libApplicationMain.so";
+		var hasARMV5 = (ArrayHelper.containsValue (project.architectures, Architecture.ARMV5) || ArrayHelper.containsValue (project.architectures, Architecture.ARMV6));
+		var hasARMV7 = ArrayHelper.containsValue (project.architectures, Architecture.ARMV7);
+		var hasX86 = ArrayHelper.containsValue (project.architectures, Architecture.X86);
 		
-		if (ArrayHelper.containsValue (project.architectures, Architecture.ARMV5) || ArrayHelper.containsValue (project.architectures, Architecture.ARMV6)) {
+		var architectures = [];
+		
+		if (hasARMV5) architectures.push (Architecture.ARMV5);
+		if (hasARMV7 || (!hasARMV5 && !hasX86)) architectures.push (Architecture.ARMV7);
+		if (hasX86) architectures.push (Architecture.X86);
+		
+		for (architecture in architectures) {
 			
-			ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "android", "-D", "android-9" ] );
-			CPPHelper.compile (project, project.app.path + "/android/obj", [ "-Dandroid", "-Dandroid-9" ]);
+			var haxeParams = [ hxml, "-D", "android", "-D", "android-9" ];
+			var cppParams = [ "-Dandroid", "-Dandroid-9" ];
+			var path = project.app.path + "/android/bin/libs/armeabi/libApplicationMain.so";
+			var suffix = "";
 			
-			FileHelper.copyIfNewer (project.app.path + "/android/obj/libApplicationMain" + (project.debug ? "-debug" : "") + ".so", armv5);
-			
-		} else {
-			
-			if (FileSystem.exists (armv5)) {
+			if (architecture == Architecture.ARMV7) {
 				
-				FileSystem.deleteFile (armv5);
+				haxeParams.push ("-D");
+				haxeParams.push ("HXCPP_ARMV7");
+				cppParams.push ("-DHXCPP_ARMV7");
+				
+				if (hasARMV5) {
+					
+					path = project.app.path + "/android/bin/libs/armeabi-v7/libApplicationMain.so";
+					
+				}
+				
+				suffix = "-v7";
+				
+			} else if (architecture == Architecture.X86) {
+				
+				haxeParams.push ("-D");
+				haxeParams.push ("HXCPP_X86");
+				cppParams.push ("-DHXCPP_X86");
+				path = project.app.path + "/android/bin/libs/x86/libApplicationMain.so";
+				suffix = "-x86";
 				
 			}
 			
-			armv7 = armv5; // Must use armeabi folder if only one architecture exists
+			ProcessHelper.runCommand ("", "haxe", haxeParams);
+			CPPHelper.compile (project, project.app.path + "/android/obj", cppParams);
+			
+			FileHelper.copyIfNewer (project.app.path + "/android/obj/libApplicationMain" + (project.debug ? "-debug" : "") + suffix + ".so", path);
 			
 		}
 		
-		if (ArrayHelper.containsValue (project.architectures, Architecture.ARMV7)) {
+		if (!ArrayHelper.containsValue (project.architectures, Architecture.ARMV7) || !hasARMV5) {
 			
-			ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "android", "-D", "android-9", "-D", "HXCPP_ARMV7" ] );
-			CPPHelper.compile (project, project.app.path + "/android/obj", [ "-Dandroid", "-Dandroid-9", "-DHXCPP_ARMV7" ]);
-			
-			FileHelper.copyIfNewer (project.app.path + "/android/obj/libApplicationMain" + (project.debug ? "-debug" : "") + "-v7.so", armv7);
-			
-		} else {
-			
-			if (FileSystem.exists (armv7)) {
+			if (FileSystem.exists (project.app.path + "/android/bin/libs/armeabi-v7")) {
 				
-				FileSystem.deleteFile (armv7);
+				PathHelper.removeDirectory (project.app.path + "/android/bin/libs/armeabi-v7");
+				
+			}
+			
+		}
+		
+		if (!hasX86) {
+			
+			if (FileSystem.exists (project.app.path + "/android/bin/libs/x86")) {
+				
+				PathHelper.removeDirectory (project.app.path + "/android/bin/libs/x86");
 				
 			}
 			
