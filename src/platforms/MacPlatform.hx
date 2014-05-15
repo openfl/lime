@@ -149,6 +149,7 @@ class MacPlatform implements IPlatformTool {
 		if (project.target == PlatformHelper.hostPlatform) {
 			
 			initialize (project);
+			arguments = arguments.concat ([ "-livereload" ]);
 			ProcessHelper.runCommand (executableDirectory, "./" + Path.withoutDirectory (executablePath), arguments);
 			
 		}

@@ -168,6 +168,7 @@ class LinuxPlatform implements IPlatformTool {
 		if (project.target == PlatformHelper.hostPlatform) {
 			
 			initialize (project);
+			arguments = arguments.concat ([ "-livereload" ]);
 			ProcessHelper.runCommand (applicationDirectory, "./" + Path.withoutDirectory (executablePath), arguments);
 			
 		}

@@ -4,10 +4,12 @@ package helpers;
 import haxe.io.Bytes;
 import haxe.io.Path;
 import haxe.Template;
+import helpers.PlatformHelper;
 import helpers.StringHelper;
 import project.Asset;
 import project.AssetEncoding;
 import project.NDLL;
+import project.Platform;
 import sys.io.File;
 import sys.io.FileOutput;
 import sys.FileSystem;
@@ -238,7 +240,25 @@ class FileHelper {
 			
 			try {
 				
-				File.copy (path, targetPath);
+				if (!FileSystem.exists (targetPath) || (FileSystem.stat (path).mtime.getTime () > FileSystem.stat (targetPath).mtime.getTime ())) {
+					
+					if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
+						
+						var code = ProcessHelper.runCommand ("", "robocopy", [ path, targetPath ], true, true);
+						
+						if (code != 0) {
+							
+							File.copy (path, targetPath);
+							
+						}
+						
+					} else {
+						
+						ProcessHelper.runCommand ("", "cp", [ "--preserve=timestamps", path, targetPath ], false);
+						
+					}
+					
+				}
 				
 			} catch (e:Dynamic) {
 				
