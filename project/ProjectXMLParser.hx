@@ -1493,9 +1493,9 @@ class ProjectXMLParser extends HXProject {
 			
 		}
 		
-		while (id >= window.length) {
+		while (id >= windows.length) {
 			
-			window.push (ObjectHelper.copyFields (defaultWindow, {}));
+			windows.push (ObjectHelper.copyFields (defaultWindow, {}));
 			
 		}
 		
@@ -1516,7 +1516,7 @@ class ProjectXMLParser extends HXProject {
 						
 					}
 					
-					window[id].background = Std.parseInt (value);
+					windows[id].background = Std.parseInt (value);
 				
 				case "orientation":
 					
@@ -1524,35 +1524,35 @@ class ProjectXMLParser extends HXProject {
 					
 					if (orientation != null) {
 						
-						window[id].orientation = orientation;
+						windows[id].orientation = orientation;
 						
 					}
 				
 				case "height", "width", "fps", "antialiasing":
 					
-					if (Reflect.hasField (window[id], name)) {
+					if (Reflect.hasField (windows[id], name)) {
 						
-						Reflect.setField (window[id], name, Std.parseInt (value));
+						Reflect.setField (windows[id], name, Std.parseInt (value));
 						
 					}
 				
 				case "parameters":
 					
-					if (Reflect.hasField (window[id], name)) {
+					if (Reflect.hasField (windows[id], name)) {
 						
-						Reflect.setField (window[id], name, Std.string (value));
+						Reflect.setField (windows[id], name, Std.string (value));
 						
 					}
 				
 				default:
 					
-					if (Reflect.hasField (window[id], name)) {
+					if (Reflect.hasField (windows[id], name)) {
 						
-						Reflect.setField (window[id], name, value == "true");
+						Reflect.setField (windows[id], name, value == "true");
 						
-					} else if (Reflect.hasField (window[id], formatAttributeName (name))) {
+					} else if (Reflect.hasField (windows[id], formatAttributeName (name))) {
 						
-						Reflect.setField (window[id], formatAttributeName (name), value == "true");
+						Reflect.setField (windows[id], formatAttributeName (name), value == "true");
 						
 					}
 				

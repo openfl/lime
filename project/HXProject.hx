@@ -53,7 +53,8 @@ class HXProject {
 	public var targetFlags:Map <String, String>;
 	public var templateContext (get_templateContext, null):Dynamic;
 	public var templatePaths:Array <String>;
-	public var window:Array <Window>;
+	@:isVar public var window (get, set):Window;
+	public var windows:Array <Window>;
 	
 	private var defaultApp:ApplicationData;
 	private var defaultMeta:MetaData;
@@ -174,7 +175,8 @@ class HXProject {
 		
 		meta = ObjectHelper.copyFields (defaultMeta, {});
 		app = ObjectHelper.copyFields (defaultApp, {});
-		window = [ ObjectHelper.copyFields (defaultWindow, {}) ];
+		window = ObjectHelper.copyFields (defaultWindow, {});
+		windows = [ window ];
 		assets = new Array <Asset> ();
 		defines = new Map <String, Dynamic> ();
 		dependencies = new Array <Dependency> ();
@@ -299,9 +301,9 @@ class HXProject {
 		
 		project.templatePaths = templatePaths.copy ();
 		
-		for (i in 0...window.length) {
+		for (i in 0...windows.length) {
 			
-			project.window[i] = (ObjectHelper.copyFields (window[i], {}));
+			project.windows[i] = (ObjectHelper.copyFields (windows[i], {}));
 			
 		}
 		
@@ -572,15 +574,15 @@ class HXProject {
 			ObjectHelper.copyUniqueFields (project.meta, meta, project.defaultMeta);
 			ObjectHelper.copyUniqueFields (project.app, app, project.defaultApp);
 			
-			for (i in 0...project.window.length) {
+			for (i in 0...project.windows.length) {
 				
-				if (i < window.length) {
+				if (i < windows.length) {
 					
-					ObjectHelper.copyUniqueFields (project.window[i], window[i], project.defaultWindow);
+					ObjectHelper.copyUniqueFields (project.windows[i], windows[i], project.defaultWindow);
 					
 				} else {
 					
-					window.push (ObjectHelper.copyFields (project.window[i], {}));
+					windows.push (ObjectHelper.copyFields (project.windows[i], {}));
 					
 				}
 				
@@ -727,12 +729,18 @@ class HXProject {
 		
 		if (app == null) app = { };
 		if (meta == null) meta = { };
-		if (window == null) window = [ { } ];
+		
+		if (window == null) {
+			
+			window = { };
+			windows = [ window ];
+			
+		}
 		
 		ObjectHelper.copyMissingFields (defaultApp, app);
 		ObjectHelper.copyMissingFields (defaultMeta, meta);
 		
-		for (item in window) {
+		for (item in windows) {
 			
 			ObjectHelper.copyMissingFields (defaultWindow, item);
 			
@@ -763,17 +771,17 @@ class HXProject {
 		
 		context.APP_PACKAGE = context.META_PACKAGE = meta.packageName;
 		
-		for (field in Reflect.fields (window[0])) {
+		for (field in Reflect.fields (windows[0])) {
 			
-			Reflect.setField (context, "WIN_" + StringHelper.formatUppercaseVariable (field), Reflect.field (window[0], field));
-			Reflect.setField (context, "WINDOW_" + StringHelper.formatUppercaseVariable (field), Reflect.field (window[0], field));
+			Reflect.setField (context, "WIN_" + StringHelper.formatUppercaseVariable (field), Reflect.field (windows[0], field));
+			Reflect.setField (context, "WINDOW_" + StringHelper.formatUppercaseVariable (field), Reflect.field (windows[0], field));
 			
 		}
 		
-		if (window[0].orientation == Orientation.LANDSCAPE || window[0].orientation == Orientation.PORTRAIT) {
+		if (windows[0].orientation == Orientation.LANDSCAPE || windows[0].orientation == Orientation.PORTRAIT) {
 			
-			context.WIN_ORIENTATION = Std.string (window[0].orientation).toLowerCase ();
-			context.WINDOW_ORIENTATION = Std.string (window[0].orientation).toLowerCase ();
+			context.WIN_ORIENTATION = Std.string (windows[0].orientation).toLowerCase ();
+			context.WINDOW_ORIENTATION = Std.string (windows[0].orientation).toLowerCase ();
 			
 		} else {
 			
@@ -782,17 +790,17 @@ class HXProject {
 			
 		}
 		
-		for (i in 0...window.length) {
+		for (i in 0...windows.length) {
 			
-			for (field in Reflect.fields (window[i])) {
+			for (field in Reflect.fields (windows[i])) {
 				
-				Reflect.setField (context, "WINDOW_" + StringHelper.formatUppercaseVariable (field) + "_" + i, Reflect.field (window[i], field));
+				Reflect.setField (context, "WINDOW_" + StringHelper.formatUppercaseVariable (field) + "_" + i, Reflect.field (windows[i], field));
 				
 			}
 			
-			if (window[i].orientation == Orientation.LANDSCAPE || window[i].orientation == Orientation.PORTRAIT) {
+			if (windows[i].orientation == Orientation.LANDSCAPE || windows[i].orientation == Orientation.PORTRAIT) {
 				
-				Reflect.setField (context, "WINDOW_ORIENTATION_" + i, Std.string (window[i].orientation).toLowerCase ());
+				Reflect.setField (context, "WINDOW_ORIENTATION_" + i, Std.string (windows[i].orientation).toLowerCase ());
 				
 			} else {
 				
@@ -999,6 +1007,36 @@ class HXProject {
 		}
 		
 		return context;
+		
+	}
+	
+	
+	private function get_window ():Window {
+		
+		if (windows != null) {
+			
+			return windows[0];
+			
+		} else {
+			
+			return window;
+			
+		}
+		
+	}
+	
+	
+	private function set_window (value:Window):Window {
+		
+		if (windows != null) {
+			
+			return windows[0] = window = value;
+			
+		} else {
+			
+			return window = value;
+			
+		}
 		
 	}
 	
