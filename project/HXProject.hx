@@ -1005,6 +1005,12 @@ class HXProject {
 			}
 			
 		}
+
+		context.CONFIG_DATA = haxe.Json.stringify( configData.config );
+
+			//for each config namespace and value, drill down and set its template value
+		ConfigData.apply_config_data( context, "CONFIG", configData.config );
+
 		
 		return context;
 		
