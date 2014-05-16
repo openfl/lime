@@ -236,11 +236,13 @@ class FileHelper {
 			}
 			
 			PathHelper.mkdir (targetDirectory);
-			LogHelper.info ("", " - \x1b[1mCopying library file:\x1b[0m " + path + " \x1b[3;37m->\x1b[0m " + targetPath);
 			
+
 			try {
 				
 				if (!FileSystem.exists (targetPath) || (FileSystem.stat (path).mtime.getTime () > FileSystem.stat (targetPath).mtime.getTime ())) {
+					
+					LogHelper.info ("", " - \x1b[1mCopying library file:\x1b[0m " + path + " \x1b[3;37m->\x1b[0m " + targetPath);
 					
 					if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
 						
