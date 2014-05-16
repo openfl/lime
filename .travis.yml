@@ -38,7 +38,6 @@ before_install:
   - haxelib dev lime $TRAVIS_BUILD_DIR
   - cd $TRAVIS_BUILD_DIR/script
   - haxe build.hxml
-  - gem install --version 0.8.0 faraday --no-ri --no-rdoc
   - gem install travis-artifacts --no-ri --no-rdoc
 
 script:
