@@ -2,10 +2,12 @@ package helpers;
 
 
 import haxe.io.Path;
+import haxe.Timer;
 import helpers.LogHelper;
 import helpers.PathHelper;
 import helpers.PlatformHelper;
 import helpers.ProcessHelper;
+import neko.vm.Thread;
 import project.Architecture;
 import project.Asset;
 import project.HXProject;
@@ -84,10 +86,56 @@ class HTML5Helper {
 			
 		} else {
 			
+			var suffix = switch (PlatformHelper.hostPlatform) {
+				
+				case Platform.WINDOWS: "-windows.exe";
+				case Platform.MAC: "-mac";
+				case Platform.LINUX: "-linux";
+				default: return;
+				
+			}
+			
+			if (suffix == "-linux") {
+				
+				if (PlatformHelper.hostArchitecture == Architecture.X86) {
+					
+					suffix += "32";
+					
+				} else {
+					
+					suffix += "64";
+					
+				}
+				
+			}
+			
+			var node = PathHelper.findTemplate (project.templatePaths, "bin/node/node" + suffix);
+			var server = PathHelper.findTemplate (project.templatePaths, "bin/node/http-server/http-server");
+			
+			if (PlatformHelper.hostPlatform != Platform.WINDOWS) {
+				
+				Sys.command ("chmod", [ "+x", node ]);
+				
+			}
+			
 			LogHelper.info ("", " - \x1b[1mStarting local web server:\x1b[0m http://localhost:" + port);
 			
-			ProcessHelper.openURL ("http://localhost:" + port);
-			ProcessHelper.runProcess (path, "nekotools", [ "server", "-p", port + "" ]);
+			Thread.create (function () { 
+				
+				Sys.sleep (0.2);
+				ProcessHelper.openURL ("http://localhost:" + port);
+				
+			});
+			
+			var args = [ server, path, "-p", Std.string (port) ];
+			
+			if (!LogHelper.verbose) {
+				
+				args.push ("--silent");
+				
+			}
+			
+			ProcessHelper.runCommand ("", node, args);
 			
 		}
 		
