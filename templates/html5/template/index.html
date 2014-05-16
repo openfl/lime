@@ -23,6 +23,11 @@
         <script type="text/javascript" src="./lib/soundmanager/soundmanager2-nodebug-jsmin.js"></script>        
         <script type="text/javascript" src="./lib/modernizr.js"></script>
 
+        ::if (JAVASCRIPT_LIBRARIES)::
+            ::foreach (JAVASCRIPT_LIBRARIES)::
+                <script type="text/javascript" src="./::PATH::"></script>   
+            ::end::
+        ::end::
     </head>
 
     <body style="padding: 0; margin: 0; background-color: #FFFFFF;">
