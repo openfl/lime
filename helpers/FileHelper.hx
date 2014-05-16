@@ -254,7 +254,7 @@ class FileHelper {
 						
 					} else {
 						
-						ProcessHelper.runCommand ("", "cp", [ "--preserve=timestamps", path, targetPath ], false);
+						ProcessHelper.runCommand ("", "rsync", [ "-a", path, targetPath ], false);
 						
 					}
 					
