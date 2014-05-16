@@ -5,8 +5,8 @@ import haxe.io.Path;
 import haxe.Serializer;
 import haxe.Unserializer;
 import helpers.PathHelper;
-import project.HXProject;
 import project.AssetType;
+import project.HXProject;
 import sys.io.File;
 import sys.FileSystem;
 

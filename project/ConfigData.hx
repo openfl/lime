@@ -9,23 +9,23 @@ import helpers.ObjectHelper;
 	//this class wraps up the dynamic return with access to 
 private class ConfigDataValue {
 
-	public var configValue : Dynamic;
+	public var value : Dynamic;
 
 	public function new(_value:Dynamic){
 
-		configValue = _value;
+		value = _value;
 
 	}
 
 	public function get( _value:String ) {
 		
-		return ConfigData.get(configValue, _value);
+		return ConfigData.get(value, _value);
 
 	} 
 
 	public function exists( _value:String ) {
 
-		return ConfigData.exists( configValue, _value );
+		return ConfigData.exists( value, _value );
 
 	} 
 
