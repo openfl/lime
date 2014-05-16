@@ -148,27 +148,26 @@ class HTML5Platform implements IPlatformTool {
 			context.CPP_DIR = project.app.path + "/html5/obj";
 			
 		}
-
-		var index = 1;
-		context.JAVASCRIPT_LIBRARIES = [];
+		
+		context.linkedLibraries = [];
+		
 		for (dependency in project.dependencies) {
-
-			if (dependency.path != "" && 
-				FileSystem.exists (dependency.path) && 
-				!FileSystem.isDirectory (dependency.path)) {	
-
-				var jsFile = Path.withoutDirectory(dependency.path);
+			
+			if (StringTools.endsWith (dependency.name, ".js")) {
 				
-				context.JAVASCRIPT_LIBRARIES.push ({ NAME: jsFile, 
-													INDEX: index, 
-													 PATH: "deps/" + jsFile, 
-												   SOURCE: dependency.path});
-				index++;
-
+				context.linkedLibraries.push (dependency.name);
+				
+			} else if (StringTools.endsWith (dependency.path, ".js") && FileSystem.exists (dependency.path)) {
+				
+				var name = Path.withoutDirectory (dependency.path);
+				
+				context.linkedLibraries.push ("./" + name);
+				FileHelper.copyIfNewer (dependency.path, PathHelper.combine (destination, name));
+				
 			}
+			
 		}
-
-
+		
 		for (asset in project.assets) {
 			
 			var path = PathHelper.combine (destination, asset.targetPath);
@@ -188,11 +187,7 @@ class HTML5Platform implements IPlatformTool {
 					
 					for (extension in [ ext, ".eot", ".woff", ".svg" ]) {
 						
-						if (FileSystem.exists (source + extension)) {
-							
-							FileHelper.copyFile (source + extension, path + extension);
-							
-						}
+						FileHelper.copyIfNewer (source + extension, path + extension);
 						
 					}
 					
@@ -232,13 +227,6 @@ class HTML5Platform implements IPlatformTool {
 				FileHelper.copyAsset (asset, path, context);
 				
 			}
-			
-		}
-
-
-		for (library in context.JAVASCRIPT_LIBRARIES) {
-			
-			FileHelper.copyFile (library.SOURCE, destination + "/deps/" + library.NAME);
 			
 		}
 		

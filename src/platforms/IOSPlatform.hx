@@ -97,13 +97,12 @@ class IOSPlatform implements IPlatformTool {
 		
 		for (dependency in project.dependencies) {
 			
-			if (!StringTools.endsWith (dependency.name, ".framework") && 
-                    !StringTools.endsWith (dependency.path, ".framework")) {
+			if (!StringTools.endsWith (dependency.name, ".framework") && !StringTools.endsWith (dependency.path, ".framework")) {
 				
 				if (dependency.path != "") {
 					
 					var name = Path.withoutDirectory (Path.withoutExtension (dependency.path));
-
+					
 					project.config.ios.linkerFlags.push ("-force_load $SRCROOT/$PRODUCT_NAME/lib/$ARCHS/" + Path.withoutDirectory (dependency.path));
 					
 					if (StringTools.startsWith (name, "lib")) {
