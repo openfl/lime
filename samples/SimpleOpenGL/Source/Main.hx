@@ -87,9 +87,13 @@ class Main {
 	
 	private function initializeShaders ():Void {
 		
-		var vertexShaderSource = 
+		var vertexShaderSource = "";
 			
-			"attribute vec3 aVertexPosition;
+		#if lime_html5
+			vertexShaderSource += "precision mediump float;";
+		#end 
+
+		vertexShaderSource += "attribute vec3 aVertexPosition;
 			attribute vec2 aTexCoord;
 			varying vec2 vTexCoord;
 			
@@ -111,14 +115,19 @@ class Main {
 			
 		}
 		
-		var fragmentShaderSource = 
+		var fragmentShaderSource = "";
+
+		#if lime_html5
+			fragmentShaderSource += "precision mediump float;";
+		#end 
 			
+		fragmentShaderSource += 
 			"varying vec2 vTexCoord;
 			uniform sampler2D uImage0;
 			
 			void main(void)
 			{
-				gl_FragColor = texture2D (uImage0, vTexCoord).bgra;
+				gl_FragColor = texture2D (uImage0, vTexCoord);
 			}";
 		
 		var fragmentShader = GL.createShader (GL.FRAGMENT_SHADER);
@@ -150,25 +159,64 @@ class Main {
 		
 	}
 	
-	function arrayToBytes( array:ByteArray ):haxe.io.Bytes {
 
-        if (array == null) return null;
-        var bytes:haxe.io.Bytes = haxe.io.Bytes.alloc(array.length);
-        for (n in 0 ... array.length) {
-        	bytes.set(n, array.readByte());
-        }
+#if lime_html5
+
+    function load_image(_id:String, onload:Void->Void) {
+
+    	var image: js.html.ImageElement = js.Browser.document.createImageElement();
         
-        return bytes;
-    
-    }  
+        image.onload = function(a) {
 
-	public function ready (lime:Lime):Void {
-		
-		this.lime = lime;
-		
-		var bytes : ByteArray = Assets.getBytes ("assets/lime.png");
-		var io_bytes : haxe.io.Bytes = arrayToBytes( bytes );
-		var byteInput = new BytesInput ( io_bytes, 0, io_bytes.length);
+            try {
+
+                var tmp_canvas = js.Browser.document.createCanvasElement();
+                	tmp_canvas.width = image.width; 
+                	tmp_canvas.height = image.height;
+
+                var tmp_context = tmp_canvas.getContext2d();
+                	tmp_context.clearRect( 0,0, tmp_canvas.width, tmp_canvas.height );
+                	tmp_context.drawImage( image, 0, 0, image.width, image.height );
+
+                var image_bytes = tmp_context.getImageData( 0, 0, tmp_canvas.width, tmp_canvas.height );
+                var haxe_bytes = new lime.utils.UInt8Array( image_bytes.data );
+
+                imageData = haxe_bytes;
+                imageHeight = image.width;
+                imageWidth = image.height;
+
+                tmp_canvas = null;
+                tmp_context = null;
+                haxe_bytes = null;
+                image_bytes = null;
+
+                onload();
+
+            } catch(e:Dynamic) {
+
+            	trace(e);
+                var tips = '- textures might require power of two sizes\n';
+                	tips += '- textures served from file:/// throw security errors\n';
+                    tips += '- textures served over http:// work for cross origin';
+
+                trace(tips);
+                throw e;
+
+            }
+
+        } //image.onload
+
+            //source comes after the onload being set, for race conditions
+        image.src = _id;
+
+    } //load_html5_image
+
+#else
+
+	function load_image(_id:String, onload:Void->Void) {
+
+		var bytes : ByteArray = Assets.getBytes (_id);
+		var byteInput = new BytesInput ( bytes, 0, bytes.length);
 		var png = new Reader (byteInput).read ();
 		var data = Tools.extract32 (png);
 		var header = Tools.getHeader (png);
@@ -176,17 +224,60 @@ class Main {
 		imageWidth = header.width;
 		imageHeight = header.height;
 		imageData = new UInt8Array (data.getData ());
+
+		var image_length = imageWidth * imageHeight;
+
+			//bytes are returned in a different order, bgra
+			//so we swap back to rgba 
+        for(i in 0 ... image_length) {
+
+            var b = imageData[i*4+0];
+            var g = imageData[i*4+1];
+            var r = imageData[i*4+2];
+            var a = imageData[i*4+3];
+
+            imageData[i*4+0] = r;
+            imageData[i*4+1] = g;
+            imageData[i*4+2] = b;
+            imageData[i*4+3] = a;
+
+        }
+
+		onload();
 		
-		initializeShaders ();
+	}
+
+#end  //!lime_html5
+	
+	var loaded = false;
+
+	public function ready (lime:Lime):Void {
 		
-		createBuffers ();
-		createTexture ();
+		this.lime = lime;
+		
+			//we load the image with a callback,
+			//because on html5 it is asynchronous and we want
+			//to only try and use it when it's done loading
+		load_image("assets/lime.png", function(){
+
+			initializeShaders ();
+			
+			createBuffers ();
+			createTexture ();
+
+			loaded = true;
+
+		});
 		
 	}
 	
 	
 	private function render ():Void {
 		
+		if(!loaded) {
+			return;
+		}
+
 		GL.viewport (0, 0, lime.config.width, lime.config.height);
 		
 		GL.clearColor (1.0, 1.0, 1.0, 1.0);
@@ -204,7 +295,6 @@ class Main {
 		
 		GL.activeTexture (GL.TEXTURE0);
 		GL.bindTexture (GL.TEXTURE_2D, texture);
-		GL.enable (GL.TEXTURE_2D);
 		
 		GL.bindBuffer (GL.ARRAY_BUFFER, vertexBuffer);
 		GL.vertexAttribPointer (vertexAttribute, 3, GL.FLOAT, false, 0, 0);
@@ -218,7 +308,6 @@ class Main {
 		GL.drawArrays (GL.TRIANGLE_STRIP, 0, 4);
 		
 		GL.bindBuffer (GL.ARRAY_BUFFER, null);
-		GL.disable (GL.TEXTURE_2D);
 		GL.bindTexture (GL.TEXTURE_2D, null);
 		
 		GL.disableVertexAttribArray (vertexAttribute);
