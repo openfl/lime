@@ -14,6 +14,7 @@ import lime.utils.ByteArray;
 		import format.swf.lite.SWFLite;
 	#else
 		import format.SWF;
+		import lime.utils.UInt8Array;
 	#end //js
 #end //swf
 
@@ -69,45 +70,38 @@ import lime.utils.ByteArray;
 			
 			initialize();
 			
-			#if (tools && !display)
-			
-				if (AssetData.type.exists(id)) {
-					
-					#if flash
-						return Type.createInstance(AssetData.className.get(id), []);
-					#elseif js
+			if (AssetData.type.exists(id)) {
+				
+				#if lime_html5
+				
+					var req = new haxe.Http(id);
+		        	var results : Dynamic = null;
 
-						#if !lime_html5
-							var bytes:ByteArray = null;
-							var data = ApplicationMain.urlLoaders.get(AssetData.path.get(id)).data;
-							if (Std.is(data, String)) {
-								var bytes = new ByteArray();
-								bytes.writeUTFBytes(data);
-							} else if (Std.is(data, ByteArray)) {
-								bytes = cast data;
-							} else {
-								bytes = null;
-							}
+		        	req.async = false;
+		        	req.onData = function(e) { 
+		        		results = e; 
+		        	}
+		        	req.request();
+		        	req = null;
 
-							if (bytes != null) {
-								bytes.position = 0;
-								return bytes;
-							} else {
-								return null;
-							}
-						#end //lime_html5
-					
-					#else //js or flash
-					
-						return ByteArray.readFile(AssetData.path.get(id));
-					
-					#end
-					
-				} else {
-					trace("[lime.utils.Assets] There is no String or ByteArray asset with an ID of \"" + id + "\"");
-				}
-			
-			#end
+		        	var len : Int = results.length;
+		        	var bytearray : ByteArray = new ByteArray();
+					for( i in 0 ... len ) {
+					  	bytearray.writeByte(results.charCodeAt(i));
+					}
+
+					bytearray.position = 0;
+		        	return bytearray;
+
+				#else //lime_html5
+				
+					return ByteArray.readFile(AssetData.path.get(id));
+				
+				#end
+				
+			} else {
+				trace("[lime.utils.Assets] There is no String or ByteArray asset with an ID of \"" + id + "\"");
+			}
 			
 			return null;
 			

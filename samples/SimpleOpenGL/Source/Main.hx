@@ -3,11 +3,15 @@ package;
 
 import format.png.Reader;
 import format.png.Tools;
+import haxe.io.Bytes;
+import haxe.io.BytesData;
 import haxe.io.BytesInput;
 import lime.gl.GL;
 import lime.gl.GLBuffer;
 import lime.gl.GLProgram;
 import lime.gl.GLTexture;
+import lime.gl.GLUniformLocation;
+import lime.utils.ByteArray;
 import lime.utils.Matrix3D;
 import lime.utils.Assets;
 import lime.utils.Float32Array;
@@ -21,10 +25,10 @@ class Main {
 	private var imageData:UInt8Array;
 	private var imageHeight:Int;
 	private var imageWidth:Int;
-	private var imageUniform:Int;
+	private var imageUniform:GLUniformLocation;
 	private var lime:Lime;
-	private var modelViewMatrixUniform:Int;
-	private var projectionMatrixUniform:Int;
+	private var modelViewMatrixUniform:GLUniformLocation;
+	private var projectionMatrixUniform:GLUniformLocation;
 	private var shaderProgram:GLProgram;
 	private var texCoordAttribute:Int;
 	private var texCoordBuffer:GLBuffer;
@@ -146,13 +150,25 @@ class Main {
 		
 	}
 	
-	
+	function arrayToBytes( array:ByteArray ):haxe.io.Bytes {
+
+        if (array == null) return null;
+        var bytes:haxe.io.Bytes = haxe.io.Bytes.alloc(array.length);
+        for (n in 0 ... array.length) {
+        	bytes.set(n, array.readByte());
+        }
+        
+        return bytes;
+    
+    }  
+
 	public function ready (lime:Lime):Void {
 		
 		this.lime = lime;
 		
-		var bytes = Assets.getBytes ("assets/lime.png");
-		var byteInput = new BytesInput (bytes, 0, bytes.length);
+		var bytes : ByteArray = Assets.getBytes ("assets/lime.png");
+		var io_bytes : haxe.io.Bytes = arrayToBytes( bytes );
+		var byteInput = new BytesInput ( io_bytes, 0, io_bytes.length);
 		var png = new Reader (byteInput).read ();
 		var data = Tools.extract32 (png);
 		var header = Tools.getHeader (png);
