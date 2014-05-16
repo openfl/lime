@@ -148,7 +148,27 @@ class HTML5Platform implements IPlatformTool {
 			context.CPP_DIR = project.app.path + "/html5/obj";
 			
 		}
-		
+
+		var index = 1;
+		context.JAVASCRIPT_LIBRARIES = [];
+		for (dependency in project.dependencies) {
+
+			if (dependency.path != "" && 
+				FileSystem.exists (dependency.path) && 
+				!FileSystem.isDirectory (dependency.path)) {	
+
+				var jsFile = Path.withoutDirectory(dependency.path);
+				
+				context.JAVASCRIPT_LIBRARIES.push ({ NAME: jsFile, 
+													INDEX: index, 
+													 PATH: "deps/" + jsFile, 
+												   SOURCE: dependency.path});
+				index++;
+
+			}
+		}
+
+
 		for (asset in project.assets) {
 			
 			var path = PathHelper.combine (destination, asset.targetPath);
@@ -212,6 +232,13 @@ class HTML5Platform implements IPlatformTool {
 				FileHelper.copyAsset (asset, path, context);
 				
 			}
+			
+		}
+
+
+		for (library in context.JAVASCRIPT_LIBRARIES) {
+			
+			FileHelper.copyFile (library.SOURCE, destination + "/deps/" + library.NAME);
 			
 		}
 		
