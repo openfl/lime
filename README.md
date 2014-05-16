@@ -1,5 +1,5 @@
 lime-tools
-============
+==========
 [![Build Status](https://travis-ci.org/openfl/lime-tools.png)](https://travis-ci.org/openfl/lime-tools)
 
 Install
