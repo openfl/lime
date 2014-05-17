@@ -257,7 +257,7 @@ class FileHelper {
 						
 					}
 						
-					ProcessHelper.runCommand ("", command, [ "-a", path, targetPath ], true, true);
+					ProcessHelper.runCommand ("", command, [ "-a", path, targetPath ], false);
 					
 				}
 				
