@@ -160,14 +160,6 @@ class ConfigData {
 
 	}
 
-	function tabs(depth:Int) {
-		var t = "";
-		for(i in 0 ... depth) {
-			t += "  ";
-		}
-		return t;
-	}
-
 	function log(v:Dynamic) {
 
 		if(LogHelper.verbose) {
@@ -181,7 +173,7 @@ class ConfigData {
 		for( child in elem.elements ) {
 			if(child.name != "config") {
 				
-				// log("config data" + tabs(depth) + "> child : " + child.name);
+				// log("config data > child : " + child.name);
 				
 				var d = depth + 1;
 				var child_bucket = add_bucket(child.name, bucket);
@@ -240,33 +232,5 @@ class ConfigData {
 		}
 
 	}
-
-
-	public static function apply_config_data( context:Dynamic, name:String, bucket:Dynamic ) {
-
-		var _fields = Reflect.fields(bucket);
-
-		for(_field in _fields) {
-			
-			var _field_root : String = '${name}_${_field.toUpperCase()}';
-			var _field_value = Reflect.field(bucket, _field);
-			var _field_type = Std.string(Type.typeof(_field_value));
-
-				//is this another object?		
-			if(_field_type == "TObject") {
-
-				Reflect.setField(context, _field_root, haxe.Json.stringify(_field_value));
-				
-				apply_config_data(context, _field_root, _field_value);
-
-			} else {
-
-				Reflect.setField(context, _field_root, _field_value);
-
-			}
-
-		} //each field
-
-	} 
 	
 }

@@ -141,7 +141,10 @@ class FileHelper {
 				
 				var fileContents:String = File.getContent (source);
 				var template:Template = new Template (fileContents);
-				var result:String = template.execute (context, { upper: function (_, s) return s.toUpperCase () });
+				var result:String = template.execute (context, { 
+					toJSON: function(_, s) return haxe.Json.stringify(s),
+					upper: function (_, s) return s.toUpperCase () 
+				});
 				
 				try {
 					
