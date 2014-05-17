@@ -254,7 +254,13 @@ class FileHelper {
 					if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
 						
 						command = PathHelper.findTemplate (project.templatePaths, "bin/rsync/rsync.exe");
-						
+
+						var cygpath_regex = ~/(^[a-zA-Z])(:\\)(.*)/gi;
+
+						if(cygpath_regex.match(path)) {							
+							path = cygpath_regex.replace(path, '/cygdrive/$1/$3');
+							path = StringTools.replace (path, "\\", "/");
+						} 
 					}
 						
 					ProcessHelper.runCommand ("", command, [ "-a", path, targetPath ], false);
