@@ -133,7 +133,7 @@ class TizenPlatform implements IPlatformTool {
 		
 		for (ndll in project.ndlls) {
 			
-			FileHelper.copyLibrary (ndll, "Tizen", "", arch + ".so", destination + "lib/", project.debug, ".so");
+			FileHelper.copyLibrary (project, ndll, "Tizen", "", arch + ".so", destination + "lib/", project.debug, ".so");
 			
 		}
 		

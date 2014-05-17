@@ -8,6 +8,7 @@ import helpers.PlatformHelper;
 import helpers.StringHelper;
 import project.Asset;
 import project.AssetEncoding;
+import project.HXProject;
 import project.NDLL;
 import project.Platform;
 import sys.io.File;
@@ -221,7 +222,7 @@ class FileHelper {
 	}
 	
 	
-	public static function copyLibrary (ndll:NDLL, directoryName:String, namePrefix:String, nameSuffix:String, targetDirectory:String, allowDebug:Bool = false, targetSuffix:String = null) {
+	public static function copyLibrary (project:HXProject, ndll:NDLL, directoryName:String, namePrefix:String, nameSuffix:String, targetDirectory:String, allowDebug:Bool = false, targetSuffix:String = null) {
 		
 		var path = PathHelper.getLibraryPath (ndll, directoryName, namePrefix, nameSuffix, allowDebug);
 		
@@ -248,21 +249,15 @@ class FileHelper {
 					
 					LogHelper.info ("", " - \x1b[1mCopying library file:\x1b[0m " + path + " \x1b[3;37m->\x1b[0m " + targetPath);
 					
+					var command = "rsync";
+
 					if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
 						
-						var code = ProcessHelper.runCommand ("", "robocopy", [ path, targetPath ], true, true);
-						
-						if (code != 0) {
-							
-							File.copy (path, targetPath);
-							
-						}
-						
-					} else {
-						
-						ProcessHelper.runCommand ("", "rsync", [ "-a", path, targetPath ], false);
+						command = PathHelper.findTemplate (project.templatePaths, "bin/rsync/rsync.exe");
 						
 					}
+						
+					ProcessHelper.runCommand ("", command, [ "-a", path, targetPath ], true, true);
 					
 				}
 				

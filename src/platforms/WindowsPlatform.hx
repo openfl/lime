@@ -177,7 +177,7 @@ class WindowsPlatform implements IPlatformTool {
 		
 		for (ndll in project.ndlls) {
 			
-			FileHelper.copyLibrary (ndll, "Windows", "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll", applicationDirectory, project.debug);
+			FileHelper.copyLibrary (project, ndll, "Windows", "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll", applicationDirectory, project.debug);
 			
 		}
 		

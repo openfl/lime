@@ -304,7 +304,7 @@ class AndroidPlatform implements IPlatformTool {
 			
 			if (armv5) {
 				
-				FileHelper.copyLibrary (ndll, "Android", "lib", ".so", destination + "/libs/armeabi", project.debug);
+				FileHelper.copyLibrary (project, ndll, "Android", "lib", ".so", destination + "/libs/armeabi", project.debug);
 				
 			}
 			
@@ -312,11 +312,11 @@ class AndroidPlatform implements IPlatformTool {
 				
 				if (armv5) {
 					
-					FileHelper.copyLibrary (ndll, "Android", "lib", "-v7.so", destination + "/libs/armeabi-v7a", project.debug, ".so");
+					FileHelper.copyLibrary (project, ndll, "Android", "lib", "-v7.so", destination + "/libs/armeabi-v7a", project.debug, ".so");
 					
 				} else {
 					
-					FileHelper.copyLibrary (ndll, "Android", "lib", "-v7.so", destination + "/libs/armeabi", project.debug, ".so");
+					FileHelper.copyLibrary (project, ndll, "Android", "lib", "-v7.so", destination + "/libs/armeabi", project.debug, ".so");
 					
 				}
 				

@@ -103,7 +103,7 @@ class WebOSPlatform implements IPlatformTool {
 		
 		for (ndll in project.ndlls) {
 			
-			FileHelper.copyLibrary (ndll, "webOS", "", ".so", destination, project.debug);
+			FileHelper.copyLibrary (project, ndll, "webOS", "", ".so", destination, project.debug);
 			
 		}
 		
