@@ -906,7 +906,11 @@ class HXProject {
 						
 					} else {
 						
-						if (version == "" || version == null || arg != "-D " + haxelib.name) {
+						if (arg == "-D " + haxelib.name && version != "" && version != null) {
+							
+							compilerFlags.push ("-D " + haxelib.name + "=" + version + "");
+							
+						} else {
 							
 							compilerFlags.push (arg);
 							
@@ -919,12 +923,6 @@ class HXProject {
 			}
 			
 			//compilerFlags.push ("-lib " + name);
-			
-			if (version != "" && version != null) {
-				
-				compilerFlags.push ("-D " + haxelib.name + "=" + version + "");
-				
-			}
 			
 			Reflect.setField (context, "LIB_" + haxelib.name.toUpperCase (), true);
 			
