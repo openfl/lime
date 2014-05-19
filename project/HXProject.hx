@@ -910,7 +910,7 @@ class HXProject {
 							
 							compilerFlags.push ("-D " + haxelib.name + "=" + version + "");
 							
-						} else {
+						} else if (!StringTools.startsWith (arg, "-L")) {
 							
 							compilerFlags.push (arg);
 							
