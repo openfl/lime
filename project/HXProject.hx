@@ -2,6 +2,7 @@ package project;
 
 
 import haxe.io.Path;
+import haxe.Json;
 import haxe.Serializer;
 import haxe.Unserializer;
 import helpers.ArrayHelper;
@@ -13,6 +14,7 @@ import helpers.StringHelper;
 import helpers.StringMapHelper;
 import project.AssetType;
 import sys.FileSystem;
+import sys.io.File;
 
 #if openfl_native
 import helpers.FileHelper;
@@ -858,7 +860,71 @@ class HXProject {
 				
 			}
 			
-			compilerFlags.push ("-lib " + name);
+			var version = haxelib.version;
+			
+			if (version == "" || version == null) {
+				
+				var haxelibPath = PathHelper.getHaxelib (haxelib);
+				var jsonPath = PathHelper.combine (haxelibPath, "haxelib.json");
+				
+				try {
+					
+					if (FileSystem.exists (jsonPath)) {
+						
+						var json = Json.parse (File.getContent (jsonPath));
+						version = json.version;
+						
+					}
+					
+				} catch (e:Dynamic) {}
+				
+			}
+			
+			var cache = LogHelper.verbose;
+			LogHelper.verbose = false;
+			var output = "";
+			
+			try {
+				
+				output = ProcessHelper.runProcess (Sys.getEnv ("HAXEPATH"), "haxelib", [ "path", name ], true, true, true);
+				
+			} catch (e:Dynamic) { }
+			
+			LogHelper.verbose = cache;
+			
+			var split = output.split ("\n");
+			
+			for (arg in split) {
+				
+				arg = StringTools.trim (arg);
+				
+				if (arg != "") {
+					
+					if (!StringTools.startsWith (arg, "-")) {
+						
+						compilerFlags.push ("-cp " + arg);
+						
+					} else {
+						
+						if (version == "" || version == null || arg != "-D " + haxelib.name) {
+							
+							compilerFlags.push (arg);
+							
+						}
+						
+					}
+					
+				}
+				
+			}
+			
+			//compilerFlags.push ("-lib " + name);
+			
+			if (version != "" && version != null) {
+				
+				compilerFlags.push ("-D " + haxelib.name + "=" + version + "");
+				
+			}
 			
 			Reflect.setField (context, "LIB_" + haxelib.name.toUpperCase (), true);
 			
