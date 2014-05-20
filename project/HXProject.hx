@@ -459,6 +459,33 @@ class HXProject {
 	#end
 	
 	
+	private function getHaxelibVersion (haxelib:Haxelib):String {
+		
+		var version = haxelib.version;
+		
+		if (version == "" || version == null) {
+			
+			var haxelibPath = PathHelper.getHaxelib (haxelib);
+			var jsonPath = PathHelper.combine (haxelibPath, "haxelib.json");
+			
+			try {
+				
+				if (FileSystem.exists (jsonPath)) {
+					
+					var json = Json.parse (File.getContent (jsonPath));
+					version = json.version;
+					
+				}
+				
+			} catch (e:Dynamic) {}
+			
+		}
+		
+		return version;
+		
+	}
+	
+	
 	public function include (path:String):Void {
 		
 		// extend project file somehow?
@@ -860,26 +887,6 @@ class HXProject {
 				
 			}
 			
-			var version = haxelib.version;
-			
-			if (version == "" || version == null) {
-				
-				var haxelibPath = PathHelper.getHaxelib (haxelib);
-				var jsonPath = PathHelper.combine (haxelibPath, "haxelib.json");
-				
-				try {
-					
-					if (FileSystem.exists (jsonPath)) {
-						
-						var json = Json.parse (File.getContent (jsonPath));
-						version = json.version;
-						
-					}
-					
-				} catch (e:Dynamic) {}
-				
-			}
-			
 			var cache = LogHelper.verbose;
 			LogHelper.verbose = false;
 			var output = "";
@@ -902,17 +909,24 @@ class HXProject {
 					
 					if (!StringTools.startsWith (arg, "-")) {
 						
-						compilerFlags.push ("-cp " + arg);
+						compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ "-cp " + arg ], true);
 						
 					} else {
 						
-						if (arg == "-D " + haxelib.name && version != "" && version != null) {
+						if (StringTools.startsWith (arg, "-D ") && arg.indexOf ("=") == -1) {
 							
-							compilerFlags.push ("-D " + haxelib.name + "=" + version + "");
+							var haxelib = new Haxelib (arg.substr (3));
+							var path = PathHelper.getHaxelib (haxelib);
 							
-						} else if (!StringTools.startsWith (arg, "-L")) {
+							if (path != null) {
+								
+								compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ "-D " + haxelib.name + "=" + getHaxelibVersion (haxelib) ], true);
+								
+							}
 							
-							compilerFlags.push (arg);
+						} else {
+							
+							compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ arg ], true);
 							
 						}
 						
