@@ -924,7 +924,7 @@ class HXProject {
 								
 							}
 							
-						} else {
+						} else if (!StringTools.startsWith (arg, "-L")) {
 							
 							compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ arg ], true);
 							
