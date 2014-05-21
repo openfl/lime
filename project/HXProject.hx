@@ -887,6 +887,8 @@ class HXProject {
 				
 			}
 			
+			#if openfl_native
+			
 			var cache = LogHelper.verbose;
 			LogHelper.verbose = false;
 			var output = "";
@@ -936,7 +938,11 @@ class HXProject {
 				
 			}
 			
-			//compilerFlags.push ("-lib " + name);
+			#else
+			
+			compilerFlags.push ("-lib " + name);
+			
+			#end
 			
 			Reflect.setField (context, "LIB_" + haxelib.name.toUpperCase (), true);
 			
