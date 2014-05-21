@@ -5,4 +5,3 @@
 -D html
 --remap flash:lime
 -debug
-#--js-modern
