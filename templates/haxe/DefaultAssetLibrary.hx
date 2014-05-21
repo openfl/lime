@@ -14,20 +14,20 @@ later date.
 package;
 
 
-import flash.display.Bitmap;
-import flash.display.BitmapData;
-import flash.display.MovieClip;
-import flash.text.Font;
-import flash.media.Sound;
-import flash.net.URLRequest;
-import flash.utils.ByteArray;
+import openfl.display.Bitmap;
+import openfl.display.BitmapData;
+import openfl.display.MovieClip;
+import openfl.text.Font;
+import openfl.media.Sound;
+import openfl.net.URLRequest;
+import openfl.utils.ByteArray;
 import haxe.Unserializer;
 import openfl.Assets;
 
 #if (flash || js)
-import flash.display.Loader;
-import flash.events.Event;
-import flash.net.URLLoader;
+import openfl.display.Loader;
+import openfl.events.Event;
+import openfl.net.URLLoader;
 #end
 
 #if ios
@@ -35,7 +35,7 @@ import openfl.utils.SystemPath;
 #end
 
 
-@:access(flash.media.Sound)
+@:access(openfl.media.Sound)
 class DefaultAssetLibrary extends AssetLibrary {
 	
 	
@@ -652,22 +652,22 @@ class DefaultAssetLibrary extends AssetLibrary {
 #if pixi
 #elseif flash
 
-::foreach assets::::if (embed)::::if (type == "image")::@:keep class __ASSET__::flatName:: extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }::else::@:keep class __ASSET__::flatName:: extends ::flashClass:: { }::end::::end::
+::foreach assets::::if (embed)::::if (type == "image")::@:keep class __ASSET__::flatName:: extends openfl.display.BitmapData { public function new () { super (0, 0, true, 0); } }::else::@:keep class __ASSET__::flatName:: extends ::flashClass:: { }::end::::end::
 ::end::
 
 #elseif html5
 
-::foreach assets::::if (type == "font")::@:keep class __ASSET__::flatName:: extends flash.text.Font { #if (!openfl_html5_dom) public function new () { super (); fontName = "::id::"; } #end }::end::
+::foreach assets::::if (type == "font")::@:keep class __ASSET__::flatName:: extends openfl.text.Font { #if (!openfl_html5_dom) public function new () { super (); fontName = "::id::"; } #end }::end::
 ::end::
 
 #elseif (windows || mac || linux)
 
 ::if (assets != null)::
-::foreach assets::::if (embed)::::if (type == "image")::@:bitmap("::sourcePath::") class __ASSET__::flatName:: extends flash.display.BitmapData {}
-::elseif (type == "sound")::@:sound("::sourcePath::") class __ASSET__::flatName:: extends flash.media.Sound {}
-::elseif (type == "music")::@:sound("::sourcePath::") class __ASSET__::flatName:: extends flash.media.Sound {}
-::elseif (type == "font")::@:font("::sourcePath::") class __ASSET__::flatName:: extends flash.text.Font {}
-::else::@:file("::sourcePath::") class __ASSET__::flatName:: extends flash.utils.ByteArray {}
+::foreach assets::::if (embed)::::if (type == "image")::@:bitmap("::sourcePath::") class __ASSET__::flatName:: extends openfl.display.BitmapData {}
+::elseif (type == "sound")::@:sound("::sourcePath::") class __ASSET__::flatName:: extends openfl.media.Sound {}
+::elseif (type == "music")::@:sound("::sourcePath::") class __ASSET__::flatName:: extends openfl.media.Sound {}
+::elseif (type == "font")::@:font("::sourcePath::") class __ASSET__::flatName:: extends openfl.text.Font {}
+::else::@:file("::sourcePath::") class __ASSET__::flatName:: extends openfl.utils.ByteArray {}
 ::end::::end::::end::::end::
 
 #end

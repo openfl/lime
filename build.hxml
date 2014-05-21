@@ -2,9 +2,7 @@
 -neko run.n
 -cp src
 -lib openfl
--lib openfl-native
 -lib format
 -lib svg
---remap flash:flash
--D openfl
--D openfl_native
+--macro openfl.Lib.includeBackend("native")
+--remap flash:openfl

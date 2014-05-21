@@ -1,11 +1,11 @@
 package helpers;
 
 
-import flash.display.Bitmap;
-import flash.display.BitmapData;
-import flash.display.Shape;
-import flash.geom.Rectangle;
-import flash.utils.ByteArray;
+import openfl.display.Bitmap;
+import openfl.display.BitmapData;
+import openfl.display.Shape;
+import openfl.geom.Rectangle;
+import openfl.utils.ByteArray;
 import format.SVG;
 import haxe.io.Bytes;
 import haxe.io.BytesOutput;

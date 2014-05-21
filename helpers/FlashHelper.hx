@@ -1,8 +1,8 @@
 package helpers;
 
 
-import flash.text.Font;
-import flash.utils.ByteArray;
+import openfl.text.Font;
+import openfl.utils.ByteArray;
 import format.swf.Data;
 import format.swf.Constants;
 import format.swf.Reader;

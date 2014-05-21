@@ -2,7 +2,7 @@ package helpers;
 
 
 #if (flash || openfl || nme)
-import flash.utils.ByteArray;
+import openfl.utils.ByteArray;
 #end
 import haxe.crypto.BaseCode;
 import haxe.io.Bytes;

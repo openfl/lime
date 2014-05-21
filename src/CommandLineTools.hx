@@ -1,9 +1,9 @@
 package;
 
 
-import flash.text.Font;
-import flash.utils.ByteArray;
-import flash.utils.CompressionAlgorithm;
+import openfl.text.Font;
+import openfl.utils.ByteArray;
+import openfl.utils.CompressionAlgorithm;
 import haxe.Json;
 import haxe.Serializer;
 import haxe.Unserializer;

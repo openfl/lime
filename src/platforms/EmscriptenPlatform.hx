@@ -1,8 +1,8 @@
 package platforms;
 
 
-import flash.utils.ByteArray;
-import flash.utils.CompressionAlgorithm;
+import openfl.utils.ByteArray;
+import openfl.utils.CompressionAlgorithm;
 import haxe.io.Path;
 import haxe.Template;
 import helpers.AssetHelper;

@@ -1,7 +1,7 @@
 package platforms;
 
 
-import flash.display.BitmapData;
+import openfl.display.BitmapData;
 import haxe.io.Path;
 import haxe.Template;
 import helpers.ArrayHelper;
