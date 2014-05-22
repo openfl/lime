@@ -32,7 +32,19 @@ class BlackBerryPlatform implements IPlatformTool {
 		
 		if (project.app.main != null) {
 			
-			var hxml = outputDirectory + "/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
+			var type = "release";
+			
+			if (project.debug) {
+				
+				type = "debug";
+				
+			} else if (project.targetFlags.exists ("final")) {
+				
+				type = "final";
+				
+			}
+			
+			var hxml = outputDirectory + "/haxe/" + type + ".hxml";
 			ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "blackberry" ] );
 			
 		}
@@ -76,15 +88,27 @@ class BlackBerryPlatform implements IPlatformTool {
 		var hxml = "";
 		var context = project.templateContext;
 		
+		var type = "release";
+		
+		if (project.debug) {
+			
+			type = "debug";
+			
+		} else if (project.targetFlags.exists ("final")) {
+			
+			type = "final";
+			
+		}
+		
 		if (!project.targetFlags.exists ("html5")) {
 			
-			hxml = PathHelper.findTemplate (project.templatePaths, "blackberry/hxml/" + (project.debug ? "debug" : "release") + ".hxml");
+			hxml = PathHelper.findTemplate (project.templatePaths, "blackberry/hxml/" + type + ".hxml");
 			
 			context.CPP_DIR = outputDirectory + "/obj";
 			
 		} else {
 			
-			hxml = PathHelper.findTemplate (project.templatePaths, "html5/hxml/" + (project.debug ? "debug" : "release") + ".hxml");
+			hxml = PathHelper.findTemplate (project.templatePaths, "html5/hxml/" + type + ".hxml");
 			
 			context.OUTPUT_DIR = outputDirectory;
 			context.OUTPUT_FILE = outputFile;

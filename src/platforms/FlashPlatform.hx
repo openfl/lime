@@ -18,7 +18,20 @@ class FlashPlatform implements IPlatformTool {
 	public function build (project:HXProject):Void {
 		
 		var destination = project.app.path + "/flash/bin";
-		var hxml = project.app.path + "/flash/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
+		
+		var type = "release";
+		
+		if (project.debug) {
+			
+			type = "debug";
+			
+		} else if (project.targetFlags.exists ("final")) {
+			
+			type = "final";
+			
+		}
+		
+		var hxml = project.app.path + "/flash/haxe/" + type + ".hxml";
 		
 		ProcessHelper.runCommand ("", "haxe", [ hxml ] );
 		
@@ -58,7 +71,19 @@ class FlashPlatform implements IPlatformTool {
 	
 	public function display (project:HXProject):Void {
 		
-		var hxml = PathHelper.findTemplate (project.templatePaths, "flash/hxml/" + (project.debug ? "debug" : "release") + ".hxml");
+		var type = "release";
+		
+		if (project.debug) {
+			
+			type = "debug";
+			
+		} else if (project.targetFlags.exists ("final")) {
+			
+			type = "final";
+			
+		}
+		
+		var hxml = PathHelper.findTemplate (project.templatePaths, "flash/hxml/" + type + ".hxml");
 		
 		var context = project.templateContext;
 		context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background, 6);

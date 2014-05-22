@@ -1028,7 +1028,19 @@ class HXProject {
 		context.APP_MAIN_PACKAGE = main.substr (0, indexOfPeriod + 1);
 		context.APP_MAIN_CLASS = main.substr (indexOfPeriod + 1);
 		
-		var hxml = Std.string (target).toLowerCase () + "/hxml/" + (debug ? "debug" : "release") + ".hxml";
+		var type = "release";
+		
+		if (debug) {
+			
+			type = "debug";
+			
+		} else if (targetFlags.exists ("final")) {
+			
+			type = "final";
+			
+		}
+		
+		var hxml = Std.string (target).toLowerCase () + "/hxml/" + type + ".hxml";
 		
 		for (templatePath in templatePaths) {
 			

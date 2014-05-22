@@ -87,6 +87,12 @@ class IOSPlatform implements IPlatformTool {
 			
 		}
 		
+		if (project.targetFlags.exists ("final")) {
+			
+			project.haxedefs.set ("final", "");
+			
+		}
+		
 		var context = project.templateContext;
 		
 		context.HAS_ICON = false;

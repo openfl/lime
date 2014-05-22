@@ -21,7 +21,19 @@ class WebOSPlatform implements IPlatformTool {
 	
 	public function build (project:HXProject):Void {
 		
-		var hxml = project.app.path + "/webos/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
+		var type = "release";
+		
+		if (project.debug) {
+			
+			type = "debug";
+			
+		} else if (project.targetFlags.exists ("final")) {
+			
+			type = "final";
+			
+		}
+		
+		var hxml = project.app.path + "/webos/haxe/" + type + ".hxml";
 		
 		ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "webos", "-D", "HXCPP_LOAD_DEBUG", "-D", "HXCPP_RTLD_LAZY" ] );
 		CPPHelper.compile (project, project.app.path + "/webos/obj", [ "-Dwebos", "-DHXCPP_LOAD_DEBUG", "-DHXCPP_RTLD_LAZY" ]);
@@ -48,7 +60,19 @@ class WebOSPlatform implements IPlatformTool {
 	
 	public function display (project:HXProject):Void {
 		
-		var hxml = PathHelper.findTemplate (project.templatePaths, "webos/hxml/" + (project.debug ? "debug" : "release") + ".hxml");
+		var type = "release";
+		
+		if (project.debug) {
+			
+			type = "debug";
+			
+		} else if (project.targetFlags.exists ("final")) {
+			
+			type = "final";
+			
+		}
+		
+		var hxml = PathHelper.findTemplate (project.templatePaths, "webos/hxml/" + type + ".hxml");
 		
 		var context = project.templateContext;
 		context.CPP_DIR = project.app.path + "/webos/obj";

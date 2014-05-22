@@ -28,7 +28,19 @@ class EmscriptenPlatform implements IPlatformTool {
 		
 		initialize (project);
 		
-		var hxml = outputDirectory + "/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
+		var type = "release";
+		
+		if (project.debug) {
+			
+			type = "debug";
+			
+		} else if (project.targetFlags.exists ("final")) {
+			
+			type = "final";
+			
+		}
+		
+		var hxml = outputDirectory + "/haxe/" + type + ".hxml";
 		
 		ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "emscripten", "-D", "webgl" ] );
 		CPPHelper.compile (project, outputDirectory + "/obj", [ "-Demscripten", "-Dwebgl" ]);
@@ -184,7 +196,19 @@ class EmscriptenPlatform implements IPlatformTool {
 		
 		initialize (project);
 		
-		var hxml = PathHelper.findTemplate (project.templatePaths, "emscripten/hxml/" + (project.debug ? "debug" : "release") + ".hxml");
+		var type = "release";
+		
+		if (project.debug) {
+			
+			type = "debug";
+			
+		} else if (project.targetFlags.exists ("final")) {
+			
+			type = "final";
+			
+		}
+		
+		var hxml = PathHelper.findTemplate (project.templatePaths, "emscripten/hxml/" + type + ".hxml");
 		
 		var context = project.templateContext;
 		context.OUTPUT_DIR = outputDirectory;

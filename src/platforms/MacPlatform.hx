@@ -34,7 +34,19 @@ class MacPlatform implements IPlatformTool {
 		
 		initialize (project);
 		
-		var hxml = targetDirectory + "/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
+		var type = "release";
+		
+		if (project.debug) {
+			
+			type = "debug";
+			
+		} else if (project.targetFlags.exists ("final")) {
+			
+			type = "final";
+			
+		}
+		
+		var hxml = targetDirectory + "/haxe/" + type + ".hxml";
 		
 		PathHelper.mkdir (targetDirectory);
 		
@@ -89,7 +101,19 @@ class MacPlatform implements IPlatformTool {
 		
 		initialize (project);
 		
-		var hxml = PathHelper.findTemplate (project.templatePaths, (useNeko ? "neko" : "cpp") + "/hxml/" + (project.debug ? "debug" : "release") + ".hxml");
+		var type = "release";
+		
+		if (project.debug) {
+			
+			type = "debug";
+			
+		} else if (project.targetFlags.exists ("final")) {
+			
+			type = "final";
+			
+		}
+		
+		var hxml = PathHelper.findTemplate (project.templatePaths, (useNeko ? "neko" : "cpp") + "/hxml/" + type + ".hxml");
 		var template = new Template (File.getContent (hxml));
 		Sys.println (template.execute (generateContext (project)));
 		

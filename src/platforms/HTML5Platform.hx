@@ -25,7 +25,19 @@ class HTML5Platform implements IPlatformTool {
 		
 		if (project.app.main != null) {
 			
-			var hxml = outputDirectory + "/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
+			var type = "release";
+			
+			if (project.debug) {
+				
+				type = "debug";
+				
+			} else if (project.targetFlags.exists ("final")) {
+				
+				type = "final";
+				
+			}
+			
+			var hxml = outputDirectory + "/haxe/" + type + ".hxml";
 			ProcessHelper.runCommand ("", "haxe", [ hxml ] );
 			
 		}
@@ -62,7 +74,19 @@ class HTML5Platform implements IPlatformTool {
 		
 		initialize (project);
 		
-		var hxml = PathHelper.findTemplate (project.templatePaths, "html5/hxml/" + (project.debug ? "debug" : "release") + ".hxml");
+		var type = "release";
+		
+		if (project.debug) {
+			
+			type = "debug";
+			
+		} else if (project.targetFlags.exists ("final")) {
+			
+			type = "final";
+			
+		}
+		
+		var hxml = PathHelper.findTemplate (project.templatePaths, "html5/hxml/" + type + ".hxml");
 		
 		var context = project.templateContext;
 		context.OUTPUT_DIR = outputDirectory;

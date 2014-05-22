@@ -24,7 +24,19 @@ class TizenPlatform implements IPlatformTool {
 	
 	public function build (project:HXProject):Void {
 		
-		var hxml = project.app.path + "/tizen/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
+		var type = "release";
+		
+		if (project.debug) {
+			
+			type = "debug";
+			
+		} else if (project.targetFlags.exists ("final")) {
+			
+			type = "final";
+			
+		}
+		
+		var hxml = project.app.path + "/tizen/haxe/" + type + ".hxml";
 		
 		ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "tizen" ] );
 		
@@ -60,7 +72,19 @@ class TizenPlatform implements IPlatformTool {
 	
 	public function display (project:HXProject):Void {
 		
-		var hxml = PathHelper.findTemplate (project.templatePaths, "tizen/hxml/" + (project.debug ? "debug" : "release") + ".hxml");
+		var type = "release";
+		
+		if (project.debug) {
+			
+			type = "debug";
+			
+		} else if (project.targetFlags.exists ("final")) {
+			
+			type = "final";
+			
+		}
+		
+		var hxml = PathHelper.findTemplate (project.templatePaths, "tizen/hxml/" + type + ".hxml");
 		
 		var context = project.templateContext;
 		context.CPP_DIR = project.app.path + "/tizen/obj";

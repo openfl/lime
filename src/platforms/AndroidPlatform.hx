@@ -29,7 +29,20 @@ class AndroidPlatform implements IPlatformTool {
 		initialize (project);
 		
 		var destination = project.app.path + "/android/bin";
-		var hxml = project.app.path + "/android/haxe/" + (project.debug ? "debug" : "release") + ".hxml";
+		
+		var type = "release";
+		
+		if (project.debug) {
+			
+			type = "debug";
+			
+		} else if (project.targetFlags.exists ("final")) {
+			
+			type = "final";
+			
+		}
+		
+		var hxml = project.app.path + "/android/haxe/" + type + ".hxml";
 		
 		var hasARMV5 = (ArrayHelper.containsValue (project.architectures, Architecture.ARMV5) || ArrayHelper.containsValue (project.architectures, Architecture.ARMV6));
 		var hasARMV7 = ArrayHelper.containsValue (project.architectures, Architecture.ARMV7);
