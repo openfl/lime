@@ -231,7 +231,7 @@ class RunScript {
 
 			//only request the path from shared libs if it's required, 
 			//anything that doesn't use nme-dev would trip up on this otherwise
-		if(buildSharedLibs) {
+		if (buildSharedLibs) {
 			
 			sharedLibsPath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("nme-dev"), buildSharedLibs), "project");
 

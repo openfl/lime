@@ -1,0 +1,7 @@
+-main ApplicationMain ::HAXE_FLAGS::
+-cp ::BUILD_DIR::/tizen/haxe
+-cpp ::CPP_DIR::
+--macro keep("::APP_MAIN::")
+-D tizen
+-D no-compilation
+-D final
