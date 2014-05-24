@@ -185,8 +185,8 @@ class HTML5Platform implements IPlatformTool {
 				
 				var name = Path.withoutDirectory (dependency.path);
 				
-				context.linkedLibraries.push ("./" + name);
-				FileHelper.copyIfNewer (dependency.path, PathHelper.combine (destination, name));
+				context.linkedLibraries.push ("./lib/" + name);
+				FileHelper.copyIfNewer (dependency.path, PathHelper.combine (destination, PathHelper.combine ("lib", name)));
 				
 			}
 			
