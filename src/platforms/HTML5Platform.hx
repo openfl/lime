@@ -3,6 +3,7 @@ package platforms;
 
 import haxe.io.Path;
 import haxe.Template;
+import helpers.AssetHelper;
 import helpers.FileHelper;
 import helpers.HTML5Helper;
 import helpers.PathHelper;
@@ -253,6 +254,8 @@ class HTML5Platform implements IPlatformTool {
 			}
 			
 		}
+
+		AssetHelper.createManifest (project, PathHelper.combine (destination, "manifest"));
 		
 	}
 	
