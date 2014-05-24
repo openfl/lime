@@ -127,7 +127,7 @@ class HTML5Helper {
 				
 			});
 			
-			var args = [ server, path, "-p", Std.string (port) ];
+			var args = [ server, path, "-p", Std.string (port), "-c-1" ];
 			
 			if (!LogHelper.verbose) {
 				
