@@ -1106,6 +1106,11 @@ class CommandLineTools {
 						
 						overrides.haxelibs.push (new Haxelib (name, version));
 						
+					} else if (StringTools.startsWith (field, "haxelib-")) {
+						
+						var name = field.substr (8);
+						PathHelper.haxelibOverrides.set (name, PathHelper.tryFullPath (argValue));
+						
 					} else if (field == "source") {
 						
 						overrides.sources.push (argValue);

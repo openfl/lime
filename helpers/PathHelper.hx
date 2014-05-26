@@ -15,6 +15,8 @@ import sys.FileSystem;
 class PathHelper {
 	
 	
+	public static var haxelibOverrides = new Map<String, String> ();
+	
 	private static var haxelibPaths = new Map<String, String> ();
 	
 	
@@ -159,6 +161,12 @@ class PathHelper {
 	public static function getHaxelib (haxelib:Haxelib, validate:Bool = false, clearCache:Bool = false):String {
 		
 		var name = haxelib.name;
+		
+		if (haxelibOverrides.exists (name)) {
+			
+			return haxelibOverrides.get (name);
+			
+		}
 		
 		if (haxelib.version != "") {
 			
