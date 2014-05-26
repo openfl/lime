@@ -1009,8 +1009,6 @@ class RunScript {
 	
 	public static function main () {
 		
-		limeDirectory = PathHelper.getHaxelib (new Haxelib ("lime"), true);
-		
 		if (new EReg ("window", "i").match (Sys.systemName ())) {
 			
 			isLinux = false;
@@ -1062,9 +1060,25 @@ class RunScript {
 			
 			for (arg in args) {
 				
+				var equals = arg.indexOf ("=");
+				
 				if (StringTools.startsWith (arg, "-D")) {
 					
 					defines.push (arg);
+					ignoreLength++;
+					
+				} else if (equals > -1 && StringTools.startsWith (arg, "--")) {
+					
+					var argValue = arg.substr (equals + 1);
+					var field = arg.substr (2, equals - 2);
+					
+					if (StringTools.startsWith (field, "haxelib-")) {
+						
+						var name = field.substr (8);
+						PathHelper.haxelibOverrides.set (name, PathHelper.tryFullPath (argValue));
+						
+					}
+					
 					ignoreLength++;
 					
 				} else if (StringTools.startsWith (arg, "-")) {
@@ -1091,6 +1105,8 @@ class RunScript {
 				}
 				
 			}
+			
+			limeDirectory = PathHelper.getHaxelib (new Haxelib ("lime"), true);
 			
 			var path = "";
 			
@@ -1181,6 +1197,8 @@ class RunScript {
 			}
 			
 		} else {
+			
+			limeDirectory = PathHelper.getHaxelib (new Haxelib ("lime"), true);
 			
 			if (command == "setup") {
 				
