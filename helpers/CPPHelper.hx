@@ -84,6 +84,13 @@ class CPPHelper {
 				
 			}
 			
+			if (!LogHelper.enableColor) {
+				
+				//args.push ("-nocolor");
+				Sys.putEnv ("HXCPP_NO_COLOR", "");
+				
+			}
+			
 			ProcessHelper.runCommand (path, "haxelib", args);
 			
 		}
