@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A powerful native backend for Haxe projects",
-	"version": "0.9.7",
-	"releasenote": "Move to collaborative C++ backend",
+	"version": "0.9.8",
+	"releasenote": "Fixes",
 	"contributors": [ "singmajesty", "underscorediscovery" ],
 	"dependencies": {}
 }
