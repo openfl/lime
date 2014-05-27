@@ -27,12 +27,16 @@ before_install:
   - touch ndll/Mac/lime.ndll
   - touch ndll/Mac64/lime.ndll
   - touch ndll/Linux/lime.ndll
+  - mkdir ndll/iPhone
   - touch ndll/iPhone/liblime.iphoneos-v7.a
   - touch ndll/iPhone/liblime.iphoneos.a
   - touch ndll/iPhone/liblime.iphonesim.a
+  - mkdir ndll/Android
   - touch ndll/Android/liblime.so
   - touch ndll/Android/liblime-v7.so
+  - mkdir ndll/BlackBerry
   - touch ndll/BlackBerry/lime.so
+  - mkdir ndll/Tizen
   - touch ndll/Tizen/lime.so
 
 script:
