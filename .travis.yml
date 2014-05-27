@@ -23,21 +23,21 @@ before_install:
   - haxelib install svg
   - haxelib dev lime-tools $(pwd)
   - haxelib run lime rebuild linux -release -64
-  - touch ndll/Windows/lime.ndll
-  - touch ndll/Mac/lime.ndll
-  - touch ndll/Mac64/lime.ndll
-  - touch ndll/Linux/lime.ndll
-  - mkdir ndll/iPhone
-  - touch ndll/iPhone/liblime.iphoneos-v7.a
-  - touch ndll/iPhone/liblime.iphoneos.a
-  - touch ndll/iPhone/liblime.iphonesim.a
-  - mkdir ndll/Android
-  - touch ndll/Android/liblime.so
-  - touch ndll/Android/liblime-v7.so
-  - mkdir ndll/BlackBerry
-  - touch ndll/BlackBerry/lime.so
-  - mkdir ndll/Tizen
-  - touch ndll/Tizen/lime.so
+  - touch ~/lime/ndll/Windows/lime.ndll
+  - touch ~/lime/ndll/Mac/lime.ndll
+  - touch ~/lime/ndll/Mac64/lime.ndll
+  - touch ~/lime/ndll/Linux/lime.ndll
+  - mkdir ~/lime/ndll/iPhone
+  - touch ~/lime/ndll/iPhone/liblime.iphoneos-v7.a
+  - touch ~/lime/ndll/iPhone/liblime.iphoneos.a
+  - touch ~/lime/ndll/iPhone/liblime.iphonesim.a
+  - mkdir ~/lime/ndll/Android
+  - touch ~/lime/ndll/Android/liblime.so
+  - touch ~/lime/ndll/Android/liblime-v7.so
+  - mkdir ~/lime/ndll/BlackBerry
+  - touch ~/lime/ndll/BlackBerry/lime.so
+  - mkdir ~/lime/ndll/Tizen
+  - touch ~/lime/ndll/Tizen/lime.so
 
 script:
   - haxelib run lime rebuild tools
@@ -58,8 +58,10 @@ script:
   - haxelib run lime update TestProject mac
   - haxelib run lime update TestProject linux
   - haxelib run lime update TestProject ios
-  - haxelib run lime update TestProject android -DANDROID_SETUP
-  - haxelib run lime update TestProject blackberry -DBLACKBERRY_SETUP
+  - export ANDROID_SETUP=1
+  - haxelib run lime update TestProject android
+  - export BLACKBERRY_SETUP=1
+  - haxelib run lime update TestProject blackberry
   - haxelib run lime update TestProject tizen
   - haxelib run lime update TestProject html5
   - haxelib run lime update TestProject firefoxos
