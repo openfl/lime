@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "Command-line tools for Haxe projects",
-	"version": "1.4.0",
-	"releasenote": "Improvements for HTML5 and default HXCPP support",
+	"version": "1.5.0",
+	"releasenote": "HTML5 improvements, updates for OpenFL 2.0",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
 }
