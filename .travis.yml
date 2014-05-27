@@ -9,8 +9,6 @@ before_install:
   - mkdir ~/haxelib
   - haxelib setup ~/haxelib
   - git clone https://github.com/openfl/lime ~/lime
-  - cd ~/lime
-  - cd $TRAVIS_BUILD_DIR
   - haxelib dev lime ~/lime
   - git clone https://github.com/haxenme/nme ~/nme --depth 1
   - haxelib dev nme ~/nme
@@ -18,8 +16,8 @@ before_install:
   - haxelib dev nme-dev ~/nme-dev
   - git clone https://github.com/openfl/openfl ~/openfl --depth 1
   - haxelib dev openfl ~/openfl
-  - git clone https://github.com/openfl/openfl-native ~/openfl-native --depth 1
-  - haxelib dev openfl-native ~/openfl-native
+  - git clone https://github.com/openfl/openfl-samples ~/openfl-samples --depth 1
+  - haxelib dev openfl-samples ~/openfl-samples
   - git clone https://github.com/haxefoundation/hxcpp ~/hxcpp --depth 1
   - haxelib dev hxcpp ~/hxcpp
   - haxelib install format
