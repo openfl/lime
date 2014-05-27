@@ -18,13 +18,13 @@ before_install:
   - haxelib dev openfl ~/openfl
   - git clone https://github.com/openfl/openfl-samples ~/openfl-samples --depth 1
   - haxelib dev openfl-samples ~/openfl-samples
-  - git clone https://github.com/haxefoundation/hxcpp ~/hxcpp --depth 1
-  - haxelib dev hxcpp ~/hxcpp
+  - haxelib install hxcpp
   - haxelib install format
   - haxelib install svg
   - haxelib dev lime-tools $(pwd)
-  - haxelib run lime rebuild hxcpp linux -Dstatic_link -release
   - haxelib run lime rebuild linux -release
+  - export ANDROID_SETUP
+  - export BLACKBERRY_SETUP
 
 script:
   - haxelib run lime rebuild tools
