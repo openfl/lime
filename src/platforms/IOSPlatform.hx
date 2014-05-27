@@ -233,16 +233,8 @@ class IOSPlatform implements IPlatformTool {
 		
 		context.IOS_COMPILER = project.config.ios.compiler;
 		context.CPP_BUILD_LIBRARY = project.config.cpp.buildLibrary;
-
-		var linker_flags_string = '';
-		var linker_flags_final = ["-stdlib=libc++"].concat(project.config.ios.linkerFlags);
-
-		for(_flag in linker_flags_final) {
-			linker_flags_string += '"${_flag}",';
-		}
-
-		context.IOS_LINKER_FLAGS = linker_flags_string;
-
+		context.IOS_LINKER_FLAGS = ["-stdlib=libc++"].concat(project.config.ios.linkerFlags);
+		
 		switch (project.window.orientation) {
 			
 			case PORTRAIT:
