@@ -1094,6 +1094,10 @@ class RunScript {
 							
 							flags.set ("debug", "");
 						
+						case "-nocolor":
+							
+							Sys.putEnv ("HXCPP_NO_COLOR", "");
+						
 						default:
 							
 							flags.set (arg.substr (1), "");
