@@ -12,6 +12,7 @@ import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
 import helpers.FileHelper;
+import helpers.LogHelper;
 import helpers.PathHelper;
 import helpers.PlatformHelper;
 
@@ -106,7 +107,11 @@ class RunScript {
 					
 					if (!FileSystem.exists (source)) {
 						
-						Sys.println ("Warning: Source path \"" + source + "\" does not exist");
+						if (flags.exists ("verbose")) {
+							
+							LogHelper.warn ("", "Warning: Source path \"" + source + "\" does not exist");
+							
+						}
 						
 					} else {
 						
@@ -1087,6 +1092,7 @@ class RunScript {
 						
 						case "-v", "-verbose":
 							
+							LogHelper.verbose = true;
 							flags.set ("verbose", "");
 							defines.push ("-verbose");
 						
@@ -1096,6 +1102,7 @@ class RunScript {
 						
 						case "-nocolor":
 							
+							LogHelper.enableColor = false;
 							Sys.putEnv ("HXCPP_NO_COLOR", "");
 						
 						default:
