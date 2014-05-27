@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "Command-line tools for Haxe projects",
-	"version": "1.5.0",
-	"releasenote": "HTML5 improvements, updates for OpenFL 2.0",
+	"version": "1.5.1",
+	"releasenote": "Minor fixes",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
 }
