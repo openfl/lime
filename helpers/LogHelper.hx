@@ -11,6 +11,7 @@ import sys.io.Process;
 class LogHelper {
 	
 	
+	public static var enableColor:Bool = true;
 	public static var mute:Bool;
 	public static var verbose:Bool = false;
 	
@@ -109,7 +110,7 @@ class LogHelper {
 			
 		}
 		
-		if (colorSupported) {
+		if (enableColor && colorSupported) {
 			
 			return output;
 			
