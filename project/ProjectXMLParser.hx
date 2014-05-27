@@ -79,22 +79,14 @@ class ProjectXMLParser extends HXProject {
 			defines.set ("native", "1");
 			defines.set ("neko", "1");
 			
+		} else if (target == Platform.FIREFOXOS) {
+			
+			defines.set ("html5", "1");
+			
 		} else if (targetFlags.exists ("cpp") || ((platformType == PlatformType.MOBILE || platformType == PlatformType.DESKTOP) && !targetFlags.exists("html5")) || target == Platform.EMSCRIPTEN) {
 			
 			defines.set ("native", "1");
 			defines.set ("cpp", "1");
-			
-		}
-		
-		if (target == Platform.EMSCRIPTEN) {
-			
-			defines.set ("native", "1");
-			
-		}
-		
-		if (target == Platform.FIREFOXOS) {
-			
-			defines.set ("html5", "1");
 			
 		}
 		
