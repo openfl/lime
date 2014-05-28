@@ -47,6 +47,23 @@ class WindowsPlatform implements IPlatformTool {
 		
 		PathHelper.mkdir (targetDirectory);
 		
+		for (dependency in project.dependencies) {
+			
+			if (StringTools.endsWith (dependency.path, ".dll")) {
+				
+				var fileName = Path.withoutDirectory (dependency.path);
+				FileHelper.copyIfNewer (dependency.path, applicationDirectory + "/" + fileName);
+				
+			}
+			
+		}
+		
+		for (ndll in project.ndlls) {
+			
+			FileHelper.copyLibrary (project, ndll, "Windows", "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll", applicationDirectory, project.debug);
+			
+		}
+		
 		if (useNeko) {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
@@ -187,23 +204,6 @@ class WindowsPlatform implements IPlatformTool {
 		
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", targetDirectory + "/haxe", context);
 		FileHelper.recursiveCopyTemplate (project.templatePaths, (useNeko ? "neko" : "cpp") + "/hxml", targetDirectory + "/haxe", context);
-		
-		for (dependency in project.dependencies) {
-			
-			if (StringTools.endsWith (dependency.path, ".dll")) {
-				
-				var fileName = Path.withoutDirectory (dependency.path);
-				FileHelper.copyIfNewer (dependency.path, applicationDirectory + "/" + fileName);
-				
-			}
-			
-		}
-		
-		for (ndll in project.ndlls) {
-			
-			FileHelper.copyLibrary (project, ndll, "Windows", "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll", applicationDirectory, project.debug);
-			
-		}
 		
 		/*if (IconHelper.createIcon (project.icons, 32, 32, PathHelper.combine (applicationDirectory, "icon.png"))) {
 			

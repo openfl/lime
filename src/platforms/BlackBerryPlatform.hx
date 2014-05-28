@@ -51,6 +51,56 @@ class BlackBerryPlatform implements IPlatformTool {
 		
 		if (!project.targetFlags.exists ("html5")) {
 			
+			var destination = outputDirectory + "/bin/";
+			var arch = "";
+			
+			if (project.targetFlags.exists ("simulator")) {
+				
+				arch = "-x86";
+				
+			}
+			
+			var haxelib = new Haxelib ("lime");
+			var ndlls = project.ndlls.copy ();
+			ndlls.push (new NDLL ("libTouchControlOverlay", haxelib));
+			
+			for (ndll in ndlls) {
+				
+				FileHelper.copyLibrary (project, ndll, "BlackBerry", "", arch + ".so", destination, project.debug, ".so");
+				
+			}
+			
+			var linkedLibraries = [ new NDLL ("libSDL", haxelib), new NDLL ("libOpenAL", haxelib) ];
+			
+			for (ndll in linkedLibraries) {
+				
+				var deviceLib = ndll.name + ".so";
+				var simulatorLib = ndll.name + "-x86.so";
+				
+				if (project.targetFlags.exists ("simulator")) {
+					
+					if (FileSystem.exists (destination + deviceLib)) {
+						
+						FileSystem.deleteFile (destination + deviceLib);
+						
+					}
+					
+					FileHelper.copyIfNewer (PathHelper.getLibraryPath (ndll, "BlackBerry", "", "-x86.so"), destination + simulatorLib);
+					
+				} else {
+					
+					if (FileSystem.exists (destination + simulatorLib)) {
+						
+						FileSystem.deleteFile (destination + simulatorLib);
+						
+					}
+					
+					FileHelper.copyIfNewer (PathHelper.getLibraryPath (ndll, "BlackBerry", "", ".so"), destination + deviceLib);
+					
+				}
+				
+			}
+			
 			CPPHelper.compile (project, outputDirectory + "/obj", [ "-Dblackberry" ]);
 			FileHelper.copyIfNewer (outputDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : ""), outputFile);
 			BlackBerryHelper.createPackage (project, outputDirectory, "bin/bar-descriptor.xml", project.meta.packageName + "_" + project.meta.version + ".bar");
@@ -262,55 +312,6 @@ class BlackBerryPlatform implements IPlatformTool {
 			FileHelper.copyFileTemplate (project.templatePaths, "blackberry/template/bar-descriptor.xml", destination + "/bar-descriptor.xml", context);
 			FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", outputDirectory + "/haxe", context);
 			FileHelper.recursiveCopyTemplate (project.templatePaths, "blackberry/hxml", outputDirectory + "/haxe", context);
-			
-			var arch = "";
-			
-			if (project.targetFlags.exists ("simulator")) {
-				
-				arch = "-x86";
-				
-			}
-			
-			var haxelib = new Haxelib ("lime");
-			var ndlls = project.ndlls.copy ();
-			ndlls.push (new NDLL ("libTouchControlOverlay", haxelib));
-			
-			for (ndll in ndlls) {
-				
-				FileHelper.copyLibrary (project, ndll, "BlackBerry", "", arch + ".so", destination, project.debug, ".so");
-				
-			}
-			
-			var linkedLibraries = [ new NDLL ("libSDL", haxelib), new NDLL ("libOpenAL", haxelib) ];
-			
-			for (ndll in linkedLibraries) {
-				
-				var deviceLib = ndll.name + ".so";
-				var simulatorLib = ndll.name + "-x86.so";
-				
-				if (project.targetFlags.exists ("simulator")) {
-					
-					if (FileSystem.exists (destination + deviceLib)) {
-						
-						FileSystem.deleteFile (destination + deviceLib);
-						
-					}
-					
-					FileHelper.copyIfNewer (PathHelper.getLibraryPath (ndll, "BlackBerry", "", "-x86.so"), destination + simulatorLib);
-					
-				} else {
-					
-					if (FileSystem.exists (destination + simulatorLib)) {
-						
-						FileSystem.deleteFile (destination + simulatorLib);
-						
-					}
-					
-					FileHelper.copyIfNewer (PathHelper.getLibraryPath (ndll, "BlackBerry", "", ".so"), destination + deviceLib);
-					
-				}
-				
-			}
 			
 		} else {
 			

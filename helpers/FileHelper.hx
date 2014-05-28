@@ -242,30 +242,9 @@ class FileHelper {
 			
 			PathHelper.mkdir (targetDirectory);
 			
-
 			try {
 				
-				if (!FileSystem.exists (targetPath) || (FileSystem.stat (path).mtime.getTime () > FileSystem.stat (targetPath).mtime.getTime ())) {
-					
-					LogHelper.info ("", " - \x1b[1mCopying library file:\x1b[0m " + path + " \x1b[3;37m->\x1b[0m " + targetPath);
-					
-					var command = "rsync";
-
-					if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
-						
-						command = PathHelper.findTemplate (project.templatePaths, "bin/rsync/rsync.exe");
-
-						var cygpath_regex = ~/(^[a-zA-Z])(:\\)(.*)/gi;
-
-						if(cygpath_regex.match(path)) {							
-							path = cygpath_regex.replace(path, '/cygdrive/$1/$3');
-							path = StringTools.replace (path, "\\", "/");
-						} 
-					}
-						
-					ProcessHelper.runCommand ("", command, [ "-a", path, targetPath ], false);
-					
-				}
+				File.copy (path, targetPath);
 				
 			} catch (e:Dynamic) {
 				

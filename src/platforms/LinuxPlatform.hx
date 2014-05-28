@@ -50,6 +50,20 @@ class LinuxPlatform implements IPlatformTool {
 		
 		PathHelper.mkdir (targetDirectory);
 		
+		for (ndll in project.ndlls) {
+			
+			if (isRaspberryPi) {
+				
+				FileHelper.copyLibrary (project, ndll, "RPi", "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dso" : ".ndll", applicationDirectory, project.debug);
+				
+			} else {
+				
+				FileHelper.copyLibrary (project, ndll, "Linux" + (is64 ? "64" : ""), "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dso" : ".ndll", applicationDirectory, project.debug);
+				
+			}
+			
+		}
+		
 		if (useNeko) {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
@@ -222,20 +236,6 @@ class LinuxPlatform implements IPlatformTool {
 		
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", targetDirectory + "/haxe", context);
 		FileHelper.recursiveCopyTemplate (project.templatePaths, (useNeko ? "neko" : "cpp") + "/hxml", targetDirectory + "/haxe", context);
-		
-		for (ndll in project.ndlls) {
-			
-			if (isRaspberryPi) {
-				
-				FileHelper.copyLibrary (project, ndll, "RPi", "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dso" : ".ndll", applicationDirectory, project.debug);
-				
-			} else {
-				
-				FileHelper.copyLibrary (project, ndll, "Linux" + (is64 ? "64" : ""), "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dso" : ".ndll", applicationDirectory, project.debug);
-				
-			}
-			
-		}
 		
 		//context.HAS_ICON = IconHelper.createIcon (project.icons, 256, 256, PathHelper.combine (applicationDirectory, "icon.png"));
 		for (asset in project.assets) {
