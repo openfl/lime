@@ -423,10 +423,10 @@ class IOSPlatform implements IPlatformTool {
 					var releaseDest = projectDirectory + "/lib/" + arch + "/lib" + ndll.name + ".a";
 					var debugDest = projectDirectory + "/lib/" + arch + "-debug/lib" + ndll.name + ".a";
 					
-					if (archID == 1 && !FileSystem.exists (releaseLib)) {
+					if (!FileSystem.exists (releaseLib)) {
 						
-						releaseLib = PathHelper.getLibraryPath (ndll, "iPhone", "lib", ".iphoneos.a");
-						debugLib = PathHelper.getLibraryPath (ndll, "iPhone", "lib", ".iphoneos.a", true);
+						releaseLib = PathHelper.getLibraryPath (ndll, "IPhone", "lib", ".iphoneos.a");
+						debugLib = PathHelper.getLibraryPath (ndll, "IPhone", "lib", ".iphoneos.a", true);
 						
 					}
 					
