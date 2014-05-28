@@ -54,7 +54,7 @@ script:
   - haxelib run lime update TestProject windows
   - haxelib run lime update TestProject mac
   - haxelib run lime update TestProject linux
-  - haxelib run lime update TestProject ios
+  #- haxelib run lime update TestProject ios
   - export ANDROID_SETUP=1
   - haxelib run lime update TestProject android
   - export BLACKBERRY_SETUP=1
