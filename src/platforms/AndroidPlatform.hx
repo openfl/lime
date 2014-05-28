@@ -94,7 +94,7 @@ class AndroidPlatform implements IPlatformTool {
 			ProcessHelper.runCommand ("", "haxe", haxeParams);
 			CPPHelper.compile (project, project.app.path + "/android/obj", cppParams);
 			
-			FileHelper.copyIfNewer (project.app.path + "/android/obj/libApplicationMain" + (project.debug ? "-debug" : "") + suffix + ".so", path + "/libApplicationMain.so");
+			FileHelper.copyIfNewer (project.app.path + "/android/obj/libApplicationMain" + (project.debug ? "-debug" : "") + suffix, path + "/libApplicationMain.so");
 			
 		}
 		
