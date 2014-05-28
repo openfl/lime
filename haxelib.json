@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "Command-line tools for Haxe projects",
-	"version": "1.5.1",
-	"releasenote": "Minor fixes",
+	"version": "1.5.2",
+	"releasenote": "Neko fix, warn on missing webfonts instead of error",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
 }
