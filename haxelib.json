@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A powerful native backend for Haxe projects",
-	"version": "0.9.9",
-	"releasenote": "Mac fullscreen, Windows minimize/restore fixes",
+	"version": "1.0.0",
+	"releasenote": "Stable release",
 	"contributors": [ "singmajesty", "underscorediscovery" ],
 	"dependencies": {}
 }
