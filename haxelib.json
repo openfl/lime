@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "Command-line tools for Haxe projects",
-	"version": "1.5.3",
-	"releasenote": "Android fix",
+	"version": "1.5.4",
+	"releasenote": "Build server fix",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
 }
