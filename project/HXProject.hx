@@ -911,7 +911,11 @@ class HXProject {
 					
 					if (!StringTools.startsWith (arg, "-")) {
 						
-						compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ "-cp " + arg ], true);
+						if (compilerFlags.indexOf ("-cp " + arg) == -1) {
+							
+							compilerFlags.push ("-cp " + arg);
+							
+						}
 						
 					} else {
 						
