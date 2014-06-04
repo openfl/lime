@@ -29,27 +29,17 @@ class ProcessHelper {
 			
 			if (executable == "") {
 				
-				if (targetPath.indexOf (":\\") == -1) {
-					
-					runCommand (workingDirectory, targetPath, []);
-					
-				} else {
-					
-					runCommand (workingDirectory, ".\\" + targetPath, []);
-					
-				}
+				executable = "cmd";
+				
+			}
+			
+			if (targetPath.indexOf (":\\") == -1) {
+				
+				runCommand (workingDirectory, executable, [ "/c", targetPath ]);
 				
 			} else {
 				
-				if (targetPath.indexOf (":\\") == -1) {
-					
-					runCommand (workingDirectory, executable, [ targetPath ]);
-					
-				} else {
-					
-					runCommand (workingDirectory, executable, [ ".\\" + targetPath ]);
-					
-				}
+				runCommand (workingDirectory, executable, [ "/c", ".\\" + targetPath ]);
 				
 			}
 			
