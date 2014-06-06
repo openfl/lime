@@ -5,7 +5,7 @@
 	path = project/lib/sdl
 	url = https://github.com/openfl/native-sdl
 [submodule "project/lib/openal"]
-	path = project/lib/openal/
+	path = project/lib/openal
 	url = https://github.com/openfl/native-openal
 [submodule "project/lib/curl"]
 	path = project/lib/curl
