@@ -16,28 +16,28 @@
 	<set name="LIME_VORBIS" value="1" />
 	<set name="LIME_ZLIB" value="1" />
 	
-	<set name="OUT_DIR" value="../ndll" unless="OUT_DIR" />
-	<set name="LIB_PREFIX" value="lib" unless="LIB_PREFIX" />
+	<set name="OUTPUT_DIR" value="../ndll" unless="OUTPUT_DIR" />
+	<set name="NATIVE_LIB_PATH" value="lib" unless="NATIVE_LIB_PATH" />
 	
 	<set name="LIBCURL_SSL" value="1" />
 	
-	<include name="lib/al/include.xml" />
 	<include name="lib/curl/include.xml" />
 	<include name="lib/ogg/include.xml" />
+	<include name="lib/openal/include.xml" />
 	<include name="lib/sdl/include.xml" />
 	<include name="lib/vorbis/include.xml" />
-	<include name="lib/z/include.xml" />
+	<include name="lib/zlib/include.xml" />
 	
 	<target id="lime" output="${LIBPREFIX}lime${MSVC_LIB_VERSION}${DEBUGEXTRA}${LIBEXTRA}" tool="linker" toolid="${STD_MODULE_LINK}">
 		
-		<outdir name="${OUT_DIR}/${BINDIR}" />
+		<outdir name="${OUTPUT_DIR}/${BINDIR}" />
 		
-		<files id="libal" if="LIME_OPENAL" unless="mac || iphone" />
-		<files id="libcurl" if="LIME_CURL" />
-		<files id="libogg" if="LIME_OGG" />
-		<files id="libsdl" if="LIME_SDL" />
-		<files id="libvorbis" if="LIME_VORBIS" />
-		<files id="libz" if="LIME_ZLIB" />
+		<files id="native-curl" if="LIME_CURL" />
+		<files id="native-ogg" if="LIME_OGG" />
+		<files id="native-openal" if="LIME_OPENAL" unless="mac || iphone" />
+		<files id="native-sdl" if="LIME_SDL" />
+		<files id="native-vorbis" if="LIME_VORBIS" />
+		<files id="native-zlib" if="LIME_ZLIB" />
 		
 		<section unless="static_link">
 			
