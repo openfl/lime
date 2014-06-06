@@ -1,21 +1,18 @@
 [submodule "project/lib/vorbis"]
 	path = project/lib/vorbis
-	url = https://github.com/openfl/libvorbis
+	url = https://github.com/openfl/native-vorbis
 [submodule "project/lib/sdl"]
 	path = project/lib/sdl
-	url = https://github.com/openfl/libsdl
+	url = https://github.com/openfl/native-sdl
 [submodule "project/lib/openal"]
-	path = project/lib/al/
-	url = https://github.com/openfl/libal
+	path = project/lib/openal/
+	url = https://github.com/openfl/native-openal
 [submodule "project/lib/curl"]
 	path = project/lib/curl
-	url = https://github.com/openfl/libcurl
+	url = https://github.com/openfl/native-curl
 [submodule "project/lib/ogg"]
 	path = project/lib/ogg
-	url = https://github.com/openfl/libogg
-[submodule "project/lib/z"]
-	path = project/lib/z
-	url = https://github.com/openfl/libz
-[submodule "project/lib/al"]
-	path = project/lib/al
-	url = https://github.com/openfl/libal
+	url = https://github.com/openfl/native-ogg
+[submodule "project/lib/zlib"]
+	path = project/lib/zlib
+	url = https://github.com/openfl/native-zlib
