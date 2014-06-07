@@ -42,6 +42,14 @@
 			
 		</section>
 		
+		<section if="LIME_OPENGL">
+			
+			<file name="src/graphics/opengl/OpenGLBindings.cpp" />
+			
+		</section>
+		
+		<file name="src/utils/ByteArray.cpp" />
+		
 	</files>
 	
 	<include name="lib/curl/include.xml" />
@@ -115,7 +123,7 @@
 		
 			<section if="android">
 				
-				<lib name="-Wl,--undefined=Java_org_libsdl_app_SDLActivity_nativeInit" if="LUMEN_USE_SDL"/>
+				<lib name="-Wl,--undefined=Java_org_libsdl_app_SDLActivity_nativeInit" if="LIME_SDL"/>
 				<lib name="-ldl" />
 				<lib name="-llog" />
 				<lib name="-landroid" />

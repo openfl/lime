@@ -3,7 +3,7 @@
 
 
 #include <SDL.h>
-#include "Application.h"
+#include <app/Application.h>
 
 
 namespace lime {
