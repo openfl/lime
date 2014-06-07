@@ -1,8 +1,8 @@
-#ifndef LIME_WINDOW_H
-#define LIME_WINDOW_H
+#ifndef LIME_APP_WINDOW_H
+#define LIME_APP_WINDOW_H
 
 
-#include "Application.h"
+#include <app/Application.h>
 
 
 namespace lime {

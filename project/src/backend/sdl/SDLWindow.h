@@ -3,7 +3,7 @@
 
 
 #include <SDL.h>
-#include "Window.h"
+#include <app/Window.h>
 
 
 namespace lime {

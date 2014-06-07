@@ -30,8 +30,10 @@ class ApplicationMain {
 		
 		app.create (config);
 		
+		var result = app.exec ();
+		
 		#if sys
-		Sys.exit (app.exec ());
+		Sys.exit (result);
 		#end
 		
 	}

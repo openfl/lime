@@ -1,5 +1,5 @@
-#ifndef LIME_APPLICATION_H
-#define LIME_APPLICATION_H
+#ifndef LIME_APP_APPLICATION_H
+#define LIME_APP_APPLICATION_H
 
 
 namespace lime {

@@ -8,9 +8,9 @@
 
 
 #include <hx/CFFI.h>
-#include "Application.h"
-#include "Window.h"
-#include "Renderer.h"
+#include <app/Application.h>
+#include <app/Window.h>
+#include <app/Renderer.h>
 
 
 namespace lime {
@@ -46,6 +46,31 @@ namespace lime {
 		return alloc_int ((intptr_t)window);
 		
 	}
+	
+	
+	value lime_lzma_encode(value input_value) {
+
+       /*buffer input_buffer = val_to_buffer(input_value);
+       buffer output_buffer = alloc_buffer_len(0);
+
+       Lzma::Encode(input_buffer, output_buffer);
+
+       return buffer_val(output_buffer);*/
+       return alloc_null();
+
+    } DEFINE_PRIM(lime_lzma_encode,1);
+
+    value lime_lzma_decode(value input_value) {
+
+       /*buffer input_buffer = val_to_buffer(input_value);
+       buffer output_buffer = alloc_buffer_len(0);
+
+       Lzma::Decode(input_buffer, output_buffer);
+
+       return buffer_val(output_buffer);*/
+       return alloc_null();
+
+    } DEFINE_PRIM(lime_lzma_decode,1);
 	
 	
 	DEFINE_PRIM (lime_application_create, 0);
