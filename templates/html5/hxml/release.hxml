@@ -1,4 +1,5 @@
 -main ApplicationMain ::HAXE_FLAGS::
+--macro keep("::APP_MAIN::")
 -js ::OUTPUT_FILE::
 -cp ::OUTPUT_DIR::/haxe
 -D html5

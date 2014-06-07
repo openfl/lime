@@ -25,15 +25,11 @@ import lime.utils.ByteArray;
 	 * 
 	 * <p>The contents are populated automatically when an application
 	 * is compiled using the lime command-line tools, based on the
-	 * contents of the *.nmml project file.</p>
+	 * contents of the xml project file.</p>
 	 * 
 	 * <p>For most platforms, the assets are included in the same directory
 	 * or package as the application, and the paths are handled
-	 * automatically. For web content, the assets are preloaded before
-	 * the start of the rest of the application. You can customize the 
-	 * preloader by extending the <code>NMEPreloader</code> class,
-	 * and specifying a custom preloader using <window preloader="" />
-	 * in the project file.</p>
+	 * automatically. </p>
 	 */
 	class Assets {
 		
