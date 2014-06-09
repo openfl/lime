@@ -4,6 +4,16 @@
 namespace lime {
 	
 	
+	AutoGCRoot* Application::callback = 0;
+	
+	
+	double Application::GetTicks () {
+		
+		return SDL_GetTicks ();
+		
+	}
+	
+	
 	SDLApplication::SDLApplication () {
 		
 		SDL_Init (SDL_INIT_VIDEO);
@@ -22,22 +32,42 @@ namespace lime {
 		
 		SDL_Event event;
 		active = true;
+		bool firstTime = true;
+		lastUpdate = SDL_GetTicks ();
+		Uint32 currentUpdate = 0;
+		int deltaTime = 0;
 		
 		while (active) {
 			
-			while (active && SDL_WaitEvent (&event)) {
-				
-				HandleEvent (&event);
-				event.type = -1;
-				if (!active) break;
-				
-			}
+			event.type = -1;
 			
-			while (active && SDL_PollEvent (&event)) {
+			while (active && (firstTime || SDL_WaitEvent (&event))) {
+				
+				firstTime = false;
 				
 				HandleEvent (&event);
 				event.type = -1;
 				if (!active) break;
+				
+				while (active && SDL_PollEvent (&event)) {
+					
+					HandleEvent (&event);
+					event.type = -1;
+					if (!active) break;
+					
+				}
+				
+				currentUpdate = SDL_GetTicks ();
+				deltaTime = currentUpdate - lastUpdate;
+				
+				if (deltaTime > 16) {
+					
+					updateEvent.deltaTime = deltaTime;
+					UpdateEvent::Dispatch (&updateEvent);
+					
+					RenderEvent::Dispatch (&renderEvent);
+					
+				}
 				
 			}
 			
@@ -92,7 +122,11 @@ namespace lime {
 						ProcessWindowEvent (event);
 						break;
 					
-					case SDL_WINDOWEVENT_EXPOSED: /*poll*/ break;
+					case SDL_WINDOWEVENT_EXPOSED: 
+						
+						RenderEvent::Dispatch (&renderEvent);
+						break;
+					
 					case SDL_WINDOWEVENT_SIZE_CHANGED: /*resize*/ break;
 					case SDL_WINDOWEVENT_FOCUS_GAINED: /*focus in*/ break;
 					case SDL_WINDOWEVENT_FOCUS_LOST: /*focus out*/ break;

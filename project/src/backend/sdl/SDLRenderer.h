@@ -16,6 +16,8 @@ namespace lime {
 			SDLRenderer (Window* window);
 			~SDLRenderer ();
 			
+			virtual void Flip ();
+			
 			SDL_Renderer* sdlRenderer;
 		
 	};

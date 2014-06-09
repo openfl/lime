@@ -13,6 +13,8 @@ namespace lime {
 		
 		public:
 			
+			virtual void Flip () = 0;
+			
 			Window* currentWindow;
 		
 		

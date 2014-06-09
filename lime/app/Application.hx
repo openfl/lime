@@ -16,15 +16,17 @@ import lime.ui.WindowEvent;
 import lime.system.System;
 
 
-class Application implements IKeyEventListener implements IMouseEventListener implements ITouchEventListener implements IWindowEventListener {
+class Application implements IKeyEventListener implements IMouseEventListener implements IRenderEventListener implements ITouchEventListener implements IUpdateEventListener implements IWindowEventListener {
 	
 	
 	public var handle:Dynamic;
 	
+	private var lastUpdate:Int;
+	
 	
 	public function new () {
 		
-		
+		lastUpdate = 0;
 		
 	}
 	
@@ -32,17 +34,21 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 	public function create (config:Config) {
 		
 		#if (cpp || neko)
-		handle = lime_application_create ();
+		handle = lime_application_create (null);
 		#end
 		
 		new KeyEventManager ();
 		new MouseEventManager ();
+		new RenderEventManager ();
 		new TouchEventManager ();
+		new UpdateEventManager ();
 		new WindowEventManager ();
 		
 		KeyEventManager.addEventListener (this);
 		MouseEventManager.addEventListener (this);
+		RenderEventManager.addEventListener (this);
 		TouchEventManager.addEventListener (this);
+		UpdateEventManager.addEventListener (this);
 		WindowEventManager.addEventListener (this);
 		
 		var window = new Window (this);
@@ -65,32 +71,19 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 	public function onMouseDown (event:MouseEvent):Void {}
 	public function onMouseMove (event:MouseEvent):Void {}
 	public function onMouseUp (event:MouseEvent):Void {}
+	public function onRender (event:RenderEvent):Void {}
 	public function onTouchEnd (event:TouchEvent):Void {}
 	public function onTouchMove (event:TouchEvent):Void {}
 	public function onTouchStart (event:TouchEvent):Void {}
+	public function onUpdate (event:UpdateEvent):Void {}
 	public function onWindowActivate (event:WindowEvent):Void {}
 	public function onWindowDeactivate (event:WindowEvent):Void {}
 	
 	
-	
-	public function render ():Void {
-		
-		
-		
-	}
-	
-	
-	public function update ():Void {
-		
-		
-		
-	}
-	
-	
-	
 	#if (cpp || neko)
-	private static var lime_application_create = System.load ("lime", "lime_application_create", 0);
+	private static var lime_application_create = System.load ("lime", "lime_application_create", 1);
 	private static var lime_application_exec = System.load ("lime", "lime_application_exec", 1);
+	private static var lime_application_get_ticks = System.load ("lime", "lime_application_get_ticks", 0);
 	#end
 	
 	

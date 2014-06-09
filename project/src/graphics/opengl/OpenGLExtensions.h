@@ -15,7 +15,7 @@
 
 #ifdef DECLARE_EXTENSION
 
-namespace lime { extern void *OpenGLBindings::handle; }
+namespace lime { void *OpenGLBindings::handle; }
 
 #define OGL_EXT(func,ret,args) \
    namespace lime { ret (CALLING_CONVENTION *func)args; }
