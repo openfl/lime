@@ -15,10 +15,10 @@
 
 #ifdef DECLARE_EXTENSION
 
-namespace lime { void *OpenGLBindings::handle; }
+//namespace lime { void *OpenGLBindings::handle = 0; }
 
 #define OGL_EXT(func,ret,args) \
-   namespace lime { ret (CALLING_CONVENTION *func)args; }
+   namespace lime { extern ret (CALLING_CONVENTION *func)args; }
 
 #elif defined(DEFINE_EXTENSION)
 
