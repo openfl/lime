@@ -14,6 +14,7 @@
 #include <ui/KeyEvent.h>
 #include <ui/MouseEvent.h>
 #include <ui/TouchEvent.h>
+#include <ui/WindowEvent.h>
 
 
 namespace lime {
@@ -104,6 +105,15 @@ namespace lime {
 	}
 	
 	
+	value lime_window_event_manager_register (value callback, value eventObject) {
+		
+		WindowEvent::callback = new AutoGCRoot (callback);
+		WindowEvent::eventObject = new AutoGCRoot (eventObject);
+		return alloc_null ();
+		
+	}
+	
+	
 	DEFINE_PRIM (lime_application_create, 0);
 	DEFINE_PRIM (lime_application_exec, 1);
 	DEFINE_PRIM (lime_key_event_manager_register, 2);
@@ -113,6 +123,7 @@ namespace lime {
 	DEFINE_PRIM (lime_renderer_create, 1);
 	DEFINE_PRIM (lime_touch_event_manager_register, 2);
 	DEFINE_PRIM (lime_window_create, 1);
+	DEFINE_PRIM (lime_window_event_manager_register, 2);
 	
 	
 }

@@ -7,6 +7,7 @@
 #include <ui/KeyEvent.h>
 #include <ui/MouseEvent.h>
 #include <ui/TouchEvent.h>
+#include <ui/WindowEvent.h>
 
 
 namespace lime {
@@ -27,11 +28,13 @@ namespace lime {
 			void ProcessKeyEvent (SDL_Event* event);
 			void ProcessMouseEvent (SDL_Event* event);
 			void ProcessTouchEvent (SDL_Event* event);
+			void ProcessWindowEvent (SDL_Event* event);
 			
 			bool active;
 			KeyEvent keyEvent;
 			MouseEvent mouseEvent;
 			TouchEvent touchEvent;
+			WindowEvent windowEvent;
 		
 	};
 	
