@@ -109,7 +109,7 @@ namespace lime {
 	
 	value lime_renderer_flip (value renderer) {
 		
-		((Renderer*)(intptr_t)renderer)->Flip ();
+		((Renderer*)(intptr_t)val_int (renderer))->Flip ();
 		return alloc_null (); 
 		
 	}

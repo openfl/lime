@@ -45,6 +45,8 @@ class RenderEventManager {
 			
 		}
 		
+		Renderer.flip ();
+		
 	}
 	
 	

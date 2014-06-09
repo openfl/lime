@@ -4,6 +4,12 @@
 #include "OpenGLBindings.h"
 #include <string>
 
+#ifdef NEED_EXTENSIONS
+#define DEFINE_EXTENSION
+#include "OpenGLExtensions.h"
+#undef DEFINE_EXTENSION
+#endif
+
 #ifdef HX_LINUX
 #include <dlfcn.h>
 #endif
@@ -41,7 +47,7 @@ namespace lime {
 
 
 	value lime_gl_version() {
-
+		
 		const char* gl_ver = (const char*)glGetString(GL_VERSION);
 		const char* gl_sl  = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
 		const char* gl_ren = (const char*)glGetString(GL_RENDERER);
@@ -1019,7 +1025,7 @@ namespace lime {
 
 
 	value lime_gl_create_shader(value inType) {
-
+		
 		return alloc_int(glCreateShader(val_int(inType)));
 
 	} DEFINE_PRIM(lime_gl_create_shader,1);
@@ -1825,6 +1831,7 @@ namespace lime {
 	
 	
 	bool OpenGLBindings::initialized = false;
+	void *OpenGLBindings::handle = 0;
 	
 	
 	bool OpenGLBindings::Init () {
@@ -1837,12 +1844,12 @@ namespace lime {
 			
 			#ifdef HX_LINUX
 			
-			handle = dlopen ("libGL.so.1", RTLD_NOW|RTLD_GLOBAL);
+			OpenGLBindings::handle = dlopen ("libGL.so.1", RTLD_NOW|RTLD_GLOBAL);
 			
-			if (!handle)
-				handle = dlopen ("libGL.so", RTLD_NOW|RTLD_GLOBAL);
+			if (!OpenGLBindings::handle)
+				OpenGLBindings::handle = dlopen ("libGL.so", RTLD_NOW|RTLD_GLOBAL);
 			
-			if (!handle) {
+			if (!OpenGLBindings::handle) {
 				
 				//printf ("Could not load %s (%s)\n",path, dlerror());
 				result = false;

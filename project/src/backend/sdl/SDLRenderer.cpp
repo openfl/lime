@@ -9,9 +9,19 @@ namespace lime {
 	SDLRenderer::SDLRenderer (Window* window) {
 		
 		currentWindow = window;
-		sdlRenderer = SDL_CreateRenderer (((SDLWindow*)window)->sdlWindow, -1, SDL_RENDERER_ACCELERATED);
+		sdlWindow = ((SDLWindow*)window)->sdlWindow;
 		
-		OpenGLBindings::Init ();
+		if (OpenGLBindings::Init ()) {
+			
+			SDL_GLContext context = SDL_GL_CreateContext (sdlWindow);
+			
+			if (context) {
+				
+				SDL_GL_MakeCurrent (sdlWindow, context);
+				
+			}
+			
+		}
 		
 	}
 	
@@ -25,7 +35,7 @@ namespace lime {
 	
 	void SDLRenderer::Flip () {
 		
-		SDL_RenderPresent (sdlRenderer);
+		SDL_GL_SwapWindow (sdlWindow);
 		
 	}
 	

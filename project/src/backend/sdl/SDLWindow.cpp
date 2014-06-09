@@ -1,5 +1,4 @@
 #include "SDLWindow.h"
-#include <stdio.h>
 
 
 namespace lime {
@@ -8,7 +7,7 @@ namespace lime {
 	SDLWindow::SDLWindow (Application* application) {
 		
 		currentApplication = application;
-		sdlWindow = SDL_CreateWindow ("Test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, 0);
+		sdlWindow = SDL_CreateWindow ("Test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_OPENGL);
 		
 	}
 	
