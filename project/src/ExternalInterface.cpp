@@ -9,8 +9,10 @@
 
 #include <hx/CFFI.h>
 #include <app/Application.h>
-#include <app/Window.h>
 #include <app/Renderer.h>
+#include <app/RenderEvent.h>
+#include <app/UpdateEvent.h>
+#include <app/Window.h>
 #include <ui/KeyEvent.h>
 #include <ui/MouseEvent.h>
 #include <ui/TouchEvent.h>
@@ -20,9 +22,10 @@
 namespace lime {
 	
 	
-	value lime_application_create () {
+	value lime_application_create (value callback) {
 		
 		Application* app = CreateApplication ();
+		Application::callback = new AutoGCRoot (callback);
 		return alloc_int ((intptr_t)app);
 		
 	}
@@ -32,6 +35,13 @@ namespace lime {
 		
 		Application* app = (Application*)(intptr_t)val_int (application);
 		return alloc_int (app->Exec ());
+		
+	}
+	
+	
+	value lime_application_get_ticks (value application) {
+		
+		return alloc_float (Application::GetTicks ());
 		
 	}
 	
@@ -80,6 +90,15 @@ namespace lime {
 	}
 	
 	
+	value lime_render_event_manager_register (value callback, value eventObject) {
+		
+		RenderEvent::callback = new AutoGCRoot (callback);
+		RenderEvent::eventObject = new AutoGCRoot (eventObject);
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_renderer_create (value window) {
 		
 		Renderer* renderer = CreateRenderer ((Window*)(intptr_t)val_int (window));
@@ -88,10 +107,27 @@ namespace lime {
 	}
 	
 	
+	value lime_renderer_flip (value renderer) {
+		
+		((Renderer*)(intptr_t)renderer)->Flip ();
+		return alloc_null (); 
+		
+	}
+	
+	
 	value lime_touch_event_manager_register (value callback, value eventObject) {
 		
 		TouchEvent::callback = new AutoGCRoot (callback);
 		TouchEvent::eventObject = new AutoGCRoot (eventObject);
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_update_event_manager_register (value callback, value eventObject) {
+		
+		UpdateEvent::callback = new AutoGCRoot (callback);
+		UpdateEvent::eventObject = new AutoGCRoot (eventObject);
 		return alloc_null ();
 		
 	}
@@ -114,14 +150,18 @@ namespace lime {
 	}
 	
 	
-	DEFINE_PRIM (lime_application_create, 0);
+	DEFINE_PRIM (lime_application_create, 1);
 	DEFINE_PRIM (lime_application_exec, 1);
+	DEFINE_PRIM (lime_application_get_ticks, 0);
 	DEFINE_PRIM (lime_key_event_manager_register, 2);
 	DEFINE_PRIM (lime_lzma_encode, 1);
 	DEFINE_PRIM (lime_lzma_decode, 1);
 	DEFINE_PRIM (lime_mouse_event_manager_register, 2);
 	DEFINE_PRIM (lime_renderer_create, 1);
+	DEFINE_PRIM (lime_renderer_flip, 1);
+	DEFINE_PRIM (lime_render_event_manager_register, 2);
 	DEFINE_PRIM (lime_touch_event_manager_register, 2);
+	DEFINE_PRIM (lime_update_event_manager_register, 2);
 	DEFINE_PRIM (lime_window_create, 1);
 	DEFINE_PRIM (lime_window_event_manager_register, 2);
 	

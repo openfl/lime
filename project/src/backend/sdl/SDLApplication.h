@@ -4,6 +4,8 @@
 
 #include <SDL.h>
 #include <app/Application.h>
+#include <app/RenderEvent.h>
+#include <app/UpdateEvent.h>
 #include <ui/KeyEvent.h>
 #include <ui/MouseEvent.h>
 #include <ui/TouchEvent.h>
@@ -32,8 +34,11 @@ namespace lime {
 			
 			bool active;
 			KeyEvent keyEvent;
+			Uint32 lastUpdate;
 			MouseEvent mouseEvent;
+			RenderEvent renderEvent;
 			TouchEvent touchEvent;
+			UpdateEvent updateEvent;
 			WindowEvent windowEvent;
 		
 	};

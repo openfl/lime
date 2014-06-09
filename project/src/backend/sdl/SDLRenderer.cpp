@@ -23,6 +23,13 @@ namespace lime {
 	}
 	
 	
+	void SDLRenderer::Flip () {
+		
+		SDL_RenderPresent (sdlRenderer);
+		
+	}
+	
+	
 	Renderer* CreateRenderer (Window* window) {
 		
 		return new SDLRenderer (window);
