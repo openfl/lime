@@ -1,14 +1,19 @@
 package lime.app;
 
 
+import lime.ui.IKeyEventListener;
 import lime.ui.IMouseEventListener;
 import lime.ui.ITouchEventListener;
+import lime.ui.KeyEventManager;
+import lime.ui.KeyEvent;
+import lime.ui.MouseEventManager;
 import lime.ui.MouseEvent;
+import lime.ui.TouchEventManager;
 import lime.ui.TouchEvent;
 import lime.system.System;
 
 
-class Application implements IMouseEventListener implements ITouchEventListener {
+class Application implements IKeyEventListener implements IMouseEventListener implements ITouchEventListener {
 	
 	
 	public var handle:Dynamic;
@@ -27,6 +32,14 @@ class Application implements IMouseEventListener implements ITouchEventListener 
 		handle = lime_application_create ();
 		#end
 		
+		new KeyEventManager ();
+		new MouseEventManager ();
+		new TouchEventManager ();
+		
+		KeyEventManager.addEventListener (this);
+		MouseEventManager.addEventListener (this);
+		TouchEventManager.addEventListener (this);
+		
 		var window = new Window (this);
 		var renderer = new Renderer (window);
 		
@@ -42,6 +55,8 @@ class Application implements IMouseEventListener implements ITouchEventListener 
 	}
 	
 	
+	public function onKeyDown (event:KeyEvent):Void {}
+	public function onKeyUp (event:KeyEvent):Void {}
 	public function onMouseDown (event:MouseEvent):Void {}
 	public function onMouseMove (event:MouseEvent):Void {}
 	public function onMouseUp (event:MouseEvent):Void {}

@@ -10,10 +10,12 @@
 #define CALLING_CONVENTION APIENTRY
 #endif
 
+#include "OpenGLBindings.h"
+
 
 #ifdef DECLARE_EXTENSION
 
-namespace lime { extern void *gOGLLibraryHandle; }
+namespace lime { extern void *OpenGLBindings::handle; }
 
 #define OGL_EXT(func,ret,args) \
    namespace lime { ret (CALLING_CONVENTION *func)args; }
@@ -35,9 +37,9 @@ namespace lime { extern void *gOGLLibraryHandle; }
 #elif defined(HX_LINUX)
    #define OGL_EXT(func,ret,args) \
    {\
-      *(void **)&lime::func = (void *)dlsym(lime::gOGLLibraryHandle,#func);\
+      *(void **)&lime::func = (void *)dlsym(lime::OpenGLBindings::handle,#func);\
       if (!func) \
-         *(void **)&lime::func = (void *)dlsym(lime::gOGLLibraryHandle,#func "ARB");\
+         *(void **)&lime::func = (void *)dlsym(lime::OpenGLBindings::handle,#func "ARB");\
    }
 #endif
 
