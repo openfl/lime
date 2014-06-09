@@ -43,6 +43,9 @@ namespace lime {
 			
 		}
 		
+		windowEvent.type = WINDOW_DEACTIVATE;
+		WindowEvent::Dispatch (&windowEvent);
+		
 		SDL_Quit ();
 		
 		return 0;
@@ -54,71 +57,6 @@ namespace lime {
 		
 		switch (event->type) {
 			
-			case SDL_QUIT:
-				
-				//quit
-				active = false;
-				break;
-			
-			case SDL_WINDOWEVENT:
-				
-				switch (event->window.event) {
-					
-					case SDL_WINDOWEVENT_SHOWN:
-						
-						//activate
-						break;
-					
-					case SDL_WINDOWEVENT_HIDDEN:
-						
-						//deactivate
-						break;
-					
-					case SDL_WINDOWEVENT_EXPOSED:
-						
-						//poll
-						break;
-					
-					case SDL_WINDOWEVENT_SIZE_CHANGED:
-						
-						//resize
-						break;
-					
-					case SDL_WINDOWEVENT_FOCUS_GAINED:
-						
-						//focus in
-						break;
-					
-					case SDL_WINDOWEVENT_FOCUS_LOST:
-						
-						//focus out
-						break;
-					
-					case SDL_WINDOWEVENT_CLOSE:
-						
-						active = false;
-						break;
-					
-					default:
-						
-						break;
-					
-				}
-			
-			case SDL_MOUSEMOTION:
-			case SDL_MOUSEBUTTONDOWN:
-			case SDL_MOUSEBUTTONUP:
-			case SDL_MOUSEWHEEL:
-				
-				ProcessMouseEvent (event);
-				break;
-			
-			case SDL_KEYDOWN:
-			case SDL_KEYUP:
-				
-				ProcessKeyEvent (event);
-				break;
-			
 			case SDL_JOYAXISMOTION:
 			case SDL_JOYBALLMOTION:
 			case SDL_JOYBUTTONDOWN:
@@ -128,6 +66,49 @@ namespace lime {
 			case SDL_JOYDEVICEREMOVED:
 				
 				//joy
+				break;
+			
+			case SDL_KEYDOWN:
+			case SDL_KEYUP:
+				
+				ProcessKeyEvent (event);
+				break;
+			
+			case SDL_MOUSEMOTION:
+			case SDL_MOUSEBUTTONDOWN:
+			case SDL_MOUSEBUTTONUP:
+			case SDL_MOUSEWHEEL:
+				
+				ProcessMouseEvent (event);
+				break;
+			
+			case SDL_WINDOWEVENT:
+				
+				switch (event->window.event) {
+					
+					case SDL_WINDOWEVENT_SHOWN:
+					case SDL_WINDOWEVENT_HIDDEN:
+						
+						ProcessWindowEvent (event);
+						break;
+					
+					case SDL_WINDOWEVENT_EXPOSED: /*poll*/ break;
+					case SDL_WINDOWEVENT_SIZE_CHANGED: /*resize*/ break;
+					case SDL_WINDOWEVENT_FOCUS_GAINED: /*focus in*/ break;
+					case SDL_WINDOWEVENT_FOCUS_LOST: /*focus out*/ break;
+					case SDL_WINDOWEVENT_CLOSE:
+						
+						active = false;
+						break;
+					
+				}
+				
+				break;
+			
+			case SDL_QUIT:
+				
+				//quit
+				active = false;
 				break;
 			
 		}
@@ -182,6 +163,24 @@ namespace lime {
 	void SDLApplication::ProcessTouchEvent (SDL_Event* event) {
 		
 		
+		
+	}
+	
+	
+	void SDLApplication::ProcessWindowEvent (SDL_Event* event) {
+		
+		if (WindowEvent::callback) {
+			
+			switch (event->window.event) {
+				
+				case SDL_WINDOWEVENT_SHOWN: windowEvent.type = WINDOW_ACTIVATE; break;
+				case SDL_WINDOWEVENT_HIDDEN: windowEvent.type = WINDOW_DEACTIVATE; break;
+				
+			}
+			
+			WindowEvent::Dispatch (&windowEvent);
+			
+		}
 		
 	}
 	

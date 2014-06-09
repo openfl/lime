@@ -4,16 +4,19 @@ package lime.app;
 import lime.ui.IKeyEventListener;
 import lime.ui.IMouseEventListener;
 import lime.ui.ITouchEventListener;
+import lime.ui.IWindowEventListener;
 import lime.ui.KeyEventManager;
 import lime.ui.KeyEvent;
 import lime.ui.MouseEventManager;
 import lime.ui.MouseEvent;
 import lime.ui.TouchEventManager;
 import lime.ui.TouchEvent;
+import lime.ui.WindowEventManager;
+import lime.ui.WindowEvent;
 import lime.system.System;
 
 
-class Application implements IKeyEventListener implements IMouseEventListener implements ITouchEventListener {
+class Application implements IKeyEventListener implements IMouseEventListener implements ITouchEventListener implements IWindowEventListener {
 	
 	
 	public var handle:Dynamic;
@@ -35,10 +38,12 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 		new KeyEventManager ();
 		new MouseEventManager ();
 		new TouchEventManager ();
+		new WindowEventManager ();
 		
 		KeyEventManager.addEventListener (this);
 		MouseEventManager.addEventListener (this);
 		TouchEventManager.addEventListener (this);
+		WindowEventManager.addEventListener (this);
 		
 		var window = new Window (this);
 		var renderer = new Renderer (window);
@@ -63,6 +68,8 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 	public function onTouchEnd (event:TouchEvent):Void {}
 	public function onTouchMove (event:TouchEvent):Void {}
 	public function onTouchStart (event:TouchEvent):Void {}
+	public function onWindowActivate (event:WindowEvent):Void {}
+	public function onWindowDeactivate (event:WindowEvent):Void {}
 	
 	
 	
