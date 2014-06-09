@@ -48,6 +48,9 @@
 			
 		</section>
 		
+		<file name="src/ui/KeyEvent.cpp" />
+		<file name="src/ui/MouseEvent.cpp" />
+		<file name="src/ui/TouchEvent.cpp" />
 		<file name="src/utils/ByteArray.cpp" />
 		
 	</files>

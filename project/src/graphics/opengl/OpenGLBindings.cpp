@@ -1,11 +1,12 @@
-#ifdef HX_LINUX
-#include <dlfcn.h>
-#endif
-
 #include <hx/CFFI.h>
 #include <utils/ByteArray.h>
 #include "OpenGL.h"
+#include "OpenGLBindings.h"
 #include <string>
+
+#ifdef HX_LINUX
+#include <dlfcn.h>
+#endif
 
 
 namespace lime {
@@ -1823,35 +1824,44 @@ namespace lime {
 	} DEFINE_PRIM(lime_gl_get_tex_parameter,2);
 	
 	
-	void *gOGLLibraryHandle;
-	bool extentions_init = false;
+	bool OpenGLBindings::initialized = false;
 	
-	bool InitOpenGLBindings ()
-	{
-	   static bool result = true;
-	   if (!extentions_init)
-	   {
-	      extentions_init = true;
-
-	      #ifdef HX_LINUX
-	      gOGLLibraryHandle = dlopen("libGL.so.1", RTLD_NOW|RTLD_GLOBAL);
-	      if (!gOGLLibraryHandle)
-	         gOGLLibraryHandle = dlopen("libGL.so", RTLD_NOW|RTLD_GLOBAL);
-	      if (!gOGLLibraryHandle)
-	      {
-	         //printf("Could not load %s (%s)\n",path, dlerror());
-	         result = false;
-	         return result;
-	      }
-	      #endif
-
-	      #ifdef NEED_EXTENSIONS
-	         #define GET_EXTENSION
-	         #include "OpenGLExtensions.h"
-	         #undef DEFINE_EXTENSION
-	      #endif
-	   }
-	   return result;
+	
+	bool OpenGLBindings::Init () {
+		
+		static bool result = true;
+		
+		if (!initialized) {
+			
+			initialized = true;
+			
+			#ifdef HX_LINUX
+			
+			handle = dlopen ("libGL.so.1", RTLD_NOW|RTLD_GLOBAL);
+			
+			if (!handle)
+				handle = dlopen ("libGL.so", RTLD_NOW|RTLD_GLOBAL);
+			
+			if (!handle) {
+				
+				//printf ("Could not load %s (%s)\n",path, dlerror());
+				result = false;
+				return result;
+				
+			}
+			
+			#endif
+			
+			#ifdef NEED_EXTENSIONS
+			#define GET_EXTENSION
+			#include "OpenGLExtensions.h"
+			#undef DEFINE_EXTENSION
+			#endif
+			
+		}
+		
+		return result;
+		
 	}
 	
 

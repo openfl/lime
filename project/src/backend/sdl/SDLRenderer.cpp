@@ -1,13 +1,9 @@
 #include "SDLWindow.h"
 #include "SDLRenderer.h"
-#include <SDL_opengl.h>
+#include "../../graphics/opengl/OpenGLBindings.h"
 
 
 namespace lime {
-	
-	
-	void InitOpenGLBindings ();
-	
 	
 	
 	SDLRenderer::SDLRenderer (Window* window) {
@@ -15,7 +11,7 @@ namespace lime {
 		currentWindow = window;
 		sdlRenderer = SDL_CreateRenderer (((SDLWindow*)window)->sdlWindow, -1, SDL_RENDERER_ACCELERATED);
 		
-		InitOpenGLBindings ();
+		OpenGLBindings::Init ();
 		
 	}
 	
