@@ -33,6 +33,7 @@ namespace lime {
 			void ProcessWindowEvent (SDL_Event* event);
 			
 			bool active;
+			Uint32 currentUpdate;
 			KeyEvent keyEvent;
 			Uint32 lastUpdate;
 			MouseEvent mouseEvent;
