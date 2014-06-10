@@ -36,7 +36,7 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 	}
 	
 	
-	public function create (config:Config) {
+	public function create (config:Config):Void {
 		
 		#if (cpp || neko)
 		handle = lime_application_create (null);
@@ -62,7 +62,7 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 	}
 	
 	
-	public function exec () {
+	public function exec ():Int {
 		
 		#if (cpp || neko)
 		return lime_application_exec (handle);
