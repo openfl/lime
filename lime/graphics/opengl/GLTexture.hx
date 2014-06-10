@@ -1,10 +1,20 @@
 package lime.graphics.opengl;
+#if js
+typedef GLTexture = js.html.webgl.Texture;
+#else
 
 
 class GLTexture extends GLObject {
- 
-    override function getType ():String {
-        return "Texture";
-    }
+	
+	
+	private override function getType ():String {
+		
+		return "Texture";
+		
+	}
     
-} //GLTexture
+    
+}
+
+
+#end

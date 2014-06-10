@@ -1,39 +1,119 @@
-#if lime_html5
-
-    import ::APP_MAIN_PACKAGE::::APP_MAIN_CLASS::;
-    import lime.Lime;
-
-    class ApplicationMain {
-        
-        public static function main () {
-
-                //Create the game class, give it the runtime            
-            var _main_ = Type.createInstance (::APP_MAIN::, []);
-                //Create an instance of lime
-            var _lime = new Lime();
-
-                //Create the config from the project.nmml info
-            var config : LimeConfig = {
-                host            : _main_,
-                fullscreen      : ::WIN_FULLSCREEN::,
-                resizable       : ::WIN_RESIZABLE::,
-                borderless      : ::WIN_BORDERLESS::,
-                antialiasing    : Std.int(::WIN_ANTIALIASING::),
-                stencil_buffer  : ::WIN_STENCIL_BUFFER::,
-                depth_buffer    : ::WIN_DEPTH_BUFFER::,
-                vsync           : ::WIN_VSYNC::,
-                fps             : Std.int(::WIN_FPS::),
-                width           : Std.int(::WIN_WIDTH::), 
-                height          : Std.int(::WIN_HEIGHT::), 
-                orientation     : "::WIN_ORIENTATION::",
-                title           : "::APP_TITLE::",
-            };
-
-                //Start up
-            _lime.init( _main_, config );
-            
-        } //main
-    } //ApplicationMain
+import ::APP_MAIN::;
 
 
-#end //lime_html5
+class ApplicationMain {
+	
+	
+	private var app:lime.app.Application;
+	
+	
+	@:keep @:expose("lime.embed")
+	public static function embed (elementName:String, width:Null<Int> = null, height:Null<Int> = null, background:String = null) {
+		
+		var element:js.html.HtmlElement = null;
+		
+		if (elementName != null) {
+			
+			element = cast js.Browser.document.getElementById (elementName);
+			
+		}
+		
+		var color = null;
+		
+		if (background != null) {
+			
+			background = StringTools.replace (background, "#", "");
+			
+			if (background.indexOf ("0x") > -1) {
+				
+				color = Std.parseInt (background);
+				
+			} else {
+				
+				color = Std.parseInt ("0x" + background);
+				
+			}
+			
+		}
+		
+		if (width == null) {
+			
+			width = 0;
+			
+		}
+		
+		if (height == null) {
+			
+			height = 0;
+			
+		}
+		
+		untyped __js__ ("
+			var lastTime = 0;
+			var vendors = ['ms', 'moz', 'webkit', 'o'];
+			for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+				window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+				window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] 
+										   || window[vendors[x]+'CancelRequestAnimationFrame'];
+			}
+			
+			if (!window.requestAnimationFrame)
+				window.requestAnimationFrame = function(callback, element) {
+					var currTime = new Date().getTime();
+					var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+					var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
+					  timeToCall);
+					lastTime = currTime + timeToCall;
+					return id;
+				};
+			
+			if (!window.cancelAnimationFrame)
+				window.cancelAnimationFrame = function(id) {
+					clearTimeout(id);
+				};
+			
+			window.requestAnimFrame = window.requestAnimationFrame;
+		");
+		
+		var app = new ::APP_MAIN:: ();
+		
+		var config:lime.app.Config = {
+			
+			antialiasing: Std.int (::WIN_ANTIALIASING::),
+			background: color,
+			borderless: ::WIN_BORDERLESS::,
+			depthBuffer: ::WIN_DEPTH_BUFFER::,
+			element: element,
+			fps: Std.int (::WIN_FPS::),
+			fullscreen: ::WIN_FULLSCREEN::,
+			height: height,
+			orientation: "::WIN_ORIENTATION::",
+			resizable: ::WIN_RESIZABLE::,
+			stencilBuffer: ::WIN_STENCIL_BUFFER::,
+			title: "::APP_TITLE::",
+			vsync: ::WIN_VSYNC::,
+			width: width,
+			
+		}
+		
+		app.create (config);
+		
+		var result = app.exec ();
+		
+		//#if sys
+		//Sys.exit (result);
+		//#end
+		
+	}
+	
+	
+	public static function main () {
+		
+		#if munit
+		embed (null, ::WIN_WIDTH::, ::WIN_HEIGHT::, "::WIN_FLASHBACKGROUND::");
+		#end
+		
+	}
+	
+	
+}

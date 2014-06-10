@@ -26,7 +26,9 @@ class Renderer {
 	
 	public static function flip ():Void {
 		
+		#if (cpp || neko)
 		lime_renderer_flip (instance.handle);
+		#end
 		
 	}
 	

@@ -1,10 +1,20 @@
 package lime.graphics.opengl;
+#if js
+typedef GLShader = js.html.webgl.Shader;
+#else
 
 
 class GLShader extends GLObject {
-
-    override function getType ():String {
-        return "Shader";
-    }
+	
+	
+	private override function getType ():String {
+		
+		return "Shader";
+		
+	}
     
-} //GLShader
+    
+}
+
+
+#end
