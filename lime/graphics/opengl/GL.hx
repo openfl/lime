@@ -9,106 +9,6 @@ import lime.utils.Int32Array;
 import lime.system.System;
 
 
-
-typedef GLActiveInfo = {
-
-    size : Int,
-    type : Int,
-    name : String
-
-} //GLActiveInfo
-
-
-class GLBuffer extends GLObject {
-
-    override function getType ():String {
-        return "Buffer";
-    }
-
-} //GLBuffer
-
-
-typedef GLContextAttributes = {
-    
-    alpha:Bool, 
-    depth:Bool,
-    stencil:Bool,
-    antialias:Bool,
-    premultipliedAlpha:Bool,
-    preserveDrawingBuffer:Bool
-    
-} //GLContextAttributes
-
-
-class GLFramebuffer extends GLObject {
-
-    override function getType () : String {
-        return "Framebuffer";
-    }
-
-} //GLFramebuffer
-
-
-typedef GLUniformLocation = Int;
-
-
-class GLProgram extends GLObject {
-        
-    public var shaders:Array<GLShader>;
-    
-    public function new( version:Int, id:Dynamic ) {
-
-        super (version, id);
-        shaders = new Array<GLShader> ();
-
-    } //new
-    
-    public function attach( shader:GLShader ) : Void {
-        shaders.push(shader);
-    } //attach
-    
-    public function getShaders() : Array<GLShader> {
-        return shaders.copy();
-    } //getShaders
-    
-    override function getType ():String {
-        return "Program";
-    } //getType
-
-} //GLProgram
-
-
-class GLRenderbuffer extends GLObject {
-
-    override function getType ():String {
-        return "Renderbuffer";
-    }
-    
-} //GLRenderbuffer
-
-
-class GLShader extends GLObject {
-
-    override function getType ():String {
-        return "Shader";
-    }
-    
-} //GLShader
-
-
-class GLTexture extends GLObject {
- 
-    override function getType ():String {
-        return "Texture";
-    }
-    
-} //GLTexture
-
-
-
-
-
-
 class GL {
     
     /* ClearBufferMask */
@@ -829,7 +729,7 @@ class GL {
         return lime_gl_get_attrib_location(program.id, name);
     }
 
-    public static function getBufferParameter(target:Int, pname:Int):Dynamic 
+    public static function getBufferParameter(target:Int, pname:Int):Int /*Dynamic*/
     {
         return lime_gl_get_buffer_paramerter(target, pname);
     }
@@ -854,7 +754,7 @@ class GL {
         // return lime_gl_get_extension(name);
     }
 
-    public static function getFramebufferAttachmentParameter(target:Int, attachment:Int, pname:Int):Dynamic 
+    public static function getFramebufferAttachmentParameter(target:Int, attachment:Int, pname:Int):Int /*Dynamic*/ 
     {
         return lime_gl_get_framebuffer_attachment_parameter(target, attachment, pname);
     }
@@ -874,7 +774,7 @@ class GL {
         return lime_gl_get_program_parameter(program.id, pname);
     }
 
-    public static function getRenderbufferParameter(target:Int, pname:Int):Dynamic 
+    public static function getRenderbufferParameter(target:Int, pname:Int):Int /*Dynamic*/
     {
         return lime_gl_get_render_buffer_parameter(target, pname);
     }
@@ -906,7 +806,7 @@ class GL {
         return result;
     }
 
-    public static function getTexParameter(target:Int, pname:Int):Dynamic 
+    public static function getTexParameter(target:Int, pname:Int):Int /*Dynamic*/
     {
         return lime_gl_get_tex_parameter(target, pname);
     }
@@ -916,12 +816,12 @@ class GL {
         return lime_gl_get_uniform(program.id, location);
     }
 
-    public static function getUniformLocation(program:GLProgram, name:String):Dynamic 
+    public static function getUniformLocation(program:GLProgram, name:String):GLUniformLocation 
     {
         return lime_gl_get_uniform_location(program.id, name);
     }
 
-    public static function getVertexAttrib(index:Int, pname:Int):Dynamic 
+    public static function getVertexAttrib(index:Int, pname:Int):Int /*Dynamic*/
     {
         return lime_gl_get_vertex_attrib(index, pname);
     }
@@ -1406,52 +1306,3 @@ typedef ShaderPrecisionFormat =
 };
 
 
-class GLObject {
-        
-        /** The native GL handle/id. read only */
-    public var id (default, null) : Dynamic;
-        /** The invalidated state. read only */
-    public var invalidated (get, null) : Bool;
-        /** The valid state. read only */
-    public var valid (get, null) : Bool;
-    
-    var version:Int;
-        
-    public function new (version:Int, id:Dynamic) {
-        
-        this.version = version;
-        this.id = id;
-        
-    } //new
-
-    function getType() : String {
-        return "GLObject";
-    } //getType
-    
-    public function invalidate() : Void {
-        id = null;
-    } //invalidate
-    
-    public function isValid() : Bool {
-        return id != null && version == GL.version;
-    } //isValid
-    
-    public function isInvalid() : Bool {
-        return !isValid ();
-    } //isInvalid
-    
-    public function toString() : String {
-        return getType() + "(" + id + ")";
-    } //toString
-    
-// Getters & Setters
-    
-    function get_invalidated() : Bool {
-        return isInvalid ();
-    } //get_invalidated
-    
-    function get_valid() : Bool {
-        return isValid ();
-    } //get_valid
-    
-}
