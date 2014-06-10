@@ -14,6 +14,8 @@ class System {
 	
 	static private function findHaxeLib (library:String):String {
 		
+		#if sys
+		
 		try {
 			
 			var proc = new Process ("haxelib", [ "path", library ]);
@@ -48,12 +50,16 @@ class System {
 			
 		} catch (e:Dynamic) { }
 		
+		#end
+		
 		return "";
 		
 	}
 	
 	
 	public static function load (library:String, method:String, args:Int = 0):Dynamic {
+		
+		#if sys
 		
 		#if (iphone || emscripten || android)
 		return cpp.Lib.load (library, method, args);
@@ -125,6 +131,12 @@ class System {
 		}
 		#end
 		
+		#else
+		
+		var result = null;
+		
+		#end
+		
 		return result;
 		
 	}
@@ -132,17 +144,23 @@ class System {
 	
 	private static function sysName ():String {
 		
+		#if sys
 		#if cpp
 		var sys_string = cpp.Lib.load ("std", "sys_string", 0);
 		return sys_string ();
 		#else
 		return Sys.systemName ();
 		#end
+		#else
+		return null;
+		#end
 		
 	}
 	
 	
 	private static function tryLoad (name:String, library:String, func:String, args:Int):Dynamic {
+		
+		#if sys
 		
 		try {
 			
@@ -168,12 +186,16 @@ class System {
 			
 		}
 		
+		#end
+		
 		return null;
 		
 	}
 	
 	
 	private static function loaderTrace (message:String) {
+		
+		#if sys
 		
 		#if cpp
 		var get_env = cpp.Lib.load ("std", "get_env", 1);
@@ -187,6 +209,8 @@ class System {
 			Sys.println (message);
 			
 		}
+		
+		#end
 		
 	}
 	

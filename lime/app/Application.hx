@@ -57,6 +57,8 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 		WindowEventManager.addEventListener (this);
 		
 		var window = new Window (this);
+		window.create (config);
+		
 		var renderer = new Renderer (window);
 		
 	}
@@ -66,6 +68,8 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 		
 		#if (cpp || neko)
 		return lime_application_exec (handle);
+		#else
+		return 0;
 		#end
 		
 	}
