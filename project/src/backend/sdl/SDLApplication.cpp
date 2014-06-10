@@ -16,7 +16,7 @@ namespace lime {
 	
 	SDLApplication::SDLApplication () {
 		
-		SDL_Init (SDL_INIT_VIDEO);
+		SDL_Init (SDL_INIT_VIDEO | SDL_INIT_TIMER);
 		
 	}
 	
@@ -28,14 +28,39 @@ namespace lime {
 	}
 	
 	
+	static SDL_TimerID timerID = 0;
+	bool timerActive = false;
+	
+	
+	Uint32 OnTimer (Uint32 interval, void *) {
+		
+		SDL_Event event;
+		SDL_UserEvent userevent;
+		userevent.type = SDL_USEREVENT;
+		userevent.code = 0;
+		userevent.data1 = NULL;
+		userevent.data2 = NULL;
+		event.type = SDL_USEREVENT;
+		event.user = userevent;
+		
+		timerActive = false;
+		timerID = 0;
+		
+		SDL_PushEvent (&event);
+		
+		return 0;
+		
+	}
+	
+	
 	int SDLApplication::Exec () {
 		
 		SDL_Event event;
 		active = true;
-		bool firstTime = true;
 		lastUpdate = SDL_GetTicks ();
-		Uint32 currentUpdate = 0;
-		int deltaTime = 0;
+		
+		bool firstTime = true;
+		Uint32 nextUpdate = lastUpdate;
 		
 		while (active) {
 			
@@ -44,6 +69,14 @@ namespace lime {
 			while (active && (firstTime || SDL_WaitEvent (&event))) {
 				
 				firstTime = false;
+				
+				if (timerActive && timerID) {
+					
+					SDL_RemoveTimer (timerID);
+					timerActive = false;
+					timerID = 0;
+					
+				}
 				
 				HandleEvent (&event);
 				event.type = -1;
@@ -58,14 +91,15 @@ namespace lime {
 				}
 				
 				currentUpdate = SDL_GetTicks ();
-				deltaTime = currentUpdate - lastUpdate;
 				
-				if (deltaTime > 16) {
+				if (currentUpdate - lastUpdate < 16) {
 					
-					updateEvent.deltaTime = deltaTime;
-					UpdateEvent::Dispatch (&updateEvent);
+					timerActive = true;
+					timerID = SDL_AddTimer (lastUpdate + 16 - currentUpdate, OnTimer, 0);
 					
-					RenderEvent::Dispatch (&renderEvent);
+				} else {
+					
+					OnTimer (0, 0);
 					
 				}
 				
@@ -86,6 +120,14 @@ namespace lime {
 	void SDLApplication::HandleEvent (SDL_Event* event) {
 		
 		switch (event->type) {
+			
+			case SDL_USEREVENT:
+				
+				currentUpdate = SDL_GetTicks ();
+				updateEvent.deltaTime = currentUpdate - lastUpdate;
+				UpdateEvent::Dispatch (&updateEvent);
+				RenderEvent::Dispatch (&renderEvent);
+				break;
 			
 			case SDL_JOYAXISMOTION:
 			case SDL_JOYBALLMOTION:
