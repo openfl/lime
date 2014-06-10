@@ -1,20 +1,20 @@
 package lime.ui;
 
 
+import lime.app.EventManager;
 import lime.system.System;
 
 
-class WindowEventManager {
+class WindowEventManager extends EventManager<IWindowEventListener> {
 	
 	
 	private static var instance:WindowEventManager;
 	
-	private var listeners:Array<IWindowEventListener>;
-	
 	
 	public function new () {
 		
-		listeners = new Array ();
+		super ();
+		
 		instance = this;
 		
 		#if (cpp || neko)
@@ -24,11 +24,11 @@ class WindowEventManager {
 	}
 	
 	
-	public static function addEventListener (listener:IWindowEventListener):Void {
+	public static function addEventListener (listener:IWindowEventListener, priority:Int = 0):Void {
 		
 		if (instance != null) {
 			
-			instance.listeners.push (listener);
+			instance._addEventListener (listener, priority);
 			
 		}
 		
@@ -56,6 +56,17 @@ class WindowEventManager {
 					listener.onWindowDeactivate (event);
 					
 				}
+			
+		}
+		
+	}
+	
+	
+	public static function removeEventListener (listener:IWindowEventListener):Void {
+		
+		if (instance != null) {
+			
+			instance._removeEventListener (listener);
 			
 		}
 		
