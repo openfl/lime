@@ -1,5 +1,5 @@
-#ifndef LIME_APP_WINDOW_H
-#define LIME_APP_WINDOW_H
+#ifndef LIME_UI_WINDOW_H
+#define LIME_UI_WINDOW_H
 
 
 #include <app/Application.h>

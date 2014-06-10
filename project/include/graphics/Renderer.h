@@ -1,8 +1,8 @@
-#ifndef LIME_APP_RENDERER_H
-#define LIME_APP_RENDERER_H
+#ifndef LIME_GRAPHICS_RENDERER_H
+#define LIME_GRAPHICS_RENDERER_H
 
 
-#include <app/Window.h>
+#include <ui/Window.h>
 
 
 namespace lime {

@@ -3,7 +3,7 @@
 
 
 #include <SDL.h>
-#include <app/Renderer.h>
+#include <graphics/Renderer.h>
 
 
 namespace lime {

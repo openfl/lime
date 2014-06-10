@@ -9,13 +9,13 @@
 
 #include <hx/CFFI.h>
 #include <app/Application.h>
-#include <app/Renderer.h>
-#include <app/RenderEvent.h>
 #include <app/UpdateEvent.h>
-#include <app/Window.h>
+#include <graphics/Renderer.h>
+#include <graphics/RenderEvent.h>
 #include <ui/KeyEvent.h>
 #include <ui/MouseEvent.h>
 #include <ui/TouchEvent.h>
+#include <ui/Window.h>
 #include <ui/WindowEvent.h>
 
 

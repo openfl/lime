@@ -4,8 +4,8 @@
 
 #include <SDL.h>
 #include <app/Application.h>
-#include <app/RenderEvent.h>
 #include <app/UpdateEvent.h>
+#include <graphics/RenderEvent.h>
 #include <ui/KeyEvent.h>
 #include <ui/MouseEvent.h>
 #include <ui/TouchEvent.h>

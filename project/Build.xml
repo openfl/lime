@@ -48,8 +48,8 @@
 			
 		</section>
 		
-		<file name="src/app/RenderEvent.cpp" />
 		<file name="src/app/UpdateEvent.cpp" />
+		<file name="src/graphics/RenderEvent.cpp" />
 		<file name="src/ui/KeyEvent.cpp" />
 		<file name="src/ui/MouseEvent.cpp" />
 		<file name="src/ui/TouchEvent.cpp" />

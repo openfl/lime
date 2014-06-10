@@ -1,6 +1,7 @@
-package lime.app;
+package lime.ui;
 
 
+import lime.app.Application;
 import lime.system.System;
 
 
