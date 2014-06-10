@@ -5,29 +5,26 @@ import lime.system.System;
 import lime.ui.Window;
 
 
-class Renderer {
+class Renderer implements IRenderEventListener {
 	
 	
 	public var handle:Dynamic;
-	
-	private static var instance:Renderer;
 	
 	
 	public function new (window:Window) {
 		
 		#if (cpp || neko)
 		handle = lime_renderer_create (window.handle);
+		RenderEventManager.addEventListener (this, -99999999);
 		#end
-		
-		instance = this;
 		
 	}
 	
 	
-	public static function flip ():Void {
+	public function onRender (event:RenderEvent):Void {
 		
 		#if (cpp || neko)
-		lime_renderer_flip (instance.handle);
+		lime_renderer_flip (handle);
 		#end
 		
 	}

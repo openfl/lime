@@ -4,17 +4,16 @@ package lime.app;
 import lime.system.System;
 
 
-class UpdateEventManager {
+class UpdateEventManager extends EventManager<IUpdateEventListener> {
 	
 	
 	private static var instance:UpdateEventManager;
 	
-	private var listeners:Array<IUpdateEventListener>;
-	
 	
 	public function new () {
 		
-		listeners = new Array ();
+		super ();
+		
 		instance = this;
 		
 		#if (cpp || neko)
@@ -24,11 +23,11 @@ class UpdateEventManager {
 	}
 	
 	
-	public static function addEventListener (listener:IUpdateEventListener):Void {
+	public static function addEventListener (listener:IUpdateEventListener, priority:Int = 0):Void {
 		
 		if (instance != null) {
 			
-			instance.listeners.push (listener);
+			instance._addEventListener (listener, priority);
 			
 		}
 		
@@ -42,6 +41,17 @@ class UpdateEventManager {
 		for (listener in listeners) {
 			
 			listener.onUpdate (event);
+			
+		}
+		
+	}
+	
+	
+	public static function removeEventListener (listener:IUpdateEventListener):Void {
+		
+		if (instance != null) {
+			
+			instance._removeEventListener (listener);
 			
 		}
 		

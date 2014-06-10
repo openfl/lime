@@ -15,7 +15,6 @@ import js.Browser;
 #end
 
 
-@:access(lime.graphics.RenderEventManager)
 class Window {
 	
 	
@@ -23,6 +22,7 @@ class Window {
 	public var height:Int;
 	public var width:Int;
 	
+	private var application:Application;
 	#if js
 	private var canvas:CanvasElement;
 	#end
@@ -30,7 +30,7 @@ class Window {
 	
 	public function new (application:Application) {
 		
-		
+		this.application = application;
 		
 	}
 	
@@ -171,24 +171,12 @@ class Window {
 		
 		Browser.window.requestAnimationFrame (cast __render);
 		*/
-		render ();
 		
 		#elseif (cpp || neko)
 		handle = lime_window_create (application.handle);
 		#end
 		
 	}
-	
-	
-	#if js
-	private function render ():Void {
-		
-		RenderEventManager.instance.handleEvent (new RenderEvent ());
-		
-		Browser.window.requestAnimationFrame (cast render);
-		
-	}
-	#end
 	
 	
 	#if (cpp || neko)

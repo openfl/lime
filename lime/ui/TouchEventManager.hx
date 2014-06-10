@@ -1,20 +1,20 @@
 package lime.ui;
 
 
+import lime.app.EventManager;
 import lime.system.System;
 
 
-class TouchEventManager {
+class TouchEventManager extends EventManager<ITouchEventListener> {
 	
 	
 	private static var instance:TouchEventManager;
 	
-	private var listeners:Array<ITouchEventListener>;
-	
 	
 	public function new () {
 		
-		listeners = new Array ();
+		super ();
+		
 		instance = this;
 		
 		#if (cpp || neko)
@@ -24,11 +24,11 @@ class TouchEventManager {
 	}
 	
 	
-	public static function addEventListener (listener:ITouchEventListener):Void {
+	public static function addEventListener (listener:ITouchEventListener, priority:Int = 0):Void {
 		
 		if (instance != null) {
 			
-			instance.listeners.push (listener);
+			instance._addEventListener (listener, priority);
 			
 		}
 		
@@ -64,6 +64,17 @@ class TouchEventManager {
 					listener.onTouchMove (event);
 					
 				}
+			
+		}
+		
+	}
+	
+	
+	public static function removeEventListener (listener:ITouchEventListener):Void {
+		
+		if (instance != null) {
+			
+			instance._removeEventListener (listener);
 			
 		}
 		

@@ -1,20 +1,20 @@
 package lime.ui;
 
 
+import lime.app.EventManager;
 import lime.system.System;
 
 
-class KeyEventManager {
+class KeyEventManager extends EventManager<IKeyEventListener> {
 	
 	
 	private static var instance:KeyEventManager;
 	
-	private var listeners:Array<IKeyEventListener>;
-	
 	
 	public function new () {
 		
-		listeners = new Array ();
+		super ();
+		
 		instance = this;
 		
 		#if (cpp || neko)
@@ -24,11 +24,11 @@ class KeyEventManager {
 	}
 	
 	
-	public static function addEventListener (listener:IKeyEventListener):Void {
+	public static function addEventListener (listener:IKeyEventListener, priority:Int = 0):Void {
 		
 		if (instance != null) {
 			
-			instance.listeners.push (listener);
+			instance._addEventListener (listener, priority);
 			
 		}
 		
@@ -56,6 +56,17 @@ class KeyEventManager {
 					listener.onKeyUp (event);
 					
 				}
+			
+		}
+		
+	}
+	
+	
+	public static function removeEventListener (listener:IKeyEventListener):Void {
+		
+		if (instance != null) {
+			
+			instance._removeEventListener (listener);
 			
 		}
 		

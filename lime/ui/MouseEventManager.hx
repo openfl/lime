@@ -1,20 +1,20 @@
 package lime.ui;
 
 
+import lime.app.EventManager;
 import lime.system.System;
 
 
-class MouseEventManager {
+class MouseEventManager extends EventManager<IMouseEventListener> {
 	
 	
 	private static var instance:MouseEventManager;
 	
-	private var listeners:Array<IMouseEventListener>;
-	
 	
 	public function new () {
 		
-		listeners = new Array ();
+		super ();
+		
 		instance = this;
 		
 		#if (cpp || neko)
@@ -24,11 +24,11 @@ class MouseEventManager {
 	}
 	
 	
-	public static function addEventListener (listener:IMouseEventListener):Void {
+	public static function addEventListener (listener:IMouseEventListener, priority:Int = 0):Void {
 		
 		if (instance != null) {
 			
-			instance.listeners.push (listener);
+			instance._addEventListener (listener, priority);
 			
 		}
 		
@@ -66,6 +66,17 @@ class MouseEventManager {
 				}
 			
 			default:
+			
+		}
+		
+	}
+	
+	
+	public static function removeEventListener (listener:IMouseEventListener):Void {
+		
+		if (instance != null) {
+			
+			instance._removeEventListener (listener);
 			
 		}
 		
