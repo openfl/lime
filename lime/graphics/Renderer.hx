@@ -1,7 +1,8 @@
-package lime.app;
+package lime.graphics;
 
 
 import lime.system.System;
+import lime.ui.Window;
 
 
 class Renderer {

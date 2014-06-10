@@ -1,4 +1,4 @@
-package lime.app;
+package lime.graphics;
 
 
 class RenderEvent {

@@ -1,19 +1,24 @@
 package lime.app;
 
 
+import lime.graphics.IRenderEventListener;
+import lime.graphics.Renderer;
+import lime.graphics.RenderEvent;
+import lime.graphics.RenderEventManager;
+import lime.system.System;
 import lime.ui.IKeyEventListener;
 import lime.ui.IMouseEventListener;
 import lime.ui.ITouchEventListener;
 import lime.ui.IWindowEventListener;
-import lime.ui.KeyEventManager;
 import lime.ui.KeyEvent;
-import lime.ui.MouseEventManager;
+import lime.ui.KeyEventManager;
 import lime.ui.MouseEvent;
-import lime.ui.TouchEventManager;
+import lime.ui.MouseEventManager;
 import lime.ui.TouchEvent;
-import lime.ui.WindowEventManager;
+import lime.ui.TouchEventManager;
+import lime.ui.Window;
 import lime.ui.WindowEvent;
-import lime.system.System;
+import lime.ui.WindowEventManager;
 
 
 class Application implements IKeyEventListener implements IMouseEventListener implements IRenderEventListener implements ITouchEventListener implements IUpdateEventListener implements IWindowEventListener {
