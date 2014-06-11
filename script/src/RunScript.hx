@@ -231,16 +231,8 @@ class RunScript {
 			
 		}
 		
-		var buildSharedLibs = (path == PathHelper.combine (limeDirectory, "project"));
+		var buildSharedLibs = false;
 		var sharedLibsPath = "";
-
-			//only request the path from shared libs if it's required, 
-			//anything that doesn't use nme-dev would trip up on this otherwise
-		if (buildSharedLibs) {
-			
-			sharedLibsPath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("nme-dev"), buildSharedLibs), "project");
-
-		}
 		
 		if (target == "wiiu" && path == PathHelper.combine (limeDirectory, "project")) {
 			
