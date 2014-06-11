@@ -15,16 +15,19 @@ class WindowEventManager extends EventManager<IWindowEventListener> {
 	
 	private static var instance:WindowEventManager;
 	
+	private var windowEvent:WindowEvent;
+	
 	
 	public function new () {
 		
 		super ();
 		
 		instance = this;
+		windowEvent = new WindowEvent ();
 		
 		#if (cpp || neko)
 		
-		lime_window_event_manager_register (handleEvent, new WindowEvent ());
+		lime_window_event_manager_register (handleEvent, windowEvent);
 		
 		#end
 		
@@ -40,6 +43,16 @@ class WindowEventManager extends EventManager<IWindowEventListener> {
 		}
 		
 	}
+	
+	
+	#if js
+	private function handleDOMEvent (event:js.html.Event):Void {
+		
+		windowEvent.type = (event.type == "focus" ? WINDOW_ACTIVATE : WINDOW_DEACTIVATE);
+		handleEvent (windowEvent);
+		
+	}
+	#end
 	
 	
 	private function handleEvent (event:WindowEvent):Void {
@@ -74,19 +87,8 @@ class WindowEventManager extends EventManager<IWindowEventListener> {
 		if (instance != null) {
 			
 			#if js
-			
-			Browser.window.addEventListener ("focus", function (event) {
-				
-				instance.handleEvent (new WindowEvent (WINDOW_ACTIVATE));
-				
-			}, false);
-			
-			Browser.window.addEventListener ("blur", function (event) {
-				
-				instance.handleEvent (new WindowEvent (WINDOW_DEACTIVATE));
-				
-			}, false);
-			
+			Browser.window.addEventListener ("focus", instance.handleDOMEvent, false);
+			Browser.window.addEventListener ("blur", instance.handleDOMEvent, false);
 			#end
 			
 		}
