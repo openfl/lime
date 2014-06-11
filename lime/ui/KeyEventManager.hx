@@ -4,7 +4,12 @@ package lime.ui;
 import lime.app.EventManager;
 import lime.system.System;
 
+#if js
+import js.Browser;
+#end
 
+
+@:allow(lime.ui.Window)
 class KeyEventManager extends EventManager<IKeyEventListener> {
 	
 	
@@ -18,7 +23,9 @@ class KeyEventManager extends EventManager<IKeyEventListener> {
 		instance = this;
 		
 		#if (cpp || neko)
+		
 		lime_key_event_manager_register (handleEvent, new KeyEvent ());
+		
 		#end
 		
 	}
@@ -56,6 +63,31 @@ class KeyEventManager extends EventManager<IKeyEventListener> {
 					listener.onKeyUp (event);
 					
 				}
+			
+		}
+		
+	}
+	
+	
+	private static function registerWindow (_):Void {
+		
+		if (instance != null) {
+			
+			#if js
+			
+			Browser.window.addEventListener ("keydown", function (event) {
+				
+				instance.handleEvent (new KeyEvent (KEY_DOWN, 0));
+				
+			}, false);
+			
+			Browser.window.addEventListener ("keyup", function (event) {
+				
+				instance.handleEvent (new KeyEvent (KEY_UP, 0));
+				
+			}, false);
+			
+			#end
 			
 		}
 		

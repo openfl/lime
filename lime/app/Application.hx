@@ -1,24 +1,9 @@
 package lime.app;
 
 
-import lime.graphics.IRenderEventListener;
-import lime.graphics.Renderer;
-import lime.graphics.RenderEvent;
-import lime.graphics.RenderEventManager;
-import lime.system.System;
-import lime.ui.IKeyEventListener;
-import lime.ui.IMouseEventListener;
-import lime.ui.ITouchEventListener;
-import lime.ui.IWindowEventListener;
-import lime.ui.KeyEvent;
-import lime.ui.KeyEventManager;
-import lime.ui.MouseEvent;
-import lime.ui.MouseEventManager;
-import lime.ui.TouchEvent;
-import lime.ui.TouchEventManager;
-import lime.ui.Window;
-import lime.ui.WindowEvent;
-import lime.ui.WindowEventManager;
+import lime.graphics.*;
+import lime.system.*;
+import lime.ui.*;
 
 
 class Application implements IKeyEventListener implements IMouseEventListener implements IRenderEventListener implements ITouchEventListener implements IUpdateEventListener implements IWindowEventListener {
@@ -26,17 +11,30 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 	
 	public var handle:Dynamic;
 	
+	private var config:Config;
 	private var lastUpdate:Int;
+	private var windows:Array<Window>;
 	
 	
 	public function new () {
 		
 		lastUpdate = 0;
+		windows = new Array ();
+		
+	}
+	
+	
+	public function addWindow (window:Window):Void {
+		
+		windows.push (window);
+		window.create ();
 		
 	}
 	
 	
 	public function create (config:Config):Void {
+		
+		this.config = config;
 		
 		#if (cpp || neko)
 		handle = lime_application_create (null);
@@ -57,9 +55,16 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 		WindowEventManager.addEventListener (this);
 		
 		var window = new Window (this);
-		window.create (config);
-		
 		var renderer = new Renderer (window);
+		
+		window.width = config.width;
+		window.height = config.height;
+		
+		#if js
+		window.element = config.element;
+		#end
+		
+		addWindow (window);
 		
 	}
 	
