@@ -34,9 +34,6 @@
 		<include haxelib="lime-tools" unless="openfl" />
 		<haxelib name="lime-tools" if="setup" />
 		
-		<haxelib name="nme" if="dev setup" />
-		<haxelib name="nme-dev" if="dev setup" />
-		
 	</section>
 	
 	<templatePath name="templates" />
