@@ -4,6 +4,10 @@ package lime.ui;
 import lime.app.EventManager;
 import lime.system.System;
 
+#if js
+import js.Browser;
+#end
+
 
 @:allow(lime.ui.Window)
 class MouseEventManager extends EventManager<IMouseEventListener> {
@@ -131,6 +135,15 @@ class MouseEventManager extends EventManager<IMouseEventListener> {
 			window.element.addEventListener ("mousemove", instance.handleDOMEvent, true);
 			window.element.addEventListener ("mouseup", instance.handleDOMEvent, true);
 			//window.element.addEventListener ("mousewheel", handleDOMEvent, true);
+			
+			// Disable image drag on Firefox
+			/*Browser.document.addEventListener ("dragstart", function (e) {
+				if (e.target.nodeName.toLowerCase() == "img") {
+					e.preventDefault();
+					return false;
+				}
+				return true;
+			}, false);*/
 			#end
 			
 		}
