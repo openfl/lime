@@ -4,6 +4,7 @@ package lime.ui;
 import lime.app.Application;
 import lime.app.Config;
 import lime.app.UpdateEventManager;
+import lime.graphics.Renderer;
 import lime.graphics.RenderEvent;
 import lime.graphics.RenderEventManager;
 import lime.system.System;
@@ -22,6 +23,7 @@ class Window {
 	
 	public static var instance:Window;
 	
+	public var currentRenderer:Renderer;
 	#if js
 	public var element:HtmlElement;
 	#end
@@ -188,6 +190,12 @@ class Window {
 		TouchEventManager.registerWindow (this);
 		UpdateEventManager.registerWindow (this);
 		WindowEventManager.registerWindow (this);
+		
+		if (currentRenderer != null) {
+			
+			currentRenderer.create ();
+			
+		}
 		
 	}
 	

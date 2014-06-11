@@ -2,11 +2,11 @@
 #define LIME_UI_WINDOW_H
 
 
-#include <app/Application.h>
-
 #ifdef CreateWindow
 #undef CreateWindow
 #endif
+
+#include <app/Application.h>
 
 
 namespace lime {
