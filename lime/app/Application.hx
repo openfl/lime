@@ -12,14 +12,12 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 	public var handle:Dynamic;
 	
 	private var config:Config;
-	private var delegate:EventDelegate;
 	private var lastUpdate:Int;
 	private var windows:Array<Window>;
 	
 	
 	public function new () {
 		
-		delegate = new EventDelegate (this);
 		lastUpdate = 0;
 		windows = new Array ();
 		
@@ -49,9 +47,6 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 		new UpdateEventManager ();
 		new WindowEventManager ();
 		
-		RenderEventManager.addEventListener (delegate);
-		UpdateEventManager.addEventListener (delegate);
-		
 		KeyEventManager.addEventListener (this);
 		MouseEventManager.addEventListener (this);
 		TouchEventManager.addEventListener (this);
@@ -68,6 +63,8 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 		#end
 		
 		addWindow (window);
+		
+		var eventDelegate = new EventDelegate (this);
 		
 	}
 	
@@ -102,7 +99,7 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 	}
 	
 	
-	public function update ():Void {
+	public function update (deltaTime:Int):Void {
 		
 		
 		
@@ -130,6 +127,9 @@ private class EventDelegate implements IRenderEventListener implements IUpdateEv
 		
 		this.application = application;
 		
+		RenderEventManager.addEventListener (this, -9999999);
+		UpdateEventManager.addEventListener (this, -9999999);
+		
 	}
 	
 	
@@ -147,12 +147,20 @@ private class EventDelegate implements IRenderEventListener implements IUpdateEv
 			
 		}
 		
+		#if (js && stats)
+		application.windows[0].stats.end ();
+		#end
+		
 	}
 	
 	
 	public function onUpdate (event:UpdateEvent):Void {
 		
-		application.update ();
+		#if (js && stats)
+		application.windows[0].stats.begin ();
+		#end
+		
+		application.update (event.deltaTime);
 		
 	}
 	
