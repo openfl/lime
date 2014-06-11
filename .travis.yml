@@ -1,61 +1,25 @@
-language: objective-c
-#env:
-# global:
-#  - ARTIFACTS_AWS_REGION=us-west-2
-#  - ARTIFACTS_S3_BUCKET=lime-artifacts
-#  - secure: DXYUyMpbecZVlLUHHSrTFyUeaOor2hBIktXgv2AnwbzTgiJeFshUbWA0hu2j3pnGDNlJJpmrdyKJPTsT1hGFZ9tLm5J6Q8j4wA04GBp+dJl0+7RBs/R767XcyIRkJNw4a1hZJCQgv++wWvJ4GhW/KM1uUUHL5dh+McfNBz6SXLs=
-#  - secure: f0ps0Vor8x1p6rdzpAP67o6HkMIO2e3qFUiYIj+QJXkdzmmy7V3UHW3NxkOerzsiVkxksmB2MOocRCVlseWP72i/4qPrw/r8BpkmkO1SY/HdR1yv0g0DHwJw8i/zhRF390dvNQh/HR0SZrAeDQvKapwzkvQkUvwwp51O5xBLMbs=
+language: c++
 
 before_install:
-  - wget -c http://nekovm.org/_media/neko-2.0.0-osx.tar.gz
-  - sudo mkdir /usr/lib/neko
-  - sudo tar xvzf neko-2.0.0-osx.tar.gz -C /usr/lib/neko --strip-components=1
-  - sudo ln -s /usr/lib/neko/neko /usr/bin/neko
-  - sudo ln -s /usr/lib/neko/nekoc /usr/bin/nekoc
-  - sudo ln -s /usr/lib/neko/nekotools /usr/bin/nekotools
-  - sudo ln -s /usr/lib/neko/libneko.dylib /usr/lib/libneko.dylib
-  - wget -c http://haxe.org/file/haxe-3.1.2-osx.tar.gz
-  - sudo mkdir /usr/lib/haxe
-  - sudo tar xvzf haxe-3.1.2-osx.tar.gz -C /usr/lib/haxe --strip-components=1
-  - sudo ln -s /usr/lib/haxe/haxe /usr/bin/haxe
-  - git clone https://github.com/HaxeFoundation/haxelib ~/haxelib --depth 1
-  - cd ~/haxelib
-  - haxe haxelib.hxml
-  - cd bin
-  - nekotools boot haxelib.n
-  - sudo cp haxelib /usr/lib/haxe/haxelib
-  - cd $(pwd)
-  - sudo ln -s /usr/lib/haxe/haxelib /usr/bin/haxelib
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x32 -extension GLX"
+  - "export AUDIODEV=null"
+  - sudo add-apt-repository ppa:eyecreate/haxe -y
+  - sudo apt-get update
+
+install:
+  - sudo apt-get install haxe -y --force-yes
+  - sudo apt-get install g++-multilib gcc-multilib
+  - sudo apt-get install mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev -y
+  - mkdir ~/haxelib
   - haxelib setup ~/haxelib
-  - git clone https://github.com/HaxeFoundation/hxcpp ~/hxcpp --depth 1
-  - haxelib dev hxcpp ~/hxcpp
-  - git clone https://github.com/haxenme/nme ~/nme --depth 1
-  - haxelib dev nme ~/nme
-  - git clone https://github.com/haxenme/nme-dev ~/nme-dev --depth 1
-  - haxelib dev nme-dev ~/nme-dev
-  - git clone https://github.com/openfl/lime-tools ~/lime-tools --depth 1
-  - haxelib dev lime-tools ~/lime-tools
-  - haxelib dev lime $TRAVIS_BUILD_DIR
-  - cd $TRAVIS_BUILD_DIR/script
-  - haxe build.hxml
-#  - gem install travis-artifacts --no-ri --no-rdoc
+  - haxelib install hxcpp
+  - haxelib install lime-tools
+  - haxelib dev lime $(pwd)
 
 script:
-  - haxelib run lime rebuild mac
-  - haxelib run lime rebuild ios
-
-#after_success:
-#  - travis-artifacts upload --path ndll/Mac/lime.ndll --target-path artifacts/$TRAVIS_COMMIT
-#  - travis-artifacts upload --path ndll/Mac/lime-debug.ndll --target-path artifacts/$TRAVIS_COMMIT
-#  - travis-artifacts upload --path ndll/Mac64/lime.ndll --target-path artifacts/$TRAVIS_COMMIT
-#  - travis-artifacts upload --path ndll/Mac64/lime-debug.ndll --target-path artifacts/$TRAVIS_COMMIT
-#  - travis-artifacts upload --path ndll/iPhone/liblime.iphoneos.a --target-path artifacts/$TRAVIS_COMMIT
-#  - travis-artifacts upload --path ndll/iPhone/liblime.iphoneos-v7.a --target-path artifacts/$TRAVIS_COMMIT
-#  - travis-artifacts upload --path ndll/iPhone/liblime.iphonesim.a --target-path artifacts/$TRAVIS_COMMIT
-#  - travis-artifacts upload --path ndll/iPhone/liblime-debug.iphoneos.a --target-path artifacts/$TRAVIS_COMMIT
-#  - travis-artifacts upload --path ndll/iPhone/liblime-debug.iphoneos-v7.a --target-path artifacts/$TRAVIS_COMMIT
-#  - travis-artifacts upload --path ndll/iPhone/liblime-debug.iphonesim.a --target-path artifacts/$TRAVIS_COMMIT
-#  - wget -qO- http://www.openfl.org/lime-post-hook.php?commit=$TRAVIS_COMMIT
+  - haxelib run lime rebuild linux
 
 notifications:
   slack: openfl:ba3HbgtZflW8TNcJEQ1B4tAY
