@@ -164,26 +164,6 @@ extern int gFixedOrientation;
 }
 
 
-#ifdef HX_WINDOWS
-ByteArray ByteArray::FromFile(const char *inFilename)
-{
-   FILE *file = fopen(inFilename,"rb");
-   if (!file)
-      return ByteArray();
-
-   fseek(file,0,SEEK_END);
-   int len = ftell(file);
-   fseek(file,0,SEEK_SET);
-
-   ByteArray result(len);
-   fread(result.Bytes(),len,1,file);
-   fclose(file);
-
-   return result;
-}
-#endif
-
-
 value lime_byte_array_overwrite_file(value inFilename, value inBytes) {
 
         // file is created if it doesn't exist,
