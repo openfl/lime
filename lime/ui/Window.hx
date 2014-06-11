@@ -3,6 +3,7 @@ package lime.ui;
 
 import lime.app.Application;
 import lime.app.Config;
+import lime.app.UpdateEventManager;
 import lime.graphics.RenderEvent;
 import lime.graphics.RenderEventManager;
 import lime.system.System;
@@ -11,6 +12,7 @@ import lime.system.System;
 import lime.graphics.opengl.GL;
 import js.html.webgl.RenderingContext;
 import js.html.CanvasElement;
+import js.html.HtmlElement;
 import js.Browser;
 #end
 
@@ -18,6 +20,11 @@ import js.Browser;
 class Window {
 	
 	
+	public static var instance:Window;
+	
+	#if js
+	public var element:HtmlElement;
+	#end
 	public var handle:Dynamic;
 	public var height:Int;
 	public var width:Int;
@@ -30,18 +37,20 @@ class Window {
 	
 	public function new (application:Application) {
 		
+		instance = this;
+		
 		this.application = application;
 		
 	}
 	
 	
-	public function create (config:Config):Void {
+	public function create ():Void {
 		
 		#if js
 		
-		if (Std.is (config.element, CanvasElement)) {
+		if (Std.is (element, CanvasElement)) {
 			
-			canvas = cast config.element;
+			canvas = cast element;
 			
 		} else {
 			
@@ -67,18 +76,15 @@ class Window {
 		style.setProperty ("-webkit-transform", "translateZ(0)", null);
 		style.setProperty ("transform", "translateZ(0)", null);
 		
-		width = config.width;
-		height = config.height;
-		
 		//__originalWidth = width;
 		//__originalHeight = height;
 		
 		if (width == 0 && height == 0) {
 			
-			if (config.element != null) {
+			if (element != null) {
 				
-				width = config.element.clientWidth;
-				height = config.element.clientHeight;
+				width = element.clientWidth;
+				height = element.clientHeight;
 				
 			} else {
 				
@@ -112,13 +118,13 @@ class Window {
 		//Browser.window.addEventListener ("focus", window_onFocus);
 		//Browser.window.addEventListener ("blur", window_onBlur);
 		
-		if (config.element != null) {
+		if (element != null) {
 			
 			if (canvas != null) {
 				
-				if (config.element != cast canvas) {
+				if (element != cast canvas) {
 					
-					config.element.appendChild (canvas);
+					element.appendChild (canvas);
 					
 				}
 				
@@ -175,6 +181,13 @@ class Window {
 		#elseif (cpp || neko)
 		handle = lime_window_create (application.handle);
 		#end
+		
+		KeyEventManager.registerWindow (this);
+		MouseEventManager.registerWindow (this);
+		RenderEventManager.registerWindow (this);
+		TouchEventManager.registerWindow (this);
+		UpdateEventManager.registerWindow (this);
+		WindowEventManager.registerWindow (this);
 		
 	}
 	

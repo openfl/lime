@@ -4,7 +4,12 @@ package lime.ui;
 import lime.app.EventManager;
 import lime.system.System;
 
+#if js
+import js.Browser;
+#end
 
+
+@:allow(lime.ui.Window)
 class WindowEventManager extends EventManager<IWindowEventListener> {
 	
 	
@@ -18,7 +23,9 @@ class WindowEventManager extends EventManager<IWindowEventListener> {
 		instance = this;
 		
 		#if (cpp || neko)
+		
 		lime_window_event_manager_register (handleEvent, new WindowEvent ());
+		
 		#end
 		
 	}
@@ -56,6 +63,31 @@ class WindowEventManager extends EventManager<IWindowEventListener> {
 					listener.onWindowDeactivate (event);
 					
 				}
+			
+		}
+		
+	}
+	
+	
+	private static function registerWindow (_):Void {
+		
+		if (instance != null) {
+			
+			#if js
+			
+			Browser.window.addEventListener ("focus", function (event) {
+				
+				instance.handleEvent (new WindowEvent (WINDOW_ACTIVATE));
+				
+			}, false);
+			
+			Browser.window.addEventListener ("blur", function (event) {
+				
+				instance.handleEvent (new WindowEvent (WINDOW_DEACTIVATE));
+				
+			}, false);
+			
+			#end
 			
 		}
 		

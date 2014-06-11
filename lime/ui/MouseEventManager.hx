@@ -5,6 +5,7 @@ import lime.app.EventManager;
 import lime.system.System;
 
 
+@:allow(lime.ui.Window)
 class MouseEventManager extends EventManager<IMouseEventListener> {
 	
 	
@@ -18,7 +19,9 @@ class MouseEventManager extends EventManager<IMouseEventListener> {
 		instance = this;
 		
 		#if (cpp || neko)
+		
 		lime_mouse_event_manager_register (handleEvent, new MouseEvent ());
+		
 		#end
 		
 	}
@@ -66,6 +69,43 @@ class MouseEventManager extends EventManager<IMouseEventListener> {
 				}
 			
 			default:
+			
+		}
+		
+	}
+	
+	
+	private static function registerWindow (window:Window):Void {
+		
+		if (instance != null) {
+			
+			#if js
+			
+			window.element.addEventListener ("mousedown", function (event) {
+				
+				instance.handleEvent (new MouseEvent (MOUSE_DOWN, 0, 0));
+				
+			}, true);
+			
+			window.element.addEventListener ("mousemove", function (event) {
+				
+				instance.handleEvent (new MouseEvent (MOUSE_MOVE, 0, 0));
+				
+			}, true);
+			
+			window.element.addEventListener ("mouseup", function (event) {
+				
+				instance.handleEvent (new MouseEvent (MOUSE_UP, 0, 0));
+				
+			}, true);
+			
+			window.element.addEventListener ("mousewheel", function (event) {
+				
+				//instance.handleEvent (new MouseEvent (MOUSE_DOWN, 0, 0));
+				
+			}, true);
+			
+			#end
 			
 		}
 		

@@ -3,12 +3,10 @@ package lime.graphics;
 
 import lime.app.EventManager;
 import lime.system.System;
-#if js
-import js.Browser;
-#end
+import lime.ui.Window;
 
 
-@:access(lime.ui.Window)
+@:allow(lime.ui.Window)
 class RenderEventManager extends EventManager<IRenderEventListener> {
 	
 	
@@ -24,38 +22,7 @@ class RenderEventManager extends EventManager<IRenderEventListener> {
 		instance = this;
 		event = new RenderEvent ();
 		
-		#if js
-		
-		untyped __js__ ("
-			var lastTime = 0;
-			var vendors = ['ms', 'moz', 'webkit', 'o'];
-			for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-				window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-				window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] 
-										   || window[vendors[x]+'CancelRequestAnimationFrame'];
-			}
-			
-			if (!window.requestAnimationFrame)
-				window.requestAnimationFrame = function(callback, element) {
-					var currTime = new Date().getTime();
-					var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-					var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
-					  timeToCall);
-					lastTime = currTime + timeToCall;
-					return id;
-				};
-			
-			if (!window.cancelAnimationFrame)
-				window.cancelAnimationFrame = function(id) {
-					clearTimeout(id);
-				};
-			
-			window.requestAnimFrame = window.requestAnimationFrame;
-		");
-		
-		handleFrame ();
-		
-		#elseif (cpp || neko)
+		#if (cpp || neko)
 		
 		lime_render_event_manager_register (handleEvent, event);
 		
@@ -88,13 +55,16 @@ class RenderEventManager extends EventManager<IRenderEventListener> {
 	}
 	
 	
-	private function handleFrame ():Void {
+	private static function registerWindow (window:Window):Void {
+		
+		
+		
+	}
+	
+	
+	private function render ():Void {
 		
 		handleEvent (event);
-		
-		#if js
-		Browser.window.requestAnimationFrame (cast handleFrame);
-		#end
 		
 	}
 	

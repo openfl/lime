@@ -5,6 +5,7 @@ import lime.app.EventManager;
 import lime.system.System;
 
 
+@:allow(lime.ui.Window)
 class TouchEventManager extends EventManager<ITouchEventListener> {
 	
 	
@@ -18,7 +19,9 @@ class TouchEventManager extends EventManager<ITouchEventListener> {
 		instance = this;
 		
 		#if (cpp || neko)
+		
 		lime_touch_event_manager_register (handleEvent, new TouchEvent ());
+		
 		#end
 		
 	}
@@ -64,6 +67,37 @@ class TouchEventManager extends EventManager<ITouchEventListener> {
 					listener.onTouchMove (event);
 					
 				}
+			
+		}
+		
+	}
+	
+	
+	private static function registerWindow (window:Window):Void {
+		
+		if (instance != null) {
+			
+			#if js
+			
+			window.element.addEventListener ("touchstart", function (event) {
+				
+				instance.handleEvent (new TouchEvent (TOUCH_START, 0, 0, 0));
+				
+			}, true);
+			
+			window.element.addEventListener ("touchmove", function (event) {
+				
+				instance.handleEvent (new TouchEvent (TOUCH_MOVE, 0, 0, 0));
+				
+			}, true);
+			
+			window.element.addEventListener ("touchend", function (event) {
+				
+				instance.handleEvent (new TouchEvent (TOUCH_END, 0, 0, 0));
+				
+			}, true);
+			
+			#end
 			
 		}
 		
