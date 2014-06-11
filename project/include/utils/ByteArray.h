@@ -12,10 +12,7 @@ namespace lime {
 	
 	typedef unsigned char uint8;
 	
-	//this was //HX_WINDOWS,
-	//but we aren't using _wfopen by
-	//default anymore
-	#if 0
+	#if HX_WINDOWS
 	
 	typedef wchar_t OSChar;
 	#define val_os_string val_wstring

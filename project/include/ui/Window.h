@@ -4,6 +4,10 @@
 
 #include <app/Application.h>
 
+#ifdef CreateWindow
+#undef CreateWindow
+#endif
+
 
 namespace lime {
 	
