@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension>
-
+	
 	<haxedef name="lime_html5" if="html5" />
 	<haxedef name="lime_native" if="native" />
 	<haxedef name="no-compilation" />
-
+	
 	<section unless="display">
-
+		
 		<haxelib name="hxcpp" if="cpp" />
 		<ndll name="std" haxelib="hxcpp" if="cpp" />
 		<ndll name="regexp" haxelib="hxcpp" if="cpp" />
@@ -24,11 +24,13 @@
 		<ndll name="freetype" register="false" if="ios" />
 		<ndll name="ogg" register="false" if="ios" />
 		<ndll name="vorbis" register="false" if="ios" />
-
+		
 		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
+		<dependency path="dependencies/webgl-debug.js" if="html5 debug" />
+		<dependency path="dependencies/stats.min.js" if="html5 stats" />
 		
 		<architecture name="armv7" if="android" />
-
+		
 		<include haxelib="lime-tools" unless="openfl" />
 		<haxelib name="lime-tools" if="setup" />
 		

@@ -29,6 +29,9 @@ class Window {
 	#end
 	public var handle:Dynamic;
 	public var height:Int;
+	#if (js && stats)
+	public var stats:Dynamic;
+	#end
 	public var width:Int;
 	
 	private var application:Application;
@@ -138,12 +141,11 @@ class Window {
 			
 		}
 		
-		
 		#if stats
-		var __stats = untyped __js__("new Stats ()");
-		__stats.domElement.style.position = "absolute";
-		__stats.domElement.style.top = "0px";
-		Browser.document.body.appendChild (__stats.domElement);
+		stats = untyped __js__("new Stats ()");
+		stats.domElement.style.position = "absolute";
+		stats.domElement.style.top = "0px";
+		Browser.document.body.appendChild (stats.domElement);
 		#end
 		
 		/*var keyEvents = [ "keydown", "keyup" ];
