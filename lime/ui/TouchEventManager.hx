@@ -11,16 +11,19 @@ class TouchEventManager extends EventManager<ITouchEventListener> {
 	
 	private static var instance:TouchEventManager;
 	
+	private var touchEvent:TouchEvent;
+	
 	
 	public function new () {
 		
 		super ();
 		
 		instance = this;
+		touchEvent = new TouchEvent ();
 		
 		#if (cpp || neko)
 		
-		lime_touch_event_manager_register (handleEvent, new TouchEvent ());
+		lime_touch_event_manager_register (handleEvent, touchEvent);
 		
 		#end
 		
@@ -36,6 +39,80 @@ class TouchEventManager extends EventManager<ITouchEventListener> {
 		}
 		
 	}
+	
+	
+	#if js
+	private function handleDOMEvent (event:js.html.TouchEvent):Void {
+		
+		event.preventDefault ();
+		
+		//var rect = __canvas.getBoundingClientRect ();
+		
+		touchEvent.id = event.changedTouches[0].identifier;
+		touchEvent.x = event.pageX;
+		touchEvent.y = event.pageY;
+		
+		touchEvent.type = switch (event.type) {
+			
+			case "touchstart": TOUCH_START;
+			case "touchmove": TOUCH_MOVE;
+			case "touchend": TOUCH_END;
+			default: null;
+			
+		}
+		
+		handleEvent (touchEvent);
+		
+		/*
+		event.preventDefault ();
+		
+		var rect;
+		
+		if (__canvas != null) {
+			
+			rect = __canvas.getBoundingClientRect ();
+			
+		} else {
+			
+			rect = __div.getBoundingClientRect ();
+			
+		}
+		
+		var touch = event.changedTouches[0];
+		var point = new Point ((touch.pageX - rect.left) * (stageWidth / rect.width), (touch.pageY - rect.top) * (stageHeight / rect.height));
+		
+		__mouseX = point.x;
+		__mouseY = point.y;
+		
+		__stack = [];
+		
+		var type = null;
+		var mouseType = null;
+		
+		switch (event.type) {
+			
+			case "touchstart":
+				
+				type = TouchEvent.TOUCH_BEGIN;
+				mouseType = MouseEvent.MOUSE_DOWN;
+			
+			case "touchmove":
+				
+				type = TouchEvent.TOUCH_MOVE;
+				mouseType = MouseEvent.MOUSE_MOVE;
+			
+			case "touchend":
+				
+				type = TouchEvent.TOUCH_END;
+				mouseType = MouseEvent.MOUSE_UP;
+			
+			default:
+			
+		}
+		*/
+		
+	}
+	#end
 	
 	
 	private function handleEvent (event:TouchEvent):Void {
@@ -78,25 +155,9 @@ class TouchEventManager extends EventManager<ITouchEventListener> {
 		if (instance != null) {
 			
 			#if js
-			
-			window.element.addEventListener ("touchstart", function (event) {
-				
-				instance.handleEvent (new TouchEvent (TOUCH_START, 0, 0, 0));
-				
-			}, true);
-			
-			window.element.addEventListener ("touchmove", function (event) {
-				
-				instance.handleEvent (new TouchEvent (TOUCH_MOVE, 0, 0, 0));
-				
-			}, true);
-			
-			window.element.addEventListener ("touchend", function (event) {
-				
-				instance.handleEvent (new TouchEvent (TOUCH_END, 0, 0, 0));
-				
-			}, true);
-			
+			window.element.addEventListener ("touchstart", instance.handleDOMEvent, true);
+			window.element.addEventListener ("touchmove", instance.handleDOMEvent, true);
+			window.element.addEventListener ("touchend", instance.handleDOMEvent, true);
 			#end
 			
 		}
