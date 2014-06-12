@@ -11,6 +11,6 @@ enum RenderContext {
 	OPENGL (gl:GLRenderContext);
 	CANVAS (context:CanvasRenderContext);
 	DOM (element:DOMRenderContext);
-	CUSTOM (context:Dynamic);
+	CUSTOM (data:Dynamic);
 	
 }

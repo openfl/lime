@@ -10,9 +10,8 @@ import lime.graphics.RenderEventManager;
 import lime.system.System;
 
 #if js
-import lime.graphics.opengl.GL;
-import js.html.webgl.RenderingContext;
 import js.html.CanvasElement;
+import js.html.DivElement;
 import js.html.HtmlElement;
 import js.Browser;
 #end
@@ -21,28 +20,26 @@ import js.Browser;
 class Window {
 	
 	
-	public static var instance:Window;
-	
 	public var currentRenderer:Renderer;
-	#if js
-	public var element:HtmlElement;
-	#end
-	public var handle:Dynamic;
+	public var fullscreen:Bool;
 	public var height:Int;
-	#if (js && stats)
-	public var stats:Dynamic;
-	#end
 	public var width:Int;
 	
 	private var application:Application;
+	
 	#if js
-	private var canvas:CanvasElement;
+	public var canvas:CanvasElement;
+	public var div:DivElement;
+	public var element:HtmlElement;
+	#if stats
+	public var stats:Dynamic;
+	#end
+	#elseif (cpp || neko)
+	public var handle:Dynamic;
 	#end
 	
 	
 	public function new (application:Application) {
-		
-		instance = this;
 		
 		this.application = application;
 		
@@ -59,27 +56,35 @@ class Window {
 			
 		} else {
 			
+			#if dom
+			div = cast Browser.document.createElement ("div");
+			#else
 			canvas = cast Browser.document.createElement ("canvas");
+			#end
 			
 		}
 		
-		var context:RenderingContext = cast canvas.getContext ("webgl");
-		
-		if (context == null) {
+		if (canvas != null) {
 			
-			context = cast canvas.getContext ("experimental-webgl");
+			var style = canvas.style;
+			style.setProperty ("-webkit-transform", "translateZ(0)", null);
+			style.setProperty ("transform", "translateZ(0)", null);
+			
+		} else if (div != null) {
+			
+			var style = div.style;
+			style.setProperty ("-webkit-transform", "translate3D(0,0,0)", null);
+			style.setProperty ("transform", "translate3D(0,0,0)", null);
+			//style.setProperty ("-webkit-transform-style", "preserve-3d", null);
+			//style.setProperty ("transform-style", "preserve-3d", null);
+			style.position = "relative";
+			style.overflow = "hidden";
+			style.setProperty ("-webkit-user-select", "none", null);
+			style.setProperty ("-moz-user-select", "none", null);
+			style.setProperty ("-ms-user-select", "none", null);
+			style.setProperty ("-o-user-select", "none", null);
 			
 		}
-		
-		#if debug
-		context = untyped WebGLDebugUtils.makeDebugContext (context);
-		#end
-		
-		GL.context = context;
-		
-		var style = canvas.style;
-		style.setProperty ("-webkit-transform", "translateZ(0)", null);
-		style.setProperty ("transform", "translateZ(0)", null);
 		
 		//__originalWidth = width;
 		//__originalHeight = height;
@@ -98,7 +103,7 @@ class Window {
 				
 			}
 			
-			//__fullscreen = true;
+			fullscreen = true;
 			
 		}
 		
@@ -110,18 +115,15 @@ class Window {
 			canvas.width = width;
 			canvas.height = height;
 			
-		/*} else {
+		} else {
 			
-			__div.style.width = width + "px";
-			__div.style.height = height + "px";
-		*/
+			div.style.width = width + "px";
+			div.style.height = height + "px";
+			
 		}
 		
 		//__resize ();
-		
 		//Browser.window.addEventListener ("resize", window_onResize);
-		//Browser.window.addEventListener ("focus", window_onFocus);
-		//Browser.window.addEventListener ("blur", window_onBlur);
 		
 		if (element != null) {
 			
@@ -135,7 +137,7 @@ class Window {
 				
 			} else {
 				
-				//element.appendChild (__div);
+				element.appendChild (div);
 				
 			}
 			
@@ -147,40 +149,6 @@ class Window {
 		stats.domElement.style.top = "0px";
 		Browser.document.body.appendChild (stats.domElement);
 		#end
-		
-		/*var keyEvents = [ "keydown", "keyup" ];
-		var touchEvents = [ "touchstart", "touchmove", "touchend" ];
-		var mouseEvents = [ "mousedown", "mousemove", "mouseup", "click", "dblclick", "mousewheel" ];
-		var focusEvents = [ "focus", "blur" ];
-		
-		var element = __canvas != null ? __canvas : __div;
-		
-		for (type in keyEvents) {
-			
-			Browser.window.addEventListener (type, window_onKey, false);
-			
-		}
-		
-		for (type in touchEvents) {
-			
-			element.addEventListener (type, element_onTouch, true);
-			
-		}
-		
-		for (type in mouseEvents) {
-			
-			element.addEventListener (type, element_onMouse, true);
-			
-		}
-		
-		for (type in focusEvents) {
-			
-			element.addEventListener (type, element_onFocus, true);
-			
-		}
-		
-		Browser.window.requestAnimationFrame (cast __render);
-		*/
 		
 		#elseif (cpp || neko)
 		handle = lime_window_create (application.handle);

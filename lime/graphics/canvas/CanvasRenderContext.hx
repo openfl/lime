@@ -1,6 +1,6 @@
 package lime.graphics.canvas;
 #if js
-typedef CanvasRenderContext = js.html.CanvasRenderContext2D;
+typedef CanvasRenderContext = js.html.CanvasRenderingContext2D;
 #else
 
 
