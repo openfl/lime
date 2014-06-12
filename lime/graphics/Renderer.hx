@@ -1,6 +1,7 @@
 package lime.graphics;
 
 
+import lime.graphics.opengl.GLRenderContext;
 import lime.system.System;
 import lime.ui.Window;
 
@@ -8,6 +9,7 @@ import lime.ui.Window;
 class Renderer {
 	
 	
+	public var context:RenderContext;
 	public var handle:Dynamic;
 	
 	private var window:Window;
@@ -25,6 +27,7 @@ class Renderer {
 		
 		#if (cpp || neko)
 		handle = lime_renderer_create (window.handle);
+		context = OPENGL (new GLRenderContext ());
 		#end
 		
 	}
