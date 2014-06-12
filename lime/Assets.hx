@@ -111,7 +111,7 @@ class Assets {
 		#elseif (js || openfl_html5 || pixi)
 		
 		var bytes:ByteArray = null;
-		var data = ApplicationMain.urlLoaders.get (path.get (id)).data;
+		/*var data = ApplicationMain.urlLoaders.get (path.get (id)).data;
 		
 		if (Std.is (data, String)) {
 			
@@ -126,7 +126,7 @@ class Assets {
 			
 			bytes = null;
 			
-		}
+		}*/
 
 		if (bytes != null) {
 			
@@ -196,7 +196,7 @@ class Assets {
 		#if js
 		
 		var bytes:ByteArray = null;
-		var data = ApplicationMain.urlLoaders.get (path.get (id)).data;
+		/*var data = ApplicationMain.urlLoaders.get (path.get (id)).data;
 		
 		if (Std.is (data, String)) {
 			
@@ -210,7 +210,7 @@ class Assets {
 			
 			bytes = null;
 			
-		}
+		}*/
 		
 		if (bytes != null) {
 			
@@ -251,7 +251,9 @@ class Assets {
 			
 			#if (tools && !display)
 			
+			#if !js
 			loadManifest ();
+			#end
 			
 			#end
 			
@@ -322,7 +324,7 @@ class Assets {
 		
 		if (path.exists (id)) {
 			
-			var loader = new URLLoader ();
+			/*var loader = new URLLoader ();
 			loader.addEventListener (Event.COMPLETE, function (event:Event) {
 				
 				var bytes = new ByteArray ();
@@ -332,7 +334,9 @@ class Assets {
 				handler (bytes);
 				
 			});
-			loader.load (new URLRequest (path.get (id)));
+			loader.load (new URLRequest (path.get (id)));*/
+			
+			handler (null);
 			
 		} else {
 			
@@ -419,13 +423,15 @@ class Assets {
 		
 		if (path.exists (id)) {
 			
-			var loader = new URLLoader ();
+			/*var loader = new URLLoader ();
 			loader.addEventListener (Event.COMPLETE, function (event:Event) {
 				
 				handler (event.currentTarget.data);
 				
 			});
-			loader.load (new URLRequest (path.get (id)));
+			loader.load (new URLRequest (path.get (id)));*/
+			
+			handler (null);
 			
 		} else {
 			
