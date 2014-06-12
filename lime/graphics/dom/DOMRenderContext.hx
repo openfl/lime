@@ -1,6 +1,6 @@
 package lime.graphics.dom;
 #if js
-typedef DOMRenderContext = js.html.HtmlElement;
+typedef DOMRenderContext = js.html.DivElement;
 #else
 
 
