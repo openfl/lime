@@ -92,7 +92,7 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 	public function onWindowDeactivate (event:WindowEvent):Void { }
 	
 	
-	public function render ():Void {
+	public function render (context:RenderContext):Void {
 		
 		
 		
@@ -135,12 +135,11 @@ private class EventDelegate implements IRenderEventListener implements IUpdateEv
 	
 	public function onRender (event:RenderEvent):Void {
 		
-		application.render ();
-		
 		for (window in application.windows) {
 			
 			if (window.currentRenderer != null) {
 				
+				application.render (window.currentRenderer.context);
 				window.currentRenderer.flip ();
 				
 			}
