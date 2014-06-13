@@ -11,6 +11,10 @@ class System {
 	
 	@:noCompletion private static var __moduleNames:Map<String, String> = null;
 	
+	#if neko
+	private static var __loadedNekoAPI:Bool;
+	#end
+	
 	
 	static private function findHaxeLib (library:String):String {
 		
