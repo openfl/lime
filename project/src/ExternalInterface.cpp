@@ -13,6 +13,7 @@
 #include <graphics/PNG.h>
 #include <graphics/Renderer.h>
 #include <graphics/RenderEvent.h>
+#include <system/System.h>
 #include <ui/KeyEvent.h>
 #include <ui/MouseEvent.h>
 #include <ui/TouchEvent.h>
@@ -133,6 +134,13 @@ namespace lime {
 	}
 	
 	
+	value lime_system_get_timestamp () {
+		
+		return alloc_float (System::GetTimestamp ());
+		
+	}
+	
+	
 	value lime_touch_event_manager_register (value callback, value eventObject) {
 		
 		TouchEvent::callback = new AutoGCRoot (callback);
@@ -180,6 +188,7 @@ namespace lime {
 	DEFINE_PRIM (lime_renderer_create, 1);
 	DEFINE_PRIM (lime_renderer_flip, 1);
 	DEFINE_PRIM (lime_render_event_manager_register, 2);
+	DEFINE_PRIM (lime_system_get_timestamp, 0);
 	DEFINE_PRIM (lime_touch_event_manager_register, 2);
 	DEFINE_PRIM (lime_update_event_manager_register, 2);
 	DEFINE_PRIM (lime_window_create, 1);
