@@ -35,6 +35,7 @@ namespace lime {
 				id_type = val_id ("type");
 				id_x = val_id ("x");
 				id_y = val_id ("y");
+				init = true;
 				
 			}
 			
