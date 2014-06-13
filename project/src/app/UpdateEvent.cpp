@@ -29,6 +29,7 @@ namespace lime {
 				
 				id_deltaTime = val_id ("deltaTime");
 				//id_type = val_id ("type");
+				init = true;
 				
 			}
 			

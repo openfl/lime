@@ -29,6 +29,7 @@ namespace lime {
 				
 				id_code = val_id ("code");
 				id_type = val_id ("type");
+				init = true;
 				
 			}
 			

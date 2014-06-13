@@ -2,6 +2,9 @@ package lime;
 
 
 import haxe.Unserializer;
+import lime.graphics.ImageData;
+import lime.graphics.JPG;
+import lime.graphics.PNG;
 import lime.utils.ByteArray;
 
 
@@ -10,8 +13,8 @@ import lime.utils.ByteArray;
  * embedded images, fonts, sounds and other resource files.</p>
  * 
  * <p>The contents are populated automatically when an application
- * is compiled using the OpenFL command-line tools, based on the
- * contents of the *.nmml project file.</p>
+ * is compiled using the Lime command-line tools, based on the
+ * contents of the *.xml project file.</p>
  * 
  * <p>For most platforms, the assets are included in the same directory
  * or package as the application, and the paths are handled
@@ -36,20 +39,6 @@ class Assets {
 		#if (tools && !display)
 		
 		var assetType = Assets.type.get (id);
-		
-		#if pixi
-		
-		if (assetType == IMAGE) {
-			
-			return true;
-			
-		} else {
-			
-			return false;
-			
-		}
-		
-		#end
 		
 		if (assetType != null) {
 			
@@ -108,7 +97,7 @@ class Assets {
 		
 		//return cast (Type.createInstance (className.get (id), []), ByteArray);
 
-		#elseif (js || openfl_html5 || pixi)
+		#elseif js
 		
 		var bytes:ByteArray = null;
 		/*var data = ApplicationMain.urlLoaders.get (path.get (id)).data;
@@ -142,6 +131,49 @@ class Assets {
 		
 		//if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), ByteArray);
 		/*else*/ return ByteArray.readFile (path.get (id));
+		
+		#end
+		
+		#end
+		
+		return null;
+		
+	}
+	
+	
+	public static function getImageData (id:String):ImageData {
+		
+		initialize ();
+		
+		#if (tools && !display)
+		
+		#if (flash)
+		
+		//return cast (Type.createInstance (className.get (id), []), ByteArray);
+
+		#elseif js
+		
+		return null;
+		
+		#else
+		
+		var bytes = getBytes (id);
+		
+		if (bytes != null) {
+			
+			if (JPG.isFormat (bytes)) {
+				
+				return JPG.decode (bytes);
+				
+			} else if (PNG.isFormat (bytes)) {
+				
+				return PNG.decode (bytes);
+				
+			}
+			
+			return null;
+			
+		}
 		
 		#end
 		
@@ -316,11 +348,7 @@ class Assets {
 		
 		#if (tools && !display)
 		
-		#if pixi
-		
-		handler (getBytes (id));
-		
-		#elseif (flash || js)
+		#if (flash || js)
 		
 		if (path.exists (id)) {
 			

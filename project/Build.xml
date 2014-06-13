@@ -49,6 +49,7 @@
 		</section>
 		
 		<file name="src/app/UpdateEvent.cpp" />
+		<file name="src/graphics/PNG.cpp" />
 		<file name="src/graphics/RenderEvent.cpp" />
 		<file name="src/ui/KeyEvent.cpp" />
 		<file name="src/ui/MouseEvent.cpp" />

@@ -26,6 +26,7 @@ namespace lime {
 			if (!init) {
 				
 				id_type = val_id ("type");
+				init = true;
 				
 			}
 			
