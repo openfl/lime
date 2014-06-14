@@ -1,6 +1,6 @@
 package lime.utils;
 #if js
-typedef UInt8Array = js.html.UInt8Array;
+typedef UInt8Array = js.html.Uint8Array;
 #else
 
 

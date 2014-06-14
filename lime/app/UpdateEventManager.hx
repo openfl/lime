@@ -106,7 +106,7 @@ class UpdateEventManager extends EventManager<IUpdateEventListener> {
 	}
 	
 	
-	public function triggerFrame (_):Void {
+	public function triggerFrame (?_):Void {
 		
 		handleEvent (event);
 		

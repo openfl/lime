@@ -1,6 +1,6 @@
 package lime.utils;
 #if js
-typedef UInt16Array = js.html.UInt16Array;
+typedef UInt16Array = js.html.Uint16Array;
 #else
 
 

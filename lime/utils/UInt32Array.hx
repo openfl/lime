@@ -1,6 +1,6 @@
 package lime.utils;
 #if js
-typedef UInt32Array = js.html.UInt32Array;
+typedef UInt32Array = js.html.Uint32Array;
 #else
 
 
