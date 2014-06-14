@@ -283,7 +283,7 @@ class Assets {
 			
 			#if (tools && !display)
 			
-			#if !js
+			#if (!js && !flash)
 			loadManifest ();
 			#end
 			
@@ -385,6 +385,7 @@ class Assets {
 	}
 	
 	
+	#if !flash
 	private static function loadManifest ():Void {
 		
 		try {
@@ -439,6 +440,7 @@ class Assets {
 		}
 		
 	}
+	#end
 	
 	
 	public static function loadText (id:String, handler:String -> Void):Void {

@@ -1,4 +1,8 @@
 package lime.utils;
+#if flash
+typedef ByteArray = flash.utils.ByteArray;
+#else
+
 
 import lime.utils.IMemoryRange;
 import haxe.io.Bytes;
@@ -8,7 +12,7 @@ import haxe.io.BytesData;
 import lime.utils.IDataInput;
 import lime.system.System;
 
-#if !lime_html5
+#if !js
 
    #if neko
    import neko.Lib;
@@ -82,10 +86,10 @@ class ByteArray extends Bytes implements ArrayAccess<Int> implements IDataInput 
       var bytes = function(inArray:ByteArray) { return inArray==null ? null :  inArray.b; }
       var slen = function(inArray:ByteArray) { return inArray == null ? 0 : inArray.length; }
 
-      #if !lime_html5
+      #if !js
          var init = System.load("lime", "lime_byte_array_init", 4);
          init(factory, slen, resize, bytes);
-      #end //lime_html5
+      #end
    }
    #end
 
@@ -117,7 +121,7 @@ class ByteArray extends Bytes implements ArrayAccess<Int> implements IDataInput 
       length = 0;
    }
 
-#if !lime_html5
+#if !js
    //todo- sven
 
    /*public function compress(algorithm:CompressionAlgorithm = null) 
@@ -163,7 +167,7 @@ class ByteArray extends Bytes implements ArrayAccess<Int> implements IDataInput 
       compress(CompressionAlgorithm.DEFLATE);
    }*/
 
-#end //!lime_html5
+#end //!js
 
    /** @private */ private function ensureElem(inSize:Int, inUpdateLenght:Bool) {
       var len = inSize + 1;
@@ -198,7 +202,7 @@ class ByteArray extends Bytes implements ArrayAccess<Int> implements IDataInput 
    public function getByteBuffer():ByteArray { return this; }
    public function getStart():Int { return 0; }
 
-#if !lime_html5
+#if !js
    
    public function inflate() {
 
@@ -206,7 +210,7 @@ class ByteArray extends Bytes implements ArrayAccess<Int> implements IDataInput 
 
    }
 
-#end //!lime_html5
+#end //!js
    
    private inline function limeFromBytes(inBytes:Bytes):Void
    {
@@ -255,7 +259,7 @@ class ByteArray extends Bytes implements ArrayAccess<Int> implements IDataInput 
 
    public function readDouble():Float 
    {
-      #if !lime_html5
+      #if !js
 
          if (position + 8 > length)
             ThrowEOFi();
@@ -269,7 +273,7 @@ class ByteArray extends Bytes implements ArrayAccess<Int> implements IDataInput 
          position += 8;
          return _double_of_bytes(bytes.b, bigEndian);
 
-      #end //!lime_html5
+      #end //!js
 
       return 0.0;
    }
@@ -282,7 +286,7 @@ class ByteArray extends Bytes implements ArrayAccess<Int> implements IDataInput 
 
    public function readFloat():Float
    {
-      #if !lime_html5
+      #if !js
 
          if (position + 4 > length)
             ThrowEOFi();
@@ -296,7 +300,7 @@ class ByteArray extends Bytes implements ArrayAccess<Int> implements IDataInput 
          position += 4;
          return _float_of_bytes(bytes.b, bigEndian);
 
-      #end //!lime_html5
+      #end //!js
 
       return 0.0;
    }
@@ -425,7 +429,7 @@ class ByteArray extends Bytes implements ArrayAccess<Int> implements IDataInput 
       return 0;
    }
 
-#if !lime_html5
+#if !js
 //todo sven
 
    /*public function uncompress(algorithm:CompressionAlgorithm = null):Void 
@@ -468,7 +472,7 @@ class ByteArray extends Bytes implements ArrayAccess<Int> implements IDataInput 
       #end
    }*/
 
-#end //!lime_html5
+#end //!js
 
    /** @private */ inline function write_uncheck(inByte:Int) {
       #if cpp
@@ -505,7 +509,7 @@ class ByteArray extends Bytes implements ArrayAccess<Int> implements IDataInput 
 
    public function writeDouble(x:Float) 
    {  
-      #if !lime_html5
+      #if !js
 
          #if neko
          var bytes = new Bytes(8, _double_bytes(x, bigEndian));
@@ -515,7 +519,7 @@ class ByteArray extends Bytes implements ArrayAccess<Int> implements IDataInput 
 
          writeBytes(bytes);
 
-      #end //!lime_html5
+      #end //!js
    }
 
    #if !no_lime_io
@@ -527,7 +531,7 @@ class ByteArray extends Bytes implements ArrayAccess<Int> implements IDataInput 
 
    public function writeFloat(x:Float) 
    {
-      #if !lime_html5
+      #if !js
 
          #if neko
          var bytes = new Bytes(4, _float_bytes(x, bigEndian));
@@ -537,7 +541,7 @@ class ByteArray extends Bytes implements ArrayAccess<Int> implements IDataInput 
 
          writeBytes(bytes);
 
-      #end //!lime_html5
+      #end //!js
    }
 
    public function writeInt(value:Int) 
@@ -624,3 +628,6 @@ class ByteArray extends Bytes implements ArrayAccess<Int> implements IDataInput 
    private static var lime_lzma_encode = System.load("lime", "lime_lzma_encode", 1);
    private static var lime_lzma_decode = System.load("lime", "lime_lzma_decode", 1);
 }
+
+
+#end

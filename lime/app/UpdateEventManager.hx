@@ -7,6 +7,9 @@ import lime.ui.Window;
 
 #if js
 import js.Browser;
+#elseif flash
+import flash.events.Event;
+import flash.Lib;
 #end
 
 
@@ -92,6 +95,10 @@ class UpdateEventManager extends EventManager<IUpdateEventListener> {
 			
 			instance.triggerFrame ();
 			
+			#elseif flash
+			
+			Lib.current.stage.addEventListener (Event.ENTER_FRAME, instance.triggerFrame);
+			
 			#end
 			
 		}
@@ -99,7 +106,7 @@ class UpdateEventManager extends EventManager<IUpdateEventListener> {
 	}
 	
 	
-	public function triggerFrame ():Void {
+	public function triggerFrame (_):Void {
 		
 		handleEvent (event);
 		

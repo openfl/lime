@@ -2,12 +2,14 @@ package lime.graphics;
 
 
 import lime.graphics.opengl.GL;
-import lime.graphics.opengl.GLRenderContext;
+import lime.graphics.GLRenderContext;
 import lime.system.System;
 import lime.ui.Window;
 
 #if js
 import js.html.webgl.RenderingContext;
+#elseif flash
+import flash.Lib;
 #end
 
 
@@ -68,8 +70,6 @@ class Renderer {
 				GL.context = webgl;
 				context = OPENGL (new GLRenderContext ());
 				
-				trace ("context ready");
-				
 			}
 			
 		}
@@ -78,6 +78,10 @@ class Renderer {
 		
 		handle = lime_renderer_create (window.handle);
 		context = OPENGL (new GLRenderContext ());
+		
+		#elseif flash
+		
+		context = FLASH (Lib.current);
 		
 		#end
 		
