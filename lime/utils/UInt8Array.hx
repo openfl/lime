@@ -74,7 +74,7 @@ class UInt8Array extends ArrayBufferView implements ArrayAccess<Int> {
 	}
 	
 	
-	public function set (bufferOrArray:Dynamic, offset:Int = 0) {
+	public function set (bufferOrArray:Dynamic, offset:Int = 0):Void {
 		
 		if (Std.is (bufferOrArray, Array)) {
 			

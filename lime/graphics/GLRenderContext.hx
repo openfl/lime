@@ -1,6 +1,7 @@
-package lime.graphics.opengl;
+package lime.graphics;
 
 
+import lime.graphics.opengl.*;
 import lime.utils.ArrayBuffer;
 import lime.utils.ArrayBufferView;
 import lime.utils.Float32Array;
