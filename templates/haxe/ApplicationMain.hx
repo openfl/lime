@@ -10,11 +10,11 @@ class ApplicationMain {
 	private static var app:lime.app.Application;
 	
 	
-	public static function init ():Void {
+	public static function create ():Void {
 		
 		preloader = new ::if (PRELOADER_NAME != "")::::PRELOADER_NAME::::else::lime.app.Preloader::end:: ();
 		preloader.onComplete = start;
-		preloader.init (config);
+		preloader.create (config);
 		
 	}
 	
@@ -41,7 +41,7 @@ class ApplicationMain {
 		#if (js && munit)
 		embed (null, ::WIN_WIDTH::, ::WIN_HEIGHT::, "::WIN_FLASHBACKGROUND::");
 		#else
-		init ();
+		create ();
 		#end
 		
 	}
