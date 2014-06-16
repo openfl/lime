@@ -2,8 +2,10 @@ package helpers;
 
 
 import helpers.LogHelper;
+import helpers.PlatformHelper;
 import helpers.ProcessHelper;
 import project.HXProject;
+import project.Platform;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -81,6 +83,27 @@ class CPPHelper {
 			if (LogHelper.verbose) {
 				
 				args.push ("-verbose");
+				
+			}
+			
+			if (!LogHelper.enableColor) {
+				
+				//args.push ("-nocolor");
+				Sys.putEnv ("HXCPP_NO_COLOR", "");
+				
+			}
+			
+			if (PlatformHelper.hostPlatform == Platform.WINDOWS && !project.environment.exists ("HXCPP_COMPILE_THREADS")) {
+				
+				var threads = 1;
+				
+				if (ProcessHelper.processorCores > 1) {
+					
+					threads = ProcessHelper.processorCores - 1;
+					
+				}
+				
+				Sys.putEnv ("HXCPP_COMPILE_THREADS", Std.string (threads));
 				
 			}
 			

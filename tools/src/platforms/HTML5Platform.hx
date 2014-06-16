@@ -6,12 +6,14 @@ import haxe.Template;
 import helpers.AssetHelper;
 import helpers.FileHelper;
 import helpers.HTML5Helper;
+import helpers.LogHelper;
 import helpers.PathHelper;
 import helpers.ProcessHelper;
 import project.AssetType;
 import project.HXProject;
 import sys.io.File;
 import sys.FileSystem;
+
 
 class HTML5Platform implements IPlatformTool {
 	
@@ -212,7 +214,15 @@ class HTML5Platform implements IPlatformTool {
 					
 					for (extension in [ ext, ".eot", ".woff", ".svg" ]) {
 						
-						FileHelper.copyIfNewer (source + extension, path + extension);
+						if (FileSystem.exists (source + extension)) {
+							
+							FileHelper.copyIfNewer (source + extension, path + extension);
+							
+						} else {
+							
+							LogHelper.warn ("Could not find generated font file \"" + source + extension + "\"");
+							
+						}
 						
 					}
 					

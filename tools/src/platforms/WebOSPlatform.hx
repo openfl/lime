@@ -34,6 +34,13 @@ class WebOSPlatform implements IPlatformTool {
 		}
 		
 		var hxml = project.app.path + "/webos/haxe/" + type + ".hxml";
+		var destination = project.app.path + "/webos/bin/";
+		
+		for (ndll in project.ndlls) {
+			
+			FileHelper.copyLibrary (project, ndll, "webOS", "", ".so", destination, project.debug);
+			
+		}
 		
 		ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "webos", "-D", "HXCPP_LOAD_DEBUG", "-D", "HXCPP_RTLD_LAZY" ] );
 		CPPHelper.compile (project, project.app.path + "/webos/obj", [ "-Dwebos", "-DHXCPP_LOAD_DEBUG", "-DHXCPP_RTLD_LAZY" ]);
@@ -124,12 +131,6 @@ class WebOSPlatform implements IPlatformTool {
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "webos/hxml", project.app.path + "/webos/haxe", context);
 		
 		//SWFHelper.generateSWFClasses (project, project.app.path + "/webos/haxe");
-		
-		for (ndll in project.ndlls) {
-			
-			FileHelper.copyLibrary (project, ndll, "webOS", "", ".so", destination, project.debug);
-			
-		}
 		
 		for (asset in project.assets) {
 			

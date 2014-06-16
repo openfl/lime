@@ -58,8 +58,8 @@ class AndroidPlatform implements IPlatformTool {
 			
 			var haxeParams = [ hxml, "-D", "android", "-D", "android-9" ];
 			var cppParams = [ "-Dandroid", "-Dandroid-9" ];
-			var path = project.app.path + "/android/bin/libs/armeabi/libApplicationMain.so";
-			var suffix = "";
+			var path = project.app.path + "/android/bin/libs/armeabi";
+			var suffix = ".so";
 			
 			if (architecture == Architecture.ARMV7) {
 				
@@ -69,26 +69,32 @@ class AndroidPlatform implements IPlatformTool {
 				
 				if (hasARMV5) {
 					
-					path = project.app.path + "/android/bin/libs/armeabi-v7/libApplicationMain.so";
+					path = project.app.path + "/android/bin/libs/armeabi-v7";
 					
 				}
 				
-				suffix = "-v7";
+				suffix = "-v7.so";
 				
 			} else if (architecture == Architecture.X86) {
 				
 				haxeParams.push ("-D");
 				haxeParams.push ("HXCPP_X86");
 				cppParams.push ("-DHXCPP_X86");
-				path = project.app.path + "/android/bin/libs/x86/libApplicationMain.so";
-				suffix = "-x86";
+				path = project.app.path + "/android/bin/libs/x86";
+				suffix = "-x86.so";
+				
+			}
+			
+			for (ndll in project.ndlls) {
+				
+				FileHelper.copyLibrary (project, ndll, "Android", "lib", suffix, path, project.debug, ".so");
 				
 			}
 			
 			ProcessHelper.runCommand ("", "haxe", haxeParams);
 			CPPHelper.compile (project, project.app.path + "/android/obj", cppParams);
 			
-			FileHelper.copyIfNewer (project.app.path + "/android/obj/libApplicationMain" + (project.debug ? "-debug" : "") + suffix + ".so", path);
+			FileHelper.copyIfNewer (project.app.path + "/android/obj/libApplicationMain" + (project.debug ? "-debug" : "") + suffix, path + "/libApplicationMain.so");
 			
 		}
 		
@@ -309,33 +315,6 @@ class AndroidPlatform implements IPlatformTool {
 		PathHelper.mkdir (packageDirectory);
 		
 		//SWFHelper.generateSWFClasses (project, project.app.path + "/android/haxe");
-		
-		var armv5 = ArrayHelper.containsValue (project.architectures, Architecture.ARMV5) || ArrayHelper.containsValue (project.architectures, Architecture.ARMV6);
-		var armv7 = ArrayHelper.containsValue (project.architectures, Architecture.ARMV7);
-		
-		for (ndll in project.ndlls) {
-			
-			if (armv5) {
-				
-				FileHelper.copyLibrary (project, ndll, "Android", "lib", ".so", destination + "/libs/armeabi", project.debug);
-				
-			}
-			
-			if (armv7) {
-				
-				if (armv5) {
-					
-					FileHelper.copyLibrary (project, ndll, "Android", "lib", "-v7.so", destination + "/libs/armeabi-v7a", project.debug, ".so");
-					
-				} else {
-					
-					FileHelper.copyLibrary (project, ndll, "Android", "lib", "-v7.so", destination + "/libs/armeabi", project.debug, ".so");
-					
-				}
-				
-			}
-			
-		}
 		
 		for (javaPath in project.javaPaths) {
 			

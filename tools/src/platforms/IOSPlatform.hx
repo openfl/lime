@@ -233,16 +233,8 @@ class IOSPlatform implements IPlatformTool {
 		
 		context.IOS_COMPILER = project.config.ios.compiler;
 		context.CPP_BUILD_LIBRARY = project.config.cpp.buildLibrary;
-
-		var linker_flags_string = '';
-		var linker_flags_final = ["-stdlib=libc++"].concat(project.config.ios.linkerFlags);
-
-		for(_flag in linker_flags_final) {
-			linker_flags_string += '"${_flag}",';
-		}
-
-		context.IOS_LINKER_FLAGS = linker_flags_string;
-
+		context.IOS_LINKER_FLAGS = ["-stdlib=libc++"].concat(project.config.ios.linkerFlags);
+		
 		switch (project.window.orientation) {
 			
 			case PORTRAIT:
@@ -430,6 +422,13 @@ class IOSPlatform implements IPlatformTool {
 					var debugLib = PathHelper.getLibraryPath (ndll, "iPhone", "lib", libExt, true);
 					var releaseDest = projectDirectory + "/lib/" + arch + "/lib" + ndll.name + ".a";
 					var debugDest = projectDirectory + "/lib/" + arch + "-debug/lib" + ndll.name + ".a";
+					
+					if (!FileSystem.exists (releaseLib)) {
+						
+						releaseLib = PathHelper.getLibraryPath (ndll, "IPhone", "lib", ".iphoneos.a");
+						debugLib = PathHelper.getLibraryPath (ndll, "IPhone", "lib", ".iphoneos.a", true);
+						
+					}
 					
 					FileHelper.copyIfNewer (releaseLib, releaseDest);
 					

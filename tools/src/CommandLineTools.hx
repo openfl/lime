@@ -381,6 +381,7 @@ class CommandLineTools {
 		LogHelper.println ("  \x1b[1m-debug\x1b[0m -- Use debug configuration instead of release");
 		LogHelper.println ("  \x1b[1m-verbose\x1b[0m -- Print additional information (when available)");
 		LogHelper.println ("  \x1b[1m-clean\x1b[0m -- Add a \"clean\" action before running the current command");
+		LogHelper.println ("  \x1b[1m-nocolor\x1b[0m -- Disable ANSI format codes in output");
 		LogHelper.println ("  \x1b[1m-xml\x1b[0m -- Generate XML type information, useful for documentation");
 		LogHelper.println ("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-neko\x1b[0m -- Build with Neko instead of C++");
 		LogHelper.println ("  \x1b[3m(mac|linux)\x1b[0m \x1b[1m-32\x1b[0m -- Compile for 32-bit instead of the OS default");
@@ -400,6 +401,7 @@ class CommandLineTools {
 		LogHelper.println ("  \x1b[1m--haxedef\x1b[0;3m=value\x1b[0m -- Add an additional <haxedef/> value");
 		LogHelper.println ("  \x1b[1m--haxeflag\x1b[0;3m=value\x1b[0m -- Add an additional <haxeflag/> value");
 		LogHelper.println ("  \x1b[1m--haxelib\x1b[0;3m=value\x1b[0m -- Add an additional <haxelib/> value");
+		LogHelper.println ("  \x1b[1m--haxelib-\x1b[0;3mname=value\x1b[0m -- Override the path to a haxelib");
 		LogHelper.println ("  \x1b[1m--source\x1b[0;3m=value\x1b[0m -- Add an additional <source/> value");
 		LogHelper.println ("  \x1b[1m--certificate-\x1b[0;3moption=value\x1b[0m -- Override a project <certificate/> setting");
 		
@@ -417,18 +419,6 @@ class CommandLineTools {
 		LogHelper.println ("\x1b[32;1m |. _ _  _");
 		LogHelper.println (" ||| | ||_|");
 		LogHelper.println (" ||| | ||_.\x1b[0m");
-		
-		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
-			
-			LogHelper.println ("");
-			
-		}
-		
-		//Sys.println ("  __      ");
-		//Sys.println ("  \\ \\  __  __ _ _  ____");
-		//Sys.println ("   \\ \\ \\ \\ \\ \\ \\ \\ \\ -_\\");
-		//Sys.println ("    \\_\\ \\_\\ \\_\\_\\_\\ \\__\\");
-		
 		LogHelper.println ("");
 		LogHelper.println ("\x1b[1mLime Command-Line Tools\x1b[0;1m (" + version + ")\x1b[0m");
 		
@@ -1238,6 +1228,10 @@ class CommandLineTools {
 			} else if (argument == "-debug") {
 				
 				debug = true;
+				
+			} else if (argument == "-nocolor") {
+				
+				LogHelper.enableColor = false;
 				
 			} else if (command.length == 0) {
 				

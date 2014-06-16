@@ -24,6 +24,22 @@ class TizenPlatform implements IPlatformTool {
 	
 	public function build (project:HXProject):Void {
 		
+		var destination = project.app.path + "/tizen/bin/";
+		
+		var arch = "";
+		
+		if (project.targetFlags.exists ("simulator")) {
+			
+			arch = "-x86";
+			
+		}
+		
+		for (ndll in project.ndlls) {
+			
+			FileHelper.copyLibrary (project, ndll, "Tizen", "", arch + ".so", destination + "lib/", project.debug, ".so");
+			
+		}
+		
 		var type = "release";
 		
 		if (project.debug) {
@@ -49,9 +65,7 @@ class TizenPlatform implements IPlatformTool {
 		}
 		
 		CPPHelper.compile (project, project.app.path + "/tizen/obj", args);
-		
 		FileHelper.copyIfNewer (project.app.path + "/tizen/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", project.app.path + "/tizen/bin/CommandLineBuild/" + project.app.file + ".exe");
-		
 		TizenHelper.createPackage (project, project.app.path + "/tizen/bin/CommandLineBuild", "");
 		
 	}
@@ -146,20 +160,6 @@ class TizenPlatform implements IPlatformTool {
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "tizen/hxml", project.app.path + "/tizen/haxe", context);
 		
 		//SWFHelper.generateSWFClasses (project, project.app.path + "/tizen/haxe");
-		
-		var arch = "";
-		
-		if (project.targetFlags.exists ("simulator")) {
-			
-			arch = "-x86";
-			
-		}
-		
-		for (ndll in project.ndlls) {
-			
-			FileHelper.copyLibrary (project, ndll, "Tizen", "", arch + ".so", destination + "lib/", project.debug, ".so");
-			
-		}
 		
 		for (asset in project.assets) {
 			
