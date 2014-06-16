@@ -1,7 +1,7 @@
 package platforms;
 
 
-//import openfl.display.BitmapData;
+import openfl.display.BitmapData;
 import haxe.io.Path;
 import haxe.Template;
 import helpers.ArrayHelper;
@@ -378,8 +378,8 @@ class IOSPlatform implements IPlatformTool {
 			
 			if (!match) {
 				
-				//var bitmapData = new BitmapData (width, height, false, (0xFF << 24) | (project.window.background & 0xFFFFFF));
-				//File.saveBytes (PathHelper.combine (projectDirectory, splashScreenNames[i]), bitmapData.encode ("png"));
+				var bitmapData = new BitmapData (width, height, false, (0xFF << 24) | (project.window.background & 0xFFFFFF));
+				File.saveBytes (PathHelper.combine (projectDirectory, splashScreenNames[i]), bitmapData.encode ("png"));
 				
 			}
 			

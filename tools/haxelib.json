@@ -1,0 +1,11 @@
+{
+	"name": "lime-tools",
+	"url": "https://github.com/openfl/lime-tools",
+	"license": "MIT",
+	"tags": [],
+	"description": "Command-line tools for Haxe projects",
+	"version": "1.5.6",
+	"releasenote": "Fix opening of files with spaces (Windows)",
+	"contributors": [ "singmajesty" ],
+	"dependencies": {}
+}

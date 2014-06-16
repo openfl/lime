@@ -1255,7 +1255,7 @@ class PlatformSetup {
 					
 					Lib.println ("");
 					Lib.println ("It can take up to two hours for code signing keys to arrive");
-					Lib.println ("Please run \"lime setup blackberry\" again at that time");
+					Lib.println ("Please run \"" + (userDefines.exists ("nme") ? "nme" : "openfl") + " setup blackberry\" again at that time");
 					Sys.exit (0);
 					
 				} else {

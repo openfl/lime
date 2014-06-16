@@ -1,20 +1,18 @@
 package helpers;
 
 
-//import openfl.display.Bitmap;
-//import openfl.display.BitmapData;
-//import openfl.display.Shape;
-//import openfl.geom.Rectangle;
-//import openfl.utils.ByteArray;
-//import format.SVG;
+import openfl.display.Bitmap;
+import openfl.display.BitmapData;
+import openfl.display.Shape;
+import openfl.geom.Rectangle;
+import openfl.utils.ByteArray;
+import format.SVG;
 import haxe.io.Bytes;
 import haxe.io.BytesOutput;
 import haxe.io.Path;
 import helpers.FileHelper;
 import helpers.ImageHelper;
 import helpers.LogHelper;
-import lime.graphics.ImageData;
-import lime.utils.ByteArray;
 import project.Icon;
 import sys.io.File;
 import sys.FileSystem;
@@ -34,14 +32,14 @@ class IconHelper {
 			
 		} else {
 			
-			/*var bitmapData = getIconBitmap (icons, width, height);
+			var bitmapData = getIconBitmap (icons, width, height);
 			
 			if (bitmapData != null) {
 				
 				File.saveBytes (targetPath, bitmapData.encode ("png"));
 				return true;
 				
-			}*/
+			}
 			
 		}
 		
@@ -52,7 +50,7 @@ class IconHelper {
 	
 	public static function createMacIcon (icons:Array <Icon>, targetPath:String):Bool {
 		
-		/*var out = new BytesOutput ();
+		var out = new BytesOutput ();
 		out.bigEndian = true;
 		
 		// Not sure why the 128x128 icon is not saving properly. Disabling for now
@@ -125,7 +123,7 @@ class IconHelper {
 			
 			return true;
 			
-		}*/
+		}
 		
 		return false;
 		
@@ -134,7 +132,7 @@ class IconHelper {
 	
 	public static function createWindowsIcon (icons:Array <Icon>, targetPath:String):Bool {
 		
-		/*var sizes = [ 16, 24, 32, 40, 48, 64, 96, 128, 256 ];
+		var sizes = [ 16, 24, 32, 40, 48, 64, 96, 128, 256 ];
 		var bmps = new Array <BitmapData> ();
 		
 		var data_pos = 6;
@@ -242,7 +240,7 @@ class IconHelper {
 			
 			return true;
 			
-		}*/
+		}
 		
 		return false;
 		
@@ -326,11 +324,9 @@ class IconHelper {
 	}
 	
 	
-	private static function getIconImage (icons:Array <Icon>, width:Int, height:Int, backgroundColor:Int = null):ImageData {
+	private static function getIconBitmap (icons:Array <Icon>, width:Int, height:Int, backgroundColor:Int = null):BitmapData {
 		
-		return null;
-		
-		/*var icon = findMatch (icons, width, height);
+		var icon = findMatch (icons, width, height);
 		
 		if (icon == null) {
 			
@@ -366,7 +362,7 @@ class IconHelper {
 			
 		}
 		
-		return bitmapData;*/
+		return bitmapData;
 		
 	}
    

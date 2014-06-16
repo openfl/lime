@@ -1,0 +1,70 @@
+language: c++
+
+before_install:
+  - sudo add-apt-repository ppa:eyecreate/haxe -y
+  - sudo apt-get update
+  - sudo apt-get install haxe -y --force-yes
+  - sudo apt-get install g++-multilib gcc-multilib
+  - sudo apt-get install mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev -y
+  - mkdir ~/haxelib
+  - haxelib setup ~/haxelib
+  - git clone https://github.com/openfl/lime ~/lime
+  - haxelib dev lime ~/lime
+  - git clone https://github.com/haxenme/nme ~/nme --depth 1
+  - haxelib dev nme ~/nme
+  - git clone https://github.com/haxenme/nme-dev ~/nme-dev --depth 1
+  - haxelib dev nme-dev ~/nme-dev
+  - git clone https://github.com/openfl/openfl ~/openfl --depth 1
+  - haxelib dev openfl ~/openfl
+  - git clone https://github.com/openfl/openfl-samples ~/openfl-samples --depth 1
+  - haxelib dev openfl-samples ~/openfl-samples
+  - haxelib install hxcpp
+  - haxelib install format
+  - haxelib install svg
+  - haxelib dev lime-tools $(pwd)
+  - haxelib run lime rebuild linux -release -64
+  - touch ~/lime/ndll/Windows/lime.ndll
+  - touch ~/lime/ndll/Mac/lime.ndll
+  - touch ~/lime/ndll/Mac64/lime.ndll
+  - touch ~/lime/ndll/Linux/lime.ndll
+  - touch ~/lime/ndll/iPhone/liblime.iphoneos-v7.a
+  - touch ~/lime/ndll/iPhone/liblime.iphoneos.a
+  - touch ~/lime/ndll/iPhone/liblime.iphonesim.a
+  - touch ~/lime/ndll/Android/liblime.so
+  - touch ~/lime/ndll/Android/liblime-v7.so
+  - touch ~/lime/ndll/BlackBerry/lime.so
+  - mkdir ~/lime/ndll/Tizen
+  - touch ~/lime/ndll/Tizen/lime.so
+
+script:
+  - haxelib run lime rebuild tools
+  - haxelib run lime
+  - haxelib run lime help
+  - haxelib run lime create openfl:project TestProject
+  - haxelib run lime display TestProject flash
+  - haxelib run lime display TestProject windows
+  - haxelib run lime display TestProject mac
+  - haxelib run lime display TestProject linux
+  - haxelib run lime display TestProject android
+  - haxelib run lime display TestProject blackberry
+  - haxelib run lime display TestProject tizen
+  - haxelib run lime display TestProject html5
+  - haxelib run lime display TestProject firefoxos
+  - haxelib run lime update TestProject flash
+  - haxelib run lime update TestProject windows
+  - haxelib run lime update TestProject mac
+  - haxelib run lime update TestProject linux
+  - haxelib run lime update TestProject ios
+  - export ANDROID_SETUP=1
+  - haxelib run lime update TestProject android
+  - export BLACKBERRY_SETUP=1
+  - haxelib run lime update TestProject blackberry
+  - haxelib run lime update TestProject tizen
+  - haxelib run lime update TestProject html5
+  - haxelib run lime update TestProject firefoxos
+  - haxelib run lime build TestProject flash
+  - haxelib run lime build TestProject linux -neko
+  - haxelib run lime build TestProject html5
+
+notifications:
+  slack: openfl:ba3HbgtZflW8TNcJEQ1B4tAY

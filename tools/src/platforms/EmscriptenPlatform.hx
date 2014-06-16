@@ -1,8 +1,8 @@
 package platforms;
 
 
-//import openfl.utils.ByteArray;
-//import openfl.utils.CompressionAlgorithm;
+import openfl.utils.ByteArray;
+import openfl.utils.CompressionAlgorithm;
 import haxe.io.Path;
 import haxe.Template;
 import helpers.AssetHelper;
@@ -16,7 +16,6 @@ import project.AssetType;
 import project.HXProject;
 import sys.io.File;
 import sys.FileSystem;
-
 
 class EmscriptenPlatform implements IPlatformTool {
 	
@@ -161,15 +160,15 @@ class EmscriptenPlatform implements IPlatformTool {
 			
 			if (FileSystem.exists (outputDirectory + "/bin/" + project.app.file + ".data")) {
 				
-				//var byteArray = ByteArray.readFile (outputDirectory + "/bin/" + project.app.file + ".data");
-				//byteArray.compress (CompressionAlgorithm.GZIP);
-				//File.saveBytes (outputDirectory + "/bin/" + project.app.file + ".data.compress", byteArray);
+				var byteArray = ByteArray.readFile (outputDirectory + "/bin/" + project.app.file + ".data");
+				byteArray.compress (CompressionAlgorithm.GZIP);
+				File.saveBytes (outputDirectory + "/bin/" + project.app.file + ".data.compress", byteArray);
 				
 			}
 			
-			//var byteArray = ByteArray.readFile (outputDirectory + "/bin/" + project.app.file + ".js");
-			//byteArray.compress (CompressionAlgorithm.GZIP);
-			//File.saveBytes (outputDirectory + "/bin/" + project.app.file + ".js.compress", byteArray);
+			var byteArray = ByteArray.readFile (outputDirectory + "/bin/" + project.app.file + ".js");
+			byteArray.compress (CompressionAlgorithm.GZIP);
+			File.saveBytes (outputDirectory + "/bin/" + project.app.file + ".js.compress", byteArray);
 			
 		} else {
 			

@@ -1,6 +1,8 @@
 -main CommandLineTools
 -neko run.n
 -cp src
--lib lime
+-lib openfl
 -lib format
 -lib svg
+--macro openfl.Lib.includeBackend("native")
+--remap flash:openfl
