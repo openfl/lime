@@ -4,6 +4,12 @@ package lime.ui;
 import lime.app.EventManager;
 import lime.system.System;
 
+#if flash
+import flash.ui.Multitouch;
+import flash.ui.MultitouchInputMode;
+import flash.Lib;
+#end
+
 
 @:allow(lime.ui.Window)
 class TouchEventManager extends EventManager<ITouchEventListener> {
@@ -150,6 +156,27 @@ class TouchEventManager extends EventManager<ITouchEventListener> {
 	}
 	
 	
+	#if flash
+	private function handleFlashEvent (event:flash.events.TouchEvent):Void {
+		
+		touchEvent.id = event.touchPointID;
+		touchEvent.x = event.stageX;
+		touchEvent.y = event.stageY;
+		
+		touchEvent.type = switch (event.type) {
+			
+			case flash.events.TouchEvent.TOUCH_BEGIN: TOUCH_START;
+			case flash.events.TouchEvent.TOUCH_MOVE: TOUCH_MOVE;
+			default: TOUCH_END;
+			
+		}
+		
+		handleEvent (touchEvent);
+		
+	}
+	#end
+	
+	
 	private static function registerWindow (window:Window):Void {
 		
 		if (instance != null) {
@@ -158,6 +185,11 @@ class TouchEventManager extends EventManager<ITouchEventListener> {
 			window.element.addEventListener ("touchstart", instance.handleDOMEvent, true);
 			window.element.addEventListener ("touchmove", instance.handleDOMEvent, true);
 			window.element.addEventListener ("touchend", instance.handleDOMEvent, true);
+			#elseif flash
+			Multitouch.inputMode = MultitouchInputMode.TOUCH_POINT;
+			Lib.current.stage.addEventListener (flash.events.TouchEvent.TOUCH_BEGIN, instance.handleFlashEvent);
+			Lib.current.stage.addEventListener (flash.events.TouchEvent.TOUCH_MOVE, instance.handleFlashEvent);
+			Lib.current.stage.addEventListener (flash.events.TouchEvent.TOUCH_END, instance.handleFlashEvent);
 			#end
 			
 		}

@@ -6,6 +6,8 @@ import lime.system.System;
 
 #if js
 import js.Browser;
+#elseif flash
+import flash.Lib;
 #end
 
 
@@ -95,6 +97,25 @@ class KeyEventManager extends EventManager<IKeyEventListener> {
 	}
 	
 	
+	#if flash
+	private function handleFlashEvent (event:flash.events.KeyboardEvent):Void {
+		
+		keyEvent.code = event.keyCode;
+		keyEvent.key = event.charCode;
+		
+		keyEvent.ctrlKey = event.ctrlKey;
+		keyEvent.altKey = event.altKey;
+		keyEvent.shiftKey = event.shiftKey;
+		//keyEvent.metaKey = event.commandKey;
+		
+		keyEvent.type = (event.type == flash.events.KeyboardEvent.KEY_DOWN ? KEY_DOWN : KEY_UP);
+		
+		handleEvent (keyEvent);
+		
+	}
+	#end
+	
+	
 	private static function registerWindow (_):Void {
 		
 		if (instance != null) {
@@ -102,6 +123,9 @@ class KeyEventManager extends EventManager<IKeyEventListener> {
 			#if js
 			Browser.window.addEventListener ("keydown", instance.handleDOMEvent, false);
 			Browser.window.addEventListener ("keyup", instance.handleDOMEvent, false);
+			#elseif flash
+			Lib.current.stage.addEventListener (flash.events.KeyboardEvent.KEY_DOWN, instance.handleFlashEvent);
+			Lib.current.stage.addEventListener (flash.events.KeyboardEvent.KEY_UP, instance.handleFlashEvent);
 			#end
 			
 		}

@@ -5,7 +5,11 @@ import lime.app.EventManager;
 import lime.system.System;
 
 #if js
+import js.html.Event;
 import js.Browser;
+#elseif flash
+import flash.events.Event;
+import flash.Lib;
 #end
 
 
@@ -46,7 +50,7 @@ class WindowEventManager extends EventManager<IWindowEventListener> {
 	
 	
 	#if js
-	private function handleDOMEvent (event:js.html.Event):Void {
+	private function handleDOMEvent (event:Event):Void {
 		
 		windowEvent.type = (event.type == "focus" ? WINDOW_ACTIVATE : WINDOW_DEACTIVATE);
 		handleEvent (windowEvent);
@@ -82,6 +86,16 @@ class WindowEventManager extends EventManager<IWindowEventListener> {
 	}
 	
 	
+	#if flash
+	private function handleFlashEvent (event:Event):Void {
+		
+		windowEvent.type = (event.type == Event.ACTIVATE ? WINDOW_ACTIVATE : WINDOW_DEACTIVATE);
+		handleEvent (windowEvent);
+		
+	}
+	#end
+	
+	
 	private static function registerWindow (_):Void {
 		
 		if (instance != null) {
@@ -89,6 +103,9 @@ class WindowEventManager extends EventManager<IWindowEventListener> {
 			#if js
 			Browser.window.addEventListener ("focus", instance.handleDOMEvent, false);
 			Browser.window.addEventListener ("blur", instance.handleDOMEvent, false);
+			#elseif flash
+			Lib.current.stage.addEventListener (Event.ACTIVATE, instance.handleFlashEvent);
+			Lib.current.stage.addEventListener (Event.DEACTIVATE, instance.handleFlashEvent);
 			#end
 			
 		}
