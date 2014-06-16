@@ -15,16 +15,21 @@ import flash.Lib;
 class MouseEventManager extends EventManager<IMouseEventListener> {
 	
 	
-	private static var instance:MouseEventManager;
+	private static var instance(get, null):MouseEventManager;
 	
 	private var mouseEvent:MouseEvent;
 	
+	public static inline function get_instance():MouseEventManager {
 	
-	public function new () {
+		return (instance == null) ? instance = new MouseEventManager() : instance;
+
+	}
+
+
+	private function new () {
 		
 		super ();
 		
-		instance = this;
 		mouseEvent = new MouseEvent ();
 		
 		#if (cpp || neko)
@@ -38,14 +43,10 @@ class MouseEventManager extends EventManager<IMouseEventListener> {
 	
 	public static function addEventListener (listener:IMouseEventListener, priority:Int = 0):Void {
 		
-		if (instance != null) {
-			
-			instance._addEventListener (listener, priority);
-			
-		}
+		instance._addEventListener (listener, priority);
 		
 	}
-	
+		
 	
 	#if js
 	private function handleDOMEvent (event:js.html.MouseEvent):Void {
@@ -150,43 +151,35 @@ class MouseEventManager extends EventManager<IMouseEventListener> {
 	
 	private static function registerWindow (window:Window):Void {
 		
-		if (instance != null) {
-			
-			#if js
-			window.element.addEventListener ("mousedown", instance.handleDOMEvent, true);
-			window.element.addEventListener ("mousemove", instance.handleDOMEvent, true);
-			window.element.addEventListener ("mouseup", instance.handleDOMEvent, true);
-			//window.element.addEventListener ("mousewheel", handleDOMEvent, true);
-			
-			// Disable image drag on Firefox
-			/*Browser.document.addEventListener ("dragstart", function (e) {
-				if (e.target.nodeName.toLowerCase() == "img") {
-					e.preventDefault();
-					return false;
-				}
-				return true;
-			}, false);*/
-			#elseif flash
-			Lib.current.stage.addEventListener (flash.events.MouseEvent.MOUSE_DOWN, instance.handleFlashEvent);
-			Lib.current.stage.addEventListener (flash.events.MouseEvent.MOUSE_MOVE, instance.handleFlashEvent);
-			Lib.current.stage.addEventListener (flash.events.MouseEvent.MOUSE_UP, instance.handleFlashEvent);
-			#end
-			
-		}
+		#if js
+		window.element.addEventListener ("mousedown", instance.handleDOMEvent, true);
+		window.element.addEventListener ("mousemove", instance.handleDOMEvent, true);
+		window.element.addEventListener ("mouseup", instance.handleDOMEvent, true);
+		//window.element.addEventListener ("mousewheel", handleDOMEvent, true);
+		
+		// Disable image drag on Firefox
+		/*Browser.document.addEventListener ("dragstart", function (e) {
+			if (e.target.nodeName.toLowerCase() == "img") {
+				e.preventDefault();
+				return false;
+			}
+			return true;
+		}, false);*/
+		#elseif flash
+		Lib.current.stage.addEventListener (flash.events.MouseEvent.MOUSE_DOWN, instance.handleFlashEvent);
+		Lib.current.stage.addEventListener (flash.events.MouseEvent.MOUSE_MOVE, instance.handleFlashEvent);
+		Lib.current.stage.addEventListener (flash.events.MouseEvent.MOUSE_UP, instance.handleFlashEvent);
+		#end
 		
 	}
-	
+		
 	
 	public static function removeEventListener (listener:IMouseEventListener):Void {
 		
-		if (instance != null) {
-			
-			instance._removeEventListener (listener);
-			
-		}
+		instance._removeEventListener (listener);
 		
 	}
-	
+		
 	
 	#if (cpp || neko)
 	private static var lime_mouse_event_manager_register = System.load ("lime", "lime_mouse_event_manager_register", 2);

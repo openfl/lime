@@ -10,16 +10,21 @@ import lime.ui.Window;
 class RenderEventManager extends EventManager<IRenderEventListener> {
 	
 	
-	private static var instance:RenderEventManager;
+	private static var instance(get, null):RenderEventManager;
 	
 	private var event:RenderEvent;
 	
+	public static inline function get_instance():RenderEventManager {
 	
-	public function new () {
+		return (instance == null) ? instance = new RenderEventManager() : instance;
+
+	}
+
+
+	private function new () {
 		
 		super ();
 		
-		instance = this;
 		event = new RenderEvent ();
 		
 		#if (cpp || neko)
@@ -33,14 +38,10 @@ class RenderEventManager extends EventManager<IRenderEventListener> {
 	
 	public static function addEventListener (listener:IRenderEventListener, priority:Int = 0):Void {
 		
-		if (instance != null) {
-			
-			instance._addEventListener (listener, priority);
-			
-		}
+		instance._addEventListener (listener, priority);
 		
 	}
-	
+		
 	
 	private function handleEvent (event:RenderEvent):Void {
 		
@@ -71,14 +72,10 @@ class RenderEventManager extends EventManager<IRenderEventListener> {
 	
 	public static function removeEventListener (listener:IRenderEventListener) {
 		
-		if (instance != null) {
-			
-			instance._removeEventListener (listener);
-			
-		}
+		instance._removeEventListener (listener);
 		
 	}
-	
+		
 	
 	#if (cpp || neko)
 	private static var lime_render_event_manager_register = System.load ("lime", "lime_render_event_manager_register", 2);

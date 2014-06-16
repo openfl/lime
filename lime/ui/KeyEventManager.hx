@@ -15,16 +15,21 @@ import flash.Lib;
 class KeyEventManager extends EventManager<IKeyEventListener> {
 	
 	
-	private static var instance:KeyEventManager;
+	private static var instance(get, null):KeyEventManager;
 	
 	private var keyEvent:KeyEvent;
 	
+	public static inline function get_instance():KeyEventManager {
 	
-	public function new () {
+		return (instance == null) ? instance = new KeyEventManager() : instance;
+
+	}
+
+
+	private function new () {
 		
 		super ();
 		
-		instance = this;
 		keyEvent = new KeyEvent ();
 		
 		#if (cpp || neko)
@@ -38,14 +43,10 @@ class KeyEventManager extends EventManager<IKeyEventListener> {
 	
 	public static function addEventListener (listener:IKeyEventListener, priority:Int = 0):Void {
 		
-		if (instance != null) {
-			
-			instance._addEventListener (listener, priority);
-			
-		}
+		instance._addEventListener (listener, priority);
 		
 	}
-	
+		
 	
 	#if js
 	private function handleDOMEvent (event:js.html.KeyboardEvent):Void {
@@ -118,31 +119,23 @@ class KeyEventManager extends EventManager<IKeyEventListener> {
 	
 	private static function registerWindow (_):Void {
 		
-		if (instance != null) {
-			
-			#if js
-			Browser.window.addEventListener ("keydown", instance.handleDOMEvent, false);
-			Browser.window.addEventListener ("keyup", instance.handleDOMEvent, false);
-			#elseif flash
-			Lib.current.stage.addEventListener (flash.events.KeyboardEvent.KEY_DOWN, instance.handleFlashEvent);
-			Lib.current.stage.addEventListener (flash.events.KeyboardEvent.KEY_UP, instance.handleFlashEvent);
-			#end
-			
-		}
+		#if js
+		Browser.window.addEventListener ("keydown", instance.handleDOMEvent, false);
+		Browser.window.addEventListener ("keyup", instance.handleDOMEvent, false);
+		#elseif flash
+		Lib.current.stage.addEventListener (flash.events.KeyboardEvent.KEY_DOWN, instance.handleFlashEvent);
+		Lib.current.stage.addEventListener (flash.events.KeyboardEvent.KEY_UP, instance.handleFlashEvent);
+		#end
 		
 	}
-	
+		
 	
 	public static function removeEventListener (listener:IKeyEventListener):Void {
 		
-		if (instance != null) {
-			
-			instance._removeEventListener (listener);
-			
-		}
+		instance._removeEventListener (listener);
 		
 	}
-	
+		
 	
 	#if (cpp || neko)
 	private static var lime_key_event_manager_register = System.load ("lime", "lime_key_event_manager_register", 2);

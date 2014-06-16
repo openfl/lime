@@ -8,7 +8,7 @@ package lime.app;
 	private var priorities:Array<Int>;
 	
 	
-	public function new () {
+	private function new () {
 		
 		listeners = new Array ();
 		priorities = new Array ();

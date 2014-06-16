@@ -40,13 +40,6 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 		handle = lime_application_create (null);
 		#end
 		
-		new KeyEventManager ();
-		new MouseEventManager ();
-		new RenderEventManager ();
-		new TouchEventManager ();
-		new UpdateEventManager ();
-		new WindowEventManager ();
-		
 		KeyEventManager.addEventListener (this);
 		MouseEventManager.addEventListener (this);
 		TouchEventManager.addEventListener (this);
