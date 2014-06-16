@@ -1,6 +1,6 @@
 extern "C" {
 	
-	#include <png.h>
+	//#include <png.h>
 	
 }
 
