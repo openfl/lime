@@ -25,8 +25,6 @@ class Window {
 	public var height:Int;
 	public var width:Int;
 	
-	private var application:Application;
-	
 	#if js
 	public var canvas:CanvasElement;
 	public var div:DivElement;
@@ -39,14 +37,12 @@ class Window {
 	#end
 	
 	
-	public function new (application:Application) {
-		
-		this.application = application;
+	public function new () {
 		
 	}
 	
 	
-	public function create ():Void {
+	public function create (application:Application):Void {
 		
 		#if js
 		

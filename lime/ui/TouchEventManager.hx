@@ -15,16 +15,21 @@ import flash.Lib;
 class TouchEventManager extends EventManager<ITouchEventListener> {
 	
 	
-	private static var instance:TouchEventManager;
+	private static var instance(get, null):TouchEventManager;
 	
 	private var touchEvent:TouchEvent;
 	
+	public static inline function get_instance():TouchEventManager {
 	
-	public function new () {
+		return (instance == null) ? instance = new TouchEventManager() : instance;
+
+	}
+
+
+	private function new () {
 		
 		super ();
 		
-		instance = this;
 		touchEvent = new TouchEvent ();
 		
 		#if (cpp || neko)
@@ -38,14 +43,10 @@ class TouchEventManager extends EventManager<ITouchEventListener> {
 	
 	public static function addEventListener (listener:ITouchEventListener, priority:Int = 0):Void {
 		
-		if (instance != null) {
-			
-			instance._addEventListener (listener, priority);
-			
-		}
+		instance._addEventListener (listener, priority);
 		
 	}
-	
+		
 	
 	#if js
 	private function handleDOMEvent (event:js.html.TouchEvent):Void {
@@ -179,34 +180,26 @@ class TouchEventManager extends EventManager<ITouchEventListener> {
 	
 	private static function registerWindow (window:Window):Void {
 		
-		if (instance != null) {
-			
-			#if js
-			window.element.addEventListener ("touchstart", instance.handleDOMEvent, true);
-			window.element.addEventListener ("touchmove", instance.handleDOMEvent, true);
-			window.element.addEventListener ("touchend", instance.handleDOMEvent, true);
-			#elseif flash
-			Multitouch.inputMode = MultitouchInputMode.TOUCH_POINT;
-			Lib.current.stage.addEventListener (flash.events.TouchEvent.TOUCH_BEGIN, instance.handleFlashEvent);
-			Lib.current.stage.addEventListener (flash.events.TouchEvent.TOUCH_MOVE, instance.handleFlashEvent);
-			Lib.current.stage.addEventListener (flash.events.TouchEvent.TOUCH_END, instance.handleFlashEvent);
-			#end
-			
-		}
+		#if js
+		window.element.addEventListener ("touchstart", instance.handleDOMEvent, true);
+		window.element.addEventListener ("touchmove", instance.handleDOMEvent, true);
+		window.element.addEventListener ("touchend", instance.handleDOMEvent, true);
+		#elseif flash
+		Multitouch.inputMode = MultitouchInputMode.TOUCH_POINT;
+		Lib.current.stage.addEventListener (flash.events.TouchEvent.TOUCH_BEGIN, instance.handleFlashEvent);
+		Lib.current.stage.addEventListener (flash.events.TouchEvent.TOUCH_MOVE, instance.handleFlashEvent);
+		Lib.current.stage.addEventListener (flash.events.TouchEvent.TOUCH_END, instance.handleFlashEvent);
+		#end
 		
 	}
-	
+		
 	
 	public static function removeEventListener (listener:ITouchEventListener):Void {
 		
-		if (instance != null) {
-			
-			instance._removeEventListener (listener);
-			
-		}
+		instance._removeEventListener (listener);
 		
 	}
-	
+		
 	
 	#if (cpp || neko)
 	private static var lime_touch_event_manager_register = System.load ("lime", "lime_touch_event_manager_register", 2);

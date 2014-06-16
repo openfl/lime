@@ -17,16 +17,21 @@ import flash.Lib;
 class WindowEventManager extends EventManager<IWindowEventListener> {
 	
 	
-	private static var instance:WindowEventManager;
+	private static var instance(get, null):WindowEventManager;
 	
 	private var windowEvent:WindowEvent;
 	
+	public static inline function get_instance():WindowEventManager {
 	
-	public function new () {
+		return (instance == null) ? instance = new WindowEventManager() : instance;
+
+	}
+
+
+	private function new () {
 		
 		super ();
 		
-		instance = this;
 		windowEvent = new WindowEvent ();
 		
 		#if (cpp || neko)
@@ -40,14 +45,10 @@ class WindowEventManager extends EventManager<IWindowEventListener> {
 	
 	public static function addEventListener (listener:IWindowEventListener, priority:Int = 0):Void {
 		
-		if (instance != null) {
-			
-			instance._addEventListener (listener, priority);
-			
-		}
+		instance._addEventListener (listener, priority);
 		
 	}
-	
+		
 	
 	#if js
 	private function handleDOMEvent (event:Event):Void {
@@ -98,31 +99,23 @@ class WindowEventManager extends EventManager<IWindowEventListener> {
 	
 	private static function registerWindow (_):Void {
 		
-		if (instance != null) {
-			
-			#if js
-			Browser.window.addEventListener ("focus", instance.handleDOMEvent, false);
-			Browser.window.addEventListener ("blur", instance.handleDOMEvent, false);
-			#elseif flash
-			Lib.current.stage.addEventListener (Event.ACTIVATE, instance.handleFlashEvent);
-			Lib.current.stage.addEventListener (Event.DEACTIVATE, instance.handleFlashEvent);
-			#end
-			
-		}
+		#if js
+		Browser.window.addEventListener ("focus", instance.handleDOMEvent, false);
+		Browser.window.addEventListener ("blur", instance.handleDOMEvent, false);
+		#elseif flash
+		Lib.current.stage.addEventListener (Event.ACTIVATE, instance.handleFlashEvent);
+		Lib.current.stage.addEventListener (Event.DEACTIVATE, instance.handleFlashEvent);
+		#end
 		
 	}
-	
+		
 	
 	public static function removeEventListener (listener:IWindowEventListener):Void {
 		
-		if (instance != null) {
-			
-			instance._removeEventListener (listener);
-			
-		}
+		instance._removeEventListener (listener);
 		
 	}
-	
+		
 	
 	#if (cpp || neko)
 	private static var lime_window_event_manager_register = System.load ("lime", "lime_window_event_manager_register", 2);
