@@ -1,10 +1,9 @@
 package lime;
+#if !macro
 
 
 import haxe.Unserializer;
 import lime.graphics.ImageData;
-import lime.graphics.JPG;
-import lime.graphics.PNG;
 import lime.utils.ByteArray;
 
 
@@ -13,8 +12,8 @@ import lime.utils.ByteArray;
  * embedded images, fonts, sounds and other resource files.</p>
  * 
  * <p>The contents are populated automatically when an application
- * is compiled using the Lime command-line tools, based on the
- * contents of the *.xml project file.</p>
+ * is compiled using the OpenFL command-line tools, based on the
+ * contents of the *.nmml project file.</p>
  * 
  * <p>For most platforms, the assets are included in the same directory
  * or package as the application, and the paths are handled
@@ -24,12 +23,14 @@ import lime.utils.ByteArray;
  * and specifying a custom preloader using <window preloader="" />
  * in the project file.</p>
  */
+@:access(lime.AssetLibrary)
 class Assets {
 	
 	
+	public static var cache = new AssetCache ();
+	public static var libraries (default, null) = new Map <String, AssetLibrary> ();
+	
 	private static var initialized = false;
-	private static var path (default, null) = new Map <String, String> ();
-	private static var type (default, null) = new Map <String, AssetType> ();
 	
 	
 	public static function exists (id:String, type:AssetType = null):Bool {
@@ -38,41 +39,21 @@ class Assets {
 		
 		#if (tools && !display)
 		
-		var assetType = Assets.type.get (id);
-		
-		if (assetType != null) {
+		if (type == null) {
 			
-			if (assetType == type || ((type == SOUND || type == MUSIC) && (assetType == MUSIC || assetType == SOUND))) {
-				
-				return true;
-				
-			}
-			
-			#if flash
-			
-			if ((assetType == BINARY || assetType == TEXT) && type == BINARY) {
-				
-				return true;
-				
-			} else if (path.exists (id)) {
-				
-				return true;
-				
-			}
-			
-			#else
-			
-			if (type == BINARY || type == null) {
-				
-				return true;
-				
-			}
-			
-			#end
+			type = BINARY;
 			
 		}
 		
-		return false;
+		var libraryName = id.substring (0, id.indexOf (":"));
+		var symbolName = id.substr (id.indexOf (":") + 1);
+		var library = getLibrary (libraryName);
+		
+		if (library != null) {
+			
+			return library.exists (symbolName, type);
+			
+		}
 		
 		#end
 		
@@ -93,46 +74,35 @@ class Assets {
 		
 		#if (tools && !display)
 		
-		#if (flash)
+		var libraryName = id.substring (0, id.indexOf(":"));
+		var symbolName = id.substr (id.indexOf(":") + 1);
+		var library = getLibrary (libraryName);
 		
-		//return cast (Type.createInstance (className.get (id), []), ByteArray);
-
-		#elseif js
-		
-		var bytes:ByteArray = null;
-		/*var data = ApplicationMain.urlLoaders.get (path.get (id)).data;
-		
-		if (Std.is (data, String)) {
+		if (library != null) {
 			
-			bytes = new ByteArray ();
-			bytes.writeUTFBytes (data);
-			
-		} else if (Std.is (data, ByteArray)) {
-			
-			bytes = cast data;
+			if (library.exists (symbolName, BINARY)) {
+				
+				if (library.isLocal (symbolName, BINARY)) {
+					
+					return library.getBytes (symbolName);
+					
+				} else {
+					
+					trace ("[lime.Assets] String or ByteArray asset \"" + id + "\" exists, but only asynchronously");
+					
+				}
+				
+			} else {
+				
+				trace ("[lime.Assets] There is no String or ByteArray asset with an ID of \"" + id + "\"");
+				
+			}
 			
 		} else {
 			
-			bytes = null;
+			trace ("[lime.Assets] There is no asset library named \"" + libraryName + "\"");
 			
-		}*/
-
-		if (bytes != null) {
-			
-			bytes.position = 0;
-			return bytes;
-			
-		} else {
-			
-			return null;
 		}
-		
-		#else
-		
-		//if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), ByteArray);
-		/*else*/ return ByteArray.readFile (path.get (id));
-		
-		#end
 		
 		#end
 		
@@ -141,41 +111,150 @@ class Assets {
 	}
 	
 	
-	public static function getImageData (id:String):ImageData {
+	/**
+	 * Gets an instance of an embedded bitmap
+	 * @usage		var bitmap = new Bitmap(Assets.getBitmapData("image.jpg"));
+	 * @param	id		The ID or asset path for the bitmap
+	 * @param	useCache		(Optional) Whether to use BitmapData from the cache(Default: true)
+	 * @return		A new BitmapData object
+	 */
+	public static function getImageData (id:String, useCache:Bool = true):ImageData {
 		
 		initialize ();
 		
 		#if (tools && !display)
 		
-		#if (flash)
-		
-		//return cast (Type.createInstance (className.get (id), []), ByteArray);
-
-		#elseif js
-		
-		return null;
-		
-		#else
-		
-		var bytes = getBytes (id);
-		
-		if (bytes != null) {
+		if (useCache && cache.enabled && cache.imageData.exists (id)) {
 			
-			if (JPG.isFormat (bytes)) {
+			var imageData = cache.imageData.get (id);
+			
+			if (isValidImageData (imageData)) {
 				
-				return JPG.decode (bytes);
-				
-			} else if (PNG.isFormat (bytes)) {
-				
-				return PNG.decode (bytes);
+				return imageData;
 				
 			}
 			
-			return null;
+		}
+		
+		var libraryName = id.substring (0, id.indexOf (":"));
+		var symbolName = id.substr (id.indexOf (":") + 1);
+		var library = getLibrary (libraryName);
+		
+		if (library != null) {
+			
+			if (library.exists (symbolName, IMAGE)) {
+				
+				if (library.isLocal (symbolName, IMAGE)) {
+					
+					var imageData = library.getImageData (symbolName);
+					
+					if (useCache && cache.enabled) {
+						
+						cache.imageData.set (id, imageData);
+						
+					}
+					
+					return imageData;
+					
+				} else {
+					
+					trace ("[lime.Assets] ImageData asset \"" + id + "\" exists, but only asynchronously");
+					
+				}
+				
+			} else {
+				
+				trace ("[lime.Assets] There is no ImageData asset with an ID of \"" + id + "\"");
+				
+			}
+			
+		} else {
+			
+			trace ("[lime.Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
 		#end
+		
+		return null;
+		
+	}
+	
+	
+	private static function getLibrary (name:String):AssetLibrary {
+		
+		if (name == null || name == "") {
+			
+			name = "default";
+			
+		}
+		
+		return libraries.get (name);
+		
+	}
+	
+	
+	/**
+	 * Gets an instance of an embedded streaming sound
+	 * @usage		var sound = Assets.getMusic("sound.ogg");
+	 * @param	id		The ID or asset path for the music track
+	 * @return		A new Sound object
+	 */
+	public static function getMusic (id:String, useCache:Bool = true):Dynamic /*Sound*/ {
+		
+		initialize ();
+		
+		#if (tools && !display)
+		
+		if (useCache && cache.enabled && cache.sound.exists (id)) {
+			
+			var sound = cache.sound.get (id);
+			
+			if (isValidSound (sound)) {
+				
+				return sound;
+				
+			}
+			
+		}
+		
+		var libraryName = id.substring (0, id.indexOf (":"));
+		var symbolName = id.substr (id.indexOf (":") + 1);
+		var library = getLibrary (libraryName);
+		
+		if (library != null) {
+			
+			if (library.exists (symbolName, MUSIC)) {
+				
+				if (library.isLocal (symbolName, MUSIC)) {
+					
+					var sound = library.getMusic (symbolName);
+					
+					if (useCache && cache.enabled) {
+						
+						cache.sound.set (id, sound);
+						
+					}
+					
+					return sound;
+					
+				} else {
+					
+					trace ("[lime.Assets] Sound asset \"" + id + "\" exists, but only asynchronously");
+					
+				}
+				
+			} else {
+				
+				trace ("[lime.Assets] There is no Sound asset with an ID of \"" + id + "\"");
+				
+			}
+			
+		} else {
+			
+			trace ("[lime.Assets] There is no asset library named \"" + libraryName + "\"");
+			
+		}
 		
 		#end
 		
@@ -196,15 +275,96 @@ class Assets {
 		
 		#if (tools && !display)
 		
-		#if ios
+		var libraryName = id.substring (0, id.indexOf (":"));
+		var symbolName = id.substr (id.indexOf (":") + 1);
+		var library = getLibrary (libraryName);
 		
-		return SystemPath.applicationDirectory + "/assets/" + path.get (id);
-		
-		#else
-		
-		return path.get (id);
+		if (library != null) {
+			
+			if (library.exists (symbolName, null)) {
+				
+				return library.getPath (symbolName);
+				
+			} else {
+				
+				trace ("[lime.Assets] There is no asset with an ID of \"" + id + "\"");
+				
+			}
+			
+		} else {
+			
+			trace ("[lime.Assets] There is no asset library named \"" + libraryName + "\"");
+			
+		}
 		
 		#end
+		
+		return null;
+		
+	}
+	
+	
+	/**
+	 * Gets an instance of an embedded sound
+	 * @usage		var sound = Assets.getSound("sound.wav");
+	 * @param	id		The ID or asset path for the sound
+	 * @return		A new Sound object
+	 */
+	public static function getSound (id:String, useCache:Bool = true):Dynamic /*Sound*/ {
+		
+		initialize ();
+		
+		#if (tools && !display)
+		
+		if (useCache && cache.enabled && cache.sound.exists (id)) {
+			
+			var sound = cache.sound.get (id);
+			
+			if (isValidSound (sound)) {
+				
+				return sound;
+				
+			}
+			
+		}
+		
+		var libraryName = id.substring (0, id.indexOf (":"));
+		var symbolName = id.substr (id.indexOf (":") + 1);
+		var library = getLibrary (libraryName);
+		
+		if (library != null) {
+			
+			if (library.exists (symbolName, SOUND)) {
+				
+				if (library.isLocal (symbolName, SOUND)) {
+					
+					var sound = library.getSound (symbolName);
+					
+					if (useCache && cache.enabled) {
+						
+						cache.sound.set (id, sound);
+						
+					}
+					
+					return sound;
+					
+				} else {
+					
+					trace ("[lime.Assets] Sound asset \"" + id + "\" exists, but only asynchronously");
+					
+				}
+				
+			} else {
+				
+				trace ("[lime.Assets] There is no Sound asset with an ID of \"" + id + "\"");
+				
+			}
+			
+		} else {
+			
+			trace ("[lime.Assets] There is no asset library named \"" + libraryName + "\"");
+			
+		}
 		
 		#end
 		
@@ -225,50 +385,35 @@ class Assets {
 		
 		#if (tools && !display)
 		
-		#if js
+		var libraryName = id.substring (0, id.indexOf(":"));
+		var symbolName = id.substr (id.indexOf(":") + 1);
+		var library = getLibrary (libraryName);
 		
-		var bytes:ByteArray = null;
-		/*var data = ApplicationMain.urlLoaders.get (path.get (id)).data;
-		
-		if (Std.is (data, String)) {
+		if (library != null) {
 			
-			return cast data;
-			
-		} else if (Std.is (data, ByteArray)) {
-			
-			bytes = cast data;
+			if (library.exists (symbolName, TEXT)) {
+				
+				if (library.isLocal (symbolName, TEXT)) {
+					
+					return library.getText (symbolName);
+					
+				} else {
+					
+					trace ("[lime.Assets] String asset \"" + id + "\" exists, but only asynchronously");
+					
+				}
+				
+			} else {
+				
+				trace ("[lime.Assets] There is no String asset with an ID of \"" + id + "\"");
+				
+			}
 			
 		} else {
 			
-			bytes = null;
-			
-		}*/
-		
-		if (bytes != null) {
-			
-			bytes.position = 0;
-			return bytes.readUTFBytes (bytes.length);
-			
-		} else {
-			
-			return null;
-		}
-		
-		#else
-		
-		var bytes = getBytes (id);
-		
-		if (bytes == null) {
-			
-			return null;
-			
-		} else {
-			
-			return bytes.readUTFBytes (bytes.length);
+			trace ("[lime.Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
-		
-		#end
 		
 		#end
 		
@@ -283,9 +428,7 @@ class Assets {
 			
 			#if (tools && !display)
 			
-			#if (!js && !flash)
-			loadManifest ();
-			#end
+			registerLibrary ("default", new DefaultAssetLibrary ());
 			
 			#end
 			
@@ -302,21 +445,85 @@ class Assets {
 		
 		#if (tools && !display)
 		
-		#if flash
-		
-		if (type != AssetType.MUSIC && type != AssetType.SOUND) {
+		if (useCache && cache.enabled) {
 			
-			//return className.exists (id);
+			if (type == AssetType.IMAGE || type == null) {
+				
+				if (cache.imageData.exists (id)) return true;
+				
+			}
+			
+			/*if (type == AssetType.FONT || type == null) {
+				
+				if (cache.font.exists (id)) return true;
+				
+			}*/
+			
+			if (type == AssetType.SOUND || type == AssetType.MUSIC || type == null) {
+				
+				if (cache.sound.exists (id)) return true;
+				
+			}
+			
+		}
+		
+		var libraryName = id.substring (0, id.indexOf (":"));
+		var symbolName = id.substr (id.indexOf (":") + 1);
+		var library = getLibrary (libraryName);
+		
+		if (library != null) {
+			
+			return library.isLocal (symbolName, type);
 			
 		}
 		
 		#end
 		
+		return false;
+		
+	}
+	
+	
+	private static function isValidImageData (imageData:ImageData):Bool {
+		
+		#if (tools && !display)
+		#if (cpp || neko)
+		
 		return true;
+		//return (bitmapData.__handle != null);
+		
+		#elseif flash
+		
+		try {
+			
+			imageData.data.width;
+			
+		} catch (e:Dynamic) {
+			
+			return false;
+			
+		}
 		
 		#end
+		#end
 		
-		return false;
+		return true;
+		
+	}
+	
+	
+	private static function isValidSound (sound:Dynamic /*Sound*/):Bool {
+		
+		#if (tools && !display)
+		#if (cpp || neko)
+		
+		return true;
+		//return (sound.__handle != null && sound.__handle != 0);
+		
+		#end
+		#end
+		
+		return true;
 		
 	}
 	
@@ -327,11 +534,13 @@ class Assets {
 		
 		var items = [];
 		
-		for (id in Assets.type.keys ()) {
+		for (library in libraries) {
 			
-			if (type == null || exists (id, type)) {
+			var libraryItems = library.list (type);
+			
+			if (libraryItems != null) {
 				
-				items.push (id);
+				items = items.concat (libraryItems);
 				
 			}
 			
@@ -348,35 +557,28 @@ class Assets {
 		
 		#if (tools && !display)
 		
-		#if (flash || js)
+		var libraryName = id.substring (0, id.indexOf (":"));
+		var symbolName = id.substr (id.indexOf (":") + 1);
+		var library = getLibrary (libraryName);
 		
-		if (path.exists (id)) {
+		if (library != null) {
 			
-			/*var loader = new URLLoader ();
-			loader.addEventListener (Event.COMPLETE, function (event:Event) {
+			if (library.exists (symbolName, BINARY)) {
 				
-				var bytes = new ByteArray ();
-				bytes.writeUTFBytes (event.currentTarget.data);
-				bytes.position = 0;
+				library.loadBytes (symbolName, handler);
+				return;
 				
-				handler (bytes);
+			} else {
 				
-			});
-			loader.load (new URLRequest (path.get (id)));*/
-			
-			handler (null);
+				trace ("[lime.Assets] There is no String or ByteArray asset with an ID of \"" + id + "\"");
+				
+			}
 			
 		} else {
 			
-			handler (getBytes (id));
+			trace ("[lime.Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
-		
-		#else
-		
-		handler (getBytes (id));
-		
-		#end
 		
 		#end
 		
@@ -385,62 +587,222 @@ class Assets {
 	}
 	
 	
-	#if !flash
-	private static function loadManifest ():Void {
+	public static function loadImageData (id:String, handler:ImageData -> Void, useCache:Bool = true):Void {
 		
-		try {
+		initialize ();
+		
+		#if (tools && !display)
+		
+		if (useCache && cache.enabled && cache.imageData.exists (id)) {
 			
-			#if blackberry
-			var bytes = ByteArray.readFile ("app/native/manifest");
-			#elseif tizen
-			var bytes = ByteArray.readFile ("../res/manifest");
-			#elseif emscripten
-			var bytes = ByteArray.readFile ("assets/manifest");
-			#else
-			var bytes = ByteArray.readFile ("manifest");
-			#end
+			var imageData = cache.imageData.get (id);
 			
-			if (bytes != null) {
+			if (isValidImageData (imageData)) {
 				
-				bytes.position = 0;
-				
-				if (bytes.length > 0) {
-					
-					var data = bytes.readUTFBytes (bytes.length);
-					
-					if (data != null && data.length > 0) {
-						
-						var manifest:Array<Dynamic> = Unserializer.run (data);
-						
-						for (asset in manifest) {
-							
-							//if (!className.exists (asset.id)) {
-								
-								path.set (asset.id, asset.path);
-								type.set (asset.id, Type.createEnum (AssetType, asset.type));
-								
-							//}
-							
-						}
-						
-					}
-					
-				}
-				
-			} else {
-				
-				trace ("Warning: Could not load asset manifest (bytes was null)");
+				handler (imageData);
+				return;
 				
 			}
-		
-		} catch (e:Dynamic) {
-			
-			trace ('Warning: Could not load asset manifest (${e})');
 			
 		}
 		
+		var libraryName = id.substring (0, id.indexOf (":"));
+		var symbolName = id.substr (id.indexOf (":") + 1);
+		var library = getLibrary (libraryName);
+		
+		if (library != null) {
+			
+			if (library.exists (symbolName, IMAGE)) {
+				
+				if (useCache && cache.enabled) {
+					
+					library.loadImageData (symbolName, function (imageData:ImageData):Void {
+						
+						cache.imageData.set (id, imageData);
+						handler (imageData);
+						
+					});
+					
+				} else {
+					
+					library.loadImageData (symbolName, handler);
+					
+				}
+				
+				return;
+				
+			} else {
+				
+				trace ("[lime.Assets] There is no ImageData asset with an ID of \"" + id + "\"");
+				
+			}
+			
+		} else {
+			
+			trace ("[lime.Assets] There is no asset library named \"" + libraryName + "\"");
+			
+		}
+		
+		#end
+		
+		handler (null);
+		
 	}
-	#end
+	
+	
+	public static function loadLibrary (name:String, handler:AssetLibrary -> Void):Void {
+		
+		initialize();
+		
+		#if (tools && !display)
+		
+		var data = getText ("libraries/" + name + ".dat");
+		
+		if (data != null && data != "") {
+			
+			var unserializer = new Unserializer (data);
+			unserializer.setResolver (cast { resolveEnum: resolveEnum, resolveClass: resolveClass });
+			
+			var library:AssetLibrary = unserializer.unserialize ();
+			libraries.set (name, library);
+			library.eventCallback = library_onEvent;
+			library.load (handler);
+			
+		} else {
+			
+			trace ("[lime.Assets] There is no asset library named \"" + name + "\"");
+			
+		}
+		
+		#end
+		
+	}
+	
+	
+	public static function loadMusic (id:String, handler:Dynamic /*Sound*/ -> Void, useCache:Bool = true):Void {
+		
+		initialize ();
+		
+		#if (tools && !display)
+		
+		if (useCache && cache.enabled && cache.sound.exists (id)) {
+			
+			var sound = cache.sound.get (id);
+			
+			if (isValidSound (sound)) {
+				
+				handler (sound);
+				return;
+				
+			}
+			
+		}
+		
+		var libraryName = id.substring (0, id.indexOf (":"));
+		var symbolName = id.substr (id.indexOf (":") + 1);
+		var library = getLibrary (libraryName);
+		
+		if (library != null) {
+			
+			if (library.exists (symbolName, MUSIC)) {
+				
+				if (useCache && cache.enabled) {
+					
+					library.loadMusic (symbolName, function (sound:Dynamic /*Sound*/):Void {
+						
+						cache.sound.set (id, sound);
+						handler (sound);
+						
+					});
+					
+				} else {
+					
+					library.loadMusic (symbolName, handler);
+					
+				}
+				
+				return;
+				
+			} else {
+				
+				trace ("[lime.Assets] There is no Sound asset with an ID of \"" + id + "\"");
+				
+			}
+			
+		} else {
+			
+			trace ("[lime.Assets] There is no asset library named \"" + libraryName + "\"");
+			
+		}
+		
+		#end
+		
+		handler (null);
+		
+	}
+	
+	
+	public static function loadSound (id:String, handler:Dynamic /*Sound*/ -> Void, useCache:Bool = true):Void {
+		
+		initialize ();
+		
+		#if (tools && !display)
+		
+		if (useCache && cache.enabled && cache.sound.exists (id)) {
+			
+			var sound = cache.sound.get (id);
+			
+			if (isValidSound (sound)) {
+				
+				handler (sound);
+				return;
+				
+			}
+			
+		}
+		
+		var libraryName = id.substring (0, id.indexOf (":"));
+		var symbolName = id.substr (id.indexOf (":") + 1);
+		var library = getLibrary (libraryName);
+		
+		if (library != null) {
+			
+			if (library.exists (symbolName, SOUND)) {
+				
+				if (useCache && cache.enabled) {
+					
+					library.loadSound (symbolName, function (sound:Dynamic /*Sound*/):Void {
+						
+						cache.sound.set (id, sound);
+						handler (sound);
+						
+					});
+					
+				} else {
+					
+					library.loadSound (symbolName, handler);
+					
+				}
+				
+				return;
+				
+			} else {
+				
+				trace ("[lime.Assets] There is no Sound asset with an ID of \"" + id + "\"");
+				
+			}
+			
+		} else {
+			
+			trace ("[lime.Assets] There is no asset library named \"" + libraryName + "\"");
+			
+		}
+		
+		#end
+		
+		handler (null);
+		
+	}
 	
 	
 	public static function loadText (id:String, handler:String -> Void):Void {
@@ -449,49 +811,51 @@ class Assets {
 		
 		#if (tools && !display)
 		
-		#if js
+		var libraryName = id.substring (0, id.indexOf (":"));
+		var symbolName = id.substr (id.indexOf (":") + 1);
+		var library = getLibrary (libraryName);
 		
-		if (path.exists (id)) {
+		if (library != null) {
 			
-			/*var loader = new URLLoader ();
-			loader.addEventListener (Event.COMPLETE, function (event:Event) {
+			if (library.exists (symbolName, TEXT)) {
 				
-				handler (event.currentTarget.data);
-				
-			});
-			loader.load (new URLRequest (path.get (id)));*/
-			
-			handler (null);
-			
-		} else {
-			
-			handler (getText (id));
-			
-		}
-		
-		#else
-		
-		var callback = function (bytes:ByteArray):Void {
-			
-			if (bytes == null) {
-				
-				handler (null);
+				library.loadText (symbolName, handler);
+				return;
 				
 			} else {
 				
-				handler (bytes.readUTFBytes (bytes.length));
+				trace ("[lime.Assets] There is no String asset with an ID of \"" + id + "\"");
 				
 			}
 			
+		} else {
+			
+			trace ("[lime.Assets] There is no asset library named \"" + libraryName + "\"");
+			
 		}
-		
-		loadBytes (id, callback);
-		
-		#end
 		
 		#end
 		
 		handler (null);
+		
+	}
+	
+	
+	public static function registerLibrary (name:String, library:AssetLibrary):Void {
+		
+		if (libraries.exists (name)) {
+			
+			unloadLibrary (name);
+			
+		}
+		
+		if (library != null) {
+			
+			library.eventCallback = library_onEvent;
+			
+		}
+		
+		libraries.set (name, library);
 		
 	}
 	
@@ -522,6 +886,297 @@ class Assets {
 	}
 	
 	
+	public static function unloadLibrary (name:String):Void {
+		
+		initialize();
+		
+		#if (tools && !display)
+		
+		var library = libraries.get (name);
+		
+		if (library != null) {
+			
+			cache.clear (name + ":");
+			library.eventCallback = null;
+			
+		}
+		
+		libraries.remove (name);
+		
+		#end
+		
+	}
+	
+	
+	
+	
+	// Event Handlers
+	
+	
+	
+	
+	private static function library_onEvent (library:AssetLibrary, type:String):Void {
+		
+		if (type == "change") {
+			
+			cache.clear ();
+			//dispatchEvent (new Event (Event.CHANGE));
+			
+		}
+		
+	}
+	
+	
+}
+
+
+class AssetLibrary {
+	
+	
+	public var eventCallback:Dynamic;
+	
+	
+	public function new () {
+		
+		
+		
+	}
+	
+	
+	public function exists (id:String, type:AssetType):Bool {
+		
+		return false;
+		
+	}
+	
+	
+	public function getBytes (id:String):ByteArray {
+		
+		return null;
+		
+	}
+	
+	
+	public function getImageData (id:String):ImageData {
+		
+		return null;
+		
+	}
+	
+	
+	public function getMusic (id:String):Dynamic /*Sound*/ {
+		
+		return getSound (id);
+		
+	}
+	
+	
+	public function getPath (id:String):String {
+		
+		return null;
+		
+	}
+	
+	
+	public function getSound (id:String):Dynamic /*Sound*/ {
+		
+		return null;
+		
+	}
+	
+	
+	public function getText (id:String):String {
+		
+		#if (tools && !display)
+		
+		var bytes = getBytes (id);
+		
+		if (bytes == null) {
+			
+			return null;
+			
+		} else {
+			
+			return bytes.readUTFBytes (bytes.length);
+			
+		}
+		
+		#else
+		
+		return null;
+		
+		#end
+		
+	}
+	
+	
+	public function isLocal (id:String, type:AssetType):Bool {
+		
+		return true;
+		
+	}
+	
+	
+	public function list (type:AssetType):Array<String> {
+		
+		return null;
+		
+	}
+	
+	
+	private function load (handler:AssetLibrary -> Void):Void {
+		
+		handler (this);
+		
+	}
+	
+	
+	public function loadBytes (id:String, handler:ByteArray -> Void):Void {
+		
+		handler (getBytes (id));
+		
+	}
+	
+	
+	public function loadImageData (id:String, handler:ImageData -> Void):Void {
+		
+		handler (getImageData (id));
+		
+	}
+	
+	
+	public function loadMusic (id:String, handler:Dynamic /*Sound*/ -> Void):Void {
+		
+		handler (getMusic (id));
+		
+	}
+	
+	
+	public function loadSound (id:String, handler:Dynamic /*Sound*/ -> Void):Void {
+		
+		handler (getSound (id));
+		
+	}
+	
+	
+	public function loadText (id:String, handler:String -> Void):Void {
+		
+		#if (tools && !display)
+		
+		var callback = function (bytes:ByteArray):Void {
+			
+			if (bytes == null) {
+				
+				handler (null);
+				
+			} else {
+				
+				handler (bytes.readUTFBytes (bytes.length));
+				
+			}
+			
+		}
+		
+		loadBytes (id, callback);
+		
+		#else
+		
+		handler (null);
+		
+		#end
+		
+	}
+	
+	
+}
+
+
+class AssetCache {
+	
+	
+	public var enabled:Bool = true;
+	public var imageData:Map<String, ImageData>;
+	//public var font:Map<String, Font>;
+	public var sound:Map<String, Dynamic /*Sound*/>;
+	
+	
+	public function new () {
+		
+		//font = new Map<String, Font> ();
+		imageData = new Map<String, ImageData> ();
+		sound = new Map<String, Dynamic /*Sound*/> ();
+		
+	}
+	
+	
+	public function clear (prefix:String = null):Void {
+		
+		if (prefix == null) {
+			
+			//font = new Map<String, Font> ();
+			imageData = new Map<String, ImageData> ();
+			sound = new Map<String, Dynamic /*Sound*/> ();
+			
+		} else {
+			
+			var keys = imageData.keys ();
+			
+			for (key in keys) {
+				
+				if (StringTools.startsWith (key, prefix)) {
+					
+					imageData.remove (key);
+					
+				}
+				
+			}
+			
+			/*var keys = font.keys ();
+			
+			for (key in keys) {
+				
+				if (StringTools.startsWith (key, prefix)) {
+					
+					font.remove (key);
+					
+				}
+				
+			}*/
+			
+			var keys = sound.keys ();
+			
+			for (key in keys) {
+				
+				if (StringTools.startsWith (key, prefix)) {
+					
+					sound.remove (key);
+					
+				}
+				
+			}
+			
+		}
+		
+	}
+	
+	
+}
+
+
+class AssetData {
+	
+	
+	public var id:String;
+	public var path:String;
+	public var type:AssetType;
+	
+	public function new () {
+		
+		
+		
+	}
+	
+	
 }
 
 
@@ -537,3 +1192,346 @@ enum AssetType {
 	TEXT;
 	
 }
+
+
+#else
+
+
+import haxe.crypto.BaseCode;
+import haxe.io.Bytes;
+import haxe.macro.Context;
+import haxe.macro.Expr;
+import haxe.macro.Type;
+import haxe.Serializer;
+import sys.io.File;
+
+
+class Assets {
+	
+	
+	private static var base64Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	private static var base64Encoder:BaseCode;
+	
+	
+	private static function base64Encode (bytes:Bytes):String {
+		
+		var extension = switch (bytes.length % 3) {
+			
+			case 1: "==";
+			case 2: "=";
+			default: "";
+			
+		}
+		
+		if (base64Encoder == null) {
+			
+			base64Encoder = new BaseCode (Bytes.ofString (base64Chars));
+			
+		}
+		
+		return base64Encoder.encodeBytes (bytes).toString () + extension;
+		
+	}
+	
+	
+	macro public static function embedBitmap ():Array<Field> {
+		
+		#if (html5 && !openfl_html5_dom)
+		var fields = embedData (":bitmap", true);
+		#else
+		var fields = embedData (":bitmap");
+		#end
+		
+		if (fields != null) {
+			
+			var constructor = macro { 
+				
+				#if html5
+				#if openfl_html5_dom
+				
+				super (width, height, transparent, fillRGBA);
+				
+				var currentType = Type.getClass (this);
+				
+				if (preload != null) {
+					
+					___textureBuffer.width = Std.int (preload.width);
+					___textureBuffer.height = Std.int (preload.height);
+					rect = new openfl.geom.Rectangle (0, 0, preload.width, preload.height);
+					setPixels(rect, preload.getPixels(rect));
+					__buildLease();
+					
+				} else {
+					
+					var byteArray = openfl.utils.ByteArray.fromBytes (haxe.Resource.getBytes(resourceName));
+					
+					if (onload != null && !Std.is (onload, Bool)) {
+						
+						__loadFromBytes(byteArray, null, onload);
+						
+					} else {
+						
+						__loadFromBytes(byteArray);
+						
+					}
+					
+				}
+				
+				#else
+				
+				super (0, 0, transparent, fillRGBA);
+				
+				if (preload != null) {
+					
+					__sourceImage = preload;
+					width = __sourceImage.width;
+					height = __sourceImage.height;
+					
+				} else {
+					
+					__loadFromBase64 (haxe.Resource.getString(resourceName), resourceType, function (b) {
+						
+						if (preload == null) {
+							
+							preload = b.__sourceImage;
+							
+						}
+						
+						if (onload != null) {
+							
+							onload (b);
+							
+						}
+						
+					});
+					
+				}
+				
+				#end
+				#else
+				
+				super (width, height, transparent, fillRGBA);
+				
+				var byteArray = openfl.utils.ByteArray.fromBytes (haxe.Resource.getBytes (resourceName));
+				__loadFromBytes (byteArray);
+				
+				#end
+				
+			};
+			
+			var args = [ { name: "width", opt: false, type: macro :Int, value: null }, { name: "height", opt: false, type: macro :Int, value: null }, { name: "transparent", opt: true, type: macro :Bool, value: macro true }, { name: "fillRGBA", opt: true, type: macro :Int, value: macro 0xFFFFFFFF } ];
+			
+			#if html5
+			args.push ({ name: "onload", opt: true, type: macro :Dynamic, value: null });
+			#if openfl_html5_dom
+			fields.push ({ kind: FVar(macro :openfl.display.BitmapData, null), name: "preload", doc: null, meta: [], access: [ APublic, AStatic ], pos: Context.currentPos() });
+			#else
+			fields.push ({ kind: FVar(macro :js.html.Image, null), name: "preload", doc: null, meta: [], access: [ APublic, AStatic ], pos: Context.currentPos() });
+			#end
+			#end
+			
+			fields.push ({ name: "new", access: [ APublic ], kind: FFun({ args: args, expr: constructor, params: [], ret: null }), pos: Context.currentPos() });
+			
+		}
+		
+		return fields;
+		
+	}
+	
+	
+	private static function embedData (metaName:String, encode:Bool = false):Array<Field> {
+		
+		var classType = Context.getLocalClass().get();
+		var metaData = classType.meta.get();
+		var position = Context.currentPos();
+		var fields = Context.getBuildFields();
+		
+		for (meta in metaData) {
+			
+			if (meta.name == metaName) {
+				
+				if (meta.params.length > 0) {
+					
+					switch (meta.params[0].expr) {
+						
+						case EConst(CString(filePath)):
+							
+							var path = Context.resolvePath (filePath);
+							var bytes = File.getBytes (path);
+							var resourceName = "__ASSET__" + metaName + "_" + (classType.pack.length > 0 ? classType.pack.join ("_") + "_" : "") + classType.name;
+							
+							if (encode) {
+								
+								var resourceType = "image/png";
+								
+								if (bytes.get (0) == 0xFF && bytes.get (1) == 0xD8) {
+									
+									resourceType = "image/jpg";
+									
+								} else if (bytes.get (0) == 0x47 && bytes.get (1) == 0x49 && bytes.get (2) == 0x46) {
+									
+									resourceType = "image/gif";
+									
+								}
+								
+								var fieldValue = { pos: position, expr: EConst(CString(resourceType)) };
+								fields.push ({ kind: FVar(macro :String, fieldValue), name: "resourceType", access: [ APrivate, AStatic ], pos: position });
+								
+								var base64 = base64Encode (bytes);
+								Context.addResource (resourceName, Bytes.ofString (base64));
+								
+							} else {
+								
+								Context.addResource (resourceName, bytes);
+								
+							}
+							
+							var fieldValue = { pos: position, expr: EConst(CString(resourceName)) };
+							fields.push ({ kind: FVar(macro :String, fieldValue), name: "resourceName", access: [ APrivate, AStatic ], pos: position });
+							
+							return fields;
+							
+						default:
+						
+					}
+					
+				}
+				
+			}
+			
+		}
+		
+		return null;
+		
+	}
+	
+	
+	macro public static function embedFile ():Array<Field> {
+		
+		var fields = embedData (":file");
+		
+		if (fields != null) {
+			
+			var constructor = macro { 
+				
+				super();
+				
+				#if openfl_html5_dom
+				nmeFromBytes (haxe.Resource.getBytes (resourceName));
+				#else
+				__fromBytes (haxe.Resource.getBytes (resourceName));
+				#end
+				
+			};
+			
+			var args = [ { name: "size", opt: true, type: macro :Int, value: macro 0 } ];
+			fields.push ({ name: "new", access: [ APublic ], kind: FFun({ args: args, expr: constructor, params: [], ret: null }), pos: Context.currentPos() });
+			
+		}
+		
+		return fields;
+		
+	}
+	
+	
+	macro public static function embedFont ():Array<Field> {
+		
+		var fields = null;
+		
+		var classType = Context.getLocalClass().get();
+		var metaData = classType.meta.get();
+		var position = Context.currentPos();
+		var fields = Context.getBuildFields();
+		
+		var path = "";
+		var glyphs = "32-255";
+		
+		for (meta in metaData) {
+			
+			if (meta.name == ":font") {
+				
+				if (meta.params.length > 0) {
+					
+					switch (meta.params[0].expr) {
+						
+						case EConst(CString(filePath)):
+							
+							path = Context.resolvePath (filePath);
+							
+						default:
+						
+					}
+					
+				}
+				
+			}
+			
+		}
+		
+		if (path != null && path != "") {
+			
+			#if html5
+			Sys.command ("haxelib", [ "run", "openfl", "generate", "-font-hash", sys.FileSystem.fullPath(path) ]);
+			path += ".hash";
+			#end
+			
+			var bytes = File.getBytes (path);
+			var resourceName = "NME_font_" + (classType.pack.length > 0 ? classType.pack.join ("_") + "_" : "") + classType.name;
+			
+			Context.addResource (resourceName, bytes);
+			
+			var fieldValue = { pos: position, expr: EConst(CString(resourceName)) };
+			fields.push ({ kind: FVar(macro :String, fieldValue), name: "resourceName", access: [ APublic, AStatic ], pos: position });
+			
+			//var constructor = macro { 
+				//
+				//super();
+				//
+				//fontName = resourceName;
+				//
+			//};
+			//
+			//fields.push ({ name: "new", access: [ APublic ], kind: FFun({ args: [], expr: constructor, params: [], ret: null }), pos: Context.currentPos() });
+			
+			return fields;
+			
+		}
+		
+		return fields;
+		
+	}
+	
+	
+	macro public static function embedSound ():Array<Field> {
+		
+		var fields = embedData (":sound");
+		
+		if (fields != null) {
+			
+			#if (!html5) // CFFILoader.h(248) : NOT Implemented:api_buffer_data
+			
+			var constructor = macro { 
+				
+				super();
+				
+				var byteArray = openfl.utils.ByteArray.fromBytes (haxe.Resource.getBytes(resourceName));
+				loadCompressedDataFromByteArray(byteArray, byteArray.length, forcePlayAsMusic);
+				
+			};
+			
+			var args = [ { name: "stream", opt: true, type: macro :openfl.net.URLRequest, value: null }, { name: "context", opt: true, type: macro :openfl.media.SoundLoaderContext, value: null }, { name: "forcePlayAsMusic", opt: true, type: macro :Bool, value: macro false } ];
+			fields.push ({ name: "new", access: [ APublic ], kind: FFun({ args: args, expr: constructor, params: [], ret: null }), pos: Context.currentPos() });
+			
+			#end
+			
+		}
+		
+		return fields;
+		
+	}
+	
+	
+}
+
+
+#end

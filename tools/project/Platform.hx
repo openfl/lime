@@ -1,0 +1,19 @@
+package project;
+
+
+enum Platform {
+	
+	ANDROID;
+	BLACKBERRY;
+	FIREFOXOS;
+	FLASH;
+	HTML5;
+	IOS;
+	LINUX;
+	MAC;
+	TIZEN;
+	WINDOWS;
+	WEBOS;
+	EMSCRIPTEN;
+
+}

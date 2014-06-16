@@ -81,7 +81,8 @@ class RunScript {
 			
 			if (target == "tools") {
 				
-				var toolsDirectory = PathHelper.getHaxelib (new Haxelib("lime-tools"), true);
+				var toolsDirectory = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime"), true), "tools");
+				//var toolsDirectory = PathHelper.getHaxelib (new Haxelib("lime-tools"), true);
 				var extendedToolsDirectory = PathHelper.getHaxelib (new Haxelib("lime-tools-extended"), false);
 				
 				if (extendedToolsDirectory != null && extendedToolsDirectory != "") {
@@ -1205,13 +1206,14 @@ class RunScript {
 			
 			if (command == "setup") {
 				
-				var toolsDirectory = PathHelper.getHaxelib (new Haxelib ("lime-tools"));
+				var toolsDirectory = PathHelper.combine (limeDirectory, "tools");
+				/*var toolsDirectory = PathHelper.getHaxelib (new Haxelib ("lime-tools"));
 				
 				if (toolsDirectory == null || toolsDirectory == "" || toolsDirectory.indexOf ("is not installed") > -1) {
 					
 					Sys.command ("haxelib install lime-tools");
 					
-				}
+				}*/
 				
 			}
 			
@@ -1310,7 +1312,8 @@ class RunScript {
 				
 			}
 			
-			var workingDirectory = args.pop ();
+			var workingDirectory = args[args.length - 1];
+			//var workingDirectory = args.pop ();
 			/*var define = "-Dopenfl";
 			
 			var version = getVersion ();
@@ -1321,9 +1324,11 @@ class RunScript {
 				
 			}*/
 			
-			var args = [ "run", "lime-tools" /*, define*/ ].concat (args);
+			var args = [ PathHelper.combine (limeDirectory, "tools/run.n") ].concat (args);
+			//var args = [ "run", "lime-tools" /*, define*/ ].concat (args);
 			
-			Sys.exit (runCommand (workingDirectory, "haxelib", args));
+			Sys.exit (runCommand (workingDirectory, "neko", args));
+			//Sys.exit (runCommand (workingDirectory, "haxelib", args));
 			
 		}
 		

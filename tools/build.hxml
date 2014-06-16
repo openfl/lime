@@ -1,0 +1,6 @@
+-main CommandLineTools
+-neko run.n
+-cp src
+-lib lime
+-lib format
+-lib svg

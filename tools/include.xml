@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension>
+	
+	<haxedef name="display" if="display" />
+	<haxeflag name="--no-output" if="display" />
+	
+	<template path="templates" />
+	
+</extension>

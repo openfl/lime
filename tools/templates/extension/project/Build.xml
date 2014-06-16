@@ -1,0 +1,34 @@
+<xml>
+	
+	<include name="${HXCPP}/build-tool/BuildCommon.xml"/>
+	
+	<files id="common">
+		
+		<compilerflag value="-Iinclude"/>
+		
+		<file name="common/ExternalInterface.cpp"/>
+		<file name="common/::file::.cpp"/>
+		
+	</files>
+	
+	<set name="SLIBEXT" value=".lib" if="windows"/>
+	<set name="SLIBEXT" value=".a" unless="windows"/>
+	<set name="SLIBEXT" value=".so" if="webos"/>
+	
+	<set name="DEBUGEXTRA" value="-debug" if="fulldebug" />
+	
+	<target id="NDLL" output="${LIBPREFIX}::extensionLowerCase::${MSVC_LIB_VERSION}${DEBUGEXTRA}${LIBEXTRA}" tool="linker" toolid="${STD_MODULE_LINK}">
+		
+		<outdir name="../ndll/${BINDIR}"/>
+		<ext value=".ndll" if="windows || mac || linux"/>
+		<files id="common"/>
+		
+	</target>
+	
+	<target id="default">
+		
+		<target id="NDLL"/>
+		
+	</target>
+	
+</xml>
