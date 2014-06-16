@@ -27,7 +27,7 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 	public function addWindow (window:Window):Void {
 		
 		windows.push (window);
-		window.create ();
+		window.create (this);
 		
 	}
 	
@@ -45,7 +45,7 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 		TouchEventManager.addEventListener (this);
 		WindowEventManager.addEventListener (this);
 		
-		var window = new Window (this);
+		var window = new Window ();
 		var renderer = new Renderer (window);
 		
 		window.width = config.width;
