@@ -6,6 +6,8 @@ import lime.system.System;
 
 #if js
 import js.Browser;
+#elseif flash
+import flash.Lib;
 #end
 
 
@@ -126,6 +128,26 @@ class MouseEventManager extends EventManager<IMouseEventListener> {
 	}
 	
 	
+	#if flash
+	private function handleFlashEvent (event:flash.events.MouseEvent):Void {
+		
+		mouseEvent.x = event.stageX;
+		mouseEvent.y = event.stageY;
+		
+		mouseEvent.type = switch (event.type) {
+			
+			case flash.events.MouseEvent.MOUSE_DOWN: MOUSE_DOWN;
+			case flash.events.MouseEvent.MOUSE_MOVE: MOUSE_MOVE;
+			default: MOUSE_UP;
+			
+		}
+		
+		handleEvent (mouseEvent);
+		
+	}
+	#end
+	
+	
 	private static function registerWindow (window:Window):Void {
 		
 		if (instance != null) {
@@ -144,6 +166,10 @@ class MouseEventManager extends EventManager<IMouseEventListener> {
 				}
 				return true;
 			}, false);*/
+			#elseif flash
+			Lib.current.stage.addEventListener (flash.events.MouseEvent.MOUSE_DOWN, instance.handleFlashEvent);
+			Lib.current.stage.addEventListener (flash.events.MouseEvent.MOUSE_MOVE, instance.handleFlashEvent);
+			Lib.current.stage.addEventListener (flash.events.MouseEvent.MOUSE_UP, instance.handleFlashEvent);
 			#end
 			
 		}
