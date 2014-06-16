@@ -29,11 +29,19 @@ class Preloader #if flash extends Sprite #end {
 	public function init (config:Config):Void {
 		
 		#if flash
+		Lib.current.stage.align = flash.display.StageAlign.TOP_LEFT;
+		Lib.current.stage.scaleMode = flash.display.StageScaleMode.NO_SCALE;
+		
 		Lib.current.addChild (this);
+		
 		Lib.current.loaderInfo.addEventListener (Event.COMPLETE, loaderInfo_onComplete);
 		Lib.current.loaderInfo.addEventListener (Event.INIT, loaderInfo_onInit);
 		Lib.current.loaderInfo.addEventListener (ProgressEvent.PROGRESS, loaderInfo_onProgress);
 		Lib.current.addEventListener (Event.ENTER_FRAME, current_onEnter);
+		#end
+		
+		#if !flash
+		start ();
 		#end
 		
 	}

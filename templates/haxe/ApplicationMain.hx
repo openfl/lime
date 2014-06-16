@@ -4,14 +4,24 @@ import ::APP_MAIN::;
 class ApplicationMain {
 	
 	
-	private var app:lime.app.Application;
+	public static var config:lime.app.Config;
+	public static var preloader:lime.app.Preloader;
+	
+	private static var app:lime.app.Application;
+	
+	
+	public static function init ():Void {
+		
+		preloader = new ::if (PRELOADER_NAME != "")::::PRELOADER_NAME::::else::lime.app.Preloader::end:: ();
+		preloader.onComplete = start;
+		preloader.init (config);
+		
+	}
 	
 	
 	public static function main () {
 		
-		var app = new ::APP_MAIN:: ();
-		
-		var config:lime.app.Config = {
+		config = {
 			
 			antialiasing: Std.int (::WIN_ANTIALIASING::),
 			borderless: ::WIN_BORDERLESS::,
@@ -28,6 +38,18 @@ class ApplicationMain {
 			
 		}
 		
+		#if (js && munit)
+		embed (null, ::WIN_WIDTH::, ::WIN_HEIGHT::, "::WIN_FLASHBACKGROUND::");
+		#else
+		init ();
+		#end
+		
+	}
+	
+	
+	public static function start ():Void {
+		
+		app = new ::APP_MAIN:: ();
 		app.create (config);
 		
 		var result = app.exec ();
