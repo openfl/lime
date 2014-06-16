@@ -1,6 +1,11 @@
 package lime.system;
 
 
+#if js
+import js.html.HtmlElement;
+import js.Browser;
+#end
+
 #if sys
 import sys.io.Process;
 #end
@@ -13,6 +18,56 @@ class System {
 	
 	#if neko
 	private static var __loadedNekoAPI:Bool;
+	#end
+	
+	
+	#if js
+	@:keep @:expose("lime.embed")
+	public static function embed (elementName:String, width:Null<Int> = null, height:Null<Int> = null, background:String = null) {
+		
+		var element:HtmlElement = null;
+		
+		if (elementName != null) {
+			
+			element = cast Browser.document.getElementById (elementName);
+			
+		}
+		
+		var color = null;
+		
+		if (background != null) {
+			
+			background = StringTools.replace (background, "#", "");
+			
+			if (background.indexOf ("0x") > -1) {
+				
+				color = Std.parseInt (background);
+				
+			} else {
+				
+				color = Std.parseInt ("0x" + background);
+				
+			}
+			
+		}
+		
+		if (width == null) {
+			
+			width = 0;
+			
+		}
+		
+		if (height == null) {
+			
+			height = 0;
+			
+		}
+		
+		ApplicationMain.config.background = color;
+		ApplicationMain.config.element = element;
+		ApplicationMain.init ();
+		
+	}
 	#end
 	
 	
