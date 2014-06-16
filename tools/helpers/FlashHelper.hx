@@ -476,8 +476,7 @@ class FlashHelper {
 					
 					if (name == "TShowFrame" && !inserted && assets.length > 0) {
 						
-						//TODO: Make preloader configurable, for now, push to first frame, not second
-						//new_tags.push (TShowFrame);
+						new_tags.push (TShowFrame);
 						
 						for (asset in assets) {
 							
