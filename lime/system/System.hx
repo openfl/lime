@@ -65,7 +65,7 @@ class System {
 		
 		ApplicationMain.config.background = color;
 		ApplicationMain.config.element = element;
-		ApplicationMain.init ();
+		ApplicationMain.create ();
 		
 	}
 	#end

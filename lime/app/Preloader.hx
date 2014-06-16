@@ -26,7 +26,7 @@ class Preloader #if flash extends Sprite #end {
 	}
 	
 	
-	public function init (config:Config):Void {
+	public function create (config:Config):Void {
 		
 		#if flash
 		Lib.current.stage.align = flash.display.StageAlign.TOP_LEFT;
