@@ -1,8 +1,8 @@
 package helpers;
 
 
-import openfl.text.Font;
-import openfl.utils.ByteArray;
+//import openfl.text.Font;
+//import openfl.utils.ByteArray;
 import format.swf.Data;
 import format.swf.Constants;
 import format.swf.Reader;
@@ -19,6 +19,7 @@ import project.HXProject;
 import sys.io.File;
 import sys.FileSystem;
 import sys.io.FileSeek;
+
 
 class FlashHelper {
 	
@@ -294,7 +295,10 @@ class FlashHelper {
 			
 			var src = name;
 			var font_name = Path.withoutExtension (name);
-			var font = Font.load (src);
+			return false;
+			//var font = Font.load (src);
+			
+			/*
 			
 			var glyphs = new Array <Font2GlyphData> ();
 			var glyph_layout = new Array <FontLayoutGlyphData> ();
@@ -412,7 +416,7 @@ class FlashHelper {
 					glyphs:     glyph_layout,
 					kerning:    kerning
 				}
-			})) );
+			})) );*/
 			
 		} else {
 			

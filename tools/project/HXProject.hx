@@ -16,7 +16,7 @@ import project.AssetType;
 import sys.FileSystem;
 import sys.io.File;
 
-#if openfl_native
+#if lime
 import helpers.FileHelper;
 import helpers.ProcessHelper;
 import sys.io.Process;
@@ -108,7 +108,7 @@ class HXProject {
 		templatePaths = _templatePaths.copy ();
 		
 		defaultMeta = { title: "MyApplication", description: "", packageName: "com.example.myapp", version: "1.0.0", company: "Example, Inc.", companyURL: "", buildNumber: "1", companyID: "" }
-		defaultApp = { main: "Main", file: "MyApplication", path: "bin", preloader: "NMEPreloader", swfVersion: 11.2, url: "" }
+		defaultApp = { main: "Main", file: "MyApplication", path: "bin", preloader: "", swfVersion: 11.2, url: "" }
 		defaultWindow = { width: 800, height: 600, parameters: "{}", background: 0xFFFFFF, fps: 30, hardware: true, display: 0, resizable: true, borderless: false, orientation: Orientation.AUTO, vsync: false, fullscreen: false, antialiasing: 0, allowShaders: true, requireShaders: false, depthBuffer: false, stencilBuffer: false }
 		
 		switch (target) {
@@ -371,7 +371,7 @@ class HXProject {
 	}
 	
 	
-	#if openfl_native
+	#if lime
 	
 	public static function fromFile (projectFile:String, userDefines:Map <String, Dynamic> = null, includePaths:Array <String> = null):HXProject {
 		
@@ -668,7 +668,7 @@ class HXProject {
 	}
 	
 	
-	#if openfl_native
+	#if lime
 	
 	@:noCompletion private static function processHaxelibs (project:HXProject, userDefines:Map <String, Dynamic>):Void {
 		
@@ -887,7 +887,7 @@ class HXProject {
 				
 			}
 			
-			#if openfl_native
+			#if lime
 			
 			var cache = LogHelper.verbose;
 			LogHelper.verbose = false;

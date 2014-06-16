@@ -1,9 +1,9 @@
 package;
 
 
-import openfl.text.Font;
-import openfl.utils.ByteArray;
-import openfl.utils.CompressionAlgorithm;
+//import openfl.text.Font;
+//import openfl.utils.ByteArray;
+//import openfl.utils.CompressionAlgorithm;
 import haxe.Json;
 import haxe.Serializer;
 import haxe.Unserializer;
@@ -519,11 +519,11 @@ class CommandLineTools {
 			
 		} else if (targetFlags.exists ("font-details")) {
 			
-			var sourcePath = words[0];
+			//var sourcePath = words[0];
 			
-			var details = Font.load (sourcePath);
-			var json = Json.stringify (details);
-			Sys.print (json);
+			//var details = Font.load (sourcePath);
+			//var json = Json.stringify (details);
+			//Sys.print (json);
 			
 		} else if (targetFlags.exists ("java-externs")) {
 			
@@ -638,7 +638,7 @@ class CommandLineTools {
 	
 	private function getVersion ():String {
 		
-		var json = Json.parse (File.getContent (PathHelper.getHaxelib (new Haxelib ("lime-tools")) + "/haxelib.json"));
+		var json = Json.parse (File.getContent (PathHelper.getHaxelib (new Haxelib ("lime")) + "/haxelib.json"));
 		return json.version;
 		
 	}
