@@ -154,7 +154,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 		#elseif js
 		
-		var bytes:ByteArray = null;
+		/*var bytes:ByteArray = null;
 		var data = ApplicationMain.urlLoaders.get (path.get (id)).data;
 		
 		if (Std.is (data, String)) {
@@ -180,7 +180,9 @@ class DefaultAssetLibrary extends AssetLibrary {
 		} else {
 			
 			return null;
-		}
+		}*/
+		
+		return null;
 		
 		#else
 		
@@ -224,14 +226,16 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#elseif openfl_html5
 		
-		var sound = new Sound ();
+		/*var sound = new Sound ();
 		sound.__buffer = true;
 		sound.load (new URLRequest (path.get (id)));
-		return sound; 
+		return sound;*/
+		return null;
 		
 		#elseif js
 		
-		return new Sound (new URLRequest (path.get (id)));
+		return null;
+		//return new Sound (new URLRequest (path.get (id)));
 		
 		#else
 		
@@ -246,15 +250,15 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	public override function getPath (id:String):String {
 		
-		#if ios
+		//#if ios
 		
-		return SystemPath.applicationDirectory + "/assets/" + path.get (id);
+		//return SystemPath.applicationDirectory + "/assets/" + path.get (id);
 		
-		#else
+		//#else
 		
 		return path.get (id);
 		
-		#end
+		//#end
 		
 	}
 	
@@ -267,7 +271,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#elseif js
 		
-		return new Sound (new URLRequest (path.get (id)));
+		return null;
+		//return new Sound (new URLRequest (path.get (id)));
 		
 		#else
 		
@@ -284,7 +289,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#if js
 		
-		var bytes:ByteArray = null;
+		/*var bytes:ByteArray = null;
 		var data = ApplicationMain.urlLoaders.get (path.get (id)).data;
 		
 		if (Std.is (data, String)) {
@@ -309,7 +314,9 @@ class DefaultAssetLibrary extends AssetLibrary {
 		} else {
 			
 			return null;
-		}
+		}*/
+		
+		return null;
 		
 		#else
 		
@@ -368,7 +375,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	public override function loadBytes (id:String, handler:ByteArray -> Void):Void {
 		
-		#if (flash || js)
+		#if flash
 		
 		if (path.exists (id)) {
 			
@@ -547,9 +554,9 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	public override function loadText (id:String, handler:String -> Void):Void {
 		
-		#if js
+		//#if js
 		
-		if (path.exists (id)) {
+		/*if (path.exists (id)) {
 			
 			var loader = new URLLoader ();
 			loader.addEventListener (Event.COMPLETE, function (event:Event) {
@@ -563,9 +570,9 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 			handler (getText (id));
 			
-		}
+		}*/
 		
-		#else
+		//#else
 		
 		var callback = function (bytes:ByteArray):Void {
 			
@@ -583,7 +590,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		loadBytes (id, callback);
 		
-		#end
+		//#end
 		
 	}
 	
