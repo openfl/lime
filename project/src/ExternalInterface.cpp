@@ -35,7 +35,7 @@ namespace lime {
 	
 	value lime_application_exec (value application) {
 		
-		Application* app = (Application*)(intptr_t)val_int (application);
+		Application* app = (Application*)(intptr_t)val_float (application);
 		return alloc_int (app->Exec ());
 		
 	}
@@ -120,7 +120,7 @@ namespace lime {
 	
 	value lime_renderer_create (value window) {
 		
-		Renderer* renderer = CreateRenderer ((Window*)(intptr_t)val_int (window));
+		Renderer* renderer = CreateRenderer ((Window*)(intptr_t)val_float (window));
 		return alloc_float ((intptr_t)renderer);
 		
 	}
@@ -128,7 +128,7 @@ namespace lime {
 	
 	value lime_renderer_flip (value renderer) {
 		
-		((Renderer*)(intptr_t)val_int (renderer))->Flip ();
+		((Renderer*)(intptr_t)val_float (renderer))->Flip ();
 		return alloc_null (); 
 		
 	}
@@ -161,7 +161,7 @@ namespace lime {
 	
 	value lime_window_create (value application) {
 		
-		Window* window = CreateWindow ((Application*)(intptr_t)val_int (application));
+		Window* window = CreateWindow ((Application*)(intptr_t)val_float (application));
 		return alloc_float ((intptr_t)window);
 		
 	}

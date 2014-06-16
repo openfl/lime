@@ -362,6 +362,13 @@ class GLRenderContext {
 	public var version (get, null):Int;
 	
 	
+	public function new () {
+		
+		
+		
+	}
+	
+	
 	public inline function activeTexture (texture:Int):Void {
 		
 		GL.activeTexture (texture);
