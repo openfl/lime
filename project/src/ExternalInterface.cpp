@@ -28,7 +28,7 @@ namespace lime {
 		
 		Application* app = CreateApplication ();
 		Application::callback = new AutoGCRoot (callback);
-		return alloc_int ((intptr_t)app);
+		return alloc_float ((intptr_t)app);
 		
 	}
 	
@@ -121,7 +121,7 @@ namespace lime {
 	value lime_renderer_create (value window) {
 		
 		Renderer* renderer = CreateRenderer ((Window*)(intptr_t)val_int (window));
-		return alloc_int ((intptr_t)renderer);
+		return alloc_float ((intptr_t)renderer);
 		
 	}
 	
@@ -162,7 +162,7 @@ namespace lime {
 	value lime_window_create (value application) {
 		
 		Window* window = CreateWindow ((Application*)(intptr_t)val_int (application));
-		return alloc_int ((intptr_t)window);
+		return alloc_float ((intptr_t)window);
 		
 	}
 	
