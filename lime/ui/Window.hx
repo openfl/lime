@@ -19,8 +19,11 @@ import js.Browser;
 
 class Window {
 	
+	public inline static var DEPTH_BUFFER    = 0x0200;
+   	public inline static var STENCIL_BUFFER  = 0x0400;
 	
 	public var currentRenderer:Renderer;
+	public var config:Config;
 	public var fullscreen:Bool;
 	public var height:Int;
 	public var width:Int;
@@ -39,9 +42,10 @@ class Window {
 	#end
 	
 	
-	public function new (application:Application) {
+	public function new (application:Application, config:Config) {
 		
 		this.application = application;
+		this.config = config;
 		
 	}
 	
@@ -151,7 +155,16 @@ class Window {
 		#end
 		
 		#elseif (cpp || neko)
-		handle = lime_window_create (application.handle);
+		// forward flags
+		var flags:Int = 0;
+
+		if (config.depthBuffer)
+			flags |= DEPTH_BUFFER;
+		
+		if (config.stencilBuffer)
+			flags |= STENCIL_BUFFER;
+		
+		handle = lime_window_create (application.handle, flags);
 		#end
 		
 		KeyEventManager.registerWindow (this);
@@ -171,7 +184,7 @@ class Window {
 	
 	
 	#if (cpp || neko)
-	private static var lime_window_create = System.load ("lime", "lime_window_create", 1);
+	private static var lime_window_create = System.load ("lime", "lime_window_create", 2);
 	#end
 	
 	
