@@ -1,7 +1,7 @@
 package lime.app;
 
 
-class UpdateEvent {
+class UpdateEventInfo {
 	
 	
 	public var deltaTime:Int;
@@ -16,9 +16,9 @@ class UpdateEvent {
 	}
 	
 	
-	public function clone ():UpdateEvent {
+	public function clone ():UpdateEventInfo {
 		
-		return new UpdateEvent (type, deltaTime);
+		return new UpdateEventInfo (type, deltaTime);
 		
 	}
 	

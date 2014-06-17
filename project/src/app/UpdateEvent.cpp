@@ -38,7 +38,7 @@ namespace lime {
 			alloc_field (object, id_deltaTime, alloc_int (event->deltaTime));
 			//alloc_field (object, id_type, alloc_int (event->type));
 			
-			val_call1 (UpdateEvent::callback->get (), object);
+			val_call0 (UpdateEvent::callback->get ());
 			
 		}
 		

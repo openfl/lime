@@ -5,7 +5,6 @@ import lime.app.Application;
 import lime.app.Config;
 import lime.app.UpdateEventManager;
 import lime.graphics.Renderer;
-import lime.graphics.RenderEvent;
 import lime.graphics.RenderEventManager;
 import lime.system.System;
 

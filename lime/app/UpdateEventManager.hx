@@ -19,7 +19,7 @@ class UpdateEventManager extends EventManager<IUpdateEventListener> {
 	
 	private static var instance:UpdateEventManager;
 	
-	private var event:UpdateEvent;
+	private var eventInfo:UpdateEventInfo;
 	
 	
 	public function new () {
@@ -27,10 +27,10 @@ class UpdateEventManager extends EventManager<IUpdateEventListener> {
 		super ();
 		
 		instance = this;
-		event = new UpdateEvent ();
+		eventInfo = new UpdateEventInfo ();
 		
 		#if (cpp || neko)
-		lime_update_event_manager_register (handleEvent, event);
+		lime_update_event_manager_register (dispatch, eventInfo);
 		#end
 		
 	}
@@ -47,13 +47,13 @@ class UpdateEventManager extends EventManager<IUpdateEventListener> {
 	}
 	
 	
-	private function handleEvent (event:UpdateEvent):Void {
+	private function dispatch ():Void {
 		
-		var event = event.clone ();
+		var deltaTime = eventInfo.deltaTime;
 		
 		for (listener in listeners) {
 			
-			listener.onUpdate (event);
+			listener.onUpdate (deltaTime);
 			
 		}
 		
@@ -108,7 +108,7 @@ class UpdateEventManager extends EventManager<IUpdateEventListener> {
 	
 	public function triggerFrame (?_):Void {
 		
-		handleEvent (event);
+		dispatch ();
 		
 		if (RenderEventManager.instance != null) {
 			

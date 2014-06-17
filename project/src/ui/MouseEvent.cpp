@@ -19,8 +19,8 @@ namespace lime {
 		
 		id = 0;
 		type = MOUSE_DOWN;
-		x = 0;
-		y = 0;
+		x = 0.0;
+		y = 0.0;
 		
 	}
 	
@@ -46,7 +46,7 @@ namespace lime {
 			alloc_field (object, id_x, alloc_float (event->x));
 			alloc_field (object, id_y, alloc_float (event->y));
 			
-			val_call1 (MouseEvent::callback->get (), object);
+			val_call0 (MouseEvent::callback->get ());
 			
 		}
 		

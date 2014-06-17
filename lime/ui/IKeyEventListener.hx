@@ -4,8 +4,8 @@ package lime.ui;
 interface IKeyEventListener {
 	
 	
-	function onKeyDown (event:KeyEvent):Void;
-	function onKeyUp (event:KeyEvent):Void;
+	function onKeyDown (keyCode:Int, modifier:Int):Void;
+	function onKeyUp (keyCode:Int, modifier:Int):Void;
 	
 	
 }

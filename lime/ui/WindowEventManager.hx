@@ -19,7 +19,7 @@ class WindowEventManager extends EventManager<IWindowEventListener> {
 	
 	private static var instance:WindowEventManager;
 	
-	private var windowEvent:WindowEvent;
+	private var eventInfo:WindowEventInfo;
 	
 	
 	public function new () {
@@ -27,12 +27,10 @@ class WindowEventManager extends EventManager<IWindowEventListener> {
 		super ();
 		
 		instance = this;
-		windowEvent = new WindowEvent ();
+		eventInfo = new WindowEventInfo ();
 		
 		#if (cpp || neko)
-		
-		lime_window_event_manager_register (handleEvent, windowEvent);
-		
+		lime_window_event_manager_register (dispatch, eventInfo);
 		#end
 		
 	}
@@ -49,27 +47,15 @@ class WindowEventManager extends EventManager<IWindowEventListener> {
 	}
 	
 	
-	#if js
-	private function handleDOMEvent (event:Event):Void {
+	private function dispatch ():Void {
 		
-		windowEvent.type = (event.type == "focus" ? WINDOW_ACTIVATE : WINDOW_DEACTIVATE);
-		handleEvent (windowEvent);
-		
-	}
-	#end
-	
-	
-	private function handleEvent (event:WindowEvent):Void {
-		
-		var event = event.clone ();
-		
-		switch (event.type) {
+		switch (eventInfo.type) {
 			
 			case WINDOW_ACTIVATE:
 				
 				for (listener in listeners) {
 					
-					listener.onWindowActivate (event);
+					listener.onWindowActivate ();
 					
 				}
 			
@@ -77,7 +63,7 @@ class WindowEventManager extends EventManager<IWindowEventListener> {
 				
 				for (listener in listeners) {
 					
-					listener.onWindowDeactivate (event);
+					listener.onWindowDeactivate ();
 					
 				}
 			
@@ -86,11 +72,21 @@ class WindowEventManager extends EventManager<IWindowEventListener> {
 	}
 	
 	
+	#if js
+	private function handleDOMEvent (event:Event):Void {
+		
+		eventInfo.type = (event.type == "focus" ? WINDOW_ACTIVATE : WINDOW_DEACTIVATE);
+		dispatch ();
+		
+	}
+	#end
+	
+	
 	#if flash
 	private function handleFlashEvent (event:Event):Void {
 		
-		windowEvent.type = (event.type == Event.ACTIVATE ? WINDOW_ACTIVATE : WINDOW_DEACTIVATE);
-		handleEvent (windowEvent);
+		eventInfo.type = (event.type == Event.ACTIVATE ? WINDOW_ACTIVATE : WINDOW_DEACTIVATE);
+		dispatch ();
 		
 	}
 	#end

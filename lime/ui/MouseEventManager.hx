@@ -17,7 +17,7 @@ class MouseEventManager extends EventManager<IMouseEventListener> {
 	
 	private static var instance:MouseEventManager;
 	
-	private var mouseEvent:MouseEvent;
+	private var eventInfo:MouseEventInfo;
 	
 	
 	public function new () {
@@ -25,12 +25,10 @@ class MouseEventManager extends EventManager<IMouseEventListener> {
 		super ();
 		
 		instance = this;
-		mouseEvent = new MouseEvent ();
+		eventInfo = new MouseEventInfo ();
 		
 		#if (cpp || neko)
-		
-		lime_mouse_event_manager_register (handleEvent, mouseEvent);
-		
+		lime_mouse_event_manager_register (dispatch, eventInfo);
 		#end
 		
 	}
@@ -41,6 +39,44 @@ class MouseEventManager extends EventManager<IMouseEventListener> {
 		if (instance != null) {
 			
 			instance._addEventListener (listener, priority);
+			
+		}
+		
+	}
+	
+	
+	private function dispatch ():Void {
+		
+		var x = eventInfo.x;
+		var y = eventInfo.y;
+		
+		switch (eventInfo.type) {
+			
+			case MOUSE_DOWN:
+				
+				for (listener in listeners) {
+					
+					listener.onMouseDown (x, y);
+					
+				}
+			
+			case MOUSE_UP:
+				
+				for (listener in listeners) {
+					
+					listener.onMouseUp (x, y);
+					
+				}
+			
+			case MOUSE_MOVE:
+				
+				for (listener in listeners) {
+					
+					listener.onMouseMove (x, y);
+					
+				}
+			
+			default:
 			
 		}
 		
@@ -70,10 +106,10 @@ class MouseEventManager extends EventManager<IMouseEventListener> {
 		}
 		*/
 		
-		mouseEvent.x = event.clientX;
-		mouseEvent.y = event.clientY;
+		eventInfo.x = event.clientX;
+		eventInfo.y = event.clientY;
 		
-		mouseEvent.type = switch (event.type) {
+		eventInfo.type = switch (event.type) {
 			
 			case "mousedown": MOUSE_DOWN;
 			case "mouseup": MOUSE_UP;
@@ -85,56 +121,19 @@ class MouseEventManager extends EventManager<IMouseEventListener> {
 			
 		}
 		
-		handleEvent (mouseEvent);
+		dispatch ();
 		
 	}
 	#end
 	
 	
-	private function handleEvent (event:MouseEvent):Void {
-		
-		var event = event.clone ();
-		
-		switch (event.type) {
-			
-			case MOUSE_DOWN:
-				
-				for (listener in listeners) {
-					
-					listener.onMouseDown (event);
-					
-				}
-			
-			case MOUSE_UP:
-				
-				for (listener in listeners) {
-					
-					listener.onMouseUp (event);
-					
-				}
-			
-			case MOUSE_MOVE:
-				
-				for (listener in listeners) {
-					
-					listener.onMouseMove (event);
-					
-				}
-			
-			default:
-			
-		}
-		
-	}
-	
-	
 	#if flash
 	private function handleFlashEvent (event:flash.events.MouseEvent):Void {
 		
-		mouseEvent.x = event.stageX;
-		mouseEvent.y = event.stageY;
+		eventInfo.x = event.stageX;
+		eventInfo.y = event.stageY;
 		
-		mouseEvent.type = switch (event.type) {
+		eventInfo.type = switch (event.type) {
 			
 			case flash.events.MouseEvent.MOUSE_DOWN: MOUSE_DOWN;
 			case flash.events.MouseEvent.MOUSE_MOVE: MOUSE_MOVE;
@@ -142,7 +141,7 @@ class MouseEventManager extends EventManager<IMouseEventListener> {
 			
 		}
 		
-		handleEvent (mouseEvent);
+		dispatch ();
 		
 	}
 	#end

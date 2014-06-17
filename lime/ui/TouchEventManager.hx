@@ -17,7 +17,7 @@ class TouchEventManager extends EventManager<ITouchEventListener> {
 	
 	private static var instance:TouchEventManager;
 	
-	private var touchEvent:TouchEvent;
+	private var eventInfo:TouchEventInfo;
 	
 	
 	public function new () {
@@ -25,12 +25,10 @@ class TouchEventManager extends EventManager<ITouchEventListener> {
 		super ();
 		
 		instance = this;
-		touchEvent = new TouchEvent ();
+		eventInfo = new TouchEventInfo ();
 		
 		#if (cpp || neko)
-		
-		lime_touch_event_manager_register (handleEvent, touchEvent);
-		
+		lime_touch_event_manager_register (dispatch, eventInfo);
 		#end
 		
 	}
@@ -47,6 +45,42 @@ class TouchEventManager extends EventManager<ITouchEventListener> {
 	}
 	
 	
+	private function dispatch ():Void {
+		
+		var x = eventInfo.x;
+		var y = eventInfo.y;
+		
+		switch (eventInfo.type) {
+			
+			case TOUCH_START:
+				
+				for (listener in listeners) {
+					
+					listener.onTouchStart (x, y);
+					
+				}
+			
+			case TOUCH_END:
+				
+				for (listener in listeners) {
+					
+					listener.onTouchEnd (x, y);
+					
+				}
+			
+			case TOUCH_MOVE:
+				
+				for (listener in listeners) {
+					
+					listener.onTouchMove (x, y);
+					
+				}
+			
+		}
+		
+	}
+	
+	
 	#if js
 	private function handleDOMEvent (event:js.html.TouchEvent):Void {
 		
@@ -54,11 +88,11 @@ class TouchEventManager extends EventManager<ITouchEventListener> {
 		
 		//var rect = __canvas.getBoundingClientRect ();
 		
-		touchEvent.id = event.changedTouches[0].identifier;
-		touchEvent.x = event.pageX;
-		touchEvent.y = event.pageY;
+		//touchEvent.id = event.changedTouches[0].identifier;
+		eventInfo.x = event.pageX;
+		eventInfo.y = event.pageY;
 		
-		touchEvent.type = switch (event.type) {
+		eventInfo.type = switch (event.type) {
 			
 			case "touchstart": TOUCH_START;
 			case "touchmove": TOUCH_MOVE;
@@ -67,7 +101,7 @@ class TouchEventManager extends EventManager<ITouchEventListener> {
 			
 		}
 		
-		handleEvent (touchEvent);
+		dispatch ();
 		
 		/*
 		event.preventDefault ();
@@ -121,49 +155,14 @@ class TouchEventManager extends EventManager<ITouchEventListener> {
 	#end
 	
 	
-	private function handleEvent (event:TouchEvent):Void {
-		
-		var event = event.clone ();
-		
-		switch (event.type) {
-			
-			case TOUCH_START:
-				
-				for (listener in listeners) {
-					
-					listener.onTouchStart (event);
-					
-				}
-			
-			case TOUCH_END:
-				
-				for (listener in listeners) {
-					
-					listener.onTouchEnd (event);
-					
-				}
-			
-			case TOUCH_MOVE:
-				
-				for (listener in listeners) {
-					
-					listener.onTouchMove (event);
-					
-				}
-			
-		}
-		
-	}
-	
-	
 	#if flash
 	private function handleFlashEvent (event:flash.events.TouchEvent):Void {
 		
-		touchEvent.id = event.touchPointID;
-		touchEvent.x = event.stageX;
-		touchEvent.y = event.stageY;
+		//touchEvent.id = event.touchPointID;
+		eventInfo.x = event.stageX;
+		eventInfo.y = event.stageY;
 		
-		touchEvent.type = switch (event.type) {
+		eventInfo.type = switch (event.type) {
 			
 			case flash.events.TouchEvent.TOUCH_BEGIN: TOUCH_START;
 			case flash.events.TouchEvent.TOUCH_MOVE: TOUCH_MOVE;
@@ -171,7 +170,7 @@ class TouchEventManager extends EventManager<ITouchEventListener> {
 			
 		}
 		
-		handleEvent (touchEvent);
+		dispatch ();
 		
 	}
 	#end

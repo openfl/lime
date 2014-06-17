@@ -4,9 +4,9 @@ package lime.ui;
 interface ITouchEventListener {
 	
 	
-	function onTouchEnd (event:TouchEvent):Void;
-	function onTouchMove (event:TouchEvent):Void;
-	function onTouchStart (event:TouchEvent):Void;
+	function onTouchEnd (x:Float, y:Float):Void;
+	function onTouchMove (x:Float, y:Float):Void;
+	function onTouchStart (x:Float, y:Float):Void;
 	
 	
 }

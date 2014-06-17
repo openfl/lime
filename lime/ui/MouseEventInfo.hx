@@ -1,7 +1,7 @@
 package lime.ui;
 
 
-class MouseEvent {
+class MouseEventInfo {
 	
 	
 	public var id:Int;
@@ -21,9 +21,9 @@ class MouseEvent {
 	}
 	
 	
-	public function clone ():MouseEvent {
+	public function clone ():MouseEventInfo {
 		
-		return new MouseEvent (type, id, x, y);
+		return new MouseEventInfo (type, id, x, y);
 		
 	}
 	

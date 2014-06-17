@@ -4,9 +4,9 @@ package lime.ui;
 interface IMouseEventListener {
 	
 	
-	function onMouseDown (event:MouseEvent):Void;
-	function onMouseMove (event:MouseEvent):Void;
-	function onMouseUp (event:MouseEvent):Void;
+	function onMouseDown (x:Float, y:Float):Void;
+	function onMouseMove (x:Float, y:Float):Void;
+	function onMouseUp (x:Float, y:Float):Void;
 	
 	
 }

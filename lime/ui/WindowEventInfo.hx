@@ -1,7 +1,7 @@
 package lime.ui;
 
 
-class WindowEvent {
+class WindowEventInfo {
 	
 	
 	public var type:WindowEventType;
@@ -14,9 +14,9 @@ class WindowEvent {
 	}
 	
 	
-	public function clone ():WindowEvent {
+	public function clone ():WindowEventInfo {
 		
-		return new WindowEvent (type);
+		return new WindowEventInfo (type);
 		
 	}
 	

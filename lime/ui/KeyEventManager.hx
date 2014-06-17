@@ -17,7 +17,7 @@ class KeyEventManager extends EventManager<IKeyEventListener> {
 	
 	private static var instance:KeyEventManager;
 	
-	private var keyEvent:KeyEvent;
+	private var eventInfo:KeyEventInfo;
 	
 	
 	public function new () {
@@ -25,12 +25,10 @@ class KeyEventManager extends EventManager<IKeyEventListener> {
 		super ();
 		
 		instance = this;
-		keyEvent = new KeyEvent ();
+		eventInfo = new KeyEventInfo ();
 		
 		#if (cpp || neko)
-		
-		lime_key_event_manager_register (handleEvent, keyEvent);
-		
+		lime_key_event_manager_register (dispatch, eventInfo);
 		#end
 		
 	}
@@ -47,40 +45,18 @@ class KeyEventManager extends EventManager<IKeyEventListener> {
 	}
 	
 	
-	#if js
-	private function handleDOMEvent (event:js.html.KeyboardEvent):Void {
+	private function dispatch ():Void {
 		
-		//keyEvent.code = event.code;
-		keyEvent.code = (event.keyCode != null ? event.keyCode : event.which);
-		keyEvent.key = keyEvent.code;
-		//keyEvent.code = Keyboard.__convertMozillaCode (keyEvent.code);
+		var keyCode = eventInfo.keyCode;
+		var modifier = eventInfo.modifier;
 		
-		//keyEvent.location = untyped (event).location != null ? untyped (event).location : event.keyLocation;
-		
-		keyEvent.ctrlKey = event.ctrlKey;
-		keyEvent.altKey = event.altKey;
-		keyEvent.shiftKey = event.shiftKey;
-		keyEvent.metaKey = event.metaKey;
-		
-		keyEvent.type = (event.type == "keydown" ? KEY_DOWN : KEY_UP);
-		
-		handleEvent (keyEvent);
-		
-	}
-	#end
-	
-	
-	private function handleEvent (event:KeyEvent):Void {
-		
-		var event = event.clone ();
-		
-		switch (event.type) {
+		switch (eventInfo.type) {
 			
 			case KEY_DOWN:
 				
 				for (listener in listeners) {
 					
-					listener.onKeyDown (event);
+					listener.onKeyDown (keyCode, modifier);
 					
 				}
 			
@@ -88,7 +64,7 @@ class KeyEventManager extends EventManager<IKeyEventListener> {
 				
 				for (listener in listeners) {
 					
-					listener.onKeyUp (event);
+					listener.onKeyUp (keyCode, modifier);
 					
 				}
 			
@@ -97,20 +73,41 @@ class KeyEventManager extends EventManager<IKeyEventListener> {
 	}
 	
 	
+	#if js
+	private function handleDOMEvent (event:js.html.KeyboardEvent):Void {
+		
+		//keyEvent.code = event.code;
+		eventInfo.keyCode = (event.keyCode != null ? event.keyCode : event.which);
+		//keyEvent.key = keyEvent.code;
+		//keyEvent.code = Keyboard.__convertMozillaCode (keyEvent.code);
+		
+		//keyEvent.location = untyped (event).location != null ? untyped (event).location : event.keyLocation;
+		
+		//keyEvent.ctrlKey = event.ctrlKey;
+		//keyEvent.altKey = event.altKey;
+		//keyEvent.shiftKey = event.shiftKey;
+		//keyEvent.metaKey = event.metaKey;
+		
+		eventInfo.type = (event.type == "keydown" ? KEY_DOWN : KEY_UP);
+		dispatch ();
+		
+	}
+	#end
+	
+	
 	#if flash
 	private function handleFlashEvent (event:flash.events.KeyboardEvent):Void {
 		
-		keyEvent.code = event.keyCode;
-		keyEvent.key = event.charCode;
+		eventInfo.keyCode = event.keyCode;
+		//keyEvent.key = event.charCode;
 		
-		keyEvent.ctrlKey = event.ctrlKey;
-		keyEvent.altKey = event.altKey;
-		keyEvent.shiftKey = event.shiftKey;
+		//keyEvent.ctrlKey = event.ctrlKey;
+		//keyEvent.altKey = event.altKey;
+		//keyEvent.shiftKey = event.shiftKey;
 		//keyEvent.metaKey = event.commandKey;
 		
-		keyEvent.type = (event.type == flash.events.KeyboardEvent.KEY_DOWN ? KEY_DOWN : KEY_UP);
-		
-		handleEvent (keyEvent);
+		eventInfo.type = (event.type == flash.events.KeyboardEvent.KEY_DOWN ? KEY_DOWN : KEY_UP);
+		dispatch ();
 		
 	}
 	#end

@@ -12,7 +12,7 @@ class RenderEventManager extends EventManager<IRenderEventListener> {
 	
 	private static var instance:RenderEventManager;
 	
-	private var event:RenderEvent;
+	private var eventInfo:RenderEventInfo;
 	
 	
 	public function new () {
@@ -20,11 +20,11 @@ class RenderEventManager extends EventManager<IRenderEventListener> {
 		super ();
 		
 		instance = this;
-		event = new RenderEvent ();
+		eventInfo = new RenderEventInfo ();
 		
 		#if (cpp || neko)
 		
-		lime_render_event_manager_register (handleEvent, event);
+		lime_render_event_manager_register (dispatch, eventInfo);
 		
 		#end
 		
@@ -42,13 +42,13 @@ class RenderEventManager extends EventManager<IRenderEventListener> {
 	}
 	
 	
-	private function handleEvent (event:RenderEvent):Void {
+	private function dispatch ():Void {
 		
-		var event = event.clone ();
+		var context = eventInfo.context;
 		
 		for (listener in listeners) {
 			
-			listener.onRender (event);
+			listener.onRender (context);
 			
 		}
 		
@@ -64,7 +64,7 @@ class RenderEventManager extends EventManager<IRenderEventListener> {
 	
 	private function render ():Void {
 		
-		handleEvent (event);
+		dispatch ();
 		
 	}
 	

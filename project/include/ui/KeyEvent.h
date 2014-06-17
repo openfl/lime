@@ -27,7 +27,8 @@ namespace lime {
 			
 			static void Dispatch (KeyEvent* event);
 			
-			int code;
+			int keyCode;
+			int modifier;
 			KeyEventType type;
 		
 	};

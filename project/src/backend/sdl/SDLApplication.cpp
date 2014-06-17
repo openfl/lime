@@ -203,7 +203,7 @@ namespace lime {
 				
 			}
 			
-			keyEvent.code = event->key.keysym.sym;
+			keyEvent.keyCode = event->key.keysym.sym;
 			
 			KeyEvent::Dispatch (&keyEvent);
 			

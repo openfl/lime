@@ -79,16 +79,16 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 	}
 	
 	
-	public function onKeyDown (event:KeyEvent):Void {}
-	public function onKeyUp (event:KeyEvent):Void {}
-	public function onMouseDown (event:MouseEvent):Void {}
-	public function onMouseMove (event:MouseEvent):Void {}
-	public function onMouseUp (event:MouseEvent):Void {}
-	public function onTouchEnd (event:TouchEvent):Void {}
-	public function onTouchMove (event:TouchEvent):Void {}
-	public function onTouchStart (event:TouchEvent):Void {}
-	public function onWindowActivate (event:WindowEvent):Void {}
-	public function onWindowDeactivate (event:WindowEvent):Void { }
+	public function onKeyDown (keyCode:Int, modifier:Int):Void {}
+	public function onKeyUp (keyCode:Int, modifier:Int):Void {}
+	public function onMouseDown (x:Float, y:Float):Void {}
+	public function onMouseMove (x:Float, y:Float):Void {}
+	public function onMouseUp (x:Float, y:Float):Void {}
+	public function onTouchEnd (x:Float, y:Float):Void {}
+	public function onTouchMove (x:Float, y:Float):Void {}
+	public function onTouchStart (x:Float, y:Float):Void {}
+	public function onWindowActivate ():Void {}
+	public function onWindowDeactivate ():Void { }
 	
 	
 	public function render (context:RenderContext):Void {
@@ -132,7 +132,7 @@ private class EventDelegate implements IRenderEventListener implements IUpdateEv
 	}
 	
 	
-	public function onRender (event:RenderEvent):Void {
+	public function onRender (context:RenderContext):Void {
 		
 		for (window in application.windows) {
 			
@@ -152,13 +152,13 @@ private class EventDelegate implements IRenderEventListener implements IUpdateEv
 	}
 	
 	
-	public function onUpdate (event:UpdateEvent):Void {
+	public function onUpdate (deltaTime:Int):Void {
 		
 		#if (js && stats)
 		application.windows[0].stats.begin ();
 		#end
 		
-		application.update (event.deltaTime);
+		application.update (deltaTime);
 		
 	}
 	

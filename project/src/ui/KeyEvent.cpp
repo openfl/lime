@@ -8,14 +8,16 @@ namespace lime {
 	AutoGCRoot* KeyEvent::callback = 0;
 	AutoGCRoot* KeyEvent::eventObject = 0;
 	
-	static int id_code;
+	static int id_keyCode;
+	static int id_modifier;
 	static int id_type;
 	static bool init = false;
 	
 	
 	KeyEvent::KeyEvent () {
 		
-		code = 0;
+		keyCode = 0;
+		modifier = 0;
 		type = KEY_DOWN;
 		
 	}
@@ -27,7 +29,8 @@ namespace lime {
 			
 			if (!init) {
 				
-				id_code = val_id ("code");
+				id_keyCode = val_id ("keyCode");
+				id_modifier = val_id ("modifier");
 				id_type = val_id ("type");
 				init = true;
 				
@@ -35,10 +38,11 @@ namespace lime {
 			
 			value object = (KeyEvent::eventObject ? KeyEvent::eventObject->get () : alloc_empty_object ());
 			
-			alloc_field (object, id_code, alloc_int (event->code));
+			alloc_field (object, id_keyCode, alloc_int (event->keyCode));
+			alloc_field (object, id_modifier, alloc_int (event->modifier));
 			alloc_field (object, id_type, alloc_int (event->type));
 			
-			val_call1 (KeyEvent::callback->get (), object);
+			val_call0 (KeyEvent::callback->get ());
 			
 		}
 		

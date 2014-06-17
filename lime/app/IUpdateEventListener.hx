@@ -4,7 +4,7 @@ package lime.app;
 interface IUpdateEventListener {
 	
 	
-	function onUpdate (event:UpdateEvent):Void;
+	function onUpdate (deltaTime:Int):Void;
 	
 	
 }

@@ -1,7 +1,7 @@
 package lime.ui;
 
 
-class TouchEvent {
+class TouchEventInfo {
 	
 	
 	public var id:Int;
@@ -21,9 +21,9 @@ class TouchEvent {
 	}
 	
 	
-	public function clone ():TouchEvent {
+	public function clone ():TouchEventInfo {
 		
-		return new TouchEvent (type, id, x, y);
+		return new TouchEventInfo (type, id, x, y);
 		
 	}
 	
