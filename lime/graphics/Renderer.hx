@@ -15,10 +15,7 @@ import flash.Lib;
 
 @:access(lime.graphics.opengl.GL)
 class Renderer {
-	
-	public inline static var DEPTH_BUFFER    = 0x0200;
-   	public inline static var STENCIL_BUFFER  = 0x0400;
-	
+
 	public var context:RenderContext;
 	public var handle:Dynamic;
 	
