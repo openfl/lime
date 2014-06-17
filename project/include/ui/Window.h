@@ -23,7 +23,7 @@ namespace lime {
 	};
 	
 	
-	Window* CreateWindow (Application* application);
+	Window* CreateWindow (Application* application, int flags);
 	
 	
 }

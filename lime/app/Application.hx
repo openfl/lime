@@ -7,8 +7,7 @@ import lime.ui.*;
 
 
 class Application implements IKeyEventListener implements IMouseEventListener implements ITouchEventListener implements IWindowEventListener {
-	
-	
+		
 	public var handle:Dynamic;
 	
 	private var config:Config;
@@ -52,7 +51,7 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 		TouchEventManager.addEventListener (this);
 		WindowEventManager.addEventListener (this);
 		
-		var window = new Window (this);
+		var window = new Window (this, config);
 		var renderer = new Renderer (window);
 		
 		window.width = config.width;
