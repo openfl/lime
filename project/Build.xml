@@ -17,7 +17,7 @@
 	<set name="LIME_ZLIB" value="1" />
 	
 	<set name="OUTPUT_DIR" value="../ndll" unless="OUTPUT_DIR" />
-	<set name="NATIVE_LIB_PATH" value="lib" unless="NATIVE_LIB_PATH" />
+	<set name="NATIVE_TOOLKIT_PATH" value="lib" unless="NATIVE_TOOLKIT_PATH" />
 	
 	<set name="LIBCURL_SSL" value="1" />
 	
@@ -30,11 +30,11 @@
 		
 		<section if="LIME_SDL">
 			
-			<compilerflag value="-I${NATIVE_LIB_PATH}/sdl/include/" />
-			<compilerflag value="-I${NATIVE_LIB_PATH}/sdl/include/configs/default/" unless="windows || mac || linux"/>
-			<compilerflag value="-I${NATIVE_LIB_PATH}/sdl/include/configs/linux/" if="linux"/>
-			<compilerflag value="-I${NATIVE_LIB_PATH}/sdl/include/configs/windows/" if="windows"/>
-			<compilerflag value="-I${NATIVE_LIB_PATH}/sdl/include/configs/mac/" if="mac"/>
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/default/" unless="windows || mac || linux"/>
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/linux/" if="linux"/>
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/windows/" if="windows"/>
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/mac/" if="mac"/>
 			
 			<file name="src/backend/sdl/SDLApplication.cpp" />
 			<file name="src/backend/sdl/SDLWindow.cpp" />
@@ -60,12 +60,12 @@
 		
 	</files>
 	
-	<include name="lib/curl/include.xml" />
-	<include name="lib/ogg/include.xml" />
-	<include name="lib/openal/include.xml" />
-	<include name="lib/sdl/include.xml" />
-	<include name="lib/vorbis/include.xml" />
-	<include name="lib/zlib/include.xml" />
+	<include name="lib/curl/files.xml" />
+	<include name="lib/ogg/files.xml" />
+	<include name="lib/openal/files.xml" />
+	<include name="lib/sdl/files.xml" />
+	<include name="lib/vorbis/files.xml" />
+	<include name="lib/zlib/files.xml" />
 	
 	<target id="lime" output="${LIBPREFIX}lime${MSVC_LIB_VERSION}${DEBUGEXTRA}${LIBEXTRA}" tool="linker" toolid="${STD_MODULE_LINK}">
 		
@@ -73,12 +73,12 @@
 		
 		<files id="lime" />
 		
-		<files id="native-curl" if="LIME_CURL" />
-		<files id="native-ogg" if="LIME_OGG" />
-		<files id="native-openal" if="LIME_OPENAL" unless="mac || iphone" />
-		<files id="native-sdl" if="LIME_SDL" />
-		<files id="native-vorbis" if="LIME_VORBIS" />
-		<files id="native-zlib" if="LIME_ZLIB" />
+		<files id="native-toolkit-curl" if="LIME_CURL" />
+		<files id="native-toolkit-ogg" if="LIME_OGG" />
+		<files id="native-toolkit-openal" if="LIME_OPENAL" unless="mac || iphone" />
+		<files id="native-toolkit-sdl" if="LIME_SDL" />
+		<files id="native-toolkit-vorbis" if="LIME_VORBIS" />
+		<files id="native-toolkit-zlib" if="LIME_ZLIB" />
 		
 		<section unless="static_link">
 			
