@@ -38,8 +38,10 @@ class ApplicationMain {
 			
 		}
 		
-		#if (js && munit)
+		#if js
+		#if munit
 		embed (null, ::WIN_WIDTH::, ::WIN_HEIGHT::, "::WIN_FLASHBACKGROUND::");
+		#end
 		#else
 		create ();
 		#end
