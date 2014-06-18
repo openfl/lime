@@ -11,48 +11,41 @@ import flash.Lib;
 #end
 
 
-@:allow(lime.ui.Window)
 class KeyEventManager {
 	
 	
 	public static var onKeyDown = new Event<Int->Int->Void> ();
 	public static var onKeyUp = new Event<Int->Int->Void> ();
 	
-	private static var instance:KeyEventManager;
-	private var eventInfo:KeyEventInfo;
+	private static var eventInfo:KeyEventInfo;
 	
 	
-	public function new () {
+	public static function create ():Void {
 		
-		instance = this;
 		eventInfo = new KeyEventInfo ();
 		
-		#if (cpp || neko)
-		lime_key_event_manager_register (dispatch, eventInfo);
+		#if js
+		
+		Browser.window.addEventListener ("keydown", handleEvent, false);
+		Browser.window.addEventListener ("keyup", handleEvent, false);
+		
+		#elseif flash
+		
+		Lib.current.stage.addEventListener (flash.events.KeyboardEvent.KEY_DOWN, handleEvent);
+		Lib.current.stage.addEventListener (flash.events.KeyboardEvent.KEY_UP, handleEvent);
+		
+		#elseif (cpp || neko)
+		
+		lime_key_event_manager_register (handleEvent, eventInfo);
+		
 		#end
 		
 	}
 	
 	
-	private function dispatch ():Void {
+	private static function handleEvent (#if js event:js.html.KeyboardEvent #elseif flash event:flash.events.KeyboardEvent #end):Void {
 		
-		switch (eventInfo.type) {
-			
-			case KEY_DOWN:
-				
-				onKeyDown.dispatch (eventInfo.keyCode, eventInfo.modifier);
-			
-			case KEY_UP:
-				
-				onKeyUp.dispatch (eventInfo.keyCode, eventInfo.modifier);
-			
-		}
-		
-	}
-	
-	
-	#if js
-	private function handleDOMEvent (event:js.html.KeyboardEvent):Void {
+		#if js
 		
 		//keyEvent.code = event.code;
 		eventInfo.keyCode = (event.keyCode != null ? event.keyCode : event.which);
@@ -67,14 +60,8 @@ class KeyEventManager {
 		//keyEvent.metaKey = event.metaKey;
 		
 		eventInfo.type = (event.type == "keydown" ? KEY_DOWN : KEY_UP);
-		dispatch ();
 		
-	}
-	#end
-	
-	
-	#if flash
-	private function handleFlashEvent (event:flash.events.KeyboardEvent):Void {
+		#elseif flash
 		
 		eventInfo.keyCode = event.keyCode;
 		//keyEvent.key = event.charCode;
@@ -85,23 +72,18 @@ class KeyEventManager {
 		//keyEvent.metaKey = event.commandKey;
 		
 		eventInfo.type = (event.type == flash.events.KeyboardEvent.KEY_DOWN ? KEY_DOWN : KEY_UP);
-		dispatch ();
 		
-	}
-	#end
-	
-	
-	private static function registerWindow (_):Void {
+		#end
 		
-		if (instance != null) {
+		switch (eventInfo.type) {
 			
-			#if js
-			Browser.window.addEventListener ("keydown", instance.handleDOMEvent, false);
-			Browser.window.addEventListener ("keyup", instance.handleDOMEvent, false);
-			#elseif flash
-			Lib.current.stage.addEventListener (flash.events.KeyboardEvent.KEY_DOWN, instance.handleFlashEvent);
-			Lib.current.stage.addEventListener (flash.events.KeyboardEvent.KEY_UP, instance.handleFlashEvent);
-			#end
+			case KEY_DOWN:
+				
+				onKeyDown.dispatch (eventInfo.keyCode, eventInfo.modifier);
+			
+			case KEY_UP:
+				
+				onKeyUp.dispatch (eventInfo.keyCode, eventInfo.modifier);
 			
 		}
 		

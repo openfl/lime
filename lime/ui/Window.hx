@@ -184,7 +184,6 @@ class Window {
 		handle = lime_window_create (application.handle, flags);
 		#end
 		
-		KeyEventManager.registerWindow (this);
 		MouseEventManager.registerWindow (this);
 		TouchEventManager.registerWindow (this);
 		

@@ -11,53 +11,30 @@ import flash.Lib;
 #end
 
 
-@:allow(lime.ui.Window)
-class TouchEventManager {
+@:allow(lime.ui.Window) class TouchEventManager {
 	
 	
 	public static var onTouchEnd = new Event<Float->Float->Int->Void> ();
 	public static var onTouchMove = new Event<Float->Float->Int->Void> ();
 	public static var onTouchStart = new Event<Float->Float->Int->Void> ();
 	
-	private static var instance:TouchEventManager;
-	private var eventInfo:TouchEventInfo;
+	private static var eventInfo:TouchEventInfo;
 	
 	
-	public function new () {
+	public static function create ():Void {
 		
-		instance = this;
 		eventInfo = new TouchEventInfo ();
 		
 		#if (cpp || neko)
-		lime_touch_event_manager_register (dispatch, eventInfo);
+		lime_touch_event_manager_register (handleEvent, eventInfo);
 		#end
 		
 	}
 	
 	
-	private function dispatch ():Void {
+	private static function handleEvent (#if js event:js.html.TouchEvent #elseif flash event:flash.events.TouchEvent #end):Void {
 		
-		switch (eventInfo.type) {
-			
-			case TOUCH_START:
-				
-				onTouchStart.dispatch (eventInfo.x, eventInfo.y, eventInfo.id);
-			
-			case TOUCH_END:
-				
-				onTouchEnd.dispatch (eventInfo.x, eventInfo.y, eventInfo.id);
-			
-			case TOUCH_MOVE:
-				
-				onTouchMove.dispatch (eventInfo.x, eventInfo.y, eventInfo.id);
-			
-		}
-		
-	}
-	
-	
-	#if js
-	private function handleDOMEvent (event:js.html.TouchEvent):Void {
+		#if js
 		
 		event.preventDefault ();
 		
@@ -75,8 +52,6 @@ class TouchEventManager {
 			default: null;
 			
 		}
-		
-		dispatch ();
 		
 		/*
 		event.preventDefault ();
@@ -126,12 +101,7 @@ class TouchEventManager {
 		}
 		*/
 		
-	}
-	#end
-	
-	
-	#if flash
-	private function handleFlashEvent (event:flash.events.TouchEvent):Void {
+		#elseif flash
 		
 		//touchEvent.id = event.touchPointID;
 		eventInfo.x = event.stageX;
@@ -145,28 +115,43 @@ class TouchEventManager {
 			
 		}
 		
-		dispatch ();
+		#end
+		
+		switch (eventInfo.type) {
+			
+			case TOUCH_START:
+				
+				onTouchStart.dispatch (eventInfo.x, eventInfo.y, eventInfo.id);
+			
+			case TOUCH_END:
+				
+				onTouchEnd.dispatch (eventInfo.x, eventInfo.y, eventInfo.id);
+			
+			case TOUCH_MOVE:
+				
+				onTouchMove.dispatch (eventInfo.x, eventInfo.y, eventInfo.id);
+			
+		}
 		
 	}
-	#end
 	
 	
 	private static function registerWindow (window:Window):Void {
 		
-		if (instance != null) {
-			
-			#if js
-			window.element.addEventListener ("touchstart", instance.handleDOMEvent, true);
-			window.element.addEventListener ("touchmove", instance.handleDOMEvent, true);
-			window.element.addEventListener ("touchend", instance.handleDOMEvent, true);
-			#elseif flash
-			Multitouch.inputMode = MultitouchInputMode.TOUCH_POINT;
-			Lib.current.stage.addEventListener (flash.events.TouchEvent.TOUCH_BEGIN, instance.handleFlashEvent);
-			Lib.current.stage.addEventListener (flash.events.TouchEvent.TOUCH_MOVE, instance.handleFlashEvent);
-			Lib.current.stage.addEventListener (flash.events.TouchEvent.TOUCH_END, instance.handleFlashEvent);
-			#end
-			
-		}
+		#if js
+		
+		window.element.addEventListener ("touchstart", handleEvent, true);
+		window.element.addEventListener ("touchmove", handleEvent, true);
+		window.element.addEventListener ("touchend", handleEvent, true);
+		
+		#elseif flash
+		
+		Multitouch.inputMode = MultitouchInputMode.TOUCH_POINT;
+		Lib.current.stage.addEventListener (flash.events.TouchEvent.TOUCH_BEGIN, handleEvent);
+		Lib.current.stage.addEventListener (flash.events.TouchEvent.TOUCH_MOVE, handleEvent);
+		Lib.current.stage.addEventListener (flash.events.TouchEvent.TOUCH_END, handleEvent);
+		
+		#end
 		
 	}
 	

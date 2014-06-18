@@ -19,47 +19,24 @@ class MouseEventManager {
 	public static var onMouseMove = new Event<Float->Float->Int->Void> ();
 	public static var onMouseUp = new Event<Float->Float->Int->Void> ();
 	
-	private static var instance:MouseEventManager;
-	private var eventInfo:MouseEventInfo;
+	private static var created:Bool;
+	private static var eventInfo:MouseEventInfo;
 	
 	
-	public function new () {
+	public static function create ():Void {
 		
-		instance = this;
 		eventInfo = new MouseEventInfo ();
 		
 		#if (cpp || neko)
-		lime_mouse_event_manager_register (dispatch, eventInfo);
+		lime_mouse_event_manager_register (handleEvent, eventInfo);
 		#end
 		
 	}
 	
 	
-	private function dispatch ():Void {
+	private static function handleEvent (#if js event:js.html.MouseEvent #elseif flash event:flash.events.MouseEvent #end):Void {
 		
-		switch (eventInfo.type) {
-			
-			case MOUSE_DOWN:
-				
-				onMouseDown.dispatch (eventInfo.x, eventInfo.y, cast eventInfo.button);
-			
-			case MOUSE_UP:
-				
-				onMouseUp.dispatch (eventInfo.x, eventInfo.y, cast eventInfo.button);
-			
-			case MOUSE_MOVE:
-				
-				onMouseMove.dispatch (eventInfo.x, eventInfo.y, cast eventInfo.button);
-			
-			default:
-			
-		}
-		
-	}
-	
-	
-	#if js
-	private function handleDOMEvent (event:js.html.MouseEvent):Void {
+		#if js
 		
 		/*
 		var rect;
@@ -96,14 +73,7 @@ class MouseEventManager {
 			
 		}
 		
-		dispatch ();
-		
-	}
-	#end
-	
-	
-	#if flash
-	private function handleFlashEvent (event:flash.events.MouseEvent):Void {
+		#elseif flash
 		
 		eventInfo.x = event.stageX;
 		eventInfo.y = event.stageY;
@@ -116,37 +86,54 @@ class MouseEventManager {
 			
 		}
 		
-		dispatch ();
+		#end
+		
+		switch (eventInfo.type) {
+			
+			case MOUSE_DOWN:
+				
+				onMouseDown.dispatch (eventInfo.x, eventInfo.y, cast eventInfo.button);
+			
+			case MOUSE_UP:
+				
+				onMouseUp.dispatch (eventInfo.x, eventInfo.y, cast eventInfo.button);
+			
+			case MOUSE_MOVE:
+				
+				onMouseMove.dispatch (eventInfo.x, eventInfo.y, cast eventInfo.button);
+			
+			default:
+			
+		}
 		
 	}
-	#end
 	
 	
 	private static function registerWindow (window:Window):Void {
 		
-		if (instance != null) {
-			
-			#if js
-			window.element.addEventListener ("mousedown", instance.handleDOMEvent, true);
-			window.element.addEventListener ("mousemove", instance.handleDOMEvent, true);
-			window.element.addEventListener ("mouseup", instance.handleDOMEvent, true);
-			//window.element.addEventListener ("mousewheel", handleDOMEvent, true);
-			
-			// Disable image drag on Firefox
-			/*Browser.document.addEventListener ("dragstart", function (e) {
-				if (e.target.nodeName.toLowerCase() == "img") {
-					e.preventDefault();
-					return false;
-				}
-				return true;
-			}, false);*/
-			#elseif flash
-			Lib.current.stage.addEventListener (flash.events.MouseEvent.MOUSE_DOWN, instance.handleFlashEvent);
-			Lib.current.stage.addEventListener (flash.events.MouseEvent.MOUSE_MOVE, instance.handleFlashEvent);
-			Lib.current.stage.addEventListener (flash.events.MouseEvent.MOUSE_UP, instance.handleFlashEvent);
-			#end
-			
-		}
+		#if js
+		
+		window.element.addEventListener ("mousedown", handleEvent, true);
+		window.element.addEventListener ("mousemove", handleEvent, true);
+		window.element.addEventListener ("mouseup", handleEvent, true);
+		//window.element.addEventListener ("mousewheel", handleDOMEvent, true);
+		
+		// Disable image drag on Firefox
+		/*Browser.document.addEventListener ("dragstart", function (e) {
+			if (e.target.nodeName.toLowerCase() == "img") {
+				e.preventDefault();
+				return false;
+			}
+			return true;
+		}, false);*/
+		
+		#elseif flash
+		
+		Lib.current.stage.addEventListener (flash.events.MouseEvent.MOUSE_DOWN, handleEvent);
+		Lib.current.stage.addEventListener (flash.events.MouseEvent.MOUSE_MOVE, handleEvent);
+		Lib.current.stage.addEventListener (flash.events.MouseEvent.MOUSE_UP, handleEvent);
+		
+		#end
 		
 	}
 	

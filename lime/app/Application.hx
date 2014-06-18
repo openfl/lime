@@ -101,12 +101,9 @@ class Application {
 		handle = lime_application_create (null);
 		#end
 		
-		new KeyEventManager ();
-		new MouseEventManager ();
-		//new RenderEventManager ();
-		new TouchEventManager ();
-		//new UpdateEventManager ();
-		//new WindowEventManager ();
+		KeyEventManager.create ();
+		MouseEventManager.create ();
+		TouchEventManager.create ();
 		
 		KeyEventManager.onKeyDown.add (onKeyDown);
 		KeyEventManager.onKeyUp.add (onKeyUp);
