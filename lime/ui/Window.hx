@@ -35,8 +35,6 @@ class Window {
 	public var height:Int;
 	public var width:Int;
 	
-	private var application:Application;
-	
 	#if js
 	public var canvas:CanvasElement;
 	public var div:DivElement;
@@ -49,9 +47,8 @@ class Window {
 	#end
 	
 	
-	public function new (application:Application, config:Config) {
+	public function new (config:Config) {
 		
-		this.application = application;
 		this.config = config;
 		
 		if (!registered) {
@@ -67,7 +64,7 @@ class Window {
 	}
 	
 	
-	public function create ():Void {
+	public function create (application:Application):Void {
 		
 		#if js
 		

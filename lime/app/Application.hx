@@ -51,7 +51,7 @@ class Application {
 	public function addWindow (window:Window):Void {
 		
 		windows.push (window);
-		window.create ();
+		window.create (this);
 		
 		#if js
 		
@@ -119,7 +119,7 @@ class Application {
 		Window.onWindowActivate.add (onWindowActivate);
 		Window.onWindowDeactivate.add (onWindowDeactivate);
 		
-		var window = new Window (this, config);
+		var window = new Window (config);
 		var renderer = new Renderer (window);
 		
 		window.width = config.width;
