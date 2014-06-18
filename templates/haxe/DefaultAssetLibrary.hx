@@ -185,9 +185,10 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		return null;
+		//return null;
 		//if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), ByteArray);
-		//else return ByteArray.readFile (path.get (id));
+		//else 
+		return ByteArray.readFile (path.get (id));
 		
 		#end
 		
