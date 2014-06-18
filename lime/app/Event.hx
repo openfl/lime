@@ -9,6 +9,7 @@ class Event<T> {
 	
 	
 	@:noCompletion public var listeners:Array<T>;
+	@:noCompletion public var repeat:Array<Bool>;
 	
 	private var priorities:Array<Int>;
 	
@@ -17,11 +18,12 @@ class Event<T> {
 		
 		listeners = new Array<T> ();
 		priorities = new Array<Int> ();
+		repeat = new Array<Bool> ();
 		
 	}
 	
 	
-	public function add (listener:T, priority:Int = 0):Void {
+	public function add (listener:T, once:Bool = false, priority:Int = 0):Void {
 		
 		for (i in 0...priorities.length) {
 			
@@ -29,6 +31,7 @@ class Event<T> {
 				
 				listeners.insert (i, listener);
 				priorities.insert (i, priority);
+				repeat.insert (i, !once);
 				return;
 				
 			}
@@ -37,6 +40,7 @@ class Event<T> {
 		
 		listeners.push (listener);
 		priorities.push (priority);
+		repeat.push (!once);
 		
 	}
 	
@@ -45,15 +49,32 @@ class Event<T> {
 		
 		return macro {
 			
-			for (listener in $ethis.listeners) {
+			var listeners = $ethis.listeners;
+			var repeat = $ethis.repeat;
+			var length = listeners.length;
+			var i = 0;
+			
+			while (i < length) {
 				
-				listener ($a{args});
+				listeners[i] ($a{args});
+				
+				if (!repeat[i]) {
+					
+					$ethis.remove (listeners[i]);
+					length--;
+					
+				} else {
+					
+					i++;
+					
+				}
 				
 			}
 			
 		}
 		
 	}
+	
 	
 	public function remove (listener:T):Void {
 		
@@ -63,6 +84,7 @@ class Event<T> {
 			
 			listeners.splice (index, 1);
 			priorities.splice (index, 1);
+			repeat.splice (index, 1);
 			
 		}
 		
