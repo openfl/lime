@@ -50,15 +50,15 @@ class CanvasRenderContext {
 	@:overload(function(canvas:Dynamic /*CanvasElement*/, repetitionType:String):Dynamic /*CanvasPattern*/ {})
 	public function createPattern (image:Dynamic /*ImageElement*/, repetitionType:String):Dynamic /*CanvasPattern*/ { return null; };
 	public function createRadialGradient (x0:Float, y0:Float, r0:Float, x1:Float, y1:Float, r1:Float):Dynamic /*CanvasGradient*/ { return null; };
-	@:overload(function(image:Dynamic /*ImageElement*/, x:Float, y:Float):Void {})
-	@:overload(function(image:Dynamic /*ImageElement*/, x:Float, y:Float, width:Float, height:Float):Void {})
-	@:overload(function(image:Dynamic /*ImageElement*/, sx:Float, sy:Float, sw:Float, sh:Float, dx:Float, dy:Float, dw:Float, dh:Float):Void {})
-	@:overload(function(canvas:Dynamic /*CanvasElement*/, x:Float, y:Float):Void {})
-	@:overload(function(canvas:Dynamic /*CanvasElement*/, x:Float, y:Float, width:Float, height:Float):Void {})
-	@:overload(function(canvas:Dynamic /*CanvasElement*/, sx:Float, sy:Float, sw:Float, sh:Float, dx:Float, dy:Float, dw:Float, dh:Float):Void {})
-	@:overload(function(video:Dynamic /*VideoElement*/, x:Float, y:Float):Void {})
-	@:overload(function(video:Dynamic /*VideoElement*/, x:Float, y:Float, width:Float, height:Float):Void {})
-	public function drawImage (video:Dynamic /*VideoElement*/, sx:Float, sy:Float, sw:Float, sh:Float, dx:Float, dy:Float, dw:Float, dh:Float):Void {};
+	//@:overload(function(image:Dynamic /*ImageElement*/, x:Float, y:Float):Void {})
+	//@:overload(function(image:Dynamic /*ImageElement*/, x:Float, y:Float, width:Float, height:Float):Void {})
+	//@:overload(function(image:Dynamic /*ImageElement*/, sx:Float, sy:Float, sw:Float, sh:Float, dx:Float, dy:Float, dw:Float, dh:Float):Void {})
+	//@:overload(function(canvas:Dynamic /*CanvasElement*/, x:Float, y:Float):Void {})
+	//@:overload(function(canvas:Dynamic /*CanvasElement*/, x:Float, y:Float, width:Float, height:Float):Void {})
+	//@:overload(function(canvas:Dynamic /*CanvasElement*/, sx:Float, sy:Float, sw:Float, sh:Float, dx:Float, dy:Float, dw:Float, dh:Float):Void {})
+	//@:overload(function(video:Dynamic /*VideoElement*/, x:Float, y:Float):Void {})
+	//@:overload(function(video:Dynamic /*VideoElement*/, x:Float, y:Float, width:Float, height:Float):Void {})
+	public function drawImage (element:Dynamic /*VideoElement*/, sx:Float, sy:Float, ?sw:Float, ?sh:Float, ?dx:Float, ?dy:Float, ?dw:Float, ?dh:Float):Void {};
 	public function drawImageFromRect (image:Dynamic /*ImageElement*/, ?sx:Float, ?sy:Float, ?sw:Float, ?sh:Float, ?dx:Float, ?dy:Float, ?dw:Float, ?dh:Float, ?compositeOperation:String):Void {};
 	public function fill ():Void {};
 	public function fillRect (x:Float, y:Float, width:Float, height:Float):Void {};
@@ -70,10 +70,10 @@ class CanvasRenderContext {
 	public function lineTo (x:Float, y:Float):Void {};
 	public function measureText(text:String):Dynamic /*TextMetrics*/ { return null; };
 	public function moveTo (x:Float, y:Float):Void {};
-	@:overload(function(Dynamic /*ImageData*/:Dynamic /*ImageData*/, dx:Float, dy:Float):Void {})
-	public function putDynamicImageData (Dynamic /*ImageData*/:Dynamic /*ImageData*/, dx:Float, dy:Float, dirtyX:Float, dirtyY:Float, dirtyWidth:Float, dirtyHeight:Float):Void {};
-	@:overload(function(Dynamic /*ImageData*/:Dynamic /*ImageData*/, dx:Float, dy:Float):Void {})
-	public function putDynamicImageDataHD (Dynamic /*ImageData*/:Dynamic /*ImageData*/, dx:Float, dy:Float, dirtyX:Float, dirtyY:Float, dirtyWidth:Float, dirtyHeight:Float):Void {};
+	@:overload(function(dynamicImageData:Dynamic /*ImageData*/, dx:Float, dy:Float):Void {})
+	public function putDynamicImageData (dynamicImageData:Dynamic /*ImageData*/, dx:Float, dy:Float, dirtyX:Float, dirtyY:Float, dirtyWidth:Float, dirtyHeight:Float):Void {};
+	@:overload(function(dynamicImageData:Dynamic /*ImageData*/, dx:Float, dy:Float):Void {})
+	public function putDynamicImageDataHD (dynamicImageData:Dynamic /*ImageData*/, dx:Float, dy:Float, dirtyX:Float, dirtyY:Float, dirtyWidth:Float, dirtyHeight:Float):Void {};
 	public function quadraticCurveTo (cpx:Float, cpy:Float, x:Float, y:Float):Void {};
 	public function rect (x:Float, y:Float, width:Float, height:Float):Void {};
 	public function restore ():Void {};
