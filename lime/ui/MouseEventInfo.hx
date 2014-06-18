@@ -4,29 +4,38 @@ package lime.ui;
 class MouseEventInfo {
 	
 	
-	public var id:Int;
+	public var button:MouseEventButton;
 	public var type:MouseEventType;
 	public var x:Float;
 	public var y:Float;
 	
 	
 	
-	public function new (type:MouseEventType = null, id:Int = 0, x:Float = 0, y:Float = 0) {
+	public function new (type:MouseEventType = null, x:Float = 0, y:Float = 0, button:MouseEventButton = null) {
 		
-		this.id = id;
 		this.type = type;
 		this.x = x;
 		this.y = y;
+		this.button = button;
 		
 	}
 	
 	
 	public function clone ():MouseEventInfo {
 		
-		return new MouseEventInfo (type, id, x, y);
+		return new MouseEventInfo (type, x, y, button);
 		
 	}
 	
+	
+}
+
+
+@:enum abstract MouseEventButton(Int) {
+	
+	var MOUSE_BUTTON_LEFT = 0;
+	var MOUSE_BUTTON_MIDDLE = 1;
+	var MOUSE_BUTTON_RIGHT = 2;
 	
 }
 

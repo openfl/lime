@@ -81,12 +81,12 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 	
 	public function onKeyDown (keyCode:Int, modifier:Int):Void {}
 	public function onKeyUp (keyCode:Int, modifier:Int):Void {}
-	public function onMouseDown (x:Float, y:Float):Void {}
-	public function onMouseMove (x:Float, y:Float):Void {}
-	public function onMouseUp (x:Float, y:Float):Void {}
-	public function onTouchEnd (x:Float, y:Float):Void {}
-	public function onTouchMove (x:Float, y:Float):Void {}
-	public function onTouchStart (x:Float, y:Float):Void {}
+	public function onMouseDown (x:Float, y:Float, button:Int):Void {}
+	public function onMouseMove (x:Float, y:Float, button:Int):Void {}
+	public function onMouseUp (x:Float, y:Float, button:Int):Void {}
+	public function onTouchEnd (x:Float, y:Float, id:Int):Void {}
+	public function onTouchMove (x:Float, y:Float, id:Int):Void {}
+	public function onTouchStart (x:Float, y:Float, id:Int):Void {}
 	public function onWindowActivate ():Void {}
 	public function onWindowDeactivate ():Void { }
 	

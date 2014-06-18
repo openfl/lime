@@ -8,6 +8,15 @@
 namespace lime {
 	
 	
+	enum MouseEventButton {
+		
+		MOUSE_BUTTON_LEFT,
+		MOUSE_BUTTON_MIDDLE,
+		MOUSE_BUTTON_RIGHT
+		
+	};
+	
+	
 	enum MouseEventType {
 		
 		MOUSE_DOWN,
@@ -29,7 +38,7 @@ namespace lime {
 			
 			static void Dispatch (MouseEvent* event);
 			
-			int id;
+			int button;
 			MouseEventType type;
 			double x;
 			double y;

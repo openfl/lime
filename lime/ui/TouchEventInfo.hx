@@ -10,20 +10,19 @@ class TouchEventInfo {
 	public var y:Float;
 	
 	
-	
-	public function new (type:TouchEventType = null, id:Int = 0, x:Float = 0, y:Float = 0) {
+	public function new (type:TouchEventType = null, x:Float = 0, y:Float = 0, id:Int = 0) {
 		
 		this.type = type;
-		this.id = id;
 		this.x = x;
 		this.y = y;
+		this.id = id;
 		
 	}
 	
 	
 	public function clone ():TouchEventInfo {
 		
-		return new TouchEventInfo (type, id, x, y);
+		return new TouchEventInfo (type, x, y, id);
 		
 	}
 	

@@ -49,6 +49,7 @@ class TouchEventManager extends EventManager<ITouchEventListener> {
 		
 		var x = eventInfo.x;
 		var y = eventInfo.y;
+		var id = eventInfo.id;
 		
 		switch (eventInfo.type) {
 			
@@ -56,7 +57,7 @@ class TouchEventManager extends EventManager<ITouchEventListener> {
 				
 				for (listener in listeners) {
 					
-					listener.onTouchStart (x, y);
+					listener.onTouchStart (x, y, id);
 					
 				}
 			
@@ -64,7 +65,7 @@ class TouchEventManager extends EventManager<ITouchEventListener> {
 				
 				for (listener in listeners) {
 					
-					listener.onTouchEnd (x, y);
+					listener.onTouchEnd (x, y, id);
 					
 				}
 			
@@ -72,7 +73,7 @@ class TouchEventManager extends EventManager<ITouchEventListener> {
 				
 				for (listener in listeners) {
 					
-					listener.onTouchMove (x, y);
+					listener.onTouchMove (x, y, id);
 					
 				}
 			

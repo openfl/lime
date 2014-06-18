@@ -49,6 +49,7 @@ class MouseEventManager extends EventManager<IMouseEventListener> {
 		
 		var x = eventInfo.x;
 		var y = eventInfo.y;
+		var button:Int = cast eventInfo.button;
 		
 		switch (eventInfo.type) {
 			
@@ -56,7 +57,7 @@ class MouseEventManager extends EventManager<IMouseEventListener> {
 				
 				for (listener in listeners) {
 					
-					listener.onMouseDown (x, y);
+					listener.onMouseDown (x, y, button);
 					
 				}
 			
@@ -64,7 +65,7 @@ class MouseEventManager extends EventManager<IMouseEventListener> {
 				
 				for (listener in listeners) {
 					
-					listener.onMouseUp (x, y);
+					listener.onMouseUp (x, y, button);
 					
 				}
 			
@@ -72,7 +73,7 @@ class MouseEventManager extends EventManager<IMouseEventListener> {
 				
 				for (listener in listeners) {
 					
-					listener.onMouseMove (x, y);
+					listener.onMouseMove (x, y, button);
 					
 				}
 			

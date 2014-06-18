@@ -225,7 +225,7 @@ namespace lime {
 				
 			}
 			
-			mouseEvent.id = event->button.button - 1;
+			mouseEvent.button = event->button.button - 1;
 			mouseEvent.x = event->button.x;
 			mouseEvent.y = event->button.y;
 			
