@@ -1,4 +1,5 @@
 import ::APP_MAIN::;
+import lime.Assets;
 
 
 class ApplicationMain {
@@ -15,6 +16,23 @@ class ApplicationMain {
 		preloader = new ::if (PRELOADER_NAME != "")::::PRELOADER_NAME::::else::lime.app.Preloader::end:: ();
 		preloader.onComplete = start;
 		preloader.create (config);
+		
+		#if js
+		var urls = [];
+		var types = [];
+		
+		::foreach assets::::if (embed)::
+		urls.push ("::resourceName::");
+		::if (type == "image")::types.push (AssetType.IMAGE);
+		::elseif (type == "binary")::types.push (AssetType.BINARY);
+		::elseif (type == "text")::types.push (AssetType.TEXT);
+		::elseif (type == "sound")::types.push (AssetType.SOUND);
+		::elseif (type == "music")::types.push (AssetType.MUSIC);
+		::else::types.push (null);::end::
+		::end::::end::
+		
+		preloader.load (urls, types);
+		#end
 		
 	}
 	

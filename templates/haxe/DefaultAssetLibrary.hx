@@ -3,6 +3,7 @@ package;
 
 import haxe.Timer;
 import haxe.Unserializer;
+import lime.app.Preloader;
 import lime.graphics.ImageData;
 import lime.utils.ByteArray;
 import lime.Assets;
@@ -154,8 +155,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 		#elseif js
 		
-		/*var bytes:ByteArray = null;
-		var data = ApplicationMain.urlLoaders.get (path.get (id)).data;
+		var bytes:ByteArray = null;
+		var data = Preloader.loaders.get (path.get (id)).data;
 		
 		if (Std.is (data, String)) {
 			
@@ -180,9 +181,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		} else {
 			
 			return null;
-		}*/
-		
-		return null;
+		}
 		
 		#else
 		
@@ -204,8 +203,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#elseif js
 		
-		return null;
-		//return cast (ApplicationMain.loaders.get (path.get (id)).contentLoaderInfo.content, Bitmap).bitmapData;
+		var image = Preloader.images.get (path.get (id));
+		return new ImageData (image, image.width, image.height);
 		
 		#else
 		
@@ -289,8 +288,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#if js
 		
-		/*var bytes:ByteArray = null;
-		var data = ApplicationMain.urlLoaders.get (path.get (id)).data;
+		var bytes:ByteArray = null;
+		var data = Preloader.loaders.get (path.get (id)).data;
 		
 		if (Std.is (data, String)) {
 			
@@ -314,9 +313,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		} else {
 			
 			return null;
-		}*/
-		
-		return null;
+		}
 		
 		#else
 		
