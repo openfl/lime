@@ -3,10 +3,10 @@
 	url = https://github.com/native-toolkit/vorbis
 [submodule "project/lib/sdl"]
 	path = project/lib/sdl
-	url = https://github.com/openfl/native-sdl
+	url = https://github.com/native-toolkit/sdl
 [submodule "project/lib/openal"]
 	path = project/lib/openal
-	url = https://github.com/openfl/native-openal
+	url = https://github.com/native-toolkit/openal
 [submodule "project/lib/curl"]
 	path = project/lib/curl
 	url = https://github.com/native-toolkit/curl
