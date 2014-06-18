@@ -62,6 +62,8 @@ class Preloader #if flash extends Sprite #end {
 	
 	public function load (urls:Array<String>, types:Array<AssetType>):Void {
 		
+		#if js
+		
 		var url = null;
 		
 		for (i in 0...urls.length) {
@@ -110,6 +112,8 @@ class Preloader #if flash extends Sprite #end {
 			start ();
 			
 		}
+		
+		#end
 		
 	}
 	
