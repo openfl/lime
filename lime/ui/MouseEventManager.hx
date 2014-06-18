@@ -1,7 +1,7 @@
 package lime.ui;
 
 
-import lime.app.EventManager;
+import lime.app.Event;
 import lime.system.System;
 
 #if js
@@ -12,17 +12,18 @@ import flash.Lib;
 
 
 @:allow(lime.ui.Window)
-class MouseEventManager extends EventManager<IMouseEventListener> {
+class MouseEventManager {
 	
+	
+	public static var onMouseDown = new Event<Float->Float->Int->Void> ();
+	public static var onMouseMove = new Event<Float->Float->Int->Void> ();
+	public static var onMouseUp = new Event<Float->Float->Int->Void> ();
 	
 	private static var instance:MouseEventManager;
-	
 	private var eventInfo:MouseEventInfo;
 	
 	
 	public function new () {
-		
-		super ();
 		
 		instance = this;
 		eventInfo = new MouseEventInfo ();
@@ -34,48 +35,21 @@ class MouseEventManager extends EventManager<IMouseEventListener> {
 	}
 	
 	
-	public static function addEventListener (listener:IMouseEventListener, priority:Int = 0):Void {
-		
-		if (instance != null) {
-			
-			instance._addEventListener (listener, priority);
-			
-		}
-		
-	}
-	
-	
 	private function dispatch ():Void {
-		
-		var x = eventInfo.x;
-		var y = eventInfo.y;
-		var button:Int = cast eventInfo.button;
 		
 		switch (eventInfo.type) {
 			
 			case MOUSE_DOWN:
 				
-				for (listener in listeners) {
-					
-					listener.onMouseDown (x, y, button);
-					
-				}
+				onMouseDown.dispatch (eventInfo.x, eventInfo.y, cast eventInfo.button);
 			
 			case MOUSE_UP:
 				
-				for (listener in listeners) {
-					
-					listener.onMouseUp (x, y, button);
-					
-				}
+				onMouseUp.dispatch (eventInfo.x, eventInfo.y, cast eventInfo.button);
 			
 			case MOUSE_MOVE:
 				
-				for (listener in listeners) {
-					
-					listener.onMouseMove (x, y, button);
-					
-				}
+				onMouseMove.dispatch (eventInfo.x, eventInfo.y, cast eventInfo.button);
 			
 			default:
 			
@@ -177,20 +151,58 @@ class MouseEventManager extends EventManager<IMouseEventListener> {
 	}
 	
 	
-	public static function removeEventListener (listener:IMouseEventListener):Void {
-		
-		if (instance != null) {
-			
-			instance._removeEventListener (listener);
-			
-		}
-		
-	}
-	
-	
 	#if (cpp || neko)
 	private static var lime_mouse_event_manager_register = System.load ("lime", "lime_mouse_event_manager_register", 2);
 	#end
 	
+	
+}
+
+
+private class MouseEventInfo {
+	
+	
+	public var button:MouseEventButton;
+	public var type:MouseEventType;
+	public var x:Float;
+	public var y:Float;
+	
+	
+	
+	public function new (type:MouseEventType = null, x:Float = 0, y:Float = 0, button:MouseEventButton = null) {
+		
+		this.type = type;
+		this.x = x;
+		this.y = y;
+		this.button = button;
+		
+	}
+	
+	
+	public function clone ():MouseEventInfo {
+		
+		return new MouseEventInfo (type, x, y, button);
+		
+	}
+	
+	
+}
+
+
+@:enum private abstract MouseEventButton(Int) {
+	
+	var MOUSE_BUTTON_LEFT = 0;
+	var MOUSE_BUTTON_MIDDLE = 1;
+	var MOUSE_BUTTON_RIGHT = 2;
+	
+}
+
+
+@:enum private abstract MouseEventType(Int) {
+	
+	var MOUSE_DOWN = 0;
+	var MOUSE_UP = 1;
+	var MOUSE_MOVE = 2;
+	var MOUSE_WHEEL = 3;
 	
 }

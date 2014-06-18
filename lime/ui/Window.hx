@@ -3,9 +3,8 @@ package lime.ui;
 
 import lime.app.Application;
 import lime.app.Config;
-import lime.app.UpdateEventManager;
+import lime.app.Event;
 import lime.graphics.Renderer;
-import lime.graphics.RenderEventManager;
 import lime.system.System;
 
 #if js
@@ -13,13 +12,22 @@ import js.html.CanvasElement;
 import js.html.DivElement;
 import js.html.HtmlElement;
 import js.Browser;
+#elseif flash
+import flash.Lib;
 #end
 
 
 class Window {
 	
+	
 	public inline static var DEPTH_BUFFER    = 0x0200;
    	public inline static var STENCIL_BUFFER  = 0x0400;
+   	
+   	public static var onWindowActivate = new Event<Void->Void> ();
+	public static var onWindowDeactivate = new Event<Void->Void> ();
+	
+	private static var eventInfo = new WindowEventInfo ();
+	private static var registered:Bool;
 	
 	public var currentRenderer:Renderer;
 	public var config:Config;
@@ -45,6 +53,16 @@ class Window {
 		
 		this.application = application;
 		this.config = config;
+		
+		if (!registered) {
+			
+			registered = true;
+			
+			#if (cpp || neko)
+			lime_window_event_manager_register (dispatch, eventInfo);
+			#end
+			
+		}
 		
 	}
 	
@@ -168,10 +186,15 @@ class Window {
 		
 		KeyEventManager.registerWindow (this);
 		MouseEventManager.registerWindow (this);
-		RenderEventManager.registerWindow (this);
 		TouchEventManager.registerWindow (this);
-		UpdateEventManager.registerWindow (this);
-		WindowEventManager.registerWindow (this);
+		
+		#if js
+		Browser.window.addEventListener ("focus", handleDOMEvent, false);
+		Browser.window.addEventListener ("blur", handleDOMEvent, false);
+		#elseif flash
+		Lib.current.stage.addEventListener (flash.events.Event.ACTIVATE, handleFlashEvent);
+		Lib.current.stage.addEventListener (flash.events.Event.DEACTIVATE, handleFlashEvent);
+		#end
 		
 		if (currentRenderer != null) {
 			
@@ -182,9 +205,78 @@ class Window {
 	}
 	
 	
-	#if (cpp || neko)
-	private static var lime_window_create = System.load ("lime", "lime_window_create", 2);
+	private static function dispatch ():Void {
+		
+		switch (eventInfo.type) {
+			
+			case WINDOW_ACTIVATE:
+				
+				onWindowActivate.dispatch ();
+			
+			case WINDOW_DEACTIVATE:
+				
+				onWindowDeactivate.dispatch ();
+			
+		}
+		
+	}
+	
+	
+	#if js
+	private static function handleDOMEvent (event:js.html.Event):Void {
+		
+		eventInfo.type = (event.type == "focus" ? WINDOW_ACTIVATE : WINDOW_DEACTIVATE);
+		dispatch ();
+		
+	}
 	#end
 	
+	
+	#if flash
+	private static function handleFlashEvent (event:flash.events.Event):Void {
+		
+		eventInfo.type = (event.type == flash.events.Event.ACTIVATE ? WINDOW_ACTIVATE : WINDOW_DEACTIVATE);
+		dispatch ();
+		
+	}
+	#end
+	
+	
+	#if (cpp || neko)
+	private static var lime_window_create = System.load ("lime", "lime_window_create", 2);
+	private static var lime_window_event_manager_register = System.load ("lime", "lime_window_event_manager_register", 2);
+	#end
+	
+	
+}
+
+
+private class WindowEventInfo {
+	
+	
+	public var type:WindowEventType;
+	
+	
+	public function new (type:WindowEventType = null) {
+		
+		this.type = type;
+		
+	}
+	
+	
+	public function clone ():WindowEventInfo {
+		
+		return new WindowEventInfo (type);
+		
+	}
+	
+	
+}
+
+
+@:enum private abstract WindowEventType(Int) {
+	
+	var WINDOW_ACTIVATE = 0;
+	var WINDOW_DEACTIVATE = 1;
 	
 }

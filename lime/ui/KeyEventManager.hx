@@ -1,7 +1,7 @@
 package lime.ui;
 
 
-import lime.app.EventManager;
+import lime.app.Event;
 import lime.system.System;
 
 #if js
@@ -12,17 +12,17 @@ import flash.Lib;
 
 
 @:allow(lime.ui.Window)
-class KeyEventManager extends EventManager<IKeyEventListener> {
+class KeyEventManager {
 	
+	
+	public static var onKeyDown = new Event<Int->Int->Void> ();
+	public static var onKeyUp = new Event<Int->Int->Void> ();
 	
 	private static var instance:KeyEventManager;
-	
 	private var eventInfo:KeyEventInfo;
 	
 	
 	public function new () {
-		
-		super ();
 		
 		instance = this;
 		eventInfo = new KeyEventInfo ();
@@ -34,39 +34,17 @@ class KeyEventManager extends EventManager<IKeyEventListener> {
 	}
 	
 	
-	public static function addEventListener (listener:IKeyEventListener, priority:Int = 0):Void {
-		
-		if (instance != null) {
-			
-			instance._addEventListener (listener, priority);
-			
-		}
-		
-	}
-	
-	
 	private function dispatch ():Void {
-		
-		var keyCode = eventInfo.keyCode;
-		var modifier = eventInfo.modifier;
 		
 		switch (eventInfo.type) {
 			
 			case KEY_DOWN:
 				
-				for (listener in listeners) {
-					
-					listener.onKeyDown (keyCode, modifier);
-					
-				}
+				onKeyDown.dispatch (eventInfo.keyCode, eventInfo.modifier);
 			
 			case KEY_UP:
 				
-				for (listener in listeners) {
-					
-					listener.onKeyUp (keyCode, modifier);
-					
-				}
+				onKeyUp.dispatch (eventInfo.keyCode, eventInfo.modifier);
 			
 		}
 		
@@ -130,20 +108,44 @@ class KeyEventManager extends EventManager<IKeyEventListener> {
 	}
 	
 	
-	public static function removeEventListener (listener:IKeyEventListener):Void {
-		
-		if (instance != null) {
-			
-			instance._removeEventListener (listener);
-			
-		}
-		
-	}
-	
-	
 	#if (cpp || neko)
 	private static var lime_key_event_manager_register = System.load ("lime", "lime_key_event_manager_register", 2);
 	#end
 	
+	
+}
+
+
+private class KeyEventInfo {
+	
+	
+	public var keyCode:Int;
+	public var modifier:Int;
+	public var type:KeyEventType;
+	
+	
+	public function new (type:KeyEventType = null, keyCode:Int = 0, modifier:Int = 0) {
+		
+		this.type = type;
+		this.keyCode = keyCode;
+		this.modifier = modifier;
+		
+	}
+	
+	
+	public function clone ():KeyEventInfo {
+		
+		return new KeyEventInfo (type, keyCode, modifier);
+		
+	}
+	
+	
+}
+
+
+@:enum private abstract KeyEventType(Int) {
+	
+	var KEY_DOWN = 0;
+	var KEY_UP = 1;
 	
 }

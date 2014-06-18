@@ -5,9 +5,22 @@ import lime.graphics.*;
 import lime.system.*;
 import lime.ui.*;
 
+#if js
+import js.Browser;
+#elseif flash
+import flash.Lib;
+#end
 
-class Application implements IKeyEventListener implements IMouseEventListener implements ITouchEventListener implements IWindowEventListener {
-		
+
+class Application {
+	
+	
+	public static var onUpdate = new Event<Int->Void> ();
+	
+	private static var eventInfo = new UpdateEventInfo ();
+	private static var instance:Application;
+	private static var registered:Bool;
+	
 	public var handle:Dynamic;
 	
 	private var config:Config;
@@ -17,8 +30,20 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 	
 	public function new () {
 		
+		instance = this;
+		
 		lastUpdate = 0;
 		windows = new Array ();
+		
+		if (!registered) {
+			
+			registered = true;
+			
+			#if (cpp || neko)
+			lime_update_event_manager_register (__dispatch, eventInfo);
+			#end
+			
+		}
 		
 	}
 	
@@ -27,6 +52,43 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 		
 		windows.push (window);
 		window.create ();
+		
+		#if js
+		
+		untyped __js__ ("
+			var lastTime = 0;
+			var vendors = ['ms', 'moz', 'webkit', 'o'];
+			for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+				window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+				window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] 
+										   || window[vendors[x]+'CancelRequestAnimationFrame'];
+			}
+			
+			if (!window.requestAnimationFrame)
+				window.requestAnimationFrame = function(callback, element) {
+					var currTime = new Date().getTime();
+					var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+					var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
+					  timeToCall);
+					lastTime = currTime + timeToCall;
+					return id;
+				};
+			
+			if (!window.cancelAnimationFrame)
+				window.cancelAnimationFrame = function(id) {
+					clearTimeout(id);
+				};
+			
+			window.requestAnimFrame = window.requestAnimationFrame;
+		");
+		
+		__triggerFrame ();
+		
+		#elseif flash
+		
+		Lib.current.stage.addEventListener (flash.events.Event.ENTER_FRAME, __triggerFrame);
+		
+		#end
 		
 	}
 	
@@ -41,15 +103,24 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 		
 		new KeyEventManager ();
 		new MouseEventManager ();
-		new RenderEventManager ();
+		//new RenderEventManager ();
 		new TouchEventManager ();
-		new UpdateEventManager ();
-		new WindowEventManager ();
+		//new UpdateEventManager ();
+		//new WindowEventManager ();
 		
-		KeyEventManager.addEventListener (this);
-		MouseEventManager.addEventListener (this);
-		TouchEventManager.addEventListener (this);
-		WindowEventManager.addEventListener (this);
+		KeyEventManager.onKeyDown.add (onKeyDown);
+		KeyEventManager.onKeyUp.add (onKeyUp);
+		
+		MouseEventManager.onMouseDown.add (onMouseDown);
+		MouseEventManager.onMouseMove.add (onMouseMove);
+		MouseEventManager.onMouseUp.add (onMouseUp);
+		
+		TouchEventManager.onTouchStart.add (onTouchStart);
+		TouchEventManager.onTouchMove.add (onTouchMove);
+		TouchEventManager.onTouchEnd.add (onTouchEnd);
+		
+		Window.onWindowActivate.add (onWindowActivate);
+		Window.onWindowDeactivate.add (onWindowDeactivate);
 		
 		var window = new Window (this, config);
 		var renderer = new Renderer (window);
@@ -62,8 +133,6 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 		#end
 		
 		addWindow (window);
-		
-		var eventDelegate = new EventDelegate (this);
 		
 	}
 	
@@ -105,62 +174,71 @@ class Application implements IKeyEventListener implements IMouseEventListener im
 	}
 	
 	
+	@:noCompletion private static function __dispatch ():Void {
+		
+		#if (js && stats)
+		windows[0].stats.begin ();
+		#end
+		
+		instance.update (eventInfo.deltaTime);
+		
+		onUpdate.dispatch (eventInfo.deltaTime);
+		
+	}
+	
+	
+	@:noCompletion private function __triggerFrame (?_):Void {
+		
+		eventInfo.deltaTime = 16; //TODO
+		__dispatch ();
+		
+		Renderer.dispatch ();
+		
+		#if js
+		Browser.window.requestAnimationFrame (cast __triggerFrame);
+		#end
+		
+	}
+	
+	
 	#if (cpp || neko)
 	private static var lime_application_create = System.load ("lime", "lime_application_create", 1);
 	private static var lime_application_exec = System.load ("lime", "lime_application_exec", 1);
 	private static var lime_application_get_ticks = System.load ("lime", "lime_application_get_ticks", 0);
+	private static var lime_update_event_manager_register = System.load ("lime", "lime_update_event_manager_register", 2);
 	#end
 	
 	
 }
 
 
-@:access(lime.app.Application)
-private class EventDelegate implements IRenderEventListener implements IUpdateEventListener {
+private class UpdateEventInfo {
 	
 	
-	private var application:Application;
+	public var deltaTime:Int;
+	public var type:UpdateEventType;
 	
 	
-	public function new (application:Application) {
+	public function new (type:UpdateEventType = null, deltaTime:Int = 0) {
 		
-		this.application = application;
-		
-		RenderEventManager.addEventListener (this, -9999999);
-		UpdateEventManager.addEventListener (this, -9999999);
+		this.type = type;
+		this.deltaTime = deltaTime;
 		
 	}
 	
 	
-	public function onRender (context:RenderContext):Void {
+	public function clone ():UpdateEventInfo {
 		
-		for (window in application.windows) {
-			
-			if (window.currentRenderer != null) {
-				
-				application.render (window.currentRenderer.context);
-				window.currentRenderer.flip ();
-				
-			}
-			
-		}
-		
-		#if (js && stats)
-		application.windows[0].stats.end ();
-		#end
+		return new UpdateEventInfo (type, deltaTime);
 		
 	}
 	
 	
-	public function onUpdate (deltaTime:Int):Void {
-		
-		#if (js && stats)
-		application.windows[0].stats.begin ();
-		#end
-		
-		application.update (deltaTime);
-		
-	}
+}
+
+
+@:enum private abstract UpdateEventType(Int) {
 	
+	var UPDATE = 0;
 	
 }

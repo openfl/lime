@@ -1,7 +1,7 @@
 package lime.ui;
 
 
-import lime.app.EventManager;
+import lime.app.Event;
 import lime.system.System;
 
 #if flash
@@ -12,17 +12,18 @@ import flash.Lib;
 
 
 @:allow(lime.ui.Window)
-class TouchEventManager extends EventManager<ITouchEventListener> {
+class TouchEventManager {
 	
+	
+	public static var onTouchEnd = new Event<Float->Float->Int->Void> ();
+	public static var onTouchMove = new Event<Float->Float->Int->Void> ();
+	public static var onTouchStart = new Event<Float->Float->Int->Void> ();
 	
 	private static var instance:TouchEventManager;
-	
 	private var eventInfo:TouchEventInfo;
 	
 	
 	public function new () {
-		
-		super ();
 		
 		instance = this;
 		eventInfo = new TouchEventInfo ();
@@ -34,48 +35,21 @@ class TouchEventManager extends EventManager<ITouchEventListener> {
 	}
 	
 	
-	public static function addEventListener (listener:ITouchEventListener, priority:Int = 0):Void {
-		
-		if (instance != null) {
-			
-			instance._addEventListener (listener, priority);
-			
-		}
-		
-	}
-	
-	
 	private function dispatch ():Void {
-		
-		var x = eventInfo.x;
-		var y = eventInfo.y;
-		var id = eventInfo.id;
 		
 		switch (eventInfo.type) {
 			
 			case TOUCH_START:
 				
-				for (listener in listeners) {
-					
-					listener.onTouchStart (x, y, id);
-					
-				}
+				onTouchStart.dispatch (eventInfo.x, eventInfo.y, eventInfo.id);
 			
 			case TOUCH_END:
 				
-				for (listener in listeners) {
-					
-					listener.onTouchEnd (x, y, id);
-					
-				}
+				onTouchEnd.dispatch (eventInfo.x, eventInfo.y, eventInfo.id);
 			
 			case TOUCH_MOVE:
 				
-				for (listener in listeners) {
-					
-					listener.onTouchMove (x, y, id);
-					
-				}
+				onTouchMove.dispatch (eventInfo.x, eventInfo.y, eventInfo.id);
 			
 		}
 		
@@ -197,20 +171,47 @@ class TouchEventManager extends EventManager<ITouchEventListener> {
 	}
 	
 	
-	public static function removeEventListener (listener:ITouchEventListener):Void {
-		
-		if (instance != null) {
-			
-			instance._removeEventListener (listener);
-			
-		}
-		
-	}
-	
-	
 	#if (cpp || neko)
 	private static var lime_touch_event_manager_register = System.load ("lime", "lime_touch_event_manager_register", 2);
 	#end
 	
+	
+}
+
+
+private class TouchEventInfo {
+	
+	
+	public var id:Int;
+	public var type:TouchEventType;
+	public var x:Float;
+	public var y:Float;
+	
+	
+	public function new (type:TouchEventType = null, x:Float = 0, y:Float = 0, id:Int = 0) {
+		
+		this.type = type;
+		this.x = x;
+		this.y = y;
+		this.id = id;
+		
+	}
+	
+	
+	public function clone ():TouchEventInfo {
+		
+		return new TouchEventInfo (type, x, y, id);
+		
+	}
+	
+	
+}
+
+
+@:enum private abstract TouchEventType(Int) {
+	
+	var TOUCH_START = 0;
+	var TOUCH_END = 1;
+	var TOUCH_MOVE = 2;
 	
 }

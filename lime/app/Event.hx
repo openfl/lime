@@ -1,22 +1,27 @@
 package lime.app;
 
 
-/*@:generic*/ class EventManager<T> {
+import haxe.macro.Context;
+import haxe.macro.Expr;
+
+
+class Event<T> {
 	
 	
-	private var listeners:Array<T>;
+	@:noCompletion public var listeners:Array<T>;
+	
 	private var priorities:Array<Int>;
 	
 	
 	public function new () {
 		
-		listeners = new Array ();
-		priorities = new Array ();
+		listeners = new Array<T> ();
+		priorities = new Array<Int> ();
 		
 	}
 	
 	
-	private function _addEventListener (listener:T, priority:Int):Void {
+	public function add (listener:T, priority:Int = 0):Void {
 		
 		for (i in 0...priorities.length) {
 			
@@ -36,7 +41,21 @@ package lime.app;
 	}
 	
 	
-	private function _removeEventListener (listener:T):Void {
+	macro public function dispatch (ethis:Expr, args:Array<Expr>) {
+		
+		return macro {
+			
+			for (listener in $ethis.listeners) {
+				
+				listener ($a{args});
+				
+			}
+			
+		}
+		
+	}
+	
+	public function remove (listener:T):Void {
 		
 		var index = listeners.indexOf (listener);
 		

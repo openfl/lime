@@ -85,6 +85,7 @@ class Preloader #if flash extends Sprite #end {
 		
 		if (complete) {
 			
+			Lib.current.removeEventListener (Event.ENTER_FRAME, current_onEnter);
 			Lib.current.loaderInfo.removeEventListener (Event.COMPLETE, loaderInfo_onComplete);
 			Lib.current.loaderInfo.removeEventListener (Event.INIT, loaderInfo_onInit);
 			Lib.current.loaderInfo.removeEventListener (ProgressEvent.PROGRESS, loaderInfo_onProgress);
