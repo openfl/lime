@@ -81,4 +81,15 @@ class ApplicationMain {
 	}
 	
 	
+	#if neko
+	@:noCompletion public static function __init__ () {
+		
+		untyped $loader.path = $array (haxe.io.Path.directory (Sys.executablePath ()), $loader.path);
+		untyped $loader.path = $array ("./", $loader.path);
+		untyped $loader.path = $array ("@executable_path/", $loader.path);
+		
+	}
+	#end
+	
+	
 }

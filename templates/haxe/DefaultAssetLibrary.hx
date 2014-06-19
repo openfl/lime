@@ -154,7 +154,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#if flash
 		
 		return cast (Type.createInstance (className.get (id), []), ByteArray);
-
+		
 		#elseif js
 		
 		var bytes:ByteArray = null;
@@ -174,7 +174,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			bytes = null;
 			
 		}
-
+		
 		if (bytes != null) {
 			
 			bytes.position = 0;
