@@ -88,19 +88,19 @@ class Assets {
 					
 				} else {
 					
-					trace ("[lime.Assets] String or ByteArray asset \"" + id + "\" exists, but only asynchronously");
+					trace ("[Assets] String or ByteArray asset \"" + id + "\" exists, but only asynchronously");
 					
 				}
 				
 			} else {
 				
-				trace ("[lime.Assets] There is no String or ByteArray asset with an ID of \"" + id + "\"");
+				trace ("[Assets] There is no String or ByteArray asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[lime.Assets] There is no asset library named \"" + libraryName + "\"");
+			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
@@ -158,19 +158,19 @@ class Assets {
 					
 				} else {
 					
-					trace ("[lime.Assets] ImageData asset \"" + id + "\" exists, but only asynchronously");
+					trace ("[Assets] ImageData asset \"" + id + "\" exists, but only asynchronously");
 					
 				}
 				
 			} else {
 				
-				trace ("[lime.Assets] There is no ImageData asset with an ID of \"" + id + "\"");
+				trace ("[Assets] There is no ImageData asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[lime.Assets] There is no asset library named \"" + libraryName + "\"");
+			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
@@ -240,19 +240,19 @@ class Assets {
 					
 				} else {
 					
-					trace ("[lime.Assets] Sound asset \"" + id + "\" exists, but only asynchronously");
+					trace ("[Assets] Sound asset \"" + id + "\" exists, but only asynchronously");
 					
 				}
 				
 			} else {
 				
-				trace ("[lime.Assets] There is no Sound asset with an ID of \"" + id + "\"");
+				trace ("[Assets] There is no Sound asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[lime.Assets] There is no asset library named \"" + libraryName + "\"");
+			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
@@ -287,13 +287,13 @@ class Assets {
 				
 			} else {
 				
-				trace ("[lime.Assets] There is no asset with an ID of \"" + id + "\"");
+				trace ("[Assets] There is no asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[lime.Assets] There is no asset library named \"" + libraryName + "\"");
+			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
@@ -350,19 +350,19 @@ class Assets {
 					
 				} else {
 					
-					trace ("[lime.Assets] Sound asset \"" + id + "\" exists, but only asynchronously");
+					trace ("[Assets] Sound asset \"" + id + "\" exists, but only asynchronously");
 					
 				}
 				
 			} else {
 				
-				trace ("[lime.Assets] There is no Sound asset with an ID of \"" + id + "\"");
+				trace ("[Assets] There is no Sound asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[lime.Assets] There is no asset library named \"" + libraryName + "\"");
+			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
@@ -399,19 +399,19 @@ class Assets {
 					
 				} else {
 					
-					trace ("[lime.Assets] String asset \"" + id + "\" exists, but only asynchronously");
+					trace ("[Assets] String asset \"" + id + "\" exists, but only asynchronously");
 					
 				}
 				
 			} else {
 				
-				trace ("[lime.Assets] There is no String asset with an ID of \"" + id + "\"");
+				trace ("[Assets] There is no String asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[lime.Assets] There is no asset library named \"" + libraryName + "\"");
+			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
@@ -570,13 +570,13 @@ class Assets {
 				
 			} else {
 				
-				trace ("[lime.Assets] There is no String or ByteArray asset with an ID of \"" + id + "\"");
+				trace ("[Assets] There is no String or ByteArray asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[lime.Assets] There is no asset library named \"" + libraryName + "\"");
+			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
@@ -633,13 +633,13 @@ class Assets {
 				
 			} else {
 				
-				trace ("[lime.Assets] There is no ImageData asset with an ID of \"" + id + "\"");
+				trace ("[Assets] There is no ImageData asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[lime.Assets] There is no asset library named \"" + libraryName + "\"");
+			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
@@ -670,7 +670,7 @@ class Assets {
 			
 		} else {
 			
-			trace ("[lime.Assets] There is no asset library named \"" + name + "\"");
+			trace ("[Assets] There is no asset library named \"" + name + "\"");
 			
 		}
 		
@@ -725,13 +725,13 @@ class Assets {
 				
 			} else {
 				
-				trace ("[lime.Assets] There is no Sound asset with an ID of \"" + id + "\"");
+				trace ("[Assets] There is no Sound asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[lime.Assets] There is no asset library named \"" + libraryName + "\"");
+			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
@@ -788,13 +788,13 @@ class Assets {
 				
 			} else {
 				
-				trace ("[lime.Assets] There is no Sound asset with an ID of \"" + id + "\"");
+				trace ("[Assets] There is no Sound asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[lime.Assets] There is no asset library named \"" + libraryName + "\"");
+			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
@@ -824,13 +824,13 @@ class Assets {
 				
 			} else {
 				
-				trace ("[lime.Assets] There is no String asset with an ID of \"" + id + "\"");
+				trace ("[Assets] There is no String asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[lime.Assets] There is no asset library named \"" + libraryName + "\"");
+			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		

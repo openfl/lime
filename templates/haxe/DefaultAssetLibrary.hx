@@ -226,19 +226,19 @@ class DefaultAssetLibrary extends AssetLibrary {
 		var imageLength = imageWidth * imageHeight;
 		var b, g, r, a;
 		
-        for (i in 0...imageLength) {
-        	
-            b = imageData[i * 4];
-            g = imageData[i * 4 + 1];
-            r = imageData[i * 4 + 2];
-            a = imageData[i * 4 + 3];
-
-            imageData[i * 4] = r;
-            imageData[i * 4 + 1] = g;
-            imageData[i * 4 + 2] = b;
-            imageData[i * 4 + 3] = a;
-            
-        }
+		for (i in 0...imageLength) {
+			
+			b = imageData[i * 4];
+			g = imageData[i * 4 + 1];
+			r = imageData[i * 4 + 2];
+			a = imageData[i * 4 + 3];
+			
+			imageData[i * 4] = r;
+			imageData[i * 4 + 1] = g;
+			imageData[i * 4 + 2] = b;
+			imageData[i * 4 + 3] = a;
+			
+		}
 		
 		return new ImageData (imageData, imageWidth, imageHeight);
 		
