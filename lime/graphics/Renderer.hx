@@ -35,16 +35,6 @@ class Renderer {
 		this.window = window;
 		this.window.currentRenderer = this;
 		
-		if (!registered) {
-			
-			registered = true;
-			
-			#if (cpp || neko)
-			lime_render_event_manager_register (dispatch, eventInfo);
-			#end
-			
-		}
-		
 	}
 	
 	
@@ -105,6 +95,16 @@ class Renderer {
 		context = FLASH (Lib.current);
 		
 		#end
+		
+		if (!registered) {
+			
+			registered = true;
+			
+			#if (cpp || neko)
+			lime_render_event_manager_register (dispatch, eventInfo);
+			#end
+			
+		}
 		
 	}
 	

@@ -1165,13 +1165,13 @@ class AssetCache {
 
 @:enum abstract AssetType(String) {
 	
-	var BINARY = "binary";
-	var FONT = "font";
-	var IMAGE = "image";
-	var MUSIC = "music";
-	var SOUND = "sound";
-	var TEMPLATE = "template";
-	var TEXT = "text";
+	var BINARY = "BINARY";
+	var FONT = "FONT";
+	var IMAGE = "IMAGE";
+	var MUSIC = "MUSIC";
+	var SOUND = "SOUND";
+	var TEMPLATE = "TEMPLATE";
+	var TEXT = "TEXT";
 	
 }
 
