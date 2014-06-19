@@ -85,7 +85,11 @@ class Renderer {
 				#end
 				
 				GL.context = webgl;
+				#if js
+				context = OPENGL (cast GL.context);
+				#else
 				context = OPENGL (new GLRenderContext ());
+				#end
 				
 			}
 			
