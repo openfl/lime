@@ -128,10 +128,10 @@ class Main extends Application {
 				
 				var texCoords = [
 					
-					1, 1, 
-					0, 1, 
 					1, 0, 
 					0, 0, 
+					1, 1, 
+					0, 1, 
 					
 				];
 				
@@ -148,7 +148,7 @@ class Main extends Application {
 				gl.texParameteri (gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 				#if html5
 				gl.texImage2D (gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image.data);
-				#else
+				#elseif !flash
 				gl.texImage2D (gl.TEXTURE_2D, 0, gl.RGBA, image.width, image.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image.data);
 				#end
 				gl.texParameteri (gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
