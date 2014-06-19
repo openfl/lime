@@ -81,7 +81,7 @@ class RunScript {
 			
 			if (target == "tools") {
 				
-				var toolsDirectory = PathHelper.getHaxelib (new Haxelib("lime-tools"), true);
+				var toolsDirectory = PathHelper.getHaxelib (new Haxelib("aether"), true);
 				var extendedToolsDirectory = PathHelper.getHaxelib (new Haxelib("lime-tools-extended"), false);
 				
 				if (extendedToolsDirectory != null && extendedToolsDirectory != "") {
@@ -1205,11 +1205,11 @@ class RunScript {
 			
 			if (command == "setup") {
 				
-				var toolsDirectory = PathHelper.getHaxelib (new Haxelib ("lime-tools"));
+				var toolsDirectory = PathHelper.getHaxelib (new Haxelib ("aether"));
 				
 				if (toolsDirectory == null || toolsDirectory == "" || toolsDirectory.indexOf ("is not installed") > -1) {
 					
-					Sys.command ("haxelib install lime-tools");
+					Sys.command ("haxelib install aether");
 					
 				}
 				
@@ -1321,7 +1321,7 @@ class RunScript {
 				
 			}*/
 			
-			var args = [ "run", "lime-tools" /*, define*/ ].concat (args);
+			var args = [ "run", "aether" /*, define*/ ].concat (args);
 			
 			Sys.exit (runCommand (workingDirectory, "haxelib", args));
 			
