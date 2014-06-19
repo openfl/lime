@@ -107,13 +107,14 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
-	public override function exists (id:String, type:AssetType):Bool {
+	public override function exists (id:String, type:String):Bool {
 		
+		var requestedType = cast (type, AssetType);
 		var assetType = this.type.get (id);
 		
 		if (assetType != null) {
 			
-			if (assetType == type || ((type == SOUND || type == MUSIC) && (assetType == MUSIC || assetType == SOUND))) {
+			if (assetType == requestedType || ((requestedType == SOUND || requestedType == MUSIC) && (assetType == MUSIC || assetType == SOUND))) {
 				
 				return true;
 				
@@ -121,7 +122,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 			#if flash
 			
-			if ((assetType == BINARY || assetType == TEXT) && type == BINARY) {
+			if ((assetType == BINARY || assetType == TEXT) && requestedType == BINARY) {
 				
 				return true;
 				
@@ -133,7 +134,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 			#else
 			
-			if (type == BINARY || type == null) {
+			if (requestedType == BINARY || requestedType == null) {
 				
 				return true;
 				
@@ -249,7 +250,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
-	public override function getMusic (id:String):Dynamic /*Sound*/ {
+	/*public override function getMusic (id:String):Dynamic {
 		
 		#if flash
 		
@@ -257,10 +258,10 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#elseif openfl_html5
 		
-		/*var sound = new Sound ();
-		sound.__buffer = true;
-		sound.load (new URLRequest (path.get (id)));
-		return sound;*/
+		//var sound = new Sound ();
+		//sound.__buffer = true;
+		//sound.load (new URLRequest (path.get (id)));
+		//return sound;
 		return null;
 		
 		#elseif js
@@ -276,7 +277,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#end
 		
-	}
+	}*/
 	
 	
 	public override function getPath (id:String):String {
@@ -294,7 +295,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
-	public override function getSound (id:String):Dynamic /*Sound*/ {
+	/*public override function getSound (id:String):Dynamic {
 		
 		#if flash
 		
@@ -313,7 +314,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#end
 		
-	}
+	}*/
 	
 	
 	public override function getText (id:String):String {
@@ -366,11 +367,13 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
-	public override function isLocal (id:String, type:AssetType):Bool {
+	public override function isLocal (id:String, type:String):Bool {
+		
+		var requestedType = cast (type, AssetType);
 		
 		#if flash
 		
-		if (type != AssetType.MUSIC && type != AssetType.SOUND) {
+		if (requestedType != AssetType.MUSIC && requestedType != AssetType.SOUND) {
 			
 			return className.exists (id);
 			
@@ -383,13 +386,14 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
-	public override function list (type:AssetType):Array<String> {
+	public override function list (type:String):Array<String> {
 		
+		var requestedType = cast (type, AssetType);
 		var items = [];
 		
 		for (id in this.type.keys ()) {
 			
-			if (type == null || exists (id, type)) {
+			if (requestedType == null || exists (id, type)) {
 				
 				items.push (id);
 				
@@ -523,21 +527,21 @@ class DefaultAssetLibrary extends AssetLibrary {
 	#end
 	
 	
-	public override function loadMusic (id:String, handler:Dynamic /*Sound*/ -> Void):Void {
+	/*public override function loadMusic (id:String, handler:Dynamic -> Void):Void {
 		
 		#if (flash || js)
 		
-		/*if (path.exists (id)) {
+		//if (path.exists (id)) {
 			
-			var loader = new Loader ();
-			loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event) {
+		//	var loader = new Loader ();
+		//	loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event) {
 				
-				handler (cast (event.currentTarget.content, Bitmap).bitmapData);
+		//		handler (cast (event.currentTarget.content, Bitmap).bitmapData);
 				
-			});
-			loader.load (new URLRequest (path.get (id)));
+		//	});
+		//	loader.load (new URLRequest (path.get (id)));
 			
-		} else {*/
+		//} else {
 			
 			handler (getMusic (id));
 			
@@ -549,24 +553,24 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#end
 		
-	}
+	}*/
 	
 	
-	public override function loadSound (id:String, handler:Dynamic /*Sound*/ -> Void):Void {
+	/*public override function loadSound (id:String, handler:Dynamic -> Void):Void {
 		
 		#if (flash || js)
 		
-		/*if (path.exists (id)) {
+		//if (path.exists (id)) {
 			
-			var loader = new Loader ();
-			loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event) {
+		//	var loader = new Loader ();
+		//	loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event) {
 				
-				handler (cast (event.currentTarget.content, Bitmap).bitmapData);
+		//		handler (cast (event.currentTarget.content, Bitmap).bitmapData);
 				
-			});
-			loader.load (new URLRequest (path.get (id)));
+		//	});
+		//	loader.load (new URLRequest (path.get (id)));
 			
-		} else {*/
+		//} else {
 			
 			handler (getSound (id));
 			
@@ -578,7 +582,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#end
 		
-	}
+	}*/
 	
 	
 	public override function loadText (id:String, handler:String -> Void):Void {

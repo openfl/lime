@@ -51,7 +51,7 @@ class Assets {
 		
 		if (library != null) {
 			
-			return library.exists (symbolName, type);
+			return library.exists (symbolName, cast type);
 			
 		}
 		
@@ -80,9 +80,9 @@ class Assets {
 		
 		if (library != null) {
 			
-			if (library.exists (symbolName, BINARY)) {
+			if (library.exists (symbolName, cast AssetType.BINARY)) {
 				
-				if (library.isLocal (symbolName, BINARY)) {
+				if (library.isLocal (symbolName, cast AssetType.BINARY)) {
 					
 					return library.getBytes (symbolName);
 					
@@ -142,9 +142,9 @@ class Assets {
 		
 		if (library != null) {
 			
-			if (library.exists (symbolName, IMAGE)) {
+			if (library.exists (symbolName, cast AssetType.IMAGE)) {
 				
-				if (library.isLocal (symbolName, IMAGE)) {
+				if (library.isLocal (symbolName, cast AssetType.IMAGE)) {
 					
 					var imageData = library.getImageData (symbolName);
 					
@@ -200,7 +200,7 @@ class Assets {
 	 * @param	id		The ID or asset path for the music track
 	 * @return		A new Sound object
 	 */
-	public static function getMusic (id:String, useCache:Bool = true):Dynamic /*Sound*/ {
+	/*public static function getMusic (id:String, useCache:Bool = true):Dynamic {
 		
 		initialize ();
 		
@@ -224,9 +224,9 @@ class Assets {
 		
 		if (library != null) {
 			
-			if (library.exists (symbolName, MUSIC)) {
+			if (library.exists (symbolName, cast AssetType.MUSIC)) {
 				
-				if (library.isLocal (symbolName, MUSIC)) {
+				if (library.isLocal (symbolName, cast AssetType.MUSIC)) {
 					
 					var sound = library.getMusic (symbolName);
 					
@@ -260,7 +260,7 @@ class Assets {
 		
 		return null;
 		
-	}
+	}*/
 	
 	
 	/**
@@ -310,7 +310,7 @@ class Assets {
 	 * @param	id		The ID or asset path for the sound
 	 * @return		A new Sound object
 	 */
-	public static function getSound (id:String, useCache:Bool = true):Dynamic /*Sound*/ {
+	/*public static function getSound (id:String, useCache:Bool = true):Dynamic {
 		
 		initialize ();
 		
@@ -334,9 +334,9 @@ class Assets {
 		
 		if (library != null) {
 			
-			if (library.exists (symbolName, SOUND)) {
+			if (library.exists (symbolName, cast AssetType.SOUND)) {
 				
-				if (library.isLocal (symbolName, SOUND)) {
+				if (library.isLocal (symbolName, cast AssetType.SOUND)) {
 					
 					var sound = library.getSound (symbolName);
 					
@@ -370,7 +370,7 @@ class Assets {
 		
 		return null;
 		
-	}
+	}*/
 	
 	
 	/**
@@ -391,9 +391,9 @@ class Assets {
 		
 		if (library != null) {
 			
-			if (library.exists (symbolName, TEXT)) {
+			if (library.exists (symbolName, cast AssetType.TEXT)) {
 				
-				if (library.isLocal (symbolName, TEXT)) {
+				if (library.isLocal (symbolName, cast AssetType.TEXT)) {
 					
 					return library.getText (symbolName);
 					
@@ -473,7 +473,7 @@ class Assets {
 		
 		if (library != null) {
 			
-			return library.isLocal (symbolName, type);
+			return library.isLocal (symbolName, cast type);
 			
 		}
 		
@@ -536,7 +536,7 @@ class Assets {
 		
 		for (library in libraries) {
 			
-			var libraryItems = library.list (type);
+			var libraryItems = library.list (cast type);
 			
 			if (libraryItems != null) {
 				
@@ -563,7 +563,7 @@ class Assets {
 		
 		if (library != null) {
 			
-			if (library.exists (symbolName, BINARY)) {
+			if (library.exists (symbolName, cast AssetType.BINARY)) {
 				
 				library.loadBytes (symbolName, handler);
 				return;
@@ -612,7 +612,7 @@ class Assets {
 		
 		if (library != null) {
 			
-			if (library.exists (symbolName, IMAGE)) {
+			if (library.exists (symbolName, cast AssetType.IMAGE)) {
 				
 				if (useCache && cache.enabled) {
 					
@@ -679,7 +679,7 @@ class Assets {
 	}
 	
 	
-	public static function loadMusic (id:String, handler:Dynamic /*Sound*/ -> Void, useCache:Bool = true):Void {
+	/*public static function loadMusic (id:String, handler:Dynamic -> Void, useCache:Bool = true):Void {
 		
 		initialize ();
 		
@@ -704,11 +704,11 @@ class Assets {
 		
 		if (library != null) {
 			
-			if (library.exists (symbolName, MUSIC)) {
+			if (library.exists (symbolName, cast AssetType.MUSIC)) {
 				
 				if (useCache && cache.enabled) {
 					
-					library.loadMusic (symbolName, function (sound:Dynamic /*Sound*/):Void {
+					library.loadMusic (symbolName, function (sound:Dynamic):Void {
 						
 						cache.sound.set (id, sound);
 						handler (sound);
@@ -739,10 +739,10 @@ class Assets {
 		
 		handler (null);
 		
-	}
+	}*/
 	
 	
-	public static function loadSound (id:String, handler:Dynamic /*Sound*/ -> Void, useCache:Bool = true):Void {
+	/*public static function loadSound (id:String, handler:Dynamic -> Void, useCache:Bool = true):Void {
 		
 		initialize ();
 		
@@ -767,11 +767,11 @@ class Assets {
 		
 		if (library != null) {
 			
-			if (library.exists (symbolName, SOUND)) {
+			if (library.exists (symbolName, cast AssetType.SOUND)) {
 				
 				if (useCache && cache.enabled) {
 					
-					library.loadSound (symbolName, function (sound:Dynamic /*Sound*/):Void {
+					library.loadSound (symbolName, function (sound:Dynamic):Void {
 						
 						cache.sound.set (id, sound);
 						handler (sound);
@@ -802,7 +802,7 @@ class Assets {
 		
 		handler (null);
 		
-	}
+	}*/
 	
 	
 	public static function loadText (id:String, handler:String -> Void):Void {
@@ -817,7 +817,7 @@ class Assets {
 		
 		if (library != null) {
 			
-			if (library.exists (symbolName, TEXT)) {
+			if (library.exists (symbolName, cast AssetType.TEXT)) {
 				
 				library.loadText (symbolName, handler);
 				return;
@@ -943,7 +943,7 @@ class AssetLibrary {
 	}
 	
 	
-	public function exists (id:String, type:AssetType):Bool {
+	public function exists (id:String, type:String):Bool {
 		
 		return false;
 		
@@ -964,11 +964,11 @@ class AssetLibrary {
 	}
 	
 	
-	public function getMusic (id:String):Dynamic /*Sound*/ {
+	//public function getMusic (id:String):Dynamic /*Sound*/ {
 		
-		return getSound (id);
+	//	return getSound (id);
 		
-	}
+	//}
 	
 	
 	public function getPath (id:String):String {
@@ -978,11 +978,11 @@ class AssetLibrary {
 	}
 	
 	
-	public function getSound (id:String):Dynamic /*Sound*/ {
+	//public function getSound (id:String):Dynamic /*Sound*/ {
 		
-		return null;
+	//	return null;
 		
-	}
+	//}
 	
 	
 	public function getText (id:String):String {
@@ -1010,14 +1010,14 @@ class AssetLibrary {
 	}
 	
 	
-	public function isLocal (id:String, type:AssetType):Bool {
+	public function isLocal (id:String, type:String):Bool {
 		
 		return true;
 		
 	}
 	
 	
-	public function list (type:AssetType):Array<String> {
+	public function list (type:String):Array<String> {
 		
 		return null;
 		
@@ -1045,18 +1045,18 @@ class AssetLibrary {
 	}
 	
 	
-	public function loadMusic (id:String, handler:Dynamic /*Sound*/ -> Void):Void {
+	//public function loadMusic (id:String, handler:Dynamic /*Sound*/ -> Void):Void {
 		
-		handler (getMusic (id));
+	//	handler (getMusic (id));
 		
-	}
+	//}
 	
 	
-	public function loadSound (id:String, handler:Dynamic /*Sound*/ -> Void):Void {
+	//public function loadSound (id:String, handler:Dynamic /*Sound*/ -> Void):Void {
 		
-		handler (getSound (id));
+	//	handler (getSound (id));
 		
-	}
+	//}
 	
 	
 	public function loadText (id:String, handler:String -> Void):Void {
@@ -1163,33 +1163,15 @@ class AssetCache {
 }
 
 
-class AssetData {
+@:enum abstract AssetType(String) {
 	
-	
-	public var id:String;
-	public var path:String;
-	public var type:AssetType;
-	
-	public function new () {
-		
-		
-		
-	}
-	
-	
-}
-
-
-enum AssetType {
-	
-	BINARY;
-	FONT;
-	IMAGE;
-	MOVIE_CLIP;
-	MUSIC;
-	SOUND;
-	TEMPLATE;
-	TEXT;
+	var BINARY = "binary";
+	var FONT = "font";
+	var IMAGE = "image";
+	var MUSIC = "music";
+	var SOUND = "sound";
+	var TEMPLATE = "template";
+	var TEXT = "text";
 	
 }
 
