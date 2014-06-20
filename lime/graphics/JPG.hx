@@ -7,14 +7,14 @@ import lime.utils.ByteArray;
 class JPG {
 	
 	
-	public static function encode (imageData:ImageData):ByteArray {
+	public static function encode (image:Image):ByteArray {
 		
 		return null;
 		
 	}
 	
 	
-	public static function decode (bytes:ByteArray):ImageData {
+	public static function decode (bytes:ByteArray):Image {
 		
 		return null;
 		

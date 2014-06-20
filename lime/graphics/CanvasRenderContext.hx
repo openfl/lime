@@ -44,9 +44,9 @@ class CanvasRenderContext {
 	public function clearShadow ():Void {};
 	public function clip ():Void {};
 	public function closePath ():Void {};
-	@:overload(function(Dynamic /*ImageData*/:Dynamic /*ImageData*/):Dynamic /*ImageData*/ {})
-	public function createDynamic /*ImageData*/(sw:Float, sh:Float):Dynamic /*ImageData*/ { return null; };
-	public function createLinearGradient(x0:Float, y0:Float, x1:Float, y1:Float):Dynamic /*CanvasGradient*/ { return null; };
+	@:overload(function(dynamicImageData:Dynamic /*ImageData*/):Dynamic /*ImageData*/ {})
+	public function createDynamicImageData (sw:Float, sh:Float):Dynamic /*ImageData*/ { return null; };
+	public function createLinearGradient (x0:Float, y0:Float, x1:Float, y1:Float):Dynamic /*CanvasGradient*/ { return null; };
 	@:overload(function(canvas:Dynamic /*CanvasElement*/, repetitionType:String):Dynamic /*CanvasPattern*/ {})
 	public function createPattern (image:Dynamic /*ImageElement*/, repetitionType:String):Dynamic /*CanvasPattern*/ { return null; };
 	public function createRadialGradient (x0:Float, y0:Float, r0:Float, x1:Float, y1:Float, r1:Float):Dynamic /*CanvasGradient*/ { return null; };

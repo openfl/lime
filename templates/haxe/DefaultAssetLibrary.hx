@@ -4,7 +4,7 @@ package;
 import haxe.Timer;
 import haxe.Unserializer;
 import lime.app.Preloader;
-import lime.graphics.ImageData;
+import lime.graphics.Image;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 import lime.Assets;
@@ -197,17 +197,17 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
-	public override function getImageData (id:String):ImageData {
+	public override function getImage (id:String):Image {
 		
 		#if flash
 		
 		var bitmapData = cast (Type.createInstance (className.get (id), []), BitmapData);
-		return new ImageData (bitmapData, bitmapData.width, bitmapData.height);
+		return new Image (bitmapData, bitmapData.width, bitmapData.height);
 		
 		#elseif js
 		
 		var image = Preloader.images.get (path.get (id));
-		return new ImageData (image, image.width, image.height);
+		return new Image (image, image.width, image.height);
 		
 		#else
 		
@@ -240,7 +240,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 		}
 		
-		return new ImageData (imageData, imageWidth, imageHeight);
+		return new Image (imageData, imageWidth, imageHeight);
 		
 		//if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), BitmapData);
 		//else return BitmapData.load (path.get (id));
@@ -439,7 +439,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
-	public override function loadImageData (id:String, handler:ImageData -> Void):Void {
+	public override function loadImage (id:String, handler:Image -> Void):Void {
 		
 		#if flash
 		
@@ -449,20 +449,20 @@ class DefaultAssetLibrary extends AssetLibrary {
 			loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event:Event) {
 				
 				var bitmapData = cast (event.currentTarget.content, Bitmap).bitmapData;
-				handler (new ImageData (bitmapData, bitmapData.width, bitmapData.height));
+				handler (new Image (bitmapData.width, bitmapData.height, new UInt8Array (bitmapData.getPixels (bitmapData.rect))));
 				
 			});
 			loader.load (new URLRequest (path.get (id)));
 			
 		} else {
 			
-			handler (getImageData (id));
+			handler (getImage (id));
 			
 		}
 		
 		#else
 		
-		handler (getImageData (id));
+		handler (getImage (id));
 		
 		#end
 		
@@ -501,7 +501,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 							if (!className.exists (asset.id)) {
 								
 								path.set (asset.id, asset.path);
-								type.set (asset.id, Type.createEnum (AssetType, asset.type));
+								type.set (asset.id, cast (asset.type, AssetType));
 								
 							}
 							

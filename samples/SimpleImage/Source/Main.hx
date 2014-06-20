@@ -5,7 +5,7 @@ import lime.app.Application;
 import lime.graphics.opengl.GLBuffer;
 import lime.graphics.opengl.GLProgram;
 import lime.graphics.opengl.GLTexture;
-import lime.graphics.ImageData;
+import lime.graphics.Image;
 import lime.graphics.GLRenderContext;
 import lime.graphics.RenderContext;
 import lime.utils.Float32Array;
@@ -18,7 +18,7 @@ import lime.Assets;
 class Main extends Application {
 	
 	
-	private var image:ImageData;
+	private var image:Image;
 	private var initialized:Bool;
 	
 	private var shaderProgram:GLProgram;

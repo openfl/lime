@@ -3,7 +3,7 @@ package lime;
 
 
 import haxe.Unserializer;
-import lime.graphics.ImageData;
+import lime.graphics.Image;
 import lime.utils.ByteArray;
 
 
@@ -118,19 +118,19 @@ class Assets {
 	 * @param	useCache		(Optional) Whether to use BitmapData from the cache(Default: true)
 	 * @return		A new BitmapData object
 	 */
-	public static function getImageData (id:String, useCache:Bool = true):ImageData {
+	public static function getImage (id:String, useCache:Bool = true):Image {
 		
 		initialize ();
 		
 		#if (tools && !display)
 		
-		if (useCache && cache.enabled && cache.imageData.exists (id)) {
+		if (useCache && cache.enabled && cache.image.exists (id)) {
 			
-			var imageData = cache.imageData.get (id);
+			var image = cache.image.get (id);
 			
-			if (isValidImageData (imageData)) {
+			if (isValidImage (image)) {
 				
-				return imageData;
+				return image;
 				
 			}
 			
@@ -146,25 +146,25 @@ class Assets {
 				
 				if (library.isLocal (symbolName, cast AssetType.IMAGE)) {
 					
-					var imageData = library.getImageData (symbolName);
+					var image = library.getImage (symbolName);
 					
 					if (useCache && cache.enabled) {
 						
-						cache.imageData.set (id, imageData);
+						cache.image.set (id, image);
 						
 					}
 					
-					return imageData;
+					return image;
 					
 				} else {
 					
-					trace ("[Assets] ImageData asset \"" + id + "\" exists, but only asynchronously");
+					trace ("[Assets] Image asset \"" + id + "\" exists, but only asynchronously");
 					
 				}
 				
 			} else {
 				
-				trace ("[Assets] There is no ImageData asset with an ID of \"" + id + "\"");
+				trace ("[Assets] There is no Image asset with an ID of \"" + id + "\"");
 				
 			}
 			
@@ -449,7 +449,7 @@ class Assets {
 			
 			if (type == AssetType.IMAGE || type == null) {
 				
-				if (cache.imageData.exists (id)) return true;
+				if (cache.image.exists (id)) return true;
 				
 			}
 			
@@ -484,7 +484,7 @@ class Assets {
 	}
 	
 	
-	private static function isValidImageData (imageData:ImageData):Bool {
+	private static function isValidImage (image:Image):Bool {
 		
 		#if (tools && !display)
 		#if (cpp || neko)
@@ -494,15 +494,16 @@ class Assets {
 		
 		#elseif flash
 		
-		try {
+		/*try {
 			
-			imageData.data.width;
+			image.bytes.width;
 			
 		} catch (e:Dynamic) {
 			
 			return false;
 			
-		}
+		}*/
+		return true;
 		
 		#end
 		#end
@@ -587,19 +588,19 @@ class Assets {
 	}
 	
 	
-	public static function loadImageData (id:String, handler:ImageData -> Void, useCache:Bool = true):Void {
+	public static function loadImage (id:String, handler:Image -> Void, useCache:Bool = true):Void {
 		
 		initialize ();
 		
 		#if (tools && !display)
 		
-		if (useCache && cache.enabled && cache.imageData.exists (id)) {
+		if (useCache && cache.enabled && cache.image.exists (id)) {
 			
-			var imageData = cache.imageData.get (id);
+			var image = cache.image.get (id);
 			
-			if (isValidImageData (imageData)) {
+			if (isValidImage (image)) {
 				
-				handler (imageData);
+				handler (image);
 				return;
 				
 			}
@@ -616,16 +617,16 @@ class Assets {
 				
 				if (useCache && cache.enabled) {
 					
-					library.loadImageData (symbolName, function (imageData:ImageData):Void {
+					library.loadImage (symbolName, function (image:Image):Void {
 						
-						cache.imageData.set (id, imageData);
-						handler (imageData);
+						cache.image.set (id, image);
+						handler (image);
 						
 					});
 					
 				} else {
 					
-					library.loadImageData (symbolName, handler);
+					library.loadImage (symbolName, handler);
 					
 				}
 				
@@ -633,7 +634,7 @@ class Assets {
 				
 			} else {
 				
-				trace ("[Assets] There is no ImageData asset with an ID of \"" + id + "\"");
+				trace ("[Assets] There is no Image asset with an ID of \"" + id + "\"");
 				
 			}
 			
@@ -957,7 +958,7 @@ class AssetLibrary {
 	}
 	
 	
-	public function getImageData (id:String):ImageData {
+	public function getImage (id:String):Image {
 		
 		return null;
 		
@@ -1038,9 +1039,9 @@ class AssetLibrary {
 	}
 	
 	
-	public function loadImageData (id:String, handler:ImageData -> Void):Void {
+	public function loadImage (id:String, handler:Image -> Void):Void {
 		
-		handler (getImageData (id));
+		handler (getImage (id));
 		
 	}
 	
@@ -1095,7 +1096,7 @@ class AssetCache {
 	
 	
 	public var enabled:Bool = true;
-	public var imageData:Map<String, ImageData>;
+	public var image:Map<String, Image>;
 	//public var font:Map<String, Font>;
 	public var sound:Map<String, Dynamic /*Sound*/>;
 	
@@ -1103,7 +1104,7 @@ class AssetCache {
 	public function new () {
 		
 		//font = new Map<String, Font> ();
-		imageData = new Map<String, ImageData> ();
+		image = new Map<String, Image> ();
 		sound = new Map<String, Dynamic /*Sound*/> ();
 		
 	}
@@ -1114,18 +1115,18 @@ class AssetCache {
 		if (prefix == null) {
 			
 			//font = new Map<String, Font> ();
-			imageData = new Map<String, ImageData> ();
+			image = new Map<String, Image> ();
 			sound = new Map<String, Dynamic /*Sound*/> ();
 			
 		} else {
 			
-			var keys = imageData.keys ();
+			var keys = image.keys ();
 			
 			for (key in keys) {
 				
 				if (StringTools.startsWith (key, prefix)) {
 					
-					imageData.remove (key);
+					image.remove (key);
 					
 				}
 				

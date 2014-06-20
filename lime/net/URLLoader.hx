@@ -143,7 +143,7 @@ class URLLoader {
 			
 			switch (dataFormat) {
 				
-				//case BINARY: uri = data.__getBuffer ();
+				case BINARY: uri = data.__getBuffer ();
 				default: uri = data.readUTFBytes (data.length);
 				
 			}
@@ -244,7 +244,7 @@ class URLLoader {
 		
 		switch (dataFormat) {
 			
-			//case BINARY: this.data = ByteArray.__ofBuffer (content);
+			case BINARY: this.data = ByteArray.__ofBuffer (content);
 			default: this.data = Std.string (content);
 			
 		}
