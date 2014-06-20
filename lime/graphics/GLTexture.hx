@@ -1,4 +1,4 @@
-package lime.graphics.opengl;
+package lime.graphics;
 #if js
 typedef GLTexture = js.html.webgl.Texture;
 #else

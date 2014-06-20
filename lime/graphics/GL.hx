@@ -1,4 +1,4 @@
-package lime.graphics.opengl;
+package lime.graphics;
 
 
 import lime.utils.ArrayBuffer;

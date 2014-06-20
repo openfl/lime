@@ -3,7 +3,7 @@ package lime.graphics;
 
 import lime.app.Application;
 import lime.app.Event;
-import lime.graphics.opengl.GL;
+import lime.graphics.GL;
 import lime.graphics.GLRenderContext;
 import lime.system.System;
 import lime.ui.Window;
@@ -15,7 +15,7 @@ import flash.Lib;
 #end
 
 
-@:access(lime.graphics.opengl.GL)
+@:access(lime.graphics.GL)
 @:access(lime.app.Application)
 @:allow(lime.app.Application)
 

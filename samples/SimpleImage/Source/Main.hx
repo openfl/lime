@@ -2,18 +2,18 @@ package;
 
 
 import lime.app.Application;
-import lime.graphics.opengl.GLBuffer;
-import lime.graphics.opengl.GLProgram;
-import lime.graphics.opengl.GLTexture;
 import lime.graphics.Image;
+import lime.graphics.GLBuffer;
+import lime.graphics.GLProgram;
 import lime.graphics.GLRenderContext;
+import lime.graphics.GLTexture;
 import lime.graphics.RenderContext;
 import lime.utils.Float32Array;
 import lime.Assets;
 
 
 #if html5
-@:access(lime.graphics.opengl.GL)
+@:access(lime.graphics.GL)
 #end
 
 

@@ -1,4 +1,4 @@
-package lime.graphics.opengl;
+package lime.graphics;
 #if js
 typedef GLActiveInfo = js.html.webgl.ActiveInfo;
 #else

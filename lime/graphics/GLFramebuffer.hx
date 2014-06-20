@@ -1,4 +1,4 @@
-package lime.graphics.opengl;
+package lime.graphics;
 #if js
 typedef GLFramebuffer = js.html.webgl.Framebuffer;
 #else

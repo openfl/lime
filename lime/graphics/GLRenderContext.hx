@@ -1,7 +1,7 @@
 package lime.graphics; #if !js
 
 
-import lime.graphics.opengl.*;
+import lime.graphics.*;
 import lime.utils.ArrayBuffer;
 import lime.utils.ArrayBufferView;
 import lime.utils.Float32Array;
@@ -1334,16 +1334,16 @@ class GLRenderContext {
 #else
 
 
-import lime.graphics.opengl.GLActiveInfo;
-import lime.graphics.opengl.GLBuffer;
-import lime.graphics.opengl.GLContextAttributes;
-import lime.graphics.opengl.GLFramebuffer;
-import lime.graphics.opengl.GLProgram;
-import lime.graphics.opengl.GLRenderbuffer;
-import lime.graphics.opengl.GLShader;
-import lime.graphics.opengl.GLShaderPrecisionFormat;
-import lime.graphics.opengl.GLTexture;
-import lime.graphics.opengl.GLUniformLocation;
+import lime.graphics.GLActiveInfo;
+import lime.graphics.GLBuffer;
+import lime.graphics.GLContextAttributes;
+import lime.graphics.GLFramebuffer;
+import lime.graphics.GLProgram;
+import lime.graphics.GLRenderbuffer;
+import lime.graphics.GLShader;
+import lime.graphics.GLShaderPrecisionFormat;
+import lime.graphics.GLTexture;
+import lime.graphics.GLUniformLocation;
 
 
 @:native("WebGLRenderingContext")

@@ -1,4 +1,4 @@
-package lime.graphics.opengl;
+package lime.graphics;
 #if js
 typedef GLShaderPrecisionFormat = js.html.webgl.ShaderPrecisionFormat;
 #else
