@@ -18,28 +18,21 @@ class Image {
 	private static var __context:CanvasRenderingContext2D;
 	#end
 	
-	#if (js || flash)
 	public var bytes (get, set):UInt8Array;
-	#else
-	public var bytes:UInt8Array;
-	#end
-	
 	public var data:ImageData;
 	public var height:Int;
 	public var offsetX:Int;
 	public var offsetY:Int;
 	public var width:Int;
 	
-	#if (js || flash)
 	private var __bytes:UInt8Array;
-	#end
 	
 	
 	public function new (data:ImageData = null, width:Int = 0, height:Int = 0) {
 		
 		this.data = data;
 		#if (!js && !flash)
-		this.bytes = data;
+		this.__bytes = data;
 		#end
 		
 		this.width = width;
@@ -48,10 +41,9 @@ class Image {
 	}
 	
 	
-	#if (js || flash)
 	private function get_bytes ():UInt8Array {
 		
-		if (data != null && width > 0 && height > 0) {
+		if (__bytes == null && data != null && width > 0 && height > 0) {
 			
 			#if js
 			
@@ -65,7 +57,7 @@ class Image {
 			__canvas.width = width;
 			__canvas.height = height;
 			__context.drawImage (data, 0, 0);
-			js.Browser.document.body.appendChild (__canvas);
+			Browser.document.body.appendChild (__canvas);
 			
 			var pixels = __context.getImageData (0, 0, width, height);
 			__bytes = new UInt8Array (pixels.data);
@@ -89,7 +81,6 @@ class Image {
 		return __bytes = value;
 		
 	}
-	#end
 	
 	
 }

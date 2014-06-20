@@ -449,7 +449,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event:Event) {
 				
 				var bitmapData = cast (event.currentTarget.content, Bitmap).bitmapData;
-				handler (new Image (bitmapData.width, bitmapData.height, new UInt8Array (bitmapData.getPixels (bitmapData.rect))));
+				handler (new Image (bitmapData, bitmapData.width, bitmapData.height));
 				
 			});
 			loader.load (new URLRequest (path.get (id)));
