@@ -15,10 +15,11 @@ import lime.Assets;
 #if html5
 @:access(lime.graphics.opengl.GL)
 #end
+
+
 class Main extends Application {
 	
 	
-	private var image:Image;
 	private var initialized:Bool;
 	
 	private var shaderProgram:GLProgram;
@@ -31,8 +32,6 @@ class Main extends Application {
 		
 		super ();
 		
-		image = Assets.getImage ("assets/lime.png");
-		
 	}
 	
 	
@@ -44,7 +43,8 @@ class Main extends Application {
 				
 				#if js
 				var image = new js.html.Image ();
-				image.src = this.image.data.src;
+				image.src = Assets.getPath ("assets/lime.png");
+				element.style.backgroundColor = "#" + StringTools.hex (config.background, 6);
 				element.appendChild (image);
 				#end
 			
@@ -112,6 +112,8 @@ class Main extends Application {
 				
 				// Create buffers
 				
+				var image = Assets.getImage ("assets/lime.png");
+				
 				var vertices = [
 					
 					image.width, image.height, 0,
@@ -159,6 +161,8 @@ class Main extends Application {
 			
 		}
 		
+		initialized = true;
+		
 	}
 	
 	
@@ -167,7 +171,6 @@ class Main extends Application {
 		if (!initialized) {
 			
 			initialize (context);
-			initialized = true;
 			
 		}
 		
@@ -175,6 +178,9 @@ class Main extends Application {
 			
 			case CANVAS (context):
 				
+				var image = Assets.getImage ("assets/lime.png");
+				context.fillStyle = "#" + StringTools.hex (config.background, 6);
+				context.fillRect (0, 0, window.width, window.height);
 				context.drawImage (image.data, 0, 0, image.width, image.height);
 				
 			case DOM (element):
@@ -183,12 +189,18 @@ class Main extends Application {
 			
 			case FLASH (sprite):
 				
+				var image = Assets.getImage ("assets/lime.png");
 				sprite.graphics.beginBitmapFill (image.data);
 				sprite.graphics.drawRect (0, 0, image.width, image.height);
 			
 			case OPENGL (gl):
 				
-				gl.clearColor (0, 1.0, 1.0, 1.0);
+				var r = ((config.background >> 16) & 0xFF) / 0xFF;
+				var g = ((config.background >> 8) & 0xFF) / 0xFF;
+				var b = (config.background & 0xFF) / 0xFF;
+				var a = ((config.background >> 24) & 0xFF) / 0xFF;
+				
+				gl.clearColor (r, g, b, a);
 				gl.clear (gl.COLOR_BUFFER_BIT);
 				
 				var vertexAttribute = gl.getAttribLocation (shaderProgram, "aVertexPosition");
@@ -199,8 +211,8 @@ class Main extends Application {
 				
 				var positionX = 0;
 				var positionY = 0;
-				var width = config.width;
-				var height = config.height;
+				var width = window.width;
+				var height = window.height;
 				
 				var projectionMatrix = new Float32Array ([ 2 / width, 0, 0, 0, 0, 2 / height, 0, 0, 0, 0, -0.0001, 0, -1, -1, 1, 1 ]);
 				

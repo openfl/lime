@@ -17,30 +17,29 @@ class Application {
 	
 	public static var onUpdate = new Event<Int->Void> ();
 	
-	private static var eventInfo = new UpdateEventInfo ();
-	private static var instance:Application;
-	private static var registered:Bool;
+	private static var __eventInfo = new UpdateEventInfo ();
+	private static var __instance:Application;
+	private static var __registered:Bool;
 	
-	public var handle:Dynamic;
+	public var config (default, null):Config;
+	public var window (get, null):Window;
+	public var windows (default, null):Array<Window>;
 	
-	private var config:Config;
-	private var lastUpdate:Int;
-	private var windows:Array<Window>;
+	private var __handle:Dynamic;
 	
 	
 	public function new () {
 		
-		instance = this;
+		__instance = this;
 		
-		lastUpdate = 0;
 		windows = new Array ();
 		
-		if (!registered) {
+		if (!__registered) {
 			
-			registered = true;
+			__registered = true;
 			
 			#if (cpp || neko)
-			lime_update_event_manager_register (__dispatch, eventInfo);
+			lime_update_event_manager_register (__dispatch, __eventInfo);
 			#end
 			
 		}
@@ -98,7 +97,7 @@ class Application {
 		this.config = config;
 		
 		#if (cpp || neko)
-		handle = lime_application_create (null);
+		__handle = lime_application_create (null);
 		#end
 		
 		KeyEventManager.create ();
@@ -137,7 +136,7 @@ class Application {
 	public function exec ():Int {
 		
 		#if (cpp || neko)
-		return lime_application_exec (handle);
+		return lime_application_exec (__handle);
 		#else
 		return 0;
 		#end
@@ -177,16 +176,15 @@ class Application {
 		windows[0].stats.begin ();
 		#end
 		
-		instance.update (eventInfo.deltaTime);
-		
-		onUpdate.dispatch (eventInfo.deltaTime);
+		__instance.update (__eventInfo.deltaTime);
+		onUpdate.dispatch (__eventInfo.deltaTime);
 		
 	}
 	
 	
 	@:noCompletion private function __triggerFrame (?_):Void {
 		
-		eventInfo.deltaTime = 16; //TODO
+		__eventInfo.deltaTime = 16; //TODO
 		__dispatch ();
 		
 		Renderer.dispatch ();
@@ -194,6 +192,13 @@ class Application {
 		#if js
 		Browser.window.requestAnimationFrame (cast __triggerFrame);
 		#end
+		
+	}
+	
+	
+	private inline function get_window ():Window {
+		
+		return windows[0];
 		
 	}
 	

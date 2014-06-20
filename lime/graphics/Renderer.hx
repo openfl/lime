@@ -15,7 +15,11 @@ import flash.Lib;
 #end
 
 
-@:access(lime.graphics.opengl.GL) @:access(lime.app.Application) @:allow(lime.app.Application)
+@:access(lime.graphics.opengl.GL)
+@:access(lime.app.Application)
+@:allow(lime.app.Application)
+
+
 class Renderer {
 	
 	
@@ -111,13 +115,13 @@ class Renderer {
 	
 	private static function dispatch ():Void {
 		
-		for (window in Application.instance.windows) {
+		for (window in Application.__instance.windows) {
 			
 			if (window.currentRenderer != null) {
 				
 				var context = window.currentRenderer.context;
 				
-				Application.instance.render (context);
+				Application.__instance.render (context);
 				onRender.dispatch (context);
 				
 				window.currentRenderer.flip ();
@@ -127,7 +131,7 @@ class Renderer {
 		}
 		
 		#if (js && stats)
-		Application.instance.windows[0].stats.end ();
+		Application.__instance.windows[0].stats.end ();
 		#end
 		
 	}

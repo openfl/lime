@@ -17,6 +17,9 @@ import flash.Lib;
 #end
 
 
+@:access(lime.app.Application)
+
+
 class Window {
 	
 	
@@ -178,7 +181,7 @@ class Window {
 		if (config.stencilBuffer)
 			flags |= STENCIL_BUFFER;
 		
-		handle = lime_window_create (application.handle, flags);
+		handle = lime_window_create (application.__handle, flags);
 		#end
 		
 		MouseEventManager.registerWindow (this);
