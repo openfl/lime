@@ -31,7 +31,7 @@ class Main extends Application {
 		
 		super ();
 		
-		image = Assets.getImageData ("assets/lime.png");
+		image = Assets.getImage ("assets/lime.png");
 		
 	}
 	
@@ -42,11 +42,11 @@ class Main extends Application {
 			
 			case DOM (element):
 				
-				var div = element.ownerDocument.createElement ("div");
-				div.style.width = image.width + "px";
-				div.style.height = image.height + "px";
-				div.style.backgroundImage = "url('" + Assets.getPath ("assets/lime.png") + ")";
-				element.appendChild (image.data);
+				#if js
+				var image = new js.html.Image ();
+				image.src = this.image.data.src;
+				element.appendChild (image);
+				#end
 			
 			case OPENGL (gl):
 				
@@ -146,9 +146,9 @@ class Main extends Application {
 				gl.bindTexture (gl.TEXTURE_2D, texture);
 				gl.texParameteri (gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 				gl.texParameteri (gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-				#if html5
+				#if js
 				gl.texImage2D (gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image.data);
-				#elseif !flash
+				#else
 				gl.texImage2D (gl.TEXTURE_2D, 0, gl.RGBA, image.width, image.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image.data);
 				#end
 				gl.texParameteri (gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -188,7 +188,7 @@ class Main extends Application {
 			
 			case OPENGL (gl):
 				
-				gl.clearColor (1.0, 1.0, 1.0, 1.0);
+				gl.clearColor (0, 1.0, 1.0, 1.0);
 				gl.clear (gl.COLOR_BUFFER_BIT);
 				
 				var vertexAttribute = gl.getAttribLocation (shaderProgram, "aVertexPosition");
