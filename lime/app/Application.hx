@@ -110,6 +110,7 @@ class Application {
 		MouseEventManager.onMouseDown.add (onMouseDown);
 		MouseEventManager.onMouseMove.add (onMouseMove);
 		MouseEventManager.onMouseUp.add (onMouseUp);
+		MouseEventManager.onMouseWheel.add (onMouseWheel);
 		
 		TouchEventManager.onTouchStart.add (onTouchStart);
 		TouchEventManager.onTouchMove.add (onTouchMove);
@@ -149,6 +150,7 @@ class Application {
 	public function onMouseDown (x:Float, y:Float, button:Int):Void {}
 	public function onMouseMove (x:Float, y:Float, button:Int):Void {}
 	public function onMouseUp (x:Float, y:Float, button:Int):Void {}
+	public function onMouseWheel (deltaX:Float, deltaY:Float):Void {}
 	public function onTouchEnd (x:Float, y:Float, id:Int):Void {}
 	public function onTouchMove (x:Float, y:Float, id:Int):Void {}
 	public function onTouchStart (x:Float, y:Float, id:Int):Void {}

@@ -18,6 +18,7 @@ class MouseEventManager {
 	public static var onMouseDown = new Event<Float->Float->Int->Void> ();
 	public static var onMouseMove = new Event<Float->Float->Int->Void> ();
 	public static var onMouseUp = new Event<Float->Float->Int->Void> ();
+	public static var onMouseWheel = new Event<Float->Float->Void> ();
 	
 	private static var created:Bool;
 	private static var eventInfo:MouseEventInfo;
@@ -58,9 +59,6 @@ class MouseEventManager {
 		}
 		*/
 		
-		eventInfo.x = event.clientX;
-		eventInfo.y = event.clientY;
-		
 		eventInfo.type = switch (event.type) {
 			
 			case "mousedown": MOUSE_DOWN;
@@ -73,16 +71,38 @@ class MouseEventManager {
 			
 		}
 		
-		#elseif flash
+		if (eventInfo.type != MOUSE_WHEEL) {
+			
+			eventInfo.x = event.clientX;
+			eventInfo.y = event.clientY;
+			
+		} else {
+			
+			eventInfo.x = event.deltaX;
+			eventInfo.y = event.deltaY;
+			
+		}
 		
-		eventInfo.x = event.stageX;
-		eventInfo.y = event.stageY;
+		#elseif flash
 		
 		eventInfo.type = switch (event.type) {
 			
 			case flash.events.MouseEvent.MOUSE_DOWN: MOUSE_DOWN;
 			case flash.events.MouseEvent.MOUSE_MOVE: MOUSE_MOVE;
-			default: MOUSE_UP;
+			case flash.events.MouseEvent.MOUSE_UP: MOUSE_UP;
+			default: MOUSE_WHEEL;
+			
+		}
+		
+		if (eventInfo.type != MOUSE_WHEEL) {
+			
+			eventInfo.x = event.stageX;
+			eventInfo.y = event.stageY;
+			
+		} else {
+			
+			eventInfo.x = 0;
+			eventInfo.y = event.delta;
 			
 		}
 		
@@ -102,6 +122,10 @@ class MouseEventManager {
 				
 				onMouseMove.dispatch (eventInfo.x, eventInfo.y, cast eventInfo.button);
 			
+			case MOUSE_WHEEL:
+				
+				onMouseWheel.dispatch (eventInfo.x, eventInfo.y);
+			
 			default:
 			
 		}
@@ -116,7 +140,7 @@ class MouseEventManager {
 		window.element.addEventListener ("mousedown", handleEvent, true);
 		window.element.addEventListener ("mousemove", handleEvent, true);
 		window.element.addEventListener ("mouseup", handleEvent, true);
-		//window.element.addEventListener ("mousewheel", handleDOMEvent, true);
+		window.element.addEventListener ("mousewheel", handleEvent, true);
 		
 		// Disable image drag on Firefox
 		/*Browser.document.addEventListener ("dragstart", function (e) {
@@ -132,6 +156,7 @@ class MouseEventManager {
 		Lib.current.stage.addEventListener (flash.events.MouseEvent.MOUSE_DOWN, handleEvent);
 		Lib.current.stage.addEventListener (flash.events.MouseEvent.MOUSE_MOVE, handleEvent);
 		Lib.current.stage.addEventListener (flash.events.MouseEvent.MOUSE_UP, handleEvent);
+		Lib.current.stage.addEventListener (flash.events.MouseEvent.MOUSE_WHEEL, handleEvent);
 		
 		#end
 		

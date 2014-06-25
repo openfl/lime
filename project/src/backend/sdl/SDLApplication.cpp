@@ -225,9 +225,18 @@ namespace lime {
 				
 			}
 			
-			mouseEvent.button = event->button.button - 1;
-			mouseEvent.x = event->button.x;
-			mouseEvent.y = event->button.y;
+			if (event->type != SDL_MOUSEWHEEL) {
+				
+				mouseEvent.button = event->button.button - 1;
+				mouseEvent.x = event->button.x;
+				mouseEvent.y = event->button.y;
+				
+			} else {
+				
+				mouseEvent.x = event->wheel.x;
+				mouseEvent.y = event->wheel.y;
+				
+			}
 			
 			MouseEvent::Dispatch (&mouseEvent);
 			
