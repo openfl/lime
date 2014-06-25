@@ -8,10 +8,11 @@
 	
 	<set name="ios" value="1" if="iphone" />
 	
-	<set name="LIME_OPENGL" value="1" />
-	<set name="LIME_OPENAL" value="1" />
 	<set name="LIME_CURL" value="1" />
+	<!-- <set name="LIME_NEKO" value="1" /> -->
 	<set name="LIME_OGG" value="1" />
+	<set name="LIME_OPENAL" value="1" />
+	<set name="LIME_OPENGL" value="1" />
 	<set name="LIME_SDL" value="1" />
 	<set name="LIME_VORBIS" value="1" />
 	<set name="LIME_ZLIB" value="1" />
@@ -57,10 +58,14 @@
 		<file name="src/ui/TouchEvent.cpp" />
 		<file name="src/ui/WindowEvent.cpp" />
 		<file name="src/utils/ByteArray.cpp" />
+		<file name="src/vm/Neko.cpp" if="LIME_NEKO" />
+		
+		<compilerflag value="-DLIME_NEKO" if="LIME_NEKO" />
 		
 	</files>
 	
 	<include name="lib/curl/files.xml" />
+	<include name="lib/neko/files.xml" />
 	<include name="lib/ogg/files.xml" />
 	<include name="lib/openal/files.xml" />
 	<include name="lib/sdl/files.xml" />
@@ -74,6 +79,7 @@
 		<files id="lime" />
 		
 		<files id="native-toolkit-curl" if="LIME_CURL" />
+		<files id="native-toolkit-neko" if="LIME_NEKO" />
 		<files id="native-toolkit-ogg" if="LIME_OGG" />
 		<files id="native-toolkit-openal" if="LIME_OPENAL" unless="mac || iphone" />
 		<files id="native-toolkit-sdl" if="LIME_SDL" />
@@ -110,6 +116,10 @@
 				<lib name="-lpthread" />
 				<lib name="-lrt" />
 				
+				<lib name="-lgc" if="LIME_NEKO" />
+				<lib name="-lm" if="LIME_NEKO" />
+				<!-- <lib name="-Wl,--export-dynamic" if="LIME_NEKO" /> -->
+				
 			</section>
 			
 			<section if="mac">
@@ -126,6 +136,10 @@
 				<vflag name="-framework" value="Carbon" />
 				<vflag name="-framework" value="AppKit" />
 				<vflag name="-framework" value="OpenAL"/>
+				
+				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
+				<lib name="-lm" if="LIME_NEKO" />
+				<lib name="-Wl,--export-dynamic" if="LIME_NEKO" />
 				
 			</section>
 		

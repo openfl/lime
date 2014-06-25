@@ -19,6 +19,7 @@
 #include <ui/TouchEvent.h>
 #include <ui/Window.h>
 #include <ui/WindowEvent.h>
+#include <vm/Neko.h>
 
 
 namespace lime {
@@ -94,6 +95,16 @@ namespace lime {
 		
 		MouseEvent::callback = new AutoGCRoot (callback);
 		MouseEvent::eventObject = new AutoGCRoot (eventObject);
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_neko_execute (value module) {
+		
+		#ifdef LIME_NEKO
+		Neko::Execute (val_string (module));
+		#endif
 		return alloc_null ();
 		
 	}
@@ -184,6 +195,7 @@ namespace lime {
 	DEFINE_PRIM (lime_lzma_encode, 1);
 	DEFINE_PRIM (lime_lzma_decode, 1);
 	DEFINE_PRIM (lime_mouse_event_manager_register, 2);
+	DEFINE_PRIM (lime_neko_execute, 1);
 	DEFINE_PRIM (lime_png_decode, 2);
 	DEFINE_PRIM (lime_renderer_create, 1);
 	DEFINE_PRIM (lime_renderer_flip, 1);

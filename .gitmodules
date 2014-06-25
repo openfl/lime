@@ -16,3 +16,6 @@
 [submodule "project/lib/zlib"]
 	path = project/lib/zlib
 	url = https://github.com/native-toolkit/zlib
+[submodule "project/lib/neko"]
+	path = project/lib/neko
+	url = https://github.com/native-toolkit/neko
