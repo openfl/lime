@@ -78,8 +78,9 @@ class MouseEventManager {
 			
 		} else {
 			
-			eventInfo.x = event.deltaX;
-			eventInfo.y = event.deltaY;
+			var wheelEvent = cast(event, js.html.WheelEvent);
+			eventInfo.x = wheelEvent.wheelDeltaX;
+			eventInfo.y = wheelEvent.wheelDeltaY;
 			
 		}
 		
