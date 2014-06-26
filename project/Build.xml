@@ -29,6 +29,21 @@
 		
 		<file name="src/ExternalInterface.cpp" />
 		
+		<section if="LIME_NEKO">
+			
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/neko/vm/" />
+			<compilerflag value="-DLIME_NEKO" if="LIME_NEKO" />
+			
+			<file name="src/vm/NekoVM.cpp" />
+			
+		</section>
+		
+		<section if="LIME_OPENGL">
+			
+			<file name="src/graphics/opengl/OpenGLBindings.cpp" />
+			
+		</section>
+		
 		<section if="LIME_SDL">
 			
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/" />
@@ -43,12 +58,6 @@
 			
 		</section>
 		
-		<section if="LIME_OPENGL">
-			
-			<file name="src/graphics/opengl/OpenGLBindings.cpp" />
-			
-		</section>
-		
 		<file name="src/app/UpdateEvent.cpp" />
 		<file name="src/graphics/PNG.cpp" />
 		<file name="src/graphics/RenderEvent.cpp" />
@@ -58,9 +67,6 @@
 		<file name="src/ui/TouchEvent.cpp" />
 		<file name="src/ui/WindowEvent.cpp" />
 		<file name="src/utils/ByteArray.cpp" />
-		<file name="src/vm/NekoVM.cpp" if="LIME_NEKO" />
-		
-		<compilerflag value="-DLIME_NEKO" if="LIME_NEKO" />
 		
 	</files>
 	
