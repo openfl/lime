@@ -1,4 +1,4 @@
-#include <vm/Neko.h>
+#include <vm/NekoVM.h>
 #include <stdio.h>
 #include <neko_vm.h>
 
@@ -40,7 +40,7 @@ namespace lime {
 	}
 	
 	
-	void Neko::Execute (const char *modulePath) {
+	void NekoVM::Execute (const char *modulePath) {
 		
 		neko_vm *vm;
 		

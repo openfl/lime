@@ -19,7 +19,7 @@
 #include <ui/TouchEvent.h>
 #include <ui/Window.h>
 #include <ui/WindowEvent.h>
-#include <vm/Neko.h>
+#include <vm/NekoVM.h>
 
 
 namespace lime {
@@ -103,7 +103,7 @@ namespace lime {
 	value lime_neko_execute (value module) {
 		
 		#ifdef LIME_NEKO
-		Neko::Execute (val_string (module));
+		NekoVM::Execute (val_string (module));
 		#endif
 		return alloc_null ();
 		

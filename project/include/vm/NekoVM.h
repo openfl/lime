@@ -1,11 +1,11 @@
-#ifndef LIME_VM_NEKO_H
-#define LIME_VM_NEKO_H
+#ifndef LIME_VM_NEKOVM_H
+#define LIME_VM_NEKOVM_H
 
 
 namespace lime {
 	
 	
-	class Neko {
+	class NekoVM {
 		
 		public:
 			

@@ -12,7 +12,7 @@ import flash.Lib;
 #end
 
 
-class Application {
+class Application extends Module {
 	
 	
 	public static var onUpdate = new Event<Int->Void> ();
@@ -29,6 +29,8 @@ class Application {
 	
 	
 	public function new () {
+		
+		super ();
 		
 		__instance = this;
 		

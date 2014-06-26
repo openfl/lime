@@ -9,7 +9,7 @@
 	<set name="ios" value="1" if="iphone" />
 	
 	<set name="LIME_CURL" value="1" />
-	<!-- <set name="LIME_NEKO" value="1" /> -->
+	<set name="LIME_NEKO" value="1" if="linux" />
 	<set name="LIME_OGG" value="1" />
 	<set name="LIME_OPENAL" value="1" />
 	<set name="LIME_OPENGL" value="1" />
@@ -58,7 +58,7 @@
 		<file name="src/ui/TouchEvent.cpp" />
 		<file name="src/ui/WindowEvent.cpp" />
 		<file name="src/utils/ByteArray.cpp" />
-		<file name="src/vm/Neko.cpp" if="LIME_NEKO" />
+		<file name="src/vm/NekoVM.cpp" if="LIME_NEKO" />
 		
 		<compilerflag value="-DLIME_NEKO" if="LIME_NEKO" />
 		
@@ -118,7 +118,6 @@
 				
 				<lib name="-lgc" if="LIME_NEKO" />
 				<lib name="-lm" if="LIME_NEKO" />
-				<!-- <lib name="-Wl,--export-dynamic" if="LIME_NEKO" /> -->
 				
 			</section>
 			
@@ -139,7 +138,6 @@
 				
 				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
 				<lib name="-lm" if="LIME_NEKO" />
-				<lib name="-Wl,--export-dynamic" if="LIME_NEKO" />
 				
 			</section>
 		
