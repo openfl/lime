@@ -41,6 +41,61 @@ class Image {
 	}
 	
 	
+	public function convertToPOT () {
+
+		var potWidth = Std.int (Math.pow (2, Math.ceil (Math.log (width) / Math.log (2))));
+		var potHeight = Std.int (Math.pow (2, Math.ceil (Math.log (height) / Math.log (2))));
+
+		if (potWidth > width || potHeight > height) {
+
+			#if js
+
+			if (__canvas == null) {
+
+				__canvas = cast Browser.document.createElement ("canvas");
+				__context = cast __canvas.getContext ("2d");
+
+			}
+
+			__canvas.width = potWidth;
+			__canvas.height = potHeight;
+			__context.clearRect (0, 0, potWidth, potHeight);
+			__context.drawImage (data, 0, 0, width, height);
+
+			data.src = __canvas.toDataURL ("image/png");
+
+			#elseif flash
+
+			var potData = new flash.display.BitmapData(potWidth, potHeight, true, 0x000000);
+			potData.draw(data, null, null, null, true);
+			data = potData;
+
+			#else
+
+			var potData = new UInt8Array (potWidth * potHeight * 4);
+
+			for (y in 0...height) {
+
+				for (x in 0...width) {
+
+					potData.setUInt32(y * potWidth * 4 + x * 4, data.getUInt32(y * width * 4 + x * 4));
+
+				}
+
+			}
+
+			__bytes = data = potData;
+
+			#end
+
+			width = potWidth;
+			height = potHeight;
+
+		}
+
+	}
+
+
 	private function get_bytes ():UInt8Array {
 		
 		if (__bytes == null && data != null && width > 0 && height > 0) {
