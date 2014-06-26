@@ -66,7 +66,7 @@ class MouseEventManager {
 			case "mousemove": MOUSE_MOVE;
 			//case "click": MouseEvent.CLICK;
 			//case "dblclick": MouseEvent.DOUBLE_CLICK;
-			case "mousewheel": MOUSE_WHEEL;
+			case "wheel": MOUSE_WHEEL;
 			default: null;
 			
 		}
@@ -78,8 +78,8 @@ class MouseEventManager {
 			
 		} else {
 			
-			eventInfo.x = untyped event.wheelDeltaX;
-			eventInfo.y = untyped event.wheelDeltaY;
+			eventInfo.x = untyped event.deltaX;
+			eventInfo.y = untyped event.deltaY;
 			
 		}
 		
@@ -147,7 +147,7 @@ class MouseEventManager {
 		
 		#if js
 		
-		var events = [ "mousedown", "mousemove", "mouseup", "mousewheel" ];
+		var events = [ "mousedown", "mousemove", "mouseup", "wheel" ];
 		
 		for (event in events) {
 			
