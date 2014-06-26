@@ -17,7 +17,7 @@ namespace lime {
 	
 	MouseEvent::MouseEvent () {
 		
-		button = MOUSE_BUTTON_LEFT;
+		button = 0;
 		type = MOUSE_DOWN;
 		x = 0.0;
 		y = 0.0;
