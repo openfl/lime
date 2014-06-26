@@ -57,7 +57,6 @@ class Image {
 			__canvas.width = width;
 			__canvas.height = height;
 			__context.drawImage (data, 0, 0);
-			Browser.document.body.appendChild (__canvas);
 			
 			var pixels = __context.getImageData (0, 0, width, height);
 			__bytes = new UInt8Array (pixels.data);
