@@ -78,19 +78,20 @@ class MouseEventManager {
 			
 		} else {
 			
-			var wheelEvent = cast(event, js.html.WheelEvent);
-			eventInfo.x = wheelEvent.wheelDeltaX;
-			eventInfo.y = wheelEvent.wheelDeltaY;
+			eventInfo.x = untyped event.wheelDeltaX;
+			eventInfo.y = untyped event.wheelDeltaY;
 			
 		}
+		
+		eventInfo.button = event.button;
 		
 		#elseif flash
 		
 		eventInfo.type = switch (event.type) {
 			
-			case flash.events.MouseEvent.MOUSE_DOWN: MOUSE_DOWN;
-			case flash.events.MouseEvent.MOUSE_MOVE: MOUSE_MOVE;
-			case flash.events.MouseEvent.MOUSE_UP: MOUSE_UP;
+			case "mouseDown", "middleMouseDown", "rightMouseDown": MOUSE_DOWN;
+			case "mouseMove", "middleMouseMove", "rightMouseMove": MOUSE_MOVE;
+			case "mouseUp", "middleMouseUp", "rightMouseUp": MOUSE_UP;
 			default: MOUSE_WHEEL;
 			
 		}
@@ -107,21 +108,29 @@ class MouseEventManager {
 			
 		}
 		
+		eventInfo.button = switch (event.type) {
+			
+			case "middleMouseDown", "middleMouseMove", "middleMouseUp": 1;
+			case "rightMouseDown", "rightMouseMove", "rightMouseUp": 2;
+			default: 0;
+			
+		}
+		
 		#end
 		
 		switch (eventInfo.type) {
 			
 			case MOUSE_DOWN:
 				
-				onMouseDown.dispatch (eventInfo.x, eventInfo.y, cast eventInfo.button);
+				onMouseDown.dispatch (eventInfo.x, eventInfo.y, eventInfo.button);
 			
 			case MOUSE_UP:
 				
-				onMouseUp.dispatch (eventInfo.x, eventInfo.y, cast eventInfo.button);
+				onMouseUp.dispatch (eventInfo.x, eventInfo.y, eventInfo.button);
 			
 			case MOUSE_MOVE:
 				
-				onMouseMove.dispatch (eventInfo.x, eventInfo.y, cast eventInfo.button);
+				onMouseMove.dispatch (eventInfo.x, eventInfo.y, eventInfo.button);
 			
 			case MOUSE_WHEEL:
 				
@@ -138,10 +147,13 @@ class MouseEventManager {
 		
 		#if js
 		
-		window.element.addEventListener ("mousedown", handleEvent, true);
-		window.element.addEventListener ("mousemove", handleEvent, true);
-		window.element.addEventListener ("mouseup", handleEvent, true);
-		window.element.addEventListener ("mousewheel", handleEvent, true);
+		var events = [ "mousedown", "mousemove", "mouseup", "mousewheel" ];
+		
+		for (event in events) {
+			
+			window.element.addEventListener (event, handleEvent, true);
+			
+		}
 		
 		// Disable image drag on Firefox
 		/*Browser.document.addEventListener ("dragstart", function (e) {
@@ -154,10 +166,13 @@ class MouseEventManager {
 		
 		#elseif flash
 		
-		Lib.current.stage.addEventListener (flash.events.MouseEvent.MOUSE_DOWN, handleEvent);
-		Lib.current.stage.addEventListener (flash.events.MouseEvent.MOUSE_MOVE, handleEvent);
-		Lib.current.stage.addEventListener (flash.events.MouseEvent.MOUSE_UP, handleEvent);
-		Lib.current.stage.addEventListener (flash.events.MouseEvent.MOUSE_WHEEL, handleEvent);
+		var events = [ "mouseDown", "mouseMove", "mouseUp", "mouseWheel", "middleMouseDown", "middleMouseMove", "middleMouseUp", "rightMouseDown", "rightMouseMove", "rightMouseUp" ];
+		
+		for (event in events) {
+			
+			Lib.current.stage.addEventListener (event, handleEvent);
+			
+		}
 		
 		#end
 		
@@ -175,14 +190,14 @@ class MouseEventManager {
 private class MouseEventInfo {
 	
 	
-	public var button:MouseEventButton;
+	public var button:Int;
 	public var type:MouseEventType;
 	public var x:Float;
 	public var y:Float;
 	
 	
 	
-	public function new (type:MouseEventType = null, x:Float = 0, y:Float = 0, button:MouseEventButton = null) {
+	public function new (type:MouseEventType = null, x:Float = 0, y:Float = 0, button:Int = 0) {
 		
 		this.type = type;
 		this.x = x;
@@ -198,15 +213,6 @@ private class MouseEventInfo {
 		
 	}
 	
-	
-}
-
-
-@:enum private abstract MouseEventButton(Int) {
-	
-	var MOUSE_BUTTON_LEFT = 0;
-	var MOUSE_BUTTON_MIDDLE = 1;
-	var MOUSE_BUTTON_RIGHT = 2;
 	
 }
 
