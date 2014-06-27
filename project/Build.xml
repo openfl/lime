@@ -58,6 +58,8 @@
 			
 		</section>
 		
+		<file name="src/system/ios/System.mm" if="ios" />
+
 		<file name="src/app/UpdateEvent.cpp" />
 		<file name="src/graphics/PNG.cpp" />
 		<file name="src/graphics/RenderEvent.cpp" />
