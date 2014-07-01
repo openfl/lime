@@ -2,6 +2,7 @@ package lime.graphics;
 
 
 import lime.utils.UInt8Array;
+import lime.system.System;
 
 #if js
 import js.html.CanvasElement;
@@ -46,6 +47,22 @@ class Image {
 		
 	}
 	
+	public static function loadFromFile (path:String) {
+
+		#if flash
+
+		throw "Can not load image from file in Flash";
+
+		#elseif (cpp || neko)
+
+		var imageData = lime_load_image (path);
+
+		return (imageData == null ? null : new Image (new UInt8Array (imageData.data), imageData.width, imageData.height));
+
+		#end
+
+	}
+
 	
 	public function forcePowerOfTwo () {
 		
@@ -172,6 +189,13 @@ class Image {
 	}
 	
 	
+	#if (cpp || neko)
+
+	private static var lime_load_image = System.load("lime", "lime_load_image", 1);
+
+	#end
+
+
 }
 
 

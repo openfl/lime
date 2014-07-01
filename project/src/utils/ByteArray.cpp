@@ -48,6 +48,9 @@ namespace lime {
 
 	void ByteArray::Resize(int inSize)
 	{
+		if (mValue == 0)
+			mValue = val_call1(gByteArrayCreate->get(), alloc_int(inSize) );
+		else
 	   val_call2(gByteArrayResize->get(), mValue, alloc_int(inSize) );
 	}
 

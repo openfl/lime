@@ -1,143 +1,100 @@
 extern "C" {
 	
-	//#include <png.h>
+	#include <png.h>
+	#define PNG_SIG_SIZE 8
 	
 }
 
-#include <hx/CFFI.h>
+#include <graphics/ImageData.h>
 #include <graphics/PNG.h>
-#include <setjmp.h>
 
 
 namespace lime {
 	
 	
-	static int id_data;
-	static int id_height;
-	static int id_width;
-	static bool init = false;
+	extern FILE *OpenRead (const char *);
 	
 	
-	/*static void user_error_fn (png_structp png_ptr, png_const_charp error_msg) {
+	bool PNG::Decode (const char *path, ImageData *imageData) {
 		
-		longjmp (png_ptr->jmpbuf, 1);
-		
-	}
-	
-	static void user_warning_fn (png_structp png_ptr, png_const_charp warning_msg) { }
-	static void user_read_data_fn (png_structp png_ptr, png_bytep data, png_size_t length) {
-		
-		png_voidp buffer = png_get_io_ptr (png_ptr);
-		((ReadBuf *)buffer)->Read (data, length);
-		
-	}
-
-	void user_write_data (png_structp png_ptr, png_bytep data, png_size_t length) {
-		
-		QuickVec<unsigned char> *buffer = (QuickVec<unsigned char> *)png_get_io_ptr (png_ptr);
-		buffer->append ((unsigned char *)data, (int)length);
-		
-	}
-	
-	void user_flush_data (png_structp png_ptr) { }*/
-	
-	
-	void PNG::Decode (ByteArray bytes, value imageData) {
-		
-		/*if (!init) {
-			
-			id_data = val_id ("data");
-			id_height = val_id ("height");
-			id_width = val_id ("width");
-			init = true;
-			
-		}
-		
+		unsigned char png_sig[PNG_SIG_SIZE];
 		png_structp png_ptr;
 		png_infop info_ptr;
 		png_uint_32 width, height;
-		int bit_depth, color_type, interlace_type;
+		int bit_depth, color_type;
 		
-		png_ptr = png_create_read_struct (PNG_LIBPNG_VER_STRING, 0, user_error_fn, user_warning_fn);
+		FILE *file = OpenRead (path);
+		if (!file) return false;
+
+		// verify the PNG signature
+		fread(png_sig, PNG_SIG_SIZE, 1, file);
+		if (png_sig_cmp (png_sig, 0, PNG_SIG_SIZE)) {
 		
-		if (png_ptr == NULL)
-			return;
+			fclose (file);
+			return false;
 		
-		info_ptr = png_create_info_struct (png_ptr);
+	}
+	
+		if ((png_ptr = png_create_read_struct (PNG_LIBPNG_VER_STRING, NULL, NULL, NULL)) == NULL) {
+	
+			fclose (file);
+			return false;
+			
+		}
 		
-		if (info_ptr == NULL) {
+		if ((info_ptr = png_create_info_struct (png_ptr)) == NULL) {
 			
 			png_destroy_read_struct (&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
-			return;
+			fclose (file);
+			return false;
 			
 		}
 		
-		unsigned char* bytes[width * height * 4];
-		RenderTarget target;
-		
+		// sets the point which libpng will jump back to in the case of an error
 		if (setjmp (png_jmpbuf (png_ptr))) {
 			
-			if (bytes) {
-				
-				delete bytes;
-				
-			}
-			
 			png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
-			return;
+			fclose (file);
+			return false;
 			
 		}
 		
-		ReadBuf buffer (inData, inDataLen);
-		
-		//if (inFile) {
-			
-			//png_init_io (png_ptr, inFile);
-			
-		//} else {
-			
-			png_set_read_fn (png_ptr, (void *)&buffer, user_read_data_fn);
-			
-		//}
-		
+		png_init_io (png_ptr, file);
+		png_set_sig_bytes (png_ptr, PNG_SIG_SIZE);
 		png_read_info (png_ptr, info_ptr);
-		png_get_IHDR (png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, &interlace_type, NULL, NULL);
 		
-		bool has_alpha = (color_type == PNG_COLOR_TYPE_GRAY_ALPHA || color_type == PNG_COLOR_TYPE_RGB_ALPHA || png_get_valid (png_ptr, info_ptr, PNG_INFO_tRNS));
+		width = png_get_image_width (png_ptr, info_ptr);
+		height = png_get_image_height (png_ptr, info_ptr);
+		color_type = png_get_color_type (png_ptr, info_ptr);
+		bit_depth = png_get_bit_depth (png_ptr, info_ptr);
 		
 		png_set_expand (png_ptr);
 		png_set_filler (png_ptr, 0xff, PNG_FILLER_AFTER);
 		
-		png_set_palette_to_rgb (png_ptr);
-		png_set_gray_to_rgb (png_ptr);
-		
 		if (bit_depth == 16)
 			png_set_strip_16 (png_ptr);
 		
-		png_set_bgr (png_ptr);
+		const unsigned int stride = width * 4;
+		imageData->width = width;
+		imageData->height = height;
+		imageData->data = new ByteArray (height * stride);
 		
-		//result = new ImageData ();
-		//result.width = width;
-		//result.height = height;
-		//result.data = uint8[width * height * 4];
+		png_bytepp row_ptrs = new png_bytep[height];
+		unsigned char *bytes = imageData->data->Bytes();
 		
-		png_read_png (png_ptr, (png_bytepp)&bytes);
+		for (size_t i = 0; i < height; i++) {
 		
-		png_read_end (png_ptr, info_ptr);
+			row_ptrs[i] = bytes + i * stride;
+			
+		}
+			
+		png_read_image (png_ptr, row_ptrs);
+		png_read_end (png_ptr, NULL);
+		
+		delete[] row_ptrs;
 		png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
 		
-		
-		value object = (KeyEvent::eventObject ? KeyEvent::eventObject->get () : alloc_empty_object ());
-			
-			alloc_field (object, id_code, alloc_int (event->code));
-			alloc_field (object, id_type, alloc_int (event->type));
-			
-		
-		alloc_field (imageData, id_width, alloc_int (width));
-		alloc_field (imageData, id_height, alloc_int (height));
-		alloc_field (imageData, id_data, alloc_int (bytes));
-		
-		return result;*/
+		return true;
 		
 	}
 	

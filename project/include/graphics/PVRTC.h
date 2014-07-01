@@ -1,22 +1,22 @@
-#ifndef LIME_GRAPHICS_PNG_H
-#define LIME_GRAPHICS_PNG_H
+#ifndef LIME_GRAPHICS_PVRTC_H
+#define LIME_GRAPHICS_PVRTC_H
 
 
 namespace lime {
-	
+
 	class ImageData;
-	
-	class PNG {
-		
-		
+
+	class PVRTC {
+
+
 		public:
-			
+
 			static bool Decode (const char *path, ImageData *imageData);
-		
-		
+
+
 	};
-	
-	
+
+
 }
 
 

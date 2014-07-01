@@ -70,7 +70,11 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 			if (Sys.args ().indexOf ("-livereload") > -1) {
 				
+				#if mac
+				var path = FileSystem.fullPath ("../Resources/manifest");
+				#else
 				var path = FileSystem.fullPath ("manifest");
+				#end
 				lastModified = FileSystem.stat (path).mtime.getTime ();
 				
 				timer = new Timer (2000);
@@ -211,39 +215,9 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		// TODO: Implement in native backend
-		
-		var bytes = getBytes (id);
-		var byteInput = new haxe.io.BytesInput (bytes, 0, bytes.length);
-		var png = new format.png.Reader (byteInput).read ();
-		var data = format.png.Tools.extract32 (png);
-		var header = format.png.Tools.getHeader (png);
-		
-		var imageWidth = header.width;
-		var imageHeight = header.height;
-		var imageData = new UInt8Array (ByteArray.fromBytes (data));
-		
-		var imageLength = imageWidth * imageHeight;
-		var b, g, r, a;
-		
-		for (i in 0...imageLength) {
-			
-			b = imageData[i * 4];
-			g = imageData[i * 4 + 1];
-			r = imageData[i * 4 + 2];
-			a = imageData[i * 4 + 3];
-			
-			imageData[i * 4] = r;
-			imageData[i * 4 + 1] = g;
-			imageData[i * 4 + 2] = b;
-			imageData[i * 4 + 3] = a;
-			
-		}
-		
-		return new Image (imageData, imageWidth, imageHeight);
-		
-		//if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), BitmapData);
-		//else return BitmapData.load (path.get (id));
+		var image = Image.loadFromFile (path.get (id));
+		if (image == null) return null;
+		return new Image(image.bytes, image.width, image.height);
 		
 		#end
 		

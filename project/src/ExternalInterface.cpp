@@ -10,7 +10,9 @@
 #include <hx/CFFI.h>
 #include <app/Application.h>
 #include <app/UpdateEvent.h>
+#include <graphics/ImageData.h>
 #include <graphics/PNG.h>
+#include <graphics/JPEG.h>
 #include <graphics/Renderer.h>
 #include <graphics/RenderEvent.h>
 #include <system/System.h>
@@ -45,13 +47,6 @@ namespace lime {
 	value lime_application_get_ticks (value application) {
 		
 		return alloc_float (Application::GetTicks ());
-		
-	}
-	
-	
-	value lime_jpg_decode (value bytes, value imageData) {
-		
-		return alloc_null ();
 		
 	}
 	
@@ -110,10 +105,22 @@ namespace lime {
 	}
 	
 	
-	value lime_png_decode (value bytes, value imageData) {
+	value lime_load_image (value path) {
+
+		ImageData imageData;
+		const char *filePath = val_string (path);
+
+		if (PNG::Decode (filePath, &imageData)) {
+
+			return imageData.Value ();
+
+		}
+
+		if (JPEG::Decode(filePath, &imageData)) {
+
+			return imageData.Value ();
 		
-		ByteArray byteArray (bytes);
-		PNG::Decode (bytes, imageData);
+		}
 		
 		return alloc_null ();
 		
@@ -190,13 +197,12 @@ namespace lime {
 	DEFINE_PRIM (lime_application_create, 1);
 	DEFINE_PRIM (lime_application_exec, 1);
 	DEFINE_PRIM (lime_application_get_ticks, 0);
-	DEFINE_PRIM (lime_jpg_decode, 2);
+	DEFINE_PRIM (lime_load_image, 1);
 	DEFINE_PRIM (lime_key_event_manager_register, 2);
 	DEFINE_PRIM (lime_lzma_encode, 1);
 	DEFINE_PRIM (lime_lzma_decode, 1);
 	DEFINE_PRIM (lime_mouse_event_manager_register, 2);
 	DEFINE_PRIM (lime_neko_execute, 1);
-	DEFINE_PRIM (lime_png_decode, 2);
 	DEFINE_PRIM (lime_renderer_create, 1);
 	DEFINE_PRIM (lime_renderer_flip, 1);
 	DEFINE_PRIM (lime_render_event_manager_register, 2);

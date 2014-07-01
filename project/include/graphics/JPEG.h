@@ -1,22 +1,22 @@
-#ifndef LIME_GRAPHICS_PNG_H
-#define LIME_GRAPHICS_PNG_H
+#ifndef LIME_GRAPHICS_JPEG_H
+#define LIME_GRAPHICS_JPEG_H
 
 
 namespace lime {
-	
+
 	class ImageData;
-	
-	class PNG {
-		
-		
+
+	class JPEG {
+
+
 		public:
-			
+
 			static bool Decode (const char *path, ImageData *imageData);
-		
-		
+
+
 	};
-	
-	
+
+
 }
 
 

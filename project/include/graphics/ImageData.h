@@ -1,15 +1,28 @@
 #ifndef LIME_GRAPHICS_IMAGE_DATA_H
 #define LIME_GRAPHICS_IMAGE_DATA_H
 
+#include <hx/CFFI.h>
+#include <utils/ByteArray.h>
+
 
 namespace lime {
 	
 	
-	struct ImageData {
+	class ImageData {
+
+	public:
 		
 		int width;
 		int height;
-		unsigned char data;
+		ByteArray *data;
+
+		ImageData();
+		~ImageData();
+		value Value();
+
+	private:
+
+		value mValue;
 		
 	};
 	

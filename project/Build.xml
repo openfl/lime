@@ -27,6 +27,7 @@
 	<files id="lime">
 		
 		<compilerflag value="-DLIME_SDL" if="LIME_SDL" />
+		<compilerflag value="-I/usr/local/include" />
 		<compilerflag value="-Iinclude" />
 		
 		<file name="src/ExternalInterface.cpp" />
@@ -63,6 +64,9 @@
 		<file name="src/system/ios/System.mm" if="ios" />
 
 		<file name="src/app/UpdateEvent.cpp" />
+		<file name="src/graphics/ImageData.cpp" />
+		<file name="src/graphics/PVRTC.cpp" if="iphone" />
+		<file name="src/graphics/JPEG.cpp" />
 		<file name="src/graphics/PNG.cpp" />
 		<file name="src/graphics/RenderEvent.cpp" />
 		<file name="src/system/System.cpp" />
@@ -150,8 +154,11 @@
 				<vflag name="-framework" value="AppKit" />
 				<vflag name="-framework" value="OpenAL"/>
 				
+				<lib name="-L/usr/local/lib" />
 				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
 				<lib name="-lm" if="LIME_NEKO" />
+				<lib name="-lpng" />
+				<lib name="-ljpeg" />
 				
 			</section>
 		
