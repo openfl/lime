@@ -84,6 +84,13 @@ package lime.utils;
             return new Float32Array (matrix.rawData);
         }
         
+        public function __setLength( nbFloat : Int) {
+		length = nbFloat;
+		byteLength = nbFloat << 2;
+		
+		buffer.setLength(byteLength);
+	}
+        
         @:noCompletion @:keep inline public function __get (index:Int):Float { return getFloat32 (index << 2); }
         @:noCompletion @:keep inline public function __set (index:Int, value:Float):Void { setFloat32 (index << 2, value); }
         
