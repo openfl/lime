@@ -4,10 +4,10 @@ package lime.geom;
 import lime.utils.Float32Array;
 
 
-class Matrix4 extends Float32Array {
+abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	
 	
-	public var determinant (get, null):Float;
+	public var determinant (get, never):Float;
 	public var position (get, set):Vector4;
 	
 	
@@ -15,18 +15,18 @@ class Matrix4 extends Float32Array {
 		
 		if (data != null && data.length == 16) {
 			
-			super (data);
+			this = new Float32Array (data);
 			
 		} else {
 			
-			super ([ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ]);
+			this = new Float32Array ([ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ]);
 			
 		}
 		
 	}
 	
 	
-	inline public function append (lhs:Matrix4):Void {
+	public function append (lhs:Matrix4):Void {
 		
 		var m111:Float = this[0], m121:Float = this[4], m131:Float = this[8], m141:Float = this[12],
 			m112:Float = this[1], m122:Float = this[5], m132:Float = this[9], m142:Float = this[13],
@@ -60,7 +60,7 @@ class Matrix4 extends Float32Array {
 	}
 	
 	
-	inline public function appendRotation (degrees:Float, axis:Vector4, pivotPoint:Vector4 = null):Void {
+	public function appendRotation (degrees:Float, axis:Vector4, pivotPoint:Vector4 = null):Void {
 		
 		var m = getAxisRotation (axis.x, axis.y, axis.z, degrees);
 		
@@ -71,28 +71,28 @@ class Matrix4 extends Float32Array {
 			
 		}
 		
-		this.append (m);
+		append (m);
 		
 	}
 	
 	
-	inline public function appendScale (xScale:Float, yScale:Float, zScale:Float):Void {
+	public function appendScale (xScale:Float, yScale:Float, zScale:Float):Void {
 		
-		this.append (new Matrix4 ([ xScale, 0.0, 0.0, 0.0, 0.0, yScale, 0.0, 0.0, 0.0, 0.0, zScale, 0.0, 0.0, 0.0, 0.0, 1.0 ]));
-		
-	}
-	
-	
-	inline public function appendTranslation (x:Float, y:Float, z:Float):Void {
-		
-		this[12] += x;
-		this[13] += y;
-		this[14] += z;
+		append (new Matrix4 ([ xScale, 0.0, 0.0, 0.0, 0.0, yScale, 0.0, 0.0, 0.0, 0.0, zScale, 0.0, 0.0, 0.0, 0.0, 1.0 ]));
 		
 	}
 	
 	
-	inline public function clone ():Matrix4 {
+	public function appendTranslation (x:Float, y:Float, z:Float):Void {
+		
+		this[12] = this[12] + x;
+		this[13] = this[13] + y;
+		this[14] = this[14] + z;
+		
+	}
+	
+	
+	public function clone ():Matrix4 {
 		
 		return new Matrix4 (new Float32Array (this));
 		
@@ -165,36 +165,36 @@ class Matrix4 extends Float32Array {
 
 	public function copyFrom (other:Matrix4):Void {
 
-		set (other);
+		this.set (other);
 
 	}
 
-	public function copythisFrom( array:Float32Array, index:UInt = 0, transpose:Bool = false ) {
+	public function copythisFrom( array:Float32Array, index:UInt = 0, transposeValues:Bool = false ) {
 		
-		if ( transpose )
-			this.transpose();
+		if ( transposeValues )
+			transpose();
 	  
 		var l : UInt = array.length - index;
 		for ( c in 0...l )
 			this[c] = array[c+index];
 	  
-		if ( transpose )
-			this.transpose();
+		if ( transposeValues )
+			transpose();
 
 	}
 
 
-	public function copythisTo( array:Float32Array, index:UInt = 0, transpose:Bool = false ) {
+	public function copythisTo( array:Float32Array, index:UInt = 0, transposeValues:Bool = false ) {
 
-		if ( transpose )
-		   this.transpose();
+		if ( transposeValues )
+		   transpose();
 
 		var l : UInt = this.length;
 		for ( c in 0...l )
 			array[c + index ] = this[c];
 		
-		if ( transpose )
-			this.transpose();
+		if ( transposeValues )
+			transpose();
 
 	}
 
@@ -316,8 +316,8 @@ class Matrix4 extends Float32Array {
 
 
 	public function copyToMatrix4 (other:Matrix4):Void {
-
-		other.set (this);
+		
+		cast (other, Float32Array).set (this);
 
 	}
 
@@ -435,9 +435,24 @@ class Matrix4 extends Float32Array {
 
 
 	public function identity () {
-
-		set ([ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ]);
-	
+		
+		this[0] = 1;
+		this[1] = 0;
+		this[2] = 0;
+		this[3] = 0;
+		this[4] = 0;
+		this[5] = 1;
+		this[6] = 0;
+		this[7] = 0;
+		this[8] = 0;
+		this[9] = 0;
+		this[10] = 1;
+		this[11] = 0;
+		this[12] = 0;
+		this[13] = 0;
+		this[14] = 0;
+		this[15] = 1;
+		
 	}
 	
 	
@@ -456,7 +471,7 @@ class Matrix4 extends Float32Array {
 	}
 	
 	
-	inline public function interpolateTo (toMat:Matrix4, percent:Float):Void {
+	public function interpolateTo (toMat:Matrix4, percent:Float):Void {
 		
 		for (i in 0...16) {
 			
@@ -467,7 +482,7 @@ class Matrix4 extends Float32Array {
 	}
 	
 	
-	inline public function invert ():Bool {
+	public function invert ():Bool {
 		
 		var d = determinant;
 		var invertable = Math.abs (d) > 0.00000000001;
@@ -572,7 +587,7 @@ class Matrix4 extends Float32Array {
 	}
 	
 	
-	inline public function prepend (rhs:Matrix4):Void {
+	public function prepend (rhs:Matrix4):Void {
 		
 		var m111:Float = rhs[0], m121:Float = rhs[4], m131:Float = rhs[8], m141:Float = rhs[12],
 			m112:Float = rhs[1], m122:Float = rhs[5], m132:Float = rhs[9], m142:Float = rhs[13],
@@ -606,7 +621,7 @@ class Matrix4 extends Float32Array {
 	}
 	
 	
-	inline public function prependRotation (degrees:Float, axis:Vector4, pivotPoint:Vector4 = null):Void {
+	public function prependRotation (degrees:Float, axis:Vector4, pivotPoint:Vector4 = null):Void {
 		
 		var m = getAxisRotation (axis.x, axis.y, axis.z, degrees);
 		
@@ -617,23 +632,23 @@ class Matrix4 extends Float32Array {
 			
 		}
 		
-		this.prepend (m);
+		prepend (m);
 		
 	}
 	
 	
-	inline public function prependScale (xScale:Float, yScale:Float, zScale:Float):Void {
+	public function prependScale (xScale:Float, yScale:Float, zScale:Float):Void {
 		
-		this.prepend (new Matrix4 ([xScale, 0.0, 0.0, 0.0, 0.0, yScale, 0.0, 0.0, 0.0, 0.0, zScale, 0.0, 0.0, 0.0, 0.0, 1.0]));
+		prepend (new Matrix4 ([xScale, 0.0, 0.0, 0.0, 0.0, yScale, 0.0, 0.0, 0.0, 0.0, zScale, 0.0, 0.0, 0.0, 0.0, 1.0]));
 		
 	}
 	
 	
-	inline public function prependTranslation (x:Float, y:Float, z:Float):Void {
+	public function prependTranslation (x:Float, y:Float, z:Float):Void {
 		
 		var m = new Matrix4 ();
 		m.position = new Vector4 (x, y, z);
-		this.prepend (m);
+		prepend (m);
 		
 	}
 	
@@ -722,7 +737,7 @@ class Matrix4 extends Float32Array {
 	}*/
 	
 	
-	inline public function transformVector (v:Vector4):Vector4 {
+	public function transformVector (v:Vector4):Vector4 {
 		
 		var x:Float = v.x, y:Float = v.y, z:Float = v.z;
 		
@@ -754,7 +769,7 @@ class Matrix4 extends Float32Array {
 	}
 	
 	
-	inline public function transpose ():Void {
+	public function transpose ():Void {
 		
 		var othis = new Float32Array (this);
 		this[1] = othis[4];
@@ -811,7 +826,7 @@ class Matrix4 extends Float32Array {
 	
 	
 	
-	inline public function get_determinant ():Float {
+	public function get_determinant ():Float {
 
 		return 1 * ((this[0] * this[5] - this[4] * this[1]) * (this[10] * this[15] - this[14] * this[11]) 
 			- (this[0] * this[9] - this[8] * this[1]) * (this[6] * this[15] - this[14] * this[7])
@@ -823,19 +838,34 @@ class Matrix4 extends Float32Array {
 	}
 	
 	
-	inline public function get_position ():Vector4 {
+	public function get_position ():Vector4 {
 		
 		return new Vector4 (this[12], this[13], this[14]);
 		
 	}
 	
 	
-	inline public function set_position (val:Vector4):Vector4 {
+	public function set_position (val:Vector4):Vector4 {
 		
 		this[12] = val.x;
 		this[13] = val.y;
 		this[14] = val.z;
 		return val;
+		
+	}
+	
+	
+	@:arrayAccess public function get (index:Int):Float {
+		
+		return this[index];
+		
+	}
+	
+	
+	@:arrayAccess public function set (index:Int, value:Float):Float {
+		
+		this[index] = value;
+		return value;
 		
 	}
 	

@@ -2,6 +2,7 @@ package;
 
 
 import lime.app.Application;
+import lime.geom.Matrix4;
 import lime.graphics.Image;
 import lime.graphics.GLBuffer;
 import lime.graphics.GLProgram;
@@ -130,10 +131,10 @@ class Main extends Application {
 				
 				var texCoords = [
 					
-					1, 0, 
-					0, 0, 
 					1, 1, 
 					0, 1, 
+					1, 0, 
+					0, 0, 
 					
 				];
 				
@@ -209,20 +210,8 @@ class Main extends Application {
 				var modelViewMatrixUniform = gl.getUniformLocation (shaderProgram, "uModelViewMatrix");
 				var imageUniform = gl.getUniformLocation (shaderProgram, "uImage0");
 				
-				var positionX = 0;
-				var positionY = 0;
-				var width = window.width;
-				var height = window.height;
-				
-				var projectionMatrix = new Float32Array ([ 2 / width, 0, 0, 0, 0, 2 / height, 0, 0, 0, 0, -0.0001, 0, -1, -1, 1, 1 ]);
-				
-				var rotation = 0;
-				var scale = 1;
-				var theta = rotation * Math.PI / 180;
-				var c = Math.cos (theta);
-				var s = Math.sin (theta);
-				
-				var modelViewMatrix = new Float32Array ([ c * scale, -s * scale, 0, 0, s * scale, c * scale, 0, 0, 0, 0, 1, 0, positionX, positionY, 0, 1 ]);
+				var projectionMatrix = Matrix4.createOrtho (0, window.width, window.height, 0, -1000, 1000);
+				var modelViewMatrix = new Matrix4 ();
 				
 				gl.useProgram (shaderProgram);
 				gl.enableVertexAttribArray (vertexAttribute);
