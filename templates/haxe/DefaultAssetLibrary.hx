@@ -197,7 +197,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
-	public override function getImage (id:String):Image {
+	public override function getImage (id:String, flags:Int):Image {
 		
 		#if flash
 		
@@ -225,6 +225,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		var imageLength = imageWidth * imageHeight;
 		var b, g, r, a;
+		var multiply = (flags & Assets.PREMULTIPLIED) > 0;
 		
 		for (i in 0...imageLength) {
 			
@@ -232,6 +233,14 @@ class DefaultAssetLibrary extends AssetLibrary {
 			g = imageData[i * 4 + 1];
 			r = imageData[i * 4 + 2];
 			a = imageData[i * 4 + 3];
+			
+			if (multiply) {
+				
+				b = (b * a) >> 8;
+				g = (g * a) >> 8;
+				r = (r * a) >> 8;
+				
+			}
 			
 			imageData[i * 4] = r;
 			imageData[i * 4 + 1] = g;
@@ -439,7 +448,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
-	public override function loadImage (id:String, handler:Image -> Void):Void {
+	public override function loadImage (id:String, flags:Int, handler:Image -> Void):Void {
 		
 		#if flash
 		
@@ -456,13 +465,13 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 		} else {
 			
-			handler (getImage (id));
+			handler (getImage (id, flags));
 			
 		}
 		
 		#else
 		
-		handler (getImage (id));
+		handler (getImage (id, flags));
 		
 		#end
 		

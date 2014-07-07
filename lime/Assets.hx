@@ -27,6 +27,9 @@ import lime.utils.ByteArray;
 class Assets {
 	
 	
+	public static var POWER_OF_TWO = 0x00001;
+	public static var PREMULTIPLIED = 0x00002;
+	
 	public static var cache = new AssetCache ();
 	public static var libraries (default, null) = new Map <String, AssetLibrary> ();
 	
@@ -118,7 +121,7 @@ class Assets {
 	 * @param	useCache		(Optional) Whether to use BitmapData from the cache(Default: true)
 	 * @return		A new BitmapData object
 	 */
-	public static function getImage (id:String, useCache:Bool = true):Image {
+	public static function getImage (id:String, flags:Int = 0, useCache:Bool = true):Image {
 		
 		initialize ();
 		
@@ -146,7 +149,7 @@ class Assets {
 				
 				if (library.isLocal (symbolName, cast AssetType.IMAGE)) {
 					
-					var image = library.getImage (symbolName);
+					var image = library.getImage (symbolName, flags);
 					
 					if (useCache && cache.enabled) {
 						
@@ -588,7 +591,7 @@ class Assets {
 	}
 	
 	
-	public static function loadImage (id:String, handler:Image -> Void, useCache:Bool = true):Void {
+	public static function loadImage (id:String, flags:Int, handler:Image -> Void, useCache:Bool = true):Void {
 		
 		initialize ();
 		
@@ -617,7 +620,7 @@ class Assets {
 				
 				if (useCache && cache.enabled) {
 					
-					library.loadImage (symbolName, function (image:Image):Void {
+					library.loadImage (symbolName, flags, function (image:Image):Void {
 						
 						cache.image.set (id, image);
 						handler (image);
@@ -626,7 +629,7 @@ class Assets {
 					
 				} else {
 					
-					library.loadImage (symbolName, handler);
+					library.loadImage (symbolName, flags, handler);
 					
 				}
 				
@@ -958,7 +961,7 @@ class AssetLibrary {
 	}
 	
 	
-	public function getImage (id:String):Image {
+	public function getImage (id:String, flags:Int):Image {
 		
 		return null;
 		
@@ -1039,9 +1042,9 @@ class AssetLibrary {
 	}
 	
 	
-	public function loadImage (id:String, handler:Image -> Void):Void {
+	public function loadImage (id:String, flags:Int, handler:Image -> Void):Void {
 		
-		handler (getImage (id));
+		handler (getImage (id, flags));
 		
 	}
 	
