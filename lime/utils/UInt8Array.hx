@@ -7,13 +7,12 @@ typedef UInt8Array = js.html.Uint8Array;
 class UInt8Array extends ArrayBufferView implements ArrayAccess<Int> {
 	
 	
-	public var BYTES_PER_ELEMENT (default, null) : Int;
-	public var length (default, null) : Int;
+	public static var BYTES_PER_ELEMENT = 1;
+	
+	public var length (default, null):Int;
 	
 	
 	public function new (bufferOrArray:Dynamic, start:Int = 0, length:Null<Int> = null) {
-		
-		BYTES_PER_ELEMENT = 1;
 		
 		if (Std.is (bufferOrArray, Int)) {
 			

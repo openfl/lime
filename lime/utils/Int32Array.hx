@@ -7,13 +7,12 @@ typedef Int32Array = js.html.Int32Array;
 class Int32Array extends ArrayBufferView implements ArrayAccess<Int> {
 	
 	
-	public var BYTES_PER_ELEMENT (default, null) : Int;
-	public var length (default, null) : Int;
+	public static var BYTES_PER_ELEMENT = 4;
+	
+	public var length (default, null):Int;
 	
 	
 	public function new (bufferOrArray:Dynamic, start:Int = 0, length:Null<Int> = null) {
-		
-		BYTES_PER_ELEMENT = 4;
 		
 		if (Std.is (bufferOrArray, Int)) {
 			

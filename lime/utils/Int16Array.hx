@@ -7,13 +7,12 @@ typedef Int16Array = js.html.Int16Array;
 class Int16Array extends ArrayBufferView implements ArrayAccess<Int> {
 	
 	
-	public var BYTES_PER_ELEMENT (default, null) : Int;
-	public var length (default, null) : Int;
+	public static var BYTES_PER_ELEMENT (default, null) = 2;
+	
+	public var length (default, null):Int;
 	
 	
 	public function new (bufferOrArray:Dynamic, start:Int = 0, length:Null<Int> = null) {
-		
-		BYTES_PER_ELEMENT = 2;
 		
 		if (Std.is (bufferOrArray, Int)) {
 			
