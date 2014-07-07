@@ -94,10 +94,14 @@ namespace lime {
 				
 				if (currentUpdate - lastUpdate < 16) {
 					
+					lastUpdate = currentUpdate;
+					
 					timerActive = true;
 					timerID = SDL_AddTimer (lastUpdate + 16 - currentUpdate, OnTimer, 0);
 					
 				} else {
+					
+					lastUpdate = currentUpdate;
 					
 					OnTimer (0, 0);
 					

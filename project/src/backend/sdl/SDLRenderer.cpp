@@ -17,6 +17,7 @@ namespace lime {
 			
 			if (context) {
 				
+				SDL_GL_SetSwapInterval (0);
 				SDL_GL_MakeCurrent (sdlWindow, context);
 				
 			}
