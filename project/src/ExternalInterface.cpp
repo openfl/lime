@@ -170,9 +170,9 @@ namespace lime {
 	}
 	
 	
-	value lime_window_create (value application, value flags) {
+	value lime_window_create (value application, value width, value height, value flags) {
 		
-		Window* window = CreateWindow ((Application*)(intptr_t)val_float (application), val_int(flags));
+		Window* window = CreateWindow ((Application*)(intptr_t)val_float (application), val_int (width), val_int (height), val_int(flags));
 		return alloc_float ((intptr_t)window);
 		
 	}
@@ -203,7 +203,7 @@ namespace lime {
 	DEFINE_PRIM (lime_system_get_timestamp, 0);
 	DEFINE_PRIM (lime_touch_event_manager_register, 2);
 	DEFINE_PRIM (lime_update_event_manager_register, 2);
-	DEFINE_PRIM (lime_window_create, 2);
+	DEFINE_PRIM (lime_window_create, 4);
 	DEFINE_PRIM (lime_window_event_manager_register, 2);
 	
 	

@@ -18,7 +18,7 @@ namespace lime {
 		
 		public:
 			
-			SDLWindow (Application* application, int flags);
+			SDLWindow (Application* application, int width, int height, int flags);
 			~SDLWindow ();
 			
 			SDL_Window* sdlWindow;

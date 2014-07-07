@@ -181,7 +181,7 @@ class Window {
 		if (config.stencilBuffer)
 			flags |= STENCIL_BUFFER;
 		
-		handle = lime_window_create (application.__handle, flags);
+		handle = lime_window_create (application.__handle, width, height, flags);
 		#end
 		
 		MouseEventManager.registerWindow (this);
@@ -242,7 +242,7 @@ class Window {
 	
 	
 	#if (cpp || neko)
-	private static var lime_window_create = System.load ("lime", "lime_window_create", 2);
+	private static var lime_window_create = System.load ("lime", "lime_window_create", 4);
 	private static var lime_window_event_manager_register = System.load ("lime", "lime_window_event_manager_register", 2);
 	#end
 	
