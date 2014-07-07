@@ -55,12 +55,13 @@ namespace lime {
 	
 	int SDLApplication::Exec () {
 		
+		framePeriod = 1000.0 / 60.0;
 		SDL_Event event;
 		active = true;
 		lastUpdate = SDL_GetTicks ();
+		nextUpdate = lastUpdate;
 		
 		bool firstTime = true;
-		Uint32 nextUpdate = lastUpdate;
 		
 		while (active) {
 			
@@ -69,14 +70,6 @@ namespace lime {
 			while (active && (firstTime || SDL_WaitEvent (&event))) {
 				
 				firstTime = false;
-				
-				if (timerActive && timerID) {
-					
-					SDL_RemoveTimer (timerID);
-					timerActive = false;
-					timerID = 0;
-					
-				}
 				
 				HandleEvent (&event);
 				event.type = -1;
@@ -92,18 +85,15 @@ namespace lime {
 				
 				currentUpdate = SDL_GetTicks ();
 				
-				if (currentUpdate - lastUpdate < 16) {
+				if (currentUpdate >= nextUpdate) {
 					
-					lastUpdate = currentUpdate;
+					SDL_RemoveTimer (timerID);
+					OnTimer (0, 0);
+					
+				} else if (!timerActive) {
 					
 					timerActive = true;
-					timerID = SDL_AddTimer (lastUpdate + 16 - currentUpdate, OnTimer, 0);
-					
-				} else {
-					
-					lastUpdate = currentUpdate;
-					
-					OnTimer (0, 0);
+					timerID = SDL_AddTimer (nextUpdate - currentUpdate, OnTimer, 0);
 					
 				}
 				
@@ -129,6 +119,14 @@ namespace lime {
 				
 				currentUpdate = SDL_GetTicks ();
 				updateEvent.deltaTime = currentUpdate - lastUpdate;
+				lastUpdate = currentUpdate;
+				
+				while (nextUpdate <= currentUpdate) {
+					
+					nextUpdate += framePeriod;
+					
+				}
+				
 				UpdateEvent::Dispatch (&updateEvent);
 				RenderEvent::Dispatch (&renderEvent);
 				break;

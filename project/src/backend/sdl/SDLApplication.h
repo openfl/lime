@@ -34,9 +34,11 @@ namespace lime {
 			
 			bool active;
 			Uint32 currentUpdate;
+			double framePeriod;
 			KeyEvent keyEvent;
 			Uint32 lastUpdate;
 			MouseEvent mouseEvent;
+			double nextUpdate;
 			RenderEvent renderEvent;
 			TouchEvent touchEvent;
 			UpdateEvent updateEvent;
