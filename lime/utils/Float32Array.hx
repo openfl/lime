@@ -7,7 +7,7 @@ typedef Float32Array = js.html.Float32Array;
 class Float32Array extends ArrayBufferView implements ArrayAccess<Float> {
 	
 	
-	public static var BYTES_PER_ELEMENT = 4;
+	public static inline var BYTES_PER_ELEMENT = 4;
 	
 	public var length (default, null):Int;
 	

@@ -7,7 +7,7 @@ typedef Int8Array = js.html.Int8Array;
 class Int8Array extends ArrayBufferView implements ArrayAccess<Int> {
 	
 	
-	public static var BYTES_PER_ELEMENT = 1;
+	public static inline var BYTES_PER_ELEMENT = 1;
 	
 	public var length (default, null):Int;
 	

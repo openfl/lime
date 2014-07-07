@@ -7,7 +7,7 @@ typedef UInt32Array = js.html.Uint32Array;
 class UInt32Array extends ArrayBufferView implements ArrayAccess<Int> {
 	
 	
-	public static var BYTES_PER_ELEMENT = 4;
+	public static inline var BYTES_PER_ELEMENT = 4;
 	
 	public var length (default, null) : Int;
 	
