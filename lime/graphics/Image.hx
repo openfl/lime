@@ -167,7 +167,7 @@ class Image {
 	
 	private function get_powerOfTwo ():Bool {
 		
-		return ((width % 2 == 0) && (height % 2 == 0));
+		return ((width != 0) && ((width & (~width + 1)) == width)) && ((height != 0) && ((height & (~height + 1)) == height));
 		
 	}
 	
