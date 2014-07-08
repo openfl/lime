@@ -19,14 +19,16 @@ abstract ImageData(UInt8Array) from UInt8Array to UInt8Array {
 	
 	public function getComponent (pos:Int):Int {
 		
-		return this.getUInt8 (pos);
+		return this[pos];
 		
 	}
 	
 	
 	public function getPixel (pos:Int):Int {
 		
-		return this.getUInt32 (pos);
+		var index = pos * 4;
+		
+		return ((this[index + 3] << 24) | (this[index] << 16 ) | (this[index + 1] << 8) | this[index + 2]);
 		
 	}
 	
@@ -40,10 +42,10 @@ abstract ImageData(UInt8Array) from UInt8Array to UInt8Array {
 			
 			index = i * 4;
 			
-			a = this.getUInt8 (index + 3);
-			this.setUInt8 (index, (this.getUInt8 (index) * a) >> 8);
-			this.setUInt8 (index + 1, (this.getUInt8 (index + 1) * a) >> 8);
-			this.setUInt8 (index + 2, (this.getUInt8 (index + 2) * a) >> 8);
+			a = this[index + 3];
+			this[index] = (this[index] * a) >> 8;
+			this[index + 1] = (this[index + 1] * a) >> 8;
+			this[index + 2] = (this[index + 2] * a) >> 8;
 			
 		}
 		
@@ -52,14 +54,19 @@ abstract ImageData(UInt8Array) from UInt8Array to UInt8Array {
 	
 	public function setComponent (pos:Int, value:Int):Void {
 		
-		this.setUInt8 (pos, value);
+		this[pos] = value;
 		
 	}
 	
 	
 	public function setPixel (pos:Int, value:Int):Void {
 		
-		this.setUInt32 (pos, value);
+		var index = pos * 4;
+		
+		this[index + 3] = (value >> 24) & 0xFF;
+		this[index] = (value >> 16) & 0xFF;
+		this[index + 1] = (value >> 8) & 0xFF;
+		this[index + 2] = value & 0xFF;
 		
 	}
 	
