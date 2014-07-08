@@ -5,7 +5,7 @@ extern "C" {
 	
 }
 
-#include <graphics/ImageData.h>
+#include <graphics/Image.h>
 #include <graphics/PNG.h>
 #include <utils/ByteArray.h>
 
@@ -13,7 +13,7 @@ extern "C" {
 namespace lime {
 	
 	
-	bool PNG::Decode (const char *path, ImageData *imageData) {
+	bool PNG::Decode (const char *path, Image *image) {
 		
 		unsigned char png_sig[PNG_SIG_SIZE];
 		png_structp png_ptr;
@@ -23,18 +23,18 @@ namespace lime {
 		
 		FILE *file = OpenRead (path);
 		if (!file) return false;
-
-		// verify the PNG signature
-		int read = fread(png_sig, PNG_SIG_SIZE, 1, file);
-		if (png_sig_cmp (png_sig, 0, PNG_SIG_SIZE)) {
 		
+		// verify the PNG signature
+		int read = fread (png_sig, PNG_SIG_SIZE, 1, file);
+		if (png_sig_cmp (png_sig, 0, PNG_SIG_SIZE)) {
+			
 			fclose (file);
 			return false;
+			
+		}
 		
-	}
-	
 		if ((png_ptr = png_create_read_struct (PNG_LIBPNG_VER_STRING, NULL, NULL, NULL)) == NULL) {
-	
+			
 			fclose (file);
 			return false;
 			
@@ -73,19 +73,19 @@ namespace lime {
 			png_set_strip_16 (png_ptr);
 		
 		const unsigned int stride = width * 4;
-		imageData->width = width;
-		imageData->height = height;
-		imageData->data = new ByteArray (height * stride);
+		image->width = width;
+		image->height = height;
+		image->data = new ByteArray (height * stride);
 		
 		png_bytepp row_ptrs = new png_bytep[height];
-		unsigned char *bytes = imageData->data->Bytes();
+		unsigned char *bytes = image->data->Bytes ();
 		
 		for (size_t i = 0; i < height; i++) {
-		
+			
 			row_ptrs[i] = bytes + i * stride;
 			
 		}
-			
+		
 		png_read_image (png_ptr, row_ptrs);
 		png_read_end (png_ptr, NULL);
 		
@@ -97,32 +97,32 @@ namespace lime {
 	}
 	
 	
-	static bool Encode (ImageData *imageData, ByteArray *bytes) {
+	static bool Encode (Image *image, ByteArray *bytes) {
 		
 		return true;
 		
 		/*png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, user_error_fn, user_warning_fn);
-
+		
 		if (!png_ptr)
 			return false;
-
+		
 		png_infop info_ptr = png_create_info_struct(png_ptr);
 		if (!info_ptr)
 			return false;
-
+		
 		if (setjmp(png_jmpbuf(png_ptr)))
 		{
 			png_destroy_write_struct(&png_ptr, &info_ptr );
 			return false;
 		}
-
+		
 		QuickVec<uint8> out_buffer;
-
+		
 		png_set_write_fn(png_ptr, &out_buffer, user_write_data, user_flush_data);
-
+		
 		int w = inSurface->Width();
 		int h = inSurface->Height();
-
+		
 		int bit_depth = 8;
 		int color_type = (inSurface->Format()&pfHasAlpha) ?
 		PNG_COLOR_TYPE_RGB_ALPHA :
@@ -130,11 +130,11 @@ namespace lime {
 		png_set_IHDR(png_ptr, info_ptr, w, h,
 		bit_depth, color_type, PNG_INTERLACE_NONE,
 		PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-
+		
 		png_write_info(png_ptr, info_ptr);
-
+		
 		bool do_alpha = color_type==PNG_COLOR_TYPE_RGBA;
-
+		
 		{
 		QuickVec<uint8> row_data(w*4);
 		png_bytep row = &row_data[0];
@@ -156,12 +156,13 @@ namespace lime {
 		png_write_rows(png_ptr, &row, 1);
 		}
 		}
-
+		
 		png_write_end(png_ptr, NULL);
-
+		
 		*outBytes = ByteArray(out_buffer);
-
+		
 		return true;*/
+		
 	}
 	
 	

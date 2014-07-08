@@ -4,14 +4,15 @@
 
 namespace lime {
 	
-	class ImageData;
+	
+	class Image;
 	
 	class PNG {
 		
 		
 		public:
 			
-			static bool Decode (const char *path, ImageData *imageData);
+			static bool Decode (const char *path, Image *image);
 		
 		
 	};

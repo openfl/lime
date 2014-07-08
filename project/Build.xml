@@ -48,7 +48,7 @@
 		
 		<section if="LIME_OPENGL">
 			
-			<file name="src/graphics/opengl/OpenGLBindings.cpp" />
+			<file name="src/graphics/OpenGLBindings.cpp" />
 			
 		</section>
 		
@@ -76,7 +76,7 @@
 		<file name="src/system/ios/System.mm" if="ios" />
 
 		<file name="src/app/UpdateEvent.cpp" />
-		<file name="src/graphics/ImageData.cpp" />
+		<file name="src/graphics/Image.cpp" />
 		<file name="src/graphics/JPEG.cpp" />
 		<file name="src/graphics/PNG.cpp" />
 		<file name="src/graphics/RenderEvent.cpp" />

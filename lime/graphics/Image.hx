@@ -47,22 +47,6 @@ class Image {
 		
 	}
 	
-	public static function loadFromFile (path:String) {
-
-		#if flash
-
-		throw "Can not load image from file in Flash";
-
-		#elseif (cpp || neko)
-
-		var imageData = lime_load_image (path);
-
-		return (imageData == null ? null : new Image (new UInt8Array (imageData.data), imageData.width, imageData.height));
-
-		#end
-
-	}
-
 	
 	public function forcePowerOfTwo () {
 		
@@ -129,6 +113,22 @@ class Image {
 	}
 	
 	
+	public static function loadFromFile (path:String) {
+		
+		#if flash
+		
+		throw "Can not load image from file in Flash";
+		
+		#elseif (cpp || neko)
+		
+		var imageData = lime_image_load (path);
+		return (imageData == null ? null : new Image (new UInt8Array (imageData.data), imageData.width, imageData.height));
+		
+		#end
+		
+	}
+	
+	
 	public function premultiplyAlpha ():Void {
 		
 		if (premultiplied) return;
@@ -139,8 +139,8 @@ class Image {
 		premultiplied = true;
 		
 	}
-
-
+	
+	
 	private function get_data ():ImageData {
 		
 		if (__data == null && src != null && width > 0 && height > 0) {
@@ -190,12 +190,10 @@ class Image {
 	
 	
 	#if (cpp || neko)
-
-	private static var lime_load_image = System.load("lime", "lime_load_image", 1);
-
+	private static var lime_image_load = System.load ("lime", "lime_image_load", 1);
 	#end
-
-
+	
+	
 }
 
 

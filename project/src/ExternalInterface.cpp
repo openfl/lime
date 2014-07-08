@@ -10,7 +10,7 @@
 #include <hx/CFFI.h>
 #include <app/Application.h>
 #include <app/UpdateEvent.h>
-#include <graphics/ImageData.h>
+#include <graphics/Image.h>
 #include <graphics/PNG.h>
 #include <graphics/JPEG.h>
 #include <graphics/Renderer.h>
@@ -47,6 +47,28 @@ namespace lime {
 	value lime_application_get_ticks (value application) {
 		
 		return alloc_float (Application::GetTicks ());
+		
+	}
+	
+	
+	value lime_image_load (value path) {
+		
+		Image image;
+		const char *filePath = val_string (path);
+		
+		if (PNG::Decode (filePath, &image)) {
+			
+			return image.Value ();
+			
+		}
+		
+		if (JPEG::Decode (filePath, &image)) {
+			
+			return image.Value ();
+			
+		}
+		
+		return alloc_null ();
 		
 	}
 	
@@ -100,28 +122,6 @@ namespace lime {
 		#ifdef LIME_NEKO
 		NekoVM::Execute (val_string (module));
 		#endif
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_load_image (value path) {
-
-		ImageData imageData;
-		const char *filePath = val_string (path);
-
-		if (PNG::Decode (filePath, &imageData)) {
-
-			return imageData.Value ();
-
-		}
-
-		if (JPEG::Decode(filePath, &imageData)) {
-
-			return imageData.Value ();
-		
-		}
-		
 		return alloc_null ();
 		
 	}
@@ -197,7 +197,7 @@ namespace lime {
 	DEFINE_PRIM (lime_application_create, 1);
 	DEFINE_PRIM (lime_application_exec, 1);
 	DEFINE_PRIM (lime_application_get_ticks, 0);
-	DEFINE_PRIM (lime_load_image, 1);
+	DEFINE_PRIM (lime_image_load, 1);
 	DEFINE_PRIM (lime_key_event_manager_register, 2);
 	DEFINE_PRIM (lime_lzma_encode, 1);
 	DEFINE_PRIM (lime_lzma_decode, 1);
