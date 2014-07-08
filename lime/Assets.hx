@@ -121,7 +121,7 @@ class Assets {
 	 * @param	useCache		(Optional) Whether to use BitmapData from the cache(Default: true)
 	 * @return		A new BitmapData object
 	 */
-	public static function getImage (id:String, flags:Int = 0, useCache:Bool = true):Image {
+	public static function getImage (id:String, useCache:Bool = true):Image {
 		
 		initialize ();
 		
@@ -149,7 +149,7 @@ class Assets {
 				
 				if (library.isLocal (symbolName, cast AssetType.IMAGE)) {
 					
-					var image = library.getImage (symbolName, flags);
+					var image = library.getImage (symbolName);
 					
 					if (useCache && cache.enabled) {
 						
@@ -591,7 +591,7 @@ class Assets {
 	}
 	
 	
-	public static function loadImage (id:String, flags:Int, handler:Image -> Void, useCache:Bool = true):Void {
+	public static function loadImage (id:String, handler:Image -> Void, useCache:Bool = true):Void {
 		
 		initialize ();
 		
@@ -620,7 +620,7 @@ class Assets {
 				
 				if (useCache && cache.enabled) {
 					
-					library.loadImage (symbolName, flags, function (image:Image):Void {
+					library.loadImage (symbolName, function (image:Image):Void {
 						
 						cache.image.set (id, image);
 						handler (image);
@@ -629,7 +629,7 @@ class Assets {
 					
 				} else {
 					
-					library.loadImage (symbolName, flags, handler);
+					library.loadImage (symbolName, handler);
 					
 				}
 				
@@ -961,7 +961,7 @@ class AssetLibrary {
 	}
 	
 	
-	public function getImage (id:String, flags:Int):Image {
+	public function getImage (id:String):Image {
 		
 		return null;
 		
@@ -1042,9 +1042,9 @@ class AssetLibrary {
 	}
 	
 	
-	public function loadImage (id:String, flags:Int, handler:Image -> Void):Void {
+	public function loadImage (id:String, handler:Image -> Void):Void {
 		
-		handler (getImage (id, flags));
+		handler (getImage (id));
 		
 	}
 	
