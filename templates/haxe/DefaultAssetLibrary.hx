@@ -215,9 +215,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		var image = Image.loadFromFile (path.get (id));
-		if (image == null) return null;
-		return new Image (image.data, image.width, image.height);
+		return Image.loadFromFile (path.get (id));
 		
 		#end
 		
