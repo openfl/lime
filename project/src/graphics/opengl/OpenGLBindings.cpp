@@ -1131,7 +1131,7 @@ namespace lime {
 
 	value lime_gl_get_shader_precision_format(value inShader,value inPrec) {
 
-		#ifdef lime_GLES
+		#ifdef LIME_GLES
 
 			int range[2];
 			int precision;
@@ -1519,7 +1519,7 @@ namespace lime {
 
 	value lime_gl_clear_depth(value depth) {
 
-		#ifdef lime_GLES
+		#ifdef LIME_GLES
 			glClearDepthf(val_number(depth));
 		#else
 			glClearDepth(val_number(depth));
@@ -1568,7 +1568,7 @@ namespace lime {
 
 	value lime_gl_depth_range(value inNear, value inFar) {
 
-		#ifdef lime_GLES
+		#ifdef LIME_GLES
 			glDepthRangef(val_number(inNear), val_number(inFar));
 		#else
 			glDepthRange(val_number(inNear), val_number(inFar));
