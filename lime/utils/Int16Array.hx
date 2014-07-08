@@ -7,7 +7,7 @@ typedef Int16Array = js.html.Int16Array;
 class Int16Array extends ArrayBufferView implements ArrayAccess<Int> {
 	
 	
-	public static inline var BYTES_PER_ELEMENT (default, null) = 2;
+	public static inline var BYTES_PER_ELEMENT = 2;
 	
 	public var length (default, null):Int;
 	

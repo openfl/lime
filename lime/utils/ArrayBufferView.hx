@@ -34,7 +34,7 @@ class ArrayBufferView implements IMemoryRange {
 			buffer = new ArrayBuffer (#if !flash byteLength #end);
 			
 			#if flash
-			while (byteLength > 0) { buffer.writeByte (0); }
+			for (i in 0...byteLength) { buffer.writeByte (0); }
 			buffer.position = 0;
 			#end
 			
@@ -74,7 +74,9 @@ class ArrayBufferView implements IMemoryRange {
 			
 		}
 		
-		#if !flash
+		#if flash
+		buffer.endian = flash.utils.Endian.LITTLE_ENDIAN;
+		#else
 		buffer.bigEndian = false;
 		#end
 		
