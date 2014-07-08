@@ -9,10 +9,12 @@
 	<set name="ios" value="1" if="iphone" />
 	
 	<set name="LIME_CURL" value="1" />
-	<set name="LIME_NEKO" value="1" if="linux" />
+	<set name="LIME_JPEG" value="1" />
+	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
 	<set name="LIME_OGG" value="1" />
 	<set name="LIME_OPENAL" value="1" />
 	<set name="LIME_OPENGL" value="1" />
+	<set name="LIME_PNG" value="1" />
 	<set name="LIME_SDL" value="1" />
 	<set name="LIME_VORBIS" value="1" />
 	<set name="LIME_ZLIB" value="1" />
@@ -73,9 +75,11 @@
 	</files>
 	
 	<include name="lib/curl/files.xml" />
+	<include name="lib/jpeg/files.xml" />
 	<include name="lib/neko/files.xml" />
 	<include name="lib/ogg/files.xml" />
 	<include name="lib/openal/files.xml" />
+	<include name="lib/png/files.xml" />
 	<include name="lib/sdl/files.xml" />
 	<include name="lib/vorbis/files.xml" />
 	<include name="lib/zlib/files.xml" />
@@ -87,9 +91,11 @@
 		<files id="lime" />
 		
 		<files id="native-toolkit-curl" if="LIME_CURL" />
+		<files id="native-toolkit-jpeg" if="LIME_JPEG" />
 		<files id="native-toolkit-neko" if="LIME_NEKO" />
 		<files id="native-toolkit-ogg" if="LIME_OGG" />
 		<files id="native-toolkit-openal" if="LIME_OPENAL" unless="mac || iphone" />
+		<files id="native-toolkit-png" if="LIME_PNG" />
 		<files id="native-toolkit-sdl" if="LIME_SDL" />
 		<files id="native-toolkit-vorbis" if="LIME_VORBIS" />
 		<files id="native-toolkit-zlib" if="LIME_ZLIB" />

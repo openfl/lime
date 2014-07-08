@@ -19,3 +19,9 @@
 [submodule "project/lib/neko"]
 	path = project/lib/neko
 	url = https://github.com/native-toolkit/neko
+[submodule "project/lib/png"]
+	path = project/lib/png
+	url = https://github.com/native-toolkit/png
+[submodule "project/lib/jpeg"]
+	path = project/lib/jpeg
+	url = https://github.com/native-toolkit/jpeg
