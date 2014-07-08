@@ -67,28 +67,7 @@ namespace lime {
 	extern int gFixedOrientation;
 
 	#elif defined(HX_MACOS)
-	#include <CoreFoundation/CoreFoundation.h>
-	FILE *OpenRead(const char *inName)
-	{
-		FILE *result = fopen(inName,"rb");
-		if (!result) {
-			CFStringRef str = CFStringCreateWithCString(NULL, inName, kCFStringEncodingUTF8);
-			CFURLRef path = CFBundleCopyResourceURL(CFBundleGetMainBundle(), str, NULL, NULL);
-			CFRelease(str);
-			if (path) {
-				str = CFURLCopyPath(path);
-				CFIndex maxSize = CFStringGetMaximumSizeForEncoding(CFStringGetLength(str),kCFStringEncodingUTF8);
-				char *buffer = (char *)malloc(maxSize);
-				if (CFStringGetCString(str, buffer, maxSize, kCFStringEncodingUTF8)) {
-					result = fopen(buffer,"rb");
-					free(buffer);
-				}
-				CFRelease(str);
-				CFRelease(path);
-			}
-		}
-		return result;
-	}
+	FILE *OpenRead(const char *inName);
 	#define OpenOverwrite(x) fopen(x,"wb")
 	#else
 	#ifdef TIZEN
