@@ -77,7 +77,6 @@
 
 		<file name="src/app/UpdateEvent.cpp" />
 		<file name="src/graphics/ImageData.cpp" />
-		<file name="src/graphics/PVRTC.cpp" if="iphone" />
 		<file name="src/graphics/JPEG.cpp" />
 		<file name="src/graphics/PNG.cpp" />
 		<file name="src/graphics/RenderEvent.cpp" />
