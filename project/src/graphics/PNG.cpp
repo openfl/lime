@@ -7,12 +7,10 @@ extern "C" {
 
 #include <graphics/ImageData.h>
 #include <graphics/PNG.h>
+#include <utils/ByteArray.h>
 
 
 namespace lime {
-	
-	
-	extern FILE *OpenRead (const char *);
 	
 	
 	bool PNG::Decode (const char *path, ImageData *imageData) {
@@ -27,7 +25,7 @@ namespace lime {
 		if (!file) return false;
 
 		// verify the PNG signature
-		fread(png_sig, PNG_SIG_SIZE, 1, file);
+		int read = fread(png_sig, PNG_SIG_SIZE, 1, file);
 		if (png_sig_cmp (png_sig, 0, PNG_SIG_SIZE)) {
 		
 			fclose (file);

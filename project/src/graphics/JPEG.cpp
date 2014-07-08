@@ -8,12 +8,10 @@ extern "C" {
 
 #include <graphics/ImageData.h>
 #include <graphics/JPEG.h>
+#include <utils/ByteArray.h>
 
 
 namespace lime {
-
-
-	extern FILE *OpenRead (const char *);
 
 
 	bool JPEG::Decode (const char *path, ImageData *imageData) {

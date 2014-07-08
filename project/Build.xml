@@ -27,10 +27,15 @@
 	<files id="lime">
 		
 		<compilerflag value="-DLIME_SDL" if="LIME_SDL" />
-		<compilerflag value="-I/usr/local/include" />
 		<compilerflag value="-Iinclude" />
 		
 		<file name="src/ExternalInterface.cpp" />
+		
+		<section if="LIME_JPEG">
+			
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/jpeg/" />
+			
+		</section>
 		
 		<section if="LIME_NEKO">
 			
@@ -44,6 +49,13 @@
 		<section if="LIME_OPENGL">
 			
 			<file name="src/graphics/opengl/OpenGLBindings.cpp" />
+			
+		</section>
+		
+		<section if="LIME_PNG">
+			
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/png/" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib/" />
 			
 		</section>
 		
@@ -154,11 +166,8 @@
 				<vflag name="-framework" value="AppKit" />
 				<vflag name="-framework" value="OpenAL"/>
 				
-				<lib name="-L/usr/local/lib" />
 				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
 				<lib name="-lm" if="LIME_NEKO" />
-				<lib name="-lpng" />
-				<lib name="-ljpeg" />
 				
 			</section>
 		
