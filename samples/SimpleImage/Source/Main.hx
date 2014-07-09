@@ -55,16 +55,17 @@ class Main extends Application {
 				
 				var vertexShaderSource = 
 					
-					"attribute vec3 aVertexPosition;
+					"attribute vec4 aPosition;
 					attribute vec2 aTexCoord;
 					varying vec2 vTexCoord;
 					
-					uniform mat4 uModelViewMatrix;
-					uniform mat4 uProjectionMatrix;
+					uniform mat4 uMatrix;
 					
 					void main(void) {
+						
 						vTexCoord = aTexCoord;
-						gl_Position = uProjectionMatrix * uModelViewMatrix * vec4 (aVertexPosition, 1.0);
+						gl_Position = uMatrix * aPosition;
+						
 					}";
 				
 				var vertexShader = gl.createShader (gl.VERTEX_SHADER);
@@ -150,9 +151,9 @@ class Main extends Application {
 				gl.texParameteri (gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 				gl.texParameteri (gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 				#if js
-				gl.texImage2D (gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image.data);
+				gl.texImage2D (gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image.src);
 				#else
-				gl.texImage2D (gl.TEXTURE_2D, 0, gl.RGBA, image.width, image.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image.bytes);
+				gl.texImage2D (gl.TEXTURE_2D, 0, gl.RGBA, image.textureWidth, image.textureHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, image.data);
 				#end
 				gl.texParameteri (gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 				gl.texParameteri (gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -182,7 +183,7 @@ class Main extends Application {
 				var image = Assets.getImage ("assets/lime.png");
 				context.fillStyle = "#" + StringTools.hex (config.background, 6);
 				context.fillRect (0, 0, window.width, window.height);
-				context.drawImage (image.data, 0, 0, image.width, image.height);
+				context.drawImage (image.src, 0, 0, image.width, image.height);
 				
 			case DOM (element):
 				
@@ -191,7 +192,7 @@ class Main extends Application {
 			case FLASH (sprite):
 				
 				var image = Assets.getImage ("assets/lime.png");
-				sprite.graphics.beginBitmapFill (image.data);
+				sprite.graphics.beginBitmapFill (image.src);
 				sprite.graphics.drawRect (0, 0, image.width, image.height);
 			
 			case OPENGL (gl):
@@ -204,14 +205,12 @@ class Main extends Application {
 				gl.clearColor (r, g, b, a);
 				gl.clear (gl.COLOR_BUFFER_BIT);
 				
-				var vertexAttribute = gl.getAttribLocation (shaderProgram, "aVertexPosition");
+				var vertexAttribute = gl.getAttribLocation (shaderProgram, "aPosition");
 				var texCoordAttribute = gl.getAttribLocation (shaderProgram, "aTexCoord");
-				var projectionMatrixUniform = gl.getUniformLocation (shaderProgram, "uProjectionMatrix");
-				var modelViewMatrixUniform = gl.getUniformLocation (shaderProgram, "uModelViewMatrix");
+				var matrixUniform = gl.getUniformLocation (shaderProgram, "uMatrix");
 				var imageUniform = gl.getUniformLocation (shaderProgram, "uImage0");
 				
-				var projectionMatrix = Matrix4.createOrtho (0, window.width, window.height, 0, -1000, 1000);
-				var modelViewMatrix = new Matrix4 ();
+				var matrix = Matrix4.createOrtho (0, window.width, window.height, 0, -1000, 1000);
 				
 				gl.useProgram (shaderProgram);
 				gl.enableVertexAttribArray (vertexAttribute);
@@ -229,8 +228,7 @@ class Main extends Application {
 				gl.bindBuffer (gl.ARRAY_BUFFER, texCoordBuffer);
 				gl.vertexAttribPointer (texCoordAttribute, 2, gl.FLOAT, false, 0, 0);
 				
-				gl.uniformMatrix4fv (projectionMatrixUniform, false, projectionMatrix);
-				gl.uniformMatrix4fv (modelViewMatrixUniform, false, modelViewMatrix);
+				gl.uniformMatrix4fv (matrixUniform, false, matrix);
 				gl.uniform1i (imageUniform, 0);
 				
 				gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
