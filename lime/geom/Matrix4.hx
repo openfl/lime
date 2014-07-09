@@ -7,19 +7,21 @@ import lime.utils.Float32Array;
 abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	
 	
+	private static var __identity = [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ];
+	
 	public var determinant (get, never):Float;
 	public var position (get, set):Vector4;
 	
 	
-	public function new (data:Dynamic = null) {
+	public function new (data:Float32Array = null) {
 		
 		if (data != null && data.length == 16) {
 			
-			this = new Float32Array (data);
+			this = data;
 			
 		} else {
 			
-			this = new Float32Array ([ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ]);
+			this = new Float32Array (__identity);
 			
 		}
 		
@@ -78,7 +80,7 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	
 	public function appendScale (xScale:Float, yScale:Float, zScale:Float):Void {
 		
-		append (new Matrix4 ([ xScale, 0.0, 0.0, 0.0, 0.0, yScale, 0.0, 0.0, 0.0, 0.0, zScale, 0.0, 0.0, 0.0, 0.0, 1.0 ]));
+		append (new Matrix4 (new Float32Array ([ xScale, 0.0, 0.0, 0.0, 0.0, yScale, 0.0, 0.0, 0.0, 0.0, zScale, 0.0, 0.0, 0.0, 0.0, 1.0 ])));
 		
 	}
 	
@@ -241,24 +243,24 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 		var c = Math.cos (theta);
 		var s = Math.sin (theta);
 		
-		return new Matrix4 ([
+		return new Matrix4 (new Float32Array ([
 			c*scale,  -s*scale, 0,  0,
 			s*scale,  c*scale, 0,  0,
 			0,        0,        1,  0,
 			x,        y,        0,  1
-		]);
+		]));
 		
 	}
    
    
 	public static function createABCD (a:Float, b:Float, c:Float, d:Float, tx:Float, ty:Float) {
 		
-		return new Matrix4 ([
+		return new Matrix4 (new Float32Array ([
 			a, b, 0, 0,
 			c, d, 0, 0,
 			0, 0, 1, 0,
 			tx,ty,0, 1
-		]);
+		]));
 		
 	}
 	
@@ -269,12 +271,12 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 		var sy = 1.0 / (y1 - y0);
 		var sz = 1.0 / (zFar - zNear);
 		
-		return new Matrix4 ([
+		return new Matrix4 (new Float32Array ([
 			2.0 * sx,     0,          0,                 0,
 			0,            2.0 * sy,   0,                 0,
 			0,            0,          -2.0 * sz,         0,
 			- (x0 + x1) * sx, - (y0 + y1) * sy, - (zNear + zFar) * sz,  1,
-		]);
+		]));
 		
 	}
 	
@@ -639,7 +641,7 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	
 	public function prependScale (xScale:Float, yScale:Float, zScale:Float):Void {
 		
-		prepend (new Matrix4 ([xScale, 0.0, 0.0, 0.0, 0.0, yScale, 0.0, 0.0, 0.0, 0.0, zScale, 0.0, 0.0, 0.0, 0.0, 1.0]));
+		prepend (new Matrix4 (new Float32Array ([xScale, 0.0, 0.0, 0.0, 0.0, yScale, 0.0, 0.0, 0.0, 0.0, zScale, 0.0, 0.0, 0.0, 0.0, 1.0])));
 		
 	}
 	

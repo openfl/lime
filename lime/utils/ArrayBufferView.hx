@@ -12,7 +12,7 @@ import haxe.io.BytesData;
 #end
 
 
-class ArrayBufferView implements IMemoryRange {
+@:generic class ArrayBufferView implements IMemoryRange {
 	
 	
 	public var buffer (default, null):ByteArray;
@@ -24,11 +24,11 @@ class ArrayBufferView implements IMemoryRange {
 	#end
 	
 	
-	function new (lengthOrBuffer:Dynamic, byteOffset:UInt = 0, length:Null<Int> = null) {
+	public function new<T> (lengthOrBuffer:T, byteOffset:UInt = 0, length:Null<Int> = null) {
 		
 		if (Std.is (lengthOrBuffer, Int)) {
 			
-			byteLength = Std.int (lengthOrBuffer);
+			byteLength = Std.int (cast lengthOrBuffer);
 			this.byteOffset = 0;
 			
 			buffer = new ArrayBuffer (#if !flash byteLength #end);
@@ -40,7 +40,7 @@ class ArrayBufferView implements IMemoryRange {
 			
 		} else {
 			
-			buffer = lengthOrBuffer;
+			buffer = cast lengthOrBuffer;
 			
 			if (buffer == null) {
 				

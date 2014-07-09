@@ -55,7 +55,7 @@ class Matrix3 {
 	}
 	
 	
-	public function copyColumnFrom (column:Int, vector3D:Vector3D):Void {
+	public function copyColumnFrom (column:Int, vector4:Vector4):Void {
 		
 		if (column > 2) {
 			
@@ -63,25 +63,25 @@ class Matrix3 {
 			
 		} else if (column == 0) {
 			
-			a = vector3D.x;
-			c = vector3D.y;
+			a = vector4.x;
+			c = vector4.y;
 			
 		}else if (column == 1) {
 			
-			b = vector3D.x;
-			d = vector3D.y;
+			b = vector4.x;
+			d = vector4.y;
 			
 		}else {
 			
-			tx = vector3D.x;
-			ty = vector3D.y;
+			tx = vector4.x;
+			ty = vector4.y;
 			
 		}
 		
 	}
 	
 	
-	public function copyColumnTo (column:Int, vector3D:Vector3D):Void {
+	public function copyColumnTo (column:Int, vector4:Vector4):Void {
 		
 		if (column > 2) {
 			
@@ -89,21 +89,21 @@ class Matrix3 {
 			
 		} else if (column == 0) {
 			
-			vector3D.x = a;
-			vector3D.y = c;
-			vector3D.z = 0;
+			vector4.x = a;
+			vector4.y = c;
+			vector4.z = 0;
 			
 		} else if (column == 1) {
 			
-			vector3D.x = b;
-			vector3D.y = d;
-			vector3D.z = 0;
+			vector4.x = b;
+			vector4.y = d;
+			vector4.z = 0;
 			
 		} else {
 			
-			vector3D.x = tx;
-			vector3D.y = ty;
-			vector3D.z = 1;
+			vector4.x = tx;
+			vector4.y = ty;
+			vector4.z = 1;
 			
 		}
 		
@@ -122,7 +122,7 @@ class Matrix3 {
 	}
 	
 	
-	public function copyRowFrom (row:Int, vector3D:Vector3D):Void {
+	public function copyRowFrom (row:Int, vector4:Vector4):Void {
 		
 		if (row > 2) {
 			
@@ -130,25 +130,25 @@ class Matrix3 {
 			
 		} else if (row == 0) {
 			
-			a = vector3D.x;
-			c = vector3D.y;
+			a = vector4.x;
+			c = vector4.y;
 			
 		} else if (row == 1) {
 			
-			b = vector3D.x;
-			d = vector3D.y;
+			b = vector4.x;
+			d = vector4.y;
 			
 		} else {
 			
-			tx = vector3D.x;
-			ty = vector3D.y;
+			tx = vector4.x;
+			ty = vector4.y;
 			
 		}
 		
 	}
 	
 	
-	public function copyRowTo (row:Int, vector3D:Vector3D):Void {
+	public function copyRowTo (row:Int, vector4:Vector4):Void {
 		
 		if (row > 2) {
 			
@@ -156,19 +156,19 @@ class Matrix3 {
 			
 		} else if (row == 0) {
 			
-			vector3D.x = a;
-			vector3D.y = b;
-			vector3D.z = tx;
+			vector4.x = a;
+			vector4.y = b;
+			vector4.z = tx;
 			
 		} else if (row == 1) {
 			
-			vector3D.x = c;
-			vector3D.y = d;
-			vector3D.z = ty;
+			vector4.x = c;
+			vector4.y = d;
+			vector4.z = ty;
 			
 		}else {
 			
-			vector3D.setTo (0, 0, 1);
+			vector4.setTo (0, 0, 1);
 			
 		}
 		

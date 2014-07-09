@@ -4,7 +4,7 @@ typedef Int32Array = js.html.Int32Array;
 #else
 
 
-class Int32Array extends ArrayBufferView implements ArrayAccess<Int> {
+@:generic class Int32Array extends ArrayBufferView implements ArrayAccess<Int> {
 	
 	
 	public static inline var BYTES_PER_ELEMENT = 4;
@@ -12,17 +12,17 @@ class Int32Array extends ArrayBufferView implements ArrayAccess<Int> {
 	public var length (default, null):Int;
 	
 	
-	public function new (bufferOrArray:Dynamic, start:Int = 0, length:Null<Int> = null) {
+	public function new<T> (bufferOrArray:T, start:Int = 0, length:Null<Int> = null) {
 		
 		if (Std.is (bufferOrArray, Int)) {
 			
-			super (Std.int (bufferOrArray) << 2);
+			super (Std.int (cast bufferOrArray) << 2);
 			
-			this.length = bufferOrArray;
+			this.length = cast bufferOrArray;
 			
 		} else if (Std.is (bufferOrArray, Array)) {
 			
-			var ints:Array<Int> = bufferOrArray;
+			var ints:Array<Int> = cast bufferOrArray;
 			this.length = (length != null) ? length : ints.length - start;
 			
 			super (this.length << 2);
@@ -43,7 +43,7 @@ class Int32Array extends ArrayBufferView implements ArrayAccess<Int> {
 			
 		} else if (Std.is (bufferOrArray, Int32Array)) {
 			
-			var ints:Int32Array = bufferOrArray;
+			var ints:Int32Array = cast bufferOrArray;
 			this.length = (length != null) ? length : ints.length - start;
 			
 			super (this.length << 2);
@@ -85,11 +85,11 @@ class Int32Array extends ArrayBufferView implements ArrayAccess<Int> {
 	}
 	
 	
-	public function set (bufferOrArray:Dynamic, offset:Int = 0):Void {
+	public function set<T> (bufferOrArray:T, offset:Int = 0):Void {
 		
 		if (Std.is (bufferOrArray, Array)) {
 			
-			var ints:Array<Int> = bufferOrArray;
+			var ints:Array<Int> = cast bufferOrArray;
 			
 			for (i in 0...ints.length) {
 				
@@ -99,7 +99,7 @@ class Int32Array extends ArrayBufferView implements ArrayAccess<Int> {
 			
 		} else if (Std.is (bufferOrArray, Int32Array)) {
 			
-			var ints:Int32Array = bufferOrArray;
+			var ints:Int32Array = cast bufferOrArray;
 			
 			for (i in 0...ints.length) {
 				
