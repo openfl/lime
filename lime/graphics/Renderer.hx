@@ -121,6 +121,13 @@ class Renderer {
 				
 				var context = window.currentRenderer.context;
 				
+				if (!Application.__initialized) {
+					
+					Application.__initialized = true;
+					Application.__instance.init (context);
+					
+				}
+				
 				Application.__instance.render (context);
 				onRender.dispatch (context);
 				

@@ -18,6 +18,7 @@ class Application extends Module {
 	public static var onUpdate = new Event<Int->Void> ();
 	
 	private static var __eventInfo = new UpdateEventInfo ();
+	private static var __initialized:Bool;
 	private static var __instance:Application;
 	private static var __registered:Bool;
 	
@@ -143,6 +144,13 @@ class Application extends Module {
 		#end
 		
 		return 0;
+		
+	}
+	
+	
+	public function init (context:RenderContext):Void {
+		
+		
 		
 	}
 	
