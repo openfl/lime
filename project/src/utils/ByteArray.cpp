@@ -113,22 +113,7 @@ namespace lime {
     } DEFINE_PRIM(lime_byte_array_get_native_pointer,1);
     
     
-    #ifdef HX_WINDOWS
-typedef wchar_t OSChar;
-#define val_os_string val_wstring
-#define OpenRead(x) _wfopen(x,L"rb")
-#define OpenOverwrite(x) _wfopen(x,L"wb") // [ddc]
-
-#else
-typedef char OSChar;
-#define val_os_string val_string
-
-#if defined(IPHONE)
-FILE *OpenRead(const char *inName);
-FILE *OpenOverwrite(const char *inName); // [ddc]
-extern int gFixedOrientation;
-
-#elif defined(HX_MACOS)
+#if defined(HX_MACOS)
 #include <CoreFoundation/CoreFoundation.h>
 FILE *OpenRead(const char *inName)
 {
@@ -151,14 +136,6 @@ FILE *OpenRead(const char *inName)
 	}
 	return result;
 }
-#define OpenOverwrite(x) fopen(x,"wb")
-#else
-#ifdef TIZEN
-extern int gFixedOrientation;
-#endif
-#define OpenRead(x) fopen(x,"rb")
-#define OpenOverwrite(x) fopen(x,"wb") // [ddc]
-#endif
 #endif
     
     
