@@ -205,6 +205,9 @@ class MainView extends GLSurfaceView {
 		setRenderer (new Renderer (this));
 		setRenderMode (GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 		
+		::if (ANDROID_TARGET_SDK_VERSION > 11)::
+			setPreserveEGLContextOnPause(true);
+		::end::
 	}
 	
 	
