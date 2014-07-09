@@ -23,10 +23,7 @@ import flash.Lib;
 class Window {
 	
 	
-	public inline static var DEPTH_BUFFER    = 0x0200;
-   	public inline static var STENCIL_BUFFER  = 0x0400;
-   	
-   	public static var onWindowActivate = new Event<Void->Void> ();
+	public static var onWindowActivate = new Event<Void->Void> ();
 	public static var onWindowDeactivate = new Event<Void->Void> ();
 	
 	private static var eventInfo = new WindowEventInfo ();
@@ -172,16 +169,28 @@ class Window {
 		#end
 		
 		#elseif (cpp || neko)
-		// forward flags
-		var flags:Int = 0;
-
-		if (config.depthBuffer)
-			flags |= DEPTH_BUFFER;
 		
-		if (config.stencilBuffer)
-			flags |= STENCIL_BUFFER;
+		var flags = 0;
 		
-		handle = lime_window_create (application.__handle, width, height, flags);
+		if (config.antialiasing >= 4) {
+			
+			flags |= cast WindowFlags.WINDOW_FLAG_HW_AA_HIRES;
+			
+		} else if (config.antialiasing >= 2) {
+			
+			flags |= cast WindowFlags.WINDOW_FLAG_HW_AA;
+			
+		}
+		
+		if (config.borderless) flags |= cast WindowFlags.WINDOW_FLAG_BORDERLESS;
+		if (config.depthBuffer) flags |= cast WindowFlags.WINDOW_FLAG_DEPTH_BUFFER;
+		if (config.fullscreen) flags |= cast WindowFlags.WINDOW_FLAG_FULLSCREEN;
+		if (config.resizable) flags |= cast WindowFlags.WINDOW_FLAG_RESIZABLE;
+		if (config.stencilBuffer) flags |= cast WindowFlags.WINDOW_FLAG_STENCIL_BUFFER;
+		if (config.vsync) flags |= cast WindowFlags.WINDOW_FLAG_VSYNC;
+		
+		handle = lime_window_create (application.__handle, width, height, flags, config.title);
+		
 		#end
 		
 		MouseEventManager.registerWindow (this);
@@ -242,7 +251,7 @@ class Window {
 	
 	
 	#if (cpp || neko)
-	private static var lime_window_create = System.load ("lime", "lime_window_create", 4);
+	private static var lime_window_create = System.load ("lime", "lime_window_create", 5);
 	private static var lime_window_event_manager_register = System.load ("lime", "lime_window_event_manager_register", 2);
 	#end
 	
@@ -269,6 +278,23 @@ private class WindowEventInfo {
 		
 	}
 	
+	
+}
+
+
+@:enum private abstract WindowFlags(Int) {
+	
+	var WINDOW_FLAG_FULLSCREEN = 0x00000001;
+	var WINDOW_FLAG_BORDERLESS = 0x00000002;
+	var WINDOW_FLAG_RESIZABLE = 0x00000004;
+	var WINDOW_FLAG_HARDWARE = 0x00000008;
+	var WINDOW_FLAG_VSYNC = 0x00000010;
+	var WINDOW_FLAG_HW_AA = 0x00000020;
+	var WINDOW_FLAG_HW_AA_HIRES = 0x00000060;
+	var WINDOW_FLAG_ALLOW_SHADERS = 0x00000080;
+	var WINDOW_FLAG_REQUIRE_SHADERS = 0x00000100;
+	var WINDOW_FLAG_DEPTH_BUFFER = 0x00000200;
+	var WINDOW_FLAG_STENCIL_BUFFER = 0x00000400;
 	
 }
 

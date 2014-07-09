@@ -17,7 +17,28 @@ namespace lime {
 			
 			if (context) {
 				
-				SDL_GL_SetSwapInterval (0);
+				if (window->flags & WINDOW_FLAG_VSYNC) {
+					
+					SDL_GL_SetSwapInterval (1);
+					
+				} else {
+					
+					SDL_GL_SetSwapInterval (0);
+					
+				}
+				
+				if (window->flags & WINDOW_FLAG_DEPTH_BUFFER) {
+					
+					SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 32 - (window->flags & WINDOW_FLAG_STENCIL_BUFFER) ? 8 : 0);
+					
+				}
+				
+				if (window->flags & WINDOW_FLAG_STENCIL_BUFFER) {
+					
+					SDL_GL_SetAttribute (SDL_GL_STENCIL_SIZE, 8);
+					
+				}
+				
 				SDL_GL_MakeCurrent (sdlWindow, context);
 				
 			}

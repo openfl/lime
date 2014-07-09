@@ -8,17 +8,12 @@
 
 namespace lime {
 	
-	enum SDLWindowFlags
-	{
-		DEPTH_BUFFER    = 0x00000200,
-		STENCIL_BUFFER  = 0x00000400,
-	};
 	
 	class SDLWindow : public Window {
 		
 		public:
 			
-			SDLWindow (Application* application, int width, int height, int flags);
+			SDLWindow (Application* application, int width, int height, int flags, const char* title);
 			~SDLWindow ();
 			
 			SDL_Window* sdlWindow;

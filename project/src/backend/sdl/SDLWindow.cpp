@@ -4,18 +4,18 @@
 namespace lime {
 	
 	
-	SDLWindow::SDLWindow (Application* application, int width, int height, int flags) {
+	SDLWindow::SDLWindow (Application* application, int width, int height, int flags, const char* title) {
 		
 		currentApplication = application;
+		this->flags = flags;
 		
-		// config the window
-		if (flags & DEPTH_BUFFER)
-			SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32 - (flags & STENCIL_BUFFER) ? 8 : 0);
+		int sdlFlags = SDL_WINDOW_OPENGL;
 		
-		if (flags & STENCIL_BUFFER)
-			SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+		if (flags & WINDOW_FLAG_FULLSCREEN) sdlFlags |= SDL_WINDOW_FULLSCREEN;
+		if (flags & WINDOW_FLAG_RESIZABLE) sdlFlags |= SDL_WINDOW_RESIZABLE;
+		if (flags & WINDOW_FLAG_BORDERLESS) sdlFlags |= SDL_WINDOW_BORDERLESS;
 		
-		sdlWindow = SDL_CreateWindow ("Test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL);
+		sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlFlags);
 		
 	}
 	
@@ -27,9 +27,9 @@ namespace lime {
 	}
 	
 	
-	Window* CreateWindow (Application* application, int width, int height, int flags) {
+	Window* CreateWindow (Application* application, int width, int height, int flags, const char* title) {
 		
-		return new SDLWindow (application, width, height, flags);
+		return new SDLWindow (application, width, height, flags, title);
 		
 	}
 	
