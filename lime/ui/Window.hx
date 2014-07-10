@@ -333,9 +333,29 @@ class Window {
 	#end
 	
 	
+	public function move (x:Int, y:Int):Void {
+		
+		#if (cpp || neko)
+		lime_window_move (handle, x, y);
+		#end
+		
+	}
+	
+	
+	public function resize (width:Int, height:Int):Void {
+		
+		#if (cpp || neko)
+		lime_window_resize (handle, width, height);
+		#end
+		
+	}
+	
+	
 	#if (cpp || neko)
 	private static var lime_window_create = System.load ("lime", "lime_window_create", 5);
 	private static var lime_window_event_manager_register = System.load ("lime", "lime_window_event_manager_register", 2);
+	private static var lime_window_move = System.load ("lime", "lime_window_move", 3);
+	private static var lime_window_resize = System.load ("lime", "lime_window_resize", 3);
 	#end
 	
 	

@@ -194,6 +194,24 @@ namespace lime {
 	}
 	
 	
+	value lime_window_move (value window, value x, value y) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		targetWindow->Move (val_int (x), val_int (y));
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_window_resize (value window, value width, value height) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		targetWindow->Resize (val_int (width), val_int (height));
+		return alloc_null ();
+		
+	}
+	
+	
 	DEFINE_PRIM (lime_application_create, 1);
 	DEFINE_PRIM (lime_application_exec, 1);
 	DEFINE_PRIM (lime_application_get_ticks, 0);
@@ -211,6 +229,8 @@ namespace lime {
 	DEFINE_PRIM (lime_update_event_manager_register, 2);
 	DEFINE_PRIM (lime_window_create, 5);
 	DEFINE_PRIM (lime_window_event_manager_register, 2);
+	DEFINE_PRIM (lime_window_move, 3);
+	DEFINE_PRIM (lime_window_resize, 3);
 	
 	
 }

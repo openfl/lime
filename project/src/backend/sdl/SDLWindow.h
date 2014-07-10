@@ -16,6 +16,9 @@ namespace lime {
 			SDLWindow (Application* application, int width, int height, int flags, const char* title);
 			~SDLWindow ();
 			
+			virtual void Move (int x, int y);
+			virtual void Resize (int width, int height);
+			
 			SDL_Window* sdlWindow;
 		
 	};

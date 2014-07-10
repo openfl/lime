@@ -27,6 +27,20 @@ namespace lime {
 	}
 	
 	
+	void SDLWindow::Move (int x, int y) {
+		
+		SDL_SetWindowPosition (sdlWindow, x, y);
+		
+	}
+	
+	
+	void SDLWindow::Resize (int width, int height) {
+		
+		SDL_SetWindowSize (sdlWindow, width, height);
+		
+	}
+	
+	
 	Window* CreateWindow (Application* application, int width, int height, int flags, const char* title) {
 		
 		return new SDLWindow (application, width, height, flags, title);

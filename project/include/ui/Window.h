@@ -17,8 +17,10 @@ namespace lime {
 		
 		public:
 			
-			Application* currentApplication;
+			virtual void Move (int x, int y) = 0;
+			virtual void Resize (int width, int height) = 0;
 			
+			Application* currentApplication;
 			int flags;
 		
 		
