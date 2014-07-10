@@ -24,7 +24,12 @@ class Window {
 	
 	
 	public static var onWindowActivate = new Event<Void->Void> ();
+	public static var onWindowClose = new Event<Void->Void> ();
 	public static var onWindowDeactivate = new Event<Void->Void> ();
+	public static var onWindowFocusIn = new Event<Void->Void> ();
+	public static var onWindowFocusOut = new Event<Void->Void> ();
+	public static var onWindowMove = new Event<Float->Float->Void> ();
+	public static var onWindowResize = new Event<Float->Float->Void> ();
 	
 	private static var eventInfo = new WindowEventInfo ();
 	private static var registered:Bool;
@@ -34,6 +39,8 @@ class Window {
 	public var fullscreen:Bool;
 	public var height:Int;
 	public var width:Int;
+	public var x:Int;
+	public var y:Int;
 	
 	#if js
 	public var canvas:CanvasElement;
@@ -213,7 +220,7 @@ class Window {
 	}
 	
 	
-	private static function dispatch ():Void {
+	private function dispatch ():Void {
 		
 		switch (eventInfo.type) {
 			
@@ -221,9 +228,35 @@ class Window {
 				
 				onWindowActivate.dispatch ();
 			
+			case WINDOW_CLOSE:
+				
+				onWindowClose.dispatch ();
+			
 			case WINDOW_DEACTIVATE:
 				
 				onWindowDeactivate.dispatch ();
+			
+			case WINDOW_FOCUS_IN:
+				
+				onWindowFocusIn.dispatch ();
+			
+			case WINDOW_FOCUS_OUT:
+				
+				onWindowFocusOut.dispatch ();
+			
+			case WINDOW_MOVE:
+				
+				x = eventInfo.x;
+				y = eventInfo.y;
+				
+				onWindowMove.dispatch (eventInfo.x, eventInfo.y);
+			
+			case WINDOW_RESIZE:
+				
+				width = eventInfo.width;
+				height = eventInfo.height;
+				
+				onWindowResize.dispatch (eventInfo.width, eventInfo.height);
 			
 		}
 		
@@ -262,19 +295,27 @@ class Window {
 private class WindowEventInfo {
 	
 	
+	public var height:Int;
 	public var type:WindowEventType;
+	public var width:Int;
+	public var x:Int;
+	public var y:Int;
 	
 	
-	public function new (type:WindowEventType = null) {
+	public function new (type:WindowEventType = null, width:Int = 0, height:Int = 0, x:Int = 0, y:Int = 0) {
 		
 		this.type = type;
+		this.width = width;
+		this.height = height;
+		this.x = x;
+		this.y = y;
 		
 	}
 	
 	
 	public function clone ():WindowEventInfo {
 		
-		return new WindowEventInfo (type);
+		return new WindowEventInfo (type, width, height, x, y);
 		
 	}
 	
@@ -302,6 +343,11 @@ private class WindowEventInfo {
 @:enum private abstract WindowEventType(Int) {
 	
 	var WINDOW_ACTIVATE = 0;
-	var WINDOW_DEACTIVATE = 1;
+	var WINDOW_CLOSE = 1;
+	var WINDOW_DEACTIVATE = 2;
+	var WINDOW_FOCUS_IN = 3;
+	var WINDOW_FOCUS_OUT = 4;
+	var WINDOW_MOVE = 5;
+	var WINDOW_RESIZE = 6;
 	
 }

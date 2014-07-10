@@ -11,7 +11,12 @@ namespace lime {
 	enum WindowEventType {
 		
 		WINDOW_ACTIVATE,
-		WINDOW_DEACTIVATE
+		WINDOW_CLOSE,
+		WINDOW_DEACTIVATE,
+		WINDOW_FOCUS_IN,
+		WINDOW_FOCUS_OUT,
+		WINDOW_MOVE,
+		WINDOW_RESIZE
 		
 	};
 	
@@ -27,7 +32,11 @@ namespace lime {
 			
 			static void Dispatch (WindowEvent* event);
 			
+			int height;
 			WindowEventType type;
+			int width;
+			int x;
+			int y;
 		
 	};
 	

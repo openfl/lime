@@ -41,7 +41,12 @@ namespace lime {
 			
 			value object = (MouseEvent::eventObject ? MouseEvent::eventObject->get () : alloc_empty_object ());
 			
-			alloc_field (object, id_button, alloc_int (event->button));
+			if (event->type != MOUSE_WHEEL) {
+				
+				alloc_field (object, id_button, alloc_int (event->button));
+				
+			}
+			
 			alloc_field (object, id_type, alloc_int (event->type));
 			alloc_field (object, id_x, alloc_float (event->x));
 			alloc_field (object, id_y, alloc_float (event->y));

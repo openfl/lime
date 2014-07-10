@@ -162,6 +162,10 @@ namespace lime {
 					
 					case SDL_WINDOWEVENT_SHOWN:
 					case SDL_WINDOWEVENT_HIDDEN:
+					case SDL_WINDOWEVENT_SIZE_CHANGED:
+					case SDL_WINDOWEVENT_FOCUS_GAINED:
+					case SDL_WINDOWEVENT_FOCUS_LOST:
+					case SDL_WINDOWEVENT_MOVED:
 						
 						ProcessWindowEvent (event);
 						break;
@@ -171,11 +175,9 @@ namespace lime {
 						RenderEvent::Dispatch (&renderEvent);
 						break;
 					
-					case SDL_WINDOWEVENT_SIZE_CHANGED: /*resize*/ break;
-					case SDL_WINDOWEVENT_FOCUS_GAINED: /*focus in*/ break;
-					case SDL_WINDOWEVENT_FOCUS_LOST: /*focus out*/ break;
 					case SDL_WINDOWEVENT_CLOSE:
 						
+						ProcessWindowEvent (event);
 						active = false;
 						break;
 					
@@ -261,7 +263,24 @@ namespace lime {
 			switch (event->window.event) {
 				
 				case SDL_WINDOWEVENT_SHOWN: windowEvent.type = WINDOW_ACTIVATE; break;
+				case SDL_WINDOWEVENT_CLOSE: windowEvent.type = WINDOW_CLOSE; break;
 				case SDL_WINDOWEVENT_HIDDEN: windowEvent.type = WINDOW_DEACTIVATE; break;
+				case SDL_WINDOWEVENT_FOCUS_GAINED: windowEvent.type = WINDOW_FOCUS_IN; break;
+				case SDL_WINDOWEVENT_FOCUS_LOST: windowEvent.type = WINDOW_FOCUS_OUT; break;
+				
+				case SDL_WINDOWEVENT_MOVED:
+					
+					windowEvent.type = WINDOW_MOVE;
+					windowEvent.x = event->window.data1;
+					windowEvent.y = event->window.data2;
+					break;
+					
+				case SDL_WINDOWEVENT_SIZE_CHANGED:
+					
+					windowEvent.type = WINDOW_RESIZE;
+					windowEvent.width = event->window.data1;
+					windowEvent.height = event->window.data2;
+					break;
 				
 			}
 			

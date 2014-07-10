@@ -83,7 +83,12 @@ class Application extends Module {
 		TouchEventManager.onTouchEnd.add (onTouchEnd);
 		
 		Window.onWindowActivate.add (onWindowActivate);
+		Window.onWindowClose.add (onWindowClose);
 		Window.onWindowDeactivate.add (onWindowDeactivate);
+		Window.onWindowFocusIn.add (onWindowFocusIn);
+		Window.onWindowFocusOut.add (onWindowFocusOut);
+		Window.onWindowMove.add (onWindowMove);
+		Window.onWindowResize.add (onWindowResize);
 		
 		var window = new Window (config);
 		var renderer = new Renderer (window);
@@ -165,7 +170,12 @@ class Application extends Module {
 	public function onTouchMove (x:Float, y:Float, id:Int):Void {}
 	public function onTouchStart (x:Float, y:Float, id:Int):Void {}
 	public function onWindowActivate ():Void {}
-	public function onWindowDeactivate ():Void { }
+	public function onWindowClose ():Void {}
+	public function onWindowDeactivate ():Void {}
+	public function onWindowFocusIn ():Void {}
+	public function onWindowFocusOut ():Void {}
+	public function onWindowMove (x:Float, y:Float):Void {}
+	public function onWindowResize (width:Float, height:Float):Void {}
 	
 	
 	public function render (context:RenderContext):Void {
