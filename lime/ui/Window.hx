@@ -206,9 +206,14 @@ class Window {
 		#if js
 		Browser.window.addEventListener ("focus", handleDOMEvent, false);
 		Browser.window.addEventListener ("blur", handleDOMEvent, false);
+		Browser.window.addEventListener ("resize", handleDOMEvent, false);
+		Browser.window.addEventListener ("beforeunload", handleDOMEvent, false);
 		#elseif flash
 		Lib.current.stage.addEventListener (flash.events.Event.ACTIVATE, handleFlashEvent);
 		Lib.current.stage.addEventListener (flash.events.Event.DEACTIVATE, handleFlashEvent);
+		Lib.current.stage.addEventListener (flash.events.FocusEvent.FOCUS_IN, handleFlashEvent);
+		Lib.current.stage.addEventListener (flash.events.FocusEvent.FOCUS_OUT, handleFlashEvent);
+		Lib.current.stage.addEventListener (flash.events.Event.RESIZE, handleFlashEvent);
 		#end
 		
 		if (currentRenderer != null) {
@@ -264,19 +269,64 @@ class Window {
 	
 	
 	#if js
-	private static function handleDOMEvent (event:js.html.Event):Void {
+	private function handleDOMEvent (event:js.html.Event):Void {
 		
-		eventInfo.type = (event.type == "focus" ? WINDOW_ACTIVATE : WINDOW_DEACTIVATE);
-		dispatch ();
+		switch (event.type) {
+			
+			case "focus":
+				
+				eventInfo.type = WINDOW_FOCUS_IN;
+				dispatch ();
+				
+				eventInfo.type = WINDOW_ACTIVATE;
+				dispatch ();
+			
+			case "blur":
+				
+				eventInfo.type = WINDOW_FOCUS_OUT;
+				dispatch ();
+				
+				eventInfo.type = WINDOW_DEACTIVATE;
+				dispatch ();
+			
+			case "resize":
+				
+				eventInfo.type = WINDOW_RESIZE;
+				eventInfo.width = Browser.window.innerWidth;
+				eventInfo.height = Browser.window.innerHeight;
+				dispatch ();
+			
+			case "beforeunload":
+				
+				eventInfo.type = WINDOW_CLOSE;
+				dispatch ();
+			
+		}
 		
 	}
 	#end
 	
 	
 	#if flash
-	private static function handleFlashEvent (event:flash.events.Event):Void {
+	private function handleFlashEvent (event:flash.events.Event):Void {
 		
-		eventInfo.type = (event.type == flash.events.Event.ACTIVATE ? WINDOW_ACTIVATE : WINDOW_DEACTIVATE);
+		eventInfo.type = switch (event.type) {
+			
+			case flash.events.Event.ACTIVATE: WINDOW_ACTIVATE;
+			case flash.events.Event.DEACTIVATE: WINDOW_DEACTIVATE;
+			case flash.events.FocusEvent.FOCUS_IN: WINDOW_FOCUS_IN;
+			case flash.events.FocusEvent.FOCUS_OUT: WINDOW_FOCUS_OUT;
+			default: WINDOW_RESIZE;
+			
+		}
+		
+		if (eventInfo.type == WINDOW_RESIZE) {
+			
+			eventInfo.width = Lib.current.stage.stageWidth;
+			eventInfo.height = Lib.current.stage.stageHeight;
+			
+		}
+		
 		dispatch ();
 		
 	}
