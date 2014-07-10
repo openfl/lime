@@ -18,6 +18,17 @@ namespace lime {
 		
 		SDL_Init (SDL_INIT_VIDEO | SDL_INIT_TIMER);
 		
+		currentUpdate = 0;
+		lastUpdate = 0;
+		nextUpdate = 0;
+		
+		KeyEvent keyEvent;
+		MouseEvent mouseEvent;
+		RenderEvent renderEvent;
+		TouchEvent touchEvent;
+		UpdateEvent updateEvent;
+		WindowEvent windowEvent;
+		
 	}
 	
 	
@@ -162,7 +173,6 @@ namespace lime {
 					
 					case SDL_WINDOWEVENT_SHOWN:
 					case SDL_WINDOWEVENT_HIDDEN:
-					case SDL_WINDOWEVENT_SIZE_CHANGED:
 					case SDL_WINDOWEVENT_FOCUS_GAINED:
 					case SDL_WINDOWEVENT_FOCUS_LOST:
 					case SDL_WINDOWEVENT_MOVED:
@@ -172,6 +182,12 @@ namespace lime {
 					
 					case SDL_WINDOWEVENT_EXPOSED: 
 						
+						RenderEvent::Dispatch (&renderEvent);
+						break;
+					
+					case SDL_WINDOWEVENT_SIZE_CHANGED:
+						
+						ProcessWindowEvent (event);
 						RenderEvent::Dispatch (&renderEvent);
 						break;
 					

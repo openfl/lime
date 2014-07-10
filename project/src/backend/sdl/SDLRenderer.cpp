@@ -11,39 +11,25 @@ namespace lime {
 		currentWindow = window;
 		sdlWindow = ((SDLWindow*)window)->sdlWindow;
 		
-		if (OpenGLBindings::Init ()) {
+		int sdlFlags = SDL_RENDERER_ACCELERATED;
+		
+		if (window->flags & WINDOW_FLAG_VSYNC) sdlFlags |= SDL_RENDERER_PRESENTVSYNC;
+		
+		if (window->flags & WINDOW_FLAG_DEPTH_BUFFER) {
 			
-			SDL_GLContext context = SDL_GL_CreateContext (sdlWindow);
-			
-			if (context) {
-				
-				if (window->flags & WINDOW_FLAG_VSYNC) {
-					
-					SDL_GL_SetSwapInterval (1);
-					
-				} else {
-					
-					SDL_GL_SetSwapInterval (0);
-					
-				}
-				
-				if (window->flags & WINDOW_FLAG_DEPTH_BUFFER) {
-					
-					SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 32 - (window->flags & WINDOW_FLAG_STENCIL_BUFFER) ? 8 : 0);
-					
-				}
-				
-				if (window->flags & WINDOW_FLAG_STENCIL_BUFFER) {
-					
-					SDL_GL_SetAttribute (SDL_GL_STENCIL_SIZE, 8);
-					
-				}
-				
-				SDL_GL_MakeCurrent (sdlWindow, context);
-				
-			}
+			SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 32 - (window->flags & WINDOW_FLAG_STENCIL_BUFFER) ? 8 : 0);
 			
 		}
+		
+		if (window->flags & WINDOW_FLAG_STENCIL_BUFFER) {
+			
+			SDL_GL_SetAttribute (SDL_GL_STENCIL_SIZE, 8);
+			
+		}
+		
+		sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlFlags);
+		
+		OpenGLBindings::Init ();
 		
 	}
 	
@@ -57,7 +43,7 @@ namespace lime {
 	
 	void SDLRenderer::Flip () {
 		
-		SDL_GL_SwapWindow (sdlWindow);
+		SDL_RenderPresent (sdlRenderer);
 		
 	}
 	

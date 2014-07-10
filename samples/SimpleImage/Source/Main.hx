@@ -13,6 +13,7 @@ class Main extends Application {
 	
 	
 	private var buffer:GLBuffer;
+	private var matrixUniform:GLUniformLocation;
 	private var program:GLProgram;
 	private var texture:GLTexture;
 	private var textureAttribute:Int;
@@ -89,14 +90,12 @@ class Main extends Application {
 				
 				vertexAttribute = gl.getAttribLocation (program, "aPosition");
 				textureAttribute = gl.getAttribLocation (program, "aTexCoord");
-				var matrixUniform = gl.getUniformLocation (program, "uMatrix");
+				matrixUniform = gl.getUniformLocation (program, "uMatrix");
 				var imageUniform = gl.getUniformLocation (program, "uImage0");
 				
 				gl.enableVertexAttribArray (vertexAttribute);
 				gl.enableVertexAttribArray (textureAttribute);
-				
 				gl.uniform1i (imageUniform, 0);
-				gl.uniformMatrix4fv (matrixUniform, false, Matrix4.createOrtho (0, window.width, window.height, 0, -1000, 1000));
 				
 				var image = Assets.getImage ("assets/lime.png");
 				
@@ -147,6 +146,9 @@ class Main extends Application {
 				
 				gl.clearColor (r, g, b, a);
 				gl.clear (gl.COLOR_BUFFER_BIT);
+				
+				var matrix = Matrix4.createOrtho (0, window.width, window.height, 0, -1000, 1000);
+				gl.uniformMatrix4fv (matrixUniform, false, matrix);
 				
 				gl.activeTexture (gl.TEXTURE0);
 				gl.bindTexture (gl.TEXTURE_2D, texture);
