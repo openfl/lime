@@ -18,7 +18,6 @@ import flash.Lib;
 
 
 @:access(lime.app.Application)
-@:access(lime.graphics.Renderer)
 
 
 class Window {
@@ -302,8 +301,6 @@ class Window {
 					eventInfo.width = width;
 					eventInfo.height = height;
 					dispatch ();
-					
-					Renderer.dispatch ();
 					
 				}
 			
