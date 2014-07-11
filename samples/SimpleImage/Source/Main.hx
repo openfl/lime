@@ -139,6 +139,8 @@ class Main extends Application {
 			
 			case OPENGL (gl):
 				
+				gl.viewport (0, 0, window.width, window.height);
+				
 				var r = ((config.background >> 16) & 0xFF) / 0xFF;
 				var g = ((config.background >> 8) & 0xFF) / 0xFF;
 				var b = (config.background & 0xFF) / 0xFF;

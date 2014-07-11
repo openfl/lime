@@ -18,6 +18,7 @@ import flash.Lib;
 
 
 @:access(lime.app.Application)
+@:access(lime.graphics.Renderer)
 
 
 class Window {
@@ -53,6 +54,9 @@ class Window {
 	public var handle:Dynamic;
 	#end
 	
+	private var setHeight:Int;
+	private var setWidth:Int;
+	
 	
 	public function new (config:Config) {
 		
@@ -72,6 +76,9 @@ class Window {
 	
 	
 	public function create (application:Application):Void {
+		
+		setWidth = width;
+		setHeight = height;
 		
 		#if js
 		
@@ -111,9 +118,6 @@ class Window {
 			
 		}
 		
-		//__originalWidth = width;
-		//__originalHeight = height;
-		
 		if (width == 0 && height == 0) {
 			
 			if (element != null) {
@@ -132,9 +136,6 @@ class Window {
 			
 		}
 		
-		//stageWidth = width;
-		//stageHeight = height;
-		
 		if (canvas != null) {
 			
 			canvas.width = width;
@@ -147,8 +148,7 @@ class Window {
 			
 		}
 		
-		//__resize ();
-		//Browser.window.addEventListener ("resize", window_onResize);
+		handleDOMResize ();
 		
 		if (element != null) {
 			
@@ -291,15 +291,92 @@ class Window {
 			
 			case "resize":
 				
-				eventInfo.type = WINDOW_RESIZE;
-				eventInfo.width = Browser.window.innerWidth;
-				eventInfo.height = Browser.window.innerHeight;
-				dispatch ();
+				var cacheWidth = width;
+				var cacheHeight = height;
+				
+				handleDOMResize ();
+				
+				if (width != cacheWidth || height != cacheHeight) {
+					
+					eventInfo.type = WINDOW_RESIZE;
+					eventInfo.width = width;
+					eventInfo.height = height;
+					dispatch ();
+					
+					Renderer.dispatch ();
+					
+				}
 			
 			case "beforeunload":
 				
 				eventInfo.type = WINDOW_CLOSE;
 				dispatch ();
+			
+		}
+		
+	}
+	
+	
+	private function handleDOMResize ():Void {
+		
+		var stretch = fullscreen || (setWidth == 0 && setHeight == 0);
+		
+		if (element != null && (div == null || (div != null && stretch))) {
+			
+			if (stretch) {
+				
+				if (width != element.clientWidth || height != element.clientHeight) {
+					
+					width = element.clientWidth;
+					height = element.clientHeight;
+					
+					if (canvas != null) {
+						
+						if (element != cast canvas) {
+							
+							canvas.width = element.clientWidth;
+							canvas.height = element.clientHeight;
+							
+						}
+						
+					} else {
+						
+						div.style.width = element.clientWidth + "px";
+						div.style.height = element.clientHeight + "px";
+						
+					}
+					
+				}
+				
+			} else {
+				
+				var scaleX = element.clientWidth / setWidth;
+				var scaleY = element.clientHeight / setHeight;
+				
+				var currentRatio = scaleX / scaleY;
+				var targetRatio = Math.min (scaleX, scaleY);
+				
+				if (canvas != null) {
+					
+					if (element != cast canvas) {
+						
+						canvas.style.width = setWidth * targetRatio + "px";
+						canvas.style.height = setHeight * targetRatio + "px";
+						canvas.style.marginLeft = ((element.clientWidth - (setWidth * targetRatio)) / 2) + "px";
+						canvas.style.marginTop = ((element.clientHeight - (setHeight * targetRatio)) / 2) + "px";
+						
+					}
+					
+				} else {
+					
+					div.style.width = setWidth * targetRatio + "px";
+					div.style.height = setHeight * targetRatio + "px";
+					div.style.marginLeft = ((element.clientWidth - (setWidth * targetRatio)) / 2) + "px";
+					div.style.marginTop = ((element.clientHeight - (setHeight * targetRatio)) / 2) + "px";
+					
+				}
+				
+			}
 			
 		}
 		
@@ -343,6 +420,9 @@ class Window {
 	
 	
 	public function resize (width:Int, height:Int):Void {
+		
+		setWidth = width;
+		setHeight = height;
 		
 		#if (cpp || neko)
 		lime_window_resize (handle, width, height);
