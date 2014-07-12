@@ -48,7 +48,7 @@
 		
 		<section if="LIME_OPENAL">
 			
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/include/" />
 			<file name="src/audio/OpenALBindings.cpp" />
 			
 		</section>
