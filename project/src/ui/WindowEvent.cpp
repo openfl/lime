@@ -60,6 +60,8 @@ namespace lime {
 					alloc_field (object, id_height, alloc_int (event->height));
 					break;
 				
+				default: break;
+				
 			}
 			
 			val_call0 (WindowEvent::callback->get ());
