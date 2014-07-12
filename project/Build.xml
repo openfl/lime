@@ -46,6 +46,13 @@
 			
 		</section>
 		
+		<section if="LIME_OPENAL">
+			
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/" />
+			<file name="src/audio/OpenALBindings.cpp" />
+			
+		</section>
+		
 		<section if="LIME_OPENGL">
 			
 			<file name="src/graphics/OpenGLBindings.cpp" />
@@ -98,6 +105,8 @@
 	<include name="lib/sdl/files.xml" />
 	<include name="lib/vorbis/files.xml" />
 	<include name="lib/zlib/files.xml" />
+	
+	<set name="DEBUGEXTRA" value="-debug" if="fulldebug" />
 	
 	<target id="lime" output="${LIBPREFIX}lime${MSVC_LIB_VERSION}${DEBUGEXTRA}${LIBEXTRA}" tool="linker" toolid="${STD_MODULE_LINK}">
 		
