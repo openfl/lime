@@ -15,16 +15,16 @@ namespace lime {
 	
 	
 	bool JPEG::Decode (const char *path, Image *image) {
-
+		
 		struct jpeg_decompress_struct cinfo;
 		struct jpeg_error_mgr jerr;
-
+		
 		FILE *file = OpenRead (path);
-
+		
 		cinfo.err = jpeg_std_error (&jerr);
 		jpeg_create_decompress (&cinfo);
 		jpeg_stdio_src (&cinfo, file);
-
+		
 		if (jpeg_read_header (&cinfo, TRUE) == JPEG_HEADER_OK) {
 			
 			jpeg_start_decompress (&cinfo);

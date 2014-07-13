@@ -12,17 +12,17 @@ namespace lime {
 	
 	typedef unsigned char uint8;
 	
-	#if HX_WINDOWS
+	/*#if HX_WINDOWS
 	
 	typedef wchar_t OSChar;
 	#define val_os_string val_wstring
 	
-	#else
+	#else*/
 	
 	typedef char OSChar;
 	#define val_os_string val_string
 	
-	#endif
+	//#endif
 	
 	
 	// If you put this structure on the stack, then you do not have to worry about GC.
@@ -51,15 +51,15 @@ namespace lime {
 	};
 	
 	
-	#ifdef HX_WINDOWS
+	/*#ifdef HX_WINDOWS
 	typedef wchar_t OSChar;
 	#define val_os_string val_wstring
 	#define OpenRead(x) _wfopen(x,L"rb")
 	#define OpenOverwrite(x) _wfopen(x,L"wb") // [ddc]
 
-	#else
-	typedef char OSChar;
-	#define val_os_string val_string
+	#else*/
+	//typedef char OSChar;
+	//#define val_os_string val_string
 
 	#if defined(IPHONE)
 	FILE *OpenRead(const char *inName);
@@ -76,7 +76,7 @@ namespace lime {
 	#define OpenRead(x) fopen(x,"rb")
 	#define OpenOverwrite(x) fopen(x,"wb") // [ddc]
 	#endif
-	#endif
+	//#endif
 	
 	
 }
