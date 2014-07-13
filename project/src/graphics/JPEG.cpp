@@ -28,10 +28,8 @@ namespace lime {
 		if (jpeg_read_header (&cinfo, TRUE) == JPEG_HEADER_OK) {
 			
 			jpeg_start_decompress (&cinfo);
-			image->width = cinfo.output_width;
-			image->height = cinfo.output_height;
 			int components = cinfo.num_components;
-			image->data = new ByteArray (image->width * image->height * 4);
+			image->Resize(cinfo.output_width, cinfo.output_height);
 			
 			unsigned char *bytes = image->data->Bytes ();
 			unsigned char *scanline = new unsigned char [image->width * image->height * components];

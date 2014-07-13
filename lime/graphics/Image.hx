@@ -21,6 +21,7 @@ class Image {
 	private static var __context:CanvasRenderingContext2D;
 	#end
 	
+	public var bpp:Int;
 	public var data (get, set):ImageData;
 	public var height:Int;
 	public var offsetX:Int;
@@ -35,7 +36,7 @@ class Image {
 	private var __data:ImageData;
 	
 	
-	public function new (src:ImageSource = null, width:Int = 0, height:Int = 0) {
+	public function new (src:ImageSource = null, width:Int = 0, height:Int = 0, bpp:Int = 4) {
 		
 		this.src = src;
 		#if (!js && !flash)
@@ -44,6 +45,7 @@ class Image {
 		
 		this.width = textureWidth = width;
 		this.height = textureHeight = height;
+		this.bpp = bpp;
 		
 	}
 	
@@ -100,7 +102,7 @@ class Image {
 			
 			for (x in 0...width) {
 				
-				newData.setPixel (y * textureWidth * 4 + x * 4, newData.getPixel (y * width * 4 + x * 4));
+				newData.setPixel (y * textureWidth + x, newData.getPixel (y * width + x));
 				
 			}
 			
@@ -115,15 +117,15 @@ class Image {
 	
 	public static function loadFromFile (path:String) {
 		
-		#if flash
-		
-		throw "Can not load image from file in Flash";
-		
-		#elseif (cpp || neko)
+		#if (cpp || neko)
 		
 		var imageData = lime_image_load (path);
-		return (imageData == null ? null : new Image (new UInt8Array (imageData.data), imageData.width, imageData.height));
+		return (imageData == null ? null : new Image (new UInt8Array (imageData.data), imageData.width, imageData.height, imageData.bpp));
 		
+		#else
+
+		throw "Image.loadFromFile not supported on this target";
+
 		#end
 		
 	}

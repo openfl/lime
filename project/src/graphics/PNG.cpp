@@ -72,10 +72,9 @@ namespace lime {
 		if (bit_depth == 16)
 			png_set_strip_16 (png_ptr);
 		
-		const unsigned int stride = width * 4;
-		image->width = width;
-		image->height = height;
-		image->data = new ByteArray (height * stride);
+		int bpp = 4;
+		const unsigned int stride = width * bpp;
+		image->Resize(width, height, bpp);
 		
 		png_bytepp row_ptrs = new png_bytep[height];
 		unsigned char *bytes = image->data->Bytes ();
