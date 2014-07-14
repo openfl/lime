@@ -10,6 +10,7 @@
 #include <hx/CFFI.h>
 #include <app/Application.h>
 #include <app/UpdateEvent.h>
+#include <graphics/Font.h>
 #include <graphics/Image.h>
 #include <graphics/PNG.h>
 #include <graphics/JPEG.h>
@@ -73,6 +74,26 @@ namespace lime {
 	}
 	
 	
+	value lime_font_load (value fontFace) {
+
+		Font *font = new Font (val_string (fontFace));
+		return alloc_float ((intptr_t)font);
+
+	}
+
+
+	value lime_font_load_glyphs (value fontHandle, value size, value glyphs) {
+
+		Image image;
+		Font *font = (Font*)(intptr_t)val_float (fontHandle);
+		value data = alloc_empty_object ();
+		alloc_field (data, val_id ("glyphs"), font->LoadGlyphs (val_int (size), val_string (glyphs), &image));
+		alloc_field (data, val_id ("image"), image.Value ());
+		return data;
+
+	}
+
+
 	value lime_key_event_manager_register (value callback, value eventObject) {
 		
 		KeyEvent::callback = new AutoGCRoot (callback);
@@ -216,6 +237,8 @@ namespace lime {
 	DEFINE_PRIM (lime_application_exec, 1);
 	DEFINE_PRIM (lime_application_get_ticks, 0);
 	DEFINE_PRIM (lime_image_load, 1);
+	DEFINE_PRIM (lime_font_load, 1);
+	DEFINE_PRIM (lime_font_load_glyphs, 3);
 	DEFINE_PRIM (lime_key_event_manager_register, 2);
 	DEFINE_PRIM (lime_lzma_encode, 1);
 	DEFINE_PRIM (lime_lzma_decode, 1);

@@ -25,3 +25,6 @@
 [submodule "project/lib/jpeg"]
 	path = project/lib/jpeg
 	url = https://github.com/native-toolkit/jpeg
+[submodule "project/lib/freetype"]
+	path = project/lib/freetype
+	url = https://github.com/MattTuttle/freetype

@@ -4,6 +4,7 @@ package lime;
 
 import haxe.Unserializer;
 import lime.graphics.Image;
+import lime.graphics.Font;
 import lime.utils.ByteArray;
 
 
@@ -456,11 +457,11 @@ class Assets {
 				
 			}
 			
-			/*if (type == AssetType.FONT || type == null) {
+			if (type == AssetType.FONT || type == null) {
 				
 				if (cache.font.exists (id)) return true;
 				
-			}*/
+			}
 			
 			if (type == AssetType.SOUND || type == AssetType.MUSIC || type == null) {
 				
@@ -1100,13 +1101,13 @@ class AssetCache {
 	
 	public var enabled:Bool = true;
 	public var image:Map<String, Image>;
-	//public var font:Map<String, Font>;
+	public var font:Map<String, Font>;
 	public var sound:Map<String, Dynamic /*Sound*/>;
 	
 	
 	public function new () {
 		
-		//font = new Map<String, Font> ();
+		font = new Map<String, Font> ();
 		image = new Map<String, Image> ();
 		sound = new Map<String, Dynamic /*Sound*/> ();
 		
@@ -1117,7 +1118,7 @@ class AssetCache {
 		
 		if (prefix == null) {
 			
-			//font = new Map<String, Font> ();
+			font = new Map<String, Font> ();
 			image = new Map<String, Image> ();
 			sound = new Map<String, Dynamic /*Sound*/> ();
 			
@@ -1135,7 +1136,7 @@ class AssetCache {
 				
 			}
 			
-			/*var keys = font.keys ();
+			var keys = font.keys ();
 			
 			for (key in keys) {
 				
@@ -1145,7 +1146,7 @@ class AssetCache {
 					
 				}
 				
-			}*/
+			}
 			
 			var keys = sound.keys ();
 			
@@ -1462,22 +1463,22 @@ class Assets {
 			#end
 			
 			var bytes = File.getBytes (path);
-			var resourceName = "NME_font_" + (classType.pack.length > 0 ? classType.pack.join ("_") + "_" : "") + classType.name;
+			var resourceName = "LIME_font_" + (classType.pack.length > 0 ? classType.pack.join ("_") + "_" : "") + classType.name;
 			
 			Context.addResource (resourceName, bytes);
 			
 			var fieldValue = { pos: position, expr: EConst(CString(resourceName)) };
 			fields.push ({ kind: FVar(macro :String, fieldValue), name: "resourceName", access: [ APublic, AStatic ], pos: position });
 			
-			//var constructor = macro { 
-				//
-				//super();
-				//
-				//fontName = resourceName;
-				//
-			//};
-			//
-			//fields.push ({ name: "new", access: [ APublic ], kind: FFun({ args: [], expr: constructor, params: [], ret: null }), pos: Context.currentPos() });
+			var constructor = macro {
+
+				super();
+
+				fontName = resourceName;
+
+			};
+
+			fields.push ({ name: "new", access: [ APublic ], kind: FFun({ args: [], expr: constructor, params: [], ret: null }), pos: Context.currentPos() });
 			
 			return fields;
 			
