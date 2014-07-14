@@ -26,7 +26,7 @@ class Application extends Module {
 	public var window (get, null):Window;
 	public var windows (default, null):Array<Window>;
 	
-	private var __handle:Dynamic;
+	@:noCompletion private var __handle:Dynamic;
 	
 	
 	public function new () {
@@ -218,7 +218,7 @@ class Application extends Module {
 	}
 	
 	
-	private inline function get_window ():Window {
+	@:noCompletion private inline function get_window ():Window {
 		
 		return windows[0];
 		

@@ -603,6 +603,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 }
 
 
+#if !display
 #if flash
 
 ::foreach assets::::if (embed)::::if (type == "image")::@:keep class __ASSET__::flatName:: extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }::else::@:keep class __ASSET__::flatName:: extends ::flashClass:: { }::end::::end::
@@ -624,5 +625,6 @@ class DefaultAssetLibrary extends AssetLibrary {
 //::end::::end::::end::
 ::end::
 
+#end
 #end
 

@@ -28,9 +28,6 @@ import lime.utils.ByteArray;
 class Assets {
 	
 	
-	public static var POWER_OF_TWO = 0x00001;
-	public static var PREMULTIPLIED = 0x00002;
-	
 	public static var cache = new AssetCache ();
 	public static var libraries (default, null) = new Map <String, AssetLibrary> ();
 	
