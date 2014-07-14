@@ -13,6 +13,9 @@ namespace lime {
 
 	static int id_x;
 	static int id_y;
+	static int id_x_offset;
+	static int id_y_offset;
+	static int id_advance;
 	static int id_width;
 	static int id_height;
 	static int id_char;
@@ -62,6 +65,9 @@ namespace lime {
 			id_height = val_id ("height");
 			id_x = val_id ("x");
 			id_y = val_id ("y");
+			id_x_offset = val_id ("xOffset");
+			id_y_offset = val_id ("yOffset");
+			id_advance = val_id ("advance");
 			id_char = val_id ("char");
 			init = true;
 
@@ -162,6 +168,9 @@ namespace lime {
 			value v = alloc_empty_object ();
 			alloc_field (v, id_x, alloc_int (x));
 			alloc_field (v, id_y, alloc_int (y));
+			alloc_field (v, id_x_offset, alloc_int (face->glyph->metrics.horiBearingX / 64));
+			alloc_field (v, id_y_offset, alloc_int (face->glyph->metrics.horiBearingY / 64));
+			alloc_field (v, id_advance, alloc_int (face->glyph->metrics.horiAdvance / 64));
 			alloc_field (v, id_width, alloc_int (bitmap.width));
 			alloc_field (v, id_height, alloc_int (bitmap.rows));
 			alloc_field (v, id_char, alloc_string (c));

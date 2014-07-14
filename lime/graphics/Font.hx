@@ -11,8 +11,11 @@ import js.html.CanvasRenderingContext2D;
 typedef GlyphRect = {
 	var x:Float;
 	var y:Float;
+	var advance:Int;
 	var width:Float;
 	var height:Float;
+	var xOffset:Int;
+	var yOffset:Int;
 }
 
 typedef GlyphData = {
@@ -115,6 +118,9 @@ class Font {
 			glyphRects.set(c, {
 				x: x,
 				y: y,
+				xOffset: 0,
+				yOffset: 0,
+				advance: Std.int(width),
 				width: width,
 				height: height
 			});
@@ -180,6 +186,9 @@ class Font {
 			glyphRects.set(c, {
 				x: x,
 				y: y,
+				xOffset: 0,
+				yOffset: 0,
+				advance: Std.int(tf.textWidth + 2),
 				width: tf.textWidth + 2,
 				height: tf.textHeight + 2
 			});
@@ -214,6 +223,9 @@ class Font {
 				glyphRects.set (glyph.char, {
 					x: glyph.x,
 					y: glyph.y,
+					xOffset: glyph.xOffset,
+					yOffset: glyph.yOffset,
+					advance: glyph.advance,
 					width: glyph.width,
 					height: glyph.height,
 				});
