@@ -35,16 +35,21 @@
 		<section if="LIME_JPEG">
 			
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/jpeg/" />
+			<compilerflag value="-DLIME_JPEG" />
+			
+			<file name="src/graphics/JPEG.cpp" />
 			
 		</section>
 		
 		<section if="LIME_FREETYPE">
-
+			
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/freetype/include" />
 			<compilerflag value="-DLIME_FREETYPE" />
-
+			
+			<file name="src/graphics/Font.cpp" />
+			
 		</section>
-
+		
 		<section if="LIME_NEKO">
 			
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/neko/vm/" />
@@ -57,11 +62,15 @@
 		<section if="LIME_OPENAL">
 			
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/include/" />
+			<compilerflag value="-DLIME_OPENAL" />
+			
 			<file name="src/audio/OpenALBindings.cpp" />
 			
 		</section>
 		
 		<section if="LIME_OPENGL">
+			
+			<compilerflag value="-DLIME_OPENGL" />
 			
 			<file name="src/graphics/OpenGLBindings.cpp" />
 			
@@ -71,6 +80,9 @@
 			
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/png/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib/" />
+			<compilerflag value="-DLIME_PNG" />
+			
+			<file name="src/graphics/PNG.cpp" />
 			
 		</section>
 		
@@ -81,6 +93,7 @@
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/linux/" if="linux"/>
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/windows/" if="windows"/>
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/mac/" if="mac"/>
+			<compilerflag value="-DLIME_SDL" />
 			
 			<file name="src/backend/sdl/SDLApplication.cpp" />
 			<file name="src/backend/sdl/SDLWindow.cpp" />
@@ -89,12 +102,9 @@
 		</section>
 		
 		<file name="src/system/ios/System.mm" if="ios" />
-
+		
 		<file name="src/app/UpdateEvent.cpp" />
-		<file name="src/graphics/Font.cpp" if="LIME_FREETYPE" />
 		<file name="src/graphics/Image.cpp" />
-		<file name="src/graphics/JPEG.cpp" if="LIME_JPEG" />
-		<file name="src/graphics/PNG.cpp" if="LIME_PNG" />
 		<file name="src/graphics/RenderEvent.cpp" />
 		<file name="src/system/System.cpp" />
 		<file name="src/ui/KeyEvent.cpp" />

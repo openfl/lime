@@ -59,17 +59,21 @@ namespace lime {
 		Image image;
 		const char *filePath = val_string (path);
 		
+		#ifdef LIME_PNG
 		if (PNG::Decode (filePath, &image)) {
 			
 			return image.Value ();
 			
 		}
+		#endif
 		
+		#ifdef LIME_JPEG
 		if (JPEG::Decode (filePath, &image)) {
 			
 			return image.Value ();
 			
 		}
+		#endif
 		
 		return alloc_null ();
 		
