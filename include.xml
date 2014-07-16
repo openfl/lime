@@ -7,8 +7,6 @@
 	
 	<section unless="display">
 		
-		<haxelib name="format" if="native" />
-		
 		<haxelib name="hxcpp" if="cpp" />
 		
 		<ndll name="std" haxelib="hxcpp" if="cpp" />
@@ -34,8 +32,11 @@
 		
 		<architecture name="armv7" if="android" />
 		
-		<include haxelib="lime-tools" unless="openfl" />
-		<haxelib name="lime-tools" if="setup" />
+		<include haxelib="aether" unless="openfl" />
+		<haxelib name="aether" if="setup" />
+		
+		<target name="wiiu" handler="lime-wiiu" />
+		<haxelib name="lime-wiiu" if="wiiu" />
 		
 	</section>
 	

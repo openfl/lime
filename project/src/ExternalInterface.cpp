@@ -10,7 +10,9 @@
 #include <hx/CFFI.h>
 #include <app/Application.h>
 #include <app/UpdateEvent.h>
+#ifdef LIME_FREETYPE
 #include <graphics/Font.h>
+#endif
 #include <graphics/Image.h>
 #include <graphics/PNG.h>
 #include <graphics/JPEG.h>
@@ -75,22 +77,30 @@ namespace lime {
 	
 	
 	value lime_font_load (value fontFace) {
-
+		
+		#ifdef LIME_FREETYPE
 		Font *font = new Font (val_string (fontFace));
 		return alloc_float ((intptr_t)font);
+		#else
+		return alloc_null ();
+		#endif
 
 	}
 
 
 	value lime_font_load_glyphs (value fontHandle, value size, value glyphs) {
-
+		
+		#ifdef LIME_FREETYPE
 		Image image;
 		Font *font = (Font*)(intptr_t)val_float (fontHandle);
 		value data = alloc_empty_object ();
 		alloc_field (data, val_id ("glyphs"), font->LoadGlyphs (val_int (size), val_string (glyphs), &image));
 		alloc_field (data, val_id ("image"), image.Value ());
 		return data;
-
+		#else
+		return alloc_null ();
+		#endif
+		
 	}
 
 

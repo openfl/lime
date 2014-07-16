@@ -41,13 +41,14 @@
 		<section if="LIME_FREETYPE">
 
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/freetype/include" />
+			<compilerflag value="-DLIME_FREETYPE" />
 
 		</section>
 
 		<section if="LIME_NEKO">
 			
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/neko/vm/" />
-			<compilerflag value="-DLIME_NEKO" if="LIME_NEKO" />
+			<compilerflag value="-DLIME_NEKO" />
 			
 			<file name="src/vm/NekoVM.cpp" />
 			

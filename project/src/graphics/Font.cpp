@@ -1,4 +1,7 @@
 #include <graphics/Font.h>
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 
 typedef struct {
 
@@ -7,6 +10,7 @@ typedef struct {
 	FT_Pos height;
 
 } GlyphInfo;
+
 
 namespace lime {
 
