@@ -175,7 +175,7 @@ class Application extends Module {
 	public function onWindowFocusIn ():Void {}
 	public function onWindowFocusOut ():Void {}
 	public function onWindowMove (x:Float, y:Float):Void {}
-	public function onWindowResize (width:Float, height:Float):Void {}
+	public function onWindowResize (width:Int, height:Int):Void {}
 	
 	
 	public function render (context:RenderContext):Void {

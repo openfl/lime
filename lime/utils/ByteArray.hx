@@ -1111,6 +1111,12 @@ class ByteArray extends Bytes implements ArrayAccess<Int> implements IDataInput 
    {
       writeInt(value);
    }
+   
+   public function writeUnsignedShort (value:Int):Void {
+      
+      writeShort(value);
+      
+   }
 
    public function writeUTF(s:String) 
    {

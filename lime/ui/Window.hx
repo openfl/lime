@@ -29,7 +29,7 @@ class Window {
 	public static var onWindowFocusIn = new Event<Void->Void> ();
 	public static var onWindowFocusOut = new Event<Void->Void> ();
 	public static var onWindowMove = new Event<Float->Float->Void> ();
-	public static var onWindowResize = new Event<Float->Float->Void> ();
+	public static var onWindowResize = new Event<Int->Int->Void> ();
 	
 	private static var eventInfo = new WindowEventInfo ();
 	private static var registered:Bool;
