@@ -2,6 +2,7 @@
 #include <hx/CFFI.h>
 
 #include <utils/ByteArray.h>
+#include <utils/FileIO.h>
 #include <string>
 
 
@@ -113,35 +114,11 @@ namespace lime {
     } DEFINE_PRIM(lime_byte_array_get_native_pointer,1);
     
     
-#if defined(HX_MACOS)
-#include <CoreFoundation/CoreFoundation.h>
-FILE *OpenRead(const char *inName)
-{
-	FILE *result = fopen(inName,"rb");
-	if (!result) {
-		CFStringRef str = CFStringCreateWithCString(NULL, inName, kCFStringEncodingUTF8);
-		CFURLRef path = CFBundleCopyResourceURL(CFBundleGetMainBundle(), str, NULL, NULL);
-		CFRelease(str);
-		if (path) {
-			str = CFURLCopyPath(path);
-			CFIndex maxSize = CFStringGetMaximumSizeForEncoding(CFStringGetLength(str),kCFStringEncodingUTF8);
-			char *buffer = (char *)malloc(maxSize);
-			if (CFStringGetCString(str, buffer, maxSize, kCFStringEncodingUTF8)) {
-				result = fopen(buffer,"rb");
-				free(buffer);
-			}
-			CFRelease(str);
-			CFRelease(path);
-		}
-	}
-	return result;
-}
-#endif
     
     
     ByteArray ByteArray::FromFile(const OSChar *inFilename)
 {
-   FILE *file = OpenRead(inFilename);
+   FILE *file = lime::fopen (inFilename, "rb");
    if (!file)
    {
       #ifdef ANDROID
@@ -150,13 +127,13 @@ FILE *OpenRead(const char *inName)
       return ByteArray();
    }
 
-   fseek(file,0,SEEK_END);
-   int len = ftell(file);
-   fseek(file,0,SEEK_SET);
+   lime::fseek(file,0,SEEK_END);
+   int len = lime::ftell(file);
+   lime::fseek(file,0,SEEK_SET);
 
    ByteArray result(len);
-   int status = fread(result.Bytes(),len,1,file);
-   fclose(file);
+   int status = lime::fread(result.Bytes(),len,1,file);
+   lime::fclose(file);
 
    return result;
 }
@@ -166,7 +143,7 @@ value lime_byte_array_overwrite_file(value inFilename, value inBytes) {
 
         // file is created if it doesn't exist,
    // if it exists, it is truncated to zero
-   FILE *file = OpenOverwrite(val_os_string(inFilename));
+   FILE *file = lime::fopen (val_os_string(inFilename), "wb");
    if (!file)
    {
       #ifdef ANDROID
@@ -181,9 +158,9 @@ value lime_byte_array_overwrite_file(value inFilename, value inBytes) {
    // stream pointed to by stream, obtaining them from the location given by
    // ptr.
    // fwrite(const void *restrict ptr, size_t size, size_t nitems, FILE *restrict stream);
-   fwrite( array.Bytes() , 1, array.Size() , file);
+   lime::fwrite( array.Bytes() , 1, array.Size() , file);
 
-   fclose(file);
+   lime::fclose(file);
    return alloc_null();
 
     } DEFINE_PRIM(lime_byte_array_overwrite_file, 2);

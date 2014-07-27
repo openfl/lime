@@ -62,19 +62,13 @@ namespace lime {
 	//#define val_os_string val_string
 
 	#if defined(IPHONE)
-	FILE *OpenRead(const char *inName);
-	FILE *OpenOverwrite(const char *inName); // [ddc]
 	extern int gFixedOrientation;
 
 	#elif defined(HX_MACOS)
-	FILE *OpenRead(const char *inName);
-	#define OpenOverwrite(x) fopen(x,"wb")
 	#else
 	#ifdef TIZEN
 	extern int gFixedOrientation;
 	#endif
-	#define OpenRead(x) fopen(x,"rb")
-	#define OpenOverwrite(x) fopen(x,"wb") // [ddc]
 	#endif
 	//#endif
 	

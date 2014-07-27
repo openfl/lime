@@ -7,7 +7,7 @@ extern "C" {
 
 #include <graphics/Image.h>
 #include <graphics/PNG.h>
-#include <utils/ByteArray.h>
+#include <utils/FileIO.h>
 
 
 namespace lime {
@@ -21,21 +21,21 @@ namespace lime {
 		png_uint_32 width, height;
 		int bit_depth, color_type;
 		
-		FILE *file = OpenRead (path);
+		FILE *file = lime::fopen (path, "rb");
 		if (!file) return false;
 		
 		// verify the PNG signature
-		int read = fread (png_sig, PNG_SIG_SIZE, 1, file);
+		int read = lime::fread (png_sig, PNG_SIG_SIZE, 1, file);
 		if (png_sig_cmp (png_sig, 0, PNG_SIG_SIZE)) {
 			
-			fclose (file);
+			lime::fclose (file);
 			return false;
 			
 		}
 		
 		if ((png_ptr = png_create_read_struct (PNG_LIBPNG_VER_STRING, NULL, NULL, NULL)) == NULL) {
 			
-			fclose (file);
+			lime::fclose (file);
 			return false;
 			
 		}
@@ -43,7 +43,7 @@ namespace lime {
 		if ((info_ptr = png_create_info_struct (png_ptr)) == NULL) {
 			
 			png_destroy_read_struct (&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
-			fclose (file);
+			lime::fclose (file);
 			return false;
 			
 		}
@@ -52,7 +52,7 @@ namespace lime {
 		if (setjmp (png_jmpbuf (png_ptr))) {
 			
 			png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
-			fclose (file);
+			lime::fclose (file);
 			return false;
 			
 		}

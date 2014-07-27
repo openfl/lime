@@ -1,14 +1,14 @@
 extern "C" {
-
+	
 	#include <sys/types.h>
 	#include <stdio.h>
 	#include <jpeglib.h>
-
+	
 }
 
 #include <graphics/Image.h>
 #include <graphics/JPEG.h>
-#include <utils/ByteArray.h>
+#include <utils/FileIO.h>
 
 
 namespace lime {
@@ -19,7 +19,7 @@ namespace lime {
 		struct jpeg_decompress_struct cinfo;
 		struct jpeg_error_mgr jerr;
 		
-		FILE *file = OpenRead (path);
+		FILE *file = lime::fopen (path, "rb");
 		
 		cinfo.err = jpeg_std_error (&jerr);
 		jpeg_create_decompress (&cinfo);
@@ -29,7 +29,7 @@ namespace lime {
 			
 			jpeg_start_decompress (&cinfo);
 			int components = cinfo.num_components;
-			image->Resize(cinfo.output_width, cinfo.output_height);
+			image->Resize (cinfo.output_width, cinfo.output_height);
 			
 			unsigned char *bytes = image->data->Bytes ();
 			unsigned char *scanline = new unsigned char [image->width * image->height * components];
@@ -59,7 +59,7 @@ namespace lime {
 			
 		}
 		
-		fclose (file);
+		lime::fclose (file);
 		jpeg_destroy_decompress (&cinfo);
 		
 		return true;
