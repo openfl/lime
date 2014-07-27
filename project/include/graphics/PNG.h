@@ -2,17 +2,19 @@
 #define LIME_GRAPHICS_PNG_H
 
 
+#include <graphics/Image.h>
+#include <io/Resource.h>
+
+
 namespace lime {
 	
-	
-	class Image;
 	
 	class PNG {
 		
 		
 		public:
 			
-			static bool Decode (const char *path, Image *image);
+			static bool Decode (Resource *resource, Image *image);
 		
 		
 	};

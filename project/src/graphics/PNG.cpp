@@ -5,7 +5,6 @@ extern "C" {
 	
 }
 
-#include <graphics/Image.h>
 #include <graphics/PNG.h>
 #include <utils/FileIO.h>
 
@@ -13,7 +12,7 @@ extern "C" {
 namespace lime {
 	
 	
-	bool PNG::Decode (const char *path, Image *image) {
+	bool PNG::Decode (Resource *resource, Image *image) {
 		
 		unsigned char png_sig[PNG_SIG_SIZE];
 		png_structp png_ptr;
@@ -21,7 +20,7 @@ namespace lime {
 		png_uint_32 width, height;
 		int bit_depth, color_type;
 		
-		FILE *file = lime::fopen (path, "rb");
+		FILE *file = lime::fopen (resource->path, "rb");
 		if (!file) return false;
 		
 		// verify the PNG signature

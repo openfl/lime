@@ -57,10 +57,10 @@ namespace lime {
 	value lime_image_load (value path) {
 		
 		Image image;
-		const char *filePath = val_string (path);
+		Resource resource = Resource (val_string (path));
 		
 		#ifdef LIME_PNG
-		if (PNG::Decode (filePath, &image)) {
+		if (PNG::Decode (&resource, &image)) {
 			
 			return image.Value ();
 			
@@ -68,7 +68,7 @@ namespace lime {
 		#endif
 		
 		#ifdef LIME_JPEG
-		if (JPEG::Decode (filePath, &image)) {
+		if (JPEG::Decode (&resource, &image)) {
 			
 			return image.Value ();
 			

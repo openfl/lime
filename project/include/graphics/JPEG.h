@@ -2,22 +2,24 @@
 #define LIME_GRAPHICS_JPEG_H
 
 
+#include <graphics/Image.h>
+#include <io/Resource.h>
+
+
 namespace lime {
 	
 	
-	class Image;
-	
 	class JPEG {
-
-
+		
+		
 		public:
-
-			static bool Decode (const char *path, Image *image);
-
-
+			
+			static bool Decode (Resource *resource, Image *image);
+		
+		
 	};
-
-
+	
+	
 }
 
 
