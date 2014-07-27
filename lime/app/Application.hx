@@ -195,7 +195,7 @@ class Application extends Module {
 	@:noCompletion private static function __dispatch ():Void {
 		
 		#if (js && stats)
-		windows[0].stats.begin ();
+		__instance.window.stats.begin ();
 		#end
 		
 		__instance.update (__eventInfo.deltaTime);
