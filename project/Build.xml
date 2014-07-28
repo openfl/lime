@@ -63,6 +63,7 @@
 			
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/include/" />
 			<compilerflag value="-DLIME_OPENAL" />
+			<compilerflag value="-DAL_LIBTYPE_STATIC=1" />
 			
 			<file name="src/audio/OpenALBindings.cpp" />
 			
