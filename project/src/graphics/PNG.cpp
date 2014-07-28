@@ -88,13 +88,17 @@ namespace lime {
 			if (!file) return false;
 			
 			// verify the PNG signature
-			/*int read = lime::fread (png_sig, PNG_SIG_SIZE, 1, file);
+			int read = lime::fread (png_sig, PNG_SIG_SIZE, 1, file);
 			if (png_sig_cmp (png_sig, 0, PNG_SIG_SIZE)) {
 				
 				lime::fclose (file);
 				return false;
 				
-			}*/
+			} else {
+				
+				lime::fseek (file, 0, 0);
+				
+			}
 			
 		} else {
 			
