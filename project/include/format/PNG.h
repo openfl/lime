@@ -1,15 +1,15 @@
-#ifndef LIME_GRAPHICS_JPEG_H
-#define LIME_GRAPHICS_JPEG_H
+#ifndef LIME_FORMAT_PNG_H
+#define LIME_FORMAT_PNG_H
 
 
 #include <graphics/Image.h>
-#include <io/Resource.h>
+#include <utils/Resource.h>
 
 
 namespace lime {
 	
 	
-	class JPEG {
+	class PNG {
 		
 		
 		public:

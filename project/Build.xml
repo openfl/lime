@@ -37,7 +37,7 @@
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/jpeg/" />
 			<compilerflag value="-DLIME_JPEG" />
 			
-			<file name="src/graphics/JPEG.cpp" />
+			<file name="src/format/JPEG.cpp" />
 			
 		</section>
 		
@@ -83,7 +83,7 @@
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib/" />
 			<compilerflag value="-DLIME_PNG" />
 			
-			<file name="src/graphics/PNG.cpp" />
+			<file name="src/format/PNG.cpp" />
 			
 		</section>
 		

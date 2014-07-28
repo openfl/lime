@@ -7,7 +7,7 @@ extern "C" {
 }
 
 #include <setjmp.h>
-#include <graphics/PNG.h>
+#include <format/PNG.h>
 #include <utils/FileIO.h>
 #include <utils/QuickVec.h>
 

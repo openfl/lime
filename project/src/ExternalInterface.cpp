@@ -13,9 +13,9 @@
 #ifdef LIME_FREETYPE
 #include <graphics/Font.h>
 #endif
+#include <format/JPEG.h>
+#include <format/PNG.h>
 #include <graphics/Image.h>
-#include <graphics/PNG.h>
-#include <graphics/JPEG.h>
 #include <graphics/Renderer.h>
 #include <graphics/RenderEvent.h>
 #include <system/System.h>

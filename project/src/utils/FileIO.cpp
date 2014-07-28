@@ -20,7 +20,7 @@ namespace lime {
 		#ifdef HX_MACOS
 		FILE *result = ::fopen (filename, "rb");
 		if (!result) {
-			CFStringRef str = CFStringCreateWithCString (NULL, inName, kCFStringEncodingUTF8);
+			CFStringRef str = CFStringCreateWithCString (NULL, filename, kCFStringEncodingUTF8);
 			CFURLRef path = CFBundleCopyResourceURL (CFBundleGetMainBundle (), str, NULL, NULL);
 			CFRelease (str);
 			if (path) {

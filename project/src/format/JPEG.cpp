@@ -7,7 +7,7 @@ extern "C" {
 }
 
 #include <setjmp.h>
-#include <graphics/JPEG.h>
+#include <format/JPEG.h>
 #include <utils/FileIO.h>
 
 

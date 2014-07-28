@@ -1,5 +1,5 @@
-#ifndef LIME_IO_RESOURCE_H
-#define LIME_IO_RESOURCE_H
+#ifndef LIME_UTILS_RESOURCE_H
+#define LIME_UTILS_RESOURCE_H
 
 
 #include <utils/ByteArray.h>
