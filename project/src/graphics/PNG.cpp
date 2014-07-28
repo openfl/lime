@@ -1,15 +1,75 @@
 extern "C" {
 	
 	#include <png.h>
+	#include <pngstruct.h>
 	#define PNG_SIG_SIZE 8
 	
 }
 
+#include <setjmp.h>
 #include <graphics/PNG.h>
 #include <utils/FileIO.h>
+#include <utils/QuickVec.h>
 
 
 namespace lime {
+	
+	
+	struct ReadBuf {
+		
+		
+		ReadBuf (const uint8 *inData, int inLen) : mData (inData), mLen (inLen) {}
+		
+		bool Read (uint8 *outBuffer, int inN) {
+			
+			if (inN > mLen) {
+				
+				memset (outBuffer, 0, inN);
+				return false;
+				
+			}
+			
+			memcpy (outBuffer, mData, inN);
+			mData += inN;
+			mLen -= inN;
+			return true;
+			
+		}
+		
+		const uint8 *mData;
+		int mLen;
+		
+		
+	};
+	
+	
+	static void user_error_fn (png_structp png_ptr, png_const_charp error_msg) {
+		
+		longjmp (png_ptr->jmp_buf_local, 1);
+		
+	}
+	
+	
+	static void user_warning_fn (png_structp png_ptr, png_const_charp warning_msg) {}
+	
+	
+	static void user_read_data_fn (png_structp png_ptr, png_bytep data, png_size_t length) {
+		
+		png_voidp buffer = png_get_io_ptr (png_ptr);
+		((ReadBuf *)buffer)->Read (data, length);
+		
+	}
+	
+	
+	void user_write_data (png_structp png_ptr, png_bytep data, png_size_t length) {
+		
+		QuickVec<unsigned char> *buffer = (QuickVec<unsigned char> *)png_get_io_ptr (png_ptr);
+		buffer->append ((unsigned char *)data,(int)length);
+		
+	}
+	
+	
+	void user_flush_data (png_structp png_ptr) {}
 	
 	
 	bool PNG::Decode (Resource *resource, Image *image) {
@@ -18,23 +78,33 @@ namespace lime {
 		png_structp png_ptr;
 		png_infop info_ptr;
 		png_uint_32 width, height;
-		int bit_depth, color_type;
+		int bit_depth, color_type, interlace_type;
 		
-		FILE *file = lime::fopen (resource->path, "rb");
-		if (!file) return false;
+		FILE *file = NULL;
 		
-		// verify the PNG signature
-		int read = lime::fread (png_sig, PNG_SIG_SIZE, 1, file);
-		if (png_sig_cmp (png_sig, 0, PNG_SIG_SIZE)) {
+		if (resource->path) {
 			
-			lime::fclose (file);
-			return false;
+			file = lime::fopen (resource->path, "rb");
+			if (!file) return false;
+			
+			// verify the PNG signature
+			/*int read = lime::fread (png_sig, PNG_SIG_SIZE, 1, file);
+			if (png_sig_cmp (png_sig, 0, PNG_SIG_SIZE)) {
+				
+				lime::fclose (file);
+				return false;
+				
+			}*/
+			
+		} else {
+			
+			// TODO: optimize ByteArray Format check?
 			
 		}
 		
 		if ((png_ptr = png_create_read_struct (PNG_LIBPNG_VER_STRING, NULL, NULL, NULL)) == NULL) {
 			
-			lime::fclose (file);
+			if (file) lime::fclose (file);
 			return false;
 			
 		}
@@ -42,7 +112,7 @@ namespace lime {
 		if ((info_ptr = png_create_info_struct (png_ptr)) == NULL) {
 			
 			png_destroy_read_struct (&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
-			lime::fclose (file);
+			if (file) lime::fclose (file);
 			return false;
 			
 		}
@@ -51,43 +121,59 @@ namespace lime {
 		if (setjmp (png_jmpbuf (png_ptr))) {
 			
 			png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
-			lime::fclose (file);
+			if (file) lime::fclose (file);
 			return false;
 			
 		}
 		
-		png_init_io (png_ptr, file);
-		png_set_sig_bytes (png_ptr, PNG_SIG_SIZE);
+		if (file) {
+			
+			png_init_io (png_ptr, file);
+			
+		} else {
+			
+			ReadBuf buffer (resource->data->Bytes (), resource->data->Size ());
+			png_set_read_fn (png_ptr, (void *)&buffer, user_read_data_fn);
+			
+		}
+		
 		png_read_info (png_ptr, info_ptr);
 		
-		width = png_get_image_width (png_ptr, info_ptr);
-		height = png_get_image_height (png_ptr, info_ptr);
-		color_type = png_get_color_type (png_ptr, info_ptr);
-		bit_depth = png_get_bit_depth (png_ptr, info_ptr);
+		png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, &interlace_type, NULL, NULL);
+		
+		bool has_alpha = (color_type == PNG_COLOR_TYPE_GRAY_ALPHA || color_type == PNG_COLOR_TYPE_RGB_ALPHA || png_get_valid (png_ptr, info_ptr, PNG_INFO_tRNS));
 		
 		png_set_expand (png_ptr);
 		png_set_filler (png_ptr, 0xff, PNG_FILLER_AFTER);
+		//png_set_gray_1_2_4_to_8 (png_ptr);
+		png_set_palette_to_rgb (png_ptr);
+		png_set_gray_to_rgb (png_ptr);
 		
 		if (bit_depth == 16)
 			png_set_strip_16 (png_ptr);
 		
+		//png_set_bgr (png_ptr);
+		
 		int bpp = 4;
 		const unsigned int stride = width * bpp;
-		image->Resize(width, height, bpp);
+		image->Resize (width, height, bpp);
 		
-		png_bytepp row_ptrs = new png_bytep[height];
 		unsigned char *bytes = image->data->Bytes ();
 		
-		for (size_t i = 0; i < height; i++) {
+		int number_of_passes = png_set_interlace_handling (png_ptr);
+		
+		for (int pass = 0; pass < number_of_passes; pass++) {
 			
-			row_ptrs[i] = bytes + i * stride;
+			for (int i = 0; i < height; i++) {
+				
+				png_bytep anAddr = (png_bytep)(bytes + i * stride);
+				png_read_rows (png_ptr, (png_bytepp) &anAddr, NULL, 1);
+				
+			}
 			
 		}
 		
-		png_read_image (png_ptr, row_ptrs);
-		png_read_end (png_ptr, NULL);
-		
-		delete[] row_ptrs;
+		png_read_end (png_ptr, info_ptr);
 		png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
 		
 		return true;

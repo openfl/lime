@@ -10,11 +10,13 @@ namespace lime {
 	
 	struct Resource {
 		
-		Resource (const char* path) { this->path = path; }
-		Resource (ByteArray *data) { this->data = data; }
+		
+		Resource (const char* path) : data (NULL), path (path) {}
+		Resource (ByteArray *data) : data (data), path (NULL) {}
 		
 		ByteArray *data;
 		const char* path;
+		
 		
 	};
 	

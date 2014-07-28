@@ -1,6 +1,7 @@
 package lime.graphics;
 
 
+import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 import lime.system.System;
 
@@ -115,6 +116,22 @@ class Image {
 	}
 	
 	
+	public static function loadFromBytes (bytes:ByteArray):Image {
+		
+		#if (cpp || neko)
+		
+		var imageData = lime_image_load_bytes (bytes);
+		return (imageData == null ? null : new Image (new UInt8Array (imageData.data), imageData.width, imageData.height, imageData.bpp));
+		
+		#else
+		
+		throw "Image.loadFromFile not supported on this target";
+		
+		#end
+		
+	}
+	
+	
 	public static function loadFromFile (path:String) {
 		
 		#if (cpp || neko)
@@ -123,9 +140,9 @@ class Image {
 		return (imageData == null ? null : new Image (new UInt8Array (imageData.data), imageData.width, imageData.height, imageData.bpp));
 		
 		#else
-
+		
 		throw "Image.loadFromFile not supported on this target";
-
+		
 		#end
 		
 	}
@@ -193,6 +210,7 @@ class Image {
 	
 	#if (cpp || neko)
 	private static var lime_image_load = System.load ("lime", "lime_image_load", 1);
+	private static var lime_image_load_bytes = System.load ("lime", "lime_image_load_bytes", 1);
 	#end
 	
 	

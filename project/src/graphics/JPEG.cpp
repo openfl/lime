@@ -127,16 +127,19 @@ namespace lime {
 		//cinfo.err = jpeg_std_error (&jerr);
 		
 		struct ErrorData jpegError;
+		cinfo.err = jpeg_std_error (&jpegError.base);
 		jpegError.base.error_exit = OnError;
 		jpegError.base.output_message = OnOutput;
-		cinfo.err = jpeg_std_error (&jpegError.base);
 		
-		FILE *file;
+		FILE *file = NULL;
 		
 		if (setjmp (jpegError.on_error)) {
 			
-			if (file)
+			if (file) {
+				
 				lime::fclose (file);
+				
+			}
 			
 			jpeg_destroy_decompress (&cinfo);
 			return false;
@@ -196,9 +199,13 @@ namespace lime {
 			
 		}
 		
-		lime::fclose (file);
-		jpeg_destroy_decompress (&cinfo);
+		if (file) {
+			
+			lime::fclose (file);
+			
+		}
 		
+		jpeg_destroy_decompress (&cinfo);
 		return decoded;
 		
 	}

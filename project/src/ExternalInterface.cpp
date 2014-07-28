@@ -57,7 +57,34 @@ namespace lime {
 	value lime_image_load (value path) {
 		
 		Image image;
-		Resource resource = Resource (val_string (path));
+		Resource resource (val_string (path));
+		
+		#ifdef LIME_PNG
+		if (PNG::Decode (&resource, &image)) {
+			
+			return image.Value ();
+			
+		}
+		#endif
+		
+		#ifdef LIME_JPEG
+		if (JPEG::Decode (&resource, &image)) {
+			
+			return image.Value ();
+			
+		}
+		#endif
+		
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_image_load_bytes (value bytes) {
+		
+		Image image;
+		ByteArray data (bytes);
+		Resource resource (&data);
 		
 		#ifdef LIME_PNG
 		if (PNG::Decode (&resource, &image)) {
@@ -251,6 +278,7 @@ namespace lime {
 	DEFINE_PRIM (lime_application_exec, 1);
 	DEFINE_PRIM (lime_application_get_ticks, 0);
 	DEFINE_PRIM (lime_image_load, 1);
+	DEFINE_PRIM (lime_image_load_bytes, 1);
 	DEFINE_PRIM (lime_font_load, 1);
 	DEFINE_PRIM (lime_font_load_glyphs, 3);
 	DEFINE_PRIM (lime_key_event_manager_register, 2);
