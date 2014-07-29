@@ -63,7 +63,7 @@ namespace lime {
 			
 			if (!file) {
 				
-				LOG_SOUND ("FAILED to read sound file, file pointer as null?\n");
+				//LOG_SOUND ("FAILED to read sound file, file pointer as null?\n");
 				return false;
 				
 			}
@@ -72,7 +72,7 @@ namespace lime {
 			
 			if ((riff_header.chunkID[0] != 'R' || riff_header.chunkID[1] != 'I' || riff_header.chunkID[2] != 'F' || riff_header.chunkID[3] != 'F') || (riff_header.format[0] != 'W' || riff_header.format[1] != 'A' || riff_header.format[2] != 'V' || riff_header.format[3] != 'E')) {
 				
-				LOG_SOUND ("Invalid RIFF or WAVE Header!\n");
+				//LOG_SOUND ("Invalid RIFF or WAVE Header!\n");
 				return false;
 				
 			}
@@ -158,7 +158,7 @@ namespace lime {
 			
 			if ((riff_header.chunkID[0] != 'R' || riff_header.chunkID[1] != 'I' || riff_header.chunkID[2] != 'F' || riff_header.chunkID[3] != 'F') || (riff_header.format[0] != 'W' || riff_header.format[1] != 'A' || riff_header.format[2] != 'V' || riff_header.format[3] != 'E')) {
 				
-				LOG_SOUND ("Invalid RIFF or WAVE Header!\n");
+				//LOG_SOUND ("Invalid RIFF or WAVE Header!\n");
 				return false;
 				
 			}

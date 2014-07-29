@@ -59,6 +59,16 @@
 			
 		</section>
 		
+		<section if="LIME_OGG">
+			
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/ogg/include/" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/vorbis/include/" />
+			<compilerflag value="-DLIME_OGG" />
+			
+			<file name="src/format/OGG.cpp" />
+			
+		</section>
+		
 		<section if="LIME_OPENAL">
 			
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/include/" />

@@ -15,6 +15,7 @@
 #include <graphics/Font.h>
 #endif
 #include <format/JPEG.h>
+#include <format/OGG.h>
 #include <format/PNG.h>
 #include <format/WAV.h>
 #include <graphics/Image.h>
@@ -227,6 +228,14 @@ namespace lime {
 			
 		}
 		
+		#ifdef LIME_OGG
+		if (OGG::Decode (&resource, &sound)) {
+			
+			return sound.Value ();
+			
+		}
+		#endif
+		
 		return alloc_null ();
 		
 	}
@@ -243,6 +252,14 @@ namespace lime {
 			return sound.Value ();
 			
 		}
+		
+		#ifdef LIME_OGG
+		if (OGG::Decode (&resource, &sound)) {
+			
+			return sound.Value ();
+			
+		}
+		#endif
 		
 		return alloc_null ();
 		
