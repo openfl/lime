@@ -17,15 +17,14 @@ namespace lime {
 			Image ();
 			~Image ();
 			
-			void Resize (int width, int height, int bpp = 4);
 			void Blit (const unsigned char *data, int x, int y, int width, int height);
+			void Resize (int width, int height, int bpp = 4);
 			value Value ();
 			
-			int width;
-			int height;
-			int bpp; // bytes per pixel
+			int bpp;
 			ByteArray *data;
-		
+			int height;
+			int width;
 		
 		private:
 			

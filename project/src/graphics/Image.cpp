@@ -28,49 +28,48 @@ namespace lime {
 	}
 	
 	
+	void Image::Blit (const unsigned char *data, int x, int y, int width, int height) {
+		
+		if (x < 0 || x + width > this->width || y < 0 || y + height > this->height) {
+			
+			return;
+			
+		}
+		
+		unsigned char *bytes = this->data->Bytes ();
+		
+		for (int i = 0; i < height; i++) {
+			
+			memcpy (&bytes[(i + y) * this->width + x], &data[i * width], width * bpp);
+			
+		}
+		
+	}
+	
+	
 	void Image::Resize (int width, int height, int bpp) {
-
+		
 		this->bpp = bpp;
 		this->width = width;
 		this->height = height;
 		if (this->data) delete this->data;
 		this->data = new ByteArray (width * height * bpp);
-
+		
 	}
-
-
-	void Image::Blit (const unsigned char *data, int x, int y, int width, int height) {
-
-		if (x < 0 || x + width > this->width ||
-			y < 0 || y + height > this->height) {
-
-			return;
-
-		}
-
-		unsigned char *bytes = this->data->Bytes ();
-
-		for (int i = 0; i < height; i++) {
-
-			memcpy (&bytes[(i + y) * this->width + x], &data[i * width], width * bpp);
-
-		}
-
-	}
-
-
-	value Image::Value() {
+	
+	
+	value Image::Value () {
 		
 		if (!init) {
-
+			
 			id_width = val_id ("width");
 			id_height = val_id ("height");
 			id_data = val_id ("data");
 			id_bpp = val_id ("bpp");
 			init = true;
-
+			
 		}
-
+		
 		mValue = alloc_empty_object ();
 		alloc_field (mValue, id_width, alloc_int (width));
 		alloc_field (mValue, id_height, alloc_int (height));

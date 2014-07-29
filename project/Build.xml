@@ -105,6 +105,8 @@
 		<file name="src/system/ios/System.mm" if="ios" />
 		
 		<file name="src/app/UpdateEvent.cpp" />
+		<file name="src/audio/Sound.cpp" />
+		<file name="src/format/WAV.cpp" />
 		<file name="src/graphics/Image.cpp" />
 		<file name="src/graphics/RenderEvent.cpp" />
 		<file name="src/system/System.cpp" />

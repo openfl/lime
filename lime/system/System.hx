@@ -31,6 +31,10 @@ class System {
 			
 			element = cast Browser.document.getElementById (elementName);
 			
+		} else {
+			
+			element = cast Browser.document.createElement ("div");
+			
 		}
 		
 		var color = null;

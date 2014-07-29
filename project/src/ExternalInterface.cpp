@@ -10,11 +10,13 @@
 #include <hx/CFFI.h>
 #include <app/Application.h>
 #include <app/UpdateEvent.h>
+#include <audio/Sound.h>
 #ifdef LIME_FREETYPE
 #include <graphics/Font.h>
 #endif
 #include <format/JPEG.h>
 #include <format/PNG.h>
+#include <format/WAV.h>
 #include <graphics/Image.h>
 #include <graphics/Renderer.h>
 #include <graphics/RenderEvent.h>
@@ -115,10 +117,10 @@ namespace lime {
 		#else
 		return alloc_null ();
 		#endif
-
+		
 	}
-
-
+	
+	
 	value lime_font_load_glyphs (value fontHandle, value size, value glyphs) {
 		
 		#ifdef LIME_FREETYPE
@@ -133,8 +135,8 @@ namespace lime {
 		#endif
 		
 	}
-
-
+	
+	
 	value lime_key_event_manager_register (value callback, value eventObject) {
 		
 		KeyEvent::callback = new AutoGCRoot (callback);
@@ -214,6 +216,39 @@ namespace lime {
 	}
 	
 	
+	value lime_sound_load (value path) {
+		
+		Sound sound;
+		Resource resource (val_string (path));
+		
+		if (WAV::Decode (&resource, &sound)) {
+			
+			return sound.Value ();
+			
+		}
+		
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_sound_load_bytes (value bytes) {
+		
+		Sound sound;
+		ByteArray data (bytes);
+		Resource resource (&data);
+		
+		if (WAV::Decode (&resource, &sound)) {
+			
+			return sound.Value ();
+			
+		}
+		
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_system_get_timestamp () {
 		
 		return alloc_float (System::GetTimestamp ());
@@ -289,6 +324,8 @@ namespace lime {
 	DEFINE_PRIM (lime_renderer_create, 1);
 	DEFINE_PRIM (lime_renderer_flip, 1);
 	DEFINE_PRIM (lime_render_event_manager_register, 2);
+	DEFINE_PRIM (lime_sound_load, 1);
+	DEFINE_PRIM (lime_sound_load_bytes, 1);
 	DEFINE_PRIM (lime_system_get_timestamp, 0);
 	DEFINE_PRIM (lime_touch_event_manager_register, 2);
 	DEFINE_PRIM (lime_update_event_manager_register, 2);
