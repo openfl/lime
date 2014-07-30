@@ -71,11 +71,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 			if (Sys.args ().indexOf ("-livereload") > -1) {
 				
-				#if mac
-				var path = FileSystem.fullPath ("../Resources/manifest");
-				#else
 				var path = FileSystem.fullPath ("manifest");
-				#end
 				lastModified = FileSystem.stat (path).mtime.getTime ();
 				
 				timer = new Timer (2000);
