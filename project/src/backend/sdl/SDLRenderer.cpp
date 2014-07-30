@@ -1,6 +1,6 @@
 #include "SDLWindow.h"
 #include "SDLRenderer.h"
-#include "../../graphics/OpenGLBindings.h"
+#include "../../graphics/opengl/OpenGLBindings.h"
 
 
 namespace lime {
