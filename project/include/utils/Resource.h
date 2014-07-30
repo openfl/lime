@@ -11,6 +11,7 @@ namespace lime {
 	struct Resource {
 		
 		
+		Resource () : data (NULL), path (NULL) {}
 		Resource (const char* path) : data (NULL), path (path) {}
 		Resource (ByteArray *data) : data (data), path (NULL) {}
 		

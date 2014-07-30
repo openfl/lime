@@ -1,9 +1,9 @@
 package lime.utils;
 
 
-import lime.graphics.GLProgram;
-import lime.graphics.GLShader;
-import lime.graphics.GL;
+import lime.graphics.opengl.GLProgram;
+import lime.graphics.opengl.GLShader;
+import lime.graphics.opengl.GL;
 
 
 class GLUtils {

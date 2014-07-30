@@ -10,17 +10,17 @@
 #include <hx/CFFI.h>
 #include <app/Application.h>
 #include <app/UpdateEvent.h>
-#include <audio/Sound.h>
 #ifdef LIME_FREETYPE
 #include <graphics/Font.h>
 #endif
-#include <format/JPEG.h>
-#include <format/OGG.h>
-#include <format/PNG.h>
-#include <format/WAV.h>
-#include <graphics/Image.h>
 #include <graphics/Renderer.h>
 #include <graphics/RenderEvent.h>
+#include <media/format/JPEG.h>
+#include <media/format/OGG.h>
+#include <media/format/PNG.h>
+#include <media/format/WAV.h>
+#include <media/AudioBuffer.h>
+#include <media/Image.h>
 #include <system/System.h>
 #include <ui/KeyEvent.h>
 #include <ui/MouseEvent.h>
@@ -57,23 +57,32 @@ namespace lime {
 	}
 	
 	
-	value lime_image_load (value path) {
+	value lime_audio_load (value data) {
 		
-		Image image;
-		Resource resource (val_string (path));
+		AudioBuffer audioBuffer;
+		Resource resource;
 		
-		#ifdef LIME_PNG
-		if (PNG::Decode (&resource, &image)) {
+		if (val_is_string (data)) {
 			
-			return image.Value ();
+			resource = Resource (val_string (data));
+			
+		} else {
+			
+			ByteArray bytes (data);
+			resource = Resource (&bytes);
 			
 		}
-		#endif
 		
-		#ifdef LIME_JPEG
-		if (JPEG::Decode (&resource, &image)) {
+		if (WAV::Decode (&resource, &audioBuffer)) {
 			
-			return image.Value ();
+			return audioBuffer.Value ();
+			
+		}
+		
+		#ifdef LIME_OGG
+		if (OGG::Decode (&resource, &audioBuffer)) {
+			
+			return audioBuffer.Value ();
 			
 		}
 		#endif
@@ -83,11 +92,21 @@ namespace lime {
 	}
 	
 	
-	value lime_image_load_bytes (value bytes) {
+	value lime_image_load (value data) {
 		
 		Image image;
-		ByteArray data (bytes);
-		Resource resource (&data);
+		Resource resource;
+		
+		if (val_is_string (data)) {
+			
+			resource = Resource (val_string (data));
+			
+		} else {
+			
+			ByteArray bytes (data);
+			resource = Resource (&bytes);
+			
+		}
 		
 		#ifdef LIME_PNG
 		if (PNG::Decode (&resource, &image)) {
@@ -217,55 +236,6 @@ namespace lime {
 	}
 	
 	
-	value lime_sound_load (value path) {
-		
-		Sound sound;
-		Resource resource (val_string (path));
-		
-		if (WAV::Decode (&resource, &sound)) {
-			
-			return sound.Value ();
-			
-		}
-		
-		#ifdef LIME_OGG
-		if (OGG::Decode (&resource, &sound)) {
-			
-			return sound.Value ();
-			
-		}
-		#endif
-		
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_sound_load_bytes (value bytes) {
-		
-		Sound sound;
-		ByteArray data (bytes);
-		Resource resource (&data);
-		
-		if (WAV::Decode (&resource, &sound)) {
-			
-			return sound.Value ();
-			
-		}
-		
-		#ifdef LIME_OGG
-		if (OGG::Decode (&resource, &sound)) {
-			
-			return sound.Value ();
-			
-		}
-		#endif
-		
-		return alloc_null ();
-		
-	}
-	
-	
 	value lime_system_get_timestamp () {
 		
 		return alloc_float (System::GetTimestamp ());
@@ -329,8 +299,8 @@ namespace lime {
 	DEFINE_PRIM (lime_application_create, 1);
 	DEFINE_PRIM (lime_application_exec, 1);
 	DEFINE_PRIM (lime_application_get_ticks, 0);
+	DEFINE_PRIM (lime_audio_load, 1);
 	DEFINE_PRIM (lime_image_load, 1);
-	DEFINE_PRIM (lime_image_load_bytes, 1);
 	DEFINE_PRIM (lime_font_load, 1);
 	DEFINE_PRIM (lime_font_load_glyphs, 3);
 	DEFINE_PRIM (lime_key_event_manager_register, 2);
@@ -341,8 +311,6 @@ namespace lime {
 	DEFINE_PRIM (lime_renderer_create, 1);
 	DEFINE_PRIM (lime_renderer_flip, 1);
 	DEFINE_PRIM (lime_render_event_manager_register, 2);
-	DEFINE_PRIM (lime_sound_load, 1);
-	DEFINE_PRIM (lime_sound_load_bytes, 1);
 	DEFINE_PRIM (lime_system_get_timestamp, 0);
 	DEFINE_PRIM (lime_touch_event_manager_register, 2);
 	DEFINE_PRIM (lime_update_event_manager_register, 2);

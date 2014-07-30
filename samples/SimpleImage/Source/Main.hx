@@ -2,10 +2,11 @@ package;
 
 
 import lime.app.Application;
-import lime.geom.Matrix4;
-import lime.graphics.*;
+import lime.graphics.opengl.*;
+import lime.graphics.RenderContext;
 import lime.utils.Float32Array;
 import lime.utils.GLUtils;
+import lime.utils.Matrix4;
 import lime.Assets;
 
 

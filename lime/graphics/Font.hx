@@ -1,6 +1,7 @@
 package lime.graphics;
 
 import haxe.ds.StringMap;
+import lime.media.Image;
 import lime.utils.UInt8Array;
 import lime.system.System;
 #if js
@@ -133,7 +134,7 @@ class Font {
 		image.src = __canvas.toDataURL();
 		return {
 			glyphs: glyphRects,
-			image: new lime.graphics.Image (image, __canvas.width, __canvas.height)
+			image: new lime.media.Image (image, __canvas.width, __canvas.height)
 		}
 
 		#elseif flash

@@ -4,7 +4,7 @@
 
 #include <hx/CFFI.h>
 #include <list>
-#include <graphics/Image.h>
+#include <media/Image.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 

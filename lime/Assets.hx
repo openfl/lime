@@ -3,8 +3,8 @@ package lime;
 
 
 import haxe.Unserializer;
-import lime.graphics.Image;
 import lime.graphics.Font;
+import lime.media.Image;
 import lime.utils.ByteArray;
 
 

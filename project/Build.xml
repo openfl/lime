@@ -37,7 +37,7 @@
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/jpeg/" />
 			<compilerflag value="-DLIME_JPEG" />
 			
-			<file name="src/format/JPEG.cpp" />
+			<file name="src/media/format/JPEG.cpp" />
 			
 		</section>
 		
@@ -65,7 +65,7 @@
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/vorbis/include/" />
 			<compilerflag value="-DLIME_OGG" />
 			
-			<file name="src/format/OGG.cpp" />
+			<file name="src/media/format/OGG.cpp" />
 			
 		</section>
 		
@@ -75,7 +75,7 @@
 			<compilerflag value="-DLIME_OPENAL" />
 			<compilerflag value="-DAL_LIBTYPE_STATIC=1" />
 			
-			<file name="src/audio/OpenALBindings.cpp" />
+			<file name="src/media/openal/OpenALBindings.cpp" />
 			
 		</section>
 		
@@ -83,7 +83,7 @@
 			
 			<compilerflag value="-DLIME_OPENGL" />
 			
-			<file name="src/graphics/OpenGLBindings.cpp" />
+			<file name="src/graphics/opengl/OpenGLBindings.cpp" />
 			
 		</section>
 		
@@ -93,7 +93,7 @@
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib/" />
 			<compilerflag value="-DLIME_PNG" />
 			
-			<file name="src/format/PNG.cpp" />
+			<file name="src/media/format/PNG.cpp" />
 			
 		</section>
 		
@@ -115,10 +115,10 @@
 		<file name="src/system/ios/System.mm" if="ios" />
 		
 		<file name="src/app/UpdateEvent.cpp" />
-		<file name="src/audio/Sound.cpp" />
-		<file name="src/format/WAV.cpp" />
-		<file name="src/graphics/Image.cpp" />
 		<file name="src/graphics/RenderEvent.cpp" />
+		<file name="src/media/format/WAV.cpp" />
+		<file name="src/media/AudioBuffer.cpp" />
+		<file name="src/media/Image.cpp" />
 		<file name="src/system/System.cpp" />
 		<file name="src/ui/KeyEvent.cpp" />
 		<file name="src/ui/MouseEvent.cpp" />
