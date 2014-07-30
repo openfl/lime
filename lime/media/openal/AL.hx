@@ -72,227 +72,322 @@ class AL {
 	public static inline var EXPONENT_DISTANCE_CLAMPED:Int = 0xD006;
 	
 	
-	
 	public static function bufferData (buffer:Int, format:Int, data:Float32Array, size:Int, freq:Int):Void {
 		
+		#if (cpp || neko)
 		lime_al_buffer_data (buffer, format, data.getByteBuffer (), size, freq);
+		#end
 		
 	}
 	
 	
 	public static function buffer3f (buffer:Int, param:Int, value1:Float, value2:Float, value3:Float):Void {
 		
+		#if (cpp || neko)
 		lime_al_buffer3f (buffer, param, value1, value2, value3);
+		#end
 		
 	}
 	
 	
 	public static function buffer3i (buffer:Int, param:Int, value1:Int, value2:Int, value3:Int):Void {
 		
+		#if (cpp || neko)
 		lime_al_buffer3i (buffer, param, value1, value2, value3);
+		#end
 		
 	}
 	
 	
 	public static function bufferf (buffer:Int, param:Int, value:Float):Void {
 		
+		#if (cpp || neko)
 		lime_al_bufferf (buffer, param, value);
+		#end
 		
 	}
 	
 	
 	public static function bufferfv (buffer:Int, param:Int, values:Array<Float>):Void {
 		
+		#if (cpp || neko)
 		lime_al_bufferfv (buffer, param, values);
+		#end
 		
 	}
 	
 	
 	public static function bufferi (buffer:Int, param:Int, value:Int):Void {
 		
+		#if (cpp || neko)
 		lime_al_bufferi (buffer, param, value);
+		#end
 		
 	}
 	
 	
 	public static function bufferiv (buffer:Int, param:Int, values:Array<Int>):Void {
 		
+		#if (cpp || neko)
 		lime_al_bufferiv (buffer, param, values);
+		#end
 		
 	}
 	
 	
 	public static function deleteBuffer (buffer:Int):Void {
 		
+		#if (cpp || neko)
 		lime_al_delete_buffer (buffer);
+		#end
 		
 	}
 	
 	
 	public static function deleteBuffers (buffers:Array<Int>):Void {
 		
+		#if (cpp || neko)
 		lime_al_delete_buffers (buffers.length, buffers);
+		#end
 		
 	}
 	
 	
 	public static function deleteSource (source:Int):Void {
 		
+		#if (cpp || neko)
 		lime_al_delete_source (source);
+		#end
 		
 	}
 	
 	
 	public static function deleteSources (sources:Array<Int>):Void {
 		
+		#if (cpp || neko)
 		lime_al_delete_sources (sources.length, sources);
+		#end
 		
 	}
 	
 	
 	public static function disable (capability:Int):Void {
 		
+		#if (cpp || neko)
 		lime_al_disable (capability);
+		#end
 		
 	}
 	
 	
 	public static function distanceModel (distanceModel:Int):Void {
 		
+		#if (cpp || neko)
 		lime_al_distance_model (distanceModel);
+		#end
 		
 	}
 	
 	
 	public static function dopplerFactor (value:Float):Void {
 		
+		#if (cpp || neko)
 		lime_al_doppler_factor (value);
+		#end
 		
 	}
 	
 	
 	public static function dopplerVelocity (value:Float):Void {
 		
+		#if (cpp || neko)
 		lime_al_doppler_velocity (value);
+		#end
 		
 	}
 	
 	
 	public static function enable (capability:Int):Void {
 		
+		#if (cpp || neko)
 		lime_al_enable (capability);
+		#end
 		
 	}
 	
 	
 	public static function genSource ():Int {
 		
+		#if (cpp || neko)
 		return lime_al_gen_source ();
+		#else
+		return 0;
+		#end
 		
 	}
 	
 	
 	public static function genSources (n:Int):Array<Int> {
 		
+		#if (cpp || neko)
 		return lime_al_gen_sources (n);
+		#else
+		return null;
+		#end
 		
 	}
 	
 	
 	public static function genBuffer ():Int {
 		
+		#if (cpp || neko)
 		return lime_al_gen_buffer ();
+		#else
+		return 0;
+		#end
 		
 	}
 	
 	
 	public static function genBuffers (n:Int):Array<Int> {
 		
+		#if (cpp || neko)
 		return lime_al_gen_buffers (n);
+		#else
+		return null;
+		#end
 		
 	}
 	
 	
 	public static function getBoolean (param:Int):Bool {
 		
+		#if (cpp || neko)
 		return lime_al_get_boolean (param);
+		#else
+		return false;
+		#end
 		
 	}
 	
 	
 	public static function getBooleanv (param:Int, count:Int = 1 ):Array<Bool> {
 		
+		#if (cpp || neko)
 		return lime_al_get_booleanv (param, count);
+		#else
+		return null;
+		#end
 		
 	}
 	
 	
 	public static function getBuffer3f (buffer:Int, param:Int):Array<Float> {
 		
+		#if (cpp || neko)
 		return lime_al_get_buffer3f (buffer, param);
+		#else
+		return null;
+		#end
 		
 	}
 	
 	
 	public static function getBuffer3i (buffer:Int, param:Int):Array<Int> {
 		
+		#if (cpp || neko)
 		return lime_al_get_buffer3i (buffer, param);
+		#else
+		return null;
+		#end
 		
 	}
 	
 	
 	public static function getBufferf (buffer:Int, param:Int):Float {
 		
+		#if (cpp || neko)
 		return lime_al_get_bufferf (buffer, param);
+		#else
+		return 0;
+		#end
 		
 	}
 	
 	
 	public static function getBufferfv (buffer:Int, param:Int, count:Int = 1):Array<Float> {
 		
+		#if (cpp || neko)
 		return lime_al_get_bufferfv (buffer, param, count);
+		#else
+		return null;
+		#end
 		
 	}
 	
 	
 	public static function getBufferi (buffer:Int, param:Int):Int {
 		
+		#if (cpp || neko)
 		return lime_al_get_bufferi (buffer, param);
+		#else
+		return 0;
+		#end
 		
 	}
 	
 	
 	public static function getBufferiv (buffer:Int, param:Int, count:Int = 1):Array<Int> {
 		
+		#if (cpp || neko)
 		return lime_al_get_bufferiv (buffer, param, count);
+		#else
+		return null;
+		#end
 		
 	}
 	
 	
 	public static function getDouble (param:Int):Float {
 		
+		#if (cpp || neko)
 		return lime_al_get_double (param);
+		#else
+		return 0;
+		#end
 		
 	}
 	
 	
 	public static function getDoublev (param:Int, count:Int = 1 ):Array<Float> {
 		
+		#if (cpp || neko)
 		return lime_al_get_doublev (param, count);
+		#else
+		return null;
+		#end
 		
 	}
 	
 	
 	public static function getEnumValue (ename:String):Int {
 		
+		#if (cpp || neko)
 		return lime_al_get_enum_value (ename);
+		#else
+		return 0;
+		#end
 		
 	}
 	
 	
 	public static function getError ():Int {
 		
+		#if (cpp || neko)
 		return lime_al_get_error ();
+		#else
+		return 0;
+		#end
 		
 	}
 	
@@ -315,70 +410,110 @@ class AL {
 	
 	public static function getFloat (param:Int):Float {
 		
+		#if (cpp || neko)
 		return lime_al_get_float (param);
+		#else
+		return 0;
+		#end
 		
 	}
 	
 	
 	public static function getFloatv (param:Int, count:Int = 1):Array<Float> {
 		
+		#if (cpp || neko)
 		return lime_al_get_floatv (param, count);
+		#else
+		return null;
+		#end
 		
 	}
 	
 	
 	public static function getInteger (param:Int):Int {
 		
+		#if (cpp || neko)
 		return lime_al_get_integer (param);
+		#else
+		return 0;
+		#end
 		
 	}
 	
 	
 	public static function getIntegerv (param:Int, count:Int = 1):Array<Int> {
 		
+		#if (cpp || neko)
 		return lime_al_get_integerv (param, count);
+		#else
+		return null;
+		#end
 		
 	}
 	
 	
 	public static function getListener3f (param:Int):Array<Float> {
 		
+		#if (cpp || neko)
 		return lime_al_get_listener3f (param);
+		#else
+		return null;
+		#end
 		
 	}
 	
 	
 	public static function getListener3i (param:Int):Array<Int> {
 		
+		#if (cpp || neko)
 		return lime_al_get_listener3i (param);
+		#else
+		return null;
+		#end
 		
 	}
 	
 	
 	public static function getListenerf (param:Int):Float {
 		
+		#if (cpp || neko)
 		return lime_al_get_listenerf (param);
+		#else
+		return 0;
+		#end
 		
 	}
 	
 	
 	public static function getListenerfv (param:Int, count:Int = 1):Array<Float> {
 		
+		#if (cpp || neko)
 		return lime_al_get_listenerfv (param, count);
+		#else
+		return null;
+		#end
 		
 	}
 	
 	
 	public static function getListeneri (param:Int):Int {
 		
+		#if (cpp || neko)
 		return lime_al_get_listeneri (param);
+		#else
+		return 0;
+		#end
 		
 	}
 	
 	
 	public static function getListeneriv (param:Int, count:Int = 1):Array<Int> {
 		
+		#if (cpp || neko)
 		return lime_al_get_listeneriv (param, count);
+		#else
+		return null;
+		#end
 		
 	}
 	
@@ -392,257 +527,356 @@ class AL {
 	
 	public static function getSource3f (source:Int, param:Int):Array<Float> {
 		
+		#if (cpp || neko)
 		return lime_al_get_source3f (source, param);
+		#else
+		return null;
+		#end
 		
 	}
 	
 	
 	public static function getSourcef (source:Int, param:Int):Float {
 		
+		#if (cpp || neko)
 		return lime_al_get_sourcef (source, param);
+		#else
+		return 0;
+		#end
 		
 	}
 	
 	
 	public static function getSource3i (source:Int, param:Int):Array<Int> {
 		
+		#if (cpp || neko)
 		return lime_al_get_source3i (source, param);
+		#else
+		return null;
+		#end
 		
 	}
 	
 	
 	public static function getSourcefv (source:Int, param:Int):Array<Float> {
 		
+		#if (cpp || neko)
 		return lime_al_get_sourcefv (source, param);
+		#else
+		return null;
+		#end
 		
 	}
 	
 	
 	public static function getSourcei (source:Int, param:Int):Int {
 		
+		#if (cpp || neko)
 		return lime_al_get_sourcei (source, param);
+		#else
+		return 0;
+		#end
 		
 	}
 	
 	
 	public static function getSourceiv (source:Int, param:Int, count:Int = 1):Array<Int> {
 		
+		#if (cpp || neko)
 		return lime_al_get_sourceiv (source, param, count);
+		#else
+		return null;
+		#end
 		
 	}
 	
 	
 	public static function getString (param:Int):String {
 		
+		#if (cpp || neko)
 		return lime_al_get_string (param);
+		#else
+		return null;
+		#end
 		
 	}
 	
 	
 	public static function isBuffer (buffer:Int):Bool {
 		
+		#if (cpp || neko)
 		return lime_al_is_buffer (buffer);
+		#else
+		return false;
+		#end
 		
 	}	
 	
 	
 	public static function isEnabled (capability:Int):Bool {
 		
+		#if (cpp || neko)
 		return lime_al_is_enabled (capability);
+		#else
+		return false;
+		#end
 		
 	}
 	
 	
 	public static function isExtensionPresent (extname:String):Bool {
 		
+		#if (cpp || neko)
 		return lime_al_is_extension_present (extname);
+		#else
+		return false;
+		#end
 		
 	}
 	
 	
 	public static function isSource (source:Int):Bool {
 		
+		#if (cpp || neko)
 		return lime_al_is_source (source);
+		#else
+		return false;
+		#end
 		
 	}
 	
 	
 	public static function listener3f (param:Int, value1:Float, value2:Float, value3:Float):Void {
 		
+		#if (cpp || neko)
 		lime_al_listener3f (param, value1, value2, value3);
+		#end
 		
 	}
 	
 	
 	public static function listener3i (param:Int, value1:Int, value2:Int, value3:Int):Void {
 		
+		#if (cpp || neko)
 		lime_al_listener3i (param, value1, value2, value3);
+		#end
 		
 	}
 	
 	
 	public static function listenerf (param:Int, value:Float):Void {
 		
+		#if (cpp || neko)
 		lime_al_listenerf (param, value);
+		#end
 		
 	}
 	
 	
 	public static function listenerfv (param:Int, values:Array<Float>):Void {
 		
+		#if (cpp || neko)
 		lime_al_listenerfv (param, values);
+		#end
 		
 	}
 	
 	
 	public static function listeneri (param:Int, value:Int):Void {
 		
+		#if (cpp || neko)
 		lime_al_listeneri (param, value);
+		#end
 		
 	}
 	
 	
 	public static function listeneriv (param:Int, values:Array<Int>):Void {
 		
+		#if (cpp || neko)
 		lime_al_listeneriv (param, values);
+		#end
 		
 	}
 	
 	
 	public static function source3f (source:Int, param:Int, value1:Float, value2:Float, value3:Float):Void {
 		
+		#if (cpp || neko)
 		lime_al_source3f (source, param, value1, value2, value3);
+		#end
 		
 	}
 	
 	
 	public static function source3i (source:Int, param:Int, value1:Int, value2:Int, value3:Int):Void {
 		
+		#if (cpp || neko)
 		lime_al_source3i (source, param, value1, value2, value3);
+		#end
 		
 	}
 	
 	
 	public static function sourcef (source:Int, param:Int, value:Float):Void {
 		
+		#if (cpp || neko)
 		lime_al_sourcef (source, param, value);
+		#end
 		
 	}
 	
 	
 	public static function sourcefv (source:Int, param:Int, values:Array<Float>):Void {
 		
+		#if (cpp || neko)
 		lime_al_sourcefv (source, param, values);
+		#end
 		
 	}
 	
 	
 	public static function sourcei (source:Int, param:Int, value:Int):Void {
 		
+		#if (cpp || neko)
 		lime_al_sourcei (source, param, value);
+		#end
 		
 	}
 	
 	
 	public static function sourceiv (source:Int, param:Int, values:Array<Int>):Void {
 		
+		#if (cpp || neko)
 		lime_al_sourceiv (source, param, values);
+		#end
 		
 	}
 	
 	
 	public static function sourcePlay (source:Int):Void {
 		
+		#if (cpp || neko)
 		lime_al_source_play (source);
+		#end
 		
 	}
 	
 	
 	public static function sourcePlayv (sources:Array<Int>):Void {
 		
+		#if (cpp || neko)
 		lime_al_source_playv (sources.length, sources);
+		#end
 		
 	}
 	
 	
 	public static function sourceStop (source:Int):Void {
 		
+		#if (cpp || neko)
 		lime_al_source_stop (source);
+		#end
 		
 	}
 	
 	
 	public static function sourceStopv (sources:Array<Int>):Void {
 		
+		#if (cpp || neko)
 		lime_al_source_stopv (sources.length, sources);
+		#end
 		
 	}
 	
 	
 	public static function sourceRewind (source:Int):Void {
 		
+		#if (cpp || neko)
 		lime_al_source_rewind (source);
+		#end
 		
 	}
 	
 	
 	public static function sourceRewindv (sources:Array<Int>):Void {
 		
+		#if (cpp || neko)
 		lime_al_source_rewindv (sources.length, sources);
+		#end
 		
 	}
 	
 	
 	public static function sourcePause (source:Int):Void {
 		
+		#if (cpp || neko)
 		lime_al_source_pause (source);
+		#end
 		
 	}
 	
 	
 	public static function sourcePausev (sources:Array<Int>):Void {
 		
+		#if (cpp || neko)
 		lime_al_source_pausev (sources.length, sources);
+		#end
 		
 	}
 	
 	
 	public static function sourceQueueBuffer (source:Int, buffer:Int):Void {
 		
+		#if (cpp || neko)
 		lime_al_source_queue_buffers (source, 1, [ buffer ]);
+		#end
 		
 	}
 	
 	
 	public static function sourceQueueBuffers (source:Int, nb:Int, buffers:Array<Int>):Void {
 		
+		#if (cpp || neko)
 		lime_al_source_queue_buffers (source, nb, buffers);
+		#end
 		
 	}
 	
 	
 	public static function sourceUnqueueBuffer (source:Int):Int {
 		
+		#if (cpp || neko)
 		var res = lime_al_source_unqueue_buffers (source, 1);
 		return res[0];
+		#else
+		return 0;
+		#end
 		
 	}
 	
 	
 	public static function sourceUnqueueBuffers (source:Int, nb:Int):Array<Int> {
 		
+		#if (cpp || neko)
 		return lime_al_source_unqueue_buffers (source, nb);
+		#else
+		return null;
+		#end
 		
 	}
 	
 	
 	public static function speedOfSound (value:Float):Void {
 		
+		#if (cpp || neko)
 		lime_al_speed_of_sound (value);
+		#end
 		
 	}
 	
 	
+	#if (cpp || neko)
 	private static var lime_al_buffer_data = System.load ("lime", "lime_al_buffer_data", 5);
 	private static var lime_al_bufferf = System.load ("lime", "lime_al_bufferf", 3);
 	private static var lime_al_buffer3f = System.load ("lime", "lime_al_buffer3f", 5);
@@ -720,6 +954,7 @@ class AL {
 	private static var lime_al_sourcei = System.load ("lime", "lime_al_sourcei", 3);
 	private static var lime_al_sourceiv = System.load ("lime", "lime_al_sourceiv", 3);
 	private static var lime_al_speed_of_sound = System.load ("lime", "lime_al_speed_of_sound", 1);
+	#end
 	
 	
 }

@@ -3,6 +3,7 @@ package lime.media;
 
 import lime.system.System;
 import lime.utils.ByteArray;
+import lime.utils.Float32Array;
 
 
 class AudioBuffer {
@@ -10,7 +11,7 @@ class AudioBuffer {
 	
 	public var bitsPerSample:Int;
 	public var channels:Int;
-	public var data:ByteArray;
+	public var data:Float32Array;
 	public var sampleRate:Int;
 	
 	

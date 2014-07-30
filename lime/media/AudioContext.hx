@@ -9,7 +9,7 @@ import lime.media.WebAudioContext;
 
 enum AudioContext {
 	
-	OPENAL (al:ALAudioContext);
+	OPENAL (alc:ALCAudioContext, al:ALAudioContext);
 	HTML5 (context:HTML5AudioContext);
 	WEB (context:WebAudioContext);
 	FLASH (context:FlashAudioContext);

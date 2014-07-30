@@ -1,5 +1,4 @@
 package lime.media;
-import openfl.utils.UInt;
 
 
 #if flash
@@ -115,7 +114,7 @@ class FlashAudioContext {
 		}
 		#end
 		
-		return false;
+		return 0;
 		
 	}
 	

@@ -9,15 +9,15 @@ import js.html.Audio;
 class HTML5AudioContext {
 	
 	
-	public inline var HAVE_CURRENT_DATA:Int = 2;
-	public inline var HAVE_ENOUGH_DATA:Int = 4;
-	public inline var HAVE_FUTURE_DATA:Int = 3;
-	public inline var HAVE_METADATA:Int = 1;
-	public inline var HAVE_NOTHING:Int = 0;
-	public inline var NETWORK_EMPTY:Int = 0;
-	public inline var NETWORK_IDLE:Int = 1;
-	public inline var NETWORK_LOADING:Int = 2;
-	public inline var NETWORK_NO_SOURCE:Int = 3;
+	public var HAVE_CURRENT_DATA:Int = 2;
+	public var HAVE_ENOUGH_DATA:Int = 4;
+	public var HAVE_FUTURE_DATA:Int = 3;
+	public var HAVE_METADATA:Int = 1;
+	public var HAVE_NOTHING:Int = 0;
+	public var NETWORK_EMPTY:Int = 0;
+	public var NETWORK_IDLE:Int = 1;
+	public var NETWORK_LOADING:Int = 2;
+	public var NETWORK_NO_SOURCE:Int = 3;
 	
 	
 	public function new () {
@@ -46,7 +46,8 @@ class HTML5AudioContext {
 		
 		#if js
 		var source = new AudioSource ();
-		source.src = new Audio (urlString);
+		source.src = new Audio ();
+		source.src.src = urlString;
 		return source;
 		#else
 		return null;
@@ -185,7 +186,7 @@ class HTML5AudioContext {
 		}
 		#end
 		
-		return 0;
+		return false;
 		
 	}
 	
@@ -325,7 +326,7 @@ class HTML5AudioContext {
 	}
 	
 	
-	public function getPreload (source:AudioSource):Bool {
+	public function getPreload (source:AudioSource):String {
 		
 		#if js
 		if (source.src != null) {
@@ -335,7 +336,7 @@ class HTML5AudioContext {
 		}
 		#end
 		
-		return false;
+		return null;
 		
 	}
 	
@@ -350,7 +351,7 @@ class HTML5AudioContext {
 		}
 		#end
 		
-		return false;
+		return 0;
 		
 	}
 	
@@ -573,7 +574,7 @@ class HTML5AudioContext {
 	}
 	
 	
-	public function setPreload (source:AudioSource, value:Bool):Void {
+	public function setPreload (source:AudioSource, value:String):Void {
 		
 		#if js
 		if (source.src != null) {

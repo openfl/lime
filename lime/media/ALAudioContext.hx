@@ -2,83 +2,79 @@ package lime.media;
 
 
 import lime.media.openal.AL;
-import lime.media.openal.ALC;
-import lime.media.openal.ALContext;
-import lime.media.openal.ALDevice;
+import lime.utils.Float32Array;
 
 
 class ALAudioContext {
 	
 	
-	public inline var NONE:Int = 0;
-	public inline var FALSE:Int = 0;
-	public inline var TRUE:Int = 1;
-	public inline var SOURCE_RELATIVE:Int = 0x202;
-	public inline var CONE_INNER_ANGLE:Int = 0x1001;
-	public inline var CONE_OUTER_ANGLE:Int = 0x1002;
-	public inline var PITCH:Int = 0x1003;
-	public inline var POSITION:Int = 0x1004;
-	public inline var DIRECTION:Int = 0x1005;
-	public inline var VELOCITY:Int = 0x1006;
-	public inline var LOOPING:Int = 0x1007;
-	public inline var BUFFER:Int = 0x1009;
-	public inline var GAIN:Int = 0x100A;
-	public inline var MIN_GAIN:Int = 0x100D;
-	public inline var MAX_GAIN:Int = 0x100E;
-	public inline var ORIENTATION:Int = 0x100F;
-	public inline var SOURCE_STATE:Int = 0x1010;
-	public inline var INITIAL:Int = 0x1011;
-	public inline var PLAYING:Int = 0x1012;
-	public inline var PAUSED:Int = 0x1013;
-	public inline var STOPPED:Int = 0x1014;
-	public inline var BUFFERS_QUEUED:Int = 0x1015;
-	public inline var BUFFERS_PROCESSED:Int = 0x1016;
-	public inline var REFERENCE_DISTANCE:Int = 0x1020;
-	public inline var ROLLOFF_FACTOR:Int = 0x1021;
-	public inline var CONE_OUTER_GAIN:Int = 0x1022;
-	public inline var MAX_DISTANCE:Int = 0x1023;
-	public inline var SEC_OFFSET:Int = 0x1024;
-	public inline var SAMPLE_OFFSET:Int = 0x1025;
-	public inline var BYTE_OFFSET:Int = 0x1026;
-	public inline var SOURCE_TYPE:Int = 0x1027;
-	public inline var STATIC:Int = 0x1028;
-	public inline var STREAMING:Int = 0x1029;
-	public inline var UNDETERMINED:Int = 0x1030;
-	public inline var FORMAT_MONO8:Int = 0x1100;
-	public inline var FORMAT_MONO16:Int = 0x1101;
-	public inline var FORMAT_STEREO8:Int = 0x1102;
-	public inline var FORMAT_STEREO16:Int = 0x1103;
-	public inline var FREQUENCY:Int = 0x2001;
-	public inline var BITS:Int = 0x2002;
-	public inline var CHANNELS:Int = 0x2003;
-	public inline var SIZE:Int = 0x2004;
-	public inline var NO_ERROR:Int = 0;
-	public inline var INVALID_NAME:Int = 0xA001;
-	public inline var INVALID_ENUM:Int = 0xA002;
-	public inline var INVALID_VALUE:Int = 0xA003;
-	public inline var INVALID_OPERATION:Int = 0xA004;
-	public inline var OUT_OF_MEMORY:Int = 0xA005;
-	public inline var VENDOR:Int = 0xB001;
-	public inline var VERSION:Int = 0xB002;
-	public inline var RENDERER:Int = 0xB003;
-	public inline var EXTENSIONS:Int = 0xB004;
-	public inline var DOPPLER_FACTOR:Int = 0xC000;
-	public inline var SPEED_OF_SOUND:Int = 0xC003;
-	public inline var DOPPLER_VELOCITY:Int = 0xC001;
-	public inline var DISTANCE_MODEL:Int = 0xD000;
-	public inline var INVERSE_DISTANCE:Int = 0xD001;
-	public inline var INVERSE_DISTANCE_CLAMPED:Int = 0xD002;
-	public inline var LINEAR_DISTANCE:Int = 0xD003;
-	public inline var LINEAR_DISTANCE_CLAMPED:Int = 0xD004;
-	public inline var EXPONENT_DISTANCE:Int = 0xD005;
-	public inline var EXPONENT_DISTANCE_CLAMPED:Int = 0xD006;
-	
-	public var alc:ALAudioContext_ALC;
+	public var NONE:Int = 0;
+	public var FALSE:Int = 0;
+	public var TRUE:Int = 1;
+	public var SOURCE_RELATIVE:Int = 0x202;
+	public var CONE_INNER_ANGLE:Int = 0x1001;
+	public var CONE_OUTER_ANGLE:Int = 0x1002;
+	public var PITCH:Int = 0x1003;
+	public var POSITION:Int = 0x1004;
+	public var DIRECTION:Int = 0x1005;
+	public var VELOCITY:Int = 0x1006;
+	public var LOOPING:Int = 0x1007;
+	public var BUFFER:Int = 0x1009;
+	public var GAIN:Int = 0x100A;
+	public var MIN_GAIN:Int = 0x100D;
+	public var MAX_GAIN:Int = 0x100E;
+	public var ORIENTATION:Int = 0x100F;
+	public var SOURCE_STATE:Int = 0x1010;
+	public var INITIAL:Int = 0x1011;
+	public var PLAYING:Int = 0x1012;
+	public var PAUSED:Int = 0x1013;
+	public var STOPPED:Int = 0x1014;
+	public var BUFFERS_QUEUED:Int = 0x1015;
+	public var BUFFERS_PROCESSED:Int = 0x1016;
+	public var REFERENCE_DISTANCE:Int = 0x1020;
+	public var ROLLOFF_FACTOR:Int = 0x1021;
+	public var CONE_OUTER_GAIN:Int = 0x1022;
+	public var MAX_DISTANCE:Int = 0x1023;
+	public var SEC_OFFSET:Int = 0x1024;
+	public var SAMPLE_OFFSET:Int = 0x1025;
+	public var BYTE_OFFSET:Int = 0x1026;
+	public var SOURCE_TYPE:Int = 0x1027;
+	public var STATIC:Int = 0x1028;
+	public var STREAMING:Int = 0x1029;
+	public var UNDETERMINED:Int = 0x1030;
+	public var FORMAT_MONO8:Int = 0x1100;
+	public var FORMAT_MONO16:Int = 0x1101;
+	public var FORMAT_STEREO8:Int = 0x1102;
+	public var FORMAT_STEREO16:Int = 0x1103;
+	public var FREQUENCY:Int = 0x2001;
+	public var BITS:Int = 0x2002;
+	public var CHANNELS:Int = 0x2003;
+	public var SIZE:Int = 0x2004;
+	public var NO_ERROR:Int = 0;
+	public var INVALID_NAME:Int = 0xA001;
+	public var INVALID_ENUM:Int = 0xA002;
+	public var INVALID_VALUE:Int = 0xA003;
+	public var INVALID_OPERATION:Int = 0xA004;
+	public var OUT_OF_MEMORY:Int = 0xA005;
+	public var VENDOR:Int = 0xB001;
+	public var VERSION:Int = 0xB002;
+	public var RENDERER:Int = 0xB003;
+	public var EXTENSIONS:Int = 0xB004;
+	public var DOPPLER_FACTOR:Int = 0xC000;
+	public var SPEED_OF_SOUND:Int = 0xC003;
+	public var DOPPLER_VELOCITY:Int = 0xC001;
+	public var DISTANCE_MODEL:Int = 0xD000;
+	public var INVERSE_DISTANCE:Int = 0xD001;
+	public var INVERSE_DISTANCE_CLAMPED:Int = 0xD002;
+	public var LINEAR_DISTANCE:Int = 0xD003;
+	public var LINEAR_DISTANCE_CLAMPED:Int = 0xD004;
+	public var EXPONENT_DISTANCE:Int = 0xD005;
+	public var EXPONENT_DISTANCE_CLAMPED:Int = 0xD006;
 	
 	
 	public function new () {
 		
-		alc = new ALAudioContext_ALC ();
+		
 		
 	}
 	
@@ -106,7 +102,7 @@ class ALAudioContext {
 	
 	public function bufferf (buffer:Int, param:Int, value:Float):Void {
 		
-		lime_al_bufferf (buffer, param, value);
+		AL.bufferf (buffer, param, value);
 		
 	}
 	
@@ -134,7 +130,7 @@ class ALAudioContext {
 	
 	public function deleteBuffer (buffer:Int):Void {
 		
-		lime_al_delete_buffer (buffer);
+		AL.deleteBuffer (buffer);
 		
 	}
 	
@@ -561,7 +557,7 @@ class ALAudioContext {
 	
 	public function sourcePlayv (sources:Array<Int>):Void {
 		
-		AL.sourcePlayv (sources.length, sources);
+		AL.sourcePlayv (sources);
 		
 	}
 	
@@ -639,133 +635,6 @@ class ALAudioContext {
 	public function speedOfSound (value:Float):Void {
 		
 		AL.speedOfSound (value);
-		
-	}
-	
-	
-}
-
-
-private class ALAudioContext_ALC {
-	
-	
-	public inline var FALSE:Int = 0;
-	public inline var TRUE:Int = 1;
-	public inline var FREQUENCY:Int = 0x1007;
-	public inline var REFRESH:Int = 0x1008;
-	public inline var SYNC:Int = 0x1009;
-	public inline var MONO_SOURCES:Int = 0x1010;
-	public inline var STEREO_SOURCES:Int = 0x1011;
-	public inline var NO_ERROR:Int = 0;
-	public inline var INVALID_DEVICE:Int = 0xA001;
-	public inline var INVALID_CONTEXT:Int = 0xA002;
-	public inline var INVALID_ENUM:Int = 0xA003;
-	public inline var INVALID_VALUE:Int = 0xA004;
-	public inline var OUT_OF_MEMORY:Int = 0xA005;
-	public inline var ATTRIBUTES_SIZE:Int = 0x1002;
-	public inline var ALL_ATTRIBUTES:Int = 0x1003;
-	public inline var DEFAULT_DEVICE_SPECIFIER:Int = 0x1004;
-	public inline var DEVICE_SPECIFIER:Int = 0x1005;
-	public inline var ALC_EXTENSIONS:Int = 0x1006;
-	public inline var ENUMERATE_ALL_EXT:Int = 1;
-	public inline var DEFAULT_ALL_DEVICES_SPECIFIER:Int = 0x1012;
-	public inline var ALL_DEVICES_SPECIFIER:Int = 0x1013;
-	
-	
-	public function new () {
-		
-		
-		
-	}
-	
-	
-	public function closeDevice (device:ALDevice):Bool {
-		
-		return ALC.closeDevice (device);
-		
-	}
-	
-	
-	public function createContext (device:ALDevice, attrlist:Array<Int> = null):ALContext {
-		
-		return ALC.createContext (device, attrlist);
-		
-	}
-	
-	
-	public function destroyContext (context:ALContext):Void {
-		
-		ALC.destroyContext (context);
-		
-	}
-	
-	
-	public function getContextsDevice (context:ALContext):ALDevice {
-		
-		return ALC.getContextsDevice (context);
-		
-	}
-	
-	
-	public function getCurrentContext ():ALContext {
-		
-		return ALC.getCurrentContext ();
-		
-	}
-	
-	
-	public function getError (device:ALDevice):Int {
-		
-		return ALC.getError (device);
-		
-	}
-	
-	
-	public function getErrorString (device:ALDevice):String {
-		
-		return ALC.getErrorString (device);
-		
-	}
-	
-	
-	public function getIntegerv (device:ALDevice, param:Int, count:Int = 1):Array<Int> {
-		
-		return ALC.getIntegerv (device, param, size);
-		
-	}
-	
-	
-	public function getString (device:ALDevice, param:Int):String {
-		
-		return ALC.getString (device, param);
-		
-	}
-	
-	
-	public function makeContextCurrent (context:ALContext):Bool {
-		
-		return ALC.makeContextCurrent (context);
-		
-	}
-	
-	
-	public function openDevice (deviceName:String = null):ALDevice {
-		
-		return ALC.openDevice (deviceName);
-		
-	}
-	
-	
-	public function processContext (context:ALContext):Void {
-		
-		ALC.processContext (context);
-		
-	}
-	
-	
-	public function suspendContext (context:ALContext):Void {
-		
-		ALC.suspendContext (context);
 		
 	}
 	
