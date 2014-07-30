@@ -4,12 +4,23 @@
 
 #include <hx/CFFI.h>
 #include <list>
-#include <media/Image.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
 
 namespace lime {
+
+
+	class Image;
+
+
+	typedef struct {
+
+		unsigned long codepoint;
+		FT_UInt index;
+		FT_Pos height;
+
+	} GlyphInfo;
 
 
 	class Font {
@@ -18,11 +29,14 @@ namespace lime {
 		public:
 
 			Font (const char *fontFace);
-			value LoadGlyphs (int size, const char *glyphs, Image *image);
+			void LoadGlyphs (int size, const char *glyphs);
+			value createImage (Image *image);
+
+			FT_Face face;
 
 		private:
 
-			FT_Face face;
+			std::list<GlyphInfo> glyphList;
 
 
 	};

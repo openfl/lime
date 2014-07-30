@@ -1,15 +1,115 @@
 #include <graphics/Font.h>
-#include <ft2build.h>
-#include FT_FREETYPE_H
+#include <media/Image.h>
+#include <algorithm>
 
+// from http://stackoverflow.com/questions/2948308/how-do-i-read-utf-8-characters-via-a-pointer
+#define IS_IN_RANGE(c, f, l)    (((c) >= (f)) && ((c) <= (l)))
 
-typedef struct {
+unsigned long readNextChar (char*& p)
+{
+    // TODO: since UTF-8 is a variable-length
+    // encoding, you should pass in the input
+    // buffer's actual byte length so that you
+    // can determine if a malformed UTF-8
+    // sequence would exceed the end of the buffer...
 
-	char c;
-	FT_UInt index;
-	FT_Pos height;
+    unsigned char c1, c2, *ptr = (unsigned char*) p;
+    unsigned long uc = 0;
+    int seqlen;
 
-} GlyphInfo;
+    c1 = ptr[0];
+
+    if ((c1 & 0x80) == 0) {
+
+        uc = (unsigned long) (c1 & 0x7F);
+        seqlen = 1;
+
+    } else if ((c1 & 0xE0) == 0xC0) {
+
+        uc = (unsigned long) (c1 & 0x1F);
+        seqlen = 2;
+
+    } else if ((c1 & 0xF0) == 0xE0) {
+
+        uc = (unsigned long) (c1 & 0x0F);
+        seqlen = 3;
+
+    } else if ((c1 & 0xF8) == 0xF0) {
+
+        uc = (unsigned long) (c1 & 0x07);
+        seqlen = 4;
+
+    } else {
+
+        // malformed data, do something !!!
+        return (unsigned long) -1;
+
+    }
+
+    for (int i = 1; i < seqlen; ++i) {
+
+        c1 = ptr[i];
+
+        if ((c1 & 0xC0) != 0x80) {
+
+            // malformed data, do something !!!
+            return (unsigned long) -1;
+
+        }
+
+    }
+
+    switch (seqlen) {
+        case 2:
+            c1 = ptr[0];
+
+            if (!IS_IN_RANGE(c1, 0xC2, 0xDF)) {
+
+                // malformed data, do something !!!
+                return (unsigned long) -1;
+
+            }
+
+            break;
+        case 3:
+            c1 = ptr[0];
+            c2 = ptr[1];
+
+            if (((c1 == 0xE0) && !IS_IN_RANGE(c2, 0xA0, 0xBF)) ||
+                ((c1 == 0xED) && !IS_IN_RANGE(c2, 0x80, 0x9F)) ||
+                (!IS_IN_RANGE(c1, 0xE1, 0xEC) && !IS_IN_RANGE(c1, 0xEE, 0xEF))) {
+
+                // malformed data, do something !!!
+                return (unsigned long) -1;
+
+            }
+
+            break;
+        case 4:
+            c1 = ptr[0];
+            c2 = ptr[1];
+
+            if (((c1 == 0xF0) && !IS_IN_RANGE(c2, 0x90, 0xBF)) ||
+                ((c1 == 0xF4) && !IS_IN_RANGE(c2, 0x80, 0x8F)) ||
+                !IS_IN_RANGE(c1, 0xF1, 0xF3)) {
+
+                // malformed data, do something !!!
+                return (unsigned long) -1;
+
+            }
+
+            break;
+    }
+
+    for (int i = 1; i < seqlen; ++i) {
+
+        uc = ((uc << 6) | (unsigned long)(ptr[i] & 0x3F));
+
+    }
+
+    p += seqlen;
+    return uc;
+}
 
 
 namespace lime {
@@ -22,13 +122,19 @@ namespace lime {
 	static int id_advance;
 	static int id_width;
 	static int id_height;
-	static int id_char;
+	static int id_codepoint;
 	static bool init = false;
 
 
-	bool CompareGlyph (const GlyphInfo &a, const GlyphInfo &b) {
+	bool CompareGlyphHeight (const GlyphInfo &a, const GlyphInfo &b) {
 
 		return a.height > b.height;
+
+	}
+
+	bool CompareGlyphCodepoint (const GlyphInfo &a, const GlyphInfo &b) {
+
+		return a.codepoint < b.codepoint;
 
 	}
 
@@ -58,10 +164,72 @@ namespace lime {
 
 		}
 
+		/* Set charmap
+		 *
+		 * See http://www.microsoft.com/typography/otspec/name.htm for a list of
+		 * some possible platform-encoding pairs.  We're interested in 0-3 aka 3-1
+		 * - UCS-2.  Otherwise, fail. If a font has some unicode map, but lacks
+		 * UCS-2 - it is a broken or irrelevant font. What exactly Freetype will
+		 * select on face load (it promises most wide unicode, and if that will be
+		 * slower that UCS-2 - left as an excercise to check.
+		 */
+		for (int i = 0; i < face->num_charmaps; i++) {
+
+			FT_UShort pid = face->charmaps[i]->platform_id;
+			FT_UShort eid = face->charmaps[i]->encoding_id;
+
+			if (((pid == 0) && (eid == 3)) || ((pid == 3) && (eid == 1))) {
+
+				FT_Set_Charmap (face, face->charmaps[i]);
+
+			}
+
+		}
+
 	}
 
 
-	value Font::LoadGlyphs (int size, const char *glyphs, Image *image) {
+	void Font::LoadGlyphs (int size, const char *glyphs) {
+
+		size_t hdpi = 72;
+		size_t vdpi = 72;
+		size_t hres = 100;
+		FT_Matrix matrix = {
+			(int)((1.0/hres) * 0x10000L),
+			(int)((0.0) * 0x10000L),
+			(int)((0.0) * 0x10000L),
+			(int)((1.0) * 0x10000L)
+		};
+
+		FT_Set_Char_Size (face, 0, (int)(size*64), (int)(hdpi * hres), vdpi);
+		FT_Set_Transform (face, &matrix, NULL);
+
+		char *g = (char*)glyphs;
+		while (*g != 0) {
+
+			GlyphInfo info;
+			bool found = false;
+			info.codepoint = readNextChar(g);
+
+			std::list<GlyphInfo>::iterator first = glyphList.begin ();
+			first = std::lower_bound (first, glyphList.end (), info, CompareGlyphCodepoint);
+
+			if (info.codepoint < (*first).codepoint) {
+
+				info.index = FT_Get_Char_Index (face, info.codepoint);
+
+				if (FT_Load_Glyph (face, info.index, FT_LOAD_DEFAULT) != 0) continue;
+				info.height = face->glyph->metrics.height;
+
+				glyphList.insert (first, info);
+
+			}
+
+		}
+
+	}
+
+	value Font::createImage (Image *image) {
 
 		if (!init) {
 
@@ -72,33 +240,14 @@ namespace lime {
 			id_x_offset = val_id ("xOffset");
 			id_y_offset = val_id ("yOffset");
 			id_advance = val_id ("advance");
-			id_char = val_id ("char");
+			id_codepoint = val_id ("codepoint");
 			init = true;
 
 		}
 
-		std::list<GlyphInfo> glyphList;
-		int numGlyphs = strlen (glyphs);
-		char c[2] = " ";
+		glyphList.sort (CompareGlyphHeight);
 
-		FT_Set_Pixel_Sizes (face, 0, size);
-
-		for (int i = 0; i < numGlyphs; i++) {
-
-			GlyphInfo info;
-			info.c = glyphs[i];
-			info.index = FT_Get_Char_Index (face, info.c);
-
-			if (FT_Load_Glyph (face, info.index, FT_LOAD_DEFAULT) != 0) continue;
-			info.height = face->glyph->metrics.height;
-
-			glyphList.push_back(info);
-
-		}
-
-		glyphList.sort(CompareGlyph);
-
-		image->Resize(128, 128, 1);
+		image->Resize (128, 128, 1);
 		int x = 0, y = 0, maxRows = 0;
 		unsigned char *bytes = image->data->Bytes ();
 
@@ -108,7 +257,6 @@ namespace lime {
 		for (std::list<GlyphInfo>::iterator it = glyphList.begin(); it != glyphList.end(); it++) {
 
 			FT_Load_Glyph (face, (*it).index, FT_LOAD_DEFAULT);
-			c[0] = (*it).c;
 
 			if (FT_Render_Glyph (face->glyph, FT_RENDER_MODE_NORMAL) != 0) continue;
 
@@ -177,7 +325,7 @@ namespace lime {
 			alloc_field (v, id_advance, alloc_int (face->glyph->metrics.horiAdvance / 64));
 			alloc_field (v, id_width, alloc_int (bitmap.width));
 			alloc_field (v, id_height, alloc_int (bitmap.rows));
-			alloc_field (v, id_char, alloc_string (c));
+			alloc_field (v, id_codepoint, alloc_int ((*it).codepoint));
 			val_array_set_i (rects, rectsIndex++, v);
 
 			x += bitmap.width + 1;

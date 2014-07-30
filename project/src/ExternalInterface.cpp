@@ -12,7 +12,10 @@
 #include <app/UpdateEvent.h>
 #ifdef LIME_FREETYPE
 #include <graphics/Font.h>
-#endif
+#ifdef LIME_HARFBUZZ
+#include <graphics/Text.h>
+#endif // LIME_HARFBUZZ
+#endif // LIME_FREETYPE
 #include <graphics/Renderer.h>
 #include <graphics/RenderEvent.h>
 #include <media/format/JPEG.h>
@@ -27,6 +30,7 @@
 #include <ui/TouchEvent.h>
 #include <ui/Window.h>
 #include <ui/WindowEvent.h>
+#include <utils/CFFIValue.h>
 #include <vm/NekoVM.h>
 
 
@@ -129,11 +133,22 @@ namespace lime {
 	}
 	
 	
+	void lime_font_destroy (value fontHandle) {
+
+		Font *font = (Font*)(intptr_t)val_float (fontHandle);
+		delete font;
+		font = 0;
+
+	}
+
+
 	value lime_font_load (value fontFace) {
 		
 		#ifdef LIME_FREETYPE
 		Font *font = new Font (val_string (fontFace));
-		return alloc_float ((intptr_t)font);
+		value v = alloc_float ((intptr_t)font);
+		val_gc (v, lime_font_destroy);
+		return v;
 		#else
 		return alloc_null ();
 		#endif
@@ -144,16 +159,66 @@ namespace lime {
 	value lime_font_load_glyphs (value fontHandle, value size, value glyphs) {
 		
 		#ifdef LIME_FREETYPE
+		Font *font = (Font*)(intptr_t)val_float (fontHandle);
+		font->LoadGlyphs (val_int (size), val_string (glyphs));
+		#endif
+
+		return alloc_null ();
+
+	}
+
+
+	value lime_font_create_image (value fontHandle) {
+
+		#ifdef LIME_FREETYPE
 		Image image;
 		Font *font = (Font*)(intptr_t)val_float (fontHandle);
 		value data = alloc_empty_object ();
-		alloc_field (data, val_id ("glyphs"), font->LoadGlyphs (val_int (size), val_string (glyphs), &image));
+		alloc_field (data, val_id ("glyphs"), font->createImage (&image));
 		alloc_field (data, val_id ("image"), image.Value ());
 		return data;
 		#else
 		return alloc_null ();
 		#endif
 		
+	}
+	
+	
+	void lime_text_destroy (value textHandle) {
+
+		Text *text = (Text*)(intptr_t)val_float (textHandle);
+		delete text;
+		text = 0;
+
+	}
+
+
+	value lime_text_create (value direction, value script, value language) {
+
+		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
+		Text *text = new Text (val_int (direction), val_string (script), val_string (language));
+		value v = alloc_float ((intptr_t)text);
+		val_gc (v, lime_text_destroy);
+		return v;
+		#else
+		return alloc_null ();
+		#endif
+
+	}
+
+
+	value lime_text_from_string (value textHandle, value fontHandle, value textString) {
+
+		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
+		Image image;
+		Text *text = (Text*)(intptr_t)val_float (textHandle);
+		Font *font = (Font*)(intptr_t)val_float (fontHandle);
+		text->fromString(font, val_string (textString));
+		return alloc_null ();
+		#else
+		return alloc_null ();
+		#endif
+
 	}
 	
 	
@@ -303,6 +368,9 @@ namespace lime {
 	DEFINE_PRIM (lime_image_load, 1);
 	DEFINE_PRIM (lime_font_load, 1);
 	DEFINE_PRIM (lime_font_load_glyphs, 3);
+	DEFINE_PRIM (lime_font_create_image, 1);
+	DEFINE_PRIM (lime_text_create, 3);
+	DEFINE_PRIM (lime_text_from_string, 3);
 	DEFINE_PRIM (lime_key_event_manager_register, 2);
 	DEFINE_PRIM (lime_lzma_encode, 1);
 	DEFINE_PRIM (lime_lzma_decode, 1);

@@ -34,7 +34,7 @@ class Font {
 
 	#elseif (cpp || neko)
 
-	public var handle:GlyphRect;
+	public var handle:Dynamic;
 
 	#end
 
@@ -52,7 +52,7 @@ class Font {
 
 	}
 
-	public function createImage (size:Int, glyphs:String="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. "):GlyphData {
+	public function loadGlyphData (size:Int, glyphs:String="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. "):GlyphData {
 
 		var glyphRects = new StringMap<GlyphRect>();
 
@@ -211,7 +211,8 @@ class Font {
 
 		#elseif (cpp || neko)
 
-		var data = lime_font_load_glyphs (handle, size, glyphs);
+		lime_font_load_glyphs (handle, size, glyphs);
+		var data = lime_font_create_image (handle);
 
 		if (data == null) {
 
@@ -247,6 +248,7 @@ class Font {
 	#if (cpp || neko)
 	private static var lime_font_load = System.load ("lime", "lime_font_load", 1);
 	private static var lime_font_load_glyphs = System.load ("lime", "lime_font_load_glyphs", 3);
+	private static var lime_font_create_image = System.load ("lime", "lime_font_create_image", 1);
 	#end
 
 }
