@@ -269,34 +269,6 @@ class AL {
 	}
 	
 	
-	public static function getInteger (param:Int):Int {
-		
-		return lime_al_get_integer (param);
-		
-	}
-	
-	
-	public static function getIntegerv (param:Int, count:Int = 1):Array<Int> {
-		
-		return lime_al_get_integerv (param, count);
-		
-	}
-	
-	
-	public static function getFloat (param:Int):Float {
-		
-		return lime_al_get_float (param);
-		
-	}
-	
-	
-	public static function getFloatv (param:Int, count:Int = 1):Array<Float> {
-		
-		return lime_al_get_floatv (param, count);
-		
-	}
-	
-	
 	public static function getDouble (param:Int):Float {
 		
 		return lime_al_get_double (param);
@@ -337,6 +309,34 @@ class AL {
 			default: "";
 			
 		}
+		
+	}
+	
+	
+	public static function getFloat (param:Int):Float {
+		
+		return lime_al_get_float (param);
+		
+	}
+	
+	
+	public static function getFloatv (param:Int, count:Int = 1):Array<Float> {
+		
+		return lime_al_get_floatv (param, count);
+		
+	}
+	
+	
+	public static function getInteger (param:Int):Int {
+		
+		return lime_al_get_integer (param);
+		
+	}
+	
+	
+	public static function getIntegerv (param:Int, count:Int = 1):Array<Int> {
+		
+		return lime_al_get_integerv (param, count);
 		
 	}
 	
