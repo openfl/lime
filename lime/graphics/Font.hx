@@ -27,6 +27,10 @@ typedef GlyphData = {
 @:autoBuild(lime.Assets.embedFont())
 class Font {
 
+
+	public var image:Image;
+	public var glyphRects:StringMap<GlyphRect>;
+
 	#if js
 
 	private static var __canvas:CanvasElement;
@@ -52,9 +56,54 @@ class Font {
 
 	}
 
-	public function loadGlyphData (size:Int, glyphs:String="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. "):GlyphData {
+	public function createImage ():Image {
 
-		var glyphRects = new StringMap<GlyphRect>();
+		glyphRects = new StringMap<GlyphRect>();
+
+		#if (cpp || neko)
+
+		var data = lime_font_create_image (handle);
+
+		if (data == null) {
+
+			return null;
+
+		} else {
+
+			for (glyph in cast (data.glyphs, Array<Dynamic>)) {
+
+				glyphRects.set (glyph.char, {
+					x: glyph.x,
+					y: glyph.y,
+					xOffset: glyph.xOffset,
+					yOffset: glyph.yOffset,
+					advance: glyph.advance,
+					width: glyph.width,
+					height: glyph.height,
+				});
+
+			}
+
+			glyphRects = data.glyphRects;
+			return new Image (new UInt8Array (data.image.data), data.image.width, data.image.height, data.image.bpp);
+
+		}
+
+		#end
+
+	}
+
+	public function loadRange (size:Int, start:Int, end:Int) {
+
+		#if (cpp || neko)
+
+		lime_font_load_range (handle, size, start, end);
+
+		#end
+
+	}
+
+	public function loadGlyphs (size:Int, glyphs:String="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. ") {
 
 		#if js
 
@@ -212,34 +261,6 @@ class Font {
 		#elseif (cpp || neko)
 
 		lime_font_load_glyphs (handle, size, glyphs);
-		var data = lime_font_create_image (handle);
-
-		if (data == null) {
-
-			return null;
-
-		} else {
-
-			for (glyph in cast (data.glyphs, Array<Dynamic>)) {
-
-				glyphRects.set (glyph.char, {
-					x: glyph.x,
-					y: glyph.y,
-					xOffset: glyph.xOffset,
-					yOffset: glyph.yOffset,
-					advance: glyph.advance,
-					width: glyph.width,
-					height: glyph.height,
-				});
-
-			}
-
-			return {
-				glyphs: glyphRects,
-				image: new Image (new UInt8Array (data.image.data), data.image.width, data.image.height, data.image.bpp)
-			};
-
-		}
 
 		#end
 
@@ -248,6 +269,7 @@ class Font {
 	#if (cpp || neko)
 	private static var lime_font_load = System.load ("lime", "lime_font_load", 1);
 	private static var lime_font_load_glyphs = System.load ("lime", "lime_font_load_glyphs", 3);
+	private static var lime_font_load_range = System.load ("lime", "lime_font_load_range", 4);
 	private static var lime_font_create_image = System.load ("lime", "lime_font_create_image", 1);
 	#end
 

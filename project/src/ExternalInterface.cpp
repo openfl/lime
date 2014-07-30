@@ -30,7 +30,6 @@
 #include <ui/TouchEvent.h>
 #include <ui/Window.h>
 #include <ui/WindowEvent.h>
-#include <utils/CFFIValue.h>
 #include <vm/NekoVM.h>
 
 
@@ -168,13 +167,25 @@ namespace lime {
 	}
 
 
+	value lime_font_load_range (value fontHandle, value size, value start, value end) {
+		
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)(intptr_t)val_float (fontHandle);
+		font->LoadRange (val_int (size), val_int (start), val_int (end));
+		#endif
+
+		return alloc_null ();
+
+	}
+
+
 	value lime_font_create_image (value fontHandle) {
 
 		#ifdef LIME_FREETYPE
 		Image image;
 		Font *font = (Font*)(intptr_t)val_float (fontHandle);
 		value data = alloc_empty_object ();
-		alloc_field (data, val_id ("glyphs"), font->createImage (&image));
+		alloc_field (data, val_id ("glyphs"), font->renderToImage (&image));
 		alloc_field (data, val_id ("image"), image.Value ());
 		return data;
 		#else
@@ -207,7 +218,7 @@ namespace lime {
 	}
 
 
-	value lime_text_from_string (value textHandle, value fontHandle, value textString) {
+	value lime_text_from_string (value textHandle, value fontHandle, value size, value textString) {
 
 		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
 		Image image;
@@ -368,9 +379,10 @@ namespace lime {
 	DEFINE_PRIM (lime_image_load, 1);
 	DEFINE_PRIM (lime_font_load, 1);
 	DEFINE_PRIM (lime_font_load_glyphs, 3);
+	DEFINE_PRIM (lime_font_load_range, 4);
 	DEFINE_PRIM (lime_font_create_image, 1);
 	DEFINE_PRIM (lime_text_create, 3);
-	DEFINE_PRIM (lime_text_from_string, 3);
+	DEFINE_PRIM (lime_text_from_string, 4);
 	DEFINE_PRIM (lime_key_event_manager_register, 2);
 	DEFINE_PRIM (lime_lzma_encode, 1);
 	DEFINE_PRIM (lime_lzma_decode, 1);

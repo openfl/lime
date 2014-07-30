@@ -134,7 +134,7 @@ namespace lime {
 
 	bool CompareGlyphCodepoint (const GlyphInfo &a, const GlyphInfo &b) {
 
-		return a.codepoint < b.codepoint;
+		return a.codepoint < b.codepoint || a.size < b.size;
 
 	}
 
@@ -188,8 +188,59 @@ namespace lime {
 
 	}
 
+	bool Font::InsertCodepoint (unsigned long codepoint, size_t size) {
 
-	void Font::LoadGlyphs (int size, const char *glyphs) {
+		GlyphInfo info;
+		info.codepoint = codepoint;
+
+		// search for duplicates, if any
+		std::list<GlyphInfo>::iterator first = glyphList.begin ();
+		first = std::lower_bound (first, glyphList.end (), info, CompareGlyphCodepoint);
+
+		// skip duplicates unless they are different sizes
+		if (codepoint < (*first).codepoint ||
+			(codepoint == (*first).codepoint && size != (*first).size)) {
+
+			info.size = size;
+			info.index = FT_Get_Char_Index (face, codepoint);
+
+			if (FT_Load_Glyph (face, info.index, FT_LOAD_DEFAULT) != 0) return false;
+			info.height = face->glyph->metrics.height;
+
+			glyphList.insert (first, info);
+
+			return true;
+		}
+
+		return false;
+
+	}
+
+	void Font::LoadRange (size_t size, unsigned long start, unsigned long end) {
+
+		size_t hdpi = 72;
+		size_t vdpi = 72;
+		size_t hres = 100;
+		FT_Matrix matrix = {
+			(int)((1.0/hres) * 0x10000L),
+			(int)((0.0) * 0x10000L),
+			(int)((0.0) * 0x10000L),
+			(int)((1.0) * 0x10000L)
+		};
+
+		FT_Set_Char_Size (face, 0, (int)(size*64), (int)(hdpi * hres), vdpi);
+		FT_Set_Transform (face, &matrix, NULL);
+
+		for (unsigned long codepoint = start; codepoint < end; codepoint++) {
+
+			InsertCodepoint (codepoint, size);
+
+		}
+
+	}
+
+
+	void Font::LoadGlyphs (size_t size, const char *glyphs) {
 
 		size_t hdpi = 72;
 		size_t vdpi = 72;
@@ -207,29 +258,13 @@ namespace lime {
 		char *g = (char*)glyphs;
 		while (*g != 0) {
 
-			GlyphInfo info;
-			bool found = false;
-			info.codepoint = readNextChar(g);
-
-			std::list<GlyphInfo>::iterator first = glyphList.begin ();
-			first = std::lower_bound (first, glyphList.end (), info, CompareGlyphCodepoint);
-
-			if (info.codepoint < (*first).codepoint) {
-
-				info.index = FT_Get_Char_Index (face, info.codepoint);
-
-				if (FT_Load_Glyph (face, info.index, FT_LOAD_DEFAULT) != 0) continue;
-				info.height = face->glyph->metrics.height;
-
-				glyphList.insert (first, info);
-
-			}
+			InsertCodepoint (readNextChar(g), size);
 
 		}
 
 	}
 
-	value Font::createImage (Image *image) {
+	value Font::renderToImage (Image *image) {
 
 		if (!init) {
 
@@ -254,7 +289,21 @@ namespace lime {
 		value rects = alloc_array (glyphList.size());
 		int rectsIndex = 0;
 
+		size_t hdpi = 72;
+		size_t vdpi = 72;
+		size_t hres = 100;
+		FT_Matrix matrix = {
+			(int)((1.0/hres) * 0x10000L),
+			(int)((0.0) * 0x10000L),
+			(int)((0.0) * 0x10000L),
+			(int)((1.0) * 0x10000L)
+		};
+
 		for (std::list<GlyphInfo>::iterator it = glyphList.begin(); it != glyphList.end(); it++) {
+
+			// recalculate the character size for each glyph since it will vary
+			FT_Set_Char_Size (face, 0, (int)((*it).size*64), (int)(hdpi * hres), vdpi);
+			FT_Set_Transform (face, &matrix, NULL);
 
 			FT_Load_Glyph (face, (*it).index, FT_LOAD_DEFAULT);
 

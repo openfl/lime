@@ -174,11 +174,11 @@ class Text {
 
 	}
 
-	public function fromString (font:Font, text:String) {
+	public function fromString (font:Font, size:Int, text:String) {
 
 		#if (cpp || neko)
 
-		return lime_text_from_string (handle, font.handle, text);
+		return lime_text_from_string (handle, font.handle, size, text);
 
 		#end
 
@@ -186,7 +186,7 @@ class Text {
 
 	#if (cpp || neko)
 	private static var lime_text_create = System.load ("lime", "lime_text_create", 3);
-	private static var lime_text_from_string = System.load ("lime", "lime_text_from_string", 3);
+	private static var lime_text_from_string = System.load ("lime", "lime_text_from_string", 4);
 	#end
 
 }

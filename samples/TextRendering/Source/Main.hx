@@ -30,21 +30,23 @@ class Main extends Application {
 
 		var text:Text;
 		var font = new Font ("assets/amiri-regular.ttf");
+		font.loadRange (16, 32, 128);
+		font.loadGlyphs (32, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.");
+		font.loadGlyphs (32, "صِفخَلقخودكَمثلالشمسإذبَزَغت—يحظىالضَجيعُبهانَلاءَمِعطار ");
+		var image = font.createImage ();
 
 		text = new Text (RightToLeft, ScriptArabic, "ar");
-		text.fromString (font, "صِف خَلقَ خَودِ كَمِثلِ الشَمسِ إِذ بَزَغَت — يَحظى الضَجيعُ بِها نَجلاءَ مِعطارِ");
-		var data = font.loadGlyphData (16, "صِفخَلقخودكَمثلالشمسإذبَزَغت—يحظىالضَجيعُبهانَلاءَمِعطار ");
-		var image = data.image;
+		text.fromString (font, 32, "صِف خَلقَ خَودِ كَمِثلِ الشَمسِ إِذ بَزَغَت — يَحظى الضَجيعُ بِها نَجلاءَ مِعطارِ");
 
 		text = new Text (LeftToRight, ScriptLatin, "en");
-		var data = font.loadGlyphData (32, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.");
-		text.fromString (font, "The quick brown fox jumps over the lazy dog.");
+		text.fromString (font, 16, "The quick brown fox jumps over the lazy dog.");
 
 		font = new Font ("assets/fireflysung.ttf");
-		text = new Text (TopToBottom, ScriptHan, "ch");
-		text.fromString (font, "懶惰的姜貓");
+		font.loadGlyphs (32, "懶惰的姜貓");
+		// var image = font.createImage ();
 
-		var chinese = font.loadGlyphData (64, "懶惰的姜貓");
+		text = new Text (TopToBottom, ScriptHan, "ch");
+		text.fromString (font, 32, "懶惰的姜貓");
 
 		switch (context) {
 
