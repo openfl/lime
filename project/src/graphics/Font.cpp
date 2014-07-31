@@ -117,11 +117,10 @@ namespace lime {
 
 	static int id_x;
 	static int id_y;
-	static int id_x_offset;
-	static int id_y_offset;
-	static int id_advance;
+	static int id_offset;
 	static int id_width;
 	static int id_height;
+	static int id_size;
 	static int id_codepoint;
 	static bool init = false;
 
@@ -134,7 +133,7 @@ namespace lime {
 
 	bool CompareGlyphCodepoint (const GlyphInfo &a, const GlyphInfo &b) {
 
-		return a.codepoint < b.codepoint || a.size < b.size;
+		return a.codepoint < b.codepoint && a.size < b.size;
 
 	}
 
@@ -188,20 +187,20 @@ namespace lime {
 
 	}
 
-	bool Font::InsertCodepoint (unsigned long codepoint, size_t size) {
+	bool Font::InsertCodepoint (unsigned long codepoint) {
 
 		GlyphInfo info;
 		info.codepoint = codepoint;
+		info.size = mSize;
 
 		// search for duplicates, if any
 		std::list<GlyphInfo>::iterator first = glyphList.begin ();
 		first = std::lower_bound (first, glyphList.end (), info, CompareGlyphCodepoint);
 
 		// skip duplicates unless they are different sizes
-		if (codepoint < (*first).codepoint ||
-			(codepoint == (*first).codepoint && size != (*first).size)) {
+		// if (codepoint < (*first).codepoint ||
+		// 	(codepoint == (*first).codepoint && mSize != (*first).size)) {
 
-			info.size = size;
 			info.index = FT_Get_Char_Index (face, codepoint);
 
 			if (FT_Load_Glyph (face, info.index, FT_LOAD_DEFAULT) != 0) return false;
@@ -210,13 +209,14 @@ namespace lime {
 			glyphList.insert (first, info);
 
 			return true;
-		}
+			
+		// }
 
 		return false;
 
 	}
 
-	void Font::LoadRange (size_t size, unsigned long start, unsigned long end) {
+	void Font::SetSize (size_t size) {
 
 		size_t hdpi = 72;
 		size_t vdpi = 72;
@@ -230,41 +230,35 @@ namespace lime {
 
 		FT_Set_Char_Size (face, 0, (int)(size*64), (int)(hdpi * hres), vdpi);
 		FT_Set_Transform (face, &matrix, NULL);
+
+		mSize = size;
+
+	}
+
+	void Font::LoadRange (unsigned long start, unsigned long end) {
 
 		for (unsigned long codepoint = start; codepoint < end; codepoint++) {
 
-			InsertCodepoint (codepoint, size);
+			InsertCodepoint (codepoint);
 
 		}
 
 	}
 
 
-	void Font::LoadGlyphs (size_t size, const char *glyphs) {
-
-		size_t hdpi = 72;
-		size_t vdpi = 72;
-		size_t hres = 100;
-		FT_Matrix matrix = {
-			(int)((1.0/hres) * 0x10000L),
-			(int)((0.0) * 0x10000L),
-			(int)((0.0) * 0x10000L),
-			(int)((1.0) * 0x10000L)
-		};
-
-		FT_Set_Char_Size (face, 0, (int)(size*64), (int)(hdpi * hres), vdpi);
-		FT_Set_Transform (face, &matrix, NULL);
+	void Font::LoadGlyphs (const char *glyphs) {
 
 		char *g = (char*)glyphs;
+
 		while (*g != 0) {
 
-			InsertCodepoint (readNextChar(g), size);
+			InsertCodepoint (readNextChar (g));
 
 		}
 
 	}
 
-	value Font::renderToImage (Image *image) {
+	value Font::RenderToImage (Image *image) {
 
 		if (!init) {
 
@@ -272,9 +266,8 @@ namespace lime {
 			id_height = val_id ("height");
 			id_x = val_id ("x");
 			id_y = val_id ("y");
-			id_x_offset = val_id ("xOffset");
-			id_y_offset = val_id ("yOffset");
-			id_advance = val_id ("advance");
+			id_offset = val_id ("offset");
+			id_size = val_id ("size");
 			id_codepoint = val_id ("codepoint");
 			init = true;
 
@@ -369,12 +362,16 @@ namespace lime {
 			value v = alloc_empty_object ();
 			alloc_field (v, id_x, alloc_int (x));
 			alloc_field (v, id_y, alloc_int (y));
-			alloc_field (v, id_x_offset, alloc_int (face->glyph->metrics.horiBearingX / 64));
-			alloc_field (v, id_y_offset, alloc_int (face->glyph->metrics.horiBearingY / 64));
-			alloc_field (v, id_advance, alloc_int (face->glyph->metrics.horiAdvance / 64));
 			alloc_field (v, id_width, alloc_int (bitmap.width));
 			alloc_field (v, id_height, alloc_int (bitmap.rows));
+
+			value offset = alloc_empty_object ();
+			alloc_field (offset, id_x, alloc_int (face->glyph->bitmap_left));
+			alloc_field (offset, id_y, alloc_int (face->glyph->bitmap_top));
+			alloc_field (v, id_offset, offset);
+
 			alloc_field (v, id_codepoint, alloc_int ((*it).codepoint));
+			alloc_field (v, id_size, alloc_int ((*it).size));
 			val_array_set_i (rects, rectsIndex++, v);
 
 			x += bitmap.width + 1;

@@ -159,7 +159,8 @@ namespace lime {
 		
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)(intptr_t)val_float (fontHandle);
-		font->LoadGlyphs (val_int (size), val_string (glyphs));
+		font->SetSize (val_int (size));
+		font->LoadGlyphs (val_string (glyphs));
 		#endif
 
 		return alloc_null ();
@@ -171,7 +172,8 @@ namespace lime {
 		
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)(intptr_t)val_float (fontHandle);
-		font->LoadRange (val_int (size), val_int (start), val_int (end));
+		font->SetSize (val_int (size));
+		font->LoadRange (val_int (start), val_int (end));
 		#endif
 
 		return alloc_null ();
@@ -185,7 +187,7 @@ namespace lime {
 		Image image;
 		Font *font = (Font*)(intptr_t)val_float (fontHandle);
 		value data = alloc_empty_object ();
-		alloc_field (data, val_id ("glyphs"), font->renderToImage (&image));
+		alloc_field (data, val_id ("glyphs"), font->RenderToImage (&image));
 		alloc_field (data, val_id ("image"), image.Value ());
 		return data;
 		#else
@@ -221,11 +223,9 @@ namespace lime {
 	value lime_text_from_string (value textHandle, value fontHandle, value size, value textString) {
 
 		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
-		Image image;
 		Text *text = (Text*)(intptr_t)val_float (textHandle);
 		Font *font = (Font*)(intptr_t)val_float (fontHandle);
-		text->fromString(font, val_string (textString));
-		return alloc_null ();
+		return text->FromString(font, val_int (size), val_string (textString));
 		#else
 		return alloc_null ();
 		#endif

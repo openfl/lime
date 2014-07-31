@@ -156,6 +156,20 @@ import lime.system.System;
 
 }
 
+
+typedef Point = {
+	var x:Float;
+	var y:Float;
+};
+
+
+typedef PosInfo = {
+	var codepoint:UInt;
+	var advance:Point;
+	var offset:Point;
+};
+
+
 class Text {
 
 	#if (cpp || neko)
@@ -174,7 +188,7 @@ class Text {
 
 	}
 
-	public function fromString (font:Font, size:Int, text:String) {
+	public function fromString (font:Font, size:Int, text:String):Array<PosInfo> {
 
 		#if (cpp || neko)
 

@@ -17,7 +17,7 @@ namespace lime {
 	typedef struct {
 
 		unsigned long codepoint;
-		unsigned int size;
+		size_t size;
 		FT_UInt index;
 		FT_Pos height;
 
@@ -30,17 +30,19 @@ namespace lime {
 		public:
 
 			Font (const char *fontFace);
-			void LoadGlyphs (size_t size, const char *glyphs);
-			void LoadRange (size_t size, unsigned long start, unsigned long end);
-			value renderToImage (Image *image);
+			void LoadGlyphs (const char *glyphs);
+			void LoadRange (unsigned long start, unsigned long end);
+			void SetSize (size_t size);
+			value RenderToImage (Image *image);
 
 			FT_Face face;
 
 		private:
 
-			bool InsertCodepoint (unsigned long codepoint, size_t size);
+			bool InsertCodepoint (unsigned long codepoint);
 
 			std::list<GlyphInfo> glyphList;
+			size_t mSize;
 
 
 	};
