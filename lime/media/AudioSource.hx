@@ -1,6 +1,8 @@
 package lime.media;
 
 
+import lime.media.openal.AL;
+
 #if js
 import js.html.Audio;
 #elseif flash
@@ -11,7 +13,8 @@ import flash.media.Sound;
 class AudioSource {
 	
 	
-	public var id:Int;
+	public var buffer:AudioBuffer;
+	public var id:UInt;
 	
 	#if js
 	public var src:Audio;
@@ -24,7 +27,17 @@ class AudioSource {
 	
 	public function new () {
 		
+		id = 0;
 		
+	}
+	
+	
+	public function createALSource (buffer:AudioBuffer):Void {
+		
+		this.buffer = buffer;
+		
+		id = AL.genSource ();
+		AL.sourcei (id, AL.BUFFER, buffer.id);
 		
 	}
 	

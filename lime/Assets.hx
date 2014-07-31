@@ -4,6 +4,7 @@ package lime;
 
 import haxe.Unserializer;
 import lime.graphics.Font;
+import lime.media.AudioSource;
 import lime.media.Image;
 import lime.utils.ByteArray;
 
@@ -59,6 +60,75 @@ class Assets {
 		#end
 		
 		return false;
+		
+	}
+	
+	
+	/**
+	 * Gets an instance of an embedded sound
+	 * @usage		var sound = Assets.getSound("sound.wav");
+	 * @param	id		The ID or asset path for the sound
+	 * @return		A new Sound object
+	 */
+	public static function getAudio (id:String, useCache:Bool = true):AudioSource {
+		
+		initialize ();
+		
+		#if (tools && !display)
+		
+		if (useCache && cache.enabled && cache.audio.exists (id)) {
+			
+			var audio = cache.audio.get (id);
+			
+			if (isValidAudio (audio)) {
+				
+				return audio;
+				
+			}
+			
+		}
+		
+		var libraryName = id.substring (0, id.indexOf (":"));
+		var symbolName = id.substr (id.indexOf (":") + 1);
+		var library = getLibrary (libraryName);
+		
+		if (library != null) {
+			
+			if (library.exists (symbolName, cast AssetType.SOUND)) {
+				
+				if (library.isLocal (symbolName, cast AssetType.SOUND)) {
+					
+					var audio = library.getAudio (symbolName);
+					
+					if (useCache && cache.enabled) {
+						
+						cache.audio.set (id, audio);
+						
+					}
+					
+					return audio;
+					
+				} else {
+					
+					trace ("[Assets] Audio asset \"" + id + "\" exists, but only asynchronously");
+					
+				}
+				
+			} else {
+				
+				trace ("[Assets] There is no audio asset with an ID of \"" + id + "\"");
+				
+			}
+			
+		} else {
+			
+			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
+			
+		}
+		
+		#end
+		
+		return null;
 		
 	}
 	
@@ -306,75 +376,6 @@ class Assets {
 	
 	
 	/**
-	 * Gets an instance of an embedded sound
-	 * @usage		var sound = Assets.getSound("sound.wav");
-	 * @param	id		The ID or asset path for the sound
-	 * @return		A new Sound object
-	 */
-	/*public static function getSound (id:String, useCache:Bool = true):Dynamic {
-		
-		initialize ();
-		
-		#if (tools && !display)
-		
-		if (useCache && cache.enabled && cache.sound.exists (id)) {
-			
-			var sound = cache.sound.get (id);
-			
-			if (isValidSound (sound)) {
-				
-				return sound;
-				
-			}
-			
-		}
-		
-		var libraryName = id.substring (0, id.indexOf (":"));
-		var symbolName = id.substr (id.indexOf (":") + 1);
-		var library = getLibrary (libraryName);
-		
-		if (library != null) {
-			
-			if (library.exists (symbolName, cast AssetType.SOUND)) {
-				
-				if (library.isLocal (symbolName, cast AssetType.SOUND)) {
-					
-					var sound = library.getSound (symbolName);
-					
-					if (useCache && cache.enabled) {
-						
-						cache.sound.set (id, sound);
-						
-					}
-					
-					return sound;
-					
-				} else {
-					
-					trace ("[Assets] Sound asset \"" + id + "\" exists, but only asynchronously");
-					
-				}
-				
-			} else {
-				
-				trace ("[Assets] There is no Sound asset with an ID of \"" + id + "\"");
-				
-			}
-			
-		} else {
-			
-			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
-			
-		}
-		
-		#end
-		
-		return null;
-		
-	}*/
-	
-	
-	/**
 	 * Gets an instance of an embedded text asset
 	 * @usage		var text = Assets.getText("text.txt");
 	 * @param	id		The ID or asset path for the file
@@ -462,7 +463,7 @@ class Assets {
 			
 			if (type == AssetType.SOUND || type == AssetType.MUSIC || type == null) {
 				
-				if (cache.sound.exists (id)) return true;
+				if (cache.audio.exists (id)) return true;
 				
 			}
 			
@@ -481,6 +482,22 @@ class Assets {
 		#end
 		
 		return false;
+		
+	}
+	
+	
+	private static function isValidAudio (audio:AudioSource):Bool {
+		
+		#if (tools && !display)
+		#if (cpp || neko)
+		
+		return true;
+		//return (sound.__handle != null && sound.__handle != 0);
+		
+		#end
+		#end
+		
+		return true;
 		
 	}
 	
@@ -514,22 +531,6 @@ class Assets {
 	}
 	
 	
-	private static function isValidSound (sound:Dynamic /*Sound*/):Bool {
-		
-		#if (tools && !display)
-		#if (cpp || neko)
-		
-		return true;
-		//return (sound.__handle != null && sound.__handle != 0);
-		
-		#end
-		#end
-		
-		return true;
-		
-	}
-	
-	
 	public static function list (type:AssetType = null):Array<String> {
 		
 		initialize ();
@@ -549,6 +550,69 @@ class Assets {
 		}
 		
 		return items;
+		
+	}
+	
+	
+	public static function loadAudio (id:String, handler:AudioSource -> Void, useCache:Bool = true):Void {
+		
+		initialize ();
+		
+		#if (tools && !display)
+		
+		if (useCache && cache.enabled && cache.audio.exists (id)) {
+			
+			var audio = cache.audio.get (id);
+			
+			if (isValidAudio (audio)) {
+				
+				handler (audio);
+				return;
+				
+			}
+			
+		}
+		
+		var libraryName = id.substring (0, id.indexOf (":"));
+		var symbolName = id.substr (id.indexOf (":") + 1);
+		var library = getLibrary (libraryName);
+		
+		if (library != null) {
+			
+			if (library.exists (symbolName, cast AssetType.SOUND)) {
+				
+				if (useCache && cache.enabled) {
+					
+					library.loadAudio (symbolName, function (audio:Dynamic):Void {
+						
+						cache.audio.set (id, audio);
+						handler (audio);
+						
+					});
+					
+				} else {
+					
+					library.loadAudio (symbolName, handler);
+					
+				}
+				
+				return;
+				
+			} else {
+				
+				trace ("[Assets] There is no audio asset with an ID of \"" + id + "\"");
+				
+			}
+			
+		} else {
+			
+			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
+			
+		}
+		
+		#end
+		
+		handler (null);
 		
 	}
 	
@@ -744,69 +808,6 @@ class Assets {
 	}*/
 	
 	
-	/*public static function loadSound (id:String, handler:Dynamic -> Void, useCache:Bool = true):Void {
-		
-		initialize ();
-		
-		#if (tools && !display)
-		
-		if (useCache && cache.enabled && cache.sound.exists (id)) {
-			
-			var sound = cache.sound.get (id);
-			
-			if (isValidSound (sound)) {
-				
-				handler (sound);
-				return;
-				
-			}
-			
-		}
-		
-		var libraryName = id.substring (0, id.indexOf (":"));
-		var symbolName = id.substr (id.indexOf (":") + 1);
-		var library = getLibrary (libraryName);
-		
-		if (library != null) {
-			
-			if (library.exists (symbolName, cast AssetType.SOUND)) {
-				
-				if (useCache && cache.enabled) {
-					
-					library.loadSound (symbolName, function (sound:Dynamic):Void {
-						
-						cache.sound.set (id, sound);
-						handler (sound);
-						
-					});
-					
-				} else {
-					
-					library.loadSound (symbolName, handler);
-					
-				}
-				
-				return;
-				
-			} else {
-				
-				trace ("[Assets] There is no Sound asset with an ID of \"" + id + "\"");
-				
-			}
-			
-		} else {
-			
-			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
-			
-		}
-		
-		#end
-		
-		handler (null);
-		
-	}*/
-	
-	
 	public static function loadText (id:String, handler:String -> Void):Void {
 		
 		initialize ();
@@ -952,6 +953,13 @@ class AssetLibrary {
 	}
 	
 	
+	public function getAudio (id:String):AudioSource {
+		
+		return null;
+		
+	}
+	
+	
 	public function getBytes (id:String):ByteArray {
 		
 		return null;
@@ -978,13 +986,6 @@ class AssetLibrary {
 		return null;
 		
 	}
-	
-	
-	//public function getSound (id:String):Dynamic /*Sound*/ {
-		
-	//	return null;
-		
-	//}
 	
 	
 	public function getText (id:String):String {
@@ -1033,6 +1034,13 @@ class AssetLibrary {
 	}
 	
 	
+	public function loadAudio (id:String, handler:AudioSource -> Void):Void {
+		
+		handler (getAudio (id));
+		
+	}
+	
+	
 	public function loadBytes (id:String, handler:ByteArray -> Void):Void {
 		
 		handler (getBytes (id));
@@ -1050,13 +1058,6 @@ class AssetLibrary {
 	//public function loadMusic (id:String, handler:Dynamic /*Sound*/ -> Void):Void {
 		
 	//	handler (getMusic (id));
-		
-	//}
-	
-	
-	//public function loadSound (id:String, handler:Dynamic /*Sound*/ -> Void):Void {
-		
-	//	handler (getSound (id));
 		
 	//}
 	
@@ -1096,17 +1097,17 @@ class AssetLibrary {
 class AssetCache {
 	
 	
+	public var audio:Map<String, AudioSource>;
 	public var enabled:Bool = true;
 	public var image:Map<String, Image>;
 	public var font:Map<String, Font>;
-	public var sound:Map<String, Dynamic /*Sound*/>;
 	
 	
 	public function new () {
 		
+		audio = new Map<String, AudioSource> ();
 		font = new Map<String, Font> ();
 		image = new Map<String, Image> ();
-		sound = new Map<String, Dynamic /*Sound*/> ();
 		
 	}
 	
@@ -1115,19 +1116,19 @@ class AssetCache {
 		
 		if (prefix == null) {
 			
+			audio = new Map<String, AudioSource> ();
 			font = new Map<String, Font> ();
 			image = new Map<String, Image> ();
-			sound = new Map<String, Dynamic /*Sound*/> ();
 			
 		} else {
 			
-			var keys = image.keys ();
+			var keys = audio.keys ();
 			
 			for (key in keys) {
 				
 				if (StringTools.startsWith (key, prefix)) {
 					
-					image.remove (key);
+					audio.remove (key);
 					
 				}
 				
@@ -1145,13 +1146,13 @@ class AssetCache {
 				
 			}
 			
-			var keys = sound.keys ();
+			var keys = image.keys ();
 			
 			for (key in keys) {
 				
 				if (StringTools.startsWith (key, prefix)) {
 					
-					sound.remove (key);
+					image.remove (key);
 					
 				}
 				

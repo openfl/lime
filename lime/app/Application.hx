@@ -2,6 +2,7 @@ package lime.app;
 
 
 import lime.graphics.*;
+import lime.media.AudioManager;
 import lime.system.*;
 import lime.ui.*;
 
@@ -40,6 +41,8 @@ class Application extends Module {
 		if (!__registered) {
 			
 			__registered = true;
+			
+			AudioManager.init ();
 			
 			#if (cpp || neko)
 			lime_update_event_manager_register (__dispatch, __eventInfo);
@@ -109,7 +112,10 @@ class Application extends Module {
 		
 		#if (cpp || neko)
 		
-		return lime_application_exec (__handle);
+		var result = lime_application_exec (__handle);
+		AudioManager.destroy ();
+		return result;
+		
 		
 		#elseif js
 		

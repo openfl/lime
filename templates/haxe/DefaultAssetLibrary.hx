@@ -4,7 +4,10 @@ package;
 import haxe.Timer;
 import haxe.Unserializer;
 import lime.app.Preloader;
+import lime.media.AudioBuffer;
+import lime.media.AudioSource;
 import lime.media.Image;
+import lime.media.openal.AL;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 import lime.Assets;
@@ -150,6 +153,34 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
+	public override function getAudio (id:String):AudioSource {
+		
+		#if flash
+		
+		var audio = new AudioSource ();
+		audio.src = cast (Type.createInstance (className.get (id), []), Sound);
+		return audio;
+		
+		#elseif js
+		
+		return null;
+		//return new Sound (new URLRequest (path.get (id)));
+		
+		#else
+		
+		var buffer = AudioBuffer.fromFile (path.get (id));
+		buffer.createALBuffer ();
+		var audio = new AudioSource ();
+		audio.createALSource (buffer);
+		return audio;
+		//if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), Sound);
+		//else return new Sound (new URLRequest (path.get (id)), null, type.get (id) == MUSIC);
+		
+		#end
+		
+	}
+	
+	
 	public override function getBytes (id:String):ByteArray {
 		
 		#if flash
@@ -264,28 +295,6 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
-	/*public override function getSound (id:String):Dynamic {
-		
-		#if flash
-		
-		return cast (Type.createInstance (className.get (id), []), Sound);
-		
-		#elseif js
-		
-		return null;
-		//return new Sound (new URLRequest (path.get (id)));
-		
-		#else
-		
-		return null;
-		//if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), Sound);
-		//else return new Sound (new URLRequest (path.get (id)), null, type.get (id) == MUSIC);
-		
-		#end
-		
-	}*/
-	
-	
 	public override function getText (id:String):String {
 		
 		#if js
@@ -371,6 +380,35 @@ class DefaultAssetLibrary extends AssetLibrary {
 		}
 		
 		return items;
+		
+	}
+	
+	
+	public override function loadAudio (id:String, handler:AudioSource -> Void):Void {
+		
+		#if (flash || js)
+		
+		//if (path.exists (id)) {
+			
+		//	var loader = new Loader ();
+		//	loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event) {
+				
+		//		handler (cast (event.currentTarget.content, Bitmap).bitmapData);
+				
+		//	});
+		//	loader.load (new URLRequest (path.get (id)));
+			
+		//} else {
+			
+			handler (getAudio (id));
+			
+		//}
+		
+		#else
+		
+		handler (getAudio (id));
+		
+		#end
 		
 	}
 	
@@ -519,35 +557,6 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#else
 		
 		handler (getMusic (id));
-		
-		#end
-		
-	}*/
-	
-	
-	/*public override function loadSound (id:String, handler:Dynamic -> Void):Void {
-		
-		#if (flash || js)
-		
-		//if (path.exists (id)) {
-			
-		//	var loader = new Loader ();
-		//	loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event) {
-				
-		//		handler (cast (event.currentTarget.content, Bitmap).bitmapData);
-				
-		//	});
-		//	loader.load (new URLRequest (path.get (id)));
-			
-		//} else {
-			
-			handler (getSound (id));
-			
-		//}
-		
-		#else
-		
-		handler (getSound (id));
 		
 		#end
 		
