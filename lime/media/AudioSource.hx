@@ -1,13 +1,18 @@
 package lime.media;
 
 
+import lime.app.Event;
 import lime.media.openal.AL;
 
 
 class AudioSource {
 	
 	
+	public var onComplete = new Event<Void->Void> ();
+	
 	public var buffer:AudioBuffer;
+	public var gain (get, set):Float;
+	public var timeOffset (get, set):Int;
 	
 	private var id:UInt;
 	
@@ -110,6 +115,49 @@ class AudioSource {
 		#else
 		AL.sourceStop (id);
 		#end
+		
+	}
+	
+	
+	
+	
+	// Get & Set Methods
+	
+	
+	
+	
+	private function get_gain ():Float {
+		
+		// TODO
+		
+		return 1;
+		
+	}
+	
+	
+	private function set_gain (value:Float):Float {
+		
+		// TODO
+		
+		return value;
+		
+	}
+	
+	
+	private function get_timeOffset ():Int {
+		
+		// TODO
+		
+		return 0;
+		
+	}
+	
+	
+	private function set_timeOffset (value:Int):Int {
+		
+		// TODO
+		
+		return value;
 		
 	}
 	

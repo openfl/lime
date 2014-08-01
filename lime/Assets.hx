@@ -486,15 +486,13 @@ class Assets {
 	}
 	
 	
-	private static function isValidAudio (audio:AudioBuffer):Bool {
+	private static function isValidAudio (buffer:AudioBuffer):Bool {
 		
 		#if (tools && !display)
-		#if (cpp || neko)
 		
-		return true;
+		return (buffer != null);
 		//return (sound.__handle != null && sound.__handle != 0);
 		
-		#end
 		#end
 		
 		return true;

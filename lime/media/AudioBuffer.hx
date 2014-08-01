@@ -38,6 +38,13 @@ class AudioBuffer {
 	}
 	
 	
+	public function dispose ():Void {
+		
+		// TODO
+		
+	}
+	
+	
 	public static function fromBytes (bytes:ByteArray):AudioBuffer {
 		
 		#if (cpp || neko)
@@ -76,6 +83,13 @@ class AudioBuffer {
 		return null;
 		
 		#end
+		
+	}
+	
+	
+	public static function fromURL (url:String, handler:AudioBuffer->Void):Void {
+		
+		// TODO
 		
 	}
 	
