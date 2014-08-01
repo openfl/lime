@@ -4,7 +4,7 @@ package lime;
 
 import haxe.Unserializer;
 import lime.graphics.Font;
-import lime.media.AudioSource;
+import lime.media.AudioBuffer;
 import lime.media.Image;
 import lime.utils.ByteArray;
 
@@ -70,7 +70,7 @@ class Assets {
 	 * @param	id		The ID or asset path for the sound
 	 * @return		A new Sound object
 	 */
-	public static function getAudio (id:String, useCache:Bool = true):AudioSource {
+	public static function getAudioBuffer (id:String, useCache:Bool = true):AudioBuffer {
 		
 		initialize ();
 		
@@ -98,7 +98,7 @@ class Assets {
 				
 				if (library.isLocal (symbolName, cast AssetType.SOUND)) {
 					
-					var audio = library.getAudio (symbolName);
+					var audio = library.getAudioBuffer (symbolName);
 					
 					if (useCache && cache.enabled) {
 						
@@ -486,7 +486,7 @@ class Assets {
 	}
 	
 	
-	private static function isValidAudio (audio:AudioSource):Bool {
+	private static function isValidAudio (audio:AudioBuffer):Bool {
 		
 		#if (tools && !display)
 		#if (cpp || neko)
@@ -554,7 +554,7 @@ class Assets {
 	}
 	
 	
-	public static function loadAudio (id:String, handler:AudioSource -> Void, useCache:Bool = true):Void {
+	public static function loadAudioBuffer (id:String, handler:AudioBuffer -> Void, useCache:Bool = true):Void {
 		
 		initialize ();
 		
@@ -583,7 +583,7 @@ class Assets {
 				
 				if (useCache && cache.enabled) {
 					
-					library.loadAudio (symbolName, function (audio:Dynamic):Void {
+					library.loadAudioBuffer (symbolName, function (audio:Dynamic):Void {
 						
 						cache.audio.set (id, audio);
 						handler (audio);
@@ -592,7 +592,7 @@ class Assets {
 					
 				} else {
 					
-					library.loadAudio (symbolName, handler);
+					library.loadAudioBuffer (symbolName, handler);
 					
 				}
 				
@@ -953,7 +953,7 @@ class AssetLibrary {
 	}
 	
 	
-	public function getAudio (id:String):AudioSource {
+	public function getAudioBuffer (id:String):AudioBuffer {
 		
 		return null;
 		
@@ -1034,9 +1034,9 @@ class AssetLibrary {
 	}
 	
 	
-	public function loadAudio (id:String, handler:AudioSource -> Void):Void {
+	public function loadAudioBuffer (id:String, handler:AudioBuffer -> Void):Void {
 		
-		handler (getAudio (id));
+		handler (getAudioBuffer (id));
 		
 	}
 	
@@ -1097,7 +1097,7 @@ class AssetLibrary {
 class AssetCache {
 	
 	
-	public var audio:Map<String, AudioSource>;
+	public var audio:Map<String, AudioBuffer>;
 	public var enabled:Bool = true;
 	public var image:Map<String, Image>;
 	public var font:Map<String, Font>;
@@ -1105,7 +1105,7 @@ class AssetCache {
 	
 	public function new () {
 		
-		audio = new Map<String, AudioSource> ();
+		audio = new Map<String, AudioBuffer> ();
 		font = new Map<String, Font> ();
 		image = new Map<String, Image> ();
 		
@@ -1116,7 +1116,7 @@ class AssetCache {
 		
 		if (prefix == null) {
 			
-			audio = new Map<String, AudioSource> ();
+			audio = new Map<String, AudioBuffer> ();
 			font = new Map<String, Font> ();
 			image = new Map<String, Image> ();
 			

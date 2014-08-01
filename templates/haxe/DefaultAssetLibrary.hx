@@ -5,7 +5,6 @@ import haxe.Timer;
 import haxe.Unserializer;
 import lime.app.Preloader;
 import lime.media.AudioBuffer;
-import lime.media.AudioSource;
 import lime.media.Image;
 import lime.media.openal.AL;
 import lime.utils.ByteArray;
@@ -153,13 +152,13 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
-	public override function getAudio (id:String):AudioSource {
+	public override function getAudioBuffer (id:String):AudioBuffer {
 		
 		#if flash
 		
-		var audio = new AudioSource ();
-		audio.src = cast (Type.createInstance (className.get (id), []), Sound);
-		return audio;
+		var buffer = new AudioBuffer ();
+		buffer.src = cast (Type.createInstance (className.get (id), []), Sound);
+		return buffer;
 		
 		#elseif js
 		
@@ -168,11 +167,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		var buffer = AudioBuffer.fromFile (path.get (id));
-		buffer.createALBuffer ();
-		var audio = new AudioSource ();
-		audio.createALSource (buffer);
-		return audio;
+		return AudioBuffer.fromFile (path.get (id));
 		//if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), Sound);
 		//else return new Sound (new URLRequest (path.get (id)), null, type.get (id) == MUSIC);
 		
@@ -384,7 +379,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
-	public override function loadAudio (id:String, handler:AudioSource -> Void):Void {
+	public override function loadAudioBuffer (id:String, handler:AudioBuffer -> Void):Void {
 		
 		#if (flash || js)
 		
@@ -400,13 +395,13 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 		//} else {
 			
-			handler (getAudio (id));
+			handler (getAudioBuffer (id));
 			
 		//}
 		
 		#else
 		
-		handler (getAudio (id));
+		handler (getAudioBuffer (id));
 		
 		#end
 		

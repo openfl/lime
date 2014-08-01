@@ -17,34 +17,6 @@ class AudioManager {
 	public static var context:AudioContext;
 	
 	
-	public static function destroy ():Void {
-		
-		if (context != null) {
-			
-			switch (context) {
-				
-				case OPENAL (alc, al):
-					
-					var currentContext = alc.getCurrentContext ();
-					
-					if (currentContext != null) {
-						
-						var device = alc.getContextsDevice (currentContext);
-						alc.makeContextCurrent (null);
-						alc.destroyContext (currentContext);
-						alc.closeDevice (device);
-						
-					}
-				
-				default:
-				
-			}
-			
-		}
-		
-	}
-	
-	
 	public static function init (context:AudioContext = null) {
 		
 		if (context == null) {
@@ -81,14 +53,68 @@ class AudioManager {
 	}
 	
 	
-	public static function play (source:AudioSource):Void {
+	public static function resume ():Void {
 		
-		#if js
-		#elseif flash
-		source.src.play ();
-		#else
-		AL.sourcePlay (source.id);
-		#end
+		if (context != null) {
+			
+			switch (context) {
+				
+				case OPENAL (alc, al):
+					
+					alc.processContext (alc.getCurrentContext ());
+				
+				default:
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	public static function shutdown ():Void {
+		
+		if (context != null) {
+			
+			switch (context) {
+				
+				case OPENAL (alc, al):
+					
+					var currentContext = alc.getCurrentContext ();
+					
+					if (currentContext != null) {
+						
+						var device = alc.getContextsDevice (currentContext);
+						alc.makeContextCurrent (null);
+						alc.destroyContext (currentContext);
+						alc.closeDevice (device);
+						
+					}
+				
+				default:
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	public static function suspend ():Void {
+		
+		if (context != null) {
+			
+			switch (context) {
+				
+				case OPENAL (alc, al):
+					
+					alc.suspendContext (alc.getCurrentContext ());
+				
+				default:
+				
+			}
+			
+		}
 		
 	}
 	

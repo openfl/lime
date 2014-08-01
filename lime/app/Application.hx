@@ -113,9 +113,10 @@ class Application extends Module {
 		#if (cpp || neko)
 		
 		var result = lime_application_exec (__handle);
-		AudioManager.destroy ();
-		return result;
 		
+		AudioManager.shutdown ();
+		
+		return result;
 		
 		#elseif js
 		

@@ -6,6 +6,12 @@ import lime.system.System;
 import lime.utils.ByteArray;
 import lime.utils.Float32Array;
 
+#if js
+import js.html.Audio;
+#elseif flash
+import flash.media.Sound;
+#end
+
 
 class AudioBuffer {
 	
@@ -16,46 +22,18 @@ class AudioBuffer {
 	public var id:UInt;
 	public var sampleRate:Int;
 	
+	#if js
+	public var src:Audio;
+	#elseif flash
+	public var src:Sound;
+	#else
+	public var src:Dynamic;
+	#end
+	
 	
 	public function new () {
 		
 		id = 0;
-		
-	}
-	
-	
-	public function createALBuffer ():Void {
-		
-		var format = 0;
-		
-		if (channels == 1) {
-			
-			if (bitsPerSample == 8) {
-				
-				format = AL.FORMAT_MONO8;
-				
-			} else if (bitsPerSample == 16) {
-				
-				format = AL.FORMAT_MONO16;
-				
-			}
-			
-		} else if (channels == 2) {
-			
-			if (bitsPerSample == 8) {
-				
-				format = AL.FORMAT_STEREO8;
-				
-			} else if (bitsPerSample == 16) {
-				
-				format = AL.FORMAT_STEREO16;
-				
-			}
-			
-		}
-		
-		id = AL.genBuffer ();
-		AL.bufferData (id, format, data, data.length << 2, sampleRate);
 		
 	}
 	

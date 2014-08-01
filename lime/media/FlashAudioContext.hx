@@ -16,12 +16,12 @@ class FlashAudioContext {
 	}
 	
 	
-	public function createSource (stream:Dynamic /*URLRequest*/ = null, context:Dynamic /*SoundLoaderContext*/ = null):AudioSource {
+	public function createBuffer (stream:Dynamic /*URLRequest*/ = null, context:Dynamic /*SoundLoaderContext*/ = null):AudioBuffer {
 		
 		#if flash
-		var source = new AudioSource ();
-		source.src = new Sound (stream, context);
-		return source;
+		var buffer = new AudioBuffer ();
+		buffer.src = new Sound (stream, context);
+		return buffer;
 		#else
 		return null;
 		#end
@@ -29,12 +29,12 @@ class FlashAudioContext {
 	}
 	
 	
-	public function getBytesLoaded (source:AudioSource):UInt {
+	public function getBytesLoaded (buffer:AudioBuffer):UInt {
 		
 		#if flash
-		if (source.src != null) {
+		if (buffer.src != null) {
 			
-			return source.src.bytesLoaded;
+			return buffer.src.bytesLoaded;
 			
 		}
 		#end
@@ -44,12 +44,12 @@ class FlashAudioContext {
 	}
 	
 	
-	public function getBytesTotal (source:AudioSource):Int {
+	public function getBytesTotal (buffer:AudioBuffer):Int {
 		
 		#if flash
-		if (source.src != null) {
+		if (buffer.src != null) {
 			
-			return source.src.bytesTotal;
+			return buffer.src.bytesTotal;
 			
 		}
 		#end
@@ -59,12 +59,12 @@ class FlashAudioContext {
 	}
 	
 	
-	public function getID3 (source:AudioSource):Dynamic /*ID3Info*/ {
+	public function getID3 (buffer:AudioBuffer):Dynamic /*ID3Info*/ {
 		
 		#if flash
-		if (source.src != null) {
+		if (buffer.src != null) {
 			
-			return source.src.id3;
+			return buffer.src.id3;
 			
 		}
 		#end
@@ -74,12 +74,12 @@ class FlashAudioContext {
 	}
 	
 	
-	public function getIsBuffering (source:AudioSource):Bool {
+	public function getIsBuffering (buffer:AudioBuffer):Bool {
 		
 		#if flash
-		if (source.src != null) {
+		if (buffer.src != null) {
 			
-			return source.src.isBuffering;
+			return buffer.src.isBuffering;
 			
 		}
 		#end
@@ -89,12 +89,12 @@ class FlashAudioContext {
 	}
 	
 	
-	public function getIsURLInaccessible (source:AudioSource):Bool {
+	public function getIsURLInaccessible (buffer:AudioBuffer):Bool {
 		
 		#if flash
-		if (source.src != null) {
+		if (buffer.src != null) {
 			
-			return source.src.isURLInaccessible;
+			return buffer.src.isURLInaccessible;
 			
 		}
 		#end
@@ -104,12 +104,12 @@ class FlashAudioContext {
 	}
 	
 	
-	public function getLength (source:AudioSource):Float {
+	public function getLength (buffer:AudioBuffer):Float {
 		
 		#if flash
-		if (source.src != null) {
+		if (buffer.src != null) {
 			
-			return source.src.length;
+			return buffer.src.length;
 			
 		}
 		#end
@@ -119,12 +119,12 @@ class FlashAudioContext {
 	}
 	
 	
-	public function getURL (source:AudioSource):String {
+	public function getURL (buffer:AudioBuffer):String {
 		
 		#if flash
-		if (source.src != null) {
+		if (buffer.src != null) {
 			
-			return source.src.url;
+			return buffer.src.url;
 			
 		}
 		#end
@@ -134,12 +134,12 @@ class FlashAudioContext {
 	}
 	
 	
-	public function close (source:AudioSource):Void {
+	public function close (buffer:AudioBuffer):Void {
 		
 		#if flash
-		if (source.src != null) {
+		if (buffer.src != null) {
 			
-			source.src.close ();
+			buffer.src.close ();
 			
 		}
 		#end
@@ -147,12 +147,12 @@ class FlashAudioContext {
 	}
 	
 	
-	public function extract (source:AudioSource, target:Dynamic /*flash.utils.ByteArray*/, length:Float, startPosition:Float = -1):Float {
+	public function extract (buffer:AudioBuffer, target:Dynamic /*flash.utils.ByteArray*/, length:Float, startPosition:Float = -1):Float {
 		
 		#if flash
-		if (source.src != null) {
+		if (buffer.src != null) {
 			
-			return source.src.extract (target, length, startPosition);
+			return buffer.src.extract (target, length, startPosition);
 			
 		}
 		#end
@@ -162,12 +162,12 @@ class FlashAudioContext {
 	}
 	
 	
-	public function load (source:AudioSource, stream:Dynamic /*flash.net.URLRequest*/, context:Dynamic /*SoundLoaderContext*/ = null):Void {
+	public function load (buffer:AudioBuffer, stream:Dynamic /*flash.net.URLRequest*/, context:Dynamic /*SoundLoaderContext*/ = null):Void {
 		
 		#if flash
-		if (source.src != null) {
+		if (buffer.src != null) {
 			
-			source.src.load (stream, context);
+			buffer.src.load (stream, context);
 			
 		}
 		#end
@@ -175,12 +175,12 @@ class FlashAudioContext {
 	}
 	
 	
-	public function loadCompressedDataFromByteArray (source:AudioSource, bytes:Dynamic /*flash.utils.ByteArray*/, bytesLength:UInt):Void {
+	public function loadCompressedDataFromByteArray (buffer:AudioBuffer, bytes:Dynamic /*flash.utils.ByteArray*/, bytesLength:UInt):Void {
 		
 		#if flash
-		if (source.src != null) {
+		if (buffer.src != null) {
 			
-			source.src.loadCompressedDataFromByteArray (bytes, bytesLength);
+			buffer.src.loadCompressedDataFromByteArray (bytes, bytesLength);
 			
 		}
 		#end
@@ -188,12 +188,12 @@ class FlashAudioContext {
 	}
 	
 	
-	public function loadPCMFromByteArray (source:AudioSource, bytes:Dynamic /*flash.utils.ByteArray*/, samples:UInt, format:String = null, stereo:Bool = true, sampleRate:Float = 44100):Void {
+	public function loadPCMFromByteArray (buffer:AudioBuffer, bytes:Dynamic /*flash.utils.ByteArray*/, samples:UInt, format:String = null, stereo:Bool = true, sampleRate:Float = 44100):Void {
 		
 		#if flash
-		if (source.src != null) {
+		if (buffer.src != null) {
 			
-			source.src.loadPCMFromByteArray (bytes, samples, format, stereo, sampleRate);
+			buffer.src.loadPCMFromByteArray (bytes, samples, format, stereo, sampleRate);
 			
 		}
 		#end
@@ -201,12 +201,12 @@ class FlashAudioContext {
 	}
 	
 	
-	public function play (source:AudioSource, startTime:Float = 0, loops:Int = 0, sndTransform:Dynamic /*SoundTransform*/ = null):Dynamic /*SoundChannel*/ {
+	public function play (buffer:AudioBuffer, startTime:Float = 0, loops:Int = 0, sndTransform:Dynamic /*SoundTransform*/ = null):Dynamic /*SoundChannel*/ {
 		
 		#if flash
-		if (source.src != null) {
+		if (buffer.src != null) {
 			
-			return source.src.play (startTime, loops, sndTransform);
+			return buffer.src.play (startTime, loops, sndTransform);
 			
 		}
 		#end
