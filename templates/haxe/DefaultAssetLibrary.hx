@@ -5,7 +5,7 @@ import haxe.Timer;
 import haxe.Unserializer;
 import lime.app.Preloader;
 import lime.media.AudioBuffer;
-import lime.media.Image;
+import lime.media.ImageBuffer;
 import lime.media.openal.AL;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
@@ -224,21 +224,19 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
-	public override function getImage (id:String):Image {
+	public override function getImageBuffer (id:String):ImageBuffer {
 		
 		#if flash
 		
-		var bitmapData = cast (Type.createInstance (className.get (id), []), BitmapData);
-		return new Image (bitmapData, bitmapData.width, bitmapData.height);
+		return ImageBuffer.fromBitmapData (cast (Type.createInstance (className.get (id), []), BitmapData));
 		
 		#elseif js
 		
-		var image = Preloader.images.get (path.get (id));
-		return new Image (image, image.width, image.height);
+		return ImageBuffer.fromImage (Preloader.images.get (path.get (id)));
 		
 		#else
 		
-		return Image.fromFile (path.get (id));
+		return ImageBuffer.fromFile (path.get (id));
 		
 		#end
 		
@@ -441,7 +439,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
-	public override function loadImage (id:String, handler:Image -> Void):Void {
+	public override function loadImageBuffer (id:String, handler:ImageBuffer -> Void):Void {
 		
 		#if flash
 		
@@ -451,20 +449,20 @@ class DefaultAssetLibrary extends AssetLibrary {
 			loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event:Event) {
 				
 				var bitmapData = cast (event.currentTarget.content, Bitmap).bitmapData;
-				handler (new Image (bitmapData, bitmapData.width, bitmapData.height));
+				handler (ImageBuffer.fromBitmapData (bitmapData));
 				
 			});
 			loader.load (new URLRequest (path.get (id)));
 			
 		} else {
 			
-			handler (getImage (id));
+			handler (getImageBuffer (id));
 			
 		}
 		
 		#else
 		
-		handler (getImage (id));
+		handler (getImageBuffer (id));
 		
 		#end
 		

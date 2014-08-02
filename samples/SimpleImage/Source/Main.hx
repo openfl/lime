@@ -4,6 +4,7 @@ package;
 import lime.app.Application;
 import lime.graphics.opengl.*;
 import lime.graphics.RenderContext;
+import lime.media.ImageBuffer;
 import lime.utils.Float32Array;
 import lime.utils.GLUtils;
 import lime.utils.Matrix4;
@@ -14,6 +15,7 @@ class Main extends Application {
 	
 	
 	private var buffer:GLBuffer;
+	private var image:ImageBuffer;
 	private var matrixUniform:GLUniformLocation;
 	private var program:GLProgram;
 	private var texture:GLTexture;
@@ -30,11 +32,12 @@ class Main extends Application {
 	
 	public override function init (context:RenderContext):Void {
 		
+		image = Assets.getImageBuffer ("assets/lime.png");
+		
 		switch (context) {
 			
 			case CANVAS (context):
 				
-				var image = Assets.getImage ("assets/lime.png");
 				context.fillStyle = "#" + StringTools.hex (config.background, 6);
 				context.fillRect (0, 0, window.width, window.height);
 				context.drawImage (image.src, 0, 0, image.width, image.height);
@@ -42,16 +45,13 @@ class Main extends Application {
 			case DOM (element):
 				
 				#if js
-				var image = new js.html.Image ();
-				image.src = Assets.getPath ("assets/lime.png");
 				element.style.backgroundColor = "#" + StringTools.hex (config.background, 6);
-				element.appendChild (image);
+				element.appendChild (image.src);
 				#end
 			
 			case FLASH (sprite):
 				
 				#if flash
-				var image = Assets.getImage ("assets/lime.png");
 				var bitmap = new flash.display.Bitmap (image.src);
 				sprite.addChild (bitmap);
 				#end
@@ -98,8 +98,6 @@ class Main extends Application {
 				gl.enableVertexAttribArray (textureAttribute);
 				gl.uniform1i (imageUniform, 0);
 				
-				var image = Assets.getImage ("assets/lime.png");
-				
 				var data = [
 					
 					image.width, image.height, 0, 1, 1,
@@ -121,7 +119,7 @@ class Main extends Application {
 				#if js
 				gl.texImage2D (gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image.src);
 				#else
-				gl.texImage2D (gl.TEXTURE_2D, 0, gl.RGBA, image.textureWidth, image.textureHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, image.data);
+				gl.texImage2D (gl.TEXTURE_2D, 0, gl.RGBA, image.width, image.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image.data);
 				#end
 				gl.texParameteri (gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 				gl.texParameteri (gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);

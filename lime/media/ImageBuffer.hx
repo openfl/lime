@@ -1,82 +1,120 @@
 package lime.media;
 
 
+import lime.system.System;
+import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 
+#if js
+import js.html.Image in HTMLImage;
+#elseif flash
+import flash.display.BitmapData;
+#end
 
-abstract ImageBuffer(UInt8Array) from UInt8Array to UInt8Array {
+
+class ImageBuffer {
 	
 	
-	public var length (get, never):Int;
+	public var bitsPerPixel:Int;
+	public var data:UInt8Array;
+	public var height:Int;
+	public var premultiplied:Bool;
+	public var width:Int;
+	
+	#if js
+	public var src:HTMLImage;
+	#elseif flash
+	public var src:BitmapData;
+	#else
+	public var src:Dynamic;
+	#end
 	
 	
-	public function new (data:Dynamic = null) {
+	public function new (data:UInt8Array = null, width:Int = 0, height:Int = 0, bitsPerPixel:Int = 4) {
 		
-		this = new UInt8Array (data);
+		this.data = data;
+		this.width = width;
+		this.height = height;
+		this.bitsPerPixel = bitsPerPixel;
 		
 	}
 	
 	
-	public function getComponent (pos:Int):Int {
+	#if flash
+	public static function fromBitmapData (bitmapData:BitmapData):ImageBuffer {
 		
-		return this[pos];
-		
-	}
-	
-	
-	public function getPixel (pos:Int):Int {
-		
-		var index = pos * 4;
-		
-		return ((this[index + 3] << 24) | (this[index] << 16 ) | (this[index + 1] << 8) | this[index + 2]);
+		var buffer = new ImageBuffer (null, bitmapData.width, bitmapData.height);
+		buffer.src = bitmapData;
+		return buffer;
 		
 	}
+	#end
 	
 	
-	public function premultiply ():Void {
+	public static function fromBytes (bytes:ByteArray):ImageBuffer {
 		
-		var index, a;
-		var length = Std.int (this.length / 4);
+		#if (cpp || neko)
 		
-		for (i in 0...length) {
+		var data = lime_image_load (bytes);
+		
+		if (data != null) {
 			
-			index = i * 4;
+			return new ImageBuffer (new UInt8Array (data.data), data.width, data.height, data.bpp);
 			
-			a = this[index + 3];
-			this[index] = (this[index] * a) >> 8;
-			this[index + 1] = (this[index + 1] * a) >> 8;
-			this[index + 2] = (this[index + 2] * a) >> 8;
+		} else {
+			
+			return null;
 			
 		}
 		
-	}
-	
-	
-	public function setComponent (pos:Int, value:Int):Void {
+		#else
 		
-		this[pos] = value;
+		throw "ImageBuffer.loadFromFile not supported on this target";
 		
-	}
-	
-	
-	public function setPixel (pos:Int, value:Int):Void {
-		
-		var index = pos * 4;
-		
-		this[index + 3] = (value >> 24) & 0xFF;
-		this[index] = (value >> 16) & 0xFF;
-		this[index + 1] = (value >> 8) & 0xFF;
-		this[index + 2] = value & 0xFF;
+		#end
 		
 	}
 	
 	
-	private function get_length ():Int {
+	public static function fromFile (path:String):ImageBuffer {
 		
-		return this.length;
+		#if (cpp || neko)
+		
+		var data = lime_image_load (path);
+		
+		if (data != null) {
+			
+			return new ImageBuffer (new UInt8Array (data.data), data.width, data.height, data.bpp);
+			
+		} else {
+			
+			return null;
+			
+		}
+		
+		#else
+		
+		throw "ImageBuffer.loadFromFile not supported on this target";
+		
+		#end
 		
 	}
 	
+	
+	#if js
+	public static function fromImage (image:HTMLImage):ImageBuffer {
+		
+		var buffer = new ImageBuffer (null, image.width, image.height);
+		buffer.src = image;
+		return buffer;
+		
+	}
+	#end
+	
+	
+	#if (cpp || neko)
+	private static var lime_image_load:Dynamic = System.load ("lime", "lime_image_load", 1);
+	#end
 	
 	
 }
