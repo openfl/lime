@@ -21,7 +21,7 @@ typedef GlyphRect = {
 }
 
 typedef GlyphData = {
-	var image:ImageBuffer;
+	var image:Image;
 	var glyphs:StringMap<GlyphRect>;
 };
 
@@ -135,7 +135,7 @@ class Font {
 		image.src = __canvas.toDataURL();
 		return {
 			glyphs: glyphRects,
-			image: ImageBuffer.fromImage (image)
+			image: Image.fromImage (image)
 		}
 
 		#elseif flash
@@ -207,7 +207,7 @@ class Font {
 		
 		return {
 			glyphs: glyphRects,
-			image: ImageBuffer.fromBitmapData (bd)
+			image: Image.fromBitmapData (bd)
 		}
 
 		#elseif (cpp || neko)
@@ -236,7 +236,7 @@ class Font {
 			
 			return {
 				glyphs: glyphRects,
-				image: new ImageBuffer (new UInt8Array (data.image.data), data.image.width, data.image.height, data.image.bpp)
+				image: new Image (new ImageBuffer (new UInt8Array (data.image.data), data.image.width, data.image.height, data.image.bpp))
 			};
 
 		}

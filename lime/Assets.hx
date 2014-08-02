@@ -5,7 +5,7 @@ package lime;
 import haxe.Unserializer;
 import lime.graphics.Font;
 import lime.media.AudioBuffer;
-import lime.media.ImageBuffer;
+import lime.media.Image;
 import lime.utils.ByteArray;
 
 
@@ -189,7 +189,7 @@ class Assets {
 	 * @param	useCache		(Optional) Whether to use BitmapData from the cache(Default: true)
 	 * @return		A new BitmapData object
 	 */
-	public static function getImageBuffer (id:String, useCache:Bool = true):ImageBuffer {
+	public static function getImage (id:String, useCache:Bool = true):Image {
 		
 		initialize ();
 		
@@ -217,7 +217,7 @@ class Assets {
 				
 				if (library.isLocal (symbolName, cast AssetType.IMAGE)) {
 					
-					var image = library.getImageBuffer (symbolName);
+					var image = library.getImage (symbolName);
 					
 					if (useCache && cache.enabled) {
 						
@@ -500,7 +500,7 @@ class Assets {
 	}
 	
 	
-	private static function isValidImage (buffer:ImageBuffer):Bool {
+	private static function isValidImage (buffer:Image):Bool {
 		
 		#if (tools && !display)
 		#if (cpp || neko)
@@ -651,7 +651,7 @@ class Assets {
 	}
 	
 	
-	public static function loadImageBuffer (id:String, handler:ImageBuffer -> Void, useCache:Bool = true):Void {
+	public static function loadImage (id:String, handler:Image -> Void, useCache:Bool = true):Void {
 		
 		initialize ();
 		
@@ -680,7 +680,7 @@ class Assets {
 				
 				if (useCache && cache.enabled) {
 					
-					library.loadImageBuffer (symbolName, function (image:ImageBuffer):Void {
+					library.loadImage (symbolName, function (image:Image):Void {
 						
 						cache.image.set (id, image);
 						handler (image);
@@ -689,7 +689,7 @@ class Assets {
 					
 				} else {
 					
-					library.loadImageBuffer (symbolName, handler);
+					library.loadImage (symbolName, handler);
 					
 				}
 				
@@ -965,7 +965,7 @@ class AssetLibrary {
 	}
 	
 	
-	public function getImageBuffer (id:String):ImageBuffer {
+	public function getImage (id:String):Image {
 		
 		return null;
 		
@@ -1046,9 +1046,9 @@ class AssetLibrary {
 	}
 	
 	
-	public function loadImageBuffer (id:String, handler:ImageBuffer -> Void):Void {
+	public function loadImage (id:String, handler:Image -> Void):Void {
 		
-		handler (getImageBuffer (id));
+		handler (getImage (id));
 		
 	}
 	
@@ -1097,7 +1097,7 @@ class AssetCache {
 	
 	public var audio:Map<String, AudioBuffer>;
 	public var enabled:Bool = true;
-	public var image:Map<String, ImageBuffer>;
+	public var image:Map<String, Image>;
 	public var font:Map<String, Font>;
 	
 	
@@ -1105,7 +1105,7 @@ class AssetCache {
 		
 		audio = new Map<String, AudioBuffer> ();
 		font = new Map<String, Font> ();
-		image = new Map<String, ImageBuffer> ();
+		image = new Map<String, Image> ();
 		
 	}
 	
@@ -1116,7 +1116,7 @@ class AssetCache {
 			
 			audio = new Map<String, AudioBuffer> ();
 			font = new Map<String, Font> ();
-			image = new Map<String, ImageBuffer> ();
+			image = new Map<String, Image> ();
 			
 		} else {
 			

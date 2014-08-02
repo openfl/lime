@@ -4,7 +4,7 @@ package;
 import lime.app.Application;
 import lime.graphics.opengl.*;
 import lime.graphics.RenderContext;
-import lime.media.ImageBuffer;
+import lime.media.Image;
 import lime.utils.Float32Array;
 import lime.utils.GLUtils;
 import lime.utils.Matrix4;
@@ -15,7 +15,7 @@ class Main extends Application {
 	
 	
 	private var buffer:GLBuffer;
-	private var image:ImageBuffer;
+	private var image:Image;
 	private var matrixUniform:GLUniformLocation;
 	private var program:GLProgram;
 	private var texture:GLTexture;
@@ -32,7 +32,7 @@ class Main extends Application {
 	
 	public override function init (context:RenderContext):Void {
 		
-		image = Assets.getImageBuffer ("assets/lime.png");
+		image = Assets.getImage ("assets/lime.png");
 		
 		switch (context) {
 			
@@ -44,10 +44,8 @@ class Main extends Application {
 			
 			case DOM (element):
 				
-				#if js
 				element.style.backgroundColor = "#" + StringTools.hex (config.background, 6);
 				element.appendChild (image.src);
-				#end
 			
 			case FLASH (sprite):
 				
@@ -119,7 +117,7 @@ class Main extends Application {
 				#if js
 				gl.texImage2D (gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image.src);
 				#else
-				gl.texImage2D (gl.TEXTURE_2D, 0, gl.RGBA, image.width, image.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image.data);
+				gl.texImage2D (gl.TEXTURE_2D, 0, gl.RGBA, image.buffer.width, image.buffer.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image.data);
 				#end
 				gl.texParameteri (gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 				gl.texParameteri (gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
