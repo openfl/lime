@@ -1,8 +1,8 @@
 package lime.app;
 
 
+import lime.audio.AudioManager;
 import lime.graphics.*;
-import lime.media.AudioManager;
 import lime.system.*;
 import lime.ui.*;
 

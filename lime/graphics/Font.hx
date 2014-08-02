@@ -1,8 +1,8 @@
 package lime.graphics;
 
 import haxe.ds.StringMap;
-import lime.media.Image;
-import lime.media.ImageBuffer;
+import lime.graphics.Image;
+import lime.graphics.ImageBuffer;
 import lime.utils.UInt8Array;
 import lime.system.System;
 #if js

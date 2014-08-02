@@ -3,11 +3,11 @@ package;
 
 import lime.app.Application;
 import lime.graphics.opengl.*;
+import lime.graphics.Image;
 import lime.graphics.RenderContext;
-import lime.media.Image;
+import lime.math.Matrix4;
 import lime.utils.Float32Array;
 import lime.utils.GLUtils;
-import lime.utils.Matrix4;
 import lime.Assets;
 
 

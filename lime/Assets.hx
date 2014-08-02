@@ -3,9 +3,9 @@ package lime;
 
 
 import haxe.Unserializer;
+import lime.audio.AudioBuffer;
 import lime.graphics.Font;
-import lime.media.AudioBuffer;
-import lime.media.Image;
+import lime.graphics.Image;
 import lime.utils.ByteArray;
 
 
