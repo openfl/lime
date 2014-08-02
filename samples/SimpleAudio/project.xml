@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	
+	<meta title="Simple Audio" package="org.openfl.lime.samples.simpleimage" version="1.0.0" company="OpenFL Technologies" />
+	<app main="Main" path="Export" file="SimpleAudio" />
+	
+	<source path="Source" />
+	
+	<haxelib name="lime" />
+	
+	<assets path="Assets" rename="assets" exclude="*.svg" />
+	<icon path="Assets/lime.svg" />
+	
+</project>

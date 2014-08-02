@@ -18,7 +18,7 @@ class AudioBuffer {
 	
 	public var bitsPerSample:Int;
 	public var channels:Int;
-	public var data:Float32Array;
+	public var data:ByteArray;
 	public var id:UInt;
 	public var sampleRate:Int;
 	
@@ -53,7 +53,7 @@ class AudioBuffer {
 		var audioBuffer = new AudioBuffer ();
 		audioBuffer.bitsPerSample = data.bitsPerSample;
 		audioBuffer.channels = data.channels;
-		audioBuffer.data = new Float32Array (data.data);
+		audioBuffer.data = data.data;
 		audioBuffer.sampleRate = data.sampleRate;
 		return audioBuffer;
 		
@@ -74,7 +74,7 @@ class AudioBuffer {
 		var audioBuffer = new AudioBuffer ();
 		audioBuffer.bitsPerSample = data.bitsPerSample;
 		audioBuffer.channels = data.channels;
-		audioBuffer.data = new Float32Array (data.data);
+		audioBuffer.data = data.data;
 		audioBuffer.sampleRate = data.sampleRate;
 		return audioBuffer;
 		

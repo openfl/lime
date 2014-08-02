@@ -2,7 +2,7 @@ package lime.audio;
 
 
 import lime.audio.openal.AL;
-import lime.utils.Float32Array;
+import lime.utils.ByteArray;
 
 
 class ALAudioContext {
@@ -79,7 +79,7 @@ class ALAudioContext {
 	}
 	
 	
-	public function bufferData (buffer:Int, format:Int, data:Float32Array, size:Int, freq:Int):Void {
+	public function bufferData (buffer:Int, format:Int, data:ByteArray, size:Int, freq:Int):Void {
 		
 		AL.bufferData (buffer, format, data, size, freq);
 		

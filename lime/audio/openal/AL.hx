@@ -2,7 +2,7 @@ package lime.audio.openal;
 
 
 import lime.system.System;
-import lime.utils.Float32Array;
+import lime.utils.ByteArray;
 
 
 class AL {
@@ -72,7 +72,7 @@ class AL {
 	public static inline var EXPONENT_DISTANCE_CLAMPED:Int = 0xD006;
 	
 	
-	public static function bufferData (buffer:Int, format:Int, data:Float32Array, size:Int, freq:Int):Void {
+	public static function bufferData (buffer:Int, format:Int, data:ByteArray, size:Int, freq:Int):Void {
 		
 		#if (cpp || neko)
 		lime_al_buffer_data (buffer, format, data.getByteBuffer (), size, freq);

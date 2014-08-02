@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<meta title="HelloWorld" package="org.openfl.lime.samples.helloworld" version="1.0.0" company="OpenFL Technologies" />
-	<app main="Main" path="Export" file="HelloWorld" />
+	<meta title="Heroku Shaders" package="org.openfl.lime.samples.herokushaders" version="1.0.0" company="OpenFL Technologies" />
+	<app main="Main" path="Export" file="HerokuShaders" />
 	
 	<source path="Source" />
 	

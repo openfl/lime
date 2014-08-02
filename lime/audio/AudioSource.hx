@@ -4,6 +4,10 @@ package lime.audio;
 import lime.app.Event;
 import lime.audio.openal.AL;
 
+#if flash
+import flash.media.SoundChannel;
+#end
+
 
 class AudioSource {
 	
@@ -15,12 +19,18 @@ class AudioSource {
 	public var timeOffset (get, set):Int;
 	
 	private var id:UInt;
+	private var pauseTime:Int;
+	
+	#if flash
+	private var channel:SoundChannel;
+	#end
 	
 	
 	public function new (buffer:AudioBuffer = null) {
 		
 		this.buffer = buffer;
 		id = 0;
+		pauseTime = 0;
 		
 		if (buffer != null) {
 			
@@ -69,7 +79,7 @@ class AudioSource {
 						
 					}
 					
-					al.bufferData (buffer.id, format, buffer.data, buffer.data.length << 2, buffer.sampleRate);
+					al.bufferData (buffer.id, format, buffer.data, buffer.data.length, buffer.sampleRate);
 					
 				}
 				
@@ -87,7 +97,8 @@ class AudioSource {
 		
 		#if js
 		#elseif flash
-		buffer.src.play ();
+		if (channel != null) channel.stop ();
+		var channel = buffer.src.play (pauseTime / 1000);
 		#else
 		AL.sourcePlay (id);
 		#end
@@ -99,7 +110,12 @@ class AudioSource {
 		
 		#if js
 		#elseif flash
-		buffer.src.pause ();
+		if (channel != null) {
+			
+			pauseTime = Std.int (channel.position * 1000);
+			channel.stop ();
+			
+		}
 		#else
 		AL.sourcePause (id);
 		#end
@@ -111,7 +127,8 @@ class AudioSource {
 		
 		#if js
 		#elseif flash
-		buffer.src.stop ();
+		pauseTime = 0;
+		if (channel != null) channel.stop ();
 		#else
 		AL.sourceStop (id);
 		#end

@@ -2,18 +2,18 @@ package;
 
 
 import haxe.Timer;
-import lime.gl.GL;
-import lime.gl.GLBuffer;
-import lime.gl.GLProgram;
-import lime.gl.GLShader;
-import lime.gl.GLUniformLocation;
-import lime.utils.Matrix3D;
+import lime.app.Application;
+import lime.graphics.opengl.GL;
+import lime.graphics.opengl.GLBuffer;
+import lime.graphics.opengl.GLProgram;
+import lime.graphics.opengl.GLShader;
+import lime.graphics.opengl.GLUniformLocation;
+import lime.graphics.RenderContext;
 import lime.utils.Float32Array;
-import lime.utils.Assets;
-import lime.Lime;
+import lime.Assets;
 
 
-class Main {
+class Main extends Application {
 	
 	
 	private static var fragmentShaders = [ #if mobile "6284.1", "6238", "6147.1", "5891.5", "5805.18", "5492", "5398.8" #else "6286", "6288.1", "6284.1", "6238", "6223.2", "6175", "6162", "6147.1", "6049", "6043.1", "6022", "5891.5", "5805.18", "5812", "5733", "5454.21", "5492", "5359.8", "5398.8", "4278.1" #end ];
@@ -24,7 +24,6 @@ class Main {
 	private var currentIndex:Int;
 	private var currentProgram:GLProgram;
 	private var currentTime:Float;
-	private var lime:Lime;
 	private var mouseUniform:GLUniformLocation;
 	private var positionAttribute:Int;
 	private var resolutionUniform:GLUniformLocation;
@@ -34,7 +33,11 @@ class Main {
 	private var vertexPosition:Int;
 	
 	
-	public function new () {}
+	public function new () {
+		
+		super ();
+		
+	}
 	
 	
 	private function compile ():Void {
@@ -116,6 +119,31 @@ class Main {
 	}
 	
 	
+	public override function init (context:RenderContext):Void {
+		
+		switch (context) {
+			
+			case OPENGL (gl):
+				
+				fragmentShaders = randomizeArray (fragmentShaders);
+				currentIndex = 0;
+				
+				buffer = gl.createBuffer ();
+				gl.bindBuffer (gl.ARRAY_BUFFER, buffer);
+				gl.bufferData (gl.ARRAY_BUFFER, new Float32Array ([ -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0 ]), gl.STATIC_DRAW);
+				gl.bindBuffer (gl.ARRAY_BUFFER, null);
+				
+				compile ();
+				
+			default:
+				
+				// not implemented
+			
+		}
+		
+	}
+	
+	
 	private function randomizeArray<T> (array:Array<T>):Array<T> {
 		
 		var arrayCopy = array.copy ();
@@ -133,51 +161,46 @@ class Main {
 	}
 	
 	
-	public function ready (lime:Lime) {
+	public override function render (context:RenderContext):Void {
 		
-		this.lime = lime;
+		switch (context) {
+			
+			case OPENGL (gl):
+				
+				if (currentProgram == null) return;
+				
+				currentTime = Timer.stamp () - startTime;
+				
+				gl.viewport (0, 0, window.width, window.height);
+				gl.useProgram (currentProgram);
+				
+				gl.uniform1f (timeUniform, currentTime);
+				gl.uniform2f (mouseUniform, 0.1, 0.1); //GL.uniform2f (mouseUniform, (stage.mouseX / stage.stageWidth) * 2 - 1, (stage.mouseY / stage.stageHeight) * 2 - 1);
+				gl.uniform2f (resolutionUniform, window.width, window.height);
+				gl.uniform1i (backbufferUniform, 0 );
+				gl.uniform2f (surfaceSizeUniform, window.width, window.height);
+				
+				gl.bindBuffer (gl.ARRAY_BUFFER, buffer);
+				gl.vertexAttribPointer (positionAttribute, 2, gl.FLOAT, false, 0, 0);
+				gl.vertexAttribPointer (vertexPosition, 2, gl.FLOAT, false, 0, 0);
+				
+				gl.clearColor (0, 0, 0, 1);
+				gl.clear (gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+				gl.drawArrays (gl.TRIANGLES, 0, 6);
+				gl.bindBuffer (gl.ARRAY_BUFFER, null);
+				
+			default:
+				
+				// not implemented
+			
+		}
 		
-		fragmentShaders = randomizeArray (fragmentShaders);
-		currentIndex = 0;
 		
-		buffer = GL.createBuffer ();
-		GL.bindBuffer (GL.ARRAY_BUFFER, buffer);
-		GL.bufferData (GL.ARRAY_BUFFER, new Float32Array ([ -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0 ]), GL.STATIC_DRAW);
-		GL.bindBuffer (GL.ARRAY_BUFFER, null);
-		
-		compile ();
-		
-	}
-	
-	
-	public function render ():Void {
-		
-		if (currentProgram == null) return;
-		
-		currentTime = Timer.stamp () - startTime;
-		
-		GL.viewport (0, 0, lime.config.width, lime.config.height);
-		GL.useProgram (currentProgram);
-		
-		GL.uniform1f (timeUniform, currentTime);
-		GL.uniform2f (mouseUniform, 0.1, 0.1); //GL.uniform2f (mouseUniform, (stage.mouseX / stage.stageWidth) * 2 - 1, (stage.mouseY / stage.stageHeight) * 2 - 1);
-		GL.uniform2f (resolutionUniform, lime.config.width, lime.config.height);
-		GL.uniform1i (backbufferUniform, 0 );
-		GL.uniform2f (surfaceSizeUniform, lime.config.width, lime.config.height);
-		
-		GL.bindBuffer (GL.ARRAY_BUFFER, buffer);
-		GL.vertexAttribPointer (positionAttribute, 2, GL.FLOAT, false, 0, 0);
-		GL.vertexAttribPointer (vertexPosition, 2, GL.FLOAT, false, 0, 0);
-		
-		GL.clearColor (0, 0, 0, 1);
-		GL.clear (GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT );
-		GL.drawArrays (GL.TRIANGLES, 0, 6);
-		GL.bindBuffer (GL.ARRAY_BUFFER, null);
 		
 	}
 	
 	
-	public function update ():Void {
+	public override function update (deltaTime:Int):Void {
 		
 		if (currentTime > maxTime && fragmentShaders.length > 1) {
 			
