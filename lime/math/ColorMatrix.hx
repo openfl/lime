@@ -106,14 +106,14 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
-	private inline function get_alphaOffset ():Int {
+	private inline function get_alphaOffset ():Float {
 		
-		return Std.int (this[19] * 255);
+		return this[19] * 255;
 		
 	}
 	
 	
-	private inline function set_alphaOffset (value:Int):Int {
+	private inline function set_alphaOffset (value:Float):Float {
 		
 		this[19] = value / 255;
 		return value;
@@ -135,14 +135,14 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
-	private inline function get_blueOffset ():Int {
+	private inline function get_blueOffset ():Float {
 		
-		return Std.int (this[14] * 255);
+		return this[14] * 255;
 		
 	}
 	
 	
-	private inline function set_blueOffset (value:Int):Int {
+	private inline function set_blueOffset (value:Float):Float {
 		
 		this[14] = value / 255;
 		return value;
@@ -186,14 +186,14 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
-	private inline function get_greenOffset ():Int {
+	private inline function get_greenOffset ():Float {
 		
-		return Std.int (this[9] * 255);
+		return this[9] * 255;
 		
 	}
 	
 	
-	private inline function set_greenOffset (value:Int):Int {
+	private inline function set_greenOffset (value:Float):Float {
 		
 		this[9] = value / 255;
 		return value;
@@ -215,14 +215,14 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
-	private inline function get_redOffset ():Int {
+	private inline function get_redOffset ():Float {
 		
-		return Std.int (this[4] * 255);
+		return this[4] * 255;
 		
 	}
 	
 	
-	private inline function set_redOffset (value:Int):Int {
+	private inline function set_redOffset (value:Float):Float {
 		
 		this[4] = value / 255;
 		return value;

@@ -41,6 +41,16 @@ class ImageBuffer {
 	}
 	
 	
+	public function clone ():ImageBuffer {
+		
+		var buffer = new ImageBuffer (data, width, height, bitsPerPixel);
+		buffer.src = src;
+		buffer.premultiplied = premultiplied;
+		return buffer;
+		
+	}
+	
+	
 	
 	
 	// Get & Set Methods
