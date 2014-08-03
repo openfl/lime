@@ -39,31 +39,53 @@ class Image {
 	public var rect (get, null):Rectangle;
 	public var src (get, set):Dynamic;
 	public var transparent (get, set):Bool;
+	public var type:ImageType;
 	public var width:Int;
 	
-	private var __type:DataStoreType;
 	
-	
-	public function new (buffer:ImageBuffer, context:RenderContext = null) {
+	public function new (buffer:ImageBuffer = null, offsetX:Int = 0, offsetY:Int = 0, width:Int = 0, height:Int = 0, color:Null<Int> = null, type:ImageType = null) {
 		
-		this.buffer = buffer;
+		this.offsetX = offsetX;
+		this.offsetY = offsetY;
+		this.width = width;
+		this.height = height;
 		
-		if (context == null) {
+		if (type == null) {
 			
-			context = Application.__instance.window.currentRenderer.context;
+			this.type = switch (Application.__instance.window.currentRenderer.context) {
+				
+				case DOM (_), CANVAS (_): CANVAS;
+				case FLASH (_): FLASH;
+				default: DATA;
+				
+			}
+			
+		} else {
+			
+			this.type = type;
 			
 		}
 		
-		width = buffer.width;
-		height = buffer.height;
-		offsetX = 0;
-		offsetY = 0;
-		
-		__type = switch (context) {
+		if (buffer == null) {
 			
-			case DOM (_), CANVAS (_): CANVAS;
-			case FLASH (_): FLASH;
-			default: DATA;
+			if (width > 0 && height > 0) {
+				
+				this.buffer = new ImageBuffer (new UInt8Array (width * height * 4), width, height);
+				
+				if (color != null) {
+					
+					fillRect (new Rectangle (0, 0, width, height), color);
+					
+				}
+				
+			}
+			
+		} else {
+			
+			this.buffer = buffer;
+			
+			if (width == 0) this.width = buffer.width;
+			if (height == 0) this.height = buffer.height;
 			
 		}
 		
@@ -76,14 +98,7 @@ class Image {
 		ImageCanvasUtil.sync (this);
 		#end
 		
-		var image = new Image (buffer.clone (), null);
-		image.__type = __type;
-		
-		image.width = width;
-		image.height = height;
-		image.offsetX = offsetX;
-		image.offsetY = offsetY;
-		
+		var image = new Image (buffer.clone (), offsetX, offsetY, width, height, null, type);
 		return image;
 		
 	}
@@ -94,7 +109,7 @@ class Image {
 		rect = __clipRect (rect);
 		if (buffer == null || rect == null) return;
 		
-		switch (__type) {
+		switch (type) {
 			
 			case CANVAS:
 				
@@ -113,6 +128,8 @@ class Image {
 				rect.offset (offsetX, offsetY);
 				buffer.__srcBitmapData.colorTransform (rect.__toFlashRectangle (), colorMatrix.__toFlashColorTransform ());
 			
+			default:
+			
 		}
 		
 	}
@@ -128,7 +145,7 @@ class Image {
 		if (sourceRect.x + sourceRect.width > sourceImage.width) sourceRect.width = sourceImage.width - sourceRect.x;
 		if (sourceRect.y + sourceRect.height > sourceImage.height) sourceRect.height = sourceImage.height - sourceRect.y;
 		
-		switch (__type) {
+		switch (type) {
 			
 			case CANVAS:
 				
@@ -162,6 +179,8 @@ class Image {
 				destPoint.offset (offsetX, offsetY);
 				
 				buffer.__srcBitmapData.copyChannel (sourceImage.buffer.src, sourceRect.__toFlashRectangle (), destPoint.__toFlashPoint (), srcChannel, dstChannel);
+			
+			default:
 				
 		}
 		
@@ -176,7 +195,7 @@ class Image {
 		if (sourceRect.y + sourceRect.height > sourceImage.height) sourceRect.height = sourceImage.height - sourceRect.y;
 		if (sourceRect.width <= 0 || sourceRect.height <= 0) return;
 		
-		switch (__type) {
+		switch (type) {
 			
 			case CANVAS:
 				
@@ -203,6 +222,8 @@ class Image {
 				
 				buffer.__srcBitmapData.copyPixels (sourceImage.buffer.__srcBitmapData, sourceRect.__toFlashRectangle (), destPoint.__toFlashPoint (), alphaImage != null ? alphaImage.buffer.src : null, alphaPoint != null ? alphaPoint.__toFlashPoint () : null, mergeAlpha);
 			
+			default:
+				
 		}
 		
 	}
@@ -213,7 +234,7 @@ class Image {
 		rect = __clipRect (rect);
 		if (buffer == null || rect == null) return;
 		
-		switch (__type) {
+		switch (type) {
 			
 			case CANVAS:
 				
@@ -231,6 +252,8 @@ class Image {
 				
 				rect.offset (offsetX, offsetY);
 				buffer.__srcBitmapData.fillRect (rect.__toFlashRectangle (), color);
+				
+			default:
 			
 		}
 		
@@ -241,7 +264,7 @@ class Image {
 		
 		if (buffer == null) return;
 		
-		switch (__type) {
+		switch (type) {
 			
 			case CANVAS:
 				
@@ -258,6 +281,8 @@ class Image {
 			case FLASH:
 				
 				buffer.__srcBitmapData.floodFill (x + offsetX, y + offsetY, color);
+			
+			default:
 			
 		}
 		
@@ -342,7 +367,7 @@ class Image {
 		
 		if (buffer == null || x < 0 || y < 0 || x >= width || y >= height) return 0;
 		
-		switch (__type) {
+		switch (type) {
 			
 			case CANVAS:
 				
@@ -360,6 +385,10 @@ class Image {
 				
 				return buffer.__srcBitmapData.getPixel (x + offsetX, y + offsetY);
 			
+			default:
+				
+				return 0;
+			
 		}
 		
 	}
@@ -369,7 +398,7 @@ class Image {
 		
 		if (buffer == null || x < 0 || y < 0 || x >= width || y >= height) return 0;
 		
-		switch (__type) {
+		switch (type) {
 			
 			case CANVAS:
 				
@@ -387,6 +416,10 @@ class Image {
 				
 				return buffer.__srcBitmapData.getPixel32 (x + offsetX, y + offsetY);
 			
+			default:
+				
+				return 0;
+			
 		}
 		
 	}
@@ -396,7 +429,7 @@ class Image {
 		
 		if (buffer == null || x < 0 || y < 0 || x >= width || y >= height) return;
 		
-		switch (__type) {
+		switch (type) {
 			
 			case CANVAS:
 				
@@ -414,6 +447,8 @@ class Image {
 				
 				buffer.__srcBitmapData.setPixel (x + offsetX, y + offsetX, color);
 			
+			default:
+			
 		}
 		
 	}
@@ -423,7 +458,7 @@ class Image {
 		
 		if (buffer == null || x < 0 || y < 0 || x >= width || y >= height) return;
 		
-		switch (__type) {
+		switch (type) {
 			
 			case CANVAS:
 				
@@ -440,6 +475,8 @@ class Image {
 			case FLASH:
 				
 				buffer.__srcBitmapData.setPixel32 (x + offsetX, y + offsetY, color);
+			
+			default:
 			
 		}
 		
@@ -548,7 +585,7 @@ class Image {
 				
 			}
 			
-			switch (__type) {
+			switch (type) {
 				
 				case CANVAS:
 					
@@ -569,6 +606,7 @@ class Image {
 					buffer.height = newHeight;
 					#end
 				
+				default:
 			}
 			
 		}
@@ -589,7 +627,7 @@ class Image {
 		
 		if (value && !buffer.premultiplied) {
 			
-			switch (__type) {
+			switch (type) {
 				
 				case DATA:
 					
@@ -603,7 +641,7 @@ class Image {
 			
 		} else if (!value && buffer.premultiplied) {
 			
-			switch (__type) {
+			switch (type) {
 				
 				case DATA:
 					
@@ -670,15 +708,6 @@ class Image {
 	private static var lime_image_load:Dynamic = System.load ("lime", "lime_image_load", 1);
 	#end
 	
-	
-}
-
-
-private enum DataStoreType {
-	
-	CANVAS;
-	DATA;
-	FLASH;
 	
 }
 

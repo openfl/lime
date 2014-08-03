@@ -116,7 +116,8 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	
 	private inline function set_alphaMultiplier (value:Float):Float {
 		
-		return this[18] = value;
+		this[18] = value;
+		return value;
 		
 	}
 	
@@ -145,7 +146,8 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	
 	private inline function set_blueMultiplier (value:Float):Float {
 		
-		return this[12] = value;
+		this[12] = value;
+		return value;
 		
 	}
 	
@@ -196,7 +198,8 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	
 	private inline function set_greenMultiplier (value:Float):Float {
 		
-		return this[6] = value;
+		this[6] = value;
+		return value;
 		
 	}
 	
@@ -225,7 +228,8 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	
 	private inline function set_redMultiplier (value:Float):Float {
 		
-		return this[0] = value;
+		this[0] = value;
+		return value;
 		
 	}
 	
