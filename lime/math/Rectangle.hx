@@ -1,6 +1,11 @@
 package lime.math;
 
 
+#if flash
+import flash.geom.Rectangle in FlashRectangle;
+#end
+
+
 class Rectangle {
 	
 	
@@ -275,6 +280,17 @@ class Rectangle {
 		if (this.y > y) this.y = y;
 		if (cacheRight < x + width) this.width = x + width - this.x;
 		if (cacheBottom < y + height) this.height = y + height - this.y;
+		
+	}
+	
+	
+	private function __toFlashRectangle ():#if flash FlashRectangle #else Dynamic #end {
+		
+		#if flash
+		return new FlashRectangle (x, y, width, height);
+		#else
+		return null;
+		#end
 		
 	}
 	

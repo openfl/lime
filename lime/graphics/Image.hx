@@ -1,8 +1,9 @@
 package lime.graphics;
 
 
-import haxe.ds.Vector;
 import lime.app.Application;
+import lime.graphics.util.ImageCanvasUtil;
+import lime.graphics.util.ImageDataUtil;
 import lime.math.ColorMatrix;
 import lime.math.Rectangle;
 import lime.math.Vector2;
@@ -11,24 +12,21 @@ import lime.utils.UInt8Array;
 import lime.system.System;
 
 #if js
-import js.html.CanvasElement;
-import js.html.CanvasRenderingContext2D;
 import js.html.Image in HTMLImage;
-import js.Browser;
 #elseif flash
 import flash.display.BitmapData;
-import flash.geom.ColorTransform;
-import flash.geom.Point;
-import flash.geom.Rectangle in FlashRectangle;
 #end
 
+@:allow(lime.graphics.util.ImageCanvasUtil)
+@:allow(lime.graphics.util.ImageDataUtil)
 @:access(lime.app.Application)
+@:access(lime.math.ColorMatrix)
+@:access(lime.math.Rectangle)
+@:access(lime.math.Vector2)
 
 
 class Image {
 	
-	
-	private static var __clamp:Vector<Int>;
 	
 	public var buffer:ImageBuffer;
 	public var data (get, set):UInt8Array;
@@ -40,11 +38,10 @@ class Image {
 	public var premultiplied (get, set):Bool;
 	public var rect (get, null):Rectangle;
 	public var src (get, set):Dynamic;
-	public var transparent:Bool;
+	public var transparent (get, set):Bool;
 	public var width:Int;
 	
-	private var __sourceImageDataChanged:Bool;
-	private var __type:StoreType;
+	private var __type:DataStoreType;
 	
 	
 	public function new (buffer:ImageBuffer, context:RenderContext = null) {
@@ -64,27 +61,9 @@ class Image {
 		
 		__type = switch (context) {
 			
-			case DOM (_), CANVAS (_): HTML5;
+			case DOM (_), CANVAS (_): CANVAS;
 			case FLASH (_): FLASH;
 			default: DATA;
-			
-		}
-		
-		if (__clamp == null) {
-			
-			__clamp = new Vector<Int> (0xFF + 0xFF);
-			
-			for (i in 0...0xFF) {
-				
-				__clamp[i] = i;
-				
-			}
-			
-			for (i in 255...(0xFF + 0xFF + 1)) {
-				
-				__clamp[i] = 255;
-				
-			}
 			
 		}
 		
@@ -92,6 +71,10 @@ class Image {
 	
 	
 	public function clone ():Image {
+		
+		#if js
+		ImageCanvasUtil.sync (this);
+		#end
 		
 		var image = new Image (buffer.clone (), null);
 		image.__type = __type;
@@ -111,46 +94,26 @@ class Image {
 		rect = __clipRect (rect);
 		if (buffer == null || rect == null) return;
 		
-		#if js
-		__convertToCanvas ();
-		__createImageData ();
-		__sourceImageDataChanged = true;
-		#end
-		
 		switch (__type) {
 			
-			case DATA, HTML5:
+			case CANVAS:
 				
-				var data = buffer.data;
-				var stride = buffer.width * 4;
-				var offset:Int;
+				ImageCanvasUtil.colorTransform (this, rect, colorMatrix);
+			
+			case DATA:
 				
-				for (row in Std.int (rect.y + offsetY)...Std.int (rect.height + offsetY)) {
-					
-					for (column in Std.int (rect.x + offsetX)...Std.int (rect.width + offsetX)) {
-						
-						offset = (row * stride) + (column * 4);
-						
-						data[offset] = Std.int ((data[offset] * colorMatrix.redMultiplier) + colorMatrix.redOffset);
-						data[offset + 1] = Std.int ((data[offset + 1] * colorMatrix.greenMultiplier) + colorMatrix.greenOffset);
-						data[offset + 2] = Std.int ((data[offset + 2] * colorMatrix.blueMultiplier) + colorMatrix.blueOffset);
-						data[offset + 3] = Std.int ((data[offset + 3] * colorMatrix.alphaMultiplier) + colorMatrix.alphaOffset);
-						
-					}
-					
-				}
+				#if js
+				ImageCanvasUtil.convertToData (this);
+				#end
+				
+				ImageDataUtil.colorTransform (this, rect, colorMatrix);
 			
 			case FLASH:
 				
-				#if flash
-				var rect = new FlashRectangle (rect.x + offsetX, rect.y + offsetY, rect.width + offsetX, rect.height + offsetY);
-				var transform = new ColorTransform (colorMatrix.redMultiplier, colorMatrix.greenMultiplier, colorMatrix.blueMultiplier, colorMatrix.alphaMultiplier, colorMatrix.redOffset, colorMatrix.greenOffset, colorMatrix.blueOffset, colorMatrix.alphaOffset);
-				buffer.src.colorTransform (rect, transform);
-				#end
+				rect.offset (offsetX, offsetY);
+				buffer.__srcBitmapData.colorTransform (rect.__toFlashRectangle (), colorMatrix.__toFlashColorTransform ());
 			
 		}
-		
-		dirty = true;
 		
 	}
 	
@@ -165,107 +128,21 @@ class Image {
 		if (sourceRect.x + sourceRect.width > sourceImage.width) sourceRect.width = sourceImage.width - sourceRect.x;
 		if (sourceRect.y + sourceRect.height > sourceImage.height) sourceRect.height = sourceImage.height - sourceRect.y;
 		
-		var destIdx = -1;
-		
-		if (destChannel == ImageChannel.ALPHA) { 
-			
-			destIdx = 3;
-			
-		} else if (destChannel == ImageChannel.BLUE) {
-			
-			destIdx = 2;
-			
-		} else if (destChannel == ImageChannel.GREEN) {
-			
-			destIdx = 1;
-			
-		} else if (destChannel == ImageChannel.RED) {
-			
-			destIdx = 0;
-			
-		} else {
-			
-			throw "Invalid destination BitmapDataChannel passed to BitmapData::copyChannel.";
-			
-		}
-		
-		var srcIdx = -1;
-		
-		if (sourceChannel == ImageChannel.ALPHA) {
-			
-			srcIdx = 3;
-			
-		} else if (sourceChannel == ImageChannel.BLUE) {
-			
-			srcIdx = 2;
-			
-		} else if (sourceChannel == ImageChannel.GREEN) {
-			
-			srcIdx = 1;
-			
-		} else if (sourceChannel == ImageChannel.RED) {
-			
-			srcIdx = 0;
-			
-		} else {
-			
-			throw "Invalid source ImageChannel passed to Image.copyChannel.";
-			
-		}
-		
-		#if js
-		sourceImage.__convertToCanvas ();
-		sourceImage.__createImageData ();
-		__convertToCanvas ();
-		__createImageData ();
-		__sourceImageDataChanged = true;
-		#end
-		
 		switch (__type) {
 			
-			case DATA, HTML5:
+			case CANVAS:
 				
-				var srcStride = Std.int (sourceImage.buffer.width * 4);
-				var srcPosition = Std.int (((sourceRect.x + sourceImage.offsetX) * 4) + (srcStride * (sourceRect.y + sourceImage.offsetY)) + srcIdx);
-				var srcRowOffset = srcStride - Std.int (4 * (sourceRect.width + sourceImage.offsetX));
-				var srcRowEnd = Std.int (4 * (sourceRect.x + sourceImage.offsetX + sourceRect.width));
-				var srcData = sourceImage.buffer.data;
+				ImageCanvasUtil.copyChannel (this, sourceImage, sourceRect, destPoint, sourceChannel, destChannel);
+			
+			case DATA:
 				
-				var destStride = Std.int (buffer.width * 4);
-				var destPosition = Std.int (((destPoint.x + offsetX) * 4) + (destStride * (destPoint.y + offsetY)) + destIdx);
-				var destRowOffset = destStride - Std.int (4 * (sourceRect.width + offsetX));
-				var destRowEnd = Std.int (4 * (destPoint.x + offsetX + sourceRect.width));
-				var destData = buffer.data;
+				#if js
+				ImageCanvasUtil.convertToData (this);
+				#end
 				
-				var length = Std.int (sourceRect.width * sourceRect.height);
-				
-				for (i in 0...length) {
-					
-					destData[destPosition] = srcData[srcPosition];
-					
-					srcPosition += 4;
-					destPosition += 4;
-					
-					if ((srcPosition % srcStride) > srcRowEnd) {
-						
-						srcPosition += srcRowOffset;
-						
-					}
-					
-					if ((destPosition % destStride) > destRowEnd) {
-						
-						destPosition += destRowOffset;
-						
-					}
-					
-				}
+				ImageDataUtil.copyChannel (this, sourceImage, sourceRect, destPoint, sourceChannel, destChannel);
 			
 			case FLASH:
-				
-				#if flash
-				var sourceBitmapData = sourceImage.buffer.src;
-				var rect = new FlashRectangle (sourceRect.x + sourceImage.offsetX, sourceRect.y + sourceImage.offsetY, sourceRect.width + sourceImage.offsetX, sourceRect.height + sourceImage.offsetY);
-				var point = new Point (destPoint.x + offsetX, destPoint.y + offsetY);
 				
 				var srcChannel = switch (sourceChannel) { 
 					case RED: 1;
@@ -281,12 +158,12 @@ class Image {
 					case ALPHA: 8;
 				}
 				
-				buffer.src.copyChannel (sourceBitmapData, rect, point, srcChannel, dstChannel);
-				#end
+				sourceRect.offset (sourceImage.offsetX, sourceImage.offsetY);
+				destPoint.offset (offsetX, offsetY);
+				
+				buffer.__srcBitmapData.copyChannel (sourceImage.buffer.src, sourceRect.__toFlashRectangle (), destPoint.__toFlashPoint (), srcChannel, dstChannel);
 				
 		}
-		
-		dirty = true;
 		
 	}
 	
@@ -299,117 +176,34 @@ class Image {
 		if (sourceRect.y + sourceRect.height > sourceImage.height) sourceRect.height = sourceImage.height - sourceRect.y;
 		if (sourceRect.width <= 0 || sourceRect.height <= 0) return;
 		
-		if (alphaImage != null && alphaImage.transparent) {
-			
-			if (alphaPoint == null) alphaPoint = new Vector2 ();
-			
-			// TODO: use faster method
-			
-			var tempData = clone ();
-			tempData.copyChannel (alphaImage, new Rectangle (alphaPoint.x, alphaPoint.y, sourceRect.width, sourceRect.height), new Vector2 (sourceRect.x, sourceRect.y), ImageChannel.ALPHA, ImageChannel.ALPHA);
-			sourceImage = tempData;
-			
-		}
-		
 		switch (__type) {
+			
+			case CANVAS:
+				
+				ImageCanvasUtil.copyPixels (this, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha);
 			
 			case DATA:
 				
 				#if js
-				__convertToCanvas ();
-				__createImageData ();
+				ImageCanvasUtil.convertToData (this);
 				#end
 				
-				var rowOffset = Std.int (destPoint.y + offsetY - sourceRect.y - sourceImage.offsetY);
-				var columnOffset = Std.int (destPoint.x + offsetX - sourceRect.x - sourceImage.offsetY);
-				
-				var sourceData = sourceImage.buffer.data;
-				var sourceStride = sourceImage.buffer.width * 4;
-				var sourceOffset:Int;
-				
-				var data = buffer.data;
-				var stride = buffer.width * 4;
-				var offset:Int;
-				
-				if (!mergeAlpha || !sourceImage.transparent) {
-					
-					for (row in Std.int (sourceRect.y + sourceImage.offsetY)...Std.int (sourceRect.height + sourceImage.offsetY)) {
-						
-						for (column in Std.int (sourceRect.x + sourceImage.offsetX)...Std.int (sourceRect.width + sourceImage.offsetX)) {
-							
-							sourceOffset = (row * sourceStride) + (column * 4);
-							offset = ((row + rowOffset) * stride) + ((column + columnOffset) * 4);
-							
-							data[offset] = sourceData[sourceOffset];
-							data[offset + 1] = sourceData[sourceOffset + 1];
-							data[offset + 2] = sourceData[sourceOffset + 2];
-							data[offset + 3] = sourceData[sourceOffset + 3];
-							
-						}
-						
-					}
-					
-				} else {
-					
-					var sourceAlpha:Float;
-					var oneMinusSourceAlpha:Float;
-					
-					for (row in Std.int (sourceRect.y + sourceImage.offsetY)...Std.int (sourceRect.height + sourceImage.offsetY)) {
-						
-						for (column in Std.int (sourceRect.x + sourceImage.offsetX)...Std.int (sourceRect.width + sourceImage.offsetX)) {
-							
-							sourceOffset = (row * sourceStride) + (column * 4);
-							offset = ((row + rowOffset) * stride) + ((column + columnOffset) * 4);
-							
-							sourceAlpha = sourceData[sourceOffset + 3] / 255;
-							oneMinusSourceAlpha = (1 - sourceAlpha);
-							
-							data[offset] = __clamp[Std.int (sourceData[sourceOffset] + (data[offset] * oneMinusSourceAlpha))];
-							data[offset + 1] = __clamp[Std.int (sourceData[sourceOffset + 1] + (data[offset + 1] * oneMinusSourceAlpha))];
-							data[offset + 2] = __clamp[Std.int (sourceData[sourceOffset + 2] + (data[offset + 2] * oneMinusSourceAlpha))];
-							data[offset + 3] = __clamp[Std.int (sourceData[sourceOffset + 3] + (data[offset + 3] * oneMinusSourceAlpha))];
-							
-						}
-						
-					}
-					
-				}
+				ImageDataUtil.copyPixels (this, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha);
 			
 			case FLASH:
 				
-				// TODO
-			
-			case HTML5:
+				sourceRect.offset (sourceImage.offsetX, sourceImage.offsetY);
+				destPoint.offset (offsetX, offsetY);
 				
-				#if js
-				__syncImageData ();
-				
-				if (!mergeAlpha) {
+				if (alphaImage != null && alphaPoint != null) {
 					
-					if (transparent && sourceImage.transparent) {
-						
-						buffer.__canvasContext.clearRect (destPoint.x + offsetX, destPoint.y + offsetY, sourceRect.width + offsetX, sourceRect.height + offsetY);
-						
-					}
+					alphaPoint.offset (alphaImage.offsetX, alphaImage.offsetY);
 					
 				}
 				
-				sourceImage.__syncImageData ();
-				
-				if (sourceImage.buffer.__image != null) {
-					
-					buffer.__canvasContext.drawImage (sourceImage.buffer.__image, Std.int (sourceRect.x + sourceImage.offsetX), Std.int (sourceRect.y + sourceImage.offsetY), Std.int (sourceRect.width), Std.int (sourceRect.height), Std.int (destPoint.x + offsetX), Std.int (destPoint.y + offsetY), Std.int (sourceRect.width), Std.int (sourceRect.height));
-					
-				} else if (sourceImage.buffer.__canvas != null) {
-					
-					buffer.__canvasContext.drawImage (sourceImage.buffer.__canvas, Std.int (sourceRect.x + sourceImage.offsetX), Std.int (sourceRect.y + sourceImage.offsetY), Std.int (sourceRect.width), Std.int (sourceRect.height), Std.int (destPoint.x + offsetX), Std.int (destPoint.y + offsetY), Std.int (sourceRect.width), Std.int (sourceRect.height));
-					
-				}
-				#end
+				buffer.__srcBitmapData.copyPixels (sourceImage.buffer.__srcBitmapData, sourceRect.__toFlashRectangle (), destPoint.__toFlashPoint (), alphaImage != null ? alphaImage.buffer.src : null, alphaPoint != null ? alphaPoint.__toFlashPoint () : null, mergeAlpha);
 			
 		}
-		
-		dirty = true;
 		
 	}
 	
@@ -419,23 +213,26 @@ class Image {
 		rect = __clipRect (rect);
 		if (buffer == null || rect == null) return;
 		
-		#if js
-		__convertToCanvas ();
-		__syncImageData ();
-		#end
-		
-		if (__type == HTML5 && rect.x == 0 && rect.y == 0 && rect.width == width && rect.height == height) {
+		switch (__type) {
 			
-			if (transparent && ((color & 0xFF000000) == 0)) {
+			case CANVAS:
 				
-				buffer.__canvas.width = buffer.width;
-				return;
+				ImageCanvasUtil.fillRect (this, rect, color);
+			
+			case DATA:
 				
-			}
+				#if js
+				ImageCanvasUtil.convertToData (this);
+				#end
+				
+				ImageDataUtil.fillRect (this, rect, color);
+			
+			case FLASH:
+				
+				rect.offset (offsetX, offsetY);
+				buffer.__srcBitmapData.fillRect (rect.__toFlashRectangle (), color);
 			
 		}
-		
-		__fillRect (rect, color);
 		
 	}
 	
@@ -444,78 +241,25 @@ class Image {
 		
 		if (buffer == null) return;
 		
-		#if js
-		__convertToCanvas ();
-		__createImageData ();
-		__sourceImageDataChanged = true;
-		#end
-		
 		switch (__type) {
 			
-			case DATA, HTML5:
+			case CANVAS:
 				
-				var data = buffer.data;
-				var offset = (((y + offsetY) * (buffer.width * 4)) + ((x + offsetX) * 4));
-				var hitColorR = data[offset + 0];
-				var hitColorG = data[offset + 1];
-				var hitColorB = data[offset + 2];
-				var hitColorA = transparent ? data[offset + 3] : 0xFF;
+				ImageCanvasUtil.floodFill (this, x, y, color);
+			
+			case DATA:
 				
-				var r = (color & 0xFF0000) >>> 16;
-				var g = (color & 0x00FF00) >>> 8;
-				var b = (color & 0x0000FF);
-				var a = transparent ? (color & 0xFF000000) >>> 24 : 0xFF;
+				#if js
+				ImageCanvasUtil.convertToData (this);
+				#end
 				
-				if (hitColorR == r && hitColorG == g && hitColorB == b && hitColorA == a) return;
-				
-				var dx = [ 0, -1, 1, 0 ];
-				var dy = [ -1, 0, 0, 1 ];
-				
-				var queue = new Array<Int> ();
-				queue.push (x);
-				queue.push (y);
-				
-				while (queue.length > 0) {
-					
-					var curPointY = queue.pop ();
-					var curPointX = queue.pop ();
-					
-					for (i in 0...4) {
-						
-						var nextPointX = curPointX + dx[i];
-						var nextPointY = curPointY + dy[i];
-						
-						if (nextPointX < 0 || nextPointY < 0 || nextPointX >= width || nextPointY >= height) {
-							
-							continue;
-							
-						}
-						
-						var nextPointOffset = (nextPointY * width + nextPointX) * 4;
-						
-						if (data[nextPointOffset + 0] == hitColorR && data[nextPointOffset + 1] == hitColorG && data[nextPointOffset + 2] == hitColorB && data[nextPointOffset + 3] == hitColorA) {
-							
-							data[nextPointOffset + 0] = r;
-							data[nextPointOffset + 1] = g;
-							data[nextPointOffset + 2] = b;
-							data[nextPointOffset + 3] = a;
-						    
-							queue.push (nextPointX);
-							queue.push (nextPointY);
-							
-						}
-						
-					}
-					
-				}
+				ImageDataUtil.floodFill (this, x, y, color);
 			
 			case FLASH:
 				
-				// TODO
+				buffer.__srcBitmapData.floodFill (x + offsetX, y + offsetY, color);
 			
 		}
-		
-		dirty = true;
 		
 	}
 	
@@ -598,22 +342,23 @@ class Image {
 		
 		if (buffer == null || x < 0 || y < 0 || x >= width || y >= height) return 0;
 		
-		#if js
-		__convertToCanvas ();
-		__createImageData ();
-		#end
-		
 		switch (__type) {
 			
-			case DATA, HTML5:
+			case CANVAS:
 				
-				var data = buffer.data;
-				var offset = (4 * (y + offsetY) * buffer.width + (x + offsetX) * 4);
-				return (data[offset] << 16) | (data[offset + 1] << 8) | (data[offset + 2]);
+				return ImageCanvasUtil.getPixel (this, x, y);
+			
+			case DATA:
+				
+				#if js
+				ImageCanvasUtil.convertToData (this);
+				#end
+				
+				return ImageDataUtil.getPixel (this, x, y);
 			
 			case FLASH:
 				
-				return buffer.src.getPixel (x + offsetX, y + offsetY);
+				return buffer.__srcBitmapData.getPixel (x + offsetX, y + offsetY);
 			
 		}
 		
@@ -624,22 +369,23 @@ class Image {
 		
 		if (buffer == null || x < 0 || y < 0 || x >= width || y >= height) return 0;
 		
-		#if js
-		__convertToCanvas ();
-		__createImageData ();
-		#end
-		
 		switch (__type) {
 			
-			case DATA, HTML5:
+			case CANVAS:
 				
-				var data = buffer.data;
-				var offset = (4 * (y + offsetY) * buffer.width + (x + offsetX) * 4);
-				return (transparent ? data[offset + 3] : 0xFF) << 24 | data[offset] << 16 | data[offset + 1] << 8 | data[offset + 2];
+				return ImageCanvasUtil.getPixel32 (this, x, y);
 			
+			case DATA:
+				
+				#if js
+				ImageCanvasUtil.convertToData (this);
+				#end
+				
+				return ImageDataUtil.getPixel32 (this, x, y);
+				
 			case FLASH:
 				
-				return buffer.src.getPixel32 (x + offsetX, y + offsetY);
+				return buffer.__srcBitmapData.getPixel32 (x + offsetX, y + offsetY);
 			
 		}
 		
@@ -650,31 +396,25 @@ class Image {
 		
 		if (buffer == null || x < 0 || y < 0 || x >= width || y >= height) return;
 		
-		#if js
-		__convertToCanvas ();
-		__createImageData ();
-		__sourceImageDataChanged = true;
-		#end
-		
 		switch (__type) {
 			
-			case DATA, HTML5:
+			case CANVAS:
 				
-				var data = buffer.data;
-				var offset = (4 * (y + offsetY) * buffer.width + (x + offsetX) * 4);
+				ImageCanvasUtil.setPixel (this, x, y, color);
+			
+			case DATA:
 				
-				data[offset] = (color & 0xFF0000) >>> 16;
-				data[offset + 1] = (color & 0x00FF00) >>> 8;
-				data[offset + 2] = (color & 0x0000FF);
-				if (transparent) data[offset + 3] = (0xFF);
+				#if js
+				ImageCanvasUtil.convertToData (this);
+				#end
+				
+				ImageDataUtil.setPixel (this, x, y, color);
 			
 			case FLASH:
 				
-				buffer.src.setPixel (x + offsetX, y + offsetX, color);
+				buffer.__srcBitmapData.setPixel (x + offsetX, y + offsetX, color);
 			
 		}
-		
-		dirty = true;
 		
 	}
 	
@@ -683,40 +423,25 @@ class Image {
 		
 		if (buffer == null || x < 0 || y < 0 || x >= width || y >= height) return;
 		
-		#if js
-		__convertToCanvas ();
-		__createImageData ();
-		__sourceImageDataChanged = true;
-		#end
-		
 		switch (__type) {
 			
-			case DATA, HTML5:
+			case CANVAS:
 				
-				var data = buffer.data;
-				var offset = (4 * (y + offsetY) * buffer.width + (x + offsetX) * 4);
+				ImageCanvasUtil.setPixel32 (this, x, y, color);
+			
+			case DATA:
 				
-				data[offset] = (color & 0x00FF0000) >>> 16;
-				data[offset + 1] = (color & 0x0000FF00) >>> 8;
-				data[offset + 2] = (color & 0x000000FF);
+				#if js
+				ImageCanvasUtil.convertToData (this);
+				#end
 				
-				if (transparent) {
-					
-					data[offset + 3] = (color & 0xFF000000) >>> 24;
-					
-				} else {
-					
-					data[offset + 3] = (0xFF);
-					
-				}
+				ImageDataUtil.setPixel32 (this, x, y, color);
 			
 			case FLASH:
 				
-				buffer.src.setPixel32 (x + offsetX, y + offsetY, color);
+				buffer.__srcBitmapData.setPixel32 (x + offsetX, y + offsetY, color);
 			
 		}
-		
-		dirty = true;
 		
 	}
 	
@@ -764,140 +489,6 @@ class Image {
 	}
 	
 	
-	private function __convertToCanvas ():Void {
-		
-		if (buffer.__image != null) {
-			
-			if (buffer.__canvas == null) {
-				
-				__createCanvas (buffer.__image.width, buffer.__image.height);
-				buffer.__canvasContext.drawImage (buffer.__image, 0, 0);
-				
-			}
-			
-			buffer.__image = null;
-			
-		}
-		
-	}
-	
-	
-	private function __createCanvas (width:Int, height:Int):Void {
-		
-		#if js
-		if (buffer.__canvas == null) {
-			
-			buffer.__canvas = cast Browser.document.createElement ("canvas");
-			buffer.__canvas.width = buffer.width;
-			buffer.__canvas.height = buffer.height;
-			
-			if (!transparent) {
-				
-				if (!transparent) buffer.__canvas.setAttribute ("moz-opaque", "true");
-				buffer.__canvasContext = untyped __js__ ('this.buffer.__canvas.getContext ("2d", { alpha: false })');
-				
-			} else {
-				
-				buffer.__canvasContext = buffer.__canvas.getContext ("2d");
-				
-			}
-			
-			untyped (buffer.__canvasContext).mozImageSmoothingEnabled = false;
-			untyped (buffer.__canvasContext).webkitImageSmoothingEnabled = false;
-			buffer.__canvasContext.imageSmoothingEnabled = false;
-			
-		}
-		#end
-		
-	}
-	
-	
-	private function __createImageData ():Void {
-		
-		#if js
-		if (buffer.data == null) {
-			
-			buffer.data = new UInt8Array (buffer.__canvasContext.getImageData (0, 0, buffer.width, buffer.height).data);
-			
-			if (__type == DATA) {
-				
-				buffer.__image = null;
-				buffer.__canvas = null;
-				buffer.__canvasContext = null;
-				
-			}
-			
-		}
-		#end
-		
-	}
-	
-	
-	private function __fillRect (rect:Rectangle, color:Int) {
-		
-		var a = (transparent) ? ((color & 0xFF000000) >>> 24) : 0xFF;
-		var r = (color & 0x00FF0000) >>> 16;
-		var g = (color & 0x0000FF00) >>> 8;
-		var b = (color & 0x000000FF);
-		
-		switch (__type) {
-			
-			case DATA:
-				
-				var data = buffer.data;
-				var stride = buffer.width * 4;
-				var offset:Int;
-				
-				for (row in Std.int (rect.y + offsetY)...Std.int (rect.height + offsetY)) {
-					
-					for (column in Std.int (rect.x + offsetX)...Std.int (rect.width + offsetX)) {
-						
-						offset = (row * stride) + (column * 4);
-						
-						data[offset] = r;
-						data[offset + 1] = g;
-						data[offset + 2] = b;
-						data[offset + 3] = a;
-						
-					}
-					
-				}
-				
-				trace (data);
-			
-			case FLASH:
-				
-				#if flash
-				buffer.src.fillRect (new FlashRectangle (rect.x + offsetX, rect.y + offsetY, rect.width + offsetX, rect.height + offsetY), color);
-				#end
-			
-			case HTML5:
-				
-				buffer.__canvasContext.fillStyle = 'rgba(' + r + ', ' + g + ', ' + b + ', ' + (a / 255) + ')';
-				buffer.__canvasContext.fillRect (rect.x + offsetX, rect.y + offsetY, rect.width + offsetX, rect.height + offsetY);
-			
-		}
-		
-		dirty = true;
-		
-	}
-	
-	
-	private function __syncImageData ():Void {
-		
-		#if js
-		if (__sourceImageDataChanged && __type != DATA) {
-			
-			buffer.__canvasContext.putImageData (cast buffer.data, 0, 0);
-			buffer.data = null;
-			__sourceImageDataChanged = false;
-			
-		}
-		#end
-		
-	}
-	
-	
 	
 	
 	// Get & Set Methods
@@ -910,10 +501,10 @@ class Image {
 		if (buffer.data == null && buffer.width > 0 && buffer.height > 0) {
 			
 			#if js
-			__convertToCanvas ();
-			__createImageData ();
+			ImageCanvasUtil.convertToCanvas (this);
+			ImageCanvasUtil.createImageData (this);
 			#elseif flash
-			var pixels = buffer.src.getPixels (buffer.src.rect);
+			var pixels = buffer.__srcBitmapData.getPixels (buffer.__srcBitmapData.rect);
 			buffer.data = new UInt8Array (pixels);
 			#end
 			
@@ -959,31 +550,13 @@ class Image {
 			
 			switch (__type) {
 				
+				case CANVAS:
+					
+					// TODO
+				
 				case DATA:
 					
-					var data = this.data;
-					var newData = new UInt8Array (newWidth * newHeight * 4);
-					var sourceIndex:Int, index:Int;
-					
-					for (y in 0...buffer.height) {
-						
-						for (x in 0...buffer.width) {
-							
-							sourceIndex = y * buffer.width + x;
-							index = y * newWidth + x * 4;
-							
-							newData[index] = data[sourceIndex];
-							newData[index + 1] = data[sourceIndex + 1];
-							newData[index + 2] = data[sourceIndex + 2];
-							newData[index + 3] = data[sourceIndex + 3];
-							
-						}
-						
-					}
-					
-					buffer.data = newData;
-					buffer.width = newWidth;
-					buffer.height = newHeight;
+					ImageDataUtil.resizeBuffer (this, newWidth, newHeight);
 				
 				case FLASH:
 					
@@ -995,10 +568,6 @@ class Image {
 					buffer.width = newWidth;
 					buffer.height = newHeight;
 					#end
-				
-				case HTML5:
-					
-					// TODO
 				
 			}
 			
@@ -1024,22 +593,7 @@ class Image {
 				
 				case DATA:
 					
-					var data = buffer.data;
-					var index, a;
-					var length = Std.int (data.length / 4);
-					
-					for (i in 0...length) {
-						
-						index = i * 4;
-						
-						a = data[index + 3];
-						data[index] = (data[index] * a) >> 8;
-						data[index + 1] = (data[index + 1] * a) >> 8;
-						data[index + 2] = (data[index + 2] * a) >> 8;
-						
-					}
-					
-					buffer.premultiplied = true;
+					ImageDataUtil.multiplyAlpha (this);
 				
 				default:
 					
@@ -1047,9 +601,19 @@ class Image {
 				
 			}
 			
-		} else {
+		} else if (!value && buffer.premultiplied) {
 			
-			// TODO, unmultiply
+			switch (__type) {
+				
+				case DATA:
+					
+					ImageDataUtil.unmultiplyAlpha (this);
+				
+				default:
+					
+					// TODO
+				
+			}
 			
 		}
 		
@@ -1079,6 +643,22 @@ class Image {
 	}
 	
 	
+	private function get_transparent ():Bool {
+		
+		return buffer.transparent;
+		
+	}
+	
+	
+	private function set_transparent (value:Bool):Bool {
+		
+		// TODO, modify data to set transparency
+		
+		return buffer.transparent = value;
+		
+	}
+	
+	
 	
 	
 	// Native Methods
@@ -1094,20 +674,20 @@ class Image {
 }
 
 
+private enum DataStoreType {
+	
+	CANVAS;
+	DATA;
+	FLASH;
+	
+}
+
+
 enum ImageChannel {
 	
 	RED;
 	GREEN;
 	BLUE;
 	ALPHA;
-	
-}
-
-
-private enum StoreType {
-	
-	DATA;
-	HTML5;
-	FLASH;
 	
 }

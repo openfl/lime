@@ -22,13 +22,14 @@ class ImageBuffer {
 	public var height:Int;
 	public var premultiplied:Bool;
 	public var src (get, set):Dynamic;
+	public var transparent:Bool;
 	public var width:Int;
 	
-	private var __bitmapData:#if flash BitmapData #else Dynamic #end;
-	private var __canvas:#if js CanvasElement #else Dynamic #end;
-	private var __canvasContext:#if js CanvasRenderingContext2D #else Dynamic #end;
-	private var __custom:Dynamic;
-	private var __image:#if js HTMLImage #else Dynamic #end;
+	@:noCompletion private var __srcBitmapData:#if flash BitmapData #else Dynamic #end;
+	@:noCompletion private var __srcCanvas:#if js CanvasElement #else Dynamic #end;
+	@:noCompletion private var __srcContext:#if js CanvasRenderingContext2D #else Dynamic #end;
+	@:noCompletion private var __srcCustom:Dynamic;
+	@:noCompletion private var __srcImage:#if js HTMLImage #else Dynamic #end;
 	
 	
 	public function new (data:UInt8Array = null, width:Int = 0, height:Int = 0, bitsPerPixel:Int = 4) {
@@ -37,6 +38,7 @@ class ImageBuffer {
 		this.width = width;
 		this.height = height;
 		this.bitsPerPixel = bitsPerPixel;
+		transparent = true;
 		
 	}
 	
@@ -46,6 +48,7 @@ class ImageBuffer {
 		var buffer = new ImageBuffer (data, width, height, bitsPerPixel);
 		buffer.src = src;
 		buffer.premultiplied = premultiplied;
+		buffer.transparent = transparent;
 		return buffer;
 		
 	}
@@ -61,12 +64,12 @@ class ImageBuffer {
 	private function get_src ():Dynamic {
 		
 		#if js
-		if (__image != null) return __image;
-		return __canvas;
+		if (__srcImage != null) return __srcImage;
+		return __srcCanvas;
 		#elseif flash
-		return __bitmapData;
+		return __srcBitmapData;
 		#else
-		return __custom;
+		return __srcCustom;
 		#end
 		
 	}
@@ -77,18 +80,18 @@ class ImageBuffer {
 		#if js
 		if (Std.is (value, HTMLImage)) {
 			
-			__image = cast value;
+			__srcImage = cast value;
 			
 		} else if (Std.is (value, CanvasElement)) {
 			
-			__canvas = cast value;
-			__canvasContext = cast __canvas.getContext ("2d");
+			__srcCanvas = cast value;
+			__srcContext = cast __srcCanvas.getContext ("2d");
 			
 		}
 		#elseif flash
-		__bitmapData = cast value;
+		__srcBitmapData = cast value;
 		#else
-		__custom = value;
+		__srcCustom = value;
 		#end
 		
 		return value;

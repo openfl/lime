@@ -1,6 +1,11 @@
 package lime.math;
 
 
+#if flash
+import flash.geom.Point;
+#end
+
+
 class Vector2 {
 	
 	
@@ -96,6 +101,17 @@ class Vector2 {
 	public function subtract (v:Vector2):Vector2 {
 		
 		return new Vector2 (x - v.x, y - v.y);
+		
+	}
+	
+	
+	private function __toFlashPoint ():#if flash Point #else Dynamic #end {
+		
+		#if flash
+		return new Point (x, y);
+		#else
+		return null;
+		#end
 		
 	}
 	

@@ -3,6 +3,10 @@ package lime.math;
 
 import lime.utils.Float32Array;
 
+#if flash
+import flash.geom.ColorTransform;
+#end
+
 
 abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	
@@ -81,6 +85,17 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 		this[17] = 0;
 		this[18] = 1;
 		this[19] = 0;
+		
+	}
+	
+	
+	private function __toFlashColorTransform ():#if flash ColorTransform #else Dynamic #end {
+		
+		#if flash
+		return new ColorTransform (redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier, redOffset, greenOffset, blueOffset, alphaOffset);
+		#else
+		return null;
+		#end
 		
 	}
 	
