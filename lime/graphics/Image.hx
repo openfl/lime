@@ -1,9 +1,11 @@
 package lime.graphics;
 
 
+import haxe.crypto.BaseCode;
+import haxe.io.Bytes;
 import lime.app.Application;
-import lime.graphics.util.ImageCanvasUtil;
-import lime.graphics.util.ImageDataUtil;
+import lime.graphics.utils.ImageCanvasUtil;
+import lime.graphics.utils.ImageDataUtil;
 import lime.math.ColorMatrix;
 import lime.math.Rectangle;
 import lime.math.Vector2;
@@ -12,7 +14,8 @@ import lime.utils.UInt8Array;
 import lime.system.System;
 
 #if js
-import js.html.Image in HTMLImage;
+import js.html.ImageElement;
+import js.Browser;
 #elseif flash
 import flash.display.BitmapData;
 #end
@@ -27,6 +30,9 @@ import flash.display.BitmapData;
 
 class Image {
 	
+	
+	private static var __base64Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	private static var __base64Encoder:BaseCode;
 	
 	public var buffer:ImageBuffer;
 	public var data (get, set):UInt8Array;
@@ -82,10 +88,7 @@ class Image {
 			
 		} else {
 			
-			this.buffer = buffer;
-			
-			if (width == 0) this.width = buffer.width;
-			if (height == 0) this.height = buffer.height;
+			__fromImageBuffer (buffer);
 			
 		}
 		
@@ -289,78 +292,49 @@ class Image {
 	}
 	
 	
-	#if flash
-	public static function fromBitmapData (bitmapData:BitmapData):Image {
+	public static function fromBase64 (base64:String, type:String, onload:Image -> Void):Image {
+		
+		var image = new Image ();
+		image.__fromBase64 (base64, type, onload);
+		return image;
+		
+	}
+	
+	
+	public static function fromBitmapData (bitmapData:#if flash BitmapData #else Dynamic #end):Image {
 		
 		var buffer = new ImageBuffer (null, bitmapData.width, bitmapData.height);
-		buffer.src = bitmapData;
+		buffer.__srcBitmapData = bitmapData;
 		return new Image (buffer);
 		
 	}
-	#end
 	
 	
-	public static function fromBytes (bytes:ByteArray):Image {
+	public static function fromBytes (bytes:ByteArray, onload:Image -> Void = null):Image {
 		
-		#if (cpp || neko)
-		
-		var data = lime_image_load (bytes);
-		
-		if (data != null) {
-			
-			var buffer = new ImageBuffer (new UInt8Array (data.data), data.width, data.height, data.bpp);
-			return new Image (buffer);
-			
-		} else {
-			
-			return null;
-			
-		}
-		
-		#else
-		
-		throw "ImageBuffer.loadFromFile not supported on this target";
-		
-		#end
+		var image = new Image ();
+		image.__fromBytes (bytes, onload);
+		return image;
 		
 	}
 	
 	
-	public static function fromFile (path:String):Image {
+	public static function fromFile (path:String, onload:Image -> Void = null, onerror:Void -> Void = null):Image {
 		
-		#if (cpp || neko)
-		
-		var data = lime_image_load (path);
-		
-		if (data != null) {
-			
-			var buffer = new ImageBuffer (new UInt8Array (data.data), data.width, data.height, data.bpp);
-			return new Image (buffer);
-			
-		} else {
-			
-			return null;
-			
-		}
-		
-		#else
-		
-		throw "ImageBuffer.loadFromFile not supported on this target";
-		
-		#end
+		var image = new Image ();
+		image.__fromFile (path, onload, onerror);
+		return image;
 		
 	}
 	
 	
-	#if js
-	public static function fromImage (image:HTMLImage):Image {
+	public static function fromImageElement (image:#if js ImageElement #else Dynamic #end):Image {
 		
 		var buffer = new ImageBuffer (null, image.width, image.height);
 		buffer.src = image;
 		return new Image (buffer);
 		
 	}
-	#end
 	
 	
 	public function getPixel (x:Int, y:Int):Int {
@@ -483,6 +457,31 @@ class Image {
 	}
 	
 	
+	private static function __base64Encode (bytes:ByteArray):String {
+		
+		#if js
+		var extension = switch (bytes.length % 3) {
+			
+			case 1: "==";
+			case 2: "=";
+			default: "";
+			
+		}
+		
+		if (__base64Encoder == null) {
+			
+			__base64Encoder = new BaseCode (Bytes.ofString (__base64Chars));
+			
+		}
+		
+		return __base64Encoder.encodeBytes (Bytes.ofData (cast bytes.byteView)).toString () + extension;
+		#else
+		return "";
+		#end
+		
+	}
+	
+	
 	private function __clipRect (r:Rectangle):Rectangle {
 		
 		if (r == null) return null;
@@ -522,6 +521,201 @@ class Image {
 		}
 		
 		return r;
+		
+	}
+	
+	
+	private function __fromBase64 (base64:String, type:String, onload:Image -> Void = null):Void {
+		
+		#if js
+		var image:ImageElement = cast Browser.document.createElement ("img");
+		
+		var image_onLoaded = function (event) {
+			
+			buffer = new ImageBuffer (null, image.width, image.height);
+			buffer.__srcImage = cast image;
+			
+			offsetX = 0;
+			offsetY = 0;
+			width = buffer.width;
+			height = buffer.height;
+			
+			if (onload != null) {
+				
+				onload (this);
+				
+			}
+			
+		}
+		
+		image.addEventListener ("load", image_onLoaded, false);
+		image.src = "data:" + type + ";base64," + base64;
+		#end
+		
+	}
+	
+	
+	private function __fromBytes (bytes:ByteArray, onload:Image -> Void):Void {
+		
+		#if js
+		
+		var type = "";
+		
+		if (__isPNG (bytes)) {
+			
+			type = "image/png";
+			
+		} else if (__isJPG (bytes)) {
+			
+			type = "image/jpeg";
+			
+		} else if (__isGIF (bytes)) {
+			
+			type = "image/gif";
+			
+		} else {
+			
+			throw "Image tried to read a PNG/JPG ByteArray, but found an invalid header.";
+			
+		}
+		
+		__fromBase64 (__base64Encode (bytes), type, onload);
+		
+		#elseif (cpp || neko)
+		
+		var data = lime_image_load (bytes);
+		
+		if (data != null) {
+			
+			__fromImageBuffer (new ImageBuffer (new UInt8Array (data.data), data.width, data.height, data.bpp));
+			
+			if (onload != null) {
+				
+				onload (this);
+				
+			}
+			
+		}
+		
+		#else
+		
+		throw "ImageBuffer.loadFromBytes not supported on this target";
+		
+		#end
+		
+	}
+	
+	
+	private function __fromFile (path:String, onload:Image -> Void, onerror:Void -> Void):Void {
+		
+		#if js
+		
+		var image = cast Browser.document.createElement ("img");
+		
+		image.onload = function (_) {
+			
+			buffer = new ImageBuffer (null, image.width, image.height);
+			buffer.__srcImage = cast image;
+			
+			if (onload != null) {
+				
+				onload (this);
+				
+			}
+			
+		}
+		
+		image.onerror = function (_) {
+			
+			if (onerror != null) {
+				
+				onerror ();
+				
+			}
+			
+		}
+		
+		image.src = path;
+		
+		// Another IE9 bug: loading 20+ images fails unless this line is added.
+		// (issue #1019768)
+		if (image.complete) { }
+		
+		#elseif (cpp || neko)
+		
+		var data = lime_image_load (path);
+		
+		if (data != null) {
+			
+			__fromImageBuffer (new ImageBuffer (new UInt8Array (data.data), data.width, data.height, data.bpp));
+			
+			if (onload != null) {
+				
+				onload (this);
+				
+			}
+			
+		}
+		
+		#else
+		
+		throw "ImageBuffer.loadFromFile not supported on this target";
+		
+		#end
+		
+	}
+	
+	
+	private function __fromImageBuffer (buffer:ImageBuffer):Void {
+		
+		this.buffer = buffer;
+		
+		if (buffer != null) {
+			
+			if (width == 0) {
+				
+				this.width = buffer.width;
+				
+			}
+			
+			if (height == 0) {
+				
+				this.height = buffer.height;
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	private static function __isJPG (bytes:ByteArray) {
+		
+		bytes.position = 0;
+		return bytes.readByte () == 0xFF && bytes.readByte () == 0xD8;
+		
+	}
+	
+	
+	private static function __isPNG (bytes:ByteArray) {
+		
+		bytes.position = 0;
+		return (bytes.readByte () == 0x89 && bytes.readByte () == 0x50 && bytes.readByte () == 0x4E && bytes.readByte () == 0x47 && bytes.readByte () == 0x0D && bytes.readByte () == 0x0A && bytes.readByte () == 0x1A && bytes.readByte () == 0x0A);
+		
+	}
+	
+	private static function __isGIF (bytes:ByteArray) {
+		
+		bytes.position = 0;
+		
+		if (bytes.readByte () == 0x47 && bytes.readByte () == 0x49 && bytes.readByte () == 0x46 && bytes.readByte () == 38) {
+			
+			var b = bytes.readByte ();
+			return ((b == 7 || b == 9) && bytes.readByte () == 0x61);
+			
+		}
+		
+		return false;
 		
 	}
 	
@@ -631,6 +825,10 @@ class Image {
 				
 				case DATA:
 					
+					#if js
+					ImageCanvasUtil.convertToData (this);
+					#end
+					
 					ImageDataUtil.multiplyAlpha (this);
 				
 				default:
@@ -644,6 +842,10 @@ class Image {
 			switch (type) {
 				
 				case DATA:
+					
+					#if js
+					ImageCanvasUtil.convertToData (this);
+					#end
 					
 					ImageDataUtil.unmultiplyAlpha (this);
 				

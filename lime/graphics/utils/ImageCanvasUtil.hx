@@ -1,4 +1,4 @@
-package lime.graphics.util;
+package lime.graphics.utils;
 
 
 import lime.graphics.Image;
@@ -239,7 +239,7 @@ class ImageCanvasUtil {
 	public static function sync (image:Image):Void {
 		
 		#if js
-		if (image.dirty && image.__type != DATA) {
+		if (image.dirty && image.type != DATA) {
 			
 			image.buffer.__srcContext.putImageData (cast image.buffer.data, 0, 0);
 			image.buffer.data = null;

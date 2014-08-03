@@ -135,7 +135,7 @@ class Font {
 		image.src = __canvas.toDataURL();
 		return {
 			glyphs: glyphRects,
-			image: Image.fromImage (image)
+			image: Image.fromImageElement (image)
 		}
 
 		#elseif flash

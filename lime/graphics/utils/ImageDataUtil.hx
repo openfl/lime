@@ -1,4 +1,4 @@
-package lime.graphics.util;
+package lime.graphics.utils;
 
 
 import haxe.ds.Vector;
@@ -324,6 +324,8 @@ class ImageDataUtil {
 	public static function multiplyAlpha (image:Image):Void {
 		
 		var data = image.buffer.data;
+		if (data == null) return;
+		
 		var index, a;
 		var length = Std.int (data.length / 4);
 		
@@ -339,6 +341,7 @@ class ImageDataUtil {
 		}
 		
 		image.buffer.premultiplied = true;
+		image.dirty = true;
 		
 	}
 	
@@ -455,6 +458,7 @@ class ImageDataUtil {
 		}
 		
 		image.buffer.premultiplied = false;
+		image.dirty = true;
 		
 	}
 	

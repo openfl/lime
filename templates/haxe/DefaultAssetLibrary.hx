@@ -232,7 +232,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#elseif js
 		
-		return Image.fromImage (Preloader.images.get (path.get (id)));
+		return Image.fromImageElement (Preloader.images.get (path.get (id)));
 		
 		#else
 		
