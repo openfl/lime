@@ -458,9 +458,10 @@ class ImageDataUtil {
 		// TODO: optimize when rect is the same as the buffer size
 		
 		var data = image.buffer.data;
-		var offset = Math.round (4 * buffer.width * (rect.y + image.offsetX) + (rect.x + image.offsetY) * 4);
+		var offset = Math.round (4 * image.buffer.width * (rect.y + image.offsetX) + (rect.x + image.offsetY) * 4);
 		var pos = offset;
 		var boundR = Math.round (4 * (rect.x + rect.width + image.offsetX));
+		var width = image.buffer.width;
 		
 		for (i in 0...len) {
 			
