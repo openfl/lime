@@ -1,5 +1,5 @@
 #include <graphics/Font.h>
-#include <media/Image.h>
+#include <graphics/ImageBuffer.h>
 #include <algorithm>
 
 // from http://stackoverflow.com/questions/2948308/how-do-i-read-utf-8-characters-via-a-pointer
@@ -258,7 +258,7 @@ namespace lime {
 
 	}
 
-	value Font::RenderToImage (Image *image) {
+	value Font::RenderToImage (ImageBuffer *image) {
 
 		if (!init) {
 
@@ -370,7 +370,7 @@ namespace lime {
 			alloc_field (offset, id_y, alloc_int (face->glyph->bitmap_top));
 			alloc_field (v, id_offset, offset);
 
-			alloc_field (v, id_codepoint, alloc_int ((*it).codepoint));
+			alloc_field (v, id_codepoint, alloc_int ((*it).index));
 			alloc_field (v, id_size, alloc_int ((*it).size));
 			val_array_set_i (rects, rectsIndex++, v);
 

@@ -4,8 +4,12 @@
 
 #include <hx/CFFI.h>
 #include <list>
+#include <graphics/ImageBuffer.h>
+
+#ifdef LIME_FREETYPE
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#endif
 
 
 namespace lime {
@@ -22,20 +26,24 @@ namespace lime {
 		FT_Pos height;
 
 	} GlyphInfo;
-
-
+	
+	
 	class Font {
-
-
+		
+		
 		public:
-
+			
 			Font (const char *fontFace);
 			void LoadGlyphs (const char *glyphs);
 			void LoadRange (unsigned long start, unsigned long end);
 			void SetSize (size_t size);
-			value RenderToImage (Image *image);
+			value RenderToImage (ImageBuffer *image);
 
+			#ifdef LIME_FREETYPE
 			FT_Face face;
+			#else
+			void* face;
+			#endif
 
 		private:
 
@@ -43,7 +51,6 @@ namespace lime {
 
 			std::list<GlyphInfo> glyphList;
 			size_t mSize;
-
 
 	};
 

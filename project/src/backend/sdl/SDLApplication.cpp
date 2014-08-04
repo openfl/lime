@@ -22,18 +22,6 @@ namespace lime {
 		
 		SDL_Init (SDL_INIT_VIDEO | SDL_INIT_TIMER);
 		
-		#ifdef HX_MACOS
-		// set working directory for OS X
-		CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL (CFBundleGetMainBundle ());
-		char path[PATH_MAX];
-		if (CFURLGetFileSystemRepresentation (resourcesURL, TRUE, (UInt8 *)path, PATH_MAX)) {
-			
-			chdir(path);
-			
-		}
-		CFRelease(resourcesURL);
-		#endif
-
 		currentUpdate = 0;
 		lastUpdate = 0;
 		nextUpdate = 0;
@@ -44,6 +32,19 @@ namespace lime {
 		TouchEvent touchEvent;
 		UpdateEvent updateEvent;
 		WindowEvent windowEvent;
+		
+		#ifdef HX_MACOS
+		CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL (CFBundleGetMainBundle ());
+		char path[PATH_MAX];
+		
+		if (CFURLGetFileSystemRepresentation (resourcesURL, TRUE, (UInt8 *)path, PATH_MAX)) {
+			
+			chdir (path);
+			
+		}
+		
+		CFRelease (resourcesURL);
+		#endif
 		
 	}
 	

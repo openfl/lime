@@ -17,16 +17,16 @@
   <classpaths>
     <class path="c:\Development\Haxe\lime" />
     <class path="Source" />
-    <class path="Export\flash\haxe" />
+    <class path="Export\windows\neko\haxe" />
   </classpaths>
   <!-- Build options -->
   <build>
-    <option directives="lime=1.0.0&#xA;tools=1.6.0&#xA;no-compilation&#xA;web" />
+    <option directives="lime=1.0.0&#xA;tools=1.6.0&#xA;lime_native&#xA;no-compilation&#xA;windows&#xA;desktop" />
     <option flashStrict="False" />
     <option noInlineOnDebug="False" />
     <option mainClass="ApplicationMain" />
     <option enabledebug="False" />
-    <option additional="-swf-version 11.2" />
+    <option additional="#--macro keep(&quot;Main&quot;)" />
   </build>
   <!-- haxelib libraries -->
   <haxelib>

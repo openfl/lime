@@ -4,7 +4,9 @@ package;
 import haxe.Timer;
 import haxe.Unserializer;
 import lime.app.Preloader;
-import lime.media.Image;
+import lime.audio.openal.AL;
+import lime.audio.AudioBuffer;
+import lime.graphics.Image;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 import lime.Assets;
@@ -150,6 +152,30 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
+	public override function getAudioBuffer (id:String):AudioBuffer {
+		
+		#if flash
+		
+		var buffer = new AudioBuffer ();
+		buffer.src = cast (Type.createInstance (className.get (id), []), Sound);
+		return buffer;
+		
+		#elseif js
+		
+		return null;
+		//return new Sound (new URLRequest (path.get (id)));
+		
+		#else
+		
+		return AudioBuffer.fromFile (path.get (id));
+		//if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), Sound);
+		//else return new Sound (new URLRequest (path.get (id)), null, type.get (id) == MUSIC);
+		
+		#end
+		
+	}
+	
+	
 	public override function getBytes (id:String):ByteArray {
 		
 		#if flash
@@ -202,13 +228,11 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#if flash
 		
-		var bitmapData = cast (Type.createInstance (className.get (id), []), BitmapData);
-		return new Image (bitmapData, bitmapData.width, bitmapData.height);
+		return Image.fromBitmapData (cast (Type.createInstance (className.get (id), []), BitmapData));
 		
 		#elseif js
 		
-		var image = Preloader.images.get (path.get (id));
-		return new Image (image, image.width, image.height);
+		return Image.fromImageElement (Preloader.images.get (path.get (id)));
 		
 		#else
 		
@@ -262,28 +286,6 @@ class DefaultAssetLibrary extends AssetLibrary {
 		//#end
 		
 	}
-	
-	
-	/*public override function getSound (id:String):Dynamic {
-		
-		#if flash
-		
-		return cast (Type.createInstance (className.get (id), []), Sound);
-		
-		#elseif js
-		
-		return null;
-		//return new Sound (new URLRequest (path.get (id)));
-		
-		#else
-		
-		return null;
-		//if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), Sound);
-		//else return new Sound (new URLRequest (path.get (id)), null, type.get (id) == MUSIC);
-		
-		#end
-		
-	}*/
 	
 	
 	public override function getText (id:String):String {
@@ -375,6 +377,35 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
+	public override function loadAudioBuffer (id:String, handler:AudioBuffer -> Void):Void {
+		
+		#if (flash || js)
+		
+		//if (path.exists (id)) {
+			
+		//	var loader = new Loader ();
+		//	loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event) {
+				
+		//		handler (cast (event.currentTarget.content, Bitmap).bitmapData);
+				
+		//	});
+		//	loader.load (new URLRequest (path.get (id)));
+			
+		//} else {
+			
+			handler (getAudioBuffer (id));
+			
+		//}
+		
+		#else
+		
+		handler (getAudioBuffer (id));
+		
+		#end
+		
+	}
+	
+	
 	public override function loadBytes (id:String, handler:ByteArray -> Void):Void {
 		
 		#if flash
@@ -418,7 +449,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event:Event) {
 				
 				var bitmapData = cast (event.currentTarget.content, Bitmap).bitmapData;
-				handler (new Image (bitmapData, bitmapData.width, bitmapData.height));
+				handler (Image.fromBitmapData (bitmapData));
 				
 			});
 			loader.load (new URLRequest (path.get (id)));
@@ -519,35 +550,6 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#else
 		
 		handler (getMusic (id));
-		
-		#end
-		
-	}*/
-	
-	
-	/*public override function loadSound (id:String, handler:Dynamic -> Void):Void {
-		
-		#if (flash || js)
-		
-		//if (path.exists (id)) {
-			
-		//	var loader = new Loader ();
-		//	loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event) {
-				
-		//		handler (cast (event.currentTarget.content, Bitmap).bitmapData);
-				
-		//	});
-		//	loader.load (new URLRequest (path.get (id)));
-			
-		//} else {
-			
-			handler (getSound (id));
-			
-		//}
-		
-		#else
-		
-		handler (getSound (id));
 		
 		#end
 		

@@ -10,20 +10,18 @@
 #include <hx/CFFI.h>
 #include <app/Application.h>
 #include <app/UpdateEvent.h>
-#ifdef LIME_FREETYPE
+#include <audio/format/OGG.h>
+#include <audio/format/WAV.h>
+#include <audio/AudioBuffer.h>
+#include <graphics/format/JPEG.h>
+#include <graphics/format/PNG.h>
 #include <graphics/Font.h>
 #ifdef LIME_HARFBUZZ
 #include <graphics/Text.h>
 #endif // LIME_HARFBUZZ
-#endif // LIME_FREETYPE
+#include <graphics/ImageBuffer.h>
 #include <graphics/Renderer.h>
 #include <graphics/RenderEvent.h>
-#include <media/format/JPEG.h>
-#include <media/format/OGG.h>
-#include <media/format/PNG.h>
-#include <media/format/WAV.h>
-#include <media/AudioBuffer.h>
-#include <media/Image.h>
 #include <system/System.h>
 #include <ui/KeyEvent.h>
 #include <ui/MouseEvent.h>
@@ -97,7 +95,7 @@ namespace lime {
 	
 	value lime_image_load (value data) {
 		
-		Image image;
+		ImageBuffer imageBuffer;
 		Resource resource;
 		
 		if (val_is_string (data)) {
@@ -112,17 +110,17 @@ namespace lime {
 		}
 		
 		#ifdef LIME_PNG
-		if (PNG::Decode (&resource, &image)) {
+		if (PNG::Decode (&resource, &imageBuffer)) {
 			
-			return image.Value ();
+			return imageBuffer.Value ();
 			
 		}
 		#endif
 		
 		#ifdef LIME_JPEG
-		if (JPEG::Decode (&resource, &image)) {
+		if (JPEG::Decode (&resource, &imageBuffer)) {
 			
-			return image.Value ();
+			return imageBuffer.Value ();
 			
 		}
 		#endif
@@ -184,7 +182,7 @@ namespace lime {
 	value lime_font_create_image (value fontHandle) {
 
 		#ifdef LIME_FREETYPE
-		Image image;
+		ImageBuffer image;
 		Font *font = (Font*)(intptr_t)val_float (fontHandle);
 		value data = alloc_empty_object ();
 		alloc_field (data, val_id ("glyphs"), font->RenderToImage (&image));

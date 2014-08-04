@@ -1,7 +1,7 @@
 package lime.graphics;
 
 import haxe.ds.IntMap;
-import lime.media.Image;
+import lime.graphics.Image;
 import lime.utils.UInt8Array;
 import lime.system.System;
 #if js
@@ -64,7 +64,7 @@ class Font {
 
 	}
 
-	public function createImage ():Image {
+	public function createImage ():ImageBuffer {
 
 		glyphs = new IntMap<IntMap<GlyphRect>>();
 
@@ -197,7 +197,7 @@ class Font {
 
 		}
 
-		return new Image (bd, bd.width, bd.height);
+		return new ImageBuffer (bd, bd.width, bd.height);
 
 		#elseif (cpp || neko)
 
@@ -228,7 +228,7 @@ class Font {
 
 			}
 
-			return new Image (new UInt8Array (data.image.data), data.image.width, data.image.height, data.image.bpp);
+			return new ImageBuffer (new UInt8Array (data.image.data), data.image.width, data.image.height, data.image.bpp);
 
 		}
 
