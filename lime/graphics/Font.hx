@@ -1,8 +1,7 @@
 package lime.graphics;
 
-import haxe.ds.StringMap;
+import haxe.ds.IntMap;
 import lime.graphics.Image;
-import lime.graphics.ImageBuffer;
 import lime.utils.UInt8Array;
 import lime.system.System;
 #if js
@@ -10,23 +9,34 @@ import js.html.CanvasElement;
 import js.html.CanvasRenderingContext2D;
 #end
 
-typedef GlyphRect = {
-	var x:Float;
-	var y:Float;
-	var advance:Int;
-	var width:Float;
-	var height:Float;
-	var xOffset:Int;
-	var yOffset:Int;
-}
+class GlyphRect {
 
-typedef GlyphData = {
-	var image:Image;
-	var glyphs:StringMap<GlyphRect>;
-};
+	public var x:Float;
+	public var y:Float;
+	public var width:Float;
+	public var height:Float;
+	public var xOffset:Int;
+	public var yOffset:Int;
+
+	public function new (x:Float, y:Float, width:Float, height:Float, xOffset:Int=0, yOffset:Int=0) {
+
+		this.x = x;
+		this.y = y;
+		this.xOffset = xOffset;
+		this.yOffset = yOffset;
+		this.width = width;
+		this.height = height;
+
+	}
+
+}
 
 @:autoBuild(lime.Assets.embedFont())
 class Font {
+
+
+	public var image:Image;
+	public var glyphs:IntMap<IntMap<GlyphRect>>;
 
 	#if js
 
@@ -35,7 +45,7 @@ class Font {
 
 	#elseif (cpp || neko)
 
-	public var handle:GlyphRect;
+	public var handle:Dynamic;
 
 	#end
 
@@ -44,6 +54,7 @@ class Font {
 	public function new (fontFace:String) {
 
 		this.fontFace = fontFace;
+		this.glyphs = new IntMap<IntMap<GlyphRect>>();
 
 		#if (cpp || neko)
 
@@ -53,9 +64,9 @@ class Font {
 
 	}
 
-	public function createImage (size:Int, glyphs:String="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. "):GlyphData {
+	public function createImage ():ImageBuffer {
 
-		var glyphRects = new StringMap<GlyphRect>();
+		glyphs = new IntMap<IntMap<GlyphRect>>();
 
 		#if js
 
@@ -110,22 +121,14 @@ class Font {
 				__context.fillStyle = "#000000";
 				__context.font = size + "px " + fontFace;
 
-				glyphRects = new StringMap<GlyphRect>();
+				glyphRects = new IntMap<GlyphRect>();
 				x = y = i = 0;
 				continue;
 
 			}
 
 			__context.fillText (c, x + 2, y);
-			glyphRects.set(c, {
-				x: x,
-				y: y,
-				xOffset: 0,
-				yOffset: 0,
-				advance: Std.int(width),
-				width: width,
-				height: height
-			});
+			glyphRects.set(c, new GlyphRect(x, y, width, height, Std.int(width)));
 
 			x += width;
 
@@ -133,10 +136,7 @@ class Font {
 
 		var image = new js.html.Image ();
 		image.src = __canvas.toDataURL();
-		return {
-			glyphs: glyphRects,
-			image: Image.fromImageElement (image)
-		}
+		return new Image (image, __canvas.width, __canvas.height);
 
 		#elseif flash
 
@@ -175,7 +175,7 @@ class Font {
 
 				}
 
-				glyphRects = new StringMap<GlyphRect>();
+				glyphRects = new IntMap<GlyphRect>();
 				x = y = maxHeight = i = 0;
 				continue;
 
@@ -185,15 +185,7 @@ class Font {
 			mat.translate (x, y);
 			bd.draw (tf, mat);
 
-			glyphRects.set(c, {
-				x: x,
-				y: y,
-				xOffset: 0,
-				yOffset: 0,
-				advance: Std.int(tf.textWidth + 2),
-				width: tf.textWidth + 2,
-				height: tf.textHeight + 2
-			});
+			glyphRects.set(c, new GlyphRect (x, y, tf.textWidth + 2, tf.textHeight + 2, Std.int(tf.textWidth + 2)));
 
 			x += tf.textWidth + 4;
 
@@ -204,15 +196,12 @@ class Font {
 			}
 
 		}
-		
-		return {
-			glyphs: glyphRects,
-			image: Image.fromBitmapData (bd)
-		}
+
+		return new ImageBuffer (bd, bd.width, bd.height);
 
 		#elseif (cpp || neko)
 
-		var data = lime_font_load_glyphs (handle, size, glyphs);
+		var data = lime_font_create_image (handle);
 
 		if (data == null) {
 
@@ -220,26 +209,56 @@ class Font {
 
 		} else {
 
+			var glyphRects:IntMap<GlyphRect>;
+
 			for (glyph in cast (data.glyphs, Array<Dynamic>)) {
 
-				glyphRects.set (glyph.char, {
-					x: glyph.x,
-					y: glyph.y,
-					xOffset: glyph.xOffset,
-					yOffset: glyph.yOffset,
-					advance: glyph.advance,
-					width: glyph.width,
-					height: glyph.height,
-				});
+				if (glyphs.exists (glyph.size)) {
+
+					glyphRects = glyphs.get (glyph.size);
+
+				} else {
+
+					glyphRects = new IntMap<GlyphRect>();
+					glyphs.set (glyph.size, glyphRects);
+
+				}
+
+				glyphRects.set (glyph.codepoint, new GlyphRect (glyph.x, glyph.y, glyph.width, glyph.height, glyph.offset.x, glyph.offset.y));
 
 			}
-			
-			return {
-				glyphs: glyphRects,
-				image: new Image (new ImageBuffer (new UInt8Array (data.image.data), data.image.width, data.image.height, data.image.bpp))
-			};
+
+			return new ImageBuffer (new UInt8Array (data.image.data), data.image.width, data.image.height, data.image.bpp);
 
 		}
+
+		#end
+
+	}
+
+	public function loadRange (size:Int, start:Int, end:Int) {
+
+		#if (flash || js)
+
+		// this.glyphs = glyphs;
+
+		#elseif (cpp || neko)
+
+		lime_font_load_range (handle, size, start, end);
+
+		#end
+
+	}
+
+	public function loadGlyphs (size:Int, glyphs:String="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. ") {
+
+		#if (flash || js)
+
+		this.glyphs = glyphs;
+
+		#elseif (cpp || neko)
+
+		lime_font_load_glyphs (handle, size, glyphs);
 
 		#end
 
@@ -248,6 +267,8 @@ class Font {
 	#if (cpp || neko)
 	private static var lime_font_load = System.load ("lime", "lime_font_load", 1);
 	private static var lime_font_load_glyphs = System.load ("lime", "lime_font_load_glyphs", 3);
+	private static var lime_font_load_range = System.load ("lime", "lime_font_load_range", 4);
+	private static var lime_font_create_image = System.load ("lime", "lime_font_create_image", 1);
 	#end
 
 }

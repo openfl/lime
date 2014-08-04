@@ -28,3 +28,6 @@
 [submodule "project/lib/freetype"]
 	path = project/lib/freetype
 	url = https://github.com/native-toolkit/freetype
+[submodule "project/lib/harfbuzz"]
+	path = project/lib/harfbuzz
+	url = https://github.com/MattTuttle/harfbuzz

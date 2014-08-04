@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+
+	<meta title="TextRendering" package="com.example.textrender" version="1.0.0" company="Company Name" />
+	<app main="Main" path="Export" file="TextRendering" />
+
+	<window width="512" height="288" />
+
+	<source path="Source" />
+
+	<haxelib name="lime" />
+
+	<assets path="Assets" rename="assets" exclude="lime.svg" />
+	<icon path="Assets/lime.svg" />
+
+</project>

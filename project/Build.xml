@@ -11,6 +11,7 @@
 	<set name="LIME_CURL" value="1" />
 	<set name="LIME_JPEG" value="1" />
 	<set name="LIME_FREETYPE" value="1" />
+	<set name="LIME_HARFBUZZ" value="1" />
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
 	<set name="LIME_OGG" value="1" />
 	<set name="LIME_OPENAL" value="1" />
@@ -48,6 +49,15 @@
 			
 			<file name="src/graphics/Font.cpp" />
 			
+			<section if="LIME_HARFBUZZ">
+
+				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/harfbuzz/src" />
+				<compilerflag value="-DLIME_HARFBUZZ" />
+
+				<file name="src/graphics/Text.cpp" />
+
+			</section>
+
 		</section>
 		
 		<section if="LIME_NEKO">
@@ -131,6 +141,7 @@
 	
 	<include name="lib/curl/files.xml" />
 	<include name="lib/freetype/files.xml" />
+	<include name="lib/harfbuzz/files.xml" />
 	<include name="lib/jpeg/files.xml" />
 	<include name="lib/neko/files.xml" />
 	<include name="lib/ogg/files.xml" />
@@ -150,7 +161,8 @@
 		
 		<files id="native-toolkit-curl" if="LIME_CURL" />
 		<files id="native-toolkit-jpeg" if="LIME_JPEG" />
-		<files id="native-toolkit-freetype" if="LIME_JPEG" />
+		<files id="native-toolkit-freetype" if="LIME_FREETYPE" />
+		<files id="native-toolkit-harfbuzz" if="LIME_HARFBUZZ" />
 		<files id="native-toolkit-neko" if="LIME_NEKO" />
 		<files id="native-toolkit-ogg" if="LIME_OGG" />
 		<files id="native-toolkit-openal" if="LIME_OPENAL" unless="mac || iphone" />
