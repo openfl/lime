@@ -30,4 +30,4 @@
 	url = https://github.com/native-toolkit/freetype
 [submodule "project/lib/harfbuzz"]
 	path = project/lib/harfbuzz
-	url = git@github.com:MattTuttle/harfbuzz.git
+	url = https://github.com/MattTuttle/harfbuzz
