@@ -79,7 +79,6 @@ class TextField {
 
 					}
 
-					trace(width);
 					x -= width;
 
 				}
@@ -206,17 +205,17 @@ class Main extends Application {
 		textFields.push(new TextField ("صِف خَلقَ خَودِ كَمِثلِ الشَمسِ إِذ بَزَغَت — يَحظى الضَجيعُ بِها نَجلاءَ مِعطارِ", 24,
 			new TextFormat (RightToLeft, ScriptArabic, "ar"),
 			new Font ("assets/amiri-regular.ttf"),
-			context, 600, 150));
+			context, window.width - 20, 100));
 
 		textFields.push(new TextField ("The quick brown fox jumps over the lazy dog.", 16,
 			new TextFormat (LeftToRight, ScriptLatin, "en"),
 			new Font ("assets/amiri-regular.ttf"),
-			context, 50, 50));
+			context, 20, 20));
 
 		textFields.push(new TextField ("懶惰的姜貓", 32,
 			new TextFormat (TopToBottom, ScriptHan, "ch"),
 			new Font ("assets/fireflysung.ttf"),
-			context, 100, 300));
+			context, 50, 150));
 
 		switch (context) {
 
