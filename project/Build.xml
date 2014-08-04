@@ -50,14 +50,14 @@
 			<file name="src/graphics/Font.cpp" />
 			
 			<section if="LIME_HARFBUZZ">
-
+				
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/harfbuzz/src" />
 				<compilerflag value="-DLIME_HARFBUZZ" />
-
+				
 				<file name="src/graphics/Text.cpp" />
-
+				
 			</section>
-
+			
 		</section>
 		
 		<section if="LIME_NEKO">
