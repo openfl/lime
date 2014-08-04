@@ -13,7 +13,35 @@ import lime.utils.UInt8Array;
 class ImageDataUtil {
 	
 	
+	private static var __alpha16:Vector<Int>;
 	private static var __clamp:Vector<Int>;
+	
+	
+	private static function __init__ ():Void {
+		
+		__alpha16 = new Vector<Int> (256);
+		
+		for (i in 0...256) {
+			
+			__alpha16[i] = Std.int (i * (1 << 16) / 255);
+			
+		}
+		
+		__clamp = new Vector<Int> (0xFF + 0xFF);
+		
+		for (i in 0...0xFF) {
+			
+			__clamp[i] = i;
+			
+		}
+		
+		for (i in 0xFF...(0xFF + 0xFF + 1)) {
+			
+			__clamp[i] = 0xFF;
+			
+		}
+		
+	}
 	
 	
 	public static function colorTransform (image:Image, rect:Rectangle, colorMatrix:ColorMatrix):Void {
@@ -155,24 +183,6 @@ class ImageDataUtil {
 			var sourceAlpha:Float;
 			var oneMinusSourceAlpha:Float;
 			
-			if (__clamp == null) {
-				
-				__clamp = new Vector<Int> (0xFF + 0xFF);
-				
-				for (i in 0...0xFF) {
-					
-					__clamp[i] = i;
-					
-				}
-				
-				for (i in 255...(0xFF + 0xFF + 1)) {
-					
-					__clamp[i] = 255;
-					
-				}
-				
-			}
-			
 			for (row in Std.int (sourceRect.y + sourceImage.offsetY)...Std.int (sourceRect.height + sourceImage.offsetY)) {
 				
 				for (column in Std.int (sourceRect.x + sourceImage.offsetX)...Std.int (sourceRect.width + sourceImage.offsetX)) {
@@ -307,7 +317,17 @@ class ImageDataUtil {
 		var data = image.buffer.data;
 		var offset = (4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4);
 		
-		return (data[offset] << 16) | (data[offset + 1] << 8) | (data[offset + 2]);
+		if (image.premultiplied) {
+			
+			var unmultiply = 255.0 / data[offset + 3];
+			trace (unmultiply);
+			return __clamp[Std.int (data[offset] * unmultiply)] << 16 | __clamp[Std.int (data[offset + 1] * unmultiply)] << 8 | __clamp[Std.int (data[offset + 2] * unmultiply)];
+			
+		} else {
+			
+			return (data[offset] << 16) | (data[offset + 1] << 8) | (data[offset + 2]);
+			
+		}
 		
 	}
 	
@@ -316,8 +336,18 @@ class ImageDataUtil {
 		
 		var data = image.buffer.data;
 		var offset = (4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4);
+		var a = (image.transparent ? data[offset + 3] : 0xFF);
 		
-		return (image.transparent ? data[offset + 3] : 0xFF) << 24 | data[offset] << 16 | data[offset + 1] << 8 | data[offset + 2];
+		if (image.premultiplied && a != 0) {
+			
+			var unmultiply = 255.0 / a;
+			return a << 24 | __clamp[Math.round (data[offset] * unmultiply)] << 16 | __clamp[Std.int (data[offset + 1] * unmultiply)] << 8 | __clamp[Std.int (data[offset + 2] * unmultiply)];
+			
+		} else {
+			
+			return a << 24 | data[offset] << 16 | data[offset + 1] << 8 | data[offset + 2];
+			
+		}
 		
 	}
 	
@@ -341,7 +371,11 @@ class ImageDataUtil {
 		
 		for (i in 0...length) {
 			
+			#if flash
+			byteArray.writeUnsignedInt (srcData[srcPosition++]);
+			#else
 			byteArray.__set (i, srcData[srcPosition++]);
+			#end
 			
 			if ((srcPosition % srcStride) > srcRowEnd) {
 				
@@ -362,17 +396,17 @@ class ImageDataUtil {
 		var data = image.buffer.data;
 		if (data == null) return;
 		
-		var index, a;
+		var index, a16;
 		var length = Std.int (data.length / 4);
 		
 		for (i in 0...length) {
 			
 			index = i * 4;
 			
-			a = data[index + 3];
-			data[index] = (data[index] * a) >> 8;
-			data[index + 1] = (data[index + 1] * a) >> 8;
-			data[index + 2] = (data[index + 2] * a) >> 8;
+			var a16 = __alpha16[data[index + 3]];
+			data[index] = (data[index] * a16) >> 16;
+			data[index + 1] = (data[index + 1] * a16) >> 16;
+			data[index + 2] = (data[index + 2] * a16) >> 16;
 			
 		}
 		
@@ -431,18 +465,22 @@ class ImageDataUtil {
 		
 		var data = image.buffer.data;
 		var offset = (4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4);
+		var a = (image.transparent ? (color & 0xFF000000) >>> 24 : 0xFF);
 		
-		data[offset] = (color & 0x00FF0000) >>> 16;
-		data[offset + 1] = (color & 0x0000FF00) >>> 8;
-		data[offset + 2] = (color & 0x000000FF);
-		
-		if (image.transparent) {
+		if (image.transparent && image.premultiplied) {
 			
-			data[offset + 3] = (color & 0xFF000000) >>> 24;
+			var a16 = __alpha16[a];
+			data[offset] = (((color & 0x00FF0000) >>> 16) * a16) >> 16;
+			data[offset + 1] = (((color & 0x0000FF00) >>> 8) * a16) >> 16;
+			data[offset + 2] = ((color & 0x000000FF) * a16) >> 16;
+			data[offset + 3] = a;
 			
 		} else {
 			
-			data[offset + 3] = (0xFF);
+			data[offset] = (color & 0x00FF0000) >>> 16;
+			data[offset + 1] = (color & 0x0000FF00) >>> 8;
+			data[offset + 2] = (color & 0x000000FF);
+			data[offset + 3] = a;
 			
 		}
 		
@@ -482,24 +520,6 @@ class ImageDataUtil {
 	
 	
 	public static function unmultiplyAlpha (image:Image):Void {
-		
-		if (__clamp == null) {
-			
-			__clamp = new Vector<Int> (0xFF + 0xFF);
-			
-			for (i in 0...0xFF) {
-				
-				__clamp[i] = i;
-				
-			}
-			
-			for (i in 255...(0xFF + 0xFF + 1)) {
-				
-				__clamp[i] = 255;
-				
-			}
-			
-		}
 		
 		var data = image.buffer.data;
 		var index, a, unmultiply;

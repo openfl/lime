@@ -26,7 +26,7 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	
 	public function new (data:Float32Array = null) {
 		
-		if (data != null && data.length == 16) {
+		if (data != null && data.length == 20) {
 			
 			this = data;
 			
