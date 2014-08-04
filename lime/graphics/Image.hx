@@ -208,6 +208,7 @@ class Image {
 				
 				#if js
 				ImageCanvasUtil.convertToData (this);
+				ImageCanvasUtil.convertToData (sourceImage);
 				#end
 				
 				ImageDataUtil.copyPixels (this, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha);
