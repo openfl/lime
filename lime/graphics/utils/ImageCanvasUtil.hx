@@ -6,6 +6,7 @@ import lime.graphics.ImageBuffer;
 import lime.math.ColorMatrix;
 import lime.math.Rectangle;
 import lime.math.Vector2;
+import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 
 #if js
@@ -216,6 +217,16 @@ class ImageCanvasUtil {
 	}
 	
 	
+	public static function getPixels (image:Image, rect:Rectangle):ByteArray {
+		
+		convertToCanvas (image);
+		createImageData (image);
+		
+		return ImageDataUtil.getPixels (image, rect);
+		
+	}
+	
+	
 	public static function setPixel (image:Image, x:Int, y:Int, color:Int):Void {
 		
 		convertToCanvas (image);
@@ -232,6 +243,16 @@ class ImageCanvasUtil {
 		createImageData (image);
 		
 		ImageDataUtil.setPixel32 (image, x, y, color);
+		
+	}
+	
+	
+	public static function setPixels (image:Image, rect:Rectangle, byteArray:ByteArray):Void {
+		
+		convertToCanvas (image);
+		createImageData (image);
+		
+		ImageDataUtil.setPixels (image, rect, byteArray);
 		
 	}
 	

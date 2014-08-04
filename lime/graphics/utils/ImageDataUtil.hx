@@ -6,6 +6,7 @@ import lime.graphics.Image;
 import lime.math.ColorMatrix;
 import lime.math.Rectangle;
 import lime.math.Vector2;
+import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 
 
@@ -321,6 +322,41 @@ class ImageDataUtil {
 	}
 	
 	
+	public static function getPixels (image:Image, rect:Rectangle):ByteArray {
+		
+		var byteArray = new ByteArray ();
+		
+		// TODO: optimize if the rect is the same as the full buffer size
+			
+		var srcData = image.buffer.data;
+		var srcStride = Std.int (image.buffer.width * 4);
+		var srcPosition = Std.int ((rect.x * 4) + (srcStride * rect.y));
+		var srcRowOffset = srcStride - Std.int (4 * rect.width);
+		var srcRowEnd = Std.int (4 * (rect.x + rect.width));
+		
+		var length = Std.int (4 * rect.width * rect.height);
+		#if js
+		byteArray.length = length;
+		#end
+		
+		for (i in 0...length) {
+			
+			byteArray.__set (i, srcData[srcPosition++]);
+			
+			if ((srcPosition % srcStride) > srcRowEnd) {
+				
+				srcPosition += srcRowOffset;
+				
+			}
+			
+		}
+		
+		byteArray.position = 0;
+		return byteArray;
+		
+	}
+	
+	
 	public static function multiplyAlpha (image:Image):Void {
 		
 		var data = image.buffer.data;
@@ -407,6 +443,35 @@ class ImageDataUtil {
 		} else {
 			
 			data[offset + 3] = (0xFF);
+			
+		}
+		
+		image.dirty = true;
+		
+	}
+	
+	
+	public static function setPixels (image:Image, rect:Rectangle, byteArray:ByteArray):Void {
+		
+		var len = Math.round (4 * rect.width * rect.height);
+		
+		// TODO: optimize when rect is the same as the buffer size
+		
+		var data = image.buffer.data;
+		var offset = Math.round (4 * buffer.width * (rect.y + image.offsetX) + (rect.x + image.offsetY) * 4);
+		var pos = offset;
+		var boundR = Math.round (4 * (rect.x + rect.width + image.offsetX));
+		
+		for (i in 0...len) {
+			
+			if (((pos) % (width * 4)) > boundR - 1) {
+				
+				pos += width * 4 - boundR;
+				
+			}
+			
+			data[pos] = byteArray.readByte ();
+			pos++;
 			
 		}
 		

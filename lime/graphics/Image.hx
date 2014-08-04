@@ -14,6 +14,7 @@ import lime.utils.UInt8Array;
 import lime.system.System;
 
 #if js
+import js.html.CanvasElement;
 import js.html.ImageElement;
 import js.Browser;
 #elseif flash
@@ -320,6 +321,15 @@ class Image {
 	}
 	
 	
+	public static function fromCanvas (canvas:#if js CanvasElement #else Dynamic #end):Image {
+		
+		var buffer = new ImageBuffer (null, canvas.width, canvas.height);
+		buffer.src = canvas;
+		return new Image (buffer);
+		
+	}
+	
+	
 	public static function fromFile (path:String, onload:Image -> Void = null, onerror:Void -> Void = null):Image {
 		
 		var image = new Image ();
@@ -400,6 +410,38 @@ class Image {
 	}
 	
 	
+	public function getPixels (rect:Rectangle):ByteArray {
+		
+		if (buffer == null) return null;
+		
+		switch (type) {
+			
+			case CANVAS:
+				
+				return ImageCanvasUtil.getPixels (this, rect);
+			
+			case DATA:
+				
+				#if js
+				ImageCanvasUtil.convertToData (this);
+				#end
+				
+				return ImageDataUtil.getPixels (this, rect);
+			
+			case FLASH:
+				
+				rect.offset (offsetX, offsetY);
+				return buffer.__srcBitmapData.getPixels (rect.__toFlashRectangle ());
+			
+			default:
+				
+				return null;
+			
+		}
+		
+	}
+	
+	
 	public function setPixel (x:Int, y:Int, color:Int):Void {
 		
 		if (buffer == null || x < 0 || y < 0 || x >= width || y >= height) return;
@@ -450,6 +492,37 @@ class Image {
 			case FLASH:
 				
 				buffer.__srcBitmapData.setPixel32 (x + offsetX, y + offsetY, color);
+			
+			default:
+			
+		}
+		
+	}
+	
+	
+	public function setPixels (rect:Rectangle, byteArray:ByteArray):Void {
+		
+		rect = __clipRect (rect);
+		if (buffer == null || rect == null) return;
+		
+		switch (type) {
+			
+			case CANVAS:
+				
+				ImageCanvasUtil.setPixels (this, rect, byteArray);
+			
+			case DATA:
+				
+				#if js
+				ImageCanvasUtil.convertToData (this);
+				#end
+				
+				ImageDataUtil.setPixels (this, rect, byteArray);
+			
+			case FLASH:
+				
+				rect.offset (offsetX, offsetY);
+				buffer.__srcBitmapData.setPixels (rect.__toFlashRectangle (), byteArray);
 			
 			default:
 			
