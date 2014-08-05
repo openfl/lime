@@ -283,9 +283,11 @@ namespace lime {
 	
 	void lime_text_destroy (value textHandle) {
 		
+		#ifdef LIME_HARFBUZZ
 		Text *text = (Text*)(intptr_t)val_float (textHandle);
 		delete text;
 		text = 0;
+		#endif
 		
 	}
 	

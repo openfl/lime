@@ -35,6 +35,8 @@ namespace lime {
 	
 	int ConsoleApplication::Exec () {
 		
+		printf ("Hello World\n");
+		
 		return 0;
 		
 	}

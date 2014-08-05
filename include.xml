@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension>
 	
-	<haxedef name="lime_html5" if="html5" />
-	<haxedef name="lime_native" if="native" />
+	<haxedef name="lime-html5" if="html5" />
+	<haxedef name="lime-native" if="native" />
+	
 	<haxedef name="no-compilation" />
 	
-	<set name="included" value="1" if="windows || mac || linux || ios || android || blackberry || tizen || firefoxos }} html5 || flash" />
+	<set name="included" value="1" if="windows || mac || linux || ios || android || blackberry || tizen || firefoxos || html5 || flash" />
 	
 	<section unless="display">
 		
@@ -42,6 +43,9 @@
 		
 		<target name="console-pc" handler="lime-console-pc" />
 		<haxelib name="lime-console-pc" if="console-pc" />
+		
+		<haxedef name="lime-opengl" unless="lime-console" />
+		<haxedef name="lime-openal" unless="lime-console" />
 		
 	</section>
 	

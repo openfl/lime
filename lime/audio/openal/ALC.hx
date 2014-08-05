@@ -7,14 +7,18 @@ import lime.system.System;
 class ALC {
 	
 	
+	#if !console_pc
 	public static inline var FALSE:Int = 0;
 	public static inline var TRUE:Int = 1;
+	#end
 	public static inline var FREQUENCY:Int = 0x1007;
 	public static inline var REFRESH:Int = 0x1008;
 	public static inline var SYNC:Int = 0x1009;
 	public static inline var MONO_SOURCES:Int = 0x1010;
 	public static inline var STEREO_SOURCES:Int = 0x1011;
+	#if !console_pc
 	public static inline var NO_ERROR:Int = 0;
+	#end
 	public static inline var INVALID_DEVICE:Int = 0xA001;
 	public static inline var INVALID_CONTEXT:Int = 0xA002;
 	public static inline var INVALID_ENUM:Int = 0xA003;
@@ -32,13 +36,18 @@ class ALC {
 	
 	public static function closeDevice (device:ALDevice):Bool {
 		
+		#if ((cpp || neko) && lime_openal)
 		return lime_alc_close_device (device);
+		#else
+		return false;
+		#end
 		
 	}
 	
 	
 	public static function createContext (device:ALDevice, attrlist:Array<Int> = null):ALContext {
 		
+		#if ((cpp || neko) && lime_openal)
 		var handle:Float = lime_alc_create_context (device, attrlist);
 		
 		if (handle != 0) {
@@ -46,6 +55,7 @@ class ALC {
 			return new ALContext (handle);
 			
 		}
+		#end
 		
 		return null;
 		
@@ -54,13 +64,16 @@ class ALC {
 	
 	public static function destroyContext (context:ALContext):Void {
 		
+		#if ((cpp || neko) && lime_openal)
 		lime_alc_destroy_context (context);
+		#end
 		
 	}
 	
 	
 	public static function getContextsDevice (context:ALContext):ALDevice {
 		
+		#if ((cpp || neko) && lime_openal)
 		var handle:Float = lime_alc_get_contexts_device (context);
 		
 		if (handle != 0) {
@@ -68,6 +81,7 @@ class ALC {
 			return new ALDevice (handle);
 			
 		}
+		#end
 		
 		return null;
 		
@@ -76,6 +90,7 @@ class ALC {
 	
 	public static function getCurrentContext ():ALContext {
 		
+		#if ((cpp || neko) && lime_openal)
 		var handle:Float = lime_alc_get_current_context ();
 		
 		if (handle != 0) {
@@ -83,6 +98,7 @@ class ALC {
 			return new ALContext (handle);
 			
 		}
+		#end
 		
 		return null;
 		
@@ -91,7 +107,11 @@ class ALC {
 	
 	public static function getError (device:ALDevice):Int {
 		
+		#if ((cpp || neko) && lime_openal)
 		return lime_alc_get_error (device);
+		#else
+		return 0;
+		#end
 		
 	}
 	
@@ -114,27 +134,40 @@ class ALC {
 	
 	public static function getIntegerv (device:ALDevice, param:Int, size:Int):Array<Int> {
 		
+		#if ((cpp || neko) && lime_openal)
 		return lime_alc_get_integerv (device, param, size);
+		#else
+		return null;
+		#end
 		
 	}
 	
 	
 	public static function getString (device:ALDevice, param:Int):String {
 		
+		#if ((cpp || neko) && lime_openal)
 		return lime_alc_get_string (device, param);
+		#else
+		return null;
+		#end
 		
 	}
 	
 	
 	public static function makeContextCurrent (context:ALContext):Bool {
 		
+		#if ((cpp || neko) && lime_openal)
 		return lime_alc_make_context_current (context);
+		#else
+		return false;
+		#end
 		
 	}
 	
 	
 	public static function openDevice (deviceName:String = null):ALDevice {
 		
+		#if ((cpp || neko) && lime_openal)
 		var handle:Float = lime_alc_open_device (deviceName);
 		
 		if (handle != 0) {
@@ -142,6 +175,7 @@ class ALC {
 			return new ALDevice (handle);
 			
 		}
+		#end
 		
 		return null;
 		
@@ -150,18 +184,23 @@ class ALC {
 	
 	public static function processContext (context:ALContext):Void {
 		
+		#if ((cpp || neko) && lime_openal)
 		lime_alc_process_context (context);
+		#end
 		
 	}
 	
 	
 	public static function suspendContext (context:ALContext):Void {
 		
+		#if ((cpp || neko) && lime_openal)
 		lime_alc_suspend_context (context);
+		#end
 		
 	}
 	
 	
+	#if ((cpp || neko) && lime_openal)
 	private static var lime_alc_close_device = System.load ("lime", "lime_alc_close_device", 1);
 	private static var lime_alc_create_context = System.load ("lime", "lime_alc_create_context", 2);
 	private static var lime_alc_destroy_context = System.load ("lime", "lime_alc_destroy_context", 1);
@@ -174,6 +213,7 @@ class ALC {
 	private static var lime_alc_open_device = System.load ("lime", "lime_alc_open_device", 1);
 	private static var lime_alc_process_context = System.load ("lime", "lime_alc_process_context", 1);
 	private static var lime_alc_suspend_context = System.load ("lime", "lime_alc_suspend_context", 1);
+	#end
 	
 	
 }

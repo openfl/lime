@@ -74,7 +74,9 @@ package lime.ui;
 	var X = 0x78;
 	var Y = 0x79;
 	var Z = 0x7A;
+	#if !console_pc
 	var DELETE = 0x7F;
+	#end
 	var CAPS_LOCK = 0x40000039;
 	var F1 = 0x4000003A;
 	var F2 = 0x4000003B;
@@ -155,7 +157,9 @@ package lime.ui;
 	var PRIOR = 0x4000009D;
 	var RETURN2 = 0x4000009E;
 	var SEPARATOR = 0x4000009F;
+	#if !console_pc
 	var OUT = 0x400000A0;
+	#end
 	var OPER = 0x400000A1;
 	var CLEAR_AGAIN = 0x400000A2;
 	var CRSEL = 0x400000A3;
