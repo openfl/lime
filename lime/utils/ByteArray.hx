@@ -526,7 +526,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	#end
 	
 	
-	public override function toString ():String {
+	public #if !js override #end function toString ():String {
 		
 		var cachePosition = position;
 		position = 0;

@@ -355,7 +355,11 @@ class ImageDataUtil {
 	
 	public static function getPixels (image:Image, rect:Rectangle):ByteArray {
 		
+		#if flash
+		var byteArray = new ByteArray ();
+		#else
 		var byteArray = new ByteArray (image.width * image.height * 4);
+		#end
 		
 		// TODO: optimize if the rect is the same as the full buffer size
 			
