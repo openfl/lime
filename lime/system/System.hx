@@ -122,6 +122,7 @@ class System {
 	
 	public static function load (library:String, method:String, args:Int = 0):Dynamic {
 		
+		#if !disable_cffi
 		#if sys
 		
 		#if (iphone || emscripten || android)
@@ -197,6 +198,11 @@ class System {
 		#else
 		
 		var result = null;
+		
+		#end
+		#else
+		
+		var result = function (_, _, _, _, _, _) { return { }; };
 		
 		#end
 		
