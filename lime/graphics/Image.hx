@@ -3,6 +3,8 @@ package lime.graphics;
 
 import haxe.crypto.BaseCode;
 import haxe.io.Bytes;
+import haxe.io.BytesInput;
+import haxe.io.BytesOutput;
 import lime.app.Application;
 import lime.graphics.utils.ImageCanvasUtil;
 import lime.graphics.utils.ImageDataUtil;
@@ -20,6 +22,15 @@ import js.Browser;
 #elseif flash
 import flash.display.BitmapData;
 import flash.geom.Matrix;
+#end
+
+#if format
+import format.png.Data;
+import format.png.Reader;
+import format.png.Tools;
+import format.png.Writer;
+import format.tools.Deflate;
+import sys.io.File;
 #end
 
 @:allow(lime.graphics.util.ImageCanvasUtil)
@@ -60,11 +71,19 @@ class Image {
 		
 		if (type == null) {
 			
-			this.type = switch (Application.__instance.window.currentRenderer.context) {
+			if (Application.__instance != null && Application.__instance.windows != null && Application.__instance.window.currentRenderer != null) {
 				
-				case DOM (_), CANVAS (_): CANVAS;
-				case FLASH (_): FLASH;
-				default: DATA;
+				this.type = switch (Application.__instance.window.currentRenderer.context) {
+					
+					case DOM (_), CANVAS (_): CANVAS;
+					case FLASH (_): FLASH;
+					default: DATA;
+					
+				}
+				
+			} else {
+				
+				this.type = DATA;
 				
 			}
 			
@@ -231,6 +250,55 @@ class Image {
 			default:
 				
 		}
+		
+	}
+	
+	
+	public function encode (format:String = "png"):ByteArray {
+		
+		#if (!js && !flash)
+		#if format
+		switch (format) {
+			
+			case "png":
+				
+				try {
+					
+					var bytes = Bytes.alloc (width * height * 4 + height);
+					var sourceBytes = buffer.data.getByteBuffer ();
+					var sourceIndex:Int, index:Int;
+					
+					for (y in 0...height) {
+						
+						sourceIndex = y * width * 4;
+						index = y * width * 4 + y;
+						
+						bytes.set (index, 0);
+						bytes.blit (index + 1, sourceBytes, sourceIndex, width * 4);
+						
+					}
+					
+					var data = new List ();
+					data.add (CHeader ({ width: width, height: height, colbits: 8, color: ColTrue (true), interlaced: false }));
+					data.add (CData (Deflate.run (bytes)));
+					data.add (CEnd);
+					
+					var output = new BytesOutput ();
+					var png = new Writer (output);
+					png.write (data);
+					
+					return ByteArray.fromBytes (output.getBytes ());
+					
+				} catch (e:Dynamic) {}
+			
+			default:
+				
+			
+		}
+		#end
+		#end
+		
+		return null;
 		
 	}
 	
@@ -755,11 +823,50 @@ class Image {
 		
 		#elseif (cpp || neko)
 		
-		var data = lime_image_load (path);
+		var buffer = null;
 		
-		if (data != null) {
+		#if (!disable_cffi || !format)
+		
+		var data = lime_image_load (path);
+		if (data != null) buffer = new ImageBuffer (new UInt8Array (data.data), data.width, data.height, data.bpp);
+		
+		#else
+		
+		try {
 			
-			__fromImageBuffer (new ImageBuffer (new UInt8Array (data.data), data.width, data.height, data.bpp));
+			var bytes = File.getBytes (path);
+			var input = new BytesInput (bytes, 0, bytes.length);
+			var png = new Reader (input).read ();
+			var data = Tools.extract32 (png);
+			var header = Tools.getHeader (png);
+			
+			var data = new UInt8Array (ByteArray.fromBytes (Bytes.ofData (data.getData ())));
+			var length = header.width * header.height;
+			var b, g, r, a;
+			
+			for (i in 0...length) {
+				
+				var b = data[i * 4];
+				var g = data[i * 4 + 1];
+				var r = data[i * 4 + 2];
+				var a = data[i * 4 + 3];
+				
+				data[i * 4] = r;
+				data[i * 4 + 1] = g;
+				data[i * 4 + 2] = b;
+				data[i * 4 + 3] = a;
+				
+			}
+			
+			buffer = new ImageBuffer (data, header.width, header.height);
+			
+		} catch (e:Dynamic) {}
+		
+		#end
+		
+		if (buffer != null) {
+			
+			__fromImageBuffer (buffer);
 			
 			if (onload != null) {
 				

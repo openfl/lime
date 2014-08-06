@@ -143,7 +143,8 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 			
 			allocated = ((len + 1) * 3) >> 1;
 			var new_b = untyped __dollar__smake (allocated);
-			untyped __dollar__sblit (new_b, 0, b, 0, length);
+			if (b != null) 
+				untyped __dollar__sblit (new_b, 0, b, 0, length);
 			b = new_b;
 			
 		}

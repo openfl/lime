@@ -355,7 +355,7 @@ class ImageDataUtil {
 	
 	public static function getPixels (image:Image, rect:Rectangle):ByteArray {
 		
-		var byteArray = new ByteArray ();
+		var byteArray = new ByteArray (image.width * image.height * 4);
 		
 		// TODO: optimize if the rect is the same as the full buffer size
 			
