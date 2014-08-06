@@ -19,6 +19,7 @@ import js.html.ImageElement;
 import js.Browser;
 #elseif flash
 import flash.display.BitmapData;
+import flash.geom.Matrix;
 #end
 
 @:allow(lime.graphics.util.ImageCanvasUtil)
@@ -438,6 +439,43 @@ class Image {
 				return null;
 			
 		}
+		
+	}
+	
+	
+	public function resize (newWidth:Int, newHeight:Int):Void {
+		
+		switch (type) {
+			
+			case CANVAS:
+				
+				ImageCanvasUtil.resize (this, newWidth, newHeight);
+			
+			case DATA:
+				
+				ImageDataUtil.resize (this, newWidth, newHeight);
+			
+			case FLASH:
+				
+				#if flash
+				var matrix = new Matrix ();
+				matrix.scale (newWidth / buffer.__srcBitmapData.width, newHeight / buffer.__srcBitmapData.height);
+				var data = new BitmapData (newWidth, newHeight, true, 0x00FFFFFF);
+				data.draw (buffer.__srcBitmapData, matrix, null, null, null, true);
+				buffer.__srcBitmapData = data;
+				#end
+			
+			default:
+			
+		}
+		
+		buffer.width = newWidth;
+		buffer.height = newHeight;
+		
+		offsetX = 0;
+		offsetY = 0;
+		width = newWidth;
+		height = newHeight;
 		
 	}
 	

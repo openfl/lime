@@ -227,6 +227,27 @@ class ImageCanvasUtil {
 	}
 	
 	
+	public static function resize (image:Image, newWidth:Int, newHeight:Int):Void {
+		
+		var buffer = image.buffer;
+		
+		if (buffer.__srcCanvas == null) {
+			
+			createCanvas (image, newWidth, newHeight);
+			buffer.__srcContext.drawImage (buffer.src, 0, 0, newWidth, newHeight);
+			
+		} else {
+			
+			var sourceCanvas = buffer.__srcCanvas;
+			buffer.__srcCanvas = null;
+			createCanvas (image, newWidth, newHeight);
+			buffer.__srcContext.drawImage (sourceCanvas, 0, 0, newWidth, newHeight);
+			
+		}
+		
+	}
+	
+	
 	public static function setPixel (image:Image, x:Int, y:Int, color:Int):Void {
 		
 		convertToCanvas (image);
