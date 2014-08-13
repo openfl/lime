@@ -30,7 +30,9 @@ import format.png.Reader;
 import format.png.Tools;
 import format.png.Writer;
 import format.tools.Deflate;
+#if sys
 import sys.io.File;
+#end
 #end
 
 @:allow(lime.graphics.util.ImageCanvasUtil)
@@ -851,7 +853,7 @@ class Image {
 		
 		var buffer = null;
 		
-		#if (!disable_cffi || !format)
+		#if (sys && (!disable_cffi || !format))
 		
 		var data = lime_image_load (path);
 		if (data != null) buffer = new ImageBuffer (new UInt8Array (data.data), data.width, data.height, data.bpp);

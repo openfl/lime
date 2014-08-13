@@ -250,6 +250,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#end
 		#end
 		
+		return null;
+		
 	}
 	
 	
