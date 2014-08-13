@@ -183,6 +183,69 @@ class Assets {
 	
 	
 	/**
+	 * Gets an instance of an embedded font
+	 * @usage		var fontName = Assets.getFont("font.ttf").fontName;
+	 * @param	id		The ID or asset path for the font
+	 * @return		A new Font object
+	 */
+	public static function getFont (id:String, useCache:Bool = true):Dynamic /*Font*/ {
+		
+		initialize ();
+		
+		#if (tools && !display)
+		
+		if (useCache && cache.enabled && cache.font.exists (id)) {
+			
+			return cache.font.get (id);
+			
+		}
+		
+		var libraryName = id.substring (0, id.indexOf (":"));
+		var symbolName = id.substr (id.indexOf (":") + 1);
+		var library = getLibrary (libraryName);
+		
+		if (library != null) {
+			
+			if (library.exists (symbolName, cast AssetType.FONT)) {
+				
+				if (library.isLocal (symbolName, cast AssetType.FONT)) {
+					
+					var font = library.getFont (symbolName);
+					
+					if (useCache && cache.enabled) {
+						
+						cache.font.set (id, font);
+						
+					}
+					
+					return font;
+					
+				} else {
+					
+					trace ("[Assets] Font asset \"" + id + "\" exists, but only asynchronously");
+					
+				}
+				
+			} else {
+				
+				trace ("[Assets] There is no Font asset with an ID of \"" + id + "\"");
+				
+			}
+			
+		} else {
+			
+			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
+			
+		}
+		
+		#end
+		
+		return null;
+		
+	}
+	
+	
+	/**
 	 * Gets an instance of an embedded bitmap
 	 * @usage		var bitmap = new Bitmap(Assets.getBitmapData("image.jpg"));
 	 * @param	id		The ID or asset path for the bitmap
@@ -965,6 +1028,13 @@ class AssetLibrary {
 	}
 	
 	
+	public function getFont (id:String):Dynamic /*Font*/ {
+		
+		return null;
+		
+	}
+	
+	
 	public function getImage (id:String):Image {
 		
 		return null;
@@ -1046,6 +1116,13 @@ class AssetLibrary {
 	}
 	
 	
+	public function loadFont (id:String, handler:Dynamic /*Font*/ -> Void):Void {
+		
+		handler (getFont (id));
+		
+	}
+	
+	
 	public function loadImage (id:String, handler:Image -> Void):Void {
 		
 		handler (getImage (id));
@@ -1098,13 +1175,13 @@ class AssetCache {
 	public var audio:Map<String, AudioBuffer>;
 	public var enabled:Bool = true;
 	public var image:Map<String, Image>;
-	public var font:Map<String, Font>;
+	public var font:Map<String, Dynamic /*Font*/>;
 	
 	
 	public function new () {
 		
 		audio = new Map<String, AudioBuffer> ();
-		font = new Map<String, Font> ();
+		font = new Map<String, Dynamic /*Font*/> ();
 		image = new Map<String, Image> ();
 		
 	}
@@ -1115,7 +1192,7 @@ class AssetCache {
 		if (prefix == null) {
 			
 			audio = new Map<String, AudioBuffer> ();
-			font = new Map<String, Font> ();
+			font = new Map<String, Dynamic /*Font*/> ();
 			image = new Map<String, Image> ();
 			
 		} else {
@@ -1467,13 +1544,13 @@ class Assets {
 			fields.push ({ kind: FVar(macro :String, fieldValue), name: "resourceName", access: [ APublic, AStatic ], pos: position });
 			
 			var constructor = macro {
-
+				
 				super();
-
+				
 				fontName = resourceName;
-
+				
 			};
-
+			
 			fields.push ({ name: "new", access: [ APublic ], kind: FFun({ args: [], expr: constructor, params: [], ret: null }), pos: Context.currentPos() });
 			
 			return fields;

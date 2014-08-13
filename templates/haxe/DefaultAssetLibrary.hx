@@ -224,6 +224,35 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
+	public override function getFont (id:String):Dynamic /*Font*/ {
+		
+		// TODO: Complete Lime Font API
+		
+		#if openfl
+		#if (flash || js)
+		
+		return cast (Type.createInstance (className.get (id), []), openfl.text.Font);
+		
+		#else
+		
+		if (className.exists (id)) {
+			
+			var fontClass = className.get (id);
+			openfl.text.Font.registerFont (fontClass);
+			return cast (Type.createInstance (fontClass, []), openfl.text.Font);
+			
+		} else {
+			
+			return new openfl.text.Font (path.get (id));
+			
+		}
+		
+		#end
+		#end
+		
+	}
+	
+	
 	public override function getImage (id:String):Image {
 		
 		#if flash
@@ -610,8 +639,10 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 #elseif html5
 
-::foreach assets::::if (type == "font")::@:keep class __ASSET__::flatName:: extends lime.graphics.Font { public function new () { super ("::id::"); } }::end::
+#if openfl
+::foreach assets::::if (type == "font")::@:keep class __ASSET__::flatName:: extends openfl.text.Font { public function new () { super (); fontName = "::id::"; } } ::end::
 ::end::
+#end
 
 #elseif (windows || mac || linux)
 
