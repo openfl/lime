@@ -23,6 +23,10 @@ class MouseEventManager {
 	private static var created:Bool;
 	private static var eventInfo:MouseEventInfo;
 	
+	#if js
+	private static var window:Window;
+	#end
+	
 	
 	public static function create ():Void {
 		
@@ -39,26 +43,6 @@ class MouseEventManager {
 		
 		#if js
 		
-		/*
-		var rect;
-		
-		if (__canvas != null) {
-			
-			rect = __canvas.getBoundingClientRect ();
-			__mouseX = (event.clientX - rect.left) * (stageWidth / rect.width);
-			__mouseY = (event.clientY - rect.top) * (stageHeight / rect.height);
-			
-		} else {
-			
-			rect = __div.getBoundingClientRect ();
-			//__mouseX = (event.clientX - rect.left) * (__div.style.width / rect.width);
-			__mouseX = (event.clientX - rect.left);
-			//__mouseY = (event.clientY - rect.top) * (__div.style.height / rect.height);
-			__mouseY = (event.clientY - rect.top);
-			
-		}
-		*/
-		
 		eventInfo.type = switch (event.type) {
 			
 			case "mousedown": MOUSE_DOWN;
@@ -73,8 +57,18 @@ class MouseEventManager {
 		
 		if (eventInfo.type != MOUSE_WHEEL) {
 			
-			eventInfo.x = event.clientX;
-			eventInfo.y = event.clientY;
+			if (window != null && window.element != null) {
+				
+				var rect = window.element.getBoundingClientRect ();
+				eventInfo.x = (event.clientX - rect.left) * (window.width / rect.width);
+				eventInfo.y = (event.clientY - rect.top) * (window.height / rect.height);
+				
+			} else {
+				
+				eventInfo.x = event.clientX;
+				eventInfo.y = event.clientY;
+				
+			}
 			
 		} else {
 			
@@ -143,7 +137,7 @@ class MouseEventManager {
 	}
 	
 	
-	private static function registerWindow (window:Window):Void {
+	private static function registerWindow (_window:Window):Void {
 		
 		#if js
 		
@@ -151,18 +145,20 @@ class MouseEventManager {
 		
 		for (event in events) {
 			
-			window.element.addEventListener (event, handleEvent, true);
+			_window.element.addEventListener (event, handleEvent, true);
 			
 		}
 		
+		MouseEventManager.window = _window;
+		
 		// Disable image drag on Firefox
-		/*Browser.document.addEventListener ("dragstart", function (e) {
-			if (e.target.nodeName.toLowerCase() == "img") {
-				e.preventDefault();
+		Browser.document.addEventListener ("dragstart", function (e) {
+			if (e.target.nodeName.toLowerCase () == "img") {
+				e.preventDefault ();
 				return false;
 			}
 			return true;
-		}, false);*/
+		}, false);
 		
 		#elseif flash
 		
