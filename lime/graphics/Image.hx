@@ -97,11 +97,37 @@ class Image {
 			
 			if (width > 0 && height > 0) {
 				
-				this.buffer = new ImageBuffer (new UInt8Array (width * height * 4), width, height);
-				
-				if (color != null) {
+				switch (this.type) {
 					
-					fillRect (new Rectangle (0, 0, width, height), color);
+					case CANVAS:
+						
+						this.buffer = new ImageBuffer (null, width, height);
+						ImageCanvasUtil.createCanvas (this, width, height);
+						
+						if (color != null) {
+							
+							fillRect (new Rectangle (0, 0, width, height), color);
+							
+						}
+					
+					case DATA:
+						
+						this.buffer = new ImageBuffer (new UInt8Array (width * height * 4), width, height);
+						
+						if (color != null) {
+							
+							fillRect (new Rectangle (0, 0, width, height), color);
+							
+						}
+					
+					case FLASH:
+						
+						#if flash
+						this.buffer = new ImageBuffer (null, width, height);
+						this.buffer.src = new BitmapData (width, height, true, color);
+						#end
+					
+					default:
 					
 				}
 				

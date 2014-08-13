@@ -1,6 +1,7 @@
 package lime.graphics.utils;
 
 
+import haxe.format.JsonParser;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.math.ColorMatrix;
@@ -153,7 +154,8 @@ class ImageCanvasUtil {
 		
 		if (buffer.data == null) {
 			
-			buffer.data = new UInt8Array (buffer.__srcContext.getImageData (0, 0, buffer.width, buffer.height).data);
+			buffer.__srcImageData = buffer.__srcContext.getImageData (0, 0, buffer.width, buffer.height);
+			buffer.data = cast buffer.__srcImageData.data;
 			
 		}
 		
@@ -283,7 +285,7 @@ class ImageCanvasUtil {
 		#if js
 		if (image.dirty && image.type != DATA) {
 			
-			image.buffer.__srcContext.putImageData (cast image.buffer.data, 0, 0);
+			image.buffer.__srcContext.putImageData (image.buffer.__srcImageData, 0, 0);
 			image.buffer.data = null;
 			image.dirty = false;
 			

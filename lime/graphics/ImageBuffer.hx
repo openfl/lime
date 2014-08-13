@@ -7,6 +7,7 @@ import lime.utils.UInt8Array;
 import js.html.CanvasElement;
 import js.html.CanvasRenderingContext2D;
 import js.html.Image in HTMLImage;
+import js.html.ImageData;
 #elseif flash
 import flash.display.BitmapData;
 #end
@@ -30,6 +31,7 @@ class ImageBuffer {
 	@:noCompletion private var __srcContext:#if js CanvasRenderingContext2D #else Dynamic #end;
 	@:noCompletion private var __srcCustom:Dynamic;
 	@:noCompletion private var __srcImage:#if js HTMLImage #else Dynamic #end;
+	@:noCompletion private var __srcImageData:#if js ImageData #else Dynamic #end;
 	
 	
 	public function new (data:UInt8Array = null, width:Int = 0, height:Int = 0, bitsPerPixel:Int = 4) {
