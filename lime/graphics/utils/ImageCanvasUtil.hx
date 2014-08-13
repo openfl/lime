@@ -155,7 +155,18 @@ class ImageCanvasUtil {
 		if (buffer.data == null) {
 			
 			buffer.__srcImageData = buffer.__srcContext.getImageData (0, 0, buffer.width, buffer.height);
-			buffer.data = cast buffer.__srcImageData.data;
+			
+			// TODO: Better solution?
+			
+			if (image.type == CANVAS) {
+				
+				buffer.data = cast buffer.__srcImageData.data;
+				
+			} else {
+				
+				buffer.data = new UInt8Array (buffer.__srcImageData.data);
+				
+			}
 			
 		}
 		
