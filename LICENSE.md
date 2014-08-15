@@ -28,8 +28,6 @@ THE SOFTWARE.
 Portions of other MIT-license projects are also used, including content that is
 
 Copyright (c) 2007-2014 NME contributors
-Copyright (c) 2013-2014 Mathew Groves
-Copyright (c) 2013-2014 James Simpson and GoldFire Studios, Inc.
 
 -------
 
