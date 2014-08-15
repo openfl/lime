@@ -125,7 +125,7 @@ class System {
 		#if !disable_cffi
 		#if sys
 		
-		#if (iphone || emscripten || android)
+		#if (iphone || emscripten || android || static_link)
 		return cpp.Lib.load (library, method, args);
 		#end
 		
