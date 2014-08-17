@@ -33,6 +33,16 @@
 		
 		<file name="src/ExternalInterface.cpp" />
 		
+		<section if="LIME_CURL">
+			
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/curl/include/" />
+			<compilerflag value="-DLIME_CURL" />
+			<compilerflag value="-DCURL_STATICLIB" />
+			
+			<file name="src/net/curl/CURLBindings.cpp" />
+			
+		</section>
+		
 		<section if="LIME_JPEG">
 			
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/jpeg/" />
