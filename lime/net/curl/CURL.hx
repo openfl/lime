@@ -7,6 +7,14 @@ import lime.system.System;
 class CURL {
 	
 	
+	public static inline var GLOBAL_SSL:Int = 1 << 0;
+	public static inline var GLOBAL_WIN32:Int = 1 << 1;
+	public static inline var GLOBAL_ALL:Int = GLOBAL_SSL | GLOBAL_WIN32;
+	public static inline var GLOBAL_NOTHING:Int = 0;
+	public static inline var GLOBAL_DEFAULT:Int = GLOBAL_ALL;
+	public static inline var GLOBAL_ACK_EINTR:Int = 1 << 2;
+	
+	
 	public static function easyCleanup (handle:Dynamic):Void {
 		
 		#if (cpp || neko)

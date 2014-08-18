@@ -120,7 +120,17 @@ class System {
 	}
 	
 	
-	public static function load (library:String, method:String, args:Int = 0):Dynamic {
+	public static function load (library:String, method:String, args:Int = 0, lazy:Bool = false):Dynamic {
+		
+		if (lazy) {
+			
+			#if neko
+			return neko.Lib.loadLazy (library, method, args);
+			#elseif cpp
+			return cpp.Lib.loadLazy (library, method, args);
+			#end
+			
+		}
 		
 		#if !disable_cffi
 		#if sys
