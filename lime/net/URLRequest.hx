@@ -9,7 +9,7 @@ class URLRequest {
 	
 	public var contentType:String;
 	public var data:Dynamic;
-	public var method:String;
+	public var method:URLRequestMethod;
 	public var requestHeaders:Array<URLRequestHeader>;
 	public var url:String;
 	public var userAgent:String;
