@@ -131,7 +131,7 @@ class URLLoader {
 	}
 	
 	
-	private function requestUrl (url:String, method:String, data:Dynamic, requestHeaders:Array<URLRequestHeader>):Void {
+	private function requestUrl (url:String, method:URLRequestMethod, data:Dynamic, requestHeaders:Array<URLRequestHeader>):Void {
 		
 		var xmlHttpRequest:XMLHttpRequest = untyped __new__("XMLHttpRequest");
 		registerEvents (cast xmlHttpRequest);
@@ -171,16 +171,16 @@ class URLLoader {
 		
 		try {
 			
-			if (method == "GET" && uri != null && uri != "") {
+			if (method == GET && uri != null && uri != "") {
 				
 				var question = url.split ("?").length <= 1;
-				xmlHttpRequest.open (method, url + (if (question) "?" else "&") + uri, true);
+				xmlHttpRequest.open ("GET", url + (if (question) "?" else "&") + uri, true);
 				uri = "";
 				
 			} else {
 				
 				//js.Lib.alert ("open: " + method + ", " + url + ", true");
-				xmlHttpRequest.open (method, url, true);
+				xmlHttpRequest.open (cast (method, String), url, true);
 				
 			}
 			
