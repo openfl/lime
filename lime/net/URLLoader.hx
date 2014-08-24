@@ -11,6 +11,14 @@ import js.Browser;
 import js.Lib;
 #end
 
+#if lime_curl
+import lime.net.curl.CURL;
+import lime.net.curl.CURLEasy;
+import lime.net.curl.CURLCode;
+import lime.net.curl.CURLInfo;
+import lime.net.curl.CURLOption;
+#end
+
 
 class URLLoader {
 	
@@ -26,13 +34,22 @@ class URLLoader {
 	public var onProgress = new Event<URLLoader->Int->Int->Void> ();
 	public var onSecurityError = new Event<URLLoader->String->Void> ();
 	
+	#if lime_curl
+	private var __curl:CURL;
+	private var __data:String;
+	#end
 	
 	public function new (request:URLRequest = null) {
 		
 		bytesLoaded = 0;
 		bytesTotal = 0;
 		dataFormat = URLLoaderDataFormat.TEXT;
-		
+
+		#if lime_curl
+		__data = "";
+		__curl = CURLEasy.init();
+		#end
+
 		if (request != null) {
 			
 			load (request);
@@ -44,7 +61,9 @@ class URLLoader {
 	
 	public function close ():Void {
 		
-		
+		#if lime_curl
+		CURLEasy.cleanup(__curl);
+		#end
 		
 	}
 	
@@ -59,6 +78,8 @@ class URLLoader {
 	public function load (request:URLRequest):Void {
 		
 		#if js
+		requestUrl (request.url, request.method, request.data, request.formatRequestHeaders ());
+		#elseif lime_curl
 		requestUrl (request.url, request.method, request.data, request.formatRequestHeaders ());
 		#end
 		
@@ -227,6 +248,125 @@ class URLLoader {
 		};
 		
 	}
+	#elseif lime_curl
+
+	private function prepareData(data:Dynamic):ByteArray {
+
+		var uri:ByteArray = new ByteArray();
+		
+		if (Std.is (data, ByteArray)) {
+			
+			var data:ByteArray = cast data;
+			uri = data;
+			
+		} else if (Std.is (data, URLVariables)) {
+			
+			var data:URLVariables = cast data;
+			var tmp:String = "";
+			for (p in Reflect.fields (data)) {
+				
+				if (tmp.length != 0) tmp += "&";
+				tmp += StringTools.urlEncode (p) + "=" + StringTools.urlEncode (Reflect.field (data, p));
+				
+			}
+
+			uri.writeUTF(tmp);
+
+			
+		} else {
+			
+			if (data != null) {
+				
+				uri.writeUTF(Std.string(data));
+				
+			}
+			
+		}
+
+		return uri;
+
+	}
+
+	private function requestUrl (url:String, method:URLRequestMethod, data:Dynamic, requestHeaders:Array<URLRequestHeader>):Void {
+
+		var uri = prepareData(data);
+
+		__data = "";
+		CURLEasy.reset(__curl);
+		CURLEasy.setopt(__curl, URL, url);
+
+		switch(method) {
+			case HEAD:
+				CURLEasy.setopt(__curl, NOBODY, true);
+			case GET:
+				CURLEasy.setopt(__curl, HTTPGET, true);
+			case POST:
+				CURLEasy.setopt(__curl, POST, true);
+				CURLEasy.setopt(__curl, READFUNCTION, readFunction.bind(_, _, _, uri));
+			case PUT:
+				CURLEasy.setopt(__curl, UPLOAD, true);
+				CURLEasy.setopt(__curl, READFUNCTION, readFunction.bind(_, _, _, uri));
+			case _:
+				CURLEasy.setopt(__curl, CUSTOMREQUEST, cast method);
+				CURLEasy.setopt(__curl, READFUNCTION, readFunction.bind(_, _, _, uri));
+		}
+
+		var headers:Array<String> = [];
+		for (requestHeader in requestHeaders) {
+
+			headers.push('${requestHeader.name}: ${requestHeader.value}');
+
+		}
+
+		CURLEasy.setopt(__curl, HTTPHEADER, headers);
+
+		CURLEasy.setopt(__curl, WRITEFUNCTION, writeFunction);
+
+		CURLEasy.setopt(__curl, SSL_VERIFYPEER, false);
+		CURLEasy.setopt(__curl, SSL_VERIFYHOST, false);
+		CURLEasy.setopt(__curl, USERAGENT, "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:29.0) Gecko/20120101 Firefox/29.0");
+
+		var result = CURLEasy.perform(__curl);
+
+
+		var responseCode = CURLEasy.getinfo(__curl, RESPONSE_CODE);
+
+		if (result == CURLCode.OK) {
+			/*
+			switch(dataFormat) {
+				case BINARY: this.data = __data;
+				default: this.data = __data.asString();
+			}
+			*/
+			this.data = __data;
+			onComplete.dispatch (this);
+			onHTTPStatus.dispatch (this, Std.parseInt(responseCode));
+		} else {
+			onIOError.dispatch (this, "Problem with curl: " + result);
+		}
+		
+	}
+
+	private function writeFunction (output:String, chunks:Int, length:Int):Int {
+
+		__data += output;
+		return chunks * length;
+
+	}
+
+	private function readFunction (output:String, chunks:Int, length:Int, input:ByteArray):Int {
+
+		var chunk = chunks * length;
+		var inputTotal = input.length - input.position;
+		if(inputTotal < chunk) {
+			output += input.readUTFBytes(inputTotal);
+			return 0;
+		}
+		output += input.readUTFBytes(chunk);
+		return chunk;
+
+	}
+
 	#end
 	
 	
