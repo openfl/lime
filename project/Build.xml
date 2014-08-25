@@ -24,7 +24,7 @@
 	<set name="OUTPUT_DIR" value="../ndll" unless="OUTPUT_DIR" />
 	<set name="NATIVE_TOOLKIT_PATH" value="lib" unless="NATIVE_TOOLKIT_PATH" />
 	
-	<set name="LIBCURL_SSL" value="1" />
+	<set name="NATIVE_TOOLKIT_CURL_SSL" value="1" />
 	
 	<files id="lime">
 		
