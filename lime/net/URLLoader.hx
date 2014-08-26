@@ -253,7 +253,6 @@ class URLLoader {
 	private function prepareData(data:Dynamic):ByteArray {
 
 		var uri:ByteArray = new ByteArray();
-		
 		if (Std.is (data, ByteArray)) {
 			
 			var data:ByteArray = cast data;
@@ -270,14 +269,14 @@ class URLLoader {
 				
 			}
 
-			uri.writeUTF(tmp);
+			uri.writeUTFBytes(tmp);
 
 			
 		} else {
 			
 			if (data != null) {
 				
-				uri.writeUTF(Std.string(data));
+				uri.writeUTFBytes(Std.string(data));
 				
 			}
 			
@@ -290,8 +289,12 @@ class URLLoader {
 	private function requestUrl (url:String, method:URLRequestMethod, data:Dynamic, requestHeaders:Array<URLRequestHeader>):Void {
 
 		var uri = prepareData(data);
+		uri.position = 0;
 
 		__data = "";
+		bytesLoaded = 0;
+		bytesTotal = 0;
+
 		CURLEasy.reset(__curl);
 		CURLEasy.setopt(__curl, URL, url);
 
@@ -302,16 +305,21 @@ class URLLoader {
 				CURLEasy.setopt(__curl, HTTPGET, true);
 			case POST:
 				CURLEasy.setopt(__curl, POST, true);
-				CURLEasy.setopt(__curl, READFUNCTION, readFunction.bind(_, _, _, uri));
+				CURLEasy.setopt(__curl, READFUNCTION, readFunction.bind(_, uri));
+				CURLEasy.setopt(__curl, POSTFIELDSIZE, uri.length);
+				CURLEasy.setopt(__curl, INFILESIZE, uri.length);
 			case PUT:
 				CURLEasy.setopt(__curl, UPLOAD, true);
-				CURLEasy.setopt(__curl, READFUNCTION, readFunction.bind(_, _, _, uri));
+				CURLEasy.setopt(__curl, READFUNCTION, readFunction.bind(_, uri));
+				CURLEasy.setopt(__curl, INFILESIZE, uri.length);
 			case _:
 				CURLEasy.setopt(__curl, CUSTOMREQUEST, cast method);
-				CURLEasy.setopt(__curl, READFUNCTION, readFunction.bind(_, _, _, uri));
+				CURLEasy.setopt(__curl, READFUNCTION, readFunction.bind(_, uri));
+				CURLEasy.setopt(__curl, INFILESIZE, uri.length);
 		}
 
 		var headers:Array<String> = [];
+		headers.push("Expect: "); // removes the default cURL value
 		for (requestHeader in requestHeaders) {
 
 			headers.push('${requestHeader.name}: ${requestHeader.value}');
@@ -320,11 +328,14 @@ class URLLoader {
 
 		CURLEasy.setopt(__curl, HTTPHEADER, headers);
 
+		CURLEasy.setopt(__curl, PROGRESSFUNCTION, progressFunction);
+
 		CURLEasy.setopt(__curl, WRITEFUNCTION, writeFunction);
+		CURLEasy.setopt(__curl, HEADERFUNCTION, headerFunction);
 
 		CURLEasy.setopt(__curl, SSL_VERIFYPEER, false);
 		CURLEasy.setopt(__curl, SSL_VERIFYHOST, false);
-		CURLEasy.setopt(__curl, USERAGENT, "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:29.0) Gecko/20120101 Firefox/29.0");
+		CURLEasy.setopt(__curl, USERAGENT, "libcurl-agent/1.0");
 
 		var result = CURLEasy.perform(__curl);
 
@@ -339,32 +350,40 @@ class URLLoader {
 			}
 			*/
 			this.data = __data;
-			onComplete.dispatch (this);
 			onHTTPStatus.dispatch (this, Std.parseInt(responseCode));
+			onComplete.dispatch (this);
 		} else {
 			onIOError.dispatch (this, "Problem with curl: " + result);
 		}
 		
 	}
 
-	private function writeFunction (output:String, chunks:Int, length:Int):Int {
+	private function writeFunction (output:String, size:Int, nmemb:Int):Int {
 
 		__data += output;
-		return chunks * length;
+		return size * nmemb;
 
 	}
 
-	private function readFunction (output:String, chunks:Int, length:Int, input:ByteArray):Int {
+	private function headerFunction (output:String, size:Int, nmemb:Int):Int {
 
-		var chunk = chunks * length;
-		var inputTotal = input.length - input.position;
-		if(inputTotal < chunk) {
-			output += input.readUTFBytes(inputTotal);
-			return 0;
+		// TODO
+		return size * nmemb;
+
+	}
+
+	private function progressFunction (dltotal:Float, dlnow:Float, uptotal:Float, upnow:Float):Int {
+		
+		if(upnow>bytesLoaded || dlnow>bytesTotal) {
+			if(upnow > bytesLoaded) bytesLoaded = Std.int(upnow);
+			if(dlnow > bytesTotal) bytesTotal = Std.int(dlnow);
+			onProgress.dispatch(this, bytesLoaded, bytesTotal);
 		}
-		output += input.readUTFBytes(chunk);
-		return chunk;
+		return 0;
+	}
 
+	private function readFunction(max:Int, input:ByteArray):String {
+		return input == null ? "" : input.readUTFBytes(Std.int(Math.min(max, input.length - input.position)));
 	}
 
 	#end
