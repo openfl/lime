@@ -14,6 +14,34 @@ typedef Float32Array = js.html.Float32Array;
 	
 	public function new<T> (bufferOrArray:T, start:Int = 0, length:Null<Int> = null) {
 		
+		#if (openfl && neko)
+		if (Std.is (bufferOrArray, openfl.Vector.VectorData)) {
+			
+			var vector:openfl.Vector<Float> = cast bufferOrArray;
+			var floats:Array<Float> = vector;
+			this.length = (length != null) ? length : floats.length - start;
+			
+			super (this.length << 2);
+			
+			#if !cpp
+			buffer.position = 0;
+			#end
+			
+			for (i in 0...this.length) {
+				
+				#if cpp
+				untyped __global__.__hxcpp_memory_set_float (bytes, (i << 2), floats[i + start]);
+				#else
+				buffer.writeFloat (floats[i + start]);
+				#end
+				
+			}
+			
+			return;
+			
+		}
+		#end
+		
 		if (Std.is (bufferOrArray, Int)) {
 			
 			super (Std.int (cast bufferOrArray) << 2);
