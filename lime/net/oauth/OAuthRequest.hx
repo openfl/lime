@@ -7,22 +7,29 @@ import haxe.io.Bytes;
 import lime.net.URLRequestMethod;
 import lime.net.URLRequestHeader;
 import lime.net.URLRequest;
+import lime.net.URIParser;
 import lime.net.oauth.OAuthToken;
 
 using StringTools;
 
-class OAuthRequest extends URLRequest {
+class OAuthRequest {
 	
 	public var version:OAuthVersion = V1;
 	public var parameters:Map<String, String>;
+	public var request:URLRequest;
+
+	private var uri:URIParser;
 	
 	
 	public function new (version:OAuthVersion = V1, method:URLRequestMethod, url:String, parameters:Map<String, String>) {
 		
-		super(url);
 		this.version = version;
-		this.method = method;
+		request = new URLRequest();
+		request.url = url;
+		request.method = method;
 		this.parameters = parameters;
+
+		uri = new URIParser(url);
 		
 	}
 	
@@ -61,7 +68,7 @@ class OAuthRequest extends URLRequest {
 		if(accessToken != null) {
 			key += accessToken.secret == null ? "" : accessToken.secret.urlEncode();
 		}
-		var message = method + "&" + url.urlEncode() + "&" + messageParameters();
+		var message = request.method + "&" + normalizeURI() + "&" + normalizeParameters();
 		var hash = new Hmac (SHA1);
 		var bytes = hash.make (Bytes.ofString (key), Bytes.ofString (message));
 
@@ -73,11 +80,13 @@ class OAuthRequest extends URLRequest {
 	/**
 	 * Prepares the message parameters for the signing process
 	 */
-	private function messageParameters():String {
+	private function normalizeParameters():String {
 
 		var result = new Array<KVPair>();
 
-		// TODO add get params if GET
+		if(uri.queryArray != null) {
+			result = result.concat(uri.queryArray);
+		}
 		// TODO add data if POST
 
 		for(key in parameters.keys()) {
@@ -87,10 +96,18 @@ class OAuthRequest extends URLRequest {
 
 		}
 
-
 		result.sort(OAuthSort);
 
 		return result.map(function(p:KVPair) return p.k.urlEncode()+"="+p.v.urlEncode()).join("&").urlEncode();
+	}
+
+	private function normalizeURI():String {
+		var scheme = uri.protocol == null ? "https" : uri.protocol.toLowerCase();
+		var authority = uri.authority.toLowerCase();
+		var port = (scheme == "https" || scheme == "http") ? null : uri.port;
+		var path = uri.path;
+		var result = (scheme + "://" + authority + (port == null ? "" : ":" + port) + path);
+		return result.urlEncode();
 	}
 
 	/**
