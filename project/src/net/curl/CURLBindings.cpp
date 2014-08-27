@@ -1,5 +1,6 @@
 #include <curl/curl.h>
 #include <hx/CFFI.h>
+#include <string.h>
 
 
 namespace lime {
@@ -157,7 +158,7 @@ namespace lime {
 	}
 	
 	
-	static size_t rw_callback (void *ptr, size_t size, size_t nmemb, void *userp) {
+	static size_t write_callback (void *ptr, size_t size, size_t nmemb, void *userp) {
 		
 		AutoGCRoot* callback = (AutoGCRoot*)userp;
 		
@@ -170,6 +171,37 @@ namespace lime {
 		value str = alloc_string_len ((const char*)ptr, size * nmemb);
 		return val_int (val_call3 (callback->get (), str, alloc_int (size), alloc_int (nmemb)));
 		
+	}
+
+	static size_t read_callback (void *buffer, size_t size, size_t nmemb, void *userp) {
+		
+		AutoGCRoot* callback = (AutoGCRoot*)userp;
+
+		size_t bytes = size * nmemb;
+		const char *input = val_string (val_call1 (callback->get (), alloc_int (bytes)));
+		size_t length = strlen(input);
+
+		if(length <= bytes) bytes = length;
+
+		memcpy(buffer, input, bytes);
+
+		return bytes;
+		
+	}	
+
+	static size_t progress_callback (void *userp, double dltotal, double dlnow, double ultotal, double ulnow) {
+
+		AutoGCRoot* callback = (AutoGCRoot*)userp;
+
+		value vals[] = {
+			alloc_float(dltotal),
+			alloc_float(dlnow),
+			alloc_float(ultotal),
+			alloc_float(ulnow),
+		};
+
+		return val_int (val_callN (callback->get (), vals, 4));
+
 	}
 	
 	
@@ -366,12 +398,8 @@ namespace lime {
 			case CURLOPT_OPENSOCKETDATA:
 			case CURLOPT_CLOSESOCKETFUNCTION:
 			case CURLOPT_CLOSESOCKETDATA:
-			case CURLOPT_PROGRESSFUNCTION:
-			case CURLOPT_PROGRESSDATA:
 			case CURLOPT_XFERINFOFUNCTION:
 			//case CURLOPT_XFERINFODATA:
-			case CURLOPT_HEADERFUNCTION:
-			case CURLOPT_HEADERDATA:
 			case CURLOPT_DEBUGFUNCTION:
 			case CURLOPT_DEBUGDATA:
 			case CURLOPT_SSL_CTX_FUNCTION:
@@ -406,13 +434,36 @@ namespace lime {
 			
 			//case CURLOPT_READDATA:
 			//case CURLOPT_WRITEDATA:
-			
+			//case CURLOPT_HEADERDATA:
+			//case CURLOPT_PROGRESSDATA:
+
 			case CURLOPT_READFUNCTION:
+			{
+				AutoGCRoot* callback = new AutoGCRoot (parameter);
+				code = curl_easy_setopt (curl, type, read_callback);
+				curl_easy_setopt (curl, CURLOPT_READDATA, callback);
+				break;
+			}
 			case CURLOPT_WRITEFUNCTION:
 			{
 				AutoGCRoot* callback = new AutoGCRoot (parameter);
-				code = curl_easy_setopt (curl, type, rw_callback);
-				curl_easy_setopt (curl, type == CURLOPT_READFUNCTION ? CURLOPT_READDATA : CURLOPT_WRITEDATA, callback);
+				code = curl_easy_setopt (curl, type, write_callback);
+				curl_easy_setopt (curl, CURLOPT_WRITEDATA, callback);
+				break;
+			}
+			case CURLOPT_HEADERFUNCTION:
+			{
+				AutoGCRoot* callback = new AutoGCRoot (parameter);
+				code = curl_easy_setopt (curl, type, write_callback);
+				curl_easy_setopt (curl, CURLOPT_HEADERDATA, callback);
+				break;
+			}
+			case CURLOPT_PROGRESSFUNCTION:
+			{
+				AutoGCRoot* callback = new AutoGCRoot (parameter);
+				code = curl_easy_setopt (curl, type, progress_callback);
+				curl_easy_setopt (curl, CURLOPT_PROGRESSDATA, callback);
+				curl_easy_setopt (curl, CURLOPT_NOPROGRESS, false);
 				break;
 			}
 			
