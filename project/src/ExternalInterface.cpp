@@ -367,6 +367,7 @@ DEFINE_LIME_PRIM_1(sound_channel_get_position);
 DEFINE_LIME_PRIM_2(sound_channel_set_position);
 DEFINE_LIME_PRIM_1(sound_channel_stop);
 DEFINE_LIME_PRIM_2(sound_channel_set_transform);
+DEFINE_LIME_PRIM_2(sound_channel_set_pitch);
 DEFINE_LIME_PRIM_4(sound_channel_create);
 DEFINE_LIME_PRIM_1(sound_channel_needs_data);
 DEFINE_LIME_PRIM_2(sound_channel_add_data);
