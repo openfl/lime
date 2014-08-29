@@ -104,7 +104,7 @@ namespace lime {
 		#elif defined (GPH) || defined (HX_LINUX) || defined (EMSCRIPTEN)
 		
 		struct timeval tv;
-		if (gettimeofday (&tv, NULL))
+		if (gettimeofday (&tv, 0))
 			return 0;
 		double t = (tv.tv_sec + ((double)tv.tv_usec) / 1000000.0);
 		
