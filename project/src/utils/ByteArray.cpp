@@ -89,6 +89,33 @@ namespace lime {
 	}
 	
 	
+	// Put in asset stubs for now, until we have a final system in place
+	
+	#ifdef ANDROID
+	FileInfo AndroidGetAssetFD(const char *inResource)
+	{
+		FileInfo info;
+		info.fd = 0;
+		info.offset = 0;
+		info.length = 0;
+		
+		// TODO
+		
+		return info;
+		
+	}
+	
+	
+	ByteArray AndroidGetAssetBytes(const char *inResource) {
+		
+		ByteArray result;
+		
+		// TODO
+		
+		return result;
+		
+	}
+	#endif
 	
 
 

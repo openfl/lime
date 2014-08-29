@@ -14,7 +14,7 @@
 	<set name="LIME_HARFBUZZ" value="1" />
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
 	<set name="LIME_OGG" value="1" />
-	<set name="LIME_OPENAL" value="1" />
+	<set name="LIME_OPENAL" value="1" unless="android" />
 	<set name="LIME_OPENGL" value="1" />
 	<set name="LIME_PNG" value="1" />
 	<set name="LIME_SDL" value="1" />

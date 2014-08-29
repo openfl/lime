@@ -33,6 +33,7 @@ typedef uint64_t __int64;
 
 #ifdef ANDROID
 #include <android/log.h>
+#include <time.h>
 #endif
 
 #ifdef TIZEN

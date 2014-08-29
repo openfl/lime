@@ -13,6 +13,7 @@ namespace lime {
 	
 	
 	extern int fclose (FILE *stream);
+	extern FILE *fdopen (int fd, const char *mode);
 	extern FILE* fopen (const char *filename, const char *mode);
 	//extern FILE* freopen (const char *filename, const char *mode, FILE *stream);
 	extern size_t fread (void *ptr, size_t size, size_t count, FILE *stream);

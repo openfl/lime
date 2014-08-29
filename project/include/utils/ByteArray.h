@@ -51,6 +51,20 @@ namespace lime {
 	};
 	
 	
+	#ifdef ANDROID
+	ByteArray AndroidGetAssetBytes(const char *);
+	
+	struct FileInfo
+	{
+	   int fd;
+	   off_t offset;
+	   off_t length;
+	};
+	
+	FileInfo AndroidGetAssetFD(const char *);
+	#endif
+	
+	
 	/*#ifdef HX_WINDOWS
 	typedef wchar_t OSChar;
 	#define val_os_string val_wstring

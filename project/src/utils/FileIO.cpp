@@ -15,6 +15,13 @@ namespace lime {
 	}
 	
 	
+	FILE *fdopen (int fd, const char *mode) {
+		
+		return ::fdopen (fd, mode);
+		
+	}
+	
+	
 	FILE* fopen (const char *filename, const char *mode) {
 		
 		#ifdef HX_MACOS

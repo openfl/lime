@@ -11,7 +11,7 @@
 
 
 #ifdef ANDROID
-#define LOG_SOUND(args,...) ELOG(args, ##__VA_ARGS__)
+#define LOG_SOUND(args,...) __android_log_print(ANDROID_LOG_INFO, "Lime", args, ##__VA_ARGS__)
 #else
 #ifdef IPHONE
 //#define LOG_SOUND(args,...) printf(args, ##__VA_ARGS__)
