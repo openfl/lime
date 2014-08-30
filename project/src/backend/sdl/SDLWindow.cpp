@@ -15,6 +15,18 @@ namespace lime {
 		if (flags & WINDOW_FLAG_RESIZABLE) sdlFlags |= SDL_WINDOW_RESIZABLE;
 		if (flags & WINDOW_FLAG_BORDERLESS) sdlFlags |= SDL_WINDOW_BORDERLESS;
 		
+		if (flags & WINDOW_FLAG_DEPTH_BUFFER) {
+			
+			SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 32 - (flags & WINDOW_FLAG_STENCIL_BUFFER) ? 8 : 0);
+			
+		}
+		
+		if (flags & WINDOW_FLAG_STENCIL_BUFFER) {
+			
+			SDL_GL_SetAttribute (SDL_GL_STENCIL_SIZE, 8);
+			
+		}
+		
 		sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlFlags);
 		
 	}
