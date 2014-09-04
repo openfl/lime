@@ -1,11 +1,11 @@
 [![Stories in Ready](https://badge.waffle.io/openfl/lime.png?label=ready)](https://waffle.io/openfl/lime) [![Build Status](https://travis-ci.org/openfl/lime.png?branch=master)](https://travis-ci.org/openfl/lime)
 
+<img src="lime.png" width="40%"/>
+
 Lime
 ====
 
 Lime is a flexible, lightweight layer for Haxe cross-platform developers.
-
-<p align="center"><img src="lime.png" width="40%"/></p>
 
 Lime supports native, Flash and HTML5 targets with unified support for:
 
