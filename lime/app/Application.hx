@@ -13,9 +13,18 @@ import flash.Lib;
 #end
 
 
+/**
+ * The Application class forms the foundation for most Lime projects.
+ * It is common to extend this class in a main class. It is then possible
+ * to override "on" functions in the class in order to handle standard events
+ * that are relevant.
+ */
 class Application extends Module {
 	
 	
+	/**
+	 * Update events are dispatched each frame (usually just before rendering)
+	 */
 	public static var onUpdate = new Event<Int->Void> ();
 	
 	private static var __eventInfo = new UpdateEventInfo ();
@@ -53,6 +62,11 @@ class Application extends Module {
 	}
 	
 	
+	/**
+	 * Adds a new Window to the Application. By default, this is
+	 * called automatically by create()
+	 * @param	window	A Window object to add
+	 */
 	public function addWindow (window:Window):Void {
 		
 		windows.push (window);
@@ -61,6 +75,12 @@ class Application extends Module {
 	}
 	
 	
+	/**
+	 * Initializes the Application, using the settings defined in
+	 * the config instance. By default, this is called automatically
+	 * when building the project using Aether
+	 * @param	config	A Config object
+	 */
 	public function create (config:Config):Void {
 		
 		this.config = config;
@@ -108,6 +128,12 @@ class Application extends Module {
 	}
 	
 	
+	/**
+	 * Execute the Application. On native platforms, this method
+	 * blocks until the application is finished running. On other 
+	 * platforms, it will return immediately
+	 * @return An exit code, 0 if there was no error
+	 */
 	public function exec ():Int {
 		
 		#if (cpp || neko)
@@ -160,6 +186,12 @@ class Application extends Module {
 	}
 	
 	
+	/**
+	 * The init() method is called once before the first render()
+	 * call. This can be used to do initial set-up for the current
+	 * render context
+	 * @param	context The current render context
+	 */
 	public function init (context:RenderContext):Void {
 		
 		
@@ -167,24 +199,134 @@ class Application extends Module {
 	}
 	
 	
-	public function onKeyDown (keyCode:Int, modifier:Int):Void {}
-	public function onKeyUp (keyCode:Int, modifier:Int):Void {}
-	public function onMouseDown (x:Float, y:Float, button:Int):Void {}
-	public function onMouseMove (x:Float, y:Float, button:Int):Void {}
-	public function onMouseUp (x:Float, y:Float, button:Int):Void {}
-	public function onMouseWheel (deltaX:Float, deltaY:Float):Void {}
-	public function onTouchEnd (x:Float, y:Float, id:Int):Void {}
-	public function onTouchMove (x:Float, y:Float, id:Int):Void {}
-	public function onTouchStart (x:Float, y:Float, id:Int):Void {}
-	public function onWindowActivate ():Void {}
-	public function onWindowClose ():Void {}
-	public function onWindowDeactivate ():Void {}
-	public function onWindowFocusIn ():Void {}
-	public function onWindowFocusOut ():Void {}
-	public function onWindowMove (x:Float, y:Float):Void {}
+	/**
+	 * Called when a key down event is fired
+	 * @param	keyCode	The code of the key that was pressed
+	 * @param	modifier	The modifier of the key that was pressed
+	 */
+	public function onKeyDown (keyCode:Int, modifier:Int):Void { }
+	
+	
+	/**
+	 * Called when a key up event is fired
+	 * @param	keyCode	The code of the key that was released
+	 * @param	modifier	The modifier of the key that was released
+	 */
+	public function onKeyUp (keyCode:Int, modifier:Int):Void { }
+	
+	
+	/**
+	 * Called when a mouse down event is fired
+	 * @param	x	The current x coordinate of the mouse
+	 * @param	y	The current y coordinate of the mouse
+	 * @param	button	The ID of the mouse button that was pressed
+	 */
+	public function onMouseDown (x:Float, y:Float, button:Int):Void { }
+	
+	
+	/**
+	 * Called when a mouse move event is fired
+	 * @param	x	The current x coordinate of the mouse
+	 * @param	y	The current y coordinate of the mouse
+	 * @param	button	The ID of the mouse button that was pressed
+	 */
+	public function onMouseMove (x:Float, y:Float, button:Int):Void { }
+	
+	
+	/**
+	 * Called when a mouse up event is fired
+	 * @param	x	The current x coordinate of the mouse
+	 * @param	y	The current y coordinate of the mouse
+	 * @param	button	The ID of the button that was released
+	 */
+	public function onMouseUp (x:Float, y:Float, button:Int):Void { }
+	
+	
+	/**
+	 * Called when a mouse wheel event is fired
+	 * @param	deltaX	The amount of horizontal scrolling (if applicable)
+	 * @param	deltaY	The amount of vertical scrolling (if applicable)
+	 */
+	public function onMouseWheel (deltaX:Float, deltaY:Float):Void { }
+	
+	
+	/**
+	 * Called when a touch end event is fired
+	 * @param	x	The current x coordinate of the touch point
+	 * @param	y	The current y coordinate of the touch point
+	 * @param	id	The ID of the touch point
+	 */
+	public function onTouchEnd (x:Float, y:Float, id:Int):Void { }
+	
+	
+	/**
+	 * Called when a touch move event is fired
+	 * @param	x	The current x coordinate of the touch point
+	 * @param	y	The current y coordinate of the touch point
+	 * @param	id	The ID of the touch point
+	 */
+	public function onTouchMove (x:Float, y:Float, id:Int):Void { }
+	
+	
+	/**
+	 * Called when a touch start event is fired
+	 * @param	x	The current x coordinate of the touch point
+	 * @param	y	The current y coordinate of the touch point
+	 * @param	id	The ID of the touch point
+	 */
+	public function onTouchStart (x:Float, y:Float, id:Int):Void { }
+	
+	
+	/**
+	 * Called when a window activate event is fired
+	 */
+	public function onWindowActivate ():Void { }
+	
+	
+	/**
+	 * Called when a window close event is fired
+	 */
+	public function onWindowClose ():Void { }
+	
+	
+	/**
+	 * Called when a window deactivate event is fired
+	 */
+	public function onWindowDeactivate ():Void { }
+	
+	
+	/**
+	 * Called when a window focus in event is fired
+	 */
+	public function onWindowFocusIn ():Void { }
+	
+	
+	/**
+	 * Called when a window focus out event is fired
+	 */
+	public function onWindowFocusOut ():Void { }
+	
+	
+	/**
+	 * Called when a window move event is fired
+	 * @param	x	The x position of the window
+	 * @param	y	The y position of the window
+	 */
+	public function onWindowMove (x:Float, y:Float):Void { }
+	
+	
+	/**
+	 * Called when a window resize event is fired
+	 * @param	width	The width of the window
+	 * @param	height	The height of the window
+	 */
 	public function onWindowResize (width:Int, height:Int):Void {}
 	
 	
+	/**
+	 * Called when a render event is fired
+	 * @param	context	The current render context
+	 */
 	public function render (context:RenderContext):Void {
 		
 		
@@ -192,6 +334,10 @@ class Application extends Module {
 	}
 	
 	
+	/**
+	 * Called when an update event is fired
+	 * @param	deltaTime	The amount of time in milliseconds that has elapsed since the last update
+	 */
 	public function update (deltaTime:Int):Void {
 		
 		
