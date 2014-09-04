@@ -51,13 +51,13 @@ You will also want to install Aether:
 Building from Source
 ====================
 
-Clone the Lime "next" branch, as well as the submodules:
+Clone the Lime repository, as well as the submodules:
 
-    git clone --recursive -b next https://github.com/openfl/lime
+    git clone --recursive https://github.com/openfl/lime
 
 Tell haxelib where your development copy of Lime is installed:
 
-    haxelib dev lime ./lime
+    haxelib dev lime lime
 
 If Aether is installed, you can build the binaries using "aether rebuild":
 
