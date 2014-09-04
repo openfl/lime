@@ -67,9 +67,11 @@ class System {
 			
 		}
 		
+		#if tools
 		ApplicationMain.config.background = color;
 		ApplicationMain.config.element = element;
 		ApplicationMain.create ();
+		#end
 		
 	}
 	#end

@@ -255,7 +255,13 @@ class Font {
 	}
 	
 	
-	public function loadGlyphs (size:Int, glyphs:String="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. ") {
+	public function loadGlyphs (size:Int, glyphs:String=null) {
+		
+		if (glyphs == null) {
+			
+			glyphs = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. ";
+			
+		}
 		
 		#if (flash || js)
 		

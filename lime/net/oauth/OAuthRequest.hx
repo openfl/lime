@@ -1,4 +1,4 @@
-package lime.net.oauth; #if !flash
+package lime.net.oauth;
 
 
 import haxe.crypto.Base64;
@@ -26,7 +26,7 @@ class OAuthRequest {
 		this.version = version;
 		request = new URLRequest();
 		request.url = url;
-		request.method = method;
+		request.method = cast method;
 		this.parameters = parameters;
 
 		uri = new URIParser(url);
@@ -119,5 +119,6 @@ class OAuthRequest {
 	}
 	
 }
-#end
+
+
 typedef KVPair = {k:String, v:String};
