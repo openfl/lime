@@ -58,13 +58,16 @@ class Renderer {
 			
 			#else
 			
-			var webgl:RenderingContext = cast window.canvas.getContext ("webgl");
+			var options = {
+				alpha: true,
+				antialias: window.config.antialiasing > 0,
+				depth: window.config.depthBuffer,
+				premultipliedAlpha: true,
+				stencil: window.config.stencilBuffer,
+				preserveDrawingBuffer: false
+			};
 			
-			if (webgl == null) {
-				
-				webgl = cast window.canvas.getContext ("experimental-webgl");
-				
-			}
+			var webgl:RenderingContext = cast window.canvas.getContextWebGL(options);
 			
 			#end
 			
