@@ -68,7 +68,7 @@ package lime.ui;
 	var R = 0x72;
 	var S = 0x73;
 	var T = 0x74;
-	var U = 075;
+	var U = 0x75;
 	var V = 0x76;
 	var W = 0x77;
 	var X = 0x78;
