@@ -253,9 +253,12 @@
 		
 	</target>
 	
+	<include name="../legacy/project/Build.xml" if="legacy" />
+	
 	<target id="default">
 		
-		<target id="lime" />
+		<target id="lime" unless="legacy" />
+		<target id="lime-legacy" if="legacy" />
 		
 	</target>
 	

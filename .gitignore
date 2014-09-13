@@ -19,3 +19,7 @@ tools/run.n
 haxedoc.xml
 documentation/*.xml
 documentation/pages*
+legacy/ndll/*/lime*
+legacy/ndll/*/liblime*
+legacy/project/all_objs
+legacy/project/obj

@@ -1,0 +1,7 @@
+-main ApplicationMain ::HAXE_FLAGS::
+-cp ::BUILD_DIR::/android/haxe
+-cpp ::CPP_DIR::
+-D android
+-D android-9
+-debug
+--macro keep("::APP_MAIN::")

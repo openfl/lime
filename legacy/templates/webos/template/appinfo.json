@@ -1,0 +1,10 @@
+{
+	"title": "::APP_TITLE::",
+	"id": "::APP_PACKAGE::",
+	"type": "pdk",
+	"version": "::APP_VERSION::",
+	"vendor": "::APP_COMPANY::",
+	"icon": "::APP_ICON::",
+	"main": "::APP_FILE::",
+	"requiredMemory": 40
+}

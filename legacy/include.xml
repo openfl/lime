@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension>
+	
+	<section unless="display">
+
+		<haxelib name="hxcpp" if="cpp" />
+		<ndll name="std" haxelib="hxcpp" if="cpp" />
+		<ndll name="regexp" haxelib="hxcpp" if="cpp" />
+		<ndll name="zlib" haxelib="hxcpp" if="cpp" />
+		
+		<ndll name="openal" register="false" if="android" />
+		
+		<ndll name="lime" dir="legacy/ndll" />
+		
+		<ndll name="libfreetype" register="false" if="emscripten" />
+		
+		<ndll name="curl_ssl" register="false" if="ios" />
+		<ndll name="png" register="false" if="ios" />
+		<ndll name="jpeg" register="false" if="ios" />
+		<ndll name="freetype" register="false" if="ios" />
+		<ndll name="ogg" register="false" if="ios" />
+		<ndll name="vorbis" register="false" if="ios" />
+
+		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
+		
+		<architecture name="armv7" if="android" />
+
+		<include haxelib="lime-tools" unless="openfl" />
+		<haxelib name="lime-tools" if="setup" />
+		
+		<haxelib name="nme" if="dev setup" />
+		<haxelib name="nme-dev" if="dev setup" />
+		
+	</section>
+	
+	<templatePath name="templates" />
+	
+</extension>

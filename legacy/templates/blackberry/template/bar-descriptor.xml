@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>                                                                                                                               
+<qnx xmlns="http://www.qnx.com/schemas/application/1.0">
+    
+	<id>::APP_PACKAGE::</id>
+    <name>::APP_TITLE::</name>
+	<description>::APP_DESCRIPTION::</description>
+	
+	<author>::APP_COMPANY::</author>
+    <authorId>::BLACKBERRY_AUTHOR_ID::</authorId>
+	
+    <versionNumber>::APP_VERSION::</versionNumber>
+	<buildId>::APP_BUILD_NUMBER::</buildId>
+    
+    <initialWindow>
+		
+        <systemChrome>none</systemChrome>
+        <transparent>false</transparent>
+        <!-- <autoOrients>true</autoOrients> -->
+		::if (WIN_ORIENTATION == "landscape")::<autoOrients>false</autoOrients><aspectRatio>landscape</aspectRatio>::end::
+		::if (WIN_ORIENTATION == "portrait")::<autoOrients>false</autoOrients><aspectRatio>portrait</aspectRatio>::end::
+		
+    </initialWindow>
+	
+    <env var="LD_LIBRARY_PATH" value="app/native"/>
+    
+	<action system="true">run_native</action>
+    
+	<category>core.games</category>
+    
+	<asset entry="true" path="::APP_FILE_SAFE::" type="Qnx/Elf">::APP_FILE_SAFE::</asset>
+	<asset path=".">.</asset>
+	
+	::if (HAS_ICON)::<icon>
+	::foreach ICONS::	<image>::__current__::</image>
+	::end::</icon>::end::
+	
+    <!-- <splashscreen>splashscreen.png</splashscreen>-->
+	
+</qnx>

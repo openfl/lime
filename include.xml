@@ -8,7 +8,9 @@
 	
 	<set name="included" value="1" if="windows || mac || linux || ios || android || blackberry || tizen || firefoxos || html5 || flash" />
 	
-	<section unless="display">
+	<include path="legacy/include.xml" if="legacy" />
+	
+	<section unless="display || legacy">
 		
 		<haxelib name="hxcpp" if="cpp" />
 		
@@ -48,7 +50,7 @@
 		
 	</section>
 	
-	<templatePath name="templates" />
+	<templatePath name="templates" unless="legacy" />
 	<sample path="samples" unless="openfl" />
 	
 </extension>

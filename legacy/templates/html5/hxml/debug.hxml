@@ -1,0 +1,8 @@
+-main ApplicationMain ::HAXE_FLAGS::
+--macro keep("::APP_MAIN::")
+-js ::OUTPUT_FILE::
+-cp ::OUTPUT_DIR::/haxe
+-D html5
+-D html
+--remap flash:lime
+-debug

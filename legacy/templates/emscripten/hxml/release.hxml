@@ -1,0 +1,6 @@
+-main ApplicationMain ::HAXE_FLAGS::
+-cp ::BUILD_DIR::/emscripten/haxe
+-cpp ::CPP_DIR::
+--macro keep("::APP_MAIN::")
+-D emscripten
+-D webgl

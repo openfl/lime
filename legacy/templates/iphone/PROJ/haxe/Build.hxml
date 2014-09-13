@@ -1,0 +1,5 @@
+-main ApplicationMain ::HAXE_FLAGS::
+-D iphone
+-D ios
+--macro keep("::APP_MAIN::")
+-D no-compilation

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Manifest xmlns="http://schemas.tizen.org/2012/12/manifest">
+	<Id>::APP_PACKAGE::</Id>
+	<Version>::APP_VERSION::</Version>
+	<Type>C++App</Type>
+	<Requirements>
+        <Feature Name="http://tizen.org/feature/screen.size.all">true</Feature>
+		<Feature Name="http://tizen.org/api/filesystem">true</Feature>
+	</Requirements>
+	<Apps>
+		<ApiVersion>2.2</ApiVersion>
+		<Privileges>
+			<Privilege>http://tizen.org/privilege/application.launch</Privilege>
+		</Privileges>
+		<UiApp HwAcceleration="On" Name="::APP_FILE::" Main="True" MenuIconVisible="True">
+			<UiScalability CoordinateSystem="Physical"></UiScalability>
+			<UiTheme SystemTheme="Black"></UiTheme>
+			<DisplayNames>
+				<DisplayName Locale="eng-GB">::APP_TITLE::</DisplayName>
+			</DisplayNames>
+			<Icons>
+				<Icon Section="MainMenu">mainmenu.png</Icon>
+			</Icons>
+			<LaunchConditions/>
+		</UiApp>
+	</Apps>
+</Manifest>
