@@ -377,9 +377,9 @@
 			</section>
 			
 			<section if="blackberry">
-				<lib name="-L../ndll/BlackBerry" />
-				<lib name="-lSDL${LEGACY_LIBEXTRA}" />
-				<lib name="-lOpenAL${LEGACY_LIBEXTRA}" />
+				<lib name="-L../legacy/ndll/BlackBerry" />
+				<lib name="-lSDL${LIBEXTRA}" />
+				<lib name="-lOpenAL${LIBEXTRA}" />
 				<lib name="-lbps" />
 				<lib name="-lscreen" />
 				<lib name="-lEGL" />
