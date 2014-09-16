@@ -90,6 +90,14 @@
 	
 	<set name="LEGACY_OUT_DIR" value="../legacy/ndll" if="lime" />
 	
+	<section if="tizen">
+		
+		<set name="TIZEN_PLATFORM" value="${TIZEN_SDK}/platforms/tizen2.2/rootstraps/tizen-emulator-2.2.native" if="simulator" />
+		<set name="TIZEN_PLATFORM" value="${TIZEN_SDK}/platforms/tizen2.2/rootstraps/tizen-device-2.2.native" unless="simulator" />
+		
+	</section>
+	
+	
 	<files id="legacy-main">
 		<compilerflag value="-I${LEGACY_INC_DIR}"/>
 		<file name="Test.cpp"/>
