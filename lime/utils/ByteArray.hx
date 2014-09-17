@@ -149,6 +149,9 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 			
 		}
 		#else
+		if (b == null)
+			b = new BytesData ();
+		
 		if (b.length < len) {
 			
 			untyped b.__SetSize (len);
@@ -278,7 +281,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 		#else
 		if (position + 8 > length) ThrowEOFi ();
 		position += 8;
-		return getDouble (position);
+		return getDouble (position - 8);
 		#end
 		
 	}
@@ -306,7 +309,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 		#else
 		if (position + 4 > length) ThrowEOFi ();
 		position += 4;
-		return getFloat (position);
+		return getFloat (position - 4);
 		#end
 		
 	}
