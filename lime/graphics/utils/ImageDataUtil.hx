@@ -222,9 +222,9 @@ class ImageDataUtil {
 		var offset:Int;
 		
 		var rowStart = Std.int (rect.y + image.offsetY);
-		var rowEnd = Std.int (rect.height + image.offsetY);
+		var rowEnd = Std.int (rect.bottom + image.offsetY);
 		var columnStart = Std.int (rect.x + image.offsetX);
-		var columnEnd = Std.int (rect.width + image.offsetX);
+		var columnEnd = Std.int (rect.right + image.offsetX);
 		
 		for (row in rowStart...rowEnd) {
 			
