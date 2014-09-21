@@ -14,6 +14,9 @@ import sys.io.Process;
 class System {
 	
 	
+	public static var disableCFFI:Bool;
+	
+	
 	@:noCompletion private static var __moduleNames:Map<String, String> = null;
 	
 	#if neko
@@ -123,6 +126,16 @@ class System {
 	
 	
 	public static function load (library:String, method:String, args:Int = 0, lazy:Bool = false):Dynamic {
+		
+		#if disable_cffi
+		var disableCFFI = true;
+		#end
+		
+		if (disableCFFI) {
+			
+			return Reflect.makeVarArgs (function (_) return {});
+			
+		}
 		
 		if (lazy) {
 			
