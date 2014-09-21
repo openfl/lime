@@ -12,8 +12,6 @@
 		
 		<files id="main" />
 		
-		<lib name="ApplicationMain${DBG}${LIBEXT}" />
-		
 		::foreach ndlls::
 		<lib name="::path::" />::end::
 		
@@ -79,6 +77,8 @@
 			<lib name="-lOpenSLES" />
 			
 		</section>
+		
+		<lib name="ApplicationMain${DBG}${LIBEXT}" />
 		
 	</target>
 	
