@@ -9,6 +9,8 @@
 	<set name="included" value="1" if="windows || mac || linux || ios || android || blackberry || tizen || firefoxos || html5 || flash" />
 	
 	<include path="legacy/include.xml" if="legacy" />
+	<templatePath name="templates" unless="legacy" />
+	<sample path="samples" unless="openfl" />
 	
 	<section unless="display || legacy">
 		
@@ -49,9 +51,6 @@
 		<haxedef name="lime-openal" unless="lime-console || static_link || emscripten" />
 		
 	</section>
-	
-	<templatePath name="templates" unless="legacy" />
-	<sample path="samples" unless="openfl" />
 	
 	<haxelib name="hxcpp" if="setup" />
 	

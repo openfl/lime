@@ -88,9 +88,7 @@ class GL {
 	public static inline var SAMPLE_ALPHA_TO_COVERAGE = 0x809E;
 	public static inline var SAMPLE_COVERAGE = 0x80A0;
 	
-	#if !console_pc
 	public static inline var NO_ERROR = 0;
-	#end
 	public static inline var INVALID_ENUM = 0x0500;
 	public static inline var INVALID_VALUE = 0x0501;
 	public static inline var INVALID_OPERATION = 0x0502;

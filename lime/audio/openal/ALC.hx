@@ -7,18 +7,14 @@ import lime.system.System;
 class ALC {
 	
 	
-	#if !console_pc
 	public static inline var FALSE:Int = 0;
 	public static inline var TRUE:Int = 1;
-	#end
 	public static inline var FREQUENCY:Int = 0x1007;
 	public static inline var REFRESH:Int = 0x1008;
 	public static inline var SYNC:Int = 0x1009;
 	public static inline var MONO_SOURCES:Int = 0x1010;
 	public static inline var STEREO_SOURCES:Int = 0x1011;
-	#if !console_pc
 	public static inline var NO_ERROR:Int = 0;
-	#end
 	public static inline var INVALID_DEVICE:Int = 0xA001;
 	public static inline var INVALID_CONTEXT:Int = 0xA002;
 	public static inline var INVALID_ENUM:Int = 0xA003;

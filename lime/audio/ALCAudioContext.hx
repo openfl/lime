@@ -9,18 +9,14 @@ import lime.audio.openal.ALDevice;
 class ALCAudioContext {
 	
 	
-	#if !console_pc
 	public var FALSE:Int = 0;
 	public var TRUE:Int = 1;
-	#end
 	public var FREQUENCY:Int = 0x1007;
 	public var REFRESH:Int = 0x1008;
 	public var SYNC:Int = 0x1009;
 	public var MONO_SOURCES:Int = 0x1010;
 	public var STEREO_SOURCES:Int = 0x1011;
-	#if !console_pc
 	public var NO_ERROR:Int = 0;
-	#end
 	public var INVALID_DEVICE:Int = 0xA001;
 	public var INVALID_CONTEXT:Int = 0xA002;
 	public var INVALID_ENUM:Int = 0xA003;

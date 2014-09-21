@@ -9,10 +9,8 @@ class AL {
 	
 	
 	public static inline var NONE:Int = 0;
-	#if !console_pc
 	public static inline var FALSE:Int = 0;
 	public static inline var TRUE:Int = 1;
-	#end
 	public static inline var SOURCE_RELATIVE:Int = 0x202;
 	public static inline var CONE_INNER_ANGLE:Int = 0x1001;
 	public static inline var CONE_OUTER_ANGLE:Int = 0x1002;
@@ -52,9 +50,7 @@ class AL {
 	public static inline var BITS:Int = 0x2002;
 	public static inline var CHANNELS:Int = 0x2003;
 	public static inline var SIZE:Int = 0x2004;
-	#if !console_pc
 	public static inline var NO_ERROR:Int = 0;
-	#end
 	public static inline var INVALID_NAME:Int = 0xA001;
 	public static inline var INVALID_ENUM:Int = 0xA002;
 	public static inline var INVALID_VALUE:Int = 0xA003;

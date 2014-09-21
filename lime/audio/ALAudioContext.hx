@@ -9,10 +9,8 @@ class ALAudioContext {
 	
 	
 	public var NONE:Int = 0;
-	#if !console_pc
 	public var FALSE:Int = 0;
 	public var TRUE:Int = 1;
-	#end
 	public var SOURCE_RELATIVE:Int = 0x202;
 	public var CONE_INNER_ANGLE:Int = 0x1001;
 	public var CONE_OUTER_ANGLE:Int = 0x1002;
@@ -52,9 +50,7 @@ class ALAudioContext {
 	public var BITS:Int = 0x2002;
 	public var CHANNELS:Int = 0x2003;
 	public var SIZE:Int = 0x2004;
-	#if !console_pc
 	public var NO_ERROR:Int = 0;
-	#end
 	public var INVALID_NAME:Int = 0xA001;
 	public var INVALID_ENUM:Int = 0xA002;
 	public var INVALID_VALUE:Int = 0xA003;
