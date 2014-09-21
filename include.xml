@@ -55,4 +55,12 @@
 	
 	<haxelib name="hxcpp" if="setup" />
 	
+	<section if="rebuild">
+		
+		<config:project>
+			<rebuild fulldebug="true" />
+		</config:project>
+		
+	</section>
+	
 </extension>
