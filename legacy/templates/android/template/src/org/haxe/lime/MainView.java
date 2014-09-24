@@ -206,7 +206,11 @@ class MainView extends GLSurfaceView {
 		setRenderMode (GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 		
 		::if (ANDROID_TARGET_SDK_VERSION > 11)::
-			setPreserveEGLContextOnPause(true);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			
+			setPreserveEGLContextOnPause (true);
+			
+		}
 		::end::
 	}
 	

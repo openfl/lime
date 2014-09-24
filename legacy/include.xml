@@ -8,25 +8,22 @@
 		<ndll name="regexp" haxelib="hxcpp" if="cpp" />
 		<ndll name="zlib" haxelib="hxcpp" if="cpp" />
 		
-		<ndll name="openal" register="false" if="android" />
+		<ndll name="openal" dir="legacy/ndll" register="false" if="android" />
 		
 		<ndll name="lime" dir="legacy/ndll" />
 		
-		<ndll name="libfreetype" register="false" if="emscripten" />
+		<ndll name="libfreetype" dir="legacy/ndll" register="false" if="emscripten" />
 		
-		<ndll name="curl_ssl" register="false" if="ios" />
-		<ndll name="png" register="false" if="ios" />
-		<ndll name="jpeg" register="false" if="ios" />
-		<ndll name="freetype" register="false" if="ios" />
-		<ndll name="ogg" register="false" if="ios" />
-		<ndll name="vorbis" register="false" if="ios" />
+		<ndll name="curl_ssl" dir="legacy/ndll" register="false" if="ios" />
+		<ndll name="png" dir="legacy/ndll" register="false" if="ios" />
+		<ndll name="jpeg" dir="legacy/ndll" register="false" if="ios" />
+		<ndll name="freetype" dir="legacy/ndll" register="false" if="ios" />
+		<ndll name="ogg" dir="legacy/ndll" register="false" if="ios" />
+		<ndll name="vorbis" dir="legacy/ndll" register="false" if="ios" />
 
 		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
 		
 		<architecture name="armv7" if="android" />
-
-		<include haxelib="lime-tools" unless="openfl" />
-		<haxelib name="lime-tools" if="setup" />
 		
 		<haxelib name="nme" if="dev setup" />
 		<haxelib name="nme-dev" if="dev setup" />
