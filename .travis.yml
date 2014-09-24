@@ -16,6 +16,7 @@ install:
   - mkdir ~/haxelib
   - haxelib setup ~/haxelib
   - haxelib install hxcpp
+  - haxelib install format
   - git clone https://github.com/openfl/aether ~/aether --depth 1
   - haxelib dev aether ~/aether
   - haxelib dev lime $(pwd)
