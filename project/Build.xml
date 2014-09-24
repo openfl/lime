@@ -6,7 +6,7 @@
 	
 	<include name="${HXCPP}/build-tool/BuildCommon.xml" />
 	
-	<set name="lime-legacy" if="legacy || lime_legacy" />
+	<set name="lime-legacy" value="1" if="legacy || lime_legacy" />
 	<set name="ios" value="1" if="iphone" />
 	
 	<set name="LIME_CURL" value="1" unless="emscripten" />
