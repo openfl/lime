@@ -8,7 +8,7 @@
 	
 	<set name="included" value="1" if="windows || mac || linux || ios || android || blackberry || tizen || firefoxos || html5 || flash" />
 	
-	<set name="lime-legacy" if="legacy || lime_legacy" />
+	<set name="lime-legacy" value="1" if="legacy || lime_legacy" />
 	<haxedef name="lime-legacy" if="lime-legacy" />
 	
 	<include path="legacy/include.xml" if="lime-legacy" />
