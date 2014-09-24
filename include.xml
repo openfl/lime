@@ -8,11 +8,14 @@
 	
 	<set name="included" value="1" if="windows || mac || linux || ios || android || blackberry || tizen || firefoxos || html5 || flash" />
 	
-	<include path="legacy/include.xml" if="legacy" />
-	<templatePath name="templates" unless="legacy" />
+	<set name="lime-legacy" if="legacy || lime_legacy" />
+	<haxedef name="lime-legacy" if="lime-legacy" />
+	
+	<include path="legacy/include.xml" if="lime-legacy" />
+	<templatePath name="templates" unless="lime-legacy" />
 	<sample path="samples" unless="openfl" />
 	
-	<section unless="display || legacy">
+	<section unless="display || lime-legacy">
 		
 		<haxelib name="hxcpp" if="cpp" />
 		
