@@ -2,6 +2,7 @@ package lime;
 #if !macro
 
 
+import haxe.Json;
 import haxe.Unserializer;
 import lime.audio.AudioBuffer;
 import lime.graphics.Font;
@@ -783,14 +784,12 @@ class Assets {
 		
 		#if (tools && !display)
 		
-		var data = getText ("libraries/" + name + ".dat");
+		var data = getText ("libraries/" + name + ".json");
 		
 		if (data != null && data != "") {
 			
-			var unserializer = new Unserializer (data);
-			unserializer.setResolver (cast { resolveEnum: resolveEnum, resolveClass: resolveClass });
-			
-			var library:AssetLibrary = unserializer.unserialize ();
+			var info = Json.parse (data);
+			var library = Type.createInstance (Type.resolveClass (info.type), info.args);
 			libraries.set (name, library);
 			library.eventCallback = library_onEvent;
 			library.load (handler);
@@ -920,32 +919,6 @@ class Assets {
 		}
 		
 		libraries.set (name, library);
-		
-	}
-	
-	
-	private static function resolveClass (name:String):Class <Dynamic> {
-		
-		return Type.resolveClass (name);
-		
-	}
-	
-	
-	private static function resolveEnum (name:String):Enum <Dynamic> {
-		
-		var value = Type.resolveEnum (name);
-		
-		#if flash
-		
-		if (value == null) {
-			
-			return cast Type.resolveClass (name);
-			
-		}
-		
-		#end
-		
-		return value;
 		
 	}
 	
