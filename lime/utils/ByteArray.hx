@@ -10,6 +10,7 @@ import haxe.zip.Compress;
 import haxe.zip.Uncompress;
 import lime.system.System;
 import lime.utils.ArrayBuffer;
+import lime.utils.CompressionAlgorithm;
 import lime.utils.IDataInput;
 import lime.utils.IMemoryRange;
 
@@ -27,8 +28,9 @@ import cpp.NativeArray;
 import sys.io.File;
 #end
 
-
 @:autoBuild(openfl.Assets.embedFile())
+
+
 class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js implements IDataInput implements IMemoryRange #end {
 	
 	
@@ -133,6 +135,63 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	}
 	
 	
+	public function compress (algorithm:CompressionAlgorithm = null):Void {
+		
+		#if !js
+		#if neko
+		var src = allocated == length ? this : sub(0, length);
+		#else
+		var src = this;
+		#end
+		
+		if (algorithm == null) {
+			
+			algorithm = CompressionAlgorithm.ZLIB;
+			
+		}
+		
+		var result:Bytes;
+		
+		if (algorithm == CompressionAlgorithm.LZMA) {
+			
+			result = Bytes.ofData (lime_lzma_encode (src.getData ()));
+			
+		} else {
+			
+			var windowBits = switch (algorithm) {
+				
+				case DEFLATE: -15;
+				case GZIP: 31;
+				default: 15;
+				
+			}
+			
+			#if enable_deflate
+			result = Compress.run (src, 8, windowBits);
+			#else
+			result = Compress.run (src, 8);
+			#end
+			
+		}
+		
+		b = result.b;
+		length = result.length;
+		position = length;
+		#if neko
+		allocated = length;
+		#end
+		#end
+		
+	}
+	
+	
+	public function deflate():Void {
+		
+		compress (CompressionAlgorithm.DEFLATE);
+		
+	}
+	
+	
 	#if !js
 	private function ensureElem (size:Int, updateLength:Bool) {
 		
@@ -196,7 +255,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public function inflate () {
 		
-		//uncompress (CompressionAlgorithm.DEFLATE);
+		uncompress (CompressionAlgorithm.DEFLATE);
 		
 	}
 	
@@ -540,7 +599,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	}
 	
 	
-	public function uncompress (algorithm:Dynamic /*CompressionAlgorithm*/ = null):Void {
+	public function uncompress (algorithm:CompressionAlgorithm = null):Void {
 		
 		#if js
 		
@@ -556,7 +615,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 		
 		#else
 		
-		/*if (algorithm == null) algorithm = CompressionAlgorithm.GZIP;
+		if (algorithm == null) algorithm = CompressionAlgorithm.GZIP;
 		
 		#if neko
 		var src = allocated == length ? this : sub (0, length);
@@ -591,7 +650,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 		position = 0;
 		#if neko
 		allocated = length;
-		#end*/
+		#end
 		
 		#end
 		
