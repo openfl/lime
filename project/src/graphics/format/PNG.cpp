@@ -15,30 +15,32 @@ extern "C" {
 namespace lime {
 	
 	
-	struct ReadBuf {
+	struct ReadBuffer {
 		
+		ReadBuffer (const unsigned char* data, int length) : data (data), length (length), position (0) {}
 		
-		ReadBuf (const uint8 *inData, int inLen) : mData (inData), mLen (inLen) {}
-		
-		bool Read (uint8 *outBuffer, int inN) {
+		void Read (unsigned char* out, int count) {
 			
-			if (inN > mLen) {
+			if (position >= length) return;
+			
+			if (count > length - position) {
 				
-				memset (outBuffer, 0, inN);
-				return false;
+				memcpy (out, data + position, length - position);
+				position = length;
+				
+			} else {
+				
+				memcpy (out, data + position, count);
+				position += count;
 				
 			}
 			
-			memcpy (outBuffer, mData, inN);
-			mData += inN;
-			mLen -= inN;
-			return true;
-			
 		}
 		
-		const uint8 *mData;
-		int mLen;
-		
+		char unused; // the first byte gets corrupted when passed to libpng?
+		const unsigned char* data;
+		int length;
+		int position;
 		
 	};
 	
@@ -50,15 +52,14 @@ namespace lime {
 	}
 	
 	
-	static void user_warning_fn (png_structp png_ptr, png_const_charp warning_msg) {}
-	
-	
 	static void user_read_data_fn (png_structp png_ptr, png_bytep data, png_size_t length) {
 		
-		png_voidp buffer = png_get_io_ptr (png_ptr);
-		((ReadBuf *)buffer)->Read (data, length);
+		ReadBuffer* buffer = (ReadBuffer*)png_get_io_ptr (png_ptr);
+		buffer->Read (data, length);
 		
 	}
+	
+	static void user_warning_fn (png_structp png_ptr, png_const_charp warning_msg) {}
 	
 	
 	void user_write_data (png_structp png_ptr, png_bytep data, png_size_t length) {
@@ -87,22 +88,23 @@ namespace lime {
 			file = lime::fopen (resource->path, "rb");
 			if (!file) return false;
 			
-			// verify the PNG signature
 			int read = lime::fread (png_sig, PNG_SIG_SIZE, 1, file);
 			if (png_sig_cmp (png_sig, 0, PNG_SIG_SIZE)) {
 				
 				lime::fclose (file);
 				return false;
 				
-			} else {
-				
-				lime::fseek (file, 0, 0);
-				
 			}
 			
 		} else {
 			
-			// TODO: optimize ByteArray Format check?
+			memcpy (png_sig, resource->data->Bytes (), PNG_SIG_SIZE);
+			
+			if (png_sig_cmp (png_sig, 0, PNG_SIG_SIZE)) {
+				
+				return false;
+				
+			}
 			
 		}
 		
@@ -133,35 +135,42 @@ namespace lime {
 		if (file) {
 			
 			png_init_io (png_ptr, file);
+			png_set_sig_bytes (png_ptr, PNG_SIG_SIZE);
 			
 		} else {
 			
-			ReadBuf buffer (resource->data->Bytes (), resource->data->Size ());
-			png_set_read_fn (png_ptr, (void *)&buffer, user_read_data_fn);
+			ReadBuffer buffer (resource->data->Bytes (), resource->data->Size ());
+			png_set_read_fn (png_ptr, &buffer, user_read_data_fn);
 			
 		}
 		
 		png_read_info (png_ptr, info_ptr);
+		png_get_IHDR (png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, &interlace_type, NULL, NULL);
 		
-		png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, &interlace_type, NULL, NULL);
-		
-		bool has_alpha = (color_type == PNG_COLOR_TYPE_GRAY_ALPHA || color_type == PNG_COLOR_TYPE_RGB_ALPHA || png_get_valid (png_ptr, info_ptr, PNG_INFO_tRNS));
+		//bool has_alpha = (color_type == PNG_COLOR_TYPE_GRAY_ALPHA || color_type == PNG_COLOR_TYPE_RGB_ALPHA || png_get_valid (png_ptr, info_ptr, PNG_INFO_tRNS));
 		
 		png_set_expand (png_ptr);
+		
 		png_set_filler (png_ptr, 0xff, PNG_FILLER_AFTER);
 		//png_set_gray_1_2_4_to_8 (png_ptr);
 		png_set_palette_to_rgb (png_ptr);
 		png_set_gray_to_rgb (png_ptr);
 		
-		if (bit_depth == 16)
-			png_set_strip_16 (png_ptr);
+		if (bit_depth < 8) {
+			
+			png_set_packing (png_ptr);
+			
+		} else if (bit_depth == 16) {
+			
+			png_set_scale_16 (png_ptr);
+			
+		}
 		
 		//png_set_bgr (png_ptr);
 		
 		int bpp = 4;
 		const unsigned int stride = width * bpp;
 		imageBuffer->Resize (width, height, bpp);
-		
 		unsigned char *bytes = imageBuffer->data->Bytes ();
 		
 		int number_of_passes = png_set_interlace_handling (png_ptr);
@@ -177,7 +186,7 @@ namespace lime {
 			
 		}
 		
-		png_read_end (png_ptr, info_ptr);
+		png_read_end (png_ptr, NULL);
 		png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
 		
 		return true;

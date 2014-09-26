@@ -9,6 +9,8 @@ import lime.graphics.Font;
 import lime.graphics.Image;
 import lime.utils.ByteArray;
 
+@:access(lime.AssetLibrary)
+
 
 /**
  * <p>The Assets class provides a cross-platform interface to access 
@@ -26,7 +28,6 @@ import lime.utils.ByteArray;
  * and specifying a custom preloader using <window preloader="" />
  * in the project file.</p>
  */
-@:access(lime.AssetLibrary)
 class Assets {
 	
 	
