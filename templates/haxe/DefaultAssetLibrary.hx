@@ -60,12 +60,13 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#if (windows || mac || linux)
 		
-		var useManifest = false;
+		/*var useManifest = false;
 		::if (assets != null)::::foreach assets::::if (embed)::
 		className.set ("::id::", __ASSET__::flatName::);
 		type.set ("::id::", AssetType.$$upper(::type::));
 		::else::useManifest = true;
-		::end::::end::::end::
+		::end::::end::::end::*/
+		var useManifest = true;
 		
 		if (useManifest) {
 			
