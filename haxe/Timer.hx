@@ -200,7 +200,9 @@ private class TimerTask extends java.util.TimerTask {
 #else
 
 
+#if !lime_legacy
 import lime.system.System;
+#end
 
 
 class Timer {
@@ -371,7 +373,11 @@ class Timer {
 	
 	
 	
+	#if !lime_legacy
 	static var lime_time_stamp = System.load ("lime", "lime_system_get_timestamp", 0);
+	#else
+	static var lime_time_stamp = flash.Lib.load ("lime", "lime_time_stamp", 0);
+	#end
 	
 	
 }
