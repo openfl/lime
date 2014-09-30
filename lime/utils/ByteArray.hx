@@ -696,6 +696,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public function writeBytes (bytes:#if js ByteArray #else Bytes #end, offset:UInt = 0, length:UInt = 0):Void {
 		
+		if (bytes.length == 0) return;
 		#if js
 		if (offset < 0 || length < 0) throw ("Write error - Out of bounds");
 		if( length == 0 ) length = bytes.length;
