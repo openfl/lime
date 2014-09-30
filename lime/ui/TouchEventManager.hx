@@ -20,6 +20,10 @@ import flash.Lib;
 	
 	private static var eventInfo:TouchEventInfo;
 	
+	#if js
+	private static var window:Window;
+	#end
+	
 	
 	public static function create ():Void {
 		
@@ -41,8 +45,8 @@ import flash.Lib;
 		//var rect = __canvas.getBoundingClientRect ();
 		
 		//touchEvent.id = event.changedTouches[0].identifier;
-		eventInfo.x = event.pageX;
-		eventInfo.y = event.pageY;
+		//eventInfo.x = event.pageX;
+		//eventInfo.y = event.pageY;
 		
 		eventInfo.type = switch (event.type) {
 			
@@ -53,53 +57,38 @@ import flash.Lib;
 			
 		}
 		
-		/*
-		event.preventDefault ();
+		var touch = event.changedTouches[0];
 		
-		var rect;
+		eventInfo.id = touch.identifier;
 		
-		if (__canvas != null) {
+		if (window != null && window.element != null) {
 			
-			rect = __canvas.getBoundingClientRect ();
+			var rect = window.element.getBoundingClientRect ();
+			eventInfo.x = (touch.pageX - rect.left) * (window.width / rect.width);
+			eventInfo.y = (touch.pageY - rect.top) * (window.height / rect.height);
 			
 		} else {
 			
-			rect = __div.getBoundingClientRect ();
+			eventInfo.x = touch.pageX;
+			eventInfo.y = touch.pageY;
 			
 		}
 		
-		var touch = event.changedTouches[0];
-		var point = new Point ((touch.pageX - rect.left) * (stageWidth / rect.width), (touch.pageY - rect.top) * (stageHeight / rect.height));
-		
-		__mouseX = point.x;
-		__mouseY = point.y;
-		
-		__stack = [];
-		
-		var type = null;
-		var mouseType = null;
-		
-		switch (event.type) {
+		switch (eventInfo.type) {
 			
-			case "touchstart":
+			case TOUCH_START:
 				
-				type = TouchEvent.TOUCH_BEGIN;
-				mouseType = MouseEvent.MOUSE_DOWN;
+				onTouchStart.dispatch (eventInfo.x, eventInfo.y, eventInfo.id);
 			
-			case "touchmove":
+			case TOUCH_END:
 				
-				type = TouchEvent.TOUCH_MOVE;
-				mouseType = MouseEvent.MOUSE_MOVE;
+				onTouchEnd.dispatch (eventInfo.x, eventInfo.y, eventInfo.id);
 			
-			case "touchend":
+			case TOUCH_MOVE:
 				
-				type = TouchEvent.TOUCH_END;
-				mouseType = MouseEvent.MOUSE_UP;
-			
-			default:
+				onTouchMove.dispatch (eventInfo.x, eventInfo.y, eventInfo.id);
 			
 		}
-		*/
 		
 		#elseif flash
 		
@@ -143,6 +132,8 @@ import flash.Lib;
 		window.element.addEventListener ("touchstart", handleEvent, true);
 		window.element.addEventListener ("touchmove", handleEvent, true);
 		window.element.addEventListener ("touchend", handleEvent, true);
+		
+		TouchEventManager.window = window;
 		
 		#elseif flash
 		
