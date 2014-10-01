@@ -1,0 +1,6 @@
+-main CommandLineTools
+-neko tools.n
+-D lime-curl
+-lib lime
+-lib format
+#-lib svg

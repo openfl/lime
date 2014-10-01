@@ -78,7 +78,7 @@ class Application extends Module {
 	/**
 	 * Initializes the Application, using the settings defined in
 	 * the config instance. By default, this is called automatically
-	 * when building the project using Aether
+	 * when building the project using Lime's command-line tools
 	 * @param	config	A Config object
 	 */
 	public function create (config:Config):Void {

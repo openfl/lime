@@ -42,11 +42,6 @@ Next, until the new version of Lime is released, you can download the current [d
 
     haxelib local filename.zip
 
-You will also want to install Aether:
-
-    haxelib install aether
-    haxelib run aether setup
-
 
 Building from Source
 ====================

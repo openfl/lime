@@ -40,8 +40,8 @@
 		
 		<architecture name="armv7" if="android" />
 		
-		<include haxelib="aether" unless="openfl" />
-		<haxelib name="aether" if="setup" />
+		<!-- <include haxelib="aether" unless="openfl" />
+		<haxelib name="aether" if="setup" /> -->
 		
 		<target name="wiiu" handler="lime-wiiu" />
 		<haxelib name="lime-wiiu" if="wiiu" />
