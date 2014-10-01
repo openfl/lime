@@ -1,4 +1,5 @@
 package lime.system;
+#if !macro
 
 
 #if js
@@ -338,3 +339,37 @@ class System {
 	
 	
 }
+
+
+#else
+
+
+import haxe.macro.Compiler;
+import haxe.macro.Context;
+import sys.FileSystem;
+
+
+class System {
+	
+	
+	public static function includeTools () {
+		
+		var paths = Context.getClassPath ();
+		
+		for (path in paths) {
+			
+			if (FileSystem.exists (path + "/tools/CommandLineTools.hx")) {
+				
+				Compiler.addClassPath (path + "/tools");
+				
+			}
+			
+		}
+		
+	}
+	
+	
+}
+
+
+#end
