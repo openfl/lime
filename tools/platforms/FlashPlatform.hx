@@ -8,11 +8,13 @@ import helpers.CompatibilityHelper;
 import helpers.FileHelper;
 import helpers.FlashHelper;
 import helpers.PathHelper;
+import helpers.PlatformHelper;
 import helpers.ProcessHelper;
 import project.AssetType;
 import project.Haxelib;
 import project.HXProject;
 import project.PlatformTarget;
+import project.Platform;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -62,15 +64,19 @@ class FlashPlatform extends PlatformTarget {
 				
 			}
 			
-			for (i in 0...args.length) {
-				
-				if (args[i].indexOf ("(") > -1) {
-					
-					args[i] = "'" + args[i] + "'";
-					
-				}
-				
-			}
+			if (PlatformHelper.hostPlatform != Platform.WINDOWS) {
+                
+                for (i in 0...args.length) {
+                    
+                    if (args[i].indexOf ("(") > -1) {
+                        
+                        args[i] = "'" + args[i] + "'";
+                        
+                    }
+                    
+                }
+               
+			} 
 			
 			ProcessHelper.runCommand ("", "haxe", args);
 			
