@@ -114,10 +114,16 @@ class CommandLineTools {
 			
 			case "rebuild":
 				
-				if (words.length < 2 || words.length > 2) {
+				if (words.length < 1 || words.length > 2) {
 					
 					LogHelper.error ("Incorrect number of arguments for command '" + command + "'");
 					return;
+					
+				}
+				
+				if (words.length < 2) {
+					
+					words.unshift ("lime");
 					
 				}
 				
