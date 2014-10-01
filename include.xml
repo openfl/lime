@@ -11,7 +11,7 @@
 	<set name="lime-legacy" value="1" if="legacy || lime_legacy" />
 	<haxedef name="lime-legacy" if="lime-legacy" />
 	
-	<include path="legacy/include.xml" if="lime-legacy" />
+	<include path="legacy/include.xml" if="lime-legacy" unless="setup" />
 	<templatePath name="templates" unless="lime-legacy" />
 	<sample path="samples" unless="openfl" />
 	
