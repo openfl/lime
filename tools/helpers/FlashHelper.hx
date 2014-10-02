@@ -3,11 +3,11 @@ package helpers;
 
 //import openfl.text.Font;
 //import openfl.utils.ByteArray;
-//import format.swf.Data;
-//import format.swf.Constants;
-//import format.swf.Reader;
-//import format.swf.Writer;
-//import format.wav.Data;
+import format.swf.Data;
+import format.swf.Constants;
+import format.swf.Reader;
+import format.swf.Writer;
+import format.wav.Data;
 import haxe.io.Bytes;
 import haxe.io.Path;
 import helpers.LogHelper;
@@ -24,10 +24,10 @@ import sys.io.FileSeek;
 class FlashHelper {
 	
 	
-	//private static var swfAssetID = 1000;
+	private static var swfAssetID = 1000;
 	
 	
-	/*private static function embedAsset (inAsset:Asset, packageName:String, outTags:Array<SWFTag>) {
+	private static function embedAsset (inAsset:Asset, packageName:String, outTags:Array<SWFTag>) {
 		
 		var embed = inAsset.embed;
 		var name = inAsset.sourcePath;
@@ -456,7 +456,7 @@ class FlashHelper {
 		
 		return true;
 		
-	}*/
+	}
 	
 	
 	/*public static function embedAssets (targetPath:String, assets:Array <Asset>, packageName:String = ""):Void {
@@ -531,7 +531,101 @@ class FlashHelper {
 	}*/
 	
 	
-	private static function compileSWC (project:HXProject, embed:String, id:Int):Void {
+	private static function compileSWC (project:HXProject, assets:Array<Asset>, id:Int):Void {
+		
+		var destination = project.app.path + "/flash/obj";
+		PathHelper.mkdir (destination);
+		
+		var label = (id > 0 ? Std.string (id + 1) : "");
+		
+		var swfVersions = [ 9, 10, /*10.1,*/ 10.2, 10.3, 11, 11.1, 11.2, 11.3, 11.4, 11.5, 11.6, 11.7, 11.8, 12, 13, 14 ];
+		var flashVersion = 9;
+		
+		for (swfVersion in swfVersions) {
+			
+			if (project.app.swfVersion > swfVersion) {
+				
+				flashVersion++;
+				
+			}
+			
+		}
+		
+		var header:SWFHeader =
+		{
+			version : flashVersion, 
+			compressed : true, 
+			width : (project.window.width == 0 ? 800 : project.window.width), 
+			height : (project.window.height == 0 ? 500 : project.window.height), 
+			fps : project.window.fps * 256, 
+			nframes : 2
+		};
+		
+		var tags = new Array<SWFTag> ();
+		var packageName = "";
+		var inserted = false;
+		
+		tags.push (TBackgroundColor (project.window.background));
+		tags.push (TShowFrame);
+		
+		// Might generate ABC later, so we don't need the @:bind calls in DefaultAssetLibrary?
+		
+		/*var abc = new haxe.io.BytesOutput ();
+		var abcWriter = new format.abc.Writer (abc);
+		
+		for (asset in assets) {
+			
+			var classDef:ClassDef = {
+				var name : packageName + "__ASSET__" + asset.flatName;
+				var superclass : asset.flashClass;
+				var interfaces : []];
+				var constructor : null;
+				var fields : [];
+				var namespace : null;
+				var isSealed : false;
+				var isFinal : false;
+				var isInterface : false;
+				var statics : [];
+				var staticFields : [];
+			}
+			abcWriter.writeClass (classDef);
+			
+		}*/
+		
+		for (asset in assets) {
+			
+			try {
+				
+				if (asset.type != AssetType.TEMPLATE && embedAsset (asset, packageName, tags)) {
+					
+					inserted = true;
+					
+				}
+				
+			} catch (e:Dynamic) {
+				
+				Sys.println ("Error embedding \"" + asset.sourcePath + "\": " + e);
+				
+			}
+			
+		}
+		
+		tags.push (TShowFrame);
+		
+		if (inserted) {
+			
+			var swf:SWF = { header: header, tags: tags };
+			var output = File.write (destination + "/assets.swf", true);
+			var writer = new Writer (output);
+			writer.write (swf);
+			output.close ();
+			
+		}
+		
+	}
+	
+	
+	/*private static function compileSWC (project:HXProject, embed:String, id:Int):Void {
 		
 		var destination = project.app.path + "/flash/obj";
 		PathHelper.mkdir (destination);
@@ -575,12 +669,13 @@ class FlashHelper {
 			
 		}
 		
-	}
+	}*/
 	
 	
 	public static function embedAssets (project:HXProject):Bool {
 		
 		var embed = "";
+		var assets = [];
 		var maxSize = 1024 * 1024 * 16;
 		var currentSize = 0;
 		var id = 0;
@@ -651,15 +746,17 @@ class FlashHelper {
 						
 					} else {
 						
-						if (currentSize + stat.size >= maxSize) {
+						/*if (currentSize + stat.size >= maxSize) {
 							
-							compileSWC (project, embed, id);
+							//compileSWC (project, embed, id);
+							compileSWC (project, assets, id);
 							
 							id++;
 							currentSize = 0;
 							embed = "";
+							assets = [];
 							
-						}
+						}*/
 						
 						currentSize += stat.size;
 						
@@ -685,6 +782,8 @@ class FlashHelper {
 					
 				} else {
 					
+					assets.push (asset);
+					
 					if (asset.type == IMAGE) {
 						
 						embed += "@:keep " + tagName + "('" + sourcePath + "') class __ASSET__" + asset.flatName + " extends " + flashClass + " { public function new () { super (0, 0, true, 0); } }\n";
@@ -703,7 +802,8 @@ class FlashHelper {
 		
 		if (embed != "") {
 			
-			compileSWC (project, embed, id);
+			//compileSWC (project, embed, id);
+			compileSWC (project, assets, id);
 			
 		}
 		
@@ -731,11 +831,11 @@ class FlashHelper {
 	}
 	
 	
-	/*private static function nextAssetID () {
+	private static function nextAssetID () {
 		
 		return swfAssetID++;
 		
-	}*/
+	}
 	
 	
 	public static function run (project:HXProject, workingDirectory:String, targetPath:String):Void {
