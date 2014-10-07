@@ -155,17 +155,17 @@ class ImageDataUtil {
 		
 		var sourceData = sourceImage.buffer.data;
 		var sourceStride = sourceImage.buffer.width * 4;
-		var sourceOffset:Int;
+		var sourceOffset:Int = 0;
 		
 		var data = image.buffer.data;
 		var stride = image.buffer.width * 4;
-		var offset:Int;
+		var offset:Int = 0;
 		
 		if (!mergeAlpha || !sourceImage.transparent) {
 			
-			for (row in Std.int (sourceRect.y + sourceImage.offsetY)...Std.int (sourceRect.height + sourceImage.offsetY)) {
+			for (row in Std.int (sourceRect.top + sourceImage.offsetY)...Std.int (sourceRect.bottom + sourceImage.offsetY)) {
 				
-				for (column in Std.int (sourceRect.x + sourceImage.offsetX)...Std.int (sourceRect.width + sourceImage.offsetX)) {
+				for (column in Std.int (sourceRect.left + sourceImage.offsetX)...Std.int (sourceRect.right + sourceImage.offsetX)) {
 					
 					sourceOffset = (row * sourceStride) + (column * 4);
 					offset = ((row + rowOffset) * stride) + ((column + columnOffset) * 4);
@@ -184,9 +184,9 @@ class ImageDataUtil {
 			var sourceAlpha:Float;
 			var oneMinusSourceAlpha:Float;
 			
-			for (row in Std.int (sourceRect.y + sourceImage.offsetY)...Std.int (sourceRect.height + sourceImage.offsetY)) {
+			for (row in Std.int (sourceRect.top + sourceImage.offsetY)...Std.int (sourceRect.bottom + sourceImage.offsetY)) {
 				
-				for (column in Std.int (sourceRect.x + sourceImage.offsetX)...Std.int (sourceRect.width + sourceImage.offsetX)) {
+				for (column in Std.int (sourceRect.left + sourceImage.offsetX)...Std.int (sourceRect.right + sourceImage.offsetX)) {
 					
 					sourceOffset = (row * sourceStride) + (column * 4);
 					offset = ((row + rowOffset) * stride) + ((column + columnOffset) * 4);
