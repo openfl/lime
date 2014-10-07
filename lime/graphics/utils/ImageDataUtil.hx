@@ -51,10 +51,12 @@ class ImageDataUtil {
 		var stride = image.buffer.width * 4;
 		var offset:Int;
 		
-		var rowStart = Std.int (rect.y + image.offsetY);
-		var rowEnd = Std.int (rect.height + image.offsetY);
-		var columnStart = Std.int (rect.x + image.offsetX);
-		var columnEnd = Std.int (rect.width + image.offsetX);
+		var rowStart = Std.int (rect.top + image.offsetY);
+		var rowEnd = Std.int (rect.bottom + image.offsetY);
+		var columnStart = Std.int (rect.left + image.offsetX);
+		var columnEnd = Std.int (rect.right + image.offsetX);
+		
+		var r, g, b, a, ex = 0;
 		
 		for (row in rowStart...rowEnd) {
 			
@@ -62,10 +64,18 @@ class ImageDataUtil {
 				
 				offset = (row * stride) + (column * 4);
 				
-				data[offset] = Std.int ((data[offset] * colorMatrix.redMultiplier) + colorMatrix.redOffset);
-				data[offset + 1] = Std.int ((data[offset + 1] * colorMatrix.greenMultiplier) + colorMatrix.greenOffset);
-				data[offset + 2] = Std.int ((data[offset + 2] * colorMatrix.blueMultiplier) + colorMatrix.blueOffset);
-				data[offset + 3] = Std.int ((data[offset + 3] * colorMatrix.alphaMultiplier) + colorMatrix.alphaOffset);
+				a = Std.int ((data[offset + 3] * colorMatrix.alphaMultiplier) + colorMatrix.alphaOffset);
+				ex = a > 0xFF ? a - 0xFF : 0;
+				b = Std.int ((data[offset + 2] * colorMatrix.blueMultiplier) + colorMatrix.blueOffset + ex);
+				ex = b > 0xFF ? b - 0xFF : 0;
+				g = Std.int ((data[offset + 1] * colorMatrix.greenMultiplier) + colorMatrix.greenOffset + ex);
+				ex = g > 0xFF ? g - 0xFF : 0;
+				r = Std.int ((data[offset] * colorMatrix.redMultiplier) + colorMatrix.redOffset + ex);
+				
+				data[offset] = r > 0xFF ? 0xFF : r;
+				data[offset + 1] = g > 0xFF ? 0xFF : g;
+				data[offset + 2] = b > 0xFF ? 0xFF : b;
+				data[offset + 3] = a > 0xFF ? 0xFF : a;
 				
 			}
 			
