@@ -397,7 +397,7 @@
 				);
                 FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-                    ::foreach frameworkSearchPaths:: "::__current__::",
+                    ::foreach frameworkSearchPaths:: "\"::__current__::\"",
 					::end::
                 );
 		        OTHER_LDFLAGS = (
