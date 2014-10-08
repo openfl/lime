@@ -177,7 +177,7 @@ class FlashAudioContext {
 	
 	public function loadCompressedDataFromByteArray (buffer:AudioBuffer, bytes:Dynamic /*flash.utils.ByteArray*/, bytesLength:UInt):Void {
 		
-		#if flash
+		#if flash11
 		if (buffer.src != null) {
 			
 			buffer.src.loadCompressedDataFromByteArray (bytes, bytesLength);
@@ -190,7 +190,7 @@ class FlashAudioContext {
 	
 	public function loadPCMFromByteArray (buffer:AudioBuffer, bytes:Dynamic /*flash.utils.ByteArray*/, samples:UInt, format:String = null, stereo:Bool = true, sampleRate:Float = 44100):Void {
 		
-		#if flash
+		#if flash11
 		if (buffer.src != null) {
 			
 			buffer.src.loadPCMFromByteArray (bytes, samples, format, stereo, sampleRate);
