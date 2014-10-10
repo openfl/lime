@@ -213,7 +213,7 @@ class Main extends Application {
 			context, 20, 20));
 
 		textFields.push(new TextField ("懶惰的姜貓", 32,
-			new TextFormat (TopToBottom, ScriptHan, "ch"),
+			new TextFormat (TopToBottom, ScriptHan, "zh"),
 			new Font ("assets/fireflysung.ttf"),
 			context, 50, 150));
 
