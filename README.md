@@ -54,10 +54,14 @@ Tell haxelib where your development copy of Lime is installed:
 
     haxelib dev lime lime
 
-If Aether is installed, you can build the binaries using "aether rebuild":
+You can build the binaries using "lime rebuild":
 
-    aether rebuild lime windows
-    aether rebuild lime linux -64 -release -clean
+    lime rebuild lime windows
+    lime rebuild lime linux -64 -release -clean
+
+If you make modifications to the tools, you can rebuild them like this:
+
+    lime rebuild tools
 
 On a Windows machine, you should have Microsoft Visual Studio C++ (Express is just fine) installed. You will need Xcode on a Mac. To build on a Linux machine, you may need the following packages (or similar):
 
@@ -73,9 +77,9 @@ Sample
 
 You can build a sample Lime project with the following commands:
 
-    aether create lime:HelloWorld
+    lime create lime:HelloWorld
     cd HelloWorld
-    aether test neko
+    lime test neko
 
 You can also list other projects that are available using "aether create lime".
 
@@ -85,11 +89,11 @@ Targets
 
 Lime currently supports the following targets:
 
-    aether test windows
-    aether test mac
-    aether test linux
-    aether test neko
-    aether test html5
-    aether test flash
+    lime test windows
+    lime test mac
+    lime test linux
+    lime test neko
+    lime test html5
+    lime test flash
 
-Native builds must be built on the same operating system as the target. As supported in other versions of Lime, additional platforms (iOS, Android, BlackBerry, Tizen) will be restored in the near future.
+Native builds must be built on the same operating system as the target. As supported in Lime legacy, additional platforms (iOS, Android, BlackBerry, Tizen) will be restored in the near future.
