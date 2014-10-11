@@ -38,7 +38,15 @@ Installation
 
 First install the latest version of [Haxe](http://www.haxe.org/download).
 
-Next, until the new version of Lime is released, you can download the current [development build](http://www.openfl.org/builds/lime), and install using:
+The current version of Lime has not been released on haxelib, yet, so please install the latest [development build](http://www.openfl.org/builds/lime).
+
+
+Development Builds
+==================
+
+When there are changes, Lime is built nightly. Builds are available for download [here](http://www.openfl.org/builds/lime).
+
+To install a development build, use the "haxelib local" command:
 
     haxelib local filename.zip
 
@@ -97,3 +105,27 @@ Lime currently supports the following targets:
     lime test flash
 
 Native builds must be built on the same operating system as the target. As supported in Lime legacy, additional platforms (iOS, Android, BlackBerry, Tizen) will be restored in the near future.
+
+
+Lime "Legacy"
+=============
+
+OpenFL uses older Lime binaries, which are not used in the current version of Lime. These older binaries are derived from shared source within the NME repository, while the newer code has been rewritten to better suit the goals of the project.
+
+In order to rebuild Lime "legacy", you should follow the directions above for building from the source. You will also need additional dependencies:
+
+    git clone https://github.com/haxenme/nme
+    git clone https://github.com/haxenme/nme-dev
+    git clone https://github.com/haxefoundation/hxcpp
+    
+    haxelib dev nme nme
+    haxelib dev nme-dev nme-dev
+    haxelib dev hxcpp hxcpp
+    
+    cd nme-dev/project
+    neko build.n
+    
+    lime rebuild hxcpp windows
+    lime rebuild windows -Dlegacy
+
+You can substitute "windows" for another available target. If you would like to use Lime from the source, but do not need to modify the content of the legacy binaries, it is much easier to download a current development build, and copy the "legacy" folder into your source checkout. Otherwise, the above steps should help.
