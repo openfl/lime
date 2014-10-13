@@ -384,7 +384,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 				
 				if (!hasChildren && !hasAttributes) {
 					
-					parseValue (child, bucket);
+					parseValue (child, childBucket);
 					
 				}
 				
@@ -405,6 +405,60 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 	}
 	
 	
+	public function push (id:String, value:Dynamic):Void {
+		
+		var tree = id.split ('.');
+		
+		if (tree.length <= 1) {
+			
+			if (!Reflect.hasField (this, id + "___array")) {
+				
+				Reflect.setField (this, id + "___array", Reflect.hasField (this, id) ? [ ObjectHelper.deepCopy (Reflect.field (this, id)) ] : []);
+				
+			}
+			
+			var array:Array<Dynamic> = Reflect.field (this, id + "___array");
+			array.push (value);
+			return;
+			
+		}
+		
+		var current = this;
+		var field = tree.pop ();
+		
+		for (leaf in tree) {
+			
+			if (!Reflect.hasField (current, leaf)) {
+				
+				Reflect.setField (current, leaf, {});
+				current = Reflect.field (current, leaf);
+				
+			} else {
+				
+				current = Reflect.field (current, leaf);
+				
+				if (current == null) {
+					
+					return;
+					
+				}
+				
+			}
+			
+		}
+		
+		if (!Reflect.hasField (current, field + "___array")) {
+			
+			Reflect.setField (current, field + "___array", Reflect.hasField (current, field) ? [ ObjectHelper.deepCopy (Reflect.field (current, field)) ] : []);
+			
+		}
+		
+		var array:Array<Dynamic> = Reflect.field (current, field + "___array");
+		array.push (value);
+		
+	}
+	
+	
 	public function set (id:String, value:Dynamic):Void {
 		
 		var tree = id.split ('.');
@@ -412,6 +466,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 		if (tree.length <= 1) {
 			
 			Reflect.setField (this, id, value);
+			return;
 			
 		}
 		

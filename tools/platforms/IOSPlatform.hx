@@ -118,7 +118,7 @@ class IOSPlatform extends PlatformTarget {
 					
 					var name = Path.withoutDirectory (Path.withoutExtension (dependency.path));
 					
-					// TODO: enable again
+					project.config.push ("ios.linker-flags", "-force_load $SRCROOT/$PRODUCT_NAME/lib/$ARCHS/" + Path.withoutDirectory (dependency.path));
 					//project.config.ios.linkerFlags.push ("-force_load $SRCROOT/$PRODUCT_NAME/lib/$ARCHS/" + Path.withoutDirectory (dependency.path));
 					
 					if (StringTools.startsWith (name, "lib")) {

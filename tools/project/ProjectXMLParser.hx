@@ -1365,9 +1365,25 @@ class ProjectXMLParser extends HXProject {
 									
 								case "extension":
 									
+									var extensions = config.getArrayString ("android.extensions");
+									
+									if (extensions == null || extensions.indexOf (value) == -1) {
+										
+										config.push ("android.extensions", value);
+										
+									}
+									
 									//ArrayHelper.addUnique (config.android.extensions, value);
 								
 								case "permission":
+									
+									var permissions = config.getArrayString ("android.permissions");
+									
+									if (permissions == null || permissions.indexOf (value) == -1) {
+										
+										config.push ("android.permissions", value);
+										
+									}
 									
 									//ArrayHelper.addUnique (config.android.permissions, value);
 								
@@ -1469,6 +1485,7 @@ class ProjectXMLParser extends HXProject {
 							
 							if (element.has.resolve ("linker-flags")) {
 								
+								config.push ("ios.linker-flags", substitute (element.att.resolve ("linker-flags")));
 								//config.ios.linkerFlags.push (substitute (element.att.resolve ("linker-flags")));
 								
 							}
