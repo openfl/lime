@@ -947,11 +947,14 @@ class HXProject {
 					
 					if (!StringTools.startsWith (arg, "-")) {
 						
-						if (compilerFlags.indexOf ("-cp " + arg) == -1) {
+						var param = "-cp " + PathHelper.standardize (arg);
+						compilerFlags.remove (param);
+						compilerFlags.push (param);
+						//if (compilerFlags.indexOf ("-cp " + arg) == -1) {
 							
-							compilerFlags.push ("-cp " + PathHelper.standardize (arg));
+							//compilerFlags.push ("-cp " + PathHelper.standardize (arg));
 							
-						}
+						//}
 						
 					} else {
 						
