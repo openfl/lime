@@ -240,6 +240,21 @@ class Font {
 	}
 	
 	
+	public function decompose ():NativeFontData {
+		
+		#if (cpp || neko)
+		
+		return lime_font_outline_decompose (handle, 1024 * 20);
+		
+		#else
+		
+		return null;
+		
+		#end
+		
+	}
+	
+	
 	public function loadRange (size:Int, start:Int, end:Int) {
 		
 		#if (flash || js)
@@ -281,7 +296,46 @@ class Font {
 	private static var lime_font_load_glyphs = System.load ("lime", "lime_font_load_glyphs", 3);
 	private static var lime_font_load_range = System.load ("lime", "lime_font_load_range", 4);
 	private static var lime_font_create_image = System.load ("lime", "lime_font_create_image", 1);
+	private static var lime_font_outline_decompose = System.load ("lime", "lime_font_outline_decompose", 2);
 	#end
 	
 	
+}
+
+
+typedef NativeFontData = 
+{
+   var has_kerning: Bool;
+   var is_fixed_width: Bool;
+   var has_glyph_names: Bool;
+   var is_italic: Bool;
+   var is_bold: Bool;
+   var num_glyphs: Int;
+   var family_name: String;
+   var style_name: String;
+   var em_size: Int;
+   var ascend: Int;
+   var descend: Int;
+   var height: Int;
+   var glyphs: Array<NativeGlyphData>;
+   var kerning: Array<NativeKerningData>;
+}
+
+typedef NativeGlyphData = 
+{
+   var char_code: Int;
+   var advance: Int;
+   var min_x: Int;
+   var max_x: Int;
+   var min_y: Int;
+   var max_y: Int;
+   var points: Array<Int>;
+}
+
+typedef NativeKerningData = 
+{
+   var left_glyph:Int;
+   var right_glyph:Int;
+   var x:Int;
+   var y:Int;
 }

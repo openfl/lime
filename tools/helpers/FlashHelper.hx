@@ -12,6 +12,7 @@ import haxe.io.Bytes;
 import haxe.io.Path;
 import helpers.LogHelper;
 import helpers.ProcessHelper;
+import lime.graphics.Font;
 import project.Asset;
 import project.AssetEncoding;
 import project.AssetType;
@@ -295,10 +296,9 @@ class FlashHelper {
 			
 			var src = name;
 			var font_name = Path.withoutExtension (name);
-			return false;
-			//var font = Font.load (src);
 			
-			#if false
+			var face = new Font (src);
+			var font = face.decompose ();
 			
 			var glyphs = new Array <Font2GlyphData> ();
 			var glyph_layout = new Array <FontLayoutGlyphData> ();
@@ -417,8 +417,6 @@ class FlashHelper {
 					kerning:    kerning
 				}
 			})) );
-			
-			#end
 			
 		} else {
 			

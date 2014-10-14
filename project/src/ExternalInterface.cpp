@@ -158,6 +158,18 @@ namespace lime {
 	}
 	
 	
+	value lime_font_outline_decompose (value fontHandle, value size) {
+		
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)(intptr_t)val_float (fontHandle);
+		return font->Decompose (val_int (size));
+		#else
+		return alloc_null ();
+		#endif
+		
+	}
+	
+	
 	value lime_image_load (value data) {
 		
 		ImageBuffer imageBuffer;
@@ -380,6 +392,7 @@ namespace lime {
 	DEFINE_PRIM (lime_font_load, 1);
 	DEFINE_PRIM (lime_font_load_glyphs, 3);
 	DEFINE_PRIM (lime_font_load_range, 4);
+	DEFINE_PRIM (lime_font_outline_decompose, 2);
 	DEFINE_PRIM (lime_image_load, 1);
 	DEFINE_PRIM (lime_key_event_manager_register, 2);
 	DEFINE_PRIM (lime_lzma_encode, 1);
