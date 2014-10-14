@@ -59,9 +59,27 @@ class MouseEventManager {
 			
 			if (window != null && window.element != null) {
 				
-				var rect = window.element.getBoundingClientRect ();
-				eventInfo.x = (event.clientX - rect.left) * (window.width / rect.width);
-				eventInfo.y = (event.clientY - rect.top) * (window.height / rect.height);
+				if (window.canvas != null) {
+					
+					var rect = window.canvas.getBoundingClientRect ();
+					eventInfo.x = (event.clientX - rect.left) * (window.width / rect.width);
+					eventInfo.y = (event.clientY - rect.top) * (window.height / rect.height);
+					
+				} else if (window.div != null) {
+					
+					var rect = window.div.getBoundingClientRect ();
+					//eventInfo.x = (event.clientX - rect.left) * (window.div.style.width / rect.width);
+					eventInfo.x = (event.clientX - rect.left);
+					//eventInfo.y = (event.clientY - rect.top) * (window.div.style.height / rect.height);
+					eventInfo.y = (event.clientY - rect.top);
+					
+				} else {
+					
+					var rect = window.element.getBoundingClientRect ();
+					eventInfo.x = (event.clientX - rect.left) * (window.width / rect.width);
+					eventInfo.y = (event.clientY - rect.top) * (window.height / rect.height);
+					
+				}
 				
 			} else {
 				
