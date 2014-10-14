@@ -81,16 +81,35 @@ class CreateTemplate {
 		
 		var projectName = null;
 		var sampleName = null;
+		var outputName = "SampleProject";
 		
 		if (colonIndex == -1 && words.length > 1) {
 			
 			projectName = words[0];
 			sampleName = words[1];
 			
+			if (words.length > 2) {
+				
+				outputName = words[2];
+				
+			}
+			
 		} else {
 			
 			projectName = words[0].substring (0, colonIndex);
 			sampleName = words[0].substr (colonIndex + 1);
+			
+			if (words.length > 1) {
+				
+				outputName = words[1];
+				
+			}
+			
+		}
+		
+		if (projectName == null || projectName == "") {
+			
+			projectName = "lime";
 			
 		}
 		
@@ -102,7 +121,7 @@ class CreateTemplate {
 			
 			if (project != null) {
 				
-				var id = [ "com", "example", "project" ];
+				var id = [ "com", "sample", "project" ];
 				
 				/*if (colonIndex != -1 && words.length > 1 || ) {
 					
@@ -128,7 +147,8 @@ class CreateTemplate {
 				
 				var context:Dynamic = { };
 				
-				var name = words[1].split (".").pop ();
+				var name = outputName;
+				//var name = words[1].split (".").pop ();
 				var alphaNumeric = new EReg ("[a-zA-Z0-9]", "g");
 				var title = "";
 				var capitalizeNext = true;
@@ -236,12 +256,18 @@ class CreateTemplate {
 			
 		}
 		
-		if (projectName == null && projectName == "") {
+		if (projectName == null || projectName == "") {
+			
+			projectName = "lime";
+			
+		}
+		
+		/*if (projectName == null && projectName == "") {
 			
 			LogHelper.error ("You must specify a project name when using \"lime create\"");
 			return;
 			
-		}
+		}*/
 		
 		if (sampleName == null || sampleName == "") {
 			
