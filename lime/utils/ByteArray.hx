@@ -80,7 +80,9 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	public function new (size = 0):Void {
 		
 		#if js
+		if (size > 0) allocated = size;
 		___resizeBuffer (allocated);
+		length = allocated;
 		#else
 		length = 0;
 		if (size > 0) {
