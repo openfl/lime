@@ -723,7 +723,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 		data.setFloat64 (this.position, x, littleEndian);
 		this.position += 8;
 		#else
-		ensureElem (position + 8, true);
+		ensureElem (position + 7, true);
 		setDouble (position, x);
 		position += 8;
 		#end
@@ -751,7 +751,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 		data.setFloat32 (this.position, x, littleEndian);
 		this.position += 4;
 		#else
-		ensureElem (position + 4, true);
+		ensureElem (position + 3, true);
 		setFloat (position, x);
 		position += 4;
 		#end
