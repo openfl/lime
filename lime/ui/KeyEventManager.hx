@@ -149,6 +149,8 @@ class KeyEventManager {
 		
 		#if js
 		
+		event.preventDefault ();
+		
 		//keyEvent.code = event.code;
 		eventInfo.keyCode = cast convertKeyCode (event.keyCode != null ? event.keyCode : event.which);
 		//keyEvent.key = keyEvent.code;
