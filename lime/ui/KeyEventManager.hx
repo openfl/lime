@@ -149,7 +149,12 @@ class KeyEventManager {
 		
 		#if js
 		
-		event.preventDefault ();
+		// space and arrow keys
+		switch (event.keyCode) {
+			
+			case 32, 37, 38, 39, 40: event.preventDefault ();
+			
+		}
 		
 		//keyEvent.code = event.code;
 		eventInfo.keyCode = cast convertKeyCode (event.keyCode != null ? event.keyCode : event.which);
