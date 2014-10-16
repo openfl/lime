@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "2.0.0-alpha",
-	"releasenote": "Alpha version",
+	"version": "2.0.0-alpha.2",
+	"releasenote": "Minor patches",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
 }
