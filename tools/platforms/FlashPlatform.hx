@@ -52,6 +52,21 @@ class FlashPlatform extends PlatformTarget {
 			
 			var hxml = File.getContent (project.app.path + "/flash/haxe/" + type + ".hxml");
 			hxml = StringTools.replace (hxml, "\r\n", "\n");
+			
+			var lines = hxml.split ("\n");
+			hxml = "";
+			
+			for (line in lines) {
+				
+				if (!StringTools.startsWith (line, "#")) {
+					
+					if (hxml.length > 0) hxml += " ";
+					hxml += line;
+					
+				}
+				
+			}
+			
 			hxml = StringTools.replace (hxml, "\n", " ");
 			hxml = StringTools.trim (hxml);
 			
