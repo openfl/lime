@@ -1365,11 +1365,11 @@ class ProjectXMLParser extends HXProject {
 									
 								case "extension":
 									
-									var extensions = config.getArrayString ("android.extensions");
+									var extensions = config.getArrayString ("android.extension");
 									
 									if (extensions == null || extensions.indexOf (value) == -1) {
 										
-										config.push ("android.extensions", value);
+										config.push ("android.extension", value);
 										
 									}
 									
@@ -1377,11 +1377,11 @@ class ProjectXMLParser extends HXProject {
 								
 								case "permission":
 									
-									var permissions = config.getArrayString ("android.permissions");
+									var permissions = config.getArrayString ("android.permission");
 									
 									if (permissions == null || permissions.indexOf (value) == -1) {
 										
-										config.push ("android.permissions", value);
+										config.push ("android.permission", value);
 										
 									}
 									
