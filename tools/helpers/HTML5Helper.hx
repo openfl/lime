@@ -10,6 +10,7 @@ import helpers.ProcessHelper;
 import neko.vm.Thread;
 import project.Architecture;
 import project.Asset;
+import project.Haxelib;
 import project.HXProject;
 import project.Platform;
 import sys.FileSystem;
@@ -24,7 +25,8 @@ class HTML5Helper {
 		
 		if (!FileSystem.exists (FileSystem.fullPath (sourcePath) + ".hash")) {
 			
-			ProcessHelper.runCommand (Path.directory (sourcePath), "neko", [ PathHelper.findTemplate (project.templatePaths, "bin/hxswfml.n"), "ttf2hash2", Path.withoutDirectory (sourcePath), FileSystem.fullPath (sourcePath) + ".hash", "-glyphs", font.glyphs ]);
+			var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "templates") ].concat (project.templatePaths);
+			ProcessHelper.runCommand (Path.directory (sourcePath), "neko", [ PathHelper.findTemplate (templatePaths, "bin/hxswfml.n"), "ttf2hash2", Path.withoutDirectory (sourcePath), FileSystem.fullPath (sourcePath) + ".hash", "-glyphs", font.glyphs ]);
 			
 		}
 		
@@ -58,7 +60,8 @@ class HTML5Helper {
 			
 		}
 		
-		var webify = PathHelper.findTemplate (project.templatePaths, "bin/webify" + suffix);
+		var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "templates") ].concat (project.templatePaths);
+		var webify = PathHelper.findTemplate (templatePaths, "bin/webify" + suffix);
 		if (PlatformHelper.hostPlatform != Platform.WINDOWS) {
 			
 			Sys.command ("chmod", [ "+x", webify ]);
@@ -109,8 +112,9 @@ class HTML5Helper {
 				
 			}
 			
-			var node = PathHelper.findTemplate (project.templatePaths, "bin/node/node" + suffix);
-			var server = PathHelper.findTemplate (project.templatePaths, "bin/node/http-server/http-server");
+			var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "templates") ].concat (project.templatePaths);
+			var node = PathHelper.findTemplate (templatePaths, "bin/node/node" + suffix);
+			var server = PathHelper.findTemplate (templatePaths, "bin/node/http-server/http-server");
 			
 			if (PlatformHelper.hostPlatform != Platform.WINDOWS) {
 				
@@ -150,11 +154,13 @@ class HTML5Helper {
 			
 			if (project.targetFlags.exists ("yui")) {
 				
-				ProcessHelper.runCommand ("", "java", [ "-Dapple.awt.UIElement=true", "-jar", PathHelper.findTemplate (project.templatePaths, "bin/yuicompressor-2.4.7.jar"), "-o", tempFile, sourceFile ]);
+				var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "templates") ].concat (project.templatePaths);
+				ProcessHelper.runCommand ("", "java", [ "-Dapple.awt.UIElement=true", "-jar", PathHelper.findTemplate (templatePaths, "bin/yuicompressor-2.4.7.jar"), "-o", tempFile, sourceFile ]);
 				
 			} else {
 				
-				var args = [ "-Dapple.awt.UIElement=true", "-jar", PathHelper.findTemplate (project.templatePaths, "bin/compiler.jar"), "--js", sourceFile, "--js_output_file", tempFile ];
+				var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "templates") ].concat (project.templatePaths);
+				var args = [ "-Dapple.awt.UIElement=true", "-jar", PathHelper.findTemplate (templatePaths, "bin/compiler.jar"), "--js", sourceFile, "--js_output_file", tempFile ];
 				
 				if (!LogHelper.verbose) {
 					

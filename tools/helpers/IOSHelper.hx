@@ -4,6 +4,7 @@ package helpers;
 import haxe.io.Path;
 import helpers.PathHelper;
 import helpers.ProcessHelper;
+import project.Haxelib;
 import project.HXProject;
 import sys.io.Process;
 import sys.FileSystem;
@@ -204,7 +205,8 @@ class IOSHelper {
 				
 			}
 			
-			var launcher = PathHelper.findTemplate (project.templatePaths, "bin/ios-sim");
+			var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "templates") ].concat (project.templatePaths);
+			var launcher = PathHelper.findTemplate (templatePaths, "bin/ios-sim");
 			Sys.command ("chmod", [ "+x", launcher ]);
 			
 			ProcessHelper.runCommand ("", launcher, [ "launch", FileSystem.fullPath (applicationPath), /*"--sdk", project.environment.get ("IPHONE_VER"), "--family", family,*/ "--timeout", "60" ] );
@@ -223,7 +225,8 @@ class IOSHelper {
 				
 			}
 			
-			var launcher = PathHelper.findTemplate (project.templatePaths, "bin/ios-deploy");
+			var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "templates") ].concat (project.templatePaths);
+			var launcher = PathHelper.findTemplate (templatePaths, "bin/ios-deploy");
 			Sys.command ("chmod", [ "+x", launcher ]);
 			
 			var xcodeVersion = getXcodeVersion ();

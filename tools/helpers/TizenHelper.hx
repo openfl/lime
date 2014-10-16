@@ -7,6 +7,7 @@ import haxe.io.Eof;
 import helpers.PathHelper;
 import helpers.PlatformHelper;
 import helpers.ProcessHelper;
+import project.Haxelib;
 import project.HXProject;
 import project.Platform;
 import sys.FileSystem;
@@ -40,7 +41,8 @@ class TizenHelper {
 		
 		if (keystore == null) {
 			
-			keystore = PathHelper.findTemplate (project.templatePaths, "bin/debug.p12");
+			var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "templates") ].concat (project.templatePaths);
+			keystore = PathHelper.findTemplate (templatePaths, "bin/debug.p12");
 			password = "1234";
 			
 		}
