@@ -621,6 +621,21 @@ class ProjectXMLParser extends HXProject {
 	
 	private function parseAssetsElementDirectory (path:String, targetPath:String, include:String, exclude:String, type:AssetType, embed:Null<Bool>, glyphs:String, recursive:Bool):Void {
 		
+		if (StringTools.endsWith (path, ".bundle")) {
+			
+			var includePath = findIncludeFile (path);
+			
+			if (includePath != null && includePath != "" && FileSystem.exists (includePath) && !FileSystem.isDirectory (includePath)) {
+				
+				var includeProject = new ProjectXMLParser (includePath, defines);
+				merge (includeProject);
+				Sys.println (includeProject);
+				return;
+				
+			}
+			
+		}
+		
 		var files = FileSystem.readDirectory (path);
 		
 		if (targetPath != "") {
