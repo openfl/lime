@@ -637,13 +637,13 @@ class DefaultAssetLibrary extends AssetLibrary {
 #if !display
 #if flash
 
-::foreach assets::::if (embed)::::if (type == "image")::@:keep @:bind class __ASSET__::flatName:: extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }::else::@:keep @:bind class __ASSET__::flatName:: extends ::flashClass:: { }::end::::end::
+::foreach assets::::if (embed)::::if (type == "image")::@:keep @:bind #if display private #end class __ASSET__::flatName:: extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }::else::@:keep @:bind #if display private #end class __ASSET__::flatName:: extends ::flashClass:: { }::end::::end::
 ::end::
 
 #elseif html5
 
 #if openfl
-::foreach assets::::if (type == "font")::@:keep class __ASSET__::flatName:: extends openfl.text.Font { public function new () { super (); fontName = "::id::"; } } ::end::
+::foreach assets::::if (type == "font")::@:keep #if display private #end class __ASSET__::flatName:: extends openfl.text.Font { public function new () { super (); fontName = "::id::"; } } ::end::
 ::end::
 #end
 
