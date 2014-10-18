@@ -425,6 +425,8 @@ class HXProject {
 		
 		if (project != null) {
 			
+			StringMapHelper.copyKeys (project.defines, userDefines);
+			
 			processHaxelibs (project, userDefines);
 			
 		}
