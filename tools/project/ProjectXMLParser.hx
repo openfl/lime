@@ -1191,6 +1191,8 @@ class ProjectXMLParser extends HXProject {
 							var name = "";
 							var type = null;
 							var embed:Null<Bool> = null;
+							var preload = false;
+							var generate = false;
 							
 							if (element.has.name) {
 								
@@ -1216,7 +1218,19 @@ class ProjectXMLParser extends HXProject {
 								
 							}
 							
-							libraries.push (new Library (path, name, type, embed));
+							if (element.has.preload) {
+								
+								preload = (substitute (element.att.preload) == "true");
+								
+							}
+							
+							if (element.has.generate) {
+								
+								generate = (substitute (element.att.generate) == "true");
+								
+							}
+							
+							libraries.push (new Library (path, name, type, embed, preload, generate));
 							
 						}
 					

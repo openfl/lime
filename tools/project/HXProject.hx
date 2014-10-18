@@ -907,6 +907,16 @@ class HXProject {
 			
 		}
 		
+		context.libraries = new Array <Dynamic> ();
+		
+		for (library in libraries) {
+			
+			var embeddedLibrary:Dynamic = { };
+			ObjectHelper.copyFields (library, embeddedLibrary);
+			context.libraries.push (embeddedLibrary);
+			
+		}
+		
 		Reflect.setField (context, "ndlls", ndlls);
 		//Reflect.setField (context, "sslCaCert", sslCaCert);
 		context.sslCaCert = "";
