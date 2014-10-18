@@ -629,7 +629,6 @@ class ProjectXMLParser extends HXProject {
 				
 				var includeProject = new ProjectXMLParser (includePath, defines);
 				merge (includeProject);
-				Sys.println (includeProject);
 				return;
 				
 			}
