@@ -425,9 +425,10 @@ class HXProject {
 		
 		if (project != null) {
 			
-			StringMapHelper.copyKeys (project.defines, userDefines);
+			var defines = StringMapHelper.copy (userDefines);
+			StringMapHelper.copyKeys (project.defines, defines);
 			
-			processHaxelibs (project, userDefines);
+			processHaxelibs (project, defines);
 			
 		}
 		
