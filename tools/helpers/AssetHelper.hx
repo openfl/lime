@@ -83,7 +83,15 @@ class AssetHelper {
 			for (handler in handlers) {
 				
 				var outputFile = PathHelper.getTemporaryFile ();
-				ProcessHelper.runCommand ("", "haxelib", [ "run", handler, "process", temporaryFile, outputFile ]);
+				var args = [ "run", handler, "process", temporaryFile, outputFile ];
+				
+				if (LogHelper.verbose) {
+					
+					args.push ("-verbose");
+					
+				}
+				
+				ProcessHelper.runCommand ("", "haxelib", args);
 				
 				if (FileSystem.exists (outputFile)) {
 					
