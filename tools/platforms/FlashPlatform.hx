@@ -78,6 +78,23 @@ class FlashPlatform extends PlatformTarget {
 				
 			}
 			
+			var index = 2;
+			
+			while (index < args.length) {
+				
+				if (!StringTools.startsWith (args[index - 1], "-") && !StringTools.startsWith (args[index], "-")) {
+					
+					args[index - 1] += " " + args[index];
+					args.splice (index, 1);
+					
+				} else {
+					
+					index++;
+					
+				}
+				
+			}
+			
 			if (PlatformHelper.hostPlatform != Platform.WINDOWS) {
 				
 				for (i in 0...args.length) {
