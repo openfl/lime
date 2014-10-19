@@ -78,7 +78,7 @@ class FlashPlatform extends PlatformTarget {
 				
 			}
 			
-			var index = 2;
+			var index = 1;
 			
 			while (index < args.length) {
 				
