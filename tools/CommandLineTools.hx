@@ -589,10 +589,15 @@ class CommandLineTools {
 			var projectName = null;
 			var sampleName = null;
 			
-			if (colonIndex == -1 && words.length > 1) {
+			if (colonIndex == -1) {
 				
 				projectName = words[0];
-				sampleName = words[1];
+				
+				if (words.length > 1) {
+					
+					sampleName = words[1];
+					
+				}
 				
 			} else {
 				
@@ -601,11 +606,11 @@ class CommandLineTools {
 				
 			}
 			
-			if (sampleName == "project") {
+			if (projectName == "project" || sampleName == "project") {
 				
 				CreateTemplate.createProject (words, userDefines);
 				
-			} else if (sampleName == "extension") {
+			} else if (projectName == "extension") {
 				
 				CreateTemplate.createExtension (words, userDefines);
 				
