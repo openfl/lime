@@ -83,10 +83,15 @@ class CreateTemplate {
 		var sampleName = null;
 		var outputName = "SampleProject";
 		
-		if (colonIndex == -1 && words.length > 1) {
+		if (colonIndex == -1) {
 			
 			projectName = words[0];
-			sampleName = words[1];
+			
+			if (words.length > 1) {
+				
+				sampleName = words[1];
+				
+			}
 			
 			if (words.length > 2) {
 				
@@ -107,13 +112,25 @@ class CreateTemplate {
 			
 		}
 		
+		if (projectName == "project") {
+			
+			projectName = "lime";
+			
+			if (sampleName != null) {
+				
+				outputName = sampleName;
+				
+			}
+			
+		}
+		
 		if (projectName == null || projectName == "") {
 			
 			projectName = "lime";
 			
 		}
 		
-		if (projectName != null && projectName != "" && sampleName == "project") {
+		if (projectName != null && projectName != "") {
 			
 			var defines = new Map <String, Dynamic> ();
 			defines.set ("create", 1);

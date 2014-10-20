@@ -20,44 +20,6 @@ import haxe.ds.StringMap;
 		
 	}
 	
-	public static function copyFieldsPreferObjectOverValue<T> (source:T, destination:T):T {
-		
-
-		for (field in Reflect.fields (source)) {
-
-			var do_copy = true;
-			var exists = Reflect.hasField( destination, field );
-			
-			if( exists ) {
-				var value_source = Reflect.field (source, field);
-				var value_dest = Reflect.field (destination, field);
-				var type_source = Type.typeof(value_source).getName();
-				var type_dest = Type.typeof(value_dest).getName();
-
-				// if(LogHelper.verbose) {
-					// LogHelper.println(field + " / existed in dest as " + type_dest + " / " + type_source );
-				// }
-
-					//if trying to copy a non object over an object, don't
-				if(type_source != "TObject" && type_dest == "TObject") {
-					do_copy = false;
-					if(LogHelper.verbose) {
-						LogHelper.println(field + " not merged by preference" );
-					}
-				}
-
-			}
-
-			if(do_copy) {
-				Reflect.setField (destination, field, Reflect.field (source, field));
-			}
-			
-		}
-		
-		return destination;
-		
-	}
-	
 	
 	public static function copyMissingFields<T> (source:T, destination:T):T {
 		

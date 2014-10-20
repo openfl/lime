@@ -268,7 +268,65 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 		
 		if (other != null) {
 			
-			ObjectHelper.copyFieldsPreferObjectOverValue (other, this);
+			mergeValues (other, this);
+			
+		}
+		
+	}
+	
+	
+	private function mergeValues<T> (source:T, destination:T):Void {
+		
+		for (field in Reflect.fields (source)) {
+			
+			var doCopy = true;
+			var exists = Reflect.hasField (destination, field);
+			var typeDest = null;
+			
+			if (exists) {
+				
+				var valueSource = Reflect.field (source, field);
+				var valueDest = Reflect.field (destination, field);
+				var typeSource = Type.typeof(valueSource).getName ();
+				typeDest = Type.typeof (valueDest).getName ();
+				
+				//if trying to copy a non object over an object, don't
+				if (typeSource != "TObject" && typeDest == "TObject") {
+					
+					doCopy = false;
+					
+					//if (LogHelper.verbose) {
+						//
+						//LogHelper.println (field + " not merged by preference");
+						//
+					//}
+					
+				}
+				
+				if (StringTools.endsWith (field, "___array")) {
+					
+					doCopy = false;
+					var array:Array<Dynamic> = cast Reflect.field (destination, field);
+					array = array.concat (cast Reflect.field (source, field));
+					Reflect.setField (destination, field, array);
+					
+				}
+				
+			}
+			
+			if (doCopy) {
+				
+				if (typeDest == "TObject") {
+					
+					mergeValues (Reflect.field (source, field), Reflect.field (destination, field));
+					
+				} else {
+					
+					Reflect.setField (destination, field, Reflect.field (source, field));
+					
+				}
+				
+			}
 			
 		}
 		
