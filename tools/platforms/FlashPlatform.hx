@@ -78,7 +78,7 @@ class FlashPlatform extends PlatformTarget {
 				
 			}
 			
-			var index = 1;
+			/*var index = 1;
 			
 			while (index < args.length) {
 				
@@ -93,7 +93,7 @@ class FlashPlatform extends PlatformTarget {
 					
 				}
 				
-			}
+			}*/
 			
 			if (PlatformHelper.hostPlatform != Platform.WINDOWS) {
 				
