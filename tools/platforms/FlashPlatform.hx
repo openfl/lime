@@ -51,49 +51,33 @@ class FlashPlatform extends PlatformTarget {
 		if (embedded) {
 			
 			var hxml = File.getContent (project.app.path + "/flash/haxe/" + type + ".hxml");
-			hxml = StringTools.replace (hxml, "\r\n", "\n");
+			var args = new Array<String> ();
 			
-			var lines = hxml.split ("\n");
-			hxml = "";
-			
-			for (line in lines) {
+			for (line in ~/[\r\n]+/g.split (hxml)) {
 				
-				if (!StringTools.startsWith (line, "#")) {
+				line = StringTools.ltrim (line);
+				
+				if (StringTools.startsWith (line, "#") || line.indexOf ("-swf-header") > -1) {
 					
-					if (hxml.length > 0) hxml += " ";
-					hxml += line;
+					continue;
 					
 				}
 				
-			}
-			
-			hxml = StringTools.trim (hxml);
-			
-			var args = new EReg ("\\s+", "g").split (hxml);
-			var strip;
-			
-			while ((strip = args.indexOf ("-swf-header")) > -1) {
+				var space = line.indexOf (" ");
 				
-				args.splice (strip, 2);
-				
-			}
-			
-			/*var index = 1;
-			
-			while (index < args.length) {
-				
-				if (!StringTools.startsWith (args[index - 1], "-") && !StringTools.startsWith (args[index], "-")) {
+				if (space == -1) {
 					
-					args[index - 1] += " " + args[index];
-					args.splice (index, 1);
+					args.push (StringTools.rtrim (line));
 					
 				} else {
 					
-					index++;
+					args.push (line.substr (0, space));
+					
+					args.push (StringTools.trim (line.substr (space + 1)));
 					
 				}
 				
-			}*/
+			}
 			
 			if (PlatformHelper.hostPlatform != Platform.WINDOWS) {
 				
