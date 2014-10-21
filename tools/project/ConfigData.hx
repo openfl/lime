@@ -279,6 +279,12 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 		
 		for (field in Reflect.fields (source)) {
 			
+			if (StringTools.endsWith (field, "___array")) {
+				
+				continue;
+				
+			}
+			
 			var doCopy = true;
 			var exists = Reflect.hasField (destination, field);
 			var typeDest = null;
@@ -303,12 +309,29 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 					
 				}
 				
-				if (StringTools.endsWith (field, "___array")) {
+				if (doCopy && Reflect.field (source, field) != Reflect.field (destination, field) && typeSource != "TObject") {
 					
+					if (!Reflect.hasField (destination, field + "___array")) {
+						
+						Reflect.setField (destination, field + "___array", [ ObjectHelper.deepCopy (Reflect.field (destination, field)) ]);
+						
+					}
+					
+					var array:Array<Dynamic> = Reflect.field (destination, field + "___array");
+					
+					if (Reflect.hasField (source, field + "___array")) {
+						
+						array = array.concat (Reflect.field (source, field + "___array"));
+						Reflect.setField (destination, field + "___array", array);
+						
+					} else {
+						
+						array.push (Reflect.field (source, field));
+						
+					}
+					
+					Reflect.setField (destination, field, Reflect.field (source, field));
 					doCopy = false;
-					var array:Array<Dynamic> = cast Reflect.field (destination, field);
-					array = array.concat (cast Reflect.field (source, field));
-					Reflect.setField (destination, field, array);
 					
 				}
 				
@@ -426,23 +449,25 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 					
 				}
 				
-				var childBucket = addBucket (child.name, bucket);
-				
-				if (hasAttributes) {
-					
-					parseAttributes (child, childBucket);
-					
-				}
-				
-				if (hasChildren) {
-					
-					parseChildren (child, childBucket, d);
-					
-				}
-				
 				if (!hasChildren && !hasAttributes) {
 					
-					parseValue (child, childBucket);
+					parseValue (child, bucket);
+					
+				} else {
+					
+					var childBucket = addBucket (child.name, bucket);
+					
+					if (hasAttributes) {
+						
+						parseAttributes (child, childBucket);
+						
+					}
+					
+					if (hasChildren) {
+						
+						parseChildren (child, childBucket, d);
+						
+					}
 					
 				}
 				
@@ -469,14 +494,20 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 		
 		if (tree.length <= 1) {
 			
-			if (!Reflect.hasField (this, id + "___array")) {
+			if (Reflect.hasField (this, id)) {
 				
-				Reflect.setField (this, id + "___array", Reflect.hasField (this, id) ? [ ObjectHelper.deepCopy (Reflect.field (this, id)) ] : []);
+				if (!Reflect.hasField (this, id + "___array")) {
+					
+					Reflect.setField (this, id + "___array", Reflect.hasField (this, id) ? [ ObjectHelper.deepCopy (Reflect.field (this, id)) ] : []);
+					
+				}
+				
+				var array:Array<Dynamic> = Reflect.field (this, id + "___array");
+				array.push (value);
 				
 			}
 			
-			var array:Array<Dynamic> = Reflect.field (this, id + "___array");
-			array.push (value);
+			Reflect.setField (this, id, value);
 			return;
 			
 		}
@@ -505,14 +536,20 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 			
 		}
 		
-		if (!Reflect.hasField (current, field + "___array")) {
+		if (Reflect.hasField (current, field)) {
 			
-			Reflect.setField (current, field + "___array", Reflect.hasField (current, field) ? [ ObjectHelper.deepCopy (Reflect.field (current, field)) ] : []);
+			if (!Reflect.hasField (current, field + "___array")) {
+				
+				Reflect.setField (current, field + "___array", Reflect.hasField (current, field) ? [ ObjectHelper.deepCopy (Reflect.field (current, field)) ] : []);
+				
+			}
+			
+			var array:Array<Dynamic> = Reflect.field (current, field + "___array");
+			array.push (value);
 			
 		}
 		
-		var array:Array<Dynamic> = Reflect.field (current, field + "___array");
-		array.push (value);
+		Reflect.setField (current, field, value);
 		
 	}
 	
@@ -579,9 +616,19 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 				
 			}
 			
-		}
-		
-		if (doCopy) {
+			if (doCopy) {
+				
+				if (typeSource != "TObject" && !Reflect.hasField (bucket, node + "___array")) {
+					
+					Reflect.setField (bucket, node + "___array", [ ObjectHelper.deepCopy (Reflect.field (bucket, node)) ]);
+					
+				}
+				
+				Reflect.setField (bucket, node, value);
+				
+			}
+			
+		} else {
 			
 			Reflect.setField (bucket, node, value);
 			
