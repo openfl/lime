@@ -14,6 +14,7 @@ import helpers.PathHelper;
 import helpers.PlatformHelper;
 import helpers.ProcessHelper;
 import helpers.StringHelper;
+import lime.graphics.Image;
 import project.Architecture;
 import project.Asset;
 import project.AssetType;
@@ -398,8 +399,8 @@ class IOSPlatform extends PlatformTarget {
 			
 			if (!match) {
 				
-				//var bitmapData = new BitmapData (width, height, false, (0xFF << 24) | (project.window.background & 0xFFFFFF));
-				//File.saveBytes (PathHelper.combine (projectDirectory, splashScreenNames[i]), bitmapData.encode ("png"));
+				var image = new Image (null, 0, 0, width, height, (0xFF << 24) | (project.window.background & 0xFFFFFF));
+				File.saveBytes (PathHelper.combine (projectDirectory, splashScreenNames[i]), image.encode ("png"));
 				
 			}
 			
