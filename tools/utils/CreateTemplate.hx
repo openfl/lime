@@ -237,11 +237,21 @@ class CreateTemplate {
 				PathHelper.mkdir (folder);
 				FileHelper.recursiveCopyTemplate (project.templatePaths, "project", folder, context);
 				
-				if (FileSystem.exists (folder + "/Project.hxproj")) {
+				try {
 					
-					FileSystem.rename (folder + "/Project.hxproj", folder + "/" + title + ".hxproj");
+					if (FileSystem.exists (folder + "/Project.hxproj")) {
+						
+						if (FileSystem.exists (folder + "/" + title + ".hxproj")) {
+							
+							FileSystem.deleteFile (folder + "/" + title + ".hxproj");
+							
+						}
+						
+						FileSystem.rename (folder + "/Project.hxproj", folder + "/" + title + ".hxproj");
+						
+					}
 					
-				}
+				} catch (e:Dynamic) {}
 				
 				return;
 				

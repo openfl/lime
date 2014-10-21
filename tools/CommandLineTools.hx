@@ -616,17 +616,17 @@ class CommandLineTools {
 				
 			} else {
 				
-				if (projectName == "") {
+				if (sampleName == null) {
 					
 					if (FileSystem.exists (PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "samples/" + sampleName))) {
 						
 						CreateTemplate.createSample (words, userDefines);
 						
-					} else if (PathHelper.getHaxelib (new Haxelib (sampleName)) != "") {
+					} else if (PathHelper.getHaxelib (new Haxelib (projectName)) != "") {
 						
-						CreateTemplate.listSamples (sampleName, userDefines);
+						CreateTemplate.listSamples (projectName, userDefines);
 						
-					} else if (sampleName == "") {
+					} else if (projectName == "" || projectName == null) {
 						
 						CreateTemplate.listSamples ("lime", userDefines);
 						
