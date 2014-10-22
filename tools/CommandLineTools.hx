@@ -1105,6 +1105,11 @@ class CommandLineTools {
 				
 				target = Platform.FIREFOX;
 				overrides.haxedefs.set ("firefoxos", "");
+            
+            case "nodejs":
+                
+                target = PlatformHelper.hostPlatform;
+                targetFlags.set ("nodejs", "");
 			
 			default:
 				
