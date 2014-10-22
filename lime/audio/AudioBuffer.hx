@@ -71,18 +71,21 @@ class AudioBuffer {
 		#if (cpp || neko)
 		
 		var data = lime_audio_load (path);
-		var audioBuffer = new AudioBuffer ();
-		audioBuffer.bitsPerSample = data.bitsPerSample;
-		audioBuffer.channels = data.channels;
-		audioBuffer.data = data.data;
-		audioBuffer.sampleRate = data.sampleRate;
-		return audioBuffer;
 		
-		#else
-		
-		return null;
+		if (data != null) {
+			
+			var audioBuffer = new AudioBuffer ();
+			audioBuffer.bitsPerSample = data.bitsPerSample;
+			audioBuffer.channels = data.channels;
+			audioBuffer.data = data.data;
+			audioBuffer.sampleRate = data.sampleRate;
+			return audioBuffer;
+			
+		}
 		
 		#end
+		
+		return null;
 		
 	}
 	
