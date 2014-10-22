@@ -466,9 +466,23 @@ class PlatformSetup {
 						
 					}
 				
-				case "lime", "":
+				case "lime":
 					
 					setupLime ();
+				
+				case "openfl":
+					
+					setupOpenFL ();
+				
+				case "":
+					
+					switch (CommandLineTools.defaultLibrary) {
+						
+						case "lime": setupLime ();
+						case "openfl": setupOpenFL ();
+						default: setupHaxelib (new Haxelib (CommandLineTools.defaultLibrary));
+						
+					}
 				
 				default:
 					
@@ -1797,6 +1811,89 @@ class PlatformSetup {
 				ProcessHelper.openURL (appleXcodeURL);
 				
 			}
+			
+		}
+		
+	}
+	
+	
+	public static function setupOpenFL ():Void {
+		
+		setupHaxelib (new Haxelib ("openfl"));
+		
+		var haxePath = Sys.getEnv ("HAXEPATH");
+		
+		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
+			
+			if (haxePath == null || haxePath == "") {
+				
+				haxePath = "C:\\HaxeToolkit\\haxe\\";
+				
+			}
+			
+			File.copy (PathHelper.getHaxelib (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.bat", haxePath + "\\lime.bat");
+			File.copy (PathHelper.getHaxelib (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.sh", haxePath + "\\lime");
+			File.copy (PathHelper.getHaxelib (new Haxelib ("openfl")) + "\\templates\\\\bin\\openfl.bat", haxePath + "\\openfl.bat");
+			File.copy (PathHelper.getHaxelib (new Haxelib ("openfl")) + "\\templates\\\\bin\\openfl.sh", haxePath + "\\openfl");
+			
+		} else {
+			
+			if (haxePath == null || haxePath == "") {
+				
+				haxePath = "/usr/lib/haxe";
+				
+			}
+			
+			var installedCommand = false;
+			var answer = YES;
+			
+			if (targetFlags.exists ("y")) {
+				
+				Sys.println ("Do you want to install the \"openfl\" command? [y/n/a] y");
+				
+			} else {
+				
+				answer = CLIHelper.ask ("Do you want to install the \"openfl\" command?");
+				
+			}
+			
+			if (answer == YES || answer == ALWAYS) {
+				
+				try {
+					
+					ProcessHelper.runCommand ("", "sudo", [ "cp", "-f", PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates/bin/lime.sh", "/usr/bin/lime" ], false);
+					ProcessHelper.runCommand ("", "sudo", [ "chmod", "755", "/usr/bin/lime" ], false);
+					ProcessHelper.runCommand ("", "sudo", [ "cp", "-f", PathHelper.getHaxelib (new Haxelib ("openfl")) + "/templates/bin/openfl.sh", "/usr/bin/openfl" ], false);
+					ProcessHelper.runCommand ("", "sudo", [ "chmod", "755", "/usr/bin/openfl" ], false);
+					installedCommand = true;
+					
+				} catch (e:Dynamic) {}
+				
+			}
+			
+			if (!installedCommand) {
+				
+				Sys.println ("");
+				Sys.println ("To finish setup, we recommend you either...");
+				Sys.println ("");
+				Sys.println (" a) Manually add an alias called \"openfl\" to run \"haxelib run openfl\"");
+				Sys.println (" b) Run the following commands:");
+				Sys.println ("");
+				Sys.println ("sudo cp \"" + PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates/bin/lime.sh\" /usr/bin/lime");
+				Sys.println ("sudo chmod 755 /usr/bin/lime");
+				Sys.println ("sudo cp \"" + PathHelper.getHaxelib (new Haxelib ("openfl")) + "/templates/bin/openfl.sh\" /usr/bin/openfl");
+				Sys.println ("sudo chmod 755 /usr/bin/openfl");
+				Sys.println ("");
+				
+			}
+			
+		}
+		
+		if (PlatformHelper.hostPlatform == Platform.MAC) {
+			
+			var defines = getDefines ();
+			defines.set ("MAC_USE_CURRENT_SDK", "1");
+			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
 			
 		}
 		

@@ -114,7 +114,7 @@ class CreateTemplate {
 		
 		if (projectName == "project") {
 			
-			projectName = "lime";
+			projectName = CommandLineTools.defaultLibrary;
 			
 			if (sampleName != null) {
 				
@@ -126,7 +126,7 @@ class CreateTemplate {
 		
 		if (projectName == null || projectName == "") {
 			
-			projectName = "lime";
+			projectName = CommandLineTools.defaultLibrary;
 			
 		}
 		
@@ -270,35 +270,41 @@ class CreateTemplate {
 		
 		var projectName = null;
 		var sampleName = null;
+		var outputPath = null;
 		
 		if (colonIndex == -1 && words.length > 1) {
 			
 			projectName = words[0];
 			sampleName = words[1];
 			
+			if (words.length > 2) {
+				
+				outputPath = words[2];
+				
+			}
+			
 		} else {
 			
 			projectName = words[0].substring (0, colonIndex);
 			sampleName = words[0].substr (colonIndex + 1);
 			
+			if (words.length > 1) {
+				
+				outputPath = words[1];
+				
+			}
+			
 		}
 		
 		if (projectName == null || projectName == "") {
 			
-			projectName = "lime";
+			projectName = CommandLineTools.defaultLibrary;
 			
 		}
 		
-		/*if (projectName == null && projectName == "") {
-			
-			LogHelper.error ("You must specify a project name when using \"lime create\"");
-			return;
-			
-		}*/
-		
 		if (sampleName == null || sampleName == "") {
 			
-			LogHelper.error ("You must specify a sample name to copy when using \"lime create\"");
+			LogHelper.error ("You must specify a sample name to copy when using \"" + CommandLineTools.commandName + " create\"");
 			return;
 			
 		}
@@ -307,7 +313,22 @@ class CreateTemplate {
 		defines.set ("create", 1);
 		var project = HXProject.fromHaxelib (new Haxelib (projectName), defines);
 		
+		if (project == null && outputPath == null) {
+			
+			outputPath = sampleName;
+			sampleName = projectName;
+			projectName = CommandLineTools.defaultLibrary;
+			project = HXProject.fromHaxelib (new Haxelib (projectName), defines);
+			
+		}
+		
 		if (project != null) {
+			
+			if (outputPath == null) {
+				
+				outputPath = sampleName;
+				
+			}
 			
 			var samplePaths = project.samplePaths.copy ();
 			samplePaths.reverse ();
@@ -315,30 +336,11 @@ class CreateTemplate {
 			for (samplePath in samplePaths) {
 				
 				var sourcePath = PathHelper.combine (samplePath, sampleName);
-				var targetName = sampleName;
-				
-				if (colonIndex > -1) {
-					
-					if (words.length > 1) {
-						
-						targetName = words[1];
-						
-					}
-					
-				} else {
-					
-					if (words.length > 2) {
-						
-						targetName = words[2];
-						
-					}
-					
-				}
 				
 				if (FileSystem.exists (sourcePath)) {
 					
-					PathHelper.mkdir (targetName);
-					FileHelper.recursiveCopy (sourcePath, PathHelper.tryFullPath (targetName));
+					PathHelper.mkdir (outputPath);
+					FileHelper.recursiveCopy (sourcePath, PathHelper.tryFullPath (outputPath));
 					return;
 					
 				}
@@ -404,20 +406,20 @@ class CreateTemplate {
 		
 		if (templates.length == 0) {
 			
-			projectName = "library";
+			projectName = CommandLineTools.defaultLibrary;
 			
 		}
 		
 		LogHelper.println ("\x1b[1mYou must specify a template when using the 'create' command.\x1b[0m");
 		LogHelper.println ("");
-		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create extension \"ExtensionName\"");
-		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create " + projectName + " project \x1b[3;37m\"OutputDirectory\"\x1b[0m");
-		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create " + projectName + " (sample) \x1b[3;37m\"OutputDirectory\"\x1b[0m");
+		LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + CommandLineTools.commandName + "\x1b[0m create extension \"ExtensionName\"");
+		LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + CommandLineTools.commandName + "\x1b[0m create " + projectName + " project \x1b[3;37m\"OutputDirectory\"\x1b[0m");
+		LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + CommandLineTools.commandName + "\x1b[0m create " + projectName + " (sample) \x1b[3;37m\"OutputDirectory\"\x1b[0m");
 		
 		if (templates.length > 0) {
 			
 			LogHelper.println ("");
-			LogHelper.println (" \x1b[32;1mAvailable Samples:\x1b[0m");
+			LogHelper.println (" " + LogHelper.accentColor + "Available Samples:\x1b[0m");
 			LogHelper.println ("");
 			
 			for (template in templates) {

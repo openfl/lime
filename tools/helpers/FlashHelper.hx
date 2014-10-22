@@ -815,7 +815,7 @@ class FlashHelper {
 			
 		}
 		
-		if (embed != "" || id > 0) {
+		if (assets.length > 0) {
 			
 			project.haxeflags.push ("-swf-lib " + project.app.path + "/flash/obj/assets.swf");
 			project.haxedefs.set ("flash-use-stage", "");

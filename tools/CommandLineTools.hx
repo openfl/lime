@@ -25,6 +25,10 @@ import utils.PlatformSetup;
 class CommandLineTools {
 	
 	
+	public static var commandName = "lime";
+	public static var defaultLibrary = "lime";
+	public static var defaultLibraryName = "Lime";
+	
 	private var additionalArguments:Array <String>;
 	private var command:String;
 	private var debug:Bool;
@@ -58,6 +62,15 @@ class CommandLineTools {
 		
 		processArguments ();
 		version = getVersion ();
+		
+		if (targetFlags.exists ("openfl")) {
+			
+			LogHelper.accentColor = "\x1b[36;1m";
+			commandName = "openfl";
+			defaultLibrary = "openfl";
+			defaultLibraryName = "OpenFL";
+			
+		}
 		
 		if (LogHelper.verbose && command != "") {
 			
@@ -618,7 +631,22 @@ class CommandLineTools {
 				
 				if (sampleName == null) {
 					
-					if (FileSystem.exists (PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "samples/" + sampleName))) {
+					var sampleExists = false;
+					var defines = new Map <String, Dynamic> ();
+					defines.set ("create", 1);
+					var project = HXProject.fromHaxelib (new Haxelib (defaultLibrary), defines);
+					
+					for (samplePath in project.samplePaths) {
+						
+						if (FileSystem.exists (PathHelper.combine (samplePath, sampleName))) {
+							
+							sampleExists = true;
+							
+						}
+						
+					}
+					
+					if (sampleExists) {
 						
 						CreateTemplate.createSample (words, userDefines);
 						
@@ -628,7 +656,7 @@ class CommandLineTools {
 						
 					} else if (projectName == "" || projectName == null) {
 						
-						CreateTemplate.listSamples ("lime", userDefines);
+						CreateTemplate.listSamples (defaultLibrary, userDefines);
 						
 					} else {
 						
@@ -646,7 +674,7 @@ class CommandLineTools {
 			
 		} else {
 			
-			CreateTemplate.listSamples ("lime", userDefines);
+			CreateTemplate.listSamples (defaultLibrary, userDefines);
 			
 		}
 		
@@ -658,16 +686,16 @@ class CommandLineTools {
 		displayInfo ();
 		
 		LogHelper.println ("");
-		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m setup \x1b[3;37m(target)\x1b[0m");
-		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m clean|update|build|run|test|display \x1b[3;37m<project>\x1b[0m (target) \x1b[3;37m[options]\x1b[0m");
-		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m create <library> (template) \x1b[3;37m(directory)\x1b[0m");
-		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m rebuild <library> (target)\x1b[3;37m,(target),...\x1b[0m");
-		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m install|remove|upgrade <library>");
-		LogHelper.println (" \x1b[32;1mUsage:\x1b[0m \x1b[1mlime\x1b[0m help");
+		LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + "\x1b[0m setup \x1b[3;37m(target)\x1b[0m");
+		LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + "\x1b[0m clean|update|build|run|test|display \x1b[3;37m<project>\x1b[0m (target) \x1b[3;37m[options]\x1b[0m");
+		LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + "\x1b[0m create <library> (template) \x1b[3;37m(directory)\x1b[0m");
+		LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + "\x1b[0m rebuild <library> (target)\x1b[3;37m,(target),...\x1b[0m");
+		LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + "\x1b[0m install|remove|upgrade <library>");
+		LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + "\x1b[0m help");
 		LogHelper.println ("");
-		LogHelper.println (" \x1b[32;1mCommands:\x1b[0m ");
+		LogHelper.println (" " + LogHelper.accentColor + "Commands:" + LogHelper.resetColor);
 		LogHelper.println ("");
-		LogHelper.println ("  \x1b[1msetup\x1b[0m -- Setup Lime or a specific platform");
+		LogHelper.println ("  \x1b[1msetup\x1b[0m -- Setup " + defaultLibraryName + " or a specific platform");
 		LogHelper.println ("  \x1b[1mclean\x1b[0m -- Remove the target build directory if it exists");
 		LogHelper.println ("  \x1b[1mupdate\x1b[0m -- Copy assets for the specified project/target");
 		LogHelper.println ("  \x1b[1mbuild\x1b[0m -- Compile and package for the specified project/target");
@@ -681,7 +709,7 @@ class CommandLineTools {
 		LogHelper.println ("  \x1b[1mupgrade\x1b[0m -- Upgrade a library from haxelib");
 		LogHelper.println ("  \x1b[1mhelp\x1b[0m -- Show this information");
 		LogHelper.println ("");
-		LogHelper.println (" \x1b[32;1mTargets:\x1b[0m ");
+		LogHelper.println (" " + LogHelper.accentColor + "Targets:" + LogHelper.resetColor);
 		LogHelper.println ("");
 		LogHelper.println ("  \x1b[1mandroid\x1b[0m -- Create an Android application");
 		LogHelper.println ("  \x1b[1mblackberry\x1b[0m -- Create a BlackBerry application");
@@ -695,7 +723,7 @@ class CommandLineTools {
 		LogHelper.println ("  \x1b[1mwebos\x1b[0m -- Create a webOS application");
 		LogHelper.println ("  \x1b[1mwindows\x1b[0m -- Create a Windows application");
 		LogHelper.println ("");
-		LogHelper.println (" \x1b[32;1mOptions:\x1b[0m ");
+		LogHelper.println (" " + LogHelper.accentColor + "Options:" + LogHelper.resetColor);
 		LogHelper.println ("");
 		LogHelper.println ("  \x1b[1m-D\x1b[0;3mvalue\x1b[0m -- Specify a define to use when processing other commands");
 		LogHelper.println ("  \x1b[1m-debug\x1b[0m -- Use debug configuration instead of release");
@@ -712,7 +740,7 @@ class CommandLineTools {
 		LogHelper.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-minify\x1b[0m -- Minify output using the Google Closure compiler");
 		LogHelper.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-minify -yui\x1b[0m -- Minify output using the YUI compressor");
 		LogHelper.println ("");
-		LogHelper.println (" \x1b[32;1mProject Overrides:\x1b[0m ");
+		LogHelper.println (" " + LogHelper.accentColor + "Project Overrides:" + LogHelper.resetColor);
 		LogHelper.println ("");
 		LogHelper.println ("  \x1b[1m--app-\x1b[0;3moption=value\x1b[0m -- Override a project <app/> setting");
 		LogHelper.println ("  \x1b[1m--meta-\x1b[0;3moption=value\x1b[0m -- Override a project <meta/> setting");
@@ -736,21 +764,40 @@ class CommandLineTools {
 			
 		}
 		
-		LogHelper.println ("\x1b[32;1m ___     \x1b[0m");
-		LogHelper.println ("\x1b[32m/\x1b[1m\\_ \\    __                       \x1b[0m");
-		LogHelper.println ("\x1b[32m\\//\x1b[1m\\ \\  \x1b[0m\x1b[32m/\x1b[1m\\\x1b[0m\x1b[32m_\x1b[1m\\    ___ ___      __   \x1b[0m");
-		LogHelper.println ("\x1b[32m  \\ \x1b[1m\\ \\ \x1b[0m\x1b[32m\\/\x1b[1m\\ \\ /' __` __`\\  /'__`\\ \x1b[0m");
-		LogHelper.println ("\x1b[32m   \\\x1b[1m_\\ \\_\x1b[0m\x1b[32m\\ \x1b[1m\\ \\\x1b[0m\x1b[32m/\x1b[1m\\ \\\x1b[0m\x1b[32m/\x1b[1m\\ \\\x1b[0m\x1b[32m/\x1b[1m\\ \\\x1b[0m\x1b[32m/\x1b[1m\\  __/ \x1b[0m");
-		LogHelper.println ("\x1b[32m   /\x1b[1m\\____\\\x1b[0m\x1b[32m\\ \x1b[1m\\_\\ \\_\\ \\_\\ \\_\\ \\____\\\x1b[0m");
-		LogHelper.println ("\x1b[32m   \\/____/ \\/_/\\/_/\\/_/\\/_/\\/____/\x1b[0m");
-		
-		LogHelper.println ("");
-		LogHelper.println ("\x1b[1mLime Command-Line Tools\x1b[0;1m (" + version + ")\x1b[0m");
-		
+		if (targetFlags.exists ("openfl")) {
+			
+			LogHelper.println (" .d88 88b.                             \x1b[0m\x1b[1;36m888888b 888 \x1b[0m");
+			LogHelper.println ("d88P\" \"Y88b                            \x1b[0m\x1b[1;36m888     888 \x1b[0m");
+			LogHelper.println ("888     888                            \x1b[0m\x1b[1;36m888     888 \x1b[0m");
+			LogHelper.println ("888     888 88888b.   .d88b.  88888b.  \x1b[0m\x1b[1;36m8888888 888 \x1b[0m");
+			LogHelper.println ("888     888 888 \"88b d8P  Y8b 888 \"88b \x1b[0m\x1b[1;36m888     888 \x1b[0m");
+			LogHelper.println ("888     888 888  888 88888888 888  888 \x1b[0m\x1b[1;36m888     888 \x1b[0m");
+			LogHelper.println ("Y88b. .d88P 888 d88P Y8b.     888  888 \x1b[0m\x1b[1;36m888     888 \x1b[0m");
+			LogHelper.println (" \"Y88 88P\"  88888P\"   \"Y8888  888  888 \x1b[0m\x1b[1;36m888     \"Y888P \x1b[0m");
+			LogHelper.println ("            888                                   ");
+			LogHelper.println ("            888                                   \x1b[0m");
+			
+			LogHelper.println ("");
+			LogHelper.println ("\x1b[1mOpenFL Command-Line Tools\x1b[0;1m (" + getVersion (new Haxelib ("openfl")) + "-L" + StringHelper.generateUUID (5, null, StringHelper.generateHashCode (version)) + ")\x1b[0m");
+			
+		} else {
+			
+			LogHelper.println ("\x1b[32;1m ___     \x1b[0m");
+			LogHelper.println ("\x1b[32m/\x1b[1m\\_ \\    __                       \x1b[0m");
+			LogHelper.println ("\x1b[32m\\//\x1b[1m\\ \\  \x1b[0m\x1b[32m/\x1b[1m\\\x1b[0m\x1b[32m_\x1b[1m\\    ___ ___      __   \x1b[0m");
+			LogHelper.println ("\x1b[32m  \\ \x1b[1m\\ \\ \x1b[0m\x1b[32m\\/\x1b[1m\\ \\ /' __` __`\\  /'__`\\ \x1b[0m");
+			LogHelper.println ("\x1b[32m   \\\x1b[1m_\\ \\_\x1b[0m\x1b[32m\\ \x1b[1m\\ \\\x1b[0m\x1b[32m/\x1b[1m\\ \\\x1b[0m\x1b[32m/\x1b[1m\\ \\\x1b[0m\x1b[32m/\x1b[1m\\ \\\x1b[0m\x1b[32m/\x1b[1m\\  __/ \x1b[0m");
+			LogHelper.println ("\x1b[32m   /\x1b[1m\\____\\\x1b[0m\x1b[32m\\ \x1b[1m\\_\\ \\_\\ \\_\\ \\_\\ \\____\\\x1b[0m");
+			LogHelper.println ("\x1b[32m   \\/____/ \\/_/\\/_/\\/_/\\/_/\\/____/\x1b[0m");
+			
+			LogHelper.println ("");
+			LogHelper.println ("\x1b[1mLime Command-Line Tools\x1b[0;1m (" + version + ")\x1b[0m");
+			
+		}
 		
 		if (showHint) {
 			
-			LogHelper.println ("Use \x1b[3mlime setup\x1b[0m to configure platforms or \x1b[3mlime help\x1b[0m for more commands");
+			LogHelper.println ("Use \x1b[3m" + commandName + " setup\x1b[0m to configure platforms or \x1b[3m" + commandName + " help\x1b[0m for more commands");
 			
 		}
 		
@@ -953,7 +1000,7 @@ class CommandLineTools {
 		
 		if (FileSystem.exists (config)) {
 			
-			LogHelper.info ("", "\x1b[32;1mReading HXCPP config: " + config + "\x1b[0m");
+			LogHelper.info ("", LogHelper.accentColor + "Reading HXCPP config: " + config + LogHelper.resetColor);
 			
 			return new ProjectXMLParser (config);
 			
@@ -968,9 +1015,15 @@ class CommandLineTools {
 	}
 	
 	
-	private function getVersion ():String {
+	private function getVersion (haxelib:Haxelib = null):String {
 		
-		var json = Json.parse (File.getContent (PathHelper.getHaxelib (new Haxelib ("lime")) + "/haxelib.json"));
+		if (haxelib == null) {
+			
+			haxelib = new Haxelib ("lime");
+			
+		}
+		
+		var json = Json.parse (File.getContent (PathHelper.getHaxelib (haxelib) + "/haxelib.json"));
 		return json.version;
 		
 	}
@@ -978,7 +1031,7 @@ class CommandLineTools {
 	
 	private function initializeProject (project:HXProject = null, targetName:String = ""):HXProject {
 		
-		LogHelper.info ("", "\x1b[32;1mInitializing project...\x1b[0m");
+		LogHelper.info ("", LogHelper.accentColor + "Initializing project..." + LogHelper.resetColor);
 		
 		var projectFile = "";
 		
@@ -1025,7 +1078,7 @@ class CommandLineTools {
 				
 			} else {
 				
-				LogHelper.info ("", "\x1b[32;1mUsing project file: " + projectFile + "\x1b[0m");
+				LogHelper.info ("", LogHelper.accentColor + "Using project file: " + projectFile + LogHelper.resetColor);
 				
 			}
 			
@@ -1238,7 +1291,7 @@ class CommandLineTools {
 	
 	private function platformSetup ():Void {
 		
-		LogHelper.info ("", "\x1b[32;1mRunning command: SETUP\x1b[0m");
+		LogHelper.info ("", LogHelper.accentColor + "Running command: SETUP" + LogHelper.resetColor);
 		
 		if (words.length == 0) {
 			
@@ -1535,13 +1588,13 @@ class CommandLineTools {
 				
 				var project = initializeProject (null, "firefox");
 				
-				LogHelper.info ("", "\x1b[32;1mUsing publishing target: FIREFOX MARKETPLACE\x1b[0m");
+				LogHelper.info ("", LogHelper.accentColor + "Using publishing target: FIREFOX MARKETPLACE" + LogHelper.resetColor);
 				
 				if (FirefoxMarketplace.isValid (project)) {
 					
 					buildProject (project, "build");
 					
-					LogHelper.info ("", "\n\x1b[32;1mRunning command: PUBLISH\x1b[0m");
+					LogHelper.info ("", "\n" + LogHelper.accentColor + "Running command: PUBLISH" + LogHelper.resetColor);
 					
 					FirefoxMarketplace.publish (project);
 					
@@ -1561,9 +1614,9 @@ class CommandLineTools {
 			
 		}
 		
-		LogHelper.info ("", "\x1b[32;1mRunning command: " + command.toUpperCase () + "\x1b[0m");
+		LogHelper.info ("", LogHelper.accentColor + "Running command: " + command.toUpperCase () + LogHelper.resetColor);
 		
-		var name = "lime";
+		var name = defaultLibrary;
 		
 		if (words.length > 0) {
 			

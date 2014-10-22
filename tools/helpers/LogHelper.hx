@@ -11,9 +11,11 @@ import sys.io.Process;
 class LogHelper {
 	
 	
-	public static var enableColor:Bool = true;
-	public static var mute:Bool;
-	public static var verbose:Bool = false;
+	public static var accentColor = "\x1b[32;1m";
+	public static var enableColor = true;
+	public static var mute = false;
+	public static var resetColor = "\x1b[0m";
+	public static var verbose = false;
 	
 	private static var colorCodes:EReg = ~/\x1b\[[^m]+m/g;
 	private static var colorSupported:Null<Bool>;

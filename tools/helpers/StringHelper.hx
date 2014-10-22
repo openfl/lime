@@ -154,6 +154,22 @@ class StringHelper {
 	}
 	
 	
+	public static function generateHashCode (value:String):Int {
+		
+		var hash = 5381;
+		var length = value.length;
+		
+		for (i in 0...value.length) {
+			
+			hash = ((hash << 5) + hash) + value.charCodeAt (i);
+			
+		}
+		
+		return hash;
+		
+	}
+	
+	
 	public static function generateUUID (length:Int, radix:Null<Int> = null, seed:Null<Int> = null):String {
 		
 		var chars = uuidChars.split ("");
