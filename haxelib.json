@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "2.0.0-alpha.4",
-	"releasenote": "Config, splash screen fixes",
+	"version": "2.0.0-alpha.5",
+	"releasenote": "font name improvement and support for 'openfl' command",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
 }
