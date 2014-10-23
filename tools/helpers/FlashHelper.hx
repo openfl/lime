@@ -299,6 +299,7 @@ class FlashHelper {
 			
 			var face = new Font (src);
 			var font = face.decompose ();
+			font_name = font.family_name;
 			
 			var glyphs = new Array <Font2GlyphData> ();
 			var glyph_layout = new Array <FontLayoutGlyphData> ();
