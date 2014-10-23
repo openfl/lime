@@ -210,12 +210,16 @@ namespace {
 		// TODO: divide into multiple curves
 		
 		glyph		 *g = static_cast<glyph*>(user);
-
+		
+		FT_Vector ctl;
+		ctl.x = (-0.25 * g->x) + (0.75 * ctl1->x) + (0.75 * ctl2->x) + (-0.25 * to->x);
+		ctl.y = (-0.25 * g->y) + (0.75 * ctl1->y) + (0.75 * ctl2->y) + (-0.25 * to->y);
+		
 		g->pts.push_back(PT_CURVE);
-		g->pts.push_back((ctl1->x + ctl2->x) / 2 - g->x);
-		g->pts.push_back((ctl1->y + ctl2->y) / 2 - g->y);
-		g->pts.push_back(to->x - (ctl1->x + ctl2->x) / 2);
-		g->pts.push_back(to->y - (ctl1->y + ctl2->y) / 2);
+		g->pts.push_back(ctl.x - g->x);
+		g->pts.push_back(ctl.y - g->y);
+		g->pts.push_back(to->x - ctl.x);
+		g->pts.push_back(to->y - ctl.y);
 		
 		g->x = to->x;
 		g->y = to->y;
