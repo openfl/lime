@@ -203,10 +203,24 @@ namespace {
 		
 		return 0;
 	}
+	
+	int outline_cubic_to(FVecPtr ctl1, FVecPtr ctl2, FVecPtr to, void *user) {
+		
+		// Cubic curves are not supported, we need to approximate to a quadratic
+		// TODO: divide into multiple curves
+		
+		glyph		 *g = static_cast<glyph*>(user);
 
-	int outline_cubic_to(FVecPtr, FVecPtr , FVecPtr , void *user) {
-		// Cubic curves are not supported
-		return 1;
+		g->pts.push_back(PT_CURVE);
+		g->pts.push_back((ctl1->x + ctl2->x) / 2 - g->x);
+		g->pts.push_back((ctl1->y + ctl2->y) / 2 - g->y);
+		g->pts.push_back(to->x - (ctl1->x + ctl2->x) / 2);
+		g->pts.push_back(to->y - (ctl1->y + ctl2->y) / 2);
+		
+		g->x = to->x;
+		g->y = to->y;
+		
+		return 0;
 	}
 
 	
@@ -368,7 +382,7 @@ namespace lime {
 		
 		while (glyph_index != 0) {
 			
-			if (FT_Load_Glyph (face, glyph_index, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0) {
+			if (FT_Load_Glyph (face, glyph_index, FT_LOAD_NO_BITMAP | FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0) {
 				
 				glyph *g = new glyph;
 				result = FT_Outline_Decompose (&face->glyph->outline, &ofn, g);
