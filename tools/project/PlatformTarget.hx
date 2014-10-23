@@ -2,6 +2,7 @@ package project;
 
 
 import haxe.rtti.Meta;
+import helpers.AssetHelper;
 import helpers.LogHelper;
 
 
@@ -53,6 +54,7 @@ class PlatformTarget {
 		if (!Reflect.hasField (metaFields.update, "ignore") && (command == "update" || command == "build" || command == "test")) {
 			
 			LogHelper.info ("", "\n" + LogHelper.accentColor + "Running command: UPDATE" + LogHelper.resetColor);
+			AssetHelper.processLibraries (project);
 			update ();
 			
 		}

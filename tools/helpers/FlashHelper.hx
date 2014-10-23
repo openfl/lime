@@ -295,11 +295,11 @@ class FlashHelper {
 			// More code ripped off from "samhaxe"
 			
 			var src = name;
-			var font_name = Path.withoutExtension (name);
+			//var font_name = Path.withoutExtension (name);
 			
 			var face = new Font (src);
 			var font = face.decompose ();
-			font_name = font.family_name;
+			var font_name = font.family_name;
 			
 			var glyphs = new Array <Font2GlyphData> ();
 			var glyph_layout = new Array <FontLayoutGlyphData> ();
@@ -316,7 +316,7 @@ class FlashHelper {
 				var shapeRecords = new Array <ShapeRecord> ();
 				var i:Int = 0;
 				var styleChanged:Bool = false;
-
+				
 				while (i < native_glyph.points.length) {
 					
 					var type = native_glyph.points[i++];

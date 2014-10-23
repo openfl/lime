@@ -469,15 +469,9 @@ class CommandLineTools {
 			
 		}
 		
-		if (command == "update" || command == "build" || command == "test") {
-			
-			AssetHelper.processLibraries (project);
-			
-		}
-		
 		if (project.targetHandlers.exists (Std.string (project.target))) {
 			
-			LogHelper.info ("", "\x1b[32;1mUsing target platform: " + Std.string (project.target).toUpperCase () + "\x1b[0m");
+			LogHelper.info ("", LogHelper.accentColor + "Using target platform: " + Std.string (project.target).toUpperCase () + "\x1b[0m");
 			
 			var handler = project.targetHandlers.get (Std.string (project.target));
 			var projectData = Serializer.run (project);
@@ -593,7 +587,7 @@ class CommandLineTools {
 	
 	private function createTemplate () {
 		
-		LogHelper.info ("", "\x1b[32;1mRunning command: CREATE\x1b[0m");
+		LogHelper.info ("", LogHelper.accentColor + "Running command: CREATE\x1b[0m");
 		
 		if (words.length > 0) {
 			
