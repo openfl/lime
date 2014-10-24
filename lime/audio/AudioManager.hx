@@ -6,7 +6,7 @@ import lime.audio.openal.ALC;
 import lime.audio.openal.ALContext;
 import lime.audio.openal.ALDevice;
 
-#if js
+#if html5
 import js.Browser;
 #end
 
@@ -21,7 +21,7 @@ class AudioManager {
 		
 		if (context == null) {
 			
-			#if js
+			#if html5
 			try {
 				
 				untyped __js__ ("window.AudioContext = window.AudioContext || window.webkitAudioContext;");

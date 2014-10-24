@@ -161,7 +161,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		buffer.src = cast (Type.createInstance (className.get (id), []), Sound);
 		return buffer;
 		
-		#elseif js
+		#elseif html5
 		
 		return null;
 		//return new Sound (new URLRequest (path.get (id)));
@@ -183,7 +183,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		return cast (Type.createInstance (className.get (id), []), ByteArray);
 		
-		#elseif js
+		#elseif html5
 		
 		var bytes:ByteArray = null;
 		var data = Preloader.loaders.get (path.get (id)).data;
@@ -262,7 +262,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		return Image.fromBitmapData (cast (Type.createInstance (className.get (id), []), BitmapData));
 		
-		#elseif js
+		#elseif html5
 		
 		return Image.fromImageElement (Preloader.images.get (path.get (id)));
 		
@@ -289,7 +289,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		//return sound;
 		return null;
 		
-		#elseif js
+		#elseif html5
 		
 		return null;
 		//return new Sound (new URLRequest (path.get (id)));
@@ -322,7 +322,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	public override function getText (id:String):String {
 		
-		#if js
+		#if html5
 		
 		var bytes:ByteArray = null;
 		var data = Preloader.loaders.get (path.get (id)).data;
@@ -590,7 +590,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	public override function loadText (id:String, handler:String -> Void):Void {
 		
-		//#if js
+		//#if html5
 		
 		/*if (path.exists (id)) {
 			

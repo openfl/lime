@@ -380,7 +380,7 @@ class ImageDataUtil {
 		var srcRowEnd = Std.int (4 * (rect.x + rect.width));
 		
 		var length = Std.int (4 * rect.width * rect.height);
-		#if js
+		#if html5
 		byteArray.length = length;
 		#end
 		

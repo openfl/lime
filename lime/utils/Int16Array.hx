@@ -1,5 +1,5 @@
 package lime.utils;
-#if js
+#if html5
 typedef Int16Array = js.html.Int16Array;
 #else
 

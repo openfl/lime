@@ -95,7 +95,7 @@ class AudioSource {
 	
 	public function play ():Void {
 		
-		#if js
+		#if html5
 		#elseif flash
 		if (channel != null) channel.stop ();
 		var channel = buffer.src.play (pauseTime / 1000);
@@ -108,7 +108,7 @@ class AudioSource {
 	
 	public function pause ():Void {
 		
-		#if js
+		#if html5
 		#elseif flash
 		if (channel != null) {
 			
@@ -125,7 +125,7 @@ class AudioSource {
 	
 	public function stop ():Void {
 		
-		#if js
+		#if html5
 		#elseif flash
 		pauseTime = 0;
 		if (channel != null) channel.stop ();

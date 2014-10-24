@@ -1,5 +1,5 @@
 package lime.graphics;
-#if js
+#if html5
 typedef CanvasRenderContext = js.html.CanvasRenderingContext2D;
 #else
 

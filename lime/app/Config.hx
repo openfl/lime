@@ -7,7 +7,7 @@ typedef Config = {
 	@:optional var background:Null<Int>;
 	@:optional var borderless:Bool;
 	@:optional var depthBuffer:Bool;
-	#if js
+	#if html5
 	@:optional var element:js.html.HtmlElement;
 	#end
 	@:optional var fps:Int;

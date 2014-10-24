@@ -1,5 +1,5 @@
 package lime.utils;
-#if js
+#if html5
 typedef Int8Array = js.html.Int8Array;
 #else
 

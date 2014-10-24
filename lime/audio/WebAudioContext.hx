@@ -1,4 +1,4 @@
-package lime.audio; #if !js
+package lime.audio; #if !html5
 
 
 class WebAudioContext {

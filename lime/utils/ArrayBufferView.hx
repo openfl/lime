@@ -1,5 +1,5 @@
 package lime.utils;
-#if js
+#if html5
 typedef ArrayBufferView = js.html.ArrayBufferView;
 #else
 

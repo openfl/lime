@@ -4,7 +4,7 @@ import haxe.ds.IntMap;
 import lime.graphics.Image;
 import lime.utils.UInt8Array;
 import lime.system.System;
-#if js
+#if html5
 import js.html.CanvasElement;
 import js.html.CanvasRenderingContext2D;
 #end
@@ -38,7 +38,7 @@ class Font {
 	public var image:Image;
 	public var glyphs:IntMap<IntMap<GlyphRect>>;
 	
-	#if js
+	#if html5
 	
 	private static var __canvas:CanvasElement;
 	private static var __context:CanvasRenderingContext2D;
@@ -68,7 +68,7 @@ class Font {
 		
 		glyphs = new IntMap<IntMap<GlyphRect>>();
 		
-		#if js
+		#if html5
 		
 		/*
 		if (__canvas == null) {

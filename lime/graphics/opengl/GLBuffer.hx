@@ -1,4 +1,4 @@
-package lime.graphics.opengl; #if !js
+package lime.graphics.opengl; #if !html5
 
 
 class GLBuffer extends GLObject {

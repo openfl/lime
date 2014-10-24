@@ -14,7 +14,7 @@ import lime.utils.CompressionAlgorithm;
 import lime.utils.IDataInput;
 import lime.utils.IMemoryRange;
 
-#if js
+#if html5
 #if format
 import format.tools.Inflate;
 #end
@@ -31,12 +31,12 @@ import sys.io.File;
 @:autoBuild(openfl.Assets.embedFile())
 
 
-class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js implements IDataInput implements IMemoryRange #end {
+class ByteArray #if !html5 extends Bytes #end implements ArrayAccess<Int> #if !html5 implements IDataInput implements IMemoryRange #end {
 	
 	
 	public var bytesAvailable (get, null):Int;
 	public var endian (get, set):String;
-	#if js
+	#if html5
 	public var length (default, set):Int = 0;
 	#end
 	public var objectEncoding:Int;
@@ -45,7 +45,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	private var allocated:Int = 0;
 	private var littleEndian:Bool = false;
 	
-	#if js
+	#if html5
 	public var byteView:Uint8Array;
 	private var data:DataView;
 	#else
@@ -54,7 +54,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	#end
 	
 	
-	#if (!js && !disable_cffi)
+	#if (!html5 && !disable_cffi)
 	private static function __init__ () {
 		
 		var factory = function (length:Int) { return new ByteArray (length); };
@@ -79,7 +79,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public function new (size = 0):Void {
 		
-		#if js
+		#if html5
 		if (size > 0) allocated = size;
 		___resizeBuffer (allocated);
 		length = allocated;
@@ -107,7 +107,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	}
 	
 	
-	#if !js
+	#if !html5
 	public function asString ():String {
 		
 		return readUTFBytes (length);
@@ -116,7 +116,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	#end
 	
 	
-	#if !js
+	#if !html5
 	public function checkData (length:Int) {
 		
 		if (length + position > this.length) {
@@ -139,7 +139,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public function compress (algorithm:CompressionAlgorithm = null):Void {
 		
-		#if !js
+		#if !html5
 		#if neko
 		var src = allocated == length ? this : sub(0, length);
 		#else
@@ -194,7 +194,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	}
 	
 	
-	#if !js
+	#if !html5
 	private function ensureElem (size:Int, updateLength:Bool) {
 		
 		var len = size + 1;
@@ -230,7 +230,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	#end
 	
 	
-	#if js
+	#if html5
 	@:extern private inline function ensureWrite (lengthToEnsure:Int):Void {
 		
 		if (this.length < lengthToEnsure) this.length = lengthToEnsure;
@@ -248,7 +248,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	}
 	
 	
-	#if !js
+	#if !html5
 	public function getLength ():Int { return length; }
 	public function getByteBuffer ():ByteArray { return this; }
 	public function getStart ():Int { return 0; }
@@ -264,7 +264,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public inline function readBoolean ():Bool {
 		
-		#if js
+		#if html5
 		return (this.readByte () != 0);
 		#else
 		return (position < length) ? __get (position++) != 0 : ThrowEOFi () != 0;
@@ -275,7 +275,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public inline function readByte ():Int {
 		
-		#if js
+		#if html5
 		var data:Dynamic = data;
 		return data.getInt8 (this.position++);
 		#else
@@ -288,7 +288,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public function readBytes (bytes:ByteArray, offset:Int = 0, length:Int = 0):Void {
 		
-		#if js
+		#if html5
 		
 		if (offset < 0 || length < 0) {
 			
@@ -335,7 +335,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public function readDouble ():Float {
 		
-		#if js
+		#if html5
 		var double = data.getFloat64 (this.position, littleEndian);
 		this.position += 8;
 		return double;
@@ -350,7 +350,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public static function readFile (path:String):ByteArray {
 		
-		#if js
+		#if html5
 		return null;
 		#elseif disable_cffi
 		return ByteArray.fromBytes (File.getBytes (path));
@@ -363,7 +363,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public function readFloat ():Float {
 		
-		#if js
+		#if html5
 		var float = data.getFloat32 (this.position, littleEndian);
 		this.position += 4;
 		return float;
@@ -378,7 +378,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public function readInt ():Int {
 		
-		#if js
+		#if html5
 		var int = data.getInt32 (this.position, littleEndian);
 		this.position += 4;
 		return int;
@@ -402,7 +402,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public function readShort ():Int {
 		
-		#if js
+		#if html5
 		var short = data.getInt16 (this.position, littleEndian);
 		this.position += 2;
 		return short;
@@ -418,7 +418,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public inline function readUnsignedByte ():Int {
 		
-		#if js
+		#if html5
 		var data:Dynamic = data;
 		return data.getUint8 (this.position++);
 		#else
@@ -430,7 +430,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public function readUnsignedInt ():Int {
 		
-		#if js
+		#if html5
 		var uInt = data.getUint32 (this.position, littleEndian);
 		this.position += 4;
 		return uInt;
@@ -447,7 +447,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public function readUnsignedShort ():Int {
 		
-		#if js
+		#if html5
 		var uShort = data.getUint16 (this.position, littleEndian);
 		this.position += 2;
 		return uShort;
@@ -470,7 +470,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public function readUTFBytes (len:Int):String {
 		
-		#if js
+		#if html5
 		
 		var value = "";
 		var max = this.position + len;
@@ -533,7 +533,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	}
 	
 	
-	#if !js
+	#if !html5
 	public function setLength (length:Int):Void {
 		
 		if (length > 0)
@@ -544,7 +544,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	#end
 	
 	
-	#if !js
+	#if !html5
 	public function slice (begin:Int, ?inEnd:Int):ByteArray {
 		
 		if (begin < 0) {
@@ -580,7 +580,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	#end
 	
 	
-	#if !js
+	#if !html5
 	private function ThrowEOFi ():Int {
 		
 		throw "new EOFError();";
@@ -590,7 +590,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	#end
 	
 	
-	public #if !js override #end function toString ():String {
+	public #if !html5 override #end function toString ():String {
 		
 		var cachePosition = position;
 		position = 0;
@@ -603,7 +603,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public function uncompress (algorithm:CompressionAlgorithm = null):Void {
 		
-		#if js
+		#if html5
 		
 		#if format
 		var bytes = Bytes.ofData (cast byteView);
@@ -679,7 +679,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public function writeByte (value:Int):Void {
 		
-		#if js
+		#if html5
 		ensureWrite (this.position + 1);
 		var data:Dynamic = data;
 		data.setInt8 (this.position, value);
@@ -696,10 +696,10 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	}
 	
 	
-	public function writeBytes (bytes:#if js ByteArray #else Bytes #end, offset:UInt = 0, length:UInt = 0):Void {
+	public function writeBytes (bytes:#if html5 ByteArray #else Bytes #end, offset:UInt = 0, length:UInt = 0):Void {
 		
 		if (bytes.length == 0) return;
-		#if js
+		#if html5
 		if (offset < 0 || length < 0) throw ("Write error - Out of bounds");
 		if( length == 0 ) length = bytes.length;
 		ensureWrite (this.position + length);
@@ -718,7 +718,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public function writeDouble (x:Float):Void {
 		
-		#if js
+		#if html5
 		ensureWrite (this.position + 8);
 		data.setFloat64 (this.position, x, littleEndian);
 		this.position += 8;
@@ -733,7 +733,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public function writeFile (path:String):Void {
 		
-		#if !js
+		#if !html5
 		#if disable_cffi
 		File.saveBytes (path, this);
 		#else
@@ -746,7 +746,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public function writeFloat (x:Float):Void {
 		
-		#if js
+		#if html5
 		ensureWrite (this.position + 4);
 		data.setFloat32 (this.position, x, littleEndian);
 		this.position += 4;
@@ -761,7 +761,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public function writeInt (value:Int):Void {
 		
-		#if js
+		#if html5
 		ensureWrite (this.position + 4);
 		data.setInt32 (this.position, value, littleEndian);
 		this.position += 4;
@@ -790,7 +790,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public function writeShort (value:Int):Void {
 		
-		#if js
+		#if html5
 		ensureWrite (this.position + 2);
 		data.setInt16 (this.position, value, littleEndian);
 		this.position += 2;
@@ -816,7 +816,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public function writeUnsignedInt (value:Int):Void {
 		
-		#if js
+		#if html5
 		ensureWrite (this.position + 4);
 		data.setUint32 (this.position, value, littleEndian);
 		this.position += 4;
@@ -829,7 +829,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public function writeUnsignedShort (value:Int):Void {
 		
-		#if js
+		#if html5
 		ensureWrite (this.position + 2);
 		data.setUint16 (this.position, value, littleEndian);
 		this.position += 2;
@@ -842,7 +842,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public function writeUTF (value:String):Void {
 		
-		#if js
+		#if html5
 		writeUnsignedShort (__getUTFBytesCount (value));
 		writeUTFBytes (value);
 		#else
@@ -860,7 +860,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public function writeUTFBytes (value:String):Void {
 		
-		#if js
+		#if html5
 		// utf8-decode
 		for (i in 0...value.length) {
 			
@@ -905,7 +905,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	private inline function __fromBytes (bytes:Bytes):Void {
 		
-		#if js
+		#if html5
 		byteView = untyped __new__("Uint8Array", bytes.getData ());
 		length = byteView.length;
 		allocated = length;
@@ -922,7 +922,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	@:keep public inline function __get (pos:Int):Int {
 		
-		#if js
+		#if html5
 		return data.getInt8 (pos);
 		#else
 		// Neko/cpp pseudo array accessors...
@@ -937,7 +937,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	}
 	
 	
-	#if js
+	#if html5
 	public inline function __getBuffer () {
 		
 		return data.buffer;
@@ -946,7 +946,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	#end
 	
 	
-	#if js
+	#if html5
 	private function __getUTFBytesCount (value:String):Int {
 		
 		var count:Int = 0;
@@ -982,7 +982,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	#end
 	
 	
-	#if js
+	#if html5
 	public static function __ofBuffer (buffer:ArrayBuffer):ByteArray {
 		
 		var bytes = new ByteArray ();
@@ -995,7 +995,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	#end
 	
 	
-	#if js
+	#if html5
 	private function ___resizeBuffer (len:Int):Void {
 		
 		var oldByteView:Uint8Array = this.byteView;
@@ -1017,7 +1017,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	@:keep public inline function __set (pos:Int, v:Int):Void {
 		
-		#if js
+		#if html5
 		data.setUint8 (pos, v);
 		#else
 		// No bounds checking is done in the cpp case
@@ -1038,7 +1038,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	
 	
-	#if !js
+	#if !html5
 	private inline function get_bigEndian ():Bool { return !littleEndian; }
 	private inline function set_bigEndian (value:Bool):Bool { littleEndian = !value; return value; }
 	#end
@@ -1051,7 +1051,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	}
 	
 	
-	#if !js
+	#if !html5
 	private function get_byteLength ():Int {
 		
 		return length;
@@ -1077,7 +1077,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	private inline function set_length (value:Int):Int {
 		
-		#if js
+		#if html5
 		if (allocated < value)
 			___resizeBuffer (allocated = Std.int (Math.max (value, allocated * 2)));
 		else if (allocated > value)
