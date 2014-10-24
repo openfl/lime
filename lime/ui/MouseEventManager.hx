@@ -32,7 +32,7 @@ class MouseEventManager {
 		
 		eventInfo = new MouseEventInfo ();
 		
-		#if (cpp || neko)
+		#if (cpp || neko || nodejs)
 		lime_mouse_event_manager_register (handleEvent, eventInfo);
 		#end
 		
@@ -193,7 +193,7 @@ class MouseEventManager {
 	}
 	
 	
-	#if (cpp || neko)
+	#if (cpp || neko || nodejs)
 	private static var lime_mouse_event_manager_register = System.load ("lime", "lime_mouse_event_manager_register", 2);
 	#end
 	

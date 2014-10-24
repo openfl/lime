@@ -49,7 +49,7 @@ class Window {
 	#if stats
 	public var stats:Dynamic;
 	#end
-	#elseif (cpp || neko)
+	#elseif (cpp || neko || nodejs)
 	public var handle:Dynamic;
 	#end
 	
@@ -65,7 +65,7 @@ class Window {
 			
 			registered = true;
 			
-			#if (cpp || neko)
+			#if (cpp || neko || nodejs)
 			lime_window_event_manager_register (dispatch, eventInfo);
 			#end
 			
@@ -174,7 +174,7 @@ class Window {
 		Browser.document.body.appendChild (stats.domElement);
 		#end
 		
-		#elseif (cpp || neko)
+		#elseif (cpp || neko || nodejs)
 		
 		var flags = 0;
 		
@@ -409,7 +409,7 @@ class Window {
 	
 	public function move (x:Int, y:Int):Void {
 		
-		#if (cpp || neko)
+		#if (cpp || neko || nodejs)
 		lime_window_move (handle, x, y);
 		#end
 		
@@ -421,14 +421,14 @@ class Window {
 		setWidth = width;
 		setHeight = height;
 		
-		#if (cpp || neko)
+		#if (cpp || neko || nodejs)
 		lime_window_resize (handle, width, height);
 		#end
 		
 	}
 	
 	
-	#if (cpp || neko)
+	#if (cpp || neko || nodejs)
 	private static var lime_window_create = System.load ("lime", "lime_window_create", 5);
 	private static var lime_window_event_manager_register = System.load ("lime", "lime_window_event_manager_register", 2);
 	private static var lime_window_move = System.load ("lime", "lime_window_move", 3);

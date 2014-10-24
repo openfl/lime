@@ -74,7 +74,7 @@ class AL {
 	
 	public static function bufferData (buffer:Int, format:Int, data:ByteArray, size:Int, freq:Int):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_buffer_data (buffer, format, data.getByteBuffer (), size, freq);
 		#end
 		
@@ -83,7 +83,7 @@ class AL {
 	
 	public static function buffer3f (buffer:Int, param:Int, value1:Float, value2:Float, value3:Float):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_buffer3f (buffer, param, value1, value2, value3);
 		#end
 		
@@ -92,7 +92,7 @@ class AL {
 	
 	public static function buffer3i (buffer:Int, param:Int, value1:Int, value2:Int, value3:Int):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_buffer3i (buffer, param, value1, value2, value3);
 		#end
 		
@@ -101,7 +101,7 @@ class AL {
 	
 	public static function bufferf (buffer:Int, param:Int, value:Float):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_bufferf (buffer, param, value);
 		#end
 		
@@ -110,7 +110,7 @@ class AL {
 	
 	public static function bufferfv (buffer:Int, param:Int, values:Array<Float>):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_bufferfv (buffer, param, values);
 		#end
 		
@@ -119,7 +119,7 @@ class AL {
 	
 	public static function bufferi (buffer:Int, param:Int, value:Int):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_bufferi (buffer, param, value);
 		#end
 		
@@ -128,7 +128,7 @@ class AL {
 	
 	public static function bufferiv (buffer:Int, param:Int, values:Array<Int>):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_bufferiv (buffer, param, values);
 		#end
 		
@@ -137,7 +137,7 @@ class AL {
 	
 	public static function deleteBuffer (buffer:Int):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_delete_buffer (buffer);
 		#end
 		
@@ -146,7 +146,7 @@ class AL {
 	
 	public static function deleteBuffers (buffers:Array<Int>):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_delete_buffers (buffers.length, buffers);
 		#end
 		
@@ -155,7 +155,7 @@ class AL {
 	
 	public static function deleteSource (source:Int):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_delete_source (source);
 		#end
 		
@@ -164,7 +164,7 @@ class AL {
 	
 	public static function deleteSources (sources:Array<Int>):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_delete_sources (sources.length, sources);
 		#end
 		
@@ -173,7 +173,7 @@ class AL {
 	
 	public static function disable (capability:Int):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_disable (capability);
 		#end
 		
@@ -182,7 +182,7 @@ class AL {
 	
 	public static function distanceModel (distanceModel:Int):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_distance_model (distanceModel);
 		#end
 		
@@ -191,7 +191,7 @@ class AL {
 	
 	public static function dopplerFactor (value:Float):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_doppler_factor (value);
 		#end
 		
@@ -200,7 +200,7 @@ class AL {
 	
 	public static function dopplerVelocity (value:Float):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_doppler_velocity (value);
 		#end
 		
@@ -209,7 +209,7 @@ class AL {
 	
 	public static function enable (capability:Int):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_enable (capability);
 		#end
 		
@@ -218,7 +218,7 @@ class AL {
 	
 	public static function genSource ():Int {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_gen_source ();
 		#else
 		return 0;
@@ -229,7 +229,7 @@ class AL {
 	
 	public static function genSources (n:Int):Array<Int> {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_gen_sources (n);
 		#else
 		return null;
@@ -240,7 +240,7 @@ class AL {
 	
 	public static function genBuffer ():Int {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_gen_buffer ();
 		#else
 		return 0;
@@ -251,7 +251,7 @@ class AL {
 	
 	public static function genBuffers (n:Int):Array<Int> {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_gen_buffers (n);
 		#else
 		return null;
@@ -262,7 +262,7 @@ class AL {
 	
 	public static function getBoolean (param:Int):Bool {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_boolean (param);
 		#else
 		return false;
@@ -273,7 +273,7 @@ class AL {
 	
 	public static function getBooleanv (param:Int, count:Int = 1 ):Array<Bool> {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_booleanv (param, count);
 		#else
 		return null;
@@ -284,7 +284,7 @@ class AL {
 	
 	public static function getBuffer3f (buffer:Int, param:Int):Array<Float> {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_buffer3f (buffer, param);
 		#else
 		return null;
@@ -295,7 +295,7 @@ class AL {
 	
 	public static function getBuffer3i (buffer:Int, param:Int):Array<Int> {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_buffer3i (buffer, param);
 		#else
 		return null;
@@ -306,7 +306,7 @@ class AL {
 	
 	public static function getBufferf (buffer:Int, param:Int):Float {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_bufferf (buffer, param);
 		#else
 		return 0;
@@ -317,7 +317,7 @@ class AL {
 	
 	public static function getBufferfv (buffer:Int, param:Int, count:Int = 1):Array<Float> {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_bufferfv (buffer, param, count);
 		#else
 		return null;
@@ -328,7 +328,7 @@ class AL {
 	
 	public static function getBufferi (buffer:Int, param:Int):Int {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_bufferi (buffer, param);
 		#else
 		return 0;
@@ -339,7 +339,7 @@ class AL {
 	
 	public static function getBufferiv (buffer:Int, param:Int, count:Int = 1):Array<Int> {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_bufferiv (buffer, param, count);
 		#else
 		return null;
@@ -350,7 +350,7 @@ class AL {
 	
 	public static function getDouble (param:Int):Float {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_double (param);
 		#else
 		return 0;
@@ -361,7 +361,7 @@ class AL {
 	
 	public static function getDoublev (param:Int, count:Int = 1 ):Array<Float> {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_doublev (param, count);
 		#else
 		return null;
@@ -372,7 +372,7 @@ class AL {
 	
 	public static function getEnumValue (ename:String):Int {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_enum_value (ename);
 		#else
 		return 0;
@@ -383,7 +383,7 @@ class AL {
 	
 	public static function getError ():Int {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_error ();
 		#else
 		return 0;
@@ -410,7 +410,7 @@ class AL {
 	
 	public static function getFloat (param:Int):Float {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_float (param);
 		#else
 		return 0;
@@ -421,7 +421,7 @@ class AL {
 	
 	public static function getFloatv (param:Int, count:Int = 1):Array<Float> {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_floatv (param, count);
 		#else
 		return null;
@@ -432,7 +432,7 @@ class AL {
 	
 	public static function getInteger (param:Int):Int {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_integer (param);
 		#else
 		return 0;
@@ -443,7 +443,7 @@ class AL {
 	
 	public static function getIntegerv (param:Int, count:Int = 1):Array<Int> {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_integerv (param, count);
 		#else
 		return null;
@@ -454,7 +454,7 @@ class AL {
 	
 	public static function getListener3f (param:Int):Array<Float> {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_listener3f (param);
 		#else
 		return null;
@@ -465,7 +465,7 @@ class AL {
 	
 	public static function getListener3i (param:Int):Array<Int> {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_listener3i (param);
 		#else
 		return null;
@@ -476,7 +476,7 @@ class AL {
 	
 	public static function getListenerf (param:Int):Float {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_listenerf (param);
 		#else
 		return 0;
@@ -487,7 +487,7 @@ class AL {
 	
 	public static function getListenerfv (param:Int, count:Int = 1):Array<Float> {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_listenerfv (param, count);
 		#else
 		return null;
@@ -498,7 +498,7 @@ class AL {
 	
 	public static function getListeneri (param:Int):Int {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_listeneri (param);
 		#else
 		return 0;
@@ -509,7 +509,7 @@ class AL {
 	
 	public static function getListeneriv (param:Int, count:Int = 1):Array<Int> {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_listeneriv (param, count);
 		#else
 		return null;
@@ -527,7 +527,7 @@ class AL {
 	
 	public static function getSource3f (source:Int, param:Int):Array<Float> {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_source3f (source, param);
 		#else
 		return null;
@@ -538,7 +538,7 @@ class AL {
 	
 	public static function getSourcef (source:Int, param:Int):Float {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_sourcef (source, param);
 		#else
 		return 0;
@@ -549,7 +549,7 @@ class AL {
 	
 	public static function getSource3i (source:Int, param:Int):Array<Int> {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_source3i (source, param);
 		#else
 		return null;
@@ -560,7 +560,7 @@ class AL {
 	
 	public static function getSourcefv (source:Int, param:Int):Array<Float> {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_sourcefv (source, param);
 		#else
 		return null;
@@ -571,7 +571,7 @@ class AL {
 	
 	public static function getSourcei (source:Int, param:Int):Int {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_sourcei (source, param);
 		#else
 		return 0;
@@ -582,7 +582,7 @@ class AL {
 	
 	public static function getSourceiv (source:Int, param:Int, count:Int = 1):Array<Int> {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_sourceiv (source, param, count);
 		#else
 		return null;
@@ -593,7 +593,7 @@ class AL {
 	
 	public static function getString (param:Int):String {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_string (param);
 		#else
 		return null;
@@ -604,7 +604,7 @@ class AL {
 	
 	public static function isBuffer (buffer:Int):Bool {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_is_buffer (buffer);
 		#else
 		return false;
@@ -615,7 +615,7 @@ class AL {
 	
 	public static function isEnabled (capability:Int):Bool {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_is_enabled (capability);
 		#else
 		return false;
@@ -626,7 +626,7 @@ class AL {
 	
 	public static function isExtensionPresent (extname:String):Bool {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_is_extension_present (extname);
 		#else
 		return false;
@@ -637,7 +637,7 @@ class AL {
 	
 	public static function isSource (source:Int):Bool {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_is_source (source);
 		#else
 		return false;
@@ -648,7 +648,7 @@ class AL {
 	
 	public static function listener3f (param:Int, value1:Float, value2:Float, value3:Float):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_listener3f (param, value1, value2, value3);
 		#end
 		
@@ -657,7 +657,7 @@ class AL {
 	
 	public static function listener3i (param:Int, value1:Int, value2:Int, value3:Int):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_listener3i (param, value1, value2, value3);
 		#end
 		
@@ -666,7 +666,7 @@ class AL {
 	
 	public static function listenerf (param:Int, value:Float):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_listenerf (param, value);
 		#end
 		
@@ -675,7 +675,7 @@ class AL {
 	
 	public static function listenerfv (param:Int, values:Array<Float>):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_listenerfv (param, values);
 		#end
 		
@@ -684,7 +684,7 @@ class AL {
 	
 	public static function listeneri (param:Int, value:Int):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_listeneri (param, value);
 		#end
 		
@@ -693,7 +693,7 @@ class AL {
 	
 	public static function listeneriv (param:Int, values:Array<Int>):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_listeneriv (param, values);
 		#end
 		
@@ -702,7 +702,7 @@ class AL {
 	
 	public static function source3f (source:Int, param:Int, value1:Float, value2:Float, value3:Float):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_source3f (source, param, value1, value2, value3);
 		#end
 		
@@ -711,7 +711,7 @@ class AL {
 	
 	public static function source3i (source:Int, param:Int, value1:Int, value2:Int, value3:Int):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_source3i (source, param, value1, value2, value3);
 		#end
 		
@@ -720,7 +720,7 @@ class AL {
 	
 	public static function sourcef (source:Int, param:Int, value:Float):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_sourcef (source, param, value);
 		#end
 		
@@ -729,7 +729,7 @@ class AL {
 	
 	public static function sourcefv (source:Int, param:Int, values:Array<Float>):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_sourcefv (source, param, values);
 		#end
 		
@@ -738,7 +738,7 @@ class AL {
 	
 	public static function sourcei (source:Int, param:Int, value:Int):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_sourcei (source, param, value);
 		#end
 		
@@ -747,7 +747,7 @@ class AL {
 	
 	public static function sourceiv (source:Int, param:Int, values:Array<Int>):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_sourceiv (source, param, values);
 		#end
 		
@@ -756,7 +756,7 @@ class AL {
 	
 	public static function sourcePlay (source:Int):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_source_play (source);
 		#end
 		
@@ -765,7 +765,7 @@ class AL {
 	
 	public static function sourcePlayv (sources:Array<Int>):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_source_playv (sources.length, sources);
 		#end
 		
@@ -774,7 +774,7 @@ class AL {
 	
 	public static function sourceStop (source:Int):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_source_stop (source);
 		#end
 		
@@ -783,7 +783,7 @@ class AL {
 	
 	public static function sourceStopv (sources:Array<Int>):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_source_stopv (sources.length, sources);
 		#end
 		
@@ -792,7 +792,7 @@ class AL {
 	
 	public static function sourceRewind (source:Int):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_source_rewind (source);
 		#end
 		
@@ -801,7 +801,7 @@ class AL {
 	
 	public static function sourceRewindv (sources:Array<Int>):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_source_rewindv (sources.length, sources);
 		#end
 		
@@ -810,7 +810,7 @@ class AL {
 	
 	public static function sourcePause (source:Int):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_source_pause (source);
 		#end
 		
@@ -819,7 +819,7 @@ class AL {
 	
 	public static function sourcePausev (sources:Array<Int>):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_source_pausev (sources.length, sources);
 		#end
 		
@@ -828,7 +828,7 @@ class AL {
 	
 	public static function sourceQueueBuffer (source:Int, buffer:Int):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_source_queue_buffers (source, 1, [ buffer ]);
 		#end
 		
@@ -837,7 +837,7 @@ class AL {
 	
 	public static function sourceQueueBuffers (source:Int, nb:Int, buffers:Array<Int>):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_source_queue_buffers (source, nb, buffers);
 		#end
 		
@@ -846,7 +846,7 @@ class AL {
 	
 	public static function sourceUnqueueBuffer (source:Int):Int {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		var res = lime_al_source_unqueue_buffers (source, 1);
 		return res[0];
 		#else
@@ -858,7 +858,7 @@ class AL {
 	
 	public static function sourceUnqueueBuffers (source:Int, nb:Int):Array<Int> {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_source_unqueue_buffers (source, nb);
 		#else
 		return null;
@@ -869,14 +869,14 @@ class AL {
 	
 	public static function speedOfSound (value:Float):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_al_speed_of_sound (value);
 		#end
 		
 	}
 	
 	
-	#if ((cpp || neko) && lime_openal)
+	#if ((cpp || neko || nodejs) && lime_openal)
 	private static var lime_al_buffer_data = System.load ("lime", "lime_al_buffer_data", 5);
 	private static var lime_al_bufferf = System.load ("lime", "lime_al_bufferf", 3);
 	private static var lime_al_buffer3f = System.load ("lime", "lime_al_buffer3f", 5);

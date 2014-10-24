@@ -32,7 +32,7 @@ class ALC {
 	
 	public static function closeDevice (device:ALDevice):Bool {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_alc_close_device (device);
 		#else
 		return false;
@@ -43,7 +43,7 @@ class ALC {
 	
 	public static function createContext (device:ALDevice, attrlist:Array<Int> = null):ALContext {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		var handle:Float = lime_alc_create_context (device, attrlist);
 		
 		if (handle != 0) {
@@ -60,7 +60,7 @@ class ALC {
 	
 	public static function destroyContext (context:ALContext):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_alc_destroy_context (context);
 		#end
 		
@@ -69,7 +69,7 @@ class ALC {
 	
 	public static function getContextsDevice (context:ALContext):ALDevice {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		var handle:Float = lime_alc_get_contexts_device (context);
 		
 		if (handle != 0) {
@@ -86,7 +86,7 @@ class ALC {
 	
 	public static function getCurrentContext ():ALContext {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		var handle:Float = lime_alc_get_current_context ();
 		
 		if (handle != 0) {
@@ -103,7 +103,7 @@ class ALC {
 	
 	public static function getError (device:ALDevice):Int {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_alc_get_error (device);
 		#else
 		return 0;
@@ -130,7 +130,7 @@ class ALC {
 	
 	public static function getIntegerv (device:ALDevice, param:Int, size:Int):Array<Int> {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_alc_get_integerv (device, param, size);
 		#else
 		return null;
@@ -141,7 +141,7 @@ class ALC {
 	
 	public static function getString (device:ALDevice, param:Int):String {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_alc_get_string (device, param);
 		#else
 		return null;
@@ -152,7 +152,7 @@ class ALC {
 	
 	public static function makeContextCurrent (context:ALContext):Bool {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_alc_make_context_current (context);
 		#else
 		return false;
@@ -163,7 +163,7 @@ class ALC {
 	
 	public static function openDevice (deviceName:String = null):ALDevice {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		var handle:Float = lime_alc_open_device (deviceName);
 		
 		if (handle != 0) {
@@ -180,7 +180,7 @@ class ALC {
 	
 	public static function processContext (context:ALContext):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_alc_process_context (context);
 		#end
 		
@@ -189,14 +189,14 @@ class ALC {
 	
 	public static function suspendContext (context:ALContext):Void {
 		
-		#if ((cpp || neko) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal)
 		lime_alc_suspend_context (context);
 		#end
 		
 	}
 	
 	
-	#if ((cpp || neko) && lime_openal)
+	#if ((cpp || neko || nodejs) && lime_openal)
 	private static var lime_alc_close_device = System.load ("lime", "lime_alc_close_device", 1);
 	private static var lime_alc_create_context = System.load ("lime", "lime_alc_create_context", 2);
 	private static var lime_alc_destroy_context = System.load ("lime", "lime_alc_destroy_context", 1);

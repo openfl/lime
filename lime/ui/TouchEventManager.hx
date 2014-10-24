@@ -29,7 +29,7 @@ import flash.Lib;
 		
 		eventInfo = new TouchEventInfo ();
 		
-		#if (cpp || neko)
+		#if (cpp || neko || nodejs)
 		lime_touch_event_manager_register (handleEvent, eventInfo);
 		#end
 		
@@ -147,7 +147,7 @@ import flash.Lib;
 	}
 	
 	
-	#if (cpp || neko)
+	#if (cpp || neko || nodejs)
 	private static var lime_touch_event_manager_register = System.load ("lime", "lime_touch_event_manager_register", 2);
 	#end
 	

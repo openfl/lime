@@ -174,7 +174,7 @@ class TextFormat {
 
 	public var direction(default, null):TextDirection;
 
-	#if (cpp || neko)
+	#if (cpp || neko || nodejs)
 
 	public var handle:Dynamic;
 
@@ -182,7 +182,7 @@ class TextFormat {
 
 	public function new (direction:TextDirection, script:TextScript, language:String) {
 
-		#if (cpp || neko)
+		#if (cpp || neko || nodejs)
 
 		handle = lime_text_create (direction, script, language);
 
@@ -194,7 +194,7 @@ class TextFormat {
 
 	public function fromString (font:Font, size:Int, text:String):Array<PosInfo> {
 
-		#if (cpp || neko)
+		#if (cpp || neko || nodejs)
 
 		return lime_text_from_string (handle, font.handle, size, text);
 
@@ -202,7 +202,7 @@ class TextFormat {
 
 	}
 
-	#if (cpp || neko)
+	#if (cpp || neko || nodejs)
 	private static var lime_text_create = System.load ("lime", "lime_text_create", 3);
 	private static var lime_text_from_string = System.load ("lime", "lime_text_from_string", 4);
 	#end

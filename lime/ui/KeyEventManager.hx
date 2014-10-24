@@ -34,7 +34,7 @@ class KeyEventManager {
 		Lib.current.stage.addEventListener (flash.events.KeyboardEvent.KEY_DOWN, handleEvent);
 		Lib.current.stage.addEventListener (flash.events.KeyboardEvent.KEY_UP, handleEvent);
 		
-		#elseif (cpp || neko)
+		#elseif (cpp || neko || nodejs)
 		
 		lime_key_event_manager_register (handleEvent, eventInfo);
 		
@@ -199,7 +199,7 @@ class KeyEventManager {
 	}
 	
 	
-	#if (cpp || neko)
+	#if (cpp || neko || nodejs)
 	private static var lime_key_event_manager_register = System.load ("lime", "lime_key_event_manager_register", 2);
 	#end
 	

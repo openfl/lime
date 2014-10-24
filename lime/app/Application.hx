@@ -53,7 +53,7 @@ class Application extends Module {
 			
 			AudioManager.init ();
 			
-			#if (cpp || neko)
+			#if (cpp || neko || nodejs)
 			lime_update_event_manager_register (__dispatch, __eventInfo);
 			#end
 			
@@ -85,7 +85,7 @@ class Application extends Module {
 		
 		this.config = config;
 		
-		#if (cpp || neko)
+		#if (cpp || neko || nodejs)
 		__handle = lime_application_create (null);
 		#end
 		
@@ -136,7 +136,7 @@ class Application extends Module {
 	 */
 	public function exec ():Int {
 		
-		#if (cpp || neko)
+		#if (cpp || neko || nodejs)
 		
 		var result = lime_application_exec (__handle);
 		
@@ -378,7 +378,7 @@ class Application extends Module {
 	}
 	
 	
-	#if (cpp || neko)
+	#if (cpp || neko || nodejs)
 	private static var lime_application_create = System.load ("lime", "lime_application_create", 1);
 	private static var lime_application_exec = System.load ("lime", "lime_application_exec", 1);
 	private static var lime_application_get_ticks = System.load ("lime", "lime_application_get_ticks", 0);

@@ -789,7 +789,7 @@ class Image {
 		
 		__fromBase64 (__base64Encode (bytes), type, onload);
 		
-		#elseif (cpp || neko)
+		#elseif (cpp || neko || nodejs)
 		
 		var data = lime_image_load (bytes);
 		
@@ -849,7 +849,7 @@ class Image {
 		// (issue #1019768)
 		if (image.complete) { }
 		
-		#elseif (cpp || neko)
+		#elseif (cpp || neko || nodejs)
 		
 		var buffer = null;
 		
@@ -1153,7 +1153,7 @@ class Image {
 	
 	
 	
-	#if (cpp || neko)
+	#if (cpp || neko || nodejs)
 	private static var lime_image_load:Dynamic = System.load ("lime", "lime_image_load", 1);
 	#end
 	

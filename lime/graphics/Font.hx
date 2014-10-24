@@ -43,7 +43,7 @@ class Font {
 	private static var __canvas:CanvasElement;
 	private static var __context:CanvasRenderingContext2D;
 	
-	#elseif (cpp || neko)
+	#elseif (cpp || neko || nodejs)
 	
 	public var handle:Dynamic;
 	
@@ -56,7 +56,7 @@ class Font {
 		this.fontFace = fontFace;
 		this.glyphs = new IntMap<IntMap<GlyphRect>>();
 		
-		#if (cpp || neko)
+		#if (cpp || neko || nodejs)
 		
 		handle = lime_font_load (fontFace);
 		
@@ -200,7 +200,7 @@ class Font {
 		
 		return new ImageBuffer (bd, bd.width, bd.height);*/
 		
-		#elseif (cpp || neko)
+		#elseif (cpp || neko || nodejs)
 		
 		var data = lime_font_create_image (handle);
 		
@@ -242,7 +242,7 @@ class Font {
 	
 	public function decompose ():NativeFontData {
 		
-		#if (cpp || neko)
+		#if (cpp || neko || nodejs)
 		
 		return lime_font_outline_decompose (handle, 1024 * 20);
 		
@@ -261,7 +261,7 @@ class Font {
 		
 		// this.glyphs = glyphs;
 		
-		#elseif (cpp || neko)
+		#elseif (cpp || neko || nodejs)
 		
 		lime_font_load_range (handle, size, start, end);
 		
@@ -282,7 +282,7 @@ class Font {
 		
 		//this.glyphs = glyphs;
 		
-		#elseif (cpp || neko)
+		#elseif (cpp || neko || nodejs)
 		
 		lime_font_load_glyphs (handle, size, glyphs);
 		
@@ -291,7 +291,7 @@ class Font {
 	}
 	
 	
-	#if (cpp || neko)
+	#if (cpp || neko || nodejs)
 	private static var lime_font_load = System.load ("lime", "lime_font_load", 1);
 	private static var lime_font_load_glyphs = System.load ("lime", "lime_font_load_glyphs", 3);
 	private static var lime_font_load_range = System.load ("lime", "lime_font_load_range", 4);

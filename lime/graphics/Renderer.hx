@@ -92,7 +92,7 @@ class Renderer {
 			
 		}
 		
-		#elseif (cpp || neko)
+		#elseif (cpp || neko || nodejs)
 		
 		handle = lime_renderer_create (window.handle);
 		context = OPENGL (new GLRenderContext ());
@@ -107,7 +107,7 @@ class Renderer {
 			
 			registered = true;
 			
-			#if (cpp || neko)
+			#if (cpp || neko || nodejs)
 			lime_render_event_manager_register (dispatch, eventInfo);
 			#end
 			
@@ -149,14 +149,14 @@ class Renderer {
 	
 	public function flip ():Void {
 		
-		#if (cpp || neko)
+		#if (cpp || neko || nodejs)
 		lime_renderer_flip (handle);
 		#end
 		
 	}
 	
 	
-	#if (cpp || neko)
+	#if (cpp || neko || nodejs)
 	private static var lime_render_event_manager_register = System.load ("lime", "lime_render_event_manager_register", 2);
 	private static var lime_renderer_create = System.load ("lime", "lime_renderer_create", 1);
 	private static var lime_renderer_flip = System.load ("lime", "lime_renderer_flip", 1);
