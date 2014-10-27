@@ -397,6 +397,8 @@ class FileHelper {
 		
 		var numChars = 0;
 		var numBytes = 0;
+		var byteHeader = [];
+		var zeroBytes = 0;
 		
 		try {
 			
@@ -404,12 +406,24 @@ class FileHelper {
 				
 				var byte = input.readByte ();
 				
+				if (numBytes < 3) {
+					
+					byteHeader.push (byte);
+					
+				} else if (byteHeader != null) {
+					
+					if (byteHeader[0] == 0xFF && byteHeader[1] == 0xFE) return true; // UCS-2LE or UTF-16LE
+					if (byteHeader[0] == 0xFE && byteHeader[1] == 0xFF) return true; // UCS-2BE or UTF-16BE
+					if (byteHeader[0] == 0xEF && byteHeader[1] == 0xBB && byteHeader[2] == 0xBF) return true; // UTF-8
+					byteHeader = null;
+					
+				}
+				
 				numBytes++;
 				
 				if (byte == 0) {
 					
-					input.close ();
-					return false;
+					zeroBytes++;
 					
 				}
 				
@@ -425,7 +439,7 @@ class FileHelper {
 		
 		input.close ();
 		
-		if (numBytes == 0 || (numChars / numBytes) > 0.7) {
+		if (numBytes == 0 || (numChars / numBytes) > 0.9 || ((zeroBytes / numBytes) < 0.015 && (numChars / numBytes) > 0.5)) {
 			
 			return true;
 			
