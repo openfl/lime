@@ -7,6 +7,7 @@ package helpers;
 //import openfl.geom.Matrix;
 import lime.graphics.Image;
 import project.Haxelib;
+import project.Platform;
 import sys.FileSystem;
 //import format.SVG;
 
@@ -34,6 +35,36 @@ class ImageHelper {
 		}
 		
 		args.push (path);
+		
+		if (PlatformHelper.hostPlatform == Platform.MAC) {
+			
+			try {
+				
+				var found = false;
+				
+				if (FileSystem.exists ("/System/Library/Java/JavaVirtualMachines")) {
+					
+					found = (FileSystem.readDirectory ("/System/Library/Java/JavaVirtualMachines").length > 0);
+					
+				}
+				
+				if (FileSystem.exists ("/Library/Java/JavaVirtualMachines")) {
+					
+					found = (FileSystem.readDirectory ("/Library/Java/JavaVirtualMachines").length > 0);
+					
+				}
+				
+				if (!found) {
+					
+					if (LogHelper.verbose) LogHelper.warn ("Skipping SVG to PNG rasterization step, no Java runtime detected");
+					
+					return null;
+					
+				}
+				
+			} catch (e:Dynamic) {}
+			
+		}
 		
 		if (LogHelper.verbose) {
 			
