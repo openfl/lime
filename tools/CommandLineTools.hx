@@ -557,7 +557,7 @@ class CommandLineTools {
 			
 			if (platform != null) {
 				
-				platform.execute ();
+				platform.execute (additionalArguments);
 				
 			} else {
 				

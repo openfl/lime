@@ -197,7 +197,7 @@ class WindowsPlatform extends PlatformTarget {
 	
 	public override function run ():Void {
 		
-		var arguments = [];
+		var arguments = additionalArguments.copy ();
 		
 		if (project.target == PlatformHelper.hostPlatform) {
 			

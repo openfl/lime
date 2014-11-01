@@ -9,6 +9,7 @@ import helpers.LogHelper;
 class PlatformTarget {
 	
 	
+	public var additionalArguments:Array <String>;
 	public var command:String;
 	public var project:HXProject;
 	public var targetFlags:Map <String, String>;
@@ -24,10 +25,11 @@ class PlatformTarget {
 	}
 	
 	
-	public function execute ():Void {
+	public function execute (additionalArguments:Array <String>):Void {
 		
 		LogHelper.info ("", LogHelper.accentColor + "Using target platform: " + Std.string (project.target).toUpperCase () + LogHelper.resetColor);
 		
+		this.additionalArguments = additionalArguments;
 		var metaFields = Meta.getFields (Type.getClass (this));
 		
 		if (!Reflect.hasField (metaFields.display, "ignore") && (command == "display")) {
