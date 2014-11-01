@@ -118,6 +118,18 @@ namespace lime {
 	}
 	
 	
+	value lime_font_get_family_name (value fontHandle) {
+		
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)(intptr_t)val_float (fontHandle);
+		return font->GetFamilyName ();
+		#else
+		return alloc_null ();
+		#endif
+		
+	}
+	
+	
 	value lime_font_load (value fontFace) {
 		
 		#ifdef LIME_FREETYPE
@@ -389,6 +401,7 @@ namespace lime {
 	DEFINE_PRIM (lime_application_get_ticks, 0);
 	DEFINE_PRIM (lime_audio_load, 1);
 	DEFINE_PRIM (lime_font_create_image, 1);
+	DEFINE_PRIM (lime_font_get_family_name, 1);
 	DEFINE_PRIM (lime_font_load, 1);
 	DEFINE_PRIM (lime_font_load_glyphs, 3);
 	DEFINE_PRIM (lime_font_load_range, 4);

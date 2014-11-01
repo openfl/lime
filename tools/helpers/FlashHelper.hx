@@ -297,7 +297,7 @@ class FlashHelper {
 			var src = name;
 			//var font_name = Path.withoutExtension (name);
 			
-			var face = new Font (src);
+			var face = Font.fromFile (src);
 			var font = face.decompose ();
 			var font_name = font.family_name;
 			

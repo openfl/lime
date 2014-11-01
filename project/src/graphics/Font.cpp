@@ -522,6 +522,13 @@ namespace lime {
 	}
 	
 	
+	value Font::GetFamilyName () {
+		
+		return alloc_wstring (get_familyname_from_sfnt_name (face));
+		
+	}
+	
+	
 	bool Font::InsertCodepoint (unsigned long codepoint) {
 		
 		GlyphInfo info;

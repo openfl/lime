@@ -20,7 +20,9 @@ import sys.io.File;
 #if lime
 import helpers.FileHelper;
 import helpers.ProcessHelper;
+import lime.graphics.Font;
 import sys.io.Process;
+@:access(lime.graphics.Font)
 #end
 
 
@@ -904,6 +906,20 @@ class HXProject {
 				}
 				
 				embeddedAsset.type = Std.string (asset.type).toLowerCase ();
+				
+				#if lime
+				if (asset.type == FONT) {
+					
+					try {
+						
+						var font = Font.fromFile (asset.sourcePath);
+						embeddedAsset.fontName = font.fontName;
+						
+					} catch (e:Dynamic) {}
+					
+				}
+				#end
+				
 				context.assets.push (embeddedAsset);
 				
 			}

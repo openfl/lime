@@ -52,6 +52,7 @@ namespace lime {
 			Font (const char *fontFace);
 			
 			value Decompose (int em);
+			value GetFamilyName ();
 			void LoadGlyphs (const char *glyphs);
 			void LoadRange (unsigned long start, unsigned long end);
 			value RenderToImage (ImageBuffer *image);

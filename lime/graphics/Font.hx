@@ -1,72 +1,41 @@
 package lime.graphics;
 
-import haxe.ds.IntMap;
+
 import lime.graphics.Image;
+import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 import lime.system.System;
+
 #if js
 import js.html.CanvasElement;
 import js.html.CanvasRenderingContext2D;
 #end
 
-class GlyphRect {
-	
-	public var x:Float;
-	public var y:Float;
-	public var width:Float;
-	public var height:Float;
-	public var xOffset:Int;
-	public var yOffset:Int;
-	
-	public function new (x:Float, y:Float, width:Float, height:Float, xOffset:Int=0, yOffset:Int=0) {
-		
-		this.x = x;
-		this.y = y;
-		this.xOffset = xOffset;
-		this.yOffset = yOffset;
-		this.width = width;
-		this.height = height;
-		
-	}
-	
-}
-
 @:autoBuild(lime.Assets.embedFont())
+
+
 class Font {
 	
 	
+	public var fontName (default, null):String;
 	public var image:Image;
-	public var glyphs:IntMap<IntMap<GlyphRect>>;
+	public var glyphs:Map<Int, Map<Int, GlyphRect>>;
 	
-	#if js
+	@:noCompletion private var __fontPath:String;
+	@:noCompletion private var __handle:Dynamic;
 	
-	private static var __canvas:CanvasElement;
-	private static var __context:CanvasRenderingContext2D;
 	
-	#elseif (cpp || neko)
-	
-	public var handle:Dynamic;
-	
-	#end
-	
-	public var fontFace(default, null):String;
-	
-	public function new (fontFace:String) {
+	public function new (fontName:String = null) {
 		
-		this.fontFace = fontFace;
-		this.glyphs = new IntMap<IntMap<GlyphRect>>();
-		
-		#if (cpp || neko)
-		
-		handle = lime_font_load (fontFace);
-		
-		#end
+		this.fontName = fontName;
+		this.glyphs = new Map<Int, Map<Int, GlyphRect>>();
 		
 	}
 	
+	
 	public function createImage ():ImageBuffer {
 		
-		glyphs = new IntMap<IntMap<GlyphRect>>();
+		glyphs = new Map<Int, Map<Int, GlyphRect>>();
 		
 		#if js
 		
@@ -202,7 +171,7 @@ class Font {
 		
 		#elseif (cpp || neko)
 		
-		var data = lime_font_create_image (handle);
+		var data = lime_font_create_image (__handle);
 		
 		if (data == null) {
 			
@@ -210,7 +179,7 @@ class Font {
 			
 		} else {
 			
-			var glyphRects:IntMap<GlyphRect>;
+			var glyphRects:Map<Int, GlyphRect>;
 			
 			for (glyph in cast (data.glyphs, Array<Dynamic>)) {
 				
@@ -220,7 +189,7 @@ class Font {
 					
 				} else {
 					
-					glyphRects = new IntMap<GlyphRect>();
+					glyphRects = new Map<Int, GlyphRect>();
 					glyphs.set (glyph.size, glyphRects);
 					
 				}
@@ -244,13 +213,31 @@ class Font {
 		
 		#if (cpp || neko)
 		
-		return lime_font_outline_decompose (handle, 1024 * 20);
+		return lime_font_outline_decompose (__handle, 1024 * 20);
 		
 		#else
 		
 		return null;
 		
 		#end
+		
+	}
+	
+	
+	public static function fromBytes (bytes:ByteArray):Font {
+		
+		var font = new Font ();
+		// TODO font.__fromBytes (bytes);
+		return font;
+		
+	}
+	
+	
+	public static function fromFile (path:String):Font {
+		
+		var font = new Font ();
+		font.__fromFile (path);
+		return font;
 		
 	}
 	
@@ -263,7 +250,7 @@ class Font {
 		
 		#elseif (cpp || neko)
 		
-		lime_font_load_range (handle, size, start, end);
+		lime_font_load_range (__handle, size, start, end);
 		
 		#end
 		
@@ -284,7 +271,26 @@ class Font {
 		
 		#elseif (cpp || neko)
 		
-		lime_font_load_glyphs (handle, size, glyphs);
+		lime_font_load_glyphs (__handle, size, glyphs);
+		
+		#end
+		
+	}
+	
+	
+	@:noCompletion private function __fromFile (path:String):Void {
+		
+		__fontPath = path;
+		
+		#if (cpp || neko)
+		
+		__handle = lime_font_load (__fontPath);
+		
+		if (__handle != null) {
+			
+			fontName = lime_font_get_family_name (__handle);
+			
+		}
 		
 		#end
 		
@@ -292,6 +298,7 @@ class Font {
 	
 	
 	#if (cpp || neko)
+	private static var lime_font_get_family_name = System.load ("lime", "lime_font_get_family_name", 1);
 	private static var lime_font_load = System.load ("lime", "lime_font_load", 1);
 	private static var lime_font_load_glyphs = System.load ("lime", "lime_font_load_glyphs", 3);
 	private static var lime_font_load_range = System.load ("lime", "lime_font_load_range", 4);
@@ -303,39 +310,70 @@ class Font {
 }
 
 
-typedef NativeFontData = 
-{
-   var has_kerning: Bool;
-   var is_fixed_width: Bool;
-   var has_glyph_names: Bool;
-   var is_italic: Bool;
-   var is_bold: Bool;
-   var num_glyphs: Int;
-   var family_name: String;
-   var style_name: String;
-   var em_size: Int;
-   var ascend: Int;
-   var descend: Int;
-   var height: Int;
-   var glyphs: Array<NativeGlyphData>;
-   var kerning: Array<NativeKerningData>;
+class GlyphRect {
+	
+	
+	public var x:Float;
+	public var y:Float;
+	public var width:Float;
+	public var height:Float;
+	public var xOffset:Int;
+	public var yOffset:Int;
+	
+	
+	public function new (x:Float, y:Float, width:Float, height:Float, xOffset:Int=0, yOffset:Int=0) {
+		
+		this.x = x;
+		this.y = y;
+		this.xOffset = xOffset;
+		this.yOffset = yOffset;
+		this.width = width;
+		this.height = height;
+		
+	}
+	
+	
 }
 
-typedef NativeGlyphData = 
-{
-   var char_code: Int;
-   var advance: Int;
-   var min_x: Int;
-   var max_x: Int;
-   var min_y: Int;
-   var max_y: Int;
-   var points: Array<Int>;
+
+typedef NativeFontData = {
+	
+	var has_kerning:Bool;
+	var is_fixed_width:Bool;
+	var has_glyph_names:Bool;
+	var is_italic:Bool;
+	var is_bold:Bool;
+	var num_glyphs:Int;
+	var family_name:String;
+	var style_name:String;
+	var em_size:Int;
+	var ascend:Int;
+	var descend:Int;
+	var height:Int;
+	var glyphs:Array<NativeGlyphData>;
+	var kerning:Array<NativeKerningData>;
+	
 }
 
-typedef NativeKerningData = 
-{
-   var left_glyph:Int;
-   var right_glyph:Int;
-   var x:Int;
-   var y:Int;
+
+typedef NativeGlyphData = {
+	
+	var char_code:Int;
+	var advance:Int;
+	var min_x:Int;
+	var max_x:Int;
+	var min_y:Int;
+	var max_y:Int;
+	var points:Array<Int>;
+	
+}
+
+
+typedef NativeKerningData = {
+	
+	var left_glyph:Int;
+	var right_glyph:Int;
+	var x:Int;
+	var y:Int;
+	
 }
