@@ -185,8 +185,7 @@ class AndroidHelper {
 			
 		}
 		
-		//var args = [ "install", "-r", "-d", targetPath ];
-		var args = [ "install", "-r", targetPath ];
+		var args = [ "install", "-r", "-d", targetPath ];
 		
 		if (deviceID != null && deviceID != "") {
 			
