@@ -58,7 +58,7 @@ namespace lime {
 	
 	static SDL_TimerID timerID = 0;
 	bool timerActive = false;
-	
+	bool firstTime = true;
 	
 	Uint32 OnTimer (Uint32 interval, void *) {
 		
@@ -80,64 +80,74 @@ namespace lime {
 		
 	}
 	
-	
-	int SDLApplication::Exec () {
-		
+	void SDLApplication::Init() {
+
 		framePeriod = 1000.0 / 60.0;
-		SDL_Event event;
 		active = true;
 		lastUpdate = SDL_GetTicks ();
 		nextUpdate = lastUpdate;
+
+	}
+	
+	int SDLApplication::Exec () {
 		
-		bool firstTime = true;
+		Init();
 		
-		while (active) {
+		while (active)
+			Update();
+		
+		return Quit();
+	}
+	
+	bool SDLApplication::Update() {
+
+		SDL_Event event;
+		event.type = -1;
 			
+		if (active && (firstTime || SDL_WaitEvent (&event))) {
+			
+			firstTime = false;
+			
+			HandleEvent (&event);
 			event.type = -1;
+			if (!active)
+				return active;
 			
-			while (active && (firstTime || SDL_WaitEvent (&event))) {
-				
-				firstTime = false;
+			if (SDL_PollEvent (&event)) {
 				
 				HandleEvent (&event);
 				event.type = -1;
-				if (!active) break;
 				
-				while (active && SDL_PollEvent (&event)) {
-					
-					HandleEvent (&event);
-					event.type = -1;
-					if (!active) break;
-					
-				}
+			}
+			
+			currentUpdate = SDL_GetTicks ();
+			
+			if (currentUpdate >= nextUpdate) {
 				
-				currentUpdate = SDL_GetTicks ();
+				SDL_RemoveTimer (timerID);
+				OnTimer (0, 0);
 				
-				if (currentUpdate >= nextUpdate) {
-					
-					SDL_RemoveTimer (timerID);
-					OnTimer (0, 0);
-					
-				} else if (!timerActive) {
-					
-					timerActive = true;
-					timerID = SDL_AddTimer (nextUpdate - currentUpdate, OnTimer, 0);
-					
-				}
+			} else if (!timerActive) {
+				
+				timerActive = true;
+				timerID = SDL_AddTimer (nextUpdate - currentUpdate, OnTimer, 0);
 				
 			}
 			
 		}
-		
+		return active;
+	}
+
+	int SDLApplication::Quit() {
+
 		windowEvent.type = WINDOW_DEACTIVATE;
 		WindowEvent::Dispatch (&windowEvent);
 		
 		SDL_Quit ();
 		
 		return 0;
-		
+
 	}
-	
 	
 	void SDLApplication::HandleEvent (SDL_Event* event) {
 		

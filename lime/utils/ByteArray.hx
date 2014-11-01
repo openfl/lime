@@ -91,8 +91,13 @@ class ByteArray #if !html5 extends Bytes #end implements ArrayAccess<Int> #if !h
 			allocated = size < 16 ? 16 : size;
 			var bytes = untyped __dollar__smake (allocated);
 			super (size, bytes);
-			#else
+            #else
+            #if nodejs
+            var data = new BytesData(size);
+			data.fill(0);
+            #else
 			var data = new BytesData ();
+            #end
 			#if cpp
 			NativeArray.setSize (data, size);
 			#else
@@ -208,6 +213,17 @@ class ByteArray #if !html5 extends Bytes #end implements ArrayAccess<Int> #if !h
 				untyped __dollar__sblit (new_b, 0, b, 0, length);
 			b = new_b;
 			
+		}
+        #elseif nodejs
+        if (b == null)
+            b = new BytesData(len);
+        else
+		{
+            var new_b = new BytesData(len);
+			b.copy(new_b);
+			if (new_b.length > b.length)
+				new_b.fill(0, b.length, new_b.length);
+			b = new_b;
 		}
 		#else
 		if (b == null)
@@ -382,6 +398,10 @@ class ByteArray #if !html5 extends Bytes #end implements ArrayAccess<Int> #if !h
 		var int = data.getInt32 (this.position, littleEndian);
 		this.position += 4;
 		return int;
+		#elseif nodejs
+		var int = littleEndian ? b.readInt32LE(this.position) : b.readInt32BE(this.position);
+		this.position += 4;
+		return int;
 		#else
 		var ch1 = readUnsignedByte ();
 		var ch2 = readUnsignedByte ();
@@ -404,6 +424,10 @@ class ByteArray #if !html5 extends Bytes #end implements ArrayAccess<Int> #if !h
 		
 		#if html5
 		var short = data.getInt16 (this.position, littleEndian);
+		this.position += 2;
+		return short;
+		#elseif nodejs
+		var short = littleEndian ? b.readInt16LE(this.position) : b.readInt16BE(this.position);
 		this.position += 2;
 		return short;
 		#else
@@ -434,6 +458,10 @@ class ByteArray #if !html5 extends Bytes #end implements ArrayAccess<Int> #if !h
 		var uInt = data.getUint32 (this.position, littleEndian);
 		this.position += 4;
 		return uInt;
+		#elseif nodejs
+		var uInt = littleEndian ? b.readUInt32LE(this.position) : b.readUInt32BE(this.position);
+		this.position += 4;
+		return uInt;
 		#else
 		var ch1 = readUnsignedByte ();
 		var ch2 = readUnsignedByte ();
@@ -449,6 +477,10 @@ class ByteArray #if !html5 extends Bytes #end implements ArrayAccess<Int> #if !h
 		
 		#if html5
 		var uShort = data.getUint16 (this.position, littleEndian);
+		this.position += 2;
+		return uShort;
+		#elseif nodejs
+		var uShort = littleEndian ? b.readInt16LE(this.position) : b.readInt16BE(this.position);
 		this.position += 2;
 		return uShort;
 		#else
@@ -524,7 +556,9 @@ class ByteArray #if !html5 extends Bytes #end implements ArrayAccess<Int> #if !h
 		var result = "";
 		untyped __global__.__hxcpp_string_of_bytes (b, result, p, len);
 		return result;
-		#else 
+		#elseif nodejs
+		return untyped b.toString();
+		#else
 		return "-";
 		#end
 		
@@ -663,7 +697,9 @@ class ByteArray #if !html5 extends Bytes #end implements ArrayAccess<Int> #if !h
 		
 		#if cpp
 		untyped b.__unsafe_set (position++, byte);
-		#else
+		#elseif nodejs
+        b.writeUInt8 (byte, position++/*, true*/);
+        #else
 		untyped __dollar__sset (b, position++, byte & 0xff);
 		#end
 		
@@ -688,6 +724,8 @@ class ByteArray #if !html5 extends Bytes #end implements ArrayAccess<Int> #if !h
 		ensureElem (position, true);
 		#if cpp
 		b[position++] = untyped value;
+		#elseif nodejs
+		b.writeUInt8(value, position++);
 		#else
 		untyped __dollar__sset (b, position++, value & 0xff);
 		#end
@@ -767,7 +805,13 @@ class ByteArray #if !html5 extends Bytes #end implements ArrayAccess<Int> #if !h
 		this.position += 4;
 		#else
 		ensureElem (position + 3, true);
-		
+		#if nodejs
+		if (littleEndian)
+			b.writeInt32LE(value, position);
+		else
+			b.writeInt32BE(value, position);
+		this.position += 4;
+		#else
 		if (littleEndian) {
 			
 			write_uncheck (value);
@@ -783,6 +827,7 @@ class ByteArray #if !html5 extends Bytes #end implements ArrayAccess<Int> #if !h
 			write_uncheck (value);
 			
 		}
+		#end
 		#end
 		
 	}
@@ -796,7 +841,13 @@ class ByteArray #if !html5 extends Bytes #end implements ArrayAccess<Int> #if !h
 		this.position += 2;
 		#else
 		ensureElem (position + 1, true);
-		
+		#if nodejs
+		if (littleEndian)
+			b.writeInt16LE(value, position);
+		else
+			b.writeInt16BE(value, position);
+		this.position += 2;
+		#else
 		if (littleEndian) {
 			
 			write_uncheck (value);
@@ -808,7 +859,7 @@ class ByteArray #if !html5 extends Bytes #end implements ArrayAccess<Int> #if !h
 			write_uncheck (value);
 			
 		}
-		
+		#end
 		#end
 		
 	}
@@ -819,6 +870,13 @@ class ByteArray #if !html5 extends Bytes #end implements ArrayAccess<Int> #if !h
 		#if html5
 		ensureWrite (this.position + 4);
 		data.setUint32 (this.position, value, littleEndian);
+		this.position += 4;
+		#elseif nodejs
+		ensureElem (position + 3, true);
+		if (littleEndian)
+			b.writeUInt32LE(value, this.position);
+		else
+			b.writeUInt32BE(value, this.position);
 		this.position += 4;
 		#else
 		writeInt (value);
@@ -832,6 +890,12 @@ class ByteArray #if !html5 extends Bytes #end implements ArrayAccess<Int> #if !h
 		#if html5
 		ensureWrite (this.position + 2);
 		data.setUint16 (this.position, value, littleEndian);
+		this.position += 2;
+		#elseif nodejs
+		if (littleEndian)
+			b.writeUInt16LE(value, position);
+		else
+			b.writeUInt16BE(value, position);
 		this.position += 2;
 		#else
 		writeShort (value);
@@ -928,6 +992,8 @@ class ByteArray #if !html5 extends Bytes #end implements ArrayAccess<Int> #if !h
 		// Neko/cpp pseudo array accessors...
 		// No bounds checking is done in the cpp case
 		#if cpp
+		return untyped b[pos];
+		#elseif nodejs
 		return untyped b[pos];
 		#else
 		return get (pos);

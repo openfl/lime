@@ -76,7 +76,7 @@ class ApplicationMain {
 		
 		var result = app.exec ();
 		
-		#if sys
+		#if (sys && !nodejs)
 		Sys.exit (result);
 		#end
 		

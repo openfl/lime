@@ -136,11 +136,28 @@ class Application extends Module {
 	 */
 	public function exec ():Int {
 		
-		#if (cpp || neko || nodejs)
+		#if nodejs
 		
-		var result = lime_application_exec (__handle);
+		lime_application_init(__handle);
+		var eventLoop = function() {
+			var active = lime_application_update(__handle);
+			if (!active) {
+				var result = lime_application_quit(__handle);
+				__cleanup();
+				Sys.exit(result);
+			}
+			untyped setImmediate(eventLoop);
+		}
+		untyped setImmediate(eventLoop);
 		
-		AudioManager.shutdown ();
+		#elseif (cpp || neko)
+
+		lime_application_init(__handle);
+		while(lime_application_update(__handle))
+			{}
+		var result = lime_application_quit (__handle);
+		
+		__cleanup();
 		
 		return result;
 		
@@ -185,6 +202,13 @@ class Application extends Module {
 		
 	}
 	
+	#if (cpp || neko || nodejs)
+	@:noCompletion private function __cleanup():Void {
+		
+		AudioManager.shutdown();
+		
+	}
+	#end
 	
 	/**
 	 * The init() method is called once before the first render()
@@ -380,7 +404,9 @@ class Application extends Module {
 	
 	#if (cpp || neko || nodejs)
 	private static var lime_application_create = System.load ("lime", "lime_application_create", 1);
-	private static var lime_application_exec = System.load ("lime", "lime_application_exec", 1);
+	private static var lime_application_init = System.load ("lime", "lime_application_init", 1);
+    private static var lime_application_update = System.load ("lime", "lime_application_update", 1);
+    private static var lime_application_quit = System.load ("lime", "lime_application_quit", 1);
 	private static var lime_application_get_ticks = System.load ("lime", "lime_application_get_ticks", 0);
 	private static var lime_update_event_manager_register = System.load ("lime", "lime_update_event_manager_register", 2);
 	#end
