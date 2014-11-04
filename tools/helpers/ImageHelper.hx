@@ -48,7 +48,7 @@ class ImageHelper {
 					
 				}
 				
-				if (FileSystem.exists ("/Library/Java/JavaVirtualMachines")) {
+				if (!found && FileSystem.exists ("/Library/Java/JavaVirtualMachines")) {
 					
 					found = (FileSystem.readDirectory ("/Library/Java/JavaVirtualMachines").length > 0);
 					
