@@ -17,7 +17,7 @@ import project.AssetType;
 import sys.FileSystem;
 import sys.io.File;
 
-#if lime
+#if (lime && !lime_legacy)
 import helpers.FileHelper;
 import helpers.ProcessHelper;
 import lime.graphics.Font;
@@ -388,7 +388,7 @@ class HXProject {
 	}
 	
 	
-	#if lime
+	#if (lime && !lime_legacy)
 	
 	public static function fromFile (projectFile:String, userDefines:Map <String, Dynamic> = null, includePaths:Array <String> = null):HXProject {
 		
@@ -712,7 +712,7 @@ class HXProject {
 	}
 	
 	
-	#if lime
+	#if (lime && !lime_legacy)
 	
 	@:noCompletion private static function processHaxelibs (project:HXProject, userDefines:Map <String, Dynamic>):Void {
 		
@@ -907,7 +907,7 @@ class HXProject {
 				
 				embeddedAsset.type = Std.string (asset.type).toLowerCase ();
 				
-				#if lime
+				#if (lime && !lime_legacy)
 				if (asset.type == FONT) {
 					
 					try {
@@ -952,7 +952,7 @@ class HXProject {
 				
 			}
 			
-			#if lime
+			#if (lime && !lime_legacy)
 			
 			var cache = LogHelper.verbose;
 			LogHelper.verbose = false;
