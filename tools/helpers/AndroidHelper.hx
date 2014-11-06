@@ -79,6 +79,34 @@ class AndroidHelper {
 	}
 	
 	
+	public static function getDeviceSDKVersion (deviceID:String):Int {
+		
+		var args = [ "shell", "grep", "ro.build.version.sdk=", "system/build.prop" ];
+		
+		if (deviceID != null && deviceID != "") {
+			
+			args.unshift (deviceID);
+			args.unshift ("-s");
+			
+			connect (deviceID);
+			
+		}
+		
+		var output = ProcessHelper.runProcess (adbPath, adbName, args);
+		var search = "ro.build.version.sdk=";
+		var index = output.indexOf (search);
+		
+		if (index > -1) {
+			
+			return Std.parseInt (output.substring (index + search.length));
+			
+		}
+		
+		return -1;
+		
+	}
+	
+	
 	public static function initialize (project:HXProject):Void {
 		
 		adbPath = project.environment.get ("ANDROID_SDK") + "/tools/";
@@ -185,7 +213,15 @@ class AndroidHelper {
 			
 		}
 		
-		var args = [ "install", "-r", "-d", targetPath ];
+		var args = [ "install", "-r" ];
+		
+		if (getDeviceSDKVersion (deviceID) > 16) {
+			
+			args.push ("-d");
+			
+		}
+		
+		args.push (targetPath);
 		
 		if (deviceID != null && deviceID != "") {
 			
