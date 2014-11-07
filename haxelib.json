@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "2.0.0-alpha.7",
-	"releasenote": "Tool improvements, include patch for C++ call stack",
+	"version": "2.0.0-alpha.8",
+	"releasenote": "Minor fixes for Mac systems and older Android devices",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
 }
