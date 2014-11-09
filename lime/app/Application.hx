@@ -139,6 +139,7 @@ class Application extends Module {
 		#if nodejs
 		
 		lime_application_init(__handle);
+		var prevTime = untyped __js__('Date.now()');
 		var eventLoop = function() {
 			var active = lime_application_update(__handle);
 			if (!active) {
@@ -146,7 +147,12 @@ class Application extends Module {
 				__cleanup();
 				Sys.exit(result);
 			}
-			untyped setImmediate(eventLoop);
+			var time =  untyped __js__('Date.now()');
+			if (time - prevTime <= 16)
+				untyped setTimeout(eventLoop, 0);
+			else
+				untyped setImmediate(eventLoop);
+			prevTime = time;
 		}
 		untyped setImmediate(eventLoop);
 		
