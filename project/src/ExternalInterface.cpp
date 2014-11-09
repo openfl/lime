@@ -51,9 +51,34 @@ namespace lime {
 	}
 	
 	
+	value lime_application_init (value application) {
+		
+		Application* app = (Application*)(intptr_t)val_float (application);
+		app->Init ();
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_application_get_ticks (value application) {
 		
 		return alloc_float (Application::GetTicks ());
+		
+	}
+	
+	
+	value lime_application_quit (value application) {
+		
+		Application* app = (Application*)(intptr_t)val_float (application);
+		return alloc_int (app->Quit ());
+		
+	}
+	
+	
+	value lime_application_update (value application) {
+		
+		Application* app = (Application*)(intptr_t)val_float (application);
+		return alloc_bool (app->Update ());
 		
 	}
 	
@@ -398,7 +423,10 @@ namespace lime {
 	
 	DEFINE_PRIM (lime_application_create, 1);
 	DEFINE_PRIM (lime_application_exec, 1);
+	DEFINE_PRIM (lime_application_init, 1);
 	DEFINE_PRIM (lime_application_get_ticks, 0);
+	DEFINE_PRIM (lime_application_quit, 1);
+	DEFINE_PRIM (lime_application_update, 1);
 	DEFINE_PRIM (lime_audio_load, 1);
 	DEFINE_PRIM (lime_font_create_image, 1);
 	DEFINE_PRIM (lime_font_get_family_name, 1);

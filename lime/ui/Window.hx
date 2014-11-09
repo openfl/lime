@@ -7,7 +7,7 @@ import lime.app.Event;
 import lime.graphics.Renderer;
 import lime.system.System;
 
-#if js
+#if html5
 import js.html.CanvasElement;
 import js.html.DivElement;
 import js.html.HtmlElement;
@@ -42,14 +42,14 @@ class Window {
 	public var x:Int;
 	public var y:Int;
 	
-	#if js
+	#if html5
 	public var canvas:CanvasElement;
 	public var div:DivElement;
 	public var element:HtmlElement;
 	#if stats
 	public var stats:Dynamic;
 	#end
-	#elseif (cpp || neko)
+	#elseif (cpp || neko || nodejs)
 	public var handle:Dynamic;
 	#end
 	
@@ -65,7 +65,7 @@ class Window {
 			
 			registered = true;
 			
-			#if (cpp || neko)
+			#if (cpp || neko || nodejs)
 			lime_window_event_manager_register (dispatch, eventInfo);
 			#end
 			
@@ -79,7 +79,7 @@ class Window {
 		setWidth = width;
 		setHeight = height;
 		
-		#if js
+		#if html5
 		
 		if (Std.is (element, CanvasElement)) {
 			
@@ -174,7 +174,7 @@ class Window {
 		Browser.document.body.appendChild (stats.domElement);
 		#end
 		
-		#elseif (cpp || neko)
+		#elseif (cpp || neko || nodejs)
 		
 		var flags = 0;
 		
@@ -202,7 +202,7 @@ class Window {
 		MouseEventManager.registerWindow (this);
 		TouchEventManager.registerWindow (this);
 		
-		#if js
+		#if html5
 		Browser.window.addEventListener ("focus", handleDOMEvent, false);
 		Browser.window.addEventListener ("blur", handleDOMEvent, false);
 		Browser.window.addEventListener ("resize", handleDOMEvent, false);
@@ -267,7 +267,7 @@ class Window {
 	}
 	
 	
-	#if js
+	#if html5
 	private function handleDOMEvent (event:js.html.Event):Void {
 		
 		switch (event.type) {
@@ -409,7 +409,7 @@ class Window {
 	
 	public function move (x:Int, y:Int):Void {
 		
-		#if (cpp || neko)
+		#if (cpp || neko || nodejs)
 		lime_window_move (handle, x, y);
 		#end
 		
@@ -421,14 +421,14 @@ class Window {
 		setWidth = width;
 		setHeight = height;
 		
-		#if (cpp || neko)
+		#if (cpp || neko || nodejs)
 		lime_window_resize (handle, width, height);
 		#end
 		
 	}
 	
 	
-	#if (cpp || neko)
+	#if (cpp || neko || nodejs)
 	private static var lime_window_create = System.load ("lime", "lime_window_create", 5);
 	private static var lime_window_event_manager_register = System.load ("lime", "lime_window_event_manager_register", 2);
 	private static var lime_window_move = System.load ("lime", "lime_window_move", 3);

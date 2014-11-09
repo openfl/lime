@@ -8,6 +8,7 @@ import helpers.CPPHelper;
 import helpers.FileHelper;
 import helpers.IconHelper;
 import helpers.NekoHelper;
+import helpers.NodeJSHelper;
 import helpers.PathHelper;
 import helpers.PlatformHelper;
 import helpers.ProcessHelper;
@@ -29,18 +30,12 @@ class MacPlatform extends PlatformTarget {
 	private var executablePath:String;
 	private var is64:Bool;
 	private var targetDirectory:String;
-	private var useNeko:Bool;
+	private var targetType:String;
 	
 	
 	public function new (command:String, _project:HXProject, targetFlags:Map <String, String> ) {
 		
 		super (command, _project, targetFlags);
-		
-		if (project.targetFlags.exists ("neko") || project.target != PlatformHelper.hostPlatform) {
-			
-			useNeko = true;
-			
-		}
 		
 		for (architecture in project.architectures) {
 			
@@ -52,16 +47,21 @@ class MacPlatform extends PlatformTarget {
 			
 		}
 		
-		if (!useNeko) {
+		if (project.targetFlags.exists ("neko") || project.target != PlatformHelper.hostPlatform) {
 			
-			targetDirectory = project.app.path + "/mac" + (is64 ? "64" : "") + "/cpp";
+			targetType = "neko";
+			
+		} else if (project.targetFlags.exists ("nodejs")) {
+			
+			targetType = "nodejs";
 			
 		} else {
 			
-			targetDirectory = project.app.path + "/mac" + (is64 ? "64" : "") + "/neko";
+			targetType = "cpp";
 			
 		}
 		
+		targetDirectory = project.app.path + "/mac" + (is64 ? "64" : "") + "/" + targetType;
 		applicationDirectory = targetDirectory + "/bin/" + project.app.file + ".app";
 		contentDirectory = applicationDirectory + "/Contents/Resources";
 		executableDirectory = applicationDirectory + "/Contents/MacOS";
@@ -88,7 +88,7 @@ class MacPlatform extends PlatformTarget {
 		
 		PathHelper.mkdir (targetDirectory);
 		
-		if (!project.targetFlags.exists ("static")) {
+		if (!project.targetFlags.exists ("static") || targetType != "cpp") {
 			
 			for (ndll in project.ndlls) {
 				
@@ -98,10 +98,16 @@ class MacPlatform extends PlatformTarget {
 			
 		}
 		
-		if (useNeko) {
+		if (targetType == "neko") {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
 			NekoHelper.createExecutable (project.templatePaths, "Mac" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
+			NekoHelper.copyLibraries (project.templatePaths, "Mac" + (is64 ? "64" : ""), executableDirectory);
+			
+		} else if (targetType == "nodejs") {
+			
+			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+			//NekoHelper.createExecutable (project.templatePaths, "Mac" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
 			NekoHelper.copyLibraries (project.templatePaths, "Mac" + (is64 ? "64" : ""), executableDirectory);
 			
 		} else {
@@ -136,7 +142,7 @@ class MacPlatform extends PlatformTarget {
 			
 		}
 		
-		if (PlatformHelper.hostPlatform != Platform.WINDOWS) {
+		if (PlatformHelper.hostPlatform != Platform.WINDOWS && targetType != "nodejs") {
 			
 			ProcessHelper.runCommand ("", "chmod", [ "755", executablePath ]);
 			
@@ -170,7 +176,7 @@ class MacPlatform extends PlatformTarget {
 			
 		}
 		
-		var hxml = PathHelper.findTemplate (project.templatePaths, (useNeko ? "neko" : "cpp") + "/hxml/" + type + ".hxml");
+		var hxml = PathHelper.findTemplate (project.templatePaths, targetType + "/hxml/" + type + ".hxml");
 		var template = new Template (File.getContent (hxml));
 		Sys.println (template.execute (generateContext ()));
 		
@@ -181,6 +187,7 @@ class MacPlatform extends PlatformTarget {
 		
 		var context = project.templateContext;
 		context.NEKO_FILE = targetDirectory + "/obj/ApplicationMain.n";
+		context.NODE_FILE = executableDirectory + "/ApplicationMain.js";
 		context.CPP_DIR = targetDirectory + "/obj/";
 		context.BUILD_DIR = project.app.path + "/mac" + (is64 ? "64" : "");
 		
@@ -214,7 +221,11 @@ class MacPlatform extends PlatformTarget {
 		
 		var arguments = additionalArguments.copy ();
 		
-		if (project.target == PlatformHelper.hostPlatform) {
+		if (targetType == "nodejs") {
+			
+			NodeJSHelper.run (project, executableDirectory + "/ApplicationMain.js", arguments);
+			
+		} else if (project.target == PlatformHelper.hostPlatform) {
 			
 			arguments = arguments.concat ([ "-livereload" ]);
 			ProcessHelper.runCommand (executableDirectory, "./" + Path.withoutDirectory (executablePath), arguments);
@@ -236,7 +247,7 @@ class MacPlatform extends PlatformTarget {
 		
 		var context = generateContext ();
 		
-		if (project.targetFlags.exists ("static")) {
+		if (targetType == "cpp" && project.targetFlags.exists ("static")) {
 			
 			for (i in 0...project.ndlls.length) {
 				
@@ -261,9 +272,9 @@ class MacPlatform extends PlatformTarget {
 		//SWFHelper.generateSWFClasses (project, targetDirectory + "/haxe");
 		
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", targetDirectory + "/haxe", context);
-		FileHelper.recursiveCopyTemplate (project.templatePaths, (useNeko ? "neko" : "cpp") + "/hxml", targetDirectory + "/haxe", context);
+		FileHelper.recursiveCopyTemplate (project.templatePaths, targetType + "/hxml", targetDirectory + "/haxe", context);
 		
-		if (project.targetFlags.exists ("static")) {
+		if (targetType == "cpp" && project.targetFlags.exists ("static")) {
 			
 			FileHelper.recursiveCopyTemplate (project.templatePaths, "cpp/static", targetDirectory + "/obj", context);
 			

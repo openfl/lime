@@ -17,7 +17,7 @@ abstract CURL(Int) from Int to Int {
 	
 	public static function getDate (date:String, now:Int):Int {
 		
-		#if ((cpp || neko) && lime_curl)
+		#if ((cpp || neko || nodejs) && lime_curl)
 		return lime_curl_getdate (date, now);
 		#else
 		return 0;
@@ -28,7 +28,7 @@ abstract CURL(Int) from Int to Int {
 	
 	public static function globalCleanup ():Void {
 		
-		#if ((cpp || neko) && lime_curl)
+		#if ((cpp || neko || nodejs) && lime_curl)
 		lime_curl_global_cleanup ();
 		#end
 		
@@ -37,7 +37,7 @@ abstract CURL(Int) from Int to Int {
 	
 	public static function globalInit (flags:Int):CURLCode {
 		
-		#if ((cpp || neko) && lime_curl)
+		#if ((cpp || neko || nodejs) && lime_curl)
 		return cast lime_curl_global_init (flags);
 		#else
 		return cast 0;
@@ -48,7 +48,7 @@ abstract CURL(Int) from Int to Int {
 	
 	public static function version ():String {
 		
-		#if ((cpp || neko) && lime_curl)
+		#if ((cpp || neko || nodejs) && lime_curl)
 		return lime_curl_version ();
 		#else
 		return null;
@@ -59,7 +59,7 @@ abstract CURL(Int) from Int to Int {
 	
 	public static function versionInfo (type:CURLVersion):String {
 		
-		#if ((cpp || neko) && lime_curl)
+		#if ((cpp || neko || nodejs) && lime_curl)
 		return lime_curl_version_info (cast (type, Int));
 		#else
 		return null;
@@ -75,7 +75,7 @@ abstract CURL(Int) from Int to Int {
 	}
 	
 	
-	#if ((cpp || neko) && lime_curl)
+	#if ((cpp || neko || nodejs) && lime_curl)
 	private static var lime_curl_getdate = System.load ("lime", "lime_curl_getdate", 2);
 	private static var lime_curl_global_cleanup = System.load ("lime", "lime_curl_global_cleanup", 0);
 	private static var lime_curl_global_init = System.load ("lime", "lime_curl_global_init", 1);

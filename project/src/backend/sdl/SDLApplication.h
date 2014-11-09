@@ -23,6 +23,9 @@ namespace lime {
 			~SDLApplication ();
 			
 			virtual int Exec ();
+			virtual void Init ();
+			virtual int Quit ();
+			virtual bool Update ();
 		
 		private:
 			

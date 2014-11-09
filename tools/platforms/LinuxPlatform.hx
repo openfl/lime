@@ -7,6 +7,7 @@ import helpers.AssetHelper;
 import helpers.CPPHelper;
 import helpers.FileHelper;
 import helpers.NekoHelper;
+import helpers.NodeJSHelper;
 import helpers.PathHelper;
 import helpers.PlatformHelper;
 import helpers.ProcessHelper;
@@ -28,7 +29,7 @@ class LinuxPlatform extends PlatformTarget {
 	private var is64:Bool;
 	private var isRaspberryPi:Bool;
 	private var targetDirectory:String;
-	private var useNeko:Bool;
+	private var targetType:String;
 	
 	
 	public function new (command:String, _project:HXProject, targetFlags:Map <String, String> ) {
@@ -69,11 +70,19 @@ class LinuxPlatform extends PlatformTarget {
 		
 		if (project.targetFlags.exists ("neko") || project.target != PlatformHelper.hostPlatform) {
 			
-			useNeko = true;
+			targetType = "neko";
+			
+		} else if (project.targetFlags.exists ("nodejs")) {
+			
+			targetType = "nodejs";
+			
+		} else {
+			
+			targetType = "cpp";
 			
 		}
 		
-		targetDirectory = project.app.path + "/linux" + (is64 ? "64" : "") + (isRaspberryPi ? "-rpi" : "") + "/" + (useNeko ? "neko" : "cpp");
+		targetDirectory = project.app.path + "/linux" + (is64 ? "64" : "") + (isRaspberryPi ? "-rpi" : "") + "/" + targetType;
 		applicationDirectory = targetDirectory + "/bin/";
 		executablePath = PathHelper.combine (applicationDirectory, project.app.file);
 		
@@ -98,7 +107,7 @@ class LinuxPlatform extends PlatformTarget {
 		
 		PathHelper.mkdir (targetDirectory);
 		
-		if (!project.targetFlags.exists ("static")) {
+		if (!project.targetFlags.exists ("static") || targetType != "cpp") {
 			
 			for (ndll in project.ndlls) {
 				
@@ -116,10 +125,16 @@ class LinuxPlatform extends PlatformTarget {
 			
 		}
 		
-		if (useNeko) {
+		if (targetType == "neko") {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
 			NekoHelper.createExecutable (project.templatePaths, "linux" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
+			NekoHelper.copyLibraries (project.templatePaths, "linux" + (is64 ? "64" : ""), applicationDirectory);
+			
+		} else if (targetType == "nodejs") {
+			
+			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+			//NekoHelper.createExecutable (project.templatePaths, "linux" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
 			NekoHelper.copyLibraries (project.templatePaths, "linux" + (is64 ? "64" : ""), applicationDirectory);
 			
 		} else {
@@ -154,7 +169,7 @@ class LinuxPlatform extends PlatformTarget {
 			
 		}
 		
-		if (PlatformHelper.hostPlatform != Platform.WINDOWS) {
+		if (PlatformHelper.hostPlatform != Platform.WINDOWS && targetType != "nodejs") {
 			
 			ProcessHelper.runCommand ("", "chmod", [ "755", executablePath ]);
 			
@@ -188,7 +203,7 @@ class LinuxPlatform extends PlatformTarget {
 			
 		}
 		
-		var hxml = PathHelper.findTemplate (project.templatePaths, (useNeko ? "neko" : "cpp") + "/hxml/" + type + ".hxml");
+		var hxml = PathHelper.findTemplate (project.templatePaths, targetType + "/hxml/" + type + ".hxml");
 		var template = new Template (File.getContent (hxml));
 		Sys.println (template.execute (generateContext ()));
 		
@@ -208,6 +223,7 @@ class LinuxPlatform extends PlatformTarget {
 		var context = project.templateContext;
 		
 		context.NEKO_FILE = targetDirectory + "/obj/ApplicationMain.n";
+		context.NODE_FILE = targetDirectory + "/bin/ApplicationMain.js";
 		context.CPP_DIR = targetDirectory + "/obj/";
 		context.BUILD_DIR = project.app.path + "/linux" + (is64 ? "64" : "") + (isRaspberryPi ? "-rpi" : "");
 		context.WIN_ALLOW_SHADERS = false;
@@ -250,7 +266,11 @@ class LinuxPlatform extends PlatformTarget {
 		
 		var arguments = additionalArguments.copy ();
 		
-		if (project.target == PlatformHelper.hostPlatform) {
+		if (targetType == "nodejs") {
+			
+			NodeJSHelper.run (project, targetDirectory + "/bin/ApplicationMain.js", arguments);
+			
+		} else if (project.target == PlatformHelper.hostPlatform) {
 			
 			arguments = arguments.concat ([ "-livereload" ]);
 			ProcessHelper.runCommand (applicationDirectory, "./" + Path.withoutDirectory (executablePath), arguments);
@@ -273,7 +293,7 @@ class LinuxPlatform extends PlatformTarget {
 		
 		var context = generateContext ();
 		
-		if (project.targetFlags.exists ("static")) {
+		if (targetType == "cpp" && project.targetFlags.exists ("static")) {
 			
 			for (i in 0...project.ndlls.length) {
 				
@@ -305,9 +325,9 @@ class LinuxPlatform extends PlatformTarget {
 		//SWFHelper.generateSWFClasses (project, targetDirectory + "/haxe");
 		
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", targetDirectory + "/haxe", context);
-		FileHelper.recursiveCopyTemplate (project.templatePaths, (useNeko ? "neko" : "cpp") + "/hxml", targetDirectory + "/haxe", context);
+		FileHelper.recursiveCopyTemplate (project.templatePaths, targetType + "/hxml", targetDirectory + "/haxe", context);
 		
-		if (project.targetFlags.exists ("static")) {
+		if (targetType == "cpp" && project.targetFlags.exists ("static")) {
 			
 			FileHelper.recursiveCopyTemplate (project.templatePaths, "cpp/static", targetDirectory + "/obj", context);
 			

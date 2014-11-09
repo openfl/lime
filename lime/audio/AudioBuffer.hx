@@ -6,7 +6,7 @@ import lime.system.System;
 import lime.utils.ByteArray;
 import lime.utils.Float32Array;
 
-#if js
+#if html5
 import js.html.Audio;
 #elseif flash
 import flash.media.Sound;
@@ -22,7 +22,7 @@ class AudioBuffer {
 	public var id:UInt;
 	public var sampleRate:Int;
 	
-	#if js
+	#if html5
 	public var src:Audio;
 	#elseif flash
 	public var src:Sound;
@@ -47,7 +47,7 @@ class AudioBuffer {
 	
 	public static function fromBytes (bytes:ByteArray):AudioBuffer {
 		
-		#if (cpp || neko)
+		#if (cpp || neko || nodejs)
 		
 		var data = lime_audio_load (bytes);
 		
@@ -71,7 +71,7 @@ class AudioBuffer {
 	
 	public static function fromFile (path:String):AudioBuffer {
 		
-		#if (cpp || neko)
+		#if (cpp || neko || nodejs)
 		
 		var data = lime_audio_load (path);
 		
@@ -100,7 +100,7 @@ class AudioBuffer {
 	}
 	
 	
-	#if (cpp || neko)
+	#if (cpp || neko || nodejs)
 	private static var lime_audio_load:Dynamic = System.load ("lime", "lime_audio_load", 1);
 	#end
 	

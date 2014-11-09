@@ -4,7 +4,7 @@ package lime.ui;
 import lime.app.Event;
 import lime.system.System;
 
-#if js
+#if html5
 import js.Browser;
 #elseif flash
 import flash.Lib;
@@ -23,7 +23,7 @@ class MouseEventManager {
 	private static var created:Bool;
 	private static var eventInfo:MouseEventInfo;
 	
-	#if js
+	#if html5
 	private static var window:Window;
 	#end
 	
@@ -32,16 +32,16 @@ class MouseEventManager {
 		
 		eventInfo = new MouseEventInfo ();
 		
-		#if (cpp || neko)
+		#if (cpp || neko || nodejs)
 		lime_mouse_event_manager_register (handleEvent, eventInfo);
 		#end
 		
 	}
 	
 	
-	private static function handleEvent (#if js event:js.html.MouseEvent #elseif flash event:flash.events.MouseEvent #end):Void {
+	private static function handleEvent (#if html5 event:js.html.MouseEvent #elseif flash event:flash.events.MouseEvent #end):Void {
 		
-		#if js
+		#if html5
 		
 		eventInfo.type = switch (event.type) {
 			
@@ -157,7 +157,7 @@ class MouseEventManager {
 	
 	private static function registerWindow (_window:Window):Void {
 		
-		#if js
+		#if html5
 		
 		var events = [ "mousedown", "mousemove", "mouseup", "wheel" ];
 		
@@ -193,7 +193,7 @@ class MouseEventManager {
 	}
 	
 	
-	#if (cpp || neko)
+	#if (cpp || neko || nodejs)
 	private static var lime_mouse_event_manager_register = System.load ("lime", "lime_mouse_event_manager_register", 2);
 	#end
 	

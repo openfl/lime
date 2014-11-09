@@ -31,7 +31,7 @@ import sys.io.File;
 @:autoBuild(openfl.Assets.embedFile())
 
 
-class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js implements IDataInput implements IMemoryRange #end {
+class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDataInput implements IMemoryRange #end {
 	
 	
 	public var bytesAvailable (get, null):Int;
@@ -54,11 +54,16 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	#end
 	
 	
-	#if (!js && !disable_cffi)
+	#if (!html5 && !disable_cffi)
 	private static function __init__ () {
 		
 		var factory = function (length:Int) { return new ByteArray (length); };
 		
+		#if js
+		var resize = function (bytes:ByteArray, length:Int) {
+			bytes.___resizeBuffer(length);
+		}
+		#else
 		var resize = function (bytes:ByteArray, length:Int) {
 			
 			if (length > 0)
@@ -66,9 +71,39 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 			bytes.length = length;
 			
 		};
+		#end
 		
+		#if html5
+		var bytes = function (bytes:ByteArray) { return bytes == null ? null : bytes.byteView; }
+		#elseif nodejs
+		var bytes = function (bytes:Dynamic) {
+			if (Std.is (bytes, ByteArray))
+				return untyped bytes.byteView;
+			else if (Std.is (bytes, UInt8Array) ||
+				Std.is (bytes, UInt16Array) ||
+				Std.is (bytes, Int16Array) ||
+				Std.is (bytes, Float32Array))
+				return bytes;
+			
+			if (bytes != null)
+				trace("Couldn't get BytesData:" + bytes);
+			return null;
+		}
+		var slen = function (bytes:ByteArray) {
+			if (Std.is (bytes, ByteArray))
+				return untyped bytes.length;
+			else if (Std.is (bytes, UInt8Array) ||
+				Std.is (bytes, UInt16Array) ||
+				Std.is (bytes, Int16Array) ||
+				Std.is (bytes, Float32Array))
+				return untyped bytes.byteLength;
+			
+			return 0;
+		}
+		#else
 		var bytes = function (bytes:ByteArray) { return bytes == null ? null : bytes.b; }
-		var slen = function (bytes:ByteArray) { return bytes == null ? 0 : bytes.length; }
+		var slen = function (bytes:ByteArray){ return bytes == null ? 0 : bytes.length; }
+		#end
 		
 		var init = System.load ("lime", "lime_byte_array_init", 4);
 		init (factory, slen, resize, bytes);
@@ -350,7 +385,7 @@ class ByteArray #if !js extends Bytes #end implements ArrayAccess<Int> #if !js i
 	
 	public static function readFile (path:String):ByteArray {
 		
-		#if js
+		#if html5
 		return null;
 		#elseif disable_cffi
 		return ByteArray.fromBytes (File.getBytes (path));

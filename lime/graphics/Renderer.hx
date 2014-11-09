@@ -8,7 +8,7 @@ import lime.graphics.GLRenderContext;
 import lime.system.System;
 import lime.ui.Window;
 
-#if js
+#if html5
 import js.html.webgl.RenderingContext;
 #elseif flash
 import flash.Lib;
@@ -44,7 +44,7 @@ class Renderer {
 	
 	public function create ():Void {
 		
-		#if js
+		#if html5
 		
 		if (window.div != null) {
 			
@@ -82,7 +82,7 @@ class Renderer {
 				#end
 				
 				GL.context = webgl;
-				#if js
+				#if html5
 				context = OPENGL (cast GL.context);
 				#else
 				context = OPENGL (new GLRenderContext ());
@@ -92,7 +92,7 @@ class Renderer {
 			
 		}
 		
-		#elseif (cpp || neko)
+		#elseif (cpp || neko || nodejs)
 		
 		handle = lime_renderer_create (window.handle);
 		context = OPENGL (new GLRenderContext ());
@@ -107,7 +107,7 @@ class Renderer {
 			
 			registered = true;
 			
-			#if (cpp || neko)
+			#if (cpp || neko || nodejs)
 			lime_render_event_manager_register (dispatch, eventInfo);
 			#end
 			
@@ -149,14 +149,14 @@ class Renderer {
 	
 	public function flip ():Void {
 		
-		#if (cpp || neko)
+		#if (cpp || neko || nodejs)
 		lime_renderer_flip (handle);
 		#end
 		
 	}
 	
 	
-	#if (cpp || neko)
+	#if (cpp || neko || nodejs)
 	private static var lime_render_event_manager_register = System.load ("lime", "lime_render_event_manager_register", 2);
 	private static var lime_renderer_create = System.load ("lime", "lime_renderer_create", 1);
 	private static var lime_renderer_flip = System.load ("lime", "lime_renderer_flip", 1);

@@ -20,7 +20,7 @@ import flash.Lib;
 	
 	private static var eventInfo:TouchEventInfo;
 	
-	#if js
+	#if html5
 	private static var window:Window;
 	#end
 	
@@ -29,16 +29,16 @@ import flash.Lib;
 		
 		eventInfo = new TouchEventInfo ();
 		
-		#if (cpp || neko)
+		#if (cpp || neko || nodejs)
 		lime_touch_event_manager_register (handleEvent, eventInfo);
 		#end
 		
 	}
 	
 	
-	private static function handleEvent (#if js event:js.html.TouchEvent #elseif flash event:flash.events.TouchEvent #end):Void {
+	private static function handleEvent (#if html5 event:js.html.TouchEvent #elseif flash event:flash.events.TouchEvent #end):Void {
 		
-		#if js
+		#if html5
 		
 		event.preventDefault ();
 		
@@ -127,7 +127,7 @@ import flash.Lib;
 	
 	private static function registerWindow (window:Window):Void {
 		
-		#if js
+		#if html5
 		
 		window.element.addEventListener ("touchstart", handleEvent, true);
 		window.element.addEventListener ("touchmove", handleEvent, true);
@@ -147,7 +147,7 @@ import flash.Lib;
 	}
 	
 	
-	#if (cpp || neko)
+	#if (cpp || neko || nodejs)
 	private static var lime_touch_event_manager_register = System.load ("lime", "lime_touch_event_manager_register", 2);
 	#end
 	

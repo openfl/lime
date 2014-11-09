@@ -8,7 +8,7 @@ import lime.utils.IMemoryRange;
 import lime.utils.Int32Array;
 import lime.system.System;
 
-#if js
+#if html5
 import js.html.webgl.RenderingContext;
 #end
 
@@ -366,16 +366,16 @@ class GL {
 	
 	public static var version (get, null):Int;
 	
-	#if js
+	#if html5
 	private static var context:RenderingContext;
 	#end
 	
 	
 	public static inline function activeTexture (texture:Int):Void {
 		
-		#if js
+		#if html5
 		context.activeTexture (texture);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_active_texture (texture);
 		#end
 		
@@ -384,9 +384,9 @@ class GL {
 	
 	public static inline function attachShader (program:GLProgram, shader:GLShader):Void {
 		
-		#if js
+		#if html5
 		context.attachShader (program, shader);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		program.attach (shader);
 		lime_gl_attach_shader (program.id, shader.id);
 		#end
@@ -396,9 +396,9 @@ class GL {
 	
 	public static inline function bindAttribLocation (program:GLProgram, index:Int, name:String):Void {
 		
-		#if js
+		#if html5
 		context.bindAttribLocation (program, index, name);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_bind_attrib_location (program.id, index, name);
 		#end
 		
@@ -407,9 +407,9 @@ class GL {
 	
 	public static inline function bindBuffer (target:Int, buffer:GLBuffer):Void {
 		
-		#if js
+		#if html5
 		context.bindBuffer (target, buffer);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_bind_buffer (target, buffer == null ? 0 : buffer.id);
 		#end
 		
@@ -418,9 +418,9 @@ class GL {
 	
 	public static inline function bindFramebuffer (target:Int, framebuffer:GLFramebuffer):Void {
 		
-		#if js
+		#if html5
 		context.bindFramebuffer (target, framebuffer);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_bind_framebuffer (target, framebuffer == null ? 0 : framebuffer.id);
 		#end
 		
@@ -429,9 +429,9 @@ class GL {
 	
 	public static inline function bindRenderbuffer (target:Int, renderbuffer:GLRenderbuffer):Void {
 		
-		#if js
+		#if html5
 		context.bindRenderbuffer (target, renderbuffer);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_bind_renderbuffer (target, renderbuffer == null ? 0 : renderbuffer.id);
 		#end
 		
@@ -440,9 +440,9 @@ class GL {
 	
 	public static inline function bindTexture (target:Int, texture:GLTexture):Void {
 		
-		#if js
+		#if html5
 		context.bindTexture (target, texture);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_bind_texture(target, texture == null ? 0 : texture.id);
 		#end
 		
@@ -451,9 +451,9 @@ class GL {
 	
 	public static inline function blendColor (red:Float, green:Float, blue:Float, alpha:Float):Void {
 		
-		#if js
+		#if html5
 		context.blendColor (red, green, blue, alpha);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_blend_color (red, green, blue, alpha);
 		#end
 		
@@ -462,9 +462,9 @@ class GL {
 	
 	public static inline function blendEquation (mode:Int):Void {
 		
-		#if js
+		#if html5
 		context.blendEquation (mode);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_blend_equation (mode);
 		#end
 		
@@ -473,9 +473,9 @@ class GL {
 	
 	public static inline function blendEquationSeparate (modeRGB:Int, modeAlpha:Int):Void {
 		
-		#if js
+		#if html5
 		context.blendEquationSeparate (modeRGB, modeAlpha);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_blend_equation_separate (modeRGB, modeAlpha);
 		#end
 		
@@ -484,9 +484,9 @@ class GL {
 	
 	public static inline function blendFunc (sfactor:Int, dfactor:Int):Void {
 		
-		#if js
+		#if html5
 		context.blendFunc (sfactor, dfactor);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_blend_func (sfactor, dfactor);
 		#end
 		
@@ -495,9 +495,9 @@ class GL {
 	
 	public static inline function blendFuncSeparate (srcRGB:Int, dstRGB:Int, srcAlpha:Int, dstAlpha:Int):Void {
 		
-		#if js
+		#if html5
 		context.blendFuncSeparate (srcRGB, dstRGB, srcAlpha, dstAlpha);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_blend_func_separate (srcRGB, dstRGB, srcAlpha, dstAlpha);
 		#end
 		
@@ -506,10 +506,12 @@ class GL {
 	
 	public static inline function bufferData (target:Int, data:ArrayBufferView, usage:Int):Void {
 		
-		#if js
+		#if html5
 		context.bufferData (target, data, usage);
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_buffer_data (target, data.getByteBuffer (), data.getStart (), data.getLength (), usage);
+		#elseif (nodejs && lime_opengl)
+		lime_gl_buffer_data (target, data, data.byteOffset, data.byteLength, usage);
 		#end
 		
 	}
@@ -517,10 +519,12 @@ class GL {
 	
 	public static inline function bufferSubData (target:Int, offset:Int, data:ArrayBufferView):Void {
 		
-		#if js
+		#if html5
 		context.bufferSubData (target, offset, data);
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_buffer_sub_data (target, offset, data.getByteBuffer (), data.getStart (), data.getLength ());
+		#elseif (nodejs && lime_opengl)
+		lime_gl_buffer_sub_data (target, offset, data, data.byteOffset, data.byteLength);
 		#end
 		
 	}
@@ -528,9 +532,9 @@ class GL {
 	
 	public static inline function checkFramebufferStatus (target:Int):Int {
 		
-		#if js
+		#if html5
 		return context.checkFramebufferStatus (target);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_check_framebuffer_status (target);
 		#else
 		return 0;
@@ -541,9 +545,9 @@ class GL {
 	
 	public static inline function clear (mask:Int):Void {
 		
-		#if js
+		#if html5
 		context.clear (mask);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_clear (mask);
 		#end
 		
@@ -552,9 +556,9 @@ class GL {
 	
 	public static inline function clearColor (red:Float, green:Float, blue:Float, alpha:Float):Void {
 		
-		#if js
+		#if html5
 		context.clearColor (red, green, blue, alpha);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_clear_color (red, green, blue, alpha);
 		#end
 		
@@ -563,9 +567,9 @@ class GL {
 	
 	public static inline function clearDepth (depth:Float):Void {
 		
-		#if js
+		#if html5
 		context.clearDepth (depth);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_clear_depth (depth);
 		#end
 		
@@ -574,9 +578,9 @@ class GL {
 	
 	public static inline function clearStencil (s:Int):Void {
 		
-		#if js
+		#if html5
 		context.clearStencil (s);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_clear_stencil (s);
 		#end
 		
@@ -585,9 +589,9 @@ class GL {
 	
 	public static inline function colorMask (red:Bool, green:Bool, blue:Bool, alpha:Bool):Void {
 		
-		#if js
+		#if html5
 		context.colorMask (red, green, blue, alpha);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_color_mask (red, green, blue, alpha);
 		#end
 		
@@ -596,9 +600,9 @@ class GL {
 	
 	public static inline function compileShader (shader:GLShader):Void {
 		
-		#if js
+		#if html5
 		context.compileShader (shader);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_compile_shader (shader.id);
 		#end
 		
@@ -607,10 +611,12 @@ class GL {
 	
 	public static inline function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, data:ArrayBufferView):Void {
 		
-		#if js
+		#if html5
 		context.compressedTexImage2D (target, level, internalformat, width, height, border, data);
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_compressed_tex_image_2d (target, level, internalformat, width, height, border, data == null ? null : data.getByteBuffer (), data == null ? null : data.getStart ());
+		#elseif (nodejs && lime_opengl)
+		lime_gl_compressed_tex_image_2d (target, level, internalformat, width, height, border, data == null ? null : data.buffer , data == null ? null : data.byteOffset);
 		#end
 		
 	}
@@ -618,10 +624,12 @@ class GL {
 	
 	public static inline function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, data:ArrayBufferView):Void {
 		
-		#if js
+		#if html5
 		context.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, data);
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_compressed_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, data == null ? null : data.getByteBuffer (), data == null ? null : data.getStart ());
+		#elseif (nodejs && lime_opengl)
+		lime_gl_compressed_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, data == null ? null : data.buffer, data == null ? null : data.byteOffset);
 		#end
 		
 	}
@@ -629,9 +637,9 @@ class GL {
 	
 	public static inline function copyTexImage2D (target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void {
 		
-		#if js
+		#if html5
 		context.copyTexImage2D (target, level, internalformat, x, y, width, height, border);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_copy_tex_image_2d (target, level, internalformat, x, y, width, height, border);
 		#end
 		
@@ -640,9 +648,9 @@ class GL {
 	
 	public static inline function copyTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, x:Int, y:Int, width:Int, height:Int):Void {
 		
-		#if js
+		#if html5
 		context.copyTexSubImage2D (target, level, xoffset, yoffset, x, y, width, height);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_copy_tex_sub_image_2d (target, level, xoffset, yoffset, x, y, width, height);
 		#end
 		
@@ -651,9 +659,9 @@ class GL {
 	
 	public static inline function createBuffer ():GLBuffer {
 		
-		#if js
+		#if html5
 		return context.createBuffer ();
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return new GLBuffer (version, lime_gl_create_buffer ());
 		#else
 		return null;
@@ -664,9 +672,9 @@ class GL {
 	
 	public static inline function createFramebuffer ():GLFramebuffer {
 		
-		#if js
+		#if html5
 		return context.createFramebuffer ();
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return new GLFramebuffer (version, lime_gl_create_framebuffer ());
 		#else
 		return null;
@@ -677,9 +685,9 @@ class GL {
 	
 	public static inline function createProgram ():GLProgram {
 		
-		#if js
+		#if html5
 		return context.createProgram ();
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return new GLProgram (version, lime_gl_create_program ());
 		#else
 		return null;
@@ -690,9 +698,9 @@ class GL {
 	
 	public static inline function createRenderbuffer ():GLRenderbuffer {
 		
-		#if js
+		#if html5
 		return context.createRenderbuffer ();
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return new GLRenderbuffer (version, lime_gl_create_render_buffer ());
 		#else
 		return null;
@@ -703,9 +711,9 @@ class GL {
 	
 	public static inline function createShader (type:Int):GLShader {
 		
-		#if js
+		#if html5
 		return context.createShader (type);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return new GLShader (version, lime_gl_create_shader (type));
 		#else
 		return null;
@@ -716,9 +724,9 @@ class GL {
 	
 	public static inline function createTexture ():GLTexture {
 		
-		#if js
+		#if html5
 		return context.createTexture ();
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return new GLTexture (version, lime_gl_create_texture ());
 		#else
 		return null;
@@ -729,9 +737,9 @@ class GL {
 	
 	public static inline function cullFace (mode:Int):Void {
 		
-		#if js
+		#if html5
 		context.cullFace (mode);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_cull_face (mode);
 		#end
 		
@@ -740,9 +748,9 @@ class GL {
 	
 	public static inline function deleteBuffer (buffer:GLBuffer):Void {
 		
-		#if js
+		#if html5
 		context.deleteBuffer (buffer);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_delete_buffer (buffer.id);
 		buffer.invalidate ();
 		#end
@@ -752,9 +760,9 @@ class GL {
 	
 	public static inline function deleteFramebuffer (framebuffer:GLFramebuffer):Void {
 		
-		#if js
+		#if html5
 		context.deleteFramebuffer (framebuffer);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_delete_framebuffer (framebuffer.id);
 		framebuffer.invalidate ();
 		#end
@@ -764,9 +772,9 @@ class GL {
 	
 	public static inline function deleteProgram (program:GLProgram):Void {
 		
-		#if js
+		#if html5
 		context.deleteProgram (program);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_delete_program (program.id);
 		program.invalidate ();
 		#end
@@ -776,9 +784,9 @@ class GL {
 	
 	public static inline function deleteRenderbuffer (renderbuffer:GLRenderbuffer):Void {
 		
-		#if js
+		#if html5
 		context.deleteRenderbuffer (renderbuffer);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_delete_render_buffer (renderbuffer.id);
 		renderbuffer.invalidate ();
 		#end
@@ -788,9 +796,9 @@ class GL {
 	
 	public static inline function deleteShader (shader:GLShader):Void {
 		
-		#if js
+		#if html5
 		context.deleteShader (shader);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_delete_shader (shader.id);
 		shader.invalidate ();
 		#end
@@ -800,9 +808,9 @@ class GL {
 	
 	public static inline function deleteTexture (texture:GLTexture):Void {
 		
-		#if js
+		#if html5
 		context.deleteTexture (texture);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_delete_texture (texture.id);
 		texture.invalidate ();
 		#end
@@ -812,9 +820,9 @@ class GL {
 	
 	public static inline function depthFunc (func:Int):Void {
 		
-		#if js
+		#if html5
 		context.depthFunc (func);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_depth_func (func);
 		#end
 		
@@ -823,9 +831,9 @@ class GL {
 	
 	public static inline function depthMask (flag:Bool):Void {
 		
-		#if js
+		#if html5
 		context.depthMask (flag);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_depth_mask (flag);
 		#end
 		
@@ -834,9 +842,9 @@ class GL {
 	
 	public static inline function depthRange (zNear:Float, zFar:Float):Void {
 		
-		#if js
+		#if html5
 		context.depthRange (zNear, zFar);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_depth_range (zNear, zFar);
 		#end
 		
@@ -845,9 +853,9 @@ class GL {
 	
 	public static inline function detachShader (program:GLProgram, shader:GLShader):Void {
 		
-		#if js
+		#if html5
 		context.detachShader (program, shader);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_detach_shader (program.id, shader.id);
 		#end
 		
@@ -856,9 +864,9 @@ class GL {
 	
 	public static inline function disable (cap:Int):Void {
 		
-		#if js
+		#if html5
 		context.disable (cap);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_disable (cap);
 		#end
 		
@@ -867,9 +875,9 @@ class GL {
 	
 	public static inline function disableVertexAttribArray (index:Int):Void {
 		
-		#if js
+		#if html5
 		context.disableVertexAttribArray (index);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_disable_vertex_attrib_array (index);
 		#end
 		
@@ -878,9 +886,9 @@ class GL {
 	
 	public static inline function drawArrays (mode:Int, first:Int, count:Int):Void {
 		
-		#if js
+		#if html5
 		context.drawArrays (mode, first, count);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_draw_arrays (mode, first, count);
 		#end
 		
@@ -889,9 +897,9 @@ class GL {
 	
 	public static inline function drawElements (mode:Int, count:Int, type:Int, offset:Int):Void {
 		
-		#if js
+		#if html5
 		context.drawElements (mode, count, type, offset);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_draw_elements (mode, count, type, offset);
 		#end
 		
@@ -900,9 +908,9 @@ class GL {
 	
 	public static inline function enable (cap:Int):Void {
 		
-		#if js
+		#if html5
 		context.enable (cap);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_enable (cap);
 		#end
 		
@@ -911,9 +919,9 @@ class GL {
 	
 	public static inline function enableVertexAttribArray (index:Int):Void {
 		
-		#if js
+		#if html5
 		context.enableVertexAttribArray (index);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_enable_vertex_attrib_array (index);
 		#end
 		
@@ -922,9 +930,9 @@ class GL {
 	
 	public static inline function finish ():Void {
 		
-		#if js
+		#if html5
 		context.finish ();
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_finish ();
 		#end
 		
@@ -933,9 +941,9 @@ class GL {
 	
 	public static inline function flush ():Void {
 		
-		#if js
+		#if html5
 		context.flush ();
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_flush ();
 		#end
 		
@@ -944,9 +952,9 @@ class GL {
 	
 	public static inline function framebufferRenderbuffer (target:Int, attachment:Int, renderbuffertarget:Int, renderbuffer:GLRenderbuffer):Void {
 		
-		#if js
+		#if html5
 		context.framebufferRenderbuffer (target, attachment, renderbuffertarget, renderbuffer);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_framebuffer_renderbuffer (target, attachment, renderbuffertarget, renderbuffer.id);
 		#end
 		
@@ -955,9 +963,9 @@ class GL {
 	
 	public static inline function framebufferTexture2D (target:Int, attachment:Int, textarget:Int, texture:GLTexture, level:Int):Void {
 		
-		#if js
+		#if html5
 		context.framebufferTexture2D (target, attachment, textarget, texture, level);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_framebuffer_texture2D (target, attachment, textarget, texture.id, level);
 		#end
 		
@@ -966,9 +974,9 @@ class GL {
 	
 	public static inline function frontFace (mode:Int):Void {
 		
-		#if js
+		#if html5
 		context.frontFace (mode);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_front_face (mode);
 		#end
 		
@@ -977,9 +985,9 @@ class GL {
 	
 	public static inline function generateMipmap (target:Int):Void {
 		
-		#if js
+		#if html5
 		context.generateMipmap (target);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_generate_mipmap (target);
 		#end
 		
@@ -988,9 +996,9 @@ class GL {
 	
 	public static inline function getActiveAttrib (program:GLProgram, index:Int):GLActiveInfo {
 		
-		#if js
+		#if html5
 		return context.getActiveAttrib (program, index);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_active_attrib (program.id, index);
 		#else
 		return null;
@@ -1001,9 +1009,9 @@ class GL {
 	
 	public static inline function getActiveUniform (program:GLProgram, index:Int):GLActiveInfo {
 		
-		#if js
+		#if html5
 		return context.getActiveUniform (program, index);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_active_uniform (program.id, index);
 		#else
 		return null;
@@ -1014,9 +1022,9 @@ class GL {
 	
 	public static inline function getAttachedShaders (program:GLProgram):Array<GLShader> {
 		
-		#if js
+		#if html5
 		return context.getAttachedShaders (program);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return program.getShaders ();
 		#else
 		return null;
@@ -1027,9 +1035,9 @@ class GL {
 	
 	public static inline function getAttribLocation (program:GLProgram, name:String):Int {
 		
-		#if js
+		#if html5
 		return context.getAttribLocation (program, name);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_attrib_location (program.id, name);
 		#else
 		return 0;
@@ -1040,9 +1048,9 @@ class GL {
 	
 	public static inline function getBufferParameter (target:Int, pname:Int):Int /*Dynamic*/ {
 		
-		#if js
+		#if html5
 		return context.getBufferParameter (target, pname);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_buffer_paramerter (target, pname);
 		#else
 		return 0;
@@ -1053,9 +1061,9 @@ class GL {
 	
 	public static inline function getContextAttributes ():GLContextAttributes {
 		
-		#if js
+		#if html5
 		return context.getContextAttributes ();
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		var base = lime_gl_get_context_attributes ();
 		base.premultipliedAlpha = false;
 		base.preserveDrawingBuffer = false;
@@ -1069,9 +1077,9 @@ class GL {
 	
 	public static inline function getError ():Int {
 		
-		#if js
+		#if html5
 		return context.getError ();
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_error ();
 		#else
 		return 0;
@@ -1082,9 +1090,9 @@ class GL {
 	
 	public static inline function getExtension (name:String):Dynamic {
 		
-		#if js
+		#if html5
 		return context.getExtension (name);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 			//todo?!
 		return null;
 		// return lime_gl_get_extension(name);
@@ -1097,9 +1105,9 @@ class GL {
 	
 	public static inline function getFramebufferAttachmentParameter (target:Int, attachment:Int, pname:Int):Int /*Dynamic*/ {
 		
-		#if js
+		#if html5
 		return context.getFramebufferAttachmentParameter (target, attachment, pname);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_framebuffer_attachment_parameter (target, attachment, pname);
 		#else
 		return 0;
@@ -1110,9 +1118,9 @@ class GL {
 	
 	public static inline function getParameter (pname:Int):Dynamic {
 		
-		#if js
+		#if html5
 		return context.getParameter (pname);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_parameter (pname);
 		#else
 		return null;
@@ -1123,9 +1131,9 @@ class GL {
 	
 	public static inline function getProgramInfoLog (program:GLProgram):String {
 		
-		#if js
+		#if html5
 		return context.getProgramInfoLog (program);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_program_info_log (program.id);
 		#else
 		return null;
@@ -1136,9 +1144,9 @@ class GL {
 	
 	public static inline function getProgramParameter (program:GLProgram, pname:Int):Int {
 		
-		#if js
+		#if html5
 		return context.getProgramParameter (program, pname);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_program_parameter (program.id, pname);
 		#else
 		return 0;
@@ -1149,9 +1157,9 @@ class GL {
 	
 	public static inline function getRenderbufferParameter (target:Int, pname:Int):Int /*Dynamic*/ {
 		
-		#if js
+		#if html5
 		return context.getRenderbufferParameter (target, pname);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_render_buffer_parameter (target, pname);
 		#else
 		return 0;
@@ -1162,9 +1170,9 @@ class GL {
 	
 	public static inline function getShaderInfoLog (shader:GLShader):String {
 		
-		#if js
+		#if html5
 		return context.getShaderInfoLog (shader);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_shader_info_log (shader.id);
 		#else
 		return null;
@@ -1175,9 +1183,9 @@ class GL {
 	
 	public static inline function getShaderParameter (shader:GLShader, pname:Int):Int {
 		
-		#if js
+		#if html5
 		return context.getShaderParameter (shader, pname);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_shader_parameter (shader.id, pname);
 		#else
 		return 0;
@@ -1188,9 +1196,9 @@ class GL {
 	
 	public static inline function getShaderPrecisionFormat (shadertype:Int, precisiontype:Int):GLShaderPrecisionFormat {
 		
-		#if js
+		#if html5
 		return context.getShaderPrecisionFormat (shadertype, precisiontype);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_shader_precision_format (shadertype, precisiontype);
 		#else
 		return null;
@@ -1201,9 +1209,9 @@ class GL {
 	
 	public static inline function getShaderSource (shader:GLShader):String {
 		
-		#if js
+		#if html5
 		return context.getShaderSource (shader);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_shader_source (shader.id);
 		#else
 		return null;
@@ -1214,9 +1222,9 @@ class GL {
 	
 	public static inline function getSupportedExtensions ():Array<String> {
 		
-		#if js
+		#if html5
 		return context.getSupportedExtensions ();
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		var result = new Array<String> ();
 		lime_gl_get_supported_extensions (result);
 		return result;
@@ -1229,9 +1237,9 @@ class GL {
 	
 	public static inline function getTexParameter (target:Int, pname:Int):Int /*Dynamic*/ {
 		
-		#if js
+		#if html5
 		return context.getTexParameter (target, pname);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_tex_parameter (target, pname);
 		#else
 		return 0;
@@ -1242,9 +1250,9 @@ class GL {
 	
 	public static inline function getUniform (program:GLProgram, location:GLUniformLocation):Dynamic {
 		
-		#if js
+		#if html5
 		return context.getUniform (program, location);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_uniform (program.id, location);
 		#else
 		return null;
@@ -1255,9 +1263,9 @@ class GL {
 	
 	public static inline function getUniformLocation (program:GLProgram, name:String):GLUniformLocation {
 		
-		#if js
+		#if html5
 		return context.getUniformLocation (program, name);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_uniform_location (program.id, name);
 		#else
 		return 0;
@@ -1268,9 +1276,9 @@ class GL {
 	
 	public static inline function getVertexAttrib (index:Int, pname:Int):Int /*Dynamic*/ {
 		
-		#if js
+		#if html5
 		return context.getVertexAttrib (index, pname);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_vertex_attrib (index, pname);
 		#else
 		return 0;
@@ -1281,9 +1289,9 @@ class GL {
 	
 	public static inline function getVertexAttribOffset (index:Int, pname:Int):Int {
 		
-		#if js
+		#if html5
 		return context.getVertexAttribOffset (index, pname);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_vertex_attrib_offset (index, pname);
 		#else
 		return 0;
@@ -1294,9 +1302,9 @@ class GL {
 	
 	public static inline function hint (target:Int, mode:Int):Void {
 		
-		#if js
+		#if html5
 		context.hint (target, mode);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_hint (target, mode);
 		#end
 		
@@ -1305,9 +1313,9 @@ class GL {
 	
 	public static inline function isBuffer (buffer:GLBuffer):Bool {
 		
-		#if js
+		#if html5
 		return context.isBuffer (buffer);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return buffer != null && buffer.id > 0 && lime_gl_is_buffer (buffer.id);
 		#else
 		return false;
@@ -1322,9 +1330,9 @@ class GL {
 	
 	public static inline function isEnabled (cap:Int):Bool {
 		
-		#if js
+		#if html5
 		return context.isEnabled (cap);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_is_enabled (cap);
 		#else
 		return false;
@@ -1335,9 +1343,9 @@ class GL {
 	
 	public static inline function isFramebuffer (framebuffer:GLFramebuffer):Bool {
 		
-		#if js
+		#if html5
 		return context.isFramebuffer (framebuffer);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return framebuffer != null && framebuffer.id > 0 && lime_gl_is_framebuffer (framebuffer.id);
 		#else
 		return false;
@@ -1348,9 +1356,9 @@ class GL {
 	
 	public static inline function isProgram (program:GLProgram):Bool {
 		
-		#if js
+		#if html5
 		return context.isProgram (program);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return program != null && program.id > 0 && lime_gl_is_program (program.id);
 		#else
 		return false;
@@ -1361,9 +1369,9 @@ class GL {
 	
 	public static inline function isRenderbuffer (renderbuffer:GLRenderbuffer):Bool {
 		
-		#if js
+		#if html5
 		return context.isRenderbuffer (renderbuffer);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return renderbuffer != null && renderbuffer.id > 0 && lime_gl_is_renderbuffer (renderbuffer.id);
 		#else
 		return false;
@@ -1374,9 +1382,9 @@ class GL {
 	
 	public static inline function isShader (shader:GLShader):Bool {
 		
-		#if js
+		#if html5
 		return context.isShader (shader);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return shader != null && shader.id > 0 && lime_gl_is_shader (shader.id);
 		#else
 		return false;
@@ -1387,9 +1395,9 @@ class GL {
 	
 	public static inline function isTexture (texture:GLTexture):Bool {
 		
-		#if js
+		#if html5
 		return context.isTexture (texture);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return texture != null && texture.id > 0 && lime_gl_is_texture (texture.id);
 		#else
 		return false;
@@ -1400,9 +1408,9 @@ class GL {
 	
 	public static inline function lineWidth (width:Float):Void {
 		
-		#if js
+		#if html5
 		context.lineWidth (width);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_line_width (width);
 		#end
 		
@@ -1411,9 +1419,9 @@ class GL {
 	
 	public static inline function linkProgram (program:GLProgram):Void {
 		
-		#if js
+		#if html5
 		context.linkProgram (program);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_link_program (program.id);
 		#end
 		
@@ -1422,9 +1430,9 @@ class GL {
 	
 	public static inline function pixelStorei (pname:Int, param:Int):Void {
 		
-		#if js
+		#if html5
 		context.pixelStorei (pname, param);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_pixel_storei (pname, param);
 		#end
 		
@@ -1433,9 +1441,9 @@ class GL {
 	
 	public static inline function polygonOffset (factor:Float, units:Float):Void {
 		
-		#if js
+		#if html5
 		context.polygonOffset (factor, units);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_polygon_offset (factor, units);
 		#end
 		
@@ -1444,10 +1452,12 @@ class GL {
 	
 	public static inline function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
 		
-		#if js
+		#if html5
 		context.readPixels (x, y, width, height, format, type, pixels);
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_read_pixels (x, y, width, height, format, type, pixels == null ? null : pixels.getByteBuffer (), pixels == null ? null : pixels.getStart ());
+		#elseif (nodejs && lime_opengl)
+		lime_gl_read_pixels (x, y, width, height, format, type, pixels == null ? null : pixels.buffer, pixels == null ? null : pixels.byteOffset);
 		#end
 		
 	}
@@ -1455,9 +1465,9 @@ class GL {
 	
 	public static inline function renderbufferStorage (target:Int, internalformat:Int, width:Int, height:Int):Void {
 		
-		#if js
+		#if html5
 		context.renderbufferStorage (target, internalformat, width, height);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_renderbuffer_storage (target, internalformat, width, height);
 		#end
 		
@@ -1466,9 +1476,9 @@ class GL {
 	
 	public static inline function sampleCoverage (value:Float, invert:Bool):Void {
 		
-		#if js
+		#if html5
 		context.sampleCoverage (value, invert);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_sample_coverage (value, invert);
 		#end
 		
@@ -1477,9 +1487,9 @@ class GL {
 	
 	public static inline function scissor (x:Int, y:Int, width:Int, height:Int):Void {
 		
-		#if js
+		#if html5
 		context.scissor (x, y, width, height);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_scissor (x, y, width, height);
 		#end
 		
@@ -1488,9 +1498,9 @@ class GL {
 	
 	public static inline function shaderSource (shader:GLShader, source:String):Void {
 		
-		#if js
+		#if html5
 		context.shaderSource (shader, source);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_shader_source (shader.id, source);
 		#end
 		
@@ -1499,9 +1509,9 @@ class GL {
 	
 	public static inline function stencilFunc (func:Int, ref:Int, mask:Int):Void {
 		
-		#if js
+		#if html5
 		context.stencilFunc (func, ref, mask);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_stencil_func (func, ref, mask);
 		#end
 		
@@ -1510,9 +1520,9 @@ class GL {
 	
 	public static inline function stencilFuncSeparate (face:Int, func:Int, ref:Int, mask:Int):Void {
 		
-		#if js
+		#if html5
 		context.stencilFuncSeparate (face, func, ref, mask);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_stencil_func_separate (face, func, ref, mask);
 		#end
 		
@@ -1521,9 +1531,9 @@ class GL {
 	
 	public static inline function stencilMask (mask:Int):Void {
 		
-		#if js
+		#if html5
 		context.stencilMask (mask);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_stencil_mask (mask);
 		#end
 		
@@ -1532,9 +1542,9 @@ class GL {
 	
 	public static inline function stencilMaskSeparate (face:Int, mask:Int):Void {
 		
-		#if js
+		#if html5
 		context.stencilMaskSeparate (face, mask);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_stencil_mask_separate (face, mask);
 		#end
 		
@@ -1543,9 +1553,9 @@ class GL {
 	
 	public static inline function stencilOp (fail:Int, zfail:Int, zpass:Int):Void {
 		
-		#if js
+		#if html5
 		context.stencilOp (fail, zfail, zpass);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_stencil_op (fail, zfail, zpass);
 		#end
 		
@@ -1554,9 +1564,9 @@ class GL {
 	
 	public static inline function stencilOpSeparate (face:Int, fail:Int, zfail:Int, zpass:Int):Void {
 		
-		#if js
+		#if html5
 		context.stencilOpSeparate (face, fail, zfail, zpass);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_stencil_op_separate (face, fail, zfail, zpass);
 		#end
 		
@@ -1565,10 +1575,12 @@ class GL {
 	
 	public static inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
 		
-		#if js
+		#if html5
 		context.texImage2D (target, level, internalformat, width, height, border, format, type, pixels);
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_tex_image_2d (target, level, internalformat, width, height, border, format, type, pixels == null ? null : pixels.getByteBuffer (), pixels == null ? null : pixels.getStart ());
+		#elseif (nodejs && lime_opengl)
+		lime_gl_tex_image_2d (target, level, internalformat, width, height, border, format, type, pixels == null ? null : pixels, pixels == null ? null : pixels.byteOffset);
 		#end
 		
 	}
@@ -1576,9 +1588,9 @@ class GL {
 	
 	public static inline function texParameterf (target:Int, pname:Int, param:Float):Void {
 		
-		#if js
+		#if html5
 		context.texParameterf (target, pname, param);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_tex_parameterf (target, pname, param);
 		#end
 		
@@ -1587,9 +1599,9 @@ class GL {
 	
 	public static inline function texParameteri (target:Int, pname:Int, param:Int):Void {
 		
-		#if js
+		#if html5
 		context.texParameteri (target, pname, param);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_tex_parameteri (target, pname, param);
 		#end
 		
@@ -1598,10 +1610,12 @@ class GL {
 	
 	public static inline function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
 		
-		#if js
+		#if html5
 		context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, pixels);
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, type, pixels == null ? null : pixels.getByteBuffer(), pixels == null ? null : pixels.getStart());
+		#elseif (nodejs && lime_opengl)
+		lime_gl_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, type, pixels == null ? null : pixels.buffer, pixels == null ? null : pixels.byteOffset);
 		#end
 		
 	}
@@ -1609,9 +1623,9 @@ class GL {
 	
 	public static inline function uniform1f (location:GLUniformLocation, x:Float):Void {
 		
-		#if js
+		#if html5
 		context.uniform1f (location, x);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_uniform1f (location, x);
 		#end
 		
@@ -1620,10 +1634,12 @@ class GL {
 	
 	public static inline function uniform1fv (location:GLUniformLocation, x:Float32Array):Void {
 		
-		#if js
+		#if html5
 		context.uniform1fv (location, x);
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_uniform1fv (location, x.getByteBuffer ());
+		#elseif (nodejs && lime_opengl)
+		lime_gl_uniform1fv (location, x.buffer);
 		#end
 		
 	}
@@ -1631,9 +1647,9 @@ class GL {
 	
 	public static inline function uniform1i (location:GLUniformLocation, x:Int):Void {
 		
-		#if js
+		#if html5
 		context.uniform1i (location, x);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_uniform1i (location, x);
 		#end
 		
@@ -1642,10 +1658,12 @@ class GL {
 	
 	public static inline function uniform1iv (location:GLUniformLocation, v:Int32Array):Void {
 		
-		#if js
+		#if html5
 		context.uniform1iv (location, v);
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_uniform1iv (location, v.getByteBuffer ());
+		#elseif (nodejs && lime_opengl)
+		lime_gl_uniform1iv (location, v.buffer);
 		#end
 		
 	}
@@ -1653,9 +1671,9 @@ class GL {
 	
 	public static inline function uniform2f (location:GLUniformLocation, x:Float, y:Float):Void {
 		
-		#if js
+		#if html5
 		context.uniform2f (location, x, y);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_uniform2f (location, x, y);
 		#end
 		
@@ -1664,10 +1682,12 @@ class GL {
 	
 	public static inline function uniform2fv (location:GLUniformLocation, v:Float32Array):Void {
 		
-		#if js
+		#if html5
 		context.uniform2fv (location, v);
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_uniform2fv (location, v.getByteBuffer ());
+		#elseif (nodejs && lime_opengl)
+		lime_gl_uniform2fv (location, v.buffer);
 		#end
 		
 	}
@@ -1675,9 +1695,9 @@ class GL {
 	
 	public static inline function uniform2i (location:GLUniformLocation, x:Int, y:Int):Void {
 		
-		#if js
+		#if html5
 		context.uniform2i (location, x, y);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_uniform2i (location, x, y);
 		#end
 		
@@ -1686,10 +1706,12 @@ class GL {
 	
 	public static inline function uniform2iv (location:GLUniformLocation, v:Int32Array):Void {
 		
-		#if js
+		#if html5
 		context.uniform2iv (location, v);
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_uniform2iv (location, v.getByteBuffer ());
+		#elseif (nodejs && lime_opengl)
+		lime_gl_uniform2iv (location, v.buffer);
 		#end
 		
 	}
@@ -1697,9 +1719,9 @@ class GL {
 	
 	public static inline function uniform3f (location:GLUniformLocation, x:Float, y:Float, z:Float):Void {
 		
-		#if js
+		#if html5
 		context.uniform3f (location, x, y, z);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_uniform3f (location, x, y, z);
 		#end
 		
@@ -1708,10 +1730,12 @@ class GL {
 	
 	public static inline function uniform3fv (location:GLUniformLocation, v:Float32Array):Void {
 		
-		#if js
+		#if html5
 		context.uniform3fv (location, v);
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_uniform3fv (location, v.getByteBuffer ());
+		#elseif (nodejs && lime_opengl)
+		lime_gl_uniform3fv (location, v.buffer);
 		#end
 		
 	}
@@ -1719,9 +1743,9 @@ class GL {
 	
 	public static inline function uniform3i (location:GLUniformLocation, x:Int, y:Int, z:Int):Void {
 		
-		#if js
+		#if html5
 		context.uniform3i (location, x, y, z);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_uniform3i (location, x, y, z);
 		#end
 		
@@ -1730,10 +1754,12 @@ class GL {
 	
 	public static inline function uniform3iv (location:GLUniformLocation, v:Int32Array):Void {
 		
-		#if js
+		#if html5
 		context.uniform3iv (location, v);
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_uniform3iv (location, v.getByteBuffer ());
+		#elseif (nodejs && lime_opengl)
+		lime_gl_uniform3iv (location, v.buffer);
 		#end
 		
 	}
@@ -1741,9 +1767,9 @@ class GL {
 	
 	public static inline function uniform4f (location:GLUniformLocation, x:Float, y:Float, z:Float, w:Float):Void {
 		
-		#if js
+		#if html5
 		context.uniform4f (location, x, y, z, w);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_uniform4f (location, x, y, z, w);
 		#end
 		
@@ -1752,10 +1778,12 @@ class GL {
 	
 	public static inline function uniform4fv (location:GLUniformLocation, v:Float32Array):Void {
 		
-		#if js
+		#if html5
 		context.uniform4fv (location, v);
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_uniform4fv (location, v.getByteBuffer ());
+		#elseif (nodejs && lime_opengl)
+		lime_gl_uniform4fv (location, v.buffer);
 		#end
 		
 	}
@@ -1763,9 +1791,9 @@ class GL {
 	
 	public static inline function uniform4i (location:GLUniformLocation, x:Int, y:Int, z:Int, w:Int):Void {
 		
-		#if js
+		#if html5
 		context.uniform4i (location, x, y, z, w);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_uniform4i (location, x, y, z, w);
 		#end
 		
@@ -1774,10 +1802,12 @@ class GL {
 	
 	public static inline function uniform4iv (location:GLUniformLocation, v:Int32Array):Void {
 		
-		#if js
+		#if html5
 		context.uniform4iv (location, v);
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_uniform4iv (location, v.getByteBuffer ());
+		#elseif (nodejs && lime_opengl)
+		lime_gl_uniform4iv (location, v.buffer);
 		#end
 		
 	}
@@ -1785,10 +1815,12 @@ class GL {
 	
 	public static inline function uniformMatrix2fv (location:GLUniformLocation, transpose:Bool, v:Float32Array):Void {
 		
-		#if js
+		#if html5
 		context.uniformMatrix2fv (location, transpose, v);
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_uniform_matrix (location, transpose, v.getByteBuffer (), 2);
+		#elseif (nodejs && lime_opengl)
+		lime_gl_uniform_matrix (location, transpose, v.buffer, 2);
 		#end
 		
 	}
@@ -1796,10 +1828,12 @@ class GL {
 	
 	public static inline function uniformMatrix3fv (location:GLUniformLocation, transpose:Bool, v:Float32Array):Void {
 		
-		#if js
+		#if html5
 		context.uniformMatrix3fv (location, transpose, v);
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_uniform_matrix (location, transpose, v.getByteBuffer (), 3);
+		#elseif (nodejs && lime_opengl)
+		lime_gl_uniform_matrix (location, transpose, v.buffer, 3);
 		#end
 		
 	}
@@ -1807,10 +1841,12 @@ class GL {
 	
 	public static inline function uniformMatrix4fv (location:GLUniformLocation, transpose:Bool, v:Float32Array):Void {
 		
-		#if js
+		#if html5
 		context.uniformMatrix4fv (location, transpose, v);
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_uniform_matrix (location, transpose, v.getByteBuffer (), 4);
+		#elseif (nodejs && lime_opengl)
+		lime_gl_uniform_matrix (location, transpose, v.buffer, 4);
 		#end
 		
 	}
@@ -1825,9 +1861,9 @@ class GL {
 	
 	public static inline function useProgram (program:GLProgram):Void {
 		
-		#if js
+		#if html5
 		context.useProgram (program);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_use_program (program == null ? 0 : program.id);
 		#end
 		
@@ -1836,9 +1872,9 @@ class GL {
 	
 	public static inline function validateProgram (program:GLProgram):Void {
 		
-		#if js
+		#if html5
 		context.validateProgram (program);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_validate_program (program.id);
 		#end
 		
@@ -1847,9 +1883,9 @@ class GL {
 	
 	public static inline function vertexAttrib1f (indx:Int, x:Float):Void {
 		
-		#if js
+		#if html5
 		context.vertexAttrib1f (indx, x);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_vertex_attrib1f (indx, x);
 		#end
 		
@@ -1858,10 +1894,12 @@ class GL {
 	
 	public static inline function vertexAttrib1fv (indx:Int, values:Float32Array):Void {
 		
-		#if js
+		#if html5
 		context.vertexAttrib1fv (indx, values);
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_vertex_attrib1fv (indx, values.getByteBuffer ());
+		#elseif (nodejs && lime_opengl)
+		lime_gl_vertex_attrib1fv (indx, values.buffer);
 		#end
 		
 	}
@@ -1869,9 +1907,9 @@ class GL {
 	
 	public static inline function vertexAttrib2f (indx:Int, x:Float, y:Float):Void {
 		
-		#if js
+		#if html5
 		context.vertexAttrib2f (indx, x, y);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_vertex_attrib2f (indx, x, y);
 		#end
 		
@@ -1880,10 +1918,12 @@ class GL {
 	
 	public static inline function vertexAttrib2fv (indx:Int, values:Float32Array):Void {
 		
-		#if js
+		#if html5
 		context.vertexAttrib2fv (indx, values);
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_vertex_attrib2fv (indx, values.getByteBuffer());
+		#elseif (nodejs && lime_opengl)
+		lime_gl_vertex_attrib2fv (indx, values.buffer);
 		#end
 		
 	}
@@ -1891,9 +1931,9 @@ class GL {
 	
 	public static inline function vertexAttrib3f (indx:Int, x:Float, y:Float, z:Float):Void {
 		
-		#if js
+		#if html5
 		context.vertexAttrib3f (indx, x, y, z);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_vertex_attrib3f (indx, x, y, z);
 		#end
 		
@@ -1902,10 +1942,12 @@ class GL {
 	
 	public static inline function vertexAttrib3fv (indx:Int, values:Float32Array):Void {
 		
-		#if js
+		#if html5
 		context.vertexAttrib3fv (indx, values);
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_vertex_attrib3fv (indx, values.getByteBuffer ());
+		#elseif (nodejs && lime_opengl)
+		lime_gl_vertex_attrib3fv (indx, values.buffer);
 		#end
 		
 	}
@@ -1913,9 +1955,9 @@ class GL {
 	
 	public static inline function vertexAttrib4f (indx:Int, x:Float, y:Float, z:Float, w:Float):Void {
 		
-		#if js
+		#if html5
 		context.vertexAttrib4f (indx, x, y, z, w);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_vertex_attrib4f (indx, x, y, z, w);
 		#end
 		
@@ -1924,10 +1966,12 @@ class GL {
 	
 	public static inline function vertexAttrib4fv (indx:Int, values:Float32Array):Void {
 		
-		#if js
+		#if html5
 		context.vertexAttrib4fv (indx, values);
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_vertex_attrib4fv (indx, values.getByteBuffer ());
+		#elseif (nodejs && lime_opengl)
+		lime_gl_vertex_attrib4fv (indx, values.buffer);
 		#end
 		
 	}
@@ -1935,9 +1979,9 @@ class GL {
 	
 	public static inline function vertexAttribPointer (indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void {
 		
-		#if js
+		#if html5
 		context.vertexAttribPointer (indx, size, type, normalized, stride, offset);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_vertex_attrib_pointer (indx, size, type, normalized, stride, offset);
 		#end
 		
@@ -1946,9 +1990,9 @@ class GL {
 	
 	public static inline function viewport (x:Int, y:Int, width:Int, height:Int):Void {
 		
-		#if js
+		#if html5
 		context.viewport (x, y, width, height);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_viewport (x, y, width, height);
 		#end
 		
@@ -1958,7 +2002,7 @@ class GL {
 	private static function get_version ():Int { return 2; }
 	
 	
-	#if ((cpp || neko) && lime_opengl)
+	#if ((cpp || neko || nodejs) && lime_opengl)
 	
 	private static var lime_gl_active_texture = System.load ("lime", "lime_gl_active_texture", 1);
 	private static var lime_gl_attach_shader = System.load ("lime", "lime_gl_attach_shader", 2);

@@ -568,7 +568,7 @@ class Assets {
 	private static function isValidImage (buffer:Image):Bool {
 		
 		#if (tools && !display)
-		#if (cpp || neko)
+		#if (cpp || neko || nodejs)
 		
 		return (buffer != null);
 		//return (bitmapData.__handle != null);

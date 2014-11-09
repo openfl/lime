@@ -15,6 +15,8 @@
 	<templatePath name="templates" unless="lime-legacy" />
 	<sample path="samples" unless="openfl" />
 	
+	<haxelib name="nodejs" if="nodejs" />
+	
 	<section unless="display || lime-legacy">
 		
 		<haxelib name="hxcpp" if="cpp" />

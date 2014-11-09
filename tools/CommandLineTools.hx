@@ -1092,7 +1092,12 @@ class CommandLineTools {
 				
 				target = PlatformHelper.hostPlatform;
 				targetFlags.set ("neko", "");
+			
+			case "nodejs":
 				
+				target = PlatformHelper.hostPlatform;
+				targetFlags.set ("nodejs", "");
+			
 			case "iphone", "iphoneos":
 				
 				target = Platform.IOS;

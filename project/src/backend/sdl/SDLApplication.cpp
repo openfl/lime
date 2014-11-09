@@ -56,85 +56,17 @@ namespace lime {
 	}
 	
 	
-	static SDL_TimerID timerID = 0;
-	bool timerActive = false;
-	
-	
-	Uint32 OnTimer (Uint32 interval, void *) {
-		
-		SDL_Event event;
-		SDL_UserEvent userevent;
-		userevent.type = SDL_USEREVENT;
-		userevent.code = 0;
-		userevent.data1 = NULL;
-		userevent.data2 = NULL;
-		event.type = SDL_USEREVENT;
-		event.user = userevent;
-		
-		timerActive = false;
-		timerID = 0;
-		
-		SDL_PushEvent (&event);
-		
-		return 0;
-		
-	}
-	
-	
 	int SDLApplication::Exec () {
 		
-		framePeriod = 1000.0 / 60.0;
-		SDL_Event event;
-		active = true;
-		lastUpdate = SDL_GetTicks ();
-		nextUpdate = lastUpdate;
-		
-		bool firstTime = true;
+		Init ();
 		
 		while (active) {
 			
-			event.type = -1;
-			
-			while (active && (firstTime || SDL_WaitEvent (&event))) {
-				
-				firstTime = false;
-				
-				HandleEvent (&event);
-				event.type = -1;
-				if (!active) break;
-				
-				while (active && SDL_PollEvent (&event)) {
-					
-					HandleEvent (&event);
-					event.type = -1;
-					if (!active) break;
-					
-				}
-				
-				currentUpdate = SDL_GetTicks ();
-				
-				if (currentUpdate >= nextUpdate) {
-					
-					SDL_RemoveTimer (timerID);
-					OnTimer (0, 0);
-					
-				} else if (!timerActive) {
-					
-					timerActive = true;
-					timerID = SDL_AddTimer (nextUpdate - currentUpdate, OnTimer, 0);
-					
-				}
-				
-			}
+			Update ();
 			
 		}
 		
-		windowEvent.type = WINDOW_DEACTIVATE;
-		WindowEvent::Dispatch (&windowEvent);
-		
-		SDL_Quit ();
-		
-		return 0;
+		return Quit ();
 		
 	}
 	
@@ -225,6 +157,16 @@ namespace lime {
 				break;
 			
 		}
+		
+	}
+	
+	
+	void SDLApplication::Init() {
+		
+		framePeriod = 1000.0 / 60.0;
+		active = true;
+		lastUpdate = SDL_GetTicks ();
+		nextUpdate = lastUpdate;
 		
 	}
 	
@@ -320,6 +262,85 @@ namespace lime {
 			WindowEvent::Dispatch (&windowEvent);
 			
 		}
+		
+	}
+	
+	
+	int SDLApplication::Quit () {
+		
+		windowEvent.type = WINDOW_DEACTIVATE;
+		WindowEvent::Dispatch (&windowEvent);
+		
+		SDL_Quit ();
+		
+		return 0;
+		
+	}
+	
+	
+	static SDL_TimerID timerID = 0;
+	bool timerActive = false;
+	bool firstTime = true;
+	
+	Uint32 OnTimer (Uint32 interval, void *) {
+		
+		SDL_Event event;
+		SDL_UserEvent userevent;
+		userevent.type = SDL_USEREVENT;
+		userevent.code = 0;
+		userevent.data1 = NULL;
+		userevent.data2 = NULL;
+		event.type = SDL_USEREVENT;
+		event.user = userevent;
+		
+		timerActive = false;
+		timerID = 0;
+		
+		SDL_PushEvent (&event);
+		
+		return 0;
+		
+	}
+	
+	
+	bool SDLApplication::Update () {
+		
+		SDL_Event event;
+		event.type = -1;
+			
+		if (active && (firstTime || SDL_WaitEvent (&event))) {
+			
+			firstTime = false;
+			
+			HandleEvent (&event);
+			event.type = -1;
+			if (!active)
+				return active;
+			
+			if (SDL_PollEvent (&event)) {
+				
+				HandleEvent (&event);
+				event.type = -1;
+				
+			}
+			
+			currentUpdate = SDL_GetTicks ();
+			
+			if (currentUpdate >= nextUpdate) {
+				
+				SDL_RemoveTimer (timerID);
+				OnTimer (0, 0);
+				
+			} else if (!timerActive) {
+				
+				timerActive = true;
+				timerID = SDL_AddTimer (nextUpdate - currentUpdate, OnTimer, 0);
+				
+			}
+			
+		}
+		
+		return active;
 		
 	}
 	
