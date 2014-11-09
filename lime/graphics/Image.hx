@@ -856,7 +856,15 @@ class Image {
 		#if (sys && (!disable_cffi || !format))
 		
 		var data = lime_image_load (path);
-		if (data != null) buffer = new ImageBuffer (new UInt8Array (data.data), data.width, data.height, data.bpp);
+		if (data != null) {
+			var ba:ByteArray = cast(data.data, ByteArray);
+			#if nodejs
+			var u8a = ba.byteView;
+			#else
+			var u8a = new UInt8Array(ba);
+			#end
+			buffer = new ImageBuffer (u8a, data.width, data.height, data.bpp);
+		}
 		
 		#else
 		

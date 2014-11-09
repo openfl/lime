@@ -74,8 +74,10 @@ class AL {
 	
 	public static function bufferData (buffer:Int, format:Int, data:ByteArray, size:Int, freq:Int):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal)
+		#if ((cpp || neko) && lime_openal)
 		lime_al_buffer_data (buffer, format, data.getByteBuffer (), size, freq);
+		#elseif (nodejs && lime_openal)
+		lime_al_buffer_data (buffer, format, data, size, freq);
 		#end
 		
 	}

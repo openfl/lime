@@ -1,6 +1,8 @@
 package lime.utils;
 #if html5
 typedef UInt16Array = js.html.Uint16Array;
+#elseif nodejs
+typedef UInt16Array = nodejs.Uint16Array;
 #else
 
 
