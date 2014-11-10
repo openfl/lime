@@ -1,15 +1,14 @@
 package helpers;
 
 
-//import openfl.display.Bitmap;
-//import openfl.display.BitmapData;
-//import openfl.display.Shape;
-//import openfl.geom.Matrix;
 import lime.graphics.Image;
+import lime.graphics.ImageBuffer;
+import lime.utils.ByteArray;
+import lime.utils.UInt8Array;
 import project.Haxelib;
 import project.Platform;
+import sys.io.File;
 import sys.FileSystem;
-//import format.SVG;
 
 
 class ImageHelper {
@@ -18,8 +17,35 @@ class ImageHelper {
 	public static function rasterizeSVG (path:String, width:Int, height:Int, backgroundColor:Int = null):Image {
 	//public static function rasterizeSVG (svg:Dynamic /*SVG*/, width:Int, height:Int, backgroundColor:Int = null):Image {
 		
-		var rasterizer = PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates/bin/batik/batik-rasterizer.jar";
 		var temp = PathHelper.getTemporaryFile (".png");
+		
+		try {
+			
+			// try using Lime "legacy" to rasterize SVG first, since it is much faster
+			
+			ProcessHelper.runCommand ("", "neko", [ PathHelper.getHaxelib (new Haxelib ("lime")) + "/svg.n", "process", path, Std.string (width), Std.string (height), temp ], true, true);
+			
+			if (FileSystem.exists (temp)) {
+				
+				var image = Image.fromFile (temp);
+				
+				try {
+					
+					FileSystem.deleteFile (temp);
+					
+				} catch (e:Dynamic) {}
+				
+				if (image.buffer != null) {
+					
+					return image;
+					
+				}
+				
+			}
+			
+		} catch (e:Dynamic) {}
+		
+		var rasterizer = PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates/bin/batik/batik-rasterizer.jar";
 		var args = [ "-Dapple.awt.UIElement=true", "-jar", rasterizer, "-d", temp, "-w", Std.string (width), "-h", Std.string (height) ];
 		
 		if (backgroundColor != null) {
@@ -95,20 +121,6 @@ class ImageHelper {
 		}
 		
 		return null;
-		
-		/*if (backgroundColor == null) {
-			
-			backgroundColor = 0x00FFFFFF;
-			
-		}
-		
-		var shape = new Shape ();
-		svg.render (shape.graphics, 0, 0, width, height);
-		
-		var bitmapData = new BitmapData (width, height, true, backgroundColor);
-		bitmapData.draw (shape);
-		
-		return bitmapData;*/
 		
 	}
 	

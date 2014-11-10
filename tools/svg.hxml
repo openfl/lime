@@ -1,0 +1,8 @@
+-main SVGExport
+-neko ../svg.n
+--macro lime.system.System.includeTools()
+-lib lime
+-lib openfl
+-lib svg
+-D lime-legacy
+--remap flash:openfl
