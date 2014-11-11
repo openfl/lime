@@ -236,7 +236,14 @@ class ImageDataUtil {
 			
 			for (i in 0...length) {
 				
+				#if html5
+				data[i] = r;
+				data[i + 1] = g;
+				data[i + 2] = b;
+				data[i + 3] = a;
+				#else
 				data.setUInt32 (i * 4, rgba);
+				#end
 				
 			}
 			
@@ -256,7 +263,14 @@ class ImageDataUtil {
 					
 					offset = (row * stride) + (column * 4);
 					
+					#if html5
+					data[offset] = r;
+					data[offset + 1] = g;
+					data[offset + 2] = b;
+					data[offset + 3] = a;
+					#else
 					data.setUInt32 (offset, rgba);
+					#end
 					
 				}
 				
