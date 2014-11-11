@@ -18,6 +18,7 @@ import lime.system.System;
 #if html5
 import js.html.CanvasElement;
 import js.html.ImageElement;
+import js.html.Image in JSImage;
 import js.Browser;
 #elseif flash
 import flash.display.BitmapData;
@@ -736,7 +737,7 @@ class Image {
 	private function __fromBase64 (base64:String, type:String, onload:Image -> Void = null):Void {
 		
 		#if html5
-		var image:ImageElement = cast Browser.document.createElement ("img");
+		var image = new JSImage ();
 		
 		var image_onLoaded = function (event) {
 			
@@ -818,7 +819,7 @@ class Image {
 		
 		#if html5
 		
-		var image = cast Browser.document.createElement ("img");
+		var image = new JSImage ();
 		
 		image.onload = function (_) {
 			
