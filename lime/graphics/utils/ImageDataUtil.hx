@@ -227,25 +227,38 @@ class ImageDataUtil {
 		var g = (color & 0x0000FF00) >>> 8;
 		var b = (color & 0x000000FF);
 		
+		var rgba = (r | (g << 8) | (b << 16) | (a << 24));
 		var data = image.buffer.data;
-		var stride = image.buffer.width * 4;
-		var offset:Int;
 		
-		var rowStart = Std.int (rect.y + image.offsetY);
-		var rowEnd = Std.int (rect.bottom + image.offsetY);
-		var columnStart = Std.int (rect.x + image.offsetX);
-		var columnEnd = Std.int (rect.right + image.offsetX);
-		
-		for (row in rowStart...rowEnd) {
+		if (rect.width == image.buffer.width && rect.height == image.buffer.height && rect.x == 0 && rect.y == 0 && image.offsetX == 0 && image.offsetY == 0) {
 			
-			for (column in columnStart...columnEnd) {
+			var length = image.buffer.width * image.buffer.height;
+			
+			for (i in 0...length) {
 				
-				offset = (row * stride) + (column * 4);
+				data.setUInt32 (i * 4, rgba);
 				
-				data[offset] = r;
-				data[offset + 1] = g;
-				data[offset + 2] = b;
-				data[offset + 3] = a;
+			}
+			
+		} else {
+			
+			var stride = image.buffer.width * 4;
+			var offset:Int;
+			
+			var rowStart = Std.int (rect.y + image.offsetY);
+			var rowEnd = Std.int (rect.bottom + image.offsetY);
+			var columnStart = Std.int (rect.x + image.offsetX);
+			var columnEnd = Std.int (rect.right + image.offsetX);
+			
+			for (row in rowStart...rowEnd) {
+				
+				for (column in columnStart...columnEnd) {
+					
+					offset = (row * stride) + (column * 4);
+					
+					data.setUInt32 (offset, rgba);
+					
+				}
 				
 			}
 			

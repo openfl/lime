@@ -10,6 +10,7 @@ import helpers.CPPHelper;
 import helpers.FileHelper;
 import helpers.IconHelper;
 import helpers.IOSHelper;
+import helpers.LogHelper;
 import helpers.PathHelper;
 import helpers.PlatformHelper;
 import helpers.ProcessHelper;
@@ -399,8 +400,12 @@ class IOSPlatform extends PlatformTarget {
 			
 			if (!match) {
 				
+				LogHelper.info ("", " - \x1b[1mGenerating image:\x1b[0m " + PathHelper.combine (projectDirectory, splashScreenNames[i]));
+				
 				var image = new Image (null, 0, 0, width, height, (0xFF << 24) | (project.window.background & 0xFFFFFF));
-				File.saveBytes (PathHelper.combine (projectDirectory, splashScreenNames[i]), image.encode ("png"));
+				var bytes = image.encode ("png");
+				
+				File.saveBytes (PathHelper.combine (projectDirectory, splashScreenNames[i]), bytes);
 				
 			}
 			
