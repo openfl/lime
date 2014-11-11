@@ -119,6 +119,65 @@ namespace lime {
 	};
 	
 	
+	struct MyDestManager {
+		
+		
+		enum { BUF_SIZE = 4096 };
+		struct jpeg_destination_mgr pub;   /* public fields */
+		QuickVec<uint8> mOutput;
+		uint8   mTmpBuf[BUF_SIZE];
+		
+		
+		MyDestManager () {
+			
+			pub.init_destination = init_buffer;
+			pub.empty_output_buffer = copy_buffer;
+			pub.term_destination = term_buffer;
+			pub.next_output_byte = mTmpBuf;
+			pub.free_in_buffer = BUF_SIZE;
+			
+		}
+		
+		
+		void CopyBuffer () {
+			
+			mOutput.append (mTmpBuf, BUF_SIZE);
+			pub.next_output_byte = mTmpBuf;
+			pub.free_in_buffer = BUF_SIZE;
+			
+		}
+		
+		
+		void TermBuffer () {
+			
+			mOutput.append (mTmpBuf, BUF_SIZE - pub.free_in_buffer);
+			
+		}
+		
+		
+		static void init_buffer (jpeg_compress_struct* cinfo) {}
+		
+		
+		static boolean copy_buffer (jpeg_compress_struct* cinfo) {
+			
+			MyDestManager *man = (MyDestManager *)cinfo->dest;
+			man->CopyBuffer ();
+			return TRUE;
+			
+		}
+		
+		
+		static void term_buffer (jpeg_compress_struct* cinfo) {
+			
+			MyDestManager *man = (MyDestManager *)cinfo->dest;
+			man->TermBuffer ();
+			
+		}
+		
+		
+	};
+	
+	
 	bool JPEG::Decode (Resource *resource, ImageBuffer* imageBuffer) {
 		
 		struct jpeg_decompress_struct cinfo;
@@ -207,6 +266,73 @@ namespace lime {
 		
 		jpeg_destroy_decompress (&cinfo);
 		return decoded;
+		
+	}
+	
+	
+	bool JPEG::Encode (ImageBuffer *imageBuffer, ByteArray *bytes, int quality) {
+		
+		struct jpeg_compress_struct cinfo;
+		
+		struct ErrorData jpegError;
+		cinfo.err = jpeg_std_error (&jpegError.base);
+		jpegError.base.error_exit = OnError;
+		jpegError.base.output_message = OnOutput;
+		
+		MyDestManager dest;
+		
+		int w = imageBuffer->width;
+		int h = imageBuffer->height;
+		QuickVec<uint8> row_buf (w * 3);
+		
+		jpeg_create_compress (&cinfo);
+		
+		if (setjmp (jpegError.on_error)) {
+			
+			jpeg_destroy_compress (&cinfo);
+			return false;
+			
+		}
+		
+		cinfo.dest = (jpeg_destination_mgr *)&dest;
+		
+		cinfo.image_width = w;
+		cinfo.image_height = h;
+		cinfo.input_components = 3;
+		cinfo.in_color_space = JCS_RGB;
+		
+		jpeg_set_defaults (&cinfo);
+		jpeg_set_quality (&cinfo, quality, true);
+		jpeg_start_compress (&cinfo, true);
+		
+		JSAMPROW row_pointer = &row_buf[0];
+		unsigned char* imageData = imageBuffer->data->Bytes();
+		int stride = w * imageBuffer->bpp;
+		
+		while (cinfo.next_scanline < cinfo.image_height) {
+			
+			const uint8 *src = (const uint8 *)(imageData + (stride * cinfo.next_scanline));
+			uint8 *dest = &row_buf[0];
+			
+			for(int x = 0; x < w; x++) {
+				
+				dest[0] = src[0];
+				dest[1] = src[1];
+				dest[2] = src[2];
+				dest += 3;
+				src += 4;
+				
+			}
+			
+			jpeg_write_scanlines (&cinfo, &row_pointer, 1);
+			
+		}
+		
+		jpeg_finish_compress (&cinfo);
+		
+		*bytes = ByteArray (dest.mOutput);
+		
+		return true;
 		
 	}
 	

@@ -207,6 +207,47 @@ namespace lime {
 	}
 	
 	
+	value lime_image_encode (value buffer, value type, value quality) {
+		
+		ImageBuffer imageBuffer = ImageBuffer (buffer);
+		ByteArray data;
+		
+		switch (val_int (type)) {
+			
+			case 0: 
+				
+				#ifdef LIME_PNG
+				if (PNG::Encode (&imageBuffer, &data)) {
+					
+					//delete imageBuffer.data;
+					return data.mValue;
+					
+				}
+				#endif
+				break;
+			
+			case 1:
+				
+				#ifdef LIME_JPEG
+				if (JPEG::Encode (&imageBuffer, &data, val_int (quality))) {
+					
+					//delete imageBuffer.data;
+					return data.mValue;
+					
+				}
+				#endif
+				break;
+			
+			default: break;
+			
+		}
+		
+		//delete imageBuffer.data;
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_image_load (value data) {
 		
 		ImageBuffer imageBuffer;
@@ -434,6 +475,7 @@ namespace lime {
 	DEFINE_PRIM (lime_font_load_glyphs, 3);
 	DEFINE_PRIM (lime_font_load_range, 4);
 	DEFINE_PRIM (lime_font_outline_decompose, 2);
+	DEFINE_PRIM (lime_image_encode, 3);
 	DEFINE_PRIM (lime_image_load, 1);
 	DEFINE_PRIM (lime_key_event_manager_register, 2);
 	DEFINE_PRIM (lime_lzma_encode, 1);

@@ -283,13 +283,19 @@ class Image {
 	}
 	
 	
-	public function encode (format:String = "png"):ByteArray {
+	public function encode (format:String = "png", quality:Int = 90):ByteArray {
 		
 		#if (!html5 && !flash)
-		#if format
+		
 		switch (format) {
 			
 			case "png":
+				
+				#if (sys && (!disable_cffi || !format))
+				
+				return lime_image_encode (buffer, 0, quality);
+				
+				#else
 				
 				try {
 					
@@ -319,12 +325,21 @@ class Image {
 					return ByteArray.fromBytes (output.getBytes ());
 					
 				} catch (e:Dynamic) {}
+				
+				#end
+			
+			case "jpg", "jpeg":
+				
+				#if (sys && (!disable_cffi || !format))
+				
+				return lime_image_encode (buffer, 1, quality);
+				
+				#end
 			
 			default:
-				
 			
 		}
-		#end
+		
 		#end
 		
 		return null;
@@ -1163,6 +1178,7 @@ class Image {
 	
 	
 	#if (cpp || neko || nodejs)
+	private static var lime_image_encode:ImageBuffer -> Int -> Int -> ByteArray = System.load ("lime", "lime_image_encode", 3);
 	private static var lime_image_load:Dynamic = System.load ("lime", "lime_image_load", 1);
 	#end
 	

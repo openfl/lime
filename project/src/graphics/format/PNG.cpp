@@ -8,6 +8,8 @@ extern "C" {
 
 #include <setjmp.h>
 #include <graphics/format/PNG.h>
+#include <graphics/ImageBuffer.h>
+#include <utils/ByteArray.h>
 #include <utils/FileIO.h>
 #include <utils/QuickVec.h>
 
@@ -194,71 +196,87 @@ namespace lime {
 	}
 	
 	
-	static bool Encode (ImageBuffer *imageBuffer, ByteArray *bytes) {
+	bool PNG::Encode (ImageBuffer *imageBuffer, ByteArray *bytes) {
 		
-		return true;
+		png_structp png_ptr = png_create_write_struct (PNG_LIBPNG_VER_STRING, NULL, user_error_fn, user_warning_fn);
 		
-		/*png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, user_error_fn, user_warning_fn);
-		
-		if (!png_ptr)
+		if (!png_ptr) {
+			
 			return false;
+			
+		}
 		
-		png_infop info_ptr = png_create_info_struct(png_ptr);
-		if (!info_ptr)
-			return false;
+		png_infop info_ptr = png_create_info_struct (png_ptr);
 		
-		if (setjmp(png_jmpbuf(png_ptr)))
-		{
-			png_destroy_write_struct(&png_ptr, &info_ptr );
+		if (!info_ptr) {
+			
 			return false;
+			
+		}
+		
+		if (setjmp (png_jmpbuf (png_ptr))) {
+			
+			png_destroy_write_struct (&png_ptr, &info_ptr);
+			return false;
+			
 		}
 		
 		QuickVec<uint8> out_buffer;
 		
-		png_set_write_fn(png_ptr, &out_buffer, user_write_data, user_flush_data);
+		png_set_write_fn (png_ptr, &out_buffer, user_write_data, user_flush_data);
 		
-		int w = inSurface->Width();
-		int h = inSurface->Height();
+		int w = imageBuffer->width;
+		int h = imageBuffer->height;
 		
 		int bit_depth = 8;
-		int color_type = (inSurface->Format()&pfHasAlpha) ?
-		PNG_COLOR_TYPE_RGB_ALPHA :
-		PNG_COLOR_TYPE_RGB;
-		png_set_IHDR(png_ptr, info_ptr, w, h,
-		bit_depth, color_type, PNG_INTERLACE_NONE,
-		PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+		//int color_type = (inSurface->Format () & pfHasAlpha) ? PNG_COLOR_TYPE_RGB_ALPHA : PNG_COLOR_TYPE_RGB;
+		int color_type = PNG_COLOR_TYPE_RGB_ALPHA;
+		png_set_IHDR (png_ptr, info_ptr, w, h, bit_depth, color_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 		
-		png_write_info(png_ptr, info_ptr);
+		png_write_info (png_ptr, info_ptr);
 		
-		bool do_alpha = color_type==PNG_COLOR_TYPE_RGBA;
+		bool do_alpha = (color_type == PNG_COLOR_TYPE_RGBA);
+		unsigned char* imageData = imageBuffer->data->Bytes();
+		int stride = w * imageBuffer->bpp;
 		
 		{
-		QuickVec<uint8> row_data(w*4);
-		png_bytep row = &row_data[0];
-		for(int y=0;y<h;y++)
-		{
-		uint8 *buf = &row_data[0];
-		const uint8 *src = (const uint8 *)inSurface->Row(y);
-		for(int x=0;x<w;x++)
-		{
-		buf[0] = src[2];
-		buf[1] = src[1];
-		buf[2] = src[0];
-		src+=3;
-		buf+=3;
-		if (do_alpha)
-		*buf++ = *src;
-		src++;
-		}
-		png_write_rows(png_ptr, &row, 1);
-		}
+			QuickVec<uint8> row_data (w * 4);
+			png_bytep row = &row_data[0];
+			
+			for (int y = 0; y < h; y++) {
+				
+				uint8 *buf = &row_data[0];
+				const uint8 *src = (const uint8 *)(imageData + (stride * y));
+				
+				for (int x = 0; x < w; x++) {
+					
+					buf[0] = src[0];
+					buf[1] = src[1];
+					buf[2] = src[2];
+					src += 3;
+					buf += 3;
+					
+					if (do_alpha) {
+						
+						*buf++ = *src;
+						
+					}
+					
+					src++;
+					
+				}
+				
+				png_write_rows (png_ptr, &row, 1);
+				
+			}
+			
 		}
 		
-		png_write_end(png_ptr, NULL);
+		png_write_end (png_ptr, NULL);
 		
-		*outBytes = ByteArray(out_buffer);
+		*bytes = ByteArray (out_buffer);
 		
-		return true;*/
+		return true;
 		
 	}
 	

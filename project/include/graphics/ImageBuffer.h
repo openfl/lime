@@ -15,6 +15,7 @@ namespace lime {
 		public:
 			
 			ImageBuffer ();
+			ImageBuffer (value imageBuffer);
 			~ImageBuffer ();
 			
 			void Blit (const unsigned char *data, int x, int y, int width, int height);
