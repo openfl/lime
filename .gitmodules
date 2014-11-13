@@ -31,3 +31,6 @@
 [submodule "project/lib/harfbuzz"]
 	path = project/lib/harfbuzz
 	url = https://github.com/native-toolkit/harfbuzz
+[submodule "project/lib/openal-android"]
+	path = project/lib/openal-android
+	url = https://github.com/native-toolkit/openal-android

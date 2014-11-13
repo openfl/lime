@@ -2,43 +2,13 @@
 	
 	<set name="lime" value="1" />
 	
-	<set name="LEGACY_NME_PATH" value="${NME_PATH}" if="NME_PATH" />
-	<set name="LEGACY_NME_PATH" value="${haxelib:nme}" unless="LEGACY_NME_PATH" />
-	
-	<!-- <include name="${NME_PATH}/project/Build.xml"/> -->
-	
-	<!-- Require Android 2.3+ -->
 	<set name="PLATFORM" value="android-9" if="android" />
 	<set name="PLATFORM" value="android-14" if="HXCPP_X86" />
 	<set name="HXCPP_CPP11" value="1" />
 	<set name="debug" value="debug" if="lime fulldebug" />
 	
-	
 	<include name="${HXCPP}/build-tool/BuildCommon.xml"/>
-	<!-- 
-		Build with:
-			-Diphonesim              -> build i386 version
-			-Diphoneos               -> build armv6
-			-Diphoneos -DHXCPP_ARMV7 -> build armv7
-			-Dandroid                -> build android armv5
-			-Dandroid  -DHXCPP_ARMV7 -> build android armv7
-			-Dandroid  -DHXCPP_X86   -> build android x86
-			- no defines             -> build current OS
-			-DHXCPP_M64              -> build current OS, 64 but version
-			-Ddebug                  -> Used in combination with above for debug
-	-->
 	
-	<!-- Where to find static libraries/includes -->
-	<set name="LEGACY_NME_DEV" value="${LEGACY_NME_DEV}" if="NME_DEV" />
-	<set name="LEGACY_NME_DEV" value="${haxelib:nme-dev}" unless="LEGACY_NME_DEV" />
-	
-	
-	<!--
-		What SDL to use?
-		For desktop, use version 2.
-		For ios/android, not needed. 
-		For rpi, and other systems, use installed 1.0
-	-->
 	<set name="LEGACY_NME_SDL_SYSTEM" value="1" if="rpi" />
 	<set name="LEGACY_NME_SDL_SYSTEM" value="1" if="blackberry" />
 	<set name="LEGACY_NME_SDL_SYSTEM" value="1" if="webos" />
@@ -49,43 +19,31 @@
 	<set name="LEGACY_NME_SDL_ANY" value="1" if="LEGACY_NME_SDL_SYSTEM" />
 	<set name="LEGACY_NME_SDL_ANY" value="1" if="LEGACY_NME_SDL2" />
 	
-	<!-- Use opengl backend ? -->
 	<set name="LEGACY_NME_OGL" value="1" />
 	<unset name="LEGACY_NME_OGL" if="winrt" />
 
-	<!-- For systems that do not create the egl context for us -->
 	<set name="LEGACY_NME_EGL" value="1" if="rpi"/>
 	<set name="LEGACY_NME_EGL" value="1" if="tizen"/>
 
-	<!-- Do we need to implement curl in NME -->
 	<set name="LEGACY_NME_CURL" value="1" />
 	<unset name="LEGACY_NME_CURL" if="winrt" />
 	<unset name="LEGACY_NME_CURL" if="emscripten" />
 
-	<!-- And allow https ? -->
 	<set name="LEGACY_NME_SSL" value="1" />
 	<set name="LEGACY_NME_SSL_EXTRA" value="_ssl" if="LEGACY_NME_SSL"/>
 	
 	<set name="LEGACY_NME_S3D" value="1" if="lime" />
 	
-	<!--
-		What audio backend it use?
-		For windows, linux, use SDL_mixer
-		For ios/mac  use core audio + openal
-		For android use java (todo - opensl?)
-	-->
 	<set name="LEGACY_NME_OPENAL" value="1" if="lime" />
 	<set name="LEGACY_NME_OPENAL" value="1" if="iphone" />
 	<set name="LEGACY_NME_CAMERA" value="1" unless="lime" />
 
-	<!-- Built relative to "bin" -->
-	<set name="LEGACY_NME_ROOT" value="" unless="lime" />
-	<set name="LEGACY_NME_ROOT" value="${haxelib:nme}/project/" if="lime" />
+	<set name="LEGACY_PROJECT_ROOT" value="../legacy/project/" />
 	
-	<set name="LEGACY_SRC_DIR" value="${LEGACY_NME_ROOT}src" />
-	<set name="LEGACY_INC_DIR" value="${LEGACY_NME_ROOT}include" />
-	<set name="LEGACY_NME_INC_DIR" value="${LEGACY_NME_ROOT}../include" />
-	<set name="LEGACY_SUP_DIR" value="${LEGACY_NME_ROOT}support" />
+	<set name="LEGACY_SRC_DIR" value="${LEGACY_PROJECT_ROOT}src" />
+	<set name="LEGACY_INC_DIR" value="${LEGACY_PROJECT_ROOT}include" />
+	<set name="LEGACY_NME_INC_DIR" value="../legacy/include" />
+	<set name="LEGACY_SUP_DIR" value="${LEGACY_PROJECT_ROOT}support" />
 	<set name="LEGACY_OUT_DIR" value="../${NDLLDIR}" />
 	
 	<set name="LEGACY_OUT_DIR" value="../legacy/ndll" if="lime" />
@@ -97,14 +55,16 @@
 		
 	</section>
 	
-	
 	<files id="legacy-main">
+		
 		<compilerflag value="-I${LEGACY_INC_DIR}"/>
+		
 		<file name="Test.cpp"/>
+		
 	</files>
 	
-	
 	<files id="legacy-nme">
+		
 		<compilerflag value="-I${LEGACY_NME_INC_DIR}"/>
 		<compilerflag value="-I${LEGACY_INC_DIR}"/>
 		
@@ -173,7 +133,7 @@
 		<section if="LEGACY_NME_SDL_SYSTEM">
 		  <compilerflag value="-I/opt/local/include" if="macos" />
 		  <compilerflag value="-I/usr/include/SDL" if="linux" />
-		  <compilerflag value="-I${LEGACY_NME_DEV}/include/SDL12" if="blackberry" />
+		  <compilerflag value="-I${LEGACY_PROJECT_ROOT}include/SDL12" if="blackberry" />
 		  <compilerflag value="-DDYNAMIC_SDL" />
 		  <compilerflag value="-DNME_MIXER" unless="LEGACY_NME_OPENAL"/>
 		  <compilerflag value="-DNME_SDL12" unless="LEGACY_NME_SDL2" />
@@ -182,7 +142,11 @@
 		</section>
 
 		<section if="LEGACY_NME_SDL2">
-		  <compilerflag value="-I${LEGACY_NME_DEV}/include/SDL2" />
+		  <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/default/" unless="windows || mac || linux"/>
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/linux/" if="linux"/>
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/windows/" if="windows"/>
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/mac/" if="mac"/>
 		  <file name="${LEGACY_SRC_DIR}/sdl/SDLSound.cpp" unless="LEGACY_NME_OPENAL"/>
 		  <file name="${LEGACY_SRC_DIR}/sdl2/SDL2Stage.cpp"/>
 		  <compilerflag value="-DSDL_OGL" />
@@ -191,6 +155,8 @@
 		</section>
 
 		<section if="LEGACY_NME_CURL">
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/curl/include/" />
+			<compilerflag value="-DCURL_STATICLIB" />
 			<compilerflag value="-DNME_CURL_SSL" if="LEGACY_NME_SSL"/>
 		</section>
 
@@ -205,6 +171,11 @@
 		
 		<section if="LEGACY_NME_OPENAL">
 			<compilerflag value="-DAL_LIBTYPE_STATIC=1" if="windows || mac || linux" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/ogg/include/" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/vorbis/include/" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/include/" unless="android" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal-android/include/" if="android" />
+			<compilerflag value="-DAL_LIBTYPE_STATIC=1" />
 			<file name="${LEGACY_SRC_DIR}/openal/OpenALSound.cpp" />
 			<file name="${LEGACY_SRC_DIR}/common/Audio.cpp" />
 		</section>
@@ -220,10 +191,14 @@
 
 
 		<compilerflag value="-I${LEGACY_INC_DIR}/xcompile" if="xcompile" />
-		<compilerflag value="-I${LEGACY_NME_DEV}/include" />
 		<compilerflag value="-D_7ZIP_ST" unless="windows"/>
 		<compilerflag value="-DNME_PREMULTIPLIED_ALPHA" if="LEGACY_NME_PREMULTIPLIED_ALPHA" />
 		<compilerflag value="-DNME_BUILDING_LIB" />
+		
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/freetype/include" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/jpeg/" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/png/" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib/" />
 
 
 		<file name="${LEGACY_SRC_DIR}/common/Surface.cpp"/>
@@ -300,8 +275,18 @@
 		<flag value="-NODEFAULTLIB:LIBCMT" if="winrt"/>
 
 		<files id="legacy-nme"/>
+		
+		<files id="native-toolkit-curl" if="LEGACY_NME_CURL" />
+		<files id="native-toolkit-jpeg" />
+		<files id="native-toolkit-freetype" if="LIME_FREETYPE" />
+		<files id="native-toolkit-ogg" if="LEGACY_NME_OPENAL" />
+		<files id="native-toolkit-openal" if="LEGACY_NME_OPENAL" unless="android || ios" />
+		<files id="native-toolkit-png" />
+		<files id="native-toolkit-sdl" if="LEGACY_NME_SDL2" />
+		<files id="native-toolkit-vorbis" if="LEGACY_NME_OPENAL" />
+		<files id="native-toolkit-zlib" unless="android"/>
 
-			<lib name="${LEGACY_PRELIB}freetype${LEGACY_POSTLIB}" />
+			<!-- <lib name="${LEGACY_PRELIB}freetype${LEGACY_POSTLIB}" />
 			<lib name="${LEGACY_PRELIB}jpeg${LEGACY_POSTLIB}" />
 			<lib name="${LEGACY_PRELIB}png${LEGACY_POSTLIB}" />
 
@@ -336,7 +321,7 @@
 				<section if="LEGACY_NME_CURL">
 					<lib name="${LEGACY_PRELIB}curl${LEGACY_NME_SSL_EXTRA}${LEGACY_POSTLIB}" />
 				</section>
-			</section>
+			</section> -->
 
 
 		<section unless="static_link">
@@ -372,6 +357,7 @@
 				<vflag name="-framework" value="AVFoundation" if="LEGACY_NME_CAMERA"/>
 				<vflag name="-framework" value="CoreMedia" if="LEGACY_NME_CAMERA"/>
 				<vflag name="-framework" value="CoreVideo" if="LEGACY_NME_CAMERA"/>
+				<lib name="-liconv" />
 			</section>
 
 
@@ -442,7 +428,7 @@
 				<lib name="user32.lib" />
 				<lib name="kernel32.lib" />
 				<lib name="advapi32.lib" />
-				<lib name="${SUP_DIR}/windows/dxguid.lib"/>
+				<lib name="${LEGACY_SUP_DIR}/windows/dxguid.lib"/>
 				<lib name="winmm.lib" />
 				<lib name="imm32.lib"  />
 				<lib name="ole32.lib" />
