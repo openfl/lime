@@ -22,6 +22,7 @@ install:
 script:
   - haxelib run lime rebuild linux -64 -Dlegacy
   - haxelib run lime rebuild linux -64
+  - haxelib run lime rebuild tools
 
 notifications:
   slack: openfl:sBwVO0kgB7EuWLYzZzUezVIz
