@@ -32,7 +32,7 @@
 #include <NmeBinVersion.h>
 #include <NmeStateVersion.h>
 #include <nme/NmeApi.h>
-#include <hx/CFFIPrime.h>
+//#include <hx/CFFIPrime.h>
 
 
 #ifdef min
