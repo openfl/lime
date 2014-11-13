@@ -267,7 +267,7 @@
 		<files id="native-toolkit-jpeg" />
 		<files id="native-toolkit-freetype" />
 		<files id="native-toolkit-ogg" if="LEGACY_OPENAL" />
-		<files id="native-toolkit-openal" if="LEGACY_OPENAL" unless="android || ios" />
+		<files id="native-toolkit-openal" if="LEGACY_OPENAL" unless="android || ios || blackberry || tizen" />
 		<files id="native-toolkit-png" />
 		<files id="native-toolkit-sdl" if="LEGACY_SDL2" />
 		<files id="native-toolkit-vorbis" if="LEGACY_OPENAL" />
