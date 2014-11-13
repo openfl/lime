@@ -20,6 +20,7 @@ install:
   - haxelib dev lime $(pwd)
 
 script:
+  - haxelib run lime rebuild linux -64 -Dlegacy
   - haxelib run lime rebuild linux -64
 
 notifications:
