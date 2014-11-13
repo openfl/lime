@@ -249,6 +249,8 @@
 		<file name="${LEGACY_SRC_DIR}/lzma/LzFindMt.c" if="windows" />
 		<file name="${LEGACY_SRC_DIR}/lzma/Threads.c" if="windows" />
 		
+		<file name="${HXCPP}/project/libs/zlib/ZLib.cpp" if="ios" />
+		
 	</files>
 	
 	<set name="LEGACY_SLIBEXT" value=".lib" if="windows" />

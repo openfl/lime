@@ -6,7 +6,7 @@
 		<haxelib name="hxcpp" if="cpp" />
 		<ndll name="std" haxelib="hxcpp" if="cpp" />
 		<ndll name="regexp" haxelib="hxcpp" if="cpp" />
-		<ndll name="zlib" haxelib="hxcpp" if="cpp" />
+		<ndll name="zlib" haxelib="hxcpp" if="cpp" unless="ios" />
 		
 		<ndll name="openal" dir="legacy/ndll" register="false" if="android" />
 		
