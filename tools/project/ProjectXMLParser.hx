@@ -1668,7 +1668,17 @@ class ProjectXMLParser extends HXProject {
 			
 			if (substring == null) {
 				
-				substring = "";
+                                substring = varMatch.matched (1);
+					
+                        	if(environment != null && environment.exists(substring)){
+					
+                                        substring = environment.get(substring);
+					
+                                } else {
+					
+                                        substring = "";
+					
+                                }
 				
 			}
 			
