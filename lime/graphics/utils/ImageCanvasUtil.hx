@@ -10,7 +10,7 @@ import lime.math.Vector2;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 
-#if html5
+#if (js && html5)
 import js.Browser;
 #end
 
@@ -52,7 +52,7 @@ class ImageCanvasUtil {
 	
 	public static function convertToData (image:Image):Void {
 		
-		#if html5
+		#if (js && html5)
 		if (image.buffer.data == null) {
 			
 			convertToCanvas (image);
@@ -118,7 +118,7 @@ class ImageCanvasUtil {
 	
 	public static function createCanvas (image:Image, width:Int, height:Int):Void {
 		
-		#if html5
+		#if (js && html5)
 		var buffer = image.buffer;
 		
 		if (buffer.__srcCanvas == null) {
@@ -293,7 +293,7 @@ class ImageCanvasUtil {
 	
 	public static function sync (image:Image):Void {
 		
-		#if html5
+		#if (js && html5)
 		if (image.dirty && image.type != DATA) {
 			
 			image.buffer.__srcContext.putImageData (image.buffer.__srcImageData, 0, 0);

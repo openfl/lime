@@ -7,7 +7,7 @@ import lime.app.Event;
 import lime.graphics.Renderer;
 import lime.system.System;
 
-#if html5
+#if (js && html5)
 import js.html.CanvasElement;
 import js.html.DivElement;
 import js.html.HtmlElement;
@@ -42,7 +42,7 @@ class Window {
 	public var x:Int;
 	public var y:Int;
 	
-	#if html5
+	#if (js && html5)
 	public var canvas:CanvasElement;
 	public var div:DivElement;
 	public var element:HtmlElement;
@@ -79,7 +79,7 @@ class Window {
 		setWidth = width;
 		setHeight = height;
 		
-		#if html5
+		#if (js && html5)
 		
 		if (Std.is (element, CanvasElement)) {
 			
@@ -202,7 +202,7 @@ class Window {
 		MouseEventManager.registerWindow (this);
 		TouchEventManager.registerWindow (this);
 		
-		#if html5
+		#if (js && html5)
 		Browser.window.addEventListener ("focus", handleDOMEvent, false);
 		Browser.window.addEventListener ("blur", handleDOMEvent, false);
 		Browser.window.addEventListener ("resize", handleDOMEvent, false);
@@ -267,7 +267,7 @@ class Window {
 	}
 	
 	
-	#if html5
+	#if (js && html5)
 	private function handleDOMEvent (event:js.html.Event):Void {
 		
 		switch (event.type) {

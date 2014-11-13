@@ -3,7 +3,7 @@ package lime.app;
 
 import lime.Assets;
 
-#if html5
+#if (js && html5)
 import js.html.Image;
 import js.Browser;
 import lime.net.URLLoader;
@@ -23,7 +23,7 @@ class Preloader #if flash extends Sprite #end {
 	public var complete:Bool;
 	public var onComplete:Dynamic;
 	
-	#if html5
+	#if (js && html5)
 	public static var images = new Map<String, Image> ();
 	public static var loaders = new Map<String, URLLoader> ();
 	private var loaded = 0;
@@ -63,7 +63,7 @@ class Preloader #if flash extends Sprite #end {
 	
 	public function load (urls:Array<String>, types:Array<AssetType>):Void {
 		
-		#if html5
+		#if (js && html5)
 		
 		var url = null;
 		
@@ -124,7 +124,7 @@ class Preloader #if flash extends Sprite #end {
 	}
 	
 	
-	#if html5
+	#if (js && html5)
 	private function loadFont (font:String):Void {
 		
 		var node = Browser.document.createElement ("span");
@@ -229,7 +229,7 @@ class Preloader #if flash extends Sprite #end {
 	
 	
 	
-	#if html5
+	#if (js && html5)
 	private function image_onLoad (_):Void {
 		
 		loaded++;

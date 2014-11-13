@@ -6,7 +6,7 @@ import lime.system.System;
 import lime.utils.ByteArray;
 import lime.utils.Float32Array;
 
-#if html5
+#if (js && html5)
 import js.html.Audio;
 #elseif flash
 import flash.media.Sound;
@@ -22,7 +22,7 @@ class AudioBuffer {
 	public var id:UInt;
 	public var sampleRate:Int;
 	
-	#if html5
+	#if (js && html5)
 	public var src:Audio;
 	#elseif flash
 	public var src:Sound;

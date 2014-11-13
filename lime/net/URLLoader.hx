@@ -4,7 +4,7 @@ package lime.net;
 import lime.app.Event;
 import lime.utils.ByteArray;
 
-#if html5
+#if (js && html5)
 import js.html.EventTarget;
 import js.html.XMLHttpRequest;
 import js.Browser;
@@ -77,7 +77,7 @@ class URLLoader {
 	
 	public function load (request:URLRequest):Void {
 		
-		#if html5
+		#if (js && html5)
 		requestUrl (request.url, request.method, request.data, request.formatRequestHeaders ());
 		#elseif lime_curl
 		requestUrl (request.url, request.method, request.data, request.formatRequestHeaders ());
@@ -86,7 +86,7 @@ class URLLoader {
 	}
 	
 	
-	#if html5
+	#if (js && html5)
 	private function registerEvents (subject:EventTarget):Void {
 		
 		var self = this;
@@ -398,7 +398,7 @@ class URLLoader {
 	
 	private function __onData (_):Void {
 		
-		#if html5
+		#if (js && html5)
 		var content:Dynamic = getData ();
 		
 		switch (dataFormat) {
@@ -434,7 +434,7 @@ class URLLoader {
 	
 	private function set_dataFormat (inputVal:URLLoaderDataFormat):URLLoaderDataFormat {
 		
-		#if html5
+		#if (js && html5)
 		// prevent inadvertently using typed arrays when they are unsupported
 		// @todo move these sorts of tests somewhere common in the vein of Modernizr
 		

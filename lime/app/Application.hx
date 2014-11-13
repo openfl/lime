@@ -6,7 +6,7 @@ import lime.graphics.*;
 import lime.system.*;
 import lime.ui.*;
 
-#if html5
+#if (js && html5)
 import js.Browser;
 #elseif flash
 import flash.Lib;
@@ -119,7 +119,7 @@ class Application extends Module {
 		window.width = config.width;
 		window.height = config.height;
 		
-		#if html5
+		#if (js && html5)
 		window.element = config.element;
 		#end
 		
@@ -182,7 +182,7 @@ class Application extends Module {
 		
 		return result;
 		
-		#elseif html5
+		#elseif (js && html5)
 		
 		untyped __js__ ("
 			var lastTime = 0;
@@ -409,7 +409,7 @@ class Application extends Module {
 		
 		Renderer.dispatch ();
 		
-		#if html5
+		#if (js && html5)
 		Browser.window.requestAnimationFrame (cast __triggerFrame);
 		#end
 		

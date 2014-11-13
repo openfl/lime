@@ -8,7 +8,7 @@ import lime.graphics.GLRenderContext;
 import lime.system.System;
 import lime.ui.Window;
 
-#if html5
+#if (js && html5)
 import js.html.webgl.RenderingContext;
 #elseif flash
 import flash.Lib;
@@ -44,7 +44,7 @@ class Renderer {
 	
 	public function create ():Void {
 		
-		#if html5
+		#if (js && html5)
 		
 		if (window.div != null) {
 			
@@ -82,7 +82,7 @@ class Renderer {
 				#end
 				
 				GL.context = webgl;
-				#if html5
+				#if (js && html5)
 				context = OPENGL (cast GL.context);
 				#else
 				context = OPENGL (new GLRenderContext ());

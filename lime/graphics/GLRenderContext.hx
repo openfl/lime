@@ -1,4 +1,4 @@
-package lime.graphics; #if !html5
+package lime.graphics; #if (!js || !html5)
 
 
 import lime.graphics.opengl.*;

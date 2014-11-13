@@ -6,7 +6,7 @@ import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 import lime.system.System;
 
-#if html5
+#if (js && html5)
 import js.html.CanvasElement;
 import js.html.CanvasRenderingContext2D;
 #end
@@ -37,7 +37,7 @@ class Font {
 		
 		glyphs = new Map<Int, Map<Int, GlyphRect>>();
 		
-		#if html5
+		#if (js && html5)
 		
 		/*
 		if (__canvas == null) {

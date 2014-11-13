@@ -1,4 +1,4 @@
-package lime.graphics.opengl; #if !html5
+package lime.graphics.opengl; #if (!js || !html5)
 
 
 class GLProgram extends GLObject {

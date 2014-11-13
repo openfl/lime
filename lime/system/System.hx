@@ -2,7 +2,7 @@ package lime.system;
 #if !macro
 
 
-#if html5
+#if (js && html5)
 import js.html.HtmlElement;
 import js.Browser;
 #end
@@ -25,7 +25,7 @@ class System {
 	#end
 	
 	
-	#if html5
+	#if (js && html5)
 	@:keep @:expose("lime.embed")
 	public static function embed (elementName:String, width:Null<Int> = null, height:Null<Int> = null, background:String = null) {
 		

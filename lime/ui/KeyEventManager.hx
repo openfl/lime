@@ -4,7 +4,7 @@ package lime.ui;
 import lime.app.Event;
 import lime.system.System;
 
-#if html5
+#if (js && html5)
 import js.Browser;
 #elseif flash
 import flash.Lib;
@@ -24,7 +24,7 @@ class KeyEventManager {
 		
 		eventInfo = new KeyEventInfo ();
 		
-		#if html5
+		#if (js && html5)
 		
 		Browser.window.addEventListener ("keydown", handleEvent, false);
 		Browser.window.addEventListener ("keyup", handleEvent, false);
@@ -45,7 +45,7 @@ class KeyEventManager {
 	
 	private static function convertKeyCode (keyCode:Int):KeyCode {
 		
-		#if html5
+		#if (js && html5)
 		if (keyCode >= 65 && keyCode <= 90) {
 			
 			return cast keyCode + 32;
@@ -145,9 +145,9 @@ class KeyEventManager {
 	}
 	
 	
-	private static function handleEvent (#if html5 event:js.html.KeyboardEvent #elseif flash event:flash.events.KeyboardEvent #end):Void {
+	private static function handleEvent (#if (js && html5) event:js.html.KeyboardEvent #elseif flash event:flash.events.KeyboardEvent #end):Void {
 		
-		#if html5
+		#if (js && html5)
 		
 		// space and arrow keys
 		switch (event.keyCode) {
