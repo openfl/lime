@@ -840,6 +840,9 @@ class Image {
 			
 			buffer = new ImageBuffer (null, image.width, image.height);
 			buffer.__srcImage = cast image;
+
+			width = image.width;
+			height = image.height;
 			
 			if (onload != null) {
 				
