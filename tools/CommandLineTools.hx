@@ -1120,13 +1120,21 @@ class CommandLineTools {
 		
 		var config = getHXCPPConfig ();
 		
-		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
+		if (config != null) {
 			
-			if (config != null && config.environment.exists ("JAVA_HOME")) {
+			for (define in config.defines.keys ()) {
 				
-				Sys.putEnv ("JAVA_HOME", config.environment.get ("JAVA_HOME"));
+				if (define == define.toUpperCase ()) {
+					
+					Sys.putEnv (define, config.defines.get (define));
+					
+				}
 				
 			}
+			
+		}
+		
+		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
 			
 			if (Sys.getEnv ("JAVA_HOME") != null) {
 				
