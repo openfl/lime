@@ -25,7 +25,7 @@ class ProjectXMLParser extends HXProject {
 	private static var varMatch = new EReg("\\${(.*?)}", "");
 	
 	
-	public function new (path:String = "", defines:Map <String, Dynamic> = null, includePaths:Array <String> = null, useExtensionPath:Bool = false) {
+	public function new (path:String = "", defines:Map <String, Dynamic> = null, includePaths:Array <String> = null, useExtensionPath:Bool = false, includeProject:HXProject = null) {
 		
 		super ();
 		
@@ -43,6 +43,12 @@ class ProjectXMLParser extends HXProject {
 			
 			this.includePaths = new Array <String> ();
 			
+		}
+
+		if (includeProject != null) {
+
+			merge(includeProject);
+
 		}
 		
 		initialize ();

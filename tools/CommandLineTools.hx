@@ -1165,7 +1165,7 @@ class CommandLineTools {
 			
 			if (Path.extension (projectFile) == "lime" || Path.extension (projectFile) == "nmml" || Path.extension (projectFile) == "xml") {
 				
-				project = new ProjectXMLParser (Path.withoutDirectory (projectFile), userDefines, includePaths);
+				project = new ProjectXMLParser (Path.withoutDirectory (projectFile), userDefines, includePaths, config);
 				
 			} else if (Path.extension (projectFile) == "hxp") {
 				
@@ -1177,6 +1177,7 @@ class CommandLineTools {
 					project.debug = debug;
 					project.target = target;
 					project.targetFlags = targetFlags;
+					project.merge (config);
 					
 				} else {
 					
@@ -1195,8 +1196,6 @@ class CommandLineTools {
 			return null;
 			
 		}
-		
-		project.merge (config);
 		
 		project.haxedefs.set ("tools", version);
 		
