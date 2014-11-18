@@ -262,6 +262,8 @@ void FillArrayInt(QuickVec<T> &outArray,value inVal)
    if (val_is_null(inVal))
       return;
    int n = val_array_size(inVal);
+   if (n <= 0)
+      return;
    outArray.resize(n);
    int *c = val_array_int(inVal);
    if (c)
@@ -290,6 +292,8 @@ template<typename T>
 void FillArrayInt(value outVal, const QuickVec<T> &inArray)
 {
    int n = inArray.size();
+   if (n <= 0)
+      return;
    val_array_set_size(outVal,n);
    int *c = val_array_int(outVal);
    if (c)
@@ -313,6 +317,8 @@ template<typename T>
 void FillArrayDouble(value outVal, const QuickVec<T> &inArray)
 {
    int n = inArray.size();
+   if (n <= 0)
+      return;
    val_array_set_size(outVal,n);
    double *c = val_array_double(outVal);
    if (c)
@@ -350,6 +356,8 @@ void FillArrayDoubleN(QuickVec<T,N> &outArray,value inVal)
    if (val_is_null(inVal))
       return;
    int n = val_array_size(inVal);
+   if (n <= 0)
+      return;
    outArray.resize(n);
    double *c = val_array_double(inVal);
    if (c)
