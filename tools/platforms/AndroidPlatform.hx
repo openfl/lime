@@ -193,10 +193,17 @@ class AndroidPlatform extends PlatformTarget {
 	
 	public override function rebuild ():Void {
 		
-		var armv5 = [ "-Dandroid", "-DPLATFORM=android-9" ];
-		var armv7 = [ "-Dandroid", "-DHXCPP_ARMV7", "-DHXCPP_ARM7", "-DPLATFORM=android-9" ];
+		var armv5 = (command == "rebuild" || ArrayHelper.containsValue (project.architectures, Architecture.ARMV5) || ArrayHelper.containsValue (project.architectures, Architecture.ARMV6));
+		var armv7 = (command == "rebuild" || ArrayHelper.containsValue (project.architectures, Architecture.ARMV7));
+		var x86 = (command == "rebuild" || ArrayHelper.containsValue (project.architectures, Architecture.X86));
 		
-		CPPHelper.rebuild (project, [ armv5, armv7 ]);
+		var commands = [];
+		
+		if (armv5) commands.push ([ "-Dandroid", "-DPLATFORM=android-9" ]);
+		if (armv7) commands.push ([ "-Dandroid", "-DHXCPP_ARMV7", "-DHXCPP_ARM7", "-DPLATFORM=android-9" ]);
+		if (x86) commands.push ([ "-Dandroid", "-DHXCPP_X86", "-DPLATFORM=android-9" ]);
+		
+		CPPHelper.rebuild (project, commands);
 		
 	}
 	

@@ -325,11 +325,17 @@ class IOSPlatform extends PlatformTarget {
 	
 	public override function rebuild ():Void {
 		
-		var armv6 = [ "-Diphoneos", "-DHXCPP_CPP11" ];
-		var armv7 = [ "-Diphoneos", "-DHXCPP_CPP11", "-DHXCPP_ARMV7" ];
-		var simulator = [ "-Diphonesim", "-DHXCPP_CPP11" ];
+		var armv6 = (command == "rebuild" || (project.architectures.indexOf (Architecture.ARMV6) > -1 && !project.targetFlags.exists ("simulator")));
+		var armv7 = (command == "rebuild" || (project.architectures.indexOf (Architecture.ARMV7) > -1 && !project.targetFlags.exists ("simulator")));
+		var simulator = (command == "rebuild" || project.targetFlags.exists ("simulator"));
 		
-		CPPHelper.rebuild (project, [ armv6, armv7, simulator ]);
+		var commands = [];
+		
+		if (armv6) commands.push ([ "-Diphoneos", "-DHXCPP_CPP11" ]);
+		if (armv7) commands.push ([ "-Diphoneos", "-DHXCPP_CPP11", "-DHXCPP_ARMV7" ]);
+		if (simulator) commands.push ([ "-Diphonesim", "-DHXCPP_CPP11" ]);
+		
+		CPPHelper.rebuild (project, commands);
 		
 	}
 	

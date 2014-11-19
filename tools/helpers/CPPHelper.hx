@@ -13,6 +13,9 @@ import sys.FileSystem;
 class CPPHelper {
 	
 	
+	private static var rebuiltLibraries = new Map <String, Bool> ();
+	
+	
 	public static function compile (project:HXProject, path:String, flags:Array<String> = null, buildFile:String = "Build.xml"):Void {
 		
 		if (project.config.getBool ("cpp.requireBuild", true)) {
@@ -117,7 +120,31 @@ class CPPHelper {
 	public static function rebuild (project:HXProject, commands:Array<Array<String>>, path:String = null, buildFile:String = null):Void {
 		
 		var buildRelease = (!project.targetFlags.exists ("debug"));
-		var buildDebug = (project.targetFlags.exists ("debug") || (!project.targetFlags.exists ("release") && project.config.exists ("project.rebuild.fulldebug")));
+		var buildDebug = (project.targetFlags.exists ("debug") || (!project.targetFlags.exists ("rebuild") && !project.targetFlags.exists ("release") && project.config.exists ("project.rebuild.fulldebug")));
+		
+		for (haxelib in project.haxelibs) {
+			
+			if (!rebuiltLibraries.exists (haxelib.name)) {
+				
+				var defines = StringMapHelper.copy (project.defines);
+				defines.set ("rebuild", 1);
+				var haxelibProject = HXProject.fromHaxelib (haxelib, defines);
+				
+				if (haxelibProject == null) {
+					
+					haxelibProject = new HXProject ();
+					haxelibProject.config.set ("project.rebuild.path", PathHelper.combine (PathHelper.getHaxelib (haxelib), "project"));
+					
+				}
+				
+				StringMapHelper.copyKeys (project.targetFlags, haxelibProject.targetFlags);
+				
+				rebuiltLibraries.set (haxelib.name, true);
+				rebuild (haxelibProject, commands);
+				
+			}
+			
+		}
 		
 		if (project.targetFlags.exists ("clean")) {
 			
@@ -171,6 +198,8 @@ class CPPHelper {
 			
 		}
 		
+		if (!FileSystem.exists (path)) return;
+		
 		if (buildFile == null && project.config.exists ("project.rebuild.file")) {
 			
 			buildFile = project.config.get ("project.rebuild.file");
@@ -178,6 +207,8 @@ class CPPHelper {
 		}
 		
 		if (buildFile == null) buildFile = "Build.xml";
+		
+		if (!FileSystem.exists (PathHelper.combine (path, buildFile))) return;
 		
 		var args = [ "run", project.config.getString ("cpp.buildLibrary", "hxcpp"), buildFile ];
 		

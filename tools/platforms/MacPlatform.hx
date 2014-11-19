@@ -200,13 +200,13 @@ class MacPlatform extends PlatformTarget {
 		
 		var commands = [];
 		
-		if (!targetFlags.exists ("64")) {
+		if (!targetFlags.exists ("64") && (command == "rebuild" || PlatformHelper.hostArchitecture == Architecture.X64)) {
 			
 			commands.push ([ "-Dmac", "-DHXCPP_M64" ]);
 			
 		}
 		
-		if (!targetFlags.exists ("32")) {
+		if (!targetFlags.exists ("32") && (command == "rebuild" || PlatformHelper.hostArchitecture == Architecture.X86)) {
 			
 			commands.push ([ "-Dmac" ]);
 			

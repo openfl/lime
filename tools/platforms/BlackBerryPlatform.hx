@@ -204,10 +204,15 @@ class BlackBerryPlatform extends PlatformTarget {
 	
 	public override function rebuild ():Void {
 		
-		var device = [ "-Dblackberry" ];
-		var simulator = [ "-Dblackberry", "-Dsimulator" ];
+		var device = (command == "rebuild" || !targetFlags.exists ("simulator"));
+		var simulator = (command == "rebuild" || targetFlags.exists ("simulator"));
 		
-		CPPHelper.rebuild (project, [ device, simulator ]);
+		var commands = [];
+		
+		if (device) commands.push ([ "-Dblackberry" ]);
+		if (simulator) commands.push ([ "-Dblackberry", "-Dsimulator" ]);
+		
+		CPPHelper.rebuild (project, commands);
 		
 	}
 	

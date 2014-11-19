@@ -119,10 +119,15 @@ class TizenPlatform extends PlatformTarget {
 	
 	public override function rebuild ():Void {
 		
-		var device = [ "-Dtizen" ];
-		var simulator = [ "-Dtizen", "-Dsimulator" ];
+		var device = (command == "rebuild" || !targetFlags.exists ("simulator"));
+		var simulator = (command == "rebuild" || targetFlags.exists ("simulator"));
 		
-		CPPHelper.rebuild (project, [ device, simulator ]);
+		var commands = [];
+		
+		if (device) commands.push ([ "-Dtizen" ]);
+		if (simulator) commands.push ([ "-Dtizen", "-Dsimulator" ]);
+		
+		CPPHelper.rebuild (project, commands);
 		
 	}
 	
