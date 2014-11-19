@@ -59,7 +59,7 @@
 	
 	<haxelib name="hxcpp" if="setup" />
 	
-	<section if="rebuild fulldebug">
+	<section if="rebuild">
 		
 		<config:project>
 			<rebuild fulldebug="true" />

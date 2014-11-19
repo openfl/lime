@@ -213,7 +213,7 @@ class RunScript {
 			
 		} else {
 			
-			if (!FileSystem.exists ("tools/tools.n")) {
+			if (!FileSystem.exists ("tools/tools.n") || args.indexOf ("-rebuild") > -1) {
 				
 				rebuildTools ();
 				
