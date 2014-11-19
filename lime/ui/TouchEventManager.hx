@@ -74,22 +74,6 @@ import flash.Lib;
 			
 		}
 		
-		switch (eventInfo.type) {
-			
-			case TOUCH_START:
-				
-				onTouchStart.dispatch (eventInfo.x, eventInfo.y, eventInfo.id);
-			
-			case TOUCH_END:
-				
-				onTouchEnd.dispatch (eventInfo.x, eventInfo.y, eventInfo.id);
-			
-			case TOUCH_MOVE:
-				
-				onTouchMove.dispatch (eventInfo.x, eventInfo.y, eventInfo.id);
-			
-		}
-		
 		#elseif flash
 		
 		//touchEvent.id = event.touchPointID;
