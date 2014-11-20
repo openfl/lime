@@ -49,6 +49,15 @@ class PlatformTarget {
 		if (!Reflect.hasField (metaFields.rebuild, "ignore") && (command == "rebuild" || project.targetFlags.exists ("rebuild"))) {
 			
 			LogHelper.info ("", "\n" + LogHelper.accentColor + "Running command: REBUILD" + LogHelper.resetColor);
+			
+			// hack for now, need to move away from project.rebuild.path, probably
+			
+			if (project.targetFlags.exists ("rebuild")) {
+				
+				project.config.set ("project.rebuild.path", null);
+				
+			}
+			
 			rebuild ();
 			
 		}

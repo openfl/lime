@@ -12,6 +12,7 @@ import sys.FileSystem;
 class ProcessHelper {
 	
 	
+	public static var dryRun:Bool = false;
 	public static var processorCores (get_processorCores, null):Int;
 	
 	private static var _processorCores:Int = 0;
@@ -183,8 +184,12 @@ class ProcessHelper {
 			
 			LogHelper.info ("", " - \x1b[1mChanging directory:\x1b[0m " + path + "");
 			
-			oldPath = Sys.getCwd ();
-			Sys.setCwd (path);
+			if (!dryRun) {
+				
+				oldPath = Sys.getCwd ();
+				Sys.setCwd (path);
+				
+			}
 			
 		}
 		
@@ -212,19 +217,23 @@ class ProcessHelper {
 		
 		var result = 0;
 		
-		if (args != null && args.length > 0) {
+		if (!dryRun) {
 			
-			result = Sys.command (command, args);
+			if (args != null && args.length > 0) {
+				
+				result = Sys.command (command, args);
+				
+			} else {
+				
+				result = Sys.command (command);
+				
+			}
 			
-		} else {
-			
-			result = Sys.command (command);
-			
-		}
-		
-		if (oldPath != "") {
-			
-			Sys.setCwd (oldPath);
+			if (oldPath != "") {
+				
+				Sys.setCwd (oldPath);
+				
+			}
 			
 		}
 		
@@ -306,8 +315,12 @@ class ProcessHelper {
 			
 			LogHelper.info ("", " - \x1b[1mChanging directory:\x1b[0m " + path + "");
 			
-			oldPath = Sys.getCwd ();
-			Sys.setCwd (path);
+			if (!dryRun) {
+				
+				oldPath = Sys.getCwd ();
+				Sys.setCwd (path);
+				
+			}
 			
 		}
 		
@@ -332,72 +345,76 @@ class ProcessHelper {
 		var output = "";
 		var result = 0;
 		
-		var process = new Process (command, args);
-		var buffer = new BytesOutput ();
-		
-		if (waitForOutput) {
+		if (!dryRun) {
 			
-			var waiting = true;
+			var process = new Process (command, args);
+			var buffer = new BytesOutput ();
 			
-			while (waiting) {
+			if (waitForOutput) {
 				
-				try  {
+				var waiting = true;
+				
+				while (waiting) {
 					
-					var current = process.stdout.readAll (1024);
-					buffer.write (current);
-					
-					if (current.length == 0) {
+					try  {
+						
+						var current = process.stdout.readAll (1024);
+						buffer.write (current);
+						
+						if (current.length == 0) {
+							
+							waiting = false;
+							
+						}
+						
+					} catch (e:Eof) {
 						
 						waiting = false;
 						
 					}
 					
-				} catch (e:Eof) {
-					
-					waiting = false;
-					
 				}
 				
-			}
-			
-			result = process.exitCode ();
-			process.close();
-			
-			//if (result == 0) {
+				result = process.exitCode ();
+				process.close();
 				
-				output = buffer.getBytes ().toString ();
-				
-				if (output == "") {
+				//if (result == 0) {
 					
-					var error = process.stderr.readAll ().toString ();
+					output = buffer.getBytes ().toString ();
 					
-					if (ignoreErrors) {
+					if (output == "") {
 						
-						output = error;
+						var error = process.stderr.readAll ().toString ();
 						
-					} else {
+						if (ignoreErrors) {
+							
+							output = error;
+							
+						} else {
+							
+							LogHelper.error (error);
+							
+						}
 						
-						LogHelper.error (error);
+						return null;
+						
+						/*if (error != "") {
+							
+							LogHelper.error (error);
+							
+						}*/
 						
 					}
 					
-					return null;
-					
-					/*if (error != "") {
-						
-						LogHelper.error (error);
-						
-					}*/
-					
-				}
+				//}
 				
-			//}
+			}
 			
-		}
-		
-		if (oldPath != "") {
-			
-			Sys.setCwd (oldPath);
+			if (oldPath != "") {
+				
+				Sys.setCwd (oldPath);
+				
+			}
 			
 		}
 		
@@ -414,6 +431,9 @@ class ProcessHelper {
 	
 	
 	public static function get_processorCores ():Int {
+		
+		var cacheDryRun = dryRun;
+		dryRun = false;
 		
 		if (_processorCores < 1) {
 			
@@ -470,6 +490,8 @@ class ProcessHelper {
 			}
 			
 		}
+		
+		dryRun = cacheDryRun;
 		
 		return _processorCores;
 		

@@ -1560,6 +1560,10 @@ class CommandLineTools {
 						argument = "-verbose";
 						LogHelper.verbose = true;
 						
+					} else if (argument == "-dryrun") {
+						
+						ProcessHelper.dryRun = true;
+						
 					} else if (argument == "-notrace") {
 						
 						traceEnabled = false;

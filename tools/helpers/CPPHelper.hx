@@ -14,6 +14,7 @@ class CPPHelper {
 	
 	
 	private static var rebuiltLibraries = new Map <String, Bool> ();
+	private static var rebuiltPaths = new Map <String, Bool> ();
 	
 	
 	public static function compile (project:HXProject, path:String, flags:Array<String> = null, buildFile:String = "Build.xml"):Void {
@@ -128,6 +129,7 @@ class CPPHelper {
 				
 				var defines = StringMapHelper.copy (project.defines);
 				defines.set ("rebuild", 1);
+				
 				var haxelibProject = HXProject.fromHaxelib (haxelib, defines);
 				
 				if (haxelibProject == null) {
@@ -140,7 +142,13 @@ class CPPHelper {
 				StringMapHelper.copyKeys (project.targetFlags, haxelibProject.targetFlags);
 				
 				rebuiltLibraries.set (haxelib.name, true);
-				rebuild (haxelibProject, commands);
+				
+				if (!rebuiltPaths.exists (haxelibProject.config.get ("project.rebuild.path"))) {
+					
+					rebuiltPaths.set (haxelibProject.config.get ("project.rebuild.path"), true);
+					rebuild (haxelibProject, commands);
+					
+				}
 				
 			}
 			
@@ -198,7 +206,11 @@ class CPPHelper {
 			
 		}
 		
-		if (!FileSystem.exists (path)) return;
+		if (path == null || !FileSystem.exists (path)) {
+			
+			return;
+			
+		}
 		
 		if (buildFile == null && project.config.exists ("project.rebuild.file")) {
 			
@@ -208,7 +220,11 @@ class CPPHelper {
 		
 		if (buildFile == null) buildFile = "Build.xml";
 		
-		if (!FileSystem.exists (PathHelper.combine (path, buildFile))) return;
+		if (!FileSystem.exists (PathHelper.combine (path, buildFile))) {
+			
+			return;
+			
+		}
 		
 		var args = [ "run", project.config.getString ("cpp.buildLibrary", "hxcpp"), buildFile ];
 		

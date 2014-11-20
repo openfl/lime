@@ -188,7 +188,12 @@ class PathHelper {
 			
 			try {
 				
+				var cacheDryRun = ProcessHelper.dryRun;
+				ProcessHelper.dryRun = false;
+				
 				output = ProcessHelper.runProcess (Sys.getEnv ("HAXEPATH"), "haxelib", [ "path", name ], true, true, true);
+				
+				ProcessHelper.dryRun = cacheDryRun;
 				
 			} catch (e:Dynamic) { }
 			
