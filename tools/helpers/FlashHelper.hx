@@ -31,10 +31,11 @@ class FlashHelper {
 	private static function embedAsset (inAsset:Asset, packageName:String, outTags:Array<SWFTag>) {
 		
 		var embed = inAsset.embed;
-		var name = inAsset.sourcePath;
+		var path = inAsset.sourcePath;
 		var type = inAsset.type;
 		var flatName = inAsset.flatName;
 		var ext = inAsset.format;
+		var name = (path == null || path == "") ? inAsset.targetPath : path;
 		
 		if (embed == false) {
 			
@@ -48,13 +49,13 @@ class FlashHelper {
 		
 		if (type == AssetType.MUSIC || type == AssetType.SOUND) {
 			
-			var src = name;
+			var src = path;
 			
 			if (ext != "mp3" && ext != "wav") {
 				
 				for (e in ["wav", "mp3"]) {
 					
-					src = name.substr (0, name.length - ext.length) + e;
+					src = path.substr (0, path.length - ext.length) + e;
 					
 					if (FileSystem.exists (src)) {
 						
@@ -267,7 +268,7 @@ class FlashHelper {
 				
 			} else {
 				
-				var src = name;
+				var src = path;
 				
 				if (ext == "jpg" || ext == "png" || ext == "gif") {
 					
@@ -294,7 +295,7 @@ class FlashHelper {
 			
 			// More code ripped off from "samhaxe"
 			
-			var src = name;
+			var src = path;
 			//var font_name = Path.withoutExtension (name);
 			
 			var face = Font.fromFile (src);
@@ -443,7 +444,7 @@ class FlashHelper {
 			
 			if (bytes == null) {
 				
-				bytes = File.getBytes (name);
+				bytes = File.getBytes (path);
 				
 			}
 			
