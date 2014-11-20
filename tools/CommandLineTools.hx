@@ -941,13 +941,18 @@ class CommandLineTools {
 			
 			project.meta.buildNumber = Std.string (version);
 			
-			try {
+			if (increment) {
 				
-			   var output = File.write (versionFile, false);
-			   output.writeString (Std.string (version));
-			   output.close ();
+				try {
+					
+					var output = File.write (versionFile, false);
+					output.writeString (Std.string (version));
+					output.close ();
+					
+				} catch (e:Dynamic) {}
 				
-			} catch (e:Dynamic) {}
+			}
+			
 			
 		}
 		
@@ -1279,7 +1284,7 @@ class CommandLineTools {
 			
 			case ANDROID, IOS, BLACKBERRY:
 				
-				getBuildNumber (project);
+				getBuildNumber (project, (project.command == "build" || project.command == "test"));
 				
 			default:
 			
