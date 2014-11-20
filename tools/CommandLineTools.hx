@@ -632,7 +632,7 @@ class CommandLineTools {
 					
 					for (samplePath in project.samplePaths) {
 						
-						if (FileSystem.exists (PathHelper.combine (samplePath, sampleName))) {
+						if (FileSystem.exists (PathHelper.combine (samplePath, projectName))) {
 							
 							sampleExists = true;
 							
