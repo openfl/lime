@@ -81,7 +81,9 @@ class AndroidHelper {
 	
 	public static function getDeviceSDKVersion (deviceID:String):Int {
 		
-		var args = [ "shell", "grep", "ro.build.version.sdk=", "system/build.prop" ];
+		ProcessHelper.runProcess (adbPath, adbName, [ "devices" ]);
+		
+		var args = [ "shell" ];
 		
 		if (deviceID != null && deviceID != "") {
 			
@@ -91,6 +93,8 @@ class AndroidHelper {
 			connect (deviceID);
 			
 		}
+		
+		args = args.concat ([ "grep", "ro.build.version.sdk=", "system/build.prop" ]);
 		
 		var output = ProcessHelper.runProcess (adbPath, adbName, args);
 		var search = "ro.build.version.sdk=";
