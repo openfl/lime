@@ -74,6 +74,8 @@ class System {
 		#if tools
 		ApplicationMain.config.background = color;
 		ApplicationMain.config.element = element;
+		ApplicationMain.config.width = width;
+		ApplicationMain.config.height = height;
 		ApplicationMain.create ();
 		#end
 		
