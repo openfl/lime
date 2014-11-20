@@ -280,6 +280,10 @@ class BlackBerryHelper {
 								
 							} else {
 								
+								value = StringTools.replace (value, "$BASE_DIR", project.environment.get("BLACKBERRY_NDK_ROOT"));
+								value = StringTools.replace (value, "%BASE_DIR%", project.environment.get ("BLACKBERRY_NDK_ROOT"));
+								value = StringTools.replace (value, "$TARGET", "qnx6");
+								value = StringTools.replace (value, "%TARGET%", "qnx6");
 								value = StringTools.replace (value, "$QNX_HOST_VERSION", project.environment.get ("QNX_HOST_VERSION"));
 								value = StringTools.replace (value, "$QNX_TARGET_VERSION", project.environment.get ("QNX_TARGET_VERSION"));
 								value = StringTools.replace (value, "%QNX_HOST_VERSION%", project.environment.get ("QNX_HOST_VERSION"));
