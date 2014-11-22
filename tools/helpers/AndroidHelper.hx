@@ -81,10 +81,7 @@ class AndroidHelper {
 	
 	public static function getDeviceSDKVersion (deviceID:String):Int {
 		
-		ProcessHelper.runCommand (adbPath, adbName, [ "kill-server" ]);
-		ProcessHelper.runCommand (adbPath, adbName, [ "start-server" ]);
-		
-		var args = [ "shell" ];
+		var args = [ "wait-for-device", "shell", "getprop", "ro.build.version.sdk" ];
 		
 		if (deviceID != null && deviceID != "") {
 			
@@ -95,19 +92,8 @@ class AndroidHelper {
 			
 		}
 		
-		args = args.concat ([ "grep", "ro.build.version.sdk=", "system/build.prop" ]);
-		
 		var output = ProcessHelper.runProcess (adbPath, adbName, args);
-		var search = "ro.build.version.sdk=";
-		var index = output.indexOf (search);
-		
-		if (index > -1) {
-			
-			return Std.parseInt (output.substring (index + search.length));
-			
-		}
-		
-		return -1;
+		return Std.parseInt (output);
 		
 	}
 	
