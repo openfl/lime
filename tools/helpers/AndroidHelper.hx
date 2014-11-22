@@ -81,7 +81,8 @@ class AndroidHelper {
 	
 	public static function getDeviceSDKVersion (deviceID:String):Int {
 		
-		ProcessHelper.runCommand (adbPath, adbName, [ "devices" ]);
+		ProcessHelper.runCommand (adbPath, adbName, [ "kill-server" ]);
+		ProcessHelper.runCommand (adbPath, adbName, [ "start-server" ]);
 		
 		var args = [ "shell" ];
 		

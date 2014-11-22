@@ -129,18 +129,9 @@ class HXProject {
 				platformType = PlatformType.WEB;
 				architectures = [];
 				
-			case HTML5, EMSCRIPTEN:
+			case HTML5, FIREFOX, EMSCRIPTEN:
 				
 				platformType = PlatformType.WEB;
-				architectures = [];
-				
-				defaultWindow.width = 0;
-				defaultWindow.height = 0;
-				defaultWindow.fps = 0;
-			
-			case FIREFOX:
-				
-				platformType = PlatformType.MOBILE;
 				architectures = [];
 				
 				defaultWindow.width = 0;
@@ -901,7 +892,7 @@ class HXProject {
 				
 				if (asset.embed == null) {
 					
-					embeddedAsset.embed = (platformType == PlatformType.WEB || target == Platform.FIREFOX);
+					embeddedAsset.embed = (platformType == PlatformType.WEB);
 					
 				}
 				
