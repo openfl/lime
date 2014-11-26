@@ -113,6 +113,9 @@ class Application extends Module {
 		Window.onWindowMove.add (onWindowMove);
 		Window.onWindowResize.add (onWindowResize);
 		
+		Renderer.onContextLost.add (onContextLost);
+		Renderer.onContextRestored.add (onContextRestored);
+		
 		var window = new Window (config);
 		var renderer = new Renderer (window);
 		
@@ -365,7 +368,17 @@ class Application extends Module {
 	 * @param	width	The width of the window
 	 * @param	height	The height of the window
 	 */
-	public function onWindowResize (width:Int, height:Int):Void {}
+	public function onWindowResize (width:Int, height:Int):Void { }
+	
+	/**
+	 * Called when the webGL / OpenGL context is lost
+	 */
+	public function onContextLost ():Void {}
+	
+	/**
+	 * Called when the webGL / OpenGL context is restored
+	 */
+	public function onContextRestored (context:RenderContext):Void {}
 	
 	
 	/**
