@@ -922,8 +922,8 @@ class GLRenderContext {
 	}
 	
 	
-	// This is non-static
-	// public function isContextLost():Bool { return false; }
+	// TODO Finish this
+	public inline function isContextLost():Bool { return GL.isContextLost(); }
 	
 	
 	public inline function isEnabled (cap:Int):Bool {

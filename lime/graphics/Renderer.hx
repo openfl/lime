@@ -23,7 +23,9 @@ import flash.Lib;
 class Renderer {
 	
 	
-	public static var onRender = new Event<RenderContext->Void> ();
+	public static var onRender = new Event < RenderContext->Void > ();
+	public static var onContextLost = new Event < Void->Void > ();
+	public static var onContextRestored = new Event < RenderContext->Void > ();
 	
 	private static var eventInfo = new RenderEventInfo ();
 	private static var registered:Bool;
@@ -50,7 +52,61 @@ class Renderer {
 			
 			context = DOM (window.div);
 			
-		} else if (window.canvas != null) {
+		} else {
+			
+			recreateContext(true);
+			
+		}
+		
+		#elseif (cpp || neko || nodejs)
+		
+		handle = lime_renderer_create (window.handle);
+		context = OPENGL (new GLRenderContext ());
+		
+		#elseif flash
+		
+		context = FLASH (Lib.current);
+		
+		#end
+		
+		if (!registered) {
+			
+			registered = true;
+			
+			#if (cpp || neko || nodejs)
+			lime_render_event_manager_register (dispatch, eventInfo);
+			#end
+			
+		}
+		
+	}
+	
+	private function contextLost(event:Dynamic) {
+		trace("LIME: !!!!Context lost!!!!");
+		switch(context) {
+			case OPENGL(_):
+				event.preventDefault();
+				onContextLost.dispatch();
+			case _:
+		}
+	}
+	
+	private function contextRestored(event:Dynamic) {
+		trace("LIME: !!!!Context restored!!!!");
+		recreateContext(false);
+		switch(context) {
+			case OPENGL(_):
+				onContextRestored.dispatch(context);
+			case _:
+				// TODO warning
+				trace("LIME: Context isn't opengl");
+		}
+		
+	}
+	
+	private function recreateContext(addContextEvents:Bool = true) {
+		#if (js && html5)
+		if (window.canvas != null) {
 			
 			#if canvas
 			
@@ -88,31 +144,14 @@ class Renderer {
 				context = OPENGL (new GLRenderContext ());
 				#end
 				
+				if(addContextEvents) {
+					window.canvas.addEventListener("webglcontextlost", contextLost, false);
+					window.canvas.addEventListener("webglcontextrestored", contextRestored, false);
+				}
+			
 			}
-			
 		}
-		
-		#elseif (cpp || neko || nodejs)
-		
-		handle = lime_renderer_create (window.handle);
-		context = OPENGL (new GLRenderContext ());
-		
-		#elseif flash
-		
-		context = FLASH (Lib.current);
-		
 		#end
-		
-		if (!registered) {
-			
-			registered = true;
-			
-			#if (cpp || neko || nodejs)
-			lime_render_event_manager_register (dispatch, eventInfo);
-			#end
-			
-		}
-		
 	}
 	
 	

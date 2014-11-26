@@ -1324,8 +1324,8 @@ class GL {
 	}
 	
 	
-	// This is non-static
-	// public function isContextLost():Bool { return false; }
+	// TODO Finish this
+	public static inline function isContextLost():Bool { return false; }
 	
 	
 	public static inline function isEnabled (cap:Int):Bool {
