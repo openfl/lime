@@ -82,7 +82,6 @@ class Renderer {
 	}
 	
 	private function contextLost(event:Dynamic) {
-		trace("LIME: !!!!Context lost!!!!");
 		switch(context) {
 			case OPENGL(_):
 				event.preventDefault();
@@ -92,7 +91,6 @@ class Renderer {
 	}
 	
 	private function contextRestored(event:Dynamic) {
-		trace("LIME: !!!!Context restored!!!!");
 		recreateContext(false);
 		switch(context) {
 			case OPENGL(_):
