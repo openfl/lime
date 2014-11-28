@@ -31,11 +31,17 @@ import sys.FileSystem;
 
 class IOSPlatform extends PlatformTarget {
 	
-	
+	public var iPadSupported:Bool = false;
+	public var iPhoneSupported:Bool = false;
+
+
 	public function new (command:String, _project:HXProject, targetFlags:Map <String, String> ) {
 		
 		super (command, _project, targetFlags);
 		
+		var device = project.config.getString ("ios.device", null);
+		iPhoneSupported = (device == null || device == "iphone");
+		iPadSupported = (device == null || device == "ipad");
 	}
 	
 	
@@ -108,6 +114,8 @@ class IOSPlatform extends PlatformTarget {
 		
 		context.HAS_ICON = false;
 		context.HAS_LAUNCH_IMAGE = false;
+		context.LAUNCH_IMAGES = [];
+
 		context.OBJC_ARC = false;
 		
 		context.linkedLibraries = [];
@@ -194,7 +202,7 @@ class IOSPlatform extends PlatformTarget {
 			
 		}
 		
-		if (project.config.getString ("ios.device", "universal") == "universal" || project.config.getString ("ios.device") == "iphone") {
+		if (iPhoneSupported) {
 			
 			if (project.config.getInt ("ios.deployment", 5) < 5) {
 				
@@ -383,40 +391,61 @@ class IOSPlatform extends PlatformTarget {
 			
 		}
 		
-		var splashScreenNames = [ "Default.png", "Default@2x.png", "Default-568h@2x.png", "Default-Portrait.png", "Default-Landscape.png", "Default-Portrait@2x.png", "Default-Landscape@2x.png" ];
-		var splashScreenWidth = [ 320, 640, 640, 768, 1024, 1536, 2048 ];
-		var splashScreenHeight = [ 480, 960, 1136, 1024, 768, 2048, 1536 ];
+		var splashScreenNames = [];
+		var splashScreenWidth = [];
+		var splashScreenHeight = [];
 		
+		var portraitSupported = (project.window.orientation == PORTRAIT || project.window.orientation == ALL);
+		var landscapeSupported = (project.window.orientation == LANDSCAPE || project.window.orientation == ALL);
+
+		if (iPhoneSupported) {
+			
+			splashScreenNames = splashScreenNames.concat(["Default.png", "Default@2x.png", "Default-568h@2x.png"]);
+			splashScreenWidth = splashScreenWidth.concat([320, 640, 640]);
+			splashScreenHeight = splashScreenHeight.concat([480, 960, 1136]);
+		
+		}
+
+		if (iPadSupported) {
+			
+			if (portraitSupported) { 
+
+				splashScreenNames = splashScreenNames.concat(["Default-Portrait.png", "Default-Portrait@2x.png"]); 
+				splashScreenWidth = splashScreenWidth.concat([768, 1536]);
+				splashScreenHeight = splashScreenHeight.concat([1024, 2048]);
+			
+			}
+
+			if (landscapeSupported) { 
+
+				splashScreenNames = splashScreenNames.concat(["Default-Landscape.png", "Default-Landscape@2x.png"]); 
+				splashScreenHeight = splashScreenHeight.concat([768, 1536]);
+				splashScreenWidth = splashScreenWidth.concat([1024, 2048]);
+			
+			}
+		
+		}
+
 		for (i in 0...splashScreenNames.length) {
 			
 			var width = splashScreenWidth[i];
 			var height = splashScreenHeight[i];
 			var match = false;
-			
+
 			for (splashScreen in project.splashScreens) {
-				
 				if (splashScreen.width == width && splashScreen.height == height && Path.extension (splashScreen.path) == "png") {
-					
+					var uniqueID = StringHelper.getUniqueID();
+					var buildFileUDID = "1EF0A83A0000001D" + uniqueID;					
+					var fileRefUDID =   "1EF0A83A0000001E" + uniqueID;					
 					FileHelper.copyFile (splashScreen.path, PathHelper.combine (projectDirectory, splashScreenNames[i]));
+					context.LAUNCH_IMAGES.push( { "name": splashScreenNames[i], "build_file_udid" : buildFileUDID, "file_ref_udid" : fileRefUDID } );	
 					match = true;
-					
 				}
 				
 			}
-			
-			if (!match) {
-				
-				LogHelper.info ("", " - \x1b[1mGenerating image:\x1b[0m " + PathHelper.combine (projectDirectory, splashScreenNames[i]));
-				
-				var image = new Image (null, 0, 0, width, height, (0xFF << 24) | (project.window.background & 0xFFFFFF));
-				var bytes = image.encode ("png");
-				
-				File.saveBytes (PathHelper.combine (projectDirectory, splashScreenNames[i]), bytes);
-				
-			}
-			
+
 		}
-		
+
 		context.HAS_LAUNCH_IMAGE = true;
 		
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "iphone/PROJ/haxe", projectDirectory + "/haxe", context);
