@@ -105,6 +105,9 @@ class Application extends Module {
 		TouchEventManager.onTouchMove.add (onTouchMove);
 		TouchEventManager.onTouchEnd.add (onTouchEnd);
 		
+		Renderer.onRenderContextLost.add (onRenderContextLost);
+		Renderer.onRenderContextRestored.add (onRenderContextRestored);
+		
 		Window.onWindowActivate.add (onWindowActivate);
 		Window.onWindowClose.add (onWindowClose);
 		Window.onWindowDeactivate.add (onWindowDeactivate);
@@ -296,6 +299,19 @@ class Application extends Module {
 	
 	
 	/**
+	 * Called when a render context is lost
+	 */
+	public function onRenderContextLost ():Void { }
+	
+	
+	/**
+	 * Called when a render context is restored
+	 * @param	context	The current render context
+	 */
+	public function onRenderContextRestored (context:RenderContext):Void { }
+	
+	
+	/**
 	 * Called when a touch end event is fired
 	 * @param	x	The current x coordinate of the touch point
 	 * @param	y	The current y coordinate of the touch point
@@ -407,7 +423,7 @@ class Application extends Module {
 		__eventInfo.deltaTime = 16; //TODO
 		__dispatch ();
 		
-		Renderer.dispatch ();
+		Renderer.render ();
 		
 		#if (js && html5)
 		Browser.window.requestAnimationFrame (cast __triggerFrame);

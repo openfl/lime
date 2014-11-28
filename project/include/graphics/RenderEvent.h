@@ -10,7 +10,9 @@ namespace lime {
 	
 	enum RenderEventType {
 		
-		RENDER
+		RENDER,
+		RENDER_CONTEXT_LOST,
+		RENDER_CONTEXT_RESTORED
 		
 	};
 	

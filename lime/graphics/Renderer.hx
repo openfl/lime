@@ -23,9 +23,11 @@ import flash.Lib;
 class Renderer {
 	
 	
+	public static var onRenderContextLost = new Event<Void->Void> ();
+	public static var onRenderContextRestored = new Event<RenderContext->Void> ();
 	public static var onRender = new Event<RenderContext->Void> ();
 	
-	private static var eventInfo = new RenderEventInfo ();
+	private static var eventInfo = new RenderEventInfo (RENDER);
 	private static var registered:Bool;
 	
 	public var context:RenderContext;
@@ -43,6 +45,44 @@ class Renderer {
 	
 	
 	public function create ():Void {
+		
+		#if (cpp || neko || nodejs)
+		
+		handle = lime_renderer_create (window.handle);
+		
+		#end
+		
+		createContext ();
+		
+		#if (js && html5)
+		
+		switch (context) {
+			
+			case OPENGL (_):
+				
+				window.canvas.addEventListener ("webglcontextlost", handleCanvasEvent, false);
+				window.canvas.addEventListener ("webglcontextrestored", handleCanvasEvent, false);
+			
+			default:
+			
+		}
+		
+		#end
+		
+		if (!registered) {
+			
+			registered = true;
+			
+			#if (cpp || neko || nodejs)
+			lime_render_event_manager_register (dispatch, eventInfo);
+			#end
+			
+		}
+		
+	}
+	
+	
+	private function createContext ():Void {
 		
 		#if (js && html5)
 		
@@ -94,7 +134,6 @@ class Renderer {
 		
 		#elseif (cpp || neko || nodejs)
 		
-		handle = lime_renderer_create (window.handle);
 		context = OPENGL (new GLRenderContext ());
 		
 		#elseif flash
@@ -103,26 +142,14 @@ class Renderer {
 		
 		#end
 		
-		if (!registered) {
-			
-			registered = true;
-			
-			#if (cpp || neko || nodejs)
-			lime_render_event_manager_register (dispatch, eventInfo);
-			#end
-			
-		}
-		
 	}
 	
 	
-	private static function dispatch ():Void {
+	private function dispatch ():Void {
 		
-		for (window in Application.__instance.windows) {
+		switch (eventInfo.type) {
 			
-			if (window.currentRenderer != null) {
-				
-				var context = window.currentRenderer.context;
+			case RENDER:
 				
 				if (!Application.__initialized) {
 					
@@ -134,15 +161,21 @@ class Renderer {
 				Application.__instance.render (context);
 				onRender.dispatch (context);
 				
-				window.currentRenderer.flip ();
+				flip ();
 				
-			}
+			case RENDER_CONTEXT_LOST:
+				
+				context = null;
+				
+				onRenderContextLost.dispatch ();
+			
+			case RENDER_CONTEXT_RESTORED:
+				
+				createContext ();
+				
+				onRenderContextRestored.dispatch (context);
 			
 		}
-		
-		#if (js && stats)
-		Application.__instance.windows[0].stats.end ();
-		#end
 		
 	}
 	
@@ -151,6 +184,53 @@ class Renderer {
 		
 		#if (cpp || neko || nodejs)
 		lime_renderer_flip (handle);
+		#end
+		
+	}
+	
+	
+	#if (js && html5)
+	private function handleCanvasEvent (event:js.html.Event):Void {
+		
+		switch (event.type) {
+			
+			case "webglcontextlost":
+				
+				event.preventDefault ();
+				eventInfo.type = RENDER_CONTEXT_LOST;
+				dispatch ();
+				
+			case "webglcontextrestored":
+				
+				createContext ();
+				
+				eventInfo.type = RENDER_CONTEXT_RESTORED;
+				dispatch ();
+			
+			default:
+			
+		}
+		
+	}
+	#end
+	
+	
+	private static function render ():Void {
+		
+		eventInfo.type = RENDER;
+		
+		for (window in Application.__instance.windows) {
+			
+			if (window.currentRenderer != null) {
+				
+				window.currentRenderer.dispatch ();
+				
+			}
+			
+		}
+		
+		#if (js && stats)
+		Application.__instance.windows[0].stats.end ();
 		#end
 		
 	}
@@ -194,5 +274,7 @@ private class RenderEventInfo {
 @:enum private abstract RenderEventType(Int) {
 	
 	var RENDER = 0;
+	var RENDER_CONTEXT_LOST = 1;
+	var RENDER_CONTEXT_RESTORED = 2;
 	
 }
