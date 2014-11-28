@@ -12,8 +12,9 @@ import lime.system.System;
 import js.html.webgl.RenderingContext;
 #end
 
-
 @:allow(lime.ui.Window)
+
+
 class GL {
 	
 	
@@ -1324,8 +1325,15 @@ class GL {
 	}
 	
 	
-	// This is non-static
-	// public function isContextLost():Bool { return false; }
+	public static inline function isContextLost ():Bool {
+		
+		#if (js && html5)
+		return context.isContextLost ();
+		#else
+		return false;
+		#end
+		
+	}
 	
 	
 	public static inline function isEnabled (cap:Int):Bool {
