@@ -395,8 +395,8 @@ class IOSPlatform extends PlatformTarget {
 		var splashScreenWidth = [];
 		var splashScreenHeight = [];
 		
-		var portraitSupported = (project.window.orientation == PORTRAIT || project.window.orientation == ALL);
-		var landscapeSupported = (project.window.orientation == LANDSCAPE || project.window.orientation == ALL);
+		var portraitSupported = ! (project.window.orientation == LANDSCAPE);
+		var landscapeSupported = ! (project.window.orientation == PORTRAIT);
 
 		if (iPhoneSupported) {
 			
