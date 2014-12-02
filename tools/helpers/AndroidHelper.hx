@@ -81,6 +81,10 @@ class AndroidHelper {
 	
 	public static function getDeviceSDKVersion (deviceID:String):Int {
 		
+		// need to wake up ADB, this shouldn't be necessary :(
+		//ProcessHelper.runCommand (adbPath, adbName, [ "kill-server" ]);
+		ProcessHelper.runCommand (adbPath, adbName, [ "start-server" ]);
+		
 		var args = [ "wait-for-device", "shell", "getprop", "ro.build.version.sdk" ];
 		
 		if (deviceID != null && deviceID != "") {
