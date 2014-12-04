@@ -27,7 +27,7 @@
 				<string>Icon-76@2x.png</string>
 				::end::
 				::foreach LAUNCH_IMAGES::
-				<string>::value::</string>
+				<string>::name::</string>
 				::end::
 			</array>
 			<key>UIPrerenderedIcon</key>
