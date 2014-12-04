@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "2.0.0",
-	"releasenote": "Minor fixes, improvements to rebuild",
+	"version": "2.0.1",
+	"releasenote": "Minor fixes to touch events and Android handling",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
 }
