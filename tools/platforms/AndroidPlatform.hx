@@ -312,8 +312,8 @@ class AndroidPlatform extends PlatformTarget {
 			
 		}
 		
-		var iconTypes = [ "ldpi", "mdpi", "hdpi", "xhdpi" ];
-		var iconSizes = [ 36, 48, 72, 96 ];
+		var iconTypes = [ "ldpi", "mdpi", "hdpi", "xhdpi", "xxhdpi", "xxxhdpi" ];
+		var iconSizes = [ 36, 48, 72, 96, 144, 192 ];
 		
 		for (i in 0...iconTypes.length) {
 			
