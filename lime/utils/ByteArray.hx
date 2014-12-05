@@ -24,7 +24,7 @@ import js.html.Uint8Array;
 import cpp.NativeArray;
 #end
 
-#if (disable_cffi && sys)
+#if ((disable_cffi || java) && sys)
 import sys.io.File;
 #end
 
@@ -387,7 +387,7 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 		
 		#if html5
 		return null;
-		#elseif disable_cffi
+		#elseif (java || disable_cffi)
 		return ByteArray.fromBytes (File.getBytes (path));
 		#else
 		return lime_byte_array_read_file (path);
@@ -559,6 +559,8 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 		var result = "";
 		untyped __global__.__hxcpp_string_of_bytes (b, result, p, len);
 		return result;
+		#elseif java
+		return getString (p, len);
 		#else 
 		return "-";
 		#end

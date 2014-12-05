@@ -873,11 +873,11 @@ class Image {
 		// (issue #1019768)
 		if (image.complete) { }
 		
-		#elseif (cpp || neko || nodejs)
+		#elseif (cpp || neko || nodejs || java)
 		
 		var buffer = null;
 		
-		#if (sys && (!disable_cffi || !format))
+		#if (sys && (!disable_cffi || !format) && !java)
 		
 		var data = lime_image_load (path);
 		if (data != null) {

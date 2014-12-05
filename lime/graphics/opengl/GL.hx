@@ -10,6 +10,14 @@ import lime.system.System;
 
 #if (js && html5)
 import js.html.webgl.RenderingContext;
+#elseif java
+import org.lwjgl.opengl.EXTBlendColor;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL14;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
 #end
 
 @:allow(lime.ui.Window)
@@ -378,6 +386,8 @@ class GL {
 		context.activeTexture (texture);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_active_texture (texture);
+		#elseif java
+		GL13.glActiveTexture (texture);
 		#end
 		
 	}
@@ -390,6 +400,9 @@ class GL {
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		program.attach (shader);
 		lime_gl_attach_shader (program.id, shader.id);
+		#elseif java
+		program.attach (shader);
+		GL20.glAttachShader (program.id, shader.id);
 		#end
 		
 	}
@@ -401,6 +414,8 @@ class GL {
 		context.bindAttribLocation (program, index, name);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_bind_attrib_location (program.id, index, name);
+		#elseif java
+		GL20.glBindAttribLocation (program.id, index, name);
 		#end
 		
 	}
@@ -412,6 +427,8 @@ class GL {
 		context.bindBuffer (target, buffer);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_bind_buffer (target, buffer == null ? 0 : buffer.id);
+		#elseif java
+		GL15.glBindBuffer (target, buffer == null ? 0 : buffer.id);
 		#end
 		
 	}
@@ -423,6 +440,8 @@ class GL {
 		context.bindFramebuffer (target, framebuffer);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_bind_framebuffer (target, framebuffer == null ? 0 : framebuffer.id);
+		#elseif java
+		GL30.glBindFramebuffer (target, framebuffer == null ? 0 : framebuffer.id);
 		#end
 		
 	}
@@ -434,6 +453,8 @@ class GL {
 		context.bindRenderbuffer (target, renderbuffer);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_bind_renderbuffer (target, renderbuffer == null ? 0 : renderbuffer.id);
+		#elseif java
+		GL30.glBindRenderbuffer (target, renderbuffer == null ? 0 : renderbuffer.id);
 		#end
 		
 	}
@@ -444,7 +465,9 @@ class GL {
 		#if (js && html5)
 		context.bindTexture (target, texture);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
-		lime_gl_bind_texture(target, texture == null ? 0 : texture.id);
+		lime_gl_bind_texture (target, texture == null ? 0 : texture.id);
+		#elseif java
+		GL11.glBindTexture (target, texture == null ? 0 : texture.id);
 		#end
 		
 	}
@@ -456,6 +479,8 @@ class GL {
 		context.blendColor (red, green, blue, alpha);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_blend_color (red, green, blue, alpha);
+		#elseif java
+		EXTBlendColor.glBlendColorEXT (red, green, blue, alpha);
 		#end
 		
 	}
@@ -467,6 +492,8 @@ class GL {
 		context.blendEquation (mode);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_blend_equation (mode);
+		#elseif java
+		GL14.glBlendEquation (mode);
 		#end
 		
 	}
@@ -478,6 +505,8 @@ class GL {
 		context.blendEquationSeparate (modeRGB, modeAlpha);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_blend_equation_separate (modeRGB, modeAlpha);
+		#elseif java
+		GL20.glBlendEquationSeparate (modeRGB, modeAlpha);
 		#end
 		
 	}
@@ -489,6 +518,8 @@ class GL {
 		context.blendFunc (sfactor, dfactor);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_blend_func (sfactor, dfactor);
+		#elseif java
+		GL11.glBlendFunc (sfactor, dfactor);
 		#end
 		
 	}
@@ -500,6 +531,8 @@ class GL {
 		context.blendFuncSeparate (srcRGB, dstRGB, srcAlpha, dstAlpha);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_blend_func_separate (srcRGB, dstRGB, srcAlpha, dstAlpha);
+		#elseif java
+		GL14.glBlendFuncSeparate (srcRGB, dstRGB, srcAlpha, dstAlpha);
 		#end
 		
 	}
@@ -513,6 +546,8 @@ class GL {
 		lime_gl_buffer_data (target, data.getByteBuffer (), data.getStart (), data.getLength (), usage);
 		#elseif (nodejs && lime_opengl)
 		lime_gl_buffer_data (target, data, data.byteOffset, data.byteLength, usage);
+		#elseif java
+		//GL15.glBufferData (target, data.getByteBuffer (), data.getStart (), data.getLength (), usage);
 		#end
 		
 	}
@@ -526,6 +561,8 @@ class GL {
 		lime_gl_buffer_sub_data (target, offset, data.getByteBuffer (), data.getStart (), data.getLength ());
 		#elseif (nodejs && lime_opengl)
 		lime_gl_buffer_sub_data (target, offset, data, data.byteOffset, data.byteLength);
+		#elseif java
+		//GL15.glBufferSubData (target, offset, data.getByteBuffer (), data.getStart (), data.getLength ());
 		#end
 		
 	}
@@ -537,6 +574,8 @@ class GL {
 		return context.checkFramebufferStatus (target);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_check_framebuffer_status (target);
+		#elseif java
+		return GL30.glCheckFramebufferStatus (target);
 		#else
 		return 0;
 		#end
@@ -550,6 +589,8 @@ class GL {
 		context.clear (mask);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_clear (mask);
+		#elseif java
+		GL11.glClear (mask);
 		#end
 		
 	}
@@ -561,6 +602,8 @@ class GL {
 		context.clearColor (red, green, blue, alpha);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_clear_color (red, green, blue, alpha);
+		#elseif java
+		GL11.glClearColor (red, green, blue, alpha);
 		#end
 		
 	}
@@ -572,6 +615,8 @@ class GL {
 		context.clearDepth (depth);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_clear_depth (depth);
+		#elseif java
+		GL11.glClearDepth (depth);
 		#end
 		
 	}
@@ -583,6 +628,8 @@ class GL {
 		context.clearStencil (s);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_clear_stencil (s);
+		#elseif java
+		GL11.glClearStencil (s);
 		#end
 		
 	}
@@ -594,6 +641,8 @@ class GL {
 		context.colorMask (red, green, blue, alpha);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_color_mask (red, green, blue, alpha);
+		#elseif java
+		GL11.glColorMask (red, green, blue, alpha);
 		#end
 		
 	}
@@ -605,6 +654,8 @@ class GL {
 		context.compileShader (shader);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_compile_shader (shader.id);
+		#elseif java
+		GL20.glCompileShader (shader.id);
 		#end
 		
 	}
@@ -618,6 +669,8 @@ class GL {
 		lime_gl_compressed_tex_image_2d (target, level, internalformat, width, height, border, data == null ? null : data.getByteBuffer (), data == null ? null : data.getStart ());
 		#elseif (nodejs && lime_opengl)
 		lime_gl_compressed_tex_image_2d (target, level, internalformat, width, height, border, data == null ? null : data.buffer , data == null ? null : data.byteOffset);
+		#elseif java
+		//GL13.glCompressedTexImage2D (target, level, internalformat, width, height, border, data == null ? null : data.getByteBuffer (), data == null ? null : data.getStart ());
 		#end
 		
 	}
@@ -631,6 +684,8 @@ class GL {
 		lime_gl_compressed_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, data == null ? null : data.getByteBuffer (), data == null ? null : data.getStart ());
 		#elseif (nodejs && lime_opengl)
 		lime_gl_compressed_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, data == null ? null : data.buffer, data == null ? null : data.byteOffset);
+		#elseif java
+		//GL13.glCompressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, data == null ? null : data.getByteBuffer (), data == null ? null : data.getStart ());
 		#end
 		
 	}
@@ -642,6 +697,8 @@ class GL {
 		context.copyTexImage2D (target, level, internalformat, x, y, width, height, border);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_copy_tex_image_2d (target, level, internalformat, x, y, width, height, border);
+		#elseif java
+		GL11.glCopyTexImage2D (target, level, internalformat, x, y, width, height, border);
 		#end
 		
 	}
@@ -653,6 +710,8 @@ class GL {
 		context.copyTexSubImage2D (target, level, xoffset, yoffset, x, y, width, height);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_copy_tex_sub_image_2d (target, level, xoffset, yoffset, x, y, width, height);
+		#elseif java
+		GL11.glCopyTexSubImage2D (target, level, xoffset, yoffset, x, y, width, height);
 		#end
 		
 	}
@@ -664,6 +723,9 @@ class GL {
 		return context.createBuffer ();
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return new GLBuffer (version, lime_gl_create_buffer ());
+		#elseif java
+		//return new GLBuffer (version, GL15.glGenBuffers (1));
+		return null;
 		#else
 		return null;
 		#end
@@ -677,6 +739,9 @@ class GL {
 		return context.createFramebuffer ();
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return new GLFramebuffer (version, lime_gl_create_framebuffer ());
+		#elseif java
+		//return new GLFramebuffer (version, GL30.glGenFramebuffers (1));
+		return null;
 		#else
 		return null;
 		#end
@@ -690,6 +755,8 @@ class GL {
 		return context.createProgram ();
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return new GLProgram (version, lime_gl_create_program ());
+		#elseif java
+		return new GLProgram (version, GL20.glCreateProgram ());
 		#else
 		return null;
 		#end
@@ -703,6 +770,9 @@ class GL {
 		return context.createRenderbuffer ();
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return new GLRenderbuffer (version, lime_gl_create_render_buffer ());
+		#elseif java
+		//return new GLRenderbuffer (version, GL30.glGenRenderbuffers (1));
+		return null;
 		#else
 		return null;
 		#end
@@ -716,6 +786,8 @@ class GL {
 		return context.createShader (type);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return new GLShader (version, lime_gl_create_shader (type));
+		#elseif java
+		return new GLShader (version, GL20.glCreateShader (type));
 		#else
 		return null;
 		#end
@@ -729,6 +801,9 @@ class GL {
 		return context.createTexture ();
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return new GLTexture (version, lime_gl_create_texture ());
+		#elseif java
+		//return new GLTexture (version, GL11.glGenTextures (1));
+		return null;
 		#else
 		return null;
 		#end
@@ -742,6 +817,8 @@ class GL {
 		context.cullFace (mode);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_cull_face (mode);
+		#elseif java
+		GL11.glCullFace (mode);
 		#end
 		
 	}
@@ -753,6 +830,9 @@ class GL {
 		context.deleteBuffer (buffer);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_delete_buffer (buffer.id);
+		buffer.invalidate ();
+		#elseif java
+		GL15.glDeleteBuffers (buffer.id);
 		buffer.invalidate ();
 		#end
 		
@@ -766,6 +846,9 @@ class GL {
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_delete_framebuffer (framebuffer.id);
 		framebuffer.invalidate ();
+		#elseif
+		GL30.glDeleteFramebuffers (framebuffer.id);
+		framebuffer.invalidate ();
 		#end
 		
 	}
@@ -777,6 +860,9 @@ class GL {
 		context.deleteProgram (program);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_delete_program (program.id);
+		program.invalidate ();
+		#elseif java
+		GL20.glDeleteProgram (program.id);
 		program.invalidate ();
 		#end
 		
@@ -790,6 +876,9 @@ class GL {
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_delete_render_buffer (renderbuffer.id);
 		renderbuffer.invalidate ();
+		#elseif java
+		GL30.glDeleteRenderbuffers (renderbuffer.id);
+		renderbuffer.invalidate ();
 		#end
 		
 	}
@@ -801,6 +890,9 @@ class GL {
 		context.deleteShader (shader);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_delete_shader (shader.id);
+		shader.invalidate ();
+		#elseif java
+		GL20.glDeleteShader (shader.id);
 		shader.invalidate ();
 		#end
 		
@@ -814,6 +906,9 @@ class GL {
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_delete_texture (texture.id);
 		texture.invalidate ();
+		#elseif java
+		GL11.glDeleteTextures (texture.id);
+		texture.invalidate ();
 		#end
 		
 	}
@@ -825,6 +920,8 @@ class GL {
 		context.depthFunc (func);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_depth_func (func);
+		#elseif java
+		GL11.glDepthFunc (func);
 		#end
 		
 	}
@@ -836,6 +933,8 @@ class GL {
 		context.depthMask (flag);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_depth_mask (flag);
+		#elseif java
+		GL11.glDepthMask (flag);
 		#end
 		
 	}
@@ -847,6 +946,8 @@ class GL {
 		context.depthRange (zNear, zFar);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_depth_range (zNear, zFar);
+		#elseif java
+		GL11.glDepthRange (zNear, zFar);
 		#end
 		
 	}
@@ -858,6 +959,8 @@ class GL {
 		context.detachShader (program, shader);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_detach_shader (program.id, shader.id);
+		#elseif java
+		GL20.glDetachShader (program.id, shader.id);
 		#end
 		
 	}
@@ -869,6 +972,8 @@ class GL {
 		context.disable (cap);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_disable (cap);
+		#elseif java
+		GL11.glDisable (cap);
 		#end
 		
 	}
@@ -880,6 +985,8 @@ class GL {
 		context.disableVertexAttribArray (index);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_disable_vertex_attrib_array (index);
+		#elseif java
+		GL20.glDisableVertexAttribArray (index);
 		#end
 		
 	}
@@ -891,6 +998,8 @@ class GL {
 		context.drawArrays (mode, first, count);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_draw_arrays (mode, first, count);
+		#elseif java
+		GL11.glDrawArrays (mode, first, count);
 		#end
 		
 	}
@@ -902,6 +1011,8 @@ class GL {
 		context.drawElements (mode, count, type, offset);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_draw_elements (mode, count, type, offset);
+		#elseif java
+		//GL11.glDrawElements (mode, count, type, offset);
 		#end
 		
 	}
@@ -913,6 +1024,8 @@ class GL {
 		context.enable (cap);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_enable (cap);
+		#elseif java
+		GL11.glEnable (cap);
 		#end
 		
 	}
@@ -924,6 +1037,8 @@ class GL {
 		context.enableVertexAttribArray (index);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_enable_vertex_attrib_array (index);
+		#elseif java
+		GL20.glEnableVertexAttribArray (index);
 		#end
 		
 	}
@@ -935,6 +1050,8 @@ class GL {
 		context.finish ();
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_finish ();
+		#elseif java
+		GL11.glFinish ();
 		#end
 		
 	}
@@ -946,6 +1063,8 @@ class GL {
 		context.flush ();
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_flush ();
+		#elseif java
+		GL11.glFlush ();
 		#end
 		
 	}
@@ -957,6 +1076,8 @@ class GL {
 		context.framebufferRenderbuffer (target, attachment, renderbuffertarget, renderbuffer);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_framebuffer_renderbuffer (target, attachment, renderbuffertarget, renderbuffer.id);
+		#elseif java
+		GL30.glFramebufferRenderbuffer (target, attachment, renderbuffertarget, renderbuffer.id);
 		#end
 		
 	}
@@ -968,6 +1089,8 @@ class GL {
 		context.framebufferTexture2D (target, attachment, textarget, texture, level);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_framebuffer_texture2D (target, attachment, textarget, texture.id, level);
+		#elseif java
+		GL30.glFramebufferTexture2D (target, attachment, textarget, texture.id, level);
 		#end
 		
 	}
@@ -979,6 +1102,8 @@ class GL {
 		context.frontFace (mode);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_front_face (mode);
+		#elseif java
+		GL11.glFrontFace (mode);
 		#end
 		
 	}
@@ -990,6 +1115,8 @@ class GL {
 		context.generateMipmap (target);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		lime_gl_generate_mipmap (target);
+		#elseif java
+		GL30.glGenerateMipmap (target);
 		#end
 		
 	}
@@ -1001,6 +1128,9 @@ class GL {
 		return context.getActiveAttrib (program, index);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_active_attrib (program.id, index);
+		#elseif java
+		//return GL20.glGetActiveAttrib (program.id, index);
+		return null;
 		#else
 		return null;
 		#end
@@ -1014,6 +1144,9 @@ class GL {
 		return context.getActiveUniform (program, index);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_active_uniform (program.id, index);
+		#elseif java
+		//return GL20.glGetActiveUniform (program.id, index);
+		return null;
 		#else
 		return null;
 		#end
@@ -1026,6 +1159,8 @@ class GL {
 		#if (js && html5)
 		return context.getAttachedShaders (program);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		return program.getShaders ();
+		#elseif java
 		return program.getShaders ();
 		#else
 		return null;
@@ -1040,6 +1175,8 @@ class GL {
 		return context.getAttribLocation (program, name);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_attrib_location (program.id, name);
+		#elseif java
+		return GL20.glGetAttribLocation (program.id, name);
 		#else
 		return 0;
 		#end
@@ -1052,7 +1189,10 @@ class GL {
 		#if (js && html5)
 		return context.getBufferParameter (target, pname);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
-		return lime_gl_get_buffer_paramerter (target, pname);
+		return lime_gl_get_buffer_parameter (target, pname);
+		#elseif java
+		//return GL15.glGetBufferParameter (target, pname);
+		return 0;
 		#else
 		return 0;
 		#end
@@ -1069,6 +1209,12 @@ class GL {
 		base.premultipliedAlpha = false;
 		base.preserveDrawingBuffer = false;
 		return base;
+		#elseif java
+		//var base = lime_gl_get_context_attributes ();
+		var base:Dynamic = {};
+		base.premultipliedAlpha = false;
+		base.preserveDrawingBuffer = false;
+		return base;
 		#else
 		return null;
 		#end
@@ -1082,6 +1228,8 @@ class GL {
 		return context.getError ();
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_error ();
+		#elseif java
+		return GL11.glGetError ();
 		#else
 		return 0;
 		#end
@@ -1110,6 +1258,9 @@ class GL {
 		return context.getFramebufferAttachmentParameter (target, attachment, pname);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_framebuffer_attachment_parameter (target, attachment, pname);
+		#elseif java
+		//return GL30.glGetFramebufferAttachmentParameter (target, attachment, pname);
+		return 0;
 		#else
 		return 0;
 		#end
@@ -1123,6 +1274,8 @@ class GL {
 		return context.getParameter (pname);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_parameter (pname);
+		#elseif java
+		return null;
 		#else
 		return null;
 		#end
@@ -1136,6 +1289,8 @@ class GL {
 		return context.getProgramInfoLog (program);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_program_info_log (program.id);
+		#elseif java
+		return GL20.glGetProgramInfoLog (program.id);
 		#else
 		return null;
 		#end
@@ -1149,6 +1304,9 @@ class GL {
 		return context.getProgramParameter (program, pname);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_program_parameter (program.id, pname);
+		#elseif java
+		//return GL20.glGetProgramParameter (program.id, pname);
+		return 0;
 		#else
 		return 0;
 		#end
@@ -1162,6 +1320,9 @@ class GL {
 		return context.getRenderbufferParameter (target, pname);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_render_buffer_parameter (target, pname);
+		#elseif java
+		//return GL30.glGetRenderbufferParameter (target, pname);
+		return 0;
 		#else
 		return 0;
 		#end
@@ -1175,6 +1336,8 @@ class GL {
 		return context.getShaderInfoLog (shader);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_shader_info_log (shader.id);
+		#elseif java
+		return GL20.glGetShaderInfoLog (shader.id);
 		#else
 		return null;
 		#end
@@ -1188,6 +1351,9 @@ class GL {
 		return context.getShaderParameter (shader, pname);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_shader_parameter (shader.id, pname);
+		#elseif java
+		//return GL20.glGetShaderParameter (shader.id, pname);
+		return 0;
 		#else
 		return 0;
 		#end
@@ -1201,6 +1367,9 @@ class GL {
 		return context.getShaderPrecisionFormat (shadertype, precisiontype);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_shader_precision_format (shadertype, precisiontype);
+		#elseif java
+		//return GL20.glGetShaderPrecisionFormat (shadertype, precisiontype);
+		return null;
 		#else
 		return null;
 		#end
@@ -1214,6 +1383,8 @@ class GL {
 		return context.getShaderSource (shader);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_shader_source (shader.id);
+		#elseif java
+		return GL20.glGetShaderSource (shader.id);
 		#else
 		return null;
 		#end
@@ -1229,6 +1400,8 @@ class GL {
 		var result = new Array<String> ();
 		lime_gl_get_supported_extensions (result);
 		return result;
+		#elseif java
+		return null;
 		#else
 		return null;
 		#end
@@ -1242,6 +1415,9 @@ class GL {
 		return context.getTexParameter (target, pname);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_tex_parameter (target, pname);
+		#elseif java
+		//return GL11.nglGetTexParameteriv (target, pname);
+		return 0;
 		#else
 		return 0;
 		#end
@@ -1255,6 +1431,9 @@ class GL {
 		return context.getUniform (program, location);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_uniform (program.id, location);
+		#elseif java
+		//return GL20.glGetUniform (program.id, location);
+		return null;
 		#else
 		return null;
 		#end
@@ -1268,6 +1447,8 @@ class GL {
 		return context.getUniformLocation (program, name);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_uniform_location (program.id, name);
+		#elseif java
+		return GL20.glGetUniformLocation (program.id, name);
 		#else
 		return 0;
 		#end
@@ -1281,6 +1462,8 @@ class GL {
 		return context.getVertexAttrib (index, pname);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_vertex_attrib (index, pname);
+		#elseif java
+		return 0;
 		#else
 		return 0;
 		#end
@@ -1294,6 +1477,8 @@ class GL {
 		return context.getVertexAttribOffset (index, pname);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
 		return lime_gl_get_vertex_attrib_offset (index, pname);
+		#elseif java
+		return 0;
 		#else
 		return 0;
 		#end
@@ -2069,7 +2254,7 @@ class GL {
 	private static var lime_gl_get_active_attrib = System.load ("lime", "lime_gl_get_active_attrib", 2);
 	private static var lime_gl_get_active_uniform = System.load ("lime", "lime_gl_get_active_uniform", 2);
 	private static var lime_gl_get_attrib_location = System.load ("lime", "lime_gl_get_attrib_location", 2);
-	private static var lime_gl_get_buffer_paramerter = System.load ("lime", "lime_gl_get_buffer_paramerter", 2);
+	private static var lime_gl_get_buffer_parameter = System.load ("lime", "lime_gl_get_buffer_parameter", 2);
 	private static var lime_gl_get_context_attributes = System.load ("lime", "lime_gl_get_context_attributes", 0);
 	private static var lime_gl_get_error = System.load ("lime", "lime_gl_get_error", 0);
 	private static var lime_gl_get_framebuffer_attachment_parameter = System.load ("lime", "lime_gl_get_framebuffer_attachment_parameter", 3);

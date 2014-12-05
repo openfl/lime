@@ -210,11 +210,6 @@ class CommandLineTools {
 							target = PlatformHelper.hostPlatform;
 							targetFlags.set ("neko", "");
 						
-						case "java":
-							
-							target = PlatformHelper.hostPlatform;
-							targetFlags.set ("java", "");
-						
 						case "nodejs":
 							
 							target = PlatformHelper.hostPlatform;
