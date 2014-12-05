@@ -1,0 +1,5 @@
+-main ApplicationMain ::HAXE_FLAGS::
+-cp ::BUILD_DIR::/java/haxe
+-java ::BUILD_DIR::/java/obj
+--macro keep("::APP_MAIN::")
+-debug

@@ -24,7 +24,7 @@ import haxe.io.BytesData;
 	#end
 	
 	
-	public function new<T> (lengthOrBuffer:T, byteOffset:UInt = 0, length:Null<Int> = null) {
+	public function new #if !java <T> #end (lengthOrBuffer:#if !java T #else Dynamic #end, byteOffset:UInt = 0, length:Null<Int> = null) {
 		
 		if (Std.is (lengthOrBuffer, Int)) {
 			

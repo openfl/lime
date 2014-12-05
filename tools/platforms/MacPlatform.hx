@@ -51,6 +51,10 @@ class MacPlatform extends PlatformTarget {
 			
 			targetType = "neko";
 			
+		} else if (project.targetFlags.exists ("java")) {
+			
+			targetType = "java";
+			
 		} else if (project.targetFlags.exists ("nodejs")) {
 			
 			targetType = "nodejs";
@@ -104,6 +108,13 @@ class MacPlatform extends PlatformTarget {
 			NekoHelper.createExecutable (project.templatePaths, "Mac" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
 			NekoHelper.copyLibraries (project.templatePaths, "Mac" + (is64 ? "64" : ""), executableDirectory);
 			
+		} else if (targetType == "java") {
+			
+			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+			ProcessHelper.runCommand (targetDirectory + "/obj", "haxelib", [ "run", "hxjava", "hxjava_build.txt", "--haxe-version", "3103" ]);
+			FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".jar", PathHelper.combine (executableDirectory, project.app.file + ".jar"));
+			NekoHelper.copyLibraries (project.templatePaths, "Mac" + (is64 ? "64" : ""), executableDirectory);
+			
 		} else if (targetType == "nodejs") {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
@@ -142,7 +153,7 @@ class MacPlatform extends PlatformTarget {
 			
 		}
 		
-		if (PlatformHelper.hostPlatform != Platform.WINDOWS && targetType != "nodejs") {
+		if (PlatformHelper.hostPlatform != Platform.WINDOWS && targetType != "nodejs" && targetType != "java") {
 			
 			ProcessHelper.runCommand ("", "chmod", [ "755", executablePath ]);
 			
@@ -224,6 +235,10 @@ class MacPlatform extends PlatformTarget {
 		if (targetType == "nodejs") {
 			
 			NodeJSHelper.run (project, executableDirectory + "/ApplicationMain.js", arguments);
+			
+		} else if (targetType == "java") {
+			
+			ProcessHelper.runCommand (executableDirectory, "java", [ "-jar", project.app.file + ".jar" ].concat (arguments));
 			
 		} else if (project.target == PlatformHelper.hostPlatform) {
 			

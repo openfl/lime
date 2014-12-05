@@ -418,7 +418,7 @@ class Application extends Module {
 	}
 	
 	
-	@:noCompletion private function __triggerFrame (?_):Void {
+	@:noCompletion private function __triggerFrame (?__):Void {
 		
 		__eventInfo.deltaTime = 16; //TODO
 		__dispatch ();

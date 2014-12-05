@@ -292,7 +292,9 @@ class Image {
 			
 			case "png":
 				
-				#if (sys && (!disable_cffi || !format))
+				#if java
+				
+				#elseif (sys && (!disable_cffi || !format))
 				
 				return lime_image_encode (buffer, 0, quality);
 				
@@ -331,7 +333,9 @@ class Image {
 			
 			case "jpg", "jpeg":
 				
-				#if (sys && (!disable_cffi || !format))
+				#if java
+				
+				#elseif (sys && (!disable_cffi || !format))
 				
 				return lime_image_encode (buffer, 1, quality);
 				

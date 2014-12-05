@@ -136,7 +136,7 @@ class System {
 		
 		if (disableCFFI) {
 			
-			return Reflect.makeVarArgs (function (_) return {});
+			return Reflect.makeVarArgs (function (__) return {});
 			
 		}
 		

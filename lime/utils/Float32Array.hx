@@ -12,14 +12,14 @@ typedef Float32Array = js.html.Float32Array;
 	public var length (default, null):Int;
 	
 	
-	public function new<T> (bufferOrArray:T, start:Int = 0, length:Null<Int> = null) {
+	public function new #if !java <T> #end (bufferOrArray:#if !java T #else Dynamic #end, start:Int = 0, length:Null<Int> = null) {
 		
 		#if (openfl && neko && !lime_legacy)
 		if (Std.is (bufferOrArray, openfl.Vector.VectorData)) {
 			
 			var vector:openfl.Vector<Float> = cast bufferOrArray;
 			var floats:Array<Float> = vector;
-			this.length = (length != null) ? length : floats.length - start;
+			this.length = (length != #if java 0 #else null #end) ? length : floats.length - start;
 			
 			super (this.length << 2);
 			
@@ -51,7 +51,7 @@ typedef Float32Array = js.html.Float32Array;
 		} else if (Std.is (bufferOrArray, Array)) {
 			
 			var floats:Array<Float> = cast bufferOrArray;
-			this.length = (length != null) ? length : floats.length - start;
+			this.length = (length != #if java 0 #else null #end) ? length : floats.length - start;
 			
 			super (this.length << 2);
 			
@@ -72,7 +72,7 @@ typedef Float32Array = js.html.Float32Array;
 		} else if (Std.is (bufferOrArray, Float32Array)) {
 			
 			var floats:Float32Array = cast bufferOrArray;
-			this.length = (length != null) ? length : floats.length - start;
+			this.length = (length != #if java 0 #else null #end) ? length : floats.length - start;
 			
 			super (this.length << 2);
 			
@@ -92,7 +92,7 @@ typedef Float32Array = js.html.Float32Array;
 			
 		} else {
 			
-			super (bufferOrArray, start, (length != null) ? length << 2 : null);
+			super (bufferOrArray, start, #if java length #else (length != null ) ? length << 2 : null #end);
 			
 			if ((byteLength & 0x03) > 0) {
 				
@@ -113,7 +113,7 @@ typedef Float32Array = js.html.Float32Array;
 	}
 	
 	
-	public function set<T> (bufferOrArray:T, offset:Int = 0):Void {
+	public function set #if !java <T> #end (bufferOrArray:#if !java T #else Dynamic #end, offset:Int = 0):Void {
 		
 		if (Std.is (bufferOrArray, Array)) {
 			
