@@ -30,14 +30,8 @@
 		1EF0A83A000000001C000014 /* Icon-76.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000014 /* Icon-76.png */; };
 		1EF0A83A000000001C000015 /* Icon-76@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000015 /* Icon-76@2x.png */; };
 		::end::
-		::if (HAS_LAUNCH_IMAGE)::
-		1EF0A83A000000001C000005 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000005 /* Default.png */; };
-		1EF0A83A000000001C000006 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000006 /* Default@2x.png */; };
-		1EF0A83A000000001C000007 /* Default-Portrait.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000007 /* Default-Portrait.png */; };
-		1EF0A83A000000001C000008 /* Default-Portrait@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000008 /* Default-Portrait@2x.png */; };
-		1EF0A83A000000001C000009 /* Default-Landscape.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000009 /* Default-Landscape.png */; };
-		1EF0A83A000000001C000010 /* Default-Landscape@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000010 /* Default-Landscape@2x.png */; };
-		1EF0A83A000000001C000011 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1EF0A83900000001C0000011 /* Default-568h@2x.png */; };
+		::foreach LAUNCH_IMAGES::
+		::build_file_udid:: /* ::name:: in Resources */ = {isa = PBXBuildFile; fileRef = ::file_ref_udid:: /* ::name:: */; };
 		::end::
 		1EF0A83A121ADB8E003F2F59 /* Main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1EF0A839121ADB8E003F2F59 /* Main.mm */; };
 		1EF0A83B121ADB8E003F2F59 /* haxe in Sources */ = {isa = PBXBuildFile; fileRef = 1E2E17A5141E8B5D0048F3C7 /* haxe */; };
@@ -79,14 +73,8 @@
         1EF0A83900000001C0000014 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Icon-76.png"; sourceTree = SOURCE_ROOT; };
         1EF0A83900000001C0000015 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Icon-76@2x.png"; sourceTree = SOURCE_ROOT; };
 		::end::
-		::if (HAS_LAUNCH_IMAGE)::
-        1EF0A83900000001C0000005 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Default.png"; sourceTree = SOURCE_ROOT; };
-        1EF0A83900000001C0000006 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Default@2x.png"; sourceTree = SOURCE_ROOT; };
-        1EF0A83900000001C0000007 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Default-Portrait.png"; sourceTree = SOURCE_ROOT; };
-        1EF0A83900000001C0000008 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Default-Portrait@2x.png"; sourceTree = SOURCE_ROOT; };
-        1EF0A83900000001C0000009 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Default-Landscape.png"; sourceTree = SOURCE_ROOT; };
-        1EF0A83900000001C0000010 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Default-Landscape@2x.png"; sourceTree = SOURCE_ROOT; };
-        1EF0A83900000001C0000011 = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/Default-568h@2x.png"; sourceTree = SOURCE_ROOT; };
+		::foreach LAUNCH_IMAGES::
+		::file_ref_udid:: = {isa = PBXFileReference; lastKnownFileType = image.png; path = "::APP_FILE::/::name::"; sourceTree = SOURCE_ROOT; };
 		::end::
         1EF0A839121ADB8E003F2F59 /* Main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Main.mm; path = "::APP_FILE::/Classes/Main.mm"; sourceTree = SOURCE_ROOT; };
 		1E2E17A5141E8B5D0048F3C7 /* haxe */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "::APP_FILE::/haxe/build"; sourceTree = SOURCE_ROOT; };
@@ -192,14 +180,8 @@
                 1EF0A83900000001C0000014 /* Icon-76.png */,
                 1EF0A83900000001C0000015 /* Icon-76@2x.png */,
 				::end::
-				::if (HAS_LAUNCH_IMAGE)::
-                1EF0A83900000001C0000005 /* Default.png */,
-                1EF0A83900000001C0000006 /* Default@2x.png */,
-                1EF0A83900000001C0000007 /* Default-Portrait.png */,
-                1EF0A83900000001C0000008 /* Default-Portrait@2x.png */,
-                1EF0A83900000001C0000009 /* Default-Landscape.png */,
-                1EF0A83900000001C0000010 /* Default-Landscape@2x.png */,
-                1EF0A83900000001C0000011 /* Default-568h@2x.png */,
+				::foreach LAUNCH_IMAGES::
+				::file_ref_udid:: /* ::name:: */,
 				::end::
 			);
 			name = Resources;
@@ -277,14 +259,8 @@
                 1EF0A83A000000001C000014 /* Icon-76.png */,
                 1EF0A83A000000001C000015 /* Icon-76@2x.png */,
 				::end::
-				::if (HAS_LAUNCH_IMAGE)::
-                1EF0A83A000000001C000005 /* Default.png */,
-                1EF0A83A000000001C000006 /* Default@2x.png */,
-                1EF0A83A000000001C000007 /* Default-Portrait.png */,
-                1EF0A83A000000001C000008 /* Default-Portrait@2x.png */,
-                1EF0A83A000000001C000009 /* Default-Landscape.png */,
-                1EF0A83A000000001C000010 /* Default-Landscape@2x.png */,
-                1EF0A83A000000001C000011 /* Default-568h@2x.png */,
+				::foreach LAUNCH_IMAGES::
+				::build_file_udid:: /* ::name:: */,
 				::end::
 			);
 			runOnlyForDeploymentPostprocessing = 0;

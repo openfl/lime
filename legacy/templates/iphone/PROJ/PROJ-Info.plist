@@ -26,14 +26,8 @@
 				<string>Icon-76.png</string>
 				<string>Icon-76@2x.png</string>
 				::end::
-				::if (HAS_LAUNCH_IMAGE)::
-				<string>Default.png</string>
-				<string>Default@2x.png</string>
-				<string>Default-568h@2x.png</string>
-				<string>Default-Portrait.png</string>
-				<string>Default-Portrait@2x.png</string>
-				<string>Default-Landscape.png</string>
-				<string>Default-Landscape@2x.png</string>
+				::foreach LAUNCH_IMAGES::
+				<string>::name::</string>
 				::end::
 			</array>
 			<key>UIPrerenderedIcon</key>
