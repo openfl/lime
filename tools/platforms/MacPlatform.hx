@@ -7,6 +7,7 @@ import helpers.AssetHelper;
 import helpers.CPPHelper;
 import helpers.FileHelper;
 import helpers.IconHelper;
+import helpers.JavaHelper;
 import helpers.NekoHelper;
 import helpers.NodeJSHelper;
 import helpers.PathHelper;
@@ -14,6 +15,7 @@ import helpers.PlatformHelper;
 import helpers.ProcessHelper;
 import project.AssetType;
 import project.Architecture;
+import project.Haxelib;
 import project.HXProject;
 import project.Platform;
 import project.PlatformTarget;
@@ -110,10 +112,13 @@ class MacPlatform extends PlatformTarget {
 			
 		} else if (targetType == "java") {
 			
-			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+			var libPath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "templates/java/lib/");
+			
+			ProcessHelper.runCommand ("", "haxe", [ hxml, "-java-lib", libPath + "disruptor.jar", "-java-lib", libPath + "lwjgl.jar" ]);
 			ProcessHelper.runCommand (targetDirectory + "/obj", "haxelib", [ "run", "hxjava", "hxjava_build.txt", "--haxe-version", "3103" ]);
+			FileHelper.recursiveCopy (targetDirectory + "/obj/lib", PathHelper.combine (executableDirectory, "lib"));
 			FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".jar", PathHelper.combine (executableDirectory, project.app.file + ".jar"));
-			NekoHelper.copyLibraries (project.templatePaths, "Mac" + (is64 ? "64" : ""), executableDirectory);
+			JavaHelper.copyLibraries (project.templatePaths, "Mac" + (is64 ? "64" : ""), executableDirectory);
 			
 		} else if (targetType == "nodejs") {
 			

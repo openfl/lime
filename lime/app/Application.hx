@@ -10,6 +10,9 @@ import lime.ui.*;
 import js.Browser;
 #elseif flash
 import flash.Lib;
+#elseif java
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.system.glfw.GLFW;
 #end
 
 
@@ -87,6 +90,8 @@ class Application extends Module {
 		
 		#if (cpp || neko || nodejs)
 		__handle = lime_application_create (null);
+		#elseif java
+		GLFW.glfwInit ();
 		#end
 		
 		KeyEventManager.create ();
@@ -219,6 +224,21 @@ class Application extends Module {
 		#elseif flash
 		
 		Lib.current.stage.addEventListener (flash.events.Event.ENTER_FRAME, __triggerFrame);
+		
+		#elseif java
+		
+		if (window != null) {
+			
+			while (GLFW.glfwWindowShouldClose (window.handle) == GL11.GL_FALSE) {
+				
+				__triggerFrame ();
+				
+				GLFW.glfwSwapBuffers (window.handle);
+				GLFW.glfwPollEvents ();
+				
+			}
+			
+		}
 		
 		#end
 		

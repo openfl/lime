@@ -12,6 +12,9 @@ import lime.ui.Window;
 import js.html.webgl.RenderingContext;
 #elseif flash
 import flash.Lib;
+#elseif java
+import org.lwjgl.opengl.GLContext;
+import org.lwjgl.system.glfw.GLFW;
 #end
 
 
@@ -49,6 +52,11 @@ class Renderer {
 		#if (cpp || neko || nodejs)
 		
 		handle = lime_renderer_create (window.handle);
+		
+		#elseif java
+		
+		GLFW.glfwMakeContextCurrent (window.handle);
+		GLContext.createFromCurrent ();
 		
 		#end
 		
@@ -132,7 +140,7 @@ class Renderer {
 			
 		}
 		
-		#elseif (cpp || neko || nodejs)
+		#elseif (cpp || neko || nodejs || java)
 		
 		context = OPENGL (new GLRenderContext ());
 		
