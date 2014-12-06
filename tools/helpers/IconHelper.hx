@@ -13,6 +13,7 @@ import haxe.io.Path;
 import helpers.FileHelper;
 import helpers.ImageHelper;
 import helpers.LogHelper;
+import helpers.PathHelper;
 import lime.graphics.Image;
 import lime.math.Rectangle;
 import lime.utils.ByteArray;
@@ -30,6 +31,7 @@ class IconHelper {
 		
 		if (icon != null && icon.size > 0 && Path.extension (icon.path) == "png") {
 			
+			PathHelper.mkdir (Path.directory (targetPath));
 			FileHelper.copyFile (icon.path, targetPath);
 			return true;
 			
@@ -39,6 +41,7 @@ class IconHelper {
 			
 			if (image != null) {
 				
+				PathHelper.mkdir (Path.directory (targetPath));
 				File.saveBytes (targetPath, image.encode ("png"));
 				return true;
 				
