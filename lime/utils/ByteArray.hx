@@ -698,12 +698,14 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	
 	private inline function write_uncheck (byte:Int) {
 		
+		#if !js
 		#if cpp
 		untyped b.__unsafe_set (position++, byte);
 		#elseif neko
 		untyped __dollar__sset (b, position++, byte & 0xff);
 		#else
 		b[position++] = byte & 0xff;
+		#end
 		#end
 		
 	}

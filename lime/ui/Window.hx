@@ -20,7 +20,6 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.glfw.GLFW;
 #end
 
-
 @:access(lime.app.Application)
 
 
@@ -219,6 +218,7 @@ class Window {
 		
 		#end
 		
+		KeyEventManager.registerWindow (this);
 		MouseEventManager.registerWindow (this);
 		TouchEventManager.registerWindow (this);
 		

@@ -10,8 +10,9 @@ import js.Browser;
 import flash.Lib;
 #end
 
-
 @:allow(lime.ui.Window)
+
+
 class MouseEventManager {
 	
 	

@@ -236,7 +236,7 @@ class ImageDataUtil {
 			
 			for (i in 0...length) {
 				
-				#if html5
+				#if js
 				data[i] = r;
 				data[i + 1] = g;
 				data[i + 2] = b;
@@ -263,7 +263,7 @@ class ImageDataUtil {
 					
 					offset = (row * stride) + (column * 4);
 					
-					#if html5
+					#if js
 					data[offset] = r;
 					data[offset + 1] = g;
 					data[offset + 2] = b;

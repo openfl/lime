@@ -22,6 +22,8 @@ class System {
 	
 	#if neko
 	private static var __loadedNekoAPI:Bool;
+	#elseif nodejs
+	private static var __nodeNDLLModule:Dynamic;
 	#end
 	
 	
@@ -165,7 +167,7 @@ class System {
 			#elseif neko
 			return neko.Lib.load (__moduleNames.get (library), method, args);
 			#elseif nodejs
-			return js.Lib.load (__moduleNames.get (library), method, args);
+			return untyped __nodeNDLLModule.load_lib (__moduleNames.get (library), method, args);
 			#else
 			return null;
 			#end
@@ -176,6 +178,12 @@ class System {
 		if (library == "lime") {
 			
 			flash.Lib.load ("waxe", "wx_boot", 1);
+			
+		}
+		#elseif nodejs
+		if (__nodeNDLLModule == null) {
+			
+			__nodeNDLLModule = untyped require('bindings')('node_ndll');
 			
 		}
 		#end
@@ -268,7 +276,7 @@ class System {
 			#elseif (neko)
 			var result = neko.Lib.load (name, func, args);
 			#elseif nodejs
-			var result = js.Lib.load (name, func, args);
+			var result = untyped __nodeNDLLModule.load_lib (name, func, args);
 			#else
 			var result = null;
 			#end

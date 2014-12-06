@@ -298,7 +298,7 @@ class Image {
 				
 				return lime_image_encode (buffer, 0, quality);
 				
-				#else
+				#elseif !js
 				
 				try {
 					

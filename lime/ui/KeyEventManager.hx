@@ -8,7 +8,11 @@ import lime.system.System;
 import js.Browser;
 #elseif flash
 import flash.Lib;
+#elseif java
+import org.lwjgl.system.glfw.GLFW;
 #end
+
+@:allow(lime.ui.Window)
 
 
 class KeyEventManager {
@@ -145,7 +149,7 @@ class KeyEventManager {
 	}
 	
 	
-	private static function handleEvent (#if (js && html5) event:js.html.KeyboardEvent #elseif flash event:flash.events.KeyboardEvent #end):Void {
+	private static function handleEvent (#if (js && html5) event:js.html.KeyboardEvent #elseif flash event:flash.events.KeyboardEvent #elseif java _window, key, scancode, action, mods #end):Void {
 		
 		#if (js && html5)
 		
@@ -182,6 +186,11 @@ class KeyEventManager {
 		
 		eventInfo.type = (event.type == flash.events.KeyboardEvent.KEY_DOWN ? KEY_DOWN : KEY_UP);
 		
+		#elseif java
+		
+		eventInfo.keyCode = cast convertKeyCode (key);
+		eventInfo.type == (action == GLFW.GLFW_RELEASE ? KEY_UP : KEY_DOWN);
+		
 		#end
 		
 		switch (eventInfo.type) {
@@ -195,6 +204,23 @@ class KeyEventManager {
 				onKeyUp.dispatch (eventInfo.keyCode, eventInfo.modifier);
 			
 		}
+		
+	}
+	
+	
+	private static function registerWindow (_window:Window):Void {
+		
+		#if java
+		
+		/*GLFW.glfwSetKeyCallback (_window.handle, keyfun = new GLFW.GLFWkeyfun() {
+            @Override
+            public void invoke(long window, int key, int scancode, int action, int mods) {
+                if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
+                    glfwSetWindowShouldClose(window, GL_TRUE); // We will detect this in our rendering loop
+            }
+        }));*/
+		
+		#end
 		
 	}
 	
