@@ -144,7 +144,7 @@ class HXProject {
 				
 				if (target == Platform.IOS) {
 					
-					architectures = [ Architecture.ARMV7 ];
+					architectures = [ Architecture.ARMV7, Architecture.ARM64 ];
 					
 				} else if (target == Platform.ANDROID) {
 					
