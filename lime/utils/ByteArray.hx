@@ -730,7 +730,7 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 		#if neko
 		untyped __dollar__sset (b, position++, value & 0xff);
 		#else
-		b[position++] = value & 0xFF;
+		b[position++] = untyped value & 0xFF;
 		#end
 		#end
 		
