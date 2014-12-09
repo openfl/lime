@@ -26,6 +26,7 @@
 	<set name="NATIVE_TOOLKIT_PATH" value="lib" unless="NATIVE_TOOLKIT_PATH" />
 	
 	<set name="NATIVE_TOOLKIT_CURL_SSL" value="1" />
+	<set name="NATIVE_TOOLKIT_SDL_STATIC" value="1" />
 	
 	<files id="lime">
 		
@@ -90,7 +91,7 @@
 			
 		</section>
 		
-		<section if="LIME_OPENAL">
+		<section if="LIME_OPENAL || android">
 			
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/include/" />
 			<compilerflag value="-DLIME_OPENAL" />
@@ -223,6 +224,7 @@
 				<vflag name="-framework" value="IOKit" />
 				<vflag name="-framework" value="Foundation" />
 				<vflag name="-framework" value="CoreAudio" />
+				<vflag name="-framework" value="CoreVideo" />
 				<vflag name="-framework" value="Cocoa" />
 				<vflag name="-framework" value="OpenGL" />
 				<vflag name="-framework" value="AudioToolbox" />
@@ -239,7 +241,9 @@
 		
 			<section if="android">
 				
-				<lib name="-Wl,--undefined=Java_org_libsdl_app_SDLActivity_nativeInit" if="LIME_SDL"/>
+				<lib name="-L../ndll/Android" />
+				<lib name="-lopenal" />
+				<!-- <lib name="-Wl,--undefined=Java_org_libsdl_app_SDLActivity_nativeInit" if="LIME_SDL"/> -->
 				<lib name="-ldl" />
 				<lib name="-llog" />
 				<lib name="-landroid" />

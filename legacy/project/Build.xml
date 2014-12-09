@@ -377,6 +377,7 @@
 				<vflag name="-framework" value="IOKit" />
 				<vflag name="-framework" value="Foundation" />
 				<vflag name="-framework" value="CoreAudio" />
+				<vflag name="-framework" value="CoreVideo" />
 				<vflag name="-framework" value="Carbon" />
 				<vflag name="-framework" value="AudioToolbox" />
 				<vflag name="-framework" value="AudioUnit" />
@@ -388,7 +389,6 @@
 				<vflag name="-framework" value="OpenAL"/>
 				<vflag name="-framework" value="AVFoundation" if="LEGACY_CAMERA" />
 				<vflag name="-framework" value="CoreMedia" if="LEGACY_CAMERA" />
-				<vflag name="-framework" value="CoreVideo" if="LEGACY_CAMERA" />
 				<lib name="-liconv" />
 				
 			</section>
