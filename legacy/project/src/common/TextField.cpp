@@ -1800,7 +1800,7 @@ void TextField::Layout(const Matrix &inMatrix)
                mLines.push_back(line);
                line.Clear();
                g.UpdateMetrics(line.mMetrics);
-               y += g.Height() + g.mFormat->leading - 2;
+               y += g.Height() + g.mFormat->leading + 1;
                continue;
             }
          }
@@ -1835,7 +1835,7 @@ void TextField::Layout(const Matrix &inMatrix)
                line.mMetrics.width = Round6(last_word_x6);
             }
             mLines.push_back(line);
-            y += g.Height() + g.mFormat->leading - 2;
+            y += g.Height() + g.mFormat->leading + 1;
             x6 = gap<<6;
             line.Clear();
             g.UpdateMetrics(line.mMetrics);
