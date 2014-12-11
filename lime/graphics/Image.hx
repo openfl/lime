@@ -971,7 +971,7 @@ class Image {
 	private static function __isJPG (bytes:ByteArray) {
 		
 		bytes.position = 0;
-		return bytes.readByte () == 0xFF && bytes.readByte () == 0xD8;
+		return bytes.readUnsignedByte () == 0xFF && bytes.readUnsignedByte () == 0xD8;
 		
 	}
 	
@@ -979,7 +979,7 @@ class Image {
 	private static function __isPNG (bytes:ByteArray) {
 		
 		bytes.position = 0;
-		return (bytes.readByte () == 0x89 && bytes.readByte () == 0x50 && bytes.readByte () == 0x4E && bytes.readByte () == 0x47 && bytes.readByte () == 0x0D && bytes.readByte () == 0x0A && bytes.readByte () == 0x1A && bytes.readByte () == 0x0A);
+		return (bytes.readUnsignedByte () == 0x89 && bytes.readUnsignedByte () == 0x50 && bytes.readUnsignedByte () == 0x4E && bytes.readUnsignedByte () == 0x47 && bytes.readUnsignedByte () == 0x0D && bytes.readUnsignedByte () == 0x0A && bytes.readUnsignedByte () == 0x1A && bytes.readUnsignedByte () == 0x0A);
 		
 	}
 	
@@ -987,10 +987,10 @@ class Image {
 		
 		bytes.position = 0;
 		
-		if (bytes.readByte () == 0x47 && bytes.readByte () == 0x49 && bytes.readByte () == 0x46 && bytes.readByte () == 38) {
+		if (bytes.readUnsignedByte () == 0x47 && bytes.readUnsignedByte () == 0x49 && bytes.readUnsignedByte () == 0x46 && bytes.readUnsignedByte () == 0x38) {
 			
-			var b = bytes.readByte ();
-			return ((b == 7 || b == 9) && bytes.readByte () == 0x61);
+			var b = bytes.readUnsignedByte ();
+			return ((b == 0x37 || b == 0x39) && bytes.readUnsignedByte () == 0x61);
 			
 		}
 		
