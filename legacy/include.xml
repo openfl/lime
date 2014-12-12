@@ -3,7 +3,7 @@
 	
 	<section unless="display">
 
-		<haxelib name="hxcpp" if="cpp" />
+		<haxelib name="hxcpp" if="cpp" unless="rebuild" />
 		<ndll name="std" haxelib="hxcpp" if="cpp" />
 		<ndll name="regexp" haxelib="hxcpp" if="cpp" />
 		<ndll name="zlib" haxelib="hxcpp" if="cpp" unless="ios" />

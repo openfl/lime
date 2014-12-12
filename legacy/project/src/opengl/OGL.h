@@ -33,12 +33,14 @@
 
   #define GL_GLEXT_PROTOTYPES
   #include <SDL_opengl.h>
+  #include <SDL_opengl_glext.h>
   #define FORCE_NON_PO2
 
 #elif defined(HX_MACOS)
 
   #define GL_GLEXT_PROTOTYPES
   #include <SDL_opengl.h>
+  #include <SDL_opengl_glext.h>
   #define FORCE_NON_PO2
 
   #define glBindFramebuffer glBindFramebufferEXT
@@ -67,6 +69,7 @@
 typedef ptrdiff_t GLsizeiptrARB;
 #define NEED_EXTENSIONS
 #include <SDL_opengl.h>
+#include <SDL_opengl_glext.h>
 
 #endif
 
