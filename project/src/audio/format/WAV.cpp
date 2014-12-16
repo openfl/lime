@@ -83,7 +83,6 @@ namespace lime {
 			while (!foundFormat) {
 				
 				currentHead = lime::ftell (file);
-				
 				result = lime::fread (&wave_format, sizeof (WAVE_Format), 1, file);
 				
 				if (result != 1) {
@@ -115,6 +114,7 @@ namespace lime {
 			
 			while (!foundData) {
 				
+				currentHead = lime::ftell (file);
 				result = lime::fread (&wave_data, sizeof (WAVE_Data), 1, file);
 				
 				if (result != 1) {
@@ -126,7 +126,7 @@ namespace lime {
 				
 				if (wave_data.subChunkID[0] != 'd' || wave_data.subChunkID[1] != 'a' || wave_data.subChunkID[2] != 't' || wave_data.subChunkID[3] != 'a') {
 					
-					lime::fseek (file, currentHead + sizeof (WAVE_Data) + wave_format.subChunkSize, SEEK_SET);
+					lime::fseek (file, currentHead + sizeof (WAVE_Data) + wave_data.subChunkSize, SEEK_SET);
 					
 				} else {
 					

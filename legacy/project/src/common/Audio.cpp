@@ -501,6 +501,9 @@ namespace nme
 			bool foundData = false;
 			while (!foundData)
 			{
+				// Save the current position indicator of the stream
+				currentHead = ftell(f);
+				
 				//Read in the the last byte of data before the sound file
 				result = fread(&wave_data, sizeof(WAVE_Data), 1, f);
 				
@@ -518,7 +521,7 @@ namespace nme
 					//fseek(f, wave_data.subChunkSize, SEEK_CUR);
 					//fseek(f, wave_data.subChunkSize, SEEK_CUR);
 					// Goto next chunk.
-					fseek(f, currentHead + sizeof(WAVE_Data) + wave_format.subChunkSize, SEEK_SET);
+					fseek(f, currentHead + sizeof(WAVE_Data) + wave_data.subChunkSize, SEEK_SET);
 				}
 				else
 				{
