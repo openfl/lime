@@ -70,7 +70,7 @@ abstract CURL(Int) from Int to Int {
 	
 	@:op(A > B) private static inline function intGt (a:CURL, b:Int):Bool {
 		
-		return a > b;
+		return (a:Int) > b;
 		
 	}
 	
