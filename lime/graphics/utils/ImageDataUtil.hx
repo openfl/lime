@@ -234,15 +234,18 @@ class ImageDataUtil {
 			
 			var length = image.buffer.width * image.buffer.height;
 			
+			var j = 0;
 			for (i in 0...length) {
 				
+				j = i * 4;
+				
 				#if js
-				data[i] = r;
-				data[i + 1] = g;
-				data[i + 2] = b;
-				data[i + 3] = a;
+				data[j + 0] = r;
+				data[j + 1] = g;
+				data[j + 2] = b;
+				data[j + 3] = a;
 				#else
-				data.setUInt32 (i * 4, rgba);
+				data.setUInt32 (j, rgba);
 				#end
 				
 			}
