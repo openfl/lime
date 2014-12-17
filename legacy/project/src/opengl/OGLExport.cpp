@@ -1331,14 +1331,13 @@ DEFINE_PRIM(nme_gl_get_shader_source,1);
 
 
 
-value nme_gl_get_shader_precision_format(value inShader,value inPrec)
+value nme_gl_get_shader_precision_format(value inShaderType,value inPrec)
 {
    DBGFUNC("getShaderPrecisionFormat");
    #ifdef NME_GLES
    int range[2];
    int precision;
-   int id = getResource(inShader,resoShader);
-   glGetShaderPrecisionFormat(id, val_int(inPrec), range, &precision);
+   glGetShaderPrecisionFormat(val_int(inShaderType), val_int(inPrec), range, &precision);
 
    value result = alloc_empty_object( );
    alloc_field(result,val_id("rangeMin"),alloc_int(range[0]));
