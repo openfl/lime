@@ -293,7 +293,8 @@ class IOSPlatform extends PlatformTarget {
 		var armv7 = (command == "rebuild" || (project.architectures.indexOf (Architecture.ARMV7) > -1 && !project.targetFlags.exists ("simulator")));
 		var armv7s = (project.architectures.indexOf (Architecture.ARMV7S) > -1 && !project.targetFlags.exists ("simulator"));
 		var arm64 = (command == "rebuild" || (project.architectures.indexOf (Architecture.ARM64) > -1 && !project.targetFlags.exists ("simulator")));
-		var simulator = (command == "rebuild" || project.targetFlags.exists ("simulator"));
+		var i386 = (command == "rebuild" || project.targetFlags.exists ("simulator"));
+		var x86_64 = (command == "rebuild" || project.targetFlags.exists ("simulator"));
 		
 		var commands = [];
 		
@@ -301,7 +302,8 @@ class IOSPlatform extends PlatformTarget {
 		if (armv7) commands.push ([ "-Diphoneos", "-DHXCPP_CPP11", "-DHXCPP_ARMV7" ]);
 		if (armv7s) commands.push ([ "-Diphoneos", "-DHXCPP_CPP11", "-DHXCPP_ARMV7S" ]);
 		if (arm64) commands.push ([ "-Diphoneos", "-DHXCPP_CPP11", "-DHXCPP_ARM64" ]);
-		if (simulator) commands.push ([ "-Diphonesim", "-DHXCPP_CPP11" ]);
+		if (i386) commands.push ([ "-Diphonesim", "-DHXCPP_CPP11" ]);
+		if (x86_64) commands.push ([ "-Diphonesim", "-DHXCPP_M64", "-DHXCPP_CPP11" ]);
 		
 		CPPHelper.rebuild (project, commands);
 		
@@ -374,12 +376,18 @@ class IOSPlatform extends PlatformTarget {
 			
 			if (!match) {
 				
-				LogHelper.info ("", " - \x1b[1mGenerating image:\x1b[0m " + PathHelper.combine (projectDirectory, splashScreenNames[i]));
+				var splashScreenPath = PathHelper.combine (projectDirectory, splashScreenNames[i]);
 				
-				var image = new Image (null, 0, 0, width, height, (0xFF << 24) | (project.window.background & 0xFFFFFF));
-				var bytes = image.encode ("png");
-				
-				File.saveBytes (PathHelper.combine (projectDirectory, splashScreenNames[i]), bytes);
+				if (!FileSystem.exists (splashScreenPath)) {
+					
+					LogHelper.info ("", " - \x1b[1mGenerating image:\x1b[0m " + PathHelper.combine (projectDirectory, splashScreenNames[i]));
+					
+					var image = new Image (null, 0, 0, width, height, (0xFF << 24) | (project.window.background & 0xFFFFFF));
+					var bytes = image.encode ("png");
+					
+					File.saveBytes (splashScreenPath, bytes);
+					
+				}
 				
 			}
 			
@@ -399,9 +407,9 @@ class IOSPlatform extends PlatformTarget {
 		
 		PathHelper.mkdir (projectDirectory + "/lib");
 		
-		for (archID in 0...5) {
+		for (archID in 0...6) {
 			
-			var arch = [ "armv6", "armv7", "armv7s", "arm64", "i386" ][archID];
+			var arch = [ "armv6", "armv7", "armv7s", "arm64", "i386", "x86_64" ][archID];
 			
 			if (arch == "armv6" && !context.ARMV6)
 				continue;
@@ -415,7 +423,7 @@ class IOSPlatform extends PlatformTarget {
 			if (arch == "arm64" && !context.ARM64)
 				continue;
 			
-			var libExt = [ ".iphoneos.a", ".iphoneos-v7.a", ".iphoneos-v7s.a", ".iphoneos-64.a", ".iphonesim.a" ][archID];
+			var libExt = [ ".iphoneos.a", ".iphoneos-v7.a", ".iphoneos-v7s.a", ".iphoneos-64.a", ".iphonesim.a", ".iphonesim-64.a" ][archID];
 			
 			PathHelper.mkdir (projectDirectory + "/lib/" + arch);
 			PathHelper.mkdir (projectDirectory + "/lib/" + arch + "-debug");
