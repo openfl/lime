@@ -924,31 +924,35 @@ class CommandLineTools {
 			var versionFile = PathHelper.combine (project.app.path, ".build");
 			var version = 1;
 			
-			PathHelper.mkdir (project.app.path);
-			
-			if (FileSystem.exists (versionFile)) {
+			try {
 				
-				var previousVersion = Std.parseInt (File.getBytes (versionFile).toString ());
-				
-				if (previousVersion != null) {
+				if (FileSystem.exists (versionFile)) {
 					
-					version = previousVersion;
+					var previousVersion = Std.parseInt (File.getBytes (versionFile).toString ());
 					
-					if (increment) {
+					if (previousVersion != null) {
 						
-						version ++;
+						version = previousVersion;
+						
+						if (increment) {
+							
+							version ++;
+							
+						}
 						
 					}
 					
 				}
 				
-			}
+			} catch (e:Dynamic) {}
 			
 			project.meta.buildNumber = Std.string (version);
 			
 			if (increment) {
 				
 				try {
+					
+					PathHelper.mkdir (project.app.path);
 					
 					var output = File.write (versionFile, false);
 					output.writeString (Std.string (version));
