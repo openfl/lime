@@ -411,8 +411,9 @@
 			
 			<section if="android">
 				
-				<lib name="-L../ndll/Android" if="LEGACY_OPENAL" />
-				<lib name="-lopenal" if="LEGACY_OPENAL" />
+				<lib name="-L../legacy/ndll/Android" if="LEGACY_OPENAL" />
+				<lib name="-lopenal" if="LEGACY_OPENAL" unless="HXCPP_X86"/>
+				<lib name="-lopenal-x86" if="LEGACY_OPENAL HXCPP_X86" />
 				<lib name="-ldl" />
 				<lib name="-landroid" />
 				<lib name="-lGLESv2" />
