@@ -1,3 +1,25 @@
+2.0.2
+=====
+
+* Added ARMV7S, ARM64 and X86_64 support for iOS
+* Added unofficial Java support
+* Added xxhdpi and xxxhdpi icons for Android
+* Added initial support for Android (without legacy)
+* Upgraded to a newer SDL2 release for desktop
+* Improved the behavior of Image.setPixels
+* Improved Image.fromBytes for HTML5
+* Improved Image.fillRect for HTML5
+* Fixed issue causing "bin" directories to appear on rebuild
+* Fixed issues with Android ADB
+* Fixed an issue with HTML5 copyPixels
+* Fixed an infinite loop when loading WAV audio
+* Fixed an infinite loop when loading WAV audio (legacy)
+* Fixed GL.getShaderPrecisionFormat (legacy)
+* Removed unnecessary iOS libraries (legacy)
+* Fixed Android x86 builds (legacy)
+* Fixed TextField leading (legacy)
+
+
 2.0.1
 =====
 
