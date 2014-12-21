@@ -5,7 +5,6 @@ package org.haxe.lime;
 public class Lime {
 
      static {
-         System.loadLibrary("openal");
          System.loadLibrary("lime");
      }
 

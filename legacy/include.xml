@@ -8,8 +8,6 @@
 		<ndll name="regexp" haxelib="hxcpp" if="cpp" />
 		<ndll name="zlib" haxelib="hxcpp" if="cpp" unless="ios" />
 		
-		<ndll name="openal" dir="legacy/ndll" register="false" if="android" />
-		
 		<ndll name="lime" dir="legacy/ndll" />
 		
 		<ndll name="libfreetype" dir="legacy/ndll" register="false" if="emscripten" />
