@@ -599,26 +599,31 @@ class ImageDataUtil {
 	
 	public static function setPixels (image:Image, rect:Rectangle, byteArray:ByteArray):Void {
 		
-		var len = Math.round (4 * rect.width * rect.height);
+		var len = Math.round (rect.width * rect.height);
 		
 		// TODO: optimize when rect is the same as the buffer size
 		
 		var data = image.buffer.data;
-		var offset = Math.round (4 * image.buffer.width * (rect.y + image.offsetX) + (rect.x + image.offsetY) * 4);
-		var pos = offset;
-		var boundR = Math.round (4 * (rect.x + rect.width + image.offsetX));
+		var offset = Math.round (image.buffer.width * (rect.y + image.offsetX) + (rect.x + image.offsetY));
+		var pos = offset * 4;
+		var boundR = Math.round ((rect.x + rect.width + image.offsetX));
 		var width = image.buffer.width;
+		var color;
 		
 		for (i in 0...len) {
 			
-			if (((pos) % (width * 4)) > boundR - 1) {
+			if (((pos) % (width * 4)) >= boundR * 4) {
 				
-				pos += width * 4 - boundR;
+				pos += (width - boundR) * 4;
 				
 			}
 			
-			data[pos] = byteArray.readByte ();
-			pos++;
+			color = byteArray.readUnsignedInt ();
+			
+			data[pos++] = (color & 0xFF0000) >>> 16;
+			data[pos++] = (color & 0x0000FF00) >>> 8;
+			data[pos++] = (color & 0x000000FF);
+			data[pos++] = (color & 0xFF000000) >>> 24;
 			
 		}
 		
