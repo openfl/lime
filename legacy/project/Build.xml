@@ -6,7 +6,6 @@
 	<set name="debug" value="debug" if="fulldebug" />
 	
 	<include name="${HXCPP}/build-tool/BuildCommon.xml" />
-	<include name="lib/openal-android/files.xml" if="android" />
 
 	<set name="LEGACY_SDL1" value="1" if="rpi" />
 	<set name="LEGACY_SDL1" value="1" if="blackberry" />

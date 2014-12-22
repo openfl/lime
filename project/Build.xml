@@ -15,7 +15,7 @@
 	<set name="LIME_HARFBUZZ" value="1" />
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
 	<set name="LIME_OGG" value="1" />
-	<set name="LIME_OPENAL" value="1" unless="android || emscripten" />
+	<set name="LIME_OPENAL" value="1" unless="emscripten" />
 	<set name="LIME_OPENGL" value="1" />
 	<set name="LIME_PNG" value="1" />
 	<set name="LIME_SDL" value="1" />
@@ -91,9 +91,10 @@
 			
 		</section>
 		
-		<section if="LIME_OPENAL || android">
+		<section if="LIME_OPENAL">
 			
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/include/" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/include/" unless="android" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal-android/include/" if="android" />
 			<compilerflag value="-DLIME_OPENAL" />
 			<compilerflag value="-DAL_LIBTYPE_STATIC=1" />
 			
@@ -158,6 +159,7 @@
 	<include name="lib/neko/files.xml" />
 	<include name="lib/ogg/files.xml" />
 	<include name="lib/openal/files.xml" />
+	<include name="lib/openal-android/files.xml" if="android" />
 	<include name="lib/png/files.xml" />
 	<include name="lib/sdl/files.xml" />
 	<include name="lib/vorbis/files.xml" />
@@ -177,7 +179,8 @@
 		<files id="native-toolkit-harfbuzz" if="LIME_HARFBUZZ" />
 		<files id="native-toolkit-neko" if="LIME_NEKO" />
 		<files id="native-toolkit-ogg" if="LIME_OGG" />
-		<files id="native-toolkit-openal" if="LIME_OPENAL" unless="mac || iphone" />
+		<files id="native-toolkit-openal" if="LIME_OPENAL" unless="mac || iphone || android" />
+		<files id="native-toolkit-openal-android" if="LIME_OPENAL android" />
 		<files id="native-toolkit-png" if="LIME_PNG" />
 		<files id="native-toolkit-sdl" if="LIME_SDL" />
 		<files id="native-toolkit-vorbis" if="LIME_VORBIS" />
@@ -242,7 +245,6 @@
 			<section if="android">
 				
 				<lib name="-L../ndll/Android" />
-				<lib name="-lopenal" />
 				<!-- <lib name="-Wl,--undefined=Java_org_libsdl_app_SDLActivity_nativeInit" if="LIME_SDL"/> -->
 				<lib name="-ldl" />
 				<lib name="-llog" />
