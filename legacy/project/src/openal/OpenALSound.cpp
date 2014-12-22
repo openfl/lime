@@ -825,7 +825,7 @@ namespace nme
       alcSuspendContext(sgContext);
       
       #ifdef ANDROID
-      alcSuspend();
+      alcandroid_Suspend();
       #endif
    }
    
@@ -837,7 +837,7 @@ namespace nme
          return;
       
       #ifdef ANDROID
-      alcResume();
+      alcandroid_Resume();
       #endif
       
       alcMakeContextCurrent(sgContext);

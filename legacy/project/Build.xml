@@ -6,7 +6,8 @@
 	<set name="debug" value="debug" if="fulldebug" />
 	
 	<include name="${HXCPP}/build-tool/BuildCommon.xml" />
-	
+	<include name="lib/openal-android/files.xml" if="android" />
+
 	<set name="LEGACY_SDL1" value="1" if="rpi" />
 	<set name="LEGACY_SDL1" value="1" if="blackberry" />
 	<set name="LEGACY_SDL1" value="1" if="webos" />
@@ -270,6 +271,7 @@
 		<files id="native-toolkit-freetype" />
 		<files id="native-toolkit-ogg" if="LEGACY_OPENAL" />
 		<files id="native-toolkit-openal" if="LEGACY_OPENAL" unless="android || ios || blackberry || tizen" />
+		<files id="native-toolkit-openal-android" if="android" />
 		<files id="native-toolkit-png" />
 		<files id="native-toolkit-sdl" if="LEGACY_SDL2" />
 		<files id="native-toolkit-vorbis" if="LEGACY_OPENAL" />
@@ -412,8 +414,6 @@
 			<section if="android">
 				
 				<lib name="-L../legacy/ndll/Android" if="LEGACY_OPENAL" />
-				<lib name="-lopenal" if="LEGACY_OPENAL" unless="HXCPP_X86"/>
-				<lib name="-lopenal-x86" if="LEGACY_OPENAL HXCPP_X86" />
 				<lib name="-ldl" />
 				<lib name="-landroid" />
 				<lib name="-lGLESv2" />

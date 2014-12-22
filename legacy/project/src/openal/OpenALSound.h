@@ -21,8 +21,8 @@ typedef struct {
 AndroidOpenALFuncs androidOpenALFuncs;
 
 extern "C" {
-  ALC_API void       ALC_APIENTRY alcSuspend(void);
-  ALC_API void       ALC_APIENTRY alcResume(void);
+  ALC_API void       ALC_APIENTRY alcandroid_Suspend(void);
+  ALC_API void       ALC_APIENTRY alcandroid_Resume(void);
 }
 
 #include <ByteArray.h>
