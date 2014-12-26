@@ -29,12 +29,14 @@ class FlashPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
+		targetDirectory = project.app.path + "/flash";
+		
 	}
 	
 	
 	public override function build ():Void {
 		
-		var destination = project.app.path + "/flash/bin";
+		var destination = targetDirectory + "/bin";
 		
 		var type = "release";
 		
@@ -50,7 +52,7 @@ class FlashPlatform extends PlatformTarget {
 		
 		if (embedded) {
 			
-			var hxml = File.getContent (project.app.path + "/flash/haxe/" + type + ".hxml");
+			var hxml = File.getContent (targetDirectory + "/haxe/" + type + ".hxml");
 			var args = new Array<String> ();
 			
 			for (line in ~/[\r\n]+/g.split (hxml)) {
@@ -97,7 +99,7 @@ class FlashPlatform extends PlatformTarget {
 			
 		} else {
 			
-			var hxml = project.app.path + "/flash/haxe/" + type + ".hxml";
+			var hxml = targetDirectory + "/haxe/" + type + ".hxml";
 			ProcessHelper.runCommand ("", "haxe", [ hxml ] );
 			
 		}
@@ -125,7 +127,7 @@ class FlashPlatform extends PlatformTarget {
 	
 	public override function clean ():Void {
 		
-		var targetPath = project.app.path + "/flash";
+		var targetPath = targetDirectory + "";
 		
 		if (FileSystem.exists (targetPath)) {
 			
@@ -167,7 +169,7 @@ class FlashPlatform extends PlatformTarget {
 		
 		if (project.targetFlags.exists ("xml")) {
 			
-			project.haxeflags.push ("-xml " + project.app.path + "/flash/types.xml");
+			project.haxeflags.push ("-xml " + targetDirectory + "/types.xml");
 			
 		}
 		
@@ -204,7 +206,7 @@ class FlashPlatform extends PlatformTarget {
 			
 		} else {
 			
-			var destination = project.app.path + "/flash/bin";
+			var destination = targetDirectory + "/bin";
 			var targetPath = project.app.file + ".swf";
 			
 			if (project.targetFlags.exists ("web")) {
@@ -222,18 +224,18 @@ class FlashPlatform extends PlatformTarget {
 	
 	public override function update ():Void {
 		
-		var destination = project.app.path + "/flash/bin/";
+		var destination = targetDirectory + "/bin/";
 		PathHelper.mkdir (destination);
 		
 		embedded = FlashHelper.embedAssets (project);
 		
 		var context = generateContext ();
 		
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", project.app.path + "/flash/haxe", context);
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "flash/hxml", project.app.path + "/flash/haxe", context);
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "flash/haxe", project.app.path + "/flash/haxe", context, true, false);
+		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", targetDirectory + "/haxe", context);
+		FileHelper.recursiveCopyTemplate (project.templatePaths, "flash/hxml", targetDirectory + "/haxe", context);
+		FileHelper.recursiveCopyTemplate (project.templatePaths, "flash/haxe", targetDirectory + "/haxe", context, true, false);
 		
-		//SWFHelper.generateSWFClasses (project, project.app.path + "/flash/haxe");
+		//SWFHelper.generateSWFClasses (project, targetDirectory + "/haxe");
 		
 		var usesNME = false;
 		
@@ -247,7 +249,7 @@ class FlashPlatform extends PlatformTarget {
 			
 			if (haxelib.name == "openfl") {
 				
-				CompatibilityHelper.patchAssetLibrary (project, haxelib, project.app.path + "/flash/haxe/DefaultAssetLibrary.hx", context);
+				CompatibilityHelper.patchAssetLibrary (project, haxelib, targetDirectory + "/haxe/DefaultAssetLibrary.hx", context);
 				
 			}
 			

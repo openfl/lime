@@ -25,7 +25,6 @@ class WindowsPlatform extends PlatformTarget {
 	
 	private var applicationDirectory:String;
 	private var executablePath:String;
-	private var targetDirectory:String;
 	private var targetType:String;
 	
 	

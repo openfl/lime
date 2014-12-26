@@ -24,6 +24,8 @@ class WebOSPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
+		targetDirectory = project.app.path + "/webos";
+		
 	}
 	
 	
@@ -41,8 +43,8 @@ class WebOSPlatform extends PlatformTarget {
 			
 		}
 		
-		var hxml = project.app.path + "/webos/haxe/" + type + ".hxml";
-		var destination = project.app.path + "/webos/bin/";
+		var hxml = targetDirectory + "/haxe/" + type + ".hxml";
+		var destination = targetDirectory + "/bin/";
 		
 		for (ndll in project.ndlls) {
 			
@@ -51,18 +53,18 @@ class WebOSPlatform extends PlatformTarget {
 		}
 		
 		ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "webos", "-D", "HXCPP_LOAD_DEBUG", "-D", "HXCPP_RTLD_LAZY" ] );
-		CPPHelper.compile (project, project.app.path + "/webos/obj", [ "-Dwebos", "-DHXCPP_LOAD_DEBUG", "-DHXCPP_RTLD_LAZY" ]);
+		CPPHelper.compile (project, targetDirectory + "/obj", [ "-Dwebos", "-DHXCPP_LOAD_DEBUG", "-DHXCPP_RTLD_LAZY" ]);
 		
-		FileHelper.copyIfNewer (project.app.path + "/webos/obj/ApplicationMain" + (project.debug ? "-debug" : ""), project.app.path + "/webos/bin/" + project.app.file);
+		FileHelper.copyIfNewer (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : ""), targetDirectory + "/bin/" + project.app.file);
 		
-		WebOSHelper.createPackage (project, project.app.path + "/webos", "bin");
+		WebOSHelper.createPackage (project, targetDirectory + "", "bin");
 		
 	}
 	
 	
 	public override function clean ():Void {
 		
-		var targetPath = project.app.path + "/webos";
+		var targetPath = targetDirectory + "";
 		
 		if (FileSystem.exists (targetPath)) {
 			
@@ -90,7 +92,7 @@ class WebOSPlatform extends PlatformTarget {
 		var hxml = PathHelper.findTemplate (project.templatePaths, "webos/hxml/" + type + ".hxml");
 		
 		var context = project.templateContext;
-		context.CPP_DIR = project.app.path + "/webos/obj";
+		context.CPP_DIR = targetDirectory + "/obj";
 		
 		var template = new Template (File.getContent (hxml));
 		Sys.println (template.execute (context));
@@ -100,7 +102,7 @@ class WebOSPlatform extends PlatformTarget {
 	
 	public override function install ():Void {
 		
-		WebOSHelper.install (project, project.app.path + "/webos");
+		WebOSHelper.install (project, targetDirectory + "");
 		
 	}
 	
@@ -129,17 +131,17 @@ class WebOSPlatform extends PlatformTarget {
 	public override function update ():Void {
 		
 		project = project.clone ();
-		var destination = project.app.path + "/webos/bin/";
+		var destination = targetDirectory + "/bin/";
 		PathHelper.mkdir (destination);
 		
 		if (project.targetFlags.exists ("xml")) {
 			
-			project.haxeflags.push ("-xml " + project.app.path + "/webos/types.xml");
+			project.haxeflags.push ("-xml " + targetDirectory + "/types.xml");
 			
 		}
 		
 		var context = project.templateContext;
-		context.CPP_DIR = project.app.path + "/webos/obj";
+		context.CPP_DIR = targetDirectory + "/obj";
 		
 		if (IconHelper.createIcon (project.icons, 64, 64, PathHelper.combine (destination, "icon.png"))) {
 			
@@ -148,10 +150,10 @@ class WebOSPlatform extends PlatformTarget {
 		}
 		
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "webos/template", destination, context);
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", project.app.path + "/webos/haxe", context);
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "webos/hxml", project.app.path + "/webos/haxe", context);
+		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", targetDirectory + "/haxe", context);
+		FileHelper.recursiveCopyTemplate (project.templatePaths, "webos/hxml", targetDirectory + "/haxe", context);
 		
-		//SWFHelper.generateSWFClasses (project, project.app.path + "/webos/haxe");
+		//SWFHelper.generateSWFClasses (project, targetDirectory + "/haxe");
 		
 		for (asset in project.assets) {
 			

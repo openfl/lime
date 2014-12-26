@@ -27,12 +27,14 @@ class TizenPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
+		targetDirectory = project.app.path + "/tizen";
+		
 	}
 	
 	
 	public override function build ():Void {
 		
-		var destination = project.app.path + "/tizen/bin/";
+		var destination = targetDirectory + "/bin/";
 		
 		var arch = "";
 		
@@ -60,7 +62,7 @@ class TizenPlatform extends PlatformTarget {
 			
 		}
 		
-		var hxml = project.app.path + "/tizen/haxe/" + type + ".hxml";
+		var hxml = targetDirectory + "/haxe/" + type + ".hxml";
 		
 		ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "tizen" ] );
 		
@@ -72,20 +74,18 @@ class TizenPlatform extends PlatformTarget {
 			
 		}
 		
-		CPPHelper.compile (project, project.app.path + "/tizen/obj", args);
-		FileHelper.copyIfNewer (project.app.path + "/tizen/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", project.app.path + "/tizen/bin/CommandLineBuild/" + project.app.file + ".exe");
-		TizenHelper.createPackage (project, project.app.path + "/tizen/bin/CommandLineBuild", "");
+		CPPHelper.compile (project, targetDirectory + "/obj", args);
+		FileHelper.copyIfNewer (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", targetDirectory + "/bin/CommandLineBuild/" + project.app.file + ".exe");
+		TizenHelper.createPackage (project, targetDirectory + "/bin/CommandLineBuild", "");
 		
 	}
 	
 	
 	public override function clean ():Void {
 		
-		var targetPath = project.app.path + "/tizen";
-		
-		if (FileSystem.exists (targetPath)) {
+		if (FileSystem.exists (targetDirectory)) {
 			
-			PathHelper.removeDirectory (targetPath);
+			PathHelper.removeDirectory (targetDirectory);
 			
 		}
 		
@@ -109,7 +109,7 @@ class TizenPlatform extends PlatformTarget {
 		var hxml = PathHelper.findTemplate (project.templatePaths, "tizen/hxml/" + type + ".hxml");
 		
 		var context = project.templateContext;
-		context.CPP_DIR = project.app.path + "/tizen/obj";
+		context.CPP_DIR = targetDirectory + "/obj";
 		
 		var template = new Template (File.getContent (hxml));
 		Sys.println (template.execute (context));
@@ -134,7 +134,7 @@ class TizenPlatform extends PlatformTarget {
 	
 	public override function run ():Void {
 		
-		TizenHelper.install (project, project.app.path + "/tizen/bin/CommandLineBuild");
+		TizenHelper.install (project, targetDirectory + "/bin/CommandLineBuild");
 		TizenHelper.launch (project);
 		
 	}
@@ -150,7 +150,7 @@ class TizenPlatform extends PlatformTarget {
 	public override function update ():Void {
 		
 		project = project.clone ();
-		var destination = project.app.path + "/tizen/bin/";
+		var destination = targetDirectory + "/bin/";
 		PathHelper.mkdir (destination);
 		
 		for (asset in project.assets) {
@@ -161,12 +161,12 @@ class TizenPlatform extends PlatformTarget {
 		
 		if (project.targetFlags.exists ("xml")) {
 			
-			project.haxeflags.push ("-xml " + project.app.path + "/tizen/types.xml");
+			project.haxeflags.push ("-xml " + targetDirectory + "/types.xml");
 			
 		}
 		
 		var context = project.templateContext;
-		context.CPP_DIR = project.app.path + "/tizen/obj";
+		context.CPP_DIR = targetDirectory + "/obj";
 		context.APP_PACKAGE = TizenHelper.getUUID (project);
 		context.SIMULATOR = project.targetFlags.exists ("simulator");
 		
@@ -179,10 +179,8 @@ class TizenPlatform extends PlatformTarget {
 		}
 		
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "tizen/template", destination, context);
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", project.app.path + "/tizen/haxe", context);
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "tizen/hxml", project.app.path + "/tizen/haxe", context);
-		
-		//SWFHelper.generateSWFClasses (project, project.app.path + "/tizen/haxe");
+		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", targetDirectory + "/haxe", context);
+		FileHelper.recursiveCopyTemplate (project.templatePaths, "tizen/hxml", targetDirectory + "/haxe", context);
 		
 		for (asset in project.assets) {
 			

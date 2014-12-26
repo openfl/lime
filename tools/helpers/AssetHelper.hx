@@ -48,7 +48,7 @@ class AssetHelper {
 	}
 	
 	
-	public static function processLibraries (project:HXProject):Void {
+	public static function processLibraries (project:HXProject, targetDirectory:String = null):Void {
 		
 		var handlers = new Array <String> ();
 		
@@ -88,6 +88,12 @@ class AssetHelper {
 				if (LogHelper.verbose) {
 					
 					args.push ("-verbose");
+					
+				}
+				
+				if (targetDirectory != null) {
+					
+					args.push ("--targetDirectory=" + PathHelper.tryFullPath (targetDirectory));
 					
 				}
 				

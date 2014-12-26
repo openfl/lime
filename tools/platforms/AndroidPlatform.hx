@@ -50,12 +50,14 @@ class AndroidPlatform extends PlatformTarget {
 			
 		}
 		
+		targetDirectory = project.app.path + "/android";
+		
 	}
 	
 	
 	public override function build ():Void {
 		
-		var destination = project.app.path + "/android/bin";
+		var destination = targetDirectory + "/bin";
 		
 		var type = "release";
 		
@@ -69,7 +71,7 @@ class AndroidPlatform extends PlatformTarget {
 			
 		}
 		
-		var hxml = project.app.path + "/android/haxe/" + type + ".hxml";
+		var hxml = targetDirectory + "/haxe/" + type + ".hxml";
 		
 		var hasARMV5 = (ArrayHelper.containsValue (project.architectures, Architecture.ARMV5) || ArrayHelper.containsValue (project.architectures, Architecture.ARMV6));
 		var hasARMV7 = ArrayHelper.containsValue (project.architectures, Architecture.ARMV7);
@@ -85,7 +87,7 @@ class AndroidPlatform extends PlatformTarget {
 			
 			var haxeParams = [ hxml, "-D", "android", "-D", "android-9" ];
 			var cppParams = [ "-Dandroid", "-Dandroid-9" ];
-			var path = project.app.path + "/android/bin/libs/armeabi";
+			var path = targetDirectory + "/bin/libs/armeabi";
 			var suffix = ".so";
 			
 			if (architecture == Architecture.ARMV7) {
@@ -96,7 +98,7 @@ class AndroidPlatform extends PlatformTarget {
 				
 				if (hasARMV5) {
 					
-					path = project.app.path + "/android/bin/libs/armeabi-v7";
+					path = targetDirectory + "/bin/libs/armeabi-v7";
 					
 				}
 				
@@ -107,7 +109,7 @@ class AndroidPlatform extends PlatformTarget {
 				haxeParams.push ("-D");
 				haxeParams.push ("HXCPP_X86");
 				cppParams.push ("-DHXCPP_X86");
-				path = project.app.path + "/android/bin/libs/x86";
+				path = targetDirectory + "/bin/libs/x86";
 				suffix = "-x86.so";
 				
 			}
@@ -119,17 +121,17 @@ class AndroidPlatform extends PlatformTarget {
 			}
 			
 			ProcessHelper.runCommand ("", "haxe", haxeParams);
-			CPPHelper.compile (project, project.app.path + "/android/obj", cppParams);
+			CPPHelper.compile (project, targetDirectory + "/obj", cppParams);
 			
-			FileHelper.copyIfNewer (project.app.path + "/android/obj/libApplicationMain" + (project.debug ? "-debug" : "") + suffix, path + "/libApplicationMain.so");
+			FileHelper.copyIfNewer (targetDirectory + "/obj/libApplicationMain" + (project.debug ? "-debug" : "") + suffix, path + "/libApplicationMain.so");
 			
 		}
 		
 		if (!ArrayHelper.containsValue (project.architectures, Architecture.ARMV7) || !hasARMV5) {
 			
-			if (FileSystem.exists (project.app.path + "/android/bin/libs/armeabi-v7")) {
+			if (FileSystem.exists (targetDirectory + "/bin/libs/armeabi-v7")) {
 				
-				PathHelper.removeDirectory (project.app.path + "/android/bin/libs/armeabi-v7");
+				PathHelper.removeDirectory (targetDirectory + "/bin/libs/armeabi-v7");
 				
 			}
 			
@@ -137,9 +139,9 @@ class AndroidPlatform extends PlatformTarget {
 		
 		if (!hasX86) {
 			
-			if (FileSystem.exists (project.app.path + "/android/bin/libs/x86")) {
+			if (FileSystem.exists (targetDirectory + "/bin/libs/x86")) {
 				
-				PathHelper.removeDirectory (project.app.path + "/android/bin/libs/x86");
+				PathHelper.removeDirectory (targetDirectory + "/bin/libs/x86");
 				
 			}
 			
@@ -152,11 +154,9 @@ class AndroidPlatform extends PlatformTarget {
 	
 	public override function clean ():Void {
 		
-		var targetPath = project.app.path + "/android";
-		
-		if (FileSystem.exists (targetPath)) {
+		if (FileSystem.exists (targetDirectory)) {
 			
-			PathHelper.removeDirectory (targetPath);
+			PathHelper.removeDirectory (targetDirectory);
 			
 		}
 		
@@ -168,7 +168,7 @@ class AndroidPlatform extends PlatformTarget {
 		var hxml = PathHelper.findTemplate (project.templatePaths, "android/hxml/" + (project.debug ? "debug" : "release") + ".hxml");
 		
 		var context = project.templateContext;
-		context.CPP_DIR = project.app.path + "/android/obj";
+		context.CPP_DIR = targetDirectory + "/obj";
 		
 		var template = new Template (File.getContent (hxml));
 		Sys.println (template.execute (context));
@@ -186,7 +186,7 @@ class AndroidPlatform extends PlatformTarget {
 			
 		}
 		
-		deviceID = AndroidHelper.install (project, FileSystem.fullPath (project.app.path) + "/android/bin/bin/" + project.app.file + "-" + build + ".apk", deviceID);
+		deviceID = AndroidHelper.install (project, FileSystem.fullPath (targetDirectory) + "/bin/bin/" + project.app.file + "-" + build + ".apk", deviceID);
 		
 	}
 	
@@ -235,7 +235,7 @@ class AndroidPlatform extends PlatformTarget {
 		
 		//initialize (project);
 		
-		var destination = project.app.path + "/android/bin/";
+		var destination = targetDirectory + "/bin/";
 		PathHelper.mkdir (destination);
 		PathHelper.mkdir (destination + "/res/drawable-ldpi/");
 		PathHelper.mkdir (destination + "/res/drawable-mdpi/");
@@ -277,13 +277,13 @@ class AndroidPlatform extends PlatformTarget {
 		
 		if (project.targetFlags.exists ("xml")) {
 			
-			project.haxeflags.push ("-xml " + project.app.path + "/android/types.xml");
+			project.haxeflags.push ("-xml " + targetDirectory + "/types.xml");
 			
 		}
 		
 		var context = project.templateContext;
 		
-		context.CPP_DIR = project.app.path + "/android/obj";
+		context.CPP_DIR = targetDirectory + "/obj";
 		context.ANDROID_INSTALL_LOCATION = project.config.getString ("android.install-location", "preferExternal");
 		context.ANDROID_MINIMUM_SDK_VERSION = project.config.getInt ("android.minimum-sdk-version", 9);
 		context.ANDROID_TARGET_SDK_VERSION = project.config.getInt ("android.target-sdk-version", 16);
@@ -331,8 +331,6 @@ class AndroidPlatform extends PlatformTarget {
 		packageDirectory = destination + "/src/" + packageDirectory.split (".").join ("/");
 		PathHelper.mkdir (packageDirectory);
 		
-		//SWFHelper.generateSWFClasses (project, project.app.path + "/android/haxe");
-		
 		for (javaPath in project.javaPaths) {
 			
 			try {
@@ -371,8 +369,8 @@ class AndroidPlatform extends PlatformTarget {
 		
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "android/template", destination, context);
 		FileHelper.copyFileTemplate (project.templatePaths, "android/MainActivity.java", packageDirectory + "/MainActivity.java", context);
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", project.app.path + "/android/haxe", context);
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "android/hxml", project.app.path + "/android/haxe", context);
+		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", targetDirectory + "/haxe", context);
+		FileHelper.recursiveCopyTemplate (project.templatePaths, "android/hxml", targetDirectory + "/haxe", context);
 		
 		for (asset in project.assets) {
 			

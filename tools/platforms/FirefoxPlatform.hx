@@ -22,11 +22,9 @@ class FirefoxPlatform extends HTML5Platform {
 	
 	public override function clean ():Void {
 		
-		var targetPath = project.app.path + "/firefox";
-		
-		if (FileSystem.exists (targetPath)) {
+		if (FileSystem.exists (targetDirectory)) {
 			
-			PathHelper.removeDirectory (targetPath);
+			PathHelper.removeDirectory (targetDirectory);
 			
 		}
 		
@@ -35,8 +33,8 @@ class FirefoxPlatform extends HTML5Platform {
 	
 	private override function initialize (command:String, project:HXProject):Void {
 		
-		outputDirectory = project.app.path + "/firefox";
-		outputFile = outputDirectory + "/bin/" + project.app.file + ".js";
+		targetDirectory = project.app.path + "/firefox";
+		outputFile = targetDirectory + "/bin/" + project.app.file + ".js";
 		
 	}
 	
@@ -52,7 +50,7 @@ class FirefoxPlatform extends HTML5Platform {
 		
 		super.update ();
 		
-		var destination = outputDirectory + "/bin/";
+		var destination = targetDirectory + "/bin/";
 		var context = project.templateContext;
 		
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "firefoxos/hxml", destination, context, true, false);

@@ -19,7 +19,6 @@ import sys.FileSystem;
 class HTML5Platform extends PlatformTarget {
 	
 	
-	private var outputDirectory:String;
 	private var outputFile:String;
 	
 	
@@ -48,20 +47,20 @@ class HTML5Platform extends PlatformTarget {
 				
 			}
 			
-			var hxml = outputDirectory + "/haxe/" + type + ".hxml";
+			var hxml = targetDirectory + "/haxe/" + type + ".hxml";
 			ProcessHelper.runCommand ("", "haxe", [ hxml ] );
 			
 		}
 		
 		if (project.targetFlags.exists ("webgl")) {
 			
-			FileHelper.copyFile (outputDirectory + "/obj/ApplicationMain.js", outputFile);
+			FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain.js", outputFile);
 			
 		}
 		
 		if (project.targetFlags.exists ("minify")) {
 			
-			HTML5Helper.minify (project, outputDirectory + "/bin/" + project.app.file + ".js");
+			HTML5Helper.minify (project, targetDirectory + "/bin/" + project.app.file + ".js");
 			
 		}
 		
@@ -70,11 +69,9 @@ class HTML5Platform extends PlatformTarget {
 	
 	public override function clean ():Void {
 		
-		var targetPath = project.app.path + "/html5";
-		
-		if (FileSystem.exists (targetPath)) {
+		if (FileSystem.exists (targetDirectory)) {
 			
-			PathHelper.removeDirectory (targetPath);
+			PathHelper.removeDirectory (targetDirectory);
 			
 		}
 		
@@ -98,7 +95,7 @@ class HTML5Platform extends PlatformTarget {
 		var hxml = PathHelper.findTemplate (project.templatePaths, "html5/hxml/" + type + ".hxml");
 		
 		var context = project.templateContext;
-		context.OUTPUT_DIR = outputDirectory;
+		context.OUTPUT_DIR = targetDirectory;
 		context.OUTPUT_FILE = outputFile;
 		
 		var template = new Template (File.getContent (hxml));
@@ -109,15 +106,15 @@ class HTML5Platform extends PlatformTarget {
 	
 	private function initialize (command:String, project:HXProject):Void {
 	
-		outputDirectory = project.app.path + "/html5";
-		outputFile = outputDirectory + "/bin/" + project.app.file + ".js";
+		targetDirectory = project.app.path + "/html5";
+		outputFile = targetDirectory + "/bin/" + project.app.file + ".js";
 
 	}
 	
 	
 	public override function run ():Void {
 		
-		HTML5Helper.launch (project, project.app.path + "/html5/bin");
+		HTML5Helper.launch (project, targetDirectory + "/bin");
 		
 	}
 	
@@ -126,7 +123,7 @@ class HTML5Platform extends PlatformTarget {
 		
 		project = project.clone ();
 		
-		var destination = outputDirectory + "/bin/";
+		var destination = targetDirectory + "/bin/";
 		PathHelper.mkdir (destination);
 		
 		var useWebfonts = true;
@@ -162,19 +159,19 @@ class HTML5Platform extends PlatformTarget {
 		
 		if (project.targetFlags.exists ("xml")) {
 			
-			project.haxeflags.push ("-xml " + project.app.path + "/html5/types.xml");
+			project.haxeflags.push ("-xml " + targetDirectory + "/types.xml");
 			
 		}
 		
 		var context = project.templateContext;
 		
 		context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background, 6);
-		context.OUTPUT_DIR = outputDirectory;
+		context.OUTPUT_DIR = targetDirectory;
 		context.OUTPUT_FILE = outputFile;
 		
 		if (project.targetFlags.exists ("webgl")) {
 			
-			context.CPP_DIR = project.app.path + "/html5/obj";
+			context.CPP_DIR = targetDirectory + "/obj";
 			
 		}
 		
@@ -238,13 +235,13 @@ class HTML5Platform extends PlatformTarget {
 		
 		if (project.app.main != null) {
 			
-			FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", outputDirectory + "/haxe", context);
-			FileHelper.recursiveCopyTemplate (project.templatePaths, "html5/haxe", outputDirectory + "/haxe", context, true, false);
-			FileHelper.recursiveCopyTemplate (project.templatePaths, "html5/hxml", outputDirectory + "/haxe", context);
+			FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", targetDirectory + "/haxe", context);
+			FileHelper.recursiveCopyTemplate (project.templatePaths, "html5/haxe", targetDirectory + "/haxe", context, true, false);
+			FileHelper.recursiveCopyTemplate (project.templatePaths, "html5/hxml", targetDirectory + "/haxe", context);
 				
 			if (project.targetFlags.exists ("webgl")) {
 				
-				FileHelper.recursiveCopyTemplate (project.templatePaths, "webgl/hxml", outputDirectory + "/haxe", context, true, false);
+				FileHelper.recursiveCopyTemplate (project.templatePaths, "webgl/hxml", targetDirectory + "/haxe", context, true, false);
 				
 			}
 			

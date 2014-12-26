@@ -31,7 +31,6 @@ class MacPlatform extends PlatformTarget {
 	private var executableDirectory:String;
 	private var executablePath:String;
 	private var is64:Bool;
-	private var targetDirectory:String;
 	private var targetType:String;
 	
 	

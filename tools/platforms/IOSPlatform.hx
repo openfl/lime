@@ -36,14 +36,14 @@ class IOSPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
+		targetDirectory = PathHelper.combine (project.app.path, "ios");
+		
 	}
 	
 	
 	public override function build ():Void {
 		
-		var targetDirectory = PathHelper.combine (project.app.path, "ios");
-		
-		IOSHelper.build (project, project.app.path + "/ios");
+		IOSHelper.build (project, targetDirectory);
 		
 		if (!project.targetFlags.exists ("simulator")) {
 			
@@ -57,11 +57,9 @@ class IOSPlatform extends PlatformTarget {
 	
 	public override function clean ():Void {
 		
-		var targetPath = project.app.path + "/ios";
-		
-		if (FileSystem.exists (targetPath)) {
+		if (FileSystem.exists (targetDirectory)) {
 			
-			PathHelper.removeDirectory (targetPath);
+			PathHelper.removeDirectory (targetDirectory);
 			
 		}
 		
@@ -82,7 +80,7 @@ class IOSPlatform extends PlatformTarget {
 		project = project.clone ();
 		
 		project.sources.unshift ("");
-		project.sources = PathHelper.relocatePaths (project.sources, PathHelper.combine (project.app.path, "ios/" + project.app.file + "/haxe"));
+		project.sources = PathHelper.relocatePaths (project.sources, PathHelper.combine (targetDirectory, project.app.file + "/haxe"));
 		//project.dependencies.push ("stdc++");
 		
 		if (project.certificate == null || project.certificate.identity == null) {
@@ -94,7 +92,7 @@ class IOSPlatform extends PlatformTarget {
 		
 		if (project.targetFlags.exists ("xml")) {
 			
-			project.haxeflags.push ("-xml " + project.app.path + "/ios/types.xml");
+			project.haxeflags.push ("-xml " + targetDirectory + "/types.xml");
 			
 		}
 		
@@ -312,7 +310,7 @@ class IOSPlatform extends PlatformTarget {
 	
 	public override function run ():Void {
 		
-		IOSHelper.launch (project, PathHelper.combine (project.app.path, "ios"));
+		IOSHelper.launch (project, targetDirectory);
 		
 	}
 	
@@ -330,7 +328,6 @@ class IOSPlatform extends PlatformTarget {
 		
 		var context = generateContext ();
 		
-		var targetDirectory = PathHelper.combine (project.app.path, "ios");
 		var projectDirectory = targetDirectory + "/" + project.app.file + "/";
 		
 		PathHelper.mkdir (targetDirectory);

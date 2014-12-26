@@ -28,7 +28,6 @@ class LinuxPlatform extends PlatformTarget {
 	private var executablePath:String;
 	private var is64:Bool;
 	private var isRaspberryPi:Bool;
-	private var targetDirectory:String;
 	private var targetType:String;
 	
 	

@@ -12,6 +12,7 @@ class PlatformTarget {
 	public var additionalArguments:Array <String>;
 	public var command:String;
 	public var project:HXProject;
+	public var targetDirectory:String;
 	public var targetFlags:Map <String, String>;
 	public var traceEnabled = true;
 	
@@ -65,7 +66,7 @@ class PlatformTarget {
 		if (!Reflect.hasField (metaFields.update, "ignore") && (command == "update" || command == "build" || command == "test")) {
 			
 			LogHelper.info ("", "\n" + LogHelper.accentColor + "Running command: UPDATE" + LogHelper.resetColor);
-			AssetHelper.processLibraries (project);
+			AssetHelper.processLibraries (project, targetDirectory);
 			update ();
 			
 		}
