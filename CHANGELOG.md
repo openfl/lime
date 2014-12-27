@@ -1,3 +1,12 @@
+2.0.3
+=====
+
+* Improved linking of OpenAL for Android
+* Added support for cached `<library />` processing
+* Fixed exit code behavior when calling HXCPP
+* Fixed minor issues with "lime rebuild tools"
+
+
 2.0.2
 =====
 
