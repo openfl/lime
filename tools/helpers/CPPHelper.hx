@@ -111,7 +111,13 @@ class CPPHelper {
 				
 			}
 			
-			ProcessHelper.runCommand (path, "haxelib", args);
+			var code = ProcessHelper.runCommand (path, "haxelib", args);
+			
+			if (code != 0) {
+				
+				Sys.exit (code);
+				
+			}
 			
 		}
 		
