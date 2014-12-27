@@ -45,7 +45,7 @@ class RunScript {
 			
 			if (!FileSystem.exists (source)) {
 				
-				var args = [ "tools/tools.n", "rebuild", "lime", "-nocffi" ];
+				var args = [ "tools/tools.n", "rebuild", "lime", "-release", "-nocffi" ];
 				
 				if (LogHelper.verbose) {
 					
