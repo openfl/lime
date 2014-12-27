@@ -53,6 +53,12 @@ class RunScript {
 					
 				}
 				
+				if (!LogHelper.enableColor) {
+					
+					args.push ("-nocolor");
+					
+				}
+				
 				switch (platform) {
 					
 					case "Windows":
