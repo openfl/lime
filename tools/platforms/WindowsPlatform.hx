@@ -137,14 +137,14 @@ class WindowsPlatform extends PlatformTarget {
 				
 			}
 			
-			/*var iconPath = PathHelper.combine (applicationDirectory, "icon.ico");
+			var iconPath = PathHelper.combine (applicationDirectory, "icon.ico");
 			
 			if (IconHelper.createWindowsIcon (project.icons, iconPath)) {
 				
 				var templates = [ PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates" ].concat (project.templatePaths);
 				ProcessHelper.runCommand ("", PathHelper.findTemplate (templates, "bin/ReplaceVistaIcon.exe"), [ executablePath, iconPath ], true, true);
 				
-			}*/
+			}
 			
 		}
 		
