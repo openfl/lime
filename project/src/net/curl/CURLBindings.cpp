@@ -105,6 +105,12 @@ namespace lime {
 				// todo
 				break;
 			
+			case CURLINFO_NONE:
+			case CURLINFO_LASTONE:
+				
+				// ignore
+				break;
+			
 			
 		}
 		
@@ -468,7 +474,7 @@ namespace lime {
 			}
 			
 			case CURLOPT_HTTPHEADER:
-				
+			{
 				struct curl_slist *chunk = NULL;
 				int size = val_array_size (parameter);
 				
@@ -479,6 +485,11 @@ namespace lime {
 				}
 				
 				code = curl_easy_setopt (curl, type, chunk);
+				break;
+			}
+			
+			default:
+			
 				break;
 			
 		}
