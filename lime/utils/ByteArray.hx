@@ -557,7 +557,9 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 		return new String (untyped __dollar__ssub (b, p, len));
 		#elseif cpp
 		var result = "";
-		untyped __global__.__hxcpp_string_of_bytes (b, result, p, len);
+		if (b != null && len > 0) {
+			untyped __global__.__hxcpp_string_of_bytes (b, result, p, len);
+		}
 		return result;
 		#elseif java
 		return getString (p, len);
