@@ -307,7 +307,7 @@ namespace lime {
 		
 		SDL_Event event;
 		event.type = -1;
-			
+		
 		if (active && (firstTime || SDL_WaitEvent (&event))) {
 			
 			firstTime = false;

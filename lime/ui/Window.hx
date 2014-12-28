@@ -4,7 +4,7 @@ package lime.ui;
 import lime.app.Application;
 import lime.app.Config;
 import lime.app.Event;
-import lime.graphics.ImageBuffer;
+import lime.graphics.Image;
 import lime.graphics.Renderer;
 import lime.system.System;
 
@@ -449,10 +449,16 @@ class Window {
 	}
 	
 	
-	public function setIcon (buffer:ImageBuffer):Void {
+	public function setIcon (image:Image):Void {
+		
+		if (image == null) {
+			
+			return;
+			
+		}
 		
 		#if (cpp || neko || nodejs)
-		lime_window_set_icon (handle, buffer);
+		lime_window_set_icon (handle, image.buffer);
 		#end
 		
 	}
@@ -463,7 +469,7 @@ class Window {
 	private static var lime_window_event_manager_register = System.load ("lime", "lime_window_event_manager_register", 2);
 	private static var lime_window_move = System.load ("lime", "lime_window_move", 3);
 	private static var lime_window_resize = System.load ("lime", "lime_window_resize", 3);
-	private static var lime_window_set_icon = System.load ("lime", "lime_window_resize", 2);
+	private static var lime_window_set_icon = System.load ("lime", "lime_window_set_icon", 2);
 	#end
 	
 	
