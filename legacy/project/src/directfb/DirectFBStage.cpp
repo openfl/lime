@@ -370,7 +370,7 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
 }
 
 
-void SetIcon(const char *path)
+void SetIcon(const OSChar *path)
 {
    
 }

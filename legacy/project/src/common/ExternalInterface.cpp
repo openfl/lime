@@ -928,7 +928,7 @@ DEFINE_PRIM(nme_get_unique_device_identifier,0);
 value nme_set_icon( value path ) {
    //printf( "setting icon\n" );
    #if defined( HX_WINDOWS ) || defined( HX_MACOS )
-       SetIcon( val_string( path ) );
+       SetIcon( val_os_string( path ) );
    #endif   
    return alloc_null();
 }

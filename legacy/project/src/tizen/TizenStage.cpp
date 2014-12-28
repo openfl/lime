@@ -213,7 +213,7 @@ namespace nme {
 	}
 	
 	
-	void SetIcon (const char *path) {}
+	void SetIcon (const OSChar *path) {}
 	
 	
 }
