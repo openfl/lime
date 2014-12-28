@@ -4,6 +4,7 @@ package lime.ui;
 import lime.app.Application;
 import lime.app.Config;
 import lime.app.Event;
+import lime.graphics.ImageBuffer;
 import lime.graphics.Renderer;
 import lime.system.System;
 
