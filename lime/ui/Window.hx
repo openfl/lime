@@ -448,11 +448,21 @@ class Window {
 	}
 	
 	
+	public function setIcon (buffer:ImageBuffer):Void {
+		
+		#if (cpp || neko || nodejs)
+		lime_window_set_icon (handle, buffer);
+		#end
+		
+	}
+	
+	
 	#if (cpp || neko || nodejs)
 	private static var lime_window_create = System.load ("lime", "lime_window_create", 5);
 	private static var lime_window_event_manager_register = System.load ("lime", "lime_window_event_manager_register", 2);
 	private static var lime_window_move = System.load ("lime", "lime_window_move", 3);
 	private static var lime_window_resize = System.load ("lime", "lime_window_resize", 3);
+	private static var lime_window_set_icon = System.load ("lime", "lime_window_resize", 2);
 	#end
 	
 	

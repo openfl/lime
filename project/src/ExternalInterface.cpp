@@ -462,6 +462,16 @@ namespace lime {
 	}
 	
 	
+	value lime_window_set_icon (value window, value buffer) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		ImageBuffer imageBuffer = ImageBuffer (buffer);
+		targetWindow->SetIcon (&imageBuffer);
+		return alloc_null ();
+		
+	}
+	
+	
 	DEFINE_PRIM (lime_application_create, 1);
 	DEFINE_PRIM (lime_application_exec, 1);
 	DEFINE_PRIM (lime_application_init, 1);
@@ -494,6 +504,7 @@ namespace lime {
 	DEFINE_PRIM (lime_window_event_manager_register, 2);
 	DEFINE_PRIM (lime_window_move, 3);
 	DEFINE_PRIM (lime_window_resize, 3);
+	DEFINE_PRIM (lime_window_set_icon, 2);
 	
 	
 }
