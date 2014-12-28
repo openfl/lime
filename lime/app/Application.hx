@@ -13,6 +13,8 @@ import flash.Lib;
 #elseif java
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.glfw.GLFW;
+#elseif windows
+import sys.FileSystem;
 #end
 
 
@@ -132,6 +134,15 @@ class Application extends Module {
 		#end
 		
 		addWindow (window);
+		
+		#if windows
+		if (FileSystem.exists ("icon.png")) {
+			
+			var image = Image.fromFile ("icon.png");
+			window.setIcon (image);
+			
+		}
+		#end
 		
 	}
 	

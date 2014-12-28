@@ -12,6 +12,7 @@ import helpers.NodeJSHelper;
 import helpers.PathHelper;
 import helpers.PlatformHelper;
 import helpers.ProcessHelper;
+import project.Asset;
 import project.AssetType;
 import project.Haxelib;
 import project.HXProject;
@@ -92,6 +93,8 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 		
+		IconHelper.createIcon (project.icons, 32, 32, PathHelper.combine (applicationDirectory, "icon.png"));
+		
 		if (targetType == "neko") {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
@@ -134,14 +137,14 @@ class WindowsPlatform extends PlatformTarget {
 				
 			}
 			
-			var iconPath = PathHelper.combine (applicationDirectory, "icon.ico");
+			/*var iconPath = PathHelper.combine (applicationDirectory, "icon.ico");
 			
 			if (IconHelper.createWindowsIcon (project.icons, iconPath)) {
 				
 				var templates = [ PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates" ].concat (project.templatePaths);
 				ProcessHelper.runCommand ("", PathHelper.findTemplate (templates, "bin/ReplaceVistaIcon.exe"), [ executablePath, iconPath ], true, true);
 				
-			}
+			}*/
 			
 		}
 		
