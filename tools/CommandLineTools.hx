@@ -1032,7 +1032,7 @@ class CommandLineTools {
 			
 		}
 		
-		var json = Json.parse (File.getContent (PathHelper.getHaxelib (haxelib) + "/haxelib.json"));
+		var json = Json.parse (File.getContent (PathHelper.getHaxelib (haxelib, true) + "/haxelib.json"));
 		return json.version;
 		
 	}
