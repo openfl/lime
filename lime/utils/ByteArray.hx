@@ -554,7 +554,12 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 		position += len;
 		
 		#if neko
-		return new String (untyped __dollar__ssub (b, p, len));
+		if (b == null || len == 0) {
+			return new String("");
+		}
+		else {
+			return new String (untyped __dollar__ssub (b, p, len));
+		}
 		#elseif cpp
 		var result = "";
 		if (b != null && len > 0) {
