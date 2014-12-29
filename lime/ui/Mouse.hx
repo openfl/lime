@@ -21,6 +21,8 @@ class Mouse {
 		
 		if (!__hidden) {
 			
+			__hidden = true;
+			
 			#if (js && html5)
 			
 			for (window in Application.__instance.windows) {
@@ -35,8 +37,6 @@ class Mouse {
 			
 			#end
 			
-			__hidden = true;
-			
 		}
 		
 	}
@@ -45,6 +45,8 @@ class Mouse {
 	public static function show ():Void {
 		
 		if (__hidden) {
+			
+			__hidden = false;
 			
 			#if (js && html5)
 			
@@ -57,8 +59,6 @@ class Mouse {
 			lime_mouse_show ();
 			
 			#end
-			
-			__hidden = false;
 			
 		}
 		
@@ -92,9 +92,18 @@ class Mouse {
 					
 					window.element.style.cursor = switch (value) {
 						
+						case ARROW: "default";
+						case CROSSHAIR: "crosshair";
+						case MOVE: "move";
 						case POINTER: "pointer";
+						case RESIZE_NESW: "nesw-resize";
+						case RESIZE_NS: "ns-resize";
+						case RESIZE_NWSE: "nwse-resize";
+						case RESIZE_WE: "ew-resize";
 						case TEXT: "text";
-						default: "default";
+						case WAIT: "wait";
+						case WAIT_ARROW: "wait";
+						default: "auto";
 						
 					}
 					
@@ -102,11 +111,20 @@ class Mouse {
 				
 				#elseif (cpp || neko || nodejs)
 				
-				var type = switch (value) {
+				var type:MouseCursorType = switch (value) {
 					
-					case POINTER: MouseCursorType.POINTER;
-					case TEXT: MouseCursorType.TEXT;
-					default: MouseCursorType.DEFAULT;
+					case ARROW: ARROW;
+					case CROSSHAIR: CROSSHAIR;
+					case MOVE: MOVE;
+					case POINTER: POINTER;
+					case RESIZE_NESW: RESIZE_NESW;
+					case RESIZE_NS: RESIZE_NS;
+					case RESIZE_NWSE: RESIZE_NWSE;
+					case RESIZE_WE: RESIZE_WE;
+					case TEXT: TEXT;
+					case WAIT: WAIT;
+					case WAIT_ARROW: WAIT_ARROW;
+					default: DEFAULT;
 					
 				}
 				
@@ -137,8 +155,17 @@ class Mouse {
 
 @:enum private abstract MouseCursorType(Int) {
 	
-	var DEFAULT = 0;
-	var POINTER = 1;
-	var TEXT = 2;
+	var ARROW = 0;
+	var CROSSHAIR = 1;
+	var DEFAULT = 2;
+	var MOVE = 3;
+	var POINTER = 4;
+	var RESIZE_NESW = 5;
+	var RESIZE_NS = 6;
+	var RESIZE_NWSE = 7;
+	var RESIZE_WE = 8;
+	var TEXT = 9;
+	var WAIT = 10;
+	var WAIT_ARROW = 11;
 	
 }

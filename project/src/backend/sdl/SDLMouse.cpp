@@ -5,9 +5,18 @@ namespace lime {
 	
 	
 	MouseCursor Mouse::currentCursor = DEFAULT;
-	SDL_Cursor* SDLMouse::defaultCursor = 0;
+	
+	SDL_Cursor* SDLMouse::arrowCursor = 0;
+	SDL_Cursor* SDLMouse::crosshairCursor = 0;
+	SDL_Cursor* SDLMouse::moveCursor = 0;
 	SDL_Cursor* SDLMouse::pointerCursor = 0;
+	SDL_Cursor* SDLMouse::resizeNESWCursor = 0;
+	SDL_Cursor* SDLMouse::resizeNSCursor = 0;
+	SDL_Cursor* SDLMouse::resizeNWSECursor = 0;
+	SDL_Cursor* SDLMouse::resizeWECursor = 0;
 	SDL_Cursor* SDLMouse::textCursor = 0;
+	SDL_Cursor* SDLMouse::waitCursor = 0;
+	SDL_Cursor* SDLMouse::waitArrowCursor = 0;
 	
 	
 	void Mouse::Hide () {
@@ -23,6 +32,28 @@ namespace lime {
 			
 			switch (cursor) {
 				
+				case CROSSHAIR:
+					
+					if (!SDLMouse::crosshairCursor) {
+						
+						SDLMouse::crosshairCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_CROSSHAIR);
+						
+					}
+					
+					SDL_SetCursor (SDLMouse::crosshairCursor);
+					break;
+				
+				case MOVE:
+					
+					if (!SDLMouse::moveCursor) {
+						
+						SDLMouse::moveCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_SIZEALL);
+						
+					}
+					
+					SDL_SetCursor (SDLMouse::moveCursor);
+					break;
+				
 				case POINTER:
 					
 					if (!SDLMouse::pointerCursor) {
@@ -32,6 +63,50 @@ namespace lime {
 					}
 					
 					SDL_SetCursor (SDLMouse::pointerCursor);
+					break;
+				
+				case RESIZE_NESW:
+					
+					if (!SDLMouse::resizeNESWCursor) {
+						
+						SDLMouse::resizeNESWCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_SIZENESW);
+						
+					}
+					
+					SDL_SetCursor (SDLMouse::resizeNESWCursor);
+					break;
+				
+				case RESIZE_NS:
+					
+					if (!SDLMouse::resizeNSCursor) {
+						
+						SDLMouse::resizeNSCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_SIZENS);
+						
+					}
+					
+					SDL_SetCursor (SDLMouse::resizeNSCursor);
+					break;
+				
+				case RESIZE_NWSE:
+					
+					if (!SDLMouse::resizeNWSECursor) {
+						
+						SDLMouse::resizeNWSECursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_SIZENWSE);
+						
+					}
+					
+					SDL_SetCursor (SDLMouse::resizeNWSECursor);
+					break;
+				
+				case RESIZE_WE:
+					
+					if (!SDLMouse::resizeWECursor) {
+						
+						SDLMouse::resizeWECursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_SIZEWE);
+						
+					}
+					
+					SDL_SetCursor (SDLMouse::resizeWECursor);
 					break;
 				
 				case TEXT:
@@ -45,15 +120,37 @@ namespace lime {
 					SDL_SetCursor (SDLMouse::textCursor);
 					break;
 				
-				default:
+				case WAIT:
 					
-					if (!SDLMouse::defaultCursor) {
+					if (!SDLMouse::waitCursor) {
 						
-						SDLMouse::defaultCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_ARROW);
+						SDLMouse::waitCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_WAIT);
 						
 					}
 					
-					SDL_SetCursor (SDLMouse::defaultCursor);
+					SDL_SetCursor (SDLMouse::waitCursor);
+					break;
+				
+				case WAIT_ARROW:
+					
+					if (!SDLMouse::waitArrowCursor) {
+						
+						SDLMouse::waitArrowCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_WAITARROW);
+						
+					}
+					
+					SDL_SetCursor (SDLMouse::waitArrowCursor);
+					break;
+				
+				default:
+					
+					if (!SDLMouse::arrowCursor) {
+						
+						SDLMouse::arrowCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_ARROW);
+						
+					}
+					
+					SDL_SetCursor (SDLMouse::arrowCursor);
 					break;
 				
 			}
@@ -61,8 +158,6 @@ namespace lime {
 			Mouse::currentCursor = cursor;
 			
 		}
-		
-		
 		
 	}
 	
