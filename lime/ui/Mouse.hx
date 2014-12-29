@@ -4,6 +4,11 @@ package lime.ui;
 import lime.app.Application;
 import lime.system.System;
 
+#if flash
+import flash.ui.Mouse in FlashMouse;
+import flash.ui.MouseCursor in FlashMouseCursor;
+#end
+
 @:access(lime.app.Application)
 
 
@@ -35,6 +40,10 @@ class Mouse {
 			
 			lime_mouse_hide ();
 			
+			#elseif flash
+			
+			FlashMouse.hide ();
+			
 			#end
 			
 		}
@@ -57,6 +66,10 @@ class Mouse {
 			#elseif (cpp || neko || nodejs)
 			
 			lime_mouse_show ();
+			
+			#elseif flash
+			
+			FlashMouse.show ();
 			
 			#end
 			
@@ -129,6 +142,25 @@ class Mouse {
 				}
 				
 				lime_mouse_set_cursor (type);
+				
+				#elseif flash
+				
+				FlashMouse.cursor = switch (value) {
+					
+					case ARROW: FlashMouseCursor.ARROW;
+					case CROSSHAIR: FlashMouseCursor.ARROW;
+					case MOVE: FlashMouseCursor.HAND;
+					case POINTER: FlashMouseCursor.BUTTON;
+					case RESIZE_NESW: FlashMouseCursor.HAND;
+					case RESIZE_NS: FlashMouseCursor.HAND;
+					case RESIZE_NWSE: FlashMouseCursor.HAND;
+					case RESIZE_WE: FlashMouseCursor.HAND;
+					case TEXT: FlashMouseCursor.IBEAM;
+					case WAIT: FlashMouseCursor.ARROW;
+					case WAIT_ARROW: FlashMouseCursor.ARROW;
+					default: FlashMouseCursor.AUTO;
+					
+				}
 				
 				#end
 				
