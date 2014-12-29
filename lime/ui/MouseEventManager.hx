@@ -181,7 +181,7 @@ class MouseEventManager {
 		
 		#elseif flash
 		
-		var events = [ "mouseDown", "mouseMove", "mouseUp", "mouseWheel", "middleMouseDown", "middleMouseMove", "middleMouseUp", "rightMouseDown", "rightMouseMove", "rightMouseUp" ];
+		var events = [ "mouseDown", "mouseMove", "mouseUp", "mouseWheel", "middleMouseDown", "middleMouseMove", "middleMouseUp" #if ((!openfl && !disable_flash_right_click) || enable_flash_right_click) , "rightMouseDown", "rightMouseMove", "rightMouseUp" #end ];
 		
 		for (event in events) {
 			
