@@ -2,6 +2,7 @@ package lime.ui;
 
 
 import lime.app.Application;
+import lime.system.System;
 
 @:access(lime.app.Application)
 
@@ -28,6 +29,10 @@ class Mouse {
 				
 			}
 			
+			#elseif (cpp || neko || nodejs)
+			
+			lime_mouse_hide ();
+			
 			#end
 			
 			__hidden = true;
@@ -46,6 +51,10 @@ class Mouse {
 			var cacheValue = __cursor;
 			__cursor = null;
 			cursor = cacheValue;
+			
+			#elseif (cpp || neko || nodejs)
+			
+			lime_mouse_show ();
 			
 			#end
 			
@@ -91,6 +100,18 @@ class Mouse {
 					
 				}
 				
+				#elseif (cpp || neko || nodejs)
+				
+				var type = switch (value) {
+					
+					case POINTER: MouseCursorType.POINTER;
+					case TEXT: MouseCursorType.TEXT;
+					default: MouseCursorType.DEFAULT;
+					
+				}
+				
+				lime_mouse_set_cursor (type);
+				
 				#end
 				
 			}
@@ -103,5 +124,21 @@ class Mouse {
 		
 	}
 	
+	
+	#if (cpp || neko || nodejs)
+	private static var lime_mouse_hide = System.load ("lime", "lime_mouse_hide", 0);
+	private static var lime_mouse_set_cursor = System.load ("lime", "lime_mouse_set_cursor", 1);
+	private static var lime_mouse_show = System.load ("lime", "lime_mouse_show", 0);
+	#end
+	
+	
+}
+
+
+@:enum private abstract MouseCursorType(Int) {
+	
+	var DEFAULT = 0;
+	var POINTER = 1;
+	var TEXT = 2;
 	
 }

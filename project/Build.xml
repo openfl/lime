@@ -132,6 +132,7 @@
 			<file name="src/backend/sdl/SDLApplication.cpp" />
 			<file name="src/backend/sdl/SDLWindow.cpp" />
 			<file name="src/backend/sdl/SDLRenderer.cpp" />
+			<file name="src/backend/sdl/SDLMouse.cpp" />
 			
 		</section>
 		
