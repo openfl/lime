@@ -652,7 +652,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 #elseif html5
 
 #if openfl
-::foreach assets::::if (type == "font")::@:keep #if display private #end class __ASSET__::flatName:: extends openfl.text.Font { public function new () { super (); fontName = "::id::"; } } ::end::
+::foreach assets::::if (type == "font")::@:keep #if display private #end class __ASSET__::flatName:: extends openfl.text.Font { public function new () { super (); fontName = "::fontName::"; } } ::end::
 ::end::
 #end
 
