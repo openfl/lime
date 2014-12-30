@@ -139,7 +139,7 @@ class HTML5Helper {
 				
 			}
 			
-			ProcessHelper.runProcess ("", node, args);
+			ProcessHelper.runCommand ("", node, args);
 			
 		}
 		
