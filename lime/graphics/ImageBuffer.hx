@@ -66,12 +66,18 @@ class ImageBuffer {
 	private function get_src ():Dynamic {
 		
 		#if (js && html5)
-		if (__srcImage != null) return __srcImage;
-		return __srcCanvas;
+			
+			if (__srcImage != null) return __srcImage;
+			return __srcCanvas;
+			
 		#elseif flash
-		return __srcBitmapData;
+			
+			return __srcBitmapData;
+			
 		#else
-		return __srcCustom;
+			
+			return __srcCustom;
+			
 		#end
 		
 	}
@@ -80,20 +86,26 @@ class ImageBuffer {
 	private function set_src (value:Dynamic):Dynamic {
 		
 		#if (js && html5)
-		if (Std.is (value, HTMLImage)) {
 			
-			__srcImage = cast value;
+			if (Std.is (value, HTMLImage)) {
+				
+				__srcImage = cast value;
+				
+			} else if (Std.is (value, CanvasElement)) {
+				
+				__srcCanvas = cast value;
+				__srcContext = cast __srcCanvas.getContext ("2d");
+				
+			}
 			
-		} else if (Std.is (value, CanvasElement)) {
-			
-			__srcCanvas = cast value;
-			__srcContext = cast __srcCanvas.getContext ("2d");
-			
-		}
 		#elseif flash
-		__srcBitmapData = cast value;
+			
+			__srcBitmapData = cast value;
+			
 		#else
-		__srcCustom = value;
+			
+			__srcCustom = value;
+			
 		#end
 		
 		return value;

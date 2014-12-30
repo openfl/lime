@@ -295,40 +295,40 @@ class Image {
 				#if java
 				
 				#elseif (sys && (!disable_cffi || !format))
-				
-				return lime_image_encode (buffer, 0, quality);
-				
+					
+					return lime_image_encode (buffer, 0, quality);
+					
 				#elseif !js
-				
-				try {
 					
-					var bytes = Bytes.alloc (width * height * 4 + height);
-					var sourceBytes = buffer.data.getByteBuffer ();
-					var sourceIndex:Int, index:Int;
-					
-					for (y in 0...height) {
+					try {
 						
-						sourceIndex = y * width * 4;
-						index = y * width * 4 + y;
+						var bytes = Bytes.alloc (width * height * 4 + height);
+						var sourceBytes = buffer.data.getByteBuffer ();
+						var sourceIndex:Int, index:Int;
 						
-						bytes.set (index, 0);
-						bytes.blit (index + 1, sourceBytes, sourceIndex, width * 4);
+						for (y in 0...height) {
+							
+							sourceIndex = y * width * 4;
+							index = y * width * 4 + y;
+							
+							bytes.set (index, 0);
+							bytes.blit (index + 1, sourceBytes, sourceIndex, width * 4);
+							
+						}
 						
-					}
+						var data = new List ();
+						data.add (CHeader ({ width: width, height: height, colbits: 8, color: ColTrue (true), interlaced: false }));
+						data.add (CData (Deflate.run (bytes)));
+						data.add (CEnd);
+						
+						var output = new BytesOutput ();
+						var png = new Writer (output);
+						png.write (data);
+						
+						return ByteArray.fromBytes (output.getBytes ());
+						
+					} catch (e:Dynamic) {}
 					
-					var data = new List ();
-					data.add (CHeader ({ width: width, height: height, colbits: 8, color: ColTrue (true), interlaced: false }));
-					data.add (CData (Deflate.run (bytes)));
-					data.add (CEnd);
-					
-					var output = new BytesOutput ();
-					var png = new Writer (output);
-					png.write (data);
-					
-					return ByteArray.fromBytes (output.getBytes ());
-					
-				} catch (e:Dynamic) {}
-				
 				#end
 			
 			case "jpg", "jpeg":
@@ -336,9 +336,9 @@ class Image {
 				#if java
 				
 				#elseif (sys && (!disable_cffi || !format))
-				
-				return lime_image_encode (buffer, 1, quality);
-				
+					
+					return lime_image_encode (buffer, 1, quality);
+					
 				#end
 			
 			default:
@@ -689,23 +689,27 @@ class Image {
 	private static function __base64Encode (bytes:ByteArray):String {
 		
 		#if (js && html5)
-		var extension = switch (bytes.length % 3) {
 			
-			case 1: "==";
-			case 2: "=";
-			default: "";
+			var extension = switch (bytes.length % 3) {
+				
+				case 1: "==";
+				case 2: "=";
+				default: "";
+				
+			}
 			
-		}
-		
-		if (__base64Encoder == null) {
+			if (__base64Encoder == null) {
+				
+				__base64Encoder = new BaseCode (Bytes.ofString (__base64Chars));
+				
+			}
 			
-			__base64Encoder = new BaseCode (Bytes.ofString (__base64Chars));
+			return __base64Encoder.encodeBytes (Bytes.ofData (cast bytes.byteView)).toString () + extension;
 			
-		}
-		
-		return __base64Encoder.encodeBytes (Bytes.ofData (cast bytes.byteView)).toString () + extension;
 		#else
-		return "";
+		
+			return "";
+			
 		#end
 		
 	}
@@ -787,49 +791,49 @@ class Image {
 	private function __fromBytes (bytes:ByteArray, onload:Image -> Void):Void {
 		
 		#if (js && html5)
-		
-		var type = "";
-		
-		if (__isPNG (bytes)) {
 			
-			type = "image/png";
+			var type = "";
 			
-		} else if (__isJPG (bytes)) {
-			
-			type = "image/jpeg";
-			
-		} else if (__isGIF (bytes)) {
-			
-			type = "image/gif";
-			
-		} else {
-			
-			throw "Image tried to read a PNG/JPG ByteArray, but found an invalid header.";
-			
-		}
-		
-		__fromBase64 (__base64Encode (bytes), type, onload);
-		
-		#elseif (cpp || neko || nodejs)
-		
-		var data = lime_image_load (bytes);
-		
-		if (data != null) {
-			
-			__fromImageBuffer (new ImageBuffer (new UInt8Array (data.data), data.width, data.height, data.bpp));
-			
-			if (onload != null) {
+			if (__isPNG (bytes)) {
 				
-				onload (this);
+				type = "image/png";
+				
+			} else if (__isJPG (bytes)) {
+				
+				type = "image/jpeg";
+				
+			} else if (__isGIF (bytes)) {
+				
+				type = "image/gif";
+				
+			} else {
+				
+				throw "Image tried to read a PNG/JPG ByteArray, but found an invalid header.";
 				
 			}
 			
-		}
-		
+			__fromBase64 (__base64Encode (bytes), type, onload);
+			
+		#elseif (cpp || neko || nodejs)
+			
+			var data = lime_image_load (bytes);
+			
+			if (data != null) {
+				
+				__fromImageBuffer (new ImageBuffer (new UInt8Array (data.data), data.width, data.height, data.bpp));
+				
+				if (onload != null) {
+					
+					onload (this);
+					
+				}
+				
+			}
+			
 		#else
-		
-		throw "ImageBuffer.loadFromBytes not supported on this target";
-		
+			
+			throw "ImageBuffer.loadFromBytes not supported on this target";
+			
 		#end
 		
 	}
@@ -838,108 +842,108 @@ class Image {
 	private function __fromFile (path:String, onload:Image -> Void, onerror:Void -> Void):Void {
 		
 		#if (js && html5)
-		
-		var image = new JSImage ();
-		
-		image.onload = function (_) {
 			
-			buffer = new ImageBuffer (null, image.width, image.height);
-			buffer.__srcImage = cast image;
+			var image = new JSImage ();
+			
+			image.onload = function (_) {
+				
+				buffer = new ImageBuffer (null, image.width, image.height);
+				buffer.__srcImage = cast image;
 
-			width = image.width;
-			height = image.height;
-			
-			if (onload != null) {
+				width = image.width;
+				height = image.height;
 				
-				onload (this);
-				
-			}
-			
-		}
-		
-		image.onerror = function (_) {
-			
-			if (onerror != null) {
-				
-				onerror ();
+				if (onload != null) {
+					
+					onload (this);
+					
+				}
 				
 			}
 			
-		}
-		
-		image.src = path;
-		
-		// Another IE9 bug: loading 20+ images fails unless this line is added.
-		// (issue #1019768)
-		if (image.complete) { }
-		
+			image.onerror = function (_) {
+				
+				if (onerror != null) {
+					
+					onerror ();
+					
+				}
+				
+			}
+			
+			image.src = path;
+			
+			// Another IE9 bug: loading 20+ images fails unless this line is added.
+			// (issue #1019768)
+			if (image.complete) { }
+			
 		#elseif (cpp || neko || nodejs || java)
-		
-		var buffer = null;
-		
-		#if (sys && (!disable_cffi || !format) && !java)
-		
-		var data = lime_image_load (path);
-		if (data != null) {
-			var ba:ByteArray = cast(data.data, ByteArray);
-			#if nodejs
-			var u8a = ba.byteView;
-			#else
-			var u8a = new UInt8Array(ba);
+			
+			var buffer = null;
+				
+			#if (sys && (!disable_cffi || !format) && !java)
+				
+				var data = lime_image_load (path);
+				if (data != null) {
+					var ba:ByteArray = cast(data.data, ByteArray);
+					#if nodejs
+					var u8a = ba.byteView;
+					#else
+					var u8a = new UInt8Array(ba);
+					#end
+					buffer = new ImageBuffer (u8a, data.width, data.height, data.bpp);
+				}
+				
+			#elseif format
+				
+				try {
+					
+					var bytes = File.getBytes (path);
+					var input = new BytesInput (bytes, 0, bytes.length);
+					var png = new Reader (input).read ();
+					var data = Tools.extract32 (png);
+					var header = Tools.getHeader (png);
+					
+					var data = new UInt8Array (ByteArray.fromBytes (Bytes.ofData (data.getData ())));
+					var length = header.width * header.height;
+					var b, g, r, a;
+					
+					for (i in 0...length) {
+						
+						var b = data[i * 4];
+						var g = data[i * 4 + 1];
+						var r = data[i * 4 + 2];
+						var a = data[i * 4 + 3];
+						
+						data[i * 4] = r;
+						data[i * 4 + 1] = g;
+						data[i * 4 + 2] = b;
+						data[i * 4 + 3] = a;
+						
+					}
+					
+					buffer = new ImageBuffer (data, header.width, header.height);
+					
+				} catch (e:Dynamic) {}
+				
 			#end
-			buffer = new ImageBuffer (u8a, data.width, data.height, data.bpp);
-		}
-		
-		#elseif format
-		
-		try {
 			
-			var bytes = File.getBytes (path);
-			var input = new BytesInput (bytes, 0, bytes.length);
-			var png = new Reader (input).read ();
-			var data = Tools.extract32 (png);
-			var header = Tools.getHeader (png);
-			
-			var data = new UInt8Array (ByteArray.fromBytes (Bytes.ofData (data.getData ())));
-			var length = header.width * header.height;
-			var b, g, r, a;
-			
-			for (i in 0...length) {
+			if (buffer != null) {
 				
-				var b = data[i * 4];
-				var g = data[i * 4 + 1];
-				var r = data[i * 4 + 2];
-				var a = data[i * 4 + 3];
+				__fromImageBuffer (buffer);
 				
-				data[i * 4] = r;
-				data[i * 4 + 1] = g;
-				data[i * 4 + 2] = b;
-				data[i * 4 + 3] = a;
+				if (onload != null) {
+					
+					onload (this);
+					
+				}
 				
 			}
 			
-			buffer = new ImageBuffer (data, header.width, header.height);
-			
-		} catch (e:Dynamic) {}
-		
-		#end
-		
-		if (buffer != null) {
-			
-			__fromImageBuffer (buffer);
-			
-			if (onload != null) {
-				
-				onload (this);
-				
-			}
-			
-		}
-		
 		#else
-		
-		throw "ImageBuffer.loadFromFile not supported on this target";
-		
+			
+			throw "ImageBuffer.loadFromFile not supported on this target";
+			
 		#end
 		
 	}
@@ -1011,11 +1015,15 @@ class Image {
 		if (buffer.data == null && buffer.width > 0 && buffer.height > 0) {
 			
 			#if (js && html5)
-			ImageCanvasUtil.convertToCanvas (this);
-			ImageCanvasUtil.createImageData (this);
+				
+				ImageCanvasUtil.convertToCanvas (this);
+				ImageCanvasUtil.createImageData (this);
+				
 			#elseif flash
-			var pixels = buffer.__srcBitmapData.getPixels (buffer.__srcBitmapData.rect);
-			buffer.data = new UInt8Array (pixels);
+				
+				var pixels = buffer.__srcBitmapData.getPixels (buffer.__srcBitmapData.rect);
+				buffer.data = new UInt8Array (pixels);
+				
 			#end
 			
 		}

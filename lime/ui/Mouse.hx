@@ -29,21 +29,21 @@ class Mouse {
 			__hidden = true;
 			
 			#if (js && html5)
-			
-			for (window in Application.__instance.windows) {
 				
-				window.element.style.cursor = "none";
+				for (window in Application.__instance.windows) {
+					
+					window.element.style.cursor = "none";
+					
+				}
 				
-			}
-			
 			#elseif (cpp || neko || nodejs)
-			
-			lime_mouse_hide ();
-			
+				
+				lime_mouse_hide ();
+				
 			#elseif flash
-			
-			FlashMouse.hide ();
-			
+				
+				FlashMouse.hide ();
+				
 			#end
 			
 		}
@@ -58,19 +58,19 @@ class Mouse {
 			__hidden = false;
 			
 			#if (js && html5)
-			
-			var cacheValue = __cursor;
-			__cursor = null;
-			cursor = cacheValue;
-			
+				
+				var cacheValue = __cursor;
+				__cursor = null;
+				cursor = cacheValue;
+				
 			#elseif (cpp || neko || nodejs)
-			
-			lime_mouse_show ();
-			
+				
+				lime_mouse_show ();
+				
 			#elseif flash
-			
-			FlashMouse.show ();
-			
+				
+				FlashMouse.show ();
+				
 			#end
 			
 		}
@@ -100,68 +100,68 @@ class Mouse {
 			if (!__hidden) {
 				
 				#if (js && html5)
-				
-				for (window in Application.__instance.windows) {
 					
-					window.element.style.cursor = switch (value) {
+					for (window in Application.__instance.windows) {
 						
-						case ARROW: "default";
-						case CROSSHAIR: "crosshair";
-						case MOVE: "move";
-						case POINTER: "pointer";
-						case RESIZE_NESW: "nesw-resize";
-						case RESIZE_NS: "ns-resize";
-						case RESIZE_NWSE: "nwse-resize";
-						case RESIZE_WE: "ew-resize";
-						case TEXT: "text";
-						case WAIT: "wait";
-						case WAIT_ARROW: "wait";
-						default: "auto";
+						window.element.style.cursor = switch (value) {
+							
+							case ARROW: "default";
+							case CROSSHAIR: "crosshair";
+							case MOVE: "move";
+							case POINTER: "pointer";
+							case RESIZE_NESW: "nesw-resize";
+							case RESIZE_NS: "ns-resize";
+							case RESIZE_NWSE: "nwse-resize";
+							case RESIZE_WE: "ew-resize";
+							case TEXT: "text";
+							case WAIT: "wait";
+							case WAIT_ARROW: "wait";
+							default: "auto";
+							
+						}
 						
 					}
 					
-				}
-				
 				#elseif (cpp || neko || nodejs)
-				
-				var type:MouseCursorType = switch (value) {
 					
-					case ARROW: ARROW;
-					case CROSSHAIR: CROSSHAIR;
-					case MOVE: MOVE;
-					case POINTER: POINTER;
-					case RESIZE_NESW: RESIZE_NESW;
-					case RESIZE_NS: RESIZE_NS;
-					case RESIZE_NWSE: RESIZE_NWSE;
-					case RESIZE_WE: RESIZE_WE;
-					case TEXT: TEXT;
-					case WAIT: WAIT;
-					case WAIT_ARROW: WAIT_ARROW;
-					default: DEFAULT;
+					var type:MouseCursorType = switch (value) {
+						
+						case ARROW: ARROW;
+						case CROSSHAIR: CROSSHAIR;
+						case MOVE: MOVE;
+						case POINTER: POINTER;
+						case RESIZE_NESW: RESIZE_NESW;
+						case RESIZE_NS: RESIZE_NS;
+						case RESIZE_NWSE: RESIZE_NWSE;
+						case RESIZE_WE: RESIZE_WE;
+						case TEXT: TEXT;
+						case WAIT: WAIT;
+						case WAIT_ARROW: WAIT_ARROW;
+						default: DEFAULT;
+						
+					}
 					
-				}
-				
-				lime_mouse_set_cursor (type);
-				
+					lime_mouse_set_cursor (type);
+					
 				#elseif flash
-				
-				FlashMouse.cursor = switch (value) {
 					
-					case ARROW: FlashMouseCursor.ARROW;
-					case CROSSHAIR: FlashMouseCursor.ARROW;
-					case MOVE: FlashMouseCursor.HAND;
-					case POINTER: FlashMouseCursor.BUTTON;
-					case RESIZE_NESW: FlashMouseCursor.HAND;
-					case RESIZE_NS: FlashMouseCursor.HAND;
-					case RESIZE_NWSE: FlashMouseCursor.HAND;
-					case RESIZE_WE: FlashMouseCursor.HAND;
-					case TEXT: FlashMouseCursor.IBEAM;
-					case WAIT: FlashMouseCursor.ARROW;
-					case WAIT_ARROW: FlashMouseCursor.ARROW;
-					default: FlashMouseCursor.AUTO;
+					FlashMouse.cursor = switch (value) {
+						
+						case ARROW: FlashMouseCursor.ARROW;
+						case CROSSHAIR: FlashMouseCursor.ARROW;
+						case MOVE: FlashMouseCursor.HAND;
+						case POINTER: FlashMouseCursor.BUTTON;
+						case RESIZE_NESW: FlashMouseCursor.HAND;
+						case RESIZE_NS: FlashMouseCursor.HAND;
+						case RESIZE_NWSE: FlashMouseCursor.HAND;
+						case RESIZE_WE: FlashMouseCursor.HAND;
+						case TEXT: FlashMouseCursor.IBEAM;
+						case WAIT: FlashMouseCursor.ARROW;
+						case WAIT_ARROW: FlashMouseCursor.ARROW;
+						default: FlashMouseCursor.AUTO;
+						
+					}
 					
-				}
-				
 				#end
 				
 			}
@@ -173,6 +173,13 @@ class Mouse {
 		return __cursor;
 		
 	}
+	
+	
+	
+	
+	// Native Methods
+	
+	
 	
 	
 	#if (cpp || neko || nodejs)

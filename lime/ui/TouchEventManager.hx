@@ -30,7 +30,9 @@ import flash.Lib;
 		eventInfo = new TouchEventInfo ();
 		
 		#if (cpp || neko || nodejs)
-		lime_touch_event_manager_register (handleEvent, eventInfo);
+			
+			lime_touch_event_manager_register (handleEvent, eventInfo);
+			
 		#end
 		
 	}
@@ -39,75 +41,75 @@ import flash.Lib;
 	private static function handleEvent (#if (js && html5) event:js.html.TouchEvent #elseif flash event:flash.events.TouchEvent #end):Void {
 		
 		#if (js && html5)
-		
-		event.preventDefault ();
-		
-		//var rect = __canvas.getBoundingClientRect ();
-		
-		//touchEvent.id = event.changedTouches[0].identifier;
-		//eventInfo.x = event.pageX;
-		//eventInfo.y = event.pageY;
-		
-		eventInfo.type = switch (event.type) {
 			
-			case "touchstart": TOUCH_START;
-			case "touchmove": TOUCH_MOVE;
-			case "touchend": TOUCH_END;
-			default: null;
+			event.preventDefault ();
 			
-		}
-		
-		var touch = event.changedTouches[0];
-		
-		eventInfo.id = touch.identifier;
-		
-		if (window != null && window.element != null) {
+			//var rect = __canvas.getBoundingClientRect ();
 			
-			if (window.canvas != null) {
+			//touchEvent.id = event.changedTouches[0].identifier;
+			//eventInfo.x = event.pageX;
+			//eventInfo.y = event.pageY;
+			
+			eventInfo.type = switch (event.type) {
 				
-				var rect = window.canvas.getBoundingClientRect ();
-				eventInfo.x = (touch.clientX - rect.left) * (window.width / rect.width);
-				eventInfo.y = (touch.clientY - rect.top) * (window.height / rect.height);
-				
-			} else if (window.div != null) {
-				
-				var rect = window.div.getBoundingClientRect ();
-				//eventInfo.x = (event.clientX - rect.left) * (window.div.style.width / rect.width);
-				eventInfo.x = (touch.clientX - rect.left);
-				//eventInfo.y = (event.clientY - rect.top) * (window.div.style.height / rect.height);
-				eventInfo.y = (touch.clientY - rect.top);
-				
-			} else {
-				
-				var rect = window.element.getBoundingClientRect ();
-				eventInfo.x = (touch.clientX - rect.left) * (window.width / rect.width);
-				eventInfo.y = (touch.clientY - rect.top) * (window.height / rect.height);
+				case "touchstart": TOUCH_START;
+				case "touchmove": TOUCH_MOVE;
+				case "touchend": TOUCH_END;
+				default: null;
 				
 			}
 			
+			var touch = event.changedTouches[0];
+			
+			eventInfo.id = touch.identifier;
+			
+			if (window != null && window.element != null) {
+				
+				if (window.canvas != null) {
+					
+					var rect = window.canvas.getBoundingClientRect ();
+					eventInfo.x = (touch.clientX - rect.left) * (window.width / rect.width);
+					eventInfo.y = (touch.clientY - rect.top) * (window.height / rect.height);
+					
+				} else if (window.div != null) {
+					
+					var rect = window.div.getBoundingClientRect ();
+					//eventInfo.x = (event.clientX - rect.left) * (window.div.style.width / rect.width);
+					eventInfo.x = (touch.clientX - rect.left);
+					//eventInfo.y = (event.clientY - rect.top) * (window.div.style.height / rect.height);
+					eventInfo.y = (touch.clientY - rect.top);
+					
+				} else {
+					
+					var rect = window.element.getBoundingClientRect ();
+					eventInfo.x = (touch.clientX - rect.left) * (window.width / rect.width);
+					eventInfo.y = (touch.clientY - rect.top) * (window.height / rect.height);
+					
+				}
+				
 
+				
+			} else {
+				
+				eventInfo.x = touch.clientX;
+				eventInfo.y = touch.clientY;
+				
+			}
 			
-		} else {
-			
-			eventInfo.x = touch.clientX;
-			eventInfo.y = touch.clientY;
-			
-		}
-		
 		#elseif flash
-		
-		//touchEvent.id = event.touchPointID;
-		eventInfo.x = event.stageX;
-		eventInfo.y = event.stageY;
-		
-		eventInfo.type = switch (event.type) {
 			
-			case flash.events.TouchEvent.TOUCH_BEGIN: TOUCH_START;
-			case flash.events.TouchEvent.TOUCH_MOVE: TOUCH_MOVE;
-			default: TOUCH_END;
+			//touchEvent.id = event.touchPointID;
+			eventInfo.x = event.stageX;
+			eventInfo.y = event.stageY;
 			
-		}
-		
+			eventInfo.type = switch (event.type) {
+				
+				case flash.events.TouchEvent.TOUCH_BEGIN: TOUCH_START;
+				case flash.events.TouchEvent.TOUCH_MOVE: TOUCH_MOVE;
+				default: TOUCH_END;
+				
+			}
+			
 		#end
 		
 		switch (eventInfo.type) {
@@ -132,23 +134,30 @@ import flash.Lib;
 	private static function registerWindow (window:Window):Void {
 		
 		#if (js && html5)
-		
-		window.element.addEventListener ("touchstart", handleEvent, true);
-		window.element.addEventListener ("touchmove", handleEvent, true);
-		window.element.addEventListener ("touchend", handleEvent, true);
-		
-		TouchEventManager.window = window;
-		
+			
+			window.element.addEventListener ("touchstart", handleEvent, true);
+			window.element.addEventListener ("touchmove", handleEvent, true);
+			window.element.addEventListener ("touchend", handleEvent, true);
+			
+			TouchEventManager.window = window;
+			
 		#elseif flash
-		
-		Multitouch.inputMode = MultitouchInputMode.TOUCH_POINT;
-		Lib.current.stage.addEventListener (flash.events.TouchEvent.TOUCH_BEGIN, handleEvent);
-		Lib.current.stage.addEventListener (flash.events.TouchEvent.TOUCH_MOVE, handleEvent);
-		Lib.current.stage.addEventListener (flash.events.TouchEvent.TOUCH_END, handleEvent);
-		
+			
+			Multitouch.inputMode = MultitouchInputMode.TOUCH_POINT;
+			Lib.current.stage.addEventListener (flash.events.TouchEvent.TOUCH_BEGIN, handleEvent);
+			Lib.current.stage.addEventListener (flash.events.TouchEvent.TOUCH_MOVE, handleEvent);
+			Lib.current.stage.addEventListener (flash.events.TouchEvent.TOUCH_END, handleEvent);
+			
 		#end
 		
 	}
+	
+	
+	
+	
+	// Native Methods
+	
+	
 	
 	
 	#if (cpp || neko || nodejs)

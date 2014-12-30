@@ -50,31 +50,31 @@ class Renderer {
 	public function create ():Void {
 		
 		#if (cpp || neko || nodejs)
-		
-		handle = lime_renderer_create (window.handle);
-		
+			
+			handle = lime_renderer_create (window.handle);
+			
 		#elseif java
-		
-		GLFW.glfwMakeContextCurrent (window.handle);
-		GLContext.createFromCurrent ();
-		
+			
+			GLFW.glfwMakeContextCurrent (window.handle);
+			GLContext.createFromCurrent ();
+			
 		#end
 		
 		createContext ();
 		
 		#if (js && html5)
-		
-		switch (context) {
 			
-			case OPENGL (_):
+			switch (context) {
 				
-				window.canvas.addEventListener ("webglcontextlost", handleCanvasEvent, false);
-				window.canvas.addEventListener ("webglcontextrestored", handleCanvasEvent, false);
+				case OPENGL (_):
+					
+					window.canvas.addEventListener ("webglcontextlost", handleCanvasEvent, false);
+					window.canvas.addEventListener ("webglcontextrestored", handleCanvasEvent, false);
+				
+				default:
+				
+			}
 			
-			default:
-			
-		}
-		
 		#end
 		
 		if (!registered) {
@@ -93,61 +93,61 @@ class Renderer {
 	private function createContext ():Void {
 		
 		#if (js && html5)
-		
-		if (window.div != null) {
 			
-			context = DOM (window.div);
-			
-		} else if (window.canvas != null) {
-			
-			#if canvas
-			
-			var webgl = null;
-			
-			#else
-			
-			var options = {
-				alpha: true,
-				antialias: window.config.antialiasing > 0,
-				depth: window.config.depthBuffer,
-				premultipliedAlpha: true,
-				stencil: window.config.stencilBuffer,
-				preserveDrawingBuffer: false
-			};
-			
-			var webgl:RenderingContext = cast window.canvas.getContextWebGL(options);
-			
-			#end
-			
-			if (webgl == null) {
+			if (window.div != null) {
 				
-				context = CANVAS (cast window.canvas.getContext ("2d"));
+				context = DOM (window.div);
 				
-			} else {
+			} else if (window.canvas != null) {
 				
-				#if debug
-				webgl = untyped WebGLDebugUtils.makeDebugContext (webgl);
-				#end
+				#if canvas
 				
-				GL.context = webgl;
-				#if (js && html5)
-				context = OPENGL (cast GL.context);
+				var webgl = null;
+				
 				#else
-				context = OPENGL (new GLRenderContext ());
+				
+				var options = {
+					alpha: true,
+					antialias: window.config.antialiasing > 0,
+					depth: window.config.depthBuffer,
+					premultipliedAlpha: true,
+					stencil: window.config.stencilBuffer,
+					preserveDrawingBuffer: false
+				};
+				
+				var webgl:RenderingContext = cast window.canvas.getContextWebGL(options);
+				
 				#end
+				
+				if (webgl == null) {
+					
+					context = CANVAS (cast window.canvas.getContext ("2d"));
+					
+				} else {
+					
+					#if debug
+					webgl = untyped WebGLDebugUtils.makeDebugContext (webgl);
+					#end
+					
+					GL.context = webgl;
+					#if (js && html5)
+					context = OPENGL (cast GL.context);
+					#else
+					context = OPENGL (new GLRenderContext ());
+					#end
+					
+				}
 				
 			}
 			
-		}
-		
 		#elseif (cpp || neko || nodejs || java)
-		
-		context = OPENGL (new GLRenderContext ());
-		
+			
+			context = OPENGL (new GLRenderContext ());
+			
 		#elseif flash
-		
-		context = FLASH (Lib.current);
-		
+			
+			context = FLASH (Lib.current);
+			
 		#end
 		
 	}
@@ -242,6 +242,13 @@ class Renderer {
 		#end
 		
 	}
+	
+	
+	
+	
+	// Native Methods
+	
+	
 	
 	
 	#if (cpp || neko || nodejs)

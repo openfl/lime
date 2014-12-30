@@ -97,10 +97,14 @@ class AudioSource {
 		
 		#if html5
 		#elseif flash
-		if (channel != null) channel.stop ();
-		var channel = buffer.src.play (pauseTime / 1000);
+			
+			if (channel != null) channel.stop ();
+			var channel = buffer.src.play (pauseTime / 1000);
+			
 		#else
-		AL.sourcePlay (id);
+			
+			AL.sourcePlay (id);
+			
 		#end
 		
 	}
@@ -110,14 +114,18 @@ class AudioSource {
 		
 		#if html5
 		#elseif flash
-		if (channel != null) {
 			
-			pauseTime = Std.int (channel.position * 1000);
-			channel.stop ();
+			if (channel != null) {
+				
+				pauseTime = Std.int (channel.position * 1000);
+				channel.stop ();
+				
+			}
 			
-		}
 		#else
-		AL.sourcePause (id);
+			
+			AL.sourcePause (id);
+			
 		#end
 		
 	}
@@ -127,10 +135,14 @@ class AudioSource {
 		
 		#if html5
 		#elseif flash
-		pauseTime = 0;
-		if (channel != null) channel.stop ();
+			
+			pauseTime = 0;
+			if (channel != null) channel.stop ();
+			
 		#else
-		AL.sourceStop (id);
+			
+			AL.sourceStop (id);
+			
 		#end
 		
 	}
