@@ -124,14 +124,14 @@ class HTML5Helper {
 			
 			LogHelper.info ("", " - \x1b[1mStarting local web server:\x1b[0m http://localhost:" + port);
 			
-			Thread.create (function () { 
+			/*Thread.create (function () { 
 				
 				Sys.sleep (0.5);
 				ProcessHelper.openURL ("http://localhost:" + port);
 				
-			});
+			});*/
 			
-			var args = [ server, path, "-p", Std.string (port), "-c-1" ];
+			var args = [ server, path, "-p", Std.string (port), "-c-1", "-o", "-a", "localhost", "--cors" ];
 			
 			if (!LogHelper.verbose) {
 				
