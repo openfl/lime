@@ -148,7 +148,7 @@ class Preloader #if flash extends Sprite #end {
 		Browser.document.body.appendChild (node);
 		
 		var width = node.offsetWidth;
-		style.fontFamily = "'" + font + "'";
+		style.fontFamily = "'" + font + "', sans-serif";
 		
 		var interval:Null<Int> = null;
 		var found = false;
