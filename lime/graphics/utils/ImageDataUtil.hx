@@ -409,17 +409,23 @@ class ImageDataUtil {
 		var srcRowOffset = srcStride - Std.int (4 * rect.width);
 		var srcRowEnd = Std.int (4 * (rect.x + rect.width));
 		
-		var length = Std.int (4 * rect.width * rect.height);
+		var length = Std.int (rect.width * rect.height);
 		#if js
-		byteArray.length = length;
+		byteArray.length = length * 4;
 		#end
 		
 		for (i in 0...length) {
 			
 			#if flash
 			byteArray.writeUnsignedInt (srcData[srcPosition++]);
+			byteArray.writeUnsignedInt (srcData[srcPosition++]);
+			byteArray.writeUnsignedInt (srcData[srcPosition++]);
+			byteArray.writeUnsignedInt (srcData[srcPosition++]);
 			#else
-			byteArray.__set (i, srcData[srcPosition++]);
+			byteArray.__set (i * 4 + 1, srcData[srcPosition++]);
+			byteArray.__set (i * 4 + 2, srcData[srcPosition++]);
+			byteArray.__set (i * 4 + 3, srcData[srcPosition++]);
+			byteArray.__set (i * 4, srcData[srcPosition++]);
 			#end
 			
 			if ((srcPosition % srcStride) > srcRowEnd) {
