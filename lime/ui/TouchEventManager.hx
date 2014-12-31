@@ -10,8 +10,10 @@ import flash.ui.MultitouchInputMode;
 import flash.Lib;
 #end
 
+@:allow(lime.ui.Window)
 
-@:allow(lime.ui.Window) class TouchEventManager {
+
+class TouchEventManager {
 	
 	
 	public static var onTouchEnd = new Event<Float->Float->Int->Void> ();
