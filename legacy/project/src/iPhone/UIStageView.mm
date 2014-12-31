@@ -3052,7 +3052,29 @@ public:
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
    if (gFixedOrientation >= 0)
-      return interfaceOrientation == gFixedOrientation;
+   {
+      enum {
+         OrientationPortrait = 1,
+         OrientationPortraitUpsideDown = 2,
+         OrientationLandscapeRight = 3,
+         OrientationLandscapeLeft = 4,
+         OrientationFaceUp = 5,
+         OrientationFaceDown = 6,
+         OrientationPortraitAny = 7,
+         OrientationLandscapeAny = 8,
+         OrientationAny = 9,
+      };
+
+      if (interfaceOrientation == gFixedOrientation)
+         return true;
+      if (gFixedOrientation==OrientationAny)
+         return true;
+      if (gFixedOrientation==OrientationPortraitAny)
+         return interfaceOrientation==OrientationPortrait || interfaceOrientation==OrientationPortraitUpsideDown;
+      if (gFixedOrientation==OrientationLandscapeAny)
+         return interfaceOrientation==OrientationLandscapeLeft || interfaceOrientation==OrientationLandscapeRight;
+      return false;
+   }
    Event evt(etShouldRotate);
    evt.value = interfaceOrientation;
    sgMainView->mStage->OnEvent(evt);
