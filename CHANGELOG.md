@@ -6,6 +6,7 @@
 * Improved the behavior of the embedded web server
 * Fixed the behavior of Image.getPixels
 * Fixed embedded font support for OpenFL HTML5
+* Fixed the Windows application icon
 * Fixed handling of dummy ANT_HOME or JAVA_HOME HXCPP values
 * Improved default context menu behavior on Flash/OpenFL
 * Improved fixed orientation support on iOS (legacy)
