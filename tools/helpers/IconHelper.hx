@@ -208,10 +208,10 @@ class IconHelper {
 				
 				for (i in 0...size) {
 					
+					var a = bits.readByte ();
 					var r = bits.readByte ();
 					var g = bits.readByte ();
 					var b = bits.readByte ();
-					var a = bits.readByte ();
 					ico.writeByte (b);
 					ico.writeByte (g);
 					ico.writeByte (r);
