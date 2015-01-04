@@ -74,7 +74,7 @@ class Image {
 		
 		if (type == null) {
 			
-			if (Application.__instance != null && Application.__instance.windows != null && Application.__instance.window.currentRenderer != null) {
+			if (Application.__instance != null && Application.__instance.window != null && Application.__instance.window.currentRenderer != null) {
 				
 				this.type = switch (Application.__instance.window.currentRenderer.context) {
 					
