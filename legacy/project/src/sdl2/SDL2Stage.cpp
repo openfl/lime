@@ -1591,9 +1591,19 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
 bool sgDead = false;
 
 
-void SetIcon(const char *path)
+void SetIcon(const OSChar *path)
 {
+   Surface *surface = Surface::Load(path);
    
+   if (surface)
+   {
+	  SDL_Surface *sdlSurface = SDL_CreateRGBSurfaceFrom ((void *)surface->GetBase(), surface->Width(), surface->Height(), 32, surface->GetStride(), 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
+      
+	  SDL_SetWindowIcon(sgSDLFrame->mStage->mSDLWindow, sdlSurface);
+      
+	  surface->DecRef();
+	  SDL_FreeSurface (sdlSurface);
+   }
 }
 
 

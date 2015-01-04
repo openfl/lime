@@ -53,6 +53,20 @@ namespace lime {
 	}
 	
 	
+	void SDLWindow::SetIcon (ImageBuffer *imageBuffer) {
+		
+		SDL_Surface *surface = SDL_CreateRGBSurfaceFrom (imageBuffer->data->Bytes (), imageBuffer->width, imageBuffer->height, imageBuffer->bpp * 8, imageBuffer->width * imageBuffer->bpp, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
+		
+		if (surface) {
+			
+			SDL_SetWindowIcon (sdlWindow, surface);
+			SDL_FreeSurface (surface);
+			
+		}
+		
+	}
+	
+	
 	Window* CreateWindow (Application* application, int width, int height, int flags, const char* title) {
 		
 		return new SDLWindow (application, width, height, flags, title);

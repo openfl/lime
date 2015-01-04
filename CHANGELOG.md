@@ -1,5 +1,19 @@
-2.0.3
-=====
+2.0.4 (12/31/2014)
+------------------
+
+* Added system mouse cursor support in lime.ui.Mouse
+* Added hide/show cursor support in lime.ui.Mouse
+* Improved the behavior of the embedded web server
+* Fixed the behavior of Image.getPixels
+* Fixed embedded font support for OpenFL HTML5
+* Fixed the Windows application icon
+* Fixed handling of dummy ANT_HOME or JAVA_HOME HXCPP values
+* Improved default context menu behavior on Flash/OpenFL
+* Improved fixed orientation support on iOS (legacy)
+
+
+2.0.3 (12/27/2014)
+------------------
 
 * Improved linking of OpenAL for Android
 * Added support for cached `<library />` processing
@@ -7,8 +21,8 @@
 * Fixed minor issues with "lime rebuild tools"
 
 
-2.0.2
-=====
+2.0.2 (12/21/2014)
+------------------
 
 * Added ARMV7S, ARM64 and X86_64 support for iOS
 * Added unofficial Java support
@@ -29,8 +43,8 @@
 * Fixed TextField leading (legacy)
 
 
-2.0.1
-=====
+2.0.1 (12/04/2014)
+------------------
 
 * Added GL.isContextLost
 * Added Renderer onRenderContextLost/onRenderContextRestored
@@ -39,8 +53,8 @@
 * Fixed HTML5 touch event coordinates
 
 
-2.0.0
-=====
+2.0.0 (11/20/2014)
+------------------
 
 * Improved the "lime rebuild" command
 * Added a "-dryrun" flag to help test the tools 
@@ -53,8 +67,8 @@
 * Fixed GraphicsPath on Neko (legacy)
 
 
-2.0.0-beta
-==========
+2.0.0-beta (11/13/2014)
+-----------------------
 
 * Merged the Lime "legacy" codebase
 * Initial steps towards Lime node.js support
@@ -66,16 +80,16 @@
 * Other minor fixes
 
 
-2.0.0-alpha.8
-=============
+2.0.0-alpha.8 (11/08/2014)
+--------------------------
 
 * Guarded certain CFFI calls
 * Fixed discovery of Java install on OS X
 * Omitting Android force downgrade on old devices
 
 
-2.0.0-alpha.7
-=============
+2.0.0-alpha.7 (11/01/2014)
+--------------------------
 
 * Improved handling of haxelib library versions
 * Add patched haxe.CallStack to fix C++ stack order
@@ -85,8 +99,8 @@
 * Added the force downgrade argument when installing on Android
 
 
-2.0.0-alpha.6
-=============
+2.0.0-alpha.6 (10/28/2014)
+--------------------------
 
 * Added initial support for cubic bezier font outlines
 * Added better OpenFL ASCII color on Mac
@@ -95,8 +109,8 @@
 * Fixed loading of type BINARY files as TEXT
 
 
-2.0.0-alpha.5
-=============
+2.0.0-alpha.5 (10/23/2014)
+--------------------------
 
 * Added patched Haxe Boot class, to fix Std.is on Safari
 * Added support for the "openfl" command
@@ -105,16 +119,16 @@
 * Minor fixes
 
 
-2.0.0-alpha.4
-=============
+2.0.0-alpha.4 (10/21/2014)
+--------------------------
 
 * Improved parsing of HXML when compiling for the Flash target
 * Improved the `<config />` data system
 * Enabled splash screen generation for iOS again
 
 
-2.0.0-alpha.3
-=============
+2.0.0-alpha.3 (10/20/2014)
+--------------------------
 
 * Fixed handling of HXML with comments when targeting Flash
 * Added initial support for ".bundle" asset folders
@@ -127,8 +141,8 @@
 * Added Tilesheet TILE_RECT support (legacy)
 
 
-2.0.0-alpha.2
-=============
+2.0.0-alpha.2 (10/16/2014)
+--------------------------
 
 * Added Lime "legacy" binaries for OpenFL v2 native support
 * Merged the Aether tools into Lime
@@ -153,8 +167,9 @@
 * Fixed null data in URLLoader on Neko (legacy)
 * Added a dead zone filter for joystick events (legacy)
 
-2.0.0-alpha
-===========
+
+2.0.0-alpha (10/14/2014)
+------------------------
 
 * Created an all-new Lime API
 * The core architecture is built around Application, Window and Renderer
@@ -174,19 +189,19 @@
 * Many other tool improvements
 
 
-1.0.1 
-=====
+1.0.1 (06/24/2014)
+------------------
 
 * Fixed BlackBerry support
 * Fixed a memory leak when using LZMA decoding
 
 
-1.0.0
-=====
+1.0.0 (05/29/2014)
+-----------------
 
 
-0.9.9
-=====
+0.9.9 (05/28/2014)
+-----------------
 
 * Fixed ACTIVATE/DEACTIVATE for Windows on minimize/restore
 * Fixed Mac fullscreen handling
@@ -194,8 +209,8 @@
 * Added "-nocolor" option
 
 
-0.9.8
-=====
+0.9.8 (05/27/2014)
+------------------
 
 * Fixed issues with Android JNI
 * Fixed a GPU texture issue on iOS
@@ -207,8 +222,8 @@
 * Other minor fixes
 
 
-0.9.7
-=====
+0.9.7 (04/22/2014)
+------------------
 
 * Merged Lime with NME for code collaboration
 * Fixed software rendering path
@@ -224,8 +239,8 @@
 * Fixed color order for PNG encoding
 
 
-0.9.6
-=====
+0.9.6 (03/18/2014)
+------------------
 
 * Fixed Android library instantiation order
 * Fixed Android onKeyUp event
@@ -236,8 +251,9 @@
 * Improved support for looping audio
 * Minor fixes
 
-0.9.5
-=====
+
+0.9.5 (03/04/2014)
+------------------
 
 * Improvements to Lime wrapper
 * Fixed cURL to support larger header sizes
@@ -262,15 +278,15 @@
 * Updated for automated builds: http://openfl.org/builds/lime
 
 
-0.9.4
-=====
+0.9.4 (01/27/2014)
+------------------
 
 * Fixed support for 8-bit PNG images with alpha
 * Fixed software fallback for certain older cards
 
 
-0.9.3
-=====
+0.9.3 (01/22/2014)
+------------------
 
 * Improved the Android extension API
 * Improved OpenAL audio panning behavior
@@ -278,23 +294,23 @@
 * Fixed GL drawArrays issue on desktop
 
 
-0.9.2
-=====
+0.9.2 (12/31/2013)
+------------------
 
 * Fixed Tizen storage directory
 * Fixed support for Emscripten
 
 
-0.9.1
-=====
+0.9.1 (12/18/2013)
+------------------
 
 * Lime wrapper improvements
 * Improved performance when loading OGG samples in memory
 * Added support for the Tizen emulator
 
 
-0.9.0
-=====
+0.9.0 (12/10/2013)
+------------------
 
 * Added Tizen support
 * Initial wrapper implementation

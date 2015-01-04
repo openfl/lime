@@ -13,6 +13,8 @@ import flash.Lib;
 #elseif java
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.glfw.GLFW;
+#elseif windows
+import sys.FileSystem;
 #end
 
 
@@ -57,7 +59,9 @@ class Application extends Module {
 			AudioManager.init ();
 			
 			#if (cpp || neko || nodejs)
-			lime_update_event_manager_register (__dispatch, __eventInfo);
+				
+				lime_update_event_manager_register (__dispatch, __eventInfo);
+				
 			#end
 			
 		}
@@ -89,9 +93,13 @@ class Application extends Module {
 		this.config = config;
 		
 		#if (cpp || neko || nodejs)
-		__handle = lime_application_create (null);
+			
+			__handle = lime_application_create (null);
+			
 		#elseif java
-		GLFW.glfwInit ();
+			
+			GLFW.glfwInit ();
+			
 		#end
 		
 		KeyEventManager.create ();
@@ -128,10 +136,23 @@ class Application extends Module {
 		window.height = config.height;
 		
 		#if (js && html5)
-		window.element = config.element;
+			
+			window.element = config.element;
+			
 		#end
 		
 		addWindow (window);
+		
+		#if windows
+			
+			if (FileSystem.exists ("icon.png")) {
+				
+				var image = Image.fromFile ("icon.png");
+				window.setIcon (image);
+				
+			}
+			
+		#end
 		
 	}
 	
@@ -145,114 +166,107 @@ class Application extends Module {
 	public function exec ():Int {
 		
 		#if nodejs
-		
-		lime_application_init (__handle);
-		
-		var prevTime = untyped __js__ ('Date.now ()');
-		var eventLoop = function () {
 			
-			var active = lime_application_update (__handle);
+			lime_application_init (__handle);
 			
-			if (!active) {
+			var prevTime = untyped __js__ ('Date.now ()');
+			var eventLoop = function () {
 				
-				var result = lime_application_quit (__handle);
-				__cleanup ();
-				Sys.exit (result);
+				var active = lime_application_update (__handle);
+				
+				if (!active) {
+					
+					var result = lime_application_quit (__handle);
+					__cleanup ();
+					Sys.exit (result);
+					
+				}
+				
+				var time =  untyped __js__ ('Date.now ()');
+				if (time - prevTime <= 16) {
+					
+					untyped setTimeout (eventLoop, 0);
+					
+				}
+				else {
+					
+					untyped setImmediate (eventLoop);
+					
+				}
+				
+				prevTime = time;
 				
 			}
 			
-			var time =  untyped __js__ ('Date.now ()');
-			if (time - prevTime <= 16) {
-				
-				untyped setTimeout (eventLoop, 0);
-				
-			}
-			else {
-				
-				untyped setImmediate (eventLoop);
-				
-			}
+			untyped setImmediate (eventLoop);
 			
-			prevTime = time;
-			
-		}
-		
-		untyped setImmediate (eventLoop);
-		
 		#elseif (cpp || neko)
-		
-		lime_application_init (__handle);
-		
-		while (lime_application_update (__handle)) {}
-		
-		var result = lime_application_quit (__handle);
-		__cleanup ();
-		
-		return result;
-		
+			
+			lime_application_init (__handle);
+			
+			while (lime_application_update (__handle)) {}
+			
+			var result = lime_application_quit (__handle);
+			__cleanup ();
+			
+			return result;
+			
 		#elseif (js && html5)
-		
-		untyped __js__ ("
-			var lastTime = 0;
-			var vendors = ['ms', 'moz', 'webkit', 'o'];
-			for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-				window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-				window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] 
-										   || window[vendors[x]+'CancelRequestAnimationFrame'];
-			}
 			
-			if (!window.requestAnimationFrame)
-				window.requestAnimationFrame = function(callback, element) {
-					var currTime = new Date().getTime();
-					var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-					var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
-					  timeToCall);
-					lastTime = currTime + timeToCall;
-					return id;
-				};
+			untyped __js__ ("
+				var lastTime = 0;
+				var vendors = ['ms', 'moz', 'webkit', 'o'];
+				for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+					window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+					window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] 
+											   || window[vendors[x]+'CancelRequestAnimationFrame'];
+				}
+				
+				if (!window.requestAnimationFrame)
+					window.requestAnimationFrame = function(callback, element) {
+						var currTime = new Date().getTime();
+						var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+						var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
+						  timeToCall);
+						lastTime = currTime + timeToCall;
+						return id;
+					};
+				
+				if (!window.cancelAnimationFrame)
+					window.cancelAnimationFrame = function(id) {
+						clearTimeout(id);
+					};
+				
+				window.requestAnimFrame = window.requestAnimationFrame;
+			");
 			
-			if (!window.cancelAnimationFrame)
-				window.cancelAnimationFrame = function(id) {
-					clearTimeout(id);
-				};
+			__triggerFrame ();
 			
-			window.requestAnimFrame = window.requestAnimationFrame;
-		");
-		
-		__triggerFrame ();
-		
 		#elseif flash
-		
-		Lib.current.stage.addEventListener (flash.events.Event.ENTER_FRAME, __triggerFrame);
-		
-		#elseif java
-		
-		if (window != null) {
 			
-			while (GLFW.glfwWindowShouldClose (window.handle) == GL11.GL_FALSE) {
+			Lib.current.stage.addEventListener (flash.events.Event.ENTER_FRAME, __triggerFrame);
+			
+		#elseif java
+			
+			if (window != null) {
 				
-				__triggerFrame ();
-				
-				GLFW.glfwSwapBuffers (window.handle);
-				GLFW.glfwPollEvents ();
+				while (GLFW.glfwWindowShouldClose (window.handle) == GL11.GL_FALSE) {
+					
+					__triggerFrame ();
+					
+					GLFW.glfwSwapBuffers (window.handle);
+					GLFW.glfwPollEvents ();
+					
+				}
 				
 			}
 			
-		}
-		
 		#end
 		
 		return 0;
 		
 	}
 	
-	#if (cpp || neko || nodejs)
-	@:noCompletion private function __cleanup():Void {
-		
-		AudioManager.shutdown();
-		
-	}
-	#end
 	
 	/**
 	 * The init() method is called once before the first render()
@@ -426,10 +440,23 @@ class Application extends Module {
 	}
 	
 	
+	@:noCompletion private function __cleanup():Void {
+		
+		#if (cpp || neko || nodejs)
+			
+			AudioManager.shutdown();
+			
+		#end
+		
+	}
+	
+	
 	@:noCompletion private static function __dispatch ():Void {
 		
 		#if (js && stats)
-		__instance.window.stats.begin ();
+			
+			__instance.window.stats.begin ();
+			
 		#end
 		
 		__instance.update (__eventInfo.deltaTime);
@@ -446,7 +473,9 @@ class Application extends Module {
 		Renderer.render ();
 		
 		#if (js && html5)
-		Browser.window.requestAnimationFrame (cast __triggerFrame);
+			
+			Browser.window.requestAnimationFrame (cast __triggerFrame);
+			
 		#end
 		
 	}

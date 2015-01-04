@@ -4,6 +4,7 @@ package lime.ui;
 import lime.app.Application;
 import lime.app.Config;
 import lime.app.Event;
+import lime.graphics.Image;
 import lime.graphics.Renderer;
 import lime.system.System;
 
@@ -71,7 +72,9 @@ class Window {
 			registered = true;
 			
 			#if (cpp || neko || nodejs)
-			lime_window_event_manager_register (dispatch, eventInfo);
+				
+				lime_window_event_manager_register (dispatch, eventInfo);
+				
 			#end
 			
 		}
@@ -85,137 +88,139 @@ class Window {
 		setHeight = height;
 		
 		#if (js && html5)
-		
-		if (Std.is (element, CanvasElement)) {
 			
-			canvas = cast element;
-			
-		} else {
-			
-			#if dom
-			div = cast Browser.document.createElement ("div");
-			#else
-			canvas = cast Browser.document.createElement ("canvas");
-			#end
-			
-		}
-		
-		if (canvas != null) {
-			
-			var style = canvas.style;
-			style.setProperty ("-webkit-transform", "translateZ(0)", null);
-			style.setProperty ("transform", "translateZ(0)", null);
-			
-		} else if (div != null) {
-			
-			var style = div.style;
-			style.setProperty ("-webkit-transform", "translate3D(0,0,0)", null);
-			style.setProperty ("transform", "translate3D(0,0,0)", null);
-			//style.setProperty ("-webkit-transform-style", "preserve-3d", null);
-			//style.setProperty ("transform-style", "preserve-3d", null);
-			style.position = "relative";
-			style.overflow = "hidden";
-			style.setProperty ("-webkit-user-select", "none", null);
-			style.setProperty ("-moz-user-select", "none", null);
-			style.setProperty ("-ms-user-select", "none", null);
-			style.setProperty ("-o-user-select", "none", null);
-			
-		}
-		
-		if (width == 0 && height == 0) {
-			
-			if (element != null) {
+			if (Std.is (element, CanvasElement)) {
 				
-				width = element.clientWidth;
-				height = element.clientHeight;
+				canvas = cast element;
 				
 			} else {
 				
-				width = Browser.window.innerWidth;
-				height = Browser.window.innerHeight;
+				#if dom
+				div = cast Browser.document.createElement ("div");
+				#else
+				canvas = cast Browser.document.createElement ("canvas");
+				#end
 				
 			}
-			
-			fullscreen = true;
-			
-		}
-		
-		if (canvas != null) {
-			
-			canvas.width = width;
-			canvas.height = height;
-			
-		} else {
-			
-			div.style.width = width + "px";
-			div.style.height = height + "px";
-			
-		}
-		
-		handleDOMResize ();
-		
-		if (element != null) {
 			
 			if (canvas != null) {
 				
-				if (element != cast canvas) {
-					
-					element.appendChild (canvas);
-					
-				}
+				var style = canvas.style;
+				style.setProperty ("-webkit-transform", "translateZ(0)", null);
+				style.setProperty ("transform", "translateZ(0)", null);
 				
-			} else {
+			} else if (div != null) {
 				
-				element.appendChild (div);
+				var style = div.style;
+				style.setProperty ("-webkit-transform", "translate3D(0,0,0)", null);
+				style.setProperty ("transform", "translate3D(0,0,0)", null);
+				//style.setProperty ("-webkit-transform-style", "preserve-3d", null);
+				//style.setProperty ("transform-style", "preserve-3d", null);
+				style.position = "relative";
+				style.overflow = "hidden";
+				style.setProperty ("-webkit-user-select", "none", null);
+				style.setProperty ("-moz-user-select", "none", null);
+				style.setProperty ("-ms-user-select", "none", null);
+				style.setProperty ("-o-user-select", "none", null);
 				
 			}
 			
-		}
-		
-		#if stats
-		stats = untyped __js__("new Stats ()");
-		stats.domElement.style.position = "absolute";
-		stats.domElement.style.top = "0px";
-		Browser.document.body.appendChild (stats.domElement);
-		#end
-		
+			if (width == 0 && height == 0) {
+				
+				if (element != null) {
+					
+					width = element.clientWidth;
+					height = element.clientHeight;
+					
+				} else {
+					
+					width = Browser.window.innerWidth;
+					height = Browser.window.innerHeight;
+					
+				}
+				
+				fullscreen = true;
+				
+			}
+			
+			if (canvas != null) {
+				
+				canvas.width = width;
+				canvas.height = height;
+				
+			} else {
+				
+				div.style.width = width + "px";
+				div.style.height = height + "px";
+				
+			}
+			
+			handleDOMResize ();
+			
+			if (element != null) {
+				
+				if (canvas != null) {
+					
+					if (element != cast canvas) {
+						
+						element.appendChild (canvas);
+						
+					}
+					
+				} else {
+					
+					element.appendChild (div);
+					
+				}
+				
+			}
+			
+			#if stats
+				
+				stats = untyped __js__("new Stats ()");
+				stats.domElement.style.position = "absolute";
+				stats.domElement.style.top = "0px";
+				Browser.document.body.appendChild (stats.domElement);
+				
+			#end
+			
 		#elseif (cpp || neko || nodejs)
-		
-		var flags = 0;
-		
-		if (config.antialiasing >= 4) {
 			
-			flags |= cast WindowFlags.WINDOW_FLAG_HW_AA_HIRES;
+			var flags = 0;
 			
-		} else if (config.antialiasing >= 2) {
+			if (config.antialiasing >= 4) {
+				
+				flags |= cast WindowFlags.WINDOW_FLAG_HW_AA_HIRES;
+				
+			} else if (config.antialiasing >= 2) {
+				
+				flags |= cast WindowFlags.WINDOW_FLAG_HW_AA;
+				
+			}
 			
-			flags |= cast WindowFlags.WINDOW_FLAG_HW_AA;
+			if (config.borderless) flags |= cast WindowFlags.WINDOW_FLAG_BORDERLESS;
+			if (config.depthBuffer) flags |= cast WindowFlags.WINDOW_FLAG_DEPTH_BUFFER;
+			if (config.fullscreen) flags |= cast WindowFlags.WINDOW_FLAG_FULLSCREEN;
+			if (config.resizable) flags |= cast WindowFlags.WINDOW_FLAG_RESIZABLE;
+			if (config.stencilBuffer) flags |= cast WindowFlags.WINDOW_FLAG_STENCIL_BUFFER;
+			if (config.vsync) flags |= cast WindowFlags.WINDOW_FLAG_VSYNC;
 			
-		}
-		
-		if (config.borderless) flags |= cast WindowFlags.WINDOW_FLAG_BORDERLESS;
-		if (config.depthBuffer) flags |= cast WindowFlags.WINDOW_FLAG_DEPTH_BUFFER;
-		if (config.fullscreen) flags |= cast WindowFlags.WINDOW_FLAG_FULLSCREEN;
-		if (config.resizable) flags |= cast WindowFlags.WINDOW_FLAG_RESIZABLE;
-		if (config.stencilBuffer) flags |= cast WindowFlags.WINDOW_FLAG_STENCIL_BUFFER;
-		if (config.vsync) flags |= cast WindowFlags.WINDOW_FLAG_VSYNC;
-		
-		handle = lime_window_create (application.__handle, width, height, flags, config.title);
-		
+			handle = lime_window_create (application.__handle, width, height, flags, config.title);
+			
 		#elseif java
-		
-		GLFW.glfwWindowHint (GLFW.GLFW_SAMPLES, config.antialiasing);
-		
-		if (config.borderless) GLFW.glfwWindowHint (GLFW.GLFW_DECORATED, GL11.GL_TRUE);
-		if (!config.depthBuffer) GLFW.glfwWindowHint (GLFW.GLFW_DEPTH_BITS, 0);
-		//if (config.fullscreen) GLFW.glfwWindowHint (GLFW.GLFW_DECORATED, GL11.GL_TRUE);
-		if (!config.resizable) GLFW.glfwWindowHint (GLFW.GLFW_RESIZABLE, GL11.GL_FALSE);
-		if (!config.stencilBuffer) GLFW.glfwWindowHint (GLFW.GLFW_STENCIL_BITS, 0);
-		
-		handle = GLFW.glfwCreateWindow (width, height, config.title, null, null);
-		
-		if (config.vsync) GLFW.glfwSwapInterval (1);
-		
+			
+			GLFW.glfwWindowHint (GLFW.GLFW_SAMPLES, config.antialiasing);
+			
+			if (config.borderless) GLFW.glfwWindowHint (GLFW.GLFW_DECORATED, GL11.GL_TRUE);
+			if (!config.depthBuffer) GLFW.glfwWindowHint (GLFW.GLFW_DEPTH_BITS, 0);
+			//if (config.fullscreen) GLFW.glfwWindowHint (GLFW.GLFW_DECORATED, GL11.GL_TRUE);
+			if (!config.resizable) GLFW.glfwWindowHint (GLFW.GLFW_RESIZABLE, GL11.GL_FALSE);
+			if (!config.stencilBuffer) GLFW.glfwWindowHint (GLFW.GLFW_STENCIL_BITS, 0);
+			
+			handle = GLFW.glfwCreateWindow (width, height, config.title, null, null);
+			
+			if (config.vsync) GLFW.glfwSwapInterval (1);
+			
 		#end
 		
 		KeyEventManager.registerWindow (this);
@@ -223,16 +228,20 @@ class Window {
 		TouchEventManager.registerWindow (this);
 		
 		#if (js && html5)
-		Browser.window.addEventListener ("focus", handleDOMEvent, false);
-		Browser.window.addEventListener ("blur", handleDOMEvent, false);
-		Browser.window.addEventListener ("resize", handleDOMEvent, false);
-		Browser.window.addEventListener ("beforeunload", handleDOMEvent, false);
+			
+			Browser.window.addEventListener ("focus", handleDOMEvent, false);
+			Browser.window.addEventListener ("blur", handleDOMEvent, false);
+			Browser.window.addEventListener ("resize", handleDOMEvent, false);
+			Browser.window.addEventListener ("beforeunload", handleDOMEvent, false);
+			
 		#elseif flash
-		Lib.current.stage.addEventListener (flash.events.Event.ACTIVATE, handleFlashEvent);
-		Lib.current.stage.addEventListener (flash.events.Event.DEACTIVATE, handleFlashEvent);
-		Lib.current.stage.addEventListener (flash.events.FocusEvent.FOCUS_IN, handleFlashEvent);
-		Lib.current.stage.addEventListener (flash.events.FocusEvent.FOCUS_OUT, handleFlashEvent);
-		Lib.current.stage.addEventListener (flash.events.Event.RESIZE, handleFlashEvent);
+			
+			Lib.current.stage.addEventListener (flash.events.Event.ACTIVATE, handleFlashEvent);
+			Lib.current.stage.addEventListener (flash.events.Event.DEACTIVATE, handleFlashEvent);
+			Lib.current.stage.addEventListener (flash.events.FocusEvent.FOCUS_IN, handleFlashEvent);
+			Lib.current.stage.addEventListener (flash.events.FocusEvent.FOCUS_OUT, handleFlashEvent);
+			Lib.current.stage.addEventListener (flash.events.Event.RESIZE, handleFlashEvent);
+			
 		#end
 		
 		if (currentRenderer != null) {
@@ -430,7 +439,9 @@ class Window {
 	public function move (x:Int, y:Int):Void {
 		
 		#if (cpp || neko || nodejs)
-		lime_window_move (handle, x, y);
+			
+			lime_window_move (handle, x, y);
+			
 		#end
 		
 	}
@@ -442,7 +453,26 @@ class Window {
 		setHeight = height;
 		
 		#if (cpp || neko || nodejs)
-		lime_window_resize (handle, width, height);
+			
+			lime_window_resize (handle, width, height);
+			
+		#end
+		
+	}
+	
+	
+	public function setIcon (image:Image):Void {
+		
+		if (image == null) {
+			
+			return;
+			
+		}
+		
+		#if (cpp || neko || nodejs)
+			
+			lime_window_set_icon (handle, image.buffer);
+			
 		#end
 		
 	}
@@ -453,6 +483,7 @@ class Window {
 	private static var lime_window_event_manager_register = System.load ("lime", "lime_window_event_manager_register", 2);
 	private static var lime_window_move = System.load ("lime", "lime_window_move", 3);
 	private static var lime_window_resize = System.load ("lime", "lime_window_resize", 3);
+	private static var lime_window_set_icon = System.load ("lime", "lime_window_set_icon", 2);
 	#end
 	
 	

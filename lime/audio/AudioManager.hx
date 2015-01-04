@@ -22,26 +22,31 @@ class AudioManager {
 		if (context == null) {
 			
 			#if (js && html5)
-			try {
 				
-				untyped __js__ ("window.AudioContext = window.AudioContext || window.webkitAudioContext;");
-				AudioManager.context = WEB (cast untyped __js__ ("new AudioContext ()"));
+				try {
+					
+					untyped __js__ ("window.AudioContext = window.AudioContext || window.webkitAudioContext;");
+					AudioManager.context = WEB (cast untyped __js__ ("new AudioContext ()"));
+					
+				} catch (e:Dynamic) {
+					
+					AudioManager.context = HTML5 (new HTML5AudioContext ());
+					
+				}
 				
-			} catch (e:Dynamic) {
-				
-				AudioManager.context = HTML5 (new HTML5AudioContext ());
-				
-			}
 			#elseif flash
-			AudioManager.context = FLASH (new FlashAudioContext ());
+				
+				AudioManager.context = FLASH (new FlashAudioContext ());
+				
 			#else
-			AudioManager.context = OPENAL (new ALCAudioContext (), new ALAudioContext ());
-			
-			var device = ALC.openDevice ();
-			var ctx = ALC.createContext (device);
-			ALC.makeContextCurrent (ctx);
-			ALC.processContext (ctx);
-			
+				
+				AudioManager.context = OPENAL (new ALCAudioContext (), new ALAudioContext ());
+				
+				var device = ALC.openDevice ();
+				var ctx = ALC.createContext (device);
+				ALC.makeContextCurrent (ctx);
+				ALC.processContext (ctx);
+				
 			#end
 			
 		} else {

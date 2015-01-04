@@ -710,7 +710,7 @@ void CreateMainFrame(nme::FrameCreationCallback inOnFrame,int inWidth,int inHeig
 
 bool sgDead = false;
 
-void SetIcon( const char *path ) { }
+void SetIcon( const OSChar *path ) { }
 
 QuickVec<int> *CapabilitiesGetScreenResolutions()
 {

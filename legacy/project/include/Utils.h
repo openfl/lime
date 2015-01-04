@@ -194,8 +194,6 @@ typedef std::wstring WString;
 WString IntToWide(int value);
 WString ColorToWide(int value);
 
-void SetIcon( const char *path );
-
 int GetDeviceOrientation();
 int GetNormalOrientation();
 double CapabilitiesGetPixelAspectRatio ();
@@ -254,6 +252,8 @@ extern int gFixedOrientation;
 
 #endif
 
+
+void SetIcon( const OSChar *path );
 
 std::string GetExeName();
 

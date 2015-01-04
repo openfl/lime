@@ -48,20 +48,20 @@ class AudioBuffer {
 	public static function fromBytes (bytes:ByteArray):AudioBuffer {
 		
 		#if (cpp || neko || nodejs)
-		
-		var data = lime_audio_load (bytes);
-		
-		if (data != null) {
 			
-			var audioBuffer = new AudioBuffer ();
-			audioBuffer.bitsPerSample = data.bitsPerSample;
-			audioBuffer.channels = data.channels;
-			audioBuffer.data = data.data;
-			audioBuffer.sampleRate = data.sampleRate;
-			return audioBuffer;
+			var data = lime_audio_load (bytes);
 			
-		}
-		
+			if (data != null) {
+				
+				var audioBuffer = new AudioBuffer ();
+				audioBuffer.bitsPerSample = data.bitsPerSample;
+				audioBuffer.channels = data.channels;
+				audioBuffer.data = data.data;
+				audioBuffer.sampleRate = data.sampleRate;
+				return audioBuffer;
+				
+			}
+			
 		#end
 		
 		return null;
@@ -72,20 +72,20 @@ class AudioBuffer {
 	public static function fromFile (path:String):AudioBuffer {
 		
 		#if (cpp || neko || nodejs)
-		
-		var data = lime_audio_load (path);
-		
-		if (data != null) {
 			
-			var audioBuffer = new AudioBuffer ();
-			audioBuffer.bitsPerSample = data.bitsPerSample;
-			audioBuffer.channels = data.channels;
-			audioBuffer.data = data.data;
-			audioBuffer.sampleRate = data.sampleRate;
-			return audioBuffer;
+			var data = lime_audio_load (path);
 			
-		}
-		
+			if (data != null) {
+				
+				var audioBuffer = new AudioBuffer ();
+				audioBuffer.bitsPerSample = data.bitsPerSample;
+				audioBuffer.channels = data.channels;
+				audioBuffer.data = data.data;
+				audioBuffer.sampleRate = data.sampleRate;
+				return audioBuffer;
+				
+			}
+			
 		#end
 		
 		return null;

@@ -3,6 +3,7 @@
 
 
 #include <SDL.h>
+#include <graphics/ImageBuffer.h>
 #include <ui/Window.h>
 
 
@@ -18,6 +19,7 @@ namespace lime {
 			
 			virtual void Move (int x, int y);
 			virtual void Resize (int width, int height);
+			virtual void SetIcon (ImageBuffer *imageBuffer);
 			
 			SDL_Window* sdlWindow;
 		

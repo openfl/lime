@@ -7,6 +7,7 @@
 #endif
 
 #include <app/Application.h>
+#include <graphics/ImageBuffer.h>
 
 
 namespace lime {
@@ -19,6 +20,7 @@ namespace lime {
 			
 			virtual void Move (int x, int y) = 0;
 			virtual void Resize (int width, int height) = 0;
+			virtual void SetIcon (ImageBuffer *imageBuffer) = 0;
 			
 			Application* currentApplication;
 			int flags;

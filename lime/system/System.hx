@@ -88,41 +88,41 @@ class System {
 	static private function findHaxeLib (library:String):String {
 		
 		#if (sys && !html5)
-		
-		try {
 			
-			var proc = new Process ("haxelib", [ "path", library ]);
-			
-			if (proc != null) {
+			try {
 				
-				var stream = proc.stdout;
+				var proc = new Process ("haxelib", [ "path", library ]);
 				
-				try {
+				if (proc != null) {
 					
-					while (true) {
+					var stream = proc.stdout;
+					
+					try {
 						
-						var s = stream.readLine ();
-						
-						if (s.substr (0, 1) != "-") {
+						while (true) {
 							
-							stream.close ();
-							proc.close ();
-							loaderTrace ("Found haxelib " + s);
-							return s;
+							var s = stream.readLine ();
+							
+							if (s.substr (0, 1) != "-") {
+								
+								stream.close ();
+								proc.close ();
+								loaderTrace ("Found haxelib " + s);
+								return s;
+								
+							}
 							
 						}
 						
-					}
+					} catch(e:Dynamic) { }
 					
-				} catch(e:Dynamic) { }
+					stream.close ();
+					proc.close ();
+					
+				}
 				
-				stream.close ();
-				proc.close ();
-				
-			}
+			} catch (e:Dynamic) { }
 			
-		} catch (e:Dynamic) { }
-		
 		#end
 		
 		return "";
@@ -252,14 +252,22 @@ class System {
 	private static function sysName ():String {
 		
 		#if (sys && !html5)
-		#if cpp
-		var sys_string = cpp.Lib.load ("std", "sys_string", 0);
-		return sys_string ();
+			
+			#if cpp
+				
+				var sys_string = cpp.Lib.load ("std", "sys_string", 0);
+				return sys_string ();
+				
+			#else
+				
+				return Sys.systemName ();
+				
+			#end
+			
 		#else
-		return Sys.systemName ();
-		#end
-		#else
-		return null;
+			
+			return null;
+			
 		#end
 		
 	}
@@ -307,10 +315,14 @@ class System {
 		#if (sys && !html5)
 		
 		#if cpp
-		var get_env = cpp.Lib.load ("std", "get_env", 1);
-		var debug = (get_env ("OPENFL_LOAD_DEBUG") != null);
+			
+			var get_env = cpp.Lib.load ("std", "get_env", 1);
+			var debug = (get_env ("OPENFL_LOAD_DEBUG") != null);
+			
 		#else
-		var debug = (Sys.getEnv ("OPENFL_LOAD_DEBUG") !=null);
+			
+			var debug = (Sys.getEnv ("OPENFL_LOAD_DEBUG") !=null);
+			
 		#end
 		
 		if (debug) {

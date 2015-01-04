@@ -1343,7 +1343,7 @@ void CreateMainFrame(FrameCreationCallback inOnFrame,int inWidth,int inHeight,
 
 bool sgDead = false;
 
-void SetIcon( const char *path ) {
+void SetIcon( const OSChar *path ) {
    #ifndef EMSCRIPTEN
    initSDL();
    

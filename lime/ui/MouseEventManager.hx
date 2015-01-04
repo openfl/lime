@@ -34,7 +34,9 @@ class MouseEventManager {
 		eventInfo = new MouseEventInfo ();
 		
 		#if (cpp || neko || nodejs)
-		lime_mouse_event_manager_register (handleEvent, eventInfo);
+			
+			lime_mouse_event_manager_register (handleEvent, eventInfo);
+			
 		#end
 		
 	}
@@ -43,92 +45,92 @@ class MouseEventManager {
 	private static function handleEvent (#if (js && html5) event:js.html.MouseEvent #elseif flash event:flash.events.MouseEvent #end):Void {
 		
 		#if (js && html5)
-		
-		eventInfo.type = switch (event.type) {
 			
-			case "mousedown": MOUSE_DOWN;
-			case "mouseup": MOUSE_UP;
-			case "mousemove": MOUSE_MOVE;
-			//case "click": MouseEvent.CLICK;
-			//case "dblclick": MouseEvent.DOUBLE_CLICK;
-			case "wheel": MOUSE_WHEEL;
-			default: null;
-			
-		}
-		
-		if (eventInfo.type != MOUSE_WHEEL) {
-			
-			if (window != null && window.element != null) {
+			eventInfo.type = switch (event.type) {
 				
-				if (window.canvas != null) {
+				case "mousedown": MOUSE_DOWN;
+				case "mouseup": MOUSE_UP;
+				case "mousemove": MOUSE_MOVE;
+				//case "click": MouseEvent.CLICK;
+				//case "dblclick": MouseEvent.DOUBLE_CLICK;
+				case "wheel": MOUSE_WHEEL;
+				default: null;
+				
+			}
+			
+			if (eventInfo.type != MOUSE_WHEEL) {
+				
+				if (window != null && window.element != null) {
 					
-					var rect = window.canvas.getBoundingClientRect ();
-					eventInfo.x = (event.clientX - rect.left) * (window.width / rect.width);
-					eventInfo.y = (event.clientY - rect.top) * (window.height / rect.height);
-					
-				} else if (window.div != null) {
-					
-					var rect = window.div.getBoundingClientRect ();
-					//eventInfo.x = (event.clientX - rect.left) * (window.div.style.width / rect.width);
-					eventInfo.x = (event.clientX - rect.left);
-					//eventInfo.y = (event.clientY - rect.top) * (window.div.style.height / rect.height);
-					eventInfo.y = (event.clientY - rect.top);
+					if (window.canvas != null) {
+						
+						var rect = window.canvas.getBoundingClientRect ();
+						eventInfo.x = (event.clientX - rect.left) * (window.width / rect.width);
+						eventInfo.y = (event.clientY - rect.top) * (window.height / rect.height);
+						
+					} else if (window.div != null) {
+						
+						var rect = window.div.getBoundingClientRect ();
+						//eventInfo.x = (event.clientX - rect.left) * (window.div.style.width / rect.width);
+						eventInfo.x = (event.clientX - rect.left);
+						//eventInfo.y = (event.clientY - rect.top) * (window.div.style.height / rect.height);
+						eventInfo.y = (event.clientY - rect.top);
+						
+					} else {
+						
+						var rect = window.element.getBoundingClientRect ();
+						eventInfo.x = (event.clientX - rect.left) * (window.width / rect.width);
+						eventInfo.y = (event.clientY - rect.top) * (window.height / rect.height);
+						
+					}
 					
 				} else {
 					
-					var rect = window.element.getBoundingClientRect ();
-					eventInfo.x = (event.clientX - rect.left) * (window.width / rect.width);
-					eventInfo.y = (event.clientY - rect.top) * (window.height / rect.height);
+					eventInfo.x = event.clientX;
+					eventInfo.y = event.clientY;
 					
 				}
 				
 			} else {
 				
-				eventInfo.x = event.clientX;
-				eventInfo.y = event.clientY;
+				eventInfo.x = untyped event.deltaX;
+				eventInfo.y = untyped event.deltaY;
 				
 			}
 			
-		} else {
+			eventInfo.button = event.button;
 			
-			eventInfo.x = untyped event.deltaX;
-			eventInfo.y = untyped event.deltaY;
-			
-		}
-		
-		eventInfo.button = event.button;
-		
 		#elseif flash
-		
-		eventInfo.type = switch (event.type) {
 			
-			case "mouseDown", "middleMouseDown", "rightMouseDown": MOUSE_DOWN;
-			case "mouseMove", "middleMouseMove", "rightMouseMove": MOUSE_MOVE;
-			case "mouseUp", "middleMouseUp", "rightMouseUp": MOUSE_UP;
-			default: MOUSE_WHEEL;
+			eventInfo.type = switch (event.type) {
+				
+				case "mouseDown", "middleMouseDown", "rightMouseDown": MOUSE_DOWN;
+				case "mouseMove", "middleMouseMove", "rightMouseMove": MOUSE_MOVE;
+				case "mouseUp", "middleMouseUp", "rightMouseUp": MOUSE_UP;
+				default: MOUSE_WHEEL;
+				
+			}
 			
-		}
-		
-		if (eventInfo.type != MOUSE_WHEEL) {
+			if (eventInfo.type != MOUSE_WHEEL) {
+				
+				eventInfo.x = event.stageX;
+				eventInfo.y = event.stageY;
+				
+			} else {
+				
+				eventInfo.x = 0;
+				eventInfo.y = event.delta;
+				
+			}
 			
-			eventInfo.x = event.stageX;
-			eventInfo.y = event.stageY;
+			eventInfo.button = switch (event.type) {
+				
+				case "middleMouseDown", "middleMouseMove", "middleMouseUp": 1;
+				case "rightMouseDown", "rightMouseMove", "rightMouseUp": 2;
+				default: 0;
+				
+			}
 			
-		} else {
-			
-			eventInfo.x = 0;
-			eventInfo.y = event.delta;
-			
-		}
-		
-		eventInfo.button = switch (event.type) {
-			
-			case "middleMouseDown", "middleMouseMove", "middleMouseUp": 1;
-			case "rightMouseDown", "rightMouseMove", "rightMouseUp": 2;
-			default: 0;
-			
-		}
-		
 		#end
 		
 		switch (eventInfo.type) {
@@ -159,39 +161,46 @@ class MouseEventManager {
 	private static function registerWindow (_window:Window):Void {
 		
 		#if (js && html5)
-		
-		var events = [ "mousedown", "mousemove", "mouseup", "wheel" ];
-		
-		for (event in events) {
 			
-			_window.element.addEventListener (event, handleEvent, true);
+			var events = [ "mousedown", "mousemove", "mouseup", "wheel" ];
 			
-		}
-		
-		MouseEventManager.window = _window;
-		
-		// Disable image drag on Firefox
-		Browser.document.addEventListener ("dragstart", function (e) {
-			if (e.target.nodeName.toLowerCase () == "img") {
-				e.preventDefault ();
-				return false;
+			for (event in events) {
+				
+				_window.element.addEventListener (event, handleEvent, true);
+				
 			}
-			return true;
-		}, false);
-		
+			
+			MouseEventManager.window = _window;
+			
+			// Disable image drag on Firefox
+			Browser.document.addEventListener ("dragstart", function (e) {
+				if (e.target.nodeName.toLowerCase () == "img") {
+					e.preventDefault ();
+					return false;
+				}
+				return true;
+			}, false);
+			
 		#elseif flash
-		
-		var events = [ "mouseDown", "mouseMove", "mouseUp", "mouseWheel", "middleMouseDown", "middleMouseMove", "middleMouseUp", "rightMouseDown", "rightMouseMove", "rightMouseUp" ];
-		
-		for (event in events) {
 			
-			Lib.current.stage.addEventListener (event, handleEvent);
+			var events = [ "mouseDown", "mouseMove", "mouseUp", "mouseWheel", "middleMouseDown", "middleMouseMove", "middleMouseUp" #if ((!openfl && !disable_flash_right_click) || enable_flash_right_click) , "rightMouseDown", "rightMouseMove", "rightMouseUp" #end ];
 			
-		}
-		
+			for (event in events) {
+				
+				Lib.current.stage.addEventListener (event, handleEvent);
+				
+			}
+			
 		#end
 		
 	}
+	
+	
+	
+	
+	// Native Methods
+	
+	
 	
 	
 	#if (cpp || neko || nodejs)
