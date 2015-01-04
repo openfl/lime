@@ -1145,15 +1145,6 @@ void SimpleSurface::getPixels(const Rect &inRect,uint32 *outPixels,bool inIgnore
             src+=4;
          }
          outPixels += r.w;
-
-         if (!(mPixelFormat & pfHasAlpha))
-         {
-            for(int x=0;x<r.w;x++)
-            {
-               *a = 255;
-               a+=4;
-            }
-         }
       }
    }
 }
