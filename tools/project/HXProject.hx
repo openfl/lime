@@ -1060,6 +1060,8 @@ class HXProject {
 			}
 			
 		}
+
+		var haxedefsArray = new Array<String>();
 		
 		for (key in haxedefs.keys ()) {
 			
@@ -1070,17 +1072,25 @@ class HXProject {
 				compilerFlags.push ("-D " + key);
 				
 				Reflect.setField (context, "DEFINE_" + key.toUpperCase (), true);
+
+				haxedefsArray.push(key);
 				
 			} else {
 				
 				compilerFlags.push ("-D " + key + "=" + value);
 				
 				Reflect.setField (context, "DEFINE_" + key.toUpperCase (), value);
+
+				haxedefsArray.push(key + "=" + value);
 				
 			}
 			
 		}
 		
+		// Especially for use in iOS build makefile, so that
+		// definitions can be forwarded to hxcpp.
+		context.HAXE_DEFS = haxedefsArray;
+
 		if (target != Platform.FLASH) {
 			
 			compilerFlags.push ("-D " + Std.string (target).toLowerCase ());
@@ -1099,7 +1109,7 @@ class HXProject {
 			context.HAXE_FLAGS = "\n" + compilerFlags.join ("\n");
 			
 		}
-		
+
 		var main = app.main;
 		
 		if (main == null) {

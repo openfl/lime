@@ -39,7 +39,7 @@ ifeq ("$(HAXE_OS)","iphonesimulator")
 endif
 CONFIG := $(CONFIG)-$(HAXE_OS)
 
-HXCPP_DEFS := ::if DEFINE_HXCPP_STACK_TRACE::-DHXCPP_STACK_TRACE::end:: ::if DEFINE_HXCPP_STACK_LINE::-DHXCPP_STACK_LINE::end::
+HXCPP_DEFS := ::foreach HAXE_DEFS:: -D::__current__::::end::
 
 debug_print:
 	@echo "Make $(HAXE_BUILDS)"
