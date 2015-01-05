@@ -209,6 +209,31 @@ class IOSPlatform extends PlatformTarget {
 		context.CPP_BUILD_LIBRARY = project.config.getString ("cpp.buildLibrary", "hxcpp");
 		context.IOS_LINKER_FLAGS = ["-stdlib=libc++"].concat (project.config.getArrayString ("ios.linker-flags"));
 		
+		var compilerFlags = "";
+		
+		for (key in project.haxedefs.keys ()) {
+			
+			switch (key) {
+				
+				case "no-compilation":
+				default:
+					
+					var value = project.haxedefs.get (key);
+					
+					if (value == null || value == "") {
+						
+						value = "1";
+						
+					}
+					
+					compilerFlags += " -D" + StringTools.replace (key, "-", "_") + "=\"" + value + "\"";
+				
+			}
+			
+		}
+		
+		context.CPP_BUILD_LIBRARY_FLAGS = compilerFlags;
+		
 		switch (project.window.orientation) {
 			
 			case PORTRAIT:
