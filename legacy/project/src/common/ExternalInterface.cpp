@@ -4456,6 +4456,18 @@ value nme_sound_channel_set_transform(value inChannel, value inTransform)
 }
 DEFINE_PRIM(nme_sound_channel_set_transform,2);
 
+value nme_sound_channel_set_pitch(value inChannel, value inFloat)
+{
+   SoundChannel *channel;
+   if (AbstractToObject(inChannel,channel))
+   {
+      float pitch = val_number(inFloat);
+      channel->setPitch(pitch);
+   }
+   return alloc_null();
+}
+DEFINE_PRIM(nme_sound_channel_set_pitch,2);
+
 value nme_sound_channel_create(value inSound, value inStart, value inLoops, value inTransform)
 {
    Sound *sound;

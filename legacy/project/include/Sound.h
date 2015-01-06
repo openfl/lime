@@ -40,6 +40,7 @@ public:
    virtual double setPosition(const float &inFloat) = 0;
    virtual void stop() = 0;
    virtual void setTransform(const SoundTransform &inTransform) = 0;
+   virtual void setPitch(const float &inFloat) = 0;
 
    virtual double getDataPosition() { return 0.0; }
    virtual bool needsData() { return false; }

@@ -236,6 +236,10 @@ namespace nme
             }
             [theActualPlayer setVolume: inTransform.volume];
         }
+        void setPitch(const float &inFloat) {
+            LOG_SOUND("AVAudioPlayerChannel setPitch()");
+            [theActualPlayer setPitch: inFloat];
+        }
         void stop()
         {
             LOG_SOUND("AVAudioPlayerChannel stop()");

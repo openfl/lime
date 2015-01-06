@@ -410,6 +410,19 @@ namespace nme
    }
    
    
+   void OpenALChannel::setPitch(const float &inFloat)
+   {
+      if (mUseStream)
+      {
+         if (mStream) mStream->setPitch(inFloat);
+      }
+      else
+      {
+         alSourcef(mSourceID, AL_PITCH, inFloat);
+      }
+   }
+   
+   
    void OpenALChannel::stop()
    {
       if (mUseStream)
@@ -1282,6 +1295,15 @@ namespace nme
          alSourcef(source, AL_GAIN, inTransform.volume);
              //magic number : Half PI 
          alSource3f(source, AL_POSITION, (float) cos((inTransform.pan - 1) * (1.5707)), 0, (float) sin((inTransform.pan + 1) * (1.5707)));
+      }
+   }
+   
+   
+   void AudioStream_Ogg::setPitch(const float &inFloat)
+   {
+      if (!mSuspend)
+      {
+         alSourcef(source, AL_PITCH, inFloat);
       }
    }
    
