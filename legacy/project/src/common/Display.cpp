@@ -40,6 +40,8 @@ DisplayObject::DisplayObject(bool inInitRef) : Object(inInitRef)
    #endif
    scaleX = scaleY = 1.0;
    rotation = 0;
+   skew00 = skew11 = 1.0;
+   skew10 = skew01 = 0.0;
    visible = true;
    mBitmapCache = 0;
    cacheAsBitmap = false;
@@ -338,13 +340,17 @@ Matrix &DisplayObject::GetLocalMatrix()
    if (mDirtyFlags & dirtLocalMatrix)
    {
       mDirtyFlags ^= dirtLocalMatrix;
-      double r = rotation*M_PI/-180.0;
+      double r = rotation*M_PI/180.0;
       double c = cos(r);
       double s = sin(r);
-      mLocalMatrix.m00 = c*scaleX;
-      mLocalMatrix.m01 = s*scaleY;
-      mLocalMatrix.m10 = -s*scaleX;
-      mLocalMatrix.m11 = c*scaleY;
+      double m00 = skew00 * scaleX;
+      double m10 = skew10 * scaleX;
+      double m01 = skew01 * scaleY;
+      double m11 = skew11 * scaleY;
+      mLocalMatrix.m00 = m00 * c - m10 * s;
+      mLocalMatrix.m10 = m00 * s + m10 * c;
+      mLocalMatrix.m01 = m01 * c - m11 * s;
+      mLocalMatrix.m11 = m01 * s + m11 * c;
       mLocalMatrix.mtx = x;
       mLocalMatrix.mty = y;
       #ifdef NME_S3D
@@ -373,21 +379,22 @@ void DisplayObject::UpdateDecomp()
       #ifdef NME_S3D
       z = mLocalMatrix.mtz;
       #endif
-      scaleX = sqrt( mLocalMatrix.m00*mLocalMatrix.m00 +
-                     mLocalMatrix.m10*mLocalMatrix.m10 );
-      scaleY = sqrt( mLocalMatrix.m01*mLocalMatrix.m01 +
-                     mLocalMatrix.m11*mLocalMatrix.m11 );
-      rotation = scaleX>0 ? atan2( mLocalMatrix.m01, mLocalMatrix.m00 ) :
-                 scaleY>0 ? atan2( mLocalMatrix.m11, mLocalMatrix.m10 ) : 0.0;
-      //printf("Rotation = %f\n",rotation);
-      /*
-      scaleX = cos(rotation) * mLocalMatrix.m00 +
-               -sin(rotation) * mLocalMatrix.m10;
-      scaleY = sin(rotation) * mLocalMatrix.m01 + 
-               cos(rotation) * mLocalMatrix.m11;
-               */
-      //printf("scale = %f,%f\n", scaleX, scaleY );
-      rotation *= 180.0/-M_PI;
+      scaleX = sqrt(mLocalMatrix.m00 * mLocalMatrix.m00 + mLocalMatrix.m10 * mLocalMatrix.m10);
+      scaleY = sqrt(mLocalMatrix.m01 * mLocalMatrix.m01 + mLocalMatrix.m11 * mLocalMatrix.m11);
+      if ((mLocalMatrix.m00 * mLocalMatrix.m11 - mLocalMatrix.m10 * mLocalMatrix.m01) < 0.0)
+          scaleY = -scaleY;
+      double angle = atan2(mLocalMatrix.m10, mLocalMatrix.m00);
+      rotation = angle * 180.0 / M_PI;
+      double s = sin(-angle);
+      double c = cos(-angle);
+      skew00 = mLocalMatrix.m00 * c - mLocalMatrix.m10 * s;
+      skew10 = mLocalMatrix.m00 * s + mLocalMatrix.m10 * c;
+      skew01 = mLocalMatrix.m01 * c - mLocalMatrix.m11 * s;
+      skew11 = mLocalMatrix.m01 * s + mLocalMatrix.m11 * c;
+      if (scaleX != 0.0)
+        skew00 /= scaleX, skew10 /= scaleX;
+      if (scaleY != 0.0)
+        skew01 /= scaleY, skew11 /= scaleY;
    }
 }
 

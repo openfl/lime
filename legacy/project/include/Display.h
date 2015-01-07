@@ -243,6 +243,10 @@ protected:
    double scaleX;
    double scaleY;
    double rotation;
+   double skew00;
+   double skew01;
+   double skew10;
+   double skew11;
 };
 
 
