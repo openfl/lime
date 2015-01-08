@@ -365,9 +365,12 @@ class IOSPlatform extends PlatformTarget {
 		
 		context.HAS_ICON = true;
 		
+		var iconPath = PathHelper.combine (projectDirectory, "Images.xcassets/AppIcon.appiconset");
+		PathHelper.mkdir (iconPath);
+		
 		for (i in 0...iconNames.length) {
 			
-			if (!IconHelper.createIcon (project.icons, iconSizes[i], iconSizes[i], PathHelper.combine (projectDirectory, iconNames[i]))) {
+			if (!IconHelper.createIcon (project.icons, iconSizes[i], iconSizes[i], PathHelper.combine (iconPath, iconNames[i]))) {
 				
 				context.HAS_ICON = false;
 				
@@ -379,6 +382,9 @@ class IOSPlatform extends PlatformTarget {
 		var splashScreenWidth = [ 320, 640, 640, 768, 1024, 1536, 2048 ];
 		var splashScreenHeight = [ 480, 960, 1136, 1024, 768, 2048, 1536 ];
 		
+		var splashScreenPath = PathHelper.combine (projectDirectory, "Images.xcassets/LaunchImage.launchimage");
+		PathHelper.mkdir (splashScreenPath);
+		
 		for (i in 0...splashScreenNames.length) {
 			
 			var width = splashScreenWidth[i];
@@ -389,7 +395,7 @@ class IOSPlatform extends PlatformTarget {
 				
 				if (splashScreen.width == width && splashScreen.height == height && Path.extension (splashScreen.path) == "png") {
 					
-					FileHelper.copyFile (splashScreen.path, PathHelper.combine (projectDirectory, splashScreenNames[i]));
+					FileHelper.copyFile (splashScreen.path, PathHelper.combine (splashScreenPath, splashScreenNames[i]));
 					match = true;
 					
 				}
@@ -398,16 +404,16 @@ class IOSPlatform extends PlatformTarget {
 			
 			if (!match) {
 				
-				var splashScreenPath = PathHelper.combine (projectDirectory, splashScreenNames[i]);
+				var imagePath = PathHelper.combine (splashScreenPath, splashScreenNames[i]);
 				
-				if (!FileSystem.exists (splashScreenPath)) {
+				if (!FileSystem.exists (imagePath)) {
 					
-					LogHelper.info ("", " - \x1b[1mGenerating image:\x1b[0m " + PathHelper.combine (projectDirectory, splashScreenNames[i]));
+					LogHelper.info ("", " - \x1b[1mGenerating image:\x1b[0m " + imagePath);
 					
 					var image = new Image (null, 0, 0, width, height, (0xFF << 24) | (project.window.background & 0xFFFFFF));
 					var bytes = image.encode ("png");
 					
-					File.saveBytes (splashScreenPath, bytes);
+					File.saveBytes (imagePath, bytes);
 					
 				}
 				
