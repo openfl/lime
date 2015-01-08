@@ -47,7 +47,7 @@
       "filename" : "Icon-76@2x.png",
       "scale" : "2x"
     },
-    /*{
+    {
       "idiom" : "iphone",
       "scale" : "2x",
       "size" : "29x29"
@@ -86,7 +86,7 @@
       "idiom" : "ipad",
       "scale" : "2x",
       "size" : "29x29"
-    }*/
+    }
   ],
   "info" : {
     "version" : 1,

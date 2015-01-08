@@ -19,7 +19,7 @@
       "subtype" : "retina4",
       "scale" : "2x"
     },
-    /*{
+    {
       "orientation" : "portrait",
       "idiom" : "iphone",
       "minimum-system-version" : "7.0",
@@ -31,7 +31,7 @@
       "minimum-system-version" : "7.0",
       "subtype" : "retina4",
       "scale" : "2x"
-    },*/
+    },
     {
       "orientation" : "portrait",
       "idiom" : "ipad",
@@ -60,7 +60,7 @@
       "extent" : "full-screen",
       "scale" : "2x"
     },
-    /*{
+    {
       "orientation" : "portrait",
       "idiom" : "ipad",
       "minimum-system-version" : "7.0",
@@ -87,7 +87,7 @@
       "minimum-system-version" : "7.0",
       "extent" : "full-screen",
       "scale" : "2x"
-    }*/
+    }
   ],
   "info" : {
     "version" : 1,
