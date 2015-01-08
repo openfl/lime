@@ -213,11 +213,15 @@ public class GameActivity extends SDLActivity {
 	::if (ANDROID_TARGET_SDK_VERSION >= 14)::
 	@Override public void onTrimMemory (int level) {
 		
-		super.onTrimMemory (level);
-		
-		for (Extension extension : extensions) {
+		if (Build.VERSION.SDK_INT >= 14) {
 			
-			extension.onTrimMemory (level);
+			super.onTrimMemory (level);
+			
+			for (Extension extension : extensions) {
+				
+				extension.onTrimMemory (level);
+				
+			}
 			
 		}
 		
