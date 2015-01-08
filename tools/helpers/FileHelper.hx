@@ -263,6 +263,19 @@ class FileHelper {
 	}
 	
 	
+	public static function getLastModified (source:String):Float {
+		
+		if (FileSystem.exists (source)) {
+			
+			return FileSystem.stat (source).mtime.getTime ();
+			
+		}
+		
+		return -1;
+		
+	}
+	
+	
 	public static function linkFile (source:String, destination:String, symbolic:Bool = true, overwrite:Bool = false) {
 		
 		if (!isNewer (source, destination)) {

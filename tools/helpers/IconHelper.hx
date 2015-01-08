@@ -26,17 +26,54 @@ import sys.FileSystem;
 class IconHelper {
 	
 	
-	public static function createIcon (icons:Array <Icon>, width:Int, height:Int, targetPath:String):Bool {
+	private static function canUseCache (targetPath:String, icons:Array<Icon>):Bool {
+		
+		if (FileSystem.exists (targetPath)) {
+			
+			var cacheTime = FileHelper.getLastModified (targetPath);
+			
+			for (icon in icons) {
+				
+				if (FileHelper.getLastModified (icon.path) > cacheTime) {
+					
+					return false;
+					
+				}
+				
+			}
+			
+			return true;
+			
+		}
+		
+		return false;
+		
+	}
+	
+	
+	public static function createIcon (icons:Array<Icon>, width:Int, height:Int, targetPath:String):Bool {
 		
 		var icon = findMatch (icons, width, height);
 		
 		if (icon != null && icon.size > 0 && Path.extension (icon.path) == "png") {
+			
+			if (canUseCache (targetPath, [ icon ])) {
+				
+				return true;
+				
+			}
 			
 			PathHelper.mkdir (Path.directory (targetPath));
 			FileHelper.copyFile (icon.path, targetPath);
 			return true;
 			
 		} else {
+			
+			if (canUseCache (targetPath, icons)) {
+				
+				return true;
+				
+			}
 			
 			var image = getIconImage (icons, width, height);
 			
@@ -55,32 +92,13 @@ class IconHelper {
 	}
 	
 	
-	public static function createMacIcon (icons:Array <Icon>, targetPath:String):Bool {
+	public static function createMacIcon (icons:Array<Icon>, targetPath:String):Bool {
 		
-		try {
+		if (canUseCache (targetPath, icons)) {
 			
-			var useCache = FileSystem.exists (targetPath);
+			return true;
 			
-			if (useCache) {
-				
-				var iconTime = FileSystem.stat (targetPath).mtime.getTime ();
-				
-				for (icon in icons) {
-					
-					if (FileSystem.exists (icon.path) && FileSystem.stat (icon.path).mtime.getTime () > iconTime) {
-						
-						useCache = false;
-						break;
-						
-					}
-					
-				}
-				
-				if (useCache) return true;
-				
-			}
-			
-		} catch (e:Dynamic) {}
+		}
 		
 		var out = new BytesOutput ();
 		out.bigEndian = true;
@@ -164,30 +182,11 @@ class IconHelper {
 	
 	public static function createWindowsIcon (icons:Array <Icon>, targetPath:String):Bool {
 		
-		try {
+		if (canUseCache (targetPath, icons)) {
 			
-			var useCache = FileSystem.exists (targetPath);
+			return true;
 			
-			if (useCache) {
-				
-				var iconTime = FileSystem.stat (targetPath).mtime.getTime ();
-				
-				for (icon in icons) {
-					
-					if (FileSystem.exists (icon.path) && FileSystem.stat (icon.path).mtime.getTime () > iconTime) {
-						
-						useCache = false;
-						break;
-						
-					}
-					
-				}
-				
-				if (useCache) return true;
-				
-			}
-			
-		} catch (e:Dynamic) {}
+		}
 		
 		var sizes = [ 16, 24, 32, 40, 48, 64, 96, 128, 256 ];
 		
