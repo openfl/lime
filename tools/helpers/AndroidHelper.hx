@@ -5,6 +5,7 @@ import helpers.LogHelper;
 import helpers.ProcessHelper;
 import project.HXProject;
 import project.Platform;
+import sys.io.File;
 import sys.FileSystem;
 
 
@@ -85,7 +86,9 @@ class AndroidHelper {
 		ProcessHelper.runCommand (adbPath, adbName, [ "kill-server" ]);
 		ProcessHelper.runCommand (adbPath, adbName, [ "start-server" ]);
 		
-		var args = [ "wait-for-device", "shell", "getprop", "ro.build.version.sdk" ];
+		var tempFile = PathHelper.getTemporaryFile ();
+		
+		var args = [ "wait-for-device", "shell", "getprop", "ro.build.version.sdk", ">", tempFile ];
 		
 		if (deviceID != null && deviceID != "") {
 			
@@ -96,9 +99,17 @@ class AndroidHelper {
 			
 		}
 		
-		var output = ProcessHelper.runProcess (adbPath, adbName, args);
-		return Std.parseInt (output);
+		ProcessHelper.runCommand (adbPath, adbName, args);
 		
+		if (FileSystem.exists (tempFile)) {
+			
+			var output = File.getContent (tempFile);
+			FileSystem.deleteFile (tempFile);
+			return Std.parseInt (output);
+			
+		}
+		
+		return 0;
 	}
 	
 	
