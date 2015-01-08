@@ -139,6 +139,31 @@ class IconHelper {
 	
 	public static function createWindowsIcon (icons:Array <Icon>, targetPath:String):Bool {
 		
+		try {
+			
+			var useCache = FileSystem.exists (targetPath);
+			
+			if (useCache) {
+				
+				var iconTime = FileSystem.stat (targetPath).mtime.getTime ();
+				
+				for (icon in icons) {
+					
+					if (FileSystem.exists (icon.path) && FileSystem.stat (icon.path).mtime.getTime () > iconTime) {
+						
+						useCache = false;
+						break;
+						
+					}
+					
+				}
+				
+				if (useCache) return true;
+				
+			}
+			
+		} catch (e:Dynamic) {}
+		
 		var sizes = [ 16, 24, 32, 40, 48, 64, 96, 128, 256 ];
 		
 		var images = new Array <Image> ();
