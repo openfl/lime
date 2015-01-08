@@ -36,8 +36,12 @@ class BMP {
 			
 		}
 		
+		#if !flash
+		var data = new ByteArray (fileHeaderLength + infoHeaderLength + pixelValuesLength);
+		#else
 		var data = new ByteArray ();
 		data.length = fileHeaderLength + infoHeaderLength + pixelValuesLength;
+		#end
 		
 		#if (cpp || neko)
 		data.bigEndian = false;
@@ -134,8 +138,12 @@ class BMP {
 			
 		} else {
 			
+			#if !flash
+			var andMask = new ByteArray (image.width * image.height);
+			#else
 			var andMask = new ByteArray ();
 			andMask.length = image.width * image.height;
+			#end
 			
 			for (y in 0...image.height) {
 				
