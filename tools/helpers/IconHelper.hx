@@ -57,6 +57,31 @@ class IconHelper {
 	
 	public static function createMacIcon (icons:Array <Icon>, targetPath:String):Bool {
 		
+		try {
+			
+			var useCache = FileSystem.exists (targetPath);
+			
+			if (useCache) {
+				
+				var iconTime = FileSystem.stat (targetPath).mtime.getTime ();
+				
+				for (icon in icons) {
+					
+					if (FileSystem.exists (icon.path) && FileSystem.stat (icon.path).mtime.getTime () > iconTime) {
+						
+						useCache = false;
+						break;
+						
+					}
+					
+				}
+				
+				if (useCache) return true;
+				
+			}
+			
+		} catch (e:Dynamic) {}
+		
 		var out = new BytesOutput ();
 		out.bigEndian = true;
 		
