@@ -37,7 +37,10 @@ class BMP {
 		}
 		
 		var data = new ByteArray (fileHeaderLength + infoHeaderLength + pixelValuesLength);
+		
+		#if (cpp || neko)
 		data.bigEndian = false;
+		#end
 		
 		if (fileHeaderLength > 0) {
 			
