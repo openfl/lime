@@ -93,12 +93,21 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 		
-		IconHelper.createIcon (project.icons, 32, 32, PathHelper.combine (applicationDirectory, "icon.png"));
+		//IconHelper.createIcon (project.icons, 32, 32, PathHelper.combine (applicationDirectory, "icon.png"));
 		
 		if (targetType == "neko") {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
-			NekoHelper.createExecutable (project.templatePaths, "windows", targetDirectory + "/obj/ApplicationMain.n", executablePath);
+			
+			var iconPath = PathHelper.combine (applicationDirectory, "icon.ico");
+			
+			if (!IconHelper.createWindowsIcon (project.icons, iconPath)) {
+				
+				iconPath = null;
+				
+			}
+			
+			NekoHelper.createWindowsExecutable (project.templatePaths, targetDirectory + "/obj/ApplicationMain.n", executablePath, iconPath);
 			NekoHelper.copyLibraries (project.templatePaths, "windows", applicationDirectory);
 			
 		} else if (targetType == "nodejs") {
@@ -142,7 +151,7 @@ class WindowsPlatform extends PlatformTarget {
 			if (IconHelper.createWindowsIcon (project.icons, iconPath)) {
 				
 				var templates = [ PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates" ].concat (project.templatePaths);
-				ProcessHelper.runCommand ("", PathHelper.findTemplate (templates, "bin/ReplaceVistaIcon.exe"), [ executablePath, iconPath ], true, true);
+				ProcessHelper.runCommand ("", PathHelper.findTemplate (templates, "bin/ReplaceVistaIcon.exe"), [ executablePath, iconPath, "1" ], true, true);
 				
 			}
 			

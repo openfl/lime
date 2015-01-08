@@ -1,5 +1,11 @@
 #include "SDLWindow.h"
 
+#ifdef HX_WINDOWS
+#include <SDL_syswm.h>
+#include <Windows.h>
+#undef CreateWindow
+#endif
+
 
 namespace lime {
 	
@@ -28,6 +34,27 @@ namespace lime {
 		}
 		
 		sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlFlags);
+		
+		#ifdef HX_WINDOWS
+		
+		HINSTANCE handle = ::GetModuleHandle (nullptr);
+		HICON icon = ::LoadIcon (handle, MAKEINTRESOURCE (1));
+		
+		if (icon != nullptr) {
+			
+			SDL_SysWMinfo wminfo;
+			SDL_VERSION (&wminfo.version);
+			
+			if (SDL_GetWindowWMInfo (sdlWindow, &wminfo) == 1) {
+				
+				HWND hwnd = wminfo.info.win.window;
+				::SetClassLong (hwnd, GCL_HICON, reinterpret_cast<LONG>(icon));
+				
+			}
+			
+		}
+		
+		#endif
 		
 	}
 	

@@ -11,6 +11,11 @@
 #include <SDL_mixer.h>
 #endif
 
+#ifdef HX_WINDOWS
+#include <SDL_syswm.h>
+#include <Windows.h>
+#endif
+
 
 namespace nme
 {
@@ -1499,6 +1504,23 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
 
       window = SDL_CreateWindow (inTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, setWidth, setHeight, requestWindowFlags);
       
+      #ifdef HX_WINDOWS
+      HINSTANCE handle = ::GetModuleHandle (nullptr);
+      HICON icon = ::LoadIcon (handle, MAKEINTRESOURCE (1));
+      
+      if (icon != nullptr)
+      {
+         SDL_SysWMinfo wminfo;
+         SDL_VERSION (&wminfo.version);
+         
+         if (SDL_GetWindowWMInfo (window, &wminfo) == 1)
+         {
+            HWND hwnd = wminfo.info.win.window;
+            ::SetClassLong (hwnd, GCL_HICON, reinterpret_cast<LONG>(icon));
+         }
+      }
+      #endif
+     
       // retrieve the actual window flags (as opposed to the requested ones)
       windowFlags = SDL_GetWindowFlags (window);
       if (fullscreen) sgWindowRect = Rect(SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, inWidth, inHeight);
@@ -1597,12 +1619,12 @@ void SetIcon(const OSChar *path)
    
    if (surface)
    {
-	  SDL_Surface *sdlSurface = SDL_CreateRGBSurfaceFrom ((void *)surface->GetBase(), surface->Width(), surface->Height(), 32, surface->GetStride(), 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
+      SDL_Surface *sdlSurface = SDL_CreateRGBSurfaceFrom ((void *)surface->GetBase(), surface->Width(), surface->Height(), 32, surface->GetStride(), 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
       
-	  SDL_SetWindowIcon(sgSDLFrame->mStage->mSDLWindow, sdlSurface);
+      SDL_SetWindowIcon(sgSDLFrame->mStage->mSDLWindow, sdlSurface);
       
-	  surface->DecRef();
-	  SDL_FreeSurface (sdlSurface);
+      surface->DecRef();
+      SDL_FreeSurface (sdlSurface);
    }
 }
 
