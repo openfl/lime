@@ -6,6 +6,9 @@ import haxe.io.Bytes;
 import haxe.io.BytesInput;
 import haxe.io.BytesOutput;
 import lime.app.Application;
+import lime.graphics.format.BMP;
+import lime.graphics.format.JPEG;
+import lime.graphics.format.PNG;
 import lime.graphics.utils.ImageCanvasUtil;
 import lime.graphics.utils.ImageDataUtil;
 import lime.math.ColorMatrix;
@@ -292,54 +295,15 @@ class Image {
 			
 			case "png":
 				
-				#if java
-				
-				#elseif (sys && (!disable_cffi || !format))
-					
-					return lime_image_encode (buffer, 0, quality);
-					
-				#elseif !js
-					
-					try {
-						
-						var bytes = Bytes.alloc (width * height * 4 + height);
-						var sourceBytes = buffer.data.getByteBuffer ();
-						var sourceIndex:Int, index:Int;
-						
-						for (y in 0...height) {
-							
-							sourceIndex = y * width * 4;
-							index = y * width * 4 + y;
-							
-							bytes.set (index, 0);
-							bytes.blit (index + 1, sourceBytes, sourceIndex, width * 4);
-							
-						}
-						
-						var data = new List ();
-						data.add (CHeader ({ width: width, height: height, colbits: 8, color: ColTrue (true), interlaced: false }));
-						data.add (CData (Deflate.run (bytes)));
-						data.add (CEnd);
-						
-						var output = new BytesOutput ();
-						var png = new Writer (output);
-						png.write (data);
-						
-						return ByteArray.fromBytes (output.getBytes ());
-						
-					} catch (e:Dynamic) {}
-					
-				#end
+				return PNG.encode (this);
 			
 			case "jpg", "jpeg":
 				
-				#if java
+				return JPEG.encode (this, quality);
+			
+			case "bmp":
 				
-				#elseif (sys && (!disable_cffi || !format))
-					
-					return lime_image_encode (buffer, 1, quality);
-					
-				#end
+				return BMP.encode (this);
 			
 			default:
 			

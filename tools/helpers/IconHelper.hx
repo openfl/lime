@@ -14,6 +14,7 @@ import helpers.FileHelper;
 import helpers.ImageHelper;
 import helpers.LogHelper;
 import helpers.PathHelper;
+import lime.graphics.format.BMP;
 import lime.graphics.Image;
 import lime.math.Rectangle;
 import lime.utils.ByteArray;
@@ -139,9 +140,9 @@ class IconHelper {
 	public static function createWindowsIcon (icons:Array <Icon>, targetPath:String):Bool {
 		
 		var sizes = [ 16, 24, 32, 40, 48, 64, 96, 128, 256 ];
-		var images = new Array <Image> ();
 		
-		var data_pos = 6;
+		var images = new Array <Image> ();
+		var imageData = new Array <ByteArray> ();
 		
 		for (size in sizes) {
 			
@@ -149,101 +150,56 @@ class IconHelper {
 			
 			if (image != null) {
 				
-				images.push (image);
-				data_pos += 16;
-				
-			}
-			
-		}
-		
-		var ico = new ByteArray ();
-		ico.bigEndian = false;
-		ico.writeShort (0);
-		ico.writeShort (1);
-		ico.writeShort (images.length);
-		
-		for (image in images) {
-			
-			var size = image.width;
-			var xor_size = size * size * 4;
-			var and_size = size * size >> 3;
-			ico.writeByte (size);
-			ico.writeByte (size);
-			ico.writeByte (0); // palette
-			ico.writeByte (0); // reserved
-			ico.writeShort (1); // planes
-			ico.writeShort (32); // bits per pixel
-			ico.writeInt (40 + xor_size + and_size); // Data size
-			ico.writeInt (data_pos); // Data offset
-			data_pos += 40 + xor_size + and_size;
-			
-		}
-		
-		for (image in images) {
-			
-			var size = image.width;
-			var xor_size = size * size * 4;
-			var and_size = size * size >> 3;
-			
-			ico.writeInt (40); // size (bytes)
-			ico.writeInt (size);
-			ico.writeInt (size * 2);
-			ico.writeShort (1);
-			ico.writeShort (32);
-			ico.writeInt (0); // Bit fields...
-			ico.writeInt (xor_size + and_size); // Size...
-			ico.writeInt (0); // res-x
-			ico.writeInt (0); // res-y
-			ico.writeInt (0); // cols
-			ico.writeInt (0); // important
-			
-			var bits = image.getPixels (new Rectangle (0, 0, size, size));
-			var and_mask = new ByteArray ();
-			
-			for (y in 0...size) {
-				
-				var mask = 0;
-				var bit = 128;
-				bits.position = (size-1 - y) * 4 * size;
-				
-				for (i in 0...size) {
+				if (size < 256) {
 					
-					var a = bits.readByte ();
-					var r = bits.readByte ();
-					var g = bits.readByte ();
-					var b = bits.readByte ();
-					ico.writeByte (b);
-					ico.writeByte (g);
-					ico.writeByte (r);
-					ico.writeByte (a);
+					imageData.push (BMP.encode (image, ICO));
 					
-					if (a < 128)
-						mask |= bit;
+				} else {
 					
-					bit = bit >> 1;
-					
-					if (bit == 0) {
-						
-						and_mask.writeByte (mask);
-						bit = 128;
-						mask = 0;
-						
-					}
+					imageData.push (image.encode ("png"));
 					
 				}
 				
+				images.push (image);
+				
 			}
 			
-			ico.writeBytes (and_mask, 0, and_mask.length);
+		}
+		
+		var icon = new ByteArray ();
+		icon.bigEndian = false;
+		icon.writeShort (0);
+		icon.writeShort (1);
+		icon.writeShort (images.length);
+		
+		var dataOffset = 6 + (16 * images.length);
+		
+		for (i in 0...images.length) {
+			
+			var size = images[i].width;
+			
+			icon.writeByte (size > 255 ? 0 : size);
+			icon.writeByte (size > 255 ? 0 : size);
+			icon.writeByte (0);
+			icon.writeByte (0);
+			icon.writeShort (1);
+			icon.writeShort (32);
+			icon.writeInt (imageData[i].length);
+			icon.writeInt (dataOffset);
+			
+			dataOffset += imageData[i].length;
+			
+		}
+		
+		for (data in imageData) {
+			
+			icon.writeBytes (data);
 			
 		}
 		
 		if (images.length > 0) {
 			
-			var file = File.write (targetPath, true);
-			file.writeBytes (ico, 0, ico.length);
-			file.close ();
-			
+			File.saveBytes (targetPath, icon);
 			return true;
 			
 		}
