@@ -36,7 +36,8 @@ class BMP {
 			
 		}
 		
-		var data = new ByteArray (fileHeaderLength + infoHeaderLength + pixelValuesLength);
+		var data = new ByteArray ();
+		data.length = fileHeaderLength + infoHeaderLength + pixelValuesLength;
 		
 		#if (cpp || neko)
 		data.bigEndian = false;
@@ -133,7 +134,8 @@ class BMP {
 			
 		} else {
 			
-			var andMask = new ByteArray (image.width * image.height);
+			var andMask = new ByteArray ();
+			andMask.length = image.width * image.height;
 			
 			for (y in 0...image.height) {
 				

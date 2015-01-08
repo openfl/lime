@@ -17,7 +17,7 @@ class PNG {
 			
 			return lime_image_encode (image.buffer, 0, 0);
 			
-		#elseif !js
+		#elseif (!js && format)
 			
 			try {
 				
