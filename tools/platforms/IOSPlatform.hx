@@ -28,6 +28,10 @@ import project.PlatformTarget;
 import sys.io.File;
 import sys.FileSystem;
 
+private typedef IconSize = {
+	name:String,
+	size:Int,
+}
 
 class IOSPlatform extends PlatformTarget {
 	
@@ -360,17 +364,31 @@ class IOSPlatform extends PlatformTarget {
 		PathHelper.mkdir (projectDirectory + "/haxe");
 		PathHelper.mkdir (projectDirectory + "/haxe/lime/installer");
 		
-		var iconNames = [ "Icon.png", "Icon@2x.png", "Icon-60.png", "Icon-60@2x.png", "Icon-72.png", "Icon-72@2x.png", "Icon-76.png", "Icon-76@2x.png" ];
-		var iconSizes = [ 57, 114, 60, 120, 72, 144, 76, 152 ];
-		
+		var iconSizes:Array<IconSize> = [
+			{ name : "Icon-Small.png", size : 29 },
+			{ name : "Icon-Small-40.png", size : 40 },
+			{ name : "Icon-Small-50.png", size : 50 },
+			{ name : "Icon.png", size : 57 },
+			{ name : "Icon-Small@2x.png", size : 58 },
+			{ name : "Icon-72.png", size : 72 },
+			{ name : "Icon-76.png", size : 76 },
+			{ name : "Icon-Small-40@2x.png", size : 80 },
+			{ name : "Icon-Small-50@2x.png", size : 100 },
+			{ name : "Icon@2x.png", size : 114 },
+			{ name : "Icon-60@2x.png", size : 120 },
+			{ name : "Icon-72@2x.png", size : 144 },
+			{ name : "Icon-76@2x.png", size : 152 },
+			{ name : "Icon-60@3x.png", size : 180 },
+		];
+
 		context.HAS_ICON = true;
 		
 		var iconPath = PathHelper.combine (projectDirectory, "Images.xcassets/AppIcon.appiconset");
 		PathHelper.mkdir (iconPath);
 		
-		for (i in 0...iconNames.length) {
+		for (iconSize in iconSizes) {
 			
-			if (!IconHelper.createIcon (project.icons, iconSizes[i], iconSizes[i], PathHelper.combine (iconPath, iconNames[i]))) {
+			if (!IconHelper.createIcon (project.icons, iconSize.size, iconSize.size, PathHelper.combine (iconPath, iconSize.name))) {
 				
 				context.HAS_ICON = false;
 				
