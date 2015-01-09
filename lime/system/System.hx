@@ -29,17 +29,21 @@ class System {
 	
 	#if (js && html5)
 	@:keep @:expose("lime.embed")
-	public static function embed (elementName:String, width:Null<Int> = null, height:Null<Int> = null, background:String = null) {
+	public static function embed (element:Dynamic, width:Null<Int> = null, height:Null<Int> = null, background:String = null) {
 		
-		var element:HtmlElement = null;
+		var htmlElement:HtmlElement = null;
 		
-		if (elementName != null) {
+		if (Std.is (element, String)) {
 			
-			element = cast Browser.document.getElementById (elementName);
+			htmlElement = cast Browser.document.getElementById (cast (element, String));
+			
+		} else if (element == null) {
+			
+			htmlElement = cast Browser.document.createElement ("div");
 			
 		} else {
 			
-			element = cast Browser.document.createElement ("div");
+			htmlElement = cast element;
 			
 		}
 		
@@ -75,7 +79,7 @@ class System {
 		
 		#if tools
 		ApplicationMain.config.background = color;
-		ApplicationMain.config.element = element;
+		ApplicationMain.config.element = htmlElement;
 		ApplicationMain.config.width = width;
 		ApplicationMain.config.height = height;
 		ApplicationMain.create ();
