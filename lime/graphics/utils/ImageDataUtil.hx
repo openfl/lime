@@ -442,6 +442,40 @@ class ImageDataUtil {
 	}
 	
 	
+	public static function merge (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, redMultiplier:Int, greenMultiplier:Int, blueMultiplier:Int, alphaMultiplier:Int):Void {
+		
+		var rowOffset = Std.int (destPoint.y + image.offsetY - sourceRect.y - sourceImage.offsetY);
+		var columnOffset = Std.int (destPoint.x + image.offsetX - sourceRect.x - sourceImage.offsetY);
+		
+		var sourceData = sourceImage.buffer.data;
+		var sourceStride = sourceImage.buffer.width * 4;
+		var sourceOffset:Int = 0;
+		
+		var data = image.buffer.data;
+		var stride = image.buffer.width * 4;
+		var offset:Int = 0;
+		
+		for (row in Std.int (sourceRect.top + sourceImage.offsetY)...Std.int (sourceRect.bottom + sourceImage.offsetY)) {
+			
+			for (column in Std.int (sourceRect.left + sourceImage.offsetX)...Std.int (sourceRect.right + sourceImage.offsetX)) {
+				
+				sourceOffset = (row * sourceStride) + (column * 4);
+				offset = ((row + rowOffset) * stride) + ((column + columnOffset) * 4);
+				
+				data[offset] = Std.int (((sourceData[offset] * redMultiplier) + (data[offset] * (256 - redMultiplier))) / 256);
+				data[offset + 1] = Std.int (((sourceData[offset + 1] * greenMultiplier) + (data[offset + 1] * (256 - greenMultiplier))) / 256);
+				data[offset + 2] = Std.int (((sourceData[offset + 2] * blueMultiplier) + (data[offset + 2] * (256 - blueMultiplier))) / 256);
+				data[offset + 3] = Std.int (((sourceData[offset + 3] * alphaMultiplier) + (data[offset + 3] * (256 - alphaMultiplier))) / 256);
+				
+			}
+			
+		}
+		
+		image.dirty = true;
+		
+	}
+	
+	
 	public static function multiplyAlpha (image:Image):Void {
 		
 		var data = image.buffer.data;

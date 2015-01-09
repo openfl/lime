@@ -524,6 +524,40 @@ class Image {
 	}
 	
 	
+	public function merge (sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, redMultiplier:Int, greenMultiplier:Int, blueMultiplier:Int, alphaMultiplier:Int):Void {
+		
+		if (buffer == null || sourceImage == null) return;
+		
+		switch (type) {
+			
+			case CANVAS:
+				
+				ImageCanvasUtil.convertToCanvas (this);
+				ImageCanvasUtil.merge (this, sourceImage, sourceRect, destPoint, redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier);
+			
+			case DATA:
+				
+				#if (js && html5)
+				ImageCanvasUtil.convertToData (this);
+				ImageCanvasUtil.convertToData (sourceImage);
+				#end
+				
+				ImageDataUtil.merge (this, sourceImage, sourceRect, destPoint, redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier);
+			
+			case FLASH:
+				
+				sourceRect.offset (offsetX, offsetY);
+				buffer.__srcBitmapData.merge (sourceImage.buffer.__srcBitmapData, sourceRect.__toFlashRectangle (), destPoint.__toFlashPoint (), redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier);
+			
+			default:
+				
+				return null;
+			
+		}
+		
+	}
+	
+	
 	public function resize (newWidth:Int, newHeight:Int):Void {
 		
 		switch (type) {
