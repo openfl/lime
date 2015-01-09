@@ -659,7 +659,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 #else
 
 #if openfl
-::if (assets != null)::::foreach assets::::if (type == "font")::class __ASSET__::flatName:: extends openfl.text.Font { public function new () { super (); __fontPath = "::targetPath::"; fontName = "::fontName::"; }}
+::if (assets != null)::::foreach assets::::if (type == "font")::@:keep class __ASSET__::flatName:: extends openfl.text.Font { public function new () { super (); __fontPath = "::targetPath::"; fontName = "::fontName::"; }}
 ::end::::end::::end::
 #end
 
