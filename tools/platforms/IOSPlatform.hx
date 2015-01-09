@@ -28,6 +28,12 @@ import project.PlatformTarget;
 import sys.io.File;
 import sys.FileSystem;
 
+private typedef SplashSize = {
+	name:String,
+	w:Int,
+	h:Int,
+}
+
 private typedef IconSize = {
 	name:String,
 	size:Int,
@@ -396,24 +402,31 @@ class IOSPlatform extends PlatformTarget {
 			
 		}
 		
-		var splashScreenNames = [ "Default.png", "Default@2x.png", "Default-568h@2x.png", "Default-Portrait.png", "Default-Landscape.png", "Default-Portrait@2x.png", "Default-Landscape@2x.png" ];
-		var splashScreenWidth = [ 320, 640, 640, 768, 1024, 1536, 2048 ];
-		var splashScreenHeight = [ 480, 960, 1136, 1024, 768, 2048, 1536 ];
-		
+		var splashSizes:Array<SplashSize> = [
+			{ name: "Default.png", w: 320, h: 480 }, // iPhone, portrait
+			{ name: "Default@2x.png", w: 640, h: 960  }, // iPhone Retina, portrait
+			{ name: "Default-568h@2x.png", w: 640, h: 1136 }, // iPhone 5, portrait
+			{ name: "Default-Portrait.png", w: 768, h: 1024 }, // iPad, portrait
+			{ name: "Default-Landscape.png", w: 1024, h: 768  }, // iPad, landscape
+			{ name: "Default-Portrait@2x.png", w: 1536, h: 2048 }, // iPad Retina, portrait
+			{ name: "Default-Landscape@2x.png", w: 2048, h: 1536 },	// iPad Retina, landscape
+			{ name: "Default-667h@2x.png", w: 750, h: 1334 }, // iPhone 6, portrait
+			{ name: "Default-736h@3x.png", w: 1242,	h: 2208 }, // iPhone 6 Plus, portrait
+			{ name: "Default-736h-Landscape@3x.png", w: 2208, h: 1242 }, // iPhone 6 Plus, landscape
+		];
+
 		var splashScreenPath = PathHelper.combine (projectDirectory, "Images.xcassets/LaunchImage.launchimage");
 		PathHelper.mkdir (splashScreenPath);
 		
-		for (i in 0...splashScreenNames.length) {
+		for (size in splashSizes) {
 			
-			var width = splashScreenWidth[i];
-			var height = splashScreenHeight[i];
 			var match = false;
 			
 			for (splashScreen in project.splashScreens) {
 				
-				if (splashScreen.width == width && splashScreen.height == height && Path.extension (splashScreen.path) == "png") {
+				if (splashScreen.width == size.w && splashScreen.height == size.h && Path.extension (splashScreen.path) == "png") {
 					
-					FileHelper.copyFile (splashScreen.path, PathHelper.combine (splashScreenPath, splashScreenNames[i]));
+					FileHelper.copyFile (splashScreen.path, PathHelper.combine (splashScreenPath, size.name));
 					match = true;
 					
 				}
@@ -422,13 +435,13 @@ class IOSPlatform extends PlatformTarget {
 			
 			if (!match) {
 				
-				var imagePath = PathHelper.combine (splashScreenPath, splashScreenNames[i]);
+				var imagePath = PathHelper.combine (splashScreenPath, size.name);
 				
 				if (!FileSystem.exists (imagePath)) {
 					
 					LogHelper.info ("", " - \x1b[1mGenerating image:\x1b[0m " + imagePath);
 					
-					var image = new Image (null, 0, 0, width, height, (0xFF << 24) | (project.window.background & 0xFFFFFF));
+					var image = new Image (null, 0, 0, size.w, size.h, (0xFF << 24) | (project.window.background & 0xFFFFFF));
 					var bytes = image.encode ("png");
 					
 					File.saveBytes (imagePath, bytes);
