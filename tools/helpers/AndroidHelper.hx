@@ -82,10 +82,6 @@ class AndroidHelper {
 	
 	public static function getDeviceSDKVersion (deviceID:String):Int {
 		
-		// need to wake up ADB, this shouldn't be necessary :(
-		ProcessHelper.runCommand (adbPath, adbName, [ "kill-server" ]);
-		ProcessHelper.runCommand (adbPath, adbName, [ "start-server" ]);
-		
 		var tempFile = PathHelper.getTemporaryFile ();
 		
 		var args = [ "wait-for-device", "shell", "getprop", "ro.build.version.sdk", ">", tempFile ];
@@ -99,7 +95,15 @@ class AndroidHelper {
 			
 		}
 		
-		ProcessHelper.runCommand (adbPath, adbName, args);
+		if (PlatformHelper.hostPlatform == Platform.MAC) {
+			
+			ProcessHelper.runCommand (adbPath, "perl", [ "-e", 'alarm shift @ARGV; exec @ARGV', "3", adbName ].concat (args));
+			
+		} else {
+			
+			ProcessHelper.runCommand (adbPath, adbName, args);
+			
+		}
 		
 		if (FileSystem.exists (tempFile)) {
 			
