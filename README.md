@@ -1,4 +1,4 @@
-[![Stories in Ready](https://badge.waffle.io/openfl/lime.png?label=ready)](https://waffle.io/openfl/lime) [![Build Status](https://travis-ci.org/openfl/lime.png?branch=master)](https://travis-ci.org/openfl/lime)
+[![Build Status](https://img.shields.io/travis/openfl/lime.svg?style=flat)](https://travis-ci.org/openfl/lime) [![Haxelib Version](https://img.shields.io/github/tag/openfl/lime.svg?style=flat&label=release)](http://lib.haxe.org/p/lime)
 
 Lime
 ====
