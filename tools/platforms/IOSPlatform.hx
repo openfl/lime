@@ -28,16 +28,6 @@ import project.PlatformTarget;
 import sys.io.File;
 import sys.FileSystem;
 
-private typedef SplashSize = {
-	name:String,
-	w:Int,
-	h:Int,
-}
-
-private typedef IconSize = {
-	name:String,
-	size:Int,
-}
 
 class IOSPlatform extends PlatformTarget {
 	
@@ -546,7 +536,8 @@ class IOSPlatform extends PlatformTarget {
 			
 			if (asset.type != AssetType.TEMPLATE) {
 				
-				var targetPath = projectDirectory + "/assets/" + asset.resourceName;
+				var targetPath = PathHelper.combine (projectDirectory + "/assets/", asset.resourceName);
+				
 				//var sourceAssetPath:String = projectDirectory + "haxe/" + asset.sourcePath;
 				
 				PathHelper.mkdir (Path.directory (targetPath));
@@ -557,8 +548,10 @@ class IOSPlatform extends PlatformTarget {
 				
 			} else {
 				
-				PathHelper.mkdir (Path.directory (projectDirectory + "/" + asset.targetPath));
-				FileHelper.copyAsset (asset, projectDirectory + "/" + asset.targetPath, context);
+				var targetPath = PathHelper.combine (projectDirectory, asset.targetPath);
+				
+				PathHelper.mkdir (Path.directory (targetPath));
+				FileHelper.copyAsset (asset, targetPath, context);
 				
 			}
 			
@@ -598,5 +591,22 @@ class IOSPlatform extends PlatformTarget {
 	@ignore public override function trace ():Void {}
 	@ignore public override function uninstall ():Void {}
 	
+	
+}
+
+
+private typedef IconSize = {
+	
+	name:String,
+	size:Int,
+	
+}
+
+
+private typedef SplashSize = {
+	
+	name:String,
+	w:Int,
+	h:Int,
 	
 }
