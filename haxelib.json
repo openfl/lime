@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "2.0.4",
-	"releasenote": "Added system cursor support, updated web server, other fixes",
+	"version": "2.0.5",
+	"releasenote": "Improved Windows and iOS icons, many minor improvements",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
 }
