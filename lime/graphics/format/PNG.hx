@@ -5,6 +5,14 @@ import lime.graphics.Image;
 import lime.system.System;
 import lime.utils.ByteArray;
 
+#if format
+import format.png.Data;
+import format.png.Writer;
+import format.tools.Deflate;
+import haxe.io.Bytes;
+import haxe.io.BytesOutput;
+#end
+
 
 class PNG {
 	
@@ -22,7 +30,13 @@ class PNG {
 			try {
 				
 				var bytes = Bytes.alloc (image.width * image.height * 4 + image.height);
+				
+				#if flash
+				var sourceBytes = Bytes.ofData (image.buffer.data.getByteBuffer ());
+				#else
 				var sourceBytes = image.buffer.data.getByteBuffer ();
+				#end
+				
 				var sourceIndex:Int, index:Int;
 				
 				for (y in 0...image.height) {
@@ -44,7 +58,11 @@ class PNG {
 				var png = new Writer (output);
 				png.write (data);
 				
+				#if flash
+				return output.getBytes ().getData ();
+				#else
 				return ByteArray.fromBytes (output.getBytes ());
+				#end
 				
 			} catch (e:Dynamic) {}
 			
