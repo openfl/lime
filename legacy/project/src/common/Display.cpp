@@ -382,8 +382,8 @@ void DisplayObject::UpdateDecomp()
       scaleX = sqrt(mLocalMatrix.m00 * mLocalMatrix.m00 + mLocalMatrix.m10 * mLocalMatrix.m10);
       scaleY = sqrt(mLocalMatrix.m01 * mLocalMatrix.m01 + mLocalMatrix.m11 * mLocalMatrix.m11);
       if ((mLocalMatrix.m00 * mLocalMatrix.m11 - mLocalMatrix.m10 * mLocalMatrix.m01) < 0.0)
-          scaleY = -scaleY;
-      double angle = atan2(mLocalMatrix.m10, mLocalMatrix.m00);
+          (mLocalMatrix.m10 == 0.0 && mLocalMatrix.m01 == 0.0 && mLocalMatrix.m11 == 1.0) ? scaleX = -scaleX : scaleY = -scaleY;
+      double angle = atan2(mLocalMatrix.m10, scaleX < 0.0 ? -mLocalMatrix.m00 : mLocalMatrix.m00);
       rotation = angle * 180.0 / M_PI;
       double s = sin(-angle);
       double c = cos(-angle);
