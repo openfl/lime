@@ -1,3 +1,27 @@
+2.0.5 (01/13/2015)
+------------------
+
+* Improved the Windows ICO generation support
+* Added support for embedded ICO resources in Windows applications
+* Added caching to improve performance when icons exist
+* Added lime.graphics.format.JPEG/PNG/BMP classes for encoding 
+* Improved KeyCode so it automatically casts to/from Int
+* Improved the behavior of Android ADB management
+* Migrated to an "Asset Catalog" for iOS icons and launch images
+* Added missing iOS icon and launch image sizes
+* Added image.merge support for software image blending
+* Fixed the color order for Windows icon generation
+* Fixed a possible crash issue in empty Image instances
+* Fixed support for forwarding HXCPP defines on iOS builds
+* Fixed support for dead-code elimination full
+* Guarded Android API calls that require newer device versions
+* Improved lime.embed to support either a DOM object or ID string
+* Improved the behavior of BitmapData getPixels (legacy)
+* Exposed support for shifting pitch on OpenAL (legacy)
+* Fixed a crash in iOS Capabilities.language (legacy)
+* Added bitmapData.merge support (legacy)
+
+
 2.0.4 (12/31/2014)
 ------------------
 
