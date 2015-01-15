@@ -192,11 +192,16 @@ class TextFormat {
 
 	}
 
+	@:access(lime.graphics.Font)
 	public function fromString (font:Font, size:Int, text:String):Array<PosInfo> {
 
 		#if (cpp || neko || nodejs)
 
-		return lime_text_from_string (handle, font.handle, size, text);
+		return lime_text_from_string (handle, font.__handle, size, text);
+
+		#else
+
+		return null;
 
 		#end
 

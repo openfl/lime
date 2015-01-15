@@ -67,13 +67,12 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#if (windows || mac || linux)
 		
-		/*var useManifest = false;
+		var useManifest = false;
 		::if (assets != null)::::foreach assets::::if (embed)::
 		className.set ("::id::", __ASSET__::flatName::);
 		type.set ("::id::", AssetType.$$upper(::type::));
 		::else::useManifest = true;
-		::end::::end::::end::*/
-		var useManifest = true;
+		::end::::end::::end::
 		
 		if (useManifest) {
 			
@@ -222,10 +221,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		//return null;
-		//if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), ByteArray);
-		//else 
-		return ByteArray.readFile (path.get (id));
+		if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), ByteArray);
+		else return ByteArray.readFile (path.get (id));
 		
 		#end
 		
@@ -665,14 +662,14 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 #if (windows || mac || linux)
 
-//::if (assets != null)::
-//::foreach assets::::if (embed)::::if (type == "image")::@:bitmap("::sourcePath::") class __ASSET__::flatName:: extends openfl.display.BitmapData {}
-//::elseif (type == "sound")::@:sound("::sourcePath::") class __ASSET__::flatName:: extends openfl.media.Sound {}
-//::elseif (type == "music")::@:sound("::sourcePath::") class __ASSET__::flatName:: extends openfl.media.Sound {}
-//::elseif (type == "font")::@:font("::sourcePath::") class __ASSET__::flatName:: extends openfl.text.Font {}
-//::else::@:file("::sourcePath::") class __ASSET__::flatName:: extends lime.utils.ByteArray {}
-//::end::::end::::end::
-//::end::
+::if (assets != null)::
+::foreach assets::::if (embed)::::if (type == "image")::@:bitmap("::sourcePath::") class __ASSET__::flatName:: extends lime.graphics.Image {}
+::elseif (type == "sound")::@:sound("::sourcePath::") class __ASSET__::flatName:: extends lime.audio.AudioSource {}
+::elseif (type == "music")::@:sound("::sourcePath::") class __ASSET__::flatName:: extends lime.audio.AudioSource {}
+::elseif (type == "font")::@:font("::sourcePath::") class __ASSET__::flatName:: extends lime.graphics.Font {}
+::else::@:file("::sourcePath::") class __ASSET__::flatName:: extends lime.utils.ByteArray {}
+::end::::end::::end::
+::end::
 
 #end
 

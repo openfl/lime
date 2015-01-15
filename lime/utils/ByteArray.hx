@@ -28,7 +28,7 @@ import cpp.NativeArray;
 import sys.io.File;
 #end
 
-@:autoBuild(openfl.Assets.embedFile())
+@:autoBuild(lime.Assets.embedFile())
 
 
 class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDataInput implements IMemoryRange #end {
