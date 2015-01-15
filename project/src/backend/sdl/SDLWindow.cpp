@@ -61,7 +61,11 @@ namespace lime {
 	
 	SDLWindow::~SDLWindow () {
 		
-		
+		if (sdlWindow) {
+			
+			SDL_DestroyWindow (sdlWindow);
+			
+		}
 		
 	}
 	
