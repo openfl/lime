@@ -14,6 +14,34 @@ typedef Int32Array = js.html.Int32Array;
 	
 	public function new #if !java <T> #end (bufferOrArray:#if !java T #else Dynamic #end, start:Int = 0, length:Null<Int> = null) {
 		
+		#if (openfl && neko && !lime_legacy)
+		if (Std.is (bufferOrArray, openfl.Vector.VectorData)) {
+			
+			var vector:openfl.Vector<Int> = cast bufferOrArray;
+			var ints:Array<Int> = vector;
+			this.length = (length != null) ? length : ints.length - start;
+			
+			super (this.length << 2);
+			
+			#if !cpp
+			buffer.position = 0;
+			#end
+			
+			for (i in 0...this.length) {
+				
+				#if cpp
+				untyped __global__.__hxcpp_memory_set_i32 (bytes, (i << 2), ints[i + start]);
+				#else
+				buffer.writeInt (ints[i + start]);
+				#end
+				
+			}
+			
+			return;
+			
+		}
+		#end
+		
 		if (Std.is (bufferOrArray, Int)) {
 			
 			super (Std.int (cast bufferOrArray) << 2);
