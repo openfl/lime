@@ -346,19 +346,20 @@ class BlackBerryPlatform extends PlatformTarget {
 		
 		for (asset in project.assets) {
 			
-			PathHelper.mkdir (Path.directory (destination + asset.targetPath));
+			var targetPath = PathHelper.combine (destination, asset.targetPath);
+			PathHelper.mkdir (Path.directory (targetPath));
 			
 			if (asset.type != AssetType.TEMPLATE) {
 				
 				if (asset.type != AssetType.FONT || !project.targetFlags.exists ("html5")) {
 					
-					FileHelper.copyAssetIfNewer (asset, destination + asset.targetPath);
+					FileHelper.copyAssetIfNewer (asset, targetPath);
 					
 				}
 				
 			} else {
 				
-				FileHelper.copyAsset (asset, destination + asset.targetPath, context);
+				FileHelper.copyAsset (asset, targetPath, context);
 				
 			}
 			
