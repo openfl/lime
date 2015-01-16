@@ -82,6 +82,9 @@ class AndroidHelper {
 	
 	public static function getDeviceSDKVersion (deviceID:String):Int {
 		
+		var devices = listDevices ();
+		if (devices.length == 0) return 0;
+		
 		var tempFile = PathHelper.getTemporaryFile ();
 		
 		var args = [ "wait-for-device", "shell", "getprop", "ro.build.version.sdk", ">", tempFile ];
@@ -97,11 +100,11 @@ class AndroidHelper {
 		
 		if (PlatformHelper.hostPlatform == Platform.MAC) {
 			
-			ProcessHelper.runCommand (adbPath, "perl", [ "-e", 'alarm shift @ARGV; exec @ARGV', "3", adbName ].concat (args));
+			ProcessHelper.runCommand (adbPath, "perl", [ "-e", 'alarm shift @ARGV; exec @ARGV', "3", adbName ].concat (args), true, true);
 			
 		} else {
 			
-			ProcessHelper.runCommand (adbPath, adbName, args);
+			ProcessHelper.runCommand (adbPath, adbName, args, true, true);
 			
 		}
 		
