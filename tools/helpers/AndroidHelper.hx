@@ -83,36 +83,39 @@ class AndroidHelper {
 	public static function getDeviceSDKVersion (deviceID:String):Int {
 		
 		var devices = listDevices ();
-		if (devices.length == 0) return 0;
 		
-		var tempFile = PathHelper.getTemporaryFile ();
-		
-		var args = [ "wait-for-device", "shell", "getprop", "ro.build.version.sdk", ">", tempFile ];
-		
-		if (deviceID != null && deviceID != "") {
+		if (devices.length > 0) {
 			
-			args.unshift (deviceID);
-			args.unshift ("-s");
+			var tempFile = PathHelper.getTemporaryFile ();
 			
-			connect (deviceID);
+			var args = [ "wait-for-device", "shell", "getprop", "ro.build.version.sdk", ">", tempFile ];
 			
-		}
-		
-		if (PlatformHelper.hostPlatform == Platform.MAC) {
+			if (deviceID != null && deviceID != "") {
+				
+				args.unshift (deviceID);
+				args.unshift ("-s");
+				
+				//connect (deviceID);
+				
+			}
 			
-			ProcessHelper.runCommand (adbPath, "perl", [ "-e", 'alarm shift @ARGV; exec @ARGV', "3", adbName ].concat (args), true, true);
+			if (PlatformHelper.hostPlatform == Platform.MAC) {
+				
+				ProcessHelper.runCommand (adbPath, "perl", [ "-e", 'alarm shift @ARGV; exec @ARGV', "3", adbName ].concat (args), true, true);
+				
+			} else {
+				
+				ProcessHelper.runCommand (adbPath, adbName, args, true, true);
+				
+			}
 			
-		} else {
-			
-			ProcessHelper.runCommand (adbPath, adbName, args, true, true);
-			
-		}
-		
-		if (FileSystem.exists (tempFile)) {
-			
-			var output = File.getContent (tempFile);
-			FileSystem.deleteFile (tempFile);
-			return Std.parseInt (output);
+			if (FileSystem.exists (tempFile)) {
+				
+				var output = File.getContent (tempFile);
+				FileSystem.deleteFile (tempFile);
+				return Std.parseInt (output);
+				
+			}
 			
 		}
 		
