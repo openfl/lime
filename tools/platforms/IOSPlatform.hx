@@ -154,7 +154,7 @@ class IOSPlatform extends PlatformTarget {
 		
 		if (project.config.getString ("ios.device", "universal") == "universal" || project.config.getString ("ios.device") == "iphone") {
 			
-			if (project.config.getInt ("ios.deployment", 6) < 5) {
+			if (project.config.getFloat ("ios.deployment", 5.1) < 5) {
 				
 				ArrayHelper.addUnique (architectures, Architecture.ARMV6);
 				
@@ -197,7 +197,7 @@ class IOSPlatform extends PlatformTarget {
 		context.ARMV7S = armv7s;
 		context.ARM64 = arm64;
 		context.TARGET_DEVICES = switch (project.config.getString ("ios.device", "universal")) { case "iphone": "1"; case "ipad": "2"; default: "1,2";  }
-		context.DEPLOYMENT = project.config.getInt ("ios.deployment", 6);
+		context.DEPLOYMENT = project.config.getString ("ios.deployment", "5.1.1");
 		
 		if (project.config.getString ("ios.compiler") == "llvm" || project.config.getString ("ios.compiler", "clang") == "clang") {
 			
