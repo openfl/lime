@@ -47,7 +47,7 @@ TextField::TextField(bool inInitRef) : DisplayObject(inInitRef),
    thickness(0),
    useRichTextClipboard(false),
    wordWrap(false),
-   isInput(false)
+   isInput(false),
    caretColor(0xff000000),
    highlightColor(0xff000000),
    highlightedTextColor(0xffffffff)
@@ -346,7 +346,7 @@ void TextField::setCaretColor(int inCaretColor)
 
 void TextField::setHighlightColor(int inHighlightColor)
 {
-   highlightolor = inHighlightColor;
+   highlightColor = inHighlightColor;
    mGfxDirty = true;
    DirtyCache();
 }

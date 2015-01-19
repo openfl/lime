@@ -36,6 +36,10 @@ public:
    void setSelectable(bool inSelectable) { selectable = inSelectable; }
    void setTextColor(int inColor);
    int  getTextColor() { return textColor; }
+   void setHighlightedTextColor(int inColor);
+   int  getHighlightedTextColor() { return highlightedTextColor; }
+   void setCaretColor(int inColor);
+   int  getCaretColor() { return caretColor; }
    bool isLineVisible(int inLine) const;
    bool getIsInput() { return isInput; }
    void setIsInput(bool inIsInput);
@@ -68,6 +72,8 @@ public:
    void  setBorder(bool inBorder);
    int   getBorderColor() const { return borderColor; }
    void  setBorderColor(int inBorderColor);
+   void  setHighlightColor(int inColor);
+   int   getHighlightColor() { return highlightColor; }
    bool  getMultiline() const { return multiline; }
    void  setMultiline(bool inMultiline);
    bool  getWordWrap() const { return wordWrap; }
@@ -105,6 +111,7 @@ public:
    AutoSizeMode autoSize;
    bool  background;
    int   backgroundColor;
+   int   highlightColor;
    bool  border;
    int   borderColor;
    bool  condenseWhite;
@@ -121,6 +128,8 @@ public:
    float sharpness;
    struct StyleSheet *styleSheet;
    int textColor;
+   int caretColor;
+   int highlightedTextColor;
    float  thickness;
    bool useRichTextClipboard;
    bool  wordWrap;
