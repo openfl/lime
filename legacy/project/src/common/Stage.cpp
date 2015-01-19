@@ -8,6 +8,11 @@
 #include <android/log.h>
 #endif
 
+#if defined(NME_S3D) && defined(ANDROID)
+#include <S3D.h>
+#include <S3DEye.h>
+#endif
+
 
 namespace nme
 {
