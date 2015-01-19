@@ -214,7 +214,7 @@ public:
 	GraphicsStroke *IncRef() { Object::IncRef(); return this; }
 
    GraphicsStroke *AsStroke() { return this; }
-   int  Version() const { return fill->Version(); }
+   int  Version() const { return fill ? fill->Version() : 0; }
 
    bool IsClear() { return false; }
 

@@ -29,7 +29,7 @@ Tilesheet::~Tilesheet()
 	mSheet->DecRef();
 }
 
-int Tilesheet::AllocRect(int inW,int inH,float inOx, float inOy)
+int Tilesheet::AllocRect(int inW,int inH,float inOx, float inOy,bool inAlphaBorder)
 {
 	Tile tile;
 	tile.mOx = inOx;
@@ -37,13 +37,19 @@ int Tilesheet::AllocRect(int inW,int inH,float inOx, float inOy)
 	tile.mSurface = mSheet;
 
 	// does it fit on the current row ?
-	if (mCurrentX + inW <= mSheet->Width() && mCurrentY + inH < mSheet->Height())
+   int cx = mCurrentX;
+   if (inAlphaBorder && cx>0)
+      cx++;
+   int cy = mCurrentY;
+   if (inAlphaBorder && cy>0)
+      cy++;
+	if (cx + inW <= mSheet->Width() && cy + inH < mSheet->Height())
 	{
-		tile.mRect = Rect(mCurrentX, mCurrentY, inW, inH);
+		tile.mRect = Rect(cx, cy, inW, inH);
 		int result = mTiles.size();
 		mTiles.push_back(tile);
-		mCurrentX += inW;
-		mMaxHeight = std::max(mMaxHeight,inH);
+		mCurrentX = cx+inW;
+		mMaxHeight = std::max(mMaxHeight,inH+cy-mCurrentY);
 		return result;
 	}
 	// No - go to next row

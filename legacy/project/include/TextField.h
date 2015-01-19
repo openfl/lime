@@ -12,8 +12,6 @@ class TiXmlNode;
 namespace nme
 {
 
-
-
 class TextField : public DisplayObject
 {
 public:
@@ -38,10 +36,13 @@ public:
    void setSelectable(bool inSelectable) { selectable = inSelectable; }
    void setTextColor(int inColor);
    int  getTextColor() { return textColor; }
+   bool isLineVisible(int inLine) const;
    bool getIsInput() { return isInput; }
    void setIsInput(bool inIsInput);
    AutoSizeMode getAutoSize() { return autoSize; }
    void  setAutoSize(int inAutoSize);
+   void modifyLocalMatrix(Matrix &ioMatrix);
+
 
    int   getCaretIndex() { return caretIndex; }
    int   getMaxScrollH() { Layout(); return maxScrollH; }
@@ -51,6 +52,7 @@ public:
    void  setScrollH(int inScrollH);
    int   getScrollV() { return scrollV; }
    void  setScrollV(int inScrollV);
+   void  setScrollVClearSel(int inScrollV,bool inClearSel);
    int   getNumLines() { Layout(); return mLines.size(); }
    int   getSelectionBeginIndex();
    int   getSelectionEndIndex();
@@ -80,6 +82,8 @@ public:
 
    int   getLineOffset(int inLine);
    WString getLineText(int inLine);
+   void  toScreenGrid(UserPoint &ioPoint,const Matrix &inMatrix);
+   void  highlightRect(double x0, double y1, double w, double h);
    TextLineMetrics *getLineMetrics(int inLine);
 
    double getWidth();
@@ -92,7 +96,7 @@ public:
    WString getText();
    void setText(const WString &inString);
 
-   int   getLength();
+   int   getLength() const;
    double   getTextHeight();
    double   getTextWidth();
 
@@ -130,19 +134,17 @@ public:
 
    void Render( const RenderTarget &inTarget, const RenderState &inState );
 
-   // Display-object like properties
-	// Glyphs are laid out in a local pixel coordinate space, which is related to the
-	//  render-target window co-ordinates by the folling members
-	double mLayoutScaleH;
-	double mLayoutScaleV;
-   GlyphRotation mLayoutRotation;
-	// Unscaled size, as specified by application
-	double boundsWidth;
-	double boundsHeight;
-   // Local pixel space
-	int  textWidth;
-	int  textHeight;
-   Rect mActiveRect;
+   bool   screenGrid;
+   double fontScale;
+   double fontToLocal;
+
+   // Local coordinates
+   double  explicitWidth;
+   double  fieldWidth;
+   double  fieldHeight;
+   double  textWidth;
+   double  textHeight;
+   DRect   mActiveRect;
 
    void GetExtent(const Transform &inTrans, Extent2DF &outExt,bool inForBitmap,bool inIncludeStroke);
    Cursor GetCursor();
@@ -153,6 +155,7 @@ public:
    void OnKey(Event &inEvent);
    void OnScrollWheel(int inDirection);
    void DeleteSelection();
+   void ClearSelection();
    void DeleteChars(int inFirst,int inEnd);
    void InsertString(WString &ioString);
    void ShowCaret(bool inFromDrag=false);
@@ -185,30 +188,32 @@ private:
 	void SplitGroup(int inGroup,int inPos);
 
 	void BuildBackground();
-	UserPoint TargetToRect(const Matrix &inMat,const UserPoint &inPoint);
-	UserPoint RectToTarget(const Matrix &inMat,const UserPoint &inPoint);
 
-   int  PointToChar(int inX,int inY);
+   int  PointToChar(UserPoint inPoint) const;
    int  LineFromChar(int inChar);
    int  GroupFromChar(int inChar);
-   int  EndOfCharX(int inChar,int inLine);
-   int  EndOfLineX(int inLine);
-	ImagePoint GetScrollPos();
-	ImagePoint GetCursorPos();
+   double  EndOfCharX(int inChar,int inLine) const;
+   double  EndOfLineX(int inLine) const;
+   UserPoint GetScrollPos() const;
+   UserPoint GetCursorPos() const;
 
    void OnChange();
 
    bool mLinesDirty;
    bool mGfxDirty;
    bool mFontsDirty;
+   bool mTilesDirty;
+   bool mCaretDirty;
    bool mHasCaret;
+   double mBlink0;
 
 
    CharGroups mCharGroups;
    Lines mLines;
-   QuickVec<ImagePoint> mCharPos;
+   QuickVec<UserPoint> mCharPos;
    Graphics *mCaretGfx;
    Graphics *mHighlightGfx;
+   Graphics *mTiles;
    int      mLastCaretHeight;
    int      mLastUpDownX;
 

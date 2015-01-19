@@ -397,6 +397,7 @@ namespace nme {
 	DEFINE_LIME_PRIM_1(font_set_factory);
 	DEFINE_LIME_PRIM_2(font_register_font);
 	DEFINE_LIME_PRIM_0(gl_get_error);
+	DEFINE_LIME_PRIM_1(gl_get_extension);
 	DEFINE_LIME_PRIM_0(gl_finish);
 	DEFINE_LIME_PRIM_0(gl_flush);
 	DEFINE_LIME_PRIM_0(gl_version);

@@ -208,6 +208,8 @@
 		<file name="${LEGACY_SRC_DIR}/common/FreeType.cpp" />
 		<file name="${LEGACY_SRC_DIR}/common/Tilesheet.cpp" />
 		<file name="${LEGACY_SRC_DIR}/common/Display.cpp" />
+		<file name="${LEGACY_SRC_DIR}/common/Stage.cpp"/>
+		<file name="${LEGACY_SRC_DIR}/common/BitmapCache.cpp"/>
 		<file name="${LEGACY_SRC_DIR}/common/ColorTransform.cpp" />
 		<file name="${LEGACY_SRC_DIR}/common/Hardware.cpp" />
 		<file name="${LEGACY_SRC_DIR}/common/Tessellate.cpp" />
@@ -242,6 +244,10 @@
 		<file name="${LEGACY_SRC_DIR}/software-renderer/SolidRender.cpp" />
 		<file name="${LEGACY_SRC_DIR}/software-renderer/TileRenderer.cpp" />
 		<file name="${LEGACY_SRC_DIR}/software-renderer/TriangleRender.cpp" />
+		
+		<!-- You will need this if you want USE_POLY2TRI in Tesselate.cpp
+		<file name="${LEGACY_SRC_DIR}/common/poly2tri/Poly2Tri.cpp" />
+		-->
 		
 		<file name="${LEGACY_SRC_DIR}/lzma/LzFind.c" />
 		<file name="${LEGACY_SRC_DIR}/lzma/LzmaDec.c" />
@@ -416,6 +422,7 @@
 				<lib name="-ldl" />
 				<lib name="-landroid" />
 				<lib name="-lGLESv2" />
+				<lib name="-lEGL" />
 				<!-- <lib name="-lz" /> -->
 				
 			</section>

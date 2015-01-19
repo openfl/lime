@@ -35,9 +35,9 @@ struct TileData
       {
          UserPoint rg = inPoint[0];
          UserPoint ba = inPoint[1];
-         mColour = ((rg.x<0 ? 0 : rg.x>1?255 : (int)(rg.x*255))) |
+         mColour = ((rg.x<0 ? 0 : rg.x>1?255 : (int)(rg.x*255))<<16) |
                    ((rg.y<0 ? 0 : rg.y>1?255 : (int)(rg.y*255))<<8) |
-                   ((ba.x<0 ? 0 : ba.x>1?255 : (int)(ba.x*255))<<16) |
+                   ((ba.x<0 ? 0 : ba.x>1?255 : (int)(ba.x*255))) |
                    ((ba.y<0 ? 0 : ba.y>1?255 : (int)(ba.y*255))<<24);
       }
    }
@@ -164,7 +164,12 @@ public:
          UserPoint corner(data.mPos);
          UserPoint pos = inState.mTransform.mMatrix->Apply(corner.x,corner.y);
 
-         if ( (is_stretch || data.mHasTrans) )
+         if (s->Format()==pfAlpha && !is_stretch && mBlendMode==bmNormal && data.mHasColour /* integer co-ordinate?*/ )
+         {
+            unsigned int col = inState.mColourTransform->Transform(data.mColour|0xff000000);
+            s->BlitTo(inTarget, data.mRect, (int)(pos.x), (int)(pos.y), blend, 0, col);
+         }
+         else if ( (is_stretch || data.mHasTrans) )
          {
             // Can use stretch if there is no skew and no colour transform...
             if (!data.mHasColour && (!data.mHasTrans) &&  mBlendMode==bmNormal )
@@ -236,8 +241,8 @@ public:
                SpanRect *span = new SpanRect(alpha_rect,aa);
                for(int i=0;i<4;i++)
                   span->Line00(
-                       Fixed10( p[i].x + 0.5 , p[i].y + 0.5  ),
-                       Fixed10( p[(i+1)&3].x + 0.5 , p[(i+1)&3].y + 0.5 ) );
+                       Fixed10( p[i].x, p[i].y  ),
+                       Fixed10( p[(i+1)&3].x, p[(i+1)&3].y) );
                
                AlphaMask *alpha = span->CreateMask(inState.mTransform,tile_alpha);
                delete span;
@@ -250,11 +255,20 @@ public:
                uvt[4] = (data.mRect.x + data.mRect.w) * bmp_scale_x;
                uvt[5] = (data.mRect.y + data.mRect.h) * bmp_scale_y;
                mFiller->SetMapping(p,uvt,2);
-               
+
                // Can render straight to surface ....
                if (!offscreen_buffer)
                {
-                  if (data.mHasTrans && !just_alpha)
+                  if (s->Format()==pfAlpha)
+                  {
+                     if (data.mHasColour)
+                     {
+                        ARGB col = inState.mColourTransform->Transform(data.mColour|0xff000000);
+                        mFiller->SetTint(col);
+                     }
+                     mFiller->Fill(*alpha,0,0,inTarget,inState);
+                  }
+                  else if (data.mHasTrans && !just_alpha)
                   {
                      ColorTransform buf;
                      RenderState col_state(inState);
@@ -277,6 +291,14 @@ public:
                   {
                   AutoSurfaceRender tmp_render(tmp);
                   const RenderTarget &target = tmp_render.Target();
+
+                  if (s->Format()==pfAlpha && data.mHasColour)
+                  {
+                     ARGB col = inState.mColourTransform->Transform(data.mColour|0xff000000);
+                     mFiller->SetTint(col);
+                  }
+
+
                   mFiller->Fill(*alpha,0,0,target,inState);
                   }
 

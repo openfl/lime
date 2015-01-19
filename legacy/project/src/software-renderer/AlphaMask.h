@@ -112,6 +112,7 @@ public:
    
    virtual void Fill(const AlphaMask &mAlphaMask, int inTX, int inTY, const RenderTarget &inTarget, const RenderState &inState) = 0;
    virtual void SetMapping(const UserPoint *inVertex, const float *inUVT, int inComponents) { }
+   virtual void SetTint(ARGB inTint) { }
    
    static Filler *Create(GraphicsSolidFill *inFill);
    static Filler *Create(GraphicsGradientFill *inFill);

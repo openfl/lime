@@ -6,7 +6,6 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-
 namespace nme
 {
 
@@ -611,11 +610,59 @@ public:
       PushElement();
    }
 
+   void PushOutline(const Vertices &inV)
+   {
+      ReserveArrays(inV.size()+1);
+
+      //printf("PushVertices %d\n", inV.size());
+
+      UserPoint *v = (UserPoint *)&data.mArray[mElement.mVertexOffset];
+      for(int i=0;i<inV.size();i++)
+      {
+         *v = inV[i]; Next(v);
+      }
+
+      if (mElement.mSurface)
+         CalcTexCoords();
+
+      PushElement();
+
+      data.mElements.last().mPrimType = ptLines;
+   }
+
+   
+   void PushTriangleWireframe(const Vertices &inV)
+   {
+      ReserveArrays(inV.size()*2);
+
+      //printf("PushVertices %d\n", inV.size());
+
+      UserPoint *v = (UserPoint *)&data.mArray[mElement.mVertexOffset];
+      for(int i=0;i<inV.size();i+=3)
+      {
+         *v = inV[i]; Next(v);
+         *v = inV[i+1]; Next(v);
+         *v = inV[i+1]; Next(v);
+         *v = inV[i+2]; Next(v);
+         *v = inV[i+2]; Next(v);
+         *v = inV[i]; Next(v);
+      }
+
+      if (mElement.mSurface)
+         CalcTexCoords();
+
+      PushElement();
+
+      data.mElements.last().mPrimType = ptLines;
+   }
+
 
 
    #define FLAT 0.000001
    void AddPolygon(Vertices &inOutline,const QuickVec<int> &inSubPolys)
    {
+      bool showTriangles = false;
+
       if (mSolidMode && inOutline.size()<3)
          return;
 
@@ -653,9 +700,12 @@ public:
             }
          }
          if (!isConvex)
+         {
             ConvertOutlineToTriangles(inOutline,inSubPolys);
+            //showTriangles = true;
+         }
       }
-      if (inOutline.size()<3)
+      if (mSolidMode && inOutline.size()<3)
          return;
 
 
@@ -663,10 +713,18 @@ public:
       if (mElement.mSurface)
          mElement.mTexOffset = mElement.mVertexOffset + 2*sizeof(float);
 
-      PushVertices(inOutline);
+      if (showTriangles)
+      {
+         PushTriangleWireframe(inOutline);
+         //PushOutline(inOutline);
+      }
+      else
+      {
+         PushVertices(inOutline);
 
-      if (!isConvex)
-         data.mElements.last().mPrimType = ptTriangles;
+         if (!isConvex)
+            data.mElements.last().mPrimType = ptTriangles;
+      }
    }
 
 
@@ -837,7 +895,7 @@ public:
    }
 
 
-   void removeLoops(QuickVec<CurveEdge> &curve,int startPoint,float turningPoint)
+   void removeLoops(QuickVec<CurveEdge> &curve,int startPoint,float turningPoint,int *inAdjustStart=0)
    {
       for(int i=startPoint;i<curve.size()-2;i++)
       {
@@ -846,6 +904,8 @@ public:
          UserPoint dp = p1-p0;
          if (fabs(dp.x) + fabs(dp.y) < 0.001)
          {
+            if (inAdjustStart && *inAdjustStart>i)
+               (*inAdjustStart)--;
             curve.erase(i,1);
             i--;
             continue;
@@ -905,6 +965,12 @@ public:
                            // replace c[i+1] with p, and erase upto and including c[j]
                            p1 = p;
                            curve.EraseAt(i+2,j+1);
+                           if (inAdjustStart)
+                           {
+                              int &a = *inAdjustStart;
+                              if (a>i)
+                                 a = i;
+                           }
                            break;
                         }
                      }
@@ -1212,8 +1278,8 @@ public:
 
           float turnLeft = seg.isCurve() ? segJoinLeft - 0.66 : 0;
           float turnRight = seg.isCurve() ? segJoinRight - 0.66 : 0;
-          removeLoops(leftCurve,prevSegLeft,turnLeft);
-          removeLoops(rightCurve,prevSegRight,turnRight);
+          removeLoops(leftCurve,prevSegLeft,turnLeft,&segStartLeft);
+          removeLoops(rightCurve,prevSegRight,turnRight,&segStartRight);
 
           prevSegLeft = segStartLeft;
           prevSegRight = segStartRight;

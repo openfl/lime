@@ -576,7 +576,8 @@ void ToValue(value &outVal,const ColorTransform &inTrans)
 void FromValue(value obj, URLRequest &request)
 {
    request.url = val_string( val_field(obj, _id_url) );
-   request.userAgent = val_string( val_field(obj, _id_userAgent) );
+   value userAgent = val_field(obj, _id_userAgent);
+   request.userAgent = val_is_string(userAgent) ? val_string( userAgent ) : "";
    request.authType = val_field_numeric(obj, _id_authType );
    request.credentials = val_string( val_field(obj, _id_credentials) );
    request.cookies = val_string( val_field(obj, _id_cookieString) );

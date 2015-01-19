@@ -23,7 +23,7 @@ public:
 
 	Tilesheet *IncRef() { Object::IncRef(); return this; }
 
-	int AllocRect(int inW,int inH,float inOx = 0, float inOy = 0);
+	int AllocRect(int inW,int inH,float inOx = 0, float inOy = 0,bool inAlphaBorder=false);
    int addTileRect(const Rect &inRect,float inOx=0, float inOy=0);
 	const Tile &GetTile(int inID) { return mTiles[inID]; }
 	Surface &GetSurface() { return *mSheet; }

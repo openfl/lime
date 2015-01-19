@@ -192,6 +192,7 @@ public:
    Graphics &GetGraphics();
    virtual Matrix   GetFullMatrix(bool inWithStageScaling);
    Matrix   &GetLocalMatrix();
+   virtual void modifyLocalMatrix(Matrix &ioMatrix) { }
    ColorTransform   &GetLocalColorTransform() { return colorTransform; }
    ColorTransform   GetFullColorTransform();
    const FilterList &getFilters() { return filters; }

@@ -1,3 +1,5 @@
+#ifndef __MINGW32__
+
 #include <windows.h>
 #include <process.h>
 #include <comdef.h>
@@ -491,3 +493,18 @@ Camera *CreateCamera(const char *inName)
 } // end namespace name
 
 
+#else // __MINGW__
+
+
+#include <Camera.h>
+namespace nme
+{
+
+Camera *CreateCamera(const char *inName)
+{
+   return 0;
+}
+
+} // end namespace name
+
+#endif

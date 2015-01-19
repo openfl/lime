@@ -345,12 +345,14 @@ bool GetFontFile(const std::string& inName,std::string &outFile)
 
 bool GetFontFile(const std::string& inName,std::string &outFile)
 {
+   const char *alternate = 0;
    if (!strcasecmp(inName.c_str(),"_serif") ||
        !strcasecmp(inName.c_str(),"times.ttf") || !strcasecmp(inName.c_str(),"times"))
    {
       
       #if defined (ANDROID)
          outFile = "/system/fonts/DroidSerif-Regular.ttf";
+         alternate = "/system/fonts/NotoSerif-Regular.ttf";
       #elif defined (WEBOS)
          outFile = "/usr/share/fonts/times.ttf";
       #elif defined (BLACKBERRY)
@@ -405,6 +407,13 @@ bool GetFontFile(const std::string& inName,std::string &outFile)
    }
 
    #ifdef ANDROID
+   if (alternate)
+   {
+       struct stat s;
+       if (stat(outFile.c_str(),&s)!=0 && stat(alternate,&s)==0)
+          outFile = alternate;
+   }
+
     //__android_log_print(ANDROID_LOG_INFO, "GetFontFile", "mapped '%s' to '%s'.", inName.c_str(), outFile.c_str());
    #endif
    return true;

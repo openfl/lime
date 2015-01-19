@@ -7,6 +7,7 @@
 #include <ctype.h>
 #include <time.h>
 #include <sstream>
+#include <algorithm>
 
 #ifndef iswalpha
 #define iswalpha isalpha
@@ -17,6 +18,8 @@ namespace nme
 {
 
 int gPasswordChar = 42; // *
+
+static const double GAP = 2.0;
 
 TextField::TextField(bool inInitRef) : DisplayObject(inInitRef),
    alwaysShowSelection(false),
@@ -49,27 +52,32 @@ TextField::TextField(bool inInitRef) : DisplayObject(inInitRef),
    mStringState = ssText;
    mLinesDirty = true;
    mGfxDirty = true;
-   boundsWidth = 100.0;
-   boundsHeight = 100.0;
-   mActiveRect = Rect(100,100);
+   mTilesDirty = false;
+   mCaretDirty = true;
+   fieldWidth = 100.0;
+   explicitWidth = fieldWidth;
+   fieldHeight = 100.0;
+   //mActiveRect = Rect(100,100);
    mFontsDirty = false;
    mSelectMin = mSelectMax = 0;
    mSelectDownChar = 0;
    caretIndex = 0;
    mCaretGfx = 0;
    mHighlightGfx = 0;
-   mLastCaretHeight = -1;
+   mTiles = 0;
    mSelectKeyDown = -1;
    maxScrollH  = 0;
    maxScrollV  = 1;
    setText(L"");
    textWidth = 0;
    textHeight = 0;
+   fontScale = 1.0;
+   fontToLocal = 1.0;
    mLastUpDownX = -1;
-   mLayoutScaleH = mLayoutScaleV = -1.0;
-   mLayoutRotation = gr0;
    needsSoftKeyboard = true;
    mHasCaret = false;
+   screenGrid = false;
+   mBlink0 = GetTimeStamp();
 }
 
 TextField::~TextField()
@@ -78,66 +86,69 @@ TextField::~TextField()
       mCaretGfx->DecRef();
    if (mHighlightGfx)
       mHighlightGfx->DecRef();
+   if (mTiles)
+      mTiles->DecRef();
    defaultTextFormat->DecRef();
    mCharGroups.DeleteAll();
 }
 
-void TextField::setWidth(double inWidth)
-{
-   boundsWidth = inWidth;
-   mLinesDirty = true;
-   mGfxDirty = true;
-}
-
 double TextField::getWidth()
 {
-   /*if (autoSize != asNone)
-   {
-      if (mLinesDirty)
-         Layout();
-      return textWidth;
-   }
-   return boundsWidth;*/
-   Transform trans;
-   trans.mMatrix = &GetLocalMatrix();
-   Extent2DF ext;
-   GetExtent(trans,ext,false,true);
+   if (mLinesDirty)
+      Layout();
 
-   if (!ext.Valid())
-   {
-      return 0;
-   }
-
-   return ext.Width();
+   return fieldWidth*scaleX;
 }
 
 double TextField::getHeight()
 {
-   /*if (autoSize != asNone)
-   {
-      if (mLinesDirty)
-         Layout();
-      return textHeight;
-   }
-   return boundsHeight;*/
-   Transform trans;
-   trans.mMatrix = &GetLocalMatrix();
-   Extent2DF ext;
-   GetExtent(trans,ext,false,true);
-   if (!ext.Valid())
-      return 0;
+   if (mLinesDirty)
+      Layout();
 
-   return ext.Height();
+   return fieldHeight*scaleY;
 }
- 
 
+void TextField::setWidth(double inWidth)
+{
+   explicitWidth = inWidth;
+   if (autoSize==asNone || wordWrap)
+   {
+      if (scaleX!=0)
+         fieldWidth = inWidth/scaleX;
+      else
+         fieldWidth = 0.0;
+      mLinesDirty = true;
+      mGfxDirty = true;
+   }
+   mDirtyFlags |= dirtLocalMatrix;
+}
 
 void TextField::setHeight(double inHeight)
 {
-   boundsHeight = inHeight;
-   mLinesDirty = true;
-   mGfxDirty = true;
+   if (autoSize==asNone)
+   {
+      if (scaleY!=0)
+         fieldHeight = inHeight/scaleY;
+      else
+         fieldHeight = 0.0;
+
+      fieldHeight = inHeight;
+      mLinesDirty = true;
+      mGfxDirty = true;
+   }
 }
+
+void TextField::modifyLocalMatrix(Matrix &ioMatrix)
+{
+   if ( (autoSize==asCenter || autoSize==asRight) && !multiline )
+   {
+      if (autoSize==asCenter)
+         ioMatrix.mtx -= (fieldWidth-explicitWidth) * 0.5;
+      else
+         ioMatrix.mtx -= (fieldWidth-explicitWidth);
+   }
+}
+
 
 
 const TextFormat *TextField::getDefaultTextFormat()
@@ -178,12 +189,12 @@ void TextField::SplitGroup(int inGroup,int inPos)
 TextFormat *TextField::getTextFormat(int inStart,int inEnd)
 {
    TextFormat *commonFormat = NULL;
-   
+
    for(int i=0;i<mCharGroups.size();i++)
    {
       CharGroup *charGroup = mCharGroups[i];
       TextFormat *format = charGroup->mFormat;
-      
+
       if (commonFormat == NULL)
       {
          commonFormat = new TextFormat (*format);
@@ -234,21 +245,21 @@ void TextField::setTextFormat(TextFormat *inFmt,int inStart,int inEnd)
 {
    if (!inFmt)
       return;
-   
+
    Layout();
-   
+
    int max = mCharPos.size();
-   
+
    if (inStart<0)
    {
       inStart = 0;
-	  inEnd = max;
+     inEnd = max;
    }
    else if (inEnd<0)
    {
       inEnd = inStart + 1;
    }
-   
+
    if (inEnd>max) inEnd = max;
 
    if (inEnd<=inStart)
@@ -298,6 +309,8 @@ void TextField::setTextColor(int inCol)
       defaultTextFormat = defaultTextFormat->COW();
       defaultTextFormat->color = inCol;
       mGfxDirty = true;
+      mTilesDirty = true;
+      mCaretDirty = true;
       DirtyCache();
    }
 }
@@ -353,24 +366,26 @@ void TextField::setWordWrap(bool inWordWrap)
 
 void TextField::setAutoSize(int inAutoSize)
 {
-   autoSize = (AutoSizeMode)inAutoSize;
-   mLinesDirty = true;
-   mGfxDirty = true;
-   DirtyCache();
+   if (inAutoSize!=autoSize)
+   {
+      autoSize = (AutoSizeMode)inAutoSize;
+      mLinesDirty = true;
+      mGfxDirty = true;
+      mDirtyFlags |= dirtLocalMatrix;
+      DirtyCache();
+   }
 }
 
 double TextField::getTextHeight()
 {
    Layout();
-   double h =  textHeight/mLayoutScaleV;
-   return std::max(h-4,0.0);
+   return textHeight;
 }
 
 double TextField::getTextWidth()
 {
    Layout();
-   double w =  textWidth/mLayoutScaleH;
-   return std::max(w-4,0.0);
+   return textWidth;
 }
 
 
@@ -384,8 +399,8 @@ bool TextField::FinishEditOnEnter()
 int TextField::getBottomScrollV()
 {
    Layout();
-   int l = std::max(scrollV -1,0);
-   int height = boundsHeight;
+   double l = std::max(scrollV -1,0);
+   double height = fieldHeight-2*GAP;
    while(height>0 && l<mLines.size())
    {
       Line &line = mLines[l++];
@@ -396,66 +411,87 @@ int TextField::getBottomScrollV()
 
 void TextField::setScrollH(int inScrollH)
 {
+   int oldPos = scrollH;
    scrollH = inScrollH;
    if (scrollH<0)
       scrollH = 0;
    if (scrollH>maxScrollH)
       scrollH = maxScrollH;
-   // TODO: do we need to re-layout on scroll?
-   mLinesDirty = true;
-   mGfxDirty = true;
-   DirtyCache();
+
+   if (oldPos!=scrollH)
+   {
+      mTilesDirty = true;
+      mCaretDirty = true;
+      mGfxDirty = true;
+      DirtyCache();
+   }
 }
 
 void TextField::setScrollV(int inScrollV)
 {
+   setScrollVClearSel(inScrollV,true);
+}
+
+void TextField::setScrollVClearSel(int inScrollV,bool inClearSel)
+{
+   int oldPos = scrollV;
    if (inScrollV<1)
       inScrollV = 1;
    if (inScrollV>maxScrollV)
       inScrollV =maxScrollV;
 
-   if (inScrollV!=scrollV && mSelectMin!=mSelectMax)
+   if (inScrollV!=oldPos)
    {
-      mSelectMin = mSelectMax = 0;
-      mSelectKeyDown = -1;
+      if (inClearSel && mSelectMin!=mSelectMax)
+      {
+         mSelectMin = mSelectMax = 0;
+         mSelectKeyDown = -1;
+      }
+
+      scrollV = inScrollV;
+
+      mTilesDirty = true;
+      mCaretDirty = true;
+      mGfxDirty = true;
+      DirtyCache();
    }
-
-   scrollV = inScrollV;
-   // TODO: do we need to re-layout on scroll?
-   mLinesDirty = true;
-   mGfxDirty = true;
-   DirtyCache();
-
 }
 
 
 
-int TextField::getLength()
+int TextField::getLength() const
 {
    if (mLines.empty()) return 0;
-   Line & l =  mLines[ mLines.size()-1 ];
+   const Line & l =  mLines[ mLines.size()-1 ];
    return l.mChar0 + l.mChars;
 }
 
-int TextField::PointToChar(int inX,int inY)
+int TextField::PointToChar(UserPoint inPoint) const
 {
-   if (mCharPos.empty())
+   if (mCharPos.empty() || inPoint.y<mLines[0].mY0)
       return 0;
 
-   ImagePoint scroll = GetScrollPos();
-   inX +=scroll.x;
-   inY +=scroll.y;
+   inPoint += GetScrollPos();
 
    // Find the line ...
    for(int l=0;l<mLines.size();l++)
    {
-      Line &line = mLines[l];
-      if ( (line.mY0+line.mMetrics.height) > inY && line.mChars)
+      const Line &line = mLines[l];
+      //printf("%d] %f/%f/%f\n",l, line.mY0, inPoint.y,  line.mY0+line.mMetrics.height );
+      if ( (line.mY0+line.mMetrics.height) > inPoint.y && line.mChars)
       {
+         if (line.mChars==1)
+            return line.mChar0;
+
          // Find the char
          for(int c=0; c<line.mChars;c++)
-            if (mCharPos[line.mChar0 + c].x>inX)
-               return c==0 ? line.mChar0 : line.mChar0+c-1;
+         {
+            double nextX = c<line.mChars-1 ? mCharPos[line.mChar0 + c + 1].x : mCharPos[line.mChar0].x+line.mMetrics.width;
+            double middle = (mCharPos[line.mChar0 + c].x +  nextX)*0.5;
+            if (inPoint.x<middle)
+               return line.mChar0+c;
+         }
+
          return line.mChar0 + line.mChars;
       }
    }
@@ -487,13 +523,15 @@ bool TextField::CaptureDown(Event &inEvent)
       if (selectable && isInput)
          getStage()->EnablePopupKeyboard(true);
 
-      UserPoint point = TargetToRect(GetFullMatrix(true), UserPoint( inEvent.x, inEvent.y) );
-      int pos = PointToChar(point.x,point.y);
+      UserPoint point = GlobalToLocal(UserPoint( inEvent.x, inEvent.y));
+      int pos = PointToChar(point);
       caretIndex = pos;
       if (selectable)
       {
          mSelectDownChar = pos;
          mSelectMin = mSelectMax = pos;
+         mTilesDirty = true;
+         mCaretDirty = true;
          mGfxDirty = true;
          DirtyCache();
       }
@@ -501,42 +539,14 @@ bool TextField::CaptureDown(Event &inEvent)
    return true;
 }
 
-UserPoint TextField::TargetToRect(const Matrix &inMatrix,const UserPoint &inPoint)
-{
-   UserPoint p = (inPoint - UserPoint(inMatrix.mtx, inMatrix.mty));
-   switch(mLayoutRotation)
-   {
-      case gr0: break;
-      case gr90: return UserPoint(p.y,-p.x);
-      case gr180: return UserPoint(-p.x,-p.y);
-      case gr270: return UserPoint(-p.y,p.x);
-   }
-   return p;
-}
-
-UserPoint TextField::RectToTarget(const Matrix &inMatrix,const UserPoint &inPoint)
-{
-   UserPoint trans(inMatrix.mtx, inMatrix.mty);
-   switch(mLayoutRotation)
-   {
-      case gr0: break;
-      case gr90: return UserPoint(-inPoint.y,inPoint.x) + trans;
-      case gr180: return UserPoint(-inPoint.x,-inPoint.y) + trans;
-      case gr270: return UserPoint(inPoint.y,-inPoint.x) + trans;
-   }
-   return inPoint + trans;
-
-}
-
-
-
 void TextField::Drag(Event &inEvent)
 {
    if (selectable)
    {
       mSelectKeyDown = -1;
-      UserPoint point = TargetToRect(GetFullMatrix(true),UserPoint( inEvent.x, inEvent.y) );
-      int pos = PointToChar(point.x,point.y);
+      UserPoint point = GlobalToLocal(UserPoint( inEvent.x, inEvent.y));
+
+      int pos = PointToChar(point);
       if (pos>mSelectDownChar)
       {
          mSelectMin = mSelectDownChar;
@@ -547,22 +557,24 @@ void TextField::Drag(Event &inEvent)
          mSelectMin = pos;
          mSelectMax = mSelectDownChar;
       }
-		if (point.x>mActiveRect.x1())
-      {
-			scrollH+=(point.x-mActiveRect.x1());
-         if (scrollH>maxScrollH)
-            scrollH = maxScrollH;
-      }
-		else if (point.x<mActiveRect.x)
-      {
-			scrollH-=(mActiveRect.x-point.x);
-         if (scrollH<0)
-           scrollH = 0;
-      }
+
+
+      if (point.x>fieldWidth-GAP)
+         setScrollH(scrollH+(point.x-(fieldWidth-GAP)));
+      else if (point.x<GAP)
+         setScrollH(scrollH-(GAP-point.x));
+
+      if (point.y>fieldHeight-GAP)
+         setScrollVClearSel(scrollV+1,false);
+      else if (point.y<GAP)
+         setScrollVClearSel(scrollV-1,false);
+
       caretIndex = pos;
       ShowCaret(true);
       //printf("%d(%d) -> %d,%d\n", pos, mSelectDownChar, mSelectMin , mSelectMax);
       mGfxDirty = true;
+      mTilesDirty = true;
+      mCaretDirty = true;
       DirtyCache();
    }
 }
@@ -613,7 +625,7 @@ void TextField::OnKey(Event &inEvent)
             ShowCaret();
             OnChange();
             return;
-         
+
          case keyDELETE:
             if (mSelectMin<mSelectMax)
             {
@@ -623,6 +635,7 @@ void TextField::OnKey(Event &inEvent)
             {
                DeleteChars(caretIndex,caretIndex+1);
             }
+            mCaretDirty = true;
             ShowCaret();
             OnChange();
             return;
@@ -639,7 +652,11 @@ void TextField::OnKey(Event &inEvent)
             mLastUpDownX = -1;
          case keyUP:
          case keyDOWN:
-            if (mSelectKeyDown<0 && shift) mSelectKeyDown = caretIndex;
+            if (mSelectKeyDown<0 && shift)
+               mSelectKeyDown = caretIndex;
+            if (!shift)
+               ClearSelection();
+
             switch(inEvent.value)
             {
                case keyLEFT: if (caretIndex>0) caretIndex--; break;
@@ -672,6 +689,8 @@ void TextField::OnKey(Event &inEvent)
                mSelectMin = std::min(mSelectKeyDown,caretIndex);
                mSelectMax = std::max(mSelectKeyDown,caretIndex);
                mGfxDirty = true;
+               mTilesDirty = true;
+               mCaretDirty = true;
             }
             ShowCaret();
             return;
@@ -707,63 +726,48 @@ void TextField::OnKey(Event &inEvent)
 
 void TextField::ShowCaret(bool inFromDrag)
 {
-	if (!CaretOn())
-		return;
-   ImagePoint pos(0,0);
-   bool changed = false;
+   mCaretDirty = true;
+   mBlink0 = GetTimeStamp();
+   mHasCaret = false;
 
-   if (caretIndex < mCharPos.size())
-      pos = mCharPos[caretIndex];
-   else if (mLines.size())
+   UserPoint pos = GetCursorPos() - GetScrollPos();
+   // When dragging, allow caret to be hidden off to the left
+   if (pos.x<GAP && !inFromDrag)
+      setScrollH( scrollH + pos.x-GAP - 1 );
+   else if (pos.x>fieldWidth-GAP)
+      setScrollH( scrollH + pos.x - (fieldWidth-GAP) + 1 );
+
+   int line = LineFromChar(caretIndex);
+   if (pos.y<GAP)
    {
-      pos.x = EndOfLineX( mLines.size()-1 );
-      pos.y = mLines[ mLines.size() -1].mY0;
+      setScrollV(line+1);
    }
-
-	//printf("Pos %dx%d\n", pos.x, pos.y);
-
-   if (pos.x-scrollH >= mActiveRect.w)
+   else if (pos.y+mLines[line].mMetrics.height > fieldHeight-GAP)
    {
-      changed = true;
-      scrollH = pos.x - mActiveRect.w + 1;
+      int scroll = scrollV-1;
+      double extra = pos.y+mLines[line].mMetrics.height - (fieldHeight-GAP);
+      while(extra>0 && scroll<mLines.size())
+      {
+         extra -= mLines[scroll].mMetrics.height;
+         scroll++;
+      }
+      setScrollV(scroll+1);
    }
-	// When dragging, allow caret to be hidden off to the left
-   else if (pos.x-scrollH < 0 && !inFromDrag)
+   /*
+
+   if (scrollV <= mLines.size())
    {
-      changed = true;
-      scrollH = pos.x;
+      if (pos.y-mLines[scrollV-1].mY0 >= mActiveRect.h)
+      {
+         changed = true;
+         scrollV++;
+      }
+      else if (scrollV>1 && pos.y<mLines[scrollV-1].mY0)
+      {
+         scrollV--;
+         changed = true;
+      }
    }
-	if (scrollH>maxScrollH)
-	{
-		scrollH = maxScrollH;
-		changed = true;
-	}
-	else if (scrollH<0)
-	{
-		scrollH = 0;
-		changed = true;
-	}
-
-   if (scrollV<1)
-   {
-      changed = true;
-      scrollV = 1;
-   }
-
-
-	if (scrollV <= mLines.size())
-	{
-		if (pos.y-mLines[scrollV-1].mY0 >= mActiveRect.h)
-		{
-			changed = true;
-			scrollV++;
-		}
-		else if (scrollV>1 && pos.y<mLines[scrollV-1].mY0)
-		{
-			scrollV--;
-			changed = true;
-		}
-	}
 
 
    if (scrollH<0)
@@ -787,11 +791,14 @@ void TextField::ShowCaret(bool inFromDrag)
    if (changed)
    {
       DirtyCache();
+      mTilesDirty = true;
+      mCaretDirty = true;
       if (mSelectMax > mSelectMin)
       {
          mGfxDirty = true;
       }
    }
+   */
 }
 
 
@@ -807,7 +814,8 @@ void TextField::Clear()
 
 Cursor TextField::GetCursor()
 {
-	return selectable ? (Cursor)(curTextSelect0 + mLayoutRotation) : curPointer;
+   // TODO - angle cursor
+   return selectable ? (Cursor)(curTextSelect0) : curPointer;
 }
 
 
@@ -837,107 +845,107 @@ WString TextField::getHTMLText()
 {
    WString result;
    TextFormat *cacheFormat = NULL;
-   
+
    bool inAlign = false;
    bool inFontTag = false;
    bool inBoldTag = false;
    bool inItalicTag = false;
    bool inUnderlineTag = false;
-   
+
    for(int i=0;i<mCharGroups.size();i++)
    {
-	  CharGroup *charGroup = mCharGroups[i];
-	  TextFormat *format = charGroup->mFormat;
-	  
-	  if (format != cacheFormat)
-	  {
-		  if (inUnderlineTag && !format->underline)
-		  {
-		  	 result += L"</u>";
-		  	 inAlign = false;
-		  }
-		  
-		  if (inItalicTag && !format->italic)
-		  {
-			  result += L"</i>";
-			  inItalicTag = false;
-		  }
-		  
-		  if (inBoldTag && !format->bold)
-		  {
-			  result += L"</b>";
-			  inBoldTag = false;
-		  }
-		  
-		  if (inFontTag && (WString (format->font).compare (cacheFormat->font) != 0 || format->color != cacheFormat->color || format->size != cacheFormat->size))
-		  {
-			  result += L"</font>";
-			  inFontTag = false;
-		  }
-		  
-		  if (inAlign && format->align != cacheFormat->align)
-		  {
-			  result += L"</p>";
-			  inAlign = false;
-		  }
-	  }
-	  
-	  if (!inAlign && format->align != tfaLeft)
-	  {
-		  result += L"<p align=\"";
-		  
-		  switch(format->align)
-		  {
+     CharGroup *charGroup = mCharGroups[i];
+     TextFormat *format = charGroup->mFormat;
+
+     if (format != cacheFormat)
+     {
+        if (inUnderlineTag && !format->underline)
+        {
+            result += L"</u>";
+            inAlign = false;
+        }
+
+        if (inItalicTag && !format->italic)
+        {
+           result += L"</i>";
+           inItalicTag = false;
+        }
+
+        if (inBoldTag && !format->bold)
+        {
+           result += L"</b>";
+           inBoldTag = false;
+        }
+
+        if (inFontTag && (WString (format->font).compare (cacheFormat->font) != 0 || format->color != cacheFormat->color || format->size != cacheFormat->size))
+        {
+           result += L"</font>";
+           inFontTag = false;
+        }
+
+        if (inAlign && format->align != cacheFormat->align)
+        {
+           result += L"</p>";
+           inAlign = false;
+        }
+     }
+
+     if (!inAlign && format->align != tfaLeft)
+     {
+        result += L"<p align=\"";
+
+        switch(format->align)
+        {
            case tfaLeft: break;
            case tfaCenter: result += L"center"; break;
-			  case tfaRight: result += L"right"; break;
-			  case tfaJustify: result += L"justify"; break;
-		  }
-		  
-		  result += L"\">";
-		  inAlign = true;
-	  }
-	  
-	  if (!inFontTag)
-	  {
-		  result += L"<font color=\"#";
-		  result += ColorToWide(format->color);
-		  result += L"\" face=\"";
-		  result += format->font;
-		  result += L"\" size=\"";
-		  result += IntToWide(format->size);
-		  result += L"\">";
-		  inFontTag = true;
-	  }
-	  
-	  if (!inBoldTag && format->bold)
-	  {
-		  result += L"<b>";
-		  inBoldTag = true;
-	  }
-	  
-	  if (!inItalicTag && format->italic)
-	  {
-		  result += L"<i>";
-		  inItalicTag = true;
-	  }
-	  
-	  if (!inUnderlineTag && format->underline)
-	  {
-		  result += L"<u>";
-		  inUnderlineTag = true;
-	  }
-	  
-	   result += WString(charGroup->mString.mPtr, charGroup->Chars());
-	   cacheFormat = format;
+           case tfaRight: result += L"right"; break;
+           case tfaJustify: result += L"justify"; break;
+        }
+
+        result += L"\">";
+        inAlign = true;
+     }
+
+     if (!inFontTag)
+     {
+        result += L"<font color=\"#";
+        result += ColorToWide(format->color);
+        result += L"\" face=\"";
+        result += format->font;
+        result += L"\" size=\"";
+        result += IntToWide(format->size);
+        result += L"\">";
+        inFontTag = true;
+     }
+
+     if (!inBoldTag && format->bold)
+     {
+        result += L"<b>";
+        inBoldTag = true;
+     }
+
+     if (!inItalicTag && format->italic)
+     {
+        result += L"<i>";
+        inItalicTag = true;
+     }
+
+     if (!inUnderlineTag && format->underline)
+     {
+        result += L"<u>";
+        inUnderlineTag = true;
+     }
+
+      result += WString(charGroup->mString.mPtr, charGroup->Chars());
+      cacheFormat = format;
    }
-   
+
    if (inUnderlineTag) result += L"</u>";
    if (inItalicTag) result += L"</i>";
    if (inBoldTag) result += L"</b>";
    if (inFontTag) result += L"</font>";
    if (inAlign) result += L"</p>";
-   
+
    return result;
 }
 
@@ -1211,17 +1219,19 @@ int TextField::GroupFromChar(int inChar)
 
 
 
-int TextField::EndOfLineX(int inLine)
+double TextField::EndOfLineX(int inLine) const
 {
-   Line &line = mLines[inLine];
+   const Line &line = mLines[inLine];
+   if (line.mChars==0)
+      return GAP;
    return mCharPos[ line.mChar0 ].x + line.mMetrics.width;
 }
 
-int TextField::EndOfCharX(int inChar,int inLine)
+double TextField::EndOfCharX(int inChar,int inLine) const
 {
    if (inLine<0 || inLine>=mLines.size() || inChar<0 || inChar>=mCharPos.size())
       return 0;
-   Line &line = mLines[inLine];
+   const Line &line = mLines[inLine];
    // Not last character on line?
    if (inChar < line.mChar0 + line.mChars -1 )
       return mCharPos[inChar+1].x;
@@ -1249,6 +1259,9 @@ WString TextField::getLineText(int inLine)
       return L"";
    Line &line = mLines[inLine];
 
+   if (line.mChars==0)
+      return L"";
+      
    int g0 = GroupFromChar(line.mChar0);
    int g1 = GroupFromChar(line.mChar0 + line.mChars-1);
 
@@ -1283,14 +1296,14 @@ TextLineMetrics *TextField::getLineMetrics(int inLine)
    return &line.mMetrics;
 }
 
-ImagePoint TextField::GetScrollPos()
+UserPoint TextField::GetScrollPos() const
 {
-   return ImagePoint(scrollH,mLines[std::max(0,scrollV-1)].mY0-2);
+   return UserPoint(scrollH,mLines[std::max(0,scrollV-1)].mY0-GAP);
 }
 
-ImagePoint TextField::GetCursorPos()
+UserPoint TextField::GetCursorPos() const
 {
-   ImagePoint pos(0,0);
+   UserPoint pos(0,0);
    if (caretIndex < mCharPos.size())
       pos = mCharPos[caretIndex];
    else if (mLines.size())
@@ -1300,6 +1313,15 @@ ImagePoint TextField::GetCursorPos()
    }
    return pos;
 }
+
+bool TextField::isLineVisible(int inLine) const
+{
+   if (inLine<scrollV-1)
+      return false;
+   double bottom = GAP+mLines[inLine].mY0 + mLines[inLine].mMetrics.height - mLines[scrollV-1].mY0;
+   return bottom<=fieldHeight-GAP;
+}
+
 
 void TextField::BuildBackground()
 {
@@ -1314,56 +1336,79 @@ void TextField::BuildBackground()
          if (background)
             gfx.beginFill( backgroundColor, 1 );
          if (border)
-            gfx.lineStyle(0, borderColor );
-         gfx.moveTo((mActiveRect.x)/mLayoutScaleH,   (mActiveRect.y)/mLayoutScaleV);
-         gfx.lineTo((mActiveRect.x1())/mLayoutScaleH,(mActiveRect.y)/mLayoutScaleV);
-         gfx.lineTo((mActiveRect.x1())/mLayoutScaleH,(mActiveRect.y1())/mLayoutScaleV);
-         gfx.lineTo((mActiveRect.x)/mLayoutScaleH,   (mActiveRect.y1())/mLayoutScaleV);
-         gfx.lineTo((mActiveRect.x)/mLayoutScaleH,   (mActiveRect.y)/mLayoutScaleV);
+            gfx.lineStyle(0, borderColor,1.0, false, ssmOpenGL  );
+
+         gfx.moveTo(0.001,0.001);
+         gfx.lineTo(fieldWidth+0.001,0.001);
+         gfx.lineTo(fieldWidth+0.001,fieldHeight+0.001);
+         gfx.lineTo(0.001,fieldHeight+0.001);
+         gfx.lineTo(0.001,0.001);
       }
 
       //printf("%d,%d\n", mSelectMin , mSelectMax);
       if (mSelectMin < mSelectMax)
       {
-         ImagePoint scroll = GetScrollPos();
+         UserPoint scroll = GetScrollPos();
          if (!mHighlightGfx)
             mHighlightGfx = new Graphics(this,true);
 
          int l0 = LineFromChar(mSelectMin);
          int l1 = LineFromChar(mSelectMax-1);
-         ImagePoint pos = mCharPos[mSelectMin] - scroll;
-         int height = mLines[l1].mMetrics.height;
-         int x1 = EndOfCharX(mSelectMax-1,l1) - scroll.x;
+         UserPoint pos = mCharPos[mSelectMin] - scroll;
+         double height = mLines[l1].mMetrics.height;
+         double x1 = EndOfCharX(mSelectMax-1,l1) - scroll.x;
          mHighlightGfx->lineStyle(-1);
          mHighlightGfx->beginFill( 0x101060, 1);
          // Special case of begin/end on same line ...
          if (l0==l1)
          {
-            //printf("HI %dx%d sv=%d (%d,%d) %d\n", pos.x,pos.y, scrollV, scroll.x, scroll.y, mSelectMin);
-            mHighlightGfx->drawRect(pos.x,pos.y,x1-pos.x,height);
+            if (isLineVisible(l0))
+               highlightRect(pos.x,pos.y,x1-pos.x,height);
          }
          else
          {
-            mHighlightGfx->drawRect(pos.x,pos.y,EndOfLineX(l0)- scroll.x-pos.x,height);
+            if (isLineVisible(l0))
+               highlightRect(pos.x,pos.y,EndOfLineX(l0)- scroll.x-pos.x,height);
+
             for(int y=l0+1;y<l1;y++)
             {
-               Line &line = mLines[y];
-               pos = mCharPos[line.mChar0]-scroll;
-               mHighlightGfx->drawRect(pos.x,pos.y,EndOfLineX(y)-scroll.x-pos.x,line.mMetrics.height);
+               if (isLineVisible(y))
+               {
+                  Line &line = mLines[y];
+                  pos = mCharPos[line.mChar0]-scroll;
+                  highlightRect(pos.x,pos.y,EndOfLineX(y)-scroll.x-pos.x,line.mMetrics.height);
+               }
             }
-            Line &line = mLines[l1];
-            pos = mCharPos[line.mChar0]-scroll;
-            mHighlightGfx->drawRect(pos.x,pos.y,x1-pos.x,line.mMetrics.height);
+            if (isLineVisible(l1))
+            {
+               Line &line = mLines[l1];
+               pos = mCharPos[line.mChar0]-scroll;
+               highlightRect(pos.x,pos.y,x1-pos.x,line.mMetrics.height);
+            }
          }
       }
       mGfxDirty = false;
    }
 }
 
+void TextField::highlightRect(double x0, double y0, double w, double h)
+{
+   if (x0<GAP)
+   {
+      w += x0-GAP;
+      x0 = GAP;
+   }
+   if (x0+w>fieldWidth-GAP)
+      w = fieldWidth-GAP - x0;
+
+   if (w>0)
+      mHighlightGfx->drawRect(x0,y0,w,h);
+}
+
 bool TextField::CaretOn()
 {
    Stage *s = getStage();
-   return (s && isInput && s->GetFocusObject()==this && (( (int)(GetTimeStamp()*3)) & 1));
+   return (s && isInput && s->GetFocusObject()==this && !(( (int)((GetTimeStamp()-mBlink0)*3)) & 1));
 }
 
 bool TextField::IsCacheDirty()
@@ -1371,6 +1416,14 @@ bool TextField::IsCacheDirty()
    //if (mGfxDirty) BuildBackground();
    return DisplayObject::IsCacheDirty() || mGfxDirty || mLinesDirty || (CaretOn()!=mHasCaret);
 }
+
+
+void  TextField::toScreenGrid(UserPoint &ioPoint, const Matrix &inMatrix)
+{
+   ioPoint.x = floor((ioPoint.x-inMatrix.mtx)*fontScale+0.5)*fontToLocal+inMatrix.mtx;
+   ioPoint.y = floor((ioPoint.y-inMatrix.mty)*fontScale+0.5)*fontToLocal+inMatrix.mty;
+}
+
 
 
 
@@ -1383,8 +1436,8 @@ void TextField::Render( const RenderTarget &inTarget, const RenderState &inState
 
       RenderState state(inState);
 
-      Rect r = mActiveRect.Rotated(mLayoutRotation).Translated(matrix.mtx,matrix.mty).RemoveBorder(2*mLayoutScaleH);
-      state.mClipRect = r.Intersect(inState.mClipRect);
+      //Rect r = mActiveRect.Rotated(mLayoutRotation).Translated(matrix.mtx,matrix.mty).RemoveBorder(2*mLayoutScaleH);
+      //state.mClipRect = r.Intersect(inState.mClipRect);
 
       if (inState.mMask)
          state.mClipRect = inState.mClipRect.Intersect(
@@ -1406,8 +1459,9 @@ void TextField::Render( const RenderTarget &inTarget, const RenderState &inState
 
    RenderState state(inState);
 
-   Rect r = mActiveRect.Rotated(mLayoutRotation).Translated(matrix.mtx,matrix.mty).RemoveBorder(2*mLayoutScaleH);
-   state.mClipRect = r.Intersect(inState.mClipRect);
+   // TODO - full transform
+   //Rect r = mActiveRect.Translated(matrix.mtx,matrix.mty).RemoveBorder(2*mLayoutScaleH);
+   //state.mClipRect = r.Intersect(inState.mClipRect);
 
    if (inState.mMask)
       state.mClipRect = inState.mClipRect.Intersect(
@@ -1420,13 +1474,13 @@ void TextField::Render( const RenderTarget &inTarget, const RenderState &inState
    if (inState.mPhase==rpHitTest)
    {
       // Convert destination pixels to local pixels...
-      UserPoint pos =  TargetToRect(matrix,UserPoint(inState.mClipRect.x, inState.mClipRect.y) );
-      if ( mActiveRect.Contains(pos) )
+      UserPoint pos = GlobalToLocal(UserPoint(inState.mClipRect.x, inState.mClipRect.y));
+      if (pos.x>=0 && pos.y>=0 && pos.x<=fieldWidth && pos.y<=fieldHeight)
          inState.mHitResult = this;
       return;
    }
 
-   ImagePoint scroll = GetScrollPos();
+   UserPoint scroll = GetScrollPos();
 
    BuildBackground();
 
@@ -1435,144 +1489,180 @@ void TextField::Render( const RenderTarget &inTarget, const RenderState &inState
    if (!gfx.empty())
       gfx.Render(inTarget,inState);
 
-   UserPoint origin = RectToTarget( matrix, UserPoint(mActiveRect.x, mActiveRect.y) );
-   UserPoint dPdX(1,0);
-   UserPoint dPdY(0,1);
-   switch(mLayoutRotation)
-   {
-      case gr0: break;
-      case gr90: dPdX = UserPoint(0,1); dPdY = UserPoint(-1,0); break;
-      case gr180: dPdX = UserPoint(-1,0); dPdY = UserPoint(0,-1); break;
-      case gr270: dPdX = UserPoint(0,-1); dPdY = UserPoint(1,0); break;
-   }
-
    bool highlight = mHighlightGfx && !mHighlightGfx->empty();
    bool caret = CaretOn();
 
-   // Setup matrix for going from Rect to Target
-   Matrix rect_to_target;
-   if (highlight || caret)
+   if (highlight)
+      mHighlightGfx->Render(inTarget,state);
+
+   if (caret && mCaretDirty)
    {
-      rect_to_target.m00 = dPdX.x;
-      rect_to_target.m01 = dPdY.x;
-      rect_to_target.mtx = origin.x;
-      rect_to_target.m10 = dPdX.y;
-      rect_to_target.m11 = dPdY.y;
-      rect_to_target.mty = origin.y;
-      state.mTransform.mMatrix = &rect_to_target;
+      mCaretDirty = false;
+      if (!mCaretGfx)
+         mCaretGfx = new Graphics(this,true);
+      else
+         mCaretGfx->clear();
 
-      if (highlight)
-         mHighlightGfx->Render(inTarget,state);
-
-      if (caret)
+      int line = LineFromChar(caretIndex);
+      if (line>=0)
       {
-         if (!mCaretGfx)
-            mCaretGfx = new Graphics(this,true);
-         int line = LineFromChar(caretIndex);
-         if (line>=0)
+         UserPoint pos = GetCursorPos() - scroll;
+         if (pos.x>=GAP-1 && pos.x<=fieldWidth-GAP+1 && pos.y>=GAP-1)
          {
-            int height = mLines[line].mMetrics.height;
-            if (height!=mLastCaretHeight)
+            double height = mLines[line].mMetrics.height;
+            if (pos.y+height <= fieldHeight-GAP+1)
             {
-               mLastCaretHeight = height;
-               mCaretGfx->clear();
-               mCaretGfx->lineStyle(1,0x000000);
-               mCaretGfx->moveTo(0,0);
-               mCaretGfx->lineTo(0,mLastCaretHeight);
+               mCaretGfx->lineStyle(1, 0x000000 ,1.0, false, ssmOpenGL  );
+               mCaretGfx->moveTo(pos.x,pos.y);
+               mCaretGfx->lineTo(pos.x,pos.y+height);
             }
-
-            ImagePoint pos = GetCursorPos() - scroll;
-           
-            rect_to_target.TranslateData(pos.x,pos.y);
-            mCaretGfx->Render(inTarget,state);
          }
       }
    }
 
    mHasCaret = caret;
 
-
-   HardwareRenderer *hardware = inTarget.IsHardware() ? inTarget.mHardware : 0;
-
-   RenderTarget clipped;
-   if (hardware)
-      hardware->SetViewport(state.mClipRect);
-   else
-      clipped = inTarget.ClipRect( state.mClipRect );
-
-
-   int line = 0;
-   int last_line = mLines.size()-1;
-   Surface *hardwareSurface = 0;
-   uint32  hardwareTint = 0;
-   for(int g=0;g<mCharGroups.size();g++)
+   if (mTilesDirty)
    {
-      CharGroup &group = *mCharGroups[g];
-      if (group.Chars() && group.mFont)
+      mTilesDirty = false;
+      if (mCharGroups.size()==0)
       {
-         uint32 group_tint =
-              inState.mColourTransform->Transform(group.mFormat->color(textColor) | 0xff000000);
-         for(int c=0;c<group.Chars();c++)
+         if (mTiles)
          {
-            int ch = group.mString[c];
-            if (displayAsPassword)
-               ch = gPasswordChar;
-            if (ch!='\n' && ch!='\r')
+            mTiles->DecRef();
+            mTiles = 0;
+         }
+      }
+      else
+      {
+         if (!mTiles)
+            mTiles = new Graphics(this,true);
+         else
+            mTiles->clear();
+
+         int line = 0;
+         int last_line = mLines.size()-1;
+         Surface *fontSurface = 0;
+         uint32  hardwareTint = 0;
+         double clipRight = fieldWidth-GAP;
+
+         float white[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+         float groupColour[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+         float trans_2x2[4] = { fontToLocal, 0.0f, 0.0f, fontToLocal };
+         for(int g=0;g<mCharGroups.size();g++)
+         {
+            CharGroup &group = *mCharGroups[g];
+            if (group.Chars() && group.mFont)
             {
-               int cid = group.mChar0 + c;
-               ImagePoint pos = mCharPos[cid]-scroll;
-               if (pos.y>mActiveRect.h) break;
-               while(line<last_line && mLines[line+1].mChar0 >= cid)
-                  line++;
-               pos.y += mLines[line].mMetrics.ascent;
-
-               int a;
-               Tile tile = group.mFont->GetGlyph( ch, a);
-               UserPoint p = origin + dPdX*pos.x + dPdY*pos.y+ UserPoint(tile.mOx,tile.mOy);
-               uint32 tint = cid>=mSelectMin && cid<mSelectMax ? 0xffffffff : group_tint;
-               if (hardware)
+               ARGB tint = group.mFormat->color(textColor);
+               groupColour[0] = tint.getRedFloat();
+               groupColour[1] = tint.getGreenFloat();
+               groupColour[2] = tint.getBlueFloat();
+               groupColour[3] = 1.0;
+               for(int c=0;c<group.Chars();c++)
                {
-                  if (hardwareSurface!=tile.mSurface || hardwareTint!=tint)
+                  int ch = group.mString[c];
+                  if (displayAsPassword)
+                     ch = gPasswordChar;
+                  if (ch!='\n' && ch!='\r')
                   {
-                     if (hardwareSurface)
-                        hardware->EndBitmapRender();
+                     int cid = group.mChar0 + c;
+                     UserPoint pos = mCharPos[cid]-scroll;
+                     if (pos.x < clipRight)
+                     {
+                        while(line<last_line && mLines[line+1].mChar0 >= cid)
+                           line++;
+                        double lineY = pos.y + mLines[line].mMetrics.ascent;
+                        if (lineY>fieldHeight)
+                           break;
+                        if (pos.y>=GAP)
+                        {
+                           pos.y = lineY;
 
-                     hardwareSurface = tile.mSurface;
-                     hardwareTint = tint;
-                     hardware->BeginBitmapRender(tile.mSurface,tint);
+                           int a;
+                           Tile tile = group.mFont->GetGlyph( ch, a);
+
+                           if (fontSurface!=tile.mSurface)
+                           {
+                              //if (fontSurface) mTiles->endTiles();
+                              fontSurface = tile.mSurface;
+                              mTiles->beginTiles(fontSurface,!screenGrid,bmNormal);
+                           }
+
+                           UserPoint p(pos.x+tile.mOx*fontToLocal,pos.y+tile.mOy*fontToLocal);
+                           if (screenGrid)
+                           {
+                              toScreenGrid(p,matrix);
+                           }
+
+                           double right = p.x+tile.mRect.w*fontToLocal;
+                           if (right>GAP)
+                           {
+                              float *tint = cid>=mSelectMin && cid<mSelectMax ? white : groupColour;
+                              if (pos.x < GAP)
+                              {
+                                 Rect r = tile.mRect;
+                                 int dx = (GAP-pos.x)*fontScale + 0.001;
+                                 r.x += dx;
+                                 r.w -= dx;
+
+                                 if (right>clipRight)
+                                 {
+                                    r.w = (clipRight-GAP)*fontScale + 0.001;
+                                    if (r.w>0)
+                                       mTiles->tile(GAP,p.y,r,trans_2x2,tint);
+                                 }
+                                 else
+                                 {
+                                    mTiles->tile(GAP,p.y,r,trans_2x2,tint);
+                                 }
+
+                              }
+                              else if (right>clipRight)
+                              {
+                                 Rect r = tile.mRect;
+                                 r.w = (clipRight-p.x)*fontScale + 0.001;
+                                 if (r.w>0)
+                                    mTiles->tile(p.x,p.y,r,trans_2x2,tint);
+                              }
+                              else
+                              {
+                                 mTiles->tile(p.x,p.y,tile.mRect,trans_2x2,tint);
+                              }
+                           }
+                        }
+                     }
                   }
-                  hardware->RenderBitmap(tile.mRect, (int)p.x, (int)p.y);
-               }
-               else
-               {
-                  tile.mSurface->BlitTo(clipped,
-                     tile.mRect, (int)p.x, (int)p.y,
-                     bmTinted, 0,
-                    (uint32)tint);
                }
             }
          }
       }
+
    }
 
+   if (mTiles && !mTiles->empty())
+      mTiles->Render(inTarget,inState);
 
-   if (hardwareSurface)
-      hardware->EndBitmapRender();
+   if (caret && mCaretGfx && !mCaretGfx->empty())
+      mCaretGfx->Render(inTarget,state);
 }
+
 
 void TextField::GetExtent(const Transform &inTrans, Extent2DF &outExt,bool inForBitmap,bool inIncludeStroke)
 {
    Layout(*inTrans.mMatrix);
 
 
+   /*
    if (inForBitmap && !border && !background)
    {
-      Rect r = mActiveRect.Rotated(mLayoutRotation).
-            Translated(inTrans.mMatrix->mtx, inTrans.mMatrix->mty);
+      Rect r = mActiveRect.Translated(inTrans.mMatrix->mtx, inTrans.mMatrix->mty);
       for(int corner=0;corner<4;corner++)
           outExt.Add( UserPoint(((corner & 1) ? r.x : r.x1()),((corner & 1) ? r.y : r.y1())));
    }
-   else if (inForBitmap && border)
+   else
+   */
+   if (inForBitmap && border)
    {
       BuildBackground();
       return DisplayObject::GetExtent(inTrans,outExt,inForBitmap,inIncludeStroke);
@@ -1581,11 +1671,10 @@ void TextField::GetExtent(const Transform &inTrans, Extent2DF &outExt,bool inFor
    {
       for(int corner=0;corner<4;corner++)
       {
-         //UserPoint pos((corner & 1) ? boundsWidth*mLayoutScaleH : 0,
-         //              (corner & 2) ? boundsHeight*mLayoutScaleV : 0);
-         UserPoint pos((corner & 1) ? mActiveRect.x1() : mActiveRect.x,
-                       (corner & 2) ? mActiveRect.y1() : mActiveRect.y);
-         outExt.Add( RectToTarget(*inTrans.mMatrix,pos) );
+         UserPoint pos((corner & 1) ? fieldWidth : 0, (corner & 2) ? fieldHeight: 0);
+         //UserPoint pos((corner & 1) ? mActiveRect.x1() : mActiveRect.x,
+         //              (corner & 2) ? mActiveRect.y1() : mActiveRect.y);
+         outExt.Add( inTrans.mMatrix->Apply(pos.x,pos.y) );
       }
    }
 }
@@ -1626,6 +1715,17 @@ void TextField::DeleteChars(int inFirst,int inEnd)
    }
 }
 
+void TextField::ClearSelection()
+{
+   if (mSelectMin!=mSelectMax)
+   {
+      mSelectMin = mSelectMax = 0;
+      mTilesDirty = true;
+      mCaretDirty = true;
+      mGfxDirty = true;
+   }
+}
+
 void TextField::DeleteSelection()
 {
    if (mSelectMin>=mSelectMax)
@@ -1634,12 +1734,15 @@ void TextField::DeleteSelection()
    caretIndex = mSelectMin;
    mSelectMin = mSelectMax = 0;
    mSelectKeyDown = -1;
+   mTilesDirty = true;
+   mCaretDirty = true;
    mGfxDirty = true;
 }
 
 void TextField::InsertString(WString &inString)
 {
-   if (caretIndex<0) caretIndex = 0;
+   if (caretIndex<0)
+      caretIndex = 0;
    caretIndex = std::min(caretIndex,getLength());
 
    if (maxChars>0)
@@ -1674,74 +1777,68 @@ void TextField::InsertString(WString &inString)
    Layout(GetFullMatrix(true));
 }
 
+#ifdef EPPC
+   #define iswspace(x) isspace(x)
+#endif
+
+
 static bool IsWord(int inCh)
 {
-  #ifdef EPPC
-  return (!isspace(inCh));
-  #else
-  return (!iswspace(inCh));
-  #endif
   //return inCh<255 && (iswalpha(inCh) || isdigit(inCh) || inCh=='_');
-}
-
-static inline int Round6(int inX6)
-{
-   return (inX6 + (1<<6) -1) >> 6;
+  // TODO - other breaks?
+  return !iswspace(inCh) && inCh!='-';
 }
 
 // Combine x,y scaling with rotation to calculate pixel coordinates for
 //  each character.
 void TextField::Layout(const Matrix &inMatrix)
 {
-   GlyphRotation rot;
-   double scale_h;
-   double scale_v;
+   //double scale = scaleY<=0 ? 0.0 : sqrt( inMatrix.m10*inMatrix.m10 + inMatrix.m11*inMatrix.m11 )/scaleY;
+   double scale = sqrt( inMatrix.m10*inMatrix.m10 + inMatrix.m11*inMatrix.m11 );
+   bool grid =  ( fabs(fabs(inMatrix.m10)-fabs(inMatrix.m10)))<0.0001 &&
+                  fabs(fabs(inMatrix.m00)-fabs(inMatrix.m11))<0.0001 &&
+                ( fabs(inMatrix.m10)<0.0001 || fabs(inMatrix.m11)<0.0001);
 
-   if (fabs(inMatrix.m00)> fabs(inMatrix.m01))
+   if (mFontsDirty || fabs(scale-fontScale)>0.0001 || grid!=screenGrid)
    {
-      scale_h = fabs(inMatrix.m00);
-      scale_v = fabs(inMatrix.m11);
-      rot = inMatrix.m00 < 0 ? gr180 : gr0;
-   }
-   else
-   {
-      scale_h = fabs(inMatrix.m10);
-      scale_v = fabs(inMatrix.m01);
-      rot = inMatrix.m01 < 0 ? gr90 : gr270;
-   }
-
-
-   if (mFontsDirty || scale_h!=mLayoutScaleH || scale_v!=mLayoutScaleV ||
-           rot!=mLayoutRotation)
-   {
+      // fontScale is local-to-pixel scale
+      fontScale = scale;
+      screenGrid = grid;
       for(int i=0;i<mCharGroups.size();i++)
-         mCharGroups[i]->UpdateFont(scale_v,rot,!embedFonts);
+         mCharGroups[i]->UpdateFont(fontScale,!embedFonts);
+
       mLinesDirty = true;
       mFontsDirty = false;
-      mLayoutScaleV = scale_v;
-      mLayoutScaleH = scale_h;
-      mLayoutRotation = rot;
+      fontToLocal = scale>0 ? 1.0/scale : 0.0;
    }
 
    if (!mLinesDirty)
       return;
 
-   //printf("Re-layout\n");
-   // Now, layout into local co-ordinates...
+   double font6ToLocalX = fontToLocal/64.0;
+
    mLines.resize(0);
    mCharPos.resize(0);
 
-   int gap = (int)(2.0*mLayoutScaleH+0.5);
+   if (scaleX==0 || scaleY==0)
+      return;
+
+
+   double oldW = fieldWidth;
+   double oldH = fieldHeight;
+
    Line line;
    int char_count = 0;
+   double charX = 0;
+   double charY = 0;
+   line.mY0 = charY;
+   mLastUpDownX = -1;
    textHeight = 0;
    textWidth = 0;
-   int x6 = gap << 6;
-   int y = gap;
-   line.mY0 = y;
-   mLastUpDownX = -1;
-   int max_x = boundsWidth * mLayoutScaleH - gap;
-   if (max_x<1) max_x = 1;
+   double max_x = autoSize!=asNone && !wordWrap ? 1e30 : fieldWidth - GAP*2.0;
+   if (max_x<1)
+      max_x = 1;
+   bool endsWidthNewLine = false;
 
    for(int i=0;i<mCharGroups.size();i++)
    {
@@ -1749,39 +1846,38 @@ void TextField::Layout(const Matrix &inMatrix)
       g.mChar0 = char_count;
       int cid = 0;
       int last_word_cid = 0;
-      int last_word_x6 = x6;
+      double last_word_x = charX;
       int last_word_line_chars = line.mChars;
 
       g.UpdateMetrics(line.mMetrics);
       while(cid<g.Chars())
       {
+         endsWidthNewLine = false;
          if (line.mChars==0)
          {
-            x6 = gap<<6;
-            line.mY0 = y;
+            charX = 0;
+            line.mY0 = charY;
             line.mChar0 = char_count;
             line.mCharGroup0 = i;
             line.mCharInGroup0 = cid;
             last_word_line_chars = 0;
             last_word_cid = cid;
-            last_word_x6 = gap<<6;
+            last_word_x = 0;
+            g.UpdateMetrics(line.mMetrics);
          }
 
-         int advance = 0;
+         int advance6 = 0;
          int ch = g.mString[cid];
-         mCharPos.push_back( ImagePoint(x6>>6,y) );
+         mCharPos.push_back( UserPoint(charX,charY) );
          line.mChars++;
          char_count++;
          cid++;
+
          if (!displayAsPassword && !iswalpha(ch) && !isdigit(ch) && ch!='_' && ch!=';' && ch!='.' && ch!=',' && ch!='"' && ch!=':' && ch!='\'' && ch!='!' && ch!='?')
          {
-            if (!IsWord(ch) || (line.mChars>2 && !IsWord(g.mString[cid-2]))  )
+            if (!IsWord(ch) || (cid>=2 && !IsWord(g.mString[cid-2]))  )
             {
-			   #ifdef EPPC
-               if ( (ch<255 && isspace(ch)) || line.mChars==1)
-			   #else
-               if ( (ch<255 && iswspace(ch)) || line.mChars==1)
-			   #endif
+               if ( (ch<255 && !IsWord(ch)) || line.mChars==1)
                {
                   last_word_cid = cid;
                   last_word_line_chars = line.mChars;
@@ -1791,30 +1887,34 @@ void TextField::Layout(const Matrix &inMatrix)
                   last_word_cid = cid-1;
                   last_word_line_chars = line.mChars-1;
                }
-               last_word_x6 = x6;
+               last_word_x = charX;
             }
-   
+
             if (ch=='\n' || ch=='\r')
             {
                // New line ...
+               line.mMetrics.fontToLocal(fontToLocal);
+               if (i+1<mCharGroups.size() || cid+1<g.Chars())
+                  line.mMetrics.height += g.mFormat->leading;
+               charY += line.mMetrics.height;
                mLines.push_back(line);
                line.Clear();
-               g.UpdateMetrics(line.mMetrics);
-               y += g.Height() + g.mFormat->leading + 1;
+               endsWidthNewLine = true;
                continue;
             }
          }
-   
-         int ox6 = x6;
+
+         double ox = charX;
          if (displayAsPassword)
             ch = gPasswordChar;
          if (g.mFont)
-            g.mFont->GetGlyph( ch, advance );
+            g.mFont->GetGlyph( ch, advance6 );
          else
-            advance = 0;
-         x6 += advance;
-         //printf(" Char %c (%d..%d/%d,%d) %p\n", ch, ox, x, max_x, y, g.mFont);
-         if ( !displayAsPassword && (wordWrap) && Round6(x6) > max_x && line.mChars>1)
+            advance6 = 0;
+         charX += advance6*font6ToLocalX;
+
+         //printf(" Char %c (%d..%d/%d,%d) %p\n", ch, ox, x, max_x, charY, g.mFont);
+         if ( !displayAsPassword && (wordWrap) && charX > max_x && line.mChars>1)
          {
             // No break on line so far - just back up 1 character....
             if (last_word_line_chars==0 || !wordWrap)
@@ -1823,7 +1923,7 @@ void TextField::Layout(const Matrix &inMatrix)
                line.mChars--;
                char_count--;
                mCharPos.qpop();
-               line.mMetrics.width = Round6(ox6);
+               line.mMetrics.width = ox;
             }
             else
             {
@@ -1832,78 +1932,80 @@ void TextField::Layout(const Matrix &inMatrix)
                char_count-= line.mChars - last_word_line_chars;
                mCharPos.resize(char_count);
                line.mChars = last_word_line_chars;
-               line.mMetrics.width = Round6(last_word_x6);
+               line.mMetrics.width = last_word_x;
             }
+            line.mMetrics.fontToLocal(fontToLocal);
+            if (i+1<mCharGroups.size() || cid+1<g.Chars())
+               line.mMetrics.height += g.mFormat->leading;
+            charY += line.mMetrics.height;
+            charX = 0;
             mLines.push_back(line);
-            y += g.Height() + g.mFormat->leading + 1;
-            x6 = gap<<6;
             line.Clear();
             g.UpdateMetrics(line.mMetrics);
             continue;
          }
 
-         int x = Round6(x6);
-         line.mMetrics.width = x;
-         if (x>textWidth)
-            textWidth = x;
+         double right = charX;
+         if (screenGrid)
+            right = ((int)((right*fontScale+0.999)))*fontToLocal;
+         line.mMetrics.width = right;
+         if (right>textWidth)
+            textWidth = right;
       }
    }
-   textWidth += gap;
-   if (line.mChars || mLines.empty())
+
+   if ((endsWidthNewLine && multiline) || line.mChars || mLines.empty())
    {
-      mCharGroups[mCharGroups.size()-1]->UpdateMetrics(line.mMetrics);
-      y += line.mMetrics.height;
+      CharGroup *last=mCharGroups[mCharGroups.size()-1];
+      last->UpdateMetrics(line.mMetrics);
+      line.mMetrics.fontToLocal(fontToLocal);
+      if (endsWidthNewLine)
+      {
+         line.mY0 = charY;
+         line.mChar0 = char_count;
+         line.mChars = 0;
+         line.mCharGroup0 = mCharGroups.size()-1;
+         line.mCharInGroup0 = last->mString.size();
+      }
+      charY += line.mMetrics.height;
       mLines.push_back(line);
    }
 
-   textHeight = y + gap;
-
-   int max_y = boundsHeight * mLayoutScaleV;
-   if (autoSize != asNone)
+   textHeight = charY;
+   //printf("textHeight = %f\n", textHeight);
+   if (autoSize!=asNone)
    {
-      //if (!wordWrap) - still use this, even if wordWrap
+      if (!wordWrap)
       {
-         switch(autoSize)
-         {
-            case asNone: break;
-            case asLeft: mActiveRect.w = textWidth;
-                         break;
-            case asRight: mActiveRect.x = mActiveRect.x1()-textWidth - gap;
-                         mActiveRect.w = textWidth;
-                         break;
-            case asCenter: mActiveRect.x = (mActiveRect.x+mActiveRect.x1()-textWidth)/2;
-                         mActiveRect.w = textWidth;
-                         break;
-         }
-         if (autoSize!=asNone)
-         {
-             boundsHeight = textHeight/mLayoutScaleV;
-         }
+         fieldWidth = textWidth + 2.0*GAP;
+         if (screenGrid)
+            fieldWidth += 1;
       }
-      max_y = mActiveRect.h = textHeight;
+      fieldHeight = textHeight + 2.0*GAP;
+      if (screenGrid)
+         fieldHeight += 1;
    }
-   else
-      mActiveRect = Rect(0,0,boundsWidth*mLayoutScaleH+0.99,boundsHeight*mLayoutScaleV+0.99);
 
-   maxScrollH = std::max(0,textWidth-max_x);
+   maxScrollH = std::max(0.0,textWidth-(fieldWidth-GAP*2));
    maxScrollV = 1;
 
    // Work out how many lines from the end fit in the rect, and
    //  therefore how many lines we can scroll...
-   if (textHeight>max_y && mLines.size()>1)
+   double clippedHeight = fieldHeight - 2.0*GAP;
+   int last = mLines.size()-1;
+   if (textHeight>fieldHeight && mLines.size()>1)
    {
-      int window_height = max_y-3*gap;
-      int line = mLines.size()-1;
-      int lines_height = mLines[line].mMetrics.height;
-      while( line < window_height && line>0 )
+      int    lines_visible = 0;
+      double lines_height = mLines[last-lines_visible].mMetrics.height;
+      lines_visible++;
+
+      while( lines_visible<mLines.size() && lines_height+mLines[last-lines_visible].mMetrics.height<= clippedHeight)
       {
-         // Try next row up....
-         if (lines_height + mLines[line-1].mMetrics.height > window_height)
-            break;
-         lines_height += mLines[--line].mMetrics.height;
+         lines_height += mLines[last-lines_visible].mMetrics.height;
+         lines_visible++;
       }
 
-      maxScrollV = line+1;
+      maxScrollV = mLines.size() - lines_visible + 1;
    }
 
    // Align rows ...
@@ -1916,23 +2018,35 @@ void TextField::Layout(const Matrix &inMatrix)
          CharGroup &group = *mCharGroups[line.mCharGroup0];
 
          // Get alignment...
-         int extra = (mActiveRect.w - line.mMetrics.width - 1);
+         double extra = (fieldWidth - line.mMetrics.width);
          switch(group.mFormat->align(tfaLeft))
          {
-            case tfaJustify: break;
-            case tfaRight: break;
-            case tfaLeft: extra = 0; break;
-            case tfaCenter: extra/=2; break;
+            case tfaJustify:
+            case tfaRight:
+               extra -= GAP;
+               break;
+            case tfaLeft:
+               extra = GAP;
+               break;
+            case tfaCenter:
+               extra*=0.5;
+               break;
          }
-         if (extra>0)
-         {
+         if (extra)
             for(int c=0; c<line.mChars; c++)
+            {
                mCharPos[line.mChar0+c].x += extra;
-         }
+               //mCharPos[line.mChar0+c].y += GAP;
+            }
       }
    }
 
+   if ( (fieldWidth!=oldW || fieldHeight!=oldH) && (autoSize==asRight || autoSize==asCenter))
+      mDirtyFlags |= dirtLocalMatrix;
+
    mLinesDirty = false;
+   mTilesDirty = true;
+   mCaretDirty = true;
    int n = mCharPos.size();
    mSelectMin = std::min(mSelectMin,n);
    mSelectMax = std::min(mSelectMax,n);
@@ -2033,14 +2147,15 @@ CharGroup::~CharGroup()
       mFont->DecRef();
 }
 
-bool CharGroup::UpdateFont(double inScale,GlyphRotation inRotation,bool inNative)
+bool CharGroup::UpdateFont(double inScale,bool inNative)
 {
    int h = 0.5 + inScale*mFormat->size;
-   if (!mFont || h!=mFontHeight || mFont->IsNative()!=inNative || mFont->Rotation()!=inRotation)
+   if (!mFont || h!=mFontHeight )
    {
-      if (mFont)
-         mFont->DecRef();
-      mFont = Font::Create(*mFormat,inScale,inRotation,inNative,true);
+      Font *oldFont = mFont;
+      mFont = Font::Create(*mFormat,inScale,inNative,true);
+      if (oldFont)
+         oldFont->DecRef();
       mFontHeight = h;
       return true;
    }

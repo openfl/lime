@@ -39,6 +39,11 @@ struct ARGB
       a = alpha<0 ? 0 : alpha >255 ? 255 : alpha;
    }
 
+   inline float getRedFloat() { return r/255.0; }
+   inline float getGreenFloat() { return g/255.0; }
+   inline float getBlueFloat() { return b/255.0; }
+   inline float getAlphaFloat() { return a/255.0; }
+
    inline int ToInt() const { return ival; }
    inline void Set(int inVal) { ival = inVal; }
    inline void SetRGB(int inVal) { ival = inVal | 0xff000000; }

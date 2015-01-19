@@ -958,6 +958,7 @@ void AddCharCode(Event &key)
       switch (key.value)
       {
          case 8:
+         case 9:
          case 13:
          case 27:
          case 32:

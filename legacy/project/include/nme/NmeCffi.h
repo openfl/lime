@@ -11,24 +11,26 @@ namespace nme
 
 extern vkind gObjectKind;
 
+
+namespace
+{
+   inline void release_object(value inValue)
+   {
+      if (val_is_kind(inValue,gObjectKind))
+      {
+         Object *obj = (Object *)val_to_kind(inValue,gObjectKind);
+         if (obj)
+            obj->DecRef();
+      }
+   }
+}
+
+
 inline value ObjectToAbstract(Object *inObject)
 {
-   struct releaser
-   {
-      static void release_object(value inValue)
-      {
-         if (val_is_kind(inValue,gObjectKind))
-         {
-            Object *obj = (Object *)val_to_kind(inValue,gObjectKind);
-            if (obj)
-               obj->DecRef();
-         }
-      }
-   };
-
    inObject->IncRef();
    value result = alloc_abstract(gObjectKind,inObject);
-   val_gc(result,releaser::release_object);
+   val_gc(result,release_object);
    return result;
 }
 

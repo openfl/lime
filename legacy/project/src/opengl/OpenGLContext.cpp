@@ -678,7 +678,7 @@ public:
       {
          // TODO mQuality -> tessellate_lines/tessellate_lines_aa
          mLineWidth = inWidth;
-         glLineWidth(inWidth);
+         glLineWidth(inWidth<=0.25 ? 0.25 : inWidth);
       }
    }
 

@@ -9,6 +9,7 @@
 
 #ifdef ANDROID
 #include <android/log.h>
+#include <EGL/egl.h>
 #endif
 
 #include <nme/NmeCffi.h>
@@ -402,6 +403,37 @@ value nme_gl_get_supported_extensions(value ioList)
    return alloc_null();
 }
 DEFINE_PRIM(nme_gl_get_supported_extensions,1);
+
+
+value nme_gl_get_extension(value inName)
+{
+   void *result = 0;
+   const char *name = val_string(inName);
+
+   #ifdef HX_WINDOWS
+      result = (void *)wglGetProcAddress(name);
+   #elif defined(ANDROID)
+      result = (void *)eglGetProcAddress(name);
+   //Wait until I can test this...
+   //#elif defined(HX_LINUX)
+   //   result = dlsym(nme::gOGLLibraryHandle,#func);
+   #endif
+
+   if (result)
+   {
+      static bool init = false;
+      static vkind functionKind;
+      if (!init==0)
+      {
+         init = true;
+         kind_share(&functionKind,"function");
+      }
+      return alloc_abstract(functionKind,result);
+   }
+
+   return alloc_null();
+}
+DEFINE_PRIM(nme_gl_get_extension,1);
 
 
 value nme_gl_front_face(value inFace)

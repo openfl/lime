@@ -7,10 +7,12 @@ namespace nme
    template<int EDGE, bool SMOOTH>
    static Filler *CreateAlpha(GraphicsBitmapFill *inFill)
    {
-      if (inFill->bitmapData->Format() & pfHasAlpha)
-         return new BitmapFiller<EDGE, SMOOTH, true, true>(inFill);
+      if (inFill->bitmapData->Format() == pfAlpha)
+         return new BitmapFiller<EDGE, SMOOTH, FillAlphaIs, true>(inFill);
+      else if (inFill->bitmapData->Format() & pfHasAlpha)
+         return new BitmapFiller<EDGE, SMOOTH, FillAlphaHas, true>(inFill);
       else
-         return new BitmapFiller<EDGE, SMOOTH, false, true>(inFill);
+         return new BitmapFiller<EDGE, SMOOTH, FillAlphaIgnore, true>(inFill);
    }
    
    

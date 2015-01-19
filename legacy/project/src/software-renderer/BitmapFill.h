@@ -12,81 +12,12 @@ static inline bool IsPOW2(int inX)
 
 enum { EDGE_CLAMP, EDGE_REPEAT, EDGE_POW2 };
 
-
-#define GET_PIXEL_POINTERS \
-         int frac_x = (mPos.x & 0xff00) >> 8; \
-         int frac_y = (mPos.y & 0xff00) >> 8; \
- \
-            if (EDGE == EDGE_CLAMP) \
-            { \
-               int x_step = 4; \
-               int y_step = mStride; \
- \
-               if (x<0) {  x_step = x = 0; } \
-               else if (x>=mW1) { x_step = 0; x = mW1; } \
- \
-               if (y<0) {  y_step = y = 0; } \
-               else if (y>=mH1) { y_step = 0; y = mH1; } \
- \
-               const uint8 * ptr = mBase + y*mStride + x*4; \
-               p00 = *(ARGB *)ptr; \
-               p01 = *(ARGB *)(ptr + x_step); \
-               p10 = *(ARGB *)(ptr + y_step); \
-               p11 = *(ARGB *)(ptr + y_step + x_step); \
-            } \
-            else if (EDGE==EDGE_POW2) \
-            { \
-               const uint8 *p = mBase + (y&mH1)*mStride; \
- \
-               p00 = *(ARGB *)(p+ (x & mW1)*4); \
-               p01 = *(ARGB *)(p+ ((x+1) & mW1)*4); \
- \
-               p = mBase + ( (y+1) &mH1)*mStride; \
-               p10 = *(ARGB *)(p+ (x & mW1)*4); \
-               p11 = *(ARGB *)(p+ ((x+1) & mW1)*4); \
-            } \
-            else \
-            { \
-               int x1 = ((x+1) % mWidth) * 4; \
-               if (x1<0) x1+=mWidth; \
-               x = (x % mWidth)*4; \
-               if (x<0) x+=mWidth; \
- \
-               int y0= (y%mHeight); if (y0<0) y0+=mHeight; \
-               const uint8 *p = mBase + y0*mStride; \
- \
-               p00 = *(ARGB *)(p+ x); \
-               p01 = *(ARGB *)(p+ x1); \
-\
-               int y1= ((y+1)%mHeight); if (y1<0) y1+=mHeight; \
-               p = mBase + y1*mStride; \
-               p10 = *(ARGB *)(p+ x); \
-               p11 = *(ARGB *)(p+ x1); \
-            }
-
-
-
-#define MODIFY_EDGE_XY \
-         if (EDGE == EDGE_CLAMP) \
-         { \
-            if (x<0) x = 0; \
-            else if (x>=mWidth) x = mW1; \
- \
-            if (y<0) y = 0; \
-            else if (y>=mHeight) y = mH1; \
-         } \
-         else if (EDGE == EDGE_POW2) \
-         { \
-            x &= mW1; \
-            y &= mH1; \
-         } \
-         else if (EDGE == EDGE_REPEAT) \
-         { \
-            x = x % mWidth; if (x<0) x+=mWidth;\
-            y = y % mHeight; if (y<0) y+=mHeight;\
-         }
-
-
+enum FillAlphaMode
+{
+   FillAlphaIgnore,
+   FillAlphaHas,
+   FillAlphaIs,
+};
 
 
 
@@ -104,6 +35,7 @@ public:
       mMapped = false;
       mPerspective = false;
       mBilinearAdjust = 0;
+      mTint = ARGB(0xffffffff);
    }
 
 
@@ -120,6 +52,9 @@ public:
       mDPxDX = (int)(mMapper.m00 * (1<<16)+ 0.5);
       mDPyDX = (int)(mMapper.m10 * (1<<16)+ 0.5);
    }
+
+   void SetTint(ARGB inTint) { mTint = inTint; }
+
 
    void SetMapping(const UserPoint *inVertex, const float *inUVT,int inComponents)
    {
@@ -246,15 +181,17 @@ public:
    double mTX, mTY, mTW;
    double mBilinearAdjust;
    Matrix mMapper;
+   ARGB   mTint;
    GraphicsBitmapFill *mBitmap;
 };
 
 
-template<int EDGE,bool SMOOTH,bool HAS_ALPHA,bool PERSP>
+template<int EDGE,bool SMOOTH,FillAlphaMode FILL_ALPHA,bool PERSP>
 class BitmapFiller : public BitmapFillerBase
 {
 public:
-   enum { HasAlpha = HAS_ALPHA };
+   enum { HasAlpha = FILL_ALPHA!=FillAlphaIgnore };
+   enum { AlphaMode = FILL_ALPHA };
 
    BitmapFiller(GraphicsBitmapFill *inFill) : BitmapFillerBase(inFill)
    {
@@ -273,43 +210,154 @@ public:
          mTY += mMapper.m10;
          mTW += mWX;
       }
+
       int x = mPos.x >> 16;
       int y = mPos.y >> 16;
       if (SMOOTH)
       {
          ARGB result;
 
-         ARGB p00,p01,p10,p11;
-
-         GET_PIXEL_POINTERS
+         int frac_x = (mPos.x & 0xff00) >> 8; 
+         int frac_y = (mPos.y & 0xff00) >> 8; 
 
          if (!PERSP)
          {
             mPos.x += mDPxDX;
             mPos.y += mDPyDX;
          }
-         
-         int y0r = (p00.r<<8) + (p01.r-p00.r) * frac_x;
-         int y1r = (p10.r<<8) + (p11.r-p10.r) * frac_x;
-         result.r = ((y0r<<8) + (y1r-y0r) * frac_y)>>16;
 
-         int y0g = (p00.g<<8) + (p01.g-p00.g) * frac_x;
-         int y1g = (p10.g<<8) + (p11.g-p10.g) * frac_x;
-         result.g = ((y0g<<8) + (y1g-y0g) * frac_y)>>16;
-
-         int y0b = (p00.b<<8) + (p01.b-p00.b) * frac_x;
-         int y1b = (p10.b<<8) + (p11.b-p10.b) * frac_x;
-         result.b = ((y0b<<8) + (y1b-y0b) * frac_y)>>16;
-
-         if (HAS_ALPHA)
+         if ((FillAlphaMode)AlphaMode==FillAlphaIs)
          {
-            int y0a = (p00.a<<8) + (p01.a-p00.a) * frac_x;
-            int y1a = (p10.a<<8) + (p11.a-p10.a) * frac_x;
+            int a00,a01,a10,a11;
+
+            if (EDGE == EDGE_CLAMP) 
+            { 
+               int x_step = 1; 
+               int y_step = mStride; 
+
+               if (x<0) {  x_step = x = 0; } 
+               else if (x>=mW1) { x_step = 0; x = mW1; } 
+
+               if (y<0) {  y_step = y = 0; } 
+               else if (y>=mH1) { y_step = 0; y = mH1; } 
+
+               const uint8 * ptr = mBase + y*mStride + x; 
+               a00 = ptr[0]; 
+               a01 = ptr[x_step]; 
+               a10 = ptr[y_step]; 
+               a11 = ptr[y_step + x_step]; 
+            } 
+            else if (EDGE==EDGE_POW2) 
+            { 
+               const uint8 *p = mBase + (y&mH1)*mStride; 
+
+               a00 = *(p+ (x & mW1)); 
+               a01 = *(p+ ((x+1) & mW1)); 
+
+               p = mBase + ( (y+1) &mH1)*mStride; 
+               a10 = *(p+ (x & mW1)); 
+               a11 = *(p+ ((x+1) & mW1)); 
+            } 
+            else 
+            { 
+               int x1 = ((x+1) % mWidth); 
+               if (x1<0) x1+=mWidth; 
+               x = (x % mWidth); 
+               if (x<0) x+=mWidth; 
+
+               int y0= (y%mHeight); if (y0<0) y0+=mHeight; 
+               const uint8 *p = mBase + y0*mStride; 
+
+               a00 = *(p+ x); 
+               a01 = *(p+ x1); 
+
+               int y1= ((y+1)%mHeight); if (y1<0) y1+=mHeight; 
+               p = mBase + y1*mStride; 
+               a10 = *(p+ x); 
+               a11 = *(p+ x1); 
+            }
+
+            int y0a = (a00<<8) + (a01-a00) * frac_x;
+            int y1a = (a10<<8) + (a11-a10) * frac_x;
+            result = mTint;
             result.a = ((y0a<<8) + (y1a-y0a) * frac_y)>>16;
+
+            return result;
          }
          else
          {
-            result.a = 255;
+            ARGB p00,p01,p10,p11;
+
+            if (EDGE == EDGE_CLAMP) 
+            { 
+               int x_step = 4; 
+               int y_step = mStride; 
+
+               if (x<0) {  x_step = x = 0; } 
+               else if (x>=mW1) { x_step = 0; x = mW1; } 
+
+               if (y<0) {  y_step = y = 0; } 
+               else if (y>=mH1) { y_step = 0; y = mH1; } 
+
+               const uint8 * ptr = mBase + y*mStride + x*4; 
+               p00 = *(ARGB *)ptr; 
+               p01 = *(ARGB *)(ptr + x_step); 
+               p10 = *(ARGB *)(ptr + y_step); 
+               p11 = *(ARGB *)(ptr + y_step + x_step); 
+            } 
+            else if (EDGE==EDGE_POW2) 
+            { 
+               const uint8 *p = mBase + (y&mH1)*mStride; 
+
+               p00 = *(ARGB *)(p+ (x & mW1)*4); 
+               p01 = *(ARGB *)(p+ ((x+1) & mW1)*4); 
+
+               p = mBase + ( (y+1) &mH1)*mStride; 
+               p10 = *(ARGB *)(p+ (x & mW1)*4); 
+               p11 = *(ARGB *)(p+ ((x+1) & mW1)*4); 
+            } 
+            else 
+            { 
+               int x1 = ((x+1) % mWidth) * 4; 
+               if (x1<0) x1+=mWidth; 
+               x = (x % mWidth)*4; 
+               if (x<0) x+=mWidth; 
+
+               int y0= (y%mHeight); if (y0<0) y0+=mHeight; 
+               const uint8 *p = mBase + y0*mStride; 
+
+               p00 = *(ARGB *)(p+ x); 
+               p01 = *(ARGB *)(p+ x1); 
+
+               int y1= ((y+1)%mHeight); if (y1<0) y1+=mHeight; 
+               p = mBase + y1*mStride; 
+               p10 = *(ARGB *)(p+ x); 
+               p11 = *(ARGB *)(p+ x1); 
+            }
+
+
+            int y0r = (p00.r<<8) + (p01.r-p00.r) * frac_x;
+            int y1r = (p10.r<<8) + (p11.r-p10.r) * frac_x;
+            result.r = ((y0r<<8) + (y1r-y0r) * frac_y)>>16;
+
+            int y0g = (p00.g<<8) + (p01.g-p00.g) * frac_x;
+            int y1g = (p10.g<<8) + (p11.g-p10.g) * frac_x;
+            result.g = ((y0g<<8) + (y1g-y0g) * frac_y)>>16;
+
+            int y0b = (p00.b<<8) + (p01.b-p00.b) * frac_x;
+            int y1b = (p10.b<<8) + (p11.b-p10.b) * frac_x;
+            result.b = ((y0b<<8) + (y1b-y0b) * frac_y)>>16;
+
+            if ((FillAlphaMode)AlphaMode==FillAlphaHas)
+            {
+               int y0a = (p00.a<<8) + (p01.a-p00.a) * frac_x;
+               int y1a = (p10.a<<8) + (p11.a-p10.a) * frac_x;
+               result.a = ((y0a<<8) + (y1a-y0a) * frac_y)>>16;
+            }
+            else
+            {
+               result.a = 255;
+            }
          }
          return result;
 
@@ -321,8 +369,36 @@ public:
             mPos.x += mDPxDX;
             mPos.y += mDPyDX;
          }
-         MODIFY_EDGE_XY;
-         return *(ARGB *)( mBase + y*mStride + x*4);
+
+         if (EDGE == EDGE_CLAMP) 
+         { 
+            if (x<0) x = 0; 
+            else if (x>=mWidth) x = mW1; 
+ 
+            if (y<0) y = 0; 
+            else if (y>=mHeight) y = mH1; 
+         } 
+         else if (EDGE == EDGE_POW2) 
+         { 
+            x &= mW1; 
+            y &= mH1; 
+         } 
+         else if (EDGE == EDGE_REPEAT) 
+         { 
+            x = x % mWidth; if (x<0) x+=mWidth;
+            y = y % mHeight; if (y<0) y+=mHeight;
+         }
+
+         if ((FillAlphaMode)AlphaMode==FillAlphaIs)
+         {
+            ARGB result(mTint);
+            result.a = *( mBase + y*mStride + x);
+            return result;
+         }
+         else
+         {
+            return *(ARGB *)( mBase + y*mStride + x*4);
+         }
       }
    }
 

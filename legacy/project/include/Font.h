@@ -18,7 +18,18 @@ struct TextLineMetrics
    float ascent;
    float descent;
    float height;
+
+   void fontToLocal(double inScale)
+   {
+      ascent *= inScale;
+      descent *= inScale;
+      height = ascent + descent;
+   }
+
+   // From text format - local coords
    float leading;
+
+   // The horizontal components are in local coords
    float width;
    float x;
 };
@@ -106,9 +117,9 @@ struct CharGroup
    CharGroup() : mChar0(0), mFontHeight(0), mFormat(0), mFont(0) { };
    ~CharGroup();
    void  Clear();
-   bool  UpdateFont(double inScale,GlyphRotation inRotation,bool inNative);
+   bool  UpdateFont(double inScale,bool inNative);
    void  UpdateMetrics(TextLineMetrics &ioMetrics);
-   int   Height();
+   double   Height(double inFontToLocal);
    int   Chars() { return mString.size(); }
 
    void ApplyFormat(TextFormat *inFormat);
@@ -129,11 +140,11 @@ struct Line
 
    void Clear() { memset(this,0,sizeof(*this)); }
    TextLineMetrics mMetrics;
-   int mY0;
-   int mChar0;
-   int mChars;
-   int mCharGroup0;
-   int mCharInGroup0;
+   float mY0;
+   int   mChar0;
+   int   mChars;
+   int   mCharGroup0;
+   int   mCharInGroup0;
 };
 
 typedef QuickVec<Line> Lines;
@@ -173,7 +184,7 @@ class Font : public Object
    };
 
 public:
-   static Font *Create(TextFormat &inFormat,double inScale,GlyphRotation inRot, bool inNative,bool inInitRef=true);
+   static Font *Create(TextFormat &inFormat,double inScale, bool inNative,bool inInitRef=true);
 
    Font *IncRef() { Object::IncRef(); return this; }
 
@@ -183,11 +194,9 @@ public:
 
    bool  IsNative() { return mFace && mFace->IsNative(); }
 
-   GlyphRotation Rotation() { return mRotation; }
-
    int   Height();
 private:
-   Font(FontFace *inFace, int inPixelHeight, GlyphRotation inRotation,bool inInitRef);
+   Font(FontFace *inFace, int inPixelHeight, bool inInitRef);
    ~Font();
 
 
@@ -198,7 +207,6 @@ private:
 
    int    mPixelHeight;
    int    mCurrentSheet;
-   GlyphRotation mRotation;
 };
 
 class FontCache

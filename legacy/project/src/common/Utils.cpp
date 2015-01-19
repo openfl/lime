@@ -201,14 +201,22 @@ std::string WideToUTF8(const WString &inWideString)
 WString IntToWide(int value)
 {
 	wchar_t buffer[16];
+   #ifdef __MINGW32__
+	swprintf(buffer, L"%i", value);
+   #else
 	swprintf(buffer, 16, L"%i", value);
+   #endif
 	return WString(buffer);
 }
 
 WString ColorToWide(int value)
 {
 	wchar_t buffer[40];
-	swprintf(buffer, 40, L"%X", value);
+   #ifdef __MINGW32__
+	swprintf(buffer, L"%X", value);
+   #else
+	swprintf(buffer, 40, L"%i", value);
+   #endif
 	return WString(buffer);
 }
 
@@ -390,6 +398,15 @@ void GetSpecialDir(SpecialDir inDir,std::string &outDir)
    }
    else
    {
+      #ifdef __MINGW32__
+      #ifndef CSIDL_MYDOCUMENTS
+        #define CSIDL_MYDOCUMENTS CSIDL_PERSONAL
+      #endif
+      #ifndef SHGFP_TYPE_CURRENT
+        #define SHGFP_TYPE_CURRENT 0
+      #endif
+      #endif
+
       int id_lut[] = { 0, CSIDL_APPDATA, CSIDL_DESKTOPDIRECTORY, CSIDL_MYDOCUMENTS, CSIDL_PROFILE, 0 };
       SHGetFolderPath(NULL, id_lut[inDir], NULL, SHGFP_TYPE_CURRENT, result);
       outDir = result;

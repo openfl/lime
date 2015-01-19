@@ -101,7 +101,6 @@ public:
 		ioMetrics.ascent = std::max( ioMetrics.ascent, (float)mMetrics.tmAscent);
 		ioMetrics.descent = std::max( ioMetrics.descent, (float)mMetrics.tmDescent);
 		ioMetrics.height = std::max( ioMetrics.height, (float)mMetrics.tmHeight);
-		//ioMetrics.height = std::max( ioMetrics.height, (float)mPixelHeight);
 	}
 
 	int Height()
