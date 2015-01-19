@@ -48,6 +48,9 @@ TextField::TextField(bool inInitRef) : DisplayObject(inInitRef),
    useRichTextClipboard(false),
    wordWrap(false),
    isInput(false)
+   caretColor(0xff000000),
+   highlightColor(0xff000000),
+   highlightedTextColor(0xffffffff)
 {
    mStringState = ssText;
    mLinesDirty = true;
@@ -330,6 +333,27 @@ void TextField::setBackgroundColor(int inBackgroundColor)
 void TextField::setBorder(bool inBorder)
 {
    border = inBorder;
+   mGfxDirty = true;
+   DirtyCache();
+}
+
+void TextField::setCaretColor(int inCaretColor)
+{
+   caretColor = inCaretColor;
+   mGfxDirty = true;
+   DirtyCache();
+}
+
+void TextField::setHighlightColor(int inHighlightColor)
+{
+   highlightolor = inHighlightColor;
+   mGfxDirty = true;
+   DirtyCache();
+}
+
+void TextField::setHighlightedTextColor(int inHighlightedTextColor)
+{
+   highlightedTextColor = inHighlightedTextColor;
    mGfxDirty = true;
    DirtyCache();
 }
@@ -1365,7 +1389,7 @@ void TextField::BuildBackground()
          double height = mLines[l1].mMetrics.height;
          double x1 = EndOfCharX(mSelectMax-1,l1) - scroll.x;
          mHighlightGfx->lineStyle(-1);
-         mHighlightGfx->beginFill( 0x101060, 1);
+         mHighlightGfx->beginFill( highlightColor, 1);
          // Special case of begin/end on same line ...
          if (l0==l1)
          {
@@ -1519,7 +1543,7 @@ void TextField::Render( const RenderTarget &inTarget, const RenderState &inState
             double height = mLines[line].mMetrics.height;
             if (pos.y+height <= fieldHeight-GAP+1)
             {
-               mCaretGfx->lineStyle(1, 0x000000 ,1.0, false, ssmOpenGL  );
+               mCaretGfx->lineStyle(1, caretColor ,1.0, false, ssmOpenGL  );
                mCaretGfx->moveTo(pos.x,pos.y);
                mCaretGfx->lineTo(pos.x,pos.y+height);
             }
@@ -1553,7 +1577,13 @@ void TextField::Render( const RenderTarget &inTarget, const RenderState &inState
          uint32  hardwareTint = 0;
          double clipRight = fieldWidth-GAP;
 
-         float white[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+         float highlighted[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+         ARGB highlightedTint = highlightedTextColor;
+         highlighted[0] = highlightedTint.getRedFloat();
+         highlighted[1] = highlightedTint.getGreenFloat();
+         highlighted[2] = highlightedTint.getBlueFloat();
+         highlighted[3] = 1.0;
+
          float groupColour[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
          float trans_2x2[4] = { fontToLocal, 0.0f, 0.0f, fontToLocal };
          for(int g=0;g<mCharGroups.size();g++)
@@ -1605,7 +1635,7 @@ void TextField::Render( const RenderTarget &inTarget, const RenderState &inState
                            double right = p.x+tile.mRect.w*fontToLocal;
                            if (right>GAP)
                            {
-                              float *tint = cid>=mSelectMin && cid<mSelectMax ? white : groupColour;
+                              float *tint = cid>=mSelectMin && cid<mSelectMax ? highlighted : groupColour;
                               if (pos.x < GAP)
                               {
                                  Rect r = tile.mRect;
