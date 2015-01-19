@@ -32,7 +32,7 @@ class Mouse {
 				
 				for (window in Application.__instance.windows) {
 					
-					window.element.style.cursor = "none";
+					window.backend.element.style.cursor = "none";
 					
 				}
 				
@@ -103,7 +103,7 @@ class Mouse {
 					
 					for (window in Application.__instance.windows) {
 						
-						window.element.style.cursor = switch (value) {
+						window.backend.element.style.cursor = switch (value) {
 							
 							case ARROW: "default";
 							case CROSSHAIR: "crosshair";

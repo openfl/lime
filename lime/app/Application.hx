@@ -1,24 +1,11 @@
 package lime.app;
 
 
-import lime.audio.AudioManager;
-import lime.graphics.*;
-import lime.system.*;
-import lime.ui.*;
-
-#if (js && html5)
-import js.Browser;
-#elseif flash
-import flash.Lib;
-#elseif java
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.system.glfw.GLFW;
-#elseif windows
-import sys.FileSystem;
-#end
+import lime.graphics.RenderContext;
+import lime.ui.Window;
 
 
-/**
+/** 
  * The Application class forms the foundation for most Lime projects.
  * It is common to extend this class in a main class. It is then possible
  * to override "on" functions in the class in order to handle standard events
@@ -32,39 +19,22 @@ class Application extends Module {
 	 */
 	public static var onUpdate = new Event<Int->Void> ();
 	
-	private static var __eventInfo = new UpdateEventInfo ();
-	private static var __initialized:Bool;
-	private static var __instance:Application;
-	private static var __registered:Bool;
+	@:noCompletion private static var __initialized:Bool;
+	@:noCompletion private static var __instance:Application;
 	
 	public var config (default, null):Config;
 	public var window (get, null):Window;
 	public var windows (default, null):Array<Window>;
 	
-	@:noCompletion private var __handle:Dynamic;
+	@:noCompletion public var backend:ApplicationBackend;
 	
 	
 	public function new () {
 		
 		super ();
 		
-		__instance = this;
-		
 		windows = new Array ();
-		
-		if (!__registered) {
-			
-			__registered = true;
-			
-			AudioManager.init ();
-			
-			#if (cpp || neko || nodejs)
-				
-				lime_update_event_manager_register (__dispatch, __eventInfo);
-				
-			#end
-			
-		}
+		backend = new ApplicationBackend (this);
 		
 	}
 	
@@ -90,58 +60,7 @@ class Application extends Module {
 	 */
 	public function create (config:Config):Void {
 		
-		this.config = config;
-		
-		#if (cpp || neko || nodejs)
-			
-			__handle = lime_application_create (null);
-			
-		#elseif java
-			
-			GLFW.glfwInit ();
-			
-		#end
-		
-		KeyEventManager.create ();
-		MouseEventManager.create ();
-		TouchEventManager.create ();
-		
-		KeyEventManager.onKeyDown.add (onKeyDown);
-		KeyEventManager.onKeyUp.add (onKeyUp);
-		
-		MouseEventManager.onMouseDown.add (onMouseDown);
-		MouseEventManager.onMouseMove.add (onMouseMove);
-		MouseEventManager.onMouseUp.add (onMouseUp);
-		MouseEventManager.onMouseWheel.add (onMouseWheel);
-		
-		TouchEventManager.onTouchStart.add (onTouchStart);
-		TouchEventManager.onTouchMove.add (onTouchMove);
-		TouchEventManager.onTouchEnd.add (onTouchEnd);
-		
-		Renderer.onRenderContextLost.add (onRenderContextLost);
-		Renderer.onRenderContextRestored.add (onRenderContextRestored);
-		
-		Window.onWindowActivate.add (onWindowActivate);
-		Window.onWindowClose.add (onWindowClose);
-		Window.onWindowDeactivate.add (onWindowDeactivate);
-		Window.onWindowFocusIn.add (onWindowFocusIn);
-		Window.onWindowFocusOut.add (onWindowFocusOut);
-		Window.onWindowMove.add (onWindowMove);
-		Window.onWindowResize.add (onWindowResize);
-		
-		var window = new Window (config);
-		var renderer = new Renderer (window);
-		
-		window.width = config.width;
-		window.height = config.height;
-		
-		#if (js && html5)
-			
-			window.element = config.element;
-			
-		#end
-		
-		addWindow (window);
+		backend.create (config);
 		
 	}
 	
@@ -154,105 +73,7 @@ class Application extends Module {
 	 */
 	public function exec ():Int {
 		
-		#if nodejs
-			
-			lime_application_init (__handle);
-			
-			var prevTime = untyped __js__ ('Date.now ()');
-			var eventLoop = function () {
-				
-				var active = lime_application_update (__handle);
-				
-				if (!active) {
-					
-					var result = lime_application_quit (__handle);
-					__cleanup ();
-					Sys.exit (result);
-					
-				}
-				
-				var time =  untyped __js__ ('Date.now ()');
-				if (time - prevTime <= 16) {
-					
-					untyped setTimeout (eventLoop, 0);
-					
-				}
-				else {
-					
-					untyped setImmediate (eventLoop);
-					
-				}
-				
-				prevTime = time;
-				
-			}
-			
-			untyped setImmediate (eventLoop);
-			
-		#elseif (cpp || neko)
-			
-			lime_application_init (__handle);
-			
-			while (lime_application_update (__handle)) {}
-			
-			var result = lime_application_quit (__handle);
-			__cleanup ();
-			
-			return result;
-			
-		#elseif (js && html5)
-			
-			untyped __js__ ("
-				var lastTime = 0;
-				var vendors = ['ms', 'moz', 'webkit', 'o'];
-				for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-					window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-					window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] 
-											   || window[vendors[x]+'CancelRequestAnimationFrame'];
-				}
-				
-				if (!window.requestAnimationFrame)
-					window.requestAnimationFrame = function(callback, element) {
-						var currTime = new Date().getTime();
-						var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-						var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
-						  timeToCall);
-						lastTime = currTime + timeToCall;
-						return id;
-					};
-				
-				if (!window.cancelAnimationFrame)
-					window.cancelAnimationFrame = function(id) {
-						clearTimeout(id);
-					};
-				
-				window.requestAnimFrame = window.requestAnimationFrame;
-			");
-			
-			__triggerFrame ();
-			
-		#elseif flash
-			
-			Lib.current.stage.addEventListener (flash.events.Event.ENTER_FRAME, __triggerFrame);
-			
-		#elseif java
-			
-			if (window != null) {
-				
-				while (GLFW.glfwWindowShouldClose (window.handle) == GL11.GL_FALSE) {
-					
-					__triggerFrame ();
-					
-					GLFW.glfwSwapBuffers (window.handle);
-					GLFW.glfwPollEvents ();
-					
-				}
-				
-			}
-			
-		#end
-		
-		return 0;
+		return backend.exec ();
 		
 	}
 	
@@ -263,11 +84,7 @@ class Application extends Module {
 	 * render context
 	 * @param	context The current render context
 	 */
-	public function init (context:RenderContext):Void {
-		
-		
-		
-	}
+	public function init (context:RenderContext):Void { }
 	
 	
 	/**
@@ -411,63 +228,21 @@ class Application extends Module {
 	 * Called when a render event is fired
 	 * @param	context	The current render context
 	 */
-	public function render (context:RenderContext):Void {
-		
-		
-		
-	}
+	public function render (context:RenderContext):Void { }
 	
 	
 	/**
 	 * Called when an update event is fired
 	 * @param	deltaTime	The amount of time in milliseconds that has elapsed since the last update
 	 */
-	public function update (deltaTime:Int):Void {
-		
-		
-		
-	}
+	public function update (deltaTime:Int):Void { }
 	
 	
-	@:noCompletion private function __cleanup():Void {
-		
-		#if (cpp || neko || nodejs)
-			
-			AudioManager.shutdown();
-			
-		#end
-		
-	}
 	
 	
-	@:noCompletion private static function __dispatch ():Void {
-		
-		#if (js && stats)
-			
-			__instance.window.stats.begin ();
-			
-		#end
-		
-		__instance.update (__eventInfo.deltaTime);
-		onUpdate.dispatch (__eventInfo.deltaTime);
-		
-	}
+	// Get & Set Methods
 	
 	
-	@:noCompletion private function __triggerFrame (?__):Void {
-		
-		__eventInfo.deltaTime = 16; //TODO
-		__dispatch ();
-		
-		Renderer.render ();
-		
-		#if (js && html5)
-			
-			Browser.window.requestAnimationFrame (cast __triggerFrame);
-			
-		#end
-		
-	}
 	
 	
 	@:noCompletion private inline function get_window ():Window {
@@ -477,46 +252,13 @@ class Application extends Module {
 	}
 	
 	
-	#if (cpp || neko || nodejs)
-	private static var lime_application_create = System.load ("lime", "lime_application_create", 1);
-	private static var lime_application_init = System.load ("lime", "lime_application_init", 1);
-	private static var lime_application_update = System.load ("lime", "lime_application_update", 1);
-	private static var lime_application_quit = System.load ("lime", "lime_application_quit", 1);
-	private static var lime_application_get_ticks = System.load ("lime", "lime_application_get_ticks", 0);
-	private static var lime_update_event_manager_register = System.load ("lime", "lime_update_event_manager_register", 2);
-	#end
-	
-	
 }
 
 
-private class UpdateEventInfo {
-	
-	
-	public var deltaTime:Int;
-	public var type:UpdateEventType;
-	
-	
-	public function new (type:UpdateEventType = null, deltaTime:Int = 0) {
-		
-		this.type = type;
-		this.deltaTime = deltaTime;
-		
-	}
-	
-	
-	public function clone ():UpdateEventInfo {
-		
-		return new UpdateEventInfo (type, deltaTime);
-		
-	}
-	
-	
-}
-
-
-@:enum private abstract UpdateEventType(Int) {
-	
-	var UPDATE = 0;
-	
-}
+#if flash
+@:noCompletion private typedef ApplicationBackend = lime._backend.flash.FlashApplication;
+#elseif (js && html5)
+@:noCompletion private typedef ApplicationBackend = lime._backend.html5.HTML5Application;
+#else
+@:noCompletion private typedef ApplicationBackend = lime._backend.native.NativeApplication;
+#end

@@ -60,17 +60,17 @@ class MouseEventManager {
 			
 			if (eventInfo.type != MOUSE_WHEEL) {
 				
-				if (window != null && window.element != null) {
+				if (window != null && window.backend.element != null) {
 					
-					if (window.canvas != null) {
+					if (window.backend.canvas != null) {
 						
-						var rect = window.canvas.getBoundingClientRect ();
+						var rect = window.backend.canvas.getBoundingClientRect ();
 						eventInfo.x = (event.clientX - rect.left) * (window.width / rect.width);
 						eventInfo.y = (event.clientY - rect.top) * (window.height / rect.height);
 						
-					} else if (window.div != null) {
+					} else if (window.backend.div != null) {
 						
-						var rect = window.div.getBoundingClientRect ();
+						var rect = window.backend.div.getBoundingClientRect ();
 						//eventInfo.x = (event.clientX - rect.left) * (window.div.style.width / rect.width);
 						eventInfo.x = (event.clientX - rect.left);
 						//eventInfo.y = (event.clientY - rect.top) * (window.div.style.height / rect.height);
@@ -78,7 +78,7 @@ class MouseEventManager {
 						
 					} else {
 						
-						var rect = window.element.getBoundingClientRect ();
+						var rect = window.backend.element.getBoundingClientRect ();
 						eventInfo.x = (event.clientX - rect.left) * (window.width / rect.width);
 						eventInfo.y = (event.clientY - rect.top) * (window.height / rect.height);
 						
@@ -166,7 +166,7 @@ class MouseEventManager {
 			
 			for (event in events) {
 				
-				_window.element.addEventListener (event, handleEvent, true);
+				_window.backend.element.addEventListener (event, handleEvent, true);
 				
 			}
 			
