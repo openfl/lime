@@ -3,6 +3,7 @@ package lime._backend.native;
 
 import lime.app.Application;
 import lime.graphics.opengl.GL;
+import lime.graphics.ConsoleRenderContext;
 import lime.graphics.GLRenderContext;
 import lime.graphics.RenderContext;
 import lime.graphics.Renderer;
@@ -36,7 +37,11 @@ class NativeRenderer {
 		
 		handle = lime_renderer_create (parent.window.backend.handle);
 		
-		parent.context = OPENGL (new GLRenderContext ());
+		#if lime_console
+			parent.context = CONSOLE (new ConsoleRenderContext ());
+		#else
+			parent.context = OPENGL (new GLRenderContext ());
+		#end
 		
 		if (!registered) {
 			
@@ -75,7 +80,11 @@ class NativeRenderer {
 			
 			case RENDER_CONTEXT_RESTORED:
 				
-				parent.context = OPENGL (new GLRenderContext ());
+				#if lime_console
+					parent.context = CONSOLE (new ConsoleRenderContext ());
+				#else
+					parent.context = OPENGL (new GLRenderContext ());
+				#end
 				
 				Renderer.onRenderContextRestored.dispatch (parent.context);
 			
