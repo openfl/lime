@@ -49,7 +49,7 @@ TextField::TextField(bool inInitRef) : DisplayObject(inInitRef),
    wordWrap(false),
    isInput(false),
    caretColor(0xff000000),
-   highlightColor(0xff000000),
+   highlightColor(0xff101060),
    highlightedTextColor(0xffffffff)
 {
    mStringState = ssText;
@@ -1577,12 +1577,12 @@ void TextField::Render( const RenderTarget &inTarget, const RenderState &inState
          uint32  hardwareTint = 0;
          double clipRight = fieldWidth-GAP;
 
-         float highlighted[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+         float highlightedColour[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
          ARGB highlightedTint = highlightedTextColor;
-         highlighted[0] = highlightedTint.getRedFloat();
-         highlighted[1] = highlightedTint.getGreenFloat();
-         highlighted[2] = highlightedTint.getBlueFloat();
-         highlighted[3] = 1.0;
+         highlightedColour[0] = highlightedTint.getRedFloat();
+         highlightedColour[1] = highlightedTint.getGreenFloat();
+         highlightedColour[2] = highlightedTint.getBlueFloat();
+         highlightedColour[3] = 1.0;
 
          float groupColour[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
          float trans_2x2[4] = { fontToLocal, 0.0f, 0.0f, fontToLocal };
@@ -1635,7 +1635,7 @@ void TextField::Render( const RenderTarget &inTarget, const RenderState &inState
                            double right = p.x+tile.mRect.w*fontToLocal;
                            if (right>GAP)
                            {
-                              float *tint = cid>=mSelectMin && cid<mSelectMax ? highlighted : groupColour;
+                              float *tint = cid>=mSelectMin && cid<mSelectMax ? highlightedColour : groupColour;
                               if (pos.x < GAP)
                               {
                                  Rect r = tile.mRect;
