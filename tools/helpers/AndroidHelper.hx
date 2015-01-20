@@ -282,7 +282,26 @@ class AndroidHelper {
 	public static function listDevices ():Array <String> {
 		
 		var devices = new Array <String> ();
-		var output = ProcessHelper.runProcess (adbPath, adbName, [ "devices" ]);
+		var output = "";
+		
+		if (PlatformHelper.hostPlatform == Platform.MAC) {
+			
+			var tempFile = PathHelper.getTemporaryFile ();
+			
+			ProcessHelper.runCommand (adbPath, adbName, [ "devices", ">", tempFile ], true, true);
+			
+			if (FileSystem.exists (tempFile)) {
+				
+				output = File.getContent (tempFile);
+				FileSystem.deleteFile (tempFile);
+				
+			}
+			
+		} else {
+			
+			ProcessHelper.runCommand (adbPath, adbName, [ "devices" ], true, true);
+			
+		}
 		
 		if (output != null && output != "") {
 			
