@@ -61,10 +61,6 @@ class NativeWindow {
 		
 		handle = lime_window_create (application.backend.handle, parent.width, parent.height, flags, parent.config.title);
 		
-		KeyEventManager.registerWindow (parent);
-		MouseEventManager.registerWindow (parent);
-		TouchEventManager.registerWindow (parent);
-		
 	}
 	
 	

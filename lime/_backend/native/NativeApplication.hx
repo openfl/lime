@@ -18,8 +18,11 @@ import lime.ui.Window;
 class NativeApplication {
 	
 	
-	private static var __eventInfo = new UpdateEventInfo ();
-	private static var __registered:Bool;
+	private static var keyEventInfo = new KeyEventInfo ();
+	private static var mouseEventInfo = new MouseEventInfo ();
+	private static var registeredEvents:Bool;
+	private static var touchEventInfo = new TouchEventInfo ();
+	private static var updateEventInfo = new UpdateEventInfo ();
 	
 	public var handle:Dynamic;
 	
@@ -32,13 +35,16 @@ class NativeApplication {
 		
 		Application.__instance = parent;
 		
-		if (!__registered) {
+		if (!registeredEvents) {
 			
-			__registered = true;
+			registeredEvents = true;
 			
 			AudioManager.init ();
 			
-			lime_update_event_manager_register (__dispatch, __eventInfo);
+			lime_key_event_manager_register (handleKeyEvent, keyEventInfo);
+			lime_mouse_event_manager_register (handleMouseEvent, mouseEventInfo);
+			lime_touch_event_manager_register (handleTouchEvent, touchEventInfo);
+			lime_update_event_manager_register (handleUpdateEvent, updateEventInfo);
 			
 		}
 		
@@ -50,10 +56,6 @@ class NativeApplication {
 		parent.config = config;
 		
 		handle = lime_application_create (null);
-		
-		KeyEventManager.create ();
-		MouseEventManager.create ();
-		TouchEventManager.create ();
 		
 		KeyEventManager.onKeyDown.add (parent.onKeyDown);
 		KeyEventManager.onKeyUp.add (parent.onKeyUp);
@@ -144,6 +146,73 @@ class NativeApplication {
 	}
 	
 	
+	private static function handleKeyEvent ():Void {
+		
+		switch (keyEventInfo.type) {
+			
+			case KEY_DOWN:
+				
+				KeyEventManager.onKeyDown.dispatch (keyEventInfo.keyCode, keyEventInfo.modifier);
+			
+			case KEY_UP:
+				
+				KeyEventManager.onKeyUp.dispatch (keyEventInfo.keyCode, keyEventInfo.modifier);
+			
+		}
+		
+	}
+	
+	
+	private static function handleMouseEvent ():Void {
+		
+		switch (mouseEventInfo.type) {
+			
+			case MOUSE_DOWN:
+				
+				MouseEventManager.onMouseDown.dispatch (mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
+			
+			case MOUSE_UP:
+				
+				MouseEventManager.onMouseUp.dispatch (mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
+			
+			case MOUSE_MOVE:
+				
+				MouseEventManager.onMouseMove.dispatch (mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
+			
+			case MOUSE_WHEEL:
+				
+				MouseEventManager.onMouseWheel.dispatch (mouseEventInfo.x, mouseEventInfo.y);
+			
+			default:
+			
+		}
+		
+	}
+	
+	
+	private static function handleTouchEvent ():Void {
+		
+		switch (touchEventInfo.type) {
+			
+			case TOUCH_START:
+				
+				TouchEventManager.onTouchStart.dispatch (touchEventInfo.x, touchEventInfo.y, touchEventInfo.id);
+			
+			case TOUCH_END:
+				
+				TouchEventManager.onTouchEnd.dispatch (touchEventInfo.x, touchEventInfo.y, touchEventInfo.id);
+			
+			case TOUCH_MOVE:
+				
+				TouchEventManager.onTouchMove.dispatch (touchEventInfo.x, touchEventInfo.y, touchEventInfo.id);
+			
+			default:
+			
+		}
+		
+	}
+	
+	
 	private static function __cleanup ():Void {
 		
 		AudioManager.shutdown ();
@@ -151,20 +220,10 @@ class NativeApplication {
 	}
 	
 	
-	private static function __dispatch ():Void {
+	private static function handleUpdateEvent ():Void {
 		
-		Application.__instance.update (__eventInfo.deltaTime);
-		Application.onUpdate.dispatch (__eventInfo.deltaTime);
-		
-	}
-	
-	
-	private function __triggerFrame (?__):Void {
-		
-		__eventInfo.deltaTime = 16; //TODO
-		__dispatch ();
-		
-		Renderer.render ();
+		Application.__instance.update (updateEventInfo.deltaTime);
+		Application.onUpdate.dispatch (updateEventInfo.deltaTime);
 		
 	}
 	
@@ -174,8 +233,124 @@ class NativeApplication {
 	private static var lime_application_update = System.load ("lime", "lime_application_update", 1);
 	private static var lime_application_quit = System.load ("lime", "lime_application_quit", 1);
 	private static var lime_application_get_ticks = System.load ("lime", "lime_application_get_ticks", 0);
+	private static var lime_key_event_manager_register = System.load ("lime", "lime_key_event_manager_register", 2);
+	private static var lime_mouse_event_manager_register = System.load ("lime", "lime_mouse_event_manager_register", 2);
+	private static var lime_touch_event_manager_register = System.load ("lime", "lime_touch_event_manager_register", 2);
 	private static var lime_update_event_manager_register = System.load ("lime", "lime_update_event_manager_register", 2);
 	
+	
+}
+
+
+private class KeyEventInfo {
+	
+	
+	public var keyCode:Int;
+	public var modifier:Int;
+	public var type:KeyEventType;
+	
+	
+	public function new (type:KeyEventType = null, keyCode:Int = 0, modifier:Int = 0) {
+		
+		this.type = type;
+		this.keyCode = keyCode;
+		this.modifier = modifier;
+		
+	}
+	
+	
+	public function clone ():KeyEventInfo {
+		
+		return new KeyEventInfo (type, keyCode, modifier);
+		
+	}
+	
+	
+}
+
+
+@:enum private abstract KeyEventType(Int) {
+	
+	var KEY_DOWN = 0;
+	var KEY_UP = 1;
+	
+}
+
+
+private class MouseEventInfo {
+	
+	
+	public var button:Int;
+	public var type:MouseEventType;
+	public var x:Float;
+	public var y:Float;
+	
+	
+	
+	public function new (type:MouseEventType = null, x:Float = 0, y:Float = 0, button:Int = 0) {
+		
+		this.type = type;
+		this.x = x;
+		this.y = y;
+		this.button = button;
+		
+	}
+	
+	
+	public function clone ():MouseEventInfo {
+		
+		return new MouseEventInfo (type, x, y, button);
+		
+	}
+	
+	
+}
+
+
+@:enum private abstract MouseEventType(Int) {
+	
+	var MOUSE_DOWN = 0;
+	var MOUSE_UP = 1;
+	var MOUSE_MOVE = 2;
+	var MOUSE_WHEEL = 3;
+	
+}
+
+
+private class TouchEventInfo {
+	
+	
+	public var id:Int;
+	public var type:TouchEventType;
+	public var x:Float;
+	public var y:Float;
+	
+	
+	public function new (type:TouchEventType = null, x:Float = 0, y:Float = 0, id:Int = 0) {
+		
+		this.type = type;
+		this.x = x;
+		this.y = y;
+		this.id = id;
+		
+	}
+	
+	
+	public function clone ():TouchEventInfo {
+		
+		return new TouchEventInfo (type, x, y, id);
+		
+	}
+	
+	
+}
+
+
+@:enum private abstract TouchEventType(Int) {
+	
+	var TOUCH_START = 0;
+	var TOUCH_END = 1;
+	var TOUCH_MOVE = 2;
 	
 }
 

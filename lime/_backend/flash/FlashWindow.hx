@@ -31,10 +31,6 @@ class FlashWindow {
 	
 	public function create (application:Application):Void {
 		
-		KeyEventManager.registerWindow (parent);
-		MouseEventManager.registerWindow (parent);
-		TouchEventManager.registerWindow (parent);
-		
 		Lib.current.stage.addEventListener (Event.ACTIVATE, handleEvent);
 		Lib.current.stage.addEventListener (Event.DEACTIVATE, handleEvent);
 		Lib.current.stage.addEventListener (FocusEvent.FOCUS_IN, handleEvent);

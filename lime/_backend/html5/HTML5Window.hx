@@ -4,6 +4,8 @@ package lime._backend.html5;
 import js.html.CanvasElement;
 import js.html.DivElement;
 import js.html.HtmlElement;
+import js.html.MouseEvent;
+import js.html.TouchEvent;
 import js.Browser;
 import lime.app.Application;
 import lime.graphics.Image;
@@ -128,6 +130,27 @@ class HTML5Window {
 				
 			}
 			
+			var events = [ "mousedown", "mousemove", "mouseup", "wheel" ];
+			
+			for (event in events) {
+				
+				element.addEventListener (event, handleMouseEvent, true);
+				
+			}
+			
+			// Disable image drag on Firefox
+			Browser.document.addEventListener ("dragstart", function (e) {
+				if (e.target.nodeName.toLowerCase () == "img") {
+					e.preventDefault ();
+					return false;
+				}
+				return true;
+			}, false);
+			
+			element.addEventListener ("touchstart", handleTouchEvent, true);
+			element.addEventListener ("touchmove", handleTouchEvent, true);
+			element.addEventListener ("touchend", handleTouchEvent, true);
+			
 		}
 		
 		#if stats
@@ -136,10 +159,6 @@ class HTML5Window {
 		stats.domElement.style.top = "0px";
 		Browser.document.body.appendChild (stats.domElement);
 		#end
-		
-		KeyEventManager.registerWindow (parent);
-		MouseEventManager.registerWindow (parent);
-		TouchEventManager.registerWindow (parent);
 		
 		Browser.window.addEventListener ("focus", handleEvent, false);
 		Browser.window.addEventListener ("blur", handleEvent, false);
@@ -179,6 +198,71 @@ class HTML5Window {
 			case "beforeunload":
 				
 				Window.onWindowClose.dispatch ();
+			
+		}
+		
+	}
+	
+	
+	private function handleMouseEvent (event:MouseEvent):Void {
+		
+		var x = 0.0;
+		var y = 0.0;
+		
+		if (event.type != "wheel") {
+			
+			if (element != null) {
+				
+				if (canvas != null) {
+					
+					var rect = canvas.getBoundingClientRect ();
+					x = (event.clientX - rect.left) * (parent.width / rect.width);
+					y = (event.clientY - rect.top) * (parent.height / rect.height);
+					
+				} else if (div != null) {
+					
+					var rect = div.getBoundingClientRect ();
+					//x = (event.clientX - rect.left) * (window.backend.div.style.width / rect.width);
+					x = (event.clientX - rect.left);
+					//y = (event.clientY - rect.top) * (window.backend.div.style.height / rect.height);
+					y = (event.clientY - rect.top);
+					
+				} else {
+					
+					var rect = element.getBoundingClientRect ();
+					x = (event.clientX - rect.left) * (parent.width / rect.width);
+					y = (event.clientY - rect.top) * (parent.height / rect.height);
+					
+				}
+				
+			} else {
+				
+				x = event.clientX;
+				y = event.clientY;
+				
+			}
+			
+			switch (event.type) {
+				
+				case "mousedown":
+					
+					MouseEventManager.onMouseDown.dispatch (x, y, event.button);
+				
+				case "mouseup":
+					
+					MouseEventManager.onMouseUp.dispatch (x, y, event.button);
+				
+				case "mousemove":
+					
+					MouseEventManager.onMouseMove.dispatch (x, y, event.button);
+				
+				default:
+				
+			}
+			
+		} else {
+			
+			MouseEventManager.onMouseWheel.dispatch (untyped event.deltaX, untyped event.deltaY);
 			
 		}
 		
@@ -245,6 +329,67 @@ class HTML5Window {
 				}
 				
 			}
+			
+		}
+		
+	}
+	
+	
+	private function handleTouchEvent (event:TouchEvent):Void {
+		
+		event.preventDefault ();
+		
+		var touch = event.changedTouches[0];
+		var id = touch.identifier;
+		var x = 0.0;
+		var y = 0.0;
+		
+		if (element != null) {
+			
+			if (canvas != null) {
+				
+				var rect = canvas.getBoundingClientRect ();
+				x = (touch.clientX - rect.left) * (parent.width / rect.width);
+				y = (touch.clientY - rect.top) * (parent.height / rect.height);
+				
+			} else if (div != null) {
+				
+				var rect = div.getBoundingClientRect ();
+				//eventInfo.x = (event.clientX - rect.left) * (window.div.style.width / rect.width);
+				x = (touch.clientX - rect.left);
+				//eventInfo.y = (event.clientY - rect.top) * (window.div.style.height / rect.height);
+				y = (touch.clientY - rect.top);
+				
+			} else {
+				
+				var rect = element.getBoundingClientRect ();
+				x = (touch.clientX - rect.left) * (parent.width / rect.width);
+				y = (touch.clientY - rect.top) * (parent.height / rect.height);
+				
+			}
+			
+		} else {
+			
+			x = touch.clientX;
+			y = touch.clientY;
+			
+		}
+		
+		switch (event.type) {
+			
+			case "touchstart":
+				
+				TouchEventManager.onTouchStart.dispatch (x, y, id);
+			
+			case "touchmove":
+				
+				TouchEventManager.onTouchMove.dispatch (x, y, id);
+			
+			case "touchend":
+				
+				TouchEventManager.onTouchEnd.dispatch (x, y, id);
+			
+			default:
 			
 		}
 		

@@ -19,39 +19,43 @@ class AudioManager {
 	
 	public static function init (context:AudioContext = null) {
 		
-		if (context == null) {
+		if (AudioManager.context == null) {
 			
-			#if (js && html5)
+			if (context == null) {
 				
-				try {
+				#if (js && html5)
 					
-					untyped __js__ ("window.AudioContext = window.AudioContext || window.webkitAudioContext;");
-					AudioManager.context = WEB (cast untyped __js__ ("new AudioContext ()"));
+					try {
+						
+						untyped __js__ ("window.AudioContext = window.AudioContext || window.webkitAudioContext;");
+						AudioManager.context = WEB (cast untyped __js__ ("new AudioContext ()"));
+						
+					} catch (e:Dynamic) {
+						
+						AudioManager.context = HTML5 (new HTML5AudioContext ());
+						
+					}
 					
-				} catch (e:Dynamic) {
+				#elseif flash
 					
-					AudioManager.context = HTML5 (new HTML5AudioContext ());
+					AudioManager.context = FLASH (new FlashAudioContext ());
 					
-				}
+				#else
+					
+					AudioManager.context = OPENAL (new ALCAudioContext (), new ALAudioContext ());
+					
+					var device = ALC.openDevice ();
+					var ctx = ALC.createContext (device);
+					ALC.makeContextCurrent (ctx);
+					ALC.processContext (ctx);
+					
+				#end
 				
-			#elseif flash
+			} else {
 				
-				AudioManager.context = FLASH (new FlashAudioContext ());
+				AudioManager.context = context;
 				
-			#else
-				
-				AudioManager.context = OPENAL (new ALCAudioContext (), new ALAudioContext ());
-				
-				var device = ALC.openDevice ();
-				var ctx = ALC.createContext (device);
-				ALC.makeContextCurrent (ctx);
-				ALC.processContext (ctx);
-				
-			#end
-			
-		} else {
-			
-			AudioManager.context = context;
+			}
 			
 		}
 		
