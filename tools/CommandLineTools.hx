@@ -558,6 +558,8 @@ class CommandLineTools {
 					
 					platform = new EmscriptenPlatform (command, project, targetFlags);
 				
+				default:
+				
 			}
 			
 			if (platform != null) {

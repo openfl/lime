@@ -72,6 +72,10 @@ class ProjectXMLParser extends HXProject {
 				
 				defines.set ("web", "1");
 			
+			case CONSOLE:
+				
+				defines.set ("console", "1");
+			
 		}
 		
 		if (targetFlags.exists ("neko")) {
@@ -93,7 +97,7 @@ class ProjectXMLParser extends HXProject {
 			
 			defines.set ("html5", "1");
 			
-		} else if (targetFlags.exists ("cpp") || ((platformType == PlatformType.MOBILE || platformType == PlatformType.DESKTOP) && !targetFlags.exists("html5")) || target == Platform.EMSCRIPTEN) {
+		} else if (targetFlags.exists ("cpp") || ((platformType != PlatformType.WEB) && !targetFlags.exists("html5")) || target == Platform.EMSCRIPTEN) {
 			
 			defines.set ("native", "1");
 			defines.set ("cpp", "1");

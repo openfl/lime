@@ -15,5 +15,6 @@ package project;
 	var WINDOWS = "windows";
 	var WEBOS = "webos";
 	var EMSCRIPTEN = "emscripten";
+	var CUSTOM = null;
 
 }

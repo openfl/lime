@@ -175,6 +175,12 @@ class HXProject {
 					
 				}
 			
+			default:
+				
+				// TODO: Better handle platform type for pluggable targets
+				
+				platformType = PlatformType.CONSOLE;
+			
 		}
 		
 		meta = ObjectHelper.copyFields (defaultMeta, {});
