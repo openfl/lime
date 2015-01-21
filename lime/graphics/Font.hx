@@ -171,6 +171,7 @@ class Font {
 		
 		#elseif (cpp || neko || nodejs)
 		
+		if (__handle==null)	throw "Uninitialized font handle.";
 		var data = lime_font_create_image (__handle);
 		
 		if (data == null) {
@@ -213,6 +214,7 @@ class Font {
 		
 		#if (cpp || neko || nodejs)
 		
+		if (__handle==null)	throw "Uninitialized font handle.";
 		return lime_font_outline_decompose (__handle, 1024 * 20);
 		
 		#else
@@ -250,6 +252,7 @@ class Font {
 		
 		#elseif (cpp || neko || nodejs)
 		
+		if (font.__handle==null)	throw "Uninitialized font handle.";
 		lime_font_load_range (__handle, size, start, end);
 		
 		#end
@@ -271,6 +274,7 @@ class Font {
 		
 		#elseif (cpp || neko || nodejs)
 		
+		if (font.__handle==null)	throw "Uninitialized font handle.";
 		lime_font_load_glyphs (__handle, size, glyphs);
 		
 		#end

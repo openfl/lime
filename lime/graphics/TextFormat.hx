@@ -197,6 +197,7 @@ class TextFormat {
 
 		#if (cpp || neko || nodejs)
 
+		if (font.__handle==null)	throw "Uninitialized font handle.";
 		return lime_text_from_string (handle, font.__handle, size, text);
 
 		#else
