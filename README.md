@@ -64,12 +64,16 @@ Tell haxelib where your development copy of Lime is installed:
 
 You can build the binaries using "lime rebuild":
 
-    lime rebuild lime windows
-    lime rebuild lime linux -64 -release -clean
+    lime rebuild windows
+    lime rebuild linux -64 -release -clean
 
 If you make modifications to the tools, you can rebuild them like this:
 
     lime rebuild tools
+
+OpenFL currently uses the Lime 1 "legacy" binaries by default, instead of the new Lime 2 binaries. To build the legacy binary for a platform, add the -Dlegacy define:
+
+    lime rebuild windows -Dlegacy
 
 On a Windows machine, you should have Microsoft Visual Studio C++ (Express is just fine) installed. You will need Xcode on a Mac. To build on a Linux machine, you may need the following packages (or similar):
 
