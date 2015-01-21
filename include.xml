@@ -30,8 +30,6 @@
 		<ndll name="regexp" haxelib="hxcpp" if="cpp" />
 		<ndll name="zlib" haxelib="hxcpp" if="cpp" />
 		
-		<ndll name="openal" register="false" if="android" />
-		
 		<ndll name="lime" if="included" />
 		
 		<ndll name="curl_ssl" register="false" if="ios" />
