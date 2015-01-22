@@ -300,7 +300,7 @@ class AndroidPlatform extends PlatformTarget {
 		
 		for (dependency in project.dependencies) {
 			
-			if (dependency.path != "" && FileSystem.isDirectory (dependency.path) && FileSystem.exists (PathHelper.combine (dependency.path, "project.properties"))) {
+			if (dependency.path != "" && FileSystem.exists (dependency.path) && FileSystem.isDirectory (dependency.path) && FileSystem.exists (PathHelper.combine (dependency.path, "project.properties"))) {
 				
 				var name = dependency.name;
 				if (name == "") name = "project" + index;
