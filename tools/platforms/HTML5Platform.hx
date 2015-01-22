@@ -50,17 +50,17 @@ class HTML5Platform extends PlatformTarget {
 			var hxml = targetDirectory + "/haxe/" + type + ".hxml";
 			ProcessHelper.runCommand ("", "haxe", [ hxml ] );
 			
-		}
-		
-		if (project.targetFlags.exists ("webgl")) {
+			if (project.targetFlags.exists ("webgl")) {
+				
+				FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain.js", outputFile);
+				
+			}
 			
-			FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain.js", outputFile);
-			
-		}
-		
-		if (project.targetFlags.exists ("minify")) {
-			
-			HTML5Helper.minify (project, targetDirectory + "/bin/" + project.app.file + ".js");
+			if (project.targetFlags.exists ("minify") || type == "final") {
+				
+				HTML5Helper.minify (project, targetDirectory + "/bin/" + project.app.file + ".js");
+				
+			}
 			
 		}
 		
