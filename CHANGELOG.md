@@ -1,3 +1,21 @@
+2.0.6 (01/22/2015)
+------------------
+
+* Resolved asset embedding for Lime resources
+* Added "js-flatten" and "dce full" to HTML5 -final builds
+* Made "-minify" occur by default on HTML5 -final builds
+* Improved the copy behavior for assets on Android and BlackBerry
+* Improved the getDeviceSDKVersion call for Android
+* Fixed support for making typed arrays from OpenFL Vector data
+* Removed unneeded iOS CFBundleIcon references
+* Updated the default iOS deployment to version 5.1.1 for arm64
+* Updated to the latest Google Closure compiler version
+* Added a ConsoleRenderContext, to continue to grow with console efforts
+* Refactored Application, Window, Renderer and other "backend" classes
+* Fixed crash in BitmapData rendering (legacy)
+* Fixed rotation of TextField instances (legacy)
+
+
 2.0.5 (01/13/2015)
 ------------------
 
