@@ -4,3 +4,5 @@
 -D html5
 -D html
 -D final
+-D js-flatten
+-dce full
