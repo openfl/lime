@@ -9,6 +9,7 @@ typedef Config = {
 	@:optional var depthBuffer:Bool;
 	#if (js && html5)
 	@:optional var element:js.html.HtmlElement;
+	@:optional var assetsPrefix:String;
 	#end
 	@:optional var fps:Int;
 	@:optional var fullscreen:Bool;
