@@ -52,8 +52,6 @@ namespace lime {
 			value RenderToImage (ImageBuffer *image);
 			void SetSize (size_t size);
 			bool InsertCodepointFromIndex (unsigned long codepoint);
-			
-		private:
 
 			#ifdef LIME_FREETYPE
 			Font (FT_Face face);
@@ -62,6 +60,8 @@ namespace lime {
 			void* face;
 			#endif
 			
+		private:
+
 			bool InsertCodepoint (unsigned long codepoint, bool b = true);
 			
 			std::list<GlyphInfo> glyphList;
