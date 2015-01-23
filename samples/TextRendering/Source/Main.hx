@@ -23,7 +23,6 @@ class TextField {
 	public function new (text:String, size:Int, textFormat:TextFormat, font:Font, context:RenderContext, x:Float=0, y:Float=0) {
 
 		points = textFormat.fromString (font, size, text);
-		font.loadGlyphs (size, text);
 		image = font.createImage ();
 		this.text = text;
 		this.size = size;

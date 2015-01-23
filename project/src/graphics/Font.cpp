@@ -528,15 +528,10 @@ namespace lime {
 		
 	}
 	
-	
 	bool Font::InsertCodepointFromIndex (unsigned long codepoint) {
 		return InsertCodepoint(codepoint, false);
 	}
 
-	bool Font::InsertCodepoint (unsigned long codepoint) {
-		return InsertCodepoint(codepoint, true);
-	}
-	
 	bool Font::InsertCodepoint (unsigned long codepoint, bool b) {
 		
 		GlyphInfo info;

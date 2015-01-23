@@ -67,8 +67,7 @@ namespace lime {
 			
 		private:
 			
-			bool InsertCodepoint (unsigned long codepoint);
-			bool InsertCodepoint (unsigned long codepoint, bool b);
+			bool InsertCodepoint (unsigned long codepoint, bool b = true);
 			
 			std::list<GlyphInfo> glyphList;
 			size_t mSize;
