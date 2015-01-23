@@ -273,16 +273,16 @@ namespace lime {
 		} else {
 		
 			FT_Face face;
-		error = FT_New_Face (library, fontFace, 0, &face);
-		
-		if (error == FT_Err_Unknown_File_Format) {
+			error = FT_New_Face (library, fontFace, 0, &face);
 			
-			printf ("Invalid font type\n");
-			
-		} else if (error) {
-			
-			printf ("Failed to load font face %s\n", fontFace);
-			
+			if (error == FT_Err_Unknown_File_Format) {
+
+				printf ("Invalid font type\n");
+
+			} else if (error) {
+
+				printf ("Failed to load font face %s\n", fontFace);
+
 			} else {
 
 				return new Font(face);
