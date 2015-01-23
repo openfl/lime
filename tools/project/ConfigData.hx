@@ -218,7 +218,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 		
 		if (exists (id)) {
 			
-			return Std.parseInt (get (id));
+			return Std.parseInt (Std.string (get (id)));
 			
 		}
 		
@@ -231,7 +231,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 		
 		if (exists (id)) {
 			
-			return Std.parseFloat (get (id));
+			return Std.parseFloat (Std.string (get (id)));
 			
 		}
 		
