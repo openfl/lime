@@ -2,5 +2,6 @@
 -js ::NODE_FILE::
 -cp ::BUILD_DIR::/nodejs/haxe
 --macro allowPackage("flash")
+--macro define("sys")
 -D nodejs
 -D js-flatten
