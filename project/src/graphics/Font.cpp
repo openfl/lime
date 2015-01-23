@@ -529,7 +529,15 @@ namespace lime {
 	}
 	
 	
+	bool Font::InsertCodepointFromIndex (unsigned long codepoint) {
+		return InsertCodepoint(codepoint, false);
+	}
+
 	bool Font::InsertCodepoint (unsigned long codepoint) {
+		return InsertCodepoint(codepoint, true);
+	}
+	
+	bool Font::InsertCodepoint (unsigned long codepoint, bool b) {
 		
 		GlyphInfo info;
 		info.codepoint = codepoint;
@@ -543,8 +551,12 @@ namespace lime {
 		// if (codepoint < (*first).codepoint ||
 		// 	(codepoint == (*first).codepoint && mSize != (*first).size)) {
 			
-			info.index = FT_Get_Char_Index (face, codepoint);
 			
+			if (b) {
+				info.index = FT_Get_Char_Index (face, codepoint);
+			} else {
+				info.index = codepoint;	
+			}
 			if (FT_Load_Glyph (face, info.index, FT_LOAD_DEFAULT) != 0) return false;
 			info.height = face->glyph->metrics.height;
 			

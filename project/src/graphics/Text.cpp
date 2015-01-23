@@ -11,7 +11,8 @@ namespace lime {
 
 		if (strlen(script) != 4) return;
 
-		hb_script_t tag = (hb_script_t)HB_TAG (script[0], script[1], script[2], script[3]);
+		//hb_script_t tag = (hb_script_t)HB_TAG (script[0], script[1], script[2], script[3]);
+		hb_script_t tag = hb_script_from_string (script, -1);
 
 		buffer = hb_buffer_create ();
 		hb_buffer_set_direction (buffer, (hb_direction_t)direction);
@@ -48,6 +49,7 @@ namespace lime {
 
 		for (int i = 0; i < glyph_count; i++) {
 
+			font->InsertCodepointFromIndex(glyph_info[i].codepoint);
 			hb_glyph_position_t pos = glyph_pos[i];
 
             value obj = alloc_empty_object ();
