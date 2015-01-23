@@ -259,7 +259,7 @@ namespace lime {
 	}
 	
 	
-	Font::Font (const char *fontFace) {
+	Font *Font::FromFile (const char *fontFace) {
 		
 		int error;
 		FT_Library library;
@@ -270,8 +270,9 @@ namespace lime {
 			
 			printf ("Could not initialize FreeType\n");
 			
-		}
+		} else {
 		
+			FT_Face face;
 		error = FT_New_Face (library, fontFace, 0, &face);
 		
 		if (error == FT_Err_Unknown_File_Format) {
@@ -282,8 +283,22 @@ namespace lime {
 			
 			printf ("Failed to load font face %s\n", fontFace);
 			
+			} else {
+
+				return new Font(face);
+
+			}
+
 		}
 		
+		return 0;
+
+	}
+
+	Font::Font (FT_Face face) {
+
+		this->face = face;
+
 		/* Set charmap
 		 *
 		 * See http://www.microsoft.com/typography/otspec/name.htm for a list of

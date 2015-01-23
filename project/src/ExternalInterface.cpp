@@ -160,10 +160,18 @@ namespace lime {
 	value lime_font_load (value fontFace) {
 		
 		#ifdef LIME_FREETYPE
-		Font *font = new Font (val_string (fontFace));
+		Font *font = Font::FromFile (val_string (fontFace));
+		if (font) {
+
 		value v = alloc_float ((intptr_t)font);
 		val_gc (v, lime_font_destroy);
 		return v;
+
+		} else {
+
+			return alloc_null ();
+
+		}
 		#else
 		return alloc_null ();
 		#endif
