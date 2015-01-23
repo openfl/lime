@@ -16,8 +16,8 @@ project/winrt/shaders/
 *.iml
 tools/tools.n
 haxedoc.xml
-documentation/*.xml
-documentation/pages*
+docs/*.xml
+docs/pages*
 legacy/ndll/*/lime*
 legacy/ndll/*/liblime*
 legacy/project/all_objs

@@ -121,4 +121,4 @@ ImportAll
 
 --next
 
--cmd haxelib run dox -i . -in lime
+-cmd haxelib run dox -i . -in lime -theme flambe --title "Lime Documentation"
