@@ -11,20 +11,20 @@ namespace lime {
 
 		if (strlen(script) != 4) return;
 
-		//hb_script_t tag = (hb_script_t)HB_TAG (script[0], script[1], script[2], script[3]);
-		hb_script_t tag = hb_script_from_string (script, -1);
+		mDirection = (hb_direction_t)direction;
+		mLanguage = hb_language_from_string (language, strlen (language));
+		mScript = hb_script_from_string (script, -1);
 
-		buffer = hb_buffer_create ();
-		hb_buffer_set_direction (buffer, (hb_direction_t)direction);
-		hb_buffer_set_script (buffer, tag);
-		hb_buffer_set_language (buffer, hb_language_from_string (language, strlen (language)));
+		mBuffer = hb_buffer_create ();
+		hb_buffer_set_direction (mBuffer, mDirection);
+		hb_buffer_set_script (mBuffer, mScript);
+		hb_buffer_set_language (mBuffer, mLanguage);
 
 	}
 
 	Text::~Text () {
 
-		hb_buffer_reset (buffer);
-		hb_buffer_destroy (buffer);
+		hb_buffer_destroy (mBuffer);
 
 	}
 
@@ -32,16 +32,20 @@ namespace lime {
 
 		font->SetSize (size);
 
+		// reset buffer
+		hb_buffer_reset (mBuffer);
+		hb_buffer_set_direction (mBuffer, mDirection);
+		hb_buffer_set_script (mBuffer, mScript);
+		hb_buffer_set_language (mBuffer, mLanguage);
+
 		// layout the text
-		int len = strlen (text);
-		hb_buffer_add_utf8 (buffer, text, len, 0, len);
+		hb_buffer_add_utf8 (mBuffer, text, strlen (text), 0, -1);
 		hb_font_t *hb_font = hb_ft_font_create (font->face, NULL);
-		hb_shape (hb_font, buffer, NULL, 0);
+		hb_shape (hb_font, mBuffer, NULL, 0);
 
 		unsigned int glyph_count;
-		hb_glyph_info_t *glyph_info = hb_buffer_get_glyph_infos (buffer, &glyph_count);
-		hb_glyph_position_t *glyph_pos = hb_buffer_get_glyph_positions (buffer, &glyph_count);
-		hb_direction_t direction = hb_buffer_get_direction (buffer);
+		hb_glyph_info_t *glyph_info = hb_buffer_get_glyph_infos (mBuffer, &glyph_count);
+		hb_glyph_position_t *glyph_pos = hb_buffer_get_glyph_positions (mBuffer, &glyph_count);
 
 		float hres = 100;
 		value pos_info = alloc_array (glyph_count);
@@ -52,14 +56,14 @@ namespace lime {
 			font->InsertCodepointFromIndex(glyph_info[i].codepoint);
 			hb_glyph_position_t pos = glyph_pos[i];
 
-            value obj = alloc_empty_object ();
+			value obj = alloc_empty_object ();
 			alloc_field (obj, val_id ("codepoint"), alloc_float (glyph_info[i].codepoint));
-			
+
 			value advance = alloc_empty_object ();
 			alloc_field (advance, val_id ("x"), alloc_float (pos.x_advance / (float)(hres * 64)));
 			alloc_field (advance, val_id ("y"), alloc_float (pos.y_advance / (float)64));
 			alloc_field (obj, val_id ("advance"), advance);
-			
+
 			value offset = alloc_empty_object ();
 			alloc_field (offset, val_id ("x"), alloc_float (pos.x_offset / (float)(hres * 64)));
 			alloc_field (offset, val_id ("y"), alloc_float (pos.y_offset / (float)64));

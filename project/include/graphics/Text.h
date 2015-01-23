@@ -24,7 +24,10 @@ namespace lime {
 
 		private:
 
-			hb_buffer_t *buffer;
+			hb_buffer_t *mBuffer;
+			hb_direction_t mDirection;
+			hb_script_t mScript;
+			hb_language_t mLanguage;
 
 
 	};
