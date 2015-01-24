@@ -1512,7 +1512,7 @@ void TextField::Render( const RenderTarget &inTarget, const RenderState &inState
             double height = mLines[line].mMetrics.height;
             if (pos.y+height <= fieldHeight-GAP+1)
             {
-               mCaretGfx->lineStyle(1, 0x000000 ,1.0, false, ssmOpenGL  );
+               mCaretGfx->lineStyle(1, textColor ,1.0, false, ssmOpenGL  );
                mCaretGfx->moveTo(pos.x,pos.y);
                mCaretGfx->lineTo(pos.x,pos.y+height);
             }
