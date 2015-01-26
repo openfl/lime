@@ -47,7 +47,7 @@ class HTML5Renderer {
 		
 		if (parent.window.backend.div != null) {
 			
-			parent.context = DOM (parent.window.backend.div);
+			parent.context = DOM (cast parent.window.backend.div);
 			
 		} else if (parent.window.backend.canvas != null) {
 			

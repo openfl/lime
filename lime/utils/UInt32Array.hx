@@ -1,5 +1,5 @@
 package lime.utils;
-#if js
+#if (js && !display)
 typedef UInt32Array = js.html.Uint32Array;
 #else
 

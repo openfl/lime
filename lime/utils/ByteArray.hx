@@ -1034,9 +1034,11 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	public static function __ofBuffer (buffer:ArrayBuffer):ByteArray {
 		
 		var bytes = new ByteArray ();
+		#if !display
 		bytes.length = bytes.allocated = buffer.byteLength;
 		bytes.data = untyped __new__("DataView", buffer);
 		bytes.byteView = untyped __new__("Uint8Array", buffer);
+		#end
 		return bytes;
 		
 	}

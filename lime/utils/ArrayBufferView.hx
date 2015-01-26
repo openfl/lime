@@ -1,5 +1,5 @@
 package lime.utils;
-#if js
+#if (js && !display)
 typedef ArrayBufferView = js.html.ArrayBufferView;
 #else
 
@@ -76,7 +76,7 @@ import haxe.io.BytesData;
 		
 		#if flash
 		buffer.endian = flash.utils.Endian.LITTLE_ENDIAN;
-		#else
+		#elseif (cpp || neko)
 		buffer.bigEndian = false;
 		#end
 		

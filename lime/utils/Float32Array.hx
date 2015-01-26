@@ -1,5 +1,5 @@
 package lime.utils;
-#if js
+#if (js && !display)
 typedef Float32Array = js.html.Float32Array;
 #else
 
