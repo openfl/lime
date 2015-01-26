@@ -45,9 +45,6 @@
 		
 		<architecture name="armv7" if="android" />
 		
-		<!-- <include haxelib="aether" unless="openfl" />
-		<haxelib name="aether" if="setup" /> -->
-		
 		<haxedef name="lime-curl" unless="lime-console || emscripten" />
 		<haxedef name="lime-opengl" unless="lime-console" />
 		<haxedef name="lime-openal" unless="lime-console || static_link || emscripten" />

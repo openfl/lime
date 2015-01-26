@@ -89,11 +89,11 @@ Sample
 
 You can build a sample Lime project with the following commands:
 
-    lime create lime:HelloWorld
+    lime create HelloWorld
     cd HelloWorld
     lime test neko
 
-You can also list other projects that are available using "aether create lime".
+You can also list other projects that are available using "lime create".
 
 
 Targets
