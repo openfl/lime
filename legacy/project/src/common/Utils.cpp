@@ -215,7 +215,7 @@ WString ColorToWide(int value)
    #ifdef __MINGW32__
 	swprintf(buffer, L"%X", value);
    #else
-	swprintf(buffer, 40, L"%i", value);
+	swprintf(buffer, 40, L"%X", value);
    #endif
 	return WString(buffer);
 }
