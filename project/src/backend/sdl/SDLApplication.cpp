@@ -183,6 +183,7 @@ namespace lime {
 			}
 			
 			keyEvent.keyCode = event->key.keysym.sym;
+			keyEvent.modifier = event->key.keysym.mod;
 			
 			KeyEvent::Dispatch (&keyEvent);
 			
