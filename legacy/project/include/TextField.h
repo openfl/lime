@@ -185,13 +185,13 @@ private:
    StringState mStringState;
    WString mUserString;
 
-	void SplitGroup(int inGroup,int inPos);
+   void SplitGroup(int inGroup,int inPos);
 
-	void BuildBackground();
+   void BuildBackground();
 
    int  PointToChar(UserPoint inPoint) const;
-   int  LineFromChar(int inChar);
-   int  GroupFromChar(int inChar);
+   int  LineFromChar(int inChar) const;
+   int  GroupFromChar(int inChar) const;
    double  EndOfCharX(int inChar,int inLine) const;
    double  EndOfLineX(int inLine) const;
    UserPoint GetScrollPos() const;

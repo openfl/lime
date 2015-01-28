@@ -36,10 +36,11 @@ struct TextLineMetrics
 
 
 
-enum
+enum TextFormatFlags
 {
-   ffItalic  = 0x01,
-   ffBold    = 0x02,
+   ffItalic    = 0x01,
+   ffBold      = 0x02,
+   ffUnderline = 0x04,
 };
 
 
@@ -120,13 +121,14 @@ struct CharGroup
    bool  UpdateFont(double inScale,bool inNative);
    void  UpdateMetrics(TextLineMetrics &ioMetrics);
    double   Height(double inFontToLocal);
-   int   Chars() { return mString.size(); }
+   int   Chars() const { return mString.size(); }
 
    void ApplyFormat(TextFormat *inFormat);
 
    int               mChar0;
    QuickVec<wchar_t,0> mString;
    int             mFontHeight;
+   unsigned int    mFlags;
    TextFormat      *mFormat;
    class Font      *mFont;
 };

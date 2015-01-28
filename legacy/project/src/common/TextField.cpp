@@ -113,10 +113,7 @@ void TextField::setWidth(double inWidth)
    explicitWidth = inWidth;
    if (autoSize==asNone || wordWrap)
    {
-      if (scaleX!=0)
-         fieldWidth = inWidth/scaleX;
-      else
-         fieldWidth = 0.0;
+      fieldWidth = inWidth;
       mLinesDirty = true;
       mGfxDirty = true;
    }
@@ -127,28 +124,23 @@ void TextField::setHeight(double inHeight)
 {
    if (autoSize==asNone)
    {
-      if (scaleY!=0)
-         fieldHeight = inHeight/scaleY;
-      else
-         fieldHeight = 0.0;
-
       fieldHeight = inHeight;
       mLinesDirty = true;
       mGfxDirty = true;
    }
 }
 
+
 void TextField::modifyLocalMatrix(Matrix &ioMatrix)
 {
    if ( (autoSize==asCenter || autoSize==asRight) && !multiline )
    {
       if (autoSize==asCenter)
-         ioMatrix.mtx -= (fieldWidth-explicitWidth) * 0.5;
+         ioMatrix.mtx += (fieldWidth-GAP*2) * scaleX* 0.5;
       else
-         ioMatrix.mtx -= (fieldWidth-explicitWidth);
+         ioMatrix.mtx += (fieldWidth-GAP*2) * scaleX;
    }
 }
-
 
 
 const TextFormat *TextField::getDefaultTextFormat()
@@ -178,6 +170,7 @@ void TextField::SplitGroup(int inGroup,int inPos)
    extra.mFormat = group.mFormat;
    extra.mFormat->IncRef();
    extra.mFontHeight = group.mFontHeight;
+   extra.mFlags = group.mFlags;
    extra.mFont = group.mFont;
    extra.mFont->IncRef();
    extra.mChar0 = group.mChar0 + inPos;
@@ -359,6 +352,7 @@ void TextField::setMultiline(bool inMultiline)
 void TextField::setWordWrap(bool inWordWrap)
 {
    wordWrap = inWordWrap;
+   setWidth(explicitWidth);
    mLinesDirty = true;
    mGfxDirty = true;
    DirtyCache();
@@ -492,6 +486,15 @@ int TextField::PointToChar(UserPoint inPoint) const
                return line.mChar0+c;
          }
 
+         if (line.mChars>0 )
+         {
+            int cidx = line.mChar0 + line.mChars - 1;
+            int g = GroupFromChar(cidx);
+            int g_pos =  cidx - mCharGroups[g]->mChar0;
+            wchar_t ch = mCharGroups[g]->mString.mPtr[g_pos];
+            if (ch=='\n')
+               return line.mChar0 + line.mChars -1;
+         }
          return line.mChar0 + line.mChars;
       }
    }
@@ -827,6 +830,7 @@ void TextField::setText(const WString &inString)
    chars->mFormat = defaultTextFormat->IncRef();
    chars->mFont = 0;
    chars->mFontHeight = 0;
+   chars->mFlags = 0;
    mCharGroups.push_back(chars);
    mLinesDirty = true;
    mFontsDirty = true;
@@ -1008,6 +1012,7 @@ void TextField::AddNode(const TiXmlNode *inNode, TextFormat *inFormat,int &ioCha
          chars->mFormat = inFormat->IncRef();
          chars->mFont = 0;
          chars->mFontHeight = 0;
+         chars->mFlags = 0;
          chars->mString.Set(text->Value(), wcslen( text->Value() ));
          ioCharCount += chars->Chars();
 
@@ -1093,6 +1098,7 @@ void TextField::AddNode(const TiXmlNode *inNode, TextFormat *inFormat,int &ioCha
                   chars->mFormat = inFormat->IncRef();
                   chars->mFont = 0;
                   chars->mFontHeight = 0;
+                  chars->mFlags = 0;
                   chars->mString.push_back('\n');
                   ioCharCount++;
                   mCharGroups.push_back(chars);
@@ -1114,6 +1120,7 @@ void TextField::AddNode(const TiXmlNode *inNode, TextFormat *inFormat,int &ioCha
                      chars->mFormat = inFormat->IncRef();
                      chars->mFont = 0;
                      chars->mFontHeight = 0;
+                     chars->mFlags = 0;
                      chars->mString.push_back('\n');
                      ioCharCount++;
                      mCharGroups.push_back(chars);
@@ -1174,7 +1181,7 @@ void TextField::setHTMLText(const WString &inString)
 }
 
 
-int TextField::LineFromChar(int inChar)
+int TextField::LineFromChar(int inChar) const
 {
    int min = 0;
    int max = mLines.size();
@@ -1190,13 +1197,13 @@ int TextField::LineFromChar(int inChar)
    return min;
 }
 
-int TextField::GroupFromChar(int inChar)
+int TextField::GroupFromChar(int inChar) const
 {
    if (mCharGroups.empty()) return 0;
 
    int min = 0;
    int max = mCharGroups.size();
-   CharGroup &last = *mCharGroups[max-1];
+   const CharGroup &last = *mCharGroups[max-1];
    if (inChar>=last.mChar0)
    {
       if (inChar>=last.mChar0 + last.Chars())
@@ -1820,9 +1827,10 @@ void TextField::Layout(const Matrix &inMatrix)
    mLines.resize(0);
    mCharPos.resize(0);
 
+   textHeight = 0;
+   textWidth = 0;
    if (scaleX==0 || scaleY==0)
       return;
-
 
    double oldW = fieldWidth;
    double oldH = fieldHeight;
@@ -1833,8 +1841,6 @@ void TextField::Layout(const Matrix &inMatrix)
    double charY = 0;
    line.mY0 = charY;
    mLastUpDownX = -1;
-   textHeight = 0;
-   textWidth = 0;
    double max_x = autoSize!=asNone && !wordWrap ? 1e30 : fieldWidth - GAP*2.0;
    if (max_x<1)
       max_x = 1;
@@ -1949,8 +1955,6 @@ void TextField::Layout(const Matrix &inMatrix)
          if (screenGrid)
             right = ((int)((right*fontScale+0.999)))*fontToLocal;
          line.mMetrics.width = right;
-         if (right>textWidth)
-            textWidth = right;
       }
    }
 
@@ -1969,6 +1973,13 @@ void TextField::Layout(const Matrix &inMatrix)
       }
       charY += line.mMetrics.height;
       mLines.push_back(line);
+   }
+
+   for(int i=0;i<mLines.size();i++)
+   {
+      double right = mLines[i].mMetrics.width;
+      if (right>textWidth)
+         textWidth = right;
    }
 
    textHeight = charY;
@@ -2150,13 +2161,17 @@ CharGroup::~CharGroup()
 bool CharGroup::UpdateFont(double inScale,bool inNative)
 {
    int h = 0.5 + inScale*mFormat->size;
-   if (!mFont || h!=mFontHeight )
+   int flags = (mFormat->bold.Get() ? 1 : 0 ) |
+               (mFormat->italic.Get() ? 2 : 0 ) |
+               (mFormat->underline.Get() ? 4 : 0 );
+   if (!mFont || h!=mFontHeight || mFlags!=flags )
    {
       Font *oldFont = mFont;
       mFont = Font::Create(*mFormat,inScale,inNative,true);
       if (oldFont)
          oldFont->DecRef();
       mFontHeight = h;
+      mFlags=flags;
       return true;
    }
    return false;
@@ -2187,4 +2202,3 @@ void CharGroup::ApplyFormat(TextFormat *inFormat)
 }
 
 } // end namespace nme
-

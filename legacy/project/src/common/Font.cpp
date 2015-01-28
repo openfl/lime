@@ -275,16 +275,17 @@ double CharGroup::Height(double inFontToLocal)
 
 struct FontInfo
 {
-   FontInfo(const TextFormat &inFormat,double inScale,bool inNative)
+   FontInfo(const TextFormat &inFormat,double inScale)
    {
       name = inFormat.font;
       height = (int )(inFormat.size*inScale + 0.5);
       flags = 0;
-      native = inNative;
       if (inFormat.bold)
          flags |= ffBold;
       if (inFormat.italic)
          flags |= ffItalic;
+      if (inFormat.underline)
+         flags |= ffUnderline;
    }
 
    bool operator<(const FontInfo &inRHS) const
@@ -293,12 +294,9 @@ struct FontInfo
       if (name > inRHS.name) return false;
       if (height < inRHS.height) return true;
       if (height > inRHS.height) return false;
-      if (!native && inRHS.native) return true;
-      if (native && !inRHS.native) return false;
       return flags < inRHS.flags;
    }
    WString      name;
-   bool         native;
    int          height;
    unsigned int flags;
 };
@@ -311,7 +309,7 @@ FontBytesMap sgRegisteredFonts;
 
 Font *Font::Create(TextFormat &inFormat,double inScale,bool inNative,bool inInitRef)
 {
-   FontInfo info(inFormat,inScale,inNative);
+   FontInfo info(inFormat,inScale);
 
    Font *font = 0;
    FontMap::iterator fit = sgFontMap.find(info);
@@ -334,7 +332,7 @@ Font *Font::Create(TextFormat &inFormat,double inScale,bool inNative,bool inInit
    }
    
    if (bytes != NULL)
-	  face = FontFace::CreateFreeType(inFormat,inScale,bytes);
+     face = FontFace::CreateFreeType(inFormat,inScale,bytes);
 
    if (!face)
       face = FontFace::CreateCFFIFont(inFormat,inScale);
@@ -386,4 +384,3 @@ DEFINE_PRIM(nme_font_register_font,2)
 
 
 } // end namespace nme
-
