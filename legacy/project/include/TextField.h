@@ -44,7 +44,9 @@ public:
    void modifyLocalMatrix(Matrix &ioMatrix);
 
 
-   int   getCaretIndex() { return caretIndex; }
+   int   getCaretIndex() { return caretIndex; };
+   void  setCaretIndex(int newIndex);
+   
    int   getMaxScrollH() { Layout(); return maxScrollH; }
    int   getMaxScrollV() { Layout(); return maxScrollV; }
    int   getBottomScrollV();
