@@ -1147,19 +1147,35 @@ class CommandLineTools {
 				
 				if (define == define.toUpperCase ()) {
 					
+					var value = config.defines.get (define);
+					
 					switch (define) {
 						
-						case "ANT_HOME", "JAVA_HOME":
+						case "ANT_HOME":
 							
-							if (FileSystem.exists (config.defines.get (define))) {
+							if (value == "/usr") {
 								
-								Sys.putEnv (define, config.defines.get (define));
+								value = "/usr/share/ant";
+								
+							}
+							
+							if (FileSystem.exists (value)) {
+								
+								Sys.putEnv (define, value);
+								
+							}
+							
+						case "JAVA_HOME":
+							
+							if (FileSystem.exists (value)) {
+								
+								Sys.putEnv (define, value);
 								
 							}
 						
 						default:
 							
-							Sys.putEnv (define, config.defines.get (define));
+							Sys.putEnv (define, value);
 						
 					}
 					

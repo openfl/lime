@@ -299,7 +299,7 @@ class AndroidHelper {
 			
 		} else {
 			
-			ProcessHelper.runCommand (adbPath, adbName, [ "devices" ], true, true);
+			output = ProcessHelper.runProcess (adbPath, adbName, [ "devices" ], true, true);
 			
 		}
 		
