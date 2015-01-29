@@ -284,7 +284,7 @@ class AndroidHelper {
 		var devices = new Array <String> ();
 		var output = "";
 		
-		if (PlatformHelper.hostPlatform == Platform.MAC) {
+		if (PlatformHelper.hostPlatform != Platform.WINDOWS) {
 			
 			var tempFile = PathHelper.getTemporaryFile ();
 			
