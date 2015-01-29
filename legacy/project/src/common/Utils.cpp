@@ -27,6 +27,7 @@
 
 #ifdef ANDROID
 #include <android/log.h>
+#include <sstream>
 #endif
 
 #ifdef TIZEN
@@ -200,6 +201,11 @@ std::string WideToUTF8(const WString &inWideString)
 
 WString IntToWide(int value)
 {
+  #ifdef ANDROID
+  std::wstringstream wss;
+  wss << value;
+  return WString(wss.str().c_str());
+  #else
 	wchar_t buffer[16];
    #ifdef __MINGW32__
 	swprintf(buffer, L"%i", value);
@@ -207,10 +213,16 @@ WString IntToWide(int value)
 	swprintf(buffer, 16, L"%i", value);
    #endif
 	return WString(buffer);
+  #endif
 }
 
 WString ColorToWide(int value)
 {
+  #ifdef ANDROID
+  std::wstringstream wss;
+  wss << value;
+  return WString(wss.str().c_str());
+  #else
 	wchar_t buffer[40];
    #ifdef __MINGW32__
 	swprintf(buffer, L"%X", value);
@@ -218,6 +230,7 @@ WString ColorToWide(int value)
 	swprintf(buffer, 40, L"%X", value);
    #endif
 	return WString(buffer);
+  #endif
 }
 
 
