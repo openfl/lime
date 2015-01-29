@@ -112,11 +112,6 @@ class HTML5Application {
 			
 			var window = new Window (config);
 			var renderer = new Renderer (window);
-			
-			window.width = config.width;
-			window.height = config.height;
-			window.backend.element = config.element;
-			
 			parent.addWindow (window);
 			
 		}

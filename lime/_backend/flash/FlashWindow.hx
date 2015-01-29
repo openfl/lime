@@ -29,6 +29,13 @@ class FlashWindow {
 	}
 	
 	
+	public function close ():Void {
+		
+		
+		
+	}
+	
+	
 	public function create (application:Application):Void {
 		
 		Lib.current.stage.addEventListener (Event.ACTIVATE, handleEvent);

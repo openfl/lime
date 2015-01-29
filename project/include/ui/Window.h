@@ -18,6 +18,7 @@ namespace lime {
 		
 		public:
 			
+			virtual void Close () = 0;
 			virtual void Move (int x, int y) = 0;
 			virtual void Resize (int width, int height) = 0;
 			virtual void SetIcon (ImageBuffer *imageBuffer) = 0;

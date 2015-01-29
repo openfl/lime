@@ -38,6 +38,19 @@ class HTML5Window {
 		
 		this.parent = parent;
 		
+		if (parent.config != null && Reflect.hasField (parent.config, "element")) {
+			
+			element = parent.config.element;
+			
+		}
+		
+	}
+	
+	
+	public function close ():Void {
+		
+		
+		
 	}
 	
 	

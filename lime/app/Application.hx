@@ -225,6 +225,22 @@ class Application extends Module {
 	
 	
 	/**
+	 * Removes a Window from the Application
+	 * @param	window	A Window object to add
+	 */
+	public function removeWindow (window:Window):Void {
+		
+		if (window != null && windows.indexOf (window) > -1) {
+			
+			window.close ();
+			windows.remove (window);
+			
+		}
+		
+	}
+	
+	
+	/**
 	 * Called when a render event is fired
 	 * @param	context	The current render context
 	 */

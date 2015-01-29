@@ -157,10 +157,6 @@ class FlashApplication {
 			
 			var window = new Window (config);
 			var renderer = new Renderer (window);
-			
-			window.width = config.width;
-			window.height = config.height;
-			
 			parent.addWindow (window);
 			
 		}

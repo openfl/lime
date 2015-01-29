@@ -59,10 +59,10 @@ class HTML5Renderer {
 			
 			var options = {
 				alpha: true,
-				antialias: parent.window.config.antialiasing > 0,
-				depth: parent.window.config.depthBuffer,
+				antialias: Reflect.hasField (parent.window.config, "antialiasing") ? parent.window.config.antialiasing > 0 : false,
+				depth: Reflect.hasField (parent.window.config, "depthBuffer") ? parent.window.config.depthBuffer : true,
 				premultipliedAlpha: true,
-				stencil: parent.window.config.stencilBuffer,
+				stencil: Reflect.hasField (parent.window.config, "stencilBuffer") ? parent.window.config.stencilBuffer : true,
 				preserveDrawingBuffer: false
 			};
 			

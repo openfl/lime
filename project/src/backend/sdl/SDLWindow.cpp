@@ -70,6 +70,17 @@ namespace lime {
 	}
 	
 	
+	void SDLWindow::Close () {
+		
+		if (sdlWindow) {
+			
+			SDL_DestroyWindow (sdlWindow);
+			
+		}
+		
+	}
+	
+	
 	void SDLWindow::Move (int x, int y) {
 		
 		SDL_SetWindowPosition (sdlWindow, x, y);

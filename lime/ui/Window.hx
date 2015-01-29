@@ -34,22 +34,30 @@ class Window {
 		
 		this.config = config;
 		
-		if (config == null) {
-			
-			width = 0;
-			height = 0;
-			
-		} else {
-			
-			width = config.width;
-			height = config.height;
-			
-		}
-		
+		width = 0;
+		height = 0;
+		fullscreen = false;
 		x = 0;
 		y = 0;
 		
+		if (config != null) {
+			
+			// TODO: Switch to the tool's Config type?
+			
+			if (Reflect.hasField (config, "width")) width = config.width;
+			if (Reflect.hasField (config, "height")) height = config.height;
+			if (Reflect.hasField (config, "fullscreen")) fullscreen = config.fullscreen;
+			
+		}
+		
 		backend = new WindowBackend (this);
+		
+	}
+	
+	
+	public function close ():Void {
+		
+		backend.close ();
 		
 	}
 	

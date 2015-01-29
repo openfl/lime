@@ -38,6 +38,18 @@ class NativeWindow {
 	}
 	
 	
+	public function close ():Void {
+		
+		if (handle != null) {
+			
+			lime_window_close (handle);
+			handle = null;
+			
+		}
+		
+	}
+	
+	
 	public function create (application:Application):Void {
 		
 		var title = "Lime Application";
@@ -45,24 +57,32 @@ class NativeWindow {
 		
 		if (parent.config != null) {
 			
-			if (parent.config.antialiasing >= 4) {
+			if (Reflect.hasField (parent.config, "antialiasing")) {
 				
-				flags |= cast WindowFlags.WINDOW_FLAG_HW_AA_HIRES;
-				
-			} else if (parent.config.antialiasing >= 2) {
-				
-				flags |= cast WindowFlags.WINDOW_FLAG_HW_AA;
+				if (parent.config.antialiasing >= 4) {
+					
+					flags |= cast WindowFlags.WINDOW_FLAG_HW_AA_HIRES;
+					
+				} else if (parent.config.antialiasing >= 2) {
+					
+					flags |= cast WindowFlags.WINDOW_FLAG_HW_AA;
+					
+				}
 				
 			}
 			
-			if (parent.config.borderless) flags |= cast WindowFlags.WINDOW_FLAG_BORDERLESS;
-			if (parent.config.depthBuffer) flags |= cast WindowFlags.WINDOW_FLAG_DEPTH_BUFFER;
-			if (parent.config.fullscreen) flags |= cast WindowFlags.WINDOW_FLAG_FULLSCREEN;
-			if (parent.config.resizable) flags |= cast WindowFlags.WINDOW_FLAG_RESIZABLE;
-			if (parent.config.stencilBuffer) flags |= cast WindowFlags.WINDOW_FLAG_STENCIL_BUFFER;
-			if (parent.config.vsync) flags |= cast WindowFlags.WINDOW_FLAG_VSYNC;
+			if (Reflect.hasField (parent.config, "borderless") && parent.config.borderless) flags |= cast WindowFlags.WINDOW_FLAG_BORDERLESS;
+			if (Reflect.hasField (parent.config, "depthBuffer") && parent.config.depthBuffer) flags |= cast WindowFlags.WINDOW_FLAG_DEPTH_BUFFER;
+			if (Reflect.hasField (parent.config, "fullscreen") && parent.config.fullscreen) flags |= cast WindowFlags.WINDOW_FLAG_FULLSCREEN;
+			if (Reflect.hasField (parent.config, "resizable") && parent.config.resizable) flags |= cast WindowFlags.WINDOW_FLAG_RESIZABLE;
+			if (Reflect.hasField (parent.config, "stencilBuffer") && parent.config.stencilBuffer) flags |= cast WindowFlags.WINDOW_FLAG_STENCIL_BUFFER;
+			if (Reflect.hasField (parent.config, "vsync") && parent.config.vsync) flags |= cast WindowFlags.WINDOW_FLAG_VSYNC;
 			
-			title = parent.config.title;
+			if (Reflect.hasField (parent.config, "title")) {
+				
+				title = parent.config.title;
+				
+			}
 			
 		}
 		
@@ -135,6 +155,7 @@ class NativeWindow {
 	}
 	
 	
+	private static var lime_window_close = System.load ("lime", "lime_window_close", 1);
 	private static var lime_window_create = System.load ("lime", "lime_window_create", 5);
 	private static var lime_window_event_manager_register = System.load ("lime", "lime_window_event_manager_register", 2);
 	private static var lime_window_move = System.load ("lime", "lime_window_move", 3);
