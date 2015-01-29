@@ -40,26 +40,33 @@ class NativeWindow {
 	
 	public function create (application:Application):Void {
 		
+		var title = "Lime Application";
 		var flags = 0;
 		
-		if (parent.config.antialiasing >= 4) {
+		if (parent.config != null) {
 			
-			flags |= cast WindowFlags.WINDOW_FLAG_HW_AA_HIRES;
+			if (parent.config.antialiasing >= 4) {
+				
+				flags |= cast WindowFlags.WINDOW_FLAG_HW_AA_HIRES;
+				
+			} else if (parent.config.antialiasing >= 2) {
+				
+				flags |= cast WindowFlags.WINDOW_FLAG_HW_AA;
+				
+			}
 			
-		} else if (parent.config.antialiasing >= 2) {
+			if (parent.config.borderless) flags |= cast WindowFlags.WINDOW_FLAG_BORDERLESS;
+			if (parent.config.depthBuffer) flags |= cast WindowFlags.WINDOW_FLAG_DEPTH_BUFFER;
+			if (parent.config.fullscreen) flags |= cast WindowFlags.WINDOW_FLAG_FULLSCREEN;
+			if (parent.config.resizable) flags |= cast WindowFlags.WINDOW_FLAG_RESIZABLE;
+			if (parent.config.stencilBuffer) flags |= cast WindowFlags.WINDOW_FLAG_STENCIL_BUFFER;
+			if (parent.config.vsync) flags |= cast WindowFlags.WINDOW_FLAG_VSYNC;
 			
-			flags |= cast WindowFlags.WINDOW_FLAG_HW_AA;
+			title = parent.config.title;
 			
 		}
 		
-		if (parent.config.borderless) flags |= cast WindowFlags.WINDOW_FLAG_BORDERLESS;
-		if (parent.config.depthBuffer) flags |= cast WindowFlags.WINDOW_FLAG_DEPTH_BUFFER;
-		if (parent.config.fullscreen) flags |= cast WindowFlags.WINDOW_FLAG_FULLSCREEN;
-		if (parent.config.resizable) flags |= cast WindowFlags.WINDOW_FLAG_RESIZABLE;
-		if (parent.config.stencilBuffer) flags |= cast WindowFlags.WINDOW_FLAG_STENCIL_BUFFER;
-		if (parent.config.vsync) flags |= cast WindowFlags.WINDOW_FLAG_VSYNC;
-		
-		handle = lime_window_create (application.backend.handle, parent.width, parent.height, flags, parent.config.title);
+		handle = lime_window_create (application.backend.handle, parent.width, parent.height, flags, title);
 		
 	}
 	

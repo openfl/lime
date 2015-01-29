@@ -153,13 +153,17 @@ class FlashApplication {
 		Window.onWindowMove.add (parent.onWindowMove);
 		Window.onWindowResize.add (parent.onWindowResize);
 		
-		var window = new Window (config);
-		var renderer = new Renderer (window);
-		
-		window.width = config.width;
-		window.height = config.height;
-		
-		parent.addWindow (window);
+		if (config != null) {
+			
+			var window = new Window (config);
+			var renderer = new Renderer (window);
+			
+			window.width = config.width;
+			window.height = config.height;
+			
+			parent.addWindow (window);
+			
+		}
 		
 	}
 	

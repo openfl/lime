@@ -30,9 +30,24 @@ class Window {
 	@:noCompletion public var backend:WindowBackend;
 	
 	
-	public function new (config:Config) {
+	public function new (config:Config = null) {
 		
 		this.config = config;
+		
+		if (config == null) {
+			
+			width = 0;
+			height = 0;
+			
+		} else {
+			
+			width = config.width;
+			height = config.height;
+			
+		}
+		
+		x = 0;
+		y = 0;
 		
 		backend = new WindowBackend (this);
 		

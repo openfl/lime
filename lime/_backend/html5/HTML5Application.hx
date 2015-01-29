@@ -108,14 +108,18 @@ class HTML5Application {
 		Window.onWindowMove.add (parent.onWindowMove);
 		Window.onWindowResize.add (parent.onWindowResize);
 		
-		var window = new Window (config);
-		var renderer = new Renderer (window);
-		
-		window.width = config.width;
-		window.height = config.height;
-		window.backend.element = config.element;
-		
-		parent.addWindow (window);
+		if (config != null) {
+			
+			var window = new Window (config);
+			var renderer = new Renderer (window);
+			
+			window.width = config.width;
+			window.height = config.height;
+			window.backend.element = config.element;
+			
+			parent.addWindow (window);
+			
+		}
 		
 	}
 	
