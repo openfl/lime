@@ -1,5 +1,6 @@
 build
 report
 src
+test/ExampleTest.hx
 test/TestMain.hx
 test/TestSuite.hx

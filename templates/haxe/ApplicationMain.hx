@@ -58,11 +58,7 @@ class ApplicationMain {
 			
 		}
 		
-		#if js
-		#if munit
-		embed (null, ::WIN_WIDTH::, ::WIN_HEIGHT::, "::WIN_FLASHBACKGROUND::");
-		#end
-		#else
+		#if (!html5 || munit)
 		create ();
 		#end
 		
@@ -71,6 +67,8 @@ class ApplicationMain {
 	
 	public static function start ():Void {
 		
+		#if !munit
+		
 		app = new ::APP_MAIN:: ();
 		app.create (config);
 		
@@ -78,6 +76,12 @@ class ApplicationMain {
 		
 		#if (sys && !nodejs)
 		Sys.exit (result);
+		#end
+		
+		#else
+		
+		new ::APP_MAIN:: ();
+		
 		#end
 		
 	}
