@@ -29,38 +29,38 @@ Dependencies
 ------------
 
 This product bundles libcurl 7.37.1, which is available under an
-"MIT/X derivate" license. For details, see project/lib/curl/.
+"MIT/X derivate" license. For details, see [project/lib/curl/](project/lib).
 
 This product bundles freetype 2.5.3, which is available under an
-"FTL" (BSD-style) license. For details, see project/lib/freetype/.
+"FTL" (BSD-style) license. For details, see [project/lib/freetype/](project/lib).
 
 This product bundles harfbuzz 0.9.32, which is available under an
-"MIT" license. For details, see project/lib/harfbuzz/.
+"MIT" license. For details, see [project/lib/harfbuzz/](project/lib).
 
 This product bundles libjpeg 6b, which is available under a
-"libjpeg" (BSD-style) license. For details, see project/lib/jpeg/.
+"libjpeg" (BSD-style) license. For details, see [project/lib/jpeg/](project/lib).
 
 This product bundles libogg 1.3.0, which is available under a
-"BSD" license. For details, see project/lib/ogg/.
+"BSD" license. For details, see [project/lib/ogg/](project/lib).
 
 This product bundles OpenAL-Soft 1.15.1, which is available under an
-"LGPLv3" license. For details, see project/lib/openal/. It also bundles
-an OpenAL-Soft derivative for Android under project/lib/openal-android/.
+"LGPLv3" license. For details, see [project/lib/openal/](project/lib). It also bundles
+an OpenAL-Soft derivative for Android under [project/lib/openal-android/](project/lib).
 
 _OpenAL-Soft is only included in dynamically-linked builds, it is excluded
 from Lime static builds in order to preserve Lime's permissive nature._
 
 This product bundles libpng 1.6.12, which is available under a
-"zlib" (BSD-style) license. For details, see project/lib/png/.
+"zlib" (BSD-style) license. For details, see [project/lib/png/](project/lib).
 
 This product bundles SDL 2.0.4+9174, which is available under a
-"zlib" (BSD-style) license. For details, see project/lib/sdl/.
+"zlib" (BSD-style) license. For details, see [project/lib/sdl/](project/lib).
 
 This product bundles libvorbis 1.3.3, which is available under a
-"BSD" license. For details, see project/lib/vorbis/.
+"BSD" license. For details, see [project/lib/vorbis/](project/lib).
 
 This product bundles zlib 1.2.8, which is available under a
-"zlib" (BSD-style) license. For details, see project/lib/vorbis/.
+"zlib" (BSD-style) license. For details, see [project/lib/zlib/](project/lib).
 
 The following files were developed in collaboration with the NME project,
 which is available under an "MIT" license. For details, see
@@ -75,7 +75,7 @@ https://github.com/haxenme/nme
     tools/utils/JavaExternGenerator.hx
 
 The following files were developed in collaboration with Sven Bergström
-and the snow project, which is available under an "MIT" license. For 
+and the snow project, which is available under an "MIT" license. For
 details, see https://github.com/underscorediscovery/snow
 
     project/src/audio/openal/OpenALBindings.cpp
@@ -85,12 +85,11 @@ Bundled Tools
 -------------
 
 _The following are not included in Lime applications, but are used by
-the Lime command-line tools. Their licensing does not affect products 
+the Lime command-line tools. Their licensing does not affect products
 created with Lime._
 
 This product bundles Closure Compiler v20141215, which is available under an
-"Apache 2.0 License" license. For details, see 
-https://github.com/google/closure-compiler.
+"Apache 2.0 License" license. For details, see https://github.com/google/closure-compiler.
 
 This product bundles ios-deploy 1.0.3, which is available under an
 "GPLv3" license. For details, see https://github.com/openfl/ios-deploy.
