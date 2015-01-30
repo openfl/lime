@@ -66,7 +66,7 @@ The following files were developed in collaboration with the NME project,
 which is available under an "MIT" license. For details, see
 https://github.com/haxenme/nme
 
-    legacy/project/
+    legacy/
     project/include/utils/ByteArray.h
     project/include/utils/QuickVec.h
     project/src/graphics/format/
