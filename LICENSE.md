@@ -28,7 +28,7 @@ THE SOFTWARE.
 Portions of other MIT-license projects are also used, including content that is
 
     Copyright (c) 2007-2015 NME contributors
-    Copyright (c) 2014-2015 snow contributors
+    Copyright (c) 2014-2015 Sven Bergström
 
 -------
 
