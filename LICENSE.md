@@ -23,10 +23,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-
-Dependencies
-------------
-
 This product bundles libcurl 7.37.1, which is available under an
 "MIT/X derivate" license. For details, see [project/lib/curl/](project/lib).
 
@@ -78,10 +74,6 @@ and the snow project, which is available under an "MIT" license. For
 details, see https://github.com/underscorediscovery/snow
 
     project/src/audio/openal/OpenALBindings.cpp
-
-
-Bundled Tools
--------------
 
 _The following are not included in Lime applications, but are used by
 the Lime command-line tools. Their licensing does not affect products
