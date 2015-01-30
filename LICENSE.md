@@ -84,9 +84,9 @@ details, see https://github.com/underscorediscovery/snow
 Bundled Tools
 -------------
 
-The following are not included in Lime applications, but are used by
+_The following are not included in Lime applications, but are used by
 the Lime command-line tools. Their licensing does not affect products 
-created with Lime.
+created with Lime._
 
 This product bundles Closure Compiler v20141215, which is available under an
 "Apache 2.0 License" license. For details, see 
