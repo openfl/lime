@@ -59,6 +59,12 @@ This product bundles libvorbis 1.3.3, which is available under a
 This product bundles zlib 1.2.8, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/zlib/](project/lib).
 
+--------
+
+Modifications and source-repository versions of Haxe core files are included in the
+[haxe/](haxe/) folder, which are available under an "MIT" license. For details, see
+https://github.com/haxefoundation/haxe
+
 The following files were developed in collaboration with the NME project,
 which is available under an "MIT" license. For details, see
 https://github.com/haxenme/nme
