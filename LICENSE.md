@@ -3,7 +3,7 @@ License
 
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 Joshua Granick and other Lime contributors. All rights reserved.
+Copyright (c) 2013-2015 Joshua Granick and other Lime contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
---------
+-------
 
 This product bundles libcurl 7.37.1, which is available under an
 "MIT/X derivate" license. For details, see [project/lib/curl/](project/lib).
@@ -59,7 +59,7 @@ This product bundles libvorbis 1.3.3, which is available under a
 This product bundles zlib 1.2.8, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/zlib/](project/lib).
 
---------
+-------
 
 Modifications and source-repository versions of Haxe core files are included in the
 [haxe/](haxe/) folder, which are available under an "MIT" license. For details, see
@@ -70,6 +70,7 @@ which is available under an "MIT" license. For details, see
 https://github.com/haxenme/nme
 
     legacy/
+    lime/utils/
     project/include/utils/ByteArray.h
     project/include/utils/QuickVec.h
     project/src/graphics/format/
@@ -83,7 +84,7 @@ details, see https://github.com/underscorediscovery/snow
 
     project/src/audio/openal/OpenALBindings.cpp
 
---------
+-------
 
 _The following are not included in Lime applications, but are used by
 the Lime command-line tools. Their licensing does not affect products
