@@ -8,18 +8,19 @@ import lime.app.Config;
 import lime.audio.AudioManager;
 import lime.graphics.Renderer;
 import lime.ui.KeyCode;
-import lime.ui.KeyEventManager;
-import lime.ui.MouseEventManager;
-import lime.ui.TouchEventManager;
 import lime.ui.Window;
 
+@:access(lime._backend.html5.HTML5Window)
 @:access(lime.app.Application)
 @:access(lime.graphics.Renderer)
+@:access(lime.ui.Window)
 
 
 class HTML5Application {
 	
 	
+	private var cacheTime:Float;
+	private var initialized:Bool;
 	private var parent:Application;
 	
 	
@@ -27,7 +28,6 @@ class HTML5Application {
 		
 		this.parent = parent;
 		
-		Application.__instance = parent;
 		AudioManager.init ();
 		
 	}
@@ -82,37 +82,12 @@ class HTML5Application {
 		
 		parent.config = config;
 		
-		Browser.window.addEventListener ("keydown", handleKeyEvent, false);
-		Browser.window.addEventListener ("keyup", handleKeyEvent, false);
-		
-		KeyEventManager.onKeyDown.add (parent.onKeyDown);
-		KeyEventManager.onKeyUp.add (parent.onKeyUp);
-		
-		MouseEventManager.onMouseDown.add (parent.onMouseDown);
-		MouseEventManager.onMouseMove.add (parent.onMouseMove);
-		MouseEventManager.onMouseUp.add (parent.onMouseUp);
-		MouseEventManager.onMouseWheel.add (parent.onMouseWheel);
-		
-		TouchEventManager.onTouchStart.add (parent.onTouchStart);
-		TouchEventManager.onTouchMove.add (parent.onTouchMove);
-		TouchEventManager.onTouchEnd.add (parent.onTouchEnd);
-		
-		Renderer.onRenderContextLost.add (parent.onRenderContextLost);
-		Renderer.onRenderContextRestored.add (parent.onRenderContextRestored);
-		
-		Window.onWindowActivate.add (parent.onWindowActivate);
-		Window.onWindowClose.add (parent.onWindowClose);
-		Window.onWindowDeactivate.add (parent.onWindowDeactivate);
-		Window.onWindowFocusIn.add (parent.onWindowFocusIn);
-		Window.onWindowFocusOut.add (parent.onWindowFocusOut);
-		Window.onWindowMove.add (parent.onWindowMove);
-		Window.onWindowResize.add (parent.onWindowResize);
-		
 		if (config != null) {
 			
 			var window = new Window (config);
 			var renderer = new Renderer (window);
 			parent.addWindow (window);
+			parent.addRenderer (renderer);
 			
 		}
 		
@@ -120,6 +95,20 @@ class HTML5Application {
 	
 	
 	public function exec ():Int {
+		
+		Browser.window.addEventListener ("keydown", handleKeyEvent, false);
+		Browser.window.addEventListener ("keyup", handleKeyEvent, false);
+		Browser.window.addEventListener ("focus", handleWindowEvent, false);
+		Browser.window.addEventListener ("blur", handleWindowEvent, false);
+		Browser.window.addEventListener ("resize", handleWindowEvent, false);
+		Browser.window.addEventListener ("beforeunload", handleWindowEvent, false);
+		
+		#if stats
+		stats = untyped __js__("new Stats ()");
+		stats.domElement.style.position = "absolute";
+		stats.domElement.style.top = "0px";
+		Browser.document.body.appendChild (stats.domElement);
+		#end
 		
 		untyped __js__ ("
 			var lastTime = 0;
@@ -148,6 +137,8 @@ class HTML5Application {
 			window.requestAnimFrame = window.requestAnimationFrame;
 		");
 		
+		cacheTime = Date.now ().getTime ();
+		
 		handleUpdateEvent ();
 		
 		return 0;
@@ -157,42 +148,106 @@ class HTML5Application {
 	
 	private function handleKeyEvent (event:KeyboardEvent):Void {
 		
-		// space and arrow keys
-		
-		switch (event.keyCode) {
+		if (parent.window != null) {
 			
-			case 32, 37, 38, 39, 40: event.preventDefault ();
+			// space and arrow keys
+			
+			switch (event.keyCode) {
+				
+				case 32, 37, 38, 39, 40: event.preventDefault ();
+				
+			}
+			
+			var keyCode = cast convertKeyCode (event.keyCode != null ? event.keyCode : event.which);
+			var modifier = 0;
+			
+			if (event.type == "keydown") {
+				
+				parent.window.onKeyDown.dispatch (keyCode, modifier);
+				
+			} else {
+				
+				parent.window.onKeyUp.dispatch (keyCode, modifier);
+				
+			}
 			
 		}
 		
-		var keyCode = cast convertKeyCode (event.keyCode != null ? event.keyCode : event.which);
-		var modifier = 0;
-		
-		if (event.type == "keydown") {
-			
-			KeyEventManager.onKeyDown.dispatch (keyCode, modifier);
-			
-		} else {
-			
-			KeyEventManager.onKeyUp.dispatch (keyCode, modifier);
-			
-		}
 		
 	}
 	
 	
-	private static function handleUpdateEvent (?__):Void {
+	private function handleUpdateEvent (?__):Void {
 		
 		#if stats
-		Application.__instance.window.stats.begin ();
+		parent.window.stats.begin ();
 		#end
 		
-		Application.__instance.update (16);
-		Application.onUpdate.dispatch (16);
+		var currentTime = Date.now ().getTime ();
+		var deltaTime = currentTime - cacheTime;
+		cacheTime = currentTime;
 		
-		Renderer.render ();
+		parent.onUpdate.dispatch (Std.int (deltaTime));
+		
+		if (parent.renderer != null) {
+			
+			if (!initialized) {
+				
+				initialized = true;
+				parent.init (parent.renderer.context);
+				
+			}
+			
+			parent.renderer.onRender.dispatch (parent.renderer.context);
+			parent.renderer.flip ();
+			
+		}
+		
+		#if stats
+		parent.window.stats.end ();
+		#end
 		
 		Browser.window.requestAnimationFrame (cast handleUpdateEvent);
+		
+	}
+	
+	
+	private function handleWindowEvent (event:js.html.Event):Void {
+		
+		if (parent.window != null) {
+			
+			switch (event.type) {
+				
+				case "focus":
+					
+					parent.window.onWindowFocusIn.dispatch ();
+					parent.window.onWindowActivate.dispatch ();
+				
+				case "blur":
+					
+					parent.window.onWindowFocusOut.dispatch ();
+					parent.window.onWindowDeactivate.dispatch ();
+				
+				case "resize":
+					
+					var cacheWidth = parent.window.width;
+					var cacheHeight = parent.window.height;
+					
+					parent.window.backend.handleResize ();
+					
+					if (parent.window.width != cacheWidth || parent.window.height != cacheHeight) {
+						
+						parent.window.onWindowResize.dispatch (parent.window.width, parent.window.height);
+						
+					}
+				
+				case "beforeunload":
+					
+					parent.window.onWindowClose.dispatch ();
+				
+			}
+			
+		}
 		
 	}
 	

@@ -4,11 +4,11 @@ package lime._backend.native;
 import lime.app.Application;
 import lime.app.Config;
 import lime.audio.AudioManager;
+import lime.graphics.ConsoleRenderContext;
+import lime.graphics.GLRenderContext;
+import lime.graphics.RenderContext;
 import lime.graphics.Renderer;
 import lime.system.System;
-import lime.ui.KeyEventManager;
-import lime.ui.MouseEventManager;
-import lime.ui.TouchEventManager;
 import lime.ui.Window;
 
 @:access(lime.app.Application)
@@ -18,14 +18,16 @@ import lime.ui.Window;
 class NativeApplication {
 	
 	
-	private static var keyEventInfo = new KeyEventInfo ();
-	private static var mouseEventInfo = new MouseEventInfo ();
-	private static var registeredEvents:Bool;
-	private static var touchEventInfo = new TouchEventInfo ();
-	private static var updateEventInfo = new UpdateEventInfo ();
+	private var keyEventInfo = new KeyEventInfo ();
+	private var mouseEventInfo = new MouseEventInfo ();
+	private var renderEventInfo = new RenderEventInfo (RENDER);
+	private var touchEventInfo = new TouchEventInfo ();
+	private var updateEventInfo = new UpdateEventInfo ();
+	private var windowEventInfo = new WindowEventInfo ();
 	
 	public var handle:Dynamic;
 	
+	private var initialized:Bool;
 	private var parent:Application;
 	
 	
@@ -33,20 +35,7 @@ class NativeApplication {
 		
 		this.parent = parent;
 		
-		Application.__instance = parent;
-		
-		if (!registeredEvents) {
-			
-			registeredEvents = true;
-			
-			AudioManager.init ();
-			
-			lime_key_event_manager_register (handleKeyEvent, keyEventInfo);
-			lime_mouse_event_manager_register (handleMouseEvent, mouseEventInfo);
-			lime_touch_event_manager_register (handleTouchEvent, touchEventInfo);
-			lime_update_event_manager_register (handleUpdateEvent, updateEventInfo);
-			
-		}
+		AudioManager.init ();
 		
 	}
 	
@@ -57,34 +46,12 @@ class NativeApplication {
 		
 		handle = lime_application_create (null);
 		
-		KeyEventManager.onKeyDown.add (parent.onKeyDown);
-		KeyEventManager.onKeyUp.add (parent.onKeyUp);
-		
-		MouseEventManager.onMouseDown.add (parent.onMouseDown);
-		MouseEventManager.onMouseMove.add (parent.onMouseMove);
-		MouseEventManager.onMouseUp.add (parent.onMouseUp);
-		MouseEventManager.onMouseWheel.add (parent.onMouseWheel);
-		
-		TouchEventManager.onTouchStart.add (parent.onTouchStart);
-		TouchEventManager.onTouchMove.add (parent.onTouchMove);
-		TouchEventManager.onTouchEnd.add (parent.onTouchEnd);
-		
-		Renderer.onRenderContextLost.add (parent.onRenderContextLost);
-		Renderer.onRenderContextRestored.add (parent.onRenderContextRestored);
-		
-		Window.onWindowActivate.add (parent.onWindowActivate);
-		Window.onWindowClose.add (parent.onWindowClose);
-		Window.onWindowDeactivate.add (parent.onWindowDeactivate);
-		Window.onWindowFocusIn.add (parent.onWindowFocusIn);
-		Window.onWindowFocusOut.add (parent.onWindowFocusOut);
-		Window.onWindowMove.add (parent.onWindowMove);
-		Window.onWindowResize.add (parent.onWindowResize);
-		
 		if (config != null) {
 			
 			var window = new Window (config);
 			var renderer = new Renderer (window);
 			parent.addWindow (window);
+			parent.addRenderer (renderer);
 			
 		}
 		
@@ -93,7 +60,16 @@ class NativeApplication {
 	
 	public function exec ():Int {
 		
+		lime_key_event_manager_register (handleKeyEvent, keyEventInfo);
+		lime_mouse_event_manager_register (handleMouseEvent, mouseEventInfo);
+		lime_render_event_manager_register (handleRenderEvent, renderEventInfo);
+		lime_touch_event_manager_register (handleTouchEvent, touchEventInfo);
+		lime_update_event_manager_register (handleUpdateEvent, updateEventInfo);
+		lime_window_event_manager_register (handleWindowEvent, windowEventInfo);
+		
 		lime_application_init (handle);
+		
+		// TODO: add parent.init
 		
 		#if nodejs
 		
@@ -146,84 +122,182 @@ class NativeApplication {
 	}
 	
 	
-	private static function handleKeyEvent ():Void {
+	private function handleKeyEvent ():Void {
 		
-		switch (keyEventInfo.type) {
+		if (parent.window != null) {
 			
-			case KEY_DOWN:
+			switch (keyEventInfo.type) {
 				
-				KeyEventManager.onKeyDown.dispatch (keyEventInfo.keyCode, keyEventInfo.modifier);
-			
-			case KEY_UP:
+				case KEY_DOWN:
+					
+					parent.window.onKeyDown.dispatch (keyEventInfo.keyCode, keyEventInfo.modifier);
 				
-				KeyEventManager.onKeyUp.dispatch (keyEventInfo.keyCode, keyEventInfo.modifier);
+				case KEY_UP:
+					
+					parent.window.onKeyUp.dispatch (keyEventInfo.keyCode, keyEventInfo.modifier);
+				
+			}
 			
 		}
 		
 	}
 	
 	
-	private static function handleMouseEvent ():Void {
+	private function handleMouseEvent ():Void {
 		
-		switch (mouseEventInfo.type) {
+		if (parent.window != null) {
 			
-			case MOUSE_DOWN:
+			switch (mouseEventInfo.type) {
 				
-				MouseEventManager.onMouseDown.dispatch (mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
-			
-			case MOUSE_UP:
+				case MOUSE_DOWN:
+					
+					parent.window.onMouseDown.dispatch (mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
 				
-				MouseEventManager.onMouseUp.dispatch (mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
-			
-			case MOUSE_MOVE:
+				case MOUSE_UP:
+					
+					parent.window.onMouseUp.dispatch (mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
 				
-				MouseEventManager.onMouseMove.dispatch (mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
-			
-			case MOUSE_WHEEL:
+				case MOUSE_MOVE:
+					
+					parent.window.onMouseMove.dispatch (mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
 				
-				MouseEventManager.onMouseWheel.dispatch (mouseEventInfo.x, mouseEventInfo.y);
-			
-			default:
+				case MOUSE_WHEEL:
+					
+					parent.window.onMouseWheel.dispatch (mouseEventInfo.x, mouseEventInfo.y);
+				
+				default:
+				
+			}
 			
 		}
 		
 	}
 	
 	
-	private static function handleTouchEvent ():Void {
+	private function handleRenderEvent ():Void {
 		
-		switch (touchEventInfo.type) {
+		if (parent.renderer != null) {
 			
-			case TOUCH_START:
+			switch (renderEventInfo.type) {
 				
-				TouchEventManager.onTouchStart.dispatch (touchEventInfo.x, touchEventInfo.y, touchEventInfo.id);
-			
-			case TOUCH_END:
+				case RENDER:
+					
+					if (!initialized) {
+						
+						initialized = true;
+						parent.init (parent.renderer.context);
+						
+					}
+					
+					parent.renderer.onRender.dispatch (parent.renderer.context);
+					parent.renderer.flip ();
+					
+				case RENDER_CONTEXT_LOST:
+					
+					parent.renderer.context = null;
+					parent.renderer.onRenderContextLost.dispatch ();
 				
-				TouchEventManager.onTouchEnd.dispatch (touchEventInfo.x, touchEventInfo.y, touchEventInfo.id);
-			
-			case TOUCH_MOVE:
+				case RENDER_CONTEXT_RESTORED:
+					
+					#if lime_console
+					parent.renderer.context = CONSOLE (new ConsoleRenderContext ());
+					#else
+					parent.renderer.context = OPENGL (new GLRenderContext ());
+					#end
+					
+					parent.renderer.onRenderContextRestored.dispatch (parent.renderer.context);
 				
-				TouchEventManager.onTouchMove.dispatch (touchEventInfo.x, touchEventInfo.y, touchEventInfo.id);
-			
-			default:
+			}
 			
 		}
 		
 	}
 	
 	
-	private static function __cleanup ():Void {
+	private function handleTouchEvent ():Void {
+		
+		if (parent.window != null) {
+			
+			switch (touchEventInfo.type) {
+				
+				case TOUCH_START:
+					
+					parent.window.onTouchStart.dispatch (touchEventInfo.x, touchEventInfo.y, touchEventInfo.id);
+				
+				case TOUCH_END:
+					
+					parent.window.onTouchEnd.dispatch (touchEventInfo.x, touchEventInfo.y, touchEventInfo.id);
+				
+				case TOUCH_MOVE:
+					
+					parent.window.onTouchMove.dispatch (touchEventInfo.x, touchEventInfo.y, touchEventInfo.id);
+				
+				default:
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	private function handleUpdateEvent ():Void {
+		
+		parent.onUpdate.dispatch (updateEventInfo.deltaTime);
+		
+	}
+	
+	
+	private function handleWindowEvent ():Void {
+		
+		if (parent.window != null) {
+			
+			switch (windowEventInfo.type) {
+				
+				case WINDOW_ACTIVATE:
+					
+					parent.window.onWindowActivate.dispatch ();
+				
+				case WINDOW_CLOSE:
+					
+					parent.window.onWindowClose.dispatch ();
+				
+				case WINDOW_DEACTIVATE:
+					
+					parent.window.onWindowDeactivate.dispatch ();
+				
+				case WINDOW_FOCUS_IN:
+					
+					parent.window.onWindowFocusIn.dispatch ();
+				
+				case WINDOW_FOCUS_OUT:
+					
+					parent.window.onWindowFocusOut.dispatch ();
+				
+				case WINDOW_MOVE:
+					
+					parent.window.x = windowEventInfo.x;
+					parent.window.y = windowEventInfo.y;
+					
+					parent.window.onWindowMove.dispatch (windowEventInfo.x, windowEventInfo.y);
+				
+				case WINDOW_RESIZE:
+					
+					parent.window.width = windowEventInfo.width;
+					parent.window.height = windowEventInfo.height;
+					
+					parent.window.onWindowResize.dispatch (windowEventInfo.width, windowEventInfo.height);
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	private function __cleanup ():Void {
 		
 		AudioManager.shutdown ();
-		
-	}
-	
-	
-	private static function handleUpdateEvent ():Void {
-		
-		Application.__instance.update (updateEventInfo.deltaTime);
-		Application.onUpdate.dispatch (updateEventInfo.deltaTime);
 		
 	}
 	
@@ -235,8 +309,10 @@ class NativeApplication {
 	private static var lime_application_get_ticks = System.load ("lime", "lime_application_get_ticks", 0);
 	private static var lime_key_event_manager_register = System.load ("lime", "lime_key_event_manager_register", 2);
 	private static var lime_mouse_event_manager_register = System.load ("lime", "lime_mouse_event_manager_register", 2);
+	private static var lime_render_event_manager_register = System.load ("lime", "lime_render_event_manager_register", 2);
 	private static var lime_touch_event_manager_register = System.load ("lime", "lime_touch_event_manager_register", 2);
 	private static var lime_update_event_manager_register = System.load ("lime", "lime_update_event_manager_register", 2);
+	private static var lime_window_event_manager_register = System.load ("lime", "lime_window_event_manager_register", 2);
 	
 	
 }
@@ -317,6 +393,40 @@ private class MouseEventInfo {
 }
 
 
+private class RenderEventInfo {
+	
+	
+	public var context:RenderContext;
+	public var type:RenderEventType;
+	
+	
+	public function new (type:RenderEventType = null, context:RenderContext = null) {
+		
+		this.type = type;
+		this.context = context;
+		
+	}
+	
+	
+	public function clone ():RenderEventInfo {
+		
+		return new RenderEventInfo (type, context);
+		
+	}
+	
+	
+}
+
+
+@:enum private abstract RenderEventType(Int) {
+	
+	var RENDER = 0;
+	var RENDER_CONTEXT_LOST = 1;
+	var RENDER_CONTEXT_RESTORED = 2;
+	
+}
+
+
 private class TouchEventInfo {
 	
 	
@@ -383,5 +493,49 @@ private class UpdateEventInfo {
 @:enum private abstract UpdateEventType(Int) {
 	
 	var UPDATE = 0;
+	
+}
+
+
+private class WindowEventInfo {
+	
+	
+	public var height:Int;
+	public var type:WindowEventType;
+	public var width:Int;
+	public var x:Int;
+	public var y:Int;
+	
+	
+	public function new (type:WindowEventType = null, width:Int = 0, height:Int = 0, x:Int = 0, y:Int = 0) {
+		
+		this.type = type;
+		this.width = width;
+		this.height = height;
+		this.x = x;
+		this.y = y;
+		
+	}
+	
+	
+	public function clone ():WindowEventInfo {
+		
+		return new WindowEventInfo (type, width, height, x, y);
+		
+	}
+	
+	
+}
+
+
+@:enum private abstract WindowEventType(Int) {
+	
+	var WINDOW_ACTIVATE = 0;
+	var WINDOW_CLOSE = 1;
+	var WINDOW_DEACTIVATE = 2;
+	var WINDOW_FOCUS_IN = 3;
+	var WINDOW_FOCUS_OUT = 4;
+	var WINDOW_MOVE = 5;
+	var WINDOW_RESIZE = 6;
 	
 }

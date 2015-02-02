@@ -2,6 +2,7 @@ package lime._backend.flash;
 
 
 import flash.events.Event;
+import flash.events.FocusEvent;
 import flash.events.KeyboardEvent;
 import flash.events.MouseEvent;
 import flash.events.TouchEvent;
@@ -13,9 +14,6 @@ import lime.app.Config;
 import lime.audio.AudioManager;
 import lime.graphics.Renderer;
 import lime.ui.KeyCode;
-import lime.ui.KeyEventManager;
-import lime.ui.MouseEventManager;
-import lime.ui.TouchEventManager;
 import lime.ui.Window;
 
 @:access(lime.app.Application)
@@ -25,8 +23,8 @@ import lime.ui.Window;
 class FlashApplication {
 	
 	
-	private static var registeredEvents:Bool;
-	
+	private var cacheTime:Int;
+	private var initialized:Bool;
 	private var parent:Application;
 	
 	
@@ -34,37 +32,12 @@ class FlashApplication {
 		
 		this.parent = parent;
 		
-		Application.__instance = parent;
-		
-		if (!registeredEvents) {
-			
-			registeredEvents = true;
-			
-			AudioManager.init ();
-			
-			Lib.current.stage.addEventListener (KeyboardEvent.KEY_DOWN, handleKeyEvent);
-			Lib.current.stage.addEventListener (KeyboardEvent.KEY_UP, handleKeyEvent);
-			
-			var events = [ "mouseDown", "mouseMove", "mouseUp", "mouseWheel", "middleMouseDown", "middleMouseMove", "middleMouseUp" #if ((!openfl && !disable_flash_right_click) || enable_flash_right_click) , "rightMouseDown", "rightMouseMove", "rightMouseUp" #end ];
-			
-			for (event in events) {
-				
-				Lib.current.stage.addEventListener (event, handleMouseEvent);
-				
-			}
-			
-			Multitouch.inputMode = MultitouchInputMode.TOUCH_POINT;
-			
-			Lib.current.stage.addEventListener (TouchEvent.TOUCH_BEGIN, handleTouchEvent);
-			Lib.current.stage.addEventListener (TouchEvent.TOUCH_MOVE, handleTouchEvent);
-			Lib.current.stage.addEventListener (TouchEvent.TOUCH_END, handleTouchEvent);
-			
-		}
+		AudioManager.init ();
 		
 	}
 	
 	
-	private static function convertKeyCode (keyCode:Int):KeyCode {
+	private function convertKeyCode (keyCode:Int):KeyCode {
 		
 		if (keyCode >= 65 && keyCode <= 90) {
 			
@@ -130,34 +103,12 @@ class FlashApplication {
 		
 		parent.config = config;
 		
-		KeyEventManager.onKeyDown.add (parent.onKeyDown);
-		KeyEventManager.onKeyUp.add (parent.onKeyUp);
-		
-		MouseEventManager.onMouseDown.add (parent.onMouseDown);
-		MouseEventManager.onMouseMove.add (parent.onMouseMove);
-		MouseEventManager.onMouseUp.add (parent.onMouseUp);
-		MouseEventManager.onMouseWheel.add (parent.onMouseWheel);
-		
-		TouchEventManager.onTouchStart.add (parent.onTouchStart);
-		TouchEventManager.onTouchMove.add (parent.onTouchMove);
-		TouchEventManager.onTouchEnd.add (parent.onTouchEnd);
-		
-		Renderer.onRenderContextLost.add (parent.onRenderContextLost);
-		Renderer.onRenderContextRestored.add (parent.onRenderContextRestored);
-		
-		Window.onWindowActivate.add (parent.onWindowActivate);
-		Window.onWindowClose.add (parent.onWindowClose);
-		Window.onWindowDeactivate.add (parent.onWindowDeactivate);
-		Window.onWindowFocusIn.add (parent.onWindowFocusIn);
-		Window.onWindowFocusOut.add (parent.onWindowFocusOut);
-		Window.onWindowMove.add (parent.onWindowMove);
-		Window.onWindowResize.add (parent.onWindowResize);
-		
 		if (config != null) {
 			
 			var window = new Window (config);
 			var renderer = new Renderer (window);
 			parent.addWindow (window);
+			parent.addRenderer (renderer);
 			
 		}
 		
@@ -166,6 +117,31 @@ class FlashApplication {
 	
 	public function exec ():Int {
 		
+		Lib.current.stage.addEventListener (KeyboardEvent.KEY_DOWN, handleKeyEvent);
+		Lib.current.stage.addEventListener (KeyboardEvent.KEY_UP, handleKeyEvent);
+		
+		var events = [ "mouseDown", "mouseMove", "mouseUp", "mouseWheel", "middleMouseDown", "middleMouseMove", "middleMouseUp" #if ((!openfl && !disable_flash_right_click) || enable_flash_right_click) , "rightMouseDown", "rightMouseMove", "rightMouseUp" #end ];
+		
+		for (event in events) {
+			
+			Lib.current.stage.addEventListener (event, handleMouseEvent);
+			
+		}
+		
+		Multitouch.inputMode = MultitouchInputMode.TOUCH_POINT;
+		
+		Lib.current.stage.addEventListener (TouchEvent.TOUCH_BEGIN, handleTouchEvent);
+		Lib.current.stage.addEventListener (TouchEvent.TOUCH_MOVE, handleTouchEvent);
+		Lib.current.stage.addEventListener (TouchEvent.TOUCH_END, handleTouchEvent);
+		Lib.current.stage.addEventListener (Event.ACTIVATE, handleWindowEvent);
+		Lib.current.stage.addEventListener (Event.DEACTIVATE, handleWindowEvent);
+		Lib.current.stage.addEventListener (FocusEvent.FOCUS_IN, handleWindowEvent);
+		Lib.current.stage.addEventListener (FocusEvent.FOCUS_OUT, handleWindowEvent);
+		Lib.current.stage.addEventListener (Event.RESIZE, handleWindowEvent);
+		
+		cacheTime = Lib.getTimer ();
+		handleUpdateEvent (null);
+		
 		Lib.current.stage.addEventListener (Event.ENTER_FRAME, handleUpdateEvent);
 		
 		return 0;
@@ -173,92 +149,153 @@ class FlashApplication {
 	}
 	
 	
-	private static function handleKeyEvent (event:KeyboardEvent):Void {
+	private function handleKeyEvent (event:KeyboardEvent):Void {
 		
-		var keyCode = convertKeyCode (event.keyCode);
-		var modifier = 0;
-		
-		if (event.type == KeyboardEvent.KEY_DOWN) {
+		if (parent.window != null) {
 			
-			KeyEventManager.onKeyDown.dispatch (keyCode, 0);
+			var keyCode = convertKeyCode (event.keyCode);
+			var modifier = 0;
 			
-		} else {
-			
-			KeyEventManager.onKeyUp.dispatch (keyCode, 0);
+			if (event.type == KeyboardEvent.KEY_DOWN) {
+				
+				parent.window.onKeyDown.dispatch (keyCode, 0);
+				
+			} else {
+				
+				parent.window.onKeyUp.dispatch (keyCode, 0);
+				
+			}
 			
 		}
 		
 	}
 	
 	
-	private static function handleMouseEvent (event:MouseEvent):Void {
+	private function handleMouseEvent (event:MouseEvent):Void {
 		
-		var button = switch (event.type) {
+		if (parent.window != null) {
 			
-			case "middleMouseDown", "middleMouseMove", "middleMouseUp": 1;
-			case "rightMouseDown", "rightMouseMove", "rightMouseUp": 2;
-			default: 0;
-			
-		}
-		
-		switch (event.type) {
-			
-			case "mouseDown", "middleMouseDown", "rightMouseDown":
+			var button = switch (event.type) {
 				
-				MouseEventManager.onMouseDown.dispatch (event.stageX, event.stageY, button);
-			
-			case "mouseMove", "middleMouseMove", "rightMouseMove":
+				case "middleMouseDown", "middleMouseMove", "middleMouseUp": 1;
+				case "rightMouseDown", "rightMouseMove", "rightMouseUp": 2;
+				default: 0;
 				
-				MouseEventManager.onMouseMove.dispatch (event.stageX, event.stageY, button);
+			}
 			
-			case "mouseUp", "middleMouseUp", "rightMouseUp":
+			switch (event.type) {
 				
-				MouseEventManager.onMouseUp.dispatch (event.stageX, event.stageY, button);
-			
-			case "mouseWheel":
+				case "mouseDown", "middleMouseDown", "rightMouseDown":
+					
+					parent.window.onMouseDown.dispatch (event.stageX, event.stageY, button);
 				
-				MouseEventManager.onMouseWheel.dispatch (0, event.delta);
-			
-			default:
-			
-		}
-		
-	}
-	
-	
-	private static function handleTouchEvent (event:TouchEvent):Void {
-		
-		var id = 0;
-		var x = event.stageX;
-		var y = event.stageY;
-		
-		switch (event.type) {
-			
-			case TouchEvent.TOUCH_BEGIN:
+				case "mouseMove", "middleMouseMove", "rightMouseMove":
+					
+					parent.window.onMouseMove.dispatch (event.stageX, event.stageY, button);
 				
-				TouchEventManager.onTouchStart.dispatch (x, y, id);
-			
-			case TouchEvent.TOUCH_MOVE:
+				case "mouseUp", "middleMouseUp", "rightMouseUp":
+					
+					parent.window.onMouseUp.dispatch (event.stageX, event.stageY, button);
 				
-				TouchEventManager.onTouchMove.dispatch (x, y, id);
-			
-			case TouchEvent.TOUCH_END:
+				case "mouseWheel":
+					
+					parent.window.onMouseWheel.dispatch (0, event.delta);
 				
-				TouchEventManager.onTouchEnd.dispatch (x, y, id);
+				default:
+				
+			}
 			
 		}
 		
 	}
 	
 	
-	private static function handleUpdateEvent (event:Event):Void {
+	private function handleTouchEvent (event:TouchEvent):Void {
 		
-		// TODO: deltaTime
+		if (parent.window != null) {
+			
+			var id = 0;
+			var x = event.stageX;
+			var y = event.stageY;
+			
+			switch (event.type) {
+				
+				case TouchEvent.TOUCH_BEGIN:
+					
+					parent.window.onTouchStart.dispatch (x, y, id);
+				
+				case TouchEvent.TOUCH_MOVE:
+					
+					parent.window.onTouchMove.dispatch (x, y, id);
+				
+				case TouchEvent.TOUCH_END:
+					
+					parent.window.onTouchEnd.dispatch (x, y, id);
+				
+			}
+			
+		}
 		
-		Application.__instance.update (16);
-		Application.onUpdate.dispatch (16);
+	}
+	
+	
+	private function handleUpdateEvent (event:Event):Void {
 		
-		Renderer.render ();
+		var currentTime = Lib.getTimer ();
+		var deltaTime = currentTime - cacheTime;
+		cacheTime = currentTime;
+		
+		parent.onUpdate.dispatch (deltaTime);
+		
+		if (parent.renderer != null) {
+			
+			if (!initialized) {
+				
+				initialized = true;
+				parent.init (parent.renderer.context);
+				
+			}
+			
+			parent.renderer.onRender.dispatch (parent.renderer.context);
+			parent.renderer.flip ();
+			
+		}
+		
+	}
+	
+	
+	private function handleWindowEvent (event:Event):Void {
+		
+		if (parent.window != null) {
+			
+			switch (event.type) {
+				
+				case Event.ACTIVATE:
+					
+					parent.window.onWindowActivate.dispatch ();
+				
+				case Event.DEACTIVATE:
+					
+					parent.window.onWindowDeactivate.dispatch ();
+				
+				case FocusEvent.FOCUS_IN:
+					
+					parent.window.onWindowFocusIn.dispatch ();
+				
+				case FocusEvent.FOCUS_OUT:
+					
+					parent.window.onWindowFocusOut.dispatch ();
+				
+				default:
+					
+					parent.window.width = Lib.current.stage.stageWidth;
+					parent.window.height = Lib.current.stage.stageHeight;
+					
+					parent.window.onWindowResize.dispatch (parent.window.width, parent.window.height);
+				
+			}
+			
+		}
 		
 	}
 	

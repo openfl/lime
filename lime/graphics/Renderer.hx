@@ -8,15 +8,13 @@ import lime.ui.Window;
 class Renderer {
 	
 	
-	public static var onRenderContextLost = new Event<Void->Void> ();
-	public static var onRenderContextRestored = new Event<RenderContext->Void> ();
-	public static var onRender = new Event<RenderContext->Void> ();
-	
 	public var context:RenderContext;
+	public var onRenderContextLost = new Event<Void->Void> ();
+	public var onRenderContextRestored = new Event<RenderContext->Void> ();
+	public var onRender = new Event<RenderContext->Void> ();
+	public var window:Window;
 	
-	@:noCompletion public var backend:RendererBackend;
-	
-	private var window:Window;
+	@:noCompletion private var backend:RendererBackend;
 	
 	
 	public function new (window:Window) {
@@ -44,9 +42,9 @@ class Renderer {
 	}
 	
 	
-	private static function render ():Void {
+	private function render ():Void {
 		
-		RendererBackend.render ();
+		backend.render ();
 		
 	}
 	

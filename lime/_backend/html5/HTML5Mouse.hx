@@ -5,6 +5,7 @@ import lime.app.Application;
 import lime.ui.MouseCursor;
 
 @:access(lime.app.Application)
+@:access(lime.ui.Window)
 
 
 class HTML5Mouse {
@@ -20,7 +21,7 @@ class HTML5Mouse {
 			
 			__hidden = true;
 			
-			for (window in Application.__instance.windows) {
+			for (window in Application.current.windows) {
 				
 				window.backend.element.style.cursor = "none";
 				
@@ -67,7 +68,7 @@ class HTML5Mouse {
 			
 			if (!__hidden) {
 				
-				for (window in Application.__instance.windows) {
+				for (window in Application.current.windows) {
 					
 					window.backend.element.style.cursor = switch (value) {
 						

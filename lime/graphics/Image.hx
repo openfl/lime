@@ -77,9 +77,9 @@ class Image {
 		
 		if (type == null) {
 			
-			if (Application.__instance != null && Application.__instance.window != null && Application.__instance.window.currentRenderer != null) {
+			if (Application.current != null && Application.current.renderer != null) {
 				
-				this.type = switch (Application.__instance.window.currentRenderer.context) {
+				this.type = switch (Application.current.renderer.context) {
 					
 					case DOM (_), CANVAS (_): CANVAS;
 					case FLASH (_): FLASH;
