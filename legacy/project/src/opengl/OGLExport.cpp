@@ -1394,7 +1394,7 @@ DEFINE_PRIM(nme_gl_get_shader_precision_format,2);
 value nme_gl_bind_buffer(value inTarget, value inId )
 {
    DBGFUNC("bindBuffer");
-   int id = getResource(inId,resoBuffer);
+   int id = val_is_int(inId) ? val_int(inId) : getResource(inId,resoBuffer);
    glBindBuffer(val_int(inTarget),id);
    return alloc_null();
 }
@@ -1527,7 +1527,7 @@ value nme_gl_bind_framebuffer(value target, value framebuffer)
    DBGFUNC("bindFramebuffer");
    if (CHECK_EXT(glBindFramebuffer))
    {
-      int id = getResource(framebuffer,resoFramebuffer);
+      int id = val_is_int(framebuffer) ? val_int(framebuffer) : getResource(framebuffer,resoFramebuffer);
       glBindFramebuffer(val_int(target), id );
    }
    return alloc_null();
@@ -1539,7 +1539,7 @@ value nme_gl_bind_renderbuffer(value target, value renderbuffer)
    DBGFUNC("bindRenderbuffer");
    if (CHECK_EXT(glBindRenderbuffer))
    {
-      int id = getResource(renderbuffer,resoRenderbuffer);
+      int id = val_is_int(renderbuffer) ? val_int(renderbuffer) : getResource(renderbuffer,resoRenderbuffer);
       glBindRenderbuffer(val_int(target),id);
    }
    return alloc_null();
@@ -1559,7 +1559,7 @@ value nme_gl_framebuffer_renderbuffer(value target, value attachment, value rend
    DBGFUNC("framebufferRenderBuffer");
    if (CHECK_EXT(glFramebufferRenderbuffer))
    {
-      int id = getResource(renderbuffer,resoRenderbuffer);
+      int id = val_is_int(renderbuffer) ? val_int(renderbuffer) : getResource(renderbuffer,resoRenderbuffer);
       glFramebufferRenderbuffer(val_int(target), val_int(attachment), val_int(renderbuffertarget), id );
    }
    return alloc_null();
