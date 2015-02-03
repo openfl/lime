@@ -148,7 +148,15 @@ class HXProject {
 					
 				} else if (target == Platform.ANDROID) {
 					
-					architectures = [ Architecture.ARMV7 ];
+					if (targetFlags.exists ("simulator") || targetFlags.exists ("emulator")) {
+						
+						architectures = [ Architecture.X86 ];
+						
+					} else {
+						
+						architectures = [ Architecture.ARMV7 ];
+						
+					}
 					
 				} else {
 					
