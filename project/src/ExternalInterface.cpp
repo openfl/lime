@@ -27,6 +27,7 @@
 #include <ui/Mouse.h>
 #include <ui/MouseCursor.h>
 #include <ui/MouseEvent.h>
+#include <ui/TextEvent.h>
 #include <ui/TouchEvent.h>
 #include <ui/Window.h>
 #include <ui/WindowEvent.h>
@@ -293,6 +294,15 @@ namespace lime {
 		return alloc_null ();
 		
 	}
+
+
+	value lime_text_event_manager_register (value callback, value eventObject) {
+		
+		TextEvent::callback = new AutoGCRoot (callback);
+		TextEvent::eventObject = new AutoGCRoot (eventObject);
+		return alloc_null ();
+		
+	}
 	
 	
 	value lime_key_event_manager_register (value callback, value eventObject) {
@@ -531,6 +541,7 @@ namespace lime {
 	DEFINE_PRIM (lime_font_outline_decompose, 2);
 	DEFINE_PRIM (lime_image_encode, 3);
 	DEFINE_PRIM (lime_image_load, 1);
+	DEFINE_PRIM (lime_text_event_manager_register, 2);
 	DEFINE_PRIM (lime_key_event_manager_register, 2);
 	DEFINE_PRIM (lime_lzma_encode, 1);
 	DEFINE_PRIM (lime_lzma_decode, 1);

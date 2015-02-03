@@ -5,7 +5,10 @@ import flash.events.Event;
 import flash.events.FocusEvent;
 import flash.events.KeyboardEvent;
 import flash.events.MouseEvent;
+import flash.events.TextEvent;
 import flash.events.TouchEvent;
+import flash.text.TextField;
+import flash.text.TextFieldType;
 import flash.ui.MultitouchInputMode;
 import flash.ui.Multitouch;
 import flash.Lib;
@@ -21,32 +24,33 @@ import lime.ui.Window;
 
 
 class FlashApplication {
-	
-	
+
+
 	private var cacheTime:Int;
 	private var initialized:Bool;
 	private var parent:Application;
-	
-	
+	private var textInputField:TextField;
+
+
 	public function new (parent:Application):Void {
-		
+
 		this.parent = parent;
-		
+
 		AudioManager.init ();
-		
+
 	}
-	
-	
+
+
 	private function convertKeyCode (keyCode:Int):KeyCode {
-		
+
 		if (keyCode >= 65 && keyCode <= 90) {
-			
+
 			return keyCode + 32;
-			
+
 		}
-		
+
 		switch (keyCode) {
-			
+
 			case 16: return KeyCode.LEFT_SHIFT;
 			case 17: return KeyCode.LEFT_CTRL;
 			case 18: return KeyCode.LEFT_ALT;
@@ -91,45 +95,51 @@ class FlashApplication {
 			case 144: return KeyCode.NUM_LOCK;
 			case 219: return KeyCode.LEFT_BRACKET;
 			case 221: return KeyCode.RIGHT_BRACKET;
-			
+
 		}
-		
+
 		return keyCode;
-		
+
 	}
-	
-	
+
+
 	public function create (config:Config):Void {
-		
+
 		parent.config = config;
-		
+
 		if (config != null) {
-			
+
 			var window = new Window (config);
 			var renderer = new Renderer (window);
 			parent.addWindow (window);
 			parent.addRenderer (renderer);
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 	public function exec ():Int {
-		
+
 		Lib.current.stage.addEventListener (KeyboardEvent.KEY_DOWN, handleKeyEvent);
 		Lib.current.stage.addEventListener (KeyboardEvent.KEY_UP, handleKeyEvent);
-		
+
 		var events = [ "mouseDown", "mouseMove", "mouseUp", "mouseWheel", "middleMouseDown", "middleMouseMove", "middleMouseUp" #if ((!openfl && !disable_flash_right_click) || enable_flash_right_click) , "rightMouseDown", "rightMouseMove", "rightMouseUp" #end ];
-		
+
 		for (event in events) {
-			
+
 			Lib.current.stage.addEventListener (event, handleMouseEvent);
-			
+
 		}
-		
+
 		Multitouch.inputMode = MultitouchInputMode.TOUCH_POINT;
-		
+
+		textInputField = new TextField ();
+		textInputField.visible = false;
+		textInputField.type = TextFieldType.INPUT;
+		Lib.current.stage.addChild (textInputField);
+		textInputField.addEventListener (TextEvent.TEXT_INPUT, handleTextEvent);
+
 		Lib.current.stage.addEventListener (TouchEvent.TOUCH_BEGIN, handleTouchEvent);
 		Lib.current.stage.addEventListener (TouchEvent.TOUCH_MOVE, handleTouchEvent);
 		Lib.current.stage.addEventListener (TouchEvent.TOUCH_END, handleTouchEvent);
@@ -138,166 +148,180 @@ class FlashApplication {
 		Lib.current.stage.addEventListener (FocusEvent.FOCUS_IN, handleWindowEvent);
 		Lib.current.stage.addEventListener (FocusEvent.FOCUS_OUT, handleWindowEvent);
 		Lib.current.stage.addEventListener (Event.RESIZE, handleWindowEvent);
-		
+
 		cacheTime = Lib.getTimer ();
 		handleUpdateEvent (null);
-		
+
 		Lib.current.stage.addEventListener (Event.ENTER_FRAME, handleUpdateEvent);
-		
+
 		return 0;
-		
+
 	}
-	
-	
+
+
 	private function handleKeyEvent (event:KeyboardEvent):Void {
-		
+
 		if (parent.window != null) {
-			
+
 			var keyCode = convertKeyCode (event.keyCode);
 			var modifier = 0;
-			
+
 			if (event.type == KeyboardEvent.KEY_DOWN) {
-				
+
 				parent.window.onKeyDown.dispatch (keyCode, 0);
-				
+
 			} else {
-				
+
 				parent.window.onKeyUp.dispatch (keyCode, 0);
-				
+
 			}
-			
+
 		}
-		
+
 	}
-	
-	
-	private function handleMouseEvent (event:MouseEvent):Void {
-		
+
+
+	private function handleTextEvent (event:TextEvent):Void {
+
 		if (parent.window != null) {
-			
+
+			parent.window.onTextInput.dispatch (event.text);
+
+		}
+
+	}
+
+
+	private function handleMouseEvent (event:MouseEvent):Void {
+
+		if (parent.window != null) {
+
 			var button = switch (event.type) {
-				
+
 				case "middleMouseDown", "middleMouseMove", "middleMouseUp": 1;
 				case "rightMouseDown", "rightMouseMove", "rightMouseUp": 2;
 				default: 0;
-				
+
 			}
-			
+
 			switch (event.type) {
-				
+
 				case "mouseDown", "middleMouseDown", "rightMouseDown":
-					
+
 					parent.window.onMouseDown.dispatch (event.stageX, event.stageY, button);
-				
+
 				case "mouseMove", "middleMouseMove", "rightMouseMove":
-					
+
 					parent.window.onMouseMove.dispatch (event.stageX, event.stageY, button);
-				
+
 				case "mouseUp", "middleMouseUp", "rightMouseUp":
-					
+
 					parent.window.onMouseUp.dispatch (event.stageX, event.stageY, button);
-				
+
 				case "mouseWheel":
-					
+
 					parent.window.onMouseWheel.dispatch (0, event.delta);
-				
+
 				default:
-				
+
 			}
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 	private function handleTouchEvent (event:TouchEvent):Void {
-		
+
 		if (parent.window != null) {
-			
+
 			var id = 0;
 			var x = event.stageX;
 			var y = event.stageY;
-			
+
 			switch (event.type) {
-				
+
 				case TouchEvent.TOUCH_BEGIN:
-					
+
 					parent.window.onTouchStart.dispatch (x, y, id);
-				
+
 				case TouchEvent.TOUCH_MOVE:
-					
+
 					parent.window.onTouchMove.dispatch (x, y, id);
-				
+
 				case TouchEvent.TOUCH_END:
-					
+
 					parent.window.onTouchEnd.dispatch (x, y, id);
-				
+
 			}
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 	private function handleUpdateEvent (event:Event):Void {
-		
+
 		var currentTime = Lib.getTimer ();
 		var deltaTime = currentTime - cacheTime;
 		cacheTime = currentTime;
-		
+
 		parent.onUpdate.dispatch (deltaTime);
-		
+
+		// steals focus from other elements
+		Lib.current.stage.focus = textInputField;
+
 		if (parent.renderer != null) {
-			
+
 			if (!initialized) {
-				
+
 				initialized = true;
 				parent.init (parent.renderer.context);
-				
+
 			}
-			
+
 			parent.renderer.onRender.dispatch (parent.renderer.context);
 			parent.renderer.flip ();
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 	private function handleWindowEvent (event:Event):Void {
-		
+
 		if (parent.window != null) {
-			
+
 			switch (event.type) {
-				
+
 				case Event.ACTIVATE:
-					
+
 					parent.window.onWindowActivate.dispatch ();
-				
+
 				case Event.DEACTIVATE:
-					
+
 					parent.window.onWindowDeactivate.dispatch ();
-				
+
 				case FocusEvent.FOCUS_IN:
-					
+
 					parent.window.onWindowFocusIn.dispatch ();
-				
+
 				case FocusEvent.FOCUS_OUT:
-					
+
 					parent.window.onWindowFocusOut.dispatch ();
-				
+
 				default:
-					
+
 					parent.window.width = Lib.current.stage.stageWidth;
 					parent.window.height = Lib.current.stage.stageHeight;
-					
+
 					parent.window.onWindowResize.dispatch (parent.window.width, parent.window.height);
-				
+
 			}
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 }

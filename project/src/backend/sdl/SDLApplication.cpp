@@ -101,6 +101,11 @@ namespace lime {
 				
 				//joy
 				break;
+
+			case SDL_TEXTINPUT:
+
+				ProcessTextEvent (event);
+				break;
 			
 			case SDL_KEYDOWN:
 			case SDL_KEYUP:
@@ -167,6 +172,19 @@ namespace lime {
 		active = true;
 		lastUpdate = SDL_GetTicks ();
 		nextUpdate = lastUpdate;
+		
+	}
+
+
+	void SDLApplication::ProcessTextEvent (SDL_Event* event) {
+		
+		if (TextEvent::callback) {
+			
+			strcpy(textEvent.text, event->text.text);
+			
+			TextEvent::Dispatch (&textEvent);
+			
+		}
 		
 	}
 	
