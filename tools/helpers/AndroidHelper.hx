@@ -65,7 +65,7 @@ class AndroidHelper {
 	
 	private static function connect (deviceID:String):Void {
 		
-		if (deviceID != null && deviceID != "") {
+		if (deviceID != null && deviceID != "" && deviceID.indexOf ("emulator") == -1) {
 			
 			if (deviceID.indexOf (":") > 0) {
 				
@@ -226,6 +226,8 @@ class AndroidHelper {
 				}
 				
 			}
+			
+			ProcessHelper.runCommand (adbPath, adbName, [ "-s", deviceID, "shell", "input", "keyevent", "82" ]);
 			
 		}
 		
