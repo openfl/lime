@@ -478,13 +478,15 @@ value nme_gl_get_parameter(value pname_val)
          ints = 4;
          break;
 
-      // case GL_ARRAY_BUFFER_BINDING  WebGLBuffer
-      // case GL_CURRENT_PROGRAM  WebGLProgram
-      // case GL_ELEMENT_ARRAY_BUFFER_BINDING  WebGLBuffer
-      // case GL_FRAMEBUFFER_BINDING  WebGLFramebuffer
-      // case GL_RENDERBUFFER_BINDING  WebGLRenderbuffer
-      // case GL_TEXTURE_BINDING_2D  WebGLTexture
-      // case GL_TEXTURE_BINDING_CUBE_MAP  WebGLTexture
+      case GL_ARRAY_BUFFER_BINDING:
+      case GL_CURRENT_PROGRAM:
+      case GL_ELEMENT_ARRAY_BUFFER_BINDING:
+      case GL_FRAMEBUFFER_BINDING:
+      case GL_RENDERBUFFER_BINDING:
+      case GL_TEXTURE_BINDING_2D:
+      case GL_TEXTURE_BINDING_CUBE_MAP:
+         ints = 1;
+         break;
 
       case GL_DEPTH_CLEAR_VALUE:
       case GL_LINE_WIDTH:
