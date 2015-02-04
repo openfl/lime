@@ -190,7 +190,7 @@ namespace lime {
 		jpegError.base.error_exit = OnError;
 		jpegError.base.output_message = OnOutput;
 		
-		FILE *file = NULL;
+		FILE_HANDLE *file = NULL;
 		
 		if (setjmp (jpegError.on_error)) {
 			
@@ -210,7 +210,7 @@ namespace lime {
 		if (resource->path) {
 			
 			file = lime::fopen (resource->path, "rb");
-			jpeg_stdio_src (&cinfo, file);
+			jpeg_stdio_src (&cinfo, file->getFile ());
 			
 		} else {
 			

@@ -49,7 +49,7 @@ namespace lime {
 		WAVE_Data wave_data;
 		unsigned char* data;
 		
-		FILE *file = NULL;
+		FILE_HANDLE *file = NULL;
 		
 		if (resource->path) {
 			

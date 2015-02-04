@@ -133,6 +133,7 @@
 			<file name="src/backend/sdl/SDLWindow.cpp" />
 			<file name="src/backend/sdl/SDLRenderer.cpp" />
 			<file name="src/backend/sdl/SDLMouse.cpp" />
+			<file name="src/backend/sdl/SDLFileIO.cpp" />
 			
 		</section>
 		
@@ -149,7 +150,7 @@
 		<file name="src/ui/TouchEvent.cpp" />
 		<file name="src/ui/WindowEvent.cpp" />
 		<file name="src/utils/ByteArray.cpp" />
-		<file name="src/utils/FileIO.cpp" />
+		<file name="src/utils/FileIO.cpp" unless="LIME_SDL" />
 		
 	</files>
 	

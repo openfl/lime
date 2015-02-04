@@ -110,7 +110,7 @@ namespace lime {
 		
 		if (resource->path) {
 			
-			FILE *file;
+			FILE_HANDLE *file;
 			
 			#ifdef ANDROID
 			FileInfo info = AndroidGetAssetFD (resource->path);
@@ -130,7 +130,7 @@ namespace lime {
 			#ifdef ANDROID
 			ov_open (file, &oggFile, NULL, info.length);
 			#else
-			ov_open (file, &oggFile, NULL, 0);
+			ov_open (file->getFile (), &oggFile, NULL, 0);
 			#endif
 			
 		} else {

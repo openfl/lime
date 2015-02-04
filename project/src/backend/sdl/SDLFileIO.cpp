@@ -4,13 +4,21 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+#include <SDL_rwops.h>
+
 
 namespace lime {
 	
 	
 	FILE* FILE_HANDLE::getFile () {
 		
-		return (FILE*)handle;
+		if (((SDL_RWops*)handle)->type == SDL_RWOPS_STDFILE) {
+			
+			return ((SDL_RWops*)handle)->hidden.stdio.fp;
+			
+		}
+		
+		return NULL;
 		
 	}
 	
@@ -19,9 +27,7 @@ namespace lime {
 		
 		if (stream) {
 			
-			int value = ::fclose ((FILE*)stream->handle);
-			if (stream) delete stream;
-			return value;
+			return SDL_RWclose ((SDL_RWops*)stream->handle);
 			
 		}
 		
@@ -32,24 +38,17 @@ namespace lime {
 	
 	FILE_HANDLE *fdopen (int fd, const char *mode) {
 		
-		FILE* result = ::fdopen (fd, mode);
-		
-		if (result) {
-			
-			return new FILE_HANDLE (result);
-			
-		}
-		
-		return NULL;
+		return 0;
+		//return SDL_RWFromFP (fd, mode);
 		
 	}
 	
 	
 	FILE_HANDLE *fopen (const char *filename, const char *mode) {
 		
-		FILE* result;
+		SDL_RWops *result;
 		#ifdef HX_MACOS
-		result = ::fopen (filename, "rb");
+		result = SDL_RWFromFile (filename, "rb");
 		if (!result) {
 			CFStringRef str = CFStringCreateWithCString (NULL, filename, kCFStringEncodingUTF8);
 			CFURLRef path = CFBundleCopyResourceURL (CFBundleGetMainBundle (), str, NULL, NULL);
@@ -67,7 +66,7 @@ namespace lime {
 			}
 		}
 		#else
-		result = ::fopen (filename, mode);
+		result = SDL_RWFromFile (filename, mode);
 		#endif
 		
 		if (result) {
@@ -83,28 +82,28 @@ namespace lime {
 	
 	size_t fread (void *ptr, size_t size, size_t count, FILE_HANDLE *stream) {
 		
-		return ::fread (ptr, size, count, stream ? (FILE*)stream->handle : NULL);
+		return SDL_RWread (stream ? (SDL_RWops*)stream->handle : NULL, ptr, size, count);
 		
 	}
 	
 	
 	int fseek (FILE_HANDLE *stream, long int offset, int origin) {
 		
-		return ::fseek (stream ? (FILE*)stream->handle : NULL, offset, origin);
+		return SDL_RWseek (stream ? (SDL_RWops*)stream->handle : NULL, offset, origin);
 		
 	}
 	
 	
 	long int ftell (FILE_HANDLE *stream) {
 		
-		return ::ftell (stream ? (FILE*)stream->handle : NULL);
+		return SDL_RWtell (stream ? (SDL_RWops*)stream->handle : NULL);
 		
 	}
 	
 	
 	size_t fwrite (const void *ptr, size_t size, size_t count, FILE_HANDLE *stream) {
 		
-		return ::fwrite (ptr, size, count, (FILE*)stream->handle);
+		return SDL_RWwrite (stream ? (SDL_RWops*)stream->handle : NULL, ptr, size, count);
 		
 	}
 	
