@@ -130,7 +130,7 @@ namespace lime {
 			//#ifdef ANDROID
 			//ov_open (file, &oggFile, NULL, info.length);
 			//#else
-			ov_open (file->getFile (), &oggFile, NULL, 0);
+			ov_open (file->getFile (), &oggFile, NULL, file->getLength ());
 			//#endif
 			
 		} else {

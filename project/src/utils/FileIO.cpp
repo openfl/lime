@@ -15,6 +15,13 @@ namespace lime {
 	}
 	
 	
+	int FILE_HANDLE::getLength () {
+		
+		return 0;
+		
+	}
+	
+	
 	int fclose (FILE_HANDLE *stream) {
 		
 		if (stream) {

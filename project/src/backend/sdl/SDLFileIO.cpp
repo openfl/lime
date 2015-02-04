@@ -16,9 +16,24 @@ namespace lime {
 			
 			return ((SDL_RWops*)handle)->hidden.stdio.fp;
 			
+		} else if (((SDL_RWops*)handle)->type == SDL_RWOPS_JNIFILE) {
+			
+			#ifdef ANDROID
+			FILE* file = ::fdopen (((SDL_RWops*)handle)->hidden.androidio.fd, "rb");
+			::fseek (file, ((SDL_RWops*)handle)->hidden.androidio.offset, 0);
+			return file;
+			#endif
+			
 		}
 		
 		return NULL;
+		
+	}
+	
+	
+	int FILE_HANDLE::getLength () {
+		
+		return SDL_RWsize (((SDL_RWops*)handle));
 		
 	}
 	

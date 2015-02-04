@@ -215,7 +215,12 @@ class AndroidHelper {
 					if (deviceID == null) {
 						
 						Sys.sleep (3);
-						Sys.print (".");
+						
+						if (!LogHelper.verbose) {
+							
+							Sys.print (".");
+							
+						}
 						
 					} else {
 						

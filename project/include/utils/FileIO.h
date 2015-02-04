@@ -14,6 +14,7 @@ namespace lime {
 		FILE_HANDLE (void* handle) : handle (handle) {}
 		
 		FILE* getFile ();
+		int getLength ();
 		
 	};
 	
