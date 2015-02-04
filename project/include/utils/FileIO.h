@@ -15,6 +15,7 @@ namespace lime {
 		
 		FILE* getFile ();
 		int getLength ();
+		bool isFile ();
 		
 	};
 	

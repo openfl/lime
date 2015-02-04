@@ -22,6 +22,13 @@ namespace lime {
 	}
 	
 	
+	bool FILE_HANDLE::isFile () {
+		
+		return true;
+		
+	}
+	
+	
 	int fclose (FILE_HANDLE *stream) {
 		
 		if (stream) {

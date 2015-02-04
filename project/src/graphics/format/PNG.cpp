@@ -136,7 +136,7 @@ namespace lime {
 		
 		if (file) {
 			
-			if (file->getFile ()) {
+			if (file->isFile ()) {
 				
 				png_init_io (png_ptr, file->getFile ());
 				png_set_sig_bytes (png_ptr, PNG_SIG_SIZE);

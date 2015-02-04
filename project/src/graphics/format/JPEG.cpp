@@ -211,7 +211,7 @@ namespace lime {
 			
 			file = lime::fopen (resource->path, "rb");
 			
-			if (file->getFile ()) {
+			if (file->isFile ()) {
 				
 				jpeg_stdio_src (&cinfo, file->getFile ());
 				

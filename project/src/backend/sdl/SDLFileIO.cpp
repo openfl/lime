@@ -38,6 +38,13 @@ namespace lime {
 	}
 	
 	
+	bool FILE_HANDLE::isFile () {
+		
+		return ((SDL_RWops*)handle)->type == SDL_RWOPS_STDFILE;
+		
+	}
+	
+	
 	int fclose (FILE_HANDLE *stream) {
 		
 		if (stream) {
