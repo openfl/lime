@@ -53,13 +53,13 @@ namespace lime {
 		
 		if (resource->path) {
 			
-			#ifdef ANDROID
-			FileInfo info = AndroidGetAssetFD (resource->path);
-			file = fdopen (info.fd, "rb");
-			lime::fseek (file, info.offset, 0);
-			#else
+			//#ifdef ANDROID
+			//FileInfo info = AndroidGetAssetFD (resource->path);
+			//file = fdopen (info.fd, "rb");
+			//lime::fseek (file, info.offset, 0);
+			//#else
 			file = lime::fopen (resource->path, "rb");
-			#endif
+			//#endif
 			
 			if (!file) {
 				

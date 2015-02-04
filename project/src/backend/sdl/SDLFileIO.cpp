@@ -38,8 +38,16 @@ namespace lime {
 	
 	FILE_HANDLE *fdopen (int fd, const char *mode) {
 		
-		return 0;
-		//return SDL_RWFromFP (fd, mode);
+		FILE* fp = ::fdopen (fd, mode);
+		SDL_RWops *result = SDL_RWFromFP (fp, SDL_TRUE);
+		
+		if (result) {
+			
+			return new FILE_HANDLE (result);
+			
+		}
+		
+		return NULL;
 		
 	}
 	

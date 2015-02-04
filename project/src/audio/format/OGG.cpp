@@ -112,13 +112,13 @@ namespace lime {
 			
 			FILE_HANDLE *file;
 			
-			#ifdef ANDROID
-			FileInfo info = AndroidGetAssetFD (resource->path);
-			file = lime::fdopen (info.fd, "rb");
-			lime::fseek (file, info.offset, 0);
-			#else
+			//#ifdef ANDROID
+			//FileInfo info = AndroidGetAssetFD (resource->path);
+			//file = lime::fdopen (info.fd, "rb");
+			//lime::fseek (file, info.offset, 0);
+			//#else
 			file = lime::fopen (resource->path, "rb");
-			#endif
+			//#endif
 			
 			if (!file) {
 				
@@ -127,11 +127,11 @@ namespace lime {
 				
 			}
 			
-			#ifdef ANDROID
-			ov_open (file, &oggFile, NULL, info.length);
-			#else
+			//#ifdef ANDROID
+			//ov_open (file, &oggFile, NULL, info.length);
+			//#else
 			ov_open (file->getFile (), &oggFile, NULL, 0);
-			#endif
+			//#endif
 			
 		} else {
 			

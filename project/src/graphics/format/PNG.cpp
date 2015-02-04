@@ -136,8 +136,18 @@ namespace lime {
 		
 		if (file) {
 			
-			png_init_io (png_ptr, file->getFile ());
-			png_set_sig_bytes (png_ptr, PNG_SIG_SIZE);
+			if (file->getFile ()) {
+				
+				png_init_io (png_ptr, file->getFile ());
+				png_set_sig_bytes (png_ptr, PNG_SIG_SIZE);
+				
+			} else {
+				
+				ByteArray data = ByteArray::FromFile (resource->path);
+				ReadBuffer buffer (data.Bytes (), data.Size ());
+				png_set_read_fn (png_ptr, &buffer, user_read_data_fn);
+				
+			}
 			
 		} else {
 			
