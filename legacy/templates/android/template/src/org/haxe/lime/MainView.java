@@ -17,6 +17,7 @@ import android.view.inputmethod.InputConnection;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import javax.microedition.khronos.egl.EGL;
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLContext;
@@ -43,7 +44,7 @@ class MainView extends GLSurfaceView {
 	TimerTask pendingTimer;
 	Runnable pollMe;
 	boolean renderPending = false;
-	
+	public static EGL eglContext;
 	
 	public MainView (Context context, Activity inActivity) {
 		
@@ -62,7 +63,9 @@ class MainView extends GLSurfaceView {
 		
 		if (::WIN_ALLOW_SHADERS:: || ::WIN_REQUIRE_SHADERS::) {
 			
-			EGL10 egl = (EGL10)EGLContext.getEGL ();
+            EGL10 egl = (EGL10)EGLContext.getEGL();
+            eglContext = EGLContext.getEGL();
+            
 			EGLDisplay display = egl.eglGetDisplay (EGL10.EGL_DEFAULT_DISPLAY);
 			int[] version = new int[2];
 			
@@ -93,7 +96,8 @@ class MainView extends GLSurfaceView {
 				EGLConfig[] configs = new EGLConfig[1];
 				int[] num_config = new int[1];
 				
-				if (::WIN_ANTIALIASING:: > 1) {
+                // '>' becomes '>='  really pertinent?
+				if (::WIN_ANTIALIASING:: >= 1) {
 					
 					int[] attrs = {
 						
@@ -737,7 +741,10 @@ class MainView extends GLSurfaceView {
 			Log.v("VIEW","onSurfaceCreated");
 			Log.v("VIEW", "Thread = " + java.lang.Thread.currentThread ().getId ());
 			::end::
-			mMainView.HandleResult (Lime.onContextLost ());
+            //only if true context lost
+            if( eglContext!= gl ) {
+                mMainView.HandleResult (Lime.onContextLost ());
+            }
 			
 		}
 		

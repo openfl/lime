@@ -481,9 +481,9 @@ value nme_gl_get_parameter(value pname_val)
       // case GL_ARRAY_BUFFER_BINDING  WebGLBuffer
       // case GL_CURRENT_PROGRAM  WebGLProgram
       // case GL_ELEMENT_ARRAY_BUFFER_BINDING  WebGLBuffer
-      // case GL_FRAMEBUFFER_BINDING  WebGLFramebuffer
-      // case GL_RENDERBUFFER_BINDING  WebGLRenderbuffer
-      // case GL_TEXTURE_BINDING_2D  WebGLTexture
+      case GL_FRAMEBUFFER_BINDING : ints = 1; break;
+      case GL_RENDERBUFFER_BINDING : ints = 1; break;
+      case GL_TEXTURE_BINDING_2D : ints = 1; break;
       // case GL_TEXTURE_BINDING_CUBE_MAP  WebGLTexture
 
       case GL_DEPTH_CLEAR_VALUE:
@@ -1516,18 +1516,24 @@ DEFINE_PRIM(nme_gl_get_buffer_parameter,2);
 
 
 
-
-
 // --- Framebuffer -------------------------------
-
+static int screenBuffer = -1;
 value nme_gl_bind_framebuffer(value target, value framebuffer)
 {
    DBGFUNC("bindFramebuffer");
    if (CHECK_EXT(glBindFramebuffer))
    {
-      int id = getResource(framebuffer,resoFramebuffer);
-      glBindFramebuffer(val_int(target), id );
+      if( screenBuffer == -1 ) 
+		  screenBuffer = val_int(nme_gl_get_parameter( alloc_int(GL_FRAMEBUFFER_BINDING )));
+	 
+	  if( val_is_null(framebuffer) ) {
+		  glBindFramebuffer(val_int(target), screenBuffer );
+	  } else {
+	 	 int id = getResource(framebuffer,resoFramebuffer);
+		 glBindFramebuffer(val_int(target), id );
+      }
    }
+   
    return alloc_null();
 }
 DEFINE_PRIM(nme_gl_bind_framebuffer,2);

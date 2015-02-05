@@ -396,6 +396,20 @@ public class GameActivity extends Activity implements SensorEventListener {
 		
 	}
 	
+    //ADDED By MotionTwin
+    @Override public void onBackPressed() {
+        
+    }
+    
+    //ADDED By MotionTwin
+    @Override protected void onSaveInstanceState (Bundle outState) {
+        super.onSaveInstanceState(outState);
+        
+        for (Extension extension : extensions) {
+            extension.onSaveInstanceState (outState);
+        }
+    }
+    
 	
 	@Override public void onAccuracyChanged (Sensor sensor, int accuracy) {
 		

@@ -143,6 +143,16 @@ public class Extension {
 		
 		
 	}
+    
+    //ADDED By MotionTwin
+    public void onBackPressed() {
+        
+    }
+    
+    //ADDED By MotionTwin
+    public void onSaveInstanceState (Bundle outState) {
+
+    }
 	
 	
 }
