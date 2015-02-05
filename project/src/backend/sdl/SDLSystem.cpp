@@ -104,7 +104,7 @@ namespace lime {
 				
 				if (CFStringGetCString (str, buffer, maxSize, kCFStringEncodingUTF8)) {
 					
-					result = SDL_RWFromFP (::fopen (buffer, "rb"), true);
+					result = SDL_RWFromFP (::fopen (buffer, "rb"), SDL_TRUE);
 					free (buffer);
 					
 				}
