@@ -155,14 +155,7 @@ class ImageCanvasUtil {
 		if (buffer.data == null) {
 			
 			buffer.__srcImageData = buffer.__srcContext.getImageData (0, 0, buffer.width, buffer.height);
-			
-			// TODO: Better solution?
-			
-			#if (js && html5 && !dom)
-			buffer.data = cast buffer.__srcImageData.data;
-			#else
-			buffer.data = new UInt8Array (buffer.__srcImageData.data);
-			#end
+			buffer.data = new UInt8Array (buffer.__srcImageData.data.buffer);
 			
 		}
 		
