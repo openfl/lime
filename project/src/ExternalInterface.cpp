@@ -30,6 +30,7 @@
 #include <ui/TouchEvent.h>
 #include <ui/Window.h>
 #include <ui/WindowEvent.h>
+#include <utils/JNI.h>
 #include <vm/NekoVM.h>
 
 
@@ -295,6 +296,17 @@ namespace lime {
 	}
 	
 	
+	value lime_jni_getenv () {
+		
+		#ifdef ANDROID
+		return alloc_float ((intptr_t)JNI::GetEnv ());
+		#else
+		return alloc_null ();
+		#endif
+		
+	}
+	
+	
 	value lime_key_event_manager_register (value callback, value eventObject) {
 		
 		KeyEvent::callback = new AutoGCRoot (callback);
@@ -531,6 +543,7 @@ namespace lime {
 	DEFINE_PRIM (lime_font_outline_decompose, 2);
 	DEFINE_PRIM (lime_image_encode, 3);
 	DEFINE_PRIM (lime_image_load, 1);
+	DEFINE_PRIM (lime_jni_getenv, 0);
 	DEFINE_PRIM (lime_key_event_manager_register, 2);
 	DEFINE_PRIM (lime_lzma_encode, 1);
 	DEFINE_PRIM (lime_lzma_decode, 1);

@@ -135,6 +135,7 @@
 			<file name="src/backend/sdl/SDLRenderer.cpp" />
 			<file name="src/backend/sdl/SDLMouse.cpp" />
 			<file name="src/backend/sdl/SDLSystem.cpp" />
+			<file name="src/backend/sdl/SDLJNI.cpp" />
 			
 		</section>
 		
