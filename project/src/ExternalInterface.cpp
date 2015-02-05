@@ -398,9 +398,9 @@ namespace lime {
 	}
 	
 	
-	value lime_system_get_timestamp () {
+	value lime_system_gettimer () {
 		
-		return alloc_float (System::GetTimestamp ());
+		return alloc_float (System::GetTimer ());
 		
 	}
 	
@@ -542,7 +542,7 @@ namespace lime {
 	DEFINE_PRIM (lime_renderer_create, 1);
 	DEFINE_PRIM (lime_renderer_flip, 1);
 	DEFINE_PRIM (lime_render_event_manager_register, 2);
-	DEFINE_PRIM (lime_system_get_timestamp, 0);
+	DEFINE_PRIM (lime_system_gettimer, 0);
 	DEFINE_PRIM (lime_text_create, 3);
 	DEFINE_PRIM (lime_text_from_string, 4);
 	DEFINE_PRIM (lime_touch_event_manager_register, 2);

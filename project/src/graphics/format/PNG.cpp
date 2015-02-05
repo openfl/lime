@@ -9,8 +9,8 @@ extern "C" {
 #include <setjmp.h>
 #include <graphics/format/PNG.h>
 #include <graphics/ImageBuffer.h>
+#include <system/System.h>
 #include <utils/ByteArray.h>
-#include <utils/FileIO.h>
 #include <utils/QuickVec.h>
 
 

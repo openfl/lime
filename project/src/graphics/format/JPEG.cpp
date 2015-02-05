@@ -8,7 +8,7 @@ extern "C" {
 
 #include <setjmp.h>
 #include <graphics/format/JPEG.h>
-#include <utils/FileIO.h>
+#include <system/System.h>
 
 
 namespace lime {

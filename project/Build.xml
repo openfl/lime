@@ -133,24 +133,20 @@
 			<file name="src/backend/sdl/SDLWindow.cpp" />
 			<file name="src/backend/sdl/SDLRenderer.cpp" />
 			<file name="src/backend/sdl/SDLMouse.cpp" />
-			<file name="src/backend/sdl/SDLFileIO.cpp" />
+			<file name="src/backend/sdl/SDLSystem.cpp" />
 			
 		</section>
-		
-		<file name="src/system/ios/System.mm" if="ios" />
 		
 		<file name="src/app/UpdateEvent.cpp" />
 		<file name="src/audio/format/WAV.cpp" />
 		<file name="src/audio/AudioBuffer.cpp" />
 		<file name="src/graphics/ImageBuffer.cpp" />
 		<file name="src/graphics/RenderEvent.cpp" />
-		<file name="src/system/System.cpp" />
 		<file name="src/ui/KeyEvent.cpp" />
 		<file name="src/ui/MouseEvent.cpp" />
 		<file name="src/ui/TouchEvent.cpp" />
 		<file name="src/ui/WindowEvent.cpp" />
 		<file name="src/utils/ByteArray.cpp" />
-		<file name="src/utils/FileIO.cpp" unless="LIME_SDL" />
 		
 	</files>
 	
