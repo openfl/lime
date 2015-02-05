@@ -56,7 +56,7 @@ public:
    ~FreeTypeFont()
    {
       FT_Done_Face(mFace);
-     if (mBuffer) free(mBuffer);
+	  if (mBuffer) free(mBuffer);
    }
 
    bool LoadBitmap(int inChar)
@@ -405,13 +405,13 @@ bool GetFontFile(const std::string& inName,std::string &outFile)
 
          //printf("Try %s\n", outFile.c_str());
 
-    FILE *file = fopen(outFile.c_str(),"rb");
-    if (file)
-    {
-       //printf("Found sub file %s\n", outFile.c_str());
-       fclose(file);
-       return true;
-    }
+	 FILE *file = fopen(outFile.c_str(),"rb");
+	 if (file)
+	 {
+	    //printf("Found sub file %s\n", outFile.c_str());
+	    fclose(file);
+	    return true;
+	 }
          test++;
       }
    }
@@ -1097,4 +1097,5 @@ value nme_font_iterate_device_fonts(value inFunc)
 }
 
 DEFINE_PRIM(nme_font_iterate_device_fonts,1)
+
 

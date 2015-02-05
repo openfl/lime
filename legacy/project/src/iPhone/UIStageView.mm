@@ -5,7 +5,6 @@
 //  Blank
 //
 //  Created by Hugh on 12/01/10.
-//  Copyright __MyCompanyName__ 2010. All rights reserved.
 //
 
 

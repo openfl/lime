@@ -2202,3 +2202,4 @@ void CharGroup::ApplyFormat(TextFormat *inFormat)
 }
 
 } // end namespace nme
+
