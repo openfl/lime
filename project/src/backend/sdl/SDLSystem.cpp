@@ -85,23 +85,35 @@ namespace lime {
 	FILE_HANDLE *fopen (const char *filename, const char *mode) {
 		
 		SDL_RWops *result;
+		
 		#ifdef HX_MACOS
+		
 		result = SDL_RWFromFile (filename, "rb");
+		
 		if (!result) {
+			
 			CFStringRef str = CFStringCreateWithCString (NULL, filename, kCFStringEncodingUTF8);
 			CFURLRef path = CFBundleCopyResourceURL (CFBundleGetMainBundle (), str, NULL, NULL);
 			CFRelease (str);
+			
 			if (path) {
+				
 				str = CFURLCopyPath (path);
 				CFIndex maxSize = CFStringGetMaximumSizeForEncoding (CFStringGetLength (str), kCFStringEncodingUTF8);
 				char *buffer = (char *)malloc (maxSize);
+				
 				if (CFStringGetCString (str, buffer, maxSize, kCFStringEncodingUTF8)) {
-					result = ::fopen (buffer,"rb");
+					
+					result = SDL_RWFromFP (::fopen (buffer, "rb"), true);
 					free (buffer);
+					
 				}
+				
 				CFRelease (str);
 				CFRelease (path);
+				
 			}
+			
 		}
 		#else
 		result = SDL_RWFromFile (filename, mode);
