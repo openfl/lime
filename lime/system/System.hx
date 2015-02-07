@@ -148,7 +148,7 @@ class System {
 		#if flash
 		return flash.Lib.getTimer ();
 		#elseif (html5 || disable_cffi)
-		return Std.int ((System.getTimer () - __startTime) * 1000);
+		return Std.int ((Timer.stamp () - __startTime) * 1000);
 		#else
 		return lime_system_gettimer ();
 		#end
