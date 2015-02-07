@@ -904,6 +904,8 @@ class HXProject {
 				var embeddedAsset:Dynamic = { };
 				ObjectHelper.copyFields (asset, embeddedAsset);
 				
+				embeddedAsset.sourcePath = PathHelper.standardize (asset.sourcePath);
+				
 				if (asset.embed == null) {
 					
 					embeddedAsset.embed = (platformType == PlatformType.WEB);
