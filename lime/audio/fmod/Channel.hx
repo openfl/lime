@@ -50,7 +50,6 @@ abstract Channel(Int) {
 	}
 
 
-
 	private inline function get_valid ():Bool {
 
 		return this != 0;
