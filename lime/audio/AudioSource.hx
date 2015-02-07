@@ -7,7 +7,7 @@ import lime.audio.openal.AL;
 #if flash
 import flash.media.SoundChannel;
 #elseif lime_console
-//import lime.audio.fmod.Channel;
+import lime.audio.fmod.Channel;
 #end
 
 
@@ -25,10 +25,8 @@ class AudioSource {
 	
 	#if flash
 	private var channel:SoundChannel;
-	#end
-
-	#if lime_console
-	//private var channel:Channel;
+	#elseif lime_console
+	private var channel:Channel;
 	#end
 	
 	
@@ -109,7 +107,17 @@ class AudioSource {
 			
 		#elseif lime_console
 
-			buffer.src.play ();
+			if (channel.valid) {
+
+				channel.resume ();
+
+			} else {
+
+				// TODO(james4k): when playback completes, zero the channel var
+				// and call onComplete
+				channel = buffer.src.play ();
+
+			}
 	
 		#else
 			
@@ -134,7 +142,11 @@ class AudioSource {
 			
 		#elseif lime_console
 
-		//	channel.pause ();
+			if (channel.valid) {
+
+				channel.pause ();
+
+			}
 	
 		#else
 			
@@ -155,7 +167,11 @@ class AudioSource {
 			
 		#elseif lime_console
 
-		//	channel.stop ();
+			if (channel.valid) {
+
+				channel.stop ();
+
+			}
 	
 		#else
 			

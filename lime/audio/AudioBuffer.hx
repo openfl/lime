@@ -10,6 +10,8 @@ import lime.utils.Float32Array;
 import js.html.Audio;
 #elseif flash
 import flash.media.Sound;
+#elseif lime_console
+import lime.audio.fmod.Sound;
 #end
 
 
@@ -27,7 +29,7 @@ class AudioBuffer {
 	#elseif flash
 	public var src:Sound;
 	#elseif lime_console
-	public var src:lime.audio.fmod.Sound;	
+	public var src:Sound;
 	#else
 	public var src:Dynamic;
 	#end
@@ -59,10 +61,19 @@ class AudioBuffer {
 		
 		#if lime_console
 
-			// TODO(james4k): with FMOD_OPENMEMORY_POINT? We probably want to
-			// discourage this; should avoid using haxe's heap when possible.
-			// Sound.fromBytes?
-			return null;
+			var sound:Sound = Sound.fromBytes (bytes);
+
+			if (sound.valid) {
+
+				var audioBuffer = new AudioBuffer ();
+				audioBuffer.bitsPerSample = 0;
+				audioBuffer.channels = 0;
+				audioBuffer.data = null;
+				audioBuffer.sampleRate = 0;
+				audioBuffer.src = sound;
+				return audioBuffer;
+
+			}
 	
 		#elseif (cpp || neko || nodejs)
 			
@@ -90,8 +101,7 @@ class AudioBuffer {
 		
 		#if lime_console
 
-			// TODO(james4k): new Sound(path)? Sound.fromFile?
-			var sound:lime.audio.fmod.Sound = lime.audio.fmod.FMOD.createSound (path);
+			var sound:Sound = Sound.fromFile (path);
 
 			if (sound.valid) {
 	
