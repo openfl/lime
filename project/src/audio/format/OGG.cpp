@@ -120,7 +120,7 @@ namespace lime {
 			file = lime::fopen (resource->path, "rb");
 			//#endif
 			
-			if (!file) {
+			if (!file || !file->isFile ()) {
 				
 				//LOG_SOUND("FAILED to read audio file, file pointer as null?\n");
 				return false;
