@@ -157,36 +157,70 @@ class AudioSource {
 	
 	private function get_gain ():Float {
 		
-		// TODO
-		
-		return 1;
+		#if html5
+		#elseif flash
+			
+			return channel.soundTransform.volume;
+			
+		#else
+			
+			return AL.getSourcef (id, AL.GAIN);
+			
+		#end
 		
 	}
 	
 	
 	private function set_gain (value:Float):Float {
 		
-		// TODO
-		
-		return value;
+		#if html5
+		#elseif flash
+			
+			var soundTransform = channel.soundTransform;
+			soundTransform.volume = value;
+			channel.soundTransform = soundTransform;
+			return value;
+			
+		#else
+			
+			AL.sourcef (id, AL.GAIN, value);
+			return value;
+			
+		#end
 		
 	}
 	
 	
 	private function get_timeOffset ():Int {
 		
-		// TODO
-		
-		return 0;
+		#if html5
+		#elseif flash
+			
+			return channel.position;
+			
+		#else
+			
+			return Std.int (AL.getSourcef (id, AL.SEC_OFFSET) * 1000);
+			
+		#end
 		
 	}
 	
 	
 	private function set_timeOffset (value:Int):Int {
 		
-		// TODO
-		
-		return value;
+		#if html5
+		#elseif flash
+			
+			channel.position = value;
+			return value;
+			
+		#else
+			
+			AL.sourcef (id, AL.SEC_OFFSET, value / 1000);
+			return value;
+			
+		#end
 		
 	}
 	
