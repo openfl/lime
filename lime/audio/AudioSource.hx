@@ -158,6 +158,9 @@ class AudioSource {
 	private function get_gain ():Float {
 		
 		#if html5
+		
+		return 1;
+		
 		#elseif flash
 			
 			return channel.soundTransform.volume;
@@ -174,6 +177,9 @@ class AudioSource {
 	private function set_gain (value:Float):Float {
 		
 		#if html5
+		
+		return 1;
+		
 		#elseif flash
 			
 			var soundTransform = channel.soundTransform;
@@ -194,6 +200,9 @@ class AudioSource {
 	private function get_timeOffset ():Int {
 		
 		#if html5
+		
+		return 0;
+		
 		#elseif flash
 			
 			return channel.position;
@@ -210,6 +219,9 @@ class AudioSource {
 	private function set_timeOffset (value:Int):Int {
 		
 		#if html5
+		
+		return 0;
+		
 		#elseif flash
 			
 			channel.position = value;
