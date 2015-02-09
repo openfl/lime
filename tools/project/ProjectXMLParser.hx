@@ -403,6 +403,12 @@ class ProjectXMLParser extends HXProject {
 		var glyphs = null;
 		var type = null;
 		
+		if (element.has.useRoot && (substitute (element.att.useRoot) == "true")) {
+			
+			basePath = Sys.getCwd();
+			
+		}
+		
 		if (element.has.path) {
 			
 			path = PathHelper.combine (basePath, substitute (element.att.path));
