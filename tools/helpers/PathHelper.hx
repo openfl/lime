@@ -157,7 +157,7 @@ class PathHelper {
 		
 	}
 	
-
+	
 	public static function getHaxelib (haxelib:Haxelib, validate:Bool = false, clearCache:Bool = false):String {
 		
 		var name = haxelib.name;
@@ -204,14 +204,16 @@ class PathHelper {
 			
 			for (i in 1...lines.length) {
 				
-				if (StringTools.trim (lines[i]) == "-D " + haxelib.name) {
+				var trim = StringTools.trim (lines[i]);
+				
+				if (trim == "-D " + haxelib.name || StringTools.startsWith (trim, "-D " + haxelib.name + "=")) {
 					
 					result = StringTools.trim (lines[i - 1]);
 					
 				}
 				
 			}
-
+			
 			if (result == "") {
 				
 				try {
@@ -732,5 +734,5 @@ class PathHelper {
 		
 	}
 	
-
+	
 }
