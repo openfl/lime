@@ -92,17 +92,20 @@ class EmscriptenPlatform extends PlatformTarget {
 			
 		}
 		
+		args.push ("-s");
+		args.push ("USE_SDL=2");
+		
 		if (!project.debug) {
 			
 			args.push ("-s");
-			args.push ("DISABLE_EXCEPTION_CACHING=0");
+			args.push ("DISABLE_EXCEPTION_CATCHING=0");
 			//args.push ("-s");
 			//args.push ("OUTLINING_LIMIT=70000");
 			
 		} else {
 			
 			args.push ("-s");
-			args.push ("DISABLE_EXCEPTION_CACHING=2");
+			args.push ("DISABLE_EXCEPTION_CATCHING=2");
 			
 		}
 		

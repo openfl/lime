@@ -122,12 +122,24 @@
 		
 		<section if="LIME_SDL">
 			
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/" />
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/default/" unless="windows || mac || linux"/>
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/linux/" if="linux"/>
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/windows/" if="windows"/>
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/mac/" if="mac"/>
-			<compilerflag value="-DHAVE_LIBC" />
+			<section if="emscripten">
+				
+				<compilerflag value="-s" />
+				<compilerflag value="USE_SDL=2" />
+				
+			</section>
+			
+			<section unless="emscripten">
+				
+				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/" />
+				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/default/" unless="windows || mac || linux"/>
+				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/linux/" if="linux"/>
+				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/windows/" if="windows"/>
+				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/mac/" if="mac"/>
+				<compilerflag value="-DHAVE_LIBC" />
+				
+			</section>
+			
 			<compilerflag value="-DLIME_SDL" />
 			
 			<file name="src/backend/sdl/SDLApplication.cpp" />
@@ -182,7 +194,7 @@
 		<files id="native-toolkit-openal" if="LIME_OPENAL" unless="mac || iphone || android" />
 		<files id="native-toolkit-openal-android" if="LIME_OPENAL android" />
 		<files id="native-toolkit-png" if="LIME_PNG" />
-		<files id="native-toolkit-sdl" if="LIME_SDL" />
+		<files id="native-toolkit-sdl" if="LIME_SDL" unless="emscripten" />
 		<files id="native-toolkit-vorbis" if="LIME_VORBIS" />
 		<files id="native-toolkit-zlib" if="LIME_ZLIB" />
 		
