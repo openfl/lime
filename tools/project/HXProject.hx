@@ -60,7 +60,10 @@ class HXProject {
 	public var templatePaths:Array <String>;
 	@:isVar public var window (get, set):Window;
 	public var windows:Array <Window>;
-	
+	public var postBuildCommands:Array <String>;
+	public var preBuildCommands:Array <String>;
+
+
 	private var defaultApp:ApplicationData;
 	private var defaultMeta:MetaData;
 	private var defaultWindow:Window;
@@ -203,6 +206,8 @@ class HXProject {
 		samplePaths = new Array <String> ();
 		splashScreens = new Array <SplashScreen> ();
 		targetHandlers = new Map <String, String> ();
+		postBuildCommands = new Array <String> ();
+		preBuildCommands = new Array <String> ();
 		
 	}
 	

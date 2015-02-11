@@ -811,6 +811,18 @@ class ProjectXMLParser extends HXProject {
 						
 						Sys.println (substitute (element.att.value));
 					
+	
+					case "postBuild":
+ 						
+ 						if( element.has.command )
+ 							postBuildCommands.push( element.att.command );
+
+					case "preBuild":
+ 						
+ 						if( element.has.command )
+ 							preBuildCommands.push( element.att.command );
+ 
+
 					case "path":
 						
 						var value = "";

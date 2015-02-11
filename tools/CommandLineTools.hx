@@ -563,9 +563,26 @@ class CommandLineTools {
 			}
 			
 			if (platform != null) {
-				
+				if ( project.preBuildCommands.length > 0 ) {
+  					LogHelper.println("** PRE BUILD **");
+  					for ( cmd in project.preBuildCommands ) {
+  						LogHelper.println(cmd);
+  						if ( Sys.command( cmd ) != 0 )
+  							throw "Error running "+cmd;
+  					}
+  				}
+ 				
 				platform.execute (additionalArguments);
-				
+				 				
+				if ( project.postBuildCommands.length > 0 ) {
+ 					LogHelper.println("** POST BUILD **");
+ 					for ( cmd in project.postBuildCommands ) {
+ 						LogHelper.println(cmd);
+ 						if ( Sys.command( cmd ) != 0 )
+ 							throw "Error running "+cmd;
+ 					}
+ 				}
+
 			} else {
 				
 				LogHelper.error ("\"" + Std.string (project.target) + "\" is an unknown target");
