@@ -1,11 +1,11 @@
 package utils;
 
 
-import helpers.FileHelper;
-import helpers.LogHelper;
-import helpers.PathHelper;
-import project.Haxelib;
-import project.HXProject;
+import lime.tools.helpers.FileHelper;
+import lime.tools.helpers.LogHelper;
+import lime.tools.helpers.PathHelper;
+import lime.project.Haxelib;
+import lime.project.HXProject;
 import sys.FileSystem;
 
 

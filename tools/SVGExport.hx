@@ -3,14 +3,14 @@ package;
 
 import format.SVG;
 import haxe.io.Path;
-import helpers.LogHelper;
-import helpers.PathHelper;
-import helpers.PlatformHelper;
+import lime.tools.helpers.LogHelper;
+import lime.tools.helpers.PathHelper;
+import lime.tools.helpers.PlatformHelper;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
 import openfl.display.Shape;
 import openfl.geom.Matrix;
-import project.Architecture;
+import lime.project.Architecture;
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
