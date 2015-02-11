@@ -38,7 +38,7 @@ class System {
 	
 	#if (js && html5)
 	@:keep @:expose("lime.embed")
-	public static function embed (element:Dynamic, width:Null<Int> = null, height:Null<Int> = null, background:String = null) {
+	public static function embed (element:Dynamic, width:Null<Int> = null, height:Null<Int> = null, background:String = null, assetsPrefix:String = null) {
 		
 		var htmlElement:HtmlElement = null;
 		
@@ -91,6 +91,7 @@ class System {
 		ApplicationMain.config.element = htmlElement;
 		ApplicationMain.config.width = width;
 		ApplicationMain.config.height = height;
+		ApplicationMain.config.assetsPrefix = assetsPrefix;
 		ApplicationMain.create ();
 		#end
 		
