@@ -115,7 +115,8 @@ class AudioSource {
 
 				// TODO(james4k): when playback completes, zero the channel var
 				// and call onComplete
-				channel = buffer.src.play ();
+				//channel = buffer.src.play ();
+				buffer.src.play ();
 
 			}
 	
