@@ -2186,7 +2186,20 @@ void CharGroup::ApplyFormat(TextFormat *inFormat)
    inFormat->bold.Apply(mFormat->bold);
    inFormat->bullet.Apply(mFormat->bullet);
    inFormat->color.Apply(mFormat->color);
+   
+   Font* cacheFont = mFont;
+   WString cacheFontName = mFormat->font.Get();
+   
    inFormat->font.Apply(mFormat->font);
+   
+   if (cacheFontName != mFormat->font.Get())
+   {
+      mFont = 0;
+      mFontHeight = 0;
+      mFlags = 0;
+      if (cacheFont) cacheFont->DecRef();
+   }
+   
    inFormat->indent.Apply(mFormat->indent);
    inFormat->italic.Apply(mFormat->italic);
    inFormat->kerning.Apply(mFormat->kerning);
