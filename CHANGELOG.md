@@ -1,3 +1,28 @@
+2.1.0 (02/11/2015)
+------------------
+
+* Refactored, made many events instance-based, not static
+* Removed event managers, moved input events to Window class instances
+* Moved many Lime tool classes into the public lime.* API
+* Added initial Lime 2 support for Android
+* Added official Android X86 emulator support
+* Added support for munit unit testing suite
+* Added System.getTimer for faster delta time calculations
+* Added application.removeWindow and window.close
+* Added support for a custom asset root URL on HTML5
+* Added forced OpenAL cleanup, in case of an unclean exit
+* Fixed support for Haxe 3.2 haxelib behavior
+* Fixed createImageData issue on HTML5 for WebGL
+* Improvements to in-progress Lime text layout API
+* Improved handling of Android Debug Bridge on Linux
+* Improved handling of ANT_HOME for use with ADB
+* Fixed the output of textField.htmlText on Android (legacy)
+* Updated TextField implementation (legacy)
+* Fixed behavior of ColorMatrixFilter (legacy)
+* Fixed textField.setTextFormat with different font (legacy)
+* Fixed crash in Capabilities.language on iOS (legacy)
+
+
 2.0.6 (01/22/2015)
 ------------------
 

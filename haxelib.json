@@ -5,7 +5,7 @@
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
 	"version": "2.1.0",
-	"releasenote": "Ongoing improvements",
+	"releasenote": "Refactor, added non-legacy Android target, and more",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
 }
