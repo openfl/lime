@@ -6,7 +6,6 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-
 namespace nme
 {
 
@@ -103,8 +102,8 @@ public:
          mPerpLen = stroke->thickness * 0.5;
          if (mPerpLen<=0.0)
          {
-            mPerpLen = 0.5;
-            mElement.mWidth = 1.0;
+            mPerpLen = 0.5/mScale;
+            mElement.mWidth = 1.0/mScale;
          }
 
          mCaps = stroke->caps;
@@ -119,7 +118,7 @@ public:
             mElement.mWidth = 1.0/mScale;
          }
  
-         if (alphaAA && !DEBUG_FAT_LINES)
+         if (alphaAA)
          {
             mPerpLen += 0.5/mScale;
             mElement.mWidth += 1.0/mScale;
@@ -865,7 +864,7 @@ public:
 
    void AddArc(Curves &outCurve, UserPoint inP, double angle, UserPoint inVx, UserPoint inVy, float t)
    {
-      int steps = 1 + mPerpLen*angle*3;
+      int steps = 1 + mPerpLen*mScale*angle*3;
       if (steps>60)
          steps = 60;
       double d_theta = angle / (steps+1);
@@ -900,23 +899,39 @@ public:
 
 
 
-   void cleanCurve(Curves &curve,bool inLoop)
+   void cleanCurve(Curves &curve,bool inLoop,double inSide)
    {
+      bool debug = false;
+      double oT = curve[ curve.size()-1 ].t + 1;
+
+      if (DEBUG_KEEP_LOOPS)
+      {
+         if (inLoop)
+            curve.push_back( CurveEdge( curve[0].p, oT) );
+         return;
+      }
+
       double perp2 = mPerpLen*mPerpLen*4.0;
 
-      for(int startPoint=0; startPoint<curve.size()-3;startPoint++)
+      int lastStart = inLoop ? 0 : -3;
+      for(int startPoint=0; startPoint<curve.size()+lastStart;startPoint++)
       {
          const UserPoint &p0 = curve[startPoint].p;
-         UserPoint &p1 = curve[startPoint+1].p;
+         int startNext = (startPoint+1) % curve.size();
+         UserPoint &p1 = curve[startNext].p;
          UserPoint dp = p1-p0;
          // Merge....
-         if (fabs(dp.x) + fabs(dp.y) < 0.001)
+         double dpLen = dp.x*dp.x + dp.y*dp.y;
+         if (dpLen < 0.0001)
          {
             curve.erase(startPoint,1);
             // will be incremented again
             startPoint--;
             continue;
          }
+         dpLen = inSide*sqrt(dpLen);
+         double dpX = dp.x/dpLen;
+         double dpY = dp.y/dpLen;
 
          float minX = std::min(p0.x,p1.x);
          float maxX = std::max(p0.x,p1.x);
@@ -924,15 +939,29 @@ public:
          float maxY = std::max(p0.y,p1.y);
 
 
-         for(int testPoint = startPoint+2; testPoint<curve.size()-1; testPoint++)
+         int stopOffset = inLoop ? curve.size() : -1;
+         for(int t = startPoint+2; t<curve.size() + stopOffset; t++)
          {
+            int testPoint = t;
+            int testNext = t+1;
+            if (inLoop)
+            {
+               testPoint = testPoint%curve.size();
+               testNext = testNext%curve.size();
+               if (testNext==startPoint || testPoint==startPoint)
+                  break;
+            }
             const UserPoint &l0 = curve[testPoint].p;
 
-            // TODO - should be distance to line
-            if (l0.Dist2(p0) > perp2 && l0.Dist2(p1) > perp2 )
+            //  Distance from testPoint to line-segment l1-l0
+            //    testPoint = l0 + alpha * dp
+            UserPoint dTest = l0-p0;
+            double perp = dTest.x*dpY - dTest.y*dpX;
+            //if (perp<0 || perp > mPerpLen*2)
+            if (perp*perp > perp2)
                break;
 
-            const UserPoint &l1 = curve[testPoint+1].p;
+            const UserPoint &l1 = curve[testNext].p;
             if ( (l0.x<minX && l1.x<minX) ||
                  (l0.x>maxX && l1.x>maxX) ||
                  (l0.y<minY && l1.y<minY) ||
@@ -957,32 +986,123 @@ public:
                                                           (l0.y + b*dl.y - p0.y)/dp.y;
                   //if (a>=0 && a<=1) equals case?
                   {
-                     if (a>0 && a<1 && b>0 && b<1)
+                     if (a>=0 && a<=1)
                      {
                         UserPoint p = p0 + dp*a;
-                        // Remove the loop 
-                        //   c[startPoint]
-                        //    p  <- new point between c[startPoint] and c[startPoint+1]
-                        //    c[startPoint+1]
-                        //    c[startPoint+2]
-                        //    ...
-                        //    c[testPoint]
-                        //    p  <- new point between c[testPoint] and c[testPoint+1]
-                        //    c[testPoint+1]
+                        // Calculate loop-sense ...
+                        double sense = 0.0;
+                        int end = testPoint;
+                        if (end<startNext)
+                           end+=curve.size();
+                        UserPoint prev = p1 - p;;
+                        for(int i=startNext+1; i<end;i++)
                         {
-                           // replace c[startPoint+1] with p, and erase upto and including c[testPoint]
-                           p1 = p;
-                           curve.EraseAt(startPoint+2,testPoint+1);
-                           // Try again...
-                           startPoint--;
-                           break;
+                           UserPoint v = curve[ i%curve.size() ].p - p;
+                           sense += prev.Cross(v);
+                           prev = v;
                         }
+
+                        if (sense*inSide>0) // figure-8 intersection Ok....
+                        {
+                           continue;
+                        }
+                        else
+                        if (testNext<startPoint)
+                        {
+                           if (startNext == 0)
+                           {
+                              // Remove the loop 
+                              //   c[startNext]
+                              //   ...
+                              //   c[testPoint]  <- p
+                              //   c[testNext]
+                              //   ...
+                              //   c[startPoint]
+                              // erase between 0 and testPoint
+                              curve[testPoint].p = p;
+
+                              //curve[testPoint].t = curve[testPoint>>1].t;
+                              curve.EraseAt(0, testPoint);
+                              // Done
+                           }
+                           else if (testPoint<startPoint)
+                           {
+                              // Remove the loop 
+                              //   c[0]
+                              //   ...
+                              //   c[testPoint] <- p
+                              //   c[testNext]
+                              //   ...
+                              //   c[startPoint]
+                              //   c[startNext] <- p
+                              //   ...
+                              // 
+                              curve[testPoint].p = p;
+                              //curve[testPoint].t = curve[testPoint>>1].t;
+                              //curve.EraseAt(startNext,curve.size());
+                              oT = curve[startNext].t;
+                              curve.resize(startNext);
+                              curve.EraseAt(0,testPoint);
+                              startPoint-= testPoint;
+                              startPoint--;
+                           }
+                           else
+                           {
+                              // Remove the loop 
+                              //   c[testNext]  <- p
+                              //   ...
+                              //   c[startPoint]
+                              //   c[startNext]
+                              //   ...
+                              //   c[testPoint]
+                              curve[testNext].p = p;
+                              oT = curve[startNext].t;
+                              curve.EraseAt(startNext,curve.size());
+                              startPoint--;
+                           }
+                        }
+                        else
+                        {
+                           // Remove the loop 
+                           //   c[startPoint]
+                           //   c[startNext]
+                           //    ...
+                           //    c[testPoint] <- p
+                           //    c[testNext]
+                           //    ...
+                           curve[testPoint].p = p;
+                           curve[testPoint].t = curve[ (startNext+testPoint) >> 1].t;
+                           curve.EraseAt(startNext,testPoint);
+                           startPoint -=1;
+                           if (startPoint<-1) startPoint = -1;
+                        }
+                        // Try again...
+                        break;
                      }
                   }
                }
             }
          }
       }
+
+
+      /*
+      double sense = 0;
+      if (inLoop)
+      {
+         int n = inPath.size();
+         for(int i=0;i<n;i++)
+         {
+             const UserPoint &p0 = inPath[i].p;
+             const UserPoint &p1 = inPath[(i+1)%n].p;
+             sense += p0.Cross(p1);
+         }
+      }
+      */
+
+
+      if (inLoop) //&& curve.size()>1 && curve[ curve.size()-1].p != curve[0].p)
+         curve.push_back( CurveEdge( curve[0].p, oT) );
    }
 
 
@@ -1177,29 +1297,39 @@ public:
       }
    }
 
-   UserPoint CalcNormalInfo(const UserPoint &base, UserPoint prev, UserPoint p, float inSign, bool inAllowSmaller)
+   bool ComputeDistInfo(const UserPoint &otherSide, const UserPoint &prev, const UserPoint &p,
+                          UserPoint &outSideInfo, UserPoint &outInfo, double inSign)
    {
        /*
 
         prev                 p
-         +------------------+
-         |                /  
-         |            _/
-         |          /
-         |       /
-         |    /
-         | /
-        base
+   ^     +------------------+   
+   |     +-----------------/+   +Feather zone
+   |     |                /  
+   |     |            _/
+   h     |- - - - - /  Zero line
+   |     |       /
+   |     |    /
+   |     |--
+   v     |.   -Feather Zone
+        otherSide
 
-        Thickness at p =  perp distance from base to prev->p
+        h = perpendicular height
 
        */
 
-      float dist = fabs( (p-base).Dot( (p-prev).Perp(1.0) ) );
-      if (!inAllowSmaller && dist<mElement.mWidth)
-          dist = mElement.mWidth;
-      dist*=0.5*mScale;
-      return UserPoint(dist,dist*inSign);
+      //float lastLen = outSideInfo.x;
+      float h = fabs( (p-otherSide).Dot( (p-prev).Perp(1.0) ) );
+      if (h<mElement.mWidth)
+         h = mElement.mWidth;
+      h *= mScale * 0.5;
+
+      // Shader uses: x - abs(y)
+      outSideInfo = UserPoint(h, inSign*h);
+      outInfo = UserPoint(h, -inSign*h);
+
+      return false;
+      //bool forceTri =  fabs(outSideInfo.x-lastLen) > 1.0;
    }
 
    void AddStrip(const QuickVec<Segment> &inPath, bool inLoop)
@@ -1207,12 +1337,22 @@ public:
       if (inPath.size()<2)
          return;
 
+
+      // Allow shrinking to half the size
+      float s = mScale * 0.5;
+      if (data.mMinScale==0 || s>data.mMinScale)
+         data.mMinScale = s;
+
+      // And growing to 1.41 the size ...
+      s = mScale * 1.41;
+      if (data.mMaxScale==0 || s<data.mMaxScale)
+         data.mMaxScale = s;
+
+
       Curves leftCurve;
       Curves rightCurve;
 
       float t = 0.0;
-      int   prevSegLeft = 0;
-      int   prevSegRight = 0;
 
       // Endcap 0 ...
       if (!inLoop)
@@ -1227,6 +1367,8 @@ public:
 
       UserPoint p;
       UserPoint dir1;
+
+      bool fancyJoints =   mPerpLen*mScale > 1.0 && (mJoints==sjRound || mJoints==sjMiter);
 
       for(int i=1;i<inPath.size();i++)
       {
@@ -1262,9 +1404,6 @@ public:
           UserPoint p0_left = p0-perp0;
           UserPoint p0_right = p0+perp0;
 
-          int segStartLeft = leftCurve.size();
-          int segStartRight = rightCurve.size();
-
           if (seg.isCurve())
           {
              AddCurveSegment(leftCurve,rightCurve,perp0, perp1,p0,seg.curve,seg.p, p0_left, p0_right, p1_left, p1_right,t);
@@ -1284,16 +1423,14 @@ public:
           float segJoinLeft = leftCurve.last().t;
           float segJoinRight = rightCurve.last().t;
 
-          bool reversed = next_dir.Dot(dir1)<0;
-          bool fullReverse = reversed && next_dir.Dot(dir1)<-0.99;
+          float angle = next_dir.Dot(dir1);
+          bool fullReverse = angle<-0.9999;
           if (fullReverse)
           {
              leftCurve.push_back( CurveEdge(p1_right,t) );
              rightCurve.push_back( CurveEdge(p1_left,t) );
-             segStartLeft = prevSegLeft = leftCurve.size();
-             segStartRight = prevSegRight = rightCurve.size();
           }
-          else if (mPerpLen>1 && (mJoints==sjRound || mJoints==sjMiter) && (reversed || fabs(next_dir.Cross(dir1))>0.25 ) )
+          else if ( fancyJoints && angle<0.9 )
           {
              /*
    
@@ -1372,14 +1509,6 @@ public:
              }
           }
           t+=1.0;
-
-          float turnLeft = seg.isCurve() ? segJoinLeft - 0.66 : 0;
-          float turnRight = seg.isCurve() ? segJoinRight - 0.66 : 0;
-          removeLoops(leftCurve,prevSegLeft,turnLeft,&segStartLeft);
-          removeLoops(rightCurve,prevSegRight,turnRight,&segStartRight);
-
-          prevSegLeft = segStartLeft;
-          prevSegRight = segStartRight;
       }
 
       // Endcap end ...
@@ -1388,25 +1517,43 @@ public:
          EndCap(leftCurve, rightCurve, p, dir1.Perp(mPerpLen),t);
       }
 
-      removeLoops(leftCurve,prevSegLeft,0);
-      removeLoops(rightCurve,prevSegRight,0);
+      cleanCurve(leftCurve,inLoop,-1);
+      cleanCurve(rightCurve,inLoop,1);
 
-      if (DEBUG_KEEP_LOOPS==2)
-      {
-         cleanCurve(leftCurve,inLoop);
-         cleanCurve(rightCurve,inLoop);
-      }
-
-
-      if (leftCurve.size()<2 || rightCurve.size()<2)
+      if (leftCurve.size()<1 || rightCurve.size()<1)
+         return;
+      if (leftCurve.size()<3 && rightCurve.size()<3)
          return;
 
       bool useTriStrip = true;
       bool keepTriSense = true;
 
 
-      if (DEBUG_FAT_LINES)
+      bool debug = false;
+      /*
+      if (debug)
       {
+         printf("Left %d\n", leftCurve.size());
+         for(int i=0;i<leftCurve.size();i++)
+            printf("  %d  %f,%f   %f\n", i, leftCurve[i].p.x, leftCurve[i].p.y, leftCurve[i].t );
+
+         printf("Right %d\n", rightCurve.size());
+         for(int i=0;i<rightCurve.size();i++)
+            printf("  %d  %f,%f   %f\n", i, rightCurve[i].p.x, rightCurve[i].p.y, rightCurve[i].t );
+      }
+      */
+
+      if (DEBUG_FAT_LINES==1)
+      {
+         if (mElement.mFlags & DRAW_HAS_NORMAL)
+         {
+            mElement.mFlags &= ~DRAW_HAS_NORMAL;
+            mElement.mNormalOffset = 0;
+            mElement.mStride -= sizeof(float)*2.0;
+         }
+         mElement.mWidth = 1;
+ 
+
          for(int side=0; side<2; side++)
          {
             Curves &curve = side==0 ? leftCurve : rightCurve;
@@ -1422,7 +1569,7 @@ public:
                *v = curve[i].p;
                Next(v);
             }
-            
+
             if (mElement.mSurface)
                CalcTexCoords();
 
@@ -1436,7 +1583,9 @@ public:
          return;
       }
 
-      data.mArray.reserve( mElement.mVertexOffset + (leftCurve.size() + rightCurve.size()) * mElement.mStride * (useTriStrip?2:3) );
+
+      data.mArray.reserve( mElement.mVertexOffset + (leftCurve.size() + rightCurve.size())
+                          * mElement.mStride * (useTriStrip?3:3) );
 
 
 
@@ -1446,22 +1595,11 @@ public:
       UserPoint pLeft = leftCurve[0].p;
       UserPoint pRight = rightCurve[0].p;
 
-      UserPoint leftNormal(mElement.mWidth*0.5, -mPerpLen);
-      UserPoint rightNormal(mElement.mWidth*0.5, mPerpLen);
+      UserPoint rightNormal(mPerpLen*mScale, -(mPerpLen*mScale+1.0));
+      UserPoint leftNormal(mPerpLen*mScale, mPerpLen*mScale+1.0);
 
 
-      if (useTriStrip)
-      {
-         *v = pRight; Next(v);
-         if (normal)
-            {  *normal = rightNormal; Next(normal); }
-
-         *v = pLeft; Next(v);
-         if (normal)
-            {  *normal = leftNormal; Next(normal); }
-      }
-
-      int added = useTriStrip ? 2 : 0;
+      int added = 0;
       int left = 1;
       int right = 1;
 
@@ -1475,47 +1613,77 @@ public:
          //printf("  %d(%f),%d(%f)\n", left, leftCurve[left].t, right, rightCurve[right].t );
          bool preferRight =
              left>=leftCurve.size() || (right<rightCurve.size() && rightCurve[right].t < leftCurve[left].t);
+
          if (preferRight)
          {
             float testT = rightCurve[right].t;
             UserPoint test = rightCurve[right++].p;
-            if ( mPerpLen<mFatLineCullThresh || (test-pLeft).Cross(pRight-pLeft)>=0)
-            {
+            bool forceTri = ComputeDistInfo(pLeft, pRight, test, leftNormal, rightNormal, 1);
+
+
                if (!useTriStrip)
                {
                   *v = pRight; Next(v);
                   if (normal)
-                     { *normal = rightNormal; Next(normal); }
+                  {
+                     *normal = rightNormal;
+                     Next(normal);
+                  }
 
                   *v = pLeft; Next(v);
                   if (normal)
-                     { *normal = leftNormal; Next(normal); }
+                  {
+                     *normal = leftNormal;
+                     Next(normal);
+                  }
                   added+=2;
                }
-               else if (keepTriSense && prevEdge!=PREV_LEFT)
+               else
                {
-                  *v = pLeft; Next(v);
-                  if (normal)
-                     { *normal = leftNormal; Next(normal); }
-                  added++;
+                  if (added==0)
+                  {
+                     *v = pLeft; Next(v);
+                     if (normal)
+                        {  *normal = leftNormal; Next(normal); }
+
+                     *v = pRight; Next(v);
+                     if (normal)
+                        {  *normal = rightNormal; Next(normal); }
+                     added += 2;
+                  }
+                  else if (forceTri || (keepTriSense && prevEdge!=PREV_LEFT))
+                  {
+                     if (prevEdge==PREV_LEFT)
+                     {
+                        *v = pRight; Next(v);
+                        if (normal)
+                           { *normal = rightNormal; Next(normal); }
+                        added++;
+                     }
+
+                     *v = pLeft; Next(v);
+                     if (normal)
+                        { *normal = leftNormal; Next(normal); }
+                     added++;
+                  }
                }
+
                added++;
                if (normal)
                {
-                  *normal = rightNormal = CalcNormalInfo(pLeft, pRight, test, 1.0, testT<1 ||testT>=t);
+                  *normal = rightNormal;
                   Next(normal);
                }
                *v = pRight = test;
                Next(v);
                prevEdge = PREV_RIGHT;
-            }
          }
          else
          {
             float testT = rightCurve[left].t;
             UserPoint test = leftCurve[left++].p;
-            if ( mPerpLen<mFatLineCullThresh || (test-pLeft).Cross(pRight-pLeft)>=0)
-            {
+            bool forceTri = ComputeDistInfo(pRight, pLeft, test, rightNormal, leftNormal, -1);
+
                if (!useTriStrip)
                {
                   *v = pRight; Next(v);
@@ -1527,24 +1695,46 @@ public:
                      { *normal = leftNormal; Next(normal); }
                   added+=2;
                }
-               else if (keepTriSense && prevEdge!=PREV_RIGHT)
+               else
                {
-                  *v = pRight; Next(v);
-                  if (normal)
-                     {  *normal = rightNormal; Next(normal); }
-                  added++;
+                  if (added==0)
+                  {
+                     *v = pLeft; Next(v);
+                     if (normal)
+                        {  *normal = leftNormal; Next(normal); }
+
+                     *v = pRight; Next(v);
+                     if (normal)
+                        {  *normal = rightNormal; Next(normal); }
+
+                     added+=2;
+                  }
+                  else if (forceTri || (keepTriSense && prevEdge!=PREV_RIGHT))
+                  {
+                     if (prevEdge==PREV_RIGHT)
+                     {
+                        *v = pLeft; Next(v);
+                        if (normal)
+                           {  *normal = leftNormal; Next(normal); }
+                        added++;
+                     }
+
+                     *v = pRight; Next(v);
+                     if (normal)
+                        {  *normal = rightNormal; Next(normal); }
+                     added++;
+                  }
                }
- 
+
                added++;
                if (normal)
                {
-                  *normal = leftNormal = CalcNormalInfo(pRight, pLeft, test, -1.0, testT<1 || testT>=t);
+                  *normal = leftNormal;
                   Next(normal);
                }
                *v = pLeft = test;
                Next(v);
                prevEdge = PREV_LEFT;
-            }
          }
       }
 
@@ -1661,14 +1851,6 @@ public:
 
       if (strip.size()>1)
       {
-         float s = mScale * 0.707;
-         if (data.mMinScale==0 || s>data.mMinScale)
-            data.mMinScale = s;
-
-         s = mScale * 1.41;
-         if (data.mMaxScale==0 || s<data.mMaxScale)
-            data.mMaxScale = s;
-       
          AddStrip(strip,false);
       }
    }

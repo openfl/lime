@@ -27,7 +27,6 @@
 
 #ifdef ANDROID
 #include <android/log.h>
-#include <sstream>
 #endif
 
 #ifdef TIZEN
@@ -198,39 +197,47 @@ std::string WideToUTF8(const WString &inWideString)
 
 #endif
 
+void NumberToWide(WString &outResult, bool inNegative, unsigned int value, int inBase)
+{
+   const char *chars = "0123456789ABCDEF";
+   wchar_t buffer[16];
+   int pos = 0;
+
+   if (value==0)
+   {
+      buffer[pos++]=chars[0];
+   }
+   else
+   {
+      if (inNegative)
+         buffer[pos++] = '-';
+
+      char reverseDigits[16];
+      int rpos = 0;
+      while(value>0)
+      {
+         reverseDigits[rpos++] = chars[value%inBase];
+         value /= inBase;
+      }
+      while(rpos>0)
+         buffer[pos++] = reverseDigits[--rpos];
+   }
+
+   outResult = WString( buffer, pos );
+}
 
 WString IntToWide(int value)
 {
-  #ifdef ANDROID
-  std::wstringstream wss;
-  wss << value;
-  return WString(wss.str().c_str());
-  #else
-	wchar_t buffer[16];
-   #ifdef __MINGW32__
-	swprintf(buffer, L"%i", value);
-   #else
-	swprintf(buffer, 16, L"%i", value);
-   #endif
-	return WString(buffer);
-  #endif
+   WString result;
+   NumberToWide(result, value<0, abs(value), 10);
+   return result;
 }
 
 WString ColorToWide(int value)
 {
-  #ifdef ANDROID
-  std::wstringstream wss;
-  wss << value;
-  return WString(wss.str().c_str());
-  #else
-	wchar_t buffer[40];
-   #ifdef __MINGW32__
-	swprintf(buffer, L"%X", value);
-   #else
-	swprintf(buffer, 40, L"%X", value);
-   #endif
-	return WString(buffer);
-  #endif
+   WString result;
+   NumberToWide(result, false, (unsigned int)value, 16);
+   return result;
 }
 
 

@@ -1503,21 +1503,21 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
          window = NULL;
       }
 
-      window = SDL_CreateWindow (inTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, setWidth, setHeight, requestWindowFlags);
+      window = SDL_CreateWindow(inTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, setWidth, setHeight, requestWindowFlags);
       
       #ifdef HX_WINDOWS
-      HINSTANCE handle = ::GetModuleHandle (nullptr);
-      HICON icon = ::LoadIcon (handle, MAKEINTRESOURCE (1));
+      HINSTANCE handle = ::GetModuleHandle(0);
+      HICON icon = ::LoadIcon(handle, MAKEINTRESOURCE (1));
       
-      if (icon != nullptr)
+      if (icon)
       {
          SDL_SysWMinfo wminfo;
          SDL_VERSION (&wminfo.version);
          
-         if (SDL_GetWindowWMInfo (window, &wminfo) == 1)
+         if (SDL_GetWindowWMInfo(window, &wminfo) == 1)
          {
             HWND hwnd = wminfo.info.win.window;
-            ::SetClassLong (hwnd, GCL_HICON, reinterpret_cast<LONG>(icon));
+            ::SetClassLong(hwnd, GCL_HICON, reinterpret_cast<LONG>(icon));
          }
       }
       #endif
