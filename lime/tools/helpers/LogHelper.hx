@@ -3,9 +3,14 @@ package lime.tools.helpers;
 
 import haxe.io.Bytes;
 import lime.tools.helpers.PlatformHelper;
-import neko.Lib;
 import lime.project.Platform;
 import sys.io.Process;
+
+#if neko
+import neko.Lib;
+#elseif cpp
+import cpp.Lib;
+#end
 
 
 class LogHelper {

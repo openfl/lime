@@ -7,7 +7,7 @@ class AntHelper {
 	private static var ant:String;
 	
 	
-	public static function initialize (defines:Hash <String>):Void {
+	public static function initialize (defines:Map <String, String>):Void {
 		
 		if (defines.exists ("ANDROID_SDK")) {
 			

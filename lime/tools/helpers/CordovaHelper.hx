@@ -1,10 +1,10 @@
 package lime.tools.helpers;
 
 
-import data.Asset;
-import data.Icons;
 import haxe.io.Eof;
 import haxe.io.Path;
+import lime.project.Asset;
+import lime.project.Icon;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -12,12 +12,12 @@ import sys.FileSystem;
 class CordovaHelper {
 	
 	
-	public static var contentPath = "www/";
+	/*public static var contentPath = "www/";
 	
-	private static var defines:Hash <String>;
+	private static var defines:Map <String, String>;
 	private static var NME:String;
 	private static var target:String;
-	private static var targetFlags:Hash <String>;
+	private static var targetFlags:Map <String, String>;
 	
 	
 	public static function build (workingDirectory:String, debug:Bool):Void {
@@ -182,7 +182,7 @@ class CordovaHelper {
 	}
 	
 	
-	public static function initialize (defines:Hash <String>, targetFlags:Hash <String>, target:String, NME:String):Void {
+	public static function initialize (defines:Map <String, String>, targetFlags:Map <String, String>, target:String, NME:String):Void {
 		
 		CordovaHelper.defines = defines;
 		CordovaHelper.NME = NME;
@@ -292,7 +292,7 @@ class CordovaHelper {
 	}
 	
 	
-	public static function updateIcon (buildDirectory:String, icons:Icons, assets:Array <Asset>, context:Dynamic):Void {
+	public static function updateIcon (buildDirectory:String, icons:Array<Icon>, assets:Array <Asset>, context:Dynamic):Void {
 		
 		var iconCount = 0;
 		var sizes = [];
@@ -351,7 +351,7 @@ class CordovaHelper {
 			
 		}
 		
-	}
+	}*/
 	
-
+	
 }

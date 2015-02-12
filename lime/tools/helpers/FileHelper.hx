@@ -14,7 +14,12 @@ import lime.project.Platform;
 import sys.io.File;
 import sys.io.FileOutput;
 import sys.FileSystem;
+
+#if neko
 import neko.Lib;
+#elseif cpp
+import cpp.Lib;
+#end
 
 
 class FileHelper {

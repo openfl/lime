@@ -3,11 +3,6 @@ package lime.tools.helpers;
 
 //import openfl.text.Font;
 //import openfl.utils.ByteArray;
-import format.swf.Data;
-import format.swf.Constants;
-import format.swf.Reader;
-import format.swf.Writer;
-import format.wav.Data;
 import haxe.io.Bytes;
 import haxe.io.Path;
 import lime.tools.helpers.LogHelper;
@@ -21,6 +16,14 @@ import sys.io.File;
 import sys.FileSystem;
 import sys.io.FileSeek;
 
+#if format
+import format.swf.Data;
+import format.swf.Constants;
+import format.swf.Reader;
+import format.swf.Writer;
+import format.wav.Data;
+#end
+
 
 class FlashHelper {
 	
@@ -28,6 +31,7 @@ class FlashHelper {
 	private static var swfAssetID = 1000;
 	
 	
+	#if format
 	private static function embedAsset (inAsset:Asset, packageName:String, outTags:Array<SWFTag>) {
 		
 		var embed = inAsset.embed;
@@ -457,6 +461,7 @@ class FlashHelper {
 		return true;
 		
 	}
+	#end
 	
 	
 	/*public static function embedAssets (targetPath:String, assets:Array <Asset>, packageName:String = ""):Void {
@@ -533,6 +538,7 @@ class FlashHelper {
 	
 	private static function compileSWC (project:HXProject, assets:Array<Asset>, id:Int):Void {
 		
+		#if format
 		var destination = project.app.path + "/flash/obj";
 		PathHelper.mkdir (destination);
 		
@@ -594,6 +600,7 @@ class FlashHelper {
 		
 		for (asset in assets) {
 			
+			#if format
 			try {
 				
 				if (asset.type != AssetType.TEMPLATE && embedAsset (asset, packageName, tags)) {
@@ -607,6 +614,7 @@ class FlashHelper {
 				Sys.println ("Error embedding \"" + asset.sourcePath + "\": " + e);
 				
 			}
+			#end
 			
 		}
 		
@@ -621,6 +629,7 @@ class FlashHelper {
 			output.close ();
 			
 		}
+		#end
 		
 	}
 	

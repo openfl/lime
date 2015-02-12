@@ -7,12 +7,12 @@ import sys.FileSystem;
 class AIRHelper {
 	
 	
-	private static var defines:Hash <String>;
+	/*private static var defines:Map <String, String>;
 	private static var target:String;
-	private static var targetFlags:Hash <String>;
+	private static var targetFlags:Map <String, String>;
 	
 	
-	public static function initialize (defines:Hash <String>, targetFlags:Hash <String>, target:String, NME:String):Void {
+	public static function initialize (defines:Map <String, String>, targetFlags:Map <String, String>, target:String, NME:String):Void {
 		
 		AIRHelper.defines = defines;
 		AIRHelper.targetFlags = targetFlags;
@@ -141,7 +141,6 @@ class AIRHelper {
 		}
 		
 		args = args.concat (files);
-		//args = args.concat ([ sourcePath /*, "icon_16.png", "icon_32.png", "icon_48.png", "icon_128.png"*/ ]);
 		
 		ProcessHelper.runCommand (workingDirectory, defines.get ("AIR_SDK") + "/bin/adt", args);
 		
@@ -195,7 +194,7 @@ class AIRHelper {
 			
 		}
 		
-	}
-		
-
+	}*/
+	
+	
 }

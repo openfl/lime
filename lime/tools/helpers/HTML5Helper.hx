@@ -7,13 +7,18 @@ import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.PathHelper;
 import lime.tools.helpers.PlatformHelper;
 import lime.tools.helpers.ProcessHelper;
-import neko.vm.Thread;
 import lime.project.Architecture;
 import lime.project.Asset;
 import lime.project.Haxelib;
 import lime.project.HXProject;
 import lime.project.Platform;
 import sys.FileSystem;
+
+#if neko
+import neko.vm.Thread;
+#elseif cpp
+import cpp.vm.Thread;
+#end
 
 
 class HTML5Helper {
