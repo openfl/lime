@@ -22,7 +22,7 @@ class ApplicationMain {
 		preloader.onComplete = start;
 		preloader.create (config);
 		
-		#if js
+		#if (js && html5)
 		var urls = [];
 		var types = [];
 		
@@ -37,7 +37,15 @@ class ApplicationMain {
 		::else::types.push (null);::end::
 		::end::::end::
 		
-		urls = [for (url in urls) Assets.getPath(url)];
+		if (config.assetsPrefix != null) {
+			
+			for (i in 0...urls.length) {
+				
+				urls[i] = config.assetsPrefix + urls[i];
+				
+			}
+			
+		}
 		
 		preloader.load (urls, types);
 		#end
