@@ -47,7 +47,8 @@
 		
 		<haxedef name="lime-curl" unless="lime-console || emscripten" />
 		<haxedef name="lime-opengl" unless="lime-console" />
-		<haxedef name="lime-openal" unless="lime-console || static_link || emscripten" />
+		<haxedef name="lime-openal" unless="lime-console || static_link" />
+		<haxedef name="lime-openal" if="emscripten" />
 		
 	</section>
 	
