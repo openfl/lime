@@ -60,8 +60,6 @@ class EmscriptenPlatform extends PlatformTarget {
 			
 		}
 		
-		Sys.putEnv ("EMCC_LLVM_TARGET", "i386-pc-linux-gnu");
-		
 		ProcessHelper.runCommand ("", "emcc", [ targetDirectory + "/obj/Main.cpp", "-o", targetDirectory + "/obj/Main.o" ], true, false, true);
 		
 		var args = [ "Main.o" ];
@@ -78,19 +76,19 @@ class EmscriptenPlatform extends PlatformTarget {
 		
 		args = [ "ApplicationMain.o", "-s", "FULL_ES2=1" ];
 		
-		if (project.targetFlags.exists ("asm")) {
+		//if (project.targetFlags.exists ("asm")) {
 			
 			args.push ("-s");
 			args.push ("ASM_JS=1");
 			
-		} else {
+		/*} else {
 			
 			args.push ("-s");
 			args.push ("ASM_JS=0");
 			args.push ("-s");
 			args.push ("ALLOW_MEMORY_GROWTH=1");
 			
-		}
+		}*/
 		
 		args.push ("-s");
 		args.push ("USE_SDL=2");
@@ -106,19 +104,21 @@ class EmscriptenPlatform extends PlatformTarget {
 			
 			args.push ("-s");
 			args.push ("DISABLE_EXCEPTION_CATCHING=2");
+			args.push ("-s");
+			args.push ("ASSERTIONS=1");
 			
 		}
 		
-		if (!project.debug || project.targetFlags.exists ("asm")) {
+		//if (!project.debug || project.targetFlags.exists ("asm")) {
 			
 			args.push ("-O2");
 			
-		} else {
+		//} else {
 			
 			//args.push ("--minify");
 			//args.push ("1");
 			
-		}
+		//}
 		
 		if (project.targetFlags.exists ("minify")) {
 			

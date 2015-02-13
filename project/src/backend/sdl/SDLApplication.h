@@ -26,6 +26,11 @@ namespace lime {
 			virtual void Init ();
 			virtual int Quit ();
 			virtual bool Update ();
+			
+			#ifdef EMSCRIPTEN
+			static SDLApplication *currentApplication;
+			static void EmscriptenUpdate ();
+			#endif
 		
 		private:
 			

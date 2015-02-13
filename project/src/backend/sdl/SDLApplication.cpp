@@ -4,6 +4,10 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+#ifdef EMSCRIPTEN
+#include "emscripten.h"
+#endif
+
 
 namespace lime {
 	
@@ -21,6 +25,11 @@ namespace lime {
 	SDLApplication::SDLApplication () {
 		
 		SDL_Init (SDL_INIT_VIDEO | SDL_INIT_TIMER);
+		
+		#ifdef EMSCRIPTEN
+		currentApplication = this;
+		emscripten_set_main_loop (EmscriptenUpdate, 0, 0);
+		#endif
 		
 		currentUpdate = 0;
 		lastUpdate = 0;
@@ -60,6 +69,12 @@ namespace lime {
 		
 		Init ();
 		
+		#ifdef EMSCRIPTEN
+		
+		return 0;
+		
+		#else
+		
 		while (active) {
 			
 			Update ();
@@ -67,6 +82,8 @@ namespace lime {
 		}
 		
 		return Quit ();
+		
+		#endif
 		
 	}
 	
@@ -309,6 +326,8 @@ namespace lime {
 		SDL_Event event;
 		event.type = -1;
 		
+		#ifndef EMSCRIPTEN
+		
 		if (active && (firstTime || SDL_WaitEvent (&event))) {
 			
 			firstTime = false;
@@ -341,6 +360,21 @@ namespace lime {
 			
 		}
 		
+		#else
+		
+		while (SDL_PollEvent (&event)) {
+			
+			HandleEvent (&event);
+			event.type = -1;
+			
+		}
+		
+		event.type = SDL_USEREVENT;
+		HandleEvent (&event);
+		event.type = -1;
+		
+		#endif
+		
 		return active;
 		
 	}
@@ -351,6 +385,17 @@ namespace lime {
 		return new SDLApplication ();
 		
 	}
+	
+	
+	#ifdef EMSCRIPTEN
+	SDLApplication* SDLApplication::currentApplication = 0;
+	
+	void SDLApplication::EmscriptenUpdate () {
+		
+		currentApplication->Update ();
+		
+	}
+	#endif
 	
 	
 }

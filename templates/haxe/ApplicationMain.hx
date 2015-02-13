@@ -13,6 +13,11 @@ class ApplicationMain {
 	
 	public static function create ():Void {
 		
+		#if !munit
+		app = new ::APP_MAIN:: ();
+		app.create (config);
+		#end
+		
 		preloader = new ::if (PRELOADER_NAME != "")::::PRELOADER_NAME::::else::lime.app.Preloader::end:: ();
 		preloader.onComplete = start;
 		preloader.create (config);
@@ -71,12 +76,9 @@ class ApplicationMain {
 		
 		#if !munit
 		
-		app = new ::APP_MAIN:: ();
-		app.create (config);
-		
 		var result = app.exec ();
 		
-		#if (sys && !nodejs)
+		#if (sys && !nodejs && !emscripten)
 		Sys.exit (result);
 		#end
 		

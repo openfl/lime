@@ -151,6 +151,14 @@
 			
 		</section>
 		
+		<section if="LIME_ZLIB">
+			
+			<compilerflag value="-DSTATIC_LINK" if="emscripten" />
+			
+			<file name="${HXCPP}/project/libs/zlib/ZLib.cpp" if="emscripten" />
+			
+		</section>
+		
 		<file name="src/app/UpdateEvent.cpp" />
 		<file name="src/audio/format/WAV.cpp" />
 		<file name="src/audio/AudioBuffer.cpp" />
