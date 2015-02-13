@@ -74,25 +74,7 @@ class EmscriptenPlatform extends PlatformTarget {
 		args = args.concat ([ "ApplicationMain" + (project.debug ? "-debug" : "") + ".a", "-o", "ApplicationMain.o" ]);
 		ProcessHelper.runCommand (targetDirectory + "/obj", "emcc", args, true, false, true);
 		
-		//args = [ "ApplicationMain.o", "-s", "FULL_ES2=1" ];
-		args = [ "ApplicationMain.o" ];
-		
-		//if (project.targetFlags.exists ("asm")) {
-			
-			args.push ("-s");
-			args.push ("ASM_JS=1");
-			
-		/*} else {
-			
-			args.push ("-s");
-			args.push ("ASM_JS=0");
-			args.push ("-s");
-			args.push ("ALLOW_MEMORY_GROWTH=1");
-			
-		}*/
-		
-		args.push ("-s");
-		args.push ("USE_SDL=2");
+		args = [ "ApplicationMain.o", "-s", "ASM_JS=1", "-s", "NO_EXIT_RUNTIME=1", "-s", "USE_SDL=2" ];
 		
 		if (!project.debug) {
 			
@@ -100,6 +82,7 @@ class EmscriptenPlatform extends PlatformTarget {
 			args.push ("DISABLE_EXCEPTION_CATCHING=0");
 			//args.push ("-s");
 			//args.push ("OUTLINING_LIMIT=70000");
+			args.push ("-O2");
 			
 		} else {
 			
@@ -107,19 +90,12 @@ class EmscriptenPlatform extends PlatformTarget {
 			args.push ("DISABLE_EXCEPTION_CATCHING=2");
 			args.push ("-s");
 			args.push ("ASSERTIONS=1");
+			args.push ("-O1");
 			
 		}
 		
-		//if (!project.debug || project.targetFlags.exists ("asm")) {
-			
-			args.push ("-O2");
-			
-		//} else {
-			
-			//args.push ("--minify");
-			//args.push ("1");
-			
-		//}
+		args.push ("-s");
+		args.push ("ALLOW_MEMORY_GROWTH=1");
 		
 		if (project.targetFlags.exists ("minify")) {
 			

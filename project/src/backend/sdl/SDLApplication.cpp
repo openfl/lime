@@ -28,7 +28,10 @@ namespace lime {
 		
 		#ifdef EMSCRIPTEN
 		currentApplication = this;
+		
+		emscripten_cancel_main_loop ();
 		emscripten_set_main_loop (EmscriptenUpdate, 0, 0);
+		emscripten_set_main_loop_timing (EM_TIMING_RAF, 1);
 		#endif
 		
 		currentUpdate = 0;
