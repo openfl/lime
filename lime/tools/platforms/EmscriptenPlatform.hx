@@ -74,7 +74,8 @@ class EmscriptenPlatform extends PlatformTarget {
 		args = args.concat ([ "ApplicationMain" + (project.debug ? "-debug" : "") + ".a", "-o", "ApplicationMain.o" ]);
 		ProcessHelper.runCommand (targetDirectory + "/obj", "emcc", args, true, false, true);
 		
-		args = [ "ApplicationMain.o", "-s", "FULL_ES2=1" ];
+		//args = [ "ApplicationMain.o", "-s", "FULL_ES2=1" ];
+		args = [ "ApplicationMain.o" ];
 		
 		//if (project.targetFlags.exists ("asm")) {
 			
