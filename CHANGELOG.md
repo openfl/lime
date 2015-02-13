@@ -1,3 +1,11 @@
+2.1.1 (02/13/2015)
+------------------
+
+* Added initial Emscripten target support
+* Fixed regression in HTML5 font asset embedding
+* Minor improvement to SWF embedding for Flash target
+
+
 2.1.0 (02/11/2015)
 ------------------
 
