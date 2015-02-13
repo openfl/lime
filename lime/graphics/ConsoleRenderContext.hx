@@ -1,65 +1,29 @@
 package lime.graphics; #if lime_console
 
-
+import cpp.Float32;
+import cpp.UInt8;
+import cpp.UInt32;
+import lime.ConsoleIncludePaths;
 import lime.system.System;
 
 
+@:headerCode("#include <ConsoleRenderContext.h>")
 class ConsoleRenderContext {
-	
-	
-	private var depth = 0.0;
-	private var stencil = 0;
-	
-	
-	public function new () {
-		
-		
-		
+
+
+	public function new() {
+
+
+
 	}
 	
 	
-	public inline function clear ():Void {
+	public inline function clear (a:UInt8, r:UInt8, g:UInt8, b:UInt8, depth:Float32 = 1.0, stencil:UInt8 = 0):Void {
 		
-		lime_console_render_clear ();
-		
-	}
-	
-	
-	public inline function clearColor (r:Float, g:Float, b:Float, a:Float):Void {
-		
-		lime_console_render_set_clear_color (r, g, b, a);
+		untyped __cpp__ ("lime::console_render_clear ({0}, {1}, {2}, {3}, {4}, {5})",
+			a, r, g, b, depth, stencil);
 		
 	}
-	
-	
-	public inline function clearDepth (depth:Float):Void {
-		
-		this.depth = depth;
-		
-		lime_console_render_set_clear_depth_stencil (depth, stencil);
-		
-	}
-	
-	
-	public inline function clearStencil (stencil:Int):Void {
-		
-		this.stencil = stencil;
-		
-		lime_console_render_set_clear_depth_stencil (depth, stencil);
-		
-	}
-	
-	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	private static var lime_console_render_set_clear_color = System.load ("lime", "lime_console_render_set_clear_color", 4);
-	private static var lime_console_render_set_clear_depth_stencil = System.load ("lime", "lime_console_render_set_clear_depth_stencil", 2);
-	private static var lime_console_render_clear = System.load ("lime", "lime_console_render_clear", 0);
 	
 	
 }
@@ -78,10 +42,7 @@ class ConsoleRenderContext {
 	}
 	
 	
-	public function clear ():Void {}
-	public function clearColor (r:Float, g:Float, b:Float, a:Float):Void {}
-	public function clearDepth (depth:Float):Void {}
-	public function clearStencil (stencil:Int):Void {}
+	public function clear (a:Int, r:Int, g:Int, b:Int, depth:Float = 1.0, stencil:Int = 0):Void {}
 	
 	
 }
