@@ -49,7 +49,7 @@ class ApplicationMain {
 				
 			}
 			
-		}}
+		}
 		
 		preloader.load (urls, types);
 		#end
