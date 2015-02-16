@@ -299,9 +299,11 @@ class FlashHelper {
 			var font = face.decompose ();
 			var font_name = font.family_name;
 			//fallback for font name is case no one could be found..
-			if ( font_name == null || font_name.length == 0 )
+			if ( font_name == null || font_name.length == 0 ) {
 				font_name = Path.withoutExtension(name).split("/").pop().split("\\").pop();
-				
+				LogHelper.warn("Font name could not be parsed from font file " + path + ", so we use file name as fontName : " + font_name);
+			}
+			
 			var glyphs = new Array <Font2GlyphData> ();
 			var glyph_layout = new Array <FontLayoutGlyphData> ();
 			

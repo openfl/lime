@@ -915,7 +915,13 @@ class HXProject {
 					try {
 						
 						var font = Font.fromFile (asset.sourcePath);
-						embeddedAsset.fontName = font.fontName;
+						var font_name = font.fontName;
+						//fallback for font name is case no one could be found..
+						if ( font_name == null || font_name.length == 0 ) {
+							font_name = Path.withoutExtension(asset.resourceName).split("/").pop().split("\\").pop();
+							LogHelper.warn("Font name could not be parsed from font file " + asset.sourcePath + ", so we use file name as fontName : " + font_name);
+						}
+						embeddedAsset.fontName = font_name;
 						
 					} catch (e:Dynamic) {}
 					
