@@ -20,11 +20,11 @@ class DeploymentHelper {
 			
 			if (parent != null && parent != "") {
 				
-				ProcessHelper.runCommand (targetDirectory, "drive", [ "upload", "-f", targetPath, "-p", parent ]);
+				ProcessHelper.runCommand ("", "drive", [ "upload", "-f", targetPath, "-p", parent ]);
 				
 			} else {
 				
-				ProcessHelper.runCommand (targetDirectory, "drive", [ "upload", "-f", targetPath ]);
+				ProcessHelper.runCommand ("", "drive", [ "upload", "-f", targetPath ]);
 				
 			}
 			
