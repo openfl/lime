@@ -10,8 +10,25 @@ class DeploymentHelper {
 	public static function deploy (project:HXProject, targetFlags:Map <String, String>, targetDirectory:String) {
 		
 		var name = project.meta.title + " (" + project.meta.version + ").zip";
+		var targetPath = PathHelper.combine (targetDirectory, name);
 		
-		ZipHelper.compress (PathHelper.combine (targetDirectory, "bin"), PathHelper.combine (targetDirectory, name));
+		ZipHelper.compress (PathHelper.combine (targetDirectory, "bin"), targetPath);
+		
+		if (targetFlags.exists ("gdrive")) {
+			
+			var parent = targetFlags.get ("gdrive");
+			
+			if (parent != null && parent != "") {
+				
+				ProcessHelper.runCommand (targetDirectory, "drive", [ "upload", "-f", targetPath, "-p", parent ]);
+				
+			} else {
+				
+				ProcessHelper.runCommand (targetDirectory, "drive", [ "upload", "-f", targetPath ]);
+				
+			}
+			
+		}
 		
 	}
 	
