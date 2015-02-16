@@ -294,10 +294,7 @@ class FlashHelper {
 		} else if (type == AssetType.FONT) {
 			
 			// More code ripped off from "samhaxe"
-			
 			var src = path;
-			//var font_name = Path.withoutExtension (name);
-			
 			var face = Font.fromFile (src);
 			var font = face.decompose ();
 			var font_name = font.family_name;
@@ -822,8 +819,8 @@ class FlashHelper {
 		
 		if (assets.length > 0) {
 			
-			
-			project.haxeflags.push ("-swf-lib " + PathHelper.tryFullPath(project.app.path) + "/flash/obj/assets.swf");
+			project.haxeflags.push("-cp bin/flash/obj/");
+			project.haxeflags.push ("-swf-lib assets.swf");
 			project.haxedefs.set ("flash-use-stage", "");
 			
 			return true;

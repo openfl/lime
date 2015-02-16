@@ -11,7 +11,7 @@ class ApplicationMain {
 	private static var app:lime.app.Application;
 	
 	
-	public static function create ():Void {
+	public static function __create ():Void {
 		
 		preloader = new ::if (PRELOADER_NAME != "")::::PRELOADER_NAME::::else::lime.app.Preloader::end:: ();
 		preloader.onComplete = start;
@@ -59,7 +59,7 @@ class ApplicationMain {
 		}
 		
 		#if (!html5 || munit)
-		create ();
+		__create ();
 		#end
 		
 	}
