@@ -300,11 +300,12 @@ class FlashHelper {
 			// More code ripped off from "samhaxe"
 			
 			var src = path;
-			//var font_name = Path.withoutExtension (name);
-			
 			var face = Font.fromFile (src);
 			var font = face.decompose ();
 			var font_name = font.family_name;
+			//fallback for font name is case no one could be found..
+			if ( font_name == null || font_name.length == 0 )
+				font_name = Path.withoutExtension(name).split("/").pop().split("\\").pop();
 			
 			var glyphs = new Array <Font2GlyphData> ();
 			var glyph_layout = new Array <FontLayoutGlyphData> ();
