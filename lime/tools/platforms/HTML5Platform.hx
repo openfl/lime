@@ -4,6 +4,7 @@ package lime.tools.platforms;
 import haxe.io.Path;
 import haxe.Template;
 import lime.tools.helpers.AssetHelper;
+import lime.tools.helpers.DeploymentHelper;
 import lime.tools.helpers.FileHelper;
 import lime.tools.helpers.HTML5Helper;
 import lime.tools.helpers.LogHelper;
@@ -74,6 +75,13 @@ class HTML5Platform extends PlatformTarget {
 			PathHelper.removeDirectory (targetDirectory);
 			
 		}
+		
+	}
+	
+	
+	public override function deploy ():Void {
+		
+		DeploymentHelper.deploy (project, targetFlags, targetDirectory);
 		
 	}
 	

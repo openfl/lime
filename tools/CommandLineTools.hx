@@ -113,7 +113,7 @@ class CommandLineTools {
 				
 				updateLibrary ();
 			
-			case "clean", "update", "display", "build", "run", "rerun", /*"install",*/ "uninstall", "trace", "test":
+			case "clean", "update", "display", "build", "run", "rerun", /*"install",*/ "uninstall", "trace", "test", "deploy":
 				
 				if (words.length < 1 || words.length > 2) {
 					
@@ -702,9 +702,10 @@ class CommandLineTools {
 		LogHelper.println ("  \x1b[1mbuild\x1b[0m -- Compile and package for the specified project/target");
 		LogHelper.println ("  \x1b[1mrun\x1b[0m -- Install and run for the specified project/target");
 		LogHelper.println ("  \x1b[1mtest\x1b[0m -- Update, build and run in one command");
-		LogHelper.println ("  \x1b[1mdisplay\x1b[0m -- Display information for the specified project/target");
+		LogHelper.println ("  \x1b[1mdeploy\x1b[0m -- Archive and upload builds");
 		LogHelper.println ("  \x1b[1mcreate\x1b[0m -- Create a new project or extension using templates");
 		LogHelper.println ("  \x1b[1mrebuild\x1b[0m -- Recompile native binaries for libraries");
+		LogHelper.println ("  \x1b[1mdisplay\x1b[0m -- Display information for the specified project/target");
 		LogHelper.println ("  \x1b[1minstall\x1b[0m -- Install a library from haxelib, plus dependencies");
 		LogHelper.println ("  \x1b[1mremove\x1b[0m -- Remove a library from haxelib");
 		LogHelper.println ("  \x1b[1mupgrade\x1b[0m -- Upgrade a library from haxelib");

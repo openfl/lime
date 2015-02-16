@@ -5,6 +5,7 @@ import haxe.io.Path;
 import haxe.Json;
 import haxe.Template;
 import lime.tools.helpers.CompatibilityHelper;
+import lime.tools.helpers.DeploymentHelper;
 import lime.tools.helpers.FileHelper;
 import lime.tools.helpers.FlashHelper;
 import lime.tools.helpers.PathHelper;
@@ -134,6 +135,13 @@ class FlashPlatform extends PlatformTarget {
 			PathHelper.removeDirectory (targetPath);
 			
 		}
+		
+	}
+	
+	
+	public override function deploy ():Void {
+		
+		DeploymentHelper.deploy (project, targetFlags, targetDirectory);
 		
 	}
 	

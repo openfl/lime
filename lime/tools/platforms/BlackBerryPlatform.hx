@@ -6,6 +6,7 @@ import haxe.Template;
 import lime.tools.helpers.AssetHelper;
 import lime.tools.helpers.BlackBerryHelper;
 import lime.tools.helpers.CPPHelper;
+import lime.tools.helpers.DeploymentHelper;
 import lime.tools.helpers.FileHelper;
 import lime.tools.helpers.HTML5Helper;
 import lime.tools.helpers.IconHelper;
@@ -159,6 +160,13 @@ class BlackBerryPlatform extends PlatformTarget {
 			PathHelper.removeDirectory (targetDirectory);
 			
 		}
+		
+	}
+	
+	
+	public override function deploy ():Void {
+		
+		DeploymentHelper.deploy (project, targetFlags, targetDirectory);
 		
 	}
 	

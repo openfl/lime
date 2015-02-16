@@ -5,6 +5,7 @@ import haxe.io.Path;
 import haxe.Template;
 import lime.tools.helpers.AssetHelper;
 import lime.tools.helpers.CPPHelper;
+import lime.tools.helpers.DeploymentHelper;
 import lime.tools.helpers.FileHelper;
 import lime.tools.helpers.IconHelper;
 import lime.tools.helpers.PathHelper;
@@ -71,6 +72,13 @@ class WebOSPlatform extends PlatformTarget {
 			PathHelper.removeDirectory (targetPath);
 			
 		}
+		
+	}
+	
+	
+	public override function deploy ():Void {
+		
+		DeploymentHelper.deploy (project, targetFlags, targetDirectory);
 		
 	}
 	

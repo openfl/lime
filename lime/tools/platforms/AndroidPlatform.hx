@@ -7,6 +7,7 @@ import lime.tools.helpers.AndroidHelper;
 import lime.tools.helpers.ArrayHelper;
 import lime.tools.helpers.AssetHelper;
 import lime.tools.helpers.CPPHelper;
+import lime.tools.helpers.DeploymentHelper;
 import lime.tools.helpers.FileHelper;
 import lime.tools.helpers.IconHelper;
 import lime.tools.helpers.LogHelper;
@@ -159,6 +160,13 @@ class AndroidPlatform extends PlatformTarget {
 			PathHelper.removeDirectory (targetDirectory);
 			
 		}
+		
+	}
+	
+	
+	public override function deploy ():Void {
+		
+		DeploymentHelper.deploy (project, targetFlags, targetDirectory);
 		
 	}
 	

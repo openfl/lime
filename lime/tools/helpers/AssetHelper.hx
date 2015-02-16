@@ -18,8 +18,7 @@ class AssetHelper {
 		var manifest = new Array <Dynamic> ();
 		
 		for (asset in project.assets) {
-				
-
+			
 			if (asset.type != AssetType.TEMPLATE) {
 				
 				var data = {
@@ -27,7 +26,7 @@ class AssetHelper {
 					path : asset.resourceName,
 					type : Std.string(asset.type)
 				}
-
+				
 				manifest.push (data);
 				
 			}
