@@ -37,7 +37,7 @@ class SVGExport {
 				var length = lines.length;
 				var line = StringTools.trim (process.stdout.readLine ());
 				
-				if (length > 0 && (line == "-D lime" || StringTools.startsWith (line, "-D lime=")) {
+				if (length > 0 && (line == "-D lime" || StringTools.startsWith (line, "-D lime="))) {
 					
 					path = StringTools.trim (lines[length - 1]);
 					
