@@ -374,9 +374,9 @@ class CommandLineTools {
 			while (true) {
 				
 				var length = lines.length;
-				var line = process.stdout.readLine ();
+				var line = StringTools.trim (process.stdout.readLine ());
 				
-				if (length > 0 && StringTools.trim (line) == "-D lime") {
+				if (length > 0 && (line == "-D lime" || StringTools.startsWith (line, "-D lime=")) {
 					
 					path = StringTools.trim (lines[length - 1]);
 					
