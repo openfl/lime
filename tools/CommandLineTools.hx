@@ -1273,6 +1273,8 @@ class CommandLineTools {
 		
 		for (key in projectDefines.keys ()) {
 			
+			Sys.println (key);
+			
 			var components = key.split ("-");
 			var field = components.shift ().toLowerCase ();
 			var attribute = "";
@@ -1319,7 +1321,7 @@ class CommandLineTools {
 					
 				} else {
 					
-					project.targetFlags.set (key, projectDefines.get (key));
+					targetFlags.set (key, projectDefines.get (key));
 					
 				}
 				
