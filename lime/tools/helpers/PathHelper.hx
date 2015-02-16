@@ -264,7 +264,7 @@ class PathHelper {
 					} else if (output.indexOf ("haxelib install ") > -1) {
 						
 						var start = output.indexOf ("haxelib install ") + 16;
-						var end = output.lastIndexOf ("'") - 1;
+						var end = output.lastIndexOf ("'");
 						var dependencyName = output.substring (start, end);
 						
 						LogHelper.error ("Could not find haxelib \"" + dependencyName + "\" (dependency of \"" + haxelib.name + "\"), does it need to be installed?");
