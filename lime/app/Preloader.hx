@@ -46,9 +46,6 @@ class Preloader #if flash extends Sprite #end {
 		
 		#if flash
 			
-			Lib.current.stage.align = flash.display.StageAlign.TOP_LEFT;
-			Lib.current.stage.scaleMode = flash.display.StageScaleMode.NO_SCALE;
-			
 			Lib.current.addChild (this);
 			
 			Lib.current.loaderInfo.addEventListener (Event.COMPLETE, loaderInfo_onComplete);
@@ -133,49 +130,11 @@ class Preloader #if flash extends Sprite #end {
 	#if (js && html5)
 	private function loadFont (font:String):Void {
 		
-		var node = Browser.document.createElement ("span");
-		node.innerHTML = "giItT1WQy@!-/#";
-		var style = node.style;
-		style.position = "absolute";
-		style.left = "-10000px";
-		style.top = "-10000px";
-		style.fontSize = "300px";
-		style.fontFamily = "sans-serif";
-		style.fontVariant = "normal";
-		style.fontStyle = "normal";
-		style.fontWeight = "normal";
-		style.letterSpacing = "0";
-		Browser.document.body.appendChild (node);
-		
-		var width = node.offsetWidth;
-		style.fontFamily = "'" + font + "', sans-serif";
-		
-		var interval:Null<Int> = null;
-		var found = false;
-		
-		var checkFont = function () {
+		if (untyped (Browser.document).fonts && untyped (Browser.document).fonts.load) {
 			
-			if (node.offsetWidth != width) {
-				
-				// Test font was still not available yet, try waiting one more interval?
-				if (!found) {
-					
-					found = true;
-					return false;
-					
-				}
+			untyped (Browser.document).fonts.load ("1em '" + font + "'").then (function () {
 				
 				loaded ++;
-				
-				if (interval != null) {
-					
-					Browser.window.clearInterval (interval);
-					
-				}
-				
-				node.parentNode.removeChild (node);
-				node = null;
-				
 				update (loaded, total);
 				
 				if (loaded == total) {
@@ -184,17 +143,74 @@ class Preloader #if flash extends Sprite #end {
 					
 				}
 				
-				return true;
+			});
+			
+		} else {
+			
+			var node = Browser.document.createElement ("span");
+			node.innerHTML = "giItT1WQy@!-/#";
+			var style = node.style;
+			style.position = "absolute";
+			style.left = "-10000px";
+			style.top = "-10000px";
+			style.fontSize = "300px";
+			style.fontFamily = "sans-serif";
+			style.fontVariant = "normal";
+			style.fontStyle = "normal";
+			style.fontWeight = "normal";
+			style.letterSpacing = "0";
+			Browser.document.body.appendChild (node);
+			
+			var width = node.offsetWidth;
+			style.fontFamily = "'" + font + "', sans-serif";
+			
+			var interval:Null<Int> = null;
+			var found = false;
+			
+			var checkFont = function () {
+				
+				if (node.offsetWidth != width) {
+					
+					// Test font was still not available yet, try waiting one more interval?
+					if (!found) {
+						
+						found = true;
+						return false;
+						
+					}
+					
+					loaded ++;
+					
+					if (interval != null) {
+						
+						Browser.window.clearInterval (interval);
+						
+					}
+					
+					node.parentNode.removeChild (node);
+					node = null;
+					
+					update (loaded, total);
+					
+					if (loaded == total) {
+						
+						start ();
+						
+					}
+					
+					return true;
+					
+				}
+				
+				return false;
 				
 			}
 			
-			return false;
-			
-		}
-		
-		if (!checkFont ()) {
-			
-			interval = Browser.window.setInterval (checkFont, 50);
+			if (!checkFont ()) {
+				
+				interval = Browser.window.setInterval (checkFont, 50);
+				
+			}
 			
 		}
 		
