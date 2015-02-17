@@ -14,7 +14,8 @@ project/winrt/shaders/
 *.swp
 .idea/
 *.iml
-tools/tools.n
+tools/*.n
+tools/*.exe
 haxedoc.xml
 docs/*.xml
 docs/pages*

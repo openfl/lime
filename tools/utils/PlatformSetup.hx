@@ -1686,7 +1686,7 @@ class PlatformSetup {
 				
 			}
 			
-			File.copy (PathHelper.getHaxelib (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.bat", haxePath + "\\lime.bat");
+			File.copy (PathHelper.getHaxelib (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.exe", haxePath + "\\lime.exe");
 			File.copy (PathHelper.getHaxelib (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.sh", haxePath + "\\lime");
 			
 		} else {
@@ -1835,9 +1835,9 @@ class PlatformSetup {
 				
 			}
 			
-			File.copy (PathHelper.getHaxelib (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.bat", haxePath + "\\lime.bat");
+			File.copy (PathHelper.getHaxelib (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.exe", haxePath + "\\lime.exe");
 			File.copy (PathHelper.getHaxelib (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.sh", haxePath + "\\lime");
-			File.copy (PathHelper.getHaxelib (new Haxelib ("openfl")) + "\\templates\\\\bin\\openfl.bat", haxePath + "\\openfl.bat");
+			File.copy (PathHelper.getHaxelib (new Haxelib ("openfl")) + "\\templates\\\\bin\\openfl.exe", haxePath + "\\openfl.exe");
 			File.copy (PathHelper.getHaxelib (new Haxelib ("openfl")) + "\\templates\\\\bin\\openfl.sh", haxePath + "\\openfl");
 			
 		} else {
