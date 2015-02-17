@@ -16,7 +16,7 @@ class DeploymentHelper {
 		
 		if (targetFlags.exists ("gdrive")) {
 			
-			var parent = targetFlags.get ("gdrive");
+			var parent = targetFlags.get ("parent");
 			
 			if (parent != null && parent != "") {
 				
