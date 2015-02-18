@@ -1,6 +1,7 @@
 package lime.tools.platforms;
 
 
+import lime.tools.helpers.DeploymentHelper;
 import lime.tools.helpers.FileHelper;
 import lime.tools.helpers.HTML5Helper;
 import lime.tools.helpers.IconHelper;
@@ -27,6 +28,13 @@ class FirefoxPlatform extends HTML5Platform {
 			PathHelper.removeDirectory (targetDirectory);
 			
 		}
+		
+	}
+	
+	
+	public override function deploy ():Void {
+		
+		DeploymentHelper.deploy (project, targetFlags, targetDirectory, "Firefox");
 		
 	}
 	

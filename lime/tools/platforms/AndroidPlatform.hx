@@ -166,7 +166,7 @@ class AndroidPlatform extends PlatformTarget {
 	
 	public override function deploy ():Void {
 		
-		DeploymentHelper.deploy (project, targetFlags, targetDirectory);
+		DeploymentHelper.deploy (project, targetFlags, targetDirectory, "Android");
 		
 	}
 	

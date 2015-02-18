@@ -191,7 +191,7 @@ class LinuxPlatform extends PlatformTarget {
 	
 	public override function deploy ():Void {
 		
-		DeploymentHelper.deploy (project, targetFlags, targetDirectory);
+		DeploymentHelper.deploy (project, targetFlags, targetDirectory, "Linux " + (is64 ? "64" : "32") + "-bit");
 		
 	}
 	
