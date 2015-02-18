@@ -9,7 +9,7 @@ class DeploymentHelper {
 	
 	public static function deploy (project:HXProject, targetFlags:Map <String, String>, targetDirectory:String) {
 		
-		var name = project.meta.title + " (" + project.meta.version + ").zip";
+		var name = project.meta.title + " (" + project.meta.version + " build " + project.meta.buildNumber + ") (" + project.target + ").zip";
 		var targetPath = PathHelper.combine (targetDirectory, name);
 		
 		ZipHelper.compress (PathHelper.combine (targetDirectory, "bin"), targetPath);

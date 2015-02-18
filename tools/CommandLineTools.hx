@@ -1331,17 +1331,7 @@ class CommandLineTools {
 		
 		StringMapHelper.copyKeys (userDefines, project.haxedefs);
 		
-		// Better way to do this?
-		
-		switch (project.target) {
-			
-			case ANDROID, IOS, BLACKBERRY:
-				
-				getBuildNumber (project, (project.command == "build" || project.command == "test"));
-				
-			default:
-			
-		}
+		getBuildNumber (project, (project.command == "build" || project.command == "test"));
 		
 		return project;
 		

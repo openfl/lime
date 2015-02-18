@@ -3,18 +3,18 @@ package lime.project;
 
 @:enum abstract Platform(String) {
 	
-	var ANDROID = "android";
-	var BLACKBERRY = "blackberry";
-	var FIREFOX = "firefox";
-	var FLASH = "flash";
-	var HTML5 = "html5";
-	var IOS = "ios";
-	var LINUX = "linux";
-	var MAC = "mac";
-	var TIZEN = "tizen";
-	var WINDOWS = "windows";
-	var WEBOS = "webos";
-	var EMSCRIPTEN = "emscripten";
+	var ANDROID = "Android";
+	var BLACKBERRY = "BlackBerry";
+	var FIREFOX = "Firefox";
+	var FLASH = "Flash";
+	var HTML5 = "HTML5";
+	var IOS = "iOS";
+	var LINUX = "Linux";
+	var MAC = "Mac";
+	var TIZEN = "Tizen";
+	var WINDOWS = "Windows";
+	var WEBOS = "webOS";
+	var EMSCRIPTEN = "Emscripten";
 	var CUSTOM = null;
-
+	
 }
