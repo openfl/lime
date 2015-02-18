@@ -1404,7 +1404,11 @@ class ProjectXMLParser extends HXProject {
 								case "target-sdk-version":
 									
 									config.set ("android.target-sdk-version", Std.parseInt (value));
+								
+								case "install-location":
 									
+									config.set ("android.install-location", value);
+								
 								case "extension":
 									
 									var extensions = config.getArrayString ("android.extension");
