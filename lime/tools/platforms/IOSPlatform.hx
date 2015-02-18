@@ -44,12 +44,20 @@ class IOSPlatform extends PlatformTarget {
 	
 	public override function build ():Void {
 		
-		IOSHelper.build (project, targetDirectory);
-		
-		if (!project.targetFlags.exists ("simulator")) {
+		if (project.targetFlags.exists ("xcode") && PlatformHelper.hostPlatform == Platform.MAC) {
 			
-			var entitlements = targetDirectory + "/" + project.app.file + "/" + project.app.file + "-Entitlements.plist";
-			IOSHelper.sign (project, targetDirectory + "/bin", entitlements);
+			ProcessHelper.runCommand ("", "open", [ targetDirectory + "/" + project.app.file + ".xcodeproj" ] );
+			
+		} else {
+			
+			IOSHelper.build (project, targetDirectory);
+			
+			if (!project.targetFlags.exists ("simulator")) {
+				
+				var entitlements = targetDirectory + "/" + project.app.file + "/" + project.app.file + "-Entitlements.plist";
+				IOSHelper.sign (project, targetDirectory + "/bin", entitlements);
+				
+			}
 			
 		}
 		
@@ -563,12 +571,6 @@ class IOSPlatform extends PlatformTarget {
 				FileHelper.copyAsset (asset, targetPath, context);
 				
 			}
-			
-		}
-		
-		if (project.command == "update" && PlatformHelper.hostPlatform == Platform.MAC) {
-			
-			ProcessHelper.runCommand ("", "open", [ targetDirectory + "/" + project.app.file + ".xcodeproj" ] );
 			
 		}
 		
