@@ -263,6 +263,7 @@ enum PathCommand
    pcBlendModeAdd   = 0x20,
    pcBlendModeMultiply   = 0x21,
    pcBlendModeScreen   = 0x22,
+   pcBlendModeSubtract   = 0x23,
 };
 
 enum WindingRule { wrOddEven, wrNonZero };

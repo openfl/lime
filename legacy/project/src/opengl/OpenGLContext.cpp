@@ -481,15 +481,23 @@ public:
          {
             case bmAdd:
                glBlendFunc( GL_SRC_ALPHA, GL_ONE );
+               glBlendEquation( GL_FUNC_ADD);
                break;
             case bmMultiply:
                glBlendFunc( GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+               glBlendEquation( GL_FUNC_ADD);
                break;
             case bmScreen:
                glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_COLOR);
+               glBlendEquation( GL_FUNC_ADD);
+               break;
+            case bmSubtract:
+               glBlendFunc( GL_SRC_ALPHA, GL_ONE);
+               glBlendEquation( GL_FUNC_REVERSE_SUBTRACT);
                break;
             default:
                glBlendFunc(premAlpha ? GL_ONE : GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+               glBlendEquation( GL_FUNC_ADD);
          }
 
 

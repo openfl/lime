@@ -216,6 +216,8 @@ public:
                mElement.mBlendMode = bmMultiply;
             else if (cmd[i] == pcBlendModeScreen)
                mElement.mBlendMode = bmScreen;
+            else if (cmd[i] == pcBlendModeSubtract)
+               mElement.mBlendMode = bmSubtract;
          }
 
          if (has_colour)
