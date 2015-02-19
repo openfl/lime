@@ -21,7 +21,7 @@ class ZipHelper {
 		
 		PathHelper.mkdir (Path.directory (targetPath));
 		
-		if (PlatformHelper.hostPlatform == WINDOWS) {
+		if (PlatformHelper.hostPlatform == WINDOWS || !FileSystem.isDirectory (path)) {
 			
 			var files = new Array <Dynamic> ();
 			
@@ -65,10 +65,7 @@ class ZipHelper {
 			
 		} else {
 			
-			var workingDirectory = Path.directory (path);
-			var sourcePath = Path.withoutDirectory (path);
-			
-			ProcessHelper.runCommand (workingDirectory, "zip", [ "-r", PathHelper.relocatePath (targetPath, workingDirectory), sourcePath ]);
+			ProcessHelper.runCommand (path, "zip", [ "-r", PathHelper.relocatePath (targetPath, path), "./" ]);
 			
 		}
 		
