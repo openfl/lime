@@ -65,7 +65,7 @@ class ZipHelper {
 			
 		} else {
 			
-			ProcessHelper.runCommand (Path.directory (targetPath), "zip", [ "-r", targetPath, path ]);
+			ProcessHelper.runCommand (Path.directory (path), "zip", [ "-r", targetPath, Path.withoutDirectory (path) ]);
 			
 		}
 		
