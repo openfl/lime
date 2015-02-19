@@ -13,18 +13,6 @@ class ZipHelper {
 	
 	public static function compress (path:String, targetPath:String = ""):Void {
 		
-		var files = new Array <Dynamic> ();
-		
-		if (FileSystem.isDirectory (path)) {
-			
-			readDirectory (path, "", files);
-			
-		} else {
-			
-			readFile (path, "", files);
-			
-		}
-		
 		if (targetPath == "") {
 			
 			targetPath = path;
@@ -34,6 +22,18 @@ class ZipHelper {
 		PathHelper.mkdir (Path.directory (targetPath));
 		
 		if (PlatformHelper.hostPlatform == WINDOWS) {
+			
+			var files = new Array <Dynamic> ();
+			
+			if (FileSystem.isDirectory (path)) {
+				
+				readDirectory (path, "", files);
+				
+			} else {
+				
+				readFile (path, "", files);
+				
+			}
 			
 			var output = File.write (targetPath, true);
 			
@@ -65,7 +65,10 @@ class ZipHelper {
 			
 		} else {
 			
-			ProcessHelper.runCommand (Path.directory (path), "zip", [ "-r", targetPath, Path.withoutDirectory (path) ]);
+			var workingDirectory = Path.directory (path);
+			var sourcePath = Path.withoutDirectory (path);
+			
+			ProcessHelper.runCommand (workingDirectory, "zip", [ "-r", PathHelper.relocatePath (targetPath, workingDirectory), sourcePath ]);
 			
 		}
 		
