@@ -4,14 +4,19 @@
 * Minor fixes for upcoming Haxe 3.2 release
 * Added "lime deploy" to zip and support upload targets
 * Added initial support for Google Drive using "lime deploy"
+* Added "Options.txt" reading for iOS builds to include -Dhxcpp_api_level
 * Changed "lime update ios" to only update, and not open Xcode
 * Added "-xcode" flag to open Xcode on iOS "build" or "run" command
 * Fixed the use of "lime" from Windows batch/command files
 * Improved "haxelib path" error message when a dependency haxelib is missing
+* Improved PathHelper.relocatePath to resolve issues with absolute paths
 * Fixed issue preventing projects from changing Flash scaleMode/align
 * Improved web font loading on HTML5 target
 * Fixed JavaScript minification that was failing on some systems
+* Fix issue with disappearing keyboards on certain Android devices
+* Fix "isValid" check in GLShader to check for zero
 * Set <config:android install-location="auto" /> by default
+* Request focus in resume on Android, in case an extension has focus (legacy)
 * Added TILE_BLEND_SUBTRACT (legacy)
 
 
