@@ -13,6 +13,7 @@ import lime.project.Haxelib;
 import lime.project.HXProject;
 import lime.project.Platform;
 import sys.FileSystem;
+import sys.io.File;
 
 #if neko
 import neko.vm.Thread;
@@ -178,7 +179,8 @@ class HTML5Helper {
 			}
 			
 			FileSystem.deleteFile (sourceFile);
-			FileSystem.rename (tempFile, sourceFile);
+			File.copy (tempFile, sourceFile);
+			FileSystem.deleteFile (tempFile);
 			
 			return true;
 			
