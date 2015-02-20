@@ -519,7 +519,7 @@ class PathHelper {
 			
 		} else if (isAbsolute (targetDirectory)) {
 			
-			return FileSystem.fullPath (path);
+			return combine (Sys.getCwd (), path);
 			
 		} else {
 			
