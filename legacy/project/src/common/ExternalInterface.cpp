@@ -2792,6 +2792,7 @@ value nme_gfx_draw_tiles(value inGfx,value inSheet, value inXYIDs,value inFlags,
         TILE_BLEND_ADD   = 0x10000,
         TILE_BLEND_MULTIPLY   = 0x20000,
         TILE_BLEND_SCREEN   = 0x40000,
+        TILE_BLEND_SUBTRACT   = 0x80000,
         TILE_BLEND_MASK  = 0xf0000,
       };
 
@@ -2807,6 +2808,9 @@ value nme_gfx_draw_tiles(value inGfx,value inSheet, value inXYIDs,value inFlags,
             break;
          case TILE_BLEND_SCREEN:
             blend = bmScreen;
+            break;
+         case TILE_BLEND_SUBTRACT:
+            blend = bmSubtract;
             break;
       }
 
