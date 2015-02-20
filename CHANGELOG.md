@@ -1,3 +1,20 @@
+2.1.2 (02/20/2015)
+------------------
+
+* Minor fixes for upcoming Haxe 3.2 release
+* Added "lime deploy" to zip and support upload targets
+* Added initial support for Google Drive using "lime deploy"
+* Changed "lime update ios" to only update, and not open Xcode
+* Added "-xcode" flag to open Xcode on iOS "build" or "run" command
+* Fixed the use of "lime" from Windows batch/command files
+* Improved "haxelib path" error message when a dependency haxelib is missing
+* Fixed issue preventing projects from changing Flash scaleMode/align
+* Improved web font loading on HTML5 target
+* Fixed JavaScript minification that was failing on some systems
+* Set <config:android install-location="auto" /> by default
+* Added TILE_BLEND_SUBTRACT (legacy)
+
+
 2.1.1 (02/13/2015)
 ------------------
 
