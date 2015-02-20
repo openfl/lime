@@ -47,7 +47,8 @@ class PlatformSetup {
 	private static var linuxAptPackages = "ia32-libs-multiarch gcc-multilib g++-multilib";
 	private static var linuxUbuntuSaucyPackages = "gcc-multilib g++-multilib libxext-dev";
 	private static var linuxYumPackages = "gcc gcc-c++";
-	private static var linuxPacmanPackages = "multilib-devel lib32-mesa lib32-mesa-libgl lib32-glu";
+	private static var linuxPacman32Packages = "multilib-devel mesa mesa-libgl glu";
+	private static var linuxPacman64Packages = "multilib-devel lib32-mesa lib32-mesa-libgl lib32-glu";
 	private static var tizenSDKURL = "https://developer.tizen.org/downloads/tizen-sdk";
 	private static var webOSLinuxX64NovacomPath = "http://cdn.downloads.palm.com/sdkdownloads/3.0.4.669/sdkBinaries/palm-novacom_1.0.80_amd64.deb";
 	private static var webOSLinuxX86NovacomPath = "http://cdn.downloads.palm.com/sdkdownloads/3.0.4.669/sdkBinaries/palm-novacom_1.0.80_i386.deb";
@@ -1786,7 +1787,18 @@ class PlatformSetup {
 		
 		if (hasPacman) {
 			
-			var parameters = [ "pacman", "-S", "--needed" ].concat (linuxPacmanPackages.split (" "));
+			var parameters = [ "pacman", "-S", "--needed" ];
+			
+			if (PlatformHelper.hostArchitecture == X64) {
+				
+				parameters = parameters.concat (linuxPacman64Packages.split (" "));
+				
+			} else {
+				
+				parameters = parameters.concat (linuxPacman32Packages.split (" "));
+				
+			}
+			
 			ProcessHelper.runCommand ("", "sudo", parameters, false);
 			return;
 			
