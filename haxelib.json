@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "2.1.1",
-	"releasenote": "Added Emscripten target",
+	"version": "2.1.2",
+	"releasenote": "Added 'lime deploy' and updated 'lime update ios' behavior, other fixes",
 	"contributors": [ "singmajesty" ],
 	"dependencies": {}
 }
