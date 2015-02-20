@@ -15,7 +15,7 @@
 * Fixed JavaScript minification that was failing on some systems
 * Fix issue with disappearing keyboards on certain Android devices
 * Fix "isValid" check in GLShader to check for zero
-* Set <config:android install-location="auto" /> by default
+* Set `<config:android install-location="auto" />` by default
 * Request focus in resume on Android, in case an extension has focus (legacy)
 * Added TILE_BLEND_SUBTRACT (legacy)
 
