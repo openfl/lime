@@ -239,7 +239,7 @@ public class GameActivity extends Activity implements SensorEventListener {
 	
 	
 	public void doResume () {
-			
+		
 		mView.onResume ();
 		
 		_sound.doResume ();
@@ -252,6 +252,8 @@ public class GameActivity extends Activity implements SensorEventListener {
 			sensorManager.registerListener (this, sensorManager.getDefaultSensor (Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_GAME);
 			
 		}
+		
+		mView.requestFocus ();
 		
 	}
 	
