@@ -15,10 +15,8 @@ import lime.ConsoleIncludePaths;
 }
 
 
-@:unreflective
-@:structAccess
 @:include("ConsoleVertexOutput.h")
-@:native("lime::ConsoleVertexOutput")
+@:native("lime::HxConsoleVertexOutput")
 extern class VertexOutput {
 
 	public function vec3 (x:Float32, y:Float32, z:Float32):Void;
