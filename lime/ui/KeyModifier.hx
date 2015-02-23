@@ -1,23 +1,123 @@
 package lime.ui;
 
 
-class KeyModifier {
-	//SDLMod
-	public static inline var NONE  = 0x0000;
-	public static inline var LSHIFT= 0x0001;
-	public static inline var RSHIFT= 0x0002;
-	public static inline var LCTRL = 0x0040;
-	public static inline var RCTRL = 0x0080;
-	public static inline var LALT  = 0x0100;
-	public static inline var RALT  = 0x0200;
-	public static inline var LMETA = 0x0400;
-	public static inline var RMETA = 0x0800;
-	public static inline var NUM   = 0x1000;
-	public static inline var CAPS  = 0x2000;
-	public static inline var MODE  = 0x4000;
-
-	public static inline var CTRL  = (LCTRL|RCTRL);
-	public static inline var SHIFT = (LSHIFT|RSHIFT);
-	public static inline var ALT   = (LALT|RALT);
-	public static inline var META  = (LMETA|RMETA);
+abstract KeyModifier(Int) from Int to Int {
+	
+	
+	public static inline var NONE:KeyModifier = 0x0000;
+	public static inline var LEFT_SHIFT:KeyModifier = 0x0001;
+	public static inline var RIGHT_SHIFT:KeyModifier = 0x0002;
+	public static inline var LEFT_CTRL:KeyModifier = 0x0040;
+	public static inline var RIGHT_CTRL:KeyModifier = 0x0080;
+	public static inline var LEFT_ALT:KeyModifier = 0x0100;
+	public static inline var RIGHT_ALT:KeyModifier = 0x0200;
+	public static inline var LEFT_META:KeyModifier = 0x0400;
+	public static inline var RIGHT_META:KeyModifier = 0x0800;
+	public static inline var NUM_LOCK:KeyModifier = 0x1000;
+	public static inline var CAPS_LOCK:KeyModifier = 0x2000;
+	public static inline var MODE:KeyModifier = 0x4000;
+	
+	public static inline var CTRL:KeyModifier = (0x0040 | 0x0080);
+	public static inline var SHIFT:KeyModifier = (0x001 | 0x0002);
+	public static inline var ALT:KeyModifier = (0x0100 | 0x0200);
+	public static inline var META:KeyModifier = (0x0400 | 0x0800);
+	
+	public var altKey (get, set):Bool;
+	public var capsLock (get, set):Bool;
+	public var ctrlKey (get, set):Bool;
+	public var metaKey (get, set):Bool;
+	public var numLock (get, set):Bool;
+	public var shiftKey (get, set):Bool;
+	
+	
+	private function get_altKey ():Bool {
+		
+		return (this & LEFT_ALT > 0) || (this & RIGHT_ALT > 0);
+		
+	}
+	
+	
+	private inline function set_altKey (value:Bool):Bool {
+		
+		this = value ? (this | ALT) : (this & 0xFFFFFFF - (1 << ALT));
+		return value;
+		
+	}
+	
+	
+	private function get_capsLock ():Bool {
+		
+		return (this & CAPS_LOCK > 0) || (this & CAPS_LOCK > 0);
+		
+	}
+	
+	
+	private inline function set_capsLock (value:Bool):Bool {
+		
+		this = value ? (this | CAPS_LOCK) : (this & 0xFFFFFFF - (1 << CAPS_LOCK));
+		return value;
+		
+	}
+	
+	
+	private function get_ctrlKey ():Bool {
+		
+		return (this & LEFT_CTRL > 0) || (this & RIGHT_CTRL > 0);
+		
+	}
+	
+	
+	private inline function set_ctrlKey (value:Bool):Bool {
+		
+		this = value ? (this | CTRL) : (this & 0xFFFFFFF - (1 << CTRL));
+		return value;
+		
+	}
+	
+	
+	private function get_metaKey ():Bool {
+		
+		return (this & LEFT_META > 0) || (this & RIGHT_META > 0);
+		
+	}
+	
+	
+	private inline function set_metaKey (value:Bool):Bool {
+		
+		this = value ? (this | META) : (this & 0xFFFFFFF - (1 << META));
+		return value;
+		
+	}
+	
+	
+	private function get_numLock ():Bool {
+		
+		return (this & NUM_LOCK > 0) || (this & NUM_LOCK > 0);
+		
+	}
+	
+	
+	private inline function set_numLock (value:Bool):Bool {
+		
+		this = value ? (this | NUM_LOCK) : (this & 0xFFFFFFF - (1 << NUM_LOCK));
+		return value;
+		
+	}
+	
+	
+	private function get_shiftKey ():Bool {
+		
+		return (this & LEFT_SHIFT > 0) || (this & RIGHT_SHIFT > 0);
+		
+	}
+	
+	
+	private inline function set_shiftKey (value:Bool):Bool {
+		
+		this = value ? (this | SHIFT) : (this & 0xFFFFFFF - (1 << SHIFT));
+		return value;
+		
+	}
+	
+	
 }
