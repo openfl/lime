@@ -363,7 +363,7 @@ public:
             mode.h = sgDesktopHeight;
             SDL_SetWindowDisplayMode(mSDLWindow, &mode);
             
-            SDL_SetWindowFullscreen(mSDLWindow, SDL_WINDOW_FULLSCREEN /*SDL_WINDOW_FULLSCREEN_DESKTOP*/);
+            SDL_SetWindowFullscreen(mSDLWindow, SDL_WINDOW_FULLSCREEN_DESKTOP /*SDL_WINDOW_FULLSCREEN_DESKTOP*/);
          }
          else
          {
@@ -392,7 +392,7 @@ public:
       mode.h = inHeight;
       SDL_SetWindowFullscreen(mSDLWindow, 0);
       SDL_SetWindowDisplayMode(mSDLWindow, &mode);
-      SDL_SetWindowFullscreen(mSDLWindow, SDL_WINDOW_FULLSCREEN);
+      SDL_SetWindowFullscreen(mSDLWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
    }
    
 
@@ -519,7 +519,7 @@ public:
       }
       SDL_SetWindowFullscreen(mSDLWindow, 0);
       SDL_SetWindowDisplayMode(mSDLWindow, &mode);
-      SDL_SetWindowFullscreen(mSDLWindow, SDL_WINDOW_FULLSCREEN);
+      SDL_SetWindowFullscreen(mSDLWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
    }
     
    
@@ -1455,7 +1455,7 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
    if (opengl) requestWindowFlags |= SDL_WINDOW_OPENGL;
    if (resizable) requestWindowFlags |= SDL_WINDOW_RESIZABLE;
    if (borderless) requestWindowFlags |= SDL_WINDOW_BORDERLESS;
-   if (fullscreen) requestWindowFlags |= SDL_WINDOW_FULLSCREEN; //SDL_WINDOW_FULLSCREEN_DESKTOP;
+   if (fullscreen) requestWindowFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP; //SDL_WINDOW_FULLSCREEN_DESKTOP;
    
    if (opengl)
    {
