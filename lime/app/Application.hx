@@ -3,6 +3,8 @@ package lime.app;
 
 import lime.graphics.RenderContext;
 import lime.graphics.Renderer;
+import lime.ui.KeyCode;
+import lime.ui.KeyModifier;
 import lime.ui.Window;
 
 
@@ -140,7 +142,7 @@ class Application extends Module {
 	 * @param	keyCode	The code of the key that was pressed
 	 * @param	modifier	The modifier of the key that was pressed
 	 */
-	public function onKeyDown (keyCode:Int, modifier:Int):Void { }
+	public function onKeyDown (keyCode:KeyCode, modifier:KeyModifier):Void { }
 	
 	
 	/**
@@ -148,7 +150,7 @@ class Application extends Module {
 	 * @param	keyCode	The code of the key that was released
 	 * @param	modifier	The modifier of the key that was released
 	 */
-	public function onKeyUp (keyCode:Int, modifier:Int):Void { }
+	public function onKeyUp (keyCode:KeyCode, modifier:KeyModifier):Void { }
 	
 	
 	/**

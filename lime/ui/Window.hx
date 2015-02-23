@@ -15,8 +15,8 @@ class Window {
 	public var config:Config;
 	public var fullscreen:Bool;
 	public var height:Int;
-	public var onKeyDown = new Event<Int->Int->Void> ();
-	public var onKeyUp = new Event<Int->Int->Void> ();
+	public var onKeyDown = new Event<KeyCode->KeyModifier->Void> ();
+	public var onKeyUp = new Event<KeyCode->KeyModifier->Void> ();
 	public var onMouseDown = new Event<Float->Float->Int->Void> ();
 	public var onMouseMove = new Event<Float->Float->Int->Void> ();
 	public var onMouseUp = new Event<Float->Float->Int->Void> ();

@@ -14,6 +14,7 @@ import lime.app.Config;
 import lime.audio.AudioManager;
 import lime.graphics.Renderer;
 import lime.ui.KeyCode;
+import lime.ui.KeyModifier;
 import lime.ui.Window;
 
 @:access(lime.app.Application)
@@ -154,15 +155,15 @@ class FlashApplication {
 		if (parent.window != null) {
 			
 			var keyCode = convertKeyCode (event.keyCode);
-			var modifier = 0;
+			var modifier = (event.shiftKey ? (KeyModifier.SHIFT) : 0) | (event.ctrlKey ? (KeyModifier.CTRL) : 0) | (event.altKey ? (KeyModifier.ALT) : 0);
 			
 			if (event.type == KeyboardEvent.KEY_DOWN) {
 				
-				parent.window.onKeyDown.dispatch (keyCode, 0);
+				parent.window.onKeyDown.dispatch (keyCode, modifier);
 				
 			} else {
 				
-				parent.window.onKeyUp.dispatch (keyCode, 0);
+				parent.window.onKeyUp.dispatch (keyCode, modifier);
 				
 			}
 			
