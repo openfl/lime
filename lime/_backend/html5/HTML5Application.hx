@@ -8,6 +8,7 @@ import lime.app.Config;
 import lime.audio.AudioManager;
 import lime.graphics.Renderer;
 import lime.ui.KeyCode;
+import lime.ui.KeyModifier;
 import lime.ui.Window;
 
 @:access(lime._backend.html5.HTML5Window)
@@ -159,7 +160,11 @@ class HTML5Application {
 			}
 			
 			var keyCode = cast convertKeyCode (event.keyCode != null ? event.keyCode : event.which);
-			var modifier = 0;
+			var modifier =
+				(event.shiftKey ? (KeyModifier.LSHIFT | KeyModifier.RSHIFT) : 0) | //Press L&R key at the same time
+				(event.ctrlKey ? (KeyModifier.LCTRL | KeyModifier.RCTRL) : 0) |
+				(event.altKey ? (KeyModifier.LALT | KeyModifier.RALT) : 0) |
+				(event.metaKey ? (KeyModifier.LMETA | KeyModifier.RMETA) : 0);
 			
 			if (event.type == "keydown") {
 				
