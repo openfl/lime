@@ -88,7 +88,7 @@ class FlashPlatform extends PlatformTarget {
 					
 					if (args[i].indexOf ("(") > -1) {
 						
-						args[i] = "'" + args[i] + "'";
+						args[i] = "'" + StringTools.replace (args[i], "'", "'\\''") + "'";
 						
 					}
 					
