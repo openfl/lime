@@ -2,66 +2,34 @@ package lime.audio.fmod;
 #if lime_console
 
 
+import lime.ConsoleIncludePaths;
 import lime.system.System;
 import lime.utils.ByteArray;
 
 
-abstract Channel(Int) {
+@:include("ConsoleFmodAPI.h")
+@:native("lime::hxapi::ConsoleFmodChannel")
+extern class Channel {
 
 
+	// valid is true if this represents a valid handle to a channel.
 	public var valid (get, never):Bool;
 
 
-	public static inline function fromHandle (handle:Int):Channel {
-
-		#if lime_console
-		trace("not implemented");	
-		return cast (0, Channel);
-		#end
-	
-	}
+	// pause sets channel to a paused state.
+	public function pause ():Void;
 
 
-	public inline function pause ():Void {
-
-		#if lime_console
-		lime_fmod_channel_pause (this);
-		#end
-
-	}
+	// resume sets channel to an unpaused state.
+	public function resume ():Void;
 
 
-	public inline function resume ():Void {
-
-		#if lime_console
-		lime_fmod_channel_resume (this);
-		#end
-
-	}
+	// stop stops the channel from playing, making it available for another
+	// sound to use.
+	public function stop ():Void;
 
 
-	public inline function stop ():Void {
-
-		#if lime_console
-		lime_fmod_channel_stop (this);
-		this = 0;
-		#end
-
-	}
-
-
-	private inline function get_valid ():Bool {
-
-		return this != 0;
-
-	}
-
-
-	#if lime_console
-	private static var lime_fmod_channel_pause:Dynamic = System.load ("lime", "lime_fmod_channel_pause", 1);
-	private static var lime_fmod_channel_resume:Dynamic = System.load ("lime", "lime_fmod_channel_resume", 1);
-	private static var lime_fmod_channel_stop:Dynamic = System.load ("lime", "lime_fmod_channel_stop", 1);
-	#end
+	private function get_valid ():Bool;
 
 
 }

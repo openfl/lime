@@ -61,6 +61,8 @@ class AudioBuffer {
 		
 		#if lime_console
 
+			trace ("not implemented");
+/*
 			var sound:Sound = Sound.fromBytes (bytes);
 
 			if (sound.valid) {
@@ -74,6 +76,7 @@ class AudioBuffer {
 				return audioBuffer;
 
 			}
+*/
 	
 		#elseif (cpp || neko || nodejs)
 			
