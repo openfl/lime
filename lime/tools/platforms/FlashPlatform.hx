@@ -88,15 +88,26 @@ class FlashPlatform extends PlatformTarget {
 					
 					if (args[i].indexOf ("(") > -1) {
 						
-						args[i] = "'" + StringTools.replace (args[i], "'", "'\\''") + "'";
+						var arg = StringTools.replace (args[i], "'", "'\\''");
+						//arg = StringTools.replace (arg, " ", "' '");
+						
+						args[i] = "'" + arg + "'";
+						
+					} else if (args[i].indexOf (" ") > -1) {
+						
+						args[i] = "\"" + args[i] + "\"";
 						
 					}
 					
 				}
 				
+				ProcessHelper.runCommand ("", "haxe " + args.join (" "), []);
+				
+			} else {
+				
+				ProcessHelper.runCommand ("", "haxe", args);
+				
 			}
-			
-			ProcessHelper.runCommand ("", "haxe", args);
 			
 		} else {
 			
