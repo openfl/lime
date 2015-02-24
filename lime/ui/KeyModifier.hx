@@ -39,7 +39,16 @@ abstract KeyModifier(Int) from Int to Int {
 	
 	private inline function set_altKey (value:Bool):Bool {
 		
-		this = value ? (this | ALT) : (this & 0xFFFFFFF - (1 << ALT));
+		if (value) {
+			
+			this |= ALT;
+			
+		} else {
+			
+			this &= 0xFFFFFFF - ALT;
+			
+		}
+		
 		return value;
 		
 	}
@@ -54,7 +63,16 @@ abstract KeyModifier(Int) from Int to Int {
 	
 	private inline function set_capsLock (value:Bool):Bool {
 		
-		this = value ? (this | CAPS_LOCK) : (this & 0xFFFFFFF - (1 << CAPS_LOCK));
+		if (value) {
+			
+			this |= CAPS_LOCK;
+			
+		} else {
+			
+			this &= 0xFFFFFFF - CAPS_LOCK;
+			
+		}
+		
 		return value;
 		
 	}
@@ -69,7 +87,16 @@ abstract KeyModifier(Int) from Int to Int {
 	
 	private inline function set_ctrlKey (value:Bool):Bool {
 		
-		this = value ? (this | CTRL) : (this & 0xFFFFFFF - (1 << CTRL));
+		if (value) {
+			
+			this |= CTRL;
+			
+		} else {
+			
+			this &= 0xFFFFFFF - CTRL;
+			
+		}
+		
 		return value;
 		
 	}
@@ -84,7 +111,16 @@ abstract KeyModifier(Int) from Int to Int {
 	
 	private inline function set_metaKey (value:Bool):Bool {
 		
-		this = value ? (this | META) : (this & 0xFFFFFFF - (1 << META));
+		if (value) {
+			
+			this |= META;
+			
+		} else {
+			
+			this &= 0xFFFFFFF - META;
+			
+		}
+		
 		return value;
 		
 	}
@@ -99,7 +135,16 @@ abstract KeyModifier(Int) from Int to Int {
 	
 	private inline function set_numLock (value:Bool):Bool {
 		
-		this = value ? (this | NUM_LOCK) : (this & 0xFFFFFFF - (1 << NUM_LOCK));
+		if (value) {
+			
+			this |= NUM_LOCK;
+			
+		} else {
+			
+			this &= 0xFFFFFFF - NUM_LOCK;
+			
+		}
+		
 		return value;
 		
 	}
@@ -114,7 +159,16 @@ abstract KeyModifier(Int) from Int to Int {
 	
 	private inline function set_shiftKey (value:Bool):Bool {
 		
-		this = value ? (this | SHIFT) : (this & 0xFFFFFFF - (1 << SHIFT));
+		if (value) {
+			
+			this |= SHIFT;
+			
+		} else {
+			
+			this &= 0xFFFFFFF - SHIFT;
+			
+		}
+		
 		return value;
 		
 	}
