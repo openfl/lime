@@ -138,22 +138,6 @@ class CreateTemplate {
 			
 			if (project != null) {
 				
-				var id = [ "com", "sample", "project" ];
-				
-				/*if (colonIndex != -1 && words.length > 1 || ) {
-					
-					var name = words[1];
-					name = new EReg ("[^a-zA-Z0-9.]", "g").replace (name, "");
-					id = name.split (".");
-					
-					if (id.length < 3) {
-						
-						id = [ "com", "example" ].concat (id);
-						
-					}
-					
-				}*/
-				
 				var company = "Company Name";
 				
 				/*if (words.length > 2) {
@@ -194,13 +178,31 @@ class CreateTemplate {
 					
 				}
 				
+				var file = StringTools.replace (title, " ", "");
+				
+				var id = [ "com", "sample", file.toLowerCase () ];
+				
+				/*if (colonIndex != -1 && words.length > 1 || ) {
+					
+					var name = words[1];
+					name = new EReg ("[^a-zA-Z0-9.]", "g").replace (name, "");
+					id = name.split (".");
+					
+					if (id.length < 3) {
+						
+						id = [ "com", "example" ].concat (id);
+						
+					}
+					
+				}*/
+				
 				var packageName = id.join (".").toLowerCase ();
 				
 				context.title = title;
 				context.packageName = packageName;
 				context.version = "1.0.0";
 				context.company = company;
-				context.file = StringTools.replace (title, " ", "");
+				context.file = file;
 				
 				for (define in userDefines.keys ()) {
 					
