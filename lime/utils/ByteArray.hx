@@ -59,9 +59,9 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 		
 		var factory = function (length:Int) { return new ByteArray (length); };
 		
-		#if js
+		#if nodejs
 		var resize = function (bytes:ByteArray, length:Int) {
-			bytes.___resizeBuffer(length);
+			bytes.length = length;
 		}
 		#else
 		var resize = function (bytes:ByteArray, length:Int) {
@@ -73,9 +73,7 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 		};
 		#end
 		
-		#if html5
-		var bytes = function (bytes:ByteArray) { return bytes == null ? null : bytes.byteView; }
-		#elseif nodejs
+		#if nodejs
 		var bytes = function (bytes:Dynamic) {
 			if (Std.is (bytes, ByteArray))
 				return untyped bytes.byteView;
@@ -94,7 +92,10 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 				return untyped bytes.length;
 			else if (Std.is (bytes, UInt8Array) ||
 				Std.is (bytes, UInt16Array) ||
+				Std.is (bytes, UInt32Array) ||
+				Std.is (bytes, Int8Array) ||
 				Std.is (bytes, Int16Array) ||
+				Std.is (bytes, Int32Array) ||
 				Std.is (bytes, Float32Array))
 				return untyped bytes.byteLength;
 			
