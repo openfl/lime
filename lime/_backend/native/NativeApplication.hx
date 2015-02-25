@@ -73,7 +73,6 @@ class NativeApplication {
 		
 		lime_application_init (handle);
 		
-		var prevTime = untyped __js__ ('Date.now ()');
 		var eventLoop = function () {
 			
 			var active = lime_application_update (handle);
@@ -86,23 +85,12 @@ class NativeApplication {
 				
 			}
 			
-			var time =  untyped __js__ ('Date.now ()');
-			if (time - prevTime <= 16) {
-				
-				untyped setTimeout (eventLoop, 0);
-				
-			}
-			else {
-				
-				untyped setImmediate (eventLoop);
-				
-			}
-			
-			prevTime = time;
+			untyped setImmediate (eventLoop);
 			
 		}
 		
 		untyped setImmediate (eventLoop);
+		return 0;
 		
 		#elseif (cpp || neko)
 		
