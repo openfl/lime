@@ -77,7 +77,7 @@ You can also rebuild the tools if you make changes to them:
 
     lime rebuild tools
 
-While current Lime projects (and the Lime tools) use the standard Lime binary, OpenFL uses the legacy Lime 1 binary when targeting native platforms. To rebuild Lime legacy, you can use the "legacy" define:
+While current Lime projects (and the Lime tools) use the standard Lime binary, by default, OpenFL uses the legacy Lime 1 binary when targeting native platforms. To rebuild Lime legacy, you can use the "legacy" define:
 
     lime rebuild windows -Dlegacy
 
