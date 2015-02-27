@@ -62,16 +62,22 @@ Tell haxelib where your development copy of Lime is installed:
 
     haxelib dev lime lime
 
-You can build the binaries using "lime rebuild":
+The first time you run "lime", it should attempt to rebuild the Lime binary for your system, as well as your command-line tools. However, you can also build them manually. Replace "windows" in the following command with your current desktop system.
+
+    haxelib install format
+    lime rebuild windows
+    lime rebuild tools
+
+You can build additional binaries, or rebuild binaries after making changes, using "lime rebuild":
 
     lime rebuild windows
     lime rebuild linux -64 -release -clean
 
-If you make modifications to the tools, you can rebuild them like this:
+You can also rebuild the tools if you make changes to them:
 
     lime rebuild tools
 
-OpenFL currently uses the Lime 1 "legacy" binaries by default, instead of the new Lime 2 binaries. To build the legacy binary for a platform, add the -Dlegacy define:
+While current Lime projects (and the Lime tools) use the standard Lime binary, OpenFL uses the legacy Lime 1 binary when targeting native platforms. To rebuild Lime legacy, you can use the "legacy" define:
 
     lime rebuild windows -Dlegacy
 
