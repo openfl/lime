@@ -68,6 +68,10 @@ The first time you run the "lime" command, it will attempt to build the Lime sta
     lime rebuild windows
     lime rebuild tools
 
+While current Lime projects (and the Lime tools) use the standard Lime binary, by default, OpenFL uses the legacy Lime 1 binary when targeting native platforms. To rebuild Lime legacy, you can use the "legacy" define:
+
+    lime rebuild windows -Dlegacy
+
 You can build additional binaries, or rebuild binaries after making changes, using "lime rebuild":
 
     lime rebuild windows
@@ -76,10 +80,6 @@ You can build additional binaries, or rebuild binaries after making changes, usi
 You can also rebuild the tools if you make changes to them:
 
     lime rebuild tools
-
-While current Lime projects (and the Lime tools) use the standard Lime binary, by default, OpenFL uses the legacy Lime 1 binary when targeting native platforms. To rebuild Lime legacy, you can use the "legacy" define:
-
-    lime rebuild windows -Dlegacy
 
 On a Windows machine, you should have Microsoft Visual Studio C++ (Express is just fine) installed. You will need Xcode on a Mac. To build on a Linux machine, you may need the following packages (or similar):
 
