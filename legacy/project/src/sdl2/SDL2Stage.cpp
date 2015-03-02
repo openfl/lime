@@ -268,7 +268,7 @@ public:
       }
       mPrimarySurface->IncRef();
      
-      #if defined(WEBOS) || defined(BLACKBERRY)
+      #if defined(WEBOS) || defined(BLACKBERRY) || defined(HX_LINUX)
       mMultiTouch = true;
       #else
       mMultiTouch = false;
@@ -534,8 +534,8 @@ public:
          inEvent.type = etQuit;
       }
       #endif
-      
-      #if defined(WEBOS) || defined(BLACKBERRY)
+
+      #if defined(WEBOS) || defined(BLACKBERRY) || defined(HX_LINUX)
       if (inEvent.type == etMouseMove || inEvent.type == etMouseDown || inEvent.type == etMouseUp)
       {
          if (mSingleTouchID == NO_TOUCH || inEvent.value == mSingleTouchID || !mMultiTouch)
@@ -682,8 +682,8 @@ public:
    
    
    bool getMultitouchSupported()
-   { 
-      #if defined(WEBOS) || defined(BLACKBERRY)
+   {
+      #if defined(WEBOS) || defined(BLACKBERRY) || defined(HX_LINUX)
       return true;
       #else
       return false;
@@ -696,7 +696,7 @@ public:
    
    bool getMultitouchActive()
    {
-      #if defined(WEBOS) || defined(BLACKBERRY)
+      #if defined(WEBOS) || defined(BLACKBERRY) || defined(HX_LINUX)
       return mMultiTouch;
       #else
       return false;
@@ -1210,7 +1210,7 @@ void ProcessEvent(SDL_Event &inEvent)
 
             //int inValue=0, int inID=0, int inFlags=0, float inScaleX=1,float inScaleY=1, int inDeltaX=0,int inDeltaY=0
          Event mouse(etMouseMove, inEvent.motion.x, inEvent.motion.y, 0, 0, 0, 1.0f, 1.0f, deltaX, deltaY);
-         #if defined(WEBOS) || defined(BLACKBERRY)
+         #if defined(WEBOS) || defined(BLACKBERRY) || defined(HX_LINUX)
          mouse.value = inEvent.motion.which;
          mouse.flags |= efLeftDown;
          #else
@@ -1222,7 +1222,7 @@ void ProcessEvent(SDL_Event &inEvent)
       case SDL_MOUSEBUTTONDOWN:
       {
          Event mouse(etMouseDown, inEvent.button.x, inEvent.button.y, inEvent.button.button - 1);
-         #if defined(WEBOS) || defined(BLACKBERRY)
+         #if defined(WEBOS) || defined(BLACKBERRY) || defined(HX_LINUX)
          mouse.value = inEvent.motion.which;
          mouse.flags |= efLeftDown;
          #else
@@ -1234,7 +1234,7 @@ void ProcessEvent(SDL_Event &inEvent)
       case SDL_MOUSEBUTTONUP:
       {
          Event mouse(etMouseUp, inEvent.button.x, inEvent.button.y, inEvent.button.button - 1);
-         #if defined(WEBOS) || defined(BLACKBERRY)
+         #if defined(WEBOS) || defined(BLACKBERRY) || defined(HX_LINUX)
          mouse.value = inEvent.motion.which;
          #else
          AddModStates(mouse.flags);
@@ -1257,6 +1257,30 @@ void ProcessEvent(SDL_Event &inEvent)
          AddModStates(mouse.flags);
             //and done.
          sgSDLFrame->ProcessEvent(mouse);
+         break;
+      }
+      case SDL_FINGERMOTION:
+      {
+         SDL_TouchFingerEvent inFingerEvent = inEvent.tfinger;
+         Event finger(etTouchMove, inFingerEvent.x, inFingerEvent.y, 0, 0, 0, 1.0f, 1.0f, inFingerEvent.dx, inFingerEvent.dy);
+         finger.value = inFingerEvent.fingerId;
+         sgSDLFrame->ProcessEvent(finger);
+         break;
+      }
+      case SDL_FINGERDOWN:
+      {
+         SDL_TouchFingerEvent inFingerEvent = inEvent.tfinger;
+         Event finger(etTouchBegin, inFingerEvent.x, inFingerEvent.y);
+         finger.value = inFingerEvent.fingerId;
+         sgSDLFrame->ProcessEvent(finger);
+         break;
+      }
+      case SDL_FINGERUP:
+      {
+         SDL_TouchFingerEvent inFingerEvent = inEvent.tfinger;
+         Event finger(etTouchEnd, inFingerEvent.x, inFingerEvent.y);
+         finger.value = inFingerEvent.fingerId;
+         sgSDLFrame->ProcessEvent(finger);
          break;
       }
       case SDL_KEYDOWN:
