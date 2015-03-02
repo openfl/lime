@@ -422,26 +422,24 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	public override function loadAudioBuffer (id:String, handler:AudioBuffer -> Void):Void {
 		
-		#if (flash || js)
-		
-		//if (path.exists (id)) {
+		#if (flash)
+		if (path.exists (id)) {
 			
-		//	var loader = new Loader ();
-		//	loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event) {
+			var soundLoader = new Sound ();
+			soundLoader.addEventListener (Event.COMPLETE, function (event) {
 				
-		//		handler (cast (event.currentTarget.content, Bitmap).bitmapData);
+				var audioBuffer:AudioBuffer = new AudioBuffer();
+				audioBuffer.src = event.currentTarget;
+				handler (audioBuffer);
 				
-		//	});
-		//	loader.load (new URLRequest (path.get (id)));
+			});
+			soundLoader.load (new URLRequest (path.get (id)));
 			
-		//} else {
-			
+		} else {
 			handler (getAudioBuffer (id));
 			
-		//}
-		
+		}
 		#else
-		
 		handler (getAudioBuffer (id));
 		
 		#end
