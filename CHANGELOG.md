@@ -1,3 +1,24 @@
+2.1.3 (03/02/2015)
+------------------
+
+* Added lime.ui.KeyModifier
+* Added key modifier support to Flash and HTML5 keyboard events
+* Added support for iOS builds using HXCPP 3.2
+* Now "create project" creates unique package IDs instead of a common one
+* Now "-clean" is ignored where it does not make sense (such as "run -clean")
+* Changed default fullscreen for native targets to SDL_WINDOW_FULLSCREEN_DESKTOP
+* Fixed escaping for quotes and spaces in macro calls on Flash target
+* Removed Lime native dependency defines from Flash and HTML5 builds
+* Improved the behavior of shader isValid/isInvalid
+* Added a request for focus after resuming on Android
+* Fixed an IME issue that affected some Android keyboards
+* Fixed Linux setup on Arch 32-bit systems
+* Fixed an issue when building iOS projects to an absolute build path
+* Fixed issue where iOS builds may lack some defines (such as HXCPP_API_LEVEL)
+* Patched support for Assets.loadSound on Flash target
+* Fixed a null check in lime_alc_open_device
+
+
 2.1.2 (02/20/2015)
 ------------------
 
