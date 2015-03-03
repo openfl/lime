@@ -261,7 +261,7 @@ class PathHelper {
 						
 						LogHelper.error ("haxelib \"" + haxelib.name + "\" does not have an \"ndll/" + directoryName + "\" directory");
 						
-					} else if (output.indexOf ("haxelib install ") > -1) {
+					} else if (output.indexOf ("haxelib install ") > -1 && output.indexOf ("haxelib install " + haxelib.name) == -1) {
 						
 						var start = output.indexOf ("haxelib install ") + 16;
 						var end = output.lastIndexOf ("'");
