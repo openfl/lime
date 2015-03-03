@@ -10,39 +10,32 @@ import lime.ConsoleIncludePaths;
 
 @:enum abstract VertexDecl(Int) {
 
-	var PositionColor = 13; // xyz [3]float32, rgba [4]uint8
+	var PositionTexcoord = 5;	// xyz [3]float32, uv [2]float32
+	var PositionColor = 13;		// xyz [3]float32, rgba [4]uint8
 
 }
 
 
-@:include("ConsoleVertexOutput.h")
-@:native("lime::HxConsoleVertexOutput")
+@:include("ConsoleHaxeAPI.h")
+@:native("lime::hxapi::ConsoleVertexOutput")
 extern class VertexOutput {
 
+	public function vec2 (x:Float32, y:Float32):Void;
 	public function vec3 (x:Float32, y:Float32, z:Float32):Void;
 	public function color (r:UInt8, g:UInt8, b:UInt8, a:UInt8):Void;
 
 }
 
 
-/*
-// TODO(james4k): use abstract type instead when @:headerCode is supported
-@:unreflective
-@:structAccess
-@:include("ConsoleVertexBuffer.h")
-@:native("lime::ConsoleVertexBuffer")
+@:include("ConsoleHaxeAPI.h")
+@:native("lime::hxapi::ConsoleVertexBuffer")
 extern class VertexBuffer {
-
-
-	public function new (decl:VertexDecl, count:Int):Void;
 
 	public function lock ():VertexOutput;
 	public function unlock ():Void;
-
 	
 }
-*/
-
+/*
 
 // TODO(james4k): use abstract type instead when @:headerCode is supported
 //@:unreflective
@@ -90,6 +83,7 @@ class VertexBuffer {
 
 	
 }
+*/
 
 
 #else

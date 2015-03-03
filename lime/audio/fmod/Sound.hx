@@ -7,7 +7,7 @@ import lime.system.System;
 import lime.utils.ByteArray;
 
 
-@:include("ConsoleFmodAPI.h")
+@:include("ConsoleHaxeAPI.h")
 @:native("lime::hxapi::ConsoleFmodSound")
 extern class Sound {
 

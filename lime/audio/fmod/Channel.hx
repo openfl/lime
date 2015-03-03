@@ -7,7 +7,7 @@ import lime.system.System;
 import lime.utils.ByteArray;
 
 
-@:include("ConsoleFmodAPI.h")
+@:include("ConsoleHaxeAPI.h")
 @:native("lime::hxapi::ConsoleFmodChannel")
 extern class Channel {
 
