@@ -56,6 +56,7 @@ class HTML5AudioContext {
 	}
 	
 	
+	#if (haxe_ver < "3.2")
 	public function getAudioDecodedByteCount (buffer:AudioBuffer):Int {
 		
 		#if (js && html5)
@@ -69,6 +70,7 @@ class HTML5AudioContext {
 		return 0;
 		
 	}
+	#end
 	
 	
 	public function getAutoplay (buffer:AudioBuffer):Bool {
@@ -101,6 +103,7 @@ class HTML5AudioContext {
 	}
 	
 	
+	#if (haxe_ver < "3.2")
 	public function getController (buffer:AudioBuffer):Dynamic /*MediaController*/ {
 		
 		#if (js && html5)
@@ -114,6 +117,7 @@ class HTML5AudioContext {
 		return null;
 		
 	}
+	#end
 	
 	
 	public function getCurrentSrc (buffer:AudioBuffer):String {
@@ -206,6 +210,7 @@ class HTML5AudioContext {
 	}
 	
 	
+	#if (haxe_ver < "3.2")
 	public function getInitialTime (buffer:AudioBuffer):Float {
 		
 		#if (js && html5)
@@ -219,6 +224,7 @@ class HTML5AudioContext {
 		return 0;
 		
 	}
+	#end
 	
 	
 	public function getLoop (buffer:AudioBuffer):Bool {
@@ -236,6 +242,7 @@ class HTML5AudioContext {
 	}
 	
 	
+	#if (haxe_ver < "3.2")
 	public function getMediaGroup (buffer:AudioBuffer):String {
 		
 		#if (js && html5)
@@ -249,6 +256,7 @@ class HTML5AudioContext {
 		return null;
 		
 	}
+	#end
 	
 	
 	public function getMuted (buffer:AudioBuffer):Bool {
@@ -483,6 +491,7 @@ class HTML5AudioContext {
 	}
 	
 	
+	#if (haxe_ver < "3.2")
 	public function setController (buffer:AudioBuffer, value:Dynamic /*MediaController*/):Void {
 		
 		#if (js && html5)
@@ -494,6 +503,7 @@ class HTML5AudioContext {
 		#end
 		
 	}
+	#end
 	
 	
 	public function setCurrentTime (buffer:AudioBuffer, value:Float):Void {
@@ -535,6 +545,7 @@ class HTML5AudioContext {
 	}
 	
 	
+	#if (haxe_ver < "3.2")
 	public function setMediaGroup (buffer:AudioBuffer, value:String):Void {
 		
 		#if (js && html5)
@@ -546,6 +557,7 @@ class HTML5AudioContext {
 		#end
 		
 	}
+	#end
 	
 	
 	public function setMuted (buffer:AudioBuffer, value:Bool):Void {

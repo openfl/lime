@@ -140,7 +140,7 @@ class ImageCanvasUtil {
 			
 			untyped (buffer.__srcContext).mozImageSmoothingEnabled = false;
 			untyped (buffer.__srcContext).webkitImageSmoothingEnabled = false;
-			buffer.__srcContext.imageSmoothingEnabled = false;
+			untyped (buffer.__srcContext).imageSmoothingEnabled = false;
 			
 		}
 		#end

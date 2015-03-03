@@ -5,6 +5,7 @@ import lime.Assets;
 
 #if (js && html5)
 import js.html.Image;
+import js.html.SpanElement;
 import js.Browser;
 import lime.net.URLLoader;
 import lime.net.URLRequest;
@@ -147,7 +148,7 @@ class Preloader #if flash extends Sprite #end {
 			
 		} else {
 			
-			var node = Browser.document.createElement ("span");
+			var node:SpanElement = cast Browser.document.createElement ("span");
 			node.innerHTML = "giItT1WQy@!-/#";
 			var style = node.style;
 			style.position = "absolute";
