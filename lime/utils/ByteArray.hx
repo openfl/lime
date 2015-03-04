@@ -1131,7 +1131,7 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 		#if js
 		if (allocated < value)
 			___resizeBuffer (allocated = Std.int (Math.max (value, allocated * 2)));
-		else if (allocated > value)
+		else if (allocated > value * 2)
 			___resizeBuffer (allocated = value);
 		length = value;
 		#end
