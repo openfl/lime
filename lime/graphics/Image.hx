@@ -34,7 +34,7 @@ import format.png.Reader;
 import format.png.Tools;
 import format.png.Writer;
 import format.tools.Deflate;
-#if (sys || nodejs)
+#if sys
 import sys.io.File;
 #end
 #end

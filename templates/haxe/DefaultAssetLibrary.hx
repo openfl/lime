@@ -12,7 +12,7 @@ import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 import lime.Assets;
 
-#if (sys || nodejs)
+#if sys
 import sys.FileSystem;
 #end
 
@@ -241,7 +241,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		// TODO: Complete Lime Font API
 		
 		#if openfl
-		#if (flash || js)
+		#if (flash || html5)
 		
 		return cast (Type.createInstance (className.get (id), []), openfl.text.Font);
 		
@@ -572,7 +572,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	/*public override function loadMusic (id:String, handler:Dynamic -> Void):Void {
 		
-		#if (flash || js)
+		#if (flash || html5)
 		
 		//if (path.exists (id)) {
 			
