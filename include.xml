@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension>
 	
+	<set name="lime" />
 	<haxedef name="lime-html5" if="html5" />
 	<haxedef name="lime-native" if="native" />
 	
@@ -53,6 +54,9 @@
 	</section>
 	
 	<haxelib name="hxcpp" if="setup" />
+	<haxelib name="lime-samples" if="setup" />
+	
+	<sample path="${haxelib:lime-samples}" if="create" />
 	
 	<section if="rebuild">
 		
