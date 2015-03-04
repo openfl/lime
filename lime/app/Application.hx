@@ -2,6 +2,9 @@ package lime.app;
 
 
 import lime.graphics.Renderer;
+import lime.graphics.RenderContext;
+import lime.ui.KeyCode;
+import lime.ui.KeyModifier;
 import lime.ui.Window;
 
 
@@ -17,6 +20,7 @@ class Application extends Module {
 	public static var current (default, null):Application;
 	
 	public var config (default, null):Config;
+	public var modules (default, null):Array<IModule>;
 	
 	/**
 	 * Update events are dispatched each frame (usually just before rendering)
@@ -29,6 +33,7 @@ class Application extends Module {
 	public var windows (default, null):Array<Window>;
 	
 	@:noCompletion private var backend:ApplicationBackend;
+	@:noCompletion private var initialized:Bool;
 	
 	
 	public function new () {
@@ -41,11 +46,29 @@ class Application extends Module {
 			
 		}
 		
+		modules = new Array ();
 		renderers = new Array ();
 		windows = new Array ();
 		backend = new ApplicationBackend (this);
 		
 		onUpdate.add (update);
+		
+	}
+	
+	
+	/**
+	 * Adds a new module to the Application
+	 * @param	module	A module to add
+	 */
+	public function addModule (module:IModule):Void {
+		
+		modules.push (module);
+		
+		if (initialized && renderer != null) {
+			
+			module.init (renderer.context);
+			
+		}
 		
 	}
 	
@@ -125,9 +148,231 @@ class Application extends Module {
 	}
 	
 	
+	public override function init (context:RenderContext):Void {
+		
+		for (module in modules) {
+			
+			module.init (context);
+			
+		}
+		
+		initialized = true;
+		
+	}
+	
+	
+	public override function onKeyDown (keyCode:KeyCode, modifier:KeyModifier):Void {
+		
+		for (module in modules) {
+			
+			module.onKeyDown (keyCode, modifier);
+			
+		}
+		
+	}
+	
+	
+	public override function onKeyUp (keyCode:KeyCode, modifier:KeyModifier):Void {
+		
+		for (module in modules) {
+			
+			module.onKeyUp (keyCode, modifier);
+			
+		}
+		
+	}
+	
+	
+	public override function onMouseDown (x:Float, y:Float, button:Int):Void {
+		
+		for (module in modules) {
+			
+			module.onMouseDown (x, y, button);
+			
+		}
+		
+	}
+	
+	
+	public override function onMouseMove (x:Float, y:Float, button:Int):Void {
+		
+		for (module in modules) {
+			
+			module.onMouseMove (x, y, button);
+			
+		}
+		
+	}
+	
+	
+	public override function onMouseUp (x:Float, y:Float, button:Int):Void {
+		
+		for (module in modules) {
+			
+			module.onMouseUp (x, y, button);
+			
+		}
+		
+	}
+	
+	
+	public override function onMouseWheel (deltaX:Float, deltaY:Float):Void {
+		
+		for (module in modules) {
+			
+			module.onMouseWheel (deltaX, deltaY);
+			
+		}
+		
+	}
+	
+	
+	public override function onRenderContextLost ():Void {
+		
+		for (module in modules) {
+			
+			module.onRenderContextLost ();
+			
+		}
+		
+	}
+	
+	
+	public override function onRenderContextRestored (context:RenderContext):Void {
+		
+		for (module in modules) {
+			
+			module.onRenderContextRestored (context);
+			
+		}
+		
+	}
+	
+	
+	public override function onTouchEnd (x:Float, y:Float, id:Int):Void {
+		
+		for (module in modules) {
+			
+			module.onTouchEnd (x, y, id);
+			
+		}
+		
+	}
+	
+	
+	public override function onTouchMove (x:Float, y:Float, id:Int):Void {
+		
+		for (module in modules) {
+			
+			module.onTouchMove (x, y, id);
+			
+		}
+		
+	}
+	
+	
+	public override function onTouchStart (x:Float, y:Float, id:Int):Void {
+		
+		for (module in modules) {
+			
+			module.onTouchStart (x, y, id);
+			
+		}
+		
+	}
+	
+	
+	public override function onWindowActivate ():Void {
+		
+		for (module in modules) {
+			
+			module.onWindowActivate ();
+			
+		}
+		
+	}
+	
+	
+	public override function onWindowClose ():Void {
+		
+		for (module in modules) {
+			
+			module.onWindowClose ();
+			
+		}
+		
+	}
+	
+	
+	public override function onWindowDeactivate ():Void {
+		
+		for (module in modules) {
+			
+			module.onWindowDeactivate ();
+			
+		}
+		
+	}
+	
+	
+	public override function onWindowFocusIn ():Void {
+		
+		for (module in modules) {
+			
+			module.onWindowFocusIn ();
+			
+		}
+		
+	}
+	
+	
+	public override function onWindowFocusOut ():Void {
+		
+		for (module in modules) {
+			
+			module.onWindowFocusOut ();
+			
+		}
+		
+	}
+	
+	
+	public override function onWindowMove (x:Float, y:Float):Void {
+		
+		for (module in modules) {
+			
+			module.onWindowMove (x, y);
+			
+		}
+		
+	}
+	
+	
+	public override function onWindowResize (width:Int, height:Int):Void {
+		
+		for (module in modules) {
+			
+			module.onWindowResize (width, height);
+			
+		}
+		
+	}
+	
+	
+	/**
+	 * Removes a module from the Application
+	 * @param	module	A module to remove
+	 */
+	public function removeModule (module:IModule):Void {
+		
+		modules.remove (module);
+		
+	}
+	
+	
 	/**
 	 * Removes a Renderer from the Application
-	 * @param	renderer	A Renderer object to add
+	 * @param	renderer	A Renderer object to remove
 	 */
 	public function removeRenderer (renderer:Renderer):Void {
 		
@@ -142,7 +387,7 @@ class Application extends Module {
 	
 	/**
 	 * Removes a Window from the Application
-	 * @param	window	A Window object to add
+	 * @param	window	A Window object to remove
 	 */
 	public function removeWindow (window:Window):Void {
 		
@@ -150,6 +395,28 @@ class Application extends Module {
 			
 			window.close ();
 			windows.remove (window);
+			
+		}
+		
+	}
+	
+	
+	public override function render (context:RenderContext):Void {
+		
+		for (module in modules) {
+			
+			module.render (context);
+			
+		}
+		
+	}
+	
+	
+	public override function update (deltaTime:Int):Void {
+		
+		for (module in modules) {
+			
+			module.update (deltaTime);
 			
 		}
 		
