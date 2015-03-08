@@ -402,7 +402,7 @@ namespace lime {
 		
 		if (face) {
 			
-			FT_Done_Face ((FT_Face)face);
+			//FT_Done_Face ((FT_Face)face);
 			
 		}
 		
