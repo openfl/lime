@@ -39,7 +39,6 @@ import lime.graphics.utils.ImageDataUtil;
 import lime.graphics.CanvasRenderContext;
 import lime.graphics.DOMRenderContext;
 import lime.graphics.FlashRenderContext;
-import lime.graphics.Font;
 import lime.graphics.GLRenderContext;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
@@ -99,6 +98,10 @@ import lime.project.SplashScreen;
 import lime.project.WindowData;
 #end
 import lime.system.System;
+import lime.text.Font;
+import lime.text.TextDirection;
+import lime.text.TextLayout;
+import lime.text.TextScript;
 #if (windows || mac || linux || neko)
 import lime.tools.helpers.AIRHelper;
 import lime.tools.helpers.AndroidHelper;
