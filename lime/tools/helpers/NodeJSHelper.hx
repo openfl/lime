@@ -13,7 +13,7 @@ class NodeJSHelper {
 	
 	public static function run (project:HXProject, modulePath:String, args:Array<String> = null):Void {
 		
-		var suffix = switch (PlatformHelper.hostPlatform) {
+		/*var suffix = switch (PlatformHelper.hostPlatform) {
 			
 			case Platform.WINDOWS: "-windows.exe";
 			case Platform.MAC: "-mac";
@@ -49,11 +49,12 @@ class NodeJSHelper {
 			
 			args = [];
 			
-		}
+		}*/
 		
 		args.unshift (Path.withoutDirectory (modulePath));
 		
-		ProcessHelper.runCommand (Path.directory (modulePath), node, args);
+		//ProcessHelper.runCommand (Path.directory (modulePath), node, args);
+		ProcessHelper.runCommand (Path.directory (modulePath), "iojs", args);
 		
 	}
 	
