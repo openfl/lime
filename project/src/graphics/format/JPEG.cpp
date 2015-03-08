@@ -217,7 +217,7 @@ namespace lime {
 				
 			} else {
 				
-				ByteArray data = ByteArray::FromFile (resource->path);
+				ByteArray data = ByteArray (resource->path);
 				MySrcManager manager (data.Bytes (), data.Size ());
 				cinfo.src = &manager.pub;
 				

@@ -1,10 +1,24 @@
-#include <graphics/Font.h>
+#include <text/Font.h>
 #include <graphics/ImageBuffer.h>
+#include <system/System.h>
+
 #include <algorithm>
 #include <vector>
 
+#ifdef LIME_FREETYPE
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include FT_BITMAP_H
+#include FT_SFNT_NAMES_H
+#include FT_TRUETYPE_IDS_H
+#include FT_GLYPH_H
+#include FT_OUTLINE_H
+#endif
+
+
 // from http://stackoverflow.com/questions/2948308/how-do-i-read-utf-8-characters-via-a-pointer
 #define IS_IN_RANGE(c, f, l)	 (((c) >= (f)) && ((c) <= (l)))
+
 
 unsigned long readNextChar (char*& p)
 {
@@ -259,63 +273,31 @@ namespace lime {
 	}
 	
 	
-	Font *Font::FromFile (const char *fontFace) {
+	Font::Font (void* face) {
 		
-		int error;
-		FT_Library library;
-		
-		error = FT_Init_FreeType (&library);
-		
-		if (error) {
-			
-			printf ("Could not initialize FreeType\n");
-			
-		} else {
-		
-			FT_Face face;
-			error = FT_New_Face (library, fontFace, 0, &face);
-			
-			if (error == FT_Err_Unknown_File_Format) {
-
-				printf ("Invalid font type\n");
-
-			} else if (error) {
-
-				printf ("Failed to load font face %s\n", fontFace);
-
-			} else {
-
-				return new Font(face);
-
-			}
-
-		}
-		
-		return 0;
-
-	}
-
-	Font::Font (FT_Face face) {
-
 		this->face = face;
-
-		/* Set charmap
-		 *
-		 * See http://www.microsoft.com/typography/otspec/name.htm for a list of
-		 * some possible platform-encoding pairs.  We're interested in 0-3 aka 3-1
-		 * - UCS-2.  Otherwise, fail. If a font has some unicode map, but lacks
-		 * UCS-2 - it is a broken or irrelevant font. What exactly Freetype will
-		 * select on face load (it promises most wide unicode, and if that will be
-		 * slower that UCS-2 - left as an excercise to check.
-		 */
-		for (int i = 0; i < face->num_charmaps; i++) {
+		
+		if (face) {
 			
-			FT_UShort pid = face->charmaps[i]->platform_id;
-			FT_UShort eid = face->charmaps[i]->encoding_id;
-			
-			if (((pid == 0) && (eid == 3)) || ((pid == 3) && (eid == 1))) {
+			/* Set charmap
+			 *
+			 * See http://www.microsoft.com/typography/otspec/name.htm for a list of
+			 * some possible platform-encoding pairs.  We're interested in 0-3 aka 3-1
+			 * - UCS-2.  Otherwise, fail. If a font has some unicode map, but lacks
+			 * UCS-2 - it is a broken or irrelevant font. What exactly Freetype will
+			 * select on face load (it promises most wide unicode, and if that will be
+			 * slower that UCS-2 - left as an excercise to check.
+			 */
+			for (int i = 0; i < ((FT_Face)face)->num_charmaps; i++) {
 				
-				FT_Set_Charmap (face, face->charmaps[i]);
+				FT_UShort pid = ((FT_Face)face)->charmaps[i]->platform_id;
+				FT_UShort eid = ((FT_Face)face)->charmaps[i]->encoding_id;
+				
+				if (((pid == 0) && (eid == 3)) || ((pid == 3) && (eid == 1))) {
+					
+					FT_Set_Charmap ((FT_Face)face, ((FT_Face)face)->charmaps[i]);
+					
+				}
 				
 			}
 			
@@ -324,43 +306,86 @@ namespace lime {
 	}
 	
 	
-	wchar_t *get_familyname_from_sfnt_name (FT_Face face) {
+	Font::Font (Resource *resource, int faceIndex) {
 		
-		wchar_t *family_name = NULL;
-		FT_SfntName sfnt_name;
-		FT_UInt num_sfnt_names, sfnt_name_index;
-		int len, i;
-		
-		if (FT_IS_SFNT (face)) {
+		if (resource) {
 			
-			num_sfnt_names = FT_Get_Sfnt_Name_Count (face);
-			sfnt_name_index = 0;
+			int error;
+			FT_Library library;
 			
-			while (sfnt_name_index < num_sfnt_names) {
+			error = FT_Init_FreeType (&library);
+			
+			if (error) {
 				
-				if (!FT_Get_Sfnt_Name (face, sfnt_name_index++, (FT_SfntName *)&sfnt_name) && sfnt_name.name_id == TT_NAME_ID_FULL_NAME) {
+				printf ("Could not initialize FreeType\n");
+				
+			} else {
+				
+				FT_Face face;
+				FILE_HANDLE *file = NULL;
+				
+				if (resource->path) {
 					
-					if (sfnt_name.platform_id == TT_PLATFORM_MACINTOSH) {
+					file = lime::fopen (resource->path, "rb");
+					
+					if (file->isFile ()) {
 						
-						len = sfnt_name.string_len;
-						family_name = new wchar_t[len + 1];
-						mbstowcs (&family_name[0], &reinterpret_cast<const char*>(sfnt_name.string)[0], len);
-						family_name[len] = L'\0';
-						return family_name;
+						error = FT_New_Face (library, resource->path, faceIndex, &face);
 						
-					} else if ((sfnt_name.platform_id == TT_PLATFORM_MICROSOFT) && (sfnt_name.encoding_id == TT_MS_ID_UNICODE_CS)) {
+					} else {
 						
-						len = sfnt_name.string_len / 2;
-						family_name = (wchar_t*)malloc ((len + 1) * sizeof (wchar_t));
+						ByteArray data = ByteArray (resource->path);
+						unsigned char *buffer = (unsigned char*)malloc (data.Size ());
+						memcpy (buffer, data.Bytes (), data.Size ());
+						error = FT_New_Memory_Face (library, buffer, data.Size (), faceIndex, &face);
 						
-						for (i = 0; i < len; i++) {
+					}
+					
+				} else {
+					
+					unsigned char *buffer = (unsigned char*)malloc (resource->data->Size ());
+					memcpy (buffer, resource->data->Bytes (), resource->data->Size ());
+					error = FT_New_Memory_Face (library, buffer, resource->data->Size (), faceIndex, &face);
+					
+				}
+				
+				if (file) {
+					
+					lime::fclose (file);
+					
+				}
+				
+				if (error == FT_Err_Unknown_File_Format) {
+					
+					printf ("Invalid font type\n");
+					
+				} else if (error) {
+					
+					printf ("Failed to load font face %s\n", resource->path);
+					
+				} else {
+					
+					this->face = face;
+					
+					/* Set charmap
+					 *
+					 * See http://www.microsoft.com/typography/otspec/name.htm for a list of
+					 * some possible platform-encoding pairs.  We're interested in 0-3 aka 3-1
+					 * - UCS-2.  Otherwise, fail. If a font has some unicode map, but lacks
+					 * UCS-2 - it is a broken or irrelevant font. What exactly Freetype will
+					 * select on face load (it promises most wide unicode, and if that will be
+					 * slower that UCS-2 - left as an excercise to check.
+					 */
+					for (int i = 0; i < ((FT_Face)face)->num_charmaps; i++) {
+						
+						FT_UShort pid = ((FT_Face)face)->charmaps[i]->platform_id;
+						FT_UShort eid = ((FT_Face)face)->charmaps[i]->encoding_id;
+						
+						if (((pid == 0) && (eid == 3)) || ((pid == 3) && (eid == 1))) {
 							
-							family_name[i] = ((wchar_t)sfnt_name.string[i * 2 + 1]) | (((wchar_t)sfnt_name.string[i * 2]) << 8);
+							FT_Set_Charmap ((FT_Face)face, ((FT_Face)face)->charmaps[i]);
 							
 						}
-						
-						family_name[len] = L'\0';
-						return family_name;
 						
 					}
 					
@@ -370,7 +395,16 @@ namespace lime {
 			
 		}
 		
-		return NULL;
+	}
+	
+	
+	Font::~Font () {
+		
+		if (face) {
+			
+			FT_Done_Face ((FT_Face)face);
+			
+		}
 		
 	}
 	
@@ -379,7 +413,7 @@ namespace lime {
 		
 		int result, i, j;
 		
-		FT_Set_Char_Size (face, em, em, 72, 72);
+		FT_Set_Char_Size ((FT_Face)face, em, em, 72, 72);
 		
 		std::vector<glyph*> glyphs;
 		
@@ -397,20 +431,20 @@ namespace lime {
 		FT_ULong char_code;
 		FT_UInt glyph_index;
 		
-		char_code = FT_Get_First_Char (face, &glyph_index);
+		char_code = FT_Get_First_Char ((FT_Face)(FT_Face)face, &glyph_index);
 		
 		while (glyph_index != 0) {
 			
-			if (FT_Load_Glyph (face, glyph_index, FT_LOAD_NO_BITMAP | FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0) {
+			if (FT_Load_Glyph ((FT_Face)(FT_Face)face, glyph_index, FT_LOAD_NO_BITMAP | FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0) {
 				
 				glyph *g = new glyph;
-				result = FT_Outline_Decompose (&face->glyph->outline, &ofn, g);
+				result = FT_Outline_Decompose (&((FT_Face)face)->glyph->outline, &ofn, g);
 				
 				if (result == 0) {
 					
 					g->index = glyph_index;
 					g->char_code = char_code;
-					g->metrics = face->glyph->metrics;
+					g->metrics = ((FT_Face)face)->glyph->metrics;
 					glyphs.push_back (g);
 					
 				} else {
@@ -421,7 +455,7 @@ namespace lime {
 				
 			}
 			
-			char_code = FT_Get_Next_Char (face, char_code, &glyph_index);
+			char_code = FT_Get_Next_Char ((FT_Face)face, char_code, &glyph_index);
 			
 		}
 		
@@ -429,7 +463,7 @@ namespace lime {
 		std::sort (glyphs.begin (), glyphs.end (), glyph_sort_predicate ());
 		
 		std::vector<kerning>  kern;
-		if (FT_HAS_KERNING (face)) {
+		if (FT_HAS_KERNING (((FT_Face)face))) {
 			
 			int n = glyphs.size ();
 			FT_Vector v;
@@ -442,7 +476,7 @@ namespace lime {
 					
 					int r_glyph = glyphs[j]->index;
 					
-					FT_Get_Kerning (face, l_glyph, r_glyph, FT_KERNING_DEFAULT, &v);
+					FT_Get_Kerning ((FT_Face)face, l_glyph, r_glyph, FT_KERNING_DEFAULT, &v);
 					
 					if (v.x != 0 || v.y != 0) {
 						
@@ -457,21 +491,23 @@ namespace lime {
 		}
 		
 		int num_glyphs = glyphs.size ();
-		wchar_t* family_name = get_familyname_from_sfnt_name (face);
+		
+		Font font = Font (face);
+		wchar_t* family_name = font.GetFamilyName ();
 		
 		value ret = alloc_empty_object ();
-		alloc_field (ret, val_id ("has_kerning"), alloc_bool (FT_HAS_KERNING (face)));
-		alloc_field (ret, val_id ("is_fixed_width"), alloc_bool (FT_IS_FIXED_WIDTH (face)));
-		alloc_field (ret, val_id ("has_glyph_names"), alloc_bool (FT_HAS_GLYPH_NAMES (face)));
-		alloc_field (ret, val_id ("is_italic"), alloc_bool (face->style_flags & FT_STYLE_FLAG_ITALIC));
-		alloc_field (ret, val_id ("is_bold"), alloc_bool (face->style_flags & FT_STYLE_FLAG_BOLD));
+		alloc_field (ret, val_id ("has_kerning"), alloc_bool (FT_HAS_KERNING (((FT_Face)face))));
+		alloc_field (ret, val_id ("is_fixed_width"), alloc_bool (FT_IS_FIXED_WIDTH (((FT_Face)face))));
+		alloc_field (ret, val_id ("has_glyph_names"), alloc_bool (FT_HAS_GLYPH_NAMES (((FT_Face)face))));
+		alloc_field (ret, val_id ("is_italic"), alloc_bool (((FT_Face)face)->style_flags & FT_STYLE_FLAG_ITALIC));
+		alloc_field (ret, val_id ("is_bold"), alloc_bool (((FT_Face)face)->style_flags & FT_STYLE_FLAG_BOLD));
 		alloc_field (ret, val_id ("num_glyphs"), alloc_int (num_glyphs));
-		alloc_field (ret, val_id ("family_name"), family_name == NULL ? alloc_string (face->family_name) : alloc_wstring (family_name));
-		alloc_field (ret, val_id ("style_name"), alloc_string (face->style_name));
-		alloc_field (ret, val_id ("em_size"), alloc_int (face->units_per_EM));
-		alloc_field (ret, val_id ("ascend"), alloc_int (face->ascender));
-		alloc_field (ret, val_id ("descend"), alloc_int (face->descender));
-		alloc_field (ret, val_id ("height"), alloc_int (face->height));
+		alloc_field (ret, val_id ("family_name"), family_name == NULL ? alloc_string (((FT_Face)face)->family_name) : alloc_wstring (family_name));
+		alloc_field (ret, val_id ("style_name"), alloc_string (((FT_Face)face)->style_name));
+		alloc_field (ret, val_id ("em_size"), alloc_int (((FT_Face)face)->units_per_EM));
+		alloc_field (ret, val_id ("ascend"), alloc_int (((FT_Face)face)->ascender));
+		alloc_field (ret, val_id ("descend"), alloc_int (((FT_Face)face)->descender));
+		alloc_field (ret, val_id ("height"), alloc_int (((FT_Face)face)->height));
 		
 		delete family_name;
 		
@@ -507,7 +543,7 @@ namespace lime {
 		alloc_field (ret, val_id ("glyphs"), neko_glyphs);
 		
 		// 'kerning' field
-		if (FT_HAS_KERNING (face)) {
+		if (FT_HAS_KERNING (((FT_Face)face))) {
 			
 			value neko_kerning = alloc_array (kern.size ());
 			
@@ -537,17 +573,62 @@ namespace lime {
 	}
 	
 	
-	value Font::GetFamilyName () {
+	wchar_t *Font::GetFamilyName () {
 		
-		return alloc_wstring (get_familyname_from_sfnt_name (face));
+		#ifdef LIME_FREETYPE
+		
+		wchar_t *family_name = NULL;
+		FT_SfntName sfnt_name;
+		FT_UInt num_sfnt_names, sfnt_name_index;
+		int len, i;
+		
+		if (FT_IS_SFNT (((FT_Face)face))) {
+			
+			num_sfnt_names = FT_Get_Sfnt_Name_Count ((FT_Face)face);
+			sfnt_name_index = 0;
+			
+			while (sfnt_name_index < num_sfnt_names) {
+				
+				if (!FT_Get_Sfnt_Name ((FT_Face)face, sfnt_name_index++, (FT_SfntName *)&sfnt_name) && sfnt_name.name_id == TT_NAME_ID_FULL_NAME) {
+					
+					if (sfnt_name.platform_id == TT_PLATFORM_MACINTOSH) {
+						
+						len = sfnt_name.string_len;
+						family_name = new wchar_t[len + 1];
+						mbstowcs (&family_name[0], &reinterpret_cast<const char*>(sfnt_name.string)[0], len);
+						family_name[len] = L'\0';
+						return family_name;
+						
+					} else if ((sfnt_name.platform_id == TT_PLATFORM_MICROSOFT) && (sfnt_name.encoding_id == TT_MS_ID_UNICODE_CS)) {
+						
+						len = sfnt_name.string_len / 2;
+						family_name = (wchar_t*)malloc ((len + 1) * sizeof (wchar_t));
+						
+						for (i = 0; i < len; i++) {
+							
+							family_name[i] = ((wchar_t)sfnt_name.string[i * 2 + 1]) | (((wchar_t)sfnt_name.string[i * 2]) << 8);
+							
+						}
+						
+						family_name[len] = L'\0';
+						return family_name;
+						
+					}
+					
+				}
+				
+			}
+			
+		}
+		
+		#endif
+		
+		return NULL;
 		
 	}
 	
-	bool Font::InsertCodepointFromIndex (unsigned long codepoint) {
-		return InsertCodepoint(codepoint, false);
-	}
-
-	bool Font::InsertCodepoint (unsigned long codepoint, bool b) {
+	
+	bool Font::InsertCodepoint (unsigned long codepoint, bool fromIndex) {
 		
 		GlyphInfo info;
 		info.codepoint = codepoint;
@@ -561,14 +642,18 @@ namespace lime {
 		// if (codepoint < (*first).codepoint ||
 		// 	(codepoint == (*first).codepoint && mSize != (*first).size)) {
 			
-			
-			if (b) {
-				info.index = FT_Get_Char_Index (face, codepoint);
+			if (fromIndex) {
+				
+				info.index = FT_Get_Char_Index ((FT_Face)face, codepoint);
+				
 			} else {
-				info.index = codepoint;	
+				
+				info.index = codepoint;
+				
 			}
-			if (FT_Load_Glyph (face, info.index, FT_LOAD_DEFAULT) != 0) return false;
-			info.height = face->glyph->metrics.height;
+			
+			if (FT_Load_Glyph ((FT_Face)face, info.index, FT_LOAD_DEFAULT) != 0) return false;
+			info.height = ((FT_Face)face)->glyph->metrics.height;
 			
 			glyphList.insert (first, info);
 			
@@ -576,7 +661,14 @@ namespace lime {
 			
 		// }
 		
-		return false;
+		//return false;
+		
+	}
+	
+	
+	bool Font::InsertCodepointFromIndex (unsigned long codepoint) {
+		
+		return InsertCodepoint (codepoint, false);
 		
 	}
 	
@@ -617,8 +709,8 @@ namespace lime {
 			(int)((1.0) * 0x10000L)
 		};
 		
-		FT_Set_Char_Size (face, 0, (int)(size*64), (int)(hdpi * hres), vdpi);
-		FT_Set_Transform (face, &matrix, NULL);
+		FT_Set_Char_Size ((FT_Face)face, 0, (int)(size*64), (int)(hdpi * hres), vdpi);
+		FT_Set_Transform ((FT_Face)face, &matrix, NULL);
 		
 		mSize = size;
 		
@@ -662,14 +754,14 @@ namespace lime {
 		for (std::list<GlyphInfo>::iterator it = glyphList.begin (); it != glyphList.end (); it++) {
 			
 			// recalculate the character size for each glyph since it will vary
-			FT_Set_Char_Size (face, 0, (int)((*it).size*64), (int)(hdpi * hres), vdpi);
-			FT_Set_Transform (face, &matrix, NULL);
+			FT_Set_Char_Size ((FT_Face)face, 0, (int)((*it).size*64), (int)(hdpi * hres), vdpi);
+			FT_Set_Transform ((FT_Face)face, &matrix, NULL);
 			
-			FT_Load_Glyph (face, (*it).index, FT_LOAD_DEFAULT);
+			FT_Load_Glyph ((FT_Face)face, (*it).index, FT_LOAD_DEFAULT);
 			
-			if (FT_Render_Glyph (face->glyph, FT_RENDER_MODE_NORMAL) != 0) continue;
+			if (FT_Render_Glyph (((FT_Face)face)->glyph, FT_RENDER_MODE_NORMAL) != 0) continue;
 			
-			FT_Bitmap bitmap = face->glyph->bitmap;
+			FT_Bitmap bitmap = ((FT_Face)face)->glyph->bitmap;
 			
 			if (x + bitmap.width > image->width) {
 				
@@ -733,8 +825,8 @@ namespace lime {
 			alloc_field (v, id_height, alloc_int (bitmap.rows));
 			
 			value offset = alloc_empty_object ();
-			alloc_field (offset, id_x, alloc_int (face->glyph->bitmap_left));
-			alloc_field (offset, id_y, alloc_int (face->glyph->bitmap_top));
+			alloc_field (offset, id_x, alloc_int (((FT_Face)face)->glyph->bitmap_left));
+			alloc_field (offset, id_y, alloc_int (((FT_Face)face)->glyph->bitmap_top));
 			alloc_field (v, id_offset, offset);
 			
 			alloc_field (v, id_codepoint, alloc_int ((*it).index));

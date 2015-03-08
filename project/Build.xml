@@ -59,14 +59,14 @@
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/freetype/include" />
 			<compilerflag value="-DLIME_FREETYPE" />
 			
-			<file name="src/graphics/Font.cpp" />
+			<file name="src/text/Font.cpp" />
 			
 			<section if="LIME_HARFBUZZ">
 				
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/harfbuzz/src" />
 				<compilerflag value="-DLIME_HARFBUZZ" />
 				
-				<file name="src/graphics/Text.cpp" />
+				<file name="src/text/TextLayout.cpp" />
 				
 			</section>
 			

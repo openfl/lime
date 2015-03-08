@@ -1,20 +1,11 @@
-#ifndef LIME_GRAPHICS_FONT_H
-#define LIME_GRAPHICS_FONT_H
+#ifndef LIME_TEXT_FONT_H
+#define LIME_TEXT_FONT_H
 
 
+#include <graphics/ImageBuffer.h>
+#include <utils/Resource.h>
 #include <hx/CFFI.h>
 #include <list>
-#include <graphics/ImageBuffer.h>
-
-#ifdef LIME_FREETYPE
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_BITMAP_H
-#include FT_SFNT_NAMES_H
-#include FT_TRUETYPE_IDS_H
-#include FT_GLYPH_H
-#include FT_OUTLINE_H
-#endif
 
 
 namespace lime {
@@ -27,13 +18,8 @@ namespace lime {
 		
 		unsigned long codepoint;
 		size_t size;
-	#ifdef LIME_FREETYPE
-		FT_UInt index;
-		FT_Pos height;
-	#else
 		int index;
 		int height;
-	#endif
 		
 	} GlyphInfo;
 	
@@ -43,25 +29,22 @@ namespace lime {
 		
 		public:
 			
-			static Font *FromFile (const char *fontFace);
+			Font (void* face = 0);
+			Font (Resource *resource, int faceIndex = 0);
+			~Font ();
 			
 			value Decompose (int em);
-			value GetFamilyName ();
+			wchar_t *GetFamilyName ();
+			bool InsertCodepointFromIndex (unsigned long codepoint);
 			void LoadGlyphs (const char *glyphs);
 			void LoadRange (unsigned long start, unsigned long end);
 			value RenderToImage (ImageBuffer *image);
 			void SetSize (size_t size);
-			bool InsertCodepointFromIndex (unsigned long codepoint);
-
-			#ifdef LIME_FREETYPE
-			Font (FT_Face face);
-			FT_Face face;
-			#else
+			
 			void* face;
-			#endif
 			
 		private:
-
+			
 			bool InsertCodepoint (unsigned long codepoint, bool b = true);
 			
 			std::list<GlyphInfo> glyphList;

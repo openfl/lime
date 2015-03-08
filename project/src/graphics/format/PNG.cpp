@@ -143,7 +143,7 @@ namespace lime {
 				
 			} else {
 				
-				ByteArray data = ByteArray::FromFile (resource->path);
+				ByteArray data = ByteArray (resource->path);
 				ReadBuffer buffer (data.Bytes (), data.Size ());
 				png_set_read_fn (png_ptr, &buffer, user_read_data_fn);
 				
