@@ -14,7 +14,7 @@ namespace lime {
 		if (strlen (script) != 4) return;
 		
 		mDirection = (hb_direction_t)direction;
-		mLanguage = (int)hb_language_from_string (language, strlen (language));
+		mLanguage = (long)hb_language_from_string (language, strlen (language));
 		mScript = hb_script_from_string (script, -1);
 		
 		mBuffer = hb_buffer_create ();

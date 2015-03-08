@@ -22,9 +22,9 @@ namespace lime {
 		private:
 			
 			void *mBuffer;
-			int mDirection;
-			int mScript;
-			int mLanguage;
+			long mDirection;
+			long mScript;
+			long mLanguage;
 			
 	};
 	
