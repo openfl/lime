@@ -60,13 +60,14 @@
 			<compilerflag value="-DLIME_FREETYPE" />
 			
 			<file name="src/text/Font.cpp" />
+			<file name="src/text/GlyphSet.cpp" />
 			
 			<section if="LIME_HARFBUZZ">
 				
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/harfbuzz/src" />
 				<compilerflag value="-DLIME_HARFBUZZ" />
 				
-				<file name="src/text/TextLayout.cpp" />
+				<file name="src/text/TextEngine.cpp" />
 				
 			</section>
 			

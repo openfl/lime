@@ -255,6 +255,17 @@ class Font {
 	}
 	
 	
+	public function getGlyphMetrics (glyphs:GlyphSet):Array<GlyphMetrics> {
+		
+		#if (cpp || neko || nodejs)
+		return lime_font_get_glyph_metrics (__handle, glyphs);
+		#else
+		return null;
+		#end
+		
+	}
+	
+	
 	public function loadRange (size:Int, start:Int, end:Int) {
 		
 		#if (flash || js)
@@ -426,6 +437,7 @@ class Font {
 	private static var lime_font_get_ascender = System.load ("lime", "lime_font_get_ascender", 1);
 	private static var lime_font_get_descender = System.load ("lime", "lime_font_get_descender", 1);
 	private static var lime_font_get_family_name = System.load ("lime", "lime_font_get_family_name", 1);
+	private static var lime_font_get_glyph_metrics = System.load ("lime", "lime_font_get_glyph_metrics", 2);
 	private static var lime_font_get_height = System.load ("lime", "lime_font_get_height", 1);
 	private static var lime_font_get_num_glyphs = System.load ("lime", "lime_font_get_num_glyphs", 1);
 	private static var lime_font_get_underline_position = System.load ("lime", "lime_font_get_underline_position", 1);

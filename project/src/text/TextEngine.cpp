@@ -1,4 +1,4 @@
-#include <text/TextLayout.h>
+#include <text/TextEngine.h>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -9,7 +9,7 @@
 namespace lime {
 	
 	
-	TextLayout::TextLayout (int direction, const char *script, const char *language) {
+	TextEngine::TextEngine (int direction, const char *script, const char *language) {
 		
 		if (strlen (script) != 4) return;
 		
@@ -25,14 +25,14 @@ namespace lime {
 	}
 	
 	
-	TextLayout::~TextLayout () {
+	TextEngine::~TextEngine () {
 		
 		hb_buffer_destroy ((hb_buffer_t*)mBuffer);
 		
 	}
 	
 	
-	value TextLayout::Layout (Font *font, size_t size, const char *text) {
+	value TextEngine::Layout (Font *font, size_t size, const char *text) {
 		
 		font->SetSize (size);
 		

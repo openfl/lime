@@ -1,5 +1,5 @@
-#ifndef LIME_TEXT_TEXT_LAYOUT_H
-#define LIME_TEXT_TEXT_LAYOUT_H
+#ifndef LIME_TEXT_TEXT_ENGINE_H
+#define LIME_TEXT_TEXT_ENGINE_H
 
 
 #include <text/Font.h>
@@ -9,13 +9,13 @@
 namespace lime {
 	
 	
-	class TextLayout {
+	class TextEngine {
 		
 		
 		public:
 			
-			TextLayout (int direction, const char *script, const char *language);
-			~TextLayout ();
+			TextEngine (int direction, const char *script, const char *language);
+			~TextEngine ();
 			
 			value Layout (Font *font, size_t size, const char *text);
 			

@@ -3,15 +3,13 @@
 
 
 #include <graphics/ImageBuffer.h>
+#include <text/GlyphSet.h>
 #include <utils/Resource.h>
 #include <hx/CFFI.h>
 #include <list>
 
 
 namespace lime {
-	
-	
-	class Image;
 	
 	
 	typedef struct {
@@ -37,6 +35,7 @@ namespace lime {
 			int GetAscender ();
 			int GetDescender ();
 			wchar_t *GetFamilyName ();
+			value GetGlyphMetrics (GlyphSet *glyphSet);
 			int GetHeight ();
 			int GetNumGlyphs ();
 			int GetUnderlinePosition ();

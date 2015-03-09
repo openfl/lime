@@ -271,8 +271,15 @@ namespace lime {
 	
 	static int id_codepoint;
 	static int id_height;
+	static int id_horizontalAdvance;
+	static int id_horizontalBearingX;
+	static int id_horizontalBearingY;
+	static int id_index;
 	static int id_offset;
 	static int id_size;
+	static int id_verticalAdvance;
+	static int id_verticalBearingX;
+	static int id_verticalBearingY;
 	static int id_width;
 	static int id_x;
 	static int id_y;
@@ -289,6 +296,33 @@ namespace lime {
 	bool CompareGlyphCodepoint (const GlyphInfo &a, const GlyphInfo &b) {
 		
 		return a.codepoint < b.codepoint && a.size < b.size;
+		
+	}
+	
+	
+	static void initialize () {
+		
+		if (!init) {
+			
+			id_width = val_id ("width");
+			id_height = val_id ("height");
+			id_x = val_id ("x");
+			id_y = val_id ("y");
+			id_offset = val_id ("offset");
+			id_size = val_id ("size");
+			id_codepoint = val_id ("codepoint");
+			
+			id_horizontalAdvance = val_id ("horizontalAdvance");
+			id_horizontalBearingX = val_id ("horizontalBearingX");
+			id_horizontalBearingY = val_id ("horizontalBearingY");
+			id_index = val_id ("index");
+			id_verticalAdvance = val_id ("verticalAdvance");
+			id_verticalBearingX = val_id ("verticalBearingX");
+			id_verticalBearingY = val_id ("verticalBearingY");
+			
+			init = true;
+			
+		}
 		
 	}
 	
@@ -451,11 +485,11 @@ namespace lime {
 		FT_ULong char_code;
 		FT_UInt glyph_index;
 		
-		char_code = FT_Get_First_Char ((FT_Face)(FT_Face)face, &glyph_index);
+		char_code = FT_Get_First_Char ((FT_Face)face, &glyph_index);
 		
 		while (glyph_index != 0) {
 			
-			if (FT_Load_Glyph ((FT_Face)(FT_Face)face, glyph_index, FT_LOAD_NO_BITMAP | FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0) {
+			if (FT_Load_Glyph ((FT_Face)face, glyph_index, FT_LOAD_NO_BITMAP | FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0) {
 				
 				glyph *g = new glyph;
 				result = FT_Outline_Decompose (&((FT_Face)face)->glyph->outline, &ofn, g);
@@ -662,6 +696,83 @@ namespace lime {
 	}
 	
 	
+	void GetGlyphMetrics_Push (FT_Face face, FT_UInt glyphIndex, value glyphList) {
+		
+		if (FT_Load_Glyph (face, glyphIndex, FT_LOAD_NO_BITMAP | FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0) {
+			
+			value metrics = alloc_empty_object ();
+			
+			alloc_field (metrics, id_height, alloc_int (((FT_Face)face)->glyph->metrics.height));
+			alloc_field (metrics, id_horizontalBearingX, alloc_int (((FT_Face)face)->glyph->metrics.horiBearingX));
+			alloc_field (metrics, id_horizontalBearingY, alloc_int (((FT_Face)face)->glyph->metrics.horiBearingY));
+			alloc_field (metrics, id_horizontalAdvance, alloc_int (((FT_Face)face)->glyph->metrics.horiAdvance));
+			alloc_field (metrics, id_index, alloc_int (glyphIndex));
+			alloc_field (metrics, id_verticalBearingX, alloc_int (((FT_Face)face)->glyph->metrics.vertBearingX));
+			alloc_field (metrics, id_verticalBearingY, alloc_int (((FT_Face)face)->glyph->metrics.vertBearingY));
+			alloc_field (metrics, id_verticalAdvance, alloc_int (((FT_Face)face)->glyph->metrics.vertAdvance));
+			
+			val_array_push (glyphList, metrics);
+			
+		}
+		
+	}
+	
+	
+	value Font::GetGlyphMetrics (GlyphSet *glyphSet) {
+		
+		initialize ();
+		
+		value glyphList = alloc_array (0);
+		
+		if (!glyphSet->glyphs.empty ()) {
+			
+			for (wchar_t& c : glyphSet->glyphs) {
+				
+				GetGlyphMetrics_Push ((FT_Face)face, FT_Get_Char_Index ((FT_Face)face, c), glyphList);
+				
+			}
+			
+		}
+		
+		for (GlyphRange range : glyphSet->ranges) {
+			
+			if (range.start == 0 && range.end == -1) {
+				
+				FT_UInt glyphIndex;
+				FT_ULong charCode = FT_Get_First_Char ((FT_Face)face, &glyphIndex);
+				
+				while (glyphIndex != 0) {
+					
+					GetGlyphMetrics_Push ((FT_Face)face, glyphIndex, glyphList);
+					charCode = FT_Get_Next_Char ((FT_Face)face, charCode, &glyphIndex);
+					
+				}
+				
+			} else {
+				
+				unsigned long end = range.end;
+				
+				if (end < 0) {
+					
+					end = ((FT_Face)face)->num_glyphs - 1;
+					
+				}
+				
+				for (unsigned long i = range.start; i <= end; i++) {
+					
+					GetGlyphMetrics_Push ((FT_Face)face, i, glyphList);
+					
+				}
+				
+			}
+			
+		}
+		
+		return glyphList;
+		
+	}
+	
+	
 	int Font::GetHeight () {
 		
 		return ((FT_Face)face)->height;
@@ -788,18 +899,7 @@ namespace lime {
 	
 	value Font::RenderToImage (ImageBuffer *image) {
 		
-		if (!init) {
-			
-			id_width = val_id ("width");
-			id_height = val_id ("height");
-			id_x = val_id ("x");
-			id_y = val_id ("y");
-			id_offset = val_id ("offset");
-			id_size = val_id ("size");
-			id_codepoint = val_id ("codepoint");
-			init = true;
-			
-		}
+		initialize ();
 		
 		glyphList.sort (CompareGlyphHeight);
 		

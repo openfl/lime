@@ -6,7 +6,7 @@ import lime.system.System;
 @:access(lime.text.Font)
 
 
-class TextLayout {
+class TextEngine {
 	
 	
 	public var direction (default, null):TextDirection;
@@ -25,7 +25,7 @@ class TextLayout {
 		this.language = language;
 		
 		#if (cpp || neko || nodejs)
-		__handle = lime_text_layout_create (direction, script, language);
+		__handle = lime_text_engine_create (direction, script, language);
 		#end
 		
 		this.direction = direction;
@@ -38,7 +38,7 @@ class TextLayout {
 		#if (cpp || neko || nodejs)
 		
 		if (font.__handle == null) throw "Uninitialized font handle.";
-		return lime_text_layout_layout (__handle, font.__handle, size, text);
+		return lime_text_engine_layout (__handle, font.__handle, size, text);
 		
 		#else
 		
@@ -50,8 +50,8 @@ class TextLayout {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_text_layout_create = System.load ("lime", "lime_text_layout_create", 3);
-	private static var lime_text_layout_layout = System.load ("lime", "lime_text_layout_layout", 4);
+	private static var lime_text_engine_create = System.load ("lime", "lime_text_engine_create", 3);
+	private static var lime_text_engine_layout = System.load ("lime", "lime_text_engine_layout", 4);
 	#end
 	
 	
