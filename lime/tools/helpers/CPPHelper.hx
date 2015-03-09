@@ -30,11 +30,27 @@ class CPPHelper {
 				
 				if (FileSystem.exists (options)) {
 					
+					var list;
 					var input = File.read (options, false);
 					var text = input.readLine ();
-					input.close ();
 					
-					var list = text.split (" ");
+					if (StringTools.startsWith (text, " -D")) {
+						
+						list = text.split (" ");
+						
+					} else {
+						
+						list = [ "-D" + StringTools.trim (text) ];
+						
+						while (!input.eof ()) {
+							
+							list.push ("-D" + StringTools.trim (input.readLine ()));
+							
+						}
+						
+						list.pop ();
+						
+					}
 					
 					for (option in list) {
 						
