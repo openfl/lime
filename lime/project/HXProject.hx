@@ -18,9 +18,9 @@ import sys.FileSystem;
 import sys.io.File;
 
 #if (lime && !lime_legacy)
+import lime.text.Font;
 import lime.tools.helpers.FileHelper;
 import lime.tools.helpers.ProcessHelper;
-import lime.graphics.Font;
 import sys.io.Process;
 @:access(lime.graphics.Font)
 #end
@@ -920,7 +920,7 @@ class HXProject {
 					try {
 						
 						var font = Font.fromFile (asset.sourcePath);
-						embeddedAsset.fontName = font.fontName;
+						embeddedAsset.fontName = font.name;
 						
 					} catch (e:Dynamic) {}
 					

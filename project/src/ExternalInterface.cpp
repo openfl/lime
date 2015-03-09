@@ -144,11 +144,95 @@ namespace lime {
 	}
 	
 	
+	value lime_font_get_ascender (value fontHandle) {
+		
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)(intptr_t)val_float (fontHandle);
+		return alloc_int (font->GetAscender ());
+		#else
+		return alloc_null ();
+		#endif
+		
+	}
+	
+	
+	value lime_font_get_descender (value fontHandle) {
+		
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)(intptr_t)val_float (fontHandle);
+		return alloc_int (font->GetDescender ());
+		#else
+		return alloc_null ();
+		#endif
+		
+	}
+	
+	
 	value lime_font_get_family_name (value fontHandle) {
 		
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)(intptr_t)val_float (fontHandle);
 		return alloc_wstring (font->GetFamilyName ());
+		#else
+		return alloc_null ();
+		#endif
+		
+	}
+	
+	
+	value lime_font_get_height (value fontHandle) {
+		
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)(intptr_t)val_float (fontHandle);
+		return alloc_int (font->GetHeight ());
+		#else
+		return alloc_null ();
+		#endif
+		
+	}
+	
+	
+	value lime_font_get_num_glyphs (value fontHandle) {
+		
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)(intptr_t)val_float (fontHandle);
+		return alloc_int (font->GetNumGlyphs ());
+		#else
+		return alloc_null ();
+		#endif
+		
+	}
+	
+	
+	value lime_font_get_underline_position (value fontHandle) {
+		
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)(intptr_t)val_float (fontHandle);
+		return alloc_int (font->GetUnderlinePosition ());
+		#else
+		return alloc_null ();
+		#endif
+		
+	}
+	
+	
+	value lime_font_get_underline_thickness (value fontHandle) {
+		
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)(intptr_t)val_float (fontHandle);
+		return alloc_int (font->GetUnderlineThickness ());
+		#else
+		return alloc_null ();
+		#endif
+		
+	}
+	
+	
+	value lime_font_get_units_per_em (value fontHandle) {
+		
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)(intptr_t)val_float (fontHandle);
+		return alloc_int (font->GetUnitsPerEM ());
 		#else
 		return alloc_null ();
 		#endif
@@ -552,7 +636,14 @@ namespace lime {
 	DEFINE_PRIM (lime_application_update, 1);
 	DEFINE_PRIM (lime_audio_load, 1);
 	DEFINE_PRIM (lime_font_create_image, 1);
+	DEFINE_PRIM (lime_font_get_ascender, 1);
+	DEFINE_PRIM (lime_font_get_descender, 1);
 	DEFINE_PRIM (lime_font_get_family_name, 1);
+	DEFINE_PRIM (lime_font_get_height, 1);
+	DEFINE_PRIM (lime_font_get_num_glyphs, 1);
+	DEFINE_PRIM (lime_font_get_underline_position, 1);
+	DEFINE_PRIM (lime_font_get_underline_thickness, 1);
+	DEFINE_PRIM (lime_font_get_units_per_em, 1);
 	DEFINE_PRIM (lime_font_load, 1);
 	DEFINE_PRIM (lime_font_load_glyphs, 3);
 	DEFINE_PRIM (lime_font_load_range, 4);

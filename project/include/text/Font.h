@@ -34,7 +34,14 @@ namespace lime {
 			~Font ();
 			
 			value Decompose (int em);
+			int GetAscender ();
+			int GetDescender ();
 			wchar_t *GetFamilyName ();
+			int GetHeight ();
+			int GetNumGlyphs ();
+			int GetUnderlinePosition ();
+			int GetUnderlineThickness ();
+			int GetUnitsPerEM ();
 			bool InsertCodepointFromIndex (unsigned long codepoint);
 			void LoadGlyphs (const char *glyphs);
 			void LoadRange (unsigned long start, unsigned long end);

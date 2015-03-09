@@ -5,8 +5,8 @@ package lime;
 import haxe.Json;
 import haxe.Unserializer;
 import lime.audio.AudioBuffer;
-import lime.graphics.Font;
 import lime.graphics.Image;
+import lime.text.Font;
 import lime.utils.ByteArray;
 
 @:access(lime.AssetLibrary)
@@ -1450,11 +1450,7 @@ class Assets {
 				
 				super();
 				
-				#if openfl_html5_dom
-				nmeFromBytes (haxe.Resource.getBytes (resourceName));
-				#else
-				__fromBytes (haxe.Resource.getBytes (resourceName));
-				#end
+				__fromBytes (lime.utils.ByteArray.fromBytes (haxe.Resource.getBytes (resourceName)));
 				
 			};
 			
@@ -1519,9 +1515,9 @@ class Assets {
 			
 			var constructor = macro {
 				
-				super();
+				super ();
 				
-				fontName = resourceName;
+				__fromBytes (lime.utils.ByteArray.fromBytes (haxe.Resource.getBytes (resourceName)));
 				
 			};
 			
@@ -1542,7 +1538,7 @@ class Assets {
 		
 		if (fields != null) {
 			
-			#if (!html5) // CFFILoader.h(248) : NOT Implemented:api_buffer_data
+			#if (openfl && !html5) // CFFILoader.h(248) : NOT Implemented:api_buffer_data
 			
 			var constructor = macro { 
 				

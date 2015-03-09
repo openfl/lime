@@ -131,116 +131,136 @@ namespace {
 	
 	
 	enum {
+		
 		PT_MOVE = 1,
 		PT_LINE = 2,
 		PT_CURVE = 3
+		
 	};
-
+	
+	
 	struct point {
-		int				x, y;
-		unsigned char  type;
-
-		point() { }
-		point(int x, int y, unsigned char type) : x(x), y(y), type(type) { }
+		
+		int x, y;
+		unsigned char type;
+		
+		point () { }
+		point (int x, int y, unsigned char type) : x (x), y (y), type (type) { }
+		
 	};
 	
 	
 	struct glyph {
 		
-		FT_ULong					 char_code;
-		FT_Vector					advance;
-		FT_Glyph_Metrics		  metrics;
-		int							index, x, y;
-		std::vector<int>		  pts;
+		FT_ULong char_code;
+		FT_Vector advance;
+		FT_Glyph_Metrics metrics;
+		int index, x, y;
+		std::vector<int> pts;
 		
-		glyph(): x(0), y(0) { }
+		glyph () : x (0), y (0) { }
 		
 	};
 	
 	
 	struct kerning {
-		int							l_glyph, r_glyph;
-		int							x, y;
-
-		kerning() { }
-		kerning(int l, int r, int x, int y): l_glyph(l), r_glyph(r), x(x), y(y) { }
+		
+		int l_glyph, r_glyph;
+		int x, y;
+		
+		kerning () { }
+		kerning (int l, int r, int x, int y) : l_glyph (l), r_glyph (r), x (x), y (y) { }
+		
 	};
 	
 	
 	struct glyph_sort_predicate {
-		bool operator()(const glyph* g1, const glyph* g2) const {
-			return g1->char_code <  g2->char_code;
+		
+		bool operator () (const glyph* g1, const glyph* g2) const {
+			
+			return g1->char_code < g2->char_code;
+			
 		}
+		
 	};
 	
 	
 	typedef const FT_Vector *FVecPtr;
 	
 	
-	int outline_move_to(FVecPtr to, void *user) {
-		glyph		 *g = static_cast<glyph*>(user);
-
-		g->pts.push_back(PT_MOVE);
-		g->pts.push_back(to->x);
-		g->pts.push_back(to->y);
-
-		g->x = to->x;
-		g->y = to->y;
+	int outline_move_to (FVecPtr to, void *user) {
 		
-		return 0;
-	}
-
-	int outline_line_to(FVecPtr to, void *user) {
-		glyph		 *g = static_cast<glyph*>(user);
-
-		g->pts.push_back(PT_LINE);
-		g->pts.push_back(to->x - g->x);
-		g->pts.push_back(to->y - g->y);
+		glyph *g = static_cast<glyph*> (user);
+		
+		g->pts.push_back (PT_MOVE);
+		g->pts.push_back (to->x);
+		g->pts.push_back (to->y);
 		
 		g->x = to->x;
 		g->y = to->y;
 		
 		return 0;
-	}
-
-	int outline_conic_to(FVecPtr ctl, FVecPtr to, void *user) {
-		glyph		 *g = static_cast<glyph*>(user);
-
-		g->pts.push_back(PT_CURVE);
-		g->pts.push_back(ctl->x - g->x);
-		g->pts.push_back(ctl->y - g->y);
-		g->pts.push_back(to->x - ctl->x);
-		g->pts.push_back(to->y - ctl->y);
 		
-		g->x = to->x;
-		g->y = to->y;
-		
-		return 0;
 	}
 	
-	int outline_cubic_to(FVecPtr ctl1, FVecPtr ctl2, FVecPtr to, void *user) {
+	
+	int outline_line_to (FVecPtr to, void *user) {
+		
+		glyph *g = static_cast<glyph*> (user);
+		
+		g->pts.push_back (PT_LINE);
+		g->pts.push_back (to->x - g->x);
+		g->pts.push_back (to->y - g->y);
+		
+		g->x = to->x;
+		g->y = to->y;
+		
+		return 0;
+		
+	}
+	
+	
+	int outline_conic_to (FVecPtr ctl, FVecPtr to, void *user) {
+		
+		glyph *g = static_cast<glyph*> (user);
+		
+		g->pts.push_back (PT_CURVE);
+		g->pts.push_back (ctl->x - g->x);
+		g->pts.push_back (ctl->y - g->y);
+		g->pts.push_back (to->x - ctl->x);
+		g->pts.push_back (to->y - ctl->y);
+		
+		g->x = to->x;
+		g->y = to->y;
+		
+		return 0;
+		
+	}
+	
+	
+	int outline_cubic_to (FVecPtr ctl1, FVecPtr ctl2, FVecPtr to, void *user) {
 		
 		// Cubic curves are not supported, we need to approximate to a quadratic
 		// TODO: divide into multiple curves
 		
-		glyph		 *g = static_cast<glyph*>(user);
+		glyph *g = static_cast<glyph*> (user);
 		
 		FT_Vector ctl;
 		ctl.x = (-0.25 * g->x) + (0.75 * ctl1->x) + (0.75 * ctl2->x) + (-0.25 * to->x);
 		ctl.y = (-0.25 * g->y) + (0.75 * ctl1->y) + (0.75 * ctl2->y) + (-0.25 * to->y);
 		
-		g->pts.push_back(PT_CURVE);
-		g->pts.push_back(ctl.x - g->x);
-		g->pts.push_back(ctl.y - g->y);
-		g->pts.push_back(to->x - ctl.x);
-		g->pts.push_back(to->y - ctl.y);
+		g->pts.push_back (PT_CURVE);
+		g->pts.push_back (ctl.x - g->x);
+		g->pts.push_back (ctl.y - g->y);
+		g->pts.push_back (to->x - ctl.x);
+		g->pts.push_back (to->y - ctl.y);
 		
 		g->x = to->x;
 		g->y = to->y;
 		
 		return 0;
+		
 	}
-
 	
 	
 }
@@ -573,6 +593,20 @@ namespace lime {
 	}
 	
 	
+	int Font::GetAscender () {
+		
+		return ((FT_Face)face)->ascender;
+		
+	}
+	
+	
+	int Font::GetDescender () {
+		
+		return ((FT_Face)face)->descender;
+		
+	}
+	
+	
 	wchar_t *Font::GetFamilyName () {
 		
 		#ifdef LIME_FREETYPE
@@ -624,6 +658,41 @@ namespace lime {
 		#endif
 		
 		return NULL;
+		
+	}
+	
+	
+	int Font::GetHeight () {
+		
+		return ((FT_Face)face)->height;
+		
+	}
+	
+	
+	int Font::GetNumGlyphs () {
+		
+		return ((FT_Face)face)->num_glyphs;
+		
+	}
+	
+	
+	int Font::GetUnderlinePosition () {
+		
+		return ((FT_Face)face)->underline_position;
+		
+	}
+	
+	
+	int Font::GetUnderlineThickness () {
+		
+		return ((FT_Face)face)->underline_thickness;
+		
+	}
+	
+	
+	int Font::GetUnitsPerEM () {
+		
+		return ((FT_Face)face)->units_per_EM;
 		
 	}
 	
