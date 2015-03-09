@@ -726,9 +726,9 @@ namespace lime {
 		
 		if (!glyphSet->glyphs.empty ()) {
 			
-			for (wchar_t& c : glyphSet->glyphs) {
+			for (unsigned int i = 0; i < glyphSet->glyphs.length (); i++) {
 				
-				GetGlyphMetrics_Push ((FT_Face)face, FT_Get_Char_Index ((FT_Face)face, c), glyphList);
+				GetGlyphMetrics_Push ((FT_Face)face, FT_Get_Char_Index ((FT_Face)face, glyphSet->glyphs[i]), glyphList);
 				
 			}
 			
