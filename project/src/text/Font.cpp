@@ -734,7 +734,11 @@ namespace lime {
 			
 		}
 		
-		for (GlyphRange range : glyphSet->ranges) {
+		GlyphRange range;
+		
+		for (int i = 0; i < glyphSet->ranges.size (); i++) {
+			
+			range = glyphSet->ranges[i];
 			
 			if (range.start == 0 && range.end == -1) {
 				
