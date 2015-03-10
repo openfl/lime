@@ -3,6 +3,7 @@
 #include <system/System.h>
 
 #include <algorithm>
+#include <list>
 #include <vector>
 
 #ifdef LIME_FREETYPE
@@ -14,117 +15,6 @@
 #include FT_GLYPH_H
 #include FT_OUTLINE_H
 #endif
-
-
-// from http://stackoverflow.com/questions/2948308/how-do-i-read-utf-8-characters-via-a-pointer
-#define IS_IN_RANGE(c, f, l)	 (((c) >= (f)) && ((c) <= (l)))
-
-
-unsigned long readNextChar (char*& p)
-{
-	 // TODO: since UTF-8 is a variable-length
-	 // encoding, you should pass in the input
-	 // buffer's actual byte length so that you
-	 // can determine if a malformed UTF-8
-	 // sequence would exceed the end of the buffer...
-
-	 unsigned char c1, c2, *ptr = (unsigned char*) p;
-	 unsigned long uc = 0;
-	 int seqlen;
-
-	 c1 = ptr[0];
-
-	 if ((c1 & 0x80) == 0) {
-
-		  uc = (unsigned long) (c1 & 0x7F);
-		  seqlen = 1;
-
-	 } else if ((c1 & 0xE0) == 0xC0) {
-
-		  uc = (unsigned long) (c1 & 0x1F);
-		  seqlen = 2;
-
-	 } else if ((c1 & 0xF0) == 0xE0) {
-
-		  uc = (unsigned long) (c1 & 0x0F);
-		  seqlen = 3;
-
-	 } else if ((c1 & 0xF8) == 0xF0) {
-
-		  uc = (unsigned long) (c1 & 0x07);
-		  seqlen = 4;
-
-	 } else {
-
-		  // malformed data, do something !!!
-		  return (unsigned long) -1;
-
-	 }
-
-	 for (int i = 1; i < seqlen; ++i) {
-
-		  c1 = ptr[i];
-
-		  if ((c1 & 0xC0) != 0x80) {
-
-				// malformed data, do something !!!
-				return (unsigned long) -1;
-
-		  }
-
-	 }
-
-	 switch (seqlen) {
-		  case 2:
-				c1 = ptr[0];
-
-				if (!IS_IN_RANGE(c1, 0xC2, 0xDF)) {
-
-					 // malformed data, do something !!!
-					 return (unsigned long) -1;
-
-				}
-
-				break;
-		  case 3:
-				c1 = ptr[0];
-				c2 = ptr[1];
-
-				if (((c1 == 0xE0) && !IS_IN_RANGE(c2, 0xA0, 0xBF)) ||
-					 ((c1 == 0xED) && !IS_IN_RANGE(c2, 0x80, 0x9F)) ||
-					 (!IS_IN_RANGE(c1, 0xE1, 0xEC) && !IS_IN_RANGE(c1, 0xEE, 0xEF))) {
-
-					 // malformed data, do something !!!
-					 return (unsigned long) -1;
-
-				}
-
-				break;
-		  case 4:
-				c1 = ptr[0];
-				c2 = ptr[1];
-
-				if (((c1 == 0xF0) && !IS_IN_RANGE(c2, 0x90, 0xBF)) ||
-					 ((c1 == 0xF4) && !IS_IN_RANGE(c2, 0x80, 0x8F)) ||
-					 !IS_IN_RANGE(c1, 0xF1, 0xF3)) {
-
-					 // malformed data, do something !!!
-					 return (unsigned long) -1;
-
-				}
-
-				break;
-	 }
-
-	 for (int i = 1; i < seqlen; ++i) {
-
-		  uc = ((uc << 6) | (unsigned long)(ptr[i] & 0x3F));
-
-	 }
-
-	 p += seqlen;
-	 return uc;
-}
 
 
 namespace {
@@ -269,12 +159,13 @@ namespace {
 namespace lime {
 	
 	
+	static int id_charCode;
 	static int id_codepoint;
+	static int id_glyphIndex;
 	static int id_height;
 	static int id_horizontalAdvance;
 	static int id_horizontalBearingX;
 	static int id_horizontalBearingY;
-	static int id_index;
 	static int id_offset;
 	static int id_size;
 	static int id_verticalAdvance;
@@ -284,20 +175,6 @@ namespace lime {
 	static int id_x;
 	static int id_y;
 	static bool init = false;
-	
-	
-	bool CompareGlyphHeight (const GlyphInfo &a, const GlyphInfo &b) {
-		
-		return a.height > b.height;
-		
-	}
-	
-	
-	bool CompareGlyphCodepoint (const GlyphInfo &a, const GlyphInfo &b) {
-		
-		return a.codepoint < b.codepoint && a.size < b.size;
-		
-	}
 	
 	
 	static void initialize () {
@@ -312,10 +189,11 @@ namespace lime {
 			id_size = val_id ("size");
 			id_codepoint = val_id ("codepoint");
 			
+			id_charCode = val_id ("charCode");
+			id_glyphIndex = val_id ("glyphIndex");
 			id_horizontalAdvance = val_id ("horizontalAdvance");
 			id_horizontalBearingX = val_id ("horizontalBearingX");
 			id_horizontalBearingY = val_id ("horizontalBearingY");
-			id_index = val_id ("index");
 			id_verticalAdvance = val_id ("verticalAdvance");
 			id_verticalBearingX = val_id ("verticalBearingX");
 			id_verticalBearingY = val_id ("verticalBearingY");
@@ -459,6 +337,193 @@ namespace lime {
 			//FT_Done_Face ((FT_Face)face);
 			
 		}
+		
+	}
+	
+	
+	value Font::CreateImages (int fontSize, GlyphSet *glyphSet, ImageBuffer *image) {
+		
+		initialize ();
+		
+		std::list<FT_ULong> charCodes = std::list<FT_ULong> ();
+		
+		if (!glyphSet->glyphs.empty ()) {
+			
+			FT_ULong charCode;
+			
+			for (unsigned int i = 0; i < glyphSet->glyphs.length (); i++) {
+				
+				charCodes.push_back (glyphSet->glyphs[i]);
+				
+			}
+			
+		}
+		
+		GlyphRange range;
+		
+		for (int i = 0; i < glyphSet->ranges.size (); i++) {
+			
+			range = glyphSet->ranges[i];
+			
+			if (range.start == 0 && range.end == -1) {
+				
+				FT_UInt glyphIndex;
+				FT_ULong charCode = FT_Get_First_Char ((FT_Face)face, &glyphIndex);
+				
+				while (glyphIndex != 0) {
+					
+					charCodes.push_back (charCode);
+					charCode = FT_Get_Next_Char ((FT_Face)face, charCode, &glyphIndex);
+					
+				}
+				
+			} else {
+				
+				unsigned long end = range.end;
+				
+				FT_ULong charCode = range.start;
+				FT_UInt glyphIndex = FT_Get_Char_Index ((FT_Face)face, charCode);
+				
+				while (charCode <= end || end < 0) {
+					
+					if (glyphIndex > 0) {
+						
+						charCodes.push_back (charCode);
+						
+					}
+					
+					glyphIndex = -1;
+					charCode = FT_Get_Next_Char ((FT_Face)face, charCode, &glyphIndex);
+					
+					if (glyphIndex == 0) {
+						
+						break;
+						
+					}
+					
+				}
+				
+			}
+			
+		}
+		
+		charCodes.unique ();
+		
+		image->Resize (128, 128, 1);
+		int x = 0, y = 0, maxRows = 0;
+		unsigned char *bytes = image->data->Bytes ();
+		
+		value rects = alloc_array (charCodes.size ());
+		int rectsIndex = 0;
+		
+		size_t hdpi = 72;
+		size_t vdpi = 72;
+		size_t hres = 100;
+		FT_Matrix matrix = {
+			(int)((1.0/hres) * 0x10000L),
+			(int)((0.0) * 0x10000L),
+			(int)((0.0) * 0x10000L),
+			(int)((1.0) * 0x10000L)
+		};
+		
+		FT_Set_Char_Size ((FT_Face)face, 0, (int)(fontSize*64), (int)(hdpi * hres), vdpi);
+		FT_Set_Transform ((FT_Face)face, &matrix, NULL);
+		FT_UInt glyphIndex;
+		FT_ULong charCode;
+		
+		for (std::list<FT_ULong>::iterator it = charCodes.begin (); it != charCodes.end (); it++) {
+			
+			charCode = (*it);
+			glyphIndex = FT_Get_Char_Index ((FT_Face)face, charCode);
+			
+			FT_Load_Glyph ((FT_Face)face, glyphIndex, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT);
+			
+			if (FT_Render_Glyph (((FT_Face)face)->glyph, FT_RENDER_MODE_NORMAL) != 0) continue;
+			
+			FT_Bitmap bitmap = ((FT_Face)face)->glyph->bitmap;
+			
+			if (x + bitmap.width > image->width) {
+				
+				y += maxRows + 1;
+				x = maxRows = 0;
+				
+			}
+			
+			if (y + bitmap.rows > image->height) {
+				
+				if (image->width < image->height) {
+					
+					image->width *= 2;
+					
+				} else {
+					
+					image->height *= 2;
+					
+				}
+				
+				image->Resize (image->width, image->height, 1);
+				rectsIndex = 0;
+				it = charCodes.begin ();
+				it--;
+				x = y = maxRows = 0;
+				continue;
+				
+			}
+			
+			if (image->bpp == 1) {
+				
+				image->Blit (bitmap.buffer, x, y, bitmap.width, bitmap.rows);
+				
+			} else {
+				
+				for (int row = 0; row < bitmap.rows; row++) {
+					
+					unsigned char *out = &bytes[((row + y) * image->width + x) * image->bpp];
+					const unsigned char *line = &bitmap.buffer[row * bitmap.width]; // scanline
+					const unsigned char *const end = line + bitmap.width;
+					
+					while (line != end) {
+						
+						*out++ = 0xFF;
+						*out++ = 0xFF;
+						*out++ = 0xFF;
+						*out++ = *line;
+						
+						line++;
+						
+					}
+					
+				}
+				
+			}
+			
+			value v = alloc_empty_object ();
+			alloc_field (v, id_x, alloc_int (x));
+			alloc_field (v, id_y, alloc_int (y));
+			alloc_field (v, id_width, alloc_int (bitmap.width));
+			alloc_field (v, id_height, alloc_int (bitmap.rows));
+			
+			value offset = alloc_empty_object ();
+			alloc_field (offset, id_x, alloc_int (((FT_Face)face)->glyph->bitmap_left));
+			alloc_field (offset, id_y, alloc_int (((FT_Face)face)->glyph->bitmap_top));
+			alloc_field (v, id_offset, offset);
+			
+			alloc_field (v, id_charCode, alloc_int (charCode));
+			alloc_field (v, id_glyphIndex, alloc_int (glyphIndex));
+			//alloc_field (v, id_size, alloc_int ((*it).size));
+			val_array_set_i (rects, rectsIndex++, v);
+			
+			x += bitmap.width + 1;
+			
+			if (bitmap.rows > maxRows) {
+				
+				maxRows = bitmap.rows;
+				
+			}
+			
+		}
+		
+		return rects;
 		
 	}
 	
@@ -696,17 +761,18 @@ namespace lime {
 	}
 	
 	
-	void GetGlyphMetrics_Push (FT_Face face, FT_UInt glyphIndex, value glyphList) {
+	void GetGlyphMetrics_Push (FT_Face face, FT_ULong charCode, FT_UInt glyphIndex, value glyphList) {
 		
 		if (FT_Load_Glyph (face, glyphIndex, FT_LOAD_NO_BITMAP | FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0) {
 			
 			value metrics = alloc_empty_object ();
 			
+			alloc_field (metrics, id_charCode, alloc_int (charCode));
+			alloc_field (metrics, id_glyphIndex, alloc_int (glyphIndex));
 			alloc_field (metrics, id_height, alloc_int (((FT_Face)face)->glyph->metrics.height));
 			alloc_field (metrics, id_horizontalBearingX, alloc_int (((FT_Face)face)->glyph->metrics.horiBearingX));
 			alloc_field (metrics, id_horizontalBearingY, alloc_int (((FT_Face)face)->glyph->metrics.horiBearingY));
 			alloc_field (metrics, id_horizontalAdvance, alloc_int (((FT_Face)face)->glyph->metrics.horiAdvance));
-			alloc_field (metrics, id_index, alloc_int (glyphIndex));
 			alloc_field (metrics, id_verticalBearingX, alloc_int (((FT_Face)face)->glyph->metrics.vertBearingX));
 			alloc_field (metrics, id_verticalBearingY, alloc_int (((FT_Face)face)->glyph->metrics.vertBearingY));
 			alloc_field (metrics, id_verticalAdvance, alloc_int (((FT_Face)face)->glyph->metrics.vertAdvance));
@@ -726,9 +792,12 @@ namespace lime {
 		
 		if (!glyphSet->glyphs.empty ()) {
 			
+			FT_ULong charCode;
+			
 			for (unsigned int i = 0; i < glyphSet->glyphs.length (); i++) {
 				
-				GetGlyphMetrics_Push ((FT_Face)face, FT_Get_Char_Index ((FT_Face)face, glyphSet->glyphs[i]), glyphList);
+				charCode = glyphSet->glyphs[i];
+				GetGlyphMetrics_Push ((FT_Face)face, charCode, FT_Get_Char_Index ((FT_Face)face, charCode), glyphList);
 				
 			}
 			
@@ -747,7 +816,7 @@ namespace lime {
 				
 				while (glyphIndex != 0) {
 					
-					GetGlyphMetrics_Push ((FT_Face)face, glyphIndex, glyphList);
+					GetGlyphMetrics_Push ((FT_Face)face, charCode, glyphIndex, glyphList);
 					charCode = FT_Get_Next_Char ((FT_Face)face, charCode, &glyphIndex);
 					
 				}
@@ -756,15 +825,25 @@ namespace lime {
 				
 				unsigned long end = range.end;
 				
-				if (end < 0) {
-					
-					end = ((FT_Face)face)->num_glyphs - 1;
-					
-				}
+				FT_ULong charCode = range.start;
+				FT_UInt glyphIndex = FT_Get_Char_Index ((FT_Face)face, charCode);
 				
-				for (unsigned long i = range.start; i <= end; i++) {
+				while (charCode <= end || end < 0) {
 					
-					GetGlyphMetrics_Push ((FT_Face)face, i, glyphList);
+					if (glyphIndex > 0) {
+						
+						GetGlyphMetrics_Push ((FT_Face)face, charCode, glyphIndex, glyphList);
+						
+					}
+					
+					glyphIndex = -1;
+					charCode = FT_Get_Next_Char ((FT_Face)face, charCode, &glyphIndex);
+					
+					if (glyphIndex == 0) {
+						
+						break;
+						
+					}
 					
 				}
 				
@@ -812,75 +891,6 @@ namespace lime {
 	}
 	
 	
-	bool Font::InsertCodepoint (unsigned long codepoint, bool fromIndex) {
-		
-		GlyphInfo info;
-		info.codepoint = codepoint;
-		info.size = mSize;
-		
-		// search for duplicates, if any
-		std::list<GlyphInfo>::iterator first = glyphList.begin ();
-		first = std::lower_bound (first, glyphList.end (), info, CompareGlyphCodepoint);
-		
-		// skip duplicates unless they are different sizes
-		// if (codepoint < (*first).codepoint ||
-		// 	(codepoint == (*first).codepoint && mSize != (*first).size)) {
-			
-			if (fromIndex) {
-				
-				info.index = FT_Get_Char_Index ((FT_Face)face, codepoint);
-				
-			} else {
-				
-				info.index = codepoint;
-				
-			}
-			
-			if (FT_Load_Glyph ((FT_Face)face, info.index, FT_LOAD_DEFAULT) != 0) return false;
-			info.height = ((FT_Face)face)->glyph->metrics.height;
-			
-			glyphList.insert (first, info);
-			
-			return true;
-			
-		// }
-		
-		//return false;
-		
-	}
-	
-	
-	bool Font::InsertCodepointFromIndex (unsigned long codepoint) {
-		
-		return InsertCodepoint (codepoint, false);
-		
-	}
-	
-	
-	void Font::LoadGlyphs (const char *glyphs) {
-		
-		char *g = (char*)glyphs;
-		
-		while (*g != 0) {
-			
-			InsertCodepoint (readNextChar (g));
-			
-		}
-		
-	}
-	
-	
-	void Font::LoadRange (unsigned long start, unsigned long end) {
-		
-		for (unsigned long codepoint = start; codepoint < end; codepoint++) {
-			
-			InsertCodepoint (codepoint);
-			
-		}
-		
-	}
-	
-	
 	void Font::SetSize (size_t size) {
 		
 		size_t hdpi = 72;
@@ -897,126 +907,6 @@ namespace lime {
 		FT_Set_Transform ((FT_Face)face, &matrix, NULL);
 		
 		mSize = size;
-		
-	}
-	
-	
-	value Font::RenderToImage (ImageBuffer *image) {
-		
-		initialize ();
-		
-		glyphList.sort (CompareGlyphHeight);
-		
-		image->Resize (128, 128, 1);
-		int x = 0, y = 0, maxRows = 0;
-		unsigned char *bytes = image->data->Bytes ();
-		
-		value rects = alloc_array (glyphList.size ());
-		int rectsIndex = 0;
-		
-		size_t hdpi = 72;
-		size_t vdpi = 72;
-		size_t hres = 100;
-		FT_Matrix matrix = {
-			(int)((1.0/hres) * 0x10000L),
-			(int)((0.0) * 0x10000L),
-			(int)((0.0) * 0x10000L),
-			(int)((1.0) * 0x10000L)
-		};
-		
-		for (std::list<GlyphInfo>::iterator it = glyphList.begin (); it != glyphList.end (); it++) {
-			
-			// recalculate the character size for each glyph since it will vary
-			FT_Set_Char_Size ((FT_Face)face, 0, (int)((*it).size*64), (int)(hdpi * hres), vdpi);
-			FT_Set_Transform ((FT_Face)face, &matrix, NULL);
-			
-			FT_Load_Glyph ((FT_Face)face, (*it).index, FT_LOAD_DEFAULT);
-			
-			if (FT_Render_Glyph (((FT_Face)face)->glyph, FT_RENDER_MODE_NORMAL) != 0) continue;
-			
-			FT_Bitmap bitmap = ((FT_Face)face)->glyph->bitmap;
-			
-			if (x + bitmap.width > image->width) {
-				
-				y += maxRows + 1;
-				x = maxRows = 0;
-				
-			}
-			
-			if (y + bitmap.rows > image->height) {
-				
-				if (image->width < image->height) {
-					
-					image->width *= 2;
-					
-				} else {
-					
-					image->height *= 2;
-					
-				}
-				
-				image->Resize (image->width, image->height, 1);
-				rectsIndex = 0;
-				it = glyphList.begin ();
-				it--;
-				x = y = maxRows = 0;
-				continue;
-				
-			}
-			
-			if (image->bpp == 1) {
-				
-				image->Blit (bitmap.buffer, x, y, bitmap.width, bitmap.rows);
-				
-			} else {
-				
-				for (int row = 0; row < bitmap.rows; row++) {
-					
-					unsigned char *out = &bytes[((row + y) * image->width + x) * image->bpp];
-					const unsigned char *line = &bitmap.buffer[row * bitmap.width]; // scanline
-					const unsigned char *const end = line + bitmap.width;
-					
-					while (line != end) {
-						
-						*out++ = 0xFF;
-						*out++ = 0xFF;
-						*out++ = 0xFF;
-						*out++ = *line;
-						
-						line++;
-						
-					}
-					
-				}
-				
-			}
-			
-			value v = alloc_empty_object ();
-			alloc_field (v, id_x, alloc_int (x));
-			alloc_field (v, id_y, alloc_int (y));
-			alloc_field (v, id_width, alloc_int (bitmap.width));
-			alloc_field (v, id_height, alloc_int (bitmap.rows));
-			
-			value offset = alloc_empty_object ();
-			alloc_field (offset, id_x, alloc_int (((FT_Face)face)->glyph->bitmap_left));
-			alloc_field (offset, id_y, alloc_int (((FT_Face)face)->glyph->bitmap_top));
-			alloc_field (v, id_offset, offset);
-			
-			alloc_field (v, id_codepoint, alloc_int ((*it).index));
-			alloc_field (v, id_size, alloc_int ((*it).size));
-			val_array_set_i (rects, rectsIndex++, v);
-			
-			x += bitmap.width + 1;
-			
-			if (bitmap.rows > maxRows) {
-				
-				maxRows = bitmap.rows;
-				
-			}
-			
-		}
-		
-		return rects;
 		
 	}
 	

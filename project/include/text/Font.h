@@ -6,7 +6,6 @@
 #include <text/GlyphSet.h>
 #include <utils/Resource.h>
 #include <hx/CFFI.h>
-#include <list>
 
 
 namespace lime {
@@ -31,6 +30,7 @@ namespace lime {
 			Font (Resource *resource, int faceIndex = 0);
 			~Font ();
 			
+			value CreateImages (int fontSize, GlyphSet *glyphSet, ImageBuffer *image);
 			value Decompose (int em);
 			int GetAscender ();
 			int GetDescender ();
@@ -41,19 +41,12 @@ namespace lime {
 			int GetUnderlinePosition ();
 			int GetUnderlineThickness ();
 			int GetUnitsPerEM ();
-			bool InsertCodepointFromIndex (unsigned long codepoint);
-			void LoadGlyphs (const char *glyphs);
-			void LoadRange (unsigned long start, unsigned long end);
-			value RenderToImage (ImageBuffer *image);
 			void SetSize (size_t size);
 			
 			void* face;
 			
 		private:
 			
-			bool InsertCodepoint (unsigned long codepoint, bool b = true);
-			
-			std::list<GlyphInfo> glyphList;
 			size_t mSize;
 		
 	};

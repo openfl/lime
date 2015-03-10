@@ -57,7 +57,7 @@ namespace lime {
 		
 		for (int i = 0; i < glyph_count; i++) {
 			
-			font->InsertCodepointFromIndex(glyph_info[i].codepoint);
+			//font->InsertCodepointFromIndex(glyph_info[i].codepoint);
 			hb_glyph_position_t pos = glyph_pos[i];
 			
 			value obj = alloc_empty_object ();

@@ -68,7 +68,7 @@ class Image {
 	public var width:Int;
 	
 	
-	public function new (buffer:ImageBuffer = null, offsetX:Int = 0, offsetY:Int = 0, width:Int = 0, height:Int = 0, color:Null<Int> = null, type:ImageType = null) {
+	public function new (buffer:ImageBuffer = null, offsetX:Int = 0, offsetY:Int = 0, width:Int = -1, height:Int = -1, color:Null<Int> = null, type:ImageType = null) {
 		
 		this.offsetX = offsetX;
 		this.offsetY = offsetY;
@@ -953,13 +953,13 @@ class Image {
 		
 		if (buffer != null) {
 			
-			if (width == 0) {
+			if (width == -1) {
 				
 				this.width = buffer.width;
 				
 			}
 			
-			if (height == 0) {
+			if (height == -1) {
 				
 				this.height = buffer.height;
 				
