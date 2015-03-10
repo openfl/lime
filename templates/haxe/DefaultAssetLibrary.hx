@@ -139,7 +139,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 			#if flash
 			
-			if ((assetType == BINARY || assetType == TEXT) && requestedType == BINARY) {
+			if ((assetType == BINARY || assetType == TEXT || assetType == IMAGE) && requestedType == BINARY) {
 				
 				return true;
 				
@@ -193,6 +193,23 @@ class DefaultAssetLibrary extends AssetLibrary {
 	public override function getBytes (id:String):ByteArray {
 		
 		#if flash
+		
+		switch (type.get (id)) {
+			
+			case TEXT, BINARY:
+				
+				return cast (Type.createInstance (className.get (id), []), ByteArray);
+			
+			case IMAGE:
+				
+				var bitmapData = cast (Type.createInstance (className.get (id), []), BitmapData);
+				return bitmapData.getPixels (bitmapData.rect);
+			
+			default:
+				
+				return null;
+			
+		}
 		
 		return cast (Type.createInstance (className.get (id), []), ByteArray);
 		
