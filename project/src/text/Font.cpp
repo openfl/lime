@@ -631,34 +631,6 @@ namespace lime {
 	}
 	
 	
-	int Font::GetCharIndex (char* character) {
-		
-		long charCode = readNextChar (character);
-		
-		return FT_Get_Char_Index ((FT_Face)face, charCode);
-		
-	}
-	
-	
-	value Font::GetCharIndices (char* characters) {
-		
-		value indices = alloc_array (0);
-		unsigned long character;
-		int index;
-		
-		while (*characters != 0) {
-			
-			character = readNextChar (characters);
-			index = FT_Get_Char_Index ((FT_Face)face, character);
-			val_array_push (indices, alloc_int (index));
-			
-		}
-		
-		return indices;
-		
-	}
-	
-	
 	int Font::GetDescender () {
 		
 		return ((FT_Face)face)->descender;
@@ -717,6 +689,34 @@ namespace lime {
 		#endif
 		
 		return NULL;
+		
+	}
+	
+	
+	int Font::GetGlyphIndex (char* character) {
+		
+		long charCode = readNextChar (character);
+		
+		return FT_Get_Char_Index ((FT_Face)face, charCode);
+		 
+	}
+	
+	
+	value Font::GetGlyphIndices (char* characters) {
+		
+		value indices = alloc_array (0);
+		unsigned long character;
+		int index;
+		
+		while (*characters != 0) {
+			
+			character = readNextChar (characters);
+			index = FT_Get_Char_Index ((FT_Face)face, character);
+			val_array_push (indices, alloc_int (index));
+			
+		}
+		
+		return indices;
 		
 	}
 	

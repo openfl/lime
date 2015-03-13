@@ -3,8 +3,6 @@ package lime.text;
 
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
-import lime.math.Vector2;
-import lime.text.Glyph;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 import lime.system.System;
@@ -75,10 +73,10 @@ class Font {
 	}
 	
 	
-	public function getCharIndex (character:String):Int {
+	public function getGlyphIndex (character:String):Int {
 		
 		#if (cpp || neko || nodejs)
-		return lime_font_get_char_index (__handle, character);
+		return lime_font_get_glyph_index (__handle, character);
 		#else
 		return -1;
 		#end
@@ -86,10 +84,10 @@ class Font {
 	}
 	
 	
-	public function getCharIndices (characters:String):Array<Int> {
+	public function getGlyphIndices (characters:String):Array<Int> {
 		
 		#if (cpp || neko || nodejs)
-		return lime_font_get_char_indices (__handle, characters);
+		return lime_font_get_glyph_indices (__handle, characters);
 		#else
 		return null;
 		#end
@@ -433,10 +431,10 @@ class Font {
 	
 	#if (cpp || neko || nodejs)
 	private static var lime_font_get_ascender = System.load ("lime", "lime_font_get_ascender", 1);
-	private static var lime_font_get_char_index = System.load ("lime", "lime_font_get_char_index", 2);
-	private static var lime_font_get_char_indices = System.load ("lime", "lime_font_get_char_indices", 2);
 	private static var lime_font_get_descender = System.load ("lime", "lime_font_get_descender", 1);
 	private static var lime_font_get_family_name = System.load ("lime", "lime_font_get_family_name", 1);
+	private static var lime_font_get_glyph_index = System.load ("lime", "lime_font_get_glyph_index", 2);
+	private static var lime_font_get_glyph_indices = System.load ("lime", "lime_font_get_glyph_indices", 2);
 	private static var lime_font_get_glyph_metrics = System.load ("lime", "lime_font_get_glyph_metrics", 2);
 	private static var lime_font_get_height = System.load ("lime", "lime_font_get_height", 1);
 	private static var lime_font_get_num_glyphs = System.load ("lime", "lime_font_get_num_glyphs", 1);

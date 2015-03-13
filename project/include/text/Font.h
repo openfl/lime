@@ -8,6 +8,10 @@
 #include <utils/Resource.h>
 #include <hx/CFFI.h>
 
+#ifdef HX_WINDOWS
+#undef GetGlyphIndices
+#endif
+
 
 namespace lime {
 	
@@ -45,10 +49,10 @@ namespace lime {
 			
 			value Decompose (int em);
 			int GetAscender ();
-			int GetCharIndex (char* character);
-			value GetCharIndices (char* characters);
 			int GetDescender ();
 			wchar_t *GetFamilyName ();
+			int GetGlyphIndex (char* character);
+			value GetGlyphIndices (char* characters);
 			value GetGlyphMetrics (int index);
 			int GetHeight ();
 			int GetNumGlyphs ();
