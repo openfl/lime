@@ -340,6 +340,8 @@ class IOSPlatform extends PlatformTarget {
 	
 	public override function run ():Void {
 		
+		if (project.targetFlags.exists ("xcode")) return;
+		
 		IOSHelper.launch (project, targetDirectory);
 		
 	}
@@ -449,7 +451,9 @@ class IOSPlatform extends PlatformTarget {
 		
 		context.HAS_LAUNCH_IMAGE = true;
 		
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "iphone/Resources", projectDirectory + "/Resources", context, true, false);
+		PathHelper.mkdir (projectDirectory + "/resources");
+		
+		FileHelper.recursiveCopyTemplate (project.templatePaths, "iphone/resources", projectDirectory + "/resources", context, true, false);
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "iphone/PROJ/haxe", projectDirectory + "/haxe", context);
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", projectDirectory + "/haxe", context);
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "iphone/PROJ/Classes", projectDirectory + "/Classes", context);

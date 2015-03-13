@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1E2E17AD131E8B5D0048F3C7 /* ::APP_FILE::/assets in Resources */ = {isa = PBXBuildFile; fileRef = 1E2E17A5131E8B5D0048F3C7 /* Data */; };
+		1E2E17AD131E8B5D0048F3C7 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 1E2E17A5131E8B5D0048F3C7 /* assets */; };
 		1EF0A83B121ADB8E003F2F59 /* ::APP_FILE::/haxe/build in Sources */ = {isa = PBXBuildFile; fileRef = 1E2E17A5141E8B5D0048F3C7 /* haxe */; };
 		1EEEBA9B121AF1C60048A9DF /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1EEEBA9A121AF1C60048A9DF /* UIKit.framework */; };
 		1EEEBAA3121AF2210048A9DF /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1EEEBAA2121AF2210048A9DF /* OpenAL.framework */; };
@@ -22,6 +22,7 @@
 		1EEEBB00121BE2B30048A9DF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1EEEBAFF121BE2B30048A9DF /* Foundation.framework */; };
 		1EF0A83A121ADB8E003F2F59 /* Main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1EF0A839121ADB8E003F2F59 /* Main.mm */; };
 		4257533F1A5EFD8C004AA45B /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4257533E1A5EFD8C004AA45B /* Images.xcassets */; };
+		42A550241AB3456D008AA839 /* resources in Resources */ = {isa = PBXBuildFile; fileRef = 42A550231AB3456D008AA839 /* resources */; };
 		::ADDL_PBX_BUILD_FILE::
 
 /* End PBXBuildFile section */
@@ -37,8 +38,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		1D6058910D05DD3D006BFB54 /* ::APP_TITLE::.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "::APP_TITLE::.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		1E2E17A5131E8B5D0048F3C7 /* ::APP_FILE::/assets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "::APP_FILE::/assets"; sourceTree = "<group>"; };
+		1D6058910D05DD3D006BFB54 /* ::APP_FILE::.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "::APP_FILE::.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1E2E17A5131E8B5D0048F3C7 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = assets; path = "::APP_FILE::/assets"; sourceTree = "<group>"; };
 		1E2E17A5141E8B5D0048F3C7 /* ::APP_FILE::/haxe/build */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "::APP_FILE::/haxe/build"; sourceTree = SOURCE_ROOT; };
 		1EEEBA9A121AF1C60048A9DF /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		1EEEBAA2121AF2210048A9DF /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
@@ -53,10 +54,11 @@
 		1EEEBAFF121BE2B30048A9DF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1EF0A839121ADB8E003F2F59 /* Main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Main.mm; path = "::APP_FILE::/Classes/Main.mm"; sourceTree = SOURCE_ROOT; };
 		4257533E1A5EFD8C004AA45B /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "::APP_FILE::/Images.xcassets"; sourceTree = "<group>"; };
+		42A550231AB3456D008AA839 /* resources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = resources; path = "::APP_FILE::/resources"; sourceTree = "<group>"; };
 		
 		::ADDL_PBX_FILE_REFERENCE::
 
-		8D1107310486CEB800E47090 /* ::APP_FILE::-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "::APP_FILE::/::APP_FILE::-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
+		8D1107310486CEB800E47090 /* ::APP_FILE::-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "::APP_FILE::-Info.plist"; path = "::APP_FILE::/::APP_FILE::-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 
@@ -144,7 +146,8 @@
 			isa = PBXGroup;
 			children = (
 				4257533E1A5EFD8C004AA45B /* Images.xcassets */,
-				8D1107310486CEB800E47090 /* ::APP_FILE::/::APP_FILE::-Info.plist */,
+				8D1107310486CEB800E47090 /* ::APP_FILE::-Info.plist */,
+				42A550231AB3456D008AA839 /* resources */,
 				1E2E17A5131E8B5D0048F3C7 /* ::APP_FILE::/assets */,
 			);
 			name = Resources;
@@ -211,8 +214,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1E2E17AD131E8B5D0048F3C7 /* ::APP_FILE::/assets in Resources */,
+				1E2E17AD131E8B5D0048F3C7 /* assets in Resources */,
 				4257533F1A5EFD8C004AA45B /* Images.xcassets in Resources */,
+				42A550241AB3456D008AA839 /* resources in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

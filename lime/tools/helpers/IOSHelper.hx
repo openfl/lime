@@ -181,8 +181,6 @@ class IOSHelper {
 			
 		}
 		
-		
-		
 		if (project.targetFlags.exists ("simulator")) {
 			
 			var applicationPath = "";
