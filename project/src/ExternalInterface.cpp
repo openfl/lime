@@ -145,9 +145,21 @@ namespace lime {
 		
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)(intptr_t)val_float (fontHandle);
-		return alloc_int (font->GetCharIndex ((char*)val_wstring (character)));
+		return alloc_int (font->GetCharIndex ((char*)val_string (character)));
 		#else
 		return alloc_int (-1);
+		#endif
+		
+	}
+	
+	
+	value lime_font_get_char_indices (value fontHandle, value characters) {
+		
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)(intptr_t)val_float (fontHandle);
+		return font->GetCharIndices ((char*)val_string (characters));
+		#else
+		return alloc_null ();
 		#endif
 		
 	}
@@ -659,6 +671,7 @@ namespace lime {
 	DEFINE_PRIM (lime_audio_load, 1);
 	DEFINE_PRIM (lime_font_get_ascender, 1);
 	DEFINE_PRIM (lime_font_get_char_index, 2);
+	DEFINE_PRIM (lime_font_get_char_indices, 2);
 	DEFINE_PRIM (lime_font_get_descender, 1);
 	DEFINE_PRIM (lime_font_get_family_name, 1);
 	DEFINE_PRIM (lime_font_get_glyph_metrics, 2);

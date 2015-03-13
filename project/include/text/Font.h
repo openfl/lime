@@ -46,6 +46,7 @@ namespace lime {
 			value Decompose (int em);
 			int GetAscender ();
 			int GetCharIndex (char* character);
+			value GetCharIndices (char* characters);
 			int GetDescender ();
 			wchar_t *GetFamilyName ();
 			value GetGlyphMetrics (GlyphSet *glyphSet);

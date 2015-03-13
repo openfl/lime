@@ -18,7 +18,7 @@
 
 
 // from http://stackoverflow.com/questions/2948308/how-do-i-read-utf-8-characters-via-a-pointer
-#define IS_IN_RANGE(c, f, l)	 (((c) >= (f)) && ((c) <= (l)))
+#define IS_IN_RANGE(c, f, l) (((c) >= (f)) && ((c) <= (l)))
 
 
 unsigned long readNextChar (char*& p)
@@ -633,9 +633,28 @@ namespace lime {
 	
 	int Font::GetCharIndex (char* character) {
 		
-		long charCode = readNextChar (character); 
+		long charCode = readNextChar (character);
 		
 		return FT_Get_Char_Index ((FT_Face)face, charCode);
+		
+	}
+	
+	
+	value Font::GetCharIndices (char* characters) {
+		
+		value indices = alloc_array (0);
+		unsigned long character;
+		int index;
+		
+		while (*characters != 0) {
+			
+			character = readNextChar (characters);
+			index = FT_Get_Char_Index ((FT_Face)face, character);
+			val_array_push (indices, alloc_int (index));
+			
+		}
+		
+		return indices;
 		
 	}
 	
