@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1E2E17AD131E8B5D0048F3C7 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 1E2E17A5131E8B5D0048F3C7 /* assets */; };
-		1EF0A83B121ADB8E003F2F59 /* ::APP_FILE::/haxe/build in Sources */ = {isa = PBXBuildFile; fileRef = 1E2E17A5141E8B5D0048F3C7 /* haxe */; };
+		1EF0A83B121ADB8E003F2F59 /* haxe/build in Sources */ = {isa = PBXBuildFile; fileRef = 1E2E17A5141E8B5D0048F3C7 /* haxe */; };
 		1EEEBA9B121AF1C60048A9DF /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1EEEBA9A121AF1C60048A9DF /* UIKit.framework */; };
 		1EEEBAA3121AF2210048A9DF /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1EEEBAA2121AF2210048A9DF /* OpenAL.framework */; };
 		1EEEBAA5121AF2210048A9DF /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1EEEBAA4121AF2210048A9DF /* OpenGLES.framework */; };
@@ -40,7 +40,7 @@
 /* Begin PBXFileReference section */
 		1D6058910D05DD3D006BFB54 /* ::APP_FILE::.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "::APP_FILE::.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1E2E17A5131E8B5D0048F3C7 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = assets; path = "::APP_FILE::/assets"; sourceTree = "<group>"; };
-		1E2E17A5141E8B5D0048F3C7 /* ::APP_FILE::/haxe/build */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "::APP_FILE::/haxe/build"; sourceTree = SOURCE_ROOT; };
+		1E2E17A5141E8B5D0048F3C7 /* haxe/build */ = {isa = PBXFileReference; lastKnownFileType = folder; name = haxe/build; path = "::APP_FILE::/haxe/build"; sourceTree = SOURCE_ROOT; };
 		1EEEBA9A121AF1C60048A9DF /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		1EEEBAA2121AF2210048A9DF /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
 		1EEEBAA4121AF2210048A9DF /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
@@ -137,7 +137,7 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
-				1E2E17A5141E8B5D0048F3C7 /* ::APP_FILE::/haxe/build */,
+				1E2E17A5141E8B5D0048F3C7 /* haxe/build */,
 			);
 			name = "Other Sources";
 			sourceTree = "<group>";

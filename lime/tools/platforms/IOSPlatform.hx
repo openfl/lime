@@ -452,6 +452,7 @@ class IOSPlatform extends PlatformTarget {
 		context.HAS_LAUNCH_IMAGE = true;
 		
 		PathHelper.mkdir (projectDirectory + "/resources");
+		PathHelper.mkdir (projectDirectory + "/haxe/build");
 		
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "iphone/resources", projectDirectory + "/resources", context, true, false);
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "iphone/PROJ/haxe", projectDirectory + "/haxe", context);
