@@ -783,43 +783,45 @@ namespace lime {
 	
 	int Font::RenderGlyph (int index, ByteArray *bytes, int offset) {
 		
-		FT_Load_Glyph ((FT_Face)face, index, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT);
-		
-		if (FT_Render_Glyph (((FT_Face)face)->glyph, FT_RENDER_MODE_NORMAL) == 0) {
+		if (FT_Load_Glyph ((FT_Face)face, index, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0) {
 			
-			FT_Bitmap bitmap = ((FT_Face)face)->glyph->bitmap;
-			
-			int height = bitmap.rows;
-			int width = bitmap.width;
-			int pitch = bitmap.pitch;
-			
-			if (width == 0 || height == 0) return 0;
-			
-			uint32_t size = (4 * 5) + (width * height);
-			
-			if (bytes->Size() < size + offset) {
+			if (FT_Render_Glyph (((FT_Face)face)->glyph, FT_RENDER_MODE_NORMAL) == 0) {
 				
-				bytes->Resize (size + offset);
+				FT_Bitmap bitmap = ((FT_Face)face)->glyph->bitmap;
+				
+				int height = bitmap.rows;
+				int width = bitmap.width;
+				int pitch = bitmap.pitch;
+				
+				if (width == 0 || height == 0) return 0;
+				
+				uint32_t size = (4 * 5) + (width * height);
+				
+				if (bytes->Size() < size + offset) {
+					
+					bytes->Resize (size + offset);
+					
+				}
+				
+				GlyphImage *data = (GlyphImage*)(bytes->Bytes () + offset);
+				
+				data->index = index;
+				data->width = width;
+				data->height = height;
+				data->x = ((FT_Face)face)->glyph->bitmap_left;
+				data->y = ((FT_Face)face)->glyph->bitmap_top;
+				
+				unsigned char* position = &data->data;
+				
+				for (int i = 0; i < height; i++) {
+					
+					memcpy (position + (i * width), bitmap.buffer + (i * pitch), width);
+					
+				}
+				
+				return size;
 				
 			}
-			
-			GlyphImage *data = (GlyphImage*)(bytes->Bytes () + offset);
-			
-			data->index = index;
-			data->width = width;
-			data->height = height;
-			data->x = ((FT_Face)face)->glyph->bitmap_left;
-			data->y = ((FT_Face)face)->glyph->bitmap_top;
-			
-			unsigned char* position = &data->data;
-			
-			for (int i = 0; i < height; i++) {
-				
-				memcpy (position + (i * width), bitmap.buffer + (i * pitch), width);
-				
-			}
-			
-			return size;
 			
 		}
 		
@@ -849,7 +851,11 @@ namespace lime {
 			
 		}
 		
-		*(bytes->Bytes ()) = count;
+		if (count > 0) {
+			
+			*(bytes->Bytes ()) = count;
+			
+		}
 		
 		return totalOffset;
 		
