@@ -17,6 +17,117 @@
 #endif
 
 
+// from http://stackoverflow.com/questions/2948308/how-do-i-read-utf-8-characters-via-a-pointer
+#define IS_IN_RANGE(c, f, l)	 (((c) >= (f)) && ((c) <= (l)))
+
+
+unsigned long readNextChar (char*& p)
+{
+	 // TODO: since UTF-8 is a variable-length
+	 // encoding, you should pass in the input
+	 // buffer's actual byte length so that you
+	 // can determine if a malformed UTF-8
+	 // sequence would exceed the end of the buffer...
+
+	 unsigned char c1, c2, *ptr = (unsigned char*) p;
+	 unsigned long uc = 0;
+	 int seqlen;
+
+	 c1 = ptr[0];
+
+	 if ((c1 & 0x80) == 0) {
+
+		  uc = (unsigned long) (c1 & 0x7F);
+		  seqlen = 1;
+
+	 } else if ((c1 & 0xE0) == 0xC0) {
+
+		  uc = (unsigned long) (c1 & 0x1F);
+		  seqlen = 2;
+
+	 } else if ((c1 & 0xF0) == 0xE0) {
+
+		  uc = (unsigned long) (c1 & 0x0F);
+		  seqlen = 3;
+
+	 } else if ((c1 & 0xF8) == 0xF0) {
+
+		  uc = (unsigned long) (c1 & 0x07);
+		  seqlen = 4;
+
+	 } else {
+
+		  // malformed data, do something !!!
+		  return (unsigned long) -1;
+
+	 }
+
+	 for (int i = 1; i < seqlen; ++i) {
+
+		  c1 = ptr[i];
+
+		  if ((c1 & 0xC0) != 0x80) {
+
+				// malformed data, do something !!!
+				return (unsigned long) -1;
+
+		  }
+
+	 }
+
+	 switch (seqlen) {
+		  case 2:
+				c1 = ptr[0];
+
+				if (!IS_IN_RANGE(c1, 0xC2, 0xDF)) {
+
+					 // malformed data, do something !!!
+					 return (unsigned long) -1;
+
+				}
+
+				break;
+		  case 3:
+				c1 = ptr[0];
+				c2 = ptr[1];
+
+				if (((c1 == 0xE0) && !IS_IN_RANGE(c2, 0xA0, 0xBF)) ||
+					 ((c1 == 0xED) && !IS_IN_RANGE(c2, 0x80, 0x9F)) ||
+					 (!IS_IN_RANGE(c1, 0xE1, 0xEC) && !IS_IN_RANGE(c1, 0xEE, 0xEF))) {
+
+					 // malformed data, do something !!!
+					 return (unsigned long) -1;
+
+				}
+
+				break;
+		  case 4:
+				c1 = ptr[0];
+				c2 = ptr[1];
+
+				if (((c1 == 0xF0) && !IS_IN_RANGE(c2, 0x90, 0xBF)) ||
+					 ((c1 == 0xF4) && !IS_IN_RANGE(c2, 0x80, 0x8F)) ||
+					 !IS_IN_RANGE(c1, 0xF1, 0xF3)) {
+
+					 // malformed data, do something !!!
+					 return (unsigned long) -1;
+
+				}
+
+				break;
+	 }
+
+	 for (int i = 1; i < seqlen; ++i) {
+
+		  uc = ((uc << 6) | (unsigned long)(ptr[i] & 0x3F));
+
+	 }
+
+	 p += seqlen;
+	 return uc;
+}
+
+
 namespace {
 	
 	
@@ -159,14 +270,18 @@ namespace {
 namespace lime {
 	
 	
+	static int id_buffer;
 	static int id_charCode;
 	static int id_codepoint;
-	static int id_glyphIndex;
 	static int id_height;
+	static int id_index;
 	static int id_horizontalAdvance;
 	static int id_horizontalBearingX;
 	static int id_horizontalBearingY;
+	static int id_image;
 	static int id_offset;
+	static int id_offsetX;
+	static int id_offsetY;
 	static int id_size;
 	static int id_verticalAdvance;
 	static int id_verticalBearingX;
@@ -189,11 +304,15 @@ namespace lime {
 			id_size = val_id ("size");
 			id_codepoint = val_id ("codepoint");
 			
+			id_buffer = val_id ("buffer");
 			id_charCode = val_id ("charCode");
-			id_glyphIndex = val_id ("glyphIndex");
 			id_horizontalAdvance = val_id ("horizontalAdvance");
 			id_horizontalBearingX = val_id ("horizontalBearingX");
 			id_horizontalBearingY = val_id ("horizontalBearingY");
+			id_image = val_id ("image");
+			id_index = val_id ("index");
+			id_offsetX = val_id ("offsetX");
+			id_offsetY = val_id ("offsetY");
 			id_verticalAdvance = val_id ("verticalAdvance");
 			id_verticalBearingX = val_id ("verticalBearingX");
 			id_verticalBearingY = val_id ("verticalBearingY");
@@ -337,193 +456,6 @@ namespace lime {
 			//FT_Done_Face ((FT_Face)face);
 			
 		}
-		
-	}
-	
-	
-	value Font::CreateImages (int fontSize, GlyphSet *glyphSet, ImageBuffer *image) {
-		
-		initialize ();
-		
-		std::list<FT_ULong> charCodes = std::list<FT_ULong> ();
-		
-		if (!glyphSet->glyphs.empty ()) {
-			
-			FT_ULong charCode;
-			
-			for (unsigned int i = 0; i < glyphSet->glyphs.length (); i++) {
-				
-				charCodes.push_back (glyphSet->glyphs[i]);
-				
-			}
-			
-		}
-		
-		GlyphRange range;
-		
-		for (int i = 0; i < glyphSet->ranges.size (); i++) {
-			
-			range = glyphSet->ranges[i];
-			
-			if (range.start == 0 && range.end == -1) {
-				
-				FT_UInt glyphIndex;
-				FT_ULong charCode = FT_Get_First_Char ((FT_Face)face, &glyphIndex);
-				
-				while (glyphIndex != 0) {
-					
-					charCodes.push_back (charCode);
-					charCode = FT_Get_Next_Char ((FT_Face)face, charCode, &glyphIndex);
-					
-				}
-				
-			} else {
-				
-				unsigned long end = range.end;
-				
-				FT_ULong charCode = range.start;
-				FT_UInt glyphIndex = FT_Get_Char_Index ((FT_Face)face, charCode);
-				
-				while (charCode <= end || end < 0) {
-					
-					if (glyphIndex > 0) {
-						
-						charCodes.push_back (charCode);
-						
-					}
-					
-					glyphIndex = -1;
-					charCode = FT_Get_Next_Char ((FT_Face)face, charCode, &glyphIndex);
-					
-					if (glyphIndex == 0) {
-						
-						break;
-						
-					}
-					
-				}
-				
-			}
-			
-		}
-		
-		charCodes.unique ();
-		
-		image->Resize (128, 128, 1);
-		int x = 0, y = 0, maxRows = 0;
-		unsigned char *bytes = image->data->Bytes ();
-		
-		value rects = alloc_array (charCodes.size ());
-		int rectsIndex = 0;
-		
-		size_t hdpi = 72;
-		size_t vdpi = 72;
-		size_t hres = 100;
-		FT_Matrix matrix = {
-			(int)((1.0/hres) * 0x10000L),
-			(int)((0.0) * 0x10000L),
-			(int)((0.0) * 0x10000L),
-			(int)((1.0) * 0x10000L)
-		};
-		
-		FT_Set_Char_Size ((FT_Face)face, 0, (int)(fontSize*64), (int)(hdpi * hres), vdpi);
-		FT_Set_Transform ((FT_Face)face, &matrix, NULL);
-		FT_UInt glyphIndex;
-		FT_ULong charCode;
-		
-		for (std::list<FT_ULong>::iterator it = charCodes.begin (); it != charCodes.end (); it++) {
-			
-			charCode = (*it);
-			glyphIndex = FT_Get_Char_Index ((FT_Face)face, charCode);
-			
-			FT_Load_Glyph ((FT_Face)face, glyphIndex, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT);
-			
-			if (FT_Render_Glyph (((FT_Face)face)->glyph, FT_RENDER_MODE_NORMAL) != 0) continue;
-			
-			FT_Bitmap bitmap = ((FT_Face)face)->glyph->bitmap;
-			
-			if (x + bitmap.width > image->width) {
-				
-				y += maxRows + 1;
-				x = maxRows = 0;
-				
-			}
-			
-			if (y + bitmap.rows > image->height) {
-				
-				if (image->width < image->height) {
-					
-					image->width *= 2;
-					
-				} else {
-					
-					image->height *= 2;
-					
-				}
-				
-				image->Resize (image->width, image->height, 1);
-				rectsIndex = 0;
-				it = charCodes.begin ();
-				it--;
-				x = y = maxRows = 0;
-				continue;
-				
-			}
-			
-			if (image->bpp == 1) {
-				
-				image->Blit (bitmap.buffer, x, y, bitmap.width, bitmap.rows);
-				
-			} else {
-				
-				for (int row = 0; row < bitmap.rows; row++) {
-					
-					unsigned char *out = &bytes[((row + y) * image->width + x) * image->bpp];
-					const unsigned char *line = &bitmap.buffer[row * bitmap.width]; // scanline
-					const unsigned char *const end = line + bitmap.width;
-					
-					while (line != end) {
-						
-						*out++ = 0xFF;
-						*out++ = 0xFF;
-						*out++ = 0xFF;
-						*out++ = *line;
-						
-						line++;
-						
-					}
-					
-				}
-				
-			}
-			
-			value v = alloc_empty_object ();
-			alloc_field (v, id_x, alloc_int (x));
-			alloc_field (v, id_y, alloc_int (y));
-			alloc_field (v, id_width, alloc_int (bitmap.width));
-			alloc_field (v, id_height, alloc_int (bitmap.rows));
-			
-			value offset = alloc_empty_object ();
-			alloc_field (offset, id_x, alloc_int (((FT_Face)face)->glyph->bitmap_left));
-			alloc_field (offset, id_y, alloc_int (((FT_Face)face)->glyph->bitmap_top));
-			alloc_field (v, id_offset, offset);
-			
-			alloc_field (v, id_charCode, alloc_int (charCode));
-			alloc_field (v, id_glyphIndex, alloc_int (glyphIndex));
-			//alloc_field (v, id_size, alloc_int ((*it).size));
-			val_array_set_i (rects, rectsIndex++, v);
-			
-			x += bitmap.width + 1;
-			
-			if (bitmap.rows > maxRows) {
-				
-				maxRows = bitmap.rows;
-				
-			}
-			
-		}
-		
-		return rects;
 		
 	}
 	
@@ -699,6 +631,15 @@ namespace lime {
 	}
 	
 	
+	int Font::GetCharIndex (char* character) {
+		
+		long charCode = readNextChar (character); 
+		
+		return FT_Get_Char_Index ((FT_Face)face, charCode);
+		
+	}
+	
+	
 	int Font::GetDescender () {
 		
 		return ((FT_Face)face)->descender;
@@ -768,7 +709,7 @@ namespace lime {
 			value metrics = alloc_empty_object ();
 			
 			alloc_field (metrics, id_charCode, alloc_int (charCode));
-			alloc_field (metrics, id_glyphIndex, alloc_int (glyphIndex));
+			alloc_field (metrics, id_index, alloc_int (glyphIndex));
 			alloc_field (metrics, id_height, alloc_int (((FT_Face)face)->glyph->metrics.height));
 			alloc_field (metrics, id_horizontalBearingX, alloc_int (((FT_Face)face)->glyph->metrics.horiBearingX));
 			alloc_field (metrics, id_horizontalBearingY, alloc_int (((FT_Face)face)->glyph->metrics.horiBearingY));
@@ -887,6 +828,81 @@ namespace lime {
 	int Font::GetUnitsPerEM () {
 		
 		return ((FT_Face)face)->units_per_EM;
+		
+	}
+	
+	
+	int Font::RenderGlyph (int index, ByteArray *bytes, int offset) {
+		
+		FT_Load_Glyph ((FT_Face)face, index, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT);
+		
+		if (FT_Render_Glyph (((FT_Face)face)->glyph, FT_RENDER_MODE_NORMAL) == 0) {
+			
+			FT_Bitmap bitmap = ((FT_Face)face)->glyph->bitmap;
+			
+			int height = bitmap.rows;
+			int width = bitmap.width;
+			int pitch = bitmap.pitch;
+			
+			if (width == 0 || height == 0) return 0;
+			
+			uint32_t size = (4 * 5) + (width * height);
+			
+			if (bytes->Size() < size + offset) {
+				
+				bytes->Resize (size + offset);
+				
+			}
+			
+			GlyphImage *data = (GlyphImage*)(bytes->Bytes () + offset);
+			
+			data->index = index;
+			data->width = width;
+			data->height = height;
+			data->x = ((FT_Face)face)->glyph->bitmap_left;
+			data->y = ((FT_Face)face)->glyph->bitmap_top;
+			
+			unsigned char* position = &data->data;
+			
+			for (int i = 0; i < height; i++) {
+				
+				memcpy (position + (i * width), bitmap.buffer + (i * pitch), width);
+				
+			}
+			
+			return size;
+			
+		}
+		
+		return 0;
+		
+	}
+	
+	
+	int Font::RenderGlyphs (value indices, ByteArray *bytes) {
+		
+		int offset = 0;
+		int totalOffset = 4;
+		uint32_t count = 0;
+		
+		int numIndices = val_array_size (indices);
+		
+		for (int i = 0; i < numIndices; i++) {
+			
+			offset = RenderGlyph (val_int (val_array_i (indices, i)), bytes, totalOffset);
+			
+			if (offset > 0) {
+				
+				totalOffset += offset;
+				count++;
+				
+			}
+			
+		}
+		
+		*(bytes->Bytes ()) = count;
+		
+		return totalOffset;
 		
 	}
 	

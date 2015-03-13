@@ -8,17 +8,17 @@ class Glyph {
 	
 	
 	public var charCode:Int;
-	public var glyphIndex:Int;
 	public var image:Image;
+	public var index:Int;
 	public var metrics:GlyphMetrics;
 	public var x:Int;
 	public var y:Int;
 	
 	
-	public function new (charCode:Int = 0, glyphIndex:Int = 0) {
+	public function new (charCode:Int = -1, index:Int = -1) {
 		
 		this.charCode = charCode;
-		this.glyphIndex = glyphIndex;
+		this.index = index;
 		
 	}
 	

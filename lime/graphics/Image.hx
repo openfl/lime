@@ -66,6 +66,8 @@ class Image {
 	public var transparent (get, set):Bool;
 	public var type:ImageType;
 	public var width:Int;
+	public var x:Float;
+	public var y:Float;
 	
 	
 	public function new (buffer:ImageBuffer = null, offsetX:Int = 0, offsetY:Int = 0, width:Int = -1, height:Int = -1, color:Null<Int> = null, type:ImageType = null) {

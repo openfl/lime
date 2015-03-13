@@ -3,6 +3,7 @@
 
 
 #include <graphics/ImageBuffer.h>
+#include <system/System.h>
 #include <text/GlyphSet.h>
 #include <utils/Resource.h>
 #include <hx/CFFI.h>
@@ -21,6 +22,18 @@ namespace lime {
 	} GlyphInfo;
 	
 	
+	typedef struct {
+		
+		uint32_t index;
+		uint32_t width;
+		uint32_t height;
+		uint32_t x;
+		uint32_t y;
+		unsigned char data;
+		
+	} GlyphImage;
+	
+	
 	class Font {
 		
 		
@@ -30,9 +43,9 @@ namespace lime {
 			Font (Resource *resource, int faceIndex = 0);
 			~Font ();
 			
-			value CreateImages (int fontSize, GlyphSet *glyphSet, ImageBuffer *image);
 			value Decompose (int em);
 			int GetAscender ();
+			int GetCharIndex (char* character);
 			int GetDescender ();
 			wchar_t *GetFamilyName ();
 			value GetGlyphMetrics (GlyphSet *glyphSet);
@@ -41,6 +54,8 @@ namespace lime {
 			int GetUnderlinePosition ();
 			int GetUnderlineThickness ();
 			int GetUnitsPerEM ();
+			int RenderGlyph (int index, ByteArray *bytes, int offset = 0);
+			int RenderGlyphs (value indices, ByteArray *bytes);
 			void SetSize (size_t size);
 			
 			void* face;

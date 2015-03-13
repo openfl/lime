@@ -120,23 +120,6 @@ namespace lime {
 	}
 	
 	
-	value lime_font_create_images (value fontHandle, value fontSize, value glyphSet) {
-		
-		#ifdef LIME_FREETYPE
-		ImageBuffer image;
-		Font *font = (Font*)(intptr_t)val_float (fontHandle);
-		GlyphSet glyphs = GlyphSet (glyphSet);
-		value data = alloc_empty_object ();
-		alloc_field (data, val_id ("glyphs"), font->CreateImages (val_int (fontSize), &glyphs, &image));
-		alloc_field (data, val_id ("image"), image.Value ());
-		return data;
-		#else
-		return alloc_null ();
-		#endif
-		
-	}
-	
-	
 	void lime_font_destroy (value handle) {
 		
 		Font *font = (Font*)(intptr_t)val_float (handle);
@@ -153,6 +136,18 @@ namespace lime {
 		return alloc_int (font->GetAscender ());
 		#else
 		return alloc_null ();
+		#endif
+		
+	}
+	
+	
+	value lime_font_get_char_index (value fontHandle, value character) {
+		
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)(intptr_t)val_float (fontHandle);
+		return alloc_int (font->GetCharIndex ((char*)val_wstring (character)));
+		#else
+		return alloc_int (-1);
 		#endif
 		
 	}
@@ -295,6 +290,44 @@ namespace lime {
 		#else
 		return alloc_null ();
 		#endif
+		
+	}
+	
+	
+	value lime_font_render_glyph (value fontHandle, value index, value data) {
+		
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)(intptr_t)val_float (fontHandle);
+		ByteArray bytes = ByteArray (data);
+		return alloc_bool (font->RenderGlyph (val_int (index), &bytes));
+		#else
+		return alloc_bool (false);
+		#endif
+		
+	}
+	
+	
+	value lime_font_render_glyphs (value fontHandle, value indices, value data) {
+		
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)(intptr_t)val_float (fontHandle);
+		ByteArray bytes = ByteArray (data);
+		return alloc_bool (font->RenderGlyphs (indices, &bytes));
+		#else
+		return alloc_bool (false);
+		#endif
+		
+	}
+	
+	
+	value lime_font_set_size (value fontHandle, value fontSize) {
+		
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)(intptr_t)val_float (fontHandle);
+		font->SetSize (val_int (fontSize));
+		#endif
+		
+		return alloc_null ();
 		
 	}
 	
@@ -624,8 +657,8 @@ namespace lime {
 	DEFINE_PRIM (lime_application_quit, 1);
 	DEFINE_PRIM (lime_application_update, 1);
 	DEFINE_PRIM (lime_audio_load, 1);
-	DEFINE_PRIM (lime_font_create_images, 3);
 	DEFINE_PRIM (lime_font_get_ascender, 1);
+	DEFINE_PRIM (lime_font_get_char_index, 2);
 	DEFINE_PRIM (lime_font_get_descender, 1);
 	DEFINE_PRIM (lime_font_get_family_name, 1);
 	DEFINE_PRIM (lime_font_get_glyph_metrics, 2);
@@ -636,6 +669,9 @@ namespace lime {
 	DEFINE_PRIM (lime_font_get_units_per_em, 1);
 	DEFINE_PRIM (lime_font_load, 1);
 	DEFINE_PRIM (lime_font_outline_decompose, 2);
+	DEFINE_PRIM (lime_font_render_glyph, 3);
+	DEFINE_PRIM (lime_font_render_glyphs, 3);
+	DEFINE_PRIM (lime_font_set_size, 2);
 	DEFINE_PRIM (lime_image_encode, 3);
 	DEFINE_PRIM (lime_image_load, 1);
 	DEFINE_PRIM (lime_jni_getenv, 0);

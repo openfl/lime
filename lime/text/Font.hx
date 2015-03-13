@@ -75,6 +75,17 @@ class Font {
 	}
 	
 	
+	public function getCharIndex (char:String):Int {
+		
+		#if (cpp || neko || nodejs)
+		return lime_font_get_char_index (__handle, char);
+		#else
+		return -1;
+		#end
+		
+	}
+	
+	
 	public function getGlyphMetrics (glyphs:GlyphSet = null):Map<Int, Glyph> {
 		
 		if (glyphs == null) {
@@ -89,7 +100,7 @@ class Font {
 		
 		for (value in array) {
 			
-			var glyph = new Glyph (value.charCode, value.glyphIndex);
+			var glyph = new Glyph (value.charCode, value.index);
 			var metrics = new GlyphMetrics ();
 			
 			metrics.height = value.height;
@@ -102,7 +113,7 @@ class Font {
 			
 			glyph.metrics = metrics;
 			
-			map.set (glyph.glyphIndex, glyph);
+			map.set (glyph.index, glyph);
 			
 		}
 		
@@ -114,40 +125,177 @@ class Font {
 	}
 	
 	
-	public function renderGlyphs (fontSize:Int, glyphs:GlyphSet = null):Map<Int, Glyph> {
-		
-		if (glyphs == null) {
-			
-			glyphs = new GlyphSet ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. ");
-			
-		}
+	public function renderGlyph (index:Int, fontSize:Int):Image {
 		
 		#if (cpp || neko || nodejs)
 		
-		var data = lime_font_create_images (__handle, fontSize, glyphs);
+		lime_font_set_size (__handle, fontSize);
 		
-		if (data == null) {
+		var bytes = new ByteArray ();
+		bytes.bigEndian = false;
+		
+		if (lime_font_render_glyph (__handle, index, bytes)) {
 			
-			return null;
+			bytes.position = 0;
 			
-		} else {
+			var index = bytes.readUnsignedInt ();
+			var width = bytes.readUnsignedInt ();
+			var height = bytes.readUnsignedInt ();
+			var x = bytes.readUnsignedInt ();
+			var y = bytes.readUnsignedInt ();
 			
-			var buffer = new ImageBuffer (new UInt8Array (data.image.data), data.image.width, data.image.height, data.image.bpp);
-			var map = new Map<Int, Glyph> ();
+			var data = new ByteArray (width * height);
+			bytes.readBytes (data, 0, width * height);
 			
-			for (glyphData in cast (data.glyphs, Array<Dynamic>)) {
+			var buffer = new ImageBuffer (new UInt8Array (data), width, height, 1);
+			var image = new Image (buffer, 0, 0, width, height);
+			image.x = x;
+			image.y = y;
+			
+			return image;
+			
+		}
+		
+		#end
+		
+		return null;
+		
+	}
+	
+	
+	public function renderGlyphs (indices:Array<Int>, fontSize:Int):Map<Int, Image> {
+		
+		#if (cpp || neko || nodejs)
+		
+		lime_font_set_size (__handle, fontSize);
+		
+		var bytes = new ByteArray ();
+		bytes.bigEndian = false;
+		
+		if (lime_font_render_glyphs (__handle, indices, bytes)) {
+			
+			bytes.position = 0;
+			
+			var count = bytes.readUnsignedInt ();
+			
+			var bufferWidth = 128;
+			var bufferHeight = 128;
+			var offsetX = 0;
+			var offsetY = 0;
+			var maxRows = 0;
+			
+			var width, height;
+			var i = 0;
+			
+			while (i < count) {
 				
-				if (glyphData != null) {
+				bytes.position += 4;
+				width = bytes.readUnsignedInt ();
+				height = bytes.readUnsignedInt ();
+				bytes.position += (4 * 2) + width * height;
+				
+				if (offsetX + width > bufferWidth) {
 					
-					var glyph = new Glyph (glyphData.charCode, glyphData.glyphIndex);
-					glyph.image = new Image (buffer, glyphData.x, glyphData.y, glyphData.width, glyphData.height);
-					glyph.x = glyphData.offset.x;
-					glyph.y = glyphData.offset.y;
-					map.set (glyph.glyphIndex, glyph);
+					offsetY += maxRows + 1;
+					offsetX = 0;
+					maxRows = 0;
+					
+				}
+				
+				if (offsetY + height > bufferHeight) {
+					
+					if (bufferWidth < bufferHeight) {
+						
+						bufferWidth *= 2;
+						
+					} else {
+						
+						bufferHeight *= 2;
+						
+					}
+					
+					offsetX = 0;
+					offsetY = 0;
+					maxRows = 0;
+					
+					// TODO: make this better
+					
+					bytes.position = 4;
+					i = 0;
+					continue;
+					
+				}
+				
+				offsetX += width + 1;
+				
+				if (height > maxRows) {
+					
+					maxRows = height;
+					
+				}
+				
+				i++;
+				
+			}
+			
+			var map = new Map <Int, Image> ();
+			var buffer = new ImageBuffer (null, bufferWidth, bufferHeight, 1);
+			var data = new ByteArray (bufferWidth * bufferHeight);
+			
+			bytes.position = 4;
+			offsetX = 0;
+			offsetY = 0;
+			maxRows = 0;
+			
+			var index, x, y, image;
+			
+			for (i in 0...count) {
+				
+				index = bytes.readUnsignedInt ();
+				width = bytes.readUnsignedInt ();
+				height = bytes.readUnsignedInt ();
+				x = bytes.readUnsignedInt ();
+				y = bytes.readUnsignedInt ();
+				
+				if (offsetX + width > bufferWidth) {
+					
+					offsetY += maxRows + 1;
+					offsetX = 0;
+					maxRows = 0;
+					
+				}
+				
+				for (i in 0...height) {
+					
+					data.position = ((i + offsetY) * bufferWidth) + offsetX;
+					//bytes.readBytes (data, 0, width);
+					
+					for (x in 0...width) {
+						
+						var byte = bytes.readUnsignedByte ();
+						data.writeByte (byte);
+						
+					}
+					
+				}
+				
+				image = new Image (buffer, offsetX, offsetY, width, height);
+				image.x = x;
+				image.y = y;
+				
+				map.set (index, image);
+				
+				offsetX += width + 1;
+				
+				if (height > maxRows) {
+					
+					maxRows = height;
 					
 				}
 				
 			}
+			
+			buffer.data = new UInt8Array (data);
 			
 			return map;
 			
@@ -291,6 +439,7 @@ class Font {
 	
 	#if (cpp || neko || nodejs)
 	private static var lime_font_get_ascender = System.load ("lime", "lime_font_get_ascender", 1);
+	private static var lime_font_get_char_index = System.load ("lime", "lime_font_get_char_index", 2);
 	private static var lime_font_get_descender = System.load ("lime", "lime_font_get_descender", 1);
 	private static var lime_font_get_family_name = System.load ("lime", "lime_font_get_family_name", 1);
 	private static var lime_font_get_glyph_metrics = System.load ("lime", "lime_font_get_glyph_metrics", 2);
@@ -300,8 +449,10 @@ class Font {
 	private static var lime_font_get_underline_thickness = System.load ("lime", "lime_font_get_underline_thickness", 1);
 	private static var lime_font_get_units_per_em = System.load ("lime", "lime_font_get_units_per_em", 1);
 	private static var lime_font_load:Dynamic = System.load ("lime", "lime_font_load", 1);
-	private static var lime_font_create_images = System.load ("lime", "lime_font_create_images", 3);
 	private static var lime_font_outline_decompose = System.load ("lime", "lime_font_outline_decompose", 2);
+	private static var lime_font_render_glyph = System.load ("lime", "lime_font_render_glyph", 3);
+	private static var lime_font_render_glyphs = System.load ("lime", "lime_font_render_glyphs", 3);
+	private static var lime_font_set_size = System.load ("lime", "lime_font_set_size", 2);
 	#end
 	
 	
