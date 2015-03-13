@@ -97,38 +97,21 @@ class Font {
 	}
 	
 	
-	public function getGlyphMetrics (glyphs:GlyphSet = null):Map<Int, Glyph> {
-		
-		if (glyphs == null) {
-			
-			glyphs = new GlyphSet ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. ");
-			
-		}
+	public function getGlyphMetrics (index:Int):GlyphMetrics {
 		
 		#if (cpp || neko || nodejs)
-		var array:Array<Dynamic> = lime_font_get_glyph_metrics (__handle, glyphs);
-		var map = new Map<Int, Glyph> ();
+		var value = lime_font_get_glyph_metrics (__handle, index);
+		var metrics = new GlyphMetrics ();
 		
-		for (value in array) {
-			
-			var glyph = new Glyph (value.charCode, value.index);
-			var metrics = new GlyphMetrics ();
-			
-			metrics.height = value.height;
-			metrics.horizontalAdvance = value.horizontalAdvance;
-			metrics.horizontalBearingX = value.horizontalBearingX;
-			metrics.horizontalBearingY = value.horizontalBearingY;
-			metrics.verticalAdvance = value.verticalAdvance;
-			metrics.verticalBearingX = value.verticalBearingX;
-			metrics.verticalBearingY = value.verticalBearingY;
-			
-			glyph.metrics = metrics;
-			
-			map.set (glyph.index, glyph);
-			
-		}
+		metrics.height = value.height;
+		metrics.horizontalAdvance = value.horizontalAdvance;
+		metrics.horizontalBearingX = value.horizontalBearingX;
+		metrics.horizontalBearingY = value.horizontalBearingY;
+		metrics.verticalAdvance = value.verticalAdvance;
+		metrics.verticalBearingX = value.verticalBearingX;
+		metrics.verticalBearingY = value.verticalBearingY;
 		
-		return map;
+		return metrics;
 		#else
 		return null;
 		#end

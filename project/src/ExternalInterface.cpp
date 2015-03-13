@@ -189,12 +189,11 @@ namespace lime {
 	}
 	
 	
-	value lime_font_get_glyph_metrics (value fontHandle, value glyphSet) {
+	value lime_font_get_glyph_metrics (value fontHandle, value index) {
 		
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)(intptr_t)val_float (fontHandle);
-		GlyphSet glyphs = GlyphSet (glyphSet);
-		return font->GetGlyphMetrics (&glyphs);
+		return font->GetGlyphMetrics (val_int (index));
 		#else
 		return alloc_null ();
 		#endif

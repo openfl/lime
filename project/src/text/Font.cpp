@@ -721,14 +721,14 @@ namespace lime {
 	}
 	
 	
-	void GetGlyphMetrics_Push (FT_Face face, FT_ULong charCode, FT_UInt glyphIndex, value glyphList) {
+	value Font::GetGlyphMetrics (int index) {
 		
-		if (FT_Load_Glyph (face, glyphIndex, FT_LOAD_NO_BITMAP | FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0) {
+		initialize ();
+		
+		if (FT_Load_Glyph ((FT_Face)face, index, FT_LOAD_NO_BITMAP | FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0) {
 			
 			value metrics = alloc_empty_object ();
 			
-			alloc_field (metrics, id_charCode, alloc_int (charCode));
-			alloc_field (metrics, id_index, alloc_int (glyphIndex));
 			alloc_field (metrics, id_height, alloc_int (((FT_Face)face)->glyph->metrics.height));
 			alloc_field (metrics, id_horizontalBearingX, alloc_int (((FT_Face)face)->glyph->metrics.horiBearingX));
 			alloc_field (metrics, id_horizontalBearingY, alloc_int (((FT_Face)face)->glyph->metrics.horiBearingY));
@@ -737,81 +737,11 @@ namespace lime {
 			alloc_field (metrics, id_verticalBearingY, alloc_int (((FT_Face)face)->glyph->metrics.vertBearingY));
 			alloc_field (metrics, id_verticalAdvance, alloc_int (((FT_Face)face)->glyph->metrics.vertAdvance));
 			
-			val_array_push (glyphList, metrics);
+			return metrics;
 			
 		}
 		
-	}
-	
-	
-	value Font::GetGlyphMetrics (GlyphSet *glyphSet) {
-		
-		initialize ();
-		
-		value glyphList = alloc_array (0);
-		
-		if (!glyphSet->glyphs.empty ()) {
-			
-			FT_ULong charCode;
-			
-			for (unsigned int i = 0; i < glyphSet->glyphs.length (); i++) {
-				
-				charCode = glyphSet->glyphs[i];
-				GetGlyphMetrics_Push ((FT_Face)face, charCode, FT_Get_Char_Index ((FT_Face)face, charCode), glyphList);
-				
-			}
-			
-		}
-		
-		GlyphRange range;
-		
-		for (int i = 0; i < glyphSet->ranges.size (); i++) {
-			
-			range = glyphSet->ranges[i];
-			
-			if (range.start == 0 && range.end == -1) {
-				
-				FT_UInt glyphIndex;
-				FT_ULong charCode = FT_Get_First_Char ((FT_Face)face, &glyphIndex);
-				
-				while (glyphIndex != 0) {
-					
-					GetGlyphMetrics_Push ((FT_Face)face, charCode, glyphIndex, glyphList);
-					charCode = FT_Get_Next_Char ((FT_Face)face, charCode, &glyphIndex);
-					
-				}
-				
-			} else {
-				
-				unsigned long end = range.end;
-				
-				FT_ULong charCode = range.start;
-				FT_UInt glyphIndex = FT_Get_Char_Index ((FT_Face)face, charCode);
-				
-				while (charCode <= end || end < 0) {
-					
-					if (glyphIndex > 0) {
-						
-						GetGlyphMetrics_Push ((FT_Face)face, charCode, glyphIndex, glyphList);
-						
-					}
-					
-					glyphIndex = -1;
-					charCode = FT_Get_Next_Char ((FT_Face)face, charCode, &glyphIndex);
-					
-					if (glyphIndex == 0) {
-						
-						break;
-						
-					}
-					
-				}
-				
-			}
-			
-		}
-		
-		return glyphList;
+		return alloc_null ();
 		
 	}
 	

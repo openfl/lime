@@ -49,7 +49,7 @@ namespace lime {
 			value GetCharIndices (char* characters);
 			int GetDescender ();
 			wchar_t *GetFamilyName ();
-			value GetGlyphMetrics (GlyphSet *glyphSet);
+			value GetGlyphMetrics (int index);
 			int GetHeight ();
 			int GetNumGlyphs ();
 			int GetUnderlinePosition ();
