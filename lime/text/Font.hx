@@ -73,7 +73,7 @@ class Font {
 	}
 	
 	
-	public function getGlyphIndex (character:String):Int {
+	public function getGlyph (character:String):Glyph {
 		
 		#if (cpp || neko || nodejs)
 		return lime_font_get_glyph_index (__handle, character);
@@ -84,7 +84,7 @@ class Font {
 	}
 	
 	
-	public function getGlyphIndices (characters:String):Array<Int> {
+	public function getGlyphs (characters:String):Array<Glyph> {
 		
 		#if (cpp || neko || nodejs)
 		return lime_font_get_glyph_indices (__handle, characters);
@@ -95,10 +95,10 @@ class Font {
 	}
 	
 	
-	public function getGlyphMetrics (index:Int):GlyphMetrics {
+	public function getGlyphMetrics (glyph:Glyph):GlyphMetrics {
 		
 		#if (cpp || neko || nodejs)
-		var value = lime_font_get_glyph_metrics (__handle, index);
+		var value = lime_font_get_glyph_metrics (__handle, glyph);
 		var metrics = new GlyphMetrics ();
 		
 		metrics.height = value.height;
@@ -117,7 +117,7 @@ class Font {
 	}
 	
 	
-	public function renderGlyph (index:Int, fontSize:Int):Image {
+	public function renderGlyph (glyph:Glyph, fontSize:Int):Image {
 		
 		#if (cpp || neko || nodejs)
 		
@@ -126,7 +126,7 @@ class Font {
 		var bytes = new ByteArray ();
 		bytes.bigEndian = false;
 		
-		if (lime_font_render_glyph (__handle, index, bytes)) {
+		if (lime_font_render_glyph (__handle, glyph, bytes)) {
 			
 			bytes.position = 0;
 			
@@ -155,16 +155,32 @@ class Font {
 	}
 	
 	
-	public function renderGlyphs (indices:Array<Int>, fontSize:Int):Map<Int, Image> {
+	public function renderGlyphs (glyphs:Array<Glyph>, fontSize:Int):Map<Glyph, Image> {
 		
 		#if (cpp || neko || nodejs)
+		
+		var uniqueGlyphs = new Map<Glyph, Bool> ();
+		
+		for (glyph in glyphs) {
+			
+			uniqueGlyphs.set (glyph, true);
+			
+		}
+		
+		var glyphList = [];
+		
+		for (key in uniqueGlyphs.keys ()) {
+			
+			glyphList.push (key);
+			
+		}
 		
 		lime_font_set_size (__handle, fontSize);
 		
 		var bytes = new ByteArray ();
 		bytes.bigEndian = false;
 		
-		if (lime_font_render_glyphs (__handle, indices, bytes)) {
+		if (lime_font_render_glyphs (__handle, glyphList, bytes)) {
 			
 			bytes.position = 0;
 			
@@ -230,7 +246,7 @@ class Font {
 				
 			}
 			
-			var map = new Map <Int, Image> ();
+			var map = new Map<Glyph, Image> ();
 			var buffer = new ImageBuffer (null, bufferWidth, bufferHeight, 1);
 			var data = new ByteArray (bufferWidth * bufferHeight);
 			
