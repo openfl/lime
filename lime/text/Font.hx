@@ -159,7 +159,7 @@ class Font {
 		
 		#if (cpp || neko || nodejs)
 		
-		var uniqueGlyphs = new Map<Glyph, Bool> ();
+		var uniqueGlyphs = new Map<Int, Bool> ();
 		
 		for (glyph in glyphs) {
 			
@@ -246,7 +246,7 @@ class Font {
 				
 			}
 			
-			var map = new Map<Glyph, Image> ();
+			var map = new Map<Int, Image> ();
 			var buffer = new ImageBuffer (null, bufferWidth, bufferHeight, 1);
 			var data = new ByteArray (bufferWidth * bufferHeight);
 			
