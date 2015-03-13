@@ -2273,6 +2273,8 @@ extern "C" void nme_app_set_active(bool inActive);
 
 namespace nme { int gFixedOrientation = -1; }
 
+CGRect keyboardRect = CGRectMake(0, 0, 0, 0);
+
 
 @interface NMEAppDelegate : NSObject <UIApplicationDelegate>
 {
@@ -2295,6 +2297,9 @@ namespace nme { int gFixedOrientation = -1; }
 @interface UIStageViewController : UIViewController
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
 - (void)loadView;
+- (void)viewWillAppear:(BOOL)animated;
+- (void)viewWillDisappear:(BOOL)animated;
+- (void)keyboardChangedStatus:(NSNotification*)notification;
 @end
 
 
@@ -2969,6 +2974,11 @@ public:
          mRenderBuffer = 1-mRenderBuffer;
       }
    }
+   
+   int getKeyboardHeight()
+   {
+      return keyboardRect.size.height;
+   }
 
    void GetMouse()
    {
@@ -3127,6 +3137,32 @@ public:
 {
    UIStageView *view = [[UIStageView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
    self.view = view;
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc addObserver:self selector:@selector(keyboardChangedStatus:) name:UIKeyboardWillShowNotification object:nil];
+    [nc addObserver:self selector:@selector(keyboardChangedStatus:) name:UIKeyboardWillHideNotification object:nil];
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc removeObserver:self name:UIKeyboardWillShowNotification object:nil];
+    [nc removeObserver:self name:UIKeyboardWillHideNotification object:nil];
+}
+
+- (void)keyboardChangedStatus:(NSNotification*)notification {
+    //get the size!
+    CGRect keyboardRect;
+    [[[notification userInfo] objectForKey:UIKeyboardFrameEndUserInfoKey] getValue:&keyboardRect];
+    keyboardRect = [self.view convertRect:keyboardRect fromView:nil];
+    
+    //move your view to the top, to display the textfield..
+    //[self moveView:notification keyboardHeight:keyboardHeight];
 }
 
 @end

@@ -162,6 +162,7 @@ DEFINE_LIME_PROP(stage,align);
 DEFINE_LIME_PROP(stage,quality);
 DEFINE_LIME_PROP(stage,display_state);
 DEFINE_LIME_PROP(stage,multitouch_active);
+DEFINE_LIME_PROP_READ(stage,keyboard_height);
 DEFINE_LIME_PROP_READ(stage,stage_width);
 DEFINE_LIME_PROP_READ(stage,stage_height);
 DEFINE_LIME_PROP_READ(stage,dpi_scale);

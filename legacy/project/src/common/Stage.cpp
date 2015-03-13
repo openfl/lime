@@ -588,6 +588,13 @@ bool Stage::BuildCache()
    return wasDirty;
 }
 
+int Stage::getKeyboardHeight()
+{
+   //#ifdef IPHONE
+   //return GetKeyboardHeight();
+   //#endif
+}
+
 double Stage::getStageWidth()
 {
    Surface *s = GetPrimarySurface();
