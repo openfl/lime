@@ -20,8 +20,7 @@
 #include <graphics/RenderEvent.h>
 #include <system/System.h>
 #include <text/Font.h>
-#include <text/GlyphSet.h>
-#include <text/TextEngine.h>
+#include <text/TextLayout.h>
 #include <ui/KeyEvent.h>
 #include <ui/Mouse.h>
 #include <ui/MouseCursor.h>
@@ -542,10 +541,10 @@ namespace lime {
 	}
 	
 	
-	void lime_text_engine_destroy (value textHandle) {
+	void lime_text_layout_destroy (value textHandle) {
 		
 		#ifdef LIME_HARFBUZZ
-		TextEngine *text = (TextEngine*)(intptr_t)val_float (textHandle);
+		TextLayout *text = (TextLayout*)(intptr_t)val_float (textHandle);
 		delete text;
 		text = 0;
 		#endif
@@ -553,13 +552,13 @@ namespace lime {
 	}
 	
 	
-	value lime_text_engine_create (value direction, value script, value language) {
+	value lime_text_layout_create (value direction, value script, value language) {
 		
 		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
 		
-		TextEngine *text = new TextEngine (val_int (direction), val_string (script), val_string (language));
+		TextLayout *text = new TextLayout (val_int (direction), val_string (script), val_string (language));
 		value v = alloc_float ((intptr_t)text);
-		val_gc (v, lime_text_engine_destroy);
+		val_gc (v, lime_text_layout_destroy);
 		return v;
 		
 		#else
@@ -571,19 +570,51 @@ namespace lime {
 	}
 	
 	
-	value lime_text_engine_layout (value textHandle, value fontHandle, value size, value textString) {
+	value lime_text_layout_position (value textHandle, value fontHandle, value size, value textString, value data) {
 		
 		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
 		
-		TextEngine *text = (TextEngine*)(intptr_t)val_float (textHandle);
+		TextLayout *text = (TextLayout*)(intptr_t)val_float (textHandle);
 		Font *font = (Font*)(intptr_t)val_float (fontHandle);
-		return text->Layout (font, val_int (size), val_string (textString));
+		ByteArray bytes = ByteArray (data);
+		text->Position (font, val_int (size), val_string (textString), &bytes);
 		
-		#else
+		#endif
 		
 		return alloc_null ();
 		
+	}
+	
+	
+	value lime_text_layout_set_direction (value textHandle, value direction) {
+		
+		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
+		TextLayout *text = (TextLayout*)(intptr_t)val_float (textHandle);
+		text->SetDirection (val_int (direction));
 		#endif
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_text_layout_set_language (value textHandle, value direction) {
+		
+		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
+		TextLayout *text = (TextLayout*)(intptr_t)val_float (textHandle);
+		text->SetLanguage (val_string (direction));
+		#endif
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_text_layout_set_script (value textHandle, value direction) {
+		
+		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
+		TextLayout *text = (TextLayout*)(intptr_t)val_float (textHandle);
+		text->SetScript (val_string (direction));
+		#endif
+		return alloc_null ();
 		
 	}
 	
@@ -699,8 +730,11 @@ namespace lime {
 	DEFINE_PRIM (lime_renderer_flip, 1);
 	DEFINE_PRIM (lime_render_event_manager_register, 2);
 	DEFINE_PRIM (lime_system_gettimer, 0);
-	DEFINE_PRIM (lime_text_engine_create, 3);
-	DEFINE_PRIM (lime_text_engine_layout, 4);
+	DEFINE_PRIM (lime_text_layout_create, 3);
+	DEFINE_PRIM (lime_text_layout_position, 5);
+	DEFINE_PRIM (lime_text_layout_set_direction, 2);
+	DEFINE_PRIM (lime_text_layout_set_language, 2);
+	DEFINE_PRIM (lime_text_layout_set_script, 2);
 	DEFINE_PRIM (lime_touch_event_manager_register, 2);
 	DEFINE_PRIM (lime_update_event_manager_register, 2);
 	DEFINE_PRIM (lime_window_close, 1);

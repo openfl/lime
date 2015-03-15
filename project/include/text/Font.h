@@ -4,7 +4,6 @@
 
 #include <graphics/ImageBuffer.h>
 #include <system/System.h>
-#include <text/GlyphSet.h>
 #include <utils/Resource.h>
 #include <hx/CFFI.h>
 

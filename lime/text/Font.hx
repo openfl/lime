@@ -3,6 +3,7 @@ package lime.text;
 
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
+import lime.math.Vector2;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 import lime.system.System;
@@ -101,13 +102,10 @@ class Font {
 		var value = lime_font_get_glyph_metrics (__handle, glyph);
 		var metrics = new GlyphMetrics ();
 		
+		metrics.advance = new Vector2 (value.horizontalAdvance, value.verticalAdvance);
 		metrics.height = value.height;
-		metrics.horizontalAdvance = value.horizontalAdvance;
-		metrics.horizontalBearingX = value.horizontalBearingX;
-		metrics.horizontalBearingY = value.horizontalBearingY;
-		metrics.verticalAdvance = value.verticalAdvance;
-		metrics.verticalBearingX = value.verticalBearingX;
-		metrics.verticalBearingY = value.verticalBearingY;
+		metrics.horizontalBearing = new Vector2 (value.horizontalBearingX, value.horizontalBearingY);
+		metrics.verticalBearing = new Vector2 (value.verticalBearingX, value.verticalBearingY);
 		
 		return metrics;
 		#else

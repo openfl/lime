@@ -1,4 +1,5 @@
-#include <text/TextEngine.h>
+#include <system/System.h>
+#include <text/TextLayout.h>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -9,7 +10,7 @@
 namespace lime {
 	
 	
-	TextEngine::TextEngine (int direction, const char *script, const char *language) {
+	TextLayout::TextLayout (int direction, const char *script, const char *language) {
 		
 		if (strlen (script) != 4) return;
 		
@@ -25,14 +26,14 @@ namespace lime {
 	}
 	
 	
-	TextEngine::~TextEngine () {
+	TextLayout::~TextLayout () {
 		
 		hb_buffer_destroy ((hb_buffer_t*)mBuffer);
 		
 	}
 	
 	
-	value TextEngine::Layout (Font *font, size_t size, const char *text) {
+	void TextLayout::Position (Font *font, size_t size, const char *text, ByteArray *bytes) {
 		
 		font->SetSize (size);
 		
@@ -47,39 +48,68 @@ namespace lime {
 		hb_font_t *hb_font = hb_ft_font_create ((FT_Face)font->face, NULL);
 		hb_shape (hb_font, (hb_buffer_t*)mBuffer, NULL, 0);
 		
-		unsigned int glyph_count;
+		uint32_t glyph_count;
 		hb_glyph_info_t *glyph_info = hb_buffer_get_glyph_infos ((hb_buffer_t*)mBuffer, &glyph_count);
 		hb_glyph_position_t *glyph_pos = hb_buffer_get_glyph_positions ((hb_buffer_t*)mBuffer, &glyph_count);
 		
 		float hres = 100;
-		value pos_info = alloc_array (glyph_count);
 		int posIndex = 0;
+		
+		int glyphSize = sizeof(GlyphPosition);
+		uint32_t dataSize = 4 + (glyph_count * glyphSize);
+		
+		if (bytes->Size() < dataSize) {
+			
+			bytes->Resize (dataSize);
+			
+		}
+		
+		unsigned char* bytesPosition = bytes->Bytes ();
+		
+		*(bytesPosition) = glyph_count;
+		bytesPosition += 4;
+		
+		hb_glyph_position_t pos;
+		GlyphPosition *data;
 		
 		for (int i = 0; i < glyph_count; i++) {
 			
-			//font->InsertCodepointFromIndex(glyph_info[i].codepoint);
-			hb_glyph_position_t pos = glyph_pos[i];
+			pos = glyph_pos[i];
 			
-			value obj = alloc_empty_object ();
-			alloc_field (obj, val_id ("codepoint"), alloc_float (glyph_info[i].codepoint));
+			data = (GlyphPosition*)(bytesPosition);
 			
-			value advance = alloc_empty_object ();
-			alloc_field (advance, val_id ("x"), alloc_float (pos.x_advance / (float)(hres * 64)));
-			alloc_field (advance, val_id ("y"), alloc_float (pos.y_advance / (float)64));
-			alloc_field (obj, val_id ("advance"), advance);
+			data->index = glyph_info[i].codepoint;
+			data->advanceX = (float)(pos.x_advance / (float)(hres * 64));
+			data->advanceY = (float)(pos.y_advance / (float)64);
+			data->offsetX = (float)(pos.x_offset / (float)(hres * 64));
+			data->offsetY = (float)(pos.y_offset / (float)64);
 			
-			value offset = alloc_empty_object ();
-			alloc_field (offset, val_id ("x"), alloc_float (pos.x_offset / (float)(hres * 64)));
-			alloc_field (offset, val_id ("y"), alloc_float (pos.y_offset / (float)64));
-			alloc_field (obj, val_id ("offset"), offset);
-			
-			val_array_set_i (pos_info, posIndex++, obj);
+			bytesPosition += glyphSize;
 			
 		}
 		
 		hb_font_destroy (hb_font);
 		
-		return pos_info;
+	}
+	
+	
+	void TextLayout::SetDirection (int direction) {
+		
+		mDirection = (hb_direction_t)direction;
+		
+	}
+	
+	
+	void TextLayout::SetLanguage (const char* language) {
+		
+		mLanguage = (long)hb_language_from_string (language, strlen (language));
+		
+	}
+	
+	
+	void TextLayout::SetScript (const char* script) {
+		
+		mScript = hb_script_from_string (script, -1);
 		
 	}
 	
