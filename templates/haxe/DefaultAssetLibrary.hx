@@ -253,33 +253,27 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
-	public override function getFont (id:String):Dynamic /*Font*/ {
+	public override function getFont (id:String):Font {
 		
-		// TODO: Complete Lime Font API
-		
-		#if openfl
 		#if (flash || html5)
 		
-		return cast (Type.createInstance (className.get (id), []), openfl.text.Font);
+		return cast (Type.createInstance (className.get (id), []), Font);
 		
 		#else
 		
-		if (className.exists (id)) {
+		//if (className.exists (id)) {
+			//
+			//var fontClass = className.get (id);
+			//openfl.text.Font.registerFont (fontClass);
+			//return cast (Type.createInstance (fontClass, []), openfl.text.Font);
+			//
+		//} else {
 			
-			var fontClass = className.get (id);
-			openfl.text.Font.registerFont (fontClass);
-			return cast (Type.createInstance (fontClass, []), openfl.text.Font);
+			return Font.fromFile (path.get (id));
 			
-		} else {
-			
-			return new openfl.text.Font (path.get (id));
-			
-		}
+		//}
 		
 		#end
-		#end
-		
-		return null;
 		
 	}
 	

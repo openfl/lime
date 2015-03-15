@@ -190,7 +190,7 @@ class Assets {
 	 * @param	id		The ID or asset path for the font
 	 * @return		A new Font object
 	 */
-	public static function getFont (id:String, useCache:Bool = true):Dynamic /*Font*/ {
+	public static function getFont (id:String, useCache:Bool = true):Font {
 		
 		initialize ();
 		
@@ -1002,7 +1002,7 @@ class AssetLibrary {
 	}
 	
 	
-	public function getFont (id:String):Dynamic /*Font*/ {
+	public function getFont (id:String):Font {
 		
 		return null;
 		
@@ -1090,7 +1090,7 @@ class AssetLibrary {
 	}
 	
 	
-	public function loadFont (id:String, handler:Dynamic /*Font*/ -> Void):Void {
+	public function loadFont (id:String, handler:Font -> Void):Void {
 		
 		handler (getFont (id));
 		
