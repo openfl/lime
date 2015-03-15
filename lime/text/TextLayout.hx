@@ -106,6 +106,8 @@ class TextLayout {
 	
 	@:noCompletion private function set_direction (value:TextDirection):TextDirection {
 		
+		if (value == __direction) return value;
+		
 		__direction = value;
 		
 		#if (cpp || neko || nodejs)
@@ -120,6 +122,8 @@ class TextLayout {
 	
 	
 	@:noCompletion private function set_font (value:Font):Font {
+		
+		if (value == this.font) return value;
 		
 		this.font = value;
 		__position ();
@@ -152,6 +156,8 @@ class TextLayout {
 	
 	@:noCompletion private function set_language (value:String):String {
 		
+		if (value == __language) return value;
+		
 		__language = value;
 		
 		#if (cpp || neko || nodejs)
@@ -174,6 +180,8 @@ class TextLayout {
 	
 	@:noCompletion private function set_script (value:TextScript):TextScript {
 		
+		if (value == __script) return value;
+		
 		__script = value;
 		
 		#if (cpp || neko || nodejs)
@@ -189,6 +197,8 @@ class TextLayout {
 	
 	@:noCompletion private function set_size (value:Int):Int {
 		
+		if (value == this.size) return value;
+		
 		this.size = value;
 		__position ();
 		return value;
@@ -197,6 +207,8 @@ class TextLayout {
 	
 	
 	@:noCompletion private function set_text (value:String):String {
+		
+		if (value == this.text) return value;
 		
 		this.text = value;
 		__position ();

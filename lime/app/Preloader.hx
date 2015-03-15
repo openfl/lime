@@ -133,7 +133,7 @@ class Preloader #if flash extends Sprite #end {
 		
 		if (untyped (Browser.document).fonts && untyped (Browser.document).fonts.load) {
 			
-			untyped (Browser.document).fonts.load ("1em '" + font + "'").then (function () {
+			untyped (Browser.document).fonts.load ("1em '" + font + "'").then (function (_) {
 				
 				loaded ++;
 				update (loaded, total);
