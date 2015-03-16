@@ -357,7 +357,7 @@ class CommandLineTools {
 		
 		for (arg in args) {
 			
-			if (arg == "-nocffi") {
+			if (arg == "-nocffi" || arg == "-rebuild") {
 				
 				System.disableCFFI = true;
 				

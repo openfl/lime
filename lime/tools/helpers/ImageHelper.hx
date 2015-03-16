@@ -25,6 +25,8 @@ class ImageHelper {
 			
 			ProcessHelper.runCommand ("", "neko", [ PathHelper.getHaxelib (new Haxelib ("lime")) + "/svg.n", "process", path, Std.string (width), Std.string (height), temp ], true, true);
 			
+			Sys.println ("1");
+			
 			if (FileSystem.exists (temp)) {
 				
 				var image = Image.fromFile (temp);

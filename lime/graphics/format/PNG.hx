@@ -22,10 +22,16 @@ class PNG {
 		#if java
 		
 		#elseif (sys && (!disable_cffi || !format))
+		
+		if (!System.disableCFFI) {
 			
 			return lime_image_encode (image.buffer, 0, 0);
 			
-		#elseif (!html5 && format)
+		}
+		
+		#if (!html5 && format)
+		
+		else {
 			
 			try {
 				
@@ -64,8 +70,11 @@ class PNG {
 				return ByteArray.fromBytes (output.getBytes ());
 				#end
 				
-			} catch (e:Dynamic) {}
+			} catch (e:Dynamic) { }
 			
+		}
+		
+		#end
 		#end
 		
 		return null;

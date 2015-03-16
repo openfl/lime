@@ -880,8 +880,8 @@ class Image {
 		#elseif (cpp || neko || nodejs || java)
 			
 			var buffer = null;
-				
-			#if (sys && (!disable_cffi || !format) && !java)
+			
+			if (#if (sys && (!disable_cffi || !format) && !java) true #else false #end && !System.disableCFFI) {
 				
 				var data = lime_image_load (path);
 				if (data != null) {
@@ -894,7 +894,11 @@ class Image {
 					buffer = new ImageBuffer (u8a, data.width, data.height, data.bpp);
 				}
 				
-			#elseif format
+			}
+			
+			#if format
+			
+			else {
 				
 				try {
 					
@@ -926,6 +930,8 @@ class Image {
 					
 				} catch (e:Dynamic) {}
 				
+			}
+			
 			#end
 			
 			if (buffer != null) {
