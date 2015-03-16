@@ -203,7 +203,7 @@ class PathHelper {
 			var result = "";
 			
 			for (i in 1...lines.length) {
-				#if haxe_ver>=3.2
+				#if (haxe_ver>=3.2)
 				var trim = StringTools.trim (lines[i]);
 				
 				if (trim == "-D " + haxelib.name || StringTools.startsWith (trim, "-D " + haxelib.name + "=")) {
