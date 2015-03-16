@@ -1050,8 +1050,12 @@ class CommandLineTools {
 			haxelib = new Haxelib ("lime");
 			
 		}
+		var pre = PathHelper.getHaxelib (haxelib, true);
 		
-		var json = Json.parse (File.getContent (PathHelper.getHaxelib (haxelib, true) + "/haxelib.json"));
+		//var pre = "C:/Workspace/motionTools/haxe3/lib/lime/git";
+		//var truc = pre + "/haxelib.json";
+		//LogHelper.info( "requesting"+truc );
+		var json = Json.parse (File.getContent (pre + "/haxelib.json"));
 		return json.version;
 		
 	}

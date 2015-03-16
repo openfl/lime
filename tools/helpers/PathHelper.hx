@@ -203,8 +203,13 @@ class PathHelper {
 			var result = "";
 			
 			for (i in 1...lines.length) {
+				#if haxe_ver>=3.2
+				var trim = StringTools.trim (lines[i]);
 				
+				if (trim == "-D " + haxelib.name || StringTools.startsWith (trim, "-D " + haxelib.name + "=")) {
+				#else
 				if (StringTools.trim (lines[i]) == "-D " + haxelib.name) {
+				#end
 					
 					result = StringTools.trim (lines[i - 1]);
 					
@@ -259,6 +264,15 @@ class PathHelper {
 						
 						LogHelper.error ("haxelib \"" + haxelib.name + "\" does not have an \"ndll/" + directoryName + "\" directory");
 						
+					#if haxe_ver >=3.2
+					} else if (output.indexOf ("haxelib install ") > -1 && output.indexOf ("haxelib install " + haxelib.name) == -1) {
+						
+						var start = output.indexOf ("haxelib install ") + 16;
+						var end = output.lastIndexOf ("'");
+						var dependencyName = output.substring (start, end);
+						
+						LogHelper.error ("Could not find haxelib \"" + dependencyName + "\" (dependency of \"" + haxelib.name + "\"), does it need to be installed?");
+					#end
 					} else {
 						
 						if (haxelib.version != "") {
@@ -508,9 +522,11 @@ class PathHelper {
 			return path;
 			
 		} else if (isAbsolute (targetDirectory)) {
-			
+			#if haxe_ver > 3.2
+			return combine (Sys.getCwd (), path);
+			#else
 			return FileSystem.fullPath (path);
-			
+			#end
 		} else {
 			
 			targetDirectory = StringTools.replace (targetDirectory, "\\", "/");
