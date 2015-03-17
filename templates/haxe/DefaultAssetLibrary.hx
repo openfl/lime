@@ -680,7 +680,6 @@ class DefaultAssetLibrary extends AssetLibrary {
 #else
 
 ::if (assets != null)::::foreach assets::::if (!embed)::::if (type == "font")::@:keep class __ASSET__::flatName:: extends lime.text.Font { public function new () { __fontPath = "::targetPath::"; name = "::fontName::"; super (); }}
-#if openfl @:keep class __ASSET__OPENFL__::flatName:: extends openfl.text.Font { public function new () { __fontPath = "::targetPath::"; name = "::fontName::"; super (); }} #end
 ::end::::end::::end::::end::
 
 #if (windows || mac || linux)
@@ -694,6 +693,11 @@ class DefaultAssetLibrary extends AssetLibrary {
 ::end::::end::::end::
 ::end::
 
+#end
+
+#if openfl
+::if (assets != null)::::foreach assets::::if (type == "font")::@:keep class __ASSET__OPENFL__::flatName:: extends openfl.text.Font { public function new () { __fontPath = "::targetPath::"; name = "::fontName::"; super (); }}
+::end::::end::::end::
 #end
 
 #end
