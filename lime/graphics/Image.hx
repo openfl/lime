@@ -153,7 +153,7 @@ class Image {
 	public function clone ():Image {
 		
 		#if (js && html5)
-		ImageCanvasUtil.sync (this);
+		//ImageCanvasUtil.sync (this);
 		#end
 		
 		var image = new Image (buffer.clone (), offsetX, offsetY, width, height, null, type);
