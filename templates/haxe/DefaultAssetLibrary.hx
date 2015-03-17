@@ -68,18 +68,21 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#if openfl
 		::if (assets != null)::
-		::foreach assets::::if (type == "font")::openfl.text.Font.registerFont (__ASSET__::flatName::);::end::
+		::foreach assets::::if (type == "font")::openfl.text.Font.registerFont (__ASSET__OPENFL__::flatName::);::end::
 		::end::::end::
 		#end
 		
 		#if (windows || mac || linux)
 		
 		var useManifest = false;
-		::if (assets != null)::::foreach assets::::if (embed)::
+		::if (assets != null)::::foreach assets::::if (type == "font")::
+		className.set ("::id::", __ASSET__::flatName::);
+		type.set ("::id::", AssetType.$$upper(::type::));
+		::else::::if (embed)::
 		className.set ("::id::", __ASSET__::flatName::);
 		type.set ("::id::", AssetType.$$upper(::type::));
 		::else::useManifest = true;
-		::end::::end::::end::
+		::end::::end::::end::::end::
 		
 		if (useManifest) {
 			
@@ -255,23 +258,30 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	public override function getFont (id:String):Font {
 		
-		#if (flash || html5)
+		#if flash
+		
+		var src = Type.createInstance (className.get (id), []);
+		var font = new Font (src.fontName);
+		font.src = src;
+		
+		return font;
+		
+		#elseif html5
 		
 		return cast (Type.createInstance (className.get (id), []), Font);
 		
 		#else
 		
-		//if (className.exists (id)) {
-			//
-			//var fontClass = className.get (id);
-			//openfl.text.Font.registerFont (fontClass);
-			//return cast (Type.createInstance (fontClass, []), openfl.text.Font);
-			//
-		//} else {
+		if (className.exists (id)) {
+			
+			var fontClass = className.get (id);
+			return cast (Type.createInstance (fontClass, []), Font);
+			
+		} else {
 			
 			return Font.fromFile (path.get (id));
 			
-		//}
+		}
 		
 		#end
 		
@@ -664,17 +674,14 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 #elseif html5
 
-#if openfl
-::foreach assets::::if (type == "font")::@:keep #if display private #end class __ASSET__::flatName:: extends openfl.text.Font { public function new () { super (); fontName = "::fontName::"; } } ::end::
+::foreach assets::::if (type == "font")::@:keep #if display private #end class __ASSET__::flatName:: extends lime.text.Font { public function new () { super (); name = "::fontName::"; } } ::end::
 ::end::
-#end
 
 #else
 
-#if openfl
-::if (assets != null)::::foreach assets::::if (type == "font")::@:keep class __ASSET__::flatName:: extends openfl.text.Font { public function new () { super (); __fontPath = "::targetPath::"; fontName = "::fontName::"; }}
-::end::::end::::end::
-#end
+::if (assets != null)::::foreach assets::::if (!embed)::::if (type == "font")::@:keep class __ASSET__::flatName:: extends lime.text.Font { public function new () { __fontPath = "::targetPath::"; name = "::fontName::"; super (); }}
+#if openfl @:keep class __ASSET__OPENFL__::flatName:: extends openfl.text.Font { public function new () { __fontPath = "::targetPath::"; name = "::fontName::"; super (); }} #end
+::end::::end::::end::::end::
 
 #if (windows || mac || linux)
 

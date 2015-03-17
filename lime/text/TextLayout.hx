@@ -51,7 +51,7 @@ class TextLayout {
 		
 		#if (cpp || neko || nodejs)
 		
-		if (__handle != null && text != null && text != "" && font != null && font.__handle != null) {
+		if (__handle != null && text != null && text != "" && font != null && font.src != null) {
 			
 			if (__buffer == null) {
 				
@@ -60,7 +60,7 @@ class TextLayout {
 				
 			}
 			
-			lime_text_layout_position (__handle, font.__handle, size, text, __buffer);
+			lime_text_layout_position (__handle, font.src, size, text, __buffer);
 			
 			if (__buffer.length > 4) {
 				

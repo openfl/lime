@@ -25,17 +25,23 @@ class Font {
 	public var height (get, null):Int;
 	public var name (default, null):String;
 	public var numGlyphs (get, null):Int;
+	public var src:Dynamic;
 	public var underlinePosition (get, null):Int;
 	public var underlineThickness (get, null):Int;
 	public var unitsPerEM (get, null):Int;
 	
 	@:noCompletion private var __fontPath:String;
-	@:noCompletion private var __handle:Dynamic;
 	
 	
 	public function new (name:String = null) {
 		
 		this.name = name;
+		
+		if (__fontPath != null) {
+			
+			__fromFile (__fontPath);
+			
+		}
 		
 	}
 	
@@ -44,8 +50,8 @@ class Font {
 		
 		#if (cpp || neko || nodejs)
 		
-		if (__handle == null) throw "Uninitialized font handle.";
-		return lime_font_outline_decompose (__handle, 1024 * 20);
+		if (src == null) throw "Uninitialized font handle.";
+		return lime_font_outline_decompose (src, 1024 * 20);
 		
 		#else
 		
@@ -77,7 +83,7 @@ class Font {
 	public function getGlyph (character:String):Glyph {
 		
 		#if (cpp || neko || nodejs)
-		return lime_font_get_glyph_index (__handle, character);
+		return lime_font_get_glyph_index (src, character);
 		#else
 		return -1;
 		#end
@@ -88,7 +94,7 @@ class Font {
 	public function getGlyphs (characters:String = #if (display && haxe_ver < "3.2") "" #else "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. " #end):Array<Glyph> {
 		
 		#if (cpp || neko || nodejs)
-		return lime_font_get_glyph_indices (__handle, characters);
+		return lime_font_get_glyph_indices (src, characters);
 		#else
 		return null;
 		#end
@@ -99,7 +105,7 @@ class Font {
 	public function getGlyphMetrics (glyph:Glyph):GlyphMetrics {
 		
 		#if (cpp || neko || nodejs)
-		var value = lime_font_get_glyph_metrics (__handle, glyph);
+		var value = lime_font_get_glyph_metrics (src, glyph);
 		var metrics = new GlyphMetrics ();
 		
 		metrics.advance = new Vector2 (value.horizontalAdvance, value.verticalAdvance);
@@ -119,12 +125,12 @@ class Font {
 		
 		#if (cpp || neko || nodejs)
 		
-		lime_font_set_size (__handle, fontSize);
+		lime_font_set_size (src, fontSize);
 		
 		var bytes = new ByteArray ();
 		bytes.bigEndian = false;
 		
-		if (lime_font_render_glyph (__handle, glyph, bytes)) {
+		if (lime_font_render_glyph (src, glyph, bytes)) {
 			
 			bytes.position = 0;
 			
@@ -173,12 +179,12 @@ class Font {
 			
 		}
 		
-		lime_font_set_size (__handle, fontSize);
+		lime_font_set_size (src, fontSize);
 		
 		var bytes = new ByteArray ();
 		bytes.bigEndian = false;
 		
-		if (lime_font_render_glyphs (__handle, glyphList, bytes)) {
+		if (lime_font_render_glyphs (src, glyphList, bytes)) {
 			
 			bytes.position = 0;
 			
@@ -320,11 +326,11 @@ class Font {
 		
 		#if (cpp || neko || nodejs)
 		
-		__handle = lime_font_load (bytes);
+		src = lime_font_load (bytes);
 		
-		if (__handle != null) {
+		if (src != null && name == null) {
 			
-			name = lime_font_get_family_name (__handle);
+			name = lime_font_get_family_name (src);
 			
 		}
 		
@@ -339,11 +345,11 @@ class Font {
 		
 		#if (cpp || neko || nodejs)
 		
-		__handle = lime_font_load (__fontPath);
+		src = lime_font_load (__fontPath);
 		
-		if (__handle != null) {
+		if (src != null && name == null) {
 			
-			name = lime_font_get_family_name (__handle);
+			name = lime_font_get_family_name (src);
 			
 		}
 		
@@ -362,7 +368,7 @@ class Font {
 	private function get_ascender ():Int {
 		
 		#if (cpp || neko || nodejs)
-		return lime_font_get_ascender (__handle);
+		return lime_font_get_ascender (src);
 		#else
 		return 0;
 		#end
@@ -373,7 +379,7 @@ class Font {
 	private function get_descender ():Int {
 		
 		#if (cpp || neko || nodejs)
-		return lime_font_get_descender (__handle);
+		return lime_font_get_descender (src);
 		#else
 		return 0;
 		#end
@@ -384,7 +390,7 @@ class Font {
 	private function get_height ():Int {
 		
 		#if (cpp || neko || nodejs)
-		return lime_font_get_height (__handle);
+		return lime_font_get_height (src);
 		#else
 		return 0;
 		#end
@@ -395,7 +401,7 @@ class Font {
 	private function get_numGlyphs ():Int {
 		
 		#if (cpp || neko || nodejs)
-		return lime_font_get_num_glyphs (__handle);
+		return lime_font_get_num_glyphs (src);
 		#else
 		return 0;
 		#end
@@ -406,7 +412,7 @@ class Font {
 	private function get_underlinePosition ():Int {
 		
 		#if (cpp || neko || nodejs)
-		return lime_font_get_underline_position (__handle);
+		return lime_font_get_underline_position (src);
 		#else
 		return 0;
 		#end
@@ -417,7 +423,7 @@ class Font {
 	private function get_underlineThickness ():Int {
 		
 		#if (cpp || neko || nodejs)
-		return lime_font_get_underline_thickness (__handle);
+		return lime_font_get_underline_thickness (src);
 		#else
 		return 0;
 		#end
@@ -428,7 +434,7 @@ class Font {
 	private function get_unitsPerEM ():Int {
 		
 		#if (cpp || neko || nodejs)
-		return lime_font_get_units_per_em (__handle);
+		return lime_font_get_units_per_em (src);
 		#else
 		return 0;
 		#end
