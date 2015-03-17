@@ -152,10 +152,6 @@ class Image {
 	
 	public function clone ():Image {
 		
-		#if (js && html5)
-		//ImageCanvasUtil.sync (this);
-		#end
-		
 		var image = new Image (buffer.clone (), offsetX, offsetY, width, height, null, type);
 		return image;
 		
@@ -1023,6 +1019,7 @@ class Image {
 			#if (js && html5)
 				
 				ImageCanvasUtil.convertToCanvas (this);
+				ImageCanvasUtil.sync (this);
 				ImageCanvasUtil.createImageData (this);
 				
 			#elseif flash

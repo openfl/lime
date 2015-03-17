@@ -54,7 +54,13 @@ class ImageBuffer {
 		#if flash
 		if (__srcBitmapData != null) buffer.__srcBitmapData = __srcBitmapData.clone ();
 		#elseif (js && html5)
-		if (__srcImageData != null) {
+		if (data != null) {
+			
+			buffer.data = new UInt8Array (data.byteLength);
+			var copy = new UInt8Array (data);
+			buffer.data.set (copy);
+			
+		} else if (__srcImageData != null) {
 			
 			buffer.__srcCanvas = cast Browser.document.createElement ("canvas");
 			buffer.__srcContext = cast buffer.__srcCanvas.getContext ("2d");
