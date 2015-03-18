@@ -214,7 +214,7 @@ class System {
 		#elseif nodejs
 		if (__nodeNDLLModule == null) {
 			
-			__nodeNDLLModule = untyped require('bindings')('node_ndll');
+			__nodeNDLLModule = untyped require('ndll');
 			
 		}
 		#end
