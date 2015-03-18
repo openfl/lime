@@ -13,7 +13,6 @@ class Gamepad {
 	public var guid (get, never):String;
 	public var id (default, null):Int;
 	public var name (get, never):String;
-	public var player:Int;
 	
 	
 	public function new (id:Int) {
