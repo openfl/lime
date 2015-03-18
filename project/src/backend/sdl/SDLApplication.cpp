@@ -210,7 +210,7 @@ namespace lime {
 				
 				case SDL_CONTROLLERAXISMOTION:
 					
-					gamepadEvent.type = BUTTON_UP;
+					gamepadEvent.type = AXIS_MOVE;
 					gamepadEvent.axis = event->caxis.axis;
 					gamepadEvent.id = event->caxis.which;
 					gamepadEvent.axisValue = event->caxis.value / 32768.0;

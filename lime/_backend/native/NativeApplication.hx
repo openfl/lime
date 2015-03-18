@@ -14,6 +14,7 @@ import lime.ui.Window;
 
 @:access(lime.app.Application)
 @:access(lime.graphics.Renderer)
+@:access(lime.ui.Gamepad)
 
 
 class NativeApplication {
@@ -116,25 +117,28 @@ class NativeApplication {
 				
 				case AXIS_MOVE:
 					
-					parent.window.onGamepadAxisMove.dispatch (gamepadEventInfo.id, gamepadEventInfo.axis, gamepadEventInfo.value);
+					parent.window.onGamepadAxisMove.dispatch (Gamepad.devices.get (gamepadEventInfo.id), gamepadEventInfo.axis, gamepadEventInfo.value);
 				
 				case BUTTON_DOWN:
 					
-					parent.window.onGamepadButtonDown.dispatch (gamepadEventInfo.id, gamepadEventInfo.button);
+					parent.window.onGamepadButtonDown.dispatch (Gamepad.devices.get (gamepadEventInfo.id), gamepadEventInfo.button);
 				
 				case BUTTON_UP:
 					
-					parent.window.onGamepadButtonUp.dispatch (gamepadEventInfo.id, gamepadEventInfo.button);
+					parent.window.onGamepadButtonUp.dispatch (Gamepad.devices.get (gamepadEventInfo.id), gamepadEventInfo.button);
 				
 				case CONNECT:
 					
-					Gamepad.devices.push (gamepadEventInfo.id);
-					parent.window.onGamepadConnect.dispatch (gamepadEventInfo.id);
+					var gamepad = new Gamepad (gamepadEventInfo.id);
+					Gamepad.devices.set (gamepadEventInfo.id, gamepad);
+					parent.window.onGamepadConnect.dispatch (gamepad);
 				
 				case DISCONNECT:
 					
+					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
+					if (gamepad != null) gamepad.connected = false;
 					Gamepad.devices.remove (gamepadEventInfo.id);
-					parent.window.onGamepadDisconnect.dispatch (gamepadEventInfo.id);
+					parent.window.onGamepadDisconnect.dispatch (gamepad);
 				
 			}
 			
