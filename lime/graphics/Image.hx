@@ -46,6 +46,8 @@ import sys.io.File;
 @:access(lime.math.Rectangle)
 @:access(lime.math.Vector2)
 
+@:autoBuild(lime.Assets.embedImage())
+
 
 class Image {
 	

@@ -303,7 +303,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		if (className.exists (id)) {
 			
 			var fontClass = className.get (id);
-			return Image.fromBytes (cast (Type.createInstance (fontClass, []), ByteArray));
+			return cast (Type.createInstance (fontClass, []), Image);
 			
 		} else {
 			
@@ -694,7 +694,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 #if (windows || mac || linux)
 
 ::if (assets != null)::
-::foreach assets::::if (embed)::::if (type == "image")::@:file("::sourcePath::") class __ASSET__::flatName:: extends lime.utils.ByteArray {}
+::foreach assets::::if (embed)::::if (type == "image")::@:image("::sourcePath::") class __ASSET__::flatName:: extends lime.graphics.Image {}
 ::elseif (type == "sound")::@:file("::sourcePath::") class __ASSET__::flatName:: extends lime.utils.ByteArray {}
 ::elseif (type == "music")::@:file("::sourcePath::") class __ASSET__::flatName:: extends lime.utils.ByteArray {}
 ::elseif (type == "font")::@:font("::sourcePath::") class __ASSET__::flatName:: extends lime.graphics.Font {}
