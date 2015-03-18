@@ -21,6 +21,8 @@
 #include <system/System.h>
 #include <text/Font.h>
 #include <text/TextLayout.h>
+#include <ui/Gamepad.h>
+#include <ui/GamepadEvent.h>
 #include <ui/KeyEvent.h>
 #include <ui/Mouse.h>
 #include <ui/MouseCursor.h>
@@ -338,6 +340,29 @@ namespace lime {
 		#endif
 		
 		return alloc_null ();
+		
+	}
+	
+	
+	value lime_gamepad_event_manager_register (value callback, value eventObject) {
+		
+		GamepadEvent::callback = new AutoGCRoot (callback);
+		GamepadEvent::eventObject = new AutoGCRoot (eventObject);
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_gamepad_get_device_guid (value id) {
+		
+		return alloc_string (Gamepad::GetDeviceGUID (val_int (id)));
+		
+	}
+	
+	
+	value lime_gamepad_get_device_name (value id) {
+		
+		return alloc_string (Gamepad::GetDeviceName (val_int (id)));
 		
 	}
 	
@@ -715,6 +740,9 @@ namespace lime {
 	DEFINE_PRIM (lime_font_render_glyph, 3);
 	DEFINE_PRIM (lime_font_render_glyphs, 3);
 	DEFINE_PRIM (lime_font_set_size, 2);
+	DEFINE_PRIM (lime_gamepad_event_manager_register, 2);
+	DEFINE_PRIM (lime_gamepad_get_device_guid, 1);
+	DEFINE_PRIM (lime_gamepad_get_device_name, 1);
 	DEFINE_PRIM (lime_image_encode, 3);
 	DEFINE_PRIM (lime_image_load, 1);
 	DEFINE_PRIM (lime_jni_getenv, 0);

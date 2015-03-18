@@ -98,6 +98,11 @@ class Application extends Module {
 		
 		windows.push (window);
 		
+		window.onGamepadAxisMove.add (onGamepadAxisMove);
+		window.onGamepadButtonDown.add (onGamepadButtonDown);
+		window.onGamepadButtonUp.add (onGamepadButtonUp);
+		window.onGamepadConnect.add (onGamepadConnect);
+		window.onGamepadDisconnect.add (onGamepadDisconnect);
 		window.onKeyDown.add (onKeyDown);
 		window.onKeyUp.add (onKeyUp);
 		window.onMouseDown.add (onMouseDown);

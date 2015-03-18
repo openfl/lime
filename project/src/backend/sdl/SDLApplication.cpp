@@ -1,4 +1,5 @@
 #include "SDLApplication.h"
+#include "SDLGamepad.h"
 
 #ifdef HX_MACOS
 #include <CoreFoundation/CoreFoundation.h>
@@ -24,7 +25,7 @@ namespace lime {
 	
 	SDLApplication::SDLApplication () {
 		
-		SDL_Init (SDL_INIT_VIDEO | SDL_INIT_TIMER);
+		SDL_Init (SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER);
 		
 		#ifdef EMSCRIPTEN
 		currentApplication = this;
@@ -38,6 +39,7 @@ namespace lime {
 		lastUpdate = 0;
 		nextUpdate = 0;
 		
+		GamepadEvent gamepadEvent;
 		KeyEvent keyEvent;
 		MouseEvent mouseEvent;
 		RenderEvent renderEvent;
@@ -109,6 +111,15 @@ namespace lime {
 				
 				UpdateEvent::Dispatch (&updateEvent);
 				RenderEvent::Dispatch (&renderEvent);
+				break;
+			
+			case SDL_CONTROLLERAXISMOTION:
+			case SDL_CONTROLLERBUTTONDOWN:
+			case SDL_CONTROLLERBUTTONUP:
+			case SDL_CONTROLLERDEVICEADDED:
+			case SDL_CONTROLLERDEVICEREMOVED:
+				
+				ProcessGamepadEvent (event);
 				break;
 			
 			case SDL_JOYAXISMOTION:
@@ -187,6 +198,71 @@ namespace lime {
 		active = true;
 		lastUpdate = SDL_GetTicks ();
 		nextUpdate = lastUpdate;
+		
+	}
+	
+	
+	void SDLApplication::ProcessGamepadEvent (SDL_Event* event) {
+		
+		if (GamepadEvent::callback) {
+			
+			switch (event->type) {
+				
+				case SDL_CONTROLLERAXISMOTION:
+					
+					gamepadEvent.type = BUTTON_UP;
+					gamepadEvent.axis = event->caxis.axis;
+					gamepadEvent.id = event->caxis.which;
+					gamepadEvent.axisValue = event->caxis.value / 32768.0;
+					
+					GamepadEvent::Dispatch (&gamepadEvent);
+					break;
+				
+				case SDL_CONTROLLERBUTTONDOWN:
+					
+					gamepadEvent.type = BUTTON_DOWN;
+					gamepadEvent.button = event->cbutton.button;
+					gamepadEvent.id = event->cbutton.which;
+					
+					GamepadEvent::Dispatch (&gamepadEvent);
+					break;
+				
+				case SDL_CONTROLLERBUTTONUP:
+					
+					gamepadEvent.type = BUTTON_UP;
+					gamepadEvent.button = event->cbutton.button;
+					gamepadEvent.id = event->cbutton.which;
+					
+					GamepadEvent::Dispatch (&gamepadEvent);
+					break;
+				
+				case SDL_CONTROLLERDEVICEADDED:
+					
+					if (SDLGamepad::Connect (event->cdevice.which)) {
+						
+						gamepadEvent.type = CONNECT;
+						gamepadEvent.id = SDLGamepad::GetInstanceID (event->cdevice.which);
+						
+						GamepadEvent::Dispatch (&gamepadEvent);
+						
+					}
+					
+					break;
+				
+				case SDL_CONTROLLERDEVICEREMOVED: {
+					
+					gamepadEvent.type = DISCONNECT;
+					gamepadEvent.id = event->cdevice.which;
+					
+					GamepadEvent::Dispatch (&gamepadEvent);
+					SDLGamepad::Disconnect (event->cdevice.which);
+					break;
+					
+				}
+				
+			}
+			
+		}
 		
 	}
 	

@@ -128,7 +128,7 @@ class Font {
 		lime_font_set_size (src, fontSize);
 		
 		var bytes = new ByteArray ();
-		bytes.bigEndian = false;
+		bytes.endian = "littleEndian";
 		
 		if (lime_font_render_glyph (src, glyph, bytes)) {
 			
@@ -143,7 +143,11 @@ class Font {
 			var data = new ByteArray (width * height);
 			bytes.readBytes (data, 0, width * height);
 			
+			#if js
+			var buffer = new ImageBuffer (data.byteView, width, height, 1);
+			#else
 			var buffer = new ImageBuffer (new UInt8Array (data), width, height, 1);
+			#end
 			var image = new Image (buffer, 0, 0, width, height);
 			image.x = x;
 			image.y = y;
@@ -182,7 +186,7 @@ class Font {
 		lime_font_set_size (src, fontSize);
 		
 		var bytes = new ByteArray ();
-		bytes.bigEndian = false;
+		bytes.endian = "littleEndian";
 		
 		if (lime_font_render_glyphs (src, glyphList, bytes)) {
 			
@@ -307,7 +311,11 @@ class Font {
 				
 			}
 			
+			#if js
+			buffer.data = data.byteView;
+			#else
 			buffer.data = new UInt8Array (data);
+			#end
 			
 			return map;
 			

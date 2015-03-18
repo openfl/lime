@@ -2,6 +2,9 @@ package lime.app;
 
 
 import lime.graphics.RenderContext;
+import lime.ui.Gamepad;
+import lime.ui.GamepadAxis;
+import lime.ui.GamepadButton;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 
@@ -23,6 +26,13 @@ class Module implements IModule {
 	 * @param	context The current render context
 	 */
 	public function init (context:RenderContext):Void { }
+	
+	
+	public function onGamepadAxisMove (gamepad:Gamepad, axis:GamepadAxis, value:Float):Void { }
+	public function onGamepadButtonDown (gamepad:Gamepad, button:GamepadButton):Void { }
+	public function onGamepadButtonUp (gamepad:Gamepad, button:GamepadButton):Void { }
+	public function onGamepadConnect (gamepad:Gamepad):Void { }
+	public function onGamepadDisconnect (gamepad:Gamepad):Void { }
 	
 	
 	/**
