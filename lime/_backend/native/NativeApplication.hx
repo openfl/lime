@@ -18,6 +18,7 @@ import lime.ui.Window;
 class NativeApplication {
 	
 	
+	private var gamepadEventInfo = new GamepadEventInfo ();
 	private var keyEventInfo = new KeyEventInfo ();
 	private var mouseEventInfo = new MouseEventInfo ();
 	private var renderEventInfo = new RenderEventInfo (RENDER);
@@ -60,6 +61,7 @@ class NativeApplication {
 	
 	public function exec ():Int {
 		
+		lime_gamepad_event_manager_register (handleGamepadEvent, gamepadEventInfo);
 		lime_key_event_manager_register (handleKeyEvent, keyEventInfo);
 		lime_mouse_event_manager_register (handleMouseEvent, mouseEventInfo);
 		lime_render_event_manager_register (handleRenderEvent, renderEventInfo);
@@ -101,6 +103,39 @@ class NativeApplication {
 		return 0;
 		
 		#end
+		
+	}
+	
+	
+	private function handleGamepadEvent ():Void {
+		
+		if (parent.window != null) {
+			
+			switch (gamepadEventInfo.type) {
+				
+				case AXIS_MOVE:
+					
+					parent.window.onGamepadAxisMove.dispatch (gamepadEventInfo.id, gamepadEventInfo.axis, gamepadEventInfo.value);
+				
+				case BUTTON_DOWN:
+					
+					parent.window.onGamepadButtonDown.dispatch (gamepadEventInfo.id, gamepadEventInfo.button);
+				
+				case BUTTON_UP:
+					
+					parent.window.onGamepadButtonUp.dispatch (gamepadEventInfo.id, gamepadEventInfo.button);
+				
+				case CONNECT:
+					
+					parent.window.onGamepadConnect.dispatch (gamepadEventInfo.id);
+				
+				case DISCONNECT:
+					
+					parent.window.onGamepadDisconnect.dispatch (gamepadEventInfo.id);
+				
+			}
+			
+		}
 		
 	}
 	
@@ -291,6 +326,7 @@ class NativeApplication {
 	private static var lime_application_update = System.load ("lime", "lime_application_update", 1);
 	private static var lime_application_quit = System.load ("lime", "lime_application_quit", 1);
 	private static var lime_application_get_ticks = System.load ("lime", "lime_application_get_ticks", 0);
+	private static var lime_gamepad_event_manager_register = System.load ("lime", "lime_gamepad_event_manager_register", 2);
 	private static var lime_key_event_manager_register = System.load ("lime", "lime_key_event_manager_register", 2);
 	private static var lime_mouse_event_manager_register = System.load ("lime", "lime_mouse_event_manager_register", 2);
 	private static var lime_render_event_manager_register = System.load ("lime", "lime_render_event_manager_register", 2);
@@ -298,6 +334,48 @@ class NativeApplication {
 	private static var lime_update_event_manager_register = System.load ("lime", "lime_update_event_manager_register", 2);
 	private static var lime_window_event_manager_register = System.load ("lime", "lime_window_event_manager_register", 2);
 	
+	
+}
+
+
+private class GamepadEventInfo {
+	
+	
+	public var axis:Int;
+	public var button:Int;
+	public var id:Int;
+	public var type:GamepadEventType;
+	public var value:Float;
+	
+	
+	public function new (type:GamepadEventType = null, id:Int = 0, button:Int = 0, axis:Int = 0, value:Float = 0) {
+		
+		this.type = type;
+		this.id = id;
+		this.button = button;
+		this.axis = axis;
+		this.value = value;
+		
+	}
+	
+	
+	public function clone ():GamepadEventInfo {
+		
+		return new GamepadEventInfo (type, id, button, axis, value);
+		
+	}
+	
+	
+}
+
+
+@:enum private abstract GamepadEventType(Int) {
+	
+	var AXIS_MOVE = 0;
+	var BUTTON_DOWN = 1;
+	var BUTTON_UP = 2;
+	var CONNECT = 3;
+	var DISCONNECT = 4;
 	
 }
 

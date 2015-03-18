@@ -25,6 +25,13 @@ class Module implements IModule {
 	public function init (context:RenderContext):Void { }
 	
 	
+	public function onGamepadAxisMove (id:Int, axis:Int, value:Float):Void { }
+	public function onGamepadButtonDown(id:Int, button:Int):Void { }
+	public function onGamepadButtonUp (id:Int, button:Int):Void { }
+	public function onGamepadConnect (id:Int):Void { }
+	public function onGamepadDisconnect (id:Int):Void { }
+	
+	
 	/**
 	 * Called when a key down event is fired
 	 * @param	keyCode	The code of the key that was pressed
