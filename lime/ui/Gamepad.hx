@@ -4,13 +4,23 @@ package lime.ui;
 import lime.system.System;
 
 
-abstract Gamepad(Int) from Int to Int {
+class Gamepad {
 	
 	
-	public static var devices = new Array<Gamepad> ();
+	public static var devices = new Map<Int, Gamepad> ();
 	
+	public var connected (default, null):Bool;
 	public var guid (get, never):String;
+	public var id (default, null):Int;
 	public var name (get, never):String;
+	
+	
+	public function new (id:Int) {
+		
+		this.id = id;
+		connected = true;
+		
+	}
 	
 	
 	

@@ -408,11 +408,11 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#if flash
 		
-		if (requestedType != AssetType.MUSIC && requestedType != AssetType.SOUND) {
+		//if (requestedType != AssetType.MUSIC && requestedType != AssetType.SOUND) {
 			
 			return className.exists (id);
 			
-		}
+		//}
 		
 		#end
 		

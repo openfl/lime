@@ -44,7 +44,7 @@ namespace lime {
 			
 			value object = (GamepadEvent::eventObject ? GamepadEvent::eventObject->get () : alloc_empty_object ());
 			
-			alloc_field (object, id_axis, alloc_float (event->axis));
+			alloc_field (object, id_axis, alloc_int (event->axis));
 			alloc_field (object, id_button, alloc_int (event->button));
 			alloc_field (object, id_id, alloc_int (event->id));
 			alloc_field (object, id_type, alloc_int (event->type));

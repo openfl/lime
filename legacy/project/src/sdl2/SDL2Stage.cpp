@@ -1360,9 +1360,9 @@ void ProcessEvent(SDL_Event &inEvent)
          int joyId = -1;
          for (int i = 0; i < sgJoysticksId.size(); i++)
          {
-            if (sgJoysticksIndex[i] == i)
+            if (sgJoysticksIndex[i] == inEvent.jdevice.which)
             {
-               joyId = i;
+               joyId = inEvent.jdevice.which;
                break;
             }
          }
@@ -1592,20 +1592,9 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
    
    sgSDLFrame = new SDLFrame(window, renderer, windowFlags, opengl, width, height);
    inOnFrame(sgSDLFrame);
-
+   
    int numJoysticks = SDL_NumJoysticks();
-   if (sgJoystickEnabled && numJoysticks > 0) {
-      SDL_JoystickEventState(SDL_TRUE);
-      for (int i = 0; i < numJoysticks; i++) {
-         sgJoystick = SDL_JoystickOpen(i);
-         Event joystick(etJoyDeviceAdded);
-         joystick.id = SDL_JoystickInstanceID(sgJoystick);
-         sgJoysticks.push_back(sgJoystick);
-         sgJoysticksId.push_back(joystick.id);
-         sgJoysticksIndex.push_back(i);
-         sgSDLFrame->ProcessEvent(joystick);
-      }
-   }
+   SDL_JoystickEventState(SDL_TRUE);
    
    StartAnimation();
 }
