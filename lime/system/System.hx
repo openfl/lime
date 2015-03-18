@@ -1,5 +1,4 @@
 package lime.system;
-#if !macro
 
 
 #if flash
@@ -163,7 +162,7 @@ class System {
 	
 	public static function load (library:String, method:String, args:Int = 0, lazy:Bool = false):Dynamic {
 		
-		#if disable_cffi
+		#if (disable_cffi || macro)
 		var disableCFFI = true;
 		#end
 		
@@ -183,7 +182,7 @@ class System {
 			
 		}
 		
-		#if !disable_cffi
+		#if (!disable_cffi && !macro)
 		#if (sys && !html5)
 		
 		#if (iphone || emscripten || android || static_link)
@@ -408,37 +407,3 @@ class System {
 	
 	
 }
-
-
-#else
-
-
-import haxe.macro.Compiler;
-import haxe.macro.Context;
-import sys.FileSystem;
-
-
-class System {
-	
-	
-	public static function includeTools () {
-		
-		var paths = Context.getClassPath ();
-		
-		for (path in paths) {
-			
-			if (FileSystem.exists (path + "/tools/CommandLineTools.hx")) {
-				
-				Compiler.addClassPath (path + "/tools");
-				
-			}
-			
-		}
-		
-	}
-	
-	
-}
-
-
-#end

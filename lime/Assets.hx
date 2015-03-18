@@ -1,4 +1,5 @@
 package lime;
+import lime.graphics.ImageBuffer;
 #if !macro
 
 
@@ -1268,111 +1269,6 @@ class Assets {
 	}
 	
 	
-	macro public static function embedBitmap ():Array<Field> {
-		
-		#if (html5 && !openfl_html5_dom)
-		var fields = embedData (":bitmap", true);
-		#else
-		var fields = embedData (":bitmap");
-		#end
-		
-		if (fields != null) {
-			
-			var constructor = macro { 
-				
-				#if html5
-				#if openfl_html5_dom
-				
-				super (width, height, transparent, fillRGBA);
-				
-				var currentType = Type.getClass (this);
-				
-				if (preload != null) {
-					
-					___textureBuffer.width = Std.int (preload.width);
-					___textureBuffer.height = Std.int (preload.height);
-					rect = new openfl.geom.Rectangle (0, 0, preload.width, preload.height);
-					setPixels(rect, preload.getPixels(rect));
-					__buildLease();
-					
-				} else {
-					
-					var byteArray = openfl.utils.ByteArray.fromBytes (haxe.Resource.getBytes(resourceName));
-					
-					if (onload != null && !Std.is (onload, Bool)) {
-						
-						__loadFromBytes(byteArray, null, onload);
-						
-					} else {
-						
-						__loadFromBytes(byteArray);
-						
-					}
-					
-				}
-				
-				#else
-				
-				super (0, 0, transparent, fillRGBA);
-				
-				if (preload != null) {
-					
-					__sourceImage = preload;
-					width = __sourceImage.width;
-					height = __sourceImage.height;
-					
-				} else {
-					
-					__loadFromBase64 (haxe.Resource.getString(resourceName), resourceType, function (b) {
-						
-						if (preload == null) {
-							
-							preload = b.__sourceImage;
-							
-						}
-						
-						if (onload != null) {
-							
-							onload (b);
-							
-						}
-						
-					});
-					
-				}
-				
-				#end
-				#else
-				
-				super (width, height, transparent, fillRGBA);
-				
-				var byteArray = openfl.utils.ByteArray.fromBytes (haxe.Resource.getBytes (resourceName));
-				__loadFromBytes (byteArray);
-				
-				#end
-				
-			};
-			
-			var args = [ { name: "width", opt: false, type: macro :Int, value: null }, { name: "height", opt: false, type: macro :Int, value: null }, { name: "transparent", opt: true, type: macro :Bool, value: macro true }, { name: "fillRGBA", opt: true, type: macro :Int, value: macro 0xFFFFFFFF } ];
-			
-			#if html5
-			args.push ({ name: "onload", opt: true, type: macro :Dynamic, value: null });
-			#if openfl_html5_dom
-			fields.push ({ kind: FVar(macro :openfl.display.BitmapData, null), name: "preload", doc: null, meta: [], access: [ APublic, AStatic ], pos: Context.currentPos() });
-			#else
-			fields.push ({ kind: FVar(macro :js.html.Image, null), name: "preload", doc: null, meta: [], access: [ APublic, AStatic ], pos: Context.currentPos() });
-			#end
-			#end
-			
-			fields.push ({ name: "new", access: [ APublic ], kind: FFun({ args: args, expr: constructor, params: [], ret: null }), pos: Context.currentPos() });
-			
-		}
-		
-		return fields;
-		
-	}
-	
-	
 	private static function embedData (metaName:String, encode:Bool = false):Array<Field> {
 		
 		var classType = Context.getLocalClass().get();
@@ -1524,6 +1420,78 @@ class Assets {
 			fields.push ({ name: "new", access: [ APublic ], kind: FFun({ args: [], expr: constructor, params: [], ret: null }), pos: Context.currentPos() });
 			
 			return fields;
+			
+		}
+		
+		return fields;
+		
+	}
+	
+	
+	macro public static function embedImage ():Array<Field> {
+		
+		#if html5
+		var fields = embedData (":image", true);
+		#else
+		var fields = embedData (":image");
+		#end
+		
+		if (fields != null) {
+			
+			var constructor = macro { 
+				
+				#if html5
+				
+				super ();
+				
+				if (preload != null) {
+					
+					var buffer = new lime.graphics.ImageBuffer ();
+					buffer.__srcImage = preload;
+					buffer.width = preload.width;
+					buffer.width = preload.height;
+					
+					__fromImageBuffer (buffer);
+					
+				} else {
+					
+					__fromBase64 (haxe.Resource.getString (resourceName), resourceType, function (image) {
+						
+						if (preload == null) {
+							
+							preload = image.buffer.__srcImage;
+							
+						}
+						
+						if (onload != null) {
+							
+							onload (image);
+							
+						}
+						
+					});
+					
+				}
+				
+				#else
+				
+				super ();
+				
+				var byteArray = lime.utils.ByteArray.fromBytes (haxe.Resource.getBytes (resourceName));
+				__fromBytes (byteArray, null);
+				
+				#end
+				
+			};
+			
+			var args = [ { name: "buffer", opt: true, type: macro :lime.graphics.ImageBuffer, value: null }, { name: "offsetX", opt: true, type: macro :Int, value: null }, { name: "offsetY", opt: true, type: macro :Int, value: null }, { name: "width", opt: true, type: macro :Int, value: null }, { name: "height", opt: true, type: macro :Int, value: null }, { name: "color", opt: true, type: macro :Null<Int>, value: null }, { name: "type", opt: true, type: macro :lime.graphics.ImageType, value: null } ];
+			
+			#if html5
+			args.push ({ name: "onload", opt: true, type: macro :Dynamic, value: null });
+			fields.push ({ kind: FVar(macro :js.html.Image, null), name: "preload", doc: null, meta: [], access: [ APublic, AStatic ], pos: Context.currentPos() });
+			#end
+			
+			fields.push ({ name: "new", access: [ APublic ], kind: FFun({ args: args, expr: constructor, params: [], ret: null }), pos: Context.currentPos() });
 			
 		}
 		

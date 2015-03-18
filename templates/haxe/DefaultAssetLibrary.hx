@@ -4,6 +4,7 @@ package;
 import haxe.Timer;
 import haxe.Unserializer;
 import lime.app.Preloader;
+import lime.audio.AudioSource;
 import lime.audio.openal.AL;
 import lime.audio.AudioBuffer;
 import lime.graphics.Image;
@@ -184,9 +185,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		return AudioBuffer.fromFile (path.get (id));
-		//if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), Sound);
-		//else return new Sound (new URLRequest (path.get (id)), null, type.get (id) == MUSIC);
+		if (className.exists(id)) return AudioBuffer.fromBytes (cast (Type.createInstance (className.get (id), []), ByteArray));
+		else return AudioBuffer.fromFile (path.get (id));
 		
 		#end
 		
@@ -300,7 +300,16 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		return Image.fromFile (path.get (id));
+		if (className.exists (id)) {
+			
+			var fontClass = className.get (id);
+			return cast (Type.createInstance (fontClass, []), Image);
+			
+		} else {
+			
+			return Image.fromFile (path.get (id));
+			
+		}
 		
 		#end
 		
@@ -685,9 +694,9 @@ class DefaultAssetLibrary extends AssetLibrary {
 #if (windows || mac || linux)
 
 ::if (assets != null)::
-::foreach assets::::if (embed)::::if (type == "image")::@:bitmap("::sourcePath::") class __ASSET__::flatName:: extends lime.graphics.Image {}
-::elseif (type == "sound")::@:sound("::sourcePath::") class __ASSET__::flatName:: extends lime.audio.AudioSource {}
-::elseif (type == "music")::@:sound("::sourcePath::") class __ASSET__::flatName:: extends lime.audio.AudioSource {}
+::foreach assets::::if (embed)::::if (type == "image")::@:image("::sourcePath::") class __ASSET__::flatName:: extends lime.graphics.Image {}
+::elseif (type == "sound")::@:file("::sourcePath::") class __ASSET__::flatName:: extends lime.utils.ByteArray {}
+::elseif (type == "music")::@:file("::sourcePath::") class __ASSET__::flatName:: extends lime.utils.ByteArray {}
 ::elseif (type == "font")::@:font("::sourcePath::") class __ASSET__::flatName:: extends lime.graphics.Font {}
 ::else::@:file("::sourcePath::") class __ASSET__::flatName:: extends lime.utils.ByteArray {}
 ::end::::end::::end::
