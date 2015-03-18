@@ -15,11 +15,11 @@ class Window {
 	public var config:Config;
 	public var fullscreen:Bool;
 	public var height:Int;
-	public var onGamepadAxisMove = new Event<Int->Int->Float->Void> ();
-	public var onGamepadButtonDown = new Event<Int->Int->Void> ();
-	public var onGamepadButtonUp = new Event<Int->Int->Void> ();
-	public var onGamepadConnect = new Event<Int->Void> ();
-	public var onGamepadDisconnect = new Event<Int->Void> ();
+	public var onGamepadAxisMove = new Event<Gamepad->GamepadAxis->Float->Void> ();
+	public var onGamepadButtonDown = new Event<Gamepad->GamepadButton->Void> ();
+	public var onGamepadButtonUp = new Event<Gamepad->GamepadButton->Void> ();
+	public var onGamepadConnect = new Event<Gamepad->Void> ();
+	public var onGamepadDisconnect = new Event<Gamepad->Void> ();
 	public var onKeyDown = new Event<KeyCode->KeyModifier->Void> ();
 	public var onKeyUp = new Event<KeyCode->KeyModifier->Void> ();
 	public var onMouseDown = new Event<Float->Float->Int->Void> ();

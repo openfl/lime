@@ -251,15 +251,11 @@ namespace lime {
 				
 				case SDL_CONTROLLERDEVICEREMOVED: {
 					
-					if (SDLGamepad::Disconnect (event->cdevice.which)) {
-						
-						gamepadEvent.type = DISCONNECT;
-						gamepadEvent.id = event->cdevice.which;
-						
-						GamepadEvent::Dispatch (&gamepadEvent);
-						
-					}
+					gamepadEvent.type = DISCONNECT;
+					gamepadEvent.id = event->cdevice.which;
 					
+					GamepadEvent::Dispatch (&gamepadEvent);
+					SDLGamepad::Disconnect (event->cdevice.which);
 					break;
 					
 				}

@@ -353,6 +353,13 @@ namespace lime {
 	}
 	
 	
+	value lime_gamepad_get_device_guid (value id) {
+		
+		return alloc_string (Gamepad::GetDeviceGUID (val_int (id)));
+		
+	}
+	
+	
 	value lime_gamepad_get_device_name (value id) {
 		
 		return alloc_string (Gamepad::GetDeviceName (val_int (id)));
@@ -734,6 +741,7 @@ namespace lime {
 	DEFINE_PRIM (lime_font_render_glyphs, 3);
 	DEFINE_PRIM (lime_font_set_size, 2);
 	DEFINE_PRIM (lime_gamepad_event_manager_register, 2);
+	DEFINE_PRIM (lime_gamepad_get_device_guid, 1);
 	DEFINE_PRIM (lime_gamepad_get_device_name, 1);
 	DEFINE_PRIM (lime_image_encode, 3);
 	DEFINE_PRIM (lime_image_load, 1);

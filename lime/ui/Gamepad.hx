@@ -4,13 +4,37 @@ package lime.ui;
 import lime.system.System;
 
 
-class Gamepad {
+abstract Gamepad(Int) from Int to Int {
 	
 	
-	public static function getDeviceName (id:Int):String {
+	public static var devices = new Array<Gamepad> ();
+	
+	public var guid (get, never):String;
+	public var name (get, never):String;
+	
+	
+	
+	
+	// Get & Set Methods
+	
+	
+	
+	
+	@:noCompletion private inline function get_guid ():String {
 		
 		#if (cpp || neko || nodejs)
-		return lime_gamepad_get_device_name (id);
+		return lime_gamepad_get_device_name (this);
+		#else
+		return null;
+		#end
+		
+	}
+	
+	
+	@:noCompletion private inline function get_name ():String {
+		
+		#if (cpp || neko || nodejs)
+		return lime_gamepad_get_device_name (this);
 		#else
 		return null;
 		#end
@@ -26,6 +50,7 @@ class Gamepad {
 	
 	
 	#if (cpp || neko || nodejs)
+	private static var lime_gamepad_get_device_guid = System.load ("lime", "lime_gamepad_get_device_guid", 1);
 	private static var lime_gamepad_get_device_name = System.load ("lime", "lime_gamepad_get_device_name", 1);
 	#end
 	

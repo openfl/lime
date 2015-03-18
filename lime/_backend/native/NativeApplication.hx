@@ -9,6 +9,7 @@ import lime.graphics.GLRenderContext;
 import lime.graphics.RenderContext;
 import lime.graphics.Renderer;
 import lime.system.System;
+import lime.ui.Gamepad;
 import lime.ui.Window;
 
 @:access(lime.app.Application)
@@ -127,10 +128,12 @@ class NativeApplication {
 				
 				case CONNECT:
 					
+					Gamepad.devices.push (gamepadEventInfo.id);
 					parent.window.onGamepadConnect.dispatch (gamepadEventInfo.id);
 				
 				case DISCONNECT:
 					
+					Gamepad.devices.remove (gamepadEventInfo.id);
 					parent.window.onGamepadDisconnect.dispatch (gamepadEventInfo.id);
 				
 			}

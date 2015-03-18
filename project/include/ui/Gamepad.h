@@ -9,6 +9,7 @@ namespace lime {
 		
 		public:
 			
+			static const char* GetDeviceGUID (int id);
 			static const char* GetDeviceName (int id);
 		
 	};
