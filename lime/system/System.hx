@@ -24,7 +24,12 @@ import sys.io.Process;
 class System {
 	
 	
+	public static var applicationDirectory (get, null):String;
+	public static var applicationStorageDirectory (get, null):String;
+	public static var desktopDirectory (get, null):String;
 	public static var disableCFFI:Bool;
+	public static var documentsDirectory (get, null):String;
+	public static var userDirectory (get, null):String;
 	
 	
 	@:noCompletion private static var __moduleNames:Map<String, String> = null;
@@ -154,7 +159,7 @@ class System {
 		#elseif (html5 || disable_cffi)
 		return Std.int ((Timer.stamp () - __startTime) * 1000);
 		#else
-		return lime_system_gettimer ();
+		return lime_system_get_timer ();
 		#end
 		
 	}
@@ -396,14 +401,88 @@ class System {
 	
 	
 	
+	// Get & Set Methods
+	
+	
+	
+	
+	private static function get_applicationDirectory ():String {
+		
+		#if (cpp || neko || nodejs)
+		return lime_system_get_directory (SystemDirectory.APPLICATION);
+		#else
+		return null;
+		#end
+		
+	}
+	
+	
+	private static function get_applicationStorageDirectory ():String {
+		
+		#if (cpp || neko || nodejs)
+		return lime_system_get_directory (SystemDirectory.APPLICATION_STORAGE);
+		#else
+		return null;
+		#end
+		
+	}
+	
+	
+	private static function get_desktopDirectory ():String {
+		
+		#if (cpp || neko || nodejs)
+		return lime_system_get_directory (SystemDirectory.DESKTOP);
+		#else
+		return null;
+		#end
+		
+	}
+	
+	
+	private static function get_documentsDirectory ():String {
+		
+		#if (cpp || neko || nodejs)
+		return lime_system_get_directory (SystemDirectory.DOCUMENTS);
+		#else
+		return null;
+		#end
+		
+	}
+	
+	
+	private static function get_userDirectory ():String {
+		
+		#if (cpp || neko || nodejs)
+		return lime_system_get_directory (SystemDirectory.USER);
+		#else
+		return null;
+		#end
+		
+	}
+	
+	
+	
+	
 	// Native Methods
 	
 	
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_system_gettimer = System.load ("lime", "lime_system_gettimer", 0);
+	private static var lime_system_get_directory = System.load ("lime", "lime_system_get_directory", 1);
+	private static var lime_system_get_timer = System.load ("lime", "lime_system_get_timer", 0);
 	#end
 	
+	
+}
+
+
+@:enum private abstract SystemDirectory(Int) from Int to Int {
+	
+	var APPLICATION = 0;
+	var APPLICATION_STORAGE = 1;
+	var DESKTOP = 2;
+	var DOCUMENTS = 3;
+	var USER = 4;
 	
 }

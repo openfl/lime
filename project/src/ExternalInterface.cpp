@@ -559,7 +559,14 @@ namespace lime {
 	}
 	
 	
-	value lime_system_gettimer () {
+	value lime_system_get_directory (value type) {
+		
+		return alloc_string (System::GetDirectory ((SystemDirectory)val_int (type)));
+		
+	}
+	
+	
+	value lime_system_get_timer () {
 		
 		return alloc_float (System::GetTimer ());
 		
@@ -757,7 +764,8 @@ namespace lime {
 	DEFINE_PRIM (lime_renderer_create, 1);
 	DEFINE_PRIM (lime_renderer_flip, 1);
 	DEFINE_PRIM (lime_render_event_manager_register, 2);
-	DEFINE_PRIM (lime_system_gettimer, 0);
+	DEFINE_PRIM (lime_system_get_directory, 1);
+	DEFINE_PRIM (lime_system_get_timer, 0);
 	DEFINE_PRIM (lime_text_layout_create, 3);
 	DEFINE_PRIM (lime_text_layout_position, 5);
 	DEFINE_PRIM (lime_text_layout_set_direction, 2);

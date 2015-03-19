@@ -5,16 +5,117 @@
 #endif
 
 #ifdef HX_WINDOWS
+#include <windows.h>
 #include <stdio.h>
 //#include <io.h>
 //#include <fcntl.h>
 #endif
 
+#include <SDL_filesystem.h>
 #include <SDL_rwops.h>
 #include <SDL_timer.h>
+#include <string>
 
 
 namespace lime {
+	
+	
+	const char* System::GetDirectory (SystemDirectory type) {
+		
+		switch (type) {
+			
+			case APPLICATION:
+				
+				// TODO: Need to get the user's company and title or package name
+				// previous behavior was the company + file
+				return SDL_GetPrefPath ("My Company", "My Awesome SDL 2 Game");
+				break;
+			
+			case APPLICATION_STORAGE:
+				
+				return SDL_GetBasePath ();
+				break;
+			
+			case DESKTOP: {
+				
+				#if defined (HX_WINRT)
+				
+				Windows::Storage::StorageFolder folder = Windows::Storage::KnownFolders::HomeGroup;
+				std::wstring resultW (folder->Begin ());
+				std::string result (resultW.begin (), resultW.end ());
+				return result.c_str ();
+				
+				#elif defined (HX_WINDOWS)
+				
+				char result[MAX_PATH] = "";
+				SHGetFolderPath (NULL, CSIDL_DESKTOPDIRECTORY, NULL, SHGFP_TYPE_CURRENT, result);
+				return &result;
+				
+				#else
+				
+				std::string result = std::string (getenv ("HOME")) + std::string ("/Desktop");
+				return result.c_str ();
+				
+				#endif
+				break;
+				
+			}
+			
+			case DOCUMENTS: {
+				
+				#if defined (HX_WINRT)
+				
+				Windows::Storage::StorageFolder folder = Windows::Storage::KnownFolders::DocumentsLibrary;
+				std::wstring resultW (folder->Begin ());
+				std::string result (resultW.begin (), resultW.end ());
+				return result.c_str ();
+				
+				#elif defined (HX_WINDOWS)
+				
+				char result[MAX_PATH] = "";
+				SHGetFolderPath (NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, result);
+				return &result;
+				
+				#else
+				
+				std::string result = std::string (getenv ("HOME")) + std::string ("/Documents");
+				return result.c_str ();
+				
+				#endif
+				break;
+				
+			}
+			
+			case USER: {
+				
+				#if defined (HX_WINRT)
+				
+				Windows::Storage::StorageFolder folder = Windows::Storage::ApplicationData::Current->RoamingFolder;
+				std::wstring resultW (folder->Begin ());
+				std::string result (resultW.begin (), resultW.end ());
+				return result.c_str ();
+				
+				#elif defined (HX_WINDOWS)
+				
+				char result[MAX_PATH] = "";
+				SHGetFolderPath (NULL, CSIDL_PROFILE, NULL, SHGFP_TYPE_CURRENT, result);
+				return &result;
+				
+				#else
+				
+				std::string result = getenv ("HOME");
+				return result.c_str ();
+				
+				#endif
+				break;
+				
+			}
+			
+		}
+		
+		return 0;
+		
+	}
 	
 	
 	double System::GetTimer () {

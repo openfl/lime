@@ -7,11 +7,23 @@
 namespace lime {
 	
 	
+	enum SystemDirectory {
+		
+		APPLICATION,
+		APPLICATION_STORAGE,
+		DESKTOP,
+		DOCUMENTS,
+		USER
+		
+	};
+	
+	
 	class System {
 		
 		
 		public:
 			
+			static const char* GetDirectory (SystemDirectory type);
 			static double GetTimer ();
 		
 		
