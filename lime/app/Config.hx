@@ -8,7 +8,7 @@ typedef Config = {
 	@:optional var borderless:Bool;
 	@:optional var depthBuffer:Bool;
 	#if (js && html5)
-	@:optional var element:#if (haxe_ver >= "3.2") js.html.HTMLElement #else js.html.HtmlElement #end;
+	@:optional var element:#if (haxe_ver >= "3.2") js.html.Element #else js.html.HtmlElement #end;
 	@:optional var assetsPrefix:String;
 	#end
 	@:optional var fps:Int;
