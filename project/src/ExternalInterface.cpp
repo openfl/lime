@@ -720,12 +720,28 @@ namespace lime {
 	}
 	
 	
+	value lime_window_set_fullscreen (value window, value fullscreen) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		return alloc_bool (targetWindow->SetFullscreen (val_bool (fullscreen)));
+		
+	}
+	
+	
 	value lime_window_set_icon (value window, value buffer) {
 		
 		Window* targetWindow = (Window*)(intptr_t)val_float (window);
 		ImageBuffer imageBuffer = ImageBuffer (buffer);
 		targetWindow->SetIcon (&imageBuffer);
 		return alloc_null ();
+		
+	}
+	
+	
+	value lime_window_set_minimized (value window, value fullscreen) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		return alloc_bool (targetWindow->SetMinimized (val_bool (fullscreen)));
 		
 	}
 	
@@ -784,7 +800,9 @@ namespace lime {
 	DEFINE_PRIM (lime_window_event_manager_register, 2);
 	DEFINE_PRIM (lime_window_move, 3);
 	DEFINE_PRIM (lime_window_resize, 3);
+	DEFINE_PRIM (lime_window_set_fullscreen, 2);
 	DEFINE_PRIM (lime_window_set_icon, 2);
+	DEFINE_PRIM (lime_window_set_minimized, 2);
 	
 	
 }

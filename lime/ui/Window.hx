@@ -13,8 +13,9 @@ class Window {
 	
 	public var currentRenderer:Renderer;
 	public var config:Config;
-	public var fullscreen:Bool;
-	public var height:Int;
+	public var fullscreen (get, set):Bool;
+	public var height (get, set):Int;
+	public var minimized (get, set):Bool;
 	public var onGamepadAxisMove = new Event<Gamepad->GamepadAxis->Float->Void> ();
 	public var onGamepadButtonDown = new Event<Gamepad->GamepadButton->Void> ();
 	public var onGamepadButtonUp = new Event<Gamepad->GamepadButton->Void> ();
@@ -34,32 +35,41 @@ class Window {
 	public var onWindowDeactivate = new Event<Void->Void> ();
 	public var onWindowFocusIn = new Event<Void->Void> ();
 	public var onWindowFocusOut = new Event<Void->Void> ();
+	public var onWindowFullscreen = new Event<Void->Void> ();
+	public var onWindowMinimize = new Event<Void->Void> ();
 	public var onWindowMove = new Event<Float->Float->Void> ();
 	public var onWindowResize = new Event<Int->Int->Void> ();
-	public var width:Int;
-	public var x:Int;
-	public var y:Int;
+	public var onWindowRestore = new Event<Void->Void> ();
+	public var width (get, set):Int;
+	public var x (get, set):Int;
+	public var y (get, set):Int;
 	
 	@:noCompletion private var backend:WindowBackend;
+	@:noCompletion private var __fullscreen:Bool;
+	@:noCompletion private var __height:Int;
+	@:noCompletion private var __minimized:Bool;
+	@:noCompletion private var __width:Int;
+	@:noCompletion private var __x:Int;
+	@:noCompletion private var __y:Int;
 	
 	
 	public function new (config:Config = null) {
 		
 		this.config = config;
 		
-		width = 0;
-		height = 0;
-		fullscreen = false;
-		x = 0;
-		y = 0;
+		__width = 0;
+		__height = 0;
+		__fullscreen = false;
+		__x = 0;
+		__y = 0;
 		
 		if (config != null) {
 			
 			// TODO: Switch to the tool's Config type?
 			
-			if (Reflect.hasField (config, "width")) width = config.width;
-			if (Reflect.hasField (config, "height")) height = config.height;
-			if (Reflect.hasField (config, "fullscreen")) fullscreen = config.fullscreen;
+			if (Reflect.hasField (config, "width")) __width = config.width;
+			if (Reflect.hasField (config, "height")) __height = config.height;
+			if (Reflect.hasField (config, "fullscreen")) __fullscreen = config.fullscreen;
 			
 		}
 		
@@ -92,8 +102,8 @@ class Window {
 		
 		backend.move (x, y);
 		
-		this.x = x;
-		this.y = y;
+		__x = x;
+		__y = y;
 		
 	}
 	
@@ -102,8 +112,8 @@ class Window {
 		
 		backend.resize (width, height);
 		
-		this.width = width;
-		this.height = height;
+		__width = width;
+		__height = height;
 		
 	}
 	
@@ -117,6 +127,101 @@ class Window {
 		}
 		
 		backend.setIcon (image);
+		
+	}
+	
+	
+	
+	
+	// Get & Set Methods
+	
+	
+	
+	
+	@:noCompletion private inline function get_fullscreen ():Bool {
+		
+		return __fullscreen;
+		
+	}
+	
+	
+	@:noCompletion private function set_fullscreen (value:Bool):Bool {
+		
+		return __fullscreen = backend.setFullscreen (value);
+		
+	}
+	
+	
+	@:noCompletion private inline function get_height ():Int {
+		
+		return __height;
+		
+	}
+	
+	
+	@:noCompletion private function set_height (value:Int):Int {
+		
+		resize (__width, value);
+		return __height;
+		
+	}
+	
+	
+	@:noCompletion private inline function get_minimized ():Bool {
+		
+		return __minimized;
+		
+	}
+	
+	
+	@:noCompletion private function set_minimized (value:Bool):Bool {
+		
+		return __minimized = backend.setMinimized (value);
+		
+	}
+	
+	
+	@:noCompletion private inline function get_width ():Int {
+		
+		return __width;
+		
+	}
+	
+	
+	@:noCompletion private function set_width (value:Int):Int {
+		
+		resize (value, __height);
+		return __width;
+		
+	}
+	
+	
+	@:noCompletion private inline function get_x ():Int {
+		
+		return __x;
+		
+	}
+	
+	
+	@:noCompletion private function set_x (value:Int):Int {
+		
+		move (value, __y);
+		return __x;
+		
+	}
+	
+	
+	@:noCompletion private inline function get_y ():Int {
+		
+		return __y;
+		
+	}
+	
+	
+	@:noCompletion private function set_y (value:Int):Int {
+		
+		move (__x, value);
+		return __y;
 		
 	}
 	

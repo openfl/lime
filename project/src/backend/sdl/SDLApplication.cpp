@@ -155,7 +155,9 @@ namespace lime {
 					case SDL_WINDOWEVENT_HIDDEN:
 					case SDL_WINDOWEVENT_FOCUS_GAINED:
 					case SDL_WINDOWEVENT_FOCUS_LOST:
+					case SDL_WINDOWEVENT_MINIMIZED:
 					case SDL_WINDOWEVENT_MOVED:
+					case SDL_WINDOWEVENT_RESTORED:
 						
 						ProcessWindowEvent (event);
 						break;
@@ -339,6 +341,7 @@ namespace lime {
 				case SDL_WINDOWEVENT_HIDDEN: windowEvent.type = WINDOW_DEACTIVATE; break;
 				case SDL_WINDOWEVENT_FOCUS_GAINED: windowEvent.type = WINDOW_FOCUS_IN; break;
 				case SDL_WINDOWEVENT_FOCUS_LOST: windowEvent.type = WINDOW_FOCUS_OUT; break;
+				case SDL_WINDOWEVENT_MINIMIZED: windowEvent.type = WINDOW_MINIMIZE; break;
 				
 				case SDL_WINDOWEVENT_MOVED:
 					
@@ -353,6 +356,8 @@ namespace lime {
 					windowEvent.width = event->window.data1;
 					windowEvent.height = event->window.data2;
 					break;
+				
+				case SDL_WINDOWEVENT_RESTORED: windowEvent.type = WINDOW_RESTORE; break;
 				
 			}
 			

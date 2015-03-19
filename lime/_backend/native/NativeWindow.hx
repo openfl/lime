@@ -79,21 +79,65 @@ class NativeWindow {
 	
 	public function move (x:Int, y:Int):Void {
 		
-		lime_window_move (handle, x, y);
+		if (handle != null) {
+			
+			lime_window_move (handle, x, y);
+			
+		}
 		
 	}
 	
 	
 	public function resize (width:Int, height:Int):Void {
 		
-		lime_window_resize (handle, width, height);
+		if (handle != null) {
+			
+			lime_window_resize (handle, width, height);
+			
+		}
+		
+	}
+	
+	
+	public function setFullscreen (value:Bool):Bool {
+		
+		if (handle != null) {
+			
+			value = lime_window_set_fullscreen (handle, value);
+			
+			if (value) {
+				
+				parent.onWindowFullscreen.dispatch ();
+				
+			}
+			
+		}
+		
+		return value;
 		
 	}
 	
 	
 	public function setIcon (image:Image):Void {
 		
-		lime_window_set_icon (handle, image.buffer);
+		if (handle != null) {
+			
+			lime_window_set_icon (handle, image.buffer);
+			
+		}
+		
+	}
+	
+	
+	public function setMinimized (value:Bool):Bool {
+		
+		if (handle != null) {
+			
+			return lime_window_set_minimized (handle, value);
+			
+		}
+		
+		return value;
 		
 	}
 	
@@ -102,7 +146,9 @@ class NativeWindow {
 	private static var lime_window_create = System.load ("lime", "lime_window_create", 5);
 	private static var lime_window_move = System.load ("lime", "lime_window_move", 3);
 	private static var lime_window_resize = System.load ("lime", "lime_window_resize", 3);
+	private static var lime_window_set_fullscreen = System.load ("lime", "lime_window_set_fullscreen", 2);
 	private static var lime_window_set_icon = System.load ("lime", "lime_window_set_icon", 2);
+	private static var lime_window_set_minimized = System.load ("lime", "lime_window_set_minimized", 2);
 	
 	
 }

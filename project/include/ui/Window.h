@@ -21,7 +21,9 @@ namespace lime {
 			virtual void Close () = 0;
 			virtual void Move (int x, int y) = 0;
 			virtual void Resize (int width, int height) = 0;
+			virtual bool SetFullscreen (bool fullscreen) = 0;
 			virtual void SetIcon (ImageBuffer *imageBuffer) = 0;
+			virtual bool SetMinimized (bool minimized) = 0;
 			
 			Application* currentApplication;
 			int flags;

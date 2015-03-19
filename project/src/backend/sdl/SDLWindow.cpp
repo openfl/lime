@@ -95,6 +95,23 @@ namespace lime {
 	}
 	
 	
+	bool SDLWindow::SetFullscreen (bool fullscreen) {
+		
+		if (fullscreen) {
+			
+			SDL_SetWindowFullscreen (sdlWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+			
+		} else {
+			
+			SDL_SetWindowFullscreen (sdlWindow, 0);
+			
+		}
+		
+		return fullscreen;
+		
+	}
+	
+	
 	void SDLWindow::SetIcon (ImageBuffer *imageBuffer) {
 		
 		SDL_Surface *surface = SDL_CreateRGBSurfaceFrom (imageBuffer->data->Bytes (), imageBuffer->width, imageBuffer->height, imageBuffer->bpp * 8, imageBuffer->width * imageBuffer->bpp, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
@@ -105,6 +122,23 @@ namespace lime {
 			SDL_FreeSurface (surface);
 			
 		}
+		
+	}
+	
+	
+	bool SDLWindow::SetMinimized (bool minimized) {
+		
+		if (minimized) {
+			
+			SDL_MinimizeWindow (sdlWindow);
+			
+		} else {
+			
+			SDL_RestoreWindow (sdlWindow);
+			
+		}
+		
+		return minimized;
 		
 	}
 	

@@ -372,9 +372,23 @@ class HTML5Window {
 	}
 	
 	
+	public function setFullscreen (value:Bool):Bool {
+		
+		return false;
+		
+	}
+	
+	
 	public function setIcon (image:Image):Void {
 		
 		
+		
+	}
+	
+	
+	public function setMinimized (value:Bool):Bool {
+		
+		return false;
 		
 	}
 	

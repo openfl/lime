@@ -688,24 +688,24 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 #else
 
-::if (assets != null)::::foreach assets::::if (!embed)::::if (type == "font")::@:keep class __ASSET__::flatName:: extends lime.text.Font { public function new () { __fontPath = "::targetPath::"; name = "::fontName::"; super (); }}
+::if (assets != null)::::foreach assets::::if (!embed)::::if (type == "font")::@:keep #if display private #end class __ASSET__::flatName:: extends lime.text.Font { public function new () { __fontPath = "::targetPath::"; name = "::fontName::"; super (); }}
 ::end::::end::::end::::end::
 
 #if (windows || mac || linux)
 
 ::if (assets != null)::
-::foreach assets::::if (embed)::::if (type == "image")::@:image("::sourcePath::") class __ASSET__::flatName:: extends lime.graphics.Image {}
-::elseif (type == "sound")::@:file("::sourcePath::") class __ASSET__::flatName:: extends lime.utils.ByteArray {}
-::elseif (type == "music")::@:file("::sourcePath::") class __ASSET__::flatName:: extends lime.utils.ByteArray {}
-::elseif (type == "font")::@:font("::sourcePath::") class __ASSET__::flatName:: extends lime.graphics.Font {}
-::else::@:file("::sourcePath::") class __ASSET__::flatName:: extends lime.utils.ByteArray {}
+::foreach assets::::if (embed)::::if (type == "image")::@:image("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends lime.graphics.Image {}
+::elseif (type == "sound")::@:file("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends lime.utils.ByteArray {}
+::elseif (type == "music")::@:file("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends lime.utils.ByteArray {}
+::elseif (type == "font")::@:font("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends lime.graphics.Font {}
+::else::@:file("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends lime.utils.ByteArray {}
 ::end::::end::::end::
 ::end::
 
 #end
 
 #if openfl
-::if (assets != null)::::foreach assets::::if (type == "font")::@:keep class __ASSET__OPENFL__::flatName:: extends openfl.text.Font { public function new () { __fontPath = "::targetPath::"; name = "::fontName::"; super (); }}
+::if (assets != null)::::foreach assets::::if (type == "font")::@:keep #if display private #end class __ASSET__OPENFL__::flatName:: extends openfl.text.Font { public function new () { __fontPath = "::targetPath::"; name = "::fontName::"; super (); }}
 ::end::::end::::end::
 #end
 

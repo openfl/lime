@@ -21,10 +21,42 @@ interface IModule {
 	public function init (context:RenderContext):Void;
 	
 	
+	/**
+	 * Called when a gamepad axis move event is fired
+	 * @param	gamepad	The current gamepad
+	 * @param	axis	The axis that was moved
+	 * @param	value	The axis value (between 0 and 1)
+	 */
 	public function onGamepadAxisMove (gamepad:Gamepad, axis:GamepadAxis, value:Float):Void;
+	
+	
+	/**
+	 * Called when a gamepad button down event is fired
+	 * @param	gamepad	The current gamepad
+	 * @param	button	The button that was pressed
+	 */
 	public function onGamepadButtonDown (gamepad:Gamepad, button:GamepadButton):Void;
+	
+	
+	/**
+	 * Called when a gamepad button up event is fired
+	 * @param	gamepad	The current gamepad
+	 * @param	button	The button that was released
+	 */
 	public function onGamepadButtonUp (gamepad:Gamepad, button:GamepadButton):Void;
+	
+	
+	/**
+	 * Called when a gamepad is connected
+	 * @param	gamepad	The gamepad that was connected
+	 */
 	public function onGamepadConnect (gamepad:Gamepad):Void;
+	
+	
+	/**
+	 * Called when a gamepad is disconnected
+	 * @param	gamepad	The gamepad that was disconnected
+	 */
 	public function onGamepadDisconnect (gamepad:Gamepad):Void;
 	
 	
@@ -150,6 +182,12 @@ interface IModule {
 	
 	
 	/**
+	 * Called when a window enters fullscreen
+	 */
+	public function onWindowFullscreen ():Void;
+	
+	
+	/**
 	 * Called when a window move event is fired
 	 * @param	x	The x position of the window
 	 * @param	y	The y position of the window
@@ -158,11 +196,23 @@ interface IModule {
 	
 	
 	/**
+	 * Called when a window is minimized
+	 */
+	public function onWindowMinimize ():Void;
+	
+	
+	/**
 	 * Called when a window resize event is fired
 	 * @param	width	The width of the window
 	 * @param	height	The height of the window
 	 */
 	public function onWindowResize (width:Int, height:Int):Void;
+	
+	
+	/**
+	 * Called when a window is restored from being minimized or fullscreen
+	 */
+	public function onWindowRestore ():Void;
 	
 	
 	/**
