@@ -21,7 +21,6 @@ class HTML5Application {
 	
 	
 	private var cacheTime:Float;
-	private var initialized:Bool;
 	private var parent:Application;
 	
 	
@@ -89,6 +88,7 @@ class HTML5Application {
 			var renderer = new Renderer (window);
 			parent.addWindow (window);
 			parent.addRenderer (renderer);
+			parent.init (renderer.context);
 			
 		}
 		
@@ -191,13 +191,6 @@ class HTML5Application {
 		parent.onUpdate.dispatch (Std.int (deltaTime));
 		
 		if (parent.renderer != null) {
-			
-			if (!initialized) {
-				
-				initialized = true;
-				parent.init (parent.renderer.context);
-				
-			}
 			
 			parent.renderer.onRender.dispatch (parent.renderer.context);
 			parent.renderer.flip ();

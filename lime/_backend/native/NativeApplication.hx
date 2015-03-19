@@ -30,7 +30,6 @@ class NativeApplication {
 	
 	public var handle:Dynamic;
 	
-	private var initialized:Bool;
 	private var parent:Application;
 	
 	
@@ -55,6 +54,7 @@ class NativeApplication {
 			var renderer = new Renderer (window);
 			parent.addWindow (window);
 			parent.addRenderer (renderer);
+			parent.init (renderer.context);
 			
 		}
 		
@@ -70,8 +70,6 @@ class NativeApplication {
 		lime_touch_event_manager_register (handleTouchEvent, touchEventInfo);
 		lime_update_event_manager_register (handleUpdateEvent, updateEventInfo);
 		lime_window_event_manager_register (handleWindowEvent, windowEventInfo);
-		
-		// TODO: add parent.init
 		
 		#if nodejs
 		
@@ -206,13 +204,6 @@ class NativeApplication {
 			switch (renderEventInfo.type) {
 				
 				case RENDER:
-					
-					if (!initialized) {
-						
-						initialized = true;
-						parent.init (parent.renderer.context);
-						
-					}
 					
 					parent.renderer.onRender.dispatch (parent.renderer.context);
 					parent.renderer.flip ();
