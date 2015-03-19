@@ -205,7 +205,7 @@ class AudioSource {
 		
 		#elseif flash
 			
-			return channel.position;
+			return Std.int (channel.position);
 			
 		#else
 			
@@ -224,7 +224,8 @@ class AudioSource {
 		
 		#elseif flash
 			
-			channel.position = value;
+			// TODO: create new sound channel
+			//channel.position = value;
 			return value;
 			
 		#else
