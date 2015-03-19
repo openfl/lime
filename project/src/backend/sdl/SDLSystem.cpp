@@ -28,20 +28,18 @@
 namespace lime {
 	
 	
-	const char* System::GetDirectory (SystemDirectory type) {
+	const char* System::GetDirectory (SystemDirectory type, const char* company, const char* title) {
 		
 		switch (type) {
 			
 			case APPLICATION:
 				
-				// TODO: Need to get the user's company and title or package name
-				// previous behavior was the company + file
-				return SDL_GetPrefPath ("My Company", "My Awesome SDL 2 Game");
+				return SDL_GetBasePath ();
 				break;
 			
 			case APPLICATION_STORAGE:
 				
-				return SDL_GetBasePath ();
+				return SDL_GetPrefPath (company, title);
 				break;
 			
 			case DESKTOP: {

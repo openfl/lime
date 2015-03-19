@@ -23,7 +23,7 @@ namespace lime {
 		
 		public:
 			
-			static const char* GetDirectory (SystemDirectory type);
+			static const char* GetDirectory (SystemDirectory type, const char* company, const char* title);
 			static double GetTimer ();
 		
 		

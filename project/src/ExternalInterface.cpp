@@ -559,9 +559,15 @@ namespace lime {
 	}
 	
 	
-	value lime_system_get_directory (value type) {
+	value lime_system_get_directory (value type, value company, value title) {
 		
-		return alloc_string (System::GetDirectory ((SystemDirectory)val_int (type)));
+		const char* companyName = "";
+		const char* titleName = "";
+		
+		if (!val_is_null (company)) companyName = val_string (company);
+		if (!val_is_null (title)) titleName = val_string (title);
+		
+		return alloc_string (System::GetDirectory ((SystemDirectory)val_int (type), companyName, titleName));
 		
 	}
 	
@@ -764,7 +770,7 @@ namespace lime {
 	DEFINE_PRIM (lime_renderer_create, 1);
 	DEFINE_PRIM (lime_renderer_flip, 1);
 	DEFINE_PRIM (lime_render_event_manager_register, 2);
-	DEFINE_PRIM (lime_system_get_directory, 1);
+	DEFINE_PRIM (lime_system_get_directory, 3);
 	DEFINE_PRIM (lime_system_get_timer, 0);
 	DEFINE_PRIM (lime_text_layout_create, 3);
 	DEFINE_PRIM (lime_text_layout_position, 5);

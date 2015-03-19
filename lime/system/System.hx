@@ -1,4 +1,5 @@
 package lime.system;
+import lime.app.Application;
 
 
 #if flash
@@ -409,7 +410,7 @@ class System {
 	private static function get_applicationDirectory ():String {
 		
 		#if (cpp || neko || nodejs)
-		return lime_system_get_directory (SystemDirectory.APPLICATION);
+		return lime_system_get_directory (SystemDirectory.APPLICATION, null, null);
 		#else
 		return null;
 		#end
@@ -419,8 +420,27 @@ class System {
 	
 	private static function get_applicationStorageDirectory ():String {
 		
+		var company = "MyCompany";
+		var file = "MyApplication";
+		
+		if (Application.current != null && Application.current.config != null) {
+			
+			if (Application.current.config.company != null) {
+				
+				company = Application.current.config.company;
+				
+			}
+			
+			if (Application.current.config.file != null) {
+				
+				file = Application.current.config.file;
+				
+			}
+			
+		}
+		
 		#if (cpp || neko || nodejs)
-		return lime_system_get_directory (SystemDirectory.APPLICATION_STORAGE);
+		return lime_system_get_directory (SystemDirectory.APPLICATION_STORAGE, company, file);
 		#else
 		return null;
 		#end
@@ -431,7 +451,7 @@ class System {
 	private static function get_desktopDirectory ():String {
 		
 		#if (cpp || neko || nodejs)
-		return lime_system_get_directory (SystemDirectory.DESKTOP);
+		return lime_system_get_directory (SystemDirectory.DESKTOP, null, null);
 		#else
 		return null;
 		#end
@@ -442,7 +462,7 @@ class System {
 	private static function get_documentsDirectory ():String {
 		
 		#if (cpp || neko || nodejs)
-		return lime_system_get_directory (SystemDirectory.DOCUMENTS);
+		return lime_system_get_directory (SystemDirectory.DOCUMENTS, null, null);
 		#else
 		return null;
 		#end
@@ -453,7 +473,7 @@ class System {
 	private static function get_userDirectory ():String {
 		
 		#if (cpp || neko || nodejs)
-		return lime_system_get_directory (SystemDirectory.USER);
+		return lime_system_get_directory (SystemDirectory.USER, null, null);
 		#else
 		return null;
 		#end
@@ -469,7 +489,7 @@ class System {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_system_get_directory = System.load ("lime", "lime_system_get_directory", 1);
+	private static var lime_system_get_directory = System.load ("lime", "lime_system_get_directory", 3);
 	private static var lime_system_get_timer = System.load ("lime", "lime_system_get_timer", 0);
 	#end
 	
