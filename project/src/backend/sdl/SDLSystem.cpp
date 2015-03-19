@@ -5,10 +5,18 @@
 #endif
 
 #ifdef HX_WINDOWS
-#include <windows.h>
+#include <shlobj.h>
 #include <stdio.h>
 //#include <io.h>
 //#include <fcntl.h>
+#ifdef __MINGW32__
+#ifndef CSIDL_MYDOCUMENTS
+#define CSIDL_MYDOCUMENTS CSIDL_PERSONAL
+#endif
+#ifndef SHGFP_TYPE_CURRENT
+#define SHGFP_TYPE_CURRENT 0
+#endif
+#endif
 #endif
 
 #include <SDL_filesystem.h>
@@ -49,7 +57,7 @@ namespace lime {
 				
 				char result[MAX_PATH] = "";
 				SHGetFolderPath (NULL, CSIDL_DESKTOPDIRECTORY, NULL, SHGFP_TYPE_CURRENT, result);
-				return &result;
+				return std::string (result).c_str ();
 				
 				#else
 				
@@ -74,7 +82,7 @@ namespace lime {
 				
 				char result[MAX_PATH] = "";
 				SHGetFolderPath (NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, result);
-				return &result;
+				return std::string (result).c_str ();
 				
 				#else
 				
@@ -99,7 +107,7 @@ namespace lime {
 				
 				char result[MAX_PATH] = "";
 				SHGetFolderPath (NULL, CSIDL_PROFILE, NULL, SHGFP_TYPE_CURRENT, result);
-				return &result;
+				return std::string (result).c_str ();
 				
 				#else
 				
