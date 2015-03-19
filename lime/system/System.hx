@@ -1,6 +1,9 @@
 package lime.system;
-import lime.app.Application;
 
+
+#if !macro
+import lime.app.Application;
+#end
 
 #if flash
 import flash.Lib;
@@ -423,6 +426,7 @@ class System {
 		var company = "MyCompany";
 		var file = "MyApplication";
 		
+		#if !macro
 		if (Application.current != null && Application.current.config != null) {
 			
 			if (Application.current.config.company != null) {
@@ -438,6 +442,7 @@ class System {
 			}
 			
 		}
+		#end
 		
 		#if (cpp || neko || nodejs)
 		return lime_system_get_directory (SystemDirectory.APPLICATION_STORAGE, company, file);
