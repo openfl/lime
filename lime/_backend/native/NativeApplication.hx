@@ -298,16 +298,14 @@ class NativeApplication {
 				
 				case WINDOW_MOVE:
 					
-					parent.window.x = windowEventInfo.x;
-					parent.window.y = windowEventInfo.y;
-					
+					parent.window.__x = windowEventInfo.x;
+					parent.window.__y = windowEventInfo.y;
 					parent.window.onWindowMove.dispatch (windowEventInfo.x, windowEventInfo.y);
 				
 				case WINDOW_RESIZE:
 					
-					parent.window.width = windowEventInfo.width;
-					parent.window.height = windowEventInfo.height;
-					
+					parent.window.__width = windowEventInfo.width;
+					parent.window.__height = windowEventInfo.height;
 					parent.window.onWindowResize.dispatch (windowEventInfo.width, windowEventInfo.height);
 				
 				case WINDOW_RESTORE:
