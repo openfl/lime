@@ -141,6 +141,7 @@
 			</section>
 			
 			<compilerflag value="-DLIME_SDL" />
+			<compilerflag value="-D__IPHONEOS__" if="ios" />
 			
 			<file name="src/backend/sdl/SDLApplication.cpp" />
 			<file name="src/backend/sdl/SDLWindow.cpp" />
@@ -156,7 +157,7 @@
 			
 			<compilerflag value="-DSTATIC_LINK" if="emscripten" />
 			
-			<file name="${HXCPP}/project/libs/zlib/ZLib.cpp" if="emscripten" />
+			<file name="${HXCPP}/project/libs/zlib/ZLib.cpp" if="emscripten || ios" />
 			
 		</section>
 		

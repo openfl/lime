@@ -29,7 +29,7 @@
 		
 		<ndll name="std" haxelib="hxcpp" if="cpp" />
 		<ndll name="regexp" haxelib="hxcpp" if="cpp" />
-		<ndll name="zlib" haxelib="hxcpp" if="cpp" unless="emscripten" />
+		<ndll name="zlib" haxelib="hxcpp" if="cpp" unless="emscripten || ios" />
 		
 		<ndll name="lime" if="included" />
 		

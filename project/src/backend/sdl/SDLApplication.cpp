@@ -413,7 +413,7 @@ namespace lime {
 		SDL_Event event;
 		event.type = -1;
 		
-		#if (!defined (EMSCRIPTEN) && !defined (IPHONE))
+		#if (!defined (IPHONE) && !defined (EMSCRIPTEN))
 		
 		if (active && (firstTime || SDL_WaitEvent (&event))) {
 			
@@ -424,14 +424,36 @@ namespace lime {
 			if (!active)
 				return active;
 			
-			if (SDL_PollEvent (&event)) {
+		#endif
+			
+			while (SDL_PollEvent (&event)) {
 				
 				HandleEvent (&event);
 				event.type = -1;
+				if (!active)
+					return active;
 				
 			}
 			
 			currentUpdate = SDL_GetTicks ();
+			
+		#if defined (IPHONE)
+			
+			if (currentUpdate >= nextUpdate) {
+				
+				event.type = SDL_USEREVENT;
+				HandleEvent (&event);
+				event.type = -1;
+				
+			}
+		
+		#elif defined (EMSCRIPTEN)
+			
+			event.type = SDL_USEREVENT;
+			HandleEvent (&event);
+			event.type = -1;
+		
+		#else
 			
 			if (currentUpdate >= nextUpdate) {
 				
@@ -446,19 +468,6 @@ namespace lime {
 			}
 			
 		}
-		
-		#else
-		
-		while (SDL_PollEvent (&event)) {
-			
-			HandleEvent (&event);
-			event.type = -1;
-			
-		}
-		
-		event.type = SDL_USEREVENT;
-		HandleEvent (&event);
-		event.type = -1;
 		
 		#endif
 		
@@ -476,7 +485,7 @@ namespace lime {
 	
 	void SDLApplication::UpdateFrame (void*) {
 		
-		currentApplication->Update ();
+		UpdateFrame ();
 		
 	}
 	
