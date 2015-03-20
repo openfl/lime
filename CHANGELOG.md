@@ -1,3 +1,26 @@
+2.2.0 (03/20/2015)
+------------------
+
+* Added formal support for fonts
+* Added formal support for complex text layout
+* Added Gamepad input support
+* Added Haxe 3.2 support
+* Added support for Window fullscreen
+* Added support for Window minimized
+* Added System directories (user, documents, etc)
+* Added the foundation for iOS support
+* Improved support for node.js
+* Improved support for Lime modules
+* Added support for embedded images and sounds
+* Changed Module init() to occur sooner
+* Implemented Assets.getBytes for Flash BitmapData
+* Fixed Assets.isLocal for Flash sound assets
+* Fixed Image and ImageBuffer clone()
+* Fixed support for HXCPP 3.2.x
+* Fixed -rebuild when using the Lime 2 desktop NDLL
+* Fixed "lime rebuild" when in the Lime directory
+
+
 2.1.3 (03/02/2015)
 ------------------
 
