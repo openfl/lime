@@ -156,6 +156,10 @@ class Module implements IModule {
 	public function onWindowFocusOut ():Void { }
 	
 	
+	public function onWindowFullscreen ():Void { }
+	public function onWindowMinimize ():Void { }
+	
+	
 	/**
 	 * Called when a window move event is fired
 	 * @param	x	The x position of the window
@@ -170,6 +174,9 @@ class Module implements IModule {
 	 * @param	height	The height of the window
 	 */
 	public function onWindowResize (width:Int, height:Int):Void { }
+	
+	
+	public function onWindowRestore ():Void { }
 	
 	
 	/**

@@ -3,6 +3,9 @@ package lime.app;
 
 import lime.graphics.Renderer;
 import lime.graphics.RenderContext;
+import lime.ui.Gamepad;
+import lime.ui.GamepadAxis;
+import lime.ui.GamepadButton;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.Window;
@@ -117,8 +120,11 @@ class Application extends Module {
 		window.onWindowDeactivate.add (onWindowDeactivate);
 		window.onWindowFocusIn.add (onWindowFocusIn);
 		window.onWindowFocusOut.add (onWindowFocusOut);
+		window.onWindowFullscreen.add (onWindowFullscreen);
+		window.onWindowMinimize.add (onWindowMinimize);
 		window.onWindowMove.add (onWindowMove);
 		window.onWindowResize.add (onWindowResize);
+		window.onWindowRestore.add (onWindowRestore);
 		
 		window.create (this);
 		
@@ -162,6 +168,61 @@ class Application extends Module {
 		}
 		
 		initialized = true;
+		
+	}
+	
+	
+	public override function onGamepadAxisMove (gamepad:Gamepad, axis:GamepadAxis, value:Float):Void {
+		
+		for (module in modules) {
+			
+			module.onGamepadAxisMove (gamepad, axis, value);
+			
+		}
+		
+	}
+	
+	
+	public override function onGamepadButtonDown (gamepad:Gamepad, button:GamepadButton):Void {
+		
+		for (module in modules) {
+			
+			module.onGamepadButtonDown (gamepad, button);
+			
+		}
+		
+	}
+	
+	
+	public override function onGamepadButtonUp (gamepad:Gamepad, button:GamepadButton):Void {
+		
+		for (module in modules) {
+			
+			module.onGamepadButtonUp (gamepad, button);
+			
+		}
+		
+	}
+	
+	
+	public override function onGamepadConnect (gamepad:Gamepad):Void {
+		
+		for (module in modules) {
+			
+			module.onGamepadConnect (gamepad);
+			
+		}
+		
+	}
+	
+	
+	public override function onGamepadDisconnect (gamepad:Gamepad):Void {
+		
+		for (module in modules) {
+			
+			module.onGamepadDisconnect (gamepad);
+			
+		}
 		
 	}
 	
@@ -342,6 +403,28 @@ class Application extends Module {
 	}
 	
 	
+	public override function onWindowFullscreen ():Void {
+		
+		for (module in modules) {
+			
+			module.onWindowFullscreen ();
+			
+		}
+		
+	}
+	
+	
+	public override function onWindowMinimize ():Void {
+		
+		for (module in modules) {
+			
+			module.onWindowMinimize ();
+			
+		}
+		
+	}
+	
+	
 	public override function onWindowMove (x:Float, y:Float):Void {
 		
 		for (module in modules) {
@@ -358,6 +441,17 @@ class Application extends Module {
 		for (module in modules) {
 			
 			module.onWindowResize (width, height);
+			
+		}
+		
+	}
+	
+	
+	public override function onWindowRestore ():Void {
+		
+		for (module in modules) {
+			
+			module.onWindowRestore ();
 			
 		}
 		

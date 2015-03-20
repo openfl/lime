@@ -33,13 +33,6 @@
 		
 		<ndll name="lime" if="included" />
 		
-		<ndll name="curl_ssl" register="false" if="ios" />
-		<ndll name="png" register="false" if="ios" />
-		<ndll name="jpeg" register="false" if="ios" />
-		<ndll name="freetype" register="false" if="ios" />
-		<ndll name="ogg" register="false" if="ios" />
-		<ndll name="vorbis" register="false" if="ios" />
-		
 		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
 		<dependency path="dependencies/webgl-debug.js" if="html5 debug" />
 		<dependency path="dependencies/stats.min.js" if="html5 stats" />

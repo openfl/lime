@@ -25,7 +25,6 @@ class FlashApplication {
 	
 	
 	private var cacheTime:Int;
-	private var initialized:Bool;
 	private var parent:Application;
 	
 	
@@ -110,6 +109,7 @@ class FlashApplication {
 			var renderer = new Renderer (window);
 			parent.addWindow (window);
 			parent.addRenderer (renderer);
+			parent.init (renderer.context);
 			
 		}
 		
@@ -249,13 +249,6 @@ class FlashApplication {
 		parent.onUpdate.dispatch (deltaTime);
 		
 		if (parent.renderer != null) {
-			
-			if (!initialized) {
-				
-				initialized = true;
-				parent.init (parent.renderer.context);
-				
-			}
 			
 			parent.renderer.onRender.dispatch (parent.renderer.context);
 			parent.renderer.flip ();

@@ -4,7 +4,7 @@ package lime._backend.html5;
 import js.html.CanvasElement;
 import js.html.DivElement;
 #if (haxe_ver >= "3.2")
-import js.html.HTMLElement;
+import js.html.Element;
 #else
 import js.html.HtmlElement;
 #end
@@ -21,7 +21,7 @@ class HTML5Window {
 	
 	public var canvas:CanvasElement;
 	public var div:DivElement;
-	public var element:#if (haxe_ver >= "3.2") HTMLElement #else HtmlElement #end;
+	public var element:#if (haxe_ver >= "3.2") Element #else HtmlElement #end;
 	#if stats
 	public var stats:Dynamic;
 	#end
@@ -372,9 +372,23 @@ class HTML5Window {
 	}
 	
 	
+	public function setFullscreen (value:Bool):Bool {
+		
+		return false;
+		
+	}
+	
+	
 	public function setIcon (image:Image):Void {
 		
 		
+		
+	}
+	
+	
+	public function setMinimized (value:Bool):Bool {
+		
+		return false;
 		
 	}
 	

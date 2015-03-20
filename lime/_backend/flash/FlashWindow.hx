@@ -51,9 +51,23 @@ class FlashWindow {
 	}
 	
 	
+	public function setFullscreen (value:Bool):Bool {
+		
+		return value;
+		
+	}
+	
+	
 	public function setIcon (image:Image):Void {
 		
 		
+		
+	}
+	
+	
+	public function setMinimized (value:Bool):Bool {
+		
+		return false;
 		
 	}
 	

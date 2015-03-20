@@ -82,7 +82,7 @@ class FlashPlatform extends PlatformTarget {
 				
 			}
 			
-			if (PlatformHelper.hostPlatform != Platform.WINDOWS) {
+			if (PlatformHelper.hostPlatform == Platform.MAC) {
 				
 				for (i in 0...args.length) {
 					

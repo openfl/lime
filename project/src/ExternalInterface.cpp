@@ -559,7 +559,20 @@ namespace lime {
 	}
 	
 	
-	value lime_system_gettimer () {
+	value lime_system_get_directory (value type, value company, value title) {
+		
+		const char* companyName = "";
+		const char* titleName = "";
+		
+		if (!val_is_null (company)) companyName = val_string (company);
+		if (!val_is_null (title)) titleName = val_string (title);
+		
+		return alloc_string (System::GetDirectory ((SystemDirectory)val_int (type), companyName, titleName));
+		
+	}
+	
+	
+	value lime_system_get_timer () {
 		
 		return alloc_float (System::GetTimer ());
 		
@@ -666,7 +679,6 @@ namespace lime {
 		
 		Window* targetWindow = (Window*)(intptr_t)val_float (window);
 		targetWindow->Close ();
-		delete targetWindow;
 		return alloc_null ();
 		
 	}
@@ -707,12 +719,28 @@ namespace lime {
 	}
 	
 	
+	value lime_window_set_fullscreen (value window, value fullscreen) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		return alloc_bool (targetWindow->SetFullscreen (val_bool (fullscreen)));
+		
+	}
+	
+	
 	value lime_window_set_icon (value window, value buffer) {
 		
 		Window* targetWindow = (Window*)(intptr_t)val_float (window);
 		ImageBuffer imageBuffer = ImageBuffer (buffer);
 		targetWindow->SetIcon (&imageBuffer);
 		return alloc_null ();
+		
+	}
+	
+	
+	value lime_window_set_minimized (value window, value fullscreen) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		return alloc_bool (targetWindow->SetMinimized (val_bool (fullscreen)));
 		
 	}
 	
@@ -757,7 +785,8 @@ namespace lime {
 	DEFINE_PRIM (lime_renderer_create, 1);
 	DEFINE_PRIM (lime_renderer_flip, 1);
 	DEFINE_PRIM (lime_render_event_manager_register, 2);
-	DEFINE_PRIM (lime_system_gettimer, 0);
+	DEFINE_PRIM (lime_system_get_directory, 3);
+	DEFINE_PRIM (lime_system_get_timer, 0);
 	DEFINE_PRIM (lime_text_layout_create, 3);
 	DEFINE_PRIM (lime_text_layout_position, 5);
 	DEFINE_PRIM (lime_text_layout_set_direction, 2);
@@ -770,7 +799,9 @@ namespace lime {
 	DEFINE_PRIM (lime_window_event_manager_register, 2);
 	DEFINE_PRIM (lime_window_move, 3);
 	DEFINE_PRIM (lime_window_resize, 3);
+	DEFINE_PRIM (lime_window_set_fullscreen, 2);
 	DEFINE_PRIM (lime_window_set_icon, 2);
+	DEFINE_PRIM (lime_window_set_minimized, 2);
 	
 	
 }

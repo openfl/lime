@@ -15,6 +15,7 @@ import lime.ui.Window;
 @:access(lime.app.Application)
 @:access(lime.graphics.Renderer)
 @:access(lime.ui.Gamepad)
+@:access(lime.ui.Window)
 
 
 class NativeApplication {
@@ -30,7 +31,6 @@ class NativeApplication {
 	
 	public var handle:Dynamic;
 	
-	private var initialized:Bool;
 	private var parent:Application;
 	
 	
@@ -55,6 +55,7 @@ class NativeApplication {
 			var renderer = new Renderer (window);
 			parent.addWindow (window);
 			parent.addRenderer (renderer);
+			parent.init (renderer.context);
 			
 		}
 		
@@ -70,8 +71,6 @@ class NativeApplication {
 		lime_touch_event_manager_register (handleTouchEvent, touchEventInfo);
 		lime_update_event_manager_register (handleUpdateEvent, updateEventInfo);
 		lime_window_event_manager_register (handleWindowEvent, windowEventInfo);
-		
-		// TODO: add parent.init
 		
 		#if nodejs
 		
@@ -207,13 +206,6 @@ class NativeApplication {
 				
 				case RENDER:
 					
-					if (!initialized) {
-						
-						initialized = true;
-						parent.init (parent.renderer.context);
-						
-					}
-					
 					parent.renderer.onRender.dispatch (parent.renderer.context);
 					parent.renderer.flip ();
 					
@@ -299,19 +291,28 @@ class NativeApplication {
 					
 					parent.window.onWindowFocusOut.dispatch ();
 				
+				case WINDOW_MINIMIZE:
+					
+					parent.window.__minimized = true;
+					parent.window.onWindowMinimize.dispatch ();
+				
 				case WINDOW_MOVE:
 					
-					parent.window.x = windowEventInfo.x;
-					parent.window.y = windowEventInfo.y;
-					
+					parent.window.__x = windowEventInfo.x;
+					parent.window.__y = windowEventInfo.y;
 					parent.window.onWindowMove.dispatch (windowEventInfo.x, windowEventInfo.y);
 				
 				case WINDOW_RESIZE:
 					
-					parent.window.width = windowEventInfo.width;
-					parent.window.height = windowEventInfo.height;
-					
+					parent.window.__width = windowEventInfo.width;
+					parent.window.__height = windowEventInfo.height;
 					parent.window.onWindowResize.dispatch (windowEventInfo.width, windowEventInfo.height);
+				
+				case WINDOW_RESTORE:
+					
+					parent.window.__fullscreen = false;
+					parent.window.__minimized = false;
+					parent.window.onWindowRestore.dispatch ();
 				
 			}
 			
@@ -604,7 +605,9 @@ private class WindowEventInfo {
 	var WINDOW_DEACTIVATE = 2;
 	var WINDOW_FOCUS_IN = 3;
 	var WINDOW_FOCUS_OUT = 4;
-	var WINDOW_MOVE = 5;
-	var WINDOW_RESIZE = 6;
+	var WINDOW_MINIMIZE = 5;
+	var WINDOW_MOVE = 6;
+	var WINDOW_RESIZE = 7;
+	var WINDOW_RESTORE = 8;
 	
 }
