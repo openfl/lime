@@ -679,7 +679,6 @@ namespace lime {
 		
 		Window* targetWindow = (Window*)(intptr_t)val_float (window);
 		targetWindow->Close ();
-		delete targetWindow;
 		return alloc_null ();
 		
 	}

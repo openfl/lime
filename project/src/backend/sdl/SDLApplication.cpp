@@ -467,6 +467,13 @@ namespace lime {
 	}
 	
 	
+	void SDLApplication::UpdateFrame () {
+		
+		currentApplication->Update ();
+		
+	}
+	
+	
 	void SDLApplication::UpdateFrame (void*) {
 		
 		currentApplication->Update ();
