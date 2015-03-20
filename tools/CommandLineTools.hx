@@ -168,7 +168,7 @@ class CommandLineTools {
 							
 						} else {
 							
-							path = PathHelper.combine (words[0], "project");
+							path = PathHelper.combine (words[0], "project/Build.xml");
 							
 						}
 						
