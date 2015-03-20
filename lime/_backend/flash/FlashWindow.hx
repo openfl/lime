@@ -65,7 +65,7 @@ class FlashWindow {
 	}
 	
 	
-	public function setMinimized (value:Bool):Void {
+	public function setMinimized (value:Bool):Bool {
 		
 		return false;
 		
