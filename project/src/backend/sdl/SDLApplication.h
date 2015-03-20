@@ -11,6 +11,7 @@
 #include <ui/MouseEvent.h>
 #include <ui/TouchEvent.h>
 #include <ui/WindowEvent.h>
+#include "SDLWindow.h"
 
 
 namespace lime {
@@ -28,10 +29,7 @@ namespace lime {
 			virtual int Quit ();
 			virtual bool Update ();
 			
-			#ifdef EMSCRIPTEN
-			static SDLApplication *currentApplication;
-			static void EmscriptenUpdate ();
-			#endif
+			void RegisterWindow (SDLWindow *window);
 		
 		private:
 			
@@ -41,6 +39,9 @@ namespace lime {
 			void ProcessMouseEvent (SDL_Event* event);
 			void ProcessTouchEvent (SDL_Event* event);
 			void ProcessWindowEvent (SDL_Event* event);
+			
+			static void UpdateFrame (void*);
+			static SDLApplication* currentApplication;
 			
 			bool active;
 			Uint32 currentUpdate;

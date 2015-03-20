@@ -14,24 +14,18 @@ namespace lime {
 	
 	
 	AutoGCRoot* Application::callback = 0;
-	
-	
-	double Application::GetTicks () {
-		
-		return SDL_GetTicks ();
-		
-	}
+	SDLApplication* SDLApplication::currentApplication = 0;
 	
 	
 	SDLApplication::SDLApplication () {
 		
 		SDL_Init (SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER);
 		
-		#ifdef EMSCRIPTEN
 		currentApplication = this;
 		
+		#ifdef EMSCRIPTEN
 		emscripten_cancel_main_loop ();
-		emscripten_set_main_loop (EmscriptenUpdate, 0, 0);
+		emscripten_set_main_loop (UpdateFrame, 0, 0);
 		emscripten_set_main_loop_timing (EM_TIMING_RAF, 1);
 		#endif
 		
@@ -194,7 +188,7 @@ namespace lime {
 	}
 	
 	
-	void SDLApplication::Init() {
+	void SDLApplication::Init () {
 		
 		framePeriod = 1000.0 / 60.0;
 		active = true;
@@ -380,6 +374,15 @@ namespace lime {
 	}
 	
 	
+	void SDLApplication::RegisterWindow (SDLWindow *window) {
+		
+		#ifdef IPHONE
+		SDL_iPhoneSetAnimationCallback (window->sdlWindow, 1, UpdateFrame, NULL);
+		#endif
+		
+	}
+	
+	
 	static SDL_TimerID timerID = 0;
 	bool timerActive = false;
 	bool firstTime = true;
@@ -410,7 +413,7 @@ namespace lime {
 		SDL_Event event;
 		event.type = -1;
 		
-		#ifndef EMSCRIPTEN
+		#if (!defined (EMSCRIPTEN) && !defined (IPHONE))
 		
 		if (active && (firstTime || SDL_WaitEvent (&event))) {
 			
@@ -464,22 +467,25 @@ namespace lime {
 	}
 	
 	
+	void SDLApplication::UpdateFrame (void*) {
+		
+		currentApplication->Update ();
+		
+	}
+	
+	
+	double Application::GetTicks () {
+		
+		return SDL_GetTicks ();
+		
+	}
+	
+	
 	Application* CreateApplication () {
 		
 		return new SDLApplication ();
 		
 	}
-	
-	
-	#ifdef EMSCRIPTEN
-	SDLApplication* SDLApplication::currentApplication = 0;
-	
-	void SDLApplication::EmscriptenUpdate () {
-		
-		currentApplication->Update ();
-		
-	}
-	#endif
 	
 	
 }

@@ -1,4 +1,5 @@
 #include "SDLWindow.h"
+#include "SDLApplication.h"
 
 #ifdef HX_WINDOWS
 #include <SDL_syswm.h>
@@ -34,6 +35,8 @@ namespace lime {
 		}
 		
 		sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlFlags);
+		
+		((SDLApplication*)currentApplication)->RegisterWindow (this);
 		
 		#ifdef HX_WINDOWS
 		
