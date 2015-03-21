@@ -116,9 +116,10 @@ namespace lime {
 	
 	void lime_font_destroy (value handle) {
 		
+#ifdef LIME_FREETYPE
 		Font *font = (Font*)(intptr_t)val_float (handle);
 		delete font;
-		font = 0;
+#endif
 		
 	}
 	
