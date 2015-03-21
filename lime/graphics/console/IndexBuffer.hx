@@ -1,6 +1,8 @@
 package lime.graphics.console; #if lime_console
 
 
+import cpp.Pointer;
+import cpp.UInt16;
 import lime.ConsoleIncludePaths;
 
 
@@ -8,7 +10,8 @@ import lime.ConsoleIncludePaths;
 @:native("lime::hxapi::ConsoleIndexBuffer")
 extern class IndexBuffer {
 
-
+	public function lock ():Pointer<UInt16>;
+	public function unlock ():Void;
 
 }
 
@@ -16,15 +19,9 @@ extern class IndexBuffer {
 #else
 
 
-abstract IndexBuffer(Int) {
+class IndexBuffer {
 	
-	
-	public function new (indices:Array<Int>):Void {
-		
-		this = 0;
-		
-	}
-
+	public function new () {}
 
 }
 

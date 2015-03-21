@@ -15,15 +15,9 @@ extern class Shader {
 #else
 
 
-abstract Shader(Int) {
+class Shader {
 	
-	
-	public function new (name:String):Void {
-		
-		this = 0;
-		
-	}
-
+	public function new () {}
 
 }
 
