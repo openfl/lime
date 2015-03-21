@@ -568,6 +568,12 @@ class IOSPlatform extends PlatformTarget {
 			
 		}
 		
+		if (project.targetFlags.exists ("xcode") && PlatformHelper.hostPlatform == Platform.MAC && command == "update") {
+			
+			ProcessHelper.runCommand ("", "open", [ targetDirectory + "/" + project.app.file + ".xcodeproj" ] );
+			
+		}
+		
 	}
 	
 	
