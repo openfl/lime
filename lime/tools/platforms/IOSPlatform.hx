@@ -500,8 +500,8 @@ class IOSPlatform extends PlatformTarget {
 					
 					if (!FileSystem.exists (releaseLib)) {
 						
-						releaseLib = PathHelper.getLibraryPath (ndll, "IPhone", "lib", ".iphoneos.a");
-						debugLib = PathHelper.getLibraryPath (ndll, "IPhone", "lib", ".iphoneos.a", true);
+						releaseLib = PathHelper.getLibraryPath (ndll, "iPhone", "lib", ".iphoneos.a");
+						debugLib = PathHelper.getLibraryPath (ndll, "iPhone", "lib", ".iphoneos.a", true);
 						
 					}
 					
