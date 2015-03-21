@@ -697,7 +697,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 ::foreach assets::::if (embed)::::if (type == "image")::@:image("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends lime.graphics.Image {}
 ::elseif (type == "sound")::@:file("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends lime.utils.ByteArray {}
 ::elseif (type == "music")::@:file("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends lime.utils.ByteArray {}
-::elseif (type == "font")::@:font("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends lime.graphics.Font {}
+::elseif (type == "font")::@:font("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends lime.text.Font {}
 ::else::@:file("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends lime.utils.ByteArray {}
 ::end::::end::::end::
 ::end::
