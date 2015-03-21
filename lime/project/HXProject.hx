@@ -22,7 +22,7 @@ import lime.text.Font;
 import lime.tools.helpers.FileHelper;
 import lime.tools.helpers.ProcessHelper;
 import sys.io.Process;
-@:access(lime.graphics.Font)
+@:access(lime.text.Font)
 #end
 
 
