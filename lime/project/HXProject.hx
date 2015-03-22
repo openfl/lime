@@ -556,7 +556,7 @@ class HXProject {
 			
 		}
 		
-		exclude = exclude.concat ([ ".*", "cvs", "thumbs.db", "desktop.ini", "*.hash" ]);
+		exclude = exclude.concat ([ ".*", "thumbs.db", "desktop.ini", "*.hash" ]);
 			
 		if (path == "") {
 			
