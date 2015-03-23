@@ -21,6 +21,7 @@
  */
 package js;
 
+@:dox(hide)
 class Boot {
 
 	private static function __unhtml(s : String) {
@@ -67,7 +68,7 @@ class Boot {
 		return untyped __define_feature__("js.Boot.isEnum", e.__ename__);
 	}
 
-	static inline function getClass(o:Dynamic) : Dynamic {
+	static function getClass(o:Dynamic) : Dynamic {
 		if (Std.is(o, Array))
 			return Array;
 		else {
