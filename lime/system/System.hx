@@ -7,8 +7,6 @@ import lime.app.Application;
 
 #if flash
 import flash.Lib;
-#elseif (html5 || disable_cffi)
-import haxe.Timer;
 #end
 
 #if (js && html5)
@@ -37,9 +35,6 @@ class System {
 	
 	
 	@:noCompletion private static var __moduleNames:Map<String, String> = null;
-	#if (!flash && (html5 || disable_cffi))
-	@:noCompletion private static var __startTime:Float = Timer.stamp ();
-	#end
 	
 	#if neko
 	private static var __loadedNekoAPI:Bool;
@@ -160,10 +155,18 @@ class System {
 		
 		#if flash
 		return flash.Lib.getTimer ();
-		#elseif (html5 || disable_cffi)
-		return Std.int ((Timer.stamp () - __startTime) * 1000);
-		#else
+		#elseif js
+		return Date.now ().getTime ();
+		#elseif php
+		return Sys.time ();
+		#elseif !disable_cffi
 		return lime_system_get_timer ();
+		#elseif cpp
+		return Std.int (untyped __global__.__time_stamp () * 1000);
+		#elseif sys
+		return Std.int (Sys.time () * 1000);
+		#else
+		return 0;
 		#end
 		
 	}
