@@ -157,8 +157,6 @@ class System {
 		return flash.Lib.getTimer ();
 		#elseif js
 		return Std.int (Date.now ().getTime ());
-		#elseif php
-		return Sys.time ();
 		#elseif !disable_cffi
 		return lime_system_get_timer ();
 		#elseif cpp
