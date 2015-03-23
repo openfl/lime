@@ -124,6 +124,8 @@ namespace lime {
 		int len = val_int (inLen);
 		int start = val_int (inStart);
 		
+		if (len == 0) return alloc_null ();
+		
 		ByteArray bytes (inByteBuffer);
 		const unsigned char *data = bytes.Bytes ();
 		int size = bytes.Size ();
@@ -144,6 +146,8 @@ namespace lime {
 		
 		int len = val_int (inLen);
 		int start = val_int (inStart);
+		
+		if (len == 0) return alloc_null ();
 		
 		ByteArray bytes (inByteBuffer);
 		
