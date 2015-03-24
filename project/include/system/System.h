@@ -13,6 +13,7 @@ namespace lime {
 		APPLICATION_STORAGE,
 		DESKTOP,
 		DOCUMENTS,
+		FONTS,
 		USER
 		
 	};

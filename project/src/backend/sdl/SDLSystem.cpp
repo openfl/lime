@@ -92,6 +92,39 @@ namespace lime {
 				
 			}
 			
+			case FONTS: {
+				
+				#if defined (HX_WINRT)
+				
+				return 0;
+				
+				#elif defined (HX_WINDOWS)
+				
+				char result[MAX_PATH] = "";
+				SHGetFolderPath (NULL, CSIDL_FONTS, NULL, SHGFP_TYPE_CURRENT, result);
+				return std::string (result).c_str ();
+				
+				#elif defined (HX_MACOS)
+				
+				return "/Library/Fonts";
+				
+				#elif defined (IPHONEOS)
+				
+				return "/System/Library/Fonts/Cache";
+				
+				#elif defined (ANDROID)
+				
+				return "/system/fonts";
+				
+				#elif defined (BLACKBERRY)
+				
+				return "/usr/fonts/font_repository/monotype";
+				
+				#endif
+				break;
+				
+			}
+			
 			case USER: {
 				
 				#if defined (HX_WINRT)

@@ -31,6 +31,7 @@ class System {
 	public static var desktopDirectory (get, null):String;
 	public static var disableCFFI:Bool;
 	public static var documentsDirectory (get, null):String;
+	public static var fontsDirectory (get, null):String;
 	public static var userDirectory (get, null):String;
 	
 	
@@ -476,6 +477,17 @@ class System {
 	}
 	
 	
+	private static function get_fontsDirectory ():String {
+		
+		#if (cpp || neko || nodejs)
+		return lime_system_get_directory (SystemDirectory.FONTS, null, null);
+		#else
+		return null;
+		#end
+		
+	}
+	
+	
 	private static function get_userDirectory ():String {
 		
 		#if (cpp || neko || nodejs)
@@ -509,6 +521,7 @@ class System {
 	var APPLICATION_STORAGE = 1;
 	var DESKTOP = 2;
 	var DOCUMENTS = 3;
-	var USER = 4;
+	var FONTS = 4;
+	var USER = 5;
 	
 }
