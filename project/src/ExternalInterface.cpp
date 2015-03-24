@@ -282,9 +282,17 @@ namespace lime {
 		
 		if (font) {
 			
-			value v = alloc_float ((intptr_t)font);
-			val_gc (v, lime_font_destroy);
-			return v;
+			if (font->face) {
+				
+				value v = alloc_float ((intptr_t)font);
+				val_gc (v, lime_font_destroy);
+				return v;
+				
+			} else {
+				
+				delete font;
+				
+			}
 			
 		}
 		#endif

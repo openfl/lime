@@ -388,6 +388,7 @@ namespace lime {
 						ByteArray data = ByteArray (resource->path);
 						unsigned char *buffer = (unsigned char*)malloc (data.Size ());
 						memcpy (buffer, data.Bytes (), data.Size ());
+						lime::fclose (file);
 						error = FT_New_Memory_Face (library, buffer, data.Size (), faceIndex, &face);
 						
 					}
@@ -396,6 +397,7 @@ namespace lime {
 					
 					unsigned char *buffer = (unsigned char*)malloc (resource->data->Size ());
 					memcpy (buffer, resource->data->Bytes (), resource->data->Size ());
+					lime::fclose (file);
 					error = FT_New_Memory_Face (library, buffer, resource->data->Size (), faceIndex, &face);
 					
 				}
@@ -406,13 +408,13 @@ namespace lime {
 					
 				}
 				
-				if (error == FT_Err_Unknown_File_Format) {
+				if (error) {
 					
-					printf ("Invalid font type\n");
-					
-				} else if (error) {
-					
-					printf ("Failed to load font face %s\n", resource->path);
+					if (file) {
+						
+						lime::fclose (file);
+						
+					}
 					
 				} else {
 					

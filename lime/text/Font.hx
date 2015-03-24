@@ -66,7 +66,12 @@ class Font {
 		
 		var font = new Font ();
 		font.__fromBytes (bytes);
+		
+		#if (cpp || neko || nodejs)
+		return (font.src != null) ? font : null;
+		#else
 		return font;
+		#end
 		
 	}
 	
@@ -75,7 +80,12 @@ class Font {
 		
 		var font = new Font ();
 		font.__fromFile (path);
+		
+		#if (cpp || neko || nodejs)
+		return (font.src != null) ? font : null;
+		#else
 		return font;
+		#end
 		
 	}
 	
