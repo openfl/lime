@@ -359,6 +359,8 @@ namespace lime {
 	
 	Font::Font (Resource *resource, int faceIndex) {
 		
+		this->face = 0;
+		
 		if (resource) {
 			
 			int error;
@@ -389,6 +391,7 @@ namespace lime {
 						unsigned char *buffer = (unsigned char*)malloc (data.Size ());
 						memcpy (buffer, data.Bytes (), data.Size ());
 						lime::fclose (file);
+						file = 0;
 						error = FT_New_Memory_Face (library, buffer, data.Size (), faceIndex, &face);
 						
 					}
@@ -397,7 +400,6 @@ namespace lime {
 					
 					unsigned char *buffer = (unsigned char*)malloc (resource->data->Size ());
 					memcpy (buffer, resource->data->Bytes (), resource->data->Size ());
-					lime::fclose (file);
 					error = FT_New_Memory_Face (library, buffer, resource->data->Size (), faceIndex, &face);
 					
 				}
@@ -405,18 +407,11 @@ namespace lime {
 				if (file) {
 					
 					lime::fclose (file);
+					file = 0;
 					
 				}
 				
-				if (error) {
-					
-					if (file) {
-						
-						lime::fclose (file);
-						
-					}
-					
-				} else {
+				if (!error) {
 					
 					this->face = face;
 					

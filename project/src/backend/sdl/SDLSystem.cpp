@@ -246,7 +246,9 @@ namespace lime {
 		
 		if (stream) {
 			
-			return SDL_RWclose ((SDL_RWops*)stream->handle);
+			int code = SDL_RWclose ((SDL_RWops*)stream->handle);
+			delete stream;
+			return code;
 			
 		}
 		
@@ -254,7 +256,15 @@ namespace lime {
 		
 		#else
 		
-		return ::fclose ((FILE*)stream->handle);
+		if (stream) {
+			
+			int code = ::fclose ((FILE*)stream->handle);
+			delete stream;
+			return code;
+			
+		}
+		
+		return 0;
 		
 		#endif
 		
