@@ -25,6 +25,7 @@ install:
   - haxelib dev openfl ~/openfl
   - haxelib install openfl-samples
   - haxelib install actuate
+  - haxelib install layout
   - haxelib install box2d
   - haxelib install swf
 
@@ -42,7 +43,7 @@ script:
   - haxelib run lime build SimpleAudio html5
   - haxelib run lime build SimpleImage html5
   #- haxelib run lime build TextRendering html5
-  - haxelib run lime build HandlingInputEvents flash
+  #- haxelib run lime build HandlingInputEvents flash
   - haxelib run lime build HelloWorld flash
   - haxelib run lime build SimpleAudio flash
   - haxelib run lime build SimpleImage flash
