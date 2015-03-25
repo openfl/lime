@@ -96,7 +96,7 @@ class Boot {
 	#if (haxe_ver >= "3.2")
 	@:ifFeature("has_enum")
 	#else
-	@:ifFeature("may_print_enum)"
+	@:ifFeature("may_print_enum")
 	#end
 	private static function __string_rec(o,s:String) {
 		untyped {
