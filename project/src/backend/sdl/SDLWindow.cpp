@@ -36,6 +36,12 @@ namespace lime {
 		
 		sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlFlags);
 		
+		if (!sdlWindow) {
+			
+			printf ("Could not create SDL window: %s.\n", SDL_GetError ());
+			
+		}
+		
 		((SDLApplication*)currentApplication)->RegisterWindow (this);
 		
 		#ifdef HX_WINDOWS

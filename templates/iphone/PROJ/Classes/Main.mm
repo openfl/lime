@@ -16,17 +16,15 @@ extern "C" int lime_openal_register_prims ();
 ::end::
 
 
-extern "C" int main (int argc, char *argv[]) {
-	
-	printf("Top of stack\n");
+extern "C" int SDL_main (int argc, char *argv[]) {
 	
 	hxcpp_set_top_of_stack ();
-	printf("Top of stack2\n");
+	
 	zlib_register_prims ();
 	lime_openal_register_prims ();
 	::foreach ndlls::::if (registerStatics)::::name::_register_prims ();::end::
 	::end::
-	printf("prims\n");
+	
 	const char *err = NULL;
 	err = hxRunLibrary ();
 	
