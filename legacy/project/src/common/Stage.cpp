@@ -405,7 +405,7 @@ void Stage::CalcStageScaling(double inNewWidth,double inNewHeight)
       case saTopRight:
       case saRight:
       case saBottomRight:
-         StageOX = -extra_y;
+         StageOX = -extra_x;
          break;
       case saTop:
       case saBottom:
