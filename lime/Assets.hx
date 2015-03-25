@@ -1,5 +1,4 @@
 package lime;
-import lime.graphics.ImageBuffer;
 #if !macro
 
 
@@ -1238,6 +1237,7 @@ import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
 import haxe.Serializer;
+import lime.graphics.ImageBuffer;
 import sys.io.File;
 
 
