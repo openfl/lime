@@ -14,6 +14,7 @@ namespace lime {
 			
 			static MouseCursor currentCursor;
 			
+			static int SetRelative (bool value);
 			static void Hide ();
 			static void SetCursor (MouseCursor cursor);
 			static void Show ();

@@ -17,6 +17,18 @@ namespace lime {
 	SDL_Cursor* SDLMouse::textCursor = 0;
 	SDL_Cursor* SDLMouse::waitCursor = 0;
 	SDL_Cursor* SDLMouse::waitArrowCursor = 0;
+
+
+	int Mouse::SetRelative (bool value) {
+		if(value)
+		{
+			return SDL_SetRelativeMouseMode(SDL_TRUE);
+		}
+		else
+		{
+			return SDL_SetRelativeMouseMode(SDL_FALSE);
+		}
+	}
 	
 	
 	void Mouse::Hide () {

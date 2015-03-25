@@ -5,6 +5,8 @@ class Mouse {
 	
 	
 	public static var cursor (get, set):MouseCursor;
+
+	// public static var relative (default, set):Bool = false;
 	
 	
 	public static function hide ():Void {
@@ -20,13 +22,14 @@ class Mouse {
 		
 	}
 	
-	
-	
-	
+	public static function setRelative(value:Bool):Int {
+
+		return MouseBackend.setRelative(value);
+	}
+
 	// Get & Set Methods
 	
-	
-	
+
 	
 	private static function get_cursor ():MouseCursor {
 		

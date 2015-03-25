@@ -38,6 +38,10 @@ class FlashMouse {
 		
 	}
 	
+	public static function setRelative (value:Bool):Int{
+
+		return -1;
+	}
 	
 	
 	

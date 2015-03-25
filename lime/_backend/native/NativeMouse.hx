@@ -38,6 +38,11 @@ class NativeMouse {
 	}
 	
 	
+	public static function setRelative (value:Bool):Int {
+		
+		return lime_mouse_set_relative (value);
+		
+	}
 	
 	
 	// Get & Set Methods
@@ -76,7 +81,7 @@ class NativeMouse {
 					
 				}
 				
-				lime_mouse_set_cursor (type);
+				lime_mouse_set_cursor (value);
 				
 			}
 			
@@ -96,6 +101,7 @@ class NativeMouse {
 	
 	
 	
+	private static var lime_mouse_set_relative = System.load ("lime", "lime_mouse_set_relative", 1);
 	private static var lime_mouse_hide = System.load ("lime", "lime_mouse_hide", 0);
 	private static var lime_mouse_set_cursor = System.load ("lime", "lime_mouse_set_cursor", 1);
 	private static var lime_mouse_show = System.load ("lime", "lime_mouse_show", 0);

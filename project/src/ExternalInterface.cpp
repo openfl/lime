@@ -516,6 +516,14 @@ namespace lime {
 	}
 	
 	
+	value lime_mouse_set_relative (value input_value) {
+		
+		Mouse::SetRelative (input_value);
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_mouse_set_cursor (value cursor) {
 		
 		Mouse::SetCursor ((MouseCursor)val_int (cursor));
@@ -785,6 +793,7 @@ namespace lime {
 	DEFINE_PRIM (lime_key_event_manager_register, 2);
 	DEFINE_PRIM (lime_lzma_encode, 1);
 	DEFINE_PRIM (lime_lzma_decode, 1);
+	DEFINE_PRIM (lime_mouse_set_relative, 1);
 	DEFINE_PRIM (lime_mouse_hide, 0);
 	DEFINE_PRIM (lime_mouse_set_cursor, 1);
 	DEFINE_PRIM (lime_mouse_show, 0);

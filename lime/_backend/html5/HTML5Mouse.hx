@@ -30,6 +30,11 @@ class HTML5Mouse {
 		}
 		
 	}
+
+	public static function setRelative (value:Bool):Int{
+
+		return -1;
+	}
 	
 	
 	public static function show ():Void {
