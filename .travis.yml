@@ -21,6 +21,8 @@ install:
   - haxelib dev lime-samples ~/lime-samples
   - haxelib dev lime $(pwd)
   - haxelib install openfl
+  - git clone --recursive https://github.com/openfl/openfl ~/openfl --depth 1
+  - haxelib dev openfl ~/openfl
   - haxelib install openfl-samples
   - haxelib install actuate
   - haxelib install box2d
@@ -39,17 +41,18 @@ script:
   - haxelib run lime build HelloWorld html5
   - haxelib run lime build SimpleAudio html5
   - haxelib run lime build SimpleImage html5
-  - haxelib run lime build TextRendering html5
+  #- haxelib run lime build TextRendering html5
   - haxelib run lime build HandlingInputEvents flash
   - haxelib run lime build HelloWorld flash
   - haxelib run lime build SimpleAudio flash
   - haxelib run lime build SimpleImage flash
-  - haxelib run lime build TextRendering flash
-  - haxelib run lime test HandlingInputEvents neko
-  - haxelib run lime test HelloWorld neko
-  - haxelib run lime test SimpleAudio neko
-  - haxelib run lime test SimpleImage neko
-  - haxelib run lime test TextRendering neko
+  #- haxelib run lime build TextRendering flash
+  - haxelib run lime build HandlingInputEvents neko
+  - haxelib run lime build HelloWorld neko
+  - haxelib run lime build SimpleAudio neko
+  - haxelib run lime build SimpleImage neko
+  - haxelib run lime build TextRendering neko
+  - haxelib dev openfl
   - haxelib run openfl create ActuateExample
   - haxelib run openfl create AddingAnimation
   - haxelib run openfl create AddingText
