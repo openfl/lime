@@ -21,6 +21,17 @@
  */
 package js;
 
+private class HaxeError extends js.Error {
+
+	var val:Dynamic;
+	
+	public function new(val:Dynamic) {
+		super();
+		this.val = untyped __define_feature__("js.Boot.HaxeError", val);
+		untyped if (js.Error.captureStackTrace) js.Error.captureStackTrace(this, HaxeError);
+	}
+}
+
 @:dox(hide)
 class Boot {
 
@@ -82,7 +93,11 @@ class Boot {
 		}
 	}
 
+	#if (haxe_ver >= "3.2")
+	@:ifFeature("has_enum")
+	#else
 	@:ifFeature("may_print_enum")
+	#end
 	private static function __string_rec(o,s:String) {
 		untyped {
 			if( o == null )
