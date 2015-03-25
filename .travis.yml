@@ -18,11 +18,56 @@ install:
   - haxelib install hxcpp
   - haxelib install format
   - haxelib dev lime $(pwd)
+  - haxelib install openfl
+  - haxelib install openfl-samples
+  - haxelib install actuate
+  - haxelib install box2d
+  - haxelib install swf
 
 script:
   - haxelib run lime rebuild linux -64 -Dlegacy
   - haxelib run lime rebuild linux -64
   - haxelib run lime rebuild tools
+  - haxelib run lime create ActuateExample
+  - haxelib run lime create AddingAnimation
+  - haxelib run lime create AddingText
+  - haxelib run lime create BunnyMark
+  - haxelib run lime create DisplayingABitmap
+  - haxelib run lime create HandlingKeyboardEvents
+  - haxelib run lime create HandlingMouseEvents
+  - haxelib run lime create HerokuShaders
+  - haxelib run lime create NyanCat
+  - haxelib run lime create PiratePig
+  - haxelib run lime create PlayingSound
+  - haxelib run lime create SimpleBox2D
+  - haxelib run lime create SimpleOpenGLView
+  - haxelib run lime create SimpleSWFLayout
+  - haxelib run lime build ActuateExample flash
+  - haxelib run lime build AddingAnimation flash
+  - haxelib run lime build AddingText flash
+  - haxelib run lime build BunnyMark flash
+  - haxelib run lime build DisplayingABitmap flash
+  - haxelib run lime build HandlingKeyboardEvents flash
+  - haxelib run lime build HandlingMouseEvents flash
+  - haxelib run lime build NyanCat flash
+  - haxelib run lime build PiratePig flash
+  - haxelib run lime build PlayingSound flash
+  - haxelib run lime build SimpleBox2D flash
+  - haxelib run lime build SimpleSWFLayout flash
+  - haxelib run lime build ActuateExample html5
+  - haxelib run lime build AddingAnimation html5
+  - haxelib run lime build AddingText html5
+  - haxelib run lime build BunnyMark html5
+  - haxelib run lime build DisplayingABitmap html5
+  - haxelib run lime build HandlingKeyboardEvents html5
+  - haxelib run lime build HandlingMouseEvents html5
+  - haxelib run lime build HerokuShaders html5 -Ddom
+  - haxelib run lime build NyanCat html5
+  - haxelib run lime build PiratePig html5
+  - haxelib run lime build PlayingSound html5
+  - haxelib run lime build SimpleBox2D html5
+  - haxelib run lime build SimpleOpenGLView html5 -Dwebgl
+  - haxelib run lime build SimpleSWFLayout html5
 
 notifications:
   slack: openfl:sBwVO0kgB7EuWLYzZzUezVIz
