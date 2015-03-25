@@ -81,7 +81,7 @@ class NativeMouse {
 					
 				}
 				
-				lime_mouse_set_cursor (value);
+				lime_mouse_set_cursor (type);
 				
 			}
 			
