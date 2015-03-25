@@ -256,19 +256,27 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
-	public override function getFont (id:String):Font {
+	public override function getFont (id:String):#if (openfl < "3.0.0") Dynamic #else Font #end {
 		
 		#if flash
 		
 		var src = Type.createInstance (className.get (id), []);
+		#if (openfl < "3.0.0")
+		return src;
+		#else
 		var font = new Font (src.fontName);
 		font.src = src;
-		
 		return font;
+		#end
 		
 		#elseif html5
 		
+		#if (openfl < "3.0.0")
+		var limeFont:Font = cast (Type.createInstance (className.get (id), []), Font);
+		return new openfl.text.Font (limeFont.name);
+		#else
 		return cast (Type.createInstance (className.get (id), []), Font);
+		#end
 		
 		#else
 		
