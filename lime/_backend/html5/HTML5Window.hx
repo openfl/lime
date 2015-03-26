@@ -392,5 +392,11 @@ class HTML5Window {
 		
 	}
 	
+
+	public function warpMouse (x:Int, y:Int):Void {
+		
+		
+		
+	}
 	
 }

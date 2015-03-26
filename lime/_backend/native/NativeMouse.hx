@@ -41,7 +41,7 @@ class NativeMouse {
 	
 	public static function warpGlobal (x:Int,y:Int):Void {
 		
-		return lime_mouse_warp_global (x,y);
+		lime_mouse_warp_global (x,y);
 		
 	}
 	
