@@ -22,7 +22,7 @@ class ProjectXMLParser extends HXProject {
 	
 	public var includePaths:Array <String>;
 	
-	private static var varMatch = new EReg("\\${(.*?)}", "");
+	private static var varMatch = new EReg ("\\${(.*?)}", "");
 	
 	
 	public function new (path:String = "", defines:Map <String, Dynamic> = null, includePaths:Array <String> = null, useExtensionPath:Bool = false) {
@@ -97,7 +97,7 @@ class ProjectXMLParser extends HXProject {
 			
 			defines.set ("html5", "1");
 			
-		} else if (targetFlags.exists ("cpp") || ((platformType != PlatformType.WEB) && !targetFlags.exists("html5")) || target == Platform.EMSCRIPTEN) {
+		} else if (targetFlags.exists ("cpp") || ((platformType != PlatformType.WEB) && !targetFlags.exists ("html5")) || target == Platform.EMSCRIPTEN) {
 			
 			defines.set ("native", "1");
 			defines.set ("cpp", "1");
@@ -1157,16 +1157,24 @@ class ProjectXMLParser extends HXProject {
 					
 					case "haxedef":
 						
-						var name = substitute (element.att.name);
-						var value = "";
-						
-						if (element.has.value) {
+						if (element.has.remove) {
 							
-							value = substitute (element.att.value);
+							haxedefs.remove (substitute (element.att.remove));
+							
+						} else {
+							
+							var name = substitute (element.att.name);
+							var value = "";
+							
+							if (element.has.value) {
+								
+								value = substitute (element.att.value);
+								
+							}
+							
+							haxedefs.set (name, value);
 							
 						}
-						
-						haxedefs.set (name, value);
 					
 					case "haxeflag", "compilerflag":
 						

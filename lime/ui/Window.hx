@@ -25,6 +25,7 @@ class Window {
 	public var onKeyUp = new Event<KeyCode->KeyModifier->Void> ();
 	public var onMouseDown = new Event<Float->Float->Int->Void> ();
 	public var onMouseMove = new Event<Float->Float->Int->Void> ();
+	public var onMouseMoveRelative = new Event<Float->Float->Int->Void> ();
 	public var onMouseUp = new Event<Float->Float->Int->Void> ();
 	public var onMouseWheel = new Event<Float->Float->Void> ();
 	public var onTouchEnd = new Event<Float->Float->Int->Void> ();

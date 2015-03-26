@@ -137,7 +137,7 @@ class HTML5Helper {
 				
 			});*/
 			
-			var args = [ server, path, "-p", Std.string (port), "-c-1", "-o", "-a", "localhost", "--cors" ];
+			var args = [ server, path, "-p", Std.string (port), "-c-1", "-o", "--cors" ];
 			
 			if (!LogHelper.verbose) {
 				

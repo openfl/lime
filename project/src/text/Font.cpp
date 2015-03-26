@@ -359,6 +359,8 @@ namespace lime {
 	
 	Font::Font (Resource *resource, int faceIndex) {
 		
+		this->face = 0;
+		
 		if (resource) {
 			
 			int error;
@@ -388,6 +390,8 @@ namespace lime {
 						ByteArray data = ByteArray (resource->path);
 						unsigned char *buffer = (unsigned char*)malloc (data.Size ());
 						memcpy (buffer, data.Bytes (), data.Size ());
+						lime::fclose (file);
+						file = 0;
 						error = FT_New_Memory_Face (library, buffer, data.Size (), faceIndex, &face);
 						
 					}
@@ -403,18 +407,11 @@ namespace lime {
 				if (file) {
 					
 					lime::fclose (file);
+					file = 0;
 					
 				}
 				
-				if (error == FT_Err_Unknown_File_Format) {
-					
-					printf ("Invalid font type\n");
-					
-				} else if (error) {
-					
-					printf ("Failed to load font face %s\n", resource->path);
-					
-				} else {
+				if (!error) {
 					
 					this->face = face;
 					

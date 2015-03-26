@@ -36,6 +36,12 @@ namespace lime {
 		
 		sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlFlags);
 		
+		if (!sdlWindow) {
+			
+			printf ("Could not create SDL window: %s.\n", SDL_GetError ());
+			
+		}
+		
 		((SDLApplication*)currentApplication)->RegisterWindow (this);
 		
 		#ifdef HX_WINDOWS
@@ -80,6 +86,54 @@ namespace lime {
 			SDL_DestroyWindow (sdlWindow);
 			
 		}
+		
+	}
+	
+	
+	int SDLWindow::GetHeight () {
+		
+		int width;
+		int height;
+		
+		SDL_GetWindowSize (sdlWindow, &width, &height);
+		
+		return height;
+		
+	}
+	
+	
+	int SDLWindow::GetWidth () {
+		
+		int width;
+		int height;
+		
+		SDL_GetWindowSize (sdlWindow, &width, &height);
+		
+		return width;
+		
+	}
+	
+	
+	int SDLWindow::GetX () {
+		
+		int x;
+		int y;
+		
+		SDL_GetWindowPosition (sdlWindow, &x, &y);
+		
+		return x;
+		
+	}
+	
+	
+	int SDLWindow::GetY () {
+		
+		int x;
+		int y;
+		
+		SDL_GetWindowPosition (sdlWindow, &x, &y);
+		
+		return y;
 		
 	}
 	

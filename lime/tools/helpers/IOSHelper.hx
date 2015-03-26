@@ -229,17 +229,7 @@ class IOSHelper {
 			
 			var xcodeVersion = getXcodeVersion ();
 			
-			if (xcodeVersion.charAt (0) == "4") {
-				
-				ProcessHelper.runCommand ("", launcher, [ "install", "--debug", "--timeout", "5", "--bundle", FileSystem.fullPath (applicationPath) ]);
-				
-			} else {
-				
-				// ios-deploy does not support debugging (running) installed applications with Xcode 5, since GDB was removed
-				
-				ProcessHelper.runCommand ("", launcher, [ "install", "--timeout", "5", "--bundle", FileSystem.fullPath (applicationPath) ]);
-				
-			}
+			ProcessHelper.runCommand ("", launcher, [ "install", "--noninteractive", "--debug", "--timeout", "5", "--bundle", FileSystem.fullPath (applicationPath) ]);
 			
 		}
 		

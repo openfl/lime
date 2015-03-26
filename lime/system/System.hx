@@ -7,8 +7,6 @@ import lime.app.Application;
 
 #if flash
 import flash.Lib;
-#elseif (html5 || disable_cffi)
-import haxe.Timer;
 #end
 
 #if (js && html5)
@@ -33,13 +31,11 @@ class System {
 	public static var desktopDirectory (get, null):String;
 	public static var disableCFFI:Bool;
 	public static var documentsDirectory (get, null):String;
+	public static var fontsDirectory (get, null):String;
 	public static var userDirectory (get, null):String;
 	
 	
 	@:noCompletion private static var __moduleNames:Map<String, String> = null;
-	#if (!flash && (html5 || disable_cffi))
-	@:noCompletion private static var __startTime:Float = Timer.stamp ();
-	#end
 	
 	#if neko
 	private static var __loadedNekoAPI:Bool;
@@ -111,6 +107,16 @@ class System {
 	#end
 	
 	
+	public static function exit (code:Int):Void {
+		
+		#if sys
+		// TODO: Clean shutdown?
+		Sys.exit (code);
+		#end
+		
+	}
+	
+	
 	static private function findHaxeLib (library:String):String {
 		
 		#if (sys && !html5)
@@ -160,10 +166,16 @@ class System {
 		
 		#if flash
 		return flash.Lib.getTimer ();
-		#elseif (html5 || disable_cffi)
-		return Std.int ((Timer.stamp () - __startTime) * 1000);
-		#else
+		#elseif js
+		return Std.int (Date.now ().getTime ());
+		#elseif !disable_cffi
 		return lime_system_get_timer ();
+		#elseif cpp
+		return Std.int (untyped __global__.__time_stamp () * 1000);
+		#elseif sys
+		return Std.int (Sys.time () * 1000);
+		#else
+		return 0;
 		#end
 		
 	}
@@ -475,6 +487,17 @@ class System {
 	}
 	
 	
+	private static function get_fontsDirectory ():String {
+		
+		#if (cpp || neko || nodejs)
+		return lime_system_get_directory (SystemDirectory.FONTS, null, null);
+		#else
+		return null;
+		#end
+		
+	}
+	
+	
 	private static function get_userDirectory ():String {
 		
 		#if (cpp || neko || nodejs)
@@ -508,6 +531,7 @@ class System {
 	var APPLICATION_STORAGE = 1;
 	var DESKTOP = 2;
 	var DOCUMENTS = 3;
-	var USER = 4;
+	var FONTS = 4;
+	var USER = 5;
 	
 }

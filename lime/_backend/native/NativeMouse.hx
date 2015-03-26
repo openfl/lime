@@ -3,6 +3,9 @@ package lime._backend.native;
 
 import lime.system.System;
 import lime.ui.MouseCursor;
+import lime.ui.Window;
+
+@:access(lime.ui.Window)
 
 
 class NativeMouse {
@@ -10,6 +13,7 @@ class NativeMouse {
 	
 	private static var __cursor:MouseCursor;
 	private static var __hidden:Bool;
+	private static var __lock:Bool;
 	
 	
 	public static function hide ():Void {
@@ -34,6 +38,13 @@ class NativeMouse {
 			lime_mouse_show ();
 			
 		}
+		
+	}
+	
+	
+	public static function warp (x:Int, y:Int, window:Window):Void {
+		
+		lime_mouse_warp (x, y, window == null ? null : window.backend.handle);
 		
 	}
 	
@@ -89,6 +100,29 @@ class NativeMouse {
 	}
 	
 	
+	public static function get_lock ():Bool {
+		
+		return __lock;
+		
+	}
+	
+	
+	public static function set_lock (value:Bool):Bool {
+		
+		if (__lock != value) {
+			
+			lime_mouse_set_lock (value);
+			
+			__hidden = value;
+			__lock = value;
+			
+		}
+		
+		return __lock;
+		
+	}
+	
+	
 	
 	
 	// Native Methods
@@ -98,7 +132,9 @@ class NativeMouse {
 	
 	private static var lime_mouse_hide = System.load ("lime", "lime_mouse_hide", 0);
 	private static var lime_mouse_set_cursor = System.load ("lime", "lime_mouse_set_cursor", 1);
+	private static var lime_mouse_set_lock = System.load ("lime", "lime_mouse_set_lock", 1);
 	private static var lime_mouse_show = System.load ("lime", "lime_mouse_show", 0);
+	private static var lime_mouse_warp = System.load ("lime", "lime_mouse_warp", 3);
 	
 	
 }

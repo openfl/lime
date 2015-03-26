@@ -4,6 +4,7 @@ package lime._backend.flash;
 import flash.ui.Mouse;
 import flash.ui.MouseCursor in FlashMouseCursor;
 import lime.ui.MouseCursor;
+import lime.ui.Window;
 
 
 class FlashMouse {
@@ -35,6 +36,13 @@ class FlashMouse {
 			Mouse.show ();
 			
 		}
+		
+	}
+	
+	
+	public static function warp (x:Int, y:Int, window:Window):Void {
+		
+		
 		
 	}
 	
@@ -84,6 +92,20 @@ class FlashMouse {
 		}
 		
 		return __cursor;
+		
+	}
+	
+	
+	public static function get_lock ():Bool {
+		
+		return false;
+		
+	}
+	
+	
+	public static function set_lock (value:Bool):Bool {
+		
+		return value;
 		
 	}
 	

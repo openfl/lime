@@ -5,6 +5,7 @@
 #include <SDL.h>
 #include <ui/Mouse.h>
 #include <ui/MouseCursor.h>
+#include <ui/Window.h>
 
 
 namespace lime {

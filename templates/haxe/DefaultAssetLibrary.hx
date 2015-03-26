@@ -256,19 +256,27 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
-	public override function getFont (id:String):Font {
+	public override function getFont (id:String):#if (openfl < "3.0.0") Dynamic #else Font #end {
 		
 		#if flash
 		
 		var src = Type.createInstance (className.get (id), []);
+		#if (openfl < "3.0.0")
+		return src;
+		#else
 		var font = new Font (src.fontName);
 		font.src = src;
-		
 		return font;
+		#end
 		
 		#elseif html5
 		
+		#if (openfl < "3.0.0")
+		var limeFont:Font = cast (Type.createInstance (className.get (id), []), Font);
+		return new openfl.text.Font (limeFont.name);
+		#else
 		return cast (Type.createInstance (className.get (id), []), Font);
+		#end
 		
 		#else
 		
@@ -553,6 +561,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 			var bytes = ByteArray.readFile ("assets/manifest");
 			#elseif (mac && java)
 			var bytes = ByteArray.readFile ("../Resources/manifest");
+			#elseif ios
+			var bytes = ByteArray.readFile ("assets/manifest");
 			#else
 			var bytes = ByteArray.readFile ("manifest");
 			#end
@@ -573,7 +583,11 @@ class DefaultAssetLibrary extends AssetLibrary {
 							
 							if (!className.exists (asset.id)) {
 								
+								#if ios
+								path.set (asset.id, "assets/" + asset.path);
+								#else
 								path.set (asset.id, asset.path);
+								#end
 								type.set (asset.id, cast (asset.type, AssetType));
 								
 							}
