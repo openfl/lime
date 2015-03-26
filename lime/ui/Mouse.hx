@@ -4,6 +4,7 @@ package lime.ui;
 class Mouse {
 	
 	
+	public static var lock (get, set):Bool;
 	public static var cursor (get, set):MouseCursor;
 	
 	
@@ -24,12 +25,6 @@ class Mouse {
 
 		MouseBackend.warpGlobal(x,y);
 	}
-	
-	public static function setRelative(value:Bool):Int {
-
-		return MouseBackend.setRelative(value);
-	}
-
 
 
 
@@ -37,6 +32,19 @@ class Mouse {
 	
 
 	
+
+	private static function get_lock ():Bool {
+		
+		return MouseBackend.get_lock ();
+		
+	}
+	
+	
+	private static function set_lock (value:Bool):Bool {
+		
+		return MouseBackend.set_lock (value);
+		
+	}
 
 	private static function get_cursor ():MouseCursor {
 		

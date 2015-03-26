@@ -24,14 +24,15 @@ namespace lime {
 	}
 
 
-	int Mouse::SetRelative (bool value) {
+	void Mouse::SetLock (bool value) {
+
 		if(value)
 		{
-			return SDL_SetRelativeMouseMode(SDL_TRUE);
+			SDL_SetRelativeMouseMode(SDL_TRUE);
 		}
 		else
 		{
-			return SDL_SetRelativeMouseMode(SDL_FALSE);
+			SDL_SetRelativeMouseMode(SDL_FALSE);
 		}
 	}
 	

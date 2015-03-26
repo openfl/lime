@@ -524,9 +524,9 @@ namespace lime {
 	}
 	
 	
-	value lime_mouse_set_relative (value input_value) {
+	value lime_mouse_set_lock (value input_value) {
 		
-		Mouse::SetRelative (input_value);
+		Mouse::SetLock (input_value);
 		return alloc_null ();
 		
 	}
@@ -811,7 +811,7 @@ namespace lime {
 	DEFINE_PRIM (lime_lzma_encode, 1);
 	DEFINE_PRIM (lime_lzma_decode, 1);
 	DEFINE_PRIM (lime_mouse_warp_global, 2);
-	DEFINE_PRIM (lime_mouse_set_relative, 1);
+	DEFINE_PRIM (lime_mouse_set_lock, 1);
 	DEFINE_PRIM (lime_mouse_hide, 0);
 	DEFINE_PRIM (lime_mouse_set_cursor, 1);
 	DEFINE_PRIM (lime_mouse_show, 0);
