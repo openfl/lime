@@ -1,6 +1,7 @@
 package lime._backend.native;
 
 
+import haxe.Timer;
 import lime.app.Application;
 import lime.app.Config;
 import lime.audio.AudioManager;
@@ -259,6 +260,8 @@ class NativeApplication {
 	
 	
 	private function handleUpdateEvent ():Void {
+		
+		Timer.__checkTimers ();
 		
 		parent.onUpdate.dispatch (updateEventInfo.deltaTime);
 		
