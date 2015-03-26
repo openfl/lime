@@ -178,8 +178,8 @@ class FlashApplication {
 			
 			var button = switch (event.type) {
 				
-				case "middleMouseDown", "middleMouseMove", "middleMouseUp": 1;
-				case "rightMouseDown", "rightMouseMove", "rightMouseUp": 2;
+				case "middleMouseDown", "middleMouseUp": 1;
+				case "rightMouseDown", "rightMouseUp": 2;
 				default: 0;
 				
 			}
@@ -190,9 +190,9 @@ class FlashApplication {
 					
 					parent.window.onMouseDown.dispatch (event.stageX, event.stageY, button);
 				
-				case "mouseMove", "middleMouseMove", "rightMouseMove":
+				case "mouseMove":
 					
-					parent.window.onMouseMove.dispatch (event.stageX, event.stageY, button);
+					parent.window.onMouseMove.dispatch (event.stageX, event.stageY);
 				
 				case "mouseUp", "middleMouseUp", "rightMouseUp":
 					

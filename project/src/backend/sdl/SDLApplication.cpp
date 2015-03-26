@@ -294,23 +294,37 @@ namespace lime {
 			
 			switch (event->type) {
 				
-				case SDL_MOUSEMOTION: mouseEvent.type = MOUSE_MOVE; break;
-				case SDL_MOUSEBUTTONDOWN: mouseEvent.type = MOUSE_DOWN; break;
-				case SDL_MOUSEBUTTONUP: mouseEvent.type = MOUSE_UP; break;
-				case SDL_MOUSEWHEEL: mouseEvent.type = MOUSE_WHEEL; break;
+				case SDL_MOUSEMOTION:
+					
+					mouseEvent.type = MOUSE_MOVE;
+					mouseEvent.x = event->motion.x;
+					mouseEvent.y = event->motion.y;
+					mouseEvent.movementX = event->motion.xrel;
+					mouseEvent.movementY = event->motion.yrel;
+					break;
 				
-			}
-			
-			if (event->type != SDL_MOUSEWHEEL) {
+				case SDL_MOUSEBUTTONDOWN:
+					
+					mouseEvent.type = MOUSE_DOWN;
+					mouseEvent.button = event->button.button - 1;
+					mouseEvent.x = event->button.x;
+					mouseEvent.y = event->button.y;
+					break;
 				
-				mouseEvent.button = event->button.button - 1;
-				mouseEvent.x = event->button.x;
-				mouseEvent.y = event->button.y;
+				case SDL_MOUSEBUTTONUP:
+					
+					mouseEvent.type = MOUSE_UP;
+					mouseEvent.button = event->button.button - 1;
+					mouseEvent.x = event->button.x;
+					mouseEvent.y = event->button.y;
+					break;
 				
-			} else {
-				
-				mouseEvent.x = event->wheel.x;
-				mouseEvent.y = event->wheel.y;
+				case SDL_MOUSEWHEEL:
+					
+					mouseEvent.type = MOUSE_WHEEL;
+					mouseEvent.x = event->wheel.x;
+					mouseEvent.y = event->wheel.y;
+					break;
 				
 			}
 			
@@ -490,13 +504,6 @@ namespace lime {
 	void SDLApplication::UpdateFrame (void*) {
 		
 		UpdateFrame ();
-		
-	}
-	
-	
-	double Application::GetTicks () {
-		
-		return SDL_GetTicks ();
 		
 	}
 	

@@ -30,6 +30,8 @@ namespace lime {
 			static void Dispatch (MouseEvent* event);
 			
 			int button;
+			double movementX;
+			double movementY;
 			MouseEventType type;
 			double x;
 			double y;

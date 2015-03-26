@@ -200,13 +200,6 @@ namespace lime {
 	}
 	
 	
-	void SDLWindow::WarpMouse (int x, int y) {
-		
-		SDL_WarpMouseInWindow (sdlWindow,x,y);
-		
-	}
-	
-	
 	Window* CreateWindow (Application* application, int width, int height, int flags, const char* title) {
 		
 		return new SDLWindow (application, width, height, flags, title);

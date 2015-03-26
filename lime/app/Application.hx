@@ -110,6 +110,7 @@ class Application extends Module {
 		window.onKeyUp.add (onKeyUp);
 		window.onMouseDown.add (onMouseDown);
 		window.onMouseMove.add (onMouseMove);
+		window.onMouseMoveRelative.add (onMouseMoveRelative);
 		window.onMouseUp.add (onMouseUp);
 		window.onMouseWheel.add (onMouseWheel);
 		window.onTouchStart.add (onTouchStart);
@@ -260,11 +261,22 @@ class Application extends Module {
 	}
 	
 	
-	public override function onMouseMove (x:Float, y:Float, button:Int):Void {
+	public override function onMouseMove (x:Float, y:Float):Void {
 		
 		for (module in modules) {
 			
-			module.onMouseMove (x, y, button);
+			module.onMouseMove (x, y);
+			
+		}
+		
+	}
+	
+	
+	public override function onMouseMoveRelative (x:Float, y:Float):Void {
+		
+		for (module in modules) {
+			
+			module.onMouseMoveRelative (x, y);
 			
 		}
 		

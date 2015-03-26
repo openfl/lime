@@ -4,8 +4,8 @@ package lime.ui;
 class Mouse {
 	
 	
-	public static var lock (get, set):Bool;
 	public static var cursor (get, set):MouseCursor;
+	public static var lock (get, set):Bool;
 	
 	
 	public static function hide ():Void {
@@ -21,31 +21,21 @@ class Mouse {
 		
 	}
 	
-	public static function warpGlobal(x:Int,y:Int):Void {
-
-		MouseBackend.warpGlobal(x,y);
+	
+	public static function warp (x:Int, y:Int, window:Window = null):Void {
+		
+		MouseBackend.warp (x, y, window);
+		
 	}
-
-
-
+	
+	
+	
+	
 	// Get & Set Methods
 	
-
-	
-
-	private static function get_lock ():Bool {
-		
-		return MouseBackend.get_lock ();
-		
-	}
 	
 	
-	private static function set_lock (value:Bool):Bool {
-		
-		return MouseBackend.set_lock (value);
-		
-	}
-
+	
 	private static function get_cursor ():MouseCursor {
 		
 		return MouseBackend.get_cursor ();
@@ -56,6 +46,20 @@ class Mouse {
 	private static function set_cursor (value:MouseCursor):MouseCursor {
 		
 		return MouseBackend.set_cursor (value);
+		
+	}
+	
+	
+	private static function get_lock ():Bool {
+		
+		return MouseBackend.get_lock ();
+		
+	}
+	
+	
+	private static function set_lock (value:Bool):Bool {
+		
+		return MouseBackend.set_lock (value);
 		
 	}
 	

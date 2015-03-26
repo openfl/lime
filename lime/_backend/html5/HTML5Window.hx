@@ -216,7 +216,7 @@ class HTML5Window {
 				
 				case "mousemove":
 					
-					parent.onMouseMove.dispatch (x, y, event.button);
+					parent.onMouseMove.dispatch (x, y);
 				
 				default:
 				
@@ -392,11 +392,5 @@ class HTML5Window {
 		
 	}
 	
-
-	public function warpMouse (x:Int, y:Int):Void {
-		
-		
-		
-	}
 	
 }

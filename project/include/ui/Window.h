@@ -28,7 +28,6 @@ namespace lime {
 			virtual bool SetFullscreen (bool fullscreen) = 0;
 			virtual void SetIcon (ImageBuffer *imageBuffer) = 0;
 			virtual bool SetMinimized (bool minimized) = 0;
-			virtual void WarpMouse (int x, int y) = 0;
 			
 			Application* currentApplication;
 			int flags;

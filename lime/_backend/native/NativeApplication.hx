@@ -185,7 +185,8 @@ class NativeApplication {
 				
 				case MOUSE_MOVE:
 					
-					parent.window.onMouseMove.dispatch (mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
+					parent.window.onMouseMove.dispatch (mouseEventInfo.x, mouseEventInfo.y);
+					parent.window.onMouseMoveRelative.dispatch (mouseEventInfo.movementX, mouseEventInfo.movementY);
 				
 				case MOUSE_WHEEL:
 					
@@ -376,7 +377,6 @@ class NativeApplication {
 	private static var lime_application_init = System.load ("lime", "lime_application_init", 1);
 	private static var lime_application_update = System.load ("lime", "lime_application_update", 1);
 	private static var lime_application_quit = System.load ("lime", "lime_application_quit", 1);
-	private static var lime_application_get_ticks = System.load ("lime", "lime_application_get_ticks", 0);
 	private static var lime_gamepad_event_manager_register = System.load ("lime", "lime_gamepad_event_manager_register", 2);
 	private static var lime_key_event_manager_register = System.load ("lime", "lime_key_event_manager_register", 2);
 	private static var lime_mouse_event_manager_register = System.load ("lime", "lime_mouse_event_manager_register", 2);
@@ -470,25 +470,29 @@ private class MouseEventInfo {
 	
 	
 	public var button:Int;
+	public var movementX:Float;
+	public var movementY:Float;
 	public var type:MouseEventType;
 	public var x:Float;
 	public var y:Float;
 	
 	
 	
-	public function new (type:MouseEventType = null, x:Float = 0, y:Float = 0, button:Int = 0) {
+	public function new (type:MouseEventType = null, x:Float = 0, y:Float = 0, button:Int = 0, movementX:Float = 0, movementY:Float = 0) {
 		
 		this.type = type;
 		this.x = x;
 		this.y = y;
 		this.button = button;
+		this.movementX = movementX;
+		this.movementY = movementY;
 		
 	}
 	
 	
 	public function clone ():MouseEventInfo {
 		
-		return new MouseEventInfo (type, x, y, button);
+		return new MouseEventInfo (type, x, y, button, movementX, movementY);
 		
 	}
 	

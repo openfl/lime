@@ -3,6 +3,7 @@ package lime._backend.html5;
 
 import lime.app.Application;
 import lime.ui.MouseCursor;
+import lime.ui.Window;
 
 @:access(lime.app.Application)
 @:access(lime.ui.Window)
@@ -30,11 +31,6 @@ class HTML5Mouse {
 		}
 		
 	}
-
-	public static function setRelative (value:Bool):Int{
-
-		return -1;
-	}
 	
 	
 	public static function show ():Void {
@@ -52,27 +48,16 @@ class HTML5Mouse {
 	}
 	
 	
-	public static function warpGlobal (x:Int,y:Int):Void {
+	public static function warp (x:Int, y:Int, window:Window):Void {
+		
+		
 		
 	}
 	
 	
 	
+	
 	// Get & Set Methods
-	
-	
-
-	
-	public static function get_lock ():Bool {
-
-		return false;
-	}
-
-	
-	public static function set_lock (value:Bool):Bool {
-
-		return value;
-	}
 	
 	
 	
@@ -119,6 +104,20 @@ class HTML5Mouse {
 		}
 		
 		return __cursor;
+		
+	}
+	
+	
+	public static function get_lock ():Bool {
+		
+		return false;
+		
+	}
+	
+	
+	public static function set_lock (value:Bool):Bool {
+		
+		return value;
 		
 	}
 	
