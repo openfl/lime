@@ -1,6 +1,7 @@
 package lime.app;
 
 
+import haxe.Timer;
 import lime.graphics.Renderer;
 import lime.graphics.RenderContext;
 import lime.ui.Gamepad;
@@ -512,6 +513,8 @@ class Application extends Module {
 	
 	
 	public override function update (deltaTime:Int):Void {
+		
+		Timer.__checkTimers ();
 		
 		for (module in modules) {
 			
