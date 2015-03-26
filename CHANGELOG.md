@@ -1,3 +1,22 @@
+2.3.0 (03/26/2015)
+------------------
+
+* Added initial Lime 2 support for iOS
+* Added Mouse.lock and Mouse.warp on native platforms
+* Added window.onMouseMoveRelative for use with mouse locking
+* Added System.exit
+* Added Lime 2 support for haxe.Timer
+* Changed window.onMouseMove to dispatch only (x, y)
+* Improved window width/height reporting after creation
+* Updated ios-deploy, fixed the run command for iOS
+* Fixed the ByteArray size returned from Image.getPixels
+* Fixed Flash builds for Mac and Haxe 3.2
+* Fixed js.Boot for new changes in Haxe 3.2
+* Fixed an issue in the Gamepad API
+* Fixed the ZipHelper for Haxe 3.2
+* Fixed the -Dstats define for HTML5 builds
+
+
 2.2.2 (03/25/2015)
 ------------------
 
