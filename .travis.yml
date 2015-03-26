@@ -20,25 +20,17 @@ install:
   - git clone --recursive https://github.com/openfl/lime-samples ~/lime-samples --depth 1
   - haxelib dev lime-samples ~/lime-samples
   - haxelib dev lime $(pwd)
-  - haxelib install openfl
-  - git clone --recursive https://github.com/openfl/openfl ~/openfl --depth 1
-  - haxelib dev openfl ~/openfl
-  - haxelib install openfl-samples
-  - haxelib install actuate
-  - haxelib install layout
-  - haxelib install box2d
-  - haxelib install swf
 
 script:
   - haxelib run lime rebuild linux -64 -Dlegacy
   - haxelib run lime rebuild linux -64
   - haxelib run lime rebuild tools
-  - haxelib run lime create HandlingInputEvents
+  #- haxelib run lime create HandlingInputEvents
   - haxelib run lime create HelloWorld
   - haxelib run lime create SimpleAudio
   - haxelib run lime create SimpleImage
   - haxelib run lime create TextRendering
-  - haxelib run lime build HandlingInputEvents html5
+  #- haxelib run lime build HandlingInputEvents html5
   - haxelib run lime build HelloWorld html5
   - haxelib run lime build SimpleAudio html5
   - haxelib run lime build SimpleImage html5
@@ -48,52 +40,11 @@ script:
   - haxelib run lime build SimpleAudio flash
   - haxelib run lime build SimpleImage flash
   #- haxelib run lime build TextRendering flash
-  - haxelib run lime build HandlingInputEvents neko
+  #- haxelib run lime build HandlingInputEvents neko
   - haxelib run lime build HelloWorld neko
   - haxelib run lime build SimpleAudio neko
   - haxelib run lime build SimpleImage neko
   - haxelib run lime build TextRendering neko
-  - haxelib dev openfl
-  - haxelib run openfl create ActuateExample
-  - haxelib run openfl create AddingAnimation
-  - haxelib run openfl create AddingText
-  - haxelib run openfl create BunnyMark
-  - haxelib run openfl create DisplayingABitmap
-  - haxelib run openfl create HandlingKeyboardEvents
-  - haxelib run openfl create HandlingMouseEvents
-  - haxelib run openfl create HerokuShaders
-  - haxelib run openfl create NyanCat
-  - haxelib run openfl create PiratePig
-  - haxelib run openfl create PlayingSound
-  - haxelib run openfl create SimpleBox2D
-  - haxelib run openfl create SimpleOpenGLView
-  - haxelib run openfl create SimpleSWFLayout
-  - haxelib run lime build ActuateExample flash
-  - haxelib run lime build AddingAnimation flash
-  - haxelib run lime build AddingText flash
-  - haxelib run lime build BunnyMark flash
-  - haxelib run lime build DisplayingABitmap flash
-  - haxelib run lime build HandlingKeyboardEvents flash
-  - haxelib run lime build HandlingMouseEvents flash
-  - haxelib run lime build NyanCat flash
-  - haxelib run lime build PiratePig flash
-  - haxelib run lime build PlayingSound flash
-  - haxelib run lime build SimpleBox2D flash
-  - haxelib run lime build SimpleSWFLayout flash
-  - haxelib run lime build ActuateExample html5
-  - haxelib run lime build AddingAnimation html5
-  - haxelib run lime build AddingText html5
-  - haxelib run lime build BunnyMark html5
-  - haxelib run lime build DisplayingABitmap html5
-  - haxelib run lime build HandlingKeyboardEvents html5
-  - haxelib run lime build HandlingMouseEvents html5
-  - haxelib run lime build HerokuShaders html5 -Ddom
-  - haxelib run lime build NyanCat html5
-  - haxelib run lime build PiratePig html5
-  - haxelib run lime build PlayingSound html5
-  - haxelib run lime build SimpleBox2D html5
-  - haxelib run lime build SimpleOpenGLView html5 -Dwebgl
-  - haxelib run lime build SimpleSWFLayout html5
 
 notifications:
   slack: openfl:sBwVO0kgB7EuWLYzZzUezVIz
