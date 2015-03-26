@@ -192,7 +192,7 @@ class FlashApplication {
 				
 				case "mouseMove":
 					
-					parent.window.onMouseMove.dispatch (event.stageX, event.stageY);
+					parent.window.onMouseMove.dispatch (event.stageX, event.stageY, button);
 				
 				case "mouseUp", "middleMouseUp", "rightMouseUp":
 					
