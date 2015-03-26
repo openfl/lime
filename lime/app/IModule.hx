@@ -94,6 +94,7 @@ interface IModule {
 	public function onMouseMove (x:Float, y:Float, button:Int):Void;
 	
 	
+	#if (!openfl || openfl > "3.0.0-beta.2")
 	/**
 	 * Called when a mouse move relative event is fired
 	 * @param	x	The x movement of the mouse
@@ -101,6 +102,7 @@ interface IModule {
 	 * @param	button	The ID of the mouse button that was pressed
 	 */
 	public function onMouseMoveRelative (x:Float, y:Float, button:Int):Void;
+	#end
 	
 	
 	/**
