@@ -64,16 +64,18 @@ class Module implements IModule {
 	 * Called when a mouse move event is fired
 	 * @param	x	The current x coordinate of the mouse
 	 * @param	y	The current y coordinate of the mouse
+	 * @param	button	The ID of the mouse button that was pressed
 	 */
-	public function onMouseMove (x:Float, y:Float):Void { }
+	public function onMouseMove (x:Float, y:Float, button:Int):Void { }
 	
 	
 	/**
 	 * Called when a mouse move relative event is fired
 	 * @param	x	The x movement of the mouse
 	 * @param	y	The y movement of the mouse
+	 * @param	button	The ID of the mouse button that was pressed
 	 */
-	public function onMouseMoveRelative (x:Float, y:Float):Void { }
+	public function onMouseMoveRelative (x:Float, y:Float, button:Int):Void { }
 	
 	
 	/**

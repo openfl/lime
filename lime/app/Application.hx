@@ -261,22 +261,22 @@ class Application extends Module {
 	}
 	
 	
-	public override function onMouseMove (x:Float, y:Float):Void {
+	public override function onMouseMove (x:Float, y:Float, button:Int):Void {
 		
 		for (module in modules) {
 			
-			module.onMouseMove (x, y);
+			module.onMouseMove (x, y, button);
 			
 		}
 		
 	}
 	
 	
-	public override function onMouseMoveRelative (x:Float, y:Float):Void {
+	public override function onMouseMoveRelative (x:Float, y:Float, button:Int):Void {
 		
 		for (module in modules) {
 			
-			module.onMouseMoveRelative (x, y);
+			module.onMouseMoveRelative (x, y, button);
 			
 		}
 		
