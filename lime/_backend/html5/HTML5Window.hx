@@ -216,7 +216,7 @@ class HTML5Window {
 				
 				case "mousemove":
 					
-					parent.onMouseMove.dispatch (x, y, event.button);
+					parent.onMouseMove.dispatch (x, y);
 				
 				default:
 				

@@ -261,26 +261,24 @@ class Application extends Module {
 	}
 	
 	
-	public override function onMouseMove (x:Float, y:Float, button:Int):Void {
+	public override function onMouseMove (x:Float, y:Float):Void {
 		
 		for (module in modules) {
 			
-			module.onMouseMove (x, y, button);
+			module.onMouseMove (x, y);
 			
 		}
 		
 	}
 	
 	
-	public override function onMouseMoveRelative (x:Float, y:Float, button:Int):Void {
+	public override function onMouseMoveRelative (x:Float, y:Float):Void {
 		
-		#if (!openfl || openfl > "3.0.0-beta.2")
 		for (module in modules) {
 			
-			module.onMouseMoveRelative (x, y, button);
+			module.onMouseMoveRelative (x, y);
 			
 		}
-		#end
 		
 	}
 	

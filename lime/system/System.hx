@@ -187,6 +187,10 @@ class System {
 		var disableCFFI = true;
 		#end
 		
+		#if optional_cffi
+		lazy = true;
+		#end
+		
 		if (disableCFFI) {
 			
 			return Reflect.makeVarArgs (function (__) return {});

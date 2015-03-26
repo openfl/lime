@@ -524,6 +524,13 @@ class PathHelper {
 		} else {
 			
 			targetDirectory = StringTools.replace (targetDirectory, "\\", "/");
+			
+			while (targetDirectory.indexOf ("//") > -1) {
+				
+				targetDirectory = StringTools.replace ("//", "/");
+				
+			}
+			
 			var splitTarget = targetDirectory.split ("/");
 			var directories = 0;
 			

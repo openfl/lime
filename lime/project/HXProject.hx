@@ -725,13 +725,6 @@ class HXProject {
 		project.haxelibs = [];
 		
 		for (haxelib in haxelibs) {
-					
-			/*if (haxelib.name == "nme" && userDefines.exists ("openfl")) {
-				
-				haxelib.name = "openfl-nme-compatibility";
-				haxelib.version = "";
-				
-			}*/
 			
 			project.haxelibs.push (haxelib);
 			

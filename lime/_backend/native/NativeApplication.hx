@@ -185,8 +185,8 @@ class NativeApplication {
 				
 				case MOUSE_MOVE:
 					
-					parent.window.onMouseMove.dispatch (mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
-					parent.window.onMouseMoveRelative.dispatch (mouseEventInfo.movementX, mouseEventInfo.movementY, mouseEventInfo.button);
+					parent.window.onMouseMove.dispatch (mouseEventInfo.x, mouseEventInfo.y);
+					parent.window.onMouseMoveRelative.dispatch (mouseEventInfo.movementX, mouseEventInfo.movementY);
 				
 				case MOUSE_WHEEL:
 					
