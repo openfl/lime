@@ -14,7 +14,10 @@ import js.html.CanvasRenderingContext2D;
 #end
 
 @:access(lime.text.Glyph)
+
+#if !display
 @:autoBuild(lime.Assets.embedFont())
+#end
 
 
 class Font {

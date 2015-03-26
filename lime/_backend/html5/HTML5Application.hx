@@ -22,6 +22,9 @@ class HTML5Application {
 	
 	private var cacheTime:Float;
 	private var parent:Application;
+	#if stats
+	private var stats:Dynamic;
+	#end
 	
 	
 	public inline function new (parent:Application) {
@@ -181,7 +184,7 @@ class HTML5Application {
 	private function handleUpdateEvent (?__):Void {
 		
 		#if stats
-		parent.window.stats.begin ();
+		stats.begin ();
 		#end
 		
 		var currentTime = Date.now ().getTime ();
@@ -198,7 +201,7 @@ class HTML5Application {
 		}
 		
 		#if stats
-		parent.window.stats.end ();
+		stats.end ();
 		#end
 		
 		Browser.window.requestAnimationFrame (cast handleUpdateEvent);
