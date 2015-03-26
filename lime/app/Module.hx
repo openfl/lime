@@ -66,7 +66,7 @@ class Module implements IModule {
 	 * @param	y	The current y coordinate of the mouse
 	 * @param	button	The ID of the mouse button that was pressed
 	 */
-	public function onMouseMove (x:Float, y:Float, button:Int):Void { }
+	public function onMouseMove (x:Float, y:Float):Void { }
 	
 	
 	/**
@@ -75,7 +75,7 @@ class Module implements IModule {
 	 * @param	y	The y movement of the mouse
 	 * @param	button	The ID of the mouse button that was pressed
 	 */
-	public function onMouseMoveRelative (x:Float, y:Float, button:Int):Void { }
+	public function onMouseMoveRelative (x:Float, y:Float):Void { }
 	
 	
 	/**
