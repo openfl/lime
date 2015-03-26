@@ -709,6 +709,38 @@ namespace lime {
 	}
 	
 	
+	value lime_window_get_height (value window) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		return alloc_int (targetWindow->GetHeight ());
+		
+	}
+	
+	
+	value lime_window_get_width (value window) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		return alloc_int (targetWindow->GetWidth ());
+		
+	}
+	
+	
+	value lime_window_get_x (value window) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		return alloc_int (targetWindow->GetX ());
+		
+	}
+	
+	
+	value lime_window_get_y (value window) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		return alloc_int (targetWindow->GetY ());
+		
+	}
+	
+	
 	value lime_window_move (value window, value x, value y) {
 		
 		Window* targetWindow = (Window*)(intptr_t)val_float (window);
@@ -805,6 +837,10 @@ namespace lime {
 	DEFINE_PRIM (lime_window_close, 1);
 	DEFINE_PRIM (lime_window_create, 5);
 	DEFINE_PRIM (lime_window_event_manager_register, 2);
+	DEFINE_PRIM (lime_window_get_height, 1);
+	DEFINE_PRIM (lime_window_get_width, 1);
+	DEFINE_PRIM (lime_window_get_x, 1);
+	DEFINE_PRIM (lime_window_get_y, 1);
 	DEFINE_PRIM (lime_window_move, 3);
 	DEFINE_PRIM (lime_window_resize, 3);
 	DEFINE_PRIM (lime_window_set_fullscreen, 2);

@@ -16,7 +16,7 @@ namespace lime {
 		currentApplication = application;
 		this->flags = flags;
 		
-		int sdlFlags = SDL_WINDOW_OPENGL | SDL_GL_RETAINED_BACKING;
+		int sdlFlags = SDL_WINDOW_OPENGL;
 		
 		if (flags & WINDOW_FLAG_FULLSCREEN) sdlFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 		if (flags & WINDOW_FLAG_RESIZABLE) sdlFlags |= SDL_WINDOW_RESIZABLE;
@@ -86,6 +86,54 @@ namespace lime {
 			SDL_DestroyWindow (sdlWindow);
 			
 		}
+		
+	}
+	
+	
+	int SDLWindow::GetHeight () {
+		
+		int width;
+		int height;
+		
+		SDL_GetWindowSize (sdlWindow, &width, &height);
+		
+		return height;
+		
+	}
+	
+	
+	int SDLWindow::GetWidth () {
+		
+		int width;
+		int height;
+		
+		SDL_GetWindowSize (sdlWindow, &width, &height);
+		
+		return width;
+		
+	}
+	
+	
+	int SDLWindow::GetX () {
+		
+		int x;
+		int y;
+		
+		SDL_GetWindowPosition (sdlWindow, &x, &y);
+		
+		return x;
+		
+	}
+	
+	
+	int SDLWindow::GetY () {
+		
+		int x;
+		int y;
+		
+		SDL_GetWindowPosition (sdlWindow, &x, &y);
+		
+		return y;
 		
 	}
 	

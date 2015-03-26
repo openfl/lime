@@ -18,6 +18,10 @@ namespace lime {
 			~SDLWindow ();
 			
 			virtual void Close ();
+			virtual int GetHeight ();
+			virtual int GetWidth ();
+			virtual int GetX ();
+			virtual int GetY ();
 			virtual void Move (int x, int y);
 			virtual void Resize (int width, int height);
 			virtual bool SetFullscreen (bool fullscreen);
