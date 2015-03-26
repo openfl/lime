@@ -1147,12 +1147,10 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	
 	
 	
-	#if !disable_cffi
 	private static var lime_byte_array_overwrite_file = System.load ("lime", "lime_byte_array_overwrite_file", 2);
 	private static var lime_byte_array_read_file = System.load ("lime", "lime_byte_array_read_file", 1);
 	private static var lime_lzma_decode = System.load ("lime", "lime_lzma_decode", 1);
 	private static var lime_lzma_encode = System.load ("lime", "lime_lzma_encode", 1);
-	#end
 	
 	
 }
