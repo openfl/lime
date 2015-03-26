@@ -14,6 +14,7 @@ namespace lime {
 			
 			static MouseCursor currentCursor;
 			
+			static void WarpGlobal (int x, int y);
 			static int SetRelative (bool value);
 			static void Hide ();
 			static void SetCursor (MouseCursor cursor);

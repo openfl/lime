@@ -20,6 +20,11 @@ class Mouse {
 		
 	}
 	
+	public static function warpGlobal(x:Int,y:Int):Void {
+
+		MouseBackend.warpGlobal(x,y);
+	}
+	
 	public static function setRelative(value:Bool):Int {
 
 		return MouseBackend.setRelative(value);
@@ -32,7 +37,7 @@ class Mouse {
 	
 
 	
-	
+
 	private static function get_cursor ():MouseCursor {
 		
 		return MouseBackend.get_cursor ();

@@ -38,6 +38,13 @@ class NativeMouse {
 	}
 	
 	
+	public static function warpGlobal (x:Int,y:Int):Void {
+		
+		return lime_mouse_warp_global (x,y);
+		
+	}
+	
+	
 	public static function setRelative (value:Bool):Int {
 		
 		return lime_mouse_set_relative (value);
@@ -101,6 +108,7 @@ class NativeMouse {
 	
 	
 	
+	private static var lime_mouse_warp_global = System.load ("lime", "lime_mouse_warp_global", 2);
 	private static var lime_mouse_set_relative = System.load ("lime", "lime_mouse_set_relative", 1);
 	private static var lime_mouse_hide = System.load ("lime", "lime_mouse_hide", 0);
 	private static var lime_mouse_set_cursor = System.load ("lime", "lime_mouse_set_cursor", 1);

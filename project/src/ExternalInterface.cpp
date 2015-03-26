@@ -516,6 +516,14 @@ namespace lime {
 	}
 	
 	
+	value lime_mouse_warp_global (value x, value y) {
+		
+		Mouse::WarpGlobal (val_int(x),val_int(y));
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_mouse_set_relative (value input_value) {
 		
 		Mouse::SetRelative (input_value);
@@ -761,6 +769,15 @@ namespace lime {
 	}
 	
 	
+	value lime_window_warp_mouse (value window, value x, value y) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		targetWindow->WarpMouse (val_int (x), val_int (y));
+		return alloc_null ();
+		
+	}
+	
+	
 	DEFINE_PRIM (lime_application_create, 1);
 	DEFINE_PRIM (lime_application_exec, 1);
 	DEFINE_PRIM (lime_application_init, 1);
@@ -793,6 +810,7 @@ namespace lime {
 	DEFINE_PRIM (lime_key_event_manager_register, 2);
 	DEFINE_PRIM (lime_lzma_encode, 1);
 	DEFINE_PRIM (lime_lzma_decode, 1);
+	DEFINE_PRIM (lime_mouse_warp_global, 2);
 	DEFINE_PRIM (lime_mouse_set_relative, 1);
 	DEFINE_PRIM (lime_mouse_hide, 0);
 	DEFINE_PRIM (lime_mouse_set_cursor, 1);
@@ -819,6 +837,7 @@ namespace lime {
 	DEFINE_PRIM (lime_window_set_fullscreen, 2);
 	DEFINE_PRIM (lime_window_set_icon, 2);
 	DEFINE_PRIM (lime_window_set_minimized, 2);
+	DEFINE_PRIM (lime_window_warp_mouse, 3);
 	
 	
 }

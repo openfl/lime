@@ -18,6 +18,11 @@ namespace lime {
 	SDL_Cursor* SDLMouse::waitCursor = 0;
 	SDL_Cursor* SDLMouse::waitArrowCursor = 0;
 
+	void Mouse::WarpGlobal(int x, int y){
+
+		SDL_WarpMouseGlobal(x,y);
+	}
+
 
 	int Mouse::SetRelative (bool value) {
 		if(value)

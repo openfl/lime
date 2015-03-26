@@ -142,6 +142,17 @@ class NativeWindow {
 	}
 	
 	
+	public function warpMouse (x:Int, y:Int):Void {
+		
+		if (handle != null) {
+			
+			lime_window_warp_mouse (handle, x, y);
+			
+		}
+		
+	}
+	
+	
 	private static var lime_window_close = System.load ("lime", "lime_window_close", 1);
 	private static var lime_window_create = System.load ("lime", "lime_window_create", 5);
 	private static var lime_window_move = System.load ("lime", "lime_window_move", 3);
@@ -149,6 +160,7 @@ class NativeWindow {
 	private static var lime_window_set_fullscreen = System.load ("lime", "lime_window_set_fullscreen", 2);
 	private static var lime_window_set_icon = System.load ("lime", "lime_window_set_icon", 2);
 	private static var lime_window_set_minimized = System.load ("lime", "lime_window_set_minimized", 2);
+	private static var lime_window_warp_mouse = System.load ("lime", "lime_window_warp_mouse", 3);
 	
 	
 }
