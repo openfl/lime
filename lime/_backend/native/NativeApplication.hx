@@ -13,6 +13,7 @@ import lime.system.System;
 import lime.ui.Gamepad;
 import lime.ui.Window;
 
+@:access(haxe.Timer)
 @:access(lime.app.Application)
 @:access(lime.graphics.Renderer)
 @:access(lime.ui.Gamepad)
@@ -261,8 +262,7 @@ class NativeApplication {
 	
 	private function handleUpdateEvent ():Void {
 		
-		Timer.__checkTimers ();
-		
+		updateTimer ();
 		parent.onUpdate.dispatch (updateEventInfo.deltaTime);
 		
 	}
@@ -316,6 +316,46 @@ class NativeApplication {
 					parent.window.__fullscreen = false;
 					parent.window.__minimized = false;
 					parent.window.onWindowRestore.dispatch ();
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	private function updateTimer ():Void {
+		
+		if (Timer.sRunningTimers.length > 0) {
+			
+			var currentTime = System.getTimer ();
+			var foundNull = false;
+			var timer;
+			
+			for (i in 0...Timer.sRunningTimers.length) {
+				
+				timer = Timer.sRunningTimers[i];
+				
+				if (timer != null) {
+					
+					if (currentTime >= timer.mFireAt) {
+						
+						timer.mFireAt += timer.mTime;
+						timer.run ();
+						
+					}
+					
+				} else {
+					
+					foundNull = true;
+					
+				}
+				
+			}
+			
+			if (foundNull) {
+				
+				Timer.sRunningTimers = Timer.sRunningTimers.filter (function (val) { return val != null; });
 				
 			}
 			
