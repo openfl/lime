@@ -3,6 +3,7 @@ package lime.tools.helpers;
 
 import haxe.io.Bytes;
 import haxe.io.Path;
+import haxe.zip.Entry;
 import haxe.zip.Writer;
 import sys.io.File;
 import sys.FileSystem;
@@ -23,7 +24,7 @@ class ZipHelper {
 		
 		if (PlatformHelper.hostPlatform == WINDOWS || !FileSystem.isDirectory (path)) {
 			
-			var files = new Array <Dynamic> ();
+			var files = new List <Entry> ();
 			
 			if (FileSystem.isDirectory (path)) {
 				
@@ -72,7 +73,7 @@ class ZipHelper {
 	}
 	
 	
-	private static function readDirectory (basePath:String, path:String, files:Array<Dynamic>):Void {
+	private static function readDirectory (basePath:String, path:String, files:List<Entry>):Void {
 		
 		var directory = PathHelper.combine (basePath, path);
 		
@@ -96,7 +97,7 @@ class ZipHelper {
 	}
 	
 	
-	private static function readFile (basePath:String, path:String, files:Array<Dynamic>):Void {
+	private static function readFile (basePath:String, path:String, files:List<Entry>):Void {
 		
 		if (Path.extension (path) != "zip" && Path.extension (path) != "crx" && Path.extension (path) != "wgt") {
 			
@@ -112,7 +113,9 @@ class ZipHelper {
 			var data = input.readAll ();
 			input.close ();
 			
-			files.push ( { fileName: name, fileTime: date, data: data } );
+			var entry:Entry = { fileName:name, fileSize:data.length, fileTime:date, compressed:false, dataSize:data.length, data:data, crc32:null };
+			
+			files.push (entry);
 			
 		}
 		
