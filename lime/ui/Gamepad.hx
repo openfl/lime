@@ -33,7 +33,7 @@ class Gamepad {
 	@:noCompletion private inline function get_guid ():String {
 		
 		#if (cpp || neko || nodejs)
-		return lime_gamepad_get_device_name (this);
+		return lime_gamepad_get_device_guid (this.id);
 		#else
 		return null;
 		#end
@@ -44,7 +44,7 @@ class Gamepad {
 	@:noCompletion private inline function get_name ():String {
 		
 		#if (cpp || neko || nodejs)
-		return lime_gamepad_get_device_name (this);
+		return lime_gamepad_get_device_name (this.id);
 		#else
 		return null;
 		#end
