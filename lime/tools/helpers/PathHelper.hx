@@ -525,12 +525,6 @@ class PathHelper {
 			
 			targetDirectory = StringTools.replace (targetDirectory, "\\", "/");
 			
-			while (targetDirectory.indexOf ("//") > -1) {
-				
-				targetDirectory = StringTools.replace ("//", "/");
-				
-			}
-			
 			var splitTarget = targetDirectory.split ("/");
 			var directories = 0;
 			
@@ -538,7 +532,7 @@ class PathHelper {
 				
 				switch (splitTarget.shift ()) {
 					
-					case ".":
+					case ".", "":
 						
 						// ignore
 					
