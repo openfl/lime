@@ -63,13 +63,6 @@ namespace lime {
 	}
 	
 	
-	value lime_application_get_ticks (value application) {
-		
-		return alloc_float (Application::GetTicks ());
-		
-	}
-	
-	
 	value lime_application_quit (value application) {
 		
 		Application* app = (Application*)(intptr_t)val_float (application);
@@ -516,6 +509,30 @@ namespace lime {
 	}
 	
 	
+	value lime_mouse_warp (value x, value y, value window) {
+		
+		Window* windowRef = 0;
+		
+		if (!val_is_null (window)) {
+			
+			windowRef = (Window*)(intptr_t)val_float (window);
+			
+		}
+		
+		Mouse::Warp (val_int (x), val_int (y), windowRef);
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_mouse_set_lock (value lock) {
+		
+		Mouse::SetLock (val_bool (lock));
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_mouse_set_cursor (value cursor) {
 		
 		Mouse::SetCursor ((MouseCursor)val_int (cursor));
@@ -709,6 +726,38 @@ namespace lime {
 	}
 	
 	
+	value lime_window_get_height (value window) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		return alloc_int (targetWindow->GetHeight ());
+		
+	}
+	
+	
+	value lime_window_get_width (value window) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		return alloc_int (targetWindow->GetWidth ());
+		
+	}
+	
+	
+	value lime_window_get_x (value window) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		return alloc_int (targetWindow->GetX ());
+		
+	}
+	
+	
+	value lime_window_get_y (value window) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		return alloc_int (targetWindow->GetY ());
+		
+	}
+	
+	
 	value lime_window_move (value window, value x, value y) {
 		
 		Window* targetWindow = (Window*)(intptr_t)val_float (window);
@@ -756,7 +805,6 @@ namespace lime {
 	DEFINE_PRIM (lime_application_create, 1);
 	DEFINE_PRIM (lime_application_exec, 1);
 	DEFINE_PRIM (lime_application_init, 1);
-	DEFINE_PRIM (lime_application_get_ticks, 0);
 	DEFINE_PRIM (lime_application_quit, 1);
 	DEFINE_PRIM (lime_application_update, 1);
 	DEFINE_PRIM (lime_audio_load, 1);
@@ -783,12 +831,14 @@ namespace lime {
 	DEFINE_PRIM (lime_image_load, 1);
 	DEFINE_PRIM (lime_jni_getenv, 0);
 	DEFINE_PRIM (lime_key_event_manager_register, 2);
-	DEFINE_PRIM (lime_lzma_encode, 1);
 	DEFINE_PRIM (lime_lzma_decode, 1);
+	DEFINE_PRIM (lime_lzma_encode, 1);
+	DEFINE_PRIM (lime_mouse_event_manager_register, 2);
 	DEFINE_PRIM (lime_mouse_hide, 0);
 	DEFINE_PRIM (lime_mouse_set_cursor, 1);
+	DEFINE_PRIM (lime_mouse_set_lock, 1);
 	DEFINE_PRIM (lime_mouse_show, 0);
-	DEFINE_PRIM (lime_mouse_event_manager_register, 2);
+	DEFINE_PRIM (lime_mouse_warp, 3);
 	DEFINE_PRIM (lime_neko_execute, 1);
 	DEFINE_PRIM (lime_renderer_create, 1);
 	DEFINE_PRIM (lime_renderer_flip, 1);
@@ -805,6 +855,10 @@ namespace lime {
 	DEFINE_PRIM (lime_window_close, 1);
 	DEFINE_PRIM (lime_window_create, 5);
 	DEFINE_PRIM (lime_window_event_manager_register, 2);
+	DEFINE_PRIM (lime_window_get_height, 1);
+	DEFINE_PRIM (lime_window_get_width, 1);
+	DEFINE_PRIM (lime_window_get_x, 1);
+	DEFINE_PRIM (lime_window_get_y, 1);
 	DEFINE_PRIM (lime_window_move, 3);
 	DEFINE_PRIM (lime_window_resize, 3);
 	DEFINE_PRIM (lime_window_set_fullscreen, 2);

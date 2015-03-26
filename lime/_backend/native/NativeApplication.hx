@@ -1,6 +1,7 @@
 package lime._backend.native;
 
 
+import haxe.Timer;
 import lime.app.Application;
 import lime.app.Config;
 import lime.audio.AudioManager;
@@ -12,6 +13,7 @@ import lime.system.System;
 import lime.ui.Gamepad;
 import lime.ui.Window;
 
+@:access(haxe.Timer)
 @:access(lime.app.Application)
 @:access(lime.graphics.Renderer)
 @:access(lime.ui.Gamepad)
@@ -184,6 +186,7 @@ class NativeApplication {
 				case MOUSE_MOVE:
 					
 					parent.window.onMouseMove.dispatch (mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
+					parent.window.onMouseMoveRelative.dispatch (mouseEventInfo.movementX, mouseEventInfo.movementY, mouseEventInfo.button);
 				
 				case MOUSE_WHEEL:
 					
@@ -260,6 +263,7 @@ class NativeApplication {
 	
 	private function handleUpdateEvent ():Void {
 		
+		updateTimer ();
 		parent.onUpdate.dispatch (updateEventInfo.deltaTime);
 		
 	}
@@ -321,6 +325,46 @@ class NativeApplication {
 	}
 	
 	
+	private function updateTimer ():Void {
+		
+		if (Timer.sRunningTimers.length > 0) {
+			
+			var currentTime = System.getTimer ();
+			var foundNull = false;
+			var timer;
+			
+			for (i in 0...Timer.sRunningTimers.length) {
+				
+				timer = Timer.sRunningTimers[i];
+				
+				if (timer != null) {
+					
+					if (currentTime >= timer.mFireAt) {
+						
+						timer.mFireAt += timer.mTime;
+						timer.run ();
+						
+					}
+					
+				} else {
+					
+					foundNull = true;
+					
+				}
+				
+			}
+			
+			if (foundNull) {
+				
+				Timer.sRunningTimers = Timer.sRunningTimers.filter (function (val) { return val != null; });
+				
+			}
+			
+		}
+		
+	}
+	
+	
 	private function __cleanup ():Void {
 		
 		AudioManager.shutdown ();
@@ -333,7 +377,6 @@ class NativeApplication {
 	private static var lime_application_init = System.load ("lime", "lime_application_init", 1);
 	private static var lime_application_update = System.load ("lime", "lime_application_update", 1);
 	private static var lime_application_quit = System.load ("lime", "lime_application_quit", 1);
-	private static var lime_application_get_ticks = System.load ("lime", "lime_application_get_ticks", 0);
 	private static var lime_gamepad_event_manager_register = System.load ("lime", "lime_gamepad_event_manager_register", 2);
 	private static var lime_key_event_manager_register = System.load ("lime", "lime_key_event_manager_register", 2);
 	private static var lime_mouse_event_manager_register = System.load ("lime", "lime_mouse_event_manager_register", 2);
@@ -427,25 +470,29 @@ private class MouseEventInfo {
 	
 	
 	public var button:Int;
+	public var movementX:Float;
+	public var movementY:Float;
 	public var type:MouseEventType;
 	public var x:Float;
 	public var y:Float;
 	
 	
 	
-	public function new (type:MouseEventType = null, x:Float = 0, y:Float = 0, button:Int = 0) {
+	public function new (type:MouseEventType = null, x:Float = 0, y:Float = 0, button:Int = 0, movementX:Float = 0, movementY:Float = 0) {
 		
 		this.type = type;
 		this.x = x;
 		this.y = y;
 		this.button = button;
+		this.movementX = movementX;
+		this.movementY = movementY;
 		
 	}
 	
 	
 	public function clone ():MouseEventInfo {
 		
-		return new MouseEventInfo (type, x, y, button);
+		return new MouseEventInfo (type, x, y, button, movementX, movementY);
 		
 	}
 	

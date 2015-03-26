@@ -110,6 +110,7 @@ class Application extends Module {
 		window.onKeyUp.add (onKeyUp);
 		window.onMouseDown.add (onMouseDown);
 		window.onMouseMove.add (onMouseMove);
+		window.onMouseMoveRelative.add (onMouseMoveRelative);
 		window.onMouseUp.add (onMouseUp);
 		window.onMouseWheel.add (onMouseWheel);
 		window.onTouchStart.add (onTouchStart);
@@ -267,6 +268,19 @@ class Application extends Module {
 			module.onMouseMove (x, y, button);
 			
 		}
+		
+	}
+	
+	
+	public override function onMouseMoveRelative (x:Float, y:Float, button:Int):Void {
+		
+		#if (!openfl || openfl > "3.0.0-beta.2")
+		for (module in modules) {
+			
+			module.onMouseMoveRelative (x, y, button);
+			
+		}
+		#end
 		
 	}
 	

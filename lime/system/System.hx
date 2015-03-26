@@ -107,6 +107,16 @@ class System {
 	#end
 	
 	
+	public static function exit (code:Int):Void {
+		
+		#if sys
+		// TODO: Clean shutdown?
+		Sys.exit (code);
+		#end
+		
+	}
+	
+	
 	static private function findHaxeLib (library:String):String {
 		
 		#if (sys && !html5)
@@ -175,6 +185,10 @@ class System {
 		
 		#if (disable_cffi || macro)
 		var disableCFFI = true;
+		#end
+		
+		#if optional_cffi
+		lazy = true;
 		#end
 		
 		if (disableCFFI) {

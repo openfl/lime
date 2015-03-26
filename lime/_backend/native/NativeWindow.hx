@@ -7,6 +7,7 @@ import lime.system.System;
 import lime.ui.Window;
 
 @:access(lime.app.Application)
+@:access(lime.ui.Window)
 
 
 class NativeWindow {
@@ -73,6 +74,15 @@ class NativeWindow {
 		}
 		
 		handle = lime_window_create (application.backend.handle, parent.width, parent.height, flags, title);
+		
+		if (handle != null) {
+			
+			parent.__width = lime_window_get_width (handle);
+			parent.__height = lime_window_get_height (handle);
+			parent.__x = lime_window_get_x (handle);
+			parent.__y = lime_window_get_y (handle);
+			
+		}
 		
 	}
 	
@@ -144,6 +154,10 @@ class NativeWindow {
 	
 	private static var lime_window_close = System.load ("lime", "lime_window_close", 1);
 	private static var lime_window_create = System.load ("lime", "lime_window_create", 5);
+	private static var lime_window_get_height = System.load ("lime", "lime_window_get_height", 1);
+	private static var lime_window_get_width = System.load ("lime", "lime_window_get_width", 1);
+	private static var lime_window_get_x = System.load ("lime", "lime_window_get_x", 1);
+	private static var lime_window_get_y = System.load ("lime", "lime_window_get_y", 1);
 	private static var lime_window_move = System.load ("lime", "lime_window_move", 3);
 	private static var lime_window_resize = System.load ("lime", "lime_window_resize", 3);
 	private static var lime_window_set_fullscreen = System.load ("lime", "lime_window_set_fullscreen", 2);

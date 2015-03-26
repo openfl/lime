@@ -5,6 +5,7 @@ class Mouse {
 	
 	
 	public static var cursor (get, set):MouseCursor;
+	public static var lock (get, set):Bool;
 	
 	
 	public static function hide ():Void {
@@ -17,6 +18,13 @@ class Mouse {
 	public static function show ():Void {
 		
 		MouseBackend.show ();
+		
+	}
+	
+	
+	public static function warp (x:Int, y:Int, window:Window = null):Void {
+		
+		MouseBackend.warp (x, y, window);
 		
 	}
 	
@@ -38,6 +46,20 @@ class Mouse {
 	private static function set_cursor (value:MouseCursor):MouseCursor {
 		
 		return MouseBackend.set_cursor (value);
+		
+	}
+	
+	
+	private static function get_lock ():Bool {
+		
+		return MouseBackend.get_lock ();
+		
+	}
+	
+	
+	private static function set_lock (value:Bool):Bool {
+		
+		return MouseBackend.set_lock (value);
 		
 	}
 	

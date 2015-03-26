@@ -243,7 +243,11 @@ class Timer {
 	
 	private static function getMS ():Float {
 		
-		return stamp () * 1000.0;
+		#if lime_legacy
+		return lime_time_stamp () * 1000.0;
+		#else
+		return System.getTimer ();
+		#end
 		
 	}
 	
@@ -298,7 +302,6 @@ class Timer {
 	}
 	
 	
-	#if lime_legacy
 	@:noCompletion private function __check (inTime:Float) {
 		
 		if (inTime >= mFireAt) {
@@ -340,6 +343,7 @@ class Timer {
 	}
 	
 	
+	#if lime_legacy
 	@:noCompletion public static function __nextWake (limit:Float):Float {
 		
 		var now = lime_time_stamp () * 1000.0;

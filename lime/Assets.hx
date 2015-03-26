@@ -1,5 +1,4 @@
 package lime;
-import lime.graphics.ImageBuffer;
 #if !macro
 
 
@@ -191,7 +190,7 @@ class Assets {
 	 * @param	id		The ID or asset path for the font
 	 * @return		A new Font object
 	 */
-	public static function getFont (id:String, useCache:Bool = true):Font {
+	public static function getFont (id:String, useCache:Bool = true):#if (openfl < "3.0.0") Dynamic #else Font #end {
 		
 		initialize ();
 		
@@ -1003,7 +1002,7 @@ class AssetLibrary {
 	}
 	
 	
-	public function getFont (id:String):Font {
+	public function getFont (id:String):#if (openfl < "3.0.0") Dynamic #else Font #end {
 		
 		return null;
 		
@@ -1091,7 +1090,7 @@ class AssetLibrary {
 	}
 	
 	
-	public function loadFont (id:String, handler:Font -> Void):Void {
+	public function loadFont (id:String, handler:#if (openfl < "3.0.0") Dynamic #else Font #end -> Void):Void {
 		
 		handler (getFont (id));
 		
@@ -1238,6 +1237,7 @@ import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
 import haxe.Serializer;
+import lime.graphics.ImageBuffer;
 import sys.io.File;
 
 

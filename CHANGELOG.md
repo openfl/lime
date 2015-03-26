@@ -1,3 +1,22 @@
+2.2.2 (03/25/2015)
+------------------
+
+* Restored support for OpenFL 2.2
+* Added System.fontsDirectory
+* Improved Font.fromFile when the file is not available
+* Improved HTTP server to allow access from other devices
+* Improved System.getTimer to work without haxe.Timer
+* Fixed a crash when using GL.bufferData with zero-length data
+
+
+2.2.1 (03/21/2015)
+------------------
+
+* Fixed -rebuild for 32-bit Mac/Linux with newer HXCPP
+* Fixed ImageBuffer with newer HXCPP
+* Compile fix
+
+
 2.2.0 (03/20/2015)
 ------------------
 

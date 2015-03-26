@@ -81,33 +81,8 @@ class FlashPlatform extends PlatformTarget {
 				}
 				
 			}
-			
-			if (PlatformHelper.hostPlatform == Platform.MAC) {
 				
-				for (i in 0...args.length) {
-					
-					if (args[i].indexOf ("(") > -1) {
-						
-						var arg = StringTools.replace (args[i], "'", "'\\''");
-						//arg = StringTools.replace (arg, " ", "' '");
-						
-						args[i] = "'" + arg + "'";
-						
-					} else if (args[i].indexOf (" ") > -1) {
-						
-						args[i] = "\"" + args[i] + "\"";
-						
-					}
-					
-				}
-				
-				ProcessHelper.runCommand ("", "haxe " + args.join (" "), []);
-				
-			} else {
-				
-				ProcessHelper.runCommand ("", "haxe", args);
-				
-			}
+			ProcessHelper.runCommand ("", "haxe", args);
 			
 		} else {
 			
