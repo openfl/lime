@@ -10,7 +10,8 @@ class NativeMouse {
 	
 	private static var __cursor:MouseCursor;
 	private static var __hidden:Bool;
-	
+	private static var __lock:Bool;
+
 	
 	public static function hide ():Void {
 		
@@ -38,11 +39,37 @@ class NativeMouse {
 	}
 	
 	
+	public static function warpGlobal (x:Int,y:Int):Void {
+		
+		lime_mouse_warp_global (x,y);
+		
+	}
 	
 	
 	// Get & Set Methods
 	
 	
+	
+
+	public static function get_lock ():Bool {
+		
+		return __lock;
+		
+	}
+	
+	
+	public static function set_lock (value:Bool):Bool {
+		
+		if (__lock != value) {
+
+			lime_mouse_set_lock (value);
+			__lock = value;
+
+		}
+
+		return __lock;
+
+	}
 	
 	
 	public static function get_cursor ():MouseCursor {
@@ -96,6 +123,8 @@ class NativeMouse {
 	
 	
 	
+	private static var lime_mouse_warp_global = System.load ("lime", "lime_mouse_warp_global", 2);
+	private static var lime_mouse_set_lock = System.load ("lime", "lime_mouse_set_lock", 1);
 	private static var lime_mouse_hide = System.load ("lime", "lime_mouse_hide", 0);
 	private static var lime_mouse_set_cursor = System.load ("lime", "lime_mouse_set_cursor", 1);
 	private static var lime_mouse_show = System.load ("lime", "lime_mouse_show", 0);

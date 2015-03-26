@@ -38,12 +38,27 @@ class FlashMouse {
 		
 	}
 	
+	public static function warpGlobal (x:Int,y:Int):Void {
+		
+	}
 	
 	
 	
 	// Get & Set Methods
+
 	
+
+
+	public static function get_lock ():Bool {
+
+		return false;
+	}
+
 	
+	public static function set_lock (value:Bool):Bool {
+
+		return value;
+	}
 	
 	
 	public static function get_cursor ():MouseCursor {

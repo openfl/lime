@@ -129,6 +129,11 @@ class Window {
 		backend.setIcon (image);
 		
 	}
+
+	public function warpMouse(x:Int, y:Int){
+
+		backend.warpMouse(x,y);
+	}
 	
 	
 	

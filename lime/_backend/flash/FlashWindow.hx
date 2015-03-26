@@ -71,5 +71,12 @@ class FlashWindow {
 		
 	}
 	
+
+	public function warpMouse (x:Int, y:Int):Void {
+		
+		
+		
+	}
+	
 	
 }

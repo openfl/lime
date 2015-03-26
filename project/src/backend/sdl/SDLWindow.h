@@ -27,6 +27,7 @@ namespace lime {
 			virtual bool SetFullscreen (bool fullscreen);
 			virtual void SetIcon (ImageBuffer *imageBuffer);
 			virtual bool SetMinimized (bool minimized);
+			virtual void WarpMouse (int x, int y);
 			
 			SDL_Window* sdlWindow;
 		
