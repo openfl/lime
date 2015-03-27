@@ -14,6 +14,12 @@ class DeploymentHelper {
 		
 		ZipHelper.compress (PathHelper.combine (targetDirectory, "bin"), targetPath);
 		
+		var cwd = Sys.getCwd();
+		if (targetPath.indexOf(cwd) == -1)
+		{
+			targetPath = PathHelper.combine(cwd, targetPath);
+		}
+		
 		if (targetFlags.exists ("gdrive")) {
 			
 			var parent = targetFlags.get ("parent");
