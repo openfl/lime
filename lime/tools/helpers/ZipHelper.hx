@@ -99,9 +99,12 @@ class ZipHelper {
 	
 	private static function readFile (basePath:String, path:String, files:List<Entry>):Void {
 		
+		var cwd = Sys.getCwd();
+		
 		if (Path.extension (path) != "zip" && Path.extension (path) != "crx" && Path.extension (path) != "wgt") {
 			
 			var fullPath = PathHelper.combine (basePath, path);
+			fullPath = PathHelper.combine(cwd, fullPath);
 			
 			var name = path;
 			//var date = FileSystem.stat (directory + "/" + file).ctime;
