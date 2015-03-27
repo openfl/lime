@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "2.2.2",
-	"releasenote": "Restored support for OpenFL 2.2, font and other minor improvements",
+	"version": "2.3.0",
+	"releasenote": "Added initial Lime 2 support for iOS, added mouse locking, other improvements",
 	"contributors": [ "singmajesty" ]
 }
