@@ -7,9 +7,10 @@ import cpp.UInt16;
 import cpp.UInt32;
 import cpp.Pointer;
 import lime.ConsoleIncludePaths;
+import lime.graphics.console.IndexBuffer;
 import lime.graphics.console.Shader;
 import lime.graphics.console.Primitive;
-import lime.graphics.console.IndexBuffer;
+import lime.graphics.console.RenderState;
 import lime.graphics.console.Texture;
 import lime.graphics.console.TextureFormat;
 import lime.graphics.console.VertexBuffer;
@@ -175,6 +176,36 @@ class ConsoleRenderContext {
 		untyped __cpp__ (
 			"lime::hxapi::ConsoleRenderContext()->setViewport ({0}, {1}, {2}, {3}, {4}, {5})",
 			x, y, width, height, nearPlane, farPlane
+		);
+
+	}
+
+
+	public function setRasterizerState (state:RasterizerState):Void {
+
+		untyped __cpp__ (
+			"lime::hxapi::ConsoleRenderContext()->setRasterizerState ({0})",
+			state
+		);
+
+	}
+
+
+	public function setDepthStencilState (state:DepthStencilState):Void {
+
+		untyped __cpp__ (
+			"lime::hxapi::ConsoleRenderContext()->setDepthStencilState ({0})",
+			state
+		);
+
+	}
+
+
+	public function setBlendState (state:BlendState):Void {
+
+		untyped __cpp__ (
+			"lime::hxapi::ConsoleRenderContext()->setBlendState ({0})",
+			state
 		);
 
 	}
