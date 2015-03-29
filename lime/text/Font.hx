@@ -15,7 +15,7 @@ import js.html.CanvasRenderingContext2D;
 
 @:access(lime.text.Glyph)
 
-#if !display
+#if (!display && !nodejs)
 @:autoBuild(lime.Assets.embedFont())
 #end
 
