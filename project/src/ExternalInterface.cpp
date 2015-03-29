@@ -592,7 +592,17 @@ namespace lime {
 		if (!val_is_null (company)) companyName = val_string (company);
 		if (!val_is_null (title)) titleName = val_string (title);
 		
-		return alloc_string (System::GetDirectory ((SystemDirectory)val_int (type), companyName, titleName));
+		const char* r = System::GetDirectory ((SystemDirectory)val_int (type), companyName, titleName);
+
+		if (r) {
+
+			return alloc_string(r);
+
+		} else {
+
+			return alloc_null();
+
+		}
 		
 	}
 	
