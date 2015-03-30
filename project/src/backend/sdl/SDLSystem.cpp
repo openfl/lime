@@ -120,6 +120,10 @@ namespace lime {
 				
 				return "/usr/fonts/font_repository/monotype";
 				
+				#else
+				
+				return "/usr/share/fonts/truetype";
+				
 				#endif
 				break;
 				
