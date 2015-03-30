@@ -13,6 +13,7 @@ import flash.display.LoaderInfo;
 import flash.display.Sprite;
 import flash.events.Event;
 import flash.events.ProgressEvent;
+import flash.events.IOErrorEvent;
 import flash.Lib;
 #end
 
@@ -54,6 +55,7 @@ class Preloader #if flash extends Sprite #end {
 			Lib.current.loaderInfo.addEventListener (Event.COMPLETE, loaderInfo_onComplete);
 			Lib.current.loaderInfo.addEventListener (Event.INIT, loaderInfo_onInit);
 			Lib.current.loaderInfo.addEventListener (ProgressEvent.PROGRESS, loaderInfo_onProgress);
+			Lib.current.loaderInfo.addEventListener (IOErrorEvent.IO_ERROR, loaderInfo_onError);
 			Lib.current.addEventListener (Event.ENTER_FRAME, current_onEnter);
 			
 		#end
@@ -226,6 +228,9 @@ class Preloader #if flash extends Sprite #end {
 		
 		
 	}
+
+	private function onError():Void {
+	}
 	
 	
 	
@@ -276,6 +281,7 @@ class Preloader #if flash extends Sprite #end {
 			Lib.current.loaderInfo.removeEventListener (Event.COMPLETE, loaderInfo_onComplete);
 			Lib.current.loaderInfo.removeEventListener (Event.INIT, loaderInfo_onInit);
 			Lib.current.loaderInfo.removeEventListener (ProgressEvent.PROGRESS, loaderInfo_onProgress);
+			Lib.current.loaderInfo.removeEventListener (IOErrorEvent.IO_ERROR, loaderInfo_onError);
 			
 			start ();
 			
@@ -303,6 +309,12 @@ class Preloader #if flash extends Sprite #end {
 		
 		update (Lib.current.loaderInfo.bytesLoaded, Lib.current.loaderInfo.bytesTotal);
 		
+	}
+
+	private function loaderInfo_onError (event:flash.events.IOErrorEvent):Void {
+
+		onError();
+
 	}
 	#end
 	
