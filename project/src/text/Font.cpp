@@ -381,6 +381,12 @@ namespace lime {
 					
 					file = lime::fopen (resource->path, "rb");
 					
+					if (!file) {
+						
+						return;
+						
+					}
+					
 					if (file->isFile ()) {
 						
 						error = FT_New_Face (library, resource->path, faceIndex, &face);
