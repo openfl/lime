@@ -192,6 +192,18 @@ namespace lime {
 		
 		FILE_HANDLE *file = NULL;
 		
+		if (resource->path) {
+			
+			file = lime::fopen (resource->path, "rb");
+			
+			if (!file) {
+				
+				return false;
+				
+			}
+			
+		}
+		
 		if (setjmp (jpegError.on_error)) {
 			
 			if (file) {
@@ -207,9 +219,7 @@ namespace lime {
 		
 		jpeg_create_decompress (&cinfo);
 		
-		if (resource->path) {
-			
-			file = lime::fopen (resource->path, "rb");
+		if (file) {
 			
 			if (file->isFile ()) {
 				
