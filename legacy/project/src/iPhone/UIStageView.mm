@@ -2299,7 +2299,8 @@ CGRect keyboardRect = CGRectMake(0, 0, 0, 0);
 - (void)loadView;
 - (void)viewWillAppear:(BOOL)animated;
 - (void)viewWillDisappear:(BOOL)animated;
-- (void)keyboardChangedStatus:(NSNotification*)notification;
+- (void)keyboardWillShow:(NSNotification*)notification;
+- (void)keyboardWillHide:(NSNotification*)notification;
 @end
 
 
@@ -3143,8 +3144,8 @@ public:
 {
     [super viewWillAppear:animated];
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    [nc addObserver:self selector:@selector(keyboardChangedStatus:) name:UIKeyboardWillShowNotification object:nil];
-    [nc addObserver:self selector:@selector(keyboardChangedStatus:) name:UIKeyboardWillHideNotification object:nil];
+    [nc addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+    [nc addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -3155,14 +3156,16 @@ public:
     [nc removeObserver:self name:UIKeyboardWillHideNotification object:nil];
 }
 
-- (void)keyboardChangedStatus:(NSNotification*)notification {
-    //get the size!
-    CGRect keyboardRect;
+- (void)keyboardWillShow:(NSNotification*)notification {
     [[[notification userInfo] objectForKey:UIKeyboardFrameEndUserInfoKey] getValue:&keyboardRect];
     keyboardRect = [self.view convertRect:keyboardRect fromView:nil];
-    
-    //move your view to the top, to display the textfield..
-    //[self moveView:notification keyboardHeight:keyboardHeight];
+}
+
+- (void)keyboardWillHide:(NSNotification*)notification {
+    keyboardRect.origin.x = 0;
+    keyboardRect.origin.y = 0;
+    keyboardRect.size.width = 0;
+    keyboardRect.size.height = 0;
 }
 
 @end
