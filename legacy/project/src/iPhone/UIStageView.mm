@@ -2273,6 +2273,8 @@ extern "C" void nme_app_set_active(bool inActive);
 
 namespace nme { int gFixedOrientation = -1; }
 
+CGRect keyboardRect = CGRectMake(0, 0, 0, 0);
+
 
 @interface NMEAppDelegate : NSObject <UIApplicationDelegate>
 {
@@ -2295,6 +2297,10 @@ namespace nme { int gFixedOrientation = -1; }
 @interface UIStageViewController : UIViewController
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
 - (void)loadView;
+- (void)viewWillAppear:(BOOL)animated;
+- (void)viewWillDisappear:(BOOL)animated;
+- (void)keyboardWillShow:(NSNotification*)notification;
+- (void)keyboardWillHide:(NSNotification*)notification;
 @end
 
 
@@ -2969,6 +2975,11 @@ public:
          mRenderBuffer = 1-mRenderBuffer;
       }
    }
+   
+   int getKeyboardHeight()
+   {
+      return keyboardRect.size.height;
+   }
 
    void GetMouse()
    {
@@ -3127,6 +3138,34 @@ public:
 {
    UIStageView *view = [[UIStageView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
    self.view = view;
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+    [nc addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc removeObserver:self name:UIKeyboardWillShowNotification object:nil];
+    [nc removeObserver:self name:UIKeyboardWillHideNotification object:nil];
+}
+
+- (void)keyboardWillShow:(NSNotification*)notification {
+    [[[notification userInfo] objectForKey:UIKeyboardFrameEndUserInfoKey] getValue:&keyboardRect];
+    keyboardRect = [self.view convertRect:keyboardRect fromView:nil];
+}
+
+- (void)keyboardWillHide:(NSNotification*)notification {
+    keyboardRect.origin.x = 0;
+    keyboardRect.origin.y = 0;
+    keyboardRect.size.width = 0;
+    keyboardRect.size.height = 0;
 }
 
 @end

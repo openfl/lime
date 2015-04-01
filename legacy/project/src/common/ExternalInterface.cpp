@@ -1534,6 +1534,7 @@ DO_STAGE_PROP(align,Align,alloc_int,val_int)
 DO_STAGE_PROP(quality,Quality,alloc_int,val_int)
 DO_STAGE_PROP(display_state,DisplayState,alloc_int,val_int)
 DO_STAGE_PROP(multitouch_active,MultitouchActive,alloc_bool,val_bool)
+DO_PROP_READ(Stage,stage,keyboard_height,KeyboardHeight,alloc_int);
 DO_PROP_READ(Stage,stage,stage_width,StageWidth,alloc_float);
 DO_PROP_READ(Stage,stage,stage_height,StageHeight,alloc_float);
 DO_PROP_READ(Stage,stage,dpi_scale,DPIScale,alloc_float);
