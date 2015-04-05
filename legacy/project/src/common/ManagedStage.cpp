@@ -2,6 +2,7 @@
 #include <Display.h>
 #include <Surface.h>
 #include <KeyCodes.h>
+#include <Sound.h>
 #include <map>
 
 
@@ -63,6 +64,10 @@ void ManagedStage::PumpEvent(Event &inEvent)
    if (inEvent.type==etResize)
    {
       SetActiveSize(inEvent.x, inEvent.y);
+   }
+   else if (inEvent.type==etQuit)
+   {
+      Sound::Shutdown();
    }
    else
       Stage::HandleEvent(inEvent);
