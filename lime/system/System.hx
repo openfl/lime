@@ -410,7 +410,7 @@ class System {
 				
 			}
 			
-			#if hybrid
+			#if lime_hybrid
 			var init = load ("lime-legacy", "neko_init", 5);
 			
 			if (init != null) {
