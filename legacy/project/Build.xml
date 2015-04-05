@@ -265,7 +265,7 @@
 	<set name="LEGACY_POSTLIB" value="${LIBEXTRA}${LEGACY_SLIBEXT}" />
 	<set name="LEGACY_DEBUGEXTRA" value="-debug" if="fulldebug" />
 	
-	<target id="lime-legacy" output="${LIBPREFIX}lime${MSVC_LIB_VERSION}${LEGACY_DEBUGEXTRA}${LIBEXTRA}" tool="linker" toolid="${STD_MODULE_LINK}">
+	<target id="lime-legacy" output="${LIBPREFIX}lime-legacy${MSVC_LIB_VERSION}${LEGACY_DEBUGEXTRA}${LIBEXTRA}" tool="linker" toolid="${STD_MODULE_LINK}">
 		
 		<outdir name="${LEGACY_OUTPUT_DIR}/${BINDIR}" />
 		

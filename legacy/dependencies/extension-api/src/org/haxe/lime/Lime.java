@@ -5,7 +5,7 @@ package org.haxe.lime;
 public class Lime {
 
      static {
-         System.loadLibrary("lime");
+         System.loadLibrary("lime-legacy");
      }
 
      public static final int ACTIVATE   = 1;

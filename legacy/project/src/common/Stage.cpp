@@ -590,6 +590,7 @@ bool Stage::BuildCache()
 
 int Stage::getKeyboardHeight()
 {
+	return 0;
    //#ifdef IPHONE
    //return GetKeyboardHeight();
    //#endif

@@ -8,7 +8,7 @@
 		<ndll name="regexp" haxelib="hxcpp" if="cpp" />
 		<ndll name="zlib" haxelib="hxcpp" if="cpp" unless="ios" />
 		
-		<ndll name="lime" dir="legacy/ndll" />
+		<ndll name="lime-legacy" dir="legacy/ndll" />
 		
 		<ndll name="libfreetype" dir="legacy/ndll" register="false" if="emscripten" />
 		
@@ -18,13 +18,10 @@
 		<ndll name="freetype" dir="legacy/ndll" register="false" if="ios" />
 		<ndll name="ogg" dir="legacy/ndll" register="false" if="ios" />
 		<ndll name="vorbis" dir="legacy/ndll" register="false" if="ios" /> -->
-
+		
 		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
 		
 		<architecture name="armv7" if="android" />
-		
-		<haxelib name="nme" if="dev setup" />
-		<haxelib name="nme-dev" if="dev setup" />
 		
 	</section>
 	
