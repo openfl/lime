@@ -410,6 +410,21 @@ class System {
 				
 			}
 			
+			#if hybrid
+			var init = load ("lime-legacy", "neko_init", 5);
+			
+			if (init != null) {
+				
+				loaderTrace ("Found nekoapi @ " + __moduleNames.get ("lime-legacy"));
+				init (function(s) return new String (s), function (len:Int) { var r = []; if (len > 0) r[len - 1] = null; return r; }, null, true, false);
+				
+			} else {
+				
+				throw ("Could not find NekoAPI interface.");
+				
+			}
+			#end
+			
 			__loadedNekoAPI = true;
 			
 		}
