@@ -110,28 +110,31 @@ namespace lime {
 		
 		if (resource->path) {
 			
-			FILE_HANDLE *file;
+			FILE_HANDLE *file = lime::fopen (resource->path, "rb");
 			
-			//#ifdef ANDROID
-			//FileInfo info = AndroidGetAssetFD (resource->path);
-			//file = lime::fdopen (info.fd, "rb");
-			//lime::fseek (file, info.offset, 0);
-			//#else
-			file = lime::fopen (resource->path, "rb");
-			//#endif
-			
-			if (!file || !file->isFile ()) {
+			if (!file) {
 				
-				//LOG_SOUND("FAILED to read audio file, file pointer as null?\n");
 				return false;
 				
 			}
 			
-			//#ifdef ANDROID
-			//ov_open (file, &oggFile, NULL, info.length);
-			//#else
-			ov_open (file->getFile (), &oggFile, NULL, file->getLength ());
-			//#endif
+			if (file->isFile ()) {
+				
+				ov_open (file->getFile (), &oggFile, NULL, file->getLength ());
+				
+			} else {
+				
+				ByteArray data = ByteArray (resource->path);
+				
+				OAL_OggMemoryFile fakeFile = { data.Bytes (), data.Size (), 0 };
+				
+				if (ov_open_callbacks (&fakeFile, &oggFile, NULL, 0, OAL_CALLBACKS_BUFFER) != 0) {
+					
+					return false;
+					
+				}
+				
+			}
 			
 		} else {
 			
