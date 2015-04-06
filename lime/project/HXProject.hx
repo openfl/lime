@@ -882,7 +882,7 @@ class HXProject {
 			
 			if (StringTools.startsWith (haxeflag, "-lib")) {
 				
-				Reflect.setField (context, "LIB_" + haxeflag.substr (5).toUpperCase (), "true");
+				Reflect.setField (context, "LIB_" + StringHelper.formatUppercaseVariable (haxeflag.substr (5)), "true");
 				
 			}
 			
@@ -1038,7 +1038,7 @@ class HXProject {
 			
 			#end
 			
-			Reflect.setField (context, "LIB_" + haxelib.name.toUpperCase (), true);
+			Reflect.setField (context, "LIB_" + StringHelper.formatUppercaseVariable (haxelib.name), true);
 			
 			if (name == "nme") {
 				
@@ -1060,11 +1060,11 @@ class HXProject {
 			
 			if (value == null || value == "") {
 				
-				Reflect.setField (context, "SET_" + key.toUpperCase (), true);
+				Reflect.setField (context, "SET_" + StringHelper.formatUppercaseVariable (key), true);
 				
 			} else {
 				
-				Reflect.setField (context, "SET_" + key.toUpperCase (), value);
+				Reflect.setField (context, "SET_" + StringHelper.formatUppercaseVariable (key), value);
 				
 			}
 			
@@ -1078,13 +1078,13 @@ class HXProject {
 				
 				compilerFlags.push ("-D " + key);
 				
-				Reflect.setField (context, "DEFINE_" + key.toUpperCase (), true);
+				Reflect.setField (context, "DEFINE_" + StringHelper.formatUppercaseVariable (key), true);
 				
 			} else {
 				
 				compilerFlags.push ("-D " + key + "=" + value);
 				
-				Reflect.setField (context, "DEFINE_" + key.toUpperCase (), value);
+				Reflect.setField (context, "DEFINE_" + StringHelper.formatUppercaseVariable (key), value);
 				
 			}
 			

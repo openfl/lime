@@ -2,7 +2,7 @@
 <extension>
 	
 	<section unless="display">
-
+		
 		<haxelib name="hxcpp" if="cpp" unless="rebuild" />
 		<ndll name="std" haxelib="hxcpp" if="cpp" />
 		<ndll name="regexp" haxelib="hxcpp" if="cpp" />
@@ -25,6 +25,6 @@
 		
 	</section>
 	
-	<templatePath name="templates" />
+	<templatePath name="templates" unless="lime-hybrid" />
 	
 </extension>
