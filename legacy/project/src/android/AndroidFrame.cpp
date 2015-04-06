@@ -598,16 +598,13 @@ AAsset *AndroidGetAsset(const char *inResource)
    if (!androidAssetManager)
    {
       JNIEnv *env = GetEnv();
-      #ifdef HX_LIME
-      jclass cls = FindClass("org/haxe/lime/GameActivity");
-      #else
-      jclass cls = FindClass("org/haxe/nme/GameActivity");
-      #endif
-      jmethodID mid = env->GetStaticMethodID(cls, "getAssetManager", "()Landroid/content/res/AssetManager;");
-      if (mid == 0)
+      jclass cls = FindClass("org/haxe/extension/Extension");
+	  
+	  jfieldID fid = env->GetStaticFieldID(cls, "assetManager", "Landroid/content/res/AssetManager;");
+      if (fid == 0)
          return 0;
       
-      jobject assetManager = (jobject)env->CallStaticObjectMethod(cls, mid);
+      jobject assetManager = (jobject)env->GetStaticObjectField(cls, fid);
       if (assetManager==0)
       {
          //LOG("Could not find assetManager for asset %s", inResource);
