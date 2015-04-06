@@ -5,6 +5,10 @@ package org.haxe.lime;
 public class Lime {
 
      static {
+		 ::if DEFINE_LIME_HYBRID::
+		 System.loadLibrary("openal");
+         System.loadLibrary("lime");
+		 ::end::
          System.loadLibrary("lime-legacy");
      }
 

@@ -343,10 +343,10 @@ class Timer {
 	}
 	
 	
-	#if lime_legacy
+	#if (lime_legacy || lime_hybrid)
 	@:noCompletion public static function __nextWake (limit:Float):Float {
 		
-		var now = lime_time_stamp () * 1000.0;
+		var now = getMS ();
 		var sleep;
 		
 		for (timer in sRunningTimers) {
