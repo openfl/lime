@@ -12,7 +12,7 @@ extern "C" void hxcpp_set_top_of_stack();
 	
 ::foreach ndlls::
  ::if (registerStatics)::
-     extern "C" int ::name::_register_prims();
+     extern "C" int ::nameSafe::_register_prims();
  ::end::
 ::end::
 	
@@ -23,7 +23,7 @@ extern "C" int main(int argc, char *argv[])
 
    	::foreach ndlls::
      ::if (registerStatics)::
-      ::name::_register_prims();
+      ::nameSafe::_register_prims();
      ::end::
    	::end::
 	
