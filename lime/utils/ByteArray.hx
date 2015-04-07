@@ -110,7 +110,7 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 		init (factory, slen, resize, bytes);
 		
 		#if lime_hybrid
-		var init = System.load ("lime-legacy", "lime_byte_array_init", 4);
+		var init = System.load ("lime-legacy", "lime_legacy_byte_array_init", 4);
 		init (factory, slen, resize, bytes);
 		#end
 		

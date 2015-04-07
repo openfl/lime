@@ -936,7 +936,18 @@ class HXProject {
 			
 		}
 		
-		Reflect.setField (context, "ndlls", ndlls);
+		context.ndlls = new Array <Dynamic> ();
+		
+		for (ndll in ndlls) {
+			
+			var templateNDLL:Dynamic = { };
+			ObjectHelper.copyFields (ndll, templateNDLL);
+			templateNDLL.nameSafe = StringTools.replace (ndll.name, "-", "_");
+			context.ndlls.push (templateNDLL);
+			
+		}
+		
+		//Reflect.setField (context, "ndlls", ndlls);
 		//Reflect.setField (context, "sslCaCert", sslCaCert);
 		context.sslCaCert = "";
 		

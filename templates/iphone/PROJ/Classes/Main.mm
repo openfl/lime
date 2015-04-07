@@ -12,7 +12,7 @@ extern "C" void hxcpp_set_top_of_stack ();
 
 extern "C" int zlib_register_prims ();
 extern "C" int lime_openal_register_prims ();
-::foreach ndlls::::if (registerStatics)::extern "C" int ::name::_register_prims ();::end::
+::foreach ndlls::::if (registerStatics)::extern "C" int ::nameSafe::_register_prims ();::end::
 ::end::
 
 
@@ -22,7 +22,7 @@ extern "C" int SDL_main (int argc, char *argv[]) {
 	
 	zlib_register_prims ();
 	lime_openal_register_prims ();
-	::foreach ndlls::::if (registerStatics)::::name::_register_prims ();::end::
+	::foreach ndlls::::if (registerStatics)::::nameSafe::_register_prims ();::end::
 	::end::
 	
 	const char *err = NULL;
