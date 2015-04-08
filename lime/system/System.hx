@@ -208,17 +208,22 @@ class System {
 			
 			__moduleNames.set (library, library);
 			
-			#if neko
-			result = neko.Lib.loadLazy (library, method, args);
-			#elseif cpp
-			result = cpp.Lib.loadLazy (library, method, args);
-			#end
+			try {
+				
+				#if neko
+				result = neko.Lib.loadLazy (library, method, args);
+				#elseif cpp
+				result = cpp.Lib.loadLazy (library, method, args);
+				#end
+				
+			} catch (e:Dynamic) {}
 			
 		} else {
 			
 			#if (iphone || emscripten || android || static_link)
 			return cpp.Lib.load (library, method, args);
 			#end
+			
 			
 			if (__moduleNames.exists (library)) {
 				
@@ -290,7 +295,7 @@ class System {
 		#if neko
 		if (library == "lime" && method != "neko_init") {
 			
-			loadNekoAPI ();
+			loadNekoAPI (lazy);
 			
 		}
 		#end
@@ -396,18 +401,18 @@ class System {
 	
 	#if neko
 	
-	private static function loadNekoAPI ():Void {
+	private static function loadNekoAPI (lazy:Bool):Void {
 		
 		if (!__loadedNekoAPI) {
 			
-			var init = load ("lime", "neko_init", 5);
+			var init = load ("lime", "neko_init", 5, lazy);
 			
 			if (init != null) {
 				
 				loaderTrace ("Found nekoapi @ " + __moduleNames.get ("lime"));
 				init (function(s) return new String (s), function (len:Int) { var r = []; if (len > 0) r[len - 1] = null; return r; }, null, true, false);
 				
-			} else {
+			} else if (!lazy) {
 				
 				throw ("Could not find NekoAPI interface.");
 				
@@ -421,7 +426,7 @@ class System {
 				loaderTrace ("Found nekoapi @ " + __moduleNames.get ("lime-legacy"));
 				init (function(s) return new String (s), function (len:Int) { var r = []; if (len > 0) r[len - 1] = null; return r; }, null, true, false);
 				
-			} else {
+			} else if (!lazy) {
 				
 				throw ("Could not find NekoAPI interface.");
 				
