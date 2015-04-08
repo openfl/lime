@@ -141,7 +141,7 @@ class Font {
 		lime_font_set_size (src, fontSize);
 		
 		var bytes = new ByteArray ();
-		bytes.endian = "littleEndian";
+		bytes.endian = "bigEndian";
 		
 		if (lime_font_render_glyph (src, glyph, bytes)) {
 			
@@ -199,7 +199,7 @@ class Font {
 		lime_font_set_size (src, fontSize);
 		
 		var bytes = new ByteArray ();
-		bytes.endian = "littleEndian";
+		bytes.endian = "bigEndian";
 		
 		if (lime_font_render_glyphs (src, glyphList, bytes)) {
 			
