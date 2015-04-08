@@ -197,105 +197,108 @@ class System {
 			
 		}
 		
-		if (lazy) {
-			
-			#if neko
-			return neko.Lib.loadLazy (library, method, args);
-			#elseif cpp
-			return cpp.Lib.loadLazy (library, method, args);
-			#end
-			
-		}
+		var result:Dynamic = null;
 		
 		#if (!disable_cffi && !macro)
 		#if (sys && !html5)
 		
-		#if (iphone || emscripten || android || static_link)
-		return cpp.Lib.load (library, method, args);
-		#end
-		
 		if (__moduleNames == null) __moduleNames = new Map<String, String> ();
-		if (__moduleNames.exists (library)) {
+		
+		if (lazy) {
 			
-			#if cpp
-			return cpp.Lib.load (__moduleNames.get (library), method, args);
-			#elseif neko
-			return neko.Lib.load (__moduleNames.get (library), method, args);
-			#elseif nodejs
-			return untyped __nodeNDLLModule.load_lib (__moduleNames.get (library), method, args);
-			#else
-			return null;
+			__moduleNames.set (library, library);
+			
+			#if neko
+			result = neko.Lib.loadLazy (library, method, args);
+			#elseif cpp
+			result = cpp.Lib.loadLazy (library, method, args);
 			#end
 			
-		}
-		
-		#if waxe
-		if (library == "lime") {
+		} else {
 			
-			flash.Lib.load ("waxe", "wx_boot", 1);
+			#if (iphone || emscripten || android || static_link)
+			return cpp.Lib.load (library, method, args);
+			#end
 			
-		}
-		#elseif nodejs
-		if (__nodeNDLLModule == null) {
-			
-			__nodeNDLLModule = untyped require('ndll');
-			
-		}
-		#end
-		
-		__moduleNames.set (library, library);
-		
-		var result:Dynamic = tryLoad ("./" + library, library, method, args);
-		
-		if (result == null) {
-			
-			result = tryLoad (".\\" + library, library, method, args);
-			
-		}
-		
-		if (result == null) {
-			
-			result = tryLoad (library, library, method, args);
-			
-		}
-		
-		if (result == null) {
-			
-			var slash = (sysName ().substr (7).toLowerCase () == "windows") ? "\\" : "/";
-			var haxelib = findHaxeLib ("lime");
-			
-			if (haxelib != "") {
+			if (__moduleNames.exists (library)) {
 				
-				result = tryLoad (haxelib + slash + "ndll" + slash + sysName () + slash + library, library, method, args);
+				#if cpp
+				return cpp.Lib.load (__moduleNames.get (library), method, args);
+				#elseif neko
+				return neko.Lib.load (__moduleNames.get (library), method, args);
+				#elseif nodejs
+				return untyped __nodeNDLLModule.load_lib (__moduleNames.get (library), method, args);
+				#else
+				return null;
+				#end
 				
-				if (result == null) {
+			}
+			
+			#if waxe
+			if (library == "lime") {
+				
+				flash.Lib.load ("waxe", "wx_boot", 1);
+				
+			}
+			#elseif nodejs
+			if (__nodeNDLLModule == null) {
+				
+				__nodeNDLLModule = untyped require('ndll');
+				
+			}
+			#end
+			
+			__moduleNames.set (library, library);
+			
+			result = tryLoad ("./" + library, library, method, args);
+			
+			if (result == null) {
+				
+				result = tryLoad (".\\" + library, library, method, args);
+				
+			}
+			
+			if (result == null) {
+				
+				result = tryLoad (library, library, method, args);
+				
+			}
+			
+			if (result == null) {
+				
+				var slash = (sysName ().substr (7).toLowerCase () == "windows") ? "\\" : "/";
+				var haxelib = findHaxeLib ("lime");
+				
+				if (haxelib != "") {
 					
-					result = tryLoad (haxelib + slash + "ndll" + slash + sysName() + "64" + slash + library, library, method, args);
+					result = tryLoad (haxelib + slash + "ndll" + slash + sysName () + slash + library, library, method, args);
+					
+					if (result == null) {
+						
+						result = tryLoad (haxelib + slash + "ndll" + slash + sysName() + "64" + slash + library, library, method, args);
+						
+					}
 					
 				}
 				
 			}
 			
+			loaderTrace ("Result : " + result);
+			
 		}
 		
-		loaderTrace ("Result : " + result);
-		
 		#if neko
-		if (library == "lime") {
+		if (library == "lime" && method != "neko_init") {
 			
 			loadNekoAPI ();
 			
 		}
 		#end
 		
-		#else
-		
-		var result = null;
-		
 		#end
 		#else
 		
-		var result = function (_, _, _, _, _, _) { return { }; };
+		result = function (_, _, _, _, _, _) { return { }; };
 		
 		#end
 		
