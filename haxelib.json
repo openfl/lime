@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "2.3.0",
-	"releasenote": "Added initial Lime 2 support for iOS, added mouse locking, other improvements",
+	"version": "2.3.1",
+	"releasenote": "Renamed Lime legacy binary, added hybrid support, other improvements",
 	"contributors": [ "singmajesty" ]
 }
