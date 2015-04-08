@@ -856,7 +856,7 @@ namespace lime {
 		
 		if (count > 0) {
 			
-			*(bytes->Bytes ()) = count;
+			*(uint32_t *)(bytes->Bytes ()) = count;
 			
 		}
 		
