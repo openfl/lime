@@ -1319,7 +1319,7 @@ namespace lime {
 		unsigned char *data = 0;
 		ByteArray bytes (arg[aBuffer]);
 		
-		if (bytes.mValue) {
+		if (!val_is_null (bytes.mValue)) {
 			
 			data = bytes.Bytes () + val_int (arg[aOffset]);
 			
