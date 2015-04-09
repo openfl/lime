@@ -210,6 +210,12 @@ class System {
 			
 			try {
 				
+				#if lime_legacy
+				if (library == "lime") return null;
+				#elseif !lime_hybrid
+				if (library == "lime-legacy") return null;
+				#end
+				
 				#if neko
 				result = neko.Lib.loadLazy (library, method, args);
 				#elseif cpp
