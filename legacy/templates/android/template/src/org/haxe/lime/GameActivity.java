@@ -80,7 +80,7 @@ public class GameActivity extends Activity implements SensorEventListener {
 	
 	private static MainView mMainView;
 	private MainView mView;
-	private Sound _sound;
+	//private Sound _sound;
 	
 	
 	protected void onCreate (Bundle state) {
@@ -97,7 +97,7 @@ public class GameActivity extends Activity implements SensorEventListener {
 		Extension.mainActivity = this;
 		Extension.mainContext = this;
 		
-		_sound = new Sound (getApplication ());
+		//_sound = new Sound (getApplication ());
 		
 		requestWindowFeature (Window.FEATURE_NO_TITLE);
 		
@@ -237,7 +237,7 @@ public class GameActivity extends Activity implements SensorEventListener {
 	
 	public void doPause () {
 		
-		_sound.doPause ();
+		//_sound.doPause ();
 		
 		mView.sendActivity (Lime.DEACTIVATE);
 		mView.onPause ();
@@ -255,7 +255,7 @@ public class GameActivity extends Activity implements SensorEventListener {
 		
 		mView.onResume ();
 		
-		_sound.doResume ();
+		//_sound.doResume ();
 		
 		mView.sendActivity (Lime.ACTIVATE);
 		
