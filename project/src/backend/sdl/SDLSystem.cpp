@@ -17,6 +17,13 @@
 #define SHGFP_TYPE_CURRENT 0
 #endif
 #endif
+#if UNICODE
+#define WIN_StringToUTF8(S) SDL_iconv_string("UTF-8", "UTF-16LE", (char *)(S), (SDL_wcslen(S)+1)*sizeof(WCHAR))
+#define WIN_UTF8ToString(S) (WCHAR *)SDL_iconv_string("UTF-16LE", "UTF-8", (char *)(S), SDL_strlen(S)+1)
+#else
+#define WIN_StringToUTF8(S) SDL_iconv_string("UTF-8", "ASCII", (char *)(S), (SDL_strlen(S)+1))
+#define WIN_UTF8ToString(S) SDL_iconv_string("ASCII", "UTF-8", (char *)(S), SDL_strlen(S)+1)
+#endif
 #endif
 
 #include <SDL_filesystem.h>
@@ -55,7 +62,7 @@ namespace lime {
 				
 				char result[MAX_PATH] = "";
 				SHGetFolderPath (NULL, CSIDL_DESKTOPDIRECTORY, NULL, SHGFP_TYPE_CURRENT, result);
-				return std::string (result).c_str ();
+				return WIN_StringToUTF8 (result);
 				
 				#else
 				
@@ -80,7 +87,7 @@ namespace lime {
 				
 				char result[MAX_PATH] = "";
 				SHGetFolderPath (NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, result);
-				return std::string (result).c_str ();
+				return WIN_StringToUTF8 (result);
 				
 				#else
 				
@@ -102,7 +109,7 @@ namespace lime {
 				
 				char result[MAX_PATH] = "";
 				SHGetFolderPath (NULL, CSIDL_FONTS, NULL, SHGFP_TYPE_CURRENT, result);
-				return std::string (result).c_str ();
+				return WIN_StringToUTF8 (result);
 				
 				#elif defined (HX_MACOS)
 				
@@ -142,7 +149,7 @@ namespace lime {
 				
 				char result[MAX_PATH] = "";
 				SHGetFolderPath (NULL, CSIDL_PROFILE, NULL, SHGFP_TYPE_CURRENT, result);
-				return std::string (result).c_str ();
+				return WIN_StringToUTF8 (result);
 				
 				#else
 				
