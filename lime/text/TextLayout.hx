@@ -56,7 +56,7 @@ class TextLayout {
 			if (__buffer == null) {
 				
 				__buffer = new ByteArray ();
-				__buffer.endian = "littleEndian";
+				__buffer.endian = "bigEndian";
 				
 			}
 			

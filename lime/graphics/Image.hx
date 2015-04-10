@@ -39,6 +39,10 @@ import sys.io.File;
 #end
 #end
 
+#if lime_console
+import lime.graphics.console.TextureData;
+#end
+
 @:allow(lime.graphics.util.ImageCanvasUtil)
 @:allow(lime.graphics.util.ImageDataUtil)
 @:access(lime.app.Application)
@@ -811,6 +815,10 @@ class Image {
 			}
 			
 			__fromBase64 (__base64Encode (bytes), type, onload);
+
+		#elseif lime_console
+
+			throw "Image.fromBytes not implemented for console target";
 			
 		#elseif (cpp || neko || nodejs)
 			
@@ -878,6 +886,22 @@ class Image {
 		#elseif (cpp || neko || nodejs || java)
 			
 			var buffer = null;
+
+			#if lime_console
+
+				var texdata = TextureData.fromFile (path);
+
+				if (texdata.valid) {
+
+					buffer = new ImageBuffer (null, texdata.width, texdata.height);
+					buffer.src = texdata;
+					// TODO(james4k): call texdata.release() in a finalizer or
+					// somewhere.. or don't manage texture resources this way.
+					// we shall see.
+
+				}
+
+			#else
 			
 			if (#if (sys && (!disable_cffi || !format) && !java) true #else false #end && !System.disableCFFI) {
 				
@@ -893,7 +917,7 @@ class Image {
 				}
 				
 			}
-			
+
 			#if format
 			
 			else {
@@ -930,6 +954,8 @@ class Image {
 				
 			}
 			
+			#end
+
 			#end
 			
 			if (buffer != null) {

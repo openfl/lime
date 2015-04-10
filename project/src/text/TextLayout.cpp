@@ -66,7 +66,7 @@ namespace lime {
 		
 		unsigned char* bytesPosition = bytes->Bytes ();
 		
-		*(bytesPosition) = glyph_count;
+		*(uint32_t *)(bytesPosition) = glyph_count;
 		bytesPosition += 4;
 		
 		hb_glyph_position_t pos;
