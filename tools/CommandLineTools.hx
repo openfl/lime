@@ -1291,8 +1291,6 @@ class CommandLineTools {
 		
 		for (key in projectDefines.keys ()) {
 			
-			Sys.println (key);
-			
 			var components = key.split ("-");
 			var field = components.shift ().toLowerCase ();
 			var attribute = "";

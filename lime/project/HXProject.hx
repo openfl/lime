@@ -469,7 +469,6 @@ class HXProject {
 		
 		if (!FileSystem.exists (path) || !FileSystem.isDirectory (path)) {
 			
-			Sys.println (":(");
 			return null;
 			
 		}
@@ -1156,12 +1155,6 @@ class HXProject {
 				context.HXML_PATH = path;
 				
 			}
-			
-		}
-		
-		for (field in Reflect.fields (context)) {
-			
-			//Sys.println ("context." + field + " = " + Reflect.field (context, field));
 			
 		}
 		
