@@ -173,6 +173,15 @@ class ImageDataUtil {
 		
 		if (!mergeAlpha || !sourceImage.transparent) {
 			
+			//#if (!js && !flash)
+			//if (sourceRect.width == image.width && sourceRect.height == image.height && image.width == sourceImage.width && image.height == sourceImage.height && sourceRect.x == 0 && sourceRect.y == 0 && destPoint.x == 0 && destPoint.y == 0) {
+				//
+				//image.buffer.data.buffer.blit (0, sourceImage.buffer.data.buffer, 0, Std.int (sourceRect.width * sourceRect.height) * 4);
+				//return;
+				//
+			//}
+			//#end
+			
 			for (row in Std.int (sourceRect.top + sourceImage.offsetY)...Std.int (sourceRect.bottom + sourceImage.offsetY)) {
 				
 				for (column in Std.int (sourceRect.left + sourceImage.offsetX)...Std.int (sourceRect.right + sourceImage.offsetX)) {
@@ -395,11 +404,23 @@ class ImageDataUtil {
 	
 	public static function getPixels (image:Image, rect:Rectangle):ByteArray {
 		
+		var length = Std.int (rect.width * rect.height);
+		
 		#if flash
 		var byteArray = new ByteArray ();
 		#else
-		var byteArray = new ByteArray (Std.int (rect.width * rect.height * 4));
+		var byteArray = new ByteArray (length * 4);
+		byteArray.position = 0;
 		#end
+		
+		//#if (!js && !flash)
+		//if (rect.width == image.width && rect.height == image.height && rect.x == 0 && rect.y == 0) {
+			//
+			//byteArray.blit (0, image.buffer.data.buffer, 0, length * 4);
+			//return byteArray;
+			//
+		//}
+		//#end
 		
 		// TODO: optimize if the rect is the same as the full buffer size
 			
@@ -409,7 +430,6 @@ class ImageDataUtil {
 		var srcRowOffset = srcStride - Std.int (4 * rect.width);
 		var srcRowEnd = Std.int (4 * (rect.x + rect.width));
 		
-		var length = Std.int (rect.width * rect.height);
 		#if js
 		byteArray.length = length * 4;
 		#end
@@ -640,6 +660,15 @@ class ImageDataUtil {
 	public static function setPixels (image:Image, rect:Rectangle, byteArray:ByteArray):Void {
 		
 		var len = Math.round (rect.width * rect.height);
+		
+		//#if (!js && !flash)
+		//if (rect.width == image.width && rect.height == image.height && rect.x == 0 && rect.y == 0) {
+			//
+			//image.buffer.data.buffer.blit (0, byteArray, 0, len * 4);
+			//return;
+			//
+		//}
+		//#end
 		
 		// TODO: optimize when rect is the same as the buffer size
 		
