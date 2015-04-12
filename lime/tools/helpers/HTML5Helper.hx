@@ -128,6 +128,12 @@ class HTML5Helper {
 				
 			}
 			
+			if (project.targetFlags.exists ("port")) {
+				
+				port = Std.parseInt (project.targetFlags.get ("port"));
+				
+			}
+			
 			LogHelper.info ("", " - \x1b[1mStarting local web server:\x1b[0m http://localhost:" + port);
 			
 			/*Thread.create (function () { 
