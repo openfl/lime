@@ -188,7 +188,7 @@ class IconHelper {
 			
 		}
 		
-		var sizes = [ 16, 24, 32, 40, 48, 64, 96, 128, 256 ];
+		var sizes = [ 16, 24, 32, 40, 48, 64, 96, 128, 256, 512, 768 ];
 		
 		var images = new Array <Image> ();
 		var imageData = new Array <ByteArray> ();
