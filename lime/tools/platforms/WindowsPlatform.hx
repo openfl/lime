@@ -127,7 +127,6 @@ class WindowsPlatform extends PlatformTarget {
 				haxeArgs.push ("-D");
 				haxeArgs.push ("no_console");
 				flags.push ("-Dno_console");
-				
 			}
 			
 			if (!project.targetFlags.exists ("static")) {
