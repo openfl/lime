@@ -1,6 +1,8 @@
 package lime.graphics;
 
 
+import haxe.io.Bytes;
+import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 
 #if (js && html5)
@@ -83,7 +85,7 @@ class ImageBuffer {
 			buffer.__srcImage = __srcImage;
 			
 		}
-		#else
+		#elseif nodejs
 		if (data != null) {
 			
 			buffer.data = new UInt8Array (data.byteLength);
@@ -92,6 +94,15 @@ class ImageBuffer {
 			
 		}
 		buffer.__srcCustom = __srcCustom;
+		#else
+		if (data != null) {
+			
+			var bytes = Bytes.alloc (data.byteLength);
+			bytes.blit (0, buffer.data.buffer, 0, data.byteLength);
+			var byteArray = ByteArray.fromBytes (bytes);
+			buffer.data = new UInt8Array (byteArray);
+			
+		}
 		#end
 		
 		buffer.premultiplied = premultiplied;

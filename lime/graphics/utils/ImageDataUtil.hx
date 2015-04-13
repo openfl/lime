@@ -7,6 +7,7 @@ import lime.graphics.ImageBuffer;
 import lime.math.ColorMatrix;
 import lime.math.Rectangle;
 import lime.math.Vector2;
+import lime.system.System;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 
@@ -501,6 +502,10 @@ class ImageDataUtil {
 		var data = image.buffer.data;
 		if (data == null) return;
 		
+		#if ((cpp || neko) && !disable_cffi)
+		lime_image_data_util_multiply_alpha (data.buffer);
+		#else
+		
 		var index, a16;
 		var length = Std.int (data.length / 4);
 		
@@ -514,6 +519,8 @@ class ImageDataUtil {
 			data[index + 2] = (data[index + 2] * a16) >> 16;
 			
 		}
+		
+		#end
 		
 		image.buffer.premultiplied = true;
 		image.dirty = true;
@@ -729,6 +736,18 @@ class ImageDataUtil {
 		image.dirty = true;
 		
 	}
+	
+	
+	
+	
+	// Native Methods
+	
+	
+	
+	
+	#if (cpp || neko || nodejs)
+	private static var lime_image_data_util_multiply_alpha = System.load ("lime", "lime_image_data_util_multiply_alpha", 1);
+	#end
 	
 	
 }

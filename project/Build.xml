@@ -164,6 +164,7 @@
 		<file name="src/app/UpdateEvent.cpp" />
 		<file name="src/audio/format/WAV.cpp" />
 		<file name="src/audio/AudioBuffer.cpp" />
+		<file name="src/graphics/utils/ImageDataUtil.cpp" />
 		<file name="src/graphics/ImageBuffer.cpp" />
 		<file name="src/graphics/RenderEvent.cpp" />
 		<file name="src/ui/GamepadEvent.cpp" />

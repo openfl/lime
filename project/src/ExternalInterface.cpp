@@ -15,6 +15,7 @@
 #include <audio/AudioBuffer.h>
 #include <graphics/format/JPEG.h>
 #include <graphics/format/PNG.h>
+#include <graphics/utils/ImageDataUtil.h>
 #include <graphics/ImageBuffer.h>
 #include <graphics/Renderer.h>
 #include <graphics/RenderEvent.h>
@@ -364,6 +365,15 @@ namespace lime {
 	value lime_gamepad_get_device_name (value id) {
 		
 		return alloc_string (Gamepad::GetDeviceName (val_int (id)));
+		
+	}
+	
+	
+	value lime_image_data_util_multiply_alpha (value data) {
+		
+		ByteArray bytes = ByteArray (data);
+		ImageDataUtil::MultiplyAlpha (&bytes);
+		return alloc_null ();
 		
 	}
 	
@@ -837,6 +847,7 @@ namespace lime {
 	DEFINE_PRIM (lime_gamepad_event_manager_register, 2);
 	DEFINE_PRIM (lime_gamepad_get_device_guid, 1);
 	DEFINE_PRIM (lime_gamepad_get_device_name, 1);
+	DEFINE_PRIM (lime_image_data_util_multiply_alpha, 1);
 	DEFINE_PRIM (lime_image_encode, 3);
 	DEFINE_PRIM (lime_image_load, 1);
 	DEFINE_PRIM (lime_jni_getenv, 0);
