@@ -14,7 +14,7 @@ namespace lime {
 		public:
 			
 			Rectangle ();
-			Rectangle (value _rect);
+			Rectangle (value rect);
 			
 			double height;
 			double width;

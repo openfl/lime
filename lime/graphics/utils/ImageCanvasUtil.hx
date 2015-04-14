@@ -4,6 +4,7 @@ package lime.graphics.utils;
 import haxe.format.JsonParser;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
+import lime.graphics.PixelFormat;
 import lime.math.ColorMatrix;
 import lime.math.Rectangle;
 import lime.math.Vector2;
@@ -163,7 +164,7 @@ class ImageCanvasUtil {
 	}
 	
 	
-	public static function fillRect (image:Image, rect:Rectangle, color:Int):Void {
+	public static function fillRect (image:Image, rect:Rectangle, color:Int, format:PixelFormat):Void {
 		
 		convertToCanvas (image);
 		sync (image);
@@ -190,42 +191,42 @@ class ImageCanvasUtil {
 	}
 	
 	
-	public static function floodFill (image:Image, x:Int, y:Int, color:Int):Void {
+	public static function floodFill (image:Image, x:Int, y:Int, color:Int, format:PixelFormat):Void {
 		
 		convertToCanvas (image);
 		createImageData (image);
 		
-		ImageDataUtil.floodFill (image, x, y, color);
+		ImageDataUtil.floodFill (image, x, y, color, format);
 		
 	}
 	
 	
-	public static function getPixel (image:Image, x:Int, y:Int):Int {
+	public static function getPixel (image:Image, x:Int, y:Int, format:PixelFormat):Int {
 		
 		convertToCanvas (image);
 		createImageData (image);
 		
-		return ImageDataUtil.getPixel (image, x, y);
+		return ImageDataUtil.getPixel (image, x, y, format);
 		
 	}
 	
 	
-	public static function getPixel32 (image:Image, x:Int, y:Int):Int {
+	public static function getPixel32 (image:Image, x:Int, y:Int, format:PixelFormat):Int {
 		
 		convertToCanvas (image);
 		createImageData (image);
 		
-		return ImageDataUtil.getPixel32 (image, x, y);
+		return ImageDataUtil.getPixel32 (image, x, y, format);
 		
 	}
 	
 	
-	public static function getPixels (image:Image, rect:Rectangle):ByteArray {
+	public static function getPixels (image:Image, rect:Rectangle, format:PixelFormat):ByteArray {
 		
 		convertToCanvas (image);
 		createImageData (image);
 		
-		return ImageDataUtil.getPixels (image, rect);
+		return ImageDataUtil.getPixels (image, rect, format);
 		
 	}
 	
@@ -264,32 +265,32 @@ class ImageCanvasUtil {
 	}
 	
 	
-	public static function setPixel (image:Image, x:Int, y:Int, color:Int):Void {
+	public static function setPixel (image:Image, x:Int, y:Int, color:Int, format:PixelFormat):Void {
 		
 		convertToCanvas (image);
 		createImageData (image);
 		
-		ImageDataUtil.setPixel (image, x, y, color);
+		ImageDataUtil.setPixel (image, x, y, color, format);
 		
 	}
 	
 	
-	public static function setPixel32 (image:Image, x:Int, y:Int, color:Int):Void {
+	public static function setPixel32 (image:Image, x:Int, y:Int, color:Int, format:PixelFormat):Void {
 		
 		convertToCanvas (image);
 		createImageData (image);
 		
-		ImageDataUtil.setPixel32 (image, x, y, color);
+		ImageDataUtil.setPixel32 (image, x, y, color, format);
 		
 	}
 	
 	
-	public static function setPixels (image:Image, rect:Rectangle, byteArray:ByteArray):Void {
+	public static function setPixels (image:Image, rect:Rectangle, byteArray:ByteArray, format:PixelFormat):Void {
 		
 		convertToCanvas (image);
 		createImageData (image);
 		
-		ImageDataUtil.setPixels (image, rect, byteArray);
+		ImageDataUtil.setPixels (image, rect, byteArray, format);
 		
 	}
 	

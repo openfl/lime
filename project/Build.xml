@@ -170,6 +170,7 @@
 		<file name="src/graphics/RenderEvent.cpp" />
 		<file name="src/math/ColorMatrix.cpp" />
 		<file name="src/math/Rectangle.cpp" />
+		<file name="src/math/Vector2.cpp" />
 		<file name="src/ui/GamepadEvent.cpp" />
 		<file name="src/ui/KeyEvent.cpp" />
 		<file name="src/ui/MouseEvent.cpp" />
