@@ -33,6 +33,8 @@ class System {
 	public static var documentsDirectory (get, null):String;
 	public static var fontsDirectory (get, null):String;
 	public static var userDirectory (get, null):String;
+	public static var endianness (get, null):String;
+	public static var littleEndian (get, null):Bool;
 	
 	
 	@:noCompletion private static var __moduleNames:Map<String, String> = null;
@@ -513,6 +515,27 @@ class System {
 	}
 	
 	
+	private static function get_endianness ():String {
+
+		if (littleEndian) {
+			return "littleEndian";
+		} else {
+			return "bigEndian";
+		}
+
+	}
+
+
+	private static function get_littleEndian ():Bool {
+
+		// TODO(james4k): do something less error prone
+		#if wiiu
+		return false;
+		#else
+		return true;
+		#end
+
+	}
 	
 	
 	// Native Methods
