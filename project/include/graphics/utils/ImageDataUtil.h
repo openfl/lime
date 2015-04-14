@@ -3,7 +3,9 @@
 
 
 #include <hx/CFFI.h>
-#include <utils/ByteArray.h>
+#include <graphics/Image.h>
+#include <math/ColorMatrix.h>
+#include <math/Rectangle.h>
 
 
 namespace lime {
@@ -14,8 +16,9 @@ namespace lime {
 		
 		public:
 			
-			static void MultiplyAlpha (ByteArray *bytes);
-			static void UnmultiplyAlpha (ByteArray *bytes);
+			static void ColorTransform (Image *image, Rectangle *rect, ColorMatrix *ColorMatrix);
+			static void MultiplyAlpha (Image *image);
+			static void UnmultiplyAlpha (Image *image);
 		
 		
 	};

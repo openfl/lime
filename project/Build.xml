@@ -165,8 +165,11 @@
 		<file name="src/audio/format/WAV.cpp" />
 		<file name="src/audio/AudioBuffer.cpp" />
 		<file name="src/graphics/utils/ImageDataUtil.cpp" />
+		<file name="src/graphics/Image.cpp" />
 		<file name="src/graphics/ImageBuffer.cpp" />
 		<file name="src/graphics/RenderEvent.cpp" />
+		<file name="src/math/ColorMatrix.cpp" />
+		<file name="src/math/Rectangle.cpp" />
 		<file name="src/ui/GamepadEvent.cpp" />
 		<file name="src/ui/KeyEvent.cpp" />
 		<file name="src/ui/MouseEvent.cpp" />

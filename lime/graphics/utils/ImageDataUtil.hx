@@ -49,6 +49,12 @@ class ImageDataUtil {
 	public static function colorTransform (image:Image, rect:Rectangle, colorMatrix:ColorMatrix):Void {
 		
 		var data = image.buffer.data;
+		if (data == null) return;
+		
+		#if ((cpp || neko) && !disable_cffi)
+		lime_image_data_util_color_transform (image, rect, colorMatrix);
+		#else
+		
 		var stride = image.buffer.width * 4;
 		var offset:Int;
 		
@@ -81,6 +87,8 @@ class ImageDataUtil {
 			}
 			
 		}
+		
+		#end
 		
 		image.dirty = true;
 		
@@ -371,7 +379,6 @@ class ImageDataUtil {
 		if (image.premultiplied) {
 			
 			var unmultiply = 255.0 / data[offset + 3];
-			trace (unmultiply);
 			return __clamp[Std.int (data[offset] * unmultiply)] << 16 | __clamp[Std.int (data[offset + 1] * unmultiply)] << 8 | __clamp[Std.int (data[offset + 2] * unmultiply)];
 			
 		} else {
@@ -503,7 +510,7 @@ class ImageDataUtil {
 		if (data == null) return;
 		
 		#if ((cpp || neko) && !disable_cffi)
-		lime_image_data_util_multiply_alpha (data.buffer);
+		lime_image_data_util_multiply_alpha (image);
 		#else
 		
 		var index, a16;
@@ -513,7 +520,7 @@ class ImageDataUtil {
 			
 			index = i * 4;
 			
-			var a16 = __alpha16[data[index + 3]];
+			a16 = __alpha16[data[index + 3]];
 			data[index] = (data[index] * a16) >> 16;
 			data[index + 1] = (data[index + 1] * a16) >> 16;
 			data[index + 2] = (data[index + 2] * a16) >> 16;
@@ -711,6 +718,12 @@ class ImageDataUtil {
 	public static function unmultiplyAlpha (image:Image):Void {
 		
 		var data = image.buffer.data;
+		if (data == null) return;
+		
+		#if ((cpp || neko) && !disable_cffi)
+		lime_image_data_util_unmultiply_alpha (image);
+		#else
+		
 		var index, a, unmultiply;
 		var length = Std.int (data.length / 4);
 		
@@ -732,6 +745,8 @@ class ImageDataUtil {
 			
 		}
 		
+		#end
+		
 		image.buffer.premultiplied = false;
 		image.dirty = true;
 		
@@ -746,7 +761,9 @@ class ImageDataUtil {
 	
 	
 	#if (cpp || neko || nodejs)
+	private static var lime_image_data_util_color_transform = System.load ("lime", "lime_image_data_util_color_transform", 3);
 	private static var lime_image_data_util_multiply_alpha = System.load ("lime", "lime_image_data_util_multiply_alpha", 1);
+	private static var lime_image_data_util_unmultiply_alpha = System.load ("lime", "lime_image_data_util_unmultiply_alpha", 1);
 	#end
 	
 	
