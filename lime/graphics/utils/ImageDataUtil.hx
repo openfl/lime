@@ -502,9 +502,6 @@ class ImageDataUtil {
 		byteArray.position = 0;
 		#end
 		
-		Sys.println ("SDFKJ");
-		Sys.println (System.disableCFFI);
-		
 		#if ((cpp || neko) && !disable_cffi)
 		if (!System.disableCFFI) lime_image_data_util_get_pixels (image, rect, format == ARGB ? 1 : 0); else
 		#end
