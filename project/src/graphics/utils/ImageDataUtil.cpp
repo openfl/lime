@@ -296,6 +296,100 @@ namespace lime {
 	}
 	
 	
+	void ImageDataUtil::GetPixels (Image* image, Rectangle* rect, PixelFormat format, ByteArray* pixels) {
+		
+		int length = int (rect->width * rect->height);
+		pixels->Resize (length * 4);
+		
+		if (format == RGBA && rect->width == image->buffer->width && rect->height == image->buffer->height && rect->x == 0 && rect->y == 0) {
+			
+			memcpy (pixels->Bytes (), image->buffer->data->Bytes (), image->buffer->data->Size ());
+			return;
+			
+		}
+		
+		uint8_t* data = (uint8_t*)pixels->Bytes (); 
+		uint8_t* srcData = (uint8_t*)image->buffer->data->Bytes ();
+		
+		int srcStride = int (image->buffer->width * 4);
+		int srcPosition = int ((rect->x * 4) + (srcStride * rect->y));
+		int srcRowOffset = srcStride - int (4 * rect->width);
+		int srcRowEnd = int (4 * (rect->x + rect->width));
+		
+		if (format == ARGB) {
+			
+			for (int i = 0; i < length; i++) {
+				
+				data[i * 4 + 1] = srcData[srcPosition++];
+				data[i * 4 + 2] = srcData[srcPosition++];
+				data[i * 4 + 3] = srcData[srcPosition++];
+				data[i * 4] = srcData[srcPosition++];
+				
+				if ((srcPosition % srcStride) > srcRowEnd) {
+					
+					srcPosition += srcRowOffset;
+					
+				}
+				
+			}
+			
+		} else {
+			
+			for (int i = 0; i < length; i++) {
+				
+				data[i * 4] = srcData[srcPosition++];
+				data[i * 4 + 1] = srcData[srcPosition++];
+				data[i * 4 + 2] = srcData[srcPosition++];
+				data[i * 4 + 3] = srcData[srcPosition++];
+				
+				if ((srcPosition % srcStride) > srcRowEnd) {
+					
+					srcPosition += srcRowOffset;
+					
+				}
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	void ImageDataUtil::Merge (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, int redMultiplier, int greenMultiplier, int blueMultiplier, int alphaMultiplier) {
+		
+		int rowOffset = int (destPoint->y + image->offsetY - sourceRect->y - sourceImage->offsetY);
+		int columnOffset = int (destPoint->x + image->offsetX - sourceRect->x - sourceImage->offsetY);
+		
+		uint8_t* sourceData = (uint8_t*)sourceImage->buffer->data->Bytes ();
+		int sourceStride = sourceImage->buffer->width * 4;
+		int sourceOffset = 0;
+		
+		uint8_t* data = (uint8_t*)image->buffer->data->Bytes ();
+		int stride = image->buffer->width * 4;
+		int offset = 0;
+		
+		int rowEnd = int (sourceRect->y + sourceRect->height + sourceImage->offsetY);
+		int columnEnd = int (sourceRect->x + sourceRect->width + sourceImage->offsetX);
+		
+		for (int row = int (sourceRect->y + sourceImage->offsetY); row < rowEnd; row++) {
+			
+			for (int column = int (sourceRect->x + sourceImage->offsetX); column < columnEnd; column++) {
+				
+				sourceOffset = (row * sourceStride) + (column * 4);
+				offset = ((row + rowOffset) * stride) + ((column + columnOffset) * 4);
+				
+				data[offset] = int (((sourceData[offset] * redMultiplier) + (data[offset] * (256 - redMultiplier))) / 256);
+				data[offset + 1] = int (((sourceData[offset + 1] * greenMultiplier) + (data[offset + 1] * (256 - greenMultiplier))) / 256);
+				data[offset + 2] = int (((sourceData[offset + 2] * blueMultiplier) + (data[offset + 2] * (256 - blueMultiplier))) / 256);
+				data[offset + 3] = int (((sourceData[offset + 3] * alphaMultiplier) + (data[offset + 3] * (256 - alphaMultiplier))) / 256);
+				
+			}
+			
+		}
+		
+	}
+	
+	
 	void ImageDataUtil::MultiplyAlpha (Image* image) {
 		
 		int a16 = 0;
@@ -309,6 +403,63 @@ namespace lime {
 			data[1] = (data[1] * a16) >> 16;
 			data[2] = (data[2] * a16) >> 16;
 			data += 4;
+			
+		}
+		
+	}
+	
+	
+	void ImageDataUtil::Resize (Image* image, ImageBuffer* buffer, int newWidth, int newHeight) {
+		
+		int imageWidth = image->width;
+		int imageHeight = image->height;
+		
+		uint8_t* data = (uint8_t*)image->buffer->data->Bytes ();
+		uint8_t* newData = (uint8_t*)buffer->data->Bytes ();
+		
+		int sourceIndex, sourceIndexX, sourceIndexY, sourceIndexXY, index;
+		int sourceX, sourceY;
+		float u, v, uRatio, vRatio, uOpposite, vOpposite;
+		
+		for (int y = 0; y < newHeight; y++) {
+			
+			for (int x = 0; x < newWidth; x++) {
+				
+				u = ((x + 0.5) / newWidth) * imageWidth - 0.5;
+				v = ((y + 0.5) / newHeight) * imageHeight - 0.5;
+				
+				sourceX = int (u);
+				sourceY = int (v);
+				
+				sourceIndex = (sourceY * imageWidth + sourceX) * 4;
+				sourceIndexX = (sourceX < imageWidth - 1) ? sourceIndex + 4 : sourceIndex;
+				sourceIndexY = (sourceY < imageHeight - 1) ? sourceIndex + (imageWidth * 4) : sourceIndex;
+				sourceIndexXY = (sourceIndexX != sourceIndex) ? sourceIndexY + 4 : sourceIndexY;
+				
+				index = (y * newWidth + x) * 4;
+				
+				uRatio = u - sourceX;
+				vRatio = v - sourceY;
+				uOpposite = 1 - uRatio;
+				vOpposite = 1 - vRatio;
+				
+				newData[index] = int ((data[sourceIndex] * uOpposite + data[sourceIndexX] * uRatio) * vOpposite + (data[sourceIndexY] * uOpposite + data[sourceIndexXY] * uRatio) * vRatio);
+				newData[index + 1] = int ((data[sourceIndex + 1] * uOpposite + data[sourceIndexX + 1] * uRatio) * vOpposite + (data[sourceIndexY + 1] * uOpposite + data[sourceIndexXY + 1] * uRatio) * vRatio);
+				newData[index + 2] = int ((data[sourceIndex + 2] * uOpposite + data[sourceIndexX + 2] * uRatio) * vOpposite + (data[sourceIndexY + 2] * uOpposite + data[sourceIndexXY + 2] * uRatio) * vRatio);
+				
+				// Maybe it would be better to not weigh colors with an alpha of zero, but the below should help prevent black fringes caused by transparent pixels made visible
+				
+				if (data[sourceIndexX + 3] == 0 || data[sourceIndexY + 3] == 0 || data[sourceIndexXY + 3] == 0) {
+					
+					newData[index + 3] = 0;
+					
+				} else {
+					
+					newData[index + 3] = data[sourceIndex + 3];
+					
+				}
+				
+			}
 			
 		}
 		

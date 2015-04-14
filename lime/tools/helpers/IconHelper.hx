@@ -116,7 +116,7 @@ class IconHelper {
 				for (c in 0...4) out.writeByte (code.charCodeAt(c));
 				
 				var n = s * s;
-				var pixels = image.getPixels (new Rectangle (0, 0, s, s));
+				var pixels = image.getPixels (new Rectangle (0, 0, s, s), ARGB);
 				
 				var bytes_r = packBits (pixels, 1, s * s);
 				var bytes_g = packBits (pixels, 2, s * s);

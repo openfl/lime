@@ -504,10 +504,46 @@ namespace lime {
 	}
 	
 	
+	value lime_image_data_util_get_pixels (value image, value rect, value format) {
+		
+		Image _image = Image (image);
+		Rectangle _rect = Rectangle (rect);
+		PixelFormat _format = (PixelFormat)val_int (format);
+		ByteArray pixels = ByteArray ();
+		ImageDataUtil::GetPixels (&_image, &_rect, _format, &pixels);
+		return pixels.mValue;
+		
+	}
+	
+	
+	value lime_image_data_util_merge (value *arg, int nargs) {
+		
+		enum { image, sourceImage, sourceRect, destPoint, redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier };
+		
+		Image _image = Image (arg[image]);
+		Image _sourceImage = Image (arg[sourceImage]);
+		Rectangle _sourceRect = Rectangle (arg[sourceRect]);
+		Vector2 _destPoint = Vector2 (arg[destPoint]);
+		ImageDataUtil::Merge (&_image, &_sourceImage, &_sourceRect, &_destPoint, val_int (arg[redMultiplier]), val_int (arg[greenMultiplier]), val_int (arg[blueMultiplier]), val_int (arg[alphaMultiplier]));
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_image_data_util_multiply_alpha (value image) {
 		
 		Image _image = Image (image);
 		ImageDataUtil::MultiplyAlpha (&_image);
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_image_data_util_resize (value image, value buffer, value width, value height) {
+		
+		Image _image = Image (image);
+		ImageBuffer _buffer = ImageBuffer (buffer);
+		ImageDataUtil::Resize (&_image, &_buffer, val_int (width), val_int (height));
 		return alloc_null ();
 		
 	}
@@ -918,7 +954,10 @@ namespace lime {
 	DEFINE_PRIM (lime_image_data_util_copy_pixels, 5);
 	DEFINE_PRIM (lime_image_data_util_fill_rect, 3);
 	DEFINE_PRIM (lime_image_data_util_flood_fill, 4);
+	DEFINE_PRIM (lime_image_data_util_get_pixels, 3);
+	DEFINE_PRIM_MULT (lime_image_data_util_merge);
 	DEFINE_PRIM (lime_image_data_util_multiply_alpha, 1);
+	DEFINE_PRIM (lime_image_data_util_resize, 4);
 	DEFINE_PRIM (lime_image_data_util_unmultiply_alpha, 1);
 	DEFINE_PRIM (lime_image_encode, 3);
 	DEFINE_PRIM (lime_image_load, 1);
