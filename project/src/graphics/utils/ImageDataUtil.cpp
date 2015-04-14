@@ -93,9 +93,9 @@ namespace lime {
 		for (int i = 0; i < length; i++) {
 			
 			a16 = __alpha16[data[3]];
-			data[0] = (int (data[0]) * a16) >> 16;
-			data[1] = (int (data[1]) * a16) >> 16;
-			data[2] = (int (data[0]) * a16) >> 16;
+			data[0] = (data[0] * a16) >> 16;
+			data[1] = (data[1] * a16) >> 16;
+			data[2] = (data[2] * a16) >> 16;
 			data += 4;
 			
 		}
