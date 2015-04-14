@@ -503,7 +503,7 @@ class ImageDataUtil {
 		#end
 		
 		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_get_pixels (image, rect, format == ARGB ? 1 : 0); else
+		if (!System.disableCFFI) byteArray = lime_image_data_util_get_pixels (image, rect, format == ARGB ? 1 : 0); else
 		#end
 		{
 			
