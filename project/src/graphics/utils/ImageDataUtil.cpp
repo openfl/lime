@@ -466,6 +466,69 @@ namespace lime {
 	}
 	
 	
+	void ImageDataUtil::SetPixels (Image* image, Rectangle* rect, ByteArray* bytes, PixelFormat format) {
+		
+		int len = int (rect->width * rect->height);
+		
+		if (format == RGBA && rect->width == image->buffer->width && rect->height == image->buffer->height && rect->x == 0 && rect->y == 0) {
+			
+			memcpy (image->buffer->data->Bytes (), bytes->Bytes (), bytes->Size ());
+			return;
+			
+		}
+		
+		uint8_t* data = (uint8_t*)image->buffer->data->Bytes ();
+		int* byteArray = (int*)bytes->Bytes ();
+		
+		int offset = int (image->buffer->width * (rect->y + image->offsetX) + (rect->x + image->offsetY));
+		int pos = offset * 4;
+		int boundR = int ((rect->x + rect->width + image->offsetX));
+		int width = image->buffer->width;
+		int color;
+		
+		if (format == ARGB) {
+			
+			for (int i = 0; i < len; i++) {
+				
+				if (((pos) % (width * 4)) >= boundR * 4) {
+					
+					pos += (width - boundR) * 4;
+					
+				}
+				
+				color = byteArray[i];
+				
+				data[pos++] = (color >> 16) & 0xFF;
+				data[pos++] = (color >> 8) & 0xFF;
+				data[pos++] = color & 0xFF;
+				data[pos++] = (color >> 24) & 0xFF;
+				
+			}
+			
+		} else {
+			
+			for (int i = 0; i < len; i++) {
+				
+				if (((pos) % (width * 4)) >= boundR * 4) {
+					
+					pos += (width - boundR) * 4;
+					
+				}
+				
+				color = byteArray[i];
+				
+				data[pos++] = (color >> 24) & 0xFF;
+				data[pos++] = (color >> 16) & 0xFF;
+				data[pos++] = (color >> 8) & 0xFF;
+				data[pos++] = color & 0xFF;
+				
+			}
+			
+		}
+		
+	}
+	
+	
 	void ImageDataUtil::UnmultiplyAlpha (Image* image) {
 		
 		int length = image->buffer->data->Size () / 4;

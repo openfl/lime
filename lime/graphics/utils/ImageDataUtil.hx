@@ -825,61 +825,70 @@ class ImageDataUtil {
 	
 	public static function setPixels (image:Image, rect:Rectangle, byteArray:ByteArray, format:PixelFormat):Void {
 		
-		var len = Math.round (rect.width * rect.height);
+		if (image.buffer.data == null) return;
 		
-		//#if (!js && !flash)
-		//if (rect.width == image.width && rect.height == image.height && rect.x == 0 && rect.y == 0) {
-			//
-			//image.buffer.data.buffer.blit (0, byteArray, 0, len * 4);
-			//return;
-			//
-		//}
-		//#end
-		
-		// TODO: optimize when rect is the same as the buffer size
-		
-		var data = image.buffer.data;
-		var offset = Math.round (image.buffer.width * (rect.y + image.offsetX) + (rect.x + image.offsetY));
-		var pos = offset * 4;
-		var boundR = Math.round ((rect.x + rect.width + image.offsetX));
-		var width = image.buffer.width;
-		var color;
-		
-		if (format == ARGB) {
+		#if ((cpp || neko) && !disable_cffi)
+		if (!System.disableCFFI) lime_image_data_util_set_pixels (image, rect, byteArray, format == ARGB ? 1 : 0); else
+		#end
+		{
 			
-			for (i in 0...len) {
+			var len = Math.round (rect.width * rect.height);
+			
+			//#if (!js && !flash)
+			//if (rect.width == image.width && rect.height == image.height && rect.x == 0 && rect.y == 0) {
+				//
+				//image.buffer.data.buffer.blit (0, byteArray, 0, len * 4);
+				//return;
+				//
+			//}
+			//#end
+			
+			// TODO: optimize when rect is the same as the buffer size
+			
+			var data = image.buffer.data;
+			var offset = Math.round (image.buffer.width * (rect.y + image.offsetX) + (rect.x + image.offsetY));
+			var pos = offset * 4;
+			var boundR = Math.round ((rect.x + rect.width + image.offsetX));
+			var width = image.buffer.width;
+			var color;
+			
+			if (format == ARGB) {
 				
-				if (((pos) % (width * 4)) >= boundR * 4) {
+				for (i in 0...len) {
 					
-					pos += (width - boundR) * 4;
+					if (((pos) % (width * 4)) >= boundR * 4) {
+						
+						pos += (width - boundR) * 4;
+						
+					}
+					
+					color = byteArray.readUnsignedInt ();
+					
+					data[pos++] = (color & 0xFF0000) >>> 16;
+					data[pos++] = (color & 0x0000FF00) >>> 8;
+					data[pos++] = (color & 0x000000FF);
+					data[pos++] = (color & 0xFF000000) >>> 24;
 					
 				}
 				
-				color = byteArray.readUnsignedInt ();
+			} else {
 				
-				data[pos++] = (color & 0xFF0000) >>> 16;
-				data[pos++] = (color & 0x0000FF00) >>> 8;
-				data[pos++] = (color & 0x000000FF);
-				data[pos++] = (color & 0xFF000000) >>> 24;
-				
-			}
-			
-		} else {
-			
-			for (i in 0...len) {
-				
-				if (((pos) % (width * 4)) >= boundR * 4) {
+				for (i in 0...len) {
 					
-					pos += (width - boundR) * 4;
+					if (((pos) % (width * 4)) >= boundR * 4) {
+						
+						pos += (width - boundR) * 4;
+						
+					}
+					
+					color = byteArray.readUnsignedInt ();
+					
+					data[pos++] = (color & 0xFF000000) >>> 24;
+					data[pos++] = (color & 0xFF0000) >>> 16;
+					data[pos++] = (color & 0x0000FF00) >>> 8;
+					data[pos++] = (color & 0x000000FF);
 					
 				}
-				
-				color = byteArray.readUnsignedInt ();
-				
-				data[pos++] = (color & 0xFF000000) >>> 24;
-				data[pos++] = (color & 0xFF0000) >>> 16;
-				data[pos++] = (color & 0x0000FF00) >>> 8;
-				data[pos++] = (color & 0x000000FF);
 				
 			}
 			
@@ -946,6 +955,7 @@ class ImageDataUtil {
 	private static var lime_image_data_util_merge = System.load ("lime", "lime_image_data_util_merge", -1);
 	private static var lime_image_data_util_multiply_alpha = System.load ("lime", "lime_image_data_util_multiply_alpha", 1);
 	private static var lime_image_data_util_resize = System.load ("lime", "lime_image_data_util_resize", 4);
+	private static var lime_image_data_util_set_pixels = System.load ("lime", "lime_image_data_util_set_pixels", 4);
 	private static var lime_image_data_util_unmultiply_alpha = System.load ("lime", "lime_image_data_util_unmultiply_alpha", 1);
 	#end
 	
