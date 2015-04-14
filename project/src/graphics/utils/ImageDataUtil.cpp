@@ -1,5 +1,6 @@
 #include <graphics/utils/ImageDataUtil.h>
 #include <system/System.h>
+#include <utils/QuickVec.h>
 
 
 namespace lime {
@@ -217,6 +218,74 @@ namespace lime {
 					
 					offset = (row * stride) + (column);
 					data[offset] = color;
+					
+				}
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	void ImageDataUtil::FloodFill (Image* image, int x, int y, int color) {
+		
+		uint8_t* data = (uint8_t*)image->buffer->data->Bytes ();
+		
+		int offset = (((y + image->offsetY) * (image->buffer->width * 4)) + ((x + image->offsetX) * 4));
+		uint8_t hitColorR = data[offset + 0];
+		uint8_t hitColorG = data[offset + 1];
+		uint8_t hitColorB = data[offset + 2];
+		uint8_t hitColorA = image->transparent ? data[offset + 3] : 0xFF;
+		
+		uint8_t r = (color >> 24) & 0xFF;
+		uint8_t g = (color >> 16) & 0xFF;
+		uint8_t b = (color >> 8) & 0xFF;
+		uint8_t a = image->transparent ? color & 0xFF : 0xFF;
+		
+		if (hitColorR == r && hitColorG == g && hitColorB == b && hitColorA == a) return;
+		
+		int dx[4] = { 0, -1, 1, 0 };
+		int dy[4] = { -1, 0, 0, 1 };
+		
+		int minX = -image->offsetX;
+		int minY = -image->offsetY;
+		int maxX = minX + image->width;
+		int maxY = minY + image->height;
+		
+		QuickVec<int> queue = QuickVec<int> ();
+		queue.push_back (x);
+		queue.push_back (y);
+		
+		int curPointX, curPointY, i, nextPointX, nextPointY, nextPointOffset;
+		
+		while (queue.size () > 0) {
+			
+			curPointY = queue.qpop ();
+			curPointX = queue.qpop ();
+			
+			for (i = 0; i < 4; i++) {
+				
+				nextPointX = curPointX + dx[i];
+				nextPointY = curPointY + dy[i];
+				
+				if (nextPointX < minX || nextPointY < minY || nextPointX >= maxX || nextPointY >= maxY) {
+					
+					continue;
+					
+				}
+				
+				nextPointOffset = (nextPointY * image->width + nextPointX) * 4;
+				
+				if (data[nextPointOffset + 0] == hitColorR && data[nextPointOffset + 1] == hitColorG && data[nextPointOffset + 2] == hitColorB && data[nextPointOffset + 3] == hitColorA) {
+					
+					data[nextPointOffset + 0] = r;
+					data[nextPointOffset + 1] = g;
+					data[nextPointOffset + 2] = b;
+					data[nextPointOffset + 3] = a;
+					
+					queue.push_back (nextPointX);
+					queue.push_back (nextPointY);
 					
 				}
 				

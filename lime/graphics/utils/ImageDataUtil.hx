@@ -347,16 +347,22 @@ class ImageDataUtil {
 		var data = image.buffer.data;
 		if (data == null) return;
 		
+		if (format == ARGB) color = ((color & 0xFFFFFF) << 8) | ((color >> 24) & 0xFF);
+		
+		#if ((cpp || neko) && !disable_cffi)
+		lime_image_data_util_flood_fill (image, x, y, color);
+		#else
+		
 		var offset = (((y + image.offsetY) * (image.buffer.width * 4)) + ((x + image.offsetX) * 4));
 		var hitColorR = data[offset + 0];
 		var hitColorG = data[offset + 1];
 		var hitColorB = data[offset + 2];
 		var hitColorA = image.transparent ? data[offset + 3] : 0xFF;
 		
-		var r = (color & 0xFF0000) >>> 16;
-		var g = (color & 0x00FF00) >>> 8;
-		var b = (color & 0x0000FF);
-		var a = image.transparent ? (color & 0xFF000000) >>> 24 : 0xFF;
+		var r = (color >> 24) & 0xFF;
+		var g = (color >> 16) & 0xFF;
+		var b = (color >> 8) & 0xFF;
+		var a = image.transparent ? color & 0xFF : 0xFF;
 		
 		if (hitColorR == r && hitColorG == g && hitColorB == b && hitColorA == a) return;
 		
@@ -405,6 +411,8 @@ class ImageDataUtil {
 			}
 			
 		}
+		
+		#end
 		
 		image.dirty = true;
 		
@@ -900,6 +908,7 @@ class ImageDataUtil {
 	private static var lime_image_data_util_copy_channel = System.load ("lime", "lime_image_data_util_copy_channel", -1);
 	private static var lime_image_data_util_copy_pixels = System.load ("lime", "lime_image_data_util_copy_pixels", 5);
 	private static var lime_image_data_util_fill_rect = System.load ("lime", "lime_image_data_util_fill_rect", 3);
+	private static var lime_image_data_util_flood_fill = System.load ("lime", "lime_image_data_util_flood_fill", 4);
 	private static var lime_image_data_util_multiply_alpha = System.load ("lime", "lime_image_data_util_multiply_alpha", 1);
 	private static var lime_image_data_util_unmultiply_alpha = System.load ("lime", "lime_image_data_util_unmultiply_alpha", 1);
 	#end

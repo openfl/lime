@@ -495,6 +495,15 @@ namespace lime {
 	}
 	
 	
+	value lime_image_data_util_flood_fill (value image, value x, value y, value color) {
+		
+		Image _image = Image (image);
+		ImageDataUtil::FloodFill (&_image, val_number (x), val_number (y), val_number (color));
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_image_data_util_multiply_alpha (value image) {
 		
 		Image _image = Image (image);
@@ -908,6 +917,7 @@ namespace lime {
 	DEFINE_PRIM_MULT (lime_image_data_util_copy_channel);
 	DEFINE_PRIM (lime_image_data_util_copy_pixels, 5);
 	DEFINE_PRIM (lime_image_data_util_fill_rect, 3);
+	DEFINE_PRIM (lime_image_data_util_flood_fill, 4);
 	DEFINE_PRIM (lime_image_data_util_multiply_alpha, 1);
 	DEFINE_PRIM (lime_image_data_util_unmultiply_alpha, 1);
 	DEFINE_PRIM (lime_image_encode, 3);

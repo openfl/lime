@@ -22,6 +22,7 @@ namespace lime {
 			static void CopyChannel (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, int srcChannel, int destChannel);
 			static void CopyPixels (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, bool mergeAlpha);
 			static void FillRect (Image* image, Rectangle* rect, int color);
+			static void FloodFill (Image* image, int x, int y, int color);
 			static void MultiplyAlpha (Image *image);
 			static void UnmultiplyAlpha (Image *image);
 		
