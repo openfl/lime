@@ -29,7 +29,7 @@ class System {
 	public static var applicationDirectory (get, null):String;
 	public static var applicationStorageDirectory (get, null):String;
 	public static var desktopDirectory (get, null):String;
-	public static var disableCFFI:Bool = #if ((cpp || neko || nodejs) && !(disable_cffi || macro)) false #else true #end;
+	public static var disableCFFI:Bool;
 	public static var documentsDirectory (get, null):String;
 	public static var fontsDirectory (get, null):String;
 	public static var userDirectory (get, null):String;
