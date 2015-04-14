@@ -106,8 +106,15 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 		var slen = function (bytes:ByteArray){ return bytes == null ? 0 : bytes.length; }
 		#end
 		
+		#if !lime_legacy
 		var init = System.load ("lime", "lime_byte_array_init", 4);
-		init (factory, slen, resize, bytes);
+		if (init != null) init (factory, slen, resize, bytes);
+		#end
+		
+		#if (lime_hybrid || lime_legacy)
+		var init = System.load ("lime-legacy", "lime_legacy_byte_array_init", 4);
+		if (init != null) init (factory, slen, resize, bytes);
+		#end
 		
 	}
 	#end

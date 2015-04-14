@@ -1,3 +1,18 @@
+2.3.1 (04/08/2015)
+------------------
+
+* Renamed Lime legacy to "lime-legacy" to support hybrid builds
+* Added -Dhybrid for using Lime 2 and Lime legacy in the same project
+* Improved support for standalone Neko builds on Linux
+* Fixed loading of OGG sounds on Android
+* Fixed Emscripten support for newer HXCPP
+* Fixed a crash using gl.texSubImage2D on Neko
+* Fixed missing System.fontsDirectory on Linux
+* Fixed crash on NULL system directories
+* Fixed crash when font or JPEG file paths are not found
+* Added softKeyboardRect support for iOS (legacy)
+
+
 2.3.0 (03/26/2015)
 ------------------
 

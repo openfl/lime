@@ -7,6 +7,7 @@ import lime.graphics.ImageBuffer;
 import lime.math.ColorMatrix;
 import lime.math.Rectangle;
 import lime.math.Vector2;
+import lime.system.System;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 
@@ -48,6 +49,12 @@ class ImageDataUtil {
 	public static function colorTransform (image:Image, rect:Rectangle, colorMatrix:ColorMatrix):Void {
 		
 		var data = image.buffer.data;
+		if (data == null) return;
+		
+		#if ((cpp || neko) && !disable_cffi)
+		lime_image_data_util_color_transform (image, rect, colorMatrix);
+		#else
+		
 		var stride = image.buffer.width * 4;
 		var offset:Int;
 		
@@ -80,6 +87,8 @@ class ImageDataUtil {
 			}
 			
 		}
+		
+		#end
 		
 		image.dirty = true;
 		
@@ -172,6 +181,15 @@ class ImageDataUtil {
 		var offset:Int = 0;
 		
 		if (!mergeAlpha || !sourceImage.transparent) {
+			
+			//#if (!js && !flash)
+			//if (sourceRect.width == image.width && sourceRect.height == image.height && image.width == sourceImage.width && image.height == sourceImage.height && sourceRect.x == 0 && sourceRect.y == 0 && destPoint.x == 0 && destPoint.y == 0) {
+				//
+				//image.buffer.data.buffer.blit (0, sourceImage.buffer.data.buffer, 0, Std.int (sourceRect.width * sourceRect.height) * 4);
+				//return;
+				//
+			//}
+			//#end
 			
 			for (row in Std.int (sourceRect.top + sourceImage.offsetY)...Std.int (sourceRect.bottom + sourceImage.offsetY)) {
 				
@@ -361,7 +379,6 @@ class ImageDataUtil {
 		if (image.premultiplied) {
 			
 			var unmultiply = 255.0 / data[offset + 3];
-			trace (unmultiply);
 			return __clamp[Std.int (data[offset] * unmultiply)] << 16 | __clamp[Std.int (data[offset + 1] * unmultiply)] << 8 | __clamp[Std.int (data[offset + 2] * unmultiply)];
 			
 		} else {
@@ -395,11 +412,23 @@ class ImageDataUtil {
 	
 	public static function getPixels (image:Image, rect:Rectangle):ByteArray {
 		
+		var length = Std.int (rect.width * rect.height);
+		
 		#if flash
 		var byteArray = new ByteArray ();
 		#else
-		var byteArray = new ByteArray (Std.int (rect.width * rect.height * 4));
+		var byteArray = new ByteArray (length * 4);
+		byteArray.position = 0;
 		#end
+		
+		//#if (!js && !flash)
+		//if (rect.width == image.width && rect.height == image.height && rect.x == 0 && rect.y == 0) {
+			//
+			//byteArray.blit (0, image.buffer.data.buffer, 0, length * 4);
+			//return byteArray;
+			//
+		//}
+		//#end
 		
 		// TODO: optimize if the rect is the same as the full buffer size
 			
@@ -409,7 +438,6 @@ class ImageDataUtil {
 		var srcRowOffset = srcStride - Std.int (4 * rect.width);
 		var srcRowEnd = Std.int (4 * (rect.x + rect.width));
 		
-		var length = Std.int (rect.width * rect.height);
 		#if js
 		byteArray.length = length * 4;
 		#end
@@ -481,6 +509,10 @@ class ImageDataUtil {
 		var data = image.buffer.data;
 		if (data == null) return;
 		
+		#if ((cpp || neko) && !disable_cffi)
+		lime_image_data_util_multiply_alpha (image);
+		#else
+		
 		var index, a16;
 		var length = Std.int (data.length / 4);
 		
@@ -488,12 +520,14 @@ class ImageDataUtil {
 			
 			index = i * 4;
 			
-			var a16 = __alpha16[data[index + 3]];
+			a16 = __alpha16[data[index + 3]];
 			data[index] = (data[index] * a16) >> 16;
 			data[index + 1] = (data[index + 1] * a16) >> 16;
 			data[index + 2] = (data[index + 2] * a16) >> 16;
 			
 		}
+		
+		#end
 		
 		image.buffer.premultiplied = true;
 		image.dirty = true;
@@ -641,6 +675,15 @@ class ImageDataUtil {
 		
 		var len = Math.round (rect.width * rect.height);
 		
+		//#if (!js && !flash)
+		//if (rect.width == image.width && rect.height == image.height && rect.x == 0 && rect.y == 0) {
+			//
+			//image.buffer.data.buffer.blit (0, byteArray, 0, len * 4);
+			//return;
+			//
+		//}
+		//#end
+		
 		// TODO: optimize when rect is the same as the buffer size
 		
 		var data = image.buffer.data;
@@ -675,6 +718,12 @@ class ImageDataUtil {
 	public static function unmultiplyAlpha (image:Image):Void {
 		
 		var data = image.buffer.data;
+		if (data == null) return;
+		
+		#if ((cpp || neko) && !disable_cffi)
+		lime_image_data_util_unmultiply_alpha (image);
+		#else
+		
 		var index, a, unmultiply;
 		var length = Std.int (data.length / 4);
 		
@@ -696,10 +745,26 @@ class ImageDataUtil {
 			
 		}
 		
+		#end
+		
 		image.buffer.premultiplied = false;
 		image.dirty = true;
 		
 	}
+	
+	
+	
+	
+	// Native Methods
+	
+	
+	
+	
+	#if (cpp || neko || nodejs)
+	private static var lime_image_data_util_color_transform = System.load ("lime", "lime_image_data_util_color_transform", 3);
+	private static var lime_image_data_util_multiply_alpha = System.load ("lime", "lime_image_data_util_multiply_alpha", 1);
+	private static var lime_image_data_util_unmultiply_alpha = System.load ("lime", "lime_image_data_util_unmultiply_alpha", 1);
+	#end
 	
 	
 }

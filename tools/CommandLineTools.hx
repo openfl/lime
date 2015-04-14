@@ -136,7 +136,15 @@ class CommandLineTools {
 				
 				if (words.length < 2) {
 					
-					words.unshift ("lime");
+					if (targetFlags.exists ("openfl")) {
+						
+						words.unshift ("openfl");
+						
+					} else {
+						
+						words.unshift ("lime");
+						
+					}
 					
 				}
 				
@@ -251,6 +259,10 @@ class CommandLineTools {
 							
 							project = new HXProject ();
 							project.config.set ("project.rebuild.path", PathHelper.combine (PathHelper.getHaxelib (haxelib), "project"));
+							
+						} else {
+							
+							project.config.set ("project.rebuild.path", PathHelper.combine (PathHelper.getHaxelib (haxelib), project.config.get ("project.rebuild.path")));
 							
 						}
 						
@@ -1278,8 +1290,6 @@ class CommandLineTools {
 		}
 		
 		for (key in projectDefines.keys ()) {
-			
-			Sys.println (key);
 			
 			var components = key.split ("-");
 			var field = components.shift ().toLowerCase ();

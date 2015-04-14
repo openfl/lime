@@ -708,7 +708,7 @@ class MainView extends GLSurfaceView {
 			
 			mMainView.renderPending = false;
 			mMainView.HandleResult (Lime.onRender ());
-			Sound.checkSoundCompletion ();
+			//Sound.checkSoundCompletion ();
 			
 		}
 		

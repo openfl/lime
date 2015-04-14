@@ -15,6 +15,8 @@
 #include <audio/AudioBuffer.h>
 #include <graphics/format/JPEG.h>
 #include <graphics/format/PNG.h>
+#include <graphics/utils/ImageDataUtil.h>
+#include <graphics/Image.h>
 #include <graphics/ImageBuffer.h>
 #include <graphics/Renderer.h>
 #include <graphics/RenderEvent.h>
@@ -447,6 +449,35 @@ namespace lime {
 	}
 	
 	
+	value lime_image_data_util_color_transform (value image, value rect, value colorMatrix) {
+		
+		Image _image = Image (image);
+		Rectangle _rect = Rectangle (rect);
+		ColorMatrix _colorMatrix = ColorMatrix (colorMatrix);
+		ImageDataUtil::ColorTransform (&_image, &_rect, &_colorMatrix);
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_image_data_util_multiply_alpha (value image) {
+		
+		Image _image = Image (image);
+		ImageDataUtil::MultiplyAlpha (&_image);
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_image_data_util_unmultiply_alpha (value image) {
+		
+		Image _image = Image (image);
+		ImageDataUtil::UnmultiplyAlpha (&_image);
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_jni_getenv () {
 		
 		#ifdef ANDROID
@@ -838,6 +869,9 @@ namespace lime {
 	DEFINE_PRIM (lime_gamepad_event_manager_register, 2);
 	DEFINE_PRIM (lime_gamepad_get_device_guid, 1);
 	DEFINE_PRIM (lime_gamepad_get_device_name, 1);
+	DEFINE_PRIM (lime_image_data_util_color_transform, 3);
+	DEFINE_PRIM (lime_image_data_util_multiply_alpha, 1);
+	DEFINE_PRIM (lime_image_data_util_unmultiply_alpha, 1);
 	DEFINE_PRIM (lime_image_encode, 3);
 	DEFINE_PRIM (lime_image_load, 1);
 	DEFINE_PRIM (lime_jni_getenv, 0);

@@ -24,7 +24,7 @@
 	<unset name="LEGACY_CURL" if="emscripten" />
 	<set name="LEGACY_SSL" value="1" />
 	<set name="LEGACY_SSL_EXTRA" value="_ssl" if="LEGACY_SSL" />
-	<set name="LEGACY_S3D" value="1" />
+	<!-- <set name="LEGACY_S3D" value="1" /> -->
 	<set name="LEGACY_OPENAL" value="1" />
 	<set name="LEGACY_OPENAL" value="1" if="iphone" />
 	<!-- <set name="LEGACY_CAMERA" value="1" unless="lime" /> -->
@@ -144,6 +144,7 @@
 			<compilerflag value="-DSDL_OGL" />
 			<compilerflag value="-DNME_MIXER" unless="LEGACY_OPENAL" />
 			<compilerflag value="-DNME_SDL2" />
+			<compilerflag value="-DNME_GLES" unless="windows || mac || linux" />
 			
 			<file name="${LEGACY_SRC_DIR}/sdl/SDLSound.cpp" unless="LEGACY_OPENAL" />
 			<file name="${LEGACY_SRC_DIR}/sdl2/SDL2Stage.cpp" />
@@ -265,7 +266,7 @@
 	<set name="LEGACY_POSTLIB" value="${LIBEXTRA}${LEGACY_SLIBEXT}" />
 	<set name="LEGACY_DEBUGEXTRA" value="-debug" if="fulldebug" />
 	
-	<target id="lime-legacy" output="${LIBPREFIX}lime${MSVC_LIB_VERSION}${LEGACY_DEBUGEXTRA}${LIBEXTRA}" tool="linker" toolid="${STD_MODULE_LINK}">
+	<target id="lime-legacy" output="${LIBPREFIX}lime-legacy${MSVC_LIB_VERSION}${LEGACY_DEBUGEXTRA}${LIBEXTRA}" tool="linker" toolid="${STD_MODULE_LINK}">
 		
 		<outdir name="${LEGACY_OUTPUT_DIR}/${BINDIR}" />
 		

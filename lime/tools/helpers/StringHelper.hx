@@ -111,6 +111,7 @@ class StringHelper {
 	
 	public static function formatUppercaseVariable (name:String):String {
 		
+		var isAlpha = ~/[A-Z0-9]/i;
 		var variableName = "";
 		var lastWasUpperCase = false;
 		
@@ -118,13 +119,26 @@ class StringHelper {
 			
 			var char = name.charAt (i);
 			
-			if (char == char.toUpperCase () && i > 0) {
+			if (!isAlpha.match (char)) {
 				
-				if (lastWasUpperCase) {
+				variableName += "_";
+				lastWasUpperCase = false;
+				
+			} else {
+				
+				if (char == char.toUpperCase () && i > 0) {
 					
-					if (i == name.length - 1 || name.charAt (i + 1) == name.charAt (i + 1).toUpperCase ()) {
+					if (lastWasUpperCase) {
 						
-						variableName += char;
+						if (i == name.length - 1 || name.charAt (i + 1) == name.charAt (i + 1).toUpperCase ()) {
+							
+							variableName += char;
+							
+						} else {
+							
+							variableName += "_" + char;
+							
+						}
 						
 					} else {
 						
@@ -132,18 +146,14 @@ class StringHelper {
 						
 					}
 					
+					lastWasUpperCase = true;
+					
 				} else {
 					
-					variableName += "_" + char;
+					variableName += char.toUpperCase ();
+					lastWasUpperCase = false;
 					
 				}
-				
-				lastWasUpperCase = true;
-				
-			} else {
-				
-				variableName += char.toUpperCase ();
-				lastWasUpperCase = false;
 				
 			}
 			

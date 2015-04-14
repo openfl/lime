@@ -343,10 +343,10 @@ class Timer {
 	}
 	
 	
-	#if lime_legacy
+	#if (lime_legacy || lime_hybrid)
 	@:noCompletion public static function __nextWake (limit:Float):Float {
 		
-		var now = lime_time_stamp () * 1000.0;
+		var now = getMS ();
 		var sleep;
 		
 		for (timer in sRunningTimers) {
@@ -384,7 +384,7 @@ class Timer {
 	
 	
 	#if lime_legacy
-	static var lime_time_stamp = flash.Lib.load ("lime", "lime_time_stamp", 0);
+	static var lime_time_stamp:Void->Float = flash.Lib.load ("lime-legacy", "lime_legacy_time_stamp", 0);
 	#end
 	
 	
