@@ -171,7 +171,7 @@ class ImageCanvasUtil {
 		
 		if (rect.x == 0 && rect.y == 0 && rect.width == image.width && rect.height == image.height) {
 			
-			if (image.transparent && ((color & 0xFF000000) == 0)) {
+			if (image.transparent && ((color & 0xFF) == 0)) {
 				
 				image.buffer.__srcCanvas.width = image.buffer.width;
 				return;
@@ -180,10 +180,23 @@ class ImageCanvasUtil {
 			
 		}
 		
-		var a = (image.transparent) ? ((color & 0xFF000000) >>> 24) : 0xFF;
-		var r = (color & 0x00FF0000) >>> 16;
-		var g = (color & 0x0000FF00) >>> 8;
-		var b = (color & 0x000000FF);
+		var r, g, b, a;
+		
+		if (format == ARGB) {
+			
+			r = (color >> 16) & 0xFF;
+			g = (color >> 8) & 0xFF;
+			b = color & 0xFF;
+			a = (image.transparent) ? (color >> 24) & 0xFF : 0xFF;
+			
+		} else {
+			
+			r = (color >> 24) & 0xFF;
+			g = (color >> 16) & 0xFF;
+			b = (color >> 8) & 0xFF;
+			a = (image.transparent) ? color & 0xFF : 0xFF;
+			
+		}
 		
 		image.buffer.__srcContext.fillStyle = 'rgba(' + r + ', ' + g + ', ' + b + ', ' + (a / 255) + ')';
 		image.buffer.__srcContext.fillRect (rect.x + image.offsetX, rect.y + image.offsetY, rect.width + image.offsetX, rect.height + image.offsetY);
