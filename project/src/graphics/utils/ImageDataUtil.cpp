@@ -196,9 +196,17 @@ namespace lime {
 			
 			int length = image->buffer->width * image->buffer->height;
 			
-			for (int i = 0; i < length; i++) {
+			if (color == 0 || color == 0xFFFFFFFF || (color & 0xFF == (color >> 8) & 0xFF && (color >> 8) & 0xFF == (color >> 16) & 0xFF && (color >> 16) & 0xFF == (color >> 24) & 0xFF)) {
 				
-				data[i] = color;
+				memset (data, color, length);
+				
+			} else {
+				
+				for (int i = 0; i < length; i++) {
+					
+					data[i] = color;
+					
+				}
 				
 			}
 			
