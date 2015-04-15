@@ -198,7 +198,7 @@ namespace lime {
 			
 			if (color == 0 || color == 0xFFFFFFFF || (color & 0xFF == (color >> 8) & 0xFF && (color >> 8) & 0xFF == (color >> 16) & 0xFF && (color >> 16) & 0xFF == (color >> 24) & 0xFF)) {
 				
-				memset (data, color, length);
+				memset ((uint8_t*)data, color & 0xFF, length * 4);
 				
 			} else {
 				
@@ -476,8 +476,6 @@ namespace lime {
 	
 	void ImageDataUtil::SetPixels (Image* image, Rectangle* rect, ByteArray* bytes, PixelFormat format) {
 		
-		int len = int (rect->width * rect->height);
-		
 		if (format == RGBA && rect->width == image->buffer->width && rect->height == image->buffer->height && rect->x == 0 && rect->y == 0) {
 			
 			memcpy (image->buffer->data->Bytes (), bytes->Bytes (), bytes->Size ());
@@ -485,18 +483,20 @@ namespace lime {
 			
 		}
 		
-		uint8_t* data = (uint8_t*)image->buffer->data->Bytes ();
-		int* byteArray = (int*)bytes->Bytes ();
-		
 		int offset = int (image->buffer->width * (rect->y + image->offsetX) + (rect->x + image->offsetY));
-		int pos = offset * 4;
 		int boundR = int ((rect->x + rect->width + image->offsetX));
 		int width = image->buffer->width;
 		int color;
 		
 		if (format == ARGB) {
 			
-			for (int i = 0; i < len; i++) {
+			int pos = offset * 4;
+			int len = int (rect->width * rect->height * 4);
+			uint8_t* data = (uint8_t*)image->buffer->data->Bytes ();
+			uint8_t* byteArray = (uint8_t*)bytes->Bytes ();
+			
+			for (int i = 0; i < len; i += 4) {
+				
 				
 				if (((pos) % (width * 4)) >= boundR * 4) {
 					
@@ -504,31 +504,33 @@ namespace lime {
 					
 				}
 				
-				color = byteArray[i];
-				
-				data[pos++] = (color >> 16) & 0xFF;
-				data[pos++] = (color >> 8) & 0xFF;
-				data[pos++] = color & 0xFF;
-				data[pos++] = (color >> 24) & 0xFF;
+				data[pos] = byteArray[i + 1];
+				data[pos + 1] = byteArray[i + 2];
+				data[pos + 2] = byteArray[i + 3];
+				data[pos + 3] = byteArray[i];
+				pos += 4;
 				
 			}
 			
 		} else {
 			
+			int pos = offset;
+			int len = int (rect->width * rect->height);
+			int* data = (int*)image->buffer->data->Bytes ();
+			int* byteArray = (int*)bytes->Bytes ();
+			
+			// TODO: memcpy rows at once
+			
 			for (int i = 0; i < len; i++) {
 				
-				if (((pos) % (width * 4)) >= boundR * 4) {
+				if (((pos) % (width)) >= boundR) {
 					
-					pos += (width - boundR) * 4;
+					pos += (width - boundR);
 					
 				}
 				
-				color = byteArray[i];
-				
-				data[pos++] = (color >> 24) & 0xFF;
-				data[pos++] = (color >> 16) & 0xFF;
-				data[pos++] = (color >> 8) & 0xFF;
-				data[pos++] = color & 0xFF;
+				data[pos] = byteArray[i];
+				pos++;
 				
 			}
 			
