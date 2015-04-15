@@ -134,8 +134,7 @@ class Image {
 						
 						#if flash
 						this.buffer = new ImageBuffer (null, width, height);
-						if (format == null || format == RGBA) color = ((color & 0xFF) << 24) | (color >> 8);
-						this.buffer.src = new BitmapData (width, height, true, color);
+						this.buffer.src = new BitmapData (width, height, true, ((color & 0xFF) << 24) | (color >> 8));
 						#end
 					
 					default:
