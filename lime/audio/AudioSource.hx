@@ -1,6 +1,7 @@
 package lime.audio;
 
 
+import haxe.Timer;
 import lime.app.Event;
 import lime.audio.openal.AL;
 
@@ -25,10 +26,16 @@ class AudioSource {
 	private var channel:SoundChannel;
 	#end
 	
+	private var loops:Int;
 	
-	public function new (buffer:AudioBuffer = null) {
+	#if (cpp || neko)
+	@:noCompletion private var timer:Timer;
+	#end
+	
+	public function new (buffer:AudioBuffer = null, loops:Int = 0) {
 		
 		this.buffer = buffer;
+		this.loops = loops;
 		id = 0;
 		pauseTime = 0;
 		
@@ -104,6 +111,25 @@ class AudioSource {
 		#else
 			
 			AL.sourcePlay (id);
+			if (timer != null) {
+				timer.stop();
+			}
+			
+			var lengthInSamples = buffer.data.length * 8 / (buffer.channels * buffer.bitsPerSample);
+			var durationInMs = lengthInSamples / buffer.sampleRate * 1000;
+			
+			timer = new Timer(durationInMs);
+			timer.run = function() {
+				if (loops > 0) {
+					loops--;
+					AL.sourcePlay(id);
+				}
+				else {
+					AL.sourceStop(id);
+					timer.stop();
+				}
+				onComplete.dispatch();
+			}
 			
 		#end
 		
@@ -142,12 +168,13 @@ class AudioSource {
 		#else
 			
 			AL.sourceStop (id);
+			if (timer != null) {
+				timer.stop();
+			}
 			
 		#end
 		
 	}
-	
-	
 	
 	
 	// Get & Set Methods
@@ -236,6 +263,5 @@ class AudioSource {
 		#end
 		
 	}
-	
 	
 }
