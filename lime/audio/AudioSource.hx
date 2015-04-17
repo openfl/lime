@@ -17,35 +17,37 @@ class AudioSource {
 	
 	public var buffer:AudioBuffer;
 	public var gain (get, set):Float;
+	public var loops:Int;
 	public var timeOffset (get, set):Int;
 	
 	private var id:UInt;
+	private var playing:Bool;
 	private var pauseTime:Int;
 	
 	#if flash
 	private var channel:SoundChannel;
 	#end
 	
-	private var loops:Int;
-	
 	#if (cpp || neko)
-	@:noCompletion private var timer:Timer;
-	@:noCompletion private var __playing:Bool = false;
-	@:noCompletion private var __paused:Bool = false;
+	private var timer:Timer;
 	#end
 	
-	@:noCompletion private var __offsetMs:Int = -1;
 	
-	public function new (buffer:AudioBuffer = null, offsetMs:Int = -1, loops:Int = 0) {
+	public function new (buffer:AudioBuffer = null, timeOffset:Int = 0, loops:Int = 0) {
 		
 		this.buffer = buffer;
 		this.loops = loops;
 		id = 0;
-		pauseTime = 0;
 		
 		if (buffer != null) {
 			
 			init ();
+			
+		}
+		
+		if (timeOffset > 0) {
+			
+			this.timeOffset = timeOffset;
 			
 		}
 		
@@ -104,14 +106,7 @@ class AudioSource {
 	}
 	
 	
-	public function play (offsetMs:Int=-1):Void {
-		
-		if (offsetMs < 0) {
-			if (__offsetMs >= 0) {
-				offsetMs = __offsetMs;
-				offsetMs = -1;
-			}
-		}
+	public function play ():Void {
 		
 		#if html5
 		#elseif flash
@@ -121,42 +116,26 @@ class AudioSource {
 			
 		#else
 			
-			if (__playing && !__paused) {
+			if (playing) {
+				
 				return;
+				
 			}
 			
-			AL.sourceRewind(id);	//you have to rewind the sound if you're going to set position accurately
-			
-			if (offsetMs >= 0) {
-				set_timeOffset(offsetMs); //Set the sound position offset if we're resuming from pause or whatever
-			}
-			
-			AL.sourcePlay (id);		//Play the sound from the resume point, or otherwise play from the start
-			
-			__paused = false;
+			AL.sourcePlay (id);
+			playing = true;
 			
 			if (timer != null) {
-				timer.stop();
+				
+				timer.stop ();
+				
 			}
 			
-			//Calculate the exact playing time of the sound
-			var lengthInSamples = buffer.data.length * 8 / (buffer.channels * buffer.bitsPerSample);
-			var durationInMs = (lengthInSamples / buffer.sampleRate * 1000) - offsetMs;
+			var samples = (buffer.data.length * 8) / (buffer.channels * buffer.bitsPerSample);
+			var duration = (samples / buffer.sampleRate * 1000) - timeOffset;
 			
-			//Set a timer to keep track of the play time duration so we can dispatch an onComplete event
-			timer = new Timer(durationInMs);
-			timer.run = function() {
-				if (loops > 0) {
-					loops--;
-					AL.sourcePlay(id);
-				}
-				else {
-					AL.sourceStop(id);
-					timer.stop();
-					__playing = false;
-				}
-				onComplete.dispatch();
-			}
+			timer = new Timer (duration);
+			timer.run = timer_onRun;
 			
 		#end
 		
@@ -177,10 +156,13 @@ class AudioSource {
 			
 		#else
 			
-			__paused = true;
+			playing = false;
 			AL.sourcePause (id);
+			
 			if (timer != null) {
-				timer.stop();
+				
+				timer.stop ();
+				
 			}
 			
 		#end
@@ -198,14 +180,51 @@ class AudioSource {
 			
 		#else
 			
+			playing = false;
 			AL.sourceStop (id);
+			
 			if (timer != null) {
-				timer.stop();
+				
+				timer.stop ();
+				
 			}
 			
 		#end
 		
 	}
+	
+	
+	
+	
+	// Event Handlers
+	
+	
+	
+	
+	private function timer_onRun () {
+		
+		#if (!flash && !html5)
+		
+		if (loops > 0) {
+			
+			loops--;
+			AL.sourcePlay (id);
+			
+		} else {
+			
+			AL.sourceStop (id);
+			timer.stop ();
+			playing = false;
+			
+		}
+		
+		onComplete.dispatch ();
+		
+		#end
+		
+	}
+	
+	
 	
 	
 	// Get & Set Methods
@@ -278,17 +297,23 @@ class AudioSource {
 		
 		#if html5
 		
-		return 0;
+		return pauseTime = value;
 		
 		#elseif flash
 			
 			// TODO: create new sound channel
 			//channel.position = value;
-			return value;
+			return pauseTime = value;
 			
 		#else
 			
-			AL.sourcef (id, AL.SEC_OFFSET, value / 1000);
+			if (buffer != null) {
+				
+				AL.sourceRewind (id);
+				AL.sourcef (id, AL.SEC_OFFSET, value / 1000);
+				
+			}
+			
 			return value;
 			
 		#end
