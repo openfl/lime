@@ -348,7 +348,7 @@ class AudioSource {
 			
 		#elseif flash
 			
-			return buffer.src.length;
+			return Std.int (buffer.src.length);
 			
 		#else
 			
