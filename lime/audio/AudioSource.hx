@@ -107,10 +107,8 @@ class AudioSource {
 	
 	public function play (offsetMs:Int=-1):Void {
 		
-		if (offsetMs < 0)
-		{
-			if (__offsetMs >= 0)
-			{
+		if (offsetMs < 0) {
+			if (__offsetMs >= 0) {
 				offsetMs = __offsetMs;
 				offsetMs = -1;
 			}
@@ -124,15 +122,13 @@ class AudioSource {
 			
 		#else
 			
-			if (__playing && !__paused)
-			{
+			if (__playing && !__paused) {
 				return;
 			}
 			
 			AL.sourceRewind(id);	//you have to rewind the sound if you're going to set position accurately
 			
-			if (offsetMs >= 0)
-			{
+			if (offsetMs >= 0) {
 				set_timeOffset(offsetMs); //Set the sound position offset if we're resuming from pause or whatever
 			}
 			
