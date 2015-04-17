@@ -13,8 +13,6 @@ namespace lime {
 		
 		public:
 			
-			static double GetTicks ();
-			
 			static AutoGCRoot* callback;
 			
 			virtual int Exec () = 0;

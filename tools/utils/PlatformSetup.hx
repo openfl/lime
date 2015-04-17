@@ -5,16 +5,16 @@ import haxe.Http;
 import haxe.io.Eof;
 import haxe.io.Path;
 import haxe.zip.Reader;
-import helpers.BlackBerryHelper;
-import helpers.CLIHelper;
-import helpers.FileHelper;
-import helpers.LogHelper;
-import helpers.PathHelper;
-import helpers.PlatformHelper;
-import helpers.ProcessHelper;
-import project.Haxelib;
-import project.HXProject;
-import project.Platform;
+import lime.tools.helpers.BlackBerryHelper;
+import lime.tools.helpers.CLIHelper;
+import lime.tools.helpers.FileHelper;
+import lime.tools.helpers.LogHelper;
+import lime.tools.helpers.PathHelper;
+import lime.tools.helpers.PlatformHelper;
+import lime.tools.helpers.ProcessHelper;
+import lime.project.Haxelib;
+import lime.project.HXProject;
+import lime.project.Platform;
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
@@ -47,7 +47,8 @@ class PlatformSetup {
 	private static var linuxAptPackages = "ia32-libs-multiarch gcc-multilib g++-multilib";
 	private static var linuxUbuntuSaucyPackages = "gcc-multilib g++-multilib libxext-dev";
 	private static var linuxYumPackages = "gcc gcc-c++";
-	private static var linuxPacmanPackages = "multilib-devel lib32-mesa lib32-mesa-libgl lib32-glu";
+	private static var linuxPacman32Packages = "multilib-devel mesa mesa-libgl glu";
+	private static var linuxPacman64Packages = "multilib-devel lib32-mesa lib32-mesa-libgl lib32-glu";
 	private static var tizenSDKURL = "https://developer.tizen.org/downloads/tizen-sdk";
 	private static var webOSLinuxX64NovacomPath = "http://cdn.downloads.palm.com/sdkdownloads/3.0.4.669/sdkBinaries/palm-novacom_1.0.80_amd64.deb";
 	private static var webOSLinuxX86NovacomPath = "http://cdn.downloads.palm.com/sdkdownloads/3.0.4.669/sdkBinaries/palm-novacom_1.0.80_i386.deb";
@@ -1686,8 +1687,8 @@ class PlatformSetup {
 				
 			}
 			
-			File.copy (PathHelper.getHaxelib (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.bat", haxePath + "\\lime.bat");
-			File.copy (PathHelper.getHaxelib (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.sh", haxePath + "\\lime");
+			try { File.copy (PathHelper.getHaxelib (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.exe", haxePath + "\\lime.exe"); } catch (e:Dynamic) {}
+			try { File.copy (PathHelper.getHaxelib (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.sh", haxePath + "\\lime"); } catch (e:Dynamic) {}
 			
 		} else {
 			
@@ -1786,7 +1787,18 @@ class PlatformSetup {
 		
 		if (hasPacman) {
 			
-			var parameters = [ "pacman", "-S", "--needed" ].concat (linuxPacmanPackages.split (" "));
+			var parameters = [ "pacman", "-S", "--needed" ];
+			
+			if (PlatformHelper.hostArchitecture == X64) {
+				
+				parameters = parameters.concat (linuxPacman64Packages.split (" "));
+				
+			} else {
+				
+				parameters = parameters.concat (linuxPacman32Packages.split (" "));
+				
+			}
+			
 			ProcessHelper.runCommand ("", "sudo", parameters, false);
 			return;
 			
@@ -1835,10 +1847,10 @@ class PlatformSetup {
 				
 			}
 			
-			File.copy (PathHelper.getHaxelib (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.bat", haxePath + "\\lime.bat");
-			File.copy (PathHelper.getHaxelib (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.sh", haxePath + "\\lime");
-			File.copy (PathHelper.getHaxelib (new Haxelib ("openfl")) + "\\templates\\\\bin\\openfl.bat", haxePath + "\\openfl.bat");
-			File.copy (PathHelper.getHaxelib (new Haxelib ("openfl")) + "\\templates\\\\bin\\openfl.sh", haxePath + "\\openfl");
+			try { File.copy (PathHelper.getHaxelib (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.exe", haxePath + "\\lime.exe"); } catch (e:Dynamic) {}
+			try { File.copy (PathHelper.getHaxelib (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.sh", haxePath + "\\lime"); } catch (e:Dynamic) {}
+			try { File.copy (PathHelper.getHaxelib (new Haxelib ("openfl")) + "\\templates\\\\bin\\openfl.exe", haxePath + "\\openfl.exe"); } catch (e:Dynamic) {}
+			try { File.copy (PathHelper.getHaxelib (new Haxelib ("openfl")) + "\\templates\\\\bin\\openfl.sh", haxePath + "\\openfl"); } catch (e:Dynamic) {}
 			
 		} else {
 			

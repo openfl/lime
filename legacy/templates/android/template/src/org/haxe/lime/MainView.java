@@ -293,6 +293,8 @@ class MainView extends GLSurfaceView {
 			
 		};
 		
+		outAttrs.imeOptions = EditorInfo.IME_FLAG_NO_EXTRACT_UI | 33554432 /* API 11: EditorInfo.IME_FLAG_NO_FULLSCREEN */;
+		
 		return inputConnection;
 		
 	}
@@ -706,7 +708,7 @@ class MainView extends GLSurfaceView {
 			
 			mMainView.renderPending = false;
 			mMainView.HandleResult (Lime.onRender ());
-			Sound.checkSoundCompletion ();
+			//Sound.checkSoundCompletion ();
 			
 		}
 		

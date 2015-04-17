@@ -17,6 +17,7 @@ import lime.app.Config;
 import lime.audio.AudioManager;
 import lime.graphics.Renderer;
 import lime.ui.KeyCode;
+import lime.ui.KeyModifier;
 import lime.ui.Window;
 
 @:access(lime.app.Application)
@@ -27,7 +28,6 @@ class FlashApplication {
 
 
 	private var cacheTime:Int;
-	private var initialized:Bool;
 	private var parent:Application;
 	private var textInputField:TextField;
 
@@ -113,6 +113,7 @@ class FlashApplication {
 			var renderer = new Renderer (window);
 			parent.addWindow (window);
 			parent.addRenderer (renderer);
+			parent.init (renderer.context);
 
 		}
 
@@ -164,15 +165,16 @@ class FlashApplication {
 		if (parent.window != null) {
 
 			var keyCode = convertKeyCode (event.keyCode);
-			var modifier = 0;
+
+			var modifier = (event.shiftKey ? (KeyModifier.SHIFT) : 0) | (event.ctrlKey ? (KeyModifier.CTRL) : 0) | (event.altKey ? (KeyModifier.ALT) : 0);
 
 			if (event.type == KeyboardEvent.KEY_DOWN) {
 
-				parent.window.onKeyDown.dispatch (keyCode, 0);
+				parent.window.onKeyDown.dispatch (keyCode, modifier);
 
 			} else {
 
-				parent.window.onKeyUp.dispatch (keyCode, 0);
+				parent.window.onKeyUp.dispatch (keyCode, modifier);
 
 			}
 
@@ -198,8 +200,8 @@ class FlashApplication {
 
 			var button = switch (event.type) {
 
-				case "middleMouseDown", "middleMouseMove", "middleMouseUp": 1;
-				case "rightMouseDown", "rightMouseMove", "rightMouseUp": 2;
+				case "middleMouseDown", "middleMouseUp": 1;
+				case "rightMouseDown", "rightMouseUp": 2;
 				default: 0;
 
 			}
@@ -210,9 +212,9 @@ class FlashApplication {
 
 					parent.window.onMouseDown.dispatch (event.stageX, event.stageY, button);
 
-				case "mouseMove", "middleMouseMove", "rightMouseMove":
+				case "mouseMove":
 
-					parent.window.onMouseMove.dispatch (event.stageX, event.stageY, button);
+					parent.window.onMouseMove.dispatch (event.stageX, event.stageY);
 
 				case "mouseUp", "middleMouseUp", "rightMouseUp":
 
@@ -272,13 +274,6 @@ class FlashApplication {
 		Lib.current.stage.focus = textInputField;
 
 		if (parent.renderer != null) {
-
-			if (!initialized) {
-
-				initialized = true;
-				parent.init (parent.renderer.context);
-
-			}
 
 			parent.renderer.onRender.dispatch (parent.renderer.context);
 			parent.renderer.flip ();

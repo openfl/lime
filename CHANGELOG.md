@@ -1,3 +1,169 @@
+2.3.2 (04/15/2015)
+------------------
+
+* Improved performance of pixel-based operations in Image
+* Added support for RGBA (default) and ARGB color order
+* Added --port=123 to change the webserver port on HTML5 builds 
+* Added support for Unicode Windows system paths
+* Added larger icon sizes requested by Windows 10
+* Improved functionality of BMP.encode
+* Fixed compilation on Android without Sound.java
+* Fixed support for -Doptional-cffi
+* Fixed haxe.Timer (legacy)
+
+
+2.3.1 (04/08/2015)
+------------------
+
+* Renamed Lime legacy to "lime-legacy" to support hybrid builds
+* Added -Dhybrid for using Lime 2 and Lime legacy in the same project
+* Improved support for standalone Neko builds on Linux
+* Fixed loading of OGG sounds on Android
+* Fixed Emscripten support for newer HXCPP
+* Fixed a crash using gl.texSubImage2D on Neko
+* Fixed missing System.fontsDirectory on Linux
+* Fixed crash on NULL system directories
+* Fixed crash when font or JPEG file paths are not found
+* Added softKeyboardRect support for iOS (legacy)
+
+
+2.3.0 (03/26/2015)
+------------------
+
+* Added initial Lime 2 support for iOS
+* Added Mouse.lock and Mouse.warp on native platforms
+* Added window.onMouseMoveRelative for use with mouse locking
+* Added System.exit
+* Added Lime 2 support for haxe.Timer
+* Changed window.onMouseMove to dispatch only (x, y)
+* Improved window width/height reporting after creation
+* Updated ios-deploy, fixed the run command for iOS
+* Fixed the ByteArray size returned from Image.getPixels
+* Fixed Flash builds for Mac and Haxe 3.2
+* Fixed js.Boot for new changes in Haxe 3.2
+* Fixed an issue in the Gamepad API
+* Fixed the ZipHelper for Haxe 3.2
+* Fixed the -Dstats define for HTML5 builds
+
+
+2.2.2 (03/25/2015)
+------------------
+
+* Restored support for OpenFL 2.2
+* Added System.fontsDirectory
+* Improved Font.fromFile when the file is not available
+* Improved HTTP server to allow access from other devices
+* Improved System.getTimer to work without haxe.Timer
+* Fixed a crash when using GL.bufferData with zero-length data
+
+
+2.2.1 (03/21/2015)
+------------------
+
+* Fixed -rebuild for 32-bit Mac/Linux with newer HXCPP
+* Fixed ImageBuffer with newer HXCPP
+* Compile fix
+
+
+2.2.0 (03/20/2015)
+------------------
+
+* Added formal support for fonts
+* Added formal support for complex text layout
+* Added Gamepad input support
+* Added Haxe 3.2 support
+* Added support for Window fullscreen
+* Added support for Window minimized
+* Added System directories (user, documents, etc)
+* Added the foundation for iOS support
+* Improved support for node.js
+* Improved support for Lime modules
+* Added support for embedded images and sounds
+* Changed Module init() to occur sooner
+* Implemented Assets.getBytes for Flash BitmapData
+* Fixed Assets.isLocal for Flash sound assets
+* Fixed Image and ImageBuffer clone()
+* Fixed support for HXCPP 3.2.x
+* Fixed -rebuild when using the Lime 2 desktop NDLL
+* Fixed "lime rebuild" when in the Lime directory
+
+
+2.1.3 (03/02/2015)
+------------------
+
+* Added lime.ui.KeyModifier
+* Added key modifier support to Flash and HTML5 keyboard events
+* Added support for iOS builds using HXCPP 3.2
+* Now "create project" creates unique package IDs instead of a common one
+* Now "-clean" is ignored where it does not make sense (such as "run -clean")
+* Changed default fullscreen for native targets to SDL_WINDOW_FULLSCREEN_DESKTOP
+* Fixed escaping for quotes and spaces in macro calls on Flash target
+* Removed Lime native dependency defines from Flash and HTML5 builds
+* Improved the behavior of shader isValid/isInvalid
+* Added a request for focus after resuming on Android
+* Fixed an IME issue that affected some Android keyboards
+* Fixed Linux setup on Arch 32-bit systems
+* Fixed an issue when building iOS projects to an absolute build path
+* Fixed issue where iOS builds may lack some defines (such as HXCPP_API_LEVEL)
+* Patched support for Assets.loadSound on Flash target
+* Fixed a null check in lime_alc_open_device
+
+
+2.1.2 (02/20/2015)
+------------------
+
+* Minor fixes for upcoming Haxe 3.2 release
+* Added "lime deploy" to zip and support upload targets
+* Added initial support for Google Drive using "lime deploy"
+* Added "Options.txt" reading for iOS builds to include -Dhxcpp_api_level
+* Changed "lime update ios" to only update, and not open Xcode
+* Added "-xcode" flag to open Xcode on iOS "build" or "run" command
+* Fixed the use of "lime" from Windows batch/command files
+* Improved "haxelib path" error message when a dependency haxelib is missing
+* Improved PathHelper.relocatePath to resolve issues with absolute paths
+* Fixed issue preventing projects from changing Flash scaleMode/align
+* Improved web font loading on HTML5 target
+* Fixed JavaScript minification that was failing on some systems
+* Fix issue with disappearing keyboards on certain Android devices
+* Fix "isValid" check in GLShader to check for zero
+* Set `<config:android install-location="auto" />` by default
+* Request focus in resume on Android, in case an extension has focus (legacy)
+* Added TILE_BLEND_SUBTRACT (legacy)
+
+
+2.1.1 (02/13/2015)
+------------------
+
+* Added initial Emscripten target support
+* Fixed regression in HTML5 font asset embedding
+* Minor improvement to SWF embedding for Flash target
+
+
+2.1.0 (02/11/2015)
+------------------
+
+* Refactored, made many events instance-based, not static
+* Removed event managers, moved input events to Window class instances
+* Moved many Lime tool classes into the public lime.* API
+* Added initial Lime 2 support for Android
+* Added official Android X86 emulator support
+* Added support for munit unit testing suite
+* Added System.getTimer for faster delta time calculations
+* Added application.removeWindow and window.close
+* Added support for a custom asset root URL on HTML5
+* Added forced OpenAL cleanup, in case of an unclean exit
+* Fixed support for Haxe 3.2 haxelib behavior
+* Fixed createImageData issue on HTML5 for WebGL
+* Improvements to in-progress Lime text layout API
+* Improved handling of Android Debug Bridge on Linux
+* Improved handling of ANT_HOME for use with ADB
+* Fixed the output of textField.htmlText on Android (legacy)
+* Updated TextField implementation (legacy)
+* Fixed behavior of ColorMatrixFilter (legacy)
+* Fixed textField.setTextFormat with different font (legacy)
+* Fixed crash in Capabilities.language on iOS (legacy)
+
+
 2.0.6 (01/22/2015)
 ------------------
 

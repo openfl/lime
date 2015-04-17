@@ -320,6 +320,13 @@ void ColorMatrixFilter::GetFilteredObjectRect(Rect &ioRect,int inPass) const
 {
 }
 
+int clamp255 (float val)
+{
+   if (val > 0xff) return 0xff;
+   else if (val < 0) return 0;
+   else return int (val);
+}
+
 template<typename PIXEL>
 void ColorMatrixFilter::DoApply(const Surface *inSrc,Surface *outDest,ImagePoint inSrc0,ImagePoint inDiff,int inPass
       ) const
@@ -338,14 +345,14 @@ void ColorMatrixFilter::DoApply(const Surface *inSrc,Surface *outDest,ImagePoint
    const RenderTarget &target = render.Target();
    for(int y=0;y<filter_h;y++)
    {
-      ARGB *src = (ARGB *)inSrc -> Row(y);
-      ARGB *dest = (ARGB *)target.Row(y);
+      ARGB *src = (ARGB*)inSrc->Row(y);
+      ARGB *dest = (ARGB*)target.Row(y);
       for(int x=0;x<filter_w;x++)
       {
-		 dest -> a = (mMatrix[15] * src -> r) + (mMatrix[16] * src -> g) + (mMatrix[17] * src -> b) + (mMatrix[18] * src -> a) + mMatrix[19];
-		 dest -> r = (mMatrix[0]  * src -> r) + (mMatrix[1]  * src -> g) + (mMatrix[2]  * src -> b) + (mMatrix[3]  * src -> a) + mMatrix[4];
-		 dest -> g = (mMatrix[5]  * src -> r) + (mMatrix[6]  * src -> g) + (mMatrix[7]  * src -> b) + (mMatrix[8]  * src -> a) + mMatrix[9];
-		 dest -> b = (mMatrix[10] * src -> r) + (mMatrix[11] * src -> g) + (mMatrix[12] * src -> b) + (mMatrix[13] * src -> a) + mMatrix[14];
+         dest->r = clamp255 ((mMatrix[0]  * src->r) + (mMatrix[1]  * src->g) + (mMatrix[2]  * src->b) + (mMatrix[3]  * src->a) + mMatrix[4]);
+         dest->g = clamp255 ((mMatrix[5]  * src->r) + (mMatrix[6]  * src->g) + (mMatrix[7]  * src->b) + (mMatrix[8]  * src->a) + mMatrix[9]);
+         dest->b = clamp255 ((mMatrix[10]  * src->r) + (mMatrix[11]  * src->g) + (mMatrix[12]  * src->b) + (mMatrix[13]  * src->a) + mMatrix[14]);
+         dest->a = clamp255 ((mMatrix[15]  * src->r) + (mMatrix[16]  * src->g) + (mMatrix[17]  * src->b) + (mMatrix[18]  * src->a) + mMatrix[19]);
          src++;
          dest++;
       }

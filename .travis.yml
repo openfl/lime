@@ -17,12 +17,34 @@ install:
   - haxelib setup ~/haxelib
   - haxelib install hxcpp
   - haxelib install format
+  - git clone --recursive https://github.com/openfl/lime-samples ~/lime-samples --depth 1
+  - haxelib dev lime-samples ~/lime-samples
   - haxelib dev lime $(pwd)
 
 script:
   - haxelib run lime rebuild linux -64 -Dlegacy
   - haxelib run lime rebuild linux -64
   - haxelib run lime rebuild tools
+  #- haxelib run lime create HandlingInputEvents
+  - haxelib run lime create HelloWorld
+  - haxelib run lime create SimpleAudio
+  - haxelib run lime create SimpleImage
+  - haxelib run lime create TextRendering
+  #- haxelib run lime build HandlingInputEvents html5
+  - haxelib run lime build HelloWorld html5
+  - haxelib run lime build SimpleAudio html5
+  - haxelib run lime build SimpleImage html5
+  #- haxelib run lime build TextRendering html5
+  #- haxelib run lime build HandlingInputEvents flash
+  - haxelib run lime build HelloWorld flash
+  - haxelib run lime build SimpleAudio flash
+  - haxelib run lime build SimpleImage flash
+  #- haxelib run lime build TextRendering flash
+  #- haxelib run lime build HandlingInputEvents neko
+  - haxelib run lime build HelloWorld neko
+  - haxelib run lime build SimpleAudio neko
+  - haxelib run lime build SimpleImage neko
+  - haxelib run lime build TextRendering neko
 
 notifications:
   slack: openfl:sBwVO0kgB7EuWLYzZzUezVIz

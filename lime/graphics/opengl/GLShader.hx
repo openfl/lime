@@ -9,8 +9,15 @@ class GLShader extends GLObject {
 		return "Shader";
 		
 	}
-    
-    
+	
+	
+	public override function isValid ():Bool {
+		
+		return id != 0 && id != null && version == GL.version;
+		
+	}
+	
+	
 }
 
 

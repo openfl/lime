@@ -8,7 +8,7 @@ extern "C" {
 
 #include <setjmp.h>
 #include <graphics/format/JPEG.h>
-#include <utils/FileIO.h>
+#include <system/System.h>
 
 
 namespace lime {
@@ -190,7 +190,19 @@ namespace lime {
 		jpegError.base.error_exit = OnError;
 		jpegError.base.output_message = OnOutput;
 		
-		FILE *file = NULL;
+		FILE_HANDLE *file = NULL;
+		
+		if (resource->path) {
+			
+			file = lime::fopen (resource->path, "rb");
+			
+			if (!file) {
+				
+				return false;
+				
+			}
+			
+		}
 		
 		if (setjmp (jpegError.on_error)) {
 			
@@ -207,10 +219,19 @@ namespace lime {
 		
 		jpeg_create_decompress (&cinfo);
 		
-		if (resource->path) {
+		if (file) {
 			
-			file = lime::fopen (resource->path, "rb");
-			jpeg_stdio_src (&cinfo, file);
+			if (file->isFile ()) {
+				
+				jpeg_stdio_src (&cinfo, file->getFile ());
+				
+			} else {
+				
+				ByteArray data = ByteArray (resource->path);
+				MySrcManager manager (data.Bytes (), data.Size ());
+				cinfo.src = &manager.pub;
+				
+			}
 			
 		} else {
 			

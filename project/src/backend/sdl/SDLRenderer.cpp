@@ -17,6 +17,12 @@ namespace lime {
 		
 		sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlFlags);
 		
+		if (!sdlRenderer) {
+			
+			printf ("Could not create SDL renderer: %s.\n", SDL_GetError ());
+			
+		}
+		
 		OpenGLBindings::Init ();
 		
 	}

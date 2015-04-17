@@ -3,6 +3,7 @@
 
 
 #include <ui/MouseCursor.h>
+#include <ui/Window.h>
 
 
 namespace lime {
@@ -16,7 +17,9 @@ namespace lime {
 			
 			static void Hide ();
 			static void SetCursor (MouseCursor cursor);
+			static void SetLock (bool lock);
 			static void Show ();
+			static void Warp (int x, int y, Window* window);
 		
 	};
 	

@@ -1,0 +1,11 @@
+-main AliasScript
+-D command=lime
+-neko lime.n
+-cmd nekotools boot lime.n
+
+--next
+
+-main AliasScript
+-D command=openfl
+-neko openfl.n
+-cmd nekotools boot openfl.n

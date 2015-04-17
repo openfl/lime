@@ -3,14 +3,14 @@ package;
 
 import format.SVG;
 import haxe.io.Path;
-import helpers.LogHelper;
-import helpers.PathHelper;
-import helpers.PlatformHelper;
+import lime.tools.helpers.LogHelper;
+import lime.tools.helpers.PathHelper;
+import lime.tools.helpers.PlatformHelper;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
 import openfl.display.Shape;
 import openfl.geom.Matrix;
-import project.Architecture;
+import lime.project.Architecture;
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
@@ -35,9 +35,9 @@ class SVGExport {
 			while (true) {
 				
 				var length = lines.length;
-				var line = process.stdout.readLine ();
+				var line = StringTools.trim (process.stdout.readLine ());
 				
-				if (length > 0 && StringTools.trim (line) == "-D lime") {
+				if (length > 0 && (line == "-D lime" || StringTools.startsWith (line, "-D lime="))) {
 					
 					path = StringTools.trim (lines[length - 1]);
 					

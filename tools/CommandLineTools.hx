@@ -9,10 +9,10 @@ import haxe.Serializer;
 import haxe.Unserializer;
 import haxe.io.Path;
 import haxe.rtti.Meta;
-import helpers.*;
+import lime.tools.helpers.*;
 import lime.system.System;
-import platforms.*;
-import project.*;
+import lime.tools.platforms.*;
+import lime.project.*;
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
@@ -113,7 +113,7 @@ class CommandLineTools {
 				
 				updateLibrary ();
 			
-			case "clean", "update", "display", "build", "run", "rerun", /*"install",*/ "uninstall", "trace", "test":
+			case "clean", "update", "display", "build", "run", "rerun", /*"install",*/ "uninstall", "trace", "test", "deploy":
 				
 				if (words.length < 1 || words.length > 2) {
 					
@@ -136,7 +136,15 @@ class CommandLineTools {
 				
 				if (words.length < 2) {
 					
-					words.unshift ("lime");
+					if (targetFlags.exists ("openfl")) {
+						
+						words.unshift ("openfl");
+						
+					} else {
+						
+						words.unshift ("lime");
+						
+					}
 					
 				}
 				
@@ -168,7 +176,7 @@ class CommandLineTools {
 							
 						} else {
 							
-							path = PathHelper.combine (words[0], "project");
+							path = PathHelper.combine (words[0], "project/Build.xml");
 							
 						}
 						
@@ -251,6 +259,10 @@ class CommandLineTools {
 							
 							project = new HXProject ();
 							project.config.set ("project.rebuild.path", PathHelper.combine (PathHelper.getHaxelib (haxelib), "project"));
+							
+						} else {
+							
+							project.config.set ("project.rebuild.path", PathHelper.combine (PathHelper.getHaxelib (haxelib), project.config.get ("project.rebuild.path")));
 							
 						}
 						
@@ -357,7 +369,7 @@ class CommandLineTools {
 		
 		for (arg in args) {
 			
-			if (arg == "-nocffi") {
+			if (arg == "-nocffi" || arg == "-rebuild") {
 				
 				System.disableCFFI = true;
 				
@@ -374,9 +386,9 @@ class CommandLineTools {
 			while (true) {
 				
 				var length = lines.length;
-				var line = process.stdout.readLine ();
+				var line = StringTools.trim (process.stdout.readLine ());
 				
-				if (length > 0 && StringTools.trim (line) == "-D lime") {
+				if (length > 0 && (line == "-D lime" || StringTools.startsWith (line, "-D lime="))) {
 					
 					path = StringTools.trim (lines[length - 1]);
 					
@@ -702,9 +714,10 @@ class CommandLineTools {
 		LogHelper.println ("  \x1b[1mbuild\x1b[0m -- Compile and package for the specified project/target");
 		LogHelper.println ("  \x1b[1mrun\x1b[0m -- Install and run for the specified project/target");
 		LogHelper.println ("  \x1b[1mtest\x1b[0m -- Update, build and run in one command");
-		LogHelper.println ("  \x1b[1mdisplay\x1b[0m -- Display information for the specified project/target");
+		LogHelper.println ("  \x1b[1mdeploy\x1b[0m -- Archive and upload builds");
 		LogHelper.println ("  \x1b[1mcreate\x1b[0m -- Create a new project or extension using templates");
 		LogHelper.println ("  \x1b[1mrebuild\x1b[0m -- Recompile native binaries for libraries");
+		LogHelper.println ("  \x1b[1mdisplay\x1b[0m -- Display information for the specified project/target");
 		LogHelper.println ("  \x1b[1minstall\x1b[0m -- Install a library from haxelib, plus dependencies");
 		LogHelper.println ("  \x1b[1mremove\x1b[0m -- Remove a library from haxelib");
 		LogHelper.println ("  \x1b[1mupgrade\x1b[0m -- Upgrade a library from haxelib");
@@ -800,6 +813,12 @@ class CommandLineTools {
 		if (showHint) {
 			
 			LogHelper.println ("Use \x1b[3m" + commandName + " setup\x1b[0m to configure platforms or \x1b[3m" + commandName + " help\x1b[0m for more commands");
+			
+			if (targetFlags.exists ("openfl")) {
+				
+				LogHelper.println ("\x1b[37mUse \x1b[3m-Dv2\x1b[0m\x1b[37m or \x1b[3m-Dlegacy\x1b[0m\x1b[37m with your commands to use OpenFL 2.x legacy mode\x1b[0m");
+				
+			}
 			
 		}
 		
@@ -1316,6 +1335,10 @@ class CommandLineTools {
 						
 					}
 					
+				} else {
+					
+					targetFlags.set (key, projectDefines.get (key));
+					
 				}
 				
 			}
@@ -1324,17 +1347,7 @@ class CommandLineTools {
 		
 		StringMapHelper.copyKeys (userDefines, project.haxedefs);
 		
-		// Better way to do this?
-		
-		switch (project.target) {
-			
-			case ANDROID, IOS, BLACKBERRY:
-				
-				getBuildNumber (project, (project.command == "build" || project.command == "test"));
-				
-			default:
-			
-		}
+		getBuildNumber (project, (project.command == "build" || project.command == "test"));
 		
 		return project;
 		

@@ -7,6 +7,9 @@ public class Lime {
      static {
          System.loadLibrary("openal");
          System.loadLibrary("lime");
+		 ::if DEFINE_LIME_HYBRID::
+		 System.loadLibrary("lime-legacy");
+		 ::end::
      }
 
      public static final int ACTIVATE   = 1;

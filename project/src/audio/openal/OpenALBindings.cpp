@@ -1051,7 +1051,7 @@ namespace lime {
 	
 	value lime_alc_open_device (value devicename) {
 		
-		ALCdevice* alcDevice = alcOpenDevice (devicename == val_null ? 0 : val_string (devicename));
+		ALCdevice* alcDevice = alcOpenDevice (val_is_null (devicename) ? 0 : val_string (devicename));
 		
 		atexit (lime_al_cleanup);
 		

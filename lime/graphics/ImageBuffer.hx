@@ -1,6 +1,8 @@
 package lime.graphics;
 
 
+import haxe.io.Bytes;
+import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 
 #if (js && html5)
@@ -8,6 +10,8 @@ import js.html.CanvasElement;
 import js.html.CanvasRenderingContext2D;
 import js.html.Image in HTMLImage;
 import js.html.ImageData;
+import js.html.Uint8ClampedArray;
+import js.Browser;
 #elseif flash
 import flash.display.BitmapData;
 #end
@@ -48,7 +52,59 @@ class ImageBuffer {
 	public function clone ():ImageBuffer {
 		
 		var buffer = new ImageBuffer (data, width, height, bitsPerPixel);
-		buffer.src = src;
+		
+		#if flash
+		if (__srcBitmapData != null) buffer.__srcBitmapData = __srcBitmapData.clone ();
+		#elseif (js && html5)
+		if (data != null) {
+			
+			buffer.data = new UInt8Array (data.byteLength);
+			var copy = new UInt8Array (data);
+			buffer.data.set (copy);
+			
+		} else if (__srcImageData != null) {
+			
+			buffer.__srcCanvas = cast Browser.document.createElement ("canvas");
+			buffer.__srcContext = cast buffer.__srcCanvas.getContext ("2d");
+			buffer.__srcCanvas.width = __srcImageData.width;
+			buffer.__srcCanvas.height = __srcImageData.height;
+			buffer.__srcImageData = buffer.__srcContext.createImageData (__srcImageData.width, __srcImageData.height);
+			var copy = new Uint8ClampedArray (__srcImageData.data);
+			buffer.__srcImageData.data.set (copy);
+			
+		} else if (__srcCanvas != null) {
+			
+			buffer.__srcCanvas = cast Browser.document.createElement ("canvas");
+			buffer.__srcContext = cast buffer.__srcCanvas.getContext ("2d");
+			buffer.__srcCanvas.width = __srcCanvas.width;
+			buffer.__srcCanvas.height = __srcCanvas.height;
+			buffer.__srcContext.drawImage (__srcCanvas, 0, 0);
+			
+		} else {
+			
+			buffer.__srcImage = __srcImage;
+			
+		}
+		#elseif nodejs
+		if (data != null) {
+			
+			buffer.data = new UInt8Array (data.byteLength);
+			var copy = new UInt8Array (data);
+			buffer.data.set (copy);
+			
+		}
+		buffer.__srcCustom = __srcCustom;
+		#else
+		if (data != null) {
+			
+			var bytes = Bytes.alloc (data.byteLength);
+			bytes.blit (0, buffer.data.buffer, 0, data.byteLength);
+			var byteArray = ByteArray.fromBytes (bytes);
+			buffer.data = new UInt8Array (byteArray);
+			
+		}
+		#end
+		
 		buffer.premultiplied = premultiplied;
 		buffer.transparent = transparent;
 		return buffer;

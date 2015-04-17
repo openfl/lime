@@ -51,6 +51,9 @@ void GraphicsPath::elementBlendMode(int inMode)
       case bmScreen:
          commands.push_back(pcBlendModeScreen);
          break;
+      case bmSubtract:
+         commands.push_back(pcBlendModeSubtract);
+         break;
    }
 }
 

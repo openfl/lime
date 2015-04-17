@@ -62,18 +62,24 @@ Tell haxelib where your development copy of Lime is installed:
 
     haxelib dev lime lime
 
-You can build the binaries using "lime rebuild":
+The first time you run the "lime" command, it will attempt to build the Lime standard binary for your desktop platform as the command-line tools. To build these manually, use the following command (using "mac" or "linux" if appropriate):
+
+    haxelib install format
+    lime rebuild windows
+    lime rebuild tools
+
+While current Lime projects (and the Lime tools) use the standard Lime binary, by default, OpenFL uses the legacy Lime 1 binary when targeting native platforms. To rebuild Lime legacy, you can use the "legacy" define:
+
+    lime rebuild windows -Dlegacy
+
+You can build additional binaries, or rebuild binaries after making changes, using "lime rebuild":
 
     lime rebuild windows
     lime rebuild linux -64 -release -clean
 
-If you make modifications to the tools, you can rebuild them like this:
+You can also rebuild the tools if you make changes to them:
 
     lime rebuild tools
-
-OpenFL currently uses the Lime 1 "legacy" binaries by default, instead of the new Lime 2 binaries. To build the legacy binary for a platform, add the -Dlegacy define:
-
-    lime rebuild windows -Dlegacy
 
 On a Windows machine, you should have Microsoft Visual Studio C++ (Express is just fine) installed. You will need Xcode on a Mac. To build on a Linux machine, you may need the following packages (or similar):
 
@@ -105,31 +111,8 @@ Lime currently supports the following targets:
     lime test mac
     lime test linux
     lime test neko
+    lime test android
     lime test html5
     lime test flash
 
-Native builds must be built on the same operating system as the target. As supported in Lime legacy, additional platforms (iOS, Android, BlackBerry, Tizen) will be restored in the near future.
-
-
-Lime "Legacy"
-=============
-
-OpenFL uses older Lime binaries, which are not used in the current version of Lime. These older binaries are derived from shared source within the NME repository, while the newer code has been rewritten to better suit the goals of the project.
-
-In order to rebuild Lime "legacy", you should follow the directions above for building from the source. You will also need additional dependencies:
-
-    git clone https://github.com/haxenme/nme
-    git clone https://github.com/haxenme/nme-dev
-    git clone https://github.com/haxefoundation/hxcpp
-    
-    haxelib dev nme nme
-    haxelib dev nme-dev nme-dev
-    haxelib dev hxcpp hxcpp
-    
-    cd nme-dev/project
-    neko build.n
-    
-    lime rebuild hxcpp windows
-    lime rebuild windows -Dlegacy
-
-You can substitute "windows" for another available target. If you would like to use Lime from the source, but do not need to modify the content of the legacy binaries, it is much easier to download a current development build, and copy the "legacy" folder into your source checkout. Otherwise, the above steps should help.
+Native builds must be built on the same operating system as the target. As supported in Lime legacy, additional platforms (iOS, BlackBerry) will be restored in the near future.

@@ -35,6 +35,7 @@ namespace lime {
 		ByteArray ();
 		ByteArray (struct _value *Value);
 		ByteArray (const QuickVec<unsigned char> &inValue);
+		ByteArray (const OSChar *inFilename);
 		
 		void Resize (int inSize);
 		int Size() const;
@@ -44,7 +45,6 @@ namespace lime {
 		
 		struct _value *mValue;
 		
-		static ByteArray FromFile (const OSChar *inFilename);
 		static int ToFile (const OSChar *inFilename, const ByteArray array);
 		
 		

@@ -8,6 +8,7 @@ import android.content.res.Configuration;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Rect;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -23,6 +24,7 @@ import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import dalvik.system.DexClassLoader;
@@ -72,12 +74,13 @@ public class GameActivity extends Activity implements SensorEventListener {
 	private static float[] orientData = new float[3];
 	private static float[] rotationMatrix = new float[16];
 	private static SensorManager sensorManager;
+	private static Rect mVisibleRect = new Rect ();
 	
 	public Handler mHandler;
 	
 	private static MainView mMainView;
 	private MainView mView;
-	private Sound _sound;
+	//private Sound _sound;
 	
 	
 	protected void onCreate (Bundle state) {
@@ -94,7 +97,7 @@ public class GameActivity extends Activity implements SensorEventListener {
 		Extension.mainActivity = this;
 		Extension.mainContext = this;
 		
-		_sound = new Sound (getApplication ());
+		//_sound = new Sound (getApplication ());
 		
 		requestWindowFeature (Window.FEATURE_NO_TITLE);
 		
@@ -126,6 +129,16 @@ public class GameActivity extends Activity implements SensorEventListener {
 			sensorManager.registerListener (this, sensorManager.getDefaultSensor (Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_GAME);
 			
 		}
+		
+		mView.getViewTreeObserver ().addOnGlobalLayoutListener (new ViewTreeObserver.OnGlobalLayoutListener () {
+			
+			@Override public void onGlobalLayout () {
+				
+				activity.getWindow().getDecorView().getWindowVisibleDisplayFrame (mVisibleRect);
+				
+			}
+			
+		});
 		
 		Extension.packageName = getApplicationContext ().getPackageName ();
 		
@@ -224,7 +237,7 @@ public class GameActivity extends Activity implements SensorEventListener {
 	
 	public void doPause () {
 		
-		_sound.doPause ();
+		//_sound.doPause ();
 		
 		mView.sendActivity (Lime.DEACTIVATE);
 		mView.onPause ();
@@ -239,10 +252,10 @@ public class GameActivity extends Activity implements SensorEventListener {
 	
 	
 	public void doResume () {
-			
+		
 		mView.onResume ();
 		
-		_sound.doResume ();
+		//_sound.doResume ();
 		
 		mView.sendActivity (Lime.ACTIVATE);
 		
@@ -252,6 +265,8 @@ public class GameActivity extends Activity implements SensorEventListener {
 			sensorManager.registerListener (this, sensorManager.getDefaultSensor (Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_GAME);
 			
 		}
+		
+		mView.requestFocus ();
 		
 	}
 	
@@ -313,6 +328,23 @@ public class GameActivity extends Activity implements SensorEventListener {
 		//::foreach assets::::if (type == "sound")::if (inFilename.equals("::id::")) return ::APP_PACKAGE::.R.raw.::flatName::;
 		//::end::::end::
 		return -1;
+		
+	}
+	
+	
+	public static float getSoftKeyboardHeight () {
+		
+		float height = Extension.mainView.getHeight () - mVisibleRect.height ();
+		
+		if (height < 0) {
+			
+			return 0;
+			
+		} else {
+			
+			return height;
+			
+		}
 		
 	}
 	

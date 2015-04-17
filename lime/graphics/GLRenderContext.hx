@@ -1337,6 +1337,7 @@ class GLRenderContext {
 #else
 
 
+import js.html.CanvasElement;
 import lime.graphics.opengl.GLActiveInfo;
 import lime.graphics.opengl.GLBuffer;
 import lime.graphics.opengl.GLContextAttributes;
@@ -1350,7 +1351,7 @@ import lime.graphics.opengl.GLUniformLocation;
 
 
 @:native("WebGLRenderingContext")
-extern class GLRenderContext extends js.html.CanvasRenderingContext {
+extern class GLRenderContext {
 	
 	
 	var ACTIVE_ATTRIBUTES:Int;
@@ -1649,6 +1650,7 @@ extern class GLRenderContext extends js.html.CanvasRenderingContext {
 	var VIEWPORT:Int;
 	var ZERO:Int;
 	
+	var canvas (default, null):CanvasElement;
 	var drawingBufferHeight (default,null):Int;
 	var drawingBufferWidth (default,null):Int;
 	

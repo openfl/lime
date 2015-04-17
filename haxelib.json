@@ -4,8 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "2.1.0",
-	"releasenote": "Ongoing improvements",
-	"contributors": [ "singmajesty" ],
-	"dependencies": {}
+	"version": "2.3.2",
+	"releasenote": "Improved Image performance, improved Windows 10 support, fixes",
+	"contributors": [ "singmajesty" ]
 }

@@ -1,4 +1,5 @@
 #include "SDLMouse.h"
+#include "SDLWindow.h"
 
 
 namespace lime {
@@ -162,9 +163,39 @@ namespace lime {
 	}
 	
 	
+	void Mouse::SetLock (bool lock) {
+		
+		if (lock) {
+			
+			SDL_SetRelativeMouseMode (SDL_TRUE);
+			
+		} else {
+			
+			SDL_SetRelativeMouseMode (SDL_FALSE);
+			
+		}
+		
+	}
+	
+	
 	void Mouse::Show () {
 		
 		SDL_ShowCursor (SDL_ENABLE);
+		
+	}
+	
+	
+	void Mouse::Warp (int x, int y, Window* window){
+		
+		if (window) {
+			
+			SDL_WarpMouseInWindow (((SDLWindow*)window)->sdlWindow, x, y);
+			
+		} else {
+			
+			SDL_WarpMouseGlobal (x, y);
+			
+		}
 		
 	}
 	

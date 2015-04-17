@@ -13,11 +13,16 @@ class ApplicationMain {
 	
 	public static function create ():Void {
 		
+		#if !munit
+		app = new ::APP_MAIN:: ();
+		app.create (config);
+		#end
+		
 		preloader = new ::if (PRELOADER_NAME != "")::::PRELOADER_NAME::::else::lime.app.Preloader::end:: ();
 		preloader.onComplete = start;
 		preloader.create (config);
 		
-		#if js
+		#if (js && html5)
 		var urls = [];
 		var types = [];
 		
@@ -32,6 +37,20 @@ class ApplicationMain {
 		::else::types.push (null);::end::
 		::end::::end::
 		
+		if (config.assetsPrefix != null) {
+			
+			for (i in 0...urls.length) {
+				
+				if (types[i] != AssetType.FONT) {
+					
+					urls[i] = config.assetsPrefix + urls[i];
+					
+				}
+				
+			}
+			
+		}
+		
 		preloader.load (urls, types);
 		#end
 		
@@ -45,14 +64,18 @@ class ApplicationMain {
 			antialiasing: Std.int (::WIN_ANTIALIASING::),
 			background: Std.int (::WIN_BACKGROUND::),
 			borderless: ::WIN_BORDERLESS::,
+			company: "::META_COMPANY::",
 			depthBuffer: ::WIN_DEPTH_BUFFER::,
+			file: "::APP_FILE::",
 			fps: Std.int (::WIN_FPS::),
 			fullscreen: ::WIN_FULLSCREEN::,
 			height: Std.int (::WIN_HEIGHT::),
 			orientation: "::WIN_ORIENTATION::",
+			packageName: "::META_PACKAGE_NAME::",
 			resizable: ::WIN_RESIZABLE::,
 			stencilBuffer: ::WIN_STENCIL_BUFFER::,
 			title: "::APP_TITLE::",
+			version: "::META_VERSION::",
 			vsync: ::WIN_VSYNC::,
 			width: Std.int (::WIN_WIDTH::),
 			
@@ -69,12 +92,9 @@ class ApplicationMain {
 		
 		#if !munit
 		
-		app = new ::APP_MAIN:: ();
-		app.create (config);
-		
 		var result = app.exec ();
 		
-		#if (sys && !nodejs)
+		#if (sys && !nodejs && !emscripten)
 		Sys.exit (result);
 		#end
 		

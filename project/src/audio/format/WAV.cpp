@@ -1,5 +1,5 @@
 #include <audio/format/WAV.h>
-#include <utils/FileIO.h>
+#include <system/System.h>
 
 
 namespace lime {
@@ -49,17 +49,17 @@ namespace lime {
 		WAVE_Data wave_data;
 		unsigned char* data;
 		
-		FILE *file = NULL;
+		FILE_HANDLE *file = NULL;
 		
 		if (resource->path) {
 			
-			#ifdef ANDROID
-			FileInfo info = AndroidGetAssetFD (resource->path);
-			file = fdopen (info.fd, "rb");
-			lime::fseek (file, info.offset, 0);
-			#else
+			//#ifdef ANDROID
+			//FileInfo info = AndroidGetAssetFD (resource->path);
+			//file = fdopen (info.fd, "rb");
+			//lime::fseek (file, info.offset, 0);
+			//#else
 			file = lime::fopen (resource->path, "rb");
-			#endif
+			//#endif
 			
 			if (!file) {
 				

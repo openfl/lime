@@ -1,9 +1,20 @@
 package lime.system;
-#if !macro
 
+
+#if !macro
+import lime.app.Application;
+#end
+
+#if flash
+import flash.Lib;
+#end
 
 #if (js && html5)
+#if (haxe_ver >= "3.2")
+import js.html.Element;
+#else
 import js.html.HtmlElement;
+#end
 import js.Browser;
 #end
 
@@ -15,7 +26,13 @@ import sys.io.Process;
 class System {
 	
 	
+	public static var applicationDirectory (get, null):String;
+	public static var applicationStorageDirectory (get, null):String;
+	public static var desktopDirectory (get, null):String;
 	public static var disableCFFI:Bool;
+	public static var documentsDirectory (get, null):String;
+	public static var fontsDirectory (get, null):String;
+	public static var userDirectory (get, null):String;
 	
 	
 	@:noCompletion private static var __moduleNames:Map<String, String> = null;
@@ -29,9 +46,9 @@ class System {
 	
 	#if (js && html5)
 	@:keep @:expose("lime.embed")
-	public static function embed (element:Dynamic, width:Null<Int> = null, height:Null<Int> = null, background:String = null) {
+	public static function embed (element:Dynamic, width:Null<Int> = null, height:Null<Int> = null, background:String = null, assetsPrefix:String = null) {
 		
-		var htmlElement:HtmlElement = null;
+		var htmlElement:#if (haxe_ver >= "3.2") Element #else HtmlElement #end = null;
 		
 		if (Std.is (element, String)) {
 			
@@ -82,11 +99,22 @@ class System {
 		ApplicationMain.config.element = htmlElement;
 		ApplicationMain.config.width = width;
 		ApplicationMain.config.height = height;
+		ApplicationMain.config.assetsPrefix = assetsPrefix;
 		ApplicationMain.create ();
 		#end
 		
 	}
 	#end
+	
+	
+	public static function exit (code:Int):Void {
+		
+		#if sys
+		// TODO: Clean shutdown?
+		Sys.exit (code);
+		#end
+		
+	}
 	
 	
 	static private function findHaxeLib (library:String):String {
@@ -134,10 +162,33 @@ class System {
 	}
 	
 	
+	public static function getTimer ():Int {
+		
+		#if flash
+		return flash.Lib.getTimer ();
+		#elseif js
+		return Std.int (Date.now ().getTime ());
+		#elseif !disable_cffi
+		return lime_system_get_timer ();
+		#elseif cpp
+		return Std.int (untyped __global__.__time_stamp () * 1000);
+		#elseif sys
+		return Std.int (Sys.time () * 1000);
+		#else
+		return 0;
+		#end
+		
+	}
+	
+	
 	public static function load (library:String, method:String, args:Int = 0, lazy:Bool = false):Dynamic {
 		
-		#if disable_cffi
+		#if (disable_cffi || macro)
 		var disableCFFI = true;
+		#end
+		
+		#if optional_cffi
+		lazy = true;
 		#end
 		
 		if (disableCFFI) {
@@ -146,105 +197,119 @@ class System {
 			
 		}
 		
-		if (lazy) {
-			
-			#if neko
-			return neko.Lib.loadLazy (library, method, args);
-			#elseif cpp
-			return cpp.Lib.loadLazy (library, method, args);
-			#end
-			
-		}
+		var result:Dynamic = null;
 		
-		#if !disable_cffi
+		#if (!disable_cffi && !macro)
 		#if (sys && !html5)
 		
-		#if (iphone || emscripten || android || static_link)
-		return cpp.Lib.load (library, method, args);
-		#end
-		
 		if (__moduleNames == null) __moduleNames = new Map<String, String> ();
-		if (__moduleNames.exists (library)) {
+		
+		if (lazy) {
 			
-			#if cpp
-			return cpp.Lib.load (__moduleNames.get (library), method, args);
-			#elseif neko
-			return neko.Lib.load (__moduleNames.get (library), method, args);
-			#elseif nodejs
-			return untyped __nodeNDLLModule.load_lib (__moduleNames.get (library), method, args);
-			#else
-			return null;
+			__moduleNames.set (library, library);
+			
+			try {
+				
+				#if lime_legacy
+				if (library == "lime") return null;
+				#elseif !lime_hybrid
+				if (library == "lime-legacy") return null;
+				#end
+				
+				#if neko
+				result = neko.Lib.loadLazy (library, method, args);
+				#elseif cpp
+				result = cpp.Lib.loadLazy (library, method, args);
+				#end
+				
+			} catch (e:Dynamic) {}
+			
+		} else {
+			
+			#if (iphone || emscripten || android || static_link)
+			return cpp.Lib.load (library, method, args);
 			#end
 			
-		}
-		
-		#if waxe
-		if (library == "lime") {
 			
-			flash.Lib.load ("waxe", "wx_boot", 1);
-			
-		}
-		#elseif nodejs
-		if (__nodeNDLLModule == null) {
-			
-			__nodeNDLLModule = untyped require('bindings')('node_ndll');
-			
-		}
-		#end
-		
-		__moduleNames.set (library, library);
-		
-		var result:Dynamic = tryLoad ("./" + library, library, method, args);
-		
-		if (result == null) {
-			
-			result = tryLoad (".\\" + library, library, method, args);
-			
-		}
-		
-		if (result == null) {
-			
-			result = tryLoad (library, library, method, args);
-			
-		}
-		
-		if (result == null) {
-			
-			var slash = (sysName ().substr (7).toLowerCase () == "windows") ? "\\" : "/";
-			var haxelib = findHaxeLib ("lime");
-			
-			if (haxelib != "") {
+			if (__moduleNames.exists (library)) {
 				
-				result = tryLoad (haxelib + slash + "ndll" + slash + sysName () + slash + library, library, method, args);
+				#if cpp
+				return cpp.Lib.load (__moduleNames.get (library), method, args);
+				#elseif neko
+				return neko.Lib.load (__moduleNames.get (library), method, args);
+				#elseif nodejs
+				return untyped __nodeNDLLModule.load_lib (__moduleNames.get (library), method, args);
+				#else
+				return null;
+				#end
 				
-				if (result == null) {
+			}
+			
+			#if waxe
+			if (library == "lime") {
+				
+				flash.Lib.load ("waxe", "wx_boot", 1);
+				
+			}
+			#elseif nodejs
+			if (__nodeNDLLModule == null) {
+				
+				__nodeNDLLModule = untyped require('ndll');
+				
+			}
+			#end
+			
+			__moduleNames.set (library, library);
+			
+			result = tryLoad ("./" + library, library, method, args);
+			
+			if (result == null) {
+				
+				result = tryLoad (".\\" + library, library, method, args);
+				
+			}
+			
+			if (result == null) {
+				
+				result = tryLoad (library, library, method, args);
+				
+			}
+			
+			if (result == null) {
+				
+				var slash = (sysName ().substr (7).toLowerCase () == "windows") ? "\\" : "/";
+				var haxelib = findHaxeLib ("lime");
+				
+				if (haxelib != "") {
 					
-					result = tryLoad (haxelib + slash + "ndll" + slash + sysName() + "64" + slash + library, library, method, args);
+					result = tryLoad (haxelib + slash + "ndll" + slash + sysName () + slash + library, library, method, args);
+					
+					if (result == null) {
+						
+						result = tryLoad (haxelib + slash + "ndll" + slash + sysName() + "64" + slash + library, library, method, args);
+						
+					}
 					
 				}
 				
 			}
 			
+			loaderTrace ("Result : " + result);
+			
 		}
-		
-		loaderTrace ("Result : " + result);
 		
 		#if neko
-		if (library == "lime") {
+		if (library == "lime" && method != "neko_init") {
 			
-			loadNekoAPI ();
+			loadNekoAPI (lazy);
 			
 		}
 		#end
 		
-		#else
-		
-		var result = null;
-		
 		#end
 		#else
 		
-		var result = function (_, _, _, _, _, _) { return { }; };
+		result = function (_, _, _, _, _, _) { return { }; };
 		
 		#end
 		
@@ -279,7 +344,7 @@ class System {
 	
 	private static function tryLoad (name:String, library:String, func:String, args:Int):Dynamic {
 		
-		#if (sys && !html5 || nodejs)
+		#if sys
 		
 		try {
 			
@@ -342,22 +407,37 @@ class System {
 	
 	#if neko
 	
-	private static function loadNekoAPI ():Void {
+	private static function loadNekoAPI (lazy:Bool):Void {
 		
 		if (!__loadedNekoAPI) {
 			
-			var init = load ("lime", "neko_init", 5);
+			var init = load ("lime", "neko_init", 5, lazy);
 			
 			if (init != null) {
 				
 				loaderTrace ("Found nekoapi @ " + __moduleNames.get ("lime"));
 				init (function(s) return new String (s), function (len:Int) { var r = []; if (len > 0) r[len - 1] = null; return r; }, null, true, false);
 				
-			} else {
+			} else if (!lazy) {
 				
 				throw ("Could not find NekoAPI interface.");
 				
 			}
+			
+			#if lime_hybrid
+			var init = load ("lime-legacy", "neko_init", 5);
+			
+			if (init != null) {
+				
+				loaderTrace ("Found nekoapi @ " + __moduleNames.get ("lime-legacy"));
+				init (function(s) return new String (s), function (len:Int) { var r = []; if (len > 0) r[len - 1] = null; return r; }, null, true, false);
+				
+			} else if (!lazy) {
+				
+				throw ("Could not find NekoAPI interface.");
+				
+			}
+			#end
 			
 			__loadedNekoAPI = true;
 			
@@ -368,38 +448,123 @@ class System {
 	#end
 	
 	
-}
-
-
-#else
-
-
-import haxe.macro.Compiler;
-import haxe.macro.Context;
-import sys.FileSystem;
-
-
-class System {
 	
 	
-	public static function includeTools () {
+	// Get & Set Methods
+	
+	
+	
+	
+	private static function get_applicationDirectory ():String {
 		
-		var paths = Context.getClassPath ();
-		
-		for (path in paths) {
-			
-			if (FileSystem.exists (path + "/tools/CommandLineTools.hx")) {
-				
-				Compiler.addClassPath (path + "/tools");
-				
-			}
-			
-		}
+		#if (cpp || neko || nodejs)
+		return lime_system_get_directory (SystemDirectory.APPLICATION, null, null);
+		#else
+		return null;
+		#end
 		
 	}
 	
 	
+	private static function get_applicationStorageDirectory ():String {
+		
+		var company = "MyCompany";
+		var file = "MyApplication";
+		
+		#if !macro
+		if (Application.current != null && Application.current.config != null) {
+			
+			if (Application.current.config.company != null) {
+				
+				company = Application.current.config.company;
+				
+			}
+			
+			if (Application.current.config.file != null) {
+				
+				file = Application.current.config.file;
+				
+			}
+			
+		}
+		#end
+		
+		#if (cpp || neko || nodejs)
+		return lime_system_get_directory (SystemDirectory.APPLICATION_STORAGE, company, file);
+		#else
+		return null;
+		#end
+		
+	}
+	
+	
+	private static function get_desktopDirectory ():String {
+		
+		#if (cpp || neko || nodejs)
+		return lime_system_get_directory (SystemDirectory.DESKTOP, null, null);
+		#else
+		return null;
+		#end
+		
+	}
+	
+	
+	private static function get_documentsDirectory ():String {
+		
+		#if (cpp || neko || nodejs)
+		return lime_system_get_directory (SystemDirectory.DOCUMENTS, null, null);
+		#else
+		return null;
+		#end
+		
+	}
+	
+	
+	private static function get_fontsDirectory ():String {
+		
+		#if (cpp || neko || nodejs)
+		return lime_system_get_directory (SystemDirectory.FONTS, null, null);
+		#else
+		return null;
+		#end
+		
+	}
+	
+	
+	private static function get_userDirectory ():String {
+		
+		#if (cpp || neko || nodejs)
+		return lime_system_get_directory (SystemDirectory.USER, null, null);
+		#else
+		return null;
+		#end
+		
+	}
+	
+	
+	
+	
+	// Native Methods
+	
+	
+	
+	
+	#if (cpp || neko || nodejs)
+	private static var lime_system_get_directory = System.load ("lime", "lime_system_get_directory", 3);
+	private static var lime_system_get_timer = System.load ("lime", "lime_system_get_timer", 0);
+	#end
+	
+	
 }
 
 
-#end
+@:enum private abstract SystemDirectory(Int) from Int to Int {
+	
+	var APPLICATION = 0;
+	var APPLICATION_STORAGE = 1;
+	var DESKTOP = 2;
+	var DOCUMENTS = 3;
+	var FONTS = 4;
+	var USER = 5;
+	
+}

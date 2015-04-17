@@ -7,6 +7,7 @@ import lime.system.System;
 import lime.ui.Window;
 
 @:access(lime.app.Application)
+@:access(lime.ui.Window)
 
 
 class NativeWindow {
@@ -74,35 +75,94 @@ class NativeWindow {
 		
 		handle = lime_window_create (application.backend.handle, parent.width, parent.height, flags, title);
 		
+		if (handle != null) {
+			
+			parent.__width = lime_window_get_width (handle);
+			parent.__height = lime_window_get_height (handle);
+			parent.__x = lime_window_get_x (handle);
+			parent.__y = lime_window_get_y (handle);
+			
+		}
+		
 	}
 	
 	
 	public function move (x:Int, y:Int):Void {
 		
-		lime_window_move (handle, x, y);
+		if (handle != null) {
+			
+			lime_window_move (handle, x, y);
+			
+		}
 		
 	}
 	
 	
 	public function resize (width:Int, height:Int):Void {
 		
-		lime_window_resize (handle, width, height);
+		if (handle != null) {
+			
+			lime_window_resize (handle, width, height);
+			
+		}
+		
+	}
+	
+	
+	public function setFullscreen (value:Bool):Bool {
+		
+		if (handle != null) {
+			
+			value = lime_window_set_fullscreen (handle, value);
+			
+			if (value) {
+				
+				parent.onWindowFullscreen.dispatch ();
+				
+			}
+			
+		}
+		
+		return value;
 		
 	}
 	
 	
 	public function setIcon (image:Image):Void {
 		
-		lime_window_set_icon (handle, image.buffer);
+		if (handle != null) {
+			
+			lime_window_set_icon (handle, image.buffer);
+			
+		}
+		
+	}
+	
+	
+	public function setMinimized (value:Bool):Bool {
+		
+		if (handle != null) {
+			
+			return lime_window_set_minimized (handle, value);
+			
+		}
+		
+		return value;
 		
 	}
 	
 	
 	private static var lime_window_close = System.load ("lime", "lime_window_close", 1);
 	private static var lime_window_create = System.load ("lime", "lime_window_create", 5);
+	private static var lime_window_get_height = System.load ("lime", "lime_window_get_height", 1);
+	private static var lime_window_get_width = System.load ("lime", "lime_window_get_width", 1);
+	private static var lime_window_get_x = System.load ("lime", "lime_window_get_x", 1);
+	private static var lime_window_get_y = System.load ("lime", "lime_window_get_y", 1);
 	private static var lime_window_move = System.load ("lime", "lime_window_move", 3);
 	private static var lime_window_resize = System.load ("lime", "lime_window_resize", 3);
+	private static var lime_window_set_fullscreen = System.load ("lime", "lime_window_set_fullscreen", 2);
 	private static var lime_window_set_icon = System.load ("lime", "lime_window_set_icon", 2);
+	private static var lime_window_set_minimized = System.load ("lime", "lime_window_set_minimized", 2);
 	
 	
 }

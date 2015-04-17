@@ -9,8 +9,8 @@ extern "C" {
 #include <setjmp.h>
 #include <graphics/format/PNG.h>
 #include <graphics/ImageBuffer.h>
+#include <system/System.h>
 #include <utils/ByteArray.h>
-#include <utils/FileIO.h>
 #include <utils/QuickVec.h>
 
 
@@ -83,7 +83,7 @@ namespace lime {
 		png_uint_32 width, height;
 		int bit_depth, color_type, interlace_type;
 		
-		FILE *file = NULL;
+		FILE_HANDLE *file = NULL;
 		
 		if (resource->path) {
 			
@@ -136,8 +136,18 @@ namespace lime {
 		
 		if (file) {
 			
-			png_init_io (png_ptr, file);
-			png_set_sig_bytes (png_ptr, PNG_SIG_SIZE);
+			if (file->isFile ()) {
+				
+				png_init_io (png_ptr, file->getFile ());
+				png_set_sig_bytes (png_ptr, PNG_SIG_SIZE);
+				
+			} else {
+				
+				ByteArray data = ByteArray (resource->path);
+				ReadBuffer buffer (data.Bytes (), data.Size ());
+				png_set_read_fn (png_ptr, &buffer, user_read_data_fn);
+				
+			}
 			
 		} else {
 			

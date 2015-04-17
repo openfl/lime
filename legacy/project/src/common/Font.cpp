@@ -332,7 +332,7 @@ Font *Font::Create(TextFormat &inFormat,double inScale,bool inNative,bool inInit
    }
    
    if (bytes != NULL)
-     face = FontFace::CreateFreeType(inFormat,inScale,bytes);
+	  face = FontFace::CreateFreeType(inFormat,inScale,bytes);
 
    if (!face)
       face = FontFace::CreateCFFIFont(inFormat,inScale);
@@ -384,3 +384,4 @@ DEFINE_PRIM(nme_font_register_font,2)
 
 
 } // end namespace nme
+

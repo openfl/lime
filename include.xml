@@ -1,17 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension>
 	
+	<set name="lime" />
 	<haxedef name="lime-html5" if="html5" />
 	<haxedef name="lime-native" if="native" />
 	
 	<haxedef name="no-compilation" />
 	
-	<set name="included" value="1" if="windows || mac || linux || ios || android || blackberry || tizen || firefoxos || html5 || flash" />
+	<set name="included" value="1" if="windows || mac || linux || ios || android || blackberry || tizen || firefox || html5 || flash || emscripten" />
 	
-	<set name="lime-legacy" value="1" if="legacy || lime_legacy" />
+	<set name="lime-hybrid" value="1" if="hybrid || lime_hybrid" />
+	<set name="lime-legacy" value="1" if="legacy || lime_legacy" unless="lime-hybrid" />
+	
+	<section if="web || display">
+		
+		<unset name="lime-legacy" />
+		<unset name="lime-hybrid" />
+		<unset name="legacy" />
+		<unset name="hybrid" />
+		
+	</section>
+	
+	<haxedef name="lime-hybrid" if="lime-hybrid" />
 	<haxedef name="lime-legacy" if="lime-legacy" />
 	
-	<include path="legacy/include.xml" if="lime-legacy" unless="setup" />
+	<include path="legacy/include.xml" if="lime-legacy || lime-hybrid" unless="setup" />
 	<templatePath name="templates" unless="lime-legacy" />
 	<sample path="samples" unless="openfl" />
 	
@@ -28,16 +41,9 @@
 		
 		<ndll name="std" haxelib="hxcpp" if="cpp" />
 		<ndll name="regexp" haxelib="hxcpp" if="cpp" />
-		<ndll name="zlib" haxelib="hxcpp" if="cpp" />
+		<ndll name="zlib" haxelib="hxcpp" if="cpp" unless="emscripten || ios" />
 		
 		<ndll name="lime" if="included" />
-		
-		<ndll name="curl_ssl" register="false" if="ios" />
-		<ndll name="png" register="false" if="ios" />
-		<ndll name="jpeg" register="false" if="ios" />
-		<ndll name="freetype" register="false" if="ios" />
-		<ndll name="ogg" register="false" if="ios" />
-		<ndll name="vorbis" register="false" if="ios" />
 		
 		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
 		<dependency path="dependencies/webgl-debug.js" if="html5 debug" />
@@ -45,13 +51,17 @@
 		
 		<architecture name="armv7" if="android" />
 		
-		<haxedef name="lime-curl" unless="lime-console || emscripten" />
-		<haxedef name="lime-opengl" unless="lime-console" />
-		<haxedef name="lime-openal" unless="lime-console || static_link || emscripten" />
+		<haxedef name="lime-curl" unless="lime-console || emscripten || flash || html5" />
+		<haxedef name="lime-opengl" unless="lime-console || flash" />
+		<haxedef name="lime-openal" unless="lime-console || static_link || flash || html5" />
+		<haxedef name="lime-openal" if="emscripten" />
 		
 	</section>
 	
 	<haxelib name="hxcpp" if="setup" />
+	<haxelib name="lime-samples" if="setup" />
+	
+	<sample path="${haxelib:lime-samples}" if="create" />
 	
 	<section if="rebuild">
 		

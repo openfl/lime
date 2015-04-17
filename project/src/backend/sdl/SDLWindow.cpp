@@ -1,4 +1,5 @@
 #include "SDLWindow.h"
+#include "SDLApplication.h"
 
 #ifdef HX_WINDOWS
 #include <SDL_syswm.h>
@@ -17,7 +18,7 @@ namespace lime {
 		
 		int sdlFlags = SDL_WINDOW_OPENGL;
 		
-		if (flags & WINDOW_FLAG_FULLSCREEN) sdlFlags |= SDL_WINDOW_FULLSCREEN;
+		if (flags & WINDOW_FLAG_FULLSCREEN) sdlFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 		if (flags & WINDOW_FLAG_RESIZABLE) sdlFlags |= SDL_WINDOW_RESIZABLE;
 		if (flags & WINDOW_FLAG_BORDERLESS) sdlFlags |= SDL_WINDOW_BORDERLESS;
 		
@@ -33,7 +34,27 @@ namespace lime {
 			
 		}
 		
+		if (flags & WINDOW_FLAG_HW_AA_HIRES) {
+			
+			SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, true);
+			SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 4);
+			
+		} else if (flags & WINDOW_FLAG_HW_AA) {
+			
+			SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, true);
+			SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 2);
+			
+		}
+		
 		sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlFlags);
+		
+		if (!sdlWindow) {
+			
+			printf ("Could not create SDL window: %s.\n", SDL_GetError ());
+			
+		}
+		
+		((SDLApplication*)currentApplication)->RegisterWindow (this);
 		
 		#ifdef HX_WINDOWS
 		
@@ -81,6 +102,54 @@ namespace lime {
 	}
 	
 	
+	int SDLWindow::GetHeight () {
+		
+		int width;
+		int height;
+		
+		SDL_GetWindowSize (sdlWindow, &width, &height);
+		
+		return height;
+		
+	}
+	
+	
+	int SDLWindow::GetWidth () {
+		
+		int width;
+		int height;
+		
+		SDL_GetWindowSize (sdlWindow, &width, &height);
+		
+		return width;
+		
+	}
+	
+	
+	int SDLWindow::GetX () {
+		
+		int x;
+		int y;
+		
+		SDL_GetWindowPosition (sdlWindow, &x, &y);
+		
+		return x;
+		
+	}
+	
+	
+	int SDLWindow::GetY () {
+		
+		int x;
+		int y;
+		
+		SDL_GetWindowPosition (sdlWindow, &x, &y);
+		
+		return y;
+		
+	}
+	
+	
 	void SDLWindow::Move (int x, int y) {
 		
 		SDL_SetWindowPosition (sdlWindow, x, y);
@@ -95,6 +164,23 @@ namespace lime {
 	}
 	
 	
+	bool SDLWindow::SetFullscreen (bool fullscreen) {
+		
+		if (fullscreen) {
+			
+			SDL_SetWindowFullscreen (sdlWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+			
+		} else {
+			
+			SDL_SetWindowFullscreen (sdlWindow, 0);
+			
+		}
+		
+		return fullscreen;
+		
+	}
+	
+	
 	void SDLWindow::SetIcon (ImageBuffer *imageBuffer) {
 		
 		SDL_Surface *surface = SDL_CreateRGBSurfaceFrom (imageBuffer->data->Bytes (), imageBuffer->width, imageBuffer->height, imageBuffer->bpp * 8, imageBuffer->width * imageBuffer->bpp, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
@@ -105,6 +191,23 @@ namespace lime {
 			SDL_FreeSurface (surface);
 			
 		}
+		
+	}
+	
+	
+	bool SDLWindow::SetMinimized (bool minimized) {
+		
+		if (minimized) {
+			
+			SDL_MinimizeWindow (sdlWindow);
+			
+		} else {
+			
+			SDL_RestoreWindow (sdlWindow);
+			
+		}
+		
+		return minimized;
 		
 	}
 	

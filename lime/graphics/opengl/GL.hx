@@ -668,7 +668,7 @@ class GL {
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_compressed_tex_image_2d (target, level, internalformat, width, height, border, data == null ? null : data.getByteBuffer (), data == null ? null : data.getStart ());
 		#elseif (nodejs && lime_opengl)
-		lime_gl_compressed_tex_image_2d (target, level, internalformat, width, height, border, data == null ? null : data.buffer , data == null ? null : data.byteOffset);
+		lime_gl_compressed_tex_image_2d (target, level, internalformat, width, height, border, data == null ? null : data , data == null ? null : data.byteOffset);
 		#elseif java
 		//GL13.glCompressedTexImage2D (target, level, internalformat, width, height, border, data == null ? null : data.getByteBuffer (), data == null ? null : data.getStart ());
 		#end
@@ -683,7 +683,7 @@ class GL {
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_compressed_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, data == null ? null : data.getByteBuffer (), data == null ? null : data.getStart ());
 		#elseif (nodejs && lime_opengl)
-		lime_gl_compressed_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, data == null ? null : data.buffer, data == null ? null : data.byteOffset);
+		lime_gl_compressed_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, data == null ? null : data, data == null ? null : data.byteOffset);
 		#elseif java
 		//GL13.glCompressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, data == null ? null : data.getByteBuffer (), data == null ? null : data.getStart ());
 		#end
@@ -1650,7 +1650,7 @@ class GL {
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_read_pixels (x, y, width, height, format, type, pixels == null ? null : pixels.getByteBuffer (), pixels == null ? null : pixels.getStart ());
 		#elseif (nodejs && lime_opengl)
-		lime_gl_read_pixels (x, y, width, height, format, type, pixels == null ? null : pixels.buffer, pixels == null ? null : pixels.byteOffset);
+		lime_gl_read_pixels (x, y, width, height, format, type, pixels == null ? null : pixels, pixels == null ? null : pixels.byteOffset);
 		#end
 		
 	}
@@ -1808,7 +1808,7 @@ class GL {
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, type, pixels == null ? null : pixels.getByteBuffer(), pixels == null ? null : pixels.getStart());
 		#elseif (nodejs && lime_opengl)
-		lime_gl_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, type, pixels == null ? null : pixels.buffer, pixels == null ? null : pixels.byteOffset);
+		lime_gl_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, type, pixels == null ? null : pixels, pixels == null ? null : pixels.byteOffset);
 		#end
 		
 	}
@@ -1832,7 +1832,7 @@ class GL {
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_uniform1fv (location, x.getByteBuffer ());
 		#elseif (nodejs && lime_opengl)
-		lime_gl_uniform1fv (location, x.buffer);
+		lime_gl_uniform1fv (location, x);
 		#end
 		
 	}
@@ -1856,7 +1856,7 @@ class GL {
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_uniform1iv (location, v.getByteBuffer ());
 		#elseif (nodejs && lime_opengl)
-		lime_gl_uniform1iv (location, v.buffer);
+		lime_gl_uniform1iv (location, v);
 		#end
 		
 	}
@@ -1880,7 +1880,7 @@ class GL {
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_uniform2fv (location, v.getByteBuffer ());
 		#elseif (nodejs && lime_opengl)
-		lime_gl_uniform2fv (location, v.buffer);
+		lime_gl_uniform2fv (location, v);
 		#end
 		
 	}
@@ -1904,7 +1904,7 @@ class GL {
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_uniform2iv (location, v.getByteBuffer ());
 		#elseif (nodejs && lime_opengl)
-		lime_gl_uniform2iv (location, v.buffer);
+		lime_gl_uniform2iv (location, v);
 		#end
 		
 	}
@@ -1928,7 +1928,7 @@ class GL {
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_uniform3fv (location, v.getByteBuffer ());
 		#elseif (nodejs && lime_opengl)
-		lime_gl_uniform3fv (location, v.buffer);
+		lime_gl_uniform3fv (location, v);
 		#end
 		
 	}
@@ -1952,7 +1952,7 @@ class GL {
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_uniform3iv (location, v.getByteBuffer ());
 		#elseif (nodejs && lime_opengl)
-		lime_gl_uniform3iv (location, v.buffer);
+		lime_gl_uniform3iv (location, v);
 		#end
 		
 	}
@@ -1976,7 +1976,7 @@ class GL {
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_uniform4fv (location, v.getByteBuffer ());
 		#elseif (nodejs && lime_opengl)
-		lime_gl_uniform4fv (location, v.buffer);
+		lime_gl_uniform4fv (location, v);
 		#end
 		
 	}
@@ -2000,7 +2000,7 @@ class GL {
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_uniform4iv (location, v.getByteBuffer ());
 		#elseif (nodejs && lime_opengl)
-		lime_gl_uniform4iv (location, v.buffer);
+		lime_gl_uniform4iv (location, v);
 		#end
 		
 	}
@@ -2013,7 +2013,7 @@ class GL {
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_uniform_matrix (location, transpose, v.getByteBuffer (), 2);
 		#elseif (nodejs && lime_opengl)
-		lime_gl_uniform_matrix (location, transpose, v.buffer, 2);
+		lime_gl_uniform_matrix (location, transpose, v, 2);
 		#end
 		
 	}
@@ -2026,7 +2026,7 @@ class GL {
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_uniform_matrix (location, transpose, v.getByteBuffer (), 3);
 		#elseif (nodejs && lime_opengl)
-		lime_gl_uniform_matrix (location, transpose, v.buffer, 3);
+		lime_gl_uniform_matrix (location, transpose, v, 3);
 		#end
 		
 	}
@@ -2039,7 +2039,7 @@ class GL {
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_uniform_matrix (location, transpose, v.getByteBuffer (), 4);
 		#elseif (nodejs && lime_opengl)
-		lime_gl_uniform_matrix (location, transpose, v.buffer, 4);
+		lime_gl_uniform_matrix (location, transpose, v, 4);
 		#end
 		
 	}
@@ -2092,7 +2092,7 @@ class GL {
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_vertex_attrib1fv (indx, values.getByteBuffer ());
 		#elseif (nodejs && lime_opengl)
-		lime_gl_vertex_attrib1fv (indx, values.buffer);
+		lime_gl_vertex_attrib1fv (indx, values);
 		#end
 		
 	}
@@ -2116,7 +2116,7 @@ class GL {
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_vertex_attrib2fv (indx, values.getByteBuffer());
 		#elseif (nodejs && lime_opengl)
-		lime_gl_vertex_attrib2fv (indx, values.buffer);
+		lime_gl_vertex_attrib2fv (indx, values);
 		#end
 		
 	}
@@ -2140,7 +2140,7 @@ class GL {
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_vertex_attrib3fv (indx, values.getByteBuffer ());
 		#elseif (nodejs && lime_opengl)
-		lime_gl_vertex_attrib3fv (indx, values.buffer);
+		lime_gl_vertex_attrib3fv (indx, values);
 		#end
 		
 	}
@@ -2164,7 +2164,7 @@ class GL {
 		#elseif ((cpp || neko) && lime_opengl)
 		lime_gl_vertex_attrib4fv (indx, values.getByteBuffer ());
 		#elseif (nodejs && lime_opengl)
-		lime_gl_vertex_attrib4fv (indx, values.buffer);
+		lime_gl_vertex_attrib4fv (indx, values);
 		#end
 		
 	}

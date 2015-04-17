@@ -1534,6 +1534,7 @@ DO_STAGE_PROP(align,Align,alloc_int,val_int)
 DO_STAGE_PROP(quality,Quality,alloc_int,val_int)
 DO_STAGE_PROP(display_state,DisplayState,alloc_int,val_int)
 DO_STAGE_PROP(multitouch_active,MultitouchActive,alloc_bool,val_bool)
+DO_PROP_READ(Stage,stage,keyboard_height,KeyboardHeight,alloc_int);
 DO_PROP_READ(Stage,stage,stage_width,StageWidth,alloc_float);
 DO_PROP_READ(Stage,stage,stage_height,StageHeight,alloc_float);
 DO_PROP_READ(Stage,stage,dpi_scale,DPIScale,alloc_float);
@@ -2792,6 +2793,7 @@ value nme_gfx_draw_tiles(value inGfx,value inSheet, value inXYIDs,value inFlags,
         TILE_BLEND_ADD   = 0x10000,
         TILE_BLEND_MULTIPLY   = 0x20000,
         TILE_BLEND_SCREEN   = 0x40000,
+        TILE_BLEND_SUBTRACT   = 0x80000,
         TILE_BLEND_MASK  = 0xf0000,
       };
 
@@ -2807,6 +2809,9 @@ value nme_gfx_draw_tiles(value inGfx,value inSheet, value inXYIDs,value inFlags,
             break;
          case TILE_BLEND_SCREEN:
             blend = bmScreen;
+            break;
+         case TILE_BLEND_SUBTRACT:
+            blend = bmSubtract;
             break;
       }
 
