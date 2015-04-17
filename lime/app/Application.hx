@@ -191,7 +191,7 @@ class Application extends Module {
 	 * Called when a text input event is fired
 	 * @param	text	The text that was entered by the user
 	 */
-	public function onTextInput (text:String):Void { trace(text); }
+	public function onTextInput (text:String):Void { }
 
 
 	/**
