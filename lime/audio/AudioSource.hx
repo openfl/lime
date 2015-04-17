@@ -4,7 +4,6 @@ package lime.audio;
 import haxe.Timer;
 import lime.app.Event;
 import lime.audio.openal.AL;
-import openfl.media.Sound;
 
 #if flash
 import flash.media.SoundChannel;
