@@ -1346,7 +1346,7 @@ class Assets {
 				
 				super();
 				
-				__fromBytes (lime.utils.ByteArray.fromBytes (haxe.Resource.getBytes (resourceName)));
+				__fromBytes (haxe.Resource.getBytes (resourceName));
 				
 			};
 			
