@@ -4,6 +4,7 @@ package lime.audio;
 import haxe.Timer;
 import lime.app.Event;
 import lime.audio.openal.AL;
+import openfl.media.Sound;
 
 #if flash
 import flash.media.SoundChannel;
@@ -30,9 +31,13 @@ class AudioSource {
 	
 	#if (cpp || neko)
 	@:noCompletion private var timer:Timer;
+	@:noCompletion private var __playing:Bool = false;
+	@:noCompletion private var __paused:Bool = false;
 	#end
 	
-	public function new (buffer:AudioBuffer = null, loops:Int = 0) {
+	@:noCompletion private var __offsetMs:Int = -1;
+	
+	public function new (buffer:AudioBuffer = null, offsetMs:Int = -1, loops:Int = 0) {
 		
 		this.buffer = buffer;
 		this.loops = loops;
@@ -100,7 +105,16 @@ class AudioSource {
 	}
 	
 	
-	public function play ():Void {
+	public function play (offsetMs:Int=-1):Void {
+		
+		if (offsetMs < 0)
+		{
+			if (__offsetMs >= 0)
+			{
+				offsetMs = __offsetMs;
+				offsetMs = -1;
+			}
+		}
 		
 		#if html5
 		#elseif flash
@@ -110,14 +124,31 @@ class AudioSource {
 			
 		#else
 			
-			AL.sourcePlay (id);
+			if (__playing && !__paused)
+			{
+				return;
+			}
+			
+			AL.sourceRewind(id);	//you have to rewind the sound if you're going to set position accurately
+			
+			if (offsetMs >= 0)
+			{
+				set_timeOffset(offsetMs); //Set the sound position offset if we're resuming from pause or whatever
+			}
+			
+			AL.sourcePlay (id);		//Play the sound from the resume point, or otherwise play from the start
+			
+			__paused = false;
+			
 			if (timer != null) {
 				timer.stop();
 			}
 			
+			//Calculate the exact playing time of the sound
 			var lengthInSamples = buffer.data.length * 8 / (buffer.channels * buffer.bitsPerSample);
-			var durationInMs = lengthInSamples / buffer.sampleRate * 1000;
+			var durationInMs = (lengthInSamples / buffer.sampleRate * 1000) - offsetMs;
 			
+			//Set a timer to keep track of the play time duration so we can dispatch an onComplete event
 			timer = new Timer(durationInMs);
 			timer.run = function() {
 				if (loops > 0) {
@@ -127,6 +158,7 @@ class AudioSource {
 				else {
 					AL.sourceStop(id);
 					timer.stop();
+					__playing = false;
 				}
 				onComplete.dispatch();
 			}
@@ -150,7 +182,11 @@ class AudioSource {
 			
 		#else
 			
+			__paused = true;
 			AL.sourcePause (id);
+			if (timer != null) {
+				timer.stop();
+			}
 			
 		#end
 		
