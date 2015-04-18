@@ -9,8 +9,8 @@ import lime.graphics.Renderer;
 
 
 class Window {
-	
-	
+
+
 	public var currentRenderer:Renderer;
 	public var config:Config;
 	public var fullscreen (get, set):Bool;
@@ -28,6 +28,7 @@ class Window {
 	public var onMouseMoveRelative = new Event<Float->Float->Void> ();
 	public var onMouseUp = new Event<Float->Float->Int->Void> ();
 	public var onMouseWheel = new Event<Float->Float->Void> ();
+	public var onTextInput = new Event<String->Void> ();
 	public var onTouchEnd = new Event<Float->Float->Int->Void> ();
 	public var onTouchMove = new Event<Float->Float->Int->Void> ();
 	public var onTouchStart = new Event<Float->Float->Int->Void> ();
@@ -44,7 +45,7 @@ class Window {
 	public var width (get, set):Int;
 	public var x (get, set):Int;
 	public var y (get, set):Int;
-	
+
 	@:noCompletion private var backend:WindowBackend;
 	@:noCompletion private var __fullscreen:Bool;
 	@:noCompletion private var __height:Int;
@@ -52,181 +53,181 @@ class Window {
 	@:noCompletion private var __width:Int;
 	@:noCompletion private var __x:Int;
 	@:noCompletion private var __y:Int;
-	
-	
+
+
 	public function new (config:Config = null) {
-		
+
 		this.config = config;
-		
+
 		__width = 0;
 		__height = 0;
 		__fullscreen = false;
 		__x = 0;
 		__y = 0;
-		
+
 		if (config != null) {
-			
+
 			// TODO: Switch to the tool's Config type?
-			
+
 			if (Reflect.hasField (config, "width")) __width = config.width;
 			if (Reflect.hasField (config, "height")) __height = config.height;
 			if (Reflect.hasField (config, "fullscreen")) __fullscreen = config.fullscreen;
-			
+
 		}
-		
+
 		backend = new WindowBackend (this);
-		
+
 	}
-	
-	
+
+
 	public function close ():Void {
-		
+
 		backend.close ();
-		
+
 	}
-	
-	
+
+
 	public function create (application:Application):Void {
-		
+
 		backend.create (application);
-		
+
 		if (currentRenderer != null) {
-			
+
 			currentRenderer.create ();
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 	public function move (x:Int, y:Int):Void {
-		
+
 		backend.move (x, y);
-		
+
 		__x = x;
 		__y = y;
-		
+
 	}
-	
-	
+
+
 	public function resize (width:Int, height:Int):Void {
-		
+
 		backend.resize (width, height);
-		
+
 		__width = width;
 		__height = height;
-		
+
 	}
-	
-	
+
+
 	public function setIcon (image:Image):Void {
-		
+
 		if (image == null) {
-			
+
 			return;
-			
+
 		}
-		
+
 		backend.setIcon (image);
-		
+
 	}
-	
-	
-	
-	
+
+
+
+
 	// Get & Set Methods
-	
-	
-	
-	
+
+
+
+
 	@:noCompletion private inline function get_fullscreen ():Bool {
-		
+
 		return __fullscreen;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_fullscreen (value:Bool):Bool {
-		
+
 		return __fullscreen = backend.setFullscreen (value);
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_height ():Int {
-		
+
 		return __height;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_height (value:Int):Int {
-		
+
 		resize (__width, value);
 		return __height;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_minimized ():Bool {
-		
+
 		return __minimized;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_minimized (value:Bool):Bool {
-		
+
 		return __minimized = backend.setMinimized (value);
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_width ():Int {
-		
+
 		return __width;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_width (value:Int):Int {
-		
+
 		resize (value, __height);
 		return __width;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_x ():Int {
-		
+
 		return __x;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_x (value:Int):Int {
-		
+
 		move (value, __y);
 		return __x;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_y ():Int {
-		
+
 		return __y;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_y (value:Int):Int {
-		
+
 		move (__x, value);
 		return __y;
-		
+
 	}
-	
-	
+
+
 }
 
 
