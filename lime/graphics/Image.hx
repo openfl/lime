@@ -251,6 +251,9 @@ class Image {
 		if (sourceRect.y + sourceRect.height > sourceImage.height) sourceRect.height = sourceImage.height - sourceRect.y;
 		if (sourceRect.width <= 0 || sourceRect.height <= 0) return;
 		
+		if (destPoint.x + sourceRect.width > width) sourceRect.width = width - destPoint.x;
+		if (destPoint.y + sourceRect.height > height) sourceRect.height = height - destPoint.y;
+		
 		switch (type) {
 			
 			case CANVAS:
