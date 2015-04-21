@@ -1244,6 +1244,7 @@ class Image {
 	
 	private function get_transparent ():Bool {
 		
+		if (buffer == null) return false;
 		return buffer.transparent;
 		
 	}
@@ -1252,7 +1253,7 @@ class Image {
 	private function set_transparent (value:Bool):Bool {
 		
 		// TODO, modify data to set transparency
-		
+		if (buffer == null) return false;
 		return buffer.transparent = value;
 		
 	}
