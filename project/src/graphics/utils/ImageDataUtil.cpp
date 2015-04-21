@@ -1,5 +1,6 @@
 #include <graphics/utils/ImageDataUtil.h>
 #include <system/System.h>
+#include <utils/QuickVec.h>
 
 
 namespace lime {
@@ -84,6 +85,319 @@ namespace lime {
 	}
 	
 	
+	void ImageDataUtil::CopyChannel (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, int srcChannel, int destChannel) {
+		
+		int srcStride = sourceImage->buffer->width * 4;
+		int srcPosition = ((sourceRect->x + sourceImage->offsetX) * 4) + (srcStride * (sourceRect->y + sourceImage->offsetY)) + srcChannel;
+		int srcRowOffset = srcStride - int (4 * (sourceRect->width + sourceImage->offsetX));
+		int srcRowEnd = 4 * (sourceRect->x + sourceImage->offsetX + sourceRect->width);
+		uint8_t* srcData = (uint8_t*)sourceImage->buffer->data->Bytes ();
+		
+		int destStride = image->buffer->width * 4;
+		int destPosition = ((destPoint->x + image->offsetX) * 4) + (destStride * (destPoint->y + image->offsetY)) + destChannel;
+		int destRowOffset = destStride - int (4 * (sourceRect->width + image->offsetX));
+		int destRowEnd = 4 * (destPoint->x + image->offsetX + sourceRect->width);
+		uint8_t* destData = (uint8_t*)image->buffer->data->Bytes ();
+		
+		int length = sourceRect->width * sourceRect->height;
+		
+		for (int i = 0; i < length; i++) {
+			
+			destData[destPosition] = srcData[srcPosition];
+			
+			srcPosition += 4;
+			destPosition += 4;
+			
+			if ((srcPosition % srcStride) > srcRowEnd) {
+				
+				srcPosition += srcRowOffset;
+				
+			}
+			
+			if ((destPosition % destStride) > destRowEnd) {
+				
+				destPosition += destRowOffset;
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	void ImageDataUtil::CopyPixels (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, bool mergeAlpha) {
+		
+		int rowOffset = int (destPoint->y + image->offsetY - sourceRect->y - sourceImage->offsetY);
+		int columnOffset = int (destPoint->x + image->offsetX - sourceRect->x - sourceImage->offsetY);
+		
+		uint8_t* sourceData = (uint8_t*)sourceImage->buffer->data->Bytes ();
+		int sourceStride = sourceImage->buffer->width * 4;
+		int sourceOffset = 0;
+		
+		uint8_t* data = (uint8_t*)image->buffer->data->Bytes ();
+		int stride = image->buffer->width * 4;
+		int offset = 0;
+		
+		int rows = sourceRect->y + sourceRect->height + sourceImage->offsetY;
+		int columns = sourceRect->x + sourceRect->width + sourceImage->offsetX;
+		
+		if (!mergeAlpha || !sourceImage->transparent) {
+			
+			for (int row = sourceRect->y + sourceImage->offsetY; row < rows; row++) {
+				
+				for (int column = sourceRect->x + sourceImage->offsetX; column < columns; column++) {
+					
+					sourceOffset = (row * sourceStride) + (column * 4);
+					offset = ((row + rowOffset) * stride) + ((column + columnOffset) * 4);
+					
+					data[offset] = sourceData[sourceOffset];
+					data[offset + 1] = sourceData[sourceOffset + 1];
+					data[offset + 2] = sourceData[sourceOffset + 2];
+					data[offset + 3] = sourceData[sourceOffset + 3];
+					
+				}
+				
+			}
+			
+		} else {
+			
+			float sourceAlpha;
+			float oneMinusSourceAlpha;
+			
+			for (int row = sourceRect->y + sourceImage->offsetY; row < rows; row++) {
+				
+				for (int column = sourceRect->x + sourceImage->offsetX; column < columns; column++) {
+					
+					sourceOffset = (row * sourceStride) + (column * 4);
+					offset = ((row + rowOffset) * stride) + ((column + columnOffset) * 4);
+					
+					sourceAlpha = sourceData[sourceOffset + 3] / 255;
+					oneMinusSourceAlpha = (1 - sourceAlpha);
+					
+					data[offset] = __clamp[int (sourceData[sourceOffset] + (data[offset] * oneMinusSourceAlpha))];
+					data[offset + 1] = __clamp[int (sourceData[sourceOffset + 1] + (data[offset + 1] * oneMinusSourceAlpha))];
+					data[offset + 2] = __clamp[int (sourceData[sourceOffset + 2] + (data[offset + 2] * oneMinusSourceAlpha))];
+					data[offset + 3] = __clamp[int (sourceData[sourceOffset + 3] + (data[offset + 3] * oneMinusSourceAlpha))];
+					
+				}
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	void ImageDataUtil::FillRect (Image* image, Rectangle* rect, int color) {
+		
+		int* data = (int*)image->buffer->data->Bytes ();
+		
+		if (rect->width == image->buffer->width && rect->height == image->buffer->height && rect->x == 0 && rect->y == 0 && image->offsetX == 0 && image->offsetY == 0) {
+			
+			int length = image->buffer->width * image->buffer->height;
+			
+			if (color == 0 || color == 0xFFFFFFFF || (color & 0xFF == (color >> 8) & 0xFF && (color >> 8) & 0xFF == (color >> 16) & 0xFF && (color >> 16) & 0xFF == (color >> 24) & 0xFF)) {
+				
+				memset ((uint8_t*)data, color & 0xFF, length * 4);
+				
+			} else {
+				
+				for (int i = 0; i < length; i++) {
+					
+					data[i] = color;
+					
+				}
+				
+			}
+			
+		} else {
+			
+			int stride = image->buffer->width;
+			int offset;
+			
+			int rowStart = int (rect->y + image->offsetY);
+			int rowEnd = int (rect->y + rect->height + image->offsetY);
+			int columnStart = int (rect->x + image->offsetX);
+			int columnEnd = int (rect->x + rect->width + image->offsetX);
+			
+			for (int row = rowStart; row < rowEnd; row++) {
+				
+				for (int column = columnStart; column < columnEnd; column++) {
+					
+					offset = (row * stride) + (column);
+					data[offset] = color;
+					
+				}
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	void ImageDataUtil::FloodFill (Image* image, int x, int y, int color) {
+		
+		uint8_t* data = (uint8_t*)image->buffer->data->Bytes ();
+		
+		int offset = (((y + image->offsetY) * (image->buffer->width * 4)) + ((x + image->offsetX) * 4));
+		uint8_t hitColorR = data[offset + 0];
+		uint8_t hitColorG = data[offset + 1];
+		uint8_t hitColorB = data[offset + 2];
+		uint8_t hitColorA = image->transparent ? data[offset + 3] : 0xFF;
+		
+		uint8_t r = (color >> 24) & 0xFF;
+		uint8_t g = (color >> 16) & 0xFF;
+		uint8_t b = (color >> 8) & 0xFF;
+		uint8_t a = image->transparent ? color & 0xFF : 0xFF;
+		
+		if (hitColorR == r && hitColorG == g && hitColorB == b && hitColorA == a) return;
+		
+		int dx[4] = { 0, -1, 1, 0 };
+		int dy[4] = { -1, 0, 0, 1 };
+		
+		int minX = -image->offsetX;
+		int minY = -image->offsetY;
+		int maxX = minX + image->width;
+		int maxY = minY + image->height;
+		
+		QuickVec<int> queue = QuickVec<int> ();
+		queue.push_back (x);
+		queue.push_back (y);
+		
+		int curPointX, curPointY, i, nextPointX, nextPointY, nextPointOffset;
+		
+		while (queue.size () > 0) {
+			
+			curPointY = queue.qpop ();
+			curPointX = queue.qpop ();
+			
+			for (i = 0; i < 4; i++) {
+				
+				nextPointX = curPointX + dx[i];
+				nextPointY = curPointY + dy[i];
+				
+				if (nextPointX < minX || nextPointY < minY || nextPointX >= maxX || nextPointY >= maxY) {
+					
+					continue;
+					
+				}
+				
+				nextPointOffset = (nextPointY * image->width + nextPointX) * 4;
+				
+				if (data[nextPointOffset + 0] == hitColorR && data[nextPointOffset + 1] == hitColorG && data[nextPointOffset + 2] == hitColorB && data[nextPointOffset + 3] == hitColorA) {
+					
+					data[nextPointOffset + 0] = r;
+					data[nextPointOffset + 1] = g;
+					data[nextPointOffset + 2] = b;
+					data[nextPointOffset + 3] = a;
+					
+					queue.push_back (nextPointX);
+					queue.push_back (nextPointY);
+					
+				}
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	void ImageDataUtil::GetPixels (Image* image, Rectangle* rect, PixelFormat format, ByteArray* pixels) {
+		
+		int length = int (rect->width * rect->height);
+		pixels->Resize (length * 4);
+		
+		if (format == RGBA && rect->width == image->buffer->width && rect->height == image->buffer->height && rect->x == 0 && rect->y == 0) {
+			
+			memcpy (pixels->Bytes (), image->buffer->data->Bytes (), image->buffer->data->Size ());
+			return;
+			
+		}
+		
+		uint8_t* data = (uint8_t*)pixels->Bytes (); 
+		uint8_t* srcData = (uint8_t*)image->buffer->data->Bytes ();
+		
+		int srcStride = int (image->buffer->width * 4);
+		int srcPosition = int ((rect->x * 4) + (srcStride * rect->y));
+		int srcRowOffset = srcStride - int (4 * rect->width);
+		int srcRowEnd = int (4 * (rect->x + rect->width));
+		
+		if (format == ARGB) {
+			
+			for (int i = 0; i < length; i++) {
+				
+				data[i * 4 + 1] = srcData[srcPosition++];
+				data[i * 4 + 2] = srcData[srcPosition++];
+				data[i * 4 + 3] = srcData[srcPosition++];
+				data[i * 4] = srcData[srcPosition++];
+				
+				if ((srcPosition % srcStride) > srcRowEnd) {
+					
+					srcPosition += srcRowOffset;
+					
+				}
+				
+			}
+			
+		} else {
+			
+			for (int i = 0; i < length; i++) {
+				
+				data[i * 4] = srcData[srcPosition++];
+				data[i * 4 + 1] = srcData[srcPosition++];
+				data[i * 4 + 2] = srcData[srcPosition++];
+				data[i * 4 + 3] = srcData[srcPosition++];
+				
+				if ((srcPosition % srcStride) > srcRowEnd) {
+					
+					srcPosition += srcRowOffset;
+					
+				}
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	void ImageDataUtil::Merge (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, int redMultiplier, int greenMultiplier, int blueMultiplier, int alphaMultiplier) {
+		
+		int rowOffset = int (destPoint->y + image->offsetY - sourceRect->y - sourceImage->offsetY);
+		int columnOffset = int (destPoint->x + image->offsetX - sourceRect->x - sourceImage->offsetY);
+		
+		uint8_t* sourceData = (uint8_t*)sourceImage->buffer->data->Bytes ();
+		int sourceStride = sourceImage->buffer->width * 4;
+		int sourceOffset = 0;
+		
+		uint8_t* data = (uint8_t*)image->buffer->data->Bytes ();
+		int stride = image->buffer->width * 4;
+		int offset = 0;
+		
+		int rowEnd = int (sourceRect->y + sourceRect->height + sourceImage->offsetY);
+		int columnEnd = int (sourceRect->x + sourceRect->width + sourceImage->offsetX);
+		
+		for (int row = int (sourceRect->y + sourceImage->offsetY); row < rowEnd; row++) {
+			
+			for (int column = int (sourceRect->x + sourceImage->offsetX); column < columnEnd; column++) {
+				
+				sourceOffset = (row * sourceStride) + (column * 4);
+				offset = ((row + rowOffset) * stride) + ((column + columnOffset) * 4);
+				
+				data[offset] = int (((sourceData[offset] * redMultiplier) + (data[offset] * (256 - redMultiplier))) / 256);
+				data[offset + 1] = int (((sourceData[offset + 1] * greenMultiplier) + (data[offset + 1] * (256 - greenMultiplier))) / 256);
+				data[offset + 2] = int (((sourceData[offset + 2] * blueMultiplier) + (data[offset + 2] * (256 - blueMultiplier))) / 256);
+				data[offset + 3] = int (((sourceData[offset + 3] * alphaMultiplier) + (data[offset + 3] * (256 - alphaMultiplier))) / 256);
+				
+			}
+			
+		}
+		
+	}
+	
+	
 	void ImageDataUtil::MultiplyAlpha (Image* image) {
 		
 		int a16 = 0;
@@ -93,10 +407,132 @@ namespace lime {
 		for (int i = 0; i < length; i++) {
 			
 			a16 = __alpha16[data[3]];
-			data[0] = (int (data[0]) * a16) >> 16;
-			data[1] = (int (data[1]) * a16) >> 16;
-			data[2] = (int (data[0]) * a16) >> 16;
+			data[0] = (data[0] * a16) >> 16;
+			data[1] = (data[1] * a16) >> 16;
+			data[2] = (data[2] * a16) >> 16;
 			data += 4;
+			
+		}
+		
+	}
+	
+	
+	void ImageDataUtil::Resize (Image* image, ImageBuffer* buffer, int newWidth, int newHeight) {
+		
+		int imageWidth = image->width;
+		int imageHeight = image->height;
+		
+		uint8_t* data = (uint8_t*)image->buffer->data->Bytes ();
+		uint8_t* newData = (uint8_t*)buffer->data->Bytes ();
+		
+		int sourceIndex, sourceIndexX, sourceIndexY, sourceIndexXY, index;
+		int sourceX, sourceY;
+		float u, v, uRatio, vRatio, uOpposite, vOpposite;
+		
+		for (int y = 0; y < newHeight; y++) {
+			
+			for (int x = 0; x < newWidth; x++) {
+				
+				u = ((x + 0.5) / newWidth) * imageWidth - 0.5;
+				v = ((y + 0.5) / newHeight) * imageHeight - 0.5;
+				
+				sourceX = int (u);
+				sourceY = int (v);
+				
+				sourceIndex = (sourceY * imageWidth + sourceX) * 4;
+				sourceIndexX = (sourceX < imageWidth - 1) ? sourceIndex + 4 : sourceIndex;
+				sourceIndexY = (sourceY < imageHeight - 1) ? sourceIndex + (imageWidth * 4) : sourceIndex;
+				sourceIndexXY = (sourceIndexX != sourceIndex) ? sourceIndexY + 4 : sourceIndexY;
+				
+				index = (y * newWidth + x) * 4;
+				
+				uRatio = u - sourceX;
+				vRatio = v - sourceY;
+				uOpposite = 1 - uRatio;
+				vOpposite = 1 - vRatio;
+				
+				newData[index] = int ((data[sourceIndex] * uOpposite + data[sourceIndexX] * uRatio) * vOpposite + (data[sourceIndexY] * uOpposite + data[sourceIndexXY] * uRatio) * vRatio);
+				newData[index + 1] = int ((data[sourceIndex + 1] * uOpposite + data[sourceIndexX + 1] * uRatio) * vOpposite + (data[sourceIndexY + 1] * uOpposite + data[sourceIndexXY + 1] * uRatio) * vRatio);
+				newData[index + 2] = int ((data[sourceIndex + 2] * uOpposite + data[sourceIndexX + 2] * uRatio) * vOpposite + (data[sourceIndexY + 2] * uOpposite + data[sourceIndexXY + 2] * uRatio) * vRatio);
+				
+				// Maybe it would be better to not weigh colors with an alpha of zero, but the below should help prevent black fringes caused by transparent pixels made visible
+				
+				if (data[sourceIndexX + 3] == 0 || data[sourceIndexY + 3] == 0 || data[sourceIndexXY + 3] == 0) {
+					
+					newData[index + 3] = 0;
+					
+				} else {
+					
+					newData[index + 3] = data[sourceIndex + 3];
+					
+				}
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	void ImageDataUtil::SetPixels (Image* image, Rectangle* rect, ByteArray* bytes, PixelFormat format) {
+		
+		if (format == RGBA && rect->width == image->buffer->width && rect->height == image->buffer->height && rect->x == 0 && rect->y == 0) {
+			
+			memcpy (image->buffer->data->Bytes (), bytes->Bytes (), bytes->Size ());
+			return;
+			
+		}
+		
+		int offset = int (image->buffer->width * (rect->y + image->offsetX) + (rect->x + image->offsetY));
+		int boundR = int ((rect->x + rect->width + image->offsetX));
+		int width = image->buffer->width;
+		int color;
+		
+		if (format == ARGB) {
+			
+			int pos = offset * 4;
+			int len = int (rect->width * rect->height * 4);
+			uint8_t* data = (uint8_t*)image->buffer->data->Bytes ();
+			uint8_t* byteArray = (uint8_t*)bytes->Bytes ();
+			
+			for (int i = 0; i < len; i += 4) {
+				
+				
+				if (((pos) % (width * 4)) >= boundR * 4) {
+					
+					pos += (width - boundR) * 4;
+					
+				}
+				
+				data[pos] = byteArray[i + 1];
+				data[pos + 1] = byteArray[i + 2];
+				data[pos + 2] = byteArray[i + 3];
+				data[pos + 3] = byteArray[i];
+				pos += 4;
+				
+			}
+			
+		} else {
+			
+			int pos = offset;
+			int len = int (rect->width * rect->height);
+			int* data = (int*)image->buffer->data->Bytes ();
+			int* byteArray = (int*)bytes->Bytes ();
+			
+			// TODO: memcpy rows at once
+			
+			for (int i = 0; i < len; i++) {
+				
+				if (((pos) % (width)) >= boundR) {
+					
+					pos += (width - boundR);
+					
+				}
+				
+				data[pos] = byteArray[i];
+				pos++;
+				
+			}
 			
 		}
 		

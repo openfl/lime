@@ -34,6 +34,18 @@ namespace lime {
 			
 		}
 		
+		if (flags & WINDOW_FLAG_HW_AA_HIRES) {
+			
+			SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, true);
+			SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 4);
+			
+		} else if (flags & WINDOW_FLAG_HW_AA) {
+			
+			SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, true);
+			SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 2);
+			
+		}
+		
 		sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlFlags);
 		
 		if (!sdlWindow) {

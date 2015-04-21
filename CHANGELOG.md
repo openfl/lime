@@ -1,3 +1,17 @@
+2.3.2 (04/15/2015)
+------------------
+
+* Improved performance of pixel-based operations in Image
+* Added support for RGBA (default) and ARGB color order
+* Added --port=123 to change the webserver port on HTML5 builds 
+* Added support for Unicode Windows system paths
+* Added larger icon sizes requested by Windows 10
+* Improved functionality of BMP.encode
+* Fixed compilation on Android without Sound.java
+* Fixed support for -Doptional-cffi
+* Fixed haxe.Timer (legacy)
+
+
 2.3.1 (04/08/2015)
 ------------------
 

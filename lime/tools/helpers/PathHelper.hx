@@ -724,6 +724,12 @@ class PathHelper {
 			
 		}
 		
+		if (PlatformHelper.hostPlatform == Platform.WINDOWS && path.charAt (1) == ":") {
+			
+			path = path.charAt (0).toUpperCase () + ":" + path.substr (2);
+			
+		}
+		
 		return path;
 		
 	}

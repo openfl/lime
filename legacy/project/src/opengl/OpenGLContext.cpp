@@ -496,7 +496,12 @@ public:
                glBlendEquation( GL_FUNC_REVERSE_SUBTRACT);
                break;
             default:
-               glBlendFunc(premAlpha ? GL_ONE : GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+               if (premAlpha){
+                  glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+               }
+               else {
+                  glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+               }
                glBlendEquation( GL_FUNC_ADD);
          }
 

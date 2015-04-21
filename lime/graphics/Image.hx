@@ -138,7 +138,7 @@ class Image {
 						
 						#if flash
 						this.buffer = new ImageBuffer (null, width, height);
-						this.buffer.src = new BitmapData (width, height, true, color);
+						this.buffer.src = new BitmapData (width, height, true, ((color & 0xFF) << 24) | (color >> 8));
 						#end
 					
 					default:
@@ -200,7 +200,7 @@ class Image {
 		sourceRect = __clipRect (sourceRect);
 		if (buffer == null || sourceRect == null) return;
 		
-		if (destChannel == ImageChannel.ALPHA && !transparent) return;
+		if (destChannel == ALPHA && !transparent) return;
 		if (sourceRect.width <= 0 || sourceRect.height <= 0) return;
 		if (sourceRect.x + sourceRect.width > sourceImage.width) sourceRect.width = sourceImage.width - sourceRect.x;
 		if (sourceRect.y + sourceRect.height > sourceImage.height) sourceRect.height = sourceImage.height - sourceRect.y;
@@ -254,6 +254,9 @@ class Image {
 		if (sourceRect.x + sourceRect.width > sourceImage.width) sourceRect.width = sourceImage.width - sourceRect.x;
 		if (sourceRect.y + sourceRect.height > sourceImage.height) sourceRect.height = sourceImage.height - sourceRect.y;
 		if (sourceRect.width <= 0 || sourceRect.height <= 0) return;
+		
+		if (destPoint.x + sourceRect.width > width) sourceRect.width = width - destPoint.x;
+		if (destPoint.y + sourceRect.height > height) sourceRect.height = height - destPoint.y;
 		
 		switch (type) {
 			
@@ -320,7 +323,7 @@ class Image {
 	}
 	
 	
-	public function fillRect (rect:Rectangle, color:Int):Void {
+	public function fillRect (rect:Rectangle, color:Int, format:PixelFormat = null):Void {
 		
 		rect = __clipRect (rect);
 		if (buffer == null || rect == null) return;
@@ -329,7 +332,7 @@ class Image {
 			
 			case CANVAS:
 				
-				ImageCanvasUtil.fillRect (this, rect, color);
+				ImageCanvasUtil.fillRect (this, rect, color, format);
 			
 			case DATA:
 				
@@ -337,11 +340,12 @@ class Image {
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
-				ImageDataUtil.fillRect (this, rect, color);
+				ImageDataUtil.fillRect (this, rect, color, format);
 			
 			case FLASH:
 				
 				rect.offset (offsetX, offsetY);
+				if (format == null || format == RGBA) color = ((color & 0xFF) << 24) | (color >> 8);
 				buffer.__srcBitmapData.fillRect (rect.__toFlashRectangle (), color);
 				
 			default:
@@ -351,7 +355,7 @@ class Image {
 	}
 	
 	
-	public function floodFill (x:Int, y:Int, color:Int):Void {
+	public function floodFill (x:Int, y:Int, color:Int, format:PixelFormat = null):Void {
 		
 		if (buffer == null) return;
 		
@@ -359,7 +363,7 @@ class Image {
 			
 			case CANVAS:
 				
-				ImageCanvasUtil.floodFill (this, x, y, color);
+				ImageCanvasUtil.floodFill (this, x, y, color, format);
 			
 			case DATA:
 				
@@ -367,10 +371,11 @@ class Image {
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
-				ImageDataUtil.floodFill (this, x, y, color);
+				ImageDataUtil.floodFill (this, x, y, color, format);
 			
 			case FLASH:
 				
+				if (format == null || format == RGBA) color = ((color & 0xFF) << 24) | (color >> 8);
 				buffer.__srcBitmapData.floodFill (x + offsetX, y + offsetY, color);
 			
 			default:
@@ -434,7 +439,7 @@ class Image {
 	}
 	
 	
-	public function getPixel (x:Int, y:Int):Int {
+	public function getPixel (x:Int, y:Int, format:PixelFormat = null):Int {
 		
 		if (buffer == null || x < 0 || y < 0 || x >= width || y >= height) return 0;
 		
@@ -442,7 +447,7 @@ class Image {
 			
 			case CANVAS:
 				
-				return ImageCanvasUtil.getPixel (this, x, y);
+				return ImageCanvasUtil.getPixel (this, x, y, format);
 			
 			case DATA:
 				
@@ -450,11 +455,21 @@ class Image {
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
-				return ImageDataUtil.getPixel (this, x, y);
+				return ImageDataUtil.getPixel (this, x, y, format);
 			
 			case FLASH:
 				
-				return buffer.__srcBitmapData.getPixel (x + offsetX, y + offsetY);
+				var color = buffer.__srcBitmapData.getPixel (x + offsetX, y + offsetY);
+				
+				if (format == null || format == RGBA) {
+					
+					return ((color & 0xFF) << 24) | (color >> 8);
+					
+				} else {
+					
+					return color;
+					
+				}
 			
 			default:
 				
@@ -465,7 +480,7 @@ class Image {
 	}
 	
 	
-	public function getPixel32 (x:Int, y:Int):Int {
+	public function getPixel32 (x:Int, y:Int, format:PixelFormat = null):Int {
 		
 		if (buffer == null || x < 0 || y < 0 || x >= width || y >= height) return 0;
 		
@@ -473,7 +488,7 @@ class Image {
 			
 			case CANVAS:
 				
-				return ImageCanvasUtil.getPixel32 (this, x, y);
+				return ImageCanvasUtil.getPixel32 (this, x, y, format);
 			
 			case DATA:
 				
@@ -481,11 +496,21 @@ class Image {
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
-				return ImageDataUtil.getPixel32 (this, x, y);
+				return ImageDataUtil.getPixel32 (this, x, y, format);
 				
 			case FLASH:
 				
-				return buffer.__srcBitmapData.getPixel32 (x + offsetX, y + offsetY);
+				var color = buffer.__srcBitmapData.getPixel32 (x + offsetX, y + offsetY);
+				
+				if (format == null || format == RGBA) {
+					
+					return ((color & 0xFF) << 24) | (color >> 8);
+					
+				} else {
+					
+					return color;
+					
+				}
 			
 			default:
 				
@@ -496,7 +521,7 @@ class Image {
 	}
 	
 	
-	public function getPixels (rect:Rectangle):ByteArray {
+	public function getPixels (rect:Rectangle, format:PixelFormat = null):ByteArray {
 		
 		if (buffer == null) return null;
 		
@@ -504,7 +529,7 @@ class Image {
 			
 			case CANVAS:
 				
-				return ImageCanvasUtil.getPixels (this, rect);
+				return ImageCanvasUtil.getPixels (this, rect, format);
 			
 			case DATA:
 				
@@ -512,12 +537,31 @@ class Image {
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
-				return ImageDataUtil.getPixels (this, rect);
+				return ImageDataUtil.getPixels (this, rect, format);
 			
 			case FLASH:
 				
 				rect.offset (offsetX, offsetY);
-				return buffer.__srcBitmapData.getPixels (rect.__toFlashRectangle ());
+				var byteArray = buffer.__srcBitmapData.getPixels (rect.__toFlashRectangle ());
+				
+				if (format == null || format == RGBA) {
+					
+					var color;
+					var length = Std.int (byteArray.length / 4);
+					
+					for (i in 0...length) {
+						
+						color = byteArray.readUnsignedInt ();
+						byteArray.position -= 4;
+						byteArray.writeUnsignedInt (((color & 0xFF) << 24) | (color >> 8));
+						
+					}
+					
+					byteArray.position = 0;
+					
+				}
+				
+				return cast byteArray;
 			
 			default:
 				
@@ -599,7 +643,7 @@ class Image {
 	}
 	
 	
-	public function setPixel (x:Int, y:Int, color:Int):Void {
+	public function setPixel (x:Int, y:Int, color:Int, format:PixelFormat = null):Void {
 		
 		if (buffer == null || x < 0 || y < 0 || x >= width || y >= height) return;
 		
@@ -607,7 +651,7 @@ class Image {
 			
 			case CANVAS:
 				
-				ImageCanvasUtil.setPixel (this, x, y, color);
+				ImageCanvasUtil.setPixel (this, x, y, color, format);
 			
 			case DATA:
 				
@@ -615,10 +659,11 @@ class Image {
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
-				ImageDataUtil.setPixel (this, x, y, color);
+				ImageDataUtil.setPixel (this, x, y, color, format);
 			
 			case FLASH:
 				
+				if (format == null || format == RGBA) color = ((color & 0xFF) << 24) | (color >> 8);
 				buffer.__srcBitmapData.setPixel (x + offsetX, y + offsetX, color);
 			
 			default:
@@ -628,7 +673,7 @@ class Image {
 	}
 	
 	
-	public function setPixel32 (x:Int, y:Int, color:Int):Void {
+	public function setPixel32 (x:Int, y:Int, color:Int, format:PixelFormat = null):Void {
 		
 		if (buffer == null || x < 0 || y < 0 || x >= width || y >= height) return;
 		
@@ -636,7 +681,7 @@ class Image {
 			
 			case CANVAS:
 				
-				ImageCanvasUtil.setPixel32 (this, x, y, color);
+				ImageCanvasUtil.setPixel32 (this, x, y, color, format);
 			
 			case DATA:
 				
@@ -644,10 +689,11 @@ class Image {
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
-				ImageDataUtil.setPixel32 (this, x, y, color);
+				ImageDataUtil.setPixel32 (this, x, y, color, format);
 			
 			case FLASH:
 				
+				if (format == null || format == RGBA) color = ((color & 0xFF) << 24) | (color >> 8);
 				buffer.__srcBitmapData.setPixel32 (x + offsetX, y + offsetY, color);
 			
 			default:
@@ -657,7 +703,7 @@ class Image {
 	}
 	
 	
-	public function setPixels (rect:Rectangle, byteArray:ByteArray):Void {
+	public function setPixels (rect:Rectangle, byteArray:ByteArray, format:PixelFormat = null):Void {
 		
 		rect = __clipRect (rect);
 		if (buffer == null || rect == null) return;
@@ -666,7 +712,7 @@ class Image {
 			
 			case CANVAS:
 				
-				ImageCanvasUtil.setPixels (this, rect, byteArray);
+				ImageCanvasUtil.setPixels (this, rect, byteArray, format);
 			
 			case DATA:
 				
@@ -674,11 +720,32 @@ class Image {
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
-				ImageDataUtil.setPixels (this, rect, byteArray);
+				ImageDataUtil.setPixels (this, rect, byteArray, format);
 			
 			case FLASH:
 				
 				rect.offset (offsetX, offsetY);
+				if (format == null || format == RGBA) {
+					
+					var srcData = byteArray;
+					byteArray = new ByteArray ();
+					#if flash
+					byteArray.length = srcData.length;
+					#end
+					
+					var color;
+					var length = Std.int (byteArray.length / 4);
+					
+					for (i in 0...length) {
+						
+						color = srcData.readUnsignedInt ();
+						byteArray.writeUnsignedInt (((color & 0xFF) << 24) | (color >> 8));
+						
+					}
+					
+					srcData.position = 0;
+					byteArray.position = 0;
+				}
 				buffer.__srcBitmapData.setPixels (rect.__toFlashRectangle (), byteArray);
 			
 			default:
@@ -1229,15 +1296,5 @@ class Image {
 	private static var lime_image_load:Dynamic = System.load ("lime", "lime_image_load", 1);
 	#end
 	
-	
-}
-
-
-enum ImageChannel {
-	
-	RED;
-	GREEN;
-	BLUE;
-	ALPHA;
 	
 }
