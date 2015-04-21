@@ -96,7 +96,7 @@ namespace lime {
 				
 				if (wave_format.subChunkID[0] != 'f' || wave_format.subChunkID[1] != 'm' || wave_format.subChunkID[2] != 't' || wave_format.subChunkID[3] != ' ') {
 					
-					lime::fseek (file, wave_data.subChunkSize, SEEK_CUR);
+					lime::fseek (file, wave_format.subChunkSize, SEEK_CUR);
 					
 				} else {
 					
@@ -106,11 +106,11 @@ namespace lime {
 				
 			}
 			
-			if (wave_format.subChunkSize > 16) {
-				
-				lime::fseek (file, sizeof (short), SEEK_CUR);
-				
-			}
+			//if (wave_format.subChunkSize > 16) {
+				//
+				//lime::fseek (file, sizeof (short), SEEK_CUR);
+				//
+			//}
 			
 			bool foundData = false;
 			
