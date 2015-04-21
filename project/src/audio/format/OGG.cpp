@@ -124,6 +124,7 @@ namespace lime {
 				
 			} else {
 				
+				lime::fclose (file);
 				ByteArray data = ByteArray (resource->path);
 				
 				OAL_OggMemoryFile fakeFile = { data.Bytes (), data.Size (), 0 };
@@ -166,6 +167,7 @@ namespace lime {
 		if (pInfo == NULL) {
 			
 			//LOG_SOUND("FAILED TO READ OGG SOUND INFO, IS THIS EVEN AN OGG FILE?\n");
+			ov_clear (&oggFile);
 			return false;
 			
 		}
