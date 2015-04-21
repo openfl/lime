@@ -201,6 +201,8 @@ namespace lime {
 		png_read_end (png_ptr, NULL);
 		png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
 		
+		if (file) lime::fclose (file);
+		
 		return true;
 		
 	}
