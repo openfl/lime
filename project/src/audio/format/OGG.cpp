@@ -120,7 +120,12 @@ namespace lime {
 			
 			if (file->isFile ()) {
 				
-				ov_open (file->getFile (), &oggFile, NULL, file->getLength ());
+				if (ov_open (file->getFile (), &oggFile, NULL, file->getLength ()) != 0) {
+					
+					lime::fclose (file);
+					return false;
+					
+				}
 				
 			} else {
 				
