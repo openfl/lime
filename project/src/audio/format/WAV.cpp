@@ -73,6 +73,7 @@ namespace lime {
 			if ((riff_header.chunkID[0] != 'R' || riff_header.chunkID[1] != 'I' || riff_header.chunkID[2] != 'F' || riff_header.chunkID[3] != 'F') || (riff_header.format[0] != 'W' || riff_header.format[1] != 'A' || riff_header.format[2] != 'V' || riff_header.format[3] != 'E')) {
 				
 				//LOG_SOUND ("Invalid RIFF or WAVE Header!\n");
+				lime::fclose (file);
 				return false;
 				
 			}
@@ -88,6 +89,7 @@ namespace lime {
 				if (result != 1) {
 					
 					LOG_SOUND ("Invalid Wave Format!\n");
+					lime::fclose (file);
 					return false;
 					
 				}
@@ -120,6 +122,7 @@ namespace lime {
 				if (result != 1) {
 					
 					LOG_SOUND ("Invalid Wav Data Header!\n");
+					lime::fclose (file);
 					return false;
 					
 				}
@@ -141,6 +144,7 @@ namespace lime {
 			if (!lime::fread (audioBuffer->data->Bytes (), wave_data.subChunkSize, 1, file)) {
 				
 				LOG_SOUND ("error loading WAVE data into struct!\n");
+				lime::fclose (file);
 				return false;
 				
 			}
