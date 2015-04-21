@@ -374,9 +374,11 @@ class URLLoader {
 
 	private function progressFunction (dltotal:Float, dlnow:Float, uptotal:Float, upnow:Float):Int {
 		
-		if(upnow>bytesLoaded || dlnow>bytesTotal) {
+		if(upnow>bytesLoaded || dlnow>bytesLoaded || uptotal>bytesTotal || dltotal>bytesTotal) {
 			if(upnow > bytesLoaded) bytesLoaded = Std.int(upnow);
-			if(dlnow > bytesTotal) bytesTotal = Std.int(dlnow);
+			if(dlnow > bytesLoaded) bytesLoaded = Std.int(dlnow);
+			if(uptotal > bytesTotal) bytesTotal = Std.int(uptotal);
+			if(dltotal > bytesTotal) bytesTotal = Std.int(dltotal);
 			onProgress.dispatch(this, bytesLoaded, bytesTotal);
 		}
 		return 0;
