@@ -423,11 +423,12 @@ class ImageDataUtil {
 		
 	}
 	
-	public static function getColorBoundsRect(image:Image, mask:Int, color:Int, findColor:Bool = true, format:PixelFormat):Rectangle {
+	
+	public static function getColorBoundsRect (image:Image, mask:Int, color:Int, findColor:Bool = true, format:PixelFormat):Rectangle {
 		
-		var left:Int = image.width+1;
+		var left:Int = image.width + 1;
 		var right:Int = 0;
-		var top:Int = image.height+1;
+		var top:Int = image.height + 1;
 		var bottom:Int = 0;
 		
 		var r, g, b, a;
@@ -464,76 +465,110 @@ class ImageDataUtil {
 		
 		var pix:Int;
 		
-		//Sweep from the left
 		for (ix in 0...image.width) {
 			
-			var hit:Bool = false;
+			var hit = false;
+			
 			for (iy in 0...image.height) {
 				
-				pix = image.getPixel32(ix, iy);
+				pix = image.getPixel32 (ix, iy);
 				hit = findColor ? (pix & mask) == color : (pix & mask) != color;
+				
 				if (hit) {
+					
 					if (ix < left) left = ix;
 					break;
+					
 				}
+				
 			}
+			
 			if (hit) {
+				
 				break;
+				
 			}
+			
 		}
 		
-		//Sweep from the right
 		for (_ix in 0...image.width) {
 			
 			var ix = (image.width - 1) - _ix;
-			var hit:Bool = false;
+			var hit = false;
+			
 			for (iy in 0...image.height) {
 				
-				pix = image.getPixel32(ix, iy);
+				pix = image.getPixel32 (ix, iy);
 				hit = findColor ? (pix & mask) == color : (pix & mask) != color;
+				
 				if (hit) {
+					
 					if (ix > right) right = ix;
 					break;
+					
 				}
+				
 			}
+			
 			if (hit) {
+				
 				break;
+				
 			}
+			
 		}
 		
-		//Sweep from the top
 		for (iy in 0...image.height) {
 			
-			var hit:Bool = false;
+			var hit = false;
+			
 			for (ix in 0...image.width) {
-				pix = image.getPixel32(ix, iy);
+				
+				pix = image.getPixel32 (ix, iy);
 				hit = findColor ? (pix & mask) == color : (pix & mask) != color;
+				
 				if (hit) {
+					
 					if (iy < top) top = iy;
 					break;
+					
 				}
+				
 			}
+			
 			if (hit) {
+				
 				break;
+				
 			}
+			
 		}
 		
-		//Sweep from the bottom
 		for (_iy in 0...image.height) {
 			
 			var iy = (image.height - 1) - _iy;
-			var hit:Bool = false;
+			var hit = false;
+			
 			for (ix in 0...image.width) {
-				pix = image.getPixel32(ix, iy);
+				
+				pix = image.getPixel32 (ix, iy);
 				hit = findColor ? (pix & mask) == color : (pix & mask) != color;
+				
 				if (hit) {
+					
 					if (iy > bottom) bottom = iy;
 					break;
+					
 				}
+				
 			}
+			
 			if (hit) {
+				
 				break;
+				
 			}
+			
 		}
 		
 		var w = right - left;
@@ -551,8 +586,10 @@ class ImageDataUtil {
 		if (left > image.width) left = 0;
 		if (top > image.height) top = 0;
 		
-		return new Rectangle(left, top, w, h);
+		return new Rectangle (left, top, w, h);
+		
 	}
+	
 	
 	public static function getPixel (image:Image, x:Int, y:Int, format:PixelFormat):Int {
 		
