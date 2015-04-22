@@ -409,6 +409,7 @@ class Image {
 	
 	public static function fromBase64 (base64:String, type:String, onload:Image -> Void):Image {
 		
+		if (base64 == null) return null;
 		var image = new Image ();
 		image.__fromBase64 (base64, type, onload);
 		return image;
@@ -418,6 +419,7 @@ class Image {
 	
 	public static function fromBitmapData (bitmapData:#if flash BitmapData #else Dynamic #end):Image {
 		
+		if (bitmapData == null) return null;
 		var buffer = new ImageBuffer (null, bitmapData.width, bitmapData.height);
 		buffer.__srcBitmapData = bitmapData;
 		return new Image (buffer);
@@ -427,6 +429,7 @@ class Image {
 	
 	public static function fromBytes (bytes:ByteArray, onload:Image -> Void = null):Image {
 		
+		if (bytes == null) return null;
 		var image = new Image ();
 		image.__fromBytes (bytes, onload);
 		return image;
@@ -436,6 +439,7 @@ class Image {
 	
 	public static function fromCanvas (canvas:#if (js && html5) CanvasElement #else Dynamic #end):Image {
 		
+		if (canvas == null) return null;
 		var buffer = new ImageBuffer (null, canvas.width, canvas.height);
 		buffer.src = canvas;
 		return new Image (buffer);
@@ -454,34 +458,36 @@ class Image {
 	
 	public static function fromImageElement (image:#if (js && html5) ImageElement #else Dynamic #end):Image {
 		
+		if (image == null) return null;
 		var buffer = new ImageBuffer (null, image.width, image.height);
 		buffer.src = image;
 		return new Image (buffer);
 		
 	}
 	
-	public function getColorBoundsRect(mask:Int, color:Int, findColor:Bool = true, format:PixelFormat = null):#if (flash) flash.geom.Rectangle #else Rectangle #end {
+	public function getColorBoundsRect (mask:Int, color:Int, findColor:Bool = true, format:PixelFormat = null):Rectangle {
 		
 		if (buffer == null) return null;
-		
-		//TODO: add all the other cases
-		
-		#if flash
-		
-		return buffer.__srcBitmapData.getColorBoundsRect(mask, color, findColor);
-		
-		#else
 		
 		switch (type) {
 			
 			case CANVAS:
 				
-				return null;
+				#if (js && html5)
+				ImageCanvasUtil.convertToData (this);
+				#end
+				
+				return ImageDataUtil.getColorBoundsRect (this, mask, color, findColor, format);
 			
 			case DATA:
 				
-				return ImageDataUtil.getColorBoundsRect(this, mask, color, findColor, format);
+				return ImageDataUtil.getColorBoundsRect (this, mask, color, findColor, format);
+			
+			case FLASH:
 				
+				var rect = buffer.__srcBitmapData.getColorBoundsRect (mask, color, findColor);
+				return new Rectangle (rect.x, rect.y, rect.width, rect.height);
+			
 			default:
 				
 				return null;
