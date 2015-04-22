@@ -493,7 +493,6 @@ class Image {
 				return null;
 		}
 		
-		#end
 	}
 	
 	public function getPixel (x:Int, y:Int, format:PixelFormat = null):Int {
