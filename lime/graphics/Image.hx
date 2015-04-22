@@ -460,11 +460,17 @@ class Image {
 		
 	}
 	
-	public function getColorBoundsRect(mask:Int, color:Int, findColor:Bool = true, format:PixelFormat = null):Rectangle {
+	public function getColorBoundsRect(mask:Int, color:Int, findColor:Bool = true, format:PixelFormat = null):#if (flash) flash.geom.Rectangle #else Rectangle #end {
 		
 		if (buffer == null) return null;
 		
 		//TODO: add all the other cases
+		
+		#if flash
+		
+		return buffer.__srcBitmapData.getColorBoundsRect(mask, color, findColor);
+		
+		#else
 		
 		switch (type) {
 			
@@ -476,14 +482,12 @@ class Image {
 				
 				return ImageDataUtil.getColorBoundsRect(this, mask, color, findColor, format);
 				
-			case FLASH:
-				
-				return buffer.__srcBitmapData.getColorBoundsRect(mask, color, findColor);
-				
 			default:
 				
 				return null;
 		}
+		
+		#end
 	}
 	
 	public function getPixel (x:Int, y:Int, format:PixelFormat = null):Int {
