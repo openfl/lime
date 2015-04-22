@@ -460,6 +460,31 @@ class Image {
 		
 	}
 	
+	public function getColorBoundsRect(mask:Int, color:Int, findColor:Bool = true, format:PixelFormat = null):Rectangle {
+		
+		if (buffer == null) return null;
+		
+		//TODO: add all the other cases
+		
+		switch (type) {
+			
+			case CANVAS:
+				
+				return null;
+			
+			case DATA:
+				
+				return ImageDataUtil.getColorBoundsRect(this, mask, color, findColor, format);
+				
+			case FLASH:
+				
+				return buffer.__srcBitmapData.getColorBoundsRect(mask, color, findColor);
+				
+			default:
+				
+				return null;
+		}
+	}
 	
 	public function getPixel (x:Int, y:Int, format:PixelFormat = null):Int {
 		
