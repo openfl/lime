@@ -141,7 +141,7 @@ namespace lime {
 		int rows = sourceRect->y + sourceRect->height + sourceImage->offsetY;
 		int columns = sourceRect->x + sourceRect->width + sourceImage->offsetX;
 		
-		if (!mergeAlpha || !sourceImage->transparent) {
+		if (!mergeAlpha || !sourceImage->buffer->transparent) {
 			
 			for (int row = sourceRect->y + sourceImage->offsetY; row < rows; row++) {
 				

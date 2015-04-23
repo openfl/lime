@@ -44,7 +44,7 @@ namespace lime {
 		buffer = new ImageBuffer (val_field (image, id_buffer));
 		offsetX = val_int (val_field (image, id_offsetX));
 		offsetY = val_int (val_field (image, id_offsetY));
-		transparent = val_int (val_field (image, id_transparent));
+		transparent = val_bool (val_field (image, id_transparent));
 		
 	}
 	
