@@ -141,7 +141,7 @@ namespace lime {
 		int rows = sourceRect->y + sourceRect->height + sourceImage->offsetY;
 		int columns = sourceRect->x + sourceRect->width + sourceImage->offsetX;
 		
-		if (!mergeAlpha || !sourceImage->transparent) {
+		if (!mergeAlpha || !sourceImage->buffer->transparent) {
 			
 			for (int row = sourceRect->y + sourceImage->offsetY; row < rows; row++) {
 				
@@ -174,10 +174,10 @@ namespace lime {
 					sourceAlpha = sourceData[sourceOffset + 3] / 255;
 					oneMinusSourceAlpha = (1 - sourceAlpha);
 					
-					data[offset] = __clamp[int (sourceData[sourceOffset] + (data[offset] * oneMinusSourceAlpha))];
-					data[offset + 1] = __clamp[int (sourceData[sourceOffset + 1] + (data[offset + 1] * oneMinusSourceAlpha))];
-					data[offset + 2] = __clamp[int (sourceData[sourceOffset + 2] + (data[offset + 2] * oneMinusSourceAlpha))];
-					data[offset + 3] = __clamp[int (sourceData[sourceOffset + 3] + (data[offset + 3] * oneMinusSourceAlpha))];
+					data[offset] = __clamp[int (sourceData[sourceOffset] * sourceAlpha)] + __clamp[int(data[offset] * oneMinusSourceAlpha)];
+					data[offset + 1] = __clamp[int (sourceData[sourceOffset + 1] * sourceAlpha)] + __clamp[int(data[offset + 1] * oneMinusSourceAlpha)];
+					data[offset + 2] = __clamp[int (sourceData[sourceOffset + 2] * sourceAlpha)] + __clamp[int(data[offset + 2] * oneMinusSourceAlpha)];
+					data[offset + 3] = __clamp[int (sourceData[sourceOffset + 3] * sourceAlpha)] + __clamp[int(data[offset + 3] * oneMinusSourceAlpha)];
 					
 				}
 				

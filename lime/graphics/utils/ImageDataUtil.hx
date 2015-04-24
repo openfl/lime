@@ -240,10 +240,10 @@ class ImageDataUtil {
 						sourceAlpha = sourceData[sourceOffset + 3] / 255;
 						oneMinusSourceAlpha = (1 - sourceAlpha);
 						
-						data[offset] = __clamp[Std.int (sourceData[sourceOffset] + (data[offset] * oneMinusSourceAlpha))];
-						data[offset + 1] = __clamp[Std.int (sourceData[sourceOffset + 1] + (data[offset + 1] * oneMinusSourceAlpha))];
-						data[offset + 2] = __clamp[Std.int (sourceData[sourceOffset + 2] + (data[offset + 2] * oneMinusSourceAlpha))];
-						data[offset + 3] = __clamp[Std.int (sourceData[sourceOffset + 3] + (data[offset + 3] * oneMinusSourceAlpha))];
+						data[offset] = __clamp[Std.int (sourceData[sourceOffset] * sourceAlpha)] + __clamp[Std.int(data[offset] * oneMinusSourceAlpha)];
+						data[offset + 1] = __clamp[Std.int (sourceData[sourceOffset + 1] * sourceAlpha)] + __clamp[Std.int(data[offset + 1] * oneMinusSourceAlpha)];
+						data[offset + 2] = __clamp[Std.int (sourceData[sourceOffset + 2] * sourceAlpha)] + __clamp[Std.int(data[offset + 2] * oneMinusSourceAlpha)];
+						data[offset + 3] = __clamp[Std.int (sourceData[sourceOffset + 3] * sourceAlpha)] + __clamp[Std.int(data[offset + 3] * oneMinusSourceAlpha)];
 						
 					}
 					
