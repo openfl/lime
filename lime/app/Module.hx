@@ -154,6 +154,12 @@ class Module implements IModule {
 	
 	
 	/**
+	 * Called when a window enter event is fired
+	 */
+	public function onWindowEnter ():Void { }
+	
+	
+	/**
 	 * Called when a window focus in event is fired
 	 */
 	public function onWindowFocusIn ():Void { }
@@ -165,7 +171,21 @@ class Module implements IModule {
 	public function onWindowFocusOut ():Void { }
 	
 	
+	/**
+	 * Called when a window fullscreen event is fired
+	 */
 	public function onWindowFullscreen ():Void { }
+	
+	
+	/**
+	 * Called when a mouse leave event is fired
+	 */
+	public function onWindowLeave ():Void { }
+	
+	
+	/**
+	 * Called when a window minimize event is fired
+	 */
 	public function onWindowMinimize ():Void { }
 	
 	

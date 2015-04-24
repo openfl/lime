@@ -25,6 +25,7 @@ class FlashApplication {
 	
 	
 	private var cacheTime:Int;
+	private var mouseLeft:Bool;
 	private var parent:Application;
 	
 	
@@ -138,6 +139,7 @@ class FlashApplication {
 		Lib.current.stage.addEventListener (Event.DEACTIVATE, handleWindowEvent);
 		Lib.current.stage.addEventListener (FocusEvent.FOCUS_IN, handleWindowEvent);
 		Lib.current.stage.addEventListener (FocusEvent.FOCUS_OUT, handleWindowEvent);
+		Lib.current.stage.addEventListener (Event.MOUSE_LEAVE, handleWindowEvent);
 		Lib.current.stage.addEventListener (Event.RESIZE, handleWindowEvent);
 		
 		cacheTime = Lib.getTimer ();
@@ -191,6 +193,13 @@ class FlashApplication {
 					parent.window.onMouseDown.dispatch (event.stageX, event.stageY, button);
 				
 				case "mouseMove":
+					
+					if (mouseLeft) {
+						
+						mouseLeft = false;
+						parent.window.onWindowEnter.dispatch ();
+						
+					}
 					
 					parent.window.onMouseMove.dispatch (event.stageX, event.stageY);
 				
@@ -279,6 +288,11 @@ class FlashApplication {
 				case FocusEvent.FOCUS_OUT:
 					
 					parent.window.onWindowFocusOut.dispatch ();
+				
+				case Event.MOUSE_LEAVE:
+					
+					mouseLeft = true;
+					parent.window.onWindowLeave.dispatch ();
 				
 				default:
 					

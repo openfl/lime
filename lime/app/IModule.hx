@@ -179,6 +179,12 @@ interface IModule {
 	
 	
 	/**
+	 * Called when a window enter event is fired
+	 */
+	public function onWindowEnter ():Void;
+	
+	
+	/**
 	 * Called when a window focus in event is fired
 	 */
 	public function onWindowFocusIn ():Void;
@@ -194,6 +200,12 @@ interface IModule {
 	 * Called when a window enters fullscreen
 	 */
 	public function onWindowFullscreen ():Void;
+	
+	
+	/**
+	 * Called when a window leave event is fired
+	 */
+	public function onWindowLeave ():Void;
 	
 	
 	/**

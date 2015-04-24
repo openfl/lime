@@ -34,9 +34,11 @@ class Window {
 	public var onWindowActivate = new Event<Void->Void> ();
 	public var onWindowClose = new Event<Void->Void> ();
 	public var onWindowDeactivate = new Event<Void->Void> ();
+	public var onWindowEnter = new Event<Void->Void> ();
 	public var onWindowFocusIn = new Event<Void->Void> ();
 	public var onWindowFocusOut = new Event<Void->Void> ();
 	public var onWindowFullscreen = new Event<Void->Void> ();
+	public var onWindowLeave = new Event<Void->Void> ();
 	public var onWindowMinimize = new Event<Void->Void> ();
 	public var onWindowMove = new Event<Float->Float->Void> ();
 	public var onWindowResize = new Event<Int->Int->Void> ();
