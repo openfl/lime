@@ -15,28 +15,6 @@
 namespace lime {
 	
 	
-	typedef struct {
-		
-		unsigned long codepoint;
-		size_t size;
-		int index;
-		int height;
-		
-	} GlyphInfo;
-	
-	
-	typedef struct {
-		
-		uint32_t index;
-		uint32_t width;
-		uint32_t height;
-		uint32_t x;
-		uint32_t y;
-		unsigned char data;
-		
-	} GlyphImage;
-	
-	
 	class Font {
 		
 		
@@ -58,8 +36,8 @@ namespace lime {
 			int GetUnderlinePosition ();
 			int GetUnderlineThickness ();
 			int GetUnitsPerEM ();
-			int RenderGlyph (int index, ByteArray *bytes, int offset = 0);
-			int RenderGlyphs (value indices, ByteArray *bytes);
+			value RenderGlyph (int index);
+			value RenderGlyphs (value indices);
 			void SetSize (size_t size);
 			
 			void* face;

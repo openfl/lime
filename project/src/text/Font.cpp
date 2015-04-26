@@ -289,6 +289,7 @@ namespace lime {
 	static int id_width;
 	static int id_x;
 	static int id_y;
+	static int id_data;
 	static bool init = false;
 	
 	
@@ -300,6 +301,7 @@ namespace lime {
 			id_height = val_id ("height");
 			id_x = val_id ("x");
 			id_y = val_id ("y");
+			id_data = val_id ("data");
 			id_offset = val_id ("offset");
 			id_size = val_id ("size");
 			id_codepoint = val_id ("codepoint");
@@ -784,9 +786,11 @@ namespace lime {
 	}
 	
 	
-	int Font::RenderGlyph (int index, ByteArray *bytes, int offset) {
+	value Font::RenderGlyph (int index) {
+
+		initialize ();
 		
-		if (FT_Load_Glyph ((FT_Face)face, index, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0) {
+		if (FT_Load_Glyph ((FT_Face)face, index, FT_LOAD_DEFAULT) == 0) {
 			
 			if (FT_Render_Glyph (((FT_Face)face)->glyph, FT_RENDER_MODE_NORMAL) == 0) {
 				
@@ -795,72 +799,53 @@ namespace lime {
 				int height = bitmap.rows;
 				int width = bitmap.width;
 				int pitch = bitmap.pitch;
+				int x = ((FT_Face)face)->glyph->bitmap_left;
+				int y = ((FT_Face)face)->glyph->bitmap_top;
 				
-				if (width == 0 || height == 0) return 0;
-				
-				uint32_t size = (4 * 5) + (width * height);
-				
-				if (bytes->Size() < size + offset) {
-					
-					bytes->Resize (size + offset);
-					
-				}
-				
-				GlyphImage *data = (GlyphImage*)(bytes->Bytes () + offset);
-				
-				data->index = index;
-				data->width = width;
-				data->height = height;
-				data->x = ((FT_Face)face)->glyph->bitmap_left;
-				data->y = ((FT_Face)face)->glyph->bitmap_top;
-				
-				unsigned char* position = &data->data;
+				if (width == 0 || height == 0) return alloc_null ();
+
+				unsigned int data_len = pitch * height;
+				ByteArray data;
+				data.Resize (data_len);
+				unsigned char *position = data.Bytes ();
 				
 				for (int i = 0; i < height; i++) {
 					
 					memcpy (position + (i * width), bitmap.buffer + (i * pitch), width);
 					
 				}
+
+				value ret = alloc_empty_object();
+				alloc_field (ret, id_x, alloc_int (x));
+				alloc_field (ret, id_y, alloc_int (y));
+				alloc_field (ret, id_width, alloc_int (width));
+				alloc_field (ret, id_height, alloc_int (height));
+				alloc_field (ret, id_data, data.mValue);
 				
-				return size;
+				return ret;
 				
 			}
 			
 		}
 		
-		return 0;
+		return alloc_null ();
 		
 	}
 	
 	
-	int Font::RenderGlyphs (value indices, ByteArray *bytes) {
-		
-		int offset = 0;
-		int totalOffset = 4;
-		uint32_t count = 0;
+	value Font::RenderGlyphs (value indices) {
 		
 		int numIndices = val_array_size (indices);
+		value ret = alloc_array (numIndices);
 		
 		for (int i = 0; i < numIndices; i++) {
 			
-			offset = RenderGlyph (val_int (val_array_i (indices, i)), bytes, totalOffset);
-			
-			if (offset > 0) {
-				
-				totalOffset += offset;
-				count++;
-				
-			}
+			value image = RenderGlyph (val_int (val_array_i (indices, i)));
+			val_array_set_i (ret, i, image);
 			
 		}
 		
-		if (count > 0) {
-			
-			*(bytes->Bytes ()) = count;
-			
-		}
-		
-		return totalOffset;
+		return ret;
 		
 	}
 	

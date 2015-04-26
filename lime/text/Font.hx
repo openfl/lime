@@ -139,33 +139,65 @@ class Font {
 		#if (cpp || neko || nodejs)
 		
 		lime_font_set_size (src, fontSize);
+		var ret = lime_font_render_glyph (src, glyph);
 		
-		var bytes = new ByteArray ();
-		bytes.endian = "littleEndian";
-		
-		if (lime_font_render_glyph (src, glyph, bytes)) {
+		if (ret != null) {
 			
-			bytes.position = 0;
-			
-			var index = bytes.readUnsignedInt ();
-			var width = bytes.readUnsignedInt ();
-			var height = bytes.readUnsignedInt ();
-			var x = bytes.readUnsignedInt ();
-			var y = bytes.readUnsignedInt ();
-			
-			var data = new ByteArray (width * height);
-			bytes.readBytes (data, 0, width * height);
-			
+			var data:ByteArray = ret.data;
 			#if js
-			var buffer = new ImageBuffer (data.byteView, width, height, 1);
+			var buffer = new ImageBuffer (data.byteView, ret.width, ret.height, 1);
 			#else
-			var buffer = new ImageBuffer (new UInt8Array (data), width, height, 1);
+			var buffer = new ImageBuffer (new UInt8Array (data), ret.width, ret.height, 1);
 			#end
-			var image = new Image (buffer, 0, 0, width, height);
-			image.x = x;
-			image.y = y;
+			var image = new Image (buffer, 0, 0, ret.width, ret.height);
+			image.x = ret.x;
+			image.y = ret.y;
 			
 			return image;
+			
+		}
+		
+		#end
+		
+		return null;
+		
+	}
+	
+	
+	public function renderGlyphAsArray (glyphs:Array<Glyph>, fontSize:Int):Array<Image> {
+		
+		#if (cpp || neko || nodejs)
+		
+		lime_font_set_size (src, fontSize);
+		var ret:Array<Dynamic> = lime_font_render_glyphs (src, glyphs);
+		
+		if (ret != null) {
+			
+			var images:Array<Image> = [];
+			
+			for (rg in ret)
+			{
+			
+				if (rg != null)
+				{
+					
+					images.push(null);
+					continue;
+					
+				}
+				var data:ByteArray = rg.data;
+				#if js
+				var buffer = new ImageBuffer (data.byteView, rg.width, rg.height, 1);
+				#else
+				var buffer = new ImageBuffer (new UInt8Array (data), rg.width, rg.height, 1);
+				#end
+				var image = new Image (buffer, 0, 0, rg.width, rg.height);
+				image.x = rg.x;
+				image.y = rg.y;
+				
+				images.push(image);
+			
+			}
 			
 		}
 		
@@ -197,15 +229,10 @@ class Font {
 		}
 		
 		lime_font_set_size (src, fontSize);
+		var ret:Array<Dynamic> = lime_font_render_glyphs (src, glyphList);
 		
-		var bytes = new ByteArray ();
-		bytes.endian = "littleEndian";
-		
-		if (lime_font_render_glyphs (src, glyphList, bytes)) {
-			
-			bytes.position = 0;
-			
-			var count = bytes.readUnsignedInt ();
+		if (ret != null) {
+			var count = ret.length;
 			
 			var bufferWidth = 128;
 			var bufferHeight = 128;
@@ -218,10 +245,16 @@ class Font {
 			
 			while (i < count) {
 				
-				bytes.position += 4;
-				width = bytes.readUnsignedInt ();
-				height = bytes.readUnsignedInt ();
-				bytes.position += (4 * 2) + width * height;
+				var glyph = ret[i];
+				if (glyph == null)
+				{
+					
+					i++;
+					continue;
+					
+				}
+				width = glyph.width;
+				height = glyph.height;
 				
 				if (offsetX + width > bufferWidth) {
 					
@@ -249,7 +282,6 @@ class Font {
 					
 					// TODO: make this better
 					
-					bytes.position = 4;
 					i = 0;
 					continue;
 					
@@ -271,20 +303,24 @@ class Font {
 			var buffer = new ImageBuffer (null, bufferWidth, bufferHeight, 1);
 			var data = new ByteArray (bufferWidth * bufferHeight);
 			
-			bytes.position = 4;
 			offsetX = 0;
 			offsetY = 0;
 			maxRows = 0;
 			
 			var index, x, y, image;
+			var bytes:ByteArray;
 			
 			for (i in 0...count) {
 				
-				index = bytes.readUnsignedInt ();
-				width = bytes.readUnsignedInt ();
-				height = bytes.readUnsignedInt ();
-				x = bytes.readUnsignedInt ();
-				y = bytes.readUnsignedInt ();
+				index = glyphList[i];
+				var rg = ret[i];
+				if (rg == null)
+					continue;
+				width = rg.width;
+				height = rg.height;
+				x = rg.x;
+				y = rg.y;
+				bytes = rg.data;
 				
 				if (offsetX + width > bufferWidth) {
 					
@@ -484,8 +520,8 @@ class Font {
 	private static var lime_font_get_units_per_em = System.load ("lime", "lime_font_get_units_per_em", 1);
 	private static var lime_font_load:Dynamic = System.load ("lime", "lime_font_load", 1);
 	private static var lime_font_outline_decompose = System.load ("lime", "lime_font_outline_decompose", 2);
-	private static var lime_font_render_glyph = System.load ("lime", "lime_font_render_glyph", 3);
-	private static var lime_font_render_glyphs = System.load ("lime", "lime_font_render_glyphs", 3);
+	private static var lime_font_render_glyph = System.load ("lime", "lime_font_render_glyph", 2);
+	private static var lime_font_render_glyphs = System.load ("lime", "lime_font_render_glyphs", 2);
 	private static var lime_font_set_size = System.load ("lime", "lime_font_set_size", 2);
 	#end
 	

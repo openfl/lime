@@ -309,27 +309,25 @@ namespace lime {
 	}
 	
 	
-	value lime_font_render_glyph (value fontHandle, value index, value data) {
+	value lime_font_render_glyph (value fontHandle, value index) {
 		
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)(intptr_t)val_float (fontHandle);
-		ByteArray bytes = ByteArray (data);
-		return alloc_bool (font->RenderGlyph (val_int (index), &bytes));
+		return font->RenderGlyph (val_int (index));
 		#else
-		return alloc_bool (false);
+		return alloc_null ();
 		#endif
 		
 	}
 	
 	
-	value lime_font_render_glyphs (value fontHandle, value indices, value data) {
+	value lime_font_render_glyphs (value fontHandle, value indices) {
 		
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)(intptr_t)val_float (fontHandle);
-		ByteArray bytes = ByteArray (data);
-		return alloc_bool (font->RenderGlyphs (indices, &bytes));
+		return font->RenderGlyphs (indices);
 		#else
-		return alloc_bool (false);
+		return alloc_null ();
 		#endif
 		
 	}
@@ -955,8 +953,8 @@ namespace lime {
 	DEFINE_PRIM (lime_font_get_units_per_em, 1);
 	DEFINE_PRIM (lime_font_load, 1);
 	DEFINE_PRIM (lime_font_outline_decompose, 2);
-	DEFINE_PRIM (lime_font_render_glyph, 3);
-	DEFINE_PRIM (lime_font_render_glyphs, 3);
+	DEFINE_PRIM (lime_font_render_glyph, 2);
+	DEFINE_PRIM (lime_font_render_glyphs, 2);
 	DEFINE_PRIM (lime_font_set_size, 2);
 	DEFINE_PRIM (lime_gamepad_event_manager_register, 2);
 	DEFINE_PRIM (lime_gamepad_get_device_guid, 1);
