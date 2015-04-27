@@ -171,7 +171,7 @@ namespace lime {
 					sourceOffset = (row * sourceStride) + (column * 4);
 					offset = ((row + rowOffset) * stride) + ((column + columnOffset) * 4);
 					
-					sourceAlpha = sourceData[sourceOffset + 3] / 255;
+					sourceAlpha = sourceData[sourceOffset + 3] / 255.0;
 					oneMinusSourceAlpha = (1 - sourceAlpha);
 					
 					data[offset] = __clamp[int (sourceData[sourceOffset] * sourceAlpha)] + __clamp[int(data[offset] * oneMinusSourceAlpha)];
