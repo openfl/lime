@@ -182,9 +182,9 @@ class ImageDataUtil {
 			
 		}
 		
-		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_copy_pixels (image, sourceImage, sourceRect, destPoint, mergeAlpha); else
-		#end
+		//#if ((cpp || neko) && !disable_cffi)
+		//if (!System.disableCFFI) lime_image_data_util_copy_pixels (image, sourceImage, sourceRect, destPoint, mergeAlpha); else
+		//#end
 		{
 			
 			var rowOffset = Std.int (destPoint.y + image.offsetY - sourceRect.y - sourceImage.offsetY);
@@ -228,6 +228,8 @@ class ImageDataUtil {
 			} else {
 				
 				var sourceAlpha:Float;
+				var destAlpha:Float;
+				var outA:Float;
 				var oneMinusSourceAlpha:Float;
 				
 				for (row in Std.int (sourceRect.top + sourceImage.offsetY)...Std.int (sourceRect.bottom + sourceImage.offsetY)) {
@@ -237,13 +239,16 @@ class ImageDataUtil {
 						sourceOffset = (row * sourceStride) + (column * 4);
 						offset = ((row + rowOffset) * stride) + ((column + columnOffset) * 4);
 						
-						sourceAlpha = sourceData[sourceOffset + 3] / 255;
+						sourceAlpha = sourceData[sourceOffset + 3] / 255.0;
+						destAlpha = data[offset + 3] / 255.0;
 						oneMinusSourceAlpha = (1 - sourceAlpha);
 						
-						data[offset] = __clamp[Std.int (sourceData[sourceOffset] * sourceAlpha)] + __clamp[Std.int(data[offset] * oneMinusSourceAlpha)];
-						data[offset + 1] = __clamp[Std.int (sourceData[sourceOffset + 1] * sourceAlpha)] + __clamp[Std.int(data[offset + 1] * oneMinusSourceAlpha)];
-						data[offset + 2] = __clamp[Std.int (sourceData[sourceOffset + 2] * sourceAlpha)] + __clamp[Std.int(data[offset + 2] * oneMinusSourceAlpha)];
-						data[offset + 3] = __clamp[Std.int (sourceData[sourceOffset + 3] * sourceAlpha)] + __clamp[Std.int(data[offset + 3] * oneMinusSourceAlpha)];
+						outA = sourceAlpha + destAlpha * oneMinusSourceAlpha;
+						data[offset + 0] = __clamp[Math.round ((sourceData[sourceOffset + 0] * sourceAlpha + data[offset + 0] * destAlpha * oneMinusSourceAlpha) / outA)];
+						data[offset + 1] = __clamp[Math.round ((sourceData[sourceOffset + 1] * sourceAlpha + data[offset + 1] * destAlpha * oneMinusSourceAlpha) / outA)];
+						data[offset + 2] = __clamp[Math.round ((sourceData[sourceOffset + 2] * sourceAlpha + data[offset + 2] * destAlpha * oneMinusSourceAlpha) / outA)];
+						data[offset + 3] = __clamp[Math.round (outA * 255.0)];
+						
 						
 					}
 					
