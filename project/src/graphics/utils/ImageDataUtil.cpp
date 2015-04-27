@@ -162,6 +162,8 @@ namespace lime {
 		} else {
 			
 			float sourceAlpha;
+			float destAlpha;
+			float outA;
 			float oneMinusSourceAlpha;
 			
 			for (int row = sourceRect->y + sourceImage->offsetY; row < rows; row++) {
@@ -172,12 +174,14 @@ namespace lime {
 					offset = ((row + rowOffset) * stride) + ((column + columnOffset) * 4);
 					
 					sourceAlpha = sourceData[sourceOffset + 3] / 255.0;
+					destAlpha = data[offset + 3] / 255.0;
 					oneMinusSourceAlpha = (1 - sourceAlpha);
 					
-					data[offset] = __clamp[int (sourceData[sourceOffset] * sourceAlpha)] + __clamp[int(data[offset] * oneMinusSourceAlpha)];
-					data[offset + 1] = __clamp[int (sourceData[sourceOffset + 1] * sourceAlpha)] + __clamp[int(data[offset + 1] * oneMinusSourceAlpha)];
-					data[offset + 2] = __clamp[int (sourceData[sourceOffset + 2] * sourceAlpha)] + __clamp[int(data[offset + 2] * oneMinusSourceAlpha)];
-					data[offset + 3] = __clamp[int (sourceData[sourceOffset + 3] * sourceAlpha)] + __clamp[int(data[offset + 3] * oneMinusSourceAlpha)];
+					outA = sourceAlpha + destAlpha * oneMinusSourceAlpha;
+					data[offset + 0] = __clamp[(int) round ((sourceData[sourceOffset + 0] * sourceAlpha + data[offset + 0] * destAlpha * oneMinusSourceAlpha) / outA)];
+					data[offset + 1] = __clamp[(int) round ((sourceData[sourceOffset + 1] * sourceAlpha + data[offset + 1] * destAlpha * oneMinusSourceAlpha) / outA)];
+					data[offset + 2] = __clamp[(int) round ((sourceData[sourceOffset + 2] * sourceAlpha + data[offset + 2] * destAlpha * oneMinusSourceAlpha) / outA)];
+					data[offset + 3] = __clamp[(int) round (outA * 255.0)];
 					
 				}
 				

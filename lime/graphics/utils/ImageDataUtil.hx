@@ -182,9 +182,9 @@ class ImageDataUtil {
 			
 		}
 		
-		//#if ((cpp || neko) && !disable_cffi)
-		//if (!System.disableCFFI) lime_image_data_util_copy_pixels (image, sourceImage, sourceRect, destPoint, mergeAlpha); else
-		//#end
+		#if ((cpp || neko) && !disable_cffi)
+		if (!System.disableCFFI) lime_image_data_util_copy_pixels (image, sourceImage, sourceRect, destPoint, mergeAlpha); else
+		#end
 		{
 			
 			var rowOffset = Std.int (destPoint.y + image.offsetY - sourceRect.y - sourceImage.offsetY);
