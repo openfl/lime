@@ -1,7 +1,6 @@
 #include <graphics/utils/ImageDataUtil.h>
 #include <system/System.h>
 #include <utils/QuickVec.h>
-#include <math.h>
 
 
 namespace lime {
@@ -179,10 +178,10 @@ namespace lime {
 					oneMinusSourceAlpha = (1 - sourceAlpha);
 					
 					outA = sourceAlpha + destAlpha * oneMinusSourceAlpha;
-					data[offset + 0] = __clamp[(int) round ((sourceData[sourceOffset + 0] * sourceAlpha + data[offset + 0] * destAlpha * oneMinusSourceAlpha) / outA)];
-					data[offset + 1] = __clamp[(int) round ((sourceData[sourceOffset + 1] * sourceAlpha + data[offset + 1] * destAlpha * oneMinusSourceAlpha) / outA)];
-					data[offset + 2] = __clamp[(int) round ((sourceData[sourceOffset + 2] * sourceAlpha + data[offset + 2] * destAlpha * oneMinusSourceAlpha) / outA)];
-					data[offset + 3] = __clamp[(int) round (outA * 255.0)];
+					data[offset + 0] = __clamp[int (0.5 + ((sourceData[sourceOffset + 0] * sourceAlpha + data[offset + 0] * destAlpha * oneMinusSourceAlpha) / outA))];
+					data[offset + 1] = __clamp[int (0.5 + ((sourceData[sourceOffset + 1] * sourceAlpha + data[offset + 1] * destAlpha * oneMinusSourceAlpha) / outA))];
+					data[offset + 2] = __clamp[int (0.5 + ((sourceData[sourceOffset + 2] * sourceAlpha + data[offset + 2] * destAlpha * oneMinusSourceAlpha) / outA))];
+					data[offset + 3] = __clamp[int (0.5 + (outA * 255.0))];
 					
 				}
 				
