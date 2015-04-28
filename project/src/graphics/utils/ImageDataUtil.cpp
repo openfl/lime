@@ -1,6 +1,7 @@
 #include <graphics/utils/ImageDataUtil.h>
 #include <system/System.h>
 #include <utils/QuickVec.h>
+#include <math.h>
 
 
 namespace lime {
