@@ -26,6 +26,7 @@ namespace lime {
 			ByteArray *data;
 			int height;
 			int width;
+			bool transparent;
 		
 		private:
 			

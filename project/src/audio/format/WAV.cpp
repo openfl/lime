@@ -73,6 +73,7 @@ namespace lime {
 			if ((riff_header.chunkID[0] != 'R' || riff_header.chunkID[1] != 'I' || riff_header.chunkID[2] != 'F' || riff_header.chunkID[3] != 'F') || (riff_header.format[0] != 'W' || riff_header.format[1] != 'A' || riff_header.format[2] != 'V' || riff_header.format[3] != 'E')) {
 				
 				//LOG_SOUND ("Invalid RIFF or WAVE Header!\n");
+				lime::fclose (file);
 				return false;
 				
 			}
@@ -88,13 +89,14 @@ namespace lime {
 				if (result != 1) {
 					
 					LOG_SOUND ("Invalid Wave Format!\n");
+					lime::fclose (file);
 					return false;
 					
 				}
 				
 				if (wave_format.subChunkID[0] != 'f' || wave_format.subChunkID[1] != 'm' || wave_format.subChunkID[2] != 't' || wave_format.subChunkID[3] != ' ') {
 					
-					lime::fseek (file, wave_data.subChunkSize, SEEK_CUR);
+					lime::fseek (file, wave_format.subChunkSize, SEEK_CUR);
 					
 				} else {
 					
@@ -104,11 +106,11 @@ namespace lime {
 				
 			}
 			
-			if (wave_format.subChunkSize > 16) {
-				
-				lime::fseek (file, sizeof (short), SEEK_CUR);
-				
-			}
+			//if (wave_format.subChunkSize > 16) {
+				//
+				//lime::fseek (file, sizeof (short), SEEK_CUR);
+				//
+			//}
 			
 			bool foundData = false;
 			
@@ -120,6 +122,7 @@ namespace lime {
 				if (result != 1) {
 					
 					LOG_SOUND ("Invalid Wav Data Header!\n");
+					lime::fclose (file);
 					return false;
 					
 				}
@@ -141,6 +144,7 @@ namespace lime {
 			if (!lime::fread (audioBuffer->data->Bytes (), wave_data.subChunkSize, 1, file)) {
 				
 				LOG_SOUND ("error loading WAVE data into struct!\n");
+				lime::fclose (file);
 				return false;
 				
 			}

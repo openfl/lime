@@ -140,7 +140,7 @@ class HTML5Window {
 				
 			}
 			
-			var events = [ "mousedown", "mousemove", "mouseup", "wheel" ];
+			var events = [ "mousedown", "mouseenter", "mouseleave", "mousemove", "mouseup", "wheel" ];
 			
 			for (event in events) {
 				
@@ -209,6 +209,14 @@ class HTML5Window {
 				case "mousedown":
 					
 					parent.onMouseDown.dispatch (x, y, event.button);
+				
+				case "mouseenter":
+					
+					parent.onWindowEnter.dispatch ();
+				
+				case "mouseleave":
+					
+					parent.onWindowLeave.dispatch ();
 				
 				case "mouseup":
 					

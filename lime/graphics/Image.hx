@@ -249,14 +249,40 @@ class Image {
 	
 	public function copyPixels (sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, alphaImage:Image = null, alphaPoint:Vector2 = null, mergeAlpha:Bool = false):Void {
 		
+		//fast fails -- if source or destination is null or of 0 dimensions, do nothing
 		if (buffer == null || sourceImage == null) return;
+		if (sourceRect.width <= 0 || sourceRect.height <= 0) return;
+		if (width <= 0 || height <= 0) return;
 		
+		//source rect expands too far right or too far below source image boundaries
 		if (sourceRect.x + sourceRect.width > sourceImage.width) sourceRect.width = sourceImage.width - sourceRect.x;
 		if (sourceRect.y + sourceRect.height > sourceImage.height) sourceRect.height = sourceImage.height - sourceRect.y;
-		if (sourceRect.width <= 0 || sourceRect.height <= 0) return;
 		
+		//source rect starts too far left or too far above source image boundaries
+		if (sourceRect.x < 0) {
+			sourceRect.width += sourceRect.x;	//shrink width by amount off canvas
+			sourceRect.x = 0;					//clamp rect to 0
+		}
+		if (sourceRect.y < 0) {
+			sourceRect.height += sourceRect.y;	//shrink height by amount off canvas
+			sourceRect.y = 0;					//clamp rect to 0
+		}
+		
+		//draw area expands too far right or too far below destination image boundaries
 		if (destPoint.x + sourceRect.width > width) sourceRect.width = width - destPoint.x;
 		if (destPoint.y + sourceRect.height > height) sourceRect.height = height - destPoint.y;
+		
+		//draw area starts too far left or too far above destination image boundaries
+		if (destPoint.x < 0) {
+			sourceRect.width += destPoint.x;	//shrink width by amount off canvas
+			sourceRect.x = -destPoint.x;		//adjust source rect to effective starting point
+			destPoint.x = 0;					//clamp destination point to 0
+		}
+		if (destPoint.y < 0) {
+			sourceRect.height += destPoint.y;	//shrink height by amount off canvas
+			sourceRect.y = -destPoint.y;		//adjust source rect to effective starting point
+			destPoint.y = 0;					//clamp destination point to 0
+		}
 		
 		switch (type) {
 			
@@ -387,6 +413,7 @@ class Image {
 	
 	public static function fromBase64 (base64:String, type:String, onload:Image -> Void):Image {
 		
+		if (base64 == null) return null;
 		var image = new Image ();
 		image.__fromBase64 (base64, type, onload);
 		return image;
@@ -396,6 +423,7 @@ class Image {
 	
 	public static function fromBitmapData (bitmapData:#if flash BitmapData #else Dynamic #end):Image {
 		
+		if (bitmapData == null) return null;
 		var buffer = new ImageBuffer (null, bitmapData.width, bitmapData.height);
 		buffer.__srcBitmapData = bitmapData;
 		return new Image (buffer);
@@ -405,6 +433,7 @@ class Image {
 	
 	public static function fromBytes (bytes:ByteArray, onload:Image -> Void = null):Image {
 		
+		if (bytes == null) return null;
 		var image = new Image ();
 		image.__fromBytes (bytes, onload);
 		return image;
@@ -414,6 +443,7 @@ class Image {
 	
 	public static function fromCanvas (canvas:#if (js && html5) CanvasElement #else Dynamic #end):Image {
 		
+		if (canvas == null) return null;
 		var buffer = new ImageBuffer (null, canvas.width, canvas.height);
 		buffer.src = canvas;
 		return new Image (buffer);
@@ -432,12 +462,42 @@ class Image {
 	
 	public static function fromImageElement (image:#if (js && html5) ImageElement #else Dynamic #end):Image {
 		
+		if (image == null) return null;
 		var buffer = new ImageBuffer (null, image.width, image.height);
 		buffer.src = image;
 		return new Image (buffer);
 		
 	}
 	
+	public function getColorBoundsRect (mask:Int, color:Int, findColor:Bool = true, format:PixelFormat = null):Rectangle {
+		
+		if (buffer == null) return null;
+		
+		switch (type) {
+			
+			case CANVAS:
+				
+				#if (js && html5)
+				ImageCanvasUtil.convertToData (this);
+				#end
+				
+				return ImageDataUtil.getColorBoundsRect (this, mask, color, findColor, format);
+			
+			case DATA:
+				
+				return ImageDataUtil.getColorBoundsRect (this, mask, color, findColor, format);
+			
+			case FLASH:
+				
+				var rect = buffer.__srcBitmapData.getColorBoundsRect (mask, color, findColor);
+				return new Rectangle (rect.x, rect.y, rect.width, rect.height);
+			
+			default:
+				
+				return null;
+		}
+		
+	}
 	
 	public function getPixel (x:Int, y:Int, format:PixelFormat = null):Int {
 		
@@ -1270,6 +1330,7 @@ class Image {
 	
 	private function get_transparent ():Bool {
 		
+		if (buffer == null) return false;
 		return buffer.transparent;
 		
 	}
@@ -1278,7 +1339,7 @@ class Image {
 	private function set_transparent (value:Bool):Bool {
 		
 		// TODO, modify data to set transparency
-		
+		if (buffer == null) return false;
 		return buffer.transparent = value;
 		
 	}

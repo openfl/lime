@@ -1,3 +1,16 @@
+2.3.3 (04/21/2015)
+------------------
+
+* Added audioSource.loops, audioSource.offset, audioSource.length
+* Renamed audioSource.timeOffset to audioSource.currentTime
+* Fixed onComplete for AudioSource instances
+* Fixed support for embedded bytes on HTML5
+* Fixed support for hardware anti-aliasing on SDL2 targets
+* Fixed some loose file handles in the format decoders
+* Fixed a possible crash in copyPixels
+* Improved accuracy of URLLoader progress
+
+
 2.3.2 (04/15/2015)
 ------------------
 

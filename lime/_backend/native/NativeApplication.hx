@@ -287,6 +287,10 @@ class NativeApplication {
 					
 					parent.window.onWindowDeactivate.dispatch ();
 				
+				case WINDOW_ENTER:
+					
+					parent.window.onWindowEnter.dispatch ();
+				
 				case WINDOW_FOCUS_IN:
 					
 					parent.window.onWindowFocusIn.dispatch ();
@@ -294,6 +298,10 @@ class NativeApplication {
 				case WINDOW_FOCUS_OUT:
 					
 					parent.window.onWindowFocusOut.dispatch ();
+				
+				case WINDOW_LEAVE:
+					
+					parent.window.onWindowLeave.dispatch ();
 				
 				case WINDOW_MINIMIZE:
 					
@@ -650,11 +658,13 @@ private class WindowEventInfo {
 	var WINDOW_ACTIVATE = 0;
 	var WINDOW_CLOSE = 1;
 	var WINDOW_DEACTIVATE = 2;
-	var WINDOW_FOCUS_IN = 3;
-	var WINDOW_FOCUS_OUT = 4;
-	var WINDOW_MINIMIZE = 5;
-	var WINDOW_MOVE = 6;
-	var WINDOW_RESIZE = 7;
-	var WINDOW_RESTORE = 8;
+	var WINDOW_ENTER = 3;
+	var WINDOW_FOCUS_IN = 4;
+	var WINDOW_FOCUS_OUT = 5;
+	var WINDOW_LEAVE = 6;
+	var WINDOW_MINIMIZE = 7;
+	var WINDOW_MOVE = 8;
+	var WINDOW_RESIZE = 9;
+	var WINDOW_RESTORE = 10;
 	
 }

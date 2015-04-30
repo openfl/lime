@@ -153,8 +153,8 @@ class PlatformSetup {
 		
 		if (extension != "zip") {
 			
-			var arguments = "xvzf";			
-						
+			var arguments = "xvzf";
+			
 			if (extension == "bz2" || extension == "tbz2") {
 				
 				arguments = "xvjf";
@@ -178,7 +178,7 @@ class PlatformSetup {
 				}
 				
 				ProcessHelper.runCommand ("", "tar", [ arguments, sourceZIP ], false);
-				ProcessHelper.runCommand ("", "cp", [ "-R", ignoreRootFolder + "/*", targetPath ], false);
+				ProcessHelper.runCommand ("", "cp", [ "-R", ignoreRootFolder + "/.", targetPath ], false);
 				Sys.command ("rm", [ "-r", ignoreRootFolder ]);
 				
 			} else {
@@ -668,7 +668,7 @@ class PlatformSetup {
 				defaultInstallPath = "/opt/air-sdk";
 				
 			}
-
+			
 			downloadFile (downloadPath);
 			
 			var path = unescapePath (CLIHelper.param ("Output directory [" + defaultInstallPath + "]"));

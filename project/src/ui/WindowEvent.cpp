@@ -19,6 +19,7 @@ namespace lime {
 	WindowEvent::WindowEvent () {
 		
 		type = WINDOW_ACTIVATE;
+		
 		width = 0;
 		height = 0;
 		x = 0;

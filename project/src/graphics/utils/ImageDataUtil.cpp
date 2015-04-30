@@ -141,7 +141,7 @@ namespace lime {
 		int rows = sourceRect->y + sourceRect->height + sourceImage->offsetY;
 		int columns = sourceRect->x + sourceRect->width + sourceImage->offsetX;
 		
-		if (!mergeAlpha || !sourceImage->transparent) {
+		if (!mergeAlpha || !sourceImage->buffer->transparent) {
 			
 			for (int row = sourceRect->y + sourceImage->offsetY; row < rows; row++) {
 				
@@ -162,6 +162,8 @@ namespace lime {
 		} else {
 			
 			float sourceAlpha;
+			float destAlpha;
+			float outA;
 			float oneMinusSourceAlpha;
 			
 			for (int row = sourceRect->y + sourceImage->offsetY; row < rows; row++) {
@@ -171,13 +173,15 @@ namespace lime {
 					sourceOffset = (row * sourceStride) + (column * 4);
 					offset = ((row + rowOffset) * stride) + ((column + columnOffset) * 4);
 					
-					sourceAlpha = sourceData[sourceOffset + 3] / 255;
+					sourceAlpha = sourceData[sourceOffset + 3] / 255.0;
+					destAlpha = data[offset + 3] / 255.0;
 					oneMinusSourceAlpha = (1 - sourceAlpha);
 					
-					data[offset] = __clamp[int (sourceData[sourceOffset] + (data[offset] * oneMinusSourceAlpha))];
-					data[offset + 1] = __clamp[int (sourceData[sourceOffset + 1] + (data[offset + 1] * oneMinusSourceAlpha))];
-					data[offset + 2] = __clamp[int (sourceData[sourceOffset + 2] + (data[offset + 2] * oneMinusSourceAlpha))];
-					data[offset + 3] = __clamp[int (sourceData[sourceOffset + 3] + (data[offset + 3] * oneMinusSourceAlpha))];
+					outA = sourceAlpha + destAlpha * oneMinusSourceAlpha;
+					data[offset + 0] = __clamp[int (0.5 + ((sourceData[sourceOffset + 0] * sourceAlpha + data[offset + 0] * destAlpha * oneMinusSourceAlpha) / outA))];
+					data[offset + 1] = __clamp[int (0.5 + ((sourceData[sourceOffset + 1] * sourceAlpha + data[offset + 1] * destAlpha * oneMinusSourceAlpha) / outA))];
+					data[offset + 2] = __clamp[int (0.5 + ((sourceData[sourceOffset + 2] * sourceAlpha + data[offset + 2] * destAlpha * oneMinusSourceAlpha) / outA))];
+					data[offset + 3] = __clamp[int (0.5 + (outA * 255.0))];
 					
 				}
 				

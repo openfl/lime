@@ -119,9 +119,11 @@ class Application extends Module {
 		window.onWindowActivate.add (onWindowActivate);
 		window.onWindowClose.add (onWindowClose);
 		window.onWindowDeactivate.add (onWindowDeactivate);
+		window.onWindowEnter.add (onWindowEnter);
 		window.onWindowFocusIn.add (onWindowFocusIn);
 		window.onWindowFocusOut.add (onWindowFocusOut);
 		window.onWindowFullscreen.add (onWindowFullscreen);
+		window.onWindowLeave.add (onWindowLeave);
 		window.onWindowMinimize.add (onWindowMinimize);
 		window.onWindowMove.add (onWindowMove);
 		window.onWindowResize.add (onWindowResize);
@@ -393,6 +395,17 @@ class Application extends Module {
 	}
 	
 	
+	public override function onWindowEnter ():Void {
+		
+		for (module in modules) {
+			
+			module.onWindowEnter ();
+			
+		}
+		
+	}
+	
+	
 	public override function onWindowFocusIn ():Void {
 		
 		for (module in modules) {
@@ -420,6 +433,17 @@ class Application extends Module {
 		for (module in modules) {
 			
 			module.onWindowFullscreen ();
+			
+		}
+		
+	}
+	
+	
+	public override function onWindowLeave ():Void {
+		
+		for (module in modules) {
+			
+			module.onWindowLeave ();
 			
 		}
 		
