@@ -42,7 +42,7 @@ class PlatformSetup {
 	private static var codeSourceryWindowsPath = "http://sourcery.mentor.com/public/gnu_toolchain/arm-none-linux-gnueabi/arm-2009q1-203-arm-none-linux-gnueabi.exe";
 	private static var emscriptenSDKURL = "https://github.com/kripken/emscripten/wiki/Emscripten-SDK";
 	private static var javaJDKURL = "http://www.oracle.com/technetwork/java/javase/downloads/jdk6u37-downloads-1859587.html";
-	private static var linuxAptPackages = "ia32-libs-multiarch gcc-multilib g++-multilib";
+	private static var linuxAptPackages = "gcc-multilib g++-multilib";
 	private static var linuxUbuntuSaucyPackages = "gcc-multilib g++-multilib libxext-dev";
 	private static var linuxYumPackages = "gcc gcc-c++";
 	private static var linuxDnfPackages = "gcc gcc-c++";
