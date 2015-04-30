@@ -28,6 +28,9 @@
 	<set name="NATIVE_TOOLKIT_CURL_SSL" value="1" />
 	<set name="NATIVE_TOOLKIT_SDL_STATIC" value="1" />
 	
+	<set name="NATIVE_TOOLKIT_SDL_ANGLE" value="1" if="LIME_SDL_ANGLE" />
+	
+	
 	<files id="lime">
 		
 		<compilerflag value="-Iinclude" />
@@ -140,7 +143,7 @@
 			</section>
 			
 			<compilerflag value="-DLIME_SDL" />
-			<compilerflag value="-DNATIVE_TOOLKIT_SDL_ANGLE" if="LIME_SDL_ANGLE" />
+			<compilerflag value="-DNATIVE_TOOLKIT_SDL_ANGLE" if="NATIVE_TOOLKIT_SDL_ANGLE" />
 			<compilerflag value="-D__IPHONEOS__" if="ios" />
 			
 			<file name="src/backend/sdl/SDLApplication.cpp" />
