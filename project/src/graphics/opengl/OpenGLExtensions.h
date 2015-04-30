@@ -12,6 +12,10 @@
 
 #include "OpenGLBindings.h"
 
+#ifdef LIME_SDL
+#include <SDL.h>
+#endif
+
 
 #ifdef DECLARE_EXTENSION
 
@@ -27,7 +31,14 @@
 
 #elif defined(GET_EXTENSION)
 
-#ifdef HX_WINDOWS
+#ifdef LIME_SDL
+   #define OGL_EXT(func,ret,args) \
+   {\
+      *(void **)&lime::func = (void *)SDL_GL_GetProcAddress(#func);\
+      if (!func) \
+         *(void **)&lime::func = (void *)SDL_GL_GetProcAddress(#func "ARB");\
+   }
+#elif HX_WINDOWS
    #define OGL_EXT(func,ret,args) \
    {\
       *(void **)&lime::func = (void *)wglGetProcAddress(#func);\

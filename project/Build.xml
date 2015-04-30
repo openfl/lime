@@ -30,7 +30,6 @@
 	
 	<files id="lime">
 		
-		<compilerflag value="-DLIME_SDL" if="LIME_SDL" />
 		<compilerflag value="-Iinclude" />
 		
 		<file name="src/ExternalInterface.cpp" />
@@ -141,6 +140,7 @@
 			</section>
 			
 			<compilerflag value="-DLIME_SDL" />
+			<compilerflag value="-DNATIVE_TOOLKIT_SDL_ANGLE" if="LIME_SDL_ANGLE" />
 			<compilerflag value="-D__IPHONEOS__" if="ios" />
 			
 			<file name="src/backend/sdl/SDLApplication.cpp" />
