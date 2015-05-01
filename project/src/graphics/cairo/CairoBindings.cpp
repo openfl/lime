@@ -5,6 +5,13 @@
 namespace lime {
 	
 	
+	value lime_cairo_image_surface_create (value format, value width, value height) {
+		
+		return alloc_float ((intptr_t)cairo_image_surface_create ((cairo_format_t)val_int (format), val_int (width), val_int (height)));
+		
+	}
+	
+	
 	value lime_cairo_version () {
 		
 		return alloc_int (cairo_version ());
@@ -19,6 +26,7 @@ namespace lime {
 	}
 	
 	
+	DEFINE_PRIM (lime_cairo_image_surface_create, 3);
 	DEFINE_PRIM (lime_cairo_version, 0);
 	DEFINE_PRIM (lime_cairo_version_string, 0);
 	
