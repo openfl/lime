@@ -13,7 +13,7 @@ class Cairo {
 	
 	public static function imageSurfaceCreate (format:CairoFormat, width:Int, height:Int):CairoSurface {
 		
-		#if sys
+		#if lime_cairo
 		return lime_cairo_image_surface_create (format, width, height);
 		#else
 		return null;
@@ -29,7 +29,7 @@ class Cairo {
 	
 	private static function get_version ():Int {
 		
-		#if sys
+		#if lime_cairo
 		return lime_cairo_version ();
 		#else
 		return 0;
@@ -40,7 +40,7 @@ class Cairo {
 	
 	private static function get_versionString ():String {
 		
-		#if sys
+		#if lime_cairo
 		return lime_cairo_version_string ();
 		#else
 		return "";
@@ -56,7 +56,7 @@ class Cairo {
 	
 	
 	
-	#if sys
+	#if lime_cairo
 	private static var lime_cairo_image_surface_create = System.load ("lime", "lime_cairo_image_surface_create", 3);
 	private static var lime_cairo_version = System.load ("lime", "lime_cairo_version", 0);
 	private static var lime_cairo_version_string = System.load ("lime", "lime_cairo_version_string", 0);
