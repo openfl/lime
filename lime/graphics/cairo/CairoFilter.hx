@@ -1,0 +1,13 @@
+package lime.graphics.cairo;
+
+
+@:enum abstract CairoFilter(Int) from Int to Int {
+	
+	public var FAST = 0;
+	public var GOOD = 1;
+	public var BEST = 2;
+	public var NEAREST = 3;
+	public var BILINEAR = 4;
+	public var GAUSSIAN = 5;
+	
+}

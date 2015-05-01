@@ -183,6 +183,7 @@
 		<file name="src/graphics/ImageBuffer.cpp" />
 		<file name="src/graphics/RenderEvent.cpp" />
 		<file name="src/math/ColorMatrix.cpp" />
+		<file name="src/math/Matrix3.cpp" />
 		<file name="src/math/Rectangle.cpp" />
 		<file name="src/math/Vector2.cpp" />
 		<file name="src/ui/GamepadEvent.cpp" />

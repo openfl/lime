@@ -2,6 +2,8 @@ package lime.graphics;
 
 
 import lime.graphics.cairo.Cairo;
+import lime.graphics.cairo.CairoFormat;
+import lime.graphics.cairo.CairoSurface;
 
 
 class CairoRenderContext {
