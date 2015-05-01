@@ -406,12 +406,10 @@ class Matrix3 {
 	}
 	
 	
-	public function translate (dx:Float, dy:Float) {
+	public inline function translate (dx:Float, dy:Float) {
 		
-		var m = new Matrix3 ();
-		m.tx = dx;
-		m.ty = dy;
-		this.concat (m);
+		tx += dx;
+		ty += dy;
 		
 	}
 	
