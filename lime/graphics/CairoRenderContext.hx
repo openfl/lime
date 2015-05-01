@@ -59,6 +59,10 @@ class CairoRenderContext {
 class CairoRenderContext {
 	
 	
+	public var version (get, null):Int;
+	public var versionString (get, null):String;
+	
+	
 	public function new () {
 		
 		
@@ -66,8 +70,8 @@ class CairoRenderContext {
 	}
 	
 	
-	public function version ():Int { return 0 };
-	public function versionString ():String { return "" };
+	private function get_version ():Int { return 0; }
+	private function get_versionString ():String { return ""; }
 	
 	
 }
