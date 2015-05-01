@@ -23,7 +23,7 @@ abstract CairoSurface(Dynamic) {
 		#if lime_cairo
 		return lime_cairo_image_surface_create_for_data (data, format, width, height, stride);
 		#else
-		return 0;
+		return cast 0;
 		#end
 		
 	}
