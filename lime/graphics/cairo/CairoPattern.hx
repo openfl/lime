@@ -22,7 +22,11 @@ abstract CairoPattern(Dynamic) {
 	
 	public static function createForSurface (surface:CairoSurface):CairoPattern {
 		
+		#if lime_cairo
 		return lime_cairo_pattern_create_for_surface (surface);
+		#else
+		return cast 0;
+		#end
 		
 	}
 	
