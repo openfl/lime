@@ -35,6 +35,15 @@ class Cairo {
 	}
 	
 	
+	public function arc (xc:Float, yc:Float, radius:Float, angle1:Float, angle2:Float):Void {
+		
+		#if lime_cairo
+		lime_cairo_arc (handle, xc, yc, radius, angle1, angle2);
+		#end
+		
+	}
+	
+	
 	public function clip ():Void {
 		
 		#if lime_cairo
@@ -203,6 +212,15 @@ class Cairo {
 		
 		#if lime_cairo
 		lime_cairo_save (handle);
+		#end
+		
+	}
+	
+	
+	public function setSourceRGB (r:Float, g:Float, b:Float):Void {
+		
+		#if lime_cairo
+		lime_cairo_set_source_rgb (handle, r, g, b);
 		#end
 		
 	}
@@ -445,6 +463,7 @@ class Cairo {
 	
 	
 	#if lime_cairo
+	private static var lime_cairo_arc = System.load ("lime", "lime_cairo_arc", -1);
 	private static var lime_cairo_clip = System.load ("lime", "lime_cairo_clip", 1);
 	private static var lime_cairo_close_path = System.load ("lime", "lime_cairo_close_path", 1);
 	private static var lime_cairo_create = System.load ("lime", "lime_cairo_create", 1);
@@ -479,6 +498,7 @@ class Cairo {
 	private static var lime_cairo_set_miter_limit = System.load ("lime", "lime_cairo_set_miter_limit", 2);
 	private static var lime_cairo_set_operator = System.load ("lime", "lime_cairo_set_operator", 2);
 	private static var lime_cairo_set_source = System.load ("lime", "lime_cairo_set_source", 2);
+	private static var lime_cairo_set_source_rgb = System.load ("lime", "lime_cairo_set_source_rgb", 4);
 	private static var lime_cairo_set_source_rgba = System.load ("lime", "lime_cairo_set_source_rgba", 5);
 	private static var lime_cairo_set_source_surface = System.load ("lime", "lime_cairo_set_source_surface", 4);
 	private static var lime_cairo_stroke = System.load ("lime", "lime_cairo_stroke", 1);

@@ -6,6 +6,14 @@
 namespace lime {
 	
 	
+	value lime_cairo_arc (value *arg, int argCount) {
+		
+		cairo_arc ((cairo_t*)(intptr_t)val_float (arg[0]), val_number (arg[1]), val_number (arg[2]), val_number (arg[3]), val_number (arg[4]), val_number (arg[5]));
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_cairo_clip (value handle) {
 		
 		cairo_clip ((cairo_t*)(intptr_t)val_float (handle));
@@ -121,7 +129,7 @@ namespace lime {
 	
 	value lime_cairo_line_to (value handle, value x, value y) {
 		
-		cairo_line_to ((cairo_t*)(intptr_t)val_float (handle), val_float (x), val_float (y));
+		cairo_line_to ((cairo_t*)(intptr_t)val_float (handle), val_number (x), val_number (y));
 		return alloc_null ();
 		
 	}
@@ -137,7 +145,7 @@ namespace lime {
 	
 	value lime_cairo_move_to (value handle, value x, value y) {
 		
-		cairo_move_to ((cairo_t*)(intptr_t)val_float (handle), val_float (x), val_float (y));
+		cairo_move_to ((cairo_t*)(intptr_t)val_float (handle), val_number (x), val_number (y));
 		return alloc_null ();
 		
 	}
@@ -161,7 +169,7 @@ namespace lime {
 	
 	value lime_cairo_paint_with_alpha (value handle, value alpha) {
 		
-		cairo_paint_with_alpha ((cairo_t*)(intptr_t)val_float (handle), val_float (alpha));
+		cairo_paint_with_alpha ((cairo_t*)(intptr_t)val_float (handle), val_number (alpha));
 		return alloc_null ();
 		
 	}
@@ -200,7 +208,7 @@ namespace lime {
 	
 	value lime_cairo_rectangle (value handle, value x, value y, value width, value height) {
 		
-		cairo_rectangle ((cairo_t*)(intptr_t)val_float (handle), val_float (x), val_float (y), val_float (width), val_float (height));
+		cairo_rectangle ((cairo_t*)(intptr_t)val_float (handle), val_number (x), val_number (y), val_number (width), val_number (height));
 		return alloc_null ();
 		
 	}
@@ -248,7 +256,7 @@ namespace lime {
 	
 	value lime_cairo_set_line_width (value handle, value width) {
 		
-		cairo_set_line_width ((cairo_t*)(intptr_t)val_float (handle), val_float (width));
+		cairo_set_line_width ((cairo_t*)(intptr_t)val_float (handle), val_number (width));
 		return alloc_null ();
 		
 	}
@@ -269,7 +277,7 @@ namespace lime {
 	
 	value lime_cairo_set_miter_limit (value handle, value miterLimit) {
 		
-		cairo_set_miter_limit ((cairo_t*)(intptr_t)val_float (handle), val_float (miterLimit));
+		cairo_set_miter_limit ((cairo_t*)(intptr_t)val_float (handle), val_number (miterLimit));
 		return alloc_null ();
 		
 	}
@@ -291,9 +299,17 @@ namespace lime {
 	}
 	
 	
+	value lime_cairo_set_source_rgb (value handle, value r, value g, value b) {
+		
+		cairo_set_source_rgb ((cairo_t*)(intptr_t)val_float (handle), val_number (r), val_number (g), val_number (b));
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_cairo_set_source_rgba (value handle, value r, value g, value b, value a) {
 		
-		cairo_set_source_rgba ((cairo_t*)(intptr_t)val_float (handle), val_float (r), val_float (g), val_float (b), val_float (a));
+		cairo_set_source_rgba ((cairo_t*)(intptr_t)val_float (handle), val_number (r), val_number (g), val_number (b), val_number (a));
 		return alloc_null ();
 		
 	}
@@ -301,7 +317,7 @@ namespace lime {
 	
 	value lime_cairo_set_source_surface (value handle, value surface, value x, value y) {
 		
-		cairo_set_source_surface ((cairo_t*)(intptr_t)val_float (handle), (cairo_surface_t*)(intptr_t)val_float (surface), val_float (x), val_float (y));
+		cairo_set_source_surface ((cairo_t*)(intptr_t)val_float (handle), (cairo_surface_t*)(intptr_t)val_float (surface), val_number (x), val_number (y));
 		return alloc_null ();
 		
 	}
@@ -426,6 +442,7 @@ namespace lime {
 	}
 	
 	
+	DEFINE_PRIM_MULT (lime_cairo_arc);
 	DEFINE_PRIM (lime_cairo_clip, 1);
 	DEFINE_PRIM (lime_cairo_close_path, 1);
 	DEFINE_PRIM (lime_cairo_create, 1);
@@ -462,6 +479,7 @@ namespace lime {
 	DEFINE_PRIM (lime_cairo_set_miter_limit, 2);
 	DEFINE_PRIM (lime_cairo_set_operator, 2);
 	DEFINE_PRIM (lime_cairo_set_source, 2);
+	DEFINE_PRIM (lime_cairo_set_source_rgb, 4);
 	DEFINE_PRIM (lime_cairo_set_source_rgba, 5);
 	DEFINE_PRIM (lime_cairo_set_source_surface, 4);
 	DEFINE_PRIM (lime_cairo_stroke, 1);
