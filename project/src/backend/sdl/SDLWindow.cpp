@@ -16,42 +16,46 @@ namespace lime {
 		currentApplication = application;
 		this->flags = flags;
 		
-		int sdlFlags = SDL_WINDOW_OPENGL;
+		int sdlFlags = 0;
 		
 		if (flags & WINDOW_FLAG_FULLSCREEN) sdlFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 		if (flags & WINDOW_FLAG_RESIZABLE) sdlFlags |= SDL_WINDOW_RESIZABLE;
 		if (flags & WINDOW_FLAG_BORDERLESS) sdlFlags |= SDL_WINDOW_BORDERLESS;
 		
-		#if defined (HX_WINDOWS) && defined (NATIVE_TOOLKIT_SDL_ANGLE)
-		
-		SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-		SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-		SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 0);
-		SDL_SetHint (SDL_HINT_VIDEO_WIN_D3DCOMPILER, "d3dcompiler_47.dll");
-		
-		#endif
-		
-		if (flags & WINDOW_FLAG_DEPTH_BUFFER) {
+		if (flags & WINDOW_FLAG_HARDWARE) {
 			
-			SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 32 - (flags & WINDOW_FLAG_STENCIL_BUFFER) ? 8 : 0);
+			sdlFlags |= SDL_WINDOW_OPENGL;
 			
-		}
-		
-		if (flags & WINDOW_FLAG_STENCIL_BUFFER) {
+			#if defined (HX_WINDOWS) && defined (NATIVE_TOOLKIT_SDL_ANGLE)
+			SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 0);
+			SDL_SetHint (SDL_HINT_VIDEO_WIN_D3DCOMPILER, "d3dcompiler_47.dll");
+			#endif
 			
-			SDL_GL_SetAttribute (SDL_GL_STENCIL_SIZE, 8);
+			if (flags & WINDOW_FLAG_DEPTH_BUFFER) {
+				
+				SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 32 - (flags & WINDOW_FLAG_STENCIL_BUFFER) ? 8 : 0);
+				
+			}
 			
-		}
-		
-		if (flags & WINDOW_FLAG_HW_AA_HIRES) {
+			if (flags & WINDOW_FLAG_STENCIL_BUFFER) {
+				
+				SDL_GL_SetAttribute (SDL_GL_STENCIL_SIZE, 8);
+				
+			}
 			
-			SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, true);
-			SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 4);
-			
-		} else if (flags & WINDOW_FLAG_HW_AA) {
-			
-			SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, true);
-			SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 2);
+			if (flags & WINDOW_FLAG_HW_AA_HIRES) {
+				
+				SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, true);
+				SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 4);
+				
+			} else if (flags & WINDOW_FLAG_HW_AA) {
+				
+				SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, true);
+				SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 2);
+				
+			}
 			
 		}
 		

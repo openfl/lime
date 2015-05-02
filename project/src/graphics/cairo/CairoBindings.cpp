@@ -175,6 +175,74 @@ namespace lime {
 	}
 	
 	
+	value lime_cairo_pattern_create_for_surface (value surface) {
+		
+		return alloc_float ((intptr_t)cairo_pattern_create_for_surface ((cairo_surface_t*)(intptr_t)val_float (surface)));
+		
+	}
+	
+	
+	value lime_cairo_pattern_destroy (value handle) {
+		
+		cairo_pattern_destroy ((cairo_pattern_t*)(intptr_t)val_float (handle));
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_cairo_pattern_get_extend (value handle) {
+		
+		return alloc_int (cairo_pattern_get_extend ((cairo_pattern_t*)(intptr_t)val_float (handle)));
+		
+	}
+	
+	
+	value lime_cairo_pattern_set_extend (value handle, value extend) {
+		
+		cairo_pattern_set_extend ((cairo_pattern_t*)(intptr_t)val_float (handle), (cairo_extend_t)val_int (extend));
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_cairo_pattern_get_filter (value handle) {
+		
+		return alloc_int (cairo_pattern_get_filter ((cairo_pattern_t*)(intptr_t)val_float (handle)));
+		
+	}
+	
+	
+	value lime_cairo_pattern_set_filter (value handle, value filter) {
+		
+		cairo_pattern_set_filter ((cairo_pattern_t*)(intptr_t)val_float (handle), (cairo_filter_t)val_int (filter));
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_cairo_pattern_get_matrix (value handle) {
+		
+		cairo_matrix_t cm;
+		cairo_pattern_get_matrix ((cairo_pattern_t*)(intptr_t)val_float (handle), &cm);
+		Matrix3 mat3 = Matrix3 (cm.xx, cm.yx, cm.xy, cm.yy, cm.x0, cm.y0);
+		return mat3.Value ();
+		
+	}
+	
+	
+	value lime_cairo_pattern_set_matrix (value handle, value matrix) {
+		
+		Matrix3 mat3 = Matrix3 (matrix);
+		
+		cairo_matrix_t cm;
+		cairo_matrix_init (&cm, mat3.a, mat3.b, mat3.c, mat3.d, mat3.tx, mat3.ty);
+		
+		cairo_pattern_set_matrix ((cairo_pattern_t*)(intptr_t)val_float (handle), &cm);
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_cairo_pop_group (value handle) {
 		
 		return alloc_float ((intptr_t)cairo_pop_group ((cairo_t*)(intptr_t)val_float (handle)));
@@ -339,6 +407,22 @@ namespace lime {
 	}
 	
 	
+	value lime_cairo_surface_destroy (value handle) {
+		
+		cairo_surface_destroy ((cairo_surface_t*)(intptr_t)val_float (handle));
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_cairo_surface_flush (value handle) {
+		
+		cairo_surface_flush ((cairo_surface_t*)(intptr_t)val_float (handle));
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_cairo_transform (value handle, value matrix) {
 		
 		Matrix3 mat3 = Matrix3 (matrix);
@@ -347,82 +431,6 @@ namespace lime {
 		cairo_matrix_init (&cm, mat3.a, mat3.b, mat3.c, mat3.d, mat3.tx, mat3.ty);
 		
 		cairo_transform ((cairo_t*)(intptr_t)val_float (handle), &cm);
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_cairo_pattern_create_for_surface (value surface) {
-		
-		return alloc_float ((intptr_t)cairo_pattern_create_for_surface ((cairo_surface_t*)(intptr_t)val_float (surface)));
-		
-	}
-	
-	
-	value lime_cairo_pattern_destroy (value handle) {
-		
-		cairo_pattern_destroy ((cairo_pattern_t*)(intptr_t)val_float (handle));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_cairo_pattern_get_extend (value handle) {
-		
-		return alloc_int (cairo_pattern_get_extend ((cairo_pattern_t*)(intptr_t)val_float (handle)));
-		
-	}
-	
-	
-	value lime_cairo_pattern_set_extend (value handle, value extend) {
-		
-		cairo_pattern_set_extend ((cairo_pattern_t*)(intptr_t)val_float (handle), (cairo_extend_t)val_int (extend));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_cairo_pattern_get_filter (value handle) {
-		
-		return alloc_int (cairo_pattern_get_filter ((cairo_pattern_t*)(intptr_t)val_float (handle)));
-		
-	}
-	
-	
-	value lime_cairo_pattern_set_filter (value handle, value filter) {
-		
-		cairo_pattern_set_filter ((cairo_pattern_t*)(intptr_t)val_float (handle), (cairo_filter_t)val_int (filter));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_cairo_pattern_get_matrix (value handle) {
-		
-		cairo_matrix_t cm;
-		cairo_pattern_get_matrix ((cairo_pattern_t*)(intptr_t)val_float (handle), &cm);
-		Matrix3 mat3 = Matrix3 (cm.xx, cm.yx, cm.xy, cm.yy, cm.x0, cm.y0);
-		return mat3.Value ();
-		
-	}
-	
-	
-	value lime_cairo_pattern_set_matrix (value handle, value matrix) {
-		
-		Matrix3 mat3 = Matrix3 (matrix);
-		
-		cairo_matrix_t cm;
-		cairo_matrix_init (&cm, mat3.a, mat3.b, mat3.c, mat3.d, mat3.tx, mat3.ty);
-		
-		cairo_pattern_set_matrix ((cairo_pattern_t*)(intptr_t)val_float (handle), &cm);
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_cairo_surface_destroy (value handle) {
-		
-		cairo_surface_destroy ((cairo_surface_t*)(intptr_t)val_float (handle));
 		return alloc_null ();
 		
 	}
@@ -464,6 +472,14 @@ namespace lime {
 	DEFINE_PRIM (lime_cairo_new_path, 1);
 	DEFINE_PRIM (lime_cairo_paint, 1);
 	DEFINE_PRIM (lime_cairo_paint_with_alpha, 2);
+	DEFINE_PRIM (lime_cairo_pattern_create_for_surface, 1);
+	DEFINE_PRIM (lime_cairo_pattern_destroy, 1);
+	DEFINE_PRIM (lime_cairo_pattern_get_extend, 1);
+	DEFINE_PRIM (lime_cairo_pattern_get_filter, 1);
+	DEFINE_PRIM (lime_cairo_pattern_get_matrix, 1);
+	DEFINE_PRIM (lime_cairo_pattern_set_extend, 2);
+	DEFINE_PRIM (lime_cairo_pattern_set_filter, 2);
+	DEFINE_PRIM (lime_cairo_pattern_set_matrix, 2);
 	DEFINE_PRIM (lime_cairo_pop_group, 1);
 	DEFINE_PRIM (lime_cairo_pop_group_to_source, 1);
 	DEFINE_PRIM (lime_cairo_push_group, 1);
@@ -484,16 +500,9 @@ namespace lime {
 	DEFINE_PRIM (lime_cairo_set_source_surface, 4);
 	DEFINE_PRIM (lime_cairo_stroke, 1);
 	DEFINE_PRIM (lime_cairo_stroke_preserve, 1);
-	DEFINE_PRIM (lime_cairo_transform, 2);
-	DEFINE_PRIM (lime_cairo_pattern_create_for_surface, 1);
-	DEFINE_PRIM (lime_cairo_pattern_destroy, 1);
-	DEFINE_PRIM (lime_cairo_pattern_get_extend, 1);
-	DEFINE_PRIM (lime_cairo_pattern_get_filter, 1);
-	DEFINE_PRIM (lime_cairo_pattern_get_matrix, 1);
-	DEFINE_PRIM (lime_cairo_pattern_set_extend, 2);
-	DEFINE_PRIM (lime_cairo_pattern_set_filter, 2);
-	DEFINE_PRIM (lime_cairo_pattern_set_matrix, 2);
 	DEFINE_PRIM (lime_cairo_surface_destroy, 1);
+	DEFINE_PRIM (lime_cairo_surface_flush, 1);
+	DEFINE_PRIM (lime_cairo_transform, 2);
 	DEFINE_PRIM (lime_cairo_version, 0);
 	DEFINE_PRIM (lime_cairo_version_string, 0);
 	

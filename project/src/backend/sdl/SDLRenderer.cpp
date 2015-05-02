@@ -10,8 +10,19 @@ namespace lime {
 		
 		currentWindow = window;
 		sdlWindow = ((SDLWindow*)window)->sdlWindow;
+		sdlTexture = 0;
 		
-		int sdlFlags = SDL_RENDERER_ACCELERATED;
+		int sdlFlags = 0;
+		
+		if (window->flags & WINDOW_FLAG_HARDWARE) {
+			
+			sdlFlags |= SDL_RENDERER_ACCELERATED;
+			
+		} else {
+			
+			sdlFlags |= SDL_RENDERER_SOFTWARE;
+			
+		}
 		
 		if (window->flags & WINDOW_FLAG_VSYNC) sdlFlags |= SDL_RENDERER_PRESENTVSYNC;
 		
@@ -42,6 +53,51 @@ namespace lime {
 	void SDLRenderer::Flip () {
 		
 		SDL_RenderPresent (sdlRenderer);
+		
+	}
+	
+	
+	value SDLRenderer::Lock () {
+		
+		int width;
+		int height;
+		
+		SDL_GetRendererOutputSize (sdlRenderer, &width, &height);
+		
+		if (!sdlTexture) {
+			
+			sdlTexture = SDL_CreateTexture (sdlRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
+			
+		}
+		
+		value result = alloc_empty_object ();
+		
+		void *pixels;
+		int pitch;
+		
+		if (SDL_LockTexture (sdlTexture, NULL, &pixels, &pitch) == 0) {
+			
+			alloc_field (result, val_id ("width"), alloc_int (width));
+			alloc_field (result, val_id ("height"), alloc_int (height));
+			alloc_field (result, val_id ("pixels"), alloc_float ((intptr_t)pixels));
+			alloc_field (result, val_id ("pitch"), alloc_int (pitch));
+			
+		}
+		
+		return result;
+		
+	}
+	
+	
+	void SDLRenderer::Unlock () {
+		
+		if (sdlTexture) {
+			
+			SDL_UnlockTexture (sdlTexture);
+			SDL_RenderClear (sdlRenderer);
+			SDL_RenderCopy (sdlRenderer, sdlTexture, NULL, NULL);
+			
+		}
 		
 	}
 	

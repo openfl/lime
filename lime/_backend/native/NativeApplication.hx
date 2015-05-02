@@ -209,6 +209,7 @@ class NativeApplication {
 				
 				case RENDER:
 					
+					parent.renderer.render ();
 					parent.renderer.onRender.dispatch (parent.renderer.context);
 					parent.renderer.flip ();
 					
@@ -222,7 +223,11 @@ class NativeApplication {
 					#if lime_console
 					parent.renderer.context = CONSOLE (new ConsoleRenderContext ());
 					#else
-					parent.renderer.context = OPENGL (new GLRenderContext ());
+					if (parent.config.hardware) {
+						
+						parent.renderer.context = OPENGL (new GLRenderContext ());
+						
+					}
 					#end
 					
 					parent.renderer.onRenderContextRestored.dispatch (parent.renderer.context);

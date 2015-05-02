@@ -38,6 +38,15 @@ abstract CairoSurface(Dynamic) {
 	}
 	
 	
+	public function flush ():Void {
+		
+		#if lime_cairo
+		lime_cairo_surface_flush (this);
+		#end
+		
+	}
+	
+	
 	
 	
 	// Native Methods
@@ -49,6 +58,7 @@ abstract CairoSurface(Dynamic) {
 	private static var lime_cairo_image_surface_create = System.load ("lime", "lime_cairo_image_surface_create", 3);
 	private static var lime_cairo_image_surface_create_for_data = System.load ("lime", "lime_cairo_image_surface_create_for_data", 5);
 	private static var lime_cairo_surface_destroy = System.load ("lime", "lime_cairo_surface_destroy", 1);
+	private static var lime_cairo_surface_flush = System.load ("lime", "lime_cairo_surface_flush", 1);
 	#end
 	
 	

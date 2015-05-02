@@ -7,6 +7,7 @@ import lime.graphics.DOMRenderContext;
 import lime.graphics.FlashRenderContext;
 import lime.graphics.GLRenderContext;
 
+
 enum RenderContext {
 	
 	OPENGL (gl:GLRenderContext);
@@ -16,5 +17,6 @@ enum RenderContext {
 	CAIRO (cairo:CairoRenderContext);
 	CONSOLE (context:ConsoleRenderContext);
 	CUSTOM (data:Dynamic);
+	NONE;
 	
 }

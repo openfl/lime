@@ -17,6 +17,7 @@ typedef Config = {
 	@:optional var file:String;
 	@:optional var fps:Int;
 	@:optional var fullscreen:Bool;
+	@:optional var hardware:Bool;
 	@:optional var height:Int;
 	@:optional var orientation:String;
 	@:optional var packageName:String;
