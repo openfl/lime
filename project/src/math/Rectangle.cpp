@@ -21,6 +21,16 @@ namespace lime {
 	}
 	
 	
+	Rectangle::Rectangle (double x, double y, double width, double height) {
+		
+		this->height = height;
+		this->width = width;
+		this->x = x;
+		this->y = y;
+		
+	}
+	
+	
 	Rectangle::Rectangle (value rect) {
 		
 		if (!init) {

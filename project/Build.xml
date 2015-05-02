@@ -9,6 +9,7 @@
 	<set name="lime-legacy" value="1" if="legacy || lime_legacy" />
 	<set name="ios" value="1" if="iphone" />
 	
+	<set name="LIME_CAIRO" value="1" if="LIME_CAIRO" />
 	<set name="LIME_CURL" value="1" unless="emscripten" />
 	<set name="LIME_JPEG" value="1" />
 	<set name="LIME_FREETYPE" value="1" />
@@ -17,6 +18,7 @@
 	<set name="LIME_OGG" value="1" />
 	<set name="LIME_OPENAL" value="1" />
 	<set name="LIME_OPENGL" value="1" />
+	<set name="LIME_PIXMAN" value="1" if="LIME_CAIRO || LIME_PIXMAN" />
 	<set name="LIME_PNG" value="1" />
 	<set name="LIME_SDL" value="1" />
 	<set name="LIME_VORBIS" value="1" />
@@ -36,6 +38,15 @@
 		<compilerflag value="-Iinclude" />
 		
 		<file name="src/ExternalInterface.cpp" />
+		
+		<section if="LIME_CAIRO">
+			
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include" />
+			<compilerflag value="-DCAIRO_WIN32_STATIC_BUILD" if="windows" />
+			
+			<file name="src/graphics/cairo/CairoBindings.cpp" />
+			
+		</section>
 		
 		<section if="LIME_CURL">
 			
@@ -172,6 +183,7 @@
 		<file name="src/graphics/ImageBuffer.cpp" />
 		<file name="src/graphics/RenderEvent.cpp" />
 		<file name="src/math/ColorMatrix.cpp" />
+		<file name="src/math/Matrix3.cpp" />
 		<file name="src/math/Rectangle.cpp" />
 		<file name="src/math/Vector2.cpp" />
 		<file name="src/ui/GamepadEvent.cpp" />
@@ -183,6 +195,7 @@
 		
 	</files>
 	
+	<include name="lib/cairo/files.xml" if="LIME_CAIRO" />
 	<include name="lib/curl/files.xml" />
 	<include name="lib/freetype/files.xml" />
 	<include name="lib/harfbuzz/files.xml" />
@@ -191,6 +204,7 @@
 	<include name="lib/ogg/files.xml" />
 	<include name="lib/openal/files.xml" />
 	<include name="lib/openal-android/files.xml" if="android" />
+	<include name="lib/pixman/files.xml" if="LIME_PIXMAN" />
 	<include name="lib/png/files.xml" />
 	<include name="lib/sdl/files.xml" />
 	<include name="lib/vorbis/files.xml" />
@@ -204,6 +218,7 @@
 		
 		<files id="lime" />
 		
+		<files id="native-toolkit-cairo" if="LIME_CAIRO" />
 		<files id="native-toolkit-curl" if="LIME_CURL" />
 		<files id="native-toolkit-jpeg" if="LIME_JPEG" />
 		<files id="native-toolkit-freetype" if="LIME_FREETYPE" />
@@ -212,6 +227,7 @@
 		<files id="native-toolkit-ogg" if="LIME_OGG" />
 		<files id="native-toolkit-openal" if="LIME_OPENAL" unless="mac || iphone || android || emscripten" />
 		<files id="native-toolkit-openal-android" if="LIME_OPENAL android" />
+		<files id="native-toolkit-pixman" if="LIME_PIXMAN" />
 		<files id="native-toolkit-png" if="LIME_PNG" />
 		<files id="native-toolkit-sdl" if="LIME_SDL" unless="emscripten" />
 		<files id="native-toolkit-vorbis" if="LIME_VORBIS" />

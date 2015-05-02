@@ -1,6 +1,10 @@
 package lime._backend.native;
 
 
+import lime.graphics.cairo.Cairo;
+import lime.graphics.cairo.CairoFormat;
+import lime.graphics.cairo.CairoSurface;
+import lime.graphics.CairoRenderContext;
 import lime.graphics.ConsoleRenderContext;
 import lime.graphics.GLRenderContext;
 import lime.graphics.Renderer;
@@ -15,6 +19,12 @@ class NativeRenderer {
 	public var handle:Dynamic;
 	
 	private var parent:Renderer;
+	private var useHardware:Bool;
+	
+	#if lime_cairo
+	private var cairo:Cairo;
+	private var primarySurface:CairoSurface;
+	#end
 	
 	
 	public function new (parent:Renderer) {
@@ -28,10 +38,20 @@ class NativeRenderer {
 		
 		handle = lime_renderer_create (parent.window.backend.handle);
 		
+		useHardware = parent.window.config.hardware;
+		
 		#if lime_console
 		parent.context = CONSOLE (new ConsoleRenderContext ());
 		#else
-		parent.context = OPENGL (new GLRenderContext ());
+		if (useHardware) {
+			
+			parent.context = OPENGL (new GLRenderContext ());
+			
+		} else {
+			
+			render ();
+			
+		}
 		#end
 		
 	}
@@ -46,6 +66,19 @@ class NativeRenderer {
 	
 	public function flip ():Void {
 		
+		if (!useHardware) {
+			
+			lime_renderer_unlock (handle);
+			#if lime_cairo
+			if (cairo != null) {
+				
+				primarySurface.flush ();
+				
+			}
+			#end
+			
+		}
+		
 		lime_renderer_flip (handle);
 		
 	}
@@ -53,7 +86,25 @@ class NativeRenderer {
 	
 	public function render ():Void {
 		
-		
+		if (!useHardware) {
+			
+			#if lime_cairo
+			if (cairo != null) {
+				
+				cairo.destroy ();
+				primarySurface.destroy ();
+				
+			}
+			
+			var lock = lime_renderer_lock (handle);
+			primarySurface = CairoSurface.createForData (lock.pixels, CairoFormat.ARGB32, lock.width, lock.height, lock.pitch);
+			cairo = new Cairo (primarySurface);
+			parent.context = CAIRO (cairo);
+			#else
+			parent.context = NONE;
+			#end
+			
+		}
 		
 	}
 	
@@ -67,6 +118,8 @@ class NativeRenderer {
 	
 	private static var lime_renderer_create = System.load ("lime", "lime_renderer_create", 1);
 	private static var lime_renderer_flip = System.load ("lime", "lime_renderer_flip", 1);
+	private static var lime_renderer_lock = System.load ("lime", "lime_renderer_lock", 1);
+	private static var lime_renderer_unlock = System.load ("lime", "lime_renderer_unlock", 1);
 	
 	
 }

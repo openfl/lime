@@ -17,8 +17,11 @@ namespace lime {
 			~SDLRenderer ();
 			
 			virtual void Flip ();
+			virtual value Lock ();
+			virtual void Unlock ();
 			
 			SDL_Renderer* sdlRenderer;
+			SDL_Texture* sdlTexture;
 			SDL_Window* sdlWindow;
 		
 	};

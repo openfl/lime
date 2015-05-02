@@ -709,6 +709,21 @@ namespace lime {
 	}
 	
 	
+	value lime_renderer_lock (value renderer) {
+		
+		return ((Renderer*)(intptr_t)val_float (renderer))->Lock ();
+		
+	}
+	
+	
+	value lime_renderer_unlock (value renderer) {
+		
+		((Renderer*)(intptr_t)val_float (renderer))->Unlock ();
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_system_get_directory (value type, value company, value title) {
 		
 		const char* companyName = "";
@@ -988,6 +1003,8 @@ namespace lime {
 	DEFINE_PRIM (lime_neko_execute, 1);
 	DEFINE_PRIM (lime_renderer_create, 1);
 	DEFINE_PRIM (lime_renderer_flip, 1);
+	DEFINE_PRIM (lime_renderer_lock, 1);
+	DEFINE_PRIM (lime_renderer_unlock, 1);
 	DEFINE_PRIM (lime_render_event_manager_register, 2);
 	DEFINE_PRIM (lime_system_get_directory, 3);
 	DEFINE_PRIM (lime_system_get_timer, 0);

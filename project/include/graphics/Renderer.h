@@ -3,6 +3,7 @@
 
 
 #include <ui/Window.h>
+#include <hx/CFFI.h>
 
 
 namespace lime {
@@ -14,6 +15,8 @@ namespace lime {
 		public:
 			
 			virtual void Flip () = 0;
+			virtual value Lock () = 0;
+			virtual void Unlock () = 0;
 			
 			Window* currentWindow;
 		
