@@ -13,20 +13,41 @@ namespace lime {
 		sdlTexture = 0;
 		
 		int sdlFlags = 0;
+		bool driverFound = false;
 		
 		if (window->flags & WINDOW_FLAG_HARDWARE) {
 			
 			sdlFlags |= SDL_RENDERER_ACCELERATED;
+
+			int numDrivers = SDL_GetNumRenderDrivers ();
+			for (int i = 0; i < numDrivers; ++i)
+			{
+				
+				SDL_RendererInfo info;
+				SDL_GetRenderDriverInfo (i, &info);
+				if (strcmp (info.name, "opengl") == 0 || strcmp (info.name, "opengles2") == 0 || strcmp (info.name, "opengles") ==0 )
+				{
+					
+					SDL_SetHint (SDL_HINT_RENDER_DRIVER, info.name);
+					driverFound = true;
+					break;
+					
+				}
+				
+			}
+			if (!driverFound)
+				printf ("Could not find OpenGL renderer driver");
 			
 		} else {
 			
 			sdlFlags |= SDL_RENDERER_SOFTWARE;
+			driverFound = true;
 			
 		}
 		
 		if (window->flags & WINDOW_FLAG_VSYNC) sdlFlags |= SDL_RENDERER_PRESENTVSYNC;
 		
-		sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlFlags);
+		sdlRenderer = driverFound ? SDL_CreateRenderer (sdlWindow, -1, sdlFlags) : NULL;
 		
 		if (!sdlRenderer) {
 			
