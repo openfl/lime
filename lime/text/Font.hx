@@ -142,25 +142,16 @@ class Font {
 		
 		var bytes = new ByteArray ();
 		bytes.endian = "littleEndian";
+		var data:ByteArray = lime_font_render_glyph (src, glyph, bytes);
 		
-		if (lime_font_render_glyph (src, glyph, bytes)) {
+		if (data != null) {
 			
-			bytes.position = 0;
-			
-			var index = bytes.readUnsignedInt ();
 			var width = bytes.readUnsignedInt ();
 			var height = bytes.readUnsignedInt ();
-			var x = bytes.readUnsignedInt ();
-			var y = bytes.readUnsignedInt ();
+			var x = bytes.readInt ();
+			var y = bytes.readInt ();
 			
-			var data = new ByteArray (width * height);
-			bytes.readBytes (data, 0, width * height);
-			
-			#if js
-			var buffer = new ImageBuffer (data.byteView, width, height, 1);
-			#else
-			var buffer = new ImageBuffer (new UInt8Array (data), width, height, 1);
-			#end
+			var buffer = new ImageBuffer (getUInt8ArrayFromByteArray (data), width, height, 1);
 			var image = new Image (buffer, 0, 0, width, height);
 			image.x = x;
 			image.y = y;
@@ -176,161 +167,42 @@ class Font {
 	}
 	
 	
-	public function renderGlyphs (glyphs:Array<Glyph>, fontSize:Int):Map<Glyph, Image> {
+	public function renderGlyphs (glyphList:Array<Glyph>, fontSize:Int):Array<Image> {
 		
 		#if (cpp || neko || nodejs)
-		
-		var uniqueGlyphs = new Map<Int, Bool> ();
-		
-		for (glyph in glyphs) {
-			
-			uniqueGlyphs.set (glyph, true);
-			
-		}
-		
-		var glyphList = [];
-		
-		for (key in uniqueGlyphs.keys ()) {
-			
-			glyphList.push (key);
-			
-		}
 		
 		lime_font_set_size (src, fontSize);
 		
 		var bytes = new ByteArray ();
 		bytes.endian = "littleEndian";
 		
-		if (lime_font_render_glyphs (src, glyphList, bytes)) {
+		var rawImages:Array<ByteArray> = lime_font_render_glyphs (src, glyphList, bytes);
+		
+		if (rawImages != null) {
 			
-			bytes.position = 0;
-			
-			var count = bytes.readUnsignedInt ();
-			
-			var bufferWidth = 128;
-			var bufferHeight = 128;
-			var offsetX = 0;
-			var offsetY = 0;
-			var maxRows = 0;
-			
-			var width, height;
-			var i = 0;
-			
-			while (i < count) {
+			var results:Array<Image> = [];
+			for (i in 0 ... rawImages.length)
+			{
+				var width = bytes.readUnsignedInt ();
+				var height = bytes.readUnsignedInt ();
+				var x = bytes.readInt ();
+				var y = bytes.readInt ();
 				
-				bytes.position += 4;
-				width = bytes.readUnsignedInt ();
-				height = bytes.readUnsignedInt ();
-				bytes.position += (4 * 2) + width * height;
-				
-				if (offsetX + width > bufferWidth) {
-					
-					offsetY += maxRows + 1;
-					offsetX = 0;
-					maxRows = 0;
-					
-				}
-				
-				if (offsetY + height > bufferHeight) {
-					
-					if (bufferWidth < bufferHeight) {
-						
-						bufferWidth *= 2;
-						
-					} else {
-						
-						bufferHeight *= 2;
-						
-					}
-					
-					offsetX = 0;
-					offsetY = 0;
-					maxRows = 0;
-					
-					// TODO: make this better
-					
-					bytes.position = 4;
-					i = 0;
-					continue;
-					
-				}
-				
-				offsetX += width + 1;
-				
-				if (height > maxRows) {
-					
-					maxRows = height;
-					
-				}
-				
-				i++;
-				
+				var rawImage:ByteArray = rawImages[i];
+                var buffer, image = null;
+                if (rawImage != null)
+                {
+                    
+				    buffer = new ImageBuffer (getUInt8ArrayFromByteArray (rawImage), width, height, 1);
+				    image = new Image (buffer, 0, 0, width, height);
+				    image.x = x;
+				    image.y = y;
+                    
+                }
+                results.push (image);
 			}
 			
-			var map = new Map<Int, Image> ();
-			var buffer = new ImageBuffer (null, bufferWidth, bufferHeight, 1);
-			var data = new ByteArray (bufferWidth * bufferHeight);
-			
-			bytes.position = 4;
-			offsetX = 0;
-			offsetY = 0;
-			maxRows = 0;
-			
-			var index, x, y, image;
-			
-			for (i in 0...count) {
-				
-				index = bytes.readUnsignedInt ();
-				width = bytes.readUnsignedInt ();
-				height = bytes.readUnsignedInt ();
-				x = bytes.readUnsignedInt ();
-				y = bytes.readUnsignedInt ();
-				
-				if (offsetX + width > bufferWidth) {
-					
-					offsetY += maxRows + 1;
-					offsetX = 0;
-					maxRows = 0;
-					
-				}
-				
-				for (i in 0...height) {
-					
-					data.position = ((i + offsetY) * bufferWidth) + offsetX;
-					//bytes.readBytes (data, 0, width);
-					
-					for (x in 0...width) {
-						
-						var byte = bytes.readUnsignedByte ();
-						data.writeByte (byte);
-						
-					}
-					
-				}
-				
-				image = new Image (buffer, offsetX, offsetY, width, height);
-				image.x = x;
-				image.y = y;
-				
-				map.set (index, image);
-				
-				offsetX += width + 1;
-				
-				if (height > maxRows) {
-					
-					maxRows = height;
-					
-				}
-				
-			}
-			
-			#if js
-			buffer.data = data.byteView;
-			#else
-			buffer.data = new UInt8Array (data);
-			#end
-			
-			return map;
+			return results;
 			
 		}
 		
@@ -462,7 +334,14 @@ class Font {
 		
 	}
 	
-	
+	private inline function getUInt8ArrayFromByteArray(ba:ByteArray)
+	{
+		#if nodejs
+		return ba.byteView;
+		#else
+		return new UInt8Array(ba);
+		#end
+	}
 	
 	
 	// Native Methods

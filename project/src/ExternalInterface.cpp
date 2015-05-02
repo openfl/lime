@@ -314,9 +314,9 @@ namespace lime {
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)(intptr_t)val_float (fontHandle);
 		ByteArray bytes = ByteArray (data);
-		return alloc_bool (font->RenderGlyph (val_int (index), &bytes));
+		return font->RenderGlyph (val_int (index), &bytes);
 		#else
-		return alloc_bool (false);
+		return alloc_null ();
 		#endif
 		
 	}
@@ -327,9 +327,9 @@ namespace lime {
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)(intptr_t)val_float (fontHandle);
 		ByteArray bytes = ByteArray (data);
-		return alloc_bool (font->RenderGlyphs (indices, &bytes));
+		return font->RenderGlyphs (indices, &bytes);
 		#else
-		return alloc_bool (false);
+		return alloc_null ();
 		#endif
 		
 	}
