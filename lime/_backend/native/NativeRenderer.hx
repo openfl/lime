@@ -106,6 +106,8 @@ class NativeRenderer {
 				parent.context = CAIRO (cairo);
 				
 			}
+			
+			cacheLock = lock;
 			#else
 			parent.context = NONE;
 			#end
