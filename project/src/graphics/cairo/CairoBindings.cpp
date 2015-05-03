@@ -14,6 +14,14 @@ namespace lime {
 	}
 	
 	
+	value lime_cairo_arc_negative (value *arg, int argCount) {
+		
+		cairo_arc_negative ((cairo_t*)(intptr_t)val_float (arg[0]), val_number (arg[1]), val_number (arg[2]), val_number (arg[3]), val_number (arg[4]), val_number (arg[5]));
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_cairo_clip (value handle) {
 		
 		cairo_clip ((cairo_t*)(intptr_t)val_float (handle));
@@ -113,6 +121,13 @@ namespace lime {
 	}
 	
 	
+	value lime_cairo_get_target (value handle) {
+		
+		return alloc_float ((intptr_t)cairo_get_target ((cairo_t*)(intptr_t)val_float (handle)));
+		
+	}
+	
+	
 	value lime_cairo_image_surface_create (value format, value width, value height) {
 		
 		return alloc_float ((intptr_t)cairo_image_surface_create ((cairo_format_t)val_int (format), val_int (width), val_int (height)));
@@ -123,6 +138,20 @@ namespace lime {
 	value lime_cairo_image_surface_create_for_data (value data, value format, value width, value height, value stride) {
 		
 		return alloc_float ((intptr_t)cairo_image_surface_create_for_data ((unsigned char*)(intptr_t)val_float (data), (cairo_format_t)val_int (format), val_int (width), val_int (height), val_int (stride)));
+		
+	}
+	
+	
+	value lime_cairo_image_surface_get_height (value handle) {
+		
+		return alloc_int ((intptr_t)cairo_image_surface_get_height ((cairo_surface_t*)(intptr_t)val_float (handle)));
+		
+	}
+	
+	
+	value lime_cairo_image_surface_get_width (value handle) {
+		
+		return alloc_int ((intptr_t)cairo_image_surface_get_width ((cairo_surface_t*)(intptr_t)val_float (handle)));
 		
 	}
 	
@@ -436,6 +465,14 @@ namespace lime {
 	}
 	
 	
+	value lime_cairo_translate (value handle, value x, value y) {
+		
+		cairo_translate ((cairo_t*)(intptr_t)val_float (handle), val_number (x), val_number (y));
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_cairo_version () {
 		
 		return alloc_int (cairo_version ());
@@ -451,6 +488,7 @@ namespace lime {
 	
 	
 	DEFINE_PRIM_MULT (lime_cairo_arc);
+	DEFINE_PRIM_MULT (lime_cairo_arc_negative);
 	DEFINE_PRIM (lime_cairo_clip, 1);
 	DEFINE_PRIM (lime_cairo_close_path, 1);
 	DEFINE_PRIM (lime_cairo_create, 1);
@@ -464,8 +502,11 @@ namespace lime {
 	DEFINE_PRIM (lime_cairo_get_miter_limit, 1);
 	DEFINE_PRIM (lime_cairo_get_operator, 1);
 	DEFINE_PRIM (lime_cairo_get_source, 1);
+	DEFINE_PRIM (lime_cairo_get_target, 1);
 	DEFINE_PRIM (lime_cairo_image_surface_create, 3);
 	DEFINE_PRIM (lime_cairo_image_surface_create_for_data, 5);
+	DEFINE_PRIM (lime_cairo_image_surface_get_height, 1);
+	DEFINE_PRIM (lime_cairo_image_surface_get_width, 1);
 	DEFINE_PRIM (lime_cairo_line_to, 3);
 	DEFINE_PRIM (lime_cairo_mask, 2);
 	DEFINE_PRIM (lime_cairo_move_to, 3);
@@ -503,6 +544,7 @@ namespace lime {
 	DEFINE_PRIM (lime_cairo_surface_destroy, 1);
 	DEFINE_PRIM (lime_cairo_surface_flush, 1);
 	DEFINE_PRIM (lime_cairo_transform, 2);
+	DEFINE_PRIM (lime_cairo_translate, 3);
 	DEFINE_PRIM (lime_cairo_version, 0);
 	DEFINE_PRIM (lime_cairo_version_string, 0);
 	

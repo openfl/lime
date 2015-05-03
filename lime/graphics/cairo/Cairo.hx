@@ -18,6 +18,7 @@ class Cairo {
 	public var miterLimit (get, set):Float;
 	public var operator (get, set):CairoOperator;
 	public var source (get, set):CairoPattern;
+	public var target (get, null):CairoSurface;
 	
 	private var handle:Dynamic;
 	
@@ -39,6 +40,15 @@ class Cairo {
 		
 		#if lime_cairo
 		lime_cairo_arc (handle, xc, yc, radius, angle1, angle2);
+		#end
+		
+	}
+	
+	
+	public function arcNegative (xc:Float, yc:Float, radius:Float, angle1:Float, angle2:Float):Void {
+		
+		#if lime_cairo
+		lime_cairo_arc_negative (handle, xc, yc, radius, angle1, angle2);
 		#end
 		
 	}
@@ -271,6 +281,15 @@ class Cairo {
 	}
 	
 	
+	public function translate (x:Float, y:Float):Void {
+		
+		#if lime_cairo
+		lime_cairo_translate (handle, x, y);
+		#end
+		
+	}
+	
+	
 	
 	
 	// Get & Set Methods
@@ -433,6 +452,17 @@ class Cairo {
 	}
 	
 	
+	private function get_target ():CairoSurface {
+		
+		#if lime_cairo
+		return lime_cairo_get_target (handle);
+		#else
+		return cast 0;
+		#end
+		
+	}
+	
+	
 	private static function get_version ():Int {
 		
 		#if lime_cairo
@@ -464,6 +494,7 @@ class Cairo {
 	
 	#if lime_cairo
 	private static var lime_cairo_arc = System.load ("lime", "lime_cairo_arc", -1);
+	private static var lime_cairo_arc_negative = System.load ("lime", "lime_cairo_arc_negative", -1);
 	private static var lime_cairo_clip = System.load ("lime", "lime_cairo_clip", 1);
 	private static var lime_cairo_close_path = System.load ("lime", "lime_cairo_close_path", 1);
 	private static var lime_cairo_create = System.load ("lime", "lime_cairo_create", 1);
@@ -477,6 +508,7 @@ class Cairo {
 	private static var lime_cairo_get_miter_limit = System.load ("lime", "lime_cairo_get_miter_limit", 1);
 	private static var lime_cairo_get_operator = System.load ("lime", "lime_cairo_get_operator", 1);
 	private static var lime_cairo_get_source = System.load ("lime", "lime_cairo_get_source", 1);
+	private static var lime_cairo_get_target = System.load ("lime", "lime_cairo_get_target", 1);
 	private static var lime_cairo_line_to = System.load ("lime", "lime_cairo_line_to", 3);
 	private static var lime_cairo_mask = System.load ("lime", "lime_cairo_mask", 2);
 	private static var lime_cairo_move_to = System.load ("lime", "lime_cairo_move_to", 3);
@@ -504,6 +536,7 @@ class Cairo {
 	private static var lime_cairo_stroke = System.load ("lime", "lime_cairo_stroke", 1);
 	private static var lime_cairo_stroke_preserve = System.load ("lime", "lime_cairo_stroke_preserve", 1);
 	private static var lime_cairo_transform = System.load ("lime", "lime_cairo_transform", 2);
+	private static var lime_cairo_translate = System.load ("lime", "lime_cairo_translate", 3);
 	private static var lime_cairo_version = System.load ("lime", "lime_cairo_version", 0);
 	private static var lime_cairo_version_string = System.load ("lime", "lime_cairo_version_string", 0);
 	#end
