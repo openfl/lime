@@ -99,6 +99,15 @@ class Cairo {
 	}
 	
 	
+	public function identityMatrix ():Void {
+		
+		#if lime_cairo
+		lime_cairo_identity_matrix (handle);
+		#end
+		
+	}
+	
+	
 	public function lineTo (x:Float, y:Float):Void {
 		
 		#if lime_cairo
@@ -509,6 +518,7 @@ class Cairo {
 	private static var lime_cairo_get_operator = System.load ("lime", "lime_cairo_get_operator", 1);
 	private static var lime_cairo_get_source = System.load ("lime", "lime_cairo_get_source", 1);
 	private static var lime_cairo_get_target = System.load ("lime", "lime_cairo_get_target", 1);
+	private static var lime_cairo_identity_matrix = System.load ("lime", "lime_cairo_identity_matrix", 1);
 	private static var lime_cairo_line_to = System.load ("lime", "lime_cairo_line_to", 3);
 	private static var lime_cairo_mask = System.load ("lime", "lime_cairo_mask", 2);
 	private static var lime_cairo_move_to = System.load ("lime", "lime_cairo_move_to", 3);
