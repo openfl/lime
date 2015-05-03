@@ -22,6 +22,7 @@ class NativeRenderer {
 	private var useHardware:Bool;
 	
 	#if lime_cairo
+	private var cacheLock:Dynamic;
 	private var cairo:Cairo;
 	private var primarySurface:CairoSurface;
 	#end
@@ -89,17 +90,22 @@ class NativeRenderer {
 		if (!useHardware) {
 			
 			#if lime_cairo
-			if (cairo != null) {
+			var lock = lime_renderer_lock (handle);
+			
+			if (cacheLock == null || cacheLock.pixels != lock.pixels || cacheLock.width != lock.width || cacheLock.height != lock.height) {
 				
-				cairo.destroy ();
-				primarySurface.destroy ();
+				if (cairo != null) {
+					
+					cairo.destroy ();
+					primarySurface.destroy ();
+					
+				}
+				
+				primarySurface = CairoSurface.createForData (lock.pixels, CairoFormat.ARGB32, lock.width, lock.height, lock.pitch);
+				cairo = new Cairo (primarySurface);
+				parent.context = CAIRO (cairo);
 				
 			}
-			
-			var lock = lime_renderer_lock (handle);
-			primarySurface = CairoSurface.createForData (lock.pixels, CairoFormat.ARGB32, lock.width, lock.height, lock.pitch);
-			cairo = new Cairo (primarySurface);
-			parent.context = CAIRO (cairo);
 			#else
 			parent.context = NONE;
 			#end
