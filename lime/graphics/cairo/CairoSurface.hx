@@ -1,4 +1,4 @@
-package lime.graphics.cairo;
+package lime.graphics.cairo; #if !macro
 
 
 import lime.graphics.Image;
@@ -112,3 +112,6 @@ abstract CairoSurface(Dynamic) {
 	
 	
 }
+
+
+#end
