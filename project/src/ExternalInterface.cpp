@@ -549,6 +549,16 @@ namespace lime {
 	}
 	
 	
+	value lime_image_data_util_set_format (value image, value format) {
+		
+		Image _image = Image (image);
+		PixelFormat _format = (PixelFormat)val_int (format);
+		ImageDataUtil::SetFormat (&_image, _format);
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_image_data_util_set_pixels (value image, value rect, value bytes, value format) {
 		
 		Image _image = Image (image);
@@ -985,6 +995,7 @@ namespace lime {
 	DEFINE_PRIM_MULT (lime_image_data_util_merge);
 	DEFINE_PRIM (lime_image_data_util_multiply_alpha, 1);
 	DEFINE_PRIM (lime_image_data_util_resize, 4);
+	DEFINE_PRIM (lime_image_data_util_set_format, 2);
 	DEFINE_PRIM (lime_image_data_util_set_pixels, 4);
 	DEFINE_PRIM (lime_image_data_util_unmultiply_alpha, 1);
 	DEFINE_PRIM (lime_image_encode, 3);

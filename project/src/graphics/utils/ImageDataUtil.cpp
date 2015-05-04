@@ -478,6 +478,90 @@ namespace lime {
 	}
 	
 	
+	void ImageDataUtil::SetFormat (Image* image, PixelFormat format) {
+		
+		int index, a16;
+		int length = image->buffer->data->Size () / 4;
+		int r1, g1, b1, a1, r2, g2, b2, a2;
+		int r, g, b, a;
+		
+		switch (image->buffer->format) {
+			
+			case RGBA:
+				
+				r1 = 0;
+				g1 = 1;
+				b1 = 2;
+				a1 = 3;
+				break;
+			
+			case ARGB:
+				
+				r1 = 1;
+				g1 = 2;
+				b1 = 3;
+				a1 = 0;
+				break;
+			
+			case BGRA:
+				
+				r1 = 2;
+				g1 = 1;
+				b1 = 0;
+				a1 = 3;
+				break;
+			
+		}
+		
+		switch (format) {
+			
+			case RGBA:
+				
+				r2 = 0;
+				g2 = 1;
+				b2 = 2;
+				a2 = 3;
+				break;
+			
+			case ARGB:
+				
+				r2 = 1;
+				g2 = 2;
+				b2 = 3;
+				a2 = 0;
+				break;
+			
+			case BGRA:
+				
+				r2 = 2;
+				g2 = 1;
+				b2 = 0;
+				a2 = 3;
+				break;
+			
+		}
+		
+		unsigned char* data = image->buffer->data->Bytes ();
+		
+		for (int i = 0; i < length; i++) {
+			
+			index = i * 4;
+			
+			r = data[index + r1];
+			g = data[index + g1];
+			b = data[index + b1];
+			a = data[index + a1];
+			
+			data[index + r2] = r;
+			data[index + g2] = g;
+			data[index + b2] = b;
+			data[index + a2] = a;
+			
+		}
+		
+	}
+	
+	
 	void ImageDataUtil::SetPixels (Image* image, Rectangle* rect, ByteArray* bytes, PixelFormat format) {
 		
 		if (format == RGBA && rect->width == image->buffer->width && rect->height == image->buffer->height && rect->x == 0 && rect->y == 0) {

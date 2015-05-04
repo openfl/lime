@@ -1002,6 +1002,15 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	#end
 	
 	
+	#if (cpp || neko || nodejs)
+	public function __getNativePointer ():Dynamic {
+		
+		return lime_byte_array_get_native_pointer (this);
+		
+	}
+	#end
+	
+	
 	#if js
 	private function __getUTFBytesCount (value:String):Int {
 		
@@ -1154,6 +1163,7 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	
 	
 	
+	private static var lime_byte_array_get_native_pointer = System.load ("lime", "lime_byte_array_get_native_pointer", 1);
 	private static var lime_byte_array_overwrite_file = System.load ("lime", "lime_byte_array_overwrite_file", 2);
 	private static var lime_byte_array_read_file = System.load ("lime", "lime_byte_array_read_file", 1);
 	private static var lime_lzma_decode = System.load ("lime", "lime_lzma_decode", 1);

@@ -1,7 +1,10 @@
 package lime.graphics.cairo;
 
 
+import lime.graphics.Image;
 import lime.system.System;
+
+@:access(haxe.io.Bytes)
 
 
 abstract CairoSurface(Dynamic) {
@@ -46,6 +49,17 @@ abstract CairoSurface(Dynamic) {
 		
 		#if lime_cairo
 		lime_cairo_surface_flush (this);
+		#end
+		
+	}
+	
+	
+	public static function fromImage (image:Image):CairoSurface {
+		
+		#if lime_cairo
+		return createForData (image.data.buffer.__getNativePointer (), CairoFormat.ARGB32, image.width, image.height, image.buffer.stride);
+		#else
+		return null;
 		#end
 		
 	}

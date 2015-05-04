@@ -1,9 +1,10 @@
 package lime.graphics;
 
 
-enum PixelFormat {
+@:enum abstract PixelFormat(Int) from Int to Int {
 	
-	RGBA;
-	ARGB;
+	public var RGBA = 0;
+	public var ARGB = 1;
+	public var BGRA = 2;
 	
 }

@@ -2,6 +2,7 @@ package lime.graphics;
 
 
 import haxe.io.Bytes;
+import lime.graphics.cairo.CairoSurface;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 
@@ -24,9 +25,11 @@ class ImageBuffer {
 	
 	public var bitsPerPixel:Int;
 	public var data:UInt8Array;
+	public var format:PixelFormat;
 	public var height:Int;
 	public var premultiplied:Bool;
 	public var src (get, set):Dynamic;
+	public var stride (get, never):Int;
 	public var transparent:Bool;
 	public var width:Int;
 	
@@ -38,12 +41,13 @@ class ImageBuffer {
 	@:noCompletion private var __srcImageData:#if (js && html5) ImageData #else Dynamic #end;
 	
 	
-	public function new (data:UInt8Array = null, width:Int = 0, height:Int = 0, bitsPerPixel:Int = 4) {
+	public function new (data:UInt8Array = null, width:Int = 0, height:Int = 0, bitsPerPixel:Int = 4, format:PixelFormat = null) {
 		
 		this.data = data;
 		this.width = width;
 		this.height = height;
 		this.bitsPerPixel = bitsPerPixel;
+		this.format = (format == null ? RGBA : format);
 		transparent = true;
 		
 	}
@@ -165,6 +169,13 @@ class ImageBuffer {
 		#end
 		
 		return value;
+		
+	}
+	
+	
+	private function get_stride ():Int {
+		
+		return width * 4;
 		
 	}
 	
