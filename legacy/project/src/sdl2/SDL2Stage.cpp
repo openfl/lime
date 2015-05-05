@@ -6,6 +6,7 @@
 #include <KeyCodes.h>
 #include <map>
 #include <Sound.h>
+#include <utf8.h>
 
 #ifdef NME_MIXER
 #include <SDL_mixer.h>
@@ -675,9 +676,19 @@ public:
    }   
 
    
+   bool textInputEnabled;
    void EnablePopupKeyboard(bool enabled)
    {
-      
+      //fprintf(stderr, enabled ? "popup keyboard enabled true\n" : "popup keyboard enabled false\n");
+      if (!textInputEnabled && enabled)
+      {
+         SDL_StartTextInput();
+      }
+      else if (textInputEnabled && !enabled)
+      {
+         SDL_StopTextInput();
+      }
+      textInputEnabled = enabled;
    }
    
    
@@ -1111,7 +1122,7 @@ void AddCharCode(Event &key)
 
 
 std::map<int,wchar_t> sLastUnicode;
-
+Event textInputEvent;
 
 void ProcessEvent(SDL_Event &inEvent)
 {
@@ -1259,31 +1270,33 @@ void ProcessEvent(SDL_Event &inEvent)
          sgSDLFrame->ProcessEvent(mouse);
          break;
       }
+      case SDL_TEXTINPUT:
+      {
+         int cp = utf8::peek_next(inEvent.text.text, inEvent.text.text+32);
+         textInputEvent.code = cp;
+         sgSDLFrame->ProcessEvent(textInputEvent);
+         break;
+      }
       case SDL_KEYDOWN:
       case SDL_KEYUP:
       {
          Event key(inEvent.type == SDL_KEYDOWN ? etKeyDown : etKeyUp );
          bool right;
          key.value = SDLKeyToFlash(inEvent.key.keysym.sym, right);
-         /*if (inEvent.type == SDL_KEYDOWN)
-         {
-            //key.code = key.value==keyBACKSPACE ? keyBACKSPACE : inEvent.key.keysym.unicode;
-            key.code = inEvent.key.keysym.scancode;
-            sLastUnicode[inEvent.key.keysym.scancode] = key.code;
-         }
-         else
-            // SDL does not provide unicode on key up, so remember it,
-            //  keyed by scancode
-            key.code = sLastUnicode[inEvent.key.keysym.scancode];*/
-         //key.code = 0;
          AddModStates(key.flags, inEvent.key.keysym.mod);
          if (right)
             key.flags |= efLocationRight;
          
-         // SDL2 does not expose char codes in key events (due to the more advanced
-         // Unicode event API), so we'll add some ASCII assumptions to return something
          AddCharCode(key);
-         sgSDLFrame->ProcessEvent(key);
+         if (inEvent.type == SDL_KEYDOWN && sgSDLFrame->mStage->textInputEnabled && !iscntrl(key.code))
+         {
+            // Wait for text input event for correct keyboard layout handling
+            textInputEvent = key;
+         }
+         else
+         {
+            sgSDLFrame->ProcessEvent(key);
+         }
          break;
       }
       case SDL_JOYAXISMOTION:
