@@ -69,7 +69,6 @@ class NativeRenderer {
 		
 		if (!useHardware) {
 			
-			lime_renderer_unlock (handle);
 			#if lime_cairo
 			if (cairo != null) {
 				
@@ -77,6 +76,7 @@ class NativeRenderer {
 				
 			}
 			#end
+			lime_renderer_unlock (handle);
 			
 		}
 		
