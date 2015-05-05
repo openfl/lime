@@ -1029,7 +1029,7 @@ class ImageDataUtil {
 		
 		var data = image.buffer.data;
 		var offset = (4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4);
-		if (format == null || format == RGBA) color = color >> 8;
+		if (format == RGBA) color = color >> 8;
 		
 		data[offset] = (color & 0xFF0000) >>> 16;
 		data[offset + 1] = (color & 0x00FF00) >>> 8;
