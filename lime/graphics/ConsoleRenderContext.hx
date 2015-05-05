@@ -12,6 +12,7 @@ import lime.graphics.console.Shader;
 import lime.graphics.console.Primitive;
 import lime.graphics.console.RenderState;
 import lime.graphics.console.Texture;
+import lime.graphics.console.TextureAddressMode;
 import lime.graphics.console.TextureFilter;
 import lime.graphics.console.TextureFormat;
 import lime.graphics.console.VertexBuffer;
@@ -56,6 +57,7 @@ extern class ConsoleRenderContext {
 
 	public function setTexture (sampler:Int, texture:Texture):Void;
 	public function setTextureFilter (sampler:Int, min:TextureFilter, mag:TextureFilter):Void;
+	public function setTextureAddressMode (sampler:Int, u:TextureAddressMode, v:TextureAddressMode):Void;
 
 	public function draw (primitive:Primitive, startVertex:UInt32, primitiveCount:UInt32):Void;
 	public function drawIndexed (primitive:Primitive, vertexCount:UInt32, startIndex:UInt32, primitiveCount:UInt32):Void;
@@ -260,6 +262,16 @@ class ConsoleRenderContext {
 		untyped __cpp__ (
 			"lime::hxapi::ConsoleRenderContext()->setTextureFilter ({0}, {1}, {2})",
 			sampler, min, mag
+		);
+
+	}
+
+
+	public inline function setTextureAddressMode (sampler:Int, u:TextureAddressMode, v:TextureAddressMode):Void {
+
+		untyped __cpp__ (
+			"lime::hxapi::ConsoleRenderContext()->setTextureAddressMode ({0}, {1}, {2})",
+			sampler, u, v
 		);
 
 	}
