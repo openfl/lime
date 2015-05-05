@@ -5,8 +5,8 @@ import lime.graphics.console.VertexOutput;
 import lime.ConsoleIncludePaths;
 
 
-@:include("ConsoleHaxeAPI.h")
-@:native("lime::hxapi::ConsoleVertexBuffer")
+@:include("ConsoleVertexBuffer.h")
+@:native("cpp::Struct<lime::ConsoleVertexBuffer>")
 extern class VertexBuffer {
 
 	public function lock ():VertexOutput;

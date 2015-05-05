@@ -6,8 +6,8 @@ import cpp.UInt16;
 import lime.ConsoleIncludePaths;
 
 
-@:include("ConsoleHaxeAPI.h")
-@:native("lime::hxapi::ConsoleIndexBuffer")
+@:include("ConsoleIndexBuffer.h")
+@:native("cpp::Struct<lime::ConsoleIndexBuffer>")
 extern class IndexBuffer {
 
 	public function lock ():Pointer<UInt16>;

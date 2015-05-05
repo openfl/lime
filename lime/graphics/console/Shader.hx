@@ -4,8 +4,8 @@ package lime.graphics.console; #if lime_console
 import lime.ConsoleIncludePaths;
 
 
-@:include("ConsoleHaxeAPI.h")
-@:native("lime::hxapi::ConsoleShader")
+@:include("ConsoleShader.h")
+@:native("cpp::Struct<lime::ConsoleShader>")
 extern class Shader {
 
 	

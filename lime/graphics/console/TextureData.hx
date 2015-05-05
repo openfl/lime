@@ -8,8 +8,8 @@ import lime.system.System;
 import lime.utils.ByteArray;
 
 
-@:include("ConsoleHaxeAPI.h")
-@:native("lime::hxapi::ConsoleTextureData")
+@:include("ConsoleTextureData.h")
+@:native("cpp::Struct<lime::ConsoleTextureData>")
 extern class TextureData {
 
 

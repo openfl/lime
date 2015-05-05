@@ -6,8 +6,8 @@ import cpp.UInt8;
 import lime.ConsoleIncludePaths;
 
 
-@:include("ConsoleHaxeAPI.h")
-@:native("lime::hxapi::ConsoleVertexOutput")
+@:include("ConsoleVertexOutput.h")
+@:native("cpp::Struct<lime::ConsoleVertexOutput>")
 extern class VertexOutput {
 
 	public function vec2 (x:Float32, y:Float32):Void;

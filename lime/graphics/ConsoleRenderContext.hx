@@ -27,8 +27,8 @@ import lime.utils.Float32Array;
 #if 0
 
 
-@:include("ConsoleHaxeAPI.h")
-@:native("lime::hxapi::ConsoleRenderContext")
+@:include("ConsoleRenderContext.h")
+@:native("cpp::Struct<lime::ConsoleRenderContext>")
 extern class ConsoleRenderContext {
 
 	public var width (get, never):Int;
@@ -71,6 +71,7 @@ extern class ConsoleRenderContext {
 #else
 
 
+@:headerCode("#include <ConsoleRenderContext.h>")
 class ConsoleRenderContext {
 
 
@@ -87,7 +88,7 @@ class ConsoleRenderContext {
 	public function createIndexBuffer (indices:Pointer<UInt16>, count:Int):IndexBuffer {
 
 		return untyped __cpp__ (
-			"lime::hxapi::ConsoleRenderContext()->createIndexBuffer ({0}, {1})",
+			"lime::ConsoleRenderContext().createIndexBuffer ({0}, {1})",
 			indices, count
 		);
 
@@ -97,7 +98,7 @@ class ConsoleRenderContext {
 	public function createVertexBuffer (decl:VertexDecl, count:Int):VertexBuffer {
 
 		return untyped __cpp__ (
-			"lime::hxapi::ConsoleRenderContext()->createVertexBuffer ({0}, {1})",
+			"lime::ConsoleRenderContext().createVertexBuffer ({0}, {1})",
 			decl, count
 		);
 
@@ -107,7 +108,7 @@ class ConsoleRenderContext {
 	public function createTexture (format:TextureFormat, width:Int, height:Int, data:Pointer<UInt8>):Texture {
 
 		return untyped __cpp__ (
-			"lime::hxapi::ConsoleRenderContext()->createTexture ({0}, {1}, {2}, {3})",
+			"lime::ConsoleRenderContext().createTexture ({0}, {1}, {2}, {3})",
 			format, width, height, data
 		);
 
@@ -117,7 +118,7 @@ class ConsoleRenderContext {
 	public function destroyIndexBuffer (ib:IndexBuffer):Void {
 
 		untyped __cpp__ (
-			"lime::hxapi::ConsoleRenderContext()->destroyIndexBuffer ({0})",
+			"lime::ConsoleRenderContext().destroyIndexBuffer ({0})",
 			ib
 		);
 
@@ -128,7 +129,7 @@ class ConsoleRenderContext {
 	public function destroyVertexBuffer (vb:VertexBuffer):Void {
 
 		untyped __cpp__ (
-			"lime::hxapi::ConsoleRenderContext()->destroyVertexBuffer ({0})",
+			"lime::ConsoleRenderContext().destroyVertexBuffer ({0})",
 			vb
 		);
 
@@ -138,7 +139,7 @@ class ConsoleRenderContext {
 	public function destroyTexture (tex:Texture):Void {
 
 		untyped __cpp__ (
-			"lime::hxapi::ConsoleRenderContext()->destroyTexture ({0})",
+			"lime::ConsoleRenderContext().destroyTexture ({0})",
 			tex
 		);
 
@@ -148,7 +149,7 @@ class ConsoleRenderContext {
 	public function lookupShader (name:String):Shader {
 
 		return untyped __cpp__ (
-			"lime::hxapi::ConsoleRenderContext()->lookupShader ({0})",
+			"lime::ConsoleRenderContext().lookupShader ({0})",
 			name
 		);
 
@@ -158,7 +159,7 @@ class ConsoleRenderContext {
 	public inline function clear (r:UInt8, g:UInt8, b:UInt8, a:UInt8, depth:Float32 = 1.0, stencil:UInt8 = 0):Void {
 
 		untyped __cpp__ (
-			"lime::hxapi::ConsoleRenderContext()->clear ({0}, {1}, {2}, {3}, {4}, {5})",
+			"lime::ConsoleRenderContext().clear ({0}, {1}, {2}, {3}, {4}, {5})",
 			r, g, b, a, depth, stencil
 		);
 
@@ -168,7 +169,7 @@ class ConsoleRenderContext {
 	public inline function bindShader (shader:Shader):Void {
 
 		untyped __cpp__ (
-			"lime::hxapi::ConsoleRenderContext()->bindShader ({0})",
+			"lime::ConsoleRenderContext().bindShader ({0})",
 			shader
 		);
 
@@ -178,7 +179,7 @@ class ConsoleRenderContext {
 	public function setViewport (x:UInt16, y:UInt16, width:UInt16, height:UInt16, nearPlane:Float32 = 0.0, farPlane:Float32 = 1.0):Void {
 
 		untyped __cpp__ (
-			"lime::hxapi::ConsoleRenderContext()->setViewport ({0}, {1}, {2}, {3}, {4}, {5})",
+			"lime::ConsoleRenderContext().setViewport ({0}, {1}, {2}, {3}, {4}, {5})",
 			x, y, width, height, nearPlane, farPlane
 		);
 
@@ -188,7 +189,7 @@ class ConsoleRenderContext {
 	public function setRasterizerState (state:RasterizerState):Void {
 
 		untyped __cpp__ (
-			"lime::hxapi::ConsoleRenderContext()->setRasterizerState ({0})",
+			"lime::ConsoleRenderContext().setRasterizerState ({0})",
 			state
 		);
 
@@ -198,7 +199,7 @@ class ConsoleRenderContext {
 	public function setDepthStencilState (state:DepthStencilState):Void {
 
 		untyped __cpp__ (
-			"lime::hxapi::ConsoleRenderContext()->setDepthStencilState ({0})",
+			"lime::ConsoleRenderContext().setDepthStencilState ({0})",
 			state
 		);
 
@@ -208,7 +209,7 @@ class ConsoleRenderContext {
 	public function setBlendState (state:BlendState):Void {
 
 		untyped __cpp__ (
-			"lime::hxapi::ConsoleRenderContext()->setBlendState ({0})",
+			"lime::ConsoleRenderContext().setBlendState ({0})",
 			state
 		);
 
@@ -218,7 +219,7 @@ class ConsoleRenderContext {
 	public inline function setVertexShaderConstantF (startRegister:Int, vec4:cpp.Pointer<Float32>, vec4count:Int):Void {
 
 		untyped __cpp__ (
-			"lime::hxapi::ConsoleRenderContext()->setVertexShaderConstantF ({0}, (float *){1}, {2})",
+			"lime::ConsoleRenderContext().setVertexShaderConstantF ({0}, (float *){1}, {2})",
 			startRegister,
 			vec4,
 			vec4count
@@ -230,7 +231,7 @@ class ConsoleRenderContext {
 	public inline function setVertexSource (vb:VertexBuffer):Void {
 
 		untyped __cpp__ (
-			"lime::hxapi::ConsoleRenderContext()->setVertexSource ({0})",
+			"lime::ConsoleRenderContext().setVertexSource ({0})",
 			vb
 		);
 
@@ -240,7 +241,7 @@ class ConsoleRenderContext {
 	public inline function setIndexSource (ib:IndexBuffer):Void {
 
 		untyped __cpp__ (
-			"lime::hxapi::ConsoleRenderContext()->setIndexSource ({0})",
+			"lime::ConsoleRenderContext().setIndexSource ({0})",
 			ib
 		);
 
@@ -250,7 +251,7 @@ class ConsoleRenderContext {
 	public inline function setTexture (sampler:Int, texture:Texture):Void {
 
 		untyped __cpp__ (
-			"lime::hxapi::ConsoleRenderContext()->setTexture ({0}, {1})",
+			"lime::ConsoleRenderContext().setTexture ({0}, {1})",
 			sampler, texture
 		);
 
@@ -260,7 +261,7 @@ class ConsoleRenderContext {
 	public inline function setTextureFilter (sampler:Int, min:TextureFilter, mag:TextureFilter):Void {
 
 		untyped __cpp__ (
-			"lime::hxapi::ConsoleRenderContext()->setTextureFilter ({0}, {1}, {2})",
+			"lime::ConsoleRenderContext().setTextureFilter ({0}, {1}, {2})",
 			sampler, min, mag
 		);
 
@@ -270,7 +271,7 @@ class ConsoleRenderContext {
 	public inline function setTextureAddressMode (sampler:Int, u:TextureAddressMode, v:TextureAddressMode):Void {
 
 		untyped __cpp__ (
-			"lime::hxapi::ConsoleRenderContext()->setTextureAddressMode ({0}, {1}, {2})",
+			"lime::ConsoleRenderContext().setTextureAddressMode ({0}, {1}, {2})",
 			sampler, u, v
 		);
 
@@ -280,7 +281,7 @@ class ConsoleRenderContext {
 	public inline function draw (primitive:Primitive, startVertex:UInt32, primitiveCount:UInt32):Void {
 
 		untyped __cpp__ (
-			"lime::hxapi::ConsoleRenderContext()->draw ({0}, {1}, {2})",
+			"lime::ConsoleRenderContext().draw ({0}, {1}, {2})",
 			primitive, startVertex, primitiveCount
 		);
 
@@ -290,7 +291,7 @@ class ConsoleRenderContext {
 	public inline function drawIndexed (primitive:Primitive, vertexCount:UInt32, startIndex:UInt32, primitiveCount:UInt32):Void {
 
 		untyped __cpp__ (
-			"lime::hxapi::ConsoleRenderContext()->drawIndexed ({0}, {1}, {2}, {3})",
+			"lime::ConsoleRenderContext().drawIndexed ({0}, {1}, {2}, {3})",
 			primitive, vertexCount, startIndex, primitiveCount
 		);
 
@@ -299,14 +300,14 @@ class ConsoleRenderContext {
 
 	private inline function get_width ():Int {
 		
-		return untyped __cpp__ ("lime::hxapi::ConsoleRenderContext()->get_width ()");
+		return untyped __cpp__ ("lime::ConsoleRenderContext().get_width ()");
 
 	}
 
 
 	private inline function get_height ():Int {
 		
-		return untyped __cpp__ ("lime::hxapi::ConsoleRenderContext()->get_height ()");
+		return untyped __cpp__ ("lime::ConsoleRenderContext().get_height ()");
 
 	}
 	

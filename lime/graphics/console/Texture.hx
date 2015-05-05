@@ -6,8 +6,8 @@ import cpp.Pointer;
 import lime.ConsoleIncludePaths;
 
 
-@:include("ConsoleHaxeAPI.h")
-@:native("lime::hxapi::ConsoleTexture")
+@:include("ConsoleTexture.h")
+@:native("cpp::Struct<lime::ConsoleTexture>")
 extern class Texture {
 	
 	// valid returns true if this represents a non-zero handle to a texture.
