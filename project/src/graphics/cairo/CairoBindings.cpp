@@ -1,5 +1,6 @@
 #include <cairo.h>
 #include <math/Matrix3.h>
+#include <math/Vector2.h>
 #include <hx/CFFI.h>
 
 
@@ -126,6 +127,16 @@ namespace lime {
 	}
 	
 	
+	value lime_cairo_get_current_point (value handle) {
+		
+		double x, y;
+		cairo_get_current_point ((cairo_t*)(intptr_t)val_float (handle), &x, &y);
+		Vector2 vec2 = Vector2 (x, y);
+		return vec2.Value ();
+		
+	}
+	
+	
 	value lime_cairo_get_dash (value handle) {
 		
 		int length = cairo_get_dash_count ((cairo_t*)(intptr_t)val_float (handle));
@@ -239,6 +250,13 @@ namespace lime {
 	value lime_cairo_get_tolerance (value handle) {
 		
 		return alloc_float (cairo_get_tolerance ((cairo_t*)(intptr_t)val_float (handle)));
+		
+	}
+	
+	
+	value lime_cairo_has_current_point (value handle) {
+		
+		return alloc_bool (cairo_has_current_point ((cairo_t*)(intptr_t)val_float (handle)));
 		
 	}
 	
@@ -770,6 +788,7 @@ namespace lime {
 	DEFINE_PRIM (lime_cairo_fill_extents, 5);
 	DEFINE_PRIM (lime_cairo_fill_preserve, 1);
 	DEFINE_PRIM (lime_cairo_get_antialias, 1);
+	DEFINE_PRIM (lime_cairo_get_current_point, 1);
 	DEFINE_PRIM (lime_cairo_get_dash, 1);
 	DEFINE_PRIM (lime_cairo_get_dash_count, 1);
 	DEFINE_PRIM (lime_cairo_get_fill_rule, 1);
@@ -784,6 +803,7 @@ namespace lime {
 	DEFINE_PRIM (lime_cairo_get_source, 1);
 	DEFINE_PRIM (lime_cairo_get_target, 1);
 	DEFINE_PRIM (lime_cairo_get_tolerance, 1);
+	DEFINE_PRIM (lime_cairo_has_current_point, 1);
 	DEFINE_PRIM (lime_cairo_identity_matrix, 1);
 	DEFINE_PRIM (lime_cairo_image_surface_create, 3);
 	DEFINE_PRIM (lime_cairo_image_surface_create_for_data, 5);

@@ -14,7 +14,10 @@ namespace lime {
 		public:
 			
 			Vector2 ();
+			Vector2 (double x, double y);
 			Vector2 (value vec);
+			
+			value Value ();
 			
 			double x;
 			double y;

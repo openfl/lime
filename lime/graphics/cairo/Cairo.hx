@@ -2,6 +2,7 @@ package lime.graphics.cairo;
 
 
 import lime.math.Matrix3;
+import lime.math.Vector2;
 import lime.system.System;
 
 
@@ -12,10 +13,12 @@ class Cairo {
 	public static var versionString (get, null):String;
 	
 	public var antialias (get, set):CairoAntialias;
+	public var currentPoint (get, never):Vector2;
 	public var dash (get, set):Array<Float>;
 	public var dashCount (get, never):Int;
 	public var fillRule (get, set):CairoFillRule;
 	public var groupTarget (get, never):CairoSurface;
+	public var hasCurrentPoint (get, never):Bool;
 	public var lineCap (get, set):CairoLineCap;
 	public var lineJoin (get, set):CairoLineJoin;
 	public var lineWidth (get, set):Float;
@@ -488,6 +491,18 @@ class Cairo {
 	}
 	
 	
+	private function get_currentPoint ():Vector2 {
+		
+		#if lime_cairo
+		var vec = lime_cairo_get_current_point (handle);
+		return new Vector2 (vec.x, vec.y);
+		#end
+		
+		return null;
+		
+	}
+	
+	
 	private function get_dash ():Array<Float> {
 		
 		#if lime_cairo
@@ -550,6 +565,17 @@ class Cairo {
 		#else
 		return cast 0;
 		#end
+		
+	}
+	
+	
+	private function get_hasCurrentPoint ():Bool {
+		
+		#if lime_cairo
+		return lime_cairo_has_current_point (handle);
+		#end
+		
+		return false;
 		
 	}
 	
@@ -797,6 +823,7 @@ class Cairo {
 	private static var lime_cairo_fill_extents = System.load ("lime", "lime_cairo_fill_extents", 5);
 	private static var lime_cairo_fill_preserve = System.load ("lime", "lime_cairo_fill_preserve", 1);
 	private static var lime_cairo_get_antialias = System.load ("lime", "lime_cairo_get_antialias", 1);
+	private static var lime_cairo_get_current_point = System.load ("lime", "lime_cairo_get_current_point", 1);
 	private static var lime_cairo_get_dash = System.load ("lime", "lime_cairo_get_dash", 1);
 	private static var lime_cairo_get_dash_count = System.load ("lime", "lime_cairo_get_dash_count", 1);
 	private static var lime_cairo_get_fill_rule = System.load ("lime", "lime_cairo_get_fill_rule", 1);
@@ -811,6 +838,7 @@ class Cairo {
 	private static var lime_cairo_get_source = System.load ("lime", "lime_cairo_get_source", 1);
 	private static var lime_cairo_get_target = System.load ("lime", "lime_cairo_get_target", 1);
 	private static var lime_cairo_get_tolerance = System.load ("lime", "lime_cairo_get_tolerance", 1);
+	private static var lime_cairo_has_current_point = System.load ("lime", "lime_cairo_has_current_point", 1);
 	private static var lime_cairo_identity_matrix = System.load ("lime", "lime_cairo_identity_matrix", 1);
 	private static var lime_cairo_in_clip = System.load ("lime", "lime_cairo_in_clip", 3);
 	private static var lime_cairo_in_fill = System.load ("lime", "lime_cairo_in_fill", 3);
