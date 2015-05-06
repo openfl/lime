@@ -107,6 +107,15 @@ class Cairo {
 	}
 	
 	
+	public function curveTo (x1:Float, y1:Float, x2:Float, y2:Float, x3:Float, y3:Float):Void {
+		
+		#if lime_cairo
+		lime_cairo_curve_to (handle, x1, y1, x2, y2, x3, y3);
+		#end
+		
+	}
+	
+	
 	public function destroy ():Void {
 		
 		#if lime_cairo
@@ -299,6 +308,33 @@ class Cairo {
 		
 		#if lime_cairo
 		lime_cairo_reference (handle);
+		#end
+		
+	}
+	
+	
+	public function relCurveTo (dx1:Float, dy1:Float, dx2:Float, dy2:Float, dx3:Float, dy3:Float):Void {
+		
+		#if lime_cairo
+		lime_cairo_rel_curve_to (handle, dx1, dy1, dx2, dy2, dx3, dy3);
+		#end
+		
+	}
+	
+	
+	public function relLineTo (dx:Float, dy:Float):Void {
+		
+		#if lime_cairo
+		lime_cairo_rel_line_to (handle, dx, dy);
+		#end
+		
+	}
+	
+	
+	public function relMoveTo (dx:Float, dy:Float):Void {
+		
+		#if lime_cairo
+		lime_cairo_rel_move_to (handle, dx, dy);
 		#end
 		
 	}
@@ -755,6 +791,7 @@ class Cairo {
 	private static var lime_cairo_close_path = System.load ("lime", "lime_cairo_close_path", 1);
 	private static var lime_cairo_copy_page = System.load ("lime", "lime_cairo_copy_page", 1);
 	private static var lime_cairo_create = System.load ("lime", "lime_cairo_create", 1);
+	private static var lime_cairo_curve_to = System.load ("lime", "lime_cairo_curve_to", -1);
 	private static var lime_cairo_destroy = System.load ("lime", "lime_cairo_destroy", 1);
 	private static var lime_cairo_fill = System.load ("lime", "lime_cairo_fill", 1);
 	private static var lime_cairo_fill_extents = System.load ("lime", "lime_cairo_fill_extents", 5);
@@ -791,6 +828,9 @@ class Cairo {
 	private static var lime_cairo_push_group_with_content = System.load ("lime", "lime_cairo_push_group_with_content", 2);
 	private static var lime_cairo_rectangle = System.load ("lime", "lime_cairo_rectangle", 5);
 	private static var lime_cairo_reference = System.load ("lime", "lime_cairo_reference", 1);
+	private static var lime_cairo_rel_curve_to = System.load ("lime", "lime_cairo_rel_curve_to", -1);
+	private static var lime_cairo_rel_line_to = System.load ("lime", "lime_cairo_rel_line_to", 3);
+	private static var lime_cairo_rel_move_to = System.load ("lime", "lime_cairo_rel_move_to", 3);
 	private static var lime_cairo_reset_clip = System.load ("lime", "lime_cairo_reset_clip", 1);
 	private static var lime_cairo_restore = System.load ("lime", "lime_cairo_restore", 1);
 	private static var lime_cairo_save = System.load ("lime", "lime_cairo_save", 1);

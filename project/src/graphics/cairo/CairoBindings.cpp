@@ -74,6 +74,14 @@ namespace lime {
 	}
 	
 	
+	value lime_cairo_curve_to (value *arg, int argCount) {
+		
+		cairo_curve_to ((cairo_t*)(intptr_t)val_float (arg[0]), val_number (arg[1]), val_number (arg[2]), val_number (arg[3]), val_number (arg[4]), val_number (arg[5]), val_number (arg[6]));
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_cairo_destroy (value handle) {
 		
 		cairo_destroy ((cairo_t*)(intptr_t)val_float (handle));
@@ -463,6 +471,30 @@ namespace lime {
 	}
 	
 	
+	value lime_cairo_rel_curve_to (value *arg, int argCount) {
+		
+		cairo_rel_curve_to ((cairo_t*)(intptr_t)val_float (arg[0]), val_number (arg[1]), val_number (arg[2]), val_number (arg[3]), val_number (arg[4]), val_number (arg[5]), val_number (arg[6]));
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_cairo_rel_line_to (value handle, value dx, value dy) {
+		
+		cairo_rel_line_to ((cairo_t*)(intptr_t)val_float (handle), val_number (dx), val_number (dy));
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_cairo_rel_move_to (value handle, value dx, value dy) {
+		
+		cairo_rel_move_to ((cairo_t*)(intptr_t)val_float (handle), val_number (dx), val_number (dy));
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_cairo_reset_clip (value handle) {
 		
 		cairo_reset_clip ((cairo_t*)(intptr_t)val_float (handle));
@@ -718,6 +750,7 @@ namespace lime {
 	DEFINE_PRIM (lime_cairo_close_path, 1);
 	DEFINE_PRIM (lime_cairo_copy_page, 1);
 	DEFINE_PRIM (lime_cairo_create, 1);
+	DEFINE_PRIM_MULT (lime_cairo_curve_to);
 	DEFINE_PRIM (lime_cairo_destroy, 1);
 	DEFINE_PRIM (lime_cairo_fill, 1);
 	DEFINE_PRIM (lime_cairo_fill_extents, 5);
@@ -766,6 +799,9 @@ namespace lime {
 	DEFINE_PRIM (lime_cairo_push_group_with_content, 2);
 	DEFINE_PRIM (lime_cairo_rectangle, 5);
 	DEFINE_PRIM (lime_cairo_reference, 1);
+	DEFINE_PRIM_MULT (lime_cairo_rel_curve_to);
+	DEFINE_PRIM (lime_cairo_rel_line_to, 3);
+	DEFINE_PRIM (lime_cairo_rel_move_to, 3);
 	DEFINE_PRIM (lime_cairo_reset_clip, 1);
 	DEFINE_PRIM (lime_cairo_restore, 1);
 	DEFINE_PRIM (lime_cairo_save, 1);
