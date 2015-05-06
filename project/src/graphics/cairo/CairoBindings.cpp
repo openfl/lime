@@ -374,9 +374,39 @@ namespace lime {
 	}
 	
 	
+	value lime_cairo_pattern_add_color_stop_rgb (value handle, value offset, value red, value green, value blue) {
+		
+		cairo_pattern_add_color_stop_rgb ((cairo_pattern_t*)(intptr_t)val_float (handle), val_number (offset), val_number (red), val_number (green), val_number (blue));
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_cairo_pattern_add_color_stop_rgba (value *arg, int argCount) {
+		
+		cairo_pattern_add_color_stop_rgba ((cairo_pattern_t*)(intptr_t)val_float (arg[0]), val_number (arg[1]), val_number (arg[2]), val_number (arg[3]), val_number (arg[4]), val_number (arg[5]));
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_cairo_pattern_create_for_surface (value surface) {
 		
 		return alloc_float ((intptr_t)cairo_pattern_create_for_surface ((cairo_surface_t*)(intptr_t)val_float (surface)));
+		
+	}
+	
+	
+	value lime_cairo_pattern_create_linear (value x0, value y0, value x1, value y1) {
+		
+		return alloc_float ((intptr_t)cairo_pattern_create_linear (val_number (x0), val_number (y0), val_number (x1), val_number (y1)));
+		
+	}
+	
+	
+	value lime_cairo_pattern_create_radial (value *arg, int argCount) {
+		
+		return alloc_float ((intptr_t)cairo_pattern_create_radial (val_number (arg[0]), val_number (arg[1]), val_number (arg[2]), val_number (arg[3]), val_number (arg[4]), val_number (arg[5])));
 		
 	}
 	
@@ -399,6 +429,15 @@ namespace lime {
 		
 		cairo_pattern_destroy ((cairo_pattern_t*)(intptr_t)val_float (handle));
 		return alloc_null ();
+		
+	}
+	
+	
+	value lime_cairo_pattern_get_color_stop_count (value handle) {
+		
+		int count;
+		cairo_pattern_get_color_stop_count ((cairo_pattern_t*)(intptr_t)val_float (handle), &count);
+		return alloc_int (count);
 		
 	}
 	
@@ -819,10 +858,15 @@ namespace lime {
 	DEFINE_PRIM (lime_cairo_new_path, 1);
 	DEFINE_PRIM (lime_cairo_paint, 1);
 	DEFINE_PRIM (lime_cairo_paint_with_alpha, 2);
+	DEFINE_PRIM (lime_cairo_pattern_add_color_stop_rgb, 5);
+	DEFINE_PRIM_MULT (lime_cairo_pattern_add_color_stop_rgba);
 	DEFINE_PRIM (lime_cairo_pattern_create_for_surface, 1);
+	DEFINE_PRIM (lime_cairo_pattern_create_linear, 4);
+	DEFINE_PRIM_MULT (lime_cairo_pattern_create_radial);
 	DEFINE_PRIM (lime_cairo_pattern_create_rgb, 3);
 	DEFINE_PRIM (lime_cairo_pattern_create_rgba, 4);
 	DEFINE_PRIM (lime_cairo_pattern_destroy, 1);
+	DEFINE_PRIM (lime_cairo_pattern_get_color_stop_count, 1);
 	DEFINE_PRIM (lime_cairo_pattern_get_extend, 1);
 	DEFINE_PRIM (lime_cairo_pattern_get_filter, 1);
 	DEFINE_PRIM (lime_cairo_pattern_get_matrix, 1);
