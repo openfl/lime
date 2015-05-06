@@ -363,6 +363,20 @@ namespace lime {
 	}
 	
 	
+	value lime_cairo_pattern_create_rgb (value r, value g, value b) {
+		
+		return alloc_float ((intptr_t)cairo_pattern_create_rgb (val_number (r), val_number (g), val_number (b)));
+		
+	}
+	
+	
+	value lime_cairo_pattern_create_rgba (value r, value g, value b, value a) {
+		
+		return alloc_float ((intptr_t)cairo_pattern_create_rgba (val_number (r), val_number (g), val_number (b), val_number (a)));
+		
+	}
+	
+	
 	value lime_cairo_pattern_destroy (value handle) {
 		
 		cairo_pattern_destroy ((cairo_pattern_t*)(intptr_t)val_float (handle));
@@ -786,6 +800,8 @@ namespace lime {
 	DEFINE_PRIM (lime_cairo_paint, 1);
 	DEFINE_PRIM (lime_cairo_paint_with_alpha, 2);
 	DEFINE_PRIM (lime_cairo_pattern_create_for_surface, 1);
+	DEFINE_PRIM (lime_cairo_pattern_create_rgb, 3);
+	DEFINE_PRIM (lime_cairo_pattern_create_rgba, 4);
 	DEFINE_PRIM (lime_cairo_pattern_destroy, 1);
 	DEFINE_PRIM (lime_cairo_pattern_get_extend, 1);
 	DEFINE_PRIM (lime_cairo_pattern_get_filter, 1);

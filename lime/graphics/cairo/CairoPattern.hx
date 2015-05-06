@@ -31,6 +31,28 @@ abstract CairoPattern(Dynamic) {
 	}
 	
 	
+	public static function createRGB (r:Float, g:Float, b:Float):CairoPattern {
+		
+		#if lime_cairo
+		return lime_cairo_pattern_create_rgb (r, g, b);
+		#else
+		return cast 0;
+		#end
+		
+	}
+	
+	
+	public static function createRGBA (r:Float, g:Float, b:Float, a:Float):CairoPattern {
+		
+		#if lime_cairo
+		return lime_cairo_pattern_create_rgba (r, g, b, a);
+		#else
+		return cast 0;
+		#end
+		
+	}
+	
+	
 	public function destroy ():Void {
 		
 		#if lime_cairo
@@ -123,6 +145,8 @@ abstract CairoPattern(Dynamic) {
 	
 	#if lime_cairo
 	private static var lime_cairo_pattern_create_for_surface = System.load ("lime", "lime_cairo_pattern_create_for_surface", 1);
+	private static var lime_cairo_pattern_create_rgb = System.load ("lime", "lime_cairo_pattern_create_rgb", 3);
+	private static var lime_cairo_pattern_create_rgba = System.load ("lime", "lime_cairo_pattern_create_rgba", 4);
 	private static var lime_cairo_pattern_destroy = System.load ("lime", "lime_cairo_pattern_destroy", 1);
 	private static var lime_cairo_pattern_get_extend = System.load ("lime", "lime_cairo_pattern_get_extend", 1);
 	private static var lime_cairo_pattern_get_filter = System.load ("lime", "lime_cairo_pattern_get_filter", 1);
