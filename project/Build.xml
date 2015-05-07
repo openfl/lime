@@ -176,7 +176,7 @@
 			
 			<compilerflag value="-DSTATIC_LINK" if="emscripten" />
 			
-			<file name="${HXCPP}/project/libs/zlib/ZLib.cpp" if="emscripten || ios" />
+			<file name="${HXCPP}/project/libs/zlib/ZLib.cpp" if="emscripten || ios || static_link" />
 			
 		</section>
 		

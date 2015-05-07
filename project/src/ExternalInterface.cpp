@@ -488,7 +488,7 @@ namespace lime {
 	value lime_image_data_util_fill_rect (value image, value rect, value color) {
 		
 		Image _image = Image (image);
-		Rectangle _rect = Rectangle (rect); 
+		Rectangle _rect = Rectangle (rect);
 		ImageDataUtil::FillRect (&_image, &_rect, val_number (color));
 		return alloc_null ();
 		
