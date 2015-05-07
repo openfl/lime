@@ -43,6 +43,10 @@
 			
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include" />
 			<compilerflag value="-DCAIRO_WIN32_STATIC_BUILD" if="windows" />
+			<compilerflag value="-DCAIRO_HAS_PTHREAD" unless="windows" />
+			<compilerflag value="-DHAVE_STDINT_H" unless="windows" />
+			<compilerflag value="-DHAVE_UINT64_T" unless="windows" />
+			<compilerflag value="-DHAVE_PTHREADS" unless="windows" />
 			
 			<file name="src/graphics/cairo/CairoBindings.cpp" />
 			
