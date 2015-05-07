@@ -9,7 +9,7 @@
 	<set name="lime-legacy" value="1" if="legacy || lime_legacy" />
 	<set name="ios" value="1" if="iphone" />
 	
-	<set name="LIME_CAIRO" value="1" if="LIME_CAIRO" />
+	<set name="LIME_CAIRO" value="1" />
 	<set name="LIME_CURL" value="1" unless="emscripten" />
 	<set name="LIME_JPEG" value="1" />
 	<set name="LIME_FREETYPE" value="1" />
@@ -18,7 +18,7 @@
 	<set name="LIME_OGG" value="1" />
 	<set name="LIME_OPENAL" value="1" />
 	<set name="LIME_OPENGL" value="1" />
-	<set name="LIME_PIXMAN" value="1" if="LIME_CAIRO || LIME_PIXMAN" />
+	<set name="LIME_PIXMAN" value="1" />
 	<set name="LIME_PNG" value="1" />
 	<set name="LIME_SDL" value="1" />
 	<set name="LIME_VORBIS" value="1" />

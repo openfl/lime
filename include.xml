@@ -51,7 +51,7 @@
 		
 		<architecture name="armv7" if="android" />
 		
-		<haxedef name="lime-cairo" if="lime-cairo" unless="flash || html5" />
+		<haxedef name="lime-cairo" unless="flash || html5" />
 		<haxedef name="lime-curl" unless="lime-console || emscripten || flash || html5" />
 		<haxedef name="lime-opengl" unless="lime-console || flash" />
 		<haxedef name="lime-openal" unless="lime-console || static_link || flash || html5" />
