@@ -25,6 +25,9 @@ THE SOFTWARE.
 
 -------
 
+This product bundles cairo 1.14.2, which is available under an
+"MPL 1.1" license. For details, see [project/lib/cairo/](project/lib).
+
 This product bundles libcurl 7.37.1, which is available under an
 "MIT/X derivate" license. For details, see [project/lib/curl/](project/lib).
 
@@ -46,6 +49,9 @@ an OpenAL-Soft derivative for Android under [project/lib/openal-android/](projec
 
 _OpenAL-Soft is only included in dynamically-linked builds, it is excluded
 from Lime static builds in order to preserve Lime's permissive nature._
+
+This product bundles pixman 0.32.6, which is available under an
+"MIT" license. For details, see [project/lib/pixman/](project/lib).
 
 This product bundles libpng 1.6.12, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/png/](project/lib).
