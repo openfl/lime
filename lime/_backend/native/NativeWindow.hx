@@ -89,6 +89,19 @@ class NativeWindow {
 	}
 	
 	
+	public function getEnableTextEvents ():Bool {
+		
+		if (handle != null) {
+			
+			return lime_window_get_enable_text_events (handle);
+			
+		}
+		
+		return false;
+		
+	}
+	
+	
 	public function move (x:Int, y:Int):Void {
 		
 		if (handle != null) {
@@ -107,6 +120,19 @@ class NativeWindow {
 			lime_window_resize (handle, width, height);
 			
 		}
+		
+	}
+	
+	
+	public function setEnableTextEvents (value:Bool):Bool {
+		
+		if (handle != null) {
+			
+			return lime_window_set_enable_text_events (handle, value);
+			
+		}
+		
+		return value;
 		
 	}
 	
@@ -156,12 +182,14 @@ class NativeWindow {
 	
 	private static var lime_window_close = System.load ("lime", "lime_window_close", 1);
 	private static var lime_window_create = System.load ("lime", "lime_window_create", 5);
+	private static var lime_window_get_enable_text_events = System.load ("lime", "lime_window_get_enable_text_events", 1);
 	private static var lime_window_get_height = System.load ("lime", "lime_window_get_height", 1);
 	private static var lime_window_get_width = System.load ("lime", "lime_window_get_width", 1);
 	private static var lime_window_get_x = System.load ("lime", "lime_window_get_x", 1);
 	private static var lime_window_get_y = System.load ("lime", "lime_window_get_y", 1);
 	private static var lime_window_move = System.load ("lime", "lime_window_move", 3);
 	private static var lime_window_resize = System.load ("lime", "lime_window_resize", 3);
+	private static var lime_window_set_enable_text_events = System.load ("lime", "lime_window_set_enable_text_events", 2);
 	private static var lime_window_set_fullscreen = System.load ("lime", "lime_window_set_fullscreen", 2);
 	private static var lime_window_set_icon = System.load ("lime", "lime_window_set_icon", 2);
 	private static var lime_window_set_minimized = System.load ("lime", "lime_window_set_minimized", 2);

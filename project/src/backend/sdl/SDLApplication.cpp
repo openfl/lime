@@ -41,6 +41,7 @@ namespace lime {
 		KeyEvent keyEvent;
 		MouseEvent mouseEvent;
 		RenderEvent renderEvent;
+		TextEvent textEvent;
 		TouchEvent touchEvent;
 		UpdateEvent updateEvent;
 		WindowEvent windowEvent;
@@ -143,6 +144,12 @@ namespace lime {
 			case SDL_MOUSEWHEEL:
 				
 				ProcessMouseEvent (event);
+				break;
+			
+			case SDL_TEXTINPUT:
+			case SDL_TEXTEDITING:
+				
+				ProcessTextEvent (event);
 				break;
 			
 			case SDL_WINDOWEVENT:
@@ -331,6 +338,35 @@ namespace lime {
 			}
 			
 			MouseEvent::Dispatch (&mouseEvent);
+			
+		}
+		
+	}
+	
+	
+	void SDLApplication::ProcessTextEvent (SDL_Event* event) {
+		
+		if (TextEvent::callback) {
+			
+			switch (event->type) {
+				
+				case SDL_TEXTINPUT:
+					
+					textEvent.type = TEXT_INPUT;
+					break;
+				
+				case SDL_TEXTEDITING:
+					
+					textEvent.type = TEXT_EDIT;
+					textEvent.start = event->edit.start;
+					textEvent.length = event->edit.length;
+					break;
+				
+			}
+			
+			strcpy (textEvent.text, event->text.text);
+			
+			TextEvent::Dispatch (&textEvent);
 			
 		}
 		

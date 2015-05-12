@@ -50,7 +50,7 @@ class WindowsPlatform extends PlatformTarget {
 		
 		targetDirectory = project.app.path + "/windows/" + targetType;
 		applicationDirectory = targetDirectory + "/bin/";
-		executablePath = applicationDirectory + "/" + project.app.file + ".exe";
+		executablePath = applicationDirectory + project.app.file + ".exe";
 		
 	}
 	

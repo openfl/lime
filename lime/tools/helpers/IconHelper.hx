@@ -199,17 +199,24 @@ class IconHelper {
 			
 			if (image != null) {
 				
+				var data = null;
+				
 				if (size < 256) {
 					
-					imageData.push (BMP.encode (image, ICO));
+					data = BMP.encode (image, ICO);
 					
 				} else {
 					
-					imageData.push (image.encode ("png"));
+					data = image.encode ("png");
 					
 				}
 				
-				images.push (image);
+				if (data != null) {
+					
+					imageData.push (data);
+					images.push (image);
+					
+				}
 				
 			}
 			

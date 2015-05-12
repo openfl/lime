@@ -78,7 +78,7 @@
 			
 		</section>
 		
-		<lib name="ApplicationMain${DBG}${LIBEXT}" />
+		<lib name="libApplicationMain${DBG}${LIBEXT}" />
 		
 	</target>
 	

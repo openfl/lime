@@ -8,6 +8,7 @@ namespace lime {
 	static int id_bpp;
 	static int id_buffer;
 	static int id_data;
+	static int id_format;
 	static int id_height;
 	static int id_width;
 	static int id_transparent;
@@ -19,6 +20,7 @@ namespace lime {
 		width = 0;
 		height = 0;
 		bpp = 4;
+		format = RGBA;
 		data = 0;
 		transparent = false;
 		
@@ -36,6 +38,7 @@ namespace lime {
 			id_width = val_id ("width");
 			id_height = val_id ("height");
 			id_data = val_id ("data");
+			id_format = val_id ("format");
 			init = true;
 			
 		}
@@ -43,6 +46,7 @@ namespace lime {
 		width = val_int (val_field (imageBuffer, id_width));
 		height = val_int (val_field (imageBuffer, id_height));
 		bpp = val_int (val_field (imageBuffer, id_bitsPerPixel));
+		format = (PixelFormat)val_int (val_field (imageBuffer, id_format));
 		transparent = val_bool (val_field (imageBuffer, id_transparent));
 		value data_value = val_field (imageBuffer, id_data);
 		value buffer_value = val_field (data_value, id_buffer);
@@ -103,6 +107,7 @@ namespace lime {
 			id_width = val_id ("width");
 			id_height = val_id ("height");
 			id_data = val_id ("data");
+			id_format = val_id ("format");
 			init = true;
 			
 		}
@@ -113,6 +118,7 @@ namespace lime {
 		alloc_field (mValue, id_bpp, alloc_int (bpp));
 		alloc_field (mValue, id_transparent, alloc_bool (transparent));
 		alloc_field (mValue, id_data, data->mValue);
+		alloc_field (mValue, id_format, alloc_int (format));
 		return mValue;
 		
 	}

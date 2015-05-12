@@ -12,6 +12,7 @@ import lime.ui.Window;
 class FlashWindow {
 	
 	
+	private var enableTextEvents:Bool;
 	private var parent:Window;
 	
 	
@@ -37,6 +38,13 @@ class FlashWindow {
 	}
 	
 	
+	public function getEnableTextEvents ():Bool {
+		
+		return enableTextEvents;
+		
+	}
+	
+	
 	public function move (x:Int, y:Int):Void {
 		
 		
@@ -47,6 +55,13 @@ class FlashWindow {
 	public function resize (width:Int, height:Int):Void {
 		
 		
+		
+	}
+	
+	
+	public function setEnableTextEvents (value:Bool):Bool {
+		
+		return enableTextEvents = value;
 		
 	}
 	

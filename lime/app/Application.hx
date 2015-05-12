@@ -113,6 +113,8 @@ class Application extends Module {
 		window.onMouseMoveRelative.add (onMouseMoveRelative);
 		window.onMouseUp.add (onMouseUp);
 		window.onMouseWheel.add (onMouseWheel);
+		window.onTextEdit.add (onTextEdit);
+		window.onTextInput.add (onTextInput);
 		window.onTouchStart.add (onTouchStart);
 		window.onTouchMove.add (onTouchMove);
 		window.onTouchEnd.add (onTouchEnd);
@@ -323,6 +325,28 @@ class Application extends Module {
 		for (module in modules) {
 			
 			module.onRenderContextRestored (context);
+			
+		}
+		
+	}
+	
+	
+	public override function onTextEdit (text:String, start:Int, length:Int):Void {
+		
+		for (module in modules) {
+			
+			module.onTextEdit (text, start, length);
+			
+		}
+		
+	}
+	
+	
+	public override function onTextInput (text:String):Void {
+		
+		for (module in modules) {
+			
+			module.onTextInput (text);
 			
 		}
 		

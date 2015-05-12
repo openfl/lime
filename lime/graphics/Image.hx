@@ -62,6 +62,7 @@ class Image {
 	public var buffer:ImageBuffer;
 	public var data (get, set):UInt8Array;
 	public var dirty:Bool;
+	public var format (get, set):PixelFormat;
 	public var height:Int;
 	public var offsetX:Int;
 	public var offsetY:Int;
@@ -1194,6 +1195,34 @@ class Image {
 	private function set_data (value:UInt8Array):UInt8Array {
 		
 		return buffer.data = value;
+		
+	}
+	
+	
+	private function get_format ():PixelFormat {
+		
+		return buffer.format;
+		
+	}
+	
+	
+	private function set_format (value:PixelFormat):PixelFormat {
+		
+		if (buffer.format != value) {
+			
+			switch (type) {
+				
+				case DATA:
+					
+					ImageDataUtil.setFormat (this, value);
+				
+				default:
+				
+			}
+			
+		}
+		
+		return buffer.format = value;
 		
 	}
 	
