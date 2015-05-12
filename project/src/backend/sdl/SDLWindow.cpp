@@ -115,6 +115,13 @@ namespace lime {
 	}
 	
 	
+	bool SDLWindow::GetEnableTextEvents () {
+		
+		return SDL_IsTextInputActive ();
+		
+	}
+	
+	
 	int SDLWindow::GetHeight () {
 		
 		int width;
@@ -173,6 +180,21 @@ namespace lime {
 	void SDLWindow::Resize (int width, int height) {
 		
 		SDL_SetWindowSize (sdlWindow, width, height);
+		
+	}
+	
+	
+	void SDLWindow::SetEnableTextEvents (bool enabled) {
+		
+		if (enabled) {
+			
+			SDL_StartTextInput ();
+			
+		} else {
+			
+			SDL_StopTextInput ();
+			
+		}
 		
 	}
 	

@@ -26,6 +26,7 @@ class HTML5Window {
 	public var stats:Dynamic;
 	#end
 	
+	private var enableTextEvents:Bool;
 	private var parent:Window;
 	private var setHeight:Int;
 	private var setWidth:Int;
@@ -162,6 +163,13 @@ class HTML5Window {
 			element.addEventListener ("touchend", handleTouchEvent, true);
 			
 		}
+		
+	}
+	
+	
+	public function getEnableTextEvents ():Bool {
+		
+		return enableTextEvents;
 		
 	}
 	
@@ -376,6 +384,13 @@ class HTML5Window {
 	public function resize (width:Int, height:Int):Void {
 		
 		
+		
+	}
+	
+	
+	public function setEnableTextEvents (value:Bool):Bool {
+		
+		return enableTextEvents = value;
 		
 	}
 	

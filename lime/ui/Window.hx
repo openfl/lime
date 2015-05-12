@@ -13,6 +13,7 @@ class Window {
 	
 	public var currentRenderer:Renderer;
 	public var config:Config;
+	public var enableTextEvents (get, set):Bool;
 	public var fullscreen (get, set):Bool;
 	public var height (get, set):Int;
 	public var minimized (get, set):Bool;
@@ -28,6 +29,8 @@ class Window {
 	public var onMouseMoveRelative = new Event<Float->Float->Void> ();
 	public var onMouseUp = new Event<Float->Float->Int->Void> ();
 	public var onMouseWheel = new Event<Float->Float->Void> ();
+	public var onTextEdit = new Event<String->Int->Int->Void> ();
+	public var onTextInput = new Event<String->Void> ();
 	public var onTouchEnd = new Event<Float->Float->Int->Void> ();
 	public var onTouchMove = new Event<Float->Float->Int->Void> ();
 	public var onTouchStart = new Event<Float->Float->Int->Void> ();
@@ -139,6 +142,20 @@ class Window {
 	// Get & Set Methods
 	
 	
+	
+	
+	@:noCompletion private inline function get_enableTextEvents ():Bool {
+		
+		return backend.getEnableTextEvents ();
+		
+	}
+	
+	
+	@:noCompletion private inline function set_enableTextEvents (value:Bool):Bool {
+		
+		return backend.setEnableTextEvents (value);
+		
+	}
 	
 	
 	@:noCompletion private inline function get_fullscreen ():Bool {

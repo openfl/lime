@@ -29,6 +29,7 @@
 #include <ui/Mouse.h>
 #include <ui/MouseCursor.h>
 #include <ui/MouseEvent.h>
+#include <ui/TextEvent.h>
 #include <ui/TouchEvent.h>
 #include <ui/Window.h>
 #include <ui/WindowEvent.h>
@@ -763,6 +764,15 @@ namespace lime {
 	}
 	
 	
+	value lime_text_event_manager_register (value callback, value eventObject) {
+		
+		TextEvent::callback = new AutoGCRoot (callback);
+		TextEvent::eventObject = new AutoGCRoot (eventObject);
+		return alloc_null ();
+		
+	}
+	
+	
 	void lime_text_layout_destroy (value textHandle) {
 		
 		#ifdef LIME_HARFBUZZ
@@ -885,6 +895,14 @@ namespace lime {
 	}
 	
 	
+	value lime_window_get_enable_text_events (value window) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		return alloc_bool (targetWindow->GetEnableTextEvents ());
+		
+	}
+	
+	
 	value lime_window_get_height (value window) {
 		
 		Window* targetWindow = (Window*)(intptr_t)val_float (window);
@@ -930,6 +948,15 @@ namespace lime {
 		
 		Window* targetWindow = (Window*)(intptr_t)val_float (window);
 		targetWindow->Resize (val_int (width), val_int (height));
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_window_set_enable_text_events (value window, value enabled) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		targetWindow->SetEnableTextEvents (val_bool (enabled));
 		return alloc_null ();
 		
 	}
@@ -1018,6 +1045,7 @@ namespace lime {
 	DEFINE_PRIM (lime_render_event_manager_register, 2);
 	DEFINE_PRIM (lime_system_get_directory, 3);
 	DEFINE_PRIM (lime_system_get_timer, 0);
+	DEFINE_PRIM (lime_text_event_manager_register, 2);
 	DEFINE_PRIM (lime_text_layout_create, 3);
 	DEFINE_PRIM (lime_text_layout_position, 5);
 	DEFINE_PRIM (lime_text_layout_set_direction, 2);
@@ -1028,12 +1056,14 @@ namespace lime {
 	DEFINE_PRIM (lime_window_close, 1);
 	DEFINE_PRIM (lime_window_create, 5);
 	DEFINE_PRIM (lime_window_event_manager_register, 2);
+	DEFINE_PRIM (lime_window_get_enable_text_events, 1);
 	DEFINE_PRIM (lime_window_get_height, 1);
 	DEFINE_PRIM (lime_window_get_width, 1);
 	DEFINE_PRIM (lime_window_get_x, 1);
 	DEFINE_PRIM (lime_window_get_y, 1);
 	DEFINE_PRIM (lime_window_move, 3);
 	DEFINE_PRIM (lime_window_resize, 3);
+	DEFINE_PRIM (lime_window_set_enable_text_events, 2);
 	DEFINE_PRIM (lime_window_set_fullscreen, 2);
 	DEFINE_PRIM (lime_window_set_icon, 2);
 	DEFINE_PRIM (lime_window_set_minimized, 2);

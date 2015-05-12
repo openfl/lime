@@ -27,6 +27,7 @@ class NativeApplication {
 	private var keyEventInfo = new KeyEventInfo ();
 	private var mouseEventInfo = new MouseEventInfo ();
 	private var renderEventInfo = new RenderEventInfo (RENDER);
+	private var textEventInfo = new TextEventInfo ();
 	private var touchEventInfo = new TouchEventInfo ();
 	private var updateEventInfo = new UpdateEventInfo ();
 	private var windowEventInfo = new WindowEventInfo ();
@@ -70,6 +71,7 @@ class NativeApplication {
 		lime_key_event_manager_register (handleKeyEvent, keyEventInfo);
 		lime_mouse_event_manager_register (handleMouseEvent, mouseEventInfo);
 		lime_render_event_manager_register (handleRenderEvent, renderEventInfo);
+		lime_text_event_manager_register (handleTextEvent, textEventInfo);
 		lime_touch_event_manager_register (handleTouchEvent, touchEventInfo);
 		lime_update_event_manager_register (handleUpdateEvent, updateEventInfo);
 		lime_window_event_manager_register (handleWindowEvent, windowEventInfo);
@@ -239,6 +241,25 @@ class NativeApplication {
 	}
 	
 	
+	private function handleTextEvent ():Void {
+		
+		switch (textEventInfo.type) {
+			
+			case TEXT_INPUT:
+				
+				parent.window.onTextInput.dispatch (textEventInfo.text);
+			
+			case TEXT_EDIT:
+				
+				parent.window.onTextEdit.dispatch (textEventInfo.text, textEventInfo.start, textEventInfo.length);
+			
+			default:
+			
+		}
+		
+	}
+	
+	
 	private function handleTouchEvent ():Void {
 		
 		if (parent.window != null) {
@@ -394,6 +415,7 @@ class NativeApplication {
 	private static var lime_key_event_manager_register = System.load ("lime", "lime_key_event_manager_register", 2);
 	private static var lime_mouse_event_manager_register = System.load ("lime", "lime_mouse_event_manager_register", 2);
 	private static var lime_render_event_manager_register = System.load ("lime", "lime_render_event_manager_register", 2);
+	private static var lime_text_event_manager_register = System.load ("lime", "lime_text_event_manager_register", 2);
 	private static var lime_touch_event_manager_register = System.load ("lime", "lime_touch_event_manager_register", 2);
 	private static var lime_update_event_manager_register = System.load ("lime", "lime_update_event_manager_register", 2);
 	private static var lime_window_event_manager_register = System.load ("lime", "lime_window_event_manager_register", 2);
@@ -553,6 +575,44 @@ private class RenderEventInfo {
 	var RENDER = 0;
 	var RENDER_CONTEXT_LOST = 1;
 	var RENDER_CONTEXT_RESTORED = 2;
+	
+}
+
+
+private class TextEventInfo {
+	
+	
+	public var id:Int;
+	public var length:Int;
+	public var start:Int;
+	public var text:String;
+	public var type:TextEventType;
+	
+	
+	public function new (type:TextEventType = null, text:String = "", start:Int = 0, length:Int = 0) {
+		
+		this.type = type;
+		this.text = text;
+		this.start = start;
+		this.length = length;
+		
+	}
+	
+	
+	public function clone ():TextEventInfo {
+		
+		return new TextEventInfo (type, text, start, length);
+		
+	}
+	
+	
+}
+
+
+@:enum private abstract TextEventType(Int) {
+	
+	var TEXT_INPUT = 0;
+	var TEXT_EDIT = 1;
 	
 }
 
