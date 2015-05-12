@@ -1,3 +1,19 @@
+2.4.0 (05/12/2015)
+------------------
+
+* Added Cairo render context and bindings
+* Added support for software windows, using Cairo not OpenGL
+* Added text input/edit events
+* Added onEnter/onLeave events for Window mouse focus
+* Added Image getColorBoundsRect
+* Added build support for ANGLE
+* Removed prevent default for HTML5 arrow and space keys
+* Improved Image copyPixels with merge alpha
+* Fixed static build support
+* Fixed a case where fonts might not be embedded
+* Fixed occasional crash with OpenAL on Neko
+
+
 2.3.3 (04/21/2015)
 ------------------
 
