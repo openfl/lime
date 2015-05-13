@@ -1,3 +1,12 @@
+2.4.1 (05/13/2015)
+------------------
+
+* Improve handling of custom error types in HTML5 target
+* Guard icon helpers if PNG encoding fails
+* Fixed Emscripten rebuild
+* Fixed issue on the build server
+
+
 2.4.0 (05/12/2015)
 ------------------
 
