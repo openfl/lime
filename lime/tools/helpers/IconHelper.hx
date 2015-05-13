@@ -79,9 +79,15 @@ class IconHelper {
 			
 			if (image != null) {
 				
-				PathHelper.mkdir (Path.directory (targetPath));
-				File.saveBytes (targetPath, image.encode ("png"));
-				return true;
+				var bytes = image.encode ("png");
+				
+				if (bytes != null) {
+					
+					PathHelper.mkdir (Path.directory (targetPath));
+					File.saveBytes (targetPath, );
+					return true;
+					
+				}
 				
 			}
 			
