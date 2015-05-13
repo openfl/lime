@@ -147,12 +147,16 @@ class IconHelper {
 			
 			if (image != null) {
 				
-				for (c in 0...4) out.writeByte (code.charCodeAt(c));
-				
 				var bytes = image.encode ("png");
 				
-				out.writeInt32 (bytes.length + 8);
-				out.writeBytes (bytes, 0, bytes.length);
+				if (bytes != null) {
+					
+					for (c in 0...4) out.writeByte (code.charCodeAt(c));
+					
+					out.writeInt32 (bytes.length + 8);
+					out.writeBytes (bytes, 0, bytes.length);
+					
+				}
 				
 			}
 			
