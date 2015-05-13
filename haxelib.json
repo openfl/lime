@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "2.3.3",
-	"releasenote": "AudioSource improvements, other fixes",
+	"version": "2.4.0",
+	"releasenote": "Added Cairo, text input and mouse focus events, other improvements",
 	"contributors": [ "singmajesty" ]
 }

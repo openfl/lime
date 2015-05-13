@@ -59,6 +59,25 @@ class AudioSource {
 	}
 	
 	
+	public function dispose ():Void {
+		
+		switch (AudioManager.context) {
+			
+			case OPENAL (alc, al):
+				
+				if (id != 0) {
+					
+					al.deleteSource (id);
+					
+				}
+			
+			default:
+				
+		}
+		
+	}
+	
+	
 	private function init ():Void {
 		
 		switch (AudioManager.context) {

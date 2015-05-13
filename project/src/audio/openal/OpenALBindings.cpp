@@ -29,7 +29,7 @@ namespace lime {
 	
 	value lime_al_buffer3f (value buffer, value param, value value1, value value2, value value3) {
 		
-		alBuffer3f (val_int (buffer), val_int (param), val_float (value1), val_float (value2), val_float (value3));
+		alBuffer3f (val_int (buffer), val_int (param), val_number (value1), val_number (value2), val_number (value3));
 		return alloc_null ();
 		
 	}
@@ -45,7 +45,7 @@ namespace lime {
 	
 	value lime_al_bufferf (value buffer, value param, value value) {
 		
-		alBufferf (val_int (buffer), val_int (param), val_float (value));
+		alBufferf (val_int (buffer), val_int (param), val_number (value));
 		return alloc_null ();
 		
 	}
@@ -169,7 +169,7 @@ namespace lime {
 	
 	value lime_al_distance_model (value distanceModel) {
 		
-		alDistanceModel (val_float (distanceModel));
+		alDistanceModel (val_number (distanceModel));
 		return alloc_null ();
 		
 	}
@@ -177,7 +177,7 @@ namespace lime {
 	
 	value lime_al_doppler_factor (value factor) {
 		
-		alDopplerFactor (val_float (factor));
+		alDopplerFactor (val_number (factor));
 		return alloc_null ();
 		
 	}
@@ -185,7 +185,7 @@ namespace lime {
 	
 	value lime_al_doppler_velocity (value velocity) {
 		
-		alDopplerVelocity (val_float (velocity));
+		alDopplerVelocity (val_number (velocity));
 		return alloc_null ();
 		
 	}
@@ -688,7 +688,7 @@ namespace lime {
 	
 	value lime_al_listener3f (value param, value value1, value value2, value value3) {
 		
-		alListener3f (val_int (param), val_float (value1), val_float (value2), val_float (value3));
+		alListener3f (val_int (param), val_number (value1), val_number (value2), val_number (value3));
 		return alloc_null ();
 		
 	}
@@ -704,7 +704,7 @@ namespace lime {
 	
 	value lime_al_listenerf (value param, value value1) {
 		
-		alListenerf (val_int (param), val_float (value1));
+		alListenerf (val_int (param), val_number (value1));
 		return alloc_null ();
 		
 	}
@@ -878,7 +878,7 @@ namespace lime {
 	
 	value lime_al_source3f (value source, value param, value value1, value value2, value value3) {
 		
-		alSource3f (val_int (source), val_int (param), val_float (value1), val_float (value2), val_float (value3));
+		alSource3f (val_int (source), val_int (param), val_number (value1), val_number (value2), val_number (value3));
 		return alloc_null ();
 		
 	}
@@ -894,7 +894,7 @@ namespace lime {
 	
 	value lime_al_sourcef (value source, value param, value value) {
 		
-		alSourcef (val_int (source), val_int (param), val_float (value));
+		alSourcef (val_int (source), val_int (param), val_number (value));
 		return alloc_null ();
 		
 	}
@@ -940,7 +940,7 @@ namespace lime {
 	
 	value lime_al_speed_of_sound (value speed) {
 		
-		alSpeedOfSound (val_float (speed));
+		alSpeedOfSound (val_number (speed));
 		return alloc_null ();
 		
 	}

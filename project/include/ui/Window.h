@@ -19,12 +19,14 @@ namespace lime {
 		public:
 			
 			virtual void Close () = 0;
+			virtual bool GetEnableTextEvents () = 0;
 			virtual int GetHeight () = 0;
 			virtual int GetWidth () = 0;
 			virtual int GetX () = 0;
 			virtual int GetY () = 0;
 			virtual void Move (int x, int y) = 0;
 			virtual void Resize (int width, int height) = 0;
+			virtual void SetEnableTextEvents (bool enable) = 0;
 			virtual bool SetFullscreen (bool fullscreen) = 0;
 			virtual void SetIcon (ImageBuffer *imageBuffer) = 0;
 			virtual bool SetMinimized (bool minimized) = 0;

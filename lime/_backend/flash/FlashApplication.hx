@@ -163,6 +163,12 @@ class FlashApplication {
 				
 				parent.window.onKeyDown.dispatch (keyCode, modifier);
 				
+				if (parent.window.enableTextEvents) {
+					
+					parent.window.onTextInput.dispatch (String.fromCharCode (event.charCode));
+					
+				}
+				
 			} else {
 				
 				parent.window.onKeyUp.dispatch (keyCode, modifier);
