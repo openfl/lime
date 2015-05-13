@@ -1124,12 +1124,13 @@ class ImageDataUtil {
 						
 					}
 					
-					color = byteArray.readUnsignedInt ();
-					
-					data[pos++] = (color & 0xFF0000) >>> 16;
-					data[pos++] = (color & 0x0000FF00) >>> 8;
-					data[pos++] = (color & 0x000000FF);
-					data[pos++] = (color & 0xFF000000) >>> 24;
+					if (byteArray.bytesAvailable > 0) {
+						color = byteArray.readUnsignedInt ();
+						data[pos++] = (color & 0xFF0000) >>> 16;
+						data[pos++] = (color & 0x0000FF00) >>> 8;
+						data[pos++] = (color & 0x000000FF);
+						data[pos++] = (color & 0xFF000000) >>> 24;
+					}
 					
 				}
 				
