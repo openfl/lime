@@ -226,7 +226,7 @@ class EmscriptenPlatform extends PlatformTarget {
 	
 	public override function rebuild ():Void {
 		
-		CPPHelper.rebuild (project, [[ "-Demscripten" ]]);
+		CPPHelper.rebuild (project, [[ "-Demscripten", "-Dstatic_link" ]]);
 		
 	}
 	
