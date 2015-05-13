@@ -84,7 +84,7 @@ class IconHelper {
 				if (bytes != null) {
 					
 					PathHelper.mkdir (Path.directory (targetPath));
-					File.saveBytes (targetPath, );
+					File.saveBytes (targetPath, bytes);
 					return true;
 					
 				}
