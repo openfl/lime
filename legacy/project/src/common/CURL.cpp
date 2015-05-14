@@ -75,6 +75,7 @@ public:
       curl_easy_setopt(mHandle, CURLOPT_HEADERDATA, (void *)this);
 
       curl_easy_setopt(mHandle, CURLOPT_NOPROGRESS, 0);
+      curl_easy_setopt(mHandle, CURLOPT_CONNECTTIMEOUT, 30);
       
       if (r.followRedirects)
          curl_easy_setopt(mHandle, CURLOPT_FOLLOWLOCATION, 1);
