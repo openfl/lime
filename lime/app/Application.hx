@@ -23,6 +23,7 @@ class Application extends Module {
 	public static var current (default, null):Application;
 	
 	public var config (default, null):Config;
+	public var frameRate (get, set):Float;
 	public var modules (default, null):Array<IModule>;
 	
 	/**
@@ -587,6 +588,20 @@ class Application extends Module {
 	// Get & Set Methods
 	
 	
+	
+	
+	@:noCompletion private inline function get_frameRate ():Float {
+		
+		return backend.getFrameRate ();
+		
+	}
+	
+	
+	@:noCompletion private inline function set_frameRate (value:Float):Float {
+		
+		return backend.setFrameRate (value);
+		
+	}
 	
 	
 	@:noCompletion private inline function get_renderer ():Renderer {
