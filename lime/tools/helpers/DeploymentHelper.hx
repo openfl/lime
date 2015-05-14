@@ -18,15 +18,23 @@ class DeploymentHelper {
 			
 			var parent = targetFlags.get ("parent");
 			
-			if (parent != null && parent != "") {
-				
-				ProcessHelper.runCommand ("", "drive", [ "upload", "-f", targetPath, "-p", parent ]);
-				
-			} else {
-				
-				ProcessHelper.runCommand ("", "drive", [ "upload", "-f", targetPath ]);
+			var args = ["upload" , "-f" , targetPath];
+			
+			if (targetFlags.exists("config")) {
+			
+				args.push("--config");
+				args.push(targetFlags.get("config"));
 				
 			}
+			
+			if (parent != null && parent != "") {
+				
+				args.push("-p");
+				args.push(parent);
+				
+			}
+			
+			ProcessHelper.runCommand("","drive",args);
 			
 		}
 		
