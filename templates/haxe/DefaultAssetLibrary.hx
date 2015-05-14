@@ -44,8 +44,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#if flash
 		
-		::if (assets != null)::::foreach assets::::if (embed)::className.set ("::id::", __ASSET__::flatName::);::else::path.set ("::id::", "::resourceName::");::end::
-		type.set ("::id::", AssetType.$$upper(::type::));
+		::if (assets != null)::var id; ::foreach assets::id = "::id::"; ::if (embed)::className.set (id, __ASSET__::flatName::);::else::path.set (id, "::resourceName::");::end::
+		type.set (id, AssetType.$$upper(::type::));
 		::end::::end::
 		
 		#elseif html5
