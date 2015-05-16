@@ -790,6 +790,19 @@ namespace lime {
 		
 	}
 	
+	value lime_cairo_rotate (value handle, value amount) {
+		
+		cairo_rotate ((cairo_t*)(intptr_t)val_float (handle), val_number (amount));
+		return alloc_null ();
+		
+	}
+	
+	value lime_cairo_scale (value handle, value x, value y) {
+		
+		cairo_scale ((cairo_t*)(intptr_t)val_float (handle), val_number (x), val_number (y));
+		return alloc_null ();
+		
+	}
 	
 	value lime_cairo_translate (value handle, value x, value y) {
 		
@@ -907,6 +920,8 @@ namespace lime {
 	DEFINE_PRIM (lime_cairo_surface_destroy, 1);
 	DEFINE_PRIM (lime_cairo_surface_flush, 1);
 	DEFINE_PRIM (lime_cairo_transform, 2);
+	DEFINE_PRIM (lime_cairo_rotate, 2);
+	DEFINE_PRIM (lime_cairo_scale, 3);
 	DEFINE_PRIM (lime_cairo_translate, 3);
 	DEFINE_PRIM (lime_cairo_version, 0);
 	DEFINE_PRIM (lime_cairo_version_string, 0);
