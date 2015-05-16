@@ -72,7 +72,7 @@ abstract CairoSurface(Dynamic) {
 	
 	
 	
-	private function get_height ():Int {
+	@:noCompletion private function get_height ():Int {
 		
 		#if lime_cairo
 		return lime_cairo_image_surface_get_height (this);
@@ -83,7 +83,7 @@ abstract CairoSurface(Dynamic) {
 	}
 	
 	
-	private function get_width ():Int {
+	@:noCompletion private function get_width ():Int {
 		
 		#if lime_cairo
 		return lime_cairo_image_surface_get_width (this);

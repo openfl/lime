@@ -1310,14 +1310,14 @@ class Image {
 	}
 	
 	
-	public function get_rect ():Rectangle {
+	private function get_rect ():Rectangle {
 		
 		return new Rectangle (0, 0, width, height);
 		
 	}
 	
 	
-	public function get_src ():Dynamic {
+	private function get_src ():Dynamic {
 		
 		return buffer.src;
 		

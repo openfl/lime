@@ -31,7 +31,7 @@ class Cairo {
 	public var tolerance (get, set):Float;
 	public var userData:Dynamic;
 	
-	private var handle:Dynamic;
+	@:noCompletion private var handle:Dynamic;
 	
 	
 	public function new (surface:CairoSurface = null):Void {
@@ -469,7 +469,7 @@ class Cairo {
 	
 	
 	
-	private function get_antialias ():CairoAntialias {
+	@:noCompletion private function get_antialias ():CairoAntialias {
 		
 		#if lime_cairo
 		return lime_cairo_get_antialias (handle);
@@ -480,7 +480,7 @@ class Cairo {
 	}
 	
 	
-	private function set_antialias (value:CairoAntialias):CairoAntialias {
+	@:noCompletion private function set_antialias (value:CairoAntialias):CairoAntialias {
 		
 		#if lime_cairo
 		lime_cairo_set_antialias (handle, value);
@@ -491,7 +491,7 @@ class Cairo {
 	}
 	
 	
-	private function get_currentPoint ():Vector2 {
+	@:noCompletion private function get_currentPoint ():Vector2 {
 		
 		#if lime_cairo
 		var vec = lime_cairo_get_current_point (handle);
@@ -503,7 +503,7 @@ class Cairo {
 	}
 	
 	
-	private function get_dash ():Array<Float> {
+	@:noCompletion private function get_dash ():Array<Float> {
 		
 		#if lime_cairo
 		return lime_cairo_get_dash (handle);
@@ -514,7 +514,7 @@ class Cairo {
 	}
 	
 	
-	private function set_dash (value:Array<Float>):Array<Float> {
+	@:noCompletion private function set_dash (value:Array<Float>):Array<Float> {
 		
 		#if lime_cairo
 		lime_cairo_set_dash (handle, value);
@@ -525,7 +525,7 @@ class Cairo {
 	}
 	
 	
-	private function get_dashCount ():Int {
+	@:noCompletion private function get_dashCount ():Int {
 		
 		#if lime_cairo
 		return lime_cairo_get_dash_count (handle);
@@ -536,7 +536,7 @@ class Cairo {
 	}
 	
 	
-	private function get_fillRule ():CairoFillRule {
+	@:noCompletion private function get_fillRule ():CairoFillRule {
 		
 		#if lime_cairo
 		return lime_cairo_get_fill_rule (handle);
@@ -547,7 +547,7 @@ class Cairo {
 	}
 	
 	
-	private function set_fillRule (value:CairoFillRule):CairoFillRule {
+	@:noCompletion private function set_fillRule (value:CairoFillRule):CairoFillRule {
 		
 		#if lime_cairo
 		lime_cairo_set_fill_rule (handle, value);
@@ -558,7 +558,7 @@ class Cairo {
 	}
 	
 	
-	private function get_groupTarget ():CairoSurface {
+	@:noCompletion private function get_groupTarget ():CairoSurface {
 		
 		#if lime_cairo
 		return lime_cairo_get_group_target (handle);
@@ -569,7 +569,7 @@ class Cairo {
 	}
 	
 	
-	private function get_hasCurrentPoint ():Bool {
+	@:noCompletion private function get_hasCurrentPoint ():Bool {
 		
 		#if lime_cairo
 		return lime_cairo_has_current_point (handle);
@@ -580,7 +580,7 @@ class Cairo {
 	}
 	
 	
-	private function get_lineCap ():CairoLineCap {
+	@:noCompletion private function get_lineCap ():CairoLineCap {
 		
 		#if lime_cairo
 		return lime_cairo_get_line_cap (handle);
@@ -591,7 +591,7 @@ class Cairo {
 	}
 	
 	
-	private function set_lineCap (value:CairoLineCap):CairoLineCap {
+	@:noCompletion private function set_lineCap (value:CairoLineCap):CairoLineCap {
 		
 		#if lime_cairo
 		lime_cairo_set_line_cap (handle, value);
@@ -602,7 +602,7 @@ class Cairo {
 	}
 	
 	
-	private function get_lineJoin ():CairoLineJoin {
+	@:noCompletion private function get_lineJoin ():CairoLineJoin {
 		
 		#if lime_cairo
 		return lime_cairo_get_line_join (handle);
@@ -613,7 +613,7 @@ class Cairo {
 	}
 	
 	
-	private function set_lineJoin (value:CairoLineJoin):CairoLineJoin {
+	@:noCompletion private function set_lineJoin (value:CairoLineJoin):CairoLineJoin {
 		
 		#if lime_cairo
 		lime_cairo_set_line_join (handle, value);
@@ -624,7 +624,7 @@ class Cairo {
 	}
 	
 	
-	private function get_lineWidth ():Float {
+	@:noCompletion private function get_lineWidth ():Float {
 		
 		#if lime_cairo
 		return lime_cairo_get_line_width (handle);
@@ -635,7 +635,7 @@ class Cairo {
 	}
 	
 	
-	private function set_lineWidth (value:Float):Float {
+	@:noCompletion private function set_lineWidth (value:Float):Float {
 		
 		#if lime_cairo
 		lime_cairo_set_line_width (handle, value);
@@ -646,7 +646,7 @@ class Cairo {
 	}
 	
 	
-	private function get_matrix ():Matrix3 {
+	@:noCompletion private function get_matrix ():Matrix3 {
 		
 		#if lime_cairo
 		var m = lime_cairo_get_matrix (handle);
@@ -658,7 +658,7 @@ class Cairo {
 	}
 	
 	
-	private function set_matrix (value:Matrix3):Matrix3 {
+	@:noCompletion private function set_matrix (value:Matrix3):Matrix3 {
 		
 		#if lime_cairo
 		lime_cairo_set_matrix (handle, value);
@@ -669,7 +669,7 @@ class Cairo {
 	}
 	
 	
-	private function get_miterLimit ():Float {
+	@:noCompletion private function get_miterLimit ():Float {
 		
 		#if lime_cairo
 		return lime_cairo_get_miter_limit (handle);
@@ -680,7 +680,7 @@ class Cairo {
 	}
 	
 	
-	private function set_miterLimit (value:Float):Float {
+	@:noCompletion private function set_miterLimit (value:Float):Float {
 		
 		#if lime_cairo
 		lime_cairo_set_miter_limit (handle, value);
@@ -691,7 +691,7 @@ class Cairo {
 	}
 	
 	
-	private function get_operator ():CairoOperator {
+	@:noCompletion private function get_operator ():CairoOperator {
 		
 		#if lime_cairo
 		return lime_cairo_get_operator (handle);
@@ -702,7 +702,7 @@ class Cairo {
 	}
 	
 	
-	private function set_operator (value:CairoOperator):CairoOperator {
+	@:noCompletion private function set_operator (value:CairoOperator):CairoOperator {
 		
 		#if lime_cairo
 		lime_cairo_set_operator (handle, value);
@@ -713,7 +713,7 @@ class Cairo {
 	}
 	
 	
-	private function get_referenceCount ():Int {
+	@:noCompletion private function get_referenceCount ():Int {
 		
 		#if lime_cairo
 		return lime_cairo_get_reference_count ();
@@ -724,7 +724,7 @@ class Cairo {
 	}
 	
 	
-	private function get_source ():CairoPattern {
+	@:noCompletion private function get_source ():CairoPattern {
 		
 		#if lime_cairo
 		return lime_cairo_get_source (handle);
@@ -735,7 +735,7 @@ class Cairo {
 	}
 	
 	
-	private function set_source (value:CairoPattern):CairoPattern {
+	@:noCompletion private function set_source (value:CairoPattern):CairoPattern {
 		
 		#if lime_cairo
 		lime_cairo_set_source (handle, value);
@@ -746,7 +746,7 @@ class Cairo {
 	}
 	
 	
-	private function get_target ():CairoSurface {
+	@:noCompletion private function get_target ():CairoSurface {
 		
 		#if lime_cairo
 		return lime_cairo_get_target (handle);
@@ -757,7 +757,7 @@ class Cairo {
 	}
 	
 	
-	private function get_tolerance ():Float {
+	@:noCompletion private function get_tolerance ():Float {
 		
 		#if lime_cairo
 		return lime_cairo_get_tolerance ();
@@ -768,7 +768,7 @@ class Cairo {
 	}
 	
 	
-	private function set_tolerance (value:Float):Float {
+	@:noCompletion private function set_tolerance (value:Float):Float {
 		
 		#if lime_cairo
 		lime_cairo_set_tolerance (value);

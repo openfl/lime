@@ -110,7 +110,7 @@ abstract CairoPattern(Dynamic) {
 	
 	
 	
-	public function get_colorStopCount ():Int {
+	@:noCompletion private function get_colorStopCount ():Int {
 		
 		#if lime_cairo
 		return lime_cairo_pattern_get_color_stop_count (this);
@@ -121,7 +121,7 @@ abstract CairoPattern(Dynamic) {
 	}
 	
 	
-	public function get_extend ():CairoExtend {
+	@:noCompletion private function get_extend ():CairoExtend {
 		
 		#if lime_cairo
 		return lime_cairo_pattern_get_extend (this);
@@ -132,7 +132,7 @@ abstract CairoPattern(Dynamic) {
 	}
 	
 	
-	public function set_extend (value:CairoExtend):CairoExtend {
+	@:noCompletion private function set_extend (value:CairoExtend):CairoExtend {
 		
 		#if lime_cairo
 		lime_cairo_pattern_set_extend (this, value);
@@ -143,7 +143,7 @@ abstract CairoPattern(Dynamic) {
 	}
 	
 	
-	public function get_filter ():CairoFilter {
+	@:noCompletion private function get_filter ():CairoFilter {
 		
 		#if lime_cairo
 		return lime_cairo_pattern_get_filter (this);
@@ -154,7 +154,7 @@ abstract CairoPattern(Dynamic) {
 	}
 	
 	
-	public function set_filter (value:CairoFilter):CairoFilter {
+	@:noCompletion private function set_filter (value:CairoFilter):CairoFilter {
 		
 		#if lime_cairo
 		lime_cairo_pattern_set_filter (this, value);
@@ -165,7 +165,7 @@ abstract CairoPattern(Dynamic) {
 	}
 	
 	
-	public function get_matrix ():Matrix3 {
+	@:noCompletion private function get_matrix ():Matrix3 {
 		
 		#if lime_cairo
 		var m = lime_cairo_pattern_get_matrix (this);
@@ -177,7 +177,7 @@ abstract CairoPattern(Dynamic) {
 	}
 	
 	
-	public function set_matrix (value:Matrix3):Matrix3 {
+	@:noCompletion private function set_matrix (value:Matrix3):Matrix3 {
 		
 		#if lime_cairo
 		lime_cairo_pattern_set_matrix (this, value);
