@@ -452,6 +452,22 @@ class Cairo {
 		
 	}
 	
+	public function rotate (amount:Float):Void {
+		
+		#if lime_cairo
+		lime_cairo_rotate (handle, amount);
+		#end
+		
+	}
+	
+	public function scale (x:Float, y:Float):Void {
+		
+		#if lime_cairo
+		lime_cairo_scale (handle, x, y);
+		#end
+		
+	}
+	
 	
 	public function translate (x:Float, y:Float):Void {
 		
@@ -461,6 +477,8 @@ class Cairo {
 		
 	}
 	
+	
+
 	
 	
 	
@@ -882,6 +900,8 @@ class Cairo {
 	private static var lime_cairo_stroke_extents = System.load ("lime", "lime_cairo_stroke_extents", 5);
 	private static var lime_cairo_stroke_preserve = System.load ("lime", "lime_cairo_stroke_preserve", 1);
 	private static var lime_cairo_transform = System.load ("lime", "lime_cairo_transform", 2);
+	private static var lime_cairo_rotate = System.load ("lime", "lime_cairo_rotate", 2);
+	private static var lime_cairo_scale = System.load ("lime", "lime_cairo_scale", 3);
 	private static var lime_cairo_translate = System.load ("lime", "lime_cairo_translate", 3);
 	private static var lime_cairo_version = System.load ("lime", "lime_cairo_version", 0);
 	private static var lime_cairo_version_string = System.load ("lime", "lime_cairo_version_string", 0);
