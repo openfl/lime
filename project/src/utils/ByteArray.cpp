@@ -145,6 +145,12 @@ namespace lime {
 		return alloc_null ();
 		
 	}
+
+	value lime_buffer_get_native_pointer (buffer inBuffer) {
+		
+		return alloc_float ((intptr_t)buffer_data (inBuffer));
+		
+	}
 	
 	
 	value lime_byte_array_init (value inFactory, value inLen, value inResize, value inBytes) {
@@ -201,6 +207,8 @@ namespace lime {
 	DEFINE_PRIM (lime_byte_array_init, 4);
 	DEFINE_PRIM (lime_byte_array_overwrite_file, 2);
 	DEFINE_PRIM (lime_byte_array_read_file, 1);
+
+	DEFINE_PRIM (lime_buffer_get_native_pointer, 1);
 	
 	
 }
