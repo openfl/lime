@@ -176,6 +176,14 @@ class HTML5Platform extends PlatformTarget {
 		context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background, 6);
 		context.OUTPUT_DIR = targetDirectory;
 		context.OUTPUT_FILE = outputFile;
+
+		for (icon in project.icons) {
+
+				FileHelper.copyIfNewer (icon.path, PathHelper.combine (destination, icon.path));
+				context.REL_ICON = icon.path;
+				// break;
+
+		}
 		
 		if (project.targetFlags.exists ("webgl")) {
 			
