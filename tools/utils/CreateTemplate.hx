@@ -377,6 +377,7 @@ class CreateTemplate {
 					for (samplePath in samplePaths) {
 						
 						var path = PathHelper.tryFullPath (samplePath);
+						if (!FileSystem.exists (path)) continue;
 						
 						for (name in FileSystem.readDirectory (path)) {
 							
