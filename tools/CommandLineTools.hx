@@ -636,7 +636,7 @@ class CommandLineTools {
 				
 				CreateTemplate.createProject (words, userDefines);
 				
-			} else if (projectName == "extension") {
+			} else if (projectName == "extension" || sampleName == "extension") {
 				
 				CreateTemplate.createExtension (words, userDefines);
 				
