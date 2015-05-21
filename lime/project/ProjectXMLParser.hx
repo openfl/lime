@@ -1394,6 +1394,18 @@ class ProjectXMLParser extends HXProject {
 							
 						}
 						
+						var i = dependencies.length;
+						
+						while (i-- > 0) {
+							
+							if ((name != "" && dependencies[i].name == name) || (path != "" && dependencies[i].path == path)) {
+								
+								dependencies.splice (i, 1);
+								
+							}
+							
+						}
+						
 						dependencies.push (new Dependency (name, path));
 					
 					case "android":
