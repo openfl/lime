@@ -149,7 +149,7 @@ class WindowsPlatform extends PlatformTarget {
 			
 			var iconPath = PathHelper.combine (applicationDirectory, "icon.ico");
 			
-			if (IconHelper.createWindowsIcon (project.icons, iconPath)) {
+			if (IconHelper.createWindowsIcon (project.icons, iconPath) && PlatformHelper.hostPlatform == WINDOWS) {
 				
 				var templates = [ PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates" ].concat (project.templatePaths);
 				ProcessHelper.runCommand ("", PathHelper.findTemplate (templates, "bin/ReplaceVistaIcon.exe"), [ executablePath, iconPath, "1" ], true, true);
