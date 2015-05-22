@@ -6,7 +6,7 @@
 namespace lime {
 	
 	
-	static int __alpha16[0xFF];
+	static int __alpha16[0xFF + 1];
 	static int __clamp[0xFF + 0xFF + 1];
 	
 	int initValues () {
