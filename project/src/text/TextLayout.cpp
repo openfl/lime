@@ -52,7 +52,7 @@ namespace lime {
 		hb_glyph_info_t *glyph_info = hb_buffer_get_glyph_infos ((hb_buffer_t*)mBuffer, &glyph_count);
 		hb_glyph_position_t *glyph_pos = hb_buffer_get_glyph_positions ((hb_buffer_t*)mBuffer, &glyph_count);
 		
-		float hres = 100;
+		//float hres = 100;
 		int posIndex = 0;
 		
 		int glyphSize = sizeof(GlyphPosition);
@@ -79,9 +79,9 @@ namespace lime {
 			data = (GlyphPosition*)(bytesPosition);
 			
 			data->index = glyph_info[i].codepoint;
-			data->advanceX = (float)(pos.x_advance / (float)(hres * 64));
+			data->advanceX = (float)(pos.x_advance / (float)(64));
 			data->advanceY = (float)(pos.y_advance / (float)64);
-			data->offsetX = (float)(pos.x_offset / (float)(hres * 64));
+			data->offsetX = (float)(pos.x_offset / (float)(64));
 			data->offsetY = (float)(pos.y_offset / (float)64);
 			
 			bytesPosition += glyphSize;

@@ -174,7 +174,7 @@ class Font {
 		return null;
 		
 	}
-	
+
 	
 	public function renderGlyphs (glyphs:Array<Glyph>, fontSize:Int):Map<Glyph, Image> {
 		
@@ -339,8 +339,7 @@ class Font {
 		return null;
 		
 	}
-	
-	
+		
 	@:noCompletion private function __fromBytes (bytes:ByteArray):Void {
 		
 		__fontPath = null;

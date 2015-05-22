@@ -866,19 +866,9 @@ namespace lime {
 		
 		size_t hdpi = 72;
 		size_t vdpi = 72;
-		size_t hres = 100;
-		FT_Matrix matrix = {
-			(int)((1.0/hres) * 0x10000L),
-			(int)((0.0) * 0x10000L),
-			(int)((0.0) * 0x10000L),
-			(int)((1.0) * 0x10000L)
-		};
 		
-		FT_Set_Char_Size ((FT_Face)face, 0, (int)(size*64), (int)(hdpi * hres), vdpi);
-		FT_Set_Transform ((FT_Face)face, &matrix, NULL);
-		
+		FT_Set_Char_Size ((FT_Face)face, (int)(size*64), (int)(size*64), hdpi, vdpi);
 		mSize = size;
-		
 	}
 	
 	

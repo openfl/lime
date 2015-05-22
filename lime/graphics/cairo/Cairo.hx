@@ -369,6 +369,41 @@ class Cairo {
 		
 	}
 	
+	public function setFontFace( face:CairoFont ) {
+		
+		#if lime_cairo
+		lime_cairo_set_font_face( handle, face.handle );
+		#end
+	}
+	
+	public function setFontSize( size:Float ) {
+		
+		#if lime_cairo
+		lime_cairo_set_font_size( handle, size );
+		#end
+	}
+	
+	public function getFontOptions ():CairoFontOptions {
+		
+		#if lime_cairo
+		return new CairoFontOptions( handle );
+		#end
+		
+		return cast 0;
+		
+	}
+	
+	
+	public function setFontOptions (value:CairoFontOptions):CairoFontOptions {
+		
+		#if lime_cairo
+		lime_cairo_set_font_options (handle, value.handle);
+		#end
+		
+		return value;
+		
+	}
+	
 	
 	public function setSourceRGB (r:Float, g:Float, b:Float):Void {
 		
@@ -401,6 +436,14 @@ class Cairo {
 		
 		#if lime_cairo
 		lime_cairo_show_page (handle);
+		#end
+		
+	}
+	
+	public function showText ( utf8:String ) {
+		
+		#if lime_cairo
+		lime_cairo_show_text( handle, utf8 );
 		#end
 		
 	}
@@ -882,7 +925,11 @@ class Cairo {
 	private static var lime_cairo_save = System.load ("lime", "lime_cairo_save", 1);
 	private static var lime_cairo_set_antialias = System.load ("lime", "lime_cairo_set_antialias", 2);
 	private static var lime_cairo_set_dash = System.load ("lime", "lime_cairo_set_dash", 2);
+	private static var lime_cairo_set_font_face = System.load ("lime", "lime_cairo_set_font_face", 2);
+	private static var lime_cairo_set_font_size = System.load ("lime", "lime_cairo_set_font_size", 2);
 	private static var lime_cairo_set_fill_rule = System.load ("lime", "lime_cairo_set_fill_rule", 2);
+	private static var lime_cairo_set_font_options = System.load ("lime", "lime_cairo_set_font_options", 2);
+	private static var lime_cairo_get_font_options = System.load ("lime", "lime_cairo_get_font_options", 1);
 	private static var lime_cairo_set_line_cap = System.load ("lime", "lime_cairo_set_line_cap", 2);
 	private static var lime_cairo_set_line_join = System.load ("lime", "lime_cairo_set_line_join", 2);
 	private static var lime_cairo_set_line_width = System.load ("lime", "lime_cairo_set_line_width", 2);
@@ -895,6 +942,7 @@ class Cairo {
 	private static var lime_cairo_set_source_surface = System.load ("lime", "lime_cairo_set_source_surface", 4);
 	private static var lime_cairo_set_tolerance = System.load ("lime", "lime_cairo_set_tolerance", 2);
 	private static var lime_cairo_show_page = System.load ("lime", "lime_cairo_show_page", 1);
+	private static var lime_cairo_show_text = System.load ("lime", "lime_cairo_show_text", 2);
 	private static var lime_cairo_status = System.load ("lime", "lime_cairo_status", 1);
 	private static var lime_cairo_stroke = System.load ("lime", "lime_cairo_stroke", 1);
 	private static var lime_cairo_stroke_extents = System.load ("lime", "lime_cairo_stroke_extents", 5);
