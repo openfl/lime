@@ -258,6 +258,7 @@ public:
    }
    double getLeft() { return 1; }
    double getRight() { return 1; }
+   void setPitch(const float &inFloat) {}
    double getPosition() { return 1; }
    double setPosition(const float &inFloat) { return 1; }
    void stop() 
@@ -484,6 +485,7 @@ public:
    }
    double getLeft() { return 1; }
    double getRight() { return 1; }
+   void setPitch(const float &inFloat) {}
    double getPosition() { return mPlaying ? SDL_GetTicks() - mStartTime : mLength; }
    double setPosition(const float &inFloat) { return 1; }
 

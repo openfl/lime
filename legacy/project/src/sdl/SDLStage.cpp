@@ -691,7 +691,7 @@ public:
    double mDownY;
    
    const char *getJoystickName(int id) {
-      #if !defined(BLACKBERRY) && !defined(EMSCRIPTEN)
+      #if !defined(BLACKBERRY) && !defined(EMSCRIPTEN) && !defined(WEBOS)
       return SDL_JoystickNameForIndex(id);
       #else
       return "";
