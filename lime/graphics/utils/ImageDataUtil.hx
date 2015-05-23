@@ -1114,6 +1114,17 @@ class ImageDataUtil {
 			var width = image.buffer.width;
 			var color;
 			
+			if (byteArray.bytesAvailable < len * 4) {
+				var start:Int = byteArray.bytesAvailable;
+				var end:Int = len * 4;
+				byteArray.position = start;
+				while (byteArray.position < end) 
+				{
+					byteArray.writeUnsignedInt(0);
+				}
+				byteArray.position = 0;
+			}
+			
 			if (format == ARGB) {
 				
 				for (i in 0...len) {
@@ -1124,13 +1135,11 @@ class ImageDataUtil {
 						
 					}
 					
-					if (byteArray.bytesAvailable > 0) {
-						color = byteArray.readUnsignedInt ();
-						data[pos++] = (color & 0xFF0000) >>> 16;
-						data[pos++] = (color & 0x0000FF00) >>> 8;
-						data[pos++] = (color & 0x000000FF);
-						data[pos++] = (color & 0xFF000000) >>> 24;
-					}
+					color = byteArray.readUnsignedInt ();
+					data[pos++] = (color & 0xFF0000) >>> 16;
+					data[pos++] = (color & 0x0000FF00) >>> 8;
+					data[pos++] = (color & 0x000000FF);
+					data[pos++] = (color & 0xFF000000) >>> 24;
 					
 				}
 				
