@@ -28,6 +28,7 @@ namespace lime {
 			virtual int Exec ();
 			virtual void Init ();
 			virtual int Quit ();
+			virtual void SetFrameRate (double frameRate);
 			virtual bool Update ();
 			
 			void RegisterWindow (SDLWindow *window);

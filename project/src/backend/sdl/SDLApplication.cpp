@@ -27,6 +27,8 @@ namespace lime {
 		
 		currentApplication = this;
 		
+		framePeriod = 1000.0 / 60.0;
+		
 		#ifdef EMSCRIPTEN
 		emscripten_cancel_main_loop ();
 		emscripten_set_main_loop (UpdateFrame, 0, 0);
@@ -203,7 +205,6 @@ namespace lime {
 	
 	void SDLApplication::Init () {
 		
-		framePeriod = 1000.0 / 60.0;
 		active = true;
 		lastUpdate = SDL_GetTicks ();
 		nextUpdate = lastUpdate;
@@ -437,6 +438,21 @@ namespace lime {
 		#ifdef IPHONE
 		SDL_iPhoneSetAnimationCallback (window->sdlWindow, 1, UpdateFrame, NULL);
 		#endif
+		
+	}
+	
+	
+	void SDLApplication::SetFrameRate (double frameRate) {
+		
+		if (frameRate > 0) {
+			
+			framePeriod = 1000.0 / frameRate;
+			
+		} else {
+			
+			framePeriod = 1000.0;
+			
+		}
 		
 	}
 	

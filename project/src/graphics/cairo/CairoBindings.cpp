@@ -1,11 +1,14 @@
 #include <cairo.h>
+#include <cairo-ft.h>
 #include <math/Matrix3.h>
 #include <math/Vector2.h>
 #include <hx/CFFI.h>
+#include <text/Font.h>
 
 
 namespace lime {
 	
+	void lime_cairo_font_options_destroy (value handle);
 	
 	value lime_cairo_arc (value *arg, int argCount) {
 		
@@ -119,7 +122,80 @@ namespace lime {
 		
 	}
 	
+	value lime_cairo_font_face_destroy (value handle) {
+		
+		cairo_font_face_t* face = (cairo_font_face_t*)(intptr_t)val_float(handle);
+		cairo_font_face_destroy( face );
+		return alloc_null ();
+		
+	}
 	
+	value lime_cairo_font_options_create () {
+		
+		value options = alloc_float( (intptr_t)cairo_font_options_create() );
+		val_gc( options, lime_cairo_font_options_destroy );
+		return options;
+		
+	}
+		
+	void lime_cairo_font_options_destroy (value handle) {
+		
+		cairo_font_options_destroy( (cairo_font_options_t*)(intptr_t)val_float (handle) );
+		
+	}
+	
+	value lime_cairo_font_options_get_antialias (value handle) {
+		
+		return alloc_int( cairo_font_options_get_antialias( (cairo_font_options_t*)(intptr_t)val_float (handle) ) );
+		
+	}
+	
+	value lime_cairo_font_options_get_subpixel_order (value handle) {
+		
+		return alloc_int( cairo_font_options_get_subpixel_order( (cairo_font_options_t*)(intptr_t)val_float (handle) ) );
+		
+	}
+	
+	value lime_cairo_font_options_get_hint_style (value handle) {
+		
+		return alloc_int( cairo_font_options_get_hint_style( (cairo_font_options_t*)(intptr_t)val_float (handle) ) );
+		
+	}
+	
+	value lime_cairo_font_options_get_hint_metrics (value handle) {
+		
+		return alloc_int( cairo_font_options_get_hint_metrics( (cairo_font_options_t*)(intptr_t)val_float (handle) ) );
+		
+	}
+	
+	value lime_cairo_font_options_set_antialias (value handle, value v) {
+		
+		cairo_font_options_set_antialias( (cairo_font_options_t*)(intptr_t)val_float (handle), (cairo_antialias_t)val_int( v ) );
+		return alloc_null();
+		
+	}
+	
+	value lime_cairo_font_options_set_subpixel_order (value handle, value v) {
+		
+		cairo_font_options_set_subpixel_order( (cairo_font_options_t*)(intptr_t)val_float (handle), (cairo_subpixel_order_t)val_int( v ) );
+		return alloc_null();
+		
+	}
+	
+	value lime_cairo_font_options_set_hint_style (value handle, value v) {
+		
+		cairo_font_options_set_hint_style( (cairo_font_options_t*)(intptr_t)val_float (handle), (cairo_hint_style_t)val_int( v ) );
+		return alloc_null();
+		
+	}
+	
+	value lime_cairo_font_options_set_hint_metrics (value handle, value v) {
+		
+		cairo_font_options_set_hint_metrics( (cairo_font_options_t*)(intptr_t)val_float (handle), (cairo_hint_metrics_t)val_int( v ) );
+		return alloc_null();
+		
+	}
+
 	value lime_cairo_get_antialias (value handle) {
 		
 		return alloc_int (cairo_get_antialias ((cairo_t*)(intptr_t)val_float (handle)));
@@ -171,6 +247,15 @@ namespace lime {
 		
 		return alloc_int (cairo_get_fill_rule ((cairo_t*)(intptr_t)val_float (handle)));
 		
+	}
+		
+	value lime_cairo_get_font_options (value handle) {
+		
+		cairo_font_options_t* options = (cairo_font_options_t*)(intptr_t)lime_cairo_font_options_create();
+		
+		cairo_get_font_options ((cairo_t*)(intptr_t)val_float (handle), options);
+		
+		return alloc_float ((intptr_t)options);
 	}
 	
 	
@@ -616,6 +701,26 @@ namespace lime {
 		
 	}
 	
+	value lime_cairo_set_font_face (value handle, value face) {
+		
+		cairo_set_font_face ((cairo_t*)(intptr_t)val_float (handle), (cairo_font_face_t*)(intptr_t)val_float (face) );
+		return alloc_null ();
+		
+	}
+	
+	value lime_cairo_set_font_size (value handle, value size) {
+		
+		cairo_set_font_size ((cairo_t*)(intptr_t)val_float (handle), val_number(size) );
+		return alloc_null ();
+		
+	}
+	
+	value lime_cairo_set_font_options (value handle, value options) {
+		
+		cairo_set_font_options ((cairo_t*)(intptr_t)val_float (handle), (cairo_font_options_t*)(intptr_t)val_float (options) );
+		return alloc_null ();
+		
+	}
 	
 	value lime_cairo_set_fill_rule (value handle, value cap) {
 		
@@ -725,6 +830,13 @@ namespace lime {
 		
 	}
 	
+	value lime_cairo_show_text (value handle, value text) {
+				
+		cairo_show_text( (cairo_t*)(intptr_t)val_float (handle), (char*)val_string(text) );
+		return alloc_null ();
+		
+	}
+	
 	
 	value lime_cairo_status (value handle) {
 		
@@ -790,6 +902,19 @@ namespace lime {
 		
 	}
 	
+	value lime_cairo_rotate (value handle, value amount) {
+		
+		cairo_rotate ((cairo_t*)(intptr_t)val_float (handle), val_number (amount));
+		return alloc_null ();
+		
+	}
+	
+	value lime_cairo_scale (value handle, value x, value y) {
+		
+		cairo_scale ((cairo_t*)(intptr_t)val_float (handle), val_number (x), val_number (y));
+		return alloc_null ();
+		
+	}
 	
 	value lime_cairo_translate (value handle, value x, value y) {
 		
@@ -812,6 +937,16 @@ namespace lime {
 		
 	}
 	
+	#ifdef LIME_FREETYPE
+	value lime_cairo_ft_font_face_create_for_ft_face( value face, value flags ) {
+		
+		Font *font = (Font*)(intptr_t)val_float (face);
+		
+		return alloc_float ((intptr_t)cairo_ft_font_face_create_for_ft_face( (FT_Face)(font->face), val_int( flags ) ));
+		
+	}
+	#endif
+	
 	
 	DEFINE_PRIM_MULT (lime_cairo_arc);
 	DEFINE_PRIM_MULT (lime_cairo_arc_negative);
@@ -826,11 +961,23 @@ namespace lime {
 	DEFINE_PRIM (lime_cairo_fill, 1);
 	DEFINE_PRIM (lime_cairo_fill_extents, 5);
 	DEFINE_PRIM (lime_cairo_fill_preserve, 1);
+	DEFINE_PRIM (lime_cairo_ft_font_face_create_for_ft_face, 2);
+	DEFINE_PRIM (lime_cairo_font_face_destroy, 1);
+	DEFINE_PRIM (lime_cairo_font_options_create, 0);
+	DEFINE_PRIM (lime_cairo_font_options_get_antialias, 1);
+	DEFINE_PRIM (lime_cairo_font_options_get_subpixel_order, 1);
+	DEFINE_PRIM (lime_cairo_font_options_get_hint_style, 1);
+	DEFINE_PRIM (lime_cairo_font_options_get_hint_metrics, 1);
+	DEFINE_PRIM (lime_cairo_font_options_set_antialias, 2);
+	DEFINE_PRIM (lime_cairo_font_options_set_subpixel_order, 2);
+	DEFINE_PRIM (lime_cairo_font_options_set_hint_style, 2);
+	DEFINE_PRIM (lime_cairo_font_options_set_hint_metrics, 2);
 	DEFINE_PRIM (lime_cairo_get_antialias, 1);
 	DEFINE_PRIM (lime_cairo_get_current_point, 1);
 	DEFINE_PRIM (lime_cairo_get_dash, 1);
 	DEFINE_PRIM (lime_cairo_get_dash_count, 1);
 	DEFINE_PRIM (lime_cairo_get_fill_rule, 1);
+	DEFINE_PRIM (lime_cairo_get_font_options, 1);	
 	DEFINE_PRIM (lime_cairo_get_group_target, 1);
 	DEFINE_PRIM (lime_cairo_get_line_cap, 1);
 	DEFINE_PRIM (lime_cairo_get_line_join, 1);
@@ -888,6 +1035,9 @@ namespace lime {
 	DEFINE_PRIM (lime_cairo_set_antialias, 2);
 	DEFINE_PRIM (lime_cairo_set_dash, 2);
 	DEFINE_PRIM (lime_cairo_set_fill_rule, 2);
+	DEFINE_PRIM (lime_cairo_set_font_face, 2);
+	DEFINE_PRIM (lime_cairo_set_font_size, 2);
+	DEFINE_PRIM (lime_cairo_set_font_options, 2);
 	DEFINE_PRIM (lime_cairo_set_line_cap, 2);
 	DEFINE_PRIM (lime_cairo_set_line_join, 2);
 	DEFINE_PRIM (lime_cairo_set_line_width, 2);
@@ -900,6 +1050,7 @@ namespace lime {
 	DEFINE_PRIM (lime_cairo_set_source_surface, 4);
 	DEFINE_PRIM (lime_cairo_set_tolerance, 2);
 	DEFINE_PRIM (lime_cairo_show_page, 1);
+	DEFINE_PRIM (lime_cairo_show_text, 2);
 	DEFINE_PRIM (lime_cairo_status, 1);
 	DEFINE_PRIM (lime_cairo_stroke, 1);
 	DEFINE_PRIM (lime_cairo_stroke_extents, 5);
@@ -907,6 +1058,8 @@ namespace lime {
 	DEFINE_PRIM (lime_cairo_surface_destroy, 1);
 	DEFINE_PRIM (lime_cairo_surface_flush, 1);
 	DEFINE_PRIM (lime_cairo_transform, 2);
+	DEFINE_PRIM (lime_cairo_rotate, 2);
+	DEFINE_PRIM (lime_cairo_scale, 3);
 	DEFINE_PRIM (lime_cairo_translate, 3);
 	DEFINE_PRIM (lime_cairo_version, 0);
 	DEFINE_PRIM (lime_cairo_version_string, 0);

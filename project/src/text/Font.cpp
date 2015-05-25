@@ -135,7 +135,8 @@ namespace {
 		
 		PT_MOVE = 1,
 		PT_LINE = 2,
-		PT_CURVE = 3
+		PT_CURVE = 3,
+		PT_CUBIC = 4
 		
 	};
 	
@@ -241,20 +242,15 @@ namespace {
 	
 	int outline_cubic_to (FVecPtr ctl1, FVecPtr ctl2, FVecPtr to, void *user) {
 		
-		// Cubic curves are not supported, we need to approximate to a quadratic
-		// TODO: divide into multiple curves
-		
 		glyph *g = static_cast<glyph*> (user);
 		
-		FT_Vector ctl;
-		ctl.x = (-0.25 * g->x) + (0.75 * ctl1->x) + (0.75 * ctl2->x) + (-0.25 * to->x);
-		ctl.y = (-0.25 * g->y) + (0.75 * ctl1->y) + (0.75 * ctl2->y) + (-0.25 * to->y);
-		
-		g->pts.push_back (PT_CURVE);
-		g->pts.push_back (ctl.x - g->x);
-		g->pts.push_back (ctl.y - g->y);
-		g->pts.push_back (to->x - ctl.x);
-		g->pts.push_back (to->y - ctl.y);
+		g->pts.push_back (PT_CUBIC);
+		g->pts.push_back (ctl1->x - g->x);
+		g->pts.push_back (ctl1->y - g->y);
+		g->pts.push_back (ctl2->x - ctl1->x);
+		g->pts.push_back (ctl2->y - ctl1->y);
+		g->pts.push_back (to->x - ctl2->x);
+		g->pts.push_back (to->y - ctl2->y);
 		
 		g->x = to->x;
 		g->y = to->y;
@@ -468,7 +464,8 @@ namespace lime {
 		int result, i, j;
 		
 		FT_Set_Char_Size ((FT_Face)face, em, em, 72, 72);
-		
+		FT_Set_Transform ((FT_Face)face, 0, NULL);
+
 		std::vector<glyph*> glyphs;
 		
 		FT_Outline_Funcs ofn =
@@ -869,19 +866,9 @@ namespace lime {
 		
 		size_t hdpi = 72;
 		size_t vdpi = 72;
-		size_t hres = 100;
-		FT_Matrix matrix = {
-			(int)((1.0/hres) * 0x10000L),
-			(int)((0.0) * 0x10000L),
-			(int)((0.0) * 0x10000L),
-			(int)((1.0) * 0x10000L)
-		};
 		
-		FT_Set_Char_Size ((FT_Face)face, 0, (int)(size*64), (int)(hdpi * hres), vdpi);
-		FT_Set_Transform ((FT_Face)face, &matrix, NULL);
-		
+		FT_Set_Char_Size ((FT_Face)face, (int)(size*64), (int)(size*64), hdpi, vdpi);
 		mSize = size;
-		
 	}
 	
 	

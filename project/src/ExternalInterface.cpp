@@ -74,6 +74,15 @@ namespace lime {
 	}
 	
 	
+	value lime_application_set_frame_rate (value application, value frameRate) {
+		
+		Application* app = (Application*)(intptr_t)val_float (application);
+		app->SetFrameRate (val_number (frameRate));
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_application_update (value application) {
 		
 		Application* app = (Application*)(intptr_t)val_float (application);
@@ -993,6 +1002,7 @@ namespace lime {
 	DEFINE_PRIM (lime_application_exec, 1);
 	DEFINE_PRIM (lime_application_init, 1);
 	DEFINE_PRIM (lime_application_quit, 1);
+	DEFINE_PRIM (lime_application_set_frame_rate, 2);
 	DEFINE_PRIM (lime_application_update, 1);
 	DEFINE_PRIM (lime_audio_load, 1);
 	DEFINE_PRIM (lime_font_get_ascender, 1);

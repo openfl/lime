@@ -33,6 +33,8 @@ class FlashApplication {
 		
 		this.parent = parent;
 		
+		Lib.current.stage.frameRate = 60;
+		
 		AudioManager.init ();
 		
 	}
@@ -106,6 +108,7 @@ class FlashApplication {
 		
 		if (config != null) {
 			
+			setFrameRate (config.fps);
 			var window = new Window (config);
 			var renderer = new Renderer (window);
 			parent.addWindow (window);
@@ -148,6 +151,13 @@ class FlashApplication {
 		Lib.current.stage.addEventListener (Event.ENTER_FRAME, handleUpdateEvent);
 		
 		return 0;
+		
+	}
+	
+	
+	public function getFrameRate ():Float {
+		
+		return Lib.current.stage.frameRate;
 		
 	}
 	
@@ -310,6 +320,13 @@ class FlashApplication {
 			}
 			
 		}
+		
+	}
+	
+	
+	public function setFrameRate (value:Float):Float {
+		
+		return Lib.current.stage.frameRate = value;
 		
 	}
 	

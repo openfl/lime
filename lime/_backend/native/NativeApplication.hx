@@ -34,12 +34,14 @@ class NativeApplication {
 	
 	public var handle:Dynamic;
 	
+	private var frameRate:Float;
 	private var parent:Application;
 	
 	
 	public function new (parent:Application):Void {
 		
 		this.parent = parent;
+		frameRate = 60;
 		
 		AudioManager.init ();
 		
@@ -54,6 +56,7 @@ class NativeApplication {
 		
 		if (config != null) {
 			
+			setFrameRate (config.fps);
 			var window = new Window (config);
 			var renderer = new Renderer (window);
 			parent.addWindow (window);
@@ -108,6 +111,13 @@ class NativeApplication {
 		return 0;
 		
 		#end
+		
+	}
+	
+	
+	public function getFrameRate ():Float {
+		
+		return frameRate;
 		
 	}
 	
@@ -359,6 +369,14 @@ class NativeApplication {
 	}
 	
 	
+	public function setFrameRate (value:Float):Float {
+		
+		lime_application_set_frame_rate (handle, value);
+		return frameRate = value;
+		
+	}
+	
+	
 	private function updateTimer ():Void {
 		
 		if (Timer.sRunningTimers.length > 0) {
@@ -409,6 +427,7 @@ class NativeApplication {
 	private static var lime_application_create = System.load ("lime", "lime_application_create", 1);
 	private static var lime_application_exec = System.load ("lime", "lime_application_exec", 1);
 	private static var lime_application_init = System.load ("lime", "lime_application_init", 1);
+	private static var lime_application_set_frame_rate = System.load ("lime", "lime_application_set_frame_rate", 2);
 	private static var lime_application_update = System.load ("lime", "lime_application_update", 1);
 	private static var lime_application_quit = System.load ("lime", "lime_application_quit", 1);
 	private static var lime_gamepad_event_manager_register = System.load ("lime", "lime_gamepad_event_manager_register", 2);

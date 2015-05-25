@@ -25,7 +25,7 @@
 	<set name="LEGACY_SSL" value="1" />
 	<set name="LEGACY_SSL_EXTRA" value="_ssl" if="LEGACY_SSL" />
 	<!-- <set name="LEGACY_S3D" value="1" /> -->
-	<set name="LEGACY_OPENAL" value="1" />
+	<set name="LEGACY_OPENAL" value="1" unless="webos" />
 	<set name="LEGACY_OPENAL" value="1" if="iphone" />
 	<!-- <set name="LEGACY_CAMERA" value="1" unless="lime" /> -->
 	
@@ -106,7 +106,7 @@
 			<file name="${LEGACY_SRC_DIR}/blackberry/System.cpp" />
 			
 		</section>
-
+		
 		<section if="tizen">
 			
 			<compilerflag value="-I${TIZEN_PLATFORM}/usr/include/osp" />
@@ -117,6 +117,15 @@
 			<file name="${LEGACY_SRC_DIR}/tizen/TizenStage.cpp" />
 			<file name="${LEGACY_SRC_DIR}/tizen/TizenFrame.cpp" />
 			<file name="${LEGACY_SRC_DIR}/tizen/System.cpp" />
+			
+		</section>
+		
+		<section if="webos">
+			
+			<compilerflag value="-I${PalmPDK}/include/SDL" />
+			
+			<file name="${LEGACY_SRC_DIR}/linux/NativeFont.cpp"/>
+			<file name="${LEGACY_SRC_DIR}/webOS/System.cpp"/>
 			
 		</section>
 		
@@ -341,19 +350,6 @@
 			<ext value=".so" />
 			<ext value=".ndll" if="windows || mac || linux" />
 			
-			<!-- <lib name="${PRELIB}libfreetype${LIBEXTRA}${SLIBEXT}" if="iphone"/> -->
-			
-			<section if="LEGACY_SDL1" unless="blackberry">
-				
-				<lib name="-lSDL" />
-				<lib name="-lcurl" />
-				<lib name="-lpng" />
-				<lib name="-ljpeg" />
-				<lib name="-lfreetype" />
-				<lib name="-lz" />
-				
-			</section>
-			
 			<section if="windows">
 				
 				<lib name="gdi32.lib" />
@@ -474,6 +470,14 @@
 				<lib name="-lopenal" />
 				<lib name="-losp-compat" />
 				<lib name="-lrt" />
+				
+			</section>
+			
+			<section if="webos">
+				
+				<lib name="-lSDL" />
+				<lib name="-lGLESv2" />
+				<lib name="-lpdl" />
 				
 			</section>
 			

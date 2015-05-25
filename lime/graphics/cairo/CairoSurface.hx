@@ -57,7 +57,7 @@ abstract CairoSurface(Dynamic) {
 	public static function fromImage (image:Image):CairoSurface {
 		
 		#if lime_cairo
-		return createForData (image.data.buffer.__getNativePointer (), CairoFormat.ARGB32, image.width, image.height, image.buffer.stride);
+		return createForData (#if nodejs lime_buffer_get_native_pointer (image.data) #else image.data.buffer.__getNativePointer () #end, CairoFormat.ARGB32, image.width, image.height, image.buffer.stride);
 		#else
 		return null;
 		#end
@@ -72,7 +72,7 @@ abstract CairoSurface(Dynamic) {
 	
 	
 	
-	private function get_height ():Int {
+	@:noCompletion private function get_height ():Int {
 		
 		#if lime_cairo
 		return lime_cairo_image_surface_get_height (this);
@@ -83,7 +83,7 @@ abstract CairoSurface(Dynamic) {
 	}
 	
 	
-	private function get_width ():Int {
+	@:noCompletion private function get_width ():Int {
 		
 		#if lime_cairo
 		return lime_cairo_image_surface_get_width (this);
@@ -108,6 +108,7 @@ abstract CairoSurface(Dynamic) {
 	private static var lime_cairo_image_surface_get_width = System.load ("lime", "lime_cairo_image_surface_get_width", 1);
 	private static var lime_cairo_surface_destroy = System.load ("lime", "lime_cairo_surface_destroy", 1);
 	private static var lime_cairo_surface_flush = System.load ("lime", "lime_cairo_surface_flush", 1);
+	private static var lime_buffer_get_native_pointer = System.load ("lime", "lime_buffer_get_native_pointer", 1);
 	#end
 	
 	

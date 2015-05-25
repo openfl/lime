@@ -806,7 +806,7 @@ class ImageDataUtil {
 	public static function multiplyAlpha (image:Image):Void {
 		
 		var data = image.buffer.data;
-		if (data == null) return;
+		if (data == null || !image.buffer.transparent) return;
 		
 		#if ((cpp || neko) && !disable_cffi)
 		if (!System.disableCFFI) lime_image_data_util_multiply_alpha (image); else
