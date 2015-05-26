@@ -50,8 +50,10 @@ class NativeRenderer {
 			
 		} else {
 			
+			#if lime_cairo
 			render ();
 			parent.context = CAIRO (cairo);
+			#end
 			
 		}
 		#end
