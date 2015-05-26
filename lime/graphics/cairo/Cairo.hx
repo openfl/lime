@@ -46,6 +46,14 @@ class Cairo {
 		
 	}
 	
+	public function recreate (surface:CairoSurface) : Void {
+		
+		#if lime_cairo
+		destroy();
+		handle = lime_cairo_create (surface);
+		#end
+	}
+	
 	
 	public function arc (xc:Float, yc:Float, radius:Float, angle1:Float, angle2:Float):Void {
 		

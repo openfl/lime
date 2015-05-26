@@ -51,6 +51,7 @@ class NativeRenderer {
 		} else {
 			
 			render ();
+			parent.context = CAIRO (cairo);
 			
 		}
 		#end
@@ -94,16 +95,21 @@ class NativeRenderer {
 			
 			if (cacheLock == null || cacheLock.pixels != lock.pixels || cacheLock.width != lock.width || cacheLock.height != lock.height) {
 				
+				if ( primarySurface != null )
+					primarySurface.destroy ();
+				
+				primarySurface = CairoSurface.createForData (lock.pixels, CairoFormat.ARGB32, lock.width, lock.height, lock.pitch);
+				
 				if (cairo != null) {
 					
-					cairo.destroy ();
-					primarySurface.destroy ();
+					cairo.recreate( primarySurface );
+					
+				} else {
+					
+					cairo = new Cairo (primarySurface);
 					
 				}
 				
-				primarySurface = CairoSurface.createForData (lock.pixels, CairoFormat.ARGB32, lock.width, lock.height, lock.pitch);
-				cairo = new Cairo (primarySurface);
-				parent.context = CAIRO (cairo);
 				
 			}
 			
