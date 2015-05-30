@@ -7,8 +7,6 @@
 	
 	<haxedef name="no-compilation" />
 	
-	<set name="included" value="1" if="windows || mac || linux || ios || android || blackberry || tizen || firefox || html5 || flash || emscripten" />
-	
 	<set name="lime-hybrid" value="1" if="hybrid || lime_hybrid" />
 	<set name="lime-legacy" value="1" if="legacy || lime_legacy" unless="lime-hybrid" />
 	
@@ -43,7 +41,7 @@
 		<ndll name="regexp" haxelib="hxcpp" if="cpp" />
 		<ndll name="zlib" haxelib="hxcpp" if="cpp" unless="emscripten || ios || static_link" />
 		
-		<ndll name="lime" if="included" />
+		<ndll name="lime" if="cpp" />
 		
 		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
 		<dependency path="dependencies/webgl-debug.js" if="html5 debug" />
