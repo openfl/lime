@@ -41,7 +41,7 @@
 		<ndll name="regexp" haxelib="hxcpp" if="cpp" />
 		<ndll name="zlib" haxelib="hxcpp" if="cpp" unless="emscripten || ios || static_link" />
 		
-		<ndll name="lime" if="cpp" />
+		<ndll name="lime" if="cpp || neko || nodejs" />
 		
 		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
 		<dependency path="dependencies/webgl-debug.js" if="html5 debug" />
