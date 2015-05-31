@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "2.4.1",
-	"releasenote": "Minor fixes",
+	"version": "2.4.2",
+	"releasenote": "Improvements to frameRate, Cairo and image buffers",
 	"contributors": [ "singmajesty" ]
 }
