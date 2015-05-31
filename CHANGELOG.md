@@ -1,3 +1,20 @@
+2.4.2 (05/30/2015)
+------------------
+
+* Improved iOS and Android build support
+* Add support for application.frameRate
+* Reduce cURL connection timeout to 30 seconds
+* Improved handling of non-transparent image buffers
+* Add cubic support to font decomposition
+* Added Cairo window resize handling
+* Added Cairo Freetype support
+* Added check to remove duplicated <dependency /> references
+* Minor fix to image premultiply alpha
+* Minor fix to "lime create" command
+* Minor fix to rectangle.transform
+* Fixed Windows Neko builds when not running on Windows 
+
+
 2.4.1 (05/13/2015)
 ------------------
 
