@@ -322,6 +322,8 @@ class FlashHelper {
 				var shapeRecords = new Array <ShapeRecord> ();
 				var i:Int = 0;
 				var styleChanged:Bool = false;
+				var dx = 0;
+				var dy = 0;
 				
 				while (i < native_glyph.points.length) {
 					
@@ -331,8 +333,8 @@ class FlashHelper {
 						
 						case 1: // Move
 							
-							var dx = native_glyph.points[i++];
-							var dy = native_glyph.points[i++];
+							dx = native_glyph.points[i++];
+							dy = native_glyph.points[i++];
 							shapeRecords.push( SHRChange({
 								moveTo: {dx: dx, dy: -dy},
 								// Set fill style to 1 in first style change record
@@ -346,16 +348,47 @@ class FlashHelper {
 						
 						case 2: // LineTo
 							
-							var dx = native_glyph.points[i++];
-							var dy = native_glyph.points[i++];
+							dx = native_glyph.points[i++];
+							dy = native_glyph.points[i++];
 							shapeRecords.push (SHREdge(dx, -dy));
 						
 						case 3: // CurveTo
 							var cdx = native_glyph.points[i++];
 							var cdy = native_glyph.points[i++];
-							var adx = native_glyph.points[i++];
-							var ady = native_glyph.points[i++];
-							shapeRecords.push (SHRCurvedEdge(cdx, -cdy, adx, -ady));
+							dx = native_glyph.points[i++];
+							dy = native_glyph.points[i++];
+							shapeRecords.push (SHRCurvedEdge(cdx, -cdy, dx, -dy));
+						
+						case 4: // CubicCurveTo
+							var p1x = native_glyph.points[i++];
+							var p1y = native_glyph.points[i++];
+							var p2x = native_glyph.points[i++];
+							var p2y = native_glyph.points[i++];
+							var p3x = native_glyph.points[i++];
+							var p3y = native_glyph.points[i++];
+							
+							// Get original points
+							
+							var cp1x = p1x + dx;
+							var cp1y = p1y + dy;
+							var cp2x = p2x + cp1x;
+							var cp2y = p2y + cp1y;
+							var endx = p3x + cp2x;
+							var endy = p3y + cp2y;
+							
+							// Convert to quadratic
+							
+							var cpx = Std.int ((-0.25 * dx) + (0.75 * cp1x) + (0.75 * cp2x) + ( -0.25 * endx));
+							var cpy = Std.int (( -0.25 * dy) + (0.75 * cp1y) + (0.75 * cp2y) + ( -0.25 * endy));
+							
+							// Offset again
+							
+							var cdx = cpx - dx;
+							var cdy = cpy - dy;
+							dx = endx - cpx;
+							dy = endy - cpy;
+							
+							shapeRecords.push (SHRCurvedEdge(cdx, -cdy, dx, -dy));
 						
 						default:
 							throw "Invalid control point type encountered! (" + type + ")";
