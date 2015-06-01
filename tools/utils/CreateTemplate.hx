@@ -198,6 +198,11 @@ class CreateTemplate {
 				
 				var packageName = id.join (".").toLowerCase ();
 				
+				// Replace default packaged name with user define meta-package
+				if (userDefines.exists("meta-package")) {
+					packageName = userDefines.get("meta-package").toLowerCase();
+				}
+				
 				context.title = title;
 				context.packageName = packageName;
 				context.version = "1.0.0";
