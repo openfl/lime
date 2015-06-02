@@ -47,6 +47,8 @@
 		<dependency path="dependencies/webgl-debug.js" if="html5 debug" />
 		<dependency path="dependencies/stats.min.js" if="html5 stats" />
 		
+		<haxedef name="native-trace" if="flash" unless="haxe-trace || haxetrace" />
+		
 		<architecture name="armv7" if="android" />
 		
 		<haxedef name="lime-cairo" unless="flash || html5" />

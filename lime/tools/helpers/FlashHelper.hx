@@ -570,6 +570,29 @@ class FlashHelper {
 	}*/
 	
 	
+	public static function enableLogging ():Void {
+		
+		try {
+			
+			var path = switch (PlatformHelper.hostPlatform) {
+				
+				case WINDOWS: Sys.getEnv ("HOMEDRIVE") + "/" + Sys.getEnv ("HOMEPATH") + "/mm.cfg";
+				case MAC: "/Library/Application Support/Macromedia/mm.cfg";
+				default: Sys.getEnv ("HOME") + "/mm.cfg";
+				
+			}
+			
+			if (!FileSystem.exists (path)) {
+				
+				File.saveContent (path, "ErrorReportingEnable=1\nTraceOutputFileEnable=1\nMaxWarnings=50");
+				
+			}
+			
+		} catch (e:Dynamic) {}
+		
+	}
+	
+	
 	private static function compileSWC (project:HXProject, assets:Array<Asset>, id:Int):Void {
 		
 		#if format
@@ -874,6 +897,31 @@ class FlashHelper {
 	}
 	
 	
+	public static function getLogLength ():Int {
+		
+		try {
+			
+			var path = switch (PlatformHelper.hostPlatform) {
+				
+				case WINDOWS: PathHelper.escape (Sys.getEnv ("APPDATA") + "/Macromedia/Flash Player/Logs/flashlog.txt");
+				case MAC: Sys.getEnv ("HOME") + "/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt";
+				default: Sys.getEnv ("HOME") + "/.macromedia/Flash_Player/Logs/flashlog.txt";
+				
+			}
+			
+			if (FileSystem.exists (path)) {
+				
+				return FileSystem.stat (path).size;
+				
+			}
+			
+		} catch (e:Dynamic) { }
+		
+		return 0;
+		
+	}
+	
+	
 	private static function nextAssetID () {
 		
 		return swfAssetID++;
@@ -903,5 +951,65 @@ class FlashHelper {
 		
 	}
 	
-
+	
+	public static function tailLog (start:Int = 0):Void {
+		
+		try {
+			
+			var path = switch (PlatformHelper.hostPlatform) {
+				
+				case WINDOWS: PathHelper.escape (Sys.getEnv ("APPDATA") + "/Macromedia/Flash Player/Logs/flashlog.txt");
+				case MAC: Sys.getEnv ("HOME") + "/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt";
+				default: Sys.getEnv ("HOME") + "/.macromedia/Flash_Player/Logs/flashlog.txt";
+				
+			}
+			
+			var position = start;
+			
+			if (FileSystem.exists (path)) {
+				
+				while (true) {
+					
+					Sys.sleep (1);
+					var input = null;
+					
+					try {
+						
+						input = File.read (path, false);
+						input.seek (position, FileSeek.SeekBegin);
+						
+						if (!input.eof ()) {
+							
+							var bytes = input.readAll ();
+							position = input.tell ();
+							
+							if (bytes.length > 0) {
+								
+								Sys.print (bytes.getString (0, bytes.length));
+								
+							}
+							
+						}
+						
+						input.close ();
+						
+					} catch (e:Dynamic) {
+						
+						if (input != null) {
+							
+							input.close ();
+							
+						}
+						
+					}
+					
+				}
+				
+			}
+			
+		} catch (e:Dynamic) {}
+		
+	}
+	
+	
 }
