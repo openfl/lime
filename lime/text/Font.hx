@@ -38,7 +38,11 @@ class Font {
 	
 	public function new (name:String = null) {
 		
-		this.name = name;
+		if (name != null) {
+			
+			this.name = name;
+			
+		}
 		
 		if (__fontPath != null) {
 			
