@@ -1,3 +1,10 @@
+2.4.3 (06/01/2015)
+------------------
+
+* Improved support for embedded fonts
+* Fixed regression when embedding certain OTF fonts
+
+
 2.4.2 (05/30/2015)
 ------------------
 
