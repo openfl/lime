@@ -198,7 +198,7 @@ class FlashPlatform extends PlatformTarget {
 		if (traceEnabled) {
 			
 			FlashHelper.enableLogging ();
-			//logLength = FlashHelper.getLogLength ();
+			logLength = FlashHelper.getLogLength ();
 			
 		}
 		

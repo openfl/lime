@@ -577,7 +577,7 @@ class FlashHelper {
 			var path = switch (PlatformHelper.hostPlatform) {
 				
 				case WINDOWS: Sys.getEnv ("HOMEDRIVE") + "/" + Sys.getEnv ("HOMEPATH") + "/mm.cfg";
-				case MAC: "/Library/Application Support/Macromedia/mm.cfg";
+				//case MAC: "/Library/Application Support/Macromedia/mm.cfg";
 				default: Sys.getEnv ("HOME") + "/mm.cfg";
 				
 			}
@@ -970,7 +970,6 @@ class FlashHelper {
 				
 				while (true) {
 					
-					Sys.sleep (1);
 					var input = null;
 					
 					try {
@@ -1002,6 +1001,8 @@ class FlashHelper {
 						}
 						
 					}
+					
+					Sys.sleep (1);
 					
 				}
 				
