@@ -19,7 +19,6 @@ namespace lime {
 		
 	} GlyphPosition;
 	
-	
 	class TextLayout {
 		
 		
@@ -35,6 +34,8 @@ namespace lime {
 			
 		private:
 			
+			Font *mFont;
+			void *mHBFont;
 			void *mBuffer;
 			long mDirection;
 			long mScript;
