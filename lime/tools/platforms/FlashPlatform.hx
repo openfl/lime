@@ -19,6 +19,10 @@ import lime.project.PlatformTarget;
 import sys.io.File;
 import sys.FileSystem;
 
+#if neko
+import neko.vm.Thread;
+#end
+
 
 class FlashPlatform extends PlatformTarget {
 	
@@ -219,12 +223,12 @@ class FlashPlatform extends PlatformTarget {
 			
 			if (traceEnabled) {
 				
-				neko.vm.Thread.create (function () { 
+				#if neko neko.vm.Thread.create (function () { #end
 					
 					FlashHelper.run (project, destination, targetPath);
 					Sys.exit (0);
 					
-				});
+				#if neko }); #end
 				
 				Sys.sleep (0.1);
 				
