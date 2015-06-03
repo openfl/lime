@@ -14,6 +14,8 @@ namespace lime {
 		
 		if (strlen (script) != 4) return;
 		
+		mFont = 0;
+		mHBFont = 0;
 		mDirection = (hb_direction_t)direction;
 		mLanguage = (long)hb_language_from_string (language, strlen (language));
 		mScript = hb_script_from_string (script, -1);
@@ -29,12 +31,20 @@ namespace lime {
 	TextLayout::~TextLayout () {
 		
 		hb_buffer_destroy ((hb_buffer_t*)mBuffer);
+		hb_font_destroy ((hb_font_t*)mHBFont);
 		
 	}
 	
 	
 	void TextLayout::Position (Font *font, size_t size, const char *text, ByteArray *bytes) {
 		
+		if (mFont != font) {
+			
+			mFont = font;
+			hb_font_destroy ((hb_font_t*)mHBFont);
+			mHBFont = hb_ft_font_create ((FT_Face)font->face, NULL);
+			
+		}
 		font->SetSize (size);
 		
 		// reset buffer
@@ -45,8 +55,7 @@ namespace lime {
 		
 		// layout the text
 		hb_buffer_add_utf8 ((hb_buffer_t*)mBuffer, text, strlen (text), 0, -1);
-		hb_font_t *hb_font = hb_ft_font_create ((FT_Face)font->face, NULL);
-		hb_shape (hb_font, (hb_buffer_t*)mBuffer, NULL, 0);
+		hb_shape ((hb_font_t*)mHBFont, (hb_buffer_t*)mBuffer, NULL, 0);
 		
 		uint32_t glyph_count;
 		hb_glyph_info_t *glyph_info = hb_buffer_get_glyph_infos ((hb_buffer_t*)mBuffer, &glyph_count);
@@ -87,8 +96,6 @@ namespace lime {
 			bytesPosition += glyphSize;
 			
 		}
-		
-		hb_font_destroy (hb_font);
 		
 	}
 	
