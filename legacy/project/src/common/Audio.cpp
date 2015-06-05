@@ -484,7 +484,7 @@ namespace nme
 					wave_format.subChunkID[2] != 't' ||
 					wave_format.subChunkID[3] != ' ') 
 				{
-					fseek(f, wave_data.subChunkSize, SEEK_CUR);
+					fseek(f, wave_format.subChunkSize-16, SEEK_CUR);
 				}
 				else
 				{
