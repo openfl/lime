@@ -114,6 +114,18 @@ namespace lime {
 				RenderEvent::Dispatch (&renderEvent);
 				break;
 			
+			case SDL_APP_WILLENTERBACKGROUND:
+				
+				windowEvent.type = WINDOW_DEACTIVATE;
+				WindowEvent::Dispatch (&windowEvent);
+				break;
+			
+			case SDL_APP_WILLENTERFOREGROUND:
+				
+				windowEvent.type = WINDOW_ACTIVATE;
+				WindowEvent::Dispatch (&windowEvent);
+				break;
+			
 			case SDL_CONTROLLERAXISMOTION:
 			case SDL_CONTROLLERBUTTONDOWN:
 			case SDL_CONTROLLERBUTTONUP:
