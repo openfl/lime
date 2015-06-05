@@ -1481,6 +1481,8 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
          SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, true);
          SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
       }
+
+      requestWindowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
    }
    
    #ifdef HX_LINUX

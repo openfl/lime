@@ -25,6 +25,7 @@ namespace lime {
 		if (flags & WINDOW_FLAG_HARDWARE) {
 			
 			sdlFlags |= SDL_WINDOW_OPENGL;
+			sdlFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
 			
 			#if defined (HX_WINDOWS) && defined (NATIVE_TOOLKIT_SDL_ANGLE)
 			SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
