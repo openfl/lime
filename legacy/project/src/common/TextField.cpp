@@ -13,6 +13,25 @@
 #define iswalpha isalpha
 #endif
 
+// For some reason normal "iswalpha" or "isdigit" makes Blackberry crash, workarround:
+#if defined(BLACKBERRY)
+
+   int iswalphaBB(int c)
+   {
+      return((c >='a' && c <='z') || (c >='A' && c <='Z'));
+   }
+   #undef iswalpha
+   #define iswalpha iswalphaBB
+   
+   int isdigitBB(int c)
+   {
+      return(c >='0' && c <='9');
+   }
+   #undef isdigit
+   #define isdigit isdigitBB
+
+#endif
+
 
 namespace nme
 {
