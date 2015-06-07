@@ -165,7 +165,7 @@ namespace lime {
 		long bytes = 1;
 		int totalBytes = 0;
 		
-		#define BUFFER_SIZE 32768
+		#define BUFFER_SIZE 4096
 		
 		vorbis_info *pInfo = ov_info (&oggFile, -1);            
 		
@@ -180,29 +180,25 @@ namespace lime {
 		audioBuffer->channels = pInfo->channels;
 		audioBuffer->sampleRate = pInfo->rate;
 		
-		//default to 16? todo 
 		audioBuffer->bitsPerSample = 16;
 		
-		// Seem to need four times the read PCM total
-		audioBuffer->data->Resize (ov_pcm_total (&oggFile, -1) * 4);
+		int dataLength = ov_pcm_total (&oggFile, -1) * audioBuffer->channels * audioBuffer->bitsPerSample / 8;
+		audioBuffer->data->Resize (dataLength);
 		
 		while (bytes > 0) {
-			
-			if (audioBuffer->data->Size () < totalBytes + BUFFER_SIZE) {
 				
-				audioBuffer->data->Resize (totalBytes + BUFFER_SIZE);
+				bytes = ov_read (&oggFile, (char *)audioBuffer->data->Bytes () + totalBytes, BUFFER_SIZE, BUFFER_READ_TYPE, 2, 1, &bitStream);
+				totalBytes += bytes;
 				
-			}
-			
-			bytes = ov_read (&oggFile, (char *)audioBuffer->data->Bytes () + totalBytes, BUFFER_SIZE, BUFFER_READ_TYPE, 2, 1, &bitStream);
-			totalBytes += bytes;
-			
 		}
 		
-		audioBuffer->data->Resize (totalBytes);
+		if (dataLength != totalBytes) {
+			
+			audioBuffer->data->Resize (totalBytes);
+			
+		}
 		ov_clear (&oggFile);
-		
-		#undef BUFFER_SIZE
+
 		#undef BUFFER_READ_TYPE
 		
 		return true;
