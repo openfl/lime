@@ -634,7 +634,7 @@ class CommandLineTools {
 			
 			if (projectName == "project" || sampleName == "project") {
 				
-				CreateTemplate.createProject (words, userDefines);
+				CreateTemplate.createProject (words, userDefines, overrides);
 				
 			} else if (projectName == "extension" || sampleName == "extension") {
 				
