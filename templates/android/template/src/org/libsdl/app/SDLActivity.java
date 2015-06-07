@@ -1225,6 +1225,11 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
             }
         }
 
+        try {
+            Thread.sleep((Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO) ? 16 : 1);
+        } catch (InterruptedException e) {
+        }
+
         return true;
    }
 
