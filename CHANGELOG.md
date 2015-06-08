@@ -1,3 +1,22 @@
+2.4.4 (06/08/2015)
+------------------
+
+* Handle Flash traces, similar to native logging
+* Improved performance of TextLayout
+* Improved the behavior of the Android Activity class
+* Added window activate/deactivate events on mobile
+* Added retina support on Mac desktop
+* Allow --meta overrides when using `lime create project`
+* Added sleep after Android touch events for better performance
+* Improved build support for Raspberry Pi 2
+* Fixed -force_load flag on iOS builds
+* Fixed GL.clearDepth and GL.depthRange bindings
+* Fixed negative System.getTimer value on HTML5
+* Added multi-touch desktop support (legacy)
+* Improved WAV format loading (legacy)
+* Fixed iswalpha crash on BlackBerry (legacy)
+
+
 2.4.3 (06/01/2015)
 ------------------
 
