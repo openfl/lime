@@ -1017,15 +1017,42 @@ class Image {
 
 			#if lime_console
 
-				var texdata = TextureData.fromFile (path);
+				var td = TextureData.fromFile (path);
 
-				if (texdata.valid) {
+				if (td.valid) {
 
-					buffer = new ImageBuffer (null, texdata.width, texdata.height);
-					buffer.src = texdata;
-					// TODO(james4k): call texdata.release() in a finalizer or
-					// somewhere.. or don't manage texture resources this way.
-					// we shall see.
+					var w = td.width;
+					var h = td.height;
+					var data = new Array<cpp.UInt8> ();
+
+					#if 1
+
+						cpp.NativeArray.setSize (data, w*h*4);
+						{
+							var dest:cpp.Pointer<cpp.UInt32> = cast cpp.Pointer.arrayElem (data, 0);	
+							var src:cpp.Pointer<cpp.UInt32> = cast td.pointer;	
+							var n = w * h;
+							for (i in 0...n) {
+								dest[i] = src[i];
+							}
+						}
+						td.release ();
+
+					#else
+
+						// TODO(james4k): caveats here with every image
+						// pointing to the same piece of memory, and things may
+						// change with compressed textures. but, may be worth
+						// considering if game is hitting memory constraints.
+						// can we do this safely somehow? copy on write?
+						// probably too many people writing directly to the
+						// buffer...
+						cpp.NativeArray.setUnmanagedData (data, td.pointer, w*h*4);
+
+					#end
+
+					var array = new UInt8Array (ByteArray.fromBytes (Bytes.ofData (cast data)));
+					buffer = new ImageBuffer (array, w, h);
 
 				}
 
