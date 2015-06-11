@@ -170,7 +170,13 @@ function glFunctionArgToString(functionName, argumentIndex, value) {
       return glEnumToString(value);
     }
   }
-  return value.toString();
+  if (value === null) {
+    return "null";
+  } else if (value === undefined) {
+    return "undefined";
+  } else {
+    return value.toString();
+  }
 }
 
 function makePropertyWrapper(wrapper, original, propertyName) {
