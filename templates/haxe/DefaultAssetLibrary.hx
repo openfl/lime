@@ -288,7 +288,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
-	public override function getImage (id:String):Image {
+	public override function getImage (id:String, headerOnly:Bool = false):Image {
 		
 		#if flash
 		
@@ -307,7 +307,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 		} else {
 			
-			return Image.fromFile (path.get (id));
+			return Image.fromFile (path.get (id), null, null, headerOnly);
 			
 		}
 		

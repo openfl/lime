@@ -428,11 +428,11 @@ class Image {
 	}
 	
 	
-	public static function fromBytes (bytes:ByteArray, onload:Image -> Void = null):Image {
+	public static function fromBytes (bytes:ByteArray, onload:Image -> Void = null, headerOnly:Bool = false):Image {
 		
 		if (bytes == null) return null;
 		var image = new Image ();
-		image.__fromBytes (bytes, onload);
+		image.__fromBytes (bytes, onload, headerOnly);
 		return image;
 		
 	}
@@ -448,10 +448,10 @@ class Image {
 	}
 	
 	
-	public static function fromFile (path:String, onload:Image -> Void = null, onerror:Void -> Void = null):Image {
+	public static function fromFile (path:String, onload:Image -> Void = null, onerror:Void -> Void = null, headerOnly:Bool = false):Image {
 		
 		var image = new Image ();
-		image.__fromFile (path, onload, onerror);
+		image.__fromFile (path, onload, onerror, headerOnly);
 		return image;
 		
 	}
@@ -914,7 +914,7 @@ class Image {
 	}
 	
 	
-	private function __fromBytes (bytes:ByteArray, onload:Image -> Void):Void {
+	private function __fromBytes (bytes:ByteArray, onload:Image -> Void, headerOnly:Bool = false):Void {
 		
 		#if (js && html5)
 			
@@ -942,7 +942,7 @@ class Image {
 			
 		#elseif (cpp || neko || nodejs)
 			
-			var data = lime_image_load (bytes);
+			var data = lime_image_load (bytes, headerOnly);
 			
 			if (data != null) {
 				
@@ -965,7 +965,7 @@ class Image {
 	}
 	
 	
-	private function __fromFile (path:String, onload:Image -> Void, onerror:Void -> Void):Void {
+	private function __fromFile (path:String, onload:Image -> Void, onerror:Void -> Void, headerOnly:Bool=false):Void {
 		
 		#if (js && html5)
 			
@@ -1009,7 +1009,7 @@ class Image {
 			
 			if (#if (sys && (!disable_cffi || !format) && !java) true #else false #end && !System.disableCFFI) {
 				
-				var data = lime_image_load (path);
+				var data = lime_image_load (path, headerOnly);
 				if (data != null) {
 					var ba:ByteArray = cast(data.data, ByteArray);
 					#if nodejs
@@ -1357,7 +1357,7 @@ class Image {
 	
 	#if (cpp || neko || nodejs)
 	private static var lime_image_encode:ImageBuffer -> Int -> Int -> ByteArray = System.load ("lime", "lime_image_encode", 3);
-	private static var lime_image_load:Dynamic = System.load ("lime", "lime_image_load", 1);
+	private static var lime_image_load:Dynamic = System.load ("lime", "lime_image_load", 2);
 	#end
 	
 	

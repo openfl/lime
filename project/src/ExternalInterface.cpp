@@ -421,10 +421,11 @@ namespace lime {
 	}
 	
 	
-	value lime_image_load (value data) {
+	value lime_image_load (value data, value headerOnly) {
 		
 		ImageBuffer imageBuffer;
 		Resource resource;
+		bool _headerOnly = val_bool(headerOnly);
 		
 		if (val_is_string (data)) {
 			
@@ -438,7 +439,7 @@ namespace lime {
 		}
 		
 		#ifdef LIME_PNG
-		if (PNG::Decode (&resource, &imageBuffer)) {
+		if (PNG::Decode (&resource, &imageBuffer, _headerOnly)) {
 			
 			return imageBuffer.Value ();
 			
@@ -1036,7 +1037,7 @@ namespace lime {
 	DEFINE_PRIM (lime_image_data_util_set_pixels, 4);
 	DEFINE_PRIM (lime_image_data_util_unmultiply_alpha, 1);
 	DEFINE_PRIM (lime_image_encode, 3);
-	DEFINE_PRIM (lime_image_load, 1);
+	DEFINE_PRIM (lime_image_load, 2);
 	DEFINE_PRIM (lime_jni_getenv, 0);
 	DEFINE_PRIM (lime_key_event_manager_register, 2);
 	DEFINE_PRIM (lime_lzma_decode, 1);
