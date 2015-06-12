@@ -357,6 +357,21 @@ namespace lime {
 	}
 	
 	
+	value lime_gamepad_add_mappings (value mappings) {
+		
+		int length = val_array_size (mappings);
+		
+		for (int i = 0; i < length; i++) {
+			
+			Gamepad::AddMapping (val_string (val_array_i (mappings, i)));
+			
+		}
+		
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_gamepad_event_manager_register (value callback, value eventObject) {
 		
 		GamepadEvent::callback = new AutoGCRoot (callback);
@@ -1020,6 +1035,7 @@ namespace lime {
 	DEFINE_PRIM (lime_font_render_glyph, 3);
 	DEFINE_PRIM (lime_font_render_glyphs, 3);
 	DEFINE_PRIM (lime_font_set_size, 2);
+	DEFINE_PRIM (lime_gamepad_add_mappings, 1);
 	DEFINE_PRIM (lime_gamepad_event_manager_register, 2);
 	DEFINE_PRIM (lime_gamepad_get_device_guid, 1);
 	DEFINE_PRIM (lime_gamepad_get_device_name, 1);

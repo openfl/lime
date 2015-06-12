@@ -23,6 +23,15 @@ class Gamepad {
 	}
 	
 	
+	public static function addMappings (mappings:Array<String>):Void {
+		
+		#if (cpp || neko || nodejs)
+		lime_gamepad_add_mappings (mappings);
+		#end
+		
+	}
+	
+	
 	
 	
 	// Get & Set Methods
@@ -60,6 +69,7 @@ class Gamepad {
 	
 	
 	#if (cpp || neko || nodejs)
+	private static var lime_gamepad_add_mappings = System.load ("lime", "lime_gamepad_add_mappings", 1);
 	private static var lime_gamepad_get_device_guid = System.load ("lime", "lime_gamepad_get_device_guid", 1);
 	private static var lime_gamepad_get_device_name = System.load ("lime", "lime_gamepad_get_device_name", 1);
 	#end
