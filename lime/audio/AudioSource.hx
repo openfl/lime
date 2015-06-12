@@ -12,6 +12,18 @@ import lime.audio.fmod.Channel;
 #end
 
 
+#if lime_console
+// TODO(james4k): this is terribly hacky. looking for more sane solutions.  the
+// caller uses an extern declaration of this function so that it does not need
+// to include haxe dependencies, but that's not really the hacky part. need a
+// good way to export a c++ callable haxe function.
+@:cppNamespaceCode("
+void haxe_staticfunc_onFmodChannelEnd (ConsoleFmodChannel c) {
+	AudioSource_obj::onFmodChannelEnd (c);
+}
+")
+#end
+
 class AudioSource {
 	
 	
@@ -21,13 +33,14 @@ class AudioSource {
 	public var currentTime (get, set):Int;
 	public var gain (get, set):Float;
 	public var length (get, set):Int;
-	public var loops:Int;
+	public var loops (get, set):Int;
 	public var offset:Int;
-	
+
 	private var id:UInt;
 	private var playing:Bool;
 	private var pauseTime:Int;
 	private var __length:Null<Int>;
+	private var __loops:Int;
 	
 	#if flash
 	private var channel:SoundChannel;
@@ -150,10 +163,13 @@ class AudioSource {
 
 			} else {
 
-				// TODO(james4k): when playback completes, zero the channel var
-				// and call onComplete
-				//channel = buffer.src.play ();
-				buffer.src.play ();
+				channel = buffer.src.play ();
+				channel.setLoopCount (this.__loops);
+
+				var old = setFmodActive (channel, this);
+				if (old != this) {
+					old.channel = Channel.INVALID;
+				}
 
 			}
 	
@@ -287,6 +303,84 @@ class AudioSource {
 		#end
 		
 	}
+
+
+	#if lime_console
+
+
+	// TODO(james4k): these arrays become Array<Dynamic> so a lot of hidden
+	// boxing and allocations going on.
+
+	// can't use Maps because we need by-value key comparisons, so use two arrays.
+	private static var fmodActiveChannels = new Array<Channel> ();
+	private static var fmodActiveSources = new Array<AudioSource> ();
+
+
+	// setFmodActive associates a Channel with an AudioSource to allow for fmod
+	// channel callbacks to propagate to the user's AudioSource onComplete
+	// callbacks. Returns the previous AudioSource associated with the channel
+	// if there was one, or the passed in AudioSource if not.
+	private static function setFmodActive (key:Channel, value:AudioSource):AudioSource {
+		
+		for (i in 0...fmodActiveChannels.length) {
+			if (fmodActiveChannels[i] == key) {
+				var old = fmodActiveSources[i];
+				fmodActiveSources[i] = value;
+				return old;
+			}
+		}
+
+		fmodActiveChannels.push (key);
+		fmodActiveSources.push (value);
+		return value;
+
+	}
+
+
+	// removeFmodActive disassociates a Channel with its AudioSource, returning
+	// the AudioSource it was associated with.
+	private static function removeFmodActive(key:Channel):AudioSource {
+
+		for (i in 0...fmodActiveChannels.length) {
+
+			if (fmodActiveChannels[i] == key) {
+
+				var source = fmodActiveSources[i];
+
+				// swap in the last element and pop() to remove from array
+				var last = fmodActiveChannels.length - 1;
+				fmodActiveChannels[i] = fmodActiveChannels[last];
+				fmodActiveSources[i] = fmodActiveSources[last];
+
+				fmodActiveChannels.pop ();
+				fmodActiveSources.pop ();
+
+				return source;
+
+			}
+
+		}
+
+		return null;
+
+	}
+
+
+	// onFmodChannelEnd is called from C++ when an fmod channel end callback is
+	// called.
+	private static function onFmodChannelEnd (channel:Channel) {
+
+		var source = removeFmodActive (channel);
+
+		if (source != null) {
+			source.channel = Channel.INVALID;
+			source.onComplete.dispatch ();
+		}
+		
+	}
+
+
+	#end
 	
 	
 	
@@ -385,6 +479,32 @@ class AudioSource {
 			
 		#end
 		
+	}
+
+
+	private inline function get_loops ():Int {
+
+		#if lime_console
+		if (channel.valid) {
+			__loops = channel.getLoopCount ();
+		}
+		#end
+
+		return __loops;
+
+	}
+
+
+	private inline function set_loops (loops:Int):Int {
+
+		#if lime_console
+		if (channel.valid) {
+			channel.setLoopCount (loops);
+		}
+		#end
+
+		return __loops = loops;
+
 	}
 
 	
