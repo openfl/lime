@@ -117,7 +117,7 @@ namespace lime {
 		alloc_field (mValue, id_height, alloc_int (height));
 		alloc_field (mValue, id_bpp, alloc_int (bpp));
 		alloc_field (mValue, id_transparent, alloc_bool (transparent));
-		alloc_field (mValue, id_data, data->mValue);
+		alloc_field (mValue, id_data, data ? data->mValue : alloc_null ());
 		alloc_field (mValue, id_format, alloc_int (format));
 		return mValue;
 		

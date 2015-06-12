@@ -178,7 +178,7 @@ namespace lime {
 	};
 	
 	
-	bool JPEG::Decode (Resource *resource, ImageBuffer* imageBuffer) {
+	bool JPEG::Decode (Resource *resource, ImageBuffer* imageBuffer, bool decodeData) {
 		
 		struct jpeg_decompress_struct cinfo;
 		
@@ -246,35 +246,45 @@ namespace lime {
 			
 			cinfo.out_color_space = JCS_RGB;
 			
-			jpeg_start_decompress (&cinfo);
-			int components = cinfo.num_components;
-			imageBuffer->Resize (cinfo.output_width, cinfo.output_height);
-			
-			unsigned char *bytes = imageBuffer->data->Bytes ();
-			unsigned char *scanline = new unsigned char [imageBuffer->width * imageBuffer->height * components];
-			
-			while (cinfo.output_scanline < cinfo.output_height) {
+			if (decodeData) {
 				
-				jpeg_read_scanlines (&cinfo, &scanline, 1);
+				jpeg_start_decompress (&cinfo);
+				int components = cinfo.num_components;
+				imageBuffer->Resize (cinfo.output_width, cinfo.output_height);
 				
-				// convert 24-bit scanline to 32-bit
-				const unsigned char *line = scanline;
-				const unsigned char *const end = line + imageBuffer->width * components;
+				unsigned char *bytes = imageBuffer->data->Bytes ();
+				unsigned char *scanline = new unsigned char [imageBuffer->width * imageBuffer->height * components];
 				
-				while (line != end) {
+				while (cinfo.output_scanline < cinfo.output_height) {
 					
-					*bytes++ = *line++;
-					*bytes++ = *line++;
-					*bytes++ = *line++;
-					*bytes++ = 0xFF;
+					jpeg_read_scanlines (&cinfo, &scanline, 1);
+					
+					// convert 24-bit scanline to 32-bit
+					const unsigned char *line = scanline;
+					const unsigned char *const end = line + imageBuffer->width * components;
+					
+					while (line != end) {
+						
+						*bytes++ = *line++;
+						*bytes++ = *line++;
+						*bytes++ = *line++;
+						*bytes++ = 0xFF;
+						
+					}
 					
 				}
 				
+				delete[] scanline;
+				
+				jpeg_finish_decompress (&cinfo);
+				
+			} else {
+				
+				imageBuffer->width = cinfo.image_width;
+				imageBuffer->height = cinfo.image_height;
+				
 			}
 			
-			delete[] scanline;
-			
-			jpeg_finish_decompress (&cinfo);
 			decoded = true;
 			
 		}

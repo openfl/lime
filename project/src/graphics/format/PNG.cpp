@@ -75,7 +75,7 @@ namespace lime {
 	void user_flush_data (png_structp png_ptr) {}
 	
 	
-	bool PNG::Decode (Resource *resource, ImageBuffer *imageBuffer) {
+	bool PNG::Decode (Resource *resource, ImageBuffer *imageBuffer, bool decodeData) {
 		
 		unsigned char png_sig[PNG_SIG_SIZE];
 		png_structp png_ptr;
@@ -159,46 +159,56 @@ namespace lime {
 		png_read_info (png_ptr, info_ptr);
 		png_get_IHDR (png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, &interlace_type, NULL, NULL);
 		
-		//bool has_alpha = (color_type == PNG_COLOR_TYPE_GRAY_ALPHA || color_type == PNG_COLOR_TYPE_RGB_ALPHA || png_get_valid (png_ptr, info_ptr, PNG_INFO_tRNS));
-		
-		png_set_expand (png_ptr);
-		
-		png_set_filler (png_ptr, 0xff, PNG_FILLER_AFTER);
-		//png_set_gray_1_2_4_to_8 (png_ptr);
-		png_set_palette_to_rgb (png_ptr);
-		png_set_gray_to_rgb (png_ptr);
-		
-		if (bit_depth < 8) {
+		if (decodeData) {
 			
-			png_set_packing (png_ptr);
+			//bool has_alpha = (color_type == PNG_COLOR_TYPE_GRAY_ALPHA || color_type == PNG_COLOR_TYPE_RGB_ALPHA || png_get_valid (png_ptr, info_ptr, PNG_INFO_tRNS));
 			
-		} else if (bit_depth == 16) {
+			png_set_expand (png_ptr);
 			
-			png_set_scale_16 (png_ptr);
+			png_set_filler (png_ptr, 0xff, PNG_FILLER_AFTER);
+			//png_set_gray_1_2_4_to_8 (png_ptr);
+			png_set_palette_to_rgb (png_ptr);
+			png_set_gray_to_rgb (png_ptr);
 			
-		}
-		
-		//png_set_bgr (png_ptr);
-		
-		int bpp = 4;
-		const unsigned int stride = width * bpp;
-		imageBuffer->Resize (width, height, bpp);
-		unsigned char *bytes = imageBuffer->data->Bytes ();
-		
-		int number_of_passes = png_set_interlace_handling (png_ptr);
-		
-		for (int pass = 0; pass < number_of_passes; pass++) {
-			
-			for (int i = 0; i < height; i++) {
+			if (bit_depth < 8) {
 				
-				png_bytep anAddr = (png_bytep)(bytes + i * stride);
-				png_read_rows (png_ptr, (png_bytepp) &anAddr, NULL, 1);
+				png_set_packing (png_ptr);
+				
+			} else if (bit_depth == 16) {
+				
+				png_set_scale_16 (png_ptr);
 				
 			}
 			
+			//png_set_bgr (png_ptr);
+			
+			int bpp = 4;
+			const unsigned int stride = width * bpp;
+			imageBuffer->Resize (width, height, bpp);
+			unsigned char *bytes = imageBuffer->data->Bytes ();
+			
+			int number_of_passes = png_set_interlace_handling (png_ptr);
+			
+			for (int pass = 0; pass < number_of_passes; pass++) {
+				
+				for (int i = 0; i < height; i++) {
+					
+					png_bytep anAddr = (png_bytep)(bytes + i * stride);
+					png_read_rows (png_ptr, (png_bytepp) &anAddr, NULL, 1);
+					
+				}
+				
+			}
+			
+			png_read_end (png_ptr, NULL);
+			
+		} else {
+			
+			imageBuffer->width = width;
+			imageBuffer->height = height;
+			
 		}
 		
-		png_read_end (png_ptr, NULL);
 		png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
 		
 		if (file) lime::fclose (file);

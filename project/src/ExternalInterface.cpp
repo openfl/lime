@@ -616,6 +616,44 @@ namespace lime {
 	}
 	
 	
+	value lime_jpeg_decode_bytes (value data, value decodeData) {
+		
+		ImageBuffer imageBuffer;
+		
+		ByteArray bytes (data);
+		Resource resource = Resource (&bytes);
+		
+		#ifdef LIME_JPEG
+		if (JPEG::Decode (&resource, &imageBuffer, val_bool (decodeData))) {
+			
+			return imageBuffer.Value ();
+			
+		}
+		#endif
+		
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_jpeg_decode_file (value data, value decodeData) {
+		
+		ImageBuffer imageBuffer;
+		Resource resource = Resource (val_string (data));
+		
+		#ifdef LIME_JPEG
+		if (JPEG::Decode (&resource, &imageBuffer, val_bool (decodeData))) {
+			
+			return imageBuffer.Value ();
+			
+		}
+		#endif
+		
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_key_event_manager_register (value callback, value eventObject) {
 		
 		KeyEvent::callback = new AutoGCRoot (callback);
@@ -713,6 +751,44 @@ namespace lime {
 		#ifdef LIME_NEKO
 		NekoVM::Execute (val_string (module));
 		#endif
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_png_decode_bytes (value data, value decodeData) {
+		
+		ImageBuffer imageBuffer;
+		
+		ByteArray bytes (data);
+		Resource resource = Resource (&bytes);
+		
+		#ifdef LIME_PNG
+		if (PNG::Decode (&resource, &imageBuffer, val_bool (decodeData))) {
+			
+			return imageBuffer.Value ();
+			
+		}
+		#endif
+		
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_png_decode_file (value data, value decodeData) {
+		
+		ImageBuffer imageBuffer;
+		Resource resource = Resource (val_string (data));
+		
+		#ifdef LIME_PNG
+		if (PNG::Decode (&resource, &imageBuffer, val_bool (decodeData))) {
+			
+			return imageBuffer.Value ();
+			
+		}
+		#endif
+		
 		return alloc_null ();
 		
 	}
@@ -1054,6 +1130,8 @@ namespace lime {
 	DEFINE_PRIM (lime_image_encode, 3);
 	DEFINE_PRIM (lime_image_load, 1);
 	DEFINE_PRIM (lime_jni_getenv, 0);
+	DEFINE_PRIM (lime_jpeg_decode_bytes, 2);
+	DEFINE_PRIM (lime_jpeg_decode_file, 2);
 	DEFINE_PRIM (lime_key_event_manager_register, 2);
 	DEFINE_PRIM (lime_lzma_decode, 1);
 	DEFINE_PRIM (lime_lzma_encode, 1);
@@ -1064,6 +1142,8 @@ namespace lime {
 	DEFINE_PRIM (lime_mouse_show, 0);
 	DEFINE_PRIM (lime_mouse_warp, 3);
 	DEFINE_PRIM (lime_neko_execute, 1);
+	DEFINE_PRIM (lime_png_decode_bytes, 2);
+	DEFINE_PRIM (lime_png_decode_file, 2);
 	DEFINE_PRIM (lime_renderer_create, 1);
 	DEFINE_PRIM (lime_renderer_flip, 1);
 	DEFINE_PRIM (lime_renderer_lock, 1);

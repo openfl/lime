@@ -17,6 +17,48 @@ import haxe.io.BytesOutput;
 class PNG {
 	
 	
+	public static function decodeBytes (bytes:ByteArray, decodeData:Bool = true):Image {
+		
+		#if (cpp || neko || nodejs)
+		
+		var bufferData = lime_png_decode_bytes (bytes, decodeData);
+		
+		if (bufferData != null) {
+			
+			var buffer = new ImageBuffer (bufferData.data, bufferData.width, bufferData.height, bufferData.bpp, bufferData.format);
+			buffer.transparent = bufferData.transparent;
+			return new Image (buffer);
+			
+		}
+		
+		#end
+		
+		return null;
+		
+	}
+	
+	
+	public static function decodeFile (path:String, decodeData:Bool = true):Image {
+		
+		#if (cpp || neko || nodejs)
+		
+		var bufferData = lime_png_decode_file (path, decodeData);
+		
+		if (bufferData != null) {
+			
+			var buffer = new ImageBuffer (bufferData.data, bufferData.width, bufferData.height, bufferData.bpp, bufferData.format);
+			buffer.transparent = bufferData.transparent;
+			return new Image (buffer);
+			
+		}
+		
+		#end
+		
+		return null;
+		
+	}
+	
+	
 	public static function encode (image:Image):ByteArray {
 		
 		#if java
@@ -90,6 +132,8 @@ class PNG {
 	
 	
 	#if (cpp || neko || nodejs)
+	private static var lime_png_decode_bytes:ByteArray -> Bool -> Dynamic = System.load ("lime", "lime_png_decode_bytes", 2);
+	private static var lime_png_decode_file = System.load ("lime", "lime_png_decode_file", 2);
 	private static var lime_image_encode:ImageBuffer -> Int -> Int -> ByteArray = System.load ("lime", "lime_image_encode", 3);
 	#end
 	
