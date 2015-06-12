@@ -15,7 +15,7 @@ namespace lime {
 		
 		public:
 			
-			static bool Decode (Resource *resource, ImageBuffer *imageBuffer);
+			static bool Decode (Resource *resource, ImageBuffer *imageBuffer, bool headerOnly);
 			static bool Encode (ImageBuffer *imageBuffer, ByteArray *bytes);
 		
 		

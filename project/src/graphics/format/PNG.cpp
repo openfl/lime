@@ -75,7 +75,7 @@ namespace lime {
 	void user_flush_data (png_structp png_ptr) {}
 	
 	
-	bool PNG::Decode (Resource *resource, ImageBuffer *imageBuffer) {
+	bool PNG::Decode (Resource *resource, ImageBuffer *imageBuffer, bool headerOnly) {
 		
 		unsigned char png_sig[PNG_SIG_SIZE];
 		png_structp png_ptr;
@@ -187,19 +187,24 @@ namespace lime {
 		
 		int number_of_passes = png_set_interlace_handling (png_ptr);
 		
-		for (int pass = 0; pass < number_of_passes; pass++) {
+		if (!headerOnly)
+		{
 			
-			for (int i = 0; i < height; i++) {
+			for (int pass = 0; pass < number_of_passes; pass++) {
 				
-				png_bytep anAddr = (png_bytep)(bytes + i * stride);
-				png_read_rows (png_ptr, (png_bytepp) &anAddr, NULL, 1);
+				for (int i = 0; i < height; i++) {
+					
+					png_bytep anAddr = (png_bytep)(bytes + i * stride);
+					png_read_rows (png_ptr, (png_bytepp) &anAddr, NULL, 1);
+					
+				}
 				
 			}
 			
+			png_read_end (png_ptr, NULL);
+			png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
 		}
 		
-		png_read_end (png_ptr, NULL);
-		png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
 		
 		if (file) lime::fclose (file);
 		

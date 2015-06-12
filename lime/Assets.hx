@@ -254,7 +254,9 @@ class Assets {
 	 * @param	useCache		(Optional) Whether to use BitmapData from the cache(Default: true)
 	 * @return		A new BitmapData object
 	 */
-	public static function getImage (id:String, useCache:Bool = true):Image {
+	public static function getImage (id:String, useCache:Bool = true, headerOnly:Bool = false):Image {
+		
+		trace("getImage() headerOnly = " + headerOnly);
 		
 		initialize ();
 		
@@ -282,7 +284,7 @@ class Assets {
 				
 				if (library.isLocal (symbolName, cast AssetType.IMAGE)) {
 					
-					var image = library.getImage (symbolName);
+					var image = library.getImage (symbolName, headerOnly);
 					
 					if (useCache && cache.enabled) {
 						
@@ -1009,7 +1011,7 @@ class AssetLibrary {
 	}
 	
 	
-	public function getImage (id:String):Image {
+	public function getImage (id:String, headerOnly:Bool = false):Image {
 		
 		return null;
 		
