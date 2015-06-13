@@ -18,7 +18,6 @@ namespace lime {
 	
 	
 	SDLApplication::SDLApplication () {
-		
 		if (SDL_Init (SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER) != 0) {
 			
 			printf ("Could not initialize SDL: %s.\n", SDL_GetError ());
@@ -131,6 +130,7 @@ namespace lime {
 			case SDL_CONTROLLERBUTTONUP:
 			case SDL_CONTROLLERDEVICEADDED:
 			case SDL_CONTROLLERDEVICEREMOVED:
+			case SDL_JOYDEVICEADDED:
 				
 				ProcessGamepadEvent (event);
 				break;
@@ -140,9 +140,8 @@ namespace lime {
 			case SDL_JOYBUTTONDOWN:
 			case SDL_JOYBUTTONUP:
 			case SDL_JOYHATMOTION:
-			case SDL_JOYDEVICEADDED:
 			case SDL_JOYDEVICEREMOVED:
-				
+		
 				//joy
 				break;
 			
@@ -227,7 +226,6 @@ namespace lime {
 	void SDLApplication::ProcessGamepadEvent (SDL_Event* event) {
 		
 		if (GamepadEvent::callback) {
-			
 			switch (event->type) {
 				
 				case SDL_CONTROLLERAXISMOTION:
@@ -259,7 +257,7 @@ namespace lime {
 					break;
 				
 				case SDL_CONTROLLERDEVICEADDED:
-					
+				case SDL_JOYDEVICEADDED:	
 					if (SDLGamepad::Connect (event->cdevice.which)) {
 						
 						gamepadEvent.type = CONNECT;
