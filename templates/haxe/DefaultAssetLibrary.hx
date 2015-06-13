@@ -219,7 +219,15 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#elseif html5
 		
 		var bytes:ByteArray = null;
-		var data = Preloader.loaders.get (path.get (id)).data;
+		var loader = Preloader.loaders.get (path.get (id));
+
+		if (loader == null) {
+
+			return null;
+
+		}
+
+		var data = loader.data;
 		
 		if (Std.is (data, String)) {
 			
@@ -366,7 +374,15 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#if html5
 		
 		var bytes:ByteArray = null;
-		var data = Preloader.loaders.get (path.get (id)).data;
+		var loader = Preloader.loaders.get (path.get (id));
+
+		if (loader == null) {
+
+			return null;
+			
+		}
+
+		var data = loader.data;
 		
 		if (Std.is (data, String)) {
 			
