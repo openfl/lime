@@ -206,7 +206,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		var bytes:ByteArray = null;
 		var loader = ApplicationMain.urlLoaders.get (path.get (id));
 
-		if (loader = null) {
+		if (loader == null) {
 
 			return null;
 			
@@ -349,7 +349,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		var bytes:ByteArray = null;
 		var loader = ApplicationMain.urlLoaders.get (path.get (id));
 
-		if (loader = null) {
+		if (loader == null) {
 
 			return null;
 
