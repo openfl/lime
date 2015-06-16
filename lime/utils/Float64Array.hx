@@ -4,9 +4,9 @@ package lime.utils;
 
     @:forward
     @:arrayAccess
-    abstract Int8Array(js.html.Int8Array)
-        from js.html.Int8Array
-        to js.html.Int8Array {
+    abstract Float64Array(js.html.Float64Array)
+        from js.html.Float64Array
+        to js.html.Float64Array {
 
         @:generic
         public inline function new<T>(
@@ -16,26 +16,26 @@ package lime.utils;
             ?buffer:ArrayBuffer, ?byteoffset:Int = 0, ?len:Null<Int>
         ) {
             if(elements != null) {
-                this = new js.html.Int8Array( elements );
+                this = new js.html.Float64Array( elements );
             } else if(array != null) {
-                this = new js.html.Int8Array( untyped array );
+                this = new js.html.Float64Array( untyped array );
             } else if(view != null) {
-                this = new js.html.Int8Array( untyped view );
+                this = new js.html.Float64Array( untyped view );
             } else if(buffer != null) {
                 len = (len == null) ? untyped __js__('undefined') : len;
-                this = new js.html.Int8Array( buffer, byteoffset, len );
+                this = new js.html.Float64Array( buffer, byteoffset, len );
             } else {
                 this = null;
             }
         }
 
-        @:arrayAccess inline function __set(idx:Int, val:Int) return this[idx] = val;
-        @:arrayAccess inline function __get(idx:Int) : Int return this[idx];
+        @:arrayAccess inline function __set(idx:Int, val:Float) return this[idx] = val;
+        @:arrayAccess inline function __get(idx:Int) : Float return this[idx];
 
 
             //non spec haxe conversions
-        public static function fromBytes( bytes:haxe.io.Bytes, ?byteOffset:Int=0, ?len:Int ) : Int8Array {
-            return new js.html.Int8Array(cast bytes.getData(), byteOffset, len);
+        public static function fromBytes( bytes:haxe.io.Bytes, ?byteOffset:Int=0, ?len:Int ) : Float64Array {
+            return new js.html.Float64Array(cast bytes.getData(), byteOffset, len);
         }
 
         public function toBytes() : haxe.io.Bytes {
@@ -54,9 +54,9 @@ package lime.utils;
 
 @:forward()
 @:arrayAccess
-abstract Int8Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
+abstract Float64Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
 
-    public inline static var BYTES_PER_ELEMENT : Int = 1;
+    public inline static var BYTES_PER_ELEMENT : Int = 8;
 
     public var length (get, never):Int;
 
@@ -69,26 +69,26 @@ abstract Int8Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
         ) {
 
             if(elements != null) {
-                this = new ArrayBufferView( elements, Int8 );
+                this = new ArrayBufferView( elements, Float64 );
             } else if(array != null) {
-                this = new ArrayBufferView(0, Int8).initArray(array);
+                this = new ArrayBufferView(0, Float64).initArray(array);
             } else if(view != null) {
-                this = new ArrayBufferView(0, Int8).initTypedArray(view);
+                this = new ArrayBufferView(0, Float64).initTypedArray(view);
             } else if(buffer != null) {
-                this = new ArrayBufferView(0, Int8).initBuffer(buffer, byteoffset, len);
+                this = new ArrayBufferView(0, Float64).initBuffer(buffer, byteoffset, len);
             } else {
-                throw "Invalid constructor arguments for Int8Array";
+                throw "Invalid constructor arguments for Float64Array";
             }
         }
 
 //Public API
 
-    public inline function subarray( begin:Int, end:Null<Int> = null) : Int8Array return this.subarray(begin, end);
+    public inline function subarray( begin:Int, end:Null<Int> = null) : Float64Array return this.subarray(begin, end);
 
 
             //non spec haxe conversions
-        public static function fromBytes( bytes:haxe.io.Bytes, ?byteOffset:Int=0, ?len:Int ) : Int8Array {
-            return new Int8Array(bytes, byteOffset, len);
+        public static function fromBytes( bytes:haxe.io.Bytes, ?byteOffset:Int=0, ?len:Int ) : Float64Array {
+            return new Float64Array(bytes, byteOffset, len);
         }
 
         public function toBytes() : haxe.io.Bytes {
@@ -102,14 +102,14 @@ abstract Int8Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
 
     @:noCompletion
     @:arrayAccess
-    public inline function __get(idx:Int) {
-        return ArrayBufferIO.getInt8(this.buffer, this.byteOffset+idx);
+    public inline function __get(idx:Int) : Float {
+        return ArrayBufferIO.getFloat64(this.buffer, this.byteOffset+(idx*BYTES_PER_ELEMENT));
     }
 
     @:noCompletion
     @:arrayAccess
-    public inline function __set(idx:Int, val:Int) {
-        return ArrayBufferIO.setInt8(this.buffer, this.byteOffset+idx, val);
+    public inline function __set(idx:Int, val:Float) : Float {
+        return ArrayBufferIO.setFloat64(this.buffer, this.byteOffset+(idx*BYTES_PER_ELEMENT), val);
     }
 
 }

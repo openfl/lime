@@ -303,14 +303,14 @@ class ImageDataUtil {
 					
 					j = i * 4;
 					
-					#if js
+					//#if js
 					data[j + 0] = r;
 					data[j + 1] = g;
 					data[j + 2] = b;
 					data[j + 3] = a;
-					#else
-					data.setUInt32 (j, rgba);
-					#end
+					//#else
+					//data.setUInt32 (j, rgba);
+					//#end
 					
 				}
 				
@@ -330,14 +330,14 @@ class ImageDataUtil {
 						
 						offset = (row * stride) + (column * 4);
 						
-						#if js
+						//#if js
 						data[offset] = r;
 						data[offset + 1] = g;
 						data[offset + 2] = b;
 						data[offset + 3] = a;
-						#else
-						data.setUInt32 (offset, rgba);
-						#end
+						//#else
+						//data.setUInt32 (offset, rgba);
+						//#end
 						
 					}
 					

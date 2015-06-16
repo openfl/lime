@@ -3,6 +3,7 @@ package lime.graphics.cairo; #if !macro
 
 import lime.graphics.Image;
 import lime.system.System;
+import lime.utils.ByteArray;
 
 @:access(haxe.io.Bytes)
 
@@ -57,7 +58,11 @@ abstract CairoSurface(Dynamic) {
 	public static function fromImage (image:Image):CairoSurface {
 		
 		#if lime_cairo
-		return createForData (#if nodejs lime_buffer_get_native_pointer (image.data) #else image.data.buffer.__getNativePointer () #end, CairoFormat.ARGB32, image.width, image.height, image.buffer.stride);
+		#if nodejs
+		return createForData (lime_buffer_get_native_pointer (#if nodejs image.data #else image.data.buffer #end), CairoFormat.ARGB32, image.width, image.height, image.buffer.stride);
+		#else
+		return createForData (ByteArray.fromBytes (image.data.buffer).__getNativePointer (), CairoFormat.ARGB32, image.width, image.height, image.buffer.stride);
+		#end
 		#else
 		return null;
 		#end
