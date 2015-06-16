@@ -1395,6 +1395,24 @@ void ProcessEvent(SDL_Event &inEvent)
             Event joystick(etJoyDeviceAdded);
             sgJoystick = SDL_JoystickOpen(inEvent.jdevice.which); //which: joystick device index
             joystick.id = SDL_JoystickInstanceID(sgJoystick);
+            //get string id
+            const char * gamepadstring = SDL_JoystickName(sgJoystick);
+            if (strcmp (gamepadstring, "PLAYSTATION(R)3 Controller") == 0)  //PS3 controller
+            {
+                joystick.x = 1;
+            }
+            else if (strcmp (gamepadstring, "Wireless Controller") == 0)    //PS4 controller
+            {
+                joystick.x = 2;
+            }
+            else if (strcmp (gamepadstring, "OUYA Game Controller") == 0)   //OUYA controller
+            {
+                joystick.x = 3;
+            }
+            else    //default (XBox 360, basically)
+            {
+                joystick.x = 0;
+            }
             sgJoysticks.push_back(sgJoystick);
             sgJoysticksId.push_back(joystick.id);
             sgJoysticksIndex.push_back(inEvent.jdevice.which);
