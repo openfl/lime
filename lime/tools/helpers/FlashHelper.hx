@@ -435,9 +435,9 @@ class FlashHelper {
 			}
 			
 			var swf_em = 1024 * 20;
-			var ascent = Math.ceil (font.ascend * swf_em / font.em_size);
-			var descent = -Math.ceil (font.descend * swf_em / font.em_size);
-			var leading = Math.ceil ((font.height - font.ascend + font.descend) * swf_em / font.em_size);
+			var ascent = Math.round (Math.abs (font.ascend * swf_em / font.em_size));
+			var descent = Math.round (Math.abs ((font.descend) * swf_em / font.em_size));
+			var leading = Math.round ((font.height - font.ascend + font.descend) * swf_em / font.em_size);
 			var language = LangCode.LCNone;
 			
 			outTags.push (TFont (cid, FDFont3 ({
