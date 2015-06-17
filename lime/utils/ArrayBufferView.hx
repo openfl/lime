@@ -630,6 +630,6 @@ private abstract TypedArrayType(Int) from Int to Int {
 
 #else
 
-    #error "ArrayBufferIO is not used on js target, use DataView instead"
+    //#error "ArrayBufferIO is not used on js target, use DataView instead"
 
 #end //!js

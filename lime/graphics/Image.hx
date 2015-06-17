@@ -1155,7 +1155,7 @@ class Image {
 			#elseif flash
 				
 				var pixels = buffer.__srcBitmapData.getPixels (buffer.__srcBitmapData.rect);
-				buffer.data = new UInt8Array (pixels);
+				buffer.data = new UInt8Array (Bytes.ofData (pixels));
 				
 			#end
 			
