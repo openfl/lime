@@ -7,7 +7,9 @@ package lime.utils;
     abstract Float64Array(js.html.Float64Array)
         from js.html.Float64Array
         to js.html.Float64Array {
-
+		
+		public inline static var BYTES_PER_ELEMENT : Int = 8;
+		
         @:generic
         public inline function new<T>(
             ?elements:Int,

@@ -7,7 +7,9 @@ package lime.utils;
     abstract Float32Array(js.html.Float32Array)
         from js.html.Float32Array
         to js.html.Float32Array {
-
+		
+		public inline static var BYTES_PER_ELEMENT : Int = 4;
+		
         @:generic
         public inline function new<T>(
             ?elements:Int,

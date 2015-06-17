@@ -7,7 +7,9 @@ package lime.utils;
     abstract Int32Array(js.html.Int32Array)
         from js.html.Int32Array
         to js.html.Int32Array {
-
+		
+		public inline static var BYTES_PER_ELEMENT : Int = 4;
+		
         @:generic
         public inline function new<T>(
             ?elements:Int,
@@ -50,7 +52,8 @@ package lime.utils;
 
 #else
 
-    import lime.utils.ArrayBufferView;
+    import lime.utils.ArrayBufferView;
+
 
 @:forward()
 @:arrayAccess
