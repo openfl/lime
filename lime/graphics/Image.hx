@@ -946,7 +946,8 @@ class Image {
 			
 			if (data != null) {
 				
-				__fromImageBuffer (new ImageBuffer (new UInt8Array (data.data), data.width, data.height, data.bpp));
+				var byteArray:ByteArray = data.data;
+				__fromImageBuffer (new ImageBuffer (new UInt8Array (byteArray), data.width, data.height, data.bpp));
 				
 				if (onload != null) {
 					
