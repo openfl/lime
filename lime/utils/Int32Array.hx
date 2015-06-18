@@ -1,6 +1,6 @@
 package lime.utils;
 
-#if js
+#if (js && !display)
 
     @:forward
     @:arrayAccess

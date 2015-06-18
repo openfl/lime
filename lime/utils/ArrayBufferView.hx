@@ -1,6 +1,6 @@
 package lime.utils;
 
-#if js
+#if (js && !display)
 
     typedef ArrayBufferView = js.html.ArrayBufferView;
 
@@ -348,7 +348,7 @@ private abstract TypedArrayType(Int) from Int to Int {
     var Float64         = 9;
 }
 
-#if !js
+#if (!js || display)
 
 @:noCompletion @:dox(hide) class ArrayBufferIO {
 
