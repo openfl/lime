@@ -130,9 +130,9 @@ namespace lime {
 			} else {
 				
 				lime::fclose (file);
-				ByteArray data = ByteArray (resource->path);
+				Bytes data = Bytes (resource->path);
 				
-				OAL_OggMemoryFile fakeFile = { data.Bytes (), data.Size (), 0 };
+				OAL_OggMemoryFile fakeFile = { data.Data (), data.Length (), 0 };
 				
 				if (ov_open_callbacks (&fakeFile, &oggFile, NULL, 0, OAL_CALLBACKS_BUFFER) != 0) {
 					
@@ -144,7 +144,7 @@ namespace lime {
 			
 		} else {
 			
-			OAL_OggMemoryFile fakeFile = { resource->data->Bytes (), resource->data->Size (), 0 };
+			OAL_OggMemoryFile fakeFile = { resource->data->Data (), resource->data->Length (), 0 };
 			
 			if (ov_open_callbacks (&fakeFile, &oggFile, NULL, 0, OAL_CALLBACKS_BUFFER) != 0) {
 				
@@ -187,7 +187,7 @@ namespace lime {
 		
 		while (bytes > 0) {
 				
-				bytes = ov_read (&oggFile, (char *)audioBuffer->data->Bytes () + totalBytes, BUFFER_SIZE, BUFFER_READ_TYPE, 2, 1, &bitStream);
+				bytes = ov_read (&oggFile, (char *)audioBuffer->data->Data () + totalBytes, BUFFER_SIZE, BUFFER_READ_TYPE, 2, 1, &bitStream);
 				totalBytes += bytes;
 				
 		}
@@ -197,8 +197,9 @@ namespace lime {
 			audioBuffer->data->Resize (totalBytes);
 			
 		}
+		
 		ov_clear (&oggFile);
-
+		
 		#undef BUFFER_READ_TYPE
 		
 		return true;

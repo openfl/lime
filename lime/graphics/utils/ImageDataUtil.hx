@@ -2,6 +2,7 @@ package lime.graphics.utils;
 
 
 import haxe.ds.Vector;
+import haxe.io.Bytes;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.graphics.PixelFormat;
@@ -676,7 +677,7 @@ class ImageDataUtil {
 		#end
 		
 		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) byteArray = lime_image_data_util_get_pixels (image, rect, format); else
+		if (!System.disableCFFI) lime_image_data_util_get_pixels (image, rect, format, byteArray); else
 		#end
 		{
 			
@@ -1213,7 +1214,7 @@ class ImageDataUtil {
 	private static var lime_image_data_util_copy_pixels = System.load ("lime", "lime_image_data_util_copy_pixels", 5);
 	private static var lime_image_data_util_fill_rect = System.load ("lime", "lime_image_data_util_fill_rect", 3);
 	private static var lime_image_data_util_flood_fill = System.load ("lime", "lime_image_data_util_flood_fill", 4);
-	private static var lime_image_data_util_get_pixels = System.load ("lime", "lime_image_data_util_get_pixels", 3);
+	private static var lime_image_data_util_get_pixels = System.load ("lime", "lime_image_data_util_get_pixels", 4);
 	private static var lime_image_data_util_merge = System.load ("lime", "lime_image_data_util_merge", -1);
 	private static var lime_image_data_util_multiply_alpha = System.load ("lime", "lime_image_data_util_multiply_alpha", 1);
 	private static var lime_image_data_util_resize = System.load ("lime", "lime_image_data_util_resize", 4);

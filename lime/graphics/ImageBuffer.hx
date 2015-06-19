@@ -103,8 +103,7 @@ class ImageBuffer {
 			
 			var bytes = Bytes.alloc (data.byteLength);
 			bytes.blit (0, buffer.data.buffer, 0, data.byteLength);
-			var byteArray = ByteArray.fromBytes (bytes);
-			buffer.data = new UInt8Array (byteArray);
+			buffer.data = new UInt8Array (bytes);
 			
 		}
 		#end

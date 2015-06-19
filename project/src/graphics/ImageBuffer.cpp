@@ -5,7 +5,6 @@ namespace lime {
 	
 	
 	static int id_bitsPerPixel;
-	static int id_bpp;
 	static int id_buffer;
 	static int id_data;
 	static int id_format;
@@ -31,7 +30,6 @@ namespace lime {
 		
 		if (!init) {
 			
-			id_bpp = val_id ("bpp");
 			id_bitsPerPixel = val_id ("bitsPerPixel");
 			id_transparent = val_id ("transparent");
 			id_buffer = val_id ("buffer");
@@ -50,11 +48,7 @@ namespace lime {
 		transparent = val_bool (val_field (imageBuffer, id_transparent));
 		value data_value = val_field (imageBuffer, id_data);
 		value buffer_value = val_field (data_value, id_buffer);
-		
-		//if (val_is_buffer (buffer_value))
-			data = new ByteArray (buffer_value);
-		//else
-			//data = new ByteArray (data_value);
+		data = new Bytes (buffer_value);
 		
 	}
 	
@@ -74,7 +68,7 @@ namespace lime {
 			
 		}
 		
-		unsigned char *bytes = this->data->Bytes ();
+		unsigned char *bytes = this->data->Data ();
 		
 		for (int i = 0; i < height; i++) {
 			
@@ -90,8 +84,16 @@ namespace lime {
 		this->bpp = bpp;
 		this->width = width;
 		this->height = height;
-		if (this->data) delete this->data;
-		this->data = new ByteArray (width * height * bpp);
+		
+		if (!this->data) {
+			
+			this->data = new Bytes (width * height * bpp);
+			
+		} else {
+			
+			this->data->Resize (width * height * bpp);
+			
+		}
 		
 	}
 	
@@ -100,7 +102,6 @@ namespace lime {
 		
 		if (!init) {
 			
-			id_bpp = val_id ("bpp");
 			id_bitsPerPixel = val_id ("bitsPerPixel");
 			id_transparent = val_id ("transparent");
 			id_buffer = val_id ("buffer");
@@ -115,9 +116,9 @@ namespace lime {
 		mValue = alloc_empty_object ();
 		alloc_field (mValue, id_width, alloc_int (width));
 		alloc_field (mValue, id_height, alloc_int (height));
-		alloc_field (mValue, id_bpp, alloc_int (bpp));
+		alloc_field (mValue, id_bitsPerPixel, alloc_int (bpp));
+		alloc_field (mValue, id_data, data ? data->Value () : alloc_null ());
 		alloc_field (mValue, id_transparent, alloc_bool (transparent));
-		alloc_field (mValue, id_data, data ? data->mValue : alloc_null ());
 		alloc_field (mValue, id_format, alloc_int (format));
 		return mValue;
 		

@@ -36,7 +36,7 @@ namespace lime {
 	}
 	
 	
-	void TextLayout::Position (Font *font, size_t size, const char *text, ByteArray *bytes) {
+	void TextLayout::Position (Font *font, size_t size, const char *text, Bytes *bytes) {
 		
 		if (mFont != font) {
 			
@@ -64,16 +64,16 @@ namespace lime {
 		//float hres = 100;
 		int posIndex = 0;
 		
-		int glyphSize = sizeof(GlyphPosition);
+		int glyphSize = sizeof (GlyphPosition);
 		uint32_t dataSize = 4 + (glyph_count * glyphSize);
 		
-		if (bytes->Size() < dataSize) {
+		if (bytes->Length () < dataSize) {
 			
 			bytes->Resize (dataSize);
 			
 		}
 		
-		unsigned char* bytesPosition = bytes->Bytes ();
+		unsigned char* bytesPosition = bytes->Data ();
 		
 		*(bytesPosition) = glyph_count;
 		bytesPosition += 4;

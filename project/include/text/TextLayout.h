@@ -3,7 +3,7 @@
 
 
 #include <text/Font.h>
-#include <utils/ByteArray.h>
+#include <utils/Bytes.h>
 
 
 namespace lime {
@@ -27,7 +27,7 @@ namespace lime {
 			TextLayout (int direction, const char *script, const char *language);
 			~TextLayout ();
 			
-			void Position (Font *font, size_t size, const char *text, ByteArray *bytes);
+			void Position (Font *font, size_t size, const char *text, Bytes *bytes);
 			void SetDirection (int direction);
 			void SetLanguage (const char* language);
 			void SetScript (const char* script);

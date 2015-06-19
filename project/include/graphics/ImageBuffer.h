@@ -4,7 +4,7 @@
 
 #include <hx/CFFI.h>
 #include <graphics/PixelFormat.h>
-#include <utils/ByteArray.h>
+#include <utils/Bytes.h>
 
 
 namespace lime {
@@ -24,7 +24,7 @@ namespace lime {
 			value Value ();
 			
 			int bpp;
-			ByteArray *data;
+			Bytes *data;
 			PixelFormat format;
 			int height;
 			int width;

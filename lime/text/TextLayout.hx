@@ -62,7 +62,7 @@ class TextLayout {
 				
 			}
 			
-			lime_text_layout_position (__handle, font.src, size, text, __buffer);
+			var data = lime_text_layout_position (__handle, font.src, size, text, __buffer);
 			
 			if (__buffer.length > 4) {
 				
@@ -83,7 +83,7 @@ class TextLayout {
 					
 				}
 				
-			}			
+			}
 		}
 		
 		#end

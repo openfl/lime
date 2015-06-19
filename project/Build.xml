@@ -199,6 +199,7 @@
 		<file name="src/ui/TouchEvent.cpp" />
 		<file name="src/ui/WindowEvent.cpp" />
 		<file name="src/utils/ByteArray.cpp" />
+		<file name="src/utils/Bytes.cpp" />
 		
 	</files>
 	
