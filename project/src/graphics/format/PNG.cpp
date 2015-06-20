@@ -182,9 +182,8 @@ namespace lime {
 			
 			//png_set_bgr (png_ptr);
 			
-			int bpp = 4;
-			const unsigned int stride = width * bpp;
-			imageBuffer->Resize (width, height, bpp);
+			imageBuffer->Resize (width, height, 32);
+			const unsigned int stride = imageBuffer->Stride ();
 			unsigned char *bytes = imageBuffer->data->Data ();
 			
 			int number_of_passes = png_set_interlace_handling (png_ptr);
@@ -259,7 +258,7 @@ namespace lime {
 		
 		bool do_alpha = (color_type == PNG_COLOR_TYPE_RGBA);
 		unsigned char* imageData = imageBuffer->data->Data();
-		int stride = w * imageBuffer->bpp;
+		int stride = imageBuffer->Stride ();
 		
 		{
 			QuickVec<unsigned char> row_data (w * 4);

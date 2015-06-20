@@ -20,10 +20,11 @@ namespace lime {
 			~ImageBuffer ();
 			
 			void Blit (const unsigned char *data, int x, int y, int width, int height);
-			void Resize (int width, int height, int bpp = 4);
+			void Resize (int width, int height, int bitsPerPixel = 32);
+			int Stride ();
 			value Value ();
 			
-			int bpp;
+			int bitsPerPixel;
 			Bytes *data;
 			PixelFormat format;
 			int height;

@@ -39,7 +39,7 @@ namespace lime {
 	
 	void ImageDataUtil::ColorTransform (Image* image, Rectangle* rect, ColorMatrix* colorMatrix) {
 		
-		int stride = image->buffer->width * 4;
+		int stride = image->buffer->Stride ();
 		int offset;
 		
 		int rowStart = int (rect->y + image->offsetY);
@@ -87,13 +87,13 @@ namespace lime {
 	
 	void ImageDataUtil::CopyChannel (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, int srcChannel, int destChannel) {
 		
-		int srcStride = sourceImage->buffer->width * 4;
+		int srcStride = sourceImage->buffer->Stride ();
 		int srcPosition = ((sourceRect->x + sourceImage->offsetX) * 4) + (srcStride * (sourceRect->y + sourceImage->offsetY)) + srcChannel;
 		int srcRowOffset = srcStride - int (4 * (sourceRect->width + sourceImage->offsetX));
 		int srcRowEnd = 4 * (sourceRect->x + sourceImage->offsetX + sourceRect->width);
 		uint8_t* srcData = (uint8_t*)sourceImage->buffer->data->Data ();
 		
-		int destStride = image->buffer->width * 4;
+		int destStride = image->buffer->Stride ();
 		int destPosition = ((destPoint->x + image->offsetX) * 4) + (destStride * (destPoint->y + image->offsetY)) + destChannel;
 		int destRowOffset = destStride - int (4 * (sourceRect->width + image->offsetX));
 		int destRowEnd = 4 * (destPoint->x + image->offsetX + sourceRect->width);
@@ -131,11 +131,11 @@ namespace lime {
 		int columnOffset = int (destPoint->x + image->offsetX - sourceRect->x - sourceImage->offsetY);
 		
 		uint8_t* sourceData = (uint8_t*)sourceImage->buffer->data->Data ();
-		int sourceStride = sourceImage->buffer->width * 4;
+		int sourceStride = sourceImage->buffer->Stride ();
 		int sourceOffset = 0;
 		
 		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
-		int stride = image->buffer->width * 4;
+		int stride = image->buffer->Stride ();
 		int offset = 0;
 		
 		int rows = sourceRect->y + sourceRect->height + sourceImage->offsetY;
@@ -323,7 +323,7 @@ namespace lime {
 		uint8_t* data = (uint8_t*)pixels->Data ();
 		uint8_t* srcData = (uint8_t*)image->buffer->data->Data ();
 		
-		int srcStride = int (image->buffer->width * 4);
+		int srcStride = image->buffer->Stride ();
 		int srcPosition = int ((rect->x * 4) + (srcStride * rect->y));
 		int srcRowOffset = srcStride - int (4 * rect->width);
 		int srcRowEnd = int (4 * (rect->x + rect->width));
@@ -373,11 +373,11 @@ namespace lime {
 		int columnOffset = int (destPoint->x + image->offsetX - sourceRect->x - sourceImage->offsetY);
 		
 		uint8_t* sourceData = (uint8_t*)sourceImage->buffer->data->Data ();
-		int sourceStride = sourceImage->buffer->width * 4;
+		int sourceStride = sourceImage->buffer->Stride ();
 		int sourceOffset = 0;
 		
 		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
-		int stride = image->buffer->width * 4;
+		int stride = image->buffer->Stride ();
 		int offset = 0;
 		
 		int rowEnd = int (sourceRect->y + sourceRect->height + sourceImage->offsetY);
