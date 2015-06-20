@@ -25,8 +25,6 @@ namespace lime {
 		void Resize (int size);
 		value Value ();
 		
-		unsigned char *_data;
-		int _length;
 		value _value;
 		
 		
