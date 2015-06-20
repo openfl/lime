@@ -74,33 +74,8 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 		#end
 		
 		#if nodejs
-		var bytes = function (bytes:Dynamic) {
-			if (Std.is (bytes, ByteArray))
-				return untyped bytes.byteView;
-			else if (Std.is (bytes, UInt8Array) ||
-				Std.is (bytes, UInt16Array) ||
-				Std.is (bytes, Int16Array) ||
-				Std.is (bytes, Float32Array))
-				return bytes;
-			
-			if (bytes != null)
-				trace("Couldn't get BytesData:" + bytes);
-			return null;
-		}
-		var slen = function (bytes:ByteArray) {
-			if (Std.is (bytes, ByteArray))
-				return untyped bytes.length;
-			else if (Std.is (bytes, UInt8Array) ||
-				Std.is (bytes, UInt16Array) ||
-				Std.is (bytes, UInt32Array) ||
-				Std.is (bytes, Int8Array) ||
-				Std.is (bytes, Int16Array) ||
-				Std.is (bytes, Int32Array) ||
-				Std.is (bytes, Float32Array))
-				return untyped bytes.byteLength;
-			
-			return 0;
-		}
+		var bytes = function (bytes:ByteArray) { return bytes == null ? null : bytes.byteView; }
+		var slen = function (bytes:ByteArray){ return bytes == null ? 0 : bytes.length; }
 		#else
 		var bytes = function (bytes:ByteArray) { return bytes == null ? null : bytes.b; }
 		var slen = function (bytes:ByteArray){ return bytes == null ? 0 : bytes.length; }
