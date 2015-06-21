@@ -21,7 +21,7 @@ namespace lime {
 		if (flags & WINDOW_FLAG_FULLSCREEN) sdlFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 		if (flags & WINDOW_FLAG_RESIZABLE) sdlFlags |= SDL_WINDOW_RESIZABLE;
 		if (flags & WINDOW_FLAG_BORDERLESS) sdlFlags |= SDL_WINDOW_BORDERLESS;
-		sdlFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
+		if (flags & WINDOW_FLAG_HIGH_DPI) sdlFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
 
 		if (flags & WINDOW_FLAG_HARDWARE) {
 
@@ -128,7 +128,11 @@ namespace lime {
 		int width;
 		int height;
 		
-		SDL_GL_GetDrawableSize (sdlWindow, &width, &height);
+		if (flags & WINDOW_FLAG_HIGH_DPI) {
+			SDL_GL_GetDrawableSize (sdlWindow, &width, &height);
+		} else {
+			SDL_GetWindowSize (sdlWindow, &width, &height);
+		}
 		
 		return height;
 		
@@ -140,8 +144,12 @@ namespace lime {
 		int width;
 		int height;
 		
-		SDL_GL_GetDrawableSize (sdlWindow, &width, &height);
-		
+		if (flags & WINDOW_FLAG_HIGH_DPI) {
+			SDL_GL_GetDrawableSize (sdlWindow, &width, &height);
+		} else {
+			SDL_GetWindowSize (sdlWindow, &width, &height);
+		}
+
 		return width;
 		
 	}

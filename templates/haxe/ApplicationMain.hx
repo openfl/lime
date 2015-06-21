@@ -79,6 +79,7 @@ class ApplicationMain {
 			version: "::META_VERSION::",
 			vsync: ::WIN_VSYNC::,
 			width: Std.int (::WIN_WIDTH::),
+			highdpi: ::WIN_HIGHDPI::,
 			
 		}
 		
