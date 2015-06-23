@@ -14,18 +14,24 @@ namespace nme
 	inline unsigned int   READ_LE32(unsigned char *ptr) { return ((unsigned int)READ_LE16(ptr + 0) << 0) | ((unsigned int)READ_LE16(ptr + 2) << 16); }
 	inline UInt64         READ_LE64(unsigned char *ptr) { return ((UInt64)READ_LE32(ptr + 0) << 0) | ((UInt64)READ_LE32(ptr + 4) << 32); }
 
+	//extern "C" {
+		//SRes lzma_Progress(void *p, UInt64 inSize, UInt64 outSize) {
+			//return SZ_OK;
+		//}
+		//
+		//void *lzma_Alloc(void *p, size_t size) {
+			//return malloc(size);
+		//}
+		//void lzma_Free(void *p, void *address) { /* address can be 0 */
+			//if (address == NULL) return;
+			//free(address);
+		//}
+	//}
+	
 	extern "C" {
-		SRes lzma_Progress(void *p, UInt64 inSize, UInt64 outSize) {
-			return SZ_OK;
-		}
-
-		void *lzma_Alloc(void *p, size_t size) {
-			return malloc(size);
-		}
-		void lzma_Free(void *p, void *address) { /* address can be 0 */
-			if (address == NULL) return;
-			free(address);
-		}
+		SRes lzma_Progress(void *p, UInt64 inSize, UInt64 outSize);
+		void *lzma_Alloc(void *p, size_t size);
+		void lzma_Free(void *p, void *address);
 	}
 
 	void Lzma::Encode(buffer input_buffer, buffer output_buffer)
