@@ -8,74 +8,58 @@ namespace lime {
 	static int id_b;
 	static int id_length;
 	static bool init = false;
+
+	static void initId () {
+
+		if (!init) {
+
+			id_b = val_id ("b");
+			id_length = val_id ("length");
+			init = true;
+
+		}
+
+	}
 	
+	static unsigned char *getPointerFromBytes (value _value) {
+		
+		if (val_is_null (_value))
+			return NULL;
+		
+		initId ();
+		value b = val_field (_value, id_b);
+		if (val_is_buffer (b))
+			return (unsigned char *)buffer_data (val_to_buffer (b));
+		else
+			return (unsigned char *)val_string (b);
+		
+	}
 	
 	Bytes::Bytes () {
 		
-		_data = 0;
-		_length = 0;
 		_value = 0;
 		
 	}
 	
 	
 	Bytes::Bytes (int size) {
-		
-		_data = (unsigned char*)malloc (size);
-		_length = size;
+
 		_value = 0;
+		Resize (size);
 		
 	}
 	
 	
 	Bytes::Bytes (value bytes) {
 		
-		if (!init) {
-			
-			id_b = val_id ("b");
-			id_length = val_id ("length");
-			init = true;
-			
-		}
-		
-		if (val_is_null (bytes)) {
-			
-			_length = 0;
-			_data = 0;
-			_value = 0;
-			
-		} else {
-			
-			_value = bytes;
-			_length = val_int (val_field (bytes, id_length));
-			
-			if (_length > 0) {
-				
-				value b = val_field (bytes, id_b);
-				
-				if (val_is_string (b)) {
-					
-					_data = (unsigned char*)val_string (b);
-					
-				} else {
-					
-					_data = (unsigned char*)buffer_data (val_to_buffer (b));
-					
-				}
-				
-			} else {
-				
-				_data = 0;
-				
-			}
-			
-		}
+		_value = bytes;
 		
 	}
 	
 	
 	Bytes::Bytes (const char* path) {
 		
+		_value = 0;
 		FILE_HANDLE *file = lime::fopen (path, "rb");
 		
 		if (!file) {
@@ -85,153 +69,101 @@ namespace lime {
 		}
 		
 		lime::fseek (file, 0, SEEK_END);
-		_length = lime::ftell (file);
+		long int length = lime::ftell (file);
 		lime::fseek (file, 0, SEEK_SET);
 		
-		_data = (unsigned char*)malloc (_length);
+		Resize (length);
+		void *data = Data ();
 		
-		int status = lime::fread (_data, _length, 1, file);
+		int status = lime::fread (data, length, 1, file);
 		lime::fclose (file);
 		delete file;
-		
-		_value = 0;
 		
 	}
 	
 	
 	Bytes::Bytes (const QuickVec<unsigned char> data) {
 		
-		_length = data.size ();
-		
-		if (_length > 0) {
-			
-			_data = (unsigned char*)malloc (_length);
-			memcpy (_data, &data[0], _length);
-			
-		} else {
-			
-			_data = 0;
-			
-		}
-		
 		_value = 0;
+		int length = data.size ();
 		
-	}
-	
-	
-	Bytes::~Bytes () {
-		
-		if (!_value && _data) {
+		if (length > 0) {
 			
-			free (_data);
+			Resize (length);
+			unsigned char *_data = Data ();
+			memcpy (_data, &data[0], length);
 			
 		}
 		
 	}
 	
 	
+	Bytes::~Bytes () {}
+
+
 	unsigned char *Bytes::Data () {
 		
-		return (unsigned char*)_data;
+		return getPointerFromBytes (_value);
 		
 	}
 	
 	
 	const unsigned char *Bytes::Data () const {
 		
-		return (const unsigned char*)_data;
+		return getPointerFromBytes (_value);
 		
 	}
 	
 	
 	int Bytes::Length () const {
 		
-		return _length;
+		initId ();
+		return !val_is_null(_value) ? val_int (val_field (_value, id_length)) : NULL;
 		
 	}
 	
 	
 	void Bytes::Resize (int size) {
 		
-		if (_value) {
+		initId ();
+		
+		void *src;
+		if (_value == 0)
+		{
 			
-			if (size > _length) {
-				
-				if (val_is_null (val_field (_value, id_b))) {
-					
-					buffer buf = alloc_buffer_len (size);
-					_data = (unsigned char*)buffer_data (buf);
-					
-					if (_data) {
-						
-						alloc_field (_value, id_b, buffer_val (buf));
-						
-					} else {
-						
-						value newString = alloc_raw_string (size);
-						alloc_field (_value, id_b, newString);
-						_data = (unsigned char*)val_string (val_field (_value, id_b));
-						memset (_data, 0, size);
-						
-					}
-					
-				} else {
-					
-					resizeByteData (_value, size);
-					
-				}
-				
-			}
-			
-			alloc_field (_value, id_length, alloc_int (size));
+			_value = alloc_empty_object ();
+			src = NULL;
 			
 		} else {
 			
-			if (size > _length) {
-				
-				if (_data) {
-					
-					realloc (_data, size);
-					
-				} else {
-					
-					_data = (unsigned char*)malloc (size);
-					
-				}
-				
-			}
+			src = Data ();
 			
 		}
 		
-		_length = size;
+		buffer buf = alloc_buffer_len (size);
+		value bufVal = buffer_val (buf);
+		if (val_is_null (bufVal)) {
+			
+			bufVal = buffer_to_string (buf);
+			memset ((void*)val_string (bufVal), 0, size);
+			
+		}
+		alloc_field (_value, id_b, bufVal);
+		alloc_field (_value, id_length, alloc_int (size));
+		
+		if (src != NULL)
+		{
+			
+			memcpy (Data (), src, size);
+			
+		}
 		
 	}
-	
-	
+
+
 	value Bytes::Value () {
 		
-		if (_value) {
-			
-			return _value;
-			
-		} else {
-			
-			if (!init) {
-				
-				id_b = val_id ("b");
-				id_length = val_id ("length");
-				init = true;
-				
-			}
-			
-			value object = alloc_empty_object ();
-			value newString = alloc_raw_string (_length);
-			memcpy ((char*)val_string (newString), _data, _length);
-			alloc_field (object, id_b, newString);
-			alloc_field (object, id_length, alloc_int (_length));
-			return object;
-			
-		}
+		return _value;
 		
 	}
 	

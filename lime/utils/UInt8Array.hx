@@ -41,7 +41,7 @@ package lime.utils;
     }
 
         public function toBytes() : haxe.io.Bytes {
-            #if (haxe_ver < 3.2)
+            #if ((haxe_ver < 3.2) || nodejs)
             return @:privateAccess new haxe.io.Bytes( this.byteLength, cast new js.html.Uint8Array(this.buffer) );
             #else
                 return @:privateAccess new haxe.io.Bytes( cast new js.html.Uint8Array(this.buffer) );
