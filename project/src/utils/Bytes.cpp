@@ -250,23 +250,23 @@ namespace lime {
 				
 			}
 			
-			value object = alloc_empty_object ();
+			_value = alloc_empty_object ();
 			
 			if (_length > 0 && _data) {
 				
 				value newString = alloc_raw_string (_length);
 				memcpy ((char*)val_string (newString), _data, _length);
-				alloc_field (object, id_b, newString);
-				alloc_field (object, id_length, alloc_int (_length));
+				alloc_field (_value, id_b, newString);
+				alloc_field (_value, id_length, alloc_int (_length));
 				
 			} else {
 				
-				alloc_field (object, id_b, alloc_raw_string (0));
-				alloc_field (object, id_length, alloc_int (_length));
+				alloc_field (_value, id_b, alloc_raw_string (0));
+				alloc_field (_value, id_length, alloc_int (_length));
 				
 			}
 			
-			return object;
+			return _value;
 			
 		}
 		
