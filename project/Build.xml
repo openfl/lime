@@ -94,7 +94,6 @@
 		
 		<section if="LIME_LZMA">
 			
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/lzma/include/" />
 			<compilerflag value="-DLIME_LZMA" />
 			
 		</section>
