@@ -295,7 +295,7 @@ namespace lime {
 		
 		png_write_end (png_ptr, NULL);
 		
-		*bytes = Bytes (out_buffer);
+		bytes->Set (out_buffer);
 		
 		return true;
 		

@@ -1,6 +1,7 @@
 package lime.graphics.format;
 
 
+import haxe.io.Bytes;
 import lime.graphics.Image;
 import lime.system.System;
 import lime.utils.ByteArray;
@@ -67,7 +68,16 @@ class PNG {
 		
 		if (!System.disableCFFI) {
 			
-			return lime_image_encode (image.buffer, 0, 0);
+			var data = lime_image_encode (image.buffer, 0, 0);
+			
+			#if neko
+			var bytes = @:privateAccess (new Bytes (data.length, data.b));
+			#else
+			var bytes = Bytes.ofString (data.b);
+			@:privateAccess (bytes).length = data.length;
+			#end
+			
+			return byteArray;
 			
 		}
 		

@@ -30,46 +30,7 @@ namespace lime {
 	
 	Bytes::Bytes (value bytes) {
 		
-		if (!init) {
-			
-			id_b = val_id ("b");
-			id_length = val_id ("length");
-			init = true;
-			
-		}
-		
-		if (val_is_null (bytes)) {
-			
-			_length = 0;
-			_data = 0;
-			_value = 0;
-			
-		} else {
-			
-			_value = bytes;
-			_length = val_int (val_field (bytes, id_length));
-			
-			if (_length > 0) {
-				
-				value b = val_field (bytes, id_b);
-				
-				if (val_is_string (b)) {
-					
-					_data = (unsigned char*)val_string (b);
-					
-				} else {
-					
-					_data = (unsigned char*)buffer_data (val_to_buffer (b));
-					
-				}
-				
-			} else {
-				
-				_data = 0;
-				
-			}
-			
-		}
+		Set (bytes);
 		
 	}
 	
@@ -101,20 +62,7 @@ namespace lime {
 	
 	Bytes::Bytes (const QuickVec<unsigned char> data) {
 		
-		_length = data.size ();
-		
-		if (_length > 0) {
-			
-			_data = (unsigned char*)malloc (_length);
-			memcpy (_data, &data[0], _length);
-			
-		} else {
-			
-			_data = 0;
-			
-		}
-		
-		_value = 0;
+		Set (data);
 		
 	}
 	
@@ -208,6 +156,84 @@ namespace lime {
 	}
 	
 	
+	void Bytes::Set (value bytes) {
+		
+		if (!init) {
+			
+			id_b = val_id ("b");
+			id_length = val_id ("length");
+			init = true;
+			
+		}
+		
+		if (!_value && _data) {
+			
+			free (_data);
+			
+		}
+		
+		if (val_is_null (bytes)) {
+			
+			_length = 0;
+			_data = 0;
+			_value = 0;
+			
+		} else {
+			
+			_value = bytes;
+			_length = val_int (val_field (bytes, id_length));
+			
+			if (_length > 0) {
+				
+				value b = val_field (bytes, id_b);
+				
+				if (val_is_string (b)) {
+					
+					_data = (unsigned char*)val_string (b);
+					
+				} else {
+					
+					_data = (unsigned char*)buffer_data (val_to_buffer (b));
+					
+				}
+				
+			} else {
+				
+				_data = 0;
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	void Bytes::Set (const QuickVec<unsigned char> data) {
+		
+		if (!_value && _data) {
+			
+			free (_data);
+			
+		}
+		
+		_length = data.size ();
+		
+		if (_length > 0) {
+			
+			_data = (unsigned char*)malloc (_length);
+			memcpy (_data, &data[0], _length);
+			
+		} else {
+			
+			_data = 0;
+			
+		}
+		
+		_value = 0;
+		
+	}
+	
+	
 	value Bytes::Value () {
 		
 		if (_value) {
@@ -225,10 +251,21 @@ namespace lime {
 			}
 			
 			value object = alloc_empty_object ();
-			value newString = alloc_raw_string (_length);
-			memcpy ((char*)val_string (newString), _data, _length);
-			alloc_field (object, id_b, newString);
-			alloc_field (object, id_length, alloc_int (_length));
+			
+			if (_length > 0 && _data) {
+				
+				value newString = alloc_raw_string (_length);
+				memcpy ((char*)val_string (newString), _data, _length);
+				alloc_field (object, id_b, newString);
+				alloc_field (object, id_length, alloc_int (_length));
+				
+			} else {
+				
+				alloc_field (object, id_b, alloc_raw_string (0));
+				alloc_field (object, id_length, alloc_int (_length));
+				
+			}
+			
 			return object;
 			
 		}

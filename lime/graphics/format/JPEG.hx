@@ -1,6 +1,7 @@
 package lime.graphics.format;
 
 
+import haxe.io.Bytes;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.system.System;
@@ -58,7 +59,16 @@ class JPEG {
 		
 		#elseif (sys && (!disable_cffi || !format))
 			
-			return lime_image_encode (image.buffer, 1, quality);
+			var data = lime_image_encode (image.buffer, 1, quality);
+			
+			#if neko
+			var bytes = @:privateAccess (new Bytes (data.length, data.b));
+			#else
+			var bytes = Bytes.ofString (data.b);
+			@:privateAccess (bytes).length = data.length;
+			#end
+			
+			return ByteArray.fromBytes (bytes);
 			
 		#end
 		

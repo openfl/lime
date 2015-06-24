@@ -361,7 +361,7 @@ namespace lime {
 		
 		jpeg_finish_compress (&cinfo);
 		
-		*bytes = Bytes (dest.mOutput);
+		bytes->Set (dest.mOutput);
 		
 		return true;
 		
