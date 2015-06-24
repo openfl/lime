@@ -144,7 +144,7 @@ class PNG {
 	#if (cpp || neko || nodejs)
 	private static var lime_png_decode_bytes:ByteArray -> Bool -> Dynamic = System.load ("lime", "lime_png_decode_bytes", 2);
 	private static var lime_png_decode_file = System.load ("lime", "lime_png_decode_file", 2);
-	private static var lime_image_encode:ImageBuffer -> Int -> Int -> ByteArray = System.load ("lime", "lime_image_encode", 3);
+	private static var lime_image_encode = System.load ("lime", "lime_image_encode", 3);
 	#end
 	
 	

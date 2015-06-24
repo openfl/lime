@@ -59,7 +59,7 @@ class JPEG {
 		
 		#elseif (sys && (!disable_cffi || !format))
 			
-			var data = lime_image_encode (image.buffer, 1, quality);
+			var data:Dynamic = lime_image_encode (image.buffer, 1, quality);
 			
 			#if neko
 			var bytes = @:privateAccess (new Bytes (data.length, data.b));
@@ -87,7 +87,7 @@ class JPEG {
 	#if (cpp || neko || nodejs)
 	private static var lime_jpeg_decode_bytes:ByteArray -> Bool -> Dynamic = System.load ("lime", "lime_jpeg_decode_bytes", 2);
 	private static var lime_jpeg_decode_file:String -> Bool -> Dynamic = System.load ("lime", "lime_jpeg_decode_file", 2);
-	private static var lime_image_encode:ImageBuffer -> Int -> Int -> ByteArray = System.load ("lime", "lime_image_encode", 3);
+	private static var lime_image_encode = System.load ("lime", "lime_image_encode", 3);
 	#end
 	
 	
