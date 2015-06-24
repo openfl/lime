@@ -77,7 +77,7 @@ class PNG {
 			@:privateAccess (bytes).length = data.length;
 			#end
 			
-			return byteArray;
+			return ByteArray.fromBytes (bytes);
 			
 		}
 		
