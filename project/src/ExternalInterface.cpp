@@ -35,7 +35,10 @@
 #include <ui/WindowEvent.h>
 #include <utils/JNI.h>
 #include <vm/NekoVM.h>
-#include <../lib/lzma/include/lzma.h>
+
+#ifdef LIME_LZMA
+#include <lzma.h>
+#endif
 
 
 namespace lime {
@@ -674,18 +677,27 @@ namespace lime {
 	
 	value lime_lzma_decode (value input_value) {
 		
+		#ifdef LIME_LZMA
+		
 		buffer input_buffer = val_to_buffer(input_value);
 		buffer output_buffer = alloc_buffer_len(0);
 		
 		native_toolkit_lzma::Lzma::Decode (input_buffer, output_buffer);
 		
 		return buffer_val (output_buffer);
-		//return alloc_null ();
+		
+		#else
+		
+		return alloc_null ();
+		
+		#endif
 		
 	}
 	
 	
 	value lime_lzma_encode (value input_value) {
+		
+		#ifdef LIME_LZMA
 		
 		buffer input_buffer = val_to_buffer(input_value);
 		buffer output_buffer = alloc_buffer_len(0);
@@ -693,7 +705,12 @@ namespace lime {
 		native_toolkit_lzma::Lzma::Encode (input_buffer, output_buffer);
 		
 		return buffer_val (output_buffer);
-		//return alloc_null ();
+		
+		#else
+		
+		return alloc_null ();
+		
+		#endif
 		
 	}
 	

@@ -14,7 +14,7 @@
 	<set name="LIME_JPEG" value="1" />
 	<set name="LIME_FREETYPE" value="1" />
 	<set name="LIME_HARFBUZZ" value="1" />
-	<set name="LIME_LZMA" value="1" />
+	<!-- <set name="LIME_LZMA" value="1" /> -->
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
 	<set name="LIME_OGG" value="1" />
 	<set name="LIME_OPENAL" value="1" />
@@ -89,6 +89,13 @@
 				<file name="src/text/TextLayout.cpp" />
 				
 			</section>
+			
+		</section>
+		
+		<section if="LIME_LZMA">
+			
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/lzma/include/" />
+			<compilerflag value="-DLIME_LZMA" />
 			
 		</section>
 		
