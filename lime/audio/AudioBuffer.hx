@@ -57,13 +57,7 @@ class AudioBuffer {
 				var audioBuffer = new AudioBuffer ();
 				audioBuffer.bitsPerSample = data.bitsPerSample;
 				audioBuffer.channels = data.channels;
-				#if neko
-				var bytes = @:privateAccess (new Bytes (data.data.length, data.data.b));
-				#else
-				var bytes = Bytes.ofString (data.data.b);
-				@:privateAccess (bytes).length = data.data.length;
-				#end
-				audioBuffer.data = ByteArray.fromBytes (bytes);
+				audioBuffer.data = ByteArray.fromBytes (@:privateAccess new Bytes (data.data.length, data.data.b));
 				audioBuffer.sampleRate = data.sampleRate;
 				return audioBuffer;
 				
@@ -87,13 +81,7 @@ class AudioBuffer {
 				var audioBuffer = new AudioBuffer ();
 				audioBuffer.bitsPerSample = data.bitsPerSample;
 				audioBuffer.channels = data.channels;
-				#if neko
-				var bytes = @:privateAccess (new Bytes (data.data.length, data.data.b));
-				#else
-				var bytes = Bytes.ofString (data.data.b);
-				@:privateAccess (bytes).length = data.data.length;
-				#end
-				audioBuffer.data = ByteArray.fromBytes (bytes);
+				audioBuffer.data = ByteArray.fromBytes (@:privateAccess new Bytes (data.data.length, data.data.b));
 				audioBuffer.sampleRate = data.sampleRate;
 				return audioBuffer;
 				

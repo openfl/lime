@@ -948,13 +948,7 @@ class Image {
 			
 			if (data != null) {
 				
-				#if neko
-				var bytes = @:privateAccess (new Bytes (data.data.length, data.data.b));
-				#else
-				var bytes = Bytes.ofString (data.data.b);
-				@:privateAccess (bytes).length = data.data.length;
-				#end
-				__fromImageBuffer (new ImageBuffer (new UInt8Array (bytes), data.width, data.height, data.bitsPerPixel));
+				__fromImageBuffer (new ImageBuffer (new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b)), data.width, data.height, data.bitsPerPixel));
 				
 				if (onload != null) {
 					
@@ -1021,13 +1015,7 @@ class Image {
 				
 				if (data != null) {
 					
-					#if neko
-					var bytes = @:privateAccess (new Bytes (data.data.length, data.data.b));
-					#else
-					var bytes = Bytes.ofString (data.data.b);
-					@:privateAccess (bytes).length = data.data.length;
-					#end
-					var u8a = new UInt8Array (bytes);
+					var u8a = new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b));
 					buffer = new ImageBuffer (u8a, data.width, data.height, data.bitsPerPixel);
 					
 				}

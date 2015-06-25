@@ -69,14 +69,7 @@ class PNG {
 		if (!System.disableCFFI) {
 			
 			var data = lime_image_encode (image.buffer, 0, 0);
-			
-			#if neko
-			var bytes = @:privateAccess (new Bytes (data.length, data.b));
-			#else
-			var bytes = Bytes.ofString (data.b);
-			@:privateAccess (bytes).length = data.length;
-			#end
-			
+			var bytes = @:privateAccess new Bytes (data.length, data.b);
 			return ByteArray.fromBytes (bytes);
 			
 		}

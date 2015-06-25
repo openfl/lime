@@ -8,9 +8,34 @@ namespace lime {
 	static int id_b;
 	static int id_length;
 	static bool init = false;
+	static bool useBuffer = false;
+	
+	
+	inline void initialize () {
+		
+		if (!init) {
+			
+			id_b = val_id ("b");
+			id_length = val_id ("length");
+			
+			buffer b = alloc_buffer_len (1);
+			
+			if (buffer_data (b)) {
+				
+				useBuffer = true;
+				
+			}
+			
+			init = true;
+			
+		}
+		
+	}
 	
 	
 	Bytes::Bytes () {
+		
+		initialize ();
 		
 		_data = 0;
 		_length = 0;
@@ -21,14 +46,20 @@ namespace lime {
 	
 	Bytes::Bytes (int size) {
 		
-		_data = (unsigned char*)malloc (size);
-		_length = size;
+		initialize ();
+		
+		_data = 0;
+		_length = 0;
 		_value = 0;
+		
+		Resize (size);
 		
 	}
 	
 	
 	Bytes::Bytes (value bytes) {
+		
+		initialize ();
 		
 		Set (bytes);
 		
@@ -36,6 +67,12 @@ namespace lime {
 	
 	
 	Bytes::Bytes (const char* path) {
+		
+		initialize ();
+		
+		_data = 0;
+		_length = 0;
+		_value = 0;
 		
 		FILE_HANDLE *file = lime::fopen (path, "rb");
 		
@@ -46,21 +83,25 @@ namespace lime {
 		}
 		
 		lime::fseek (file, 0, SEEK_END);
-		_length = lime::ftell (file);
-		lime::fseek (file, 0, SEEK_SET);
 		
-		_data = (unsigned char*)malloc (_length);
+		int size = lime::ftell (file);
 		
-		int status = lime::fread (_data, _length, 1, file);
+		if (size > 0) {
+			
+			Resize (size);
+			int status = lime::fread (_data, _length, 1, file);
+			
+		}
+		
 		lime::fclose (file);
 		delete file;
-		
-		_value = 0;
 		
 	}
 	
 	
 	Bytes::Bytes (const QuickVec<unsigned char> data) {
+		
+		initialize ();
 		
 		Set (data);
 		
@@ -69,11 +110,11 @@ namespace lime {
 	
 	Bytes::~Bytes () {
 		
-		if (!_value && _data) {
-			
-			free (_data);
-			
-		}
+		//if (!_value && _data) {
+			//
+			//free (_data);
+			//
+		//}
 		
 	}
 	
@@ -101,53 +142,53 @@ namespace lime {
 	
 	void Bytes::Resize (int size) {
 		
-		if (_value) {
+		if (size > _length) {
 			
-			if (size > _length) {
+			if (!_value) {
 				
-				if (val_is_null (val_field (_value, id_b))) {
+				_value = alloc_empty_object ();
+				
+			}
+			
+			if (val_is_null (val_field (_value, id_b))) {
+				
+				value dataValue;
+				
+				if (useBuffer) {
 					
-					buffer buf = alloc_buffer_len (size);
-					_data = (unsigned char*)buffer_data (buf);
-					
-					if (_data) {
-						
-						alloc_field (_value, id_b, buffer_val (buf));
-						
-					} else {
-						
-						value newString = alloc_raw_string (size);
-						alloc_field (_value, id_b, newString);
-						_data = (unsigned char*)val_string (val_field (_value, id_b));
-						memset (_data, 0, size);
-						
-					}
+					buffer b = alloc_buffer_len (size);
+					dataValue = buffer_val (b);
+					_data = (unsigned char*)buffer_data (b);
 					
 				} else {
 					
-					resizeByteData (_value, size);
+					dataValue = alloc_raw_string (size);
+					_data = (unsigned char*)val_string (dataValue);
+					
+				}
+				
+				alloc_field (_value, id_b, dataValue);
+				
+			} else {
+				
+				if (useBuffer) {
+					
+					buffer b = val_to_buffer (val_field (_value, id_b));
+					buffer_set_size (b, size);
+					_data = (unsigned char*)buffer_data (b);
+					
+				} else {
+					
+					value s = alloc_raw_string (size);
+					memcpy ((char *)val_string (s), val_string (val_field (_value, id_b)), size);
+					alloc_field (_value, id_b, s);
+					_data = (unsigned char*)val_string (s);
 					
 				}
 				
 			}
 			
 			alloc_field (_value, id_length, alloc_int (size));
-			
-		} else {
-			
-			if (size > _length) {
-				
-				if (_data) {
-					
-					realloc (_data, size);
-					
-				} else {
-					
-					_data = (unsigned char*)malloc (size);
-					
-				}
-				
-			}
 			
 		}
 		
@@ -157,20 +198,6 @@ namespace lime {
 	
 	
 	void Bytes::Set (value bytes) {
-		
-		if (!init) {
-			
-			id_b = val_id ("b");
-			id_length = val_id ("length");
-			init = true;
-			
-		}
-		
-		if (!_value && _data) {
-			
-			free (_data);
-			
-		}
 		
 		if (val_is_null (bytes)) {
 			
@@ -210,26 +237,19 @@ namespace lime {
 	
 	void Bytes::Set (const QuickVec<unsigned char> data) {
 		
-		if (!_value && _data) {
-			
-			free (_data);
-			
-		}
+		int size = data.size ();
 		
-		_length = data.size ();
-		
-		if (_length > 0) {
+		if (size > 0) {
 			
-			_data = (unsigned char*)malloc (_length);
+			Resize (size);
 			memcpy (_data, &data[0], _length);
 			
 		} else {
 			
 			_data = 0;
+			_length = 0;
 			
 		}
-		
-		_value = 0;
 		
 	}
 	
@@ -242,31 +262,7 @@ namespace lime {
 			
 		} else {
 			
-			if (!init) {
-				
-				id_b = val_id ("b");
-				id_length = val_id ("length");
-				init = true;
-				
-			}
-			
-			_value = alloc_empty_object ();
-			
-			if (_length > 0 && _data) {
-				
-				value newString = alloc_raw_string (_length);
-				memcpy ((char*)val_string (newString), _data, _length);
-				alloc_field (_value, id_b, newString);
-				alloc_field (_value, id_length, alloc_int (_length));
-				
-			} else {
-				
-				alloc_field (_value, id_b, alloc_raw_string (0));
-				alloc_field (_value, id_length, alloc_int (_length));
-				
-			}
-			
-			return _value;
+			return alloc_null ();
 			
 		}
 		

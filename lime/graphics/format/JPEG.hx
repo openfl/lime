@@ -60,14 +60,7 @@ class JPEG {
 		#elseif (sys && (!disable_cffi || !format))
 			
 			var data:Dynamic = lime_image_encode (image.buffer, 1, quality);
-			
-			#if neko
-			var bytes = @:privateAccess (new Bytes (data.length, data.b));
-			#else
-			var bytes = Bytes.ofString (data.b);
-			@:privateAccess (bytes).length = data.length;
-			#end
-			
+			var bytes = @:privateAccess new Bytes (data.length, data.b);
 			return ByteArray.fromBytes (bytes);
 			
 		#end
