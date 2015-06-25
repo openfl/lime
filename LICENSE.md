@@ -80,13 +80,14 @@ https://github.com/haxenme/nme
 
     legacy/
     lime/utils/ByteArray.hx
-	lime/utils/JNI.hx
+    lime/utils/JNI.hx
     project/include/utils/ByteArray.h
     project/include/utils/QuickVec.h
     project/src/graphics/format/
     project/src/graphics/opengl/
     project/src/text/Font.cpp
     project/src/utils/ByteArray.cpp
+    project/src/utils/LZMA.cpp
     tools/utils/JavaExternGenerator.hx
 
 The following files were developed in collaboration with Sven Bergström
@@ -95,8 +96,8 @@ details, see https://github.com/underscorediscovery/snow
 
     project/src/audio/openal/OpenALBindings.cpp
 
-The typed array implementation was also developed in collaboration with Sven
-Bergström and the hxtypedarray project, which is available under an "MIT" license.
+The typed array implementation was developed in collaboration with Sven Bergström
+and the hxtypedarray project, which is available under an "MIT" license.
 For details, see https://github.com/underscorediscovery/hxtypedarray
 
 -------
