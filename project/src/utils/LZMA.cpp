@@ -63,7 +63,7 @@ namespace lime {
 		SizeT inputBufferSize = data->Length ();
 		Byte* inputBufferData = data->Data ();
 		
-		result->Resize (inputBufferSize + 1024);
+		result->Resize (inputBufferSize + inputBufferSize / 40 + (1 << 12));
 		
 		SizeT outputBufferSize = result->Length ();
 		Byte* outputBufferData = result->Data ();
@@ -86,7 +86,9 @@ namespace lime {
 		memcpy (outputBufferData, propsData, propsSize);
 		WRITE_LE64 (outputBufferData + propsSize, uncompressedLength);
 		
-		free(propsData);
+		result->Resize (outputBufferSize + propsSize + 8);
+		
+		free (propsData);
 		
 	}
 	

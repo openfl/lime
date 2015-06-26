@@ -142,7 +142,7 @@ namespace lime {
 	
 	void Bytes::Resize (int size) {
 		
-		if (size > _length) {
+		if (size != _length) {
 			
 			if (!_value) {
 				
