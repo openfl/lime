@@ -63,7 +63,7 @@ namespace lime {
 		SizeT inputBufferSize = data->Length ();
 		Byte* inputBufferData = data->Data ();
 		
-		result->Resize (inputBufferSize + inputBufferSize / 40 + (1 << 12));
+		result->Resize (inputBufferSize + inputBufferSize / 5 + (1 << 16));
 		
 		SizeT outputBufferSize = result->Length ();
 		Byte* outputBufferData = result->Data ();
