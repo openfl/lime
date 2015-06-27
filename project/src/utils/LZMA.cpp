@@ -63,10 +63,10 @@ namespace lime {
 		SizeT inputBufferSize = data->Length ();
 		Byte* inputBufferData = data->Data ();
 		
-		result->Resize (inputBufferSize + inputBufferSize / 5 + (1 << 16));
+		Bytes tempBuffer = Bytes (inputBufferSize + inputBufferSize / 5 + (1 << 16));
 		
-		SizeT outputBufferSize = result->Length ();
-		Byte* outputBufferData = result->Data ();
+		SizeT outputBufferSize = tempBuffer.Length ();
+		Byte* outputBufferData = tempBuffer.Data ();
 		SizeT propsSize = 100;
 		Byte* propsData = (Byte *)malloc (propsSize);
 		Int64 uncompressedLength = inputBufferSize;
@@ -81,12 +81,14 @@ namespace lime {
 		ISzAlloc allocSmall = { LZMA_alloc, LZMA_free };
 		ISzAlloc allocBig = { LZMA_alloc, LZMA_free };
 		
-		LzmaEncode (outputBufferData + propsSize + 8, &outputBufferSize, inputBufferData, inputBufferSize, &props, propsData, &propsSize, props.writeEndMark, &progress, &allocSmall, &allocBig);
-		
-		memcpy (outputBufferData, propsData, propsSize);
-		WRITE_LE64 (outputBufferData + propsSize, uncompressedLength);
+		LzmaEncode (outputBufferData, &outputBufferSize, inputBufferData, inputBufferSize, &props, propsData, &propsSize, props.writeEndMark, &progress, &allocSmall, &allocBig);
 		
 		result->Resize (outputBufferSize + propsSize + 8);
+		Byte* resultData = result->Data ();
+		
+		memcpy (resultData, propsData, propsSize);
+		WRITE_LE64 (resultData + propsSize, uncompressedLength);
+		memcpy (resultData + propsSize + 8, outputBufferData, outputBufferSize);
 		
 		free (propsData);
 		
