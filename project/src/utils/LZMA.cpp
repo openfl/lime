@@ -63,10 +63,8 @@ namespace lime {
 		SizeT inputBufferSize = data->Length ();
 		Byte* inputBufferData = data->Data ();
 		
-		Bytes tempBuffer = Bytes (inputBufferSize + inputBufferSize / 5 + (1 << 16));
-		
-		SizeT outputBufferSize = tempBuffer.Length ();
-		Byte* outputBufferData = tempBuffer.Data ();
+		SizeT outputBufferSize = inputBufferSize + inputBufferSize / 5 + (1 << 16);
+		Byte* outputBufferData = (Byte *)malloc (outputBufferSize);
 		SizeT propsSize = 100;
 		Byte* propsData = (Byte *)malloc (propsSize);
 		Int64 uncompressedLength = inputBufferSize;
@@ -90,6 +88,7 @@ namespace lime {
 		WRITE_LE64 (resultData + propsSize, uncompressedLength);
 		memcpy (resultData + propsSize + 8, outputBufferData, outputBufferSize);
 		
+		free (outputBufferData);
 		free (propsData);
 		
 	}
