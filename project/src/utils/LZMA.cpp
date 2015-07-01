@@ -22,7 +22,7 @@ namespace lime {
 		SRes LZMA_progress (void *p, UInt64 inSize, UInt64 outSize) { return SZ_OK; }
 		void *LZMA_alloc (void *p, size_t size) { return malloc (size); }
 		
-		void LZMA_free(void *p, void *address) {
+		void LZMA_free (void *p, void *address) {
 			
 			if (address == NULL) return;
 			free (address);

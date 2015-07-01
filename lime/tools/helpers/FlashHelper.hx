@@ -952,7 +952,7 @@ class FlashHelper {
 	}
 	
 	
-	public static function tailLog (start:Int = 0):Void {
+	public static function tailLog (start:Int = 0, clear:Bool = true):Void {
 		
 		try {
 			
@@ -967,6 +967,16 @@ class FlashHelper {
 			var position = start;
 			
 			if (FileSystem.exists (path)) {
+				
+				if (clear) {
+					
+					try {
+						
+						File.saveContent (path, "");
+						
+					} catch (e:Dynamic) {}
+					
+				}
 				
 				while (true) {
 					
