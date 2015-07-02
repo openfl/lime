@@ -40,6 +40,8 @@ distribution.
 #include <string.h>
 #include <assert.h>
 
+using namespace std;
+
 // Help out windows:
 #if defined( _DEBUG ) && !defined( DEBUG )
 #define DEBUG
