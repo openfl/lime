@@ -1,3 +1,29 @@
+2.4.5 (07/02/2015)
+------------------
+
+* Changed to a new, better Haxe typed array implementation
+* Added an improved Bytes (internal) for native targets
+* Added lime.utils.LZMA for LZMA compression/decompression
+* Expanded support for gamepad devices
+* Improved desktop multitouch support
+* Exposed decodeBytes/decodeFile for PNG and JPG formats
+* Added support for header-only decoding of PNG or JPG
+* Improved support for Flash log output
+* Improved the "update" command to support GIT submodules
+* Restored previous rendering behavior on high-DPI Apple devices
+* Fixed support for non-embedded assets on HTML5
+* Fixed other cases in the Assets loading code on HTML5
+* Fixed imageBuffer.bitsPerPixel to default 32, not 4 (bytes)
+* Updated webgl-debug.js for use with HTML5 -Dwebgl -debug
+* Fixed a regression in middle and right click events (legacy)
+* Fixed possible file handle leaks in the audio code (legacy)
+* Added DPI-aware keyboard height for iOS (legacy)
+* Added a hack to identify the type of connected gamepads (legacy)
+* Fixed the sourceRect coordinates for blitChannel (legacy)
+* Added screen resolution width/height for BlackBerry (legacy)
+* Fixed a possible overflow in the LZMA buffer (legacy)
+
+
 2.4.4 (06/08/2015)
 ------------------
 
