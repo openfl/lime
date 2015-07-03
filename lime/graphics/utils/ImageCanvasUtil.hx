@@ -152,14 +152,18 @@ class ImageCanvasUtil {
 	
 	public static function createImageData (image:Image):Void {
 		
+		#if (js && html5)
+		
 		var buffer = image.buffer;
 		
 		if (buffer.data == null) {
 			
 			buffer.__srcImageData = buffer.__srcContext.getImageData (0, 0, buffer.width, buffer.height);
-			buffer.data = new UInt8Array (buffer.__srcImageData.data.buffer);
+			buffer.data = new UInt8Array (cast buffer.__srcImageData.data.buffer);
 			
 		}
+		
+		#end
 		
 	}
 	

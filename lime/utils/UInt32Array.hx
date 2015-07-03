@@ -1,162 +1,119 @@
 package lime.utils;
+
 #if (js && !display)
-typedef UInt32Array = js.html.Uint32Array;
+
+    @:forward
+    @:arrayAccess
+    abstract UInt32Array(js.html.Uint32Array)
+        from js.html.Uint32Array
+        to js.html.Uint32Array {
+		
+		public inline static var BYTES_PER_ELEMENT : Int = 4;
+		
+        @:generic
+        public inline function new<T>(
+            ?elements:Int,
+            ?array:Array<T>,
+            ?view:ArrayBufferView,
+            ?buffer:ArrayBuffer, ?byteoffset:Int = 0, ?len:Null<Int>
+        ) {
+            if(elements != null) {
+                this = new js.html.Uint32Array( elements );
+            } else if(array != null) {
+                this = new js.html.Uint32Array( untyped array );
+            } else if(view != null) {
+                this = new js.html.Uint32Array( untyped view );
+            } else if(buffer != null) {
+                len = (len == null) ? untyped __js__('undefined') : len;
+                this = new js.html.Uint32Array( buffer, byteoffset, len );
+            } else {
+                this = null;
+            }
+        }
+
+        @:arrayAccess inline function __set(idx:Int, val:UInt) return this[idx] = val;
+        @:arrayAccess inline function __get(idx:Int) : UInt return this[idx];
+
+
+            //non spec haxe conversions
+        public static function fromBytes( bytes:haxe.io.Bytes, ?byteOffset:Int=0, ?len:Int ) : UInt32Array {
+            return new js.html.Uint32Array(cast bytes.getData(), byteOffset, len);
+        }
+
+        public function toBytes() : haxe.io.Bytes {
+            #if (haxe_ver < 3.2)
+            return @:privateAccess new haxe.io.Bytes( this.byteLength, cast new js.html.Uint8Array(this.buffer) );
+            #else
+                return @:privateAccess new haxe.io.Bytes( cast new js.html.Uint8Array(this.buffer) );
+            #end
+    }
+
+    }
+
 #else
 
+    import lime.utils.ArrayBufferView;
 
-@:generic class UInt32Array extends ArrayBufferView implements ArrayAccess<Int> {
-	
-	
-	public static inline var BYTES_PER_ELEMENT = 4;
-	
-	public var length (default, null) : Int;
-	
-	
-	public function new #if !java <T> #end (bufferOrArray:#if !java T #else Dynamic #end, start:Int = 0, length:Null<Int> = null) {
-		
-		#if (openfl && neko && !lime_legacy)
-		if (Std.is (bufferOrArray, openfl.Vector.VectorData)) {
-			
-			var vector:openfl.Vector<Int> = cast bufferOrArray;
-			var ints:Array<Int> = vector;
-			this.length = (length != null) ? length : ints.length - start;
-			
-			super (this.length << 2);
-			
-			#if !cpp
-			buffer.position = 0;
-			#end
-			
-			for (i in 0...this.length) {
-				
-				#if cpp
-				untyped __global__.__hxcpp_memory_set_ui32 (bytes, (i << 2), ints[i + start]);
-				#else
-				buffer.writeInt (ints[i + start]);
-				#end
-				
-			}
-			
-			return;
-			
-		}
-		#end
-		
-		if (Std.is (bufferOrArray, Int)) {
-			
-			super (Std.int (cast bufferOrArray) << 2);
-			
-			this.length = cast bufferOrArray;
-			
-		} else if (Std.is (bufferOrArray, Array)) {
-			
-			var ints:Array<Int> = cast bufferOrArray;
-			this.length = (length != null) ? length : ints.length - start;
-			
-			super (this.length << 2);
-			
-			#if !cpp
-			buffer.position = 0;
-			#end
-			
-			for (i in 0...this.length) {
-				
-				#if cpp
-				untyped __global__.__hxcpp_memory_set_ui32 (bytes, (i << 2), ints[i + start]);
-				#else
-				buffer.writeInt (ints[i + start]);
-				#end
-				
-			}
-			
-		} else if (Std.is (bufferOrArray, UInt32Array)) {
-			
-			var ints:UInt32Array = cast bufferOrArray;
-			this.length = (length != null) ? length : ints.length - start;
-			
-			super (this.length << 2);
-			
-			#if !cpp
-			buffer.position = 0;
-			#end
-			
-			for (i in 0...this.length) {
-				
-				#if cpp
-				untyped __global__.__hxcpp_memory_set_ui32 (bytes, (i << 2), ints[i + start]);
-				#else
-				buffer.writeInt (ints[i + start]);
-				#end
-				
-			}
-			
-		} else {
-			
-			super (bufferOrArray, start, (length != null) ? length << 2 : null);
-			
-			if ((byteLength & 0x03) > 0) {
-				
-				throw "Invalid array size";
-				
-			}
-			
-			this.length = byteLength >> 2;
-			
-			if ((this.length << 2) != byteLength) {
-				
-				throw "Invalid length multiple";
-				
-			}
-			
-		}
-		
-	}
-	
-	
-	public function set #if !java <T> #end (bufferOrArray:#if !java T #else Dynamic #end, offset:Int = 0):Void {
-		
-		if (Std.is (bufferOrArray, Array)) {
-			
-			var ints:Array<Int> = cast bufferOrArray;
-			
-			for (i in 0...ints.length) {
-				
-				setUInt32 ((i + offset) << 2, ints[i]);
-				
-			}
-			
-		} else if (Std.is (bufferOrArray, UInt32Array)) {
-			
-			var ints:UInt32Array = cast bufferOrArray;
-			
-			for (i in 0...ints.length) {
-				
-				setUInt32 ((i + offset) << 2, ints[i]);
-				
-			}
-			
-		} else {
-			
-			throw "Invalid input buffer";
-			
-		}
-		
-	}
-	
-	
-	public function subarray (start:Int, end:Null<Int> = null):UInt32Array {
-		
-		end = (end == null) ? length : end;
-		return new UInt32Array (buffer, start << 2, end - start);
-		
-	}
-	
-	
-	@:noCompletion @:keep inline public function __get (index:Int):Int { return getUInt32 (index << 2); }
-	@:noCompletion @:keep inline public function __set (index:Int, value:Int) { setUInt32 (index << 2, value); }
-	
-	
+@:forward()
+@:arrayAccess
+abstract UInt32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
+
+    public inline static var BYTES_PER_ELEMENT : Int = 4;
+
+    public var length (get, never):Int;
+
+        @:generic
+        public inline function new<T>(
+            ?elements:Int,
+            ?array:Array<T>,
+            ?view:ArrayBufferView,
+            ?buffer:ArrayBuffer, ?byteoffset:Int = 0, ?len:Null<Int>
+        ) {
+
+            if(elements != null) {
+                this = new ArrayBufferView( elements, Uint32 );
+            } else if(array != null) {
+                this = new ArrayBufferView(0, Uint32).initArray(array);
+            } else if(view != null) {
+                this = new ArrayBufferView(0, Uint32).initTypedArray(view);
+            } else if(buffer != null) {
+                this = new ArrayBufferView(0, Uint32).initBuffer(buffer, byteoffset, len);
+            } else {
+                throw "Invalid constructor arguments for Uint32Array";
+            }
+        }
+
+//Public API
+
+    public inline function subarray( begin:Int, end:Null<Int> = null) : UInt32Array return this.subarray(begin, end);
+
+
+            //non spec haxe conversions
+        public static function fromBytes( bytes:haxe.io.Bytes, ?byteOffset:Int=0, ?len:Int ) : UInt32Array {
+            return new UInt32Array(bytes, byteOffset, len);
+        }
+
+        public function toBytes() : haxe.io.Bytes {
+            return this.buffer;
+        }
+
+//Internal
+
+    inline function get_length() return this.length;
+
+
+    @:noCompletion
+    @:arrayAccess
+    public inline function __get(idx:Int) {
+        return ArrayBufferIO.getUint32(this.buffer, this.byteOffset+(idx*BYTES_PER_ELEMENT));
+    }
+
+    @:noCompletion
+    @:arrayAccess
+    public inline function __set(idx:Int, val:UInt) {
+        return ArrayBufferIO.setUint32(this.buffer, this.byteOffset+(idx*BYTES_PER_ELEMENT), val);
+    }
+
 }
 
-
-#end
+#end //!js

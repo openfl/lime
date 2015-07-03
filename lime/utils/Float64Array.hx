@@ -4,11 +4,11 @@ package lime.utils;
 
     @:forward
     @:arrayAccess
-    abstract Float32Array(js.html.Float32Array)
-        from js.html.Float32Array
-        to js.html.Float32Array {
+    abstract Float64Array(js.html.Float64Array)
+        from js.html.Float64Array
+        to js.html.Float64Array {
 		
-		public inline static var BYTES_PER_ELEMENT : Int = 4;
+		public inline static var BYTES_PER_ELEMENT : Int = 8;
 		
         @:generic
         public inline function new<T>(
@@ -18,14 +18,14 @@ package lime.utils;
             ?buffer:ArrayBuffer, ?byteoffset:Int = 0, ?len:Null<Int>
         ) {
             if(elements != null) {
-                this = new js.html.Float32Array( elements );
+                this = new js.html.Float64Array( elements );
             } else if(array != null) {
-                this = new js.html.Float32Array( untyped array );
+                this = new js.html.Float64Array( untyped array );
             } else if(view != null) {
-                this = new js.html.Float32Array( untyped view );
+                this = new js.html.Float64Array( untyped view );
             } else if(buffer != null) {
                 len = (len == null) ? untyped __js__('undefined') : len;
-                this = new js.html.Float32Array( buffer, byteoffset, len );
+                this = new js.html.Float64Array( buffer, byteoffset, len );
             } else {
                 this = null;
             }
@@ -36,8 +36,8 @@ package lime.utils;
 
 
             //non spec haxe conversions
-        public static function fromBytes( bytes:haxe.io.Bytes, ?byteOffset:Int=0, ?len:Int ) : Float32Array {
-            return new js.html.Float32Array(cast bytes.getData(), byteOffset, len);
+        public static function fromBytes( bytes:haxe.io.Bytes, ?byteOffset:Int=0, ?len:Int ) : Float64Array {
+            return new js.html.Float64Array(cast bytes.getData(), byteOffset, len);
         }
 
         public function toBytes() : haxe.io.Bytes {
@@ -52,14 +52,13 @@ package lime.utils;
 
 #else
 
-    import lime.utils.ArrayBuffer;
     import lime.utils.ArrayBufferView;
 
 @:forward()
 @:arrayAccess
-abstract Float32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
+abstract Float64Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
 
-    public inline static var BYTES_PER_ELEMENT : Int = 4;
+    public inline static var BYTES_PER_ELEMENT : Int = 8;
 
     public var length (get, never):Int;
 
@@ -72,26 +71,26 @@ abstract Float32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
         ) {
 
             if(elements != null) {
-                this = new ArrayBufferView( elements, Float32 );
+                this = new ArrayBufferView( elements, Float64 );
             } else if(array != null) {
-                this = new ArrayBufferView(0, Float32).initArray(array);
+                this = new ArrayBufferView(0, Float64).initArray(array);
             } else if(view != null) {
-                this = new ArrayBufferView(0, Float32).initTypedArray(view);
+                this = new ArrayBufferView(0, Float64).initTypedArray(view);
             } else if(buffer != null) {
-                this = new ArrayBufferView(0, Float32).initBuffer(buffer, byteoffset, len);
+                this = new ArrayBufferView(0, Float64).initBuffer(buffer, byteoffset, len);
             } else {
-                throw "Invalid constructor arguments for Float32Array";
+                throw "Invalid constructor arguments for Float64Array";
             }
         }
 
 //Public API
 
-    public inline function subarray( begin:Int, end:Null<Int> = null) : Float32Array return this.subarray(begin, end);
+    public inline function subarray( begin:Int, end:Null<Int> = null) : Float64Array return this.subarray(begin, end);
 
 
             //non spec haxe conversions
-        public static function fromBytes( bytes:haxe.io.Bytes, ?byteOffset:Int=0, ?len:Int ) : Float32Array {
-            return new Float32Array(bytes, byteOffset, len);
+        public static function fromBytes( bytes:haxe.io.Bytes, ?byteOffset:Int=0, ?len:Int ) : Float64Array {
+            return new Float64Array(bytes, byteOffset, len);
         }
 
         public function toBytes() : haxe.io.Bytes {
@@ -106,13 +105,13 @@ abstract Float32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
     @:noCompletion
     @:arrayAccess
     public inline function __get(idx:Int) : Float {
-        return ArrayBufferIO.getFloat32(this.buffer, this.byteOffset+(idx*BYTES_PER_ELEMENT) );
+        return ArrayBufferIO.getFloat64(this.buffer, this.byteOffset+(idx*BYTES_PER_ELEMENT));
     }
 
     @:noCompletion
     @:arrayAccess
     public inline function __set(idx:Int, val:Float) : Float {
-        return ArrayBufferIO.setFloat32(this.buffer, this.byteOffset+(idx*BYTES_PER_ELEMENT), val);
+        return ArrayBufferIO.setFloat64(this.buffer, this.byteOffset+(idx*BYTES_PER_ELEMENT), val);
     }
 
 }

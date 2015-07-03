@@ -58,8 +58,8 @@ namespace lime {
 			int GetUnderlinePosition ();
 			int GetUnderlineThickness ();
 			int GetUnitsPerEM ();
-			int RenderGlyph (int index, ByteArray *bytes, int offset = 0);
-			int RenderGlyphs (value indices, ByteArray *bytes);
+			int RenderGlyph (int index, Bytes *bytes, int offset = 0);
+			int RenderGlyphs (value indices, Bytes *bytes);
 			void SetSize (size_t size);
 			
 			void* face;

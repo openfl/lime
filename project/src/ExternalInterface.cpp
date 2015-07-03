@@ -34,6 +34,7 @@
 #include <ui/Window.h>
 #include <ui/WindowEvent.h>
 #include <utils/JNI.h>
+#include <utils/LZMA.h>
 #include <vm/NekoVM.h>
 
 
@@ -102,7 +103,7 @@ namespace lime {
 			
 		} else {
 			
-			ByteArray bytes (data);
+			Bytes bytes (data);
 			resource = Resource (&bytes);
 			
 		}
@@ -122,6 +123,14 @@ namespace lime {
 		#endif
 		
 		return alloc_null ();
+		
+	}
+	
+	
+	value lime_bytes_get_data_pointer (value bytes) {
+		
+		Bytes data = Bytes (bytes);
+		return alloc_float ((intptr_t)data.Data ());
 		
 	}
 	
@@ -279,7 +288,7 @@ namespace lime {
 			
 		} else {
 			
-			ByteArray bytes (data);
+			Bytes bytes (data);
 			resource = Resource (&bytes);
 			
 		}
@@ -324,7 +333,7 @@ namespace lime {
 		
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)(intptr_t)val_float (fontHandle);
-		ByteArray bytes = ByteArray (data);
+		Bytes bytes = Bytes (data);
 		return alloc_bool (font->RenderGlyph (val_int (index), &bytes));
 		#else
 		return alloc_bool (false);
@@ -337,7 +346,7 @@ namespace lime {
 		
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)(intptr_t)val_float (fontHandle);
-		ByteArray bytes = ByteArray (data);
+		Bytes bytes = Bytes (data);
 		return alloc_bool (font->RenderGlyphs (indices, &bytes));
 		#else
 		return alloc_bool (false);
@@ -352,6 +361,21 @@ namespace lime {
 		Font *font = (Font*)(intptr_t)val_float (fontHandle);
 		font->SetSize (val_int (fontSize));
 		#endif
+		
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_gamepad_add_mappings (value mappings) {
+		
+		int length = val_array_size (mappings);
+		
+		for (int i = 0; i < length; i++) {
+			
+			Gamepad::AddMapping (val_string (val_array_i (mappings, i)));
+			
+		}
 		
 		return alloc_null ();
 		
@@ -384,7 +408,7 @@ namespace lime {
 	value lime_image_encode (value buffer, value type, value quality) {
 		
 		ImageBuffer imageBuffer = ImageBuffer (buffer);
-		ByteArray data;
+		Bytes data;
 		
 		switch (val_int (type)) {
 			
@@ -394,7 +418,7 @@ namespace lime {
 				if (PNG::Encode (&imageBuffer, &data)) {
 					
 					//delete imageBuffer.data;
-					return data.mValue;
+					return data.Value ();
 					
 				}
 				#endif
@@ -406,7 +430,7 @@ namespace lime {
 				if (JPEG::Encode (&imageBuffer, &data, val_int (quality))) {
 					
 					//delete imageBuffer.data;
-					return data.mValue;
+					return data.Value ();
 					
 				}
 				#endif
@@ -424,7 +448,7 @@ namespace lime {
 	
 	value lime_image_load (value data) {
 		
-		ImageBuffer imageBuffer;
+		ImageBuffer buffer;
 		Resource resource;
 		
 		if (val_is_string (data)) {
@@ -433,23 +457,23 @@ namespace lime {
 			
 		} else {
 			
-			ByteArray bytes (data);
+			Bytes bytes (data);
 			resource = Resource (&bytes);
 			
 		}
 		
 		#ifdef LIME_PNG
-		if (PNG::Decode (&resource, &imageBuffer)) {
+		if (PNG::Decode (&resource, &buffer)) {
 			
-			return imageBuffer.Value ();
+			return buffer.Value ();
 			
 		}
 		#endif
 		
 		#ifdef LIME_JPEG
-		if (JPEG::Decode (&resource, &imageBuffer)) {
+		if (JPEG::Decode (&resource, &buffer)) {
 			
-			return imageBuffer.Value ();
+			return buffer.Value ();
 			
 		}
 		#endif
@@ -515,14 +539,14 @@ namespace lime {
 	}
 	
 	
-	value lime_image_data_util_get_pixels (value image, value rect, value format) {
+	value lime_image_data_util_get_pixels (value image, value rect, value format, value bytes) {
 		
 		Image _image = Image (image);
 		Rectangle _rect = Rectangle (rect);
 		PixelFormat _format = (PixelFormat)val_int (format);
-		ByteArray pixels = ByteArray ();
+		Bytes pixels = Bytes (bytes);
 		ImageDataUtil::GetPixels (&_image, &_rect, _format, &pixels);
-		return pixels.mValue;
+		return alloc_null ();
 		
 	}
 	
@@ -574,7 +598,7 @@ namespace lime {
 		
 		Image _image = Image (image);
 		Rectangle _rect = Rectangle (rect);
-		ByteArray _bytes = ByteArray (bytes);
+		Bytes _bytes = Bytes (bytes);
 		PixelFormat _format = (PixelFormat)val_int (format);
 		ImageDataUtil::SetPixels (&_image, &_rect, &_bytes, _format);
 		return alloc_null ();
@@ -602,6 +626,44 @@ namespace lime {
 	}
 	
 	
+	value lime_jpeg_decode_bytes (value data, value decodeData) {
+		
+		ImageBuffer imageBuffer;
+		
+		Bytes bytes (data);
+		Resource resource = Resource (&bytes);
+		
+		#ifdef LIME_JPEG
+		if (JPEG::Decode (&resource, &imageBuffer, val_bool (decodeData))) {
+			
+			return imageBuffer.Value ();
+			
+		}
+		#endif
+		
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_jpeg_decode_file (value data, value decodeData) {
+		
+		ImageBuffer imageBuffer;
+		Resource resource = Resource (val_string (data));
+		
+		#ifdef LIME_JPEG
+		if (JPEG::Decode (&resource, &imageBuffer, val_bool (decodeData))) {
+			
+			return imageBuffer.Value ();
+			
+		}
+		#endif
+		
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_key_event_manager_register (value callback, value eventObject) {
 		
 		KeyEvent::callback = new AutoGCRoot (callback);
@@ -611,28 +673,26 @@ namespace lime {
 	}
 	
 	
-	value lime_lzma_decode (value input_value) {
+	value lime_lzma_decode (value buffer) {
 		
-		/*buffer input_buffer = val_to_buffer(input_value);
-		buffer output_buffer = alloc_buffer_len(0);
+		Bytes data = Bytes (buffer);
+		Bytes result;
 		
-		Lzma::Decode (input_buffer, output_buffer);
+		LZMA::Decode (&data, &result);
 		
-		return buffer_val (output_buffer);*/
-		return alloc_null ();
+		return result.Value ();
 		
 	}
 	
 	
-	value lime_lzma_encode (value input_value) {
+	value lime_lzma_encode (value buffer) {
 		
-		/*buffer input_buffer = val_to_buffer(input_value);
-		buffer output_buffer = alloc_buffer_len(0);
+		Bytes data = Bytes (buffer);
+		Bytes result;
 		
-		Lzma::Encode (input_buffer, output_buffer);
+		LZMA::Encode (&data, &result);
 		
-		return buffer_val (output_buffer);*/
-		return alloc_null ();
+		return result.Value ();
 		
 	}
 	
@@ -699,6 +759,44 @@ namespace lime {
 		#ifdef LIME_NEKO
 		NekoVM::Execute (val_string (module));
 		#endif
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_png_decode_bytes (value data, value decodeData) {
+		
+		ImageBuffer imageBuffer;
+		
+		Bytes bytes (data);
+		Resource resource = Resource (&bytes);
+		
+		#ifdef LIME_PNG
+		if (PNG::Decode (&resource, &imageBuffer, val_bool (decodeData))) {
+			
+			return imageBuffer.Value ();
+			
+		}
+		#endif
+		
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_png_decode_file (value data, value decodeData) {
+		
+		ImageBuffer imageBuffer;
+		Resource resource = Resource (val_string (data));
+		
+		#ifdef LIME_PNG
+		if (PNG::Decode (&resource, &imageBuffer, val_bool (decodeData))) {
+			
+			return imageBuffer.Value ();
+			
+		}
+		#endif
+		
 		return alloc_null ();
 		
 	}
@@ -818,8 +916,9 @@ namespace lime {
 		
 		TextLayout *text = (TextLayout*)(intptr_t)val_float (textHandle);
 		Font *font = (Font*)(intptr_t)val_float (fontHandle);
-		ByteArray bytes = ByteArray (data);
+		Bytes bytes = Bytes (data);
 		text->Position (font, val_int (size), val_string (textString), &bytes);
+		return bytes.Value ();
 		
 		#endif
 		
@@ -1005,6 +1104,7 @@ namespace lime {
 	DEFINE_PRIM (lime_application_set_frame_rate, 2);
 	DEFINE_PRIM (lime_application_update, 1);
 	DEFINE_PRIM (lime_audio_load, 1);
+	DEFINE_PRIM (lime_bytes_get_data_pointer, 1);
 	DEFINE_PRIM (lime_font_get_ascender, 1);
 	DEFINE_PRIM (lime_font_get_descender, 1);
 	DEFINE_PRIM (lime_font_get_family_name, 1);
@@ -1021,6 +1121,7 @@ namespace lime {
 	DEFINE_PRIM (lime_font_render_glyph, 3);
 	DEFINE_PRIM (lime_font_render_glyphs, 3);
 	DEFINE_PRIM (lime_font_set_size, 2);
+	DEFINE_PRIM (lime_gamepad_add_mappings, 1);
 	DEFINE_PRIM (lime_gamepad_event_manager_register, 2);
 	DEFINE_PRIM (lime_gamepad_get_device_guid, 1);
 	DEFINE_PRIM (lime_gamepad_get_device_name, 1);
@@ -1029,7 +1130,7 @@ namespace lime {
 	DEFINE_PRIM (lime_image_data_util_copy_pixels, 5);
 	DEFINE_PRIM (lime_image_data_util_fill_rect, 3);
 	DEFINE_PRIM (lime_image_data_util_flood_fill, 4);
-	DEFINE_PRIM (lime_image_data_util_get_pixels, 3);
+	DEFINE_PRIM (lime_image_data_util_get_pixels, 4);
 	DEFINE_PRIM_MULT (lime_image_data_util_merge);
 	DEFINE_PRIM (lime_image_data_util_multiply_alpha, 1);
 	DEFINE_PRIM (lime_image_data_util_resize, 4);
@@ -1039,6 +1140,8 @@ namespace lime {
 	DEFINE_PRIM (lime_image_encode, 3);
 	DEFINE_PRIM (lime_image_load, 1);
 	DEFINE_PRIM (lime_jni_getenv, 0);
+	DEFINE_PRIM (lime_jpeg_decode_bytes, 2);
+	DEFINE_PRIM (lime_jpeg_decode_file, 2);
 	DEFINE_PRIM (lime_key_event_manager_register, 2);
 	DEFINE_PRIM (lime_lzma_decode, 1);
 	DEFINE_PRIM (lime_lzma_encode, 1);
@@ -1049,6 +1152,8 @@ namespace lime {
 	DEFINE_PRIM (lime_mouse_show, 0);
 	DEFINE_PRIM (lime_mouse_warp, 3);
 	DEFINE_PRIM (lime_neko_execute, 1);
+	DEFINE_PRIM (lime_png_decode_bytes, 2);
+	DEFINE_PRIM (lime_png_decode_file, 2);
 	DEFINE_PRIM (lime_renderer_create, 1);
 	DEFINE_PRIM (lime_renderer_flip, 1);
 	DEFINE_PRIM (lime_renderer_lock, 1);

@@ -19,11 +19,16 @@ import lime.project.PlatformTarget;
 import sys.io.File;
 import sys.FileSystem;
 
+#if neko
+import neko.vm.Thread;
+#end
+
 
 class FlashPlatform extends PlatformTarget {
 	
 	
 	private var embedded:Bool;
+	private var logLength:Int;
 	
 	
 	public function new (command:String, _project:HXProject, targetFlags:Map <String, String>) {
@@ -194,6 +199,13 @@ class FlashPlatform extends PlatformTarget {
 	
 	public override function run ():Void {
 		
+		if (traceEnabled) {
+			
+			FlashHelper.enableLogging ();
+			logLength = FlashHelper.getLogLength ();
+			
+		}
+		
 		if (project.app.url != null && project.app.url != "") {
 			
 			ProcessHelper.openURL (project.app.url);
@@ -209,7 +221,22 @@ class FlashPlatform extends PlatformTarget {
 				
 			}
 			
-			FlashHelper.run (project, destination, targetPath);
+			if (traceEnabled) {
+				
+				#if neko Thread.create (function () { #end
+					
+					FlashHelper.run (project, destination, targetPath);
+					Sys.exit (0);
+					
+				#if neko }); #end
+				
+				Sys.sleep (0.1);
+				
+			} else {
+				
+				FlashHelper.run (project, destination, targetPath);
+				
+			}
 			
 		}
 		
@@ -272,6 +299,13 @@ class FlashPlatform extends PlatformTarget {
 	}
 	
 	
+	public override function trace ():Void {
+		
+		FlashHelper.tailLog (0);
+		
+	}
+	
+	
 	/*private function getIcon (size:Int, targetPath:String):Void {
 		
 		var icon = icons.findIcon (size, size);
@@ -291,7 +325,6 @@ class FlashPlatform extends PlatformTarget {
 	
 	@ignore public override function install ():Void {}
 	@ignore public override function rebuild ():Void {}
-	@ignore public override function trace ():Void {}
 	@ignore public override function uninstall ():Void {}
 	
 }

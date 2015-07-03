@@ -13,6 +13,7 @@ import lime.utils.ArrayBuffer;
 import lime.utils.CompressionAlgorithm;
 import lime.utils.IDataInput;
 import lime.utils.IMemoryRange;
+import lime.utils.LZMA;
 
 #if js
 #if format
@@ -199,7 +200,7 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 		
 		if (algorithm == CompressionAlgorithm.LZMA) {
 			
-			result = Bytes.ofData (lime_lzma_encode (src.getData ()));
+			result = cast lime.utils.LZMA.encode (ByteArray.fromBytes (src));
 			
 		} else {
 			
@@ -681,7 +682,7 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 		
 		if (algorithm == CompressionAlgorithm.LZMA) {
 			
-			result = Bytes.ofData (lime_lzma_decode (src.getData ()));
+			result = lime.utils.LZMA.decode (ByteArray.fromBytes (src));
 			
 		} else {
 			
@@ -1166,8 +1167,6 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	private static var lime_byte_array_get_native_pointer = System.load ("lime", "lime_byte_array_get_native_pointer", 1);
 	private static var lime_byte_array_overwrite_file = System.load ("lime", "lime_byte_array_overwrite_file", 2);
 	private static var lime_byte_array_read_file = System.load ("lime", "lime_byte_array_read_file", 1);
-	private static var lime_lzma_decode = System.load ("lime", "lime_lzma_decode", 1);
-	private static var lime_lzma_encode = System.load ("lime", "lime_lzma_encode", 1);
 	
 	
 }

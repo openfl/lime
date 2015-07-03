@@ -161,6 +161,8 @@ class GLRenderContext {
 	public var ALPHA = 0x1906;
 	public var RGB = 0x1907;
 	public var RGBA = 0x1908;
+	public var BGR_EXT = 0x80E0;
+	public var BGRA_EXT = 0x80E1;
 	public var LUMINANCE = 0x1909;
 	public var LUMINANCE_ALPHA = 0x190A;
 	

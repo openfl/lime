@@ -1,6 +1,7 @@
 package lime.audio;
 
 
+import haxe.io.Bytes;
 import lime.audio.openal.AL;
 import lime.system.System;
 import lime.utils.ByteArray;
@@ -87,7 +88,7 @@ class AudioBuffer {
 				var audioBuffer = new AudioBuffer ();
 				audioBuffer.bitsPerSample = data.bitsPerSample;
 				audioBuffer.channels = data.channels;
-				audioBuffer.data = data.data;
+				audioBuffer.data = ByteArray.fromBytes (@:privateAccess new Bytes (data.data.length, data.data.b));
 				audioBuffer.sampleRate = data.sampleRate;
 				return audioBuffer;
 				
@@ -127,7 +128,7 @@ class AudioBuffer {
 				var audioBuffer = new AudioBuffer ();
 				audioBuffer.bitsPerSample = data.bitsPerSample;
 				audioBuffer.channels = data.channels;
-				audioBuffer.data = data.data;
+				audioBuffer.data = ByteArray.fromBytes (@:privateAccess new Bytes (data.data.length, data.data.b));
 				audioBuffer.sampleRate = data.sampleRate;
 				return audioBuffer;
 				

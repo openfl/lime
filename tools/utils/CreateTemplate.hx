@@ -8,6 +8,8 @@ import lime.project.Haxelib;
 import lime.project.HXProject;
 import sys.FileSystem;
 
+@:access(lime.project.HXProject)
+
 
 class CreateTemplate {
 	
@@ -75,7 +77,7 @@ class CreateTemplate {
 	}
 	
 	
-	public static function createProject (words:Array <String>, userDefines:Map<String, Dynamic>):Void {
+	public static function createProject (words:Array <String>, userDefines:Map<String, Dynamic>, overrides:HXProject):Void {
 		
 		var colonIndex = words[0].indexOf (":");
 		
@@ -197,10 +199,45 @@ class CreateTemplate {
 				}*/
 				
 				var packageName = id.join (".").toLowerCase ();
+				var version = "1.0.0";
+				
+				if (overrides != null) {
+					
+					if (overrides.meta.packageName != overrides.defaultMeta.packageName) {
+						
+						packageName = overrides.meta.packageName;
+						
+					}
+					
+					if (overrides.meta.title != overrides.defaultMeta.title) {
+						
+						title = overrides.meta.title;
+						
+					}
+					
+					if (overrides.meta.version != overrides.defaultMeta.version) {
+						
+						version = overrides.meta.version;
+						
+					}
+					
+					if (overrides.meta.company != overrides.defaultMeta.company) {
+						
+						company = overrides.meta.company;
+						
+					}
+					
+					if (overrides.app.file != overrides.defaultApp.file) {
+						
+						file = overrides.app.file;
+						
+					}
+					
+				}
 				
 				context.title = title;
 				context.packageName = packageName;
-				context.version = "1.0.0";
+				context.version = version;
 				context.company = company;
 				context.file = file;
 				

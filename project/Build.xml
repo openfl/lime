@@ -14,6 +14,7 @@
 	<set name="LIME_JPEG" value="1" />
 	<set name="LIME_FREETYPE" value="1" />
 	<set name="LIME_HARFBUZZ" value="1" />
+	<set name="LIME_LZMA" value="1" />
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
 	<set name="LIME_OGG" value="1" />
 	<set name="LIME_OPENAL" value="1" />
@@ -88,6 +89,15 @@
 				<file name="src/text/TextLayout.cpp" />
 				
 			</section>
+			
+		</section>
+		
+		<section if="LIME_LZMA">
+			
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/lzma/src" />
+			<compilerflag value="-DLIME_LZMA" />
+			
+			<file name="src/utils/LZMA.cpp" />
 			
 		</section>
 		
@@ -199,19 +209,21 @@
 		<file name="src/ui/TouchEvent.cpp" />
 		<file name="src/ui/WindowEvent.cpp" />
 		<file name="src/utils/ByteArray.cpp" />
+		<file name="src/utils/Bytes.cpp" />
 		
 	</files>
 	
-	<include name="lib/cairo/files.xml" if="LIME_CAIRO" />
+	<include name="lib/cairo/files.xml" />
 	<include name="lib/curl/files.xml" />
 	<include name="lib/freetype/files.xml" />
 	<include name="lib/harfbuzz/files.xml" />
 	<include name="lib/jpeg/files.xml" />
+	<include name="lib/lzma/files.xml" />
 	<include name="lib/neko/files.xml" />
 	<include name="lib/ogg/files.xml" />
 	<include name="lib/openal/files.xml" />
 	<include name="lib/openal-android/files.xml" if="android" />
-	<include name="lib/pixman/files.xml" if="LIME_PIXMAN" />
+	<include name="lib/pixman/files.xml" />
 	<include name="lib/png/files.xml" />
 	<include name="lib/sdl/files.xml" />
 	<include name="lib/vorbis/files.xml" />
@@ -230,6 +242,7 @@
 		<files id="native-toolkit-jpeg" if="LIME_JPEG" />
 		<files id="native-toolkit-freetype" if="LIME_FREETYPE" />
 		<files id="native-toolkit-harfbuzz" if="LIME_HARFBUZZ" />
+		<files id="native-toolkit-lzma" if="LIME_LZMA" />
 		<files id="native-toolkit-neko" if="LIME_NEKO" />
 		<files id="native-toolkit-ogg" if="LIME_OGG" />
 		<files id="native-toolkit-openal" if="LIME_OPENAL" unless="mac || iphone || android || emscripten" />

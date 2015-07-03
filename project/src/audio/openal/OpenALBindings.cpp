@@ -7,7 +7,7 @@
 #endif
 
 #include <hx/CFFI.h>
-#include <utils/ByteArray.h>
+#include <utils/Bytes.h>
 
 
 namespace lime {
@@ -15,13 +15,13 @@ namespace lime {
 	
 	value lime_al_buffer_data (value buffer, value format, value data, value size, value freq) {
 		
-		ByteArray byteArray (data);
+		Bytes bytes (data);
 		//int arraySize = byteArray.Size ();
-		const float *bytes = (float *)byteArray.Bytes ();
+		const float *b = (float *)bytes.Data ();
 		//int elements = arraySize / sizeof (float);
 		int count = val_int (size);
 		
-		alBufferData (val_int (buffer), val_int (format), bytes, count, val_int (freq));
+		alBufferData (val_int (buffer), val_int (format), b, count, val_int (freq));
 		return alloc_null ();
 		
 	}

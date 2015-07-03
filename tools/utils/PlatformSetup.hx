@@ -2125,7 +2125,10 @@ class PlatformSetup {
 			if (FileSystem.exists (git)) {
 				
 				LogHelper.info ("\x1b[32;1mUpdating \"" + haxelib.name + "\"\x1b[0m");
+				
 				ProcessHelper.runCommand (lib, "git", [ "pull" ]);
+				ProcessHelper.runCommand (lib, "git", [ "submodule", "init" ]);
+				ProcessHelper.runCommand (lib, "git", [ "submodule", "update" ]);
 				
 			}
 			

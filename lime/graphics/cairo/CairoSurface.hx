@@ -3,6 +3,7 @@ package lime.graphics.cairo; #if !macro
 
 import lime.graphics.Image;
 import lime.system.System;
+import lime.utils.ByteArray;
 
 @:access(haxe.io.Bytes)
 
@@ -57,7 +58,7 @@ abstract CairoSurface(Dynamic) {
 	public static function fromImage (image:Image):CairoSurface {
 		
 		#if lime_cairo
-		return createForData (#if nodejs lime_buffer_get_native_pointer (image.data) #else image.data.buffer.__getNativePointer () #end, CairoFormat.ARGB32, image.width, image.height, image.buffer.stride);
+		return createForData (lime_bytes_get_data_pointer (#if nodejs image.data #else image.data.buffer #end), CairoFormat.ARGB32, image.width, image.height, image.buffer.stride);
 		#else
 		return null;
 		#end
@@ -102,13 +103,13 @@ abstract CairoSurface(Dynamic) {
 	
 	
 	#if lime_cairo
+	private static var lime_bytes_get_data_pointer = System.load ("lime", "lime_bytes_get_data_pointer", 1);
 	private static var lime_cairo_image_surface_create = System.load ("lime", "lime_cairo_image_surface_create", 3);
 	private static var lime_cairo_image_surface_create_for_data = System.load ("lime", "lime_cairo_image_surface_create_for_data", 5);
 	private static var lime_cairo_image_surface_get_height = System.load ("lime", "lime_cairo_image_surface_get_height", 1);
 	private static var lime_cairo_image_surface_get_width = System.load ("lime", "lime_cairo_image_surface_get_width", 1);
 	private static var lime_cairo_surface_destroy = System.load ("lime", "lime_cairo_surface_destroy", 1);
 	private static var lime_cairo_surface_flush = System.load ("lime", "lime_cairo_surface_flush", 1);
-	private static var lime_buffer_get_native_pointer = System.load ("lime", "lime_buffer_get_native_pointer", 1);
 	#end
 	
 	

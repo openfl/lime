@@ -39,7 +39,7 @@ namespace lime {
 	
 	void ImageDataUtil::ColorTransform (Image* image, Rectangle* rect, ColorMatrix* colorMatrix) {
 		
-		int stride = image->buffer->width * 4;
+		int stride = image->buffer->Stride ();
 		int offset;
 		
 		int rowStart = int (rect->y + image->offsetY);
@@ -47,7 +47,7 @@ namespace lime {
 		int columnStart = int (rect->x + image->offsetX);
 		int columnEnd = int (rect->x + rect->width + image->offsetX);
 		
-		uint8_t* data = (uint8_t*)image->buffer->data->Bytes ();
+		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
 		int r, g, b, a, ex = 0;
 		
 		float alphaMultiplier = colorMatrix->GetAlphaMultiplier ();
@@ -87,17 +87,17 @@ namespace lime {
 	
 	void ImageDataUtil::CopyChannel (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, int srcChannel, int destChannel) {
 		
-		int srcStride = sourceImage->buffer->width * 4;
+		int srcStride = sourceImage->buffer->Stride ();
 		int srcPosition = ((sourceRect->x + sourceImage->offsetX) * 4) + (srcStride * (sourceRect->y + sourceImage->offsetY)) + srcChannel;
 		int srcRowOffset = srcStride - int (4 * (sourceRect->width + sourceImage->offsetX));
 		int srcRowEnd = 4 * (sourceRect->x + sourceImage->offsetX + sourceRect->width);
-		uint8_t* srcData = (uint8_t*)sourceImage->buffer->data->Bytes ();
+		uint8_t* srcData = (uint8_t*)sourceImage->buffer->data->Data ();
 		
-		int destStride = image->buffer->width * 4;
+		int destStride = image->buffer->Stride ();
 		int destPosition = ((destPoint->x + image->offsetX) * 4) + (destStride * (destPoint->y + image->offsetY)) + destChannel;
 		int destRowOffset = destStride - int (4 * (sourceRect->width + image->offsetX));
 		int destRowEnd = 4 * (destPoint->x + image->offsetX + sourceRect->width);
-		uint8_t* destData = (uint8_t*)image->buffer->data->Bytes ();
+		uint8_t* destData = (uint8_t*)image->buffer->data->Data ();
 		
 		int length = sourceRect->width * sourceRect->height;
 		
@@ -130,12 +130,12 @@ namespace lime {
 		int rowOffset = int (destPoint->y + image->offsetY - sourceRect->y - sourceImage->offsetY);
 		int columnOffset = int (destPoint->x + image->offsetX - sourceRect->x - sourceImage->offsetY);
 		
-		uint8_t* sourceData = (uint8_t*)sourceImage->buffer->data->Bytes ();
-		int sourceStride = sourceImage->buffer->width * 4;
+		uint8_t* sourceData = (uint8_t*)sourceImage->buffer->data->Data ();
+		int sourceStride = sourceImage->buffer->Stride ();
 		int sourceOffset = 0;
 		
-		uint8_t* data = (uint8_t*)image->buffer->data->Bytes ();
-		int stride = image->buffer->width * 4;
+		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
+		int stride = image->buffer->Stride ();
 		int offset = 0;
 		
 		int rows = sourceRect->y + sourceRect->height + sourceImage->offsetY;
@@ -194,7 +194,7 @@ namespace lime {
 	
 	void ImageDataUtil::FillRect (Image* image, Rectangle* rect, int color) {
 		
-		int* data = (int*)image->buffer->data->Bytes ();
+		int* data = (int*)image->buffer->data->Data ();
 		
 		if (rect->width == image->buffer->width && rect->height == image->buffer->height && rect->x == 0 && rect->y == 0 && image->offsetX == 0 && image->offsetY == 0) {
 			
@@ -242,7 +242,7 @@ namespace lime {
 	
 	void ImageDataUtil::FloodFill (Image* image, int x, int y, int color) {
 		
-		uint8_t* data = (uint8_t*)image->buffer->data->Bytes ();
+		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
 		
 		int offset = (((y + image->offsetY) * (image->buffer->width * 4)) + ((x + image->offsetX) * 4));
 		uint8_t hitColorR = data[offset + 0];
@@ -308,22 +308,22 @@ namespace lime {
 	}
 	
 	
-	void ImageDataUtil::GetPixels (Image* image, Rectangle* rect, PixelFormat format, ByteArray* pixels) {
+	void ImageDataUtil::GetPixels (Image* image, Rectangle* rect, PixelFormat format, Bytes* pixels) {
 		
 		int length = int (rect->width * rect->height);
 		pixels->Resize (length * 4);
 		
 		if (format == RGBA && rect->width == image->buffer->width && rect->height == image->buffer->height && rect->x == 0 && rect->y == 0) {
 			
-			memcpy (pixels->Bytes (), image->buffer->data->Bytes (), image->buffer->data->Size ());
+			memcpy (pixels->Data (), image->buffer->data->Data (), image->buffer->data->Length ());
 			return;
 			
 		}
 		
-		uint8_t* data = (uint8_t*)pixels->Bytes (); 
-		uint8_t* srcData = (uint8_t*)image->buffer->data->Bytes ();
+		uint8_t* data = (uint8_t*)pixels->Data ();
+		uint8_t* srcData = (uint8_t*)image->buffer->data->Data ();
 		
-		int srcStride = int (image->buffer->width * 4);
+		int srcStride = image->buffer->Stride ();
 		int srcPosition = int ((rect->x * 4) + (srcStride * rect->y));
 		int srcRowOffset = srcStride - int (4 * rect->width);
 		int srcRowEnd = int (4 * (rect->x + rect->width));
@@ -372,12 +372,12 @@ namespace lime {
 		int rowOffset = int (destPoint->y + image->offsetY - sourceRect->y - sourceImage->offsetY);
 		int columnOffset = int (destPoint->x + image->offsetX - sourceRect->x - sourceImage->offsetY);
 		
-		uint8_t* sourceData = (uint8_t*)sourceImage->buffer->data->Bytes ();
-		int sourceStride = sourceImage->buffer->width * 4;
+		uint8_t* sourceData = (uint8_t*)sourceImage->buffer->data->Data ();
+		int sourceStride = sourceImage->buffer->Stride ();
 		int sourceOffset = 0;
 		
-		uint8_t* data = (uint8_t*)image->buffer->data->Bytes ();
-		int stride = image->buffer->width * 4;
+		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
+		int stride = image->buffer->Stride ();
 		int offset = 0;
 		
 		int rowEnd = int (sourceRect->y + sourceRect->height + sourceImage->offsetY);
@@ -405,8 +405,8 @@ namespace lime {
 	void ImageDataUtil::MultiplyAlpha (Image* image) {
 		
 		int a16 = 0;
-		int length = image->buffer->data->Size () / 4;
-		uint8_t* data = (uint8_t*)image->buffer->data->Bytes ();
+		int length = image->buffer->data->Length () / 4;
+		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
 		
 		for (int i = 0; i < length; i++) {
 			
@@ -426,8 +426,8 @@ namespace lime {
 		int imageWidth = image->width;
 		int imageHeight = image->height;
 		
-		uint8_t* data = (uint8_t*)image->buffer->data->Bytes ();
-		uint8_t* newData = (uint8_t*)buffer->data->Bytes ();
+		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
+		uint8_t* newData = (uint8_t*)buffer->data->Data ();
 		
 		int sourceIndex, sourceIndexX, sourceIndexY, sourceIndexXY, index;
 		int sourceX, sourceY;
@@ -481,7 +481,7 @@ namespace lime {
 	void ImageDataUtil::SetFormat (Image* image, PixelFormat format) {
 		
 		int index, a16;
-		int length = image->buffer->data->Size () / 4;
+		int length = image->buffer->data->Length () / 4;
 		int r1, g1, b1, a1, r2, g2, b2, a2;
 		int r, g, b, a;
 		
@@ -541,7 +541,7 @@ namespace lime {
 			
 		}
 		
-		unsigned char* data = image->buffer->data->Bytes ();
+		unsigned char* data = image->buffer->data->Data ();
 		
 		for (int i = 0; i < length; i++) {
 			
@@ -562,11 +562,11 @@ namespace lime {
 	}
 	
 	
-	void ImageDataUtil::SetPixels (Image* image, Rectangle* rect, ByteArray* bytes, PixelFormat format) {
+	void ImageDataUtil::SetPixels (Image* image, Rectangle* rect, Bytes* bytes, PixelFormat format) {
 		
 		if (format == RGBA && rect->width == image->buffer->width && rect->height == image->buffer->height && rect->x == 0 && rect->y == 0) {
 			
-			memcpy (image->buffer->data->Bytes (), bytes->Bytes (), bytes->Size ());
+			memcpy (image->buffer->data->Data (), bytes->Data (), bytes->Length ());
 			return;
 			
 		}
@@ -580,8 +580,8 @@ namespace lime {
 			
 			int pos = offset * 4;
 			int len = int (rect->width * rect->height * 4);
-			uint8_t* data = (uint8_t*)image->buffer->data->Bytes ();
-			uint8_t* byteArray = (uint8_t*)bytes->Bytes ();
+			uint8_t* data = (uint8_t*)image->buffer->data->Data ();
+			uint8_t* byteArray = (uint8_t*)bytes->Data ();
 			
 			for (int i = 0; i < len; i += 4) {
 				
@@ -604,8 +604,8 @@ namespace lime {
 			
 			int pos = offset;
 			int len = int (rect->width * rect->height);
-			int* data = (int*)image->buffer->data->Bytes ();
-			int* byteArray = (int*)bytes->Bytes ();
+			int* data = (int*)image->buffer->data->Data ();
+			int* byteArray = (int*)bytes->Data ();
 			
 			// TODO: memcpy rows at once
 			
@@ -629,8 +629,8 @@ namespace lime {
 	
 	void ImageDataUtil::UnmultiplyAlpha (Image* image) {
 		
-		int length = image->buffer->data->Size () / 4;
-		uint8_t* data = (uint8_t*)image->buffer->data->Bytes ();
+		int length = image->buffer->data->Length () / 4;
+		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
 		
 		int unmultiply;
 		uint8_t a;

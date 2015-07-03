@@ -46,7 +46,7 @@ namespace lime {
 			alloc_field (object, id_x, alloc_float (event->x));
 			alloc_field (object, id_y, alloc_float (event->y));
 			
-			val_call1 (TouchEvent::callback->get (), object);
+			val_call0 (TouchEvent::callback->get ());
 			
 		}
 		

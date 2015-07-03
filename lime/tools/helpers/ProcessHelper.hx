@@ -57,11 +57,11 @@ class ProcessHelper {
 			
 			if (targetPath.substr (0, 1) == "/") {
 				
-				runCommand (workingDirectory, executable, [ targetPath ]);
+				runCommand (workingDirectory, executable, [ "-W", targetPath ]);
 				
 			} else {
 				
-				runCommand (workingDirectory, executable, [ "./" + targetPath ]);
+				runCommand (workingDirectory, executable, [ "-W", "./" + targetPath ]);
 				
 			}
 			

@@ -23,6 +23,11 @@ namespace lime {
 			SDL_Renderer* sdlRenderer;
 			SDL_Texture* sdlTexture;
 			SDL_Window* sdlWindow;
+			
+		private:
+			
+			int width;
+			int height;
 		
 	};
 	

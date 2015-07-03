@@ -25,6 +25,7 @@ namespace lime {
 		if (flags & WINDOW_FLAG_HARDWARE) {
 			
 			sdlFlags |= SDL_WINDOW_OPENGL;
+			//sdlFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
 			
 			#if defined (HX_WINDOWS) && defined (NATIVE_TOOLKIT_SDL_ANGLE)
 			SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
@@ -218,7 +219,7 @@ namespace lime {
 	
 	void SDLWindow::SetIcon (ImageBuffer *imageBuffer) {
 		
-		SDL_Surface *surface = SDL_CreateRGBSurfaceFrom (imageBuffer->data->Bytes (), imageBuffer->width, imageBuffer->height, imageBuffer->bpp * 8, imageBuffer->width * imageBuffer->bpp, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
+		SDL_Surface *surface = SDL_CreateRGBSurfaceFrom (imageBuffer->data->Data (), imageBuffer->width, imageBuffer->height, imageBuffer->bitsPerPixel, imageBuffer->Stride (), 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
 		
 		if (surface) {
 			

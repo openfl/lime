@@ -246,7 +246,7 @@ class LinuxPlatform extends PlatformTarget {
 		
 		if (targetFlags.exists ("rpi")) {
 			
-			commands.push ([ "-Dlinux", "-Drpi" ]);
+			commands.push ([ "-Dlinux", "-Drpi", "-DCXX=arm-linux-gnueabihf-g++", "-DHXCPP_M32", "-DHXCPP_STRIP=arm-linux-gnueabihf-strip", "-DHXCPP_AR=arm-linux-gnueabihf-ar", "-DHXCPP_RANLIB=arm-linux-gnueabihf-ranlib" ]);
 			
 		} else {
 			

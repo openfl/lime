@@ -41,7 +41,7 @@ class ImageBuffer {
 	@:noCompletion private var __srcImageData:#if (js && html5) ImageData #else Dynamic #end;
 	
 	
-	public function new (data:UInt8Array = null, width:Int = 0, height:Int = 0, bitsPerPixel:Int = 4, format:PixelFormat = null) {
+	public function new (data:UInt8Array = null, width:Int = 0, height:Int = 0, bitsPerPixel:Int = 32, format:PixelFormat = null) {
 		
 		this.data = data;
 		this.width = width;
@@ -103,8 +103,7 @@ class ImageBuffer {
 			
 			var bytes = Bytes.alloc (data.byteLength);
 			bytes.blit (0, buffer.data.buffer, 0, data.byteLength);
-			var byteArray = ByteArray.fromBytes (bytes);
-			buffer.data = new UInt8Array (byteArray);
+			buffer.data = new UInt8Array (bytes);
 			
 		}
 		#end

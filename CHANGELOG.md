@@ -1,3 +1,72 @@
+2.4.5 (07/02/2015)
+------------------
+
+* Changed to a new, better Haxe typed array implementation
+* Added an improved Bytes (internal) for native targets
+* Added lime.utils.LZMA for LZMA compression/decompression
+* Expanded support for gamepad devices
+* Improved desktop multitouch support
+* Exposed decodeBytes/decodeFile for PNG and JPG formats
+* Added support for header-only decoding of PNG or JPG
+* Improved support for Flash log output
+* Improved the "update" command to support GIT submodules
+* Restored previous rendering behavior on high-DPI Apple devices
+* Fixed support for non-embedded assets on HTML5
+* Fixed other cases in the Assets loading code on HTML5
+* Fixed imageBuffer.bitsPerPixel to default 32, not 4 (bytes)
+* Updated webgl-debug.js for use with HTML5 -Dwebgl -debug
+* Fixed a regression in middle and right click events (legacy)
+* Fixed possible file handle leaks in the audio code (legacy)
+* Added DPI-aware keyboard height for iOS (legacy)
+* Added a hack to identify the type of connected gamepads (legacy)
+* Fixed the sourceRect coordinates for blitChannel (legacy)
+* Added screen resolution width/height for BlackBerry (legacy)
+* Fixed a possible overflow in the LZMA buffer (legacy)
+
+
+2.4.4 (06/08/2015)
+------------------
+
+* Handle Flash traces, similar to native logging
+* Improved performance of TextLayout
+* Improved the behavior of the Android Activity class
+* Added window activate/deactivate events on mobile
+* Added retina support on Mac desktop
+* Allow --meta overrides when using `lime create project`
+* Added sleep after Android touch events for better performance
+* Improved build support for Raspberry Pi 2
+* Fixed -force_load flag on iOS builds
+* Fixed GL.clearDepth and GL.depthRange bindings
+* Fixed negative System.getTimer value on HTML5
+* Added multi-touch desktop support (legacy)
+* Improved WAV format loading (legacy)
+* Fixed iswalpha crash on BlackBerry (legacy)
+
+
+2.4.3 (06/01/2015)
+------------------
+
+* Improved support for embedded fonts
+* Fixed regression when embedding certain OTF fonts
+
+
+2.4.2 (05/30/2015)
+------------------
+
+* Improved iOS and Android build support
+* Add support for application.frameRate
+* Reduce cURL connection timeout to 30 seconds
+* Improved handling of non-transparent image buffers
+* Add cubic support to font decomposition
+* Added Cairo window resize handling
+* Added Cairo Freetype support
+* Added check to remove duplicated <dependency /> references
+* Minor fix to image premultiply alpha
+* Minor fix to "lime create" command
+* Minor fix to rectangle.transform
+* Fixed Windows Neko builds when not running on Windows 
+
+
 2.4.1 (05/13/2015)
 ------------------
 

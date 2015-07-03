@@ -124,8 +124,8 @@ namespace lime {
 		
 		enum { BUF_SIZE = 4096 };
 		struct jpeg_destination_mgr pub;   /* public fields */
-		QuickVec<uint8> mOutput;
-		uint8   mTmpBuf[BUF_SIZE];
+		QuickVec<unsigned char> mOutput;
+		unsigned char   mTmpBuf[BUF_SIZE];
 		
 		
 		MyDestManager () {
@@ -178,7 +178,7 @@ namespace lime {
 	};
 	
 	
-	bool JPEG::Decode (Resource *resource, ImageBuffer* imageBuffer) {
+	bool JPEG::Decode (Resource *resource, ImageBuffer* imageBuffer, bool decodeData) {
 		
 		struct jpeg_decompress_struct cinfo;
 		
@@ -227,15 +227,15 @@ namespace lime {
 				
 			} else {
 				
-				ByteArray data = ByteArray (resource->path);
-				MySrcManager manager (data.Bytes (), data.Size ());
+				Bytes data = Bytes (resource->path);
+				MySrcManager manager (data.Data (), data.Length ());
 				cinfo.src = &manager.pub;
 				
 			}
 			
 		} else {
 			
-			MySrcManager manager (resource->data->Bytes (), resource->data->Size ());
+			MySrcManager manager (resource->data->Data (), resource->data->Length ());
 			cinfo.src = &manager.pub;
 			
 		}
@@ -246,35 +246,45 @@ namespace lime {
 			
 			cinfo.out_color_space = JCS_RGB;
 			
-			jpeg_start_decompress (&cinfo);
-			int components = cinfo.num_components;
-			imageBuffer->Resize (cinfo.output_width, cinfo.output_height);
-			
-			unsigned char *bytes = imageBuffer->data->Bytes ();
-			unsigned char *scanline = new unsigned char [imageBuffer->width * imageBuffer->height * components];
-			
-			while (cinfo.output_scanline < cinfo.output_height) {
+			if (decodeData) {
 				
-				jpeg_read_scanlines (&cinfo, &scanline, 1);
+				jpeg_start_decompress (&cinfo);
+				int components = cinfo.num_components;
+				imageBuffer->Resize (cinfo.output_width, cinfo.output_height, 32);
 				
-				// convert 24-bit scanline to 32-bit
-				const unsigned char *line = scanline;
-				const unsigned char *const end = line + imageBuffer->width * components;
+				unsigned char *bytes = imageBuffer->data->Data ();
+				unsigned char *scanline = new unsigned char [imageBuffer->width * imageBuffer->height * components];
 				
-				while (line != end) {
+				while (cinfo.output_scanline < cinfo.output_height) {
 					
-					*bytes++ = *line++;
-					*bytes++ = *line++;
-					*bytes++ = *line++;
-					*bytes++ = 0xFF;
+					jpeg_read_scanlines (&cinfo, &scanline, 1);
+					
+					// convert 24-bit scanline to 32-bit
+					const unsigned char *line = scanline;
+					const unsigned char *const end = line + imageBuffer->width * components;
+					
+					while (line != end) {
+						
+						*bytes++ = *line++;
+						*bytes++ = *line++;
+						*bytes++ = *line++;
+						*bytes++ = 0xFF;
+						
+					}
 					
 				}
 				
+				delete[] scanline;
+				
+				jpeg_finish_decompress (&cinfo);
+				
+			} else {
+				
+				imageBuffer->width = cinfo.image_width;
+				imageBuffer->height = cinfo.image_height;
+				
 			}
 			
-			delete[] scanline;
-			
-			jpeg_finish_decompress (&cinfo);
 			decoded = true;
 			
 		}
@@ -291,7 +301,7 @@ namespace lime {
 	}
 	
 	
-	bool JPEG::Encode (ImageBuffer *imageBuffer, ByteArray *bytes, int quality) {
+	bool JPEG::Encode (ImageBuffer *imageBuffer, Bytes *bytes, int quality) {
 		
 		struct jpeg_compress_struct cinfo;
 		
@@ -304,7 +314,7 @@ namespace lime {
 		
 		int w = imageBuffer->width;
 		int h = imageBuffer->height;
-		QuickVec<uint8> row_buf (w * 3);
+		QuickVec<unsigned char> row_buf (w * 3);
 		
 		jpeg_create_compress (&cinfo);
 		
@@ -327,13 +337,13 @@ namespace lime {
 		jpeg_start_compress (&cinfo, true);
 		
 		JSAMPROW row_pointer = &row_buf[0];
-		unsigned char* imageData = imageBuffer->data->Bytes();
-		int stride = w * imageBuffer->bpp;
+		unsigned char* imageData = imageBuffer->data->Data();
+		int stride = imageBuffer->Stride ();
 		
 		while (cinfo.next_scanline < cinfo.image_height) {
 			
-			const uint8 *src = (const uint8 *)(imageData + (stride * cinfo.next_scanline));
-			uint8 *dest = &row_buf[0];
+			const unsigned char *src = (const unsigned char *)(imageData + (stride * cinfo.next_scanline));
+			unsigned char *dest = &row_buf[0];
 			
 			for(int x = 0; x < w; x++) {
 				
@@ -351,7 +361,7 @@ namespace lime {
 		
 		jpeg_finish_compress (&cinfo);
 		
-		*bytes = ByteArray (dest.mOutput);
+		bytes->Set (dest.mOutput);
 		
 		return true;
 		

@@ -3,7 +3,7 @@
 
 
 #include <hx/CFFI.h>
-#include <utils/ByteArray.h>
+#include <utils/Bytes.h>
 
 #ifdef ANDROID
 #include <android/log.h>
@@ -42,7 +42,7 @@ namespace lime {
 			int bitsPerSample;
 			int channels;
 			int sampleRate;
-			ByteArray *data;
+			Bytes *data;
 			
 		private:
 			

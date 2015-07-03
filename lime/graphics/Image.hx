@@ -3,6 +3,7 @@ package lime.graphics;
 
 import haxe.crypto.BaseCode;
 import haxe.io.Bytes;
+import haxe.io.BytesData;
 import haxe.io.BytesInput;
 import haxe.io.BytesOutput;
 import lime.app.Application;
@@ -14,6 +15,7 @@ import lime.graphics.utils.ImageDataUtil;
 import lime.math.ColorMatrix;
 import lime.math.Rectangle;
 import lime.math.Vector2;
+import lime.utils.ArrayBuffer;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 import lime.system.System;
@@ -954,7 +956,7 @@ class Image {
 			
 			if (data != null) {
 				
-				__fromImageBuffer (new ImageBuffer (new UInt8Array (data.data), data.width, data.height, data.bpp));
+				__fromImageBuffer (new ImageBuffer (new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b)), data.width, data.height, data.bitsPerPixel));
 				
 				if (onload != null) {
 					
@@ -1061,14 +1063,12 @@ class Image {
 			if (#if (sys && (!disable_cffi || !format) && !java) true #else false #end && !System.disableCFFI) {
 				
 				var data = lime_image_load (path);
+				
 				if (data != null) {
-					var ba:ByteArray = cast(data.data, ByteArray);
-					#if nodejs
-					var u8a = ba.byteView;
-					#else
-					var u8a = new UInt8Array(ba);
-					#end
-					buffer = new ImageBuffer (u8a, data.width, data.height, data.bpp);
+					
+					var u8a = new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b));
+					buffer = new ImageBuffer (u8a, data.width, data.height, data.bitsPerPixel);
+					
 				}
 				
 			}
@@ -1085,7 +1085,7 @@ class Image {
 					var data = Tools.extract32 (png);
 					var header = Tools.getHeader (png);
 					
-					var data = new UInt8Array (ByteArray.fromBytes (Bytes.ofData (data.getData ())));
+					var data = new UInt8Array (Bytes.ofData (data.getData ()));
 					var length = header.width * header.height;
 					var b, g, r, a;
 					
@@ -1208,7 +1208,7 @@ class Image {
 			#elseif flash
 				
 				var pixels = buffer.__srcBitmapData.getPixels (buffer.__srcBitmapData.rect);
-				buffer.data = new UInt8Array (pixels);
+				buffer.data = new UInt8Array (Bytes.ofData (pixels));
 				
 			#end
 			
