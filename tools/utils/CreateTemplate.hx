@@ -452,14 +452,22 @@ class CreateTemplate {
 		
 		LogHelper.println ("\x1b[1mYou must specify a template when using the 'create' command.\x1b[0m");
 		LogHelper.println ("");
-		LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + CommandLineTools.commandName + "\x1b[0m create extension \"ExtensionName\"");
-		LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + CommandLineTools.commandName + "\x1b[0m create " + projectName + " project \x1b[3;37m\"OutputDirectory\"\x1b[0m");
-		LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + CommandLineTools.commandName + "\x1b[0m create " + projectName + " (sample) \x1b[3;37m\"OutputDirectory\"\x1b[0m");
+		
+		if (projectName == CommandLineTools.commandName) {
+			
+			LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + CommandLineTools.commandName + "\x1b[0m create project (directory)");
+			LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + CommandLineTools.commandName + "\x1b[0m create extension (directory)");
+			
+		}
+		
+		LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + CommandLineTools.commandName + "\x1b[0m create " + (projectName != CommandLineTools.commandName ? projectName : "") + "<sample> (directory)");
+		
+		
 		
 		if (templates.length > 0) {
 			
 			LogHelper.println ("");
-			LogHelper.println (" " + LogHelper.accentColor + "Available Samples:\x1b[0m");
+			LogHelper.println (" " + LogHelper.accentColor + "Available samples:\x1b[0m");
 			LogHelper.println ("");
 			
 			for (template in templates) {
