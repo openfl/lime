@@ -1123,6 +1123,13 @@ void ProcessEvent(SDL_Event &inEvent)
          sgSDLFrame->ProcessEvent(close);
          break;
       }
+      case SDL_TEXTINPUT:
+      {
+         Event ev(etChar);
+         strncpy(ev.text, inEvent.text.text, 32);
+         sgSDLFrame->ProcessEvent(ev);
+         break;
+      }
       case SDL_WINDOWEVENT:
       {
          switch (inEvent.window.event)

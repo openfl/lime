@@ -97,6 +97,8 @@ struct Event
    float       scaleX, scaleY;
    int         deltaX, deltaY;
    double      pollTime;
+
+   char text[32];
 };
 
 } // end namespace nme
