@@ -8,7 +8,7 @@ import lime.audio.AudioSource;
 import lime.audio.openal.AL;
 import lime.audio.AudioBuffer;
 import lime.graphics.Image;
-import lime.system.WorkerThread;
+import lime.system.BackgroundWorker;
 import lime.text.Font;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
@@ -548,14 +548,15 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		var worker = new WorkerThread ();
-		worker.doWork = function () {
+		var worker = new BackgroundWorker ();
+		
+		worker.doWork.add (function (_) {
 			
-			var bytes = getBytes (id);
-			worker.sendUpdate (bytes);
+			worker.sendComplete (getBytes (id));
 			
-		}
-		worker.onUpdate.add (function (msg) handler (msg));
+		});
+		
+		worker.onComplete.add (function (bytes) handler (bytes));
 		worker.run ();
 		
 		#end
@@ -604,14 +605,15 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		var worker = new WorkerThread ();
-		worker.doWork = function () {
+		var worker = new BackgroundWorker ();
+		
+		worker.doWork.add (function (_) {
 			
-			var image = getImage (id);
-			worker.sendUpdate (image);
+			worker.sendComplete (getImage (id));
 			
-		}
-		worker.onUpdate.add (function (msg) handler (msg));
+		});
+		
+		worker.onComplete.add (function (image) handler (image));
 		worker.run ();
 		
 		#end
