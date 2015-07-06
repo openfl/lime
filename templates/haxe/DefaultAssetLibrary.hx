@@ -556,7 +556,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 		});
 		
-		worker.onComplete.add (function (bytes) handler (bytes));
+		worker.onComplete.add (handler);
 		worker.run ();
 		
 		#end
@@ -613,7 +613,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 		});
 		
-		worker.onComplete.add (function (image) handler (image));
+		worker.onComplete.add (handler);
 		worker.run ();
 		
 		#end

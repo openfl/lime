@@ -16,9 +16,13 @@ import neko.vm.Thread;
 class BackgroundWorker {
 	
 	
+	private static var MESSAGE_COMPLETE = "__COMPLETE__";
+	private static var MESSAGE_ERROR = "__ERROR__";
+	
 	public var canceled (default, null):Bool;
 	public var doWork = new Event<Dynamic->Void> ();
 	public var onComplete = new Event<Dynamic->Void> ();
+	public var onError = new Event<Dynamic->Void> ();
 	public var onProgress = new Event<Dynamic->Void> ();
 	
 	private var __runMessage:Dynamic;
@@ -74,7 +78,7 @@ class BackgroundWorker {
 		
 		#if (cpp || neko)
 		
-		__messageQueue.add ("__DONE__");
+		__messageQueue.add (MESSAGE_COMPLETE);
 		__messageQueue.add (message);
 		
 		#else
@@ -83,6 +87,27 @@ class BackgroundWorker {
 			
 			canceled = true;
 			onComplete.dispatch (message);
+			
+		}
+		
+		#end
+		
+	}
+	
+	
+	public function sendError (message:Dynamic):Void {
+		
+		#if (cpp || neko)
+		
+		__messageQueue.add (MESSAGE_ERROR);
+		__messageQueue.add (message);
+		
+		#else
+		
+		if (!canceled) {
+			
+			canceled = true;
+			onError.dispatch (message);
 			
 		}
 		
@@ -116,7 +141,7 @@ class BackgroundWorker {
 		
 		#if (cpp || neko)
 		
-		__messageQueue.add ("__DONE__");
+		__messageQueue.add (MESSAGE_COMPLETE);
 		
 		#else
 		
@@ -140,15 +165,18 @@ class BackgroundWorker {
 		
 		if (message != null) {
 			
-			if (message != "__DONE__") {
+			if (message == MESSAGE_ERROR) {
+				
+				Application.current.onUpdate.remove (__update);
 				
 				if (!canceled) {
 					
-					onProgress.dispatch (message);
+					canceled = true;
+					onError.dispatch (__messageQueue.pop (false));
 					
 				}
 				
-			} else {
+			} else if (message == MESSAGE_COMPLETE) {
 				
 				Application.current.onUpdate.remove (__update);
 				
@@ -156,6 +184,14 @@ class BackgroundWorker {
 					
 					canceled = true;
 					onComplete.dispatch (__messageQueue.pop (false));
+					
+				}
+				
+			} else {
+				
+				if (!canceled) {
+					
+					onProgress.dispatch (message);
 					
 				}
 				
