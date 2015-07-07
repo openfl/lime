@@ -222,6 +222,7 @@ class IOSPlatform extends PlatformTarget {
 			
 		}
 		
+		context.ENABLE_BITCODE = (project.config.getFloat ("ios.deployment", 5.1) >= 6);
 		context.IOS_COMPILER = project.config.getString ("ios.compiler", "clang");
 		context.CPP_BUILD_LIBRARY = project.config.getString ("cpp.buildLibrary", "hxcpp");
 		
