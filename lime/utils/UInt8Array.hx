@@ -24,10 +24,11 @@ package lime.utils;
             } else if(view != null) {
                 this = new js.html.Uint8Array( untyped view );
             } else if(buffer != null) {
-                if (len == null)
+                if(len == null) {
                     this = new js.html.Uint8Array( buffer, byteoffset );
-                else
+                } else {
                     this = new js.html.Uint8Array( buffer, byteoffset, len );
+                }
             } else {
                 this = null;
             }
@@ -38,7 +39,9 @@ package lime.utils;
 
 
             //non spec haxe conversions
-        public static function fromBytes( bytes:haxe.io.Bytes, ?byteOffset:Int=0, ?len:Int ) : UInt8Array {
+        public static function fromBytes( bytes:haxe.io.Bytes, ?byteOffset:Int, ?len:Int ) : UInt8Array {
+            if(byteOffset == null) return new js.html.Uint8Array(cast bytes.getData());
+            if(len == null) return new js.html.Uint8Array(cast bytes.getData(), byteOffset);
             return new js.html.Uint8Array(cast bytes.getData(), byteOffset, len);
     }
 
@@ -50,12 +53,13 @@ package lime.utils;
             #end
         }
 
+        function toString() return 'UInt8Array [byteLength:${this.byteLength}, length:${this.length}]';
+
     }
 
 #else
 
     import lime.utils.ArrayBufferView;
-
 
 @:forward()
 @:arrayAccess
@@ -101,6 +105,8 @@ abstract UInt8Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
         }
 
 //Internal
+
+        function toString() return 'UInt8Array [byteLength:${this.byteLength}, length:${this.length}]';
 
     inline function get_length() return this.length;
 
