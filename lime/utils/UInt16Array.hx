@@ -96,7 +96,7 @@ abstract UInt16Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
 
 
             //non spec haxe conversions
-        public static function fromBytes( bytes:haxe.io.Bytes, ?byteOffset:Int=0, ?len:Int ) : Uint16Array {
+        public static function fromBytes( bytes:haxe.io.Bytes, ?byteOffset:Int=0, ?len:Int ) : UInt16Array {
             return new UInt16Array(bytes, byteOffset, len);
         }
 
