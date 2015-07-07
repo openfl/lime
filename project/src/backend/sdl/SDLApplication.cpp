@@ -319,6 +319,10 @@ namespace lime {
 	
 	void SDLApplication::ProcessMouseEvent (SDL_Event* event) {
 		
+		#ifdef IPHONEOS
+		return;
+		#endif
+		
 		if (MouseEvent::callback) {
 			
 			switch (event->type) {
