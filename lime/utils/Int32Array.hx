@@ -7,9 +7,9 @@ package lime.utils;
     abstract Int32Array(js.html.Int32Array)
         from js.html.Int32Array
         to js.html.Int32Array {
-		
-		public inline static var BYTES_PER_ELEMENT : Int = 4;
-		
+
+        public inline static var BYTES_PER_ELEMENT : Int = 4;
+
         @:generic
         public inline function new<T>(
             ?elements:Int,
@@ -24,8 +24,10 @@ package lime.utils;
             } else if(view != null) {
                 this = new js.html.Int32Array( untyped view );
             } else if(buffer != null) {
-                len = (len == null) ? untyped __js__('undefined') : len;
-                this = new js.html.Int32Array( buffer, byteoffset, len );
+                if (len == null)
+                    this = new js.html.Int32Array( buffer, byteoffset );
+                else
+                    this = new js.html.Int32Array( buffer, byteoffset, len );
             } else {
                 this = null;
             }

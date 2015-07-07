@@ -7,9 +7,9 @@ package lime.utils;
     abstract UInt8Array(js.html.Uint8Array)
         from js.html.Uint8Array
         to js.html.Uint8Array {
-		
-		public inline static var BYTES_PER_ELEMENT : Int = 1;
-		
+
+        public inline static var BYTES_PER_ELEMENT : Int = 1;
+
         @:generic
         public inline function new<T>(
             ?elements:Int,
@@ -24,8 +24,10 @@ package lime.utils;
             } else if(view != null) {
                 this = new js.html.Uint8Array( untyped view );
             } else if(buffer != null) {
-                len = (len == null) ? untyped __js__('undefined') : len;
-                this = new js.html.Uint8Array( buffer, byteoffset, len );
+                if (len == null)
+                    this = new js.html.Uint8Array( buffer, byteoffset );
+                else
+                    this = new js.html.Uint8Array( buffer, byteoffset, len );
             } else {
                 this = null;
             }

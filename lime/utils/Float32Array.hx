@@ -7,9 +7,9 @@ package lime.utils;
     abstract Float32Array(js.html.Float32Array)
         from js.html.Float32Array
         to js.html.Float32Array {
-		
-		public inline static var BYTES_PER_ELEMENT : Int = 4;
-		
+
+        public inline static var BYTES_PER_ELEMENT : Int = 4;
+
         @:generic
         public inline function new<T>(
             ?elements:Int,
@@ -23,9 +23,11 @@ package lime.utils;
                 this = new js.html.Float32Array( untyped array );
             } else if(view != null) {
                 this = new js.html.Float32Array( untyped view );
-            } else if(buffer != null) {
-                len = (len == null) ? untyped __js__('undefined') : len;
-                this = new js.html.Float32Array( buffer, byteoffset, len );
+            } else if (buffer != null) {
+                if (len == null)
+                    this = new js.html.Float32Array( buffer, byteoffset );
+                else
+                    this = new js.html.Float32Array( buffer, byteoffset, len );
             } else {
                 this = null;
             }

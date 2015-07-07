@@ -7,9 +7,9 @@ package lime.utils;
     abstract Int16Array(js.html.Int16Array)
         from js.html.Int16Array
         to js.html.Int16Array {
-		
-		public inline static var BYTES_PER_ELEMENT : Int = 2;
-		
+
+        public inline static var BYTES_PER_ELEMENT : Int = 2;
+
         @:generic
         public inline function new<T>(
             ?elements:Int,
@@ -24,8 +24,10 @@ package lime.utils;
             } else if(view != null) {
                 this = new js.html.Int16Array( untyped view );
             } else if(buffer != null) {
-                len = (len == null) ? untyped __js__('undefined') : len;
-                this = new js.html.Int16Array( buffer, byteoffset, len );
+                if (len == null)
+                    this = new js.html.Int16Array( buffer, byteoffset );
+                else
+                    this = new js.html.Int16Array( buffer, byteoffset, len );
             } else {
                 this = null;
             }
