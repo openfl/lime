@@ -139,20 +139,20 @@ class BackgroundWorker {
 		
 		doWork.dispatch (__runMessage);
 		
-		#if (cpp || neko)
-		
-		__messageQueue.add (MESSAGE_COMPLETE);
-		
-		#else
-		
-		if (!canceled) {
-			
-			canceled = true;
-			onComplete.dispatch (null);
-			
-		}
-		
-		#end
+		//#if (cpp || neko)
+		//
+		//__messageQueue.add (MESSAGE_COMPLETE);
+		//
+		//#else
+		//
+		//if (!canceled) {
+			//
+			//canceled = true;
+			//onComplete.dispatch (null);
+			//
+		//}
+		//
+		//#end
 		
 	}
 	
