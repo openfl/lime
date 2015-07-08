@@ -25,7 +25,7 @@ import js.html.Uint8Array;
 import cpp.NativeArray;
 #end
 
-#if sys
+#if ((disable_cffi || java) && sys)
 import sys.io.File;
 #end
 
@@ -52,6 +52,72 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	#else
 	public var bigEndian (get, set):Bool;
 	public var byteLength (get, null):Int;
+	#end
+	
+	
+	#if (!html5 && !disable_cffi && !java)
+	private static function __init__ () {
+		
+		var factory = function (length:Int) { return new ByteArray (length); };
+		
+		#if nodejs
+		var resize = function (bytes:ByteArray, length:Int) {
+			bytes.length = length;
+		}
+		#else
+		var resize = function (bytes:ByteArray, length:Int) {
+			
+			if (length > 0)
+				bytes.ensureElem (length - 1, true);
+			bytes.length = length;
+			
+		};
+		#end
+		
+		#if nodejs
+		var bytes = function (bytes:Dynamic) {
+			if (Std.is (bytes, ByteArray))
+				return untyped bytes.byteView;
+			else if (Std.is (bytes, UInt8Array) ||
+				Std.is (bytes, UInt16Array) ||
+				Std.is (bytes, Int16Array) ||
+				Std.is (bytes, Float32Array))
+				return bytes;
+			
+			if (bytes != null)
+				trace("Couldn't get BytesData:" + bytes);
+			return null;
+		}
+		var slen = function (bytes:ByteArray) {
+			if (Std.is (bytes, ByteArray))
+				return untyped bytes.length;
+			else if (Std.is (bytes, UInt8Array) ||
+				Std.is (bytes, UInt16Array) ||
+				Std.is (bytes, UInt32Array) ||
+				Std.is (bytes, Int8Array) ||
+				Std.is (bytes, Int16Array) ||
+				Std.is (bytes, Int32Array) ||
+				Std.is (bytes, Float32Array))
+				return untyped bytes.byteLength;
+			
+			return 0;
+		}
+		#else
+		var bytes = function (bytes:ByteArray) { return bytes == null ? null : bytes.b; }
+		var slen = function (bytes:ByteArray){ return bytes == null ? 0 : bytes.length; }
+		#end
+		
+		#if !lime_legacy
+		var init = System.load ("lime", "lime_byte_array_init", 4);
+		if (init != null) init (factory, slen, resize, bytes);
+		#end
+		
+		#if (lime_hybrid || lime_legacy)
+		var init = System.load ("lime-legacy", "lime_legacy_byte_array_init", 4);
+		if (init != null) init (factory, slen, resize, bytes);
+		#end
+		
+	}
 	#end
 	
 	
@@ -330,8 +396,10 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 		
 		#if html5
 		return null;
-		#else
+		#elseif (java || disable_cffi)
 		return ByteArray.fromBytes (File.getBytes (path));
+		#else
+		return lime_byte_array_read_file (path);
 		#end
 		
 	}
@@ -722,8 +790,12 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	
 	public function writeFile (path:String):Void {
 		
-		#if sys
+		#if !js
+		#if disable_cffi
 		File.saveBytes (path, this);
+		#else
+		lime_byte_array_overwrite_file (path, this);
+		#end
 		#end
 		
 	}
@@ -934,7 +1006,7 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	#if (cpp || neko || nodejs)
 	public function __getNativePointer ():Dynamic {
 		
-		return lime_bytes_get_data_pointer (this);
+		return lime_byte_array_get_native_pointer (this);
 		
 	}
 	#end
@@ -1092,7 +1164,10 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	
 	
 	
-	private static var lime_bytes_get_data_pointer = System.load ("lime", "lime_bytes_get_data_pointer", 1);
+	private static var lime_byte_array_get_native_pointer = System.load ("lime", "lime_byte_array_get_native_pointer", 1);
+	private static var lime_byte_array_overwrite_file = System.load ("lime", "lime_byte_array_overwrite_file", 2);
+	private static var lime_byte_array_read_file = System.load ("lime", "lime_byte_array_read_file", 1);
+	
 	
 }
 
