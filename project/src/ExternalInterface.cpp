@@ -675,17 +675,27 @@ namespace lime {
 	
 	value lime_lzma_decode (value buffer) {
 		
+		#ifdef LIME_LZMA
+
 		Bytes data = Bytes (buffer);
 		Bytes result;
 		
 		LZMA::Decode (&data, &result);
 		
 		return result.Value ();
+
+		#else
+
+		return alloc_null ();
+
+		#endif
 		
 	}
 	
 	
 	value lime_lzma_encode (value buffer) {
+
+		#ifdef LIME_LZMA
 		
 		Bytes data = Bytes (buffer);
 		Bytes result;
@@ -693,6 +703,12 @@ namespace lime {
 		LZMA::Encode (&data, &result);
 		
 		return result.Value ();
+
+		#else
+
+		return alloc_null ();
+
+		#endif
 		
 	}
 	
