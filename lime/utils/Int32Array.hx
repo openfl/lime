@@ -7,9 +7,9 @@ package lime.utils;
     abstract Int32Array(js.html.Int32Array)
         from js.html.Int32Array
         to js.html.Int32Array {
-		
-		public inline static var BYTES_PER_ELEMENT : Int = 4;
-		
+
+        public inline static var BYTES_PER_ELEMENT : Int = 4;
+
         @:generic
         public inline function new<T>(
             ?elements:Int,
@@ -24,8 +24,11 @@ package lime.utils;
             } else if(view != null) {
                 this = new js.html.Int32Array( untyped view );
             } else if(buffer != null) {
-                len = (len == null) ? untyped __js__('undefined') : len;
-                this = new js.html.Int32Array( buffer, byteoffset, len );
+                if(len == null) {
+                    this = new js.html.Int32Array( buffer, byteoffset );
+                } else {
+                    this = new js.html.Int32Array( buffer, byteoffset, len );
+                }
             } else {
                 this = null;
             }
@@ -37,6 +40,8 @@ package lime.utils;
 
             //non spec haxe conversions
         public static function fromBytes( bytes:haxe.io.Bytes, ?byteOffset:Int=0, ?len:Int ) : Int32Array {
+            if(byteOffset == null) return new js.html.Int32Array(cast bytes.getData());
+            if(len == null) return new js.html.Int32Array(cast bytes.getData(), byteOffset);
             return new js.html.Int32Array(cast bytes.getData(), byteOffset, len);
         }
 
@@ -48,12 +53,13 @@ package lime.utils;
             #end
     }
 
+        function toString() return 'Int32Array [byteLength:${this.byteLength}, length:${this.length}]';
+
     }
 
 #else
 
     import lime.utils.ArrayBufferView;
-
 
 @:forward()
 @:arrayAccess
@@ -114,6 +120,8 @@ abstract Int32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
     public inline function __set(idx:Int, val:Int) {
         return ArrayBufferIO.setInt32(this.buffer, this.byteOffset+(idx*BYTES_PER_ELEMENT), val);
     }
+
+        function toString() return 'Int32Array [byteLength:${this.byteLength}, length:${this.length}]';
 
 }
 

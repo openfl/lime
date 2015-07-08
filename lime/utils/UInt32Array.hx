@@ -7,9 +7,9 @@ package lime.utils;
     abstract UInt32Array(js.html.Uint32Array)
         from js.html.Uint32Array
         to js.html.Uint32Array {
-		
-		public inline static var BYTES_PER_ELEMENT : Int = 4;
-		
+
+        public inline static var BYTES_PER_ELEMENT : Int = 4;
+
         @:generic
         public inline function new<T>(
             ?elements:Int,
@@ -24,8 +24,11 @@ package lime.utils;
             } else if(view != null) {
                 this = new js.html.Uint32Array( untyped view );
             } else if(buffer != null) {
-                len = (len == null) ? untyped __js__('undefined') : len;
-                this = new js.html.Uint32Array( buffer, byteoffset, len );
+                if(len == null) {
+                    this = new js.html.Uint32Array( buffer, byteoffset );
+                } else {
+                    this = new js.html.Uint32Array( buffer, byteoffset, len );
+                }
             } else {
                 this = null;
             }
@@ -37,6 +40,8 @@ package lime.utils;
 
             //non spec haxe conversions
         public static function fromBytes( bytes:haxe.io.Bytes, ?byteOffset:Int=0, ?len:Int ) : UInt32Array {
+            if(byteOffset == null) return new js.html.Uint32Array(cast bytes.getData());
+            if(len == null) return new js.html.Uint32Array(cast bytes.getData(), byteOffset);
             return new js.html.Uint32Array(cast bytes.getData(), byteOffset, len);
         }
 
@@ -47,6 +52,8 @@ package lime.utils;
                 return @:privateAccess new haxe.io.Bytes( cast new js.html.Uint8Array(this.buffer) );
             #end
     }
+
+        function toString() return 'UInt32Array [byteLength:${this.byteLength}, length:${this.length}]';
 
     }
 
@@ -113,6 +120,8 @@ abstract UInt32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
     public inline function __set(idx:Int, val:UInt) {
         return ArrayBufferIO.setUint32(this.buffer, this.byteOffset+(idx*BYTES_PER_ELEMENT), val);
     }
+
+        function toString() return 'UInt32Array [byteLength:${this.byteLength}, length:${this.length}]';
 
 }
 

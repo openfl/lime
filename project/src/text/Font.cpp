@@ -853,7 +853,7 @@ namespace lime {
 		
 		if (count > 0) {
 			
-			*(uint32_t *)(bytes->Data ()) = count;
+			*(uint32_t*)(bytes->Data ()) = count;
 			
 		}
 		
@@ -869,6 +869,7 @@ namespace lime {
 		
 		FT_Set_Char_Size ((FT_Face)face, (int)(size*64), (int)(size*64), hdpi, vdpi);
 		mSize = size;
+		
 	}
 	
 	

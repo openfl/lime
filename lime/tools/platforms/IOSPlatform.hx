@@ -222,6 +222,7 @@ class IOSPlatform extends PlatformTarget {
 			
 		}
 		
+		context.ENABLE_BITCODE = (project.config.getFloat ("ios.deployment", 5.1) >= 6);
 		context.IOS_COMPILER = project.config.getString ("ios.compiler", "clang");
 		context.CPP_BUILD_LIBRARY = project.config.getString ("cpp.buildLibrary", "hxcpp");
 		
@@ -326,12 +327,12 @@ class IOSPlatform extends PlatformTarget {
 		
 		var commands = [];
 		
-		if (armv6) commands.push ([ "-Diphoneos", "-DHXCPP_CPP11" ]);
-		if (armv7) commands.push ([ "-Diphoneos", "-DHXCPP_CPP11", "-DHXCPP_ARMV7" ]);
-		if (armv7s) commands.push ([ "-Diphoneos", "-DHXCPP_CPP11", "-DHXCPP_ARMV7S" ]);
-		if (arm64) commands.push ([ "-Diphoneos", "-DHXCPP_CPP11", "-DHXCPP_ARM64" ]);
-		if (i386) commands.push ([ "-Diphonesim", "-DHXCPP_CPP11" ]);
-		if (x86_64) commands.push ([ "-Diphonesim", "-DHXCPP_M64", "-DHXCPP_CPP11" ]);
+		if (armv6) commands.push ([ "-Dios", "-DHXCPP_CPP11" ]);
+		if (armv7) commands.push ([ "-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARMV7" ]);
+		if (armv7s) commands.push ([ "-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARMV7S" ]);
+		if (arm64) commands.push ([ "-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARM64" ]);
+		if (i386) commands.push ([ "-Dios", "-Dsimulator", "-DHXCPP_CPP11" ]);
+		if (x86_64) commands.push ([ "-Dios", "-Dsimulator", "-DHXCPP_M64", "-DHXCPP_CPP11" ]);
 		
 		CPPHelper.rebuild (project, commands);
 		

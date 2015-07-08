@@ -175,7 +175,7 @@ class AudioSource {
 	
 		#else
 			
-			if (playing) {
+			if (playing || id == 0) {
 				
 				return;
 				

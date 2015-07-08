@@ -7,9 +7,9 @@ package lime.utils;
     abstract Int8Array(js.html.Int8Array)
         from js.html.Int8Array
         to js.html.Int8Array {
-		
-		public inline static var BYTES_PER_ELEMENT : Int = 1;
-		
+
+        public inline static var BYTES_PER_ELEMENT : Int = 1;
+
         @:generic
         public inline function new<T>(
             ?elements:Int,
@@ -24,8 +24,11 @@ package lime.utils;
             } else if(view != null) {
                 this = new js.html.Int8Array( untyped view );
             } else if(buffer != null) {
-                len = (len == null) ? untyped __js__('undefined') : len;
-                this = new js.html.Int8Array( buffer, byteoffset, len );
+                if(len == null) {
+                    this = new js.html.Int8Array( buffer, byteoffset );
+                } else {
+                    this = new js.html.Int8Array( buffer, byteoffset, len );
+                }
             } else {
                 this = null;
             }
@@ -47,6 +50,8 @@ package lime.utils;
                 return @:privateAccess new haxe.io.Bytes( cast new js.html.Uint8Array(this.buffer) );
             #end
     }
+
+        function toString() return 'Int8Array [byteLength:${this.byteLength}, length:${this.length}]';
 
     }
 
@@ -90,7 +95,9 @@ abstract Int8Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
 
             //non spec haxe conversions
         public static function fromBytes( bytes:haxe.io.Bytes, ?byteOffset:Int=0, ?len:Int ) : Int8Array {
-            return new Int8Array(bytes, byteOffset, len);
+            if(byteOffset == null) return new Int8Array(cast bytes.getData());
+            if(len == null) return new Int8Array(cast bytes.getData(), byteOffset);
+            return new Int8Array(cast bytes.getData(), byteOffset, len);
         }
 
         public function toBytes() : haxe.io.Bytes {
@@ -113,6 +120,8 @@ abstract Int8Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
     public inline function __set(idx:Int, val:Int) {
         return ArrayBufferIO.setInt8(this.buffer, this.byteOffset+idx, val);
     }
+
+        function toString() return 'Int8Array [byteLength:${this.byteLength}, length:${this.length}]';
 
 }
 

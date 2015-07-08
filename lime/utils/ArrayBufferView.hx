@@ -239,6 +239,27 @@ class ArrayBufferView {
 
     }
 
+        #if !no_typedarray_inline inline #end
+        function toString() {
+
+            var name =
+                switch(type) {
+                    case Int8: 'Int8Array';
+                    case Uint8: 'UInt8Array';
+                    case Uint8Clamped: 'UInt8ClampedArray';
+                    case Int16: 'Int16Array';
+                    case Uint16: 'UInt16Array';
+                    case Int32: 'Int32Array';
+                    case Uint32: 'UInt32Array';
+                    case Float32: 'Float32Array';
+                    case Float64: 'Float64Array';
+                    case _: 'ArrayBufferView';
+                }
+
+            return name + ' [byteLength:${this.byteLength}, length:${this.length}]';
+
+        } //toString
+
     #if !no_typedarray_inline inline #end
     function toByteLength( elemCount:Int ) : Int {
 

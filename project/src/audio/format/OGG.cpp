@@ -167,7 +167,7 @@ namespace lime {
 		
 		#define BUFFER_SIZE 4096
 		
-		vorbis_info *pInfo = ov_info (&oggFile, -1);            
+		vorbis_info *pInfo = ov_info (&oggFile, -1);
 		
 		if (pInfo == NULL) {
 			

@@ -8,6 +8,7 @@ import lime.audio.AudioSource;
 import lime.audio.openal.AL;
 import lime.audio.AudioBuffer;
 import lime.graphics.Image;
+import lime.system.BackgroundWorker;
 import lime.text.Font;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
@@ -223,13 +224,13 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		var bytes:ByteArray = null;
 		var loader = Preloader.loaders.get (path.get (id));
-
+		
 		if (loader == null) {
-
+			
 			return null;
-
+			
 		}
-
+		
 		var data = loader.data;
 		
 		if (Std.is (data, String)) {
@@ -378,13 +379,13 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		var bytes:ByteArray = null;
 		var loader = Preloader.loaders.get (path.get (id));
-
+		
 		if (loader == null) {
-
+			
 			return null;
 			
 		}
-
+		
 		var data = loader.data;
 		
 		if (Std.is (data, String)) {
@@ -472,6 +473,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 	public override function loadAudioBuffer (id:String, handler:AudioBuffer -> Void):Void {
 		
 		#if (flash)
+		
 		if (path.exists (id)) {
 			
 			var soundLoader = new Sound ();
@@ -482,13 +484,17 @@ class DefaultAssetLibrary extends AssetLibrary {
 				handler (audioBuffer);
 				
 			});
+			
 			soundLoader.load (new URLRequest (path.get (id)));
 			
 		} else {
+			
 			handler (getAudioBuffer (id));
 			
 		}
+		
 		#else
+		
 		handler (getAudioBuffer (id));
 		
 		#end
@@ -519,29 +525,39 @@ class DefaultAssetLibrary extends AssetLibrary {
 			handler (getBytes (id));
 			
 		}
-
+		
 		#elseif html5
-
+		
 		if (path.exists (id)) {
-
+			
 			var loader = new URLLoader ();
 			loader.dataFormat = BINARY;
 			loader.onComplete.add (function (_):Void {
-
-				handler(loader.data);
-
-			});
-			loader.load (new URLRequest (path.get (id)));
 				
+				handler (loader.data);
+				
+			});
+			
+			loader.load (new URLRequest (path.get (id)));
+			
 		} else {
-
+			
 			handler (getBytes (id));
-
+			
 		}
 		
 		#else
 		
-		handler (getBytes (id));
+		var worker = new BackgroundWorker ();
+		
+		worker.doWork.add (function (_) {
+			
+			worker.sendComplete (getBytes (id));
+			
+		});
+		
+		worker.onComplete.add (handler);
+		worker.run ();
 		
 		#end
 		
@@ -570,26 +586,35 @@ class DefaultAssetLibrary extends AssetLibrary {
 		}
 		
 		#elseif html5
-
+		
 		if (path.exists (id)) {
-
+			
 			var image = new js.html.Image ();
 			image.onload = function (_):Void {
-
+				
 				handler (Image.fromImageElement (image));
-
+				
 			}
 			image.src = id;
-
+			
 		} else {
-
+			
 			handler (getImage (id));
-
+			
 		}
-
+		
 		#else
 		
-		handler (getImage (id));
+		var worker = new BackgroundWorker ();
+		
+		worker.doWork.add (function (_) {
+			
+			worker.sendComplete (getImage (id));
+			
+		});
+		
+		worker.onComplete.add (handler);
+		worker.run ();
 		
 		#end
 		
@@ -699,10 +724,11 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 			var loader = new URLLoader ();
 			loader.onComplete.add (function (_):Void {
-
-				handler(loader.data);
-
+				
+				handler (loader.data);
+				
 			});
+			
 			loader.load (new URLRequest (path.get (id)));
 			
 		} else {
@@ -750,7 +776,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 #else
 
-::if (assets != null)::::foreach assets::::if (!embed)::::if (type == "font")::@:keep #if display private #end class __ASSET__::flatName:: extends lime.text.Font { public function new () { __fontPath = "::targetPath::"; name = "::fontName::"; super (); }}
+::if (assets != null)::::foreach assets::::if (!embed)::::if (type == "font")::@:keep #if display private #end class __ASSET__::flatName:: extends lime.text.Font { public function new () { __fontPath = #if ios "assets/" + #end "::targetPath::"; name = "::fontName::"; super (); }}
 ::end::::end::::end::::end::
 
 #if (windows || mac || linux)
@@ -767,7 +793,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 #end
 
 #if openfl
-::if (assets != null)::::foreach assets::::if (type == "font")::@:keep #if display private #end class __ASSET__OPENFL__::flatName:: extends openfl.text.Font { public function new () { ::if (embed)::var font = new __ASSET__::flatName:: (); src = font.src; name = font.name;::else::__fontPath = "::targetPath::"; name = "::fontName::";::end:: super (); }}
+::if (assets != null)::::foreach assets::::if (type == "font")::@:keep #if display private #end class __ASSET__OPENFL__::flatName:: extends openfl.text.Font { public function new () { ::if (embed)::var font = new __ASSET__::flatName:: (); src = font.src; name = font.name;::else::__fontPath = #if ios "assets/" + #end "::targetPath::"; name = "::fontName::";::end:: super (); }}
 ::end::::end::::end::
 #end
 

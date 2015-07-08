@@ -1,3 +1,24 @@
+2.4.7 (07/06/2015)
+------------------
+
+* Fixed regression in HTML5 typed array support
+
+
+2.4.6 (07/06/2015)
+------------------
+
+* Added lime.system.BackgroundWorker for easy threads
+* Made Assets loadImage/loadBytes asynchronous on native
+* Removed the ByteArray __init__ and matching CFFI functions
+* Improved the help documentation when using "lime create"
+* Fixed a crash that could occur when using Bytes
+* Fixed audioSource.play on native when there is no data
+* Fixed event.remove when using during an event dispatch
+* Fixed the cleanup of OpenAL when closing applications
+* Fixed a crash that could occur using cURL on Mac
+* Fixed static builds for the Mac target
+
+
 2.4.5 (07/02/2015)
 ------------------
 
