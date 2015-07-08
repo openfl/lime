@@ -1,30 +1,60 @@
 package lime.graphics.cairo;
+
+
 import lime.text.Font;
 import lime.system.System;
 
-class CairoFont
-{
-	@:noCompletion public var handle:Dynamic;
 
-	public var font(default,null):Font;
+class CairoFont {
 	
-	public function new( font : Font ) {
+	
+	public var font (default, null):Font;
+	@:noCompletion public var handle:Dynamic;
+	
+	
+	public function new (font:Font) {
 		
 		#if lime_cairo
+		
 		this.font = font;
-		handle = lime_cairo_ft_font_face_create_for_ft_face( font.src, 0 );
+		
+		if (font != null && font.src != null) {
+			
+			handle = lime_cairo_ft_font_face_create_for_ft_face (font.src, 0);
+			
+		}
+		
 		#end
+		
 	}
 	
-	public function destroy() {
-		#if lime_cairo
-		lime_cairo_font_face_destroy (handle);
-		#end
-	}
+	
+	public function destroy () {
 		
+		#if lime_cairo
+		
+		if (handle != null) {
+			
+			lime_cairo_font_face_destroy (handle);
+			
+		}
+		
+		#end
+		
+	}
+	
+	
+	
+	
+	// Native Methods
+	
+	
+	
+	
 	#if (cpp || neko || nodejs)
 	private static var lime_cairo_ft_font_face_create_for_ft_face = System.load ("lime", "lime_cairo_ft_font_face_create_for_ft_face", 2);
 	private static var lime_cairo_font_face_destroy = System.load ("lime", "lime_cairo_font_face_destroy", 1);
 	#end
+	
 	
 }
