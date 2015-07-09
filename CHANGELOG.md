@@ -21,7 +21,7 @@
 
 * Added lime.system.BackgroundWorker for easy threads
 * Made Assets loadImage/loadBytes asynchronous on native
-* Removed the ByteArray __init__ and matching CFFI functions
+* Removed the ByteArray \__init__ and matching CFFI functions
 * Improved the help documentation when using "lime create"
 * Fixed a crash that could occur when using Bytes
 * Fixed audioSource.play on native when there is no data
