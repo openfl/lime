@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "2.4.7",
-	"releasenote": "Fixed regression in HTML5 typed array support",
+	"version": "2.4.8",
+	"releasenote": "Bytes, BackgroundWorker and iOS improvements",
 	"contributors": [ "singmajesty" ]
 }
