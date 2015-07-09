@@ -1204,7 +1204,6 @@ namespace lime {
 }
 
 
-extern "C" int lime_byte_array_register_prims ();
 #ifdef LIME_CAIRO
 extern "C" int lime_cairo_register_prims ();
 #endif
@@ -1213,7 +1212,6 @@ extern "C" int lime_cairo_register_prims ();
 extern "C" int lime_register_prims () {
 	
 	return 0
-		+ lime_byte_array_register_prims ()
 		#ifdef LIME_CAIRO
 		+ lime_cairo_register_prims ()
 		#endif
