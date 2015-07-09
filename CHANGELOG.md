@@ -1,3 +1,15 @@
+2.4.8 (07/09/2015)
+------------------
+
+* Improved lime.system.BackgroundWorker onComplete
+* Improved native bytes to guard against premature GC
+* Fixed ENABLE_BITCODE when targeting older iOS versions
+* Fixed possible double mouse events on iOS
+* Fixed embedded font support on iOS
+* Fixed "lime rebuild ios" with some versions of HXCPP
+* Fixed mouse middle/right/wheel events on desktop (legacy)
+
+
 2.4.7 (07/06/2015)
 ------------------
 
