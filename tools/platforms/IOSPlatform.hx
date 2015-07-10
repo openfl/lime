@@ -118,7 +118,8 @@ class IOSPlatform extends PlatformTarget {
 					
 					var name = Path.withoutDirectory (Path.withoutExtension (dependency.path));
 					
-					project.config.push ("ios.linker-flags", "-force_load $SRCROOT/$PRODUCT_NAME/lib/$ARCHS/" + Path.withoutDirectory (dependency.path));
+					// MTWIN DIFF: linkedLibraries create a linker-flag -lMyLibrary ; -lMyLibrary + -force_load generate duplicate symobol errors
+					//project.config.push ("ios.linker-flags", "-force_load $SRCROOT/$PRODUCT_NAME/lib/$ARCHS/" + Path.withoutDirectory (dependency.path));
 					//project.config.ios.linkerFlags.push ("-force_load $SRCROOT/$PRODUCT_NAME/lib/$ARCHS/" + Path.withoutDirectory (dependency.path));
 					
 					if (StringTools.startsWith (name, "lib")) {
@@ -264,7 +265,8 @@ class IOSPlatform extends PlatformTarget {
 			if (Path.extension (dependency.name) == "framework") {
 				
 				name = dependency.name;
-				path = "/System/Library/Frameworks/" + dependency.name;
+				// MTWIN DIFF: remove "/" for AdSupport & AssetsLibrary frameworks
+				path = "System/Library/Frameworks/" + dependency.name;
 				
 			} else if (Path.extension (dependency.path) == "framework") {
 				
