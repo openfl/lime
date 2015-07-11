@@ -9,6 +9,7 @@ import lime.tools.helpers.DeploymentHelper;
 import lime.tools.helpers.FileHelper;
 import lime.tools.helpers.IconHelper;
 import lime.tools.helpers.JavaHelper;
+import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.NekoHelper;
 import lime.tools.helpers.NodeJSHelper;
 import lime.tools.helpers.PathHelper;
@@ -243,6 +244,12 @@ class MacPlatform extends PlatformTarget {
 	public override function run ():Void {
 		
 		var arguments = additionalArguments.copy ();
+		
+		if (LogHelper.verbose) {
+			
+			arguments.push ("-verbose");
+			
+		}
 		
 		if (targetType == "nodejs") {
 			
