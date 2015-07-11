@@ -74,6 +74,14 @@ class Event<T> {
 	}
 	
 	
+	public function has (listener:T):Bool {
+		
+		var index = listeners.indexOf (listener);
+		return (index > -1);
+		
+	}
+	
+	
 	public function remove (listener:T):Void {
 		
 		var index = listeners.indexOf (listener);

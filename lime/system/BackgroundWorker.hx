@@ -74,7 +74,7 @@ class BackgroundWorker {
 	}
 	
 	
-	public function sendComplete (message:Dynamic):Void {
+	public function sendComplete (message:Dynamic = null):Void {
 		
 		#if (cpp || neko)
 		
@@ -95,7 +95,7 @@ class BackgroundWorker {
 	}
 	
 	
-	public function sendError (message:Dynamic):Void {
+	public function sendError (message:Dynamic = null):Void {
 		
 		#if (cpp || neko)
 		
@@ -116,7 +116,7 @@ class BackgroundWorker {
 	}
 	
 	
-	public function sendProgress (message:Dynamic):Void {
+	public function sendProgress (message:Dynamic = null):Void {
 		
 		#if (cpp || neko)
 		
