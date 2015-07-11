@@ -1,7 +1,7 @@
 package lime.net.curl;
 
 
-@:enum abstract CURLVersion(Int) {
+@:enum abstract CURLVersion(Int) from Int to Int {
 	
 	var FIRST = 0;
 	var SECOND = 1;
