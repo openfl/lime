@@ -68,7 +68,7 @@ class ThreadPool {
 		__workIncoming.add (new ThreadPoolMessage (WORK, id, message));
 		__workQueued++;
 		
-		if (currentThreads < maxThreads) {
+		if (currentThreads < maxThreads && currentThreads < (__workQueued - __workCompleted)) {
 			
 			currentThreads++;
 			Thread.create (__doWork);

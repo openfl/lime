@@ -8,7 +8,7 @@ import lime.audio.AudioSource;
 import lime.audio.openal.AL;
 import lime.audio.AudioBuffer;
 import lime.graphics.Image;
-import lime.system.BackgroundWorker;
+import lime.system.ThreadPool;
 import lime.text.Font;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
@@ -40,6 +40,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 	public var type (default, null) = new Map <String, AssetType> ();
 	
 	private var lastModified:Float;
+	private var loadHandlers:Map<String, Dynamic>;
+	private var threadPool:ThreadPool;
 	private var timer:Timer;
 	
 	
@@ -128,6 +130,24 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#end
 		#end
+		
+	}
+	
+	
+	private function createThreadPool ():Void {
+		
+		threadPool = new ThreadPool (0, 2);
+		threadPool.doWork.add (function (id, getMethod) {
+			
+			threadPool.sendComplete (id, getMethod (id));
+			
+		});
+		threadPool.onComplete.add (function (id, data) {
+			
+			var handler = loadHandlers.get (id);
+			handler (data);
+			
+		});
 		
 	}
 	
@@ -548,16 +568,15 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		var worker = new BackgroundWorker ();
-		
-		worker.doWork.add (function (_) {
+		if (threadPool == null) {
 			
-			worker.sendComplete (getBytes (id));
+			loadHandlers = new Map ();
+			createThreadPool ();
 			
-		});
+		}
 		
-		worker.onComplete.add (handler);
-		worker.run ();
+		loadHandlers.set (id, handler);
+		threadPool.queue (id, getBytes);
 		
 		#end
 		
@@ -605,16 +624,15 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		var worker = new BackgroundWorker ();
-		
-		worker.doWork.add (function (_) {
+		if (threadPool == null) {
 			
-			worker.sendComplete (getImage (id));
+			loadHandlers = new Map ();
+			createThreadPool ();
 			
-		});
+		}
 		
-		worker.onComplete.add (handler);
-		worker.run ();
+		loadHandlers.set (id, handler);
+		threadPool.queue (id, getImage);
 		
 		#end
 		
