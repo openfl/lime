@@ -16,6 +16,7 @@ import lime.tools.helpers.ProcessHelper;
 import lime.project.Architecture;
 import lime.project.AssetType;
 import lime.project.HXProject;
+import lime.project.Icon;
 import lime.project.PlatformTarget;
 import sys.io.File;
 import sys.FileSystem;
@@ -322,10 +323,17 @@ class AndroidPlatform extends PlatformTarget {
 		
 		var iconTypes = [ "ldpi", "mdpi", "hdpi", "xhdpi", "xxhdpi", "xxxhdpi" ];
 		var iconSizes = [ 36, 48, 72, 96, 144, 192 ];
+		var icons = project.icons;
+		
+		if (icons.length == 0) {
+			
+			icons = [ new Icon (PathHelper.findTemplate (project.templatePaths, "default/icon.svg")) ];
+			
+		}
 		
 		for (i in 0...iconTypes.length) {
 			
-			if (IconHelper.createIcon (project.icons, iconSizes[i], iconSizes[i], destination + "/res/drawable-" + iconTypes[i] + "/icon.png")) {
+			if (IconHelper.createIcon (icons, iconSizes[i], iconSizes[i], destination + "/res/drawable-" + iconTypes[i] + "/icon.png")) {
 				
 				context.HAS_ICON = true;
 				
@@ -333,7 +341,7 @@ class AndroidPlatform extends PlatformTarget {
 			
 		}
 		
-		IconHelper.createIcon (project.icons, 732, 412, destination + "/res/drawable-xhdpi/ouya_icon.png");
+		IconHelper.createIcon (icons, 732, 412, destination + "/res/drawable-xhdpi/ouya_icon.png");
 		
 		var packageDirectory = project.meta.packageName;
 		packageDirectory = destination + "/src/" + packageDirectory.split (".").join ("/");
