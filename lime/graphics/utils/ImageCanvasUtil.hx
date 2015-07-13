@@ -46,6 +46,11 @@ class ImageCanvasUtil {
 			
 			buffer.__srcImage = null;
 			
+		} else if (buffer.data != null && buffer.__srcCanvas == null) {
+			
+			createCanvas (image, buffer.width, buffer.height);
+			createImageData (image);
+			
 		}
 		
 	}
