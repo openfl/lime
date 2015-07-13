@@ -128,19 +128,47 @@ class ImageDataUtil {
 		#end
 		{
 			
+			var width = sourceRect.width;
+			var height = sourceRect.height;
+			
+			if (destPoint.x + width > image.width) {
+				
+				width = image.width - destPoint.x;
+				
+			}
+			
+			if (sourceRect.x + width > sourceImage.width) {
+				
+				width = sourceImage.width - sourceRect.x;
+				
+			}
+			
+			if (destPoint.y + height > image.height) {
+				
+				height = image.height - destPoint.y;
+				
+			}
+			
+			if (sourceRect.y + height > sourceImage.height) {
+				
+				height = sourceImage.height - sourceRect.y;
+				
+			}
+			
+			if (width <= 0 || height <= 0) return;
+			
 			var srcStride = Std.int (sourceImage.buffer.width * 4);
 			var srcPosition = Std.int (((sourceRect.x + sourceImage.offsetX) * 4) + (srcStride * (sourceRect.y + sourceImage.offsetY)) + srcIdx);
-			var srcRowOffset = srcStride - Std.int (4 * (sourceRect.width + sourceImage.offsetX));
-			var srcRowEnd = Std.int (4 * (sourceRect.x + sourceImage.offsetX + sourceRect.width));
+			var srcRowOffset = srcStride - Std.int (4 * width);
+			var srcRowEnd = Std.int (4 * (sourceRect.x + sourceImage.offsetX + width));
 			var srcData = sourceImage.buffer.data;
 			
 			var destStride = Std.int (image.buffer.width * 4);
 			var destPosition = Std.int (((destPoint.x + image.offsetX) * 4) + (destStride * (destPoint.y + image.offsetY)) + destIdx);
-			var destRowOffset = destStride - Std.int (4 * (sourceRect.width + image.offsetX));
-			var destRowEnd = Std.int (4 * (destPoint.x + image.offsetX + sourceRect.width));
+			var destRowOffset = destStride - Std.int (4 * width);
 			var destData = image.buffer.data;
 			
-			var length = Std.int (sourceRect.width * sourceRect.height);
+			var length = Std.int (width * height);
 			
 			for (i in 0...length) {
 				
@@ -152,11 +180,6 @@ class ImageDataUtil {
 				if ((srcPosition % srcStride) > srcRowEnd) {
 					
 					srcPosition += srcRowOffset;
-					
-				}
-				
-				if ((destPosition % destStride) > destRowEnd) {
-					
 					destPosition += destRowOffset;
 					
 				}

@@ -87,19 +87,47 @@ namespace lime {
 	
 	void ImageDataUtil::CopyChannel (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, int srcChannel, int destChannel) {
 		
+		int width = sourceRect->width;
+		int height = sourceRect->height;
+		
+		if (destPoint->x + width > image->width) {
+			
+			width = image->width - destPoint->x;
+			
+		}
+		
+		if (sourceRect->x + width > sourceImage->width) {
+			
+			width = sourceImage->width - sourceRect->x;
+			
+		}
+		
+		if (destPoint->y + height > image->height) {
+			
+			height = image->height - destPoint->y;
+			
+		}
+		
+		if (sourceRect->y + height > sourceImage->height) {
+			
+			height = sourceImage->height - sourceRect->y;
+			
+		}
+		
+		if (width <= 0 || height <= 0) return;
+		
 		int srcStride = sourceImage->buffer->Stride ();
 		int srcPosition = ((sourceRect->x + sourceImage->offsetX) * 4) + (srcStride * (sourceRect->y + sourceImage->offsetY)) + srcChannel;
-		int srcRowOffset = srcStride - int (4 * (sourceRect->width + sourceImage->offsetX));
-		int srcRowEnd = 4 * (sourceRect->x + sourceImage->offsetX + sourceRect->width);
+		int srcRowOffset = srcStride - int (4 * width);
+		int srcRowEnd = 4 * (sourceRect->x + sourceImage->offsetX + width);
 		uint8_t* srcData = (uint8_t*)sourceImage->buffer->data->Data ();
 		
 		int destStride = image->buffer->Stride ();
 		int destPosition = ((destPoint->x + image->offsetX) * 4) + (destStride * (destPoint->y + image->offsetY)) + destChannel;
-		int destRowOffset = destStride - int (4 * (sourceRect->width + image->offsetX));
-		int destRowEnd = 4 * (destPoint->x + image->offsetX + sourceRect->width);
+		int destRowOffset = destStride - int (4 * width);
 		uint8_t* destData = (uint8_t*)image->buffer->data->Data ();
 		
-		int length = sourceRect->width * sourceRect->height;
+		int length = width * height;
 		
 		for (int i = 0; i < length; i++) {
 			
@@ -111,11 +139,6 @@ namespace lime {
 			if ((srcPosition % srcStride) > srcRowEnd) {
 				
 				srcPosition += srcRowOffset;
-				
-			}
-			
-			if ((destPosition % destStride) > destRowEnd) {
-				
 				destPosition += destRowOffset;
 				
 			}
