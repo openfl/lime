@@ -158,6 +158,13 @@ class Image {
 	public function clone ():Image {
 		
 		var image = new Image (buffer.clone (), offsetX, offsetY, width, height, null, type);
+		
+		if (image.type == CANVAS && image.buffer.data != null && image.buffer.__srcCanvas == null) {
+			
+			ImageCanvasUtil.convertToCanvas (image);
+			
+		}
+		
 		image.dirty = dirty;
 		return image;
 		
