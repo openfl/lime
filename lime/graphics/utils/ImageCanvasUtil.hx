@@ -156,9 +156,19 @@ class ImageCanvasUtil {
 		
 		var buffer = image.buffer;
 		
-		if (buffer.data == null) {
+		if (buffer.__srcImageData == null) {
 			
-			buffer.__srcImageData = buffer.__srcContext.getImageData (0, 0, buffer.width, buffer.height);
+			if (buffer.data == null) {
+				
+				buffer.__srcImageData = buffer.__srcContext.getImageData (0, 0, buffer.width, buffer.height);
+				
+			} else {
+				
+				buffer.__srcImageData = buffer.__srcContext.createImageData (buffer.width, buffer.height);
+				buffer.__srcImageData.data.set (buffer.data);
+				
+			}
+			
 			buffer.data = new UInt8Array (cast buffer.__srcImageData.data.buffer);
 			
 		}
