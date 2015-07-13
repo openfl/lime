@@ -158,6 +158,7 @@ class Image {
 	public function clone ():Image {
 		
 		var image = new Image (buffer.clone (), offsetX, offsetY, width, height, null, type);
+		image.dirty = dirty;
 		return image;
 		
 	}

@@ -108,6 +108,8 @@ class ImageBuffer {
 		}
 		#end
 		
+		buffer.bitsPerPixel = bitsPerPixel;
+		buffer.format = format;
 		buffer.premultiplied = premultiplied;
 		buffer.transparent = transparent;
 		return buffer;
