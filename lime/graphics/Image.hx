@@ -157,16 +157,26 @@ class Image {
 	
 	public function clone ():Image {
 		
-		var image = new Image (buffer.clone (), offsetX, offsetY, width, height, null, type);
-		
-		if (image.type == CANVAS && image.buffer.data != null && image.buffer.__srcCanvas == null) {
+		if (buffer != null) {
 			
-			ImageCanvasUtil.convertToCanvas (image);
+			if (type == CANVAS && buffer.__srcImage == null) {
+				
+				ImageCanvasUtil.convertToCanvas (this);
+				ImageCanvasUtil.sync (this);
+				buffer.data = null;
+				buffer.__srcImageData = null;
+				
+			}
+			
+			var image = new Image (buffer.clone (), offsetX, offsetY, width, height, null, type);
+			image.dirty = dirty;
+			return image;
+			
+		} else {
+			
+			return new Image (null, offsetX, offsetY, width, height, null, type);
 			
 		}
-		
-		image.dirty = dirty;
-		return image;
 		
 	}
 	
@@ -706,6 +716,37 @@ class Image {
 		offsetY = 0;
 		width = newWidth;
 		height = newHeight;
+		
+	}
+	
+	
+	public function scroll (x:Int, y:Int):Void {
+		
+		if (buffer == null) return;
+		
+		switch (type) {
+			
+			case CANVAS:
+				
+				ImageCanvasUtil.scroll (this, x, y);
+			
+			case DATA:
+				
+				//#if (js && html5)
+				//ImageCanvasUtil.convertToData (this);
+				//#end
+				
+				//ImageDataUtil.scroll (this, x, y);
+				
+				copyPixels (this, rect, new Vector2 (x, y));
+			
+			case FLASH:
+				
+				buffer.__srcBitmapData.scroll (x + offsetX, y + offsetX);
+			
+			default:
+			
+		}
 		
 	}
 	

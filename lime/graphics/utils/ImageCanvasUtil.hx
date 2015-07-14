@@ -297,6 +297,19 @@ class ImageCanvasUtil {
 	}
 	
 	
+	public static function scroll (image:Image, x:Int, y:Int):Void {
+		
+		if ((x % image.width == 0) && (y % image.height == 0)) return;
+		
+		convertToCanvas (image);
+		sync (image);
+		
+		image.buffer.__srcContext.clearRect (x, y, image.width, image.height);
+		image.buffer.__srcContext.drawImage (image.buffer.__srcCanvas, x, y);
+		
+	}
+	
+	
 	public static function setPixel (image:Image, x:Int, y:Int, color:Int, format:PixelFormat):Void {
 		
 		convertToCanvas (image);
