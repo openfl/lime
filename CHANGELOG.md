@@ -1,3 +1,23 @@
+2.4.9 (07/13/2015)
+------------------
+
+* Added lime.system.ThreadPool
+* Added lime.utils.Log
+* Added image.scroll
+* Added event.has
+* Improved performance of Flash target logging
+* Improved "lime upgrade" when Git is not in the PATH
+* Improved image.clone when using canvas
+* Updated for compatibility with newer lime-samples
+* Updated to use a default icon when none is available
+* Updated Assets to use a ThreadPool for asynchronous loads
+* Updated to pass -verbose during "run" when in verbose mode
+* Fixed an issue when tracing null typed arrays
+* Fixed image.copyChannel when clipping is necessary
+* Fixed use of cURL basic types as Int
+* Improved support for asynchronous SSL requests (legacy)
+
+
 2.4.8 (07/09/2015)
 ------------------
 
