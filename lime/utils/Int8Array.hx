@@ -51,7 +51,7 @@ package lime.utils;
             #end
     }
 
-        function toString() return 'Int8Array [byteLength:${this.byteLength}, length:${this.length}]';
+        function toString() return this != null ? 'Int8Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
 
     }
 
@@ -121,7 +121,7 @@ abstract Int8Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
         return ArrayBufferIO.setInt8(this.buffer, this.byteOffset+idx, val);
     }
 
-        function toString() return 'Int8Array [byteLength:${this.byteLength}, length:${this.length}]';
+        function toString() return this != null ? 'Int8Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
 
 }
 

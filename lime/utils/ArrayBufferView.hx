@@ -241,7 +241,9 @@ class ArrayBufferView {
 
         #if !no_typedarray_inline inline #end
         function toString() {
-
+            
+            if (this == null) return null;
+            
             var name =
                 switch(type) {
                     case Int8: 'Int8Array';

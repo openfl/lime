@@ -53,7 +53,7 @@ package lime.utils;
             #end
         }
 
-        function toString() return 'UInt8ClampedArray [byteLength:${this.byteLength}, length:${this.length}]';
+        function toString() return this != null ? 'UInt8ClampedArray [byteLength:${this.byteLength}, length:${this.length}]' : null;
 
         //internal
         //clamp a Int to a 0-255 Uint8
@@ -129,7 +129,7 @@ abstract UInt8ClampedArray(ArrayBufferView) from ArrayBufferView to ArrayBufferV
         return ArrayBufferIO.setUint8Clamped(this.buffer, this.byteOffset+idx, val);
     }
 
-        function toString() return 'UInt8ClampedArray [byteLength:${this.byteLength}, length:${this.length}]';
+        function toString() return this != null ? 'UInt8ClampedArray [byteLength:${this.byteLength}, length:${this.length}]' : null;
 
 }
 
