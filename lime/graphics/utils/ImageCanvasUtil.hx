@@ -170,7 +170,7 @@ class ImageCanvasUtil {
 			} else {
 				
 				buffer.__srcImageData = buffer.__srcContext.createImageData (buffer.width, buffer.height);
-				buffer.__srcImageData.data.set (buffer.data);
+				buffer.__srcImageData.data.set (cast buffer.data);
 				
 			}
 			
