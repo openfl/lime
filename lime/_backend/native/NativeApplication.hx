@@ -143,11 +143,11 @@ class NativeApplication {
 					parent.window.onGamepadButtonUp.dispatch (Gamepad.devices.get (gamepadEventInfo.id), gamepadEventInfo.button);
 				
 				case CONNECT:
-					
-					var gamepad = new Gamepad (gamepadEventInfo.id);
-					Gamepad.devices.set (gamepadEventInfo.id, gamepad);
-					parent.window.onGamepadConnect.dispatch (gamepad);
-				
+					if (!Gamepad.devices.exists(gamepadEventInfo.id))
+						var gamepad = new Gamepad (gamepadEventInfo.id);
+						Gamepad.devices.set (gamepadEventInfo.id, gamepad);
+						parent.window.onGamepadConnect.dispatch (gamepad);
+					}
 				case DISCONNECT:
 					
 					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
