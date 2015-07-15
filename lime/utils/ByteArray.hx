@@ -328,11 +328,11 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	
 	public static function readFile (path:String):ByteArray {
 		
-		#if html5
-		return null;
-		#else
-		return ByteArray.fromBytes (File.getBytes (path));
+		#if !html5
+		var data = lime_bytes_read_file (path);
+		if (data != null) return ByteArray.fromBytes (@:privateAccess new Bytes (data.length, data.b));
 		#end
+		return null;
 		
 	}
 	
@@ -1093,6 +1093,7 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	
 	
 	private static var lime_bytes_get_data_pointer = System.load ("lime", "lime_bytes_get_data_pointer", 1);
+	private static var lime_bytes_read_file = System.load ("lime", "lime_bytes_read_file", 1);
 	
 }
 

@@ -135,6 +135,14 @@ namespace lime {
 	}
 	
 	
+	value lime_bytes_read_file (value path) {
+		
+		Bytes data = Bytes (val_os_string (path));
+		return data.Value ();
+		
+	}
+	
+	
 	void lime_font_destroy (value handle) {
 		
 		Font *font = (Font*)(intptr_t)val_float (handle);
@@ -1104,6 +1112,7 @@ namespace lime {
 	DEFINE_PRIM (lime_application_update, 1);
 	DEFINE_PRIM (lime_audio_load, 1);
 	DEFINE_PRIM (lime_bytes_get_data_pointer, 1);
+	DEFINE_PRIM (lime_bytes_read_file, 1);
 	DEFINE_PRIM (lime_font_get_ascender, 1);
 	DEFINE_PRIM (lime_font_get_descender, 1);
 	DEFINE_PRIM (lime_font_get_family_name, 1);
