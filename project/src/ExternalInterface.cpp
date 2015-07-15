@@ -127,6 +127,23 @@ namespace lime {
 	}
 	
 	
+	value lime_bytes_from_data_pointer (value data, value length) {
+		
+		int size = val_int (length);
+		intptr_t ptr = (intptr_t)val_float (data);
+		Bytes bytes = Bytes (size);
+		
+		if (ptr) {
+			
+			memcpy (bytes.Data (), (const void*)ptr, size);
+			
+		}
+		
+		return bytes.Value ();
+		
+	}
+	
+	
 	value lime_bytes_get_data_pointer (value bytes) {
 		
 		Bytes data = Bytes (bytes);
@@ -1111,6 +1128,7 @@ namespace lime {
 	DEFINE_PRIM (lime_application_set_frame_rate, 2);
 	DEFINE_PRIM (lime_application_update, 1);
 	DEFINE_PRIM (lime_audio_load, 1);
+	DEFINE_PRIM (lime_bytes_from_data_pointer, 2);
 	DEFINE_PRIM (lime_bytes_get_data_pointer, 1);
 	DEFINE_PRIM (lime_bytes_read_file, 1);
 	DEFINE_PRIM (lime_font_get_ascender, 1);
