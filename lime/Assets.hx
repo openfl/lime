@@ -1141,7 +1141,7 @@ class AssetLibrary {
 	}
 	
 	
-	private function unload ():Void {
+	public function unload ():Void {
 		
 		
 		
