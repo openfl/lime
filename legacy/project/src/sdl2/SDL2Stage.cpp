@@ -1409,6 +1409,18 @@ void ProcessEvent(SDL_Event &inEvent)
             {
                 joystick.x = 3;
             }
+            else if (strcmp (gamepadstring, "Mayflash WIIMote PC Adapter") == 0)   //MayFlash WIIMote PC Adapter
+            {
+                joystick.x = 4;
+            }
+            else if (strcmp (gamepadstring, "Nintendo RVL-CNT-01-TR") == 0)   //Nintendo WIIMote MotionPlus, used directly
+            {
+                joystick.x = 5;
+            }
+            else if (strcmp (gamepadstring, "Nintendo RVL-CNT-01") == 0)      //Nintendo WIIMote w/o MotionPlus attachment, used directly
+            {
+                joystick.x = 6;
+            }
             else    //default (XBox 360, basically)
             {
                 joystick.x = 0;
