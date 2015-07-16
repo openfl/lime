@@ -343,7 +343,7 @@ class ImageCanvasUtil {
 	public static function sync (image:Image):Void {
 		
 		#if (js && html5)
-		if (image.dirty && image.type != DATA) {
+		if (image.dirty && image.buffer.__srcImageData != null && image.type != DATA) {
 			
 			image.buffer.__srcContext.putImageData (image.buffer.__srcImageData, 0, 0);
 			image.buffer.data = null;
