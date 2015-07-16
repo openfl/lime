@@ -2,6 +2,7 @@ package lime.graphics.utils;
 
 
 import haxe.ds.Vector;
+import haxe.io.Bytes;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.graphics.PixelFormat;
@@ -127,19 +128,47 @@ class ImageDataUtil {
 		#end
 		{
 			
+			var width = sourceRect.width;
+			var height = sourceRect.height;
+			
+			if (destPoint.x + width > image.width) {
+				
+				width = image.width - destPoint.x;
+				
+			}
+			
+			if (sourceRect.x + width > sourceImage.width) {
+				
+				width = sourceImage.width - sourceRect.x;
+				
+			}
+			
+			if (destPoint.y + height > image.height) {
+				
+				height = image.height - destPoint.y;
+				
+			}
+			
+			if (sourceRect.y + height > sourceImage.height) {
+				
+				height = sourceImage.height - sourceRect.y;
+				
+			}
+			
+			if (width <= 0 || height <= 0) return;
+			
 			var srcStride = Std.int (sourceImage.buffer.width * 4);
 			var srcPosition = Std.int (((sourceRect.x + sourceImage.offsetX) * 4) + (srcStride * (sourceRect.y + sourceImage.offsetY)) + srcIdx);
-			var srcRowOffset = srcStride - Std.int (4 * (sourceRect.width + sourceImage.offsetX));
-			var srcRowEnd = Std.int (4 * (sourceRect.x + sourceImage.offsetX + sourceRect.width));
+			var srcRowOffset = srcStride - Std.int (4 * width);
+			var srcRowEnd = Std.int (4 * (sourceRect.x + sourceImage.offsetX + width));
 			var srcData = sourceImage.buffer.data;
 			
 			var destStride = Std.int (image.buffer.width * 4);
 			var destPosition = Std.int (((destPoint.x + image.offsetX) * 4) + (destStride * (destPoint.y + image.offsetY)) + destIdx);
-			var destRowOffset = destStride - Std.int (4 * (sourceRect.width + image.offsetX));
-			var destRowEnd = Std.int (4 * (destPoint.x + image.offsetX + sourceRect.width));
+			var destRowOffset = destStride - Std.int (4 * width);
 			var destData = image.buffer.data;
 			
-			var length = Std.int (sourceRect.width * sourceRect.height);
+			var length = Std.int (width * height);
 			
 			for (i in 0...length) {
 				
@@ -151,11 +180,6 @@ class ImageDataUtil {
 				if ((srcPosition % srcStride) > srcRowEnd) {
 					
 					srcPosition += srcRowOffset;
-					
-				}
-				
-				if ((destPosition % destStride) > destRowEnd) {
-					
 					destPosition += destRowOffset;
 					
 				}
@@ -303,14 +327,14 @@ class ImageDataUtil {
 					
 					j = i * 4;
 					
-					#if js
+					//#if js
 					data[j + 0] = r;
 					data[j + 1] = g;
 					data[j + 2] = b;
 					data[j + 3] = a;
-					#else
-					data.setUInt32 (j, rgba);
-					#end
+					//#else
+					//data.setUInt32 (j, rgba);
+					//#end
 					
 				}
 				
@@ -330,14 +354,14 @@ class ImageDataUtil {
 						
 						offset = (row * stride) + (column * 4);
 						
-						#if js
+						//#if js
 						data[offset] = r;
 						data[offset + 1] = g;
 						data[offset + 2] = b;
 						data[offset + 3] = a;
-						#else
-						data.setUInt32 (offset, rgba);
-						#end
+						//#else
+						//data.setUInt32 (offset, rgba);
+						//#end
 						
 					}
 					
@@ -676,7 +700,7 @@ class ImageDataUtil {
 		#end
 		
 		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) byteArray = lime_image_data_util_get_pixels (image, rect, format); else
+		if (!System.disableCFFI) lime_image_data_util_get_pixels (image, rect, format, byteArray); else
 		#end
 		{
 			
@@ -1213,7 +1237,7 @@ class ImageDataUtil {
 	private static var lime_image_data_util_copy_pixels = System.load ("lime", "lime_image_data_util_copy_pixels", 5);
 	private static var lime_image_data_util_fill_rect = System.load ("lime", "lime_image_data_util_fill_rect", 3);
 	private static var lime_image_data_util_flood_fill = System.load ("lime", "lime_image_data_util_flood_fill", 4);
-	private static var lime_image_data_util_get_pixels = System.load ("lime", "lime_image_data_util_get_pixels", 3);
+	private static var lime_image_data_util_get_pixels = System.load ("lime", "lime_image_data_util_get_pixels", 4);
 	private static var lime_image_data_util_merge = System.load ("lime", "lime_image_data_util_merge", -1);
 	private static var lime_image_data_util_multiply_alpha = System.load ("lime", "lime_image_data_util_multiply_alpha", 1);
 	private static var lime_image_data_util_resize = System.load ("lime", "lime_image_data_util_resize", 4);

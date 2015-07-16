@@ -3,6 +3,7 @@ package lime._backend.native;
 
 import lime.graphics.cairo.Cairo;
 import lime.graphics.cairo.CairoFormat;
+import lime.graphics.cairo.CairoImageSurface;
 import lime.graphics.cairo.CairoSurface;
 import lime.graphics.CairoRenderContext;
 import lime.graphics.ConsoleRenderContext;
@@ -97,21 +98,23 @@ class NativeRenderer {
 			
 			if (cacheLock == null || cacheLock.pixels != lock.pixels || cacheLock.width != lock.width || cacheLock.height != lock.height) {
 				
-				if ( primarySurface != null )
+				if (primarySurface != null) {
+					
 					primarySurface.destroy ();
+					
+				}
 				
-				primarySurface = CairoSurface.createForData (lock.pixels, CairoFormat.ARGB32, lock.width, lock.height, lock.pitch);
+				primarySurface = CairoImageSurface.create (lock.pixels, CairoFormat.ARGB32, lock.width, lock.height, lock.pitch);
 				
 				if (cairo != null) {
 					
-					cairo.recreate( primarySurface );
+					cairo.recreate (primarySurface);
 					
 				} else {
 					
 					cairo = new Cairo (primarySurface);
 					
 				}
-				
 				
 			}
 			

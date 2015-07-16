@@ -57,12 +57,12 @@ class TextLayout {
 			
 			if (__buffer == null) {
 				
-				__buffer = new ByteArray ();
+				__buffer = new ByteArray (1);
 				__buffer.endian = "littleEndian";
 				
 			}
 			
-			lime_text_layout_position (__handle, font.src, size, text, __buffer);
+			var data = lime_text_layout_position (__handle, font.src, size, text, __buffer);
 			
 			if (__buffer.length > 4) {
 				
@@ -83,7 +83,7 @@ class TextLayout {
 					
 				}
 				
-			}			
+			}
 		}
 		
 		#end

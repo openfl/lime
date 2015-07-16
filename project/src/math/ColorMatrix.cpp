@@ -1,5 +1,5 @@
 #include <math/ColorMatrix.h>
-#include <utils/ByteArray.h>
+#include <utils/Bytes.h>
 
 
 namespace lime {
@@ -38,8 +38,8 @@ namespace lime {
 		}
 		
 		value buffer_value = val_field (colorMatrix, id_buffer);
-		ByteArray bytes = ByteArray (buffer_value);
-		float* src = (float*)bytes.Bytes ();
+		Bytes bytes = Bytes (buffer_value);
+		float* src = (float*)bytes.Data ();
 		
 		for (int i = 0; i < 20; i++) {
 			

@@ -104,7 +104,9 @@ class NativeApplication {
 		
 		#elseif (cpp || neko)
 		
-		return lime_application_exec (handle);
+		var result = lime_application_exec (handle);
+		__cleanup ();
+		return result;
 		
 		#else
 		
@@ -130,28 +132,35 @@ class NativeApplication {
 				
 				case AXIS_MOVE:
 					
-					parent.window.onGamepadAxisMove.dispatch (Gamepad.devices.get (gamepadEventInfo.id), gamepadEventInfo.axis, gamepadEventInfo.value);
+					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
+					if (gamepad != null) parent.window.onGamepadAxisMove.dispatch (gamepad, gamepadEventInfo.axis, gamepadEventInfo.value);
 				
 				case BUTTON_DOWN:
 					
-					parent.window.onGamepadButtonDown.dispatch (Gamepad.devices.get (gamepadEventInfo.id), gamepadEventInfo.button);
+					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
+					if (gamepad != null) parent.window.onGamepadButtonDown.dispatch (gamepad, gamepadEventInfo.button);
 				
 				case BUTTON_UP:
 					
-					parent.window.onGamepadButtonUp.dispatch (Gamepad.devices.get (gamepadEventInfo.id), gamepadEventInfo.button);
+					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
+					if (gamepad != null) parent.window.onGamepadButtonUp.dispatch (gamepad, gamepadEventInfo.button);
 				
 				case CONNECT:
 					
-					var gamepad = new Gamepad (gamepadEventInfo.id);
-					Gamepad.devices.set (gamepadEventInfo.id, gamepad);
-					parent.window.onGamepadConnect.dispatch (gamepad);
+					if (!Gamepad.devices.exists (gamepadEventInfo.id)) {
+						
+						var gamepad = new Gamepad (gamepadEventInfo.id);
+						Gamepad.devices.set (gamepadEventInfo.id, gamepad);
+						parent.window.onGamepadConnect.dispatch (gamepad);
+						
+					}
 				
 				case DISCONNECT:
 					
 					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
 					if (gamepad != null) gamepad.connected = false;
 					Gamepad.devices.remove (gamepadEventInfo.id);
-					parent.window.onGamepadDisconnect.dispatch (gamepad);
+					if (gamepad != null) parent.window.onGamepadDisconnect.dispatch (gamepad);
 				
 			}
 			

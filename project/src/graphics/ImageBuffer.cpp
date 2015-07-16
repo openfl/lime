@@ -5,7 +5,6 @@ namespace lime {
 	
 	
 	static int id_bitsPerPixel;
-	static int id_bpp;
 	static int id_buffer;
 	static int id_data;
 	static int id_format;
@@ -19,7 +18,7 @@ namespace lime {
 		
 		width = 0;
 		height = 0;
-		bpp = 4;
+		bitsPerPixel = 32;
 		format = RGBA;
 		data = 0;
 		transparent = false;
@@ -31,7 +30,6 @@ namespace lime {
 		
 		if (!init) {
 			
-			id_bpp = val_id ("bpp");
 			id_bitsPerPixel = val_id ("bitsPerPixel");
 			id_transparent = val_id ("transparent");
 			id_buffer = val_id ("buffer");
@@ -45,16 +43,12 @@ namespace lime {
 		
 		width = val_int (val_field (imageBuffer, id_width));
 		height = val_int (val_field (imageBuffer, id_height));
-		bpp = val_int (val_field (imageBuffer, id_bitsPerPixel));
+		bitsPerPixel = val_int (val_field (imageBuffer, id_bitsPerPixel));
 		format = (PixelFormat)val_int (val_field (imageBuffer, id_format));
 		transparent = val_bool (val_field (imageBuffer, id_transparent));
 		value data_value = val_field (imageBuffer, id_data);
 		value buffer_value = val_field (data_value, id_buffer);
-		
-		//if (val_is_buffer (buffer_value))
-			data = new ByteArray (buffer_value);
-		//else
-			//data = new ByteArray (data_value);
+		data = new Bytes (buffer_value);
 		
 	}
 	
@@ -74,24 +68,42 @@ namespace lime {
 			
 		}
 		
-		unsigned char *bytes = this->data->Bytes ();
+		int stride = Stride ();
+		unsigned char *bytes = this->data->Data ();
 		
 		for (int i = 0; i < height; i++) {
 			
-			memcpy (&bytes[(i + y) * this->width + x], &data[i * width], width * bpp);
+			memcpy (&bytes[(i + y) * this->width + x], &data[i * width], stride);
 			
 		}
 		
 	}
 	
 	
-	void ImageBuffer::Resize (int width, int height, int bpp) {
+	void ImageBuffer::Resize (int width, int height, int bitsPerPixel) {
 		
-		this->bpp = bpp;
+		this->bitsPerPixel = bitsPerPixel;
 		this->width = width;
 		this->height = height;
-		if (this->data) delete this->data;
-		this->data = new ByteArray (width * height * bpp);
+		
+		int stride = Stride ();
+		
+		if (!this->data) {
+			
+			this->data = new Bytes (height * stride);
+			
+		} else {
+			
+			this->data->Resize (height * stride);
+			
+		}
+		
+	}
+	
+	
+	int ImageBuffer::Stride () {
+		
+		return width * (((bitsPerPixel + 3) & ~0x3) >> 3);
 		
 	}
 	
@@ -100,7 +112,6 @@ namespace lime {
 		
 		if (!init) {
 			
-			id_bpp = val_id ("bpp");
 			id_bitsPerPixel = val_id ("bitsPerPixel");
 			id_transparent = val_id ("transparent");
 			id_buffer = val_id ("buffer");
@@ -115,9 +126,9 @@ namespace lime {
 		mValue = alloc_empty_object ();
 		alloc_field (mValue, id_width, alloc_int (width));
 		alloc_field (mValue, id_height, alloc_int (height));
-		alloc_field (mValue, id_bpp, alloc_int (bpp));
+		alloc_field (mValue, id_bitsPerPixel, alloc_int (bitsPerPixel));
+		alloc_field (mValue, id_data, data ? data->Value () : alloc_null ());
 		alloc_field (mValue, id_transparent, alloc_bool (transparent));
-		alloc_field (mValue, id_data, data ? data->mValue : alloc_null ());
 		alloc_field (mValue, id_format, alloc_int (format));
 		return mValue;
 		

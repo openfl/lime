@@ -188,10 +188,8 @@ namespace nme
 			{
 				if (fread(bytes, 1, len, f))
 				{
-					fclose(f);
 					format = determineFormatFromBytes((float*)bytes, len);
 				}
-				
 				fclose(f);
 			}
 			
@@ -222,6 +220,7 @@ namespace nme
 			if (pInfo == NULL)
 			{
 				LOG_SOUND("FAILED TO READ OGG SOUND INFO, IS THIS EVEN AN OGG FILE?\n");
+				ov_clear(&oggFile);
 				return false;
 			}
 			
@@ -459,6 +458,7 @@ namespace nme
 				riff_header.format[3] != 'E'))
 			{
 				LOG_SOUND("Invalid RIFF or WAVE Header!\n");
+				fclose(f);
 				return false;
 			}
 			
@@ -475,6 +475,7 @@ namespace nme
 				if (result != 1)
 				{
 					LOG_SOUND("Invalid Wave Format!\n");
+					fclose(f);
 					return false;
 				}
 				
@@ -510,6 +511,7 @@ namespace nme
 				if (result != 1)
 				{
 					LOG_SOUND("Invalid Wav Data Header!\n");
+					fclose(f);
 					return false;
 				}
 				
@@ -536,6 +538,7 @@ namespace nme
 			if (!fread(data, wave_data.subChunkSize, 1, f))
 			{
 				LOG_SOUND("error loading WAVE data into struct!\n");
+				fclose(f);
 				return false;
 			}   
 			

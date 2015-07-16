@@ -40,3 +40,6 @@
 [submodule "project/lib/pixman"]
 	path = project/lib/pixman
 	url = https://github.com/native-toolkit/pixman
+[submodule "project/lib/lzma"]
+	path = project/lib/lzma
+	url = https://github.com/native-toolkit/lzma

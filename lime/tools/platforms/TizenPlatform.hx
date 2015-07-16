@@ -13,6 +13,7 @@ import lime.tools.helpers.ProcessHelper;
 import lime.tools.helpers.TizenHelper;
 import lime.project.AssetType;
 import lime.project.HXProject;
+import lime.project.Icon;
 import lime.project.PlatformTarget;
 import sys.io.File;
 import sys.FileSystem;
@@ -180,7 +181,15 @@ class TizenPlatform extends PlatformTarget {
 		
 		PathHelper.mkdir (destination + "shared/res/screen-density-xhigh");
 		
-		if (IconHelper.createIcon (project.icons, 117, 117, PathHelper.combine (destination + "shared/res/screen-density-xhigh", "mainmenu.png"))) {
+		var icons = project.icons;
+		
+		if (icons.length == 0) {
+			
+			icons = [ new Icon (PathHelper.findTemplate (project.templatePaths, "default/icon.svg")) ];
+			
+		}
+		
+		if (IconHelper.createIcon (icons, 117, 117, PathHelper.combine (destination + "shared/res/screen-density-xhigh", "mainmenu.png"))) {
 			
 			context.APP_ICON = "mainmenu.png";
 			

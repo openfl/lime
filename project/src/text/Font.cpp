@@ -389,20 +389,20 @@ namespace lime {
 						
 					} else {
 						
-						ByteArray data = ByteArray (resource->path);
-						unsigned char *buffer = (unsigned char*)malloc (data.Size ());
-						memcpy (buffer, data.Bytes (), data.Size ());
+						Bytes data = Bytes (resource->path);
+						unsigned char *buffer = (unsigned char*)malloc (data.Length ());
+						memcpy (buffer, data.Data (), data.Length ());
 						lime::fclose (file);
 						file = 0;
-						error = FT_New_Memory_Face (library, buffer, data.Size (), faceIndex, &face);
+						error = FT_New_Memory_Face (library, buffer, data.Length (), faceIndex, &face);
 						
 					}
 					
 				} else {
 					
-					unsigned char *buffer = (unsigned char*)malloc (resource->data->Size ());
-					memcpy (buffer, resource->data->Bytes (), resource->data->Size ());
-					error = FT_New_Memory_Face (library, buffer, resource->data->Size (), faceIndex, &face);
+					unsigned char *buffer = (unsigned char*)malloc (resource->data->Length ());
+					memcpy (buffer, resource->data->Data (), resource->data->Length ());
+					error = FT_New_Memory_Face (library, buffer, resource->data->Length (), faceIndex, &face);
 					
 				}
 				
@@ -781,7 +781,7 @@ namespace lime {
 	}
 	
 	
-	int Font::RenderGlyph (int index, ByteArray *bytes, int offset) {
+	int Font::RenderGlyph (int index, Bytes *bytes, int offset) {
 		
 		if (FT_Load_Glyph ((FT_Face)face, index, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0) {
 			
@@ -797,13 +797,13 @@ namespace lime {
 				
 				uint32_t size = (4 * 5) + (width * height);
 				
-				if (bytes->Size() < size + offset) {
+				if (bytes->Length () < size + offset) {
 					
 					bytes->Resize (size + offset);
 					
 				}
 				
-				GlyphImage *data = (GlyphImage*)(bytes->Bytes () + offset);
+				GlyphImage *data = (GlyphImage*)(bytes->Data () + offset);
 				
 				data->index = index;
 				data->width = width;
@@ -830,7 +830,7 @@ namespace lime {
 	}
 	
 	
-	int Font::RenderGlyphs (value indices, ByteArray *bytes) {
+	int Font::RenderGlyphs (value indices, Bytes *bytes) {
 		
 		int offset = 0;
 		int totalOffset = 4;
@@ -853,7 +853,7 @@ namespace lime {
 		
 		if (count > 0) {
 			
-			*(bytes->Bytes ()) = count;
+			*(uint32_t*)(bytes->Data ()) = count;
 			
 		}
 		
@@ -869,6 +869,7 @@ namespace lime {
 		
 		FT_Set_Char_Size ((FT_Face)face, (int)(size*64), (int)(size*64), hdpi, vdpi);
 		mSize = size;
+		
 	}
 	
 	

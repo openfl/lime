@@ -1,3 +1,82 @@
+2.4.9 (07/13/2015)
+------------------
+
+* Added lime.system.ThreadPool
+* Added lime.utils.Log
+* Added image.scroll
+* Added event.has
+* Improved performance of Flash target logging
+* Improved "lime upgrade" when Git is not in the PATH
+* Improved image.clone when using canvas
+* Updated for compatibility with newer lime-samples
+* Updated to use a default icon when none is available
+* Updated Assets to use a ThreadPool for asynchronous loads
+* Updated to pass -verbose during "run" when in verbose mode
+* Fixed an issue when tracing null typed arrays
+* Fixed image.copyChannel when clipping is necessary
+* Fixed use of cURL basic types as Int
+* Improved support for asynchronous SSL requests (legacy)
+
+
+2.4.8 (07/09/2015)
+------------------
+
+* Improved lime.system.BackgroundWorker onComplete
+* Improved native bytes to guard against premature GC
+* Fixed ENABLE_BITCODE when targeting older iOS versions
+* Fixed possible double mouse events on iOS
+* Fixed embedded font support on iOS
+* Fixed "lime rebuild ios" with some versions of HXCPP
+* Fixed mouse middle/right/wheel events on desktop (legacy)
+
+
+2.4.7 (07/06/2015)
+------------------
+
+* Fixed regression in HTML5 typed array support
+
+
+2.4.6 (07/06/2015)
+------------------
+
+* Added lime.system.BackgroundWorker for easy threads
+* Made Assets loadImage/loadBytes asynchronous on native
+* Removed the ByteArray \__init__ and matching CFFI functions
+* Improved the help documentation when using "lime create"
+* Fixed a crash that could occur when using Bytes
+* Fixed audioSource.play on native when there is no data
+* Fixed event.remove when using during an event dispatch
+* Fixed the cleanup of OpenAL when closing applications
+* Fixed a crash that could occur using cURL on Mac
+* Fixed static builds for the Mac target
+
+
+2.4.5 (07/02/2015)
+------------------
+
+* Changed to a new, better Haxe typed array implementation
+* Added an improved Bytes (internal) for native targets
+* Added lime.utils.LZMA for LZMA compression/decompression
+* Expanded support for gamepad devices
+* Improved desktop multitouch support
+* Exposed decodeBytes/decodeFile for PNG and JPG formats
+* Added support for header-only decoding of PNG or JPG
+* Improved support for Flash log output
+* Improved the "update" command to support GIT submodules
+* Restored previous rendering behavior on high-DPI Apple devices
+* Fixed support for non-embedded assets on HTML5
+* Fixed other cases in the Assets loading code on HTML5
+* Fixed imageBuffer.bitsPerPixel to default 32, not 4 (bytes)
+* Updated webgl-debug.js for use with HTML5 -Dwebgl -debug
+* Fixed a regression in middle and right click events (legacy)
+* Fixed possible file handle leaks in the audio code (legacy)
+* Added DPI-aware keyboard height for iOS (legacy)
+* Added a hack to identify the type of connected gamepads (legacy)
+* Fixed the sourceRect coordinates for blitChannel (legacy)
+* Added screen resolution width/height for BlackBerry (legacy)
+* Fixed a possible overflow in the LZMA buffer (legacy)
+
+
 2.4.4 (06/08/2015)
 ------------------
 

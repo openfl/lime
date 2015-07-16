@@ -4,7 +4,7 @@
 
 #include <hx/CFFI.h>
 #include <graphics/PixelFormat.h>
-#include <utils/ByteArray.h>
+#include <utils/Bytes.h>
 
 
 namespace lime {
@@ -20,11 +20,12 @@ namespace lime {
 			~ImageBuffer ();
 			
 			void Blit (const unsigned char *data, int x, int y, int width, int height);
-			void Resize (int width, int height, int bpp = 4);
+			void Resize (int width, int height, int bitsPerPixel = 32);
+			int Stride ();
 			value Value ();
 			
-			int bpp;
-			ByteArray *data;
+			int bitsPerPixel;
+			Bytes *data;
 			PixelFormat format;
 			int height;
 			int width;

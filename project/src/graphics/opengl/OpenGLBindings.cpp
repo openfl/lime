@@ -1,5 +1,5 @@
 #include <hx/CFFI.h>
-#include <utils/ByteArray.h>
+#include <utils/Bytes.h>
 #include "OpenGL.h"
 #include "OpenGLBindings.h"
 #include <string>
@@ -126,9 +126,9 @@ namespace lime {
 		
 		if (len == 0) return alloc_null ();
 		
-		ByteArray bytes (inByteBuffer);
-		const unsigned char *data = bytes.Bytes ();
-		int size = bytes.Size ();
+		Bytes bytes (inByteBuffer);
+		const unsigned char *data = bytes.Data ();
+		int size = bytes.Length ();
 		
 		if (len + start > size) {
 			
@@ -149,10 +149,10 @@ namespace lime {
 		
 		if (len == 0) return alloc_null ();
 		
-		ByteArray bytes (inByteBuffer);
+		Bytes bytes (inByteBuffer);
 		
-		const unsigned char *data = bytes.Bytes ();
-		int size = bytes.Size ();
+		const unsigned char *data = bytes.Data ();
+		int size = bytes.Length ();
 		
 		if (len + start > size) {
 			
@@ -233,12 +233,12 @@ namespace lime {
 		unsigned char *data = 0;
 		int size = 0;
 		
-		ByteArray bytes (arg[aBuffer]);
+		Bytes bytes (arg[aBuffer]);
 		
-		if (!val_is_null (bytes.mValue)) {
+		if (bytes.Length ()) {
 			
-			data = bytes.Bytes () + val_int (arg[aOffset]);
-			size = bytes.Size () - val_int (arg[aOffset]);
+			data = bytes.Data () + val_int (arg[aOffset]);
+			size = bytes.Length () - val_int (arg[aOffset]);
 			
 		}
 		
@@ -255,12 +255,12 @@ namespace lime {
 		unsigned char *data = 0;
 		int size = 0;
 		
-		ByteArray bytes (arg[aBuffer]);
+		Bytes bytes (arg[aBuffer]);
 		
-		if (!val_is_null (bytes.mValue)) {
+		if (bytes.Length ()) {
 			
-			data = bytes.Bytes() + val_int (arg[aOffset]);
-			size = bytes.Size() - val_int (arg[aOffset]);
+			data = bytes.Data () + val_int (arg[aOffset]);
+			size = bytes.Length () - val_int (arg[aOffset]);
 			
 		}
 		
@@ -1178,11 +1178,11 @@ namespace lime {
 		enum { aX, aY, aWidth, aHeight, aFormat, aType, aBuffer, aOffset };
 		
 		unsigned char *data = 0;
-		ByteArray bytes (arg[aBuffer]);
+		Bytes bytes (arg[aBuffer]);
 		
-		if (bytes.mValue) {
+		if (bytes.Length ()) {
 			
-			data = bytes.Bytes () + val_int (arg[aOffset]);
+			data = bytes.Data () + val_int (arg[aOffset]);
 			
 		}
 		
@@ -1282,11 +1282,11 @@ namespace lime {
 		
 		unsigned char *data = 0;
 		
-		ByteArray bytes (arg[aBuffer]);
+		Bytes bytes (arg[aBuffer]);
 		
-		if (!val_is_null (bytes.mValue)) {
+		if (bytes.Length ()) {
 			
-			data = bytes.Bytes () + val_int (arg[aOffset]);
+			data = bytes.Data () + val_int (arg[aOffset]);
 			
 		}
 		
@@ -1317,11 +1317,11 @@ namespace lime {
 		enum { aTarget, aLevel, aXOffset, aYOffset, aWidth, aHeight, aFormat, aType, aBuffer, aOffset };
 		
 		unsigned char *data = 0;
-		ByteArray bytes (arg[aBuffer]);
+		Bytes bytes (arg[aBuffer]);
 		
-		if (!val_is_null (bytes.mValue)) {
+		if (bytes.Length ()) {
 			
-			data = bytes.Bytes () + val_int (arg[aOffset]);
+			data = bytes.Data () + val_int (arg[aOffset]);
 			
 		}
 		
@@ -1337,9 +1337,9 @@ namespace lime {
 		int count = val_int (inCount);
 		bool trans = val_bool (inTranspose);
 		
-		ByteArray bytes (inBytes);
-		int size = bytes.Size ();
-		const float *data = (float *)bytes.Bytes ();
+		Bytes bytes (inBytes);
+		int size = bytes.Length ();
+		const float *data = (float *)bytes.Data ();
 		int nbElems = size / sizeof (float);
 		
 		switch (count) {
@@ -1367,9 +1367,9 @@ namespace lime {
 		
 		int loc = val_int (inLocation);
 		
-		ByteArray bytes (inByteBuffer);
-		int size = bytes.Size ();
-		const float *data = (float *)bytes.Bytes ();
+		Bytes bytes (inByteBuffer);
+		int size = bytes.Length ();
+		const float *data = (float *)bytes.Data ();
 		int nbElems = size / sizeof (float);
 		
 		glUniform1fv (loc, nbElems, data);
@@ -1391,9 +1391,9 @@ namespace lime {
 		
 		int loc = val_int (inLocation);
 		
-		ByteArray bytes (inByteBuffer);
-		int size = bytes.Size ();
-		const int *data = (int *)bytes.Bytes ();
+		Bytes bytes (inByteBuffer);
+		int size = bytes.Length ();
+		const int *data = (int *)bytes.Data ();
 		int nbElems = size / sizeof (int);
 		
 		glUniform1iv (loc, nbElems, data);
@@ -1415,9 +1415,9 @@ namespace lime {
 		
 		int loc = val_int (inLocation);
 		
-		ByteArray bytes (inByteBuffer);
-		int size = bytes.Size ();
-		const float *data = (float *)bytes.Bytes ();
+		Bytes bytes (inByteBuffer);
+		int size = bytes.Length ();
+		const float *data = (float *)bytes.Data ();
 		int nbElems = size / sizeof (float);
 		
 		glUniform2fv (loc, nbElems >> 1, data);
@@ -1439,9 +1439,9 @@ namespace lime {
 		
 		int loc = val_int (inLocation);
 		
-		ByteArray bytes (inByteBuffer);
-		int size = bytes.Size ();
-		const int *data = (int *)bytes.Bytes ();
+		Bytes bytes (inByteBuffer);
+		int size = bytes.Length ();
+		const int *data = (int *)bytes.Data ();
 		int nbElems = size / sizeof (int);
 		
 		glUniform2iv (loc, nbElems >> 1, data);
@@ -1463,9 +1463,9 @@ namespace lime {
 		
 		int loc = val_int (inLocation);
 		
-		ByteArray bytes (inByteBuffer);
-		int size = bytes.Size ();
-		const float *data = (float *)bytes.Bytes ();
+		Bytes bytes (inByteBuffer);
+		int size = bytes.Length ();
+		const float *data = (float *)bytes.Data ();
 		int nbElems = size / sizeof (float);
 		
 		glUniform3fv (loc, nbElems / 3, data);
@@ -1487,9 +1487,9 @@ namespace lime {
 		
 		int loc = val_int (inLocation);
 		
-		ByteArray bytes (inByteBuffer);
-		int size = bytes.Size ();
-		const int *data = (int *)bytes.Bytes ();
+		Bytes bytes (inByteBuffer);
+		int size = bytes.Length ();
+		const int *data = (int *)bytes.Data ();
 		int nbElems = size / sizeof (int);
 		
 		glUniform3iv (loc, nbElems / 3, data);
@@ -1511,9 +1511,9 @@ namespace lime {
 		
 		int loc = val_int (inLocation);
 		
-		ByteArray bytes (inByteBuffer);
-		int size = bytes.Size ();
-		const float *data = (float *)bytes.Bytes ();
+		Bytes bytes (inByteBuffer);
+		int size = bytes.Length ();
+		const float *data = (float *)bytes.Data ();
 		int nbElems = size / sizeof (float);
 		
 		glUniform4fv (loc, nbElems >> 2, data);
@@ -1535,9 +1535,9 @@ namespace lime {
 		
 		int loc = val_int (inLocation);
 		
-		ByteArray bytes (inByteBuffer);
-		int size = bytes.Size ();
-		const int *data = (int *)bytes.Bytes ();
+		Bytes bytes (inByteBuffer);
+		int size = bytes.Length ();
+		const int *data = (int *)bytes.Data ();
 		int nbElems = size / sizeof (int);
 		
 		glUniform4iv (loc, nbElems >> 2, data);
@@ -1614,9 +1614,9 @@ namespace lime {
 		
 		int loc = val_int (inLocation);
 		
-		ByteArray bytes (inByteBuffer);
-		int size = bytes.Size ();
-		const float *data = (float *)bytes.Bytes ();
+		Bytes bytes (inByteBuffer);
+		int size = bytes.Length ();
+		const float *data = (float *)bytes.Data ();
 		
 		glVertexAttrib1fv (loc, data);
 		
@@ -1637,9 +1637,9 @@ namespace lime {
 		
 		int loc = val_int (inLocation);
 		
-		ByteArray bytes (inByteBuffer);
-		int size = bytes.Size ();
-		const float *data = (float *)bytes.Bytes ();
+		Bytes bytes (inByteBuffer);
+		int size = bytes.Length ();
+		const float *data = (float *)bytes.Data ();
 		
 		glVertexAttrib2fv (loc, data);
 		
@@ -1660,9 +1660,9 @@ namespace lime {
 		
 		int loc = val_int (inLocation);
 		
-		ByteArray bytes (inByteBuffer);
-		int size = bytes.Size ();
-		const float *data = (float *)bytes.Bytes ();
+		Bytes bytes (inByteBuffer);
+		int size = bytes.Length ();
+		const float *data = (float *)bytes.Data ();
 		
 		glVertexAttrib3fv (loc, data);
 		
@@ -1683,9 +1683,9 @@ namespace lime {
 		
 		int loc = val_int (inLocation);
 		
-		ByteArray bytes (inByteBuffer);
-		int size = bytes.Size ();
-		const float *data = (float *)bytes.Bytes ();
+		Bytes bytes (inByteBuffer);
+		int size = bytes.Length ();
+		const float *data = (float *)bytes.Data ();
 		
 		glVertexAttrib4fv (loc, data);
 		

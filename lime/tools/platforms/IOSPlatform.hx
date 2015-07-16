@@ -23,6 +23,7 @@ import lime.project.Asset;
 import lime.project.AssetType;
 import lime.project.Haxelib;
 import lime.project.HXProject;
+import lime.project.Icon;
 import lime.project.Keystore;
 import lime.project.NDLL;
 import lime.project.Platform;
@@ -222,6 +223,7 @@ class IOSPlatform extends PlatformTarget {
 			
 		}
 		
+		context.ENABLE_BITCODE = (project.config.getFloat ("ios.deployment", 5.1) >= 6);
 		context.IOS_COMPILER = project.config.getString ("ios.compiler", "clang");
 		context.CPP_BUILD_LIBRARY = project.config.getString ("cpp.buildLibrary", "hxcpp");
 		
@@ -326,12 +328,12 @@ class IOSPlatform extends PlatformTarget {
 		
 		var commands = [];
 		
-		if (armv6) commands.push ([ "-Diphoneos", "-DHXCPP_CPP11" ]);
-		if (armv7) commands.push ([ "-Diphoneos", "-DHXCPP_CPP11", "-DHXCPP_ARMV7" ]);
-		if (armv7s) commands.push ([ "-Diphoneos", "-DHXCPP_CPP11", "-DHXCPP_ARMV7S" ]);
-		if (arm64) commands.push ([ "-Diphoneos", "-DHXCPP_CPP11", "-DHXCPP_ARM64" ]);
-		if (i386) commands.push ([ "-Diphonesim", "-DHXCPP_CPP11" ]);
-		if (x86_64) commands.push ([ "-Diphonesim", "-DHXCPP_M64", "-DHXCPP_CPP11" ]);
+		if (armv6) commands.push ([ "-Dios", "-DHXCPP_CPP11" ]);
+		if (armv7) commands.push ([ "-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARMV7" ]);
+		if (armv7s) commands.push ([ "-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARMV7S" ]);
+		if (arm64) commands.push ([ "-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARM64" ]);
+		if (i386) commands.push ([ "-Dios", "-Dsimulator", "-DHXCPP_CPP11" ]);
+		if (x86_64) commands.push ([ "-Dios", "-Dsimulator", "-DHXCPP_M64", "-DHXCPP_CPP11" ]);
 		
 		CPPHelper.rebuild (project, commands);
 		
@@ -383,15 +385,23 @@ class IOSPlatform extends PlatformTarget {
 			{ name : "Icon-76@2x.png", size : 152 },
 			{ name : "Icon-60@3x.png", size : 180 },
 		];
-
+		
 		context.HAS_ICON = true;
 		
 		var iconPath = PathHelper.combine (projectDirectory, "Images.xcassets/AppIcon.appiconset");
 		PathHelper.mkdir (iconPath);
 		
+		var icons = project.icons;
+		
+		if (icons.length == 0) {
+			
+			icons = [ new Icon (PathHelper.findTemplate (project.templatePaths, "default/icon.svg")) ];
+			
+		}
+		
 		for (iconSize in iconSizes) {
 			
-			if (!IconHelper.createIcon (project.icons, iconSize.size, iconSize.size, PathHelper.combine (iconPath, iconSize.name))) {
+			if (!IconHelper.createIcon (icons, iconSize.size, iconSize.size, PathHelper.combine (iconPath, iconSize.name))) {
 				
 				context.HAS_ICON = false;
 				

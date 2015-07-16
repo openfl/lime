@@ -3,6 +3,7 @@ package lime.graphics;
 
 import haxe.crypto.BaseCode;
 import haxe.io.Bytes;
+import haxe.io.BytesData;
 import haxe.io.BytesInput;
 import haxe.io.BytesOutput;
 import lime.app.Application;
@@ -14,6 +15,7 @@ import lime.graphics.utils.ImageDataUtil;
 import lime.math.ColorMatrix;
 import lime.math.Rectangle;
 import lime.math.Vector2;
+import lime.utils.ArrayBuffer;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 import lime.system.System;
@@ -155,8 +157,26 @@ class Image {
 	
 	public function clone ():Image {
 		
-		var image = new Image (buffer.clone (), offsetX, offsetY, width, height, null, type);
-		return image;
+		if (buffer != null) {
+			
+			if (type == CANVAS && buffer.__srcImage == null) {
+				
+				ImageCanvasUtil.convertToCanvas (this);
+				ImageCanvasUtil.sync (this);
+				buffer.data = null;
+				buffer.__srcImageData = null;
+				
+			}
+			
+			var image = new Image (buffer.clone (), offsetX, offsetY, width, height, null, type);
+			image.dirty = dirty;
+			return image;
+			
+		} else {
+			
+			return new Image (null, offsetX, offsetY, width, height, null, type);
+			
+		}
 		
 	}
 	
@@ -700,6 +720,37 @@ class Image {
 	}
 	
 	
+	public function scroll (x:Int, y:Int):Void {
+		
+		if (buffer == null) return;
+		
+		switch (type) {
+			
+			case CANVAS:
+				
+				ImageCanvasUtil.scroll (this, x, y);
+			
+			case DATA:
+				
+				//#if (js && html5)
+				//ImageCanvasUtil.convertToData (this);
+				//#end
+				
+				//ImageDataUtil.scroll (this, x, y);
+				
+				copyPixels (this, rect, new Vector2 (x, y));
+			
+			case FLASH:
+				
+				buffer.__srcBitmapData.scroll (x + offsetX, y + offsetX);
+			
+			default:
+			
+		}
+		
+	}
+	
+	
 	public function setPixel (x:Int, y:Int, color:Int, format:PixelFormat = null):Void {
 		
 		if (buffer == null || x < 0 || y < 0 || x >= width || y >= height) return;
@@ -946,7 +997,7 @@ class Image {
 			
 			if (data != null) {
 				
-				__fromImageBuffer (new ImageBuffer (new UInt8Array (data.data), data.width, data.height, data.bpp));
+				__fromImageBuffer (new ImageBuffer (new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b)), data.width, data.height, data.bitsPerPixel));
 				
 				if (onload != null) {
 					
@@ -1010,14 +1061,12 @@ class Image {
 			if (#if (sys && (!disable_cffi || !format) && !java) true #else false #end && !System.disableCFFI) {
 				
 				var data = lime_image_load (path);
+				
 				if (data != null) {
-					var ba:ByteArray = cast(data.data, ByteArray);
-					#if nodejs
-					var u8a = ba.byteView;
-					#else
-					var u8a = new UInt8Array(ba);
-					#end
-					buffer = new ImageBuffer (u8a, data.width, data.height, data.bpp);
+					
+					var u8a = new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b));
+					buffer = new ImageBuffer (u8a, data.width, data.height, data.bitsPerPixel);
+					
 				}
 				
 			}
@@ -1034,7 +1083,7 @@ class Image {
 					var data = Tools.extract32 (png);
 					var header = Tools.getHeader (png);
 					
-					var data = new UInt8Array (ByteArray.fromBytes (Bytes.ofData (data.getData ())));
+					var data = new UInt8Array (Bytes.ofData (data.getData ()));
 					var length = header.width * header.height;
 					var b, g, r, a;
 					
@@ -1155,7 +1204,7 @@ class Image {
 			#elseif flash
 				
 				var pixels = buffer.__srcBitmapData.getPixels (buffer.__srcBitmapData.rect);
-				buffer.data = new UInt8Array (pixels);
+				buffer.data = new UInt8Array (Bytes.ofData (pixels));
 				
 			#end
 			

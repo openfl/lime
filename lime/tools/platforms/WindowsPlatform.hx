@@ -3,11 +3,13 @@ package lime.tools.platforms;
 
 import haxe.io.Path;
 import haxe.Template;
+import lime.project.Icon;
 import lime.tools.helpers.AssetHelper;
 import lime.tools.helpers.CPPHelper;
 import lime.tools.helpers.DeploymentHelper;
 import lime.tools.helpers.FileHelper;
 import lime.tools.helpers.IconHelper;
+import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.NekoHelper;
 import lime.tools.helpers.NodeJSHelper;
 import lime.tools.helpers.PathHelper;
@@ -94,6 +96,14 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 		
+		var icons = project.icons;
+		
+		if (icons.length == 0) {
+			
+			icons = [ new Icon (PathHelper.findTemplate (project.templatePaths, "default/icon.svg")) ];
+			
+		}
+		
 		//IconHelper.createIcon (project.icons, 32, 32, PathHelper.combine (applicationDirectory, "icon.png"));
 		
 		if (targetType == "neko") {
@@ -102,7 +112,7 @@ class WindowsPlatform extends PlatformTarget {
 			
 			var iconPath = PathHelper.combine (applicationDirectory, "icon.ico");
 			
-			if (!IconHelper.createWindowsIcon (project.icons, iconPath)) {
+			if (!IconHelper.createWindowsIcon (icons, iconPath)) {
 				
 				iconPath = null;
 				
@@ -149,7 +159,7 @@ class WindowsPlatform extends PlatformTarget {
 			
 			var iconPath = PathHelper.combine (applicationDirectory, "icon.ico");
 			
-			if (IconHelper.createWindowsIcon (project.icons, iconPath) && PlatformHelper.hostPlatform == WINDOWS) {
+			if (IconHelper.createWindowsIcon (icons, iconPath) && PlatformHelper.hostPlatform == WINDOWS) {
 				
 				var templates = [ PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates" ].concat (project.templatePaths);
 				ProcessHelper.runCommand ("", PathHelper.findTemplate (templates, "bin/ReplaceVistaIcon.exe"), [ executablePath, iconPath, "1" ], true, true);
@@ -231,6 +241,12 @@ class WindowsPlatform extends PlatformTarget {
 	public override function run ():Void {
 		
 		var arguments = additionalArguments.copy ();
+		
+		if (LogHelper.verbose) {
+			
+			arguments.push ("-verbose");
+			
+		}
 		
 		if (targetType == "nodejs") {
 			

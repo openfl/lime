@@ -136,7 +136,7 @@ class HXProject {
 				
 				defaultWindow.width = 0;
 				defaultWindow.height = 0;
-				defaultWindow.fps = 0;
+				defaultWindow.fps = 60;
 				
 			case ANDROID, BLACKBERRY, IOS, TIZEN, WEBOS:
 				

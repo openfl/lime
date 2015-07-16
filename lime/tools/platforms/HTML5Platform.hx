@@ -171,6 +171,12 @@ class HTML5Platform extends PlatformTarget {
 			
 		}
 		
+		if (LogHelper.verbose) {
+			
+			project.haxedefs.set ("verbose", 1);
+			
+		}
+		
 		var context = project.templateContext;
 		
 		context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background, 6);

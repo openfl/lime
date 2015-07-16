@@ -1,6 +1,7 @@
 package lime.graphics.format;
 
 
+import haxe.io.Bytes;
 import lime.graphics.Image;
 import lime.system.System;
 import lime.utils.ByteArray;
@@ -67,7 +68,9 @@ class PNG {
 		
 		if (!System.disableCFFI) {
 			
-			return lime_image_encode (image.buffer, 0, 0);
+			var data = lime_image_encode (image.buffer, 0, 0);
+			var bytes = @:privateAccess new Bytes (data.length, data.b);
+			return ByteArray.fromBytes (bytes);
 			
 		}
 		
@@ -82,7 +85,7 @@ class PNG {
 				#if flash
 				var sourceBytes = Bytes.ofData (image.buffer.data.getByteBuffer ());
 				#else
-				var sourceBytes = image.buffer.data.getByteBuffer ();
+				var sourceBytes = cast image.buffer.data;
 				#end
 				
 				var sourceIndex:Int, index:Int;
@@ -134,7 +137,7 @@ class PNG {
 	#if (cpp || neko || nodejs)
 	private static var lime_png_decode_bytes:ByteArray -> Bool -> Dynamic = System.load ("lime", "lime_png_decode_bytes", 2);
 	private static var lime_png_decode_file = System.load ("lime", "lime_png_decode_file", 2);
-	private static var lime_image_encode:ImageBuffer -> Int -> Int -> ByteArray = System.load ("lime", "lime_image_encode", 3);
+	private static var lime_image_encode = System.load ("lime", "lime_image_encode", 3);
 	#end
 	
 	

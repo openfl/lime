@@ -62,7 +62,7 @@
 	<haxelib name="hxcpp" if="setup" />
 	<haxelib name="lime-samples" if="setup" />
 	
-	<sample path="${haxelib:lime-samples}" if="create" />
+	<include haxelib="lime-samples" if="create" />
 	
 	<section if="rebuild">
 		

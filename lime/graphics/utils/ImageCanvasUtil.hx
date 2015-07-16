@@ -46,6 +46,11 @@ class ImageCanvasUtil {
 			
 			buffer.__srcImage = null;
 			
+		} else if (buffer.data != null && buffer.__srcCanvas == null) {
+			
+			createCanvas (image, buffer.width, buffer.height);
+			createImageData (image);
+			
 		}
 		
 	}
@@ -152,14 +157,28 @@ class ImageCanvasUtil {
 	
 	public static function createImageData (image:Image):Void {
 		
+		#if (js && html5)
+		
 		var buffer = image.buffer;
 		
-		if (buffer.data == null) {
+		if (buffer.__srcImageData == null) {
 			
-			buffer.__srcImageData = buffer.__srcContext.getImageData (0, 0, buffer.width, buffer.height);
-			buffer.data = new UInt8Array (buffer.__srcImageData.data.buffer);
+			if (buffer.data == null) {
+				
+				buffer.__srcImageData = buffer.__srcContext.getImageData (0, 0, buffer.width, buffer.height);
+				
+			} else {
+				
+				buffer.__srcImageData = buffer.__srcContext.createImageData (buffer.width, buffer.height);
+				buffer.__srcImageData.data.set (cast buffer.data);
+				
+			}
+			
+			buffer.data = new UInt8Array (cast buffer.__srcImageData.data.buffer);
 			
 		}
+		
+		#end
 		
 	}
 	
@@ -278,6 +297,19 @@ class ImageCanvasUtil {
 	}
 	
 	
+	public static function scroll (image:Image, x:Int, y:Int):Void {
+		
+		if ((x % image.width == 0) && (y % image.height == 0)) return;
+		
+		convertToCanvas (image);
+		sync (image);
+		
+		image.buffer.__srcContext.clearRect (x, y, image.width, image.height);
+		image.buffer.__srcContext.drawImage (image.buffer.__srcCanvas, x, y);
+		
+	}
+	
+	
 	public static function setPixel (image:Image, x:Int, y:Int, color:Int, format:PixelFormat):Void {
 		
 		convertToCanvas (image);
@@ -311,7 +343,7 @@ class ImageCanvasUtil {
 	public static function sync (image:Image):Void {
 		
 		#if (js && html5)
-		if (image.dirty && image.type != DATA) {
+		if (image.dirty && image.buffer.__srcImageData != null && image.type != DATA) {
 			
 			image.buffer.__srcContext.putImageData (image.buffer.__srcImageData, 0, 0);
 			image.buffer.data = null;
