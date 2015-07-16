@@ -19,7 +19,7 @@ import lime.system.System;
 		#if lime_cairo
 		this = lime_cairo_image_surface_create (format, width, height);
 		#else
-		this = 0;
+		this = cast 0;
 		#end
 		
 	}
