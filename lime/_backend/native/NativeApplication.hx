@@ -132,15 +132,18 @@ class NativeApplication {
 				
 				case AXIS_MOVE:
 					
-					parent.window.onGamepadAxisMove.dispatch (Gamepad.devices.get (gamepadEventInfo.id), gamepadEventInfo.axis, gamepadEventInfo.value);
+					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
+					if (gamepad != null) parent.window.onGamepadAxisMove.dispatch (gamepad, gamepadEventInfo.axis, gamepadEventInfo.value);
 				
 				case BUTTON_DOWN:
 					
-					parent.window.onGamepadButtonDown.dispatch (Gamepad.devices.get (gamepadEventInfo.id), gamepadEventInfo.button);
+					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
+					if (gamepad != null) parent.window.onGamepadButtonDown.dispatch (gamepad, gamepadEventInfo.button);
 				
 				case BUTTON_UP:
 					
-					parent.window.onGamepadButtonUp.dispatch (Gamepad.devices.get (gamepadEventInfo.id), gamepadEventInfo.button);
+					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
+					if (gamepad != null) parent.window.onGamepadButtonUp.dispatch (gamepad, gamepadEventInfo.button);
 				
 				case CONNECT:
 					
@@ -157,7 +160,7 @@ class NativeApplication {
 					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
 					if (gamepad != null) gamepad.connected = false;
 					Gamepad.devices.remove (gamepadEventInfo.id);
-					parent.window.onGamepadDisconnect.dispatch (gamepad);
+					if (gamepad != null) parent.window.onGamepadDisconnect.dispatch (gamepad);
 				
 			}
 			
