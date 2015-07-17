@@ -1,3 +1,20 @@
+2.5.0 (07/17/2015)
+------------------
+
+* Added guards against duplicate gamepad connect events
+* Added guards against gamepad events after a disconnect
+* Added dead zone and repeat value filtering for gamepad axis
+* Added CairoImageSurface, properly separate from CairoSurface
+* Improved HTML5 to use the project FPS setting
+* Improved asset libraries to have an "unload" method
+* Fixed repeated calls to Assets.load* with the same ID
+* Fixed "lime build" to not progress without sources
+* Fixed a regression in ByteArray.fromFile on Android
+* Fixed a bug in arrayBufferView.set
+* Quieted libpng "known incorrect profile" messages
+* Added a patch to allow Wii Remote detection (legacy)
+
+
 2.4.9 (07/13/2015)
 ------------------
 
