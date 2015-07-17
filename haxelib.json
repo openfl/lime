@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "2.4.9",
-	"releasenote": "Added ThreadPool, Log and made other improvements",
+	"version": "2.5.0",
+	"releasenote": "Improvements to gamepad and Cairo support, stability updates",
 	"contributors": [ "singmajesty" ]
 }
