@@ -1259,7 +1259,7 @@ class CommandLineTools {
 			
 		}
 		
-		if (project == null || project.sources.length == 0) {
+		if (project == null || (command != "rebuild" && project.sources.length == 0)) {
 			
 			LogHelper.error ("You must have a \"project.xml\" file or specify another valid project file when using the '" + command + "' command");
 			return null;
