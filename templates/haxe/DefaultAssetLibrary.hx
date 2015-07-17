@@ -40,7 +40,6 @@ class DefaultAssetLibrary extends AssetLibrary {
 	public var type (default, null) = new Map <String, AssetType> ();
 	
 	private var lastModified:Float;
-	private var loadHandlers:Map<String, Dynamic>;
 	private var threadPool:ThreadPool;
 	private var timer:Timer;
 	
@@ -137,15 +136,15 @@ class DefaultAssetLibrary extends AssetLibrary {
 	private function createThreadPool ():Void {
 		
 		threadPool = new ThreadPool (0, 2);
-		threadPool.doWork.add (function (id, getMethod) {
+		threadPool.doWork.add (function (id, data) {
 			
-			threadPool.sendComplete (id, getMethod (id));
+			data.result = data.getMethod (id);
+			threadPool.sendComplete (data.handler, data);
 			
 		});
 		threadPool.onComplete.add (function (id, data) {
 			
-			var handler = loadHandlers.get (id);
-			handler (data);
+			data.handler (data.result);
 			
 		});
 		
@@ -570,13 +569,11 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		if (threadPool == null) {
 			
-			loadHandlers = new Map ();
 			createThreadPool ();
 			
 		}
 		
-		loadHandlers.set (id, handler);
-		threadPool.queue (id, getBytes);
+		threadPool.queue (id, { handler: handler, getMethod: getBytes });
 		
 		#end
 		
@@ -626,13 +623,11 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		if (threadPool == null) {
 			
-			loadHandlers = new Map ();
 			createThreadPool ();
 			
 		}
 		
-		loadHandlers.set (id, handler);
-		threadPool.queue (id, getImage);
+		threadPool.queue (id, { handler: handler, getMethod: getImage });
 		
 		#end
 		
