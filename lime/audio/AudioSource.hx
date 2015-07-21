@@ -299,8 +299,8 @@ class AudioSource {
 			if (buffer != null) {
 				
 				AL.sourceRewind (id);
-				AL.sourcef (id, AL.SEC_OFFSET, (value + offset) / 1000);
 				if (playing) AL.sourcePlay (id);
+				AL.sourcef (id, AL.SEC_OFFSET, (value + offset) / 1000);
 				
 			}
 			
