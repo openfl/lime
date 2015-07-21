@@ -262,11 +262,18 @@ class ImageDataUtil {
 							destAlpha = destPixel.a / 0xFF;
 							oneMinusSourceAlpha = 1 - sourceAlpha;
 							blendAlpha = sourceAlpha + (destAlpha * oneMinusSourceAlpha);
-							
+							if (blendAlpha == 0) {
+								
+								destPixel = 0;
+								
+							} else {
+								
 							destPixel.r = RGBA.__clamp[Math.round ((sourcePixel.r * sourceAlpha + destPixel.r * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
 							destPixel.g = RGBA.__clamp[Math.round ((sourcePixel.g * sourceAlpha + destPixel.g * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
 							destPixel.b = RGBA.__clamp[Math.round ((sourcePixel.b * sourceAlpha + destPixel.b * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
 							destPixel.a = RGBA.__clamp[Math.round (blendAlpha * 255.0)];
+							
+							}
 							
 							destPixel.writeUInt8 (destData, destPosition, destFormat, destPremultiplied);
 							
