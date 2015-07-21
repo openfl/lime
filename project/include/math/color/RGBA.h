@@ -4,6 +4,7 @@
 
 #include <graphics/PixelFormat.h>
 #include <stdint.h>
+#include <math.h>
 
 
 namespace lime {
@@ -18,8 +19,7 @@ namespace lime {
 		
 		for (int i = 0; i < 256; i++) {
 			
-			// Seem to need +1 to get the same results as Haxe in multiplyAlpha
-			__alpha16[i] = (i + 1) * ((1 << 16) / 0xFF); 
+			__alpha16[i] = ceil ((i + 1) * ((1 << 16) / 0xFF)); 
 			
 		}
 		

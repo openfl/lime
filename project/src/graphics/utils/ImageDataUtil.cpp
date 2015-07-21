@@ -54,7 +54,8 @@ namespace lime {
 		uint8_t* destData = (uint8_t*)image->buffer->data->Data ();
 		
 		ImageDataView srcView = ImageDataView (sourceImage, sourceRect);
-		ImageDataView destView = ImageDataView (image, &Rectangle (destPoint->x, destPoint->y, srcView.width, srcView.height));
+		Rectangle destRect = Rectangle (destPoint->x, destPoint->y, srcView.width, srcView.height);
+		ImageDataView destView = ImageDataView (image, &destRect);
 		
 		PixelFormat srcFormat = sourceImage->buffer->format;
 		PixelFormat destFormat = image->buffer->format;
@@ -111,7 +112,8 @@ namespace lime {
 		uint8_t* destData = (uint8_t*)image->buffer->data->Data ();
 		
 		ImageDataView sourceView = ImageDataView (sourceImage, sourceRect);
-		ImageDataView destView = ImageDataView (image, &Rectangle (destPoint->x, destPoint->y, sourceView.width, sourceView.height));
+		Rectangle destRect = Rectangle (destPoint->x, destPoint->y, sourceView.width, sourceView.height);
+		ImageDataView destView = ImageDataView (image, &destRect);
 		
 		PixelFormat sourceFormat = sourceImage->buffer->format;
 		PixelFormat destFormat = image->buffer->format;
@@ -190,7 +192,8 @@ namespace lime {
 				PixelFormat alphaFormat = alphaImage->buffer->format;
 				bool alphaPremultiplied = alphaImage->buffer->premultiplied;
 				
-				ImageDataView alphaView = ImageDataView (alphaImage, &Rectangle (alphaPoint->x, alphaPoint->y, destView.width, destView.height));
+				Rectangle alphaRect = Rectangle (alphaPoint->x, alphaPoint->y, destView.width, destView.height);
+				ImageDataView alphaView = ImageDataView (alphaImage, &alphaRect);
 				int alphaPosition;
 				RGBA alphaPixel;
 				
@@ -340,52 +343,27 @@ namespace lime {
 		int length = int (rect->width * rect->height);
 		pixels->Resize (length * 4);
 		
-		if (format == RGBA32 && rect->width == image->buffer->width && rect->height == image->buffer->height && rect->x == 0 && rect->y == 0) {
-			
-			memcpy (pixels->Data (), image->buffer->data->Data (), image->buffer->data->Length ());
-			return;
-			
-		}
+		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
+		uint8_t* destData = (uint8_t*)pixels->Data ();
 		
-		uint8_t* data = (uint8_t*)pixels->Data ();
-		uint8_t* srcData = (uint8_t*)image->buffer->data->Data ();
+		PixelFormat sourceFormat = image->buffer->format;
+		bool premultiplied = image->buffer->premultiplied;
 		
-		int srcStride = image->buffer->Stride ();
-		int srcPosition = int ((rect->x * 4) + (srcStride * rect->y));
-		int srcRowOffset = srcStride - int (4 * rect->width);
-		int srcRowEnd = int (4 * (rect->x + rect->width));
+		ImageDataView dataView = ImageDataView (image, rect);
+		int position, destPosition = 0;
+		RGBA pixel;
 		
-		if (format == ARGB32) {
+		for (int y = 0; y < dataView.height; y++) {
 			
-			for (int i = 0; i < length; i++) {
-				
-				data[i * 4 + 1] = srcData[srcPosition++];
-				data[i * 4 + 2] = srcData[srcPosition++];
-				data[i * 4 + 3] = srcData[srcPosition++];
-				data[i * 4] = srcData[srcPosition++];
-				
-				if ((srcPosition % srcStride) > srcRowEnd) {
-					
-					srcPosition += srcRowOffset;
-					
-				}
-				
-			}
+			position = dataView.Row (y);
 			
-		} else {
-			
-			for (int i = 0; i < length; i++) {
+			for (int x = 0; x < dataView.width; x++) {
 				
-				data[i * 4] = srcData[srcPosition++];
-				data[i * 4 + 1] = srcData[srcPosition++];
-				data[i * 4 + 2] = srcData[srcPosition++];
-				data[i * 4 + 3] = srcData[srcPosition++];
+				pixel.ReadUInt8 (data, position, sourceFormat, premultiplied);
+				pixel.WriteUInt8 (destData, destPosition, format, false);
 				
-				if ((srcPosition % srcStride) > srcRowEnd) {
-					
-					srcPosition += srcRowOffset;
-					
-				}
+				position += 4;
+				destPosition += 4;
 				
 			}
 			

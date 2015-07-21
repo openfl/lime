@@ -28,7 +28,7 @@ abstract RGBA(Int) from Int to Int {
 		
 		for (i in 0...256) {
 			
-			__alpha16[i] = Math.floor (i * (1 << 16) / 255);
+			__alpha16[i] = Math.ceil ((i) * ((1 << 16) / 0xFF));
 			
 		}
 		
@@ -124,7 +124,7 @@ abstract RGBA(Int) from Int to Int {
 		if (a != 0 && a != 0xFF) {
 			
 			unmult = 255.0 / a;
-			set (__clamp[Math.floor (r * unmult)], __clamp[Math.floor (g * unmult)], __clamp[Math.floor (b * unmult)], a);
+			set (__clamp[Math.round (r * unmult)], __clamp[Math.round (g * unmult)], __clamp[Math.round (b * unmult)], a);
 			
 		}
 		

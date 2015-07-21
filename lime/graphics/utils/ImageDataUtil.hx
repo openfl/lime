@@ -655,6 +655,10 @@ class ImageDataUtil {
 			var dataView = new ImageDataView (image, rect);
 			var position, argb:ARGB, bgra:BGRA, pixel:RGBA;
 			
+			#if !flash
+			var destPosition = 0;
+			#end
+			
 			for (y in 0...dataView.height) {
 				
 				position = dataView.row (y);
@@ -677,10 +681,10 @@ class ImageDataUtil {
 					byteArray.writeByte (pixel.b);
 					byteArray.writeByte (pixel.a);
 					#else
-					byteArray.__set (position, pixel.r);
-					byteArray.__set (position + 1, pixel.g);
-					byteArray.__set (position + 2, pixel.b);
-					byteArray.__set (position + 3, pixel.a);
+					byteArray.__set (destPosition++, pixel.r);
+					byteArray.__set (destPosition++, pixel.g);
+					byteArray.__set (destPosition++, pixel.b);
+					byteArray.__set (destPosition++, pixel.a);
 					#end
 					
 					position += 4;
