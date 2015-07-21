@@ -1,8 +1,8 @@
 package lime.math;
 
 
-import haxe.io.UInt8Array;
 import lime.utils.Float32Array;
+import lime.utils.UInt8Array;
 
 #if flash
 import flash.geom.ColorTransform;
