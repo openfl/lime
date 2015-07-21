@@ -112,7 +112,7 @@ namespace lime {
 		
 		for (int i = 0; i < 256; i++) {
 			
-			value = floor (i * multiplier + offset);
+			value = (int)(i * multiplier + offset);
 			if (value > 0xFF) value = 0xFF;
 			if (value < 0) value = 0;
 			table[i] = value;

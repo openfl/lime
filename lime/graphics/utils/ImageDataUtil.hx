@@ -354,9 +354,9 @@ class ImageDataUtil {
 		
 		if (format == ARGB32) color = ((color & 0xFFFFFF) << 8) | ((color >> 24) & 0xFF);
 		
-		//#if ((cpp || neko) && !disable_cffi)
-		//if (!System.disableCFFI) lime_image_data_util_flood_fill (image, x, y, color); else
-		//#end
+		#if ((cpp || neko) && !disable_cffi)
+		if (!System.disableCFFI) lime_image_data_util_flood_fill (image, x, y, color); else
+		#end
 		{
 			
 			var format = image.buffer.format;
@@ -643,9 +643,9 @@ class ImageDataUtil {
 		byteArray.position = 0;
 		#end
 		
-		//#if ((cpp || neko) && !disable_cffi)
-		//if (!System.disableCFFI) lime_image_data_util_get_pixels (image, rect, format, byteArray); else
-		//#end
+		#if ((cpp || neko) && !disable_cffi)
+		if (!System.disableCFFI) lime_image_data_util_get_pixels (image, rect, format, byteArray); else
+		#end
 		{
 			
 			var data = image.buffer.data;
@@ -705,9 +705,9 @@ class ImageDataUtil {
 		
 		if (image.buffer.data == null || sourceImage.buffer.data == null) return;
 		
-		//#if ((cpp || neko) && !disable_cffi)
-		//if (!System.disableCFFI) lime_image_data_util_merge (image, sourceImage, sourceRect, destPoint, redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier); else
-		//#end
+		#if ((cpp || neko) && !disable_cffi)
+		if (!System.disableCFFI) lime_image_data_util_merge (image, sourceImage, sourceRect, destPoint, redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier); else
+		#end
 		{
 			
 			var sourceView = new ImageDataView (sourceImage, sourceRect);
@@ -1012,9 +1012,9 @@ class ImageDataUtil {
 		
 		if (image.buffer.data == null) return;
 		
-		//#if ((cpp || neko) && !disable_cffi)
-		//if (!System.disableCFFI) lime_image_data_util_set_pixels (image, rect, byteArray, format); else
-		//#end
+		#if ((cpp || neko) && !disable_cffi)
+		if (!System.disableCFFI) lime_image_data_util_set_pixels (image, rect, byteArray, format); else
+		#end
 		{
 			
 			var data = image.buffer.data;

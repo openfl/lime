@@ -374,31 +374,39 @@ namespace lime {
 	
 	void ImageDataUtil::Merge (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, int redMultiplier, int greenMultiplier, int blueMultiplier, int alphaMultiplier) {
 		
-		int rowOffset = int (destPoint->y + image->offsetY - sourceRect->y - sourceImage->offsetY);
-		int columnOffset = int (destPoint->x + image->offsetX - sourceRect->x - sourceImage->offsetY);
+		ImageDataView sourceView = ImageDataView (sourceImage, sourceRect);
+		Rectangle destRect = Rectangle (destPoint->x, destPoint->y, sourceView.width, sourceView.height);
+		ImageDataView destView = ImageDataView (image, &destRect);
 		
 		uint8_t* sourceData = (uint8_t*)sourceImage->buffer->data->Data ();
-		int sourceStride = sourceImage->buffer->Stride ();
-		int sourceOffset = 0;
+		uint8_t* destData = (uint8_t*)image->buffer->data->Data ();
+		PixelFormat sourceFormat = sourceImage->buffer->format;
+		PixelFormat destFormat = image->buffer->format;
+		bool sourcePremultiplied = sourceImage->buffer->premultiplied;
+		bool destPremultiplied = image->buffer->premultiplied;
 		
-		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
-		int stride = image->buffer->Stride ();
-		int offset = 0;
+		int sourcePosition, destPosition;
+		RGBA sourcePixel, destPixel;
 		
-		int rowEnd = int (sourceRect->y + sourceRect->height + sourceImage->offsetY);
-		int columnEnd = int (sourceRect->x + sourceRect->width + sourceImage->offsetX);
-		
-		for (int row = int (sourceRect->y + sourceImage->offsetY); row < rowEnd; row++) {
+		for (int y = 0; y < destView.height; y++) {
 			
-			for (int column = int (sourceRect->x + sourceImage->offsetX); column < columnEnd; column++) {
+			sourcePosition = sourceView.Row (y);
+			destPosition = destView.Row (y);
+			
+			for (int x = 0; x < destView.width; x++) {
 				
-				sourceOffset = (row * sourceStride) + (column * 4);
-				offset = ((row + rowOffset) * stride) + ((column + columnOffset) * 4);
+				sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
+				destPixel.ReadUInt8 (destData, destPosition, destFormat, destPremultiplied);
 				
-				data[offset] = int (((sourceData[offset] * redMultiplier) + (data[offset] * (256 - redMultiplier))) / 256);
-				data[offset + 1] = int (((sourceData[offset + 1] * greenMultiplier) + (data[offset + 1] * (256 - greenMultiplier))) / 256);
-				data[offset + 2] = int (((sourceData[offset + 2] * blueMultiplier) + (data[offset + 2] * (256 - blueMultiplier))) / 256);
-				data[offset + 3] = int (((sourceData[offset + 3] * alphaMultiplier) + (data[offset + 3] * (256 - alphaMultiplier))) / 256);
+				destPixel.r = int (((sourcePixel.r * redMultiplier) + (destPixel.r * (256 - redMultiplier))) / 256);
+				destPixel.g = int (((sourcePixel.g * greenMultiplier) + (destPixel.g * (256 - greenMultiplier))) / 256);
+				destPixel.b = int (((sourcePixel.b * blueMultiplier) + (destPixel.b * (256 - blueMultiplier))) / 256);
+				destPixel.a = int (((sourcePixel.a * alphaMultiplier) + (destPixel.a * (256 - alphaMultiplier))) / 256);
+				
+				destPixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
+				
+				sourcePosition += 4;
+				destPosition += 4;
 				
 			}
 			
@@ -409,17 +417,15 @@ namespace lime {
 	
 	void ImageDataUtil::MultiplyAlpha (Image* image) {
 		
-		int a16 = 0;
-		int length = image->buffer->data->Length () / 4;
+		PixelFormat format = image->buffer->format;
 		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
+		int length = int (image->buffer->data->Length () / 4);
+		RGBA pixel;
 		
 		for (int i = 0; i < length; i++) {
 			
-			a16 = __alpha16[data[3]];
-			data[0] = (data[0] * a16) >> 16;
-			data[1] = (data[1] * a16) >> 16;
-			data[2] = (data[2] * a16) >> 16;
-			data += 4;
+			pixel.ReadUInt8 (data, i * 4, format, false);
+			pixel.WriteUInt8 (data, i * 4, format, true);
 			
 		}
 		
@@ -569,61 +575,29 @@ namespace lime {
 	
 	void ImageDataUtil::SetPixels (Image* image, Rectangle* rect, Bytes* bytes, PixelFormat format) {
 		
-		if (format == RGBA32 && rect->width == image->buffer->width && rect->height == image->buffer->height && rect->x == 0 && rect->y == 0) {
-			
-			memcpy (image->buffer->data->Data (), bytes->Data (), bytes->Length ());
-			return;
-			
-		}
+		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
+		PixelFormat sourceFormat = image->buffer->format;
+		bool premultiplied = image->buffer->premultiplied;
+		ImageDataView dataView = ImageDataView (image, rect);
+		int row;
+		RGBA pixel;
 		
-		int offset = int (image->buffer->width * (rect->y + image->offsetX) + (rect->x + image->offsetY));
-		int boundR = int ((rect->x + rect->width + image->offsetX));
-		int width = image->buffer->width;
-		int color;
+		uint8_t* byteArray = (uint8_t*)bytes->Data ();
+		int srcPosition = 0;
 		
-		if (format == ARGB32) {
+		bool transparent = image->buffer->transparent;
+		
+		for (int y = 0; y < dataView.height; y++) {
 			
-			int pos = offset * 4;
-			int len = int (rect->width * rect->height * 4);
-			uint8_t* data = (uint8_t*)image->buffer->data->Data ();
-			uint8_t* byteArray = (uint8_t*)bytes->Data ();
+			row = dataView.Row (y);
 			
-			for (int i = 0; i < len; i += 4) {
+			for (int x = 0; x < dataView.width; x++) {
 				
+				pixel.ReadUInt8 (byteArray, srcPosition, format, false);
+				if (!transparent) pixel.a = 0xFF;
+				pixel.WriteUInt8 (data, row + (x * 4), sourceFormat, premultiplied);
 				
-				if (((pos) % (width * 4)) >= boundR * 4) {
-					
-					pos += (width - boundR) * 4;
-					
-				}
-				
-				data[pos] = byteArray[i + 1];
-				data[pos + 1] = byteArray[i + 2];
-				data[pos + 2] = byteArray[i + 3];
-				data[pos + 3] = byteArray[i];
-				pos += 4;
-				
-			}
-			
-		} else {
-			
-			int pos = offset;
-			int len = int (rect->width * rect->height);
-			int* data = (int*)image->buffer->data->Data ();
-			int* byteArray = (int*)bytes->Data ();
-			
-			// TODO: memcpy rows at once
-			
-			for (int i = 0; i < len; i++) {
-				
-				if (((pos) % (width)) >= boundR) {
-					
-					pos += (width - boundR);
-					
-				}
-				
-				data[pos] = byteArray[i];
-				pos++;
+				srcPosition += 4;
 				
 			}
 			
@@ -634,24 +608,15 @@ namespace lime {
 	
 	void ImageDataUtil::UnmultiplyAlpha (Image* image) {
 		
-		int length = image->buffer->data->Length () / 4;
+		PixelFormat format = image->buffer->format;
 		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
-		
-		int unmultiply;
-		uint8_t a;
+		int length = int (image->buffer->data->Length () / 4);
+		RGBA pixel;
 		
 		for (int i = 0; i < length; i++) {
 			
-			a = data[3];
-			
-			if (a != 0) {
-				
-				unmultiply = 255.0 / a;
-				data[0] = __clamp[data[0] * unmultiply];
-				data[1] = __clamp[data[1] * unmultiply];
-				data[2] = __clamp[data[2] * unmultiply];
-				
-			}
+			pixel.ReadUInt8 (data, i * 4, format, true);
+			pixel.WriteUInt8 (data, i * 4, format, false);
 			
 		}
 		
