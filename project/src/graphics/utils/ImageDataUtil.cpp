@@ -123,7 +123,7 @@ namespace lime {
 		int sourcePosition, destPosition;
 		RGBA sourcePixel;
 		
-		if (!mergeAlpha || !sourceImage->transparent) {
+		if (!mergeAlpha || !sourceImage->buffer->transparent) {
 			
 			for (int y = 0; y < destView.height; y++) {
 				
@@ -279,7 +279,7 @@ namespace lime {
 		RGBA hitColor;
 		hitColor.ReadUInt8 (data, ((y + image->offsetY) * (image->buffer->width * 4)) + ((x + image->offsetX) * 4), format, premultiplied);
 		
-		if (!image->transparent) {
+		if (!image->buffer->transparent) {
 			
 			fillColor.a = 0xFF;
 			hitColor.a = 0xFF;
