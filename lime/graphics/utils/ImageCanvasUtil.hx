@@ -88,6 +88,12 @@ class ImageCanvasUtil {
 	
 	public static function copyPixels (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, alphaImage:Image = null, alphaPoint:Vector2 = null, mergeAlpha:Bool = false):Void {
 		
+		if (destPoint.x >= sourceRect.width || destPoint.y >= sourceRect.height) {
+
+			return;
+
+		}
+
 		if (alphaImage != null && alphaImage.transparent) {
 			
 			if (alphaPoint == null) alphaPoint = new Vector2 ();
