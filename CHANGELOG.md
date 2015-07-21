@@ -1,3 +1,12 @@
+2.5.1 (07/21/2015)
+------------------
+
+* Made Image properly support all PixelFormat/premultiplied types
+* Updated PixelFormat names to be more descriptive
+* Added prefix support for generated library class names
+* Fixed an issue with Assets.loadImage on HTML5
+
+
 2.5.0 (07/17/2015)
 ------------------
 
