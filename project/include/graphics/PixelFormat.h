@@ -7,9 +7,9 @@ namespace lime {
 	
 	enum PixelFormat {
 		
-		RGBA,
-		ARGB,
-		BGRA
+		RGBA32,
+		ARGB32,
+		BGRA32
 		
 	};
 	

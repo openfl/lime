@@ -28,9 +28,9 @@ class ImageDataUtil {
 		var data = image.buffer.data;
 		if (data == null) return;
 		
-		//#if ((cpp || neko) && !disable_cffi)
-		//if (!System.disableCFFI) lime_image_data_util_color_transform (image, rect, colorMatrix); else
-		//#end
+		#if ((cpp || neko) && !disable_cffi)
+		if (!System.disableCFFI) lime_image_data_util_color_transform (image, rect, colorMatrix); else
+		#end
 		{
 			
 			var format = image.buffer.format;
@@ -215,10 +215,18 @@ class ImageDataUtil {
 							oneMinusSourceAlpha = 1 - sourceAlpha;
 							blendAlpha = sourceAlpha + (destAlpha * oneMinusSourceAlpha);
 							
-							destPixel.r = RGBA.__clamp[Math.round ((sourcePixel.r * sourceAlpha + destPixel.r * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
-							destPixel.g = RGBA.__clamp[Math.round ((sourcePixel.g * sourceAlpha + destPixel.g * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
-							destPixel.b = RGBA.__clamp[Math.round ((sourcePixel.b * sourceAlpha + destPixel.b * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
-							destPixel.a = RGBA.__clamp[Math.round (blendAlpha * 255.0)];
+							if (blendAlpha == 0) {
+								
+								destPixel = 0;
+								
+							} else {
+								
+								destPixel.r = RGBA.__clamp[Math.round ((sourcePixel.r * sourceAlpha + destPixel.r * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
+								destPixel.g = RGBA.__clamp[Math.round ((sourcePixel.g * sourceAlpha + destPixel.g * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
+								destPixel.b = RGBA.__clamp[Math.round ((sourcePixel.b * sourceAlpha + destPixel.b * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
+								destPixel.a = RGBA.__clamp[Math.round (blendAlpha * 255.0)];
+								
+							}
 							
 							destPixel.writeUInt8 (destData, destPosition, destFormat, destPremultiplied);
 							

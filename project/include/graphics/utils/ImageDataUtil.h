@@ -37,6 +37,32 @@ namespace lime {
 	};
 	
 	
+	class ImageDataView {
+		
+		
+		public:
+			
+			ImageDataView (Image* image, Rectangle* rect);
+			
+			void Clip (int x, int y, int width, int height);
+			int Row (int y);
+			
+			int x;
+			int y;
+			int width;
+			int height;
+		
+		private:
+			
+			Image* image;
+			int offset;
+			Rectangle* rect;
+			int stride;
+		
+		
+	};
+	
+	
 }
 
 

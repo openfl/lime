@@ -1,4 +1,5 @@
 #include <graphics/utils/ImageDataUtil.h>
+#include <math/color/RGBA.h>
 #include <system/System.h>
 #include <utils/QuickVec.h>
 
@@ -6,77 +7,39 @@
 namespace lime {
 	
 	
-	static int __alpha16[0xFF + 1];
-	static int __clamp[0xFF + 0xFF + 1];
-	
-	int initValues () {
-		
-		for (int i = 0; i < 256; i++) {
-			
-			// Seem to need +1 to get the same results as Haxe in multiplyAlpha
-			__alpha16[i] = (i + 1) * ((1 << 16) / 0xFF); 
-			
-		}
-		
-		for (int i = 0; i < 0xFF; i++) {
-			
-			__clamp[i] = i;
-			
-		}
-		
-		for (int i = 0xFF; i < (0xFF + 0xFF + 1); i++) {
-			
-			__clamp[i] = 0xFF;
-			
-		}
-		
-		return 0;
-		
-	}
-	
-	static int initValues_ = initValues ();
-	
-	
 	void ImageDataUtil::ColorTransform (Image* image, Rectangle* rect, ColorMatrix* colorMatrix) {
 		
-		int stride = image->buffer->Stride ();
-		int offset;
-		
-		int rowStart = int (rect->y + image->offsetY);
-		int rowEnd = int (rect->y + rect->height + image->offsetY);
-		int columnStart = int (rect->x + image->offsetX);
-		int columnEnd = int (rect->x + rect->width + image->offsetX);
-		
+		PixelFormat format = image->buffer->format;
+		bool premultiplied = image->buffer->premultiplied;
 		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
-		int r, g, b, a, ex = 0;
 		
-		float alphaMultiplier = colorMatrix->GetAlphaMultiplier ();
-		float redMultiplier = colorMatrix->GetRedMultiplier ();
-		float greenMultiplier = colorMatrix->GetGreenMultiplier ();
-		float blueMultiplier = colorMatrix->GetBlueMultiplier ();
-		int alphaOffset = colorMatrix->GetAlphaOffset ();
-		int redOffset = colorMatrix->GetRedOffset ();
-		int greenOffset = colorMatrix->GetGreenOffset ();
-		int blueOffset = colorMatrix->GetBlueOffset ();
+		ImageDataView dataView = ImageDataView (image, rect);
 		
-		for (int row = rowStart; row < rowEnd; row++) {
+		unsigned char alphaTable[256];
+		unsigned char redTable[256];
+		unsigned char greenTable[256];
+		unsigned char blueTable[256];
+		
+		colorMatrix->GetAlphaTable (alphaTable);
+		colorMatrix->GetRedTable (redTable);
+		colorMatrix->GetGreenTable (greenTable);
+		colorMatrix->GetBlueTable (blueTable);
+		
+		int row;
+		int offset;
+		RGBA pixel;
+		
+		for (int y = 0; y < dataView.height; y++) {
 			
-			for (int column = columnStart; column < columnEnd; column++) {
+			row = dataView.Row (y);
+			
+			for (int x = 0; x < dataView.width; x++) {
 				
-				offset = (row * stride) + (column * 4);
+				offset = row + (x * 4);
 				
-				a = (data[offset + 3] * alphaMultiplier) + alphaOffset;
-				ex = a > 0xFF ? a - 0xFF : 0;
-				b = (data[offset + 2] * blueMultiplier) + blueOffset + ex;
-				ex = b > 0xFF ? b - 0xFF : 0;
-				g = (data[offset + 1] * greenMultiplier) + greenOffset + ex;
-				ex = g > 0xFF ? g - 0xFF : 0;
-				r = (data[offset] * redMultiplier) + redOffset + ex;
-				
-				data[offset] = r > 0xFF ? 0xFF : r;
-				data[offset + 1] = g > 0xFF ? 0xFF : g;
-				data[offset + 2] = b > 0xFF ? 0xFF : b;
-				data[offset + 3] = a > 0xFF ? 0xFF : a;
+				pixel.ReadUInt8 (data, offset, format, premultiplied);
+				pixel.Set (redTable[pixel.r], greenTable[pixel.g], blueTable[pixel.b], alphaTable[pixel.a]);
+				pixel.WriteUInt8 (data, offset, format, premultiplied);
 				
 			}
 			
@@ -336,7 +299,7 @@ namespace lime {
 		int length = int (rect->width * rect->height);
 		pixels->Resize (length * 4);
 		
-		if (format == RGBA && rect->width == image->buffer->width && rect->height == image->buffer->height && rect->x == 0 && rect->y == 0) {
+		if (format == RGBA32 && rect->width == image->buffer->width && rect->height == image->buffer->height && rect->x == 0 && rect->y == 0) {
 			
 			memcpy (pixels->Data (), image->buffer->data->Data (), image->buffer->data->Length ());
 			return;
@@ -351,7 +314,7 @@ namespace lime {
 		int srcRowOffset = srcStride - int (4 * rect->width);
 		int srcRowEnd = int (4 * (rect->x + rect->width));
 		
-		if (format == ARGB) {
+		if (format == ARGB32) {
 			
 			for (int i = 0; i < length; i++) {
 				
@@ -510,7 +473,7 @@ namespace lime {
 		
 		switch (image->buffer->format) {
 			
-			case RGBA:
+			case RGBA32:
 				
 				r1 = 0;
 				g1 = 1;
@@ -518,7 +481,7 @@ namespace lime {
 				a1 = 3;
 				break;
 			
-			case ARGB:
+			case ARGB32:
 				
 				r1 = 1;
 				g1 = 2;
@@ -526,7 +489,7 @@ namespace lime {
 				a1 = 0;
 				break;
 			
-			case BGRA:
+			case BGRA32:
 				
 				r1 = 2;
 				g1 = 1;
@@ -538,7 +501,7 @@ namespace lime {
 		
 		switch (format) {
 			
-			case RGBA:
+			case RGBA32:
 				
 				r2 = 0;
 				g2 = 1;
@@ -546,7 +509,7 @@ namespace lime {
 				a2 = 3;
 				break;
 			
-			case ARGB:
+			case ARGB32:
 				
 				r2 = 1;
 				g2 = 2;
@@ -554,7 +517,7 @@ namespace lime {
 				a2 = 0;
 				break;
 			
-			case BGRA:
+			case BGRA32:
 				
 				r2 = 2;
 				g2 = 1;
@@ -587,7 +550,7 @@ namespace lime {
 	
 	void ImageDataUtil::SetPixels (Image* image, Rectangle* rect, Bytes* bytes, PixelFormat format) {
 		
-		if (format == RGBA && rect->width == image->buffer->width && rect->height == image->buffer->height && rect->x == 0 && rect->y == 0) {
+		if (format == RGBA32 && rect->width == image->buffer->width && rect->height == image->buffer->height && rect->x == 0 && rect->y == 0) {
 			
 			memcpy (image->buffer->data->Data (), bytes->Data (), bytes->Length ());
 			return;
@@ -599,7 +562,7 @@ namespace lime {
 		int width = image->buffer->width;
 		int color;
 		
-		if (format == ARGB) {
+		if (format == ARGB32) {
 			
 			int pos = offset * 4;
 			int len = int (rect->width * rect->height * 4);
@@ -672,6 +635,51 @@ namespace lime {
 			}
 			
 		}
+		
+	}
+	
+	
+	ImageDataView::ImageDataView (Image* image, Rectangle* rect) {
+		
+		this->image = image;
+		
+		if (rect->x < 0) rect->x = 0;
+		if (rect->y < 0) rect->y = 0;
+		if (rect->x + rect->width > image->width) rect->width = image->width - rect->x;
+		if (rect->y + rect->height > image->height) rect->height = image->height - rect->y;
+		if (rect->width < 0) rect->width = 0;
+		if (rect->height < 0) rect->height = 0;
+		this->rect = rect;
+		
+		stride = image->buffer->Stride ();
+		
+		x = ceil (this->rect->x);
+		y = ceil (this->rect->y);
+		width = floor (this->rect->width);
+		height = floor (this->rect->height);
+		offset = (stride * (this->y + image->offsetY)) + ((this->x + image->offsetX) * 4);
+		
+		
+	}
+	
+	
+	void ImageDataView::Clip (int x, int y, int width, int height) {
+		
+		rect->Contract (x, y, width, height);
+		
+		this->x = ceil (rect->x);
+		this->y = ceil (rect->y);
+		this->width = floor (rect->width);
+		this->height = floor (rect->height);
+		offset = (stride * (this->y + image->offsetY)) + ((this->x + image->offsetX) * 4);
+		
+		
+	}
+	
+	
+	inline int ImageDataView::Row (int y) {
+		
+		return offset + stride * y;
 		
 	}
 	

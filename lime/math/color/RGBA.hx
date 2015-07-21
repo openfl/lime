@@ -65,6 +65,26 @@ abstract RGBA(Int) from Int to Int {
 	}
 	
 	
+	public inline function multiplyAlpha () {
+		
+		if (a == 0) {
+			
+			if (this != 0) {
+				
+				this = 0;
+				
+			}
+			
+		} else if (a != 0xFF) {
+			
+			a16 = __alpha16[a];
+			set ((r * a16) >> 16, (g * a16) >> 16, (b * a16) >> 16, a);
+			
+		}
+		
+	}
+	
+	
 	public inline function readUInt8 (data:UInt8Array, offset:Int, format:PixelFormat = RGBA32, premultiplied:Bool = false):Void {
 		
 		switch (format) {
@@ -92,29 +112,21 @@ abstract RGBA(Int) from Int to Int {
 	}
 	
 	
-	public inline function multiplyAlpha () {
+	public inline function set (r:Int, g:Int, b:Int, a:Int):Void {
 		
-		a16 = __alpha16[a];
-		set ((r * a16) >> 16, (g * a16) >> 16, (b * a16) >> 16, a);
+		this = ((r & 0xFF) << 24) | ((g & 0xFF) << 16) | ((b & 0xFF) << 8) | (a & 0xFF);
 		
 	}
 	
 	
 	public inline function unmultiplyAlpha () {
 		
-		if (a != 0) {
+		if (a != 0 && a != 0xFF) {
 			
 			unmult = 255.0 / a;
 			set (__clamp[Math.floor (r * unmult)], __clamp[Math.floor (g * unmult)], __clamp[Math.floor (b * unmult)], a);
 			
 		}
-		
-	}
-	
-	
-	public inline function set (r:Int, g:Int, b:Int, a:Int):Void {
-		
-		this = ((r & 0xFF) << 24) | ((g & 0xFF) << 16) | ((b & 0xFF) << 8) | (a & 0xFF);
 		
 	}
 	

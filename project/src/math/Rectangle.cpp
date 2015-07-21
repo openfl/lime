@@ -51,4 +51,23 @@ namespace lime {
 	}
 	
 	
+	void Rectangle::Contract (double x, double y, double width, double height) {
+		
+		if (this->width == 0 && this->height == 0) {
+			
+			return;
+			
+		}
+		
+		//double cacheRight = this->x + this->width;
+		//double cacheBottom = this->y + this->height;
+		
+		if (this->x < x) this->x = x;
+		if (this->y < y) this->y = y;
+		if (this->x + this->width > x + width) this->width = x + width - this->x;
+		if (this->y + this->height > y + height) this->height = y + height - this->y;
+		
+	}
+	
+	
 }
