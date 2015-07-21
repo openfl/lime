@@ -47,7 +47,7 @@ class ImageBuffer {
 		this.width = width;
 		this.height = height;
 		this.bitsPerPixel = bitsPerPixel;
-		this.format = (format == null ? RGBA : format);
+		this.format = (format == null ? RGBA32 : format);
 		transparent = true;
 		
 	}

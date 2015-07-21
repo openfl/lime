@@ -94,7 +94,7 @@ class BMP {
 			
 		}
 		
-		var pixels = image.getPixels (new Rectangle (0, 0, image.width, image.height), ARGB);
+		var pixels = image.getPixels (new Rectangle (0, 0, image.width, image.height), ARGB32);
 		var a, r, g, b;
 		
 		switch (type) {

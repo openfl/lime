@@ -388,7 +388,7 @@ class Image {
 			case FLASH:
 				
 				rect.offset (offsetX, offsetY);
-				if (format == null || format == RGBA) color = ((color & 0xFF) << 24) | (color >> 8);
+				if (format == null || format == RGBA32) color = ((color & 0xFF) << 24) | (color >> 8);
 				buffer.__srcBitmapData.fillRect (rect.__toFlashRectangle (), color);
 				
 			default:
@@ -418,7 +418,7 @@ class Image {
 			
 			case FLASH:
 				
-				if (format == null || format == RGBA) color = ((color & 0xFF) << 24) | (color >> 8);
+				if (format == null || format == RGBA32) color = ((color & 0xFF) << 24) | (color >> 8);
 				buffer.__srcBitmapData.floodFill (x + offsetX, y + offsetY, color);
 			
 			default:
@@ -538,7 +538,7 @@ class Image {
 				
 				var color = buffer.__srcBitmapData.getPixel (x + offsetX, y + offsetY);
 				
-				if (format == null || format == RGBA) {
+				if (format == null || format == RGBA32) {
 					
 					return ((color & 0xFF) << 24) | (color >> 8);
 					
@@ -579,7 +579,7 @@ class Image {
 				
 				var color = buffer.__srcBitmapData.getPixel32 (x + offsetX, y + offsetY);
 				
-				if (format == null || format == RGBA) {
+				if (format == null || format == RGBA32) {
 					
 					return ((color & 0xFF) << 24) | (color >> 8);
 					
@@ -621,7 +621,7 @@ class Image {
 				rect.offset (offsetX, offsetY);
 				var byteArray = buffer.__srcBitmapData.getPixels (rect.__toFlashRectangle ());
 				
-				if (format == null || format == RGBA) {
+				if (format == null || format == RGBA32) {
 					
 					var color;
 					var length = Std.int (byteArray.length / 4);
@@ -771,7 +771,7 @@ class Image {
 			
 			case FLASH:
 				
-				if (format == null || format == RGBA) color = ((color & 0xFF) << 24) | (color >> 8);
+				if (format == null || format == RGBA32) color = ((color & 0xFF) << 24) | (color >> 8);
 				buffer.__srcBitmapData.setPixel (x + offsetX, y + offsetX, color);
 			
 			default:
@@ -801,7 +801,7 @@ class Image {
 			
 			case FLASH:
 				
-				if (format == null || format == RGBA) color = ((color & 0xFF) << 24) | (color >> 8);
+				if (format == null || format == RGBA32) color = ((color & 0xFF) << 24) | (color >> 8);
 				buffer.__srcBitmapData.setPixel32 (x + offsetX, y + offsetY, color);
 			
 			default:
@@ -833,7 +833,7 @@ class Image {
 			case FLASH:
 				
 				rect.offset (offsetX, offsetY);
-				if (format == null || format == RGBA) {
+				if (format == null || format == RGBA32) {
 					
 					var srcData = byteArray;
 					byteArray = new ByteArray ();

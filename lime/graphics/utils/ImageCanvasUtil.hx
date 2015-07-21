@@ -201,7 +201,7 @@ class ImageCanvasUtil {
 		
 		var r, g, b, a;
 		
-		if (format == ARGB) {
+		if (format == ARGB32) {
 			
 			r = (color >> 16) & 0xFF;
 			g = (color >> 8) & 0xFF;
