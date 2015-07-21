@@ -4,7 +4,6 @@ package lime.graphics.utils;
 import haxe.ds.Vector;
 import haxe.Int32;
 import haxe.io.Bytes;
-import haxe.io.UInt32Array;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.graphics.PixelFormat;
