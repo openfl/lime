@@ -93,9 +93,9 @@ class ImageDataUtil {
 		
 		if (srcData == null || destData == null) return;
 		
-		//#if ((cpp || neko) && !disable_cffi)
-		//if (!System.disableCFFI) lime_image_data_util_copy_channel (image, sourceImage, sourceRect, destPoint, srcIdx, destIdx); else
-		//#end
+		#if ((cpp || neko) && !disable_cffi)
+		if (!System.disableCFFI) lime_image_data_util_copy_channel (image, sourceImage, sourceRect, destPoint, srcIdx, destIdx); else
+		#end
 		{
 			
 			var srcView = new ImageDataView (sourceImage, sourceRect);

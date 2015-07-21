@@ -50,59 +50,55 @@ namespace lime {
 	
 	void ImageDataUtil::CopyChannel (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, int srcChannel, int destChannel) {
 		
-		int width = sourceRect->width;
-		int height = sourceRect->height;
-		
-		if (destPoint->x + width > image->width) {
-			
-			width = image->width - destPoint->x;
-			
-		}
-		
-		if (sourceRect->x + width > sourceImage->width) {
-			
-			width = sourceImage->width - sourceRect->x;
-			
-		}
-		
-		if (destPoint->y + height > image->height) {
-			
-			height = image->height - destPoint->y;
-			
-		}
-		
-		if (sourceRect->y + height > sourceImage->height) {
-			
-			height = sourceImage->height - sourceRect->y;
-			
-		}
-		
-		if (width <= 0 || height <= 0) return;
-		
-		int srcStride = sourceImage->buffer->Stride ();
-		int srcPosition = ((sourceRect->x + sourceImage->offsetX) * 4) + (srcStride * (sourceRect->y + sourceImage->offsetY)) + srcChannel;
-		int srcRowOffset = srcStride - int (4 * width);
-		int srcRowEnd = 4 * (sourceRect->x + sourceImage->offsetX + width);
 		uint8_t* srcData = (uint8_t*)sourceImage->buffer->data->Data ();
-		
-		int destStride = image->buffer->Stride ();
-		int destPosition = ((destPoint->x + image->offsetX) * 4) + (destStride * (destPoint->y + image->offsetY)) + destChannel;
-		int destRowOffset = destStride - int (4 * width);
 		uint8_t* destData = (uint8_t*)image->buffer->data->Data ();
 		
-		int length = width * height;
+		ImageDataView srcView = ImageDataView (sourceImage, sourceRect);
+		ImageDataView destView = ImageDataView (image, &Rectangle (destPoint->x, destPoint->y, srcView.width, srcView.height));
 		
-		for (int i = 0; i < length; i++) {
+		PixelFormat srcFormat = sourceImage->buffer->format;
+		PixelFormat destFormat = image->buffer->format;
+		bool srcPremultiplied = sourceImage->buffer->premultiplied;
+		bool destPremultiplied = image->buffer->premultiplied;
+		
+		int srcPosition;
+		int destPosition;
+		RGBA srcPixel;
+		RGBA destPixel;
+		unsigned char value = 0;
+		
+		for (int y = 0; y < destView.height; y++) {
 			
-			destData[destPosition] = srcData[srcPosition];
+			srcPosition = srcView.Row (y);
+			destPosition = destView.Row (y);
 			
-			srcPosition += 4;
-			destPosition += 4;
-			
-			if ((srcPosition % srcStride) > srcRowEnd) {
+			for (int x = 0; x < destView.width; x++) {
 				
-				srcPosition += srcRowOffset;
-				destPosition += destRowOffset;
+				srcPixel.ReadUInt8 (srcData, srcPosition, srcFormat, srcPremultiplied);
+				destPixel.ReadUInt8 (destData, destPosition, destFormat, destPremultiplied);
+				
+				switch (srcChannel) {
+					
+					case 0: value = srcPixel.r; break;
+					case 1: value = srcPixel.g; break;
+					case 2: value = srcPixel.b; break;
+					case 3: value = srcPixel.a; break;
+					
+				}
+				
+				switch (destChannel) {
+					
+					case 0: destPixel.r = value; break;
+					case 1: destPixel.g = value; break;
+					case 2: destPixel.b = value; break;
+					case 3: destPixel.a = value; break;
+					
+				}
+				
+				destPixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
+				
+				srcPosition += 4;
+				destPosition += 4;
 				
 			}
 			
