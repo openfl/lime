@@ -1,6 +1,6 @@
 #include <math/ColorMatrix.h>
 #include <utils/Bytes.h>
-
+#include <math.h>
 
 namespace lime {
 	
