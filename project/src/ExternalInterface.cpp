@@ -532,13 +532,28 @@ namespace lime {
 	}
 	
 	
-	value lime_image_data_util_copy_pixels (value image, value sourceImage, value sourceRect, value destPoint, value mergeAlpha) {
+	value lime_image_data_util_copy_pixels (value *arg, int nargs) {
 		
-		Image _image = Image (image);
-		Image _sourceImage = Image (sourceImage);
-		Rectangle _sourceRect = Rectangle (sourceRect);
-		Vector2 _destPoint = Vector2 (destPoint);
-		ImageDataUtil::CopyPixels (&_image, &_sourceImage, &_sourceRect, &_destPoint, val_bool (mergeAlpha));
+		enum { image, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha };
+		
+		Image _image = Image (arg[image]);
+		Image _sourceImage = Image (arg[sourceImage]);
+		Rectangle _sourceRect = Rectangle (arg[sourceRect]);
+		Vector2 _destPoint = Vector2 (arg[destPoint]);
+		
+		if (val_is_null (arg[alphaImage])) {
+			
+			ImageDataUtil::CopyPixels (&_image, &_sourceImage, &_sourceRect, &_destPoint, 0, 0, val_bool (arg[mergeAlpha]));
+			
+		} else {
+			
+			Image _alphaImage = Image (arg[alphaImage]);
+			Vector2 _alphaPoint = Vector2 (arg[alphaPoint]);
+			
+			ImageDataUtil::CopyPixels (&_image, &_sourceImage, &_sourceRect, &_destPoint, &_alphaImage, &_alphaPoint, val_bool (arg[mergeAlpha]));
+			
+		}
+		
 		return alloc_null ();
 		
 	}
@@ -1153,7 +1168,7 @@ namespace lime {
 	DEFINE_PRIM (lime_gamepad_get_device_name, 1);
 	DEFINE_PRIM (lime_image_data_util_color_transform, 3);
 	DEFINE_PRIM_MULT (lime_image_data_util_copy_channel);
-	DEFINE_PRIM (lime_image_data_util_copy_pixels, 5);
+	DEFINE_PRIM_MULT (lime_image_data_util_copy_pixels);
 	DEFINE_PRIM (lime_image_data_util_fill_rect, 3);
 	DEFINE_PRIM (lime_image_data_util_flood_fill, 4);
 	DEFINE_PRIM (lime_image_data_util_get_pixels, 4);

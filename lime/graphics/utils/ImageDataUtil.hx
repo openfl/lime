@@ -154,9 +154,9 @@ class ImageDataUtil {
 	
 	public static function copyPixels (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, alphaImage:Image = null, alphaPoint:Vector2 = null, mergeAlpha:Bool = false):Void {
 		
-		//#if ((cpp || neko) && !disable_cffi)
-		//if (!System.disableCFFI) lime_image_data_util_copy_pixels (image, sourceImage, sourceRect, destPoint, mergeAlpha); else
-		//#end
+		#if ((cpp || neko) && !disable_cffi)
+		if (!System.disableCFFI) lime_image_data_util_copy_pixels (image, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha); else
+		#end
 		{
 			
 			var sourceData = sourceImage.buffer.data;
@@ -317,9 +317,9 @@ class ImageDataUtil {
 		var data = image.buffer.data;
 		if (data == null) return;
 		
-		//#if ((cpp || neko) && !disable_cffi)
-		//if (!System.disableCFFI) lime_image_data_util_fill_rect (image, rect, rgba); else
-		//#end
+		#if ((cpp || neko) && !disable_cffi)
+		if (!System.disableCFFI) lime_image_data_util_fill_rect (image, rect, fillColor); else
+		#end
 		{
 			
 			var format = image.buffer.format;
@@ -1089,7 +1089,7 @@ class ImageDataUtil {
 	#if (cpp || neko || nodejs)
 	private static var lime_image_data_util_color_transform = System.load ("lime", "lime_image_data_util_color_transform", 3);
 	private static var lime_image_data_util_copy_channel = System.load ("lime", "lime_image_data_util_copy_channel", -1);
-	private static var lime_image_data_util_copy_pixels = System.load ("lime", "lime_image_data_util_copy_pixels", 5);
+	private static var lime_image_data_util_copy_pixels = System.load ("lime", "lime_image_data_util_copy_pixels", -1);
 	private static var lime_image_data_util_fill_rect = System.load ("lime", "lime_image_data_util_fill_rect", 3);
 	private static var lime_image_data_util_flood_fill = System.load ("lime", "lime_image_data_util_flood_fill", 4);
 	private static var lime_image_data_util_get_pixels = System.load ("lime", "lime_image_data_util_get_pixels", 4);

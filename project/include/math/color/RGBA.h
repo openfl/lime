@@ -189,6 +189,13 @@ namespace lime {
 			}
 			
 			
+			inline bool operator == (RGBA& rgba) {
+				
+				return (a == rgba.a && r == rgba.r && g == rgba.g && b == rgba.b);
+				
+			}
+			
+			
 			unsigned char r;
 			unsigned char g;
 			unsigned char b;
