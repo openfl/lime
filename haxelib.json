@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "2.5.0",
-	"releasenote": "Improvements to gamepad and Cairo support, stability updates",
+	"version": "2.5.1",
+	"releasenote": "Improved Image format support, library prefix support",
 	"contributors": [ "singmajesty" ]
 }
