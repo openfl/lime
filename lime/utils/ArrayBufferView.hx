@@ -519,8 +519,8 @@ private abstract TypedArrayType(Int) from Int to Int {
         #if cpp
             untyped return __global__.__hxcpp_memory_get_i32(buffer.getData(), byteOffset);
         #else
-            #if (haxe_ver > 3103)
-                return buffer.getI32(byteOffset);
+            #if (haxe_ver >= 3.2)
+                return buffer.getInt32(byteOffset);
             #else
 
                 var ch1 = getInt8(buffer, byteOffset  );
@@ -544,8 +544,8 @@ private abstract TypedArrayType(Int) from Int to Int {
         #if cpp
             untyped __global__.__hxcpp_memory_set_i32(buffer.getData(), byteOffset, value);
         #else
-            #if (haxe_ver > 3103)
-                buffer.setI32(byteOffset,value);
+            #if (haxe_ver >= 3.2)
+                buffer.setInt32(byteOffset,value);
             #else
                 if (littleEndian) {
                     setInt8(buffer, byteOffset  , value      );
