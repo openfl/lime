@@ -544,7 +544,7 @@ private abstract TypedArrayType(Int) from Int to Int {
         #if cpp
             untyped __global__.__hxcpp_memory_set_i32(buffer.getData(), byteOffset, value);
         #else
-            #if (haxe_ver >= 3.2)
+            #if ((haxe_ver >= 3.2) && !neko) // causes error on some int values?
                 buffer.setInt32(byteOffset,value);
             #else
                 if (littleEndian) {
