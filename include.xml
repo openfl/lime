@@ -46,7 +46,7 @@
 	
 	<section unless="display || lime-legacy">
 		
-		<ndll name="std" haxelib="hxcpp" if="cpp" />
+		<ndll name="std" haxelib="hxcpp" if="cpp" unless="lime-console" />
 		<ndll name="regexp" haxelib="hxcpp" if="cpp" />
 		<ndll name="zlib" haxelib="hxcpp" if="cpp" unless="emscripten || ios || static_link" />
 		
