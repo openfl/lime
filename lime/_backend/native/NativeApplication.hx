@@ -14,6 +14,7 @@ import lime.ui.Gamepad;
 import lime.ui.Window;
 
 @:access(haxe.Timer)
+@:access(lime._backend.native.NativeRenderer)
 @:access(lime.app.Application)
 @:access(lime.graphics.Renderer)
 @:access(lime.ui.Gamepad)
@@ -236,22 +237,26 @@ class NativeApplication {
 					
 				case RENDER_CONTEXT_LOST:
 					
-					parent.renderer.context = null;
-					parent.renderer.onRenderContextLost.dispatch ();
+					if (parent.renderer.backend.useHardware) {
+						
+						parent.renderer.context = null;
+						parent.renderer.onRenderContextLost.dispatch ();
+						
+					}
 				
 				case RENDER_CONTEXT_RESTORED:
 					
-					#if lime_console
-					parent.renderer.context = CONSOLE (new ConsoleRenderContext ());
-					#else
-					if (parent.config.hardware) {
+					if (parent.renderer.backend.useHardware) {
 						
+						#if lime_console
+						parent.renderer.context = CONSOLE (new ConsoleRenderContext ());
+						#else
 						parent.renderer.context = OPENGL (new GLRenderContext ());
+						#end
+						
+						parent.renderer.onRenderContextRestored.dispatch (parent.renderer.context);
 						
 					}
-					#end
-					
-					parent.renderer.onRenderContextRestored.dispatch (parent.renderer.context);
 				
 			}
 			
