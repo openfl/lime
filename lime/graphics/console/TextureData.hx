@@ -19,13 +19,14 @@ extern class TextureData {
 	public var width (get, never):Int;
 	public var height (get, never):Int;
 
-	public var pointer (get, never):Pointer<UInt8>;
-
 
 	// fromFile loads texture data from the named file.
 	@:native("lime::ConsoleTextureData::fromFile")
 	public static function fromFile (name:String):TextureData;
 
+	// decode does any decompression or whatever is necessary to output lime's
+	// standard RGBA.
+	public function decode (dest:Pointer<UInt8>, destSize:Int):Void;
 
 	// release releases the texture data.
 	public function release ():Void;
@@ -34,7 +35,6 @@ extern class TextureData {
 	private function get_valid ():Bool;
 	private function get_width ():Int;
 	private function get_height ():Int;
-	private function get_pointer ():Pointer<UInt8>;
 
 
 }

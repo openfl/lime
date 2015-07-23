@@ -1029,7 +1029,11 @@ class Image {
 
 					#if 1
 
-						cpp.NativeArray.setSize (data, w*h*4);
+						var size = w * h * 4;
+						cpp.NativeArray.setSize (data, size);
+
+						td.decode (cpp.Pointer.arrayElem (data, 0), size);
+/*	
 						{
 							var dest:cpp.Pointer<cpp.UInt32> = cast cpp.Pointer.arrayElem (data, 0);	
 							var src:cpp.Pointer<cpp.UInt32> = cast td.pointer;	
@@ -1038,6 +1042,7 @@ class Image {
 								dest[i] = src[i];
 							}
 						}
+*/
 						td.release ();
 
 					#else
