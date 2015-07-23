@@ -53,9 +53,12 @@ class NativeRenderer {
 			
 			case "opengl":
 				
+				useHardware = true;
 				parent.context = OPENGL (new GLRenderContext ());
 			
 			default:
+				
+				useHardware = false;
 				
 				#if lime_cairo
 				render ();
