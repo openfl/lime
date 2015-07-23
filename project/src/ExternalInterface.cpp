@@ -868,6 +868,14 @@ namespace lime {
 	}
 	
 	
+	value lime_renderer_get_type (value renderer) {
+		
+		Renderer* targetRenderer = (Renderer*)(intptr_t)val_float (renderer);
+		return alloc_string (targetRenderer->Type ());
+		
+	}
+	
+	
 	value lime_renderer_lock (value renderer) {
 		
 		return ((Renderer*)(intptr_t)val_float (renderer))->Lock ();
@@ -1199,6 +1207,7 @@ namespace lime {
 	DEFINE_PRIM (lime_png_decode_file, 2);
 	DEFINE_PRIM (lime_renderer_create, 1);
 	DEFINE_PRIM (lime_renderer_flip, 1);
+	DEFINE_PRIM (lime_renderer_get_type, 1);
 	DEFINE_PRIM (lime_renderer_lock, 1);
 	DEFINE_PRIM (lime_renderer_unlock, 1);
 	DEFINE_PRIM (lime_render_event_manager_register, 2);
