@@ -559,20 +559,22 @@ namespace lime {
 	}
 	
 	
-	value lime_image_data_util_fill_rect (value image, value rect, value color) {
+	value lime_image_data_util_fill_rect (value image, value rect, value rg, value ba) {
 		
 		Image _image = Image (image);
 		Rectangle _rect = Rectangle (rect);
-		ImageDataUtil::FillRect (&_image, &_rect, val_number (color));
+		int32_t color = (val_int (rg) << 16) | val_int (ba);
+		ImageDataUtil::FillRect (&_image, &_rect, color);
 		return alloc_null ();
 		
 	}
 	
 	
-	value lime_image_data_util_flood_fill (value image, value x, value y, value color) {
+	value lime_image_data_util_flood_fill (value image, value x, value y, value rg, value ba) {
 		
 		Image _image = Image (image);
-		ImageDataUtil::FloodFill (&_image, val_number (x), val_number (y), val_number (color));
+		int32_t color = (val_int (rg) << 16) | val_int (ba);
+		ImageDataUtil::FloodFill (&_image, val_number (x), val_number (y), color);
 		return alloc_null ();
 		
 	}
@@ -1169,8 +1171,8 @@ namespace lime {
 	DEFINE_PRIM (lime_image_data_util_color_transform, 3);
 	DEFINE_PRIM_MULT (lime_image_data_util_copy_channel);
 	DEFINE_PRIM_MULT (lime_image_data_util_copy_pixels);
-	DEFINE_PRIM (lime_image_data_util_fill_rect, 3);
-	DEFINE_PRIM (lime_image_data_util_flood_fill, 4);
+	DEFINE_PRIM (lime_image_data_util_fill_rect, 4);
+	DEFINE_PRIM (lime_image_data_util_flood_fill, 5);
 	DEFINE_PRIM (lime_image_data_util_get_pixels, 4);
 	DEFINE_PRIM_MULT (lime_image_data_util_merge);
 	DEFINE_PRIM (lime_image_data_util_multiply_alpha, 1);

@@ -243,7 +243,7 @@ namespace lime {
 	}
 	
 	
-	void ImageDataUtil::FillRect (Image* image, Rectangle* rect, int color) {
+	void ImageDataUtil::FillRect (Image* image, Rectangle* rect, int32_t color) {
 		
 		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
 		PixelFormat format = image->buffer->format;
@@ -268,7 +268,7 @@ namespace lime {
 	}
 	
 	
-	void ImageDataUtil::FloodFill (Image* image, int x, int y, int color) {
+	void ImageDataUtil::FloodFill (Image* image, int x, int y, int32_t color) {
 		
 		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
 		PixelFormat format = image->buffer->format;
