@@ -1,3 +1,13 @@
+2.5.2 (07/23/2015)
+------------------
+
+* Added support for automatic software fallback on native platforms
+* Improved the behavior of image getPixel/setPixel
+* Fixed native fillRect/floodFill when using certain color values
+* Improved color conversion support for Flash
+* Fixed issue preventing Neko from reading 32-bit integers correctly 
+
+
 2.5.1 (07/21/2015)
 ------------------
 
