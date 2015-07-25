@@ -48,35 +48,35 @@ LIB_DEST := $(DEBUG)/libApplicationMain.a
 build-haxe-i386:
 	@echo "Haxe simulator build: $(CONFIG)"
 	haxe Build.hxml -D simulator -cpp build/$(CONFIG) $(DEBUG)
-	cd build/$(CONFIG); export HXCPP_NO_COLOR=1; haxelib run ::CPP_BUILD_LIBRARY:: Build.xml -Dios -Diphone -Dsimulator -DHXCPP_CPP11 $(DEF_DEBUG) $(HXCPP_CLANG) `grep " -D" Options.txt`
+	cd build/$(CONFIG); export HXCPP_NO_COLOR=1; haxelib run ::CPP_BUILD_LIBRARY:: Build.xml -Dios -Diphone -Dsimulator -DHXCPP_CPP11 $(DEF_DEBUG) $(HXCPP_CLANG) `cat Options.txt | while read LINE; do printf " -D$$LINE"; done`
 	cp build/$(CONFIG)/::CPP_LIBPREFIX::ApplicationMain$(DEBUG).iphonesim.a ../lib/i386$(LIB_DEST)
 	touch ../Classes/Main.mm
 
 build-haxe-x86_64:
 	@echo "Haxe simulator build: $(CONFIG)-64"
 	haxe Build.hxml -D simulator -D HXCPP_M64 -cpp build/$(CONFIG)-64 $(DEBUG)
-	cd build/$(CONFIG)-64; export HXCPP_NO_COLOR=1; haxelib run ::CPP_BUILD_LIBRARY:: Build.xml -Dios -Diphone -Dsimulator -DHXCPP_M64 -DHXCPP_CPP11 $(DEF_DEBUG) $(HXCPP_CLANG) `grep " -D" Options.txt`
+	cd build/$(CONFIG)-64; export HXCPP_NO_COLOR=1; haxelib run ::CPP_BUILD_LIBRARY:: Build.xml -Dios -Diphone -Dsimulator -DHXCPP_M64 -DHXCPP_CPP11 $(DEF_DEBUG) $(HXCPP_CLANG) `cat Options.txt | while read LINE; do printf " -D$$LINE"; done`
 	cp build/$(CONFIG)-64/::CPP_LIBPREFIX::ApplicationMain$(DEBUG).iphonesim-64.a ../lib/x86_64$(LIB_DEST)
 	touch ../Classes/Main.mm
 
 build-haxe-armv6:
 	@echo "Haxe device build: $(CONFIG)"
 	haxe Build.hxml -D HXCPP_ARMV6 -cpp build/$(CONFIG) $(DEBUG)
-	cd build/$(CONFIG); export HXCPP_NO_COLOR=1; haxelib run ::CPP_BUILD_LIBRARY:: Build.xml -Dios -Diphone -DHXCPP_ARMV6 -DHXCPP_CPP11 $(DEF_DEBUG) $(HXCPP_CLANG) `grep " -D" Options.txt`
+	cd build/$(CONFIG); export HXCPP_NO_COLOR=1; haxelib run ::CPP_BUILD_LIBRARY:: Build.xml -Dios -Diphone -DHXCPP_ARMV6 -DHXCPP_CPP11 $(DEF_DEBUG) $(HXCPP_CLANG) `cat Options.txt | while read LINE; do printf " -D$$LINE"; done`
 	cp build/$(CONFIG)/::CPP_LIBPREFIX::ApplicationMain$(DEBUG).iphoneos.a ../lib/armv6$(LIB_DEST)
 	touch ../Classes/Main.mm
 
 build-haxe-armv7:
 	@echo "Haxe device build: $(CONFIG)-v7"
 	haxe Build.hxml -D HXCPP_ARMV7 -cpp build/$(CONFIG)-v7 $(DEBUG)
-	cd build/$(CONFIG)-v7; export HXCPP_NO_COLOR=1; haxelib run ::CPP_BUILD_LIBRARY:: Build.xml -Dios -Diphone -DHXCPP_ARMV7 -DHXCPP_CPP11 $(DEF_DEBUG) $(HXCPP_CLANG) `grep " -D" Options.txt`
+	cd build/$(CONFIG)-v7; export HXCPP_NO_COLOR=1; haxelib run ::CPP_BUILD_LIBRARY:: Build.xml -Dios -Diphone -DHXCPP_ARMV7 -DHXCPP_CPP11 $(DEF_DEBUG) $(HXCPP_CLANG) `cat Options.txt | while read LINE; do printf " -D$$LINE"; done`
 	cp build/$(CONFIG)-v7/::CPP_LIBPREFIX::ApplicationMain$(DEBUG).iphoneos-v7.a ../lib/armv7$(LIB_DEST)
 	touch ../Classes/Main.mm
 
 build-haxe-arm64:
 	@echo "Haxe device build: $(CONFIG)-64"
 	haxe Build.hxml -D HXCPP_ARM64 -cpp build/$(CONFIG)-64 $(DEBUG)
-	cd build/$(CONFIG)-64; export HXCPP_NO_COLOR=1; haxelib run ::CPP_BUILD_LIBRARY:: Build.xml -Dios -Diphone -DHXCPP_ARM64 -DHXCPP_CPP11 $(DEF_DEBUG) $(HXCPP_CLANG) `grep " -D" Options.txt`
+	cd build/$(CONFIG)-64; export HXCPP_NO_COLOR=1; haxelib run ::CPP_BUILD_LIBRARY:: Build.xml -Dios -Diphone -DHXCPP_ARM64 -DHXCPP_CPP11 $(DEF_DEBUG) $(HXCPP_CLANG) `cat Options.txt | while read LINE; do printf " -D$$LINE"; done`
 	cp build/$(CONFIG)-64/::CPP_LIBPREFIX::ApplicationMain$(DEBUG).iphoneos-64.a ../lib/arm64$(LIB_DEST)
 	touch ../Classes/Main.mm
 
