@@ -106,14 +106,15 @@ class Log {
 		var args = Sys.args ();
 		if (args.indexOf ("-v") > -1 || args.indexOf ("-verbose") > -1) {
 			level = VERBOSE;
-			return;
+		} else
+		#end
+		{
+			#if debug
+			level = DEBUG;
+			#else
+			level = INFO;
+			#end
 		}
-		#end
-		#if debug
-		level = DEBUG;
-		#else
-		level = INFO;
-		#end
 		#end
 		
 		#if js
