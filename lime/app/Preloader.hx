@@ -286,7 +286,14 @@ class Preloader #if flash extends Sprite #end {
 	
 	#if flash
 	private function current_onEnter (event:Event):Void {
-		
+
+		// Failsafe for small binary missing the 'onComplete' handler
+		if(!complete && Lib.current.loaderInfo.bytesLoaded == Lib.current.loaderInfo.bytesTotal)
+		{
+			complete = true;
+			update (Lib.current.loaderInfo.bytesLoaded, Lib.current.loaderInfo.bytesTotal);
+		}
+
 		if (complete) {
 			
 			Lib.current.removeEventListener (Event.ENTER_FRAME, current_onEnter);

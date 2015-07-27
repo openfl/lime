@@ -792,7 +792,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 ::if (assets != null)::::foreach assets::::if (!embed)::::if (type == "font")::@:keep #if display private #end class __ASSET__::flatName:: extends lime.text.Font { public function new () { __fontPath = #if ios "assets/" + #end "::targetPath::"; name = "::fontName::"; super (); }}
 ::end::::end::::end::::end::
 
-#if (windows || mac || linux)
+#if (windows || mac || linux || cpp)
 
 ::if (assets != null)::
 ::foreach assets::::if (embed)::::if (type == "image")::@:image("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends lime.graphics.Image {}
