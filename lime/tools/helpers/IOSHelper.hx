@@ -201,7 +201,7 @@ class IOSHelper {
 
             // device config
             var defaultDevice = "iphone-6";
-            var devices:Array<String> = ["iphone-4s", "iphone-5", "iphone-5s", "iphone-6-Plus", "iphone-6", "ipad-2", "ipad-retina", "ipad-air"];
+            var devices:Array<String> = ["iphone-4s", "iphone-5", "iphone-5s", "iphone-6-plus", "iphone-6", "ipad-2", "ipad-retina", "ipad-air"];
             var oldDevices:Map<String, String> = ["iphone" => "iphone-6", "ipad" => "ipad-air"];
 
             var deviceFlag:String = null;
