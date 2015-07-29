@@ -146,7 +146,23 @@ abstract ARGB(Int) from Int to Int {
 	}
 	
 	
+	@:from private static inline function __fromUInt (uint:UInt):ARGB {
+
+		var color : Int = uint;
+
+		return new ARGB (color);
+
+	}
+
 	
+	@:to private inline function __toUInt ():UInt {
+
+		return (this : Int);
+
+	}
+
+
+
 	
 	// Get & Set Methods
 	

@@ -179,8 +179,24 @@ abstract RGBA(Int) from Int to Int {
 		return RGBA.create (bgra.r, bgra.g, bgra.b, bgra.a);
 		
 	}
+
+
+	@:from private static inline function __fromUInt (uint:UInt):RGBA {
+
+		var color : Int = uint;
+
+		return new RGBA (color);
+
+	}
 	
 	
+	@:to private inline function __toUInt ():UInt {
+
+		return (this : Int);
+
+	}
+
+
 	
 	
 	// Get & Set Methods

@@ -146,7 +146,23 @@ abstract BGRA(Int) from Int to Int {
 	}
 	
 	
+	@:from private static inline function __fromUInt (uint:UInt):BGRA {
+
+		var color : Int = uint;
+
+		return new BGRA (color);
+
+	}
+
 	
+	@:to private inline function __toUInt ():UInt {
+
+		return (this : Int);
+
+	}
+
+
+
 	
 	// Get & Set Methods
 	
