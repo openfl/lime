@@ -68,7 +68,7 @@ class Display {
 	public var name (default, null):String;
 	
 	/**Number of horizontal and vertical pixels currently being displayed**/
-	public var resolution(default, null):ConstVector2;
+	public var resolution(default, null):Resolution;
 	
 	/**Horizontal resolution / Vertical resolution**/
 	public var aspectRatio(get, null):Float;
@@ -97,7 +97,7 @@ class Display {
 		var obj = lime_display_get_current_display_mode(id);
 		mode = new DisplayMode(obj.width, obj.height, obj.refresh_rate, obj.format);
 		
-		resolution = new ConstVector2(mode.width, mode.height);
+		resolution = new Resolution(mode.width, mode.height);
 		
 		modes = [];
 		var numModes = lime_display_get_num_display_modes(id);
@@ -114,9 +114,9 @@ class Display {
 	
 	private function get_aspectRatio():Float {
 		
-		if (resolution.y != 0) {
+		if (resolution.height != 0) {
 		
-			return resolution.x / resolution.y;
+			return resolution.width / resolution.height;
 		
 		}
 		
@@ -161,14 +161,14 @@ class DisplayMode {
 	
 }
 
-abstract ConstVector2 (Vector2) from Vector2 {
+abstract Resolution (Vector2) from Vector2 {
 	
-	public inline function new (x:Float = 0, y:Float = 0) this = new Vector2(x, y);
+	public inline function new (width:Float = 0, height:Float = 0) this = new Vector2(width, height);
 	
-	public var x(get, never):Float;
-	public var y(get, never):Float;
+	public var width(get, never):Float;
+	public var height(get, never):Float;
 	
-	inline function get_x ():Float return this.x;
-	inline function get_y ():Float return this.y;
+	inline function get_width ():Float return this.x;
+	inline function get_height ():Float return this.y;
 	
 }
