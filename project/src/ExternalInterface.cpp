@@ -391,6 +391,12 @@ namespace lime {
 		
 	}
 	
+	value lime_display_get_name (value displayIndex) {
+		
+		return alloc_string (Display::GetDisplayName (val_int (displayIndex)));
+		
+	}
+	
 	value lime_display_get_num_devices () {
 		
 		return alloc_int (Display::GetNumDevices());
@@ -1178,6 +1184,7 @@ namespace lime {
 	DEFINE_PRIM (lime_font_render_glyph, 3);
 	DEFINE_PRIM (lime_font_render_glyphs, 3);
 	DEFINE_PRIM (lime_font_set_size, 2);
+	DEFINE_PRIM (lime_display_get_name, 1);
 	DEFINE_PRIM (lime_display_get_num_devices, 0);
 	DEFINE_PRIM (lime_gamepad_add_mappings, 1);
 	DEFINE_PRIM (lime_gamepad_event_manager_register, 2);

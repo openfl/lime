@@ -11,6 +11,7 @@ namespace lime {
 		public:
 			
 			static int GetNumDevices ();
+			static const char* GetDisplayName (int displayIndex);
 		
 	};
 	
