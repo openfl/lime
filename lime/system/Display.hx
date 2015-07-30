@@ -146,15 +146,16 @@ class Display {
 	
 	#if (cpp || neko || nodejs)
 	
-	private static var lime_display_get_num_devices = System.load("lime", "lime_display_get_num_devices_displays", 0);
+	private static var lime_display_get_num_devices = System.load("lime", "lime_display_get_num_devices", 0);
 	
 	/*
 	private static var lime_display_get_name = System.load ("lime", "lime_display_get_name", 1);
 	private static var lime_display_get_num_display_modes = System.load ("lime", "lime_display_get_num_display_modes", 1);
 	private static var lime_display_get_display_mode = System.load ("lime", "lime_display_get_display_mode", 2);
 	private static var lime_display_get_current_display_mode = System.load ("lime", "lime_display_get_current_display_mode", 1);
-	#end
 	*/
+	
+	#end
 }
 
 class DisplayMode {
