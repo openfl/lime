@@ -391,6 +391,12 @@ namespace lime {
 		
 	}
 	
+	value lime_display_get_display_bounds (value displayIndex) {
+		
+		return Display::GetDisplayBounds(val_int(displayIndex));
+		
+	}
+	
 	value lime_display_get_current_display_mode (value displayIndex) {
 		
 		return Display::GetCurrentDisplayMode(val_int(displayIndex));
@@ -1202,6 +1208,7 @@ namespace lime {
 	DEFINE_PRIM (lime_font_render_glyph, 3);
 	DEFINE_PRIM (lime_font_render_glyphs, 3);
 	DEFINE_PRIM (lime_font_set_size, 2);
+	DEFINE_PRIM (lime_display_get_display_bounds, 1);
 	DEFINE_PRIM (lime_display_get_current_display_mode, 1);
 	DEFINE_PRIM (lime_display_get_display_mode, 2);
 	DEFINE_PRIM (lime_display_get_name, 1);

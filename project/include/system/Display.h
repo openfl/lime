@@ -13,6 +13,7 @@ namespace lime {
 			
 			static value GetCurrentDisplayMode (int displayIndex);
 			static value GetDisplayMode (int displayIndex, int modeIndex);
+			static value GetDisplayBounds (int displayIndex);
 			static int GetNumDevices ();
 			static const char* GetDisplayName (int displayIndex);
 			static int GetNumDisplayModes (int displayIndex);

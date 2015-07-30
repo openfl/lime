@@ -1,4 +1,5 @@
 package lime.system;
+import lime.math.Rectangle;
 import lime.math.Vector2;
 import lime.system.Display;
 
@@ -11,6 +12,8 @@ class Display {
 	/********STATIC*********/
 	
 	public static var devices = new Map<Int, Display> ();
+	
+	/**How many display devices are currently connected and actively displaying visuals**/
 	public static var numDisplays(get, null):Int;
 	
 	/**
@@ -26,17 +29,6 @@ class Display {
 			devices.set(i, d);
 			
 		}
-		
-	}
-	
-	/**
-	 * Get the total number of connected displays
-	 * @return
-	 */
-	
-	public static function get_numDisplays():Int {
-		
-		return lime_display_get_num_devices();
 		
 	}
 	
@@ -57,6 +49,16 @@ class Display {
 		return null;
 	}
 	
+	/**
+	 * Get the total number of connected displays
+	 * @return
+	 */
+	
+	private static function get_numDisplays():Int {
+		
+		return lime_display_get_num_devices();
+		
+	}
 	
 	/*********INSTANCE**********/
 	
@@ -79,6 +81,9 @@ class Display {
 	/**All of the display modes supported by this device**/
 	public var modes(default, null):Array<DisplayMode>;
 	
+	/**The desktop area represented by this display, with the upper-leftmost display at 0,0**/
+	public var bounds(default, null):Rectangle;
+	
 	private function new(id:Int) {
 		
 		this.id = id;
@@ -94,10 +99,14 @@ class Display {
 		
 		name = lime_display_get_name(id);
 		
-		var obj = lime_display_get_current_display_mode(id);
-		mode = new DisplayMode(obj.width, obj.height, obj.refresh_rate, obj.format);
+		var obj = null;
 		
+		obj = lime_display_get_current_display_mode(id);
+		mode = new DisplayMode(obj.width, obj.height, obj.refresh_rate, obj.format);
 		resolution = new Resolution(mode.width, mode.height);
+		
+		obj = lime_display_get_display_bounds(id);
+		bounds = new Rectangle(obj.x, obj.y, obj.width, obj.height);
 		
 		modes = [];
 		var numModes = lime_display_get_num_display_modes(id);
@@ -130,6 +139,7 @@ class Display {
 	private static var lime_display_get_num_devices = System.load("lime", "lime_display_get_num_devices", 0);
 	private static var lime_display_get_name = System.load ("lime", "lime_display_get_name", 1);
 	private static var lime_display_get_num_display_modes = System.load ("lime", "lime_display_get_num_display_modes", 1);
+	private static var lime_display_get_display_bounds = System.load ("lime", "lime_display_get_display_bounds", 1);
 	private static var lime_display_get_display_mode = System.load ("lime", "lime_display_get_display_mode", 2);
 	private static var lime_display_get_current_display_mode = System.load ("lime", "lime_display_get_current_display_mode", 1);
 	

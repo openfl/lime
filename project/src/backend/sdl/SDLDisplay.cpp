@@ -4,6 +4,20 @@
 namespace lime {
 	
 	
+	value Display::GetDisplayBounds (int displayIndex) {
+		
+		SDL_Rect rect = { 0, 0, 0, 0};
+		SDL_GetDisplayBounds(displayIndex, &rect);
+		
+		value mValue = alloc_empty_object ();
+		alloc_field (mValue, val_id("x"), alloc_int(rect.x));
+		alloc_field (mValue, val_id("y"), alloc_int(rect.y));
+		alloc_field (mValue, val_id("width"), alloc_int(rect.w));
+		alloc_field (mValue, val_id("height"), alloc_int(rect.h));
+		return mValue;
+		
+	}
+	
 	value Display::GetCurrentDisplayMode (int displayIndex) {
 		
 		SDL_DisplayMode mode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
