@@ -1,7 +1,7 @@
 package lime.ui;
 
 
-@:enum abstract KeyCode(Int) from Int to Int {
+@:enum abstract KeyCode(Int) from Int to Int from UInt to UInt {
 	
 	
 	var UNKNOWN = 0x00;
