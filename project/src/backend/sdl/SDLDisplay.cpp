@@ -7,7 +7,7 @@ namespace lime {
 	value Display::GetCurrentDisplayMode (int displayIndex) {
 		
 		SDL_DisplayMode mode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
-		SDL_GetCurrentDisplayMode(displayIndex, mode);
+		SDL_GetCurrentDisplayMode(displayIndex, &mode);
 		
 		value mValue = alloc_empty_object ();
 		alloc_field (mValue, val_id("w"), alloc_int(mode.w));
@@ -15,12 +15,13 @@ namespace lime {
 		alloc_field (mValue, val_id("refresh_rate"), alloc_int(mode.refresh_rate));
 		alloc_field (mValue, val_id("format"), alloc_int(mode.format));
 		return mValue;
+		
 	}
 	
 	value Display::GetDisplayMode (int displayIndex, int modeIndex) {
 		
 		SDL_DisplayMode mode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
-		SDL_GetDisplayMode(displayIndex, modeIndex, mode);
+		SDL_GetDisplayMode(displayIndex, modeIndex, &mode);
 		
 		value mValue = alloc_empty_object ();
 		alloc_field (mValue, val_id("w"), alloc_int(mode.w));

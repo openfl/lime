@@ -11,13 +11,13 @@ namespace lime {
 		
 		public:
 			
-			value Display::GetCurrentDisplayMode (int displayIndex);
-			value Display::GetDisplayMode (int displayIndex, int modeIndex);
+			static value Display::GetCurrentDisplayMode (int displayIndex);
+			static value Display::GetDisplayMode (int displayIndex, int modeIndex);
 			static int GetNumDevices ();
 			static const char* GetDisplayName (int displayIndex);
 			static int GetNumDisplayModes (int displayIndex);
 	
-	
+	}
 }
 
 
