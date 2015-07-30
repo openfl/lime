@@ -10,7 +10,7 @@ namespace lime {
 		
 	}
 	
-	static const char* GetDisplayName (int displayIndex) {
+	const char* Display::GetDisplayName (int displayIndex) {
 		
 		return SDL_GetDisplayName(displayIndex);
 		
