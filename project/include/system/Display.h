@@ -17,7 +17,7 @@ namespace lime {
 			static const char* GetDisplayName (int displayIndex);
 			static int GetNumDisplayModes (int displayIndex);
 	
-	}
+	};
 }
 
 

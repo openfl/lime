@@ -393,13 +393,13 @@ namespace lime {
 	
 	value lime_display_get_current_display_mode (value displayIndex) {
 		
-		return Display::GetCurrentDisplayMode(displayIndex);
+		return Display::GetCurrentDisplayMode(val_int(displayIndex));
 		
 	}
 	
 	value lime_display_get_display_mode (value displayIndex, value modeIndex) {
 		
-		return Display::GetCurrentDisplayMode(displayIndex, modeIndex);
+		return Display::GetDisplayMode(val_int(displayIndex), val_int(modeIndex));
 		
 	}
 	
@@ -417,7 +417,7 @@ namespace lime {
 	
 	value lime_display_get_num_display_modes (value displayIndex) {
 		
-		return alloc_int (Display::GetNumDisplayModes(val_int (displayIndex));
+		return alloc_int (Display::GetNumDisplayModes(val_int (displayIndex)));
 		
 	}
 	
