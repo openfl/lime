@@ -1,9 +1,7 @@
-#ifndef LIME_UI_DISPLAY_H
-#define LIME_UI_DISPLAY_H
+#ifndef LIME_SYSTEM_DISPLAY_H
+#define LIME_SYSTEM_DISPLAY_H
 
 #include <SDL.h>
-#include <ui/Gamepad.h>
-#include <map>
 
 namespace lime {
 	

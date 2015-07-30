@@ -4,7 +4,7 @@
 namespace lime {
 	
 	
-	int SDLDisplay::GetNumDevices() {
+	int Display::GetNumDevices() {
 		
 		return SDL_GetNumVideoDisplays();
 		
