@@ -29,8 +29,6 @@ class Display {
 		
 	}
 	
-	public static function getName(i:Int):String { return lime_display_get_name(i); }
-	
 	/**
 	 * Get the total number of connected displays
 	 * @return
