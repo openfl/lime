@@ -36,7 +36,7 @@ class Display {
 	
 	public static function get_numDisplays():Int {
 		
-		return lime_display_get_num_video_displays();
+		return lime_display_get_num_devices();
 		
 	}
 	
@@ -123,9 +123,13 @@ class Display {
 	// Native Methods (stubs)
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_display_get_num_video_displays = function():Int { 
+	
+	/*
+	private static var lime_display_get_num_devices = function():Int { 
 		return 1;
 	};
+	*/
+	
 	private static var lime_display_get_name = function(i:Int) { 
 		return "fake"; 
 	};
@@ -140,10 +144,11 @@ class Display {
 	};
 	#end
 	
-	/*
 	#if (cpp || neko || nodejs)
-	private static var lime_display_get_num_video_displays = System.load("lime", "lime_display_get_num_video_displays", 0);
 	
+	private static var lime_display_get_num_devices = System.load("lime", "lime_display_get_num_devices_displays", 0);
+	
+	/*
 	private static var lime_display_get_name = System.load ("lime", "lime_display_get_name", 1);
 	private static var lime_display_get_num_display_modes = System.load ("lime", "lime_display_get_num_display_modes", 1);
 	private static var lime_display_get_display_mode = System.load ("lime", "lime_display_get_display_mode", 2);

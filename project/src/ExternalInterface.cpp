@@ -20,6 +20,7 @@
 #include <graphics/ImageBuffer.h>
 #include <graphics/Renderer.h>
 #include <graphics/RenderEvent.h>
+#include <system/Display.h>
 #include <system/System.h>
 #include <text/Font.h>
 #include <text/TextLayout.h>
@@ -390,6 +391,11 @@ namespace lime {
 		
 	}
 	
+	value lime_display_get_num_devices () {
+		
+		return alloc_int (Display::GetNumDevices());
+		
+	}
 	
 	value lime_gamepad_add_mappings (value mappings) {
 		
@@ -1172,6 +1178,7 @@ namespace lime {
 	DEFINE_PRIM (lime_font_render_glyph, 3);
 	DEFINE_PRIM (lime_font_render_glyphs, 3);
 	DEFINE_PRIM (lime_font_set_size, 2);
+	DEFINE_PRIM (lime_display_get_num_devices, 0);
 	DEFINE_PRIM (lime_gamepad_add_mappings, 1);
 	DEFINE_PRIM (lime_gamepad_event_manager_register, 2);
 	DEFINE_PRIM (lime_gamepad_get_device_guid, 1);
