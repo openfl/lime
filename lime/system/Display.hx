@@ -96,7 +96,7 @@ class Display {
 		name = lime_display_get_name(id);
 		
 		var obj = lime_display_get_current_display_mode(id);
-		mode = new DisplayMode(obj.width, obj.height, obj.refreshRate, obj.format);
+		mode = new DisplayMode(obj.width, obj.height, obj.refresh_rate, obj.format);
 		
 		resolution = new ConstVector2(mode.width, mode.height);
 		
@@ -106,7 +106,7 @@ class Display {
 		for (i in 0...numModes) {
 			
 			obj = lime_display_get_display_mode(id, i);
-			modes.push(new DisplayMode(obj.width, obj.height, obj.refreshRate, obj.format));
+			modes.push(new DisplayMode(obj.width, obj.height, obj.refresh_rate, obj.format));
 			
 		}
 	}
