@@ -76,6 +76,7 @@ class Display {
 	/**The current display mode**/
 	public var mode(default, null):DisplayMode;
 	
+	/**All of the display modes supported by this device**/
 	public var modes(default, null):Array<DisplayMode>;
 	
 	private function new(id:Int) {
@@ -122,28 +123,7 @@ class Display {
 		return 0;
 	}
 	
-	// Native Methods (stubs)
-	
-	#if (cpp || neko || nodejs)
-	
-	/*
-	private static var lime_display_get_num_devices = function():Int { 
-		return 1;
-	};
-	private static var lime_display_get_name = function(i:Int) { 
-		return "fake"; 
-	};
-	private static var lime_display_get_num_display_modes = function(i:Int) { 
-		return 1; 
-	};
-	private static var lime_display_get_display_mode = function(display:Int, mode:Int):DisplayMode {
-		return new DisplayMode(1024, 768, 60, 0);
-	};
-	private static var lime_display_get_current_display_mode = function(display:Int):DisplayMode {
-		return new DisplayMode(1024, 768, 60, 0);
-	};
-	*/
-	#end
+	// Native Methods
 	
 	#if (cpp || neko || nodejs)
 	
