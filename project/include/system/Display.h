@@ -2,6 +2,7 @@
 #define LIME_SYSTEM_DISPLAY_H
 
 #include <SDL.h>
+#include <hx/CFFI.h>
 
 namespace lime {
 	
@@ -10,10 +11,11 @@ namespace lime {
 		
 		public:
 			
+			value Display::GetCurrentDisplayMode (int displayIndex);
+			value Display::GetDisplayMode (int displayIndex, int modeIndex);
 			static int GetNumDevices ();
 			static const char* GetDisplayName (int displayIndex);
-		
-	};
+			static int GetNumDisplayModes (int displayIndex);
 	
 	
 }
