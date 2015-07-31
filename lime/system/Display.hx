@@ -2,12 +2,57 @@ package lime.system;
 
 
 import lime.math.Rectangle;
+import lime.ui.Window;
 
 
 class Display {
 	
 	
 	public static var devices = new Array<Display> ();
+	
+	/**
+	 * Returns the display which intersects the upper-left hand corner of the given window
+	 * @param	window
+	 * @return
+	 **/
+	public static function atWindow(window:Window):Display {
+		
+		for (d in devices) {
+			
+			if ((d.bounds.left <= window.x && d.bounds.right  >= window.x) && 
+			    (d.bounds.top  <= window.y && d.bounds.bottom >= window.y)) {
+				
+				return d;
+				
+			}
+			
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Returns ALL displays which intersect the given window
+	 * @param	window
+	 * @return
+	 */
+	public static function instersectingWindow(window:Window):Array<Display> {
+		
+		var arr = [];
+		
+		for (d in devices) {
+			
+			if ((d.bounds.left < window.x + window.width  && d.bounds.right  > window.x) &&
+				(d.bounds.top  < window.y + window.height && d.bounds.bottom > window.y)) {
+				
+				arr.push(d);
+				
+			}
+			
+		}
+		
+		return null;
+	}
 	
 	/**
 	 * The desktop area represented by this display, with the upper-leftmost display at 0,0
