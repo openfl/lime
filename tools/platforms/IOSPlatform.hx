@@ -262,11 +262,15 @@ class IOSPlatform extends PlatformTarget {
 			var name = null;
 			var path = null;
 			
+			// MTWIN DIFF
+			var addPath = true;
+			
 			if (Path.extension (dependency.name) == "framework") {
 				
 				name = dependency.name;
 				// MTWIN DIFF: remove "/" for AdSupport & AssetsLibrary frameworks
 				path = "System/Library/Frameworks/" + dependency.name;
+				addPath = false;
 				
 			} else if (Path.extension (dependency.path) == "framework") {
 				
@@ -280,7 +284,9 @@ class IOSPlatform extends PlatformTarget {
 				var frameworkID = "11C0000000000018" + StringHelper.getUniqueID ();
 				var fileID = "11C0000000000018" + StringHelper.getUniqueID ();
 				
-				ArrayHelper.addUnique (context.frameworkSearchPaths, Path.directory (path));
+				// MTWIN DIFF
+				if( addPath )
+					ArrayHelper.addUnique (context.frameworkSearchPaths, Path.directory (path));
 				
 				context.ADDL_PBX_BUILD_FILE += "		" + frameworkID + " /* " + name + " in Frameworks */ = {isa = PBXBuildFile; fileRef = " + fileID + " /* " + name + " */; };\n";
 				context.ADDL_PBX_FILE_REFERENCE += "		" + fileID + " /* " + name + " */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = \"" + name + "\"; path = \"" + path + "\"; sourceTree = SDKROOT; };\n";
