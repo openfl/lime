@@ -179,6 +179,18 @@ class NativeWindow {
 		
 	}
 	
+	public function setTitle (value:String):String {
+		
+		if (handle != null) {
+			
+			return lime_window_set_title (handle, value);
+			
+		}
+		
+		return value;
+		
+	}
+	
 	
 	private static var lime_window_close = System.load ("lime", "lime_window_close", 1);
 	private static var lime_window_create = System.load ("lime", "lime_window_create", 5);
@@ -193,6 +205,7 @@ class NativeWindow {
 	private static var lime_window_set_fullscreen = System.load ("lime", "lime_window_set_fullscreen", 2);
 	private static var lime_window_set_icon = System.load ("lime", "lime_window_set_icon", 2);
 	private static var lime_window_set_minimized = System.load ("lime", "lime_window_set_minimized", 2);
+	private static var lime_window_set_title = System.load ("lime", "lime_window_set_title", 2);
 	
 	
 }

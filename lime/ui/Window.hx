@@ -49,6 +49,7 @@ class Window {
 	public var width (get, set):Int;
 	public var x (get, set):Int;
 	public var y (get, set):Int;
+	public var title (get, set):String;
 	
 	@:noCompletion private var backend:WindowBackend;
 	@:noCompletion private var __fullscreen:Bool;
@@ -57,6 +58,7 @@ class Window {
 	@:noCompletion private var __width:Int;
 	@:noCompletion private var __x:Int;
 	@:noCompletion private var __y:Int;
+	@:noCompletion private var __title:String;
 	
 	
 	public function new (config:Config = null) {
@@ -68,6 +70,7 @@ class Window {
 		__fullscreen = false;
 		__x = 0;
 		__y = 0;
+		__title = "";
 		
 		if (config != null) {
 			
@@ -76,6 +79,7 @@ class Window {
 			if (Reflect.hasField (config, "width")) __width = config.width;
 			if (Reflect.hasField (config, "height")) __height = config.height;
 			if (Reflect.hasField (config, "fullscreen")) __fullscreen = config.fullscreen;
+			if (Reflect.hasField (config, "title")) __title = config.title;
 			
 		}
 		
@@ -357,6 +361,21 @@ class Window {
 		
 		move (__x, value);
 		return __y;
+		
+	}
+	
+	@:noCompletion private inline function get_title ():String {
+		
+		return __title;
+		
+	}
+	
+	
+	@:noCompletion private function set_title (value:String):String {
+		
+		__title = value;
+		backend.setTitle(__title);
+		return __title;
 		
 	}
 	

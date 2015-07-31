@@ -29,6 +29,7 @@ namespace lime {
 			virtual bool SetFullscreen (bool fullscreen);
 			virtual void SetIcon (ImageBuffer *imageBuffer);
 			virtual bool SetMinimized (bool minimized);
+			virtual const char* SetTitle (const char* title);
 			
 			SDL_Window* sdlWindow;
 		
