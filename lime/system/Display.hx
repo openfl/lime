@@ -51,7 +51,7 @@ class Display {
 			
 		}
 		
-		return null;
+		return arr;
 	}
 	
 	/**
