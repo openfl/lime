@@ -178,6 +178,7 @@
 			<file name="src/backend/sdl/SDLWindow.cpp" />
 			<file name="src/backend/sdl/SDLRenderer.cpp" />
 			<file name="src/backend/sdl/SDLGamepad.cpp" />
+			<file name="src/backend/sdl/SDLDisplay.cpp" />
 			<file name="src/backend/sdl/SDLMouse.cpp" />
 			<file name="src/backend/sdl/SDLSystem.cpp" />
 			<file name="src/backend/sdl/SDLJNI.cpp" />
