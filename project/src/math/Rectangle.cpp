@@ -70,4 +70,26 @@ namespace lime {
 	}
 	
 	
+	value Rectangle::Value () {
+		
+		if (!init) {
+			
+			id_height = val_id ("height");
+			id_width = val_id ("width");
+			id_x = val_id ("x");
+			id_y = val_id ("y");
+			init = true;
+			
+		}
+		
+		value rect = alloc_empty_object ();
+		alloc_field (rect, id_height, alloc_float (height));
+		alloc_field (rect, id_width, alloc_float (width));
+		alloc_field (rect, id_x, alloc_float (x));
+		alloc_field (rect, id_y, alloc_float (y));
+		return rect;
+		
+	}
+	
+	
 }

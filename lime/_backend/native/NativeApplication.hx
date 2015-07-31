@@ -9,6 +9,9 @@ import lime.graphics.ConsoleRenderContext;
 import lime.graphics.GLRenderContext;
 import lime.graphics.RenderContext;
 import lime.graphics.Renderer;
+import lime.math.Rectangle;
+import lime.system.Display;
+import lime.system.DisplayMode;
 import lime.system.System;
 import lime.ui.Gamepad;
 import lime.ui.Window;
@@ -17,6 +20,7 @@ import lime.ui.Window;
 @:access(lime._backend.native.NativeRenderer)
 @:access(lime.app.Application)
 @:access(lime.graphics.Renderer)
+@:access(lime.system.Display)
 @:access(lime.ui.Gamepad)
 @:access(lime.ui.Window)
 
@@ -54,6 +58,33 @@ class NativeApplication {
 		parent.config = config;
 		
 		handle = lime_application_create (null);
+		
+		#if !lime_console
+		
+		// TODO: Evolve this more
+		
+		var displays:Array<Dynamic> = lime_display_get_details ();
+		
+		for (displayInfo in displays) {
+			
+			var display = new Display ();
+			display.name = displayInfo.name;
+			display.supportedModes = [];
+			display.bounds = new Rectangle (displayInfo.bounds.x, displayInfo.bounds.y, displayInfo.bounds.width, displayInfo.bounds.height);
+			
+			for (mode in cast (displayInfo.supportedModes, Array<Dynamic>)) {
+				
+				var displayMode = new DisplayMode (mode.width, mode.height, mode.refreshRate, mode.pixelFormat);
+				display.supportedModes.push (displayMode);
+				
+			}
+			
+			display.currentMode = display.supportedModes[displayInfo.currentMode];
+			Display.devices.push (display);
+			
+		}
+		
+		#end
 		
 		if (config != null) {
 			
@@ -444,6 +475,7 @@ class NativeApplication {
 	private static var lime_application_set_frame_rate = System.load ("lime", "lime_application_set_frame_rate", 2);
 	private static var lime_application_update = System.load ("lime", "lime_application_update", 1);
 	private static var lime_application_quit = System.load ("lime", "lime_application_quit", 1);
+	private static var lime_display_get_details = System.load ("lime", "lime_display_get_details", 0);
 	private static var lime_gamepad_event_manager_register = System.load ("lime", "lime_gamepad_event_manager_register", 2);
 	private static var lime_key_event_manager_register = System.load ("lime", "lime_key_event_manager_register", 2);
 	private static var lime_mouse_event_manager_register = System.load ("lime", "lime_mouse_event_manager_register", 2);

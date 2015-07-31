@@ -161,6 +161,13 @@ namespace lime {
 	}
 	
 	
+	value lime_display_get_details () {
+		
+		return Display::GetDetails ();
+		
+	}
+	
+	
 	void lime_font_destroy (value handle) {
 		
 		Font *font = (Font*)(intptr_t)val_float (handle);
@@ -391,41 +398,6 @@ namespace lime {
 		
 	}
 	
-	value lime_display_get_display_bounds (value displayIndex) {
-		
-		return Display::GetDisplayBounds(val_int(displayIndex));
-		
-	}
-	
-	value lime_display_get_current_display_mode (value displayIndex) {
-		
-		return Display::GetCurrentDisplayMode(val_int(displayIndex));
-		
-	}
-	
-	value lime_display_get_display_mode (value displayIndex, value modeIndex) {
-		
-		return Display::GetDisplayMode(val_int(displayIndex), val_int(modeIndex));
-		
-	}
-	
-	value lime_display_get_name (value displayIndex) {
-		
-		return alloc_string (Display::GetDisplayName (val_int (displayIndex)));
-		
-	}
-	
-	value lime_display_get_num_devices () {
-		
-		return alloc_int (Display::GetNumDevices());
-		
-	}
-	
-	value lime_display_get_num_display_modes (value displayIndex) {
-		
-		return alloc_int (Display::GetNumDisplayModes(val_int (displayIndex)));
-		
-	}
 	
 	value lime_gamepad_add_mappings (value mappings) {
 		
@@ -1192,6 +1164,7 @@ namespace lime {
 	DEFINE_PRIM (lime_bytes_from_data_pointer, 2);
 	DEFINE_PRIM (lime_bytes_get_data_pointer, 1);
 	DEFINE_PRIM (lime_bytes_read_file, 1);
+	DEFINE_PRIM (lime_display_get_details, 0);
 	DEFINE_PRIM (lime_font_get_ascender, 1);
 	DEFINE_PRIM (lime_font_get_descender, 1);
 	DEFINE_PRIM (lime_font_get_family_name, 1);
@@ -1208,12 +1181,6 @@ namespace lime {
 	DEFINE_PRIM (lime_font_render_glyph, 3);
 	DEFINE_PRIM (lime_font_render_glyphs, 3);
 	DEFINE_PRIM (lime_font_set_size, 2);
-	DEFINE_PRIM (lime_display_get_display_bounds, 1);
-	DEFINE_PRIM (lime_display_get_current_display_mode, 1);
-	DEFINE_PRIM (lime_display_get_display_mode, 2);
-	DEFINE_PRIM (lime_display_get_name, 1);
-	DEFINE_PRIM (lime_display_get_num_devices, 0);
-	DEFINE_PRIM (lime_display_get_num_display_modes, 1);
 	DEFINE_PRIM (lime_gamepad_add_mappings, 1);
 	DEFINE_PRIM (lime_gamepad_event_manager_register, 2);
 	DEFINE_PRIM (lime_gamepad_get_device_guid, 1);
