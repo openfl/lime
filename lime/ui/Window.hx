@@ -48,19 +48,19 @@ class Window {
 	public var onWindowMove = new Event<Float->Float->Void> ();
 	public var onWindowResize = new Event<Int->Int->Void> ();
 	public var onWindowRestore = new Event<Void->Void> ();
+	public var title (get, set):String;
 	public var width (get, set):Int;
 	public var x (get, set):Int;
 	public var y (get, set):Int;
-	public var title (get, set):String;
 	
 	@:noCompletion private var backend:WindowBackend;
 	@:noCompletion private var __fullscreen:Bool;
 	@:noCompletion private var __height:Int;
 	@:noCompletion private var __minimized:Bool;
+	@:noCompletion private var __title:String;
 	@:noCompletion private var __width:Int;
 	@:noCompletion private var __x:Int;
 	@:noCompletion private var __y:Int;
-	@:noCompletion private var __title:String;
 	
 	
 	public function new (config:Config = null) {
@@ -329,6 +329,20 @@ class Window {
 	}
 	
 	
+	@:noCompletion private inline function get_title ():String {
+		
+		return __title;
+		
+	}
+	
+	
+	@:noCompletion private function set_title (value:String):String {
+		
+		return __title = backend.setTitle (__title);
+		
+	}
+	
+	
 	@:noCompletion private inline function get_width ():Int {
 		
 		return __width;
@@ -370,21 +384,6 @@ class Window {
 		
 		move (__x, value);
 		return __y;
-		
-	}
-	
-	@:noCompletion private inline function get_title ():String {
-		
-		return __title;
-		
-	}
-	
-	
-	@:noCompletion private function set_title (value:String):String {
-		
-		__title = value;
-		backend.setTitle(__title);
-		return __title;
 		
 	}
 	

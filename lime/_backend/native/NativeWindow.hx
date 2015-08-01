@@ -204,6 +204,7 @@ class NativeWindow {
 		
 	}
 	
+	
 	public function setTitle (value:String):String {
 		
 		if (handle != null) {

@@ -247,9 +247,10 @@ namespace lime {
 		
 	}
 	
+	
 	const char* SDLWindow::SetTitle (const char* title) {
 		
-		SDL_SetWindowTitle(sdlWindow, title);
+		SDL_SetWindowTitle (sdlWindow, title);
 		
 		return title;
 		
