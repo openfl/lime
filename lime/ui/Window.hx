@@ -281,9 +281,12 @@ class Window {
 			}
 			
 		}
+		
 		#else
 		return System.getDisplay (0);
 		#end
+		
+		return null;
 		
 	}
 	
