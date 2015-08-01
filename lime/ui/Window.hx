@@ -265,6 +265,7 @@ class Window {
 	
 	@:noCompletion private function get_display ():Display {
 		
+		#if sys
 		var center = new Vector2 (x + (width / 2), y + (height / 2));
 		var numDisplays = System.numDisplays;
 		var display;
@@ -280,8 +281,9 @@ class Window {
 			}
 			
 		}
-		
-		return null;
+		#else
+		return System.getDisplay (0);
+		#end
 		
 	}
 	
