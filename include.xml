@@ -29,6 +29,9 @@
 	<haxelib name="nodejs" if="nodejs" />
 	<haxelib name="format" if="java" />
 	
+	<target name="ps3" handler="lime-ps3" />
+	<haxelib name="lime-ps3" if="ps3" />
+
 	<target name="ps4" handler="lime-ps4" />
 	<haxelib name="lime-ps4" if="ps4" />
 	
