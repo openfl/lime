@@ -44,7 +44,11 @@ class PlatformHelper {
 					process.exitCode ();
 					process.close ();
 					
-					if (output.indexOf ("64") > -1) {
+					if (output.indexOf ("armv6") > -1) {
+
+						_hostArchitecture = Architecture.ARMV6;
+
+					} else if (output.indexOf ("64") > -1) {
 						
 						_hostArchitecture = Architecture.X64;
 						

@@ -456,7 +456,7 @@ class CommandLineTools {
 					
 				}
 				
-				if (raspberryPi) {
+				if (raspberryPi || PlatformHelper.hostArchitecture == Architecture.ARMV6) {
 					
 					untyped $loader.path = $array (path + "RPi/", $loader.path);
 					
