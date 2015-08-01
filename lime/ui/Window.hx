@@ -6,6 +6,9 @@ import lime.app.Config;
 import lime.app.Event;
 import lime.graphics.Image;
 import lime.graphics.Renderer;
+import lime.math.Vector2;
+import lime.system.Display;
+import lime.system.System;
 
 
 class Window {
@@ -13,6 +16,7 @@ class Window {
 	
 	public var currentRenderer:Renderer;
 	public var config:Config;
+	public var display (get, null):Display;
 	public var enableTextEvents (get, set):Bool;
 	public var fullscreen (get, set):Bool;
 	public var height (get, set):Int;
@@ -257,6 +261,29 @@ class Window {
 	// Get & Set Methods
 	
 	
+	
+	
+	@:noCompletion private function get_display ():Display {
+		
+		var center = new Vector2 (x + (width / 2), y + (height / 2));
+		var numDisplays = System.numDisplays;
+		var display;
+		
+		for (i in 0...numDisplays) {
+			
+			display = System.getDisplay (i);
+			
+			if (display.bounds.containsPoint (center)) {
+				
+				return display;
+				
+			}
+			
+		}
+		
+		return null;
+		
+	}
 	
 	
 	@:noCompletion private inline function get_enableTextEvents ():Bool {
