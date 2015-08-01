@@ -1159,6 +1159,13 @@ namespace lime {
 		
 	}
 	
+	value lime_window_set_title (value window, value title) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		return alloc_string (targetWindow->SetTitle (val_string (title)));
+		
+	}
+	
 	
 	DEFINE_PRIM (lime_application_create, 1);
 	DEFINE_PRIM (lime_application_exec, 1);
@@ -1251,6 +1258,7 @@ namespace lime {
 	DEFINE_PRIM (lime_window_set_fullscreen, 2);
 	DEFINE_PRIM (lime_window_set_icon, 2);
 	DEFINE_PRIM (lime_window_set_minimized, 2);
+	DEFINE_PRIM (lime_window_set_title, 2);
 	
 	
 }

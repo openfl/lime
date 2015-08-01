@@ -424,5 +424,13 @@ class HTML5Window {
 		
 	}
 	
+	public function setTitle (value:String):String {
+		
+		// not implemented
+		
+		return "";
+		
+	}
+	
 	
 }
