@@ -6,9 +6,7 @@ import lime.app.Config;
 import lime.app.Event;
 import lime.graphics.Image;
 import lime.graphics.Renderer;
-import lime.math.Vector2;
 import lime.system.Display;
-import lime.system.System;
 
 
 class Window {
@@ -265,28 +263,7 @@ class Window {
 	
 	@:noCompletion private function get_display ():Display {
 		
-		#if sys
-		var center = new Vector2 (x + (width / 2), y + (height / 2));
-		var numDisplays = System.numDisplays;
-		var display;
-		
-		for (i in 0...numDisplays) {
-			
-			display = System.getDisplay (i);
-			
-			if (display.bounds.containsPoint (center)) {
-				
-				return display;
-				
-			}
-			
-		}
-		
-		#else
-		return System.getDisplay (0);
-		#end
-		
-		return null;
+		return backend.getDisplay ();
 		
 	}
 	

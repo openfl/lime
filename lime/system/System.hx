@@ -203,13 +203,14 @@ class System {
 			display.name = "Generic Display";
 			
 			#if flash
-			display.currentMode = new DisplayMode (Capabilities.screenResolutionX, Capabilities.screenResolutionY, 60, ARGB32);
+			display.currentMode = new DisplayMode (Std.int (Capabilities.screenResolutionX), Std.int (Capabilities.screenResolutionY), 60, ARGB32);
 			#else
 			display.currentMode = new DisplayMode (Browser.window.screen.width, Browser.window.screen.height, 60, ARGB32);
 			#end
 			
 			display.supportedModes = [ display.currentMode ];
 			display.bounds = new Rectangle (0, 0, display.currentMode.width, display.currentMode.height);
+			return display;
 			
 		}
 		#end

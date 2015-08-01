@@ -4,6 +4,8 @@ package lime._backend.native;
 import lime.app.Application;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
+import lime.math.Vector2;
+import lime.system.Display;
 import lime.system.System;
 import lime.ui.Window;
 
@@ -85,6 +87,29 @@ class NativeWindow {
 			parent.__y = lime_window_get_y (handle);
 			
 		}
+		
+	}
+	
+	
+	public function getDisplay ():Display {
+		
+		var center = new Vector2 (parent.__x + (parent.__width / 2), parent.__y + (parent.__height / 2));
+		var numDisplays = System.numDisplays;
+		var display;
+		
+		for (i in 0...numDisplays) {
+			
+			display = System.getDisplay (i);
+			
+			if (display.bounds.containsPoint (center)) {
+				
+				return display;
+				
+			}
+			
+		}
+		
+		return null;
 		
 	}
 	
