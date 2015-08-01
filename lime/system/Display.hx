@@ -7,8 +7,6 @@ import lime.math.Rectangle;
 class Display {
 	
 	
-	public static var devices = new Array<Display> ();
-	
 	/**
 	 * The desktop area represented by this display, with the upper-leftmost display at 0,0
 	 **/
@@ -18,6 +16,8 @@ class Display {
 	 * The current display mode
 	 **/
 	public var currentMode (default, null):DisplayMode;
+	
+	public var id (default, null):Int;
 	
 	/**
 	 * The name of the device, such as "Samsung SyncMaster P2350", "iPhone 6", "Occulus Rift DK2", etc.

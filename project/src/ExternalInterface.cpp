@@ -20,7 +20,6 @@
 #include <graphics/ImageBuffer.h>
 #include <graphics/Renderer.h>
 #include <graphics/RenderEvent.h>
-#include <system/Display.h>
 #include <system/System.h>
 #include <text/Font.h>
 #include <text/TextLayout.h>
@@ -157,13 +156,6 @@ namespace lime {
 		
 		Bytes data = Bytes (val_os_string (path));
 		return data.Value ();
-		
-	}
-	
-	
-	value lime_display_get_details () {
-		
-		return Display::GetDetails ();
 		
 	}
 	
@@ -922,6 +914,20 @@ namespace lime {
 	}
 	
 	
+	value lime_system_get_display (value id) {
+		
+		return System::GetDisplay (val_int (id));
+		
+	}
+	
+	
+	value lime_system_get_num_displays () {
+		
+		return alloc_int (System::GetNumDisplays ());
+		
+	}
+	
+	
 	value lime_system_get_timer () {
 		
 		return alloc_float (System::GetTimer ());
@@ -1164,7 +1170,6 @@ namespace lime {
 	DEFINE_PRIM (lime_bytes_from_data_pointer, 2);
 	DEFINE_PRIM (lime_bytes_get_data_pointer, 1);
 	DEFINE_PRIM (lime_bytes_read_file, 1);
-	DEFINE_PRIM (lime_display_get_details, 0);
 	DEFINE_PRIM (lime_font_get_ascender, 1);
 	DEFINE_PRIM (lime_font_get_descender, 1);
 	DEFINE_PRIM (lime_font_get_family_name, 1);
@@ -1221,6 +1226,8 @@ namespace lime {
 	DEFINE_PRIM (lime_renderer_unlock, 1);
 	DEFINE_PRIM (lime_render_event_manager_register, 2);
 	DEFINE_PRIM (lime_system_get_directory, 3);
+	DEFINE_PRIM (lime_system_get_display, 1);
+	DEFINE_PRIM (lime_system_get_num_displays, 0);
 	DEFINE_PRIM (lime_system_get_timer, 0);
 	DEFINE_PRIM (lime_text_event_manager_register, 2);
 	DEFINE_PRIM (lime_text_layout_create, 3);
