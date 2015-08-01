@@ -8,6 +8,7 @@ import lime.app.Application;
 #end
 
 #if flash
+import flash.system.Capabilities;
 import flash.Lib;
 #end
 
@@ -192,6 +193,23 @@ class System {
 			
 			display.currentMode = display.supportedModes[displayInfo.currentMode];
 			return display;
+			
+		}
+		#elseif (flash || html5)
+		if (id == 0) {
+			
+			var display = new Display ();
+			display.id = 0;
+			display.name = "Generic Display";
+			
+			#if flash
+			display.currentMode = new DisplayMode (Capabilities.screenResolutionX, Capabilities.screenResolutionY, 60, ARGB32);
+			#else
+			display.currentMode = new DisplayMode (Browser.window.screen.width, Browser.window.screen.height, 60, ARGB32);
+			#end
+			
+			display.supportedModes = [ display.currentMode ];
+			display.bounds = new Rectangle (0, 0, display.currentMode.width, display.currentMode.height);
 			
 		}
 		#end
