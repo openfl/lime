@@ -1063,21 +1063,38 @@ class ImageDataUtil {
 			a = image.transparent ? color & 0xFF : 0xFF;
 			
 		}
+
+		// TODO(james4k): do a more sane endianness check, but this has changed
+		// in the latest lime anyways.
 		
 		if (image.transparent && image.premultiplied) {
 			
 			var a16 = __alpha16[a];
+			#if !(ps3 || wiiu)
 			data[offset] = (r * a16) >> 16;
 			data[offset + 1] = (g * a16) >> 16;
 			data[offset + 2] = (b * a16) >> 16;
 			data[offset + 3] = a;
+			#else
+			data[offset + 0] = a;
+			data[offset + 1] = (b * a16) >> 16;
+			data[offset + 2] = (g * a16) >> 16;
+			data[offset + 3] = (r * a16) >> 16;
+			#end
 			
 		} else {
 			
+			#if !(ps3 || wiiu)
 			data[offset] = r;
 			data[offset + 1] = g;
 			data[offset + 2] = b;
 			data[offset + 3] = a;
+			#else
+			data[offset + 0] = a;
+			data[offset + 1] = b;
+			data[offset + 2] = g;
+			data[offset + 3] = r;
+			#end
 			
 		}
 		

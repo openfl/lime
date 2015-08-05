@@ -272,7 +272,7 @@ class Font {
 			}
 			
 			var map = new Map<Int, Image> ();
-			var buffer = new ImageBuffer (null, bufferWidth, bufferHeight, 1);
+			var buffer = new ImageBuffer (null, bufferWidth, bufferHeight, 8);
 			var data = new ByteArray (bufferWidth * bufferHeight);
 			
 			bytes.position = 4;

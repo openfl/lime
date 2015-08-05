@@ -558,7 +558,7 @@ class System {
 	private static function get_littleEndian ():Bool {
 
 		// TODO(james4k): do something less error prone
-		#if wiiu
+		#if (ps3 || wiiu)
 		return false;
 		#else
 		return true;
