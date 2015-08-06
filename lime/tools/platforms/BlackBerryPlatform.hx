@@ -16,6 +16,7 @@ import lime.tools.helpers.ProcessHelper;
 import lime.project.AssetType;
 import lime.project.Haxelib;
 import lime.project.HXProject;
+import lime.project.Icon;
 import lime.project.NDLL;
 import lime.project.PlatformTarget;
 import sys.io.File;
@@ -320,9 +321,17 @@ class BlackBerryPlatform extends PlatformTarget {
 		context.ICONS = [];
 		context.HAS_ICON = false;
 		
+		var icons = project.icons;
+		
+		if (icons.length == 0) {
+			
+			icons = [ new Icon (PathHelper.findTemplate (project.templatePaths, "default/icon.svg")) ];
+			
+		}
+		
 		for (size in [ 114, 86 ]) {
 			
-			if (IconHelper.createIcon (project.icons, size, size, PathHelper.combine (destination, "icon-" + size + ".png"))) {
+			if (IconHelper.createIcon (icons, size, size, PathHelper.combine (destination, "icon-" + size + ".png"))) {
 				
 				context.ICONS.push ("icon-" + size + ".png");
 				context.HAS_ICON = true;

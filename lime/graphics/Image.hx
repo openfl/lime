@@ -12,6 +12,9 @@ import lime.graphics.format.JPEG;
 import lime.graphics.format.PNG;
 import lime.graphics.utils.ImageCanvasUtil;
 import lime.graphics.utils.ImageDataUtil;
+import lime.math.color.ARGB;
+import lime.math.color.BGRA;
+import lime.math.color.RGBA;
 import lime.math.ColorMatrix;
 import lime.math.Rectangle;
 import lime.math.Vector2;
@@ -161,8 +164,26 @@ class Image {
 	
 	public function clone ():Image {
 		
-		var image = new Image (buffer.clone (), offsetX, offsetY, width, height, null, type);
-		return image;
+		if (buffer != null) {
+			
+			if (type == CANVAS && buffer.__srcImage == null) {
+				
+				ImageCanvasUtil.convertToCanvas (this);
+				ImageCanvasUtil.sync (this);
+				buffer.data = null;
+				buffer.__srcImageData = null;
+				
+			}
+			
+			var image = new Image (buffer.clone (), offsetX, offsetY, width, height, null, type);
+			image.dirty = dirty;
+			return image;
+			
+		} else {
+			
+			return new Image (null, offsetX, offsetY, width, height, null, type);
+			
+		}
 		
 	}
 	
@@ -374,8 +395,16 @@ class Image {
 			case FLASH:
 				
 				rect.offset (offsetX, offsetY);
-				if (format == null || format == RGBA) color = ((color & 0xFF) << 24) | (color >> 8);
-				buffer.__srcBitmapData.fillRect (rect.__toFlashRectangle (), color);
+				
+				var argb:ARGB = switch (format) {
+					
+					case ARGB32: color;
+					case BGRA32: (color:BGRA);
+					default: (color:RGBA);
+					
+				}
+				
+				buffer.__srcBitmapData.fillRect (rect.__toFlashRectangle (), argb);
 				
 			default:
 			
@@ -404,8 +433,15 @@ class Image {
 			
 			case FLASH:
 				
-				if (format == null || format == RGBA) color = ((color & 0xFF) << 24) | (color >> 8);
-				buffer.__srcBitmapData.floodFill (x + offsetX, y + offsetY, color);
+				var argb:ARGB = switch (format) {
+					
+					case ARGB32: color;
+					case BGRA32: (color:BGRA);
+					default: (color:RGBA);
+					
+				}
+				
+				buffer.__srcBitmapData.floodFill (x + offsetX, y + offsetY, argb);
 			
 			default:
 			
@@ -522,15 +558,13 @@ class Image {
 			
 			case FLASH:
 				
-				var color = buffer.__srcBitmapData.getPixel (x + offsetX, y + offsetY);
+				var color:ARGB = buffer.__srcBitmapData.getPixel (x + offsetX, y + offsetY);
 				
-				if (format == null || format == RGBA) {
+				switch (format) {
 					
-					return ((color & 0xFF) << 24) | (color >> 8);
-					
-				} else {
-					
-					return color;
+					case ARGB32: return color;
+					case BGRA32: var bgra:BGRA = color; return bgra;
+					default: var rgba:RGBA = color; return rgba;
 					
 				}
 			
@@ -563,15 +597,13 @@ class Image {
 				
 			case FLASH:
 				
-				var color = buffer.__srcBitmapData.getPixel32 (x + offsetX, y + offsetY);
+				var color:ARGB = buffer.__srcBitmapData.getPixel32 (x + offsetX, y + offsetY);
 				
-				if (format == null || format == RGBA) {
+				switch (format) {
 					
-					return ((color & 0xFF) << 24) | (color >> 8);
-					
-				} else {
-					
-					return color;
+					case ARGB32: return color;
+					case BGRA32: var bgra:BGRA = color; return bgra;
+					default: var rgba:RGBA = color; return rgba;
 					
 				}
 			
@@ -607,20 +639,38 @@ class Image {
 				rect.offset (offsetX, offsetY);
 				var byteArray = buffer.__srcBitmapData.getPixels (rect.__toFlashRectangle ());
 				
-				if (format == null || format == RGBA) {
+				switch (format) {
 					
-					var color;
-					var length = Std.int (byteArray.length / 4);
-					
-					for (i in 0...length) {
+					case ARGB32: // do nothing
+					case BGRA32:
 						
-						color = byteArray.readUnsignedInt ();
-						byteArray.position -= 4;
-						byteArray.writeUnsignedInt (((color & 0xFF) << 24) | (color >> 8));
+						var color:BGRA;
+						var length = Std.int (byteArray.length / 4);
 						
-					}
+						for (i in 0...length) {
+							
+							color = (byteArray.readUnsignedInt ():ARGB);
+							byteArray.position -= 4;
+							byteArray.writeUnsignedInt (color);
+							
+						}
+						
+						byteArray.position = 0;
 					
-					byteArray.position = 0;
+					default:
+						
+						var color:RGBA;
+						var length = Std.int (byteArray.length / 4);
+						
+						for (i in 0...length) {
+							
+							color = (byteArray.readUnsignedInt ():ARGB);
+							byteArray.position -= 4;
+							byteArray.writeUnsignedInt (color);
+							
+						}
+						
+						byteArray.position = 0;
 					
 				}
 				
@@ -706,6 +756,37 @@ class Image {
 	}
 	
 	
+	public function scroll (x:Int, y:Int):Void {
+		
+		if (buffer == null) return;
+		
+		switch (type) {
+			
+			case CANVAS:
+				
+				ImageCanvasUtil.scroll (this, x, y);
+			
+			case DATA:
+				
+				//#if (js && html5)
+				//ImageCanvasUtil.convertToData (this);
+				//#end
+				
+				//ImageDataUtil.scroll (this, x, y);
+				
+				copyPixels (this, rect, new Vector2 (x, y));
+			
+			case FLASH:
+				
+				buffer.__srcBitmapData.scroll (x + offsetX, y + offsetX);
+			
+			default:
+			
+		}
+		
+	}
+	
+	
 	public function setPixel (x:Int, y:Int, color:Int, format:PixelFormat = null):Void {
 		
 		if (buffer == null || x < 0 || y < 0 || x >= width || y >= height) return;
@@ -726,8 +807,15 @@ class Image {
 			
 			case FLASH:
 				
-				if (format == null || format == RGBA) color = ((color & 0xFF) << 24) | (color >> 8);
-				buffer.__srcBitmapData.setPixel (x + offsetX, y + offsetX, color);
+				var argb:ARGB = switch (format) {
+					
+					case ARGB32: color;
+					case BGRA32: (color:BGRA);
+					default: (color:RGBA);
+					
+				}
+				
+				buffer.__srcBitmapData.setPixel (x + offsetX, y + offsetX, argb);
 			
 			default:
 			
@@ -756,8 +844,15 @@ class Image {
 			
 			case FLASH:
 				
-				if (format == null || format == RGBA) color = ((color & 0xFF) << 24) | (color >> 8);
-				buffer.__srcBitmapData.setPixel32 (x + offsetX, y + offsetY, color);
+				var argb:ARGB = switch (format) {
+					
+					case ARGB32: color;
+					case BGRA32: (color:BGRA);
+					default: (color:RGBA);
+					
+				}
+				
+				buffer.__srcBitmapData.setPixel32 (x + offsetX, y + offsetY, argb);
 			
 			default:
 			
@@ -788,27 +883,54 @@ class Image {
 			case FLASH:
 				
 				rect.offset (offsetX, offsetY);
-				if (format == null || format == RGBA) {
+				
+				switch (format) {
 					
-					var srcData = byteArray;
-					byteArray = new ByteArray ();
-					#if flash
-					byteArray.length = srcData.length;
-					#end
-					
-					var color;
-					var length = Std.int (byteArray.length / 4);
-					
-					for (i in 0...length) {
+					case ARGB32: // do nothing
+					case BGRA32:
 						
-						color = srcData.readUnsignedInt ();
-						byteArray.writeUnsignedInt (((color & 0xFF) << 24) | (color >> 8));
+						var srcData = byteArray;
+						byteArray = new ByteArray ();
+						#if flash
+						byteArray.length = srcData.length;
+						#end
 						
-					}
+						var color:BGRA;
+						var length = Std.int (byteArray.length / 4);
+						
+						for (i in 0...length) {
+							
+							color = srcData.readUnsignedInt ();
+							byteArray.writeUnsignedInt (cast (color, ARGB));
+							
+						}
+						
+						srcData.position = 0;
+						byteArray.position = 0;
 					
-					srcData.position = 0;
-					byteArray.position = 0;
+					default:
+						
+						var srcData = byteArray;
+						byteArray = new ByteArray ();
+						#if flash
+						byteArray.length = srcData.length;
+						#end
+						
+						var color:RGBA;
+						var length = Std.int (byteArray.length / 4);
+						
+						for (i in 0...length) {
+							
+							color = srcData.readUnsignedInt ();
+							byteArray.writeUnsignedInt (cast (color, ARGB));
+							
+						}
+						
+						srcData.position = 0;
+						byteArray.position = 0;
+					
 				}
+				
 				buffer.__srcBitmapData.setPixels (rect.__toFlashRectangle (), byteArray);
 			
 			default:

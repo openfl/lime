@@ -100,14 +100,17 @@ class TextLayout {
 	
 	@:noCompletion private function get_positions ():Array<GlyphPosition> {
 		
-		if ( __dirty )
-		{
+		if (__dirty) {
+			
 			__dirty = false;
-			__position();
+			__position ();
+			
 		}
 		
 		return positions;
+		
 	}
+	
 	
 	@:noCompletion private function get_direction ():TextDirection {
 		

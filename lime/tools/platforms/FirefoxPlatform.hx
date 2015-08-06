@@ -8,6 +8,7 @@ import lime.tools.helpers.IconHelper;
 import lime.tools.helpers.PathHelper;
 import lime.tools.helpers.LogHelper;
 import lime.project.HXProject;
+import lime.project.Icon;
 import sys.FileSystem;
 
 
@@ -68,10 +69,17 @@ class FirefoxPlatform extends HTML5Platform {
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "firefox/template", destination, context);
 		
 		var sizes = [ 32, 48, 60, 64, 128, 512 ];
+		var icons = project.icons;
+		
+		if (icons.length == 0) {
+			
+			icons = [ new Icon (PathHelper.findTemplate (project.templatePaths, "default/icon.svg")) ];
+			
+		}
 		
 		for (size in sizes) {
 			
-			IconHelper.createIcon (project.icons, size, size, PathHelper.combine (destination, "icon-" + size + ".png"));
+			IconHelper.createIcon (icons, size, size, PathHelper.combine (destination, "icon-" + size + ".png"));
 			
 		}
 		

@@ -53,7 +53,7 @@ package lime.utils;
             #end
     }
 
-        function toString() return 'UInt32Array [byteLength:${this.byteLength}, length:${this.length}]';
+        function toString() return this != null ? 'UInt32Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
 
     }
 
@@ -121,7 +121,7 @@ abstract UInt32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
         return ArrayBufferIO.setUint32(this.buffer, this.byteOffset+(idx*BYTES_PER_ELEMENT), val);
     }
 
-        function toString() return 'UInt32Array [byteLength:${this.byteLength}, length:${this.length}]';
+        function toString() return this != null ? 'UInt32Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
 
 }
 

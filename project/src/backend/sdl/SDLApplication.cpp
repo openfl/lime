@@ -15,7 +15,8 @@ namespace lime {
 	
 	AutoGCRoot* Application::callback = 0;
 	SDLApplication* SDLApplication::currentApplication = 0;
-	
+	std::map<int, std::map<int, int> > gamepadsAxisMap;
+	const int analogAxisDeadZone = 1000;
 	
 	SDLApplication::SDLApplication () {
 		
@@ -239,9 +240,36 @@ namespace lime {
 				
 				case SDL_CONTROLLERAXISMOTION:
 					
+					if (gamepadsAxisMap[event->caxis.which].empty()) {
+						
+						gamepadsAxisMap[event->caxis.which][event->caxis.axis] = event->caxis.value;
+						
+					}
+				        else if (gamepadsAxisMap[event->caxis.which][event->caxis.axis] == event->caxis.value) {
+					        
+					        break;
+				        	
+				        }
+	        	 		
 					gamepadEvent.type = AXIS_MOVE;
 					gamepadEvent.axis = event->caxis.axis;
 					gamepadEvent.id = event->caxis.which;
+					
+					if (event->caxis.value > -analogAxisDeadZone && event->caxis.value < analogAxisDeadZone) {
+						
+			            		if (gamepadsAxisMap[event->caxis.which][event->caxis.axis] != 0) {
+			            			
+							gamepadsAxisMap[event->caxis.which][event->caxis.axis] = 0;
+							gamepadEvent.axisValue = 0;
+							GamepadEvent::Dispatch (&gamepadEvent);
+							
+						}
+						
+						break;
+						
+					}
+					
+					gamepadsAxisMap[event->caxis.which][event->caxis.axis] = event->caxis.value;
 					gamepadEvent.axisValue = event->caxis.value / 32768.0;
 					
 					GamepadEvent::Dispatch (&gamepadEvent);

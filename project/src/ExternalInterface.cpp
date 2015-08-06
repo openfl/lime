@@ -127,10 +127,35 @@ namespace lime {
 	}
 	
 	
+	value lime_bytes_from_data_pointer (value data, value length) {
+		
+		int size = val_int (length);
+		intptr_t ptr = (intptr_t)val_float (data);
+		Bytes bytes = Bytes (size);
+		
+		if (ptr) {
+			
+			memcpy (bytes.Data (), (const void*)ptr, size);
+			
+		}
+		
+		return bytes.Value ();
+		
+	}
+	
+	
 	value lime_bytes_get_data_pointer (value bytes) {
 		
 		Bytes data = Bytes (bytes);
 		return alloc_float ((intptr_t)data.Data ());
+		
+	}
+	
+	
+	value lime_bytes_read_file (value path) {
+		
+		Bytes data = Bytes (val_os_string (path));
+		return data.Value ();
 		
 	}
 	
@@ -508,32 +533,49 @@ namespace lime {
 	}
 	
 	
-	value lime_image_data_util_copy_pixels (value image, value sourceImage, value sourceRect, value destPoint, value mergeAlpha) {
+	value lime_image_data_util_copy_pixels (value *arg, int nargs) {
 		
-		Image _image = Image (image);
-		Image _sourceImage = Image (sourceImage);
-		Rectangle _sourceRect = Rectangle (sourceRect);
-		Vector2 _destPoint = Vector2 (destPoint);
-		ImageDataUtil::CopyPixels (&_image, &_sourceImage, &_sourceRect, &_destPoint, val_bool (mergeAlpha));
+		enum { image, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha };
+		
+		Image _image = Image (arg[image]);
+		Image _sourceImage = Image (arg[sourceImage]);
+		Rectangle _sourceRect = Rectangle (arg[sourceRect]);
+		Vector2 _destPoint = Vector2 (arg[destPoint]);
+		
+		if (val_is_null (arg[alphaImage])) {
+			
+			ImageDataUtil::CopyPixels (&_image, &_sourceImage, &_sourceRect, &_destPoint, 0, 0, val_bool (arg[mergeAlpha]));
+			
+		} else {
+			
+			Image _alphaImage = Image (arg[alphaImage]);
+			Vector2 _alphaPoint = Vector2 (arg[alphaPoint]);
+			
+			ImageDataUtil::CopyPixels (&_image, &_sourceImage, &_sourceRect, &_destPoint, &_alphaImage, &_alphaPoint, val_bool (arg[mergeAlpha]));
+			
+		}
+		
 		return alloc_null ();
 		
 	}
 	
 	
-	value lime_image_data_util_fill_rect (value image, value rect, value color) {
+	value lime_image_data_util_fill_rect (value image, value rect, value rg, value ba) {
 		
 		Image _image = Image (image);
 		Rectangle _rect = Rectangle (rect);
-		ImageDataUtil::FillRect (&_image, &_rect, val_number (color));
+		int32_t color = (val_int (rg) << 16) | val_int (ba);
+		ImageDataUtil::FillRect (&_image, &_rect, color);
 		return alloc_null ();
 		
 	}
 	
 	
-	value lime_image_data_util_flood_fill (value image, value x, value y, value color) {
+	value lime_image_data_util_flood_fill (value image, value x, value y, value rg, value ba) {
 		
 		Image _image = Image (image);
-		ImageDataUtil::FloodFill (&_image, val_number (x), val_number (y), val_number (color));
+		int32_t color = (val_int (rg) << 16) | val_int (ba);
+		ImageDataUtil::FloodFill (&_image, val_number (x), val_number (y), color);
 		return alloc_null ();
 		
 	}
@@ -843,6 +885,14 @@ namespace lime {
 	}
 	
 	
+	value lime_renderer_get_type (value renderer) {
+		
+		Renderer* targetRenderer = (Renderer*)(intptr_t)val_float (renderer);
+		return alloc_string (targetRenderer->Type ());
+		
+	}
+	
+	
 	value lime_renderer_lock (value renderer) {
 		
 		return ((Renderer*)(intptr_t)val_float (renderer))->Lock ();
@@ -1120,7 +1170,9 @@ namespace lime {
 	DEFINE_PRIM (lime_application_set_frame_rate, 2);
 	DEFINE_PRIM (lime_application_update, 1);
 	DEFINE_PRIM (lime_audio_load, 1);
+	DEFINE_PRIM (lime_bytes_from_data_pointer, 2);
 	DEFINE_PRIM (lime_bytes_get_data_pointer, 1);
+	DEFINE_PRIM (lime_bytes_read_file, 1);
 	DEFINE_PRIM (lime_font_get_ascender, 1);
 	DEFINE_PRIM (lime_font_get_descender, 1);
 	DEFINE_PRIM (lime_font_get_family_name, 1);
@@ -1143,9 +1195,9 @@ namespace lime {
 	DEFINE_PRIM (lime_gamepad_get_device_name, 1);
 	DEFINE_PRIM (lime_image_data_util_color_transform, 3);
 	DEFINE_PRIM_MULT (lime_image_data_util_copy_channel);
-	DEFINE_PRIM (lime_image_data_util_copy_pixels, 5);
-	DEFINE_PRIM (lime_image_data_util_fill_rect, 3);
-	DEFINE_PRIM (lime_image_data_util_flood_fill, 4);
+	DEFINE_PRIM_MULT (lime_image_data_util_copy_pixels);
+	DEFINE_PRIM (lime_image_data_util_fill_rect, 4);
+	DEFINE_PRIM (lime_image_data_util_flood_fill, 5);
 	DEFINE_PRIM (lime_image_data_util_get_pixels, 4);
 	DEFINE_PRIM_MULT (lime_image_data_util_merge);
 	DEFINE_PRIM (lime_image_data_util_multiply_alpha, 1);
@@ -1172,6 +1224,7 @@ namespace lime {
 	DEFINE_PRIM (lime_png_decode_file, 2);
 	DEFINE_PRIM (lime_renderer_create, 1);
 	DEFINE_PRIM (lime_renderer_flip, 1);
+	DEFINE_PRIM (lime_renderer_get_type, 1);
 	DEFINE_PRIM (lime_renderer_lock, 1);
 	DEFINE_PRIM (lime_renderer_unlock, 1);
 	DEFINE_PRIM (lime_render_event_manager_register, 2);

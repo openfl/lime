@@ -250,8 +250,8 @@ class Rectangle {
 			
 		}
 		
-		var cacheRight = right;
-		var cacheBottom = bottom;
+		//var cacheRight = right;
+		//var cacheBottom = bottom;
 		
 		if (this.x < x) this.x = x;
 		if (this.y < y) this.y = y;

@@ -23,6 +23,7 @@ import lime.project.Asset;
 import lime.project.AssetType;
 import lime.project.Haxelib;
 import lime.project.HXProject;
+import lime.project.Icon;
 import lime.project.Keystore;
 import lime.project.NDLL;
 import lime.project.Platform;
@@ -384,15 +385,23 @@ class IOSPlatform extends PlatformTarget {
 			{ name : "Icon-76@2x.png", size : 152 },
 			{ name : "Icon-60@3x.png", size : 180 },
 		];
-
+		
 		context.HAS_ICON = true;
 		
 		var iconPath = PathHelper.combine (projectDirectory, "Images.xcassets/AppIcon.appiconset");
 		PathHelper.mkdir (iconPath);
 		
+		var icons = project.icons;
+		
+		if (icons.length == 0) {
+			
+			icons = [ new Icon (PathHelper.findTemplate (project.templatePaths, "default/icon.svg")) ];
+			
+		}
+		
 		for (iconSize in iconSizes) {
 			
-			if (!IconHelper.createIcon (project.icons, iconSize.size, iconSize.size, PathHelper.combine (iconPath, iconSize.name))) {
+			if (!IconHelper.createIcon (icons, iconSize.size, iconSize.size, PathHelper.combine (iconPath, iconSize.name))) {
 				
 				context.HAS_ICON = false;
 				

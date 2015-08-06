@@ -3,8 +3,8 @@ package lime.graphics;
 
 @:enum abstract PixelFormat(Int) from Int to Int {
 	
-	public var RGBA = 0;
-	public var ARGB = 1;
-	public var BGRA = 2;
+	public var RGBA32 = 0;
+	public var ARGB32 = 1;
+	public var BGRA32 = 2;
 	
 }

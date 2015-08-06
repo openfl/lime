@@ -8,7 +8,7 @@ import lime.audio.AudioSource;
 import lime.audio.openal.AL;
 import lime.audio.AudioBuffer;
 import lime.graphics.Image;
-import lime.system.BackgroundWorker;
+import lime.system.ThreadPool;
 import lime.text.Font;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
@@ -40,6 +40,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 	public var type (default, null) = new Map <String, AssetType> ();
 	
 	private var lastModified:Float;
+	private var threadPool:ThreadPool;
 	private var timer:Timer;
 	
 	
@@ -128,6 +129,24 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#end
 		#end
+		
+	}
+	
+	
+	private function createThreadPool ():Void {
+		
+		threadPool = new ThreadPool (0, 2);
+		threadPool.doWork.add (function (id, data) {
+			
+			data.result = data.getMethod (id);
+			threadPool.sendComplete (data.handler, data);
+			
+		});
+		threadPool.onComplete.add (function (id, data) {
+			
+			data.handler (data.result);
+			
+		});
 		
 	}
 	
@@ -548,16 +567,13 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		var worker = new BackgroundWorker ();
-		
-		worker.doWork.add (function (_) {
+		if (threadPool == null) {
 			
-			worker.sendComplete (getBytes (id));
+			createThreadPool ();
 			
-		});
+		}
 		
-		worker.onComplete.add (handler);
-		worker.run ();
+		threadPool.queue (id, { handler: handler, getMethod: getBytes });
 		
 		#end
 		
@@ -595,7 +611,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 				handler (Image.fromImageElement (image));
 				
 			}
-			image.src = id;
+			image.src = path.get (id);
 			
 		} else {
 			
@@ -605,16 +621,13 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		var worker = new BackgroundWorker ();
-		
-		worker.doWork.add (function (_) {
+		if (threadPool == null) {
 			
-			worker.sendComplete (getImage (id));
+			createThreadPool ();
 			
-		});
+		}
 		
-		worker.onComplete.add (handler);
-		worker.run ();
+		threadPool.queue (id, { handler: handler, getMethod: getImage });
 		
 		#end
 		

@@ -23,7 +23,6 @@ namespace lime {
 			int height;
 			int offsetX;
 			int offsetY;
-			bool transparent;
 			int width;
 		
 		private:

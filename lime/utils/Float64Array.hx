@@ -53,7 +53,7 @@ package lime.utils;
             #end
     }
 
-        function toString() return 'Float64Array [byteLength:${this.byteLength}, length:${this.length}]';
+        function toString() return this != null ? 'Float64Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
 
     }
 
@@ -121,7 +121,7 @@ abstract Float64Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
         return ArrayBufferIO.setFloat64(this.buffer, this.byteOffset+(idx*BYTES_PER_ELEMENT), val);
     }
 
-        function toString() return 'Float64Array [byteLength:${this.byteLength}, length:${this.length}]';
+        function toString() return this != null ? 'Float64Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
 
 }
 

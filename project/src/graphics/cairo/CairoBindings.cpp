@@ -368,16 +368,37 @@ namespace lime {
 	}
 	
 	
+	value lime_cairo_image_surface_get_data (value handle) {
+		
+		return alloc_float ((intptr_t)cairo_image_surface_get_data ((cairo_surface_t*)(intptr_t)val_float (handle)));
+		
+	}
+	
+	
+	value lime_cairo_image_surface_get_format (value handle) {
+		
+		return alloc_int ((int)cairo_image_surface_get_format ((cairo_surface_t*)(intptr_t)val_float (handle)));
+		
+	}
+	
+	
 	value lime_cairo_image_surface_get_height (value handle) {
 		
-		return alloc_int ((intptr_t)cairo_image_surface_get_height ((cairo_surface_t*)(intptr_t)val_float (handle)));
+		return alloc_int (cairo_image_surface_get_height ((cairo_surface_t*)(intptr_t)val_float (handle)));
+		
+	}
+	
+	
+	value lime_cairo_image_surface_get_stride (value handle) {
+		
+		return alloc_int (cairo_image_surface_get_stride ((cairo_surface_t*)(intptr_t)val_float (handle)));
 		
 	}
 	
 	
 	value lime_cairo_image_surface_get_width (value handle) {
 		
-		return alloc_int ((intptr_t)cairo_image_surface_get_width ((cairo_surface_t*)(intptr_t)val_float (handle)));
+		return alloc_int (cairo_image_surface_get_width ((cairo_surface_t*)(intptr_t)val_float (handle)));
 		
 	}
 	
@@ -993,7 +1014,10 @@ namespace lime {
 	DEFINE_PRIM (lime_cairo_identity_matrix, 1);
 	DEFINE_PRIM (lime_cairo_image_surface_create, 3);
 	DEFINE_PRIM (lime_cairo_image_surface_create_for_data, 5);
+	DEFINE_PRIM (lime_cairo_image_surface_get_data, 1);
+	DEFINE_PRIM (lime_cairo_image_surface_get_format, 1);
 	DEFINE_PRIM (lime_cairo_image_surface_get_height, 1);
+	DEFINE_PRIM (lime_cairo_image_surface_get_stride, 1);
 	DEFINE_PRIM (lime_cairo_image_surface_get_width, 1);
 	DEFINE_PRIM (lime_cairo_in_clip, 3);
 	DEFINE_PRIM (lime_cairo_in_fill, 3);

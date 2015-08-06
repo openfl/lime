@@ -2,6 +2,7 @@ package lime.math;
 
 
 import lime.utils.Float32Array;
+import lime.utils.UInt8Array;
 
 #if flash
 import flash.geom.ColorTransform;
@@ -89,6 +90,90 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	public function getAlphaTable ():UInt8Array {
+		
+		var table = new UInt8Array (256);
+		var multiplier = alphaMultiplier;
+		var offset = alphaOffset;
+		var value:Int;
+		
+		for (i in 0...256) {
+			
+			value = Math.floor (i * multiplier + offset);
+			if (value > 0xFF) value = 0xFF;
+			if (value < 0) value = 0;
+			table[i] = value;
+			
+		}
+		
+		return table;
+		
+	}
+	
+	
+	public function getBlueTable ():UInt8Array {
+		
+		var table = new UInt8Array (256);
+		var multiplier = blueMultiplier;
+		var offset = blueOffset;
+		var value:Int;
+		
+		for (i in 0...256) {
+			
+			value = Math.floor (i * multiplier + offset);
+			if (value > 0xFF) value = 0xFF;
+			if (value < 0) value = 0;
+			table[i] = value;
+			
+		}
+		
+		return table;
+		
+	}
+	
+	
+	public function getGreenTable ():UInt8Array {
+		
+		var table = new UInt8Array (256);
+		var multiplier = greenMultiplier;
+		var offset = greenOffset;
+		var value:Int;
+		
+		for (i in 0...256) {
+			
+			value = Math.floor (i * multiplier + offset);
+			if (value > 0xFF) value = 0xFF;
+			if (value < 0) value = 0;
+			table[i] = value;
+			
+		}
+		
+		return table;
+		
+	}
+	
+	
+	public function getRedTable ():UInt8Array {
+		
+		var table = new UInt8Array (256);
+		var multiplier = redMultiplier;
+		var offset = redOffset;
+		var value:Int;
+		
+		for (i in 0...256) {
+			
+			value = Math.floor (i * multiplier + offset);
+			if (value > 0xFF) value = 0xFF;
+			if (value < 0) value = 0;
+			table[i] = value;
+			
+		}
+		
+		return table;
+		
+	}
+	
+	
 	private function __toFlashColorTransform ():#if flash ColorTransform #else Dynamic #end {
 		
 		#if flash
@@ -116,8 +201,7 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	
 	private inline function set_alphaMultiplier (value:Float):Float {
 		
-		this[18] = value;
-		return value;
+		return this[18] = value;
 		
 	}
 	
@@ -131,8 +215,7 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	
 	private inline function set_alphaOffset (value:Float):Float {
 		
-		this[19] = value / 255;
-		return value;
+		return this[19] = value / 255;
 		
 	}
 	
@@ -146,8 +229,7 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	
 	private inline function set_blueMultiplier (value:Float):Float {
 		
-		this[12] = value;
-		return value;
+		return this[12] = value;
 		
 	}
 	
@@ -161,8 +243,7 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	
 	private inline function set_blueOffset (value:Float):Float {
 		
-		this[14] = value / 255;
-		return value;
+		return this[14] = value / 255;
 		
 	}
 	
@@ -198,8 +279,7 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	
 	private inline function set_greenMultiplier (value:Float):Float {
 		
-		this[6] = value;
-		return value;
+		return this[6] = value;
 		
 	}
 	
@@ -213,8 +293,7 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	
 	private inline function set_greenOffset (value:Float):Float {
 		
-		this[9] = value / 255;
-		return value;
+		return this[9] = value / 255;
 		
 	}
 	
@@ -228,8 +307,7 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	
 	private inline function set_redMultiplier (value:Float):Float {
 		
-		this[0] = value;
-		return value;
+		return this[0] = value;
 		
 	}
 	
@@ -243,8 +321,7 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	
 	private inline function set_redOffset (value:Float):Float {
 		
-		this[4] = value / 255;
-		return value;
+		return this[4] = value / 255;
 		
 	}
 	
@@ -258,8 +335,7 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	
 	@:arrayAccess public function set (index:Int, value:Float):Float {
 		
-		this[index] = value;
-		return value;
+		return this[index] = value;
 		
 	}
 	

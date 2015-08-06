@@ -29,6 +29,7 @@
 	<set name="NATIVE_TOOLKIT_PATH" value="lib" unless="NATIVE_TOOLKIT_PATH" />
 	
 	<set name="NATIVE_TOOLKIT_CURL_SSL" value="1" />
+	<set name="NATIVE_TOOLKIT_CURL_DISABLE_AXTLS_NONBLOCKING" value="1" />
 	<set name="NATIVE_TOOLKIT_SDL_STATIC" value="1" />
 	
 	<set name="NATIVE_TOOLKIT_SDL_ANGLE" value="1" if="LIME_SDL_ANGLE" />

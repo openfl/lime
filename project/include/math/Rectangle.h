@@ -17,6 +17,8 @@ namespace lime {
 			Rectangle (double x, double y, double width, double height);
 			Rectangle (value rect);
 			
+			void Contract (double x, double y, double width, double height);
+			
 			double height;
 			double width;
 			double x;

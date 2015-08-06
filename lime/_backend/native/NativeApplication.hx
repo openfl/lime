@@ -14,6 +14,7 @@ import lime.ui.Gamepad;
 import lime.ui.Window;
 
 @:access(haxe.Timer)
+@:access(lime._backend.native.NativeRenderer)
 @:access(lime.app.Application)
 @:access(lime.graphics.Renderer)
 @:access(lime.ui.Gamepad)
@@ -132,28 +133,35 @@ class NativeApplication {
 				
 				case AXIS_MOVE:
 					
-					parent.window.onGamepadAxisMove.dispatch (Gamepad.devices.get (gamepadEventInfo.id), gamepadEventInfo.axis, gamepadEventInfo.value);
+					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
+					if (gamepad != null) parent.window.onGamepadAxisMove.dispatch (gamepad, gamepadEventInfo.axis, gamepadEventInfo.value);
 				
 				case BUTTON_DOWN:
 					
-					parent.window.onGamepadButtonDown.dispatch (Gamepad.devices.get (gamepadEventInfo.id), gamepadEventInfo.button);
+					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
+					if (gamepad != null) parent.window.onGamepadButtonDown.dispatch (gamepad, gamepadEventInfo.button);
 				
 				case BUTTON_UP:
 					
-					parent.window.onGamepadButtonUp.dispatch (Gamepad.devices.get (gamepadEventInfo.id), gamepadEventInfo.button);
+					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
+					if (gamepad != null) parent.window.onGamepadButtonUp.dispatch (gamepad, gamepadEventInfo.button);
 				
 				case CONNECT:
 					
-					var gamepad = new Gamepad (gamepadEventInfo.id);
-					Gamepad.devices.set (gamepadEventInfo.id, gamepad);
-					parent.window.onGamepadConnect.dispatch (gamepad);
+					if (!Gamepad.devices.exists (gamepadEventInfo.id)) {
+						
+						var gamepad = new Gamepad (gamepadEventInfo.id);
+						Gamepad.devices.set (gamepadEventInfo.id, gamepad);
+						parent.window.onGamepadConnect.dispatch (gamepad);
+						
+					}
 				
 				case DISCONNECT:
 					
 					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
 					if (gamepad != null) gamepad.connected = false;
 					Gamepad.devices.remove (gamepadEventInfo.id);
-					parent.window.onGamepadDisconnect.dispatch (gamepad);
+					if (gamepad != null) parent.window.onGamepadDisconnect.dispatch (gamepad);
 				
 			}
 			
@@ -229,22 +237,26 @@ class NativeApplication {
 					
 				case RENDER_CONTEXT_LOST:
 					
-					parent.renderer.context = null;
-					parent.renderer.onRenderContextLost.dispatch ();
+					if (parent.renderer.backend.useHardware) {
+						
+						parent.renderer.context = null;
+						parent.renderer.onRenderContextLost.dispatch ();
+						
+					}
 				
 				case RENDER_CONTEXT_RESTORED:
 					
-					#if lime_console
-					parent.renderer.context = CONSOLE (new ConsoleRenderContext ());
-					#else
-					if (parent.config.hardware) {
+					if (parent.renderer.backend.useHardware) {
 						
+						#if lime_console
+						parent.renderer.context = CONSOLE (new ConsoleRenderContext ());
+						#else
 						parent.renderer.context = OPENGL (new GLRenderContext ());
+						#end
+						
+						parent.renderer.onRenderContextRestored.dispatch (parent.renderer.context);
 						
 					}
-					#end
-					
-					parent.renderer.onRenderContextRestored.dispatch (parent.renderer.context);
 				
 			}
 			

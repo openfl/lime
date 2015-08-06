@@ -1,7 +1,7 @@
 package lime.net.curl;
 
 
-@:enum abstract CURLInfo(Int) {
+@:enum abstract CURLInfo(Int) from Int to Int {
 	
 	var NONE = 0;
 	var EFFECTIVE_URL = 0x100000 + 1;

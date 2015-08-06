@@ -53,7 +53,7 @@ package lime.utils;
             #end
     }
 
-        function toString() return 'Int16Array [byteLength:${this.byteLength}, length:${this.length}]';
+        function toString() return this != null ? 'Int16Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
 
     }
 
@@ -121,7 +121,7 @@ abstract Int16Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
         return ArrayBufferIO.setInt16(this.buffer, this.byteOffset+(idx*BYTES_PER_ELEMENT), val);
     }
 
-        function toString() return 'Int16Array [byteLength:${this.byteLength}, length:${this.length}]';
+        function toString() return this != null ? 'Int16Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
 
 }
 

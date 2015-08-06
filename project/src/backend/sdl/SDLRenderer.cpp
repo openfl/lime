@@ -31,6 +31,15 @@ namespace lime {
 		
 		sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlFlags);
 		
+		if (!sdlRenderer && (sdlFlags & SDL_RENDERER_ACCELERATED)) {
+			
+			sdlFlags &= ~SDL_RENDERER_ACCELERATED;
+			sdlFlags |= SDL_RENDERER_SOFTWARE;
+			
+			sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlFlags);
+			
+		}
+		
 		if (!sdlRenderer) {
 			
 			printf ("Could not create SDL renderer: %s.\n", SDL_GetError ());
@@ -91,6 +100,30 @@ namespace lime {
 		}
 		
 		return result;
+		
+	}
+	
+	
+	const char* SDLRenderer::Type () {
+		
+		if (sdlRenderer) {
+			
+			SDL_RendererInfo info;
+			SDL_GetRendererInfo (sdlRenderer, &info);
+			
+			if (info.flags & SDL_RENDERER_SOFTWARE) {
+				
+				return "software";
+				
+			} else {
+				
+				return "opengl";
+				
+			}
+			
+		}
+		
+		return "none";
 		
 	}
 	

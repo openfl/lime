@@ -28,8 +28,9 @@ namespace lime {
 			Bytes *data;
 			PixelFormat format;
 			int height;
-			int width;
+			bool premultiplied;
 			bool transparent;
+			int width;
 		
 		private:
 			

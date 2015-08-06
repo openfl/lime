@@ -53,7 +53,7 @@ package lime.utils;
             #end
         }
 
-        function toString() return 'UInt8Array [byteLength:${this.byteLength}, length:${this.length}]';
+        function toString() return this != null ? 'UInt8Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
 
     }
 
@@ -106,7 +106,7 @@ abstract UInt8Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
 
 //Internal
 
-        function toString() return 'UInt8Array [byteLength:${this.byteLength}, length:${this.length}]';
+        function toString() return this != null ? 'UInt8Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
 
     inline function get_length() return this.length;
 
