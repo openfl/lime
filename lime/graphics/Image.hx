@@ -1182,6 +1182,7 @@ class Image {
 
 					var array = new UInt8Array (ByteArray.fromBytes (Bytes.ofData (cast data)));
 					buffer = new ImageBuffer (array, w, h);
+					buffer.format = BGRA32;
 
 				}
 
