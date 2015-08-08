@@ -241,5 +241,11 @@ package lime.ui;
 	var EJECT = 0x40000119;
 	var SLEEP = 0x4000011A;
 	
+	@:op(A > B) private static inline function gt (a:KeyCode, b:KeyCode):Bool { return (a:Int) > (b:Int); }
+	@:op(A >= B) private static inline function gte (a:KeyCode, b:KeyCode):Bool { return (a:Int) >= (b:Int); }
+	@:op(A < B) private static inline function lt (a:KeyCode, b:KeyCode):Bool { return (a:Int) < (b:Int); }
+	@:op(A <= B) private static inline function lte (a:KeyCode, b:KeyCode):Bool { return (a:Int) <= (b:Int); }
+	@:op(A + B) private static inline function plus (a:KeyCode, b:Int):KeyCode { return (a:Int) + b; }
+	
 	
 }
