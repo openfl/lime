@@ -76,8 +76,13 @@ class Event<T> {
 	
 	public function has (listener:T):Bool {
 		
-		var index = listeners.indexOf (listener);
-		return (index > -1);
+		for (l in listeners) {
+			
+			if (Reflect.compareMethods (l, listener)) return true;
+			
+		}
+		
+		return false;
 		
 	}
 	
