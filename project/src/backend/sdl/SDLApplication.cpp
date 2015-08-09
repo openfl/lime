@@ -270,7 +270,7 @@ namespace lime {
 					}
 					
 					gamepadsAxisMap[event->caxis.which][event->caxis.axis] = event->caxis.value;
-					gamepadEvent.axisValue = event->caxis.value / 32768.0;
+					gamepadEvent.axisValue = event->caxis.value / (event->caxis.value>0?32767.0:32768.0);
 					
 					GamepadEvent::Dispatch (&gamepadEvent);
 					break;
