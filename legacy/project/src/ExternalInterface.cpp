@@ -134,6 +134,7 @@ DEFINE_LIME_LEGACY_PRIM_4(set_stage_handler);
 DEFINE_LIME_LEGACY_PRIM_1(render_stage);
 DEFINE_LIME_LEGACY_PRIM_1(set_render_gc_free);
 DEFINE_LIME_LEGACY_PRIM_3(stage_resize_window);
+DEFINE_LIME_LEGACY_PRIM_3(stage_set_min_size);
 DEFINE_LIME_LEGACY_PRIM_3(stage_set_resolution);
 DEFINE_LIME_LEGACY_PRIM_5(stage_set_screenmode);
 DEFINE_LIME_LEGACY_PRIM_2(stage_set_fullscreen);

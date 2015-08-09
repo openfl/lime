@@ -298,13 +298,17 @@ public:
       SDL_DestroyRenderer(mSDLRenderer);
       SDL_DestroyWindow(mSDLWindow);
    }
-   
-   
+
+   void SetMinSize(int inWidth, int inHeight)
+   {
+      SDL_SetWindowMinimumSize(mSDLWindow, inWidth, inHeight);
+   }
+
    void Resize(int inWidth, int inHeight)
    {
       mWidth = inWidth;
       mHeight = inHeight;
-      
+
       if (mIsOpenGL)
       {
          mOpenGLContext->SetWindowSize(inWidth, inHeight);

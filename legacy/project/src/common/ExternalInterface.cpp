@@ -1439,6 +1439,19 @@ value nme_stage_resize_window(value inStage, value inWidth, value inHeight)
 }
 DEFINE_PRIM(nme_stage_resize_window,3);
 
+value nme_stage_set_min_size(value inStage, value inWidth, value inHeight)
+{
+   #if (defined(HX_WINDOWS) || defined(HX_MACOS) || defined(HX_LINUX))
+   Stage *stage;
+   if (AbstractToObject(inStage,stage))
+   {
+      stage->SetMinSize(val_int(inWidth), val_int(inHeight));
+   }
+   #endif
+   return alloc_null();
+}
+DEFINE_PRIM(nme_stage_set_min_size, 3);
+
 
 value nme_stage_set_resolution(value inStage, value inWidth, value inHeight)
 {
