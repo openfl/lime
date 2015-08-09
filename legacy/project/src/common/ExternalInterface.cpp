@@ -1165,11 +1165,19 @@ value nme_get_frame_stage(value inValue)
    Frame *frame;
    if (!AbstractToObject(inValue,frame))
       return alloc_null();
-   
+
 
    return ObjectToAbstract(frame->GetStage());
 }
 DEFINE_PRIM(nme_get_frame_stage,1);
+
+value nme_play_video(value name)
+{
+  showVideo(val_get_string(name));
+
+  return alloc_null();
+}
+DEFINE_PRIM(nme_play_video,1);
 
 
 AutoGCRoot *sOnCreateCallback = 0;

@@ -513,6 +513,7 @@ enum WindowFlags
    wfStencilBuffer  = 0x00000400,
 };
 
+int showVideo(const char* name);
 void StartAnimation();
 void PauseAnimation();
 void ResumeAnimation();

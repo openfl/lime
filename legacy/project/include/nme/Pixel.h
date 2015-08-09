@@ -19,9 +19,11 @@ enum PixelFormat
    pfHardware     = 0x10,
    pfARGB4444     = 0x11,
    pfRGB565       = 0x12,
-   
+
    pfHasAlpha     = 0x01,
 };
+
+typedef PixelFormat NmePixelFormat;
 
 
 typedef unsigned char Uint8;

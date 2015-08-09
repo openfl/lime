@@ -150,6 +150,7 @@
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/linux/" if="linux" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/windows/" if="windows" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/mac/" if="mac" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/ogg/include/" />
 			<compilerflag value="-DSDL_OGL" />
 			<compilerflag value="-DNME_MIXER" unless="LEGACY_OPENAL" />
 			<compilerflag value="-DNME_SDL2" />
@@ -182,6 +183,7 @@
 		<section if="LEGACY_OPENAL">
 			
 			<compilerflag value="-DAL_LIBTYPE_STATIC=1" if="windows || mac || linux" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/common/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/ogg/include/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/vorbis/include/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/include/" unless="android" />
@@ -194,6 +196,7 @@
 		</section>
 		
 		<compilerflag value="-I${LEGACY_INC_DIR}/xcompile" if="xcompile" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/avconv/include" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/freetype/include" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/jpeg/" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/png/" />
@@ -397,7 +400,10 @@
 				<lib name="${HXCPP}/lib/${BINDIR}/liblinuxcompat.a" />
 				<lib name="-lpthread" />
 				<lib name="-lrt" />
-				
+				<lib name="-lavformat" />
+				<lib name="-lavcodec" />
+				<lib name="-lavutil" />
+
 			</section>
 			
 			<section if="rpi">

@@ -7,6 +7,28 @@
 #include <map>
 #include <Sound.h>
 
+#ifndef INT64_C
+    #define INT64_C(c) (c ## LL)
+    #define UINT64_C(c) (c ## ULL)
+#endif
+
+#ifndef inline
+   #define inline __inline
+#endif
+
+extern "C"
+{
+   #include <libavutil/frame.h>
+   #include <libavcodec/avcodec.h>
+   #include <libavformat/avformat.h>
+   #include <libavutil/error.h>
+}
+
+#ifndef HX_WINDOWS
+#include <unistd.h>
+#include <sys/time.h>
+#endif
+
 #ifdef NME_MIXER
 #include <SDL_mixer.h>
 #endif
@@ -14,12 +36,14 @@
 #ifdef HX_WINDOWS
 #include <SDL_syswm.h>
 #include <Windows.h>
+#include <Winsock2.h>
+typedef TIMEVAL timeval;
 #endif
 
 
 namespace nme
 {
-   
+
 
 static int sgDesktopWidth = 0;
 static int sgDesktopHeight = 0;
@@ -99,10 +123,10 @@ public:
       if (mDelete)
          SDL_FreeSurface(mSurf);
    }
-   
+
    int Width() const { return mSurf->w; }
    int Height() const { return mSurf->h; }
-   PixelFormat Format() const
+   NmePixelFormat Format() const
    {
       if (mSurf->format->Amask)
          return pfARGB;
@@ -323,8 +347,13 @@ public:
          ((SDLSurf*)mPrimarySurface)->mSurf = mSoftwareSurface;
       }
    }
-   
-   
+
+
+   SDL_Renderer* GetRender()
+   {
+      return mSDLRenderer;
+   }
+
    void ResizeWindow(int inWidth, int inHeight)
    {
       if (mIsFullscreen)
@@ -1993,11 +2022,126 @@ void StartAnimation()
 #endif
    Event deactivate(etDeactivate);
    sgSDLFrame->ProcessEvent(deactivate);
-   
+
    Event kill(etDestroyHandler);
    sgSDLFrame->ProcessEvent(kill);
    SDL_Quit();
 }
 
+#if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
+
+   #pragma comment(lib, "z:/src/lib/avcodec-54.lib")
+   #pragma comment(lib, "z:/src/lib/avformat-56.lib")
+   #pragma comment(lib, "z:/src/lib/avutil-54.lib")
+
+    static const unsigned __int64 epoch = ((unsigned __int64) 116444736000000000ULL);
+
+    int gettimeofday(struct timeval * tp, struct timezone * tzp)
+    {
+        FILETIME    file_time;
+        SYSTEMTIME  system_time;
+        ULARGE_INTEGER ularge;
+
+        GetSystemTime(&system_time);
+        SystemTimeToFileTime(&system_time, &file_time);
+        ularge.LowPart = file_time.dwLowDateTime;
+        ularge.HighPart = file_time.dwHighDateTime;
+
+        tp->tv_sec = (long) ((ularge.QuadPart - epoch) / 10000000L);
+        tp->tv_usec = (long) (system_time.wMilliseconds * 1000);
+
+        return 0;
+    }
+
+    void usleep(__int64 usec)
+    {
+        HANDLE timer;
+        LARGE_INTEGER ft;
+
+        ft.QuadPart = -(10*usec); // Convert to 100 nanosecond interval, negative value indicates relative time
+
+        timer = CreateWaitableTimer(NULL, TRUE, NULL);
+        SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
+        WaitForSingleObject(timer, INFINITE);
+        CloseHandle(timer);
+    }
+#endif
+
+int showVideo(const char* name)
+{
+   AVFormatContext* context = NULL;
+   AVCodecContext* codecInfo;
+   AVCodec* codec;
+
+   av_register_all();
+
+   int res = avformat_open_input(&context, name, NULL, NULL);
+
+   avformat_find_stream_info(context, NULL);
+
+   int videoStream = -1;
+   for (int i = 0; i < context->nb_streams; i++)
+   {
+      if (context->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO)
+      {
+         videoStream = i;
+         break;
+      }
+   }
+
+   if (videoStream == -1)
+      return -1;
+
+   codecInfo = context->streams[videoStream]->codec;
+
+   // Find the decoder for the video strea
+   codec = avcodec_find_decoder(codecInfo->codec_id);
+
+
+   avcodec_open2(codecInfo, codec, NULL);
+
+   AVFrame* frame = av_frame_alloc();
+
+   SDL_Renderer* renderer = ((SDLStage*)sgSDLFrame->GetStage())->GetRender();
+
+   //FIXME: Hardcoded video size
+   SDL_Texture* bmp = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_YV12, SDL_TEXTUREACCESS_STREAMING, 800, 600);
+
+   int i = 0;
+   AVPacket packet;
+   SDL_Event event;
+
+   const int FPS = 24;
+   struct timeval last_frame;
+   gettimeofday(&last_frame, NULL);
+
+    while (av_read_frame(context, &packet) >= 0 && event.type != SDL_QUIT)
+    {
+        SDL_PollEvent(&event);
+        if (packet.stream_index == videoStream)
+        {
+            int frameFinished;
+            avcodec_decode_video2(codecInfo, frame, &frameFinished, &packet);
+            if (frameFinished)
+            {
+                SDL_UpdateYUVTexture(bmp, NULL, frame->data[0], frame->linesize[0], frame->data[1], frame->linesize[1], frame->data[2], frame->linesize[2]);
+                SDL_RenderCopy(renderer, bmp, NULL, NULL);
+                SDL_RenderPresent(renderer);
+
+                //Render constant FPS
+                struct timeval now;
+                gettimeofday(&now, NULL);
+                double time_elasped = (double) (now.tv_usec - last_frame.tv_usec) / 1000000 + (double) (now.tv_sec - last_frame.tv_sec);
+
+                int time_to_sleep = (1000000 / FPS) - (1000000 * time_elasped);
+                usleep(time_to_sleep);
+
+                gettimeofday(&last_frame, NULL);
+            }
+        }
+   }
+
+   return 0;
+}
 
 }

@@ -182,6 +182,7 @@ DEFINE_LIME_LEGACY_PRIM_3(managed_stage_create);
 DEFINE_LIME_LEGACY_PRIM_2(managed_stage_pump_event);
 DEFINE_LIME_LEGACY_PRIM_0(input_get_acceleration);
 DEFINE_LIME_LEGACY_PRIM_0(create_display_object);
+DEFINE_LIME_LEGACY_PRIM_1(play_video);
 DEFINE_LIME_LEGACY_PRIM_1(display_object_get_graphics);
 DEFINE_LIME_LEGACY_PRIM_MULT(display_object_draw_to_surface);
 DEFINE_LIME_LEGACY_PRIM_1(display_object_get_id);
