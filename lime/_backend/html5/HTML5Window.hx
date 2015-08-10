@@ -326,58 +326,61 @@ class HTML5Window {
 		
 		event.preventDefault ();
 		
-		var touch = event.changedTouches[0];
-		var id = touch.identifier;
-		var x = 0.0;
-		var y = 0.0;
+		for (touch in event.changedTouches)
+		{
+			var id = touch.identifier;
+			var x = 0.0;
+			var y = 0.0;
 		
-		if (element != null) {
-			
-			if (canvas != null) {
+			if (element != null) {
 				
-				var rect = canvas.getBoundingClientRect ();
-				x = (touch.clientX - rect.left) * (parent.width / rect.width);
-				y = (touch.clientY - rect.top) * (parent.height / rect.height);
-				
-			} else if (div != null) {
-				
-				var rect = div.getBoundingClientRect ();
-				//eventInfo.x = (event.clientX - rect.left) * (window.div.style.width / rect.width);
-				x = (touch.clientX - rect.left);
-				//eventInfo.y = (event.clientY - rect.top) * (window.div.style.height / rect.height);
-				y = (touch.clientY - rect.top);
+				if (canvas != null) {
+					
+					var rect = canvas.getBoundingClientRect ();
+					x = (touch.clientX - rect.left) * (parent.width / rect.width);
+					y = (touch.clientY - rect.top) * (parent.height / rect.height);
+					
+				} else if (div != null) {
+					
+					var rect = div.getBoundingClientRect ();
+					//eventInfo.x = (event.clientX - rect.left) * (window.div.style.width / rect.width);
+					x = (touch.clientX - rect.left);
+					//eventInfo.y = (event.clientY - rect.top) * (window.div.style.height / rect.height);
+					y = (touch.clientY - rect.top);
+					
+				} else {
+					
+					var rect = element.getBoundingClientRect ();
+					x = (touch.clientX - rect.left) * (parent.width / rect.width);
+					y = (touch.clientY - rect.top) * (parent.height / rect.height);
+					
+				}
 				
 			} else {
 				
-				var rect = element.getBoundingClientRect ();
-				x = (touch.clientX - rect.left) * (parent.width / rect.width);
-				y = (touch.clientY - rect.top) * (parent.height / rect.height);
+				x = touch.clientX;
+				y = touch.clientY;
 				
 			}
 			
-		} else {
-			
-			x = touch.clientX;
-			y = touch.clientY;
-			
-		}
-		
-		switch (event.type) {
-			
-			case "touchstart":
+			switch (event.type) {
 				
-				parent.onTouchStart.dispatch (x, y, id);
-			
-			case "touchmove":
+				case "touchstart":
+					
+					parent.onTouchStart.dispatch (x, y, id);
 				
-				parent.onTouchMove.dispatch (x, y, id);
-			
-			case "touchend":
+				case "touchmove":
+					
+					parent.onTouchMove.dispatch (x, y, id);
 				
-				parent.onTouchEnd.dispatch (x, y, id);
-			
-			default:
-			
+				case "touchend":
+					
+					parent.onTouchEnd.dispatch (x, y, id);
+				
+				default:
+				
+			}
+
 		}
 		
 	}
