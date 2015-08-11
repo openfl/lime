@@ -11,6 +11,16 @@ class BMP {
 	
 	public static function encode (image:Image, type:BMPType = null):ByteArray {
 		
+		if (image.premultiplied || image.format != RGBA32) {
+			
+			// TODO: Handle encode from different formats
+			
+			image = image.clone ();
+			image.premultiplied = false;
+			image.format = RGBA32;
+			
+		}
+		
 		if (type == null) {
 			
 			type = RGB;
@@ -94,7 +104,7 @@ class BMP {
 			
 		}
 		
-		var pixels = image.getPixels (new Rectangle (0, 0, image.width, image.height), ARGB);
+		var pixels = image.getPixels (new Rectangle (0, 0, image.width, image.height), ARGB32);
 		var a, r, g, b;
 		
 		switch (type) {

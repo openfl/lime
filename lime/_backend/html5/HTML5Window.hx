@@ -13,6 +13,8 @@ import js.html.TouchEvent;
 import js.Browser;
 import lime.app.Application;
 import lime.graphics.Image;
+import lime.system.Display;
+import lime.system.System;
 import lime.ui.Window;
 
 
@@ -163,6 +165,13 @@ class HTML5Window {
 			element.addEventListener ("touchend", handleTouchEvent, true);
 			
 		}
+		
+	}
+	
+	
+	public function getDisplay ():Display {
+		
+		return System.getDisplay (0);
 		
 	}
 	
@@ -412,6 +421,13 @@ class HTML5Window {
 	public function setMinimized (value:Bool):Bool {
 		
 		return false;
+		
+	}
+	
+	
+	public function setTitle (value:String):String {
+		
+		return value;
 		
 	}
 	

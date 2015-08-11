@@ -2176,7 +2176,16 @@ class GL {
 		#if (js && html5 && !display)
 		context.vertexAttribPointer (indx, size, type, normalized, stride, offset);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
-		lime_gl_vertex_attrib_pointer (indx, size, type, normalized, stride, offset);
+		if (normalized) {
+			
+			lime_gl_vertex_attrib_pointer_1 (indx, size, type, stride, offset);
+			
+		} else {
+			
+			lime_gl_vertex_attrib_pointer_2 (indx, size, type, stride, offset);
+			
+		}
+		//lime_gl_vertex_attrib_pointer (indx, size, type, normalized, stride, offset);
 		#end
 		
 	}
@@ -2330,6 +2339,8 @@ class GL {
 	private static var lime_gl_vertex_attrib4f = System.load ("lime", "lime_gl_vertex_attrib4f", 5);
 	private static var lime_gl_vertex_attrib4fv = System.load ("lime", "lime_gl_vertex_attrib4fv", 2);
 	private static var lime_gl_vertex_attrib_pointer = System.load ("lime", "lime_gl_vertex_attrib_pointer", -1);
+	private static var lime_gl_vertex_attrib_pointer_1 = System.load ("lime", "lime_gl_vertex_attrib_pointer_1", 5);
+	private static var lime_gl_vertex_attrib_pointer_2 = System.load ("lime", "lime_gl_vertex_attrib_pointer_2", 5);
 	private static var lime_gl_viewport = System.load ("lime", "lime_gl_viewport", 4);
 	
 	#end

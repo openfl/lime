@@ -249,7 +249,7 @@ namespace lime {
 			if (decodeData) {
 				
 				jpeg_start_decompress (&cinfo);
-				int components = cinfo.num_components;
+				int components = cinfo.output_components;
 				imageBuffer->Resize (cinfo.output_width, cinfo.output_height, 32);
 				
 				unsigned char *bytes = imageBuffer->data->Data ();

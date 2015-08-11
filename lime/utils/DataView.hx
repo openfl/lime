@@ -2,7 +2,102 @@ package lime.utils;
 
 #if (js && !display)
 
-    typedef DataView = js.html.DataView;
+    @:forward
+    abstract DataView(js.html.DataView)
+        from js.html.DataView
+        to js.html.DataView {
+
+        public inline function new( buffer:ArrayBuffer, byteOffset:Null<Int> = null, byteLength:Null<Int> = null ) {
+            if(byteOffset != null && byteLength == null) this = new js.html.DataView( buffer, byteOffset );
+            else if(byteOffset != null && byteLength != null) this = new js.html.DataView( buffer, byteOffset, byteLength);
+            else this = new js.html.DataView( buffer );
+        }
+
+        #if !no_typedarray_inline inline #end
+        public function getInt8( byteOffset:Int ) : Int {
+            return this.getInt8( byteOffset);
+        }
+
+        #if !no_typedarray_inline inline #end
+        public function getInt16( byteOffset:Int, ?littleEndian:Bool = true ) : Int {
+            return this.getInt16( byteOffset, littleEndian);
+        }
+
+        #if !no_typedarray_inline inline #end
+        public function getInt32( byteOffset:Int, ?littleEndian:Bool = true ) : Int {
+            return this.getInt32( byteOffset, littleEndian);
+        }
+
+        #if !no_typedarray_inline inline #end
+        public function getUint8( byteOffset:Int ) : UInt {
+            return this.getUint8( byteOffset);
+        }
+
+        #if !no_typedarray_inline inline #end
+        public function getUint16( byteOffset:Int, ?littleEndian:Bool = true ) : UInt {
+            return this.getUint16( byteOffset, littleEndian);
+        }
+
+        #if !no_typedarray_inline inline #end
+        public function getUint32( byteOffset:Int, ?littleEndian:Bool = true ) : UInt {
+            return this.getUint32( byteOffset, littleEndian);
+        }
+
+        #if !no_typedarray_inline inline #end
+        public function getFloat32( byteOffset:Int, ?littleEndian:Bool = true ) : Float {
+            return this.getFloat32( byteOffset, littleEndian);
+        }
+
+        #if !no_typedarray_inline inline #end
+        public function getFloat64( byteOffset:Int, ?littleEndian:Bool = true ) : Float {
+            return this.getFloat64( byteOffset, littleEndian);
+        }
+
+
+
+
+        #if !no_typedarray_inline inline #end
+        public function setInt8( byteOffset:Int, value:Int ) {
+            this.setInt8( byteOffset, value);
+        }
+
+        #if !no_typedarray_inline inline #end
+        public function setInt16( byteOffset:Int, value:Int, ?littleEndian:Bool = true) {
+            this.setInt16( byteOffset, value, littleEndian);
+        }
+
+        #if !no_typedarray_inline inline #end
+        public function setInt32( byteOffset:Int, value:Int, ?littleEndian:Bool = true) {
+            this.setInt32( byteOffset, value, littleEndian);
+        }
+
+        #if !no_typedarray_inline inline #end
+        public function setUint8( byteOffset:Int, value:UInt ) {
+            this.setUint8( byteOffset, value);
+        }
+
+        #if !no_typedarray_inline inline #end
+        public function setUint16( byteOffset:Int, value:UInt, ?littleEndian:Bool = true) {
+            this.setUint16( byteOffset, value, littleEndian);
+        }
+
+        #if !no_typedarray_inline inline #end
+        public function setUint32( byteOffset:Int, value:UInt, ?littleEndian:Bool = true) {
+            this.setUint32( byteOffset, value, littleEndian);
+        }
+
+        #if !no_typedarray_inline inline #end
+        public function setFloat32( byteOffset:Int, value:Float, ?littleEndian:Bool = true) {
+            this.setFloat32( byteOffset, value, littleEndian);
+        }
+
+        #if !no_typedarray_inline inline #end
+        public function setFloat64( byteOffset:Int, value:Float, ?littleEndian:Bool = true) {
+            this.setFloat64( byteOffset, value, littleEndian);
+        }
+
+    }
+
 
 #else
 

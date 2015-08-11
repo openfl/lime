@@ -96,6 +96,7 @@ class HTML5Application {
 		
 		if (config != null) {
 			
+			setFrameRate (config.fps);
 			var window = new Window (config);
 			var renderer = new Renderer (window);
 			parent.addWindow (window);
@@ -199,7 +200,15 @@ class HTML5Application {
 				
 				if (parent.window.enableTextEvents) {
 					
-					parent.window.onTextInput.dispatch (String.fromCharCode (event.keyCode));
+					if (event.keyCode >= 65 && event.keyCode <= 90 && !event.shiftKey) {
+						
+						parent.window.onTextInput.dispatch (String.fromCharCode (event.keyCode + 32));
+						
+					} else {
+						
+						parent.window.onTextInput.dispatch (String.fromCharCode (event.keyCode));
+						
+					}
 					
 				}
 				

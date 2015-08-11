@@ -1594,9 +1594,25 @@ namespace lime {
 	
 	value lime_gl_vertex_attrib_pointer (value *arg, int nargs) {
 		
-		enum { aIndex, aSize, aType, aNormalized, aStride, aOffset, aSIZE };
+		enum { aIndex, aSize, aType, aNormalized, aStride, aOffset };
 		
 		glVertexAttribPointer (val_int (arg[aIndex]), val_int (arg[aSize]), val_int (arg[aType]), val_bool (arg[aNormalized]), val_int (arg[aStride]), (void *)(intptr_t)val_int (arg[aOffset]));
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_gl_vertex_attrib_pointer_1 (value index, value size, value type, value stride, value offset) {
+		
+		glVertexAttribPointer (val_int (index), val_int (size), val_int (type), true, val_int (stride), (void *)(intptr_t)val_int (offset));
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_gl_vertex_attrib_pointer_2 (value index, value size, value type, value stride, value offset) {
+		
+		glVertexAttribPointer (val_int (index), val_int (size), val_int (type), false, val_int (stride), (void *)(intptr_t)val_int (offset));
 		return alloc_null ();
 		
 	}
@@ -1858,6 +1874,8 @@ namespace lime {
 	DEFINE_PRIM (lime_gl_viewport, 4);
 	DEFINE_PRIM (lime_gl_version, 0);
 	DEFINE_PRIM_MULT (lime_gl_vertex_attrib_pointer);
+	DEFINE_PRIM (lime_gl_vertex_attrib_pointer_1, 5);
+	DEFINE_PRIM (lime_gl_vertex_attrib_pointer_2, 5);
 	DEFINE_PRIM (lime_gl_vertex_attrib1f, 2);
 	DEFINE_PRIM (lime_gl_vertex_attrib1fv, 2);
 	DEFINE_PRIM (lime_gl_vertex_attrib2f, 3);

@@ -55,6 +55,16 @@ class JPEG {
 	
 	public static function encode (image:Image, quality:Int):ByteArray {
 		
+		if (image.premultiplied || image.format != RGBA32) {
+			
+			// TODO: Handle encode from different formats
+			
+			image = image.clone ();
+			image.premultiplied = false;
+			image.format = RGBA32;
+			
+		}
+		
 		#if java
 		
 		#elseif (sys && (!disable_cffi || !format))

@@ -4,7 +4,7 @@ package lime.net.curl;
 import lime.system.System;
 
 
-abstract CURL(Int) from Int to Int {
+abstract CURL(Float) from Float to Float {
 	
 	
 	public static inline var GLOBAL_SSL:Int = 1 << 0;
@@ -68,9 +68,9 @@ abstract CURL(Int) from Int to Int {
 	}
 	
 	
-	@:op(A > B) private static inline function intGt (a:CURL, b:Int):Bool {
+	@:op(A > B) private static inline function intGt (a:CURL, b:Float):Bool {
 		
-		return (a:Int) > b;
+		return (a:Float) > b;
 		
 	}
 	

@@ -8,7 +8,6 @@
 	
 	<haxelib name="lime" />
 	
-	<assets path="Assets" rename="assets" exclude="lime.svg" />
-	<icon path="Assets/lime.svg" />
+	<assets path="Assets" rename="assets" />
 	
 </project>
