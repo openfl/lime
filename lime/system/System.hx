@@ -489,7 +489,9 @@ class System {
 		}
 		#end
 		
-		#if (cpp || neko || nodejs)
+		#if desktop
+		return lime_system_get_directory (SystemDirectory.APPLICATION_STORAGE, "", file);
+		#elseif (cpp || nodejs)
 		return lime_system_get_directory (SystemDirectory.APPLICATION_STORAGE, company, file);
 		#else
 		return null;
