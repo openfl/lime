@@ -20,6 +20,7 @@
 #include <graphics/ImageBuffer.h>
 #include <graphics/Renderer.h>
 #include <graphics/RenderEvent.h>
+#include <system/JNI.h>
 #include <system/System.h>
 #include <text/Font.h>
 #include <text/TextLayout.h>
@@ -33,7 +34,6 @@
 #include <ui/TouchEvent.h>
 #include <ui/Window.h>
 #include <ui/WindowEvent.h>
-#include <utils/JNI.h>
 #include <utils/LZMA.h>
 #include <vm/NekoVM.h>
 

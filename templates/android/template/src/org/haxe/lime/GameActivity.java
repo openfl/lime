@@ -24,6 +24,21 @@ public class GameActivity extends SDLActivity {
 	public Handler handler;
 	
 	
+	public static void postUICallback (final long handle) {
+		
+		Extension.callbackHandler.post (new Runnable () {
+			
+			@Override public void run () {
+				
+				Lime.onCallback (handle);
+				
+			}
+			
+		});
+		
+	}
+	
+	
 	@Override protected void onActivityResult (int requestCode, int resultCode, Intent data) {
 		
 		for (Extension extension : extensions) {

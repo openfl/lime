@@ -180,7 +180,6 @@
 			<file name="src/backend/sdl/SDLGamepad.cpp" />
 			<file name="src/backend/sdl/SDLMouse.cpp" />
 			<file name="src/backend/sdl/SDLSystem.cpp" />
-			<file name="src/backend/sdl/SDLJNI.cpp" />
 			
 		</section>
 		
@@ -203,6 +202,7 @@
 		<file name="src/math/Matrix3.cpp" />
 		<file name="src/math/Rectangle.cpp" />
 		<file name="src/math/Vector2.cpp" />
+		<file name="src/system/JNI.cpp" if="android" />
 		<file name="src/ui/GamepadEvent.cpp" />
 		<file name="src/ui/KeyEvent.cpp" />
 		<file name="src/ui/MouseEvent.cpp" />
