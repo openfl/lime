@@ -241,8 +241,8 @@ class FlashApplication {
 		if (parent.window != null) {
 			
 			var id = 0;
-			var x = event.stageX;
-			var y = event.stageY;
+			var x = event.stageX / parent.window.width;
+			var y = event.stageY / parent.window.height;
 			
 			switch (event.type) {
 				

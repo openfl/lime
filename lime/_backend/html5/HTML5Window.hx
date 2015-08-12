@@ -362,6 +362,9 @@ class HTML5Window {
 			
 		}
 		
+		x = x / setWidth;
+		y = y / setHeight;
+		
 		switch (event.type) {
 			
 			case "touchstart":
