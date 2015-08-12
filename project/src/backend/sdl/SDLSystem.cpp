@@ -1,5 +1,7 @@
 #include <graphics/PixelFormat.h>
 #include <math/Rectangle.h>
+#include <system/Clipboard.h>
+#include <system/JNI.h>
 #include <system/System.h>
 
 #ifdef HX_MACOS
@@ -44,6 +46,38 @@ namespace lime {
 	static int id_supportedModes;
 	static int id_width;
 	static bool init = false;
+	
+	
+	const char* Clipboard::GetText () {
+		
+		return SDL_GetClipboardText ();
+		
+	}
+	
+	
+	bool Clipboard::HasText () {
+		
+		return SDL_HasClipboardText ();
+		
+	}
+	
+	
+	void Clipboard::SetText (const char* text) {
+		
+		SDL_SetClipboardText (text);
+		
+	}
+	
+	
+	void *JNI::GetEnv () {
+		
+		#ifdef ANDROID
+		return SDL_AndroidGetJNIEnv ();
+		#else
+		return 0;
+		#endif
+		
+	}
 	
 	
 	const char* System::GetDirectory (SystemDirectory type, const char* company, const char* title) {
