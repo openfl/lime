@@ -20,6 +20,7 @@
 #include <graphics/ImageBuffer.h>
 #include <graphics/Renderer.h>
 #include <graphics/RenderEvent.h>
+#include <system/Clipboard.h>
 #include <system/JNI.h>
 #include <system/System.h>
 #include <text/Font.h>
@@ -156,6 +157,29 @@ namespace lime {
 		
 		Bytes data = Bytes (val_os_string (path));
 		return data.Value ();
+		
+	}
+	
+	
+	value lime_clipboard_get_text () {
+		
+		if (Clipboard::HasText ()) {
+			
+			return alloc_string (Clipboard::GetText ());
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
+		
+	}
+	
+	
+	value lime_clipboard_set_text (value text) {
+		
+		Clipboard::SetText (val_string (text));
+		return alloc_null ();
 		
 	}
 	
@@ -1178,6 +1202,8 @@ namespace lime {
 	DEFINE_PRIM (lime_bytes_from_data_pointer, 2);
 	DEFINE_PRIM (lime_bytes_get_data_pointer, 1);
 	DEFINE_PRIM (lime_bytes_read_file, 1);
+	DEFINE_PRIM (lime_clipboard_get_text, 0);
+	DEFINE_PRIM (lime_clipboard_set_text, 1);
 	DEFINE_PRIM (lime_font_get_ascender, 1);
 	DEFINE_PRIM (lime_font_get_descender, 1);
 	DEFINE_PRIM (lime_font_get_family_name, 1);
