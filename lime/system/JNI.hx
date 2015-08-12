@@ -134,7 +134,11 @@ class JNI {
 		
 		init ();
 		
+		#if android
 		return lime_jni_get_env ();
+		#else
+		return null;
+		#end
 		
 	}
 	
