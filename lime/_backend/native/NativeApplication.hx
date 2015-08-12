@@ -230,6 +230,8 @@ class NativeApplication {
 		
 		for (renderer in parent.renderers) {
 			
+			parent.renderer = renderer;
+			
 			switch (renderEventInfo.type) {
 				
 				case RENDER:
