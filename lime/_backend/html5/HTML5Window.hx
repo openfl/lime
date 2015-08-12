@@ -372,12 +372,12 @@ class HTML5Window {
 			case "touchmove":
 				
 				parent.onTouchMove.dispatch (x / setWidth, y / setHeight, id);
-				parent.onMouseMove.dispatch (x, y, 0);
+				parent.onMouseMove.dispatch (x, y);
 			
 			case "touchend":
 				
 				parent.onTouchEnd.dispatch (x / setWidth, y / setHeight, id);
-				parent.onMouseUp.dispatch (x, y, id);
+				parent.onMouseUp.dispatch (x, y, 0);
 			
 			default:
 			

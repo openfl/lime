@@ -254,7 +254,7 @@ class FlashApplication {
 				case TouchEvent.TOUCH_MOVE:
 					
 					parent.window.onTouchMove.dispatch (x / parent.window.width, y / parent.window.height, id);
-					parent.window.onMouseMove.dispatch (x, y, 0);
+					parent.window.onMouseMove.dispatch (x, y);
 				
 				case TouchEvent.TOUCH_END:
 					
