@@ -241,22 +241,25 @@ class FlashApplication {
 		if (parent.window != null) {
 			
 			var id = 0;
-			var x = event.stageX / parent.window.width;
-			var y = event.stageY / parent.window.height;
+			var x = event.stageX;
+			var y = event.stageY;
 			
 			switch (event.type) {
 				
 				case TouchEvent.TOUCH_BEGIN:
 					
-					parent.window.onTouchStart.dispatch (x, y, id);
+					parent.window.onTouchStart.dispatch (x / parent.window.width, y / parent.window.height, id);
+					parent.window.onMouseDown.dispatch (x, y, 0);
 				
 				case TouchEvent.TOUCH_MOVE:
 					
-					parent.window.onTouchMove.dispatch (x, y, id);
+					parent.window.onTouchMove.dispatch (x / parent.window.width, y / parent.window.height, id);
+					parent.window.onMouseMove.dispatch (x, y, 0);
 				
 				case TouchEvent.TOUCH_END:
 					
-					parent.window.onTouchEnd.dispatch (x, y, id);
+					parent.window.onTouchEnd.dispatch (x / parent.window.width, y / parent.window.height, id);
+					parent.window.onMouseUp.dispatch (x, y, 0);
 				
 			}
 			
