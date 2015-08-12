@@ -12,6 +12,7 @@ import lime.system.Display;
 class Window {
 	
 	
+	public var application (default, null):Application;
 	public var currentRenderer:Renderer;
 	public var config:Config;
 	public var display (get, null):Display;
@@ -98,6 +99,8 @@ class Window {
 	
 	
 	public function create (application:Application):Void {
+		
+		this.application = application;
 		
 		backend.create (application);
 		
