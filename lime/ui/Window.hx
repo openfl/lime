@@ -261,6 +261,13 @@ class Window {
 	}
 	
 	
+	public function toString ():String {
+		
+		return "[object Window]";
+		
+	}
+	
+	
 	
 	
 	// Get & Set Methods
