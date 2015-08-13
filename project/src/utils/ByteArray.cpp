@@ -206,3 +206,10 @@ namespace lime {
 	
 	
 }
+
+
+extern "C" int lime_byte_array_register_prims () {
+
+	return 0;
+
+}

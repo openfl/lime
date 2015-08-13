@@ -1006,7 +1006,7 @@ class ImageDataUtil {
 			default: pixel = color;
 			
 		}
-		
+
 		if (!image.transparent) pixel.a = 0xFF;
 		pixel.writeUInt8 (image.buffer.data, (4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4), image.buffer.format, image.buffer.premultiplied);
 		

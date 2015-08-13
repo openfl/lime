@@ -397,7 +397,7 @@ class Cairo {
 		return new CairoFontOptions( handle );
 		#end
 		
-		return cast 0;
+		return null;
 		
 	}
 	
