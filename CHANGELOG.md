@@ -1,3 +1,27 @@
+2.5.3 (08/13/2015)
+------------------
+
+* Ported the JNI class for Android extension support without legacy
+* Added a new Display API for information on connected screens
+* Added lime.system.Clipboard and support for System.endianness
+* Added window.display and window.setTitle
+* Merged updates to the game console render context
+* Standardized touch events to use normalized x/y coordinates
+* Standardized touch events to dispatch mouse events as well
+* Added support for unicode text input on HTML5
+* Added support for specifying the iOS simulator device type
+* Added conversion to/from UInt for Int abstracts
+* Fixed the output color order when image encoding
+* Reduced allocations when using gl.vertexAttribPointer
+* Improved font hinting when using Cairo
+* Fixed decoding support for some JPEG images
+* Fixed support for embedded assets on iOS and Android
+* Fixed a possible issue in the Flash preloader
+* Fixed passing of Haxe defines in the iOS build template
+* Fixed support for lime.utils.Log
+* Fixed support for event.has
+
+
 2.5.2 (07/23/2015)
 ------------------
 
