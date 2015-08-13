@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "2.5.2",
-	"releasenote": "Software fallback support, image fixes",
+	"version": "2.5.3",
+	"releasenote": "Ported JNI support, added a new Display API, ongoing improvement",
 	"contributors": [ "singmajesty" ]
 }
