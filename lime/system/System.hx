@@ -518,6 +518,10 @@ class System {
 		
 		#if (cpp || neko || nodejs)
 		return lime_system_get_directory (SystemDirectory.APPLICATION, null, null);
+		#elseif flash
+		if(Application.current.config.isAir)
+			return Reflect.getProperty(Type.resolveClass("flash.filesystem.File"), "applicationDirectory").nativePath;
+		return null;
 		#else
 		return null;
 		#end
@@ -550,6 +554,10 @@ class System {
 		
 		#if (cpp || neko || nodejs)
 		return lime_system_get_directory (SystemDirectory.APPLICATION_STORAGE, company, file);
+		#elseif flash
+		if(Application.current.config.isAir)
+			return Reflect.getProperty(Type.resolveClass("flash.filesystem.File"), "applicationStorageDirectory").nativePath;
+		return null;
 		#else
 		return null;
 		#end
@@ -561,6 +569,10 @@ class System {
 		
 		#if (cpp || neko || nodejs)
 		return lime_system_get_directory (SystemDirectory.DESKTOP, null, null);
+		#elseif flash
+		if(Application.current.config.isAir)
+			return Reflect.getProperty(Type.resolveClass("flash.filesystem.File"), "desktopDirectory").nativePath;
+		return null;
 		#else
 		return null;
 		#end
@@ -572,6 +584,10 @@ class System {
 		
 		#if (cpp || neko || nodejs)
 		return lime_system_get_directory (SystemDirectory.DOCUMENTS, null, null);
+		#elseif flash
+		if(Application.current.config.isAir)
+			return Reflect.getProperty(Type.resolveClass("flash.filesystem.File"), "documentsDirectory").nativePath;
+		return null;
 		#else
 		return null;
 		#end
@@ -605,6 +621,10 @@ class System {
 		
 		#if (cpp || neko || nodejs)
 		return lime_system_get_directory (SystemDirectory.USER, null, null);
+		#elseif flash
+		if(Application.current.config.isAir)
+			return Reflect.getProperty(Type.resolveClass("flash.filesystem.File"), "userDirectory").nativePath;
+		return null;
 		#else
 		return null;
 		#end

@@ -27,5 +27,8 @@ typedef Config = {
 	@:optional var version:String;
 	@:optional var vsync:Bool;
 	@:optional var width:Int;
+	#if flash
+	@:optional var isAir:Bool;
+	#end
 	
 }
