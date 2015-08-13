@@ -4,12 +4,12 @@ package lime._backend.html5;
 import haxe.Timer;
 import js.html.CanvasElement;
 import js.html.DivElement;
-#if (haxe_ver >= "3.2")
+#if (haxe_ver >= 3.2)
 import js.html.Element;
+import js.html.FocusEvent;
 #else
 import js.html.HtmlElement;
 #end
-import js.html.FocusEvent;
 import js.html.InputElement;
 import js.html.InputEvent;
 import js.html.MouseEvent;
@@ -20,6 +20,10 @@ import lime.graphics.Image;
 import lime.system.Display;
 import lime.system.System;
 import lime.ui.Window;
+
+#if (haxe_ver < 3.2)
+typedef FocusEvent = js.html.Event;
+#end
 
 
 class HTML5Window {
