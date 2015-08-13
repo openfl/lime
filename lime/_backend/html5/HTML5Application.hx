@@ -198,20 +198,6 @@ class HTML5Application {
 				
 				parent.window.onKeyDown.dispatch (keyCode, modifier);
 				
-				if (parent.window.enableTextEvents) {
-					
-					if (event.keyCode >= 65 && event.keyCode <= 90 && !event.shiftKey) {
-						
-						parent.window.onTextInput.dispatch (String.fromCharCode (event.keyCode + 32));
-						
-					} else {
-						
-						parent.window.onTextInput.dispatch (String.fromCharCode (event.keyCode));
-						
-					}
-					
-				}
-				
 			} else {
 				
 				parent.window.onKeyUp.dispatch (keyCode, modifier);

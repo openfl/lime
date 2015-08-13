@@ -8,6 +8,9 @@ import js.html.Element;
 #else
 import js.html.HtmlElement;
 #end
+import js.html.FocusEvent;
+import js.html.InputElement;
+import js.html.InputEvent;
 import js.html.MouseEvent;
 import js.html.TouchEvent;
 import js.Browser;
@@ -20,6 +23,8 @@ import lime.ui.Window;
 
 class HTML5Window {
 	
+	
+	private static var textInput:InputElement;
 	
 	public var canvas:CanvasElement;
 	public var div:DivElement;
@@ -179,6 +184,29 @@ class HTML5Window {
 	public function getEnableTextEvents ():Bool {
 		
 		return enableTextEvents;
+		
+	}
+	
+	
+	private function handleFocusEvent (event:FocusEvent):Void {
+		
+		if (enableTextEvents) {
+			
+			textInput.focus ();
+			
+		}
+		
+	}
+	
+	
+	private function handleInputEvent (event:InputEvent):Void {
+		
+		if (textInput.value != "") {
+			
+			parent.onTextInput.dispatch (textInput.value);
+			textInput.value = "";
+			
+		}
 		
 	}
 	
@@ -401,6 +429,68 @@ class HTML5Window {
 	
 	
 	public function setEnableTextEvents (value:Bool):Bool {
+		
+		if (value) {
+			
+			if (textInput == null) {
+				
+				textInput = cast Browser.document.createElement ('input');
+				textInput.type = 'text';
+				textInput.style.position = 'absolute';
+				textInput.style.opacity = "0";
+				textInput.style.color = "transparent";
+				textInput.value = "";
+				
+				untyped textInput.autocapitalize = "off";
+				untyped textInput.autocorrect = "off";
+				textInput.autocomplete = "off";
+				
+				// TODO: Position for mobile browsers better
+				
+				textInput.style.left = "0px";
+				textInput.style.top = "50%";
+				
+				if (~/(iPad|iPhone|iPod).*OS 8_/gi.match (Browser.window.navigator.userAgent)) {
+					
+					textInput.style.fontSize = "0px";
+					textInput.style.width = '0px';
+					textInput.style.height = '0px';
+					
+				} else {
+					
+					textInput.style.width = '1px';
+					textInput.style.height = '1px';
+					
+				}
+				
+				untyped (textInput.style).pointerEvents = 'none';
+				textInput.style.zIndex = "-10000000";
+				
+				Browser.document.body.appendChild (textInput);
+				
+			}
+			
+			if (!enableTextEvents) {
+				
+				textInput.addEventListener ('input', handleInputEvent, true);
+				textInput.addEventListener ('blur', handleFocusEvent, true);
+				
+			}
+			
+			textInput.focus ();
+			
+		} else {
+			
+			if (textInput != null) {
+				
+				textInput.removeEventListener ('input', handleInputEvent, true);
+				textInput.removeEventListener ('blur', handleFocusEvent, true);
+				
+				textInput.blur ();
+				
+			}
+			
+		}
 		
 		return enableTextEvents = value;
 		
