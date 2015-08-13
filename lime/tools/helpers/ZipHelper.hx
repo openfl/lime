@@ -20,12 +20,6 @@ class ZipHelper {
 			
 		}
 		
-		var cwd = Sys.getCwd();
-		if (targetPath.indexOf(cwd) == -1)
-		{
-			targetPath = PathHelper.combine(cwd, targetPath);
-		}
-		
 		PathHelper.mkdir (Path.directory (targetPath));
 		
 		if (PlatformHelper.hostPlatform == WINDOWS || !FileSystem.isDirectory (path)) {
@@ -105,16 +99,9 @@ class ZipHelper {
 	
 	private static function readFile (basePath:String, path:String, files:List<Entry>):Void {
 		
-		var cwd = Sys.getCwd();
-		
 		if (Path.extension (path) != "zip" && Path.extension (path) != "crx" && Path.extension (path) != "wgt") {
 			
 			var fullPath = PathHelper.combine (basePath, path);
-			
-			if (fullPath.indexOf(cwd) == -1)
-			{
-				fullPath = PathHelper.combine(cwd, fullPath);
-			}
 			
 			var name = path;
 			//var date = FileSystem.stat (directory + "/" + file).ctime;
