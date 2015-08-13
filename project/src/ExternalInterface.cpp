@@ -1302,6 +1302,6 @@ namespace lime {
 
 extern "C" int lime_register_prims () {
 	
-	return 0
+	return 0;
 	
 }
