@@ -1,6 +1,7 @@
 package lime._backend.html5;
 
 
+import haxe.Timer;
 import js.html.CanvasElement;
 import js.html.DivElement;
 #if (haxe_ver >= "3.2")
@@ -192,7 +193,7 @@ class HTML5Window {
 		
 		if (enableTextEvents) {
 			
-			textInput.focus ();
+			Timer.delay (function () { textInput.focus (); }, 20);
 			
 		}
 		
