@@ -8,10 +8,10 @@ import js.html.DivElement;
 import js.html.Element;
 import js.html.FocusEvent;
 import js.html.InputElement;
+import js.html.InputEvent;
 #else
 import js.html.HtmlElement;
 #end
-import js.html.InputEvent;
 import js.html.MouseEvent;
 import js.html.TouchEvent;
 import js.Browser;
@@ -24,6 +24,7 @@ import lime.ui.Window;
 #if (haxe_ver < 3.2)
 typedef FocusEvent = js.html.Event;
 typedef InputElement = Dynamic;
+typedef InputEvent = js.html.Event;
 #end
 
 
