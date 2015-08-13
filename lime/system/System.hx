@@ -37,11 +37,10 @@ class System {
 	public static var desktopDirectory (get, null):String;
 	public static var disableCFFI:Bool;
 	public static var documentsDirectory (get, null):String;
+	public static var endianness (get, null):Endian;
 	public static var fontsDirectory (get, null):String;
 	public static var numDisplays (get, null):Int;
 	public static var userDirectory (get, null):String;
-	public static var endianness (get, null):String;
-	public static var littleEndian (get, null):Bool;
 	
 	
 	@:noCompletion private static var __moduleNames:Map<String, String> = null;
@@ -613,27 +612,19 @@ class System {
 	}
 	
 	
-	private static function get_endianness ():String {
-
-		if (littleEndian) {
-			return "littleEndian";
-		} else {
-			return "bigEndian";
-		}
-
-	}
-
-
-	private static function get_littleEndian ():Bool {
-
-		// TODO(james4k): do something less error prone
+	private static function get_endianness ():Endian {
+		
+		// TODO: Make this smarter
+		
 		#if (ps3 || wiiu)
-		return false;
+		return BIG_ENDIAN;
 		#else
-		return true;
+		return LITTLE_ENDIAN;
 		#end
-
+		
 	}
+	
+	
 	
 	
 	// Native Methods
