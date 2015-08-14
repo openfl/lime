@@ -253,6 +253,12 @@ interface IModule {
 	
 	
 	/**
+	 * Called when a quit event is fired
+	 */
+	public function quit ():Void;
+	
+	
+	/**
 	 * Called when a render event is fired
 	 * @param	context	The current render context
 	 */

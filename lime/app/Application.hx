@@ -27,13 +27,18 @@ class Application extends Module {
 	public var modules (default, null):Array<IModule>;
 	
 	/**
+	 * Quit events are dispatched when the application is being closed
+	 */
+	public var onQuit = new Event<Void->Void> ();
+	
+	/**
 	 * Update events are dispatched each frame (usually just before rendering)
 	 */
 	public var onUpdate = new Event<Int->Void> ();
 	
-	public var renderer (get, null):Renderer;
+	public var renderer (default, null):Renderer;
 	public var renderers (default, null):Array<Renderer>;
-	public var window (get, null):Window;
+	public var window (default, null):Window;
 	public var windows (default, null):Array<Window>;
 	
 	@:noCompletion private var backend:ApplicationBackend;
@@ -56,6 +61,7 @@ class Application extends Module {
 		backend = new ApplicationBackend (this);
 		
 		onUpdate.add (update);
+		onQuit.add (quit);
 		
 	}
 	
@@ -89,6 +95,7 @@ class Application extends Module {
 		renderer.onRenderContextRestored.add (onRenderContextRestored);
 		
 		renderers.push (renderer);
+		this.renderer = renderer;
 		
 	}
 	
@@ -101,6 +108,7 @@ class Application extends Module {
 	public function addWindow (window:Window):Void {
 		
 		windows.push (window);
+		this.window = window;
 		
 		window.onGamepadAxisMove.add (onGamepadAxisMove);
 		window.onGamepadButtonDown.add (onGamepadButtonDown);
@@ -133,6 +141,7 @@ class Application extends Module {
 		window.onWindowRestore.add (onWindowRestore);
 		
 		window.create (this);
+		
 		
 	}
 	
@@ -561,6 +570,17 @@ class Application extends Module {
 	}
 	
 	
+	public override function quit ():Void {
+		
+		for (module in modules) {
+			
+			module.quit ();
+			
+		}
+		
+	}
+	
+	
 	public override function render (context:RenderContext):Void {
 		
 		for (module in modules) {
@@ -600,20 +620,6 @@ class Application extends Module {
 	@:noCompletion private inline function set_frameRate (value:Float):Float {
 		
 		return backend.setFrameRate (value);
-		
-	}
-	
-	
-	@:noCompletion private inline function get_renderer ():Renderer {
-		
-		return renderers[0];
-		
-	}
-	
-	
-	@:noCompletion private inline function get_window ():Window {
-		
-		return windows[0];
 		
 	}
 	

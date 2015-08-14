@@ -17,7 +17,7 @@ namespace lime {
 		mFont = 0;
 		mHBFont = 0;
 		mDirection = (hb_direction_t)direction;
-		mLanguage = (long)hb_language_from_string (language, strlen (language));
+		mLanguage = (void *)hb_language_from_string (language, strlen (language));
 		mScript = hb_script_from_string (script, -1);
 		
 		mBuffer = hb_buffer_create ();
@@ -75,7 +75,7 @@ namespace lime {
 		
 		unsigned char* bytesPosition = bytes->Data ();
 		
-		*(bytesPosition) = glyph_count;
+		*(uint32_t *)(bytesPosition) = glyph_count;
 		bytesPosition += 4;
 		
 		hb_glyph_position_t pos;
@@ -109,7 +109,7 @@ namespace lime {
 	
 	void TextLayout::SetLanguage (const char* language) {
 		
-		mLanguage = (long)hb_language_from_string (language, strlen (language));
+		mLanguage = (void *)hb_language_from_string (language, strlen (language));
 		
 	}
 	

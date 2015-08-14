@@ -37,6 +37,7 @@ class System {
 	public static var desktopDirectory (get, null):String;
 	public static var disableCFFI:Bool;
 	public static var documentsDirectory (get, null):String;
+	public static var endianness (get, null):Endian;
 	public static var fontsDirectory (get, null):String;
 	public static var numDisplays (get, null):Int;
 	public static var userDirectory (get, null):String;
@@ -117,7 +118,15 @@ class System {
 	public static function exit (code:Int):Void {
 		
 		#if sys
-		// TODO: Clean shutdown?
+		#if !macro
+		if (Application.current != null) {
+			
+			// TODO: Clean exit?
+			
+			Application.current.onQuit.dispatch ();
+			
+		}
+		#end
 		Sys.exit (code);
 		#end
 		
@@ -608,6 +617,19 @@ class System {
 		return lime_system_get_directory (SystemDirectory.USER, null, null);
 		#else
 		return null;
+		#end
+		
+	}
+	
+	
+	private static function get_endianness ():Endian {
+		
+		// TODO: Make this smarter
+		
+		#if (ps3 || wiiu)
+		return BIG_ENDIAN;
+		#else
+		return LITTLE_ENDIAN;
 		#end
 		
 	}

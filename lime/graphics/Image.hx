@@ -44,6 +44,10 @@ import sys.io.File;
 #end
 #end
 
+#if lime_console
+import lime.graphics.console.TextureData;
+#end
+
 @:allow(lime.graphics.util.ImageCanvasUtil)
 @:allow(lime.graphics.util.ImageDataUtil)
 @:access(lime.app.Application)
@@ -1063,6 +1067,10 @@ class Image {
 			}
 			
 			__fromBase64 (__base64Encode (bytes), type, onload);
+
+		#elseif lime_console
+
+			throw "Image.fromBytes not implemented for console target";
 			
 		#elseif (cpp || neko || nodejs)
 			
@@ -1130,6 +1138,55 @@ class Image {
 		#elseif (cpp || neko || nodejs || java)
 			
 			var buffer = null;
+
+			#if lime_console
+
+				var td = TextureData.fromFile (path);
+
+				if (td.valid) {
+
+					var w = td.width;
+					var h = td.height;
+					var data = new Array<cpp.UInt8> ();
+
+					#if 1
+
+						var size = w * h * 4;
+						cpp.NativeArray.setSize (data, size);
+
+						td.decode (cpp.Pointer.arrayElem (data, 0), size);
+/*	
+						{
+							var dest:cpp.Pointer<cpp.UInt32> = cast cpp.Pointer.arrayElem (data, 0);	
+							var src:cpp.Pointer<cpp.UInt32> = cast td.pointer;	
+							var n = w * h;
+							for (i in 0...n) {
+								dest[i] = src[i];
+							}
+						}
+*/
+						td.release ();
+
+					#else
+
+						// TODO(james4k): caveats here with every image
+						// pointing to the same piece of memory, and things may
+						// change with compressed textures. but, may be worth
+						// considering if game is hitting memory constraints.
+						// can we do this safely somehow? copy on write?
+						// probably too many people writing directly to the
+						// buffer...
+						cpp.NativeArray.setUnmanagedData (data, td.pointer, w*h*4);
+
+					#end
+
+					var array = new UInt8Array (ByteArray.fromBytes (Bytes.ofData (cast data)));
+					buffer = new ImageBuffer (array, w, h);
+					buffer.format = BGRA32;
+
+				}
+
+			#else
 			
 			if (#if (sys && (!disable_cffi || !format) && !java) true #else false #end && !System.disableCFFI) {
 				
@@ -1143,7 +1200,7 @@ class Image {
 				}
 				
 			}
-			
+
 			#if format
 			
 			else {
@@ -1180,6 +1237,8 @@ class Image {
 				
 			}
 			
+			#end
+
 			#end
 			
 			if (buffer != null) {

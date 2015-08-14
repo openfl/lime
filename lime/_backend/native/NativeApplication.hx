@@ -95,7 +95,8 @@ class NativeApplication {
 				
 				var result = lime_application_quit (handle);
 				__cleanup ();
-				Sys.exit (result);
+				
+				System.exit (result);
 				
 			}
 			
@@ -110,6 +111,9 @@ class NativeApplication {
 		
 		var result = lime_application_exec (handle);
 		__cleanup ();
+		
+		parent.onQuit.dispatch ();
+		
 		return result;
 		
 		#else
@@ -228,36 +232,38 @@ class NativeApplication {
 	
 	private function handleRenderEvent ():Void {
 		
-		if (parent.renderer != null) {
+		for (renderer in parent.renderers) {
+			
+			parent.renderer = renderer;
 			
 			switch (renderEventInfo.type) {
 				
 				case RENDER:
 					
-					parent.renderer.render ();
-					parent.renderer.onRender.dispatch (parent.renderer.context);
-					parent.renderer.flip ();
+					renderer.render ();
+					renderer.onRender.dispatch (renderer.context);
+					renderer.flip ();
 					
 				case RENDER_CONTEXT_LOST:
 					
-					if (parent.renderer.backend.useHardware) {
+					if (renderer.backend.useHardware) {
 						
-						parent.renderer.context = null;
-						parent.renderer.onRenderContextLost.dispatch ();
+						renderer.context = null;
+						renderer.onRenderContextLost.dispatch ();
 						
 					}
 				
 				case RENDER_CONTEXT_RESTORED:
 					
-					if (parent.renderer.backend.useHardware) {
+					if (renderer.backend.useHardware) {
 						
 						#if lime_console
-						parent.renderer.context = CONSOLE (new ConsoleRenderContext ());
+						renderer.context = CONSOLE (new ConsoleRenderContext ());
 						#else
-						parent.renderer.context = OPENGL (new GLRenderContext ());
+						renderer.context = OPENGL (new GLRenderContext ());
 						#end
 						
-						parent.renderer.onRenderContextRestored.dispatch (parent.renderer.context);
+						renderer.onRenderContextRestored.dispatch (renderer.context);
 						
 					}
 				
