@@ -123,7 +123,7 @@ class System {
 			
 			// TODO: Clean exit?
 			
-			Application.current.onExit.dispatch (code);
+			Application.current.onQuit.dispatch ();
 			
 		}
 		#end

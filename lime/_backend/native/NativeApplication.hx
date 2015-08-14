@@ -112,7 +112,7 @@ class NativeApplication {
 		var result = lime_application_exec (handle);
 		__cleanup ();
 		
-		parent.onExit.dispatch (result);
+		parent.onQuit.dispatch ();
 		
 		return result;
 		

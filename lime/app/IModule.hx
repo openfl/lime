@@ -21,9 +21,6 @@ interface IModule {
 	public function init (context:RenderContext):Void;
 	
 	
-	public function onApplicationExit (code:Int):Void;
-	
-	
 	/**
 	 * Called when a gamepad axis move event is fired
 	 * @param	gamepad	The current gamepad
@@ -253,6 +250,12 @@ interface IModule {
 	 * Called when a window is restored from being minimized or fullscreen
 	 */
 	public function onWindowRestore ():Void;
+	
+	
+	/**
+	 * Called when a quit event is fired
+	 */
+	public function quit ():Void;
 	
 	
 	/**
