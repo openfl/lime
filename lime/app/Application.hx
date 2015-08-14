@@ -27,6 +27,11 @@ class Application extends Module {
 	public var modules (default, null):Array<IModule>;
 	
 	/**
+	 * Exit events are dispatched when the application is closing
+	 */
+	public var onExit = new Event<Int->Void> ();
+	
+	/**
 	 * Update events are dispatched each frame (usually just before rendering)
 	 */
 	public var onUpdate = new Event<Int->Void> ();
@@ -55,6 +60,7 @@ class Application extends Module {
 		windows = new Array ();
 		backend = new ApplicationBackend (this);
 		
+		onExit.add (onApplicationExit);
 		onUpdate.add (update);
 		
 	}
@@ -177,6 +183,17 @@ class Application extends Module {
 		}
 		
 		initialized = true;
+		
+	}
+	
+	
+	public override function onApplicationExit (code:Int):Void {
+		
+		for (module in modules) {
+			
+			module.onApplicationExit (code);
+			
+		}
 		
 	}
 	

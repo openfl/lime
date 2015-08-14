@@ -21,6 +21,9 @@ interface IModule {
 	public function init (context:RenderContext):Void;
 	
 	
+	public function onApplicationExit (code:Int):Void;
+	
+	
 	/**
 	 * Called when a gamepad axis move event is fired
 	 * @param	gamepad	The current gamepad

@@ -95,7 +95,8 @@ class NativeApplication {
 				
 				var result = lime_application_quit (handle);
 				__cleanup ();
-				Sys.exit (result);
+				
+				System.exit (result);
 				
 			}
 			
@@ -110,6 +111,9 @@ class NativeApplication {
 		
 		var result = lime_application_exec (handle);
 		__cleanup ();
+		
+		parent.onExit.dispatch (result);
+		
 		return result;
 		
 		#else

@@ -28,6 +28,9 @@ class Module implements IModule {
 	public function init (context:RenderContext):Void { }
 	
 	
+	public function onApplicationExit (code:Int):Void { }
+	
+	
 	public function onGamepadAxisMove (gamepad:Gamepad, axis:GamepadAxis, value:Float):Void { }
 	public function onGamepadButtonDown (gamepad:Gamepad, button:GamepadButton):Void { }
 	public function onGamepadButtonUp (gamepad:Gamepad, button:GamepadButton):Void { }

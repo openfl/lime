@@ -118,7 +118,15 @@ class System {
 	public static function exit (code:Int):Void {
 		
 		#if sys
-		// TODO: Clean shutdown?
+		#if !macro
+		if (Application.current != null) {
+			
+			// TODO: Clean exit?
+			
+			Application.current.onExit.dispatch (code);
+			
+		}
+		#end
 		Sys.exit (code);
 		#end
 		
