@@ -108,6 +108,8 @@ class FlashApplication {
 		
 		if (config != null) {
 			
+			config.isAir = flash.system.ApplicationDomain.currentDomain.hasDefinition("flash.filesystem.File");
+			
 			setFrameRate (config.fps);
 			var window = new Window (config);
 			var renderer = new Renderer (window);
