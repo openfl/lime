@@ -82,6 +82,20 @@ class HTML5Application {
 			case 121: return KeyCode.F10;
 			case 122: return KeyCode.F11;
 			case 123: return KeyCode.F12;
+			case 124: return KeyCode.F13;
+			case 125: return KeyCode.F14;
+			case 126: return KeyCode.F15;
+			case 186: return KeyCode.SEMICOLON;
+			case 187: return KeyCode.EQUALS;
+			case 188: return KeyCode.COMMA;
+			case 189: return KeyCode.MINUS;
+			case 190: return KeyCode.PERIOD;
+			case 191: return KeyCode.SLASH;
+			case 192: return KeyCode.GRAVE;
+			case 219: return KeyCode.LEFT_BRACKET;
+			case 220: return KeyCode.BACKSLASH;
+			case 221: return KeyCode.RIGHT_BRACKET;
+			case 222: return KeyCode.SINGLE_QUOTE;
 			
 		}
 		
