@@ -12,6 +12,12 @@ import lime.ui.KeyModifier;
 class Module implements IModule {
 	
 	
+	/**
+	 * Exit events are dispatched when the application is exiting
+	 */
+	public var onExit = new Event<Int->Void> ();
+	
+	
 	public function new () {
 		
 		
@@ -49,6 +55,16 @@ class Module implements IModule {
 	 * @param	modifier	The modifier of the key that was released
 	 */
 	public function onKeyUp (keyCode:KeyCode, modifier:KeyModifier):Void { }
+	
+	
+	/**
+	 * Called when the module is exiting
+	 */
+	public function onModuleExit (code:Int):Void {
+		
+		onExit.dispatch (code);
+		
+	}
 	
 	
 	/**
@@ -222,12 +238,6 @@ class Module implements IModule {
 	
 	
 	public function onWindowRestore ():Void { }
-	
-	
-	/**
-	 * Called when a quit event is fired
-	 */
-	public function quit ():Void { }
 	
 	
 	/**

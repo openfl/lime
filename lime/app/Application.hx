@@ -27,11 +27,6 @@ class Application extends Module {
 	public var modules (default, null):Array<IModule>;
 	
 	/**
-	 * Quit events are dispatched when the application is being closed
-	 */
-	public var onQuit = new Event<Void->Void> ();
-	
-	/**
 	 * Update events are dispatched each frame (usually just before rendering)
 	 */
 	public var onUpdate = new Event<Int->Void> ();
@@ -60,8 +55,8 @@ class Application extends Module {
 		windows = new Array ();
 		backend = new ApplicationBackend (this);
 		
+		onExit.add (onModuleExit);
 		onUpdate.add (update);
-		onQuit.add (quit);
 		
 	}
 	
@@ -258,6 +253,17 @@ class Application extends Module {
 		for (module in modules) {
 			
 			module.onKeyUp (keyCode, modifier);
+			
+		}
+		
+	}
+	
+	
+	public override function onModuleExit (code:Int):Void {
+		
+		for (module in modules) {
+			
+			module.onModuleExit (code);
 			
 		}
 		
@@ -534,7 +540,12 @@ class Application extends Module {
 	 */
 	public function removeModule (module:IModule):Void {
 		
-		modules.remove (module);
+		if (module != null) {
+			
+			module.onModuleExit (0);
+			modules.remove (module);
+			
+		}
 		
 	}
 	
@@ -564,17 +575,6 @@ class Application extends Module {
 			
 			window.close ();
 			windows.remove (window);
-			
-		}
-		
-	}
-	
-	
-	public override function quit ():Void {
-		
-		for (module in modules) {
-			
-			module.quit ();
 			
 		}
 		

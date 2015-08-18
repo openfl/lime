@@ -77,6 +77,12 @@ interface IModule {
 	
 	
 	/**
+	 * Called when the module is exiting
+	 */
+	public function onModuleExit (code:Int):Void;
+	
+	
+	/**
 	 * Called when a mouse down event is fired
 	 * @param	x	The current x coordinate of the mouse
 	 * @param	y	The current y coordinate of the mouse
@@ -250,12 +256,6 @@ interface IModule {
 	 * Called when a window is restored from being minimized or fullscreen
 	 */
 	public function onWindowRestore ():Void;
-	
-	
-	/**
-	 * Called when a quit event is fired
-	 */
-	public function quit ():Void;
 	
 	
 	/**
