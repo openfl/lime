@@ -89,13 +89,17 @@ class Event<T> {
 	
 	public function remove (listener:T):Void {
 		
-		var index = listeners.indexOf (listener);
+		var i = listeners.length;
 		
-		if (index > -1) {
+		while (--i >= 0) {
 			
-			listeners.splice (index, 1);
-			priorities.splice (index, 1);
-			repeat.splice (index, 1);
+			if (Reflect.compareMethods (listeners[i], listener)) {
+				
+				listeners.splice (i, 1);
+				priorities.splice (i, 1);
+				repeat.splice (i, 1);
+					
+			}
 			
 		}
 		
