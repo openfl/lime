@@ -37,6 +37,8 @@ class FlashWindow {
 		Lib.current.stage.align = StageAlign.TOP_LEFT;
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
 		
+		parent.id = 0;
+		
 	}
 	
 	

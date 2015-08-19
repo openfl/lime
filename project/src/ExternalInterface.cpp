@@ -9,7 +9,7 @@
 
 #include <hx/CFFI.h>
 #include <app/Application.h>
-#include <app/UpdateEvent.h>
+#include <app/ApplicationEvent.h>
 #include <audio/format/OGG.h>
 #include <audio/format/WAV.h>
 #include <audio/AudioBuffer.h>
@@ -47,6 +47,15 @@ namespace lime {
 		Application* app = CreateApplication ();
 		Application::callback = new AutoGCRoot (callback);
 		return alloc_float ((intptr_t)app);
+		
+	}
+	
+	
+	value lime_application_event_manager_register (value callback, value eventObject) {
+		
+		ApplicationEvent::callback = new AutoGCRoot (callback);
+		ApplicationEvent::eventObject = new AutoGCRoot (eventObject);
+		return alloc_null ();
 		
 	}
 	
@@ -1065,15 +1074,6 @@ namespace lime {
 	}
 	
 	
-	value lime_update_event_manager_register (value callback, value eventObject) {
-		
-		UpdateEvent::callback = new AutoGCRoot (callback);
-		UpdateEvent::eventObject = new AutoGCRoot (eventObject);
-		return alloc_null ();
-		
-	}
-	
-	
 	value lime_window_close (value window) {
 		
 		Window* targetWindow = (Window*)(intptr_t)val_float (window);
@@ -1112,6 +1112,14 @@ namespace lime {
 		
 		Window* targetWindow = (Window*)(intptr_t)val_float (window);
 		return alloc_int (targetWindow->GetHeight ());
+		
+	}
+	
+	
+	value lime_window_get_id (value window) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		return alloc_int ((int32_t)targetWindow->GetID ());
 		
 	}
 	
@@ -1202,6 +1210,7 @@ namespace lime {
 	
 	
 	DEFINE_PRIM (lime_application_create, 1);
+	DEFINE_PRIM (lime_application_event_manager_register, 2);
 	DEFINE_PRIM (lime_application_exec, 1);
 	DEFINE_PRIM (lime_application_init, 1);
 	DEFINE_PRIM (lime_application_quit, 1);
@@ -1279,12 +1288,12 @@ namespace lime {
 	DEFINE_PRIM (lime_text_layout_set_language, 2);
 	DEFINE_PRIM (lime_text_layout_set_script, 2);
 	DEFINE_PRIM (lime_touch_event_manager_register, 2);
-	DEFINE_PRIM (lime_update_event_manager_register, 2);
 	DEFINE_PRIM (lime_window_close, 1);
 	DEFINE_PRIM (lime_window_create, 5);
 	DEFINE_PRIM (lime_window_event_manager_register, 2);
 	DEFINE_PRIM (lime_window_get_enable_text_events, 1);
 	DEFINE_PRIM (lime_window_get_height, 1);
+	DEFINE_PRIM (lime_window_get_id, 1);
 	DEFINE_PRIM (lime_window_get_width, 1);
 	DEFINE_PRIM (lime_window_get_x, 1);
 	DEFINE_PRIM (lime_window_get_y, 1);

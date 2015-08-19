@@ -36,7 +36,7 @@ class Application extends Module {
 	public var renderer (default, null):Renderer;
 	public var renderers (default, null):Array<Renderer>;
 	public var window (default, null):Window;
-	public var windows (default, null):Array<Window>;
+	public var windows (default, null):Map<Int, Window>;
 	
 	@:noCompletion private var backend:ApplicationBackend;
 	@:noCompletion private var initialized:Bool;
@@ -54,7 +54,7 @@ class Application extends Module {
 		
 		modules = new Array ();
 		renderers = new Array ();
-		windows = new Array ();
+		windows = new Map ();
 		backend = new ApplicationBackend (this);
 		
 		onExit.add (onModuleExit);
@@ -118,7 +118,6 @@ class Application extends Module {
 	 */
 	public function addWindow (window:Window):Void {
 		
-		windows.push (window);
 		this.window = window;
 		
 		window.onActivate.add (onWindowActivate.bind (window));
@@ -145,7 +144,7 @@ class Application extends Module {
 		window.onTouchEnd.add (onTouchEnd.bind (window));
 		
 		window.create (this);
-		
+		windows.set (window.id, window);
 		
 	}
 	
@@ -613,10 +612,10 @@ class Application extends Module {
 	 */
 	public function removeWindow (window:Window):Void {
 		
-		if (window != null && windows.indexOf (window) > -1) {
+		if (window != null && windows.exists (window.id)) {
 			
+			windows.remove (window.id);
 			window.close ();
-			windows.remove (window);
 			
 		}
 		

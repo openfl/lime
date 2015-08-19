@@ -10,6 +10,7 @@ namespace lime {
 	
 	static int id_id;
 	static int id_type;
+	static int id_windowID;
 	static int id_x;
 	static int id_y;
 	static bool init = false;
@@ -19,6 +20,7 @@ namespace lime {
 		
 		id = 0;
 		type = TOUCH_START;
+		windowID = 0;
 		x = 0;
 		y = 0;
 		
@@ -33,6 +35,7 @@ namespace lime {
 				
 				id_id = val_id ("id");
 				id_type = val_id ("type");
+				id_windowID = val_id ("windowID");
 				id_x = val_id ("x");
 				id_y = val_id ("y");
 				init = true;
@@ -43,6 +46,7 @@ namespace lime {
 			
 			alloc_field (object, id_id, alloc_int (event->id));
 			alloc_field (object, id_type, alloc_int (event->type));
+			alloc_field (object, id_windowID, alloc_int (event->windowID));
 			alloc_field (object, id_x, alloc_float (event->x));
 			alloc_field (object, id_y, alloc_float (event->y));
 			

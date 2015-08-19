@@ -19,6 +19,7 @@ class Window {
 	public var enableTextEvents (get, set):Bool;
 	public var fullscreen (get, set):Bool;
 	public var height (get, set):Int;
+	public var id (default, null):Int;
 	public var minimized (get, set):Bool;
 	public var onActivate = new Event<Void->Void> ();
 	public var onClose = new Event<Void->Void> ();
@@ -67,6 +68,7 @@ class Window {
 		__x = 0;
 		__y = 0;
 		__title = "";
+		id = -1;
 		
 		if (config != null) {
 			

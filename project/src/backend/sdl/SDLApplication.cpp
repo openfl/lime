@@ -40,13 +40,13 @@ namespace lime {
 		lastUpdate = 0;
 		nextUpdate = 0;
 		
+		ApplicationEvent applicationEvent;
 		GamepadEvent gamepadEvent;
 		KeyEvent keyEvent;
 		MouseEvent mouseEvent;
 		RenderEvent renderEvent;
 		TextEvent textEvent;
 		TouchEvent touchEvent;
-		UpdateEvent updateEvent;
 		WindowEvent windowEvent;
 		
 		#ifdef HX_MACOS
@@ -102,7 +102,8 @@ namespace lime {
 			case SDL_USEREVENT:
 				
 				currentUpdate = SDL_GetTicks ();
-				updateEvent.deltaTime = currentUpdate - lastUpdate;
+				applicationEvent.type = UPDATE;
+				applicationEvent.deltaTime = currentUpdate - lastUpdate;
 				lastUpdate = currentUpdate;
 				
 				while (nextUpdate <= currentUpdate) {
@@ -111,7 +112,7 @@ namespace lime {
 					
 				}
 				
-				UpdateEvent::Dispatch (&updateEvent);
+				ApplicationEvent::Dispatch (&applicationEvent);
 				RenderEvent::Dispatch (&renderEvent);
 				break;
 			
@@ -240,25 +241,24 @@ namespace lime {
 				
 				case SDL_CONTROLLERAXISMOTION:
 					
-					if (gamepadsAxisMap[event->caxis.which].empty()) {
+					if (gamepadsAxisMap[event->caxis.which].empty ()) {
 						
 						gamepadsAxisMap[event->caxis.which][event->caxis.axis] = event->caxis.value;
 						
+					} else if (gamepadsAxisMap[event->caxis.which][event->caxis.axis] == event->caxis.value) {
+							
+						break;
+						
 					}
-				        else if (gamepadsAxisMap[event->caxis.which][event->caxis.axis] == event->caxis.value) {
-					        
-					        break;
-				        	
-				        }
-	        	 		
+					
 					gamepadEvent.type = AXIS_MOVE;
 					gamepadEvent.axis = event->caxis.axis;
 					gamepadEvent.id = event->caxis.which;
 					
 					if (event->caxis.value > -analogAxisDeadZone && event->caxis.value < analogAxisDeadZone) {
 						
-			            		if (gamepadsAxisMap[event->caxis.which][event->caxis.axis] != 0) {
-			            			
+						if (gamepadsAxisMap[event->caxis.which][event->caxis.axis] != 0) {
+							
 							gamepadsAxisMap[event->caxis.which][event->caxis.axis] = 0;
 							gamepadEvent.axisValue = 0;
 							GamepadEvent::Dispatch (&gamepadEvent);
@@ -385,6 +385,7 @@ namespace lime {
 				
 			}
 			
+			mouseEvent.windowID = event->button.windowID;
 			MouseEvent::Dispatch (&mouseEvent);
 			
 		}
@@ -413,7 +414,7 @@ namespace lime {
 			}
 			
 			strcpy (textEvent.text, event->text.text);
-			
+			textEvent.windowID = event->text.windowID;
 			TextEvent::Dispatch (&textEvent);
 			
 		}
@@ -453,6 +454,7 @@ namespace lime {
 				
 			}
 			
+			//touchEvent.windowID = event->tfinger.windowID;
 			TouchEvent::Dispatch (&touchEvent);
 			
 		}
@@ -493,6 +495,7 @@ namespace lime {
 				
 			}
 			
+			windowEvent.windowID = event->window.windowID;
 			WindowEvent::Dispatch (&windowEvent);
 			
 		}
@@ -502,8 +505,8 @@ namespace lime {
 	
 	int SDLApplication::Quit () {
 		
-		windowEvent.type = WINDOW_DEACTIVATE;
-		WindowEvent::Dispatch (&windowEvent);
+		applicationEvent.type = EXIT;
+		ApplicationEvent::Dispatch (&applicationEvent);
 		
 		SDL_Quit ();
 		

@@ -28,13 +28,13 @@ import lime.ui.Window;
 class NativeApplication {
 	
 	
+	private var applicationEventInfo = new ApplicationEventInfo (UPDATE);
 	private var gamepadEventInfo = new GamepadEventInfo ();
 	private var keyEventInfo = new KeyEventInfo ();
 	private var mouseEventInfo = new MouseEventInfo ();
 	private var renderEventInfo = new RenderEventInfo (RENDER);
 	private var textEventInfo = new TextEventInfo ();
 	private var touchEventInfo = new TouchEventInfo ();
-	private var updateEventInfo = new UpdateEventInfo ();
 	private var windowEventInfo = new WindowEventInfo ();
 	
 	public var handle:Dynamic;
@@ -75,13 +75,13 @@ class NativeApplication {
 	
 	public function exec ():Int {
 		
+		lime_application_event_manager_register (handleApplicationEvent, applicationEventInfo);
 		lime_gamepad_event_manager_register (handleGamepadEvent, gamepadEventInfo);
 		lime_key_event_manager_register (handleKeyEvent, keyEventInfo);
 		lime_mouse_event_manager_register (handleMouseEvent, mouseEventInfo);
 		lime_render_event_manager_register (handleRenderEvent, renderEventInfo);
 		lime_text_event_manager_register (handleTextEvent, textEventInfo);
 		lime_touch_event_manager_register (handleTouchEvent, touchEventInfo);
-		lime_update_event_manager_register (handleUpdateEvent, updateEventInfo);
 		lime_window_event_manager_register (handleWindowEvent, windowEventInfo);
 		
 		#if nodejs
@@ -133,45 +133,59 @@ class NativeApplication {
 	}
 	
 	
+	private function handleApplicationEvent ():Void {
+		
+		switch (applicationEventInfo.type) {
+			
+			case UPDATE:
+				
+				updateTimer ();
+				parent.onUpdate.dispatch (applicationEventInfo.deltaTime);
+			
+			case EXIT:
+				
+				parent.onExit.dispatch (0);
+			
+		}
+		
+	}
+	
+	
 	private function handleGamepadEvent ():Void {
 		
-		if (parent.window != null) {
+		switch (gamepadEventInfo.type) {
 			
-			switch (gamepadEventInfo.type) {
+			case AXIS_MOVE:
 				
-				case AXIS_MOVE:
+				var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
+				if (gamepad != null) gamepad.onAxisMove.dispatch (gamepadEventInfo.axis, gamepadEventInfo.value);
+			
+			case BUTTON_DOWN:
+				
+				var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
+				if (gamepad != null) gamepad.onButtonDown.dispatch (gamepadEventInfo.button);
+			
+			case BUTTON_UP:
+				
+				var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
+				if (gamepad != null) gamepad.onButtonUp.dispatch (gamepadEventInfo.button);
+			
+			case CONNECT:
+				
+				if (!Gamepad.devices.exists (gamepadEventInfo.id)) {
 					
-					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
-					if (gamepad != null) gamepad.onAxisMove.dispatch (gamepadEventInfo.axis, gamepadEventInfo.value);
-				
-				case BUTTON_DOWN:
+					var gamepad = new Gamepad (gamepadEventInfo.id);
+					Gamepad.devices.set (gamepadEventInfo.id, gamepad);
+					Gamepad.onConnect.dispatch (gamepad);
 					
-					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
-					if (gamepad != null) gamepad.onButtonDown.dispatch (gamepadEventInfo.button);
+				}
+			
+			case DISCONNECT:
 				
-				case BUTTON_UP:
-					
-					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
-					if (gamepad != null) gamepad.onButtonUp.dispatch (gamepadEventInfo.button);
-				
-				case CONNECT:
-					
-					if (!Gamepad.devices.exists (gamepadEventInfo.id)) {
-						
-						var gamepad = new Gamepad (gamepadEventInfo.id);
-						Gamepad.devices.set (gamepadEventInfo.id, gamepad);
-						Gamepad.onConnect.dispatch (gamepad);
-						
-					}
-				
-				case DISCONNECT:
-					
-					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
-					if (gamepad != null) gamepad.connected = false;
-					Gamepad.devices.remove (gamepadEventInfo.id);
-					if (gamepad != null) gamepad.onDisconnect.dispatch ();
-				
-			}
+				var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
+				if (gamepad != null) gamepad.connected = false;
+				Gamepad.devices.remove (gamepadEventInfo.id);
+				if (gamepad != null) gamepad.onDisconnect.dispatch ();
 			
 		}
 		
@@ -197,26 +211,28 @@ class NativeApplication {
 	
 	private function handleMouseEvent ():Void {
 		
-		if (parent.window != null) {
+		var window = parent.windows.get (mouseEventInfo.windowID);
+		
+		if (window != null) {
 			
 			switch (mouseEventInfo.type) {
 				
 				case MOUSE_DOWN:
 					
-					parent.window.onMouseDown.dispatch (mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
+					window.onMouseDown.dispatch (mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
 				
 				case MOUSE_UP:
 					
-					parent.window.onMouseUp.dispatch (mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
+					window.onMouseUp.dispatch (mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
 				
 				case MOUSE_MOVE:
 					
-					parent.window.onMouseMove.dispatch (mouseEventInfo.x, mouseEventInfo.y);
-					parent.window.onMouseMoveRelative.dispatch (mouseEventInfo.movementX, mouseEventInfo.movementY);
+					window.onMouseMove.dispatch (mouseEventInfo.x, mouseEventInfo.y);
+					window.onMouseMoveRelative.dispatch (mouseEventInfo.movementX, mouseEventInfo.movementY);
 				
 				case MOUSE_WHEEL:
 					
-					parent.window.onMouseWheel.dispatch (mouseEventInfo.x, mouseEventInfo.y);
+					window.onMouseWheel.dispatch (mouseEventInfo.x, mouseEventInfo.y);
 				
 				default:
 				
@@ -273,40 +289,19 @@ class NativeApplication {
 	
 	private function handleTextEvent ():Void {
 		
-		switch (textEventInfo.type) {
-			
-			case TEXT_INPUT:
-				
-				parent.window.onTextInput.dispatch (textEventInfo.text);
-			
-			case TEXT_EDIT:
-				
-				parent.window.onTextEdit.dispatch (textEventInfo.text, textEventInfo.start, textEventInfo.length);
-			
-			default:
-			
-		}
+		var window = parent.windows.get (textEventInfo.windowID);
 		
-	}
-	
-	
-	private function handleTouchEvent ():Void {
-		
-		if (parent.window != null) {
+		if (window != null) {
 			
-			switch (touchEventInfo.type) {
+			switch (textEventInfo.type) {
 				
-				case TOUCH_START:
+				case TEXT_INPUT:
 					
-					parent.window.onTouchStart.dispatch (touchEventInfo.x, touchEventInfo.y, touchEventInfo.id);
+					window.onTextInput.dispatch (textEventInfo.text);
 				
-				case TOUCH_END:
+				case TEXT_EDIT:
 					
-					parent.window.onTouchEnd.dispatch (touchEventInfo.x, touchEventInfo.y, touchEventInfo.id);
-				
-				case TOUCH_MOVE:
-					
-					parent.window.onTouchMove.dispatch (touchEventInfo.x, touchEventInfo.y, touchEventInfo.id);
+					window.onTextEdit.dispatch (textEventInfo.text, textEventInfo.start, textEventInfo.length);
 				
 				default:
 				
@@ -317,70 +312,94 @@ class NativeApplication {
 	}
 	
 	
-	private function handleUpdateEvent ():Void {
+	private function handleTouchEvent ():Void {
 		
-		updateTimer ();
-		parent.onUpdate.dispatch (updateEventInfo.deltaTime);
+		//var window = parent.windows.get (touchEventInfo.windowID);
+		var window = parent.window;
+		
+		if (window != null) {
+			
+			switch (touchEventInfo.type) {
+				
+				case TOUCH_START:
+					
+					window.onTouchStart.dispatch (touchEventInfo.x, touchEventInfo.y, touchEventInfo.id);
+				
+				case TOUCH_END:
+					
+					window.onTouchEnd.dispatch (touchEventInfo.x, touchEventInfo.y, touchEventInfo.id);
+				
+				case TOUCH_MOVE:
+					
+					window.onTouchMove.dispatch (touchEventInfo.x, touchEventInfo.y, touchEventInfo.id);
+				
+				default:
+				
+			}
+			
+		}
 		
 	}
 	
 	
 	private function handleWindowEvent ():Void {
 		
-		if (parent.window != null) {
+		var window = parent.windows.get (windowEventInfo.windowID);
+		
+		if (window != null) {
 			
 			switch (windowEventInfo.type) {
 				
 				case WINDOW_ACTIVATE:
 					
-					parent.window.onActivate.dispatch ();
+					window.onActivate.dispatch ();
 				
 				case WINDOW_CLOSE:
 					
-					parent.window.onClose.dispatch ();
+					window.onClose.dispatch ();
 				
 				case WINDOW_DEACTIVATE:
 					
-					parent.window.onDeactivate.dispatch ();
+					window.onDeactivate.dispatch ();
 				
 				case WINDOW_ENTER:
 					
-					parent.window.onEnter.dispatch ();
+					window.onEnter.dispatch ();
 				
 				case WINDOW_FOCUS_IN:
 					
-					parent.window.onFocusIn.dispatch ();
+					window.onFocusIn.dispatch ();
 				
 				case WINDOW_FOCUS_OUT:
 					
-					parent.window.onFocusOut.dispatch ();
+					window.onFocusOut.dispatch ();
 				
 				case WINDOW_LEAVE:
 					
-					parent.window.onLeave.dispatch ();
+					window.onLeave.dispatch ();
 				
 				case WINDOW_MINIMIZE:
 					
-					parent.window.__minimized = true;
-					parent.window.onMinimize.dispatch ();
+					window.__minimized = true;
+					window.onMinimize.dispatch ();
 				
 				case WINDOW_MOVE:
 					
-					parent.window.__x = windowEventInfo.x;
-					parent.window.__y = windowEventInfo.y;
-					parent.window.onMove.dispatch (windowEventInfo.x, windowEventInfo.y);
+					window.__x = windowEventInfo.x;
+					window.__y = windowEventInfo.y;
+					window.onMove.dispatch (windowEventInfo.x, windowEventInfo.y);
 				
 				case WINDOW_RESIZE:
 					
-					parent.window.__width = windowEventInfo.width;
-					parent.window.__height = windowEventInfo.height;
-					parent.window.onResize.dispatch (windowEventInfo.width, windowEventInfo.height);
+					window.__width = windowEventInfo.width;
+					window.__height = windowEventInfo.height;
+					window.onResize.dispatch (windowEventInfo.width, windowEventInfo.height);
 				
 				case WINDOW_RESTORE:
 					
-					parent.window.__fullscreen = false;
-					parent.window.__minimized = false;
-					parent.window.onRestore.dispatch ();
+					window.__fullscreen = false;
+					window.__minimized = false;
+					window.onRestore.dispatch ();
 				
 			}
 			
@@ -445,6 +464,7 @@ class NativeApplication {
 	
 	
 	private static var lime_application_create = System.load ("lime", "lime_application_create", 1);
+	private static var lime_application_event_manager_register = System.load ("lime", "lime_application_event_manager_register", 2);
 	private static var lime_application_exec = System.load ("lime", "lime_application_exec", 1);
 	private static var lime_application_init = System.load ("lime", "lime_application_init", 1);
 	private static var lime_application_set_frame_rate = System.load ("lime", "lime_application_set_frame_rate", 2);
@@ -456,9 +476,41 @@ class NativeApplication {
 	private static var lime_render_event_manager_register = System.load ("lime", "lime_render_event_manager_register", 2);
 	private static var lime_text_event_manager_register = System.load ("lime", "lime_text_event_manager_register", 2);
 	private static var lime_touch_event_manager_register = System.load ("lime", "lime_touch_event_manager_register", 2);
-	private static var lime_update_event_manager_register = System.load ("lime", "lime_update_event_manager_register", 2);
 	private static var lime_window_event_manager_register = System.load ("lime", "lime_window_event_manager_register", 2);
 	
+	
+}
+
+
+private class ApplicationEventInfo {
+	
+	
+	public var deltaTime:Int;
+	public var type:ApplicationEventType;
+	
+	
+	public function new (type:ApplicationEventType = null, deltaTime:Int = 0) {
+		
+		this.type = type;
+		this.deltaTime = deltaTime;
+		
+	}
+	
+	
+	public function clone ():ApplicationEventInfo {
+		
+		return new ApplicationEventInfo (type, deltaTime);
+		
+	}
+	
+	
+}
+
+
+@:enum private abstract ApplicationEventType(Int) {
+	
+	var UPDATE = 0;
+	var EXIT = 1;
 	
 }
 
@@ -547,14 +599,16 @@ private class MouseEventInfo {
 	public var movementX:Float;
 	public var movementY:Float;
 	public var type:MouseEventType;
+	public var windowID:Int;
 	public var x:Float;
 	public var y:Float;
 	
 	
 	
-	public function new (type:MouseEventType = null, x:Float = 0, y:Float = 0, button:Int = 0, movementX:Float = 0, movementY:Float = 0) {
+	public function new (type:MouseEventType = null, windowID:Int = 0, x:Float = 0, y:Float = 0, button:Int = 0, movementX:Float = 0, movementY:Float = 0) {
 		
 		this.type = type;
+		this.windowID = 0;
 		this.x = x;
 		this.y = y;
 		this.button = button;
@@ -566,7 +620,7 @@ private class MouseEventInfo {
 	
 	public function clone ():MouseEventInfo {
 		
-		return new MouseEventInfo (type, x, y, button, movementX, movementY);
+		return new MouseEventInfo (type, windowID, x, y, button, movementX, movementY);
 		
 	}
 	
@@ -626,11 +680,13 @@ private class TextEventInfo {
 	public var start:Int;
 	public var text:String;
 	public var type:TextEventType;
+	public var windowID:Int;
 	
 	
-	public function new (type:TextEventType = null, text:String = "", start:Int = 0, length:Int = 0) {
+	public function new (type:TextEventType = null, windowID:Int = 0, text:String = "", start:Int = 0, length:Int = 0) {
 		
 		this.type = type;
+		this.windowID = windowID;
 		this.text = text;
 		this.start = start;
 		this.length = length;
@@ -640,7 +696,7 @@ private class TextEventInfo {
 	
 	public function clone ():TextEventInfo {
 		
-		return new TextEventInfo (type, text, start, length);
+		return new TextEventInfo (type, windowID, text, start, length);
 		
 	}
 	
@@ -661,13 +717,15 @@ private class TouchEventInfo {
 	
 	public var id:Int;
 	public var type:TouchEventType;
+	public var windowID:Int;
 	public var x:Float;
 	public var y:Float;
 	
 	
-	public function new (type:TouchEventType = null, x:Float = 0, y:Float = 0, id:Int = 0) {
+	public function new (type:TouchEventType = null, windowID:Int = 0, x:Float = 0, y:Float = 0, id:Int = 0) {
 		
 		this.type = type;
+		this.windowID = windowID;
 		this.x = x;
 		this.y = y;
 		this.id = id;
@@ -677,7 +735,7 @@ private class TouchEventInfo {
 	
 	public function clone ():TouchEventInfo {
 		
-		return new TouchEventInfo (type, x, y, id);
+		return new TouchEventInfo (type, windowID, x, y, id);
 		
 	}
 	
@@ -694,51 +752,21 @@ private class TouchEventInfo {
 }
 
 
-private class UpdateEventInfo {
-	
-	
-	public var deltaTime:Int;
-	public var type:UpdateEventType;
-	
-	
-	public function new (type:UpdateEventType = null, deltaTime:Int = 0) {
-		
-		this.type = type;
-		this.deltaTime = deltaTime;
-		
-	}
-	
-	
-	public function clone ():UpdateEventInfo {
-		
-		return new UpdateEventInfo (type, deltaTime);
-		
-	}
-	
-	
-}
-
-
-@:enum private abstract UpdateEventType(Int) {
-	
-	var UPDATE = 0;
-	
-}
-
-
 private class WindowEventInfo {
 	
 	
 	public var height:Int;
 	public var type:WindowEventType;
 	public var width:Int;
+	public var windowID:Int;
 	public var x:Int;
 	public var y:Int;
 	
 	
-	public function new (type:WindowEventType = null, width:Int = 0, height:Int = 0, x:Int = 0, y:Int = 0) {
+	public function new (type:WindowEventType = null, windowID:Int = 0, width:Int = 0, height:Int = 0, x:Int = 0, y:Int = 0) {
 		
 		this.type = type;
+		this.windowID = windowID;
 		this.width = width;
 		this.height = height;
 		this.x = x;
@@ -749,7 +777,7 @@ private class WindowEventInfo {
 	
 	public function clone ():WindowEventInfo {
 		
-		return new WindowEventInfo (type, width, height, x, y);
+		return new WindowEventInfo (type, windowID, width, height, x, y);
 		
 	}
 	

@@ -85,6 +85,7 @@ class NativeWindow {
 			parent.__height = lime_window_get_height (handle);
 			parent.__x = lime_window_get_x (handle);
 			parent.__y = lime_window_get_y (handle);
+			parent.id = lime_window_get_id (handle);
 			
 		}
 		
@@ -222,6 +223,7 @@ class NativeWindow {
 	private static var lime_window_create = System.load ("lime", "lime_window_create", 5);
 	private static var lime_window_get_enable_text_events = System.load ("lime", "lime_window_get_enable_text_events", 1);
 	private static var lime_window_get_height = System.load ("lime", "lime_window_get_height", 1);
+	private static var lime_window_get_id = System.load ("lime", "lime_window_get_id", 1);
 	private static var lime_window_get_width = System.load ("lime", "lime_window_get_width", 1);
 	private static var lime_window_get_x = System.load ("lime", "lime_window_get_x", 1);
 	private static var lime_window_get_y = System.load ("lime", "lime_window_get_y", 1);

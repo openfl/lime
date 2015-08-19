@@ -20,6 +20,7 @@ namespace lime {
 			virtual void Close ();
 			virtual bool GetEnableTextEvents ();
 			virtual int GetHeight ();
+			virtual uint32_t GetID ();
 			virtual int GetWidth ();
 			virtual int GetX ();
 			virtual int GetY ();

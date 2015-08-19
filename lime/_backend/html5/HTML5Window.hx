@@ -32,6 +32,7 @@ class HTML5Window {
 	
 	
 	private static var textInput:InputElement;
+	private static var windowID:Int = 0;
 	
 	public var canvas:CanvasElement;
 	public var div:DivElement;
@@ -70,6 +71,8 @@ class HTML5Window {
 		
 		setWidth = parent.width;
 		setHeight = parent.height;
+		
+		parent.id = windowID++;
 		
 		if (Std.is (element, CanvasElement)) {
 			

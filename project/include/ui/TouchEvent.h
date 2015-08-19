@@ -3,6 +3,7 @@
 
 
 #include <hx/CFFI.h>
+#include <stdint.h>
 
 
 namespace lime {
@@ -30,6 +31,7 @@ namespace lime {
 			
 			int id;
 			TouchEventType type;
+			uint32_t windowID;
 			double x;
 			double y;
 		
