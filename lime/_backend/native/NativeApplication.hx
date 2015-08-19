@@ -15,6 +15,7 @@ import lime.system.DisplayMode;
 import lime.system.System;
 import lime.ui.Gamepad;
 import lime.ui.Keyboard;
+import lime.ui.Touch;
 import lime.ui.Window;
 
 @:access(haxe.Timer)
@@ -29,12 +30,14 @@ class NativeApplication {
 	
 	
 	private var applicationEventInfo = new ApplicationEventInfo (UPDATE);
+	private var currentTouches = new Map<Int, Touch> ();
 	private var gamepadEventInfo = new GamepadEventInfo ();
 	private var keyEventInfo = new KeyEventInfo ();
 	private var mouseEventInfo = new MouseEventInfo ();
 	private var renderEventInfo = new RenderEventInfo (RENDER);
 	private var textEventInfo = new TextEventInfo ();
 	private var touchEventInfo = new TouchEventInfo ();
+	private var unusedTouchesPool = new List<Touch> ();
 	private var windowEventInfo = new WindowEventInfo ();
 	
 	public var handle:Dynamic;
@@ -314,28 +317,68 @@ class NativeApplication {
 	
 	private function handleTouchEvent ():Void {
 		
-		//var window = parent.windows.get (touchEventInfo.windowID);
-		var window = parent.window;
-		
-		if (window != null) {
+		switch (touchEventInfo.type) {
 			
-			switch (touchEventInfo.type) {
+			case TOUCH_START:
 				
-				case TOUCH_START:
+				var touch = unusedTouchesPool.pop ();
+				
+				if (touch == null) {
 					
-					window.onTouchStart.dispatch (touchEventInfo.x, touchEventInfo.y, touchEventInfo.id);
-				
-				case TOUCH_END:
+					touch = new Touch (touchEventInfo.x, touchEventInfo.x, touchEventInfo.id, touchEventInfo.dx, touchEventInfo.dy, touchEventInfo.pressure, touchEventInfo.device);
 					
-					window.onTouchEnd.dispatch (touchEventInfo.x, touchEventInfo.y, touchEventInfo.id);
-				
-				case TOUCH_MOVE:
+				} else {
 					
-					window.onTouchMove.dispatch (touchEventInfo.x, touchEventInfo.y, touchEventInfo.id);
+					touch.x = touchEventInfo.x;
+					touch.y = touchEventInfo.y;
+					touch.id = touchEventInfo.id;
+					touch.dx = touchEventInfo.dx;
+					touch.dy = touchEventInfo.dy;
+					touch.pressure = touchEventInfo.pressure;
+					touch.device = touchEventInfo.device;
+					
+				}
 				
-				default:
+				currentTouches.set (touch.id, touch);
 				
-			}
+				Touch.onStart.dispatch (touch);
+			
+			case TOUCH_END:
+				
+				var touch = currentTouches.get (touchEventInfo.id);
+				
+				if (touch != null) {
+					
+					touch.x = touchEventInfo.x;
+					touch.y = touchEventInfo.y;
+					touch.dx = touchEventInfo.dx;
+					touch.dy = touchEventInfo.dy;
+					touch.pressure = touchEventInfo.pressure;
+					
+					Touch.onEnd.dispatch (touch);
+					
+					currentTouches.remove (touchEventInfo.id);
+					unusedTouchesPool.add (touch);
+					
+				}
+			
+			case TOUCH_MOVE:
+				
+				var touch = currentTouches.get (touchEventInfo.id);
+				
+				if (touch != null) {
+					
+					touch.x = touchEventInfo.x;
+					touch.y = touchEventInfo.y;
+					touch.dx = touchEventInfo.dx;
+					touch.dy = touchEventInfo.dy;
+					touch.pressure = touchEventInfo.pressure;
+					
+					Touch.onMove.dispatch (touch);
+					
+				}
+			
+			default:
 			
 		}
 		
@@ -716,27 +759,33 @@ private class TextEventInfo {
 private class TouchEventInfo {
 	
 	
+	public var device:Int;
+	public var dx:Float;
+	public var dy:Float;
 	public var id:Int;
+	public var pressure:Float;
 	public var type:TouchEventType;
-	public var windowID:Int;
 	public var x:Float;
 	public var y:Float;
 	
 	
-	public function new (type:TouchEventType = null, windowID:Int = 0, x:Float = 0, y:Float = 0, id:Int = 0) {
+	public function new (type:TouchEventType = null, x:Float = 0, y:Float = 0, id:Int = 0, dx:Float = 0, dy:Float = 0, pressure:Float = 0, device:Int = 0) {
 		
 		this.type = type;
-		this.windowID = windowID;
 		this.x = x;
 		this.y = y;
 		this.id = id;
+		this.dx = dx;
+		this.dy = dy;
+		this.pressure = pressure;
+		this.device = device;
 		
 	}
 	
 	
 	public function clone ():TouchEventInfo {
 		
-		return new TouchEventInfo (type, windowID, x, y, id);
+		return new TouchEventInfo (type, x, y, id, dx, dy, pressure, device);
 		
 	}
 	

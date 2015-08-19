@@ -3,7 +3,6 @@
 
 
 #include <hx/CFFI.h>
-#include <stdint.h>
 
 
 namespace lime {
@@ -29,11 +28,14 @@ namespace lime {
 			
 			static void Dispatch (TouchEvent* event);
 			
+			int device;
+			float dx;
+			float dy;
 			int id;
+			float pressure;
 			TouchEventType type;
-			uint32_t windowID;
-			double x;
-			double y;
+			float x;
+			float y;
 		
 	};
 	

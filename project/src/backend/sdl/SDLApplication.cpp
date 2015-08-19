@@ -429,30 +429,28 @@ namespace lime {
 				case SDL_FINGERMOTION:
 					
 					touchEvent.type = TOUCH_MOVE;
-					touchEvent.x = event->tfinger.x;
-					touchEvent.y = event->tfinger.y;
-					touchEvent.id = event->tfinger.fingerId;
 					break;
 				
 				case SDL_FINGERDOWN:
 					
 					touchEvent.type = TOUCH_START;
-					touchEvent.x = event->tfinger.x;
-					touchEvent.y = event->tfinger.y;
-					touchEvent.id = event->tfinger.fingerId;
 					break;
 				
 				case SDL_FINGERUP:
 					
 					touchEvent.type = TOUCH_END;
-					touchEvent.x = event->tfinger.x;
-					touchEvent.y = event->tfinger.y;
-					touchEvent.id = event->tfinger.fingerId;
 					break;
 				
 			}
 			
-			//touchEvent.windowID = event->tfinger.windowID;
+			touchEvent.x = event->tfinger.x;
+			touchEvent.y = event->tfinger.y;
+			touchEvent.id = event->tfinger.fingerId;
+			touchEvent.dx = event->tfinger.dx;
+			touchEvent.dy = event->tfinger.dy;
+			touchEvent.pressure = event->tfinger.pressure;
+			touchEvent.device = event->tfinger.touchId;
+			
 			TouchEvent::Dispatch (&touchEvent);
 			
 		}

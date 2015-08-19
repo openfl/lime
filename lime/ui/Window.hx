@@ -40,9 +40,6 @@ class Window {
 	public var onRestore = new Event<Void->Void> ();
 	public var onTextEdit = new Event<String->Int->Int->Void> ();
 	public var onTextInput = new Event<String->Void> ();
-	public var onTouchEnd = new Event<Float->Float->Int->Void> ();
-	public var onTouchMove = new Event<Float->Float->Int->Void> ();
-	public var onTouchStart = new Event<Float->Float->Int->Void> ();
 	public var title (get, set):String;
 	public var width (get, set):Int;
 	public var x (get, set):Int;

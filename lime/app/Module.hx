@@ -8,6 +8,7 @@ import lime.ui.GamepadAxis;
 import lime.ui.GamepadButton;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
+import lime.ui.Touch;
 import lime.ui.Window;
 
 
@@ -193,32 +194,23 @@ class Module implements IModule {
 	
 	/**
 	 * Called when a touch end event is fired
-	 * @param	window	The window dispatching the event
-	 * @param	x	The current x coordinate of the touch point
-	 * @param	y	The current y coordinate of the touch point
-	 * @param	id	The ID of the touch point
+	 * @param	touch	The current touch object
 	 */
-	public function onTouchEnd (window:Window, x:Float, y:Float, id:Int):Void { }
+	public function onTouchEnd (touch:Touch):Void { }
 	
 	
 	/**
 	 * Called when a touch move event is fired
-	 * @param	window	The window dispatching the event
-	 * @param	x	The current x coordinate of the touch point
-	 * @param	y	The current y coordinate of the touch point
-	 * @param	id	The ID of the touch point
+	 * @param	touch	The current touch object
 	 */
-	public function onTouchMove (window:Window, x:Float, y:Float, id:Int):Void { }
+	public function onTouchMove (touch:Touch):Void { }
 	
 	
 	/**
 	 * Called when a touch start event is fired
-	 * @param	window	The window dispatching the event
-	 * @param	x	The current x coordinate of the touch point
-	 * @param	y	The current y coordinate of the touch point
-	 * @param	id	The ID of the touch point
+	 * @param	touch	The current touch object
 	 */
-	public function onTouchStart (window:Window, x:Float, y:Float, id:Int):Void { }
+	public function onTouchStart (touch:Touch):Void { }
 	
 	
 	/**

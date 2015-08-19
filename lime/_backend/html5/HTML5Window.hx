@@ -19,6 +19,7 @@ import lime.app.Application;
 import lime.graphics.Image;
 import lime.system.Display;
 import lime.system.System;
+import lime.ui.Touch;
 import lime.ui.Window;
 
 #if (haxe_ver < 3.2)
@@ -43,10 +44,12 @@ class HTML5Window {
 	public var stats:Dynamic;
 	#end
 	
+	private var currentTouches = new Map<Int, Touch> ();
 	private var enableTextEvents:Bool;
 	private var parent:Window;
 	private var setHeight:Int;
 	private var setWidth:Int;
+	private var unusedTouchesPool = new List<Touch> ();
 	
 	
 	public function new (parent:Window) {
@@ -366,60 +369,131 @@ class HTML5Window {
 		
 		event.preventDefault ();
 		
-		var touch = event.changedTouches[0];
-		var id = touch.identifier;
-		var x = 0.0;
-		var y = 0.0;
+		var rect = null;
 		
 		if (element != null) {
 			
 			if (canvas != null) {
 				
-				var rect = canvas.getBoundingClientRect ();
-				x = (touch.clientX - rect.left) * (parent.width / rect.width);
-				y = (touch.clientY - rect.top) * (parent.height / rect.height);
+				rect = canvas.getBoundingClientRect ();
 				
 			} else if (div != null) {
 				
-				var rect = div.getBoundingClientRect ();
-				//eventInfo.x = (event.clientX - rect.left) * (window.div.style.width / rect.width);
-				x = (touch.clientX - rect.left);
-				//eventInfo.y = (event.clientY - rect.top) * (window.div.style.height / rect.height);
-				y = (touch.clientY - rect.top);
+				rect = div.getBoundingClientRect ();
 				
 			} else {
 				
-				var rect = element.getBoundingClientRect ();
-				x = (touch.clientX - rect.left) * (parent.width / rect.width);
-				y = (touch.clientY - rect.top) * (parent.height / rect.height);
+				rect = element.getBoundingClientRect ();
 				
 			}
 			
-		} else {
-			
-			x = touch.clientX;
-			y = touch.clientY;
-			
 		}
 		
-		switch (event.type) {
+		for (data in event.changedTouches) {
 			
-			case "touchstart":
+			var x = 0.0;
+			var y = 0.0;
+			
+			if (rect != null) {
 				
-				parent.onTouchStart.dispatch (x / setWidth, y / setHeight, id);
-				parent.onMouseDown.dispatch (x, y, 0);
-			
-			case "touchmove":
+				x = (data.clientX - rect.left) * (parent.width / rect.width);
+				y = (data.clientY - rect.top) * (parent.height / rect.height);
 				
-				parent.onTouchMove.dispatch (x / setWidth, y / setHeight, id);
-				parent.onMouseMove.dispatch (x, y);
-			
-			case "touchend":
+			} else {
 				
-				parent.onTouchEnd.dispatch (x / setWidth, y / setHeight, id);
-				parent.onMouseUp.dispatch (x, y, 0);
+				x = data.clientX;
+				y = data.clientY;
+				
+			}
 			
-			default:
+			switch (event.type) {
+				
+				case "touchstart":
+					
+					var touch = unusedTouchesPool.pop ();
+					
+					if (touch == null) {
+						
+						touch = new Touch (x / setWidth, y / setHeight, data.identifier, 0, 0, data.force, parent.id);
+						
+					} else {
+						
+						touch.x = x / setWidth;
+						touch.y = y / setHeight;
+						touch.id = data.identifier;
+						touch.dx = 0;
+						touch.dy = 0;
+						touch.pressure = data.force;
+						touch.device = parent.id;
+						
+					}
+					
+					currentTouches.set (data.identifier, touch);
+					
+					Touch.onStart.dispatch (touch);
+					
+					if (data == event.touches[0]) {
+						
+						parent.onMouseDown.dispatch (x, y, 0);
+						
+					}
+				
+				case "touchend":
+					
+					var touch = currentTouches.get (data.identifier);
+					
+					if (touch != null) {
+						
+						var cacheX = touch.x;
+						var cacheY = touch.y;
+						
+						touch.x = x / setWidth;
+						touch.y = y / setHeight;
+						touch.dx = touch.x - cacheX;
+						touch.dy = touch.y - cacheY;
+						touch.pressure = data.force;
+						
+						Touch.onEnd.dispatch (touch);
+						
+						currentTouches.remove (data.identifier);
+						unusedTouchesPool.add (touch);
+						
+						if (data == event.touches[0]) {
+							
+							parent.onMouseUp.dispatch (x, y, 0);
+							
+						}
+						
+					}
+				
+				case "touchmove":
+					
+					var touch = currentTouches.get (data.identifier);
+					
+					if (touch != null) {
+						
+						var cacheX = touch.x;
+						var cacheY = touch.y;
+						
+						touch.x = x / setWidth;
+						touch.y = y / setHeight;
+						touch.dx = touch.x - cacheX;
+						touch.dy = touch.y - cacheY;
+						touch.pressure = data.force;
+						
+						Touch.onMove.dispatch (touch);
+						
+						if (data == event.touches[0]) {
+							
+							parent.onMouseMove.dispatch (x, y);
+							
+						}
+						
+					}
+				
+				default:
+				
+			}
 			
 		}
 		

@@ -16,6 +16,7 @@ import lime.graphics.Renderer;
 import lime.ui.Keyboard;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
+import lime.ui.Touch;
 import lime.ui.Window;
 
 @:access(lime.app.Application)
@@ -26,8 +27,10 @@ class FlashApplication {
 	
 	
 	private var cacheTime:Int;
+	private var currentTouches = new Map<Int, Touch> ();
 	private var mouseLeft:Bool;
 	private var parent:Application;
+	private var unusedTouchesPool = new List<Touch> ();
 	
 	
 	public function new (parent:Application):Void {
@@ -160,9 +163,9 @@ class FlashApplication {
 		Lib.current.stage.addEventListener (Event.RESIZE, handleWindowEvent);
 		
 		cacheTime = Lib.getTimer ();
-		handleUpdateEvent (null);
+		handleApplicationEvent (null);
 		
-		Lib.current.stage.addEventListener (Event.ENTER_FRAME, handleUpdateEvent);
+		Lib.current.stage.addEventListener (Event.ENTER_FRAME, handleApplicationEvent);
 		
 		return 0;
 		
@@ -172,6 +175,24 @@ class FlashApplication {
 	public function getFrameRate ():Float {
 		
 		return Lib.current.stage.frameRate;
+		
+	}
+	
+	
+	private function handleApplicationEvent (event:Event):Void {
+		
+		var currentTime = Lib.getTimer ();
+		var deltaTime = currentTime - cacheTime;
+		cacheTime = currentTime;
+		
+		parent.onUpdate.dispatch (deltaTime);
+		
+		if (parent.renderer != null) {
+			
+			parent.renderer.onRender.dispatch ();
+			parent.renderer.flip ();
+			
+		}
 		
 	}
 	
@@ -250,7 +271,6 @@ class FlashApplication {
 		
 		if (parent.window != null) {
 			
-			var id = 0;
 			var x = event.stageX;
 			var y = event.stageY;
 			
@@ -258,38 +278,89 @@ class FlashApplication {
 				
 				case TouchEvent.TOUCH_BEGIN:
 					
-					parent.window.onTouchStart.dispatch (x / parent.window.width, y / parent.window.height, id);
-					parent.window.onMouseDown.dispatch (x, y, 0);
-				
-				case TouchEvent.TOUCH_MOVE:
+					var touch = unusedTouchesPool.pop ();
 					
-					parent.window.onTouchMove.dispatch (x / parent.window.width, y / parent.window.height, id);
-					parent.window.onMouseMove.dispatch (x, y);
+					if (touch == null) {
+						
+						touch = new Touch (x / parent.window.width, y / parent.window.height, event.touchPointID, 0, 0, event.pressure, 0);
+						
+					} else {
+						
+						touch.x = x / parent.window.width;
+						touch.y = y / parent.window.height;
+						touch.id = event.touchPointID;
+						touch.dx = 0;
+						touch.dy = 0;
+						touch.pressure = event.pressure;
+						touch.device = 0;
+						
+					}
+					
+					currentTouches.set (event.touchPointID, touch);
+					
+					Touch.onStart.dispatch (touch);
+					
+					if (event.isPrimaryTouchPoint) {
+						
+						parent.window.onMouseDown.dispatch (x, y, 0);
+						
+					}
 				
 				case TouchEvent.TOUCH_END:
 					
-					parent.window.onTouchEnd.dispatch (x / parent.window.width, y / parent.window.height, id);
-					parent.window.onMouseUp.dispatch (x, y, 0);
+					var touch = currentTouches.get (event.touchPointID);
+					
+					if (touch != null) {
+						
+						var cacheX = touch.x;
+						var cacheY = touch.y;
+						
+						touch.x = x / parent.window.width;
+						touch.y = y / parent.window.height;
+						touch.dx = touch.x - cacheX;
+						touch.dy = touch.y - cacheY;
+						touch.pressure = event.pressure;
+						
+						Touch.onEnd.dispatch (touch);
+						
+						currentTouches.remove (event.touchPointID);
+						unusedTouchesPool.add (touch);
+						
+						if (event.isPrimaryTouchPoint) {
+							
+							parent.window.onMouseUp.dispatch (x, y, 0);
+							
+						}
+						
+					}
+				
+				case TouchEvent.TOUCH_MOVE:
+					
+					var touch = currentTouches.get (event.touchPointID);
+					
+					if (touch != null) {
+						
+						var cacheX = touch.x;
+						var cacheY = touch.y;
+						
+						touch.x = x / parent.window.width;
+						touch.y = y / parent.window.height;
+						touch.dx = touch.x - cacheX;
+						touch.dy = touch.y - cacheY;
+						touch.pressure = event.pressure;
+						
+						Touch.onMove.dispatch (touch);
+						
+						if (event.isPrimaryTouchPoint) {
+							
+							parent.window.onMouseMove.dispatch (x, y);
+							
+						}
+						
+					}
+					
 				
 			}
-			
-		}
-		
-	}
-	
-	
-	private function handleUpdateEvent (event:Event):Void {
-		
-		var currentTime = Lib.getTimer ();
-		var deltaTime = currentTime - cacheTime;
-		cacheTime = currentTime;
-		
-		parent.onUpdate.dispatch (deltaTime);
-		
-		if (parent.renderer != null) {
-			
-			parent.renderer.onRender.dispatch ();
-			parent.renderer.flip ();
 			
 		}
 		

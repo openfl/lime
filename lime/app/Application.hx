@@ -9,6 +9,7 @@ import lime.ui.GamepadButton;
 import lime.ui.Keyboard;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
+import lime.ui.Touch;
 import lime.ui.Window;
 
 
@@ -63,6 +64,9 @@ class Application extends Module {
 		Gamepad.onConnect.add (onGamepadConnect);
 		Keyboard.onKeyDown.add (onKeyDown);
 		Keyboard.onKeyUp.add (onKeyUp);
+		Touch.onStart.add (onTouchStart);
+		Touch.onMove.add (onTouchMove);
+		Touch.onEnd.add (onTouchEnd);
 		
 	}
 	
@@ -139,9 +143,6 @@ class Application extends Module {
 		window.onRestore.add (onWindowRestore.bind (window));
 		window.onTextEdit.add (onTextEdit.bind (window));
 		window.onTextInput.add (onTextInput.bind (window));
-		window.onTouchStart.add (onTouchStart.bind (window));
-		window.onTouchMove.add (onTouchMove.bind (window));
-		window.onTouchEnd.add (onTouchEnd.bind (window));
 		
 		window.create (this);
 		windows.set (window.id, window);
@@ -410,33 +411,33 @@ class Application extends Module {
 	}
 	
 	
-	public override function onTouchEnd (window:Window, x:Float, y:Float, id:Int):Void {
+	public override function onTouchEnd (touch:Touch):Void {
 		
 		for (module in modules) {
 			
-			module.onTouchEnd (window, x, y, id);
+			module.onTouchEnd (touch);
 			
 		}
 		
 	}
 	
 	
-	public override function onTouchMove (window:Window, x:Float, y:Float, id:Int):Void {
+	public override function onTouchMove (touch:Touch):Void {
 		
 		for (module in modules) {
 			
-			module.onTouchMove (window, x, y, id);
+			module.onTouchMove (touch);
 			
 		}
 		
 	}
 	
 	
-	public override function onTouchStart (window:Window, x:Float, y:Float, id:Int):Void {
+	public override function onTouchStart (touch:Touch):Void {
 		
 		for (module in modules) {
 			
-			module.onTouchStart (window, x, y, id);
+			module.onTouchStart (touch);
 			
 		}
 		
