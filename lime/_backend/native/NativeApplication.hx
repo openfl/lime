@@ -357,6 +357,7 @@ class NativeApplication {
 				case WINDOW_CLOSE:
 					
 					window.onClose.dispatch ();
+					window.close ();
 				
 				case WINDOW_DEACTIVATE:
 					

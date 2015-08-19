@@ -206,7 +206,6 @@ namespace lime {
 					case SDL_WINDOWEVENT_CLOSE:
 						
 						ProcessWindowEvent (event);
-						active = false;
 						break;
 					
 				}
@@ -215,7 +214,6 @@ namespace lime {
 			
 			case SDL_QUIT:
 				
-				//quit
 				active = false;
 				break;
 			
