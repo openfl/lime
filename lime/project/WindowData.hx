@@ -22,5 +22,6 @@ typedef WindowData = {
 	@:optional var requireShaders:Bool;
 	@:optional var depthBuffer:Bool;
 	@:optional var stencilBuffer:Bool;
+	@:optional var highdpi:Bool;
 	
 }
