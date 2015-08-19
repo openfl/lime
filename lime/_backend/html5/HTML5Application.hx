@@ -7,6 +7,7 @@ import lime.app.Application;
 import lime.app.Config;
 import lime.audio.AudioManager;
 import lime.graphics.Renderer;
+import lime.ui.Keyboard;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.Window;
@@ -115,7 +116,7 @@ class HTML5Application {
 			var renderer = new Renderer (window);
 			parent.addWindow (window);
 			parent.addRenderer (renderer);
-			parent.init (renderer.context);
+			parent.init (parent);
 			
 		}
 		
@@ -141,10 +142,9 @@ class HTML5Application {
 		untyped __js__ ("
 			var lastTime = 0;
 			var vendors = ['ms', 'moz', 'webkit', 'o'];
-			for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+			for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
 				window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-				window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] 
-										   || window[vendors[x]+'CancelRequestAnimationFrame'];
+				window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
 			}
 			
 			if (!window.requestAnimationFrame)
@@ -210,11 +210,11 @@ class HTML5Application {
 			
 			if (event.type == "keydown") {
 				
-				parent.window.onKeyDown.dispatch (keyCode, modifier);
+				Keyboard.onKeyDown.dispatch (keyCode, modifier);
 				
 			} else {
 				
-				parent.window.onKeyUp.dispatch (keyCode, modifier);
+				Keyboard.onKeyUp.dispatch (keyCode, modifier);
 				
 			}
 			
@@ -240,7 +240,7 @@ class HTML5Application {
 			
 			if (parent.renderer != null) {
 				
-				parent.renderer.onRender.dispatch (parent.renderer.context);
+				parent.renderer.onRender.dispatch ();
 				parent.renderer.flip ();
 				
 			}
@@ -284,13 +284,13 @@ class HTML5Application {
 				
 				case "focus":
 					
-					parent.window.onWindowFocusIn.dispatch ();
-					parent.window.onWindowActivate.dispatch ();
+					parent.window.onFocusIn.dispatch ();
+					parent.window.onActivate.dispatch ();
 				
 				case "blur":
 					
-					parent.window.onWindowFocusOut.dispatch ();
-					parent.window.onWindowDeactivate.dispatch ();
+					parent.window.onFocusOut.dispatch ();
+					parent.window.onDeactivate.dispatch ();
 				
 				case "resize":
 					
@@ -301,13 +301,13 @@ class HTML5Application {
 					
 					if (parent.window.width != cacheWidth || parent.window.height != cacheHeight) {
 						
-						parent.window.onWindowResize.dispatch (parent.window.width, parent.window.height);
+						parent.window.onResize.dispatch (parent.window.width, parent.window.height);
 						
 					}
 				
 				case "beforeunload":
 					
-					parent.window.onWindowClose.dispatch ();
+					parent.window.onClose.dispatch ();
 				
 			}
 			

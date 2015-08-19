@@ -17,7 +17,6 @@ class ApplicationMain {
 	public static function create ():Void {
 		
 		preloader = new ::if (PRELOADER_NAME != "")::::PRELOADER_NAME::::else::lime.app.Preloader::end:: ();
-		preloader.onComplete.add (start);
 		
 		#if !munit
 		app = new ::APP_MAIN:: ();
@@ -25,6 +24,7 @@ class ApplicationMain {
 		app.create (config);
 		#end
 		
+		preloader.onComplete.add (start);
 		preloader.create (config);
 		
 		#if (js && html5)

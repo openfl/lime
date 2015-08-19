@@ -98,7 +98,7 @@ class Event<T> {
 				listeners.splice (i, 1);
 				priorities.splice (i, 1);
 				repeat.splice (i, 1);
-					
+				
 			}
 			
 		}

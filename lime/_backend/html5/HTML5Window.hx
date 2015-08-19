@@ -264,11 +264,11 @@ class HTML5Window {
 				
 				case "mouseenter":
 					
-					parent.onWindowEnter.dispatch ();
+					parent.onEnter.dispatch ();
 				
 				case "mouseleave":
 					
-					parent.onWindowLeave.dispatch ();
+					parent.onLeave.dispatch ();
 				
 				case "mouseup":
 					

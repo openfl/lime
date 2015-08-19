@@ -13,6 +13,7 @@ import lime.app.Application;
 import lime.app.Config;
 import lime.audio.AudioManager;
 import lime.graphics.Renderer;
+import lime.ui.Keyboard;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.Window;
@@ -126,7 +127,7 @@ class FlashApplication {
 			var renderer = new Renderer (window);
 			parent.addWindow (window);
 			parent.addRenderer (renderer);
-			parent.init (renderer.context);
+			parent.init (parent);
 			
 		}
 		
@@ -177,26 +178,22 @@ class FlashApplication {
 	
 	private function handleKeyEvent (event:KeyboardEvent):Void {
 		
-		if (parent.window != null) {
+		var keyCode = convertKeyCode (event.keyCode);
+		var modifier = (event.shiftKey ? (KeyModifier.SHIFT) : 0) | (event.ctrlKey ? (KeyModifier.CTRL) : 0) | (event.altKey ? (KeyModifier.ALT) : 0);
+		
+		if (event.type == KeyboardEvent.KEY_DOWN) {
 			
-			var keyCode = convertKeyCode (event.keyCode);
-			var modifier = (event.shiftKey ? (KeyModifier.SHIFT) : 0) | (event.ctrlKey ? (KeyModifier.CTRL) : 0) | (event.altKey ? (KeyModifier.ALT) : 0);
+			Keyboard.onKeyDown.dispatch (keyCode, modifier);
 			
-			if (event.type == KeyboardEvent.KEY_DOWN) {
+			if (parent.window != null && parent.window.enableTextEvents) {
 				
-				parent.window.onKeyDown.dispatch (keyCode, modifier);
-				
-				if (parent.window.enableTextEvents) {
-					
-					parent.window.onTextInput.dispatch (String.fromCharCode (event.charCode));
-					
-				}
-				
-			} else {
-				
-				parent.window.onKeyUp.dispatch (keyCode, modifier);
+				parent.window.onTextInput.dispatch (String.fromCharCode (event.charCode));
 				
 			}
+			
+		} else {
+			
+			Keyboard.onKeyUp.dispatch (keyCode, modifier);
 			
 		}
 		
@@ -226,7 +223,7 @@ class FlashApplication {
 					if (mouseLeft) {
 						
 						mouseLeft = false;
-						parent.window.onWindowEnter.dispatch ();
+						parent.window.onEnter.dispatch ();
 						
 					}
 					
@@ -291,7 +288,7 @@ class FlashApplication {
 		
 		if (parent.renderer != null) {
 			
-			parent.renderer.onRender.dispatch (parent.renderer.context);
+			parent.renderer.onRender.dispatch ();
 			parent.renderer.flip ();
 			
 		}
@@ -307,31 +304,31 @@ class FlashApplication {
 				
 				case Event.ACTIVATE:
 					
-					parent.window.onWindowActivate.dispatch ();
+					parent.window.onActivate.dispatch ();
 				
 				case Event.DEACTIVATE:
 					
-					parent.window.onWindowDeactivate.dispatch ();
+					parent.window.onDeactivate.dispatch ();
 				
 				case FocusEvent.FOCUS_IN:
 					
-					parent.window.onWindowFocusIn.dispatch ();
+					parent.window.onFocusIn.dispatch ();
 				
 				case FocusEvent.FOCUS_OUT:
 					
-					parent.window.onWindowFocusOut.dispatch ();
+					parent.window.onFocusOut.dispatch ();
 				
 				case Event.MOUSE_LEAVE:
 					
 					mouseLeft = true;
-					parent.window.onWindowLeave.dispatch ();
+					parent.window.onLeave.dispatch ();
 				
 				default:
 					
 					parent.window.width = Lib.current.stage.stageWidth;
 					parent.window.height = Lib.current.stage.stageHeight;
 					
-					parent.window.onWindowResize.dispatch (parent.window.width, parent.window.height);
+					parent.window.onResize.dispatch (parent.window.width, parent.window.height);
 				
 			}
 			

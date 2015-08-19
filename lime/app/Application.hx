@@ -6,6 +6,7 @@ import lime.graphics.RenderContext;
 import lime.ui.Gamepad;
 import lime.ui.GamepadAxis;
 import lime.ui.GamepadButton;
+import lime.ui.Keyboard;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.Window;
@@ -59,6 +60,10 @@ class Application extends Module {
 		onExit.add (onModuleExit);
 		onUpdate.add (update);
 		
+		Gamepad.onConnect.add (onGamepadConnect);
+		Keyboard.onKeyDown.add (onKeyDown);
+		Keyboard.onKeyUp.add (onKeyUp);
+		
 	}
 	
 	
@@ -74,11 +79,11 @@ class Application extends Module {
 			
 			if (renderer != null) {
 				
-				module.init (renderer.context);
+				module.init (this);
 				
 			}
 			
-			if (preloader == null) {
+			if (preloader == null || preloader.complete) {
 				
 				module.onPreloadComplete ();
 				
@@ -96,9 +101,9 @@ class Application extends Module {
 	 */
 	public function addRenderer (renderer:Renderer):Void {
 		
-		renderer.onRender.add (render);
-		renderer.onRenderContextLost.add (onRenderContextLost);
-		renderer.onRenderContextRestored.add (onRenderContextRestored);
+		renderer.onRender.add (render.bind (renderer));
+		renderer.onContextLost.add (onRenderContextLost.bind (renderer));
+		renderer.onContextRestored.add (onRenderContextRestored.bind (renderer));
 		
 		renderers.push (renderer);
 		this.renderer = renderer;
@@ -116,35 +121,28 @@ class Application extends Module {
 		windows.push (window);
 		this.window = window;
 		
-		window.onGamepadAxisMove.add (onGamepadAxisMove);
-		window.onGamepadButtonDown.add (onGamepadButtonDown);
-		window.onGamepadButtonUp.add (onGamepadButtonUp);
-		window.onGamepadConnect.add (onGamepadConnect);
-		window.onGamepadDisconnect.add (onGamepadDisconnect);
-		window.onKeyDown.add (onKeyDown);
-		window.onKeyUp.add (onKeyUp);
-		window.onMouseDown.add (onMouseDown);
-		window.onMouseMove.add (onMouseMove);
-		window.onMouseMoveRelative.add (onMouseMoveRelative);
-		window.onMouseUp.add (onMouseUp);
-		window.onMouseWheel.add (onMouseWheel);
-		window.onTextEdit.add (onTextEdit);
-		window.onTextInput.add (onTextInput);
-		window.onTouchStart.add (onTouchStart);
-		window.onTouchMove.add (onTouchMove);
-		window.onTouchEnd.add (onTouchEnd);
-		window.onWindowActivate.add (onWindowActivate);
-		window.onWindowClose.add (onWindowClose);
-		window.onWindowDeactivate.add (onWindowDeactivate);
-		window.onWindowEnter.add (onWindowEnter);
-		window.onWindowFocusIn.add (onWindowFocusIn);
-		window.onWindowFocusOut.add (onWindowFocusOut);
-		window.onWindowFullscreen.add (onWindowFullscreen);
-		window.onWindowLeave.add (onWindowLeave);
-		window.onWindowMinimize.add (onWindowMinimize);
-		window.onWindowMove.add (onWindowMove);
-		window.onWindowResize.add (onWindowResize);
-		window.onWindowRestore.add (onWindowRestore);
+		window.onActivate.add (onWindowActivate.bind (window));
+		window.onClose.add (onWindowClose.bind (window));
+		window.onDeactivate.add (onWindowDeactivate.bind (window));
+		window.onEnter.add (onWindowEnter.bind (window));
+		window.onFocusIn.add (onWindowFocusIn.bind (window));
+		window.onFocusOut.add (onWindowFocusOut.bind (window));
+		window.onFullscreen.add (onWindowFullscreen.bind (window));
+		window.onLeave.add (onWindowLeave.bind (window));
+		window.onMinimize.add (onWindowMinimize.bind (window));
+		window.onMouseDown.add (onMouseDown.bind (window));
+		window.onMouseMove.add (onMouseMove.bind (window));
+		window.onMouseMoveRelative.add (onMouseMoveRelative.bind (window));
+		window.onMouseUp.add (onMouseUp.bind (window));
+		window.onMouseWheel.add (onMouseWheel.bind (window));
+		window.onMove.add (onWindowMove.bind (window));
+		window.onResize.add (onWindowResize.bind (window));
+		window.onRestore.add (onWindowRestore.bind (window));
+		window.onTextEdit.add (onTextEdit.bind (window));
+		window.onTextInput.add (onTextInput.bind (window));
+		window.onTouchStart.add (onTouchStart.bind (window));
+		window.onTouchMove.add (onTouchMove.bind (window));
+		window.onTouchEnd.add (onTouchEnd.bind (window));
 		
 		window.create (this);
 		
@@ -180,11 +178,11 @@ class Application extends Module {
 	}
 	
 	
-	public override function init (context:RenderContext):Void {
+	public override function init (application:Application):Void {
 		
 		for (module in modules) {
 			
-			module.init (context);
+			module.init (application);
 			
 		}
 		
@@ -240,6 +238,11 @@ class Application extends Module {
 			
 		}
 		
+		gamepad.onAxisMove.add (onGamepadAxisMove.bind (gamepad));
+		gamepad.onButtonDown.add (onGamepadButtonDown.bind (gamepad));
+		gamepad.onButtonUp.add (onGamepadButtonUp.bind (gamepad));
+		gamepad.onDisconnect.add (onGamepadDisconnect.bind (gamepad));
+		
 	}
 	
 	
@@ -287,55 +290,55 @@ class Application extends Module {
 	}
 	
 	
-	public override function onMouseDown (x:Float, y:Float, button:Int):Void {
+	public override function onMouseDown (window:Window, x:Float, y:Float, button:Int):Void {
 		
 		for (module in modules) {
 			
-			module.onMouseDown (x, y, button);
+			module.onMouseDown (window, x, y, button);
 			
 		}
 		
 	}
 	
 	
-	public override function onMouseMove (x:Float, y:Float):Void {
+	public override function onMouseMove (window:Window, x:Float, y:Float):Void {
 		
 		for (module in modules) {
 			
-			module.onMouseMove (x, y);
+			module.onMouseMove (window, x, y);
 			
 		}
 		
 	}
 	
 	
-	public override function onMouseMoveRelative (x:Float, y:Float):Void {
+	public override function onMouseMoveRelative (window:Window, x:Float, y:Float):Void {
 		
 		for (module in modules) {
 			
-			module.onMouseMoveRelative (x, y);
+			module.onMouseMoveRelative (window, x, y);
 			
 		}
 		
 	}
 	
 	
-	public override function onMouseUp (x:Float, y:Float, button:Int):Void {
+	public override function onMouseUp (window:Window, x:Float, y:Float, button:Int):Void {
 		
 		for (module in modules) {
 			
-			module.onMouseUp (x, y, button);
+			module.onMouseUp (window, x, y, button);
 			
 		}
 		
 	}
 	
 	
-	public override function onMouseWheel (deltaX:Float, deltaY:Float):Void {
+	public override function onMouseWheel (window:Window, deltaX:Float, deltaY:Float):Void {
 		
 		for (module in modules) {
 			
-			module.onMouseWheel (deltaX, deltaY);
+			module.onMouseWheel (window, deltaX, deltaY);
 			
 		}
 		
@@ -364,209 +367,209 @@ class Application extends Module {
 	}
 	
 	
-	public override function onRenderContextLost ():Void {
+	public override function onRenderContextLost (renderer:Renderer):Void {
 		
 		for (module in modules) {
 			
-			module.onRenderContextLost ();
+			module.onRenderContextLost (renderer);
 			
 		}
 		
 	}
 	
 	
-	public override function onRenderContextRestored (context:RenderContext):Void {
+	public override function onRenderContextRestored (renderer:Renderer, context:RenderContext):Void {
 		
 		for (module in modules) {
 			
-			module.onRenderContextRestored (context);
+			module.onRenderContextRestored (renderer, context);
 			
 		}
 		
 	}
 	
 	
-	public override function onTextEdit (text:String, start:Int, length:Int):Void {
+	public override function onTextEdit (window:Window, text:String, start:Int, length:Int):Void {
 		
 		for (module in modules) {
 			
-			module.onTextEdit (text, start, length);
+			module.onTextEdit (window, text, start, length);
 			
 		}
 		
 	}
 	
 	
-	public override function onTextInput (text:String):Void {
+	public override function onTextInput (window:Window, text:String):Void {
 		
 		for (module in modules) {
 			
-			module.onTextInput (text);
+			module.onTextInput (window, text);
 			
 		}
 		
 	}
 	
 	
-	public override function onTouchEnd (x:Float, y:Float, id:Int):Void {
+	public override function onTouchEnd (window:Window, x:Float, y:Float, id:Int):Void {
 		
 		for (module in modules) {
 			
-			module.onTouchEnd (x, y, id);
+			module.onTouchEnd (window, x, y, id);
 			
 		}
 		
 	}
 	
 	
-	public override function onTouchMove (x:Float, y:Float, id:Int):Void {
+	public override function onTouchMove (window:Window, x:Float, y:Float, id:Int):Void {
 		
 		for (module in modules) {
 			
-			module.onTouchMove (x, y, id);
+			module.onTouchMove (window, x, y, id);
 			
 		}
 		
 	}
 	
 	
-	public override function onTouchStart (x:Float, y:Float, id:Int):Void {
+	public override function onTouchStart (window:Window, x:Float, y:Float, id:Int):Void {
 		
 		for (module in modules) {
 			
-			module.onTouchStart (x, y, id);
+			module.onTouchStart (window, x, y, id);
 			
 		}
 		
 	}
 	
 	
-	public override function onWindowActivate ():Void {
+	public override function onWindowActivate (window:Window):Void {
 		
 		for (module in modules) {
 			
-			module.onWindowActivate ();
+			module.onWindowActivate (window);
 			
 		}
 		
 	}
 	
 	
-	public override function onWindowClose ():Void {
+	public override function onWindowClose (window:Window):Void {
 		
 		for (module in modules) {
 			
-			module.onWindowClose ();
+			module.onWindowClose (window);
 			
 		}
 		
 	}
 	
 	
-	public override function onWindowDeactivate ():Void {
+	public override function onWindowDeactivate (window:Window):Void {
 		
 		for (module in modules) {
 			
-			module.onWindowDeactivate ();
+			module.onWindowDeactivate (window);
 			
 		}
 		
 	}
 	
 	
-	public override function onWindowEnter ():Void {
+	public override function onWindowEnter (window:Window):Void {
 		
 		for (module in modules) {
 			
-			module.onWindowEnter ();
+			module.onWindowEnter (window);
 			
 		}
 		
 	}
 	
 	
-	public override function onWindowFocusIn ():Void {
+	public override function onWindowFocusIn (window:Window):Void {
 		
 		for (module in modules) {
 			
-			module.onWindowFocusIn ();
+			module.onWindowFocusIn (window);
 			
 		}
 		
 	}
 	
 	
-	public override function onWindowFocusOut ():Void {
+	public override function onWindowFocusOut (window:Window):Void {
 		
 		for (module in modules) {
 			
-			module.onWindowFocusOut ();
+			module.onWindowFocusOut (window);
 			
 		}
 		
 	}
 	
 	
-	public override function onWindowFullscreen ():Void {
+	public override function onWindowFullscreen (window:Window):Void {
 		
 		for (module in modules) {
 			
-			module.onWindowFullscreen ();
+			module.onWindowFullscreen (window);
 			
 		}
 		
 	}
 	
 	
-	public override function onWindowLeave ():Void {
+	public override function onWindowLeave (window:Window):Void {
 		
 		for (module in modules) {
 			
-			module.onWindowLeave ();
+			module.onWindowLeave (window);
 			
 		}
 		
 	}
 	
 	
-	public override function onWindowMinimize ():Void {
+	public override function onWindowMinimize (window:Window):Void {
 		
 		for (module in modules) {
 			
-			module.onWindowMinimize ();
+			module.onWindowMinimize (window);
 			
 		}
 		
 	}
 	
 	
-	public override function onWindowMove (x:Float, y:Float):Void {
+	public override function onWindowMove (window:Window, x:Float, y:Float):Void {
 		
 		for (module in modules) {
 			
-			module.onWindowMove (x, y);
+			module.onWindowMove (window, x, y);
 			
 		}
 		
 	}
 	
 	
-	public override function onWindowResize (width:Int, height:Int):Void {
+	public override function onWindowResize (window:Window, width:Int, height:Int):Void {
 		
 		for (module in modules) {
 			
-			module.onWindowResize (width, height);
+			module.onWindowResize (window, width, height);
 			
 		}
 		
 	}
 	
 	
-	public override function onWindowRestore ():Void {
+	public override function onWindowRestore (window:Window):Void {
 		
 		for (module in modules) {
 			
-			module.onWindowRestore ();
+			module.onWindowRestore (window);
 			
 		}
 		
@@ -620,11 +623,11 @@ class Application extends Module {
 	}
 	
 	
-	public override function render (context:RenderContext):Void {
+	public override function render (renderer:Renderer):Void {
 		
 		for (module in modules) {
 			
-			module.render (context);
+			module.render (renderer);
 			
 		}
 		
@@ -633,17 +636,25 @@ class Application extends Module {
 	
 	private function setPreloader (preloader:Preloader):Void {
 		
-		if (preloader != null) {
+		if (this.preloader != null) {
 			
-			preloader.onProgress.remove (onPreloadProgress);
-			preloader.onComplete.remove (onPreloadComplete);
+			this.preloader.onProgress.remove (onPreloadProgress);
+			this.preloader.onComplete.remove (onPreloadComplete);
 			
 		}
 		
 		this.preloader = preloader;
 		
-		preloader.onProgress.add (onPreloadProgress);
-		preloader.onComplete.add (onPreloadComplete);
+		if (preloader.complete) {
+			
+			onPreloadComplete ();
+			
+		} else {
+			
+			preloader.onProgress.add (onPreloadProgress);
+			preloader.onComplete.add (onPreloadComplete);
+			
+		}
 		
 	}
 	

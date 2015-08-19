@@ -14,6 +14,7 @@ import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.System;
 import lime.ui.Gamepad;
+import lime.ui.Keyboard;
 import lime.ui.Window;
 
 @:access(haxe.Timer)
@@ -65,7 +66,7 @@ class NativeApplication {
 			var renderer = new Renderer (window);
 			parent.addWindow (window);
 			parent.addRenderer (renderer);
-			parent.init (renderer.context);
+			parent.init (parent);
 			
 		}
 		
@@ -141,17 +142,17 @@ class NativeApplication {
 				case AXIS_MOVE:
 					
 					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
-					if (gamepad != null) parent.window.onGamepadAxisMove.dispatch (gamepad, gamepadEventInfo.axis, gamepadEventInfo.value);
+					if (gamepad != null) gamepad.onAxisMove.dispatch (gamepadEventInfo.axis, gamepadEventInfo.value);
 				
 				case BUTTON_DOWN:
 					
 					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
-					if (gamepad != null) parent.window.onGamepadButtonDown.dispatch (gamepad, gamepadEventInfo.button);
+					if (gamepad != null) gamepad.onButtonDown.dispatch (gamepadEventInfo.button);
 				
 				case BUTTON_UP:
 					
 					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
-					if (gamepad != null) parent.window.onGamepadButtonUp.dispatch (gamepad, gamepadEventInfo.button);
+					if (gamepad != null) gamepad.onButtonUp.dispatch (gamepadEventInfo.button);
 				
 				case CONNECT:
 					
@@ -159,7 +160,7 @@ class NativeApplication {
 						
 						var gamepad = new Gamepad (gamepadEventInfo.id);
 						Gamepad.devices.set (gamepadEventInfo.id, gamepad);
-						parent.window.onGamepadConnect.dispatch (gamepad);
+						Gamepad.onConnect.dispatch (gamepad);
 						
 					}
 				
@@ -168,7 +169,7 @@ class NativeApplication {
 					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
 					if (gamepad != null) gamepad.connected = false;
 					Gamepad.devices.remove (gamepadEventInfo.id);
-					if (gamepad != null) parent.window.onGamepadDisconnect.dispatch (gamepad);
+					if (gamepad != null) gamepad.onDisconnect.dispatch ();
 				
 			}
 			
@@ -179,19 +180,15 @@ class NativeApplication {
 	
 	private function handleKeyEvent ():Void {
 		
-		if (parent.window != null) {
+		switch (keyEventInfo.type) {
 			
-			switch (keyEventInfo.type) {
+			case KEY_DOWN:
 				
-				case KEY_DOWN:
-					
-					parent.window.onKeyDown.dispatch (keyEventInfo.keyCode, keyEventInfo.modifier);
+				Keyboard.onKeyDown.dispatch (keyEventInfo.keyCode, keyEventInfo.modifier);
+			
+			case KEY_UP:
 				
-				case KEY_UP:
-					
-					parent.window.onKeyUp.dispatch (keyEventInfo.keyCode, keyEventInfo.modifier);
-				
-			}
+				Keyboard.onKeyUp.dispatch (keyEventInfo.keyCode, keyEventInfo.modifier);
 			
 		}
 		
@@ -241,7 +238,7 @@ class NativeApplication {
 				case RENDER:
 					
 					renderer.render ();
-					renderer.onRender.dispatch (renderer.context);
+					renderer.onRender.dispatch ();
 					renderer.flip ();
 					
 				case RENDER_CONTEXT_LOST:
@@ -249,7 +246,7 @@ class NativeApplication {
 					if (renderer.backend.useHardware) {
 						
 						renderer.context = null;
-						renderer.onRenderContextLost.dispatch ();
+						renderer.onContextLost.dispatch ();
 						
 					}
 				
@@ -263,7 +260,7 @@ class NativeApplication {
 						renderer.context = OPENGL (new GLRenderContext ());
 						#end
 						
-						renderer.onRenderContextRestored.dispatch (renderer.context);
+						renderer.onContextRestored.dispatch (renderer.context);
 						
 					}
 				
@@ -336,54 +333,54 @@ class NativeApplication {
 				
 				case WINDOW_ACTIVATE:
 					
-					parent.window.onWindowActivate.dispatch ();
+					parent.window.onActivate.dispatch ();
 				
 				case WINDOW_CLOSE:
 					
-					parent.window.onWindowClose.dispatch ();
+					parent.window.onClose.dispatch ();
 				
 				case WINDOW_DEACTIVATE:
 					
-					parent.window.onWindowDeactivate.dispatch ();
+					parent.window.onDeactivate.dispatch ();
 				
 				case WINDOW_ENTER:
 					
-					parent.window.onWindowEnter.dispatch ();
+					parent.window.onEnter.dispatch ();
 				
 				case WINDOW_FOCUS_IN:
 					
-					parent.window.onWindowFocusIn.dispatch ();
+					parent.window.onFocusIn.dispatch ();
 				
 				case WINDOW_FOCUS_OUT:
 					
-					parent.window.onWindowFocusOut.dispatch ();
+					parent.window.onFocusOut.dispatch ();
 				
 				case WINDOW_LEAVE:
 					
-					parent.window.onWindowLeave.dispatch ();
+					parent.window.onLeave.dispatch ();
 				
 				case WINDOW_MINIMIZE:
 					
 					parent.window.__minimized = true;
-					parent.window.onWindowMinimize.dispatch ();
+					parent.window.onMinimize.dispatch ();
 				
 				case WINDOW_MOVE:
 					
 					parent.window.__x = windowEventInfo.x;
 					parent.window.__y = windowEventInfo.y;
-					parent.window.onWindowMove.dispatch (windowEventInfo.x, windowEventInfo.y);
+					parent.window.onMove.dispatch (windowEventInfo.x, windowEventInfo.y);
 				
 				case WINDOW_RESIZE:
 					
 					parent.window.__width = windowEventInfo.width;
 					parent.window.__height = windowEventInfo.height;
-					parent.window.onWindowResize.dispatch (windowEventInfo.width, windowEventInfo.height);
+					parent.window.onResize.dispatch (windowEventInfo.width, windowEventInfo.height);
 				
 				case WINDOW_RESTORE:
 					
 					parent.window.__fullscreen = false;
 					parent.window.__minimized = false;
-					parent.window.onWindowRestore.dispatch ();
+					parent.window.onRestore.dispatch ();
 				
 			}
 			

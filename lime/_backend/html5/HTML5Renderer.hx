@@ -111,13 +111,13 @@ class HTML5Renderer {
 				event.preventDefault ();
 				parent.context = null;
 				
-				parent.onRenderContextLost.dispatch ();
+				parent.onContextLost.dispatch ();
 				
 			case "webglcontextrestored":
 				
 				createContext ();
 				
-				parent.onRenderContextRestored.dispatch (parent.context);
+				parent.onContextRestored.dispatch (parent.context);
 			
 			default:
 			

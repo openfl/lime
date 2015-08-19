@@ -170,7 +170,7 @@ class NativeWindow {
 			
 			if (value) {
 				
-				parent.onWindowFullscreen.dispatch ();
+				parent.onFullscreen.dispatch ();
 				
 			}
 			
