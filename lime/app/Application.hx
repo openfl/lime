@@ -25,6 +25,7 @@ class Application extends Module {
 	public var config (default, null):Config;
 	public var frameRate (get, set):Float;
 	public var modules (default, null):Array<IModule>;
+	public var preloader (default, null):Preloader;
 	
 	/**
 	 * Update events are dispatched each frame (usually just before rendering)
@@ -69,9 +70,19 @@ class Application extends Module {
 		
 		modules.push (module);
 		
-		if (initialized && renderer != null) {
+		if (initialized) {
 			
-			module.init (renderer.context);
+			if (renderer != null) {
+				
+				module.init (renderer.context);
+				
+			}
+			
+			if (preloader == null) {
+				
+				module.onPreloadComplete ();
+				
+			}
 			
 		}
 		
@@ -178,6 +189,12 @@ class Application extends Module {
 		}
 		
 		initialized = true;
+		
+		if (preloader == null || preloader.complete) {
+			
+			onPreloadComplete ();
+			
+		}
 		
 	}
 	
@@ -319,6 +336,28 @@ class Application extends Module {
 		for (module in modules) {
 			
 			module.onMouseWheel (deltaX, deltaY);
+			
+		}
+		
+	}
+	
+	
+	public override function onPreloadComplete ():Void {
+		
+		for (module in modules) {
+			
+			module.onPreloadComplete ();
+			
+		}
+		
+	}
+	
+	
+	public override function onPreloadProgress (loaded:Int, total:Int):Void {
+		
+		for (module in modules) {
+			
+			module.onPreloadProgress (loaded, total);
 			
 		}
 		
@@ -588,6 +627,23 @@ class Application extends Module {
 			module.render (context);
 			
 		}
+		
+	}
+	
+	
+	private function setPreloader (preloader:Preloader):Void {
+		
+		if (preloader != null) {
+			
+			preloader.onProgress.remove (onPreloadProgress);
+			preloader.onComplete.remove (onPreloadComplete);
+			
+		}
+		
+		this.preloader = preloader;
+		
+		preloader.onProgress.add (onPreloadProgress);
+		preloader.onComplete.add (onPreloadComplete);
 		
 	}
 	

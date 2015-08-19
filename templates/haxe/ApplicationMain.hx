@@ -2,6 +2,9 @@ import ::APP_MAIN::;
 import lime.Assets;
 
 
+@:access(lime.app.Application)
+
+
 class ApplicationMain {
 	
 	
@@ -13,13 +16,15 @@ class ApplicationMain {
 	
 	public static function create ():Void {
 		
+		preloader = new ::if (PRELOADER_NAME != "")::::PRELOADER_NAME::::else::lime.app.Preloader::end:: ();
+		preloader.onComplete.add (start);
+		
 		#if !munit
 		app = new ::APP_MAIN:: ();
+		app.setPreloader (preloader);
 		app.create (config);
 		#end
 		
-		preloader = new ::if (PRELOADER_NAME != "")::::PRELOADER_NAME::::else::lime.app.Preloader::end:: ();
-		preloader.onComplete = start;
 		preloader.create (config);
 		
 		#if (js && html5)

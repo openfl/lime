@@ -112,6 +112,20 @@ class Module implements IModule {
 	
 	
 	/**
+	 * Called when a preload complete event is fired
+	 */
+	public function onPreloadComplete ():Void { }
+	
+	
+	/**
+	 * Called when a preload progress event is fired
+	 * @param	loaded	The number of items that are loaded
+	 * @param	total	The total number of items will be loaded
+	 */
+	public function onPreloadProgress (loaded:Int, total:Int):Void { }
+	
+	
+	/**
 	 * Called when a render context is lost
 	 */
 	public function onRenderContextLost ():Void { }
