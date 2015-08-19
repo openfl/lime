@@ -14,7 +14,6 @@ import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.System;
 import lime.ui.Gamepad;
-import lime.ui.Keyboard;
 import lime.ui.Touch;
 import lime.ui.Window;
 
@@ -197,15 +196,21 @@ class NativeApplication {
 	
 	private function handleKeyEvent ():Void {
 		
-		switch (keyEventInfo.type) {
+		var window = parent.windows.get (keyEventInfo.windowID);
+		
+		if (window != null) {
 			
-			case KEY_DOWN:
+			switch (keyEventInfo.type) {
 				
-				Keyboard.onKeyDown.dispatch (keyEventInfo.keyCode, keyEventInfo.modifier);
-			
-			case KEY_UP:
+				case KEY_DOWN:
+					
+					window.onKeyDown.dispatch (keyEventInfo.keyCode, keyEventInfo.modifier);
 				
-				Keyboard.onKeyUp.dispatch (keyEventInfo.keyCode, keyEventInfo.modifier);
+				case KEY_UP:
+					
+					window.onKeyUp.dispatch (keyEventInfo.keyCode, keyEventInfo.modifier);
+				
+			}
 			
 		}
 		
@@ -607,11 +612,13 @@ private class KeyEventInfo {
 	public var keyCode:Int;
 	public var modifier:Int;
 	public var type:KeyEventType;
+	public var windowID:Int;
 	
 	
-	public function new (type:KeyEventType = null, keyCode:Int = 0, modifier:Int = 0) {
+	public function new (type:KeyEventType = null, windowID:Int = 0, keyCode:Int = 0, modifier:Int = 0) {
 		
 		this.type = type;
+		this.windowID = windowID;
 		this.keyCode = keyCode;
 		this.modifier = modifier;
 		
@@ -620,7 +627,7 @@ private class KeyEventInfo {
 	
 	public function clone ():KeyEventInfo {
 		
-		return new KeyEventInfo (type, keyCode, modifier);
+		return new KeyEventInfo (type, windowID, keyCode, modifier);
 		
 	}
 	

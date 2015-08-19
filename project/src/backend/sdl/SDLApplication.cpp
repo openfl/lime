@@ -335,6 +335,7 @@ namespace lime {
 			
 			keyEvent.keyCode = event->key.keysym.sym;
 			keyEvent.modifier = event->key.keysym.mod;
+			keyEvent.windowID = event->key.windowID;
 			
 			KeyEvent::Dispatch (&keyEvent);
 			

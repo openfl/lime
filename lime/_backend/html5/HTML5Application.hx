@@ -7,7 +7,6 @@ import lime.app.Application;
 import lime.app.Config;
 import lime.audio.AudioManager;
 import lime.graphics.Renderer;
-import lime.ui.Keyboard;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.Window;
@@ -262,16 +261,15 @@ class HTML5Application {
 			
 			if (event.type == "keydown") {
 				
-				Keyboard.onKeyDown.dispatch (keyCode, modifier);
+				parent.window.onKeyDown.dispatch (keyCode, modifier);
 				
 			} else {
 				
-				Keyboard.onKeyUp.dispatch (keyCode, modifier);
+				parent.window.onKeyUp.dispatch (keyCode, modifier);
 				
 			}
 			
 		}
-		
 		
 	}
 	

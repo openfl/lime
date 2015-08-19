@@ -28,6 +28,8 @@ class Window {
 	public var onFocusIn = new Event<Void->Void> ();
 	public var onFocusOut = new Event<Void->Void> ();
 	public var onFullscreen = new Event<Void->Void> ();
+	public var onKeyDown = new Event<KeyCode->KeyModifier->Void> ();
+	public var onKeyUp = new Event<KeyCode->KeyModifier->Void> ();
 	public var onLeave = new Event<Void->Void> ();
 	public var onMinimize = new Event<Void->Void> ();
 	public var onMouseDown = new Event<Float->Float->Int->Void> ();

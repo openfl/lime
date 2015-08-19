@@ -6,7 +6,6 @@ import lime.graphics.RenderContext;
 import lime.ui.Gamepad;
 import lime.ui.GamepadAxis;
 import lime.ui.GamepadButton;
-import lime.ui.Keyboard;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.Touch;
@@ -62,8 +61,6 @@ class Application extends Module {
 		onUpdate.add (update);
 		
 		Gamepad.onConnect.add (onGamepadConnect);
-		Keyboard.onKeyDown.add (onKeyDown);
-		Keyboard.onKeyUp.add (onKeyUp);
 		Touch.onStart.add (onTouchStart);
 		Touch.onMove.add (onTouchMove);
 		Touch.onEnd.add (onTouchEnd);
@@ -131,6 +128,8 @@ class Application extends Module {
 		window.onFocusIn.add (onWindowFocusIn.bind (window));
 		window.onFocusOut.add (onWindowFocusOut.bind (window));
 		window.onFullscreen.add (onWindowFullscreen.bind (window));
+		window.onKeyDown.add (onKeyDown.bind (window));
+		window.onKeyUp.add (onKeyUp.bind (window));
 		window.onLeave.add (onWindowLeave.bind (window));
 		window.onMinimize.add (onWindowMinimize.bind (window));
 		window.onMouseDown.add (onMouseDown.bind (window));
@@ -257,22 +256,22 @@ class Application extends Module {
 	}
 	
 	
-	public override function onKeyDown (keyCode:KeyCode, modifier:KeyModifier):Void {
+	public override function onKeyDown (window:Window, keyCode:KeyCode, modifier:KeyModifier):Void {
 		
 		for (module in modules) {
 			
-			module.onKeyDown (keyCode, modifier);
+			module.onKeyDown (window, keyCode, modifier);
 			
 		}
 		
 	}
 	
 	
-	public override function onKeyUp (keyCode:KeyCode, modifier:KeyModifier):Void {
+	public override function onKeyUp (window:Window, keyCode:KeyCode, modifier:KeyModifier):Void {
 		
 		for (module in modules) {
 			
-			module.onKeyUp (keyCode, modifier);
+			module.onKeyUp (window, keyCode, modifier);
 			
 		}
 		

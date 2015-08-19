@@ -76,18 +76,20 @@ class Module implements IModule {
 	
 	/**
 	 * Called when a key down event is fired
+	 * @param	window	The window dispatching the event
 	 * @param	keyCode	The code of the key that was pressed
 	 * @param	modifier	The modifier of the key that was pressed
 	 */
-	public function onKeyDown (keyCode:KeyCode, modifier:KeyModifier):Void { }
+	public function onKeyDown (window:Window, keyCode:KeyCode, modifier:KeyModifier):Void { }
 	
 	
 	/**
 	 * Called when a key up event is fired
+	 * @param	window	The window dispatching the event
 	 * @param	keyCode	The code of the key that was released
 	 * @param	modifier	The modifier of the key that was released
 	 */
-	public function onKeyUp (keyCode:KeyCode, modifier:KeyModifier):Void { }
+	public function onKeyUp (window:Window, keyCode:KeyCode, modifier:KeyModifier):Void { }
 	
 	
 	/**

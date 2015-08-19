@@ -13,7 +13,6 @@ import lime.app.Application;
 import lime.app.Config;
 import lime.audio.AudioManager;
 import lime.graphics.Renderer;
-import lime.ui.Keyboard;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.Touch;
@@ -199,22 +198,26 @@ class FlashApplication {
 	
 	private function handleKeyEvent (event:KeyboardEvent):Void {
 		
-		var keyCode = convertKeyCode (event.keyCode);
-		var modifier = (event.shiftKey ? (KeyModifier.SHIFT) : 0) | (event.ctrlKey ? (KeyModifier.CTRL) : 0) | (event.altKey ? (KeyModifier.ALT) : 0);
-		
-		if (event.type == KeyboardEvent.KEY_DOWN) {
+		if (parent.window != null) {
 			
-			Keyboard.onKeyDown.dispatch (keyCode, modifier);
+			var keyCode = convertKeyCode (event.keyCode);
+			var modifier = (event.shiftKey ? (KeyModifier.SHIFT) : 0) | (event.ctrlKey ? (KeyModifier.CTRL) : 0) | (event.altKey ? (KeyModifier.ALT) : 0);
 			
-			if (parent.window != null && parent.window.enableTextEvents) {
+			if (event.type == KeyboardEvent.KEY_DOWN) {
 				
-				parent.window.onTextInput.dispatch (String.fromCharCode (event.charCode));
+				parent.window.onKeyDown.dispatch (keyCode, modifier);
+				
+				if (parent.window != null && parent.window.enableTextEvents) {
+					
+					parent.window.onTextInput.dispatch (String.fromCharCode (event.charCode));
+					
+				}
+				
+			} else {
+				
+				parent.window.onKeyUp.dispatch (keyCode, modifier);
 				
 			}
-			
-		} else {
-			
-			Keyboard.onKeyUp.dispatch (keyCode, modifier);
 			
 		}
 		
