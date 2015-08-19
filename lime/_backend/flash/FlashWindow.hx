@@ -10,6 +10,8 @@ import lime.system.Display;
 import lime.system.System;
 import lime.ui.Window;
 
+@:access(lime.ui.Window)
+
 
 class FlashWindow {
 	

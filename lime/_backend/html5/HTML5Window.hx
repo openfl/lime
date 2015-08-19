@@ -27,6 +27,8 @@ typedef InputElement = Dynamic;
 typedef InputEvent = js.html.Event;
 #end
 
+@:access(lime.ui.Window)
+
 
 class HTML5Window {
 	
