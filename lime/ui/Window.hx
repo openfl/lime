@@ -9,6 +9,12 @@ import lime.graphics.Renderer;
 import lime.project.WindowData;
 import lime.system.Display;
 
+#if openfl
+import openfl.display.Stage;
+#else
+typedef Stage = Dynamic;
+#end
+
 
 class Window {
 	
@@ -43,6 +49,7 @@ class Window {
 	public var onRestore = new Event<Void->Void> ();
 	public var onTextEdit = new Event<String->Int->Int->Void> ();
 	public var onTextInput = new Event<String->Void> ();
+	public var stage:Stage;
 	public var title (get, set):String;
 	public var width (get, set):Int;
 	public var x (get, set):Int;
