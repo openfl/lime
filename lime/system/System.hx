@@ -551,9 +551,9 @@ class System {
 		#if !macro
 		if (Application.current != null && Application.current.config != null) {
 			
-			if (Application.current.config.company != null) {
+			if (Application.current.config.meta.company != null) {
 				
-				company = Application.current.config.company;
+				company = Application.current.config.meta.company;
 				
 			}
 			

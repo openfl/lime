@@ -6,6 +6,7 @@ import lime.app.Config;
 import lime.app.Event;
 import lime.graphics.Image;
 import lime.graphics.Renderer;
+import lime.project.WindowData;
 import lime.system.Display;
 
 
@@ -14,7 +15,7 @@ class Window {
 	
 	public var application (default, null):Application;
 	public var currentRenderer:Renderer;
-	public var config:Config;
+	public var config:WindowData;
 	public var display (get, null):Display;
 	public var enableTextEvents (get, set):Bool;
 	public var fullscreen (get, set):Bool;
@@ -57,7 +58,7 @@ class Window {
 	@:noCompletion private var __y:Int;
 	
 	
-	public function new (config:Config = null) {
+	public function new (config:WindowData = null) {
 		
 		this.config = config;
 		
