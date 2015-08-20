@@ -22,19 +22,25 @@ namespace lime {
 			
 			sdlFlags |= SDL_RENDERER_ACCELERATED;
 			
+			if (window->flags & WINDOW_FLAG_VSYNC) {
+				
+				sdlFlags |= SDL_RENDERER_PRESENTVSYNC;
+				
+			}
+			
 		} else {
 			
 			sdlFlags |= SDL_RENDERER_SOFTWARE;
 			
 		}
 		
-		if (window->flags & WINDOW_FLAG_VSYNC) sdlFlags |= SDL_RENDERER_PRESENTVSYNC;
-		
 		sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlFlags);
 		
 		if (!sdlRenderer && (sdlFlags & SDL_RENDERER_ACCELERATED)) {
 			
 			sdlFlags &= ~SDL_RENDERER_ACCELERATED;
+			sdlFlags &= ~SDL_RENDERER_PRESENTVSYNC;
+			
 			sdlFlags |= SDL_RENDERER_SOFTWARE;
 			
 			sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlFlags);
