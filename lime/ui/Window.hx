@@ -6,7 +6,6 @@ import lime.app.Config;
 import lime.app.Event;
 import lime.graphics.Image;
 import lime.graphics.Renderer;
-import lime.project.WindowData;
 import lime.system.Display;
 
 #if openfl
@@ -21,7 +20,7 @@ class Window {
 	
 	public var application (default, null):Application;
 	public var currentRenderer:Renderer;
-	public var config:WindowData;
+	public var config:WindowConfig;
 	public var display (get, null):Display;
 	public var enableTextEvents (get, set):Bool;
 	public var fullscreen (get, set):Bool;
@@ -65,7 +64,7 @@ class Window {
 	@:noCompletion private var __y:Int;
 	
 	
-	public function new (config:WindowData = null) {
+	public function new (config:WindowConfig = null) {
 		
 		this.config = config;
 		
@@ -79,10 +78,10 @@ class Window {
 		
 		if (config != null) {
 			
-			// TODO: Switch to the tool's Config type?
-			
 			if (Reflect.hasField (config, "width")) __width = config.width;
 			if (Reflect.hasField (config, "height")) __height = config.height;
+			if (Reflect.hasField (config, "x")) __x = config.x;
+			if (Reflect.hasField (config, "y")) __y = config.y;
 			if (Reflect.hasField (config, "fullscreen")) __fullscreen = config.fullscreen;
 			if (Reflect.hasField (config, "title")) __title = config.title;
 			

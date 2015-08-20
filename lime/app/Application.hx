@@ -170,18 +170,26 @@ class Application extends Module {
 		
 		if (config != null) {
 			
-			frameRate = config.windows[0].fps;
+			if (Reflect.hasField (config, "fps")) {
+				
+				frameRate = config.fps;
+				
+			}
 			
-			for (data in config.windows) {
+			if (Reflect.hasField (config, "windows")) {
 				
-				var window = new Window (data);
-				var renderer = new Renderer (window);
-				addWindow (window);
-				addRenderer (renderer);
-				
-				#if (flash || html5)
-				break;
-				#end
+				for (windowConfig in config.windows) {
+					
+					var window = new Window (windowConfig);
+					var renderer = new Renderer (window);
+					addWindow (window);
+					addRenderer (renderer);
+					
+					#if (flash || html5)
+					break;
+					#end
+					
+				}
 				
 			}
 			
