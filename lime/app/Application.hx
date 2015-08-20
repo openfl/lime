@@ -143,6 +143,13 @@ class Application extends Module {
 		window.onTextEdit.add (onTextEdit.bind (window));
 		window.onTextInput.add (onTextInput.bind (window));
 		
+		if (window.currentRenderer == null) {
+			
+			var renderer = new Renderer (window);
+			addRenderer (renderer);
+			
+		}
+		
 		window.create (this);
 		windows.set (window.id, window);
 		
