@@ -52,7 +52,7 @@ class HTML5Renderer {
 			
 		} else if (parent.window.backend.canvas != null) {
 			
-			#if canvas
+			#if (canvas || munit)
 			
 			var webgl = null;
 			

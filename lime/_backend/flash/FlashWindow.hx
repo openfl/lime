@@ -10,6 +10,7 @@ import lime.system.Display;
 import lime.system.System;
 import lime.ui.Window;
 
+@:access(lime.app.Application)
 @:access(lime.ui.Window)
 
 
@@ -29,7 +30,7 @@ class FlashWindow {
 	
 	public function close ():Void {
 		
-		
+		parent.application.removeWindow (parent);
 		
 	}
 	

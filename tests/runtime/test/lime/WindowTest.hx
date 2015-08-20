@@ -35,9 +35,9 @@ class WindowTest {
 		Assert.areEqual (0, window.x);
 		Assert.areEqual (0, window.y);
 		
-		app.addWindow (window);
+		app.createWindow (window);
 		
-		Assert.isNull (window.currentRenderer);
+		Assert.isNotNull (window.currentRenderer);
 		Assert.isNull (window.config);
 		
 		#if !html5
@@ -52,7 +52,7 @@ class WindowTest {
 		
 		#end
 		
-		app.removeWindow (window);
+		window.close ();
 		
 		Assert.isNull (app.window);
 		Assert.areEqual (0, app.windows.length);
@@ -78,9 +78,9 @@ class WindowTest {
 		Assert.areEqual (0, window.x);
 		Assert.areEqual (0, window.y);
 		
-		app.addWindow (window);
+		app.createWindow (window);
 		
-		Assert.isNull (window.currentRenderer);
+		Assert.isNotNull (window.currentRenderer);
 		Assert.isNull (window.config);
 		Assert.isFalse (window.fullscreen);
 		Assert.areEqual (300, window.height);
@@ -88,7 +88,7 @@ class WindowTest {
 		Assert.areEqual (0, window.x);
 		Assert.areEqual (0, window.y);
 		
-		app.removeWindow (window);
+		window.close ();
 		
 		Assert.isNull (app.window);
 		Assert.areEqual (0, app.windows.length);
@@ -112,9 +112,9 @@ class WindowTest {
 		Assert.areEqual (0, window.x);
 		Assert.areEqual (0, window.y);
 		
-		app.addWindow (window);
+		app.createWindow (window);
 		
-		Assert.isNull (window.currentRenderer);
+		Assert.isNotNull (window.currentRenderer);
 		Assert.areEqual (config, window.config);
 		
 		#if !html5
@@ -127,7 +127,7 @@ class WindowTest {
 		
 		#end
 		
-		app.removeWindow (window);
+		window.close ();
 		
 		Assert.isNull (app.window);
 		Assert.areEqual (0, app.windows.length);
@@ -151,9 +151,9 @@ class WindowTest {
 		Assert.areEqual (0, window.x);
 		Assert.areEqual (0, window.y);
 		
-		app.addWindow (window);
+		app.createWindow (window);
 		
-		Assert.isNull (window.currentRenderer);
+		Assert.isNotNull (window.currentRenderer);
 		Assert.areEqual (config, window.config);
 		Assert.isFalse (window.fullscreen);
 		Assert.areEqual (300, window.height);
@@ -161,7 +161,7 @@ class WindowTest {
 		Assert.areEqual (0, window.x);
 		Assert.areEqual (0, window.y);
 		
-		app.removeWindow (window);
+		window.close ();
 		
 		Assert.isNull (app.window);
 		Assert.areEqual (0, app.windows.length);

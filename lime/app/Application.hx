@@ -116,11 +116,53 @@ class Application extends Module {
 	
 	
 	/**
+	 * Initializes the Application, using the settings defined in
+	 * the config instance. By default, this is called automatically
+	 * when building the project using Lime's command-line tools
+	 * @param	config	A Config object
+	 */
+	public function create (config:Config):Void {
+		
+		this.config = config;
+		
+		backend.create (config);
+		
+		if (config != null) {
+			
+			if (Reflect.hasField (config, "fps")) {
+				
+				frameRate = config.fps;
+				
+			}
+			
+			if (Reflect.hasField (config, "windows")) {
+				
+				for (windowConfig in config.windows) {
+					
+					var window = new Window (windowConfig);
+					createWindow (window);
+					
+					#if (flash || html5)
+					break;
+					#end
+					
+				}
+				
+			}
+			
+			init (this);
+			
+		}
+		
+	}
+	
+	
+	/**
 	 * Adds a new Window to the Application. By default, this is
 	 * called automatically by create()
 	 * @param	window	A Window object to add
 	 */
-	public function addWindow (window:Window):Void {
+	public function createWindow (window:Window):Void {
 		
 		this.window = window;
 		
@@ -156,50 +198,6 @@ class Application extends Module {
 		window.create (this);
 		windows.push (window);
 		windowByID.set (window.id, window);
-		
-	}
-	
-	
-	/**
-	 * Initializes the Application, using the settings defined in
-	 * the config instance. By default, this is called automatically
-	 * when building the project using Lime's command-line tools
-	 * @param	config	A Config object
-	 */
-	public function create (config:Config):Void {
-		
-		this.config = config;
-		
-		backend.create (config);
-		
-		if (config != null) {
-			
-			if (Reflect.hasField (config, "fps")) {
-				
-				frameRate = config.fps;
-				
-			}
-			
-			if (Reflect.hasField (config, "windows")) {
-				
-				for (windowConfig in config.windows) {
-					
-					var window = new Window (windowConfig);
-					var renderer = new Renderer (window);
-					addWindow (window);
-					addRenderer (renderer);
-					
-					#if (flash || html5)
-					break;
-					#end
-					
-				}
-				
-			}
-			
-			init (this);
-			
-		}
 		
 	}
 	
@@ -504,6 +502,8 @@ class Application extends Module {
 			
 		}
 		
+		removeWindow (window);
+		
 	}
 	
 	
@@ -652,13 +652,19 @@ class Application extends Module {
 	 * Removes a Window from the Application
 	 * @param	window	A Window object to remove
 	 */
-	public function removeWindow (window:Window):Void {
+	private function removeWindow (window:Window):Void {
 		
 		if (window != null && windowByID.exists (window.id)) {
 			
 			windows.remove (window);
 			windowByID.remove (window.id);
 			window.close ();
+			
+			if (this.window == window) {
+				
+				this.window = null;
+				
+			}
 			
 		}
 		

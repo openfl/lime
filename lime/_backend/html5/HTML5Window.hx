@@ -28,6 +28,7 @@ typedef InputElement = Dynamic;
 typedef InputEvent = js.html.Event;
 #end
 
+@:access(lime.app.Application)
 @:access(lime.ui.Window)
 
 
@@ -67,7 +68,7 @@ class HTML5Window {
 	
 	public function close ():Void {
 		
-		
+		parent.application.removeWindow (parent);
 		
 	}
 	
