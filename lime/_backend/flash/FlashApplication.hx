@@ -160,6 +160,13 @@ class FlashApplication {
 	}
 	
 	
+	public function exit ():Void {
+		
+		
+		
+	}
+	
+	
 	public function getFrameRate ():Float {
 		
 		return Lib.current.stage.frameRate;

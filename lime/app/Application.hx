@@ -313,6 +313,8 @@ class Application extends Module {
 			
 		}
 		
+		backend.exit ();
+		
 	}
 	
 	

@@ -162,6 +162,13 @@ class HTML5Application {
 	}
 	
 	
+	public function exit ():Void {
+		
+		
+		
+	}
+	
+	
 	public function getFrameRate ():Float {
 		
 		if (framePeriod < 0) {

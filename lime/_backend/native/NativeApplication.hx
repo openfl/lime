@@ -84,8 +84,6 @@ class NativeApplication {
 			if (!active) {
 				
 				var result = lime_application_quit (handle);
-				__cleanup ();
-				
 				System.exit (result);
 				
 			}
@@ -100,8 +98,6 @@ class NativeApplication {
 		#elseif (cpp || neko)
 		
 		var result = lime_application_exec (handle);
-		__cleanup ();
-		
 		parent.onExit.dispatch (result);
 		
 		return result;
@@ -111,6 +107,13 @@ class NativeApplication {
 		return 0;
 		
 		#end
+		
+	}
+	
+	
+	public function exit ():Void {
+		
+		AudioManager.shutdown ();
 		
 	}
 	
@@ -133,7 +136,7 @@ class NativeApplication {
 			
 			case EXIT:
 				
-				parent.onExit.dispatch (0);
+				//parent.onExit.dispatch (0);
 			
 		}
 		
@@ -488,13 +491,6 @@ class NativeApplication {
 			}
 			
 		}
-		
-	}
-	
-	
-	private function __cleanup ():Void {
-		
-		AudioManager.shutdown ();
 		
 	}
 	
