@@ -53,6 +53,8 @@ class GL {
 	public static inline var SRC_ALPHA_SATURATE = 0x0308;
 	
 	public static inline var FUNC_ADD = 0x8006;
+	public static inline var MIN = 0x8007;
+	public static inline var MAX = 0x8008;
 	public static inline var BLEND_EQUATION = 0x8009;
 	public static inline var BLEND_EQUATION_RGB = 0x8009;
 	public static inline var BLEND_EQUATION_ALPHA = 0x883D;
