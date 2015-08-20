@@ -120,23 +120,7 @@ class FlashApplication {
 	
 	public function create (config:Config):Void {
 		
-		parent.config = config;
 		
-		if (config != null) {
-			
-			setFrameRate (config.windows[0].fps);
-			
-			//for (data in config.windows) {
-				
-				//var window = new Window (data);
-				var window = new Window (config.windows[0]);
-				var renderer = new Renderer (window);
-				parent.addWindow (window);
-				parent.addRenderer (renderer);
-				
-			//}
-			
-		}
 		
 	}
 	

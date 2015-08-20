@@ -164,7 +164,30 @@ class Application extends Module {
 	 */
 	public function create (config:Config):Void {
 		
+		this.config = config;
+		
 		backend.create (config);
+		
+		if (config != null) {
+			
+			frameRate = config.windows[0].fps;
+			
+			for (data in config.windows) {
+				
+				var window = new Window (data);
+				var renderer = new Renderer (window);
+				addWindow (window);
+				addRenderer (renderer);
+				
+				#if (flash || html5)
+				break;
+				#end
+				
+			}
+			
+			init (this);
+			
+		}
 		
 	}
 	
