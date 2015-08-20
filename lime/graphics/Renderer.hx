@@ -23,7 +23,7 @@ class Renderer {
 		
 		backend = new RendererBackend (this);
 		
-		this.window.currentRenderer = this;
+		this.window.renderer = this;
 		
 	}
 	

@@ -19,7 +19,6 @@ class Window {
 	
 	
 	public var application (default, null):Application;
-	public var currentRenderer:Renderer;
 	public var config:WindowConfig;
 	public var display (get, null):Display;
 	public var enableTextEvents (get, set):Bool;
@@ -29,6 +28,7 @@ class Window {
 	public var minimized (get, set):Bool;
 	public var onActivate = new Event<Void->Void> ();
 	public var onClose = new Event<Void->Void> ();
+	public var onCreate = new Event<Void->Void> ();
 	public var onDeactivate = new Event<Void->Void> ();
 	public var onEnter = new Event<Void->Void> ();
 	public var onFocusIn = new Event<Void->Void> ();
@@ -48,6 +48,7 @@ class Window {
 	public var onRestore = new Event<Void->Void> ();
 	public var onTextEdit = new Event<String->Int->Int->Void> ();
 	public var onTextInput = new Event<String->Void> ();
+	public var renderer:Renderer;
 	public var stage:Stage;
 	public var title (get, set):String;
 	public var width (get, set):Int;
@@ -220,9 +221,9 @@ class Window {
 		
 		#end
 		
-		if (currentRenderer != null) {
+		if (renderer != null) {
 			
-			currentRenderer.create ();
+			renderer.create ();
 			
 		}
 		

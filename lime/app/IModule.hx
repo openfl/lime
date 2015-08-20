@@ -16,13 +16,6 @@ interface IModule {
 	
 	
 	/**
-	 * Called when the module is initialized
-	 * @param	application	The parent application
-	 */
-	public function init (application:Application):Void;
-	
-	
-	/**
 	 * Called when a gamepad axis move event is fired
 	 * @param	gamepad	The current gamepad
 	 * @param	axis	The axis that was moved
@@ -214,6 +207,13 @@ interface IModule {
 	 * @param	window	The window dispatching the event
 	 */
 	public function onWindowClose (window:Window):Void;
+	
+	
+	/**
+	 * Called when a window create event is fired
+	 * @param	window	The window dispatching the event
+	 */
+	public function onWindowCreate (window:Window):Void;
 	
 	
 	/**

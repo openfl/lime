@@ -39,7 +39,6 @@ class Application extends Module {
 	public var windows (default, null):Array<Window>;
 	
 	@:noCompletion private var backend:ApplicationBackend;
-	@:noCompletion private var initialized:Bool;
 	@:noCompletion private var windowByID:Map<Int, Window>;
 	
 	
@@ -79,11 +78,11 @@ class Application extends Module {
 		
 		modules.push (module);
 		
-		if (initialized) {
+		if (windows.length > 0) {
 			
-			if (renderer != null) {
+			for (window in windows) {
 				
-				module.init (this);
+				module.onWindowCreate (window);
 				
 			}
 			
@@ -150,7 +149,11 @@ class Application extends Module {
 				
 			}
 			
-			init (this);
+			if (preloader == null || preloader.complete) {
+				
+				onPreloadComplete ();
+				
+			}
 			
 		}
 		
@@ -168,6 +171,7 @@ class Application extends Module {
 		
 		window.onActivate.add (onWindowActivate.bind (window));
 		window.onClose.add (onWindowClose.bind (window));
+		window.onCreate.add (onWindowCreate.bind (window));
 		window.onDeactivate.add (onWindowDeactivate.bind (window));
 		window.onEnter.add (onWindowEnter.bind (window));
 		window.onFocusIn.add (onWindowFocusIn.bind (window));
@@ -188,7 +192,7 @@ class Application extends Module {
 		window.onTextEdit.add (onTextEdit.bind (window));
 		window.onTextInput.add (onTextInput.bind (window));
 		
-		if (window.currentRenderer == null) {
+		if (window.renderer == null) {
 			
 			var renderer = new Renderer (window);
 			addRenderer (renderer);
@@ -198,6 +202,8 @@ class Application extends Module {
 		window.create (this);
 		windows.push (window);
 		windowByID.set (window.id, window);
+		
+		window.onCreate.dispatch ();
 		
 	}
 	
@@ -213,25 +219,6 @@ class Application extends Module {
 		Application.current = this;
 		
 		return backend.exec ();
-		
-	}
-	
-	
-	public override function init (application:Application):Void {
-		
-		for (module in modules) {
-			
-			module.init (application);
-			
-		}
-		
-		initialized = true;
-		
-		if (preloader == null || preloader.complete) {
-			
-			onPreloadComplete ();
-			
-		}
 		
 	}
 	
@@ -503,6 +490,17 @@ class Application extends Module {
 		}
 		
 		removeWindow (window);
+		
+	}
+	
+	
+	public override function onWindowCreate (window:Window):Void {
+		
+		for (module in modules) {
+			
+			module.onWindowCreate (window);
+			
+		}
 		
 	}
 	

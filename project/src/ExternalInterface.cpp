@@ -910,6 +910,14 @@ namespace lime {
 	}
 	
 	
+	value lime_renderer_get_context (value renderer) {
+		
+		Renderer* targetRenderer = (Renderer*)(intptr_t)val_float (renderer);
+		return alloc_float ((intptr_t)targetRenderer->GetContext ());
+		
+	}
+	
+	
 	value lime_renderer_get_type (value renderer) {
 		
 		Renderer* targetRenderer = (Renderer*)(intptr_t)val_float (renderer);
@@ -921,6 +929,14 @@ namespace lime {
 	value lime_renderer_lock (value renderer) {
 		
 		return ((Renderer*)(intptr_t)val_float (renderer))->Lock ();
+		
+	}
+	
+	
+	value lime_renderer_make_current (value renderer) {
+		
+		((Renderer*)(intptr_t)val_float (renderer))->MakeCurrent ();
+		return alloc_null ();
 		
 	}
 	
@@ -1273,8 +1289,10 @@ namespace lime {
 	DEFINE_PRIM (lime_png_decode_file, 2);
 	DEFINE_PRIM (lime_renderer_create, 1);
 	DEFINE_PRIM (lime_renderer_flip, 1);
+	DEFINE_PRIM (lime_renderer_get_context, 1);
 	DEFINE_PRIM (lime_renderer_get_type, 1);
 	DEFINE_PRIM (lime_renderer_lock, 1);
+	DEFINE_PRIM (lime_renderer_make_current, 1);
 	DEFINE_PRIM (lime_renderer_unlock, 1);
 	DEFINE_PRIM (lime_render_event_manager_register, 2);
 	DEFINE_PRIM (lime_system_get_directory, 3);
