@@ -183,7 +183,7 @@ class NativeApplication {
 	
 	private function handleKeyEvent ():Void {
 		
-		var window = parent.windows.get (keyEventInfo.windowID);
+		var window = parent.windowByID.get (keyEventInfo.windowID);
 		
 		if (window != null) {
 			
@@ -206,7 +206,7 @@ class NativeApplication {
 	
 	private function handleMouseEvent ():Void {
 		
-		var window = parent.windows.get (mouseEventInfo.windowID);
+		var window = parent.windowByID.get (mouseEventInfo.windowID);
 		
 		if (window != null) {
 			
@@ -284,7 +284,7 @@ class NativeApplication {
 	
 	private function handleTextEvent ():Void {
 		
-		var window = parent.windows.get (textEventInfo.windowID);
+		var window = parent.windowByID.get (textEventInfo.windowID);
 		
 		if (window != null) {
 			
@@ -379,7 +379,7 @@ class NativeApplication {
 	
 	private function handleWindowEvent ():Void {
 		
-		var window = parent.windows.get (windowEventInfo.windowID);
+		var window = parent.windowByID.get (windowEventInfo.windowID);
 		
 		if (window != null) {
 			

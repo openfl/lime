@@ -36,10 +36,11 @@ class Application extends Module {
 	public var renderer (default, null):Renderer;
 	public var renderers (default, null):Array<Renderer>;
 	public var window (default, null):Window;
-	public var windows (default, null):Map<Int, Window>;
+	public var windows (default, null):Array<Window>;
 	
 	@:noCompletion private var backend:ApplicationBackend;
 	@:noCompletion private var initialized:Bool;
+	@:noCompletion private var windowByID:Map<Int, Window>;
 	
 	
 	public function new () {
@@ -54,7 +55,9 @@ class Application extends Module {
 		
 		modules = new Array ();
 		renderers = new Array ();
-		windows = new Map ();
+		windows = new Array ();
+		windowByID = new Map ();
+		
 		backend = new ApplicationBackend (this);
 		
 		onExit.add (onModuleExit);
@@ -151,7 +154,8 @@ class Application extends Module {
 		}
 		
 		window.create (this);
-		windows.set (window.id, window);
+		windows.push (window);
+		windowByID.set (window.id, window);
 		
 	}
 	
@@ -650,9 +654,10 @@ class Application extends Module {
 	 */
 	public function removeWindow (window:Window):Void {
 		
-		if (window != null && windows.exists (window.id)) {
+		if (window != null && windowByID.exists (window.id)) {
 			
-			windows.remove (window.id);
+			windows.remove (window);
+			windowByID.remove (window.id);
 			window.close ();
 			
 		}
