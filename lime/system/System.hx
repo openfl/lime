@@ -103,10 +103,10 @@ class System {
 		}
 		
 		#if tools
-		ApplicationMain.config.background = color;
-		ApplicationMain.config.element = htmlElement;
-		ApplicationMain.config.width = width;
-		ApplicationMain.config.height = height;
+		ApplicationMain.config.windows[0].background = color;
+		ApplicationMain.config.windows[0].element = htmlElement;
+		ApplicationMain.config.windows[0].width = width;
+		ApplicationMain.config.windows[0].height = height;
 		ApplicationMain.config.assetsPrefix = assetsPrefix;
 		ApplicationMain.create ();
 		#end

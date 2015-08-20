@@ -110,11 +110,18 @@ class HTML5Application {
 		
 		if (config != null) {
 			
-			setFrameRate (config.fps);
-			var window = new Window (config);
-			var renderer = new Renderer (window);
-			parent.addWindow (window);
-			parent.addRenderer (renderer);
+			setFrameRate (config.windows[0].fps);
+			
+			//for (data in config.windows) {
+				
+				//var window = new Window (data);
+				var window = new Window (config.windows[0]);
+				var renderer = new Renderer (window);
+				parent.addWindow (window);
+				parent.addRenderer (renderer);
+				
+			//}
+			
 			parent.init (parent);
 			
 		}
