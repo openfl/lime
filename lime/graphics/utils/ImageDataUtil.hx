@@ -436,29 +436,31 @@ class ImageDataUtil {
 		var top = image.height + 1;
 		var bottom = 0;
 		
-		var color:RGBA = color;
-		var mask:RGBA = mask;
+		var _color:RGBA, _mask:RGBA;
 		
 		switch (format) {
 			
 			case ARGB32:
 				
-				color = (color:ARGB);
-				mask = (mask:ARGB);
+				_color = (color:ARGB);
+				_mask = (mask:ARGB);
 			
 			case BGRA32:
 				
-				color = (color:BGRA);
-				mask = (mask:BGRA);
+				_color = (color:BGRA);
+				_mask = (mask:BGRA);
 			
 			default:
+				
+				_color = color;
+				_mask = mask;
 			
 		}
 		
 		if (!image.transparent) {
 			
-			color.a = 0xFF;
-			mask.a = 0xFF;
+			_color.a = 0xFF;
+			_mask.a = 0xFF;
 			
 		}
 		
@@ -471,7 +473,7 @@ class ImageDataUtil {
 			for (y in 0...image.height) {
 				
 				pixel = image.getPixel32 (x, y, RGBA32);
-				hit = findColor ? (pixel & mask) == color : (pixel & mask) != color;
+				hit = findColor ? (pixel & _mask) == _color : (pixel & _mask) != _color;
 				
 				if (hit) {
 					
@@ -500,7 +502,7 @@ class ImageDataUtil {
 			for (y in 0...image.height) {
 				
 				pixel = image.getPixel32 (ix, y, RGBA32);
-				hit = findColor ? (pixel & mask) == color : (pixel & mask) != color;
+				hit = findColor ? (pixel & _mask) == _color : (pixel & _mask) != _color;
 				
 				if (hit) {
 					
@@ -526,7 +528,7 @@ class ImageDataUtil {
 			for (x in 0...image.width) {
 				
 				pixel = image.getPixel32 (x, y, RGBA32);
-				hit = findColor ? (pixel & mask) == color : (pixel & mask) != color;
+				hit = findColor ? (pixel & _mask) == _color : (pixel & _mask) != _color;
 				
 				if (hit) {
 					
@@ -555,7 +557,7 @@ class ImageDataUtil {
 			for (x in 0...image.width) {
 				
 				pixel = image.getPixel32 (x, iy, RGBA32);
-				hit = findColor ? (pixel & mask) == color : (pixel & mask) != color;
+				hit = findColor ? (pixel & _mask) == _color : (pixel & _mask) != _color;
 				
 				if (hit) {
 					
