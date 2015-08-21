@@ -523,7 +523,7 @@ static std::string nmeTitle;
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-   NSArray *touchArr = [touches allObjects];
+   NSArray *touchArr = [[event allTouches] allObjects];
    NSInteger touchCnt = [touchArr count];
 
    for(int i=0;i<touchCnt;i++)
@@ -558,7 +558,7 @@ static std::string nmeTitle;
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
-   NSArray *touchArr = [touches allObjects];
+   NSArray *touchArr = [[event allTouches] allObjects];
    NSInteger touchCnt = [touchArr count];
 
    for(int i=0;i<touchCnt;i++)
@@ -588,7 +588,7 @@ static std::string nmeTitle;
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-   NSArray *touchArr = [touches allObjects];
+   NSArray *touchArr = [[event allTouches] allObjects];
    NSInteger touchCnt = [touchArr count];
 
    for(int i=0;i<touchCnt;i++)
