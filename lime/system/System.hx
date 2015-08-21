@@ -117,7 +117,7 @@ class System {
 	
 	public static function exit (code:Int):Void {
 		
-		#if sys
+		#if (sys && desktop)
 		#if !macro
 		if (Application.current != null) {
 			
