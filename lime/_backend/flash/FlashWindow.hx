@@ -65,6 +65,12 @@ class FlashWindow {
 		
 	}
 	
+	public function raise ():Void {
+		
+		
+		
+	}
+	
 	
 	public function resize (width:Int, height:Int):Void {
 		
