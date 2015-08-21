@@ -431,57 +431,51 @@ class ImageDataUtil {
 	
 	public static function getColorBoundsRect (image:Image, mask:Int, color:Int, findColor:Bool = true, format:PixelFormat):Rectangle {
 		
-		var left:Int = image.width + 1;
-		var right:Int = 0;
-		var top:Int = image.height + 1;
-		var bottom:Int = 0;
+		var left = image.width + 1;
+		var right = 0;
+		var top = image.height + 1;
+		var bottom = 0;
 		
-		var r, g, b, a;
-		var mr, mg, mb, ma;
+		var color:RGBA = color;
+		var mask:RGBA = mask;
 		
-		if (format == ARGB32) {
+		switch (format) {
 			
-			a = (image.transparent) ? (color >> 24) & 0xFF : 0xFF;
-			r = (color >> 16) & 0xFF;
-			g = (color >> 8) & 0xFF;
-			b = color & 0xFF;
+			case ARGB32:
+				
+				color = (color:ARGB);
+				mask = (mask:ARGB);
 			
-			ma = (image.transparent) ? (mask >> 24) & 0xFF : 0xFF;
-			mr = (mask >> 16) & 0xFF;
-			mg = (mask >> 8) & 0xFF;
-			mb = mask & 0xFF;
+			case BGRA32:
+				
+				color = (color:BGRA);
+				mask = (mask:BGRA);
 			
-		} else {
-			
-			r = (color >> 24) & 0xFF;
-			g = (color >> 16) & 0xFF;
-			b = (color >> 8) & 0xFF;
-			a = (image.transparent) ? color & 0xFF : 0xFF;
-			
-			mr = (mask >> 24) & 0xFF;
-			mg = (mask >> 16) & 0xFF;
-			mb = (mask >> 8) & 0xFF;
-			ma = (image.transparent) ? mask & 0xFF : 0xFF;
+			default:
 			
 		}
 		
-		color = (r | (g << 8) | (b << 16) | (a << 24));
-		mask = (mr | (mg << 8) | (mb << 16) | (mask << 24));
-		
-		var pix:Int;
-		
-		for (ix in 0...image.width) {
+		if (!image.transparent) {
 			
-			var hit = false;
+			color.a = 0xFF;
+			mask.a = 0xFF;
 			
-			for (iy in 0...image.height) {
+		}
+		
+		var pixel, hit;
+		
+		for (x in 0...image.width) {
+			
+			hit = false;
+			
+			for (y in 0...image.height) {
 				
-				pix = image.getPixel32 (ix, iy);
-				hit = findColor ? (pix & mask) == color : (pix & mask) != color;
+				pixel = image.getPixel32 (x, y, RGBA32);
+				hit = findColor ? (pixel & mask) == color : (pixel & mask) != color;
 				
 				if (hit) {
 					
-					if (ix < left) left = ix;
+					if (x < left) left = x;
 					break;
 					
 				}
@@ -496,15 +490,17 @@ class ImageDataUtil {
 			
 		}
 		
-		for (_ix in 0...image.width) {
+		var ix;
+		
+		for (x in 0...image.width) {
 			
-			var ix = (image.width - 1) - _ix;
-			var hit = false;
+			ix = (image.width - 1) - x;
+			hit = false;
 			
-			for (iy in 0...image.height) {
+			for (y in 0...image.height) {
 				
-				pix = image.getPixel32 (ix, iy);
-				hit = findColor ? (pix & mask) == color : (pix & mask) != color;
+				pixel = image.getPixel32 (ix, y, RGBA32);
+				hit = findColor ? (pixel & mask) == color : (pixel & mask) != color;
 				
 				if (hit) {
 					
@@ -523,18 +519,18 @@ class ImageDataUtil {
 			
 		}
 		
-		for (iy in 0...image.height) {
+		for (y in 0...image.height) {
 			
-			var hit = false;
+			hit = false;
 			
-			for (ix in 0...image.width) {
+			for (x in 0...image.width) {
 				
-				pix = image.getPixel32 (ix, iy);
-				hit = findColor ? (pix & mask) == color : (pix & mask) != color;
+				pixel = image.getPixel32 (x, y, RGBA32);
+				hit = findColor ? (pixel & mask) == color : (pixel & mask) != color;
 				
 				if (hit) {
 					
-					if (iy < top) top = iy;
+					if (y < top) top = y;
 					break;
 					
 				}
@@ -549,15 +545,17 @@ class ImageDataUtil {
 			
 		}
 		
-		for (_iy in 0...image.height) {
+		var iy;
+		
+		for (y in 0...image.height) {
 			
-			var iy = (image.height - 1) - _iy;
-			var hit = false;
+			iy = (image.height - 1) - y;
+			hit = false;
 			
-			for (ix in 0...image.width) {
+			for (x in 0...image.width) {
 				
-				pix = image.getPixel32 (ix, iy);
-				hit = findColor ? (pix & mask) == color : (pix & mask) != color;
+				pixel = image.getPixel32 (x, iy, RGBA32);
+				hit = findColor ? (pixel & mask) == color : (pixel & mask) != color;
 				
 				if (hit) {
 					
