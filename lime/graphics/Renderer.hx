@@ -12,6 +12,7 @@ class Renderer {
 	public var onContextLost = new Event<Void->Void> ();
 	public var onContextRestored = new Event<RenderContext->Void> ();
 	public var onRender = new Event<Void->Void> ();
+	public var type:RendererType;
 	public var window:Window;
 	
 	@:noCompletion private var backend:RendererBackend;

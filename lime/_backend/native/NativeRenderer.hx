@@ -55,6 +55,7 @@ class NativeRenderer {
 				
 				useHardware = true;
 				parent.context = OPENGL (new GLRenderContext ());
+				parent.type = OPENGL;
 			
 			default:
 				
@@ -64,6 +65,7 @@ class NativeRenderer {
 				render ();
 				parent.context = CAIRO (cairo);
 				#end
+				parent.type = CAIRO;
 			
 		}
 		

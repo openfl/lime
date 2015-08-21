@@ -49,6 +49,7 @@ class HTML5Renderer {
 		if (parent.window.backend.div != null) {
 			
 			parent.context = DOM (cast parent.window.backend.div);
+			parent.type = DOM;
 			
 		} else if (parent.window.backend.canvas != null) {
 			
@@ -74,6 +75,7 @@ class HTML5Renderer {
 			if (webgl == null) {
 				
 				parent.context = CANVAS (cast parent.window.backend.canvas.getContext ("2d"));
+				parent.type = CANVAS;
 				
 			} else {
 				
@@ -87,6 +89,7 @@ class HTML5Renderer {
 				#else
 				parent.context = OPENGL (new GLRenderContext ());
 				#end
+				parent.type = OPENGL;
 				
 			}
 			
