@@ -27,6 +27,7 @@ namespace lime {
 			virtual int GetX () = 0;
 			virtual int GetY () = 0;
 			virtual void Move (int x, int y) = 0;
+			virtual void Raise () = 0;
 			virtual void Resize (int width, int height) = 0;
 			virtual void SetEnableTextEvents (bool enable) = 0;
 			virtual bool SetFullscreen (bool fullscreen) = 0;

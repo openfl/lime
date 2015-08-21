@@ -184,6 +184,12 @@ namespace lime {
 		
 	}
 	
+	void SDLWindow::Raise () {
+		
+		SDL_RaiseWindow (sdlWindow);
+		
+	}
+	
 	
 	void SDLWindow::Resize (int width, int height) {
 		
