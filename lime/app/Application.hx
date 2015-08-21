@@ -33,9 +33,9 @@ class Application extends Module {
 	 */
 	public var onUpdate = new Event<Int->Void> ();
 	
-	public var renderer (default, null):Renderer;
+	public var renderer (get, null):Renderer;
 	public var renderers (default, null):Array<Renderer>;
-	public var window (default, null):Window;
+	public var window (get, null):Window;
 	public var windows (default, null):Array<Window>;
 	
 	@:noCompletion private var backend:ApplicationBackend;
@@ -109,7 +109,6 @@ class Application extends Module {
 		renderer.onContextRestored.add (onRenderContextRestored.bind (renderer));
 		
 		renderers.push (renderer);
-		this.renderer = renderer;
 		
 	}
 	
@@ -166,8 +165,6 @@ class Application extends Module {
 	 * @param	window	A Window object to add
 	 */
 	public function createWindow (window:Window):Void {
-		
-		this.window = window;
 		
 		window.onActivate.add (onWindowActivate.bind (window));
 		window.onClose.add (onWindowClose.bind (window));
@@ -735,6 +732,20 @@ class Application extends Module {
 	@:noCompletion private inline function set_frameRate (value:Float):Float {
 		
 		return backend.setFrameRate (value);
+		
+	}
+	
+	
+	@:noCompletion private inline function get_renderer ():Renderer {
+		
+		return renderers[0];
+		
+	}
+	
+	
+	@:noCompletion private inline function get_window ():Window {
+		
+		return windows[0];
 		
 	}
 	
