@@ -42,11 +42,8 @@ namespace lime {
 			
 			case NFD_OKAY:
 			{
-				printf("okay\n");
-				printf("size: %d\n", NFD_PathSet_GetCount (&pathSet));
 				for (int i = 0; i < NFD_PathSet_GetCount (&pathSet); i++) {
 					
-					printf ("%s\n", NFD_PathSet_GetPath (&pathSet, i));
 					files->push_back (NFD_PathSet_GetPath (&pathSet, i));
 					
 				}
