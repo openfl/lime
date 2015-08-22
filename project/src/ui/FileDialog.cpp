@@ -1,5 +1,6 @@
 #include <ui/FileDialog.h>
 #include <nfd.h>
+#include <stdio.h>
 
 
 namespace lime {
