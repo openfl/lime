@@ -12,6 +12,12 @@ import sys.io.File;
 class FileDialog {
 	
 	
+	/**
+	 * Open an "Open File" dialog window, and browse for an individual file
+	 * @param	filter	(Optional) A file filter to use, such as "png,jpg;txt", "txt" or null (Default: null)
+	 * @param	defaultPath	(Optional) The default path to use when browsing
+	 * @return	The selected file path or null if the dialog was canceled
+	 */
 	public static function openFile (filter = null, defaultPath:String = null):String {
 		
 		#if (cpp || neko || nodejs)
@@ -23,6 +29,12 @@ class FileDialog {
 	}
 	
 	
+	/**
+	 * Open an "Open File" dialog window, and browse for one or multiple files
+	 * @param	filter	(Optional) A file filter to use, such as "png,jpg;txt", "txt" or null (Default: null)
+	 * @param	defaultPath	(Optional) The default path to use when browsing
+	 * @return	An list of the file paths that were selected
+	 */
 	public static function openFiles (filter = null, defaultPath:String = null):Array<String> {
 		
 		#if (cpp || neko || nodejs)
@@ -34,6 +46,13 @@ class FileDialog {
 	}
 	
 	
+	/**
+	 * Open a "Save File" dialog and save the specified String or Bytes data
+	 * @param	data	String or Bytes data to save
+	 * @param	filter	(Optional) A file filter to use, such as "png,jpg;txt", "txt" or null (Default: null)
+	 * @param	defaultPath	(Optional) The default path to use when browsing
+	 * @return	The path of the saved file, or null if the data was not saved
+	 */
 	public static function saveFile (data:Resource, filter = null, defaultPath:String = null):String {
 		
 		var path = null;
