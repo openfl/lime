@@ -25,6 +25,7 @@
 #include <system/System.h>
 #include <text/Font.h>
 #include <text/TextLayout.h>
+#include <ui/FileDialog.h>
 #include <ui/Gamepad.h>
 #include <ui/GamepadEvent.h>
 #include <ui/KeyEvent.h>
@@ -189,6 +190,51 @@ namespace lime {
 		
 		Clipboard::SetText (val_string (text));
 		return alloc_null ();
+		
+	}
+	
+	
+	value lime_file_dialog_open_file (value filter, value defaultPath) {
+		
+		#ifdef LIME_NFD
+		const char* path = FileDialog::OpenFile (val_string (filter), val_string (defaultPath));
+		if (path) return alloc_string (path);
+		#endif
+		
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_file_dialog_open_files (value filter, value defaultPath) {
+		
+		#ifdef LIME_NFD
+		QuickVec<const char*> files;
+		
+		FileDialog::OpenFiles (&files, val_string (filter), val_string (defaultPath));
+		value result = alloc_array (files.size ());
+		
+		for (int i = 0; i < files.size (); i++) {
+			
+			val_array_set_i (result, i, alloc_string (files[i]));
+			
+		}
+		#else
+		value result = alloc_array (0);
+		#endif
+		
+		return result;
+		
+	}
+	
+	
+	value lime_file_dialog_save_file (value filter, value defaultPath) {
+		
+		#ifdef LIME_NFD
+		return alloc_string (FileDialog::SaveFile (val_string (filter), val_string (defaultPath)));
+		#else
+		return alloc_null ();
+		#endif
 		
 	}
 	
@@ -1238,6 +1284,9 @@ namespace lime {
 	DEFINE_PRIM (lime_bytes_read_file, 1);
 	DEFINE_PRIM (lime_clipboard_get_text, 0);
 	DEFINE_PRIM (lime_clipboard_set_text, 1);
+	DEFINE_PRIM (lime_file_dialog_open_file, 2);
+	DEFINE_PRIM (lime_file_dialog_open_files, 2);
+	DEFINE_PRIM (lime_file_dialog_save_file, 2);
 	DEFINE_PRIM (lime_font_get_ascender, 1);
 	DEFINE_PRIM (lime_font_get_descender, 1);
 	DEFINE_PRIM (lime_font_get_family_name, 1);
