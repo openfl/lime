@@ -8,6 +8,7 @@ import lime.tools.helpers.PathHelper;
 import lime.tools.helpers.PlatformHelper;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
+import openfl.display.PNGEncoderOptions;
 import openfl.display.Shape;
 import openfl.geom.Matrix;
 import lime.project.Architecture;
@@ -53,7 +54,7 @@ class SVGExport {
 			
 		}
 		
-		path += "/legacy/ndll/";
+		path += "/ndll/";
 		
 		switch (PlatformHelper.hostPlatform) {
 			
@@ -168,7 +169,7 @@ class SVGExport {
 				var bitmapData = new BitmapData (width, height, true, backgroundColor);
 				bitmapData.draw (shape);
 				
-				File.saveBytes (outputPath, bitmapData.encode ("png"));
+				File.saveBytes (outputPath, bitmapData.encode (bitmapData.rect, new PNGEncoderOptions ()));
 				
 			} catch (e:Dynamic) {
 				
