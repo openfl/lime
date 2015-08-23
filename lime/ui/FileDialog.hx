@@ -39,15 +39,15 @@ class FileDialog {
 				
 				case OPEN:
 					
-					worker.onComplete.dispatch (lime_file_dialog_open_file (filter, defaultPath));
+					worker.sendComplete (lime_file_dialog_open_file (filter, defaultPath));
 				
 				case OPEN_MULTIPLE:
 					
-					worker.onComplete.dispatch (lime_file_dialog_open_files (filter, defaultPath));
+					worker.sendComplete (lime_file_dialog_open_files (filter, defaultPath));
 				
 				case SAVE:
 					
-					worker.onComplete.dispatch (lime_file_dialog_save_file (filter, defaultPath));
+					worker.sendComplete (lime_file_dialog_save_file (filter, defaultPath));
 				
 			}
 			
