@@ -8,7 +8,7 @@ namespace lime {
 	
 	const char* FileDialog::OpenFile (const char* filter, const char* defaultPath) {
 		
-		nfdchar_t *savePath = NULL;
+		nfdchar_t *savePath = 0;
 		nfdresult_t result = NFD_OpenDialog (filter, defaultPath, &savePath);
 		
 		switch (result) {
@@ -49,7 +49,7 @@ namespace lime {
 					
 				}
 				
-				//NFD_PathSet_Free (&pathSet);
+				NFD_PathSet_Free (&pathSet);
 				break;
 			}
 			
@@ -69,7 +69,7 @@ namespace lime {
 	
 	const char* FileDialog::SaveFile (const char* filter, const char* defaultPath) {
 		
-		nfdchar_t *savePath = NULL;
+		nfdchar_t *savePath = 0;
 		nfdresult_t result = NFD_SaveDialog (filter, defaultPath, &savePath);
 		
 		switch (result) {

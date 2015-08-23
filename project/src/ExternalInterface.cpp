@@ -231,10 +231,11 @@ namespace lime {
 	value lime_file_dialog_save_file (value filter, value defaultPath) {
 		
 		#ifdef LIME_NFD
-		return alloc_string (FileDialog::SaveFile (val_string (filter), val_string (defaultPath)));
-		#else
-		return alloc_null ();
+		const char* path = FileDialog::SaveFile (val_string (filter), val_string (defaultPath));
+		if (path) return alloc_string (path);
 		#endif
+		
+		return alloc_null ();
 		
 	}
 	
