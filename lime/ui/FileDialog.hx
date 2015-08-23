@@ -1,6 +1,8 @@
 package lime.ui;
 
 
+import lime.app.Event;
+import lime.system.BackgroundWorker;
 import lime.system.System;
 import lime.utils.Resource;
 
@@ -12,72 +14,90 @@ import sys.io.File;
 class FileDialog {
 	
 	
-	/**
-	 * Open an "Open File" dialog window, and browse for an individual file
-	 * @param	filter	(Optional) A file filter to use, such as "png,jpg;txt", "txt" or null (Default: null)
-	 * @param	defaultPath	(Optional) The default path to use when browsing
-	 * @return	The selected file path or null if the dialog was canceled
-	 */
-	public static function openFile (filter = null, defaultPath:String = null):String {
+	public var onCancel = new Event<Void->Void> ();
+	public var onSelect = new Event<String->Void> ();
+	public var onSelectMultiple = new Event<Array<String>->Void> ();
+	public var type (default, null):FileDialogType;
+	
+	
+	public function new (type:FileDialogType) {
 		
-		#if (cpp || neko || nodejs)
-		return lime_file_dialog_open_file (filter, defaultPath);
-		#else
-		return null;
-		#end
+		this.type = type;
 		
 	}
 	
 	
-	/**
-	 * Open an "Open File" dialog window, and browse for one or multiple files
-	 * @param	filter	(Optional) A file filter to use, such as "png,jpg;txt", "txt" or null (Default: null)
-	 * @param	defaultPath	(Optional) The default path to use when browsing
-	 * @return	An list of the file paths that were selected
-	 */
-	public static function openFiles (filter = null, defaultPath:String = null):Array<String> {
+	public function browse (filter:String = null, defaultPath:String = null):Bool {
 		
-		#if (cpp || neko || nodejs)
-		return lime_file_dialog_open_files (filter, defaultPath);
-		#else
-		return [];
-		#end
+		#if desktop
 		
-	}
-	
-	
-	/**
-	 * Open a "Save File" dialog and save the specified String or Bytes data
-	 * @param	data	String or Bytes data to save
-	 * @param	filter	(Optional) A file filter to use, such as "png,jpg;txt", "txt" or null (Default: null)
-	 * @param	defaultPath	(Optional) The default path to use when browsing
-	 * @return	The path of the saved file, or null if the data was not saved
-	 */
-	public static function saveFile (data:Resource, filter = null, defaultPath:String = null):String {
+		var worker = new BackgroundWorker ();
 		
-		var path = null;
-		
-		#if (cpp || neko || nodejs)
-		
-		path = lime_file_dialog_save_file (filter, defaultPath);
-		
-		if (path != null) {
+		worker.doWork.add (function (_) {
 			
-			try {
+			switch (type) {
 				
-				File.saveBytes (path, data);
+				case OPEN:
+					
+					worker.onComplete.dispatch (lime_file_dialog_open_file (filter, defaultPath));
 				
-			} catch (e:Dynamic) {
+				case OPEN_MULTIPLE:
+					
+					worker.onComplete.dispatch (lime_file_dialog_open_files (filter, defaultPath));
 				
-				path = null;
+				case SAVE:
+					
+					worker.onComplete.dispatch (lime_file_dialog_open_files (filter, defaultPath));
 				
 			}
 			
-		}
+		});
+		
+		worker.onComplete.add (function (result) {
+			
+			switch (type) {
+				
+				case OPEN, SAVE:
+					
+					var path:String = cast result;
+					
+					if (path == null) {
+						
+						onSelect.dispatch (path);
+						
+					} else {
+						
+						onCancel.dispatch ();
+						
+					}
+				
+				case OPEN_MULTIPLE:
+					
+					var paths:Array<String> = cast result;
+					
+					if (paths != null && paths.length > 0) {
+						
+						onSelectMultiple.dispatch (paths);
+						
+					} else {
+						
+						onCancel.dispatch ();
+						
+					}
+				
+			}
+			
+		});
+		
+		worker.run ();
+		return true;
+		
+		#else
+		
+		onCancel.dispatch ();
+		return false;
 		
 		#end
-		
-		return path;
 		
 	}
 	

@@ -2,7 +2,7 @@
 #define LIME_UI_FILE_DIALOG_H
 
 
-#include <utils/QuickVec.h>
+#include <vector>
 
 
 namespace lime {
@@ -13,7 +13,7 @@ namespace lime {
 		public:
 			
 			static const char* OpenFile (const char* filter = NULL, const char* defaultPath = NULL);
-			static void OpenFiles (QuickVec<const char*>* files, const char* filter = NULL, const char* defaultPath = NULL);
+			static void OpenFiles (std::vector<const char*>* files, const char* filter = NULL, const char* defaultPath = NULL);
 			static const char* SaveFile (const char* filter = NULL, const char* defaultPath = NULL);
 		
 	};

@@ -34,7 +34,7 @@ namespace lime {
 	}
 	
 	
-	void FileDialog::OpenFiles (QuickVec<const char*>* files, const char* filter, const char* defaultPath) {
+	void FileDialog::OpenFiles (std::vector<const char*>* files, const char* filter, const char* defaultPath) {
 		
 		nfdpathset_t pathSet;
 		nfdresult_t result = NFD_OpenDialogMultiple (filter, defaultPath, &pathSet);

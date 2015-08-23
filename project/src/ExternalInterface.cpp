@@ -209,7 +209,7 @@ namespace lime {
 	value lime_file_dialog_open_files (value filter, value defaultPath) {
 		
 		#ifdef LIME_NFD
-		QuickVec<const char*> files;
+		std::vector<const char*> files;
 		
 		FileDialog::OpenFiles (&files, val_string (filter), val_string (defaultPath));
 		value result = alloc_array (files.size ());
