@@ -47,7 +47,7 @@ class FileDialog {
 				
 				case SAVE:
 					
-					worker.onComplete.dispatch (lime_file_dialog_open_files (filter, defaultPath));
+					worker.onComplete.dispatch (lime_file_dialog_save_file (filter, defaultPath));
 				
 			}
 			
@@ -61,7 +61,7 @@ class FileDialog {
 					
 					var path:String = cast result;
 					
-					if (path == null) {
+					if (path != null) {
 						
 						onSelect.dispatch (path);
 						
