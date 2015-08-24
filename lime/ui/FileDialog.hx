@@ -15,19 +15,22 @@ class FileDialog {
 	
 	
 	public var onCancel = new Event<Void->Void> ();
+	public var onOpen = new Event<Resource->Void> ();
+	public var onSave = new Event<String->Void> ();
 	public var onSelect = new Event<String->Void> ();
 	public var onSelectMultiple = new Event<Array<String>->Void> ();
-	public var type (default, null):FileDialogType;
 	
 	
-	public function new (type:FileDialogType) {
+	public function new () {
 		
-		this.type = type;
+		
 		
 	}
 	
 	
-	public function browse (filter:String = null, defaultPath:String = null):Bool {
+	public function browse (type:FileDialogType = null, filter:String = null, defaultPath:String = null):Bool {
+		
+		if (type == null) type = FileDialogType.OPEN;
 		
 		#if desktop
 		
@@ -86,6 +89,92 @@ class FileDialog {
 					}
 				
 			}
+			
+		});
+		
+		worker.run ();
+		return true;
+		
+		#else
+		
+		onCancel.dispatch ();
+		return false;
+		
+		#end
+		
+	}
+	
+	
+	public function open (filter:String = null, defaultPath:String = null):Bool {
+		
+		#if desktop
+		
+		var worker = new BackgroundWorker ();
+		
+		worker.doWork.add (function (_) {
+			
+			worker.sendComplete (lime_file_dialog_open_file (filter, defaultPath));
+			
+		});
+		
+		worker.onComplete.add (function (path) {
+			
+			if (path != null) {
+				
+				try {
+					
+					var data = File.getBytes (path);
+					onOpen.dispatch (data);
+					return;
+					
+				} catch (e:Dynamic) {}
+				
+			}
+			
+			onCancel.dispatch ();
+			
+		});
+		
+		worker.run ();
+		return true;
+		
+		#else
+		
+		onCancel.dispatch ();
+		return false;
+		
+		#end
+		
+	}
+	
+	
+	public function save (data:Resource, filter:String = null, defaultPath:String = null):Bool {
+		
+		#if desktop
+		
+		var worker = new BackgroundWorker ();
+		
+		worker.doWork.add (function (_) {
+			
+			worker.sendComplete (lime_file_dialog_save_file (filter, defaultPath));
+			
+		});
+		
+		worker.onComplete.add (function (path) {
+			
+			if (path != null) {
+				
+				try {
+					
+					File.saveBytes (path, data);
+					onSave.dispatch (path);
+					return;
+					
+				} catch (e:Dynamic) {}
+				
+			}
+			
+			onCancel.dispatch ();
 			
 		});
 		
