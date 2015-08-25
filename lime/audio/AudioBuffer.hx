@@ -3,6 +3,8 @@ package lime.audio;
 
 import haxe.io.Bytes;
 import lime.audio.openal.AL;
+import lime.net.URLLoader;
+import lime.net.URLRequest;
 import lime.system.System;
 import lime.utils.ByteArray;
 import lime.utils.Float32Array;
@@ -46,13 +48,7 @@ class AudioBuffer {
 	public function dispose ():Void {
 		
 		#if lime_console
-
-			src.release ();
-		
-		#else
-
-			// TODO
-
+		src.release ();
 		#end
 		
 	}
@@ -61,39 +57,40 @@ class AudioBuffer {
 	public static function fromBytes (bytes:ByteArray):AudioBuffer {
 		
 		#if lime_console
-
-			trace ("not implemented");
-/*
-			var sound:Sound = Sound.fromBytes (bytes);
-
-			if (sound.valid) {
-
-				var audioBuffer = new AudioBuffer ();
-				audioBuffer.bitsPerSample = 0;
-				audioBuffer.channels = 0;
-				audioBuffer.data = null;
-				audioBuffer.sampleRate = 0;
-				audioBuffer.src = sound;
-				return audioBuffer;
-
-			}
-*/
-	
+		
+		openfl.Lib.notImplemented ("Sound.fromBytes");
+		
+		/*
+		var sound:Sound = Sound.fromBytes (bytes);
+		
+		if (sound.valid) {
+			
+			var audioBuffer = new AudioBuffer ();
+			audioBuffer.bitsPerSample = 0;
+			audioBuffer.channels = 0;
+			audioBuffer.data = null;
+			audioBuffer.sampleRate = 0;
+			audioBuffer.src = sound;
+			return audioBuffer;
+			
+		}
+		*/
+		
 		#elseif (cpp || neko || nodejs)
+		
+		var data = lime_audio_load (bytes);
+		
+		if (data != null) {
 			
-			var data = lime_audio_load (bytes);
+			var audioBuffer = new AudioBuffer ();
+			audioBuffer.bitsPerSample = data.bitsPerSample;
+			audioBuffer.channels = data.channels;
+			audioBuffer.data = ByteArray.fromBytes (@:privateAccess new Bytes (data.data.length, data.data.b));
+			audioBuffer.sampleRate = data.sampleRate;
+			return audioBuffer;
 			
-			if (data != null) {
-				
-				var audioBuffer = new AudioBuffer ();
-				audioBuffer.bitsPerSample = data.bitsPerSample;
-				audioBuffer.channels = data.channels;
-				audioBuffer.data = ByteArray.fromBytes (@:privateAccess new Bytes (data.data.length, data.data.b));
-				audioBuffer.sampleRate = data.sampleRate;
-				return audioBuffer;
-				
-			}
-			
+		}
+		
 		#end
 		
 		return null;
@@ -104,36 +101,36 @@ class AudioBuffer {
 	public static function fromFile (path:String):AudioBuffer {
 		
 		#if lime_console
-
-			var sound:Sound = Sound.fromFile (path);
-
-			if (sound.valid) {
-	
-				var audioBuffer = new AudioBuffer ();
-				audioBuffer.bitsPerSample = 0;
-				audioBuffer.channels = 0;
-				audioBuffer.data = null;
-				audioBuffer.sampleRate = 0;
-				audioBuffer.src = sound;
-				return audioBuffer;
-	
-			}	
-
+		
+		var sound:Sound = Sound.fromFile (path);
+		
+		if (sound.valid) {
+			
+			var audioBuffer = new AudioBuffer ();
+			audioBuffer.bitsPerSample = 0;
+			audioBuffer.channels = 0;
+			audioBuffer.data = null;
+			audioBuffer.sampleRate = 0;
+			audioBuffer.src = sound;
+			return audioBuffer;
+			
+		}
+		
 		#elseif (cpp || neko || nodejs)
+		
+		var data = lime_audio_load (path);
+		
+		if (data != null) {
 			
-			var data = lime_audio_load (path);
+			var audioBuffer = new AudioBuffer ();
+			audioBuffer.bitsPerSample = data.bitsPerSample;
+			audioBuffer.channels = data.channels;
+			audioBuffer.data = ByteArray.fromBytes (@:privateAccess new Bytes (data.data.length, data.data.b));
+			audioBuffer.sampleRate = data.sampleRate;
+			return audioBuffer;
 			
-			if (data != null) {
-				
-				var audioBuffer = new AudioBuffer ();
-				audioBuffer.bitsPerSample = data.bitsPerSample;
-				audioBuffer.channels = data.channels;
-				audioBuffer.data = ByteArray.fromBytes (@:privateAccess new Bytes (data.data.length, data.data.b));
-				audioBuffer.sampleRate = data.sampleRate;
-				return audioBuffer;
-				
-			}
-			
+		}
+		
 		#end
 		
 		return null;
@@ -143,7 +140,32 @@ class AudioBuffer {
 	
 	public static function fromURL (url:String, handler:AudioBuffer->Void):Void {
 		
-		// TODO
+		if (url != null && url.indexOf ("http://") == -1 && url.indexOf ("https://") == -1) {
+			
+			handler (AudioBuffer.fromFile (url));
+			
+		} else {
+			
+			// TODO: Support streaming sound
+			
+			var loader = new URLLoader ();
+			
+			loader.onComplete.add (function (_) {
+				
+				var bytes = Bytes.ofString (loader.data);
+				handler (AudioBuffer.fromBytes (ByteArray.fromBytes (bytes)));
+				
+			});
+			
+			loader.onIOError.add (function (_, msg) {
+				
+				handler (null);
+				
+			});
+			
+			loader.load (new URLRequest (url));
+			
+		}
 		
 	}
 	
