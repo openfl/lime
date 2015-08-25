@@ -148,22 +148,30 @@ class AudioBuffer {
 			
 			// TODO: Support streaming sound
 			
-			var loader = new URLLoader ();
+			#if flash
 			
+			var loader = new flash.net.URLLoader ();
+			loader.addEventListener (flash.events.Event.COMPLETE, function (_) {
+				handler (AudioBuffer.fromBytes (cast loader.data));
+			}
+			loader.addEventListener (flash.events.IOErrorEvent.IO_ERROR, function (_) {
+				handler (null);
+			}
+			loader.load (new flash.net.URLRequest (url));
+			
+			#else
+			
+			var loader = new URLLoader ();
 			loader.onComplete.add (function (_) {
-				
 				var bytes = Bytes.ofString (loader.data);
 				handler (AudioBuffer.fromBytes (ByteArray.fromBytes (bytes)));
-				
 			});
-			
 			loader.onIOError.add (function (_, msg) {
-				
 				handler (null);
-				
 			});
-			
 			loader.load (new URLRequest (url));
+			
+			#end
 			
 		}
 		
