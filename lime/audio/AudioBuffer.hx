@@ -153,10 +153,10 @@ class AudioBuffer {
 			var loader = new flash.net.URLLoader ();
 			loader.addEventListener (flash.events.Event.COMPLETE, function (_) {
 				handler (AudioBuffer.fromBytes (cast loader.data));
-			}
+			});
 			loader.addEventListener (flash.events.IOErrorEvent.IO_ERROR, function (_) {
 				handler (null);
-			}
+			});
 			loader.load (new flash.net.URLRequest (url));
 			
 			#else
