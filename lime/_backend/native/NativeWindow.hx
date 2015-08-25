@@ -92,6 +92,17 @@ class NativeWindow {
 	}
 	
 	
+	public function focus ():Void {
+		
+		if (handle != null) {
+			
+			lime_window_focus (handle);
+			
+		}
+		
+	}
+	
+	
 	public function getDisplay ():Display {
 		
 		var center = new Vector2 (parent.__x + (parent.__width / 2), parent.__y + (parent.__height / 2));
@@ -138,15 +149,6 @@ class NativeWindow {
 		
 	}
 	
-	public function raise ():Void {
-		
-		if (handle != null) {
-			
-			lime_window_raise (handle);
-			
-		}
-		
-	}
 	
 	public function resize (width:Int, height:Int):Void {
 		
@@ -230,6 +232,7 @@ class NativeWindow {
 	
 	private static var lime_window_close = System.load ("lime", "lime_window_close", 1);
 	private static var lime_window_create = System.load ("lime", "lime_window_create", 5);
+	private static var lime_window_focus = System.load ("lime", "lime_window_focus", 1);
 	private static var lime_window_get_enable_text_events = System.load ("lime", "lime_window_get_enable_text_events", 1);
 	private static var lime_window_get_height = System.load ("lime", "lime_window_get_height", 1);
 	private static var lime_window_get_id = System.load ("lime", "lime_window_get_id", 1);
@@ -237,7 +240,6 @@ class NativeWindow {
 	private static var lime_window_get_x = System.load ("lime", "lime_window_get_x", 1);
 	private static var lime_window_get_y = System.load ("lime", "lime_window_get_y", 1);
 	private static var lime_window_move = System.load ("lime", "lime_window_move", 3);
-	private static var lime_window_raise = System.load ("lime", "lime_window_raise", 1);
 	private static var lime_window_resize = System.load ("lime", "lime_window_resize", 3);
 	private static var lime_window_set_enable_text_events = System.load ("lime", "lime_window_set_enable_text_events", 2);
 	private static var lime_window_set_fullscreen = System.load ("lime", "lime_window_set_fullscreen", 2);

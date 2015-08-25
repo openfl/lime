@@ -230,6 +230,13 @@ class Window {
 	}
 	
 	
+	public function focus ():Void {
+		
+		backend.focus ();
+		
+	}
+	
+	
 	public function move (x:Int, y:Int):Void {
 		
 		backend.move (x, y);
@@ -239,11 +246,6 @@ class Window {
 		
 	}
 	
-	public function raise ():Void {
-		
-		backend.raise ();
-		
-	}
 	
 	public function resize (width:Int, height:Int):Void {
 		

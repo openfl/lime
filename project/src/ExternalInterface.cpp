@@ -1163,6 +1163,15 @@ namespace lime {
 	}
 	
 	
+	value lime_window_focus (value window) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		targetWindow->Focus ();
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_window_get_enable_text_events (value window) {
 		
 		Window* targetWindow = (Window*)(intptr_t)val_float (window);
@@ -1219,13 +1228,6 @@ namespace lime {
 		
 	}
 	
-	value lime_window_raise (value window) {
-		
-		Window* targetWindow = (Window*)(intptr_t)val_float (window);
-		targetWindow->Raise ();
-		return alloc_null ();
-		
-	}
 	
 	value lime_window_resize (value window, value width, value height) {
 		
@@ -1366,6 +1368,7 @@ namespace lime {
 	DEFINE_PRIM (lime_window_close, 1);
 	DEFINE_PRIM (lime_window_create, 5);
 	DEFINE_PRIM (lime_window_event_manager_register, 2);
+	DEFINE_PRIM (lime_window_focus, 1);
 	DEFINE_PRIM (lime_window_get_enable_text_events, 1);
 	DEFINE_PRIM (lime_window_get_height, 1);
 	DEFINE_PRIM (lime_window_get_id, 1);
@@ -1373,7 +1376,6 @@ namespace lime {
 	DEFINE_PRIM (lime_window_get_x, 1);
 	DEFINE_PRIM (lime_window_get_y, 1);
 	DEFINE_PRIM (lime_window_move, 3);
-	DEFINE_PRIM (lime_window_raise, 1);
 	DEFINE_PRIM (lime_window_resize, 3);
 	DEFINE_PRIM (lime_window_set_enable_text_events, 2);
 	DEFINE_PRIM (lime_window_set_fullscreen, 2);

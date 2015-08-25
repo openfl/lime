@@ -190,6 +190,13 @@ class HTML5Window {
 	}
 	
 	
+	public function focus ():Void {
+		
+		
+		
+	}
+	
+	
 	public function getDisplay ():Display {
 		
 		return System.getDisplay (0);
@@ -502,12 +509,6 @@ class HTML5Window {
 	
 	
 	public function move (x:Int, y:Int):Void {
-		
-		
-		
-	}
-	
-	public function raise ():Void {
 		
 		
 		

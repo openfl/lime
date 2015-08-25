@@ -45,6 +45,13 @@ class FlashWindow {
 	}
 	
 	
+	public function focus ():Void {
+		
+		
+		
+	}
+	
+	
 	public function getDisplay ():Display {
 		
 		return System.getDisplay (0);
@@ -60,12 +67,6 @@ class FlashWindow {
 	
 	
 	public function move (x:Int, y:Int):Void {
-		
-		
-		
-	}
-	
-	public function raise ():Void {
 		
 		
 		
