@@ -507,6 +507,12 @@ class HTML5Window {
 		
 	}
 	
+	public function raise ():Void {
+		
+		
+		
+	}
+	
 	
 	public function resize (width:Int, height:Int):Void {
 		

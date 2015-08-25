@@ -1219,6 +1219,13 @@ namespace lime {
 		
 	}
 	
+	value lime_window_raise (value window) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		targetWindow->Raise ();
+		return alloc_null ();
+		
+	}
 	
 	value lime_window_resize (value window, value width, value height) {
 		
@@ -1366,6 +1373,7 @@ namespace lime {
 	DEFINE_PRIM (lime_window_get_x, 1);
 	DEFINE_PRIM (lime_window_get_y, 1);
 	DEFINE_PRIM (lime_window_move, 3);
+	DEFINE_PRIM (lime_window_raise, 1);
 	DEFINE_PRIM (lime_window_resize, 3);
 	DEFINE_PRIM (lime_window_set_enable_text_events, 2);
 	DEFINE_PRIM (lime_window_set_fullscreen, 2);

@@ -239,6 +239,11 @@ class Window {
 		
 	}
 	
+	public function raise ():Void {
+		
+		backend.raise ();
+		
+	}
 	
 	public function resize (width:Int, height:Int):Void {
 		
