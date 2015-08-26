@@ -794,6 +794,7 @@ class Assets {
 			libraries.set (name, library);
 			library.eventCallback = library_onEvent;
 			library.load (handler);
+			return;
 			
 		} else {
 			
