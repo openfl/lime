@@ -239,6 +239,8 @@ class ImageDataUtil {
 					
 				} else {
 					
+					if (alphaPoint == null) alphaPoint = new Vector2 ();
+					
 					var alphaData = alphaImage.buffer.data;
 					var alphaFormat = alphaImage.buffer.format;
 					var alphaPremultiplied = alphaImage.buffer.premultiplied;
