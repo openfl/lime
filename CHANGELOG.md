@@ -1,3 +1,20 @@
+2.6.1 (08/26/2015)
+------------------
+
+* Added window.focus for raising and focusing windows
+* Added lime.ui.FileDialog for save/open dialogs
+* Made application renderer and window return the first of each array
+* Added renderer.type for simpler comparisons
+* Implemented AudioBuffer.fromURL for OpenFL Sound support
+* Switched to current Lime architecture when processing SVG files
+* Fixed color order in image.getColorBoundsRect
+* Fixed font embedding for HTML5
+* Fixed Cairo inFill, inStroke, inClip
+* Fixed some issues in image.copyPixels
+* Fixed missing callback in Assets.loadLibrary
+* Fixed multi-touch on iOS (legacy)
+
+
 2.6.0 (08/20/2015)
 ------------------
 
