@@ -50,7 +50,7 @@ class LinuxPlatform extends PlatformTarget {
 		if (project.targetFlags.exists ("rpi")) {
 			
 			isRaspberryPi = true;
-			is64 = true;
+			is64 = false;
 			
 		} else if (PlatformHelper.hostPlatform == Platform.LINUX) {
 			
