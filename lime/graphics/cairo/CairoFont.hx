@@ -12,7 +12,7 @@ class CairoFont {
 	
 	public var font (default, null):Font;
 	
-	@:noCompletion public var handle:Dynamic;
+	@:noCompletion @:dox(hide) public var handle:Dynamic;
 	
 	
 	public function new (font:Font, flags:Int = 0) {

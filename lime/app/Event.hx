@@ -8,8 +8,8 @@ import haxe.macro.Expr;
 class Event<T> {
 	
 	
-	@:noCompletion public var listeners:Array<T>;
-	@:noCompletion public var repeat:Array<Bool>;
+	@:noCompletion @:dox(hide) public var listeners:Array<T>;
+	@:noCompletion @:dox(hide) public var repeat:Array<Bool>;
 	
 	private var priorities:Array<Int>;
 	

@@ -13,7 +13,7 @@ class CairoFontOptions {
 	public var hintStyle (get, set):CairoHintStyle;
 	public var subpixelOrder (get, set):CairoSubpixelOrder;
 	
-	@:noCompletion public var handle:Dynamic;
+	@:noCompletion @:dox(hide) public var handle:Dynamic;
 	
 	
 	public function new (handle:Dynamic = null) {
