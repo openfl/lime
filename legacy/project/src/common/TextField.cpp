@@ -1990,7 +1990,9 @@ void TextField::Layout(const Matrix &inMatrix)
          line.mCharGroup0 = mCharGroups.size()-1;
          line.mCharInGroup0 = last->mString.size();
       }
-      charY += line.mMetrics.height;
+      if ((endsWidthNewLine && multiline) || mLines.empty()){
+         charY += line.mMetrics.height;
+      }
       mLines.push_back(line);
    }
 
