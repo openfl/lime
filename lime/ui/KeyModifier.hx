@@ -1,7 +1,7 @@
 package lime.ui;
 
 
-abstract KeyModifier(Int) from Int to Int {
+abstract KeyModifier(Int) from Int to Int from UInt to UInt {
 	
 	
 	public static inline var NONE:KeyModifier = 0x0000;

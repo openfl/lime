@@ -219,7 +219,9 @@ class EmscriptenPlatform extends PlatformTarget {
 		context.OUTPUT_FILE = outputFile;
 		
 		var template = new Template (File.getContent (hxml));
+		
 		Sys.println (template.execute (context));
+		Sys.println ("-D display");
 		
 	}
 	

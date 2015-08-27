@@ -43,3 +43,6 @@
 [submodule "project/lib/lzma"]
 	path = project/lib/lzma
 	url = https://github.com/native-toolkit/lzma
+[submodule "project/lib/nfd"]
+	path = project/lib/nfd
+	url = https://github.com/native-toolkit/nfd

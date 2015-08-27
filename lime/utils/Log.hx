@@ -12,7 +12,7 @@ class Log {
 	
 	public static function debug (message:String, ?info:PosInfos):Void {
 		
-		if (level >= DEBUG) {
+		if (level >= LogLevel.DEBUG) {
 			
 			println ("[" + info.className + "] " + message);
 			
@@ -23,7 +23,7 @@ class Log {
 	
 	public static function error (message:String, ?info:PosInfos):Void {
 		
-		if (level >= ERROR) {
+		if (level >= LogLevel.ERROR) {
 			
 			println ("[" + info.className + "] ERROR: " + message);
 			
@@ -34,7 +34,7 @@ class Log {
 	
 	public static function info (message:String, ?info:PosInfos):Void {
 		
-		if (level >= INFO) {
+		if (level >= LogLevel.INFO) {
 			
 			println ("[" + info.className + "] " + message);
 			
@@ -75,7 +75,7 @@ class Log {
 	
 	public static function verbose (message:String, ?info:PosInfos):Void {
 		
-		if (level >= VERBOSE) {
+		if (level >= LogLevel.VERBOSE) {
 			
 			println ("[" + info.className + "] " + message);
 			
@@ -86,7 +86,7 @@ class Log {
 	
 	public static function warn (message:String, ?info:PosInfos):Void {
 		
-		if (level >= WARN) {
+		if (level >= LogLevel.WARN) {
 			
 			println ("[" + info.className + "] WARNING: " + message);
 			
@@ -106,14 +106,15 @@ class Log {
 		var args = Sys.args ();
 		if (args.indexOf ("-v") > -1 || args.indexOf ("-verbose") > -1) {
 			level = VERBOSE;
-			return;
+		} else
+		#end
+		{
+			#if debug
+			level = DEBUG;
+			#else
+			level = INFO;
+			#end
 		}
-		#end
-		#if debug
-		level = DEBUG;
-		#else
-		level = INFO;
-		#end
 		#end
 		
 		#if js
@@ -131,7 +132,7 @@ class Log {
 }
 
 
-@:enum abstract LogLevel(Int) from Int to Int {
+@:enum abstract LogLevel(Int) from Int to Int from UInt to UInt {
 	
 	var NONE = 0;
 	var ERROR = 1;

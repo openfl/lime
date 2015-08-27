@@ -40,23 +40,35 @@ class NativeRenderer {
 		
 		handle = lime_renderer_create (parent.window.backend.handle);
 		
-		useHardware = parent.window.config.hardware;
-		
 		#if lime_console
+		
+		useHardware = true;
 		parent.context = CONSOLE (new ConsoleRenderContext ());
+		
 		#else
-		if (useHardware) {
+		
+		var type = lime_renderer_get_type (handle);
+		
+		switch (type) {
 			
-			parent.context = OPENGL (new GLRenderContext ());
+			case "opengl":
+				
+				useHardware = true;
+				parent.context = OPENGL (new GLRenderContext ());
+				parent.type = OPENGL;
 			
-		} else {
-			
-			#if lime_cairo
-			render ();
-			parent.context = CAIRO (cairo);
-			#end
+			default:
+				
+				useHardware = false;
+				
+				#if lime_cairo
+				render ();
+				parent.context = CAIRO (cairo);
+				#end
+				parent.type = CAIRO;
 			
 		}
+		
 		#end
 		
 	}
@@ -90,6 +102,8 @@ class NativeRenderer {
 	
 	
 	public function render ():Void {
+		
+		lime_renderer_make_current (handle);
 		
 		if (!useHardware) {
 			
@@ -137,7 +151,10 @@ class NativeRenderer {
 	
 	private static var lime_renderer_create = System.load ("lime", "lime_renderer_create", 1);
 	private static var lime_renderer_flip = System.load ("lime", "lime_renderer_flip", 1);
+	private static var lime_renderer_get_context = System.load ("lime", "lime_renderer_get_context", 1);
+	private static var lime_renderer_get_type = System.load ("lime", "lime_renderer_get_type", 1);
 	private static var lime_renderer_lock = System.load ("lime", "lime_renderer_lock", 1);
+	private static var lime_renderer_make_current = System.load ("lime", "lime_renderer_make_current", 1);
 	private static var lime_renderer_unlock = System.load ("lime", "lime_renderer_unlock", 1);
 	
 	

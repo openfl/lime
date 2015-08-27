@@ -17,7 +17,10 @@ namespace lime {
 			~SDLRenderer ();
 			
 			virtual void Flip ();
+			virtual void* GetContext ();
 			virtual value Lock ();
+			virtual void MakeCurrent ();
+			virtual const char* Type ();
 			virtual void Unlock ();
 			
 			SDL_Renderer* sdlRenderer;
@@ -26,6 +29,7 @@ namespace lime {
 			
 		private:
 			
+			SDL_GLContext context;
 			int width;
 			int height;
 		

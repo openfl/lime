@@ -174,13 +174,27 @@ class AndroidPlatform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
-		var hxml = PathHelper.findTemplate (project.templatePaths, "android/hxml/" + (project.debug ? "debug" : "release") + ".hxml");
+		var type = "release";
+		
+		if (project.debug) {
+			
+			type = "debug";
+			
+		} else if (project.targetFlags.exists ("final")) {
+			
+			type = "final";
+			
+		}
+		
+		var hxml = PathHelper.findTemplate (project.templatePaths, "android/hxml/" + type + ".hxml");
 		
 		var context = project.templateContext;
 		context.CPP_DIR = targetDirectory + "/obj";
 		
 		var template = new Template (File.getContent (hxml));
+		
 		Sys.println (template.execute (context));
+		Sys.println ("-D display");
 		
 	}
 	

@@ -29,19 +29,31 @@
 	<haxelib name="nodejs" if="nodejs" />
 	<haxelib name="format" if="java" />
 	
+	<target name="ps3" handler="lime-ps3" />
+	<haxelib name="lime-ps3" if="ps3" />
+
+	<target name="ps4" handler="lime-ps4" />
+	<haxelib name="lime-ps4" if="ps4" />
+	
+	<target name="vita" handler="lime-vita" />
+	<haxelib name="lime-vita" if="vita" />
+
 	<target name="wiiu" handler="lime-wiiu" />
 	<haxelib name="lime-wiiu" if="wiiu" />
+
+	<target name="xbox1" handler="lime-xbox1" />
+	<haxelib name="lime-xbox1" if="xbox1" />
 	
 	<target name="console-pc" handler="lime-console-pc" />
 	<haxelib name="lime-console-pc" if="console-pc" />
 	
 	<section unless="display || lime-legacy">
 		
-		<ndll name="std" haxelib="hxcpp" if="cpp" />
+		<ndll name="std" haxelib="hxcpp" if="cpp" unless="lime-console" />
 		<ndll name="regexp" haxelib="hxcpp" if="cpp" />
 		<ndll name="zlib" haxelib="hxcpp" if="cpp" unless="emscripten || ios || static_link" />
 		
-		<ndll name="lime" if="cpp || neko || nodejs" />
+		<ndll name="lime" if="cpp || neko || nodejs" unless="lime-console" />
 		
 		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
 		<dependency path="dependencies/webgl-debug.js" if="html5 debug" />

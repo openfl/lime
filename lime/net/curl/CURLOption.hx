@@ -1,7 +1,7 @@
 package lime.net.curl;
 
 
-@:enum abstract CURLOption(Int) from Int to Int {
+@:enum abstract CURLOption(Int) from Int to Int from UInt to UInt {
 	
 	//var FILE = 10001;
 	//var WRITEDATA = 10001;

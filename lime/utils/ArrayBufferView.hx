@@ -130,7 +130,7 @@ class ArrayBufferView {
     public function set<T>( ?view:ArrayBufferView, ?array:Array<T>, offset:Int = 0 ) : Void {
 
         if(view != null && array == null) {
-            buffer.blit( toByteLength(offset), view.buffer, view.byteOffset, view.buffer.length );
+            buffer.blit( toByteLength(offset), view.buffer, view.byteOffset, view.byteLength );
         } else if(array != null && view == null) {
             copyFromArray(cast array, offset);
         } else {
@@ -272,7 +272,7 @@ class ArrayBufferView {
 //Non-spec
 
     #if !no_typedarray_inline #end
-    function copyFromArray(array:Array<Float>, ?offset : Int = 0 ) {
+    function copyFromArray(array:Array<Float>, offset : Int = 0 ) {
 
         //Ideally, native semantics could be used, like cpp.NativeArray.blit
         var i = 0, len = array.length;
@@ -353,7 +353,7 @@ class ArrayBufferView {
 
 #end //!js
 
-@:noCompletion @:dox(hide)  private enum TAError {
+@:noCompletion @:dox(hide)  enum TAError {
     RangeError;
 }
 
@@ -519,8 +519,8 @@ private abstract TypedArrayType(Int) from Int to Int {
         #if cpp
             untyped return __global__.__hxcpp_memory_get_i32(buffer.getData(), byteOffset);
         #else
-            #if (haxe_ver > 3103)
-                return buffer.getI32(byteOffset);
+            #if (haxe_ver >= 3.2)
+                return buffer.getInt32(byteOffset);
             #else
 
                 var ch1 = getInt8(buffer, byteOffset  );
@@ -544,8 +544,8 @@ private abstract TypedArrayType(Int) from Int to Int {
         #if cpp
             untyped __global__.__hxcpp_memory_set_i32(buffer.getData(), byteOffset, value);
         #else
-            #if (haxe_ver > 3103)
-                buffer.setI32(byteOffset,value);
+            #if ((haxe_ver >= 3.2) && !neko) // causes error on some int values?
+                buffer.setInt32(byteOffset,value);
             #else
                 if (littleEndian) {
                     setInt8(buffer, byteOffset  , value      );

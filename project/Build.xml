@@ -16,6 +16,7 @@
 	<set name="LIME_HARFBUZZ" value="1" />
 	<set name="LIME_LZMA" value="1" />
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
+	<set name="LIME_NFD" value="1" if="windows || mac" />
 	<set name="LIME_OGG" value="1" />
 	<set name="LIME_OPENAL" value="1" />
 	<set name="LIME_OPENGL" value="1" />
@@ -48,6 +49,7 @@
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/linux/" if="linux"/>
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/windows/" if="windows"/>
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/mac/" if="mac"/>
+			<compilerflag value="-DLIME_CAIRO" />
 			<compilerflag value="-DHAVE_CONFIG_H" />
 			<compilerflag value="-DCAIRO_WIN32_STATIC_BUILD" if="windows" />
 			<compilerflag value="-DCAIRO_HAS_FT_FONT" />
@@ -108,6 +110,15 @@
 			<compilerflag value="-DLIME_NEKO" />
 			
 			<file name="src/vm/NekoVM.cpp" />
+			
+		</section>
+		
+		<section if="LIME_NFD">
+			
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/nfd/src/include/" />
+			<compilerflag value="-DLIME_NFD" />
+			
+			<file name="src/ui/FileDialog.cpp" />
 			
 		</section>
 		
@@ -180,7 +191,6 @@
 			<file name="src/backend/sdl/SDLGamepad.cpp" />
 			<file name="src/backend/sdl/SDLMouse.cpp" />
 			<file name="src/backend/sdl/SDLSystem.cpp" />
-			<file name="src/backend/sdl/SDLJNI.cpp" />
 			
 		</section>
 		
@@ -192,7 +202,7 @@
 			
 		</section>
 		
-		<file name="src/app/UpdateEvent.cpp" />
+		<file name="src/app/ApplicationEvent.cpp" />
 		<file name="src/audio/format/WAV.cpp" />
 		<file name="src/audio/AudioBuffer.cpp" />
 		<file name="src/graphics/utils/ImageDataUtil.cpp" />
@@ -203,6 +213,7 @@
 		<file name="src/math/Matrix3.cpp" />
 		<file name="src/math/Rectangle.cpp" />
 		<file name="src/math/Vector2.cpp" />
+		<file name="src/system/JNI.cpp" if="android" />
 		<file name="src/ui/GamepadEvent.cpp" />
 		<file name="src/ui/KeyEvent.cpp" />
 		<file name="src/ui/MouseEvent.cpp" />
@@ -220,6 +231,7 @@
 	<include name="lib/jpeg/files.xml" />
 	<include name="lib/lzma/files.xml" />
 	<include name="lib/neko/files.xml" />
+	<include name="lib/nfd/files.xml" />
 	<include name="lib/ogg/files.xml" />
 	<include name="lib/openal/files.xml" />
 	<include name="lib/openal-android/files.xml" if="android" />
@@ -244,6 +256,7 @@
 		<files id="native-toolkit-harfbuzz" if="LIME_HARFBUZZ" />
 		<files id="native-toolkit-lzma" if="LIME_LZMA" />
 		<files id="native-toolkit-neko" if="LIME_NEKO" />
+		<files id="native-toolkit-nfd" if="LIME_NFD" />
 		<files id="native-toolkit-ogg" if="LIME_OGG" />
 		<files id="native-toolkit-openal" if="LIME_OPENAL" unless="mac || iphone || android || emscripten" />
 		<files id="native-toolkit-openal-android" if="LIME_OPENAL android" />

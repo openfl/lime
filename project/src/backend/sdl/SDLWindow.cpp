@@ -116,6 +116,13 @@ namespace lime {
 	}
 	
 	
+	void SDLWindow::Focus () {
+		
+		SDL_RaiseWindow (sdlWindow);
+		
+	}
+	
+	
 	bool SDLWindow::GetEnableTextEvents () {
 		
 		return SDL_IsTextInputActive ();
@@ -131,6 +138,13 @@ namespace lime {
 		SDL_GetWindowSize (sdlWindow, &width, &height);
 		
 		return height;
+		
+	}
+	
+	
+	uint32_t SDLWindow::GetID () {
+		
+		return SDL_GetWindowID (sdlWindow);
 		
 	}
 	
@@ -244,6 +258,15 @@ namespace lime {
 		}
 		
 		return minimized;
+		
+	}
+	
+	
+	const char* SDLWindow::SetTitle (const char* title) {
+		
+		SDL_SetWindowTitle (sdlWindow, title);
+		
+		return title;
 		
 	}
 	

@@ -4,6 +4,8 @@ package lime._backend.native;
 import lime.app.Application;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
+import lime.math.Vector2;
+import lime.system.Display;
 import lime.system.System;
 import lime.ui.Window;
 
@@ -83,8 +85,43 @@ class NativeWindow {
 			parent.__height = lime_window_get_height (handle);
 			parent.__x = lime_window_get_x (handle);
 			parent.__y = lime_window_get_y (handle);
+			parent.id = lime_window_get_id (handle);
 			
 		}
+		
+	}
+	
+	
+	public function focus ():Void {
+		
+		if (handle != null) {
+			
+			lime_window_focus (handle);
+			
+		}
+		
+	}
+	
+	
+	public function getDisplay ():Display {
+		
+		var center = new Vector2 (parent.__x + (parent.__width / 2), parent.__y + (parent.__height / 2));
+		var numDisplays = System.numDisplays;
+		var display;
+		
+		for (i in 0...numDisplays) {
+			
+			display = System.getDisplay (i);
+			
+			if (display.bounds.containsPoint (center)) {
+				
+				return display;
+				
+			}
+			
+		}
+		
+		return null;
 		
 	}
 	
@@ -145,7 +182,7 @@ class NativeWindow {
 			
 			if (value) {
 				
-				parent.onWindowFullscreen.dispatch ();
+				parent.onFullscreen.dispatch ();
 				
 			}
 			
@@ -180,10 +217,25 @@ class NativeWindow {
 	}
 	
 	
+	public function setTitle (value:String):String {
+		
+		if (handle != null) {
+			
+			return lime_window_set_title (handle, value);
+			
+		}
+		
+		return value;
+		
+	}
+	
+	
 	private static var lime_window_close = System.load ("lime", "lime_window_close", 1);
 	private static var lime_window_create = System.load ("lime", "lime_window_create", 5);
+	private static var lime_window_focus = System.load ("lime", "lime_window_focus", 1);
 	private static var lime_window_get_enable_text_events = System.load ("lime", "lime_window_get_enable_text_events", 1);
 	private static var lime_window_get_height = System.load ("lime", "lime_window_get_height", 1);
+	private static var lime_window_get_id = System.load ("lime", "lime_window_get_id", 1);
 	private static var lime_window_get_width = System.load ("lime", "lime_window_get_width", 1);
 	private static var lime_window_get_x = System.load ("lime", "lime_window_get_x", 1);
 	private static var lime_window_get_y = System.load ("lime", "lime_window_get_y", 1);
@@ -193,6 +245,7 @@ class NativeWindow {
 	private static var lime_window_set_fullscreen = System.load ("lime", "lime_window_set_fullscreen", 2);
 	private static var lime_window_set_icon = System.load ("lime", "lime_window_set_icon", 2);
 	private static var lime_window_set_minimized = System.load ("lime", "lime_window_set_minimized", 2);
+	private static var lime_window_set_title = System.load ("lime", "lime_window_set_title", 2);
 	
 	
 }

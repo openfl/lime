@@ -37,9 +37,9 @@ namespace lime {
 			Font *mFont;
 			void *mHBFont;
 			void *mBuffer;
-			long mDirection;
-			long mScript;
-			long mLanguage;
+			int mDirection;
+			int mScript;
+			void *mLanguage;
 			
 	};
 	

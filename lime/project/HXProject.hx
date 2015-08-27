@@ -829,6 +829,8 @@ class HXProject {
 			
 		}
 		
+		context.meta = meta;
+		
 		for (field in Reflect.fields (meta)) {
 			
 			Reflect.setField (context, "APP_" + StringHelper.formatUppercaseVariable (field), Reflect.field (meta, field));
@@ -857,6 +859,8 @@ class HXProject {
 			
 		}
 		
+		context.windows = windows;
+		
 		for (i in 0...windows.length) {
 			
 			for (field in Reflect.fields (windows[i])) {
@@ -874,6 +878,8 @@ class HXProject {
 				Reflect.setField (context, "WINDOW_ORIENTATION_" + i, "");
 				
 			}
+			
+			windows[i].title = meta.title;
 			
 		}
 		

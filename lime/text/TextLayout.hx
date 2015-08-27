@@ -58,7 +58,7 @@ class TextLayout {
 			if (__buffer == null) {
 				
 				__buffer = new ByteArray (1);
-				__buffer.endian = "littleEndian";
+				__buffer.endian = (System.endianness == BIG_ENDIAN ? "bigEndian" : "littleEndian");
 				
 			}
 			
@@ -100,14 +100,17 @@ class TextLayout {
 	
 	@:noCompletion private function get_positions ():Array<GlyphPosition> {
 		
-		if ( __dirty )
-		{
+		if (__dirty) {
+			
 			__dirty = false;
-			__position();
+			__position ();
+			
 		}
 		
 		return positions;
+		
 	}
+	
 	
 	@:noCompletion private function get_direction ():TextDirection {
 		

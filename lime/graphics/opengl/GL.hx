@@ -53,6 +53,8 @@ class GL {
 	public static inline var SRC_ALPHA_SATURATE = 0x0308;
 	
 	public static inline var FUNC_ADD = 0x8006;
+	public static inline var MIN = 0x8007;
+	public static inline var MAX = 0x8008;
 	public static inline var BLEND_EQUATION = 0x8009;
 	public static inline var BLEND_EQUATION_RGB = 0x8009;
 	public static inline var BLEND_EQUATION_ALPHA = 0x883D;
@@ -2176,7 +2178,16 @@ class GL {
 		#if (js && html5 && !display)
 		context.vertexAttribPointer (indx, size, type, normalized, stride, offset);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
-		lime_gl_vertex_attrib_pointer (indx, size, type, normalized, stride, offset);
+		if (normalized) {
+			
+			lime_gl_vertex_attrib_pointer_1 (indx, size, type, stride, offset);
+			
+		} else {
+			
+			lime_gl_vertex_attrib_pointer_2 (indx, size, type, stride, offset);
+			
+		}
+		//lime_gl_vertex_attrib_pointer (indx, size, type, normalized, stride, offset);
 		#end
 		
 	}
@@ -2330,6 +2341,8 @@ class GL {
 	private static var lime_gl_vertex_attrib4f = System.load ("lime", "lime_gl_vertex_attrib4f", 5);
 	private static var lime_gl_vertex_attrib4fv = System.load ("lime", "lime_gl_vertex_attrib4fv", 2);
 	private static var lime_gl_vertex_attrib_pointer = System.load ("lime", "lime_gl_vertex_attrib_pointer", -1);
+	private static var lime_gl_vertex_attrib_pointer_1 = System.load ("lime", "lime_gl_vertex_attrib_pointer_1", 5);
+	private static var lime_gl_vertex_attrib_pointer_2 = System.load ("lime", "lime_gl_vertex_attrib_pointer_2", 5);
 	private static var lime_gl_viewport = System.load ("lime", "lime_gl_viewport", 4);
 	
 	#end

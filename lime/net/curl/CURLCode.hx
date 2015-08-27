@@ -1,7 +1,7 @@
 package lime.net.curl;
 
 
-@:enum abstract CURLCode(Int) from Int to Int {
+@:enum abstract CURLCode(Int) from Int to Int from UInt to UInt {
 	
 	var OK = 0;
 	var UNSUPPORTED_PROTOCOL = 1;

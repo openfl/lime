@@ -9,7 +9,7 @@
 
 #include <hx/CFFI.h>
 #include <app/Application.h>
-#include <app/UpdateEvent.h>
+#include <app/ApplicationEvent.h>
 #include <audio/format/OGG.h>
 #include <audio/format/WAV.h>
 #include <audio/AudioBuffer.h>
@@ -20,9 +20,12 @@
 #include <graphics/ImageBuffer.h>
 #include <graphics/Renderer.h>
 #include <graphics/RenderEvent.h>
+#include <system/Clipboard.h>
+#include <system/JNI.h>
 #include <system/System.h>
 #include <text/Font.h>
 #include <text/TextLayout.h>
+#include <ui/FileDialog.h>
 #include <ui/Gamepad.h>
 #include <ui/GamepadEvent.h>
 #include <ui/KeyEvent.h>
@@ -33,7 +36,6 @@
 #include <ui/TouchEvent.h>
 #include <ui/Window.h>
 #include <ui/WindowEvent.h>
-#include <utils/JNI.h>
 #include <utils/LZMA.h>
 #include <vm/NekoVM.h>
 
@@ -46,6 +48,15 @@ namespace lime {
 		Application* app = CreateApplication ();
 		Application::callback = new AutoGCRoot (callback);
 		return alloc_float ((intptr_t)app);
+		
+	}
+	
+	
+	value lime_application_event_manager_register (value callback, value eventObject) {
+		
+		ApplicationEvent::callback = new AutoGCRoot (callback);
+		ApplicationEvent::eventObject = new AutoGCRoot (eventObject);
+		return alloc_null ();
 		
 	}
 	
@@ -160,11 +171,81 @@ namespace lime {
 	}
 	
 	
+	value lime_clipboard_get_text () {
+		
+		if (Clipboard::HasText ()) {
+			
+			return alloc_string (Clipboard::GetText ());
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
+		
+	}
+	
+	
+	value lime_clipboard_set_text (value text) {
+		
+		Clipboard::SetText (val_string (text));
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_file_dialog_open_file (value filter, value defaultPath) {
+		
+		#ifdef LIME_NFD
+		const char* path = FileDialog::OpenFile (val_string (filter), val_string (defaultPath));
+		if (path) return alloc_string (path);
+		#endif
+		
+		return alloc_null ();
+		
+	}
+	
+	
+	value lime_file_dialog_open_files (value filter, value defaultPath) {
+		
+		#ifdef LIME_NFD
+		std::vector<const char*> files;
+		
+		FileDialog::OpenFiles (&files, val_string (filter), val_string (defaultPath));
+		value result = alloc_array (files.size ());
+		
+		for (int i = 0; i < files.size (); i++) {
+			
+			val_array_set_i (result, i, alloc_string (files[i]));
+			
+		}
+		#else
+		value result = alloc_array (0);
+		#endif
+		
+		return result;
+		
+	}
+	
+	
+	value lime_file_dialog_save_file (value filter, value defaultPath) {
+		
+		#ifdef LIME_NFD
+		const char* path = FileDialog::SaveFile (val_string (filter), val_string (defaultPath));
+		if (path) return alloc_string (path);
+		#endif
+		
+		return alloc_null ();
+		
+	}
+	
+	
 	void lime_font_destroy (value handle) {
 		
+		#ifdef LIME_FREETYPE
 		Font *font = (Font*)(intptr_t)val_float (handle);
 		delete font;
-		font = 0;
+		#endif
 		
 	}
 	
@@ -532,32 +613,49 @@ namespace lime {
 	}
 	
 	
-	value lime_image_data_util_copy_pixels (value image, value sourceImage, value sourceRect, value destPoint, value mergeAlpha) {
+	value lime_image_data_util_copy_pixels (value *arg, int nargs) {
 		
-		Image _image = Image (image);
-		Image _sourceImage = Image (sourceImage);
-		Rectangle _sourceRect = Rectangle (sourceRect);
-		Vector2 _destPoint = Vector2 (destPoint);
-		ImageDataUtil::CopyPixels (&_image, &_sourceImage, &_sourceRect, &_destPoint, val_bool (mergeAlpha));
+		enum { image, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha };
+		
+		Image _image = Image (arg[image]);
+		Image _sourceImage = Image (arg[sourceImage]);
+		Rectangle _sourceRect = Rectangle (arg[sourceRect]);
+		Vector2 _destPoint = Vector2 (arg[destPoint]);
+		
+		if (val_is_null (arg[alphaImage])) {
+			
+			ImageDataUtil::CopyPixels (&_image, &_sourceImage, &_sourceRect, &_destPoint, 0, 0, val_bool (arg[mergeAlpha]));
+			
+		} else {
+			
+			Image _alphaImage = Image (arg[alphaImage]);
+			Vector2 _alphaPoint = Vector2 (arg[alphaPoint]);
+			
+			ImageDataUtil::CopyPixels (&_image, &_sourceImage, &_sourceRect, &_destPoint, &_alphaImage, &_alphaPoint, val_bool (arg[mergeAlpha]));
+			
+		}
+		
 		return alloc_null ();
 		
 	}
 	
 	
-	value lime_image_data_util_fill_rect (value image, value rect, value color) {
+	value lime_image_data_util_fill_rect (value image, value rect, value rg, value ba) {
 		
 		Image _image = Image (image);
 		Rectangle _rect = Rectangle (rect);
-		ImageDataUtil::FillRect (&_image, &_rect, val_number (color));
+		int32_t color = (val_int (rg) << 16) | val_int (ba);
+		ImageDataUtil::FillRect (&_image, &_rect, color);
 		return alloc_null ();
 		
 	}
 	
 	
-	value lime_image_data_util_flood_fill (value image, value x, value y, value color) {
+	value lime_image_data_util_flood_fill (value image, value x, value y, value rg, value ba) {
 		
 		Image _image = Image (image);
-		ImageDataUtil::FloodFill (&_image, val_number (x), val_number (y), val_number (color));
+		int32_t color = (val_int (rg) << 16) | val_int (ba);
+		ImageDataUtil::FloodFill (&_image, val_number (x), val_number (y), color);
 		return alloc_null ();
 		
 	}
@@ -699,24 +797,32 @@ namespace lime {
 	
 	value lime_lzma_decode (value buffer) {
 		
+		#ifdef LIME_LZMA
 		Bytes data = Bytes (buffer);
 		Bytes result;
 		
 		LZMA::Decode (&data, &result);
 		
 		return result.Value ();
+		#else
+		return alloc_null ();
+		#endif
 		
 	}
 	
 	
 	value lime_lzma_encode (value buffer) {
 		
+		#ifdef LIME_LZMA
 		Bytes data = Bytes (buffer);
 		Bytes result;
 		
 		LZMA::Encode (&data, &result);
 		
 		return result.Value ();
+		#else
+		return alloc_null ();
+		#endif
 		
 	}
 	
@@ -851,9 +957,33 @@ namespace lime {
 	}
 	
 	
+	value lime_renderer_get_context (value renderer) {
+		
+		Renderer* targetRenderer = (Renderer*)(intptr_t)val_float (renderer);
+		return alloc_float ((intptr_t)targetRenderer->GetContext ());
+		
+	}
+	
+	
+	value lime_renderer_get_type (value renderer) {
+		
+		Renderer* targetRenderer = (Renderer*)(intptr_t)val_float (renderer);
+		return alloc_string (targetRenderer->Type ());
+		
+	}
+	
+	
 	value lime_renderer_lock (value renderer) {
 		
 		return ((Renderer*)(intptr_t)val_float (renderer))->Lock ();
+		
+	}
+	
+	
+	value lime_renderer_make_current (value renderer) {
+		
+		((Renderer*)(intptr_t)val_float (renderer))->MakeCurrent ();
+		return alloc_null ();
 		
 	}
 	
@@ -885,6 +1015,20 @@ namespace lime {
 			return alloc_null ();
 			
 		}
+		
+	}
+	
+	
+	value lime_system_get_display (value id) {
+		
+		return System::GetDisplay (val_int (id));
+		
+	}
+	
+	
+	value lime_system_get_num_displays () {
+		
+		return alloc_int (System::GetNumDisplays ());
 		
 	}
 	
@@ -993,15 +1137,6 @@ namespace lime {
 	}
 	
 	
-	value lime_update_event_manager_register (value callback, value eventObject) {
-		
-		UpdateEvent::callback = new AutoGCRoot (callback);
-		UpdateEvent::eventObject = new AutoGCRoot (eventObject);
-		return alloc_null ();
-		
-	}
-	
-	
 	value lime_window_close (value window) {
 		
 		Window* targetWindow = (Window*)(intptr_t)val_float (window);
@@ -1028,6 +1163,15 @@ namespace lime {
 	}
 	
 	
+	value lime_window_focus (value window) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		targetWindow->Focus ();
+		return alloc_null ();
+		
+	}
+	
+	
 	value lime_window_get_enable_text_events (value window) {
 		
 		Window* targetWindow = (Window*)(intptr_t)val_float (window);
@@ -1040,6 +1184,14 @@ namespace lime {
 		
 		Window* targetWindow = (Window*)(intptr_t)val_float (window);
 		return alloc_int (targetWindow->GetHeight ());
+		
+	}
+	
+	
+	value lime_window_get_id (value window) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		return alloc_int ((int32_t)targetWindow->GetID ());
 		
 	}
 	
@@ -1121,7 +1273,16 @@ namespace lime {
 	}
 	
 	
+	value lime_window_set_title (value window, value title) {
+		
+		Window* targetWindow = (Window*)(intptr_t)val_float (window);
+		return alloc_string (targetWindow->SetTitle (val_string (title)));
+		
+	}
+	
+	
 	DEFINE_PRIM (lime_application_create, 1);
+	DEFINE_PRIM (lime_application_event_manager_register, 2);
 	DEFINE_PRIM (lime_application_exec, 1);
 	DEFINE_PRIM (lime_application_init, 1);
 	DEFINE_PRIM (lime_application_quit, 1);
@@ -1131,6 +1292,11 @@ namespace lime {
 	DEFINE_PRIM (lime_bytes_from_data_pointer, 2);
 	DEFINE_PRIM (lime_bytes_get_data_pointer, 1);
 	DEFINE_PRIM (lime_bytes_read_file, 1);
+	DEFINE_PRIM (lime_clipboard_get_text, 0);
+	DEFINE_PRIM (lime_clipboard_set_text, 1);
+	DEFINE_PRIM (lime_file_dialog_open_file, 2);
+	DEFINE_PRIM (lime_file_dialog_open_files, 2);
+	DEFINE_PRIM (lime_file_dialog_save_file, 2);
 	DEFINE_PRIM (lime_font_get_ascender, 1);
 	DEFINE_PRIM (lime_font_get_descender, 1);
 	DEFINE_PRIM (lime_font_get_family_name, 1);
@@ -1153,9 +1319,9 @@ namespace lime {
 	DEFINE_PRIM (lime_gamepad_get_device_name, 1);
 	DEFINE_PRIM (lime_image_data_util_color_transform, 3);
 	DEFINE_PRIM_MULT (lime_image_data_util_copy_channel);
-	DEFINE_PRIM (lime_image_data_util_copy_pixels, 5);
-	DEFINE_PRIM (lime_image_data_util_fill_rect, 3);
-	DEFINE_PRIM (lime_image_data_util_flood_fill, 4);
+	DEFINE_PRIM_MULT (lime_image_data_util_copy_pixels);
+	DEFINE_PRIM (lime_image_data_util_fill_rect, 4);
+	DEFINE_PRIM (lime_image_data_util_flood_fill, 5);
 	DEFINE_PRIM (lime_image_data_util_get_pixels, 4);
 	DEFINE_PRIM_MULT (lime_image_data_util_merge);
 	DEFINE_PRIM (lime_image_data_util_multiply_alpha, 1);
@@ -1182,10 +1348,15 @@ namespace lime {
 	DEFINE_PRIM (lime_png_decode_file, 2);
 	DEFINE_PRIM (lime_renderer_create, 1);
 	DEFINE_PRIM (lime_renderer_flip, 1);
+	DEFINE_PRIM (lime_renderer_get_context, 1);
+	DEFINE_PRIM (lime_renderer_get_type, 1);
 	DEFINE_PRIM (lime_renderer_lock, 1);
+	DEFINE_PRIM (lime_renderer_make_current, 1);
 	DEFINE_PRIM (lime_renderer_unlock, 1);
 	DEFINE_PRIM (lime_render_event_manager_register, 2);
 	DEFINE_PRIM (lime_system_get_directory, 3);
+	DEFINE_PRIM (lime_system_get_display, 1);
+	DEFINE_PRIM (lime_system_get_num_displays, 0);
 	DEFINE_PRIM (lime_system_get_timer, 0);
 	DEFINE_PRIM (lime_text_event_manager_register, 2);
 	DEFINE_PRIM (lime_text_layout_create, 3);
@@ -1194,12 +1365,13 @@ namespace lime {
 	DEFINE_PRIM (lime_text_layout_set_language, 2);
 	DEFINE_PRIM (lime_text_layout_set_script, 2);
 	DEFINE_PRIM (lime_touch_event_manager_register, 2);
-	DEFINE_PRIM (lime_update_event_manager_register, 2);
 	DEFINE_PRIM (lime_window_close, 1);
 	DEFINE_PRIM (lime_window_create, 5);
 	DEFINE_PRIM (lime_window_event_manager_register, 2);
+	DEFINE_PRIM (lime_window_focus, 1);
 	DEFINE_PRIM (lime_window_get_enable_text_events, 1);
 	DEFINE_PRIM (lime_window_get_height, 1);
+	DEFINE_PRIM (lime_window_get_id, 1);
 	DEFINE_PRIM (lime_window_get_width, 1);
 	DEFINE_PRIM (lime_window_get_x, 1);
 	DEFINE_PRIM (lime_window_get_y, 1);
@@ -1209,6 +1381,7 @@ namespace lime {
 	DEFINE_PRIM (lime_window_set_fullscreen, 2);
 	DEFINE_PRIM (lime_window_set_icon, 2);
 	DEFINE_PRIM (lime_window_set_minimized, 2);
+	DEFINE_PRIM (lime_window_set_title, 2);
 	
 	
 }

@@ -2,14 +2,23 @@ package lime.app;
 
 
 import lime.graphics.RenderContext;
+import lime.graphics.Renderer;
 import lime.ui.Gamepad;
 import lime.ui.GamepadAxis;
 import lime.ui.GamepadButton;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
+import lime.ui.Touch;
+import lime.ui.Window;
 
 
 class Module implements IModule {
+	
+	
+	/**
+	 * Exit events are dispatched when the application is exiting
+	 */
+	public var onExit = new Event<Int->Void> ();
 	
 	
 	public function new () {
@@ -20,215 +29,285 @@ class Module implements IModule {
 	
 	
 	/**
-	 * The init() method is called once before the first render()
-	 * call. This can be used to do initial set-up for the current
-	 * render context
-	 * @param	context The current render context
+	 * Called when a gamepad axis move event is fired
+	 * @param	gamepad	The current gamepad
+	 * @param	axis	The axis that was moved
+	 * @param	value	The axis value (between 0 and 1)
 	 */
-	public function init (context:RenderContext):Void { }
-	
-	
 	public function onGamepadAxisMove (gamepad:Gamepad, axis:GamepadAxis, value:Float):Void { }
+	
+	
+	/**
+	 * Called when a gamepad button down event is fired
+	 * @param	gamepad	The current gamepad
+	 * @param	button	The button that was pressed
+	 */
 	public function onGamepadButtonDown (gamepad:Gamepad, button:GamepadButton):Void { }
+	
+	
+	/**
+	 * Called when a gamepad button up event is fired
+	 * @param	gamepad	The current gamepad
+	 * @param	button	The button that was released
+	 */
 	public function onGamepadButtonUp (gamepad:Gamepad, button:GamepadButton):Void { }
+	
+	
+	/**
+	 * Called when a gamepad is connected
+	 * @param	gamepad	The gamepad that was connected
+	 */
 	public function onGamepadConnect (gamepad:Gamepad):Void { }
+	
+	
+	/**
+	 * Called when a gamepad is disconnected
+	 * @param	gamepad	The gamepad that was disconnected
+	 */
 	public function onGamepadDisconnect (gamepad:Gamepad):Void { }
 	
 	
 	/**
 	 * Called when a key down event is fired
+	 * @param	window	The window dispatching the event
 	 * @param	keyCode	The code of the key that was pressed
 	 * @param	modifier	The modifier of the key that was pressed
 	 */
-	public function onKeyDown (keyCode:KeyCode, modifier:KeyModifier):Void { }
+	public function onKeyDown (window:Window, keyCode:KeyCode, modifier:KeyModifier):Void { }
 	
 	
 	/**
 	 * Called when a key up event is fired
+	 * @param	window	The window dispatching the event
 	 * @param	keyCode	The code of the key that was released
 	 * @param	modifier	The modifier of the key that was released
 	 */
-	public function onKeyUp (keyCode:KeyCode, modifier:KeyModifier):Void { }
+	public function onKeyUp (window:Window, keyCode:KeyCode, modifier:KeyModifier):Void { }
+	
+	
+	/**
+	 * Called when the module is exiting
+	 */
+	public function onModuleExit (code:Int):Void { }
 	
 	
 	/**
 	 * Called when a mouse down event is fired
+	 * @param	window	The window dispatching the event
 	 * @param	x	The current x coordinate of the mouse
 	 * @param	y	The current y coordinate of the mouse
 	 * @param	button	The ID of the mouse button that was pressed
 	 */
-	public function onMouseDown (x:Float, y:Float, button:Int):Void { }
+	public function onMouseDown (window:Window, x:Float, y:Float, button:Int):Void { }
 	
 	
 	/**
 	 * Called when a mouse move event is fired
+	 * @param	window	The window dispatching the event
 	 * @param	x	The current x coordinate of the mouse
 	 * @param	y	The current y coordinate of the mouse
 	 * @param	button	The ID of the mouse button that was pressed
 	 */
-	public function onMouseMove (x:Float, y:Float):Void { }
+	public function onMouseMove (window:Window, x:Float, y:Float):Void { }
 	
 	
 	/**
 	 * Called when a mouse move relative event is fired
+	 * @param	window	The window dispatching the event
 	 * @param	x	The x movement of the mouse
 	 * @param	y	The y movement of the mouse
 	 * @param	button	The ID of the mouse button that was pressed
 	 */
-	public function onMouseMoveRelative (x:Float, y:Float):Void { }
+	public function onMouseMoveRelative (window:Window, x:Float, y:Float):Void { }
 	
 	
 	/**
 	 * Called when a mouse up event is fired
+	 * @param	window	The window dispatching the event
 	 * @param	x	The current x coordinate of the mouse
 	 * @param	y	The current y coordinate of the mouse
 	 * @param	button	The ID of the button that was released
 	 */
-	public function onMouseUp (x:Float, y:Float, button:Int):Void { }
+	public function onMouseUp (window:Window, x:Float, y:Float, button:Int):Void { }
 	
 	
 	/**
 	 * Called when a mouse wheel event is fired
+	 * @param	window	The window dispatching the event
 	 * @param	deltaX	The amount of horizontal scrolling (if applicable)
 	 * @param	deltaY	The amount of vertical scrolling (if applicable)
 	 */
-	public function onMouseWheel (deltaX:Float, deltaY:Float):Void { }
+	public function onMouseWheel (window:Window, deltaX:Float, deltaY:Float):Void { }
+	
+	
+	/**
+	 * Called when a preload complete event is fired
+	 */
+	public function onPreloadComplete ():Void { }
+	
+	
+	/**
+	 * Called when a preload progress event is fired
+	 * @param	loaded	The number of items that are loaded
+	 * @param	total	The total number of items will be loaded
+	 */
+	public function onPreloadProgress (loaded:Int, total:Int):Void { }
 	
 	
 	/**
 	 * Called when a render context is lost
+	 * @param	renderer	The renderer dispatching the event
 	 */
-	public function onRenderContextLost ():Void { }
+	public function onRenderContextLost (renderer:Renderer):Void { }
 	
 	
 	/**
 	 * Called when a render context is restored
+	 * @param	renderer	The renderer dispatching the event
 	 * @param	context	The current render context
 	 */
-	public function onRenderContextRestored (context:RenderContext):Void { }
+	public function onRenderContextRestored (renderer:Renderer, context:RenderContext):Void { }
 	
 	
 	/**
 	 * Called when a text edit event is fired
+	 * @param	window	The window dispatching the event
 	 * @param	text	The current replacement text
 	 * @param	start	The starting index for the edit
 	 * @param	length	The length of the edit
 	 */
-	public function onTextEdit (text:String, start:Int, length:Int):Void { }
+	public function onTextEdit (window:Window, text:String, start:Int, length:Int):Void { }
 	
 	
 	/**
 	 * Called when a text input event is fired
+	 * @param	window	The window dispatching the event
 	 * @param	text	The current input text
 	 */
-	public function onTextInput (text:String):Void { }
+	public function onTextInput (window:Window, text:String):Void { }
 	
 	
 	/**
 	 * Called when a touch end event is fired
-	 * @param	x	The current x coordinate of the touch point
-	 * @param	y	The current y coordinate of the touch point
-	 * @param	id	The ID of the touch point
+	 * @param	touch	The current touch object
 	 */
-	public function onTouchEnd (x:Float, y:Float, id:Int):Void { }
+	public function onTouchEnd (touch:Touch):Void { }
 	
 	
 	/**
 	 * Called when a touch move event is fired
-	 * @param	x	The current x coordinate of the touch point
-	 * @param	y	The current y coordinate of the touch point
-	 * @param	id	The ID of the touch point
+	 * @param	touch	The current touch object
 	 */
-	public function onTouchMove (x:Float, y:Float, id:Int):Void { }
+	public function onTouchMove (touch:Touch):Void { }
 	
 	
 	/**
 	 * Called when a touch start event is fired
-	 * @param	x	The current x coordinate of the touch point
-	 * @param	y	The current y coordinate of the touch point
-	 * @param	id	The ID of the touch point
+	 * @param	touch	The current touch object
 	 */
-	public function onTouchStart (x:Float, y:Float, id:Int):Void { }
+	public function onTouchStart (touch:Touch):Void { }
 	
 	
 	/**
 	 * Called when a window activate event is fired
+	 * @param	window	The window dispatching the event
 	 */
-	public function onWindowActivate ():Void { }
+	public function onWindowActivate (window:Window):Void { }
 	
 	
 	/**
 	 * Called when a window close event is fired
+	 * @param	window	The window dispatching the event
 	 */
-	public function onWindowClose ():Void { }
+	public function onWindowClose (window:Window):Void { }
+	
+	
+	/**
+	 * Called when a window create event is fired
+	 * @param	window	The window dispatching the event
+	 */
+	public function onWindowCreate (window:Window):Void { }
 	
 	
 	/**
 	 * Called when a window deactivate event is fired
+	 * @param	window	The window dispatching the event
 	 */
-	public function onWindowDeactivate ():Void { }
+	public function onWindowDeactivate (window:Window):Void { }
 	
 	
 	/**
 	 * Called when a window enter event is fired
+	 * @param	window	The window dispatching the event
 	 */
-	public function onWindowEnter ():Void { }
+	public function onWindowEnter (window:Window):Void { }
 	
 	
 	/**
 	 * Called when a window focus in event is fired
+	 * @param	window	The window dispatching the event
 	 */
-	public function onWindowFocusIn ():Void { }
+	public function onWindowFocusIn (window:Window):Void { }
 	
 	
 	/**
 	 * Called when a window focus out event is fired
+	 * @param	window	The window dispatching the event
 	 */
-	public function onWindowFocusOut ():Void { }
+	public function onWindowFocusOut (window:Window):Void { }
 	
 	
 	/**
-	 * Called when a window fullscreen event is fired
+	 * Called when a window enters fullscreen
+	 * @param	window	The window dispatching the event
 	 */
-	public function onWindowFullscreen ():Void { }
+	public function onWindowFullscreen (window:Window):Void { }
 	
 	
 	/**
-	 * Called when a mouse leave event is fired
+	 * Called when a window leave event is fired
+	 * @param	window	The window dispatching the event
 	 */
-	public function onWindowLeave ():Void { }
-	
-	
-	/**
-	 * Called when a window minimize event is fired
-	 */
-	public function onWindowMinimize ():Void { }
+	public function onWindowLeave (window:Window):Void { }
 	
 	
 	/**
 	 * Called when a window move event is fired
-	 * @param	x	The x position of the window
-	 * @param	y	The y position of the window
+	 * @param	window	The window dispatching the event
+	 * @param	x	The x position of the window in desktop coordinates
+	 * @param	y	The y position of the window in desktop coordinates
 	 */
-	public function onWindowMove (x:Float, y:Float):Void { }
+	public function onWindowMove (window:Window, x:Float, y:Float):Void { }
+	
+	
+	/**
+	 * Called when a window is minimized
+	 * @param	window	The window dispatching the event
+	 */
+	public function onWindowMinimize (window:Window):Void { }
 	
 	
 	/**
 	 * Called when a window resize event is fired
+	 * @param	window	The window dispatching the event
 	 * @param	width	The width of the window
 	 * @param	height	The height of the window
 	 */
-	public function onWindowResize (width:Int, height:Int):Void { }
+	public function onWindowResize (window:Window, width:Int, height:Int):Void { }
 	
 	
-	public function onWindowRestore ():Void { }
+	/**
+	 * Called when a window is restored from being minimized or fullscreen
+	 * @param	window	The window dispatching the event
+	 */
+	public function onWindowRestore (window:Window):Void { }
 	
 	
 	/**
 	 * Called when a render event is fired
-	 * @param	context	The current render context
+	 * @param	renderer	The renderer dispatching the event
 	 */
-	public function render (context:RenderContext):Void { }
+	public function render (renderer:Renderer):Void { }
 	
 	
 	/**

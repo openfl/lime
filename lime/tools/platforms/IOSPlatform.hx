@@ -88,7 +88,9 @@ class IOSPlatform extends PlatformTarget {
 		
 		var hxml = PathHelper.findTemplate (project.templatePaths, "iphone/PROJ/haxe/Build.hxml");
 		var template = new Template (File.getContent (hxml));
+		
 		Sys.println (template.execute (generateContext ()));
+		Sys.println ("-D display");
 		
 	}
 	

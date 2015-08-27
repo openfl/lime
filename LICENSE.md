@@ -85,6 +85,7 @@ https://github.com/haxenme/nme
     project/include/utils/QuickVec.h
     project/src/graphics/format/
     project/src/graphics/opengl/
+    project/src/system/JNI.cpp
     project/src/text/Font.cpp
     project/src/utils/ByteArray.cpp
     project/src/utils/LZMA.cpp

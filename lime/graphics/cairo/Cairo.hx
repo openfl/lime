@@ -175,7 +175,7 @@ class Cairo {
 	public function inClip (x:Float, y:Float):Bool {
 		
 		#if lime_cairo
-		return lime_cairo_in_clip (x, y);
+		return lime_cairo_in_clip (handle, x, y);
 		#else
 		return false;
 		#end
@@ -186,7 +186,7 @@ class Cairo {
 	public function inFill (x:Float, y:Float):Bool {
 		
 		#if lime_cairo
-		return lime_cairo_in_fill (x, y);
+		return lime_cairo_in_fill (handle, x, y);
 		#else
 		return false;
 		#end
@@ -197,7 +197,7 @@ class Cairo {
 	public function inStroke (x:Float, y:Float):Bool {
 		
 		#if lime_cairo
-		return lime_cairo_in_stroke (x, y);
+		return lime_cairo_in_stroke (handle, x, y);
 		#else
 		return false;
 		#end
@@ -397,7 +397,7 @@ class Cairo {
 		return new CairoFontOptions( handle );
 		#end
 		
-		return cast 0;
+		return null;
 		
 	}
 	

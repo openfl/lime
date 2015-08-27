@@ -15,7 +15,10 @@ namespace lime {
 		public:
 			
 			virtual void Flip () = 0;
+			virtual void* GetContext () = 0;
 			virtual value Lock () = 0;
+			virtual void MakeCurrent () = 0;
+			virtual const char* Type () = 0;
 			virtual void Unlock () = 0;
 			
 			Window* currentWindow;

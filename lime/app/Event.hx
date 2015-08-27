@@ -8,8 +8,8 @@ import haxe.macro.Expr;
 class Event<T> {
 	
 	
-	@:noCompletion public var listeners:Array<T>;
-	@:noCompletion public var repeat:Array<Bool>;
+	@:noCompletion @:dox(hide) public var listeners:Array<T>;
+	@:noCompletion @:dox(hide) public var repeat:Array<Bool>;
 	
 	private var priorities:Array<Int>;
 	
@@ -76,21 +76,30 @@ class Event<T> {
 	
 	public function has (listener:T):Bool {
 		
-		var index = listeners.indexOf (listener);
-		return (index > -1);
+		for (l in listeners) {
+			
+			if (Reflect.compareMethods (l, listener)) return true;
+			
+		}
+		
+		return false;
 		
 	}
 	
 	
 	public function remove (listener:T):Void {
 		
-		var index = listeners.indexOf (listener);
+		var i = listeners.length;
 		
-		if (index > -1) {
+		while (--i >= 0) {
 			
-			listeners.splice (index, 1);
-			priorities.splice (index, 1);
-			repeat.splice (index, 1);
+			if (Reflect.compareMethods (listeners[i], listener)) {
+				
+				listeners.splice (i, 1);
+				priorities.splice (i, 1);
+				repeat.splice (i, 1);
+				
+			}
 			
 		}
 		

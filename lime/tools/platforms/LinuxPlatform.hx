@@ -50,7 +50,7 @@ class LinuxPlatform extends PlatformTarget {
 		if (project.targetFlags.exists ("rpi")) {
 			
 			isRaspberryPi = true;
-			is64 = true;
+			is64 = false;
 			
 		} else if (PlatformHelper.hostPlatform == Platform.LINUX) {
 			
@@ -213,7 +213,9 @@ class LinuxPlatform extends PlatformTarget {
 		
 		var hxml = PathHelper.findTemplate (project.templatePaths, targetType + "/hxml/" + type + ".hxml");
 		var template = new Template (File.getContent (hxml));
+		
 		Sys.println (template.execute (generateContext ()));
+		Sys.println ("-D display");
 		
 	}
 	

@@ -121,7 +121,9 @@ class TizenPlatform extends PlatformTarget {
 		context.CPP_DIR = targetDirectory + "/obj";
 		
 		var template = new Template (File.getContent (hxml));
+		
 		Sys.println (template.execute (context));
+		Sys.println ("-D display");
 		
 	}
 	

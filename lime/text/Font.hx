@@ -145,7 +145,7 @@ class Font {
 		lime_font_set_size (src, fontSize);
 		
 		var bytes = new ByteArray ();
-		bytes.endian = "littleEndian";
+		bytes.endian = (System.endianness == BIG_ENDIAN ? "bigEndian" : "littleEndian");
 		
 		if (lime_font_render_glyph (src, glyph, bytes)) {
 			
@@ -203,7 +203,7 @@ class Font {
 		lime_font_set_size (src, fontSize);
 		
 		var bytes = new ByteArray ();
-		bytes.endian = "littleEndian";
+		bytes.endian = (System.endianness == BIG_ENDIAN ? "bigEndian" : "littleEndian");
 		
 		if (lime_font_render_glyphs (src, glyphList, bytes)) {
 			
@@ -272,7 +272,7 @@ class Font {
 			}
 			
 			var map = new Map<Int, Image> ();
-			var buffer = new ImageBuffer (null, bufferWidth, bufferHeight, 1);
+			var buffer = new ImageBuffer (null, bufferWidth, bufferHeight, 8);
 			var data = new ByteArray (bufferWidth * bufferHeight);
 			
 			bytes.position = 4;

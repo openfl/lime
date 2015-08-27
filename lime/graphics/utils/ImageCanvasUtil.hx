@@ -88,6 +88,12 @@ class ImageCanvasUtil {
 	
 	public static function copyPixels (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, alphaImage:Image = null, alphaPoint:Vector2 = null, mergeAlpha:Bool = false):Void {
 		
+		if (destPoint == null || destPoint.x >= image.width || destPoint.y >= image.height || sourceRect == null || sourceRect.width <= 0 || sourceRect.height <= 0) {
+			
+			return;
+			
+		}
+		
 		if (alphaImage != null && alphaImage.transparent) {
 			
 			if (alphaPoint == null) alphaPoint = new Vector2 ();
@@ -146,7 +152,8 @@ class ImageCanvasUtil {
 			}
 			
 			untyped (buffer.__srcContext).mozImageSmoothingEnabled = false;
-			untyped (buffer.__srcContext).webkitImageSmoothingEnabled = false;
+			//untyped (buffer.__srcContext).webkitImageSmoothingEnabled = false;
+			untyped (buffer.__srcContext).msImageSmoothingEnabled = false;
 			untyped (buffer.__srcContext).imageSmoothingEnabled = false;
 			
 		}
@@ -201,7 +208,7 @@ class ImageCanvasUtil {
 		
 		var r, g, b, a;
 		
-		if (format == ARGB) {
+		if (format == ARGB32) {
 			
 			r = (color >> 16) & 0xFF;
 			g = (color >> 8) & 0xFF;

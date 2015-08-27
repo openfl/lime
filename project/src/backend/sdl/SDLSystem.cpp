@@ -1,3 +1,7 @@
+#include <graphics/PixelFormat.h>
+#include <math/Rectangle.h>
+#include <system/Clipboard.h>
+#include <system/JNI.h>
 #include <system/System.h>
 
 #ifdef HX_MACOS
@@ -26,13 +30,54 @@
 #endif
 #endif
 
-#include <SDL_filesystem.h>
-#include <SDL_rwops.h>
-#include <SDL_timer.h>
+#include <SDL.h>
 #include <string>
 
 
 namespace lime {
+	
+	
+	static int id_bounds;
+	static int id_currentMode;
+	static int id_height;
+	static int id_name;
+	static int id_pixelFormat;
+	static int id_refreshRate;
+	static int id_supportedModes;
+	static int id_width;
+	static bool init = false;
+	
+	
+	const char* Clipboard::GetText () {
+		
+		return SDL_GetClipboardText ();
+		
+	}
+	
+	
+	bool Clipboard::HasText () {
+		
+		return SDL_HasClipboardText ();
+		
+	}
+	
+	
+	void Clipboard::SetText (const char* text) {
+		
+		SDL_SetClipboardText (text);
+		
+	}
+	
+	
+	void *JNI::GetEnv () {
+		
+		#ifdef ANDROID
+		return SDL_AndroidGetJNIEnv ();
+		#else
+		return 0;
+		#endif
+		
+	}
 	
 	
 	const char* System::GetDirectory (SystemDirectory type, const char* company, const char* title) {
@@ -164,6 +209,98 @@ namespace lime {
 		}
 		
 		return 0;
+		
+	}
+	
+	
+	value System::GetDisplay (int id) {
+		
+		if (!init) {
+			
+			id_bounds = val_id ("bounds");
+			id_currentMode = val_id ("currentMode");
+			id_height = val_id ("height");
+			id_name = val_id ("name");
+			id_pixelFormat = val_id ("pixelFormat");
+			id_refreshRate = val_id ("refreshRate");
+			id_supportedModes = val_id ("supportedModes");
+			id_width = val_id ("width");
+			init = true;
+			
+		}
+		
+		int numDisplays = GetNumDisplays ();
+		
+		if (id < 0 || id >= numDisplays) {
+			
+			return alloc_null ();
+			
+		}
+		
+		value display = alloc_empty_object ();
+		alloc_field (display, id_name, alloc_string (SDL_GetDisplayName (id)));
+		
+		SDL_Rect bounds = { 0, 0, 0, 0 };
+		SDL_GetDisplayBounds (id, &bounds);
+		alloc_field (display, id_bounds, Rectangle (bounds.x, bounds.y, bounds.w, bounds.h).Value ());
+		
+		SDL_DisplayMode currentDisplayMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
+		SDL_DisplayMode displayMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
+		
+		SDL_GetCurrentDisplayMode (id, &currentDisplayMode);
+		
+		int numDisplayModes = SDL_GetNumDisplayModes (id);
+		value supportedModes = alloc_array (numDisplayModes);
+		value mode;
+		
+		for (int i = 0; i < numDisplayModes; i++) {
+			
+			SDL_GetDisplayMode (id, i, &displayMode);
+			
+			if (displayMode.format == currentDisplayMode.format && displayMode.w == currentDisplayMode.w && displayMode.h == currentDisplayMode.h && displayMode.refresh_rate == currentDisplayMode.refresh_rate) {
+				
+				alloc_field (display, id_currentMode, alloc_int (i));
+				
+			}
+			
+			mode = alloc_empty_object ();
+			alloc_field (mode, id_height, alloc_int (displayMode.h));
+			
+			switch (displayMode.format) {
+				
+				case SDL_PIXELFORMAT_ARGB8888:
+					
+					alloc_field (mode, id_pixelFormat, alloc_int (ARGB32));
+					break;
+				
+				case SDL_PIXELFORMAT_BGRA8888:
+				case SDL_PIXELFORMAT_BGRX8888:
+					
+					alloc_field (mode, id_pixelFormat, alloc_int (BGRA32));
+					break;
+				
+				default:
+					
+					alloc_field (mode, id_pixelFormat, alloc_int (RGBA32));
+				
+			}
+			
+			alloc_field (mode, id_refreshRate, alloc_int (displayMode.refresh_rate));
+			alloc_field (mode, id_width, alloc_int (displayMode.w));
+			
+			val_array_set_i (supportedModes, i, mode);
+			
+		}
+		
+		alloc_field (display, id_supportedModes, supportedModes);
+		return display;
+		
+	}
+	
+	
+	int System::GetNumDisplays () {
+		
+		return SDL_GetNumVideoDisplays ();
 		
 	}
 	

@@ -456,7 +456,7 @@ class CommandLineTools {
 					
 				}
 				
-				if (raspberryPi) {
+				if (raspberryPi || PlatformHelper.hostArchitecture == Architecture.ARMV6 || PlatformHelper.hostArchitecture == Architecture.ARMV7) {
 					
 					untyped $loader.path = $array (path + "RPi/", $loader.path);
 					
@@ -495,7 +495,11 @@ class CommandLineTools {
 			var temporaryFile = PathHelper.getTemporaryFile ();
 			File.saveContent (temporaryFile, projectData);
 			
-			var args = [ "run", handler, command, temporaryFile ];
+			var targetDir = PathHelper.getHaxelib (new Haxelib (handler));
+			var exePath = Path.join ([targetDir, "run.exe"]);
+			var exeExists = FileSystem.exists (exePath);
+			
+			var args = [ command, temporaryFile ];
 			
 			if (LogHelper.verbose) args.push ("-verbose");
 			if (!LogHelper.enableColor) args.push ("-nocolor");
@@ -507,8 +511,16 @@ class CommandLineTools {
 				args = args.concat (additionalArguments);
 				
 			}
+
+			if (exeExists) {
+
+				ProcessHelper.runCommand ("", exePath, args);
+
+			} else {
 			
-			ProcessHelper.runCommand ("", "haxelib", args);
+				ProcessHelper.runCommand ("", "haxelib", ["run", handler].concat (args));
+
+			}
 			
 			try {
 				
@@ -1259,7 +1271,7 @@ class CommandLineTools {
 			
 		}
 		
-		if (project == null) {
+		if (project == null || (command != "rebuild" && project.sources.length == 0)) {
 			
 			LogHelper.error ("You must have a \"project.xml\" file or specify another valid project file when using the '" + command + "' command");
 			return null;

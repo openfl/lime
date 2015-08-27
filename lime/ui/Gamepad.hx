@@ -1,6 +1,7 @@
 package lime.ui;
 
 
+import lime.app.Event;
 import lime.system.System;
 
 
@@ -8,11 +9,16 @@ class Gamepad {
 	
 	
 	public static var devices = new Map<Int, Gamepad> ();
+	public static var onConnect = new Event<Gamepad->Void> ();
 	
 	public var connected (default, null):Bool;
 	public var guid (get, never):String;
 	public var id (default, null):Int;
 	public var name (get, never):String;
+	public var onAxisMove = new Event<GamepadAxis->Float->Void> ();
+	public var onButtonDown = new Event<GamepadButton->Void> ();
+	public var onButtonUp = new Event<GamepadButton->Void> ();
+	public var onDisconnect = new Event<Void->Void> ();
 	
 	
 	public function new (id:Int) {

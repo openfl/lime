@@ -9,9 +9,10 @@ class Renderer {
 	
 	
 	public var context:RenderContext;
-	public var onRenderContextLost = new Event<Void->Void> ();
-	public var onRenderContextRestored = new Event<RenderContext->Void> ();
-	public var onRender = new Event<RenderContext->Void> ();
+	public var onContextLost = new Event<Void->Void> ();
+	public var onContextRestored = new Event<RenderContext->Void> ();
+	public var onRender = new Event<Void->Void> ();
+	public var type:RendererType;
 	public var window:Window;
 	
 	@:noCompletion private var backend:RendererBackend;
@@ -23,7 +24,7 @@ class Renderer {
 		
 		backend = new RendererBackend (this);
 		
-		this.window.currentRenderer = this;
+		this.window.renderer = this;
 		
 	}
 	

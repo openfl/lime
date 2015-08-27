@@ -4,7 +4,7 @@
 
 #include <SDL.h>
 #include <app/Application.h>
-#include <app/UpdateEvent.h>
+#include <app/ApplicationEvent.h>
 #include <graphics/RenderEvent.h>
 #include <ui/GamepadEvent.h>
 #include <ui/KeyEvent.h>
@@ -49,6 +49,7 @@ namespace lime {
 			static SDLApplication* currentApplication;
 			
 			bool active;
+			ApplicationEvent applicationEvent;
 			Uint32 currentUpdate;
 			double framePeriod;
 			GamepadEvent gamepadEvent;
@@ -59,7 +60,6 @@ namespace lime {
 			RenderEvent renderEvent;
 			TextEvent textEvent;
 			TouchEvent touchEvent;
-			UpdateEvent updateEvent;
 			WindowEvent windowEvent;
 		
 	};

@@ -1,3 +1,100 @@
+2.6.1 (08/26/2015)
+------------------
+
+* Added window.focus for raising and focusing windows
+* Added lime.ui.FileDialog for save/open dialogs
+* Made application renderer and window return the first of each array
+* Added renderer.type for simpler comparisons
+* Implemented AudioBuffer.fromURL for OpenFL Sound support
+* Switched to current Lime architecture when processing SVG files
+* Fixed color order in image.getColorBoundsRect
+* Fixed font embedding for HTML5
+* Fixed Cairo inFill, inStroke, inClip
+* Fixed some issues in image.copyPixels
+* Fixed missing callback in Assets.loadLibrary
+* Fixed multi-touch on iOS (legacy)
+
+
+2.6.0 (08/20/2015)
+------------------
+
+* Added support for multiple windows
+* Improved Lime application config for multiple windows
+* Renamed application.init to application.onWindowCreate
+* Changed many application events to include a window reference
+* Expanded touch input support, added lime.ui.Touch
+* Moved game input events from Window to Gamepad
+* Added application onPreloadProgress/onPreloadComplete events
+* Added onModuleExit events (for a clean shutdown)
+* Added additional key mappings for Flash and HTML5
+* Fixed HTML5 text input with spaces
+* Fixed event.remove
+* Fixed an issue with software-based windows
+* Fixed an unused reference in the Android template
+* Fixed "std@module_read" errors on Neko
+
+
+2.5.3 (08/13/2015)
+------------------
+
+* Ported the JNI class for Android extension support without legacy
+* Added a new Display API for information on connected screens
+* Added lime.system.Clipboard and support for System.endianness
+* Added window.display and window.setTitle
+* Merged updates to the game console render context
+* Standardized touch events to use normalized x/y coordinates
+* Standardized touch events to dispatch mouse events as well
+* Added support for unicode text input on HTML5
+* Added support for specifying the iOS simulator device type
+* Added conversion to/from UInt for Int abstracts
+* Fixed the output color order when image encoding
+* Reduced allocations when using gl.vertexAttribPointer
+* Improved font hinting when using Cairo
+* Fixed decoding support for some JPEG images
+* Fixed support for embedded assets on iOS and Android
+* Fixed a possible issue in the Flash preloader
+* Fixed passing of Haxe defines in the iOS build template
+* Fixed support for lime.utils.Log
+* Fixed support for event.has
+
+
+2.5.2 (07/23/2015)
+------------------
+
+* Added support for automatic software fallback on native platforms
+* Improved the behavior of image getPixel/setPixel
+* Fixed native fillRect/floodFill when using certain color values
+* Improved color conversion support for Flash
+* Fixed issue preventing Neko from reading 32-bit integers correctly 
+
+
+2.5.1 (07/21/2015)
+------------------
+
+* Made Image properly support all PixelFormat/premultiplied types
+* Updated PixelFormat names to be more descriptive
+* Added prefix support for generated library class names
+* Fixed an issue with Assets.loadImage on HTML5
+* Fixed support for OpenAL playback using a starting offset
+
+
+2.5.0 (07/17/2015)
+------------------
+
+* Added guards against duplicate gamepad connect events
+* Added guards against gamepad events after a disconnect
+* Added dead zone and repeat value filtering for gamepad axis
+* Added CairoImageSurface, properly separate from CairoSurface
+* Improved HTML5 to use the project FPS setting
+* Improved asset libraries to have an "unload" method
+* Fixed repeated calls to Assets.load* with the same ID
+* Fixed "lime build" to not progress without sources
+* Fixed a regression in ByteArray.fromFile on Android
+* Fixed a bug in arrayBufferView.set
+* Quieted libpng "known incorrect profile" messages
+* Added a patch to allow Wii Remote detection (legacy)
+
+
 2.4.9 (07/13/2015)
 ------------------
 
