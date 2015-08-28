@@ -255,7 +255,11 @@ class System {
 		#end
 		
 		#if optional_cffi
-		lazy = true;
+		if (library != "lime" || method != "neko_init") {
+			
+			lazy = true;
+			
+		}
 		#end
 		
 		if (disableCFFI) {
@@ -478,33 +482,45 @@ class System {
 		
 		if (!__loadedNekoAPI) {
 			
-			var init = load ("lime", "neko_init", 5, lazy);
-			
-			if (init != null) {
+			try {
 				
-				loaderTrace ("Found nekoapi @ " + __moduleNames.get ("lime"));
-				init (function(s) return new String (s), function (len:Int) { var r = []; if (len > 0) r[len - 1] = null; return r; }, null, true, false);
+				var init = load ("lime", "neko_init", 5);
 				
-			} else if (!lazy) {
+				if (init != null) {
+					
+					loaderTrace ("Found nekoapi @ " + __moduleNames.get ("lime"));
+					init (function(s) return new String (s), function (len:Int) { var r = []; if (len > 0) r[len - 1] = null; return r; }, null, true, false);
+					
+				} else if (!lazy) {
+					
+					throw ("Could not find NekoAPI interface.");
+					
+				}
 				
-				throw ("Could not find NekoAPI interface.");
+				#if lime_hybrid
+				var init = load ("lime-legacy", "neko_init", 5);
+				
+				if (init != null) {
+					
+					loaderTrace ("Found nekoapi @ " + __moduleNames.get ("lime-legacy"));
+					init (function(s) return new String (s), function (len:Int) { var r = []; if (len > 0) r[len - 1] = null; return r; }, null, true, false);
+					
+				} else if (!lazy) {
+					
+					throw ("Could not find NekoAPI interface.");
+					
+				}
+				#end
+				
+			} catch (e:Dynamic) {
+				
+				if (!lazy) {
+					
+					throw ("Could not find NekoAPI interface.");
+					
+				}
 				
 			}
-			
-			#if lime_hybrid
-			var init = load ("lime-legacy", "neko_init", 5);
-			
-			if (init != null) {
-				
-				loaderTrace ("Found nekoapi @ " + __moduleNames.get ("lime-legacy"));
-				init (function(s) return new String (s), function (len:Int) { var r = []; if (len > 0) r[len - 1] = null; return r; }, null, true, false);
-				
-			} else if (!lazy) {
-				
-				throw ("Could not find NekoAPI interface.");
-				
-			}
-			#end
 			
 			__loadedNekoAPI = true;
 			
