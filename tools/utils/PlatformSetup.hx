@@ -1715,8 +1715,8 @@ class PlatformSetup {
 				
 				try {
 					
-					ProcessHelper.runCommand ("", "sudo", [ "cp", "-f", PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates/bin/lime.sh", "/usr/bin/lime" ], false);
-					ProcessHelper.runCommand ("", "sudo", [ "chmod", "755", "/usr/bin/lime" ], false);
+					ProcessHelper.runCommand ("", "cp", [ "-f", PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates/bin/lime.sh", "/usr/local/bin/lime" ], false);
+					ProcessHelper.runCommand ("", "chmod", [ "755", "/usr/local/bin/lime" ], false);
 					installedCommand = true;
 					
 				} catch (e:Dynamic) {}
@@ -1731,8 +1731,8 @@ class PlatformSetup {
 				Sys.println (" a) Manually add an alias called \"lime\" to run \"haxelib run lime\"");
 				Sys.println (" b) Run the following commands:");
 				Sys.println ("");
-				Sys.println ("sudo cp \"" + PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates/bin/lime.sh\" /usr/bin/lime");
-				Sys.println ("sudo chmod 755 /usr/bin/lime");
+				Sys.println ("cp \"" + PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates/bin/lime.sh\" /usr/local/bin/lime");
+				Sys.println ("chmod 755 /usr/local/bin/lime");
 				Sys.println ("");
 				
 			}
@@ -1877,10 +1877,10 @@ class PlatformSetup {
 				
 				try {
 					
-					ProcessHelper.runCommand ("", "sudo", [ "cp", "-f", PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates/bin/lime.sh", "/usr/bin/lime" ], false);
-					ProcessHelper.runCommand ("", "sudo", [ "chmod", "755", "/usr/bin/lime" ], false);
-					ProcessHelper.runCommand ("", "sudo", [ "cp", "-f", PathHelper.getHaxelib (new Haxelib ("openfl")) + "/templates/bin/openfl.sh", "/usr/bin/openfl" ], false);
-					ProcessHelper.runCommand ("", "sudo", [ "chmod", "755", "/usr/bin/openfl" ], false);
+					ProcessHelper.runCommand ("", "cp", [ "-f", PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates/bin/lime.sh", "/usr/local/bin/lime" ], false);
+					ProcessHelper.runCommand ("", "chmod", [ "755", "/usr/local/bin/lime" ], false);
+					ProcessHelper.runCommand ("", "cp", [ "-f", PathHelper.getHaxelib (new Haxelib ("openfl")) + "/templates/bin/openfl.sh", "/usr/local/bin/openfl" ], false);
+					ProcessHelper.runCommand ("", "chmod", [ "755", "/usr/local/bin/openfl" ], false);
 					installedCommand = true;
 					
 				} catch (e:Dynamic) {}
@@ -1895,10 +1895,10 @@ class PlatformSetup {
 				Sys.println (" a) Manually add an alias called \"openfl\" to run \"haxelib run openfl\"");
 				Sys.println (" b) Run the following commands:");
 				Sys.println ("");
-				Sys.println ("sudo cp \"" + PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates/bin/lime.sh\" /usr/bin/lime");
-				Sys.println ("sudo chmod 755 /usr/bin/lime");
-				Sys.println ("sudo cp \"" + PathHelper.getHaxelib (new Haxelib ("openfl")) + "/templates/bin/openfl.sh\" /usr/bin/openfl");
-				Sys.println ("sudo chmod 755 /usr/bin/openfl");
+				Sys.println ("cp \"" + PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates/bin/lime.sh\" /usr/local/bin/lime");
+				Sys.println ("chmod 755 /usr/local/bin/lime");
+				Sys.println ("cp \"" + PathHelper.getHaxelib (new Haxelib ("openfl")) + "/templates/bin/openfl.sh\" /usr/local/bin/openfl");
+				Sys.println ("chmod 755 /usr/local/bin/openfl");
 				Sys.println ("");
 				
 			}
