@@ -144,39 +144,18 @@ public class GameActivity extends Activity implements SensorEventListener {
 		}
 		
 	}
-	
-	// IMMERSIVE MODE SUPPORT
-	::if (WIN_FULLSCREEN)::::if (ANDROID_TARGET_SDK_VERSION >= 19)::
-	
+
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
 		
-		if(hasFocus) {
-			hideSystemUi();
+		for (Extension extension : extensions) {
+			
+			extension.onWindowFocusChanged (hasFocus);
+			
 		}
 	}
 
-	private void hideSystemUi() {
-		
-		if (Build.VERSION.SDK_INT >= 19) {
-			
-			View decorView = this.getWindow().getDecorView();
-			
-			decorView.setSystemUiVisibility(
-				View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-				| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-				| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-				| View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-				| View.SYSTEM_UI_FLAG_FULLSCREEN
-				| View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-			
-		}
-		
-	}
-	
-	::end::::end::
-	
 	public static double CapabilitiesGetPixelAspectRatio () {
 		
 		return metrics.xdpi / metrics.ydpi;

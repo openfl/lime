@@ -153,6 +153,10 @@ public class Extension {
     public void onSaveInstanceState (Bundle outState) {
 
     }
+
+	//ADDED By MotionTwin
+	public void onWindowFocusChanged (boolean hasFocus) {
+	}
 	
 	
 }
