@@ -43,7 +43,7 @@
 namespace lime {
 	
 	
-	intptr_t lime_application_create (value callback) {
+	double lime_application_create (value callback) {
 		
 		Application* app = CreateApplication ();
 		Application::callback = new AutoGCRoot (callback);
@@ -60,31 +60,31 @@ namespace lime {
 	}
 	
 	
-	int lime_application_exec (intptr_t application) {
+	int lime_application_exec (double application) {
 		
-		Application* app = (Application*)application;
+		Application* app = (Application*)(intptr_t)application;
 		return app->Exec ();
 		
 	}
 	
 	
-	void lime_application_init (intptr_t application) {
+	void lime_application_init (double application) {
 		
-		Application* app = (Application*)application;
+		Application* app = (Application*)(intptr_t)application;
 		app->Init ();
 		
 	}
 	
 	
-	int lime_application_quit (intptr_t application) {
+	int lime_application_quit (double application) {
 		
-		Application* app = (Application*)application;
+		Application* app = (Application*)(intptr_t)application;
 		return app->Quit ();
 		
 	}
 	
 	
-	void lime_application_set_frame_rate (intptr_t application, double frameRate) {
+	void lime_application_set_frame_rate (double application, double frameRate) {
 		
 		Application* app = (Application*)(intptr_t)application;
 		app->SetFrameRate (frameRate);
@@ -92,9 +92,9 @@ namespace lime {
 	}
 	
 	
-	bool lime_application_update (intptr_t application) {
+	bool lime_application_update (double application) {
 		
-		Application* app = (Application*)application;
+		Application* app = (Application*)(intptr_t)application;
 		return app->Update ();
 		
 	}
@@ -135,9 +135,9 @@ namespace lime {
 	}
 	
 	
-	value lime_bytes_from_data_pointer (value data, int length) {
+	value lime_bytes_from_data_pointer (double data, int length) {
 		
-		intptr_t ptr = (intptr_t)val_float (data);
+		intptr_t ptr = (intptr_t)data;
 		Bytes bytes = Bytes (length);
 		
 		if (ptr) {
@@ -151,7 +151,7 @@ namespace lime {
 	}
 	
 	
-	intptr_t lime_bytes_get_data_pointer (value bytes) {
+	double lime_bytes_get_data_pointer (value bytes) {
 		
 		Bytes data = Bytes (bytes);
 		return (intptr_t)data.Data ();
@@ -708,7 +708,7 @@ namespace lime {
 	}
 	
 	
-	intptr_t lime_jni_getenv () {
+	double lime_jni_getenv () {
 		
 		#ifdef ANDROID
 		return (intptr_t)JNI::GetEnv ();
@@ -833,13 +833,13 @@ namespace lime {
 	}
 	
 	
-	void lime_mouse_warp (int x, int y, intptr_t window) {
+	void lime_mouse_warp (int x, int y, double window) {
 		
 		Window* windowRef = 0;
 		
 		if (window) {
 			
-			windowRef = (Window*)window;
+			windowRef = (Window*)(intptr_t)window;
 			
 		}
 		
@@ -903,54 +903,54 @@ namespace lime {
 	}
 	
 	
-	intptr_t lime_renderer_create (intptr_t window) {
+	double lime_renderer_create (double window) {
 		
-		Renderer* renderer = CreateRenderer ((Window*)window);
+		Renderer* renderer = CreateRenderer ((Window*)(intptr_t)window);
 		return (intptr_t)renderer;
 		
 	}
 	
 	
-	void lime_renderer_flip (intptr_t renderer) {
+	void lime_renderer_flip (double renderer) {
 		
-		((Renderer*)renderer)->Flip ();
+		((Renderer*)(intptr_t)renderer)->Flip ();
 		
 	}
 	
 	
-	intptr_t lime_renderer_get_context (intptr_t renderer) {
+	double lime_renderer_get_context (double renderer) {
 		
-		Renderer* targetRenderer = (Renderer*)renderer;
+		Renderer* targetRenderer = (Renderer*)(intptr_t)renderer;
 		return (intptr_t)targetRenderer->GetContext ();
 		
 	}
 	
 	
-	HxString lime_renderer_get_type (intptr_t renderer) {
+	HxString lime_renderer_get_type (double renderer) {
 		
-		Renderer* targetRenderer = (Renderer*)renderer;
+		Renderer* targetRenderer = (Renderer*)(intptr_t)renderer;
 		return HxString (targetRenderer->Type ());
 		
 	}
 	
 	
-	value lime_renderer_lock (intptr_t renderer) {
+	value lime_renderer_lock (double renderer) {
 		
-		return ((Renderer*)renderer)->Lock ();
-		
-	}
-	
-	
-	void lime_renderer_make_current (intptr_t renderer) {
-		
-		((Renderer*)renderer)->MakeCurrent ();
+		return ((Renderer*)(intptr_t)renderer)->Lock ();
 		
 	}
 	
 	
-	void lime_renderer_unlock (intptr_t renderer) {
+	void lime_renderer_make_current (double renderer) {
 		
-		((Renderer*)renderer)->Unlock ();
+		((Renderer*)(intptr_t)renderer)->MakeCurrent ();
+		
+	}
+	
+	
+	void lime_renderer_unlock (double renderer) {
+		
+		((Renderer*)(intptr_t)renderer)->Unlock ();
 		
 	}
 	
@@ -1075,17 +1075,17 @@ namespace lime {
 	}
 	
 	
-	void lime_window_close (intptr_t window) {
+	void lime_window_close (double window) {
 		
-		Window* targetWindow = (Window*)window;
+		Window* targetWindow = (Window*)(intptr_t)window;
 		targetWindow->Close ();
 		
 	}
 	
 	
-	intptr_t lime_window_create (intptr_t application, int width, int height, int flags, const char* title) {
+	double lime_window_create (double application, int width, int height, int flags, const char* title) {
 		
-		Window* window = CreateWindow ((Application*)application, width, height, flags, title);
+		Window* window = CreateWindow ((Application*)(intptr_t)application, width, height, flags, title);
 		return (intptr_t)window;
 		
 	}
@@ -1099,114 +1099,114 @@ namespace lime {
 	}
 	
 	
-	void lime_window_focus (intptr_t window) {
+	void lime_window_focus (double window) {
 		
-		Window* targetWindow = (Window*)window;
+		Window* targetWindow = (Window*)(intptr_t)window;
 		targetWindow->Focus ();
 		
 	}
 	
 	
-	bool lime_window_get_enable_text_events (intptr_t window) {
+	bool lime_window_get_enable_text_events (double window) {
 		
-		Window* targetWindow = (Window*)window;
+		Window* targetWindow = (Window*)(intptr_t)window;
 		return targetWindow->GetEnableTextEvents ();
 		
 	}
 	
 	
-	int lime_window_get_height (intptr_t window) {
+	int lime_window_get_height (double window) {
 		
-		Window* targetWindow = (Window*)window;
+		Window* targetWindow = (Window*)(intptr_t)window;
 		return targetWindow->GetHeight ();
 		
 	}
 	
 	
-	int32_t lime_window_get_id (intptr_t window) {
+	int32_t lime_window_get_id (double window) {
 		
-		Window* targetWindow = (Window*)window;
+		Window* targetWindow = (Window*)(intptr_t)window;
 		return (int32_t)targetWindow->GetID ();
 		
 	}
 	
 	
-	int lime_window_get_width (intptr_t window) {
+	int lime_window_get_width (double window) {
 		
-		Window* targetWindow = (Window*)window;
+		Window* targetWindow = (Window*)(intptr_t)window;
 		return targetWindow->GetWidth ();
 		
 	}
 	
 	
-	int lime_window_get_x (intptr_t window) {
+	int lime_window_get_x (double window) {
 		
-		Window* targetWindow = (Window*)window;
+		Window* targetWindow = (Window*)(intptr_t)window;
 		return targetWindow->GetX ();
 		
 	}
 	
 	
-	int lime_window_get_y (intptr_t window) {
+	int lime_window_get_y (double window) {
 		
-		Window* targetWindow = (Window*)window;
+		Window* targetWindow = (Window*)(intptr_t)window;
 		return targetWindow->GetY ();
 		
 	}
 	
 	
-	void lime_window_move (intptr_t window, int x, int y) {
+	void lime_window_move (double window, int x, int y) {
 		
-		Window* targetWindow = (Window*)window;
+		Window* targetWindow = (Window*)(intptr_t)window;
 		targetWindow->Move (x, y);
 		
 	}
 	
 	
-	void lime_window_resize (intptr_t window, int width, int height) {
+	void lime_window_resize (double window, int width, int height) {
 		
-		Window* targetWindow = (Window*)window;
+		Window* targetWindow = (Window*)(intptr_t)window;
 		targetWindow->Resize (width, height);
 		
 	}
 	
 	
-	void lime_window_set_enable_text_events (intptr_t window, bool enabled) {
+	void lime_window_set_enable_text_events (double window, bool enabled) {
 		
-		Window* targetWindow = (Window*)window;
+		Window* targetWindow = (Window*)(intptr_t)window;
 		targetWindow->SetEnableTextEvents (enabled);
 		
 	}
 	
 	
-	bool lime_window_set_fullscreen (intptr_t window, bool fullscreen) {
+	bool lime_window_set_fullscreen (double window, bool fullscreen) {
 		
-		Window* targetWindow = (Window*)window;
+		Window* targetWindow = (Window*)(intptr_t)window;
 		return targetWindow->SetFullscreen (fullscreen);
 		
 	}
 	
 	
-	void lime_window_set_icon (intptr_t window, value buffer) {
+	void lime_window_set_icon (double window, value buffer) {
 		
-		Window* targetWindow = (Window*)window;
+		Window* targetWindow = (Window*)(intptr_t)window;
 		ImageBuffer imageBuffer = ImageBuffer (buffer);
 		targetWindow->SetIcon (&imageBuffer);
 		
 	}
 	
 	
-	bool lime_window_set_minimized (intptr_t window, bool fullscreen) {
+	bool lime_window_set_minimized (double window, bool fullscreen) {
 		
-		Window* targetWindow = (Window*)window;
+		Window* targetWindow = (Window*)(intptr_t)window;
 		return targetWindow->SetMinimized (fullscreen);
 		
 	}
 	
 	
-	HxString lime_window_set_title (intptr_t window, const char* title) {
+	HxString lime_window_set_title (double window, const char* title) {
 		
-		Window* targetWindow = (Window*)window;
+		Window* targetWindow = (Window*)(intptr_t)window;
 		return HxString (targetWindow->SetTitle (title));
 		
 	}

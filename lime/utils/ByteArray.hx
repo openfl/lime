@@ -1102,7 +1102,7 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	
 	
 	
-	private static var lime_bytes_from_data_pointer = System.loadPrime ("lime", "lime_bytes_from_data_pointer", "oio");
+	private static var lime_bytes_from_data_pointer = System.loadPrime ("lime", "lime_bytes_from_data_pointer", "dio");
 	private static var lime_bytes_get_data_pointer = System.loadPrime ("lime", "lime_bytes_get_data_pointer", "od");
 	private static var lime_bytes_read_file = System.loadPrime ("lime", "lime_bytes_read_file", "so");
 	
