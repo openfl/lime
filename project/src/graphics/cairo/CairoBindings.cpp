@@ -9,195 +9,195 @@
 namespace lime {
 	
 	
-	void lime_cairo_arc (intptr_t handle, double xc, double yc, double radius, double angle1, double angle2) {
+	void lime_cairo_arc (double handle, double xc, double yc, double radius, double angle1, double angle2) {
 		
-		cairo_arc ((cairo_t*)handle, xc, yc, radius, angle1, angle2);
-		
-	}
-	
-	
-	void lime_cairo_arc_negative (intptr_t handle, double xc, double yc, double radius, double angle1, double angle2) {
-		
-		cairo_arc_negative ((cairo_t*)handle, xc, yc, radius, angle1, angle2);
+		cairo_arc ((cairo_t*)(intptr_t)handle, xc, yc, radius, angle1, angle2);
 		
 	}
 	
 	
-	void lime_cairo_clip (intptr_t handle) {
+	void lime_cairo_arc_negative (double handle, double xc, double yc, double radius, double angle1, double angle2) {
 		
-		cairo_clip ((cairo_t*)handle);
-		
-	}
-	
-	
-	void lime_cairo_clip_extents (intptr_t handle, double x1, double y1, double x2, double y2) {
-		
-		cairo_clip_extents ((cairo_t*)handle, &x1, &y1, &x2, &y2);
+		cairo_arc_negative ((cairo_t*)(intptr_t)handle, xc, yc, radius, angle1, angle2);
 		
 	}
 	
 	
-	void lime_cairo_clip_preserve (intptr_t handle) {
+	void lime_cairo_clip (double handle) {
 		
-		cairo_clip_preserve ((cairo_t*)handle);
-		
-	}
-	
-	
-	void lime_cairo_close_path (intptr_t handle) {
-		
-		cairo_close_path ((cairo_t*)handle);
+		cairo_clip ((cairo_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	void lime_cairo_copy_page (intptr_t handle) {
+	void lime_cairo_clip_extents (double handle, double x1, double y1, double x2, double y2) {
 		
-		cairo_copy_page ((cairo_t*)handle);
-		
-	}
-	
-	
-	intptr_t lime_cairo_create (intptr_t surface) {
-		
-		return (intptr_t)cairo_create ((cairo_surface_t*)surface);
+		cairo_clip_extents ((cairo_t*)(intptr_t)handle, &x1, &y1, &x2, &y2);
 		
 	}
 	
 	
-	void lime_cairo_curve_to (intptr_t handle, double x1, double y1, double x2, double y2, double x3, double y3) {
+	void lime_cairo_clip_preserve (double handle) {
 		
-		cairo_curve_to ((cairo_t*)handle, x1, y1, x2, y2, x3, y3);
-		
-	}
-	
-	
-	void lime_cairo_destroy (intptr_t handle) {
-		
-		cairo_destroy ((cairo_t*)handle);
+		cairo_clip_preserve ((cairo_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	void lime_cairo_fill (intptr_t handle) {
+	void lime_cairo_close_path (double handle) {
 		
-		cairo_fill ((cairo_t*)handle);
-		
-	}
-	
-	
-	void lime_cairo_fill_extents (intptr_t handle, double x1, double y1, double x2, double y2) {
-		
-		cairo_fill_extents ((cairo_t*)handle, &x1, &y1, &x2, &y2);
+		cairo_close_path ((cairo_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	void lime_cairo_fill_preserve (intptr_t handle) {
+	void lime_cairo_copy_page (double handle) {
 		
-		cairo_fill_preserve ((cairo_t*)handle);
-		
-	}
-	
-	void lime_cairo_font_face_destroy (intptr_t handle) {
-		
-		cairo_font_face_destroy ((cairo_font_face_t*)handle);
+		cairo_copy_page ((cairo_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	int lime_cairo_font_face_get_reference_count (intptr_t handle) {
+	double lime_cairo_create (double surface) {
 		
-		return cairo_font_face_get_reference_count ((cairo_font_face_t*)handle);
-		
-	}
-	
-	
-	void lime_cairo_font_face_reference (intptr_t handle) {
-		
-		cairo_font_face_reference ((cairo_font_face_t*)handle);
+		return (intptr_t)cairo_create ((cairo_surface_t*)(intptr_t)surface);
 		
 	}
 	
 	
-	int lime_cairo_font_face_status (intptr_t handle) {
+	void lime_cairo_curve_to (double handle, double x1, double y1, double x2, double y2, double x3, double y3) {
 		
-		return cairo_font_face_status ((cairo_font_face_t*)handle);
+		cairo_curve_to ((cairo_t*)(intptr_t)handle, x1, y1, x2, y2, x3, y3);
 		
 	}
 	
 	
-	intptr_t lime_cairo_font_options_create () {
+	void lime_cairo_destroy (double handle) {
+		
+		cairo_destroy ((cairo_t*)(intptr_t)handle);
+		
+	}
+	
+	
+	void lime_cairo_fill (double handle) {
+		
+		cairo_fill ((cairo_t*)(intptr_t)handle);
+		
+	}
+	
+	
+	void lime_cairo_fill_extents (double handle, double x1, double y1, double x2, double y2) {
+		
+		cairo_fill_extents ((cairo_t*)(intptr_t)handle, &x1, &y1, &x2, &y2);
+		
+	}
+	
+	
+	void lime_cairo_fill_preserve (double handle) {
+		
+		cairo_fill_preserve ((cairo_t*)(intptr_t)handle);
+		
+	}
+	
+	void lime_cairo_font_face_destroy (double handle) {
+		
+		cairo_font_face_destroy ((cairo_font_face_t*)(intptr_t)handle);
+		
+	}
+	
+	
+	int lime_cairo_font_face_get_reference_count (double handle) {
+		
+		return cairo_font_face_get_reference_count ((cairo_font_face_t*)(intptr_t)handle);
+		
+	}
+	
+	
+	void lime_cairo_font_face_reference (double handle) {
+		
+		cairo_font_face_reference ((cairo_font_face_t*)(intptr_t)handle);
+		
+	}
+	
+	
+	int lime_cairo_font_face_status (double handle) {
+		
+		return cairo_font_face_status ((cairo_font_face_t*)(intptr_t)handle);
+		
+	}
+	
+	
+	double lime_cairo_font_options_create () {
 		
 		return (intptr_t)cairo_font_options_create ();
 		
 	}
 	
 	
-	void lime_cairo_font_options_destroy (intptr_t handle) {
+	void lime_cairo_font_options_destroy (double handle) {
 		
-		cairo_font_options_destroy ((cairo_font_options_t*)handle);
-		
-	}
-	
-	
-	int lime_cairo_font_options_get_antialias (intptr_t handle) {
-		
-		return cairo_font_options_get_antialias ((cairo_font_options_t*)handle);
+		cairo_font_options_destroy ((cairo_font_options_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	int lime_cairo_font_options_get_hint_metrics (intptr_t handle) {
+	int lime_cairo_font_options_get_antialias (double handle) {
 		
-		return cairo_font_options_get_hint_metrics ((cairo_font_options_t*)handle);
-		
-	}
-	
-	
-	int lime_cairo_font_options_get_hint_style (intptr_t handle) {
-		
-		return cairo_font_options_get_hint_style ((cairo_font_options_t*)handle);
+		return cairo_font_options_get_antialias ((cairo_font_options_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	int lime_cairo_font_options_get_subpixel_order (intptr_t handle) {
+	int lime_cairo_font_options_get_hint_metrics (double handle) {
 		
-		return cairo_font_options_get_subpixel_order ((cairo_font_options_t*)handle);
-		
-	}
-	
-	
-	void lime_cairo_font_options_set_antialias (intptr_t handle, int v) {
-		
-		cairo_font_options_set_antialias ((cairo_font_options_t*)handle, (cairo_antialias_t)v);
+		return cairo_font_options_get_hint_metrics ((cairo_font_options_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	void lime_cairo_font_options_set_hint_metrics (intptr_t handle, int v) {
+	int lime_cairo_font_options_get_hint_style (double handle) {
 		
-		cairo_font_options_set_hint_metrics ((cairo_font_options_t*)handle, (cairo_hint_metrics_t)v);
-		
-	}
-	
-	
-	void lime_cairo_font_options_set_hint_style (intptr_t handle, int v) {
-		
-		cairo_font_options_set_hint_style ((cairo_font_options_t*)handle, (cairo_hint_style_t)v);
+		return cairo_font_options_get_hint_style ((cairo_font_options_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	void lime_cairo_font_options_set_subpixel_order (intptr_t handle, int v) {
+	int lime_cairo_font_options_get_subpixel_order (double handle) {
 		
-		cairo_font_options_set_subpixel_order ((cairo_font_options_t*)handle, (cairo_subpixel_order_t)v);
+		return cairo_font_options_get_subpixel_order ((cairo_font_options_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	intptr_t lime_cairo_ft_font_face_create (double face, int flags) {
+	void lime_cairo_font_options_set_antialias (double handle, int v) {
+		
+		cairo_font_options_set_antialias ((cairo_font_options_t*)(intptr_t)handle, (cairo_antialias_t)v);
+		
+	}
+	
+	
+	void lime_cairo_font_options_set_hint_metrics (double handle, int v) {
+		
+		cairo_font_options_set_hint_metrics ((cairo_font_options_t*)(intptr_t)handle, (cairo_hint_metrics_t)v);
+		
+	}
+	
+	
+	void lime_cairo_font_options_set_hint_style (double handle, int v) {
+		
+		cairo_font_options_set_hint_style ((cairo_font_options_t*)(intptr_t)handle, (cairo_hint_style_t)v);
+		
+	}
+	
+	
+	void lime_cairo_font_options_set_subpixel_order (double handle, int v) {
+		
+		cairo_font_options_set_subpixel_order ((cairo_font_options_t*)(intptr_t)handle, (cairo_subpixel_order_t)v);
+		
+	}
+	
+	
+	double lime_cairo_ft_font_face_create (double face, int flags) {
 		
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)(intptr_t)face;
@@ -209,31 +209,31 @@ namespace lime {
 	}
 	
 	
-	int lime_cairo_get_antialias (intptr_t handle) {
+	int lime_cairo_get_antialias (double handle) {
 		
-		return cairo_get_antialias ((cairo_t*)handle);
+		return cairo_get_antialias ((cairo_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	value lime_cairo_get_current_point (intptr_t handle) {
+	value lime_cairo_get_current_point (double handle) {
 		
 		double x, y;
-		cairo_get_current_point ((cairo_t*)handle, &x, &y);
+		cairo_get_current_point ((cairo_t*)(intptr_t)handle, &x, &y);
 		Vector2 vec2 = Vector2 (x, y);
 		return vec2.Value ();
 		
 	}
 	
 	
-	value lime_cairo_get_dash (intptr_t handle) {
+	value lime_cairo_get_dash (double handle) {
 		
-		int length = cairo_get_dash_count ((cairo_t*)handle);
+		int length = cairo_get_dash_count ((cairo_t*)(intptr_t)handle);
 		
 		double* dashes = new double[length];
 		double offset;
 		
-		cairo_get_dash ((cairo_t*)handle, dashes, &offset);
+		cairo_get_dash ((cairo_t*)(intptr_t)handle, dashes, &offset);
 		
 		value result = alloc_array (length);
 		
@@ -249,470 +249,470 @@ namespace lime {
 	}
 	
 	
-	int lime_cairo_get_dash_count (intptr_t handle) {
+	int lime_cairo_get_dash_count (double handle) {
 		
-		return cairo_get_dash_count ((cairo_t*)handle);
-		
-	}
-	
-	
-	int lime_cairo_get_fill_rule (intptr_t handle) {
-		
-		return cairo_get_fill_rule ((cairo_t*)handle);
+		return cairo_get_dash_count ((cairo_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	intptr_t lime_cairo_get_font_face (intptr_t handle) {
+	int lime_cairo_get_fill_rule (double handle) {
 		
-		return (intptr_t)cairo_get_font_face ((cairo_t*)handle);
+		return cairo_get_fill_rule ((cairo_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	intptr_t lime_cairo_get_font_options (intptr_t handle) {
+	double lime_cairo_get_font_face (double handle) {
+		
+		return (intptr_t)cairo_get_font_face ((cairo_t*)(intptr_t)handle);
+		
+	}
+	
+	
+	double lime_cairo_get_font_options (double handle) {
 		
 		cairo_font_options_t *options = 0;
-		cairo_get_font_options ((cairo_t*)handle, options);
+		cairo_get_font_options ((cairo_t*)(intptr_t)handle, options);
 		return (intptr_t)options;
 		
 	}
 	
 	
-	intptr_t lime_cairo_get_group_target (intptr_t handle) {
+	double lime_cairo_get_group_target (double handle) {
 		
-		return (intptr_t)cairo_get_group_target ((cairo_t*)handle);
-		
-	}
-	
-	
-	int lime_cairo_get_line_cap (intptr_t handle) {
-		
-		return cairo_get_line_cap ((cairo_t*)handle);
+		return (intptr_t)cairo_get_group_target ((cairo_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	int lime_cairo_get_line_join (intptr_t handle) {
+	int lime_cairo_get_line_cap (double handle) {
 		
-		return cairo_get_line_join ((cairo_t*)handle);
-		
-	}
-	
-	
-	double lime_cairo_get_line_width (intptr_t handle) {
-		
-		return cairo_get_line_width ((cairo_t*)handle);
+		return cairo_get_line_cap ((cairo_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	value lime_cairo_get_matrix (intptr_t handle) {
+	int lime_cairo_get_line_join (double handle) {
+		
+		return cairo_get_line_join ((cairo_t*)(intptr_t)handle);
+		
+	}
+	
+	
+	double lime_cairo_get_line_width (double handle) {
+		
+		return cairo_get_line_width ((cairo_t*)(intptr_t)handle);
+		
+	}
+	
+	
+	value lime_cairo_get_matrix (double handle) {
 		
 		cairo_matrix_t cm;
-		cairo_get_matrix ((cairo_t*)handle, &cm);
+		cairo_get_matrix ((cairo_t*)(intptr_t)handle, &cm);
 		Matrix3 mat3 = Matrix3 (cm.xx, cm.yx, cm.xy, cm.yy, cm.x0, cm.y0);
 		return mat3.Value ();
 		
 	}
 	
 	
-	double lime_cairo_get_miter_limit (intptr_t handle) {
+	double lime_cairo_get_miter_limit (double handle) {
 		
-		return cairo_get_miter_limit ((cairo_t*)handle);
-		
-	}
-	
-	
-	int lime_cairo_get_operator (intptr_t handle) {
-		
-		return cairo_get_operator ((cairo_t*)handle);
+		return cairo_get_miter_limit ((cairo_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	int lime_cairo_get_reference_count (intptr_t handle) {
+	int lime_cairo_get_operator (double handle) {
 		
-		return cairo_get_reference_count ((cairo_t*)handle);
-		
-	}
-	
-	
-	intptr_t lime_cairo_get_source (intptr_t handle) {
-		
-		return (intptr_t)cairo_get_source ((cairo_t*)handle);
+		return cairo_get_operator ((cairo_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	intptr_t lime_cairo_get_target (intptr_t handle) {
+	int lime_cairo_get_reference_count (double handle) {
 		
-		return (intptr_t)cairo_get_target ((cairo_t*)handle);
-		
-	}
-	
-	
-	double lime_cairo_get_tolerance (intptr_t handle) {
-		
-		return cairo_get_tolerance ((cairo_t*)handle);
+		return cairo_get_reference_count ((cairo_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	bool lime_cairo_has_current_point (intptr_t handle) {
+	double lime_cairo_get_source (double handle) {
 		
-		return cairo_has_current_point ((cairo_t*)handle);
-		
-	}
-	
-	
-	void lime_cairo_identity_matrix (intptr_t handle) {
-		
-		cairo_identity_matrix ((cairo_t*)handle);
+		return (intptr_t)cairo_get_source ((cairo_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	intptr_t lime_cairo_image_surface_create (int format, int width, int height) {
+	double lime_cairo_get_target (double handle) {
+		
+		return (intptr_t)cairo_get_target ((cairo_t*)(intptr_t)handle);
+		
+	}
+	
+	
+	double lime_cairo_get_tolerance (double handle) {
+		
+		return cairo_get_tolerance ((cairo_t*)(intptr_t)handle);
+		
+	}
+	
+	
+	bool lime_cairo_has_current_point (double handle) {
+		
+		return cairo_has_current_point ((cairo_t*)(intptr_t)handle);
+		
+	}
+	
+	
+	void lime_cairo_identity_matrix (double handle) {
+		
+		cairo_identity_matrix ((cairo_t*)(intptr_t)handle);
+		
+	}
+	
+	
+	double lime_cairo_image_surface_create (int format, int width, int height) {
 		
 		return (intptr_t)cairo_image_surface_create ((cairo_format_t)format, width, height);
 		
 	}
 	
 	
-	intptr_t lime_cairo_image_surface_create_for_data (intptr_t data, int format, int width, int height, int stride) {
+	double lime_cairo_image_surface_create_for_data (double data, int format, int width, int height, int stride) {
 		
-		return (intptr_t)cairo_image_surface_create_for_data ((unsigned char*)data, (cairo_format_t)format, width, height, stride);
-		
-	}
-	
-	
-	intptr_t lime_cairo_image_surface_get_data (intptr_t handle) {
-		
-		return (intptr_t)cairo_image_surface_get_data ((cairo_surface_t*)handle);
+		return (intptr_t)cairo_image_surface_create_for_data ((unsigned char*)(intptr_t)data, (cairo_format_t)format, width, height, stride);
 		
 	}
 	
 	
-	int lime_cairo_image_surface_get_format (intptr_t handle) {
+	double lime_cairo_image_surface_get_data (double handle) {
 		
-		return (int)cairo_image_surface_get_format ((cairo_surface_t*)handle);
-		
-	}
-	
-	
-	int lime_cairo_image_surface_get_height (intptr_t handle) {
-		
-		return cairo_image_surface_get_height ((cairo_surface_t*)handle);
+		return (intptr_t)cairo_image_surface_get_data ((cairo_surface_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	int lime_cairo_image_surface_get_stride (intptr_t handle) {
+	int lime_cairo_image_surface_get_format (double handle) {
 		
-		return cairo_image_surface_get_stride ((cairo_surface_t*)handle);
-		
-	}
-	
-	
-	int lime_cairo_image_surface_get_width (intptr_t handle) {
-		
-		return cairo_image_surface_get_width ((cairo_surface_t*)handle);
+		return (int)cairo_image_surface_get_format ((cairo_surface_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	bool lime_cairo_in_clip (intptr_t handle, double x, double y) {
+	int lime_cairo_image_surface_get_height (double handle) {
 		
-		return cairo_in_clip ((cairo_t*)handle, x, y);
-		
-	}
-	
-	
-	bool lime_cairo_in_fill (intptr_t handle, double x, double y) {
-		
-		return cairo_in_fill ((cairo_t*)handle, x, y);
+		return cairo_image_surface_get_height ((cairo_surface_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	bool lime_cairo_in_stroke (intptr_t handle, double x, double y) {
+	int lime_cairo_image_surface_get_stride (double handle) {
 		
-		return cairo_in_stroke ((cairo_t*)handle, x, y);
-		
-	}
-	
-	
-	void lime_cairo_line_to (intptr_t handle, double x, double y) {
-		
-		cairo_line_to ((cairo_t*)handle, x, y);
+		return cairo_image_surface_get_stride ((cairo_surface_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	void lime_cairo_mask (intptr_t handle, intptr_t pattern) {
+	int lime_cairo_image_surface_get_width (double handle) {
 		
-		cairo_mask ((cairo_t*)handle, (cairo_pattern_t*)pattern);
-		
-	}
-	
-	
-	void lime_cairo_mask_surface (intptr_t handle, intptr_t surface, double x, double y) {
-		
-		cairo_mask_surface ((cairo_t*)handle, (cairo_surface_t*)surface, x, y);
+		return cairo_image_surface_get_width ((cairo_surface_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	void lime_cairo_move_to (intptr_t handle, double x, double y) {
+	bool lime_cairo_in_clip (double handle, double x, double y) {
 		
-		cairo_move_to ((cairo_t*)handle, x, y);
-		
-	}
-	
-	
-	void lime_cairo_new_path (intptr_t handle) {
-		
-		cairo_new_path ((cairo_t*)handle);
+		return cairo_in_clip ((cairo_t*)(intptr_t)handle, x, y);
 		
 	}
 	
 	
-	void lime_cairo_paint (intptr_t handle) {
+	bool lime_cairo_in_fill (double handle, double x, double y) {
 		
-		cairo_paint ((cairo_t*)handle);
-		
-	}
-	
-	
-	void lime_cairo_paint_with_alpha (intptr_t handle, double alpha) {
-		
-		cairo_paint_with_alpha ((cairo_t*)handle, alpha);
+		return cairo_in_fill ((cairo_t*)(intptr_t)handle, x, y);
 		
 	}
 	
 	
-	void lime_cairo_pattern_add_color_stop_rgb (intptr_t handle, double offset, double red, double green, double blue) {
+	bool lime_cairo_in_stroke (double handle, double x, double y) {
 		
-		cairo_pattern_add_color_stop_rgb ((cairo_pattern_t*)handle, offset, red, green, blue);
-		
-	}
-	
-	
-	void lime_cairo_pattern_add_color_stop_rgba (intptr_t handle, double offset, double red, double green, double blue, double alpha) {
-		
-		cairo_pattern_add_color_stop_rgba ((cairo_pattern_t*)handle, offset, red, green, blue, alpha);
+		return cairo_in_stroke ((cairo_t*)(intptr_t)handle, x, y);
 		
 	}
 	
 	
-	intptr_t lime_cairo_pattern_create_for_surface (intptr_t surface) {
+	void lime_cairo_line_to (double handle, double x, double y) {
 		
-		return (intptr_t)cairo_pattern_create_for_surface ((cairo_surface_t*)surface);
+		cairo_line_to ((cairo_t*)(intptr_t)handle, x, y);
 		
 	}
 	
 	
-	intptr_t lime_cairo_pattern_create_linear (double x0, double y0, double x1, double y1) {
+	void lime_cairo_mask (double handle, double pattern) {
+		
+		cairo_mask ((cairo_t*)(intptr_t)handle, (cairo_pattern_t*)(intptr_t)pattern);
+		
+	}
+	
+	
+	void lime_cairo_mask_surface (double handle, double surface, double x, double y) {
+		
+		cairo_mask_surface ((cairo_t*)(intptr_t)handle, (cairo_surface_t*)(intptr_t)surface, x, y);
+		
+	}
+	
+	
+	void lime_cairo_move_to (double handle, double x, double y) {
+		
+		cairo_move_to ((cairo_t*)(intptr_t)handle, x, y);
+		
+	}
+	
+	
+	void lime_cairo_new_path (double handle) {
+		
+		cairo_new_path ((cairo_t*)(intptr_t)handle);
+		
+	}
+	
+	
+	void lime_cairo_paint (double handle) {
+		
+		cairo_paint ((cairo_t*)(intptr_t)handle);
+		
+	}
+	
+	
+	void lime_cairo_paint_with_alpha (double handle, double alpha) {
+		
+		cairo_paint_with_alpha ((cairo_t*)(intptr_t)handle, alpha);
+		
+	}
+	
+	
+	void lime_cairo_pattern_add_color_stop_rgb (double handle, double offset, double red, double green, double blue) {
+		
+		cairo_pattern_add_color_stop_rgb ((cairo_pattern_t*)(intptr_t)handle, offset, red, green, blue);
+		
+	}
+	
+	
+	void lime_cairo_pattern_add_color_stop_rgba (double handle, double offset, double red, double green, double blue, double alpha) {
+		
+		cairo_pattern_add_color_stop_rgba ((cairo_pattern_t*)(intptr_t)handle, offset, red, green, blue, alpha);
+		
+	}
+	
+	
+	double lime_cairo_pattern_create_for_surface (double surface) {
+		
+		return (intptr_t)cairo_pattern_create_for_surface ((cairo_surface_t*)(intptr_t)surface);
+		
+	}
+	
+	
+	double lime_cairo_pattern_create_linear (double x0, double y0, double x1, double y1) {
 		
 		return (intptr_t)cairo_pattern_create_linear (x0, y0, x1, y1);
 		
 	}
 	
 	
-	intptr_t lime_cairo_pattern_create_radial (double cx0, double cy0, double radius0, double cx1, double cy1, double radius1) {
+	double lime_cairo_pattern_create_radial (double cx0, double cy0, double radius0, double cx1, double cy1, double radius1) {
 		
 		return (intptr_t)cairo_pattern_create_radial (cx0, cy0, radius0, cx1, cy1, radius1);
 		
 	}
 	
 	
-	intptr_t lime_cairo_pattern_create_rgb (double r, double g, double b) {
+	double lime_cairo_pattern_create_rgb (double r, double g, double b) {
 		
 		return (intptr_t)cairo_pattern_create_rgb (r, g, b);
 		
 	}
 	
 	
-	intptr_t lime_cairo_pattern_create_rgba (double r, double g, double b, double a) {
+	double lime_cairo_pattern_create_rgba (double r, double g, double b, double a) {
 		
 		return (intptr_t)cairo_pattern_create_rgba (r, g, b, a);
 		
 	}
 	
 	
-	void lime_cairo_pattern_destroy (intptr_t handle) {
+	void lime_cairo_pattern_destroy (double handle) {
 		
-		cairo_pattern_destroy ((cairo_pattern_t*)handle);
+		cairo_pattern_destroy ((cairo_pattern_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	int lime_cairo_pattern_get_color_stop_count (intptr_t handle) {
+	int lime_cairo_pattern_get_color_stop_count (double handle) {
 		
 		int count;
-		return cairo_pattern_get_color_stop_count ((cairo_pattern_t*)handle, &count);
+		return cairo_pattern_get_color_stop_count ((cairo_pattern_t*)(intptr_t)handle, &count);
 		return count;
 		
 	}
 	
 	
-	int lime_cairo_pattern_get_extend (intptr_t handle) {
+	int lime_cairo_pattern_get_extend (double handle) {
 		
-		return cairo_pattern_get_extend ((cairo_pattern_t*)handle);
-		
-	}
-	
-	
-	int lime_cairo_pattern_get_filter (intptr_t handle) {
-		
-		return cairo_pattern_get_filter ((cairo_pattern_t*)handle);
+		return cairo_pattern_get_extend ((cairo_pattern_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	value lime_cairo_pattern_get_matrix (intptr_t handle) {
+	int lime_cairo_pattern_get_filter (double handle) {
+		
+		return cairo_pattern_get_filter ((cairo_pattern_t*)(intptr_t)handle);
+		
+	}
+	
+	
+	value lime_cairo_pattern_get_matrix (double handle) {
 		
 		cairo_matrix_t cm;
-		cairo_pattern_get_matrix ((cairo_pattern_t*)handle, &cm);
+		cairo_pattern_get_matrix ((cairo_pattern_t*)(intptr_t)handle, &cm);
 		Matrix3 mat3 = Matrix3 (cm.xx, cm.yx, cm.xy, cm.yy, cm.x0, cm.y0);
 		return mat3.Value ();
 		
 	}
 	
 	
-	void lime_cairo_pattern_set_extend (intptr_t handle, int extend) {
+	void lime_cairo_pattern_set_extend (double handle, int extend) {
 		
-		cairo_pattern_set_extend ((cairo_pattern_t*)handle, (cairo_extend_t)extend);
-		
-	}
-	
-	
-	void lime_cairo_pattern_set_filter (intptr_t handle, int filter) {
-		
-		cairo_pattern_set_filter ((cairo_pattern_t*)handle, (cairo_filter_t)filter);
+		cairo_pattern_set_extend ((cairo_pattern_t*)(intptr_t)handle, (cairo_extend_t)extend);
 		
 	}
 	
 	
-	void lime_cairo_pattern_set_matrix (intptr_t handle, value matrix) {
+	void lime_cairo_pattern_set_filter (double handle, int filter) {
+		
+		cairo_pattern_set_filter ((cairo_pattern_t*)(intptr_t)handle, (cairo_filter_t)filter);
+		
+	}
+	
+	
+	void lime_cairo_pattern_set_matrix (double handle, value matrix) {
 		
 		Matrix3 mat3 = Matrix3 (matrix);
 		
 		cairo_matrix_t cm;
 		cairo_matrix_init (&cm, mat3.a, mat3.b, mat3.c, mat3.d, mat3.tx, mat3.ty);
 		
-		cairo_pattern_set_matrix ((cairo_pattern_t*)handle, &cm);
+		cairo_pattern_set_matrix ((cairo_pattern_t*)(intptr_t)handle, &cm);
 		
 	}
 	
 	
-	intptr_t lime_cairo_pop_group (intptr_t handle) {
+	double lime_cairo_pop_group (double handle) {
 		
-		return (intptr_t)cairo_pop_group ((cairo_t*)handle);
-		
-	}
-	
-	
-	void lime_cairo_pop_group_to_source (intptr_t handle) {
-		
-		cairo_pop_group_to_source ((cairo_t*)handle);
+		return (intptr_t)cairo_pop_group ((cairo_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	void lime_cairo_push_group (intptr_t handle) {
+	void lime_cairo_pop_group_to_source (double handle) {
 		
-		cairo_push_group ((cairo_t*)handle);
-		
-	}
-	
-	
-	void lime_cairo_push_group_with_content (intptr_t handle, int content) {
-		
-		cairo_push_group_with_content ((cairo_t*)handle, (cairo_content_t)content);
+		cairo_pop_group_to_source ((cairo_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	void lime_cairo_rectangle (intptr_t handle, double x, double y, double width, double height) {
+	void lime_cairo_push_group (double handle) {
 		
-		cairo_rectangle ((cairo_t*)handle, x, y, width, height);
-		
-	}
-	
-	
-	void lime_cairo_reference (intptr_t handle) {
-		
-		cairo_reference ((cairo_t*)handle);
+		cairo_push_group ((cairo_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	void lime_cairo_rel_curve_to (intptr_t handle, double dx1, double dy1, double dx2, double dy2, double dx3, double dy3) {
+	void lime_cairo_push_group_with_content (double handle, int content) {
 		
-		cairo_rel_curve_to ((cairo_t*)handle, dx1, dy1, dx2, dy2, dx3, dy3);
-		
-	}
-	
-	
-	void lime_cairo_rel_line_to (intptr_t handle, double dx, double dy) {
-		
-		cairo_rel_line_to ((cairo_t*)handle, dx, dy);
+		cairo_push_group_with_content ((cairo_t*)(intptr_t)handle, (cairo_content_t)content);
 		
 	}
 	
 	
-	void lime_cairo_rel_move_to (intptr_t handle, double dx, double dy) {
+	void lime_cairo_rectangle (double handle, double x, double y, double width, double height) {
 		
-		cairo_rel_move_to ((cairo_t*)handle, dx, dy);
-		
-	}
-	
-	
-	void lime_cairo_reset_clip (intptr_t handle) {
-		
-		cairo_reset_clip ((cairo_t*)handle);
+		cairo_rectangle ((cairo_t*)(intptr_t)handle, x, y, width, height);
 		
 	}
 	
 	
-	void lime_cairo_restore (intptr_t handle) {
+	void lime_cairo_reference (double handle) {
 		
-		cairo_restore ((cairo_t*)handle);
-		
-	}
-	
-	
-	void lime_cairo_rotate (intptr_t handle, double amount) {
-		
-		cairo_rotate ((cairo_t*)handle, amount);
+		cairo_reference ((cairo_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	void lime_cairo_save (intptr_t handle) {
+	void lime_cairo_rel_curve_to (double handle, double dx1, double dy1, double dx2, double dy2, double dx3, double dy3) {
 		
-		cairo_save ((cairo_t*)handle);
-		
-	}
-	
-	
-	void lime_cairo_scale (intptr_t handle, double x, double y) {
-		
-		cairo_scale ((cairo_t*)handle, x, y);
+		cairo_rel_curve_to ((cairo_t*)(intptr_t)handle, dx1, dy1, dx2, dy2, dx3, dy3);
 		
 	}
 	
 	
-	void lime_cairo_set_antialias (intptr_t handle, int cap) {
+	void lime_cairo_rel_line_to (double handle, double dx, double dy) {
 		
-		cairo_set_antialias ((cairo_t*)handle, (cairo_antialias_t)cap);
+		cairo_rel_line_to ((cairo_t*)(intptr_t)handle, dx, dy);
 		
 	}
 	
 	
-	void lime_cairo_set_dash (intptr_t handle, value dash) {
+	void lime_cairo_rel_move_to (double handle, double dx, double dy) {
+		
+		cairo_rel_move_to ((cairo_t*)(intptr_t)handle, dx, dy);
+		
+	}
+	
+	
+	void lime_cairo_reset_clip (double handle) {
+		
+		cairo_reset_clip ((cairo_t*)(intptr_t)handle);
+		
+	}
+	
+	
+	void lime_cairo_restore (double handle) {
+		
+		cairo_restore ((cairo_t*)(intptr_t)handle);
+		
+	}
+	
+	
+	void lime_cairo_rotate (double handle, double amount) {
+		
+		cairo_rotate ((cairo_t*)(intptr_t)handle, amount);
+		
+	}
+	
+	
+	void lime_cairo_save (double handle) {
+		
+		cairo_save ((cairo_t*)(intptr_t)handle);
+		
+	}
+	
+	
+	void lime_cairo_scale (double handle, double x, double y) {
+		
+		cairo_scale ((cairo_t*)(intptr_t)handle, x, y);
+		
+	}
+	
+	
+	void lime_cairo_set_antialias (double handle, int cap) {
+		
+		cairo_set_antialias ((cairo_t*)(intptr_t)handle, (cairo_antialias_t)cap);
+		
+	}
+	
+	
+	void lime_cairo_set_dash (double handle, value dash) {
 		
 		int length = val_array_size (dash);
 		
@@ -724,193 +724,193 @@ namespace lime {
 			
 		}
 		
-		cairo_set_dash ((cairo_t*)handle, dashPattern, length, 0);
+		cairo_set_dash ((cairo_t*)(intptr_t)handle, dashPattern, length, 0);
 		delete dashPattern;
 		
 	}
 	
 	
-	void lime_cairo_set_font_face (intptr_t handle, intptr_t face) {
+	void lime_cairo_set_font_face (double handle, double face) {
 		
-		cairo_set_font_face ((cairo_t*)handle, (cairo_font_face_t*)face);
-		
-	}
-	
-	
-	void lime_cairo_set_font_options (intptr_t handle, intptr_t options) {
-		
-		cairo_set_font_options ((cairo_t*)handle, (cairo_font_options_t*)options);
+		cairo_set_font_face ((cairo_t*)(intptr_t)handle, (cairo_font_face_t*)(intptr_t)face);
 		
 	}
 	
 	
-	void lime_cairo_set_font_size (intptr_t handle, double size) {
+	void lime_cairo_set_font_options (double handle, double options) {
 		
-		cairo_set_font_size ((cairo_t*)handle, size);
-		
-	}
-	
-	
-	void lime_cairo_set_fill_rule (intptr_t handle, int cap) {
-		
-		cairo_set_fill_rule ((cairo_t*)handle, (cairo_fill_rule_t)cap);
+		cairo_set_font_options ((cairo_t*)(intptr_t)handle, (cairo_font_options_t*)(intptr_t)options);
 		
 	}
 	
 	
-	void lime_cairo_set_line_cap (intptr_t handle, int cap) {
+	void lime_cairo_set_font_size (double handle, double size) {
 		
-		cairo_set_line_cap ((cairo_t*)handle, (cairo_line_cap_t)cap);
-		
-	}
-	
-	
-	void lime_cairo_set_line_join (intptr_t handle, int join) {
-		
-		cairo_set_line_join ((cairo_t*)handle, (cairo_line_join_t)join);
+		cairo_set_font_size ((cairo_t*)(intptr_t)handle, size);
 		
 	}
 	
 	
-	void lime_cairo_set_line_width (intptr_t handle, double width) {
+	void lime_cairo_set_fill_rule (double handle, int cap) {
 		
-		cairo_set_line_width ((cairo_t*)handle, width);
+		cairo_set_fill_rule ((cairo_t*)(intptr_t)handle, (cairo_fill_rule_t)cap);
 		
 	}
 	
 	
-	void lime_cairo_set_matrix (intptr_t handle, value matrix) {
+	void lime_cairo_set_line_cap (double handle, int cap) {
+		
+		cairo_set_line_cap ((cairo_t*)(intptr_t)handle, (cairo_line_cap_t)cap);
+		
+	}
+	
+	
+	void lime_cairo_set_line_join (double handle, int join) {
+		
+		cairo_set_line_join ((cairo_t*)(intptr_t)handle, (cairo_line_join_t)join);
+		
+	}
+	
+	
+	void lime_cairo_set_line_width (double handle, double width) {
+		
+		cairo_set_line_width ((cairo_t*)(intptr_t)handle, width);
+		
+	}
+	
+	
+	void lime_cairo_set_matrix (double handle, value matrix) {
 		
 		Matrix3 mat3 = Matrix3 (matrix);
 		
 		cairo_matrix_t cm;
 		cairo_matrix_init (&cm, mat3.a, mat3.b, mat3.c, mat3.d, mat3.tx, mat3.ty);
 		
-		cairo_set_matrix ((cairo_t*)handle, &cm);
+		cairo_set_matrix ((cairo_t*)(intptr_t)handle, &cm);
 		
 	}
 	
 	
-	void lime_cairo_set_miter_limit (intptr_t handle, double miterLimit) {
+	void lime_cairo_set_miter_limit (double handle, double miterLimit) {
 		
-		cairo_set_miter_limit ((cairo_t*)handle, miterLimit);
-		
-	}
-	
-	
-	void lime_cairo_set_operator (intptr_t handle, int op) {
-		
-		cairo_set_operator ((cairo_t*)handle, (cairo_operator_t)op);
+		cairo_set_miter_limit ((cairo_t*)(intptr_t)handle, miterLimit);
 		
 	}
 	
 	
-	void lime_cairo_set_source (intptr_t handle, intptr_t pattern) {
+	void lime_cairo_set_operator (double handle, int op) {
 		
-		cairo_set_source ((cairo_t*)handle, (cairo_pattern_t*)pattern);
-		
-	}
-	
-	
-	void lime_cairo_set_source_rgb (intptr_t handle, double r, double g, double b) {
-		
-		cairo_set_source_rgb ((cairo_t*)handle, r, g, b);
+		cairo_set_operator ((cairo_t*)(intptr_t)handle, (cairo_operator_t)op);
 		
 	}
 	
 	
-	void lime_cairo_set_source_rgba (intptr_t handle, double r, double g, double b, double a) {
+	void lime_cairo_set_source (double handle, double pattern) {
 		
-		cairo_set_source_rgba ((cairo_t*)handle, r, g, b, a);
-		
-	}
-	
-	
-	void lime_cairo_set_source_surface (intptr_t handle, intptr_t surface, double x, double y) {
-		
-		cairo_set_source_surface ((cairo_t*)handle, (cairo_surface_t*)surface, x, y);
+		cairo_set_source ((cairo_t*)(intptr_t)handle, (cairo_pattern_t*)(intptr_t)pattern);
 		
 	}
 	
 	
-	void lime_cairo_set_tolerance (intptr_t handle, double tolerance) {
+	void lime_cairo_set_source_rgb (double handle, double r, double g, double b) {
 		
-		cairo_set_tolerance ((cairo_t*)handle, tolerance);
-		
-	}
-	
-	
-	void lime_cairo_show_page (intptr_t handle) {
-		
-		cairo_show_page ((cairo_t*)handle);
+		cairo_set_source_rgb ((cairo_t*)(intptr_t)handle, r, g, b);
 		
 	}
 	
 	
-	void lime_cairo_show_text (intptr_t handle, const char* text) {
+	void lime_cairo_set_source_rgba (double handle, double r, double g, double b, double a) {
 		
-		cairo_show_text ((cairo_t*)handle, (char*)text);
-		
-	}
-	
-	
-	int lime_cairo_status (intptr_t handle) {
-		
-		return cairo_status ((cairo_t*)handle);
+		cairo_set_source_rgba ((cairo_t*)(intptr_t)handle, r, g, b, a);
 		
 	}
 	
 	
-	void lime_cairo_stroke (intptr_t handle) {
+	void lime_cairo_set_source_surface (double handle, double surface, double x, double y) {
 		
-		cairo_stroke ((cairo_t*)handle);
-		
-	}
-	
-	
-	void lime_cairo_stroke_extents (intptr_t handle, double x1, double y1, double x2, double y2) {
-		
-		cairo_stroke_extents ((cairo_t*)handle, &x1, &y1, &x2, &y2);
+		cairo_set_source_surface ((cairo_t*)(intptr_t)handle, (cairo_surface_t*)(intptr_t)surface, x, y);
 		
 	}
 	
 	
-	void lime_cairo_stroke_preserve (intptr_t handle) {
+	void lime_cairo_set_tolerance (double handle, double tolerance) {
 		
-		cairo_stroke_preserve ((cairo_t*)handle);
-		
-	}
-	
-	
-	void lime_cairo_surface_destroy (intptr_t handle) {
-		
-		cairo_surface_destroy ((cairo_surface_t*)handle);
+		cairo_set_tolerance ((cairo_t*)(intptr_t)handle, tolerance);
 		
 	}
 	
 	
-	void lime_cairo_surface_flush (intptr_t handle) {
+	void lime_cairo_show_page (double handle) {
 		
-		cairo_surface_flush ((cairo_surface_t*)handle);
+		cairo_show_page ((cairo_t*)(intptr_t)handle);
 		
 	}
 	
 	
-	void lime_cairo_transform (intptr_t handle, value matrix) {
+	void lime_cairo_show_text (double handle, const char* text) {
+		
+		cairo_show_text ((cairo_t*)(intptr_t)handle, (char*)text);
+		
+	}
+	
+	
+	int lime_cairo_status (double handle) {
+		
+		return cairo_status ((cairo_t*)(intptr_t)handle);
+		
+	}
+	
+	
+	void lime_cairo_stroke (double handle) {
+		
+		cairo_stroke ((cairo_t*)(intptr_t)handle);
+		
+	}
+	
+	
+	void lime_cairo_stroke_extents (double handle, double x1, double y1, double x2, double y2) {
+		
+		cairo_stroke_extents ((cairo_t*)(intptr_t)handle, &x1, &y1, &x2, &y2);
+		
+	}
+	
+	
+	void lime_cairo_stroke_preserve (double handle) {
+		
+		cairo_stroke_preserve ((cairo_t*)(intptr_t)handle);
+		
+	}
+	
+	
+	void lime_cairo_surface_destroy (double handle) {
+		
+		cairo_surface_destroy ((cairo_surface_t*)(intptr_t)handle);
+		
+	}
+	
+	
+	void lime_cairo_surface_flush (double handle) {
+		
+		cairo_surface_flush ((cairo_surface_t*)(intptr_t)handle);
+		
+	}
+	
+	
+	void lime_cairo_transform (double handle, value matrix) {
 		
 		Matrix3 mat3 = Matrix3 (matrix);
 		
 		cairo_matrix_t cm;
 		cairo_matrix_init (&cm, mat3.a, mat3.b, mat3.c, mat3.d, mat3.tx, mat3.ty);
 		
-		cairo_transform ((cairo_t*)handle, &cm);
+		cairo_transform ((cairo_t*)(intptr_t)handle, &cm);
 		
 	}
 	
 	
-	void lime_cairo_translate (intptr_t handle, double x, double y) {
+	void lime_cairo_translate (double handle, double x, double y) {
 		
-		cairo_translate ((cairo_t*)handle, x, y);
+		cairo_translate ((cairo_t*)(intptr_t)handle, x, y);
 		
 	}
 	
