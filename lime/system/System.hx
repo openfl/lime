@@ -5,6 +5,8 @@ import lime.math.Rectangle;
 
 #if !macro
 import lime.app.Application;
+#else
+import haxe.macro.Expr;
 #end
 
 #if flash
@@ -181,7 +183,7 @@ class System {
 	public static function getDisplay (id:Int):Display {
 		
 		#if (cpp || neko || nodejs)
-		var displayInfo = lime_system_get_display (id);
+		var displayInfo = lime_system_get_display.call (id);
 		
 		if (displayInfo != null) {
 			
@@ -236,7 +238,7 @@ class System {
 		#elseif js
 		return cast Date.now ().getTime ();
 		#elseif !disable_cffi
-		return lime_system_get_timer ();
+		return lime_system_get_timer.call ();
 		#elseif cpp
 		return Std.int (untyped __global__.__time_stamp () * 1000);
 		#elseif sys
@@ -248,6 +250,14 @@ class System {
 	}
 	
 	
+	/**
+	 * Tries to load a native CFFI primitive on compatible platforms
+	 * @param	library	The name of the native library (such as "lime")
+	 * @param	method	The exported primitive method name
+	 * @param	args	The number of arguments
+	 * @param	lazy	Whether to load the symbol immediately, or to allow lazy loading
+	 * @return	The loaded method
+	 */
 	public static function load (library:String, method:String, args:Int = 0, lazy:Bool = false):Dynamic {
 		
 		#if (disable_cffi || macro)
@@ -387,6 +397,56 @@ class System {
 		return result;
 		
 	}
+	
+	
+	#if ((haxe >= 3.2) && !debug_cffi)
+	public static inline macro function loadPrime (library:Expr, method:Expr, signature:Expr) {
+		
+		return macro cpp.Prime.load ($library, $method, $signature);
+		
+	}
+	#else
+	public static function loadPrime (library:String, method:String, signature:String):Dynamic {
+		
+		var args = signature.length - 1;
+		
+		if (args > 5) {
+			
+			args = -1;
+			
+		}
+		
+		// TODO: Need a macro function for debug to work on C++
+		
+		#if (!debug_cffi || cpp)
+		
+		return { call: System.load (library, method, args) };
+		
+		#else
+		
+		var handle = System.load (library, method, args);
+		return { call: Reflect.makeVarArgs (function (args) {
+			
+			#if neko
+			Sys.println ('$library@$method');
+			#if debug_cffi_args
+			Sys.println (args);
+			#end
+			#else
+			trace ('$library@$method');
+			#if debug_cffi_args
+			trace (args);
+			#end
+			#end
+			
+			return Reflect.callMethod (handle, handle, args);
+			
+		}) };
+		
+		#end
+		
+	}
+	#end
 	
 	
 	private static function sysName ():String {
@@ -541,7 +601,7 @@ class System {
 	private static function get_applicationDirectory ():String {
 		
 		#if (cpp || neko || nodejs)
-		return lime_system_get_directory (SystemDirectory.APPLICATION, null, null);
+		return lime_system_get_directory.call (SystemDirectory.APPLICATION, null, null);
 		#elseif flash
 		if (Capabilities.playerType == "Desktop") {
 			
@@ -583,7 +643,7 @@ class System {
 		#end
 		
 		#if (cpp || neko || nodejs)
-		return lime_system_get_directory (SystemDirectory.APPLICATION_STORAGE, company, file);
+		return lime_system_get_directory.call (SystemDirectory.APPLICATION_STORAGE, company, file);
 		#elseif flash
 		if (Capabilities.playerType == "Desktop") {
 			
@@ -604,7 +664,7 @@ class System {
 	private static function get_desktopDirectory ():String {
 		
 		#if (cpp || neko || nodejs)
-		return lime_system_get_directory (SystemDirectory.DESKTOP, null, null);
+		return lime_system_get_directory.call (SystemDirectory.DESKTOP, null, null);
 		#elseif flash
 		if (Capabilities.playerType == "Desktop") {
 			
@@ -625,7 +685,7 @@ class System {
 	private static function get_documentsDirectory ():String {
 		
 		#if (cpp || neko || nodejs)
-		return lime_system_get_directory (SystemDirectory.DOCUMENTS, null, null);
+		return lime_system_get_directory.call (SystemDirectory.DOCUMENTS, null, null);
 		#elseif flash
 		if (Capabilities.playerType == "Desktop") {
 			
@@ -646,7 +706,7 @@ class System {
 	private static function get_fontsDirectory ():String {
 		
 		#if (cpp || neko || nodejs)
-		return lime_system_get_directory (SystemDirectory.FONTS, null, null);
+		return lime_system_get_directory.call (SystemDirectory.FONTS, null, null);
 		#else
 		return null;
 		#end
@@ -657,7 +717,7 @@ class System {
 	private static function get_numDisplays ():Int {
 		
 		#if (cpp || neko || nodejs)
-		return lime_system_get_num_displays ();
+		return lime_system_get_num_displays.call ();
 		#else
 		return 1;
 		#end
@@ -668,7 +728,7 @@ class System {
 	private static function get_userDirectory ():String {
 		
 		#if (cpp || neko || nodejs)
-		return lime_system_get_directory (SystemDirectory.USER, null, null);
+		return lime_system_get_directory.call (SystemDirectory.USER, null, null);
 		#elseif flash
 		if (Capabilities.playerType == "Desktop") {
 			
@@ -707,10 +767,10 @@ class System {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_system_get_directory = System.load ("lime", "lime_system_get_directory", 3);
-	private static var lime_system_get_display = System.load ("lime", "lime_system_get_display", 1);
-	private static var lime_system_get_num_displays = System.load ("lime", "lime_system_get_num_displays", 0);
-	private static var lime_system_get_timer = System.load ("lime", "lime_system_get_timer", 0);
+	private static var lime_system_get_directory = System.loadPrime ("lime", "lime_system_get_directory", "isss");
+	private static var lime_system_get_display = System.loadPrime ("lime", "lime_system_get_display", "io");
+	private static var lime_system_get_num_displays = System.loadPrime ("lime", "lime_system_get_num_displays", "i");
+	private static var lime_system_get_timer = System.loadPrime ("lime", "lime_system_get_timer", "d");
 	#end
 	
 	

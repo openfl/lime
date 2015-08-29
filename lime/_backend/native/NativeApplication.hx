@@ -57,33 +57,33 @@ class NativeApplication {
 	
 	public function create (config:Config):Void {
 		
-		handle = lime_application_create (null);
+		handle = lime_application_create.call (null);
 		
 	}
 	
 	
 	public function exec ():Int {
 		
-		lime_application_event_manager_register (handleApplicationEvent, applicationEventInfo);
-		lime_gamepad_event_manager_register (handleGamepadEvent, gamepadEventInfo);
-		lime_key_event_manager_register (handleKeyEvent, keyEventInfo);
-		lime_mouse_event_manager_register (handleMouseEvent, mouseEventInfo);
-		lime_render_event_manager_register (handleRenderEvent, renderEventInfo);
-		lime_text_event_manager_register (handleTextEvent, textEventInfo);
-		lime_touch_event_manager_register (handleTouchEvent, touchEventInfo);
-		lime_window_event_manager_register (handleWindowEvent, windowEventInfo);
+		lime_application_event_manager_register.call (handleApplicationEvent, applicationEventInfo);
+		lime_gamepad_event_manager_register.call (handleGamepadEvent, gamepadEventInfo);
+		lime_key_event_manager_register.call (handleKeyEvent, keyEventInfo);
+		lime_mouse_event_manager_register.call (handleMouseEvent, mouseEventInfo);
+		lime_render_event_manager_register.call (handleRenderEvent, renderEventInfo);
+		lime_text_event_manager_register.call (handleTextEvent, textEventInfo);
+		lime_touch_event_manager_register.call (handleTouchEvent, touchEventInfo);
+		lime_window_event_manager_register.call (handleWindowEvent, windowEventInfo);
 		
 		#if nodejs
 		
-		lime_application_init (handle);
+		lime_application_init.call (handle);
 		
 		var eventLoop = function () {
 			
-			var active = lime_application_update (handle);
+			var active = lime_application_update.call (handle);
 			
 			if (!active) {
 				
-				var result = lime_application_quit (handle);
+				var result = lime_application_quit.call (handle);
 				System.exit (result);
 				
 			}
@@ -97,7 +97,7 @@ class NativeApplication {
 		
 		#elseif (cpp || neko)
 		
-		var result = lime_application_exec (handle);
+		var result = lime_application_exec.call (handle);
 		parent.onExit.dispatch (result);
 		
 		return result;
@@ -449,7 +449,7 @@ class NativeApplication {
 	
 	public function setFrameRate (value:Float):Float {
 		
-		lime_application_set_frame_rate (handle, value);
+		lime_application_set_frame_rate.call (handle, value);
 		return frameRate = value;
 		
 	}
@@ -495,20 +495,20 @@ class NativeApplication {
 	}
 	
 	
-	private static var lime_application_create = System.load ("lime", "lime_application_create", 1);
-	private static var lime_application_event_manager_register = System.load ("lime", "lime_application_event_manager_register", 2);
-	private static var lime_application_exec = System.load ("lime", "lime_application_exec", 1);
-	private static var lime_application_init = System.load ("lime", "lime_application_init", 1);
-	private static var lime_application_set_frame_rate = System.load ("lime", "lime_application_set_frame_rate", 2);
-	private static var lime_application_update = System.load ("lime", "lime_application_update", 1);
-	private static var lime_application_quit = System.load ("lime", "lime_application_quit", 1);
-	private static var lime_gamepad_event_manager_register = System.load ("lime", "lime_gamepad_event_manager_register", 2);
-	private static var lime_key_event_manager_register = System.load ("lime", "lime_key_event_manager_register", 2);
-	private static var lime_mouse_event_manager_register = System.load ("lime", "lime_mouse_event_manager_register", 2);
-	private static var lime_render_event_manager_register = System.load ("lime", "lime_render_event_manager_register", 2);
-	private static var lime_text_event_manager_register = System.load ("lime", "lime_text_event_manager_register", 2);
-	private static var lime_touch_event_manager_register = System.load ("lime", "lime_touch_event_manager_register", 2);
-	private static var lime_window_event_manager_register = System.load ("lime", "lime_window_event_manager_register", 2);
+	private static var lime_application_create = System.loadPrime ("lime", "lime_application_create", "oo");
+	private static var lime_application_event_manager_register = System.loadPrime ("lime", "lime_application_event_manager_register", "oov");
+	private static var lime_application_exec = System.loadPrime ("lime", "lime_application_exec", "di");
+	private static var lime_application_init = System.loadPrime ("lime", "lime_application_init", "dv");
+	private static var lime_application_quit = System.loadPrime ("lime", "lime_application_quit", "di");
+	private static var lime_application_set_frame_rate = System.loadPrime ("lime", "lime_application_set_frame_rate", "ddv");
+	private static var lime_application_update = System.loadPrime ("lime", "lime_application_update", "db");
+	private static var lime_gamepad_event_manager_register = System.loadPrime ("lime", "lime_gamepad_event_manager_register", "oov");
+	private static var lime_key_event_manager_register = System.loadPrime ("lime", "lime_key_event_manager_register", "oov");
+	private static var lime_mouse_event_manager_register = System.loadPrime ("lime", "lime_mouse_event_manager_register", "oov");
+	private static var lime_render_event_manager_register = System.loadPrime ("lime", "lime_render_event_manager_register", "oov");
+	private static var lime_text_event_manager_register = System.loadPrime ("lime", "lime_text_event_manager_register", "oov");
+	private static var lime_touch_event_manager_register = System.loadPrime ("lime", "lime_touch_event_manager_register", "oov");
+	private static var lime_window_event_manager_register = System.loadPrime ("lime", "lime_window_event_manager_register", "oov");
 	
 	
 }

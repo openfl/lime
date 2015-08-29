@@ -15,7 +15,7 @@ class JPEG {
 		
 		#if (cpp || neko || nodejs)
 		
-		var bufferData = lime_jpeg_decode_bytes (bytes, decodeData);
+		var bufferData = lime_jpeg_decode_bytes.call (bytes, decodeData);
 		
 		if (bufferData != null) {
 			
@@ -36,7 +36,7 @@ class JPEG {
 		
 		#if (cpp || neko || nodejs)
 		
-		var bufferData = lime_jpeg_decode_file (path, decodeData);
+		var bufferData = lime_jpeg_decode_file.call (path, decodeData);
 		
 		if (bufferData != null) {
 			
@@ -69,7 +69,7 @@ class JPEG {
 		
 		#elseif (sys && (!disable_cffi || !format))
 			
-			var data:Dynamic = lime_image_encode (image.buffer, 1, quality);
+			var data:Dynamic = lime_image_encode.call (image.buffer, 1, quality);
 			var bytes = @:privateAccess new Bytes (data.length, data.b);
 			return ByteArray.fromBytes (bytes);
 			
@@ -88,9 +88,9 @@ class JPEG {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_jpeg_decode_bytes:ByteArray -> Bool -> Dynamic = System.load ("lime", "lime_jpeg_decode_bytes", 2);
-	private static var lime_jpeg_decode_file:String -> Bool -> Dynamic = System.load ("lime", "lime_jpeg_decode_file", 2);
-	private static var lime_image_encode = System.load ("lime", "lime_image_encode", 3);
+	private static var lime_jpeg_decode_bytes = System.loadPrime ("lime", "lime_jpeg_decode_bytes", "obo");
+	private static var lime_jpeg_decode_file = System.loadPrime ("lime", "lime_jpeg_decode_file", "sbo");
+	private static var lime_image_encode = System.loadPrime ("lime", "lime_image_encode", "oiio");
 	#end
 	
 	

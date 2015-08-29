@@ -42,15 +42,15 @@ class FileDialog {
 				
 				case OPEN:
 					
-					worker.sendComplete (lime_file_dialog_open_file (filter, defaultPath));
+					worker.sendComplete (lime_file_dialog_open_file.call (filter, defaultPath));
 				
 				case OPEN_MULTIPLE:
 					
-					worker.sendComplete (lime_file_dialog_open_files (filter, defaultPath));
+					worker.sendComplete (lime_file_dialog_open_files.call (filter, defaultPath));
 				
 				case SAVE:
 					
-					worker.sendComplete (lime_file_dialog_save_file (filter, defaultPath));
+					worker.sendComplete (lime_file_dialog_save_file.call (filter, defaultPath));
 				
 			}
 			
@@ -113,7 +113,7 @@ class FileDialog {
 		
 		worker.doWork.add (function (_) {
 			
-			worker.sendComplete (lime_file_dialog_open_file (filter, defaultPath));
+			worker.sendComplete (lime_file_dialog_open_file.call (filter, defaultPath));
 			
 		});
 		
@@ -156,7 +156,7 @@ class FileDialog {
 		
 		worker.doWork.add (function (_) {
 			
-			worker.sendComplete (lime_file_dialog_save_file (filter, defaultPath));
+			worker.sendComplete (lime_file_dialog_save_file.call (filter, defaultPath));
 			
 		});
 		
@@ -199,9 +199,9 @@ class FileDialog {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_file_dialog_open_file = System.load ("lime", "lime_file_dialog_open_file", 2);
-	private static var lime_file_dialog_open_files = System.load ("lime", "lime_file_dialog_open_files", 2);
-	private static var lime_file_dialog_save_file = System.load ("lime", "lime_file_dialog_save_file", 2);
+	private static var lime_file_dialog_open_file = System.loadPrime ("lime", "lime_file_dialog_open_file", "sss");
+	private static var lime_file_dialog_open_files = System.loadPrime ("lime", "lime_file_dialog_open_files", "sso");
+	private static var lime_file_dialog_save_file = System.loadPrime ("lime", "lime_file_dialog_save_file", "sss");
 	#end
 	
 	

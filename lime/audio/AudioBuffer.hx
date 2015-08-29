@@ -78,7 +78,7 @@ class AudioBuffer {
 		
 		#elseif (cpp || neko || nodejs)
 		
-		var data = lime_audio_load (bytes);
+		var data = lime_audio_load.call (bytes);
 		
 		if (data != null) {
 			
@@ -118,7 +118,7 @@ class AudioBuffer {
 		
 		#elseif (cpp || neko || nodejs)
 		
-		var data = lime_audio_load (path);
+		var data = lime_audio_load.call (path);
 		
 		if (data != null) {
 			
@@ -179,7 +179,7 @@ class AudioBuffer {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_audio_load:Dynamic = System.load ("lime", "lime_audio_load", 1);
+	private static var lime_audio_load:Dynamic = System.loadPrime ("lime", "lime_audio_load", "oo");
 	#end
 	
 	

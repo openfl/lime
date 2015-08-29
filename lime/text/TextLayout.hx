@@ -42,7 +42,7 @@ class TextLayout {
 		__dirty = true;
 		
 		#if (cpp || neko || nodejs)
-		__handle = lime_text_layout_create (__direction, __script, __language);
+		__handle = lime_text_layout_create.call (__direction, __script, __language);
 		#end
 	}
 	
@@ -62,7 +62,7 @@ class TextLayout {
 				
 			}
 			
-			var data = lime_text_layout_position (__handle, font.src, size, text, __buffer);
+			var data = lime_text_layout_position.call (__handle, font.src, size, text, __buffer);
 			
 			if (__buffer.length > 4) {
 				
@@ -126,7 +126,7 @@ class TextLayout {
 		__direction = value;
 		
 		#if (cpp || neko || nodejs)
-		lime_text_layout_set_direction (__handle, value);
+		lime_text_layout_set_direction.call (__handle, value);
 		#end
 		
 		__dirty = true;
@@ -176,7 +176,7 @@ class TextLayout {
 		__language = value;
 		
 		#if (cpp || neko || nodejs)
-		lime_text_layout_set_language (__handle, value);
+		lime_text_layout_set_language.call (__handle, value);
 		#end
 		
 		__dirty = true;
@@ -200,7 +200,7 @@ class TextLayout {
 		__script = value;
 		
 		#if (cpp || neko || nodejs)
-		lime_text_layout_set_script (__handle, value);
+		lime_text_layout_set_script.call (__handle, value);
 		#end
 		
 		__dirty = true;
@@ -240,11 +240,11 @@ class TextLayout {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_text_layout_create = System.load ("lime", "lime_text_layout_create", 3);
-	private static var lime_text_layout_position = System.load ("lime", "lime_text_layout_position", 5);
-	private static var lime_text_layout_set_direction = System.load ("lime", "lime_text_layout_set_direction", 2);
-	private static var lime_text_layout_set_language = System.load ("lime", "lime_text_layout_set_language", 2);
-	private static var lime_text_layout_set_script = System.load ("lime", "lime_text_layout_set_script", 2);
+	private static var lime_text_layout_create = System.loadPrime ("lime", "lime_text_layout_create", "isso");
+	private static var lime_text_layout_position = System.loadPrime ("lime", "lime_text_layout_position", "ddisoo");
+	private static var lime_text_layout_set_direction = System.loadPrime ("lime", "lime_text_layout_set_direction", "div");
+	private static var lime_text_layout_set_language = System.loadPrime ("lime", "lime_text_layout_set_language", "dsv");
+	private static var lime_text_layout_set_script = System.loadPrime ("lime", "lime_text_layout_set_script", "dsv");
 	#end
 	
 	

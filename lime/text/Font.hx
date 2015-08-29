@@ -58,7 +58,7 @@ class Font {
 		#if (cpp || neko || nodejs)
 		
 		if (src == null) throw "Uninitialized font handle.";
-		return lime_font_outline_decompose (src, 1024 * 20);
+		return lime_font_outline_decompose.call (src, 1024 * 20);
 		
 		#else
 		
@@ -100,7 +100,7 @@ class Font {
 	public function getGlyph (character:String):Glyph {
 		
 		#if (cpp || neko || nodejs)
-		return lime_font_get_glyph_index (src, character);
+		return lime_font_get_glyph_index.call (src, character);
 		#else
 		return -1;
 		#end
@@ -111,7 +111,7 @@ class Font {
 	public function getGlyphs (characters:String = #if (display && haxe_ver < "3.2") "" #else "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. " #end):Array<Glyph> {
 		
 		#if (cpp || neko || nodejs)
-		return lime_font_get_glyph_indices (src, characters);
+		return lime_font_get_glyph_indices.call (src, characters);
 		#else
 		return null;
 		#end
@@ -122,7 +122,7 @@ class Font {
 	public function getGlyphMetrics (glyph:Glyph):GlyphMetrics {
 		
 		#if (cpp || neko || nodejs)
-		var value = lime_font_get_glyph_metrics (src, glyph);
+		var value = lime_font_get_glyph_metrics.call (src, glyph);
 		var metrics = new GlyphMetrics ();
 		
 		metrics.advance = new Vector2 (value.horizontalAdvance, value.verticalAdvance);
@@ -142,12 +142,12 @@ class Font {
 		
 		#if (cpp || neko || nodejs)
 		
-		lime_font_set_size (src, fontSize);
+		lime_font_set_size.call (src, fontSize);
 		
 		var bytes = new ByteArray ();
 		bytes.endian = (System.endianness == BIG_ENDIAN ? "bigEndian" : "littleEndian");
 		
-		if (lime_font_render_glyph (src, glyph, bytes)) {
+		if (lime_font_render_glyph.call (src, glyph, bytes)) {
 			
 			bytes.position = 0;
 			
@@ -200,12 +200,12 @@ class Font {
 			
 		}
 		
-		lime_font_set_size (src, fontSize);
+		lime_font_set_size.call (src, fontSize);
 		
 		var bytes = new ByteArray ();
 		bytes.endian = (System.endianness == BIG_ENDIAN ? "bigEndian" : "littleEndian");
 		
-		if (lime_font_render_glyphs (src, glyphList, bytes)) {
+		if (lime_font_render_glyphs.call (src, glyphList, bytes)) {
 			
 			bytes.position = 0;
 			
@@ -350,11 +350,11 @@ class Font {
 		
 		#if (cpp || neko || nodejs)
 		
-		src = lime_font_load (bytes);
+		src = lime_font_load.call (bytes);
 		
 		if (src != null && name == null) {
 			
-			name = lime_font_get_family_name (src);
+			name = lime_font_get_family_name.call (src);
 			
 		}
 		
@@ -369,11 +369,11 @@ class Font {
 		
 		#if (cpp || neko || nodejs)
 		
-		src = lime_font_load (__fontPath);
+		src = lime_font_load.call (__fontPath);
 		
 		if (src != null && name == null) {
 			
-			name = lime_font_get_family_name (src);
+			name = lime_font_get_family_name.call (src);
 			
 		}
 		
@@ -392,7 +392,7 @@ class Font {
 	private function get_ascender ():Int {
 		
 		#if (cpp || neko || nodejs)
-		return lime_font_get_ascender (src);
+		return lime_font_get_ascender.call (src);
 		#else
 		return 0;
 		#end
@@ -403,7 +403,7 @@ class Font {
 	private function get_descender ():Int {
 		
 		#if (cpp || neko || nodejs)
-		return lime_font_get_descender (src);
+		return lime_font_get_descender.call (src);
 		#else
 		return 0;
 		#end
@@ -414,7 +414,7 @@ class Font {
 	private function get_height ():Int {
 		
 		#if (cpp || neko || nodejs)
-		return lime_font_get_height (src);
+		return lime_font_get_height.call (src);
 		#else
 		return 0;
 		#end
@@ -425,7 +425,7 @@ class Font {
 	private function get_numGlyphs ():Int {
 		
 		#if (cpp || neko || nodejs)
-		return lime_font_get_num_glyphs (src);
+		return lime_font_get_num_glyphs.call (src);
 		#else
 		return 0;
 		#end
@@ -436,7 +436,7 @@ class Font {
 	private function get_underlinePosition ():Int {
 		
 		#if (cpp || neko || nodejs)
-		return lime_font_get_underline_position (src);
+		return lime_font_get_underline_position.call (src);
 		#else
 		return 0;
 		#end
@@ -447,7 +447,7 @@ class Font {
 	private function get_underlineThickness ():Int {
 		
 		#if (cpp || neko || nodejs)
-		return lime_font_get_underline_thickness (src);
+		return lime_font_get_underline_thickness.call (src);
 		#else
 		return 0;
 		#end
@@ -458,7 +458,7 @@ class Font {
 	private function get_unitsPerEM ():Int {
 		
 		#if (cpp || neko || nodejs)
-		return lime_font_get_units_per_em (src);
+		return lime_font_get_units_per_em.call (src);
 		#else
 		return 0;
 		#end
@@ -474,22 +474,22 @@ class Font {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_font_get_ascender = System.load ("lime", "lime_font_get_ascender", 1);
-	private static var lime_font_get_descender = System.load ("lime", "lime_font_get_descender", 1);
-	private static var lime_font_get_family_name = System.load ("lime", "lime_font_get_family_name", 1);
-	private static var lime_font_get_glyph_index = System.load ("lime", "lime_font_get_glyph_index", 2);
-	private static var lime_font_get_glyph_indices = System.load ("lime", "lime_font_get_glyph_indices", 2);
-	private static var lime_font_get_glyph_metrics = System.load ("lime", "lime_font_get_glyph_metrics", 2);
-	private static var lime_font_get_height = System.load ("lime", "lime_font_get_height", 1);
-	private static var lime_font_get_num_glyphs = System.load ("lime", "lime_font_get_num_glyphs", 1);
-	private static var lime_font_get_underline_position = System.load ("lime", "lime_font_get_underline_position", 1);
-	private static var lime_font_get_underline_thickness = System.load ("lime", "lime_font_get_underline_thickness", 1);
-	private static var lime_font_get_units_per_em = System.load ("lime", "lime_font_get_units_per_em", 1);
-	private static var lime_font_load:Dynamic = System.load ("lime", "lime_font_load", 1);
-	private static var lime_font_outline_decompose = System.load ("lime", "lime_font_outline_decompose", 2);
-	private static var lime_font_render_glyph = System.load ("lime", "lime_font_render_glyph", 3);
-	private static var lime_font_render_glyphs = System.load ("lime", "lime_font_render_glyphs", 3);
-	private static var lime_font_set_size = System.load ("lime", "lime_font_set_size", 2);
+	private static var lime_font_get_ascender = System.loadPrime ("lime", "lime_font_get_ascender", "di");
+	private static var lime_font_get_descender = System.loadPrime ("lime", "lime_font_get_descender", "di");
+	private static var lime_font_get_family_name = System.loadPrime ("lime", "lime_font_get_family_name", "ds");
+	private static var lime_font_get_glyph_index = System.loadPrime ("lime", "lime_font_get_glyph_index", "dsi");
+	private static var lime_font_get_glyph_indices = System.loadPrime ("lime", "lime_font_get_glyph_indices", "dso");
+	private static var lime_font_get_glyph_metrics = System.loadPrime ("lime", "lime_font_get_glyph_metrics", "dio");
+	private static var lime_font_get_height = System.loadPrime ("lime", "lime_font_get_height", "di");
+	private static var lime_font_get_num_glyphs = System.loadPrime ("lime", "lime_font_get_num_glyphs", "di");
+	private static var lime_font_get_underline_position = System.loadPrime ("lime", "lime_font_get_underline_position", "di");
+	private static var lime_font_get_underline_thickness = System.loadPrime ("lime", "lime_font_get_underline_thickness", "di");
+	private static var lime_font_get_units_per_em = System.loadPrime ("lime", "lime_font_get_units_per_em", "di");
+	private static var lime_font_load:Dynamic = System.loadPrime ("lime", "lime_font_load", "oo");
+	private static var lime_font_outline_decompose = System.loadPrime ("lime", "lime_font_outline_decompose", "dio");
+	private static var lime_font_render_glyph = System.loadPrime ("lime", "lime_font_render_glyph", "diob");
+	private static var lime_font_render_glyphs = System.loadPrime ("lime", "lime_font_render_glyphs", "doob");
+	private static var lime_font_set_size = System.loadPrime ("lime", "lime_font_set_size", "div");
 	#end
 	
 	
