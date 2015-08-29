@@ -2298,7 +2298,7 @@ class GL {
 	private static var lime_gl_stencil_op = System.loadPrime ("lime", "lime_gl_stencil_op", "iiiv");
 	private static var lime_gl_stencil_op_separate = System.loadPrime ("lime", "lime_gl_stencil_op_separate", "iiiiv");
 	private static var lime_gl_tex_image_2d = System.loadPrime ("lime", "lime_gl_tex_image_2d", "iiiiiiiioiv");
-	private static var lime_gl_tex_parameterf = System.loadPrime ("lime", "lime_gl_tex_parameterf", "iidv");
+	private static var lime_gl_tex_parameterf = System.loadPrime ("lime", "lime_gl_tex_parameterf", "iifv");
 	private static var lime_gl_tex_parameteri = System.loadPrime ("lime", "lime_gl_tex_parameteri", "iiiv");
 	private static var lime_gl_tex_sub_image_2d = System.loadPrime ("lime", "lime_gl_tex_sub_image_2d", "iiiiiiiioiv");
 	private static var lime_gl_uniform1f = System.loadPrime ("lime", "lime_gl_uniform1f", "ifv");

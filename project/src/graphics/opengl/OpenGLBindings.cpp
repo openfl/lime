@@ -1219,7 +1219,7 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_tex_parameterf (int inTarget, int inPName, double inVal) {
+	void lime_gl_tex_parameterf (int inTarget, int inPName, float inVal) {
 		
 		glTexParameterf (inTarget, inPName, inVal);
 		
