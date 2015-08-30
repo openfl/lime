@@ -467,41 +467,23 @@ class System {
 					default: signatureString += "o";
 					
 				}
-				
-				Sys.println (signatureString);
 			
-			case TInst (t, _):
+			case TInst (_.get () => { pack: [], name: "String" }, _):
 				
-				switch (t.get ().name) {
+				signatureString = ExprTools.getValue (signature);
+				
+			case TAbstract (_.get () => { pack: [], name: "Int" }, _):
+				
+				var typeString = "Dynamic";
+				var args:Int = ExprTools.getValue (signature);
+				
+				for (i in 0...args) {
 					
-					case "String":
-						
-						signatureString = ExprTools.getValue (signature);
-					
-					default:
+					typeString += "->Dynamic";
 					
 				}
-			
-			case TAbstract (t, _):
 				
-				switch (t.get ().name) {
-					
-					case "Int":
-						
-						var typeString = "Dynamic";
-						var args:Int = ExprTools.getValue (signature);
-						
-						for (i in 0...args) {
-							
-							typeString += "->Dynamic";
-							
-						}
-						
-						return Context.parse ('new cpp.Callable<$typeString> (System.load ("$library", "$method", $args, $lazy))', Context.currentPos ());
-					
-					default:
-					
-				}
+				return Context.parse ('new cpp.Callable<$typeString> (System.load ("$library", "$method", $args, $lazy))', Context.currentPos ());
 			
 			default:
 			
