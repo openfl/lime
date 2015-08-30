@@ -495,7 +495,7 @@ class NativeApplication {
 	}
 	
 	
-	private static var lime_application_create = System.loadPrime ("lime", "lime_application_create", "oo");
+	private static var lime_application_create = System.loadPrime ("lime", "lime_application_create", "od");
 	private static var lime_application_event_manager_register = System.loadPrime ("lime", "lime_application_event_manager_register", "oov");
 	private static var lime_application_exec = System.loadPrime ("lime", "lime_application_exec", "di");
 	private static var lime_application_init = System.loadPrime ("lime", "lime_application_init", "dv");

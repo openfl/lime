@@ -4,7 +4,7 @@ package lime.graphics.cairo; #if !macro
 import lime.system.System;
 
 
-abstract CairoSurface(Dynamic) {
+abstract CairoSurface(Dynamic) from Float to Float {
 	
 	
 	public function destroy ():Void {

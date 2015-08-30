@@ -6,7 +6,9 @@ import lime.math.Rectangle;
 #if !macro
 import lime.app.Application;
 #else
+import haxe.macro.Context;
 import haxe.macro.Expr;
+import cpp.Prime;
 #end
 
 #if flash
@@ -238,7 +240,7 @@ class System {
 		#elseif js
 		return cast Date.now ().getTime ();
 		#elseif !disable_cffi
-		return lime_system_get_timer.call ();
+		return cast lime_system_get_timer.call ();
 		#elseif cpp
 		return Std.int (untyped __global__.__time_stamp () * 1000);
 		#elseif sys
@@ -399,10 +401,81 @@ class System {
 	}
 	
 	
-	#if ((haxe >= 3.2) && !debug_cffi)
-	public static inline macro function loadPrime (library:Expr, method:Expr, signature:Expr) {
+	#if macro
+	private static function __codeToType (code:String, forCpp:Bool):String {
 		
-		return macro cpp.Prime.load ($library, $method, $signature);
+		switch (code) {
+			
+			case "b" : return "Bool";
+			case "i" : return "Int";
+			case "d" : return "Float";
+			case "s" : return "String";
+			case "f" : return forCpp ? "cpp.Float32" : "Float";
+			case "o" : return false ? "cpp.Object" : "Dynamic";
+			case "v" : return false ? "cpp.Void" : "Void";
+			case "c" :
+				if (forCpp)
+					return "cpp.ConstCharStar";
+				throw "const char * type only supported in cpp mode";
+			default:
+				throw "Unknown signature type :" + code;
+			
+		}
+		
+	}
+	#end
+	
+	
+	#if (false && (haxe_ver >= 3.2) && !debug_cffi)
+	public static inline macro function loadPrime (library:String, method:String, signature:String, lazy:Bool = false) {
+		
+		var parts = signature.split ("");
+		
+		if (parts.length < 1) {
+			
+			throw "Invalid function signature " + signature;
+			
+		}
+		
+		var cppMode = Context.defined ("cpp");
+		var typeString, expr;
+		
+		if (parts.length == 1) {
+			
+			typeString = __codeToType ("v", cppMode);
+			
+		} else {
+			
+			typeString = __codeToType (parts.shift (), cppMode);
+			
+		}
+		
+		for (part in parts) {
+			
+			typeString += "->" + __codeToType (part, cppMode);
+			
+		}
+		
+		if (cppMode) {
+			
+			typeString = "cpp.Callable<" + typeString + ">";
+			expr = 'new $typeString (cpp.Prime._loadPrime ("$library", "$method", "$signature", $lazy))';
+			
+		} else {
+			
+			var args = signature.length - 1;
+			
+			if (args > 5) {
+				
+				args = -1;
+				
+			}
+			
+			expr = 'new cpp.Callable<$typeString> (System.load ("$library", "$method", $args, $lazy))';
+			
+		}
+		
+		return Context.parse (expr, Context.currentPos ());
 		
 	}
 	#else
@@ -766,11 +839,16 @@ class System {
 	
 	
 	
-	#if (cpp || neko || nodejs)
+	#if ((cpp || neko || nodejs) && !macro)
 	private static var lime_system_get_directory = System.loadPrime ("lime", "lime_system_get_directory", "isss");
 	private static var lime_system_get_display = System.loadPrime ("lime", "lime_system_get_display", "io");
 	private static var lime_system_get_num_displays = System.loadPrime ("lime", "lime_system_get_num_displays", "i");
 	private static var lime_system_get_timer = System.loadPrime ("lime", "lime_system_get_timer", "d");
+	#else
+	private static var lime_system_get_directory:Dynamic;
+	private static var lime_system_get_display:Dynamic;
+	private static var lime_system_get_num_displays:Dynamic;
+	private static var lime_system_get_timer:Dynamic;
 	#end
 	
 	

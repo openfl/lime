@@ -5,7 +5,7 @@ import lime.text.Font;
 import lime.system.System;
 
 
-abstract CairoFontOptions(Dynamic) {
+abstract CairoFontOptions(Dynamic) from Float to Float {
 	
 	
 	public var antialias (get, set):CairoAntialias;
@@ -138,7 +138,7 @@ abstract CairoFontOptions(Dynamic) {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_cairo_font_options_create = System.loadPrime ("lime", "lime_cairo_font_options_create", "v");
+	private static var lime_cairo_font_options_create = System.loadPrime ("lime", "lime_cairo_font_options_create", "d");
 	private static var lime_cairo_font_options_destroy = System.loadPrime ("lime", "lime_cairo_font_options_destroy", "dv");
 	private static var lime_cairo_font_options_get_antialias = System.loadPrime ("lime", "lime_cairo_font_options_get_antialias", "di");
 	private static var lime_cairo_font_options_get_hint_metrics = System.loadPrime ("lime", "lime_cairo_font_options_get_hint_metrics", "di");

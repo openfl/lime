@@ -165,7 +165,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			return lime_window_set_enable_text_events.call (handle, value);
+			lime_window_set_enable_text_events.call (handle, value);
 			
 		}
 		

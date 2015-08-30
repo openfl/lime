@@ -159,9 +159,9 @@ namespace lime {
 	}
 	
 	
-	value lime_bytes_read_file (const char* path) {
+	value lime_bytes_read_file (HxString path) {
 		
-		Bytes data = Bytes (path);
+		Bytes data = Bytes (path.__s);
 		return data.Value ();
 		
 	}
@@ -182,17 +182,17 @@ namespace lime {
 	}
 	
 	
-	void lime_clipboard_set_text (const char* text) {
+	void lime_clipboard_set_text (HxString text) {
 		
-		Clipboard::SetText (text);
+		Clipboard::SetText (text.__s);
 		
 	}
 	
 	
-	HxString lime_file_dialog_open_file (const char* filter, const char* defaultPath) {
+	HxString lime_file_dialog_open_file (HxString filter, HxString defaultPath) {
 		
 		#ifdef LIME_NFD
-		const char* path = FileDialog::OpenFile (filter, defaultPath);
+		const char* path = FileDialog::OpenFile (filter.__s, defaultPath.__s);
 		return HxString (path);
 		#endif
 		
@@ -201,12 +201,12 @@ namespace lime {
 	}
 	
 	
-	value lime_file_dialog_open_files (const char* filter, const char* defaultPath) {
+	value lime_file_dialog_open_files (HxString filter, HxString defaultPath) {
 		
 		#ifdef LIME_NFD
 		std::vector<const char*> files;
 		
-		FileDialog::OpenFiles (&files, filter, defaultPath);
+		FileDialog::OpenFiles (&files, filter.__s, defaultPath.__s);
 		value result = alloc_array (files.size ());
 		
 		for (int i = 0; i < files.size (); i++) {
@@ -223,10 +223,10 @@ namespace lime {
 	}
 	
 	
-	HxString lime_file_dialog_save_file (const char* filter, const char* defaultPath) {
+	HxString lime_file_dialog_save_file (HxString filter, HxString defaultPath) {
 		
 		#ifdef LIME_NFD
-		const char* path = FileDialog::SaveFile (filter, defaultPath);
+		const char* path = FileDialog::SaveFile (filter.__s, defaultPath.__s);
 		return HxString (path);
 		#endif
 		
@@ -281,11 +281,11 @@ namespace lime {
 	}
 	
 	
-	int lime_font_get_glyph_index (double fontHandle, const char* character) {
+	int lime_font_get_glyph_index (double fontHandle, HxString character) {
 		
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)(intptr_t)fontHandle;
-		return font->GetGlyphIndex ((char*)character);
+		return font->GetGlyphIndex ((char*)character.__s);
 		#else
 		return -1;
 		#endif
@@ -293,11 +293,11 @@ namespace lime {
 	}
 	
 	
-	value lime_font_get_glyph_indices (double fontHandle, const char* characters) {
+	value lime_font_get_glyph_indices (double fontHandle, HxString characters) {
 		
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)(intptr_t)fontHandle;
-		return font->GetGlyphIndices ((char*)characters);
+		return font->GetGlyphIndices ((char*)characters.__s);
 		#else
 		return alloc_null ();
 		#endif
@@ -739,10 +739,10 @@ namespace lime {
 	}
 	
 	
-	value lime_jpeg_decode_file (const char* path, bool decodeData) {
+	value lime_jpeg_decode_file (HxString path, bool decodeData) {
 		
 		ImageBuffer imageBuffer;
-		Resource resource = Resource (path);
+		Resource resource = Resource (path.__s);
 		
 		#ifdef LIME_JPEG
 		if (JPEG::Decode (&resource, &imageBuffer, decodeData)) {
@@ -848,10 +848,10 @@ namespace lime {
 	}
 	
 	
-	void lime_neko_execute (const char* module) {
+	void lime_neko_execute (HxString module) {
 		
 		#ifdef LIME_NEKO
-		NekoVM::Execute (module);
+		NekoVM::Execute (module.__s);
 		#endif
 		
 	}
@@ -877,10 +877,10 @@ namespace lime {
 	}
 	
 	
-	value lime_png_decode_file (const char* path, bool decodeData) {
+	value lime_png_decode_file (HxString path, bool decodeData) {
 		
 		ImageBuffer imageBuffer;
-		Resource resource = Resource (path);
+		Resource resource = Resource (path.__s);
 		
 		#ifdef LIME_PNG
 		if (PNG::Decode (&resource, &imageBuffer, decodeData)) {
@@ -955,9 +955,9 @@ namespace lime {
 	}
 	
 	
-	HxString lime_system_get_directory (int type, const char* company, const char* title) {
+	HxString lime_system_get_directory (int type, HxString company, HxString title) {
 		
-		return HxString (System::GetDirectory ((SystemDirectory)type, company, title));
+		return HxString (System::GetDirectory ((SystemDirectory)type, company.__s, title.__s));
 		
 	}
 	
@@ -1002,11 +1002,11 @@ namespace lime {
 	}
 	
 	
-	value lime_text_layout_create (int direction, const char* script, const char* language) {
+	value lime_text_layout_create (int direction, HxString script, HxString language) {
 		
 		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
 		
-		TextLayout *text = new TextLayout (direction, script, language);
+		TextLayout *text = new TextLayout (direction, script.__s, language.__s);
 		value v = alloc_float ((intptr_t)text);
 		val_gc (v, lime_text_layout_destroy);
 		return v;
@@ -1020,14 +1020,14 @@ namespace lime {
 	}
 	
 	
-	value lime_text_layout_position (double textHandle, double fontHandle, int size, const char* textString, value data) {
+	value lime_text_layout_position (double textHandle, double fontHandle, int size, HxString textString, value data) {
 		
 		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
 		
 		TextLayout *text = (TextLayout*)(intptr_t)textHandle;
 		Font *font = (Font*)(intptr_t)fontHandle;
 		Bytes bytes = Bytes (data);
-		text->Position (font, size, textString, &bytes);
+		text->Position (font, size, textString.__s, &bytes);
 		return bytes.Value ();
 		
 		#endif
@@ -1047,21 +1047,21 @@ namespace lime {
 	}
 	
 	
-	void lime_text_layout_set_language (double textHandle, const char* language) {
+	void lime_text_layout_set_language (double textHandle, HxString language) {
 		
 		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
 		TextLayout *text = (TextLayout*)(intptr_t)textHandle;
-		text->SetLanguage (language);
+		text->SetLanguage (language.__s);
 		#endif
 		
 	}
 	
 	
-	void lime_text_layout_set_script (double textHandle, const char* script) {
+	void lime_text_layout_set_script (double textHandle, HxString script) {
 		
 		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
 		TextLayout *text = (TextLayout*)(intptr_t)textHandle;
-		text->SetScript (script);
+		text->SetScript (script.__s);
 		#endif
 		
 	}
@@ -1083,9 +1083,9 @@ namespace lime {
 	}
 	
 	
-	double lime_window_create (double application, int width, int height, int flags, const char* title) {
+	double lime_window_create (double application, int width, int height, int flags, HxString title) {
 		
-		Window* window = CreateWindow ((Application*)(intptr_t)application, width, height, flags, title);
+		Window* window = CreateWindow ((Application*)(intptr_t)application, width, height, flags, title.__s);
 		return (intptr_t)window;
 		
 	}
@@ -1204,10 +1204,10 @@ namespace lime {
 	}
 	
 	
-	HxString lime_window_set_title (double window, const char* title) {
+	HxString lime_window_set_title (double window, HxString title) {
 		
 		Window* targetWindow = (Window*)(intptr_t)window;
-		return HxString (targetWindow->SetTitle (title));
+		return HxString (targetWindow->SetTitle (title.__s));
 		
 	}
 	

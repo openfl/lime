@@ -847,9 +847,9 @@ namespace lime {
 	}
 	
 	
-	void lime_cairo_show_text (double handle, const char* text) {
+	void lime_cairo_show_text (double handle, HxString text) {
 		
-		cairo_show_text ((cairo_t*)(intptr_t)handle, (char*)text);
+		cairo_show_text ((cairo_t*)(intptr_t)handle, (char*)text.__s);
 		
 	}
 	

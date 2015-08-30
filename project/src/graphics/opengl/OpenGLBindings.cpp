@@ -40,9 +40,9 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_bind_attrib_location (int id, int inSlot, const char* inName) {
+	void lime_gl_bind_attrib_location (int id, int inSlot, HxString inName) {
 		
-		glBindAttribLocation (id, inSlot, inName);
+		glBindAttribLocation (id, inSlot, inName.__s);
 		
 	}
 	
@@ -512,9 +512,9 @@ namespace lime {
 	}
 	
 	
-	int lime_gl_get_attrib_location (int id, const char* inName) {
+	int lime_gl_get_attrib_location (int id, HxString inName) {
 		
-		return glGetAttribLocation (id, inName);
+		return glGetAttribLocation (id, inName.__s);
 		
 	}
 	
@@ -549,12 +549,12 @@ namespace lime {
 	}
 	
 	
-	value lime_gl_get_extension (const char* name) {
+	value lime_gl_get_extension (HxString name) {
 		
 		void *result = 0;
 		
 		#ifdef LIME_SDL
-		result = SDL_GL_GetProcAddress (name);
+		result = SDL_GL_GetProcAddress (name.__s);
 		#endif
 		
 		if (result) {
@@ -1007,9 +1007,9 @@ namespace lime {
 	}
 	
 	
-	int lime_gl_get_uniform_location (int id, const char* inName) {
+	int lime_gl_get_uniform_location (int id, HxString inName) {
 		
-		return glGetUniformLocation (id, inName);
+		return glGetUniformLocation (id, inName.__s);
 		
 	}
 	
@@ -1153,9 +1153,9 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_shader_source (int id, const char* source) {
+	void lime_gl_shader_source (int id, HxString source) {
 		
-		glShaderSource (id, 1, &source, 0);
+		glShaderSource (id, 1, &source.__s, 0);
 		
 	}
 	
@@ -1249,7 +1249,7 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_uniform_matrix (int loc, int trans, value inBytes, int count) {
+	void lime_gl_uniform_matrix (int loc, bool trans, value inBytes, int count) {
 		
 		Bytes bytes (inBytes);
 		int size = bytes.Length ();
@@ -1267,7 +1267,7 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_uniform1f (int inLocation, double inV0) {
+	void lime_gl_uniform1f (int inLocation, float inV0) {
 		
 		glUniform1f (inLocation, inV0);
 		

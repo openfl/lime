@@ -4,7 +4,7 @@ package lime.graphics.cairo;
 import lime.system.System;
 
 
-abstract CairoFontFace(Dynamic) {
+abstract CairoFontFace(Dynamic) from Float to Float {
 	
 	
 	public var referenceCount (get, never):Int;
@@ -58,7 +58,7 @@ abstract CairoFontFace(Dynamic) {
 	@:noCompletion private function get_referenceCount ():Int {
 		
 		#if lime_cairo
-		return lime_cairo_font_face_get_reference_count ();
+		return lime_cairo_font_face_get_reference_count.call (this);
 		#else
 		return 0;
 		#end

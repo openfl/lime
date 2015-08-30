@@ -5,7 +5,7 @@ import lime.math.Matrix3;
 import lime.system.System;
 
 
-abstract CairoPattern(Dynamic) {
+abstract CairoPattern(Dynamic) from Float to Float {
 	
 	
 	public var colorStopCount (get, never):Int;

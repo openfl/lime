@@ -150,7 +150,7 @@ class Cairo {
 	public function fillExtents (x1:Float, y1:Float, x2:Float, y2:Float):Void {
 		
 		#if lime_cairo
-		lime_cairo_fill_extents.call (x1, y1, x2, y2);
+		lime_cairo_fill_extents.call (handle, x1, y1, x2, y2);
 		#end
 		
 	}
@@ -237,7 +237,7 @@ class Cairo {
 	public function maskSurface (surface:CairoSurface, x:Float, y:Float):Void {
 		
 		#if lime_cairo
-		lime_cairo_mask_surface.call (surface, x, y);
+		lime_cairo_mask_surface.call (handle, surface, x, y);
 		#end
 		
 	}
@@ -806,7 +806,7 @@ class Cairo {
 	@:noCompletion private function get_referenceCount ():Int {
 		
 		#if lime_cairo
-		return lime_cairo_get_reference_count.call ();
+		return lime_cairo_get_reference_count.call (handle);
 		#else
 		return 0;
 		#end
@@ -850,7 +850,7 @@ class Cairo {
 	@:noCompletion private function get_tolerance ():Float {
 		
 		#if lime_cairo
-		return lime_cairo_get_tolerance.call ();
+		return lime_cairo_get_tolerance.call (handle);
 		#else
 		return 0;
 		#end
@@ -861,7 +861,7 @@ class Cairo {
 	@:noCompletion private function set_tolerance (value:Float):Float {
 		
 		#if lime_cairo
-		lime_cairo_set_tolerance.call (value);
+		lime_cairo_set_tolerance.call (handle, value);
 		#end
 		
 		return value;

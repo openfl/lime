@@ -669,7 +669,7 @@ class GL {
 		#if (js && html5 && !display)
 		context.compressedTexImage2D (target, level, internalformat, width, height, border, data);
 		#elseif ((cpp || neko) && lime_opengl)
-		lime_gl_compressed_tex_image_2d.call (target, level, internalformat, width, height, border, data == null ? null : data.buffer, data == null ? null : data.byteOffset);
+		lime_gl_compressed_tex_image_2d.call (target, level, internalformat, width, height, border, data == null ? null : data.buffer, data == null ? 0 : data.byteOffset);
 		#elseif (nodejs && lime_opengl)
 		lime_gl_compressed_tex_image_2d.call (target, level, internalformat, width, height, border, data == null ? null : data , data == null ? null : data.byteOffset);
 		#elseif java
@@ -684,7 +684,7 @@ class GL {
 		#if (js && html5 && !display)
 		context.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, data);
 		#elseif ((cpp || neko) && lime_opengl)
-		lime_gl_compressed_tex_sub_image_2d.call (target, level, xoffset, yoffset, width, height, format, data == null ? null : data.buffer, data == null ? null : data.byteOffset);
+		lime_gl_compressed_tex_sub_image_2d.call (target, level, xoffset, yoffset, width, height, format, data == null ? null : data.buffer, data == null ? 0 : data.byteOffset);
 		#elseif (nodejs && lime_opengl)
 		lime_gl_compressed_tex_sub_image_2d.call (target, level, xoffset, yoffset, width, height, format, data == null ? null : data, data == null ? null : data.byteOffset);
 		#elseif java
@@ -1649,7 +1649,7 @@ class GL {
 		#if (js && html5 && !display)
 		context.readPixels (x, y, width, height, format, type, pixels);
 		#elseif ((cpp || neko) && lime_opengl)
-		lime_gl_read_pixels.call (x, y, width, height, format, type, pixels == null ? null : pixels.buffer, pixels == null ? null : pixels.byteOffset);
+		lime_gl_read_pixels.call (x, y, width, height, format, type, pixels == null ? null : pixels.buffer, pixels == null ? 0 : pixels.byteOffset);
 		#elseif (nodejs && lime_opengl)
 		lime_gl_read_pixels.call (x, y, width, height, format, type, pixels == null ? null : pixels, pixels == null ? null : pixels.byteOffset);
 		#end
@@ -1772,7 +1772,7 @@ class GL {
 		#if (js && html5 && !display)
 		context.texImage2D (target, level, internalformat, width, height, border, format, type, pixels);
 		#elseif ((cpp || neko) && lime_opengl)
-		lime_gl_tex_image_2d.call (target, level, internalformat, width, height, border, format, type, pixels == null ? null : pixels.buffer, pixels == null ? null : pixels.byteOffset);
+		lime_gl_tex_image_2d.call (target, level, internalformat, width, height, border, format, type, pixels == null ? null : pixels.buffer, pixels == null ? 0 : pixels.byteOffset);
 		#elseif (nodejs && lime_opengl)
 		lime_gl_tex_image_2d.call (target, level, internalformat, width, height, border, format, type, pixels == null ? null : pixels, pixels == null ? null : pixels.byteOffset);
 		#end
@@ -1807,7 +1807,7 @@ class GL {
 		#if (js && html5 && !display)
 		context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, pixels);
 		#elseif ((cpp || neko) && lime_opengl)
-		lime_gl_tex_sub_image_2d.call (target, level, xoffset, yoffset, width, height, format, type, pixels == null ? null : pixels.buffer, pixels == null ? null : pixels.byteOffset);
+		lime_gl_tex_sub_image_2d.call (target, level, xoffset, yoffset, width, height, format, type, pixels == null ? null : pixels.buffer, pixels == null ? 0 : pixels.byteOffset);
 		#elseif (nodejs && lime_opengl)
 		lime_gl_tex_sub_image_2d.call (target, level, xoffset, yoffset, width, height, format, type, pixels == null ? null : pixels, pixels == null ? null : pixels.byteOffset);
 		#end
@@ -2258,7 +2258,7 @@ class GL {
 	private static var lime_gl_get_buffer_parameter = System.loadPrime ("lime", "lime_gl_get_buffer_parameter", "iii");
 	private static var lime_gl_get_context_attributes = System.loadPrime ("lime", "lime_gl_get_context_attributes", "o");
 	private static var lime_gl_get_error = System.loadPrime ("lime", "lime_gl_get_error", "i");
-	private static var lime_gl_get_extension = System.loadPrime ("lime", "lime_gl_get_extension", "sv");
+	private static var lime_gl_get_extension = System.loadPrime ("lime", "lime_gl_get_extension", "so");
 	private static var lime_gl_get_framebuffer_attachment_parameter = System.loadPrime ("lime", "lime_gl_get_framebuffer_attachment_parameter", "iiii");
 	private static var lime_gl_get_parameter = System.loadPrime ("lime", "lime_gl_get_parameter", "io");
 	private static var lime_gl_get_program_info_log = System.loadPrime ("lime", "lime_gl_get_program_info_log", "is");
@@ -2317,7 +2317,7 @@ class GL {
 	private static var lime_gl_uniform4fv = System.loadPrime ("lime", "lime_gl_uniform4fv", "iov");
 	private static var lime_gl_uniform4i = System.loadPrime ("lime", "lime_gl_uniform4i", "iiiiiv");
 	private static var lime_gl_uniform4iv = System.loadPrime ("lime", "lime_gl_uniform4iv", "iov");
-	private static var lime_gl_uniform_matrix = System.loadPrime ("lime", "lime_gl_uniform_matrix", "iioiv");
+	private static var lime_gl_uniform_matrix = System.loadPrime ("lime", "lime_gl_uniform_matrix", "iboiv");
 	private static var lime_gl_use_program = System.loadPrime ("lime", "lime_gl_use_program", "iv");
 	private static var lime_gl_validate_program = System.loadPrime ("lime", "lime_gl_validate_program", "iv");
 	private static var lime_gl_version = System.loadPrime ("lime", "lime_gl_version", "s");
