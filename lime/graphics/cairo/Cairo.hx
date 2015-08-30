@@ -552,7 +552,8 @@ class Cairo {
 	@:noCompletion private function get_dash ():Array<Float> {
 		
 		#if lime_cairo
-		return lime_cairo_get_dash.call (handle);
+		var result:Dynamic = lime_cairo_get_dash.call (handle);
+		return result;
 		#end
 		
 		return [];
