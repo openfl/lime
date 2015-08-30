@@ -58,7 +58,8 @@ class Font {
 		#if (cpp || neko || nodejs)
 		
 		if (src == null) throw "Uninitialized font handle.";
-		return lime_font_outline_decompose.call (src, 1024 * 20);
+		var data:Dynamic = lime_font_outline_decompose.call (src, 1024 * 20);
+		return data;
 		
 		#else
 		
@@ -111,7 +112,8 @@ class Font {
 	public function getGlyphs (characters:String = #if (display && haxe_ver < "3.2") "" #else "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. " #end):Array<Glyph> {
 		
 		#if (cpp || neko || nodejs)
-		return lime_font_get_glyph_indices.call (src, characters);
+		var glyphs:Dynamic = lime_font_get_glyph_indices.call (src, characters);
+		return glyphs;
 		#else
 		return null;
 		#end
@@ -122,7 +124,7 @@ class Font {
 	public function getGlyphMetrics (glyph:Glyph):GlyphMetrics {
 		
 		#if (cpp || neko || nodejs)
-		var value = lime_font_get_glyph_metrics.call (src, glyph);
+		var value:Dynamic = lime_font_get_glyph_metrics.call (src, glyph);
 		var metrics = new GlyphMetrics ();
 		
 		metrics.advance = new Vector2 (value.horizontalAdvance, value.verticalAdvance);
@@ -350,7 +352,8 @@ class Font {
 		
 		#if (cpp || neko || nodejs)
 		
-		src = lime_font_load.call (bytes);
+		//src = lime_font_load.call (bytes);
+		src = lime_font_load (bytes);
 		
 		if (src != null && name == null) {
 			
@@ -369,7 +372,8 @@ class Font {
 		
 		#if (cpp || neko || nodejs)
 		
-		src = lime_font_load.call (__fontPath);
+		//src = lime_font_load.call (__fontPath);
+		src = lime_font_load (__fontPath);
 		
 		if (src != null && name == null) {
 			
@@ -485,7 +489,8 @@ class Font {
 	private static var lime_font_get_underline_position = System.loadPrime ("lime", "lime_font_get_underline_position", "di");
 	private static var lime_font_get_underline_thickness = System.loadPrime ("lime", "lime_font_get_underline_thickness", "di");
 	private static var lime_font_get_units_per_em = System.loadPrime ("lime", "lime_font_get_units_per_em", "di");
-	private static var lime_font_load:Dynamic = System.loadPrime ("lime", "lime_font_load", "oo");
+	//private static var lime_font_load:Dynamic = System.loadPrime ("lime", "lime_font_load", "oo");
+	private static var lime_font_load:Dynamic = System.load ("lime", "lime_font_load", 1);
 	private static var lime_font_outline_decompose = System.loadPrime ("lime", "lime_font_outline_decompose", "dio");
 	private static var lime_font_render_glyph = System.loadPrime ("lime", "lime_font_render_glyph", "diob");
 	private static var lime_font_render_glyphs = System.loadPrime ("lime", "lime_font_render_glyphs", "doob");

@@ -540,7 +540,7 @@ class Cairo {
 	@:noCompletion private function get_currentPoint ():Vector2 {
 		
 		#if lime_cairo
-		var vec = lime_cairo_get_current_point.call (handle);
+		var vec:Dynamic = lime_cairo_get_current_point.call (handle);
 		return new Vector2 (vec.x, vec.y);
 		#end
 		
@@ -739,7 +739,7 @@ class Cairo {
 	@:noCompletion private function get_matrix ():Matrix3 {
 		
 		#if lime_cairo
-		var m = lime_cairo_get_matrix.call (handle);
+		var m:Dynamic = lime_cairo_get_matrix.call (handle);
 		return new Matrix3 (m.a, m.b, m.c, m.d, m.tx, m.ty);
 		#end
 		

@@ -168,7 +168,7 @@ abstract CairoPattern(Dynamic) from Float to Float {
 	@:noCompletion private function get_matrix ():Matrix3 {
 		
 		#if lime_cairo
-		var m = lime_cairo_pattern_get_matrix.call (this);
+		var m:Dynamic = lime_cairo_pattern_get_matrix.call (this);
 		return new Matrix3 (m.a, m.b, m.c, m.d, m.tx, m.ty);
 		#else
 		return null;

@@ -39,7 +39,8 @@ import lime.system.System;
 	public static function fromImage (image:Image):CairoSurface {
 		
 		#if lime_cairo
-		return create (lime_bytes_get_data_pointer.call (#if nodejs image.data #else image.data.buffer #end), CairoFormat.ARGB32, image.width, image.height, image.buffer.stride);
+		//return create (lime_bytes_get_data_pointer.call (#if nodejs image.data #else image.data.buffer #end), CairoFormat.ARGB32, image.width, image.height, image.buffer.stride);
+		return create (lime_bytes_get_data_pointer (#if nodejs image.data #else image.data.buffer #end), CairoFormat.ARGB32, image.width, image.height, image.buffer.stride);
 		#else
 		return null;
 		#end
@@ -117,7 +118,8 @@ import lime.system.System;
 	
 	
 	#if lime_cairo
-	private static var lime_bytes_get_data_pointer = System.loadPrime ("lime", "lime_bytes_get_data_pointer", "od");
+	//private static var lime_bytes_get_data_pointer = System.loadPrime ("lime", "lime_bytes_get_data_pointer", "od");
+	private static var lime_bytes_get_data_pointer = System.load ("lime", "lime_bytes_get_data_pointer", 1);
 	private static var lime_cairo_image_surface_create = System.loadPrime ("lime", "lime_cairo_image_surface_create", "iiid");
 	private static var lime_cairo_image_surface_create_for_data = System.loadPrime ("lime", "lime_cairo_image_surface_create_for_data", "diiiid");
 	private static var lime_cairo_image_surface_get_data = System.loadPrime ("lime", "lime_cairo_image_surface_get_data", "dd");

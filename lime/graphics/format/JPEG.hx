@@ -15,7 +15,7 @@ class JPEG {
 		
 		#if (cpp || neko || nodejs)
 		
-		var bufferData = lime_jpeg_decode_bytes.call (bytes, decodeData);
+		var bufferData:Dynamic = lime_jpeg_decode_bytes.call (bytes, decodeData);
 		
 		if (bufferData != null) {
 			
@@ -36,7 +36,7 @@ class JPEG {
 		
 		#if (cpp || neko || nodejs)
 		
-		var bufferData = lime_jpeg_decode_file.call (path, decodeData);
+		var bufferData:Dynamic = lime_jpeg_decode_file.call (path, decodeData);
 		
 		if (bufferData != null) {
 			

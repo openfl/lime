@@ -22,7 +22,7 @@ class PNG {
 		
 		#if (cpp || neko || nodejs)
 		
-		var bufferData = lime_png_decode_bytes.call (bytes, decodeData);
+		var bufferData:Dynamic = lime_png_decode_bytes.call (bytes, decodeData);
 		
 		if (bufferData != null) {
 			
@@ -43,7 +43,7 @@ class PNG {
 		
 		#if (cpp || neko || nodejs)
 		
-		var bufferData = lime_png_decode_file.call (path, decodeData);
+		var bufferData:Dynamic = lime_png_decode_file.call (path, decodeData);
 		
 		if (bufferData != null) {
 			
@@ -78,7 +78,7 @@ class PNG {
 		
 		if (!System.disableCFFI) {
 			
-			var data = lime_image_encode.call (image.buffer, 0, 0);
+			var data:Dynamic = lime_image_encode.call (image.buffer, 0, 0);
 			var bytes = @:privateAccess new Bytes (data.length, data.b);
 			return ByteArray.fromBytes (bytes);
 			

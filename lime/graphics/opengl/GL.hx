@@ -669,7 +669,8 @@ class GL {
 		#if (js && html5 && !display)
 		context.compressedTexImage2D (target, level, internalformat, width, height, border, data);
 		#elseif ((cpp || neko) && lime_opengl)
-		lime_gl_compressed_tex_image_2d.call (target, level, internalformat, width, height, border, data == null ? null : data.buffer, data == null ? 0 : data.byteOffset);
+		var buffer = data == null ? null : data.buffer;
+		lime_gl_compressed_tex_image_2d.call (target, level, internalformat, width, height, border, buffer, data == null ? 0 : data.byteOffset);
 		#elseif (nodejs && lime_opengl)
 		lime_gl_compressed_tex_image_2d.call (target, level, internalformat, width, height, border, data == null ? null : data , data == null ? null : data.byteOffset);
 		#elseif java
@@ -684,7 +685,8 @@ class GL {
 		#if (js && html5 && !display)
 		context.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, data);
 		#elseif ((cpp || neko) && lime_opengl)
-		lime_gl_compressed_tex_sub_image_2d.call (target, level, xoffset, yoffset, width, height, format, data == null ? null : data.buffer, data == null ? 0 : data.byteOffset);
+		var buffer = data == null ? null : data.buffer;
+		lime_gl_compressed_tex_sub_image_2d.call (target, level, xoffset, yoffset, width, height, format, buffer, data == null ? 0 : data.byteOffset);
 		#elseif (nodejs && lime_opengl)
 		lime_gl_compressed_tex_sub_image_2d.call (target, level, xoffset, yoffset, width, height, format, data == null ? null : data, data == null ? null : data.byteOffset);
 		#elseif java
@@ -1130,7 +1132,8 @@ class GL {
 		#if (js && html5 && !display)
 		return context.getActiveAttrib (program, index);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
-		return lime_gl_get_active_attrib.call (program.id, index);
+		var result:Dynamic = lime_gl_get_active_attrib.call (program.id, index);
+		return result;
 		#elseif java
 		//return GL20.glGetActiveAttrib (program.id, index);
 		return null;
@@ -1146,7 +1149,8 @@ class GL {
 		#if (js && html5 && !display)
 		return context.getActiveUniform (program, index);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
-		return lime_gl_get_active_uniform.call (program.id, index);
+		var result:Dynamic = lime_gl_get_active_uniform.call (program.id, index);
+		return result;
 		#elseif java
 		//return GL20.glGetActiveUniform (program.id, index);
 		return null;
@@ -1208,7 +1212,7 @@ class GL {
 		#if (js && html5 && !display)
 		return context.getContextAttributes ();
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
-		var base = lime_gl_get_context_attributes.call ();
+		var base:Dynamic = lime_gl_get_context_attributes.call ();
 		base.premultipliedAlpha = false;
 		base.preserveDrawingBuffer = false;
 		return base;
@@ -1367,7 +1371,8 @@ class GL {
 		#if (js && html5 && !display)
 		return context.getShaderPrecisionFormat (shadertype, precisiontype);
 		#elseif ((cpp || neko || nodejs) && lime_opengl)
-		return lime_gl_get_shader_precision_format.call (shadertype, precisiontype);
+		var result:Dynamic = lime_gl_get_shader_precision_format.call (shadertype, precisiontype);
+		return result;
 		#elseif java
 		//return GL20.glGetShaderPrecisionFormat (shadertype, precisiontype);
 		return null;
@@ -1649,7 +1654,8 @@ class GL {
 		#if (js && html5 && !display)
 		context.readPixels (x, y, width, height, format, type, pixels);
 		#elseif ((cpp || neko) && lime_opengl)
-		lime_gl_read_pixels.call (x, y, width, height, format, type, pixels == null ? null : pixels.buffer, pixels == null ? 0 : pixels.byteOffset);
+		var buffer = pixels == null ? null : pixels.buffer;
+		lime_gl_read_pixels.call (x, y, width, height, format, type, buffer, pixels == null ? 0 : pixels.byteOffset);
 		#elseif (nodejs && lime_opengl)
 		lime_gl_read_pixels.call (x, y, width, height, format, type, pixels == null ? null : pixels, pixels == null ? null : pixels.byteOffset);
 		#end
@@ -1772,7 +1778,8 @@ class GL {
 		#if (js && html5 && !display)
 		context.texImage2D (target, level, internalformat, width, height, border, format, type, pixels);
 		#elseif ((cpp || neko) && lime_opengl)
-		lime_gl_tex_image_2d.call (target, level, internalformat, width, height, border, format, type, pixels == null ? null : pixels.buffer, pixels == null ? 0 : pixels.byteOffset);
+		var buffer = pixels == null ? null : pixels.buffer;
+		lime_gl_tex_image_2d.call (target, level, internalformat, width, height, border, format, type, buffer, pixels == null ? 0 : pixels.byteOffset);
 		#elseif (nodejs && lime_opengl)
 		lime_gl_tex_image_2d.call (target, level, internalformat, width, height, border, format, type, pixels == null ? null : pixels, pixels == null ? null : pixels.byteOffset);
 		#end
@@ -1807,7 +1814,8 @@ class GL {
 		#if (js && html5 && !display)
 		context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, pixels);
 		#elseif ((cpp || neko) && lime_opengl)
-		lime_gl_tex_sub_image_2d.call (target, level, xoffset, yoffset, width, height, format, type, pixels == null ? null : pixels.buffer, pixels == null ? 0 : pixels.byteOffset);
+		var buffer = pixels == null ? null : pixels.buffer;
+		lime_gl_tex_sub_image_2d.call (target, level, xoffset, yoffset, width, height, format, type, buffer, pixels == null ? 0 : pixels.byteOffset);
 		#elseif (nodejs && lime_opengl)
 		lime_gl_tex_sub_image_2d.call (target, level, xoffset, yoffset, width, height, format, type, pixels == null ? null : pixels, pixels == null ? null : pixels.byteOffset);
 		#end

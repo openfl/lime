@@ -57,7 +57,8 @@ class NativeApplication {
 	
 	public function create (config:Config):Void {
 		
-		handle = lime_application_create.call (null);
+		//handle = lime_application_create.call (null);
+		handle = lime_application_create (null);
 		
 	}
 	
@@ -495,7 +496,8 @@ class NativeApplication {
 	}
 	
 	
-	private static var lime_application_create = System.loadPrime ("lime", "lime_application_create", "od");
+	//private static var lime_application_create = System.loadPrime ("lime", "lime_application_create", "od");
+	private static var lime_application_create = System.load ("lime", "lime_application_create", 1);
 	private static var lime_application_event_manager_register = System.loadPrime ("lime", "lime_application_event_manager_register", "oov");
 	private static var lime_application_exec = System.loadPrime ("lime", "lime_application_exec", "di");
 	private static var lime_application_init = System.loadPrime ("lime", "lime_application_init", "dv");

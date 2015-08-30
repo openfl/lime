@@ -108,7 +108,7 @@ class NativeRenderer {
 		if (!useHardware) {
 			
 			#if lime_cairo
-			var lock = lime_renderer_lock.call (handle);
+			var lock:Dynamic = lime_renderer_lock.call (handle);
 			
 			if (cacheLock == null || cacheLock.pixels != lock.pixels || cacheLock.width != lock.width || cacheLock.height != lock.height) {
 				

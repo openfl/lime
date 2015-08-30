@@ -11,7 +11,7 @@ class LZMA {
 	public static function decode (bytes:ByteArray):ByteArray {
 		
 		#if (cpp || neko || nodejs)
-		var data = lime_lzma_decode.call (bytes);
+		var data:Dynamic = lime_lzma_decode.call (bytes);
 		return ByteArray.fromBytes (@:privateAccess new Bytes (data.length, data.b));
 		#else
 		return null;
@@ -23,7 +23,7 @@ class LZMA {
 	public static function encode (bytes:ByteArray):ByteArray {
 		
 		#if (cpp || neko || nodejs)
-		var data = lime_lzma_encode.call (bytes);
+		var data:Dynamic = lime_lzma_encode.call (bytes);
 		return ByteArray.fromBytes (@:privateAccess new Bytes (data.length, data.b));
 		#else
 		return null;

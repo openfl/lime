@@ -185,7 +185,7 @@ class System {
 	public static function getDisplay (id:Int):Display {
 		
 		#if (cpp || neko || nodejs)
-		var displayInfo = lime_system_get_display.call (id);
+		var displayInfo:Dynamic = lime_system_get_display.call (id);
 		
 		if (displayInfo != null) {
 			
@@ -411,8 +411,8 @@ class System {
 			case "d" : return "Float";
 			case "s" : return "String";
 			case "f" : return forCpp ? "cpp.Float32" : "Float";
-			case "o" : return false ? "cpp.Object" : "Dynamic";
-			case "v" : return false ? "cpp.Void" : "Void";
+			case "o" : return forCpp ? "cpp.Object" : "Dynamic";
+			case "v" : return forCpp ? "cpp.Void" : "Void";
 			case "c" :
 				if (forCpp)
 					return "cpp.ConstCharStar";
@@ -426,7 +426,7 @@ class System {
 	#end
 	
 	
-	#if (false && (haxe_ver >= 3.2) && !debug_cffi)
+	#if ((haxe_ver >= 3.2) && !debug_cffi)
 	public static inline macro function loadPrime (library:String, method:String, signature:String, lazy:Bool = false) {
 		
 		var parts = signature.split ("");
@@ -442,7 +442,7 @@ class System {
 		
 		if (parts.length == 1) {
 			
-			typeString = __codeToType ("v", cppMode);
+			typeString = "Void";
 			
 		} else {
 			

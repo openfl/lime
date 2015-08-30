@@ -44,7 +44,7 @@ class NativeMouse {
 	
 	public static function warp (x:Int, y:Int, window:Window):Void {
 		
-		lime_mouse_warp.call (x, y, window == null ? null : window.backend.handle);
+		lime_mouse_warp.call (x, y, window == null ? 0 : window.backend.handle);
 		
 	}
 	
@@ -140,7 +140,7 @@ class NativeMouse {
 }
 
 
-@:enum private abstract MouseCursorType(Int) {
+@:enum private abstract MouseCursorType(Int) from Int to Int {
 	
 	var ARROW = 0;
 	var CROSSHAIR = 1;
