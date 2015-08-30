@@ -269,11 +269,11 @@ namespace lime {
 	}
 	
 	
-	HxString lime_font_get_family_name (double fontHandle) {
+	value lime_font_get_family_name (double fontHandle) {
 		
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)(intptr_t)fontHandle;
-		return HxString ((const char*)font->GetFamilyName ());
+		return alloc_wstring (font->GetFamilyName ());
 		#else
 		return 0;
 		#endif

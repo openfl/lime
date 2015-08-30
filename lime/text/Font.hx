@@ -480,7 +480,7 @@ class Font {
 	#if (cpp || neko || nodejs)
 	private static var lime_font_get_ascender = System.loadPrime ("lime", "lime_font_get_ascender", "di");
 	private static var lime_font_get_descender = System.loadPrime ("lime", "lime_font_get_descender", "di");
-	private static var lime_font_get_family_name = System.loadPrime ("lime", "lime_font_get_family_name", "ds");
+	private static var lime_font_get_family_name = System.loadPrime ("lime", "lime_font_get_family_name", "do");
 	private static var lime_font_get_glyph_index = System.loadPrime ("lime", "lime_font_get_glyph_index", "dsi");
 	private static var lime_font_get_glyph_indices = System.loadPrime ("lime", "lime_font_get_glyph_indices", "dso");
 	private static var lime_font_get_glyph_metrics = System.loadPrime ("lime", "lime_font_get_glyph_metrics", "dio");
