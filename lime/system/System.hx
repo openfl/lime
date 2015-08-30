@@ -8,6 +8,8 @@ import lime.app.Application;
 #else
 import haxe.macro.Context;
 import haxe.macro.Expr;
+import haxe.macro.ExprTools;
+import haxe.macro.TypeTools;
 import cpp.Prime;
 #end
 
@@ -427,15 +429,91 @@ class System {
 	
 	
 	#if ((haxe_ver >= 3.2) && !debug_cffi)
-	public static inline macro function loadPrime (library:String, method:String, signature:String, lazy:Bool = false) {
+	public static inline macro function loadPrime (library:String, method:String, signature:Expr, lazy:Bool = false) {
 		
-		var parts = signature.split ("");
+		var signatureString = "";
+		var signatureType = Context.typeExpr (signature);
 		
-		if (parts.length < 1) {
+		switch (signatureType.t) {
 			
-			throw "Invalid function signature " + signature;
+			case TFun (args, result):
+				
+				for (arg in args) {
+					
+					switch (TypeTools.toString (arg.t)) {
+						
+						case "Int", "Int16", "Int32": signatureString += "i";
+						case "Bool": signatureString += "b";
+						case "Float32": signatureString += "f";
+						case "Float", "Float64": signatureString += "d";
+						case "String": signatureString += "s";
+						case "ConstCharStar": signatureString += "c";
+						case "Void": if (signatureString.length > 0) signatureString += "v";
+						default: signatureString += "o";
+						
+					}
+					
+				}
+				
+				switch (TypeTools.toString (result)) {
+					
+					case "Int", "Int16", "Int32": signatureString += "i";
+					case "Bool": signatureString += "b";
+					case "Float32": signatureString += "f";
+					case "Float", "Float64": signatureString += "d";
+					case "String": signatureString += "s";
+					case "ConstCharStar": signatureString += "c";
+					case "Void": signatureString += "v";
+					default: signatureString += "o";
+					
+				}
+				
+				Sys.println (signatureString);
+			
+			case TInst (t, _):
+				
+				switch (t.get ().name) {
+					
+					case "String":
+						
+						signatureString = ExprTools.getValue (signature);
+					
+					default:
+					
+				}
+			
+			case TAbstract (t, _):
+				
+				switch (t.get ().name) {
+					
+					case "Int":
+						
+						var typeString = "Dynamic";
+						var args:Int = ExprTools.getValue (signature);
+						
+						for (i in 0...args) {
+							
+							typeString += "->Dynamic";
+							
+						}
+						
+						return Context.parse ('new cpp.Callable<$typeString> (System.load ("$library", "$method", $args, $lazy))', Context.currentPos ());
+					
+					default:
+					
+				}
+			
+			default:
 			
 		}
+		
+		if (signatureString == null || signatureString == "") {
+			
+			throw "Invalid function signature";
+			
+		}
+		
+		var parts = signatureString.split ("");
 		
 		var cppMode = Context.defined ("cpp");
 		var typeString, expr;
@@ -459,11 +537,11 @@ class System {
 		if (cppMode) {
 			
 			typeString = "cpp.Callable<" + typeString + ">";
-			expr = 'new $typeString (cpp.Prime._loadPrime ("$library", "$method", "$signature", $lazy))';
+			expr = 'new $typeString (cpp.Prime._loadPrime ("$library", "$method", "$signatureString", $lazy))';
 			
 		} else {
 			
-			var args = signature.length - 1;
+			var args = signatureString.length - 1;
 			
 			if (args > 5) {
 				
