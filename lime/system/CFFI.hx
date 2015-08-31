@@ -20,7 +20,7 @@ using haxe.macro.Tools;
 	
 	
 	#if macro
-	public static function build ():Array<Field> {
+	public static function build (defaultLibrary:String = "lime"):Array<Field> {
 		
 		var pos = Context.currentPos ();
 		var fields = Context.getBuildFields ();
@@ -34,7 +34,31 @@ using haxe.macro.Tools;
 					
 					for (m in meta) {
 						
-						if (m.name == ":cffi" && m.params.length >= 2) {
+						if (m.name == ":cffi") {
+							
+							var library = null;
+							var method = null;
+							var lazy = false;
+							
+							if (Reflect.hasField (m, "params")) {
+								
+								if (m.params.length > 0) library = m.params[0].getValue ();
+								if (m.params.length > 1) method = m.params[1].getValue ();
+								if (m.params.length > 2) lazy = m.params[2].getValue ();
+								
+							}
+							
+							if (library == null || library == "") {
+								
+								library = defaultLibrary;
+								
+							}
+							
+							if (method == null || method == "") {
+								
+								method = field.name;
+								
+							}
 							
 							var typeArgs = [];
 							
@@ -47,37 +71,33 @@ using haxe.macro.Tools;
 							var type = getFunctionType (typeArgs, fun.ret.toType ());
 							var typeString = type.string;
 							
-							var library = m.params[0].getValue ();
-							var method = m.params[1].getValue ();
-							var lazy = (m.params.length > 2) ? m.params[2].getValue () : false;
-							var expr = 'new lime.system.CFFI<$typeString> ("$library", "$method", $lazy)';
-							var name = "cffi_" + field.name;
-							
+							var cffiExpr = 'new lime.system.CFFI<$typeString> ("$library", "$method", $lazy)';
+							var cffiName = "cffi_" + field.name;
 							var cffiType = TPath ( { pack: [ "lime", "system" ], name: "CFFI", params: [ TPType (TFun (type.args, type.result).toComplexType ()) ] } );
 							
-							newFields.push ( { name: name, access: [ APrivate, AStatic ], kind: FieldType.FVar (cffiType, Context.parse (expr, pos)), pos: pos } );
+							newFields.push ( { name: cffiName, access: [ APrivate, AStatic ], kind: FieldType.FVar (cffiType, Context.parse (cffiExpr, pos)), pos: pos } );
 							
-							var expr = "";
+							var newExpr = "";
 							
 							if (type.result.toString () != "Void" && type.result.toString () != "cpp.Void") {
 								
-								expr = "return ";
+								newExpr = "return ";
 								
 							}
 							
-							expr += '$name.call (';
+							newExpr += '$cffiName.call (';
 							
 							for (i in 0...type.args.length) {
 								
-								if (i > 0) expr += ", ";
-								expr += type.args[i].name;
+								if (i > 0) newExpr += ", ";
+								newExpr += type.args[i].name;
 								
 							}
 							
-							expr += ")";
+							newExpr += ")";
 							
-							fun.expr = Context.parse (expr, pos);
 							field.access.push (AInline);
+							fun.expr = Context.parse (newExpr, pos);
 							
 						}
 						

@@ -497,20 +497,20 @@ class NativeApplication {
 	}
 	
 	
-	@:cffi("lime", "lime_application_create") private static function lime_application_create (config:Dynamic):Float;
-	@:cffi("lime", "lime_application_event_manager_register") private static function lime_application_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
-	@:cffi("lime", "lime_application_exec") private static function lime_application_exec (handle:Float):Int;
-	@:cffi("lime", "lime_application_init") private static function lime_application_init (handle:Float):Void;
-	@:cffi("lime", "lime_application_quit") private static function lime_application_quit (handle:Float):Int;
-	@:cffi("lime", "lime_application_set_frame_rate") private static function lime_application_set_frame_rate (handle:Float, value:Float):Void;
-	@:cffi("lime", "lime_application_update") private static function lime_application_update (handle:Float):Bool;
-	@:cffi("lime", "lime_gamepad_event_manager_register") private static function lime_gamepad_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
-	@:cffi("lime", "lime_key_event_manager_register") private static function lime_key_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
-	@:cffi("lime", "lime_mouse_event_manager_register") private static function lime_mouse_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
-	@:cffi("lime", "lime_render_event_manager_register") private static function lime_render_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
-	@:cffi("lime", "lime_text_event_manager_register") private static function lime_text_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
-	@:cffi("lime", "lime_touch_event_manager_register") private static function lime_touch_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
-	@:cffi("lime", "lime_window_event_manager_register") private static function lime_window_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:cffi private static function lime_application_create (config:Dynamic):Float;
+	@:cffi private static function lime_application_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:cffi private static function lime_application_exec (handle:Float):Int;
+	@:cffi private static function lime_application_init (handle:Float):Void;
+	@:cffi private static function lime_application_quit (handle:Float):Int;
+	@:cffi private static function lime_application_set_frame_rate (handle:Float, value:Float):Void;
+	@:cffi private static function lime_application_update (handle:Float):Bool;
+	@:cffi private static function lime_gamepad_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:cffi private static function lime_key_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:cffi private static function lime_mouse_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:cffi private static function lime_render_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:cffi private static function lime_text_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:cffi private static function lime_touch_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:cffi private static function lime_window_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	
 	
 }
