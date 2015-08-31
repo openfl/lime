@@ -2,7 +2,7 @@ package lime.graphics.cairo;
 
 
 import lime.math.Matrix3;
-import lime.system.System;
+import lime.system.CFFI;
 
 
 abstract CairoPattern(Dynamic) from Float to Float {
@@ -196,21 +196,21 @@ abstract CairoPattern(Dynamic) from Float to Float {
 	
 	
 	#if lime_cairo
-	private static var lime_cairo_pattern_add_color_stop_rgb = System.loadPrime ("lime", "lime_cairo_pattern_add_color_stop_rgb", "dddddv");
-	private static var lime_cairo_pattern_add_color_stop_rgba = System.loadPrime ("lime", "lime_cairo_pattern_add_color_stop_rgba", "ddddddv");
-	private static var lime_cairo_pattern_create_for_surface = System.loadPrime ("lime", "lime_cairo_pattern_create_for_surface", "dd");
-	private static var lime_cairo_pattern_create_linear = System.loadPrime ("lime", "lime_cairo_pattern_create_linear", "ddddd");
-	private static var lime_cairo_pattern_create_radial = System.loadPrime ("lime", "lime_cairo_pattern_create_radial", "ddddddd");
-	private static var lime_cairo_pattern_create_rgb = System.loadPrime ("lime", "lime_cairo_pattern_create_rgb", "dddd");
-	private static var lime_cairo_pattern_create_rgba = System.loadPrime ("lime", "lime_cairo_pattern_create_rgba", "ddddd");
-	private static var lime_cairo_pattern_destroy = System.loadPrime ("lime", "lime_cairo_pattern_destroy", "dv");
-	private static var lime_cairo_pattern_get_color_stop_count = System.loadPrime ("lime", "lime_cairo_pattern_get_color_stop_count", "di");
-	private static var lime_cairo_pattern_get_extend = System.loadPrime ("lime", "lime_cairo_pattern_get_extend", "di");
-	private static var lime_cairo_pattern_get_filter = System.loadPrime ("lime", "lime_cairo_pattern_get_filter", "di");
-	private static var lime_cairo_pattern_get_matrix = System.loadPrime ("lime", "lime_cairo_pattern_get_matrix", "do");
-	private static var lime_cairo_pattern_set_extend = System.loadPrime ("lime", "lime_cairo_pattern_set_extend", "div");
-	private static var lime_cairo_pattern_set_filter = System.loadPrime ("lime", "lime_cairo_pattern_set_filter", "div");
-	private static var lime_cairo_pattern_set_matrix = System.loadPrime ("lime", "lime_cairo_pattern_set_matrix", "dov");
+	private static var lime_cairo_pattern_add_color_stop_rgb = new CFFI<Float->Float->Float->Float->Float->Void> ("lime", "lime_cairo_pattern_add_color_stop_rgb");
+	private static var lime_cairo_pattern_add_color_stop_rgba = new CFFI<Float->Float->Float->Float->Float->Float->Void> ("lime", "lime_cairo_pattern_add_color_stop_rgba");
+	private static var lime_cairo_pattern_create_for_surface = new CFFI<Float->Float> ("lime", "lime_cairo_pattern_create_for_surface");
+	private static var lime_cairo_pattern_create_linear = new CFFI<Float->Float->Float->Float->Float> ("lime", "lime_cairo_pattern_create_linear");
+	private static var lime_cairo_pattern_create_radial = new CFFI<Float->Float->Float->Float->Float->Float->Float> ("lime", "lime_cairo_pattern_create_radial");
+	private static var lime_cairo_pattern_create_rgb = new CFFI<Float->Float->Float->Float> ("lime", "lime_cairo_pattern_create_rgb");
+	private static var lime_cairo_pattern_create_rgba = new CFFI<Float->Float->Float->Float->Float> ("lime", "lime_cairo_pattern_create_rgba");
+	private static var lime_cairo_pattern_destroy = new CFFI<Float->Void> ("lime", "lime_cairo_pattern_destroy");
+	private static var lime_cairo_pattern_get_color_stop_count = new CFFI<Float->Int> ("lime", "lime_cairo_pattern_get_color_stop_count");
+	private static var lime_cairo_pattern_get_extend = new CFFI<Float->Int> ("lime", "lime_cairo_pattern_get_extend");
+	private static var lime_cairo_pattern_get_filter = new CFFI<Float->Int> ("lime", "lime_cairo_pattern_get_filter");
+	private static var lime_cairo_pattern_get_matrix = new CFFI<Float->Dynamic> ("lime", "lime_cairo_pattern_get_matrix");
+	private static var lime_cairo_pattern_set_extend = new CFFI<Float->Int->Void> ("lime", "lime_cairo_pattern_set_extend");
+	private static var lime_cairo_pattern_set_filter = new CFFI<Float->Int->Void> ("lime", "lime_cairo_pattern_set_filter");
+	private static var lime_cairo_pattern_set_matrix = new CFFI<Float->Dynamic->Void> ("lime", "lime_cairo_pattern_set_matrix");
 	#end
 	
 	

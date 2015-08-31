@@ -1,7 +1,7 @@
 package lime.graphics.cairo; #if !macro
 
 
-import lime.system.System;
+import lime.system.CFFI;
 
 
 abstract CairoSurface(Dynamic) from Float to Float {
@@ -33,8 +33,8 @@ abstract CairoSurface(Dynamic) from Float to Float {
 	
 	
 	#if lime_cairo
-	private static var lime_cairo_surface_destroy = System.loadPrime ("lime", "lime_cairo_surface_destroy", "dv");
-	private static var lime_cairo_surface_flush = System.loadPrime ("lime", "lime_cairo_surface_flush", "dv");
+	private static var lime_cairo_surface_destroy = new CFFI<Float->Void> ("lime", "lime_cairo_surface_destroy");
+	private static var lime_cairo_surface_flush = new CFFI<Float->Void> ("lime", "lime_cairo_surface_flush");
 	#end
 	
 	

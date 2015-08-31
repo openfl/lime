@@ -4,7 +4,7 @@ package lime.graphics.format;
 import haxe.io.Bytes;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
-import lime.system.System;
+import lime.system.CFFI;
 import lime.utils.ByteArray;
 
 
@@ -88,9 +88,9 @@ class JPEG {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_jpeg_decode_bytes = System.loadPrime ("lime", "lime_jpeg_decode_bytes", "obo");
-	private static var lime_jpeg_decode_file = System.loadPrime ("lime", "lime_jpeg_decode_file", "sbo");
-	private static var lime_image_encode = System.loadPrime ("lime", "lime_image_encode", "oiio");
+	private static var lime_jpeg_decode_bytes = new CFFI<Dynamic->Bool->Dynamic> ("lime", "lime_jpeg_decode_bytes");
+	private static var lime_jpeg_decode_file = new CFFI<String->Bool->Dynamic> ("lime", "lime_jpeg_decode_file");
+	private static var lime_image_encode = new CFFI<Dynamic->Int->Int->Dynamic> ("lime", "lime_image_encode");
 	#end
 	
 	

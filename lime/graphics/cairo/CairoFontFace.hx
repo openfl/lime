@@ -1,7 +1,7 @@
 package lime.graphics.cairo;
 
 
-import lime.system.System;
+import lime.system.CFFI;
 
 
 abstract CairoFontFace(Dynamic) from Float to Float {
@@ -74,10 +74,10 @@ abstract CairoFontFace(Dynamic) from Float to Float {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_cairo_font_face_destroy = System.loadPrime ("lime", "lime_cairo_font_face_destroy", "dv");
-	private static var lime_cairo_font_face_get_reference_count = System.loadPrime ("lime", "lime_cairo_font_face_get_reference_count", "di");
-	private static var lime_cairo_font_face_reference  = System.loadPrime ("lime", "lime_cairo_font_face_reference", "dv");
-	private static var lime_cairo_font_face_status  = System.loadPrime ("lime", "lime_cairo_font_face_status", "di");
+	private static var lime_cairo_font_face_destroy = new CFFI<Float->Void> ("lime", "lime_cairo_font_face_destroy");
+	private static var lime_cairo_font_face_get_reference_count = new CFFI<Float->Int> ("lime", "lime_cairo_font_face_get_reference_count");
+	private static var lime_cairo_font_face_reference = new CFFI<Float->Void> ("lime", "lime_cairo_font_face_reference");
+	private static var lime_cairo_font_face_status = new CFFI<Float->Int> ("lime", "lime_cairo_font_face_status");
 	#end
 	
 	

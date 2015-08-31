@@ -1,8 +1,8 @@
 package lime.graphics.cairo;
 
 
+import lime.system.CFFI;
 import lime.text.Font;
-import lime.system.System;
 
 
 abstract CairoFontOptions(Dynamic) from Float to Float {
@@ -138,16 +138,16 @@ abstract CairoFontOptions(Dynamic) from Float to Float {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_cairo_font_options_create = System.loadPrime ("lime", "lime_cairo_font_options_create", "d");
-	private static var lime_cairo_font_options_destroy = System.loadPrime ("lime", "lime_cairo_font_options_destroy", "dv");
-	private static var lime_cairo_font_options_get_antialias = System.loadPrime ("lime", "lime_cairo_font_options_get_antialias", "di");
-	private static var lime_cairo_font_options_get_hint_metrics = System.loadPrime ("lime", "lime_cairo_font_options_get_hint_metrics", "di");
-	private static var lime_cairo_font_options_get_hint_style = System.loadPrime ("lime", "lime_cairo_font_options_get_hint_style", "di");
-	private static var lime_cairo_font_options_get_subpixel_order = System.loadPrime ("lime", "lime_cairo_font_options_get_subpixel_order", "di");
-	private static var lime_cairo_font_options_set_antialias = System.loadPrime ("lime", "lime_cairo_font_options_set_antialias", "div");
-	private static var lime_cairo_font_options_set_hint_metrics = System.loadPrime ("lime", "lime_cairo_font_options_set_hint_metrics", "div");
-	private static var lime_cairo_font_options_set_hint_style = System.loadPrime ("lime", "lime_cairo_font_options_set_hint_style", "div");
-	private static var lime_cairo_font_options_set_subpixel_order = System.loadPrime ("lime", "lime_cairo_font_options_set_subpixel_order", "div");
+	private static var lime_cairo_font_options_create = new CFFI<Void->Float> ("lime", "lime_cairo_font_options_create");
+	private static var lime_cairo_font_options_destroy = new CFFI<Float->Void> ("lime", "lime_cairo_font_options_destroy");
+	private static var lime_cairo_font_options_get_antialias = new CFFI<Float->Int> ("lime", "lime_cairo_font_options_get_antialias");
+	private static var lime_cairo_font_options_get_hint_metrics = new CFFI<Float->Int> ("lime", "lime_cairo_font_options_get_hint_metrics");
+	private static var lime_cairo_font_options_get_hint_style = new CFFI<Float->Int> ("lime", "lime_cairo_font_options_get_hint_style");
+	private static var lime_cairo_font_options_get_subpixel_order = new CFFI<Float->Int> ("lime", "lime_cairo_font_options_get_subpixel_order");
+	private static var lime_cairo_font_options_set_antialias = new CFFI<Float->Int->Void> ("lime", "lime_cairo_font_options_set_antialias");
+	private static var lime_cairo_font_options_set_hint_metrics = new CFFI<Float->Int->Void> ("lime", "lime_cairo_font_options_set_hint_metrics");
+	private static var lime_cairo_font_options_set_hint_style = new CFFI<Float->Int->Void> ("lime", "lime_cairo_font_options_set_hint_style");
+	private static var lime_cairo_font_options_set_subpixel_order = new CFFI<Float->Int->Void> ("lime", "lime_cairo_font_options_set_subpixel_order");
 	#end
 	
 	

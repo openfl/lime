@@ -10,6 +10,7 @@ import lime.graphics.GLRenderContext;
 import lime.graphics.RenderContext;
 import lime.graphics.Renderer;
 import lime.math.Rectangle;
+import lime.system.CFFI;
 import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.System;
@@ -57,8 +58,7 @@ class NativeApplication {
 	
 	public function create (config:Config):Void {
 		
-		//handle = lime_application_create.call (null);
-		handle = lime_application_create (null);
+		handle = lime_application_create.call ({});
 		
 	}
 	
@@ -496,21 +496,20 @@ class NativeApplication {
 	}
 	
 	
-	//private static var lime_application_create = System.loadPrime ("lime", "lime_application_create", "od");
-	private static var lime_application_create = System.load ("lime", "lime_application_create", 1);
-	private static var lime_application_event_manager_register = System.loadPrime ("lime", "lime_application_event_manager_register", "oov");
-	private static var lime_application_exec = System.loadPrime ("lime", "lime_application_exec", "di");
-	private static var lime_application_init = System.loadPrime ("lime", "lime_application_init", "dv");
-	private static var lime_application_quit = System.loadPrime ("lime", "lime_application_quit", "di");
-	private static var lime_application_set_frame_rate = System.loadPrime ("lime", "lime_application_set_frame_rate", "ddv");
-	private static var lime_application_update = System.loadPrime ("lime", "lime_application_update", "db");
-	private static var lime_gamepad_event_manager_register = System.loadPrime ("lime", "lime_gamepad_event_manager_register", "oov");
-	private static var lime_key_event_manager_register = System.loadPrime ("lime", "lime_key_event_manager_register", "oov");
-	private static var lime_mouse_event_manager_register = System.loadPrime ("lime", "lime_mouse_event_manager_register", "oov");
-	private static var lime_render_event_manager_register = System.loadPrime ("lime", "lime_render_event_manager_register", "oov");
-	private static var lime_text_event_manager_register = System.loadPrime ("lime", "lime_text_event_manager_register", "oov");
-	private static var lime_touch_event_manager_register = System.loadPrime ("lime", "lime_touch_event_manager_register", "oov");
-	private static var lime_window_event_manager_register = System.loadPrime ("lime", "lime_window_event_manager_register", "oov");
+	private static var lime_application_create = new CFFI<Dynamic->Float> ("lime", "lime_application_create");
+	private static var lime_application_event_manager_register = new CFFI<Dynamic->Dynamic->Void> ("lime", "lime_application_event_manager_register");
+	private static var lime_application_exec = new CFFI<Float->Int> ("lime", "lime_application_exec");
+	private static var lime_application_init = new CFFI<Float->Void> ("lime", "lime_application_init");
+	private static var lime_application_quit = new CFFI<Float->Int> ("lime", "lime_application_quit");
+	private static var lime_application_set_frame_rate = new CFFI<Float->Float->Void> ("lime", "lime_application_set_frame_rate");
+	private static var lime_application_update = new CFFI<Float->Bool> ("lime", "lime_application_update");
+	private static var lime_gamepad_event_manager_register = new CFFI<Dynamic->Dynamic->Void> ("lime", "lime_gamepad_event_manager_register");
+	private static var lime_key_event_manager_register = new CFFI<Dynamic->Dynamic->Void> ("lime", "lime_key_event_manager_register");
+	private static var lime_mouse_event_manager_register = new CFFI<Dynamic->Dynamic->Void> ("lime", "lime_mouse_event_manager_register");
+	private static var lime_render_event_manager_register = new CFFI<Dynamic->Dynamic->Void> ("lime", "lime_render_event_manager_register");
+	private static var lime_text_event_manager_register = new CFFI<Dynamic->Dynamic->Void> ("lime", "lime_text_event_manager_register");
+	private static var lime_touch_event_manager_register = new CFFI<Dynamic->Dynamic->Void> ("lime", "lime_touch_event_manager_register");
+	private static var lime_window_event_manager_register = new CFFI<Dynamic->Dynamic->Void> ("lime", "lime_window_event_manager_register");
 	
 	
 }

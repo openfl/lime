@@ -1,7 +1,7 @@
 package lime.graphics.cairo;
 
 
-import lime.system.System;
+import lime.system.CFFI;
 import lime.text.Font;
 
 
@@ -37,7 +37,7 @@ abstract CairoFTFontFace(CairoFontFace) from CairoFontFace to CairoFontFace {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_cairo_ft_font_face_create = System.loadPrime ("lime", "lime_cairo_ft_font_face_create", "did");
+	private static var lime_cairo_ft_font_face_create = new CFFI<Float->Int->Float> ("lime", "lime_cairo_ft_font_face_create");
 	#end
 	
 	

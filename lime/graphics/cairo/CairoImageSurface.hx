@@ -1,6 +1,7 @@
 package lime.graphics.cairo;
 
 
+import lime.system.CFFI;
 import lime.system.System;
 
 
@@ -118,15 +119,15 @@ import lime.system.System;
 	
 	
 	#if lime_cairo
-	//private static var lime_bytes_get_data_pointer = System.loadPrime ("lime", "lime_bytes_get_data_pointer", "od");
+	//private static var lime_bytes_get_data_pointer = new CFFI<Dynamic->Float> ("lime", "lime_bytes_get_data_pointer");
 	private static var lime_bytes_get_data_pointer = System.load ("lime", "lime_bytes_get_data_pointer", 1);
-	private static var lime_cairo_image_surface_create = System.loadPrime ("lime", "lime_cairo_image_surface_create", "iiid");
-	private static var lime_cairo_image_surface_create_for_data = System.loadPrime ("lime", "lime_cairo_image_surface_create_for_data", "diiiid");
-	private static var lime_cairo_image_surface_get_data = System.loadPrime ("lime", "lime_cairo_image_surface_get_data", "dd");
-	private static var lime_cairo_image_surface_get_format = System.loadPrime ("lime", "lime_cairo_image_surface_get_format", "di");
-	private static var lime_cairo_image_surface_get_height = System.loadPrime ("lime", "lime_cairo_image_surface_get_height", "di");
-	private static var lime_cairo_image_surface_get_stride = System.loadPrime ("lime", "lime_cairo_image_surface_get_stride", "di");
-	private static var lime_cairo_image_surface_get_width = System.loadPrime ("lime", "lime_cairo_image_surface_get_width", "di");
+	private static var lime_cairo_image_surface_create = new CFFI<Int->Int->Int->Float> ("lime", "lime_cairo_image_surface_create");
+	private static var lime_cairo_image_surface_create_for_data = new CFFI<Float->Int->Int->Int->Int->Float> ("lime", "lime_cairo_image_surface_create_for_data");
+	private static var lime_cairo_image_surface_get_data = new CFFI<Float->Float> ("lime", "lime_cairo_image_surface_get_data");
+	private static var lime_cairo_image_surface_get_format = new CFFI<Float->Int> ("lime", "lime_cairo_image_surface_get_format");
+	private static var lime_cairo_image_surface_get_height = new CFFI<Float->Int> ("lime", "lime_cairo_image_surface_get_height");
+	private static var lime_cairo_image_surface_get_stride = new CFFI<Float->Int> ("lime", "lime_cairo_image_surface_get_stride");
+	private static var lime_cairo_image_surface_get_width = new CFFI<Float->Int> ("lime", "lime_cairo_image_surface_get_width");
 	#end
 	
 	

@@ -3,6 +3,7 @@ package lime.graphics.format;
 
 import haxe.io.Bytes;
 import lime.graphics.Image;
+import lime.system.CFFI;
 import lime.system.System;
 import lime.utils.ByteArray;
 
@@ -145,9 +146,9 @@ class PNG {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_png_decode_bytes = System.loadPrime ("lime", "lime_png_decode_bytes", "obo");
-	private static var lime_png_decode_file = System.loadPrime ("lime", "lime_png_decode_file", "sbo");
-	private static var lime_image_encode = System.loadPrime ("lime", "lime_image_encode", "oiio");
+	private static var lime_png_decode_bytes = new CFFI<Dynamic->Bool->Dynamic> ("lime", "lime_png_decode_bytes");
+	private static var lime_png_decode_file = new CFFI<String->Bool->Dynamic> ("lime", "lime_png_decode_file");
+	private static var lime_image_encode = new CFFI<Dynamic->Int->Int->Dynamic> ("lime", "lime_image_encode");
 	#end
 	
 	
