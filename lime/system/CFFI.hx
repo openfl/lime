@@ -12,7 +12,7 @@ using haxe.macro.Tools;
 #end
 
 #if !macro
-@:genericBuild(lime.system.CFFI.build())
+@:genericBuild(lime.system.CFFI.buildInstance())
 #end
 
 
@@ -20,176 +20,97 @@ using haxe.macro.Tools;
 	
 	
 	#if macro
-	private static function build ():ComplexType {
+	public static function build ():Array<Field> {
 		
-		var typeArgs = [];
-		var typeResult = null;
+		var pos = Context.currentPos ();
+		var fields = Context.getBuildFields ();
+		var newFields = [];
 		
-		var isCPP = Context.defined ("cpp");
-		var signature = "";
-		
-		switch (Context.getLocalType ()) {
+		for (field in fields) {
 			
-			case TInst (_, [ type ]):
+			switch (field) {
 				
-				switch (type) {
+				case _ => { kind: FFun (fun), meta: meta } :
 					
-					case TFun (args, result):
+					for (m in meta) {
 						
-						for (arg in args) {
+						if (m.name == ":cffi" && m.params.length >= 2) {
 							
-							switch (arg.t.toString ()) {
+							var typeArgs = [];
+							
+							for (arg in fun.args) {
 								
-								case "Int", "Int16", "Int32":
-									
-									typeArgs.push (arg);
-									signature += "i";
-								
-								case "Bool":
-									
-									typeArgs.push (arg);
-									signature += "b";
-								
-								case "Float32":
-									
-									if (isCPP) {
-										
-										typeArgs.push ( { name: "arg", opt: false, t: (macro :cpp.Float32).toType () } );
-										
-									} else {
-										
-										typeArgs.push (arg);
-										
-									}
-									
-									signature += "f";
-								
-								case "Float", "Float64":
-									
-									typeArgs.push (arg);
-									signature += "d";
-								
-								case "String":
-									
-									typeArgs.push (arg);
-									signature += "s";
-								
-								case "ConstCharStar":
-									
-									typeArgs.push (arg);
-									signature += "c";
-								
-								case "Void":
-									
-									if (isCPP) {
-										
-										typeArgs.push ( { name: "arg", opt: false, t: (macro :cpp.Void).toType () } );
-										
-									} else {
-										
-										typeArgs.push (arg);
-										
-									}
-									
-									if (signature.length > 0) {
-										
-										signature += "v";
-										
-									}
-									
-								default:
-									
-									if (isCPP) {
-										
-										typeArgs.push ( { name: "arg", opt: false, t: (macro :cpp.Object).toType () } );
-										
-									} else {
-										
-										typeArgs.push ( { name: "arg", opt: false, t: (macro :Dynamic).toType () } );
-										
-									}
-									
-									signature += "o";
+								typeArgs.push ( { name: arg.name, opt: false, t: arg.type.toType () } );
 								
 							}
 							
-						}
-						
-						switch (result.toString ()) {
+							var type = getFunctionType (typeArgs, fun.ret.toType ());
+							var typeString = type.string;
 							
-							case "Int", "Int16", "Int32":
-								
-								typeResult = result;
-								signature += "i";
+							var library = m.params[0].getValue ();
+							var method = m.params[1].getValue ();
+							var lazy = (m.params.length > 2) ? m.params[2].getValue () : false;
+							var expr = 'new CFFI<$typeString> ("$library", "$method", $lazy)';
+							var name = "cffi_" + field.name;
 							
-							case "Bool":
-								
-								typeResult = result;
-								signature += "b";
+							var cffiType = TPath ( { pack: [ "lime", "system" ], name: "CFFI", params: [ TPType (TFun (type.args, type.result).toComplexType ()) ] } );
 							
-							case "Float32":
-								
-								if (isCPP) {
-									
-									typeResult = (macro :cpp.Float32).toType ();
-									
-								} else {
-									
-									typeResult = result;
-									
-								}
-								
-								signature += "f";
+							newFields.push ( { name: name, access: [ APrivate, AStatic ], kind: FieldType.FVar (cffiType, Context.parse (expr, pos)), pos: pos } );
 							
-							case "Float", "Float64":
-								
-								typeResult = result;
-								signature += "d";
+							var expr = "";
 							
-							case "String":
+							if (type.result.toString () != "Void" && type.result.toString () != "cpp.Void") {
 								
-								typeResult = result;
-								signature += "s";
+								expr = "return ";
+								
+							}
 							
-							case "ConstCharStar":
-								
-								typeResult = result;
-								signature += "c";
+							expr += '$name.call (';
 							
-							case "Void":
+							for (i in 0...type.args.length) {
 								
-								if (isCPP) {
-									
-									typeResult = (macro :cpp.Void).toType ();
-									
-								} else {
-									
-									typeResult = result;
-									
-								}
-								signature += "v";
+								if (i > 0) expr += ", ";
+								expr += type.args[i].name;
 								
-							default:
-								
-								if (isCPP) {
-									
-									typeResult = (macro :cpp.Object).toType ();
-									
-								} else {
-									
-									typeResult = (macro :Dynamic).toType ();
-									
-								}
-								
-								signature += "o";
+							}
+							
+							expr += ")";
+							
+							fun.expr = Context.parse (expr, pos);
+							field.access.push (AInline);
 							
 						}
-					
-					default:
 						
-						throw false;
-					
-				}
+					}
+				
+				default:
+				
+			}
+			
+		}
+		
+		fields = fields.concat (newFields);
+		return fields;
+		
+	}
+	
+	
+	private static function buildInstance ():ComplexType {
+		
+		var typeArgs = [];
+		var typeResult = null;
+		var typeString;
+		var typeSignature = "";
+		
+		switch (Context.getLocalType ()) {
+			
+			case TInst (_, [ TFun (args, result) ]):
+				
+				var type = getFunctionType (args, result);
+				typeArgs = type.args;
+				typeResult = type.result;
+				typeString = type.string;
+				typeSignature = type.signature;
 				
 			default:
 				
@@ -198,23 +119,6 @@ using haxe.macro.Tools;
 		}
 		
 		var typeParam = TFun (typeArgs, typeResult);
-		var typeString = "";
-		
-		if (typeArgs.length == 0) {
-			
-			typeString = "Void->";
-			
-		} else {
-			
-			for (arg in typeArgs) {
-				
-				typeString += arg.t.toString () + "->";
-				
-			}
-			
-		}
-		
-		typeString += typeResult.toString ();
 		
 		var pos = Context.currentPos ();
 		var name = "CFFI$" + StringTools.replace (typeString, ".", "_");
@@ -227,13 +131,13 @@ using haxe.macro.Tools;
 			
 			var constructor:String;
 			
-			if (isCPP) {
+			if (Context.defined ("cpp")) {
 				
-				constructor = 'this = new cpp.Callable<$typeString> (cpp.Prime._loadPrime (library, method, "$signature", lazy))';
+				constructor = 'this = new cpp.Callable<$typeString> (cpp.Prime._loadPrime (library, method, "$typeSignature", lazy))';
 				
 			} else {
 				
-				var args = signature.length - 1;
+				var args = typeSignature.length - 1;
 				
 				if (args > 5) {
 					
@@ -271,6 +175,187 @@ using haxe.macro.Tools;
 		}
 		
 		return TPath ( { pack: [ "lime", "system" ], name: name, params: [ TPType (typeParam.toComplexType ()) ] } );
+		
+	}
+	
+	
+	private static function getFunctionType (args:Array<{ name : String, opt : Bool, t : Type }>, result:Type) {
+		
+		var isCPP = Context.defined ("cpp");
+		
+		var typeArgs = [];
+		var typeResult = null;
+		var typeSignature = "";
+		
+		for (arg in args) {
+			
+			switch (arg.t.toString ()) {
+				
+				case "Int", "cpp.Int16", "cpp.Int32":
+					
+					typeArgs.push (arg);
+					typeSignature += "i";
+				
+				case "Bool":
+					
+					typeArgs.push (arg);
+					typeSignature += "b";
+				
+				case "cpp.Float32":
+					
+					if (isCPP) {
+						
+						typeArgs.push ( { name: arg.name, opt: false, t: (macro :cpp.Float32).toType () } );
+						
+					} else {
+						
+						typeArgs.push (arg);
+						
+					}
+					
+					typeSignature += "f";
+				
+				case "Float", "cpp.Float64":
+					
+					typeArgs.push (arg);
+					typeSignature += "d";
+				
+				case "String":
+					
+					typeArgs.push (arg);
+					typeSignature += "s";
+				
+				case "cpp.ConstCharStar":
+					
+					typeArgs.push (arg);
+					typeSignature += "c";
+				
+				case "Void", "cpp.Void":
+					
+					if (isCPP) {
+						
+						typeArgs.push ( { name: arg.name, opt: false, t: (macro :cpp.Void).toType () } );
+						
+					} else {
+						
+						typeArgs.push (arg);
+						
+					}
+					
+					if (typeSignature.length > 0) {
+						
+						typeSignature += "v";
+						
+					}
+					
+				default:
+					
+					if (isCPP) {
+						
+						typeArgs.push ( { name: arg.name, opt: false, t: (macro :cpp.Object).toType () } );
+						
+					} else {
+						
+						typeArgs.push ( { name: arg.name, opt: false, t: (macro :Dynamic).toType () } );
+						
+					}
+					
+					typeSignature += "o";
+				
+			}
+			
+		}
+		
+		switch (result.toString ()) {
+			
+			case "Int", "cpp.Int16", "cpp.Int32":
+				
+				typeResult = result;
+				typeSignature += "i";
+			
+			case "Bool":
+				
+				typeResult = result;
+				typeSignature += "b";
+			
+			case "cpp.Float32":
+				
+				if (isCPP) {
+					
+					typeResult = (macro :cpp.Float32).toType ();
+					
+				} else {
+					
+					typeResult = result;
+					
+				}
+				
+				typeSignature += "f";
+			
+			case "Float", "cpp.Float64":
+				
+				typeResult = result;
+				typeSignature += "d";
+			
+			case "String":
+				
+				typeResult = result;
+				typeSignature += "s";
+			
+			case "cpp.ConstCharStar":
+				
+				typeResult = result;
+				typeSignature += "c";
+			
+			case "Void", "cpp.Void":
+				
+				if (isCPP) {
+					
+					typeResult = (macro :cpp.Void).toType ();
+					
+				} else {
+					
+					typeResult = result;
+					
+				}
+				
+				typeSignature += "v";
+				
+			default:
+				
+				if (isCPP) {
+					
+					typeResult = (macro :cpp.Object).toType ();
+					
+				} else {
+					
+					typeResult = (macro :Dynamic).toType ();
+					
+				}
+				
+				typeSignature += "o";
+			
+		}
+		
+		var typeString = "";
+		
+		if (typeArgs.length == 0) {
+			
+			typeString = "Void->";
+			
+		} else {
+			
+			for (arg in typeArgs) {
+				
+				typeString += arg.t.toString () + "->";
+				
+			}
+			
+		}
+		
+		typeString += typeResult.toString ();
+		
+		return { args: typeArgs, result: typeResult, string: typeString, signature: typeSignature,  };
 		
 	}
 	#end

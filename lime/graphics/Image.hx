@@ -18,10 +18,11 @@ import lime.math.color.RGBA;
 import lime.math.ColorMatrix;
 import lime.math.Rectangle;
 import lime.math.Vector2;
+import lime.system.CFFI;
+import lime.system.System;
 import lime.utils.ArrayBuffer;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
-import lime.system.System;
 
 #if (js && html5)
 import js.html.CanvasElement;
@@ -1074,7 +1075,7 @@ class Image {
 			
 		#elseif (cpp || neko || nodejs)
 			
-			var data = lime_image_load (bytes);
+			var data:Dynamic = lime_image_load.call (bytes);
 			
 			if (data != null) {
 				
@@ -1190,7 +1191,7 @@ class Image {
 			
 			if (#if (sys && (!disable_cffi || !format) && !java) true #else false #end && !System.disableCFFI) {
 				
-				var data = lime_image_load (path);
+				var data:Dynamic = lime_image_load.call (path);
 				
 				if (data != null) {
 					
@@ -1545,8 +1546,8 @@ class Image {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_image_encode:ImageBuffer -> Int -> Int -> ByteArray = System.load ("lime", "lime_image_encode", 3);
-	private static var lime_image_load:Dynamic = System.load ("lime", "lime_image_load", 1);
+	private static var lime_image_encode = new CFFI<Dynamic->Int->Int->Dynamic> ("lime", "lime_image_encode");
+	private static var lime_image_load = new CFFI<Dynamic->Dynamic> ("lime", "lime_image_load");
 	#end
 	
 	

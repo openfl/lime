@@ -18,6 +18,8 @@ import lime.ui.Gamepad;
 import lime.ui.Touch;
 import lime.ui.Window;
 
+@:build(lime.system.CFFI.build())
+
 @:access(haxe.Timer)
 @:access(lime._backend.native.NativeRenderer)
 @:access(lime.app.Application)
@@ -58,33 +60,33 @@ class NativeApplication {
 	
 	public function create (config:Config):Void {
 		
-		handle = lime_application_create.call ({});
+		handle = lime_application_create ({});
 		
 	}
 	
 	
 	public function exec ():Int {
 		
-		lime_application_event_manager_register.call (handleApplicationEvent, applicationEventInfo);
-		lime_gamepad_event_manager_register.call (handleGamepadEvent, gamepadEventInfo);
-		lime_key_event_manager_register.call (handleKeyEvent, keyEventInfo);
-		lime_mouse_event_manager_register.call (handleMouseEvent, mouseEventInfo);
-		lime_render_event_manager_register.call (handleRenderEvent, renderEventInfo);
-		lime_text_event_manager_register.call (handleTextEvent, textEventInfo);
-		lime_touch_event_manager_register.call (handleTouchEvent, touchEventInfo);
-		lime_window_event_manager_register.call (handleWindowEvent, windowEventInfo);
+		lime_application_event_manager_register (handleApplicationEvent, applicationEventInfo);
+		lime_gamepad_event_manager_register (handleGamepadEvent, gamepadEventInfo);
+		lime_key_event_manager_register (handleKeyEvent, keyEventInfo);
+		lime_mouse_event_manager_register (handleMouseEvent, mouseEventInfo);
+		lime_render_event_manager_register (handleRenderEvent, renderEventInfo);
+		lime_text_event_manager_register (handleTextEvent, textEventInfo);
+		lime_touch_event_manager_register (handleTouchEvent, touchEventInfo);
+		lime_window_event_manager_register (handleWindowEvent, windowEventInfo);
 		
 		#if nodejs
 		
-		lime_application_init.call (handle);
+		lime_application_init (handle);
 		
 		var eventLoop = function () {
 			
-			var active = lime_application_update.call (handle);
+			var active = lime_application_update (handle);
 			
 			if (!active) {
 				
-				var result = lime_application_quit.call (handle);
+				var result = lime_application_quit (handle);
 				System.exit (result);
 				
 			}
@@ -98,7 +100,7 @@ class NativeApplication {
 		
 		#elseif (cpp || neko)
 		
-		var result = lime_application_exec.call (handle);
+		var result = lime_application_exec (handle);
 		parent.onExit.dispatch (result);
 		
 		return result;
@@ -450,7 +452,7 @@ class NativeApplication {
 	
 	public function setFrameRate (value:Float):Float {
 		
-		lime_application_set_frame_rate.call (handle, value);
+		lime_application_set_frame_rate (handle, value);
 		return frameRate = value;
 		
 	}
@@ -496,20 +498,20 @@ class NativeApplication {
 	}
 	
 	
-	private static var lime_application_create = new CFFI<Dynamic->Float> ("lime", "lime_application_create");
-	private static var lime_application_event_manager_register = new CFFI<Dynamic->Dynamic->Void> ("lime", "lime_application_event_manager_register");
-	private static var lime_application_exec = new CFFI<Float->Int> ("lime", "lime_application_exec");
-	private static var lime_application_init = new CFFI<Float->Void> ("lime", "lime_application_init");
-	private static var lime_application_quit = new CFFI<Float->Int> ("lime", "lime_application_quit");
-	private static var lime_application_set_frame_rate = new CFFI<Float->Float->Void> ("lime", "lime_application_set_frame_rate");
-	private static var lime_application_update = new CFFI<Float->Bool> ("lime", "lime_application_update");
-	private static var lime_gamepad_event_manager_register = new CFFI<Dynamic->Dynamic->Void> ("lime", "lime_gamepad_event_manager_register");
-	private static var lime_key_event_manager_register = new CFFI<Dynamic->Dynamic->Void> ("lime", "lime_key_event_manager_register");
-	private static var lime_mouse_event_manager_register = new CFFI<Dynamic->Dynamic->Void> ("lime", "lime_mouse_event_manager_register");
-	private static var lime_render_event_manager_register = new CFFI<Dynamic->Dynamic->Void> ("lime", "lime_render_event_manager_register");
-	private static var lime_text_event_manager_register = new CFFI<Dynamic->Dynamic->Void> ("lime", "lime_text_event_manager_register");
-	private static var lime_touch_event_manager_register = new CFFI<Dynamic->Dynamic->Void> ("lime", "lime_touch_event_manager_register");
-	private static var lime_window_event_manager_register = new CFFI<Dynamic->Dynamic->Void> ("lime", "lime_window_event_manager_register");
+	@:cffi("lime", "lime_application_create") private static function lime_application_create (config:Dynamic):Float;
+	@:cffi("lime", "lime_application_event_manager_register") private static function lime_application_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:cffi("lime", "lime_application_exec") private static function lime_application_exec (handle:Float):Int;
+	@:cffi("lime", "lime_application_init") private static function lime_application_init (handle:Float):Void;
+	@:cffi("lime", "lime_application_quit") private static function lime_application_quit (handle:Float):Int;
+	@:cffi("lime", "lime_application_set_frame_rate") private static function lime_application_set_frame_rate (handle:Float, value:Float):Void;
+	@:cffi("lime", "lime_application_update") private static function lime_application_update (handle:Float):Bool;
+	@:cffi("lime", "lime_gamepad_event_manager_register") private static function lime_gamepad_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:cffi("lime", "lime_key_event_manager_register") private static function lime_key_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:cffi("lime", "lime_mouse_event_manager_register") private static function lime_mouse_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:cffi("lime", "lime_render_event_manager_register") private static function lime_render_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:cffi("lime", "lime_text_event_manager_register") private static function lime_text_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:cffi("lime", "lime_touch_event_manager_register") private static function lime_touch_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:cffi("lime", "lime_window_event_manager_register") private static function lime_window_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	
 	
 }

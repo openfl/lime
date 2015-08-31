@@ -357,7 +357,7 @@ class Font {
 		
 		if (src != null && name == null) {
 			
-			name = lime_font_get_family_name.call (src);
+			name = cast lime_font_get_family_name.call (src);
 			
 		}
 		
@@ -377,7 +377,7 @@ class Font {
 		
 		if (src != null && name == null) {
 			
-			name = lime_font_get_family_name.call (src);
+			name = cast lime_font_get_family_name.call (src);
 			
 		}
 		
