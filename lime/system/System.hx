@@ -186,7 +186,8 @@ class System {
 	
 	public static function getDisplay (id:Int):Display {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if !macro
+		#if (cpp || neko || nodejs)
 		var displayInfo:Dynamic = lime_system_get_display.call (id);
 		
 		if (displayInfo != null) {
@@ -228,6 +229,7 @@ class System {
 			return display;
 			
 		}
+		#end
 		#end
 		
 		return null;
