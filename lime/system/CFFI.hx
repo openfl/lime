@@ -50,7 +50,7 @@ using haxe.macro.Tools;
 							var library = m.params[0].getValue ();
 							var method = m.params[1].getValue ();
 							var lazy = (m.params.length > 2) ? m.params[2].getValue () : false;
-							var expr = 'new CFFI<$typeString> ("$library", "$method", $lazy)';
+							var expr = 'new lime.system.CFFI<$typeString> ("$library", "$method", $lazy)';
 							var name = "cffi_" + field.name;
 							
 							var cffiType = TPath ( { pack: [ "lime", "system" ], name: "CFFI", params: [ TPType (TFun (type.args, type.result).toComplexType ()) ] } );

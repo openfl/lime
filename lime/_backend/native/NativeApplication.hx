@@ -10,7 +10,6 @@ import lime.graphics.GLRenderContext;
 import lime.graphics.RenderContext;
 import lime.graphics.Renderer;
 import lime.math.Rectangle;
-import lime.system.CFFI;
 import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.System;
