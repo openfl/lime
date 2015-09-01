@@ -395,7 +395,7 @@ class CFFI {
 		
 		var pos = Context.currentPos ();
 		var fields = Context.getBuildFields ();
-		var newFields = [];
+		var newFields:Array<Field> = [];
 		
 		for (field in fields) {
 			
