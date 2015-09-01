@@ -46,6 +46,9 @@ This product bundles libogg 1.3.0, which is available under a
 This product bundles LZMA SDK 4.65, which is available under
 public domain. For details, see [project/lib/lzma/](project/lzma).
 
+This product bundles libnfd, which is available under a
+"zlib" (BSD-style) license. For details, see [project/lib/nfd/](project/lib).
+
 This product bundles OpenAL-Soft 1.15.1, which is available under an
 "LGPLv3" license. For details, see [project/lib/openal/](project/lib). It also bundles
 an OpenAL-Soft derivative for Android under [project/lib/openal-android/](project/lib).
@@ -90,12 +93,6 @@ https://github.com/haxenme/nme
     project/src/utils/ByteArray.cpp
     project/src/utils/LZMA.cpp
     tools/utils/JavaExternGenerator.hx
-
-The following files were developed in collaboration with Sven Bergström
-and the snow project, which is available under an "MIT" license. For
-details, see https://github.com/underscorediscovery/snow
-
-    project/src/audio/openal/OpenALBindings.cpp
 
 The typed array implementation was developed in collaboration with Sven Bergström
 and the hxtypedarray project, which is available under an "MIT" license.

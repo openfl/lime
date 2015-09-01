@@ -2,7 +2,7 @@ package lime.audio;
 
 
 import lime.audio.openal.AL;
-import lime.utils.ByteArray;
+import lime.utils.ArrayBufferView;
 
 
 class ALAudioContext {
@@ -79,7 +79,7 @@ class ALAudioContext {
 	}
 	
 	
-	public function bufferData (buffer:Int, format:Int, data:ByteArray, size:Int, freq:Int):Void {
+	public function bufferData (buffer:Int, format:Int, data:ArrayBufferView, size:Int, freq:Int):Void {
 		
 		AL.bufferData (buffer, format, data, size, freq);
 		
@@ -282,7 +282,7 @@ class ALAudioContext {
 	}
 	
 	
-	public function getDoublev (param:Int, count:Int = 1 ):Array<Float> {
+	public function getDoublev (param:Int, count:Int = 1):Array<Float> {
 		
 		return AL.getDoublev (param, count);
 		
@@ -408,7 +408,7 @@ class ALAudioContext {
 	}
 	
 	
-	public function getSourcefv (source:Int, param:Int):Array<Float> {
+	public function getSourcefv (source:Int, param:Int, count:Int = 1):Array<Float> {
 		
 		return AL.getSourcefv (source, param);
 		

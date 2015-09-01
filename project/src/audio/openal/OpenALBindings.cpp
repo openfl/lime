@@ -6,85 +6,71 @@
 #include "AL/alc.h"
 #endif
 
-#include <hx/CFFI.h>
+#include <hx/CFFIPrime.h>
 #include <utils/Bytes.h>
 
 
 namespace lime {
 	
 	
-	value lime_al_buffer_data (value buffer, value format, value data, value size, value freq) {
+	void lime_al_buffer_data (int buffer, int format, value data, int size, int freq) {
 		
 		Bytes bytes (data);
-		//int arraySize = byteArray.Size ();
-		const float *b = (float *)bytes.Data ();
-		//int elements = arraySize / sizeof (float);
-		int count = val_int (size);
-		
-		alBufferData (val_int (buffer), val_int (format), b, count, val_int (freq));
-		return alloc_null ();
+		alBufferData (buffer, format, bytes.Data (), size, freq);
 		
 	}
 	
 	
-	value lime_al_buffer3f (value buffer, value param, value value1, value value2, value value3) {
+	void lime_al_buffer3f (int buffer, int param, float value1, float value2, float value3) {
 		
-		alBuffer3f (val_int (buffer), val_int (param), val_number (value1), val_number (value2), val_number (value3));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_al_buffer3i (value buffer, value param, value value1, value value2, value value3) {
-		
-		alBuffer3i (val_int (buffer), val_int (param), val_int (value1), val_int (value2), val_int (value3));
-		return alloc_null ();
+		alBuffer3f (buffer, param, value1, value2, value3);
 		
 	}
 	
 	
-	value lime_al_bufferf (value buffer, value param, value value) {
+	void lime_al_buffer3i (int buffer, int param, int value1, int value2, int value3) {
 		
-		alBufferf (val_int (buffer), val_int (param), val_number (value));
-		return alloc_null ();
+		alBuffer3i (buffer, param, value1, value2, value3);
 		
 	}
 	
 	
-	value lime_al_bufferfv (value buffer, value param, value values) {
+	void lime_al_bufferf (int buffer, int param, float value) {
 		
-		float *data = val_array_float (values);
+		alBufferf (buffer, param, value);
+		
+	}
+	
+	
+	void lime_al_bufferfv (int buffer, int param, value values) {
+		
+		float* data = val_array_float (values);
 		
 		if (data) {
 			
-			alBufferfv (val_int (buffer), val_int (param), data);
+			alBufferfv (buffer, param, data);
 			
 		}
 		
-		return alloc_null ();
+	}
+	
+	
+	void lime_al_bufferi (int buffer, int param, int value) {
+		
+		alBufferi (buffer, param, value);
 		
 	}
 	
 	
-	value lime_al_bufferi (value buffer, value param, value value) {
+	void lime_al_bufferiv (int buffer, int param, value values) {
 		
-		alBufferi (val_int (buffer), val_int (param), val_int (value));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_al_bufferiv (value buffer, value param, value values) {
-		
-		int *data = val_array_int (values);
+		int* data = val_array_int (values);
 		
 		if (data) {
 			
-			alBufferiv (val_int (buffer), val_int (param), data);
+			alBufferiv (buffer, param, data);
 			
 		}
-		
-		return alloc_null ();
 		
 	}
 	
@@ -111,113 +97,100 @@ namespace lime {
 	}
 	
 	
-	value lime_al_delete_buffer (value buffer) {
+	void lime_al_delete_buffer (int buffer) {
 		
-		ALuint data = val_int (buffer);
+		ALuint data = buffer;
 		alDeleteBuffers ((ALuint)1, &data);
-		return alloc_null ();
 		
 	}
 	
 	
-	value lime_al_delete_buffers (value n, value buffers) {
+	void lime_al_delete_buffers (int n, value buffers) {
 		
-		int *data = val_array_int (buffers);
+		int* data = val_array_int (buffers);
 		
 		if (data) {
 			
-			alDeleteBuffers (val_int (n), (ALuint*)data);
+			alDeleteBuffers (n, (ALuint*)data);
 			
 		}
-		
-		return alloc_null ();
 		
 	}
 	
 	
-	value lime_al_delete_source (value source) {
+	void lime_al_delete_source (int source) {
 		
-		ALuint data = val_int (source);
+		ALuint data = source;
 		alDeleteSources(1, &data);
-		return alloc_null ();
 		
 	}
 	
 	
-	value lime_al_delete_sources (value n, value sources) {
+	void lime_al_delete_sources (int n, value sources) {
 		
-		int *data = val_array_int (sources);
+		int* data = val_array_int (sources);
 		
 		if (data) {
 			
-			alDeleteSources (val_int (n), (ALuint*)data);
+			alDeleteSources (n, (ALuint*)data);
 			
 		}
 		
-		return alloc_null ();
+	}
+	
+	
+	void lime_al_disable (int capability) {
+		
+		alDisable (capability);
 		
 	}
 	
 	
-	value lime_al_disable (value capability) {
+	void lime_al_distance_model (int distanceModel) {
 		
-		alDisable (val_int (capability));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_al_distance_model (value distanceModel) {
-		
-		alDistanceModel (val_number (distanceModel));
-		return alloc_null ();
+		alDistanceModel (distanceModel);
 		
 	}
 	
 	
-	value lime_al_doppler_factor (value factor) {
+	void lime_al_doppler_factor (float factor) {
 		
-		alDopplerFactor (val_number (factor));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_al_doppler_velocity (value velocity) {
-		
-		alDopplerVelocity (val_number (velocity));
-		return alloc_null ();
+		alDopplerFactor (factor);
 		
 	}
 	
 	
-	value lime_al_enable (value capability) {
+	void lime_al_doppler_velocity (float velocity) {
 		
-		alEnable (val_int (capability));
-		return alloc_null ();
+		alDopplerVelocity (velocity);
 		
 	}
 	
 	
-	value lime_al_gen_buffer () {
+	void lime_al_enable (int capability) {
+		
+		alEnable (capability);
+		
+	}
+	
+	
+	int lime_al_gen_buffer () {
 		
 		ALuint buffer;
 		alGenBuffers ((ALuint)1, &buffer);
-		return alloc_int (buffer);
+		return buffer;
 		
 	}
 	
 	
-	value lime_al_gen_buffers (value n) {
+	value lime_al_gen_buffers (int n) {
 		
-		int count = val_int (n);
-		ALuint* buffers = new ALuint[count];
+		ALuint* buffers = new ALuint[n];
+		alGenBuffers (n, buffers);
 		
-		alGenBuffers (count, buffers);
+		value result = alloc_array (n);
 		
-		value result = alloc_array (count);
-		
-		for (int i = 0; i < count; ++i) {
+		for (int i = 0; i < n; i++) {
 			
 			val_array_set_i (result, i, alloc_int (buffers[i]));
 			
@@ -229,67 +202,65 @@ namespace lime {
 	}
 	
 	
-	value lime_al_gen_source () {
+	int lime_al_gen_source () {
 		
 		ALuint source;
 		alGenSources ((ALuint)1, &source);
-		return alloc_int (source);
+		return source;
 		
 	}
 	
 	
-	value lime_al_gen_sources (value n) {
+	value lime_al_gen_sources (int n) {
 		
-		int count = val_int (n);
-		ALuint* sources = new ALuint[count];
+		ALuint* sources = new ALuint[n];
+		alGenSources (n, sources);
 		
-		alGenSources (count, sources);
+		value result = alloc_array (n);
 		
-		value result = alloc_array(count);
-		
-		for (int i = 0; i < count; ++i) {
+		for (int i = 0; i < n; i++) {
 			
-			val_array_set_i (result, i, alloc_int(sources[i]));
+			val_array_set_i (result, i, alloc_int (sources[i]));
 			
 		}
 		
+		delete [] sources;
 		return result;
 		
 	}
 	
 	
-	value lime_al_get_boolean (value param) {
+	bool lime_al_get_boolean (int param) {
 		
-		return alloc_bool (alGetBoolean (val_int (param)));
+		return alGetBoolean (param);
 		
 	}
 	
 	
-	value lime_al_get_booleanv (value param, value count) {
+	value lime_al_get_booleanv (int param, int count) {
 		
-		int length = val_int (count);
-		ALboolean* values = new ALboolean[length];
+		ALboolean* values = new ALboolean[count];
+		alGetBooleanv (param, values);
 		
-		alGetBooleanv (val_int (param), values);
+		value result = alloc_array (count);
 		
-		value result = alloc_array (length);
-		
-		for (int i = 0; i < length; ++i) {
+		for (int i = 0; i < count; i++) {
 			
 			val_array_set_i (result, i, alloc_bool (values[i]));
 			
 		}
 		
+		delete [] values;
 		return result;
 		
 	}
 	
 	
-	value lime_al_get_buffer3f (value buffer, value param) {
+	value lime_al_get_buffer3f (int buffer, int param) {
 		
 		ALfloat val1, val2, val3;
 		
-		alGetBuffer3f (val_int (buffer), val_int (param), &val1, &val2, &val3);
+		alGetBuffer3f (buffer, param, &val1, &val2, &val3);
 		
 		value result = alloc_array (3);
 		val_array_set_i (result, 0, alloc_float (val1));
@@ -300,11 +271,11 @@ namespace lime {
 	}
 	
 	
-	value lime_al_get_buffer3i (value buffer, value param) {
+	value lime_al_get_buffer3i (int buffer, int param) {
 		
 		ALint val1, val2, val3;
 		
-		alGetBuffer3i (val_int (buffer), val_int (param), &val1, &val2, &val3);
+		alGetBuffer3i (buffer, param, &val1, &val2, &val3);
 		
 		value result = alloc_array (3);
 		val_array_set_i (result, 0, alloc_int(val1));
@@ -315,164 +286,159 @@ namespace lime {
 	}
 	
 	
-	value lime_al_get_bufferf (value buffer, value param) {
+	float lime_al_get_bufferf (int buffer, int param) {
 		
-		float data;
-		alGetBufferf (val_int (buffer), val_int (param), &data);
-		return alloc_float (data);
+		ALfloat data;
+		alGetBufferf (buffer, param, &data);
+		return data;
 		
 	}
 	
 	
-	value lime_al_get_bufferfv (value buffer, value param, value count) {
+	value lime_al_get_bufferfv (int buffer, int param, int count) {
 		
-		int length = val_int (count);
-		ALfloat* values = new ALfloat[length];
+		ALfloat* values = new ALfloat[count];
+		alGetBufferfv (buffer, param, values);
 		
-		alGetBufferfv (val_int (buffer), val_int (param), values);
+		value result = alloc_array (count);
 		
-		value result = alloc_array (length);
-		
-		for (int i = 0; i < length; ++i) {
+		for (int i = 0; i < count; ++i) {
 			
 			val_array_set_i (result, i, alloc_float (values[i]));
 			
 		}
 		
+		delete [] values;
 		return result;
 		
 	}
 	
 	
-	value lime_al_get_bufferi (value buffer, value param) {
+	int lime_al_get_bufferi (int buffer, int param) {
 		
-		int data;
-		alGetBufferi (val_int (buffer), val_int (param), &data);
-		return alloc_int (data);
+		ALint data;
+		alGetBufferi (buffer, param, &data);
+		return data;
 		
 	}
 	
 	
-	value lime_al_get_bufferiv (value buffer, value param, value count) {
+	value lime_al_get_bufferiv (int buffer, int param, int count) {
 		
-		int length = val_int (count);
-		ALint* values = new ALint[length];
+		ALint* values = new ALint[count];
+		alGetBufferiv (buffer, param, values);
 		
-		alGetBufferiv (val_int (buffer), val_int (param), values);
+		value result = alloc_array (count);
 		
-		value result = alloc_array (length);
-		
-		for (int i = 0; i < length; ++i) {
+		for (int i = 0; i < count; i++) {
 			
 			val_array_set_i (result, i, alloc_int (values[i]));
 			
 		}
 		
+		delete [] values;
 		return result;
 		
 	}
 	
 	
-	value lime_al_get_double (value param) {
+	double lime_al_get_double (int param) {
 		
-		return alloc_float ((float)alGetDouble (val_int (param)));
-		
-	}
-	
-	
-	value lime_al_get_doublev (value param, value count) {
-		
-		int length = val_int (count);
-		ALdouble* values = new ALdouble[length];
-		
-		alGetDoublev (val_int (param), values);
-		
-		value result = alloc_array (length);
-		
-		for (int i = 0; i < length; ++i) {
-			
-			val_array_set_i (result, i, alloc_float ((float)values[i]));
-			
-		}
-		
-		return result;
+		return alGetDouble (param);
 		
 	}
 	
 	
-	value lime_al_get_enum_value (value ename) {
+	value lime_al_get_doublev (int param, int count) {
 		
-		return alloc_int (alGetEnumValue (val_string (ename)));
+		ALdouble* values = new ALdouble[count];
+		alGetDoublev (param, values);
 		
-	}
-	
-	
-	value lime_al_get_error () {
+		value result = alloc_array (count);
 		
-		return alloc_int (alGetError ());
-		
-	}
-	
-	
-	value lime_al_get_float (value param) {
-		
-		return alloc_float (alGetFloat (val_int (param)));
-		
-	}
-	
-	
-	value lime_al_get_floatv (value param, value count) {
-		
-		int length = val_int (count);
-		ALfloat* values = new ALfloat[length];
-		
-		alGetFloatv (val_int (param), values);
-		
-		value result = alloc_array (length);
-		
-		for (int i = 0; i < length; ++i) {
+		for (int i = 0; i < count; i++) {
 			
 			val_array_set_i (result, i, alloc_float (values[i]));
 			
 		}
 		
+		delete [] values;
 		return result;
 		
 	}
 	
 	
-	value lime_al_get_integer (value param) {
+	int lime_al_get_enum_value (HxString ename) {
 		
-		return alloc_int (alGetInteger (val_int (param)));
+		return alGetEnumValue (ename.__s);
 		
 	}
 	
 	
-	value lime_al_get_integerv (value param, value count) {
+	int lime_al_get_error () {
 		
-		int length = val_int (count);
-		ALint* values = new ALint[length];
+		return alGetError ();
 		
-		alGetIntegerv (val_int (param), values);
+	}
+	
+	
+	float lime_al_get_float (int param) {
 		
-		value result = alloc_array (length);
+		return alGetFloat (param);
 		
-		for (int i = 0; i < length; ++i) {
+	}
+	
+	
+	value lime_al_get_floatv (int param, int count) {
+		
+		ALfloat* values = new ALfloat[count];
+		alGetFloatv (param, values);
+		
+		value result = alloc_array (count);
+		
+		for (int i = 0; i < count; i++) {
+			
+			val_array_set_i (result, i, alloc_float (values[i]));
+			
+		}
+		
+		delete [] values;
+		return result;
+		
+	}
+	
+	
+	int lime_al_get_integer (int param) {
+		
+		return alGetInteger (param);
+		
+	}
+	
+	
+	value lime_al_get_integerv (int param, int count) {
+		
+		ALint* values = new ALint[count];
+		alGetIntegerv (param, values);
+		
+		value result = alloc_array (count);
+		
+		for (int i = 0; i < count; i++) {
 			
 			val_array_set_i (result, i, alloc_int (values[i]));
 			
 		}
 		
+		delete [] values;
 		return result;
 		
 	}
 	
 	
-	value lime_al_get_listener3f (value param) {
+	value lime_al_get_listener3f (int param) {
 		
 		ALfloat val1, val2, val3;
 		
-		alGetListener3f (val_int (param), &val1, &val2, &val3);
+		alGetListener3f (param, &val1, &val2, &val3);
 		
 		value result = alloc_array (3);
 		val_array_set_i (result, 0, alloc_float (val1));
@@ -483,11 +449,11 @@ namespace lime {
 	}
 	
 	
-	value lime_al_get_listener3i (value param) {
+	value lime_al_get_listener3i (int param) {
 		
 		ALint val1, val2, val3;
 		
-		alGetListener3i (val_int (param), &val1, &val2, &val3);
+		alGetListener3i (param, &val1, &val2, &val3);
 		
 		value result = alloc_array (3);
 		val_array_set_i (result, 0, alloc_int (val1));
@@ -498,76 +464,74 @@ namespace lime {
 	}
 	
 	
-	value lime_al_get_listenerf (value param) {
+	float lime_al_get_listenerf (int param) {
 		
-		float data;
-		alGetListenerf (val_int (param), &data);
-		return alloc_float (data);
+		ALfloat data;
+		alGetListenerf (param, &data);
+		return data;
 		
 	}
 	
 	
-	value lime_al_get_listenerfv (value param, value count) {
+	value lime_al_get_listenerfv (int param, int count) {
 		
-		int length = val_int (count);
-		ALfloat* values = new ALfloat[length];
+		ALfloat* values = new ALfloat[count];
+		alGetListenerfv (param, values);
 		
-		alGetListenerfv (val_int (param), values);
+		value result = alloc_array (count);
 		
-		value result = alloc_array (length);
-		
-		for (int i = 0; i < length; ++i) {
+		for (int i = 0; i < count; i++) {
 			
 			val_array_set_i (result, i, alloc_float (values[i]));
 			
 		}
 		
+		delete [] values;
 		return result;
 		
 	}
 	
 	
-	value lime_al_get_listeneri (value param) {
+	int lime_al_get_listeneri (int param) {
 		
-		int data;
-		alGetListeneri (val_int (param), &data);
-		return alloc_int (data);
+		ALint data;
+		alGetListeneri (param, &data);
+		return data;
 		
 	}
 	
 	
-	value lime_al_get_listeneriv (value param, value count) {
+	value lime_al_get_listeneriv (int param, int count) {
 		
-		int length = val_int (count);
-		ALint* values = new ALint[length];
+		ALint* values = new ALint[count];
+		alGetListeneriv (param, values);
 		
-		alGetListeneriv (val_int (param), values);
+		value result = alloc_array (count);
 		
-		value result = alloc_array (length);
-		
-		for (int i = 0; i < length; ++i) {
+		for (int i = 0; i < count; i++) {
 			
 			val_array_set_i (result, i, alloc_int (values[i]));
 			
 		}
 		
+		delete [] values;
 		return result;
 		
 	}
 	
 	
-	value lime_al_get_proc_address (value fname) {
+	double lime_al_get_proc_address (HxString fname) {
 		
-		return alloc_null ();
+		return (intptr_t)alGetProcAddress (fname.__s);
 		
 	}
 	
 	
-	value lime_al_get_source3f (value source, value param) {
+	value lime_al_get_source3f (int source, int param) {
 		
 		ALfloat val1, val2, val3;
 		
-		alGetBuffer3f (val_int (source), val_int (param), &val1, &val2, &val3);
+		alGetBuffer3f (source, param, &val1, &val2, &val3);
 		
 		value result = alloc_array (3);
 		val_array_set_i (result, 0, alloc_float (val1));
@@ -578,11 +542,11 @@ namespace lime {
 	}
 	
 	
-	value lime_al_get_source3i (value source, value param) {
+	value lime_al_get_source3i (int source, int param) {
 		
 		ALint val1, val2, val3;
 		
-		alGetSource3i (val_int (source), val_int (param), &val1, &val2, &val3);
+		alGetSource3i (source, param, &val1, &val2, &val3);
 		
 		value result = alloc_array (3);
 		val_array_set_i (result, 1, alloc_int (val1));
@@ -593,278 +557,252 @@ namespace lime {
 	}
 	
 	
-	value lime_al_get_sourcef (value source, value param) {
+	float lime_al_get_sourcef (int source, int param) {
 		
-		float data;
-		alGetSourcef (val_int (source), val_int (param), &data);
-		return alloc_float (data);
+		ALfloat data;
+		alGetSourcef (source, param, &data);
+		return data;
 		
 	}
 	
 	
-	value lime_al_get_sourcefv (value source, value param, value count) {
+	value lime_al_get_sourcefv (int source, int param, int count) {
 		
-		int length = val_int (count);
-		ALfloat* values = new ALfloat[length];
+		ALfloat* values = new ALfloat[count];
+		alGetSourcefv (source, param, values);
 		
-		alGetSourcefv (val_int (source), val_int (param), values);
+		value result = alloc_array (count);
 		
-		value result = alloc_array (length);
-		
-		for (int i = 0; i < length; ++i) {
+		for (int i = 0; i < count; i++) {
 			
 			val_array_set_i (result, i, alloc_float (values[i]));
 			
 		}
 		
+		delete [] values;
 		return result;
 		
 	}
 	
 	
-	value lime_al_get_sourcei (value source, value param) {
+	int lime_al_get_sourcei (int source, int param) {
 		
-		int data;
-		alGetSourcei (val_int (source), val_int (param), &data);
-		return alloc_int (data);
+		ALint data;
+		alGetSourcei (source, param, &data);
+		return data;
 		
 	}
 	
 	
-	value lime_al_get_sourceiv (value source, value param, value count) {
+	value lime_al_get_sourceiv (int source, int param, int count) {
 		
-		int length = val_int (count);
-		ALint* values = new ALint[length];
+		ALint* values = new ALint[count];
+		alGetSourceiv (source, param, values);
 		
-		alGetSourceiv (val_int (source), val_int (param), values);
+		value result = alloc_array (count);
 		
-		value result = alloc_array (length);
-		
-		for (int i = 0; i < length; ++i) {
+		for (int i = 0; i < count; i++) {
 			
 			val_array_set_i (result, i, alloc_int (values[i]));
 			
 		}
 		
+		delete [] values;
 		return result;
 		
 	}
 	
 	
-	value lime_al_get_string (value param) {
+	HxString lime_al_get_string (int param) {
 		
-		return alloc_string (alGetString (val_int (param)));
-		
-	}
-	
-	
-	value lime_al_is_buffer (value buffer) {
-		
-		return alloc_bool (alIsBuffer (val_int (buffer)));
+		return HxString (alGetString (param));
 		
 	}
 	
 	
-	value lime_al_is_enabled (value capability) {
+	bool lime_al_is_buffer (int buffer) {
 		
-		return alloc_bool (alIsEnabled (val_int (capability)));
-		
-	}
-	
-	
-	value lime_al_is_source (value source) {
-		
-		return alloc_bool (alIsSource (val_int (source)));
+		return alIsBuffer (buffer);
 		
 	}
 	
 	
-	value lime_al_is_extension_present (value extname) {
+	bool lime_al_is_enabled (int capability) {
 		
-		return alloc_bool (alIsExtensionPresent (val_string (extname)));
-		
-	}
-	
-	
-	value lime_al_listener3f (value param, value value1, value value2, value value3) {
-		
-		alListener3f (val_int (param), val_number (value1), val_number (value2), val_number (value3));
-		return alloc_null ();
+		return alIsEnabled (capability);
 		
 	}
 	
 	
-	value lime_al_listener3i (value param, value value1, value value2, value value3) {
+	bool lime_al_is_extension_present (HxString extname) {
 		
-		alListener3i (val_int (param), val_int (value1), val_int (value2), val_int (value3));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_al_listenerf (value param, value value1) {
-		
-		alListenerf (val_int (param), val_number (value1));
-		return alloc_null ();
+		return alIsExtensionPresent (extname.__s);
 		
 	}
 	
 	
-	value lime_al_listenerfv (value param, value values) {
+	bool lime_al_is_source (int source) {
+		
+		return alIsSource (source);
+		
+	}
+	
+	
+	void lime_al_listener3f (int param, float value1, float value2, float value3) {
+		
+		alListener3f (param, value1, value2, value3);
+		
+	}
+	
+	
+	void lime_al_listener3i (int param, int value1, int value2, int value3) {
+		
+		alListener3i (param, value1, value2, value3);
+		
+	}
+	
+	
+	void lime_al_listenerf (int param, float value1) {
+		
+		alListenerf (param, value1);
+		
+	}
+	
+	
+	void lime_al_listenerfv (int param, value values) {
 		
 		float* data = val_array_float (values);
 		
 		if (data) {
 			
-			alListenerfv (val_int (param), data);
+			alListenerfv (param, data);
 			
 		}
 		
-		return alloc_null ();
+	}
+	
+	
+	void lime_al_listeneri (int param, int value1) {
+		
+		alListeneri (param, value1);
 		
 	}
 	
 	
-	value lime_al_listeneri (value param, value value1) {
+	void lime_al_listeneriv (int param, value values) {
 		
-		alListeneri (val_int (param), val_int (value1));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_al_listeneriv (value param, value values) {
-		
-		int *data = val_array_int (values);
+		int* data = val_array_int (values);
 		
 		if (data) {
 			
-			alListeneriv (val_int (param), data);
+			alListeneriv (param, data);
 			
 		}
 		
-		return alloc_null ();
+	}
+	
+	
+	void lime_al_source_pause (int source) {
+		
+		alSourcePause (source);
 		
 	}
 	
 	
-	value lime_al_source_pause (value source) {
+	void lime_al_source_pausev (int n, value sources) {
 		
-		alSourcePause (val_int (source));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_al_source_pausev (value n, value sources) {
-		
-		int *data = val_array_int (sources);
+		int* data = val_array_int (sources);
 		
 		if (data) {
 			
-			alSourcePausev (val_int (n), (ALuint*)data);
+			alSourcePausev (n, (ALuint*)data);
 			
 		}
 		
-		return alloc_null ();
+	}
+	
+	
+	void lime_al_source_play (int source) {
+		
+		alSourcePlay (source);
 		
 	}
 	
 	
-	value lime_al_source_play (value source) {
+	void lime_al_source_playv (int n, value sources) {
 		
-		alSourcePlay (val_int (source));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_al_source_playv (value n, value sources) {
-		
-		int *data = val_array_int (sources);
+		int* data = val_array_int (sources);
 		
 		if (data) {
 			
-			alSourcePlayv (val_int (n), (ALuint*)data);
+			alSourcePlayv (n, (ALuint*)data);
 			
 		}
-		
-		return alloc_null ();
 		
 	}
 	
 	
-	value lime_al_source_queue_buffers (value source, value nb, value buffers) {
+	void lime_al_source_queue_buffers (int source, int nb, value buffers) {
 		
 		int* data = val_array_int (buffers);
 		
 		if (data) {
 			
-			alSourceQueueBuffers (val_int (source), val_int (nb), (ALuint*)data);
+			alSourceQueueBuffers (source, nb, (ALuint*)data);
 			
 		}
 		
-		return alloc_null ();
+	}
+	
+	
+	void lime_al_source_rewind (int source) {
+		
+		alSourceRewind (source);
 		
 	}
 	
 	
-	value lime_al_source_rewind (value source) {
+	void lime_al_source_rewindv (int n, value sources) {
 		
-		alSourceRewind (val_int (source));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_al_source_rewindv (value n, value sources) {
-		
-		int *data = val_array_int (sources);
+		int* data = val_array_int (sources);
 		
 		if (data) {
 			
-			alSourceRewindv (val_int (n), (ALuint*)data);
+			alSourceRewindv (n, (ALuint*)data);
 			
 		}
 		
-		return alloc_null ();
+	}
+	
+	
+	void lime_al_source_stop (int source) {
+		
+		alSourceStop (source);
 		
 	}
 	
 	
-	value lime_al_source_stop (value source) {
+	void lime_al_source_stopv (int n, value sources) {
 		
-		alSourceStop (val_int (source));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_al_source_stopv (value n, value sources) {
-		
-		int *data = val_array_int (sources);
+		int* data = val_array_int (sources);
 		
 		if (data) {
 			
-			alSourceStopv (val_int (n), (ALuint*)data);
+			alSourceStopv (n, (ALuint*)data);
 			
 		}
-		
-		return alloc_null ();
 		
 	}
 	
 	
-	value lime_al_source_unqueue_buffers (value source, value nb) {
+	value lime_al_source_unqueue_buffers (int source, int nb) {
 		
-		int count = val_int (nb);
-		ALuint* buffers = new ALuint[count];
+		ALuint* buffers = new ALuint[nb];
+		alSourceUnqueueBuffers (source, nb, buffers);
 		
-		alSourceUnqueueBuffers (val_int (source), val_int (nb), buffers);
+		value result = alloc_array (nb);
 		
-		value result = alloc_array (count);
-		
-		for (int i = 0; i < count; ++i) {
+		for (int i = 0; i < nb; i++) {
 			
 			val_array_set_i (result, i, alloc_int (buffers[i]));
 			
@@ -876,297 +814,271 @@ namespace lime {
 	}
 	
 	
-	value lime_al_source3f (value source, value param, value value1, value value2, value value3) {
+	void lime_al_source3f (int source, int param, float value1, float value2, float value3) {
 		
-		alSource3f (val_int (source), val_int (param), val_number (value1), val_number (value2), val_number (value3));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_al_source3i (value source, value param, value value1, value value2, value value3) {
-		
-		alSource3i (val_int (source), val_int (param), val_int (value1), val_int (value2), val_int (value3));
-		return alloc_null ();
+		alSource3f (source, param, value1, value2, value3);
 		
 	}
 	
 	
-	value lime_al_sourcef (value source, value param, value value) {
+	void lime_al_source3i (int source, int param, int value1, int value2, int value3) {
 		
-		alSourcef (val_int (source), val_int (param), val_number (value));
-		return alloc_null ();
+		alSource3i (source, param, value1, value2, value3);
 		
 	}
 	
 	
-	value lime_al_sourcefv (value source, value param, value values) {
+	void lime_al_sourcef (int source, int param, float value) {
 		
-		float *data = val_array_float (values);
+		alSourcef (source, param, value);
+		
+	}
+	
+	
+	void lime_al_sourcefv (int source, int param, value values) {
+		
+		float* data = val_array_float (values);
 		
 		if (data) {
 			
-			alSourcefv (val_int (source), val_int (param), data);
+			alSourcefv (source, param, data);
 			
 		}
 		
-		return alloc_null ();
+	}
+	
+	
+	void lime_al_sourcei (int source, int param, int value) {
+		
+		alSourcei (source, param, value);
 		
 	}
 	
 	
-	value lime_al_sourcei (value source, value param, value value) {
+	void lime_al_sourceiv (int source, int param, value values) {
 		
-		alSourcei (val_int (source), val_int (param), val_int (value));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_al_sourceiv (value source, value param, value values) {
-		
-		int *data = val_array_int (values);
+		int* data = val_array_int (values);
 		
 		if (data) {
 			
-			alSourceiv (val_int (source), val_int (param), data);
+			alSourceiv (source, param, data);
 			
 		}
 		
-		return alloc_null ();
+	}
+	
+	
+	void lime_al_speed_of_sound (float speed) {
+		
+		alSpeedOfSound (speed);
 		
 	}
 	
 	
-	value lime_al_speed_of_sound (value speed) {
+	bool lime_alc_close_device (double device) {
 		
-		alSpeedOfSound (val_number (speed));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_alc_close_device (value device) {
-		
-		ALCdevice* alcDevice = (ALCdevice*)(intptr_t)val_float (device);
-		alcCloseDevice (alcDevice);
-		return alloc_null ();
+		ALCdevice* alcDevice = (ALCdevice*)(intptr_t)device;
+		return alcCloseDevice (alcDevice);
 		
 	}
 	
 	
-	value lime_alc_create_context (value device, value attrlist) {
+	double lime_alc_create_context (double device, value attrlist) {
 		
-		ALCdevice* alcDevice = (ALCdevice*)(intptr_t)val_float (device);
+		ALCdevice* alcDevice = (ALCdevice*)(intptr_t)device;
 		int* list = val_array_int (attrlist);
 		
-		ALCcontext *alcContext = alcCreateContext (alcDevice, list);
+		ALCcontext* alcContext = alcCreateContext (alcDevice, list);
 		
-		return alloc_float ((intptr_t)alcContext);
+		return (intptr_t)alcContext;
 		
 	}
 	
 	
-	value lime_alc_destroy_context (value context) {
+	void lime_alc_destroy_context (double context) {
 		
-		ALCcontext* alcContext = (ALCcontext*)(intptr_t)val_float (context);
+		ALCcontext* alcContext = (ALCcontext*)(intptr_t)context;
 		alcDestroyContext (alcContext);
-		return alloc_null ();
 		
 	}
 	
 	
-	value lime_alc_get_contexts_device (value context) {
+	double lime_alc_get_contexts_device (double context) {
 		
-		ALCcontext* alcContext = (ALCcontext*)(intptr_t)val_float (context);
+		ALCcontext* alcContext = (ALCcontext*)(intptr_t)context;
 		ALCdevice* alcDevice = alcGetContextsDevice (alcContext);
-		return alloc_float ((intptr_t)alcDevice);
+		return (intptr_t)alcDevice;
 		
 	}
 	
 	
-	value lime_alc_get_current_context () {
+	double lime_alc_get_current_context () {
 		
 		ALCcontext* alcContext = alcGetCurrentContext ();
-		return alloc_float ((intptr_t)alcContext);
+		return (intptr_t)alcContext;
 		
 	}
 	
 	
-	value lime_alc_get_error (value device) {
+	int lime_alc_get_error (double device) {
 		
-		ALCdevice* alcDevice = (ALCdevice*)(intptr_t)val_float (device);
-		return alloc_int (alcGetError (alcDevice));
+		ALCdevice* alcDevice = (ALCdevice*)(intptr_t)device;
+		return alcGetError (alcDevice);
 		
 	}
 	
 	
-	value lime_alc_get_integerv (value device, value param, value size) {
+	value lime_alc_get_integerv (double device, int param, int size) {
 		
-		ALCdevice* alcDevice = (ALCdevice*)(intptr_t)val_float (device);
+		ALCdevice* alcDevice = (ALCdevice*)(intptr_t)device;
 		
-		int count = val_int (size);
-		ALint* values = new ALint[count];
+		ALCint* values = new ALCint[size];
+		alcGetIntegerv (alcDevice, param, size, values);
 		
-		alcGetIntegerv (alcDevice, val_int (param), count, values);
+		value result = alloc_array (size);
 		
-		value result = alloc_array (count);
-		
-		for (int i = 0; i < count; ++i) {
+		for (int i = 0; i < size; i++) {
 			
 			val_array_set_i (result, i, alloc_int (values[i]));
 			
 		}
 		
+		delete [] values;
 		return result;
 		
 	}
 	
 	
-	value lime_alc_get_string (value device, value param) {
+	HxString lime_alc_get_string (double device, int param) {
 		
-		ALCdevice* alcDevice = (ALCdevice*)(intptr_t)val_float (device);
-		return alloc_string (alcGetString (alcDevice, val_int (param)));
-		
-	}
-	
-	
-	value lime_alc_make_context_current (value context) {
-		
-		if (val_is_null (context)) {
-			
-			alcMakeContextCurrent (NULL);
-			
-		} else {
-			
-			ALCcontext* alcContext = (ALCcontext*)(intptr_t)val_float (context);
-			alcMakeContextCurrent (alcContext);
-			
-		}
-		
-		return alloc_null ();
+		ALCdevice* alcDevice = (ALCdevice*)(intptr_t)device;
+		return HxString (alcGetString (alcDevice, param));
 		
 	}
 	
 	
-	value lime_alc_open_device (value devicename) {
+	bool lime_alc_make_context_current (double context) {
 		
-		ALCdevice* alcDevice = alcOpenDevice (val_is_null (devicename) ? 0 : val_string (devicename));
+		ALCcontext* alcContext = (ALCcontext*)(intptr_t)context;
+		return alcMakeContextCurrent (alcContext);
 		
+	}
+	
+	
+	double lime_alc_open_device (HxString devicename) {
+		
+		ALCdevice* alcDevice = alcOpenDevice (devicename.__s);
 		atexit (lime_al_cleanup);
-		
-		return alloc_float ((intptr_t)alcDevice);
+		return (intptr_t)alcDevice;
 		
 	}
 	
 	
-	value lime_alc_process_context (value context) {
+	void lime_alc_process_context (double context) {
 		
-		ALCcontext* alcContext = (ALCcontext*)(intptr_t)val_float (context);
+		ALCcontext* alcContext = (ALCcontext*)(intptr_t)context;
 		alcProcessContext (alcContext);
-		return alloc_null ();
 		
 	}
 	
 	
-	value lime_alc_suspend_context (value context) {
+	void lime_alc_suspend_context (double context) {
 		
-		ALCcontext* alcContext = (ALCcontext*)(intptr_t)val_float (context);
+		ALCcontext* alcContext = (ALCcontext*)(intptr_t)context;
 		alcSuspendContext (alcContext);
-		return alloc_null ();
 		
 	}
 	
 	
-	DEFINE_PRIM (lime_al_buffer_data, 5);
-	DEFINE_PRIM (lime_al_buffer3f, 5);
-	DEFINE_PRIM (lime_al_buffer3i, 5);
-	DEFINE_PRIM (lime_al_bufferf, 3);
-	DEFINE_PRIM (lime_al_bufferfv, 3);
-	DEFINE_PRIM (lime_al_bufferi, 3);
-	DEFINE_PRIM (lime_al_bufferiv, 3);
-	DEFINE_PRIM (lime_al_delete_buffer, 1);
-	DEFINE_PRIM (lime_al_delete_buffers, 2);
-	DEFINE_PRIM (lime_al_delete_source, 1);
-	DEFINE_PRIM (lime_al_delete_sources, 2);
-	DEFINE_PRIM (lime_al_disable, 1);
-	DEFINE_PRIM (lime_al_distance_model, 1);
-	DEFINE_PRIM (lime_al_doppler_factor, 1);
-	DEFINE_PRIM (lime_al_doppler_velocity, 1);
-	DEFINE_PRIM (lime_al_enable, 1);
-	DEFINE_PRIM (lime_al_gen_buffer, 0);
-	DEFINE_PRIM (lime_al_gen_buffers, 1);
-	DEFINE_PRIM (lime_al_gen_source, 0);
-	DEFINE_PRIM (lime_al_gen_sources, 1);
-	DEFINE_PRIM (lime_al_get_boolean, 1);
-	DEFINE_PRIM (lime_al_get_booleanv, 2);
-	DEFINE_PRIM (lime_al_get_buffer3f, 2);
-	DEFINE_PRIM (lime_al_get_buffer3i, 2);
-	DEFINE_PRIM (lime_al_get_bufferf, 2);
-	DEFINE_PRIM (lime_al_get_bufferfv, 3);
-	DEFINE_PRIM (lime_al_get_bufferi, 2);
-	DEFINE_PRIM (lime_al_get_bufferiv, 3);
-	DEFINE_PRIM (lime_al_get_double, 1);
-	DEFINE_PRIM (lime_al_get_doublev, 2);
-	DEFINE_PRIM (lime_al_get_enum_value, 1);
-	DEFINE_PRIM (lime_al_get_error, 0);
-	DEFINE_PRIM (lime_al_get_float, 1);
-	DEFINE_PRIM (lime_al_get_floatv, 2);
-	DEFINE_PRIM (lime_al_get_integer, 1);
-	DEFINE_PRIM (lime_al_get_integerv, 2);
-	DEFINE_PRIM (lime_al_get_listener3f, 1);
-	DEFINE_PRIM (lime_al_get_listener3i, 1);
-	DEFINE_PRIM (lime_al_get_listenerf, 1);
-	DEFINE_PRIM (lime_al_get_listenerfv, 2);
-	DEFINE_PRIM (lime_al_get_listeneri, 1);
-	DEFINE_PRIM (lime_al_get_listeneriv, 2);
-	DEFINE_PRIM (lime_al_get_proc_address, 1);
-	DEFINE_PRIM (lime_al_get_source3f, 2);
-	DEFINE_PRIM (lime_al_get_source3i, 2);
-	DEFINE_PRIM (lime_al_get_sourcef, 2);
-	DEFINE_PRIM (lime_al_get_sourcefv, 2);
-	DEFINE_PRIM (lime_al_get_sourcei, 2);
-	DEFINE_PRIM (lime_al_get_sourceiv, 3);
-	DEFINE_PRIM (lime_al_get_string, 1);
-	DEFINE_PRIM (lime_al_is_buffer, 1);
-	DEFINE_PRIM (lime_al_is_enabled, 1);
-	DEFINE_PRIM (lime_al_is_extension_present, 1);
-	DEFINE_PRIM (lime_al_is_source, 1);
-	DEFINE_PRIM (lime_al_listener3f, 4);
-	DEFINE_PRIM (lime_al_listener3i, 4);
-	DEFINE_PRIM (lime_al_listenerf, 2);
-	DEFINE_PRIM (lime_al_listenerfv, 2);
-	DEFINE_PRIM (lime_al_listeneri, 2);
-	DEFINE_PRIM (lime_al_listeneriv, 2);
-	DEFINE_PRIM (lime_al_source_pause, 1);
-	DEFINE_PRIM (lime_al_source_pausev, 2);
-	DEFINE_PRIM (lime_al_source_play, 1);
-	DEFINE_PRIM (lime_al_source_playv, 2);
-	DEFINE_PRIM (lime_al_source_queue_buffers, 3);
-	DEFINE_PRIM (lime_al_source_rewind, 1);
-	DEFINE_PRIM (lime_al_source_rewindv, 2);
-	DEFINE_PRIM (lime_al_source_stop, 1);
-	DEFINE_PRIM (lime_al_source_stopv, 2);
-	DEFINE_PRIM (lime_al_source_unqueue_buffers, 2);
-	DEFINE_PRIM (lime_al_source3f, 5);
-	DEFINE_PRIM (lime_al_source3i, 5);
-	DEFINE_PRIM (lime_al_sourcef, 3);
-	DEFINE_PRIM (lime_al_sourcefv, 3);
-	DEFINE_PRIM (lime_al_sourcei, 3);
-	DEFINE_PRIM (lime_al_sourceiv, 3);
-	DEFINE_PRIM (lime_al_speed_of_sound, 1);
-	DEFINE_PRIM (lime_alc_create_context, 2);
-	DEFINE_PRIM (lime_alc_close_device, 1);
-	DEFINE_PRIM (lime_alc_destroy_context, 1);
-	DEFINE_PRIM (lime_alc_get_contexts_device, 1);
-	DEFINE_PRIM (lime_alc_get_current_context, 0);
-	DEFINE_PRIM (lime_alc_get_error, 1);
-	DEFINE_PRIM (lime_alc_get_integerv, 3);
-	DEFINE_PRIM (lime_alc_get_string, 2);
-	DEFINE_PRIM (lime_alc_make_context_current, 1);
-	DEFINE_PRIM (lime_alc_open_device, 1);
-	DEFINE_PRIM (lime_alc_process_context, 1);
-	DEFINE_PRIM (lime_alc_suspend_context, 1);
+	DEFINE_PRIME5v (lime_al_buffer_data);
+	DEFINE_PRIME5v (lime_al_buffer3f);
+	DEFINE_PRIME5v (lime_al_buffer3i);
+	DEFINE_PRIME3v (lime_al_bufferf);
+	DEFINE_PRIME3v (lime_al_bufferfv);
+	DEFINE_PRIME3v (lime_al_bufferi);
+	DEFINE_PRIME3v (lime_al_bufferiv);
+	DEFINE_PRIME1v (lime_al_delete_buffer);
+	DEFINE_PRIME2v (lime_al_delete_buffers);
+	DEFINE_PRIME1v (lime_al_delete_source);
+	DEFINE_PRIME2v (lime_al_delete_sources);
+	DEFINE_PRIME1v (lime_al_disable);
+	DEFINE_PRIME1v (lime_al_distance_model);
+	DEFINE_PRIME1v (lime_al_doppler_factor);
+	DEFINE_PRIME1v (lime_al_doppler_velocity);
+	DEFINE_PRIME1v (lime_al_enable);
+	DEFINE_PRIME0 (lime_al_gen_buffer);
+	DEFINE_PRIME1 (lime_al_gen_buffers);
+	DEFINE_PRIME0 (lime_al_gen_source);
+	DEFINE_PRIME1 (lime_al_gen_sources);
+	DEFINE_PRIME1 (lime_al_get_boolean);
+	DEFINE_PRIME2 (lime_al_get_booleanv);
+	DEFINE_PRIME2 (lime_al_get_buffer3f);
+	DEFINE_PRIME2 (lime_al_get_buffer3i);
+	DEFINE_PRIME2 (lime_al_get_bufferf);
+	DEFINE_PRIME3 (lime_al_get_bufferfv);
+	DEFINE_PRIME2 (lime_al_get_bufferi);
+	DEFINE_PRIME3 (lime_al_get_bufferiv);
+	DEFINE_PRIME1 (lime_al_get_double);
+	DEFINE_PRIME2 (lime_al_get_doublev);
+	DEFINE_PRIME1 (lime_al_get_enum_value);
+	DEFINE_PRIME0 (lime_al_get_error);
+	DEFINE_PRIME1 (lime_al_get_float);
+	DEFINE_PRIME2 (lime_al_get_floatv);
+	DEFINE_PRIME1 (lime_al_get_integer);
+	DEFINE_PRIME2 (lime_al_get_integerv);
+	DEFINE_PRIME1 (lime_al_get_listener3f);
+	DEFINE_PRIME1 (lime_al_get_listener3i);
+	DEFINE_PRIME1 (lime_al_get_listenerf);
+	DEFINE_PRIME2 (lime_al_get_listenerfv);
+	DEFINE_PRIME1 (lime_al_get_listeneri);
+	DEFINE_PRIME2 (lime_al_get_listeneriv);
+	DEFINE_PRIME1 (lime_al_get_proc_address);
+	DEFINE_PRIME2 (lime_al_get_source3f);
+	DEFINE_PRIME2 (lime_al_get_source3i);
+	DEFINE_PRIME2 (lime_al_get_sourcef);
+	DEFINE_PRIME3 (lime_al_get_sourcefv);
+	DEFINE_PRIME2 (lime_al_get_sourcei);
+	DEFINE_PRIME3 (lime_al_get_sourceiv);
+	DEFINE_PRIME1 (lime_al_get_string);
+	DEFINE_PRIME1 (lime_al_is_buffer);
+	DEFINE_PRIME1 (lime_al_is_enabled);
+	DEFINE_PRIME1 (lime_al_is_extension_present);
+	DEFINE_PRIME1 (lime_al_is_source);
+	DEFINE_PRIME4v (lime_al_listener3f);
+	DEFINE_PRIME4v (lime_al_listener3i);
+	DEFINE_PRIME2v (lime_al_listenerf);
+	DEFINE_PRIME2v (lime_al_listenerfv);
+	DEFINE_PRIME2v (lime_al_listeneri);
+	DEFINE_PRIME2v (lime_al_listeneriv);
+	DEFINE_PRIME1v (lime_al_source_pause);
+	DEFINE_PRIME2v (lime_al_source_pausev);
+	DEFINE_PRIME1v (lime_al_source_play);
+	DEFINE_PRIME2v (lime_al_source_playv);
+	DEFINE_PRIME3v (lime_al_source_queue_buffers);
+	DEFINE_PRIME1v (lime_al_source_rewind);
+	DEFINE_PRIME2v (lime_al_source_rewindv);
+	DEFINE_PRIME1v (lime_al_source_stop);
+	DEFINE_PRIME2v (lime_al_source_stopv);
+	DEFINE_PRIME2 (lime_al_source_unqueue_buffers);
+	DEFINE_PRIME5v (lime_al_source3f);
+	DEFINE_PRIME5v (lime_al_source3i);
+	DEFINE_PRIME3v (lime_al_sourcef);
+	DEFINE_PRIME3v (lime_al_sourcefv);
+	DEFINE_PRIME3v (lime_al_sourcei);
+	DEFINE_PRIME3v (lime_al_sourceiv);
+	DEFINE_PRIME1v (lime_al_speed_of_sound);
+	DEFINE_PRIME2 (lime_alc_create_context);
+	DEFINE_PRIME1 (lime_alc_close_device);
+	DEFINE_PRIME1v (lime_alc_destroy_context);
+	DEFINE_PRIME1 (lime_alc_get_contexts_device);
+	DEFINE_PRIME0 (lime_alc_get_current_context);
+	DEFINE_PRIME1 (lime_alc_get_error);
+	DEFINE_PRIME3 (lime_alc_get_integerv);
+	DEFINE_PRIME2 (lime_alc_get_string);
+	DEFINE_PRIME1 (lime_alc_make_context_current);
+	DEFINE_PRIME1 (lime_alc_open_device);
+	DEFINE_PRIME1v (lime_alc_process_context);
+	DEFINE_PRIME1v (lime_alc_suspend_context);
 	
 	
 }

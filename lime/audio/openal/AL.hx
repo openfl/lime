@@ -1,8 +1,17 @@
 package lime.audio.openal;
 
 
-import lime.system.System;
-import lime.utils.ByteArray;
+import lime.utils.ArrayBufferView;
+
+#if ((haxe_ver >= 3.2) && cpp)
+import cpp.Float32;
+#else
+typedef Float32 = Float;
+#end
+
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
 
 
 class AL {
@@ -72,10 +81,12 @@ class AL {
 	public static inline var EXPONENT_DISTANCE_CLAMPED:Int = 0xD006;
 	
 	
-	public static function bufferData (buffer:Int, format:Int, data:ByteArray, size:Int, freq:Int):Void {
+	public static function bufferData (buffer:Int, format:Int, data:ArrayBufferView, size:Int, freq:Int):Void {
 		
 		#if ((cpp || neko) && lime_openal)
-		lime_al_buffer_data (buffer, format, data.getByteBuffer (), size, freq);
+		lime_al_buffer_data (buffer, format, data.buffer, size, freq);
+		#elseif (nodejs && lime_openal)
+		lime_al_buffer_data (buffer, format, data, size, freq);
 		#elseif (nodejs && lime_openal)
 		lime_al_buffer_data (buffer, format, data, size, freq);
 		#end
@@ -273,10 +284,10 @@ class AL {
 	}
 	
 	
-	public static function getBooleanv (param:Int, count:Int = 1 ):Array<Bool> {
+	public static function getBooleanv (param:Int, count:Int = 1):Array<Bool> {
 		
 		#if ((cpp || neko || nodejs) && lime_openal)
-		return lime_al_get_booleanv (param, count);
+		return lime_al_get_booleanv (param, 1);
 		#else
 		return null;
 		#end
@@ -361,7 +372,7 @@ class AL {
 	}
 	
 	
-	public static function getDoublev (param:Int, count:Int = 1 ):Array<Float> {
+	public static function getDoublev (param:Int, count:Int = 1):Array<Float> {
 		
 		#if ((cpp || neko || nodejs) && lime_openal)
 		return lime_al_get_doublev (param, count);
@@ -522,7 +533,11 @@ class AL {
 	
 	public static function getProcAddress (fname:String):Dynamic {
 		
+		#if ((cpp || neko || nodejs) && lime_openal)
+		return lime_al_get_proc_address (fname);
+		#else
 		return null;
+		#end
 		
 	}
 	
@@ -560,10 +575,10 @@ class AL {
 	}
 	
 	
-	public static function getSourcefv (source:Int, param:Int):Array<Float> {
+	public static function getSourcefv (source:Int, param:Int, count:Int = 1):Array<Float> {
 		
 		#if ((cpp || neko || nodejs) && lime_openal)
-		return lime_al_get_sourcefv (source, param);
+		return lime_al_get_sourcefv (source, param, count);
 		#else
 		return null;
 		#end
@@ -879,83 +894,83 @@ class AL {
 	
 	
 	#if ((cpp || neko || nodejs) && lime_openal)
-	private static var lime_al_buffer_data = System.load ("lime", "lime_al_buffer_data", 5);
-	private static var lime_al_bufferf = System.load ("lime", "lime_al_bufferf", 3);
-	private static var lime_al_buffer3f = System.load ("lime", "lime_al_buffer3f", 5);
-	private static var lime_al_bufferfv = System.load ("lime", "lime_al_bufferfv", 3);
-	private static var lime_al_bufferi = System.load ("lime", "lime_al_bufferi", 3);
-	private static var lime_al_buffer3i = System.load ("lime", "lime_al_buffer3i", 5);
-	private static var lime_al_bufferiv = System.load ("lime", "lime_al_bufferiv", 3);
-	private static var lime_al_delete_buffer = System.load ("lime", "lime_al_delete_buffer", 1);
-	private static var lime_al_delete_buffers = System.load ("lime", "lime_al_delete_buffers", 2);
-	private static var lime_al_delete_source = System.load ("lime", "lime_al_delete_source", 1);
-	private static var lime_al_delete_sources = System.load ("lime", "lime_al_delete_sources", 2);
-	private static var lime_al_disable = System.load ("lime", "lime_al_disable", 1);
-	private static var lime_al_distance_model = System.load ("lime", "lime_al_distance_model", 1);
-	private static var lime_al_doppler_factor = System.load ("lime", "lime_al_doppler_factor", 1);
-	private static var lime_al_doppler_velocity = System.load ("lime", "lime_al_doppler_velocity", 1);
-	private static var lime_al_enable = System.load ("lime", "lime_al_enable", 1);
-	private static var lime_al_gen_source = System.load ("lime", "lime_al_gen_source", 0);
-	private static var lime_al_gen_sources = System.load ("lime", "lime_al_gen_sources", 1);
-	private static var lime_al_gen_buffer = System.load ("lime", "lime_al_gen_buffer", 0);
-	private static var lime_al_gen_buffers = System.load ("lime", "lime_al_gen_buffers", 1);
-	private static var lime_al_get_buffer3f = System.load ("lime", "lime_al_get_buffer3f", 2);
-	private static var lime_al_get_buffer3i = System.load ("lime", "lime_al_get_buffer3i", 2);
-	private static var lime_al_get_bufferf = System.load ("lime", "lime_al_get_bufferf", 2);
-	private static var lime_al_get_bufferfv = System.load ("lime", "lime_al_get_bufferfv", 3);
-	private static var lime_al_get_bufferi = System.load ("lime", "lime_al_get_bufferi", 2);
-	private static var lime_al_get_bufferiv = System.load ("lime", "lime_al_get_bufferiv", 3);
-	private static var lime_al_get_boolean = System.load ("lime", "lime_al_get_boolean", 1);
-	private static var lime_al_get_booleanv = System.load ("lime", "lime_al_get_booleanv", 2);
-	private static var lime_al_get_double = System.load ("lime", "lime_al_get_double", 1);
-	private static var lime_al_get_doublev = System.load ("lime", "lime_al_get_doublev", 2);
-	private static var lime_al_get_enum_value = System.load ("lime", "lime_al_get_enum_value", 1);
-	private static var lime_al_get_error = System.load ("lime", "lime_al_get_error", 0);
-	private static var lime_al_get_float = System.load ("lime", "lime_al_get_float", 1);
-	private static var lime_al_get_floatv = System.load ("lime", "lime_al_get_floatv", 2);
-	private static var lime_al_get_integer = System.load ("lime", "lime_al_get_integer", 1);
-	private static var lime_al_get_integerv = System.load ("lime", "lime_al_get_integerv", 2);
-	private static var lime_al_get_listenerf = System.load ("lime", "lime_al_get_listenerf", 1);
-	private static var lime_al_get_listener3f = System.load ("lime", "lime_al_get_listener3f", 1);
-	private static var lime_al_get_listenerfv = System.load ("lime", "lime_al_get_listenerfv", 2);
-	private static var lime_al_get_listeneri = System.load ("lime", "lime_al_get_listeneri", 1);
-	private static var lime_al_get_listener3i = System.load ("lime", "lime_al_get_listener3i", 1);
-	private static var lime_al_get_listeneriv = System.load ("lime", "lime_al_get_listeneriv", 2);
-	private static var lime_al_get_proc_address = System.load ("lime", "lime_al_get_proc_address", 1);
-	private static var lime_al_get_source3f = System.load ("lime", "lime_al_get_source3f", 2);
-	private static var lime_al_get_source3i = System.load ("lime", "lime_al_get_source3i", 2);
-	private static var lime_al_get_sourcef = System.load ("lime", "lime_al_get_sourcef", 2);
-	private static var lime_al_get_sourcefv = System.load ("lime", "lime_al_get_sourcefv", 2);
-	private static var lime_al_get_sourcei = System.load ("lime", "lime_al_get_sourcei", 2);
-	private static var lime_al_get_sourceiv = System.load ("lime", "lime_al_get_sourceiv", 3);
-	private static var lime_al_get_string = System.load ("lime", "lime_al_get_string", 1);
-	private static var lime_al_is_buffer = System.load ("lime", "lime_al_is_buffer", 1);
-	private static var lime_al_is_enabled = System.load ("lime", "lime_al_is_enabled", 1);
-	private static var lime_al_is_extension_present = System.load ("lime", "lime_al_is_extension_present", 1);
-	private static var lime_al_is_source = System.load ("lime", "lime_al_is_source", 1);
-	private static var lime_al_listener3f = System.load ("lime", "lime_al_listener3f", 4);
-	private static var lime_al_listener3i = System.load ("lime", "lime_al_listener3i", 4);
-	private static var lime_al_listenerf = System.load ("lime", "lime_al_listenerf", 2);
-	private static var lime_al_listenerfv = System.load ("lime", "lime_al_listenerfv", 2);
-	private static var lime_al_listeneri = System.load ("lime", "lime_al_listeneri", 2);
-	private static var lime_al_listeneriv = System.load ("lime", "lime_al_listeneriv", 2);
-	private static var lime_al_source_play = System.load ("lime", "lime_al_source_play", 1);
-	private static var lime_al_source_playv = System.load ("lime", "lime_al_source_playv", 2);
-	private static var lime_al_source_stop = System.load ("lime", "lime_al_source_stop", 1);
-	private static var lime_al_source_stopv = System.load ("lime", "lime_al_source_stopv", 2);
-	private static var lime_al_source_rewind = System.load ("lime", "lime_al_source_rewind", 1);
-	private static var lime_al_source_rewindv = System.load ("lime", "lime_al_source_rewindv", 2);
-	private static var lime_al_source_pause = System.load ("lime", "lime_al_source_pause", 1);
-	private static var lime_al_source_pausev = System.load ("lime", "lime_al_source_pausev", 2);
-	private static var lime_al_source_queue_buffers = System.load ("lime", "lime_al_source_queue_buffers", 3);
-	private static var lime_al_source_unqueue_buffers = System.load ("lime", "lime_al_source_unqueue_buffers", 2);
-	private static var lime_al_source3f = System.load ("lime", "lime_al_source3f", 5);
-	private static var lime_al_source3i = System.load ("lime", "lime_al_source3i", 5);
-	private static var lime_al_sourcef = System.load ("lime", "lime_al_sourcef", 3);
-	private static var lime_al_sourcefv = System.load ("lime", "lime_al_sourcefv", 3);
-	private static var lime_al_sourcei = System.load ("lime", "lime_al_sourcei", 3);
-	private static var lime_al_sourceiv = System.load ("lime", "lime_al_sourceiv", 3);
-	private static var lime_al_speed_of_sound = System.load ("lime", "lime_al_speed_of_sound", 1);
+	@:cffi private static function lime_al_buffer_data (buffer:Int, format:Int, data:Dynamic, size:Int, freq:Int):Void;
+	@:cffi private static function lime_al_buffer3f (buffer:Int, param:Int, value1:Float32, value2:Float32, value3:Float32):Void;
+	@:cffi private static function lime_al_buffer3i (buffer:Int, param:Int, value1:Int, value2:Int, value3:Int):Void;
+	@:cffi private static function lime_al_bufferf (buffer:Int, param:Int, value:Float32):Void;
+	@:cffi private static function lime_al_bufferfv (buffer:Int, param:Int, values:Dynamic):Void;
+	@:cffi private static function lime_al_bufferi (buffer:Int, param:Int, value:Int):Void;
+	@:cffi private static function lime_al_bufferiv (buffer:Int, param:Int, values:Dynamic):Void;
+	@:cffi private static function lime_al_delete_buffer (buffer:Int):Void;
+	@:cffi private static function lime_al_delete_buffers (n:Int, buffers:Dynamic):Void;
+	@:cffi private static function lime_al_delete_source (source:Int):Void;
+	@:cffi private static function lime_al_delete_sources (n:Int, sources:Dynamic):Void;
+	@:cffi private static function lime_al_disable (capability:Int):Void;
+	@:cffi private static function lime_al_distance_model (distanceModel:Int):Void;
+	@:cffi private static function lime_al_doppler_factor (value:Float32):Void;
+	@:cffi private static function lime_al_doppler_velocity (value:Float32):Void;
+	@:cffi private static function lime_al_enable (capability:Int):Void;
+	@:cffi private static function lime_al_gen_source ():Int;
+	@:cffi private static function lime_al_gen_sources (n:Int):Dynamic;
+	@:cffi private static function lime_al_get_boolean (param:Int):Bool;
+	@:cffi private static function lime_al_get_booleanv (param:Int, count:Int):Dynamic;
+	@:cffi private static function lime_al_gen_buffer ():Int;
+	@:cffi private static function lime_al_gen_buffers (n:Int):Dynamic;
+	@:cffi private static function lime_al_get_buffer3f (buffer:Int, param:Int):Dynamic;
+	@:cffi private static function lime_al_get_buffer3i (buffer:Int, param:Int):Dynamic;
+	@:cffi private static function lime_al_get_bufferf (buffer:Int, param:Int):Float32;
+	@:cffi private static function lime_al_get_bufferfv (buffer:Int, param:Int, count:Int):Dynamic;
+	@:cffi private static function lime_al_get_bufferi (buffer:Int, param:Int):Int;
+	@:cffi private static function lime_al_get_bufferiv (buffer:Int, param:Int, count:Int):Dynamic;
+	@:cffi private static function lime_al_get_double (param:Int):Float;
+	@:cffi private static function lime_al_get_doublev (param:Int, count:Int):Dynamic;
+	@:cffi private static function lime_al_get_enum_value (ename:String):Int;
+	@:cffi private static function lime_al_get_error ():Int;
+	@:cffi private static function lime_al_get_float (param:Int):Float32;
+	@:cffi private static function lime_al_get_floatv (param:Int, count:Int):Dynamic;
+	@:cffi private static function lime_al_get_integer (param:Int):Int;
+	@:cffi private static function lime_al_get_integerv (param:Int, count:Int):Dynamic;
+	@:cffi private static function lime_al_get_listener3f (param:Int):Dynamic;
+	@:cffi private static function lime_al_get_listener3i (param:Int):Dynamic;
+	@:cffi private static function lime_al_get_listenerf (param:Int):Float32;
+	@:cffi private static function lime_al_get_listenerfv (param:Int, count:Int):Dynamic;
+	@:cffi private static function lime_al_get_listeneri (param:Int):Int;
+	@:cffi private static function lime_al_get_listeneriv (param:Int, count:Int):Dynamic;
+	@:cffi private static function lime_al_get_proc_address (fname:String):Float;
+	@:cffi private static function lime_al_get_source3f (source:Int, param:Int):Dynamic;
+	@:cffi private static function lime_al_get_source3i (source:Int, param:Int):Dynamic;
+	@:cffi private static function lime_al_get_sourcef (source:Int, param:Int):Float32;
+	@:cffi private static function lime_al_get_sourcefv (source:Int, param:Int, count:Int):Dynamic;
+	@:cffi private static function lime_al_get_sourcei (source:Int, param:Int):Int;
+	@:cffi private static function lime_al_get_sourceiv (source:Int, param:Int, count:Int):Dynamic;
+	@:cffi private static function lime_al_get_string (param:Int):String;
+	@:cffi private static function lime_al_is_buffer (buffer:Int):Bool;
+	@:cffi private static function lime_al_is_enabled (capability:Int):Bool;
+	@:cffi private static function lime_al_is_extension_present (extname:String):Bool;
+	@:cffi private static function lime_al_is_source (source:Int):Bool;
+	@:cffi private static function lime_al_listener3f (param:Int, value1:Float32, value2:Float32, value3:Float32):Void;
+	@:cffi private static function lime_al_listener3i (param:Int, value1:Int, value2:Int, value3:Int):Void;
+	@:cffi private static function lime_al_listenerf (param:Int, value1:Float32):Void;
+	@:cffi private static function lime_al_listenerfv (param:Int, values:Dynamic):Void;
+	@:cffi private static function lime_al_listeneri (param:Int, value1:Int):Void;
+	@:cffi private static function lime_al_listeneriv (param:Int, values:Dynamic):Void;
+	@:cffi private static function lime_al_source_pause (source:Int):Void;
+	@:cffi private static function lime_al_source_pausev (n:Int, sources:Dynamic):Void;
+	@:cffi private static function lime_al_source_play (source:Int):Void;
+	@:cffi private static function lime_al_source_playv (n:Int, sources:Dynamic):Void;
+	@:cffi private static function lime_al_source_queue_buffers (source:Int, nb:Int, buffers:Dynamic):Void;
+	@:cffi private static function lime_al_source_rewind (source:Int):Void;
+	@:cffi private static function lime_al_source_rewindv (n:Int, sources:Dynamic):Void;
+	@:cffi private static function lime_al_source_stop (source:Int):Void;
+	@:cffi private static function lime_al_source_stopv (n:Int, sources:Dynamic):Void;
+	@:cffi private static function lime_al_source_unqueue_buffers (source:Int, nb:Int):Dynamic;
+	@:cffi private static function lime_al_source3f (source:Int, param:Int, value1:Float32, value2:Float32, value3:Float32):Void;
+	@:cffi private static function lime_al_source3i (source:Int, param:Int, value1:Int, value2:Int, value3:Int):Void;
+	@:cffi private static function lime_al_sourcef (source:Int, param:Int, value:Float32):Void;
+	@:cffi private static function lime_al_sourcefv (source:Int, param:Int, values:Dynamic):Void;
+	@:cffi private static function lime_al_sourcei (source:Int, param:Int, value:Int):Void;
+	@:cffi private static function lime_al_sourceiv (source:Int, param:Int, values:Dynamic):Void;
+	@:cffi private static function lime_al_speed_of_sound (speed:Float32):Void;
 	#end
 	
 	

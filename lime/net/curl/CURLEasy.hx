@@ -2,7 +2,10 @@ package lime.net.curl;
 
 
 import lime.net.curl.CURL;
-import lime.system.System;
+
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
 
 
 class CURLEasy {
@@ -150,24 +153,19 @@ class CURLEasy {
 	
 	
 	#if ((cpp || neko || nodejs) && lime_curl)
-	private static var lime_curl_easy_cleanup = System.load ("lime", "lime_curl_easy_cleanup", 1);
-	private static var lime_curl_easy_duphandle = System.load ("lime", "lime_curl_easy_duphandle", 1);
-	private static var lime_curl_easy_escape = System.load ("lime", "lime_curl_easy_escape", 3);
-	private static var lime_curl_easy_getinfo = System.load ("lime", "lime_curl_easy_getinfo", 2);
-	private static var lime_curl_easy_init = System.load ("lime", "lime_curl_easy_init", 0);
-	private static var lime_curl_easy_pause = System.load ("lime", "lime_curl_easy_pause", 2);
-	private static var lime_curl_easy_perform = System.load ("lime", "lime_curl_easy_perform", 1);
-	private static var lime_curl_easy_recv = System.load ("lime", "lime_curl_easy_recv", 4);
-	private static var lime_curl_easy_reset = System.load ("lime", "lime_curl_easy_reset", 1);
-	private static var lime_curl_easy_send = System.load ("lime", "lime_curl_easy_send", 4);
-	private static var lime_curl_easy_setopt = System.load ("lime", "lime_curl_easy_setopt", 3);
-	private static var lime_curl_easy_strerror = System.load ("lime", "lime_curl_easy_strerror", 1);
-	private static var lime_curl_easy_unescape = System.load ("lime", "lime_curl_easy_unescape", 4);
-	private static var lime_curl_getdate = System.load ("lime", "lime_curl_getdate", 2);
-	private static var lime_curl_global_cleanup = System.load ("lime", "lime_curl_global_cleanup", 0);
-	private static var lime_curl_global_init = System.load ("lime", "lime_curl_global_init", 1);
-	private static var lime_curl_version = System.load ("lime", "lime_curl_version", 0);
-	private static var lime_curl_version_info = System.load ("lime", "lime_curl_easy_cleanup", 1);
+	@:cffi private static function lime_curl_easy_cleanup (handle:Float):Void;
+	@:cffi private static function lime_curl_easy_duphandle (handle:Float):Float;
+	@:cffi private static function lime_curl_easy_escape (curl:Float, url:String, length:Int):String;
+	@:cffi private static function lime_curl_easy_getinfo (curl:Float, info:Int):Dynamic;
+	@:cffi private static function lime_curl_easy_init ():Float;
+	@:cffi private static function lime_curl_easy_pause (handle:Float, bitmask:Int):Int;
+	@:cffi private static function lime_curl_easy_perform (easy_handle:Float):Int;
+	@:cffi private static function lime_curl_easy_recv (curl:Float, buffer:Dynamic, buflen:Int, n:Int):Int;
+	@:cffi private static function lime_curl_easy_reset (curl:Float):Void;
+	@:cffi private static function lime_curl_easy_send (curl:Float, buffer:Dynamic, buflen:Int, n:Int):Int;
+	@:cffi private static function lime_curl_easy_setopt (handle:Float, option:Int, parameter:Dynamic):Int;
+	@:cffi private static function lime_curl_easy_strerror (errornum:Int):String;
+	@:cffi private static function lime_curl_easy_unescape (curl:Float, url:String, inlength:Int, outlength:Int):String;
 	#end
 	
 	
