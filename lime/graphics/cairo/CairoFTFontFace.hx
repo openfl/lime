@@ -1,8 +1,11 @@
 package lime.graphics.cairo;
 
 
-import lime.system.CFFI;
 import lime.text.Font;
+
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
 
 
 abstract CairoFTFontFace(CairoFontFace) from CairoFontFace to CairoFontFace {
@@ -21,7 +24,7 @@ abstract CairoFTFontFace(CairoFontFace) from CairoFontFace to CairoFontFace {
 	public static function create (face:Font, loadFlags:Int):CairoFTFontFace {
 		
 		#if lime_cairo
-		return lime_cairo_ft_font_face_create.call (face.src, loadFlags);
+		return lime_cairo_ft_font_face_create (face.src, loadFlags);
 		#else
 		return cast 0;
 		#end
@@ -37,7 +40,7 @@ abstract CairoFTFontFace(CairoFontFace) from CairoFontFace to CairoFontFace {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_cairo_ft_font_face_create = new CFFI<Float->Int->Float> ("lime", "lime_cairo_ft_font_face_create");
+	@:cffi private static function lime_cairo_ft_font_face_create (face:Float, flags:Int):Float;
 	#end
 	
 	

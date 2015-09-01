@@ -3,11 +3,14 @@ package lime.ui;
 
 import lime.app.Event;
 import lime.system.BackgroundWorker;
-import lime.system.System;
 import lime.utils.Resource;
 
 #if sys
 import sys.io.File;
+#end
+
+#if !macro
+@:build(lime.system.CFFI.build())
 #end
 
 
@@ -42,15 +45,15 @@ class FileDialog {
 				
 				case OPEN:
 					
-					worker.sendComplete (lime_file_dialog_open_file.call (filter, defaultPath));
+					worker.sendComplete (lime_file_dialog_open_file (filter, defaultPath));
 				
 				case OPEN_MULTIPLE:
 					
-					worker.sendComplete (lime_file_dialog_open_files.call (filter, defaultPath));
+					worker.sendComplete (lime_file_dialog_open_files (filter, defaultPath));
 				
 				case SAVE:
 					
-					worker.sendComplete (lime_file_dialog_save_file.call (filter, defaultPath));
+					worker.sendComplete (lime_file_dialog_save_file (filter, defaultPath));
 				
 			}
 			
@@ -113,7 +116,7 @@ class FileDialog {
 		
 		worker.doWork.add (function (_) {
 			
-			worker.sendComplete (lime_file_dialog_open_file.call (filter, defaultPath));
+			worker.sendComplete (lime_file_dialog_open_file (filter, defaultPath));
 			
 		});
 		
@@ -156,7 +159,7 @@ class FileDialog {
 		
 		worker.doWork.add (function (_) {
 			
-			worker.sendComplete (lime_file_dialog_save_file.call (filter, defaultPath));
+			worker.sendComplete (lime_file_dialog_save_file (filter, defaultPath));
 			
 		});
 		
@@ -199,9 +202,9 @@ class FileDialog {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_file_dialog_open_file = System.loadPrime ("lime", "lime_file_dialog_open_file", "sss");
-	private static var lime_file_dialog_open_files = System.loadPrime ("lime", "lime_file_dialog_open_files", "sso");
-	private static var lime_file_dialog_save_file = System.loadPrime ("lime", "lime_file_dialog_save_file", "sss");
+	@:cffi private static function lime_file_dialog_open_file (filter:String, defaultPath:String):String;
+	@:cffi private static function lime_file_dialog_open_files (filter:String, defaultPath:String):Dynamic;
+	@:cffi private static function lime_file_dialog_save_file (filter:String, defaultPath:String):String;
 	#end
 	
 	

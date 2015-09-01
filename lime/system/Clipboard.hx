@@ -5,6 +5,10 @@ package lime.system;
 import flash.desktop.Clipboard in FlashClipboard;
 #end
 
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
+
 
 class Clipboard {
 	
@@ -22,7 +26,7 @@ class Clipboard {
 	private static function get_text ():String {
 		
 		#if (cpp || neko || nodejs)
-		return lime_clipboard_get_text.call ();
+		return lime_clipboard_get_text ();
 		#elseif flash
 		if (FlashClipboard.generalClipboard.hasFormat (TEXT_FORMAT)) {
 			
@@ -39,7 +43,7 @@ class Clipboard {
 	private static function set_text (value:String):String {
 		
 		#if (cpp || neko || nodejs)
-		lime_clipboard_set_text.call (value);
+		lime_clipboard_set_text (value);
 		return value;
 		#elseif flash
 		FlashClipboard.generalClipboard.setData (TEXT_FORMAT, value);
@@ -59,8 +63,8 @@ class Clipboard {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_clipboard_get_text = System.loadPrime ("lime", "lime_clipboard_get_text", "s");
-	private static var lime_clipboard_set_text = System.loadPrime ("lime", "lime_clipboard_set_text", "sv");
+	@:cffi private static function lime_clipboard_get_text ():String;
+	@:cffi private static function lime_clipboard_set_text (text:String):Void;
 	#end
 	
 	

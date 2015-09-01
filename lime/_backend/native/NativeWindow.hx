@@ -9,6 +9,10 @@ import lime.system.Display;
 import lime.system.System;
 import lime.ui.Window;
 
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
+
 @:access(lime.app.Application)
 @:access(lime.ui.Window)
 
@@ -32,7 +36,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			lime_window_close.call (handle);
+			lime_window_close (handle);
 			handle = null;
 			
 		}
@@ -77,15 +81,15 @@ class NativeWindow {
 			
 		}
 		
-		handle = lime_window_create.call (application.backend.handle, parent.width, parent.height, flags, title);
+		handle = lime_window_create (application.backend.handle, parent.width, parent.height, flags, title);
 		
 		if (handle != null) {
 			
-			parent.__width = lime_window_get_width.call (handle);
-			parent.__height = lime_window_get_height.call (handle);
-			parent.__x = lime_window_get_x.call (handle);
-			parent.__y = lime_window_get_y.call (handle);
-			parent.id = lime_window_get_id.call (handle);
+			parent.__width = lime_window_get_width (handle);
+			parent.__height = lime_window_get_height (handle);
+			parent.__x = lime_window_get_x (handle);
+			parent.__y = lime_window_get_y (handle);
+			parent.id = lime_window_get_id (handle);
 			
 		}
 		
@@ -96,7 +100,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			lime_window_focus.call (handle);
+			lime_window_focus (handle);
 			
 		}
 		
@@ -130,7 +134,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			return lime_window_get_enable_text_events.call (handle);
+			return lime_window_get_enable_text_events (handle);
 			
 		}
 		
@@ -143,7 +147,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			lime_window_move.call (handle, x, y);
+			lime_window_move (handle, x, y);
 			
 		}
 		
@@ -154,7 +158,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			lime_window_resize.call (handle, width, height);
+			lime_window_resize (handle, width, height);
 			
 		}
 		
@@ -165,7 +169,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			lime_window_set_enable_text_events.call (handle, value);
+			lime_window_set_enable_text_events (handle, value);
 			
 		}
 		
@@ -178,7 +182,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			value = lime_window_set_fullscreen.call (handle, value);
+			value = lime_window_set_fullscreen (handle, value);
 			
 			if (value) {
 				
@@ -197,7 +201,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			lime_window_set_icon.call (handle, image.buffer);
+			lime_window_set_icon (handle, image.buffer);
 			
 		}
 		
@@ -208,7 +212,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			return lime_window_set_minimized.call (handle, value);
+			return lime_window_set_minimized (handle, value);
 			
 		}
 		
@@ -221,7 +225,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			return lime_window_set_title.call (handle, value);
+			return lime_window_set_title (handle, value);
 			
 		}
 		
@@ -230,22 +234,22 @@ class NativeWindow {
 	}
 	
 	
-	private static var lime_window_close = System.loadPrime ("lime", "lime_window_close", "dv");
-	private static var lime_window_create = System.loadPrime ("lime", "lime_window_create", "diiisd");
-	private static var lime_window_focus = System.loadPrime ("lime", "lime_window_focus", "dv");
-	private static var lime_window_get_enable_text_events = System.loadPrime ("lime", "lime_window_get_enable_text_events", "db");
-	private static var lime_window_get_height = System.loadPrime ("lime", "lime_window_get_height", "di");
-	private static var lime_window_get_id = System.loadPrime ("lime", "lime_window_get_id", "di");
-	private static var lime_window_get_width = System.loadPrime ("lime", "lime_window_get_width", "di");
-	private static var lime_window_get_x = System.loadPrime ("lime", "lime_window_get_x", "di");
-	private static var lime_window_get_y = System.loadPrime ("lime", "lime_window_get_y", "di");
-	private static var lime_window_move = System.loadPrime ("lime", "lime_window_move", "diiv");
-	private static var lime_window_resize = System.loadPrime ("lime", "lime_window_resize", "diiv");
-	private static var lime_window_set_enable_text_events = System.loadPrime ("lime", "lime_window_set_enable_text_events", "dbv");
-	private static var lime_window_set_fullscreen = System.loadPrime ("lime", "lime_window_set_fullscreen", "dbb");
-	private static var lime_window_set_icon = System.loadPrime ("lime", "lime_window_set_icon", "dov");
-	private static var lime_window_set_minimized = System.loadPrime ("lime", "lime_window_set_minimized", "dbb");
-	private static var lime_window_set_title = System.loadPrime ("lime", "lime_window_set_title", "dss");
+	@:cffi private static function lime_window_close (handle:Float):Void;
+	@:cffi private static function lime_window_create (application:Float, width:Int, height:Int, flags:Int, title:String):Float;
+	@:cffi private static function lime_window_focus (handle:Float):Void;
+	@:cffi private static function lime_window_get_enable_text_events (handle:Float):Bool;
+	@:cffi private static function lime_window_get_height (handle:Float):Int;
+	@:cffi private static function lime_window_get_id (handle:Float):Int;
+	@:cffi private static function lime_window_get_width (handle:Float):Int;
+	@:cffi private static function lime_window_get_x (handle:Float):Int;
+	@:cffi private static function lime_window_get_y (handle:Float):Int;
+	@:cffi private static function lime_window_move (handle:Float, x:Int, y:Int):Void;
+	@:cffi private static function lime_window_resize (handle:Float, width:Int, height:Int):Void;
+	@:cffi private static function lime_window_set_enable_text_events (handle:Float, enabled:Bool):Void;
+	@:cffi private static function lime_window_set_fullscreen (handle:Float, fullscreen:Bool):Bool;
+	@:cffi private static function lime_window_set_icon (handle:Float, buffer:Dynamic):Void;
+	@:cffi private static function lime_window_set_minimized (handle:Float, minimized:Bool):Bool;
+	@:cffi private static function lime_window_set_title (handle:Float, title:String):String;
 	
 	
 }

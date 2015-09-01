@@ -7,6 +7,10 @@ import lime.graphics.ImageBuffer;
 import lime.system.CFFI;
 import lime.utils.ByteArray;
 
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
+
 
 class JPEG {
 	
@@ -15,7 +19,7 @@ class JPEG {
 		
 		#if (cpp || neko || nodejs)
 		
-		var bufferData:Dynamic = lime_jpeg_decode_bytes.call (bytes, decodeData);
+		var bufferData:Dynamic = lime_jpeg_decode_bytes (bytes, decodeData);
 		
 		if (bufferData != null) {
 			
@@ -36,7 +40,7 @@ class JPEG {
 		
 		#if (cpp || neko || nodejs)
 		
-		var bufferData:Dynamic = lime_jpeg_decode_file.call (path, decodeData);
+		var bufferData:Dynamic = lime_jpeg_decode_file (path, decodeData);
 		
 		if (bufferData != null) {
 			
@@ -69,7 +73,7 @@ class JPEG {
 		
 		#elseif (sys && (!disable_cffi || !format))
 			
-			var data:Dynamic = lime_image_encode.call (image.buffer, 1, quality);
+			var data:Dynamic = lime_image_encode (image.buffer, 1, quality);
 			var bytes = @:privateAccess new Bytes (data.length, data.b);
 			return ByteArray.fromBytes (bytes);
 			
@@ -88,9 +92,9 @@ class JPEG {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_jpeg_decode_bytes = new CFFI<Dynamic->Bool->Dynamic> ("lime", "lime_jpeg_decode_bytes");
-	private static var lime_jpeg_decode_file = new CFFI<String->Bool->Dynamic> ("lime", "lime_jpeg_decode_file");
-	private static var lime_image_encode = new CFFI<Dynamic->Int->Int->Dynamic> ("lime", "lime_image_encode");
+	@:cffi private static function lime_jpeg_decode_bytes (data:Dynamic, decodeData:Bool):Dynamic;
+	@:cffi private static function lime_jpeg_decode_file (path:String, decodeData:Bool):Dynamic;
+	@:cffi private static function lime_image_encode (data:Dynamic, type:Int, quality:Int):Dynamic;
 	#end
 	
 	

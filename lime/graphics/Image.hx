@@ -19,7 +19,6 @@ import lime.math.ColorMatrix;
 import lime.math.Rectangle;
 import lime.math.Vector2;
 import lime.system.CFFI;
-import lime.system.System;
 import lime.utils.ArrayBuffer;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
@@ -49,14 +48,17 @@ import sys.io.File;
 import lime.graphics.console.TextureData;
 #end
 
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
+
+@:autoBuild(lime.Assets.embedImage())
 @:allow(lime.graphics.util.ImageCanvasUtil)
 @:allow(lime.graphics.util.ImageDataUtil)
 @:access(lime.app.Application)
 @:access(lime.math.ColorMatrix)
 @:access(lime.math.Rectangle)
 @:access(lime.math.Vector2)
-
-@:autoBuild(lime.Assets.embedImage())
 
 
 class Image {
@@ -1075,7 +1077,7 @@ class Image {
 			
 		#elseif (cpp || neko || nodejs)
 			
-			var data:Dynamic = lime_image_load.call (bytes);
+			var data:Dynamic = lime_image_load (bytes);
 			
 			if (data != null) {
 				
@@ -1189,9 +1191,9 @@ class Image {
 			
 			#else
 			
-			if (#if (sys && (!disable_cffi || !format) && !java) true #else false #end && !System.disableCFFI) {
+			if (#if (sys && (!disable_cffi || !format) && !java) true #else false #end && CFFI.enabled) {
 				
-				var data:Dynamic = lime_image_load.call (path);
+				var data:Dynamic = lime_image_load (path);
 				
 				if (data != null) {
 					
@@ -1546,8 +1548,8 @@ class Image {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_image_encode = new CFFI<Dynamic->Int->Int->Dynamic> ("lime", "lime_image_encode");
-	private static var lime_image_load = new CFFI<Dynamic->Dynamic> ("lime", "lime_image_load");
+	@:cffi private static function lime_image_encode (buffer:Dynamic, Type:Int, quality:Int):Dynamic;
+	@:cffi private static function lime_image_load (data:Dynamic):Dynamic;
 	#end
 	
 	

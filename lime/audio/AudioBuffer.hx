@@ -5,7 +5,6 @@ import haxe.io.Bytes;
 import lime.audio.openal.AL;
 import lime.net.URLLoader;
 import lime.net.URLRequest;
-import lime.system.CFFI;
 import lime.utils.ByteArray;
 import lime.utils.Float32Array;
 
@@ -15,6 +14,10 @@ import js.html.Audio;
 import flash.media.Sound;
 #elseif lime_console
 import lime.audio.fmod.Sound;
+#end
+
+#if !macro
+@:build(lime.system.CFFI.build())
 #end
 
 
@@ -78,7 +81,7 @@ class AudioBuffer {
 		
 		#elseif (cpp || neko || nodejs)
 		
-		var data:Dynamic = lime_audio_load.call (bytes);
+		var data:Dynamic = lime_audio_load (bytes);
 		
 		if (data != null) {
 			
@@ -118,7 +121,7 @@ class AudioBuffer {
 		
 		#elseif (cpp || neko || nodejs)
 		
-		var data:Dynamic = lime_audio_load.call (path);
+		var data:Dynamic = lime_audio_load (path);
 		
 		if (data != null) {
 			
@@ -179,7 +182,7 @@ class AudioBuffer {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_audio_load = new CFFI<Dynamic->Dynamic> ("lime", "lime_audio_load");
+	@:cffi private static function lime_audio_load (data:Dynamic):Dynamic;
 	#end
 	
 	

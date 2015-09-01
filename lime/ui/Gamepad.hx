@@ -2,7 +2,10 @@ package lime.ui;
 
 
 import lime.app.Event;
-import lime.system.System;
+
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
 
 
 class Gamepad {
@@ -32,7 +35,7 @@ class Gamepad {
 	public static function addMappings (mappings:Array<String>):Void {
 		
 		#if (cpp || neko || nodejs)
-		lime_gamepad_add_mappings.call (mappings);
+		lime_gamepad_add_mappings (mappings);
 		#end
 		
 	}
@@ -48,7 +51,7 @@ class Gamepad {
 	@:noCompletion private inline function get_guid ():String {
 		
 		#if (cpp || neko || nodejs)
-		return lime_gamepad_get_device_guid.call (this.id);
+		return lime_gamepad_get_device_guid (this.id);
 		#else
 		return null;
 		#end
@@ -59,7 +62,7 @@ class Gamepad {
 	@:noCompletion private inline function get_name ():String {
 		
 		#if (cpp || neko || nodejs)
-		return lime_gamepad_get_device_name.call (this.id);
+		return lime_gamepad_get_device_name (this.id);
 		#else
 		return null;
 		#end
@@ -75,9 +78,9 @@ class Gamepad {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_gamepad_add_mappings = System.loadPrime ("lime", "lime_gamepad_add_mappings", "ov");
-	private static var lime_gamepad_get_device_guid = System.loadPrime ("lime", "lime_gamepad_get_device_guid", "is");
-	private static var lime_gamepad_get_device_name = System.loadPrime ("lime", "lime_gamepad_get_device_name", "is");
+	@:cffi private static function lime_gamepad_add_mappings (mappings:Dynamic):Void;
+	@:cffi private static function lime_gamepad_get_device_guid (id:Int):String;
+	@:cffi private static function lime_gamepad_get_device_name (id:Int):String;
 	#end
 	
 	

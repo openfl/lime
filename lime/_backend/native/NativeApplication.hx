@@ -17,7 +17,9 @@ import lime.ui.Gamepad;
 import lime.ui.Touch;
 import lime.ui.Window;
 
+#if !macro
 @:build(lime.system.CFFI.build())
+#end
 
 @:access(haxe.Timer)
 @:access(lime._backend.native.NativeRenderer)

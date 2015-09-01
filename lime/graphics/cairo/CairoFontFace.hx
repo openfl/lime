@@ -1,7 +1,9 @@
 package lime.graphics.cairo;
 
 
-import lime.system.CFFI;
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
 
 
 abstract CairoFontFace(Dynamic) from Float to Float {
@@ -20,7 +22,7 @@ abstract CairoFontFace(Dynamic) from Float to Float {
 	public function destroy ():Void {
 		
 		#if lime_cairo
-		lime_cairo_font_face_destroy.call (this);
+		lime_cairo_font_face_destroy (this);
 		#end
 		
 	}
@@ -29,7 +31,7 @@ abstract CairoFontFace(Dynamic) from Float to Float {
 	public function reference ():CairoFontFace {
 		
 		#if lime_cairo
-		lime_cairo_font_face_reference.call (this);
+		lime_cairo_font_face_reference (this);
 		#end
 		
 		return this;
@@ -40,7 +42,7 @@ abstract CairoFontFace(Dynamic) from Float to Float {
 	public function status ():CairoStatus {
 		
 		#if lime_cairo
-		return lime_cairo_font_face_status.call (this);
+		return lime_cairo_font_face_status (this);
 		#else
 		return 0;
 		#end
@@ -58,7 +60,7 @@ abstract CairoFontFace(Dynamic) from Float to Float {
 	@:noCompletion private function get_referenceCount ():Int {
 		
 		#if lime_cairo
-		return lime_cairo_font_face_get_reference_count.call (this);
+		return lime_cairo_font_face_get_reference_count (this);
 		#else
 		return 0;
 		#end
@@ -74,10 +76,10 @@ abstract CairoFontFace(Dynamic) from Float to Float {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_cairo_font_face_destroy = new CFFI<Float->Void> ("lime", "lime_cairo_font_face_destroy");
-	private static var lime_cairo_font_face_get_reference_count = new CFFI<Float->Int> ("lime", "lime_cairo_font_face_get_reference_count");
-	private static var lime_cairo_font_face_reference = new CFFI<Float->Void> ("lime", "lime_cairo_font_face_reference");
-	private static var lime_cairo_font_face_status = new CFFI<Float->Int> ("lime", "lime_cairo_font_face_status");
+	@:cffi private static function lime_cairo_font_face_destroy (handle:Float):Void;
+	@:cffi private static function lime_cairo_font_face_get_reference_count (handle:Float):Int;
+	@:cffi private static function lime_cairo_font_face_reference (handle:Float):Void;
+	@:cffi private static function lime_cairo_font_face_status (handle:Float):Int;
 	#end
 	
 	

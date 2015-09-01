@@ -730,6 +730,13 @@ namespace lime {
 	}
 	
 	
+	void lime_cairo_set_fill_rule (double handle, int cap) {
+		
+		cairo_set_fill_rule ((cairo_t*)(intptr_t)handle, (cairo_fill_rule_t)cap);
+		
+	}
+	
+	
 	void lime_cairo_set_font_face (double handle, double face) {
 		
 		cairo_set_font_face ((cairo_t*)(intptr_t)handle, (cairo_font_face_t*)(intptr_t)face);
@@ -747,13 +754,6 @@ namespace lime {
 	void lime_cairo_set_font_size (double handle, double size) {
 		
 		cairo_set_font_size ((cairo_t*)(intptr_t)handle, size);
-		
-	}
-	
-	
-	void lime_cairo_set_fill_rule (double handle, int cap) {
-		
-		cairo_set_fill_rule ((cairo_t*)(intptr_t)handle, (cairo_fill_rule_t)cap);
 		
 	}
 	

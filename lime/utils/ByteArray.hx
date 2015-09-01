@@ -8,7 +8,6 @@ import haxe.io.Input;
 import haxe.zip.Compress;
 //import haxe.zip.Flush;
 import haxe.zip.Uncompress;
-import lime.system.System;
 import lime.utils.ArrayBuffer;
 import lime.utils.CompressionAlgorithm;
 import lime.utils.IDataInput;
@@ -27,6 +26,10 @@ import cpp.NativeArray;
 
 #if sys
 import sys.io.File;
+#end
+
+#if !macro
+@:build(lime.system.CFFI.build())
 #end
 
 @:autoBuild(lime.Assets.embedFile())
@@ -328,8 +331,8 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	
 	public static function readFile (path:String):ByteArray {
 		
-		#if !html5
-		var data:Dynamic = lime_bytes_read_file.call (path);
+		#if (!html5 && !macro)
+		var data:Dynamic = lime_bytes_read_file (path);
 		if (data != null) return ByteArray.fromBytes (@:privateAccess new Bytes (data.length, data.b));
 		#end
 		return null;
@@ -905,10 +908,10 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	}
 	
 	
-	#if (cpp || neko || nodejs)
+	#if ((cpp || neko || nodejs) && !macro)
 	public static function __fromNativePointer (data:Dynamic, length:Int):ByteArray {
 		
-		var bytes:Dynamic = lime_bytes_from_data_pointer.call (data, length);
+		var bytes:Dynamic = lime_bytes_from_data_pointer (data, length);
 		return ByteArray.fromBytes (@:privateAccess new Bytes (bytes.length, bytes.b));
 		
 	}
@@ -941,10 +944,10 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	#end
 	
 	
-	#if (cpp || neko || nodejs)
+	#if ((cpp || neko || nodejs) && !macro)
 	public function __getNativePointer ():Dynamic {
 		
-		return lime_bytes_get_data_pointer.call (this);
+		return lime_bytes_get_data_pointer (this);
 		
 	}
 	#end
@@ -1102,9 +1105,12 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	
 	
 	
-	private static var lime_bytes_from_data_pointer = System.loadPrime ("lime", "lime_bytes_from_data_pointer", "dio");
-	private static var lime_bytes_get_data_pointer = System.loadPrime ("lime", "lime_bytes_get_data_pointer", "od");
-	private static var lime_bytes_read_file = System.loadPrime ("lime", "lime_bytes_read_file", "so");
+	#if !macro
+	@:cffi private static function lime_bytes_from_data_pointer (data:Float, length:Int):Dynamic;
+	@:cffi private static function lime_bytes_get_data_pointer (data:Dynamic):Float;
+	@:cffi private static function lime_bytes_read_file (path:String):Dynamic;
+	#end
+	
 	
 }
 

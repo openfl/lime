@@ -1,7 +1,9 @@
 package lime.vm;
 
 
-import lime.system.System;
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
 
 
 class NekoVM {
@@ -9,12 +11,12 @@ class NekoVM {
 	
 	public static function loadModule (path:String):Void {
 		
-		lime_neko_execute.call (path);
+		lime_neko_execute (path);
 		
 	}
 	
 	
-	private static var lime_neko_execute = System.loadPrime ("lime", "lime_neko_execute", "sv");
+	@:cffi private static function lime_neko_execute (module:String):Void;
 	
 	
 }

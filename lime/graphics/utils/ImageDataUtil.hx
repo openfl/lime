@@ -13,9 +13,13 @@ import lime.math.color.RGBA;
 import lime.math.ColorMatrix;
 import lime.math.Rectangle;
 import lime.math.Vector2;
-import lime.system.System;
+import lime.system.CFFI;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
+
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
 
 @:access(lime.math.color.RGBA)
 
@@ -29,7 +33,7 @@ class ImageDataUtil {
 		if (data == null) return;
 		
 		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_color_transform.call (image, rect, colorMatrix); else
+		if (CFFI.enabled) lime_image_data_util_color_transform (image, rect, colorMatrix); else
 		#end
 		{
 			
@@ -94,7 +98,7 @@ class ImageDataUtil {
 		if (srcData == null || destData == null) return;
 		
 		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_copy_channel.call (image, sourceImage, sourceRect, destPoint, srcIdx, destIdx); else
+		if (CFFI.enabled) lime_image_data_util_copy_channel (image, sourceImage, sourceRect, destPoint, srcIdx, destIdx); else
 		#end
 		{
 			
@@ -155,7 +159,7 @@ class ImageDataUtil {
 	public static function copyPixels (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, alphaImage:Image = null, alphaPoint:Vector2 = null, mergeAlpha:Bool = false):Void {
 		
 		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_copy_pixels.call (image, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha); else
+		if (CFFI.enabled) lime_image_data_util_copy_pixels (image, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha); else
 		#end
 		{
 			
@@ -320,7 +324,7 @@ class ImageDataUtil {
 		if (data == null) return;
 		
 		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_fill_rect.call (image, rect, (fillColor >> 16) & 0xFFFF, (fillColor) & 0xFFFF); else // TODO: Better Int32 solution
+		if (CFFI.enabled) lime_image_data_util_fill_rect (image, rect, (fillColor >> 16) & 0xFFFF, (fillColor) & 0xFFFF); else // TODO: Better Int32 solution
 		#end
 		{
 			
@@ -357,7 +361,7 @@ class ImageDataUtil {
 		if (format == ARGB32) color = ((color & 0xFFFFFF) << 8) | ((color >> 24) & 0xFF);
 		
 		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_flood_fill.call (image, x, y, (color >> 16) & 0xFFFF, (color) & 0xFFFF); else // TODO: Better Int32 solution
+		if (CFFI.enabled) lime_image_data_util_flood_fill (image, x, y, (color >> 16) & 0xFFFF, (color) & 0xFFFF); else // TODO: Better Int32 solution
 		#end
 		{
 			
@@ -647,7 +651,7 @@ class ImageDataUtil {
 		#end
 		
 		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_get_pixels.call (image, rect, format, byteArray); else
+		if (CFFI.enabled) lime_image_data_util_get_pixels (image, rect, format, byteArray); else
 		#end
 		{
 			
@@ -709,7 +713,7 @@ class ImageDataUtil {
 		if (image.buffer.data == null || sourceImage.buffer.data == null) return;
 		
 		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_merge.call (image, sourceImage, sourceRect, destPoint, redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier); else
+		if (CFFI.enabled) lime_image_data_util_merge (image, sourceImage, sourceRect, destPoint, redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier); else
 		#end
 		{
 			
@@ -762,7 +766,7 @@ class ImageDataUtil {
 		if (data == null || !image.buffer.transparent) return;
 		
 		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_multiply_alpha.call (image); else
+		if (CFFI.enabled) lime_image_data_util_multiply_alpha (image); else
 		#end
 		{
 			
@@ -792,7 +796,7 @@ class ImageDataUtil {
 		var newBuffer = new ImageBuffer (new UInt8Array (newWidth * newHeight * 4), newWidth, newHeight);
 		
 		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_resize.call (image, newBuffer, newWidth, newHeight); else
+		if (CFFI.enabled) lime_image_data_util_resize (image, newBuffer, newWidth, newHeight); else
 		#end
 		{
 			
@@ -894,7 +898,7 @@ class ImageDataUtil {
 		if (data == null) return;
 		
 		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_set_format.call (image, format); else
+		if (CFFI.enabled) lime_image_data_util_set_format (image, format); else
 		#end
 		{
 			
@@ -1022,7 +1026,7 @@ class ImageDataUtil {
 		if (image.buffer.data == null) return;
 		
 		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_set_pixels.call (image, rect, byteArray, format); else
+		if (CFFI.enabled) lime_image_data_util_set_pixels (image, rect, byteArray, format); else
 		#end
 		{
 			
@@ -1069,7 +1073,7 @@ class ImageDataUtil {
 		if (data == null) return;
 		
 		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_unmultiply_alpha.call (image); else
+		if (CFFI.enabled) lime_image_data_util_unmultiply_alpha (image); else
 		#end
 		{
 			
@@ -1100,18 +1104,18 @@ class ImageDataUtil {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_image_data_util_color_transform = System.loadPrime ("lime", "lime_image_data_util_color_transform", "ooov");
-	private static var lime_image_data_util_copy_channel = System.loadPrime ("lime", "lime_image_data_util_copy_channel", "ooooiiv");
-	private static var lime_image_data_util_copy_pixels = System.loadPrime ("lime", "lime_image_data_util_copy_pixels", "oooooobv");
-	private static var lime_image_data_util_fill_rect = System.loadPrime ("lime", "lime_image_data_util_fill_rect", "ooiiv");
-	private static var lime_image_data_util_flood_fill = System.loadPrime ("lime", "lime_image_data_util_flood_fill", "oiiiiv");
-	private static var lime_image_data_util_get_pixels = System.loadPrime ("lime", "lime_image_data_util_get_pixels", "ooiov");
-	private static var lime_image_data_util_merge = System.loadPrime ("lime", "lime_image_data_util_merge", "ooooiiiiv");
-	private static var lime_image_data_util_multiply_alpha = System.loadPrime ("lime", "lime_image_data_util_multiply_alpha", "ov");
-	private static var lime_image_data_util_resize = System.loadPrime ("lime", "lime_image_data_util_resize", "ooiiv");
-	private static var lime_image_data_util_set_format = System.loadPrime ("lime", "lime_image_data_util_set_format", "oiv");
-	private static var lime_image_data_util_set_pixels = System.loadPrime ("lime", "lime_image_data_util_set_pixels", "oooiv");
-	private static var lime_image_data_util_unmultiply_alpha = System.loadPrime ("lime", "lime_image_data_util_unmultiply_alpha", "ov");
+	@:cffi private static function lime_image_data_util_color_transform (image:Dynamic, rect:Dynamic, colorMatrix:Dynamic):Void;
+	@:cffi private static function lime_image_data_util_copy_channel (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, srcChannel:Int, destChannel:Int):Void;
+	@:cffi private static function lime_image_data_util_copy_pixels (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, alphaImage:Dynamic, alphaPoint:Dynamic, mergeAlpha:Bool):Void;
+	@:cffi private static function lime_image_data_util_fill_rect (image:Dynamic, rect:Dynamic, rg:Int, ba:Int):Void;
+	@:cffi private static function lime_image_data_util_flood_fill (image:Dynamic, x:Int, y:Int, rg:Int, ba:Int):Void;
+	@:cffi private static function lime_image_data_util_get_pixels (image:Dynamic, rect:Dynamic, format:Int, bytes:Dynamic):Void;
+	@:cffi private static function lime_image_data_util_merge (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, redMultiplier:Int, greenMultiplier:Int, blueMultiplier:Int, alphaMultiplier:Int):Void;
+	@:cffi private static function lime_image_data_util_multiply_alpha (image:Dynamic):Void;
+	@:cffi private static function lime_image_data_util_resize (image:Dynamic, buffer:Dynamic, width:Int, height:Int):Void;
+	@:cffi private static function lime_image_data_util_set_format (image:Dynamic, format:Int):Void;
+	@:cffi private static function lime_image_data_util_set_pixels (image:Dynamic, rect:Dynamic, bytes:Dynamic, format:Int):Void;
+	@:cffi private static function lime_image_data_util_unmultiply_alpha (image:Dynamic):Void;
 	#end
 	
 	

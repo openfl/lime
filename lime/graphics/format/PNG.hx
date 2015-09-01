@@ -4,7 +4,6 @@ package lime.graphics.format;
 import haxe.io.Bytes;
 import lime.graphics.Image;
 import lime.system.CFFI;
-import lime.system.System;
 import lime.utils.ByteArray;
 
 #if format
@@ -15,6 +14,10 @@ import haxe.io.Bytes;
 import haxe.io.BytesOutput;
 #end
 
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
+
 
 class PNG {
 	
@@ -23,7 +26,7 @@ class PNG {
 		
 		#if (cpp || neko || nodejs)
 		
-		var bufferData:Dynamic = lime_png_decode_bytes.call (bytes, decodeData);
+		var bufferData:Dynamic = lime_png_decode_bytes (bytes, decodeData);
 		
 		if (bufferData != null) {
 			
@@ -44,7 +47,7 @@ class PNG {
 		
 		#if (cpp || neko || nodejs)
 		
-		var bufferData:Dynamic = lime_png_decode_file.call (path, decodeData);
+		var bufferData:Dynamic = lime_png_decode_file (path, decodeData);
 		
 		if (bufferData != null) {
 			
@@ -77,9 +80,9 @@ class PNG {
 		
 		#elseif (sys && (!disable_cffi || !format))
 		
-		if (!System.disableCFFI) {
+		if (!CFFI.enabled) {
 			
-			var data:Dynamic = lime_image_encode.call (image.buffer, 0, 0);
+			var data:Dynamic = lime_image_encode (image.buffer, 0, 0);
 			var bytes = @:privateAccess new Bytes (data.length, data.b);
 			return ByteArray.fromBytes (bytes);
 			
@@ -146,9 +149,9 @@ class PNG {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_png_decode_bytes = new CFFI<Dynamic->Bool->Dynamic> ("lime", "lime_png_decode_bytes");
-	private static var lime_png_decode_file = new CFFI<String->Bool->Dynamic> ("lime", "lime_png_decode_file");
-	private static var lime_image_encode = new CFFI<Dynamic->Int->Int->Dynamic> ("lime", "lime_image_encode");
+	@:cffi private static function lime_png_decode_bytes (data:Dynamic, decodeData:Bool):Dynamic;
+	@:cffi private static function lime_png_decode_file (path:String, decodeData:Bool):Dynamic;
+	@:cffi private static function lime_image_encode (data:Dynamic, type:Int, quality:Int):Dynamic;
 	#end
 	
 	
