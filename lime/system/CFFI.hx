@@ -513,7 +513,11 @@ class CFFI {
 									
 								}
 								
+								#if (haxe_ver >= 3.2)
 								expr += '$cffiName.call (';
+								#else
+								expr += '$cffiName (';
+								#end
 								
 								for (i in 0...type.args.length) {
 									
