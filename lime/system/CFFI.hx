@@ -551,7 +551,11 @@ class CFFI {
 	
 	private static function __getFunctionType (args:Array<{ name : String, opt : Bool, t : Type }>, result:Type) {
 		
-		var isCPP = (Context.defined ("cpp") && !Context.defined ("disable_cffi") && !Context.defined ("display"));
+		#if ((haxe_ver >= 3.2) && !disable_cffi && !display)
+		var useCPPTypes = Context.defined ("cpp");
+		#else
+		var useCPPTypes = false;
+		#end
 		
 		var typeArgs = [];
 		var typeResult = null;
@@ -573,7 +577,7 @@ class CFFI {
 				
 				case "cpp.Float32":
 					
-					if (isCPP) {
+					if (useCPPTypes) {
 						
 						typeArgs.push ( { name: arg.name, opt: false, t: (macro :cpp.Float32).toType () } );
 						
@@ -602,7 +606,7 @@ class CFFI {
 				
 				case "Void", "cpp.Void":
 					
-					if (isCPP) {
+					if (useCPPTypes) {
 						
 						typeArgs.push ( { name: arg.name, opt: false, t: (macro :cpp.Void).toType () } );
 						
@@ -616,7 +620,7 @@ class CFFI {
 					
 				default:
 					
-					if (isCPP) {
+					if (useCPPTypes) {
 						
 						typeArgs.push ( { name: arg.name, opt: false, t: (macro :cpp.Object).toType () } );
 						
@@ -646,7 +650,7 @@ class CFFI {
 			
 			case "cpp.Float32":
 				
-				if (isCPP) {
+				if (useCPPTypes) {
 					
 					typeResult = (macro :cpp.Float32).toType ();
 					
@@ -675,7 +679,7 @@ class CFFI {
 			
 			case "Void", "cpp.Void":
 				
-				if (isCPP) {
+				if (useCPPTypes) {
 					
 					typeResult = (macro :cpp.Void).toType ();
 					
@@ -689,7 +693,7 @@ class CFFI {
 				
 			default:
 				
-				if (isCPP) {
+				if (useCPPTypes) {
 					
 					typeResult = (macro :cpp.Object).toType ();
 					
