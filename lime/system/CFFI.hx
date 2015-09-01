@@ -183,119 +183,11 @@ class CFFI {
 	}
 	
 	
-	#if ((haxe_ver >= 3.2) && !debug_cffi)
-	public static inline macro function loadPrime (library:String, method:String, signature:Expr, lazy:Bool = false) {
+	public static macro function loadPrime (library:String, method:String, signature:String, lazy:Bool = false):Dynamic {
 		
-		var signatureString = "";
-		var signatureType = Context.typeExpr (signature);
-		
-		switch (signatureType.t) {
-			
-			case TFun (args, result):
-				
-				for (arg in args) {
-					
-					switch (TypeTools.toString (arg.t)) {
-						
-						case "Int", "Int16", "Int32": signatureString += "i";
-						case "Bool": signatureString += "b";
-						case "Float32": signatureString += "f";
-						case "Float", "Float64": signatureString += "d";
-						case "String": signatureString += "s";
-						case "ConstCharStar": signatureString += "c";
-						case "Void": if (signatureString.length > 0) signatureString += "v";
-						default: signatureString += "o";
-						
-					}
-					
-				}
-				
-				switch (TypeTools.toString (result)) {
-					
-					case "Int", "Int16", "Int32": signatureString += "i";
-					case "Bool": signatureString += "b";
-					case "Float32": signatureString += "f";
-					case "Float", "Float64": signatureString += "d";
-					case "String": signatureString += "s";
-					case "ConstCharStar": signatureString += "c";
-					case "Void": signatureString += "v";
-					default: signatureString += "o";
-					
-				}
-			
-			case TInst (_.get () => { pack: [], name: "String" }, _):
-				
-				signatureString = ExprTools.getValue (signature);
-				
-			case TAbstract (_.get () => { pack: [], name: "Int" }, _):
-				
-				var typeString = "Dynamic";
-				var args:Int = ExprTools.getValue (signature);
-				
-				for (i in 0...args) {
-					
-					typeString += "->Dynamic";
-					
-				}
-				
-				return Context.parse ('new cpp.Callable<$typeString> (lime.system.CFFI.load ("$library", "$method", $args, $lazy))', Context.currentPos ());
-			
-			default:
-			
-		}
-		
-		if (signatureString == null || signatureString == "") {
-			
-			throw "Invalid function signature";
-			
-		}
-		
-		var parts = signatureString.split ("");
-		
-		var cppMode = Context.defined ("cpp");
-		var typeString, expr;
-		
-		if (parts.length == 1) {
-			
-			typeString = "Void";
-			
-		} else {
-			
-			typeString = __codeToType (parts.shift (), cppMode);
-			
-		}
-		
-		for (part in parts) {
-			
-			typeString += "->" + __codeToType (part, cppMode);
-			
-		}
-		
-		if (cppMode) {
-			
-			typeString = "cpp.Callable<" + typeString + ">";
-			expr = 'new $typeString (cpp.Prime._loadPrime ("$library", "$method", "$signatureString", $lazy))';
-			
-		} else {
-			
-			var args = signatureString.length - 1;
-			
-			if (args > 5) {
-				
-				args = -1;
-				
-			}
-			
-			expr = 'new cpp.Callable<$typeString> (lime.system.CFFI.load ("$library", "$method", $args, $lazy))';
-			
-		}
-		
-		return Context.parse (expr, Context.currentPos ());
-		
-	}
-	#else
-	public static function loadPrime (library:String, method:String, signature:String):Dynamic {
-		
+		#if ((haxe_ver >= 3.2) && !display)
+		return cpp.Prime.load (library, method, signature, lazy);
+		#else
 		var args = signature.length - 1;
 		
 		if (args > 5) {
@@ -304,37 +196,10 @@ class CFFI {
 			
 		}
 		
-		// TODO: Need a macro function for debug to work on C++
-		
-		#if (!debug_cffi || cpp)
-		
-		return { call: CFFI.load (library, method, args) };
-		
-		#else
-		
-		var handle = CFFI.load (library, method, args);
-		return { call: Reflect.makeVarArgs (function (args) {
-			
-			#if neko
-			Sys.println ('$library@$method');
-			#if debug_cffi_args
-			Sys.println (args);
-			#end
-			#else
-			trace ('$library@$method');
-			#if debug_cffi_args
-			trace (args);
-			#end
-			#end
-			
-			return Reflect.callMethod (handle, handle, args);
-			
-		}) };
-		
+		return { call: CFFI.load (library, method, args, lazy) };
 		#end
 		
 	}
-	#end
 	
 	
 	private static function __findHaxelib (library:String):String {
@@ -520,7 +385,6 @@ import haxe.macro.Type;
 
 using haxe.macro.ComplexTypeTools;
 using haxe.macro.ExprTools;
-using haxe.macro.Tools;
 using haxe.macro.TypeTools;
 
 
@@ -579,13 +443,54 @@ class CFFI {
 							
 							var typeString = type.string;
 							var typeSignature = type.signature;
-							var cffiExpr;
+							var expr = "";
 							
-							if (Context.defined ("cpp")) {
+							if (Context.defined ("display") || Context.defined ("disable_cffi")) {
 								
-								cffiExpr = 'new cpp.Callable<$typeString> (cpp.Prime._loadPrime ("$library", "$method", "$typeSignature", $lazy))';
+								switch (type.result.toString ()) {
+									
+									case "Int", "Float":
+										
+										expr += "return 0";
+									
+									case "Bool":
+										
+										expr += "return false";
+									
+									default:
+										
+										expr += "return null";
+									
+								}
 								
 							} else {
+								
+								var cffiName = "cffi_" + field.name;
+								var cffiExpr, cffiType;
+								
+								#if (haxe_ver >= 3.2)
+								
+								if (Context.defined ("cpp")) {
+									
+									cffiExpr = 'new cpp.Callable<$typeString> (cpp.Prime._loadPrime ("$library", "$method", "$typeSignature", $lazy))';
+									
+								} else {
+									
+									var args = typeSignature.length - 1;
+									
+									if (args > 5) {
+										
+										args = -1;
+										
+									}
+									
+									cffiExpr = 'new cpp.Callable<$typeString> (lime.system.CFFI.load ("$library", "$method", $args, $lazy))';
+									
+								}
+								
+								cffiType = TPath ( { pack: [ "cpp" ], name: "Callable", params: [ TPType (TFun (type.args, type.result).toComplexType ()) ] } );
+								
+								#else
 								
 								var args = typeSignature.length - 1;
 								
@@ -595,36 +500,34 @@ class CFFI {
 									
 								}
 								
-								cffiExpr = 'new cpp.Callable<$typeString> (lime.system.CFFI.load ("$library", "$method", $args, $lazy))';
+								cffiExpr = 'lime.system.CFFI.load ("$library", "$method", $args, $lazy)';
+								cffiType = TPath ( { pack: [ ], name: "Dynamic" } );
+								
+								#end
+								
+								newFields.push ( { name: cffiName, access: [ APrivate, AStatic ], kind: FieldType.FVar (cffiType, Context.parse (cffiExpr, pos)), pos: pos } );
+								
+								if (type.result.toString () != "Void" && type.result.toString () != "cpp.Void") {
+									
+									expr += "return ";
+									
+								}
+								
+								expr += '$cffiName.call (';
+								
+								for (i in 0...type.args.length) {
+									
+									if (i > 0) expr += ", ";
+									expr += type.args[i].name;
+									
+								}
+								
+								expr += ")";
 								
 							}
-							
-							var cffiName = "cffi_" + field.name;
-							var cffiType = TPath ( { pack: [ "cpp" ], name: "Callable", params: [ TPType (TFun (type.args, type.result).toComplexType ()) ] } );
-							
-							newFields.push ( { name: cffiName, access: [ APrivate, AStatic ], kind: FieldType.FVar (cffiType, Context.parse (cffiExpr, pos)), pos: pos } );
-							
-							var newExpr = "";
-							
-							if (type.result.toString () != "Void" && type.result.toString () != "cpp.Void") {
-								
-								newExpr = "return ";
-								
-							}
-							
-							newExpr += '$cffiName.call (';
-							
-							for (i in 0...type.args.length) {
-								
-								if (i > 0) newExpr += ", ";
-								newExpr += type.args[i].name;
-								
-							}
-							
-							newExpr += ")";
 							
 							field.access.push (AInline);
-							fun.expr = Context.parse (newExpr, pos);
+							fun.expr = Context.parse (expr, pos);
 							
 						}
 						
@@ -642,32 +545,9 @@ class CFFI {
 	}
 	
 	
-	private static function __codeToType (code:String, forCpp:Bool):String {
-		
-		switch (code) {
-			
-			case "b" : return "Bool";
-			case "i" : return "Int";
-			case "d" : return "Float";
-			case "s" : return "String";
-			case "f" : return forCpp ? "cpp.Float32" : "Float";
-			case "o" : return forCpp ? "cpp.Object" : "Dynamic";
-			case "v" : return forCpp ? "cpp.Void" : "Void";
-			case "c" :
-				if (forCpp)
-					return "cpp.ConstCharStar";
-				throw "const char * type only supported in cpp mode";
-			default:
-				throw "Unknown signature type :" + code;
-			
-		}
-		
-	}
-	
-	
 	private static function __getFunctionType (args:Array<{ name : String, opt : Bool, t : Type }>, result:Type) {
 		
-		var isCPP = Context.defined ("cpp");
+		var isCPP = (Context.defined ("cpp") && !Context.defined ("disable_cffi") && !Context.defined ("display"));
 		
 		var typeArgs = [];
 		var typeResult = null;
@@ -728,11 +608,7 @@ class CFFI {
 						
 					}
 					
-					if (typeSignature.length > 0) {
-						
-						typeSignature += "v";
-						
-					}
+					typeSignature += "v";
 					
 				default:
 					
