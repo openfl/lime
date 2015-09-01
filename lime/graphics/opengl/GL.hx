@@ -21,7 +21,7 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 #end
 
-#if cpp
+#if (haxe_ver >= 3.2 && cpp)
 import cpp.Float32;
 #else
 typedef Float32 = Float;
