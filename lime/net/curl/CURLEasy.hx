@@ -97,12 +97,10 @@ class CURLEasy {
 	}*/
 	
 	
-	public static function reset (handle:CURL):CURLCode {
+	public static function reset (handle:CURL):Void {
 		
 		#if ((cpp || neko || nodejs) && lime_curl)
-		return cast lime_curl_easy_reset (handle);
-		#else
-		return cast 0;
+		lime_curl_easy_reset (handle);
 		#end
 		
 	}
