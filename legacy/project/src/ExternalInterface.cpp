@@ -1,4 +1,5 @@
 #include <hx/CFFI.h>
+
 #ifdef HX_WINDOWS
 #include <SDL_syswm.h>
 #include <Windows.h>
@@ -566,20 +567,27 @@ namespace nme {
 	DEFINE_LIME_LEGACY_PRIM_1(gl_s3d_set_focal_length);
 	#endif
 	
-	value lime_window_alert (value count, value speed, value stop_on_forground) {
+	
+	value lime_window_notify () {
 		
 		#ifdef HX_WINDOWS
+		
+		int count = 0;
+		int speed = 0;
+		bool stopOnForeground = true;
+		
 		SDL_SysWMinfo info;
 		SDL_VERSION (&info.version);
-		SDL_GetWindowWMInfo(SDL_GL_GetCurrentWindow(), &info);
-
+		SDL_GetWindowWMInfo (SDL_GL_GetCurrentWindow (), &info);
+		
 		FLASHWINFO fi;
-		fi.cbSize = sizeof(FLASHWINFO);
+		fi.cbSize = sizeof (FLASHWINFO);
 		fi.hwnd = info.info.win.window;
-		fi.dwFlags = val_bool (stop_on_forground) ? FLASHW_ALL | FLASHW_TIMERNOFG : FLASHW_ALL | FLASHW_TIMER;
-		fi.uCount = val_int (count);
-		fi.dwTimeout = val_int (speed);
-		FlashWindowEx(&fi);
+		fi.dwFlags = stopOnForeground ? FLASHW_ALL | FLASHW_TIMERNOFG : FLASHW_ALL | FLASHW_TIMER;
+		fi.uCount = count;
+		fi.dwTimeout = speed;
+		FlashWindowEx (&fi);
+		
 		#endif
 		
 		return alloc_null ();
@@ -587,7 +595,7 @@ namespace nme {
 	}
 	
 	
-	DEFINE_PRIM (lime_window_alert, 3);
+	DEFINE_PRIM (lime_window_notify, 0);
 	
 	
 }

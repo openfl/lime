@@ -192,6 +192,31 @@ namespace lime {
 	}
 	
 	
+	void SDLWindow::Notify () {
+		
+		#ifdef HX_WINDOWS
+		
+		int count = 0;
+		int speed = 0;
+		bool stopOnForeground = true;
+		
+		SDL_SysWMinfo info;
+		SDL_VERSION (&info.version);
+		SDL_GetWindowWMInfo (sdlWindow, &info);
+		
+		FLASHWINFO fi;
+		fi.cbSize = sizeof(FLASHWINFO);
+		fi.hwnd = info.info.win.window;
+		fi.dwFlags = stopOnForeground ? FLASHW_ALL | FLASHW_TIMERNOFG : FLASHW_ALL | FLASHW_TIMER;
+		fi.uCount = count;
+		fi.dwTimeout = speed;
+		FlashWindowEx (&fi);
+		
+		#endif
+		
+	}
+	
+	
 	void SDLWindow::Resize (int width, int height) {
 		
 		SDL_SetWindowSize (sdlWindow, width, height);
@@ -267,22 +292,6 @@ namespace lime {
 		SDL_SetWindowTitle (sdlWindow, title);
 		
 		return title;
-		
-	}
-	
-	void SDLWindow::Alert (int count, int speed, bool stop_on_foreground) {
-		
-		SDL_SysWMinfo info;
-		SDL_VERSION (&info.version);
-		SDL_GetWindowWMInfo(sdlWindow, &info);
-
-		FLASHWINFO fi;
-		fi.cbSize = sizeof(FLASHWINFO);
-		fi.hwnd = info.info.win.window;
-		fi.dwFlags = stop_on_foreground ? FLASHW_ALL | FLASHW_TIMERNOFG : FLASHW_ALL | FLASHW_TIMER;
-		fi.uCount = count;
-		fi.dwTimeout = speed;
-		FlashWindowEx(&fi);
 		
 	}
 	

@@ -154,6 +154,17 @@ class NativeWindow {
 	}
 	
 	
+	public function notify ():Void {
+		
+		if (handle != null) {
+			
+			lime_window_notify (handle);
+			
+		}
+		
+	}
+	
+	
 	public function resize (width:Int, height:Int):Void {
 		
 		if (handle != null) {
@@ -233,16 +244,6 @@ class NativeWindow {
 		
 	}
 	
-	public function alert (count:Int, speed:Int, stopOnForeground:Bool):Void {
-		
-		if (handle != null) {
-			
-			lime_window_alert (handle, count, speed, stopOnForeground);
-			
-		}
-		
-	}
-	
 	
 	@:cffi private static function lime_window_close (handle:Float):Void;
 	@:cffi private static function lime_window_create (application:Float, width:Int, height:Int, flags:Int, title:String):Float;
@@ -254,13 +255,13 @@ class NativeWindow {
 	@:cffi private static function lime_window_get_x (handle:Float):Int;
 	@:cffi private static function lime_window_get_y (handle:Float):Int;
 	@:cffi private static function lime_window_move (handle:Float, x:Int, y:Int):Void;
+	@:cffi private static function lime_window_notify (handle:Float):Void;
 	@:cffi private static function lime_window_resize (handle:Float, width:Int, height:Int):Void;
 	@:cffi private static function lime_window_set_enable_text_events (handle:Float, enabled:Bool):Void;
 	@:cffi private static function lime_window_set_fullscreen (handle:Float, fullscreen:Bool):Bool;
 	@:cffi private static function lime_window_set_icon (handle:Float, buffer:Dynamic):Void;
 	@:cffi private static function lime_window_set_minimized (handle:Float, minimized:Bool):Bool;
 	@:cffi private static function lime_window_set_title (handle:Float, title:String):String;
-	@:cffi private static function lime_window_alert (handle:Float, count:Int, speed:Int, stopOnForeground:Bool):Void;
 	
 	
 }

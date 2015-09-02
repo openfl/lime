@@ -73,6 +73,13 @@ class FlashWindow {
 	}
 	
 	
+	public function notify ():Void {
+		
+		
+		
+	}
+	
+	
 	public function resize (width:Int, height:Int):Void {
 		
 		
@@ -111,10 +118,6 @@ class FlashWindow {
 	public function setTitle (value:String):String {
 		
 		return value;
-		
-	}
-	
-	public function alert (count:Int, speed:Int, stopOnForeground:Bool):Void {
 		
 	}
 	

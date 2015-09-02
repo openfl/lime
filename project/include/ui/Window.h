@@ -28,13 +28,13 @@ namespace lime {
 			virtual int GetX () = 0;
 			virtual int GetY () = 0;
 			virtual void Move (int x, int y) = 0;
+			virtual void Notify () = 0;
 			virtual void Resize (int width, int height) = 0;
 			virtual void SetEnableTextEvents (bool enable) = 0;
 			virtual bool SetFullscreen (bool fullscreen) = 0;
 			virtual void SetIcon (ImageBuffer *imageBuffer) = 0;
 			virtual bool SetMinimized (bool minimized) = 0;
 			virtual const char* SetTitle (const char* title) = 0;
-			virtual void Alert (int count, int speed, bool stop_on_foreground) = 0;
 			
 			Application* currentApplication;
 			int flags;

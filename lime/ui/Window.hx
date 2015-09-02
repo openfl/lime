@@ -247,6 +247,13 @@ class Window {
 	}
 	
 	
+	public function notify ():Void {
+		
+		backend.notify ();
+		
+	}
+	
+	
 	public function resize (width:Int, height:Int):Void {
 		
 		backend.resize (width, height);
@@ -266,12 +273,6 @@ class Window {
 		}
 		
 		backend.setIcon (image);
-		
-	}
-	
-	public function alert (count:Int, speed:Int, stopOnForeground:Bool):Void {
-		
-		backend.alert (count, speed, stopOnForeground);
 		
 	}
 	

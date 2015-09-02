@@ -1163,6 +1163,14 @@ namespace lime {
 	}
 	
 	
+	void lime_window_notify (double window) {
+		
+		Window* targetWindow = (Window*)(intptr_t)window;
+		targetWindow->Notify ();
+		
+	}
+	
+	
 	void lime_window_resize (double window, int width, int height) {
 		
 		Window* targetWindow = (Window*)(intptr_t)window;
@@ -1208,13 +1216,6 @@ namespace lime {
 		
 		Window* targetWindow = (Window*)(intptr_t)window;
 		return HxString (targetWindow->SetTitle (title.__s));
-		
-	}
-	
-	void lime_window_alert (double window, int count, int speed, bool stop_on_forground) {
-		
-		Window* targetWindow = (Window*)(intptr_t)window;
-		targetWindow->Alert (count, speed, stop_on_forground);
 		
 	}
 	
@@ -1314,13 +1315,13 @@ namespace lime {
 	DEFINE_PRIME1 (lime_window_get_x);
 	DEFINE_PRIME1 (lime_window_get_y);
 	DEFINE_PRIME3v (lime_window_move);
+	DEFINE_PRIME1v (lime_window_notify);
 	DEFINE_PRIME3v (lime_window_resize);
 	DEFINE_PRIME2v (lime_window_set_enable_text_events);
 	DEFINE_PRIME2 (lime_window_set_fullscreen);
 	DEFINE_PRIME2v (lime_window_set_icon);
 	DEFINE_PRIME2 (lime_window_set_minimized);
 	DEFINE_PRIME2 (lime_window_set_title);
-	DEFINE_PRIME4 (lime_window_alert);
 	
 	
 }

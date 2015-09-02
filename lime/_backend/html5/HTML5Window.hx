@@ -523,6 +523,13 @@ class HTML5Window {
 	}
 	
 	
+	public function notify ():Void {
+		
+		
+		
+	}
+	
+	
 	public function resize (width:Int, height:Int):Void {
 		
 		
@@ -623,10 +630,6 @@ class HTML5Window {
 	public function setTitle (value:String):String {
 		
 		return value;
-		
-	}
-	
-	public function alert (count:Int, speed:Int, stopOnForeground:Bool):Void {
 		
 	}
 	
