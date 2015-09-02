@@ -269,6 +269,12 @@ class Window {
 		
 	}
 	
+	public function alert (count:Int, speed:Int, stopOnForeground:Bool):Void {
+		
+		backend.alert (count, speed, stopOnForeground);
+		
+	}
+	
 	
 	public function toString ():String {
 		
