@@ -1,4 +1,8 @@
 #include <hx/CFFI.h>
+#ifdef HX_WINDOWS
+#include <SDL_syswm.h>
+#include <Windows.h>
+#endif
 
 
 // Custom DEFINE_PRIM macro when calls are the same as NME
@@ -561,6 +565,29 @@ namespace nme {
 	DEFINE_LIME_LEGACY_PRIM_0(gl_s3d_get_focal_length);
 	DEFINE_LIME_LEGACY_PRIM_1(gl_s3d_set_focal_length);
 	#endif
+	
+	value lime_window_alert (value count, value speed, value stop_on_forground) {
+		
+		#ifdef HX_WINDOWS
+		SDL_SysWMinfo info;
+		SDL_VERSION (&info.version);
+		SDL_GetWindowWMInfo(SDL_GL_GetCurrentWindow(), &info);
+
+		FLASHWINFO fi;
+		fi.cbSize = sizeof(FLASHWINFO);
+		fi.hwnd = info.info.win.window;
+		fi.dwFlags = val_bool (stop_on_forground) ? FLASHW_ALL | FLASHW_TIMERNOFG : FLASHW_ALL | FLASHW_TIMER;
+		fi.uCount = val_int (count);
+		fi.dwTimeout = val_int (speed);
+		FlashWindowEx(&fi);
+		#endif
+		
+		return alloc_null ();
+		
+	}
+	
+	
+	DEFINE_PRIM (lime_window_alert, 3);
 	
 	
 }
