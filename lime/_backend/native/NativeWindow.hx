@@ -233,6 +233,16 @@ class NativeWindow {
 		
 	}
 	
+	public function alert (count:Int, speed:Int, stopOnForeground:Bool):Void {
+		
+		if (handle != null) {
+			
+			lime_window_alert (handle, count, speed, stopOnForeground);
+			
+		}
+		
+	}
+	
 	
 	@:cffi private static function lime_window_close (handle:Float):Void;
 	@:cffi private static function lime_window_create (application:Float, width:Int, height:Int, flags:Int, title:String):Float;
@@ -250,6 +260,7 @@ class NativeWindow {
 	@:cffi private static function lime_window_set_icon (handle:Float, buffer:Dynamic):Void;
 	@:cffi private static function lime_window_set_minimized (handle:Float, minimized:Bool):Bool;
 	@:cffi private static function lime_window_set_title (handle:Float, title:String):String;
+	@:cffi private static function lime_window_alert (handle:Float, count:Int, speed:Int, stopOnForeground:Bool):Void;
 	
 	
 }

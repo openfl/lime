@@ -114,5 +114,9 @@ class FlashWindow {
 		
 	}
 	
+	public function alert (count:Int, speed:Int, stopOnForeground:Bool):Void {
+		
+	}
+	
 	
 }

@@ -270,6 +270,22 @@ namespace lime {
 		
 	}
 	
+	void SDLWindow::Alert (int count, int speed, bool stop_on_foreground) {
+		
+		SDL_SysWMinfo info;
+		SDL_VERSION (&info.version);
+		SDL_GetWindowWMInfo(sdlWindow, &info);
+
+		FLASHWINFO fi;
+		fi.cbSize = sizeof(FLASHWINFO);
+		fi.hwnd = info.info.win.window;
+		fi.dwFlags = stop_on_foreground ? FLASHW_ALL | FLASHW_TIMERNOFG : FLASHW_ALL | FLASHW_TIMER;
+		fi.uCount = count;
+		fi.dwTimeout = speed;
+		FlashWindowEx(&fi);
+		
+	}
+	
 	
 	Window* CreateWindow (Application* application, int width, int height, int flags, const char* title) {
 		

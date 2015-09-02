@@ -34,6 +34,7 @@ namespace lime {
 			virtual void SetIcon (ImageBuffer *imageBuffer) = 0;
 			virtual bool SetMinimized (bool minimized) = 0;
 			virtual const char* SetTitle (const char* title) = 0;
+			virtual void Alert (int count, int speed, bool stop_on_foreground) = 0;
 			
 			Application* currentApplication;
 			int flags;

@@ -32,6 +32,7 @@ namespace lime {
 			virtual void SetIcon (ImageBuffer *imageBuffer);
 			virtual bool SetMinimized (bool minimized);
 			virtual const char* SetTitle (const char* title);
+			virtual void Alert (int count, int speed, bool stop_on_foreground);
 			
 			SDL_Window* sdlWindow;
 		

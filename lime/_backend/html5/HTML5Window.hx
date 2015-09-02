@@ -626,5 +626,9 @@ class HTML5Window {
 		
 	}
 	
+	public function alert (count:Int, speed:Int, stopOnForeground:Bool):Void {
+		
+	}
+	
 	
 }
