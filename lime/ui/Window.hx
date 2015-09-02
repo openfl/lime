@@ -93,6 +93,15 @@ class Window {
 	}
 	
 	
+	public function alert (type:WindowAlertType = null, title:String = null, message:String = null):Void {
+		
+		if (type == null) type = WindowAlertType.INFO;
+		
+		backend.alert (type, title, message);
+		
+	}
+	
+	
 	public function close ():Void {
 		
 		backend.close ();
@@ -243,13 +252,6 @@ class Window {
 		
 		__x = x;
 		__y = y;
-		
-	}
-	
-	
-	public function notify ():Void {
-		
-		backend.notify ();
 		
 	}
 	

@@ -1075,6 +1075,14 @@ namespace lime {
 	}
 	
 	
+	void lime_window_alert (double window, int type, HxString title, HxString message) {
+		
+		Window* targetWindow = (Window*)(intptr_t)window;
+		targetWindow->Alert (type, title.__s, message.__s);
+		
+	}
+	
+	
 	void lime_window_close (double window) {
 		
 		Window* targetWindow = (Window*)(intptr_t)window;
@@ -1159,14 +1167,6 @@ namespace lime {
 		
 		Window* targetWindow = (Window*)(intptr_t)window;
 		targetWindow->Move (x, y);
-		
-	}
-	
-	
-	void lime_window_notify (double window) {
-		
-		Window* targetWindow = (Window*)(intptr_t)window;
-		targetWindow->Notify ();
 		
 	}
 	
@@ -1304,6 +1304,7 @@ namespace lime {
 	DEFINE_PRIME2v (lime_text_layout_set_language);
 	DEFINE_PRIME2v (lime_text_layout_set_script);
 	DEFINE_PRIME2v (lime_touch_event_manager_register);
+	DEFINE_PRIME4v (lime_window_alert);
 	DEFINE_PRIME1v (lime_window_close);
 	DEFINE_PRIME5 (lime_window_create);
 	DEFINE_PRIME2v (lime_window_event_manager_register);
@@ -1315,7 +1316,6 @@ namespace lime {
 	DEFINE_PRIME1 (lime_window_get_x);
 	DEFINE_PRIME1 (lime_window_get_y);
 	DEFINE_PRIME3v (lime_window_move);
-	DEFINE_PRIME1v (lime_window_notify);
 	DEFINE_PRIME3v (lime_window_resize);
 	DEFINE_PRIME2v (lime_window_set_enable_text_events);
 	DEFINE_PRIME2 (lime_window_set_fullscreen);

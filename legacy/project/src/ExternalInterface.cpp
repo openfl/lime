@@ -2,6 +2,7 @@
 
 #ifdef HX_WINDOWS
 #include <SDL_syswm.h>
+#include <SDL.h>
 #include <Windows.h>
 #endif
 
@@ -568,7 +569,12 @@ namespace nme {
 	#endif
 	
 	
-	value lime_window_notify () {
+	value lime_window_alert (value type, value title, value message) {
+		
+		#ifdef NME_SDL2
+		
+		SDL_Window* sdlWindow = SDL_GL_GetCurrentWindow ();
+		if (!sdlWindow) return alloc_null ();
 		
 		#ifdef HX_WINDOWS
 		
@@ -578,7 +584,7 @@ namespace nme {
 		
 		SDL_SysWMinfo info;
 		SDL_VERSION (&info.version);
-		SDL_GetWindowWMInfo (SDL_GL_GetCurrentWindow (), &info);
+		SDL_GetWindowWMInfo (sdlWindow, &info);
 		
 		FLASHWINFO fi;
 		fi.cbSize = sizeof (FLASHWINFO);
@@ -590,12 +596,41 @@ namespace nme {
 		
 		#endif
 		
+		if (!val_is_null (title) && !val_is_null (message)) {
+			
+			int flags = 0;
+			
+			switch (val_int (type)) {
+				
+				case 1:
+					
+					flags = SDL_MESSAGEBOX_WARNING;
+					break;
+				
+				case 2:
+					
+					flags = SDL_MESSAGEBOX_ERROR;
+					break;
+				
+				default:
+					
+					flags = SDL_MESSAGEBOX_INFORMATION;
+					break;
+				
+			}
+			
+			SDL_ShowSimpleMessageBox (flags, val_string (title), val_string (message), sdlWindow);
+			
+		}
+		
+		#endif
+		
 		return alloc_null ();
 		
 	}
 	
 	
-	DEFINE_PRIM (lime_window_notify, 0);
+	DEFINE_PRIM (lime_window_alert, 3);
 	
 	
 }

@@ -19,6 +19,7 @@ namespace lime {
 		
 		public:
 			
+			virtual void Alert (int type, const char* title, const char* message) = 0;
 			virtual void Close () = 0;
 			virtual void Focus () = 0;
 			virtual bool GetEnableTextEvents () = 0;
@@ -28,7 +29,6 @@ namespace lime {
 			virtual int GetX () = 0;
 			virtual int GetY () = 0;
 			virtual void Move (int x, int y) = 0;
-			virtual void Notify () = 0;
 			virtual void Resize (int width, int height) = 0;
 			virtual void SetEnableTextEvents (bool enable) = 0;
 			virtual bool SetFullscreen (bool fullscreen) = 0;

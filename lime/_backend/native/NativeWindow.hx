@@ -8,6 +8,7 @@ import lime.math.Vector2;
 import lime.system.Display;
 import lime.system.System;
 import lime.ui.Window;
+import lime.ui.WindowAlertType;
 
 #if !macro
 @:build(lime.system.CFFI.build())
@@ -28,6 +29,25 @@ class NativeWindow {
 	public function new (parent:Window) {
 		
 		this.parent = parent;
+		
+	}
+	
+	
+	public function alert (type:WindowAlertType, title:String, message:String):Void {
+		
+		if (handle != null) {
+			
+			var nativeType = switch (type) {
+				
+				case WARN: 1;
+				case ERROR: 2;
+				default: 0;
+				
+			}
+			
+			lime_window_alert (handle, nativeType, title, message);
+			
+		}
 		
 	}
 	
@@ -154,17 +174,6 @@ class NativeWindow {
 	}
 	
 	
-	public function notify ():Void {
-		
-		if (handle != null) {
-			
-			lime_window_notify (handle);
-			
-		}
-		
-	}
-	
-	
 	public function resize (width:Int, height:Int):Void {
 		
 		if (handle != null) {
@@ -245,6 +254,7 @@ class NativeWindow {
 	}
 	
 	
+	@:cffi private static function lime_window_alert (handle:Float, type:Int, title:String, message:String):Void;
 	@:cffi private static function lime_window_close (handle:Float):Void;
 	@:cffi private static function lime_window_create (application:Float, width:Int, height:Int, flags:Int, title:String):Float;
 	@:cffi private static function lime_window_focus (handle:Float):Void;
@@ -255,7 +265,6 @@ class NativeWindow {
 	@:cffi private static function lime_window_get_x (handle:Float):Int;
 	@:cffi private static function lime_window_get_y (handle:Float):Int;
 	@:cffi private static function lime_window_move (handle:Float, x:Int, y:Int):Void;
-	@:cffi private static function lime_window_notify (handle:Float):Void;
 	@:cffi private static function lime_window_resize (handle:Float, width:Int, height:Int):Void;
 	@:cffi private static function lime_window_set_enable_text_events (handle:Float, enabled:Bool):Void;
 	@:cffi private static function lime_window_set_fullscreen (handle:Float, fullscreen:Bool):Bool;

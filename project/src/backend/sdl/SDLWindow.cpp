@@ -105,6 +105,58 @@ namespace lime {
 	}
 	
 	
+	void SDLWindow::Alert (int type, const char* title, const char* message) {
+		
+		#ifdef HX_WINDOWS
+		
+		int count = 0;
+		int speed = 0;
+		bool stopOnForeground = true;
+		
+		SDL_SysWMinfo info;
+		SDL_VERSION (&info.version);
+		SDL_GetWindowWMInfo (sdlWindow, &info);
+		
+		FLASHWINFO fi;
+		fi.cbSize = sizeof (FLASHWINFO);
+		fi.hwnd = info.info.win.window;
+		fi.dwFlags = stopOnForeground ? FLASHW_ALL | FLASHW_TIMERNOFG : FLASHW_ALL | FLASHW_TIMER;
+		fi.uCount = count;
+		fi.dwTimeout = speed;
+		FlashWindowEx (&fi);
+		
+		#endif
+		
+		if (title && message) {
+			
+			int flags = 0;
+			
+			switch (type) {
+				
+				case 1:
+					
+					flags = SDL_MESSAGEBOX_WARNING;
+					break;
+				
+				case 2:
+					
+					flags = SDL_MESSAGEBOX_ERROR;
+					break;
+				
+				default:
+					
+					flags = SDL_MESSAGEBOX_INFORMATION;
+					break;
+				
+			}
+			
+			SDL_ShowSimpleMessageBox (flags, title, message, sdlWindow);
+			
+		}
+		
+	}
+	
+	
 	void SDLWindow::Close () {
 		
 		if (sdlWindow) {
@@ -188,31 +240,6 @@ namespace lime {
 	void SDLWindow::Move (int x, int y) {
 		
 		SDL_SetWindowPosition (sdlWindow, x, y);
-		
-	}
-	
-	
-	void SDLWindow::Notify () {
-		
-		#ifdef HX_WINDOWS
-		
-		int count = 0;
-		int speed = 0;
-		bool stopOnForeground = true;
-		
-		SDL_SysWMinfo info;
-		SDL_VERSION (&info.version);
-		SDL_GetWindowWMInfo (sdlWindow, &info);
-		
-		FLASHWINFO fi;
-		fi.cbSize = sizeof(FLASHWINFO);
-		fi.hwnd = info.info.win.window;
-		fi.dwFlags = stopOnForeground ? FLASHW_ALL | FLASHW_TIMERNOFG : FLASHW_ALL | FLASHW_TIMER;
-		fi.uCount = count;
-		fi.dwTimeout = speed;
-		FlashWindowEx (&fi);
-		
-		#endif
 		
 	}
 	

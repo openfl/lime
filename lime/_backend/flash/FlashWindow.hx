@@ -9,6 +9,7 @@ import lime.graphics.Image;
 import lime.system.Display;
 import lime.system.System;
 import lime.ui.Window;
+import lime.ui.WindowAlertType;
 
 @:access(lime.app.Application)
 @:access(lime.ui.Window)
@@ -24,6 +25,13 @@ class FlashWindow {
 	public function new (parent:Window) {
 		
 		this.parent = parent;
+		
+	}
+	
+	
+	public function alert (type:WindowAlertType, title:String, message:String):Void {
+		
+		
 		
 	}
 	
@@ -67,13 +75,6 @@ class FlashWindow {
 	
 	
 	public function move (x:Int, y:Int):Void {
-		
-		
-		
-	}
-	
-	
-	public function notify ():Void {
 		
 		
 		

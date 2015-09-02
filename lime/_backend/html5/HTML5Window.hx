@@ -21,6 +21,7 @@ import lime.system.Display;
 import lime.system.System;
 import lime.ui.Touch;
 import lime.ui.Window;
+import lime.ui.WindowAlertType;
 
 #if (haxe_ver < 3.2)
 typedef FocusEvent = js.html.Event;
@@ -61,6 +62,17 @@ class HTML5Window {
 		if (parent.config != null && Reflect.hasField (parent.config, "element")) {
 			
 			element = parent.config.element;
+			
+		}
+		
+	}
+	
+	
+	public function alert (type:WindowAlertType, title:String, message:String):Void {
+		
+		if (message != null) {
+			
+			Browser.alert (message);
 			
 		}
 		
@@ -517,13 +529,6 @@ class HTML5Window {
 	
 	
 	public function move (x:Int, y:Int):Void {
-		
-		
-		
-	}
-	
-	
-	public function notify ():Void {
 		
 		
 		
