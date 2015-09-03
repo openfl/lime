@@ -453,6 +453,23 @@ public class GameActivity extends Activity implements SensorEventListener {
 	}
 	
 	
+	@Override public void onBackPressed () {
+		
+		for (Extension extension : extensions) {
+			
+			if (!extension.onBackPressed ()) {
+				
+				return;
+				
+			}
+			
+		}
+		
+		super.onBackPressed ();
+		
+	}
+	
+	
 	@Override protected void onDestroy () {
 		
 		for (Extension extension : extensions) {

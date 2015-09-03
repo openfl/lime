@@ -56,6 +56,23 @@ public class GameActivity extends SDLActivity {
 	}
 	
 	
+	@Override public void onBackPressed () {
+		
+		for (Extension extension : extensions) {
+			
+			if (!extension.onBackPressed ()) {
+				
+				return;
+				
+			}
+			
+		}
+		
+		super.onBackPressed ();
+		
+	}
+	
+	
 	protected void onCreate (Bundle state) {
 		
 		super.onCreate (state);
