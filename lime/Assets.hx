@@ -1432,22 +1432,6 @@ class Assets {
 		var position = Context.currentPos();
 		var fields = Context.getBuildFields();
 		
-		if (Context.defined ("openfl")) {
-			
-			var searchTypes = classType;
-			
-			while (searchTypes.superClass != null) {
-				
-				if (searchTypes.pack.length == 2 && searchTypes.pack[0] == "openfl" && searchTypes.pack[1] == "text" && searchTypes.name == "Font") {
-					
-					return fields;
-					
-				}
-				
-			}
-			
-		}
-		
 		var path = "";
 		var glyphs = "32-255";
 		
@@ -1490,6 +1474,17 @@ class Assets {
 			var resourceName = "LIME_font_" + (classType.pack.length > 0 ? classType.pack.join ("_") + "_" : "") + classType.name;
 			
 			Context.addResource (resourceName, bytes);
+			
+			for (field in fields) {
+				
+				if (field.name == "new") {
+					
+					fields.remove (field);
+					break;
+					
+				}
+				
+			}
 			
 			var fieldValue = { pos: position, expr: EConst(CString(resourceName)) };
 			fields.push ({ kind: FVar(macro :String, fieldValue), name: "resourceName", access: [ APublic, AStatic ], pos: position });
