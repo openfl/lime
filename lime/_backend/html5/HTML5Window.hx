@@ -71,7 +71,11 @@ class HTML5Window {
 		
 		if (message != null) {
 			
+			#if (haxe_ver >= 3.2)
 			Browser.alert (message);
+			#else
+			js.Lib.alert (message);
+			#end
 			
 		}
 		
