@@ -105,7 +105,7 @@ namespace lime {
 	}
 	
 	
-	void SDLWindow::Alert (int type, const char* title, const char* message) {
+	void SDLWindow::Alert (const char* message, const char* title) {
 		
 		#ifdef HX_WINDOWS
 		
@@ -127,30 +127,9 @@ namespace lime {
 		
 		#endif
 		
-		if (title && message) {
+		if (message) {
 			
-			int flags = 0;
-			
-			switch (type) {
-				
-				case 1:
-					
-					flags = SDL_MESSAGEBOX_WARNING;
-					break;
-				
-				case 2:
-					
-					flags = SDL_MESSAGEBOX_ERROR;
-					break;
-				
-				default:
-					
-					flags = SDL_MESSAGEBOX_INFORMATION;
-					break;
-				
-			}
-			
-			SDL_ShowSimpleMessageBox (flags, title, message, sdlWindow);
+			SDL_ShowSimpleMessageBox (SDL_MESSAGEBOX_INFORMATION, title, message, sdlWindow);
 			
 		}
 		

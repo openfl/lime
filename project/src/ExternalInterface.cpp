@@ -1075,10 +1075,10 @@ namespace lime {
 	}
 	
 	
-	void lime_window_alert (double window, int type, HxString title, HxString message) {
+	void lime_window_alert (double window, HxString message, HxString title) {
 		
 		Window* targetWindow = (Window*)(intptr_t)window;
-		targetWindow->Alert (type, title.__s, message.__s);
+		targetWindow->Alert (message.__s, title.__s);
 		
 	}
 	
@@ -1304,7 +1304,7 @@ namespace lime {
 	DEFINE_PRIME2v (lime_text_layout_set_language);
 	DEFINE_PRIME2v (lime_text_layout_set_script);
 	DEFINE_PRIME2v (lime_touch_event_manager_register);
-	DEFINE_PRIME4v (lime_window_alert);
+	DEFINE_PRIME3v (lime_window_alert);
 	DEFINE_PRIME1v (lime_window_close);
 	DEFINE_PRIME5 (lime_window_create);
 	DEFINE_PRIME2v (lime_window_event_manager_register);

@@ -9,7 +9,6 @@ import lime.graphics.Image;
 import lime.system.Display;
 import lime.system.System;
 import lime.ui.Window;
-import lime.ui.WindowAlertType;
 
 @:access(lime.app.Application)
 @:access(lime.ui.Window)
@@ -29,7 +28,7 @@ class FlashWindow {
 	}
 	
 	
-	public function alert (type:WindowAlertType, title:String, message:String):Void {
+	public function alert (message:String, title:String):Void {
 		
 		
 		

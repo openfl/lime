@@ -569,7 +569,7 @@ namespace nme {
 	#endif
 	
 	
-	value lime_window_alert (value type, value title, value message) {
+	value lime_window_alert (value message, value title) {
 		
 		#ifdef NME_SDL2
 		
@@ -596,30 +596,9 @@ namespace nme {
 		
 		#endif
 		
-		if (!val_is_null (title) && !val_is_null (message)) {
+		if (!val_is_null (message)) {
 			
-			int flags = 0;
-			
-			switch (val_int (type)) {
-				
-				case 1:
-					
-					flags = SDL_MESSAGEBOX_WARNING;
-					break;
-				
-				case 2:
-					
-					flags = SDL_MESSAGEBOX_ERROR;
-					break;
-				
-				default:
-					
-					flags = SDL_MESSAGEBOX_INFORMATION;
-					break;
-				
-			}
-			
-			SDL_ShowSimpleMessageBox (flags, val_string (title), val_string (message), sdlWindow);
+			SDL_ShowSimpleMessageBox (SDL_MESSAGEBOX_INFORMATION, val_is_null (title) ? "" : val_string (title), val_string (message), sdlWindow);
 			
 		}
 		
@@ -630,7 +609,7 @@ namespace nme {
 	}
 	
 	
-	DEFINE_PRIM (lime_window_alert, 3);
+	DEFINE_PRIM (lime_window_alert, 2);
 	
 	
 }

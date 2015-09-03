@@ -93,11 +93,9 @@ class Window {
 	}
 	
 	
-	public function alert (type:WindowAlertType = null, title:String = null, message:String = null):Void {
+	public function alert (message:String = null, title:String = null):Void {
 		
-		if (type == null) type = WindowAlertType.INFO;
-		
-		backend.alert (type, title, message);
+		backend.alert (message, title);
 		
 	}
 	

@@ -8,7 +8,6 @@ import lime.math.Vector2;
 import lime.system.Display;
 import lime.system.System;
 import lime.ui.Window;
-import lime.ui.WindowAlertType;
 
 #if !macro
 @:build(lime.system.CFFI.build())
@@ -33,19 +32,11 @@ class NativeWindow {
 	}
 	
 	
-	public function alert (type:WindowAlertType, title:String, message:String):Void {
+	public function alert (message:String, title:String):Void {
 		
 		if (handle != null) {
 			
-			var nativeType = switch (type) {
-				
-				case WARN: 1;
-				case ERROR: 2;
-				default: 0;
-				
-			}
-			
-			lime_window_alert (handle, nativeType, title, message);
+			lime_window_alert (handle, message, title);
 			
 		}
 		
@@ -254,7 +245,7 @@ class NativeWindow {
 	}
 	
 	
-	@:cffi private static function lime_window_alert (handle:Float, type:Int, title:String, message:String):Void;
+	@:cffi private static function lime_window_alert (handle:Float, message:String, title:String):Void;
 	@:cffi private static function lime_window_close (handle:Float):Void;
 	@:cffi private static function lime_window_create (application:Float, width:Int, height:Int, flags:Int, title:String):Float;
 	@:cffi private static function lime_window_focus (handle:Float):Void;

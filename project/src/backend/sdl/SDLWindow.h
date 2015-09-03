@@ -17,7 +17,7 @@ namespace lime {
 			SDLWindow (Application* application, int width, int height, int flags, const char* title);
 			~SDLWindow ();
 			
-			virtual void Alert (int type, const char* title, const char* message);
+			virtual void Alert (const char* message, const char* title);
 			virtual void Close ();
 			virtual void Focus ();
 			virtual bool GetEnableTextEvents ();
