@@ -180,6 +180,19 @@ class JNI {
 	}
 	
 	
+	public static function postUICallback (callback:Void->Void):Void {
+		
+		// TODO: Rename this?
+		
+		#if android
+		lime_jni_post_ui_callback (callback);
+		#else
+		callback ();
+		#end
+		
+	}
+	
+	
 	
 	
 	// Native Methods
@@ -188,11 +201,12 @@ class JNI {
 	
 	
 	#if (cpp || neko || nodejs)
+	@:cffi private static function lime_jni_call_member (jniMethod:Dynamic, jniObject:Dynamic, args:Dynamic):Dynamic;
+	@:cffi private static function lime_jni_call_static (jniMethod:Dynamic, args:Dynamic):Dynamic;
 	@:cffi private static function lime_jni_create_field (className:String, field:String, signature:String, isStatic:Bool):Dynamic;
 	@:cffi private static function lime_jni_create_method (className:String, method:String, signature:String, isStatic:Bool, quiet:Bool):Dynamic;
 	@:cffi private static function lime_jni_get_env ():Float;
-	@:cffi private static function lime_jni_call_member (jniMethod:Dynamic, jniObject:Dynamic, args:Dynamic):Dynamic;
-	@:cffi private static function lime_jni_call_static (jniMethod:Dynamic, args:Dynamic):Dynamic;
+	@:cffi private static function lime_jni_post_ui_callback (callback:Dynamic):Void;
 	#end
 	
 	

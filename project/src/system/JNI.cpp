@@ -1981,7 +1981,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_jni_get_jobject);
 	
 	
-	value lime_post_ui_callback (value inCallback) {
+	void lime_jni_post_ui_callback (value inCallback) {
 		
 		JNIEnv *env = (JNIEnv*)JNI::GetEnv ();
 		JNIInit (env);
@@ -2002,7 +2002,7 @@ namespace lime {
 		
 	}
 	
-	DEFINE_PRIME1v (lime_post_ui_callback);
+	DEFINE_PRIME1v (lime_jni_post_ui_callback);
 	
 	
 }
