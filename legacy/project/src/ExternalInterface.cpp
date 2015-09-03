@@ -1,8 +1,11 @@
 #include <hx/CFFI.h>
 
+#ifdef NME_SDL2
+#include <SDL.h>
+#endif
+
 #ifdef HX_WINDOWS
 #include <SDL_syswm.h>
-#include <SDL.h>
 #include <Windows.h>
 #endif
 
