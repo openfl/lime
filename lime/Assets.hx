@@ -1432,6 +1432,22 @@ class Assets {
 		var position = Context.currentPos();
 		var fields = Context.getBuildFields();
 		
+		if (Context.defined ("openfl")) {
+			
+			var searchTypes = classType;
+			
+			while (searchTypes.superClass != null) {
+				
+				if (searchTypes.pack.length == 2 && searchTypes.pack[0] == "openfl" && searchTypes.pack[1] == "text" && searchTypes.name == "Font") {
+					
+					return fields;
+					
+				}
+				
+			}
+			
+		}
+		
 		var path = "";
 		var glyphs = "32-255";
 		
@@ -1446,8 +1462,11 @@ class Assets {
 						case EConst(CString(filePath)):
 							
 							path = filePath;
+							
 							if (!sys.FileSystem.exists(filePath)) {
+								
 								path = Context.resolvePath (filePath);
+								
 							}
 							
 						default:
