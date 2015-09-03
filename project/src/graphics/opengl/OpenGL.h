@@ -2,7 +2,7 @@
 #define LIME_GRAPHICS_OPENGL_OPENGL_H
 
 
-#if defined (BLACKBERRY) || defined (ANDROID) || defined (WEBOS) || defined (GPH) || defined (EMSCRIPTEN)
+#if defined (BLACKBERRY) || defined (ANDROID) || defined (WEBOS) || defined (GPH) || defined (EMSCRIPTEN) || defined (RASPBERRYPI)
 
 #define LIME_GLES
 #include <GLES2/gl2.h>

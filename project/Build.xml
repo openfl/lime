@@ -8,7 +8,7 @@
 	
 	<set name="lime-legacy" value="1" if="legacy || lime_legacy" />
 	<set name="ios" value="1" if="iphone" />
-	
+
 	<set name="LIME_CAIRO" value="1" />
 	<set name="LIME_CURL" value="1" unless="emscripten" />
 	<set name="LIME_JPEG" value="1" />
@@ -173,10 +173,12 @@
 			<section unless="emscripten">
 				
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/" />
-				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/default/" unless="windows || mac || linux"/>
-				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/linux/" if="linux"/>
+				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/default/" unless="windows || mac || linux || rpi"/>
+				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/linux/" if="linux" unless="rpi"/>
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/windows/" if="windows"/>
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/mac/" if="mac"/>
+				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/rpi/" if="rpi"/>
+				
 				<compilerflag value="-DHAVE_LIBC" />
 				
 			</section>
@@ -333,6 +335,16 @@
 				<lib name="-lGLESv2" />
 				<lib name="-lGLESv1_CM" />
 				<lib name="-lOpenSLES" />
+				
+			</section>
+			
+			<section if="rpi">
+				
+				<lib name="-lbcm_host" />
+				<lib name="-ldl" />
+				<lib name="-lm" />
+				<lib name="-lGLESv2" />
+				<lib name="-lEGL" />
 				
 			</section>
 			
