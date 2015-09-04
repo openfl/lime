@@ -1,6 +1,9 @@
 package lime.app;
 
 
+@:allow(lime.app.Future)
+
+
 class Promise<T> {
 	
 	
