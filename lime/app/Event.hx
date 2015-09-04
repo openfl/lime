@@ -176,7 +176,7 @@ class Event<T> {
 			
 		}
 		
-		return TPath ( { pack: [ "lime", "app" ], name: name, params: [ TPType (typeParam.toComplexType ()) ] } );
+		return TPath ( { pack: [ "lime", "app" ], name: name, params: [ TPType (typeParam.toComplexType ()) ] } ).toType ();
 		
 	}
 	#end
