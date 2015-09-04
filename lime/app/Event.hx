@@ -1,8 +1,16 @@
 package lime.app;
 
 
+#if macro
 import haxe.macro.Context;
 import haxe.macro.Expr;
+import haxe.macro.Type;
+using haxe.macro.Tools;
+#end
+
+#if !macro
+@:genericBuild(lime.app.Event.build())
+#end
 
 
 class Event<T> {
@@ -16,20 +24,23 @@ class Event<T> {
 	
 	public function new () {
 		
-		listeners = new Array<T> ();
+		#if !macro
+		listeners = new Array ();
 		priorities = new Array<Int> ();
 		repeat = new Array<Bool> ();
+		#end
 		
 	}
 	
 	
 	public function add (listener:T, once:Bool = false, priority:Int = 0):Void {
 		
+		#if !macro
 		for (i in 0...priorities.length) {
 			
 			if (priority > priorities[i]) {
 				
-				listeners.insert (i, listener);
+				listeners.insert (i, cast listener);
 				priorities.insert (i, priority);
 				repeat.insert (i, !once);
 				return;
@@ -38,49 +49,185 @@ class Event<T> {
 			
 		}
 		
-		listeners.push (listener);
+		listeners.push (cast listener);
 		priorities.push (priority);
 		repeat.push (!once);
+		#end
 		
 	}
 	
 	
-	macro public function dispatch (ethis:Expr, args:Array<Expr>) {
+	#if macro
+	private static function build () {
 		
-		return macro {
+		var typeArgs;
+		var typeResult;
+		
+		switch (Context.getLocalType ()) {
 			
-			var listeners = $ethis.listeners;
-			var repeat = $ethis.repeat;
-			var i = 0;
+			case TInst (_, [ TFun (args, result) ]):
+				
+				typeArgs = args;
+				typeResult = result;
+				
+			default:
+				
+				throw false;
 			
-			while (i < listeners.length) {
+		}
+		
+		var typeParam = TFun (typeArgs, typeResult);
+		var typeString = "";
+		
+		if (typeArgs.length == 0) {
+			
+			typeString = "Void->";
+			
+		} else {
+			
+			for (arg in typeArgs) {
 				
-				listeners[i] ($a{args});
-				
-				if (!repeat[i]) {
-					
-					$ethis.remove (listeners[i]);
-					
-				} else {
-					
-					i++;
-					
-				}
+				typeString += arg.t.toString () + "->";
 				
 			}
 			
 		}
 		
+		typeString += typeResult.toString ();
+		
+		var name = "Event$" + StringTools.replace (StringTools.replace (typeString, ".", "_"), "->", "__");
+		
+		try {
+			
+			Context.getType ("lime.app." + name);
+			
+		} catch (e:Dynamic) {
+			
+			var pos = Context.currentPos ();
+			var fields = Context.getBuildFields ();
+			
+			var args = [];
+			var argName;
+			var argNames = [];
+			var argString = "";
+			var i = 0;
+			
+			for (arg in typeArgs) {
+				
+				if (i == 0) {
+					
+					argName = "arg";
+					argString = argName;
+					
+				} else {
+					
+					argName = "arg" + i;
+					argString += ", " + argName;
+					
+				}
+				
+				argNames.push (Context.parse (argName, pos));
+				
+				i++;
+				
+				args.push ({ name: argName, type: arg.t.toComplexType () });
+				
+			}
+			
+			var dispatch = macro {
+				
+				var listeners = this.listeners;
+				var repeat = this.repeat;
+				var i = 0;
+				
+				while (i < listeners.length) {
+					
+					listeners[i] ($a{argNames});
+					
+					if (!repeat[i]) {
+						
+						this.remove (cast listeners[i]);
+						
+					} else {
+						
+						i++;
+						
+					}
+					
+				}
+				
+			}
+			
+			for (field in fields) {
+				
+				if (field.name == "listeners") {
+					
+					fields.remove (field);
+					break;
+					
+				}
+				
+			}
+			
+			fields.push ( { name: "listeners", access: [ APublic ], kind: FVar (TPath ({ pack: [], name: "Array", params: [ TPType (typeParam.toComplexType ()) ] })), pos: pos } );
+			fields.push ( { name: "dispatch", access: [ APublic ], kind: FFun ( { args: args, expr: dispatch, params: [], ret: macro :Void } ), pos: pos } );
+			
+			Context.defineType ({
+				pos: pos,
+				pack: [ "lime", "app" ],
+				name: name,
+				kind: TDClass (),
+				fields: fields,
+				params: [ { name: "T" } ],
+				meta: [ ]
+			});
+			
+		}
+		
+		return TPath ( { pack: [ "lime", "app" ], name: name, params: [ TPType (typeParam.toComplexType ()) ] } );
+		
 	}
+	#end
+	
+	
+	//macro public function dispatch (ethis:Expr, args:Array<Expr>):Void {
+		//
+		//return macro {
+			//
+			//var listeners = $ethis.listeners;
+			//var repeat = $ethis.repeat;
+			//var i = 0;
+			//
+			//while (i < listeners.length) {
+				//
+				//listeners[i] ($a{args});
+				//
+				//if (!repeat[i]) {
+					//
+					//$ethis.remove (listeners[i]);
+					//
+				//} else {
+					//
+					//i++;
+					//
+				//}
+				//
+			//}
+			//
+		//}
+		//
+	//}
 	
 	
 	public function has (listener:T):Bool {
 		
+		#if !macro
 		for (l in listeners) {
 			
 			if (Reflect.compareMethods (l, listener)) return true;
 			
 		}
+		#end
 		
 		return false;
 		
@@ -89,6 +236,7 @@ class Event<T> {
 	
 	public function remove (listener:T):Void {
 		
+		#if !macro
 		var i = listeners.length;
 		
 		while (--i >= 0) {
@@ -102,6 +250,7 @@ class Event<T> {
 			}
 			
 		}
+		#end
 		
 	}
 	
