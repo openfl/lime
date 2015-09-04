@@ -80,7 +80,7 @@ class PNG {
 		
 		#elseif (sys && (!disable_cffi || !format))
 		
-		if (!CFFI.enabled) {
+		if (CFFI.enabled) {
 			
 			var data:Dynamic = lime_image_encode (image.buffer, 0, 0);
 			var bytes = @:privateAccess new Bytes (data.length, data.b);
