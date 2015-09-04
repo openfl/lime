@@ -1,6 +1,7 @@
 package lime.app;
-import lime.system.ThreadPool;
 
+
+import lime.system.ThreadPool;
 
 @:allow(lime.app.Promise)
 
@@ -9,7 +10,6 @@ class Future<T> {
 	
 	
 	private static var __threadPool:ThreadPool;
-	private static var __workID:Int;
 	
 	public var isCompleted (get, null):Bool;
 	public var value (default, null):T;
@@ -32,14 +32,13 @@ class Future<T> {
 				__threadPool.doWork.add (threadPool_doWork);
 				__threadPool.onComplete.add (threadPool_onComplete);
 				__threadPool.onError.add (threadPool_onError);
-				__workID = 1;
 				
 			}
 			
 			var promise = new Promise<T> ();
 			promise.future = this;
 			
-			__threadPool.queue (Std.string (__workID++), { promise: promise, work: work } );
+			__threadPool.queue ({ promise: promise, work: work } );
 			
 		}
 		
@@ -160,32 +159,32 @@ class Future<T> {
 	
 	
 	
-	private static function threadPool_doWork (id:String, data:Dynamic):Void {
+	private static function threadPool_doWork (state:Dynamic):Void {
 		
 		try {
 			
-			var result = data.work ();
-			__threadPool.sendComplete (id, { promise: data.promise, result: result } );
+			var result = state.work ();
+			__threadPool.sendComplete ({ promise: state.promise, result: result } );
 			
 		} catch (e:Dynamic) {
 			
-			__threadPool.sendError (id, { promise: data.promise, error: e } );
+			__threadPool.sendError ({ promise: state.promise, error: e } );
 			
 		}
 		
 	}
 	
 	
-	private static function threadPool_onComplete (id:String, data:Dynamic):Void {
+	private static function threadPool_onComplete (state:Dynamic):Void {
 		
-		data.promise.complete (data.result);
+		state.promise.complete (state.result);
 		
 	}
 	
 	
-	private static function threadPool_onError (id:String, data:Dynamic):Void {
+	private static function threadPool_onError (state:Dynamic):Void {
 		
-		data.promise.error (data.error);
+		state.promise.error (state.error);
 		
 	}
 	

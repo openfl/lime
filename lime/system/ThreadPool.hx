@@ -17,12 +17,12 @@ class ThreadPool {
 	
 	
 	public var currentThreads (default, null):Int;
-	public var doWork = new Event<String->Dynamic->Void> ();
+	public var doWork = new Event<Dynamic->Void> ();
 	public var maxThreads:Int;
 	public var minThreads:Int;
-	public var onComplete = new Event<String->Dynamic->Void> ();
-	public var onError = new Event<String->Dynamic->Void> ();
-	public var onProgress = new Event<String->Dynamic->Void> ();
+	public var onComplete = new Event<Dynamic->Void> ();
+	public var onError = new Event<Dynamic->Void> ();
+	public var onProgress = new Event<Dynamic->Void> ();
 	
 	#if (cpp || neko)
 	private var __workCompleted:Int;
@@ -61,11 +61,11 @@ class ThreadPool {
 	//}
 	
 	
-	public function queue (id:String, message:Dynamic = null):Void {
+	public function queue (state:Dynamic = null):Void {
 		
 		#if (cpp || neko)
 		
-		__workIncoming.add (new ThreadPoolMessage (WORK, id, message));
+		__workIncoming.add (new ThreadPoolMessage (WORK, state));
 		__workQueued++;
 		
 		if (currentThreads < maxThreads && currentThreads < (__workQueued - __workCompleted)) {
@@ -83,41 +83,41 @@ class ThreadPool {
 		
 		#else
 		
-		doWork.dispatch (id, message);
+		doWork.dispatch (state);
 		
 		#end
 		
 	}
 	
 	
-	public function sendComplete (id:String, message:Dynamic = null):Void {
+	public function sendComplete (state:Dynamic = null):Void {
 		
 		#if (cpp || neko)
-		__workResult.add (new ThreadPoolMessage (COMPLETE, id, message));
+		__workResult.add (new ThreadPoolMessage (COMPLETE, state));
 		#else
-		onComplete.dispatch (id, message);
+		onComplete.dispatch (state);
 		#end
 		
 	}
 	
 	
-	public function sendError (id:String, message:Dynamic = null):Void {
+	public function sendError (state:Dynamic = null):Void {
 		
 		#if (cpp || neko)
-		__workResult.add (new ThreadPoolMessage (ERROR, id, message));
+		__workResult.add (new ThreadPoolMessage (ERROR, state));
 		#else
-		onError.dispatch (id, message);
+		onError.dispatch (state);
 		#end
 		
 	}
 	
 	
-	public function sendProgress (id:String, message:Dynamic = null):Void {
+	public function sendProgress (state:Dynamic = null):Void {
 		
 		#if (cpp || neko)
-		__workResult.add (new ThreadPoolMessage (PROGRESS, id, message));
+		__workResult.add (new ThreadPoolMessage (PROGRESS, state));
 		#else
-		onProgress.dispatch (id, message);
+		onProgress.dispatch (state);
 		#end
 		
 	}
@@ -133,7 +133,7 @@ class ThreadPool {
 			
 			if (message.type == WORK) {
 				
-				doWork.dispatch (message.id, message.message);
+				doWork.dispatch (message.state);
 				
 			} else if (message.type == EXIT) {
 				
@@ -158,7 +158,7 @@ class ThreadPool {
 					
 					case PROGRESS:
 						
-						onProgress.dispatch (message.id, message.message);
+						onProgress.dispatch (message.state);
 					
 					case COMPLETE, ERROR:
 						
@@ -167,17 +167,17 @@ class ThreadPool {
 						if (currentThreads > (__workQueued - __workCompleted) || currentThreads > maxThreads) {
 							
 							currentThreads--;
-							__workIncoming.add (new ThreadPoolMessage (EXIT, null, null));
+							__workIncoming.add (new ThreadPoolMessage (EXIT, null));
 							
 						}
 						
 						if (message.type == COMPLETE) {
 							
-							onComplete.dispatch (message.id, message.message);
+							onComplete.dispatch (message.state);
 							
 						} else {
 							
-							onError.dispatch (message.id, message.message);
+							onError.dispatch (message.state);
 							
 						}
 					
@@ -223,16 +223,14 @@ private enum ThreadPoolMessageType {
 private class ThreadPoolMessage {
 	
 	
-	public var id:String;
-	public var message:Dynamic;
+	public var state:Dynamic;
 	public var type:ThreadPoolMessageType;
 	
 	
-	public function new (type:ThreadPoolMessageType, id:String, message:Dynamic) {
+	public function new (type:ThreadPoolMessageType, state:Dynamic) {
 		
 		this.type = type;
-		this.id = id;
-		this.message = message;
+		this.state = state;
 		
 	}
 	
