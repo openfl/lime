@@ -8,7 +8,7 @@ class Future<T> {
 	
 	
 	public var isCompleted (get, null):Bool;
-	public var value:T;
+	public var value (default, null):T;
 	
 	private var __completed:Bool;
 	private var __completeListeners:Array<T->Void>;
