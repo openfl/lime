@@ -106,7 +106,7 @@ class Event<T> {
 			var pos = Context.currentPos ();
 			var fields = Context.getBuildFields ();
 			
-			var args = [];
+			var args:Array<FunctionArg> = [];
 			var argName;
 			var argNames = [];
 			var argString = "";
