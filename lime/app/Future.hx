@@ -8,14 +8,63 @@ class Future<T> {
 	private var __completed:Bool;
 	private var __completeListeners:Array<T->Void>;
 	private var __errored:Bool;
-	private var __errorListeners:Array<String->Void>;
-	private var __errorMessage:String;
+	private var __errorListeners:Array<Dynamic->Void>;
+	private var __errorMessage:Dynamic;
 	private var __progressListeners:Array<Float->Void>;
+	private var __thenCallback:Void->Void;
 	
 	
 	public function new () {
 		
 		
+		
+	}
+	
+	
+	public function complete (data:T):Void {
+		
+		if (!__errored) {
+			
+			__completed = true;
+			__completeData = data;
+			
+			if (__completeListeners != null) {
+				
+				for (listener in __completeListeners) {
+					
+					listener (data);
+					
+				}
+				
+				__completeListeners = null;
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	public function error (msg:Dynamic):Void {
+		
+		if (!__completed) {
+			
+			__errored = true;
+			__errorMessage = msg;
+			
+			if (__errorListeners != null) {
+				
+				for (listener in __errorListeners) {
+					
+					listener (msg);
+					
+				}
+				
+				__errorListeners = null;
+				
+			}
+			
+		}
 		
 	}
 	
@@ -43,7 +92,7 @@ class Future<T> {
 	}
 	
 	
-	public function onError (listener:String->Void):Future<T> {
+	public function onError (listener:Dynamic->Void):Future<T> {
 		
 		if (__errored) {
 			
@@ -81,55 +130,7 @@ class Future<T> {
 	}
 	
 	
-	public function sendComplete (data:T):Void {
-		
-		if (!__errored) {
-			
-			__completed = true;
-			__completeData = data;
-			
-			if (__completeListeners != null) {
-				
-				for (listener in __completeListeners) {
-					
-					listener (data);
-					
-				}
-				
-				__completeListeners = null;
-				
-			}
-			
-		}
-		
-	}
-	
-	
-	public function sendError (msg:String):Void {
-		
-		if (!__completed) {
-			
-			__errored = true;
-			__errorMessage = msg;
-			
-			if (__errorListeners != null) {
-				
-				for (listener in __errorListeners) {
-					
-					listener (msg);
-					
-				}
-				
-				__errorListeners = null;
-				
-			}
-			
-		}
-		
-	}
-	
-	
-	public function sendProgress (progress:Float):Void {
+	public function progress (progress:Float):Void {
 		
 		if (!__errored && !__completed) {
 			
@@ -142,6 +143,37 @@ class Future<T> {
 				}
 				
 			}
+			
+		}
+		
+	}
+	
+	
+	public function then<U> (next:T->Future<U>):Future<U> {
+		
+		if (__completed) {
+			
+			return next (__completeData);
+			
+		} else if (__errored) {
+			
+			var future = new Future<U> ();
+			future.onError (__errorMessage);
+			return future;
+			
+		} else {
+			
+			var future = new Future<U> ();
+			onError (future.error);
+			onProgress (future.progress);
+			onComplete (function (val) {
+				
+				var f = next (val);
+				f.onError (future.error);
+				f.onComplete (future.complete);
+				
+			});
+			return future;
 			
 		}
 		
