@@ -1,66 +1,36 @@
 package lime.app;
 
 
+@:allow(lime.app.Promise)
+
+
 class Future<T> {
 	
 	
-	private var __completeData:T;
+	public var isCompleted (get, null):Bool;
+	public var value:T;
+	
 	private var __completed:Bool;
 	private var __completeListeners:Array<T->Void>;
 	private var __errored:Bool;
 	private var __errorListeners:Array<Dynamic->Void>;
 	private var __errorMessage:Dynamic;
 	private var __progressListeners:Array<Float->Void>;
-	private var __thenCallback:Void->Void;
 	
 	
-	public function new () {
+	public function new (work:Void->T = null) {
 		
-		
-		
-	}
-	
-	
-	public function complete (data:T):Void {
-		
-		if (!__errored) {
+		if (work != null) {
 			
-			__completed = true;
-			__completeData = data;
-			
-			if (__completeListeners != null) {
+			try {
 				
-				for (listener in __completeListeners) {
-					
-					listener (data);
-					
-				}
+				value = work ();
+				__completed = true;
 				
-				__completeListeners = null;
+			} catch (e:Dynamic) {
 				
-			}
-			
-		}
-		
-	}
-	
-	
-	public function error (msg:Dynamic):Void {
-		
-		if (!__completed) {
-			
-			__errored = true;
-			__errorMessage = msg;
-			
-			if (__errorListeners != null) {
-				
-				for (listener in __errorListeners) {
-					
-					listener (msg);
-					
-				}
-				
-				__errorListeners = null;
+				__errored = true;
+				__errorMessage = e;
 				
 			}
 			
@@ -71,19 +41,23 @@ class Future<T> {
 	
 	public function onComplete (listener:T->Void):Future<T> {
 		
-		if (__completed) {
+		if (listener != null) {
 			
-			listener (__completeData);
-			
-		} else if (!__errored) {
-			
-			if (__completeListeners == null) {
+			if (__completed) {
 				
-				__completeListeners = new Array ();
+				listener (value);
+				
+			} else if (!__errored) {
+				
+				if (__completeListeners == null) {
+					
+					__completeListeners = new Array ();
+					
+				}
+				
+				__completeListeners.push (listener);
 				
 			}
-			
-			__completeListeners.push (listener);
 			
 		}
 		
@@ -94,19 +68,23 @@ class Future<T> {
 	
 	public function onError (listener:Dynamic->Void):Future<T> {
 		
-		if (__errored) {
+		if (listener != null) {
 			
-			listener (__errorMessage);
-			
-		} else if (!__completed) {
-			
-			if (__errorListeners == null) {
+			if (__errored) {
 				
-				__errorListeners = new Array ();
+				listener (__errorMessage);
+				
+			} else if (!__completed) {
+				
+				if (__errorListeners == null) {
+					
+					__errorListeners = new Array ();
+					
+				}
+				
+				__errorListeners.push (listener);
 				
 			}
-			
-			__errorListeners.push (listener);
 			
 		}
 		
@@ -117,34 +95,19 @@ class Future<T> {
 	
 	public function onProgress (listener:Float->Void):Future<T> {
 		
-		if (__progressListeners == null) {
+		if (listener != null) {
 			
-			__progressListeners = new Array ();
-			
-		}
-		
-		__progressListeners.push (listener);
-		
-		return this;
-		
-	}
-	
-	
-	public function progress (progress:Float):Void {
-		
-		if (!__errored && !__completed) {
-			
-			if (__progressListeners != null) {
+			if (__progressListeners == null) {
 				
-				for (listener in __progressListeners) {
-					
-					listener (progress);
-					
-				}
+				__progressListeners = new Array ();
 				
 			}
 			
+			__progressListeners.push (listener);
+			
 		}
+		
+		return this;
 		
 	}
 	
@@ -153,7 +116,7 @@ class Future<T> {
 		
 		if (__completed) {
 			
-			return next (__completeData);
+			return next (value);
 			
 		} else if (__errored) {
 			
@@ -163,19 +126,36 @@ class Future<T> {
 			
 		} else {
 			
-			var future = new Future<U> ();
-			onError (future.error);
-			onProgress (future.progress);
+			var promise = new Promise<U> ();
+			
+			onError (promise.error);
+			onProgress (promise.progress);
+			
 			onComplete (function (val) {
 				
-				var f = next (val);
-				f.onError (future.error);
-				f.onComplete (future.complete);
+				var future = next (val);
+				future.onError (promise.error);
+				future.onComplete (promise.complete);
 				
 			});
-			return future;
+			
+			return promise.future;
 			
 		}
+		
+	}
+	
+	
+	
+	
+	// Get & Set Methods
+	
+	
+	
+	
+	private function get_isCompleted ():Bool {
+		
+		return (__completed || __errored);
 		
 	}
 	
