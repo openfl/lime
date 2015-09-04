@@ -1,19 +1,17 @@
 package lime;
-import lime.app.Event;
-import lime.app.Promise;
-import lime.app.Future;
+
 #if !macro
 
 
 import haxe.Json;
 import haxe.Unserializer;
+import lime.app.Event;
+import lime.app.Promise;
+import lime.app.Future;
 import lime.audio.AudioBuffer;
 import lime.graphics.Image;
 import lime.text.Font;
 import lime.utils.ByteArray;
-
-@:access(lime.AssetLibrary)
-
 
 /**
  * <p>The Assets class provides a cross-platform interface to access 
@@ -31,6 +29,10 @@ import lime.utils.ByteArray;
  * and specifying a custom preloader using <window preloader="" />
  * in the project file.</p>
  */
+
+@:access(lime.AssetLibrary)
+
+
 class Assets {
 	
 	
@@ -1112,19 +1114,6 @@ class AssetCache {
 }
 
 
-@:enum abstract AssetType(String) {
-	
-	var BINARY = "BINARY";
-	var FONT = "FONT";
-	var IMAGE = "IMAGE";
-	var MUSIC = "MUSIC";
-	var SOUND = "SOUND";
-	var TEMPLATE = "TEMPLATE";
-	var TEXT = "TEXT";
-	
-}
-
-
 #else
 
 
@@ -1507,3 +1496,16 @@ class Assets {
 
 
 #end
+
+
+@:enum abstract AssetType(String) {
+	
+	var BINARY = "BINARY";
+	var FONT = "FONT";
+	var IMAGE = "IMAGE";
+	var MUSIC = "MUSIC";
+	var SOUND = "SOUND";
+	var TEMPLATE = "TEMPLATE";
+	var TEXT = "TEXT";
+	
+}
