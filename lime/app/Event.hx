@@ -107,30 +107,22 @@ class Event<T> {
 			var fields = Context.getBuildFields ();
 			
 			var args:Array<FunctionArg> = [];
-			var argName;
-			var argNames = [];
-			var argString = "";
-			var i = 0;
+			var argName, argNames = [];
 			
-			for (arg in typeArgs) {
+			for (i in 0...typeArgs.length) {
 				
 				if (i == 0) {
 					
-					argName = "arg";
-					argString = argName;
+					argName = "a";
 					
 				} else {
 					
-					argName = "arg" + i;
-					argString += ", " + argName;
+					argName = "a" + i;
 					
 				}
 				
 				argNames.push (Context.parse (argName, pos));
-				
-				i++;
-				
-				args.push ({ name: argName, type: arg.t.toComplexType () });
+				args.push ({ name: argName, type: typeArgs[i].t.toComplexType () });
 				
 			}
 			
