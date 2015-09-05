@@ -833,20 +833,20 @@ namespace lime {
 	}
 	
 	
-	HxString lime_gl_get_shader_source (int id) {
+	value lime_gl_get_shader_source (int id) {
 		
 		int len = 0;
 		glGetShaderiv (id, GL_SHADER_SOURCE_LENGTH, &len);
 		
 		if (len == 0) {
 			
-			return 0;
+			return alloc_null ();
 			
 		}
 		
 		char *buf = new char[len + 1];
 		glGetShaderSource (id, len + 1, 0, buf);
-		HxString result = HxString (buf);
+		value result = alloc_string (buf);
 		
 		delete [] buf;
 		

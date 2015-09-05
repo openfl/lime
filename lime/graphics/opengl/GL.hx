@@ -2283,7 +2283,7 @@ class GL {
 	@:cffi private static function lime_gl_get_shader_info_log (shader:Int):String;
 	@:cffi private static function lime_gl_get_shader_parameter (shader:Int, pname:Int):Int;
 	@:cffi private static function lime_gl_get_shader_precision_format (shadertype:Int, precisiontype:Int):Dynamic;
-	@:cffi private static function lime_gl_get_shader_source (shader:Int):String;
+	@:cffi private static function lime_gl_get_shader_source (shader:Int):Dynamic;
 	@:cffi private static function lime_gl_get_supported_extensions (result:Dynamic):Void;
 	@:cffi private static function lime_gl_get_tex_parameter (target:Int, pname:Int):Int;
 	@:cffi private static function lime_gl_get_uniform (program:Int, location:Int):Dynamic;

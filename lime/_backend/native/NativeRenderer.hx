@@ -50,7 +50,7 @@ class NativeRenderer {
 		
 		#else
 		
-		var type = lime_renderer_get_type (handle);
+		var type:String = lime_renderer_get_type (handle);
 		
 		switch (type) {
 			
@@ -155,7 +155,7 @@ class NativeRenderer {
 	@:cffi private static function lime_renderer_create (window:Float):Float;
 	@:cffi private static function lime_renderer_flip (handle:Float):Void;
 	@:cffi private static function lime_renderer_get_context (handle:Float):Float;
-	@:cffi private static function lime_renderer_get_type (handle:Float):String;
+	@:cffi private static function lime_renderer_get_type (handle:Float):Dynamic;
 	@:cffi private static function lime_renderer_lock (handle:Float):Dynamic;
 	@:cffi private static function lime_renderer_make_current (handle:Float):Void;
 	@:cffi private static function lime_renderer_unlock (handle:Float):Void;

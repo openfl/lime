@@ -924,7 +924,8 @@ namespace lime {
 	
 	HxString lime_cairo_version_string () {
 		
-		return HxString (cairo_version_string ());
+		const char* version = cairo_version_string ();
+		return version ? HxString (version) : HxString (0, 0);
 		
 	}
 	

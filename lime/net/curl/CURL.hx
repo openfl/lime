@@ -81,7 +81,7 @@ abstract CURL(Float) from Float to Float {
 	@:cffi private static function lime_curl_getdate (date:String, now:Float):Float;
 	@:cffi private static function lime_curl_global_cleanup ():Void;
 	@:cffi private static function lime_curl_global_init (flags:Int):Int;
-	@:cffi private static function lime_curl_version ():String;
+	@:cffi private static function lime_curl_version ():Dynamic;
 	@:cffi private static function lime_curl_version_info (type:Int):Dynamic;
 	#end
 	

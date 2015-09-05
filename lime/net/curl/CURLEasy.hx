@@ -153,7 +153,7 @@ class CURLEasy {
 	#if ((cpp || neko || nodejs) && lime_curl)
 	@:cffi private static function lime_curl_easy_cleanup (handle:Float):Void;
 	@:cffi private static function lime_curl_easy_duphandle (handle:Float):Float;
-	@:cffi private static function lime_curl_easy_escape (curl:Float, url:String, length:Int):String;
+	@:cffi private static function lime_curl_easy_escape (curl:Float, url:String, length:Int):Dynamic;
 	@:cffi private static function lime_curl_easy_getinfo (curl:Float, info:Int):Dynamic;
 	@:cffi private static function lime_curl_easy_init ():Float;
 	@:cffi private static function lime_curl_easy_pause (handle:Float, bitmask:Int):Int;
@@ -162,8 +162,8 @@ class CURLEasy {
 	@:cffi private static function lime_curl_easy_reset (curl:Float):Void;
 	@:cffi private static function lime_curl_easy_send (curl:Float, buffer:Dynamic, buflen:Int, n:Int):Int;
 	@:cffi private static function lime_curl_easy_setopt (handle:Float, option:Int, parameter:Dynamic):Int;
-	@:cffi private static function lime_curl_easy_strerror (errornum:Int):String;
-	@:cffi private static function lime_curl_easy_unescape (curl:Float, url:String, inlength:Int, outlength:Int):String;
+	@:cffi private static function lime_curl_easy_strerror (errornum:Int):Dynamic;
+	@:cffi private static function lime_curl_easy_unescape (curl:Float, url:String, inlength:Int, outlength:Int):Dynamic;
 	#end
 	
 	

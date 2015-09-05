@@ -79,8 +79,8 @@ class Gamepad {
 	
 	#if (cpp || neko || nodejs)
 	@:cffi private static function lime_gamepad_add_mappings (mappings:Dynamic):Void;
-	@:cffi private static function lime_gamepad_get_device_guid (id:Int):String;
-	@:cffi private static function lime_gamepad_get_device_name (id:Int):String;
+	@:cffi private static function lime_gamepad_get_device_guid (id:Int):Dynamic;
+	@:cffi private static function lime_gamepad_get_device_name (id:Int):Dynamic;
 	#end
 	
 	

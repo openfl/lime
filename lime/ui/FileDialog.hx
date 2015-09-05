@@ -174,7 +174,7 @@ class FileDialog {
 			
 		});
 		
-		worker.onComplete.add (function (path) {
+		worker.onComplete.add (function (path:String) {
 			
 			if (path != null) {
 				
@@ -198,7 +198,7 @@ class FileDialog {
 		
 		// Doesn't work in a thread
 		
-		var path = lime_file_dialog_open_file (filter, defaultPath);
+		var path:String = lime_file_dialog_open_file (filter, defaultPath);
 		
 		if (path != null) {
 			
@@ -241,7 +241,7 @@ class FileDialog {
 			
 		});
 		
-		worker.onComplete.add (function (path) {
+		worker.onComplete.add (function (path:String) {
 			
 			if (path != null) {
 				
@@ -263,7 +263,7 @@ class FileDialog {
 		
 		#else
 		
-		var path = lime_file_dialog_save_file (filter, defaultPath);
+		var path:String = lime_file_dialog_save_file (filter, defaultPath);
 		
 		if (path != null) {
 			
@@ -301,9 +301,9 @@ class FileDialog {
 	
 	
 	#if (cpp || neko || nodejs)
-	@:cffi private static function lime_file_dialog_open_file (filter:String, defaultPath:String):String;
+	@:cffi private static function lime_file_dialog_open_file (filter:String, defaultPath:String):Dynamic;
 	@:cffi private static function lime_file_dialog_open_files (filter:String, defaultPath:String):Dynamic;
-	@:cffi private static function lime_file_dialog_save_file (filter:String, defaultPath:String):String;
+	@:cffi private static function lime_file_dialog_save_file (filter:String, defaultPath:String):Dynamic;
 	#end
 	
 	

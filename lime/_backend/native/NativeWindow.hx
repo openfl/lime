@@ -261,7 +261,7 @@ class NativeWindow {
 	@:cffi private static function lime_window_set_fullscreen (handle:Float, fullscreen:Bool):Bool;
 	@:cffi private static function lime_window_set_icon (handle:Float, buffer:Dynamic):Void;
 	@:cffi private static function lime_window_set_minimized (handle:Float, minimized:Bool):Bool;
-	@:cffi private static function lime_window_set_title (handle:Float, title:String):String;
+	@:cffi private static function lime_window_set_title (handle:Float, title:String):Dynamic;
 	
 	
 }

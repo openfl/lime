@@ -374,7 +374,7 @@ class System {
 	
 	
 	#if (cpp || neko || nodejs)
-	@:cffi private static function lime_system_get_directory (type:Int, company:String, title:String):String;
+	@:cffi private static function lime_system_get_directory (type:Int, company:String, title:String):Dynamic;
 	@:cffi private static function lime_system_get_display (index:Int):Dynamic;
 	@:cffi private static function lime_system_get_num_displays ():Int;
 	@:cffi private static function lime_system_get_timer ():Float;

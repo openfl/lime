@@ -943,7 +943,7 @@ class AL {
 	@:cffi private static function lime_al_get_sourcefv (source:Int, param:Int, count:Int):Dynamic;
 	@:cffi private static function lime_al_get_sourcei (source:Int, param:Int):Int;
 	@:cffi private static function lime_al_get_sourceiv (source:Int, param:Int, count:Int):Dynamic;
-	@:cffi private static function lime_al_get_string (param:Int):String;
+	@:cffi private static function lime_al_get_string (param:Int):Dynamic;
 	@:cffi private static function lime_al_is_buffer (buffer:Int):Bool;
 	@:cffi private static function lime_al_is_enabled (capability:Int):Bool;
 	@:cffi private static function lime_al_is_extension_present (extname:String):Bool;

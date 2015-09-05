@@ -206,7 +206,7 @@ class ALC {
 	@:cffi private static function lime_alc_get_current_context ():Float;
 	@:cffi private static function lime_alc_get_error (device:Float):Int;
 	@:cffi private static function lime_alc_get_integerv (device:Float, param:Int, size:Int):Dynamic;
-	@:cffi private static function lime_alc_get_string (device:Float, param:Int):String;
+	@:cffi private static function lime_alc_get_string (device:Float, param:Int):Dynamic;
 	@:cffi private static function lime_alc_make_context_current (context:Float):Bool;
 	@:cffi private static function lime_alc_open_device (devicename:String):Float;
 	@:cffi private static function lime_alc_process_context (context:Float):Void;

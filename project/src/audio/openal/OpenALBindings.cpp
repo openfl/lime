@@ -613,9 +613,10 @@ namespace lime {
 	}
 	
 	
-	HxString lime_al_get_string (int param) {
+	value lime_al_get_string (int param) {
 		
-		return HxString (alGetString (param));
+		const char* result = alGetString (param);
+		return result ? alloc_string (result) : alloc_null ();
 		
 	}
 	
@@ -949,10 +950,11 @@ namespace lime {
 	}
 	
 	
-	HxString lime_alc_get_string (double device, int param) {
+	value lime_alc_get_string (double device, int param) {
 		
 		ALCdevice* alcDevice = (ALCdevice*)(intptr_t)device;
-		return HxString (alcGetString (alcDevice, param));
+		const char* result = alcGetString (alcDevice, param);
+		return result ? alloc_string (result) : alloc_null ();
 		
 	}
 	

@@ -167,15 +167,15 @@ namespace lime {
 	}
 	
 	
-	HxString lime_clipboard_get_text () {
+	value lime_clipboard_get_text () {
 		
 		if (Clipboard::HasText ()) {
 			
-			return HxString (Clipboard::GetText ());
+			return alloc_string (Clipboard::GetText ());
 			
 		} else {
 			
-			return 0;
+			return alloc_null ();
 			
 		}
 		
@@ -189,11 +189,11 @@ namespace lime {
 	}
 	
 	
-	HxString lime_file_dialog_open_file (HxString filter, HxString defaultPath) {
+	value lime_file_dialog_open_file (HxString filter, HxString defaultPath) {
 		
 		#ifdef LIME_NFD
 		const char* path = FileDialog::OpenFile (filter.__s, defaultPath.__s);
-		return HxString (path);
+		return path ? alloc_string (path) : alloc_null ();
 		#endif
 		
 		return 0;
@@ -223,11 +223,11 @@ namespace lime {
 	}
 	
 	
-	HxString lime_file_dialog_save_file (HxString filter, HxString defaultPath) {
+	value lime_file_dialog_save_file (HxString filter, HxString defaultPath) {
 		
 		#ifdef LIME_NFD
 		const char* path = FileDialog::SaveFile (filter.__s, defaultPath.__s);
-		return HxString (path);
+		return path ? alloc_string (path) : alloc_null ();
 		#endif
 		
 		return 0;
@@ -486,16 +486,18 @@ namespace lime {
 	}
 	
 	
-	HxString lime_gamepad_get_device_guid (int id) {
+	value lime_gamepad_get_device_guid (int id) {
 		
-		return HxString (Gamepad::GetDeviceGUID (id));
+		const char* guid = Gamepad::GetDeviceGUID (id);
+		return guid ? alloc_string (guid) : alloc_null ();
 		
 	}
 	
 	
-	HxString lime_gamepad_get_device_name (int id) {
+	value lime_gamepad_get_device_name (int id) {
 		
-		return HxString (Gamepad::GetDeviceName (id));
+		const char* name = Gamepad::GetDeviceName (id);
+		return name ? alloc_string (name) : alloc_null ();
 		
 	}
 	
@@ -926,10 +928,11 @@ namespace lime {
 	}
 	
 	
-	HxString lime_renderer_get_type (double renderer) {
+	value lime_renderer_get_type (double renderer) {
 		
 		Renderer* targetRenderer = (Renderer*)(intptr_t)renderer;
-		return HxString (targetRenderer->Type ());
+		const char* type = targetRenderer->Type ();
+		return type ? alloc_string (type) : alloc_null ();
 		
 	}
 	
@@ -955,9 +958,10 @@ namespace lime {
 	}
 	
 	
-	HxString lime_system_get_directory (int type, HxString company, HxString title) {
+	value lime_system_get_directory (int type, HxString company, HxString title) {
 		
-		return HxString (System::GetDirectory ((SystemDirectory)type, company.__s, title.__s));
+		const char* path = System::GetDirectory ((SystemDirectory)type, company.__s, title.__s);
+		return path ? alloc_string (path) : alloc_null ();
 		
 	}
 	
@@ -1212,10 +1216,11 @@ namespace lime {
 	}
 	
 	
-	HxString lime_window_set_title (double window, HxString title) {
+	value lime_window_set_title (double window, HxString title) {
 		
 		Window* targetWindow = (Window*)(intptr_t)window;
-		return HxString (targetWindow->SetTitle (title.__s));
+		const char* result = targetWindow->SetTitle (title.__s);
+		return result ? alloc_string (result) : alloc_null ();
 		
 	}
 	

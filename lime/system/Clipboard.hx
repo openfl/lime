@@ -63,7 +63,7 @@ class Clipboard {
 	
 	
 	#if (cpp || neko || nodejs)
-	@:cffi private static function lime_clipboard_get_text ():String;
+	@:cffi private static function lime_clipboard_get_text ():Dynamic;
 	@:cffi private static function lime_clipboard_set_text (text:String):Void;
 	#end
 	
