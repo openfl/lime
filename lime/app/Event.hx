@@ -16,6 +16,11 @@ using haxe.macro.Tools;
 class Event<T> {
 	
 	
+	#if macro
+	private static var lastID = 0;
+	private static var typeIDs = new Map<String, Int> ();
+	#end
+	
 	@:noCompletion @:dox(hide) public var listeners:Array<T>;
 	@:noCompletion @:dox(hide) public var repeat:Array<Bool>;
 	
@@ -95,14 +100,18 @@ class Event<T> {
 		
 		typeString += typeResult.toString ();
 		
-		var name = "Event$" + StringTools.replace (StringTools.replace (typeString, ".", "_"), "->", "__");
+		var id, name;
 		
-		try {
+		if (typeIDs.exists (typeString)) {
 			
-			Context.getType ("lime.app." + name);
+			id = typeIDs.get (typeString);
+			name = "Event$" + id;
 			
-		} catch (e:Dynamic) {
+		} else {
 			
+			id = lastID++;
+			name = "Event$" + id;
+		
 			var pos = Context.currentPos ();
 			var fields = Context.getBuildFields ();
 			
@@ -173,6 +182,8 @@ class Event<T> {
 				params: [ { name: "T" } ],
 				meta: [ ]
 			});
+			
+			typeIDs.set (typeString, id);
 			
 		}
 		
