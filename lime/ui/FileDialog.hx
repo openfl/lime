@@ -36,6 +36,7 @@ class FileDialog {
 		if (type == null) type = FileDialogType.OPEN;
 		
 		#if desktop
+		#if !mac
 		
 		var worker = new BackgroundWorker ();
 		
@@ -96,6 +97,58 @@ class FileDialog {
 		});
 		
 		worker.run ();
+		
+		#else
+		
+		var path:String = null;
+		var paths:Array<String> = null;
+		
+		switch (type) {
+				
+			case OPEN:
+				
+				path = lime_file_dialog_open_file (filter, defaultPath);
+			
+			case OPEN_MULTIPLE:
+				
+				paths = lime_file_dialog_open_files (filter, defaultPath);
+			
+			case SAVE:
+				
+				path = lime_file_dialog_save_file (filter, defaultPath);
+			
+		}
+			
+		switch (type) {
+			
+			case OPEN, SAVE:
+				
+				if (path != null) {
+					
+					onSelect.dispatch (path);
+					
+				} else {
+					
+					onCancel.dispatch ();
+					
+				}
+			
+			case OPEN_MULTIPLE:
+				
+				if (paths != null && paths.length > 0) {
+					
+					onSelectMultiple.dispatch (paths);
+					
+				} else {
+					
+					onCancel.dispatch ();
+					
+				}
+			
+		}
+		
+		#end
+		
 		return true;
 		
 		#else
@@ -111,6 +164,7 @@ class FileDialog {
 	public function open (filter:String = null, defaultPath:String = null):Bool {
 		
 		#if desktop
+		#if !mac
 		
 		var worker = new BackgroundWorker ();
 		
@@ -139,6 +193,29 @@ class FileDialog {
 		});
 		
 		worker.run ();
+		
+		#else
+		
+		// Doesn't work in a thread
+		
+		var path = lime_file_dialog_open_file (filter, defaultPath);
+		
+		if (path != null) {
+			
+			try {
+				
+				var data = File.getBytes (path);
+				onOpen.dispatch (data);
+				return true;
+				
+			} catch (e:Dynamic) {}
+			
+		}
+		
+		onCancel.dispatch ();
+		
+		#end
+		
 		return true;
 		
 		#else
@@ -154,6 +231,7 @@ class FileDialog {
 	public function save (data:Resource, filter:String = null, defaultPath:String = null):Bool {
 		
 		#if desktop
+		#if !mac
 		
 		var worker = new BackgroundWorker ();
 		
@@ -182,6 +260,27 @@ class FileDialog {
 		});
 		
 		worker.run ();
+		
+		#else
+		
+		var path = lime_file_dialog_save_file (filter, defaultPath);
+		
+		if (path != null) {
+			
+			try {
+				
+				File.saveBytes (path, data);
+				onSave.dispatch (path);
+				return true;
+				
+			} catch (e:Dynamic) {}
+			
+		}
+		
+		onCancel.dispatch ();
+		
+		#end
+		
 		return true;
 		
 		#else
