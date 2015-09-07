@@ -340,7 +340,7 @@
 			
 			<section if="rpi">
 				
-				<lib name="-lbcm_host" />
+				<!-- <lib name="-lbcm_host" /> -->
 				<lib name="-ldl" />
 				<lib name="-lm" />
 				<lib name="-lGLESv2" />
