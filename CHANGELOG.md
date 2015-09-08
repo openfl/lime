@@ -1,3 +1,22 @@
+2.6.2 (09/08/2015)
+------------------
+
+* Added support for Raspberry Pi 2
+* Added lime.app.Future/lime.app.Promise
+* Migrated asynchronous lime.Assets calls to use futures
+* Added lime.system.CFFI and a new @:cffi macro to use prime
+* Migrated Lime CFFI bindings to use new (faster) prime bindings
+* Added window.alert (taskbar flash, optional message popup)
+* Set the "lime" shortcut on Mac and Linux to use "/usr/local/bin"
+* Set the Lime tools to use optional CFFI (can run without NDLL)
+* Added -Ddisplay when running "lime display" to help code completion
+* Added some minor Windows XP fixes
+* Improved lime.app.Event to be more resilient to other macros
+* Fixed lime.ui.FileDialog on Mac
+* Fixed dispatch of mouse events from touch on HTML5
+* Added "onBackPressed" to Android extensions
+
+
 2.6.1 (08/26/2015)
 ------------------
 
