@@ -13,6 +13,10 @@ import js.html.CanvasElement;
 import js.html.CanvasRenderingContext2D;
 #end
 
+#if (cpp || neko || nodejs)
+import haxe.io.Path;
+#end
+
 #if !macro
 @:build(lime.system.CFFI.build())
 #end
@@ -38,7 +42,9 @@ class Font {
 	public var unitsPerEM (get, null):Int;
 	
 	@:noCompletion private var __fontPath:String;
-	
+	#if (cpp || neko || nodejs)
+	@:noCompletion private var __fontPathWithoutDirectory:String;
+	#end
 	
 	public function new (name:String = null) {
 		
@@ -356,6 +362,8 @@ class Font {
 		
 		#if (cpp || neko || nodejs)
 		
+		__fontPathWithoutDirectory = null;
+		
 		src = lime_font_load (bytes);
 		
 		if (src != null && name == null) {
@@ -374,6 +382,8 @@ class Font {
 		__fontPath = path;
 		
 		#if (cpp || neko || nodejs)
+		
+		__fontPathWithoutDirectory = Path.withoutDirectory (__fontPath);
 		
 		src = lime_font_load (__fontPath);
 		
