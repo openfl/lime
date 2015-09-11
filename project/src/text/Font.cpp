@@ -135,7 +135,8 @@ namespace {
 		
 		PT_MOVE = 1,
 		PT_LINE = 2,
-		PT_CURVE = 3
+		PT_CURVE = 3,
+		PT_CUBIC = 4
 		
 	};
 	
@@ -241,20 +242,15 @@ namespace {
 	
 	int outline_cubic_to (FVecPtr ctl1, FVecPtr ctl2, FVecPtr to, void *user) {
 		
-		// Cubic curves are not supported, we need to approximate to a quadratic
-		// TODO: divide into multiple curves
-		
 		glyph *g = static_cast<glyph*> (user);
 		
-		FT_Vector ctl;
-		ctl.x = (-0.25 * g->x) + (0.75 * ctl1->x) + (0.75 * ctl2->x) + (-0.25 * to->x);
-		ctl.y = (-0.25 * g->y) + (0.75 * ctl1->y) + (0.75 * ctl2->y) + (-0.25 * to->y);
-		
-		g->pts.push_back (PT_CURVE);
-		g->pts.push_back (ctl.x - g->x);
-		g->pts.push_back (ctl.y - g->y);
-		g->pts.push_back (to->x - ctl.x);
-		g->pts.push_back (to->y - ctl.y);
+		g->pts.push_back (PT_CUBIC);
+		g->pts.push_back (ctl1->x - g->x);
+		g->pts.push_back (ctl1->y - g->y);
+		g->pts.push_back (ctl2->x - ctl1->x);
+		g->pts.push_back (ctl2->y - ctl1->y);
+		g->pts.push_back (to->x - ctl2->x);
+		g->pts.push_back (to->y - ctl2->y);
 		
 		g->x = to->x;
 		g->y = to->y;
@@ -393,20 +389,20 @@ namespace lime {
 						
 					} else {
 						
-						ByteArray data = ByteArray (resource->path);
-						unsigned char *buffer = (unsigned char*)malloc (data.Size ());
-						memcpy (buffer, data.Bytes (), data.Size ());
+						Bytes data = Bytes (resource->path);
+						unsigned char *buffer = (unsigned char*)malloc (data.Length ());
+						memcpy (buffer, data.Data (), data.Length ());
 						lime::fclose (file);
 						file = 0;
-						error = FT_New_Memory_Face (library, buffer, data.Size (), faceIndex, &face);
+						error = FT_New_Memory_Face (library, buffer, data.Length (), faceIndex, &face);
 						
 					}
 					
 				} else {
 					
-					unsigned char *buffer = (unsigned char*)malloc (resource->data->Size ());
-					memcpy (buffer, resource->data->Bytes (), resource->data->Size ());
-					error = FT_New_Memory_Face (library, buffer, resource->data->Size (), faceIndex, &face);
+					unsigned char *buffer = (unsigned char*)malloc (resource->data->Length ());
+					memcpy (buffer, resource->data->Data (), resource->data->Length ());
+					error = FT_New_Memory_Face (library, buffer, resource->data->Length (), faceIndex, &face);
 					
 				}
 				
@@ -468,7 +464,8 @@ namespace lime {
 		int result, i, j;
 		
 		FT_Set_Char_Size ((FT_Face)face, em, em, 72, 72);
-		
+		FT_Set_Transform ((FT_Face)face, 0, NULL);
+
 		std::vector<glyph*> glyphs;
 		
 		FT_Outline_Funcs ofn =
@@ -784,7 +781,7 @@ namespace lime {
 	}
 	
 	
-	int Font::RenderGlyph (int index, ByteArray *bytes, int offset) {
+	int Font::RenderGlyph (int index, Bytes *bytes, int offset) {
 		
 		if (FT_Load_Glyph ((FT_Face)face, index, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0) {
 			
@@ -800,13 +797,13 @@ namespace lime {
 				
 				uint32_t size = (4 * 5) + (width * height);
 				
-				if (bytes->Size() < size + offset) {
+				if (bytes->Length () < size + offset) {
 					
 					bytes->Resize (size + offset);
 					
 				}
 				
-				GlyphImage *data = (GlyphImage*)(bytes->Bytes () + offset);
+				GlyphImage *data = (GlyphImage*)(bytes->Data () + offset);
 				
 				data->index = index;
 				data->width = width;
@@ -833,7 +830,7 @@ namespace lime {
 	}
 	
 	
-	int Font::RenderGlyphs (value indices, ByteArray *bytes) {
+	int Font::RenderGlyphs (value indices, Bytes *bytes) {
 		
 		int offset = 0;
 		int totalOffset = 4;
@@ -856,7 +853,7 @@ namespace lime {
 		
 		if (count > 0) {
 			
-			*(bytes->Bytes ()) = count;
+			*(uint32_t*)(bytes->Data ()) = count;
 			
 		}
 		
@@ -869,17 +866,8 @@ namespace lime {
 		
 		size_t hdpi = 72;
 		size_t vdpi = 72;
-		size_t hres = 100;
-		FT_Matrix matrix = {
-			(int)((1.0/hres) * 0x10000L),
-			(int)((0.0) * 0x10000L),
-			(int)((0.0) * 0x10000L),
-			(int)((1.0) * 0x10000L)
-		};
 		
-		FT_Set_Char_Size ((FT_Face)face, 0, (int)(size*64), (int)(hdpi * hres), vdpi);
-		FT_Set_Transform ((FT_Face)face, &matrix, NULL);
-		
+		FT_Set_Char_Size ((FT_Face)face, (int)(size*64), (int)(size*64), hdpi, vdpi);
 		mSize = size;
 		
 	}

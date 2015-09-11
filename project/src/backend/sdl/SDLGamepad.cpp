@@ -57,6 +57,13 @@ namespace lime {
 	}
 	
 	
+	void Gamepad::AddMapping (const char* content) {
+		
+		SDL_GameControllerAddMapping (content);
+		
+	}
+	
+	
 	const char* Gamepad::GetDeviceGUID (int id) {
 		
 		char* guid = new char[64];

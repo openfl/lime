@@ -79,9 +79,15 @@ class IconHelper {
 			
 			if (image != null) {
 				
-				PathHelper.mkdir (Path.directory (targetPath));
-				File.saveBytes (targetPath, image.encode ("png"));
-				return true;
+				var bytes = image.encode ("png");
+				
+				if (bytes != null) {
+					
+					PathHelper.mkdir (Path.directory (targetPath));
+					File.saveBytes (targetPath, bytes);
+					return true;
+					
+				}
 				
 			}
 			
@@ -116,7 +122,7 @@ class IconHelper {
 				for (c in 0...4) out.writeByte (code.charCodeAt(c));
 				
 				var n = s * s;
-				var pixels = image.getPixels (new Rectangle (0, 0, s, s), ARGB);
+				var pixels = image.getPixels (new Rectangle (0, 0, s, s), ARGB32);
 				
 				var bytes_r = packBits (pixels, 1, s * s);
 				var bytes_g = packBits (pixels, 2, s * s);
@@ -147,12 +153,16 @@ class IconHelper {
 			
 			if (image != null) {
 				
-				for (c in 0...4) out.writeByte (code.charCodeAt(c));
-				
 				var bytes = image.encode ("png");
 				
-				out.writeInt32 (bytes.length + 8);
-				out.writeBytes (bytes, 0, bytes.length);
+				if (bytes != null) {
+					
+					for (c in 0...4) out.writeByte (code.charCodeAt(c));
+					
+					out.writeInt32 (bytes.length + 8);
+					out.writeBytes (bytes, 0, bytes.length);
+					
+				}
 				
 			}
 			
@@ -199,17 +209,24 @@ class IconHelper {
 			
 			if (image != null) {
 				
+				var data = null;
+				
 				if (size < 256) {
 					
-					imageData.push (BMP.encode (image, ICO));
+					data = BMP.encode (image, ICO);
 					
 				} else {
 					
-					imageData.push (image.encode ("png"));
+					data = image.encode ("png");
 					
 				}
 				
-				images.push (image);
+				if (data != null) {
+					
+					imageData.push (data);
+					images.push (image);
+					
+				}
 				
 			}
 			

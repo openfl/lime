@@ -9,11 +9,15 @@ import lime.graphics.ConsoleRenderContext;
 import lime.graphics.GLRenderContext;
 import lime.graphics.RenderContext;
 import lime.graphics.Renderer;
+import lime.math.Rectangle;
+import lime.system.Display;
+import lime.system.DisplayMode;
 import lime.system.System;
 import lime.ui.Gamepad;
 import lime.ui.Window;
 
 @:access(haxe.Timer)
+@:access(lime._backend.native.NativeRenderer)
 @:access(lime.app.Application)
 @:access(lime.graphics.Renderer)
 @:access(lime.ui.Gamepad)
@@ -27,18 +31,21 @@ class NativeApplication {
 	private var keyEventInfo = new KeyEventInfo ();
 	private var mouseEventInfo = new MouseEventInfo ();
 	private var renderEventInfo = new RenderEventInfo (RENDER);
+	private var textEventInfo = new TextEventInfo ();
 	private var touchEventInfo = new TouchEventInfo ();
 	private var updateEventInfo = new UpdateEventInfo ();
 	private var windowEventInfo = new WindowEventInfo ();
 	
 	public var handle:Dynamic;
 	
+	private var frameRate:Float;
 	private var parent:Application;
 	
 	
 	public function new (parent:Application):Void {
 		
 		this.parent = parent;
+		frameRate = 60;
 		
 		AudioManager.init ();
 		
@@ -53,6 +60,7 @@ class NativeApplication {
 		
 		if (config != null) {
 			
+			setFrameRate (config.fps);
 			var window = new Window (config);
 			var renderer = new Renderer (window);
 			parent.addWindow (window);
@@ -70,6 +78,7 @@ class NativeApplication {
 		lime_key_event_manager_register (handleKeyEvent, keyEventInfo);
 		lime_mouse_event_manager_register (handleMouseEvent, mouseEventInfo);
 		lime_render_event_manager_register (handleRenderEvent, renderEventInfo);
+		lime_text_event_manager_register (handleTextEvent, textEventInfo);
 		lime_touch_event_manager_register (handleTouchEvent, touchEventInfo);
 		lime_update_event_manager_register (handleUpdateEvent, updateEventInfo);
 		lime_window_event_manager_register (handleWindowEvent, windowEventInfo);
@@ -99,13 +108,22 @@ class NativeApplication {
 		
 		#elseif (cpp || neko)
 		
-		return lime_application_exec (handle);
+		var result = lime_application_exec (handle);
+		__cleanup ();
+		return result;
 		
 		#else
 		
 		return 0;
 		
 		#end
+		
+	}
+	
+	
+	public function getFrameRate ():Float {
+		
+		return frameRate;
 		
 	}
 	
@@ -118,28 +136,35 @@ class NativeApplication {
 				
 				case AXIS_MOVE:
 					
-					parent.window.onGamepadAxisMove.dispatch (Gamepad.devices.get (gamepadEventInfo.id), gamepadEventInfo.axis, gamepadEventInfo.value);
+					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
+					if (gamepad != null) parent.window.onGamepadAxisMove.dispatch (gamepad, gamepadEventInfo.axis, gamepadEventInfo.value);
 				
 				case BUTTON_DOWN:
 					
-					parent.window.onGamepadButtonDown.dispatch (Gamepad.devices.get (gamepadEventInfo.id), gamepadEventInfo.button);
+					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
+					if (gamepad != null) parent.window.onGamepadButtonDown.dispatch (gamepad, gamepadEventInfo.button);
 				
 				case BUTTON_UP:
 					
-					parent.window.onGamepadButtonUp.dispatch (Gamepad.devices.get (gamepadEventInfo.id), gamepadEventInfo.button);
+					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
+					if (gamepad != null) parent.window.onGamepadButtonUp.dispatch (gamepad, gamepadEventInfo.button);
 				
 				case CONNECT:
 					
-					var gamepad = new Gamepad (gamepadEventInfo.id);
-					Gamepad.devices.set (gamepadEventInfo.id, gamepad);
-					parent.window.onGamepadConnect.dispatch (gamepad);
+					if (!Gamepad.devices.exists (gamepadEventInfo.id)) {
+						
+						var gamepad = new Gamepad (gamepadEventInfo.id);
+						Gamepad.devices.set (gamepadEventInfo.id, gamepad);
+						parent.window.onGamepadConnect.dispatch (gamepad);
+						
+					}
 				
 				case DISCONNECT:
 					
 					var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
 					if (gamepad != null) gamepad.connected = false;
 					Gamepad.devices.remove (gamepadEventInfo.id);
-					parent.window.onGamepadDisconnect.dispatch (gamepad);
+					if (gamepad != null) parent.window.onGamepadDisconnect.dispatch (gamepad);
 				
 			}
 			
@@ -215,24 +240,47 @@ class NativeApplication {
 					
 				case RENDER_CONTEXT_LOST:
 					
-					parent.renderer.context = null;
-					parent.renderer.onRenderContextLost.dispatch ();
+					if (parent.renderer.backend.useHardware) {
+						
+						parent.renderer.context = null;
+						parent.renderer.onRenderContextLost.dispatch ();
+						
+					}
 				
 				case RENDER_CONTEXT_RESTORED:
 					
-					#if lime_console
-					parent.renderer.context = CONSOLE (new ConsoleRenderContext ());
-					#else
-					if (parent.config.hardware) {
+					if (parent.renderer.backend.useHardware) {
 						
+						#if lime_console
+						parent.renderer.context = CONSOLE (new ConsoleRenderContext ());
+						#else
 						parent.renderer.context = OPENGL (new GLRenderContext ());
+						#end
+						
+						parent.renderer.onRenderContextRestored.dispatch (parent.renderer.context);
 						
 					}
-					#end
-					
-					parent.renderer.onRenderContextRestored.dispatch (parent.renderer.context);
 				
 			}
+			
+		}
+		
+	}
+	
+	
+	private function handleTextEvent ():Void {
+		
+		switch (textEventInfo.type) {
+			
+			case TEXT_INPUT:
+				
+				parent.window.onTextInput.dispatch (textEventInfo.text);
+			
+			case TEXT_EDIT:
+				
+				parent.window.onTextEdit.dispatch (textEventInfo.text, textEventInfo.start, textEventInfo.length);
+			
+			default:
 			
 		}
 		
@@ -338,6 +386,14 @@ class NativeApplication {
 	}
 	
 	
+	public function setFrameRate (value:Float):Float {
+		
+		lime_application_set_frame_rate (handle, value);
+		return frameRate = value;
+		
+	}
+	
+	
 	private function updateTimer ():Void {
 		
 		if (Timer.sRunningTimers.length > 0) {
@@ -388,12 +444,14 @@ class NativeApplication {
 	private static var lime_application_create = System.load ("lime", "lime_application_create", 1);
 	private static var lime_application_exec = System.load ("lime", "lime_application_exec", 1);
 	private static var lime_application_init = System.load ("lime", "lime_application_init", 1);
+	private static var lime_application_set_frame_rate = System.load ("lime", "lime_application_set_frame_rate", 2);
 	private static var lime_application_update = System.load ("lime", "lime_application_update", 1);
 	private static var lime_application_quit = System.load ("lime", "lime_application_quit", 1);
 	private static var lime_gamepad_event_manager_register = System.load ("lime", "lime_gamepad_event_manager_register", 2);
 	private static var lime_key_event_manager_register = System.load ("lime", "lime_key_event_manager_register", 2);
 	private static var lime_mouse_event_manager_register = System.load ("lime", "lime_mouse_event_manager_register", 2);
 	private static var lime_render_event_manager_register = System.load ("lime", "lime_render_event_manager_register", 2);
+	private static var lime_text_event_manager_register = System.load ("lime", "lime_text_event_manager_register", 2);
 	private static var lime_touch_event_manager_register = System.load ("lime", "lime_touch_event_manager_register", 2);
 	private static var lime_update_event_manager_register = System.load ("lime", "lime_update_event_manager_register", 2);
 	private static var lime_window_event_manager_register = System.load ("lime", "lime_window_event_manager_register", 2);
@@ -553,6 +611,44 @@ private class RenderEventInfo {
 	var RENDER = 0;
 	var RENDER_CONTEXT_LOST = 1;
 	var RENDER_CONTEXT_RESTORED = 2;
+	
+}
+
+
+private class TextEventInfo {
+	
+	
+	public var id:Int;
+	public var length:Int;
+	public var start:Int;
+	public var text:String;
+	public var type:TextEventType;
+	
+	
+	public function new (type:TextEventType = null, text:String = "", start:Int = 0, length:Int = 0) {
+		
+		this.type = type;
+		this.text = text;
+		this.start = start;
+		this.length = length;
+		
+	}
+	
+	
+	public function clone ():TextEventInfo {
+		
+		return new TextEventInfo (type, text, start, length);
+		
+	}
+	
+	
+}
+
+
+@:enum private abstract TextEventType(Int) {
+	
+	var TEXT_INPUT = 0;
+	var TEXT_EDIT = 1;
 	
 }
 

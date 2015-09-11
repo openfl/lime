@@ -51,17 +51,15 @@ class Event<T> {
 			
 			var listeners = $ethis.listeners;
 			var repeat = $ethis.repeat;
-			var length = listeners.length;
 			var i = 0;
 			
-			while (i < length) {
+			while (i < listeners.length) {
 				
 				listeners[i] ($a{args});
 				
 				if (!repeat[i]) {
 					
 					$ethis.remove (listeners[i]);
-					length--;
 					
 				} else {
 					
@@ -72,6 +70,19 @@ class Event<T> {
 			}
 			
 		}
+		
+	}
+	
+	
+	public function has (listener:T):Bool {
+		
+		for (l in listeners) {
+			
+			if (Reflect.compareMethods (l, listener)) return true;
+			
+		}
+		
+		return false;
 		
 	}
 	

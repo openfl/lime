@@ -1,11 +1,14 @@
 package lime.system;
 
 
+import lime.math.Rectangle;
+
 #if !macro
 import lime.app.Application;
 #end
 
 #if flash
+import flash.system.Capabilities;
 import flash.Lib;
 #end
 
@@ -22,6 +25,9 @@ import js.Browser;
 import sys.io.Process;
 #end
 
+@:access(lime.system.Display)
+@:access(lime.system.DisplayMode)
+
 
 class System {
 	
@@ -32,6 +38,7 @@ class System {
 	public static var disableCFFI:Bool;
 	public static var documentsDirectory (get, null):String;
 	public static var fontsDirectory (get, null):String;
+	public static var numDisplays (get, null):Int;
 	public static var userDirectory (get, null):String;
 	
 	
@@ -162,12 +169,63 @@ class System {
 	}
 	
 	
+	public static function getDisplay (id:Int):Display {
+		
+		#if (cpp || neko || nodejs)
+		var displayInfo = lime_system_get_display (id);
+		
+		if (displayInfo != null) {
+			
+			var display = new Display ();
+			display.id = id;
+			display.name = displayInfo.name;
+			display.bounds = new Rectangle (displayInfo.bounds.x, displayInfo.bounds.y, displayInfo.bounds.width, displayInfo.bounds.height);
+			display.supportedModes = [];
+			
+			var displayMode;
+			
+			for (mode in cast (displayInfo.supportedModes, Array<Dynamic>)) {
+				
+				displayMode = new DisplayMode (mode.width, mode.height, mode.refreshRate, mode.pixelFormat);
+				display.supportedModes.push (displayMode);
+				
+			}
+			
+			display.currentMode = display.supportedModes[displayInfo.currentMode];
+			return display;
+			
+		}
+		#elseif (flash || html5)
+		if (id == 0) {
+			
+			var display = new Display ();
+			display.id = 0;
+			display.name = "Generic Display";
+			
+			#if flash
+			display.currentMode = new DisplayMode (Std.int (Capabilities.screenResolutionX), Std.int (Capabilities.screenResolutionY), 60, ARGB32);
+			#else
+			display.currentMode = new DisplayMode (Browser.window.screen.width, Browser.window.screen.height, 60, ARGB32);
+			#end
+			
+			display.supportedModes = [ display.currentMode ];
+			display.bounds = new Rectangle (0, 0, display.currentMode.width, display.currentMode.height);
+			return display;
+			
+		}
+		#end
+		
+		return null;
+		
+	}
+	
+	
 	public static function getTimer ():Int {
 		
 		#if flash
 		return flash.Lib.getTimer ();
 		#elseif js
-		return Std.int (Date.now ().getTime ());
+		return cast Date.now ().getTime ();
 		#elseif !disable_cffi
 		return lime_system_get_timer ();
 		#elseif cpp
@@ -531,6 +589,17 @@ class System {
 	}
 	
 	
+	private static function get_numDisplays ():Int {
+		
+		#if (cpp || neko || nodejs)
+		return lime_system_get_num_displays ();
+		#else
+		return 1;
+		#end
+		
+	}
+	
+	
 	private static function get_userDirectory ():String {
 		
 		#if (cpp || neko || nodejs)
@@ -551,6 +620,8 @@ class System {
 	
 	#if (cpp || neko || nodejs)
 	private static var lime_system_get_directory = System.load ("lime", "lime_system_get_directory", 3);
+	private static var lime_system_get_display = System.load ("lime", "lime_system_get_display", 1);
+	private static var lime_system_get_num_displays = System.load ("lime", "lime_system_get_num_displays", 0);
 	private static var lime_system_get_timer = System.load ("lime", "lime_system_get_timer", 0);
 	#end
 	
@@ -558,7 +629,7 @@ class System {
 }
 
 
-@:enum private abstract SystemDirectory(Int) from Int to Int {
+@:enum private abstract SystemDirectory(Int) from Int to Int from UInt to UInt {
 	
 	var APPLICATION = 0;
 	var APPLICATION_STORAGE = 1;

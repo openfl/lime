@@ -18,11 +18,17 @@ namespace lime {
 			
 			virtual void Flip ();
 			virtual value Lock ();
+			virtual const char* Type ();
 			virtual void Unlock ();
 			
 			SDL_Renderer* sdlRenderer;
 			SDL_Texture* sdlTexture;
 			SDL_Window* sdlWindow;
+			
+		private:
+			
+			int width;
+			int height;
 		
 	};
 	

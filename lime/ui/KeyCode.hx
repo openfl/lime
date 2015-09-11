@@ -1,7 +1,7 @@
 package lime.ui;
 
 
-@:enum abstract KeyCode(Int) from Int to Int {
+@:enum abstract KeyCode(Int) from Int to Int from UInt to UInt {
 	
 	
 	var UNKNOWN = 0x00;
@@ -240,6 +240,12 @@ package lime.ui;
 	var BACKLIGHT_UP = 0x40000118;
 	var EJECT = 0x40000119;
 	var SLEEP = 0x4000011A;
+	
+	@:op(A > B) private static inline function gt (a:KeyCode, b:KeyCode):Bool { return (a:Int) > (b:Int); }
+	@:op(A >= B) private static inline function gte (a:KeyCode, b:KeyCode):Bool { return (a:Int) >= (b:Int); }
+	@:op(A < B) private static inline function lt (a:KeyCode, b:KeyCode):Bool { return (a:Int) < (b:Int); }
+	@:op(A <= B) private static inline function lte (a:KeyCode, b:KeyCode):Bool { return (a:Int) <= (b:Int); }
+	@:op(A + B) private static inline function plus (a:KeyCode, b:Int):KeyCode { return (a:Int) + b; }
 	
 	
 }

@@ -20,7 +20,11 @@ import lime.ui.Window;
 class HTML5Application {
 	
 	
-	private var cacheTime:Float;
+	private var currentUpdate:Float;
+	private var deltaTime:Float;
+	private var framePeriod:Float;
+	private var lastUpdate:Float;
+	private var nextUpdate:Float;
 	private var parent:Application;
 	#if stats
 	private var stats:Dynamic;
@@ -30,6 +34,11 @@ class HTML5Application {
 	public inline function new (parent:Application) {
 		
 		this.parent = parent;
+		
+		currentUpdate = 0;
+		lastUpdate = 0;
+		nextUpdate = 0;
+		framePeriod = -1;
 		
 		AudioManager.init ();
 		
@@ -87,6 +96,7 @@ class HTML5Application {
 		
 		if (config != null) {
 			
+			setFrameRate (config.fps);
 			var window = new Window (config);
 			var renderer = new Renderer (window);
 			parent.addWindow (window);
@@ -141,11 +151,30 @@ class HTML5Application {
 			window.requestAnimFrame = window.requestAnimationFrame;
 		");
 		
-		cacheTime = Date.now ().getTime ();
+		lastUpdate = Date.now ().getTime ();
 		
 		handleUpdateEvent ();
 		
 		return 0;
+		
+	}
+	
+	
+	public function getFrameRate ():Float {
+		
+		if (framePeriod < 0) {
+			
+			return 60;
+			
+		} else if (framePeriod == 1000) {
+			
+			return 0;
+			
+		} else {
+			
+			return 1000 / framePeriod;
+			
+		}
 		
 	}
 	
@@ -169,6 +198,20 @@ class HTML5Application {
 				
 				parent.window.onKeyDown.dispatch (keyCode, modifier);
 				
+				if (parent.window.enableTextEvents) {
+					
+					if (event.keyCode >= 65 && event.keyCode <= 90 && !event.shiftKey) {
+						
+						parent.window.onTextInput.dispatch (String.fromCharCode (event.keyCode + 32));
+						
+					} else {
+						
+						parent.window.onTextInput.dispatch (String.fromCharCode (event.keyCode));
+						
+					}
+					
+				}
+				
 			} else {
 				
 				parent.window.onKeyUp.dispatch (keyCode, modifier);
@@ -183,26 +226,50 @@ class HTML5Application {
 	
 	private function handleUpdateEvent (?__):Void {
 		
-		#if stats
-		stats.begin ();
-		#end
+		currentUpdate = Date.now ().getTime ();
 		
-		var currentTime = Date.now ().getTime ();
-		var deltaTime = currentTime - cacheTime;
-		cacheTime = currentTime;
-		
-		parent.onUpdate.dispatch (Std.int (deltaTime));
-		
-		if (parent.renderer != null) {
+		if (currentUpdate >= nextUpdate) {
 			
-			parent.renderer.onRender.dispatch (parent.renderer.context);
-			parent.renderer.flip ();
+			#if stats
+			stats.begin ();
+			#end
+			
+			deltaTime = currentUpdate - lastUpdate;
+			
+			parent.onUpdate.dispatch (Std.int (deltaTime));
+			
+			if (parent.renderer != null) {
+				
+				parent.renderer.onRender.dispatch (parent.renderer.context);
+				parent.renderer.flip ();
+				
+			}
+			
+			#if stats
+			stats.end ();
+			#end
+			
+			if (framePeriod < 0) {
+				
+				nextUpdate = currentUpdate;
+				nextUpdate = currentUpdate;
+				
+			} else {
+				
+				nextUpdate = currentUpdate + framePeriod;
+				
+				//while (nextUpdate <= currentUpdate) {
+					//
+					//nextUpdate += framePeriod;
+					//
+				//}
+				
+				
+			}
+			
+			lastUpdate = currentUpdate;
 			
 		}
-		
-		#if stats
-		stats.end ();
-		#end
 		
 		Browser.window.requestAnimationFrame (cast handleUpdateEvent);
 		
@@ -245,6 +312,27 @@ class HTML5Application {
 			}
 			
 		}
+		
+	}
+	
+	
+	public function setFrameRate (value:Float):Float {
+		
+		if (value >= 60) {
+			
+			framePeriod = -1;
+			
+		} else if (value > 0) {
+			
+			framePeriod = 1000 / value;
+			
+		} else {
+			
+			framePeriod = 1000;
+			
+		}
+		
+		return value;
 		
 	}
 	

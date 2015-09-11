@@ -40,6 +40,10 @@ distribution.
 #include <string.h>
 #include <assert.h>
 
+#ifdef BLACKBERRY
+using namespace std;
+#endif
+
 // Help out windows:
 #if defined( _DEBUG ) && !defined( DEBUG )
 #define DEBUG

@@ -197,6 +197,8 @@ namespace lime {
 	}
 	
 	
+	
+	
 	DEFINE_PRIM (lime_byte_array_get_native_pointer, 1);
 	DEFINE_PRIM (lime_byte_array_init, 4);
 	DEFINE_PRIM (lime_byte_array_overwrite_file, 2);

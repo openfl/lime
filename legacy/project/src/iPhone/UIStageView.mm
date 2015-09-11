@@ -2978,7 +2978,7 @@ public:
    
    int getKeyboardHeight()
    {
-      return keyboardRect.size.height;
+      return keyboardRect.size.height * getDPIScale ();
    }
 
    void GetMouse()

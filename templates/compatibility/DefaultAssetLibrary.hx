@@ -204,7 +204,15 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#elseif (js || openfl_html5 || pixi)
 		
 		var bytes:ByteArray = null;
-		var data = ApplicationMain.urlLoaders.get (path.get (id)).data;
+		var loader = ApplicationMain.urlLoaders.get (path.get (id));
+
+		if (loader == null) {
+
+			return null;
+			
+		}
+
+		var data = loader.data;
 		
 		if (Std.is (data, String)) {
 			
@@ -339,7 +347,15 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#if js
 		
 		var bytes:ByteArray = null;
-		var data = ApplicationMain.urlLoaders.get (path.get (id)).data;
+		var loader = ApplicationMain.urlLoaders.get (path.get (id));
+
+		if (loader == null) {
+
+			return null;
+
+		}
+
+		var data = loader.data;
 		
 		if (Std.is (data, String)) {
 			

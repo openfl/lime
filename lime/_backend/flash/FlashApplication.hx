@@ -33,6 +33,8 @@ class FlashApplication {
 		
 		this.parent = parent;
 		
+		Lib.current.stage.frameRate = 60;
+		
 		AudioManager.init ();
 		
 	}
@@ -106,6 +108,7 @@ class FlashApplication {
 		
 		if (config != null) {
 			
+			setFrameRate (config.fps);
 			var window = new Window (config);
 			var renderer = new Renderer (window);
 			parent.addWindow (window);
@@ -152,6 +155,13 @@ class FlashApplication {
 	}
 	
 	
+	public function getFrameRate ():Float {
+		
+		return Lib.current.stage.frameRate;
+		
+	}
+	
+	
 	private function handleKeyEvent (event:KeyboardEvent):Void {
 		
 		if (parent.window != null) {
@@ -162,6 +172,12 @@ class FlashApplication {
 			if (event.type == KeyboardEvent.KEY_DOWN) {
 				
 				parent.window.onKeyDown.dispatch (keyCode, modifier);
+				
+				if (parent.window.enableTextEvents) {
+					
+					parent.window.onTextInput.dispatch (String.fromCharCode (event.charCode));
+					
+				}
 				
 			} else {
 				
@@ -304,6 +320,13 @@ class FlashApplication {
 			}
 			
 		}
+		
+	}
+	
+	
+	public function setFrameRate (value:Float):Float {
+		
+		return Lib.current.stage.frameRate = value;
 		
 	}
 	

@@ -59,6 +59,25 @@ class AudioSource {
 	}
 	
 	
+	public function dispose ():Void {
+		
+		switch (AudioManager.context) {
+			
+			case OPENAL (alc, al):
+				
+				if (id != 0) {
+					
+					al.deleteSource (id);
+					
+				}
+			
+			default:
+				
+		}
+		
+	}
+	
+	
 	private function init ():Void {
 		
 		switch (AudioManager.context) {
@@ -121,7 +140,7 @@ class AudioSource {
 			
 		#else
 			
-			if (playing) {
+			if (playing || id == 0) {
 				
 				return;
 				
@@ -280,8 +299,8 @@ class AudioSource {
 			if (buffer != null) {
 				
 				AL.sourceRewind (id);
-				AL.sourcef (id, AL.SEC_OFFSET, (value + offset) / 1000);
 				if (playing) AL.sourcePlay (id);
+				AL.sourcef (id, AL.SEC_OFFSET, (value + offset) / 1000);
 				
 			}
 			

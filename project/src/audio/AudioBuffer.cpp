@@ -15,7 +15,7 @@ namespace lime {
 		
 		bitsPerSample = 0;
 		channels = 0;
-		data = new ByteArray ();
+		data = new Bytes ();
 		sampleRate = 0;
 		
 	}
@@ -43,7 +43,7 @@ namespace lime {
 		mValue = alloc_empty_object ();
 		alloc_field (mValue, id_bitsPerSample, alloc_int (bitsPerSample));
 		alloc_field (mValue, id_channels, alloc_int (channels));
-		alloc_field (mValue, id_data, data->mValue);
+		alloc_field (mValue, id_data, data ? data->Value () : alloc_null ());
 		alloc_field (mValue, id_sampleRate, alloc_int (sampleRate));
 		return mValue;
 		

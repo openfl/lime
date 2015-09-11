@@ -1,3 +1,187 @@
+2.5.2 (07/23/2015)
+------------------
+
+* Added support for automatic software fallback on native platforms
+* Improved the behavior of image getPixel/setPixel
+* Fixed native fillRect/floodFill when using certain color values
+* Improved color conversion support for Flash
+* Fixed issue preventing Neko from reading 32-bit integers correctly 
+
+
+2.5.1 (07/21/2015)
+------------------
+
+* Made Image properly support all PixelFormat/premultiplied types
+* Updated PixelFormat names to be more descriptive
+* Added prefix support for generated library class names
+* Fixed an issue with Assets.loadImage on HTML5
+* Fixed support for OpenAL playback using a starting offset
+
+
+2.5.0 (07/17/2015)
+------------------
+
+* Added guards against duplicate gamepad connect events
+* Added guards against gamepad events after a disconnect
+* Added dead zone and repeat value filtering for gamepad axis
+* Added CairoImageSurface, properly separate from CairoSurface
+* Improved HTML5 to use the project FPS setting
+* Improved asset libraries to have an "unload" method
+* Fixed repeated calls to Assets.load* with the same ID
+* Fixed "lime build" to not progress without sources
+* Fixed a regression in ByteArray.fromFile on Android
+* Fixed a bug in arrayBufferView.set
+* Quieted libpng "known incorrect profile" messages
+* Added a patch to allow Wii Remote detection (legacy)
+
+
+2.4.9 (07/13/2015)
+------------------
+
+* Added lime.system.ThreadPool
+* Added lime.utils.Log
+* Added image.scroll
+* Added event.has
+* Improved performance of Flash target logging
+* Improved "lime upgrade" when Git is not in the PATH
+* Improved image.clone when using canvas
+* Updated for compatibility with newer lime-samples
+* Updated to use a default icon when none is available
+* Updated Assets to use a ThreadPool for asynchronous loads
+* Updated to pass -verbose during "run" when in verbose mode
+* Fixed an issue when tracing null typed arrays
+* Fixed image.copyChannel when clipping is necessary
+* Fixed use of cURL basic types as Int
+* Improved support for asynchronous SSL requests (legacy)
+
+
+2.4.8 (07/09/2015)
+------------------
+
+* Improved lime.system.BackgroundWorker onComplete
+* Improved native bytes to guard against premature GC
+* Fixed ENABLE_BITCODE when targeting older iOS versions
+* Fixed possible double mouse events on iOS
+* Fixed embedded font support on iOS
+* Fixed "lime rebuild ios" with some versions of HXCPP
+* Fixed mouse middle/right/wheel events on desktop (legacy)
+
+
+2.4.7 (07/06/2015)
+------------------
+
+* Fixed regression in HTML5 typed array support
+
+
+2.4.6 (07/06/2015)
+------------------
+
+* Added lime.system.BackgroundWorker for easy threads
+* Made Assets loadImage/loadBytes asynchronous on native
+* Removed the ByteArray \__init__ and matching CFFI functions
+* Improved the help documentation when using "lime create"
+* Fixed a crash that could occur when using Bytes
+* Fixed audioSource.play on native when there is no data
+* Fixed event.remove when using during an event dispatch
+* Fixed the cleanup of OpenAL when closing applications
+* Fixed a crash that could occur using cURL on Mac
+* Fixed static builds for the Mac target
+
+
+2.4.5 (07/02/2015)
+------------------
+
+* Changed to a new, better Haxe typed array implementation
+* Added an improved Bytes (internal) for native targets
+* Added lime.utils.LZMA for LZMA compression/decompression
+* Expanded support for gamepad devices
+* Improved desktop multitouch support
+* Exposed decodeBytes/decodeFile for PNG and JPG formats
+* Added support for header-only decoding of PNG or JPG
+* Improved support for Flash log output
+* Improved the "update" command to support GIT submodules
+* Restored previous rendering behavior on high-DPI Apple devices
+* Fixed support for non-embedded assets on HTML5
+* Fixed other cases in the Assets loading code on HTML5
+* Fixed imageBuffer.bitsPerPixel to default 32, not 4 (bytes)
+* Updated webgl-debug.js for use with HTML5 -Dwebgl -debug
+* Fixed a regression in middle and right click events (legacy)
+* Fixed possible file handle leaks in the audio code (legacy)
+* Added DPI-aware keyboard height for iOS (legacy)
+* Added a hack to identify the type of connected gamepads (legacy)
+* Fixed the sourceRect coordinates for blitChannel (legacy)
+* Added screen resolution width/height for BlackBerry (legacy)
+* Fixed a possible overflow in the LZMA buffer (legacy)
+
+
+2.4.4 (06/08/2015)
+------------------
+
+* Handle Flash traces, similar to native logging
+* Improved performance of TextLayout
+* Improved the behavior of the Android Activity class
+* Added window activate/deactivate events on mobile
+* Added retina support on Mac desktop
+* Allow --meta overrides when using `lime create project`
+* Added sleep after Android touch events for better performance
+* Improved build support for Raspberry Pi 2
+* Fixed -force_load flag on iOS builds
+* Fixed GL.clearDepth and GL.depthRange bindings
+* Fixed negative System.getTimer value on HTML5
+* Added multi-touch desktop support (legacy)
+* Improved WAV format loading (legacy)
+* Fixed iswalpha crash on BlackBerry (legacy)
+
+
+2.4.3 (06/01/2015)
+------------------
+
+* Improved support for embedded fonts
+* Fixed regression when embedding certain OTF fonts
+
+
+2.4.2 (05/30/2015)
+------------------
+
+* Improved iOS and Android build support
+* Add support for application.frameRate
+* Reduce cURL connection timeout to 30 seconds
+* Improved handling of non-transparent image buffers
+* Add cubic support to font decomposition
+* Added Cairo window resize handling
+* Added Cairo Freetype support
+* Added check to remove duplicated <dependency /> references
+* Minor fix to image premultiply alpha
+* Minor fix to "lime create" command
+* Minor fix to rectangle.transform
+* Fixed Windows Neko builds when not running on Windows 
+
+
+2.4.1 (05/13/2015)
+------------------
+
+* Improve handling of custom error types in HTML5 target
+* Guard icon helpers if PNG encoding fails
+* Fixed Emscripten rebuild
+* Fixed issue on the build server
+
+
+2.4.0 (05/12/2015)
+------------------
+
+* Added Cairo render context and bindings
+* Added support for software windows, using Cairo not OpenGL
+* Added text input/edit events
+* Added onEnter/onLeave events for Window mouse focus
+* Added Image getColorBoundsRect
+* Added build support for ANGLE
+* Removed prevent default for HTML5 arrow and space keys
+* Improved Image copyPixels with merge alpha
+* Fixed static build support
+* Fixed a case where fonts might not be embedded
+* Fixed occasional crash with OpenAL on Neko
+
+
 2.3.3 (04/21/2015)
 ------------------
 

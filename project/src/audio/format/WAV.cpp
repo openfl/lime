@@ -53,17 +53,10 @@ namespace lime {
 		
 		if (resource->path) {
 			
-			//#ifdef ANDROID
-			//FileInfo info = AndroidGetAssetFD (resource->path);
-			//file = fdopen (info.fd, "rb");
-			//lime::fseek (file, info.offset, 0);
-			//#else
 			file = lime::fopen (resource->path, "rb");
-			//#endif
 			
 			if (!file) {
 				
-				//LOG_SOUND ("FAILED to read audio file, file pointer as null?\n");
 				return false;
 				
 			}
@@ -72,7 +65,6 @@ namespace lime {
 			
 			if ((riff_header.chunkID[0] != 'R' || riff_header.chunkID[1] != 'I' || riff_header.chunkID[2] != 'F' || riff_header.chunkID[3] != 'F') || (riff_header.format[0] != 'W' || riff_header.format[1] != 'A' || riff_header.format[2] != 'V' || riff_header.format[3] != 'E')) {
 				
-				//LOG_SOUND ("Invalid RIFF or WAVE Header!\n");
 				lime::fclose (file);
 				return false;
 				
@@ -106,12 +98,6 @@ namespace lime {
 				
 			}
 			
-			//if (wave_format.subChunkSize > 16) {
-				//
-				//lime::fseek (file, sizeof (short), SEEK_CUR);
-				//
-			//}
-			
 			bool foundData = false;
 			
 			while (!foundData) {
@@ -141,7 +127,7 @@ namespace lime {
 			
 			audioBuffer->data->Resize (wave_data.subChunkSize);
 			
-			if (!lime::fread (audioBuffer->data->Bytes (), wave_data.subChunkSize, 1, file)) {
+			if (!lime::fread (audioBuffer->data->Data (), wave_data.subChunkSize, 1, file)) {
 				
 				LOG_SOUND ("error loading WAVE data into struct!\n");
 				lime::fclose (file);
@@ -153,8 +139,8 @@ namespace lime {
 			
 		} else {
 			
-			const char* start = (const char*)resource->data->Bytes ();
-			const char* end = start + resource->data->Size ();
+			const char* start = (const char*)resource->data->Data ();
+			const char* end = start + resource->data->Length ();
 			const char* ptr = start;
 			
 			memcpy (&riff_header, ptr, sizeof (RIFF_Header));
@@ -162,7 +148,6 @@ namespace lime {
 			
 			if ((riff_header.chunkID[0] != 'R' || riff_header.chunkID[1] != 'I' || riff_header.chunkID[2] != 'F' || riff_header.chunkID[3] != 'F') || (riff_header.format[0] != 'W' || riff_header.format[1] != 'A' || riff_header.format[2] != 'V' || riff_header.format[3] != 'E')) {
 				
-				//LOG_SOUND ("Invalid RIFF or WAVE Header!\n");
 				return false;
 				
 			}
@@ -211,7 +196,7 @@ namespace lime {
 				
 			}
 			
-			unsigned char* bytes = audioBuffer->data->Bytes ();
+			unsigned char* bytes = audioBuffer->data->Data ();
 			memcpy (bytes, base, size);
 			
 		}

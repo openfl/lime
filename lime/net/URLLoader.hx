@@ -336,6 +336,7 @@ class URLLoader {
 		CURLEasy.setopt(__curl, SSL_VERIFYPEER, false);
 		CURLEasy.setopt(__curl, SSL_VERIFYHOST, false);
 		CURLEasy.setopt(__curl, USERAGENT, "libcurl-agent/1.0");
+		CURLEasy.setopt(__curl, CONNECTTIMEOUT, 30);
 
 		var result = CURLEasy.perform(__curl);
 

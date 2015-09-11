@@ -38,7 +38,11 @@ class Font {
 	
 	public function new (name:String = null) {
 		
-		this.name = name;
+		if (name != null) {
+			
+			this.name = name;
+			
+		}
 		
 		if (__fontPath != null) {
 			
@@ -174,7 +178,7 @@ class Font {
 		return null;
 		
 	}
-	
+
 	
 	public function renderGlyphs (glyphs:Array<Glyph>, fontSize:Int):Map<Glyph, Image> {
 		
@@ -339,8 +343,7 @@ class Font {
 		return null;
 		
 	}
-	
-	
+		
 	@:noCompletion private function __fromBytes (bytes:ByteArray):Void {
 		
 		__fontPath = null;

@@ -25,6 +25,9 @@ THE SOFTWARE.
 
 -------
 
+This product bundles cairo 1.14.2, which is available under an
+"MPL 1.1" license. For details, see [project/lib/cairo/](project/lib).
+
 This product bundles libcurl 7.37.1, which is available under an
 "MIT/X derivate" license. For details, see [project/lib/curl/](project/lib).
 
@@ -40,12 +43,18 @@ This product bundles libjpeg 6b, which is available under a
 This product bundles libogg 1.3.0, which is available under a
 "BSD" license. For details, see [project/lib/ogg/](project/lib).
 
+This product bundles LZMA SDK 4.65, which is available under
+public domain. For details, see [project/lib/lzma/](project/lzma).
+
 This product bundles OpenAL-Soft 1.15.1, which is available under an
 "LGPLv3" license. For details, see [project/lib/openal/](project/lib). It also bundles
 an OpenAL-Soft derivative for Android under [project/lib/openal-android/](project/lib).
 
 _OpenAL-Soft is only included in dynamically-linked builds, it is excluded
 from Lime static builds in order to preserve Lime's permissive nature._
+
+This product bundles pixman 0.32.6, which is available under an
+"MIT" license. For details, see [project/lib/pixman/](project/lib).
 
 This product bundles libpng 1.6.12, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/png/](project/lib).
@@ -70,13 +79,15 @@ which is available under an "MIT" license. For details, see
 https://github.com/haxenme/nme
 
     legacy/
-    lime/utils/
+    lime/utils/ByteArray.hx
+    lime/utils/JNI.hx
     project/include/utils/ByteArray.h
     project/include/utils/QuickVec.h
     project/src/graphics/format/
     project/src/graphics/opengl/
     project/src/text/Font.cpp
     project/src/utils/ByteArray.cpp
+    project/src/utils/LZMA.cpp
     tools/utils/JavaExternGenerator.hx
 
 The following files were developed in collaboration with Sven Bergström
@@ -84,6 +95,10 @@ and the snow project, which is available under an "MIT" license. For
 details, see https://github.com/underscorediscovery/snow
 
     project/src/audio/openal/OpenALBindings.cpp
+
+The typed array implementation was developed in collaboration with Sven Bergström
+and the hxtypedarray project, which is available under an "MIT" license.
+For details, see https://github.com/underscorediscovery/hxtypedarray
 
 -------
 

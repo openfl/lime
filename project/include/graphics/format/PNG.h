@@ -3,7 +3,7 @@
 
 
 #include <graphics/ImageBuffer.h>
-#include <utils/ByteArray.h>
+#include <utils/Bytes.h>
 #include <utils/Resource.h>
 
 
@@ -15,8 +15,8 @@ namespace lime {
 		
 		public:
 			
-			static bool Decode (Resource *resource, ImageBuffer *imageBuffer);
-			static bool Encode (ImageBuffer *imageBuffer, ByteArray *bytes);
+			static bool Decode (Resource *resource, ImageBuffer *imageBuffer, bool decodeData = true);
+			static bool Encode (ImageBuffer *imageBuffer, Bytes *bytes);
 		
 		
 	};

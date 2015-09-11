@@ -13,6 +13,8 @@ import js.html.TouchEvent;
 import js.Browser;
 import lime.app.Application;
 import lime.graphics.Image;
+import lime.system.Display;
+import lime.system.System;
 import lime.ui.Window;
 
 
@@ -26,6 +28,7 @@ class HTML5Window {
 	public var stats:Dynamic;
 	#end
 	
+	private var enableTextEvents:Bool;
 	private var parent:Window;
 	private var setHeight:Int;
 	private var setWidth:Int;
@@ -162,6 +165,20 @@ class HTML5Window {
 			element.addEventListener ("touchend", handleTouchEvent, true);
 			
 		}
+		
+	}
+	
+	
+	public function getDisplay ():Display {
+		
+		return System.getDisplay (0);
+		
+	}
+	
+	
+	public function getEnableTextEvents ():Bool {
+		
+		return enableTextEvents;
 		
 	}
 	
@@ -380,6 +397,13 @@ class HTML5Window {
 	}
 	
 	
+	public function setEnableTextEvents (value:Bool):Bool {
+		
+		return enableTextEvents = value;
+		
+	}
+	
+	
 	public function setFullscreen (value:Bool):Bool {
 		
 		return false;
@@ -397,6 +421,13 @@ class HTML5Window {
 	public function setMinimized (value:Bool):Bool {
 		
 		return false;
+		
+	}
+	
+	
+	public function setTitle (value:String):String {
+		
+		return value;
 		
 	}
 	

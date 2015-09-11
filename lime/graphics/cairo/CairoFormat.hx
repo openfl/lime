@@ -1,7 +1,7 @@
 package lime.graphics.cairo;
 
 
-@:enum abstract CairoFormat(Int) from Int to Int {
+@:enum abstract CairoFormat(Int) from Int to Int from UInt to UInt {
 	
 	public var INVALID = -1;
 	public var ARGB32 = 0;

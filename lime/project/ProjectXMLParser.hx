@@ -1214,6 +1214,7 @@ class ProjectXMLParser extends HXProject {
 							var embed:Null<Bool> = null;
 							var preload = false;
 							var generate = false;
+							var prefix = "";
 							
 							if (element.has.name) {
 								
@@ -1251,7 +1252,13 @@ class ProjectXMLParser extends HXProject {
 								
 							}
 							
-							libraries.push (new Library (path, name, type, embed, preload, generate));
+							if (element.has.prefix) {
+								
+								prefix = substitute (element.att.prefix);
+								
+							}
+							
+							libraries.push (new Library (path, name, type, embed, preload, generate, prefix));
 							
 						}
 					
@@ -1389,6 +1396,18 @@ class ProjectXMLParser extends HXProject {
 							} else {
 								
 								name = foundName;
+								
+							}
+							
+						}
+						
+						var i = dependencies.length;
+						
+						while (i-- > 0) {
+							
+							if ((name != "" && dependencies[i].name == name) || (path != "" && dependencies[i].path == path)) {
+								
+								dependencies.splice (i, 1);
 								
 							}
 							

@@ -7,6 +7,7 @@ import lime.tools.helpers.AssetHelper;
 import lime.tools.helpers.CPPHelper;
 import lime.tools.helpers.DeploymentHelper;
 import lime.tools.helpers.FileHelper;
+import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.NekoHelper;
 import lime.tools.helpers.NodeJSHelper;
 import lime.tools.helpers.PathHelper;
@@ -246,7 +247,7 @@ class LinuxPlatform extends PlatformTarget {
 		
 		if (targetFlags.exists ("rpi")) {
 			
-			commands.push ([ "-Dlinux", "-Drpi" ]);
+			commands.push ([ "-Dlinux", "-Drpi", "-DCXX=arm-linux-gnueabihf-g++", "-DHXCPP_M32", "-DHXCPP_STRIP=arm-linux-gnueabihf-strip", "-DHXCPP_AR=arm-linux-gnueabihf-ar", "-DHXCPP_RANLIB=arm-linux-gnueabihf-ranlib" ]);
 			
 		} else {
 			
@@ -272,6 +273,12 @@ class LinuxPlatform extends PlatformTarget {
 	public override function run ():Void {
 		
 		var arguments = additionalArguments.copy ();
+		
+		if (LogHelper.verbose) {
+			
+			arguments.push ("-verbose");
+			
+		}
 		
 		if (targetType == "nodejs") {
 			

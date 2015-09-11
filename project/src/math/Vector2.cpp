@@ -17,6 +17,14 @@ namespace lime {
 	}
 	
 	
+	Vector2::Vector2 (double x, double y) {
+		
+		this->x = x;
+		this->y = y;
+		
+	}
+	
+	
 	Vector2::Vector2 (value vec) {
 		
 		if (!init) {
@@ -29,6 +37,24 @@ namespace lime {
 		
 		x = val_number (val_field (vec, id_x));
 		y = val_number (val_field (vec, id_y));
+		
+	}
+	
+	
+	value Vector2::Value () {
+		
+		if (!init) {
+			
+			id_x = val_id ("x");
+			id_y = val_id ("y");
+			init = true;
+			
+		}
+		
+		value result = alloc_empty_object ();
+		alloc_field (result, id_x, alloc_float (x));
+		alloc_field (result, id_y, alloc_float (y));
+		return result;
 		
 	}
 	

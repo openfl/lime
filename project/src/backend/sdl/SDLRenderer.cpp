@@ -12,6 +12,9 @@ namespace lime {
 		sdlWindow = ((SDLWindow*)window)->sdlWindow;
 		sdlTexture = 0;
 		
+		width = 0;
+		height = 0;
+		
 		int sdlFlags = 0;
 		
 		if (window->flags & WINDOW_FLAG_HARDWARE) {
@@ -27,6 +30,15 @@ namespace lime {
 		if (window->flags & WINDOW_FLAG_VSYNC) sdlFlags |= SDL_RENDERER_PRESENTVSYNC;
 		
 		sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlFlags);
+		
+		if (!sdlRenderer && (sdlFlags & SDL_RENDERER_ACCELERATED)) {
+			
+			sdlFlags &= ~SDL_RENDERER_ACCELERATED;
+			sdlFlags |= SDL_RENDERER_SOFTWARE;
+			
+			sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlFlags);
+			
+		}
 		
 		if (!sdlRenderer) {
 			
@@ -64,7 +76,10 @@ namespace lime {
 		
 		SDL_GetRendererOutputSize (sdlRenderer, &width, &height);
 		
-		if (!sdlTexture) {
+		if ( width != this->width || height != this->height) {
+			
+			if( sdlTexture )
+				SDL_DestroyTexture( sdlTexture );
 			
 			sdlTexture = SDL_CreateTexture (sdlRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
 			
@@ -85,6 +100,30 @@ namespace lime {
 		}
 		
 		return result;
+		
+	}
+	
+	
+	const char* SDLRenderer::Type () {
+		
+		if (sdlRenderer) {
+			
+			SDL_RendererInfo info;
+			SDL_GetRendererInfo (sdlRenderer, &info);
+			
+			if (info.flags & SDL_RENDERER_SOFTWARE) {
+				
+				return "software";
+				
+			} else {
+				
+				return "opengl";
+				
+			}
+			
+		}
+		
+		return "none";
 		
 	}
 	

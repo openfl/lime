@@ -189,7 +189,7 @@ class Rectangle {
 		var tx0 = m.a * x + m.c * y;
 		var tx1 = tx0;
 		var ty0 = m.b * x + m.d * y;
-		var ty1 = tx0;
+		var ty1 = ty0;
 		
 		var tx = m.a * (x + width) + m.c * y;
 		var ty = m.b * (x + width) + m.d * y;
@@ -250,8 +250,8 @@ class Rectangle {
 			
 		}
 		
-		var cacheRight = right;
-		var cacheBottom = bottom;
+		//var cacheRight = right;
+		//var cacheBottom = bottom;
 		
 		if (this.x < x) this.x = x;
 		if (this.y < y) this.y = y;

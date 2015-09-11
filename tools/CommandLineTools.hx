@@ -634,9 +634,9 @@ class CommandLineTools {
 			
 			if (projectName == "project" || sampleName == "project") {
 				
-				CreateTemplate.createProject (words, userDefines);
+				CreateTemplate.createProject (words, userDefines, overrides);
 				
-			} else if (projectName == "extension") {
+			} else if (projectName == "extension" || sampleName == "extension") {
 				
 				CreateTemplate.createExtension (words, userDefines);
 				
@@ -1259,7 +1259,7 @@ class CommandLineTools {
 			
 		}
 		
-		if (project == null) {
+		if (project == null || (command != "rebuild" && project.sources.length == 0)) {
 			
 			LogHelper.error ("You must have a \"project.xml\" file or specify another valid project file when using the '" + command + "' command");
 			return null;

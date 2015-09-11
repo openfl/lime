@@ -1,7 +1,7 @@
 #ifndef INCLUDED_OGL_H
 #define INCLUDED_OGL_H
 
-#if defined(BLACKBERRY) || defined(ANDROID) || defined(WEBOS) || defined(GPH) || defined(RASPBERRYPI) || defined(EMSCRIPTEN)
+#if defined(BLACKBERRY) || defined(ANDROID) || defined(GPH) || defined(RASPBERRYPI) || defined(EMSCRIPTEN)
 
    #define NME_GLES
 
@@ -26,6 +26,13 @@
    //typedef EAGLContext *GLCtx;
    #define NME_GLES
 
+#elif defined(WEBOS)
+   
+   #define NME_GLES
+   
+   #include <SDL_opengles.h>
+   #include <SDL_opengles_ext.h>
+   
 #elif defined(HX_LINUX)
 
   #define NEED_EXTENSIONS

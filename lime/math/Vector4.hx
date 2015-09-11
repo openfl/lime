@@ -192,35 +192,35 @@ class Vector4 {
 	
 	
 	
-	inline public function get_length ():Float {
+	inline private function get_length ():Float {
 		
 		return Math.sqrt (x * x + y * y + z * z);
 		
 	}
 	
 	
-	inline public function get_lengthSquared ():Float {
+	inline private function get_lengthSquared ():Float {
 		
 		return x * x + y * y + z * z;
 		
 	}
 	
 	
-	inline public static function get_X_AXIS ():Vector4 {
+	inline private static function get_X_AXIS ():Vector4 {
 		
 		return new Vector4 (1, 0, 0);
 		
 	}
 	
 	
-	inline public static function get_Y_AXIS ():Vector4 {
+	inline private static function get_Y_AXIS ():Vector4 {
 		
 		return new Vector4 (0, 1, 0);
 		
 	}
 	
 	
-	inline public static function get_Z_AXIS ():Vector4 {
+	inline private static function get_Z_AXIS ():Vector4 {
 		
 		return new Vector4 (0, 0, 1);
 		

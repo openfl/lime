@@ -15,10 +15,12 @@ class TextLayout {
 	public var font (default, set):Font;
 	public var glyphs (get, null):Array<Glyph>;
 	public var language (get, set):String;
-	public var positions (default, null):Array<GlyphPosition>;
+	 @:isVar public var positions (get, null):Array<GlyphPosition>;
 	public var script (get, set):TextScript;
 	public var size (default, set):Int;
 	public var text (default, set):String;
+	
+	private var __dirty:Bool;
 	
 	@:noCompletion private var __buffer:ByteArray;
 	@:noCompletion private var __direction:TextDirection;
@@ -36,12 +38,12 @@ class TextLayout {
 		__script = script;
 		__language = language;
 		
+		positions = [];
+		__dirty = true;
+		
 		#if (cpp || neko || nodejs)
 		__handle = lime_text_layout_create (__direction, __script, __language);
 		#end
-		
-		__position ();
-		
 	}
 	
 	
@@ -55,12 +57,12 @@ class TextLayout {
 			
 			if (__buffer == null) {
 				
-				__buffer = new ByteArray ();
+				__buffer = new ByteArray (1);
 				__buffer.endian = "littleEndian";
 				
 			}
 			
-			lime_text_layout_position (__handle, font.src, size, text, __buffer);
+			var data = lime_text_layout_position (__handle, font.src, size, text, __buffer);
 			
 			if (__buffer.length > 4) {
 				
@@ -82,7 +84,6 @@ class TextLayout {
 				}
 				
 			}
-			
 		}
 		
 		#end
@@ -95,6 +96,20 @@ class TextLayout {
 	// Get & Set Methods
 	
 	
+	
+	
+	@:noCompletion private function get_positions ():Array<GlyphPosition> {
+		
+		if (__dirty) {
+			
+			__dirty = false;
+			__position ();
+			
+		}
+		
+		return positions;
+		
+	}
 	
 	
 	@:noCompletion private function get_direction ():TextDirection {
@@ -114,7 +129,7 @@ class TextLayout {
 		lime_text_layout_set_direction (__handle, value);
 		#end
 		
-		__position ();
+		__dirty = true;
 		
 		return value;
 		
@@ -126,7 +141,7 @@ class TextLayout {
 		if (value == this.font) return value;
 		
 		this.font = value;
-		__position ();
+		__dirty = true;
 		return value;
 		
 	}
@@ -164,7 +179,7 @@ class TextLayout {
 		lime_text_layout_set_language (__handle, value);
 		#end
 		
-		__position ();
+		__dirty = true;
 		
 		return value;
 		
@@ -188,7 +203,7 @@ class TextLayout {
 		lime_text_layout_set_script (__handle, value);
 		#end
 		
-		__position ();
+		__dirty = true;
 		
 		return value;
 		
@@ -200,7 +215,7 @@ class TextLayout {
 		if (value == this.size) return value;
 		
 		this.size = value;
-		__position ();
+		__dirty = true;
 		return value;
 		
 	}
@@ -211,7 +226,7 @@ class TextLayout {
 		if (value == this.text) return value;
 		
 		this.text = value;
-		__position ();
+		__dirty = true;
 		return value;
 		
 	}
