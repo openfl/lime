@@ -84,6 +84,7 @@ static int _id_bold;
 static int _id_bullet;
 static int _id_color;
 static int _id_font;
+static int _id_text;
 static int _id_indent;
 static int _id_italic;
 static int _id_kerning;
@@ -155,6 +156,7 @@ extern "C" void InitIDs()
    _id_scaleY = val_id("scaleY");
    _id_deltaX = val_id("deltaX");
    _id_deltaY = val_id("deltaY");
+   _id_text = val_id("text");
    _id_width = val_id("width");
    _id_height = val_id("height");
    _id_length = val_id("length");
@@ -1163,11 +1165,19 @@ value nme_get_frame_stage(value inValue)
    Frame *frame;
    if (!AbstractToObject(inValue,frame))
       return alloc_null();
-   
+
 
    return ObjectToAbstract(frame->GetStage());
 }
 DEFINE_PRIM(nme_get_frame_stage,1);
+
+value nme_play_video(value name)
+{
+  showVideo(val_get_string(name));
+
+  return alloc_null();
+}
+DEFINE_PRIM(nme_play_video,1);
 
 
 AutoGCRoot *sOnCreateCallback = 0;
@@ -1296,6 +1306,7 @@ void external_handler( nme::Event &ioEvent, void *inUserData )
    alloc_field(o,_id_scaleY,alloc_float(ioEvent.scaleY));
    alloc_field(o,_id_deltaX,alloc_float(ioEvent.deltaX));
    alloc_field(o,_id_deltaY,alloc_float(ioEvent.deltaY));
+   alloc_field(o,_id_text,alloc_string(ioEvent.text));
    val_call1(handler->get(), o);
    ioEvent.result = (EventResult)val_int( val_field(o,_id_result) );
 }
@@ -1435,6 +1446,19 @@ value nme_stage_resize_window(value inStage, value inWidth, value inHeight)
    return alloc_null();
 }
 DEFINE_PRIM(nme_stage_resize_window,3);
+
+value nme_stage_set_min_size(value inStage, value inWidth, value inHeight)
+{
+   #if (defined(HX_WINDOWS) || defined(HX_MACOS) || defined(HX_LINUX))
+   Stage *stage;
+   if (AbstractToObject(inStage,stage))
+   {
+      stage->SetMinSize(val_int(inWidth), val_int(inHeight));
+   }
+   #endif
+   return alloc_null();
+}
+DEFINE_PRIM(nme_stage_set_min_size, 3);
 
 
 value nme_stage_set_resolution(value inStage, value inWidth, value inHeight)

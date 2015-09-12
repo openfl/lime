@@ -360,6 +360,7 @@ public:
    DisplayObject *HitTest(UserPoint inPoint,DisplayObject *inRoot=0,bool inRecurse=true);
    virtual void SetFullscreen(bool inFullscreen) { }
    virtual void SetResolution(int inWidth, int inHeight) { }
+   virtual void SetMinSize(int inWidth, int inHeight) { }
    virtual void SetScreenMode(ScreenMode mode) { }
    virtual void ShowCursor(bool inShow) { };
    virtual void SetCursor(Cursor inCursor)=0;
@@ -513,6 +514,7 @@ enum WindowFlags
    wfStencilBuffer  = 0x00000400,
 };
 
+int showVideo(const char* name);
 void StartAnimation();
 void PauseAnimation();
 void ResumeAnimation();
