@@ -109,7 +109,21 @@ class System {
 	
 	public static function exit (code:Int):Void {
 		
+		#if android
+		
+		if (code == 0) {
+			
+			var mainActivity = JNI.createStaticField ("org/haxe/extension/Extension", "mainActivity", "Landroid/app/Activity;");
+			var moveTaskToBack = JNI.createMemberMethod ("android/app/Activity", "moveTaskToBack", "(Z)Z");
+			
+			moveTaskToBack (mainActivity.get (), true);
+			
+		}
+		
+		#end
+		
 		#if sys
+		
 		if (Application.current != null) {
 			
 			// TODO: Clean exit?
@@ -117,7 +131,9 @@ class System {
 			Application.current.onExit.dispatch (code);
 			
 		}
+		
 		Sys.exit (code);
+		
 		#end
 		
 	}

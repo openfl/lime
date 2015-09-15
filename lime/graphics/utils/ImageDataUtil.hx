@@ -993,7 +993,12 @@ class ImageDataUtil {
 			
 		}
 		
-		pixel.a = 0xFF;
+		// TODO: Write only RGB instead?
+		
+		var source = new RGBA ();
+		source.readUInt8 (image.buffer.data, (4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4), image.buffer.format, image.buffer.premultiplied);
+		
+		pixel.a = source.a;
 		pixel.writeUInt8 (image.buffer.data, (4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4), image.buffer.format, image.buffer.premultiplied);
 		
 		image.dirty = true;

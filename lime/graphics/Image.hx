@@ -172,9 +172,7 @@ class Image {
 			if (type == CANVAS && buffer.__srcImage == null) {
 				
 				ImageCanvasUtil.convertToCanvas (this);
-				ImageCanvasUtil.sync (this);
-				buffer.data = null;
-				buffer.__srcImageData = null;
+				ImageCanvasUtil.sync (this, true);
 				
 			}
 			
@@ -1333,7 +1331,7 @@ class Image {
 			#if (js && html5)
 				
 				ImageCanvasUtil.convertToCanvas (this);
-				ImageCanvasUtil.sync (this);
+				ImageCanvasUtil.sync (this, false);
 				ImageCanvasUtil.createImageData (this);
 				
 			#elseif flash
