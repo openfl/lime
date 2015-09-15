@@ -18,6 +18,7 @@ namespace lime {
 	std::map<int, std::map<int, int> > gamepadsAxisMap;
 	const int analogAxisDeadZone = 1000;
 	
+	
 	SDLApplication::SDLApplication () {
 		
 		if (SDL_Init (SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER | SDL_INIT_JOYSTICK) != 0) {
@@ -45,9 +46,14 @@ namespace lime {
 		KeyEvent keyEvent;
 		MouseEvent mouseEvent;
 		RenderEvent renderEvent;
+		SensorEvent sensorEvent;
 		TextEvent textEvent;
 		TouchEvent touchEvent;
 		WindowEvent windowEvent;
+		
+		#if defined(IOS) || defined(ANDROID)
+		SDL_JoystickOpen (0);
+		#endif
 		
 		#ifdef HX_MACOS
 		CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL (CFBundleGetMainBundle ());
@@ -145,6 +151,16 @@ namespace lime {
 				break;
 			
 			case SDL_JOYAXISMOTION:
+				
+				#if defined(IOS) || defined(ANDROID)
+				if (event->jaxis.which == 0) {
+					
+					ProcessSensorEvent (event);
+					
+				}
+				#endif
+				break;
+			
 			case SDL_JOYBALLMOTION:
 			case SDL_JOYBUTTONDOWN:
 			case SDL_JOYBUTTONUP:
@@ -386,6 +402,26 @@ namespace lime {
 			
 			mouseEvent.windowID = event->button.windowID;
 			MouseEvent::Dispatch (&mouseEvent);
+			
+		}
+		
+	}
+	
+	
+	void SDLApplication::ProcessSensorEvent (SDL_Event* event) {
+		
+		if (SensorEvent::callback) {
+			
+			switch (event->jaxis.axis) {
+				
+				case 0: sensorEvent.x = event->jaxis.value; break;
+				case 1: sensorEvent.y = event->jaxis.value; break;
+				case 2: sensorEvent.z = event->jaxis.value; break;
+				default: break;
+				
+			}
+			
+			SensorEvent::Dispatch (&sensorEvent);
 			
 		}
 		
