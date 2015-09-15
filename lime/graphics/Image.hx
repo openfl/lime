@@ -1073,7 +1073,7 @@ class Image {
 			
 			throw "Image.fromBytes not implemented for console target";
 			
-		#elseif (cpp || neko || nodejs)
+		#elseif ((cpp || neko || nodejs) && !macro)
 			
 			var data:Dynamic = lime_image_load (bytes);
 			
@@ -1189,7 +1189,10 @@ class Image {
 			
 			#else
 			
-			if (#if (sys && (!disable_cffi || !format) && !java) true #else false #end && CFFI.enabled) {
+			#if (!sys || disable_cffi || java || macro)
+			if (false) {}
+			#else
+			if (CFFI.enabled) {
 				
 				var data:Dynamic = lime_image_load (path);
 				
@@ -1201,6 +1204,7 @@ class Image {
 				}
 				
 			}
+			#end
 			
 			#if format
 			
@@ -1545,7 +1549,7 @@ class Image {
 	
 	
 	
-	#if (cpp || neko || nodejs)
+	#if ((cpp || neko || nodejs) && !macro)
 	@:cffi private static function lime_image_encode (buffer:Dynamic, Type:Int, quality:Int):Dynamic;
 	@:cffi private static function lime_image_load (data:Dynamic):Dynamic;
 	#end

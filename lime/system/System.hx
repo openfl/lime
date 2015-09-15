@@ -122,7 +122,7 @@ class System {
 		
 		#end
 		
-		#if sys
+		#if (sys && !macro)
 		
 		if (Application.current != null) {
 			
@@ -141,7 +141,7 @@ class System {
 	
 	public static function getDisplay (id:Int):Display {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		var displayInfo:Dynamic = lime_system_get_display (id);
 		
 		if (displayInfo != null) {
@@ -196,7 +196,7 @@ class System {
 		return flash.Lib.getTimer ();
 		#elseif js
 		return cast Date.now ().getTime ();
-		#elseif !disable_cffi
+		#elseif (!disable_cffi && !macro)
 		return cast lime_system_get_timer ();
 		#elseif cpp
 		return Std.int (untyped __global__.__time_stamp () * 1000);
@@ -211,7 +211,11 @@ class System {
 	
 	public static inline function load (library:String, method:String, args:Int = 0, lazy:Bool = false):Dynamic {
 		
+		#if !macro
 		return CFFI.load (library, method, args, lazy);
+		#else
+		return null;
+		#end
 		
 	}
 	
@@ -225,7 +229,7 @@ class System {
 	
 	private static function get_applicationDirectory ():String {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return lime_system_get_directory (SystemDirectory.APPLICATION, null, null);
 		#elseif flash
 		if (Capabilities.playerType == "Desktop") {
@@ -265,7 +269,7 @@ class System {
 			
 		}
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return lime_system_get_directory (SystemDirectory.APPLICATION_STORAGE, company, file);
 		#elseif flash
 		if (Capabilities.playerType == "Desktop") {
@@ -286,7 +290,7 @@ class System {
 	
 	private static function get_desktopDirectory ():String {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return lime_system_get_directory (SystemDirectory.DESKTOP, null, null);
 		#elseif flash
 		if (Capabilities.playerType == "Desktop") {
@@ -307,7 +311,7 @@ class System {
 	
 	private static function get_documentsDirectory ():String {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return lime_system_get_directory (SystemDirectory.DOCUMENTS, null, null);
 		#elseif flash
 		if (Capabilities.playerType == "Desktop") {
@@ -328,7 +332,7 @@ class System {
 	
 	private static function get_fontsDirectory ():String {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return lime_system_get_directory (SystemDirectory.FONTS, null, null);
 		#else
 		return null;
@@ -339,7 +343,7 @@ class System {
 	
 	private static function get_numDisplays ():Int {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return lime_system_get_num_displays ();
 		#else
 		return 1;
@@ -350,7 +354,7 @@ class System {
 	
 	private static function get_userDirectory ():String {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return lime_system_get_directory (SystemDirectory.USER, null, null);
 		#elseif flash
 		if (Capabilities.playerType == "Desktop") {
@@ -389,7 +393,7 @@ class System {
 	
 	
 	
-	#if (cpp || neko || nodejs)
+	#if ((cpp || neko || nodejs) && !macro)
 	@:cffi private static function lime_system_get_directory (type:Int, company:String, title:String):Dynamic;
 	@:cffi private static function lime_system_get_display (index:Int):Dynamic;
 	@:cffi private static function lime_system_get_num_displays ():Int;

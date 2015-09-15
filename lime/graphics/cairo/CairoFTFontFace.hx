@@ -23,7 +23,7 @@ abstract CairoFTFontFace(CairoFontFace) from CairoFontFace to CairoFontFace {
 	
 	public static function create (face:Font, loadFlags:Int):CairoFTFontFace {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_ft_font_face_create (face.src, loadFlags);
 		#else
 		return cast 0;
@@ -39,7 +39,7 @@ abstract CairoFTFontFace(CairoFontFace) from CairoFontFace to CairoFontFace {
 	
 	
 	
-	#if (cpp || neko || nodejs)
+	#if ((cpp || neko || nodejs) && !macro)
 	@:cffi private static function lime_cairo_ft_font_face_create (face:Float, flags:Int):Float;
 	#end
 	

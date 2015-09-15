@@ -36,7 +36,9 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
+			#if !macro
 			lime_window_alert (handle, message, title);
+			#end
 			
 		}
 		
@@ -47,7 +49,9 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
+			#if !macro
 			lime_window_close (handle);
+			#end
 			handle = null;
 			
 		}
@@ -92,6 +96,7 @@ class NativeWindow {
 			
 		}
 		
+		#if !macro
 		handle = lime_window_create (application.backend.handle, parent.width, parent.height, flags, title);
 		
 		if (handle != null) {
@@ -103,6 +108,7 @@ class NativeWindow {
 			parent.id = lime_window_get_id (handle);
 			
 		}
+		#end
 		
 	}
 	
@@ -111,7 +117,9 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
+			#if !macro
 			lime_window_focus (handle);
+			#end
 			
 		}
 		
@@ -145,7 +153,9 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
+			#if !macro
 			return lime_window_get_enable_text_events (handle);
+			#end
 			
 		}
 		
@@ -158,7 +168,9 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
+			#if !macro
 			lime_window_move (handle, x, y);
+			#end
 			
 		}
 		
@@ -169,7 +181,9 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
+			#if !macro
 			lime_window_resize (handle, width, height);
+			#end
 			
 		}
 		
@@ -180,7 +194,9 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
+			#if !macro
 			lime_window_set_enable_text_events (handle, value);
+			#end
 			
 		}
 		
@@ -193,7 +209,9 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
+			#if !macro
 			value = lime_window_set_fullscreen (handle, value);
+			#end
 			
 			if (value) {
 				
@@ -212,7 +230,9 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
+			#if !macro
 			lime_window_set_icon (handle, image.buffer);
+			#end
 			
 		}
 		
@@ -223,7 +243,9 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
+			#if !macro
 			return lime_window_set_minimized (handle, value);
+			#end
 			
 		}
 		
@@ -236,7 +258,9 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
+			#if !macro
 			return lime_window_set_title (handle, value);
+			#end
 			
 		}
 		
@@ -245,6 +269,7 @@ class NativeWindow {
 	}
 	
 	
+	#if !macro
 	@:cffi private static function lime_window_alert (handle:Float, message:String, title:String):Void;
 	@:cffi private static function lime_window_close (handle:Float):Void;
 	@:cffi private static function lime_window_create (application:Float, width:Int, height:Int, flags:Int, title:String):Float;
@@ -262,6 +287,7 @@ class NativeWindow {
 	@:cffi private static function lime_window_set_icon (handle:Float, buffer:Dynamic):Void;
 	@:cffi private static function lime_window_set_minimized (handle:Float, minimized:Bool):Bool;
 	@:cffi private static function lime_window_set_title (handle:Float, title:String):Dynamic;
+	#end
 	
 	
 }

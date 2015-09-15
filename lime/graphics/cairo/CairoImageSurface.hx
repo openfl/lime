@@ -18,7 +18,7 @@ package lime.graphics.cairo;
 	
 	public function new (format:CairoFormat, width:Int, height:Int):CairoSurface {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		this = lime_cairo_image_surface_create (format, width, height);
 		#else
 		this = cast 0;
@@ -29,7 +29,7 @@ package lime.graphics.cairo;
 	
 	public static function create (data:Dynamic, format:CairoFormat, width:Int, height:Int, stride:Int):CairoSurface {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_image_surface_create_for_data (data, format, width, height, stride);
 		#else
 		return cast 0;
@@ -40,7 +40,7 @@ package lime.graphics.cairo;
 	
 	public static function fromImage (image:Image):CairoSurface {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return create (lime_bytes_get_data_pointer (#if nodejs image.data #else image.data.buffer #end), CairoFormat.ARGB32, image.width, image.height, image.buffer.stride);
 		#else
 		return null;
@@ -58,7 +58,7 @@ package lime.graphics.cairo;
 	
 	@:noCompletion private function get_data ():Dynamic {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_image_surface_get_data (this);
 		#else
 		return null;
@@ -69,7 +69,7 @@ package lime.graphics.cairo;
 	
 	@:noCompletion private function get_format ():CairoFormat {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_image_surface_get_format (this);
 		#else
 		return 0;
@@ -80,7 +80,7 @@ package lime.graphics.cairo;
 	
 	@:noCompletion private function get_height ():Int {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_image_surface_get_height (this);
 		#else
 		return 0;
@@ -91,7 +91,7 @@ package lime.graphics.cairo;
 	
 	@:noCompletion private function get_stride ():Int {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_image_surface_get_stride (this);
 		#else
 		return 0;
@@ -102,7 +102,7 @@ package lime.graphics.cairo;
 	
 	@:noCompletion private function get_width ():Int {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_image_surface_get_width (this);
 		#else
 		return 0;
@@ -118,7 +118,7 @@ package lime.graphics.cairo;
 	
 	
 	
-	#if lime_cairo
+	#if (lime_cairo && !macro)
 	@:cffi private static function lime_bytes_get_data_pointer (handle:Dynamic):Float;
 	@:cffi private static function lime_cairo_image_surface_create (format:Int, width:Int, height:Int):Float;
 	@:cffi private static function lime_cairo_image_surface_create_for_data (data:Float, format:Int, width:Int, height:Int, stride:Int):Float;

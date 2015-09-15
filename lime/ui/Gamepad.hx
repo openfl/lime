@@ -34,7 +34,7 @@ class Gamepad {
 	
 	public static function addMappings (mappings:Array<String>):Void {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		lime_gamepad_add_mappings (mappings);
 		#end
 		
@@ -50,7 +50,7 @@ class Gamepad {
 	
 	@:noCompletion private inline function get_guid ():String {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return lime_gamepad_get_device_guid (this.id);
 		#else
 		return null;
@@ -61,7 +61,7 @@ class Gamepad {
 	
 	@:noCompletion private inline function get_name ():String {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return lime_gamepad_get_device_name (this.id);
 		#else
 		return null;
@@ -77,7 +77,7 @@ class Gamepad {
 	
 	
 	
-	#if (cpp || neko || nodejs)
+	#if ((cpp || neko || nodejs) && !macro)
 	@:cffi private static function lime_gamepad_add_mappings (mappings:Dynamic):Void;
 	@:cffi private static function lime_gamepad_get_device_guid (id:Int):Dynamic;
 	@:cffi private static function lime_gamepad_get_device_name (id:Int):Dynamic;

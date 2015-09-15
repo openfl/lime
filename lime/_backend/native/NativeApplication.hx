@@ -61,12 +61,16 @@ class NativeApplication {
 	
 	public function create (config:Config):Void {
 		
-		handle = lime_application_create ({});
+		#if !macro
+		handle = lime_application_create ( { } );
+		#end
 		
 	}
 	
 	
 	public function exec ():Int {
+		
+		#if !macro
 		
 		lime_application_event_manager_register (handleApplicationEvent, applicationEventInfo);
 		lime_gamepad_event_manager_register (handleGamepadEvent, gamepadEventInfo);
@@ -106,11 +110,10 @@ class NativeApplication {
 		
 		return result;
 		
-		#else
+		#end
+		#end
 		
 		return 0;
-		
-		#end
 		
 	}
 	
@@ -453,7 +456,9 @@ class NativeApplication {
 	
 	public function setFrameRate (value:Float):Float {
 		
+		#if !macro
 		lime_application_set_frame_rate (handle, value);
+		#end
 		return frameRate = value;
 		
 	}
@@ -499,6 +504,7 @@ class NativeApplication {
 	}
 	
 	
+	#if !macro
 	@:cffi private static function lime_application_create (config:Dynamic):Float;
 	@:cffi private static function lime_application_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_application_exec (handle:Float):Int;
@@ -513,6 +519,7 @@ class NativeApplication {
 	@:cffi private static function lime_text_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_touch_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_window_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	#end
 	
 	
 }

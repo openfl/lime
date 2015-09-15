@@ -25,7 +25,9 @@ class NativeMouse {
 			
 			__hidden = true;
 			
+			#if !macro
 			lime_mouse_hide ();
+			#end
 			
 		}
 		
@@ -38,7 +40,9 @@ class NativeMouse {
 			
 			__hidden = false;
 			
+			#if !macro
 			lime_mouse_show ();
+			#end
 			
 		}
 		
@@ -47,7 +51,9 @@ class NativeMouse {
 	
 	public static function warp (x:Int, y:Int, window:Window):Void {
 		
+		#if !macro
 		lime_mouse_warp (x, y, window == null ? 0 : window.backend.handle);
+		#end
 		
 	}
 	
@@ -90,7 +96,9 @@ class NativeMouse {
 					
 				}
 				
+				#if !macro
 				lime_mouse_set_cursor (type);
+				#end
 				
 			}
 			
@@ -114,7 +122,9 @@ class NativeMouse {
 		
 		if (__lock != value) {
 			
+			#if !macro
 			lime_mouse_set_lock (value);
+			#end
 			
 			__hidden = value;
 			__lock = value;
@@ -133,11 +143,13 @@ class NativeMouse {
 	
 	
 	
+	#if !macro
 	@:cffi private static function lime_mouse_hide ():Void;
 	@:cffi private static function lime_mouse_set_cursor (cursor:Int):Void;
 	@:cffi private static function lime_mouse_set_lock (lock:Bool):Void;
 	@:cffi private static function lime_mouse_show ():Void;
 	@:cffi private static function lime_mouse_warp (x:Int, y:Int, window:Float):Void;
+	#end
 	
 	
 }

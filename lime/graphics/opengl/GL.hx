@@ -396,7 +396,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.activeTexture (texture);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_active_texture (texture);
 		#elseif java
 		GL13.glActiveTexture (texture);
@@ -409,7 +409,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.attachShader (program, shader);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		program.attach (shader);
 		lime_gl_attach_shader (program.id, shader.id);
 		#elseif java
@@ -424,7 +424,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.bindAttribLocation (program, index, name);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_bind_attrib_location (program.id, index, name);
 		#elseif java
 		GL20.glBindAttribLocation (program.id, index, name);
@@ -437,7 +437,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.bindBuffer (target, buffer);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_bind_buffer (target, buffer == null ? 0 : buffer.id);
 		#elseif java
 		GL15.glBindBuffer (target, buffer == null ? 0 : buffer.id);
@@ -450,7 +450,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.bindFramebuffer (target, framebuffer);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_bind_framebuffer (target, framebuffer == null ? 0 : framebuffer.id);
 		#elseif java
 		GL30.glBindFramebuffer (target, framebuffer == null ? 0 : framebuffer.id);
@@ -463,7 +463,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.bindRenderbuffer (target, renderbuffer);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_bind_renderbuffer (target, renderbuffer == null ? 0 : renderbuffer.id);
 		#elseif java
 		GL30.glBindRenderbuffer (target, renderbuffer == null ? 0 : renderbuffer.id);
@@ -476,7 +476,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.bindTexture (target, texture);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_bind_texture (target, texture == null ? 0 : texture.id);
 		#elseif java
 		GL11.glBindTexture (target, texture == null ? 0 : texture.id);
@@ -489,7 +489,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.blendColor (red, green, blue, alpha);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_blend_color (red, green, blue, alpha);
 		#elseif java
 		EXTBlendColor.glBlendColorEXT (red, green, blue, alpha);
@@ -502,7 +502,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.blendEquation (mode);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_blend_equation (mode);
 		#elseif java
 		GL14.glBlendEquation (mode);
@@ -515,7 +515,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.blendEquationSeparate (modeRGB, modeAlpha);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_blend_equation_separate (modeRGB, modeAlpha);
 		#elseif java
 		GL20.glBlendEquationSeparate (modeRGB, modeAlpha);
@@ -528,7 +528,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.blendFunc (sfactor, dfactor);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_blend_func (sfactor, dfactor);
 		#elseif java
 		GL11.glBlendFunc (sfactor, dfactor);
@@ -541,7 +541,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.blendFuncSeparate (srcRGB, dstRGB, srcAlpha, dstAlpha);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_blend_func_separate (srcRGB, dstRGB, srcAlpha, dstAlpha);
 		#elseif java
 		GL14.glBlendFuncSeparate (srcRGB, dstRGB, srcAlpha, dstAlpha);
@@ -554,9 +554,9 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.bufferData (target, data, usage);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko) && lime_opengl && !macro)
 		lime_gl_buffer_data (target, data.buffer, data.byteOffset, data.byteLength, usage);
-		#elseif (nodejs && lime_opengl)
+		#elseif (nodejs && lime_opengl && !macro)
 		lime_gl_buffer_data (target, data, data.byteOffset, data.byteLength, usage);
 		#elseif java
 		//GL15.glBufferData (target, data.buffer, data.byteOffset, data.byteLength, usage);
@@ -569,9 +569,9 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.bufferSubData (target, offset, data);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko) && lime_opengl && !macro)
 		lime_gl_buffer_sub_data (target, offset, data.buffer, data.byteOffset, data.byteLength);
-		#elseif (nodejs && lime_opengl)
+		#elseif (nodejs && lime_opengl && !macro)
 		lime_gl_buffer_sub_data (target, offset, data, data.byteOffset, data.byteLength);
 		#elseif java
 		//GL15.glBufferSubData (target, offset, data.buffer, data.byteOffset, data.byteLength);
@@ -584,7 +584,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.checkFramebufferStatus (target);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return lime_gl_check_framebuffer_status (target);
 		#elseif java
 		return GL30.glCheckFramebufferStatus (target);
@@ -599,7 +599,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.clear (mask);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_clear (mask);
 		#elseif java
 		GL11.glClear (mask);
@@ -612,7 +612,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.clearColor (red, green, blue, alpha);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_clear_color (red, green, blue, alpha);
 		#elseif java
 		GL11.glClearColor (red, green, blue, alpha);
@@ -625,7 +625,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.clearDepth (depth);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_clear_depth (depth);
 		#elseif java
 		GL11.glClearDepth (depth);
@@ -638,7 +638,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.clearStencil (s);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_clear_stencil (s);
 		#elseif java
 		GL11.glClearStencil (s);
@@ -651,7 +651,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.colorMask (red, green, blue, alpha);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_color_mask (red, green, blue, alpha);
 		#elseif java
 		GL11.glColorMask (red, green, blue, alpha);
@@ -664,7 +664,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.compileShader (shader);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_compile_shader (shader.id);
 		#elseif java
 		GL20.glCompileShader (shader.id);
@@ -677,10 +677,10 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.compressedTexImage2D (target, level, internalformat, width, height, border, data);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko) && lime_opengl && !macro)
 		var buffer = data == null ? null : data.buffer;
 		lime_gl_compressed_tex_image_2d (target, level, internalformat, width, height, border, buffer, data == null ? 0 : data.byteOffset);
-		#elseif (nodejs && lime_opengl)
+		#elseif (nodejs && lime_opengl && !macro)
 		lime_gl_compressed_tex_image_2d (target, level, internalformat, width, height, border, data == null ? null : data , data == null ? null : data.byteOffset);
 		#elseif java
 		//GL13.glCompressedTexImage2D (target, level, internalformat, width, height, border, data == null ? null : data.buffer, data == null ? null : data.byteOffset);
@@ -693,10 +693,10 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, data);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko) && lime_opengl && !macro)
 		var buffer = data == null ? null : data.buffer;
 		lime_gl_compressed_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, buffer, data == null ? 0 : data.byteOffset);
-		#elseif (nodejs && lime_opengl)
+		#elseif (nodejs && lime_opengl && !macro)
 		lime_gl_compressed_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, data == null ? null : data, data == null ? null : data.byteOffset);
 		#elseif java
 		//GL13.glCompressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, data == null ? null : data.buffer, data == null ? null : data.byteOffset);
@@ -709,7 +709,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.copyTexImage2D (target, level, internalformat, x, y, width, height, border);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_copy_tex_image_2d (target, level, internalformat, x, y, width, height, border);
 		#elseif java
 		GL11.glCopyTexImage2D (target, level, internalformat, x, y, width, height, border);
@@ -722,7 +722,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.copyTexSubImage2D (target, level, xoffset, yoffset, x, y, width, height);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_copy_tex_sub_image_2d (target, level, xoffset, yoffset, x, y, width, height);
 		#elseif java
 		GL11.glCopyTexSubImage2D (target, level, xoffset, yoffset, x, y, width, height);
@@ -735,7 +735,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.createBuffer ();
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return new GLBuffer (version, lime_gl_create_buffer ());
 		#elseif java
 		//return new GLBuffer (version, GL15.glGenBuffers (1));
@@ -751,7 +751,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.createFramebuffer ();
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return new GLFramebuffer (version, lime_gl_create_framebuffer ());
 		#elseif java
 		//return new GLFramebuffer (version, GL30.glGenFramebuffers (1));
@@ -767,7 +767,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.createProgram ();
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return new GLProgram (version, lime_gl_create_program ());
 		#elseif java
 		return new GLProgram (version, GL20.glCreateProgram ());
@@ -782,7 +782,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.createRenderbuffer ();
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return new GLRenderbuffer (version, lime_gl_create_render_buffer ());
 		#elseif java
 		//return new GLRenderbuffer (version, GL30.glGenRenderbuffers (1));
@@ -798,7 +798,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.createShader (type);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return new GLShader (version, lime_gl_create_shader (type));
 		#elseif java
 		return new GLShader (version, GL20.glCreateShader (type));
@@ -813,7 +813,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.createTexture ();
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return new GLTexture (version, lime_gl_create_texture ());
 		#elseif java
 		//return new GLTexture (version, GL11.glGenTextures (1));
@@ -829,7 +829,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.cullFace (mode);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_cull_face (mode);
 		#elseif java
 		GL11.glCullFace (mode);
@@ -842,7 +842,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.deleteBuffer (buffer);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_delete_buffer (buffer.id);
 		buffer.invalidate ();
 		#elseif java
@@ -857,7 +857,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.deleteFramebuffer (framebuffer);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_delete_framebuffer (framebuffer.id);
 		framebuffer.invalidate ();
 		#elseif
@@ -872,7 +872,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.deleteProgram (program);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_delete_program (program.id);
 		program.invalidate ();
 		#elseif java
@@ -887,7 +887,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.deleteRenderbuffer (renderbuffer);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_delete_render_buffer (renderbuffer.id);
 		renderbuffer.invalidate ();
 		#elseif java
@@ -902,7 +902,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.deleteShader (shader);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_delete_shader (shader.id);
 		shader.invalidate ();
 		#elseif java
@@ -917,7 +917,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.deleteTexture (texture);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_delete_texture (texture.id);
 		texture.invalidate ();
 		#elseif java
@@ -932,7 +932,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.depthFunc (func);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_depth_func (func);
 		#elseif java
 		GL11.glDepthFunc (func);
@@ -945,7 +945,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.depthMask (flag);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_depth_mask (flag);
 		#elseif java
 		GL11.glDepthMask (flag);
@@ -958,7 +958,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.depthRange (zNear, zFar);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_depth_range (zNear, zFar);
 		#elseif java
 		GL11.glDepthRange (zNear, zFar);
@@ -971,7 +971,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.detachShader (program, shader);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_detach_shader (program.id, shader.id);
 		#elseif java
 		GL20.glDetachShader (program.id, shader.id);
@@ -984,7 +984,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.disable (cap);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_disable (cap);
 		#elseif java
 		GL11.glDisable (cap);
@@ -997,7 +997,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.disableVertexAttribArray (index);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_disable_vertex_attrib_array (index);
 		#elseif java
 		GL20.glDisableVertexAttribArray (index);
@@ -1010,7 +1010,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.drawArrays (mode, first, count);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_draw_arrays (mode, first, count);
 		#elseif java
 		GL11.glDrawArrays (mode, first, count);
@@ -1023,7 +1023,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.drawElements (mode, count, type, offset);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_draw_elements (mode, count, type, offset);
 		#elseif java
 		//GL11.glDrawElements (mode, count, type, offset);
@@ -1036,7 +1036,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.enable (cap);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_enable (cap);
 		#elseif java
 		GL11.glEnable (cap);
@@ -1049,7 +1049,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.enableVertexAttribArray (index);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_enable_vertex_attrib_array (index);
 		#elseif java
 		GL20.glEnableVertexAttribArray (index);
@@ -1062,7 +1062,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.finish ();
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_finish ();
 		#elseif java
 		GL11.glFinish ();
@@ -1075,7 +1075,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.flush ();
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_flush ();
 		#elseif java
 		GL11.glFlush ();
@@ -1088,7 +1088,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.framebufferRenderbuffer (target, attachment, renderbuffertarget, renderbuffer);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_framebuffer_renderbuffer (target, attachment, renderbuffertarget, renderbuffer.id);
 		#elseif java
 		GL30.glFramebufferRenderbuffer (target, attachment, renderbuffertarget, renderbuffer.id);
@@ -1101,7 +1101,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.framebufferTexture2D (target, attachment, textarget, texture, level);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_framebuffer_texture2D (target, attachment, textarget, texture.id, level);
 		#elseif java
 		GL30.glFramebufferTexture2D (target, attachment, textarget, texture.id, level);
@@ -1114,7 +1114,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.frontFace (mode);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_front_face (mode);
 		#elseif java
 		GL11.glFrontFace (mode);
@@ -1127,7 +1127,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.generateMipmap (target);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_generate_mipmap (target);
 		#elseif java
 		GL30.glGenerateMipmap (target);
@@ -1140,7 +1140,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.getActiveAttrib (program, index);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		var result:Dynamic = lime_gl_get_active_attrib (program.id, index);
 		return result;
 		#elseif java
@@ -1157,7 +1157,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.getActiveUniform (program, index);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		var result:Dynamic = lime_gl_get_active_uniform (program.id, index);
 		return result;
 		#elseif java
@@ -1174,7 +1174,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.getAttachedShaders (program);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return program.getShaders ();
 		#elseif java
 		return program.getShaders ();
@@ -1189,7 +1189,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.getAttribLocation (program, name);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return lime_gl_get_attrib_location (program.id, name);
 		#elseif java
 		return GL20.glGetAttribLocation (program.id, name);
@@ -1204,7 +1204,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.getBufferParameter (target, pname);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return lime_gl_get_buffer_parameter (target, pname);
 		#elseif java
 		//return GL15.glGetBufferParameter (target, pname);
@@ -1220,7 +1220,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.getContextAttributes ();
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		var base:Dynamic = lime_gl_get_context_attributes ();
 		base.premultipliedAlpha = false;
 		base.preserveDrawingBuffer = false;
@@ -1242,7 +1242,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.getError ();
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return lime_gl_get_error ();
 		#elseif java
 		return GL11.glGetError ();
@@ -1257,7 +1257,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.getExtension (name);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return lime_gl_get_extension (name);
 		#else
 		return null;
@@ -1270,7 +1270,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.getFramebufferAttachmentParameter (target, attachment, pname);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return lime_gl_get_framebuffer_attachment_parameter (target, attachment, pname);
 		#elseif java
 		//return GL30.glGetFramebufferAttachmentParameter (target, attachment, pname);
@@ -1286,7 +1286,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.getParameter (pname);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return lime_gl_get_parameter (pname);
 		#elseif java
 		return null;
@@ -1301,7 +1301,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.getProgramInfoLog (program);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return lime_gl_get_program_info_log (program.id);
 		#elseif java
 		return GL20.glGetProgramInfoLog (program.id);
@@ -1316,7 +1316,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.getProgramParameter (program, pname);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return lime_gl_get_program_parameter (program.id, pname);
 		#elseif java
 		//return GL20.glGetProgramParameter (program.id, pname);
@@ -1332,7 +1332,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.getRenderbufferParameter (target, pname);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return lime_gl_get_render_buffer_parameter (target, pname);
 		#elseif java
 		//return GL30.glGetRenderbufferParameter (target, pname);
@@ -1348,7 +1348,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.getShaderInfoLog (shader);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return lime_gl_get_shader_info_log (shader.id);
 		#elseif java
 		return GL20.glGetShaderInfoLog (shader.id);
@@ -1363,7 +1363,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.getShaderParameter (shader, pname);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return lime_gl_get_shader_parameter (shader.id, pname);
 		#elseif java
 		//return GL20.glGetShaderParameter (shader.id, pname);
@@ -1379,7 +1379,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.getShaderPrecisionFormat (shadertype, precisiontype);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		var result:Dynamic = lime_gl_get_shader_precision_format (shadertype, precisiontype);
 		return result;
 		#elseif java
@@ -1396,7 +1396,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.getShaderSource (shader);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return lime_gl_get_shader_source (shader.id);
 		#elseif java
 		return GL20.glGetShaderSource (shader.id);
@@ -1411,7 +1411,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.getSupportedExtensions ();
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		var result = new Array<String> ();
 		lime_gl_get_supported_extensions (result);
 		return result;
@@ -1428,7 +1428,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.getTexParameter (target, pname);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return lime_gl_get_tex_parameter (target, pname);
 		#elseif java
 		//return GL11.nglGetTexParameteriv (target, pname);
@@ -1444,7 +1444,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.getUniform (program, location);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return lime_gl_get_uniform (program.id, location);
 		#elseif java
 		//return GL20.glGetUniform (program.id, location);
@@ -1460,7 +1460,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.getUniformLocation (program, name);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return lime_gl_get_uniform_location (program.id, name);
 		#elseif java
 		return GL20.glGetUniformLocation (program.id, name);
@@ -1475,7 +1475,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.getVertexAttrib (index, pname);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return lime_gl_get_vertex_attrib (index, pname);
 		#elseif java
 		return 0;
@@ -1490,7 +1490,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.getVertexAttribOffset (index, pname);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return lime_gl_get_vertex_attrib_offset (index, pname);
 		#elseif java
 		return 0;
@@ -1505,7 +1505,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.hint (target, mode);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_hint (target, mode);
 		#end
 		
@@ -1516,7 +1516,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.isBuffer (buffer);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return buffer != null && buffer.id > 0 && lime_gl_is_buffer (buffer.id);
 		#else
 		return false;
@@ -1540,7 +1540,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.isEnabled (cap);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return lime_gl_is_enabled (cap);
 		#else
 		return false;
@@ -1553,7 +1553,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.isFramebuffer (framebuffer);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return framebuffer != null && framebuffer.id > 0 && lime_gl_is_framebuffer (framebuffer.id);
 		#else
 		return false;
@@ -1566,7 +1566,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.isProgram (program);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return program != null && program.id > 0 && lime_gl_is_program (program.id);
 		#else
 		return false;
@@ -1579,7 +1579,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.isRenderbuffer (renderbuffer);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return renderbuffer != null && renderbuffer.id > 0 && lime_gl_is_renderbuffer (renderbuffer.id);
 		#else
 		return false;
@@ -1592,7 +1592,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.isShader (shader);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return shader != null && shader.id > 0 && lime_gl_is_shader (shader.id);
 		#else
 		return false;
@@ -1605,7 +1605,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		return context.isTexture (texture);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		return texture != null && texture.id > 0 && lime_gl_is_texture (texture.id);
 		#else
 		return false;
@@ -1618,7 +1618,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.lineWidth (width);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_line_width (width);
 		#end
 		
@@ -1629,7 +1629,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.linkProgram (program);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_link_program (program.id);
 		#end
 		
@@ -1640,7 +1640,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.pixelStorei (pname, param);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_pixel_storei (pname, param);
 		#end
 		
@@ -1651,7 +1651,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.polygonOffset (factor, units);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_polygon_offset (factor, units);
 		#end
 		
@@ -1662,10 +1662,10 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.readPixels (x, y, width, height, format, type, pixels);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko) && lime_opengl && !macro)
 		var buffer = pixels == null ? null : pixels.buffer;
 		lime_gl_read_pixels (x, y, width, height, format, type, buffer, pixels == null ? 0 : pixels.byteOffset);
-		#elseif (nodejs && lime_opengl)
+		#elseif (nodejs && lime_opengl && !macro)
 		lime_gl_read_pixels (x, y, width, height, format, type, pixels == null ? null : pixels, pixels == null ? null : pixels.byteOffset);
 		#end
 		
@@ -1676,7 +1676,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.renderbufferStorage (target, internalformat, width, height);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_renderbuffer_storage (target, internalformat, width, height);
 		#end
 		
@@ -1687,7 +1687,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.sampleCoverage (value, invert);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_sample_coverage (value, invert);
 		#end
 		
@@ -1698,7 +1698,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.scissor (x, y, width, height);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_scissor (x, y, width, height);
 		#end
 		
@@ -1709,7 +1709,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.shaderSource (shader, source);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_shader_source (shader.id, source);
 		#end
 		
@@ -1720,7 +1720,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.stencilFunc (func, ref, mask);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_stencil_func (func, ref, mask);
 		#end
 		
@@ -1731,7 +1731,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.stencilFuncSeparate (face, func, ref, mask);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_stencil_func_separate (face, func, ref, mask);
 		#end
 		
@@ -1742,7 +1742,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.stencilMask (mask);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_stencil_mask (mask);
 		#end
 		
@@ -1753,7 +1753,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.stencilMaskSeparate (face, mask);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_stencil_mask_separate (face, mask);
 		#end
 		
@@ -1764,7 +1764,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.stencilOp (fail, zfail, zpass);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_stencil_op (fail, zfail, zpass);
 		#end
 		
@@ -1775,7 +1775,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.stencilOpSeparate (face, fail, zfail, zpass);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_stencil_op_separate (face, fail, zfail, zpass);
 		#end
 		
@@ -1786,10 +1786,10 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.texImage2D (target, level, internalformat, width, height, border, format, type, pixels);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko) && lime_opengl && !macro)
 		var buffer = pixels == null ? null : pixels.buffer;
 		lime_gl_tex_image_2d (target, level, internalformat, width, height, border, format, type, buffer, pixels == null ? 0 : pixels.byteOffset);
-		#elseif (nodejs && lime_opengl)
+		#elseif (nodejs && lime_opengl && !macro)
 		lime_gl_tex_image_2d (target, level, internalformat, width, height, border, format, type, pixels == null ? null : pixels, pixels == null ? null : pixels.byteOffset);
 		#end
 		
@@ -1800,7 +1800,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.texParameterf (target, pname, param);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_tex_parameterf (target, pname, param);
 		#end
 		
@@ -1811,7 +1811,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.texParameteri (target, pname, param);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_tex_parameteri (target, pname, param);
 		#end
 		
@@ -1822,10 +1822,10 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, pixels);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko) && lime_opengl && !macro)
 		var buffer = pixels == null ? null : pixels.buffer;
 		lime_gl_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, type, buffer, pixels == null ? 0 : pixels.byteOffset);
-		#elseif (nodejs && lime_opengl)
+		#elseif (nodejs && lime_opengl && !macro)
 		lime_gl_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, type, pixels == null ? null : pixels, pixels == null ? null : pixels.byteOffset);
 		#end
 		
@@ -1836,7 +1836,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.uniform1f (location, x);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_uniform1f (location, x);
 		#end
 		
@@ -1847,9 +1847,9 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.uniform1fv (location, x);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko) && lime_opengl && !macro)
 		lime_gl_uniform1fv (location, x.buffer);
-		#elseif (nodejs && lime_opengl)
+		#elseif (nodejs && lime_opengl && !macro)
 		lime_gl_uniform1fv (location, x);
 		#end
 		
@@ -1860,7 +1860,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.uniform1i (location, x);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_uniform1i (location, x);
 		#end
 		
@@ -1871,9 +1871,9 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.uniform1iv (location, v);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko) && lime_opengl && !macro)
 		lime_gl_uniform1iv (location, v.buffer);
-		#elseif (nodejs && lime_opengl)
+		#elseif (nodejs && lime_opengl && !macro)
 		lime_gl_uniform1iv (location, v);
 		#end
 		
@@ -1884,7 +1884,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.uniform2f (location, x, y);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_uniform2f (location, x, y);
 		#end
 		
@@ -1895,9 +1895,9 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.uniform2fv (location, v);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko) && lime_opengl && !macro)
 		lime_gl_uniform2fv (location, v.buffer);
-		#elseif (nodejs && lime_opengl)
+		#elseif (nodejs && lime_opengl && !macro)
 		lime_gl_uniform2fv (location, v);
 		#end
 		
@@ -1908,7 +1908,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.uniform2i (location, x, y);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_uniform2i (location, x, y);
 		#end
 		
@@ -1919,9 +1919,9 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.uniform2iv (location, v);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko) && lime_opengl && !macro)
 		lime_gl_uniform2iv (location, v.buffer);
-		#elseif (nodejs && lime_opengl)
+		#elseif (nodejs && lime_opengl && !macro)
 		lime_gl_uniform2iv (location, v);
 		#end
 		
@@ -1932,7 +1932,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.uniform3f (location, x, y, z);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_uniform3f (location, x, y, z);
 		#end
 		
@@ -1943,9 +1943,9 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.uniform3fv (location, v);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko) && lime_opengl && !macro)
 		lime_gl_uniform3fv (location, v.buffer);
-		#elseif (nodejs && lime_opengl)
+		#elseif (nodejs && lime_opengl && !macro)
 		lime_gl_uniform3fv (location, v);
 		#end
 		
@@ -1956,7 +1956,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.uniform3i (location, x, y, z);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_uniform3i (location, x, y, z);
 		#end
 		
@@ -1967,9 +1967,9 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.uniform3iv (location, v);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko) && lime_opengl && !macro)
 		lime_gl_uniform3iv (location, v.buffer);
-		#elseif (nodejs && lime_opengl)
+		#elseif (nodejs && lime_opengl && !macro)
 		lime_gl_uniform3iv (location, v);
 		#end
 		
@@ -1980,7 +1980,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.uniform4f (location, x, y, z, w);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_uniform4f (location, x, y, z, w);
 		#end
 		
@@ -1991,9 +1991,9 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.uniform4fv (location, v);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko) && lime_opengl && !macro)
 		lime_gl_uniform4fv (location, v.buffer);
-		#elseif (nodejs && lime_opengl)
+		#elseif (nodejs && lime_opengl && !macro)
 		lime_gl_uniform4fv (location, v);
 		#end
 		
@@ -2004,7 +2004,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.uniform4i (location, x, y, z, w);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_uniform4i (location, x, y, z, w);
 		#end
 		
@@ -2015,9 +2015,9 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.uniform4iv (location, v);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko) && lime_opengl && !macro)
 		lime_gl_uniform4iv (location, v.buffer);
-		#elseif (nodejs && lime_opengl)
+		#elseif (nodejs && lime_opengl && !macro)
 		lime_gl_uniform4iv (location, v);
 		#end
 		
@@ -2028,9 +2028,9 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.uniformMatrix2fv (location, transpose, v);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko) && lime_opengl && !macro)
 		lime_gl_uniform_matrix (location, transpose, v.buffer, 2);
-		#elseif (nodejs && lime_opengl)
+		#elseif (nodejs && lime_opengl && !macro)
 		lime_gl_uniform_matrix (location, transpose, v, 2);
 		#end
 		
@@ -2041,9 +2041,9 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.uniformMatrix3fv (location, transpose, v);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko) && lime_opengl && !macro)
 		lime_gl_uniform_matrix (location, transpose, v.buffer, 3);
-		#elseif (nodejs && lime_opengl)
+		#elseif (nodejs && lime_opengl && !macro)
 		lime_gl_uniform_matrix (location, transpose, v, 3);
 		#end
 		
@@ -2054,9 +2054,9 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.uniformMatrix4fv (location, transpose, v);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko) && lime_opengl && !macro)
 		lime_gl_uniform_matrix (location, transpose, v.buffer, 4);
-		#elseif (nodejs && lime_opengl)
+		#elseif (nodejs && lime_opengl && !macro)
 		lime_gl_uniform_matrix (location, transpose, v, 4);
 		#end
 		
@@ -2074,7 +2074,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.useProgram (program);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_use_program (program == null ? 0 : program.id);
 		#end
 		
@@ -2085,7 +2085,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.validateProgram (program);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_validate_program (program.id);
 		#end
 		
@@ -2096,7 +2096,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.vertexAttrib1f (indx, x);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_vertex_attrib1f (indx, x);
 		#end
 		
@@ -2107,9 +2107,9 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.vertexAttrib1fv (indx, values);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko) && lime_opengl && !macro)
 		lime_gl_vertex_attrib1fv (indx, values.buffer);
-		#elseif (nodejs && lime_opengl)
+		#elseif (nodejs && lime_opengl && !macro)
 		lime_gl_vertex_attrib1fv (indx, values);
 		#end
 		
@@ -2120,7 +2120,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.vertexAttrib2f (indx, x, y);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_vertex_attrib2f (indx, x, y);
 		#end
 		
@@ -2131,9 +2131,9 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.vertexAttrib2fv (indx, values);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko) && lime_opengl && !macro)
 		lime_gl_vertex_attrib2fv (indx, values.buffer);
-		#elseif (nodejs && lime_opengl)
+		#elseif (nodejs && lime_opengl && !macro)
 		lime_gl_vertex_attrib2fv (indx, values);
 		#end
 		
@@ -2144,7 +2144,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.vertexAttrib3f (indx, x, y, z);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_vertex_attrib3f (indx, x, y, z);
 		#end
 		
@@ -2155,9 +2155,9 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.vertexAttrib3fv (indx, values);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko) && lime_opengl && !macro)
 		lime_gl_vertex_attrib3fv (indx, values.buffer);
-		#elseif (nodejs && lime_opengl)
+		#elseif (nodejs && lime_opengl && !macro)
 		lime_gl_vertex_attrib3fv (indx, values);
 		#end
 		
@@ -2168,7 +2168,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.vertexAttrib4f (indx, x, y, z, w);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_vertex_attrib4f (indx, x, y, z, w);
 		#end
 		
@@ -2179,9 +2179,9 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.vertexAttrib4fv (indx, values);
-		#elseif ((cpp || neko) && lime_opengl)
+		#elseif ((cpp || neko) && lime_opengl && !macro)
 		lime_gl_vertex_attrib4fv (indx, values.buffer);
-		#elseif (nodejs && lime_opengl)
+		#elseif (nodejs && lime_opengl && !macro)
 		lime_gl_vertex_attrib4fv (indx, values);
 		#end
 		
@@ -2192,7 +2192,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.vertexAttribPointer (indx, size, type, normalized, stride, offset);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_vertex_attrib_pointer (indx, size, type, normalized, stride, offset);
 		#end
 		
@@ -2203,7 +2203,7 @@ class GL {
 		
 		#if (js && html5 && !display)
 		context.viewport (x, y, width, height);
-		#elseif ((cpp || neko || nodejs) && lime_opengl)
+		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_viewport (x, y, width, height);
 		#end
 		
@@ -2213,7 +2213,7 @@ class GL {
 	private static function get_version ():Int { return 2; }
 	
 	
-	#if ((cpp || neko || nodejs) && lime_opengl)
+	#if ((cpp || neko || nodejs) && lime_opengl && !macro)
 	@:cffi private static function lime_gl_active_texture (texture:Int):Void;
 	@:cffi private static function lime_gl_attach_shader (program:Int, shader:Int):Void;
 	@:cffi private static function lime_gl_bind_attrib_location (program:Int, index:Int, name:String):Void;

@@ -44,7 +44,7 @@ class Cairo {
 		
 		if (surface != null) {
 			
-			#if lime_cairo
+			#if (lime_cairo && !macro)
 			handle = lime_cairo_create (surface);
 			#end
 			
@@ -54,7 +54,7 @@ class Cairo {
 	
 	public function recreate (surface:CairoSurface) : Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		destroy ();
 		handle = lime_cairo_create (surface);
 		#end
@@ -63,7 +63,7 @@ class Cairo {
 	
 	public function arc (xc:Float, yc:Float, radius:Float, angle1:Float, angle2:Float):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_arc (handle, xc, yc, radius, angle1, angle2);
 		#end
 		
@@ -72,7 +72,7 @@ class Cairo {
 	
 	public function arcNegative (xc:Float, yc:Float, radius:Float, angle1:Float, angle2:Float):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_arc_negative (handle, xc, yc, radius, angle1, angle2);
 		#end
 		
@@ -81,7 +81,7 @@ class Cairo {
 	
 	public function clip ():Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_clip (handle);
 		#end
 		
@@ -90,7 +90,7 @@ class Cairo {
 	
 	public function clipExtents (x1:Float, y1:Float, x2:Float, y2:Float):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_clip_extents (handle, x1, y1, x2, y2);
 		#end
 		
@@ -99,7 +99,7 @@ class Cairo {
 	
 	public function clipPreserve ():Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_clip_preserve (handle);
 		#end
 		
@@ -108,7 +108,7 @@ class Cairo {
 	
 	public function closePath ():Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_close_path (handle);
 		#end
 		
@@ -117,7 +117,7 @@ class Cairo {
 	
 	public function copyPage ():Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_copy_page (handle);
 		#end
 		
@@ -126,7 +126,7 @@ class Cairo {
 	
 	public function curveTo (x1:Float, y1:Float, x2:Float, y2:Float, x3:Float, y3:Float):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_curve_to (handle, x1, y1, x2, y2, x3, y3);
 		#end
 		
@@ -135,7 +135,7 @@ class Cairo {
 	
 	public function destroy ():Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_destroy (handle);
 		#end
 		
@@ -144,7 +144,7 @@ class Cairo {
 	
 	public function fill ():Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_fill (handle);
 		#end
 		
@@ -153,7 +153,7 @@ class Cairo {
 	
 	public function fillExtents (x1:Float, y1:Float, x2:Float, y2:Float):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_fill_extents (handle, x1, y1, x2, y2);
 		#end
 		
@@ -162,7 +162,7 @@ class Cairo {
 	
 	public function fillPreserve ():Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_fill_preserve (handle);
 		#end
 		
@@ -171,7 +171,7 @@ class Cairo {
 	
 	public function identityMatrix ():Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_identity_matrix (handle);
 		#end
 		
@@ -180,7 +180,7 @@ class Cairo {
 	
 	public function inClip (x:Float, y:Float):Bool {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_in_clip (handle, x, y);
 		#else
 		return false;
@@ -191,7 +191,7 @@ class Cairo {
 	
 	public function inFill (x:Float, y:Float):Bool {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_in_fill (handle, x, y);
 		#else
 		return false;
@@ -202,7 +202,7 @@ class Cairo {
 	
 	public function inStroke (x:Float, y:Float):Bool {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_in_stroke (handle, x, y);
 		#else
 		return false;
@@ -213,7 +213,7 @@ class Cairo {
 	
 	public function lineTo (x:Float, y:Float):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_line_to (handle, x, y);
 		#end
 		
@@ -222,7 +222,7 @@ class Cairo {
 	
 	public function moveTo (x:Float, y:Float):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_move_to (handle, x, y);
 		#end
 		
@@ -231,7 +231,7 @@ class Cairo {
 	
 	public function mask (pattern:CairoPattern):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_mask (handle, pattern);
 		#end
 		
@@ -240,7 +240,7 @@ class Cairo {
 	
 	public function maskSurface (surface:CairoSurface, x:Float, y:Float):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_mask_surface (handle, surface, x, y);
 		#end
 		
@@ -249,7 +249,7 @@ class Cairo {
 	
 	public function newPath ():Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_new_path (handle);
 		#end
 		
@@ -258,7 +258,7 @@ class Cairo {
 	
 	public function paint ():Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_paint (handle);
 		#end
 		
@@ -267,7 +267,7 @@ class Cairo {
 	
 	public function paintWithAlpha (alpha:Float):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_paint_with_alpha (handle, alpha);
 		#end
 		
@@ -276,7 +276,7 @@ class Cairo {
 	
 	public function popGroup ():CairoPattern {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_pop_group (handle);
 		#else
 		return null;
@@ -287,7 +287,7 @@ class Cairo {
 	
 	public function popGroupToSource ():Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_pop_group_to_source (handle);
 		#end
 		
@@ -296,7 +296,7 @@ class Cairo {
 	
 	public function pushGroup ():Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_push_group (handle);
 		#end
 		
@@ -305,7 +305,7 @@ class Cairo {
 	
 	public function pushGroupWithContent (content:CairoContent):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_push_group_with_content (handle, content);
 		#end
 		
@@ -314,7 +314,7 @@ class Cairo {
 	
 	public function rectangle (x:Float, y:Float, width:Float, height:Float):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_rectangle (handle, x, y, width, height);
 		#end
 		
@@ -323,7 +323,7 @@ class Cairo {
 	
 	public function reference ():Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_reference (handle);
 		#end
 		
@@ -332,7 +332,7 @@ class Cairo {
 	
 	public function relCurveTo (dx1:Float, dy1:Float, dx2:Float, dy2:Float, dx3:Float, dy3:Float):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_rel_curve_to (handle, dx1, dy1, dx2, dy2, dx3, dy3);
 		#end
 		
@@ -341,7 +341,7 @@ class Cairo {
 	
 	public function relLineTo (dx:Float, dy:Float):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_rel_line_to (handle, dx, dy);
 		#end
 		
@@ -350,7 +350,7 @@ class Cairo {
 	
 	public function relMoveTo (dx:Float, dy:Float):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_rel_move_to (handle, dx, dy);
 		#end
 		
@@ -359,7 +359,7 @@ class Cairo {
 	
 	public function resetClip ():Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_reset_clip (handle);
 		#end
 		
@@ -368,7 +368,7 @@ class Cairo {
 	
 	public function restore ():Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_restore (handle);
 		#end
 		
@@ -377,7 +377,7 @@ class Cairo {
 	
 	public function save ():Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_save (handle);
 		#end
 		
@@ -386,7 +386,7 @@ class Cairo {
 	
 	public function setFontSize (size:Float):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_set_font_size (handle, size);
 		#end
 		
@@ -395,7 +395,7 @@ class Cairo {
 	
 	public function setSourceRGB (r:Float, g:Float, b:Float):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_set_source_rgb (handle, r, g, b);
 		#end
 		
@@ -404,7 +404,7 @@ class Cairo {
 	
 	public function setSourceRGBA (r:Float, g:Float, b:Float, a:Float):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_set_source_rgba (handle, r, g, b, a);
 		#end
 		
@@ -413,7 +413,7 @@ class Cairo {
 	
 	public function setSourceSurface (surface:CairoSurface, x:Float, y:Float):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_set_source_surface (handle, surface, x, y);
 		#end
 		
@@ -422,7 +422,7 @@ class Cairo {
 	
 	public function showPage ():Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_show_page (handle);
 		#end
 		
@@ -431,7 +431,7 @@ class Cairo {
 	
 	public function showText (utf8:String):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_show_text (handle, utf8);
 		#end
 		
@@ -440,7 +440,7 @@ class Cairo {
 	
 	public function status ():CairoStatus {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_status (handle);
 		#else
 		return cast 0;
@@ -451,7 +451,7 @@ class Cairo {
 	
 	public function stroke ():Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_stroke (handle);
 		#end
 		
@@ -460,7 +460,7 @@ class Cairo {
 	
 	public function strokeExtents (x1:Float, y1:Float, x2:Float, y2:Float):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_stroke_extents (handle, x1, y1, x2, y2);
 		#end
 		
@@ -469,7 +469,7 @@ class Cairo {
 	
 	public function strokePreserve ():Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_stroke_preserve (handle);
 		#end
 		
@@ -478,7 +478,7 @@ class Cairo {
 	
 	public function transform (matrix:Matrix3):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_transform (handle, matrix);
 		#end
 		
@@ -486,7 +486,7 @@ class Cairo {
 	
 	public function rotate (amount:Float):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_rotate (handle, amount);
 		#end
 		
@@ -494,7 +494,7 @@ class Cairo {
 	
 	public function scale (x:Float, y:Float):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_scale (handle, x, y);
 		#end
 		
@@ -503,7 +503,7 @@ class Cairo {
 	
 	public function translate (x:Float, y:Float):Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_translate (handle, x, y);
 		#end
 		
@@ -521,7 +521,7 @@ class Cairo {
 	
 	@:noCompletion private function get_antialias ():CairoAntialias {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_get_antialias (handle);
 		#end
 		
@@ -532,7 +532,7 @@ class Cairo {
 	
 	@:noCompletion private function set_antialias (value:CairoAntialias):CairoAntialias {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_set_antialias (handle, value);
 		#end
 		
@@ -543,7 +543,7 @@ class Cairo {
 	
 	@:noCompletion private function get_currentPoint ():Vector2 {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		var vec:Dynamic = lime_cairo_get_current_point (handle);
 		return new Vector2 (vec.x, vec.y);
 		#end
@@ -555,7 +555,7 @@ class Cairo {
 	
 	@:noCompletion private function get_dash ():Array<Float> {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		var result:Dynamic = lime_cairo_get_dash (handle);
 		return result;
 		#end
@@ -567,7 +567,7 @@ class Cairo {
 	
 	@:noCompletion private function set_dash (value:Array<Float>):Array<Float> {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_set_dash (handle, value);
 		#end
 		
@@ -578,7 +578,7 @@ class Cairo {
 	
 	@:noCompletion private function get_dashCount ():Int {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_get_dash_count (handle);
 		#end
 		
@@ -589,7 +589,7 @@ class Cairo {
 	
 	@:noCompletion private function get_fillRule ():CairoFillRule {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_get_fill_rule (handle);
 		#end
 		
@@ -600,7 +600,7 @@ class Cairo {
 	
 	@:noCompletion private function set_fillRule (value:CairoFillRule):CairoFillRule {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_set_fill_rule (handle, value);
 		#end
 		
@@ -611,7 +611,7 @@ class Cairo {
 	
 	@:noCompletion private function get_fontFace ():CairoFontFace {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_get_font_face (handle);
 		#end
 		
@@ -622,7 +622,7 @@ class Cairo {
 	
 	@:noCompletion private function set_fontFace (value:CairoFontFace):CairoFontFace {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_set_font_face (handle, value);
 		#end
 		
@@ -633,7 +633,7 @@ class Cairo {
 	
 	@:noCompletion private function get_fontOptions ():CairoFontOptions {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_get_font_options (handle);
 		#else
 		return null;
@@ -644,7 +644,7 @@ class Cairo {
 	
 	@:noCompletion private function set_fontOptions (value:CairoFontOptions):CairoFontOptions {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_set_font_options (handle, value);
 		#end
 		
@@ -655,7 +655,7 @@ class Cairo {
 	
 	@:noCompletion private function get_groupTarget ():CairoSurface {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_get_group_target (handle);
 		#else
 		return cast 0;
@@ -666,7 +666,7 @@ class Cairo {
 	
 	@:noCompletion private function get_hasCurrentPoint ():Bool {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_has_current_point (handle);
 		#end
 		
@@ -677,7 +677,7 @@ class Cairo {
 	
 	@:noCompletion private function get_lineCap ():CairoLineCap {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_get_line_cap (handle);
 		#end
 		
@@ -688,7 +688,7 @@ class Cairo {
 	
 	@:noCompletion private function set_lineCap (value:CairoLineCap):CairoLineCap {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_set_line_cap (handle, value);
 		#end
 		
@@ -699,7 +699,7 @@ class Cairo {
 	
 	@:noCompletion private function get_lineJoin ():CairoLineJoin {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_get_line_join (handle);
 		#end
 		
@@ -710,7 +710,7 @@ class Cairo {
 	
 	@:noCompletion private function set_lineJoin (value:CairoLineJoin):CairoLineJoin {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_set_line_join (handle, value);
 		#end
 		
@@ -721,7 +721,7 @@ class Cairo {
 	
 	@:noCompletion private function get_lineWidth ():Float {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_get_line_width (handle);
 		#end
 		
@@ -732,7 +732,7 @@ class Cairo {
 	
 	@:noCompletion private function set_lineWidth (value:Float):Float {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_set_line_width (handle, value);
 		#end
 		
@@ -743,7 +743,7 @@ class Cairo {
 	
 	@:noCompletion private function get_matrix ():Matrix3 {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		var m:Dynamic = lime_cairo_get_matrix (handle);
 		return new Matrix3 (m.a, m.b, m.c, m.d, m.tx, m.ty);
 		#end
@@ -755,7 +755,7 @@ class Cairo {
 	
 	@:noCompletion private function set_matrix (value:Matrix3):Matrix3 {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_set_matrix (handle, value);
 		#end
 		
@@ -766,7 +766,7 @@ class Cairo {
 	
 	@:noCompletion private function get_miterLimit ():Float {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_get_miter_limit (handle);
 		#end
 		
@@ -777,7 +777,7 @@ class Cairo {
 	
 	@:noCompletion private function set_miterLimit (value:Float):Float {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_set_miter_limit (handle, value);
 		#end
 		
@@ -788,7 +788,7 @@ class Cairo {
 	
 	@:noCompletion private function get_operator ():CairoOperator {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_get_operator (handle);
 		#end
 		
@@ -799,7 +799,7 @@ class Cairo {
 	
 	@:noCompletion private function set_operator (value:CairoOperator):CairoOperator {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_set_operator (handle, value);
 		#end
 		
@@ -810,7 +810,7 @@ class Cairo {
 	
 	@:noCompletion private function get_referenceCount ():Int {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_get_reference_count (handle);
 		#else
 		return 0;
@@ -821,7 +821,7 @@ class Cairo {
 	
 	@:noCompletion private function get_source ():CairoPattern {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_get_source (handle);
 		#end
 		
@@ -832,7 +832,7 @@ class Cairo {
 	
 	@:noCompletion private function set_source (value:CairoPattern):CairoPattern {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_set_source (handle, value);
 		#end
 		
@@ -843,7 +843,7 @@ class Cairo {
 	
 	@:noCompletion private function get_target ():CairoSurface {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_get_target (handle);
 		#else
 		return cast 0;
@@ -854,7 +854,7 @@ class Cairo {
 	
 	@:noCompletion private function get_tolerance ():Float {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_get_tolerance (handle);
 		#else
 		return 0;
@@ -865,7 +865,7 @@ class Cairo {
 	
 	@:noCompletion private function set_tolerance (value:Float):Float {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_set_tolerance (handle, value);
 		#end
 		
@@ -876,7 +876,7 @@ class Cairo {
 	
 	private static function get_version ():Int {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_version ();
 		#else
 		return 0;
@@ -887,7 +887,7 @@ class Cairo {
 	
 	private static function get_versionString ():String {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		return lime_cairo_version_string ();
 		#else
 		return "";
@@ -903,7 +903,7 @@ class Cairo {
 	
 	
 	
-	#if lime_cairo
+	#if (lime_cairo && !macro)
 	@:cffi private static function lime_cairo_arc (handle:Float, xc:Float, yc:Float, radius:Float, angle1:Float, angle2:Float):Void;
 	@:cffi private static function lime_cairo_arc_negative (handle:Float, xc:Float, yc:Float, radius:Float, angle1:Float, angle2:Float):Void;
 	@:cffi private static function lime_cairo_clip (handle:Float):Void;

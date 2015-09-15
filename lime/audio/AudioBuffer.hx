@@ -79,7 +79,7 @@ class AudioBuffer {
 		}
 		*/
 		
-		#elseif (cpp || neko || nodejs)
+		#elseif ((cpp || neko || nodejs) && !macro)
 		
 		var data:Dynamic = lime_audio_load (bytes);
 		
@@ -119,7 +119,7 @@ class AudioBuffer {
 			
 		}
 		
-		#elseif (cpp || neko || nodejs)
+		#elseif ((cpp || neko || nodejs) && !macro)
 		
 		var data:Dynamic = lime_audio_load (path);
 		
@@ -181,7 +181,7 @@ class AudioBuffer {
 	}
 	
 	
-	#if (cpp || neko || nodejs)
+	#if ((cpp || neko || nodejs) && !macro)
 	@:cffi private static function lime_audio_load (data:Dynamic):Dynamic;
 	#end
 	
