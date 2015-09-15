@@ -679,6 +679,7 @@ public:
    bool textInputEnabled;
    void EnablePopupKeyboard(bool enabled)
    {
+      #if defined(HX_WINDOWS) || defined(HX_MACOS) || defined(HX_LINUX)
       //fprintf(stderr, enabled ? "popup keyboard enabled true\n" : "popup keyboard enabled false\n");
       if (!textInputEnabled && enabled)
       {
@@ -689,6 +690,7 @@ public:
          SDL_StopTextInput();
       }
       textInputEnabled = enabled;
+      #endif
    }
    
    
@@ -1271,13 +1273,15 @@ void ProcessEvent(SDL_Event &inEvent)
          break;
       }
 
+      #if defined(HX_WINDOWS) || defined(HX_MACOS) || defined(HX_LINUX)
       case SDL_TEXTINPUT:
       {
          int cp = utf8::peek_next(inEvent.text.text, inEvent.text.text+32);
          textInputEvent.code = cp;
          sgSDLFrame->ProcessEvent(textInputEvent);
 		 break;
-	  }
+	   }
+      #endif
       case SDL_FINGERMOTION:
       {
          SDL_TouchFingerEvent inFingerEvent = inEvent.tfinger;
@@ -1313,6 +1317,7 @@ void ProcessEvent(SDL_Event &inEvent)
             key.flags |= efLocationRight;
          
          AddCharCode(key);
+         #if defined(HX_WINDOWS) || defined(HX_MACOS) || defined(HX_LINUX)
          if (inEvent.type == SDL_KEYDOWN && sgSDLFrame->mStage->textInputEnabled && !iscntrl(key.code))
          {
             // Wait for text input event for correct keyboard layout handling
@@ -1322,6 +1327,9 @@ void ProcessEvent(SDL_Event &inEvent)
          {
             sgSDLFrame->ProcessEvent(key);
          }
+         #else
+         sgSDLFrame->ProcessEvent(key);
+         #endif
          break;
       }
       case SDL_JOYAXISMOTION:
