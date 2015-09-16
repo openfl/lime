@@ -373,6 +373,9 @@ class CFFI {
 	}
 	
 	
+	@:noCompletion @:dox(hide) public static var lime_cffi_set_finalizer = System.load ("lime", "lime_cffi_set_finalizer", 1);
+	
+	
 }
 
 
@@ -505,7 +508,7 @@ class CFFI {
 								
 								#end
 								
-								newFields.push ( { name: cffiName, access: [ APrivate, AStatic ], kind: FieldType.FVar (cffiType, Context.parse (cffiExpr, pos)), pos: pos } );
+								newFields.push ( { name: cffiName, access: [ APrivate, AStatic ], kind: FieldType.FVar (cffiType, Context.parse (cffiExpr, field.pos)), pos: field.pos } );
 								
 								if (type.result.toString () != "Void" && type.result.toString () != "cpp.Void") {
 									
@@ -531,7 +534,32 @@ class CFFI {
 							}
 							
 							field.access.push (AInline);
-							fun.expr = Context.parse (expr, pos);
+							fun.expr = Context.parse (expr, field.pos);
+							
+						} else if (m.name == ":finalizer") {
+							
+							for (otherField in fields) {
+								
+								if (otherField.name == "new") {
+									
+									switch (otherField.kind) {
+										
+										case FFun (fun):
+											
+											var fieldName = field.name;
+											var expr = fun.expr.toString ();
+											expr = expr.substring (0, expr.lastIndexOf ("}")) + '\n\t__finalizerTrigger = lime.system.CFFI.lime_cffi_set_finalizer ($fieldName);\n}';
+											fun.expr = Context.parse (expr, field.pos);
+										
+										default:
+										
+									}
+									
+								}
+								
+							}
+							
+							newFields.push ({ name: "__finalizerTrigger", access: [ APrivate ], kind: FieldType.FVar (TPath ({ pack: [ ], name: "Dynamic" }), null), pos: field.pos });
 							
 						}
 						
@@ -725,7 +753,7 @@ class CFFI {
 		
 		typeString += typeResult.toString ();
 		
-		return { args: typeArgs, result: typeResult, string: typeString, signature: typeSignature,  };
+		return { args: typeArgs, result: typeResult, string: typeString, signature: typeSignature };
 		
 	}
 	
