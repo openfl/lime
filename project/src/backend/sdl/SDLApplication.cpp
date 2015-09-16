@@ -15,8 +15,11 @@ namespace lime {
 	
 	AutoGCRoot* Application::callback = 0;
 	SDLApplication* SDLApplication::currentApplication = 0;
-	std::map<int, std::map<int, int> > gamepadsAxisMap;
+	
+	static SDL_Joystick* accelerometer = 0;
+	static SDL_JoystickID accelerometerID = 0;
 	const int analogAxisDeadZone = 1000;
+	std::map<int, std::map<int, int> > gamepadsAxisMap;
 	
 	
 	SDLApplication::SDLApplication () {
@@ -52,7 +55,16 @@ namespace lime {
 		WindowEvent windowEvent;
 		
 		#if defined(IOS) || defined(ANDROID)
-		SDL_JoystickOpen (0);
+		for (int i = 0; i < SDL_NumJoysticks (); i++) {
+			
+			if (strstr (SDL_JoystickNameForIndex (i), "Accelerometer")) {
+				
+				accelerometer = SDL_JoystickOpen (i);
+				accelerometerID = SDL_JoystickInstanceID (accelerometer);
+				
+			}
+			
+		}
 		#endif
 		
 		#ifdef HX_MACOS
@@ -153,7 +165,7 @@ namespace lime {
 			case SDL_JOYAXISMOTION:
 				
 				#if defined(IOS) || defined(ANDROID)
-				if (event->jaxis.which == 0) {
+				if (event->jaxis.which == accelerometerID) {
 					
 					ProcessSensorEvent (event);
 					
@@ -260,7 +272,7 @@ namespace lime {
 						gamepadsAxisMap[event->caxis.which][event->caxis.axis] = event->caxis.value;
 						
 					} else if (gamepadsAxisMap[event->caxis.which][event->caxis.axis] == event->caxis.value) {
-							
+						
 						break;
 						
 					}
@@ -284,7 +296,7 @@ namespace lime {
 					}
 					
 					gamepadsAxisMap[event->caxis.which][event->caxis.axis] = event->caxis.value;
-					gamepadEvent.axisValue = event->caxis.value / (event->caxis.value>0?32767.0:32768.0);
+					gamepadEvent.axisValue = event->caxis.value / (event->caxis.value > 0 ? 32767.0 : 32768.0);
 					
 					GamepadEvent::Dispatch (&gamepadEvent);
 					break;
@@ -412,11 +424,13 @@ namespace lime {
 		
 		if (SensorEvent::callback) {
 			
+			double value = event->jaxis.value / (event->jaxis.value > 0 ? 32767.0 : 32768.0);
+			
 			switch (event->jaxis.axis) {
 				
-				case 0: sensorEvent.x = event->jaxis.value; break;
-				case 1: sensorEvent.y = event->jaxis.value; break;
-				case 2: sensorEvent.z = event->jaxis.value; break;
+				case 0: sensorEvent.x = value; break;
+				case 1: sensorEvent.y = value; break;
+				case 2: sensorEvent.z = value; break;
 				default: break;
 				
 			}
