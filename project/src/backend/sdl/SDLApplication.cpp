@@ -424,7 +424,7 @@ namespace lime {
 		
 		if (SensorEvent::callback) {
 			
-			double value = event->jaxis.value / (event->jaxis.value > 0 ? 32767.0 : 32768.0);
+			double value = event->jaxis.value / 32767.0f;
 			
 			switch (event->jaxis.axis) {
 				
