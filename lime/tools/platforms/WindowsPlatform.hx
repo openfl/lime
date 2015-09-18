@@ -52,6 +52,7 @@ class WindowsPlatform extends PlatformTarget {
 			
 		} else {
 
+
 			if (project.target != PlatformHelper.hostPlatform){
 				
 				enableMingw = true;
