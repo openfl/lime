@@ -51,15 +51,14 @@ class WindowsPlatform extends PlatformTarget {
 			targetType = "nodejs";
 			
 		} else {
-
-
+			
+			targetType = "cpp";
+			
 			if (project.target != PlatformHelper.hostPlatform){
 				
 				enableMingw = true;
 				
 			}
-
-			targetType = "cpp";
 
 		}
 		
