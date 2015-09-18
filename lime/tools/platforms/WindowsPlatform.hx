@@ -385,4 +385,5 @@ class WindowsPlatform extends PlatformTarget {
 	@ignore public override function trace ():Void {}
 	@ignore public override function uninstall ():Void {}
 	
+	
 }
