@@ -185,7 +185,7 @@ class WindowsPlatform extends PlatformTarget {
 				CPPHelper.compile (project, targetDirectory + "/obj", flags);
 				
 				FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", executablePath);
-
+				
 			} else {
 				
 				ProcessHelper.runCommand ("", "haxe", haxeArgs.concat ([ "-D", "static_link" ]));
