@@ -6,6 +6,9 @@
 #include <KeyCodes.h>
 #include <map>
 #include <Sound.h>
+#include <pthread.h>
+#include <hxcpp.h>
+#include <simple_queue.h>
 
 #ifndef INT64_C
     #define INT64_C(c) (c ## LL)
@@ -18,10 +21,17 @@
 
 extern "C"
 {
+   #include <ao/ao.h>
    #include <libavutil/frame.h>
    #include <libavcodec/avcodec.h>
    #include <libavformat/avformat.h>
    #include <libavutil/error.h>
+   #include <libswscale/swscale.h>
+   #include <libswresample/swresample.h>
+   #include <libavutil/error.h>
+   #include <libavresample/avresample.h>
+   #include <libavutil/opt.h>
+   #include <libavutil/mathematics.h>
 }
 
 #ifndef HX_WINDOWS
@@ -58,24 +68,24 @@ enum { NO_TOUCH = -1 };
 
 
 int InitSDL()
-{   
+{
    if (sgInitCalled)
       return 0;
-      
+
    sgInitCalled = true;
-   
+
    #ifdef NME_MIXER
    int audioFlag = SDL_INIT_AUDIO;
    #else
    int audioFlag = 0;
    #endif
    int err = SDL_Init(SDL_INIT_VIDEO | audioFlag | SDL_INIT_TIMER);
-   
+
    if (err == 0 && SDL_InitSubSystem (SDL_INIT_JOYSTICK) == 0)
    {
       sgJoystickEnabled = true;
    }
-   
+
    return err;
 }
 
@@ -89,11 +99,11 @@ static void openAudio()
    #else
    int chunksize = 4096;
    #endif
-   
+
    int frequency = 44100;
    //int frequency = MIX_DEFAULT_FREQUENCY //22050
    //The default frequency would have less latency, but is incompatible with the average MP3 file
-   
+
    if (Mix_OpenAudio(frequency, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, chunksize) != 0)
    {
       fprintf(stderr,"Could not open sound: %s\n", Mix_GetError());
@@ -147,7 +157,7 @@ public:
          r.w = inRect->w;
          r.h = inRect->h;
       }
-      
+
       SDL_FillRect(mSurf,rect_ptr,SDL_MapRGBA(mSurf->format,
             inColour>>16, inColour>>8, inColour, inColour>>24 )  );
    }
@@ -258,19 +268,19 @@ public:
    {
       mWidth = inWidth;
       mHeight = inHeight;
-      
+
       mIsOpenGL = inIsOpenGL;
       mSDLWindow = inWindow;
       mSDLRenderer = inRenderer;
       mWindowFlags = inWindowFlags;
-      
+
       mShowCursor = true;
       mCurrentCursor = curPointer;
-      
+
       mIsFullscreen = (mWindowFlags & SDL_WINDOW_FULLSCREEN || mWindowFlags & SDL_WINDOW_FULLSCREEN_DESKTOP);
       if (mIsFullscreen)
          displayState = sdsFullscreenInteractive;
-      
+
       if (mIsOpenGL)
       {
          mOpenGLContext = HardwareRenderer::CreateOpenGL(0, 0, sgIsOGL2);
@@ -291,7 +301,7 @@ public:
          mPrimarySurface = new SDLSurf(mSoftwareSurface, inIsOpenGL);
       }
       mPrimarySurface->IncRef();
-     
+
       #if defined(WEBOS) || defined(BLACKBERRY) || defined(HX_LINUX) || defined(HX_WINDOWS)
       mMultiTouch = true;
       #else
@@ -300,12 +310,12 @@ public:
       mSingleTouchID = NO_TOUCH;
       mDX = 0;
       mDY = 0;
-      
+
       mDownX = 0;
       mDownY = 0;
    }
-   
-   
+
+
    ~SDLStage()
    {
       SDL_SetWindowFullscreen(mSDLWindow, 0);
@@ -321,6 +331,11 @@ public:
       mPrimarySurface->DecRef();
       SDL_DestroyRenderer(mSDLRenderer);
       SDL_DestroyWindow(mSDLWindow);
+   }
+
+   SDL_Window* GetWindow()
+   {
+      return mSDLWindow;
    }
 
    void SetMinSize(int inWidth, int inHeight)
@@ -341,7 +356,7 @@ public:
       {
          SDL_FreeSurface(mSoftwareSurface);
          SDL_DestroyTexture(mSoftwareTexture);
-         
+
          mSoftwareSurface = SDL_CreateRGBSurface(0, mWidth, mHeight, 32, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
          if (!mSoftwareSurface)
          {
@@ -364,10 +379,10 @@ public:
       {
          SDL_DisplayMode mode;
          SDL_GetCurrentDisplayMode(0, &mode);
-         
+
          mode.w = inWidth;
          mode.h = inHeight;
-         
+
          SDL_SetWindowDisplayMode(mSDLWindow, &mode);
       }
       else
@@ -375,27 +390,27 @@ public:
          SDL_SetWindowSize(mSDLWindow, inWidth, inHeight);
       }
    }
-   
-   
+
+
    void SetFullscreen(bool inFullscreen)
    {
       if (inFullscreen != mIsFullscreen)
       {
          mIsFullscreen = inFullscreen;
-         
+
          if (mIsFullscreen)
          {
             SDL_GetWindowPosition(mSDLWindow, &sgWindowRect.x, &sgWindowRect.y);
             SDL_GetWindowSize(mSDLWindow, &sgWindowRect.w, &sgWindowRect.h);
-            
+
             //SDL_SetWindowSize(mSDLWindow, sgDesktopWidth, sgDesktopHeight);
-            
+
             SDL_DisplayMode mode;
             SDL_GetCurrentDisplayMode(0, &mode);
             mode.w = sgDesktopWidth;
             mode.h = sgDesktopHeight;
             SDL_SetWindowDisplayMode(mSDLWindow, &mode);
-            
+
             SDL_SetWindowFullscreen(mSDLWindow, SDL_WINDOW_FULLSCREEN_DESKTOP /*SDL_WINDOW_FULLSCREEN_DESKTOP*/);
          }
          else
@@ -409,7 +424,7 @@ public:
             SDL_SetWindowPosition(mSDLWindow, sgWindowRect.x, sgWindowRect.y);
             #endif
          }
-         
+
          SDL_ShowCursor(mShowCursor);
       }
    }
@@ -427,7 +442,7 @@ public:
       SDL_SetWindowDisplayMode(mSDLWindow, &mode);
       SDL_SetWindowFullscreen(mSDLWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
    }
-   
+
 
    void SetScreenMode(ScreenMode m)
    {
@@ -554,11 +569,11 @@ public:
       SDL_SetWindowDisplayMode(mSDLWindow, &mode);
       SDL_SetWindowFullscreen(mSDLWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
    }
-    
-   
+
+
    bool isOpenGL() const { return mOpenGLContext; }
-   
-   
+
+
    void ProcessEvent(Event &inEvent)
    {
       #if defined(HX_WINDOWS) || defined(HX_LINUX)
@@ -573,7 +588,7 @@ public:
       {
          if (mSingleTouchID == NO_TOUCH || inEvent.value == mSingleTouchID || !mMultiTouch)
          inEvent.flags |= efPrimaryTouch;
-         
+
          if (mMultiTouch)
          {
             switch(inEvent.type)
@@ -582,26 +597,26 @@ public:
                case etMouseUp: inEvent.type = etTouchEnd; break;
                case etMouseMove: inEvent.type = etTouchMove; break;
             }
-            
+
             if (inEvent.type == etTouchBegin)
-            {   
+            {
                mDownX = inEvent.x;
-               mDownY = inEvent.y;   
+               mDownY = inEvent.y;
             }
-            
+
             if (inEvent.type == etTouchEnd)
-            {   
+            {
                if (mSingleTouchID == inEvent.value)
                   mSingleTouchID = NO_TOUCH;
             }
          }
       }
       #endif
-      
+
       HandleEvent(inEvent);
    }
-   
-   
+
+
    void Flip()
    {
       if (mIsOpenGL)
@@ -620,27 +635,27 @@ public:
          SDL_RenderPresent(mSDLRenderer);
       }
    }
-   
-   
+
+
    void GetMouse()
    {
-      
+
    }
-   
-   
+
+
    void SetCursor(Cursor inCursor)
    {
       if (sDefaultCursor==0)
          sDefaultCursor = SDL_GetCursor();
-      
+
       mCurrentCursor = inCursor;
-      
+
       if (inCursor==curNone || !mShowCursor)
          SDL_ShowCursor(false);
       else
       {
          SDL_ShowCursor(true);
-         
+
          if (inCursor==curPointer)
             SDL_SetCursor(sDefaultCursor);
          else if (inCursor==curHand)
@@ -658,8 +673,8 @@ public:
          }
       }
    }
-   
-   
+
+
    void ShowCursor(bool inShow)
    {
       if (inShow!=mShowCursor)
@@ -669,51 +684,51 @@ public:
       }
    }
 
-    void ConstrainCursorToWindowFrame(bool inLock) 
+    void ConstrainCursorToWindowFrame(bool inLock)
     {
-        if (inLock != mLockCursor) 
+        if (inLock != mLockCursor)
         {
            mLockCursor = inLock;
            SDL_SetRelativeMouseMode( inLock ? SDL_TRUE : SDL_FALSE );
         }
     }
-   
+
       //Note that this fires a mouse event, see the SDL_WarpMouseInWindow docs
-    void SetCursorPositionInWindow(int inX, int inY) 
+    void SetCursorPositionInWindow(int inX, int inY)
     {
       SDL_WarpMouseInWindow( mSDLWindow, inX, inY );
-    }   
-   
+    }
+
       //Note that this fires a mouse event, see the SDL_WarpMouseInWindow docs
-    void SetStageWindowPosition(int inX, int inY) 
+    void SetStageWindowPosition(int inX, int inY)
     {
       SDL_SetWindowPosition( mSDLWindow, inX, inY );
-    }   
- 
-   int GetWindowX() 
+    }
+
+   int GetWindowX()
    {
       int x = 0;
       int y = 0;
       SDL_GetWindowPosition(mSDLWindow, &x, &y);
       return x;
-   }   
- 
-  
-   int GetWindowY() 
+   }
+
+
+   int GetWindowY()
    {
       int x = 0;
       int y = 0;
       SDL_GetWindowPosition(mSDLWindow, &x, &y);
       return y;
-   }   
+   }
 
-   
+
    void EnablePopupKeyboard(bool enabled)
    {
-      
+
    }
-   
-   
+
+
    bool getMultitouchSupported()
    {
       #if defined(WEBOS) || defined(BLACKBERRY) || defined(HX_LINUX) || defined(HX_WINDOWS)
@@ -722,11 +737,11 @@ public:
       return false;
       #endif
    }
-   
-   
+
+
    void setMultitouchActive(bool inActive) { mMultiTouch = inActive; }
-   
-   
+
+
    bool getMultitouchActive()
    {
       #if defined(WEBOS) || defined(BLACKBERRY) || defined(HX_LINUX) || defined(HX_WINDOWS)
@@ -735,28 +750,28 @@ public:
       return false;
       #endif
    }
-   
-   
+
+
    bool mMultiTouch;
    int  mSingleTouchID;
-  
+
    double mDX;
    double mDY;
 
    double mDownX;
    double mDownY;
-   
+
    const char *getJoystickName(int id) {
       return SDL_JoystickNameForIndex(id);
    }
-   
-   
+
+
    Surface *GetPrimarySurface()
    {
       return mPrimarySurface;
    }
-   
-   
+
+
    HardwareRenderer *mOpenGLContext;
    SDL_Window *mSDLWindow;
    SDL_Renderer *mSDLRenderer;
@@ -767,7 +782,7 @@ public:
    bool         mIsOpenGL;
    Cursor       mCurrentCursor;
    bool         mShowCursor;
-   bool            mLockCursor;   
+   bool            mLockCursor;
    bool         mIsFullscreen;
    unsigned int mWindowFlags;
    int          mWidth;
@@ -785,51 +800,51 @@ public:
       mStage = new SDLStage(inWindow, inRenderer, mWindowFlags, inIsOpenGL, inWidth, inHeight);
       mStage->IncRef();
    }
-   
-   
+
+
    ~SDLFrame()
    {
       mStage->DecRef();
    }
-   
-   
+
+
    void ProcessEvent(Event &inEvent)
    {
       mStage->ProcessEvent(inEvent);
    }
-   
-   
+
+
    void Resize(int inWidth, int inHeight)
    {
       mStage->Resize(inWidth, inHeight);
    }
-   
-   
+
+
    // --- Frame Interface ----------------------------------------------------
-   
-   
+
+
    void SetTitle()
    {
-      
+
    }
-   
-   
+
+
    void SetIcon()
    {
-      
+
    }
-   
-   
+
+
    Stage *GetStage()
    {
       return mStage;
    }
-   
-   
+
+
    SDLStage *mStage;
    bool mIsOpenGL;
    uint32 mWindowFlags;
-   
+
    double mAccX;
    double mAccY;
    double mAccZ;
@@ -859,12 +874,12 @@ void AddModStates(int &ioFlags,int inState = -1)
    if (state & KMOD_CTRL) ioFlags |= efCtrlDown;
    if (state & KMOD_ALT) ioFlags |= efAltDown;
    if (state & KMOD_GUI) ioFlags |= efCommandDown;
-   
+
    int m = SDL_GetMouseState(0,0);
    if ( m & SDL_BUTTON(1) ) ioFlags |= efLeftDown;
    if ( m & SDL_BUTTON(2) ) ioFlags |= efMiddleDown;
    if ( m & SDL_BUTTON(3) ) ioFlags |= efRightDown;
-   
+
    ioFlags |= efPrimaryTouch;
    ioFlags |= efNoNativeClick;
 }
@@ -886,10 +901,10 @@ int SDLKeyToFlash(int inKey,bool &outRight)
    }
    if (inKey>=SDLK_0 && inKey<=SDLK_9)
       return inKey - SDLK_0 + keyNUMBER_0;
-   
+
    if (inKey>=SDLK_F1 && inKey<=SDLK_F12)
       return inKey - SDLK_F1 + keyF1;
-   
+
    switch(inKey)
    {
       case SDLK_RALT:
@@ -904,7 +919,7 @@ int SDLKeyToFlash(int inKey,bool &outRight)
       case SDLK_LGUI:
       case SDLK_RGUI:
          return keyCOMMAND;
-      
+
       case SDLK_CAPSLOCK: return keyCAPS_LOCK;
       case SDLK_PAGEDOWN: return keyPAGE_DOWN;
       case SDLK_PAGEUP: return keyPAGE_UP;
@@ -912,7 +927,7 @@ int SDLKeyToFlash(int inKey,bool &outRight)
       case SDLK_RETURN:
       case SDLK_KP_ENTER:
          return keyENTER;
-      
+
       SDL_TRANS(AMPERSAND)
       SDL_TRANS(APPLICATION)
       SDL_TRANS(ASTERISK)
@@ -985,7 +1000,7 @@ void AddCharCode(Event &key)
 {
    bool shift = (key.flags & efShiftDown);
    bool foundCode = true;
-   
+
    if (!shift)
    {
       switch (key.value)
@@ -1024,7 +1039,7 @@ void AddCharCode(Event &key)
             foundCode = false;
             break;
       }
-      
+
       if (!foundCode)
       {
          if (key.value >= 48 && key.value <= 57)
@@ -1102,7 +1117,7 @@ void AddCharCode(Event &key)
             foundCode = false;
             break;
       }
-      
+
       if (!foundCode)
       {
          if (key.value >= 65 && key.value <= 90)
@@ -1112,7 +1127,7 @@ void AddCharCode(Event &key)
          }
       }
    }
-   
+
    if (!foundCode)
    {
       if (key.value >= 96 && key.value <= 105)
@@ -1225,19 +1240,19 @@ void ProcessEvent(SDL_Event &inEvent)
             {
                //Event deactivate(etDeactivate);
                //sgSDLFrame->ProcessEvent(deactivate);
-               
+
                //Event kill(etDestroyHandler);
                //sgSDLFrame->ProcessEvent(kill);
                break;
             }
             default: break;
          }
-         
+
          break;
-         
+
       }
       case SDL_MOUSEMOTION:
-      {  
+      {
             //default to 0
          int deltaX = 0;
          int deltaY = 0;
@@ -1281,12 +1296,12 @@ void ProcessEvent(SDL_Event &inEvent)
          sgSDLFrame->ProcessEvent(mouse);
          break;
       }
-      case SDL_MOUSEWHEEL: 
-      {   
+      case SDL_MOUSEWHEEL:
+      {
             //previous behavior in nme was 3 for down, 4 for up
          int event_dir = (inEvent.wheel.y > 0) ? 3 : 4;
             //space to get the current mouse position, to make sure the values are sane
-         int _x = 0; 
+         int _x = 0;
          int _y = 0;
             //fetch the mouse position
          SDL_GetMouseState(&_x,&_y);
@@ -1342,7 +1357,7 @@ void ProcessEvent(SDL_Event &inEvent)
          AddModStates(key.flags, inEvent.key.keysym.mod);
          if (right)
             key.flags |= efLocationRight;
-         
+
          // SDL2 does not expose char codes in key events (due to the more advanced
          // Unicode event API), so we'll add some ASCII assumptions to return something
          AddCharCode(key);
@@ -1469,7 +1484,7 @@ void ProcessEvent(SDL_Event &inEvent)
             if (sgJoysticksId[i] == joystick.id)
             {
                SDL_JoystickClose(sgJoysticks[i]);
-               break;   
+               break;
             }
             j++;
          }
@@ -1488,7 +1503,7 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
    #ifdef HX_MACOS
    MacBoot();
    #endif
-   
+
    bool fullscreen = (inFlags & wfFullScreen) != 0;
    bool opengl = (inFlags & wfHardware) != 0;
    bool resizable = (inFlags & wfResizable) != 0;
@@ -1504,25 +1519,25 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
    #endif
 
 
-   
+
    sgShaderFlags = (inFlags & (wfAllowShaders|wfRequireShaders) );
 
    //Rect r(100,100,inWidth,inHeight);
-   
+
    int err = InitSDL();
    if (err == -1)
    {
       fprintf(stderr,"Could not initialize SDL : %s\n", SDL_GetError());
       inOnFrame(0);
    }
-   
+
    //SDL_EnableUNICODE(1);
    //SDL_EnableKeyRepeat(500,30);
 
    #ifdef NME_MIXER
    openAudio();
    #endif
-   
+
    if (SDL_GetNumVideoDisplays() > 0)
    {
       SDL_DisplayMode currentMode;
@@ -1530,28 +1545,28 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
       sgDesktopWidth = currentMode.w;
       sgDesktopHeight = currentMode.h;
    }
-   
+
    int windowFlags, requestWindowFlags = 0;
-   
+
    if (opengl) requestWindowFlags |= SDL_WINDOW_OPENGL;
    if (resizable) requestWindowFlags |= SDL_WINDOW_RESIZABLE;
    if (borderless) requestWindowFlags |= SDL_WINDOW_BORDERLESS;
    if (fullscreen) requestWindowFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP; //SDL_WINDOW_FULLSCREEN_DESKTOP;
-   
+
    if (opengl)
    {
       SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
       SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
       SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-      
+
       if (inFlags & wfDepthBuffer)
          SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32 - (inFlags & wfStencilBuffer) ? 8 : 0);
-      
+
       if (inFlags & wfStencilBuffer)
          SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-      
+
       SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-      
+
       if (inFlags & wfHW_AA_HIRES)
       {
          SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, true);
@@ -1565,7 +1580,7 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
 
       //requestWindowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
    }
-   
+
    #ifdef HX_LINUX
    int setWidth = inWidth;
    int setHeight = inHeight;
@@ -1573,30 +1588,30 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
    int setWidth = fullscreen ? sgDesktopWidth : inWidth;
    int setHeight = fullscreen ? sgDesktopHeight : inHeight;
    #endif
-   
+
    SDL_Window *window = NULL;
    SDL_Renderer *renderer = NULL;
 
-   while (!window || !renderer) 
+   while (!window || !renderer)
    {
       // if there's an old window around from a failed attempt, destroy it
-      if (window) 
+      if (window)
       {
          SDL_DestroyWindow(window);
          window = NULL;
       }
 
       window = SDL_CreateWindow(inTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, setWidth, setHeight, requestWindowFlags);
-      
+
       #ifdef HX_WINDOWS
       HINSTANCE handle = ::GetModuleHandle(0);
       HICON icon = ::LoadIcon(handle, MAKEINTRESOURCE (1));
-      
+
       if (icon)
       {
          SDL_SysWMinfo wminfo;
          SDL_VERSION (&wminfo.version);
-         
+
          if (SDL_GetWindowWMInfo(window, &wminfo) == 1)
          {
             HWND hwnd = wminfo.info.win.window;
@@ -1604,7 +1619,7 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
          }
       }
       #endif
-     
+
       // retrieve the actual window flags (as opposed to the requested ones)
       windowFlags = SDL_GetWindowFlags (window);
       if (fullscreen) sgWindowRect = Rect(SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, inWidth, inHeight);
@@ -1614,7 +1629,7 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
       if (opengl && vsync) renderFlags |= SDL_RENDERER_PRESENTVSYNC;
 
       renderer = SDL_CreateRenderer (window, -1, renderFlags);
-      
+
       if (opengl)
       {
          sgIsOGL2 = (inFlags & (wfAllowShaders | wfRequireShaders));
@@ -1623,7 +1638,7 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
       {
          sgIsOGL2 = false;
       }
-      
+
       if (!renderer && (inFlags & wfHW_AA_HIRES || inFlags & wfHW_AA)) {
          // if no window was created and AA was enabled, disable AA and try again
          fprintf(stderr, "Multisampling is not available. Retrying without. (%s)\n", SDL_GetError());
@@ -1632,14 +1647,14 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
          inFlags &= ~wfHW_AA_HIRES;
          inFlags &= ~wfHW_AA;
       }
-      else if (!renderer && opengl) 
+      else if (!renderer && opengl)
       {
          // if opengl is enabled and no window was created, disable it and try again
          fprintf(stderr, "OpenGL is not available. Retrying without. (%s)\n", SDL_GetError());
          opengl = false;
          requestWindowFlags &= ~SDL_WINDOW_OPENGL;
       }
-      else 
+      else
       {
          // no more things to try, break out of the loop
          break;
@@ -1650,14 +1665,14 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
    {
       fprintf(stderr, "Failed to create SDL window: %s\n", SDL_GetError());
       return;
-   }  
-   
+   }
+
    if (!renderer)
    {
       fprintf(stderr, "Failed to create SDL renderer: %s\n", SDL_GetError());
       return;
    }
-   
+
    int width, height;
    if (windowFlags & SDL_WINDOW_FULLSCREEN || windowFlags & SDL_WINDOW_FULLSCREEN_DESKTOP)
    {
@@ -1672,13 +1687,13 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
    {
       SDL_GetWindowSize(window, &width, &height);
    }
-   
+
    sgSDLFrame = new SDLFrame(window, renderer, windowFlags, opengl, width, height);
    inOnFrame(sgSDLFrame);
-   
+
    int numJoysticks = SDL_NumJoysticks();
    SDL_JoystickEventState(SDL_TRUE);
-   
+
    StartAnimation();
 }
 
@@ -1689,13 +1704,13 @@ bool sgDead = false;
 void SetIcon(const OSChar *path)
 {
    Surface *surface = Surface::Load(path);
-   
+
    if (surface)
    {
       SDL_Surface *sdlSurface = SDL_CreateRGBSurfaceFrom ((void *)surface->GetBase(), surface->Width(), surface->Height(), 32, surface->GetStride(), 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
-      
+
       SDL_SetWindowIcon(sgSDLFrame->mStage->mSDLWindow, sdlSurface);
-      
+
       surface->DecRef();
       SDL_FreeSurface (sdlSurface);
    }
@@ -1703,20 +1718,20 @@ void SetIcon(const OSChar *path)
 
 
 QuickVec<int>* CapabilitiesGetScreenResolutions()
-{   
+{
    InitSDL();
    QuickVec<int> *out = new QuickVec<int>();
-   
+
    int numModes = SDL_GetNumDisplayModes(0);
    SDL_DisplayMode mode;
-   
+
    for (int i = 0; i < numModes; i++)
    {
       SDL_GetDisplayMode(0, i, &mode);
       out->push_back(mode.w);
       out->push_back(mode.h);
    }
-   
+
    return out;
 }
 
@@ -1855,14 +1870,14 @@ QuickVec<ScreenMode>* CapabilitiesGetScreenModes()
 
 double CapabilitiesGetScreenResolutionX()
 {
-   InitSDL();   
+   InitSDL();
    return sgDesktopWidth;
 }
 
 
 double CapabilitiesGetScreenResolutionY()
-{   
-   InitSDL();   
+{
+   InitSDL();
    return sgDesktopHeight;
 }
 
@@ -1936,7 +1951,7 @@ void StartAnimation()
             break;
          nextWake = sgSDLFrame->GetStage()->GetNextWake();
       }
- 
+
 
       // Poll if due
       double dWaitMs = (nextWake - GetTimeStamp())*1000.0 + 0.5;
@@ -1992,25 +2007,27 @@ void StartAnimation()
             sgTimerActive = false;
             sgTimerID = 0;
          }
-         
+
+         //updateVideo(((SDLStage*) sgSDLFrame->GetStage())->GetRender());
+
          ProcessEvent(event);
          if (sgDead) break;
          event.type = SDL_NOEVENT;
-         
+
          while (SDL_PollEvent(&event))
          {
             ProcessEvent (event);
             if (sgDead) break;
             event.type = -1;
          }
-         
+
          Event poll(etPoll);
          sgSDLFrame->ProcessEvent(poll);
-         
+
          if (sgDead) break;
-         
+
          double next = sgSDLFrame->GetStage()->GetNextWake() - GetTimeStamp();
-         
+
          if (next > 0.001)
          {
             int snooze = next*1000.0;
@@ -2071,11 +2088,57 @@ void StartAnimation()
     }
 #endif
 
-int showVideo(const char* name)
+struct AutoHaxe
+{
+   int base;
+   const char *message;
+   AutoHaxe(const char *inMessage)
+   {
+      base = 0;
+      message = inMessage;
+      gc_set_top_of_stack(&base,true);
+      //__android_log_print(ANDROID_LOG_VERBOSE, "NME", "Enter %s %p", message, pthread_self());
+   }
+   ~AutoHaxe()
+   {
+      //__android_log_print(ANDROID_LOG_VERBOSE, "NME", "Leave %s %p", message, pthread_self());
+      gc_set_top_of_stack(0,true);
+   }
+};
+
+typedef struct s_video_context
+{
+   AVFormatContext* context;
+   AVCodecContext* videoCodecInfo;
+   AVCodecContext* audioCodecInfo;
+   int videoStreamIndex;
+   int audioStreamIndex;
+   struct timeval last_frame;
+   DisplayObject *do_out;
+   struct SwsContext* sws_ctx;
+   int w;
+   int h;
+   AVFrame* frame_rgb;
+   AVFrame* frame_video;
+   AVFrame* frame_audio;
+   double acc_delay;
+   bool loop;
+   AutoGCRoot *sOnEndCallback;
+   pthread_t* video_thread;
+   pthread_t* audio_thread;
+   ao_device *adevice;
+   AVAudioResampleContext* resample_context;
+} VideoContext;
+
+VideoContext* videoContext = NULL;
+
+int showVideo(const char* name, int width, int height, DisplayObject* target, bool loop)
 {
    AVFormatContext* context = NULL;
-   AVCodecContext* codecInfo;
-   AVCodec* codec;
+   AVCodecContext* videoCodecInfo;
+   AVCodecContext* audioCodecInfo;
+
+   videoContext = (VideoContext*) malloc(sizeof(VideoContext));
 
    av_register_all();
 
@@ -2084,68 +2147,301 @@ int showVideo(const char* name)
    avformat_find_stream_info(context, NULL);
 
    int videoStream = -1;
+   int audioStream = -1;
    for (int i = 0; i < context->nb_streams; i++)
    {
-      if (context->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO)
-      {
-         videoStream = i;
-         break;
-      }
+       if (context->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO)
+       {
+           videoStream = i;
+       }
+
+       if (context->streams[i]->codec->codec_type == AVMEDIA_TYPE_AUDIO)
+       {
+           audioStream = i;
+       }
+
+       if (audioStream != -1 && videoStream != -1)
+           break;
    }
 
-   if (videoStream == -1)
-      return -1;
+   if (videoStream == -1 || audioStream == -1)
+       return -1;
 
-   codecInfo = context->streams[videoStream]->codec;
+   videoCodecInfo = context->streams[videoStream]->codec;
+   audioCodecInfo = context->streams[audioStream]->codec;
 
-   // Find the decoder for the video strea
-   codec = avcodec_find_decoder(codecInfo->codec_id);
+   AVCodec* videoCodec = avcodec_find_decoder(videoCodecInfo->codec_id);
+   if (videoCodec == NULL)
+   {
+       printf("Unsupported codec!\n");
+       return -1; // Codec not found
+   }
+
+   AVCodec* audioCodec = avcodec_find_decoder(audioCodecInfo->codec_id);
+   if (audioCodec == NULL)
+   {
+       printf("Unsupported codec!\n");
+       return -1; // Codec not found
+   }
+
+   if (avcodec_open2(videoCodecInfo, videoCodec, NULL) < 0)
+     return -1; // Could not open codec
+
+   if (avcodec_open2(audioCodecInfo, audioCodec, NULL) < 0)
+     return -1; // Could not open codec
+
+   //AO
+   ao_initialize();
+
+   int driver = ao_default_driver_id();
+
+   ao_info* info = ao_driver_info(driver);
+
+   ao_sample_format sformat;
+
+   memset(&sformat, 0, sizeof(sformat));
+
+   sformat.bits = 16;
+   sformat.channels = 2;
+   sformat.rate = 48000.0;
+   sformat.byte_format = info->preferred_byte_format;
+   sformat.matrix = 0;
+
+   ao_device *adevice = ao_open_live(driver, &sformat, NULL);
+
+   AVAudioResampleContext* resample_context;
+
+   // Prepare resampler.
+   if (!(resample_context = avresample_alloc_context()))
+   {
+       printf("Could not allocate resample context\n");
+       return 1;
+   }
+
+   // The file channels.
+   av_opt_set_int(resample_context, "in_channel_layout", av_get_default_channel_layout(audioCodecInfo->channels), 0);
+   av_opt_set_int(resample_context, "out_channel_layout", av_get_default_channel_layout(sformat.channels), 0);
+   av_opt_set_int(resample_context, "in_sample_rate", audioCodecInfo->sample_rate, 0);
+   av_opt_set_int(resample_context, "out_sample_rate", sformat.rate, 0);
+   av_opt_set_int(resample_context, "in_sample_fmt", audioCodecInfo->sample_fmt, 0);
+   av_opt_set_int(resample_context, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
+
+   if (avresample_open(resample_context) < 0)
+   {
+       printf("Could not open resample context.");
+       return 1;
+   }
 
 
-   avcodec_open2(codecInfo, codec, NULL);
+   gettimeofday(&(videoContext->last_frame), NULL);
+   videoContext->audioCodecInfo = audioCodecInfo;
+   videoContext->videoCodecInfo = videoCodecInfo;
+   videoContext->context = context;
+   videoContext->videoStreamIndex = videoStream;
+   videoContext->audioStreamIndex = audioStream;
+   videoContext->w = width;
+   videoContext->h = height;
+   videoContext->loop = loop;
+   videoContext->do_out = target;
+   videoContext->sws_ctx = sws_getContext(width, height, videoCodecInfo->pix_fmt, width, height, AV_PIX_FMT_ARGB, SWS_BILINEAR, NULL, NULL, NULL);
+   videoContext->frame_video = av_frame_alloc();
+   videoContext->frame_audio = av_frame_alloc();
+   videoContext->frame_rgb = av_frame_alloc();
+   videoContext->resample_context = resample_context;
+   videoContext->adevice = adevice;
+   videoContext->sOnEndCallback = 0;
 
-   AVFrame* frame = av_frame_alloc();
+   int numBytes = avpicture_get_size(AV_PIX_FMT_ARGB, width, height);
+   uint8_t* buffer = (uint8_t *) av_malloc(numBytes);
+   avpicture_fill((AVPicture *)videoContext->frame_rgb, buffer, AV_PIX_FMT_ARGB, width, height);
 
-   SDL_Renderer* renderer = ((SDLStage*)sgSDLFrame->GetStage())->GetRender();
+   pthread_t* t = (pthread_t*) malloc(sizeof(pthread_t));
+   pthread_t* t2 = (pthread_t*) malloc(sizeof(pthread_t));
+   pthread_create(t, NULL, updateVideo, NULL);
+   videoContext->video_thread = t;
+   videoContext->audio_thread = t2;
 
-   //FIXME: Hardcoded video size
-   SDL_Texture* bmp = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_YV12, SDL_TEXTUREACCESS_STREAMING, 800, 600);
+   pthread_create(t2, NULL, playAudio, NULL);
 
-   int i = 0;
-   AVPacket packet;
-   SDL_Event event;
+   QueueInit();
 
-   const int FPS = 24;
-   struct timeval last_frame;
-   gettimeofday(&last_frame, NULL);
+   return 0;
+}
 
-    while (av_read_frame(context, &packet) >= 0 && event.type != SDL_QUIT)
-    {
-        SDL_PollEvent(&event);
-        if (packet.stream_index == videoStream)
-        {
-            int frameFinished;
-            avcodec_decode_video2(codecInfo, frame, &frameFinished, &packet);
-            if (frameFinished)
-            {
-                SDL_UpdateYUVTexture(bmp, NULL, frame->data[0], frame->linesize[0], frame->data[1], frame->linesize[1], frame->data[2], frame->linesize[2]);
-                SDL_RenderCopy(renderer, bmp, NULL, NULL);
-                SDL_RenderPresent(renderer);
+void* playAudio(void* p)
+{
+   while (true)
+   {
+      struct toPlay_s* elem;
+      if (QueueGet(&elem) != -1)
+      {
+         ao_play(elem->adevice, (char*) elem->output, elem->out_samples * 4);
+      }
+   }
+}
 
-                //Render constant FPS
-                struct timeval now;
-                gettimeofday(&now, NULL);
-                double time_elasped = (double) (now.tv_usec - last_frame.tv_usec) / 1000000 + (double) (now.tv_sec - last_frame.tv_sec);
-
-                int time_to_sleep = (1000000 / FPS) - (1000000 * time_elasped);
-                usleep(time_to_sleep);
-
-                gettimeofday(&last_frame, NULL);
-            }
-        }
+static int rewind_file(AVFormatContext *ctx)
+{
+   int64_t timestamp;
+   int ret, i;
+   timestamp = ctx->start_time;
+   ret = av_seek_frame(ctx, -1, timestamp, AVSEEK_FLAG_BACKWARD);
+   if (ret < 0)
+   {
+       printf("Unable to loop\n");
+       return ret;
    }
 
    return 0;
+}
+
+void* updateVideo(void* p)
+{
+   int w = videoContext->w;
+   int h = videoContext->h;
+   AVFrame* frame = videoContext->frame_video;
+   videoContext->acc_delay = 0;
+   AVPacket packet;
+   struct timeval now, then;
+   double delay;
+   SimpleSurface *surf = new SimpleSurface(w, h, pfARGB);
+
+   int64_t out_sample_fmt;
+   av_opt_get_int(videoContext->resample_context, "out_sample_fmt", 0, &out_sample_fmt);
+   int channels = 2;
+
+   bool alreadyDrawn = false;
+
+   if (videoContext != NULL)
+   {
+      while (true)
+      {
+         const int FPS = 24;
+
+         if (av_read_frame(videoContext->context, &packet) >= 0)
+         {
+            if (packet.stream_index == videoContext->videoStreamIndex)
+            {
+               int frameFinished = 0;
+               avcodec_decode_video2(videoContext->videoCodecInfo, frame, &frameFinished, &packet);
+               if (frameFinished)
+               {
+                   gettimeofday(&then, NULL);
+
+                   sws_scale(
+                      videoContext->sws_ctx,
+                      (uint8_t const * const *)frame->data,
+                      frame->linesize,
+                      0,
+                      h,
+                      videoContext->frame_rgb->data,
+                      videoContext->frame_rgb->linesize
+                   );
+
+                   surf->setPixels(Rect(0, 0, w, h), (uint32_t*)(videoContext->frame_rgb->data[0]), false, false);
+
+                   if (!alreadyDrawn)
+                   {
+                      Graphics *gfx = &(videoContext->do_out->GetGraphics());
+                      gfx->beginBitmapFill(surf, Matrix(), false, false);
+                      gfx->drawRect(0, 0, w, h);
+                      alreadyDrawn = true;
+                   }
+
+                   gettimeofday(&now, NULL);
+                   double time_used = ((double) (now.tv_usec - then.tv_usec) / 1000000 + (double) (now.tv_sec - then.tv_sec));
+
+                   double time_to_sleep = 1.0 / FPS - delay - time_used;
+
+                   if (time_to_sleep < 0)
+                   {
+                     time_to_sleep = 0;
+                   }
+
+                   gettimeofday(&then, NULL);
+                   usleep(time_to_sleep * 1000000);
+                   gettimeofday(&now, NULL);
+
+                   delay = ((double) (now.tv_usec - then.tv_usec) / 1000000 + (double) (now.tv_sec - then.tv_sec)) - time_to_sleep;
+               }
+
+               av_frame_unref(frame);
+            }
+            else if (packet.stream_index == videoContext->audioStreamIndex)
+            {
+                int frameFinished;
+                int ret = avcodec_decode_audio4(videoContext->audioCodecInfo, videoContext->frame_audio, &frameFinished, &packet);
+                if ( ret < 0 ) {
+                    printf("Error in decoding audio frame.\n");
+                    return NULL;
+                }
+
+                int out_linesize;
+                int out_samples;
+                uint8_t *output = NULL;
+                if (frameFinished > 0)
+                {
+                    out_samples = avresample_get_out_samples(videoContext->resample_context, videoContext->frame_audio->nb_samples);
+                    av_samples_alloc(&output, &out_linesize, channels, out_samples, (enum AVSampleFormat) out_sample_fmt, 0);
+
+                    out_samples = avresample_convert(videoContext->resample_context, &output, out_linesize, out_samples, videoContext->frame_audio->extended_data, videoContext->frame_audio->linesize[0], videoContext->frame_audio->nb_samples);
+
+                    struct toPlay_s* toplay = (struct toPlay_s*) malloc(sizeof(struct toPlay_s));
+
+                    toplay->out_samples = out_samples;
+                    toplay->output = output;
+                    toplay->adevice = videoContext->adevice;
+
+                    QueuePut(toplay);
+                }
+
+                av_frame_unref(videoContext->frame_audio);
+            }
+
+            av_free_packet(&packet);
+         }
+         else
+         {
+            if (videoContext->loop)
+            {
+               rewind_file(videoContext->context);
+               continue;
+            }
+
+            if (videoContext->sOnEndCallback != 0)
+            {
+               AutoHaxe haxe("On end callback");
+               val_call0(videoContext->sOnEndCallback->get());
+            }
+
+            videoContext = NULL;
+            //Video end
+            return NULL;
+         }
+      }
+   }
+
+   return NULL;
+}
+
+void stopVideo()
+{
+   if (videoContext != NULL)
+   {
+      pthread_cancel(*(videoContext->video_thread));
+      pthread_cancel(*(videoContext->audio_thread));
+   }
+}
+
+void addEndVideoCallback(value callback)
+{
+   if (videoContext != NULL)
+   {
+      if (videoContext->sOnEndCallback == 0)
+      {
+         videoContext->sOnEndCallback = new AutoGCRoot(callback);
+      }
+   }
 }
 
 }

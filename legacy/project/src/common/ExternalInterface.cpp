@@ -223,7 +223,7 @@ extern "C" void InitIDs()
    _id_cookieString = val_id("cookieString");
    _id_verbose = val_id("verbose");
    _id_followRedirects = val_id("followRedirects");
-   
+
    _id_method = val_id("method");
    _id_requestHeaders = val_id("requestHeaders");
    _id_name = val_id("name");
@@ -236,7 +236,7 @@ extern "C" void InitIDs()
    _id_descent = val_id("descent");
 
    kind_share(&gObjectKind,"nme::Object");
-   
+
    _tile_rect = Rect(0, 0, 1, 1);
 
    #ifndef HX_LIME
@@ -587,7 +587,7 @@ void FromValue(value obj, URLRequest &request)
    request.contentType = val_string( val_field(obj, _id_contentType) );
    request.debug = val_field_numeric( obj, _id_verbose );
    request.postData = ByteArray( val_field(obj,_id___bytes) );
-   request.followRedirects = val_field_numeric( obj, _id_followRedirects ); 
+   request.followRedirects = val_field_numeric( obj, _id_followRedirects );
 
    // headers
   if (!val_is_null(val_field(obj, _id_requestHeaders)) && val_array_size(val_field(obj, _id_requestHeaders)) )
@@ -633,10 +633,10 @@ DEFINE_PRIM(nme_##obj_prefix##_set_##prop,2)
 
 
 #define DO_DISPLAY_PROP(prop,Prop,to_val,from_val) \
-   DO_PROP(DisplayObject,display_object,prop,Prop,to_val,from_val) 
+   DO_PROP(DisplayObject,display_object,prop,Prop,to_val,from_val)
 
 #define DO_STAGE_PROP(prop,Prop,to_val,from_val) \
-   DO_PROP(Stage,stage,prop,Prop,to_val,from_val) 
+   DO_PROP(Stage,stage,prop,Prop,to_val,from_val)
 
 
 using namespace nme;
@@ -932,7 +932,7 @@ value nme_set_icon( value path ) {
    //printf( "setting icon\n" );
    #if defined( HX_WINDOWS ) || defined( HX_MACOS )
        SetIcon( val_os_string( path ) );
-   #endif   
+   #endif
    return alloc_null();
 }
 
@@ -954,14 +954,14 @@ value nme_capabilities_get_screen_resolutions ()
    //Only really makes sense on PC platforms
    #if defined( HX_WINDOWS ) || defined( HX_MACOS ) || defined( HX_LINUX )
       QuickVec<int>* res = CapabilitiesGetScreenResolutions();
-      
+
       value result = alloc_array( res->size());
       for(int i=0;i<res->size();i++)
       {
           int outres = (*res)[ i ];
           val_array_set_i(result,i,alloc_int( outres ) );
       }
-   
+
       return result;
    #endif
    return alloc_null();
@@ -988,51 +988,51 @@ value nme_capabilities_get_screen_modes () {
          val_array_set_i(result,i * 4 + 2,alloc_int( mode.refreshRate ) );
          val_array_set_i(result,i * 4 + 3,alloc_int( (int)mode.format ) );
       }
-    
+
       return result;
-    
+
     #endif
-  
+
     return alloc_null();
-  
-  
+
+
 }
 
 DEFINE_PRIM( nme_capabilities_get_screen_modes, 0 );
 
 
 value nme_capabilities_get_pixel_aspect_ratio () {
-   
+
    return alloc_float (CapabilitiesGetPixelAspectRatio ());
-   
+
 }
 DEFINE_PRIM (nme_capabilities_get_pixel_aspect_ratio, 0);
 
 value nme_capabilities_get_screen_dpi () {
-   
+
    return alloc_float (CapabilitiesGetScreenDPI ());
-   
+
 }
 DEFINE_PRIM (nme_capabilities_get_screen_dpi, 0);
 
 value nme_capabilities_get_screen_resolution_x () {
-   
+
    return alloc_float (CapabilitiesGetScreenResolutionX ());
-   
+
 }
 DEFINE_PRIM (nme_capabilities_get_screen_resolution_x, 0);
 
 value nme_capabilities_get_screen_resolution_y () {
-   
+
    return alloc_float (CapabilitiesGetScreenResolutionY ());
-   
+
 }
 DEFINE_PRIM (nme_capabilities_get_screen_resolution_y, 0);
 
 value nme_capabilities_get_language() {
-   
+
    return alloc_string(CapabilitiesGetLanguage().c_str());
-   
+
 }
 DEFINE_PRIM (nme_capabilities_get_language, 0);
 
@@ -1171,14 +1171,33 @@ value nme_get_frame_stage(value inValue)
 }
 DEFINE_PRIM(nme_get_frame_stage,1);
 
-value nme_play_video(value name)
+value nme_play_video(value name, value width, value height, value target, value loop)
 {
-  showVideo(val_get_string(name));
+    DisplayObject *obj;
 
-  return alloc_null();
+    if (AbstractToObject(target, obj))
+        showVideo(val_get_string(name), val_get_int(width), val_get_int(height), obj, val_get_bool(loop));
+
+    return alloc_null();
 }
-DEFINE_PRIM(nme_play_video,1);
+DEFINE_PRIM(nme_play_video,5);
 
+value nme_stop_video()
+{
+    stopVideo();
+
+    return alloc_null();
+}
+DEFINE_PRIM(nme_stop_video, 0);
+
+value nme_add_end_video_callback(value callback)
+{
+    val_check_function(callback, 0);
+    addEndVideoCallback(callback);
+
+    return alloc_null();
+}
+DEFINE_PRIM(nme_add_end_video_callback,1);
 
 AutoGCRoot *sOnCreateCallback = 0;
 
@@ -1575,7 +1594,7 @@ value nme_stage_is_opengl(value inStage)
    return alloc_bool(false);
 }
 DEFINE_PRIM(nme_stage_is_opengl,1);
- 
+
 namespace nme { void AndroidRequestRender(); }
 value nme_stage_request_render()
 {
@@ -1585,7 +1604,7 @@ value nme_stage_request_render()
    return alloc_null();
 }
 DEFINE_PRIM(nme_stage_request_render,0);
- 
+
 
 value nme_stage_show_cursor(value inStage,value inShow)
 {
@@ -1601,7 +1620,7 @@ DEFINE_PRIM(nme_stage_show_cursor,2);
 value nme_stage_constrain_cursor_to_window_frame(value inStage, value inLock)
 {
     Stage *stage;
-    if (AbstractToObject(inStage,stage)) {       
+    if (AbstractToObject(inStage,stage)) {
         bool lock = val_bool(inLock);
         stage->ConstrainCursorToWindowFrame( lock );
     }
@@ -1615,7 +1634,7 @@ value nme_stage_set_cursor_position_in_window( value inStage, value inX, value i
    if (AbstractToObject(inStage,stage))
    {
       int x = val_int(inX);
-      int y = val_int(inY);      
+      int y = val_int(inY);
       stage->SetCursorPositionInWindow(x,y);
    }
    return alloc_null();
@@ -1655,7 +1674,7 @@ value nme_stage_set_window_position( value inStage, value inX, value inY ) {
    if (AbstractToObject(inStage,stage))
    {
       int x = val_int(inX);
-      int y = val_int(inY);      
+      int y = val_int(inY);
       stage->SetStageWindowPosition(x,y);
    }
    return alloc_null();
@@ -1667,13 +1686,13 @@ value nme_stage_get_orientation() {
 
    #if defined(IPHONE) || defined(ANDROID) || defined(BLACKBERRY)
       return alloc_int( GetDeviceOrientation() );
-   
+
    #else
-   
+
       return alloc_int( 0 );
-      
+
    #endif
-   
+
 }
 
 DEFINE_PRIM(nme_stage_get_orientation, 0);
@@ -1683,9 +1702,9 @@ value nme_stage_get_normal_orientation() {
    #if defined(ANDROID)
       return alloc_int( GetNormalOrientation() );
    #elif defined(IPHONE)
-      return alloc_int( 1 ); // ios device sensors are always portrait orientated  
+      return alloc_int( 1 ); // ios device sensors are always portrait orientated
    #else
-      return alloc_int( 0 );  
+      return alloc_int( 0 );
    #endif
 }
 
@@ -1938,7 +1957,7 @@ value nme_display_object_draw_to_surface(value *arg,int count)
 
       // get current transformation
       Matrix objMatrix = obj->GetLocalMatrix();
-      
+
       // untransform for draw (set matrix to identity)
       float m00 = objMatrix.m00;
       float m01 = objMatrix.m01;
@@ -2233,7 +2252,7 @@ value nme_display_object_get_bounds(value inObj, value inTarget, value outBounds
 
       Extent2DF ext;
       obj->GetExtent(trans, ext, false, val_bool(inIncludeStroke) );
-      
+
       Rect rect;
       if (ext.GetRect(rect))
          ToValue(outBounds,rect);
@@ -2383,8 +2402,8 @@ DEFINE_PRIM(nme_simple_button_set_state,3);
 
 
 
-DO_PROP(SimpleButton,simple_button,enabled,Enabled,alloc_bool,val_bool) 
-DO_PROP(SimpleButton,simple_button,hand_cursor,UseHandCursor,alloc_bool,val_bool) 
+DO_PROP(SimpleButton,simple_button,enabled,Enabled,alloc_bool,val_bool)
+DO_PROP(SimpleButton,simple_button,hand_cursor,UseHandCursor,alloc_bool,val_bool)
 
 // --- DisplayObjectContainer -----------------------------------------------------
 
@@ -2567,7 +2586,7 @@ void nme_gfx_begin_set_gradient_fill(value *arg, int args, bool inForSolid)
    {
       Matrix matrix;
       FromValue(matrix,arg[aMatrix]);
-      GraphicsGradientFill *grad = new GraphicsGradientFill(val_int(arg[aType]), 
+      GraphicsGradientFill *grad = new GraphicsGradientFill(val_int(arg[aType]),
          matrix,
          (SpreadMethod)val_int( arg[aSpreadMethod]),
          (InterpolationMethod)val_int( arg[aInterpMethod]),
@@ -2715,10 +2734,10 @@ value nme_gfx_draw_path(value inGfx, value inCommands, value inData, value inWin
    {
       QuickVec<uint8> commands;
       QuickVec<float> data;
-      
+
       FillArrayInt(commands, inCommands);
       FillArrayDouble(data, inData);
-      
+
       if (!val_bool(inWinding))
          gfx->drawPath(commands, data, wrNonZero);
       else
@@ -2744,7 +2763,7 @@ value nme_gfx_draw_triangles(value *arg, int args )
 {
 
    enum { aGfx, aVertices, aIndices, aUVData, aCull, aColours, aBlend };
-   
+
    Graphics *gfx;
    if (AbstractToObject(arg[aGfx],gfx))
    {
@@ -2752,15 +2771,15 @@ value nme_gfx_draw_triangles(value *arg, int args )
       QuickVec<int> indices;
       QuickVec<float> uvt;
       QuickVec<int> colours;
-      
+
       FillArrayDouble(vertices,arg[aVertices]);
       FillArrayInt(indices,arg[aIndices]);
       FillArrayDouble(uvt,arg[aUVData]);
       FillArrayInt(colours, arg[aColours]);
-      
+
       gfx->drawTriangles(vertices, indices, uvt, val_int(arg[aCull]), colours, val_int( arg[ aBlend ] ) );
    }
-   
+
    return alloc_null();
 }
 DEFINE_PRIM_MULT(nme_gfx_draw_triangles);
@@ -2841,14 +2860,14 @@ value nme_gfx_draw_tiles(value inGfx,value inSheet, value inXYIDs,value inFlags,
 
       bool smooth = flags & TILE_SMOOTH;
       gfx->beginTiles(&sheet->GetSurface(), smooth, blend);
-	  
+
 	  bool useRect = flags & TILE_RECT;
 	  bool useOrigin = flags & TILE_ORIGIN;
 
       int components = 3;
       int scale_pos = 3;
       int rot_pos = 3;
-	  
+
 	  if (useRect)
 	  {
 		  components = useOrigin ? 8 : 6;
@@ -2886,9 +2905,9 @@ value nme_gfx_draw_tiles(value inGfx,value inSheet, value inXYIDs,value inFlags,
       double x;
       double y;
       value *val_ptr = val_array_value(inXYIDs);
-	  
+
 	  Rect r = _tile_rect;
-	  
+
 	  double ox;
       double oy;
 
@@ -2896,19 +2915,19 @@ value nme_gfx_draw_tiles(value inGfx,value inSheet, value inXYIDs,value inFlags,
       {
          ox = 0.0;
 		 oy = 0.0;
-		  
+
 		 if (vals)
          {
             x = vals[0];
             y = vals[1];
-			
+
 			if (useRect)
 			{
 				r.x = vals[2];
 			    r.y = vals[3];
 			    r.w = vals[4];
 			    r.h = vals[5];
-				
+
 				if (useOrigin)
 			    {
 					ox = vals[6];
@@ -2924,14 +2943,14 @@ value nme_gfx_draw_tiles(value inGfx,value inSheet, value inXYIDs,value inFlags,
          {
              x = fvals[0];
              y = fvals[1];
-			
+
 			if (useRect)
 			{
 				 r.x = fvals[2];
 			     r.y = fvals[3];
 			     r.w = fvals[4];
 			     r.h = fvals[5];
-				 
+
 				 if (useOrigin)
 			     {
 					ox = fvals[6];
@@ -2947,14 +2966,14 @@ value nme_gfx_draw_tiles(value inGfx,value inSheet, value inXYIDs,value inFlags,
          {
              x = val_number(val_ptr[0]);
              y = val_number(val_ptr[1]);
-			
+
 			if (useRect)
 			{
 				 r.x = val_number(val_ptr[2]);
                  r.y = val_number(val_ptr[3]);
                  r.w = val_number(val_ptr[4]);
                  r.h = val_number(val_ptr[5]);
-				 
+
 				 if (useOrigin)
 				 {
 					 ox = val_number(val_ptr[6]);
@@ -2969,7 +2988,7 @@ value nme_gfx_draw_tiles(value inGfx,value inSheet, value inXYIDs,value inFlags,
          if ((id>=0 && id<max) || useRect)
          {
              int pos = 3;
-			 
+
 			 if (useRect)
 			 {
 				 pos = useOrigin ? 8 : 6;
@@ -2981,7 +3000,7 @@ value nme_gfx_draw_tiles(value inGfx,value inSheet, value inXYIDs,value inFlags,
                  oy = tile.mOy;
                  r = tile.mRect;
 			 }
-			 
+
             if (trans_2x2)
             {
                if (flags & TILE_TRANS_2x2)
@@ -3156,7 +3175,7 @@ value nme_graphics_path_move_to(value inPath,value inX1, value inY1)
 DEFINE_PRIM(nme_graphics_path_move_to,3)
 
 
-   
+
 value nme_graphics_path_wline_to(value inPath,value inX1, value inY1)
 {
    GraphicsPath *path;
@@ -3541,7 +3560,7 @@ value nme_bitmap_data_create(value* arg, int nargs)
    int gpu = -1;
    if (!val_is_null(arg[aGPU]))
       gpu = val_int(arg[aGPU]);
-   
+
    Surface *result = new SimpleSurface( w, h, format, 1, gpu );
    if (!(flags & 0x01))
       result->SetAllowTrans(false);
@@ -3656,12 +3675,12 @@ value nme_bitmap_data_load(value inFilename, value format)
    {
       value result = ObjectToAbstract(surface);
       surface->DecRef();
-      
-      if ( val_int( format ) == 1 ) 
+
+      if ( val_int( format ) == 1 )
          surface->setGPUFormat( pfARGB4444 );
-      else if ( val_int( format ) == 2 ) 
+      else if ( val_int( format ) == 2 )
          surface->setGPUFormat( pfRGB565 );
-         
+
       return result;
    }
    return alloc_null();
@@ -3673,9 +3692,9 @@ value nme_bitmap_data_set_format(value inHandle, value format)
    Surface *surface;
    if (AbstractToObject(inHandle,surface))
    {
-      if ( val_int( format ) == 1 ) 
+      if ( val_int( format ) == 1 )
          surface->setGPUFormat( pfARGB4444 );
-      else if ( val_int( format ) == 2 ) 
+      else if ( val_int( format ) == 2 )
          surface->setGPUFormat( pfRGB565 );
    }
    return alloc_null();
@@ -3689,17 +3708,17 @@ value nme_bitmap_data_from_bytes(value inRGBBytes, value inAlphaBytes)
       return alloc_null();
 
    Surface *surface = Surface::LoadFromBytes(bytes.data,bytes.length);
-   
-   
+
+
    if (surface)
    {
-      surface->SetAllowTrans(true);	
+      surface->SetAllowTrans(true);
       if (!val_is_null(inAlphaBytes))
       {
          ByteData alphabytes;
          if (!FromValue(alphabytes,inAlphaBytes))
             return alloc_null();
-            
+
          if(alphabytes.length > 0)
          {
             int index = 0;
@@ -3711,10 +3730,10 @@ value nme_bitmap_data_from_bytes(value inRGBBytes, value inAlphaBytes)
                   uint32 pixel = surface->getPixel(x, y) << 8;
                   surface->setPixel(x, y, (pixel >> 8) + alpha, true);
                }
-            } 
+            }
          }
       }
-     
+
       value result = ObjectToAbstract(surface);
       surface->DecRef();
       return result;
@@ -3737,7 +3756,7 @@ value nme_bitmap_data_encode(value inSurface, value inFormat,value inQuality)
 
    if (!ok)
       return alloc_null();
-  
+
    return array.mValue;
 }
 DEFINE_PRIM(nme_bitmap_data_encode,3);
@@ -3813,7 +3832,7 @@ value nme_bitmap_data_copy(value inSource, value inSourceRect, value inTarget, v
       FromValue(offset,inOffset);
 
       AutoSurfaceRender render(dest);
-      
+
       BlendMode blend = val_bool(inMergeAlpha) ? bmNormal : bmCopy;
       source->BlitTo(render.Target(),rect,offset.x, offset.y, blend, 0);
    }
@@ -4075,32 +4094,32 @@ value nme_bitmap_data_flood_fill(value inSurface, value inX, value inY, value in
       int x = val_int(inX);
       int y = val_int(inY);
       int color = val_int(inColor);
-      
+
       int width = surf->Width();
       int height = surf->Height();
-      
+
       std::vector<UserPoint> queue;
       queue.push_back(UserPoint(x,y));
-      
+
       int old = surf->getPixel(x,y);
       bool useAlpha = surf->GetAllowTrans();
-      
+
       bool *search = new bool[width*height];
       std::fill_n(search, width*height, false);
-      
+
       while (queue.size() > 0)
       {
          UserPoint currPoint = queue.back();
        queue.pop_back();
-         
+
          x = currPoint.x;
          y = currPoint.y;
-       
+
          if (x<0 || x>=width) continue;
          if (y<0 || y>=height) continue;
-         
+
          search[y*width + x] = true;
-         
+
          if (surf->getPixel(x,y) == old)
          {
             surf->setPixel(x,y,color,useAlpha);
@@ -4374,7 +4393,7 @@ value nme_sound_get_length(value inSound)
    return alloc_null();
 }
 DEFINE_PRIM(nme_sound_get_length,1);
- 
+
 value nme_sound_close(value inSound)
 {
    Sound *sound;
@@ -4385,7 +4404,7 @@ value nme_sound_close(value inSound)
    return alloc_null();
 }
 DEFINE_PRIM(nme_sound_close,1);
- 
+
 value nme_sound_get_status(value inSound)
 {
    Sound *sound;
@@ -4401,7 +4420,7 @@ value nme_sound_get_status(value inSound)
    return alloc_null();
 }
 DEFINE_PRIM(nme_sound_get_status,1);
- 
+
 // --- SoundChannel --------------------------------------------------------
 
 value nme_sound_channel_is_complete(value inChannel)
@@ -4453,7 +4472,7 @@ value nme_sound_channel_set_position(value inChannel, value inFloat)
    #ifdef HX_MACOS
    SoundChannel *channel;
    if (AbstractToObject(inChannel,channel))
-   {    
+   {
       float position = val_number(inFloat);
       channel->setPosition(position);
    }
@@ -4751,7 +4770,7 @@ DEFINE_PRIM(nme_lzma_decode,1);
 
 
 value nme_file_dialog_folder(value in_title, value in_text )
-{ 
+{
     std::string _title( val_string( in_title ) );
     std::string _text( val_string( in_text ) );
 
@@ -4762,7 +4781,7 @@ value nme_file_dialog_folder(value in_title, value in_text )
 DEFINE_PRIM(nme_file_dialog_folder,2);
 
 value nme_file_dialog_open(value in_title, value in_text, value in_types )
-{ 
+{
     std::string _title( val_string( in_title ) );
     std::string _text( val_string( in_text ) );
 
@@ -4775,7 +4794,7 @@ value nme_file_dialog_open(value in_title, value in_text, value in_types )
 DEFINE_PRIM(nme_file_dialog_open,3);
 
 value nme_file_dialog_save(value in_title, value in_text, value in_types )
-{ 
+{
     std::string _title( val_string( in_title ) );
     std::string _text( val_string( in_text ) );
 

@@ -3,6 +3,7 @@
 
 #include <nme/Object.h>
 #include <nme/Event.h>
+#include <SDL.h>
 #include <Utils.h>
 #include <Geom.h>
 #include <Graphics.h>
@@ -274,12 +275,12 @@ public:
 
    bool IsInteractive() const { return true; }
 
-   void hackAddChild(DisplayObject *inObj) { mChildren.push_back(inObj); } 
+   void hackAddChild(DisplayObject *inObj) { mChildren.push_back(inObj); }
    void hackRemoveChildren() { mChildren.resize(0); }
 
    bool getMouseChildren() { return mouseChildren; }
    void setMouseChildren(bool inVal) { mouseChildren = inVal; }
-   
+
    bool mouseChildren;
    CachedExtent mExtentCache[3];
 protected:
@@ -309,7 +310,7 @@ public:
    ~SimpleButton();
 
    DisplayObject *mState[stateSIZE];
-   
+
    void RemoveChildFromList(DisplayObject *inChild);
 
 
@@ -514,7 +515,14 @@ enum WindowFlags
    wfStencilBuffer  = 0x00000400,
 };
 
-int showVideo(const char* name);
+int showVideo(const char* name, int width, int height, DisplayObject* target, bool loop);
+void addEndVideoCallback(value callback);
+void stopVideo();
+
+//Threads
+void* updateVideo(void* p);
+void* playAudio(void* p);
+
 void StartAnimation();
 void PauseAnimation();
 void ResumeAnimation();

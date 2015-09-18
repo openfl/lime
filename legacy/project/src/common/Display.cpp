@@ -218,7 +218,7 @@ void DisplayObject::Render( const RenderTarget &inTarget, const RenderState &inS
          state.mTransform.mMatrix = &unscaled;
 
          hit = mGfx->Render(inTarget,state);
-         
+
          if (IsInteractive())
             inState.mHitResult = state.mHitResult;
          else
@@ -379,7 +379,7 @@ void DisplayObject::UpdateDecomp()
       /*
       scaleX = cos(rotation) * mLocalMatrix.m00 +
                -sin(rotation) * mLocalMatrix.m10;
-      scaleY = sin(rotation) * mLocalMatrix.m01 + 
+      scaleY = sin(rotation) * mLocalMatrix.m01 +
                cos(rotation) * mLocalMatrix.m11;
                */
       //printf("scale = %f,%f\n", scaleX, scaleY );
@@ -395,7 +395,7 @@ double DisplayObject::getMouseX()
    UserPoint p = s->getMousePos();
    UserPoint result = GetFullMatrix(true).ApplyInverse(p);
    return result.x;
-   
+
 }
 
 double DisplayObject::getMouseY()
@@ -928,7 +928,7 @@ void DisplayObjectContainer::swapChildrenAt(int inChild1, int inChild2)
       DirtyCache();
    }
 }
- 
+
 
 
 void DisplayObjectContainer::removeChild(DisplayObject *inChild)
@@ -973,8 +973,8 @@ void DisplayObjectContainer::DirtyExtent()
    if (!(mDirtyFlags & dirtExtent))
    {
       mDirtyFlags |= dirtExtent;
-      mExtentCache[0].mIsSet = 
-       mExtentCache[1].mIsSet = 
+      mExtentCache[0].mIsSet =
+       mExtentCache[1].mIsSet =
         mExtentCache[2].mIsSet = false;
       if (mParent)
          mParent->DirtyExtent();
@@ -1067,7 +1067,7 @@ bool DisplayObject::CreateMask(const Rect &inClipRect,int inAA)
       AutoSurfaceRender render(bitmap,Rect(rect.w,rect.h));
 
       state.mTransform = trans;
-   
+
       state.mPhase = rpCreateMask;
       Matrix obj_matrix = m;
 
@@ -1078,7 +1078,7 @@ bool DisplayObject::CreateMask(const Rect &inClipRect,int inAA)
 
       ClearCacheDirty();
    }
-   
+
    SetBitmapCache( new BitmapCache(bitmap, trans, rect, false, 0));
    bitmap->DecRef();
    return true;
@@ -1146,7 +1146,7 @@ void DisplayObjectContainer::Render( const RenderTarget &inTarget, const RenderS
       if (obj->scrollRect.HasPixels())
       {
          Extent2DF extent;
- 
+
          DRect rect = obj->scrollRect;
          for(int c=0;c<4;c++)
             extent.Add( full.Apply( (((c&1)>0) ? rect.w :0), (((c&2)>0) ? rect.h :0) ) );
@@ -1358,7 +1358,7 @@ void DisplayObjectContainer::Render( const RenderTarget &inTarget, const RenderS
          {
             if (inState.mHitResult==this && !obj->IsInteractive())
                continue;
-            
+
             if (obj->opaqueBackground)
             {
                Rect rect = clip_state.mClipRect;
@@ -1409,13 +1409,13 @@ void DisplayObjectContainer::Render( const RenderTarget &inTarget, const RenderS
 	            inState.mHitResult = obj_state->mHitResult;
 			else if(mouseEnabled)
 	            inState.mHitResult = this;
-            
+
 			if (inState.mHitResult!=this)
                return;
          }
       }
    }
-   
+
    if (inState.mPhase==rpHitTest && inState.mHitResult==this)
       return;
 

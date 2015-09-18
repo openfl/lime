@@ -13,11 +13,11 @@ int __reg_lime_legacy_##func = hx_register_prim("lime_legacy_" #func "__" #nargs
 
 #define DEFINE_LIME_LEGACY_PRIM_MULT_NATIVE(func,ext) \
 int __reg_lime_legacy_##func = hx_register_prim("lime_legacy_" #func "__" MULT,(void *)(&nme_##func)) + \
-                   hx_register_prim("lime_legacy_" #func "__" #ext,(void *)(&nme_##func##_##ext)) ; 
+                   hx_register_prim("lime_legacy_" #func "__" #ext,(void *)(&nme_##func##_##ext)) ;
 
 #define DEFINE_LIME_LEGACY_PRIM_NATIVE(func,nargs,ext) \
 int __reg_lime_legacy_##func = hx_register_prim("lime_legacy_" #func "__" #nargs,(void *)(&nme_##func)) + \
-                   hx_register_prim("lime_legacy_" #func "__" #ext,(void *)(&nme_##func##_##ext)) ; 
+                   hx_register_prim("lime_legacy_" #func "__" #ext,(void *)(&nme_##func##_##ext)) ;
 
 #else
 
@@ -183,7 +183,9 @@ DEFINE_LIME_LEGACY_PRIM_3(managed_stage_create);
 DEFINE_LIME_LEGACY_PRIM_2(managed_stage_pump_event);
 DEFINE_LIME_LEGACY_PRIM_0(input_get_acceleration);
 DEFINE_LIME_LEGACY_PRIM_0(create_display_object);
-DEFINE_LIME_LEGACY_PRIM_1(play_video);
+DEFINE_LIME_LEGACY_PRIM_5(play_video);
+DEFINE_LIME_LEGACY_PRIM_0(stop_video);
+DEFINE_LIME_LEGACY_PRIM_1(add_end_video_callback);
 DEFINE_LIME_LEGACY_PRIM_1(display_object_get_graphics);
 DEFINE_LIME_LEGACY_PRIM_MULT(display_object_draw_to_surface);
 DEFINE_LIME_LEGACY_PRIM_1(display_object_get_id);
@@ -396,7 +398,7 @@ DEFINE_LIME_LEGACY_PRIM_1(font_iterate_device_fonts);
 
 
 namespace nme {
-	
+
 	DEFINE_LIME_LEGACY_PRIM_1(font_set_factory);
 	DEFINE_LIME_LEGACY_PRIM_2(font_register_font);
 	DEFINE_LIME_LEGACY_PRIM_0(gl_get_error);
@@ -535,11 +537,11 @@ namespace nme {
 	DEFINE_LIME_LEGACY_PRIM_4(gl_uniform3f);
 	DEFINE_LIME_LEGACY_PRIM_5(gl_uniform4i);
 	DEFINE_LIME_LEGACY_PRIM_5(gl_uniform4f);
-	
-	
+
+
 	namespace S3D {
-		
-		
+
+
 		#ifdef NME_S3D
 		DEFINE_LIME_LEGACY_PRIM_0(get_s3d_enabled);
 		DEFINE_LIME_LEGACY_PRIM_1(set_s3d_enabled);
@@ -552,19 +554,19 @@ namespace nme {
 		DEFINE_LIME_LEGACY_PRIM_1(set_s3d_enabled);
 		DEFINE_LIME_LEGACY_PRIM_0(get_s3d_supported);
 		#endif
-	
-		
+
+
 	}
-	
-	
+
+
 	#ifdef NME_S3D
 	DEFINE_LIME_LEGACY_PRIM_0(gl_s3d_get_eye_separation);
 	DEFINE_LIME_LEGACY_PRIM_1(gl_s3d_set_eye_separation);
 	DEFINE_LIME_LEGACY_PRIM_0(gl_s3d_get_focal_length);
 	DEFINE_LIME_LEGACY_PRIM_1(gl_s3d_set_focal_length);
 	#endif
-	
-	
+
+
 }
 
 

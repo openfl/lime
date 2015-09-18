@@ -90,12 +90,12 @@ public:
    void OnChanged() { mVersion++; }
 
    int Version() const  { return mVersion; }
+   virtual       ~Surface();
 
 
 protected:
    mutable int   mVersion;
    Texture       *mTexture;
-   virtual       ~Surface();
    unsigned int  mFlags;
    bool          mAllowTrans;
 };
@@ -151,7 +151,7 @@ public:
    virtual void colorTransform(const Rect &inRect, ColorTransform &inTransform);
    virtual void setGPUFormat( PixelFormat pf ) { mGPUPixelFormat = pf; }
    void unmultiplyAlpha();
-   
+
    Surface *clone();
    void getPixels(const Rect &inRect,uint32 *outPixels,bool inIgnoreOrder=false, bool inLittleEndian=false);
    void setPixels(const Rect &inRect,const uint32 *intPixels,bool inIgnoreOrder=false, bool inLittleEndian=false);
@@ -164,8 +164,9 @@ public:
    void createHardwareSurface();
    void destroyHardwareSurface();
    void dispose();
-   
+
    void MakeTextureOnly();
+   ~SimpleSurface();
 
 
 protected:
@@ -175,7 +176,6 @@ protected:
    int           mGPUPixelFormat;
    int           mStride;
    uint8         *mBase;
-   ~SimpleSurface();
 
 private:
    SimpleSurface(const SimpleSurface &inRHS);
