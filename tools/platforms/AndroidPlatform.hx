@@ -95,12 +95,7 @@ class AndroidPlatform extends PlatformTarget {
 				haxeParams.push ("-D");
 				haxeParams.push ("HXCPP_ARMV7");
 				cppParams.push ("-DHXCPP_ARMV7");
-				
-				if (hasARMV5) {
-					
-					path = targetDirectory + "/bin/libs/armeabi-v7";
-					
-				}
+				path = targetDirectory + "/bin/libs/armeabi-v7a";
 				
 				suffix = "-v7.so";
 				
