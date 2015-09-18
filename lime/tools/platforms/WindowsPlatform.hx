@@ -386,4 +386,4 @@ class WindowsPlatform extends PlatformTarget {
 	@ignore public override function uninstall ():Void {}
 	
 	
-	}
+}
