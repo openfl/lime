@@ -387,3 +387,4 @@ class WindowsPlatform extends PlatformTarget {
 	
 	
 }
+
