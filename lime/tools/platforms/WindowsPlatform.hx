@@ -50,7 +50,7 @@ class WindowsPlatform extends PlatformTarget {
 		
 			targetType = "nodejs";
 			
-		}  else {
+		} else {
 
 			if (project.target != PlatformHelper.hostPlatform){
 				
@@ -245,6 +245,7 @@ class WindowsPlatform extends PlatformTarget {
 		var hxml = PathHelper.findTemplate (project.templatePaths, targetType + "/hxml/" + type + ".hxml");
 		var template = new Template (File.getContent (hxml));
 		Sys.println (template.execute (generateContext ()));
+		Sys.println ("-D display");
 		
 	}
 	
