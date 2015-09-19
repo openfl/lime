@@ -1,3 +1,18 @@
+2.6.3 (09/19/2015)
+------------------
+
+* Added initial support for CFFI-based finalizer callbacks
+* Added initial accelerometer support
+* Fixed an issue with erratic mouse values on Mac
+* Fixed a minor issue with touch events
+* Updated to a newer SDL development version
+* Improved the handling of alpha when using image.setPixel
+* Updated System.exit to go to background on Android if not an error
+* Improved dirty logic with Image pixel operations
+* Added an optimization for repeated Font path lookups
+* Improved support for non-US keyboard layouts (legacy)
+
+
 2.6.2 (09/08/2015)
 ------------------
 
