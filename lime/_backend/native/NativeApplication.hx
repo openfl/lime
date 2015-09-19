@@ -352,7 +352,7 @@ class NativeApplication {
 				
 				if (touch == null) {
 					
-					touch = new Touch (touchEventInfo.x, touchEventInfo.x, touchEventInfo.id, touchEventInfo.dx, touchEventInfo.dy, touchEventInfo.pressure, touchEventInfo.device);
+					touch = new Touch (touchEventInfo.x, touchEventInfo.y, touchEventInfo.id, touchEventInfo.dx, touchEventInfo.dy, touchEventInfo.pressure, touchEventInfo.device);
 					
 				} else {
 					
