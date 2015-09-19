@@ -53,8 +53,7 @@ class NodeJSHelper {
 		
 		args.unshift (Path.withoutDirectory (modulePath));
 		
-		//ProcessHelper.runCommand (Path.directory (modulePath), node, args);
-		ProcessHelper.runCommand (Path.directory (modulePath), "iojs", args);
+		ProcessHelper.runCommand (Path.directory (modulePath), "node", args);
 		
 	}
 	
