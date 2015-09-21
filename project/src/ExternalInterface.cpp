@@ -292,7 +292,10 @@ namespace lime {
 		
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)(intptr_t)fontHandle;
-		return alloc_wstring (font->GetFamilyName ());
+		wchar_t *name = font->GetFamilyName ();
+		value result = alloc_wstring (name);
+		delete name;
+		return result;
 		#else
 		return 0;
 		#endif
