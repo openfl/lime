@@ -606,3 +606,10 @@ namespace lime {
 	
 	
 }
+
+
+extern "C" int lime_curl_register_prims () {
+	
+	return 0;
+	
+}
