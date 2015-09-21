@@ -1,6 +1,7 @@
 package lime.net;
 
 
+import haxe.io.Bytes;
 import lime.app.Event;
 import lime.utils.ByteArray;
 
@@ -36,7 +37,7 @@ class URLLoader {
 	
 	#if lime_curl
 	private var __curl:CURL;
-	private var __data:String;
+	private var __data:ByteArray;
 	#end
 	
 	public function new (request:URLRequest = null) {
@@ -46,7 +47,7 @@ class URLLoader {
 		dataFormat = URLLoaderDataFormat.TEXT;
 
 		#if lime_curl
-		__data = "";
+		__data = new ByteArray ();
 		__curl = CURLEasy.init();
 		#end
 
@@ -265,7 +266,7 @@ class URLLoader {
 			for (p in Reflect.fields (data)) {
 				
 				if (tmp.length != 0) tmp += "&";
-				tmp += StringTools.urlEncode (p) + "=" + StringTools.urlEncode (Reflect.field (data, p));
+				tmp += StringTools.urlEncode (p) + "=" + StringTools.urlEncode (Std.string (Reflect.field (data, p)));
 				
 			}
 
@@ -291,7 +292,7 @@ class URLLoader {
 		var uri = prepareData(data);
 		uri.position = 0;
 
-		__data = "";
+		__data = new ByteArray ();
 		bytesLoaded = 0;
 		bytesTotal = 0;
 
@@ -303,6 +304,7 @@ class URLLoader {
 				CURLEasy.setopt(__curl, NOBODY, true);
 			case GET:
 				CURLEasy.setopt(__curl, HTTPGET, true);
+				if (uri.length > 0) CURLEasy.setopt (__curl, URL, url + "?" + uri.readUTFBytes (uri.length));
 			case POST:
 				CURLEasy.setopt(__curl, POST, true);
 				CURLEasy.setopt(__curl, READFUNCTION, readFunction.bind(_, uri));
@@ -350,7 +352,9 @@ class URLLoader {
 				default: this.data = __data.asString();
 			}
 			*/
-			this.data = __data;
+			//this.data = __data;
+			__data.position = 0;
+			this.data = __data.readUTFBytes (__data.length);
 			onHTTPStatus.dispatch (this, Std.parseInt(responseCode));
 			onComplete.dispatch (this);
 		} else {
@@ -359,14 +363,14 @@ class URLLoader {
 		
 	}
 
-	private function writeFunction (output:String, size:Int, nmemb:Int):Int {
+	private function writeFunction (output:Bytes, size:Int, nmemb:Int):Int {
 
-		__data += output;
+		__data.readBytes (ByteArray.fromBytes (output));
 		return size * nmemb;
 
 	}
 
-	private function headerFunction (output:String, size:Int, nmemb:Int):Int {
+	private function headerFunction (output:Bytes, size:Int, nmemb:Int):Int {
 
 		// TODO
 		return size * nmemb;
@@ -385,8 +389,8 @@ class URLLoader {
 		return 0;
 	}
 
-	private function readFunction(max:Int, input:ByteArray):String {
-		return input == null ? "" : input.readUTFBytes(Std.int(Math.min(max, input.length - input.position)));
+	private function readFunction(max:Int, input:ByteArray):Bytes {
+		return input;
 	}
 
 	#end

@@ -1,6 +1,7 @@
 package lime.net.curl;
 
 
+import haxe.io.Bytes;
 import lime.net.curl.CURL;
 
 #if !macro
@@ -120,6 +121,11 @@ class CURLEasy {
 	public static function setopt (handle:CURL, option:CURLOption, parameter:Dynamic):CURLCode {
 		
 		#if ((cpp || neko || nodejs) && lime_curl && !macro)
+		if (option == CURLOption.WRITEFUNCTION || option == CURLOption.HEADERFUNCTION) {
+			
+			parameter = __writeCallback.bind (parameter);
+			
+		}
 		return cast lime_curl_easy_setopt (handle, cast (option, Int), parameter);
 		#else
 		return cast 0;
@@ -146,6 +152,21 @@ class CURLEasy {
 		#else
 		return null;
 		#end
+		
+	}
+	
+	
+	private static function __writeCallback (callback:Dynamic, output:Dynamic, size:Int, nmemb:Int):Int {
+		
+		var bytes:Bytes = null;
+		
+		if (output != null) {
+			
+			bytes = @:privateAccess new Bytes (output.length, output.b);
+			
+		}
+		
+		return callback (bytes, size, nmemb);
 		
 	}
 	
