@@ -1,3 +1,73 @@
+2.6.3 (09/19/2015)
+------------------
+
+* Added initial support for CFFI-based finalizer callbacks
+* Added initial accelerometer support
+* Fixed an issue with erratic mouse values on Mac
+* Fixed a minor issue with touch events
+* Updated to a newer SDL development version
+* Improved the handling of alpha when using image.setPixel
+* Updated System.exit to go to background on Android if not an error
+* Improved dirty logic with Image pixel operations
+* Added an optimization for repeated Font path lookups
+* Improved support for non-US keyboard layouts (legacy)
+
+
+2.6.2 (09/08/2015)
+------------------
+
+* Added support for Raspberry Pi 2
+* Added lime.app.Future/lime.app.Promise
+* Migrated asynchronous lime.Assets calls to use futures
+* Added lime.system.CFFI and a new @:cffi macro to use prime
+* Migrated Lime CFFI bindings to use new (faster) prime bindings
+* Added window.alert (taskbar flash, optional message popup)
+* Set the "lime" shortcut on Mac and Linux to use "/usr/local/bin"
+* Set the Lime tools to use optional CFFI (can run without NDLL)
+* Added -Ddisplay when running "lime display" to help code completion
+* Added some minor Windows XP fixes
+* Improved lime.app.Event to be more resilient to other macros
+* Fixed lime.ui.FileDialog on Mac
+* Fixed dispatch of mouse events from touch on HTML5
+* Added "onBackPressed" to Android extensions
+
+
+2.6.1 (08/26/2015)
+------------------
+
+* Added window.focus for raising and focusing windows
+* Added lime.ui.FileDialog for save/open dialogs
+* Made application renderer and window return the first of each array
+* Added renderer.type for simpler comparisons
+* Implemented AudioBuffer.fromURL for OpenFL Sound support
+* Switched to current Lime architecture when processing SVG files
+* Fixed color order in image.getColorBoundsRect
+* Fixed font embedding for HTML5
+* Fixed Cairo inFill, inStroke, inClip
+* Fixed some issues in image.copyPixels
+* Fixed missing callback in Assets.loadLibrary
+* Fixed multi-touch on iOS (legacy)
+
+
+2.6.0 (08/20/2015)
+------------------
+
+* Added support for multiple windows
+* Improved Lime application config for multiple windows
+* Renamed application.init to application.onWindowCreate
+* Changed many application events to include a window reference
+* Expanded touch input support, added lime.ui.Touch
+* Moved game input events from Window to Gamepad
+* Added application onPreloadProgress/onPreloadComplete events
+* Added onModuleExit events (for a clean shutdown)
+* Added additional key mappings for Flash and HTML5
+* Fixed HTML5 text input with spaces
+* Fixed event.remove
+* Fixed an issue with software-based windows
+* Fixed an unused reference in the Android template
+* Fixed "std@module_read" errors on Neko
+
+
 2.5.3 (08/13/2015)
 ------------------
 

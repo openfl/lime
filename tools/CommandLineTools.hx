@@ -9,8 +9,8 @@ import haxe.Serializer;
 import haxe.Unserializer;
 import haxe.io.Path;
 import haxe.rtti.Meta;
+import lime.system.CFFI;
 import lime.tools.helpers.*;
-import lime.system.System;
 import lime.tools.platforms.*;
 import lime.project.*;
 import sys.io.File;
@@ -363,7 +363,7 @@ class CommandLineTools {
 		
 		if (args.length > 0 && args[0].toLowerCase () == "rebuild") {
 			
-			System.disableCFFI = true;
+			CFFI.enabled = false;
 			
 		}
 		
@@ -371,7 +371,7 @@ class CommandLineTools {
 			
 			if (arg == "-nocffi" || arg == "-rebuild") {
 				
-				System.disableCFFI = true;
+				CFFI.enabled = false;
 				
 			}
 			
@@ -456,7 +456,7 @@ class CommandLineTools {
 					
 				}
 				
-				if (raspberryPi) {
+				if (raspberryPi || PlatformHelper.hostArchitecture == Architecture.ARMV6 || PlatformHelper.hostArchitecture == Architecture.ARMV7) {
 					
 					untyped $loader.path = $array (path + "RPi/", $loader.path);
 					

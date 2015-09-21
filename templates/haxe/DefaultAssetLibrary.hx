@@ -3,12 +3,13 @@ package;
 
 import haxe.Timer;
 import haxe.Unserializer;
+import lime.app.Future;
 import lime.app.Preloader;
+import lime.app.Promise;
 import lime.audio.AudioSource;
 import lime.audio.openal.AL;
 import lime.audio.AudioBuffer;
 import lime.graphics.Image;
-import lime.system.ThreadPool;
 import lime.text.Font;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
@@ -26,6 +27,8 @@ import flash.display.Bitmap;
 import flash.display.BitmapData;
 import flash.display.Loader;
 import flash.events.Event;
+import flash.events.IOErrorEvent;
+import flash.events.ProgressEvent;
 import flash.media.Sound;
 import flash.net.URLLoader;
 import flash.net.URLRequest;
@@ -40,7 +43,6 @@ class DefaultAssetLibrary extends AssetLibrary {
 	public var type (default, null) = new Map <String, AssetType> ();
 	
 	private var lastModified:Float;
-	private var threadPool:ThreadPool;
 	private var timer:Timer;
 	
 	
@@ -69,7 +71,10 @@ class DefaultAssetLibrary extends AssetLibrary {
 		type.set (id, AssetType.$$upper(::type::));
 		::end::::end::
 		
-		var assetsPrefix = ApplicationMain.config.assetsPrefix;
+		var assetsPrefix = null;
+		if (ApplicationMain.config != null && Reflect.hasField (ApplicationMain.config, "assetsPrefix")) {
+			assetsPrefix = ApplicationMain.config.assetsPrefix;
+		}
 		if (assetsPrefix != null) {
 			for (k in path.keys()) {
 				path.set(k, assetsPrefix + path[k]);
@@ -109,11 +114,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 						lastModified = modified;
 						loadManifest ();
 						
-						if (eventCallback != null) {
-							
-							eventCallback (this, "change");
-							
-						}
+						onChange.dispatch ();
 						
 					}
 					
@@ -129,24 +130,6 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#end
 		#end
-		
-	}
-	
-	
-	private function createThreadPool ():Void {
-		
-		threadPool = new ThreadPool (0, 2);
-		threadPool.doWork.add (function (id, data) {
-			
-			data.result = data.getMethod (id);
-			threadPool.sendComplete (data.handler, data);
-			
-		});
-		threadPool.onComplete.add (function (id, data) {
-			
-			data.handler (data.result);
-			
-		});
 		
 	}
 	
@@ -489,7 +472,9 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
-	public override function loadAudioBuffer (id:String, handler:AudioBuffer -> Void):Void {
+	public override function loadAudioBuffer (id:String):Future<AudioBuffer> {
+		
+		var promise = new Promise<AudioBuffer> ();
 		
 		#if (flash)
 		
@@ -500,28 +485,45 @@ class DefaultAssetLibrary extends AssetLibrary {
 				
 				var audioBuffer:AudioBuffer = new AudioBuffer();
 				audioBuffer.src = event.currentTarget;
-				handler (audioBuffer);
+				promise.complete (audioBuffer);
 				
 			});
-			
+			soundLoader.addEventListener (ProgressEvent.PROGRESS, function (event) {
+				
+				if (event.bytesTotal == 0) {
+					
+					promise.progress (0);
+					
+				} else {
+					
+					promise.progress (event.bytesLoaded / event.bytesTotal);
+					
+				}
+				
+			});
+			soundLoader.addEventListener (IOErrorEvent.IO_ERROR, promise.error);
 			soundLoader.load (new URLRequest (path.get (id)));
 			
 		} else {
 			
-			handler (getAudioBuffer (id));
+			promise.complete (getAudioBuffer (id));
 			
 		}
 		
 		#else
 		
-		handler (getAudioBuffer (id));
+		promise.completeWith (new Future<AudioBuffer> (function () return getAudioBuffer (id)));
 		
 		#end
+		
+		return promise.future;
 		
 	}
 	
 	
-	public override function loadBytes (id:String, handler:ByteArray -> Void):Void {
+	public override function loadBytes (id:String):Future<ByteArray> {
+		
+		var promise = new Promise<ByteArray> ();
 		
 		#if flash
 		
@@ -534,14 +536,28 @@ class DefaultAssetLibrary extends AssetLibrary {
 				bytes.writeUTFBytes (event.currentTarget.data);
 				bytes.position = 0;
 				
-				handler (bytes);
+				promise.complete (bytes);
 				
 			});
+			loader.addEventListener (ProgressEvent.PROGRESS, function (event) {
+				
+				if (event.bytesTotal == 0) {
+					
+					promise.progress (0);
+					
+				} else {
+					
+					promise.progress (event.bytesLoaded / event.bytesTotal);
+					
+				}
+				
+			});
+			loader.addEventListener (IOErrorEvent.IO_ERROR, promise.error);
 			loader.load (new URLRequest (path.get (id)));
 			
 		} else {
 			
-			handler (getBytes (id));
+			promise.complete (getBytes (id));
 			
 		}
 		
@@ -553,34 +569,49 @@ class DefaultAssetLibrary extends AssetLibrary {
 			loader.dataFormat = BINARY;
 			loader.onComplete.add (function (_):Void {
 				
-				handler (loader.data);
+				promise.complete (loader.data);
 				
 			});
-			
+			loader.onProgress.add (function (_, loaded, total) {
+				
+				if (total == 0) {
+					
+					promise.progress (0);
+					
+				} else {
+					
+					promise.progress (loaded / total);
+					
+				}
+				
+			});
+			loader.onIOError.add (function (_, e) {
+				
+				promise.error (e);
+				
+			});
 			loader.load (new URLRequest (path.get (id)));
 			
 		} else {
 			
-			handler (getBytes (id));
+			promise.complete (getBytes (id));
 			
 		}
 		
 		#else
 		
-		if (threadPool == null) {
-			
-			createThreadPool ();
-			
-		}
-		
-		threadPool.queue (id, { handler: handler, getMethod: getBytes });
+		promise.completeWith (new Future<ByteArray> (function () return getBytes (id)));
 		
 		#end
+		
+		return promise.future;
 		
 	}
 	
 	
-	public override function loadImage (id:String, handler:Image -> Void):Void {
+	public override function loadImage (id:String):Future<Image> {
+		
+		var promise = new Promise<Image> ();
 		
 		#if flash
 		
@@ -590,14 +621,28 @@ class DefaultAssetLibrary extends AssetLibrary {
 			loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event:Event) {
 				
 				var bitmapData = cast (event.currentTarget.content, Bitmap).bitmapData;
-				handler (Image.fromBitmapData (bitmapData));
+				promise.complete (Image.fromBitmapData (bitmapData));
 				
 			});
+			loader.contentLoaderInfo.addEventListener (ProgressEvent.PROGRESS, function (event) {
+				
+				if (event.bytesTotal == 0) {
+					
+					promise.progress (0);
+					
+				} else {
+					
+					promise.progress (event.bytesLoaded / event.bytesTotal);
+					
+				}
+				
+			});
+			loader.contentLoaderInfo.addEventListener (IOErrorEvent.IO_ERROR, promise.error);
 			loader.load (new URLRequest (path.get (id)));
 			
 		} else {
 			
-			handler (getImage (id));
+			promise.complete (getImage (id));
 			
 		}
 		
@@ -608,28 +653,25 @@ class DefaultAssetLibrary extends AssetLibrary {
 			var image = new js.html.Image ();
 			image.onload = function (_):Void {
 				
-				handler (Image.fromImageElement (image));
+				promise.complete (Image.fromImageElement (image));
 				
 			}
+			image.onerror = promise.error;
 			image.src = path.get (id);
 			
 		} else {
 			
-			handler (getImage (id));
+			promise.complete (getImage (id));
 			
 		}
 		
 		#else
 		
-		if (threadPool == null) {
-			
-			createThreadPool ();
-			
-		}
-		
-		threadPool.queue (id, { handler: handler, getMethod: getImage });
+		promise.completeWith (new Future<Image> (function () return getImage (id)));
 		
 		#end
+		
+		return promise.future;
 		
 	}
 	
@@ -700,36 +742,9 @@ class DefaultAssetLibrary extends AssetLibrary {
 	#end
 	
 	
-	/*public override function loadMusic (id:String, handler:Dynamic -> Void):Void {
+	public override function loadText (id:String):Future<String> {
 		
-		#if (flash || html5)
-		
-		//if (path.exists (id)) {
-			
-		//	var loader = new Loader ();
-		//	loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event) {
-				
-		//		handler (cast (event.currentTarget.content, Bitmap).bitmapData);
-				
-		//	});
-		//	loader.load (new URLRequest (path.get (id)));
-			
-		//} else {
-			
-			handler (getMusic (id));
-			
-		//}
-		
-		#else
-		
-		handler (getMusic (id));
-		
-		#end
-		
-	}*/
-	
-	
-	public override function loadText (id:String, handler:String -> Void):Void {
+		var promise = new Promise<String> ();
 		
 		#if html5
 		
@@ -738,37 +753,54 @@ class DefaultAssetLibrary extends AssetLibrary {
 			var loader = new URLLoader ();
 			loader.onComplete.add (function (_):Void {
 				
-				handler (loader.data);
+				promise.complete (loader.data);
 				
 			});
-			
+			loader.onProgress.add (function (_, loaded, total) {
+				
+				if (total == 0) {
+					
+					promise.progress (0);
+					
+				} else {
+					
+					promise.progress (loaded / total);
+					
+				}
+				
+			});
+			loader.onIOError.add (function (_, msg) promise.error (msg));
 			loader.load (new URLRequest (path.get (id)));
 			
 		} else {
 			
-			handler (getText (id));
+			promise.complete (getText (id));
 			
 		}
 		
 		#else
 		
-		var callback = function (bytes:ByteArray):Void {
+		promise.completeWith (loadBytes (id).then (function (bytes) {
 			
-			if (bytes == null) {
+			return new Future<String> (function () {
 				
-				handler (null);
+				if (bytes == null) {
+					
+					return null;
+					
+				} else {
+					
+					return bytes.readUTFBytes (bytes.length);
+					
+				}
 				
-			} else {
-				
-				handler (bytes.readUTFBytes (bytes.length));
-				
-			}
+			});
 			
-		}
-		
-		loadBytes (id, callback);
+		}));
 		
 		#end
+		
+		return promise.future;
 		
 	}
 	

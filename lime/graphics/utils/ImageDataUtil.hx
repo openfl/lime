@@ -13,9 +13,13 @@ import lime.math.color.RGBA;
 import lime.math.ColorMatrix;
 import lime.math.Rectangle;
 import lime.math.Vector2;
-import lime.system.System;
+import lime.system.CFFI;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
+
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
 
 @:access(lime.math.color.RGBA)
 
@@ -28,8 +32,8 @@ class ImageDataUtil {
 		var data = image.buffer.data;
 		if (data == null) return;
 		
-		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_color_transform (image, rect, colorMatrix); else
+		#if ((cpp || neko) && !disable_cffi && !macro)
+		if (CFFI.enabled) lime_image_data_util_color_transform (image, rect, colorMatrix); else
 		#end
 		{
 			
@@ -93,8 +97,8 @@ class ImageDataUtil {
 		
 		if (srcData == null || destData == null) return;
 		
-		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_copy_channel (image, sourceImage, sourceRect, destPoint, srcIdx, destIdx); else
+		#if ((cpp || neko) && !disable_cffi && !macro)
+		if (CFFI.enabled) lime_image_data_util_copy_channel (image, sourceImage, sourceRect, destPoint, srcIdx, destIdx); else
 		#end
 		{
 			
@@ -154,8 +158,8 @@ class ImageDataUtil {
 	
 	public static function copyPixels (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, alphaImage:Image = null, alphaPoint:Vector2 = null, mergeAlpha:Bool = false):Void {
 		
-		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_copy_pixels (image, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha); else
+		#if ((cpp || neko) && !disable_cffi && !macro)
+		if (CFFI.enabled) lime_image_data_util_copy_pixels (image, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha); else
 		#end
 		{
 			
@@ -239,6 +243,8 @@ class ImageDataUtil {
 					
 				} else {
 					
+					if (alphaPoint == null) alphaPoint = new Vector2 ();
+					
 					var alphaData = alphaImage.buffer.data;
 					var alphaFormat = alphaImage.buffer.format;
 					var alphaPremultiplied = alphaImage.buffer.premultiplied;
@@ -317,8 +323,8 @@ class ImageDataUtil {
 		var data = image.buffer.data;
 		if (data == null) return;
 		
-		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_fill_rect (image, rect, (fillColor >> 16) & 0xFFFF, (fillColor) & 0xFFFF); else // TODO: Better Int32 solution
+		#if ((cpp || neko) && !disable_cffi && !macro)
+		if (CFFI.enabled) lime_image_data_util_fill_rect (image, rect, (fillColor >> 16) & 0xFFFF, (fillColor) & 0xFFFF); else // TODO: Better Int32 solution
 		#end
 		{
 			
@@ -354,8 +360,8 @@ class ImageDataUtil {
 		
 		if (format == ARGB32) color = ((color & 0xFFFFFF) << 8) | ((color >> 24) & 0xFF);
 		
-		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_flood_fill (image, x, y, (color >> 16) & 0xFFFF, (color) & 0xFFFF); else // TODO: Better Int32 solution
+		#if ((cpp || neko) && !disable_cffi && !macro)
+		if (CFFI.enabled) lime_image_data_util_flood_fill (image, x, y, (color >> 16) & 0xFFFF, (color) & 0xFFFF); else // TODO: Better Int32 solution
 		#end
 		{
 			
@@ -431,57 +437,53 @@ class ImageDataUtil {
 	
 	public static function getColorBoundsRect (image:Image, mask:Int, color:Int, findColor:Bool = true, format:PixelFormat):Rectangle {
 		
-		var left:Int = image.width + 1;
-		var right:Int = 0;
-		var top:Int = image.height + 1;
-		var bottom:Int = 0;
+		var left = image.width + 1;
+		var right = 0;
+		var top = image.height + 1;
+		var bottom = 0;
 		
-		var r, g, b, a;
-		var mr, mg, mb, ma;
+		var _color:RGBA, _mask:RGBA;
 		
-		if (format == ARGB32) {
+		switch (format) {
 			
-			a = (image.transparent) ? (color >> 24) & 0xFF : 0xFF;
-			r = (color >> 16) & 0xFF;
-			g = (color >> 8) & 0xFF;
-			b = color & 0xFF;
+			case ARGB32:
+				
+				_color = (color:ARGB);
+				_mask = (mask:ARGB);
 			
-			ma = (image.transparent) ? (mask >> 24) & 0xFF : 0xFF;
-			mr = (mask >> 16) & 0xFF;
-			mg = (mask >> 8) & 0xFF;
-			mb = mask & 0xFF;
+			case BGRA32:
+				
+				_color = (color:BGRA);
+				_mask = (mask:BGRA);
 			
-		} else {
-			
-			r = (color >> 24) & 0xFF;
-			g = (color >> 16) & 0xFF;
-			b = (color >> 8) & 0xFF;
-			a = (image.transparent) ? color & 0xFF : 0xFF;
-			
-			mr = (mask >> 24) & 0xFF;
-			mg = (mask >> 16) & 0xFF;
-			mb = (mask >> 8) & 0xFF;
-			ma = (image.transparent) ? mask & 0xFF : 0xFF;
+			default:
+				
+				_color = color;
+				_mask = mask;
 			
 		}
 		
-		color = (r | (g << 8) | (b << 16) | (a << 24));
-		mask = (mr | (mg << 8) | (mb << 16) | (mask << 24));
-		
-		var pix:Int;
-		
-		for (ix in 0...image.width) {
+		if (!image.transparent) {
 			
-			var hit = false;
+			_color.a = 0xFF;
+			_mask.a = 0xFF;
 			
-			for (iy in 0...image.height) {
+		}
+		
+		var pixel, hit;
+		
+		for (x in 0...image.width) {
+			
+			hit = false;
+			
+			for (y in 0...image.height) {
 				
-				pix = image.getPixel32 (ix, iy);
-				hit = findColor ? (pix & mask) == color : (pix & mask) != color;
+				pixel = image.getPixel32 (x, y, RGBA32);
+				hit = findColor ? (pixel & _mask) == _color : (pixel & _mask) != _color;
 				
 				if (hit) {
 					
-					if (ix < left) left = ix;
+					if (x < left) left = x;
 					break;
 					
 				}
@@ -496,15 +498,17 @@ class ImageDataUtil {
 			
 		}
 		
-		for (_ix in 0...image.width) {
+		var ix;
+		
+		for (x in 0...image.width) {
 			
-			var ix = (image.width - 1) - _ix;
-			var hit = false;
+			ix = (image.width - 1) - x;
+			hit = false;
 			
-			for (iy in 0...image.height) {
+			for (y in 0...image.height) {
 				
-				pix = image.getPixel32 (ix, iy);
-				hit = findColor ? (pix & mask) == color : (pix & mask) != color;
+				pixel = image.getPixel32 (ix, y, RGBA32);
+				hit = findColor ? (pixel & _mask) == _color : (pixel & _mask) != _color;
 				
 				if (hit) {
 					
@@ -523,18 +527,18 @@ class ImageDataUtil {
 			
 		}
 		
-		for (iy in 0...image.height) {
+		for (y in 0...image.height) {
 			
-			var hit = false;
+			hit = false;
 			
-			for (ix in 0...image.width) {
+			for (x in 0...image.width) {
 				
-				pix = image.getPixel32 (ix, iy);
-				hit = findColor ? (pix & mask) == color : (pix & mask) != color;
+				pixel = image.getPixel32 (x, y, RGBA32);
+				hit = findColor ? (pixel & _mask) == _color : (pixel & _mask) != _color;
 				
 				if (hit) {
 					
-					if (iy < top) top = iy;
+					if (y < top) top = y;
 					break;
 					
 				}
@@ -549,15 +553,17 @@ class ImageDataUtil {
 			
 		}
 		
-		for (_iy in 0...image.height) {
+		var iy;
+		
+		for (y in 0...image.height) {
 			
-			var iy = (image.height - 1) - _iy;
-			var hit = false;
+			iy = (image.height - 1) - y;
+			hit = false;
 			
-			for (ix in 0...image.width) {
+			for (x in 0...image.width) {
 				
-				pix = image.getPixel32 (ix, iy);
-				hit = findColor ? (pix & mask) == color : (pix & mask) != color;
+				pixel = image.getPixel32 (x, iy, RGBA32);
+				hit = findColor ? (pixel & _mask) == _color : (pixel & _mask) != _color;
 				
 				if (hit) {
 					
@@ -644,8 +650,8 @@ class ImageDataUtil {
 		byteArray.position = 0;
 		#end
 		
-		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_get_pixels (image, rect, format, byteArray); else
+		#if ((cpp || neko) && !disable_cffi && !macro)
+		if (CFFI.enabled) lime_image_data_util_get_pixels (image, rect, format, byteArray); else
 		#end
 		{
 			
@@ -706,8 +712,8 @@ class ImageDataUtil {
 		
 		if (image.buffer.data == null || sourceImage.buffer.data == null) return;
 		
-		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_merge (image, sourceImage, sourceRect, destPoint, redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier); else
+		#if ((cpp || neko) && !disable_cffi && !macro)
+		if (CFFI.enabled) lime_image_data_util_merge (image, sourceImage, sourceRect, destPoint, redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier); else
 		#end
 		{
 			
@@ -759,8 +765,8 @@ class ImageDataUtil {
 		var data = image.buffer.data;
 		if (data == null || !image.buffer.transparent) return;
 		
-		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_multiply_alpha (image); else
+		#if ((cpp || neko) && !disable_cffi && !macro)
+		if (CFFI.enabled) lime_image_data_util_multiply_alpha (image); else
 		#end
 		{
 			
@@ -789,8 +795,8 @@ class ImageDataUtil {
 		if (buffer.width == newWidth && buffer.height == newHeight) return;
 		var newBuffer = new ImageBuffer (new UInt8Array (newWidth * newHeight * 4), newWidth, newHeight);
 		
-		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_resize (image, newBuffer, newWidth, newHeight); else
+		#if ((cpp || neko) && !disable_cffi && !macro)
+		if (CFFI.enabled) lime_image_data_util_resize (image, newBuffer, newWidth, newHeight); else
 		#end
 		{
 			
@@ -891,8 +897,8 @@ class ImageDataUtil {
 		var data = image.buffer.data;
 		if (data == null) return;
 		
-		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_set_format (image, format); else
+		#if ((cpp || neko) && !disable_cffi && !macro)
+		if (CFFI.enabled) lime_image_data_util_set_format (image, format); else
 		#end
 		{
 			
@@ -987,7 +993,12 @@ class ImageDataUtil {
 			
 		}
 		
-		pixel.a = 0xFF;
+		// TODO: Write only RGB instead?
+		
+		var source = new RGBA ();
+		source.readUInt8 (image.buffer.data, (4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4), image.buffer.format, image.buffer.premultiplied);
+		
+		pixel.a = source.a;
 		pixel.writeUInt8 (image.buffer.data, (4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4), image.buffer.format, image.buffer.premultiplied);
 		
 		image.dirty = true;
@@ -1019,8 +1030,8 @@ class ImageDataUtil {
 		
 		if (image.buffer.data == null) return;
 		
-		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_set_pixels (image, rect, byteArray, format); else
+		#if ((cpp || neko) && !disable_cffi && !macro)
+		if (CFFI.enabled) lime_image_data_util_set_pixels (image, rect, byteArray, format); else
 		#end
 		{
 			
@@ -1066,8 +1077,8 @@ class ImageDataUtil {
 		var data = image.buffer.data;
 		if (data == null) return;
 		
-		#if ((cpp || neko) && !disable_cffi)
-		if (!System.disableCFFI) lime_image_data_util_unmultiply_alpha (image); else
+		#if ((cpp || neko) && !disable_cffi && !macro)
+		if (CFFI.enabled) lime_image_data_util_unmultiply_alpha (image); else
 		#end
 		{
 			
@@ -1097,19 +1108,19 @@ class ImageDataUtil {
 	
 	
 	
-	#if (cpp || neko || nodejs)
-	private static var lime_image_data_util_color_transform = System.load ("lime", "lime_image_data_util_color_transform", 3);
-	private static var lime_image_data_util_copy_channel = System.load ("lime", "lime_image_data_util_copy_channel", -1);
-	private static var lime_image_data_util_copy_pixels = System.load ("lime", "lime_image_data_util_copy_pixels", -1);
-	private static var lime_image_data_util_fill_rect = System.load ("lime", "lime_image_data_util_fill_rect", 4);
-	private static var lime_image_data_util_flood_fill = System.load ("lime", "lime_image_data_util_flood_fill", 5);
-	private static var lime_image_data_util_get_pixels = System.load ("lime", "lime_image_data_util_get_pixels", 4);
-	private static var lime_image_data_util_merge = System.load ("lime", "lime_image_data_util_merge", -1);
-	private static var lime_image_data_util_multiply_alpha = System.load ("lime", "lime_image_data_util_multiply_alpha", 1);
-	private static var lime_image_data_util_resize = System.load ("lime", "lime_image_data_util_resize", 4);
-	private static var lime_image_data_util_set_format = System.load ("lime", "lime_image_data_util_set_format", 2);
-	private static var lime_image_data_util_set_pixels = System.load ("lime", "lime_image_data_util_set_pixels", 4);
-	private static var lime_image_data_util_unmultiply_alpha = System.load ("lime", "lime_image_data_util_unmultiply_alpha", 1);
+	#if ((cpp || neko || nodejs) && !macro)
+	@:cffi private static function lime_image_data_util_color_transform (image:Dynamic, rect:Dynamic, colorMatrix:Dynamic):Void;
+	@:cffi private static function lime_image_data_util_copy_channel (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, srcChannel:Int, destChannel:Int):Void;
+	@:cffi private static function lime_image_data_util_copy_pixels (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, alphaImage:Dynamic, alphaPoint:Dynamic, mergeAlpha:Bool):Void;
+	@:cffi private static function lime_image_data_util_fill_rect (image:Dynamic, rect:Dynamic, rg:Int, ba:Int):Void;
+	@:cffi private static function lime_image_data_util_flood_fill (image:Dynamic, x:Int, y:Int, rg:Int, ba:Int):Void;
+	@:cffi private static function lime_image_data_util_get_pixels (image:Dynamic, rect:Dynamic, format:Int, bytes:Dynamic):Void;
+	@:cffi private static function lime_image_data_util_merge (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, redMultiplier:Int, greenMultiplier:Int, blueMultiplier:Int, alphaMultiplier:Int):Void;
+	@:cffi private static function lime_image_data_util_multiply_alpha (image:Dynamic):Void;
+	@:cffi private static function lime_image_data_util_resize (image:Dynamic, buffer:Dynamic, width:Int, height:Int):Void;
+	@:cffi private static function lime_image_data_util_set_format (image:Dynamic, format:Int):Void;
+	@:cffi private static function lime_image_data_util_set_pixels (image:Dynamic, rect:Dynamic, bytes:Dynamic, format:Int):Void;
+	@:cffi private static function lime_image_data_util_unmultiply_alpha (image:Dynamic):Void;
 	#end
 	
 	

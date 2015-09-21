@@ -8,47 +8,48 @@ import lime.graphics.Image;
 import lime.graphics.Renderer;
 import lime.system.Display;
 
+#if openfl
+import openfl.display.Stage;
+#else
+typedef Stage = Dynamic;
+#end
+
 
 class Window {
 	
 	
 	public var application (default, null):Application;
-	public var currentRenderer:Renderer;
-	public var config:Config;
+	public var config:WindowConfig;
 	public var display (get, null):Display;
 	public var enableTextEvents (get, set):Bool;
 	public var fullscreen (get, set):Bool;
 	public var height (get, set):Int;
+	public var id (default, null):Int;
 	public var minimized (get, set):Bool;
-	public var onGamepadAxisMove = new Event<Gamepad->GamepadAxis->Float->Void> ();
-	public var onGamepadButtonDown = new Event<Gamepad->GamepadButton->Void> ();
-	public var onGamepadButtonUp = new Event<Gamepad->GamepadButton->Void> ();
-	public var onGamepadConnect = new Event<Gamepad->Void> ();
-	public var onGamepadDisconnect = new Event<Gamepad->Void> ();
+	public var onActivate = new Event<Void->Void> ();
+	public var onClose = new Event<Void->Void> ();
+	public var onCreate = new Event<Void->Void> ();
+	public var onDeactivate = new Event<Void->Void> ();
+	public var onEnter = new Event<Void->Void> ();
+	public var onFocusIn = new Event<Void->Void> ();
+	public var onFocusOut = new Event<Void->Void> ();
+	public var onFullscreen = new Event<Void->Void> ();
 	public var onKeyDown = new Event<KeyCode->KeyModifier->Void> ();
 	public var onKeyUp = new Event<KeyCode->KeyModifier->Void> ();
+	public var onLeave = new Event<Void->Void> ();
+	public var onMinimize = new Event<Void->Void> ();
 	public var onMouseDown = new Event<Float->Float->Int->Void> ();
 	public var onMouseMove = new Event<Float->Float->Void> ();
 	public var onMouseMoveRelative = new Event<Float->Float->Void> ();
 	public var onMouseUp = new Event<Float->Float->Int->Void> ();
 	public var onMouseWheel = new Event<Float->Float->Void> ();
+	public var onMove = new Event<Float->Float->Void> ();
+	public var onResize = new Event<Int->Int->Void> ();
+	public var onRestore = new Event<Void->Void> ();
 	public var onTextEdit = new Event<String->Int->Int->Void> ();
 	public var onTextInput = new Event<String->Void> ();
-	public var onTouchEnd = new Event<Float->Float->Int->Void> ();
-	public var onTouchMove = new Event<Float->Float->Int->Void> ();
-	public var onTouchStart = new Event<Float->Float->Int->Void> ();
-	public var onWindowActivate = new Event<Void->Void> ();
-	public var onWindowClose = new Event<Void->Void> ();
-	public var onWindowDeactivate = new Event<Void->Void> ();
-	public var onWindowEnter = new Event<Void->Void> ();
-	public var onWindowFocusIn = new Event<Void->Void> ();
-	public var onWindowFocusOut = new Event<Void->Void> ();
-	public var onWindowFullscreen = new Event<Void->Void> ();
-	public var onWindowLeave = new Event<Void->Void> ();
-	public var onWindowMinimize = new Event<Void->Void> ();
-	public var onWindowMove = new Event<Float->Float->Void> ();
-	public var onWindowResize = new Event<Int->Int->Void> ();
-	public var onWindowRestore = new Event<Void->Void> ();
+	public var renderer:Renderer;
+	public var stage:Stage;
 	public var title (get, set):String;
 	public var width (get, set):Int;
 	public var x (get, set):Int;
@@ -64,7 +65,7 @@ class Window {
 	@:noCompletion private var __y:Int;
 	
 	
-	public function new (config:Config = null) {
+	public function new (config:WindowConfig = null) {
 		
 		this.config = config;
 		
@@ -74,19 +75,27 @@ class Window {
 		__x = 0;
 		__y = 0;
 		__title = "";
+		id = -1;
 		
 		if (config != null) {
 			
-			// TODO: Switch to the tool's Config type?
-			
 			if (Reflect.hasField (config, "width")) __width = config.width;
 			if (Reflect.hasField (config, "height")) __height = config.height;
+			if (Reflect.hasField (config, "x")) __x = config.x;
+			if (Reflect.hasField (config, "y")) __y = config.y;
 			if (Reflect.hasField (config, "fullscreen")) __fullscreen = config.fullscreen;
 			if (Reflect.hasField (config, "title")) __title = config.title;
 			
 		}
 		
 		backend = new WindowBackend (this);
+		
+	}
+	
+	
+	public function alert (message:String = null, title:String = null):Void {
+		
+		backend.alert (message, title);
 		
 	}
 	
@@ -219,11 +228,18 @@ class Window {
 		
 		#end
 		
-		if (currentRenderer != null) {
+		if (renderer != null) {
 			
-			currentRenderer.create ();
+			renderer.create ();
 			
 		}
+		
+	}
+	
+	
+	public function focus ():Void {
+		
+		backend.focus ();
 		
 	}
 	

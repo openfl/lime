@@ -12,7 +12,7 @@ class Log {
 	
 	public static function debug (message:String, ?info:PosInfos):Void {
 		
-		if (level >= DEBUG) {
+		if (level >= LogLevel.DEBUG) {
 			
 			println ("[" + info.className + "] " + message);
 			
@@ -23,7 +23,7 @@ class Log {
 	
 	public static function error (message:String, ?info:PosInfos):Void {
 		
-		if (level >= ERROR) {
+		if (level >= LogLevel.ERROR) {
 			
 			println ("[" + info.className + "] ERROR: " + message);
 			
@@ -34,7 +34,7 @@ class Log {
 	
 	public static function info (message:String, ?info:PosInfos):Void {
 		
-		if (level >= INFO) {
+		if (level >= LogLevel.INFO) {
 			
 			println ("[" + info.className + "] " + message);
 			
@@ -75,7 +75,7 @@ class Log {
 	
 	public static function verbose (message:String, ?info:PosInfos):Void {
 		
-		if (level >= VERBOSE) {
+		if (level >= LogLevel.VERBOSE) {
 			
 			println ("[" + info.className + "] " + message);
 			
@@ -86,7 +86,7 @@ class Log {
 	
 	public static function warn (message:String, ?info:PosInfos):Void {
 		
-		if (level >= WARN) {
+		if (level >= LogLevel.WARN) {
 			
 			println ("[" + info.className + "] WARNING: " + message);
 			

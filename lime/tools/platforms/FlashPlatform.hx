@@ -158,7 +158,9 @@ class FlashPlatform extends PlatformTarget {
 		context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background, 6);
 		
 		var template = new Template (File.getContent (hxml));
+		
 		Sys.println (template.execute (context));
+		Sys.println ("-D display");
 		
 	}
 	

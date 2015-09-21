@@ -81,7 +81,7 @@ class RunScript {
 					
 					case "Linux":
 						
-						if (PlatformHelper.hostPlatform == LINUX && PlatformHelper.hostArchitecture == X86) {
+						if (PlatformHelper.hostPlatform == LINUX && PlatformHelper.hostArchitecture != X64) {
 							
 							ProcessHelper.runCommand (limeDirectory, "neko", args.concat ([ "linux", "-32", toolsDirectory ]));
 							

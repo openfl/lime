@@ -10,6 +10,9 @@ import lime.system.Display;
 import lime.system.System;
 import lime.ui.Window;
 
+@:access(lime.app.Application)
+@:access(lime.ui.Window)
+
 
 class FlashWindow {
 	
@@ -25,9 +28,16 @@ class FlashWindow {
 	}
 	
 	
+	public function alert (message:String, title:String):Void {
+		
+		
+		
+	}
+	
+	
 	public function close ():Void {
 		
-		
+		parent.application.removeWindow (parent);
 		
 	}
 	
@@ -36,6 +46,15 @@ class FlashWindow {
 		
 		Lib.current.stage.align = StageAlign.TOP_LEFT;
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
+		
+		parent.id = 0;
+		
+	}
+	
+	
+	public function focus ():Void {
+		
+		
 		
 	}
 	

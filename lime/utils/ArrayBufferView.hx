@@ -353,7 +353,7 @@ class ArrayBufferView {
 
 #end //!js
 
-@:noCompletion @:dox(hide)  private enum TAError {
+@:noCompletion @:dox(hide)  enum TAError {
     RangeError;
 }
 

@@ -1,6 +1,11 @@
 package lime.system;
 
 
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
+
+
 class JNI {
 	
 	
@@ -175,6 +180,19 @@ class JNI {
 	}
 	
 	
+	public static function postUICallback (callback:Void->Void):Void {
+		
+		// TODO: Rename this?
+		
+		#if android
+		lime_jni_post_ui_callback (callback);
+		#else
+		callback ();
+		#end
+		
+	}
+	
+	
 	
 	
 	// Native Methods
@@ -183,15 +201,21 @@ class JNI {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_jni_create_field = System.load ("lime", "lime_jni_create_field", 4);
-	private static var lime_jni_create_method = System.load ("lime", "lime_jni_create_method", 5);
-	private static var lime_jni_get_env = System.load ("lime", "lime_jni_get_env", 0);
-	private static var lime_jni_call_member = System.load ("lime", "lime_jni_call_member", 3);
-	private static var lime_jni_call_static = System.load ("lime", "lime_jni_call_static", 2);
+	@:cffi private static function lime_jni_call_member (jniMethod:Dynamic, jniObject:Dynamic, args:Dynamic):Dynamic;
+	@:cffi private static function lime_jni_call_static (jniMethod:Dynamic, args:Dynamic):Dynamic;
+	@:cffi private static function lime_jni_create_field (className:String, field:String, signature:String, isStatic:Bool):Dynamic;
+	@:cffi private static function lime_jni_create_method (className:String, method:String, signature:String, isStatic:Bool, quiet:Bool):Dynamic;
+	@:cffi private static function lime_jni_get_env ():Float;
+	@:cffi private static function lime_jni_post_ui_callback (callback:Dynamic):Void;
 	#end
 	
 	
 }
+
+
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
 
 
 class JNIMemberField {
@@ -236,12 +260,17 @@ class JNIMemberField {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_jni_get_member = System.load ("lime", "lime_jni_get_member", 2);
-	private static var lime_jni_set_member = System.load ("lime", "lime_jni_set_member", 3);
+	@:cffi private static function lime_jni_get_member (jniField:Dynamic, jniObject:Dynamic):Dynamic;
+	@:cffi private static function lime_jni_set_member (jniField:Dynamic, jniObject:Dynamic, value:Dynamic):Void;
 	#end
 	
 	
 }
+
+
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
 
 
 class JNIStaticField {
@@ -286,12 +315,17 @@ class JNIStaticField {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_jni_get_static = System.load ("lime", "lime_jni_get_static", 1);
-	private static var lime_jni_set_static = System.load ("lime", "lime_jni_set_static", 2);
+	@:cffi private static function lime_jni_get_static (jniField:Dynamic):Dynamic;
+	@:cffi private static function lime_jni_set_static (jniField:Dynamic, value:Dynamic):Void;
 	#end
 	
 	
 }
+
+
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
 
 
 class JNIMethod {
@@ -367,8 +401,8 @@ class JNIMethod {
 	
 	
 	#if (cpp || neko || nodejs)
-	private static var lime_jni_call_member = System.load ("lime", "lime_jni_call_member", 3);
-	private static var lime_jni_call_static = System.load ("lime", "lime_jni_call_static", 2);
+	@:cffi private static function lime_jni_call_member (jniMethod:Dynamic, jniObject:Dynamic, args:Dynamic):Dynamic;
+	@:cffi private static function lime_jni_call_static (jniMethod:Dynamic, args:Dynamic):Dynamic;
 	#end
 	
 	

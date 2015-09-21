@@ -1,7 +1,9 @@
 package lime.net.curl;
 
 
-import lime.system.System;
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
 
 
 abstract CURL(Float) from Float to Float {
@@ -17,8 +19,8 @@ abstract CURL(Float) from Float to Float {
 	
 	public static function getDate (date:String, now:Int):Int {
 		
-		#if ((cpp || neko || nodejs) && lime_curl)
-		return lime_curl_getdate (date, now);
+		#if ((cpp || neko || nodejs) && lime_curl && !macro)
+		return cast lime_curl_getdate (date, cast now);
 		#else
 		return 0;
 		#end
@@ -28,7 +30,7 @@ abstract CURL(Float) from Float to Float {
 	
 	public static function globalCleanup ():Void {
 		
-		#if ((cpp || neko || nodejs) && lime_curl)
+		#if ((cpp || neko || nodejs) && lime_curl && !macro)
 		lime_curl_global_cleanup ();
 		#end
 		
@@ -37,7 +39,7 @@ abstract CURL(Float) from Float to Float {
 	
 	public static function globalInit (flags:Int):CURLCode {
 		
-		#if ((cpp || neko || nodejs) && lime_curl)
+		#if ((cpp || neko || nodejs) && lime_curl && !macro)
 		return cast lime_curl_global_init (flags);
 		#else
 		return cast 0;
@@ -48,7 +50,7 @@ abstract CURL(Float) from Float to Float {
 	
 	public static function version ():String {
 		
-		#if ((cpp || neko || nodejs) && lime_curl)
+		#if ((cpp || neko || nodejs) && lime_curl && !macro)
 		return lime_curl_version ();
 		#else
 		return null;
@@ -57,9 +59,9 @@ abstract CURL(Float) from Float to Float {
 	}
 	
 	
-	public static function versionInfo (type:CURLVersion):String {
+	public static function versionInfo (type:CURLVersion):Dynamic {
 		
-		#if ((cpp || neko || nodejs) && lime_curl)
+		#if ((cpp || neko || nodejs) && lime_curl && !macro)
 		return lime_curl_version_info (cast (type, Int));
 		#else
 		return null;
@@ -75,12 +77,12 @@ abstract CURL(Float) from Float to Float {
 	}
 	
 	
-	#if ((cpp || neko || nodejs) && lime_curl)
-	private static var lime_curl_getdate = System.load ("lime", "lime_curl_getdate", 2);
-	private static var lime_curl_global_cleanup = System.load ("lime", "lime_curl_global_cleanup", 0);
-	private static var lime_curl_global_init = System.load ("lime", "lime_curl_global_init", 1);
-	private static var lime_curl_version = System.load ("lime", "lime_curl_version", 0);
-	private static var lime_curl_version_info = System.load ("lime", "lime_curl_easy_cleanup", 1);
+	#if ((cpp || neko || nodejs) && lime_curl && !macro)
+	@:cffi private static function lime_curl_getdate (date:String, now:Float):Float;
+	@:cffi private static function lime_curl_global_cleanup ():Void;
+	@:cffi private static function lime_curl_global_init (flags:Int):Int;
+	@:cffi private static function lime_curl_version ():Dynamic;
+	@:cffi private static function lime_curl_version_info (type:Int):Dynamic;
 	#end
 	
 	

@@ -2,7 +2,10 @@ package lime.utils;
 
 
 import haxe.io.Bytes;
-import lime.system.System;
+
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
 
 
 class LZMA {
@@ -10,8 +13,8 @@ class LZMA {
 	
 	public static function decode (bytes:ByteArray):ByteArray {
 		
-		#if (cpp || neko || nodejs)
-		var data = lime_lzma_decode (bytes);
+		#if ((cpp || neko || nodejs) && !macro)
+		var data:Dynamic = lime_lzma_decode (bytes);
 		return ByteArray.fromBytes (@:privateAccess new Bytes (data.length, data.b));
 		#else
 		return null;
@@ -22,8 +25,8 @@ class LZMA {
 	
 	public static function encode (bytes:ByteArray):ByteArray {
 		
-		#if (cpp || neko || nodejs)
-		var data = lime_lzma_encode (bytes);
+		#if ((cpp || neko || nodejs) && !macro)
+		var data:Dynamic = lime_lzma_encode (bytes);
 		return ByteArray.fromBytes (@:privateAccess new Bytes (data.length, data.b));
 		#else
 		return null;
@@ -39,9 +42,9 @@ class LZMA {
 	
 	
 	
-	#if (cpp || neko || nodejs)
-	private static var lime_lzma_decode = System.load ("lime", "lime_lzma_decode", 1);
-	private static var lime_lzma_encode = System.load ("lime", "lime_lzma_encode", 1);
+	#if ((cpp || neko || nodejs) && !macro)
+	@:cffi private static function lime_lzma_decode (data:Dynamic):Dynamic;
+	@:cffi private static function lime_lzma_encode (data:Dynamic):Dynamic;
 	#end
 	
 	

@@ -4,8 +4,9 @@
 
 #include <SDL.h>
 #include <app/Application.h>
-#include <app/UpdateEvent.h>
+#include <app/ApplicationEvent.h>
 #include <graphics/RenderEvent.h>
+#include <system/SensorEvent.h>
 #include <ui/GamepadEvent.h>
 #include <ui/KeyEvent.h>
 #include <ui/MouseEvent.h>
@@ -39,6 +40,7 @@ namespace lime {
 			void ProcessGamepadEvent (SDL_Event* event);
 			void ProcessKeyEvent (SDL_Event* event);
 			void ProcessMouseEvent (SDL_Event* event);
+			void ProcessSensorEvent (SDL_Event* event);
 			void ProcessTextEvent (SDL_Event* event);
 			void ProcessTouchEvent (SDL_Event* event);
 			void ProcessWindowEvent (SDL_Event* event);
@@ -49,6 +51,7 @@ namespace lime {
 			static SDLApplication* currentApplication;
 			
 			bool active;
+			ApplicationEvent applicationEvent;
 			Uint32 currentUpdate;
 			double framePeriod;
 			GamepadEvent gamepadEvent;
@@ -57,9 +60,9 @@ namespace lime {
 			MouseEvent mouseEvent;
 			double nextUpdate;
 			RenderEvent renderEvent;
+			SensorEvent sensorEvent;
 			TextEvent textEvent;
 			TouchEvent touchEvent;
-			UpdateEvent updateEvent;
 			WindowEvent windowEvent;
 		
 	};

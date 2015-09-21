@@ -18,10 +18,10 @@ import lime.math.color.RGBA;
 import lime.math.ColorMatrix;
 import lime.math.Rectangle;
 import lime.math.Vector2;
+import lime.system.CFFI;
 import lime.utils.ArrayBuffer;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
-import lime.system.System;
 
 #if (js && html5)
 import js.html.CanvasElement;
@@ -48,14 +48,17 @@ import sys.io.File;
 import lime.graphics.console.TextureData;
 #end
 
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
+
+@:autoBuild(lime.Assets.embedImage())
 @:allow(lime.graphics.util.ImageCanvasUtil)
 @:allow(lime.graphics.util.ImageDataUtil)
 @:access(lime.app.Application)
 @:access(lime.math.ColorMatrix)
 @:access(lime.math.Rectangle)
 @:access(lime.math.Vector2)
-
-@:autoBuild(lime.Assets.embedImage())
 
 
 class Image {
@@ -169,9 +172,7 @@ class Image {
 			if (type == CANVAS && buffer.__srcImage == null) {
 				
 				ImageCanvasUtil.convertToCanvas (this);
-				ImageCanvasUtil.sync (this);
-				buffer.data = null;
-				buffer.__srcImageData = null;
+				ImageCanvasUtil.sync (this, true);
 				
 			}
 			
@@ -1067,14 +1068,14 @@ class Image {
 			}
 			
 			__fromBase64 (__base64Encode (bytes), type, onload);
-
+			
 		#elseif lime_console
-
+			
 			throw "Image.fromBytes not implemented for console target";
 			
-		#elseif (cpp || neko || nodejs)
+		#elseif ((cpp || neko || nodejs) && !macro)
 			
-			var data = lime_image_load (bytes);
+			var data:Dynamic = lime_image_load (bytes);
 			
 			if (data != null) {
 				
@@ -1107,7 +1108,7 @@ class Image {
 				
 				buffer = new ImageBuffer (null, image.width, image.height);
 				buffer.__srcImage = cast image;
-
+				
 				width = image.width;
 				height = image.height;
 				
@@ -1138,59 +1139,62 @@ class Image {
 		#elseif (cpp || neko || nodejs || java)
 			
 			var buffer = null;
-
+			
 			#if lime_console
-
-				var td = TextureData.fromFile (path);
-
-				if (td.valid) {
-
-					var w = td.width;
-					var h = td.height;
-					var data = new Array<cpp.UInt8> ();
-
-					#if 1
-
-						var size = w * h * 4;
-						cpp.NativeArray.setSize (data, size);
-
-						td.decode (cpp.Pointer.arrayElem (data, 0), size);
-/*	
-						{
-							var dest:cpp.Pointer<cpp.UInt32> = cast cpp.Pointer.arrayElem (data, 0);	
-							var src:cpp.Pointer<cpp.UInt32> = cast td.pointer;	
-							var n = w * h;
-							for (i in 0...n) {
-								dest[i] = src[i];
-							}
-						}
-*/
-						td.release ();
-
-					#else
-
-						// TODO(james4k): caveats here with every image
-						// pointing to the same piece of memory, and things may
-						// change with compressed textures. but, may be worth
-						// considering if game is hitting memory constraints.
-						// can we do this safely somehow? copy on write?
-						// probably too many people writing directly to the
-						// buffer...
-						cpp.NativeArray.setUnmanagedData (data, td.pointer, w*h*4);
-
-					#end
-
-					var array = new UInt8Array (ByteArray.fromBytes (Bytes.ofData (cast data)));
-					buffer = new ImageBuffer (array, w, h);
-					buffer.format = BGRA32;
-
+			
+			var td = TextureData.fromFile (path);
+			
+			if (td.valid) {
+				
+				var w = td.width;
+				var h = td.height;
+				var data = new Array<cpp.UInt8> ();
+				
+				#if 1
+				
+				var size = w * h * 4;
+				cpp.NativeArray.setSize (data, size);
+				
+				td.decode (cpp.Pointer.arrayElem (data, 0), size);
+				/*
+				{
+					var dest:cpp.Pointer<cpp.UInt32> = cast cpp.Pointer.arrayElem (data, 0);	
+					var src:cpp.Pointer<cpp.UInt32> = cast td.pointer;	
+					var n = w * h;
+					for (i in 0...n) {
+						dest[i] = src[i];
+					}
 				}
-
+				*/
+				td.release ();
+				
+				#else
+				
+				// TODO(james4k): caveats here with every image
+				// pointing to the same piece of memory, and things may
+				// change with compressed textures. but, may be worth
+				// considering if game is hitting memory constraints.
+				// can we do this safely somehow? copy on write?
+				// probably too many people writing directly to the
+				// buffer...
+				cpp.NativeArray.setUnmanagedData (data, td.pointer, w*h*4);
+				
+				#end
+				
+				var array = new UInt8Array (ByteArray.fromBytes (Bytes.ofData (cast data)));
+				buffer = new ImageBuffer (array, w, h);
+				buffer.format = BGRA32;
+				
+			}
+			
 			#else
 			
-			if (#if (sys && (!disable_cffi || !format) && !java) true #else false #end && !System.disableCFFI) {
+			#if (!sys || disable_cffi || java || macro)
+			if (false) {}
+			#else
+			if (CFFI.enabled) {
 				
-				var data = lime_image_load (path);
+				var data:Dynamic = lime_image_load (path);
 				
 				if (data != null) {
 					
@@ -1200,7 +1204,8 @@ class Image {
 				}
 				
 			}
-
+			#end
+			
 			#if format
 			
 			else {
@@ -1238,7 +1243,7 @@ class Image {
 			}
 			
 			#end
-
+			
 			#end
 			
 			if (buffer != null) {
@@ -1330,7 +1335,7 @@ class Image {
 			#if (js && html5)
 				
 				ImageCanvasUtil.convertToCanvas (this);
-				ImageCanvasUtil.sync (this);
+				ImageCanvasUtil.sync (this, false);
 				ImageCanvasUtil.createImageData (this);
 				
 			#elseif flash
@@ -1544,9 +1549,9 @@ class Image {
 	
 	
 	
-	#if (cpp || neko || nodejs)
-	private static var lime_image_encode:ImageBuffer -> Int -> Int -> ByteArray = System.load ("lime", "lime_image_encode", 3);
-	private static var lime_image_load:Dynamic = System.load ("lime", "lime_image_load", 1);
+	#if ((cpp || neko || nodejs) && !macro)
+	@:cffi private static function lime_image_encode (buffer:Dynamic, Type:Int, quality:Int):Dynamic;
+	@:cffi private static function lime_image_load (data:Dynamic):Dynamic;
 	#end
 	
 	

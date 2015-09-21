@@ -62,7 +62,7 @@ class ImageCanvasUtil {
 		if (image.buffer.data == null) {
 			
 			convertToCanvas (image);
-			sync (image);
+			sync (image, false);
 			createImageData (image);
 			
 			image.buffer.__srcCanvas = null;
@@ -88,7 +88,7 @@ class ImageCanvasUtil {
 	
 	public static function copyPixels (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, alphaImage:Image = null, alphaPoint:Vector2 = null, mergeAlpha:Bool = false):Void {
 		
-		if (destPoint.x >= image.width || destPoint.y >= image.height) {
+		if (destPoint == null || destPoint.x >= image.width || destPoint.y >= image.height || sourceRect == null || sourceRect.width <= 0 || sourceRect.height <= 0) {
 			
 			return;
 			
@@ -106,7 +106,7 @@ class ImageCanvasUtil {
 			
 		}
 		
-		sync (image);
+		sync (image, true);
 		
 		if (!mergeAlpha) {
 			
@@ -118,7 +118,7 @@ class ImageCanvasUtil {
 			
 		}
 		
-		sync (sourceImage);
+		sync (sourceImage, false);
 		
 		if (sourceImage.buffer.src != null) {
 			
@@ -152,7 +152,8 @@ class ImageCanvasUtil {
 			}
 			
 			untyped (buffer.__srcContext).mozImageSmoothingEnabled = false;
-			untyped (buffer.__srcContext).webkitImageSmoothingEnabled = false;
+			//untyped (buffer.__srcContext).webkitImageSmoothingEnabled = false;
+			untyped (buffer.__srcContext).msImageSmoothingEnabled = false;
 			untyped (buffer.__srcContext).imageSmoothingEnabled = false;
 			
 		}
@@ -192,7 +193,7 @@ class ImageCanvasUtil {
 	public static function fillRect (image:Image, rect:Rectangle, color:Int, format:PixelFormat):Void {
 		
 		convertToCanvas (image);
-		sync (image);
+		sync (image, true);
 		
 		if (rect.x == 0 && rect.y == 0 && rect.width == image.width && rect.height == image.height) {
 			
@@ -292,7 +293,7 @@ class ImageCanvasUtil {
 			
 		} else {
 			
-			sync (image);
+			sync (image, true);
 			var sourceCanvas = buffer.__srcCanvas;
 			buffer.__srcCanvas = null;
 			createCanvas (image, newWidth, newHeight);
@@ -308,7 +309,7 @@ class ImageCanvasUtil {
 		if ((x % image.width == 0) && (y % image.height == 0)) return;
 		
 		convertToCanvas (image);
-		sync (image);
+		sync (image, true);
 		
 		image.buffer.__srcContext.clearRect (x, y, image.width, image.height);
 		image.buffer.__srcContext.drawImage (image.buffer.__srcCanvas, x, y);
@@ -346,7 +347,7 @@ class ImageCanvasUtil {
 	}
 	
 	
-	public static function sync (image:Image):Void {
+	public static function sync (image:Image, clear:Bool):Void {
 		
 		#if (js && html5)
 		if (image.dirty && image.buffer.__srcImageData != null && image.type != DATA) {
@@ -354,6 +355,13 @@ class ImageCanvasUtil {
 			image.buffer.__srcContext.putImageData (image.buffer.__srcImageData, 0, 0);
 			image.buffer.data = null;
 			image.dirty = false;
+			
+		}
+		
+		if (clear) {
+			
+			image.buffer.__srcImageData = null;
+			image.buffer.data = null;
 			
 		}
 		#end

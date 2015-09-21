@@ -1,5 +1,14 @@
 #include <hx/CFFI.h>
 
+#ifdef NME_SDL2
+#include <SDL.h>
+#endif
+
+#ifdef HX_WINDOWS
+#include <SDL_syswm.h>
+#include <Windows.h>
+#endif
+
 
 // Custom DEFINE_PRIM macro when calls are the same as NME
 
@@ -561,6 +570,49 @@ namespace nme {
 	DEFINE_LIME_LEGACY_PRIM_0(gl_s3d_get_focal_length);
 	DEFINE_LIME_LEGACY_PRIM_1(gl_s3d_set_focal_length);
 	#endif
+	
+	
+	value lime_window_alert (value message, value title) {
+		
+		#ifdef NME_SDL2
+		
+		SDL_Window* sdlWindow = SDL_GL_GetCurrentWindow ();
+		if (!sdlWindow) return alloc_null ();
+		
+		#ifdef HX_WINDOWS
+		
+		int count = 0;
+		int speed = 0;
+		bool stopOnForeground = true;
+		
+		SDL_SysWMinfo info;
+		SDL_VERSION (&info.version);
+		SDL_GetWindowWMInfo (sdlWindow, &info);
+		
+		FLASHWINFO fi;
+		fi.cbSize = sizeof (FLASHWINFO);
+		fi.hwnd = info.info.win.window;
+		fi.dwFlags = stopOnForeground ? FLASHW_ALL | FLASHW_TIMERNOFG : FLASHW_ALL | FLASHW_TIMER;
+		fi.uCount = count;
+		fi.dwTimeout = speed;
+		FlashWindowEx (&fi);
+		
+		#endif
+		
+		if (!val_is_null (message)) {
+			
+			SDL_ShowSimpleMessageBox (SDL_MESSAGEBOX_INFORMATION, val_is_null (title) ? "" : val_string (title), val_string (message), sdlWindow);
+			
+		}
+		
+		#endif
+		
+		return alloc_null ();
+		
+	}
+	
+	
+	DEFINE_PRIM (lime_window_alert, 2);
 	
 	
 }

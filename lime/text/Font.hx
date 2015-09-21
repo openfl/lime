@@ -4,20 +4,28 @@ package lime.text;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.math.Vector2;
+import lime.system.System;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
-import lime.system.System;
 
 #if (js && html5)
 import js.html.CanvasElement;
 import js.html.CanvasRenderingContext2D;
 #end
 
-@:access(lime.text.Glyph)
+#if ((cpp || neko || nodejs) && !macro)
+import haxe.io.Path;
+#end
 
-#if (!display && !nodejs)
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
+
+#if (!display && !nodejs && !macro)
 @:autoBuild(lime.Assets.embedFont())
 #end
+
+@:access(lime.text.Glyph)
 
 
 class Font {
@@ -34,7 +42,9 @@ class Font {
 	public var unitsPerEM (get, null):Int;
 	
 	@:noCompletion private var __fontPath:String;
-	
+	#if (cpp || neko || nodejs)
+	@:noCompletion private var __fontPathWithoutDirectory:String;
+	#end
 	
 	public function new (name:String = null) {
 		
@@ -55,10 +65,11 @@ class Font {
 	
 	public function decompose ():NativeFontData {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		
 		if (src == null) throw "Uninitialized font handle.";
-		return lime_font_outline_decompose (src, 1024 * 20);
+		var data:Dynamic = lime_font_outline_decompose (src, 1024 * 20);
+		return data;
 		
 		#else
 		
@@ -74,7 +85,7 @@ class Font {
 		var font = new Font ();
 		font.__fromBytes (bytes);
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return (font.src != null) ? font : null;
 		#else
 		return font;
@@ -88,7 +99,7 @@ class Font {
 		var font = new Font ();
 		font.__fromFile (path);
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return (font.src != null) ? font : null;
 		#else
 		return font;
@@ -99,7 +110,7 @@ class Font {
 	
 	public function getGlyph (character:String):Glyph {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return lime_font_get_glyph_index (src, character);
 		#else
 		return -1;
@@ -110,8 +121,9 @@ class Font {
 	
 	public function getGlyphs (characters:String = #if (display && haxe_ver < "3.2") "" #else "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. " #end):Array<Glyph> {
 		
-		#if (cpp || neko || nodejs)
-		return lime_font_get_glyph_indices (src, characters);
+		#if ((cpp || neko || nodejs) && !macro)
+		var glyphs:Dynamic = lime_font_get_glyph_indices (src, characters);
+		return glyphs;
 		#else
 		return null;
 		#end
@@ -121,8 +133,8 @@ class Font {
 	
 	public function getGlyphMetrics (glyph:Glyph):GlyphMetrics {
 		
-		#if (cpp || neko || nodejs)
-		var value = lime_font_get_glyph_metrics (src, glyph);
+		#if ((cpp || neko || nodejs) && !macro)
+		var value:Dynamic = lime_font_get_glyph_metrics (src, glyph);
 		var metrics = new GlyphMetrics ();
 		
 		metrics.advance = new Vector2 (value.horizontalAdvance, value.verticalAdvance);
@@ -140,7 +152,7 @@ class Font {
 	
 	public function renderGlyph (glyph:Glyph, fontSize:Int):Image {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		
 		lime_font_set_size (src, fontSize);
 		
@@ -182,7 +194,7 @@ class Font {
 	
 	public function renderGlyphs (glyphs:Array<Glyph>, fontSize:Int):Map<Glyph, Image> {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		
 		var uniqueGlyphs = new Map<Int, Bool> ();
 		
@@ -348,13 +360,15 @@ class Font {
 		
 		__fontPath = null;
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
+		
+		__fontPathWithoutDirectory = null;
 		
 		src = lime_font_load (bytes);
 		
 		if (src != null && name == null) {
 			
-			name = lime_font_get_family_name (src);
+			name = cast lime_font_get_family_name (src);
 			
 		}
 		
@@ -367,13 +381,15 @@ class Font {
 		
 		__fontPath = path;
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
+		
+		__fontPathWithoutDirectory = Path.withoutDirectory (__fontPath);
 		
 		src = lime_font_load (__fontPath);
 		
 		if (src != null && name == null) {
 			
-			name = lime_font_get_family_name (src);
+			name = cast lime_font_get_family_name (src);
 			
 		}
 		
@@ -391,7 +407,7 @@ class Font {
 	
 	private function get_ascender ():Int {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return lime_font_get_ascender (src);
 		#else
 		return 0;
@@ -402,7 +418,7 @@ class Font {
 	
 	private function get_descender ():Int {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return lime_font_get_descender (src);
 		#else
 		return 0;
@@ -413,7 +429,7 @@ class Font {
 	
 	private function get_height ():Int {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return lime_font_get_height (src);
 		#else
 		return 0;
@@ -424,7 +440,7 @@ class Font {
 	
 	private function get_numGlyphs ():Int {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return lime_font_get_num_glyphs (src);
 		#else
 		return 0;
@@ -435,7 +451,7 @@ class Font {
 	
 	private function get_underlinePosition ():Int {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return lime_font_get_underline_position (src);
 		#else
 		return 0;
@@ -446,7 +462,7 @@ class Font {
 	
 	private function get_underlineThickness ():Int {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return lime_font_get_underline_thickness (src);
 		#else
 		return 0;
@@ -457,7 +473,7 @@ class Font {
 	
 	private function get_unitsPerEM ():Int {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return lime_font_get_units_per_em (src);
 		#else
 		return 0;
@@ -473,23 +489,23 @@ class Font {
 	
 	
 	
-	#if (cpp || neko || nodejs)
-	private static var lime_font_get_ascender = System.load ("lime", "lime_font_get_ascender", 1);
-	private static var lime_font_get_descender = System.load ("lime", "lime_font_get_descender", 1);
-	private static var lime_font_get_family_name = System.load ("lime", "lime_font_get_family_name", 1);
-	private static var lime_font_get_glyph_index = System.load ("lime", "lime_font_get_glyph_index", 2);
-	private static var lime_font_get_glyph_indices = System.load ("lime", "lime_font_get_glyph_indices", 2);
-	private static var lime_font_get_glyph_metrics = System.load ("lime", "lime_font_get_glyph_metrics", 2);
-	private static var lime_font_get_height = System.load ("lime", "lime_font_get_height", 1);
-	private static var lime_font_get_num_glyphs = System.load ("lime", "lime_font_get_num_glyphs", 1);
-	private static var lime_font_get_underline_position = System.load ("lime", "lime_font_get_underline_position", 1);
-	private static var lime_font_get_underline_thickness = System.load ("lime", "lime_font_get_underline_thickness", 1);
-	private static var lime_font_get_units_per_em = System.load ("lime", "lime_font_get_units_per_em", 1);
-	private static var lime_font_load:Dynamic = System.load ("lime", "lime_font_load", 1);
-	private static var lime_font_outline_decompose = System.load ("lime", "lime_font_outline_decompose", 2);
-	private static var lime_font_render_glyph = System.load ("lime", "lime_font_render_glyph", 3);
-	private static var lime_font_render_glyphs = System.load ("lime", "lime_font_render_glyphs", 3);
-	private static var lime_font_set_size = System.load ("lime", "lime_font_set_size", 2);
+	#if ((cpp || neko || nodejs) && !macro)
+	@:cffi private static function lime_font_get_ascender (handle:Float):Int;
+	@:cffi private static function lime_font_get_descender (handle:Float):Int;
+	@:cffi private static function lime_font_get_family_name (handle:Float):Dynamic;
+	@:cffi private static function lime_font_get_glyph_index (handle:Float, character:String):Int;
+	@:cffi private static function lime_font_get_glyph_indices (handle:Float, characters:String):Dynamic;
+	@:cffi private static function lime_font_get_glyph_metrics (handle:Float, index:Int):Dynamic;
+	@:cffi private static function lime_font_get_height (handle:Float):Int;
+	@:cffi private static function lime_font_get_num_glyphs (handle:Float):Int;
+	@:cffi private static function lime_font_get_underline_position (handle:Float):Int;
+	@:cffi private static function lime_font_get_underline_thickness (handle:Float):Int;
+	@:cffi private static function lime_font_get_units_per_em (handle:Float):Int;
+	@:cffi private static function lime_font_load (data:Dynamic):Dynamic;
+	@:cffi private static function lime_font_outline_decompose (handle:Float, size:Int):Dynamic;
+	@:cffi private static function lime_font_render_glyph (handle:Float, index:Int, data:Dynamic):Bool;
+	@:cffi private static function lime_font_render_glyphs (handle:Float, indices:Dynamic, data:Dynamic):Bool;
+	@:cffi private static function lime_font_set_size (handle:Float, size:Int):Void;
 	#end
 	
 	

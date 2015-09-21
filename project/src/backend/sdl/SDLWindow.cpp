@@ -34,6 +34,13 @@ namespace lime {
 			SDL_SetHint (SDL_HINT_VIDEO_WIN_D3DCOMPILER, "d3dcompiler_47.dll");
 			#endif
 			
+			#if defined (RASPBERRYPI)
+			SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 0);
+			SDL_SetHint (SDL_HINT_RENDER_DRIVER, "opengles2");
+			#endif
+			
 			if (flags & WINDOW_FLAG_DEPTH_BUFFER) {
 				
 				SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 32 - (flags & WINDOW_FLAG_STENCIL_BUFFER) ? 8 : 0);
@@ -105,6 +112,37 @@ namespace lime {
 	}
 	
 	
+	void SDLWindow::Alert (const char* message, const char* title) {
+		
+		#ifdef HX_WINDOWS
+		
+		int count = 0;
+		int speed = 0;
+		bool stopOnForeground = true;
+		
+		SDL_SysWMinfo info;
+		SDL_VERSION (&info.version);
+		SDL_GetWindowWMInfo (sdlWindow, &info);
+		
+		FLASHWINFO fi;
+		fi.cbSize = sizeof (FLASHWINFO);
+		fi.hwnd = info.info.win.window;
+		fi.dwFlags = stopOnForeground ? FLASHW_ALL | FLASHW_TIMERNOFG : FLASHW_ALL | FLASHW_TIMER;
+		fi.uCount = count;
+		fi.dwTimeout = speed;
+		FlashWindowEx (&fi);
+		
+		#endif
+		
+		if (message) {
+			
+			SDL_ShowSimpleMessageBox (SDL_MESSAGEBOX_INFORMATION, title, message, sdlWindow);
+			
+		}
+		
+	}
+	
+	
 	void SDLWindow::Close () {
 		
 		if (sdlWindow) {
@@ -112,6 +150,13 @@ namespace lime {
 			SDL_DestroyWindow (sdlWindow);
 			
 		}
+		
+	}
+	
+	
+	void SDLWindow::Focus () {
+		
+		SDL_RaiseWindow (sdlWindow);
 		
 	}
 	
@@ -131,6 +176,13 @@ namespace lime {
 		SDL_GetWindowSize (sdlWindow, &width, &height);
 		
 		return height;
+		
+	}
+	
+	
+	uint32_t SDLWindow::GetID () {
+		
+		return SDL_GetWindowID (sdlWindow);
 		
 	}
 	

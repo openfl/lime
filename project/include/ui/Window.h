@@ -8,6 +8,7 @@
 
 #include <app/Application.h>
 #include <graphics/ImageBuffer.h>
+#include <stdint.h>
 
 
 namespace lime {
@@ -18,9 +19,12 @@ namespace lime {
 		
 		public:
 			
+			virtual void Alert (const char* message, const char* title) = 0;
 			virtual void Close () = 0;
+			virtual void Focus () = 0;
 			virtual bool GetEnableTextEvents () = 0;
 			virtual int GetHeight () = 0;
+			virtual uint32_t GetID () = 0;
 			virtual int GetWidth () = 0;
 			virtual int GetX () = 0;
 			virtual int GetY () = 0;

@@ -1,19 +1,17 @@
-package lime.graphics.cairo; #if !macro
+package lime.graphics.cairo;
 
 
-import lime.graphics.Image;
-import lime.system.System;
-import lime.utils.ByteArray;
-
-@:access(haxe.io.Bytes)
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
 
 
-abstract CairoSurface(Dynamic) {
+abstract CairoSurface(Dynamic) from Float to Float {
 	
 	
 	public function destroy ():Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_surface_destroy (this);
 		#end
 		
@@ -22,7 +20,7 @@ abstract CairoSurface(Dynamic) {
 	
 	public function flush ():Void {
 		
-		#if lime_cairo
+		#if (lime_cairo && !macro)
 		lime_cairo_surface_flush (this);
 		#end
 		
@@ -36,13 +34,10 @@ abstract CairoSurface(Dynamic) {
 	
 	
 	
-	#if lime_cairo
-	private static var lime_cairo_surface_destroy = System.load ("lime", "lime_cairo_surface_destroy", 1);
-	private static var lime_cairo_surface_flush = System.load ("lime", "lime_cairo_surface_flush", 1);
+	#if (lime_cairo && !macro)
+	@:cffi private static function lime_cairo_surface_destroy (surface:Float):Void;
+	@:cffi private static function lime_cairo_surface_flush (surface:Float):Void;
 	#end
 	
 	
 }
-
-
-#end

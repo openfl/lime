@@ -11,6 +11,7 @@ addons:
     - libgl1-mesa-dev
     - libglu1-mesa-dev
     - libgc-dev
+    - libgtk-3-dev
 
 before_install:
   - "export DISPLAY=:99.0"

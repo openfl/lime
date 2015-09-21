@@ -1,4 +1,4 @@
-#include <hx/CFFI.h>
+#include <hx/CFFIPrime.h>
 #include <utils/Bytes.h>
 #include "OpenGL.h"
 #include "OpenGLBindings.h"
@@ -14,6 +14,10 @@
 #include <dlfcn.h>
 #endif
 
+#ifdef LIME_SDL
+#include <SDL.h>
+#endif
+
 
 namespace lime {
 	
@@ -22,109 +26,93 @@ namespace lime {
 	void *OpenGLBindings::handle = 0;
 	
 	
-	value lime_gl_active_texture (value inSlot) {
+	void lime_gl_active_texture (int inSlot) {
 		
-		glActiveTexture (val_int (inSlot));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_attach_shader (value inProg, value inShader) {
-		
-		glAttachShader (val_int (inProg), val_int (inShader));
-		return alloc_null ();
+		glActiveTexture (inSlot);
 		
 	}
 	
 	
-	value lime_gl_bind_attrib_location (value inId, value inSlot, value inName) {
+	void lime_gl_attach_shader (int inProg, int inShader) {
 		
-		int id = val_int (inId);
-		glBindAttribLocation (id, val_int (inSlot), val_string (inName));
-		return alloc_null ();
+		glAttachShader (inProg, inShader);
 		
 	}
 	
 	
-	value lime_gl_bind_buffer (value inTarget, value inId) {
+	void lime_gl_bind_attrib_location (int id, int inSlot, HxString inName) {
 		
-		glBindBuffer (val_int (inTarget), val_int (inId));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_bind_framebuffer (value target, value framebuffer) {
-		
-		glBindFramebuffer (val_int (target), val_int (framebuffer));
-		return alloc_null ();
+		glBindAttribLocation (id, inSlot, inName.__s);
 		
 	}
 	
 	
-	value lime_gl_bind_renderbuffer (value target, value renderbuffer) {
+	void lime_gl_bind_buffer (int inTarget, int inId) {
 		
-		glBindRenderbuffer (val_int (target), val_int (renderbuffer));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_bind_texture (value inTarget, value inTexture) {
-		
-		glBindTexture (val_int (inTarget), val_int (inTexture));
-		return alloc_null ();
+		glBindBuffer (inTarget, inId);
 		
 	}
 	
 	
-	value lime_gl_blend_color (value r, value g, value b, value a) {
+	void lime_gl_bind_framebuffer (int target, int framebuffer) {
 		
-		glBlendColor (val_number (r), val_number (g), val_number (b), val_number (a));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_blend_equation (value mode) {
-		
-		glBlendEquation (val_int (mode));
-		return alloc_null ();
+		glBindFramebuffer (target, framebuffer);
 		
 	}
 	
 	
-	value lime_gl_blend_equation_separate (value rgb, value a) {
+	void lime_gl_bind_renderbuffer (int target, int renderbuffer) {
 		
-		glBlendEquationSeparate (val_int (rgb), val_int (a));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_blend_func (value s, value d) {
-		
-		glBlendFunc (val_int (s), val_int (d));
-		return alloc_null ();
+		glBindRenderbuffer (target, renderbuffer);
 		
 	}
 	
 	
-	value lime_gl_blend_func_separate (value srgb, value drgb, value sa, value da) {
+	void lime_gl_bind_texture (int inTarget, int inTexture) {
 		
-		glBlendFuncSeparate (val_int (srgb), val_int (drgb), val_int (sa), val_int (da));
-		return alloc_null ();
+		glBindTexture (inTarget, inTexture);
 		
 	}
 	
 	
-	value lime_gl_buffer_data (value inTarget, value inByteBuffer, value inStart, value inLen, value inUsage) {
+	void lime_gl_blend_color (float r, float g, float b, float a) {
 		
-		int len = val_int (inLen);
-		int start = val_int (inStart);
+		glBlendColor (r, g, b, a);
 		
-		if (len == 0) return alloc_null ();
+	}
+	
+	
+	void lime_gl_blend_equation (int mode) {
+		
+		glBlendEquation (mode);
+		
+	}
+	
+	
+	void lime_gl_blend_equation_separate (int rgb, int a) {
+		
+		glBlendEquationSeparate (rgb, a);
+		
+	}
+	
+	
+	void lime_gl_blend_func (int s, int d) {
+		
+		glBlendFunc (s, d);
+		
+	}
+	
+	
+	void lime_gl_blend_func_separate (int srgb, int drgb, int sa, int da) {
+		
+		glBlendFuncSeparate (srgb, drgb, sa, da);
+		
+	}
+	
+	
+	void lime_gl_buffer_data (int inTarget, value inByteBuffer, int start, int len, int inUsage) {
+		
+		if (len == 0) return;
 		
 		Bytes bytes (inByteBuffer);
 		const unsigned char *data = bytes.Data ();
@@ -136,18 +124,14 @@ namespace lime {
 			
 		}
 		
-		glBufferData (val_int (inTarget), len, data + start, val_int (inUsage));
-		return alloc_null ();
+		glBufferData (inTarget, len, data + start, inUsage);
 		
 	}
 	
 	
-	value lime_gl_buffer_sub_data (value inTarget, value inOffset, value inByteBuffer, value inStart, value inLen) {
+	void lime_gl_buffer_sub_data (int inTarget, int inOffset, value inByteBuffer, int start, int len) {
 		
-		int len = val_int (inLen);
-		int start = val_int (inStart);
-		
-		if (len == 0) return alloc_null ();
+		if (len == 0) return;
 		
 		Bytes bytes (inByteBuffer);
 		
@@ -160,386 +144,386 @@ namespace lime {
 			
 		}
 		
-		glBufferSubData (val_int (inTarget), val_int (inOffset), len, data + start);
-		return alloc_null ();
+		glBufferSubData (inTarget, inOffset, len, data + start);
 		
 	}
 	
 	
-	value lime_gl_check_framebuffer_status (value inTarget) {
+	int lime_gl_check_framebuffer_status (int inTarget) {
 		
-		return alloc_int (glCheckFramebufferStatus (val_int (inTarget)));
-		
-	}
-	
-	
-	value lime_gl_clear (value inMask) {
-		
-		glClear (val_int (inMask));
-		return alloc_null ();
+		return glCheckFramebufferStatus (inTarget);
 		
 	}
 	
 	
-	value lime_gl_clear_color (value r,value g, value b, value a) {
+	void lime_gl_clear (int inMask) {
 		
-		glClearColor (val_number (r), val_number (g), val_number (b), val_number (a));
-		return alloc_null ();
+		glClear (inMask);
 		
 	}
 	
 	
-	value lime_gl_clear_depth (value depth) {
+	void lime_gl_clear_color (float r, float g, float b, float a) {
+		
+		glClearColor (r, g, b, a);
+		
+	}
+	
+	
+	void lime_gl_clear_depth (float depth) {
 		
 		#ifdef LIME_GLES
-		glClearDepthf (val_number (depth));
+		glClearDepthf (depth);
 		#else
-		glClearDepth (val_number (depth));
+		glClearDepth (depth);
 		#endif
-		return alloc_null ();
 		
 	}
 	
 	
-	value lime_gl_clear_stencil (value stencil) {
+	void lime_gl_clear_stencil (int stencil) {
 		
-		glClearStencil (val_int (stencil));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_color_mask (value r, value g, value b, value a) {
-		
-		glColorMask (val_bool (r), val_bool (g), val_bool (b), val_bool (a));
-		return alloc_null ();
+		glClearStencil (stencil);
 		
 	}
 	
 	
-	value lime_gl_compile_shader (value inId) {
+	void lime_gl_color_mask (bool r, bool g, bool b, bool a) {
 		
-		int id = val_int (inId);
+		glColorMask (r, g, b, a);
+		
+	}
+	
+	
+	void lime_gl_compile_shader (int id) {
+		
 		glCompileShader (id);
-		return alloc_null ();
 		
 	}
 	
 	
-	value lime_gl_compressed_tex_image_2d (value *arg, int argCount) {
-		
-		enum { aTarget, aLevel, aInternal, aWidth, aHeight, aBorder, aBuffer, aOffset };
+	void lime_gl_compressed_tex_image_2d (int target, int level, int internalFormat, int width, int height, int border, value buffer, int offset) {
 		
 		unsigned char *data = 0;
 		int size = 0;
 		
-		Bytes bytes (arg[aBuffer]);
+		Bytes bytes (buffer);
 		
 		if (bytes.Length ()) {
 			
-			data = bytes.Data () + val_int (arg[aOffset]);
-			size = bytes.Length () - val_int (arg[aOffset]);
+			data = bytes.Data () + offset;
+			size = bytes.Length () - offset;
 			
 		}
 		
-		glCompressedTexImage2D (val_int (arg[aTarget]), val_int (arg[aLevel]), val_int (arg[aInternal]), val_int (arg[aWidth]), val_int (arg[aHeight]), val_int (arg[aBorder]), size, data);
-		return alloc_null ();
+		glCompressedTexImage2D (target, level, internalFormat, width, height, border, size, data);
 		
 	}
 	
 	
-	value lime_gl_compressed_tex_sub_image_2d (value *arg, int argCount) {
-		
-		enum { aTarget, aLevel, aXOffset, aYOffset, aWidth, aHeight, aFormat, aBuffer, aOffset };
+	void lime_gl_compressed_tex_sub_image_2d (int target, int level, int xOffset, int yOffset, int width, int height, int format, value buffer, int offset) {
 		
 		unsigned char *data = 0;
 		int size = 0;
 		
-		Bytes bytes (arg[aBuffer]);
+		Bytes bytes (buffer);
 		
 		if (bytes.Length ()) {
 			
-			data = bytes.Data () + val_int (arg[aOffset]);
-			size = bytes.Length () - val_int (arg[aOffset]);
+			data = bytes.Data () + offset;
+			size = bytes.Length () - offset;
 			
 		}
 		
-		glCompressedTexSubImage2D (val_int (arg[aTarget]), val_int (arg[aLevel]), val_int (arg[aXOffset]), val_int (arg[aYOffset]), val_int (arg[aWidth]), val_int (arg[aHeight]), val_int (arg[aFormat]), size, data);
-		return alloc_null ();
+		glCompressedTexSubImage2D (target, level, xOffset, yOffset, width, height, format, size, data);
 		
 	}
 	
 	
-	value lime_gl_copy_tex_image_2d (value *arg, int argCount) {
+	void lime_gl_copy_tex_image_2d (int target, int level, int internalFormat, int x, int y, int width, int height, int border) {
 		
-		enum { aTarget, aLevel, aInternalFormat, aX, aY, aWidth, aHeight, aBorder };
-		
-		glCopyTexImage2D (val_int (arg[aTarget]), val_int (arg[aLevel]), val_int (arg[aInternalFormat]), val_int (arg[aX]), val_int (arg[aY]), val_int (arg[aWidth]), val_int (arg[aHeight]), val_int (arg[aBorder]));
-		return alloc_null ();
+		glCopyTexImage2D (target, level, internalFormat, x, y, width, height, border);
 		
 	}
 	
 	
-	value lime_gl_copy_tex_sub_image_2d (value *arg, int argCount) {
+	void lime_gl_copy_tex_sub_image_2d (int target, int level, int xOffset, int yOffset, int x, int y, int width, int height) {
 		
-		enum { aTarget, aLevel, aXOffset, aYOffset, aX, aY, aWidth, aHeight };
-		
-		glCopyTexSubImage2D (val_int (arg[aTarget]), val_int (arg[aLevel]), val_int (arg[aXOffset]), val_int (arg[aYOffset]), val_int (arg[aX]), val_int (arg[aY]), val_int (arg[aWidth]), val_int (arg[aHeight]));
-		return alloc_null ();
+		glCopyTexSubImage2D (target, level, xOffset, yOffset, x, y, width, height);
 		
 	}
 	
 	
-	value lime_gl_create_buffer () {
+	int lime_gl_create_buffer () {
 		
 		GLuint buffers;
 		glGenBuffers (1, &buffers);
-		return alloc_int (buffers);
+		return buffers;
 		
 	}
 	
 	
-	value lime_gl_create_framebuffer () {
+	int lime_gl_create_framebuffer () {
 		
 		GLuint id = 0;
 		glGenFramebuffers (1, &id);
-		return alloc_int (id);
+		return id;
 		
 	}
 	
 	
-	value lime_gl_create_program () {
+	int lime_gl_create_program () {
 		
-		int result = glCreateProgram ();
-		return alloc_int (result);
+		return glCreateProgram ();
 		
 	}
 	
 	
-	value lime_gl_create_render_buffer () {
+	int lime_gl_create_render_buffer () {
 		
 		GLuint id = 0;
 		glGenRenderbuffers (1, &id);
-		return alloc_int (id);
+		return id;
 		
 	}
 	
 	
-	value lime_gl_create_shader (value inType) {
+	int lime_gl_create_shader (int inType) {
 		
-		return alloc_int (glCreateShader (val_int (inType)));
+		return glCreateShader (inType);
 		
 	}
 	
 	
-	value lime_gl_create_texture () {
+	int lime_gl_create_texture () {
 		
 		unsigned int id = 0;
 		glGenTextures (1, &id);
-		return alloc_int (id);
+		return id;
 		
 	}
 	
 	
-	value lime_gl_cull_face (value mode) {
+	void lime_gl_cull_face (int mode) {
 		
-		glCullFace (val_int (mode));
-		return alloc_null ();
+		glCullFace (mode);
 		
 	}
 	
 	
-	value lime_gl_delete_buffer (value inId) {
+	void lime_gl_delete_buffer (int inId) {
 		
-		GLuint id = val_int (inId);
+		GLuint id = inId;
 		glDeleteBuffers (1, &id);
-		return alloc_null ();
 		
 	}
 	
 	
-	value lime_gl_delete_framebuffer (value target) {
+	void lime_gl_delete_framebuffer (int inId) {
 		
-		GLuint id = val_int (target);
+		GLuint id = inId;
 		glDeleteFramebuffers (1, &id);
-		return alloc_null ();
 		
 	}
 	
 	
-	value lime_gl_delete_program (value inId) {
+	void lime_gl_delete_program (int id) {
 		
-		int id = val_int (inId);
 		glDeleteProgram (id);
-		return alloc_null ();
 		
 	}
 	
 	
-	value lime_gl_delete_render_buffer (value target) {
+	void lime_gl_delete_render_buffer (int inId) {
 		
-		GLuint id = val_int (target);
+		GLuint id = inId;
 		glDeleteRenderbuffers (1, &id);
-		return alloc_null();
 		
 	}
 	
 	
-	value lime_gl_delete_shader (value inId) {
+	void lime_gl_delete_shader (int id) {
 		
-		int id = val_int (inId);
 		glDeleteShader (id);
-		return alloc_null ();
 		
 	}
 	
 	
-	value lime_gl_delete_texture (value inId) {
+	void lime_gl_delete_texture (int inId) {
 		
-		GLuint id = val_int (inId);
+		GLuint id = inId;
 		glDeleteTextures (1, &id);
-		return alloc_null ();
 		
 	}
 	
 	
-	value lime_gl_depth_func (value func) {
+	void lime_gl_depth_func (int func) {
 		
-		glDepthFunc (val_int (func));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_depth_mask (value mask) {
-		
-		glDepthMask (val_bool (mask));
-		return alloc_null ();
+		glDepthFunc (func);
 		
 	}
 	
 	
-	value lime_gl_depth_range (value inNear, value inFar) {
+	void lime_gl_depth_mask (bool mask) {
+		
+		glDepthMask (mask);
+		
+	}
+	
+	
+	void lime_gl_depth_range (float inNear, float inFar) {
 		
 		#ifdef LIME_GLES
-		glDepthRangef (val_number (inNear), val_number (inFar));
+		glDepthRangef (inNear, inFar);
 		#else
-		glDepthRange (val_number (inNear), val_number (inFar));
+		glDepthRange (inNear, inFar);
 		#endif
-		return alloc_null ();
 		
 	}
 	
 	
-	value lime_gl_detach_shader (value inProg, value inShader) {
+	void lime_gl_detach_shader (int inProg, int inShader) {
 		
-		glDetachShader (val_int (inProg), val_int (inShader));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_disable (value inCap) {
-		
-		glDisable (val_int (inCap));
-		return alloc_null ();
+		glDetachShader (inProg, inShader);
 		
 	}
 	
 	
-	value lime_gl_disable_vertex_attrib_array (value inIndex) {
+	void lime_gl_disable (int inCap) {
 		
-		glDisableVertexAttribArray (val_int (inIndex));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_draw_arrays (value inMode, value inFirst, value inCount) {
-		
-		glDrawArrays (val_int (inMode), val_int (inFirst), val_int (inCount));
-		return alloc_null ();
+		glDisable (inCap);
 		
 	}
 	
 	
-	value lime_gl_draw_elements (value inMode, value inCount, value inType, value inOffset) {
+	void lime_gl_disable_vertex_attrib_array (int inIndex) {
 		
-		glDrawElements (val_int (inMode), val_int (inCount), val_int (inType), (void *)(intptr_t)val_int (inOffset));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_enable (value inCap) {
-		
-		glEnable (val_int (inCap));
-		return alloc_null ();
+		glDisableVertexAttribArray (inIndex);
 		
 	}
 	
 	
-	value lime_gl_enable_vertex_attrib_array (value inIndex) {
+	void lime_gl_draw_arrays (int inMode, int inFirst, int inCount) {
 		
-		glEnableVertexAttribArray (val_int (inIndex));
-		return alloc_null ();
+		glDrawArrays (inMode, inFirst, inCount);
 		
 	}
 	
 	
-	value lime_gl_finish () {
+	void lime_gl_draw_elements (int inMode, int inCount, int inType, int inOffset) {
+		
+		glDrawElements (inMode, inCount, inType, (void *)(intptr_t)inOffset);
+		
+	}
+	
+	
+	void lime_gl_enable (int inCap) {
+		
+		glEnable (inCap);
+		
+	}
+	
+	
+	void lime_gl_enable_vertex_attrib_array (int inIndex) {
+		
+		glEnableVertexAttribArray (inIndex);
+		
+	}
+	
+	
+	void lime_gl_finish () {
 		
 		glFinish ();
-		return alloc_null ();
 		
 	}
 	
 	
-	value lime_gl_flush () {
+	void lime_gl_flush () {
 		
 		glFlush ();
-		return alloc_null ();
 		
 	}
 	
 	
-	value lime_gl_framebuffer_renderbuffer (value target, value attachment, value renderbuffertarget, value renderbuffer) {
+	void lime_gl_framebuffer_renderbuffer (int target, int attachment, int renderbuffertarget, int renderbuffer) {
 		
-		glFramebufferRenderbuffer (val_int (target), val_int (attachment), val_int (renderbuffertarget), val_int (renderbuffer));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_framebuffer_texture2D (value target, value attachment, value textarget, value texture, value level) {
-		
-		glFramebufferTexture2D (val_int (target), val_int (attachment), val_int (textarget), val_int (texture), val_int (level));
-		return alloc_null ();
+		glFramebufferRenderbuffer (target, attachment, renderbuffertarget, renderbuffer);
 		
 	}
 	
 	
-	value lime_gl_front_face (value inFace) {
+	void lime_gl_framebuffer_texture2D (int target, int attachment, int textarget, int texture, int level) {
 		
-		glFrontFace (val_int (inFace));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_generate_mipmap(value inTarget) {
-		
-		glGenerateMipmap (val_int (inTarget));
-		return alloc_null ();
+		glFramebufferTexture2D (target, attachment, textarget, texture, level);
 		
 	}
 	
 	
-	value lime_gl_get_buffer_parameter (value inTarget, value inIndex) {
+	void lime_gl_front_face (int inFace) {
+		
+		glFrontFace (inFace);
+		
+	}
+	
+	
+	void lime_gl_generate_mipmap (int inTarget) {
+		
+		glGenerateMipmap (inTarget);
+		
+	}
+	
+	
+	value lime_gl_get_active_attrib (int id, int inIndex) {
+		
+		value result = alloc_empty_object ();
+		
+		char buf[1024];
+		GLsizei outLen = 1024;
+		GLsizei size = 0;
+		GLenum  type = 0;
+		
+		glGetActiveAttrib (id, inIndex, 1024, &outLen, &size, &type, buf);
+		
+		alloc_field (result, val_id ("size"), alloc_int (size));
+		alloc_field (result, val_id ("type"), alloc_int (type));
+		alloc_field (result, val_id ("name"), alloc_string (buf));
+		
+		return result;
+		
+	}
+	
+	
+	value lime_gl_get_active_uniform (int id, int inIndex) {
+		
+		char buf[1024];
+		GLsizei outLen = 1024;
+		GLsizei size = 0;
+		GLenum  type = 0;
+		
+		glGetActiveUniform (id, inIndex, 1024, &outLen, &size, &type, buf);
+		
+		value result = alloc_empty_object ();
+		alloc_field (result, val_id ("size"), alloc_int (size));
+		alloc_field (result, val_id ("type"), alloc_int (type));
+		alloc_field (result, val_id ("name"), alloc_string (buf));
+		
+		return result;
+		
+	}
+	
+	
+	int lime_gl_get_attrib_location (int id, HxString inName) {
+		
+		return glGetAttribLocation (id, inName.__s);
+		
+	}
+	
+	
+	int lime_gl_get_buffer_parameter (int inTarget, int inIndex) {
 		
 		GLint data = 0;
-		glGetBufferParameteriv (val_int (inTarget), val_int (inIndex), &data);
-		return alloc_int (data);
+		glGetBufferParameteriv (inTarget, inIndex, &data);
+		return data;
 		
 	}
 	
@@ -558,78 +542,56 @@ namespace lime {
 	}
 	
 	
-	value lime_gl_get_active_attrib (value inProg, value inIndex) {
+	int lime_gl_get_error () {
 		
-		int id = val_int (inProg);
-		value result = alloc_empty_object ();
-		
-		char buf[1024];
-		GLsizei outLen = 1024;
-		GLsizei size = 0;
-		GLenum  type = 0;
-		
-		glGetActiveAttrib (id, val_int (inIndex), 1024, &outLen, &size, &type, buf);
-		
-		alloc_field (result, val_id ("size"), alloc_int (size));
-		alloc_field (result, val_id ("type"), alloc_int (type));
-		alloc_field (result, val_id ("name"), alloc_string (buf));
-		
-		return result;
+		return glGetError ();
 		
 	}
 	
 	
-	value lime_gl_get_active_uniform (value inProg, value inIndex) {
+	value lime_gl_get_extension (HxString name) {
 		
-		int id = val_int (inProg);
+		void *result = 0;
 		
-		char buf[1024];
-		GLsizei outLen = 1024;
-		GLsizei size = 0;
-		GLenum  type = 0;
+		#ifdef LIME_SDL
+		result = SDL_GL_GetProcAddress (name.__s);
+		#endif
 		
-		glGetActiveUniform (id, val_int (inIndex), 1024, &outLen, &size, &type, buf);
+		if (result) {
+			
+			static bool init = false;
+			static vkind functionKind;
+			
+			if (!init) {
+				
+				init = true;
+				kind_share (&functionKind, "function");
+				
+			}
+			
+			return alloc_abstract (functionKind, result);
+			
+		}
 		
-		value result = alloc_empty_object ();
-		alloc_field (result, val_id ("size"), alloc_int (size));
-		alloc_field (result, val_id ("type"), alloc_int (type));
-		alloc_field (result, val_id ("name"), alloc_string (buf));
-		
-		return result;
-		
-	}
-	
-	
-	value lime_gl_get_attrib_location (value inId, value inName) {
-		
-		int id = val_int (inId);
-		return alloc_int (glGetAttribLocation (id, val_string (inName)));
-		
-	}
-	
-	
-	value lime_gl_get_error () {
-		
-		return alloc_int (glGetError ());
+		return alloc_null ();
 		
 	}
 	
 	
-	value lime_gl_get_framebuffer_attachment_parameter (value target, value attachment, value pname) {
+	int lime_gl_get_framebuffer_attachment_parameter (int target, int attachment, int pname) {
 		
 		GLint result = 0;
-		glGetFramebufferAttachmentParameteriv (val_int (target), val_int (attachment), val_int (pname), &result);
-		return alloc_int (result);
+		glGetFramebufferAttachmentParameteriv (target, attachment, pname, &result);
+		return result;
 		
 	}
 	
 	
-	value lime_gl_get_parameter (value pname_val) {
+	value lime_gl_get_parameter (int pname) {
 		
 		int floats = 0;
 		int ints = 0;
 		int strings = 0;
-		int pname = val_int (pname_val);
 		
 		switch (pname) {
 			
@@ -755,17 +717,17 @@ namespace lime {
 			glGetIntegerv (pname, &val);
 			return alloc_int (val);
 			
-		}else if (strings == 1) {
+		} else if (strings == 1) {
 			
 			return alloc_string ((const char *)glGetString (pname));
 			
-		}else if (floats == 1) {
+		} else if (floats == 1) {
 			
 			float f;
 			glGetFloatv (pname, &f);
 			return alloc_float (f);
 			
-		}else if (ints > 0) {
+		} else if (ints > 0) {
 			
 			int vals[4];
 			glGetIntegerv (pname, vals);
@@ -779,7 +741,7 @@ namespace lime {
 			
 			return result;
 			
-		}else if (floats > 0) {
+		} else if (floats > 0) {
 			
 			float vals[4];
 			glGetFloatv (pname, vals);
@@ -800,67 +762,61 @@ namespace lime {
 	}
 	
 	
-	value lime_gl_get_program_info_log (value inId) {
+	HxString lime_gl_get_program_info_log (int id) {
 		
 		char buf[1024];
-		int id = val_int (inId);
 		glGetProgramInfoLog (id, 1024, 0, buf);
-		return alloc_string (buf);
+		return HxString (buf);
 		
 	}
 	
 	
-	value lime_gl_get_program_parameter (value inId, value inName) {
-		
-		int id = val_int (inId);
-		int result = 0;
-		glGetProgramiv (id, val_int (inName), &result);
-		return alloc_int (result);
-		
-	}
-	
-	
-	value lime_gl_get_render_buffer_parameter (value target, value pname) {
+	int lime_gl_get_program_parameter (int id, int inName) {
 		
 		int result = 0;
-		glGetRenderbufferParameteriv (val_int (target), val_int (pname), &result);
-		return alloc_int (result);
+		glGetProgramiv (id, inName, &result);
+		return result;
 		
 	}
 	
 	
-	value lime_gl_get_shader_info_log (value inId) {
+	int lime_gl_get_render_buffer_parameter (int target, int pname) {
 		
-		int id = val_int (inId);
+		int result = 0;
+		glGetRenderbufferParameteriv (target, pname, &result);
+		return result;
+		
+	}
+	
+	
+	HxString lime_gl_get_shader_info_log (int id) {
+		
 		char buf[1024] = "";
 		
 		glGetShaderInfoLog (id, 1024, 0, buf);
 		
-		return alloc_string (buf);
+		return HxString (buf);
 		
 	}
 	
 	
-	value lime_gl_get_shader_parameter (value inId, value inName) {
+	int lime_gl_get_shader_parameter (int id, int inName) {
 		
-		int id = val_int (inId);
 		int result = 0;
-		
-		glGetShaderiv (id, val_int (inName), &result);
-		
-		return alloc_int (result);
+		glGetShaderiv (id, inName, &result);
+		return result;
 		
 	}
 	
 	
-	value lime_gl_get_shader_precision_format (value inShader, value inPrec) {
+	value lime_gl_get_shader_precision_format (int inShader, int inPrec) {
 		
 		#ifdef LIME_GLES
 		
 		int range[2];
 		int precision;
 		
-		glGetShaderPrecisionFormat (val_int (inShader), val_int (inPrec), range, &precision);
+		glGetShaderPrecisionFormat (inShader, inPrec, range, &precision);
 		
 		value result = alloc_empty_object ();
 		alloc_field (result, val_id ("rangeMin"), alloc_int (range[0]));
@@ -877,9 +833,7 @@ namespace lime {
 	}
 	
 	
-	value lime_gl_get_shader_source (value inId) {
-		
-		int id = val_int (inId);
+	value lime_gl_get_shader_source (int id) {
 		
 		int len = 0;
 		glGetShaderiv (id, GL_SHADER_SOURCE_LENGTH, &len);
@@ -901,7 +855,7 @@ namespace lime {
 	}
 	
 	
-	value lime_gl_get_supported_extensions (value ioList) {
+	void lime_gl_get_supported_extensions (value ioList) {
 		
 		const char *ext = (const char *)glGetString (GL_EXTENSIONS);
 		
@@ -931,24 +885,20 @@ namespace lime {
 			
 		}
 		
-		return alloc_null ();
 		
 	}
 	
 	
-	value lime_gl_get_tex_parameter (value inTarget, value inPname) {
+	int lime_gl_get_tex_parameter (int inTarget, int inPname) {
 		
 		int result = 0;
-		glGetTexParameteriv (val_int (inTarget), val_int (inPname), &result);
-		return alloc_int (result);
+		glGetTexParameteriv (inTarget, inPname, &result);
+		return result;
 		
 	}
 	
 	
-	value lime_gl_get_uniform (value inId, value inLocation) {
-		
-		int id = val_int (inId);
-		int loc = val_int (inLocation);
+	value lime_gl_get_uniform (int id, int loc) {
 		
 		char buf[1];
 		GLsizei outLen = 1;
@@ -1023,7 +973,7 @@ namespace lime {
 			int buffer[4];
 			glGetUniformiv (id, loc, buffer);
 			
-			value result = alloc_array(ints + bools);
+			value result = alloc_array (ints + bools);
 			
 			for (int i = 0; i < ints + bools; i++) {
 				
@@ -1057,285 +1007,249 @@ namespace lime {
 	}
 	
 	
-	value lime_gl_get_uniform_location (value inId, value inName) {
+	int lime_gl_get_uniform_location (int id, HxString inName) {
 		
-		int id = val_int (inId);
-		return alloc_int (glGetUniformLocation (id, val_string (inName)));
+		return glGetUniformLocation (id, inName.__s);
 		
 	}
 	
 	
-	value lime_gl_get_vertex_attrib (value index, value name) {
+	int lime_gl_get_vertex_attrib (int index, int name) {
 		
 		int result = 0;
-		glGetVertexAttribiv (val_int (index), val_int (name), &result);
-		return alloc_int (result);
+		glGetVertexAttribiv (index, name, &result);
+		return result;
 		
 	}
 	
 	
-	value lime_gl_get_vertex_attrib_offset (value index, value name) {
+	int lime_gl_get_vertex_attrib_offset (int index, int name) {
 		
 		int result = 0;
-		glGetVertexAttribPointerv (val_int (index), val_int (name), (void **)&result);
-		return alloc_int (result);
+		glGetVertexAttribPointerv (index, name, (void **)&result);
+		return result;
 		
 	}
 	
 	
-	value lime_gl_hint (value inTarget, value inValue) {
+	void lime_gl_hint (int inTarget, int inValue) {
 		
-		glHint (val_int (inTarget), val_int (inValue));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_is_buffer (value val) {
-		
-		return alloc_bool (glIsBuffer (val_int (val)));
+		glHint (inTarget, inValue);
 		
 	}
 	
 	
-	value lime_gl_is_enabled (value val) {
+	bool lime_gl_is_buffer (int val) {
 		
-		return alloc_bool (glIsEnabled (val_int (val)));
-		
-	}
-	
-	
-	value lime_gl_is_framebuffer (value val) {
-		
-		return alloc_bool (glIsFramebuffer (val_int (val)));
+		return glIsBuffer (val);
 		
 	}
 	
 	
-	value lime_gl_is_program (value val) {
+	bool lime_gl_is_enabled (int val) {
 		
-		return alloc_bool (glIsProgram (val_int (val)));
-		
-	}
-	
-	
-	value lime_gl_is_renderbuffer (value val) {
-		
-		return alloc_bool (glIsRenderbuffer (val_int (val)));
+		return glIsEnabled (val);
 		
 	}
 	
 	
-	value lime_gl_is_shader (value val) {
+	bool lime_gl_is_framebuffer (int val) {
 		
-		return alloc_bool (glIsShader (val_int (val)));
-		
-	}
-	
-	
-	value lime_gl_is_texture (value val) {
-		
-		return alloc_bool (glIsTexture (val_int (val)));
+		return glIsFramebuffer (val);
 		
 	}
 	
 	
-	value lime_gl_line_width (value inWidth) {
+	bool lime_gl_is_program (int val) {
 		
-		glLineWidth (val_number (inWidth));
-		return alloc_null ();
+		return glIsProgram (val);
 		
 	}
 	
 	
-	value lime_gl_link_program (value inId) {
+	bool lime_gl_is_renderbuffer (int val) {
 		
-		int id = val_int (inId);
+		return glIsRenderbuffer (val);
+		
+	}
+	
+	
+	bool lime_gl_is_shader (int val) {
+		
+		return glIsShader (val);
+		
+	}
+	
+	
+	bool lime_gl_is_texture (int val) {
+		
+		return glIsTexture (val);
+		
+	}
+	
+	
+	void lime_gl_line_width (float inWidth) {
+		
+		glLineWidth (inWidth);
+		
+	}
+	
+	
+	void lime_gl_link_program (int id) {
+		
 		glLinkProgram (id);
-		return alloc_null ();
 		
 	}
 	
 	
-	value lime_gl_pixel_storei (value pname, value param) {
+	void lime_gl_pixel_storei (int pname, int param) {
 		
-		glPixelStorei (val_int (pname), val_int (param));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_polygon_offset (value factor, value units) {
-		
-		glPolygonOffset (val_number (factor), val_number (units));
-		return alloc_null ();
+		glPixelStorei (pname, param);
 		
 	}
 	
 	
-	value lime_gl_read_pixels (value *arg, int argCount) {
+	void lime_gl_polygon_offset (float factor, float units) {
 		
-		enum { aX, aY, aWidth, aHeight, aFormat, aType, aBuffer, aOffset };
+		glPolygonOffset (factor, units);
+		
+	}
+	
+	
+	void lime_gl_read_pixels (int x, int y, int width, int height, int format, int type, value buffer, int offset) {
 		
 		unsigned char *data = 0;
-		Bytes bytes (arg[aBuffer]);
+		Bytes bytes (buffer);
 		
 		if (bytes.Length ()) {
 			
-			data = bytes.Data () + val_int (arg[aOffset]);
+			data = bytes.Data () + offset;
 			
 		}
 		
-		glReadPixels (val_int (arg[aX]), val_int (arg[aY]), val_int (arg[aWidth]), val_int (arg[aHeight]), val_int (arg[aFormat]), val_int (arg[aType]), data);
-		return alloc_null ();
+		glReadPixels (x, y, width, height, format, type, data);
 		
 	}
 	
 	
-	value lime_gl_renderbuffer_storage (value target, value internalFormat, value width, value height) {
+	void lime_gl_renderbuffer_storage (int target, int internalFormat, int width, int height) {
 		
-		glRenderbufferStorage (val_int (target), val_int (internalFormat), val_int (width), val_int (height));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_sample_coverage (value f, value invert) {
-		
-		glSampleCoverage (val_number (f), val_bool (invert));
-		return alloc_null ();
+		glRenderbufferStorage (target, internalFormat, width, height);
 		
 	}
 	
 	
-	value lime_gl_scissor (value inX, value inY, value inW, value inH) {
+	void lime_gl_sample_coverage (float f, bool invert) {
 		
-		glScissor (val_int (inX), val_int (inY), val_int (inW), val_int (inH));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_shader_source (value inId, value inSource) {
-		
-		int id = val_int (inId);
-		const char *source = val_string (inSource);
-		
-		glShaderSource (id, 1, &source, 0);
-		
-		return alloc_null ();
+		glSampleCoverage (f, invert);
 		
 	}
 	
 	
-	value lime_gl_stencil_func (value func, value ref, value mask) {
+	void lime_gl_scissor (int inX, int inY, int inW, int inH) {
 		
-		glStencilFunc (val_int (func), val_int (ref), val_int (mask));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_stencil_func_separate (value face, value func, value ref, value mask) {
-		
-		glStencilFuncSeparate (val_int (face), val_int (func), val_int (ref), val_int (mask));
-		return alloc_null ();
+		glScissor (inX, inY, inW, inH);
 		
 	}
 	
 	
-	value lime_gl_stencil_mask (value mask) {
+	void lime_gl_shader_source (int id, HxString source) {
 		
-		glStencilMask (val_int (mask));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_stencil_mask_separate (value face, value mask) {
-		
-		glStencilMaskSeparate (val_int (face), val_int (mask));
-		return alloc_null ();
+		glShaderSource (id, 1, &source.__s, 0);
 		
 	}
 	
 	
-	value lime_gl_stencil_op (value fail, value zfail, value zpass) {
+	void lime_gl_stencil_func (int func, int ref, int mask) {
 		
-		glStencilOp (val_int (fail), val_int (zfail), val_int (zpass));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_stencil_op_separate (value face, value fail, value zfail, value zpass) {
-		
-		glStencilOpSeparate (val_int (face), val_int (fail), val_int (zfail), val_int (zpass));
-		return alloc_null ();
+		glStencilFunc (func, ref, mask);
 		
 	}
 	
 	
-	value lime_gl_tex_image_2d(value *arg, int argCount) {
+	void lime_gl_stencil_func_separate (int face, int func, int ref, int mask) {
 		
-		enum { aTarget, aLevel, aInternal, aWidth, aHeight, aBorder, aFormat, aType, aBuffer, aOffset };
+		glStencilFuncSeparate (face, func, ref, mask);
+		
+	}
+	
+	
+	void lime_gl_stencil_mask (int mask) {
+		
+		glStencilMask (mask);
+		
+	}
+	
+	
+	void lime_gl_stencil_mask_separate (int face, int mask) {
+		
+		glStencilMaskSeparate (face, mask);
+		
+	}
+	
+	
+	void lime_gl_stencil_op (int fail, int zfail, int zpass) {
+		
+		glStencilOp (fail, zfail, zpass);
+		
+	}
+	
+	
+	void lime_gl_stencil_op_separate (int face, int fail, int zfail, int zpass) {
+		
+		glStencilOpSeparate (face, fail, zfail, zpass);
+		
+	}
+	
+	
+	void lime_gl_tex_image_2d (int target, int level, int internal, int width, int height, int border, int format, int type, value buffer, int offset) {
 		
 		unsigned char *data = 0;
 		
-		Bytes bytes (arg[aBuffer]);
+		Bytes bytes (buffer);
 		
 		if (bytes.Length ()) {
 			
-			data = bytes.Data () + val_int (arg[aOffset]);
+			data = bytes.Data () + offset;
 			
 		}
 		
-		glTexImage2D (val_int (arg[aTarget]), val_int (arg[aLevel]), val_int (arg[aInternal]), val_int (arg[aWidth]), val_int (arg[aHeight]), val_int (arg[aBorder]), val_int (arg[aFormat]), val_int (arg[aType]), data);
-		return alloc_null ();
+		glTexImage2D (target, level, internal, width, height, border, format, type, data);
 		
 	}
 	
 	
-	value lime_gl_tex_parameterf (value inTarget, value inPName, value inVal) {
+	void lime_gl_tex_parameterf (int inTarget, int inPName, float inVal) {
 		
-		glTexParameterf (val_int (inTarget), val_int (inPName), val_number (inVal));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_tex_parameteri (value inTarget, value inPName, value inVal) {
-		
-		glTexParameterf (val_int (inTarget), val_int (inPName), val_int (inVal));
-		return alloc_null ();
+		glTexParameterf (inTarget, inPName, inVal);
 		
 	}
 	
 	
-	value lime_gl_tex_sub_image_2d (value *arg, int argCount) {
+	void lime_gl_tex_parameteri (int inTarget, int inPName, int inVal) {
 		
-		enum { aTarget, aLevel, aXOffset, aYOffset, aWidth, aHeight, aFormat, aType, aBuffer, aOffset };
+		glTexParameterf (inTarget, inPName, inVal);
+		
+	}
+	
+	
+	void lime_gl_tex_sub_image_2d (int target, int level, int xOffset, int yOffset, int width, int height, int format, int type, value buffer, int offset) {
 		
 		unsigned char *data = 0;
-		Bytes bytes (arg[aBuffer]);
+		Bytes bytes (buffer);
 		
 		if (bytes.Length ()) {
 			
-			data = bytes.Data () + val_int (arg[aOffset]);
+			data = bytes.Data () + offset;
 			
 		}
 		
-		glTexSubImage2D (val_int (arg[aTarget]), val_int (arg[aLevel]), val_int (arg[aXOffset]), val_int (arg[aYOffset]), val_int (arg[aWidth]), val_int (arg[aHeight]), val_int (arg[aFormat]), val_int (arg[aType]), data);
-		return alloc_null ();
+		glTexSubImage2D (target, level, xOffset, yOffset, width, height, format, type, data);
 		
 	}
 	
 	
-	value lime_gl_uniform_matrix (value inLocation, value inTranspose, value inBytes, value inCount) {
-		
-		int loc = val_int (inLocation);
-		int count = val_int (inCount);
-		bool trans = val_bool (inTranspose);
+	void lime_gl_uniform_matrix (int loc, bool trans, value inBytes, int count) {
 		
 		Bytes bytes (inBytes);
 		int size = bytes.Length ();
@@ -1350,22 +1264,17 @@ namespace lime {
 			
 		}
 		
-		return alloc_null ();
+	}
+	
+	
+	void lime_gl_uniform1f (int inLocation, float inV0) {
+		
+		glUniform1f (inLocation, inV0);
 		
 	}
 	
 	
-	value lime_gl_uniform1f (value inLocation, value inV0) {
-		
-		glUniform1f (val_int (inLocation), val_number (inV0));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_uniform1fv (value inLocation, value inByteBuffer) {
-		
-		int loc = val_int (inLocation);
+	void lime_gl_uniform1fv (int loc, value inByteBuffer) {
 		
 		Bytes bytes (inByteBuffer);
 		int size = bytes.Length ();
@@ -1374,22 +1283,17 @@ namespace lime {
 		
 		glUniform1fv (loc, nbElems, data);
 		
-		return alloc_null ();
+	}
+	
+	
+	void lime_gl_uniform1i (int inLocation, int inV0) {
+		
+		glUniform1i (inLocation, inV0);
 		
 	}
 	
 	
-	value lime_gl_uniform1i (value inLocation, value inV0) {
-		
-		glUniform1i (val_int (inLocation), val_int (inV0));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_uniform1iv (value inLocation, value inByteBuffer) {
-		
-		int loc = val_int (inLocation);
+	void lime_gl_uniform1iv (int loc, value inByteBuffer) {
 		
 		Bytes bytes (inByteBuffer);
 		int size = bytes.Length ();
@@ -1398,22 +1302,17 @@ namespace lime {
 		
 		glUniform1iv (loc, nbElems, data);
 		
-		return alloc_null ();
+	}
+	
+	
+	void lime_gl_uniform2f (int inLocation, float inV0, float inV1) {
+		
+		glUniform2f (inLocation, inV0, inV1);
 		
 	}
 	
 	
-	value lime_gl_uniform2f (value inLocation, value inV0, value inV1) {
-		
-		glUniform2f (val_int (inLocation), val_number (inV0), val_number (inV1));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_uniform2fv (value inLocation, value inByteBuffer) {
-		
-		int loc = val_int (inLocation);
+	void lime_gl_uniform2fv (int loc, value inByteBuffer) {
 		
 		Bytes bytes (inByteBuffer);
 		int size = bytes.Length ();
@@ -1422,22 +1321,17 @@ namespace lime {
 		
 		glUniform2fv (loc, nbElems >> 1, data);
 		
-		return alloc_null ();
+	}
+	
+	
+	void lime_gl_uniform2i (int inLocation, int inV0, int inV1) {
+		
+		glUniform2i (inLocation, inV0, inV1);
 		
 	}
 	
 	
-	value lime_gl_uniform2i (value inLocation, value inV0, value inV1) {
-		
-		glUniform2i (val_int (inLocation), val_int (inV0), val_int (inV1));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_uniform2iv (value inLocation, value inByteBuffer) {
-		
-		int loc = val_int (inLocation);
+	void lime_gl_uniform2iv (int loc, value inByteBuffer) {
 		
 		Bytes bytes (inByteBuffer);
 		int size = bytes.Length ();
@@ -1446,22 +1340,17 @@ namespace lime {
 		
 		glUniform2iv (loc, nbElems >> 1, data);
 		
-		return alloc_null ();
+	}
+	
+	
+	void lime_gl_uniform3f (int inLocation, float inV0, float inV1, float inV2) {
+		
+		glUniform3f (inLocation, inV0, inV1, inV2);
 		
 	}
 	
 	
-	value lime_gl_uniform3f (value inLocation, value inV0, value inV1, value inV2) {
-		
-		glUniform3f (val_int (inLocation), val_number (inV0), val_number (inV1), val_number (inV2));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_uniform3fv (value inLocation, value inByteBuffer) {
-		
-		int loc = val_int (inLocation);
+	void lime_gl_uniform3fv (int loc, value inByteBuffer) {
 		
 		Bytes bytes (inByteBuffer);
 		int size = bytes.Length ();
@@ -1470,22 +1359,17 @@ namespace lime {
 		
 		glUniform3fv (loc, nbElems / 3, data);
 		
-		return alloc_null ();
+	}
+	
+	
+	void lime_gl_uniform3i (int inLocation, int inV0, int inV1, int inV2) {
+		
+		glUniform3i (inLocation, inV0, inV1, inV2);
 		
 	}
 	
 	
-	value lime_gl_uniform3i (value inLocation, value inV0, value inV1, value inV2) {
-		
-		glUniform3i (val_int (inLocation), val_int (inV0), val_int (inV1), val_int (inV2));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_uniform3iv (value inLocation, value inByteBuffer) {
-		
-		int loc = val_int (inLocation);
+	void lime_gl_uniform3iv (int loc, value inByteBuffer) {
 		
 		Bytes bytes (inByteBuffer);
 		int size = bytes.Length ();
@@ -1494,22 +1378,17 @@ namespace lime {
 		
 		glUniform3iv (loc, nbElems / 3, data);
 		
-		return alloc_null ();
+	}
+	
+	
+	void lime_gl_uniform4f (int inLocation, float inV0, float inV1, float inV2, float inV3) {
+		
+		glUniform4f (inLocation, inV0, inV1, inV2, inV3);
 		
 	}
 	
 	
-	value lime_gl_uniform4f (value inLocation, value inV0, value inV1, value inV2, value inV3) {
-		
-		glUniform4f (val_int (inLocation), val_number (inV0), val_number (inV1), val_number (inV2), val_number (inV3));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_uniform4fv (value inLocation, value inByteBuffer) {
-		
-		int loc = val_int (inLocation);
+	void lime_gl_uniform4fv (int loc, value inByteBuffer) {
 		
 		Bytes bytes (inByteBuffer);
 		int size = bytes.Length ();
@@ -1518,22 +1397,17 @@ namespace lime {
 		
 		glUniform4fv (loc, nbElems >> 2, data);
 		
-		return alloc_null ();
+	}
+	
+	
+	void lime_gl_uniform4i (int inLocation, int inV0, int inV1, int inV2, int inV3) {
+		
+		glUniform4i (inLocation, inV0, inV1, inV2, inV3);
 		
 	}
 	
 	
-	value lime_gl_uniform4i (value inLocation, value inV0, value inV1, value inV2, value inV3) {
-		
-		glUniform4i (val_int (inLocation), val_int (inV0), val_int (inV1), val_int (inV2), val_int (inV3));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_uniform4iv (value inLocation, value inByteBuffer) {
-		
-		int loc = val_int (inLocation);
+	void lime_gl_uniform4iv (int loc, value inByteBuffer) {
 		
 		Bytes bytes (inByteBuffer);
 		int size = bytes.Length ();
@@ -1542,38 +1416,24 @@ namespace lime {
 		
 		glUniform4iv (loc, nbElems >> 2, data);
 		
-		return alloc_null ();
-		
 	}
 	
 	
-	value lime_gl_use_program (value inId) {
+	void lime_gl_use_program (int id) {
 		
-		int id = val_int (inId);
 		glUseProgram (id);
-		return alloc_null ();
 		
 	}
 	
 	
-	value lime_gl_validate_program (value inId) {
+	void lime_gl_validate_program (int id) {
 		
-		int id = val_int (inId);
 		glValidateProgram (id);
-		return alloc_null ();
 		
 	}
 	
 	
-	value lime_gl_viewport (value inX, value inY, value inW, value inH) {
-		
-		glViewport (val_int (inX), val_int (inY), val_int (inW), val_int (inH));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_version () {
+	HxString lime_gl_version () {
 		
 		const char* gl_ver = (const char*)glGetString (GL_VERSION);
 		const char* gl_sl  = (const char*)glGetString (GL_SHADING_LANGUAGE_VERSION);
@@ -1587,48 +1447,26 @@ namespace lime {
 		
 		std::string res = "/ " + glver + " / " + glslver + " / " + glren + " / " + glven + " /";
 		
-		return alloc_string (res.c_str ());
+		return HxString (res.c_str ());
 		
 	}
 	
 	
-	value lime_gl_vertex_attrib_pointer (value *arg, int nargs) {
+	void lime_gl_vertex_attrib_pointer (int index, int size, int type, bool normalized, int stride, int offset) {
 		
-		enum { aIndex, aSize, aType, aNormalized, aStride, aOffset };
-		
-		glVertexAttribPointer (val_int (arg[aIndex]), val_int (arg[aSize]), val_int (arg[aType]), val_bool (arg[aNormalized]), val_int (arg[aStride]), (void *)(intptr_t)val_int (arg[aOffset]));
-		return alloc_null ();
+		glVertexAttribPointer (index, size, type, normalized, stride, (void *)(intptr_t)offset);
 		
 	}
 	
 	
-	value lime_gl_vertex_attrib_pointer_1 (value index, value size, value type, value stride, value offset) {
+	void lime_gl_vertex_attrib1f (int inLocation, float inV0) {
 		
-		glVertexAttribPointer (val_int (index), val_int (size), val_int (type), true, val_int (stride), (void *)(intptr_t)val_int (offset));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_vertex_attrib_pointer_2 (value index, value size, value type, value stride, value offset) {
-		
-		glVertexAttribPointer (val_int (index), val_int (size), val_int (type), false, val_int (stride), (void *)(intptr_t)val_int (offset));
-		return alloc_null ();
+		glVertexAttrib1f (inLocation, inV0);
 		
 	}
 	
 	
-	value lime_gl_vertex_attrib1f (value inLocation, value inV0) {
-		
-		glVertexAttrib1f (val_int (inLocation), val_number (inV0));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_vertex_attrib1fv (value inLocation, value inByteBuffer) {
-		
-		int loc = val_int (inLocation);
+	void lime_gl_vertex_attrib1fv (int loc, value inByteBuffer) {
 		
 		Bytes bytes (inByteBuffer);
 		int size = bytes.Length ();
@@ -1636,22 +1474,17 @@ namespace lime {
 		
 		glVertexAttrib1fv (loc, data);
 		
-		return alloc_null ();
+	}
+	
+	
+	void lime_gl_vertex_attrib2f (int inLocation, float inV0, float inV1) {
+		
+		glVertexAttrib2f (inLocation, inV0, inV1);
 		
 	}
 	
 	
-	value lime_gl_vertex_attrib2f (value inLocation, value inV0, value inV1) {
-		
-		glVertexAttrib2f (val_int (inLocation), val_number (inV0), val_number (inV1));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_vertex_attrib2fv (value inLocation, value inByteBuffer) {
-		
-		int loc = val_int (inLocation);
+	void lime_gl_vertex_attrib2fv (int loc, value inByteBuffer) {
 		
 		Bytes bytes (inByteBuffer);
 		int size = bytes.Length ();
@@ -1659,22 +1492,17 @@ namespace lime {
 		
 		glVertexAttrib2fv (loc, data);
 		
-		return alloc_null ();
+	}
+	
+	
+	void lime_gl_vertex_attrib3f (int inLocation, float inV0, float inV1, float inV2) {
+		
+		glVertexAttrib3f (inLocation, inV0, inV1, inV2);
 		
 	}
 	
 	
-	value lime_gl_vertex_attrib3f (value inLocation, value inV0, value inV1, value inV2) {
-		
-		glVertexAttrib3f (val_int (inLocation), val_number (inV0), val_number (inV1), val_number (inV2));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_vertex_attrib3fv (value inLocation, value inByteBuffer) {
-		
-		int loc = val_int (inLocation);
+	void lime_gl_vertex_attrib3fv (int loc, value inByteBuffer) {
 		
 		Bytes bytes (inByteBuffer);
 		int size = bytes.Length ();
@@ -1682,22 +1510,17 @@ namespace lime {
 		
 		glVertexAttrib3fv (loc, data);
 		
-		return alloc_null ();
+	}
+	
+	
+	void lime_gl_vertex_attrib4f (int inLocation, float inV0, float inV1, float inV2, float inV3) {
+		
+		glVertexAttrib4f (inLocation, inV0, inV1, inV2, inV3);
 		
 	}
 	
 	
-	value lime_gl_vertex_attrib4f (value inLocation, value inV0, value inV1, value inV2, value inV3) {
-		
-		glVertexAttrib4f (val_int (inLocation), val_number (inV0), val_number (inV1), val_number (inV2), val_number (inV3));
-		return alloc_null ();
-		
-	}
-	
-	
-	value lime_gl_vertex_attrib4fv (value inLocation, value inByteBuffer) {
-		
-		int loc = val_int (inLocation);
+	void lime_gl_vertex_attrib4fv (int loc, value inByteBuffer) {
 		
 		Bytes bytes (inByteBuffer);
 		int size = bytes.Length ();
@@ -1705,7 +1528,12 @@ namespace lime {
 		
 		glVertexAttrib4fv (loc, data);
 		
-		return alloc_null ();
+	}
+	
+	
+	void lime_gl_viewport (int inX, int inY, int inW, int inH) {
+		
+		glViewport (inX, inY, inW, inH);
 		
 	}
 	
@@ -1750,140 +1578,139 @@ namespace lime {
 	}
 	
 	
-	DEFINE_PRIM (lime_gl_active_texture, 1);
-	DEFINE_PRIM (lime_gl_attach_shader, 2);
-	DEFINE_PRIM (lime_gl_bind_attrib_location, 3);
-	DEFINE_PRIM (lime_gl_bind_buffer, 2);
-	DEFINE_PRIM (lime_gl_bind_framebuffer, 2);
-	DEFINE_PRIM (lime_gl_bind_renderbuffer, 2);
-	DEFINE_PRIM (lime_gl_bind_texture, 2);
-	DEFINE_PRIM (lime_gl_blend_color, 4);
-	DEFINE_PRIM (lime_gl_blend_equation, 1);
-	DEFINE_PRIM (lime_gl_blend_equation_separate, 2);
-	DEFINE_PRIM (lime_gl_blend_func, 2);
-	DEFINE_PRIM (lime_gl_blend_func_separate, 4);
-	DEFINE_PRIM (lime_gl_buffer_data, 5);
-	DEFINE_PRIM (lime_gl_buffer_sub_data, 5);
-	DEFINE_PRIM (lime_gl_check_framebuffer_status, 1);
-	DEFINE_PRIM (lime_gl_clear, 1);
-	DEFINE_PRIM (lime_gl_clear_color, 4);
-	DEFINE_PRIM (lime_gl_clear_depth, 1);
-	DEFINE_PRIM (lime_gl_clear_stencil, 1);
-	DEFINE_PRIM (lime_gl_color_mask, 4);
-	DEFINE_PRIM (lime_gl_compile_shader, 1);
-	DEFINE_PRIM_MULT (lime_gl_compressed_tex_image_2d);
-	DEFINE_PRIM_MULT (lime_gl_compressed_tex_sub_image_2d);
-	DEFINE_PRIM_MULT (lime_gl_copy_tex_image_2d);
-	DEFINE_PRIM_MULT (lime_gl_copy_tex_sub_image_2d);
-	DEFINE_PRIM (lime_gl_create_buffer, 0);
-	DEFINE_PRIM (lime_gl_create_framebuffer, 0);
-	DEFINE_PRIM (lime_gl_create_program, 0);
-	DEFINE_PRIM (lime_gl_create_render_buffer, 0);
-	DEFINE_PRIM (lime_gl_create_shader, 1);
-	DEFINE_PRIM (lime_gl_create_texture, 0);
-	DEFINE_PRIM (lime_gl_cull_face, 1);
-	DEFINE_PRIM (lime_gl_delete_buffer, 1);
-	DEFINE_PRIM (lime_gl_delete_framebuffer, 1);
-	DEFINE_PRIM (lime_gl_delete_program, 1);
-	DEFINE_PRIM (lime_gl_delete_render_buffer, 1);
-	DEFINE_PRIM (lime_gl_delete_shader, 1);
-	DEFINE_PRIM (lime_gl_delete_texture, 1);
-	DEFINE_PRIM (lime_gl_detach_shader, 2);
-	DEFINE_PRIM (lime_gl_depth_func, 1);
-	DEFINE_PRIM (lime_gl_depth_mask, 1);
-	DEFINE_PRIM (lime_gl_depth_range, 2);
-	DEFINE_PRIM (lime_gl_disable, 1);
-	DEFINE_PRIM (lime_gl_disable_vertex_attrib_array, 1);
-	DEFINE_PRIM (lime_gl_draw_arrays, 3);
-	DEFINE_PRIM (lime_gl_draw_elements, 4);
-	DEFINE_PRIM (lime_gl_enable, 1);
-	DEFINE_PRIM (lime_gl_enable_vertex_attrib_array, 1);
-	DEFINE_PRIM (lime_gl_finish, 0);
-	DEFINE_PRIM (lime_gl_flush, 0);
-	DEFINE_PRIM (lime_gl_framebuffer_renderbuffer, 4);
-	DEFINE_PRIM (lime_gl_framebuffer_texture2D, 5);
-	DEFINE_PRIM (lime_gl_front_face, 1);
-	DEFINE_PRIM (lime_gl_generate_mipmap, 1);
-	DEFINE_PRIM (lime_gl_get_active_attrib, 2);
-	DEFINE_PRIM (lime_gl_get_active_uniform, 2);
-	DEFINE_PRIM (lime_gl_get_attrib_location, 2);
-	DEFINE_PRIM (lime_gl_get_buffer_parameter, 2);
-	DEFINE_PRIM (lime_gl_get_context_attributes, 0);
-	DEFINE_PRIM (lime_gl_get_error, 0);
-	DEFINE_PRIM (lime_gl_get_framebuffer_attachment_parameter, 3);
-	DEFINE_PRIM (lime_gl_get_parameter, 1);
-	DEFINE_PRIM (lime_gl_get_program_info_log, 1);
-	DEFINE_PRIM (lime_gl_get_program_parameter, 2);
-	DEFINE_PRIM (lime_gl_get_render_buffer_parameter, 2);
-	DEFINE_PRIM (lime_gl_get_shader_info_log, 1);
-	DEFINE_PRIM (lime_gl_get_shader_parameter, 2);
-	DEFINE_PRIM (lime_gl_get_shader_precision_format, 2);
-	DEFINE_PRIM (lime_gl_get_shader_source, 1);
-	DEFINE_PRIM (lime_gl_get_supported_extensions, 1);
-	DEFINE_PRIM (lime_gl_get_tex_parameter, 2);
-	DEFINE_PRIM (lime_gl_get_uniform, 2);
-	DEFINE_PRIM (lime_gl_get_uniform_location, 2);
-	DEFINE_PRIM (lime_gl_get_vertex_attrib, 2);
-	DEFINE_PRIM (lime_gl_get_vertex_attrib_offset, 2);
-	DEFINE_PRIM (lime_gl_hint, 2);
-	DEFINE_PRIM (lime_gl_is_buffer, 1);
-	DEFINE_PRIM (lime_gl_is_enabled, 1);
-	DEFINE_PRIM (lime_gl_is_framebuffer, 1);
-	DEFINE_PRIM (lime_gl_is_program, 1);
-	DEFINE_PRIM (lime_gl_is_renderbuffer, 1);
-	DEFINE_PRIM (lime_gl_is_shader, 1);
-	DEFINE_PRIM (lime_gl_is_texture, 1);
-	DEFINE_PRIM (lime_gl_line_width, 1);
-	DEFINE_PRIM (lime_gl_link_program, 1);
-	DEFINE_PRIM (lime_gl_pixel_storei, 2);
-	DEFINE_PRIM (lime_gl_polygon_offset, 2);
-	DEFINE_PRIM_MULT (lime_gl_read_pixels);
-	DEFINE_PRIM (lime_gl_renderbuffer_storage, 4);
-	DEFINE_PRIM (lime_gl_sample_coverage, 2);
-	DEFINE_PRIM (lime_gl_scissor, 4);
-	DEFINE_PRIM (lime_gl_shader_source, 2);
-	DEFINE_PRIM (lime_gl_stencil_func, 3);
-	DEFINE_PRIM (lime_gl_stencil_func_separate, 4);
-	DEFINE_PRIM (lime_gl_stencil_mask, 1);
-	DEFINE_PRIM (lime_gl_stencil_mask_separate, 2);
-	DEFINE_PRIM (lime_gl_stencil_op, 3);
-	DEFINE_PRIM (lime_gl_stencil_op_separate, 4);
-	DEFINE_PRIM_MULT (lime_gl_tex_image_2d);
-	DEFINE_PRIM (lime_gl_tex_parameterf, 3);
-	DEFINE_PRIM (lime_gl_tex_parameteri, 3);
-	DEFINE_PRIM_MULT (lime_gl_tex_sub_image_2d);
-	DEFINE_PRIM (lime_gl_uniform_matrix, 4);
-	DEFINE_PRIM (lime_gl_uniform1f, 2);
-	DEFINE_PRIM (lime_gl_uniform1fv, 2);
-	DEFINE_PRIM (lime_gl_uniform1i, 2);
-	DEFINE_PRIM (lime_gl_uniform1iv, 2);
-	DEFINE_PRIM (lime_gl_uniform2f, 3);
-	DEFINE_PRIM (lime_gl_uniform2fv, 2);
-	DEFINE_PRIM (lime_gl_uniform2i, 3);
-	DEFINE_PRIM (lime_gl_uniform2iv, 2);
-	DEFINE_PRIM (lime_gl_uniform3f, 4);
-	DEFINE_PRIM (lime_gl_uniform3fv, 2);
-	DEFINE_PRIM (lime_gl_uniform3i, 4);
-	DEFINE_PRIM (lime_gl_uniform3iv, 2);
-	DEFINE_PRIM (lime_gl_uniform4f, 5);
-	DEFINE_PRIM (lime_gl_uniform4fv, 2);
-	DEFINE_PRIM (lime_gl_uniform4i, 5);
-	DEFINE_PRIM (lime_gl_uniform4iv, 2);
-	DEFINE_PRIM (lime_gl_use_program, 1);
-	DEFINE_PRIM (lime_gl_validate_program, 1);
-	DEFINE_PRIM (lime_gl_viewport, 4);
-	DEFINE_PRIM (lime_gl_version, 0);
-	DEFINE_PRIM_MULT (lime_gl_vertex_attrib_pointer);
-	DEFINE_PRIM (lime_gl_vertex_attrib_pointer_1, 5);
-	DEFINE_PRIM (lime_gl_vertex_attrib_pointer_2, 5);
-	DEFINE_PRIM (lime_gl_vertex_attrib1f, 2);
-	DEFINE_PRIM (lime_gl_vertex_attrib1fv, 2);
-	DEFINE_PRIM (lime_gl_vertex_attrib2f, 3);
-	DEFINE_PRIM (lime_gl_vertex_attrib2fv, 2);
-	DEFINE_PRIM (lime_gl_vertex_attrib3f, 4);
-	DEFINE_PRIM (lime_gl_vertex_attrib3fv, 2);
-	DEFINE_PRIM (lime_gl_vertex_attrib4f, 5);
-	DEFINE_PRIM (lime_gl_vertex_attrib4fv, 2);
+	DEFINE_PRIME1v (lime_gl_active_texture);
+	DEFINE_PRIME2v (lime_gl_attach_shader);
+	DEFINE_PRIME3v (lime_gl_bind_attrib_location);
+	DEFINE_PRIME2v (lime_gl_bind_buffer);
+	DEFINE_PRIME2v (lime_gl_bind_framebuffer);
+	DEFINE_PRIME2v (lime_gl_bind_renderbuffer);
+	DEFINE_PRIME2v (lime_gl_bind_texture);
+	DEFINE_PRIME4v (lime_gl_blend_color);
+	DEFINE_PRIME1v (lime_gl_blend_equation);
+	DEFINE_PRIME2v (lime_gl_blend_equation_separate);
+	DEFINE_PRIME2v (lime_gl_blend_func);
+	DEFINE_PRIME4v (lime_gl_blend_func_separate);
+	DEFINE_PRIME5v (lime_gl_buffer_data);
+	DEFINE_PRIME5v (lime_gl_buffer_sub_data);
+	DEFINE_PRIME1 (lime_gl_check_framebuffer_status);
+	DEFINE_PRIME1v (lime_gl_clear);
+	DEFINE_PRIME4v (lime_gl_clear_color);
+	DEFINE_PRIME1v (lime_gl_clear_depth);
+	DEFINE_PRIME1v (lime_gl_clear_stencil);
+	DEFINE_PRIME4v (lime_gl_color_mask);
+	DEFINE_PRIME1v (lime_gl_compile_shader);
+	DEFINE_PRIME8v (lime_gl_compressed_tex_image_2d);
+	DEFINE_PRIME9v (lime_gl_compressed_tex_sub_image_2d);
+	DEFINE_PRIME8v (lime_gl_copy_tex_image_2d);
+	DEFINE_PRIME8v (lime_gl_copy_tex_sub_image_2d);
+	DEFINE_PRIME0 (lime_gl_create_buffer);
+	DEFINE_PRIME0 (lime_gl_create_framebuffer);
+	DEFINE_PRIME0 (lime_gl_create_program);
+	DEFINE_PRIME0 (lime_gl_create_render_buffer);
+	DEFINE_PRIME1 (lime_gl_create_shader);
+	DEFINE_PRIME0 (lime_gl_create_texture);
+	DEFINE_PRIME1v (lime_gl_cull_face);
+	DEFINE_PRIME1v (lime_gl_delete_buffer);
+	DEFINE_PRIME1v (lime_gl_delete_framebuffer);
+	DEFINE_PRIME1v (lime_gl_delete_program);
+	DEFINE_PRIME1v (lime_gl_delete_render_buffer);
+	DEFINE_PRIME1v (lime_gl_delete_shader);
+	DEFINE_PRIME1v (lime_gl_delete_texture);
+	DEFINE_PRIME2v (lime_gl_detach_shader);
+	DEFINE_PRIME1v (lime_gl_depth_func);
+	DEFINE_PRIME1v (lime_gl_depth_mask);
+	DEFINE_PRIME2v (lime_gl_depth_range);
+	DEFINE_PRIME1v (lime_gl_disable);
+	DEFINE_PRIME1v (lime_gl_disable_vertex_attrib_array);
+	DEFINE_PRIME3v (lime_gl_draw_arrays);
+	DEFINE_PRIME4v (lime_gl_draw_elements);
+	DEFINE_PRIME1v (lime_gl_enable);
+	DEFINE_PRIME1v (lime_gl_enable_vertex_attrib_array);
+	DEFINE_PRIME0v (lime_gl_finish);
+	DEFINE_PRIME0v (lime_gl_flush);
+	DEFINE_PRIME4v (lime_gl_framebuffer_renderbuffer);
+	DEFINE_PRIME5v (lime_gl_framebuffer_texture2D);
+	DEFINE_PRIME1v (lime_gl_front_face);
+	DEFINE_PRIME1v (lime_gl_generate_mipmap);
+	DEFINE_PRIME2 (lime_gl_get_active_attrib);
+	DEFINE_PRIME2 (lime_gl_get_active_uniform);
+	DEFINE_PRIME2 (lime_gl_get_attrib_location);
+	DEFINE_PRIME2 (lime_gl_get_buffer_parameter);
+	DEFINE_PRIME0 (lime_gl_get_context_attributes);
+	DEFINE_PRIME0 (lime_gl_get_error);
+	DEFINE_PRIME1 (lime_gl_get_extension);
+	DEFINE_PRIME3 (lime_gl_get_framebuffer_attachment_parameter);
+	DEFINE_PRIME1 (lime_gl_get_parameter);
+	DEFINE_PRIME1 (lime_gl_get_program_info_log);
+	DEFINE_PRIME2 (lime_gl_get_program_parameter);
+	DEFINE_PRIME2 (lime_gl_get_render_buffer_parameter);
+	DEFINE_PRIME1 (lime_gl_get_shader_info_log);
+	DEFINE_PRIME2 (lime_gl_get_shader_parameter);
+	DEFINE_PRIME2 (lime_gl_get_shader_precision_format);
+	DEFINE_PRIME1 (lime_gl_get_shader_source);
+	DEFINE_PRIME1v (lime_gl_get_supported_extensions);
+	DEFINE_PRIME2 (lime_gl_get_tex_parameter);
+	DEFINE_PRIME2 (lime_gl_get_uniform);
+	DEFINE_PRIME2 (lime_gl_get_uniform_location);
+	DEFINE_PRIME2 (lime_gl_get_vertex_attrib);
+	DEFINE_PRIME2 (lime_gl_get_vertex_attrib_offset);
+	DEFINE_PRIME2v (lime_gl_hint);
+	DEFINE_PRIME1 (lime_gl_is_buffer);
+	DEFINE_PRIME1 (lime_gl_is_enabled);
+	DEFINE_PRIME1 (lime_gl_is_framebuffer);
+	DEFINE_PRIME1 (lime_gl_is_program);
+	DEFINE_PRIME1 (lime_gl_is_renderbuffer);
+	DEFINE_PRIME1 (lime_gl_is_shader);
+	DEFINE_PRIME1 (lime_gl_is_texture);
+	DEFINE_PRIME1v (lime_gl_line_width);
+	DEFINE_PRIME1v (lime_gl_link_program);
+	DEFINE_PRIME2v (lime_gl_pixel_storei);
+	DEFINE_PRIME2v (lime_gl_polygon_offset);
+	DEFINE_PRIME8v (lime_gl_read_pixels);
+	DEFINE_PRIME4v (lime_gl_renderbuffer_storage);
+	DEFINE_PRIME2v (lime_gl_sample_coverage);
+	DEFINE_PRIME4v (lime_gl_scissor);
+	DEFINE_PRIME2v (lime_gl_shader_source);
+	DEFINE_PRIME3v (lime_gl_stencil_func);
+	DEFINE_PRIME4v (lime_gl_stencil_func_separate);
+	DEFINE_PRIME1v (lime_gl_stencil_mask);
+	DEFINE_PRIME2v (lime_gl_stencil_mask_separate);
+	DEFINE_PRIME3v (lime_gl_stencil_op);
+	DEFINE_PRIME4v (lime_gl_stencil_op_separate);
+	DEFINE_PRIME10v (lime_gl_tex_image_2d);
+	DEFINE_PRIME3v (lime_gl_tex_parameterf);
+	DEFINE_PRIME3v (lime_gl_tex_parameteri);
+	DEFINE_PRIME10v (lime_gl_tex_sub_image_2d);
+	DEFINE_PRIME4v (lime_gl_uniform_matrix);
+	DEFINE_PRIME2v (lime_gl_uniform1f);
+	DEFINE_PRIME2v (lime_gl_uniform1fv);
+	DEFINE_PRIME2v (lime_gl_uniform1i);
+	DEFINE_PRIME2v (lime_gl_uniform1iv);
+	DEFINE_PRIME3v (lime_gl_uniform2f);
+	DEFINE_PRIME2v (lime_gl_uniform2fv);
+	DEFINE_PRIME3v (lime_gl_uniform2i);
+	DEFINE_PRIME2v (lime_gl_uniform2iv);
+	DEFINE_PRIME4v (lime_gl_uniform3f);
+	DEFINE_PRIME2v (lime_gl_uniform3fv);
+	DEFINE_PRIME4v (lime_gl_uniform3i);
+	DEFINE_PRIME2v (lime_gl_uniform3iv);
+	DEFINE_PRIME5v (lime_gl_uniform4f);
+	DEFINE_PRIME2v (lime_gl_uniform4fv);
+	DEFINE_PRIME5v (lime_gl_uniform4i);
+	DEFINE_PRIME2v (lime_gl_uniform4iv);
+	DEFINE_PRIME1v (lime_gl_use_program);
+	DEFINE_PRIME1v (lime_gl_validate_program);
+	DEFINE_PRIME4v (lime_gl_viewport);
+	DEFINE_PRIME0 (lime_gl_version);
+	DEFINE_PRIME6v (lime_gl_vertex_attrib_pointer);
+	DEFINE_PRIME2v (lime_gl_vertex_attrib1f);
+	DEFINE_PRIME2v (lime_gl_vertex_attrib1fv);
+	DEFINE_PRIME3v (lime_gl_vertex_attrib2f);
+	DEFINE_PRIME2v (lime_gl_vertex_attrib2fv);
+	DEFINE_PRIME4v (lime_gl_vertex_attrib3f);
+	DEFINE_PRIME2v (lime_gl_vertex_attrib3fv);
+	DEFINE_PRIME5v (lime_gl_vertex_attrib4f);
+	DEFINE_PRIME2v (lime_gl_vertex_attrib4fv);
 	
 	
 }
