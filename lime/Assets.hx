@@ -495,9 +495,11 @@ class Assets {
 		return (buffer != null);
 		//return (sound.__handle != null && sound.__handle != 0);
 		
-		#end
+		#else
 		
 		return true;
+		
+		#end
 		
 	}
 	
