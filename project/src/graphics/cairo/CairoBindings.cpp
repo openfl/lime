@@ -9,6 +9,9 @@
 namespace lime {
 	
 	
+	cairo_user_data_key_t userData;
+	
+	
 	void gc_cairo (value handle) {
 		
 		if (!val_is_null (handle)) {
@@ -65,6 +68,14 @@ namespace lime {
 			cairo_surface_destroy (surface);
 			
 		}
+		
+	}
+	
+	
+	void gc_user_data (void* data) {
+		
+		AutoGCRoot* reference = (AutoGCRoot*)data;
+		delete reference;
 		
 	}
 	
@@ -231,8 +242,12 @@ namespace lime {
 	value lime_cairo_ft_font_face_create (value face, int flags) {
 		
 		#ifdef LIME_FREETYPE
-		Font *font = (Font*)val_data (face);
+		Font* font = (Font*)val_data (face);
 		cairo_font_face_t* cairoFont = cairo_ft_font_face_create_for_ft_face ((FT_Face)font->face, flags);
+		
+		AutoGCRoot* fontReference = new AutoGCRoot (face);
+		cairo_font_face_set_user_data (cairoFont, &userData, fontReference, gc_user_data);
+		
 		value handle = cffi::alloc_pointer (cairoFont);
 		val_gc (handle, gc_cairo_font_face);
 		return handle;
