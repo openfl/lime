@@ -484,7 +484,7 @@ class ProjectXMLParser extends HXProject {
 				
 			} else {
 				
-				var exclude = ".*|cvs|thumbs.db|desktop.ini|*.hash";
+				var exclude = ".*|cvs|thumbs.db|desktop.ini|*.fla|*.hash";
 				var include = "";
 				
 				if (element.has.exclude) {
