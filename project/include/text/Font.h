@@ -62,7 +62,9 @@ namespace lime {
 			int RenderGlyphs (value indices, Bytes *bytes);
 			void SetSize (size_t size);
 			
+			void* library;
 			void* face;
+			void* faceMemory;
 			
 		private:
 			

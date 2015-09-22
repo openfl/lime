@@ -355,7 +355,9 @@ namespace lime {
 	
 	Font::Font (Resource *resource, int faceIndex) {
 		
+		this->library = 0;
 		this->face = 0;
+		this->faceMemory = 0;
 		
 		if (resource) {
 			
@@ -372,6 +374,7 @@ namespace lime {
 				
 				FT_Face face;
 				FILE_HANDLE *file = NULL;
+				unsigned char *faceMemory = NULL;
 				
 				if (resource->path) {
 					
@@ -379,6 +382,7 @@ namespace lime {
 					
 					if (!file) {
 						
+						FT_Done_FreeType (library);
 						return;
 						
 					}
@@ -390,19 +394,21 @@ namespace lime {
 					} else {
 						
 						Bytes data = Bytes (resource->path);
-						unsigned char *buffer = (unsigned char*)malloc (data.Length ());
-						memcpy (buffer, data.Data (), data.Length ());
+						faceMemory = (unsigned char*)malloc (data.Length ());
+						memcpy (faceMemory, data.Data (), data.Length ());
+
 						lime::fclose (file);
 						file = 0;
-						error = FT_New_Memory_Face (library, buffer, data.Length (), faceIndex, &face);
+
+						error = FT_New_Memory_Face (library, faceMemory, data.Length (), faceIndex, &face);
 						
 					}
 					
 				} else {
 					
-					unsigned char *buffer = (unsigned char*)malloc (resource->data->Length ());
-					memcpy (buffer, resource->data->Data (), resource->data->Length ());
-					error = FT_New_Memory_Face (library, buffer, resource->data->Length (), faceIndex, &face);
+					faceMemory = (unsigned char*)malloc (resource->data->Length ());
+					memcpy (faceMemory, resource->data->Data (), resource->data->Length ());
+					error = FT_New_Memory_Face (library, faceMemory, resource->data->Length (), faceIndex, &face);
 					
 				}
 				
@@ -415,7 +421,9 @@ namespace lime {
 				
 				if (!error) {
 					
+					this->library = library;
 					this->face = face;
+					this->faceMemory = faceMemory;
 					
 					/* Set charmap
 					 *
@@ -439,6 +447,12 @@ namespace lime {
 						
 					}
 					
+				} else {
+
+					FT_Done_FreeType (library);
+
+					free (faceMemory);
+
 				}
 				
 			}
@@ -449,12 +463,17 @@ namespace lime {
 	
 	
 	Font::~Font () {
-		
-		if (face) {
+
+		if (library) {
 			
-			//FT_Done_Face ((FT_Face)face);
+			FT_Done_FreeType ((FT_Library)library);
+			library = 0;
+			face = 0;
 			
 		}
+
+		free (faceMemory);
+		faceMemory = 0;
 		
 	}
 	
