@@ -5,7 +5,6 @@
 * Fixed iOS support for CFFI prime (requires HXCPP update)
 * Reverted SDL2 version to fix regression in iOS window size
 * Disabled Cairo finalizer (for now) to resolve some crash problems
-* Fixed small memory leaks in lime.text.Font
 * Reduced "unreachable code" warnings in Firefox
 * Fixed iOS multitouch behavior (legacy)
 
