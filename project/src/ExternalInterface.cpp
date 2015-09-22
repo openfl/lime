@@ -292,7 +292,10 @@ namespace lime {
 		
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)(intptr_t)fontHandle;
-		return alloc_wstring (font->GetFamilyName ());
+		wchar_t *name = font->GetFamilyName ();
+		value result = alloc_wstring (name);
+		delete name;
+		return result;
 		#else
 		return 0;
 		#endif
@@ -1358,10 +1361,22 @@ namespace lime {
 	DEFINE_PRIME2 (lime_window_set_title);
 	
 	
+	
 }
 
 
+extern "C" int lime_cairo_register_prims ();
+extern "C" int lime_curl_register_prims ();
+extern "C" int lime_openal_register_prims ();
+extern "C" int lime_opengl_register_prims ();
+
+
 extern "C" int lime_register_prims () {
+	
+	lime_cairo_register_prims ();
+	lime_curl_register_prims ();
+	lime_openal_register_prims ();
+	lime_opengl_register_prims ();
 	
 	return 0;
 	

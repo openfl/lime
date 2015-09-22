@@ -1,5 +1,6 @@
 #include <curl/curl.h>
 #include <hx/CFFIPrime.h>
+#include <utils/Bytes.h>
 #include <string.h>
 
 
@@ -173,8 +174,10 @@ namespace lime {
 			
 		}
 		
-		value str = alloc_string_len ((const char*)ptr, size * nmemb);
-		return val_int (val_call3 (callback->get (), str, alloc_int (size), alloc_int (nmemb)));
+		Bytes bytes = Bytes (size * nmemb);
+		memcpy (bytes.Data (), ptr, size * nmemb);
+		
+		return val_int (val_call3 (callback->get (), bytes.Value (), alloc_int (size), alloc_int (nmemb)));
 		
 	}
 	
@@ -183,15 +186,14 @@ namespace lime {
 		
 		AutoGCRoot* callback = (AutoGCRoot*)userp;
 		
-		size_t bytes = size * nmemb;
-		const char *input = val_string (val_call1 (callback->get (), alloc_int (bytes)));
-		size_t length = strlen (input);
+		size_t length = size * nmemb;
+		Bytes bytes = Bytes (val_call1 (callback->get (), alloc_int (length)));
 		
-		if (length <= bytes) bytes = length;
+		if (bytes.Length () <= length) length = bytes.Length ();
 		
-		memcpy (buffer, input, bytes);
+		memcpy (buffer, bytes.Data (), length);
 		
-		return bytes;
+		return length;
 		
 	}
 	
@@ -604,5 +606,12 @@ namespace lime {
 	DEFINE_PRIME0 (lime_curl_version);
 	DEFINE_PRIME1 (lime_curl_version_info);
 	
+	
+}
+
+
+extern "C" int lime_curl_register_prims () {
+	
+	return 0;
 	
 }
