@@ -158,6 +158,7 @@ class CURLEasy {
 	
 	private static function __writeCallback (callback:Dynamic, output:Dynamic, size:Int, nmemb:Int):Int {
 		
+		#if ((cpp || neko || nodejs) && lime_curl && !macro)
 		var bytes:Bytes = null;
 		
 		if (output != null) {
@@ -167,6 +168,12 @@ class CURLEasy {
 		}
 		
 		return callback (bytes, size, nmemb);
+		
+		#else
+		
+		return 0;
+		
+		#end
 		
 	}
 	
