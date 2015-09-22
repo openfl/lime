@@ -31,7 +31,6 @@ class Cairo {
 	public var matrix (get, set):Matrix3;
 	public var miterLimit (get, set):Float;
 	public var operator (get, set):CairoOperator;
-	public var referenceCount (get, never):Int;
 	public var source (get, set):CairoPattern;
 	public var target (get, null):CairoSurface;
 	public var tolerance (get, set):Float;
@@ -50,14 +49,6 @@ class Cairo {
 			
 		}
 		
-	}
-	
-	public function recreate (surface:CairoSurface) : Void {
-		
-		#if (lime_cairo && !macro)
-		destroy ();
-		handle = lime_cairo_create (surface);
-		#end
 	}
 	
 	
@@ -128,15 +119,6 @@ class Cairo {
 		
 		#if (lime_cairo && !macro)
 		lime_cairo_curve_to (handle, x1, y1, x2, y2, x3, y3);
-		#end
-		
-	}
-	
-	
-	public function destroy ():Void {
-		
-		#if (lime_cairo && !macro)
-		lime_cairo_destroy (handle);
 		#end
 		
 	}
@@ -312,19 +294,18 @@ class Cairo {
 	}
 	
 	
+	private function recreate (surface:CairoSurface):Void {
+		
+		#if (lime_cairo && !macro)
+		handle = lime_cairo_create (surface);
+		#end
+	}
+	
+	
 	public function rectangle (x:Float, y:Float, width:Float, height:Float):Void {
 		
 		#if (lime_cairo && !macro)
 		lime_cairo_rectangle (handle, x, y, width, height);
-		#end
-		
-	}
-	
-	
-	public function reference ():Void {
-		
-		#if (lime_cairo && !macro)
-		lime_cairo_reference (handle);
 		#end
 		
 	}
@@ -808,17 +789,6 @@ class Cairo {
 	}
 	
 	
-	@:noCompletion private function get_referenceCount ():Int {
-		
-		#if (lime_cairo && !macro)
-		return lime_cairo_get_reference_count (handle);
-		#else
-		return 0;
-		#end
-		
-	}
-	
-	
 	@:noCompletion private function get_source ():CairoPattern {
 		
 		#if (lime_cairo && !macro)
@@ -913,7 +883,6 @@ class Cairo {
 	@:cffi private static function lime_cairo_copy_page (handle:Dynamic):Void;
 	@:cffi private static function lime_cairo_create (handle:Dynamic):Dynamic;
 	@:cffi private static function lime_cairo_curve_to (handle:Dynamic, x1:Float, y1:Float, x2:Float, y2:Float, x3:Float, y3:Float):Void;
-	@:cffi private static function lime_cairo_destroy (handle:Dynamic):Void;
 	@:cffi private static function lime_cairo_fill (handle:Dynamic):Void;
 	@:cffi private static function lime_cairo_fill_extents (handle:Dynamic, x1:Float, y1:Float, x2:Float, y2:Float):Void;
 	@:cffi private static function lime_cairo_fill_preserve (handle:Dynamic):Void;
@@ -931,7 +900,6 @@ class Cairo {
 	@:cffi private static function lime_cairo_get_matrix (handle:Dynamic):Dynamic;
 	@:cffi private static function lime_cairo_get_miter_limit (handle:Dynamic):Float;
 	@:cffi private static function lime_cairo_get_operator (handle:Dynamic):Int;
-	@:cffi private static function lime_cairo_get_reference_count (handle:Dynamic):Int;
 	@:cffi private static function lime_cairo_get_source (handle:Dynamic):Dynamic;
 	@:cffi private static function lime_cairo_get_target (handle:Dynamic):Dynamic;
 	@:cffi private static function lime_cairo_get_tolerance (handle:Dynamic):Float;
@@ -952,7 +920,6 @@ class Cairo {
 	@:cffi private static function lime_cairo_push_group (handle:Dynamic):Void;
 	@:cffi private static function lime_cairo_push_group_with_content (handle:Dynamic, content:Int):Void;
 	@:cffi private static function lime_cairo_rectangle (handle:Dynamic, x:Float, y:Float, width:Float, height:Float):Void;
-	@:cffi private static function lime_cairo_reference (handle:Dynamic):Void;
 	@:cffi private static function lime_cairo_rel_curve_to (handle:Dynamic, dx1:Float, dy1:Float, dx2:Float, dy2:Float, dx3:Float, dy3:Float):Void;
 	@:cffi private static function lime_cairo_rel_line_to (handle:Dynamic, dx:Float, dy:Float):Void;
 	@:cffi private static function lime_cairo_rel_move_to (handle:Dynamic, dx:Float, dy:Float):Void;

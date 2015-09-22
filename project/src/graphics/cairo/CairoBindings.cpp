@@ -121,7 +121,6 @@ namespace lime {
 	value lime_cairo_create (value surface) {
 		
 		cairo_t* cairo = cairo_create ((cairo_surface_t*)val_data (surface));
-		cairo_reference (cairo);
 		value handle = cffi::alloc_pointer (cairo);
 		val_gc (handle, gc_cairo);
 		return handle;
@@ -132,13 +131,6 @@ namespace lime {
 	void lime_cairo_curve_to (value handle, double x1, double y1, double x2, double y2, double x3, double y3) {
 		
 		cairo_curve_to ((cairo_t*)val_data (handle), x1, y1, x2, y2, x3, y3);
-		
-	}
-	
-	
-	void lime_cairo_destroy (value handle) {
-		
-		cairo_destroy ((cairo_t*)val_data (handle));
 		
 	}
 	
@@ -163,26 +155,6 @@ namespace lime {
 		
 	}
 	
-	void lime_cairo_font_face_destroy (value handle) {
-		
-		cairo_font_face_destroy ((cairo_font_face_t*)val_data (handle));
-		
-	}
-	
-	
-	int lime_cairo_font_face_get_reference_count (value handle) {
-		
-		return cairo_font_face_get_reference_count ((cairo_font_face_t*)val_data (handle));
-		
-	}
-	
-	
-	void lime_cairo_font_face_reference (value handle) {
-		
-		cairo_font_face_reference ((cairo_font_face_t*)val_data (handle));
-		
-	}
-	
 	
 	int lime_cairo_font_face_status (value handle) {
 		
@@ -196,14 +168,6 @@ namespace lime {
 		value handle = cffi::alloc_pointer (cairo_font_options_create ());
 		val_gc (handle, gc_cairo_font_options);
 		return handle;
-		
-	}
-	
-	
-	void lime_cairo_font_options_destroy (value handle) {
-		
-		cairo_font_options_destroy ((cairo_font_options_t*)val_data (handle));
-		free_abstract (handle);
 		
 	}
 	
@@ -269,7 +233,6 @@ namespace lime {
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)val_data (face);
 		cairo_font_face_t* cairoFont = cairo_ft_font_face_create_for_ft_face ((FT_Face)font->face, flags);
-		cairo_font_face_reference (cairoFont);
 		value handle = cffi::alloc_pointer (cairoFont);
 		val_gc (handle, gc_cairo_font_face);
 		return handle;
@@ -412,13 +375,6 @@ namespace lime {
 	}
 	
 	
-	int lime_cairo_get_reference_count (value handle) {
-		
-		return cairo_get_reference_count ((cairo_t*)val_data (handle));
-		
-	}
-	
-	
 	value lime_cairo_get_source (value handle) {
 		
 		cairo_pattern_t* pattern = cairo_get_source ((cairo_t*)val_data (handle));
@@ -465,7 +421,6 @@ namespace lime {
 	value lime_cairo_image_surface_create (int format, int width, int height) {
 		
 		cairo_surface_t* surface = cairo_image_surface_create ((cairo_format_t)format, width, height);
-		cairo_surface_reference (surface);
 		value handle = cffi::alloc_pointer (surface);
 		val_gc (handle, gc_cairo_surface);
 		return handle;
@@ -476,7 +431,6 @@ namespace lime {
 	value lime_cairo_image_surface_create_for_data (double data, int format, int width, int height, int stride) {
 		
 		cairo_surface_t* surface = cairo_image_surface_create_for_data ((unsigned char*)(intptr_t)data, (cairo_format_t)format, width, height, stride);
-		cairo_surface_reference (surface);
 		value handle = cffi::alloc_pointer (surface);
 		val_gc (handle, gc_cairo_surface);
 		return handle;
@@ -606,7 +560,6 @@ namespace lime {
 	value lime_cairo_pattern_create_for_surface (value surface) {
 		
 		cairo_pattern_t* pattern = cairo_pattern_create_for_surface ((cairo_surface_t*)val_data (surface));
-		cairo_pattern_reference (pattern);
 		value handle = cffi::alloc_pointer (pattern);
 		val_gc (handle, gc_cairo_pattern);
 		return handle;
@@ -617,7 +570,6 @@ namespace lime {
 	value lime_cairo_pattern_create_linear (double x0, double y0, double x1, double y1) {
 		
 		cairo_pattern_t* pattern = cairo_pattern_create_linear (x0, y0, x1, y1);
-		cairo_pattern_reference (pattern);
 		value handle = cffi::alloc_pointer (pattern);
 		val_gc (handle, gc_cairo_pattern);
 		return handle;
@@ -628,7 +580,6 @@ namespace lime {
 	value lime_cairo_pattern_create_radial (double cx0, double cy0, double radius0, double cx1, double cy1, double radius1) {
 		
 		cairo_pattern_t* pattern = cairo_pattern_create_radial (cx0, cy0, radius0, cx1, cy1, radius1);
-		cairo_pattern_reference (pattern);
 		value handle = cffi::alloc_pointer (pattern);
 		val_gc (handle, gc_cairo_pattern);
 		return handle;
@@ -639,7 +590,6 @@ namespace lime {
 	value lime_cairo_pattern_create_rgb (double r, double g, double b) {
 		
 		cairo_pattern_t* pattern = cairo_pattern_create_rgb (r, g, b);
-		cairo_pattern_reference (pattern);
 		value handle = cffi::alloc_pointer (pattern);
 		val_gc (handle, gc_cairo_pattern);
 		return handle;
@@ -650,17 +600,9 @@ namespace lime {
 	value lime_cairo_pattern_create_rgba (double r, double g, double b, double a) {
 		
 		cairo_pattern_t* pattern = cairo_pattern_create_rgba (r, g, b, a);
-		cairo_pattern_reference (pattern);
 		value handle = cffi::alloc_pointer (pattern);
 		val_gc (handle, gc_cairo_pattern);
 		return handle;
-		
-	}
-	
-	
-	void lime_cairo_pattern_destroy (value handle) {
-		
-		cairo_pattern_destroy ((cairo_pattern_t*)val_data (handle));
 		
 	}
 	
@@ -759,13 +701,6 @@ namespace lime {
 	void lime_cairo_rectangle (value handle, double x, double y, double width, double height) {
 		
 		cairo_rectangle ((cairo_t*)val_data (handle), x, y, width, height);
-		
-	}
-	
-	
-	void lime_cairo_reference (value handle) {
-		
-		cairo_reference ((cairo_t*)val_data (handle));
 		
 	}
 	
@@ -1003,23 +938,9 @@ namespace lime {
 	}
 	
 	
-	void lime_cairo_surface_destroy (value handle) {
-		
-		cairo_surface_destroy ((cairo_surface_t*)val_data (handle));
-		
-	}
-	
-	
 	void lime_cairo_surface_flush (value handle) {
 		
 		cairo_surface_flush ((cairo_surface_t*)val_data (handle));
-		
-	}
-	
-	
-	void lime_cairo_surface_reference (value handle) {
-		
-		cairo_surface_reference ((cairo_surface_t*)val_data (handle));
 		
 	}
 	
@@ -1067,17 +988,12 @@ namespace lime {
 	DEFINE_PRIME1v (lime_cairo_copy_page);
 	DEFINE_PRIME1 (lime_cairo_create);
 	DEFINE_PRIME7v (lime_cairo_curve_to);
-	DEFINE_PRIME1v (lime_cairo_destroy);
 	DEFINE_PRIME1v (lime_cairo_fill);
 	DEFINE_PRIME5v (lime_cairo_fill_extents);
 	DEFINE_PRIME1v (lime_cairo_fill_preserve);
 	DEFINE_PRIME2 (lime_cairo_ft_font_face_create);
-	DEFINE_PRIME1v (lime_cairo_font_face_destroy);
-	DEFINE_PRIME1 (lime_cairo_font_face_get_reference_count);
-	DEFINE_PRIME1v (lime_cairo_font_face_reference);
 	DEFINE_PRIME1 (lime_cairo_font_face_status);
 	DEFINE_PRIME0 (lime_cairo_font_options_create);
-	DEFINE_PRIME1v (lime_cairo_font_options_destroy);
 	DEFINE_PRIME1 (lime_cairo_font_options_get_antialias);
 	DEFINE_PRIME1 (lime_cairo_font_options_get_subpixel_order);
 	DEFINE_PRIME1 (lime_cairo_font_options_get_hint_style);
@@ -1100,7 +1016,6 @@ namespace lime {
 	DEFINE_PRIME1 (lime_cairo_get_matrix);
 	DEFINE_PRIME1 (lime_cairo_get_miter_limit);
 	DEFINE_PRIME1 (lime_cairo_get_operator);
-	DEFINE_PRIME1 (lime_cairo_get_reference_count);
 	DEFINE_PRIME1 (lime_cairo_get_source);
 	DEFINE_PRIME1 (lime_cairo_get_target);
 	DEFINE_PRIME1 (lime_cairo_get_tolerance);
@@ -1130,7 +1045,6 @@ namespace lime {
 	DEFINE_PRIME6 (lime_cairo_pattern_create_radial);
 	DEFINE_PRIME3 (lime_cairo_pattern_create_rgb);
 	DEFINE_PRIME4 (lime_cairo_pattern_create_rgba);
-	DEFINE_PRIME1v (lime_cairo_pattern_destroy);
 	DEFINE_PRIME1 (lime_cairo_pattern_get_color_stop_count);
 	DEFINE_PRIME1 (lime_cairo_pattern_get_extend);
 	DEFINE_PRIME1 (lime_cairo_pattern_get_filter);
@@ -1143,7 +1057,6 @@ namespace lime {
 	DEFINE_PRIME1v (lime_cairo_push_group);
 	DEFINE_PRIME2v (lime_cairo_push_group_with_content);
 	DEFINE_PRIME5v (lime_cairo_rectangle);
-	DEFINE_PRIME1v (lime_cairo_reference);
 	DEFINE_PRIME7v (lime_cairo_rel_curve_to);
 	DEFINE_PRIME3v (lime_cairo_rel_line_to);
 	DEFINE_PRIME3v (lime_cairo_rel_move_to);
@@ -1175,9 +1088,7 @@ namespace lime {
 	DEFINE_PRIME1v (lime_cairo_stroke);
 	DEFINE_PRIME5v (lime_cairo_stroke_extents);
 	DEFINE_PRIME1v (lime_cairo_stroke_preserve);
-	DEFINE_PRIME1v (lime_cairo_surface_destroy);
 	DEFINE_PRIME1v (lime_cairo_surface_flush);
-	DEFINE_PRIME1v (lime_cairo_surface_reference);
 	DEFINE_PRIME2v (lime_cairo_transform);
 	DEFINE_PRIME3v (lime_cairo_translate);
 	DEFINE_PRIME0 (lime_cairo_version);

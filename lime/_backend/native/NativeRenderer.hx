@@ -14,6 +14,7 @@ import lime.graphics.Renderer;
 @:build(lime.system.CFFI.build())
 #end
 
+@:access(lime.graphics.cairo.Cairo)
 @:access(lime.ui.Window)
 
 
@@ -119,12 +120,6 @@ class NativeRenderer {
 			var lock:Dynamic = lime_renderer_lock (handle);
 			
 			if (cacheLock == null || cacheLock.pixels != lock.pixels || cacheLock.width != lock.width || cacheLock.height != lock.height) {
-				
-				if (primarySurface != null) {
-					
-					primarySurface.destroy ();
-					
-				}
 				
 				primarySurface = CairoImageSurface.create (lock.pixels, CairoFormat.ARGB32, lock.width, lock.height, lock.pitch);
 				

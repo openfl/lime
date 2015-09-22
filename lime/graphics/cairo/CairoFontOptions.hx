@@ -28,15 +28,6 @@ abstract CairoFontOptions(Dynamic) {
 	}
 	
 	
-	public function destroy ():Void {
-		
-		#if (lime_cairo && !macro)
-		lime_cairo_font_options_destroy (this);
-		#end
-		
-	}
-	
-	
 	
 	
 	// Get & Set Methods
@@ -142,7 +133,6 @@ abstract CairoFontOptions(Dynamic) {
 	
 	#if ((cpp || neko || nodejs) && !macro)
 	@:cffi private static function lime_cairo_font_options_create ():Dynamic;
-	@:cffi private static function lime_cairo_font_options_destroy (handle:Float):Void;
 	@:cffi private static function lime_cairo_font_options_get_antialias (handle:Float):Int;
 	@:cffi private static function lime_cairo_font_options_get_hint_metrics (handle:Float):Int;
 	@:cffi private static function lime_cairo_font_options_get_hint_style (handle:Float):Int;

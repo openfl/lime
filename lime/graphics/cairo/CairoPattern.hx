@@ -97,15 +97,6 @@ abstract CairoPattern(Dynamic) {
 	}
 	
 	
-	public function destroy ():Void {
-		
-		#if (lime_cairo && !macro)
-		lime_cairo_pattern_destroy (this);
-		#end
-		
-	}
-	
-	
 	
 	
 	// Get & Set Methods
@@ -206,7 +197,6 @@ abstract CairoPattern(Dynamic) {
 	@:cffi private static function lime_cairo_pattern_create_radial (cx0:Float, cy0:Float, radius0:Float, cx1:Float, cy1:Float, radius1:Float):Dynamic;
 	@:cffi private static function lime_cairo_pattern_create_rgb (r:Float, g:Float, b:Float):Dynamic;
 	@:cffi private static function lime_cairo_pattern_create_rgba (r:Float, g:Float, b:Float, a:Float):Dynamic;
-	@:cffi private static function lime_cairo_pattern_destroy (handle:Dynamic):Void;
 	@:cffi private static function lime_cairo_pattern_get_color_stop_count (handle:Float):Int;
 	@:cffi private static function lime_cairo_pattern_get_extend (handle:Dynamic):Int;
 	@:cffi private static function lime_cairo_pattern_get_filter (handle:Dynamic):Int;

@@ -9,32 +9,9 @@ package lime.graphics.cairo;
 abstract CairoFontFace(Dynamic) {
 	
 	
-	public var referenceCount (get, never):Int;
-	
-	
 	private function new () {
 		
 		this = null;
-		
-	}
-	
-	
-	public function destroy ():Void {
-		
-		#if (lime_cairo && !macro)
-		lime_cairo_font_face_destroy (this);
-		#end
-		
-	}
-	
-	
-	public function reference ():CairoFontFace {
-		
-		#if (lime_cairo && !macro)
-		lime_cairo_font_face_reference (this);
-		#end
-		
-		return this;
 		
 	}
 	
@@ -52,33 +29,12 @@ abstract CairoFontFace(Dynamic) {
 	
 	
 	
-	// Get & Set Methods
-	
-	
-	
-	
-	@:noCompletion private function get_referenceCount ():Int {
-		
-		#if (lime_cairo && !macro)
-		return lime_cairo_font_face_get_reference_count (this);
-		#else
-		return 0;
-		#end
-		
-	}
-	
-	
-	
-	
 	// Native Methods
 	
 	
 	
 	
 	#if ((cpp || neko || nodejs) && !macro)
-	@:cffi private static function lime_cairo_font_face_destroy (handle:Dynamic):Void;
-	@:cffi private static function lime_cairo_font_face_get_reference_count (handle:Dynamic):Int;
-	@:cffi private static function lime_cairo_font_face_reference (handle:Dynamic):Void;
 	@:cffi private static function lime_cairo_font_face_status (handle:Dynamic):Int;
 	#end
 	
