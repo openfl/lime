@@ -530,7 +530,7 @@ class NativeApplication {
 	
 	
 	#if !macro
-	@:cffi private static function lime_application_create (config:Dynamic):Float;
+	@:cffi private static function lime_application_create (config:Dynamic):Dynamic;
 	@:cffi private static function lime_application_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_application_exec (handle:Dynamic):Int;
 	@:cffi private static function lime_application_init (handle:Dynamic):Void;
