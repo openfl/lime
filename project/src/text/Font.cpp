@@ -320,39 +320,6 @@ namespace lime {
 	}
 	
 	
-	Font::Font (void* face) {
-		
-		this->face = face;
-		
-		if (face) {
-			
-			/* Set charmap
-			 *
-			 * See http://www.microsoft.com/typography/otspec/name.htm for a list of
-			 * some possible platform-encoding pairs.  We're interested in 0-3 aka 3-1
-			 * - UCS-2.  Otherwise, fail. If a font has some unicode map, but lacks
-			 * UCS-2 - it is a broken or irrelevant font. What exactly Freetype will
-			 * select on face load (it promises most wide unicode, and if that will be
-			 * slower that UCS-2 - left as an excercise to check.
-			 */
-			for (int i = 0; i < ((FT_Face)face)->num_charmaps; i++) {
-				
-				FT_UShort pid = ((FT_Face)face)->charmaps[i]->platform_id;
-				FT_UShort eid = ((FT_Face)face)->charmaps[i]->encoding_id;
-				
-				if (((pid == 0) && (eid == 3)) || ((pid == 3) && (eid == 1))) {
-					
-					FT_Set_Charmap ((FT_Face)face, ((FT_Face)face)->charmaps[i]);
-					
-				}
-				
-			}
-			
-		}
-		
-	}
-	
-	
 	Font::Font (Resource *resource, int faceIndex) {
 		
 		this->library = 0;
@@ -562,8 +529,7 @@ namespace lime {
 		
 		int num_glyphs = glyphs.size ();
 		
-		Font font = Font (face);
-		wchar_t* family_name = font.GetFamilyName ();
+		wchar_t* family_name = GetFamilyName ();
 		
 		value ret = alloc_empty_object ();
 		alloc_field (ret, val_id ("has_kerning"), alloc_bool (FT_HAS_KERNING (((FT_Face)face))));

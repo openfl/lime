@@ -42,7 +42,6 @@ namespace lime {
 		
 		public:
 			
-			Font (void* face = 0);
 			Font (Resource *resource, int faceIndex = 0);
 			~Font ();
 			
