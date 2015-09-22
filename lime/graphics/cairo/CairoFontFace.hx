@@ -6,7 +6,7 @@ package lime.graphics.cairo;
 #end
 
 
-abstract CairoFontFace(Dynamic) from Float to Float {
+abstract CairoFontFace(Dynamic) {
 	
 	
 	public var referenceCount (get, never):Int;
@@ -14,7 +14,7 @@ abstract CairoFontFace(Dynamic) from Float to Float {
 	
 	private function new () {
 		
-		this = cast 0;
+		this = null;
 		
 	}
 	
@@ -76,10 +76,10 @@ abstract CairoFontFace(Dynamic) from Float to Float {
 	
 	
 	#if ((cpp || neko || nodejs) && !macro)
-	@:cffi private static function lime_cairo_font_face_destroy (handle:Float):Void;
-	@:cffi private static function lime_cairo_font_face_get_reference_count (handle:Float):Int;
-	@:cffi private static function lime_cairo_font_face_reference (handle:Float):Void;
-	@:cffi private static function lime_cairo_font_face_status (handle:Float):Int;
+	@:cffi private static function lime_cairo_font_face_destroy (handle:Dynamic):Void;
+	@:cffi private static function lime_cairo_font_face_get_reference_count (handle:Dynamic):Int;
+	@:cffi private static function lime_cairo_font_face_reference (handle:Dynamic):Void;
+	@:cffi private static function lime_cairo_font_face_status (handle:Dynamic):Int;
 	#end
 	
 	

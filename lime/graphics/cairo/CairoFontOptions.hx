@@ -8,7 +8,7 @@ import lime.text.Font;
 #end
 
 
-abstract CairoFontOptions(Dynamic) from Float to Float {
+abstract CairoFontOptions(Dynamic) {
 	
 	
 	public var antialias (get, set):CairoAntialias;
@@ -22,7 +22,7 @@ abstract CairoFontOptions(Dynamic) from Float to Float {
 		#if (lime_cairo && !macro)
 		this = lime_cairo_font_options_create ();
 		#else
-		this = cast 0;
+		this = null;
 		#end
 		
 	}
@@ -141,7 +141,7 @@ abstract CairoFontOptions(Dynamic) from Float to Float {
 	
 	
 	#if ((cpp || neko || nodejs) && !macro)
-	@:cffi private static function lime_cairo_font_options_create ():Float;
+	@:cffi private static function lime_cairo_font_options_create ():Dynamic;
 	@:cffi private static function lime_cairo_font_options_destroy (handle:Float):Void;
 	@:cffi private static function lime_cairo_font_options_get_antialias (handle:Float):Int;
 	@:cffi private static function lime_cairo_font_options_get_hint_metrics (handle:Float):Int;

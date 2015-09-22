@@ -40,7 +40,7 @@ abstract CairoFTFontFace(CairoFontFace) from CairoFontFace to CairoFontFace {
 	
 	
 	#if ((cpp || neko || nodejs) && !macro)
-	@:cffi private static function lime_cairo_ft_font_face_create (face:Float, flags:Int):Float;
+	@:cffi private static function lime_cairo_ft_font_face_create (face:Dynamic, flags:Int):Dynamic;
 	#end
 	
 	

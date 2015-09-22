@@ -876,62 +876,62 @@ namespace lime {
 	}
 	
 	
-	bool lime_alc_close_device (double device) {
+	bool lime_alc_close_device (value device) {
 		
-		ALCdevice* alcDevice = (ALCdevice*)(intptr_t)device;
+		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
 		return alcCloseDevice (alcDevice);
 		
 	}
 	
 	
-	double lime_alc_create_context (double device, value attrlist) {
+	value lime_alc_create_context (value device, value attrlist) {
 		
-		ALCdevice* alcDevice = (ALCdevice*)(intptr_t)device;
+		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
 		int* list = val_array_int (attrlist);
 		
 		ALCcontext* alcContext = alcCreateContext (alcDevice, list);
 		
-		return (intptr_t)alcContext;
+		return cffi::alloc_pointer (alcContext);
 		
 	}
 	
 	
-	void lime_alc_destroy_context (double context) {
+	void lime_alc_destroy_context (value context) {
 		
-		ALCcontext* alcContext = (ALCcontext*)(intptr_t)context;
+		ALCcontext* alcContext = (ALCcontext*)val_data (context);
 		alcDestroyContext (alcContext);
 		
 	}
 	
 	
-	double lime_alc_get_contexts_device (double context) {
+	value lime_alc_get_contexts_device (value context) {
 		
-		ALCcontext* alcContext = (ALCcontext*)(intptr_t)context;
+		ALCcontext* alcContext = (ALCcontext*)val_data (context);
 		ALCdevice* alcDevice = alcGetContextsDevice (alcContext);
-		return (intptr_t)alcDevice;
+		return cffi::alloc_pointer (alcDevice);
 		
 	}
 	
 	
-	double lime_alc_get_current_context () {
+	value lime_alc_get_current_context () {
 		
 		ALCcontext* alcContext = alcGetCurrentContext ();
-		return (intptr_t)alcContext;
+		return cffi::alloc_pointer (alcContext);
 		
 	}
 	
 	
-	int lime_alc_get_error (double device) {
+	int lime_alc_get_error (value device) {
 		
-		ALCdevice* alcDevice = (ALCdevice*)(intptr_t)device;
+		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
 		return alcGetError (alcDevice);
 		
 	}
 	
 	
-	value lime_alc_get_integerv (double device, int param, int size) {
+	value lime_alc_get_integerv (value device, int param, int size) {
 		
-		ALCdevice* alcDevice = (ALCdevice*)(intptr_t)device;
+		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
 		
 		ALCint* values = new ALCint[size];
 		alcGetIntegerv (alcDevice, param, size, values);
@@ -950,43 +950,43 @@ namespace lime {
 	}
 	
 	
-	value lime_alc_get_string (double device, int param) {
+	value lime_alc_get_string (value device, int param) {
 		
-		ALCdevice* alcDevice = (ALCdevice*)(intptr_t)device;
+		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
 		const char* result = alcGetString (alcDevice, param);
 		return result ? alloc_string (result) : alloc_null ();
 		
 	}
 	
 	
-	bool lime_alc_make_context_current (double context) {
+	bool lime_alc_make_context_current (value context) {
 		
-		ALCcontext* alcContext = (ALCcontext*)(intptr_t)context;
+		ALCcontext* alcContext = (ALCcontext*)val_data (context);
 		return alcMakeContextCurrent (alcContext);
 		
 	}
 	
 	
-	double lime_alc_open_device (HxString devicename) {
+	value lime_alc_open_device (HxString devicename) {
 		
 		ALCdevice* alcDevice = alcOpenDevice (devicename.__s);
 		atexit (lime_al_cleanup);
-		return (intptr_t)alcDevice;
+		return cffi::alloc_pointer (alcDevice);
 		
 	}
 	
 	
-	void lime_alc_process_context (double context) {
+	void lime_alc_process_context (value context) {
 		
-		ALCcontext* alcContext = (ALCcontext*)(intptr_t)context;
+		ALCcontext* alcContext = (ALCcontext*)val_data (context);
 		alcProcessContext (alcContext);
 		
 	}
 	
 	
-	void lime_alc_suspend_context (double context) {
+	void lime_alc_suspend_context (value context) {
 		
-		ALCcontext* alcContext = (ALCcontext*)(intptr_t)context;
+		ALCcontext* alcContext = (ALCcontext*)val_data (context);
 		alcSuspendContext (alcContext);
 		
 	}

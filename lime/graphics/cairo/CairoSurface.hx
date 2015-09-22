@@ -6,7 +6,7 @@ package lime.graphics.cairo;
 #end
 
 
-abstract CairoSurface(Dynamic) from Float to Float {
+abstract CairoSurface(Dynamic) {
 	
 	
 	public function destroy ():Void {
@@ -27,6 +27,15 @@ abstract CairoSurface(Dynamic) from Float to Float {
 	}
 	
 	
+	public function reference ():Void {
+		
+		#if (lime_cairo && !macro)
+		lime_cairo_surface_reference (this);
+		#end
+		
+	}
+	
+	
 	
 	
 	// Native Methods
@@ -35,8 +44,9 @@ abstract CairoSurface(Dynamic) from Float to Float {
 	
 	
 	#if (lime_cairo && !macro)
-	@:cffi private static function lime_cairo_surface_destroy (surface:Float):Void;
-	@:cffi private static function lime_cairo_surface_flush (surface:Float):Void;
+	@:cffi private static function lime_cairo_surface_destroy (surface:Dynamic):Void;
+	@:cffi private static function lime_cairo_surface_flush (surface:Dynamic):Void;
+	@:cffi private static function lime_cairo_surface_reference (surface:Dynamic):Void;
 	#end
 	
 	

@@ -120,13 +120,13 @@ package lime.graphics.cairo;
 	
 	#if (lime_cairo && !macro)
 	@:cffi private static function lime_bytes_get_data_pointer (handle:Dynamic):Float;
-	@:cffi private static function lime_cairo_image_surface_create (format:Int, width:Int, height:Int):Float;
-	@:cffi private static function lime_cairo_image_surface_create_for_data (data:Float, format:Int, width:Int, height:Int, stride:Int):Float;
-	@:cffi private static function lime_cairo_image_surface_get_data (handle:Float):Float;
-	@:cffi private static function lime_cairo_image_surface_get_format (handle:Float):Int;
-	@:cffi private static function lime_cairo_image_surface_get_height (handle:Float):Int;
-	@:cffi private static function lime_cairo_image_surface_get_stride (handle:Float):Int;
-	@:cffi private static function lime_cairo_image_surface_get_width (handle:Float):Int;
+	@:cffi private static function lime_cairo_image_surface_create (format:Int, width:Int, height:Int):Dynamic;
+	@:cffi private static function lime_cairo_image_surface_create_for_data (data:Float, format:Int, width:Int, height:Int, stride:Int):Dynamic;
+	@:cffi private static function lime_cairo_image_surface_get_data (handle:Dynamic):Float;
+	@:cffi private static function lime_cairo_image_surface_get_format (handle:Dynamic):Int;
+	@:cffi private static function lime_cairo_image_surface_get_height (handle:Dynamic):Int;
+	@:cffi private static function lime_cairo_image_surface_get_stride (handle:Dynamic):Int;
+	@:cffi private static function lime_cairo_image_surface_get_width (handle:Dynamic):Int;
 	#end
 	
 	
