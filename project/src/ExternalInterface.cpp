@@ -20,6 +20,7 @@
 #include <graphics/ImageBuffer.h>
 #include <graphics/Renderer.h>
 #include <graphics/RenderEvent.h>
+#include <system/CFFIPointer.h>
 #include <system/Clipboard.h>
 #include <system/JNI.h>
 #include <system/SensorEvent.h>
@@ -94,9 +95,7 @@ namespace lime {
 		
 		Application* application = CreateApplication ();
 		Application::callback = new AutoGCRoot (callback);
-		value handle = cffi::alloc_pointer (application);
-		val_gc (handle, gc_application);
-		return handle;
+		return CFFIPointer (application, gc_application);
 		
 	}
 	
@@ -212,6 +211,13 @@ namespace lime {
 		
 		Bytes data = Bytes (path.__s);
 		return data.Value ();
+		
+	}
+	
+	
+	double lime_cffi_get_native_pointer (value handle) {
+		
+		return (intptr_t)val_data (handle);
 		
 	}
 	
@@ -457,9 +463,7 @@ namespace lime {
 			
 			if (font->face) {
 				
-				value handle = cffi::alloc_pointer (font);
-				val_gc (handle, gc_font);
-				return handle;
+				return CFFIPointer (font, gc_font);
 				
 			} else {
 				
@@ -966,9 +970,7 @@ namespace lime {
 	value lime_renderer_create (value window) {
 		
 		Renderer* renderer = CreateRenderer ((Window*)val_data (window));
-		value handle = cffi::alloc_pointer (renderer);
-		val_gc (handle, gc_renderer);
-		return handle;
+		return CFFIPointer (renderer, gc_renderer);
 		
 	}
 	
@@ -1068,9 +1070,7 @@ namespace lime {
 		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
 		
 		TextLayout *text = new TextLayout (direction, script.__s, language.__s);
-		value handle = cffi::alloc_pointer (text);
-		val_gc (handle, gc_text_layout);
-		return handle;
+		return CFFIPointer (text, gc_text_layout);
 		
 		#else
 		
@@ -1155,9 +1155,7 @@ namespace lime {
 	value lime_window_create (value application, int width, int height, int flags, HxString title) {
 		
 		Window* window = CreateWindow ((Application*)val_data (application), width, height, flags, title.__s);
-		value handle = cffi::alloc_pointer (window);
-		val_gc (handle, gc_window);
-		return handle;
+		return CFFIPointer (window, gc_window);
 		
 	}
 	
@@ -1295,6 +1293,7 @@ namespace lime {
 	DEFINE_PRIME2 (lime_bytes_from_data_pointer);
 	DEFINE_PRIME1 (lime_bytes_get_data_pointer);
 	DEFINE_PRIME1 (lime_bytes_read_file);
+	DEFINE_PRIME1 (lime_cffi_get_native_pointer);
 	DEFINE_PRIME1 (lime_cffi_set_finalizer);
 	DEFINE_PRIME0 (lime_clipboard_get_text);
 	DEFINE_PRIME1v (lime_clipboard_set_text);

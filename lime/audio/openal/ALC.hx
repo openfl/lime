@@ -1,6 +1,8 @@
 package lime.audio.openal;
 
 
+import lime.system.CFFIPointer;
+
 #if !macro
 @:build(lime.system.CFFI.build())
 #end
@@ -199,18 +201,18 @@ class ALC {
 	
 	
 	#if ((cpp || neko || nodejs) && lime_openal && !macro)
-	@:cffi private static function lime_alc_close_device (device:Dynamic):Bool;
-	@:cffi private static function lime_alc_create_context (device:Dynamic, attrlist:Dynamic):Dynamic;
-	@:cffi private static function lime_alc_destroy_context (context:Dynamic):Void;
-	@:cffi private static function lime_alc_get_contexts_device (context:Dynamic):Dynamic;
-	@:cffi private static function lime_alc_get_current_context ():Dynamic;
-	@:cffi private static function lime_alc_get_error (device:Dynamic):Int;
-	@:cffi private static function lime_alc_get_integerv (device:Dynamic, param:Int, size:Int):Dynamic;
-	@:cffi private static function lime_alc_get_string (device:Dynamic, param:Int):Dynamic;
-	@:cffi private static function lime_alc_make_context_current (context:Dynamic):Bool;
-	@:cffi private static function lime_alc_open_device (devicename:String):Dynamic;
-	@:cffi private static function lime_alc_process_context (context:Dynamic):Void;
-	@:cffi private static function lime_alc_suspend_context (context:Dynamic):Void;
+	@:cffi private static function lime_alc_close_device (device:CFFIPointer):Bool;
+	@:cffi private static function lime_alc_create_context (device:CFFIPointer, attrlist:Dynamic):CFFIPointer;
+	@:cffi private static function lime_alc_destroy_context (context:CFFIPointer):Void;
+	@:cffi private static function lime_alc_get_contexts_device (context:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_alc_get_current_context ():CFFIPointer;
+	@:cffi private static function lime_alc_get_error (device:CFFIPointer):Int;
+	@:cffi private static function lime_alc_get_integerv (device:CFFIPointer, param:Int, size:Int):Dynamic;
+	@:cffi private static function lime_alc_get_string (device:CFFIPointer, param:Int):Dynamic;
+	@:cffi private static function lime_alc_make_context_current (context:CFFIPointer):Bool;
+	@:cffi private static function lime_alc_open_device (devicename:String):CFFIPointer;
+	@:cffi private static function lime_alc_process_context (context:CFFIPointer):Void;
+	@:cffi private static function lime_alc_suspend_context (context:CFFIPointer):Void;
 	#end
 	
 	
