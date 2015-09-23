@@ -46,9 +46,9 @@ class ALC {
 	public static function createContext (device:ALDevice, attrlist:Array<Int> = null):ALContext {
 		
 		#if ((cpp || neko || nodejs) && lime_openal && !macro)
-		var handle:Float = lime_alc_create_context (device, attrlist);
+		var handle = lime_alc_create_context (device, attrlist);
 		
-		if (handle != 0) {
+		if (handle != null) {
 			
 			return new ALContext (handle);
 			
@@ -72,9 +72,9 @@ class ALC {
 	public static function getContextsDevice (context:ALContext):ALDevice {
 		
 		#if ((cpp || neko || nodejs) && lime_openal && !macro)
-		var handle:Float = lime_alc_get_contexts_device (context);
+		var handle = lime_alc_get_contexts_device (context);
 		
-		if (handle != 0) {
+		if (handle != null) {
 			
 			return new ALDevice (handle);
 			
@@ -89,9 +89,9 @@ class ALC {
 	public static function getCurrentContext ():ALContext {
 		
 		#if ((cpp || neko || nodejs) && lime_openal && !macro)
-		var handle:Float = lime_alc_get_current_context ();
+		var handle = lime_alc_get_current_context ();
 		
-		if (handle != 0) {
+		if (handle != null) {
 			
 			return new ALContext (handle);
 			
@@ -166,9 +166,9 @@ class ALC {
 	public static function openDevice (deviceName:String = null):ALDevice {
 		
 		#if ((cpp || neko || nodejs) && lime_openal && !macro)
-		var handle:Float = lime_alc_open_device (deviceName);
+		var handle = lime_alc_open_device (deviceName);
 		
-		if (handle != 0) {
+		if (handle != null) {
 			
 			return new ALDevice (handle);
 			

@@ -891,7 +891,15 @@ namespace lime {
 		
 		ALCcontext* alcContext = alcCreateContext (alcDevice, list);
 		
-		return cffi::alloc_pointer (alcContext);
+		if (alcContext) {
+			
+			return cffi::alloc_pointer (alcContext);
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
 		
 	}
 	
@@ -908,7 +916,16 @@ namespace lime {
 		
 		ALCcontext* alcContext = (ALCcontext*)val_data (context);
 		ALCdevice* alcDevice = alcGetContextsDevice (alcContext);
-		return cffi::alloc_pointer (alcDevice);
+		
+		if (alcDevice) {
+			
+			return cffi::alloc_pointer (alcDevice);
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
 		
 	}
 	
@@ -916,7 +933,16 @@ namespace lime {
 	value lime_alc_get_current_context () {
 		
 		ALCcontext* alcContext = alcGetCurrentContext ();
-		return cffi::alloc_pointer (alcContext);
+		
+		if (alcContext) {
+			
+			return cffi::alloc_pointer (alcContext);
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
 		
 	}
 	
@@ -971,7 +997,16 @@ namespace lime {
 		
 		ALCdevice* alcDevice = alcOpenDevice (devicename.__s);
 		atexit (lime_al_cleanup);
-		return cffi::alloc_pointer (alcDevice);
+		
+		if (alcDevice) {
+			
+			return cffi::alloc_pointer (alcDevice);
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
 		
 	}
 	
