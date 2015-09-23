@@ -10,7 +10,7 @@ import lime.system.CFFIPointer;
 abstract ALDevice(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	
-	private function new (handle:CFFIPointer) {
+	private inline function new (handle:CFFIPointer) {
 		
 		this = handle;
 		

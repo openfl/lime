@@ -1,10 +1,14 @@
 package lime.system;
 
 
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
+
 abstract CFFIPointer(Dynamic) {
 	
 	
-	public function new (handle:Dynamic) {
+	public inline function new (handle:Dynamic) {
 		
 		this = handle;
 		
@@ -48,7 +52,7 @@ abstract CFFIPointer(Dynamic) {
 	
 	
 	#if ((cpp || neko || nodejs) && !macro)
-	private static var lime_cffi_get_native_pointer = CFFI.load ("lime", "lime_cffi_get_native_pointer", 1);
+	@:cffi private static function lime_cffi_get_native_pointer (ptr:Dynamic):Float;
 	#end
 	
 	
