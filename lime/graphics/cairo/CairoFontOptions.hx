@@ -1,6 +1,7 @@
 package lime.graphics.cairo;
 
 
+import lime.system.CFFIPointer;
 import lime.text.Font;
 
 #if !macro
@@ -8,7 +9,7 @@ import lime.text.Font;
 #end
 
 
-abstract CairoFontOptions(Dynamic) {
+abstract CairoFontOptions(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	
 	public var antialias (get, set):CairoAntialias;
@@ -132,15 +133,15 @@ abstract CairoFontOptions(Dynamic) {
 	
 	
 	#if ((cpp || neko || nodejs) && !macro)
-	@:cffi private static function lime_cairo_font_options_create ():Dynamic;
-	@:cffi private static function lime_cairo_font_options_get_antialias (handle:Dynamic):Int;
-	@:cffi private static function lime_cairo_font_options_get_hint_metrics (handle:Dynamic):Int;
-	@:cffi private static function lime_cairo_font_options_get_hint_style (handle:Dynamic):Int;
-	@:cffi private static function lime_cairo_font_options_get_subpixel_order (handle:Dynamic):Int;
-	@:cffi private static function lime_cairo_font_options_set_antialias (handle:Dynamic, v:Int):Void;
-	@:cffi private static function lime_cairo_font_options_set_hint_metrics (handle:Dynamic, v:Int):Void;
-	@:cffi private static function lime_cairo_font_options_set_hint_style (handle:Dynamic, v:Int):Void;
-	@:cffi private static function lime_cairo_font_options_set_subpixel_order (handle:Dynamic, v:Int):Void;
+	@:cffi private static function lime_cairo_font_options_create ():CFFIPointer;
+	@:cffi private static function lime_cairo_font_options_get_antialias (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_font_options_get_hint_metrics (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_font_options_get_hint_style (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_font_options_get_subpixel_order (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_font_options_set_antialias (handle:CFFIPointer, v:Int):Void;
+	@:cffi private static function lime_cairo_font_options_set_hint_metrics (handle:CFFIPointer, v:Int):Void;
+	@:cffi private static function lime_cairo_font_options_set_hint_style (handle:CFFIPointer, v:Int):Void;
+	@:cffi private static function lime_cairo_font_options_set_subpixel_order (handle:CFFIPointer, v:Int):Void;
 	#end
 	
 	

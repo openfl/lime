@@ -1,6 +1,7 @@
 package lime.graphics.cairo;
 
 
+import lime.system.CFFIPointer;
 import lime.text.Font;
 
 #if !macro
@@ -8,7 +9,7 @@ import lime.text.Font;
 #end
 
 
-abstract CairoFTFontFace(CairoFontFace) from CairoFontFace to CairoFontFace {
+abstract CairoFTFontFace(CairoFontFace) from CairoFontFace to CairoFontFace from CFFIPointer to CFFIPointer {
 	
 	
 	public static inline var FT_LOAD_FORCE_AUTOHINT = (1 << 5);
@@ -40,7 +41,7 @@ abstract CairoFTFontFace(CairoFontFace) from CairoFontFace to CairoFontFace {
 	
 	
 	#if ((cpp || neko || nodejs) && !macro)
-	@:cffi private static function lime_cairo_ft_font_face_create (face:Dynamic, flags:Int):Dynamic;
+	@:cffi private static function lime_cairo_ft_font_face_create (face:CFFIPointer, flags:Int):CFFIPointer;
 	#end
 	
 	

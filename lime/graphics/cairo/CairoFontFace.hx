@@ -1,12 +1,14 @@
 package lime.graphics.cairo;
 
 
+import lime.system.CFFIPointer;
+
 #if !macro
 @:build(lime.system.CFFI.build())
 #end
 
 
-abstract CairoFontFace(Dynamic) {
+abstract CairoFontFace(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	
 	private function new () {
@@ -35,7 +37,7 @@ abstract CairoFontFace(Dynamic) {
 	
 	
 	#if ((cpp || neko || nodejs) && !macro)
-	@:cffi private static function lime_cairo_font_face_status (handle:Dynamic):Int;
+	@:cffi private static function lime_cairo_font_face_status (handle:CFFIPointer):Int;
 	#end
 	
 	

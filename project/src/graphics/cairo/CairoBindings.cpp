@@ -3,6 +3,7 @@
 #include <math/Matrix3.h>
 #include <math/Vector2.h>
 #include <hx/CFFIPrime.h>
+#include <system/CFFIPointer.h>
 #include <text/Font.h>
 
 
@@ -132,9 +133,7 @@ namespace lime {
 	value lime_cairo_create (value surface) {
 		
 		cairo_t* cairo = cairo_create ((cairo_surface_t*)val_data (surface));
-		value handle = cffi::alloc_pointer (cairo);
-		val_gc (handle, gc_cairo);
-		return handle;
+		return CFFIPointer (cairo, gc_cairo);
 		
 	}
 	
@@ -176,9 +175,7 @@ namespace lime {
 	
 	value lime_cairo_font_options_create () {
 		
-		value handle = cffi::alloc_pointer (cairo_font_options_create ());
-		val_gc (handle, gc_cairo_font_options);
-		return handle;
+		return CFFIPointer (cairo_font_options_create (), gc_cairo_font_options);
 		
 	}
 	
@@ -248,9 +245,7 @@ namespace lime {
 		AutoGCRoot* fontReference = new AutoGCRoot (face);
 		cairo_font_face_set_user_data (cairoFont, &userData, fontReference, gc_user_data);
 		
-		value handle = cffi::alloc_pointer (cairoFont);
-		val_gc (handle, gc_cairo_font_face);
-		return handle;
+		return CFFIPointer (cairoFont, gc_cairo_font_face);
 		#else
 		return 0;
 		#endif
@@ -316,20 +311,16 @@ namespace lime {
 		
 		cairo_font_face_t* face = cairo_get_font_face ((cairo_t*)val_data (handle));
 		cairo_font_face_reference (face);
-		value v = cffi::alloc_pointer (face);
-		val_gc (v, gc_cairo_font_face);
-		return v;
+		return CFFIPointer (face, gc_cairo_font_face);
 		
 	}
 	
 	
 	value lime_cairo_get_font_options (value handle) {
 		
-		cairo_font_options_t *options = 0;
+		cairo_font_options_t* options = 0;
 		cairo_get_font_options ((cairo_t*)val_data (handle), options);
-		value v = cffi::alloc_pointer (options);
-		val_gc (v, gc_cairo_font_options);
-		return v;
+		return CFFIPointer (options, gc_cairo_font_options);
 		
 	}
 	
@@ -338,9 +329,7 @@ namespace lime {
 		
 		cairo_surface_t* surface = cairo_get_group_target ((cairo_t*)val_data (handle));
 		cairo_surface_reference (surface);
-		value v = cffi::alloc_pointer (surface);
-		val_gc (v, gc_cairo_surface);
-		return v;
+		return CFFIPointer (surface, gc_cairo_surface);
 		
 	}
 	
@@ -394,9 +383,7 @@ namespace lime {
 		
 		cairo_pattern_t* pattern = cairo_get_source ((cairo_t*)val_data (handle));
 		cairo_pattern_reference (pattern);
-		value v = cffi::alloc_pointer (pattern);
-		val_gc (v, gc_cairo_pattern);
-		return v;
+		return CFFIPointer (pattern, gc_cairo_pattern);
 		
 	}
 	
@@ -405,9 +392,7 @@ namespace lime {
 		
 		cairo_surface_t* surface = cairo_get_target ((cairo_t*)val_data (handle));
 		cairo_surface_reference (surface);
-		value v = cffi::alloc_pointer (surface);
-		val_gc (v, gc_cairo_surface);
-		return v;
+		return CFFIPointer (surface, gc_cairo_surface);
 		
 	}
 	
@@ -436,9 +421,7 @@ namespace lime {
 	value lime_cairo_image_surface_create (int format, int width, int height) {
 		
 		cairo_surface_t* surface = cairo_image_surface_create ((cairo_format_t)format, width, height);
-		value handle = cffi::alloc_pointer (surface);
-		val_gc (handle, gc_cairo_surface);
-		return handle;
+		return CFFIPointer (surface, gc_cairo_surface);
 		
 	}
 	
@@ -446,9 +429,7 @@ namespace lime {
 	value lime_cairo_image_surface_create_for_data (double data, int format, int width, int height, int stride) {
 		
 		cairo_surface_t* surface = cairo_image_surface_create_for_data ((unsigned char*)(intptr_t)data, (cairo_format_t)format, width, height, stride);
-		value handle = cffi::alloc_pointer (surface);
-		val_gc (handle, gc_cairo_surface);
-		return handle;
+		return CFFIPointer (surface, gc_cairo_surface);
 		
 	}
 	
@@ -575,9 +556,7 @@ namespace lime {
 	value lime_cairo_pattern_create_for_surface (value surface) {
 		
 		cairo_pattern_t* pattern = cairo_pattern_create_for_surface ((cairo_surface_t*)val_data (surface));
-		value handle = cffi::alloc_pointer (pattern);
-		val_gc (handle, gc_cairo_pattern);
-		return handle;
+		return CFFIPointer (pattern, gc_cairo_pattern);
 		
 	}
 	
@@ -585,9 +564,7 @@ namespace lime {
 	value lime_cairo_pattern_create_linear (double x0, double y0, double x1, double y1) {
 		
 		cairo_pattern_t* pattern = cairo_pattern_create_linear (x0, y0, x1, y1);
-		value handle = cffi::alloc_pointer (pattern);
-		val_gc (handle, gc_cairo_pattern);
-		return handle;
+		return CFFIPointer (pattern, gc_cairo_pattern);
 		
 	}
 	
@@ -595,9 +572,7 @@ namespace lime {
 	value lime_cairo_pattern_create_radial (double cx0, double cy0, double radius0, double cx1, double cy1, double radius1) {
 		
 		cairo_pattern_t* pattern = cairo_pattern_create_radial (cx0, cy0, radius0, cx1, cy1, radius1);
-		value handle = cffi::alloc_pointer (pattern);
-		val_gc (handle, gc_cairo_pattern);
-		return handle;
+		return CFFIPointer (pattern, gc_cairo_pattern);
 		
 	}
 	
@@ -605,9 +580,7 @@ namespace lime {
 	value lime_cairo_pattern_create_rgb (double r, double g, double b) {
 		
 		cairo_pattern_t* pattern = cairo_pattern_create_rgb (r, g, b);
-		value handle = cffi::alloc_pointer (pattern);
-		val_gc (handle, gc_cairo_pattern);
-		return handle;
+		return CFFIPointer (pattern, gc_cairo_pattern);
 		
 	}
 	
@@ -615,9 +588,7 @@ namespace lime {
 	value lime_cairo_pattern_create_rgba (double r, double g, double b, double a) {
 		
 		cairo_pattern_t* pattern = cairo_pattern_create_rgba (r, g, b, a);
-		value handle = cffi::alloc_pointer (pattern);
-		val_gc (handle, gc_cairo_pattern);
-		return handle;
+		return CFFIPointer (pattern, gc_cairo_pattern);
 		
 	}
 	
@@ -685,9 +656,7 @@ namespace lime {
 		
 		cairo_pattern_t* pattern = cairo_pop_group ((cairo_t*)val_data (handle));
 		cairo_pattern_reference (pattern);
-		value v = cffi::alloc_pointer (pattern);
-		val_gc (v, gc_cairo_pattern);
-		return v;
+		return CFFIPointer (pattern, gc_cairo_pattern);
 		
 	}
 	
