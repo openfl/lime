@@ -1,3 +1,15 @@
+2.6.5 (09/23/2015)
+------------------
+
+* Improved automatic garbage collection for native references
+* Removed Cairo reference/destroy (handled internally now)
+* Added lime.system.CFFIPointer
+* Added *.fla to default exclude asset filter
+* Disabled ENABLE_BITCODE on iOS by default
+* Fixed an issue with Image.fromBitmapData when using OpenFL
+* Fixed a minor issue with copyPixels on Firefox
+
+
 2.6.4 (09/21/2015)
 ------------------
 
