@@ -48,7 +48,7 @@ class ALC {
 	public static function createContext (device:ALDevice, attrlist:Array<Int> = null):ALContext {
 		
 		#if ((cpp || neko || nodejs) && lime_openal && !macro)
-		var handle:CFFIPointer = lime_alc_create_context (device, attrlist);
+		var handle:Dynamic = lime_alc_create_context (device, attrlist);
 		
 		if (handle != null) {
 			
@@ -74,7 +74,7 @@ class ALC {
 	public static function getContextsDevice (context:ALContext):ALDevice {
 		
 		#if ((cpp || neko || nodejs) && lime_openal && !macro)
-		var handle:CFFIPointer = lime_alc_get_contexts_device (context);
+		var handle:Dynamic = lime_alc_get_contexts_device (context);
 		
 		if (handle != null) {
 			
@@ -91,7 +91,7 @@ class ALC {
 	public static function getCurrentContext ():ALContext {
 		
 		#if ((cpp || neko || nodejs) && lime_openal && !macro)
-		var handle:CFFIPointer = lime_alc_get_current_context ();
+		var handle:Dynamic = lime_alc_get_current_context ();
 		
 		if (handle != null) {
 			
@@ -168,7 +168,7 @@ class ALC {
 	public static function openDevice (deviceName:String = null):ALDevice {
 		
 		#if ((cpp || neko || nodejs) && lime_openal && !macro)
-		var handle:CFFIPointer = lime_alc_open_device (deviceName);
+		var handle:Dynamic = lime_alc_open_device (deviceName);
 		
 		if (handle != null) {
 			
