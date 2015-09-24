@@ -464,9 +464,13 @@ class Image {
 	public static function fromBitmapData (bitmapData:#if flash BitmapData #else Dynamic #end):Image {
 		
 		if (bitmapData == null) return null;
+		#if flash
 		var buffer = new ImageBuffer (null, bitmapData.width, bitmapData.height);
 		buffer.__srcBitmapData = bitmapData;
 		return new Image (buffer);
+		#else
+		return bitmapData.image;
+		#end
 		
 	}
 	
