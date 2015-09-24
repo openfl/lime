@@ -14,6 +14,7 @@ import lime.project.AssetType;
 import lime.project.Dependency;
 import lime.project.Haxelib;
 import lime.project.HXProject;
+import lime.project.Platform;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -79,7 +80,7 @@ class ProjectXMLParser extends HXProject {
 			
 		}
 		
-		if (targetFlags.exists ("neko") || (platformType == DESKTOP && target != PlatformHelper.hostPlatform)) {
+		if (targetFlags.exists ("neko") || (platformType == DESKTOP && target != PlatformHelper.hostPlatform && PlatformHelper.hostPlatform != Platform.LINUX)) {
 			
 			defines.set ("native", "1");
 			defines.set ("neko", "1");
