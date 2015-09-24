@@ -1,3 +1,10 @@
+2.6.6 (09/24/2015)
+------------------
+
+* Patch support for static C++ builds without use of HXCPP dev
+* Fixed a crash that could occur in Flixel 3.x
+
+
 2.6.5 (09/23/2015)
 ------------------
 
