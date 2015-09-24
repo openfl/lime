@@ -69,7 +69,7 @@ class Asset {
 					
 					this.type = AssetType.SOUND;
 					
-				case "ogg":
+				case "ogg", "m4a":
 					
 					if (FileSystem.exists (path)) {
 						
