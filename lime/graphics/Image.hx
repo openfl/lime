@@ -391,6 +391,8 @@ class Image {
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
+				if (buffer.data.length == 0) return;
+				
 				ImageDataUtil.fillRect (this, rect, color, format);
 			
 			case FLASH:
