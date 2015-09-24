@@ -5,7 +5,7 @@ package lime.system;
 @:build(lime.system.CFFI.build())
 #end
 
-abstract CFFIPointer(Dynamic) {
+abstract CFFIPointer(Dynamic) from Dynamic to Dynamic {
 	
 	
 	public inline function new (handle:Dynamic) {
