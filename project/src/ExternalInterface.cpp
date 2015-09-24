@@ -7,7 +7,8 @@
 #endif
 
 
-#include <hx/CFFIPrime.h>
+#include <hx/CFFIPrimePatch.h>
+//#include <hx/CFFIPrime.h>
 #include <app/Application.h>
 #include <app/ApplicationEvent.h>
 #include <audio/format/OGG.h>
