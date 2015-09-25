@@ -205,7 +205,12 @@ class IOSPlatform extends PlatformTarget {
 			context.OBJC_ARC = true;
 			
 		}
-		
+	
+		var bitcode = project.config.getBool("ios.bitcode", null);
+		if( bitcode == null )
+			bitcode = project.config.getFloat ("ios.deployment", 5.1) >= 6;
+
+		context.ENABLE_BITCODE = bitcode;
 		context.IOS_COMPILER = project.config.getString ("ios.compiler", "clang");
 		context.CPP_BUILD_LIBRARY = project.config.getString ("cpp.buildLibrary", "hxcpp");
 		context.IOS_LINKER_FLAGS = ["-stdlib=libc++"].concat (project.config.getArrayString ("ios.linker-flags"));

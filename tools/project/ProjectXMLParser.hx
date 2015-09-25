@@ -1543,6 +1543,10 @@ class ProjectXMLParser extends HXProject {
 								//config.ios.linkerFlags.push (substitute (element.att.resolve ("linker-flags")));
 								
 							}
+
+							if (element.has.bitcode) {
+								config.set ("ios.bitcode", substitute (element.att.bitcode));
+							}
 							
 						}
 					
