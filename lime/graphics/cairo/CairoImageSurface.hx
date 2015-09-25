@@ -1,12 +1,14 @@
 package lime.graphics.cairo;
 
 
+import lime.system.CFFIPointer;
+
 #if !macro
 @:build(lime.system.CFFI.build())
 #end
 
 
-@:forward abstract CairoImageSurface(CairoSurface) from CairoSurface to CairoSurface {
+@:forward abstract CairoImageSurface(CairoSurface) from CairoSurface to CairoSurface from CFFIPointer to CFFIPointer {
 	
 	
 	public var data (get, never):Dynamic;
@@ -120,13 +122,13 @@ package lime.graphics.cairo;
 	
 	#if (lime_cairo && !macro)
 	@:cffi private static function lime_bytes_get_data_pointer (handle:Dynamic):Float;
-	@:cffi private static function lime_cairo_image_surface_create (format:Int, width:Int, height:Int):Float;
-	@:cffi private static function lime_cairo_image_surface_create_for_data (data:Float, format:Int, width:Int, height:Int, stride:Int):Float;
-	@:cffi private static function lime_cairo_image_surface_get_data (handle:Float):Float;
-	@:cffi private static function lime_cairo_image_surface_get_format (handle:Float):Int;
-	@:cffi private static function lime_cairo_image_surface_get_height (handle:Float):Int;
-	@:cffi private static function lime_cairo_image_surface_get_stride (handle:Float):Int;
-	@:cffi private static function lime_cairo_image_surface_get_width (handle:Float):Int;
+	@:cffi private static function lime_cairo_image_surface_create (format:Int, width:Int, height:Int):CFFIPointer;
+	@:cffi private static function lime_cairo_image_surface_create_for_data (data:Float, format:Int, width:Int, height:Int, stride:Int):CFFIPointer;
+	@:cffi private static function lime_cairo_image_surface_get_data (handle:CFFIPointer):Float;
+	@:cffi private static function lime_cairo_image_surface_get_format (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_image_surface_get_height (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_image_surface_get_stride (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_image_surface_get_width (handle:CFFIPointer):Int;
 	#end
 	
 	

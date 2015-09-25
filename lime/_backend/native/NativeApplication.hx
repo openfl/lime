@@ -530,13 +530,13 @@ class NativeApplication {
 	
 	
 	#if !macro
-	@:cffi private static function lime_application_create (config:Dynamic):Float;
+	@:cffi private static function lime_application_create (config:Dynamic):Dynamic;
 	@:cffi private static function lime_application_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
-	@:cffi private static function lime_application_exec (handle:Float):Int;
-	@:cffi private static function lime_application_init (handle:Float):Void;
-	@:cffi private static function lime_application_quit (handle:Float):Int;
-	@:cffi private static function lime_application_set_frame_rate (handle:Float, value:Float):Void;
-	@:cffi private static function lime_application_update (handle:Float):Bool;
+	@:cffi private static function lime_application_exec (handle:Dynamic):Int;
+	@:cffi private static function lime_application_init (handle:Dynamic):Void;
+	@:cffi private static function lime_application_quit (handle:Dynamic):Int;
+	@:cffi private static function lime_application_set_frame_rate (handle:Dynamic, value:Float):Void;
+	@:cffi private static function lime_application_update (handle:Dynamic):Bool;
 	@:cffi private static function lime_gamepad_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_key_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_mouse_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;

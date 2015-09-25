@@ -215,6 +215,7 @@
 		<file name="src/math/Matrix3.cpp" />
 		<file name="src/math/Rectangle.cpp" />
 		<file name="src/math/Vector2.cpp" />
+		<file name="src/system/CFFIPointer.cpp" />
 		<file name="src/system/JNI.cpp" if="android" />
 		<file name="src/system/SensorEvent.cpp" />
 		<file name="src/ui/GamepadEvent.cpp" />

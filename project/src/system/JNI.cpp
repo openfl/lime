@@ -1,6 +1,7 @@
 #include <system/JNI.h>
 #include <utils/Object.h>
-#include <hx/CFFIPrime.h>
+#include <hx/CFFIPrimePatch.h>
+//#include <hx/CFFIPrime.h>
 #include <jni.h>
 #include <pthread.h>
 #include <android/log.h>

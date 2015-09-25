@@ -1,14 +1,16 @@
 package lime.audio.openal;
 
 
+import lime.system.CFFIPointer;
+
 @:allow(lime.audio.openal.AL)
 @:allow(lime.audio.openal.ALC)
 
 
-abstract ALContext(Null<Float>) from Null<Float> to Null<Float> {
+abstract ALContext(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	
-	private function new (handle:Float) {
+	private inline function new (handle:CFFIPointer) {
 		
 		this = handle;
 		

@@ -7,7 +7,8 @@
 #endif
 
 
-#include <hx/CFFIPrime.h>
+#include <hx/CFFIPrimePatch.h>
+//#include <hx/CFFIPrime.h>
 #include <app/Application.h>
 #include <app/ApplicationEvent.h>
 #include <audio/format/OGG.h>
@@ -20,6 +21,7 @@
 #include <graphics/ImageBuffer.h>
 #include <graphics/Renderer.h>
 #include <graphics/RenderEvent.h>
+#include <system/CFFIPointer.h>
 #include <system/Clipboard.h>
 #include <system/JNI.h>
 #include <system/SensorEvent.h>
@@ -46,11 +48,55 @@ DEFINE_KIND (k_finalizer);
 namespace lime {
 	
 	
-	double lime_application_create (value callback) {
+	void gc_application (value handle) {
 		
-		Application* app = CreateApplication ();
+		Application* application = (Application*)val_data (handle);
+		delete application;
+		
+	}
+	
+	
+	void gc_font (value handle) {
+		
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)val_data (handle);
+		delete font;
+		#endif
+		
+	}
+	
+	
+	void gc_renderer (value handle) {
+		
+		Renderer* renderer = (Renderer*)val_data (handle);
+		delete renderer;
+		
+	}
+	
+	
+	void gc_text_layout (value handle) {
+		
+		#ifdef LIME_HARFBUZZ
+		TextLayout *text = (TextLayout*)val_data (handle);
+		delete text;
+		#endif
+		
+	}
+	
+	
+	void gc_window (value handle) {
+		
+		Window* window = (Window*)val_data (handle);
+		delete window;
+		
+	}
+	
+	
+	value lime_application_create (value callback) {
+		
+		Application* application = CreateApplication ();
 		Application::callback = new AutoGCRoot (callback);
-		return (intptr_t)app;
+		return CFFIPointer (application, gc_application);
 		
 	}
 	
@@ -63,41 +109,41 @@ namespace lime {
 	}
 	
 	
-	int lime_application_exec (double application) {
+	int lime_application_exec (value application) {
 		
-		Application* app = (Application*)(intptr_t)application;
+		Application* app = (Application*)val_data (application);
 		return app->Exec ();
 		
 	}
 	
 	
-	void lime_application_init (double application) {
+	void lime_application_init (value application) {
 		
-		Application* app = (Application*)(intptr_t)application;
+		Application* app = (Application*)val_data (application);
 		app->Init ();
 		
 	}
 	
 	
-	int lime_application_quit (double application) {
+	int lime_application_quit (value application) {
 		
-		Application* app = (Application*)(intptr_t)application;
+		Application* app = (Application*)val_data (application);
 		return app->Quit ();
 		
 	}
 	
 	
-	void lime_application_set_frame_rate (double application, double frameRate) {
+	void lime_application_set_frame_rate (value application, double frameRate) {
 		
-		Application* app = (Application*)(intptr_t)application;
+		Application* app = (Application*)val_data (application);
 		app->SetFrameRate (frameRate);
 		
 	}
 	
 	
-	bool lime_application_update (double application) {
+	bool lime_application_update (value application) {
 		
-		Application* app = (Application*)(intptr_t)application;
+		Application* app = (Application*)val_data (application);
 		return app->Update ();
 		
 	}
@@ -166,6 +212,13 @@ namespace lime {
 		
 		Bytes data = Bytes (path.__s);
 		return data.Value ();
+		
+	}
+	
+	
+	double lime_cffi_get_native_pointer (value handle) {
+		
+		return (intptr_t)val_data (handle);
 		
 	}
 	
@@ -254,20 +307,10 @@ namespace lime {
 	}
 	
 	
-	void lime_font_destroy (value handle) {
+	int lime_font_get_ascender (value fontHandle) {
 		
 		#ifdef LIME_FREETYPE
-		Font *font = (Font*)(intptr_t)val_float (handle);
-		delete font;
-		#endif
-		
-	}
-	
-	
-	int lime_font_get_ascender (double fontHandle) {
-		
-		#ifdef LIME_FREETYPE
-		Font *font = (Font*)(intptr_t)fontHandle;
+		Font *font = (Font*)val_data (fontHandle);
 		return font->GetAscender ();
 		#else
 		return 0;
@@ -276,10 +319,10 @@ namespace lime {
 	}
 	
 	
-	int lime_font_get_descender (double fontHandle) {
+	int lime_font_get_descender (value fontHandle) {
 		
 		#ifdef LIME_FREETYPE
-		Font *font = (Font*)(intptr_t)fontHandle;
+		Font *font = (Font*)val_data (fontHandle);
 		return font->GetDescender ();
 		#else
 		return 0;
@@ -288,10 +331,10 @@ namespace lime {
 	}
 	
 	
-	value lime_font_get_family_name (double fontHandle) {
+	value lime_font_get_family_name (value fontHandle) {
 		
 		#ifdef LIME_FREETYPE
-		Font *font = (Font*)(intptr_t)fontHandle;
+		Font *font = (Font*)val_data (fontHandle);
 		wchar_t *name = font->GetFamilyName ();
 		value result = alloc_wstring (name);
 		delete name;
@@ -303,10 +346,10 @@ namespace lime {
 	}
 	
 	
-	int lime_font_get_glyph_index (double fontHandle, HxString character) {
+	int lime_font_get_glyph_index (value fontHandle, HxString character) {
 		
 		#ifdef LIME_FREETYPE
-		Font *font = (Font*)(intptr_t)fontHandle;
+		Font *font = (Font*)val_data (fontHandle);
 		return font->GetGlyphIndex ((char*)character.__s);
 		#else
 		return -1;
@@ -315,10 +358,10 @@ namespace lime {
 	}
 	
 	
-	value lime_font_get_glyph_indices (double fontHandle, HxString characters) {
+	value lime_font_get_glyph_indices (value fontHandle, HxString characters) {
 		
 		#ifdef LIME_FREETYPE
-		Font *font = (Font*)(intptr_t)fontHandle;
+		Font *font = (Font*)val_data (fontHandle);
 		return font->GetGlyphIndices ((char*)characters.__s);
 		#else
 		return alloc_null ();
@@ -327,10 +370,10 @@ namespace lime {
 	}
 	
 	
-	value lime_font_get_glyph_metrics (double fontHandle, int index) {
+	value lime_font_get_glyph_metrics (value fontHandle, int index) {
 		
 		#ifdef LIME_FREETYPE
-		Font *font = (Font*)(intptr_t)fontHandle;
+		Font *font = (Font*)val_data (fontHandle);
 		return font->GetGlyphMetrics (index);
 		#else
 		return alloc_null ();
@@ -339,10 +382,10 @@ namespace lime {
 	}
 	
 	
-	int lime_font_get_height (double fontHandle) {
+	int lime_font_get_height (value fontHandle) {
 		
 		#ifdef LIME_FREETYPE
-		Font *font = (Font*)(intptr_t)fontHandle;
+		Font *font = (Font*)val_data (fontHandle);
 		return font->GetHeight ();
 		#else
 		return 0;
@@ -351,10 +394,10 @@ namespace lime {
 	}
 	
 	
-	int lime_font_get_num_glyphs (double fontHandle) {
+	int lime_font_get_num_glyphs (value fontHandle) {
 		
 		#ifdef LIME_FREETYPE
-		Font *font = (Font*)(intptr_t)fontHandle;
+		Font *font = (Font*)val_data (fontHandle);
 		return font->GetNumGlyphs ();
 		#else
 		return alloc_null ();
@@ -363,10 +406,10 @@ namespace lime {
 	}
 	
 	
-	int lime_font_get_underline_position (double fontHandle) {
+	int lime_font_get_underline_position (value fontHandle) {
 		
 		#ifdef LIME_FREETYPE
-		Font *font = (Font*)(intptr_t)fontHandle;
+		Font *font = (Font*)val_data (fontHandle);
 		return font->GetUnderlinePosition ();
 		#else
 		return 0;
@@ -375,10 +418,10 @@ namespace lime {
 	}
 	
 	
-	int lime_font_get_underline_thickness (double fontHandle) {
+	int lime_font_get_underline_thickness (value fontHandle) {
 		
 		#ifdef LIME_FREETYPE
-		Font *font = (Font*)(intptr_t)fontHandle;
+		Font *font = (Font*)val_data (fontHandle);
 		return font->GetUnderlineThickness ();
 		#else
 		return 0;
@@ -387,10 +430,10 @@ namespace lime {
 	}
 	
 	
-	int lime_font_get_units_per_em (double fontHandle) {
+	int lime_font_get_units_per_em (value fontHandle) {
 		
 		#ifdef LIME_FREETYPE
-		Font *font = (Font*)(intptr_t)fontHandle;
+		Font *font = (Font*)val_data (fontHandle);
 		return font->GetUnitsPerEM ();
 		#else
 		return 0;
@@ -421,9 +464,7 @@ namespace lime {
 			
 			if (font->face) {
 				
-				value v = alloc_float ((intptr_t)font);
-				val_gc (v, lime_font_destroy);
-				return v;
+				return CFFIPointer (font, gc_font);
 				
 			} else {
 				
@@ -439,10 +480,10 @@ namespace lime {
 	}
 	
 	
-	value lime_font_outline_decompose (double fontHandle, int size) {
+	value lime_font_outline_decompose (value fontHandle, int size) {
 		
 		#ifdef LIME_FREETYPE
-		Font *font = (Font*)(intptr_t)fontHandle;
+		Font *font = (Font*)val_data (fontHandle);
 		return font->Decompose (size);
 		#else
 		return alloc_null ();
@@ -451,10 +492,10 @@ namespace lime {
 	}
 	
 	
-	bool lime_font_render_glyph (double fontHandle, int index, value data) {
+	bool lime_font_render_glyph (value fontHandle, int index, value data) {
 		
 		#ifdef LIME_FREETYPE
-		Font *font = (Font*)(intptr_t)fontHandle;
+		Font *font = (Font*)val_data (fontHandle);
 		Bytes bytes = Bytes (data);
 		return font->RenderGlyph (index, &bytes);
 		#else
@@ -464,10 +505,10 @@ namespace lime {
 	}
 	
 	
-	bool lime_font_render_glyphs (double fontHandle, value indices, value data) {
+	bool lime_font_render_glyphs (value fontHandle, value indices, value data) {
 		
 		#ifdef LIME_FREETYPE
-		Font *font = (Font*)(intptr_t)fontHandle;
+		Font *font = (Font*)val_data (fontHandle);
 		Bytes bytes = Bytes (data);
 		return font->RenderGlyphs (indices, &bytes);
 		#else
@@ -477,10 +518,10 @@ namespace lime {
 	}
 	
 	
-	void lime_font_set_size (double fontHandle, int fontSize) {
+	void lime_font_set_size (value fontHandle, int fontSize) {
 		
 		#ifdef LIME_FREETYPE
-		Font *font = (Font*)(intptr_t)fontHandle;
+		Font *font = (Font*)val_data (fontHandle);
 		font->SetSize (fontSize);
 		#endif
 		
@@ -857,13 +898,13 @@ namespace lime {
 	}
 	
 	
-	void lime_mouse_warp (int x, int y, double window) {
+	void lime_mouse_warp (int x, int y, value window) {
 		
 		Window* windowRef = 0;
 		
 		if (window) {
 			
-			windowRef = (Window*)(intptr_t)window;
+			windowRef = (Window*)val_data (window);
 			
 		}
 		
@@ -927,55 +968,55 @@ namespace lime {
 	}
 	
 	
-	double lime_renderer_create (double window) {
+	value lime_renderer_create (value window) {
 		
-		Renderer* renderer = CreateRenderer ((Window*)(intptr_t)window);
-		return (intptr_t)renderer;
-		
-	}
-	
-	
-	void lime_renderer_flip (double renderer) {
-		
-		((Renderer*)(intptr_t)renderer)->Flip ();
+		Renderer* renderer = CreateRenderer ((Window*)val_data (window));
+		return CFFIPointer (renderer, gc_renderer);
 		
 	}
 	
 	
-	double lime_renderer_get_context (double renderer) {
+	void lime_renderer_flip (value renderer) {
 		
-		Renderer* targetRenderer = (Renderer*)(intptr_t)renderer;
+		((Renderer*)val_data (renderer))->Flip ();
+		
+	}
+	
+	
+	double lime_renderer_get_context (value renderer) {
+		
+		Renderer* targetRenderer = (Renderer*)val_data (renderer);
 		return (intptr_t)targetRenderer->GetContext ();
 		
 	}
 	
 	
-	value lime_renderer_get_type (double renderer) {
+	value lime_renderer_get_type (value renderer) {
 		
-		Renderer* targetRenderer = (Renderer*)(intptr_t)renderer;
+		Renderer* targetRenderer = (Renderer*)val_data (renderer);
 		const char* type = targetRenderer->Type ();
 		return type ? alloc_string (type) : alloc_null ();
 		
 	}
 	
 	
-	value lime_renderer_lock (double renderer) {
+	value lime_renderer_lock (value renderer) {
 		
-		return ((Renderer*)(intptr_t)renderer)->Lock ();
-		
-	}
-	
-	
-	void lime_renderer_make_current (double renderer) {
-		
-		((Renderer*)(intptr_t)renderer)->MakeCurrent ();
+		return ((Renderer*)val_data (renderer))->Lock ();
 		
 	}
 	
 	
-	void lime_renderer_unlock (double renderer) {
+	void lime_renderer_make_current (value renderer) {
 		
-		((Renderer*)(intptr_t)renderer)->Unlock ();
+		((Renderer*)val_data (renderer))->MakeCurrent ();
+		
+	}
+	
+	
+	void lime_renderer_unlock (value renderer) {
+		
+		((Renderer*)val_data (renderer))->Unlock ();
 		
 	}
 	
@@ -1025,25 +1066,12 @@ namespace lime {
 	}
 	
 	
-	void lime_text_layout_destroy (value textHandle) {
-		
-		#ifdef LIME_HARFBUZZ
-		TextLayout *text = (TextLayout*)(intptr_t)val_float (textHandle);
-		delete text;
-		text = 0;
-		#endif
-		
-	}
-	
-	
 	value lime_text_layout_create (int direction, HxString script, HxString language) {
 		
 		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
 		
 		TextLayout *text = new TextLayout (direction, script.__s, language.__s);
-		value v = alloc_float ((intptr_t)text);
-		val_gc (v, lime_text_layout_destroy);
-		return v;
+		return CFFIPointer (text, gc_text_layout);
 		
 		#else
 		
@@ -1054,12 +1082,12 @@ namespace lime {
 	}
 	
 	
-	value lime_text_layout_position (double textHandle, double fontHandle, int size, HxString textString, value data) {
+	value lime_text_layout_position (value textHandle, value fontHandle, int size, HxString textString, value data) {
 		
 		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
 		
-		TextLayout *text = (TextLayout*)(intptr_t)textHandle;
-		Font *font = (Font*)(intptr_t)fontHandle;
+		TextLayout *text = (TextLayout*)val_data (textHandle);
+		Font *font = (Font*)val_data (fontHandle);
 		Bytes bytes = Bytes (data);
 		text->Position (font, size, textString.__s, &bytes);
 		return bytes.Value ();
@@ -1071,30 +1099,30 @@ namespace lime {
 	}
 	
 	
-	void lime_text_layout_set_direction (double textHandle, int direction) {
+	void lime_text_layout_set_direction (value textHandle, int direction) {
 		
 		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
-		TextLayout *text = (TextLayout*)(intptr_t)textHandle;
+		TextLayout *text = (TextLayout*)val_data (textHandle);
 		text->SetDirection (direction);
 		#endif
 		
 	}
 	
 	
-	void lime_text_layout_set_language (double textHandle, HxString language) {
+	void lime_text_layout_set_language (value textHandle, HxString language) {
 		
 		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
-		TextLayout *text = (TextLayout*)(intptr_t)textHandle;
+		TextLayout *text = (TextLayout*)val_data (textHandle);
 		text->SetLanguage (language.__s);
 		#endif
 		
 	}
 	
 	
-	void lime_text_layout_set_script (double textHandle, HxString script) {
+	void lime_text_layout_set_script (value textHandle, HxString script) {
 		
 		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
-		TextLayout *text = (TextLayout*)(intptr_t)textHandle;
+		TextLayout *text = (TextLayout*)val_data (textHandle);
 		text->SetScript (script.__s);
 		#endif
 		
@@ -1109,26 +1137,26 @@ namespace lime {
 	}
 	
 	
-	void lime_window_alert (double window, HxString message, HxString title) {
+	void lime_window_alert (value window, HxString message, HxString title) {
 		
-		Window* targetWindow = (Window*)(intptr_t)window;
+		Window* targetWindow = (Window*)val_data (window);
 		targetWindow->Alert (message.__s, title.__s);
 		
 	}
 	
 	
-	void lime_window_close (double window) {
+	void lime_window_close (value window) {
 		
-		Window* targetWindow = (Window*)(intptr_t)window;
+		Window* targetWindow = (Window*)val_data (window);
 		targetWindow->Close ();
 		
 	}
 	
 	
-	double lime_window_create (double application, int width, int height, int flags, HxString title) {
+	value lime_window_create (value application, int width, int height, int flags, HxString title) {
 		
-		Window* window = CreateWindow ((Application*)(intptr_t)application, width, height, flags, title.__s);
-		return (intptr_t)window;
+		Window* window = CreateWindow ((Application*)val_data (application), width, height, flags, title.__s);
+		return CFFIPointer (window, gc_window);
 		
 	}
 	
@@ -1141,114 +1169,114 @@ namespace lime {
 	}
 	
 	
-	void lime_window_focus (double window) {
+	void lime_window_focus (value window) {
 		
-		Window* targetWindow = (Window*)(intptr_t)window;
+		Window* targetWindow = (Window*)val_data (window);
 		targetWindow->Focus ();
 		
 	}
 	
 	
-	bool lime_window_get_enable_text_events (double window) {
+	bool lime_window_get_enable_text_events (value window) {
 		
-		Window* targetWindow = (Window*)(intptr_t)window;
+		Window* targetWindow = (Window*)val_data (window);
 		return targetWindow->GetEnableTextEvents ();
 		
 	}
 	
 	
-	int lime_window_get_height (double window) {
+	int lime_window_get_height (value window) {
 		
-		Window* targetWindow = (Window*)(intptr_t)window;
+		Window* targetWindow = (Window*)val_data (window);
 		return targetWindow->GetHeight ();
 		
 	}
 	
 	
-	int32_t lime_window_get_id (double window) {
+	int32_t lime_window_get_id (value window) {
 		
-		Window* targetWindow = (Window*)(intptr_t)window;
+		Window* targetWindow = (Window*)val_data (window);
 		return (int32_t)targetWindow->GetID ();
 		
 	}
 	
 	
-	int lime_window_get_width (double window) {
+	int lime_window_get_width (value window) {
 		
-		Window* targetWindow = (Window*)(intptr_t)window;
+		Window* targetWindow = (Window*)val_data (window);
 		return targetWindow->GetWidth ();
 		
 	}
 	
 	
-	int lime_window_get_x (double window) {
+	int lime_window_get_x (value window) {
 		
-		Window* targetWindow = (Window*)(intptr_t)window;
+		Window* targetWindow = (Window*)val_data (window);
 		return targetWindow->GetX ();
 		
 	}
 	
 	
-	int lime_window_get_y (double window) {
+	int lime_window_get_y (value window) {
 		
-		Window* targetWindow = (Window*)(intptr_t)window;
+		Window* targetWindow = (Window*)val_data (window);
 		return targetWindow->GetY ();
 		
 	}
 	
 	
-	void lime_window_move (double window, int x, int y) {
+	void lime_window_move (value window, int x, int y) {
 		
-		Window* targetWindow = (Window*)(intptr_t)window;
+		Window* targetWindow = (Window*)val_data (window);
 		targetWindow->Move (x, y);
 		
 	}
 	
 	
-	void lime_window_resize (double window, int width, int height) {
+	void lime_window_resize (value window, int width, int height) {
 		
-		Window* targetWindow = (Window*)(intptr_t)window;
+		Window* targetWindow = (Window*)val_data (window);
 		targetWindow->Resize (width, height);
 		
 	}
 	
 	
-	void lime_window_set_enable_text_events (double window, bool enabled) {
+	void lime_window_set_enable_text_events (value window, bool enabled) {
 		
-		Window* targetWindow = (Window*)(intptr_t)window;
+		Window* targetWindow = (Window*)val_data (window);
 		targetWindow->SetEnableTextEvents (enabled);
 		
 	}
 	
 	
-	bool lime_window_set_fullscreen (double window, bool fullscreen) {
+	bool lime_window_set_fullscreen (value window, bool fullscreen) {
 		
-		Window* targetWindow = (Window*)(intptr_t)window;
+		Window* targetWindow = (Window*)val_data (window);
 		return targetWindow->SetFullscreen (fullscreen);
 		
 	}
 	
 	
-	void lime_window_set_icon (double window, value buffer) {
+	void lime_window_set_icon (value window, value buffer) {
 		
-		Window* targetWindow = (Window*)(intptr_t)window;
+		Window* targetWindow = (Window*)val_data (window);
 		ImageBuffer imageBuffer = ImageBuffer (buffer);
 		targetWindow->SetIcon (&imageBuffer);
 		
 	}
 	
 	
-	bool lime_window_set_minimized (double window, bool fullscreen) {
+	bool lime_window_set_minimized (value window, bool fullscreen) {
 		
-		Window* targetWindow = (Window*)(intptr_t)window;
+		Window* targetWindow = (Window*)val_data (window);
 		return targetWindow->SetMinimized (fullscreen);
 		
 	}
 	
 	
-	value lime_window_set_title (double window, HxString title) {
+	value lime_window_set_title (value window, HxString title) {
 		
-		Window* targetWindow = (Window*)(intptr_t)window;
+		Window* targetWindow = (Window*)val_data (window);
 		const char* result = targetWindow->SetTitle (title.__s);
 		return result ? alloc_string (result) : alloc_null ();
 		
@@ -1266,6 +1294,7 @@ namespace lime {
 	DEFINE_PRIME2 (lime_bytes_from_data_pointer);
 	DEFINE_PRIME1 (lime_bytes_get_data_pointer);
 	DEFINE_PRIME1 (lime_bytes_read_file);
+	DEFINE_PRIME1 (lime_cffi_get_native_pointer);
 	DEFINE_PRIME1 (lime_cffi_set_finalizer);
 	DEFINE_PRIME0 (lime_clipboard_get_text);
 	DEFINE_PRIME1v (lime_clipboard_set_text);

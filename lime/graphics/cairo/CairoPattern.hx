@@ -2,13 +2,14 @@ package lime.graphics.cairo;
 
 
 import lime.math.Matrix3;
+import lime.system.CFFIPointer;
 
 #if !macro
 @:build(lime.system.CFFI.build())
 #end
 
 
-abstract CairoPattern(Dynamic) from Float to Float {
+abstract CairoPattern(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	
 	public var colorStopCount (get, never):Int;
@@ -92,15 +93,6 @@ abstract CairoPattern(Dynamic) from Float to Float {
 		return lime_cairo_pattern_create_rgba (r, g, b, a);
 		#else
 		return cast 0;
-		#end
-		
-	}
-	
-	
-	public function destroy ():Void {
-		
-		#if (lime_cairo && !macro)
-		lime_cairo_pattern_destroy (this);
 		#end
 		
 	}
@@ -199,21 +191,20 @@ abstract CairoPattern(Dynamic) from Float to Float {
 	
 	
 	#if (lime_cairo && !macro)
-	@:cffi private static function lime_cairo_pattern_add_color_stop_rgb (handle:Float, offset:Float, red:Float, green:Float, blue:Float):Void;
-	@:cffi private static function lime_cairo_pattern_add_color_stop_rgba (handle:Float, offset:Float, red:Float, green:Float, blue:Float, alpha:Float):Void;
-	@:cffi private static function lime_cairo_pattern_create_for_surface (surface:Float):Float;
-	@:cffi private static function lime_cairo_pattern_create_linear (x0:Float, y0:Float, x1:Float, y1:Float):Float;
-	@:cffi private static function lime_cairo_pattern_create_radial (cx0:Float, cy0:Float, radius0:Float, cx1:Float, cy1:Float, radius1:Float):Float;
-	@:cffi private static function lime_cairo_pattern_create_rgb (r:Float, g:Float, b:Float):Float;
-	@:cffi private static function lime_cairo_pattern_create_rgba (r:Float, g:Float, b:Float, a:Float):Float;
-	@:cffi private static function lime_cairo_pattern_destroy (handle:Float):Void;
-	@:cffi private static function lime_cairo_pattern_get_color_stop_count (handle:Float):Int;
-	@:cffi private static function lime_cairo_pattern_get_extend (handle:Float):Int;
-	@:cffi private static function lime_cairo_pattern_get_filter (handle:Float):Int;
-	@:cffi private static function lime_cairo_pattern_get_matrix (handle:Float):Dynamic;
-	@:cffi private static function lime_cairo_pattern_set_extend (handle:Float, extend:Int):Void;
-	@:cffi private static function lime_cairo_pattern_set_filter (handle:Float, filter:Int):Void;
-	@:cffi private static function lime_cairo_pattern_set_matrix (handle:Float, matrix:Dynamic):Void;
+	@:cffi private static function lime_cairo_pattern_add_color_stop_rgb (handle:CFFIPointer, offset:Float, red:Float, green:Float, blue:Float):Void;
+	@:cffi private static function lime_cairo_pattern_add_color_stop_rgba (handle:CFFIPointer, offset:Float, red:Float, green:Float, blue:Float, alpha:Float):Void;
+	@:cffi private static function lime_cairo_pattern_create_for_surface (surface:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_cairo_pattern_create_linear (x0:Float, y0:Float, x1:Float, y1:Float):CFFIPointer;
+	@:cffi private static function lime_cairo_pattern_create_radial (cx0:Float, cy0:Float, radius0:Float, cx1:Float, cy1:Float, radius1:Float):CFFIPointer;
+	@:cffi private static function lime_cairo_pattern_create_rgb (r:Float, g:Float, b:Float):CFFIPointer;
+	@:cffi private static function lime_cairo_pattern_create_rgba (r:Float, g:Float, b:Float, a:Float):CFFIPointer;
+	@:cffi private static function lime_cairo_pattern_get_color_stop_count (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_pattern_get_extend (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_pattern_get_filter (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_pattern_get_matrix (handle:CFFIPointer):Dynamic;
+	@:cffi private static function lime_cairo_pattern_set_extend (handle:CFFIPointer, extend:Int):Void;
+	@:cffi private static function lime_cairo_pattern_set_filter (handle:CFFIPointer, filter:Int):Void;
+	@:cffi private static function lime_cairo_pattern_set_matrix (handle:CFFIPointer, matrix:Dynamic):Void;
 	#end
 	
 	

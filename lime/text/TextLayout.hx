@@ -245,10 +245,10 @@ class TextLayout {
 	
 	#if ((cpp || neko || nodejs) && !macro)
 	@:cffi private static function lime_text_layout_create (direction:Int, script:String, language:String):Dynamic;
-	@:cffi private static function lime_text_layout_position (textHandle:Float, fontHandle:Float, size:Int, textString:String, data:Dynamic):Dynamic;
-	@:cffi private static function lime_text_layout_set_direction (textHandle:Float, direction:Int):Void;
-	@:cffi private static function lime_text_layout_set_language (textHandle:Float, language:String):Void;
-	@:cffi private static function lime_text_layout_set_script (textHandle:Float, script:String):Void;
+	@:cffi private static function lime_text_layout_position (textHandle:Dynamic, fontHandle:Dynamic, size:Int, textString:String, data:Dynamic):Dynamic;
+	@:cffi private static function lime_text_layout_set_direction (textHandle:Dynamic, direction:Int):Void;
+	@:cffi private static function lime_text_layout_set_language (textHandle:Dynamic, language:String):Void;
+	@:cffi private static function lime_text_layout_set_script (textHandle:Dynamic, script:String):Void;
 	#end
 	
 	

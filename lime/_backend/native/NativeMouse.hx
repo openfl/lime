@@ -148,7 +148,7 @@ class NativeMouse {
 	@:cffi private static function lime_mouse_set_cursor (cursor:Int):Void;
 	@:cffi private static function lime_mouse_set_lock (lock:Bool):Void;
 	@:cffi private static function lime_mouse_show ():Void;
-	@:cffi private static function lime_mouse_warp (x:Int, y:Int, window:Float):Void;
+	@:cffi private static function lime_mouse_warp (x:Int, y:Int, window:Dynamic):Void;
 	#end
 	
 	

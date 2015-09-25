@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "2.6.4",
-	"releasenote": "Fixes and improvements",
+	"version": "2.6.6",
+	"releasenote": "Patch for native static targets, minor fix",
 	"contributors": [ "singmajesty" ]
 }

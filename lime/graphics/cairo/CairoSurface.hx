@@ -1,21 +1,14 @@
 package lime.graphics.cairo;
 
 
+import lime.system.CFFIPointer;
+
 #if !macro
 @:build(lime.system.CFFI.build())
 #end
 
 
-abstract CairoSurface(Dynamic) from Float to Float {
-	
-	
-	public function destroy ():Void {
-		
-		#if (lime_cairo && !macro)
-		lime_cairo_surface_destroy (this);
-		#end
-		
-	}
+abstract CairoSurface(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	
 	public function flush ():Void {
@@ -35,8 +28,7 @@ abstract CairoSurface(Dynamic) from Float to Float {
 	
 	
 	#if (lime_cairo && !macro)
-	@:cffi private static function lime_cairo_surface_destroy (surface:Float):Void;
-	@:cffi private static function lime_cairo_surface_flush (surface:Float):Void;
+	@:cffi private static function lime_cairo_surface_flush (surface:CFFIPointer):Void;
 	#end
 	
 	
