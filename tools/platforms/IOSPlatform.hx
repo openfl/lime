@@ -20,7 +20,7 @@ import project.Architecture;
 import project.Asset;
 import project.AssetType;
 import project.Haxelib;
-import project.HXProject;
+import project.HXProject; 
 import project.Keystore;
 import project.NDLL;
 import project.Platform;
@@ -111,8 +111,13 @@ class IOSPlatform extends PlatformTarget {
 		context.linkedLibraries = [];
 		
 		for (dependency in project.dependencies) {
+			var isLib = true;
+			if( StringTools.endsWith (dependency.name, ".framework") || StringTools.endsWith (dependency.path, ".framework") )
+				isLib = false;
+			if( StringTools.endsWith(dependency.path, ".bundle") || StringTools.endsWith(dependency.path, ".xcassets") )
+				isLib = false;	
 			
-			if (!StringTools.endsWith (dependency.name, ".framework") && !StringTools.endsWith (dependency.path, ".framework")) {
+			if (isLib) {
 				
 				if (dependency.path != "") {
 					
@@ -255,6 +260,8 @@ class IOSPlatform extends PlatformTarget {
 		context.ADDL_PBX_FILE_REFERENCE = "";
 		context.ADDL_PBX_FRAMEWORKS_BUILD_PHASE = "";
 		context.ADDL_PBX_FRAMEWORK_GROUP = "";
+		context.ADDL_PBX_RESOURCES_BUILD_PHASE = "";
+		context.ADDL_PBX_RESOURCES_GROUP = "";
 		
 		context.frameworkSearchPaths = [];
 		
@@ -293,6 +300,23 @@ class IOSPlatform extends PlatformTarget {
 				context.ADDL_PBX_FILE_REFERENCE += "		" + fileID + " /* " + name + " */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = \"" + name + "\"; path = \"" + path + "\"; sourceTree = SDKROOT; };\n";
 				context.ADDL_PBX_FRAMEWORKS_BUILD_PHASE += "				" + frameworkID + " /* " + name + " in Frameworks */,\n";
 				context.ADDL_PBX_FRAMEWORK_GROUP += "				" + fileID + " /* " + name + " */,\n";
+				
+			}
+
+			var pathExt = Path.extension(dependency.path);
+
+			if( pathExt == "xcassets" || pathExt == "bundle" ){
+				name = Path.withoutDirectory(dependency.path);
+				path = PathHelper.tryFullPath(dependency.path);
+
+				var resourceID = "11C0000000000018" + StringHelper.getUniqueID ();
+				var fileID = "11C0000000000018" + StringHelper.getUniqueID ();
+				var type = pathExt == "bundle" ? "wrapper.plug-in" : "folder.assetcatalog";
+
+				context.ADDL_PBX_BUILD_FILE += "		" + resourceID + " /* " + name + " in Resources */ = {isa = PBXBuildFile; fileRef = " + fileID + " /* " + name + " */; };\n";
+				context.ADDL_PBX_FILE_REFERENCE += "		" + fileID + " /* " + name + " */ = {isa = PBXFileReference; lastKnownFileType = \""+type+"\"; name = \"" + name + "\"; path = \"" + path + "\"; sourceTree = \"<group>\"; };\n";
+				context.ADDL_PBX_RESOURCES_BUILD_PHASE += "				" + resourceID + " /* " + name + " in Resources */,\n";
+				context.ADDL_PBX_RESOURCES_GROUP += "				" + fileID + " /* " + name + " */,\n";
 				
 			}
 			

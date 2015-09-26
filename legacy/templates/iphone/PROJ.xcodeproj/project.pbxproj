@@ -146,6 +146,7 @@
 				4257533E1A5EFD8C004AA45B /* Images.xcassets */,
 				8D1107310486CEB800E47090 /* ::APP_FILE::/::APP_FILE::-Info.plist */,
 				1E2E17A5131E8B5D0048F3C7 /* ::APP_FILE::/assets */,
+				::ADDL_PBX_RESOURCES_GROUP::
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -213,6 +214,7 @@
 			files = (
 				1E2E17AD131E8B5D0048F3C7 /* ::APP_FILE::/assets in Resources */,
 				4257533F1A5EFD8C004AA45B /* Images.xcassets in Resources */,
+				::ADDL_PBX_RESOURCES_BUILD_PHASE::
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
