@@ -1761,7 +1761,7 @@ class PlatformSetup {
 			var lsbId = ProcessHelper.runProcess ("", "lsb_release", ["-si"], true, true, true);
 			var lsbRelease = ProcessHelper.runProcess ("", "lsb_release", ["-sr"], true, true, true);
 			var arch = ProcessHelper.runProcess ("", "uname", ["-m"], true, true, true);
-			var isSaucy = lsbId == "Ubuntu\n" &&  lsbRelease == "13.10\n" && arch == "x86_64\n";
+			var isSaucy = lsbId == "Ubuntu\n" &&  lsbRelease >= "13.10\n" && arch == "x86_64\n";
 			
 			var packages = isSaucy ? linuxUbuntuSaucyPackages : linuxAptPackages;
 			
