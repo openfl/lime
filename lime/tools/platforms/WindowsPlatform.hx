@@ -38,7 +38,7 @@ class WindowsPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
-		if (project.targetFlags.exists ("neko") ) {
+		if (project.targetFlags.exists ("neko")) {
 			
 			targetType = "neko";
 			
@@ -170,7 +170,7 @@ class WindowsPlatform extends PlatformTarget {
 				
 				FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", executablePath);
 				FileHelper.copyFile (targetDirectory + "/obj/libwinpthread-1.dll", applicationDirectory + "libwinpthread-1.dll");
-
+				
 			} else {
 				
 				ProcessHelper.runCommand ("", "haxe", haxeArgs.concat ([ "-D", "static_link" ]));
