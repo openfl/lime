@@ -1,5 +1,4 @@
 -main ApplicationMain ::HAXE_FLAGS::
--D iphone
--D ios
+-D tvos
 --macro keep("::APP_MAIN::")
 -D no-compilation

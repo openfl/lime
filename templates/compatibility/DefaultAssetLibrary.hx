@@ -23,7 +23,7 @@ import openfl.net.URLLoader;
 import sys.FileSystem;
 #end
 
-#if ios
+#if (ios || tvos)
 import openfl.utils.SystemPath;
 #end
 
@@ -305,7 +305,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	public override function getPath (id:String):String {
 		
-		#if ios
+		#if (ios || tvos)
 		
 		return SystemPath.applicationDirectory + "/assets/" + path.get (id);
 		

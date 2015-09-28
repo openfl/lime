@@ -582,6 +582,10 @@ class CommandLineTools {
 					
 					platform = new EmscriptenPlatform (command, project, targetFlags);
 				
+				case TVOS:
+					
+					platform = new IOSPlatform (command, project, targetFlags);
+
 				default:
 				
 			}
@@ -746,6 +750,7 @@ class CommandLineTools {
 		LogHelper.println ("  \x1b[1mlinux\x1b[0m -- Create a Linux application");
 		LogHelper.println ("  \x1b[1mmac\x1b[0m -- Create a Mac OS X application");
 		LogHelper.println ("  \x1b[1mtizen\x1b[0m -- Create a Tizen application");
+		LogHelper.println ("  \x1b[1mtvos\x1b[0m -- Create a tvOS application");
 		LogHelper.println ("  \x1b[1mwebos\x1b[0m -- Create a webOS application");
 		LogHelper.println ("  \x1b[1mwindows\x1b[0m -- Create a Windows application");
 		LogHelper.println ("");

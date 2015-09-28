@@ -475,6 +475,14 @@ class PlatformSetup {
 					
 					setupOpenFL ();
 				
+				case "tvos":
+					
+					if (PlatformHelper.hostPlatform == Platform.MAC) {
+						
+						setupMac ();
+						
+					}
+
 				case "":
 					
 					switch (CommandLineTools.defaultLibrary) {
