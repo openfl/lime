@@ -82,24 +82,36 @@ class Preloader #if flash extends Sprite #end {
 					
 					case IMAGE:
 						
-						var image = new Image ();
-						images.set (url, image);
-						image.onload = image_onLoad;
-						image.src = url;
-						total++;
+						if (!images.exists (url)) {
+							
+							var image = new Image ();
+							images.set (url, image);
+							image.onload = image_onLoad;
+							image.src = url;
+							total++;
+							
+						}
 					
 					case BINARY:
 						
-						var loader = new URLLoader ();
-						loader.dataFormat = BINARY;
-						loaders.set (url, loader);
-						total++;
+						if (!loaders.exists (url)) {
+							
+							var loader = new URLLoader ();
+							loader.dataFormat = BINARY;
+							loaders.set (url, loader);
+							total++;
+							
+						}
 					
 					case TEXT:
 						
-						var loader = new URLLoader ();
-						loaders.set (url, loader);
-						total++;
+						if (!loaders.exists (url)) {
+							
+							var loader = new URLLoader ();
+							loaders.set (url, loader);
+							total++;
+							
+						}
 					
 					case FONT:
 						
