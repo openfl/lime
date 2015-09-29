@@ -91,7 +91,7 @@ class CFFI {
 			
 		} else {
 			
-			#if (iphone || emscripten || android || static_link)
+			#if (iphone || emscripten || android || static_link || tvos)
 			return cpp.Lib.load (library, method, args);
 			#end
 			

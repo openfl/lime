@@ -1580,6 +1580,59 @@ class ProjectXMLParser extends HXProject {
 							}
 							
 						}
+
+					case "tvos":
+						
+						if (target == Platform.TVOS) {
+							
+							if (element.has.deployment) {
+								
+								var deployment = Std.parseFloat (substitute (element.att.deployment));
+								
+								// If it is specified, assume the dev knows what he is doing!
+								config.set ("tvos.deployment", deployment);
+							}
+							
+							if (element.has.binaries) {
+								
+								var binaries = substitute (element.att.binaries);
+								
+								switch (binaries) {
+									
+									case "arm64":
+										
+										ArrayHelper.addUnique (architectures, Architecture.ARM64);
+									
+								}
+								
+							}
+							
+							if (element.has.devices) {
+								
+								config.set ("tvos.device", substitute (element.att.devices).toLowerCase ());
+								
+							}
+							
+							if (element.has.compiler) {
+								
+								config.set ("tvos.compiler", substitute (element.att.compiler));
+								
+							}
+							
+							if (element.has.resolve ("prerendered-icon")) {
+								
+								config.set ("tvos.prerenderedIcon",  substitute (element.att.resolve ("prerendered-icon")));
+								
+							}
+							
+							if (element.has.resolve ("linker-flags")) {
+								
+								config.push ("tvos.linker-flags", substitute (element.att.resolve ("linker-flags")));
+								//config.ios.linkerFlags.push (substitute (element.att.resolve ("linker-flags")));
+								
+							}
+							
+						}
 					
 					case "config": 
 						

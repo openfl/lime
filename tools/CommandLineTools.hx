@@ -584,7 +584,7 @@ class CommandLineTools {
 				
 				case TVOS:
 					
-					platform = new IOSPlatform (command, project, targetFlags);
+					platform = new TVOSPlatform (command, project, targetFlags);
 
 				default:
 				

@@ -60,7 +60,7 @@ class NativeApplication {
 		
 		AudioManager.init ();
 		
-		#if (ios || android)
+		#if (ios || android || tvos)
 		Sensor.registerSensor (SensorType.ACCELEROMETER, 0);
 		#end
 		
@@ -89,7 +89,7 @@ class NativeApplication {
 		lime_touch_event_manager_register (handleTouchEvent, touchEventInfo);
 		lime_window_event_manager_register (handleWindowEvent, windowEventInfo);
 		
-		#if (ios || android)
+		#if (ios || android || tvos)
 		lime_sensor_event_manager_register (handleSensorEvent, sensorEventInfo);
 		#end
 		
