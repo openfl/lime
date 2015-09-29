@@ -269,7 +269,9 @@ class System {
 			
 		}
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if desktop
+		return lime_system_get_directory (SystemDirectory.APPLICATION_STORAGE, "", file);
+		#elseif ((cpp || neko || nodejs) && !macro)
 		return lime_system_get_directory (SystemDirectory.APPLICATION_STORAGE, company, file);
 		#elseif flash
 		if (Capabilities.playerType == "Desktop") {
