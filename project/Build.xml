@@ -185,7 +185,7 @@
 			
 			<compilerflag value="-DLIME_SDL" />
 			<compilerflag value="-DNATIVE_TOOLKIT_SDL_ANGLE" if="NATIVE_TOOLKIT_SDL_ANGLE" />
-			<compilerflag value="-D__IPHONEOS__" if="ios" />
+			<compilerflag value="-D__IPHONEOS__" if="ios || tvos" />
 			
 			<file name="src/backend/sdl/SDLApplication.cpp" />
 			<file name="src/backend/sdl/SDLWindow.cpp" />
@@ -200,7 +200,7 @@
 			
 			<compilerflag value="-DSTATIC_LINK" if="emscripten" />
 			
-			<file name="${HXCPP}/project/libs/zlib/ZLib.cpp" if="emscripten || ios || static_link" />
+			<file name="${HXCPP}/project/libs/zlib/ZLib.cpp" if="emscripten || ios || static_link || tvos" />
 			
 		</section>
 		
@@ -262,7 +262,7 @@
 		<files id="native-toolkit-neko" if="LIME_NEKO" />
 		<files id="native-toolkit-nfd" if="LIME_NFD" />
 		<files id="native-toolkit-ogg" if="LIME_OGG" />
-		<files id="native-toolkit-openal" if="LIME_OPENAL" unless="mac || iphone || android || emscripten" />
+		<files id="native-toolkit-openal" if="LIME_OPENAL" unless="mac || iphone || android || emscripten || tvos" />
 		<files id="native-toolkit-openal-android" if="LIME_OPENAL android" />
 		<files id="native-toolkit-pixman" if="LIME_PIXMAN" />
 		<files id="native-toolkit-png" if="LIME_PNG" />

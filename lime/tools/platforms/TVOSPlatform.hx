@@ -485,9 +485,9 @@ class TVOSPlatform extends PlatformTarget {
 					
 					if (!FileSystem.exists (releaseLib)) {
 						
-						releaseLib = PathHelper.getLibraryPath (ndll, "iPhone", "lib", ".iphoneos.a");
+						releaseLib = PathHelper.getLibraryPath (ndll, "tvOS", "lib", ".tvos.a");
 						LogHelper.info("alternative releaseLib: " + releaseLib);
-						debugLib = PathHelper.getLibraryPath (ndll, "iPhone", "lib", ".iphoneos.a", true);
+						debugLib = PathHelper.getLibraryPath (ndll, "tvOS", "lib", ".tvos.a", true);
 						
 					}
 					

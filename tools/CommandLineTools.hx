@@ -237,6 +237,10 @@ class CommandLineTools {
 							target = Platform.FIREFOX;
 							overrides.haxedefs.set ("firefoxos", "");
 						
+						case "tvos":
+							
+							target = Platform.TVOS;
+
 						default:
 							
 							target = cast targetName.toLowerCase ();
