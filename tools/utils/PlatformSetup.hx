@@ -1604,7 +1604,7 @@ class PlatformSetup {
 			}
 			
 			createPath (path + "/lib");
-			var libs = [ "android", "bada-wac", "bada", "blackberry", "ios", "mac", "qt", "tizen", "webos", "wp7" ];
+			var libs = [ "android", "bada-wac", "bada", "blackberry", "ios", "mac", "qt", "tizen", "tvos", "webos", "wp7" ];
 			
 			for (archive in childArchives) {
 				

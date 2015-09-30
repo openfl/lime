@@ -20,11 +20,11 @@ class TVOSHelper {
 		
 		initialize (project);
 		
-		var platformName = "iphoneos";
+		var platformName = "appletvos";
 		
 		if (project.targetFlags.exists ("simulator")) {
 			
-			platformName = "iphonesimulator";
+			platformName = "appletvsimulator";
 			
 		}
 		
@@ -36,7 +36,7 @@ class TVOSHelper {
 			
 		}
 			
-		var iphoneVersion = project.environment.get ("IPHONE_VER");
+		var iphoneVersion = project.environment.get ("TVOS_VER");
 		var commands = [ "-configuration", configuration, "PLATFORM_NAME=" + platformName, "SDKROOT=" + platformName + iphoneVersion ];
 			
 		if (project.targetFlags.exists("simulator")) {
@@ -61,11 +61,11 @@ class TVOSHelper {
 		
 		initialize (project);
 		
-		var platformName = "iPhoneOS";
+		var platformName = "AppleTVOS";
 		
 		if (project.targetFlags.exists ("simulator")) {
 			
-			platformName = "iPhoneSimulator";
+			platformName = "AppleTVSimulator";
 			
 		}
 		
@@ -79,7 +79,8 @@ class TVOSHelper {
 			
 		}
 		
-		directory += "/Platforms/" + platformName + ".platform/Developer/SDKs/" + platformName + project.environment.get ("IPHONE_VER") + ".sdk";
+		directory += "/Platforms/" + platformName + ".platform/Developer/SDKs/" + platformName + project.environment.get ("TVOS_VER") + ".sdk";
+		LogHelper.info(directory);
 		return directory;
 		
 	}
@@ -87,19 +88,19 @@ class TVOSHelper {
 	
 	private static function getIOSVersion (project:HXProject):Void {
 		
-		if (!project.environment.exists("IPHONE_VER")) {
+		if (!project.environment.exists("TVOS_VER")) {
 			if (!project.environment.exists("DEVELOPER_DIR")) {
 				var proc = new Process("xcode-select", ["--print-path"]);
 				var developer_dir = proc.stdout.readLine();
 				proc.close();
 				project.environment.set("DEVELOPER_DIR", developer_dir);
 			}
-			var dev_path = project.environment.get("DEVELOPER_DIR") + "/Platforms/iPhoneOS.platform/Developer/SDKs";
+			var dev_path = project.environment.get("DEVELOPER_DIR") + "/Platforms/AppleTVOS.platform/Developer/SDKs";
 			
 			if (FileSystem.exists (dev_path)) {
 				var best = "";
 				var files = FileSystem.readDirectory (dev_path);
-				var extract_version = ~/^iPhoneOS(.*).sdk$/;
+				var extract_version = ~/^AppleTVOS(.*).sdk$/;
 				
 				for (file in files) {
 					if (extract_version.match (file)) {
@@ -110,7 +111,7 @@ class TVOSHelper {
 				}
 				
 				if (best != "")
-					project.environment.set ("IPHONE_VER", best);
+					project.environment.set ("TVOS_VER", best);
 			}
 		}
 		
@@ -191,7 +192,7 @@ class TVOSHelper {
 				
 			} else {
 				
-				applicationPath = workingDirectory + "/build/" + configuration + "-iphonesimulator/" + project.app.file + ".app";
+				applicationPath = workingDirectory + "/build/" + configuration + "-appletvsimulator/" + project.app.file + ".app";
 				
 			}
 			
@@ -200,8 +201,8 @@ class TVOSHelper {
 			Sys.command ("chmod", [ "+x", launcher ]);
 
             // device config
-            var defaultDevice = "iphone-6";
-            var devices:Array<String> = ["iphone-4s", "iphone-5", "iphone-5s", "iphone-6-plus", "iphone-6", "ipad-2", "ipad-retina", "ipad-air"];
+            var defaultDevice = "appletv";
+            var devices:Array<String> = ["appletv", "iphone-4s", "iphone-5", "iphone-5s", "iphone-6-plus", "iphone-6", "ipad-2", "ipad-retina", "ipad-air"];
             var oldDevices:Map<String, String> = ["iphone" => "iphone-6", "ipad" => "ipad-air"];
 
             var deviceFlag:String = null;
@@ -271,7 +272,7 @@ class TVOSHelper {
 				
 			} else {
 				
-				applicationPath = workingDirectory + "/build/" + configuration + "-iphoneos/" + project.app.file + ".app";
+				applicationPath = workingDirectory + "/build/" + configuration + "-appletvos/" + project.app.file + ".app";
 				
 			}
 			
@@ -317,7 +318,7 @@ class TVOSHelper {
 			
 		}
 		
-		var applicationPath = "build/" + configuration + "-iphoneos/" + project.app.file + ".app";
+		var applicationPath = "build/" + configuration + "-appletvos/" + project.app.file + ".app";
 		commands.push (applicationPath);
 		
 		ProcessHelper.runCommand (workingDirectory, "codesign", commands, true, true);

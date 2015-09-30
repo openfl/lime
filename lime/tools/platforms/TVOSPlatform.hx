@@ -203,7 +203,7 @@ class TVOSPlatform extends PlatformTarget {
 		context.REQUIRED_CAPABILITY = requiredCapabilities;
 		context.ARM64 = arm64;
 		context.TARGET_DEVICES = switch (project.config.getString ("ios.device", "universal")) { case "iphone": "1"; case "ipad": "2"; default: "1,2";  }
-		context.DEPLOYMENT = project.config.getString ("ios.deployment", "5.1.1");
+		context.DEPLOYMENT = project.config.getString ("tvos.deployment", "9.0");
 		
 		if (project.config.getString ("tvos.compiler") == "llvm" || project.config.getString ("tvos.compiler", "clang") == "clang") {
 			
@@ -313,9 +313,9 @@ class TVOSPlatform extends PlatformTarget {
 		
 		var commands = [];
 		
-		if (arm64) commands.push ([ "-Dtvos", "-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARM64" ]);
-		if (i386) commands.push ([ "-Dtvos", "-Dios", "-Dsimulator", "-DHXCPP_CPP11" ]);
-		if (x86_64) commands.push ([ "-Dtvos", "-Dios", "-Dsimulator", "-DHXCPP_M64", "-DHXCPP_CPP11" ]);
+		if (arm64) commands.push ([ "-Dtvos", "-DHXCPP_CPP11", "-DHXCPP_ARM64" ]);
+		if (i386) commands.push ([ "-Dtvos", "-Dsimulator", "-DHXCPP_CPP11" ]);
+		if (x86_64) commands.push ([ "-Dtvos", "-Dsimulator", "-DHXCPP_M64", "-DHXCPP_CPP11" ]);
 		
 		CPPHelper.rebuild (project, commands);
 		
@@ -476,18 +476,18 @@ class TVOSPlatform extends PlatformTarget {
 				
 				//if (ndll.haxelib != null) {
 					
-					var releaseLib = PathHelper.getLibraryPath (ndll, "tvOS", "lib", libExt);
+					var releaseLib = PathHelper.getLibraryPath (ndll, "AppleTV", "lib", libExt);
 					LogHelper.info("releaseLib: " + releaseLib);
-					var debugLib = PathHelper.getLibraryPath (ndll, "tvOS", "lib", libExt, true);
+					var debugLib = PathHelper.getLibraryPath (ndll, "AppleTV", "lib", libExt, true);
 					var releaseDest = projectDirectory + "/lib/" + arch + "/lib" + ndll.name + ".a";
 					LogHelper.info("releaseDest: " + releaseDest);
 					var debugDest = projectDirectory + "/lib/" + arch + "-debug/lib" + ndll.name + ".a";
 					
 					if (!FileSystem.exists (releaseLib)) {
 						
-						releaseLib = PathHelper.getLibraryPath (ndll, "tvOS", "lib", ".tvos.a");
+						releaseLib = PathHelper.getLibraryPath (ndll, "AppleTV", "lib", ".appletvos.a");
 						LogHelper.info("alternative releaseLib: " + releaseLib);
-						debugLib = PathHelper.getLibraryPath (ndll, "tvOS", "lib", ".tvos.a", true);
+						debugLib = PathHelper.getLibraryPath (ndll, "AppleTV", "lib", ".appletvos.a", true);
 						
 					}
 					
