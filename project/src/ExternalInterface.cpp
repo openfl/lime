@@ -1029,6 +1029,13 @@ namespace lime {
 	}
 	
 	
+	bool lime_system_get_allow_screen_timeout () {
+		
+		return System::GetAllowScreenTimeout ();
+		
+	}
+	
+	
 	value lime_system_get_directory (int type, HxString company, HxString title) {
 		
 		const char* path = System::GetDirectory ((SystemDirectory)type, company.__s, title.__s);
@@ -1054,6 +1061,13 @@ namespace lime {
 	double lime_system_get_timer () {
 		
 		return System::GetTimer ();
+		
+	}
+	
+	
+	bool lime_system_set_allow_screen_timeout (bool allow) {
+		
+		return System::SetAllowScreenTimeout (allow);
 		
 	}
 	
@@ -1359,10 +1373,12 @@ namespace lime {
 	DEFINE_PRIME1v (lime_renderer_unlock);
 	DEFINE_PRIME2v (lime_render_event_manager_register);
 	DEFINE_PRIME2v (lime_sensor_event_manager_register);
+	DEFINE_PRIME0 (lime_system_get_allow_screen_timeout);
 	DEFINE_PRIME3 (lime_system_get_directory);
 	DEFINE_PRIME1 (lime_system_get_display);
 	DEFINE_PRIME0 (lime_system_get_num_displays);
 	DEFINE_PRIME0 (lime_system_get_timer);
+	DEFINE_PRIME1 (lime_system_set_allow_screen_timeout);
 	DEFINE_PRIME2v (lime_text_event_manager_register);
 	DEFINE_PRIME3 (lime_text_layout_create);
 	DEFINE_PRIME5 (lime_text_layout_position);

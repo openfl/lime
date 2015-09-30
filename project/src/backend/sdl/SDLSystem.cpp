@@ -80,6 +80,13 @@ namespace lime {
 	}
 	
 	
+	bool System::GetAllowScreenTimeout () {
+		
+		return SDL_IsScreenSaverEnabled ();
+		
+	}
+	
+	
 	const char* System::GetDirectory (SystemDirectory type, const char* company, const char* title) {
 		
 		switch (type) {
@@ -308,6 +315,23 @@ namespace lime {
 	double System::GetTimer () {
 		
 		return SDL_GetTicks ();
+		
+	}
+	
+	
+	bool System::SetAllowScreenTimeout (bool allow) {
+		
+		if (allow) {
+			
+			SDL_EnableScreenSaver ();
+			
+		} else {
+			
+			SDL_DisableScreenSaver ();
+			
+		}
+		
+		return allow;
 		
 	}
 	

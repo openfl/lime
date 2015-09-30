@@ -33,6 +33,7 @@ import sys.io.Process;
 class System {
 	
 	
+	public static var allowScreenTimeout (get, set):Bool;
 	public static var applicationDirectory (get, null):String;
 	public static var applicationStorageDirectory (get, null):String;
 	public static var desktopDirectory (get, null):String;
@@ -227,6 +228,28 @@ class System {
 	
 	
 	
+	private static function get_allowScreenTimeout ():Bool {
+		
+		#if ((cpp || neko || nodejs) && !macro)
+		return lime_system_get_allow_screen_timeout ();
+		#else
+		return true;
+		#end
+		
+	}
+	
+	
+	private static function set_allowScreenTimeout (value:Bool):Bool {
+		
+		#if ((cpp || neko || nodejs) && !macro)
+		return lime_system_set_allow_screen_timeout (value);
+		#else
+		return true;
+		#end
+		
+	}
+	
+	
 	private static function get_applicationDirectory ():String {
 		
 		#if ((cpp || neko || nodejs) && !macro)
@@ -394,6 +417,8 @@ class System {
 	
 	
 	#if ((cpp || neko || nodejs) && !macro)
+	@:cffi private static function lime_system_get_allow_screen_timeout ():Bool;
+	@:cffi private static function lime_system_set_allow_screen_timeout (value:Bool):Bool;
 	@:cffi private static function lime_system_get_directory (type:Int, company:String, title:String):Dynamic;
 	@:cffi private static function lime_system_get_display (index:Int):Dynamic;
 	@:cffi private static function lime_system_get_num_displays ():Int;
