@@ -1,3 +1,12 @@
+2.6.7 (09/30/2015)
+------------------
+
+* Added System.allowScreenTimeout to allow screensaver/sleep
+* Updated CFFI to fix "hx_register_prim" issue on Android
+* Improved "lime setup linux"
+* Fixed preload when the same asset is listed twice
+
+
 2.6.6 (09/24/2015)
 ------------------
 
