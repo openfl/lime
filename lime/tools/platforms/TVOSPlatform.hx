@@ -467,7 +467,7 @@ class TVOSPlatform extends PlatformTarget {
 			if (arch == "arm64" && !context.ARM64)
 				continue;
 			
-			var libExt = [ ".tvos-64.a", ".tvossim.a", ".tvossim-64.a" ][archID];
+			var libExt = [ ".appletvos-64.a", ".appletvsim.a", ".appletvsim-64.a" ][archID];
 			
 			PathHelper.mkdir (projectDirectory + "/lib/" + arch);
 			PathHelper.mkdir (projectDirectory + "/lib/" + arch + "-debug");
@@ -485,9 +485,9 @@ class TVOSPlatform extends PlatformTarget {
 					
 					if (!FileSystem.exists (releaseLib)) {
 						
-						releaseLib = PathHelper.getLibraryPath (ndll, "AppleTV", "lib", ".appletvos.a");
+						releaseLib = PathHelper.getLibraryPath (ndll, "AppleTV", "lib", ".appletvos-64.a");
 						LogHelper.info("alternative releaseLib: " + releaseLib);
-						debugLib = PathHelper.getLibraryPath (ndll, "AppleTV", "lib", ".appletvos.a", true);
+						debugLib = PathHelper.getLibraryPath (ndll, "AppleTV", "lib", ".appletvos-64.a", true);
 						
 					}
 					
