@@ -401,7 +401,8 @@ namespace lime {
 		
 		#ifndef HX_WINDOWS
 		
-		return ((SDL_RWops*)handle)->type == SDL_RWOPS_STDFILE;
+		int type = ((SDL_RWops*)handle)->type;
+		return type == SDL_RWOPS_STDFILE || type == SDL_RWOPS_JNIFILE;
 		
 		#else
 		
