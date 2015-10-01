@@ -198,11 +198,11 @@ class TVOSPlatform extends PlatformTarget {
 		
 		var requiredCapabilities = [];
 		
-		requiredCapabilities.push( { name: "armv64", value: true } );
+		requiredCapabilities.push( { name: "arm64", value: true } );
 		
 		context.REQUIRED_CAPABILITY = requiredCapabilities;
 		context.ARM64 = arm64;
-		context.TARGET_DEVICES = switch (project.config.getString ("ios.device", "universal")) { case "iphone": "1"; case "ipad": "2"; default: "1,2";  }
+		context.TARGET_DEVICES = switch (project.config.getString ("tvos.device", "appletv")) { case "appletv": "3"; default: "3";  }
 		context.DEPLOYMENT = project.config.getString ("tvos.deployment", "9.0");
 		
 		if (project.config.getString ("tvos.compiler") == "llvm" || project.config.getString ("tvos.compiler", "clang") == "clang") {

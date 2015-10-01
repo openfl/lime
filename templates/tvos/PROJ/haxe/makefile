@@ -1,6 +1,6 @@
 
 ifeq ("$(ARCHS)","normal")
-	ARCHS = armv64 i386
+	ARCHS = arm64 i386
 endif
 
 HAXE_BUILDS := $(ARCHS:%=build-haxe-%)
@@ -34,8 +34,8 @@ else
 endif
 
 HAXE_OS := $(PLATFORM_NAME)
-ifeq ("$(HAXE_OS)","iphonesimulator")
-   HAXE_OS := iphonesim
+ifeq ("$(HAXE_OS)","appletvsimulator")
+   HAXE_OS := appletvsim
 endif
 CONFIG := $(CONFIG)-$(HAXE_OS)
 
