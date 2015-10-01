@@ -1,5 +1,6 @@
 package lime;
 
+#if !lime_legacy
 #if !macro
 
 
@@ -1498,7 +1499,7 @@ class Assets {
 
 
 #end
-
+#end
 
 @:enum abstract AssetType(String) {
 	
