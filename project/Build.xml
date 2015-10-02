@@ -8,6 +8,7 @@
 	
 	<set name="lime-legacy" value="1" if="legacy || lime_legacy" />
 	<set name="ios" value="1" if="iphone" />
+	<set name="tvos" value="1" if="appletv" />
 
 	<set name="LIME_CAIRO" value="1" />
 	<set name="LIME_CURL" value="1" unless="emscripten" />
@@ -147,6 +148,8 @@
 			
 			<compilerflag value="-DLIME_OPENGL" />
 			
+			<compilerflag value="-I${DEVELOPER_DIR}/Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS${TVOS_VER}.sdk/" if="tvos" />
+
 			<file name="src/graphics/opengl/OpenGLBindings.cpp" />
 			
 		</section>
@@ -185,7 +188,9 @@
 			
 			<compilerflag value="-DLIME_SDL" />
 			<compilerflag value="-DNATIVE_TOOLKIT_SDL_ANGLE" if="NATIVE_TOOLKIT_SDL_ANGLE" />
-			<compilerflag value="-D__IPHONEOS__" if="ios" />
+			<compilerflag value="-D__IPHONEOS__" if="ios || tvos" />
+			<compilerflag value="-D__APPLETVOS__" if="tvos" />
+			<compilerflag value="-DAPPLETV" if="tvos" />
 			
 			<file name="src/backend/sdl/SDLApplication.cpp" />
 			<file name="src/backend/sdl/SDLWindow.cpp" />
@@ -200,7 +205,7 @@
 			
 			<compilerflag value="-DSTATIC_LINK" if="emscripten" />
 			
-			<file name="${HXCPP}/project/libs/zlib/ZLib.cpp" if="emscripten || ios || static_link" />
+			<file name="${HXCPP}/project/libs/zlib/ZLib.cpp" if="emscripten || ios || static_link || tvos" />
 			
 		</section>
 		
@@ -262,7 +267,7 @@
 		<files id="native-toolkit-neko" if="LIME_NEKO" />
 		<files id="native-toolkit-nfd" if="LIME_NFD" />
 		<files id="native-toolkit-ogg" if="LIME_OGG" />
-		<files id="native-toolkit-openal" if="LIME_OPENAL" unless="mac || iphone || android || emscripten" />
+		<files id="native-toolkit-openal" if="LIME_OPENAL" unless="mac || iphone || android || emscripten || tvos" />
 		<files id="native-toolkit-openal-android" if="LIME_OPENAL android" />
 		<files id="native-toolkit-pixman" if="LIME_PIXMAN" />
 		<files id="native-toolkit-png" if="LIME_PNG" />
@@ -350,6 +355,22 @@
 				
 			</section>
 			
+			<section if="tvos">
+
+				<vflag name="-framework" value="UIKit" />
+				<vflag name="-framework" value="Foundation" />
+				<vflag name="-framework" value="CoreAudio" />
+				<vflag name="-framework" value="CoreVideo" />
+				<vflag name="-framework" value="OpenGLES" />
+				<vflag name="-framework" value="AudioToolbox" />
+				<vflag name="-framework" value="AudioUnit" />
+				<vflag name="-framework" value="OpenAL"/>
+
+				<lib name="-ldl" />
+				<lib name="-lEGL" />
+				<lib name="-lGLESv2" />
+
+			</section>
 		</section>
 		
 	</target>

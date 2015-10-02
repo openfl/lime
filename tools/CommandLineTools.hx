@@ -237,6 +237,15 @@ class CommandLineTools {
 							target = Platform.FIREFOX;
 							overrides.haxedefs.set ("firefoxos", "");
 						
+						case "appletv", "appletvos":
+							
+							target = Platform.TVOS;
+							
+						case "appletvsim":
+							
+							target = Platform.TVOS;
+							targetFlags.set ("simulator", "");
+
 						default:
 							
 							target = cast targetName.toLowerCase ();
@@ -582,6 +591,10 @@ class CommandLineTools {
 					
 					platform = new EmscriptenPlatform (command, project, targetFlags);
 				
+				case TVOS:
+					
+					platform = new TVOSPlatform (command, project, targetFlags);
+
 				default:
 				
 			}
@@ -746,6 +759,7 @@ class CommandLineTools {
 		LogHelper.println ("  \x1b[1mlinux\x1b[0m -- Create a Linux application");
 		LogHelper.println ("  \x1b[1mmac\x1b[0m -- Create a Mac OS X application");
 		LogHelper.println ("  \x1b[1mtizen\x1b[0m -- Create a Tizen application");
+		LogHelper.println ("  \x1b[1mtvos\x1b[0m -- Create an AppleTVOS application");
 		LogHelper.println ("  \x1b[1mwebos\x1b[0m -- Create a webOS application");
 		LogHelper.println ("  \x1b[1mwindows\x1b[0m -- Create a Windows application");
 		LogHelper.println ("");
@@ -761,7 +775,7 @@ class CommandLineTools {
 		LogHelper.println ("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-neko\x1b[0m -- Build with Neko instead of C++");
 		LogHelper.println ("  \x1b[3m(mac|linux)\x1b[0m \x1b[1m-32\x1b[0m -- Compile for 32-bit instead of the OS default");
 		LogHelper.println ("  \x1b[3m(mac|linux)\x1b[0m \x1b[1m-64\x1b[0m -- Compile for 64-bit instead of the OS default");
-		LogHelper.println ("  \x1b[3m(ios|blackberry|tizen|webos)\x1b[0m \x1b[1m-simulator\x1b[0m -- Target the device simulator");
+		LogHelper.println ("  \x1b[3m(ios|blackberry|tizen|tvos|webos)\x1b[0m \x1b[1m-simulator\x1b[0m -- Target the device simulator");
 		LogHelper.println ("  \x1b[3m(ios)\x1b[0m \x1b[1m-simulator -ipad\x1b[0m -- Build/test for the iPad Simulator");
 		LogHelper.println ("  \x1b[3m(android)\x1b[0m \x1b[1m-emulator\x1b[0m -- Target the device emulator");
 		LogHelper.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-minify\x1b[0m -- Minify output using the Google Closure compiler");

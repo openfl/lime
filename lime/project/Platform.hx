@@ -21,6 +21,7 @@ package lime.project;
 	var WIIU = "wiiu";
 	var XBOX1 = "xbox1";
 	var EMSCRIPTEN = "emscripten";
+	var TVOS = "tvos";
 	var CUSTOM = null;
 
 }

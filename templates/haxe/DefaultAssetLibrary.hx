@@ -315,14 +315,15 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#else
 		
 		if (className.exists (id)) {
-			
 			var fontClass = className.get (id);
 			return cast (Type.createInstance (fontClass, []), Image);
 			
 		} else {
-			
+			#if tvos
+			return Image.fromFile ("assets/" + path.get (id));
+			#else
 			return Image.fromFile (path.get (id));
-			
+			#end
 		}
 		
 		#end
@@ -689,7 +690,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			var bytes = ByteArray.readFile ("assets/manifest");
 			#elseif (mac && java)
 			var bytes = ByteArray.readFile ("../Resources/manifest");
-			#elseif ios
+			#elseif (ios || tvos)
 			var bytes = ByteArray.readFile ("assets/manifest");
 			#else
 			var bytes = ByteArray.readFile ("manifest");
@@ -711,7 +712,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 							
 							if (!className.exists (asset.id)) {
 								
-								#if ios
+								#if ios || tvos
 								path.set (asset.id, "assets/" + asset.path);
 								#else
 								path.set (asset.id, asset.path);
@@ -821,7 +822,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 #else
 
-::if (assets != null)::::foreach assets::::if (!embed)::::if (type == "font")::@:keep #if display private #end class __ASSET__::flatName:: extends lime.text.Font { public function new () { __fontPath = #if ios "assets/" + #end "::targetPath::"; name = "::fontName::"; super (); }}
+::if (assets != null)::::foreach assets::::if (!embed)::::if (type == "font")::@:keep #if display private #end class __ASSET__::flatName:: extends lime.text.Font { public function new () { __fontPath = #if (ios || tvos) "assets/" + #end "::targetPath::"; name = "::fontName::"; super (); }}
 ::end::::end::::end::::end::
 
 #if (windows || mac || linux || cpp)
@@ -839,7 +840,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 #end
 
 #if (openfl && !flash)
-::if (assets != null)::::foreach assets::::if (type == "font")::@:keep #if display private #end class __ASSET__OPENFL__::flatName:: extends openfl.text.Font { public function new () { ::if (embed)::var font = new __ASSET__::flatName:: (); src = font.src; name = font.name;::else::__fontPath = #if ios "assets/" + #end "::targetPath::"; name = "::fontName::";::end:: super (); }}
+::if (assets != null)::::foreach assets::::if (type == "font")::@:keep #if display private #end class __ASSET__OPENFL__::flatName:: extends openfl.text.Font { public function new () { ::if (embed)::var font = new __ASSET__::flatName:: (); src = font.src; name = font.name;::else::__fontPath = #if (ios || tvos) "assets/" + #end "::targetPath::"; name = "::fontName::";::end:: super (); }}
 ::end::::end::::end::
 #end
 

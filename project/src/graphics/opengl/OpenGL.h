@@ -14,7 +14,7 @@
 #include <gl2.h>
 #include <gl2ext.h>
 
-#elif defined (IPHONE)
+#elif defined (IPHONE) || defined(APPLETV)
 
 #define LIME_GLES
 #include <OpenGLES/ES1/gl.h>

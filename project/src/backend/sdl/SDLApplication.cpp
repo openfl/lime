@@ -54,7 +54,7 @@ namespace lime {
 		TouchEvent touchEvent;
 		WindowEvent windowEvent;
 		
-		#if defined(IOS) || defined(ANDROID)
+		#if defined(IOS) || defined(ANDROID) || defined(TVOS)
 		for (int i = 0; i < SDL_NumJoysticks (); i++) {
 			
 			if (strstr (SDL_JoystickNameForIndex (i), "Accelerometer")) {
@@ -166,7 +166,7 @@ namespace lime {
 			
 			case SDL_JOYAXISMOTION:
 				
-				#if defined(IOS) || defined(ANDROID)
+				#if defined(IOS) || defined(ANDROID) || defined(TVOS)
 				if (event->jaxis.which == accelerometerID) {
 					
 					ProcessSensorEvent (event);

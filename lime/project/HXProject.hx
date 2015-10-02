@@ -138,7 +138,7 @@ class HXProject {
 				defaultWindow.height = 0;
 				defaultWindow.fps = 60;
 				
-			case ANDROID, BLACKBERRY, IOS, TIZEN, WEBOS:
+			case ANDROID, BLACKBERRY, IOS, TIZEN, WEBOS, TVOS:
 				
 				platformType = PlatformType.MOBILE;
 				
@@ -158,6 +158,8 @@ class HXProject {
 						
 					}
 					
+				} else if (target == Platform.TVOS) {
+					architectures = [ Architecture.ARM64 ];
 				} else {
 					
 					architectures = [ Architecture.ARMV6 ];
