@@ -1,4 +1,5 @@
-package lime;
+package lime; #if (!lime_legacy || lime_hybrid)
+
 
 #if !macro
 
@@ -1497,6 +1498,7 @@ class Assets {
 }
 
 
+#end
 #end
 
 

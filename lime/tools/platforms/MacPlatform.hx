@@ -238,12 +238,6 @@ class MacPlatform extends PlatformTarget {
 			commands.push ([ "-Dmac", "-DHXCPP_M32" ]);
 			
 		}
-
-		if (targetFlags.exists("tvos")) {
-
-			commands.push ([ "-Dtvos", "-Dtoolchain=appletvos", "-DBINDIR=AppleTV" ]);
-
-		}
 		
 		CPPHelper.rebuild (project, commands);
 		

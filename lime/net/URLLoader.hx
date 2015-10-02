@@ -365,7 +365,7 @@ class URLLoader {
 
 	private function writeFunction (output:Bytes, size:Int, nmemb:Int):Int {
 
-		__data.readBytes (ByteArray.fromBytes (output));
+		__data.writeBytes (ByteArray.fromBytes (output));
 		return size * nmemb;
 
 	}

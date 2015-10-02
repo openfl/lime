@@ -315,15 +315,14 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#else
 		
 		if (className.exists (id)) {
+			
 			var fontClass = className.get (id);
 			return cast (Type.createInstance (fontClass, []), Image);
 			
 		} else {
-			#if tvos
-			return Image.fromFile ("assets/" + path.get (id));
-			#else
+			
 			return Image.fromFile (path.get (id));
-			#end
+			
 		}
 		
 		#end
