@@ -224,7 +224,6 @@ class IOSPlatform extends PlatformTarget {
 			context.OBJC_ARC = true;
 			
 		}
-		LogHelper.info("OBJC_ARC:" + context.OBJC_ARC);
 
 		//context.ENABLE_BITCODE = (project.config.getFloat ("ios.deployment", 5.1) >= 6);
 		context.ENABLE_BITCODE = project.config.getBool ("ios.enable-bitcode", false);
