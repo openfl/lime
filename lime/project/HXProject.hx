@@ -159,7 +159,9 @@ class HXProject {
 					}
 					
 				} else if (target == Platform.TVOS) {
+					
 					architectures = [ Architecture.ARM64 ];
+					
 				} else {
 					
 					architectures = [ Architecture.ARMV6 ];
