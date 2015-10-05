@@ -2,10 +2,17 @@ package lime.graphics.format;
 
 
 import haxe.io.Bytes;
+import lime.graphics.utils.ImageCanvasUtil;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.system.CFFI;
 import lime.utils.ByteArray;
+
+#if (js && html5)
+import js.Browser;
+#end
+
+@:access(lime.graphics.ImageBuffer)
 
 #if !macro
 @:build(lime.system.CFFI.build())
@@ -77,6 +84,26 @@ class JPEG {
 			var bytes = @:privateAccess new Bytes (data.length, data.b);
 			return ByteArray.fromBytes (bytes);
 			
+		#elseif html5
+		
+		ImageCanvasUtil.sync (image, false);
+		
+		if (image.buffer.__srcCanvas != null) {
+			
+			var data = image.buffer.__srcCanvas.toDataURL ("image/jpeg", quality / 100);
+			var buffer = Browser.window.atob (data.split (";base64,")[1]);
+			var byteArray = new ByteArray (buffer.length);
+			
+			for (i in 0...buffer.length) {
+				
+				byteArray.byteView[i] = buffer.charCodeAt (i);
+				
+			}
+			
+			return byteArray;
+			
+		}
+		
 		#end
 		
 		return null;

@@ -347,8 +347,6 @@ class Image {
 	
 	public function encode (format:String = "png", quality:Int = 90):ByteArray {
 		
-		#if (!html5 && !flash)
-		
 		switch (format) {
 			
 			case "png":
@@ -366,8 +364,6 @@ class Image {
 			default:
 			
 		}
-		
-		#end
 		
 		return null;
 		
