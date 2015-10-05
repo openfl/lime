@@ -313,9 +313,9 @@ class TVOSPlatform extends PlatformTarget {
 		
 		var commands = [];
 		
-		if (arm64) commands.push ([ "-Dtvos", "-Dappletvos", "-DHXCPP_CPP11", "-DHXCPP_ARM64" ]);
-		if (i386) commands.push ([ "-Dtvos", "-Dappletvsim", "-Dsimulator", "-DHXCPP_CPP11" ]);
-		if (x86_64) commands.push ([ "-Dtvos", "-Dappletvsim", "-Dsimulator", "-DHXCPP_M64", "-DHXCPP_CPP11" ]);
+		if (arm64) commands.push ([ "-Dtvos", "-Dappletvos", "-DHXCPP_CPP11", "-DHXCPP_ARM64", "-DOBJC_ARC" ]);
+		if (i386) commands.push ([ "-Dtvos", "-Dappletvsim", "-Dsimulator", "-DHXCPP_CPP11", "-DOBJC_ARC" ]);
+		if (x86_64) commands.push ([ "-Dtvos", "-Dappletvsim", "-Dsimulator", "-DHXCPP_M64", "-DHXCPP_CPP11", "-DOBJC_ARC" ]);
 		
 		CPPHelper.rebuild (project, commands);
 		

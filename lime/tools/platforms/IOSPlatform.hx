@@ -224,7 +224,7 @@ class IOSPlatform extends PlatformTarget {
 			context.OBJC_ARC = true;
 			
 		}
-		
+
 		//context.ENABLE_BITCODE = (project.config.getFloat ("ios.deployment", 5.1) >= 6);
 		context.ENABLE_BITCODE = project.config.getBool ("ios.enable-bitcode", false);
 		context.IOS_COMPILER = project.config.getString ("ios.compiler", "clang");
@@ -331,12 +331,12 @@ class IOSPlatform extends PlatformTarget {
 		
 		var commands = [];
 		
-		if (armv6) commands.push ([ "-Dios", "-DHXCPP_CPP11" ]);
-		if (armv7) commands.push ([ "-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARMV7" ]);
-		if (armv7s) commands.push ([ "-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARMV7S" ]);
-		if (arm64) commands.push ([ "-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARM64" ]);
-		if (i386) commands.push ([ "-Dios", "-Dsimulator", "-DHXCPP_CPP11" ]);
-		if (x86_64) commands.push ([ "-Dios", "-Dsimulator", "-DHXCPP_M64", "-DHXCPP_CPP11" ]);
+		if (armv6) commands.push ([ "-Dios", "-DHXCPP_CPP11", "-DOBJC_ARC" ]);
+		if (armv7) commands.push ([ "-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARMV7", "-DOBJC_ARC" ]);
+		if (armv7s) commands.push ([ "-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARMV7S", "-DOBJC_ARC" ]);
+		if (arm64) commands.push ([ "-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARM64", "-DOBJC_ARC" ]);
+		if (i386) commands.push ([ "-Dios", "-Dsimulator", "-DHXCPP_CPP11", "-DOBJC_ARC" ]);
+		if (x86_64) commands.push ([ "-Dios", "-Dsimulator", "-DHXCPP_M64", "-DHXCPP_CPP11", "-DOBJC_ARC" ]);
 		
 		CPPHelper.rebuild (project, commands);
 		
