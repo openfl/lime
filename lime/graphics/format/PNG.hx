@@ -6,6 +6,10 @@ import lime.graphics.Image;
 import lime.system.CFFI;
 import lime.utils.ByteArray;
 
+#if (js && html5)
+import js.Browser;
+#end
+
 #if format
 import format.png.Data;
 import format.png.Writer;
@@ -13,6 +17,8 @@ import format.tools.Deflate;
 import haxe.io.Bytes;
 import haxe.io.BytesOutput;
 #end
+
+@:access(lime.graphics.ImageBuffer)
 
 #if !macro
 @:build(lime.system.CFFI.build())
@@ -130,6 +136,26 @@ class PNG {
 				#end
 				
 			} catch (e:Dynamic) { }
+			
+		}
+		
+		#elseif html5
+		
+		ImageCanvasUtil.sync (image, false);
+		
+		if (image.buffer.__srcCanvas != null) {
+			
+			var data = image.buffer.__srcCanvas.toDataURL ("image/png");
+			var buffer = Browser.window.atob (data.split (";base64,")[1]);
+			var byteArray = new ByteArray (buffer.length);
+			
+			for (i in 0...buffer.length) {
+				
+				byteArray.byteView[i] = buffer.charCodeAt (i);
+				
+			}
+			
+			return byteArray;
 			
 		}
 		
