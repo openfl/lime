@@ -14,6 +14,7 @@ import lime.graphics.Renderer;
 @:build(lime.system.CFFI.build())
 #end
 
+@:access(lime._backend.native.NativeWindow)
 @:access(lime.graphics.cairo.Cairo)
 @:access(lime.ui.Window)
 
@@ -44,6 +45,11 @@ class NativeRenderer {
 		
 		#if !macro
 		handle = lime_renderer_create (parent.window.backend.handle);
+		
+		#if (mac || ios)
+		parent.window.__width = NativeWindow.lime_window_get_width (parent.window.backend.handle);
+		parent.window.__height = NativeWindow.lime_window_get_height (parent.window.backend.handle);
+		#end
 		
 		#if lime_console
 		

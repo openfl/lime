@@ -25,7 +25,7 @@ namespace lime {
 		if (flags & WINDOW_FLAG_HARDWARE) {
 			
 			sdlFlags |= SDL_WINDOW_OPENGL;
-			//sdlFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
+			sdlFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
 			
 			#if defined (HX_WINDOWS) && defined (NATIVE_TOOLKIT_SDL_ANGLE)
 			SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
@@ -173,7 +173,19 @@ namespace lime {
 		int width;
 		int height;
 		
-		SDL_GetWindowSize (sdlWindow, &width, &height);
+		SDL_GL_GetDrawableSize (sdlWindow, &width, &height);
+		
+		SDL_Renderer* sdlRenderer = SDL_GetRenderer (sdlWindow);
+		
+		if (sdlRenderer) {
+			
+			SDL_GetRendererOutputSize (sdlRenderer, &width, &height);
+			
+		} else {
+			
+			SDL_GetWindowSize (sdlWindow, &width, &height);
+			
+		}
 		
 		return height;
 		
@@ -192,7 +204,17 @@ namespace lime {
 		int width;
 		int height;
 		
-		SDL_GetWindowSize (sdlWindow, &width, &height);
+		SDL_Renderer* sdlRenderer = SDL_GetRenderer (sdlWindow);
+		
+		if (sdlRenderer) {
+			
+			SDL_GetRendererOutputSize (sdlRenderer, &width, &height);
+			
+		} else {
+			
+			SDL_GetWindowSize (sdlWindow, &width, &height);
+			
+		}
 		
 		return width;
 		
