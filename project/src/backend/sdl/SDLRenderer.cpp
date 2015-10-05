@@ -85,6 +85,24 @@ namespace lime {
 	}
 	
 	
+	double SDLRenderer::GetScale () {
+		
+		int outputWidth;
+		int outputHeight;
+		
+		SDL_GetRendererOutputSize (sdlRenderer, &outputWidth, &outputHeight);
+		
+		int width;
+		int height;
+		
+		SDL_GetWindowSize (sdlWindow, &width, &height);
+		
+		double scale = outputWidth / width;
+		return scale;
+		
+	}
+	
+	
 	value SDLRenderer::Lock () {
 		
 		int width;

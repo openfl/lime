@@ -14,7 +14,6 @@ import lime.graphics.Renderer;
 @:build(lime.system.CFFI.build())
 #end
 
-@:access(lime._backend.native.NativeWindow)
 @:access(lime.graphics.cairo.Cairo)
 @:access(lime.ui.Window)
 
@@ -46,10 +45,7 @@ class NativeRenderer {
 		#if !macro
 		handle = lime_renderer_create (parent.window.backend.handle);
 		
-		#if (mac || ios)
-		parent.window.__width = NativeWindow.lime_window_get_width (parent.window.backend.handle);
-		parent.window.__height = NativeWindow.lime_window_get_height (parent.window.backend.handle);
-		#end
+		parent.window.__scale = lime_renderer_get_scale (handle);
 		
 		#if lime_console
 		
@@ -163,6 +159,7 @@ class NativeRenderer {
 	@:cffi private static function lime_renderer_create (window:Dynamic):Dynamic;
 	@:cffi private static function lime_renderer_flip (handle:Dynamic):Void;
 	@:cffi private static function lime_renderer_get_context (handle:Dynamic):Float;
+	@:cffi private static function lime_renderer_get_scale (handle:Dynamic):Float;
 	@:cffi private static function lime_renderer_get_type (handle:Dynamic):Dynamic;
 	@:cffi private static function lime_renderer_lock (handle:Dynamic):Dynamic;
 	@:cffi private static function lime_renderer_make_current (handle:Dynamic):Void;

@@ -536,9 +536,8 @@ namespace lime {
 				case SDL_WINDOWEVENT_SIZE_CHANGED:
 					
 					windowEvent.type = WINDOW_RESIZE;
-					SDL_GL_GetDrawableSize (SDL_GetWindowFromID (event->window.windowID), &windowEvent.width, &windowEvent.height);
-					//windowEvent.width = event->window.data1;
-					//windowEvent.height = event->window.data2;
+					windowEvent.width = event->window.data1;
+					windowEvent.height = event->window.data2;
 					break;
 				
 				case SDL_WINDOWEVENT_RESTORED: windowEvent.type = WINDOW_RESTORE; break;

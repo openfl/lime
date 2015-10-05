@@ -16,6 +16,7 @@ namespace lime {
 			
 			virtual void Flip () = 0;
 			virtual void* GetContext () = 0;
+			virtual double GetScale () = 0;
 			virtual value Lock () = 0;
 			virtual void MakeCurrent () = 0;
 			virtual const char* Type () = 0;

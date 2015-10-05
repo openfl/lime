@@ -991,6 +991,14 @@ namespace lime {
 	}
 	
 	
+	double lime_renderer_get_scale (value renderer) {
+		
+		Renderer* targetRenderer = (Renderer*)val_data (renderer);
+		return targetRenderer->GetScale ();
+		
+	}
+	
+	
 	value lime_renderer_get_type (value renderer) {
 		
 		Renderer* targetRenderer = (Renderer*)val_data (renderer);
@@ -1367,6 +1375,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_renderer_create);
 	DEFINE_PRIME1v (lime_renderer_flip);
 	DEFINE_PRIME1 (lime_renderer_get_context);
+	DEFINE_PRIME1 (lime_renderer_get_scale);
 	DEFINE_PRIME1 (lime_renderer_get_type);
 	DEFINE_PRIME1 (lime_renderer_lock);
 	DEFINE_PRIME1v (lime_renderer_make_current);

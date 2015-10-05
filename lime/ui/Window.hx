@@ -49,6 +49,7 @@ class Window {
 	public var onTextEdit = new Event<String->Int->Int->Void> ();
 	public var onTextInput = new Event<String->Void> ();
 	public var renderer:Renderer;
+	public var scale (get, null):Float;
 	public var stage:Stage;
 	public var title (get, set):String;
 	public var width (get, set):Int;
@@ -59,6 +60,7 @@ class Window {
 	@:noCompletion private var __fullscreen:Bool;
 	@:noCompletion private var __height:Int;
 	@:noCompletion private var __minimized:Bool;
+	@:noCompletion private var __scale:Float;
 	@:noCompletion private var __title:String;
 	@:noCompletion private var __width:Int;
 	@:noCompletion private var __x:Int;
@@ -72,6 +74,7 @@ class Window {
 		__width = 0;
 		__height = 0;
 		__fullscreen = false;
+		__scale = 1;
 		__x = 0;
 		__y = 0;
 		__title = "";
@@ -363,6 +366,13 @@ class Window {
 	@:noCompletion private function set_minimized (value:Bool):Bool {
 		
 		return __minimized = backend.setMinimized (value);
+		
+	}
+	
+	
+	@:noCompletion private inline function get_scale ():Float {
+		
+		return __scale;
 		
 	}
 	
