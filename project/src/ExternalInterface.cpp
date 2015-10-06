@@ -31,6 +31,8 @@
 #include <ui/FileDialog.h>
 #include <ui/Gamepad.h>
 #include <ui/GamepadEvent.h>
+#include <ui/Joystick.h>
+#include <ui/JoystickEvent.h>
 #include <ui/KeyEvent.h>
 #include <ui/Mouse.h>
 #include <ui/MouseCursor.h>
@@ -784,6 +786,58 @@ namespace lime {
 	}
 	
 	
+	void lime_joystick_event_manager_register (value callback, value eventObject) {
+		
+		JoystickEvent::callback = new AutoGCRoot (callback);
+		JoystickEvent::eventObject = new AutoGCRoot (eventObject);
+		
+	}
+	
+	
+	value lime_joystick_get_device_guid (int id) {
+		
+		const char* guid = Joystick::GetDeviceGUID (id);
+		return guid ? alloc_string (guid) : alloc_null ();
+		
+	}
+	
+	
+	value lime_joystick_get_device_name (int id) {
+		
+		const char* name = Joystick::GetDeviceName (id);
+		return name ? alloc_string (name) : alloc_null ();
+		
+	}
+	
+	
+	int lime_joystick_get_num_axes (int id) {
+		
+		return Joystick::GetNumAxes (id);
+		
+	}
+	
+	
+	int lime_joystick_get_num_buttons (int id) {
+		
+		return Joystick::GetNumButtons (id);
+		
+	}
+	
+	
+	int lime_joystick_get_num_hats (int id) {
+		
+		return Joystick::GetNumHats (id);
+		
+	}
+	
+	
+	int lime_joystick_get_num_trackballs (int id) {
+		
+		return Joystick::GetNumTrackballs (id);
+		
+	}
+	
+	
 	value lime_jpeg_decode_bytes (value data, bool decodeData) {
 		
 		ImageBuffer imageBuffer;
@@ -1358,6 +1412,13 @@ namespace lime {
 	DEFINE_PRIME3 (lime_image_encode);
 	DEFINE_PRIME1 (lime_image_load);
 	DEFINE_PRIME0 (lime_jni_getenv);
+	DEFINE_PRIME2v (lime_joystick_event_manager_register);
+	DEFINE_PRIME1 (lime_joystick_get_device_guid);
+	DEFINE_PRIME1 (lime_joystick_get_device_name);
+	DEFINE_PRIME1 (lime_joystick_get_num_axes);
+	DEFINE_PRIME1 (lime_joystick_get_num_buttons);
+	DEFINE_PRIME1 (lime_joystick_get_num_hats);
+	DEFINE_PRIME1 (lime_joystick_get_num_trackballs);
 	DEFINE_PRIME2 (lime_jpeg_decode_bytes);
 	DEFINE_PRIME2 (lime_jpeg_decode_file);
 	DEFINE_PRIME2v (lime_key_event_manager_register);

@@ -16,6 +16,8 @@ import lime.system.Sensor;
 import lime.system.SensorType;
 import lime.system.System;
 import lime.ui.Gamepad;
+import lime.ui.Joystick;
+import lime.ui.JoystickHatPosition;
 import lime.ui.Touch;
 import lime.ui.Window;
 
@@ -29,6 +31,7 @@ import lime.ui.Window;
 @:access(lime.graphics.Renderer)
 @:access(lime.system.Sensor)
 @:access(lime.ui.Gamepad)
+@:access(lime.ui.Joystick)
 @:access(lime.ui.Window)
 
 
@@ -38,6 +41,7 @@ class NativeApplication {
 	private var applicationEventInfo = new ApplicationEventInfo (UPDATE);
 	private var currentTouches = new Map<Int, Touch> ();
 	private var gamepadEventInfo = new GamepadEventInfo ();
+	private var joystickEventInfo = new JoystickEventInfo ();
 	private var keyEventInfo = new KeyEventInfo ();
 	private var mouseEventInfo = new MouseEventInfo ();
 	private var renderEventInfo = new RenderEventInfo (RENDER);
@@ -82,6 +86,7 @@ class NativeApplication {
 		
 		lime_application_event_manager_register (handleApplicationEvent, applicationEventInfo);
 		lime_gamepad_event_manager_register (handleGamepadEvent, gamepadEventInfo);
+		lime_joystick_event_manager_register (handleJoystickEvent, joystickEventInfo);
 		lime_key_event_manager_register (handleKeyEvent, keyEventInfo);
 		lime_mouse_event_manager_register (handleMouseEvent, mouseEventInfo);
 		lime_render_event_manager_register (handleRenderEvent, renderEventInfo);
@@ -197,6 +202,57 @@ class NativeApplication {
 				if (gamepad != null) gamepad.connected = false;
 				Gamepad.devices.remove (gamepadEventInfo.id);
 				if (gamepad != null) gamepad.onDisconnect.dispatch ();
+			
+		}
+		
+	}
+	
+	
+	private function handleJoystickEvent ():Void {
+		
+		switch (joystickEventInfo.type) {
+			
+			case AXIS_MOVE:
+				
+				var joystick = Joystick.devices.get (joystickEventInfo.id);
+				if (joystick != null) joystick.onAxisMove.dispatch (joystickEventInfo.index, joystickEventInfo.value);
+			
+			case HAT_MOVE:
+				
+				var joystick = Joystick.devices.get (joystickEventInfo.id);
+				if (joystick != null) joystick.onHatMove.dispatch (joystickEventInfo.index, joystickEventInfo.x);
+			
+			case TRACKBALL_MOVE:
+				
+				var joystick = Joystick.devices.get (joystickEventInfo.id);
+				if (joystick != null) joystick.onTrackballMove.dispatch (joystickEventInfo.index, joystickEventInfo.value);
+			
+			case BUTTON_DOWN:
+				
+				var joystick = Joystick.devices.get (joystickEventInfo.id);
+				if (joystick != null) joystick.onButtonDown.dispatch (joystickEventInfo.index);
+			
+			case BUTTON_UP:
+				
+				var joystick = Joystick.devices.get (joystickEventInfo.id);
+				if (joystick != null) joystick.onButtonUp.dispatch (joystickEventInfo.index);
+			
+			case CONNECT:
+				
+				if (!Joystick.devices.exists (joystickEventInfo.id)) {
+					
+					var joystick = new Joystick (joystickEventInfo.id);
+					Joystick.devices.set (joystickEventInfo.id, joystick);
+					Joystick.onConnect.dispatch (joystick);
+					
+				}
+			
+			case DISCONNECT:
+				
+				var joystick = Joystick.devices.get (joystickEventInfo.id);
+				if (joystick != null) joystick.connected = false;
+				Joystick.devices.remove (joystickEventInfo.id);
+				if (joystick != null) joystick.onDisconnect.dispatch ();
 			
 		}
 		
@@ -538,6 +594,7 @@ class NativeApplication {
 	@:cffi private static function lime_application_set_frame_rate (handle:Dynamic, value:Float):Void;
 	@:cffi private static function lime_application_update (handle:Dynamic):Bool;
 	@:cffi private static function lime_gamepad_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:cffi private static function lime_joystick_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_key_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_mouse_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_render_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
@@ -622,6 +679,52 @@ private class GamepadEventInfo {
 	var BUTTON_UP = 2;
 	var CONNECT = 3;
 	var DISCONNECT = 4;
+	
+}
+
+
+private class JoystickEventInfo {
+	
+	
+	public var id:Int;
+	public var index:Int;
+	public var type:JoystickEventType;
+	public var value:Float;
+	public var x:Int;
+	public var y:Int;
+	
+	
+	public function new (type:JoystickEventType = null, id:Int = 0, index:Int = 0, value:Float = 0, x:Int = 0, y:Int = 0) {
+		
+		this.type = type;
+		this.id = id;
+		this.index = index;
+		this.value = value;
+		this.x = x;
+		this.y = y;
+		
+	}
+	
+	
+	public function clone ():JoystickEventInfo {
+		
+		return new JoystickEventInfo (type, id, index, value, x, y);
+		
+	}
+	
+	
+}
+
+
+@:enum private abstract JoystickEventType(Int) {
+	
+	var AXIS_MOVE = 0;
+	var HAT_MOVE = 1;
+	var TRACKBALL_MOVE = 2;
+	var BUTTON_DOWN = 3;
+	var BUTTON_UP = 4;
+	var CONNECT = 5;
+	var DISCONNECT = 6;
 	
 }
 

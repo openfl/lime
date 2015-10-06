@@ -22,7 +22,7 @@ namespace lime {
 		axisValue = 0;
 		button = 0;
 		id = 0;
-		type = AXIS_MOVE;
+		type = GAMEPAD_AXIS_MOVE;
 		
 	}
 	
