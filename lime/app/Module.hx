@@ -6,6 +6,8 @@ import lime.graphics.Renderer;
 import lime.ui.Gamepad;
 import lime.ui.GamepadAxis;
 import lime.ui.GamepadButton;
+import lime.ui.Joystick;
+import lime.ui.JoystickHatPosition;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.Touch;
@@ -65,6 +67,63 @@ class Module implements IModule {
 	 * @param	gamepad	The gamepad that was disconnected
 	 */
 	public function onGamepadDisconnect (gamepad:Gamepad):Void { }
+	
+	
+	/**
+	 * Called when a joystick axis move event is fired
+	 * @param	joystick	The current joystick
+	 * @param	axis	The axis that was moved
+	 * @param	value	The axis value (between 0 and 1)
+	 */
+	public function onJoystickAxisMove (joystick:Joystick, axis:Int, value:Float):Void { }
+	
+	
+	/**
+	 * Called when a joystick button down event is fired
+	 * @param	joystick	The current joystick
+	 * @param	button	The button that was pressed
+	 */
+	public function onJoystickButtonDown (joystick:Joystick, button:Int):Void { }
+	
+	
+	/**
+	 * Called when a joystick button up event is fired
+	 * @param	joystick	The current joystick
+	 * @param	button	The button that was released
+	 */
+	public function onJoystickButtonUp (joystick:Joystick, button:Int):Void { }
+	
+	
+	/**
+	 * Called when a joystick is connected
+	 * @param	joystick	The joystick that was connected
+	 */
+	public function onJoystickConnect (joystick:Joystick):Void { }
+	
+	
+	/**
+	 * Called when a joystick is disconnected
+	 * @param	joystick	The joystick that was disconnected
+	 */
+	public function onJoystickDisconnect (joystick:Joystick):Void { }
+	
+	
+	/**
+	 * Called when a joystick hat move event is fired
+	 * @param	joystick	The current joystick
+	 * @param	hat	The hat that was moved
+	 * @param	position	The current hat position
+	 */
+	public function onJoystickHatMove (joystick:Joystick, hat:Int, position:JoystickHatPosition):Void { }
+	
+	
+	/**
+	 * Called when a joystick axis move event is fired
+	 * @param	joystick	The current joystick
+	 * @param	trackball	The trackball that was moved
+	 * @param	value	The trackball value (between 0 and 1)
+	 */
+	public function onJoystickTrackballMove (joystick:Joystick, trackball:Int, value:Float):Void { }
 	
 	
 	/**

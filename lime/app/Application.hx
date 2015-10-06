@@ -6,6 +6,8 @@ import lime.graphics.RenderContext;
 import lime.ui.Gamepad;
 import lime.ui.GamepadAxis;
 import lime.ui.GamepadButton;
+import lime.ui.Joystick;
+import lime.ui.JoystickHatPosition;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.Touch;
@@ -63,6 +65,7 @@ class Application extends Module {
 		onUpdate.add (update);
 		
 		Gamepad.onConnect.add (onGamepadConnect);
+		Joystick.onConnect.add (onJoystickConnect);
 		Touch.onStart.add (onTouchStart);
 		Touch.onMove.add (onTouchMove);
 		Touch.onEnd.add (onTouchEnd);
@@ -274,6 +277,90 @@ class Application extends Module {
 		for (module in modules) {
 			
 			module.onGamepadDisconnect (gamepad);
+			
+		}
+		
+	}
+	
+	
+	public override function onJoystickAxisMove (joystick:Joystick, axis:Int, value:Float):Void {
+		
+		for (module in modules) {
+			
+			module.onJoystickAxisMove (joystick, axis, value);
+			
+		}
+		
+	}
+	
+	
+	public override function onJoystickButtonDown (joystick:Joystick, button:Int):Void {
+		
+		for (module in modules) {
+			
+			module.onJoystickButtonDown (joystick, button);
+			
+		}
+		
+	}
+	
+	
+	public override function onJoystickButtonUp (joystick:Joystick, button:Int):Void {
+		
+		for (module in modules) {
+			
+			module.onJoystickButtonUp (joystick, button);
+			
+		}
+		
+	}
+	
+	
+	public override function onJoystickConnect (joystick:Joystick):Void {
+		
+		for (module in modules) {
+			
+			module.onJoystickConnect (joystick);
+			
+		}
+		
+		joystick.onAxisMove.add (onJoystickAxisMove.bind (joystick));
+		joystick.onButtonDown.add (onJoystickButtonDown.bind (joystick));
+		joystick.onButtonUp.add (onJoystickButtonUp.bind (joystick));
+		joystick.onDisconnect.add (onJoystickDisconnect.bind (joystick));
+		joystick.onHatMove.add (onJoystickHatMove.bind (joystick));
+		joystick.onTrackballMove.add (onJoystickTrackballMove.bind (joystick));
+		
+	}
+	
+	
+	public override function onJoystickDisconnect (joystick:Joystick):Void {
+		
+		for (module in modules) {
+			
+			module.onJoystickDisconnect (joystick);
+			
+		}
+		
+	}
+	
+	
+	public override function onJoystickHatMove (joystick:Joystick, hat:Int, position:JoystickHatPosition):Void {
+		
+		for (module in modules) {
+			
+			module.onJoystickHatMove (joystick, hat, position);
+			
+		}
+		
+	}
+	
+	
+	public override function onJoystickTrackballMove (joystick:Joystick, trackball:Int, value:Float):Void {
+		
+		for (module in modules) {
+			
+			module.onJoystickTrackballMove (joystick, trackball, value);
 			
 		}
 		
