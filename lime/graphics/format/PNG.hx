@@ -139,7 +139,7 @@ class PNG {
 			
 		}
 		
-		#elseif html5
+		#elseif (js && html5)
 		
 		ImageCanvasUtil.sync (image, false);
 		

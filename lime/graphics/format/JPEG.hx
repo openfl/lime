@@ -84,7 +84,7 @@ class JPEG {
 			var bytes = @:privateAccess new Bytes (data.length, data.b);
 			return ByteArray.fromBytes (bytes);
 			
-		#elseif html5
+		#elseif (js && html5)
 		
 		ImageCanvasUtil.sync (image, false);
 		
