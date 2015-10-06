@@ -2967,7 +2967,7 @@ public:
                 kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Little,
                 dataProvider, 0, false, kCGRenderingIntentDefault);
          
-         mLayer.contents = (NSNumber *)imageRef;
+         mLayer.contents = (__bridge NSNumber *)imageRef;
          
          CGDataProviderRelease(dataProvider);
          CGImageRelease(imageRef);
