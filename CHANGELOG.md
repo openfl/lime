@@ -1,3 +1,13 @@
+2.6.8 (10/05/2015)
+------------------
+
+* Updated to a new SDL development version
+* Added window.scale, window size and mouse events are in points
+* Added Lime Joystick events (alongside Gamepad events)
+* Added JPEG and PNG encode support for HTML5
+* Improved tooling support for tvOS builds
+
+
 2.6.7 (10/02/2015)
 ------------------
 
