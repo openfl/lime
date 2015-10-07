@@ -240,12 +240,16 @@ class IOSPlatform extends PlatformTarget {
 		}
 		
 		context.CPP_BUILD_LIBRARY_FLAGS = compilerFlags;
+
+		var requiresFullscreen = false;
 		
 		switch (project.window.orientation) {
 			
 			case PORTRAIT:
+				requiresFullscreen = true;
 				context.IOS_APP_ORIENTATION = "<array><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationPortraitUpsideDown</string></array>";
 			case LANDSCAPE:
+				requiresFullscreen = true;
 				context.IOS_APP_ORIENTATION = "<array><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string></array>";
 			case ALL:
 				context.IOS_APP_ORIENTATION = "<array><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationPortraitUpsideDown</string></array>";
@@ -255,6 +259,8 @@ class IOSPlatform extends PlatformTarget {
 				context.IOS_APP_ORIENTATION = "<array><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationPortraitUpsideDown</string></array>";
 			
 		}
+
+		context.IOS_APP_REQUIRES_FULLSCREEN = requiresFullscreen;
 		
 		context.ADDL_PBX_BUILD_FILE = "";
 		context.ADDL_PBX_FILE_REFERENCE = "";
