@@ -90,7 +90,11 @@ class JPEG {
 		
 		if (image.buffer.__srcCanvas != null) {
 			
+			#if (haxe_ver >= 3.2)
 			var data = image.buffer.__srcCanvas.toDataURL ("image/jpeg", quality / 100);
+			#else
+			var data = image.buffer.__srcCanvas.toDataURL ("image/jpeg");
+			#end
 			var buffer = Browser.window.atob (data.split (";base64,")[1]);
 			var byteArray = new ByteArray (buffer.length);
 			
