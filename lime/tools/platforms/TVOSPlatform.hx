@@ -211,7 +211,7 @@ class TVOSPlatform extends PlatformTarget {
 			
 		}
 		
-		context.ENABLE_BITCODE = project.config.getBool ("tvos.enable-bitcode", false);
+		context.ENABLE_BITCODE = project.config.getBool ("tvos.enable-bitcode", true);
 		context.IOS_COMPILER = project.config.getString ("tvos.compiler", "clang");
 		context.CPP_BUILD_LIBRARY = project.config.getString ("cpp.buildLibrary", "hxcpp");
 		
