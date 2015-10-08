@@ -157,9 +157,7 @@ class WindowsPlatform extends PlatformTarget {
 			
 			if (enableLinuxMingw) {
 
-				flags.push ("-Dtoolchain=mingw");
-				flags.push ("-Dlinux_host");
-				flags.push ("-DMINGW_ROOT=/usr/i686-w64-mingw32");
+				flags.push ("-DHXCPP_M32");
 
 			}
 			
