@@ -211,7 +211,7 @@ class TVOSPlatform extends PlatformTarget {
 			
 		}
 		
-		context.ENABLE_BITCODE = project.config.getBool ("tvos.enable-bitcode", false);
+		context.ENABLE_BITCODE = project.config.getBool ("tvos.enable-bitcode", true);
 		context.IOS_COMPILER = project.config.getString ("tvos.compiler", "clang");
 		context.CPP_BUILD_LIBRARY = project.config.getString ("cpp.buildLibrary", "hxcpp");
 		
@@ -313,9 +313,9 @@ class TVOSPlatform extends PlatformTarget {
 		
 		var commands = [];
 		
-		if (arm64) commands.push ([ "-Dtvos", "-Dappletvos", "-DHXCPP_CPP11", "-DHXCPP_ARM64", "-DOBJC_ARC" ]);
-		if (i386) commands.push ([ "-Dtvos", "-Dappletvsim", "-Dsimulator", "-DHXCPP_CPP11", "-DOBJC_ARC" ]);
-		if (x86_64) commands.push ([ "-Dtvos", "-Dappletvsim", "-Dsimulator", "-DHXCPP_M64", "-DHXCPP_CPP11", "-DOBJC_ARC" ]);
+		if (arm64) commands.push ([ "-Dtvos", "-Dappletvos", "-DHXCPP_CPP11", "-DHXCPP_ARM64", "-DOBJC_ARC", "-DENABLE_BITCODE" ]);
+		if (i386) commands.push ([ "-Dtvos", "-Dappletvsim", "-Dsimulator", "-DHXCPP_CPP11", "-DOBJC_ARC", "-DENABLE_BITCODE" ]);
+		if (x86_64) commands.push ([ "-Dtvos", "-Dappletvsim", "-Dsimulator", "-DHXCPP_M64", "-DHXCPP_CPP11", "-DOBJC_ARC", "-DENABLE_BITCODE" ]);
 		
 		CPPHelper.rebuild (project, commands);
 		
