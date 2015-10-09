@@ -4,6 +4,7 @@ package lime.net;
 import haxe.io.Bytes;
 import lime.app.Event;
 import lime.utils.ByteArray;
+import lime.utils.BytesUtil;
 
 #if (js && html5)
 import js.html.EventTarget;
@@ -390,7 +391,7 @@ class URLLoader {
 	}
 
 	private function readFunction(max:Int, input:ByteArray):Bytes {
-		return input;
+		return BytesUtil.getBytesFromByteArray (input);
 	}
 
 	#end

@@ -6,6 +6,7 @@ import lime.graphics.ImageBuffer;
 import lime.math.Vector2;
 import lime.system.System;
 import lime.utils.ByteArray;
+import lime.utils.BytesUtil;
 import lime.utils.UInt8Array;
 
 #if (js && html5)
@@ -172,11 +173,7 @@ class Font {
 			var data = new ByteArray (width * height);
 			bytes.readBytes (data, 0, width * height);
 			
-			#if js
-			var buffer = new ImageBuffer (data.byteView, width, height, 1);
-			#else
-			var buffer = new ImageBuffer (new UInt8Array (data), width, height, 1);
-			#end
+			var buffer = new ImageBuffer (BytesUtil.getUInt8ArrayFromByteArray (data), width, height, 1);
 			var image = new Image (buffer, 0, 0, width, height);
 			image.x = x;
 			image.y = y;
@@ -340,11 +337,7 @@ class Font {
 				
 			}
 			
-			#if js
-			buffer.data = data.byteView;
-			#else
-			buffer.data = new UInt8Array (data);
-			#end
+			buffer.data = BytesUtil.getUInt8ArrayFromByteArray (data);
 			
 			return map;
 			

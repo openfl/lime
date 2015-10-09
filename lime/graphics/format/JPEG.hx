@@ -7,6 +7,7 @@ import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.system.CFFI;
 import lime.utils.ByteArray;
+import lime.utils.BytesUtil;
 
 #if (js && html5)
 import js.Browser;
@@ -81,7 +82,7 @@ class JPEG {
 		#elseif (sys && (!disable_cffi || !format) && !macro)
 			
 			var data:Dynamic = lime_image_encode (image.buffer, 1, quality);
-			var bytes = @:privateAccess new Bytes (data.length, data.b);
+			var bytes = BytesUtil.createBytes (data.length, data.b);
 			return ByteArray.fromBytes (bytes);
 			
 		#elseif (js && html5)
@@ -100,7 +101,7 @@ class JPEG {
 			
 			for (i in 0...buffer.length) {
 				
-				byteArray.byteView[i] = buffer.charCodeAt (i);
+				byteArray.b[i] = buffer.charCodeAt (i);
 				
 			}
 			

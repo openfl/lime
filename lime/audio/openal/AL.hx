@@ -2,6 +2,7 @@ package lime.audio.openal;
 
 
 import lime.utils.ArrayBufferView;
+import lime.utils.BytesUtil;
 
 #if ((haxe_ver >= 3.2) && cpp)
 import cpp.Float32;
@@ -86,7 +87,7 @@ class AL {
 		#if ((cpp || neko) && lime_openal && !macro)
 		lime_al_buffer_data (buffer, format, data.buffer, size, freq);
 		#elseif (nodejs && lime_openal && !macro)
-		lime_al_buffer_data (buffer, format, data, size, freq);
+		lime_al_buffer_data (buffer, format, BytesUtil.getAnonBytesFromTypedArray (data), size, freq);
 		#elseif (nodejs && lime_openal && !macro)
 		lime_al_buffer_data (buffer, format, data, size, freq);
 		#end

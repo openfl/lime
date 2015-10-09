@@ -15,7 +15,7 @@ class LZMA {
 		
 		#if ((cpp || neko || nodejs) && !macro)
 		var data:Dynamic = lime_lzma_decode (bytes);
-		return ByteArray.fromBytes (@:privateAccess new Bytes (data.length, data.b));
+		return ByteArray.fromBytes (BytesUtil.createBytes (data.length, data.b));
 		#else
 		return null;
 		#end
@@ -27,7 +27,7 @@ class LZMA {
 		
 		#if ((cpp || neko || nodejs) && !macro)
 		var data:Dynamic = lime_lzma_encode (bytes);
-		return ByteArray.fromBytes (@:privateAccess new Bytes (data.length, data.b));
+		return ByteArray.fromBytes (BytesUtil.createBytes (data.length, data.b));
 		#else
 		return null;
 		#end

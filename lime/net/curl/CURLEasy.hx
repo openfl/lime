@@ -3,6 +3,7 @@ package lime.net.curl;
 
 import haxe.io.Bytes;
 import lime.net.curl.CURL;
+import lime.utils.BytesUtil;
 
 #if !macro
 @:build(lime.system.CFFI.build())
@@ -163,7 +164,7 @@ class CURLEasy {
 		
 		if (output != null) {
 			
-			bytes = @:privateAccess new Bytes (output.length, output.b);
+			bytes = BytesUtil.createBytes (output.length, output.b);
 			
 		}
 		

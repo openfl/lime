@@ -50,7 +50,8 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	private var littleEndian:Bool = false;
 	
 	#if js
-	public var byteView:Uint8Array;
+	public var byteView(get, never):Uint8Array;
+	public var b(default, null):Uint8Array;
 	private var data:DataView;
 	#else
 	public var bigEndian (get, set):Bool;
@@ -281,7 +282,7 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 		
 		bytes.ensureWrite (offset + length);
 		
-		bytes.byteView.set (byteView.subarray (this.position, this.position + length), offset);
+		bytes.b.set (b.subarray (this.position, this.position + length), offset);
 		bytes.position = offset;
 		
 		this.position += length;
@@ -332,8 +333,8 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	public static function readFile (path:String):ByteArray {
 		
 		#if (!html5 && !macro)
-		var data:Dynamic = lime_bytes_read_file (path);
-		if (data != null) return ByteArray.fromBytes (@:privateAccess new Bytes (data.length, data.b));
+		var data:AnonBytes = lime_bytes_read_file (path);
+		if (data != null) return ByteArray.fromBytes (BytesUtil.createBytes (data.length, data.b));
 		#end
 		return null;
 		
@@ -695,7 +696,7 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 		if (offset < 0 || length < 0) throw ("Write error - Out of bounds");
 		if( length == 0 ) length = bytes.length;
 		ensureWrite (this.position + length);
-		byteView.set (bytes.byteView.subarray (offset, offset + length), this.position);
+		b.set (bytes.b.subarray (offset, offset + length), this.position);
 		this.position += length;
 		#else
 		if (length == 0) length = bytes.length - offset;
@@ -725,7 +726,10 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	
 	public function writeFile (path:String):Void {
 		
-		#if sys
+		#if nodejs
+		var bytes:AnonBytes = BytesUtil.getAnonBytesFromByteArray (this);
+		lime_bytes_overwrite_file (path, bytes);
+		#elseif sys
 		File.saveBytes (path, this);
 		#end
 		
@@ -894,8 +898,8 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	private inline function __fromBytes (bytes:Bytes):Void {
 		
 		#if js
-		byteView = untyped __new__("Uint8Array", bytes.getData ());
-		length = byteView.length;
+		b = untyped __new__("Uint8Array", bytes.getData ());
+		length = b.length;
 		allocated = length;
 		#else
 		b = bytes.b;
@@ -911,8 +915,8 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	#if ((cpp || neko || nodejs) && !macro)
 	public static function __fromNativePointer (data:Dynamic, length:Int):ByteArray {
 		
-		var bytes:Dynamic = lime_bytes_from_data_pointer (data, length);
-		return ByteArray.fromBytes (@:privateAccess new Bytes (bytes.length, bytes.b));
+		var bytes:AnonBytes = lime_bytes_from_data_pointer (data, length);
+		return ByteArray.fromBytes (BytesUtil.createBytes (bytes.length, bytes.b));
 		
 	}
 	#end
@@ -947,7 +951,7 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	#if ((cpp || neko || nodejs) && !macro)
 	public function __getNativePointer ():Dynamic {
 		
-		return lime_bytes_get_data_pointer (this);
+		return lime_bytes_get_data_pointer (BytesUtil.getAnonBytesFromByteArray (this));
 		
 	}
 	#end
@@ -996,7 +1000,7 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 		#if !display
 		bytes.length = bytes.allocated = buffer.byteLength;
 		bytes.data = untyped __new__("DataView", buffer);
-		bytes.byteView = untyped __new__("Uint8Array", buffer);
+		bytes.b = untyped __new__("Uint8Array", buffer);
 		#end
 		return bytes;
 		
@@ -1007,7 +1011,7 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	#if js
 	private function ___resizeBuffer (len:Int):Void {
 		
-		var oldByteView:Uint8Array = this.byteView;
+		var oldByteView:Uint8Array = this.b;
 		var newByteView:Uint8Array = untyped __new__("Uint8Array", len);
 		
 		if (oldByteView != null) {
@@ -1017,7 +1021,7 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 			
 		}
 		
-		this.byteView = newByteView;
+		this.b = newByteView;
 		this.data = untyped __new__("DataView", newByteView.buffer);
 		
 	}
@@ -1098,6 +1102,14 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	}
 	
 	
+	#if js
+	@:deprecated("Deprecated, use b instead") 
+	private inline function get_byteView  ():Uint8Array {
+		
+		return b;
+		
+	}
+	#end
 	
 	
 	// Native Methods
@@ -1106,6 +1118,9 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 	
 	
 	#if !macro
+	#if nodejs
+	@:cffi private static function lime_bytes_overwrite_file (path:String, bytes:AnonBytes):Dynamic;
+	#end
 	@:cffi private static function lime_bytes_from_data_pointer (data:Float, length:Int):Dynamic;
 	@:cffi private static function lime_bytes_get_data_pointer (data:Dynamic):Float;
 	@:cffi private static function lime_bytes_read_file (path:String):Dynamic;
