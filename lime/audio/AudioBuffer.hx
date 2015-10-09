@@ -6,6 +6,7 @@ import lime.audio.openal.AL;
 import lime.net.URLLoader;
 import lime.net.URLRequest;
 import lime.utils.ByteArray;
+import lime.utils.BytesUtil;
 import lime.utils.UInt8Array;
 
 #if (js && html5)
@@ -88,7 +89,7 @@ class AudioBuffer {
 			var audioBuffer = new AudioBuffer ();
 			audioBuffer.bitsPerSample = data.bitsPerSample;
 			audioBuffer.channels = data.channels;
-			audioBuffer.data = new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b));
+			audioBuffer.data = BytesUtil.getUInt8ArrayFromAnonBytes (data.data);
 			audioBuffer.sampleRate = data.sampleRate;
 			return audioBuffer;
 			
@@ -128,7 +129,7 @@ class AudioBuffer {
 			var audioBuffer = new AudioBuffer ();
 			audioBuffer.bitsPerSample = data.bitsPerSample;
 			audioBuffer.channels = data.channels;
-			audioBuffer.data = new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b));
+			audioBuffer.data = BytesUtil.getUInt8ArrayFromAnonBytes (data.data);
 			audioBuffer.sampleRate = data.sampleRate;
 			return audioBuffer;
 			

@@ -26,7 +26,7 @@
 	<templatePath name="templates" unless="lime-legacy" />
 	<sample path="samples" unless="openfl" />
 	
-	<haxelib name="nodejs" if="nodejs" />
+	<haxelib name="hxnodejs" if="nodejs" />
 	<haxelib name="format" if="java" />
 	
 	<target name="ps3" handler="lime-ps3" />

@@ -1,5 +1,6 @@
 #include <system/System.h>
 #include <utils/Bytes.h>
+#include <hx/CFFIPrimePatch.h>
 
 
 namespace lime {
@@ -161,7 +162,12 @@ namespace lime {
 				
 				_value = alloc_empty_object ();
 				_root = alloc_root ();
-				*_root = _value;
+				
+				if (_root) {
+					
+					*_root = _value;
+					
+				}
 				
 			}
 			
@@ -233,7 +239,13 @@ namespace lime {
 			
 			_value = bytes;
 			_root = alloc_root ();
-			*_root = _value;
+			
+			if (_root) {
+				
+				*_root = _value;
+				
+			}
+			
 			_length = val_int (val_field (bytes, id_length));
 			
 			if (_length > 0) {
@@ -302,6 +314,36 @@ namespace lime {
 		}
 		
 	}
+	
+	
+	void lime_bytes_overwrite_file (HxString inFilename, value inBytes) {
+		
+		// file is created if it doesn't exist,
+		// if it exists, it is truncated to zero
+		FILE_HANDLE *file = lime::fopen (inFilename.__s, "wb");
+		
+		if (!file) {
+			
+			#ifdef ANDROID
+			// [todo]
+			#endif
+			
+		}
+		
+		Bytes bytes (inBytes);
+		
+		// The function fwrite() writes nitems objects, each size bytes long, to the
+		// stream pointed to by stream, obtaining them from the location given by
+		// ptr.
+		// fwrite(const void *restrict ptr, size_t size, size_t nitems, FILE *restrict stream);
+		lime::fwrite (bytes.Data (), 1, bytes.Length (), file);
+		
+		lime::fclose (file);
+		
+	}
+	
+	
+	DEFINE_PRIME2v (lime_bytes_overwrite_file);
 	
 	
 }
