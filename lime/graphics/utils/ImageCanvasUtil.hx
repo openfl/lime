@@ -51,6 +51,10 @@ class ImageCanvasUtil {
 			createCanvas (image, buffer.width, buffer.height);
 			createImageData (image);
 			
+		} else if (buffer.data == null && buffer.__srcImageData != null) {
+			
+			buffer.data = cast buffer.__srcImageData.data;
+			
 		}
 		
 	}
