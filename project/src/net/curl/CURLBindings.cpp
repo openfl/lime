@@ -262,12 +262,12 @@ namespace lime {
 			//case CURLOPT_SSL_ENABLE_ALPN:
 			//case CURLOPT_SSL_ENABLE_NPN:
 			case CURLOPT_SSL_VERIFYPEER:
-			case CURLOPT_SSL_VERIFYHOST:
 			case CURLOPT_SSL_SESSIONID_CACHE:
 				
 				code = curl_easy_setopt (curl, type, val_bool (parameter));
 				break;
-				
+			
+			case CURLOPT_SSL_VERIFYHOST:
 			case CURLOPT_PROTOCOLS:
 			case CURLOPT_REDIR_PROTOCOLS:
 			case CURLOPT_PROXYPORT:
