@@ -34,7 +34,7 @@ class PlatformSetup {
 	private static var apacheAntUnixPath = "http://archive.apache.org/dist/ant/binaries/apache-ant-1.9.2-bin.tar.gz";
 	private static var apacheAntWindowsPath = "http://archive.apache.org/dist/ant/binaries/apache-ant-1.9.2-bin.zip";
 	private static var apacheCordovaPath = "http://www.apache.org/dist/incubator/cordova/cordova-2.1.0-incubating-src.zip";
-	private static var appleXcodeURL = "http://developer.apple.com/xcode/";
+	private static var appleXcodeURL = "https://developer.apple.com/xcode/download/";
 	private static var blackBerryCodeSigningURL = "https://www.blackberry.com/SignedKeys/";
 	private static var blackBerryLinuxNativeSDKPath = "http://developer.blackberry.com/native/downloads/fetch/installer-bbndk-2.1.0-linux-1032-201209271809-201209280007.bin";
 	private static var blackBerryMacNativeSDKPath = "http://developer.blackberry.com/native/downloads/fetch/installer-bbndk-2.1.0-macosx-1032-201209271809-201209280007.dmg";
@@ -1826,8 +1826,8 @@ class PlatformSetup {
 		
 		if (answer == YES || answer == ALWAYS) {
 			
-			LogHelper.println ("You must purchase Xcode from the Mac App Store or download using a paid");
-			LogHelper.println ("member account with Apple.");
+			LogHelper.println ("You must install Xcode from the Mac App Store or download from the Apple");
+			LogHelper.println ("developer site.");
 			var secondAnswer = CLIHelper.ask ("Would you like to open the download page?");
 			
 			if (secondAnswer != NO) {
