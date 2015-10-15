@@ -1,3 +1,16 @@
+2.6.9 (10/15/2015)
+------------------
+
+* Fixed an issue with certain predictive text keyboards on Android
+* Fixed an issue where ImageBuffer did not update after certain changes
+* Fixed a red tint that occurred on some mobile graphics
+* Fixed a crash on closing applications on OS X 10.11 due to OpenAL
+* Fixed an issue with VERIFY_HOST in the cURL bindings
+* Additional fixes for tvOS compatibility
+* Made minor template updates
+* Fixed the default virtual keyboard type on BlackBerry (legacy)
+
+
 2.6.8 (10/05/2015)
 ------------------
 
