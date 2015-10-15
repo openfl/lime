@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "2.6.8",
-	"releasenote": "added Joystick APIs, better retina support, image.encode for HTML5",
+	"version": "2.6.9",
+	"releasenote": "Continued improvements",
 	"contributors": [ "singmajesty" ]
 }
