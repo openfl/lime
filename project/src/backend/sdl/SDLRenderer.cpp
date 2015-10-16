@@ -53,7 +53,9 @@ namespace lime {
 					
 					if (version == 0) {
 						
-						version = (int)sscanf ((const char*)glGetString (GL_VERSION), "%f", &version);
+						float versionScan = 0;
+						sscanf ((const char*)glGetString (GL_VERSION), "%f", &versionScan);
+						version = versionScan;
 						
 					}
 					
