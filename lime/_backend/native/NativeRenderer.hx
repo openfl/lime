@@ -46,7 +46,9 @@ class NativeRenderer {
 		handle = lime_renderer_create (parent.window.backend.handle);
 		
 		parent.window.__scale = lime_renderer_get_scale (handle);
-		
+		parent.window.width *= Std.int(parent.window.__scale);
+		parent.window.height *= Std.int(parent.window.__scale);
+				
 		#if lime_console
 		
 		useHardware = true;

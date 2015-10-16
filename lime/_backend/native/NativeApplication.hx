@@ -520,8 +520,8 @@ class NativeApplication {
 				
 				case WINDOW_RESIZE:
 					
-					window.__width = windowEventInfo.width;
-					window.__height = windowEventInfo.height;
+					window.__width = Std.int(windowEventInfo.width * window.scale);
+					window.__height = Std.int(windowEventInfo.height * window.scale);
 					window.onResize.dispatch (windowEventInfo.width, windowEventInfo.height);
 				
 				case WINDOW_RESTORE:
