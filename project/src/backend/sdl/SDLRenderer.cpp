@@ -1,5 +1,6 @@
 #include "SDLWindow.h"
 #include "SDLRenderer.h"
+#include "../../graphics/opengl/OpenGL.h"
 #include "../../graphics/opengl/OpenGLBindings.h"
 
 
@@ -11,14 +12,21 @@ namespace lime {
 		currentWindow = window;
 		sdlWindow = ((SDLWindow*)window)->sdlWindow;
 		sdlTexture = 0;
-		context = 0;
+		
+		context = SDL_GL_GetCurrentContext ();
+		
+		OpenGLBindings::Init ();
 		
 		width = 0;
 		height = 0;
 		
 		int sdlFlags = 0;
 		
-		if (window->flags & WINDOW_FLAG_HARDWARE) {
+		if (context && window->flags & WINDOW_FLAG_HARDWARE) {
+			
+			const char* version = (const char*)glGetString (GL_VERSION);
+			
+			// TODO: Check for GLES or GL2 and above
 			
 			sdlFlags |= SDL_RENDERER_ACCELERATED;
 			
@@ -52,10 +60,6 @@ namespace lime {
 			printf ("Could not create SDL renderer: %s.\n", SDL_GetError ());
 			
 		}
-		
-		context = SDL_GL_GetCurrentContext ();
-		
-		OpenGLBindings::Init ();
 		
 	}
 	
