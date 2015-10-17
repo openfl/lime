@@ -45,6 +45,7 @@ class NativeApplication {
 	private var gamepadEventInfo = new GamepadEventInfo ();
 	private var joystickEventInfo = new JoystickEventInfo ();
 	private var keyEventInfo = new KeyEventInfo ();
+  private var dropEventInfo = new DropEventInfo();
 	private var mouseEventInfo = new MouseEventInfo ();
 	private var renderEventInfo = new RenderEventInfo (RENDER);
 	private var sensorEventInfo = new SensorEventInfo ();
@@ -90,6 +91,7 @@ class NativeApplication {
 		lime_gamepad_event_manager_register (handleGamepadEvent, gamepadEventInfo);
 		lime_joystick_event_manager_register (handleJoystickEvent, joystickEventInfo);
 		lime_key_event_manager_register (handleKeyEvent, keyEventInfo);
+    lime_drop_event_manager_register(handleDropEvent, dropEventInfo);
 		lime_mouse_event_manager_register (handleMouseEvent, mouseEventInfo);
 		lime_render_event_manager_register (handleRenderEvent, renderEventInfo);
 		lime_text_event_manager_register (handleTextEvent, textEventInfo);
@@ -248,6 +250,10 @@ class NativeApplication {
 		
 	}
 	
+  private function handleDropEvent():Void
+  {
+    parent.onDropFile.dispatch(dropEventInfo.file);
+  }
 	
 	private function handleKeyEvent ():Void {
 		
@@ -621,6 +627,7 @@ class NativeApplication {
 	@:cffi private static function lime_gamepad_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_joystick_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_key_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:cffi private static function lime_drop_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_mouse_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_render_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_sensor_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
@@ -632,6 +639,27 @@ class NativeApplication {
 	
 }
 
+@:enum private abstract DropEventType(Int)
+{
+  var DROP_FILE = 0;
+}
+
+private class DropEventInfo
+{
+  public var type:DropEventType;
+  public var file:String;
+  
+  public function new (type:DropEventType = null, file:String = null)
+  {
+    this.file = file;
+    this.type = type;
+  }
+  
+  public function clone():DropEventInfo
+  {
+    return new DropEventInfo(type, file);
+  }
+}
 
 private class ApplicationEventInfo {
 	

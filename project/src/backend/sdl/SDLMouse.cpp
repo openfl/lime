@@ -176,8 +176,19 @@ namespace lime {
 		}
 		
 	}
-	
-	
+  
+  void Mouse::SetCaptureMode(bool capture)
+  {
+    if (capture)
+    {
+      SDL_CaptureMouse(SDL_TRUE);
+    }
+    else
+    {
+      SDL_CaptureMouse(SDL_FALSE);
+    }
+  }
+  
 	void Mouse::Show () {
 		
 		SDL_ShowCursor (SDL_ENABLE);

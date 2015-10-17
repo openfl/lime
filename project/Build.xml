@@ -3,6 +3,7 @@
 	<set name="PLATFORM" value="android-9" if="android" />
 	<set name="PLATFORM" value="android-14" if="HXCPP_X86" />
 	<set name="HXCPP_CPP11" value="1" />
+	<!--<set name="HXCPP_WINXP_COMPAT" value="1" />-->
 	
 	<include name="${HXCPP}/build-tool/BuildCommon.xml" />
 	
@@ -230,6 +231,7 @@
 		<file name="src/ui/GamepadEvent.cpp" />
 		<file name="src/ui/JoystickEvent.cpp" />
 		<file name="src/ui/KeyEvent.cpp" />
+		<file name="src/ui/DropEvent.cpp" />
 		<file name="src/ui/MouseEvent.cpp" />
 		<file name="src/ui/TextEvent.cpp" />
 		<file name="src/ui/TouchEvent.cpp" />

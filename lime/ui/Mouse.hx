@@ -6,6 +6,17 @@ class Mouse {
 	
 	public static var cursor (get, set):MouseCursor;
 	public static var lock (get, set):Bool;
+  public static var captureMode(get, set):Bool;
+  
+  private static function set_captureMode(v:Bool):Bool
+  {
+    return MouseBackend.set_captureMode(v);
+  }
+  
+  private static function get_captureMode():Bool
+  {
+    return MouseBackend.get_captureMode();
+  }
 	
 	
 	public static function hide ():Void {

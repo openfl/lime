@@ -17,6 +17,7 @@ class NativeMouse {
 	private static var __cursor:MouseCursor;
 	private static var __hidden:Bool;
 	private static var __lock:Bool;
+  private static var __captureMode:Bool;
 	
 	
 	public static function hide ():Void {
@@ -63,7 +64,22 @@ class NativeMouse {
 	// Get & Set Methods
 	
 	
-	
+	public static function get_captureMode():Bool
+  {
+    return __captureMode;
+  }
+  
+  public static function set_captureMode(v:Bool):Bool
+  {
+    if (v != __captureMode)
+    {
+      #if !macro
+      lime_mouse_set_capture_mode(v);
+      #end
+      __captureMode = v;
+    }
+    return v;
+  }
 	
 	public static function get_cursor ():MouseCursor {
 		
@@ -149,6 +165,7 @@ class NativeMouse {
 	@:cffi private static function lime_mouse_set_lock (lock:Bool):Void;
 	@:cffi private static function lime_mouse_show ():Void;
 	@:cffi private static function lime_mouse_warp (x:Int, y:Int, window:Dynamic):Void;
+	@:cffi private static function lime_mouse_set_capture_mode (capture:Bool):Void;
 	#end
 	
 	

@@ -34,6 +34,7 @@ class Application extends Module {
 	 * Update events are dispatched each frame (usually just before rendering)
 	 */
 	public var onUpdate = new Event<Int->Void> ();
+  public var onDropFile = new Event<String->Void> ();
 	
 	public var renderer (get, null):Renderer;
 	public var renderers (default, null):Array<Renderer>;
