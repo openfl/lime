@@ -113,6 +113,8 @@ namespace lime {
 				applicationEvent.deltaTime = currentUpdate - lastUpdate;
 				lastUpdate = currentUpdate;
 				
+				nextUpdate += framePeriod;
+				
 				while (nextUpdate <= currentUpdate) {
 					
 					nextUpdate += framePeriod;
