@@ -48,6 +48,7 @@ namespace lime {
 					
 					OpenGLBindings::Init ();
 					
+					#ifndef LIME_GLES
 					int version = 0;
 					#ifdef GL_MAJOR_VERSION
 					glGetIntegerv (GL_MAJOR_VERSION, &version);
@@ -65,6 +66,9 @@ namespace lime {
 						valid = true;
 						
 					}
+					#else
+					valid = true;
+					#endif
 					
 				}
 				
