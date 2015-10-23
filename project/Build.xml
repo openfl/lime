@@ -349,11 +349,11 @@
 			
 			<section if="rpi">
 				
-				<!-- <lib name="-lbcm_host" /> -->
-				<lib name="-ldl" />
+				<lib name="-lbcm_host" />
 				<lib name="-lm" />
 				<lib name="-lGLESv2" />
 				<lib name="-lEGL" />
+				<lib name="-L/opt/vc/lib" />
 				
 			</section>
 			
