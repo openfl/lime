@@ -177,13 +177,15 @@ class Event<T> {
 			fields.push ( { name: "dispatch", access: [ APublic ], kind: FFun ( { args: args, expr: dispatch, params: [], ret: macro :Void } ), pos: pos } );
 			
 			Context.defineType ({
+				
 				pos: pos,
 				pack: [ "lime", "app" ],
 				name: name,
 				kind: TDClass (),
 				fields: fields,
 				params: [ { name: "T" } ],
-				meta: [ ]
+				meta: [ { name: ":dox", params: [ macro hide ], pos: pos }, { name: ":noCompletion", pos: pos } ]
+				
 			});
 			
 		}
