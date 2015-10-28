@@ -1,3 +1,12 @@
+2.7.0 (10/28/2015)
+------------------
+
+* Added a minimum version check for OpenGL (software fallback otherwise)
+* Improved the consistency of frame time on native platforms
+* Fixed an issue where Android applications would crash on unfound files
+* Updated the Neko template for Lime legacy builds
+
+
 2.6.9 (10/15/2015)
 ------------------
 
