@@ -413,6 +413,25 @@ class HTML5Window {
 			
 		}
 		
+		var windowWidth = setWidth;
+		var windowHeight = setHeight;
+		
+		if (windowWidth == 0 || windowHeight == 0) {
+			
+			if (rect != null) {
+				
+				windowWidth = rect.width;
+				windowHeight = rect.height;
+				
+			} else {
+				
+				windowWidth = 1;
+				windowHeight = 1;
+				
+			}
+			
+		}
+		
 		for (data in event.changedTouches) {
 			
 			var x = 0.0;
@@ -420,8 +439,8 @@ class HTML5Window {
 			
 			if (rect != null) {
 				
-				x = (data.clientX - rect.left) * (parent.width / rect.width);
-				y = (data.clientY - rect.top) * (parent.height / rect.height);
+				x = (data.clientX - rect.left) * (windowWidth / rect.width);
+				y = (data.clientY - rect.top) * (windowHeight / rect.height);
 				
 			} else {
 				
@@ -438,12 +457,12 @@ class HTML5Window {
 					
 					if (touch == null) {
 						
-						touch = new Touch (x / setWidth, y / setHeight, data.identifier, 0, 0, data.force, parent.id);
+						touch = new Touch (x / windowWidth, y / windowHeight, data.identifier, 0, 0, data.force, parent.id);
 						
 					} else {
 						
-						touch.x = x / setWidth;
-						touch.y = y / setHeight;
+						touch.x = x / windowWidth;
+						touch.y = y / windowHeight;
 						touch.id = data.identifier;
 						touch.dx = 0;
 						touch.dy = 0;
@@ -477,8 +496,8 @@ class HTML5Window {
 						var cacheX = touch.x;
 						var cacheY = touch.y;
 						
-						touch.x = x / setWidth;
-						touch.y = y / setHeight;
+						touch.x = x / windowWidth;
+						touch.y = y / windowHeight;
 						touch.dx = touch.x - cacheX;
 						touch.dy = touch.y - cacheY;
 						touch.pressure = data.force;
@@ -506,8 +525,8 @@ class HTML5Window {
 						var cacheX = touch.x;
 						var cacheY = touch.y;
 						
-						touch.x = x / setWidth;
-						touch.y = y / setHeight;
+						touch.x = x / windowWidth;
+						touch.y = y / windowHeight;
 						touch.dx = touch.x - cacheX;
 						touch.dy = touch.y - cacheY;
 						touch.pressure = data.force;
