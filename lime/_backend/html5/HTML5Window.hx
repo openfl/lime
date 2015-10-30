@@ -413,8 +413,8 @@ class HTML5Window {
 			
 		}
 		
-		var windowWidth = setWidth;
-		var windowHeight = setHeight;
+		var windowWidth:Float = setWidth;
+		var windowHeight:Float = setHeight;
 		
 		if (windowWidth == 0 || windowHeight == 0) {
 			
