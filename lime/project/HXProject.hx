@@ -18,6 +18,7 @@ import sys.FileSystem;
 import sys.io.File;
 
 #if (lime && !lime_legacy)
+import haxe.xml.Fast;
 import lime.text.Font;
 import lime.tools.helpers.FileHelper;
 import lime.tools.helpers.ProcessHelper;
@@ -617,6 +618,19 @@ class HXProject {
 		}
 		
 	}
+	
+	
+	#if (lime && !lime_legacy)
+	
+	public function includeXML (xml:String):Void {
+		
+		var projectXML = new ProjectXMLParser ();
+		@:privateAccess projectXML.parseXML (new Fast (Xml.parse (xml).firstElement ()), "");
+		merge (projectXML);
+		
+	}
+	
+	#end
 	
 	
 	private static function initialize ():Void {
