@@ -346,15 +346,20 @@ class URLLoader {
 		var responseCode = CURLEasy.getinfo(__curl, RESPONSE_CODE);
 
 		if (result == CURLCode.OK) {
-			/*
-			switch(dataFormat) {
-				case BINARY: this.data = __data;
-				default: this.data = __data.asString();
+			
+			switch (dataFormat) {
+				
+				case BINARY:
+					
+					this.data = __data;
+				
+				default:
+					
+					__data.position = 0;
+					this.data = __data.readUTFBytes (__data.length);
+				
 			}
-			*/
-			//this.data = __data;
-			__data.position = 0;
-			this.data = __data.readUTFBytes (__data.length);
+			
 			onHTTPStatus.dispatch (this, Std.parseInt(responseCode));
 			onComplete.dispatch (this);
 		} else {
@@ -457,7 +462,7 @@ class URLLoader {
 		
 		return dataFormat;
 		#else
-		return inputVal;
+		return dataFormat = inputVal;
 		#end
 		
 	}
