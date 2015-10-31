@@ -895,8 +895,8 @@ class ByteArray #if !js extends Bytes implements ArrayAccess<Int> implements IDa
 		
 		#if js
 		byteView = untyped __new__("Uint8Array", bytes.getData ());
-		length = byteView.length;
 		allocated = length;
+		length = byteView.length;
 		#else
 		b = bytes.b;
 		length = bytes.length;
