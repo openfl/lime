@@ -275,6 +275,19 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 		
+		for (asset in project.assets) {
+			
+			if (asset.embed && asset.sourcePath == "") {
+				
+				var path = PathHelper.combine (targetDirectory + "/obj/tmp", asset.targetPath);
+				PathHelper.mkdir (Path.directory (path));
+				FileHelper.copyAsset (asset, path);
+				asset.sourcePath = path;
+				
+			}
+			
+		}
+		
 		var context = generateContext ();
 		
 		if (targetType == "cpp" && project.targetFlags.exists ("static")) {

@@ -368,6 +368,19 @@ class IOSPlatform extends PlatformTarget {
 		
 		project = project.clone ();
 		
+		for (asset in project.assets) {
+			
+			if (asset.embed && asset.sourcePath == "") {
+				
+				var path = PathHelper.combine (targetDirectory + "/" + project.app.file + "/obj/tmp", asset.targetPath);
+				PathHelper.mkdir (Path.directory (path));
+				FileHelper.copyAsset (asset, path);
+				asset.sourcePath = path;
+				
+			}
+			
+		}
+		
 		var manifest = new Asset ();
 		manifest.id = "__manifest__";
 		manifest.data = AssetHelper.createManifest (project);

@@ -161,6 +161,20 @@ class TizenPlatform extends PlatformTarget {
 	public override function update ():Void {
 		
 		project = project.clone ();
+		
+		for (asset in project.assets) {
+			
+			if (asset.embed && asset.sourcePath == "") {
+				
+				var path = PathHelper.combine (targetDirectory + "/obj/tmp", asset.targetPath);
+				PathHelper.mkdir (Path.directory (path));
+				FileHelper.copyAsset (asset, path);
+				asset.sourcePath = path;
+				
+			}
+			
+		}
+		
 		var destination = targetDirectory + "/bin/";
 		PathHelper.mkdir (destination);
 		

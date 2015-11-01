@@ -246,6 +246,19 @@ class EmscriptenPlatform extends PlatformTarget {
 		
 		for (asset in project.assets) {
 			
+			if (asset.embed && asset.sourcePath == "") {
+				
+				var path = PathHelper.combine (targetDirectory + "/obj/tmp", asset.targetPath);
+				PathHelper.mkdir (Path.directory (path));
+				FileHelper.copyAsset (asset, path);
+				asset.sourcePath = path;
+				
+			}
+			
+		}
+		
+		for (asset in project.assets) {
+			
 			asset.resourceName = "assets/" + asset.resourceName;
 			
 		}
