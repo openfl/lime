@@ -242,7 +242,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = ::CURRENT_ARCHS::;
 				::if (OBJC_ARC)::
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -250,6 +249,7 @@
 				::end::
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "::KEY_STORE_IDENTITY::";
 				COPY_PHASE_STRIP = NO;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -262,10 +262,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = ::DEPLOYMENT::;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = "::TARGET_DEVICES::";
 				::THUMB_SUPPORT::
-				VALID_ARCHS = "::VALID_ARCHS::";
 			};
 			name = Debug;
 		};
@@ -273,7 +273,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = ::CURRENT_ARCHS::;
 				::if (OBJC_ARC)::
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -293,7 +292,6 @@
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = "::TARGET_DEVICES::";
 				::THUMB_SUPPORT::
-				VALID_ARCHS = "::VALID_ARCHS::";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -346,6 +344,7 @@
 					::foreach IOS_LINKER_FLAGS:: "::__current__::",
 					::end::
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "::APP_PACKAGE::";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -394,6 +393,7 @@
 					::foreach IOS_LINKER_FLAGS:: "::__current__::",
 					::end::
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "::APP_PACKAGE::";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -408,6 +408,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				::end::
 				COPY_PHASE_STRIP = NO;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
