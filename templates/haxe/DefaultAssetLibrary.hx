@@ -590,7 +590,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 				promise.error (e);
 				
 			});
-			loader.load (new URLRequest (path.get (id)));
+			loader.load (new URLRequest (path.get (id) + "?" + Assets.cache.version));
 			
 		} else {
 			
@@ -657,7 +657,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 				
 			}
 			image.onerror = promise.error;
-			image.src = path.get (id);
+			image.src = path.get (id) + "?" + Assets.cache.version;
 			
 		} else {
 			
@@ -770,7 +770,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 				
 			});
 			loader.onIOError.add (function (_, msg) promise.error (msg));
-			loader.load (new URLRequest (path.get (id)));
+			loader.load (new URLRequest (path.get (id) + "?" + Assets.cache.version));
 			
 		} else {
 			

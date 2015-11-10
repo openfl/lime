@@ -1052,6 +1052,7 @@ class AssetCache {
 	public var enabled:Bool = true;
 	public var image:Map<String, Image>;
 	public var font:Map<String, Dynamic /*Font*/>;
+	public var version:Int;
 	
 	
 	public function new () {
@@ -1059,6 +1060,7 @@ class AssetCache {
 		audio = new Map<String, AudioBuffer> ();
 		font = new Map<String, Dynamic /*Font*/> ();
 		image = new Map<String, Image> ();
+		version = Std.int (Math.random () * 1000000);
 		
 	}
 	
