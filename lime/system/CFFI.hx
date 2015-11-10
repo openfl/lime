@@ -400,6 +400,8 @@ class CFFI {
 		var fields = Context.getBuildFields ();
 		var newFields:Array<Field> = [];
 		
+		#if !display
+		
 		for (field in fields) {
 			
 			switch (field) {
@@ -570,6 +572,8 @@ class CFFI {
 			}
 			
 		}
+		
+		#end
 		
 		fields = fields.concat (newFields);
 		return fields;
