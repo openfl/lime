@@ -3,6 +3,7 @@ package lime._backend.html5;
 
 import js.html.KeyboardEvent;
 import js.Browser;
+import lime._backend.html5.HTML5GamepadManager;
 import lime.app.Application;
 import lime.app.Config;
 import lime.audio.AudioManager;
@@ -15,6 +16,8 @@ import lime.ui.Window;
 @:access(lime.app.Application)
 @:access(lime.graphics.Renderer)
 @:access(lime.ui.Window)
+@:access(lime._backend.html5.HTML5GamepadManager)
+
 
 
 class HTML5Application {
@@ -120,6 +123,8 @@ class HTML5Application {
 		Browser.window.addEventListener ("resize", handleWindowEvent, false);
 		Browser.window.addEventListener ("beforeunload", handleWindowEvent, false);
 		
+		HTML5GamepadManager.init();
+
 		#if stats
 		stats = untyped __js__("new Stats ()");
 		stats.domElement.style.position = "absolute";
@@ -212,6 +217,8 @@ class HTML5Application {
 			#if stats
 			stats.end ();
 			#end
+			
+			HTML5GamepadManager.update();
 			
 			if (framePeriod < 0) {
 				
