@@ -3,6 +3,7 @@
 
 
 #include <hx/CFFI.h>
+#include <stdint.h>
 
 
 namespace lime {
@@ -33,6 +34,7 @@ namespace lime {
 			double movementX;
 			double movementY;
 			MouseEventType type;
+			uint32_t windowID;
 			double x;
 			double y;
 		

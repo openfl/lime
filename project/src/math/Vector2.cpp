@@ -35,8 +35,17 @@ namespace lime {
 			
 		}
 		
-		x = val_number (val_field (vec, id_x));
-		y = val_number (val_field (vec, id_y));
+		if (!val_is_null (vec)) {
+			
+			x = val_number (val_field (vec, id_x));
+			y = val_number (val_field (vec, id_y));
+			
+		} else {
+			
+			x = 0;
+			y = 0;
+			
+		}
 		
 	}
 	

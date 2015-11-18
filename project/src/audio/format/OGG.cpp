@@ -130,9 +130,9 @@ namespace lime {
 			} else {
 				
 				lime::fclose (file);
-				ByteArray data = ByteArray (resource->path);
+				Bytes data = Bytes (resource->path);
 				
-				OAL_OggMemoryFile fakeFile = { data.Bytes (), data.Size (), 0 };
+				OAL_OggMemoryFile fakeFile = { data.Data (), data.Length (), 0 };
 				
 				if (ov_open_callbacks (&fakeFile, &oggFile, NULL, 0, OAL_CALLBACKS_BUFFER) != 0) {
 					
@@ -144,7 +144,7 @@ namespace lime {
 			
 		} else {
 			
-			OAL_OggMemoryFile fakeFile = { resource->data->Bytes (), resource->data->Size (), 0 };
+			OAL_OggMemoryFile fakeFile = { resource->data->Data (), resource->data->Length (), 0 };
 			
 			if (ov_open_callbacks (&fakeFile, &oggFile, NULL, 0, OAL_CALLBACKS_BUFFER) != 0) {
 				
@@ -165,9 +165,9 @@ namespace lime {
 		long bytes = 1;
 		int totalBytes = 0;
 		
-		#define BUFFER_SIZE 32768
+		#define BUFFER_SIZE 4096
 		
-		vorbis_info *pInfo = ov_info (&oggFile, -1);            
+		vorbis_info *pInfo = ov_info (&oggFile, -1);
 		
 		if (pInfo == NULL) {
 			
@@ -180,29 +180,26 @@ namespace lime {
 		audioBuffer->channels = pInfo->channels;
 		audioBuffer->sampleRate = pInfo->rate;
 		
-		//default to 16? todo 
 		audioBuffer->bitsPerSample = 16;
 		
-		// Seem to need four times the read PCM total
-		audioBuffer->data->Resize (ov_pcm_total (&oggFile, -1) * 4);
+		int dataLength = ov_pcm_total (&oggFile, -1) * audioBuffer->channels * audioBuffer->bitsPerSample / 8;
+		audioBuffer->data->Resize (dataLength);
 		
 		while (bytes > 0) {
-			
-			if (audioBuffer->data->Size () < totalBytes + BUFFER_SIZE) {
 				
-				audioBuffer->data->Resize (totalBytes + BUFFER_SIZE);
+				bytes = ov_read (&oggFile, (char *)audioBuffer->data->Data () + totalBytes, BUFFER_SIZE, BUFFER_READ_TYPE, 2, 1, &bitStream);
+				totalBytes += bytes;
 				
-			}
+		}
+		
+		if (dataLength != totalBytes) {
 			
-			bytes = ov_read (&oggFile, (char *)audioBuffer->data->Bytes () + totalBytes, BUFFER_SIZE, BUFFER_READ_TYPE, 2, 1, &bitStream);
-			totalBytes += bytes;
+			audioBuffer->data->Resize (totalBytes);
 			
 		}
 		
-		audioBuffer->data->Resize (totalBytes);
 		ov_clear (&oggFile);
 		
-		#undef BUFFER_SIZE
 		#undef BUFFER_READ_TYPE
 		
 		return true;

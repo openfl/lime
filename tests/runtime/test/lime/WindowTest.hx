@@ -27,7 +27,7 @@ class WindowTest {
 		
 		var window = new Window ();
 		
-		Assert.isNull (window.currentRenderer);
+		Assert.isNull (window.renderer);
 		Assert.isNull (window.config);
 		Assert.isFalse (window.fullscreen);
 		Assert.areEqual (0, window.height);
@@ -35,9 +35,9 @@ class WindowTest {
 		Assert.areEqual (0, window.x);
 		Assert.areEqual (0, window.y);
 		
-		app.addWindow (window);
+		app.createWindow (window);
 		
-		Assert.isNull (window.currentRenderer);
+		Assert.isNotNull (window.renderer);
 		Assert.isNull (window.config);
 		
 		#if !html5
@@ -52,7 +52,7 @@ class WindowTest {
 		
 		#end
 		
-		app.removeWindow (window);
+		window.close ();
 		
 		Assert.isNull (app.window);
 		Assert.areEqual (0, app.windows.length);
@@ -70,7 +70,7 @@ class WindowTest {
 		window.width = 400;
 		window.height = 300;
 		
-		Assert.isNull (window.currentRenderer);
+		Assert.isNull (window.renderer);
 		Assert.isNull (window.config);
 		Assert.isFalse (window.fullscreen);
 		Assert.areEqual (300, window.height);
@@ -78,9 +78,9 @@ class WindowTest {
 		Assert.areEqual (0, window.x);
 		Assert.areEqual (0, window.y);
 		
-		app.addWindow (window);
+		app.createWindow (window);
 		
-		Assert.isNull (window.currentRenderer);
+		Assert.isNotNull (window.renderer);
 		Assert.isNull (window.config);
 		Assert.isFalse (window.fullscreen);
 		Assert.areEqual (300, window.height);
@@ -88,7 +88,7 @@ class WindowTest {
 		Assert.areEqual (0, window.x);
 		Assert.areEqual (0, window.y);
 		
-		app.removeWindow (window);
+		window.close ();
 		
 		Assert.isNull (app.window);
 		Assert.areEqual (0, app.windows.length);
@@ -104,7 +104,7 @@ class WindowTest {
 		var config = {};
 		var window = new Window (config);
 		
-		Assert.isNull (window.currentRenderer);
+		Assert.isNull (window.renderer);
 		Assert.areEqual (config, window.config);
 		Assert.isFalse (window.fullscreen);
 		Assert.areEqual (0, window.height);
@@ -112,9 +112,9 @@ class WindowTest {
 		Assert.areEqual (0, window.x);
 		Assert.areEqual (0, window.y);
 		
-		app.addWindow (window);
+		app.createWindow (window);
 		
-		Assert.isNull (window.currentRenderer);
+		Assert.isNotNull (window.renderer);
 		Assert.areEqual (config, window.config);
 		
 		#if !html5
@@ -127,7 +127,7 @@ class WindowTest {
 		
 		#end
 		
-		app.removeWindow (window);
+		window.close ();
 		
 		Assert.isNull (app.window);
 		Assert.areEqual (0, app.windows.length);
@@ -143,7 +143,7 @@ class WindowTest {
 		var config = { width: 400, height: 300 };
 		var window = new Window (config);
 		
-		Assert.isNull (window.currentRenderer);
+		Assert.isNull (window.renderer);
 		Assert.areEqual (config, window.config);
 		Assert.isFalse (window.fullscreen);
 		Assert.areEqual (300, window.height);
@@ -151,9 +151,9 @@ class WindowTest {
 		Assert.areEqual (0, window.x);
 		Assert.areEqual (0, window.y);
 		
-		app.addWindow (window);
+		app.createWindow (window);
 		
-		Assert.isNull (window.currentRenderer);
+		Assert.isNotNull (window.renderer);
 		Assert.areEqual (config, window.config);
 		Assert.isFalse (window.fullscreen);
 		Assert.areEqual (300, window.height);
@@ -161,7 +161,7 @@ class WindowTest {
 		Assert.areEqual (0, window.x);
 		Assert.areEqual (0, window.y);
 		
-		app.removeWindow (window);
+		window.close ();
 		
 		Assert.isNull (app.window);
 		Assert.areEqual (0, app.windows.length);

@@ -1,11 +1,11 @@
 package lime.system;
 
 
-#if !macro
 import lime.app.Application;
-#end
+import lime.math.Rectangle;
 
 #if flash
+import flash.system.Capabilities;
 import flash.Lib;
 #end
 
@@ -22,26 +22,27 @@ import js.Browser;
 import sys.io.Process;
 #end
 
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
+
+@:access(lime.system.Display)
+@:access(lime.system.DisplayMode)
+
 
 class System {
 	
 	
+	public static var allowScreenTimeout (get, set):Bool;
 	public static var applicationDirectory (get, null):String;
 	public static var applicationStorageDirectory (get, null):String;
 	public static var desktopDirectory (get, null):String;
 	public static var disableCFFI:Bool;
 	public static var documentsDirectory (get, null):String;
+	public static var endianness (get, null):Endian;
 	public static var fontsDirectory (get, null):String;
+	public static var numDisplays (get, null):Int;
 	public static var userDirectory (get, null):String;
-	
-	
-	@:noCompletion private static var __moduleNames:Map<String, String> = null;
-	
-	#if neko
-	private static var __loadedNekoAPI:Bool;
-	#elseif nodejs
-	private static var __nodeNDLLModule:Dynamic;
-	#end
 	
 	
 	#if (js && html5)
@@ -95,10 +96,10 @@ class System {
 		}
 		
 		#if tools
-		ApplicationMain.config.background = color;
-		ApplicationMain.config.element = htmlElement;
-		ApplicationMain.config.width = width;
-		ApplicationMain.config.height = height;
+		ApplicationMain.config.windows[0].background = color;
+		ApplicationMain.config.windows[0].element = htmlElement;
+		ApplicationMain.config.windows[0].width = width;
+		ApplicationMain.config.windows[0].height = height;
 		ApplicationMain.config.assetsPrefix = assetsPrefix;
 		ApplicationMain.create ();
 		#end
@@ -109,55 +110,83 @@ class System {
 	
 	public static function exit (code:Int):Void {
 		
-		#if sys
-		// TODO: Clean shutdown?
+		#if android
+		
+		if (code == 0) {
+			
+			var mainActivity = JNI.createStaticField ("org/haxe/extension/Extension", "mainActivity", "Landroid/app/Activity;");
+			var moveTaskToBack = JNI.createMemberMethod ("android/app/Activity", "moveTaskToBack", "(Z)Z");
+			
+			moveTaskToBack (mainActivity.get (), true);
+			
+		}
+		
+		#end
+		
+		#if (sys && !macro)
+		
+		if (Application.current != null) {
+			
+			// TODO: Clean exit?
+			
+			Application.current.onExit.dispatch (code);
+			
+		}
+		
 		Sys.exit (code);
+		
 		#end
 		
 	}
 	
 	
-	static private function findHaxeLib (library:String):String {
+	public static function getDisplay (id:Int):Display {
 		
-		#if (sys && !html5)
+		#if ((cpp || neko || nodejs) && !macro)
+		var displayInfo:Dynamic = lime_system_get_display (id);
+		
+		if (displayInfo != null) {
 			
-			try {
-				
-				var proc = new Process ("haxelib", [ "path", library ]);
-				
-				if (proc != null) {
-					
-					var stream = proc.stdout;
-					
-					try {
-						
-						while (true) {
-							
-							var s = stream.readLine ();
-							
-							if (s.substr (0, 1) != "-") {
-								
-								stream.close ();
-								proc.close ();
-								loaderTrace ("Found haxelib " + s);
-								return s;
-								
-							}
-							
-						}
-						
-					} catch(e:Dynamic) { }
-					
-					stream.close ();
-					proc.close ();
-					
-				}
-				
-			} catch (e:Dynamic) { }
+			var display = new Display ();
+			display.id = id;
+			display.name = displayInfo.name;
+			display.bounds = new Rectangle (displayInfo.bounds.x, displayInfo.bounds.y, displayInfo.bounds.width, displayInfo.bounds.height);
+			display.supportedModes = [];
 			
+			var displayMode;
+			
+			for (mode in cast (displayInfo.supportedModes, Array<Dynamic>)) {
+				
+				displayMode = new DisplayMode (mode.width, mode.height, mode.refreshRate, mode.pixelFormat);
+				display.supportedModes.push (displayMode);
+				
+			}
+			
+			display.currentMode = display.supportedModes[displayInfo.currentMode];
+			return display;
+			
+		}
+		#elseif (flash || html5)
+		if (id == 0) {
+			
+			var display = new Display ();
+			display.id = 0;
+			display.name = "Generic Display";
+			
+			#if flash
+			display.currentMode = new DisplayMode (Std.int (Capabilities.screenResolutionX), Std.int (Capabilities.screenResolutionY), 60, ARGB32);
+			#else
+			display.currentMode = new DisplayMode (Browser.window.screen.width, Browser.window.screen.height, 60, ARGB32);
+			#end
+			
+			display.supportedModes = [ display.currentMode ];
+			display.bounds = new Rectangle (0, 0, display.currentMode.width, display.currentMode.height);
+			return display;
+			
+		}
 		#end
 		
-		return "";
+		return null;
 		
 	}
 	
@@ -167,9 +196,9 @@ class System {
 		#if flash
 		return flash.Lib.getTimer ();
 		#elseif js
-		return Std.int (Date.now ().getTime ());
-		#elseif !disable_cffi
-		return lime_system_get_timer ();
+		return cast Date.now ().getTime ();
+		#elseif (!disable_cffi && !macro)
+		return cast lime_system_get_timer ();
 		#elseif cpp
 		return Std.int (untyped __global__.__time_stamp () * 1000);
 		#elseif sys
@@ -181,271 +210,15 @@ class System {
 	}
 	
 	
-	public static function load (library:String, method:String, args:Int = 0, lazy:Bool = false):Dynamic {
+	public static inline function load (library:String, method:String, args:Int = 0, lazy:Bool = false):Dynamic {
 		
-		#if (disable_cffi || macro)
-		var disableCFFI = true;
-		#end
-		
-		#if optional_cffi
-		lazy = true;
-		#end
-		
-		if (disableCFFI) {
-			
-			return Reflect.makeVarArgs (function (__) return {});
-			
-		}
-		
-		var result:Dynamic = null;
-		
-		#if (!disable_cffi && !macro)
-		#if (sys && !html5)
-		
-		if (__moduleNames == null) __moduleNames = new Map<String, String> ();
-		
-		if (lazy) {
-			
-			__moduleNames.set (library, library);
-			
-			try {
-				
-				#if lime_legacy
-				if (library == "lime") return null;
-				#elseif !lime_hybrid
-				if (library == "lime-legacy") return null;
-				#end
-				
-				#if neko
-				result = neko.Lib.loadLazy (library, method, args);
-				#elseif cpp
-				result = cpp.Lib.loadLazy (library, method, args);
-				#end
-				
-			} catch (e:Dynamic) {}
-			
-		} else {
-			
-			#if (iphone || emscripten || android || static_link)
-			return cpp.Lib.load (library, method, args);
-			#end
-			
-			
-			if (__moduleNames.exists (library)) {
-				
-				#if cpp
-				return cpp.Lib.load (__moduleNames.get (library), method, args);
-				#elseif neko
-				return neko.Lib.load (__moduleNames.get (library), method, args);
-				#elseif nodejs
-				return untyped __nodeNDLLModule.load_lib (__moduleNames.get (library), method, args);
-				#else
-				return null;
-				#end
-				
-			}
-			
-			#if waxe
-			if (library == "lime") {
-				
-				flash.Lib.load ("waxe", "wx_boot", 1);
-				
-			}
-			#elseif nodejs
-			if (__nodeNDLLModule == null) {
-				
-				__nodeNDLLModule = untyped require('ndll');
-				
-			}
-			#end
-			
-			__moduleNames.set (library, library);
-			
-			result = tryLoad ("./" + library, library, method, args);
-			
-			if (result == null) {
-				
-				result = tryLoad (".\\" + library, library, method, args);
-				
-			}
-			
-			if (result == null) {
-				
-				result = tryLoad (library, library, method, args);
-				
-			}
-			
-			if (result == null) {
-				
-				var slash = (sysName ().substr (7).toLowerCase () == "windows") ? "\\" : "/";
-				var haxelib = findHaxeLib ("lime");
-				
-				if (haxelib != "") {
-					
-					result = tryLoad (haxelib + slash + "ndll" + slash + sysName () + slash + library, library, method, args);
-					
-					if (result == null) {
-						
-						result = tryLoad (haxelib + slash + "ndll" + slash + sysName() + "64" + slash + library, library, method, args);
-						
-					}
-					
-				}
-				
-			}
-			
-			loaderTrace ("Result : " + result);
-			
-		}
-		
-		#if neko
-		if (library == "lime" && method != "neko_init") {
-			
-			loadNekoAPI (lazy);
-			
-		}
-		#end
-		
-		#end
+		#if !macro
+		return CFFI.load (library, method, args, lazy);
 		#else
-		
-		result = function (_, _, _, _, _, _) { return { }; };
-		
-		#end
-		
-		return result;
-		
-	}
-	
-	
-	private static function sysName ():String {
-		
-		#if (sys && !html5)
-			
-			#if cpp
-				
-				var sys_string = cpp.Lib.load ("std", "sys_string", 0);
-				return sys_string ();
-				
-			#else
-				
-				return Sys.systemName ();
-				
-			#end
-			
-		#else
-			
-			return null;
-			
-		#end
-		
-	}
-	
-	
-	private static function tryLoad (name:String, library:String, func:String, args:Int):Dynamic {
-		
-		#if sys
-		
-		try {
-			
-			#if cpp
-			var result = cpp.Lib.load (name, func, args);
-			#elseif (neko)
-			var result = neko.Lib.load (name, func, args);
-			#elseif nodejs
-			var result = untyped __nodeNDLLModule.load_lib (name, func, args);
-			#else
-			var result = null;
-			#end
-			
-			if (result != null) {
-				
-				loaderTrace ("Got result " + name);
-				__moduleNames.set (library, name);
-				return result;
-				
-			}
-			
-		} catch (e:Dynamic) {
-			
-			loaderTrace ("Failed to load : " + name);
-			
-		}
-		
-		#end
-		
 		return null;
-		
-	}
-	
-	
-	private static function loaderTrace (message:String) {
-		
-		#if (sys && !html5)
-		
-		#if cpp
-			
-			var get_env = cpp.Lib.load ("std", "get_env", 1);
-			var debug = (get_env ("OPENFL_LOAD_DEBUG") != null);
-			
-		#else
-			
-			var debug = (Sys.getEnv ("OPENFL_LOAD_DEBUG") !=null);
-			
-		#end
-		
-		if (debug) {
-			
-			Sys.println (message);
-			
-		}
-		
 		#end
 		
 	}
-	
-	
-	#if neko
-	
-	private static function loadNekoAPI (lazy:Bool):Void {
-		
-		if (!__loadedNekoAPI) {
-			
-			var init = load ("lime", "neko_init", 5, lazy);
-			
-			if (init != null) {
-				
-				loaderTrace ("Found nekoapi @ " + __moduleNames.get ("lime"));
-				init (function(s) return new String (s), function (len:Int) { var r = []; if (len > 0) r[len - 1] = null; return r; }, null, true, false);
-				
-			} else if (!lazy) {
-				
-				throw ("Could not find NekoAPI interface.");
-				
-			}
-			
-			#if lime_hybrid
-			var init = load ("lime-legacy", "neko_init", 5);
-			
-			if (init != null) {
-				
-				loaderTrace ("Found nekoapi @ " + __moduleNames.get ("lime-legacy"));
-				init (function(s) return new String (s), function (len:Int) { var r = []; if (len > 0) r[len - 1] = null; return r; }, null, true, false);
-				
-			} else if (!lazy) {
-				
-				throw ("Could not find NekoAPI interface.");
-				
-			}
-			#end
-			
-			__loadedNekoAPI = true;
-			
-		}
-		
-	}
-	
-	#end
 	
 	
 	
@@ -455,10 +228,42 @@ class System {
 	
 	
 	
+	private static function get_allowScreenTimeout ():Bool {
+		
+		#if ((cpp || neko || nodejs) && !macro)
+		return lime_system_get_allow_screen_timeout ();
+		#else
+		return true;
+		#end
+		
+	}
+	
+	
+	private static function set_allowScreenTimeout (value:Bool):Bool {
+		
+		#if ((cpp || neko || nodejs) && !macro)
+		return lime_system_set_allow_screen_timeout (value);
+		#else
+		return true;
+		#end
+		
+	}
+	
+	
 	private static function get_applicationDirectory ():String {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return lime_system_get_directory (SystemDirectory.APPLICATION, null, null);
+		#elseif flash
+		if (Capabilities.playerType == "Desktop") {
+			
+			return Reflect.getProperty (Type.resolveClass ("flash.filesystem.File"), "applicationDirectory").nativePath;
+			
+		} else {
+			
+			return null;
+			
+		}
 		#else
 		return null;
 		#end
@@ -471,7 +276,6 @@ class System {
 		var company = "MyCompany";
 		var file = "MyApplication";
 		
-		#if !macro
 		if (Application.current != null && Application.current.config != null) {
 			
 			if (Application.current.config.company != null) {
@@ -487,10 +291,19 @@ class System {
 			}
 			
 		}
-		#end
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return lime_system_get_directory (SystemDirectory.APPLICATION_STORAGE, company, file);
+		#elseif flash
+		if (Capabilities.playerType == "Desktop") {
+			
+			return Reflect.getProperty (Type.resolveClass ("flash.filesystem.File"), "applicationStorageDirectory").nativePath;
+			
+		} else {
+			
+			return null;
+			
+		}
 		#else
 		return null;
 		#end
@@ -500,8 +313,18 @@ class System {
 	
 	private static function get_desktopDirectory ():String {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return lime_system_get_directory (SystemDirectory.DESKTOP, null, null);
+		#elseif flash
+		if (Capabilities.playerType == "Desktop") {
+			
+			return Reflect.getProperty (Type.resolveClass ("flash.filesystem.File"), "desktopDirectory").nativePath;
+			
+		} else {
+			
+			return null;
+			
+		}
 		#else
 		return null;
 		#end
@@ -511,8 +334,18 @@ class System {
 	
 	private static function get_documentsDirectory ():String {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return lime_system_get_directory (SystemDirectory.DOCUMENTS, null, null);
+		#elseif flash
+		if (Capabilities.playerType == "Desktop") {
+			
+			return Reflect.getProperty (Type.resolveClass ("flash.filesystem.File"), "documentsDirectory").nativePath;
+			
+		} else {
+			
+			return null;
+			
+		}
 		#else
 		return null;
 		#end
@@ -522,7 +355,7 @@ class System {
 	
 	private static function get_fontsDirectory ():String {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return lime_system_get_directory (SystemDirectory.FONTS, null, null);
 		#else
 		return null;
@@ -531,12 +364,46 @@ class System {
 	}
 	
 	
+	private static function get_numDisplays ():Int {
+		
+		#if ((cpp || neko || nodejs) && !macro)
+		return lime_system_get_num_displays ();
+		#else
+		return 1;
+		#end
+		
+	}
+	
+	
 	private static function get_userDirectory ():String {
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		return lime_system_get_directory (SystemDirectory.USER, null, null);
+		#elseif flash
+		if (Capabilities.playerType == "Desktop") {
+			
+			return Reflect.getProperty (Type.resolveClass ("flash.filesystem.File"), "userDirectory").nativePath;
+			
+		} else {
+			
+			return null;
+			
+		}
 		#else
 		return null;
+		#end
+		
+	}
+	
+	
+	private static function get_endianness ():Endian {
+		
+		// TODO: Make this smarter
+		
+		#if (ps3 || wiiu)
+		return BIG_ENDIAN;
+		#else
+		return LITTLE_ENDIAN;
 		#end
 		
 	}
@@ -549,16 +416,20 @@ class System {
 	
 	
 	
-	#if (cpp || neko || nodejs)
-	private static var lime_system_get_directory = System.load ("lime", "lime_system_get_directory", 3);
-	private static var lime_system_get_timer = System.load ("lime", "lime_system_get_timer", 0);
+	#if ((cpp || neko || nodejs) && !macro)
+	@:cffi private static function lime_system_get_allow_screen_timeout ():Bool;
+	@:cffi private static function lime_system_set_allow_screen_timeout (value:Bool):Bool;
+	@:cffi private static function lime_system_get_directory (type:Int, company:String, title:String):Dynamic;
+	@:cffi private static function lime_system_get_display (index:Int):Dynamic;
+	@:cffi private static function lime_system_get_num_displays ():Int;
+	@:cffi private static function lime_system_get_timer ():Float;
 	#end
 	
 	
 }
 
 
-@:enum private abstract SystemDirectory(Int) from Int to Int {
+@:enum private abstract SystemDirectory(Int) from Int to Int from UInt to UInt {
 	
 	var APPLICATION = 0;
 	var APPLICATION_STORAGE = 1;

@@ -18,6 +18,7 @@ import sys.FileSystem;
 import sys.io.File;
 
 #if (lime && !lime_legacy)
+import haxe.xml.Fast;
 import lime.text.Font;
 import lime.tools.helpers.FileHelper;
 import lime.tools.helpers.ProcessHelper;
@@ -136,9 +137,9 @@ class HXProject {
 				
 				defaultWindow.width = 0;
 				defaultWindow.height = 0;
-				defaultWindow.fps = 0;
+				defaultWindow.fps = 60;
 				
-			case ANDROID, BLACKBERRY, IOS, TIZEN, WEBOS:
+			case ANDROID, BLACKBERRY, IOS, TIZEN, WEBOS, TVOS:
 				
 				platformType = PlatformType.MOBILE;
 				
@@ -157,6 +158,10 @@ class HXProject {
 						architectures = [ Architecture.ARMV7 ];
 						
 					}
+					
+				} else if (target == Platform.TVOS) {
+					
+					architectures = [ Architecture.ARM64 ];
 					
 				} else {
 					
@@ -410,7 +415,7 @@ class HXProject {
 		
 		FileHelper.copyFile (path, classFile);
 		
-		ProcessHelper.runCommand ("", "haxe", [ name, "-main", "lime.project.HXProject", "-cp", tempDirectory, "-neko", nekoOutput, "-cp", PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "tools"), "-lib", "lime" ]);
+		ProcessHelper.runCommand ("", "haxe", [ name, "-main", "lime.project.HXProject", "-cp", tempDirectory, "-neko", nekoOutput, "-cp", PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "tools"), "-lib", "lime", "-D", "lime_curl" ]);
 		ProcessHelper.runCommand ("", "neko", [ FileSystem.fullPath (nekoOutput), HXProject._command, name, Std.string (HXProject._target), Std.string (HXProject._debug), Serializer.run (HXProject._targetFlags), Serializer.run (HXProject._templatePaths), temporaryFile ]);
 		
 		try {
@@ -613,6 +618,19 @@ class HXProject {
 		}
 		
 	}
+	
+	
+	#if (lime && !lime_legacy)
+	
+	public function includeXML (xml:String):Void {
+		
+		var projectXML = new ProjectXMLParser ();
+		@:privateAccess projectXML.parseXML (new Fast (Xml.parse (xml).firstElement ()), "");
+		merge (projectXML);
+		
+	}
+	
+	#end
 	
 	
 	private static function initialize ():Void {
@@ -829,6 +847,8 @@ class HXProject {
 			
 		}
 		
+		context.meta = meta;
+		
 		for (field in Reflect.fields (meta)) {
 			
 			Reflect.setField (context, "APP_" + StringHelper.formatUppercaseVariable (field), Reflect.field (meta, field));
@@ -857,6 +877,8 @@ class HXProject {
 			
 		}
 		
+		context.windows = windows;
+		
 		for (i in 0...windows.length) {
 			
 			for (field in Reflect.fields (windows[i])) {
@@ -874,6 +896,8 @@ class HXProject {
 				Reflect.setField (context, "WINDOW_ORIENTATION_" + i, "");
 				
 			}
+			
+			windows[i].title = meta.title;
 			
 		}
 		

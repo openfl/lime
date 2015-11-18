@@ -3,6 +3,7 @@
 
 
 #include <hx/CFFI.h>
+#include <stdint.h>
 
 
 namespace lime {
@@ -39,6 +40,7 @@ namespace lime {
 			int height;
 			WindowEventType type;
 			int width;
+			uint32_t windowID;
 			int x;
 			int y;
 		

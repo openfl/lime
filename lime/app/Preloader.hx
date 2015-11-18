@@ -1,6 +1,7 @@
 package lime.app;
 
 
+import lime.app.Event;
 import lime.Assets;
 
 #if (js && html5)
@@ -12,7 +13,6 @@ import lime.net.URLRequest;
 #elseif flash
 import flash.display.LoaderInfo;
 import flash.display.Sprite;
-import flash.events.Event;
 import flash.events.ProgressEvent;
 import flash.Lib;
 #end
@@ -22,7 +22,8 @@ class Preloader #if flash extends Sprite #end {
 	
 	
 	public var complete:Bool;
-	public var onComplete:Dynamic;
+	public var onComplete = new Event<Void->Void> ();
+	public var onProgress = new Event<Int->Int->Void> ();
 	
 	#if (js && html5)
 	public static var images = new Map<String, Image> ();
@@ -35,10 +36,10 @@ class Preloader #if flash extends Sprite #end {
 	public function new () {
 		
 		#if flash
-			
-			super ();
-			
+		super ();
 		#end
+		
+		onProgress.add (update);
 		
 	}
 	
@@ -46,20 +47,16 @@ class Preloader #if flash extends Sprite #end {
 	public function create (config:Config):Void {
 		
 		#if flash
-			
-			Lib.current.addChild (this);
-			
-			Lib.current.loaderInfo.addEventListener (Event.COMPLETE, loaderInfo_onComplete);
-			Lib.current.loaderInfo.addEventListener (Event.INIT, loaderInfo_onInit);
-			Lib.current.loaderInfo.addEventListener (ProgressEvent.PROGRESS, loaderInfo_onProgress);
-			Lib.current.addEventListener (Event.ENTER_FRAME, current_onEnter);
-			
+		Lib.current.addChild (this);
+		
+		Lib.current.loaderInfo.addEventListener (flash.events.Event.COMPLETE, loaderInfo_onComplete);
+		Lib.current.loaderInfo.addEventListener (flash.events.Event.INIT, loaderInfo_onInit);
+		Lib.current.loaderInfo.addEventListener (ProgressEvent.PROGRESS, loaderInfo_onProgress);
+		Lib.current.addEventListener (flash.events.Event.ENTER_FRAME, current_onEnter);
 		#end
 		
 		#if (!flash && !html5)
-			
-			start ();
-			
+		start ();
 		#end
 		
 	}
@@ -68,61 +65,74 @@ class Preloader #if flash extends Sprite #end {
 	public function load (urls:Array<String>, types:Array<AssetType>):Void {
 		
 		#if (js && html5)
+		
+		var url = null;
+		var cacheVersion = Assets.cache.version;
+		
+		for (i in 0...urls.length) {
 			
-			var url = null;
+			url = urls[i];
 			
-			for (i in 0...urls.length) {
+			switch (types[i]) {
 				
-				url = urls[i];
-				
-				switch (types[i]) {
+				case IMAGE:
 					
-					case IMAGE:
+					if (!images.exists (url)) {
 						
 						var image = new Image ();
 						images.set (url, image);
 						image.onload = image_onLoad;
-						image.src = url;
+						image.src = url + "?" + cacheVersion;
 						total++;
+						
+					}
+				
+				case BINARY:
 					
-					case BINARY:
+					if (!loaders.exists (url)) {
 						
 						var loader = new URLLoader ();
 						loader.dataFormat = BINARY;
 						loaders.set (url, loader);
 						total++;
+						
+					}
+				
+				case TEXT:
 					
-					case TEXT:
+					if (!loaders.exists (url)) {
 						
 						var loader = new URLLoader ();
 						loaders.set (url, loader);
 						total++;
-					
-					case FONT:
 						
-						total++;
-						loadFont (url);
+					}
+				
+				case FONT:
 					
-					default:
-					
-				}
+					total++;
+					loadFont (url);
+				
+				default:
 				
 			}
 			
-			for (url in loaders.keys ()) {
-				
-				var loader = loaders.get (url);
-				loader.onComplete.add (loader_onComplete);
-				loader.load (new URLRequest (url));
-				
-			}
+		}
+		
+		for (url in loaders.keys ()) {
 			
-			if (total == 0) {
-				
-				start ();
-				
-			}
+			var loader = loaders.get (url);
+			loader.onComplete.add (loader_onComplete);
+			loader.load (new URLRequest (url + "?" + cacheVersion));
 			
+		}
+		
+		if (total == 0) {
+			
+			start ();
+			
+		}
+		
 		#end
 		
 	}
@@ -136,7 +146,7 @@ class Preloader #if flash extends Sprite #end {
 			untyped (Browser.document).fonts.load ("1em '" + font + "'").then (function (_) {
 				
 				loaded ++;
-				update (loaded, total);
+				onProgress.dispatch (loaded, total);
 				
 				if (loaded == total) {
 					
@@ -191,7 +201,7 @@ class Preloader #if flash extends Sprite #end {
 					node.parentNode.removeChild (node);
 					node = null;
 					
-					update (loaded, total);
+					onProgress.dispatch (loaded, total);
 					
 					if (loaded == total) {
 						
@@ -221,6 +231,8 @@ class Preloader #if flash extends Sprite #end {
 	
 	private function start ():Void {
 		
+		complete = true;
+		
 		#if flash
 		if (Lib.current.contains (this)) {
 			
@@ -229,11 +241,7 @@ class Preloader #if flash extends Sprite #end {
 		}
 		#end
 		
-		if (onComplete != null) {
-			
-			onComplete ();
-			
-		}
+		onComplete.dispatch ();
 		
 	}
 	
@@ -257,7 +265,7 @@ class Preloader #if flash extends Sprite #end {
 		
 		loaded++;
 		
-		update (loaded, total);
+		onProgress.dispatch (loaded, total);
 		
 		if (loaded == total) {
 			
@@ -272,7 +280,7 @@ class Preloader #if flash extends Sprite #end {
 		
 		loaded++;
 		
-		update (loaded, total);
+		onProgress.dispatch (loaded, total);
 		
 		if (loaded == total) {
 			
@@ -285,13 +293,20 @@ class Preloader #if flash extends Sprite #end {
 	
 	
 	#if flash
-	private function current_onEnter (event:Event):Void {
+	private function current_onEnter (event:flash.events.Event):Void {
+		
+		if (!complete && Lib.current.loaderInfo.bytesLoaded == Lib.current.loaderInfo.bytesTotal) {
+			
+			complete = true;
+			onProgress.dispatch (Lib.current.loaderInfo.bytesLoaded, Lib.current.loaderInfo.bytesTotal);
+			
+		}
 		
 		if (complete) {
 			
-			Lib.current.removeEventListener (Event.ENTER_FRAME, current_onEnter);
-			Lib.current.loaderInfo.removeEventListener (Event.COMPLETE, loaderInfo_onComplete);
-			Lib.current.loaderInfo.removeEventListener (Event.INIT, loaderInfo_onInit);
+			Lib.current.removeEventListener (flash.events.Event.ENTER_FRAME, current_onEnter);
+			Lib.current.loaderInfo.removeEventListener (flash.events.Event.COMPLETE, loaderInfo_onComplete);
+			Lib.current.loaderInfo.removeEventListener (flash.events.Event.INIT, loaderInfo_onInit);
 			Lib.current.loaderInfo.removeEventListener (ProgressEvent.PROGRESS, loaderInfo_onProgress);
 			
 			start ();
@@ -304,21 +319,21 @@ class Preloader #if flash extends Sprite #end {
 	private function loaderInfo_onComplete (event:flash.events.Event):Void {
 		
 		complete = true;
-		update (Lib.current.loaderInfo.bytesLoaded, Lib.current.loaderInfo.bytesTotal);
+		onProgress.dispatch (Lib.current.loaderInfo.bytesLoaded, Lib.current.loaderInfo.bytesTotal);
 		
 	}
 	
 	
 	private function loaderInfo_onInit (event:flash.events.Event):Void {
 		
-		update (Lib.current.loaderInfo.bytesLoaded, Lib.current.loaderInfo.bytesTotal);
+		onProgress.dispatch (Lib.current.loaderInfo.bytesLoaded, Lib.current.loaderInfo.bytesTotal);
 		
 	}
 	
 	
 	private function loaderInfo_onProgress (event:flash.events.ProgressEvent):Void {
 		
-		update (Lib.current.loaderInfo.bytesLoaded, Lib.current.loaderInfo.bytesTotal);
+		onProgress.dispatch (Lib.current.loaderInfo.bytesLoaded, Lib.current.loaderInfo.bytesTotal);
 		
 	}
 	#end

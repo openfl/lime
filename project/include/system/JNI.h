@@ -1,5 +1,5 @@
-#ifndef LIME_UTILS_JNI_H
-#define LIME_UTILS_JNI_H
+#ifndef LIME_SYSTEM_JNI_H
+#define LIME_SYSTEM_JNI_H
 
 
 namespace lime {

@@ -238,7 +238,7 @@ namespace nme
         }
         void setPitch(const float &inFloat) {
             LOG_SOUND("AVAudioPlayerChannel setPitch()");
-            [theActualPlayer setPitch: inFloat];
+            //[theActualPlayer setPitch: inFloat];
         }
         void stop()
         {

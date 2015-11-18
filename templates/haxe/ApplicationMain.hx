@@ -2,6 +2,9 @@ import ::APP_MAIN::;
 import lime.Assets;
 
 
+@:access(lime.app.Application)
+
+
 class ApplicationMain {
 	
 	
@@ -13,13 +16,15 @@ class ApplicationMain {
 	
 	public static function create ():Void {
 		
+		preloader = new ::if (PRELOADER_NAME != "")::::PRELOADER_NAME::::else::lime.app.Preloader::end:: ();
+		
 		#if !munit
 		app = new ::APP_MAIN:: ();
+		app.setPreloader (preloader);
 		app.create (config);
 		#end
 		
-		preloader = new ::if (PRELOADER_NAME != "")::::PRELOADER_NAME::::else::lime.app.Preloader::end:: ();
-		preloader.onComplete = start;
+		preloader.onComplete.add (start);
 		preloader.create (config);
 		
 		#if (js && html5)
@@ -61,26 +66,37 @@ class ApplicationMain {
 		
 		config = {
 			
-			antialiasing: Std.int (::WIN_ANTIALIASING::),
-			background: Std.int (::WIN_BACKGROUND::),
-			borderless: ::WIN_BORDERLESS::,
-			company: "::META_COMPANY::",
-			depthBuffer: ::WIN_DEPTH_BUFFER::,
+			build: "::meta.buildNumber::",
+			company: "::meta.company::",
 			file: "::APP_FILE::",
-			fps: Std.int (::WIN_FPS::),
-			fullscreen: ::WIN_FULLSCREEN::,
-			hardware: ::WIN_HARDWARE::,
-			height: Std.int (::WIN_HEIGHT::),
+			fps: ::WIN_FPS::,
+			name: "::meta.title::",
 			orientation: "::WIN_ORIENTATION::",
-			packageName: "::META_PACKAGE_NAME::",
-			resizable: ::WIN_RESIZABLE::,
-			stencilBuffer: ::WIN_STENCIL_BUFFER::,
-			title: "::APP_TITLE::",
-			version: "::META_VERSION::",
-			vsync: ::WIN_VSYNC::,
-			width: Std.int (::WIN_WIDTH::),
+			packageName: "::meta.packageName::",
+			version: "::meta.version::",
+			windows: [
+				::foreach windows::
+				{
+					antialiasing: ::antialiasing::,
+					background: ::background::,
+					borderless: ::borderless::,
+					depthBuffer: ::depthBuffer::,
+					display: ::display::,
+					fullscreen: ::fullscreen::,
+					hardware: ::hardware::,
+					height: ::height::,
+					parameters: "::parameters::",
+					resizable: ::resizable::,
+					stencilBuffer: ::stencilBuffer::,
+					title: "::title::",
+					vsync: ::vsync::,
+					width: ::width::,
+					x: ::x::,
+					y: ::y::
+				},::end::
+			]
 			
-		}
+		};
 		
 		#if (!html5 || munit)
 		create ();
@@ -109,7 +125,7 @@ class ApplicationMain {
 	
 	
 	#if neko
-	@:noCompletion public static function __init__ () {
+	@:noCompletion @:dox(hide) public static function __init__ () {
 		
 		var loader = new neko.vm.Loader (untyped $loader);
 		loader.addPath (haxe.io.Path.directory (Sys.executablePath ()));

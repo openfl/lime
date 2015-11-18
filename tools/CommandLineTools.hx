@@ -9,8 +9,8 @@ import haxe.Serializer;
 import haxe.Unserializer;
 import haxe.io.Path;
 import haxe.rtti.Meta;
+import lime.system.CFFI;
 import lime.tools.helpers.*;
-import lime.system.System;
 import lime.tools.platforms.*;
 import lime.project.*;
 import sys.io.File;
@@ -237,6 +237,15 @@ class CommandLineTools {
 							target = Platform.FIREFOX;
 							overrides.haxedefs.set ("firefoxos", "");
 						
+						case "appletv", "appletvos":
+							
+							target = Platform.TVOS;
+						
+						case "appletvsim":
+							
+							target = Platform.TVOS;
+							targetFlags.set ("simulator", "");
+						
 						default:
 							
 							target = cast targetName.toLowerCase ();
@@ -363,7 +372,7 @@ class CommandLineTools {
 		
 		if (args.length > 0 && args[0].toLowerCase () == "rebuild") {
 			
-			System.disableCFFI = true;
+			CFFI.enabled = false;
 			
 		}
 		
@@ -371,7 +380,7 @@ class CommandLineTools {
 			
 			if (arg == "-nocffi" || arg == "-rebuild") {
 				
-				System.disableCFFI = true;
+				CFFI.enabled = false;
 				
 			}
 			
@@ -456,7 +465,7 @@ class CommandLineTools {
 					
 				}
 				
-				if (raspberryPi) {
+				if (raspberryPi || PlatformHelper.hostArchitecture == Architecture.ARMV6 || PlatformHelper.hostArchitecture == Architecture.ARMV7) {
 					
 					untyped $loader.path = $array (path + "RPi/", $loader.path);
 					
@@ -495,7 +504,11 @@ class CommandLineTools {
 			var temporaryFile = PathHelper.getTemporaryFile ();
 			File.saveContent (temporaryFile, projectData);
 			
-			var args = [ "run", handler, command, temporaryFile ];
+			var targetDir = PathHelper.getHaxelib (new Haxelib (handler));
+			var exePath = Path.join ([targetDir, "run.exe"]);
+			var exeExists = FileSystem.exists (exePath);
+			
+			var args = [ command, temporaryFile ];
 			
 			if (LogHelper.verbose) args.push ("-verbose");
 			if (!LogHelper.enableColor) args.push ("-nocolor");
@@ -507,8 +520,16 @@ class CommandLineTools {
 				args = args.concat (additionalArguments);
 				
 			}
+
+			if (exeExists) {
+
+				ProcessHelper.runCommand ("", exePath, args);
+
+			} else {
 			
-			ProcessHelper.runCommand ("", "haxelib", args);
+				ProcessHelper.runCommand ("", "haxelib", ["run", handler].concat (args));
+
+			}
 			
 			try {
 				
@@ -569,6 +590,10 @@ class CommandLineTools {
 				case EMSCRIPTEN:
 					
 					platform = new EmscriptenPlatform (command, project, targetFlags);
+				
+				case TVOS:
+					
+					platform = new TVOSPlatform (command, project, targetFlags);
 				
 				default:
 				
@@ -634,7 +659,7 @@ class CommandLineTools {
 			
 			if (projectName == "project" || sampleName == "project") {
 				
-				CreateTemplate.createProject (words, userDefines);
+				CreateTemplate.createProject (words, userDefines, overrides);
 				
 			} else if (projectName == "extension" || sampleName == "extension") {
 				
@@ -734,6 +759,7 @@ class CommandLineTools {
 		LogHelper.println ("  \x1b[1mlinux\x1b[0m -- Create a Linux application");
 		LogHelper.println ("  \x1b[1mmac\x1b[0m -- Create a Mac OS X application");
 		LogHelper.println ("  \x1b[1mtizen\x1b[0m -- Create a Tizen application");
+		LogHelper.println ("  \x1b[1mtvos\x1b[0m -- Create a tvOS application");
 		LogHelper.println ("  \x1b[1mwebos\x1b[0m -- Create a webOS application");
 		LogHelper.println ("  \x1b[1mwindows\x1b[0m -- Create a Windows application");
 		LogHelper.println ("");
@@ -749,7 +775,7 @@ class CommandLineTools {
 		LogHelper.println ("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-neko\x1b[0m -- Build with Neko instead of C++");
 		LogHelper.println ("  \x1b[3m(mac|linux)\x1b[0m \x1b[1m-32\x1b[0m -- Compile for 32-bit instead of the OS default");
 		LogHelper.println ("  \x1b[3m(mac|linux)\x1b[0m \x1b[1m-64\x1b[0m -- Compile for 64-bit instead of the OS default");
-		LogHelper.println ("  \x1b[3m(ios|blackberry|tizen|webos)\x1b[0m \x1b[1m-simulator\x1b[0m -- Target the device simulator");
+		LogHelper.println ("  \x1b[3m(ios|blackberry|tizen|tvos|webos)\x1b[0m \x1b[1m-simulator\x1b[0m -- Target the device simulator");
 		LogHelper.println ("  \x1b[3m(ios)\x1b[0m \x1b[1m-simulator -ipad\x1b[0m -- Build/test for the iPad Simulator");
 		LogHelper.println ("  \x1b[3m(android)\x1b[0m \x1b[1m-emulator\x1b[0m -- Target the device emulator");
 		LogHelper.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-minify\x1b[0m -- Minify output using the Google Closure compiler");
@@ -1259,7 +1285,7 @@ class CommandLineTools {
 			
 		}
 		
-		if (project == null) {
+		if (project == null || (command != "rebuild" && project.sources.length == 0)) {
 			
 			LogHelper.error ("You must have a \"project.xml\" file or specify another valid project file when using the '" + command + "' command");
 			return null;

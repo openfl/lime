@@ -18,7 +18,7 @@ namespace nme
 		SRes lzma_Progress(void *p, UInt64 inSize, UInt64 outSize) {
 			return SZ_OK;
 		}
-
+		
 		void *lzma_Alloc(void *p, size_t size) {
 			return malloc(size);
 		}
@@ -32,7 +32,7 @@ namespace nme
 	{
 		SizeT  input_buffer_size = buffer_size(input_buffer);
 		Byte*  input_buffer_data = (Byte *)buffer_data(input_buffer);
-		SizeT  output_buffer_size = input_buffer_size + 1024;
+		SizeT  output_buffer_size = input_buffer_size + input_buffer_size / 5 + (1 << 16);
 		Byte*  output_buffer_data = (Byte *)malloc(output_buffer_size);
 		SizeT  props_size = 100;
 		Byte*  props_data = (Byte *)malloc(props_size);

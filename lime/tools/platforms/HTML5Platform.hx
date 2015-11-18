@@ -107,7 +107,9 @@ class HTML5Platform extends PlatformTarget {
 		context.OUTPUT_FILE = outputFile;
 		
 		var template = new Template (File.getContent (hxml));
+		
 		Sys.println (template.execute (context));
+		Sys.println ("-D display");
 		
 	}
 	
@@ -168,6 +170,12 @@ class HTML5Platform extends PlatformTarget {
 		if (project.targetFlags.exists ("xml")) {
 			
 			project.haxeflags.push ("-xml " + targetDirectory + "/types.xml");
+			
+		}
+		
+		if (LogHelper.verbose) {
+			
+			project.haxedefs.set ("verbose", 1);
 			
 		}
 		

@@ -23,7 +23,7 @@ import openfl.net.URLLoader;
 import sys.FileSystem;
 #end
 
-#if ios
+#if (ios || tvos)
 import openfl.utils.SystemPath;
 #end
 
@@ -204,7 +204,15 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#elseif (js || openfl_html5 || pixi)
 		
 		var bytes:ByteArray = null;
-		var data = ApplicationMain.urlLoaders.get (path.get (id)).data;
+		var loader = ApplicationMain.urlLoaders.get (path.get (id));
+
+		if (loader == null) {
+
+			return null;
+			
+		}
+
+		var data = loader.data;
 		
 		if (Std.is (data, String)) {
 			
@@ -297,7 +305,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	public override function getPath (id:String):String {
 		
-		#if ios
+		#if (ios || tvos)
 		
 		return SystemPath.applicationDirectory + "/assets/" + path.get (id);
 		
@@ -339,7 +347,15 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#if js
 		
 		var bytes:ByteArray = null;
-		var data = ApplicationMain.urlLoaders.get (path.get (id)).data;
+		var loader = ApplicationMain.urlLoaders.get (path.get (id));
+
+		if (loader == null) {
+
+			return null;
+
+		}
+
+		var data = loader.data;
 		
 		if (Std.is (data, String)) {
 			

@@ -5,6 +5,10 @@ import lime.math.Vector2;
 import lime.system.System;
 import lime.utils.ByteArray;
 
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
+
 @:access(lime.text.Font)
 
 
@@ -41,7 +45,7 @@ class TextLayout {
 		positions = [];
 		__dirty = true;
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		__handle = lime_text_layout_create (__direction, __script, __language);
 		#end
 	}
@@ -51,18 +55,18 @@ class TextLayout {
 		
 		positions = [];
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		
 		if (__handle != null && text != null && text != "" && font != null && font.src != null) {
 			
 			if (__buffer == null) {
 				
-				__buffer = new ByteArray ();
-				__buffer.endian = "littleEndian";
+				__buffer = new ByteArray (1);
+				__buffer.endian = (System.endianness == BIG_ENDIAN ? "bigEndian" : "littleEndian");
 				
 			}
 			
-			lime_text_layout_position (__handle, font.src, size, text, __buffer);
+			var data = lime_text_layout_position (__handle, font.src, size, text, __buffer);
 			
 			if (__buffer.length > 4) {
 				
@@ -83,7 +87,7 @@ class TextLayout {
 					
 				}
 				
-			}			
+			}
 		}
 		
 		#end
@@ -100,14 +104,17 @@ class TextLayout {
 	
 	@:noCompletion private function get_positions ():Array<GlyphPosition> {
 		
-		if ( __dirty )
-		{
+		if (__dirty) {
+			
 			__dirty = false;
-			__position();
+			__position ();
+			
 		}
 		
 		return positions;
+		
 	}
+	
 	
 	@:noCompletion private function get_direction ():TextDirection {
 		
@@ -122,7 +129,7 @@ class TextLayout {
 		
 		__direction = value;
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		lime_text_layout_set_direction (__handle, value);
 		#end
 		
@@ -172,7 +179,7 @@ class TextLayout {
 		
 		__language = value;
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		lime_text_layout_set_language (__handle, value);
 		#end
 		
@@ -196,7 +203,7 @@ class TextLayout {
 		
 		__script = value;
 		
-		#if (cpp || neko || nodejs)
+		#if ((cpp || neko || nodejs) && !macro)
 		lime_text_layout_set_script (__handle, value);
 		#end
 		
@@ -236,12 +243,12 @@ class TextLayout {
 	
 	
 	
-	#if (cpp || neko || nodejs)
-	private static var lime_text_layout_create = System.load ("lime", "lime_text_layout_create", 3);
-	private static var lime_text_layout_position = System.load ("lime", "lime_text_layout_position", 5);
-	private static var lime_text_layout_set_direction = System.load ("lime", "lime_text_layout_set_direction", 2);
-	private static var lime_text_layout_set_language = System.load ("lime", "lime_text_layout_set_language", 2);
-	private static var lime_text_layout_set_script = System.load ("lime", "lime_text_layout_set_script", 2);
+	#if ((cpp || neko || nodejs) && !macro)
+	@:cffi private static function lime_text_layout_create (direction:Int, script:String, language:String):Dynamic;
+	@:cffi private static function lime_text_layout_position (textHandle:Dynamic, fontHandle:Dynamic, size:Int, textString:String, data:Dynamic):Dynamic;
+	@:cffi private static function lime_text_layout_set_direction (textHandle:Dynamic, direction:Int):Void;
+	@:cffi private static function lime_text_layout_set_language (textHandle:Dynamic, language:String):Void;
+	@:cffi private static function lime_text_layout_set_script (textHandle:Dynamic, script:String):Void;
 	#end
 	
 	

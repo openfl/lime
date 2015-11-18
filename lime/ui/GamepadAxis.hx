@@ -1,7 +1,7 @@
 package lime.ui;
 
 
-@:enum abstract GamepadAxis(Int) from Int to Int {
+@:enum abstract GamepadAxis(Int) from Int to Int from UInt to UInt {
 	
 	
 	var LEFT_X = 0;

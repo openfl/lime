@@ -4,3 +4,4 @@
 -lib lime
 -lib format
 #-lib svg
+-D optional_cffi

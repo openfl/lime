@@ -219,7 +219,9 @@ class EmscriptenPlatform extends PlatformTarget {
 		context.OUTPUT_FILE = outputFile;
 		
 		var template = new Template (File.getContent (hxml));
+		
 		Sys.println (template.execute (context));
+		Sys.println ("-D display");
 		
 	}
 	
@@ -241,6 +243,19 @@ class EmscriptenPlatform extends PlatformTarget {
 	public override function update ():Void {
 		
 		project = project.clone ();
+		
+		for (asset in project.assets) {
+			
+			if (asset.embed && asset.sourcePath == "") {
+				
+				var path = PathHelper.combine (targetDirectory + "/obj/tmp", asset.targetPath);
+				PathHelper.mkdir (Path.directory (path));
+				FileHelper.copyAsset (asset, path);
+				asset.sourcePath = path;
+				
+			}
+			
+		}
 		
 		for (asset in project.assets) {
 			

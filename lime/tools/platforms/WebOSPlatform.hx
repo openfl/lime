@@ -13,6 +13,7 @@ import lime.tools.helpers.ProcessHelper;
 import lime.tools.helpers.WebOSHelper;
 import lime.project.AssetType;
 import lime.project.HXProject;
+import lime.project.Icon;
 import lime.project.PlatformTarget;
 import sys.io.File;
 import sys.FileSystem;
@@ -103,7 +104,9 @@ class WebOSPlatform extends PlatformTarget {
 		context.CPP_DIR = targetDirectory + "/obj";
 		
 		var template = new Template (File.getContent (hxml));
+		
 		Sys.println (template.execute (context));
+		Sys.println ("-D display");
 		
 	}
 	
@@ -139,6 +142,20 @@ class WebOSPlatform extends PlatformTarget {
 	public override function update ():Void {
 		
 		project = project.clone ();
+		
+		for (asset in project.assets) {
+			
+			if (asset.embed && asset.sourcePath == "") {
+				
+				var path = PathHelper.combine (targetDirectory + "/obj/tmp", asset.targetPath);
+				PathHelper.mkdir (Path.directory (path));
+				FileHelper.copyAsset (asset, path);
+				asset.sourcePath = path;
+				
+			}
+			
+		}
+		
 		var destination = targetDirectory + "/bin/";
 		PathHelper.mkdir (destination);
 		
@@ -151,7 +168,15 @@ class WebOSPlatform extends PlatformTarget {
 		var context = project.templateContext;
 		context.CPP_DIR = targetDirectory + "/obj";
 		
-		if (IconHelper.createIcon (project.icons, 64, 64, PathHelper.combine (destination, "icon.png"))) {
+		var icons = project.icons;
+		
+		if (icons.length == 0) {
+			
+			icons = [ new Icon (PathHelper.findTemplate (project.templatePaths, "default/icon.svg")) ];
+			
+		}
+		
+		if (IconHelper.createIcon (icons, 64, 64, PathHelper.combine (destination, "icon.png"))) {
 			
 			context.APP_ICON = "icon.png";
 			

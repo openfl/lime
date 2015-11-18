@@ -17,9 +17,12 @@ namespace lime {
 			SDLWindow (Application* application, int width, int height, int flags, const char* title);
 			~SDLWindow ();
 			
+			virtual void Alert (const char* message, const char* title);
 			virtual void Close ();
+			virtual void Focus ();
 			virtual bool GetEnableTextEvents ();
 			virtual int GetHeight ();
+			virtual uint32_t GetID ();
 			virtual int GetWidth ();
 			virtual int GetX ();
 			virtual int GetY ();
@@ -29,6 +32,7 @@ namespace lime {
 			virtual bool SetFullscreen (bool fullscreen);
 			virtual void SetIcon (ImageBuffer *imageBuffer);
 			virtual bool SetMinimized (bool minimized);
+			virtual const char* SetTitle (const char* title);
 			
 			SDL_Window* sdlWindow;
 		

@@ -259,12 +259,6 @@
 		<file name="${LEGACY_SRC_DIR}/common/poly2tri/Poly2Tri.cpp" />
 		-->
 		
-		<file name="${LEGACY_SRC_DIR}/lzma/LzFind.c" />
-		<file name="${LEGACY_SRC_DIR}/lzma/LzmaDec.c" />
-		<file name="${LEGACY_SRC_DIR}/lzma/LzmaEnc.c" />
-		<file name="${LEGACY_SRC_DIR}/lzma/LzFindMt.c" if="windows" />
-		<file name="${LEGACY_SRC_DIR}/lzma/Threads.c" if="windows" />
-		
 		<file name="${HXCPP}/project/libs/zlib/ZLib.cpp" if="ios" />
 		
 	</files>
@@ -284,6 +278,7 @@
 		<files id="native-toolkit-curl" if="LEGACY_CURL" />
 		<files id="native-toolkit-jpeg" />
 		<files id="native-toolkit-freetype" />
+		<files id="native-toolkit-lzma" />
 		<files id="native-toolkit-ogg" if="LEGACY_OPENAL" />
 		<files id="native-toolkit-openal" if="LEGACY_OPENAL" unless="android || ios || blackberry || tizen" />
 		<files id="native-toolkit-openal-android" if="android" />

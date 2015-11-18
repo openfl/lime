@@ -2,7 +2,7 @@
 #define LIME_UTILS_RESOURCE_H
 
 
-#include <utils/ByteArray.h>
+#include <utils/Bytes.h>
 
 
 namespace lime {
@@ -13,9 +13,9 @@ namespace lime {
 		
 		Resource () : data (NULL), path (NULL) {}
 		Resource (const char* path) : data (NULL), path (path) {}
-		Resource (ByteArray *data) : data (data), path (NULL) {}
+		Resource (Bytes *data) : data (data), path (NULL) {}
 		
-		ByteArray *data;
+		Bytes *data;
 		const char* path;
 		
 		

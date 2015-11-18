@@ -1,7 +1,7 @@
 package lime.graphics.cairo;
 
 
-@:enum abstract CairoFilter(Int) from Int to Int {
+@:enum abstract CairoFilter(Int) from Int to Int from UInt to UInt {
 	
 	public var FAST = 0;
 	public var GOOD = 1;

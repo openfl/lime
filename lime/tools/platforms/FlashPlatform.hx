@@ -8,6 +8,7 @@ import lime.tools.helpers.CompatibilityHelper;
 import lime.tools.helpers.DeploymentHelper;
 import lime.tools.helpers.FileHelper;
 import lime.tools.helpers.FlashHelper;
+import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.PathHelper;
 import lime.tools.helpers.PlatformHelper;
 import lime.tools.helpers.ProcessHelper;
@@ -18,6 +19,10 @@ import lime.project.Platform;
 import lime.project.PlatformTarget;
 import sys.io.File;
 import sys.FileSystem;
+
+#if neko
+import neko.vm.Thread;
+#end
 
 
 class FlashPlatform extends PlatformTarget {
@@ -153,7 +158,9 @@ class FlashPlatform extends PlatformTarget {
 		context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background, 6);
 		
 		var template = new Template (File.getContent (hxml));
+		
 		Sys.println (template.execute (context));
+		Sys.println ("-D display");
 		
 	}
 	
@@ -165,6 +172,12 @@ class FlashPlatform extends PlatformTarget {
 		if (project.targetFlags.exists ("xml")) {
 			
 			project.haxeflags.push ("-xml " + targetDirectory + "/types.xml");
+			
+		}
+		
+		if (LogHelper.verbose) {
+			
+			project.haxedefs.set ("verbose", 1);
 			
 		}
 		
@@ -198,7 +211,7 @@ class FlashPlatform extends PlatformTarget {
 		if (traceEnabled) {
 			
 			FlashHelper.enableLogging ();
-			//logLength = FlashHelper.getLogLength ();
+			logLength = FlashHelper.getLogLength ();
 			
 		}
 		
@@ -219,12 +232,12 @@ class FlashPlatform extends PlatformTarget {
 			
 			if (traceEnabled) {
 				
-				neko.vm.Thread.create (function () { 
+				#if neko Thread.create (function () { #end
 					
 					FlashHelper.run (project, destination, targetPath);
 					Sys.exit (0);
 					
-				});
+				#if neko }); #end
 				
 				Sys.sleep (0.1);
 				

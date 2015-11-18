@@ -16,6 +16,7 @@ import lime.tools.helpers.ProcessHelper;
 import lime.project.AssetType;
 import lime.project.Haxelib;
 import lime.project.HXProject;
+import lime.project.Icon;
 import lime.project.NDLL;
 import lime.project.PlatformTarget;
 import sys.io.File;
@@ -32,6 +33,18 @@ class BlackBerryPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
+		if (!project.targetFlags.exists ("html5")) {
+			
+			targetDirectory = project.app.path + "/blackberry/cpp";
+			outputFile = targetDirectory + "/bin/" + PathHelper.safeFileName (project.app.file);
+			
+		} else {
+			
+			targetDirectory = project.app.path + "/blackberry/html5";
+			outputFile = targetDirectory + "/src/" + project.app.file + ".js";
+			
+		}
+		
 		if (command != "display" && command != "clean") {
 			
 			project = project.clone ();
@@ -39,18 +52,6 @@ class BlackBerryPlatform extends PlatformTarget {
 			if (!project.environment.exists ("BLACKBERRY_SETUP")) {
 				
 				LogHelper.error ("You need to run \"lime setup blackberry\" before you can use the BlackBerry target");
-				
-			}
-			
-			if (!project.targetFlags.exists ("html5")) {
-				
-				targetDirectory = project.app.path + "/blackberry/cpp";
-				outputFile = targetDirectory + "/bin/" + PathHelper.safeFileName (project.app.file);
-				
-			} else {
-				
-				targetDirectory = project.app.path + "/blackberry/html5";
-				outputFile = targetDirectory + "/src/" + project.app.file + ".js";
 				
 			}
 			
@@ -204,7 +205,9 @@ class BlackBerryPlatform extends PlatformTarget {
 		}
 		
 		var template = new Template (File.getContent (hxml));
+		
 		Sys.println (template.execute (context));
+		Sys.println ("-D display");
 		
 	}
 	
@@ -256,8 +259,21 @@ class BlackBerryPlatform extends PlatformTarget {
 	
 	public override function update ():Void {
 		
-		//project = project.clone ();
+		project = project.clone ();
 		//initialize (project);
+		
+		for (asset in project.assets) {
+			
+			if (asset.embed && asset.sourcePath == "") {
+				
+				var path = PathHelper.combine (targetDirectory + "/obj/tmp", asset.targetPath);
+				PathHelper.mkdir (Path.directory (path));
+				FileHelper.copyAsset (asset, path);
+				asset.sourcePath = path;
+				
+			}
+			
+		}
 		
 		if (!project.targetFlags.exists ("html5")) {
 			
@@ -320,9 +336,17 @@ class BlackBerryPlatform extends PlatformTarget {
 		context.ICONS = [];
 		context.HAS_ICON = false;
 		
+		var icons = project.icons;
+		
+		if (icons.length == 0) {
+			
+			icons = [ new Icon (PathHelper.findTemplate (project.templatePaths, "default/icon.svg")) ];
+			
+		}
+		
 		for (size in [ 114, 86 ]) {
 			
-			if (IconHelper.createIcon (project.icons, size, size, PathHelper.combine (destination, "icon-" + size + ".png"))) {
+			if (IconHelper.createIcon (icons, size, size, PathHelper.combine (destination, "icon-" + size + ".png"))) {
 				
 				context.ICONS.push ("icon-" + size + ".png");
 				context.HAS_ICON = true;

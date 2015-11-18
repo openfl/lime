@@ -320,42 +320,11 @@ namespace lime {
 	}
 	
 	
-	Font::Font (void* face) {
-		
-		this->face = face;
-		
-		if (face) {
-			
-			/* Set charmap
-			 *
-			 * See http://www.microsoft.com/typography/otspec/name.htm for a list of
-			 * some possible platform-encoding pairs.  We're interested in 0-3 aka 3-1
-			 * - UCS-2.  Otherwise, fail. If a font has some unicode map, but lacks
-			 * UCS-2 - it is a broken or irrelevant font. What exactly Freetype will
-			 * select on face load (it promises most wide unicode, and if that will be
-			 * slower that UCS-2 - left as an excercise to check.
-			 */
-			for (int i = 0; i < ((FT_Face)face)->num_charmaps; i++) {
-				
-				FT_UShort pid = ((FT_Face)face)->charmaps[i]->platform_id;
-				FT_UShort eid = ((FT_Face)face)->charmaps[i]->encoding_id;
-				
-				if (((pid == 0) && (eid == 3)) || ((pid == 3) && (eid == 1))) {
-					
-					FT_Set_Charmap ((FT_Face)face, ((FT_Face)face)->charmaps[i]);
-					
-				}
-				
-			}
-			
-		}
-		
-	}
-	
-	
 	Font::Font (Resource *resource, int faceIndex) {
 		
+		this->library = 0;
 		this->face = 0;
+		this->faceMemory = 0;
 		
 		if (resource) {
 			
@@ -372,6 +341,7 @@ namespace lime {
 				
 				FT_Face face;
 				FILE_HANDLE *file = NULL;
+				unsigned char *faceMemory = NULL;
 				
 				if (resource->path) {
 					
@@ -379,6 +349,7 @@ namespace lime {
 					
 					if (!file) {
 						
+						FT_Done_FreeType (library);
 						return;
 						
 					}
@@ -389,20 +360,22 @@ namespace lime {
 						
 					} else {
 						
-						ByteArray data = ByteArray (resource->path);
-						unsigned char *buffer = (unsigned char*)malloc (data.Size ());
-						memcpy (buffer, data.Bytes (), data.Size ());
+						Bytes data = Bytes (resource->path);
+						faceMemory = (unsigned char*)malloc (data.Length ());
+						memcpy (faceMemory, data.Data (), data.Length ());
+
 						lime::fclose (file);
 						file = 0;
-						error = FT_New_Memory_Face (library, buffer, data.Size (), faceIndex, &face);
+
+						error = FT_New_Memory_Face (library, faceMemory, data.Length (), faceIndex, &face);
 						
 					}
 					
 				} else {
 					
-					unsigned char *buffer = (unsigned char*)malloc (resource->data->Size ());
-					memcpy (buffer, resource->data->Bytes (), resource->data->Size ());
-					error = FT_New_Memory_Face (library, buffer, resource->data->Size (), faceIndex, &face);
+					faceMemory = (unsigned char*)malloc (resource->data->Length ());
+					memcpy (faceMemory, resource->data->Data (), resource->data->Length ());
+					error = FT_New_Memory_Face (library, faceMemory, resource->data->Length (), faceIndex, &face);
 					
 				}
 				
@@ -415,7 +388,9 @@ namespace lime {
 				
 				if (!error) {
 					
+					this->library = library;
 					this->face = face;
+					this->faceMemory = faceMemory;
 					
 					/* Set charmap
 					 *
@@ -439,6 +414,12 @@ namespace lime {
 						
 					}
 					
+				} else {
+
+					FT_Done_FreeType (library);
+
+					free (faceMemory);
+
 				}
 				
 			}
@@ -449,12 +430,17 @@ namespace lime {
 	
 	
 	Font::~Font () {
-		
-		if (face) {
+
+		if (library) {
 			
-			//FT_Done_Face ((FT_Face)face);
+			FT_Done_FreeType ((FT_Library)library);
+			library = 0;
+			face = 0;
 			
 		}
+
+		free (faceMemory);
+		faceMemory = 0;
 		
 	}
 	
@@ -543,8 +529,7 @@ namespace lime {
 		
 		int num_glyphs = glyphs.size ();
 		
-		Font font = Font (face);
-		wchar_t* family_name = font.GetFamilyName ();
+		wchar_t* family_name = GetFamilyName ();
 		
 		value ret = alloc_empty_object ();
 		alloc_field (ret, val_id ("has_kerning"), alloc_bool (FT_HAS_KERNING (((FT_Face)face))));
@@ -781,7 +766,7 @@ namespace lime {
 	}
 	
 	
-	int Font::RenderGlyph (int index, ByteArray *bytes, int offset) {
+	int Font::RenderGlyph (int index, Bytes *bytes, int offset) {
 		
 		if (FT_Load_Glyph ((FT_Face)face, index, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0) {
 			
@@ -797,13 +782,13 @@ namespace lime {
 				
 				uint32_t size = (4 * 5) + (width * height);
 				
-				if (bytes->Size() < size + offset) {
+				if (bytes->Length () < size + offset) {
 					
 					bytes->Resize (size + offset);
 					
 				}
 				
-				GlyphImage *data = (GlyphImage*)(bytes->Bytes () + offset);
+				GlyphImage *data = (GlyphImage*)(bytes->Data () + offset);
 				
 				data->index = index;
 				data->width = width;
@@ -830,7 +815,7 @@ namespace lime {
 	}
 	
 	
-	int Font::RenderGlyphs (value indices, ByteArray *bytes) {
+	int Font::RenderGlyphs (value indices, Bytes *bytes) {
 		
 		int offset = 0;
 		int totalOffset = 4;
@@ -853,7 +838,7 @@ namespace lime {
 		
 		if (count > 0) {
 			
-			*(bytes->Bytes ()) = count;
+			*(uint32_t*)(bytes->Data ()) = count;
 			
 		}
 		
@@ -869,6 +854,7 @@ namespace lime {
 		
 		FT_Set_Char_Size ((FT_Face)face, (int)(size*64), (int)(size*64), hdpi, vdpi);
 		mSize = size;
+		
 	}
 	
 	

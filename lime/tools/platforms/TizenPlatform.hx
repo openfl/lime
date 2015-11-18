@@ -13,6 +13,7 @@ import lime.tools.helpers.ProcessHelper;
 import lime.tools.helpers.TizenHelper;
 import lime.project.AssetType;
 import lime.project.HXProject;
+import lime.project.Icon;
 import lime.project.PlatformTarget;
 import sys.io.File;
 import sys.FileSystem;
@@ -120,7 +121,9 @@ class TizenPlatform extends PlatformTarget {
 		context.CPP_DIR = targetDirectory + "/obj";
 		
 		var template = new Template (File.getContent (hxml));
+		
 		Sys.println (template.execute (context));
+		Sys.println ("-D display");
 		
 	}
 	
@@ -158,6 +161,20 @@ class TizenPlatform extends PlatformTarget {
 	public override function update ():Void {
 		
 		project = project.clone ();
+		
+		for (asset in project.assets) {
+			
+			if (asset.embed && asset.sourcePath == "") {
+				
+				var path = PathHelper.combine (targetDirectory + "/obj/tmp", asset.targetPath);
+				PathHelper.mkdir (Path.directory (path));
+				FileHelper.copyAsset (asset, path);
+				asset.sourcePath = path;
+				
+			}
+			
+		}
+		
 		var destination = targetDirectory + "/bin/";
 		PathHelper.mkdir (destination);
 		
@@ -180,7 +197,15 @@ class TizenPlatform extends PlatformTarget {
 		
 		PathHelper.mkdir (destination + "shared/res/screen-density-xhigh");
 		
-		if (IconHelper.createIcon (project.icons, 117, 117, PathHelper.combine (destination + "shared/res/screen-density-xhigh", "mainmenu.png"))) {
+		var icons = project.icons;
+		
+		if (icons.length == 0) {
+			
+			icons = [ new Icon (PathHelper.findTemplate (project.templatePaths, "default/icon.svg")) ];
+			
+		}
+		
+		if (IconHelper.createIcon (icons, 117, 117, PathHelper.combine (destination + "shared/res/screen-density-xhigh", "mainmenu.png"))) {
 			
 			context.APP_ICON = "mainmenu.png";
 			

@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <stdio.h>
+#include <SDL.h>
 
 #include <bps/orientation.h>
 #include <bps/bps.h>
@@ -29,18 +30,15 @@ namespace nme {
 	
 	
 	double CapabilitiesGetScreenResolutionX() {
-		
-		return 1024;
-		
+		const SDL_VideoInfo* info = SDL_GetVideoInfo();
+		return info->current_w;
 	}
-	
+
 
 	double CapabilitiesGetScreenResolutionY() {
-		
-		return 600;
-		
+		const SDL_VideoInfo* info = SDL_GetVideoInfo();
+		return info->current_h;
 	}
-	
 
 	double CapabilitiesGetScreenDPI() {
 		

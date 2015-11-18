@@ -9,6 +9,7 @@ import lime.tools.helpers.DeploymentHelper;
 import lime.tools.helpers.FileHelper;
 import lime.tools.helpers.IconHelper;
 import lime.tools.helpers.JavaHelper;
+import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.NekoHelper;
 import lime.tools.helpers.NodeJSHelper;
 import lime.tools.helpers.PathHelper;
@@ -18,6 +19,7 @@ import lime.project.AssetType;
 import lime.project.Architecture;
 import lime.project.Haxelib;
 import lime.project.HXProject;
+import lime.project.Icon;
 import lime.project.Platform;
 import lime.project.PlatformTarget;
 import sys.io.File;
@@ -107,8 +109,8 @@ class MacPlatform extends PlatformTarget {
 		if (targetType == "neko") {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
-			NekoHelper.createExecutable (project.templatePaths, "Mac" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
-			NekoHelper.copyLibraries (project.templatePaths, "Mac" + (is64 ? "64" : ""), executableDirectory);
+			NekoHelper.createExecutable (project.templatePaths, "mac" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
+			NekoHelper.copyLibraries (project.templatePaths, "mac" + (is64 ? "64" : ""), executableDirectory);
 			
 		} else if (targetType == "java") {
 			
@@ -201,7 +203,9 @@ class MacPlatform extends PlatformTarget {
 		
 		var hxml = PathHelper.findTemplate (project.templatePaths, targetType + "/hxml/" + type + ".hxml");
 		var template = new Template (File.getContent (hxml));
+		
 		Sys.println (template.execute (generateContext ()));
+		Sys.println ("-D display");
 		
 	}
 	
@@ -244,6 +248,12 @@ class MacPlatform extends PlatformTarget {
 		
 		var arguments = additionalArguments.copy ();
 		
+		if (LogHelper.verbose) {
+			
+			arguments.push ("-verbose");
+			
+		}
+		
 		if (targetType == "nodejs") {
 			
 			NodeJSHelper.run (project, executableDirectory + "/ApplicationMain.js", arguments);
@@ -269,6 +279,19 @@ class MacPlatform extends PlatformTarget {
 		if (project.targetFlags.exists ("xml")) {
 			
 			project.haxeflags.push ("-xml " + targetDirectory + "/types.xml");
+			
+		}
+		
+		for (asset in project.assets) {
+			
+			if (asset.embed && asset.sourcePath == "") {
+				
+				var path = PathHelper.combine (targetDirectory + "/obj/tmp", asset.targetPath);
+				PathHelper.mkdir (Path.directory (path));
+				FileHelper.copyAsset (asset, path);
+				asset.sourcePath = path;
+				
+			}
 			
 		}
 		
@@ -310,7 +333,15 @@ class MacPlatform extends PlatformTarget {
 		FileHelper.copyFileTemplate (project.templatePaths, "mac/Info.plist", targetDirectory + "/bin/" + project.app.file + ".app/Contents/Info.plist", context);
 		FileHelper.copyFileTemplate (project.templatePaths, "mac/Entitlements.plist", targetDirectory + "/bin/" + project.app.file + ".app/Contents/Entitlements.plist", context);
 		
-		context.HAS_ICON = IconHelper.createMacIcon (project.icons, PathHelper.combine (contentDirectory,"icon.icns"));
+		var icons = project.icons;
+		
+		if (icons.length == 0) {
+			
+			icons = [ new Icon (PathHelper.findTemplate (project.templatePaths, "default/icon.svg")) ];
+			
+		}
+		
+		context.HAS_ICON = IconHelper.createMacIcon (icons, PathHelper.combine (contentDirectory, "icon.icns"));
 		
 		for (asset in project.assets) {
 			

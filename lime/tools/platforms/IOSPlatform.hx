@@ -23,6 +23,7 @@ import lime.project.Asset;
 import lime.project.AssetType;
 import lime.project.Haxelib;
 import lime.project.HXProject;
+import lime.project.Icon;
 import lime.project.Keystore;
 import lime.project.NDLL;
 import lime.project.Platform;
@@ -87,7 +88,9 @@ class IOSPlatform extends PlatformTarget {
 		
 		var hxml = PathHelper.findTemplate (project.templatePaths, "iphone/PROJ/haxe/Build.hxml");
 		var template = new Template (File.getContent (hxml));
+		
 		Sys.println (template.execute (generateContext ()));
+		Sys.println ("-D display");
 		
 	}
 	
@@ -135,7 +138,7 @@ class IOSPlatform extends PlatformTarget {
 					
 					var name = Path.withoutDirectory (Path.withoutExtension (dependency.path));
 					
-					project.config.push ("ios.linker-flags", "-force_load $SRCROOT/$PRODUCT_NAME/lib/$ARCHS/" + Path.withoutDirectory (dependency.path));
+					project.config.push ("ios.linker-flags", "-force_load $SRCROOT/$PRODUCT_NAME/lib/$CURRENT_ARCH/" + Path.withoutDirectory (dependency.path));
 					//project.config.ios.linkerFlags.push ("-force_load $SRCROOT/$PRODUCT_NAME/lib/$ARCHS/" + Path.withoutDirectory (dependency.path));
 					
 					if (StringTools.startsWith (name, "lib")) {
@@ -221,7 +224,9 @@ class IOSPlatform extends PlatformTarget {
 			context.OBJC_ARC = true;
 			
 		}
-		
+
+		//context.ENABLE_BITCODE = (project.config.getFloat ("ios.deployment", 5.1) >= 6);
+		context.ENABLE_BITCODE = project.config.getBool ("ios.enable-bitcode", false);
 		context.IOS_COMPILER = project.config.getString ("ios.compiler", "clang");
 		context.CPP_BUILD_LIBRARY = project.config.getString ("cpp.buildLibrary", "hxcpp");
 		
@@ -324,14 +329,26 @@ class IOSPlatform extends PlatformTarget {
 		var i386 = (command == "rebuild" || project.targetFlags.exists ("simulator"));
 		var x86_64 = (command == "rebuild" || project.targetFlags.exists ("simulator"));
 		
+		var arc = (project.targetFlags.exists ("arc"));
+		
 		var commands = [];
 		
-		if (armv6) commands.push ([ "-Diphoneos", "-DHXCPP_CPP11" ]);
-		if (armv7) commands.push ([ "-Diphoneos", "-DHXCPP_CPP11", "-DHXCPP_ARMV7" ]);
-		if (armv7s) commands.push ([ "-Diphoneos", "-DHXCPP_CPP11", "-DHXCPP_ARMV7S" ]);
-		if (arm64) commands.push ([ "-Diphoneos", "-DHXCPP_CPP11", "-DHXCPP_ARM64" ]);
-		if (i386) commands.push ([ "-Diphonesim", "-DHXCPP_CPP11" ]);
-		if (x86_64) commands.push ([ "-Diphonesim", "-DHXCPP_M64", "-DHXCPP_CPP11" ]);
+		if (armv6) commands.push ([ "-Dios", "-DHXCPP_CPP11" ]);
+		if (armv7) commands.push ([ "-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARMV7" ]);
+		if (armv7s) commands.push ([ "-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARMV7S" ]);
+		if (arm64) commands.push ([ "-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARM64" ]);
+		if (i386) commands.push ([ "-Dios", "-Dsimulator", "-DHXCPP_CPP11" ]);
+		if (x86_64) commands.push ([ "-Dios", "-Dsimulator", "-DHXCPP_M64", "-DHXCPP_CPP11" ]);
+		
+		if (arc) {
+			
+			for (command in commands) {
+				
+				command.push ("-DOBJC_ARC");
+				
+			}
+			
+		}
 		
 		CPPHelper.rebuild (project, commands);
 		
@@ -350,6 +367,19 @@ class IOSPlatform extends PlatformTarget {
 	public override function update ():Void {
 		
 		project = project.clone ();
+		
+		for (asset in project.assets) {
+			
+			if (asset.embed && asset.sourcePath == "") {
+				
+				var path = PathHelper.combine (targetDirectory + "/" + project.app.file + "/obj/tmp", asset.targetPath);
+				PathHelper.mkdir (Path.directory (path));
+				FileHelper.copyAsset (asset, path);
+				asset.sourcePath = path;
+				
+			}
+			
+		}
 		
 		var manifest = new Asset ();
 		manifest.id = "__manifest__";
@@ -383,15 +413,23 @@ class IOSPlatform extends PlatformTarget {
 			{ name : "Icon-76@2x.png", size : 152 },
 			{ name : "Icon-60@3x.png", size : 180 },
 		];
-
+		
 		context.HAS_ICON = true;
 		
 		var iconPath = PathHelper.combine (projectDirectory, "Images.xcassets/AppIcon.appiconset");
 		PathHelper.mkdir (iconPath);
 		
+		var icons = project.icons;
+		
+		if (icons.length == 0) {
+			
+			icons = [ new Icon (PathHelper.findTemplate (project.templatePaths, "default/icon.svg")) ];
+			
+		}
+		
 		for (iconSize in iconSizes) {
 			
-			if (!IconHelper.createIcon (project.icons, iconSize.size, iconSize.size, PathHelper.combine (iconPath, iconSize.name))) {
+			if (!IconHelper.createIcon (icons, iconSize.size, iconSize.size, PathHelper.combine (iconPath, iconSize.name))) {
 				
 				context.HAS_ICON = false;
 				

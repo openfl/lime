@@ -6,6 +6,7 @@
 #include <KeyCodes.h>
 #include <map>
 #include <Sound.h>
+#include <utf8.h>
 
 #ifdef NME_MIXER
 #include <SDL_mixer.h>
@@ -268,7 +269,7 @@ public:
       }
       mPrimarySurface->IncRef();
      
-      #if defined(WEBOS) || defined(BLACKBERRY)
+      #if defined(WEBOS) || defined(BLACKBERRY) || defined(HX_LINUX) || defined(HX_WINDOWS)
       mMultiTouch = true;
       #else
       mMultiTouch = false;
@@ -534,7 +535,7 @@ public:
          inEvent.type = etQuit;
       }
       #endif
-      
+
       #if defined(WEBOS) || defined(BLACKBERRY)
       if (inEvent.type == etMouseMove || inEvent.type == etMouseDown || inEvent.type == etMouseUp)
       {
@@ -675,15 +676,27 @@ public:
    }   
 
    
+   bool textInputEnabled;
    void EnablePopupKeyboard(bool enabled)
    {
-      
+      #if defined(HX_WINDOWS) || defined(HX_MACOS) || defined(HX_LINUX)
+      //fprintf(stderr, enabled ? "popup keyboard enabled true\n" : "popup keyboard enabled false\n");
+      if (!textInputEnabled && enabled)
+      {
+         SDL_StartTextInput();
+      }
+      else if (textInputEnabled && !enabled)
+      {
+         SDL_StopTextInput();
+      }
+      textInputEnabled = enabled;
+      #endif
    }
    
    
    bool getMultitouchSupported()
-   { 
-      #if defined(WEBOS) || defined(BLACKBERRY)
+   {
+      #if defined(WEBOS) || defined(BLACKBERRY) || defined(HX_LINUX) || defined(HX_WINDOWS)
       return true;
       #else
       return false;
@@ -696,7 +709,7 @@ public:
    
    bool getMultitouchActive()
    {
-      #if defined(WEBOS) || defined(BLACKBERRY)
+      #if defined(WEBOS) || defined(BLACKBERRY) || defined(HX_LINUX) || defined(HX_WINDOWS)
       return mMultiTouch;
       #else
       return false;
@@ -1111,7 +1124,7 @@ void AddCharCode(Event &key)
 
 
 std::map<int,wchar_t> sLastUnicode;
-
+Event textInputEvent;
 
 void ProcessEvent(SDL_Event &inEvent)
 {
@@ -1259,31 +1272,64 @@ void ProcessEvent(SDL_Event &inEvent)
          sgSDLFrame->ProcessEvent(mouse);
          break;
       }
+
+      #if defined(HX_WINDOWS) || defined(HX_MACOS) || defined(HX_LINUX)
+      case SDL_TEXTINPUT:
+      {
+         int cp = utf8::peek_next(inEvent.text.text, inEvent.text.text+32);
+         textInputEvent.code = cp;
+         sgSDLFrame->ProcessEvent(textInputEvent);
+		 break;
+	   }
+      #endif
+      case SDL_FINGERMOTION:
+      {
+         SDL_TouchFingerEvent inFingerEvent = inEvent.tfinger;
+         Event finger(etTouchMove, inFingerEvent.x, inFingerEvent.y, 0, 0, 0, 1.0f, 1.0f, inFingerEvent.dx, inFingerEvent.dy);
+         finger.value = inFingerEvent.fingerId;
+         sgSDLFrame->ProcessEvent(finger);
+         break;
+      }
+      case SDL_FINGERDOWN:
+      {
+         SDL_TouchFingerEvent inFingerEvent = inEvent.tfinger;
+         Event finger(etTouchBegin, inFingerEvent.x, inFingerEvent.y);
+         finger.value = inFingerEvent.fingerId;
+         sgSDLFrame->ProcessEvent(finger);
+         break;
+      }
+      case SDL_FINGERUP:
+      {
+         SDL_TouchFingerEvent inFingerEvent = inEvent.tfinger;
+         Event finger(etTouchEnd, inFingerEvent.x, inFingerEvent.y);
+         finger.value = inFingerEvent.fingerId;
+         sgSDLFrame->ProcessEvent(finger);
+         break;
+      }
       case SDL_KEYDOWN:
       case SDL_KEYUP:
       {
          Event key(inEvent.type == SDL_KEYDOWN ? etKeyDown : etKeyUp );
          bool right;
          key.value = SDLKeyToFlash(inEvent.key.keysym.sym, right);
-         /*if (inEvent.type == SDL_KEYDOWN)
-         {
-            //key.code = key.value==keyBACKSPACE ? keyBACKSPACE : inEvent.key.keysym.unicode;
-            key.code = inEvent.key.keysym.scancode;
-            sLastUnicode[inEvent.key.keysym.scancode] = key.code;
-         }
-         else
-            // SDL does not provide unicode on key up, so remember it,
-            //  keyed by scancode
-            key.code = sLastUnicode[inEvent.key.keysym.scancode];*/
-         //key.code = 0;
          AddModStates(key.flags, inEvent.key.keysym.mod);
          if (right)
             key.flags |= efLocationRight;
          
-         // SDL2 does not expose char codes in key events (due to the more advanced
-         // Unicode event API), so we'll add some ASCII assumptions to return something
          AddCharCode(key);
+         #if defined(HX_WINDOWS) || defined(HX_MACOS) || defined(HX_LINUX)
+         if (inEvent.type == SDL_KEYDOWN && sgSDLFrame->mStage->textInputEnabled && !iscntrl(key.code))
+         {
+            // Wait for text input event for correct keyboard layout handling
+            textInputEvent = key;
+         }
+         else
+         {
+            sgSDLFrame->ProcessEvent(key);
+         }
+         #else
          sgSDLFrame->ProcessEvent(key);
+         #endif
          break;
       }
       case SDL_JOYAXISMOTION:
@@ -1371,6 +1417,36 @@ void ProcessEvent(SDL_Event &inEvent)
             Event joystick(etJoyDeviceAdded);
             sgJoystick = SDL_JoystickOpen(inEvent.jdevice.which); //which: joystick device index
             joystick.id = SDL_JoystickInstanceID(sgJoystick);
+            //get string id
+            const char * gamepadstring = SDL_JoystickName(sgJoystick);
+            if (strcmp (gamepadstring, "PLAYSTATION(R)3 Controller") == 0)  //PS3 controller
+            {
+                joystick.x = 1;
+            }
+            else if (strcmp (gamepadstring, "Wireless Controller") == 0)    //PS4 controller
+            {
+                joystick.x = 2;
+            }
+            else if (strcmp (gamepadstring, "OUYA Game Controller") == 0)   //OUYA controller
+            {
+                joystick.x = 3;
+            }
+            else if (strcmp (gamepadstring, "Mayflash WIIMote PC Adapter") == 0)   //MayFlash WIIMote PC Adapter
+            {
+                joystick.x = 4;
+            }
+            else if (strcmp (gamepadstring, "Nintendo RVL-CNT-01-TR") == 0)   //Nintendo WIIMote MotionPlus, used directly
+            {
+                joystick.x = 5;
+            }
+            else if (strcmp (gamepadstring, "Nintendo RVL-CNT-01") == 0)      //Nintendo WIIMote w/o MotionPlus attachment, used directly
+            {
+                joystick.x = 6;
+            }
+            else    //default (XBox 360, basically)
+            {
+                joystick.x = 0;
+            }
             sgJoysticks.push_back(sgJoystick);
             sgJoysticksId.push_back(joystick.id);
             sgJoysticksIndex.push_back(inEvent.jdevice.which);
@@ -1481,6 +1557,8 @@ void CreateMainFrame(FrameCreationCallback inOnFrame, int inWidth, int inHeight,
          SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, true);
          SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
       }
+
+      //requestWindowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
    }
    
    #ifdef HX_LINUX

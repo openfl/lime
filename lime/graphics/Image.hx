@@ -3,6 +3,7 @@ package lime.graphics;
 
 import haxe.crypto.BaseCode;
 import haxe.io.Bytes;
+import haxe.io.BytesData;
 import haxe.io.BytesInput;
 import haxe.io.BytesOutput;
 import lime.app.Application;
@@ -11,12 +12,16 @@ import lime.graphics.format.JPEG;
 import lime.graphics.format.PNG;
 import lime.graphics.utils.ImageCanvasUtil;
 import lime.graphics.utils.ImageDataUtil;
+import lime.math.color.ARGB;
+import lime.math.color.BGRA;
+import lime.math.color.RGBA;
 import lime.math.ColorMatrix;
 import lime.math.Rectangle;
 import lime.math.Vector2;
+import lime.system.CFFI;
+import lime.utils.ArrayBuffer;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
-import lime.system.System;
 
 #if (js && html5)
 import js.html.CanvasElement;
@@ -39,14 +44,21 @@ import sys.io.File;
 #end
 #end
 
+#if lime_console
+import lime.graphics.console.TextureData;
+#end
+
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
+
+@:autoBuild(lime.Assets.embedImage())
 @:allow(lime.graphics.util.ImageCanvasUtil)
 @:allow(lime.graphics.util.ImageDataUtil)
 @:access(lime.app.Application)
 @:access(lime.math.ColorMatrix)
 @:access(lime.math.Rectangle)
 @:access(lime.math.Vector2)
-
-@:autoBuild(lime.Assets.embedImage())
 
 
 class Image {
@@ -155,8 +167,24 @@ class Image {
 	
 	public function clone ():Image {
 		
-		var image = new Image (buffer.clone (), offsetX, offsetY, width, height, null, type);
-		return image;
+		if (buffer != null) {
+			
+			if (type == CANVAS && buffer.__srcImage == null) {
+				
+				ImageCanvasUtil.convertToCanvas (this);
+				ImageCanvasUtil.sync (this, true);
+				
+			}
+			
+			var image = new Image (buffer.clone (), offsetX, offsetY, width, height, null, type);
+			image.dirty = dirty;
+			return image;
+			
+		} else {
+			
+			return new Image (null, offsetX, offsetY, width, height, null, type);
+			
+		}
 		
 	}
 	
@@ -319,8 +347,6 @@ class Image {
 	
 	public function encode (format:String = "png", quality:Int = 90):ByteArray {
 		
-		#if (!html5 && !flash)
-		
 		switch (format) {
 			
 			case "png":
@@ -338,8 +364,6 @@ class Image {
 			default:
 			
 		}
-		
-		#end
 		
 		return null;
 		
@@ -363,13 +387,23 @@ class Image {
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
+				if (buffer.data.length == 0) return;
+				
 				ImageDataUtil.fillRect (this, rect, color, format);
 			
 			case FLASH:
 				
 				rect.offset (offsetX, offsetY);
-				if (format == null || format == RGBA) color = ((color & 0xFF) << 24) | (color >> 8);
-				buffer.__srcBitmapData.fillRect (rect.__toFlashRectangle (), color);
+				
+				var argb:ARGB = switch (format) {
+					
+					case ARGB32: color;
+					case BGRA32: (color:BGRA);
+					default: (color:RGBA);
+					
+				}
+				
+				buffer.__srcBitmapData.fillRect (rect.__toFlashRectangle (), argb);
 				
 			default:
 			
@@ -398,8 +432,15 @@ class Image {
 			
 			case FLASH:
 				
-				if (format == null || format == RGBA) color = ((color & 0xFF) << 24) | (color >> 8);
-				buffer.__srcBitmapData.floodFill (x + offsetX, y + offsetY, color);
+				var argb:ARGB = switch (format) {
+					
+					case ARGB32: color;
+					case BGRA32: (color:BGRA);
+					default: (color:RGBA);
+					
+				}
+				
+				buffer.__srcBitmapData.floodFill (x + offsetX, y + offsetY, argb);
 			
 			default:
 			
@@ -421,9 +462,13 @@ class Image {
 	public static function fromBitmapData (bitmapData:#if flash BitmapData #else Dynamic #end):Image {
 		
 		if (bitmapData == null) return null;
+		#if flash
 		var buffer = new ImageBuffer (null, bitmapData.width, bitmapData.height);
 		buffer.__srcBitmapData = bitmapData;
 		return new Image (buffer);
+		#else
+		return bitmapData.image;
+		#end
 		
 	}
 	
@@ -516,15 +561,13 @@ class Image {
 			
 			case FLASH:
 				
-				var color = buffer.__srcBitmapData.getPixel (x + offsetX, y + offsetY);
+				var color:ARGB = buffer.__srcBitmapData.getPixel (x + offsetX, y + offsetY);
 				
-				if (format == null || format == RGBA) {
+				switch (format) {
 					
-					return ((color & 0xFF) << 24) | (color >> 8);
-					
-				} else {
-					
-					return color;
+					case ARGB32: return color;
+					case BGRA32: var bgra:BGRA = color; return bgra;
+					default: var rgba:RGBA = color; return rgba;
 					
 				}
 			
@@ -557,15 +600,13 @@ class Image {
 				
 			case FLASH:
 				
-				var color = buffer.__srcBitmapData.getPixel32 (x + offsetX, y + offsetY);
+				var color:ARGB = buffer.__srcBitmapData.getPixel32 (x + offsetX, y + offsetY);
 				
-				if (format == null || format == RGBA) {
+				switch (format) {
 					
-					return ((color & 0xFF) << 24) | (color >> 8);
-					
-				} else {
-					
-					return color;
+					case ARGB32: return color;
+					case BGRA32: var bgra:BGRA = color; return bgra;
+					default: var rgba:RGBA = color; return rgba;
 					
 				}
 			
@@ -601,20 +642,38 @@ class Image {
 				rect.offset (offsetX, offsetY);
 				var byteArray = buffer.__srcBitmapData.getPixels (rect.__toFlashRectangle ());
 				
-				if (format == null || format == RGBA) {
+				switch (format) {
 					
-					var color;
-					var length = Std.int (byteArray.length / 4);
-					
-					for (i in 0...length) {
+					case ARGB32: // do nothing
+					case BGRA32:
 						
-						color = byteArray.readUnsignedInt ();
-						byteArray.position -= 4;
-						byteArray.writeUnsignedInt (((color & 0xFF) << 24) | (color >> 8));
+						var color:BGRA;
+						var length = Std.int (byteArray.length / 4);
 						
-					}
+						for (i in 0...length) {
+							
+							color = (byteArray.readUnsignedInt ():ARGB);
+							byteArray.position -= 4;
+							byteArray.writeUnsignedInt (color);
+							
+						}
+						
+						byteArray.position = 0;
 					
-					byteArray.position = 0;
+					default:
+						
+						var color:RGBA;
+						var length = Std.int (byteArray.length / 4);
+						
+						for (i in 0...length) {
+							
+							color = (byteArray.readUnsignedInt ():ARGB);
+							byteArray.position -= 4;
+							byteArray.writeUnsignedInt (color);
+							
+						}
+						
+						byteArray.position = 0;
 					
 				}
 				
@@ -700,6 +759,37 @@ class Image {
 	}
 	
 	
+	public function scroll (x:Int, y:Int):Void {
+		
+		if (buffer == null) return;
+		
+		switch (type) {
+			
+			case CANVAS:
+				
+				ImageCanvasUtil.scroll (this, x, y);
+			
+			case DATA:
+				
+				//#if (js && html5)
+				//ImageCanvasUtil.convertToData (this);
+				//#end
+				
+				//ImageDataUtil.scroll (this, x, y);
+				
+				copyPixels (this, rect, new Vector2 (x, y));
+			
+			case FLASH:
+				
+				buffer.__srcBitmapData.scroll (x + offsetX, y + offsetX);
+			
+			default:
+			
+		}
+		
+	}
+	
+	
 	public function setPixel (x:Int, y:Int, color:Int, format:PixelFormat = null):Void {
 		
 		if (buffer == null || x < 0 || y < 0 || x >= width || y >= height) return;
@@ -720,8 +810,15 @@ class Image {
 			
 			case FLASH:
 				
-				if (format == null || format == RGBA) color = ((color & 0xFF) << 24) | (color >> 8);
-				buffer.__srcBitmapData.setPixel (x + offsetX, y + offsetX, color);
+				var argb:ARGB = switch (format) {
+					
+					case ARGB32: color;
+					case BGRA32: (color:BGRA);
+					default: (color:RGBA);
+					
+				}
+				
+				buffer.__srcBitmapData.setPixel (x + offsetX, y + offsetX, argb);
 			
 			default:
 			
@@ -750,8 +847,15 @@ class Image {
 			
 			case FLASH:
 				
-				if (format == null || format == RGBA) color = ((color & 0xFF) << 24) | (color >> 8);
-				buffer.__srcBitmapData.setPixel32 (x + offsetX, y + offsetY, color);
+				var argb:ARGB = switch (format) {
+					
+					case ARGB32: color;
+					case BGRA32: (color:BGRA);
+					default: (color:RGBA);
+					
+				}
+				
+				buffer.__srcBitmapData.setPixel32 (x + offsetX, y + offsetY, argb);
 			
 			default:
 			
@@ -782,27 +886,54 @@ class Image {
 			case FLASH:
 				
 				rect.offset (offsetX, offsetY);
-				if (format == null || format == RGBA) {
+				
+				switch (format) {
 					
-					var srcData = byteArray;
-					byteArray = new ByteArray ();
-					#if flash
-					byteArray.length = srcData.length;
-					#end
-					
-					var color;
-					var length = Std.int (byteArray.length / 4);
-					
-					for (i in 0...length) {
+					case ARGB32: // do nothing
+					case BGRA32:
 						
-						color = srcData.readUnsignedInt ();
-						byteArray.writeUnsignedInt (((color & 0xFF) << 24) | (color >> 8));
+						var srcData = byteArray;
+						byteArray = new ByteArray ();
+						#if flash
+						byteArray.length = srcData.length;
+						#end
 						
-					}
+						var color:BGRA;
+						var length = Std.int (byteArray.length / 4);
+						
+						for (i in 0...length) {
+							
+							color = srcData.readUnsignedInt ();
+							byteArray.writeUnsignedInt (cast (color, ARGB));
+							
+						}
+						
+						srcData.position = 0;
+						byteArray.position = 0;
 					
-					srcData.position = 0;
-					byteArray.position = 0;
+					default:
+						
+						var srcData = byteArray;
+						byteArray = new ByteArray ();
+						#if flash
+						byteArray.length = srcData.length;
+						#end
+						
+						var color:RGBA;
+						var length = Std.int (byteArray.length / 4);
+						
+						for (i in 0...length) {
+							
+							color = srcData.readUnsignedInt ();
+							byteArray.writeUnsignedInt (cast (color, ARGB));
+							
+						}
+						
+						srcData.position = 0;
+						byteArray.position = 0;
+					
 				}
+				
 				buffer.__srcBitmapData.setPixels (rect.__toFlashRectangle (), byteArray);
 			
 			default:
@@ -940,13 +1071,17 @@ class Image {
 			
 			__fromBase64 (__base64Encode (bytes), type, onload);
 			
-		#elseif (cpp || neko || nodejs)
+		#elseif lime_console
 			
-			var data = lime_image_load (bytes);
+			throw "Image.fromBytes not implemented for console target";
+			
+		#elseif ((cpp || neko || nodejs) && !macro)
+			
+			var data:Dynamic = lime_image_load (bytes);
 			
 			if (data != null) {
 				
-				__fromImageBuffer (new ImageBuffer (new UInt8Array (data.data), data.width, data.height, data.bpp));
+				__fromImageBuffer (new ImageBuffer (new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b)), data.width, data.height, data.bitsPerPixel));
 				
 				if (onload != null) {
 					
@@ -975,7 +1110,7 @@ class Image {
 				
 				buffer = new ImageBuffer (null, image.width, image.height);
 				buffer.__srcImage = cast image;
-
+				
 				width = image.width;
 				height = image.height;
 				
@@ -1007,20 +1142,71 @@ class Image {
 			
 			var buffer = null;
 			
-			if (#if (sys && (!disable_cffi || !format) && !java) true #else false #end && !System.disableCFFI) {
+			#if lime_console
+			
+			var td = TextureData.fromFile (path);
+			
+			if (td.valid) {
 				
-				var data = lime_image_load (path);
+				var w = td.width;
+				var h = td.height;
+				var data = new Array<cpp.UInt8> ();
+				
+				#if 1
+				
+				var size = w * h * 4;
+				cpp.NativeArray.setSize (data, size);
+				
+				td.decode (cpp.Pointer.arrayElem (data, 0), size);
+				/*
+				{
+					var dest:cpp.Pointer<cpp.UInt32> = cast cpp.Pointer.arrayElem (data, 0);	
+					var src:cpp.Pointer<cpp.UInt32> = cast td.pointer;	
+					var n = w * h;
+					for (i in 0...n) {
+						dest[i] = src[i];
+					}
+				}
+				*/
+				td.release ();
+				
+				#else
+				
+				// TODO(james4k): caveats here with every image
+				// pointing to the same piece of memory, and things may
+				// change with compressed textures. but, may be worth
+				// considering if game is hitting memory constraints.
+				// can we do this safely somehow? copy on write?
+				// probably too many people writing directly to the
+				// buffer...
+				cpp.NativeArray.setUnmanagedData (data, td.pointer, w*h*4);
+				
+				#end
+				
+				var array = new UInt8Array (ByteArray.fromBytes (Bytes.ofData (cast data)));
+				buffer = new ImageBuffer (array, w, h);
+				buffer.format = BGRA32;
+				
+			}
+			
+			#else
+			
+			#if (!sys || disable_cffi || java || macro)
+			if (false) {}
+			#else
+			if (CFFI.enabled) {
+				
+				var data:Dynamic = lime_image_load (path);
+				
 				if (data != null) {
-					var ba:ByteArray = cast(data.data, ByteArray);
-					#if nodejs
-					var u8a = ba.byteView;
-					#else
-					var u8a = new UInt8Array(ba);
-					#end
-					buffer = new ImageBuffer (u8a, data.width, data.height, data.bpp);
+					
+					var u8a = new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b));
+					buffer = new ImageBuffer (u8a, data.width, data.height, data.bitsPerPixel);
+					
 				}
 				
 			}
+			#end
 			
 			#if format
 			
@@ -1034,7 +1220,7 @@ class Image {
 					var data = Tools.extract32 (png);
 					var header = Tools.getHeader (png);
 					
-					var data = new UInt8Array (ByteArray.fromBytes (Bytes.ofData (data.getData ())));
+					var data = new UInt8Array (Bytes.ofData (data.getData ()));
 					var length = header.width * header.height;
 					var b, g, r, a;
 					
@@ -1057,6 +1243,8 @@ class Image {
 				} catch (e:Dynamic) {}
 				
 			}
+			
+			#end
 			
 			#end
 			
@@ -1149,13 +1337,13 @@ class Image {
 			#if (js && html5)
 				
 				ImageCanvasUtil.convertToCanvas (this);
-				ImageCanvasUtil.sync (this);
+				ImageCanvasUtil.sync (this, false);
 				ImageCanvasUtil.createImageData (this);
 				
 			#elseif flash
 				
 				var pixels = buffer.__srcBitmapData.getPixels (buffer.__srcBitmapData.rect);
-				buffer.data = new UInt8Array (pixels);
+				buffer.data = new UInt8Array (Bytes.ofData (pixels));
 				
 			#end
 			
@@ -1319,6 +1507,14 @@ class Image {
 	
 	private function get_src ():Dynamic {
 		
+		#if (js && html5)
+		if (buffer.__srcCanvas == null) {
+			
+			ImageCanvasUtil.convertToCanvas (this);
+			
+		}
+		#end
+		
 		return buffer.src;
 		
 	}
@@ -1355,9 +1551,9 @@ class Image {
 	
 	
 	
-	#if (cpp || neko || nodejs)
-	private static var lime_image_encode:ImageBuffer -> Int -> Int -> ByteArray = System.load ("lime", "lime_image_encode", 3);
-	private static var lime_image_load:Dynamic = System.load ("lime", "lime_image_load", 1);
+	#if ((cpp || neko || nodejs) && !macro)
+	@:cffi private static function lime_image_encode (buffer:Dynamic, Type:Int, quality:Int):Dynamic;
+	@:cffi private static function lime_image_load (data:Dynamic):Dynamic;
 	#end
 	
 	

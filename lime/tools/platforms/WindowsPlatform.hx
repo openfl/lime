@@ -3,11 +3,13 @@ package lime.tools.platforms;
 
 import haxe.io.Path;
 import haxe.Template;
+import lime.project.Icon;
 import lime.tools.helpers.AssetHelper;
 import lime.tools.helpers.CPPHelper;
 import lime.tools.helpers.DeploymentHelper;
 import lime.tools.helpers.FileHelper;
 import lime.tools.helpers.IconHelper;
+import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.NekoHelper;
 import lime.tools.helpers.NodeJSHelper;
 import lime.tools.helpers.PathHelper;
@@ -17,6 +19,7 @@ import lime.project.Asset;
 import lime.project.AssetType;
 import lime.project.Haxelib;
 import lime.project.HXProject;
+import lime.project.Platform;
 import lime.project.PlatformTarget;
 import sys.io.File;
 import sys.FileSystem;
@@ -94,6 +97,14 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 		
+		var icons = project.icons;
+		
+		if (icons.length == 0) {
+			
+			icons = [ new Icon (PathHelper.findTemplate (project.templatePaths, "default/icon.svg")) ];
+			
+		}
+		
 		//IconHelper.createIcon (project.icons, 32, 32, PathHelper.combine (applicationDirectory, "icon.png"));
 		
 		if (targetType == "neko") {
@@ -102,7 +113,7 @@ class WindowsPlatform extends PlatformTarget {
 			
 			var iconPath = PathHelper.combine (applicationDirectory, "icon.ico");
 			
-			if (!IconHelper.createWindowsIcon (project.icons, iconPath)) {
+			if (!IconHelper.createWindowsIcon (icons, iconPath)) {
 				
 				iconPath = null;
 				
@@ -121,6 +132,8 @@ class WindowsPlatform extends PlatformTarget {
 			
 			var haxeArgs = [ hxml ];
 			var flags = [];
+			
+			flags.push ("-DHXCPP_M32");
 			
 			if (!project.environment.exists ("SHOW_CONSOLE")) {
 				
@@ -149,7 +162,7 @@ class WindowsPlatform extends PlatformTarget {
 			
 			var iconPath = PathHelper.combine (applicationDirectory, "icon.ico");
 			
-			if (IconHelper.createWindowsIcon (project.icons, iconPath) && PlatformHelper.hostPlatform == WINDOWS) {
+			if (IconHelper.createWindowsIcon (icons, iconPath) && PlatformHelper.hostPlatform == Platform.WINDOWS) {
 				
 				var templates = [ PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates" ].concat (project.templatePaths);
 				ProcessHelper.runCommand ("", PathHelper.findTemplate (templates, "bin/ReplaceVistaIcon.exe"), [ executablePath, iconPath, "1" ], true, true);
@@ -195,7 +208,9 @@ class WindowsPlatform extends PlatformTarget {
 		
 		var hxml = PathHelper.findTemplate (project.templatePaths, targetType + "/hxml/" + type + ".hxml");
 		var template = new Template (File.getContent (hxml));
+		
 		Sys.println (template.execute (generateContext ()));
+		Sys.println ("-D display");
 		
 	}
 	
@@ -232,6 +247,12 @@ class WindowsPlatform extends PlatformTarget {
 		
 		var arguments = additionalArguments.copy ();
 		
+		if (LogHelper.verbose) {
+			
+			arguments.push ("-verbose");
+			
+		}
+		
 		if (targetType == "nodejs") {
 			
 			NodeJSHelper.run (project, targetDirectory + "/bin/ApplicationMain.js", arguments);
@@ -253,6 +274,19 @@ class WindowsPlatform extends PlatformTarget {
 		if (project.targetFlags.exists ("xml")) {
 			
 			project.haxeflags.push ("-xml " + targetDirectory + "/types.xml");
+			
+		}
+		
+		for (asset in project.assets) {
+			
+			if (asset.embed && asset.sourcePath == "") {
+				
+				var path = PathHelper.combine (targetDirectory + "/obj/tmp", asset.targetPath);
+				PathHelper.mkdir (Path.directory (path));
+				FileHelper.copyAsset (asset, path);
+				asset.sourcePath = path;
+				
+			}
 			
 		}
 		

@@ -1,7 +1,11 @@
 package lime.audio.openal;
 
 
-import lime.system.System;
+import lime.system.CFFIPointer;
+
+#if !macro
+@:build(lime.system.CFFI.build())
+#end
 
 
 class ALC {
@@ -32,7 +36,7 @@ class ALC {
 	
 	public static function closeDevice (device:ALDevice):Bool {
 		
-		#if ((cpp || neko || nodejs) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal && !macro)
 		return lime_alc_close_device (device);
 		#else
 		return false;
@@ -43,10 +47,10 @@ class ALC {
 	
 	public static function createContext (device:ALDevice, attrlist:Array<Int> = null):ALContext {
 		
-		#if ((cpp || neko || nodejs) && lime_openal)
-		var handle:Float = lime_alc_create_context (device, attrlist);
+		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		var handle:Dynamic = lime_alc_create_context (device, attrlist);
 		
-		if (handle != 0) {
+		if (handle != null) {
 			
 			return new ALContext (handle);
 			
@@ -60,7 +64,7 @@ class ALC {
 	
 	public static function destroyContext (context:ALContext):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal && !macro)
 		lime_alc_destroy_context (context);
 		#end
 		
@@ -69,10 +73,10 @@ class ALC {
 	
 	public static function getContextsDevice (context:ALContext):ALDevice {
 		
-		#if ((cpp || neko || nodejs) && lime_openal)
-		var handle:Float = lime_alc_get_contexts_device (context);
+		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		var handle:Dynamic = lime_alc_get_contexts_device (context);
 		
-		if (handle != 0) {
+		if (handle != null) {
 			
 			return new ALDevice (handle);
 			
@@ -86,10 +90,10 @@ class ALC {
 	
 	public static function getCurrentContext ():ALContext {
 		
-		#if ((cpp || neko || nodejs) && lime_openal)
-		var handle:Float = lime_alc_get_current_context ();
+		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		var handle:Dynamic = lime_alc_get_current_context ();
 		
-		if (handle != 0) {
+		if (handle != null) {
 			
 			return new ALContext (handle);
 			
@@ -103,7 +107,7 @@ class ALC {
 	
 	public static function getError (device:ALDevice):Int {
 		
-		#if ((cpp || neko || nodejs) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal && !macro)
 		return lime_alc_get_error (device);
 		#else
 		return 0;
@@ -130,7 +134,7 @@ class ALC {
 	
 	public static function getIntegerv (device:ALDevice, param:Int, size:Int):Array<Int> {
 		
-		#if ((cpp || neko || nodejs) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal && !macro)
 		return lime_alc_get_integerv (device, param, size);
 		#else
 		return null;
@@ -141,7 +145,7 @@ class ALC {
 	
 	public static function getString (device:ALDevice, param:Int):String {
 		
-		#if ((cpp || neko || nodejs) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal && !macro)
 		return lime_alc_get_string (device, param);
 		#else
 		return null;
@@ -152,7 +156,7 @@ class ALC {
 	
 	public static function makeContextCurrent (context:ALContext):Bool {
 		
-		#if ((cpp || neko || nodejs) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal && !macro)
 		return lime_alc_make_context_current (context);
 		#else
 		return false;
@@ -163,10 +167,10 @@ class ALC {
 	
 	public static function openDevice (deviceName:String = null):ALDevice {
 		
-		#if ((cpp || neko || nodejs) && lime_openal)
-		var handle:Float = lime_alc_open_device (deviceName);
+		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		var handle:Dynamic = lime_alc_open_device (deviceName);
 		
-		if (handle != 0) {
+		if (handle != null) {
 			
 			return new ALDevice (handle);
 			
@@ -180,7 +184,7 @@ class ALC {
 	
 	public static function processContext (context:ALContext):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal && !macro)
 		lime_alc_process_context (context);
 		#end
 		
@@ -189,26 +193,26 @@ class ALC {
 	
 	public static function suspendContext (context:ALContext):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal)
+		#if ((cpp || neko || nodejs) && lime_openal && !macro)
 		lime_alc_suspend_context (context);
 		#end
 		
 	}
 	
 	
-	#if ((cpp || neko || nodejs) && lime_openal)
-	private static var lime_alc_close_device = System.load ("lime", "lime_alc_close_device", 1);
-	private static var lime_alc_create_context = System.load ("lime", "lime_alc_create_context", 2);
-	private static var lime_alc_destroy_context = System.load ("lime", "lime_alc_destroy_context", 1);
-	private static var lime_alc_get_contexts_device = System.load ("lime", "lime_alc_get_contexts_device", 1);
-	private static var lime_alc_get_current_context = System.load ("lime", "lime_alc_get_current_context", 0);
-	private static var lime_alc_get_error = System.load ("lime", "lime_alc_get_error", 1);
-	private static var lime_alc_get_integerv = System.load ("lime", "lime_alc_get_integerv", 3);
-	private static var lime_alc_get_string = System.load ("lime", "lime_alc_get_string", 2);
-	private static var lime_alc_make_context_current = System.load ("lime", "lime_alc_make_context_current", 1);
-	private static var lime_alc_open_device = System.load ("lime", "lime_alc_open_device", 1);
-	private static var lime_alc_process_context = System.load ("lime", "lime_alc_process_context", 1);
-	private static var lime_alc_suspend_context = System.load ("lime", "lime_alc_suspend_context", 1);
+	#if ((cpp || neko || nodejs) && lime_openal && !macro)
+	@:cffi private static function lime_alc_close_device (device:CFFIPointer):Bool;
+	@:cffi private static function lime_alc_create_context (device:CFFIPointer, attrlist:Dynamic):CFFIPointer;
+	@:cffi private static function lime_alc_destroy_context (context:CFFIPointer):Void;
+	@:cffi private static function lime_alc_get_contexts_device (context:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_alc_get_current_context ():CFFIPointer;
+	@:cffi private static function lime_alc_get_error (device:CFFIPointer):Int;
+	@:cffi private static function lime_alc_get_integerv (device:CFFIPointer, param:Int, size:Int):Dynamic;
+	@:cffi private static function lime_alc_get_string (device:CFFIPointer, param:Int):Dynamic;
+	@:cffi private static function lime_alc_make_context_current (context:CFFIPointer):Bool;
+	@:cffi private static function lime_alc_open_device (devicename:String):CFFIPointer;
+	@:cffi private static function lime_alc_process_context (context:CFFIPointer):Void;
+	@:cffi private static function lime_alc_suspend_context (context:CFFIPointer):Void;
 	#end
 	
 	

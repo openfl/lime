@@ -652,6 +652,10 @@ public:
       
       if (enabled) {
          
+         //Sets the keyboard as a standard web layout with the default enter key
+         //More info: https://developer.blackberry.com/native/reference/core/com.qnx.doc.bps.lib_ref/topic/virtualkeyboard_change_options.html
+         virtualkeyboard_change_options(VIRTUALKEYBOARD_LAYOUT_WEB, VIRTUALKEYBOARD_ENTER_DEFAULT);
+         
          virtualkeyboard_show();
          
       } else {

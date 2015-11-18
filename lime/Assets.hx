@@ -1,16 +1,18 @@
-package lime;
+package lime; #if (!lime_legacy || lime_hybrid)
+
+
 #if !macro
 
 
 import haxe.Json;
 import haxe.Unserializer;
+import lime.app.Event;
+import lime.app.Promise;
+import lime.app.Future;
 import lime.audio.AudioBuffer;
 import lime.graphics.Image;
 import lime.text.Font;
 import lime.utils.ByteArray;
-
-@:access(lime.AssetLibrary)
-
 
 /**
  * <p>The Assets class provides a cross-platform interface to access 
@@ -28,11 +30,16 @@ import lime.utils.ByteArray;
  * and specifying a custom preloader using <window preloader="" />
  * in the project file.</p>
  */
+
+@:access(lime.AssetLibrary)
+
+
 class Assets {
 	
 	
 	public static var cache = new AssetCache ();
 	public static var libraries (default, null) = new Map <String, AssetLibrary> ();
+	public static var onChange = new Event<Void->Void> ();
 	
 	private static var initialized = false;
 	
@@ -331,75 +338,6 @@ class Assets {
 	
 	
 	/**
-	 * Gets an instance of an embedded streaming sound
-	 * @usage		var sound = Assets.getMusic("sound.ogg");
-	 * @param	id		The ID or asset path for the music track
-	 * @return		A new Sound object
-	 */
-	/*public static function getMusic (id:String, useCache:Bool = true):Dynamic {
-		
-		initialize ();
-		
-		#if (tools && !display)
-		
-		if (useCache && cache.enabled && cache.sound.exists (id)) {
-			
-			var sound = cache.sound.get (id);
-			
-			if (isValidSound (sound)) {
-				
-				return sound;
-				
-			}
-			
-		}
-		
-		var libraryName = id.substring (0, id.indexOf (":"));
-		var symbolName = id.substr (id.indexOf (":") + 1);
-		var library = getLibrary (libraryName);
-		
-		if (library != null) {
-			
-			if (library.exists (symbolName, cast AssetType.MUSIC)) {
-				
-				if (library.isLocal (symbolName, cast AssetType.MUSIC)) {
-					
-					var sound = library.getMusic (symbolName);
-					
-					if (useCache && cache.enabled) {
-						
-						cache.sound.set (id, sound);
-						
-					}
-					
-					return sound;
-					
-				} else {
-					
-					trace ("[Assets] Sound asset \"" + id + "\" exists, but only asynchronously");
-					
-				}
-				
-			} else {
-				
-				trace ("[Assets] There is no Sound asset with an ID of \"" + id + "\"");
-				
-			}
-			
-		} else {
-			
-			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
-			
-		}
-		
-		#end
-		
-		return null;
-		
-	}*/
-	
-	
-	/**
 	 * Gets the file path (if available) for an asset
 	 * @usage		var path = Assets.getPath("image.jpg");
 	 * @param	id		The ID or asset path for the asset
@@ -558,9 +496,11 @@ class Assets {
 		return (buffer != null);
 		//return (sound.__handle != null && sound.__handle != 0);
 		
-		#end
+		#else
 		
 		return true;
+		
+		#end
 		
 	}
 	
@@ -617,9 +557,11 @@ class Assets {
 	}
 	
 	
-	public static function loadAudioBuffer (id:String, handler:AudioBuffer -> Void, useCache:Bool = true):Void {
+	public static function loadAudioBuffer (id:String, useCache:Bool = true):Future<AudioBuffer> {
 		
 		initialize ();
+		
+		var promise = new Promise<AudioBuffer> ();
 		
 		#if (tools && !display)
 		
@@ -629,8 +571,8 @@ class Assets {
 			
 			if (isValidAudio (audio)) {
 				
-				handler (audio);
-				return;
+				promise.complete (audio);
+				return promise.future;
 				
 			}
 			
@@ -644,45 +586,40 @@ class Assets {
 			
 			if (library.exists (symbolName, cast AssetType.SOUND)) {
 				
+				var future = library.loadAudioBuffer (symbolName);
+				
 				if (useCache && cache.enabled) {
 					
-					library.loadAudioBuffer (symbolName, function (audio:Dynamic):Void {
-						
-						cache.audio.set (id, audio);
-						handler (audio);
-						
-					});
-					
-				} else {
-					
-					library.loadAudioBuffer (symbolName, handler);
+					future.onComplete (function (audio) cache.audio.set (id, audio));
 					
 				}
 				
-				return;
+				promise.completeWith (future);
 				
 			} else {
 				
-				trace ("[Assets] There is no audio asset with an ID of \"" + id + "\"");
+				promise.error ("[Assets] There is no audio asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
+			promise.error ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
 		#end
 		
-		handler (null);
+		return promise.future;
 		
 	}
 	
 	
-	public static function loadBytes (id:String, handler:ByteArray -> Void):Void {
+	public static function loadBytes (id:String):Future<ByteArray> {
 		
 		initialize ();
+		
+		var promise = new Promise<ByteArray> ();
 		
 		#if (tools && !display)
 		
@@ -694,31 +631,69 @@ class Assets {
 			
 			if (library.exists (symbolName, cast AssetType.BINARY)) {
 				
-				library.loadBytes (symbolName, handler);
-				return;
+				promise.completeWith (library.loadBytes (symbolName));
 				
 			} else {
 				
-				trace ("[Assets] There is no String or ByteArray asset with an ID of \"" + id + "\"");
+				promise.error ("[Assets] There is no String or ByteArray asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
+			promise.error ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
 		#end
 		
-		handler (null);
+		return promise.future;
 		
 	}
 	
 	
-	public static function loadImage (id:String, handler:Image -> Void, useCache:Bool = true):Void {
+	public static function loadFont (id:String):Future<Font> {
 		
 		initialize ();
+		
+		var promise = new Promise<Font> ();
+		
+		#if (tools && !display)
+		
+		var libraryName = id.substring (0, id.indexOf (":"));
+		var symbolName = id.substr (id.indexOf (":") + 1);
+		var library = getLibrary (libraryName);
+		
+		if (library != null) {
+			
+			if (library.exists (symbolName, cast AssetType.FONT)) {
+				
+				promise.completeWith (library.loadFont (symbolName));
+				
+			} else {
+				
+				promise.error ("[Assets] There is no Font asset with an ID of \"" + id + "\"");
+				
+			}
+			
+		} else {
+			
+			promise.error ("[Assets] There is no asset library named \"" + libraryName + "\"");
+			
+		}
+		
+		#end
+		
+		return promise.future;
+		
+	}
+	
+	
+	public static function loadImage (id:String, useCache:Bool = true):Future<Image> {
+		
+		initialize ();
+		
+		var promise = new Promise<Image> ();
 		
 		#if (tools && !display)
 		
@@ -728,8 +703,8 @@ class Assets {
 			
 			if (isValidImage (image)) {
 				
-				handler (image);
-				return;
+				promise.complete (image);
+				return promise.future;
 				
 			}
 			
@@ -743,45 +718,40 @@ class Assets {
 			
 			if (library.exists (symbolName, cast AssetType.IMAGE)) {
 				
+				var future = library.loadImage (symbolName);
+				
 				if (useCache && cache.enabled) {
 					
-					library.loadImage (symbolName, function (image:Image):Void {
-						
-						cache.image.set (id, image);
-						handler (image);
-						
-					});
-					
-				} else {
-					
-					library.loadImage (symbolName, handler);
+					future.onComplete (function (image) cache.image.set (id, image));
 					
 				}
 				
-				return;
+				promise.completeWith (future);
 				
 			} else {
 				
-				trace ("[Assets] There is no Image asset with an ID of \"" + id + "\"");
+				promise.error ("[Assets] There is no Image asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
+			promise.error ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
 		#end
 		
-		handler (null);
+		return promise.future;
 		
 	}
 	
 	
-	public static function loadLibrary (name:String, handler:AssetLibrary -> Void):Void {
+	public static function loadLibrary (name:String):Future<AssetLibrary> {
 		
-		initialize();
+		initialize ();
+		
+		var promise = new Promise<AssetLibrary> ();
 		
 		#if (tools && !display)
 		
@@ -792,86 +762,27 @@ class Assets {
 			var info = Json.parse (data);
 			var library = Type.createInstance (Type.resolveClass (info.type), info.args);
 			libraries.set (name, library);
-			library.eventCallback = library_onEvent;
-			library.load (handler);
+			library.onChange.add (onChange.dispatch);
+			promise.completeWith (library.load ());
 			
 		} else {
 			
-			trace ("[Assets] There is no asset library named \"" + name + "\"");
+			promise.error ("[Assets] There is no asset library named \"" + name + "\"");
 			
 		}
 		
 		#end
+		
+		return promise.future;
 		
 	}
 	
 	
-	/*public static function loadMusic (id:String, handler:Dynamic -> Void, useCache:Bool = true):Void {
+	public static function loadText (id:String):Future<String> {
 		
 		initialize ();
 		
-		#if (tools && !display)
-		
-		if (useCache && cache.enabled && cache.sound.exists (id)) {
-			
-			var sound = cache.sound.get (id);
-			
-			if (isValidSound (sound)) {
-				
-				handler (sound);
-				return;
-				
-			}
-			
-		}
-		
-		var libraryName = id.substring (0, id.indexOf (":"));
-		var symbolName = id.substr (id.indexOf (":") + 1);
-		var library = getLibrary (libraryName);
-		
-		if (library != null) {
-			
-			if (library.exists (symbolName, cast AssetType.MUSIC)) {
-				
-				if (useCache && cache.enabled) {
-					
-					library.loadMusic (symbolName, function (sound:Dynamic):Void {
-						
-						cache.sound.set (id, sound);
-						handler (sound);
-						
-					});
-					
-				} else {
-					
-					library.loadMusic (symbolName, handler);
-					
-				}
-				
-				return;
-				
-			} else {
-				
-				trace ("[Assets] There is no Sound asset with an ID of \"" + id + "\"");
-				
-			}
-			
-		} else {
-			
-			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
-			
-		}
-		
-		#end
-		
-		handler (null);
-		
-	}*/
-	
-	
-	public static function loadText (id:String, handler:String -> Void):Void {
-		
-		initialize ();
+		var promise = new Promise<String> ();
 		
 		#if (tools && !display)
 		
@@ -883,24 +794,23 @@ class Assets {
 			
 			if (library.exists (symbolName, cast AssetType.TEXT)) {
 				
-				library.loadText (symbolName, handler);
-				return;
+				promise.completeWith (library.loadText (symbolName));
 				
 			} else {
 				
-				trace ("[Assets] There is no String asset with an ID of \"" + id + "\"");
+				promise.error ("[Assets] There is no String asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
+			promise.error ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
 		#end
 		
-		handler (null);
+		return promise.future;
 		
 	}
 	
@@ -909,13 +819,21 @@ class Assets {
 		
 		if (libraries.exists (name)) {
 			
-			unloadLibrary (name);
+			if (libraries.get (name) == library) {
+				
+				return;
+				
+			} else {
+				
+				unloadLibrary (name);
+				
+			}
 			
 		}
 		
 		if (library != null) {
 			
-			library.eventCallback = library_onEvent;
+			library.onChange.add (library_onChange);
 			
 		}
 		
@@ -935,7 +853,8 @@ class Assets {
 		if (library != null) {
 			
 			cache.clear (name + ":");
-			library.eventCallback = null;
+			library.onChange.remove (library_onChange);
+			library.unload ();
 			
 		}
 		
@@ -953,14 +872,10 @@ class Assets {
 	
 	
 	
-	private static function library_onEvent (library:AssetLibrary, type:String):Void {
+	private static function library_onChange ():Void {
 		
-		if (type == "change") {
-			
-			cache.clear ();
-			//dispatchEvent (new Event (Event.CHANGE));
-			
-		}
+		cache.clear ();
+		onChange.dispatch ();
 		
 	}
 	
@@ -971,7 +886,7 @@ class Assets {
 class AssetLibrary {
 	
 	
-	public var eventCallback:Dynamic;
+	public var onChange = new Event<Void->Void> ();
 	
 	
 	public function new () {
@@ -1014,13 +929,6 @@ class AssetLibrary {
 		return null;
 		
 	}
-	
-	
-	//public function getMusic (id:String):Dynamic /*Sound*/ {
-		
-	//	return getSound (id);
-		
-	//}
 	
 	
 	public function getPath (id:String):String {
@@ -1069,73 +977,67 @@ class AssetLibrary {
 	}
 	
 	
-	private function load (handler:AssetLibrary -> Void):Void {
+	private function load ():Future<AssetLibrary> {
 		
-		handler (this);
-		
-	}
-	
-	
-	public function loadAudioBuffer (id:String, handler:AudioBuffer -> Void):Void {
-		
-		handler (getAudioBuffer (id));
+		return new Future<AssetLibrary> (function () return this);
 		
 	}
 	
 	
-	public function loadBytes (id:String, handler:ByteArray -> Void):Void {
+	public function loadAudioBuffer (id:String):Future<AudioBuffer> {
 		
-		handler (getBytes (id));
-		
-	}
-	
-	
-	public function loadFont (id:String, handler:Font -> Void):Void {
-		
-		handler (getFont (id));
+		return new Future<AudioBuffer> (function () return getAudioBuffer (id));
 		
 	}
 	
 	
-	public function loadImage (id:String, handler:Image -> Void):Void {
+	public function loadBytes (id:String):Future<ByteArray> {
 		
-		handler (getImage (id));
+		return new Future<ByteArray> (function () return getBytes (id));
 		
 	}
 	
 	
-	//public function loadMusic (id:String, handler:Dynamic /*Sound*/ -> Void):Void {
+	public function loadFont (id:String):Future<Font> {
 		
-	//	handler (getMusic (id));
+		return new Future<Font> (function () return getFont (id));
 		
-	//}
+	}
 	
 	
-	public function loadText (id:String, handler:String -> Void):Void {
+	public function loadImage (id:String):Future<Image> {
 		
-		#if (tools && !display)
+		return new Future<Image> (function () return getImage (id));
 		
-		var callback = function (bytes:ByteArray):Void {
+	}
+	
+	
+	public function loadText (id:String):Future<String> {
+		
+		return loadBytes (id).then (function (bytes) {
 			
-			if (bytes == null) {
+			return new Future<String> (function () {
 				
-				handler (null);
+				if (bytes == null) {
+					
+					return null;
+					
+				} else {
+					
+					return bytes.readUTFBytes (bytes.length);
+					
+				}
 				
-			} else {
-				
-				handler (bytes.readUTFBytes (bytes.length));
-				
-			}
+			});
 			
-		}
+		});
 		
-		loadBytes (id, callback);
+	}
+	
+	
+	public function unload ():Void {
 		
-		#else
 		
-		handler (null);
-		
-		#end
 		
 	}
 	
@@ -1150,6 +1052,7 @@ class AssetCache {
 	public var enabled:Bool = true;
 	public var image:Map<String, Image>;
 	public var font:Map<String, Dynamic /*Font*/>;
+	public var version:Int;
 	
 	
 	public function new () {
@@ -1157,6 +1060,7 @@ class AssetCache {
 		audio = new Map<String, AudioBuffer> ();
 		font = new Map<String, Dynamic /*Font*/> ();
 		image = new Map<String, Image> ();
+		version = Std.int (Math.random () * 1000000);
 		
 	}
 	
@@ -1215,19 +1119,6 @@ class AssetCache {
 }
 
 
-@:enum abstract AssetType(String) {
-	
-	var BINARY = "BINARY";
-	var FONT = "FONT";
-	var IMAGE = "IMAGE";
-	var MUSIC = "MUSIC";
-	var SOUND = "SOUND";
-	var TEMPLATE = "TEMPLATE";
-	var TEXT = "TEXT";
-	
-}
-
-
 #else
 
 
@@ -1268,6 +1159,49 @@ class Assets {
 		
 	}
 	
+	#if lime_console
+	
+	private static function embedData (metaName:String, encode:Bool = false):Array<Field> {
+		
+		var classType = Context.getLocalClass().get();
+		var metaData = classType.meta.get();
+		var position = Context.currentPos();
+		var fields = Context.getBuildFields();
+		
+		for (meta in metaData) {
+			
+			if (meta.name != metaName || meta.params.length <= 0) {
+				continue;
+			}
+				
+			switch (meta.params[0].expr) {
+				
+				case EConst(CString(filePath)):
+					
+					var fieldValue = {
+						pos: position,
+						expr: EConst(CString(filePath))
+					};
+					fields.push ({
+						kind: FVar(macro :String, fieldValue),
+						name: "filePath",
+						access: [ APrivate, AStatic ],
+						pos: position
+					});
+					
+					return fields;
+					
+				default:
+				
+			}
+			
+		}
+		
+		return null;
+		
+	}
+
+	#else
 	
 	private static function embedData (metaName:String, encode:Bool = false):Array<Field> {
 		
@@ -1337,6 +1271,8 @@ class Assets {
 		return null;
 		
 	}
+
+	#end
 	
 	
 	macro public static function embedFile ():Array<Field> {
@@ -1349,7 +1285,11 @@ class Assets {
 				
 				super();
 				
+				#if lime_console
+				throw "not implemented";
+				#else
 				__fromBytes (haxe.Resource.getBytes (resourceName));
+				#end
 				
 			};
 			
@@ -1386,8 +1326,11 @@ class Assets {
 						case EConst(CString(filePath)):
 							
 							path = filePath;
+							
 							if (!sys.FileSystem.exists(filePath)) {
+								
 								path = Context.resolvePath (filePath);
+								
 							}
 							
 						default:
@@ -1411,6 +1354,17 @@ class Assets {
 			var resourceName = "LIME_font_" + (classType.pack.length > 0 ? classType.pack.join ("_") + "_" : "") + classType.name;
 			
 			Context.addResource (resourceName, bytes);
+			
+			for (field in fields) {
+				
+				if (field.name == "new") {
+					
+					fields.remove (field);
+					break;
+					
+				}
+				
+			}
 			
 			var fieldValue = { pos: position, expr: EConst(CString(resourceName)) };
 			fields.push ({ kind: FVar(macro :String, fieldValue), name: "resourceName", access: [ APublic, AStatic ], pos: position });
@@ -1483,8 +1437,12 @@ class Assets {
 				
 				super ();
 				
+				#if lime_console
+				throw "not implemented";
+				#else
 				var byteArray = lime.utils.ByteArray.fromBytes (haxe.Resource.getBytes (resourceName));
 				__fromBytes (byteArray, null);
+				#end
 				
 				#end
 				
@@ -1518,8 +1476,12 @@ class Assets {
 				
 				super();
 				
+				#if lime_console
+				throw "not implemented";
+				#else
 				var byteArray = openfl.utils.ByteArray.fromBytes (haxe.Resource.getBytes(resourceName));
 				loadCompressedDataFromByteArray(byteArray, byteArray.length, forcePlayAsMusic);
+				#end
 				
 			};
 			
@@ -1539,3 +1501,17 @@ class Assets {
 
 
 #end
+#end
+
+
+@:enum abstract AssetType(String) {
+	
+	var BINARY = "BINARY";
+	var FONT = "FONT";
+	var IMAGE = "IMAGE";
+	var MUSIC = "MUSIC";
+	var SOUND = "SOUND";
+	var TEMPLATE = "TEMPLATE";
+	var TEXT = "TEXT";
+	
+}

@@ -7,6 +7,7 @@ import lime.tools.helpers.ArrayHelper;
 import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.ObjectHelper;
 import lime.tools.helpers.PathHelper;
+import lime.tools.helpers.PlatformHelper;
 import lime.tools.helpers.StringMapHelper;
 import lime.project.Asset;
 import lime.project.AssetType;
@@ -96,6 +97,21 @@ class ProjectXMLParser extends HXProject {
 		} else if (target == Platform.FIREFOX) {
 			
 			defines.set ("html5", "1");
+			
+		} else if (platformType == DESKTOP && target != PlatformHelper.hostPlatform) {
+			
+			defines.set ("native", "1");
+			
+			if (target == Platform.WINDOWS) {
+				
+				defines.set ("cpp", "1");
+				defines.set ("mingw", "1");
+				
+			} else {
+				
+				defines.set ("neko", "1");
+				
+			}
 			
 		} else if (targetFlags.exists ("cpp") || ((platformType != PlatformType.WEB) && !targetFlags.exists ("html5")) || target == Platform.EMSCRIPTEN) {
 			
@@ -483,7 +499,7 @@ class ProjectXMLParser extends HXProject {
 				
 			} else {
 				
-				var exclude = ".*|cvs|thumbs.db|desktop.ini|*.hash";
+				var exclude = ".*|cvs|thumbs.db|desktop.ini|*.fla|*.hash";
 				var include = "";
 				
 				if (element.has.exclude) {
@@ -1214,6 +1230,7 @@ class ProjectXMLParser extends HXProject {
 							var embed:Null<Bool> = null;
 							var preload = false;
 							var generate = false;
+							var prefix = "";
 							
 							if (element.has.name) {
 								
@@ -1251,7 +1268,13 @@ class ProjectXMLParser extends HXProject {
 								
 							}
 							
-							libraries.push (new Library (path, name, type, embed, preload, generate));
+							if (element.has.prefix) {
+								
+								prefix = substitute (element.att.prefix);
+								
+							}
+							
+							libraries.push (new Library (path, name, type, embed, preload, generate, prefix));
 							
 						}
 					
@@ -1552,6 +1575,59 @@ class ProjectXMLParser extends HXProject {
 							if (element.has.resolve ("linker-flags")) {
 								
 								config.push ("ios.linker-flags", substitute (element.att.resolve ("linker-flags")));
+								//config.ios.linkerFlags.push (substitute (element.att.resolve ("linker-flags")));
+								
+							}
+							
+						}
+
+					case "tvos":
+						
+						if (target == Platform.TVOS) {
+							
+							if (element.has.deployment) {
+								
+								var deployment = Std.parseFloat (substitute (element.att.deployment));
+								
+								// If it is specified, assume the dev knows what he is doing!
+								config.set ("tvos.deployment", deployment);
+							}
+							
+							if (element.has.binaries) {
+								
+								var binaries = substitute (element.att.binaries);
+								
+								switch (binaries) {
+									
+									case "arm64":
+										
+										ArrayHelper.addUnique (architectures, Architecture.ARM64);
+									
+								}
+								
+							}
+							
+							if (element.has.devices) {
+								
+								config.set ("tvos.device", substitute (element.att.devices).toLowerCase ());
+								
+							}
+							
+							if (element.has.compiler) {
+								
+								config.set ("tvos.compiler", substitute (element.att.compiler));
+								
+							}
+							
+							if (element.has.resolve ("prerendered-icon")) {
+								
+								config.set ("tvos.prerenderedIcon",  substitute (element.att.resolve ("prerendered-icon")));
+								
+							}
+							
+							if (element.has.resolve ("linker-flags")) {
+								
+								config.push ("tvos.linker-flags", substitute (element.att.resolve ("linker-flags")));
 								//config.ios.linkerFlags.push (substitute (element.att.resolve ("linker-flags")));
 								
 							}

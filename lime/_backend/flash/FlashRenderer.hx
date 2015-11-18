@@ -21,6 +21,7 @@ class FlashRenderer {
 	public function create ():Void {
 		
 		parent.context = FLASH (Lib.current);
+		parent.type = FLASH;
 		
 	}
 	

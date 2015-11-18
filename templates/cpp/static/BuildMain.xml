@@ -51,6 +51,7 @@
 			<vflag name="-framework" value="IOKit" />
 			<vflag name="-framework" value="Foundation" />
 			<vflag name="-framework" value="CoreAudio" />
+			<vflag name="-framework" value="CoreVideo" />
 			<vflag name="-framework" value="Cocoa" />
 			<vflag name="-framework" value="OpenGL" />
 			<vflag name="-framework" value="AudioToolbox" />

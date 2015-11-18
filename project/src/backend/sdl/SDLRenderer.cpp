@@ -1,5 +1,6 @@
 #include "SDLWindow.h"
 #include "SDLRenderer.h"
+#include "../../graphics/opengl/OpenGL.h"
 #include "../../graphics/opengl/OpenGLBindings.h"
 
 
@@ -11,6 +12,7 @@ namespace lime {
 		currentWindow = window;
 		sdlWindow = ((SDLWindow*)window)->sdlWindow;
 		sdlTexture = 0;
+		context = 0;
 		
 		width = 0;
 		height = 0;
@@ -21,23 +23,81 @@ namespace lime {
 			
 			sdlFlags |= SDL_RENDERER_ACCELERATED;
 			
+			if (window->flags & WINDOW_FLAG_VSYNC) {
+				
+				sdlFlags |= SDL_RENDERER_PRESENTVSYNC;
+				
+			}
+			
 		} else {
 			
 			sdlFlags |= SDL_RENDERER_SOFTWARE;
 			
 		}
 		
-		if (window->flags & WINDOW_FLAG_VSYNC) sdlFlags |= SDL_RENDERER_PRESENTVSYNC;
-		
 		sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlFlags);
+		
+		if (sdlFlags & SDL_RENDERER_ACCELERATED) {
+			
+			if (sdlRenderer) {
+				
+				bool valid = false;
+				context = SDL_GL_GetCurrentContext ();
+				
+				if (context) {
+					
+					OpenGLBindings::Init ();
+					
+					#ifndef LIME_GLES
+					int version = 0;
+					glGetIntegerv (GL_MAJOR_VERSION, &version);
+					
+					if (version == 0) {
+						
+						float versionScan = 0;
+						sscanf ((const char*)glGetString (GL_VERSION), "%f", &versionScan);
+						version = versionScan;
+						
+					}
+					
+					if (version >= 2 || strstr ((const char*)glGetString (GL_VERSION), "OpenGL ES")) {
+						
+						valid = true;
+						
+					}
+					#else
+					valid = true;
+					#endif
+					
+				}
+				
+				if (!valid) {
+					
+					SDL_DestroyRenderer (sdlRenderer);
+					sdlRenderer = 0;
+					
+				}
+				
+			}
+			
+			if (!sdlRenderer) {
+				
+				sdlFlags &= ~SDL_RENDERER_ACCELERATED;
+				sdlFlags &= ~SDL_RENDERER_PRESENTVSYNC;
+				
+				sdlFlags |= SDL_RENDERER_SOFTWARE;
+				
+				sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlFlags);
+				
+			}
+			
+		}
 		
 		if (!sdlRenderer) {
 			
 			printf ("Could not create SDL renderer: %s.\n", SDL_GetError ());
 			
 		}
-		
-		OpenGLBindings::Init ();
 		
 	}
 	
@@ -60,6 +120,31 @@ namespace lime {
 	}
 	
 	
+	void* SDLRenderer::GetContext () {
+		
+		return context;
+		
+	}
+	
+	
+	double SDLRenderer::GetScale () {
+		
+		int outputWidth;
+		int outputHeight;
+		
+		SDL_GetRendererOutputSize (sdlRenderer, &outputWidth, &outputHeight);
+		
+		int width;
+		int height;
+		
+		SDL_GetWindowSize (sdlWindow, &width, &height);
+		
+		double scale = outputWidth / width;
+		return scale;
+		
+	}
+	
+	
 	value SDLRenderer::Lock () {
 		
 		int width;
@@ -67,10 +152,13 @@ namespace lime {
 		
 		SDL_GetRendererOutputSize (sdlRenderer, &width, &height);
 		
-		if ( width != this->width || height != this->height) {
+		if (width != this->width || height != this->height) {
 			
-			if( sdlTexture )
-				SDL_DestroyTexture( sdlTexture );
+			if (sdlTexture) {
+				
+				SDL_DestroyTexture (sdlTexture);
+				
+			}
 			
 			sdlTexture = SDL_CreateTexture (sdlRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
 			
@@ -91,6 +179,41 @@ namespace lime {
 		}
 		
 		return result;
+		
+	}
+	
+	
+	void SDLRenderer::MakeCurrent () {
+		
+		if (sdlWindow && context) {
+			
+			SDL_GL_MakeCurrent (sdlWindow, context);
+			
+		}
+		
+	}
+	
+	
+	const char* SDLRenderer::Type () {
+		
+		if (sdlRenderer) {
+			
+			SDL_RendererInfo info;
+			SDL_GetRendererInfo (sdlRenderer, &info);
+			
+			if (info.flags & SDL_RENDERER_SOFTWARE) {
+				
+				return "software";
+				
+			} else {
+				
+				return "opengl";
+				
+			}
+			
+		}
+		
+		return "none";
 		
 	}
 	

@@ -7,6 +7,7 @@ import lime.tools.helpers.AssetHelper;
 import lime.tools.helpers.CPPHelper;
 import lime.tools.helpers.DeploymentHelper;
 import lime.tools.helpers.FileHelper;
+import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.NekoHelper;
 import lime.tools.helpers.NodeJSHelper;
 import lime.tools.helpers.PathHelper;
@@ -42,6 +43,10 @@ class LinuxPlatform extends PlatformTarget {
 				
 				is64 = true;
 				
+			} else if (architecture == Architecture.ARMV7) {
+				
+				isRaspberryPi = true;
+				
 			}
 			
 		}
@@ -49,22 +54,7 @@ class LinuxPlatform extends PlatformTarget {
 		if (project.targetFlags.exists ("rpi")) {
 			
 			isRaspberryPi = true;
-			is64 = true;
-			
-		} else if (PlatformHelper.hostPlatform == Platform.LINUX) {
-			
-			var process = new Process ("uname", [ "-a" ]);
-			var output = process.stdout.readAll ().toString ();
-			var error = process.stderr.readAll ().toString ();
-			process.exitCode ();
-			process.close ();
-			
-			if (output.toLowerCase ().indexOf ("raspberrypi") > -1) {
-				
-				isRaspberryPi = true;
-				is64 = true;
-				
-			}
+			is64 = false;
 			
 		}
 		
@@ -128,8 +118,18 @@ class LinuxPlatform extends PlatformTarget {
 		if (targetType == "neko") {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
-			NekoHelper.createExecutable (project.templatePaths, "linux" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
-			NekoHelper.copyLibraries (project.templatePaths, "linux" + (is64 ? "64" : ""), applicationDirectory);
+			
+			if (isRaspberryPi) {
+				
+				NekoHelper.createExecutable (project.templatePaths, "rpi", targetDirectory + "/obj/ApplicationMain.n", executablePath);
+				NekoHelper.copyLibraries (project.templatePaths, "rpi", applicationDirectory);
+				
+			} else {
+				
+				NekoHelper.createExecutable (project.templatePaths, "linux" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
+				NekoHelper.copyLibraries (project.templatePaths, "linux" + (is64 ? "64" : ""), applicationDirectory);
+				
+			}
 			
 		} else if (targetType == "nodejs") {
 			
@@ -212,7 +212,9 @@ class LinuxPlatform extends PlatformTarget {
 		
 		var hxml = PathHelper.findTemplate (project.templatePaths, targetType + "/hxml/" + type + ".hxml");
 		var template = new Template (File.getContent (hxml));
+		
 		Sys.println (template.execute (generateContext ()));
+		Sys.println ("-D display");
 		
 	}
 	
@@ -246,7 +248,7 @@ class LinuxPlatform extends PlatformTarget {
 		
 		if (targetFlags.exists ("rpi")) {
 			
-			commands.push ([ "-Dlinux", "-Drpi" ]);
+			commands.push ([ "-Dlinux", "-Drpi", "-Dtoolchain=linux", "-DBINDIR=RPi", "-DCXX=arm-linux-gnueabihf-g++", "-DHXCPP_M32", "-DHXCPP_STRIP=arm-linux-gnueabihf-strip", "-DHXCPP_AR=arm-linux-gnueabihf-ar", "-DHXCPP_RANLIB=arm-linux-gnueabihf-ranlib" ]);
 			
 		} else {
 			
@@ -273,6 +275,12 @@ class LinuxPlatform extends PlatformTarget {
 		
 		var arguments = additionalArguments.copy ();
 		
+		if (LogHelper.verbose) {
+			
+			arguments.push ("-verbose");
+			
+		}
+		
 		if (targetType == "nodejs") {
 			
 			NodeJSHelper.run (project, targetDirectory + "/bin/ApplicationMain.js", arguments);
@@ -291,6 +299,19 @@ class LinuxPlatform extends PlatformTarget {
 		
 		project = project.clone ();
 		//initialize (project);
+		
+		for (asset in project.assets) {
+			
+			if (asset.embed && asset.sourcePath == "") {
+				
+				var path = PathHelper.combine (targetDirectory + "/obj/tmp", asset.targetPath);
+				PathHelper.mkdir (Path.directory (path));
+				FileHelper.copyAsset (asset, path);
+				asset.sourcePath = path;
+				
+			}
+			
+		}
 		
 		if (project.targetFlags.exists ("xml")) {
 			

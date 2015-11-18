@@ -25,12 +25,20 @@ namespace lime {
 		if (flags & WINDOW_FLAG_HARDWARE) {
 			
 			sdlFlags |= SDL_WINDOW_OPENGL;
+			sdlFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
 			
 			#if defined (HX_WINDOWS) && defined (NATIVE_TOOLKIT_SDL_ANGLE)
 			SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 0);
 			SDL_SetHint (SDL_HINT_VIDEO_WIN_D3DCOMPILER, "d3dcompiler_47.dll");
+			#endif
+			
+			#if defined (RASPBERRYPI)
+			SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 0);
+			SDL_SetHint (SDL_HINT_RENDER_DRIVER, "opengles2");
 			#endif
 			
 			if (flags & WINDOW_FLAG_DEPTH_BUFFER) {
@@ -56,6 +64,10 @@ namespace lime {
 				SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 2);
 				
 			}
+			
+			SDL_GL_SetAttribute (SDL_GL_RED_SIZE, 5);
+			SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, 6);
+			SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE, 5);
 			
 		}
 		
@@ -104,6 +116,37 @@ namespace lime {
 	}
 	
 	
+	void SDLWindow::Alert (const char* message, const char* title) {
+		
+		#ifdef HX_WINDOWS
+		
+		int count = 0;
+		int speed = 0;
+		bool stopOnForeground = true;
+		
+		SDL_SysWMinfo info;
+		SDL_VERSION (&info.version);
+		SDL_GetWindowWMInfo (sdlWindow, &info);
+		
+		FLASHWINFO fi;
+		fi.cbSize = sizeof (FLASHWINFO);
+		fi.hwnd = info.info.win.window;
+		fi.dwFlags = stopOnForeground ? FLASHW_ALL | FLASHW_TIMERNOFG : FLASHW_ALL | FLASHW_TIMER;
+		fi.uCount = count;
+		fi.dwTimeout = speed;
+		FlashWindowEx (&fi);
+		
+		#endif
+		
+		if (message) {
+			
+			SDL_ShowSimpleMessageBox (SDL_MESSAGEBOX_INFORMATION, title, message, sdlWindow);
+			
+		}
+		
+	}
+	
+	
 	void SDLWindow::Close () {
 		
 		if (sdlWindow) {
@@ -111,6 +154,13 @@ namespace lime {
 			SDL_DestroyWindow (sdlWindow);
 			
 		}
+		
+	}
+	
+	
+	void SDLWindow::Focus () {
+		
+		SDL_RaiseWindow (sdlWindow);
 		
 	}
 	
@@ -130,6 +180,13 @@ namespace lime {
 		SDL_GetWindowSize (sdlWindow, &width, &height);
 		
 		return height;
+		
+	}
+	
+	
+	uint32_t SDLWindow::GetID () {
+		
+		return SDL_GetWindowID (sdlWindow);
 		
 	}
 	
@@ -218,7 +275,7 @@ namespace lime {
 	
 	void SDLWindow::SetIcon (ImageBuffer *imageBuffer) {
 		
-		SDL_Surface *surface = SDL_CreateRGBSurfaceFrom (imageBuffer->data->Bytes (), imageBuffer->width, imageBuffer->height, imageBuffer->bpp * 8, imageBuffer->width * imageBuffer->bpp, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
+		SDL_Surface *surface = SDL_CreateRGBSurfaceFrom (imageBuffer->data->Data (), imageBuffer->width, imageBuffer->height, imageBuffer->bitsPerPixel, imageBuffer->Stride (), 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
 		
 		if (surface) {
 			
@@ -243,6 +300,15 @@ namespace lime {
 		}
 		
 		return minimized;
+		
+	}
+	
+	
+	const char* SDLWindow::SetTitle (const char* title) {
+		
+		SDL_SetWindowTitle (sdlWindow, title);
+		
+		return title;
 		
 	}
 	
