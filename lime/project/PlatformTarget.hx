@@ -3,6 +3,7 @@ package lime.project;
 
 import haxe.rtti.Meta;
 import lime.tools.helpers.AssetHelper;
+import lime.tools.helpers.CommandHelper;
 import lime.tools.helpers.LogHelper;
 
 
@@ -73,8 +74,12 @@ class PlatformTarget {
 		
 		if (!Reflect.hasField (metaFields.build, "ignore") && (command == "build" || command == "test")) {
 			
+			CommandHelper.executeCommands (project.preBuildCallbacks);
+			
 			LogHelper.info ("", "\n" + LogHelper.accentColor + "Running command: BUILD" + LogHelper.resetColor);
 			build ();
+			
+			CommandHelper.executeCommands (project.postBuildCallbacks);
 			
 		}
 		
