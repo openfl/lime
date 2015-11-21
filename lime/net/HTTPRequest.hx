@@ -1,7 +1,6 @@
 package lime.net;
 
 
-import flash.utils.ByteArray;
 import haxe.io.Bytes;
 import lime.app.Future;
 import lime.app.Promise;
