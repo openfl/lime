@@ -322,16 +322,16 @@ class ImageDataUtil {
 		var data = image.buffer.data;
 		if (data == null) return;
 		
-		#if ((cpp || neko) && !disable_cffi && !macro)
+		#if (false && (cpp || neko) && !disable_cffi && !macro)
 		if (CFFI.enabled) lime_image_data_util_fill_rect (image, rect, (fillColor >> 16) & 0xFFFF, (fillColor) & 0xFFFF); else // TODO: Better Int32 solution
 		#end
 		{
-			
 			var format = image.buffer.format;
 			var premultiplied = image.buffer.premultiplied;
 			
 			var dataView = new ImageDataView (image, rect);
 			var row;
+			var pixel:RGBA;
 			
 			for (y in 0...dataView.height) {
 				
@@ -339,7 +339,8 @@ class ImageDataUtil {
 				
 				for (x in 0...dataView.width) {
 					
-					fillColor.writeUInt8 (data, row + (x * 4), format, premultiplied);
+					pixel = fillColor; // use a copy of fillColor to prevent multiplyAlpha to override values
+					pixel.writeUInt8 (data, row + (x * 4), format, premultiplied);
 					
 				}
 				
