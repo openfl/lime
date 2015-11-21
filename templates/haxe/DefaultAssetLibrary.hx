@@ -11,6 +11,7 @@ import lime.audio.AudioSource;
 import lime.audio.openal.AL;
 import lime.audio.AudioBuffer;
 import lime.graphics.Image;
+import lime.net.HTTPRequest;
 import lime.system.CFFI;
 import lime.text.Font;
 import lime.utils.UInt8Array;
@@ -20,10 +21,7 @@ import lime.Assets;
 import sys.FileSystem;
 #end
 
-#if (js && html5)
-//import lime.net.URLLoader;
-//import lime.net.URLRequest;
-#elseif flash
+#if flash
 import flash.display.Bitmap;
 import flash.display.BitmapData;
 import flash.display.Loader;
@@ -225,7 +223,6 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#elseif html5
 		
-		var bytes:Bytes = null;
 		var loader = Preloader.loaders.get (path.get (id));
 		
 		if (loader == null) {
@@ -234,25 +231,10 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 		}
 		
-		var data = loader.data;
-		
-		if (Std.is (data, String)) {
-			
-			bytes = Bytes.ofString (data);
-			
-		} else if (Std.is (data, Bytes)) {
-			
-			bytes = data;
-			
-		} else {
-			
-			bytes = null;
-			
-		}
+		var bytes = loader.bytes;
 		
 		if (bytes != null) {
 			
-			bytes.position = 0;
 			return bytes;
 			
 		} else {
@@ -379,7 +361,6 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#if html5
 		
-		var bytes:Bytes = null;
 		var loader = Preloader.loaders.get (path.get (id));
 		
 		if (loader == null) {
@@ -388,21 +369,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 		}
 		
-		var data = loader.data;
-		
-		if (Std.is (data, String)) {
-			
-			return cast data;
-			
-		} else if (Std.is (data, Bytes)) {
-			
-			bytes = cast data;
-			
-		} else {
-			
-			bytes = null;
-			
-		}
+		var bytes = loader.bytes;
 		
 		if (bytes != null) {
 			
@@ -559,40 +526,16 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#elseif html5
 		
-		//if (path.exists (id)) {
-			//
-			//var loader = new URLLoader ();
-			//loader.dataFormat = BINARY;
-			//loader.onComplete.add (function (_):Void {
-				//
-				//promise.complete (loader.data);
-				//
-			//});
-			//loader.onProgress.add (function (_, loaded, total) {
-				//
-				//if (total == 0) {
-					//
-					//promise.progress (0);
-					//
-				//} else {
-					//
-					//promise.progress (loaded / total);
-					//
-				//}
-				//
-			//});
-			//loader.onIOError.add (function (_, e) {
-				//
-				//promise.error (e);
-				//
-			//});
-			//loader.load (new URLRequest (path.get (id) + "?" + Assets.cache.version));
-			//
-		//} else {
-			//
-			//promise.complete (getBytes (id));
-			//
-		//}
+		if (path.exists (id)) {
+			
+			var request = new HTTPRequest ();
+			promise.completeWith (request.load (path.get (id) + "?" + Assets.cache.version));
+			
+		} else {
+			
+			promise.complete (getBytes (id));
+			
+		}
 		
 		#else
 		
@@ -742,35 +685,19 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#if html5
 		
-		//if (path.exists (id)) {
-			//
-			//var loader = new URLLoader ();
-			//loader.onComplete.add (function (_):Void {
-				//
-				//promise.complete (loader.data);
-				//
-			//});
-			//loader.onProgress.add (function (_, loaded, total) {
-				//
-				//if (total == 0) {
-					//
-					//promise.progress (0);
-					//
-				//} else {
-					//
-					//promise.progress (loaded / total);
-					//
-				//}
-				//
-			//});
-			//loader.onIOError.add (function (_, msg) promise.error (msg));
-			//loader.load (new URLRequest (path.get (id) + "?" + Assets.cache.version));
-			//
-		//} else {
-			//
-			//promise.complete (getText (id));
-			//
-		//}
+		if (path.exists (id)) {
+			
+			var request = new HTTPRequest ();
+			var future = request.load (path.get (id) + "?" + Assets.cache.version);
+			future.onProgress (function (progress) promise.progress (progress));
+			future.onError (function (msg) promise.error (msg));
+			future.onComplete (function (bytes) promise.complete (bytes.getString (0, bytes.length)));
+			
+		} else {
+			
+			promise.complete (getText (id));
+			
+		}
 		
 		#else
 		

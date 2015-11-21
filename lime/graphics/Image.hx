@@ -891,6 +891,7 @@ class Image {
 				
 				#if flash
 				rect.offset (offsetX, offsetY);
+				var byteArray = new ByteArray ();
 				
 				switch (format) {
 					
@@ -898,7 +899,7 @@ class Image {
 					case BGRA32:
 						
 						var srcData:ByteArray = bytes.getData ();
-						var byteArray = new ByteArray ();
+						byteArray = new ByteArray ();
 						#if flash
 						@:privateAccess byteArray.length = srcData.length;
 						#end
@@ -918,7 +919,7 @@ class Image {
 					
 					default:
 						
-						var srcData = byteArray;
+						var srcData = bytes.getData ();
 						byteArray = new ByteArray ();
 						#if flash
 						@:privateAccess byteArray.length = srcData.length;

@@ -98,7 +98,7 @@ class JPEG {
 			
 			for (i in 0...buffer.length) {
 				
-				bytes[i] = buffer.charCodeAt (i);
+				bytes.set (i, buffer.charCodeAt (i));
 				
 			}
 			
