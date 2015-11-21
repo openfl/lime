@@ -4,6 +4,7 @@ package lime; #if (!lime_legacy || lime_hybrid)
 #if !macro
 
 
+import haxe.io.Bytes;
 import haxe.Json;
 import haxe.Unserializer;
 import lime.app.Event;
@@ -12,7 +13,6 @@ import lime.app.Future;
 import lime.audio.AudioBuffer;
 import lime.graphics.Image;
 import lime.text.Font;
-import lime.utils.ByteArray;
 
 /**
  * <p>The Assets class provides a cross-platform interface to access 
@@ -146,9 +146,9 @@ class Assets {
 	 * Gets an instance of an embedded binary asset
 	 * @usage		var bytes = Assets.getBytes("file.zip");
 	 * @param	id		The ID or asset path for the file
-	 * @return		A new ByteArray object
+	 * @return		A new Bytes object
 	 */
-	public static function getBytes (id:String):ByteArray {
+	public static function getBytes (id:String):Bytes {
 		
 		initialize ();
 		
@@ -168,13 +168,13 @@ class Assets {
 					
 				} else {
 					
-					trace ("[Assets] String or ByteArray asset \"" + id + "\" exists, but only asynchronously");
+					trace ("[Assets] String or Bytes asset \"" + id + "\" exists, but only asynchronously");
 					
 				}
 				
 			} else {
 				
-				trace ("[Assets] There is no String or ByteArray asset with an ID of \"" + id + "\"");
+				trace ("[Assets] There is no String or Bytes asset with an ID of \"" + id + "\"");
 				
 			}
 			
@@ -615,11 +615,11 @@ class Assets {
 	}
 	
 	
-	public static function loadBytes (id:String):Future<ByteArray> {
+	public static function loadBytes (id:String):Future<Bytes> {
 		
 		initialize ();
 		
-		var promise = new Promise<ByteArray> ();
+		var promise = new Promise<Bytes> ();
 		
 		#if (tools && !display)
 		
@@ -635,7 +635,7 @@ class Assets {
 				
 			} else {
 				
-				promise.error ("[Assets] There is no String or ByteArray asset with an ID of \"" + id + "\"");
+				promise.error ("[Assets] There is no String or Bytes asset with an ID of \"" + id + "\"");
 				
 			}
 			
@@ -910,7 +910,7 @@ class AssetLibrary {
 	}
 	
 	
-	public function getBytes (id:String):ByteArray {
+	public function getBytes (id:String):Bytes {
 		
 		return null;
 		
@@ -950,7 +950,7 @@ class AssetLibrary {
 			
 		} else {
 			
-			return bytes.readUTFBytes (bytes.length);
+			return bytes.getString (0, bytes.length);
 			
 		}
 		
@@ -991,9 +991,9 @@ class AssetLibrary {
 	}
 	
 	
-	public function loadBytes (id:String):Future<ByteArray> {
+	public function loadBytes (id:String):Future<Bytes> {
 		
-		return new Future<ByteArray> (function () return getBytes (id));
+		return new Future<Bytes> (function () return getBytes (id));
 		
 	}
 	
@@ -1024,7 +1024,7 @@ class AssetLibrary {
 					
 				} else {
 					
-					return bytes.readUTFBytes (bytes.length);
+					return bytes.getString (0, bytes.length);
 					
 				}
 				
@@ -1373,7 +1373,7 @@ class Assets {
 				
 				super ();
 				
-				__fromBytes (lime.utils.ByteArray.fromBytes (haxe.Resource.getBytes (resourceName)));
+				__fromBytes (haxe.Resource.getBytes (resourceName));
 				
 			};
 			
@@ -1440,8 +1440,7 @@ class Assets {
 				#if lime_console
 				throw "not implemented";
 				#else
-				var byteArray = lime.utils.ByteArray.fromBytes (haxe.Resource.getBytes (resourceName));
-				__fromBytes (byteArray, null);
+				__fromBytes (haxe.Resource.getBytes (resourceName), null);
 				#end
 				
 				#end

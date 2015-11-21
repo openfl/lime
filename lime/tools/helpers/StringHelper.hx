@@ -1,9 +1,6 @@
 package lime.tools.helpers;
 
 
-#if lime
-import lime.utils.ByteArray;
-#end
 import haxe.crypto.BaseCode;
 import haxe.io.Bytes;
 
@@ -18,9 +15,7 @@ class StringHelper {
 	private static var uuidChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 	
 	
-	#if lime
-	
-	public static function base64Decode (base64:String):ByteArray {
+	public static function base64Decode (base64:String):Bytes {
 		
 		base64 = StringTools.trim (base64);
 		base64 = StringTools.replace (base64, "=", "");
@@ -32,12 +27,12 @@ class StringHelper {
 		}
 		
 		var bytes = base64Encoder.decodeBytes (Bytes.ofString (base64));
-		return ByteArray.fromBytes (bytes);
+		return bytes;
 		
 	}
 	
 	
-	public static function base64Encode (bytes:ByteArray):String {
+	public static function base64Encode (bytes:Bytes):String {
 		
 		var extension = switch (bytes.length % 3) {
 			
@@ -56,23 +51,6 @@ class StringHelper {
 		return base64Encoder.encodeBytes (bytes).toString () + extension;
 		
 	}
-	
-	#else
-	
-	public static function base64Decode (base64:String):haxe.io.Bytes {
-		
-		return null;
-		
-	}
-	
-	
-	public static function base64Encode (bytes:haxe.io.Bytes):String {
-		
-		return null;
-		
-	}
-	
-	#end
 	
 	
 	public static function formatArray (array:Array <Dynamic>):String {

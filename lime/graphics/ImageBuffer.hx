@@ -3,7 +3,6 @@ package lime.graphics;
 
 import haxe.io.Bytes;
 import lime.graphics.cairo.CairoSurface;
-import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 
 #if (js && html5)

@@ -3,7 +3,6 @@ package lime.tools.helpers;
 
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
-import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 import lime.project.Haxelib;
 import lime.project.Platform;

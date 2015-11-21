@@ -17,7 +17,6 @@ import lime.tools.helpers.PathHelper;
 import lime.graphics.format.BMP;
 import lime.graphics.Image;
 import lime.math.Rectangle;
-import lime.utils.ByteArray;
 import lime.project.Icon;
 import sys.io.File;
 import sys.FileSystem;
@@ -200,8 +199,8 @@ class IconHelper {
 		
 		var sizes = [ 16, 24, 32, 40, 48, 64, 96, 128, 256, 512, 768 ];
 		
-		var images = new Array <Image> ();
-		var imageData = new Array <ByteArray> ();
+		var images = new Array<Image> ();
+		var imageData = new Array<Bytes> ();
 		
 		for (size in sizes) {
 			
@@ -232,11 +231,19 @@ class IconHelper {
 			
 		}
 		
-		var icon = new ByteArray ();
-		icon.bigEndian = false;
-		icon.writeShort (0);
-		icon.writeShort (1);
-		icon.writeShort (images.length);
+		var length = 6 + (16 * images.length);
+		
+		for (data in imageData) {
+			
+			length += data.length;
+			
+		}
+		
+		var icon = Bytes.alloc (length);
+		var position = 0;
+		icon.setUInt16 (position, 0); position += 2;
+		icon.setUInt16 (position, 1); position += 2;
+		icon.setUInt16 (position, images.length); position += 2;
 		
 		var dataOffset = 6 + (16 * images.length);
 		
@@ -244,14 +251,14 @@ class IconHelper {
 			
 			var size = images[i].width;
 			
-			icon.writeByte (size > 255 ? 0 : size);
-			icon.writeByte (size > 255 ? 0 : size);
-			icon.writeByte (0);
-			icon.writeByte (0);
-			icon.writeShort (1);
-			icon.writeShort (32);
-			icon.writeInt (imageData[i].length);
-			icon.writeInt (dataOffset);
+			icon.set (position++, size > 255 ? 0 : size);
+			icon.set (position++, size > 255 ? 0 : size);
+			icon.set (position++, 0);
+			icon.set (position++, 0);
+			icon.setUInt16 (position, 1); position += 2;
+			icon.setUInt16 (position, 32); position += 2;
+			icon.setInt32 (position, imageData[i].length); position += 4;
+			icon.setInt32 (position, dataOffset); position += 4;
 			
 			dataOffset += imageData[i].length;
 			
@@ -259,7 +266,8 @@ class IconHelper {
 		
 		for (data in imageData) {
 			
-			icon.writeBytes (data);
+			icon.blit (position, data, 0, data.length);
+			position += data.length;
 			
 		}
 		
@@ -275,13 +283,13 @@ class IconHelper {
 	}
 	
 	
-	private static function extractBits (data:ByteArray, offset:Int, len:Int):Bytes {
+	private static function extractBits (data:Bytes, offset:Int, len:Int):Bytes {
 		
 		var out = new BytesOutput ();
 		
 		for (i in 0...len) {
 			
-			out.writeByte (data[i * 4 + offset]);
+			out.writeByte (data.get (i * 4 + offset));
 			
 		}
 		
@@ -396,14 +404,14 @@ class IconHelper {
 	}
    
    
-	private static function packBits (data:ByteArray, offset:Int, len:Int):Bytes {
+	private static function packBits (data:Bytes, offset:Int, len:Int):Bytes {
 		
 		var out = new BytesOutput ();
 		var idx = 0;
 		
 		while (idx < len) {
 			
-			var val = data[idx * 4 + offset];
+			var val = data.get (idx * 4 + offset);
 			var same = 1;
 			
 			/*
@@ -419,7 +427,7 @@ class IconHelper {
 				
 				for (i in 0...raw) {
 					
-					out.writeByte (data[idx * 4 + offset]);
+					out.writeByte (data.get (idx * 4 + offset));
 					idx++;
 					
 				}

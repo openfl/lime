@@ -11,11 +11,11 @@ import haxe.io.Bytes;
 class LZMA {
 	
 	
-	public static function decode (bytes:ByteArray):ByteArray {
+	public static function decode (bytes:Bytes):Bytes {
 		
 		#if ((cpp || neko || nodejs) && !macro)
 		var data:Dynamic = lime_lzma_decode (bytes);
-		return ByteArray.fromBytes (@:privateAccess new Bytes (data.length, data.b));
+		return @:privateAccess new Bytes (data.length, data.b);
 		#else
 		return null;
 		#end
@@ -23,11 +23,11 @@ class LZMA {
 	}
 	
 	
-	public static function encode (bytes:ByteArray):ByteArray {
+	public static function encode (bytes:Bytes):Bytes {
 		
 		#if ((cpp || neko || nodejs) && !macro)
 		var data:Dynamic = lime_lzma_encode (bytes);
-		return ByteArray.fromBytes (@:privateAccess new Bytes (data.length, data.b));
+		return @:privateAccess new Bytes (data.length, data.b);
 		#else
 		return null;
 		#end

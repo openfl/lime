@@ -20,7 +20,6 @@ import lime.math.Rectangle;
 import lime.math.Vector2;
 import lime.system.CFFI;
 import lime.utils.ArrayBuffer;
-import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 
 #if (js && html5)
@@ -31,6 +30,7 @@ import js.Browser;
 #elseif flash
 import flash.display.BitmapData;
 import flash.geom.Matrix;
+import flash.utils.ByteArray;
 #end
 
 #if format
@@ -345,7 +345,7 @@ class Image {
 	}
 	
 	
-	public function encode (format:String = "png", quality:Int = 90):ByteArray {
+	public function encode (format:String = "png", quality:Int = 90):Bytes {
 		
 		switch (format) {
 			
@@ -473,7 +473,7 @@ class Image {
 	}
 	
 	
-	public static function fromBytes (bytes:ByteArray, onload:Image -> Void = null):Image {
+	public static function fromBytes (bytes:Bytes, onload:Image -> Void = null):Image {
 		
 		if (bytes == null) return null;
 		var image = new Image ();
@@ -619,7 +619,7 @@ class Image {
 	}
 	
 	
-	public function getPixels (rect:Rectangle, format:PixelFormat = null):ByteArray {
+	public function getPixels (rect:Rectangle, format:PixelFormat = null):Bytes {
 		
 		if (buffer == null) return null;
 		
@@ -639,8 +639,9 @@ class Image {
 			
 			case FLASH:
 				
+				#if flash
 				rect.offset (offsetX, offsetY);
-				var byteArray = buffer.__srcBitmapData.getPixels (rect.__toFlashRectangle ());
+				var byteArray:ByteArray = buffer.__srcBitmapData.getPixels (rect.__toFlashRectangle ());
 				
 				switch (format) {
 					
@@ -677,7 +678,10 @@ class Image {
 					
 				}
 				
-				return cast byteArray;
+				return Bytes.ofData (byteArray);
+				#else
+				return null;
+				#end
 			
 			default:
 				
@@ -864,7 +868,7 @@ class Image {
 	}
 	
 	
-	public function setPixels (rect:Rectangle, byteArray:ByteArray, format:PixelFormat = null):Void {
+	public function setPixels (rect:Rectangle, bytes:Bytes, format:PixelFormat = null):Void {
 		
 		rect = __clipRect (rect);
 		if (buffer == null || rect == null) return;
@@ -873,7 +877,7 @@ class Image {
 			
 			case CANVAS:
 				
-				ImageCanvasUtil.setPixels (this, rect, byteArray, format);
+				ImageCanvasUtil.setPixels (this, rect, bytes, format);
 			
 			case DATA:
 				
@@ -881,10 +885,11 @@ class Image {
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
-				ImageDataUtil.setPixels (this, rect, byteArray, format);
+				ImageDataUtil.setPixels (this, rect, bytes, format);
 			
 			case FLASH:
 				
+				#if flash
 				rect.offset (offsetX, offsetY);
 				
 				switch (format) {
@@ -892,10 +897,10 @@ class Image {
 					case ARGB32: // do nothing
 					case BGRA32:
 						
-						var srcData = byteArray;
-						byteArray = new ByteArray ();
+						var srcData:ByteArray = bytes.getData ();
+						var byteArray = new ByteArray ();
 						#if flash
-						byteArray.length = srcData.length;
+						@:privateAccess byteArray.length = srcData.length;
 						#end
 						
 						var color:BGRA;
@@ -916,7 +921,7 @@ class Image {
 						var srcData = byteArray;
 						byteArray = new ByteArray ();
 						#if flash
-						byteArray.length = srcData.length;
+						@:privateAccess byteArray.length = srcData.length;
 						#end
 						
 						var color:RGBA;
@@ -935,6 +940,7 @@ class Image {
 				}
 				
 				buffer.__srcBitmapData.setPixels (rect.__toFlashRectangle (), byteArray);
+				#end
 			
 			default:
 			
@@ -943,7 +949,7 @@ class Image {
 	}
 	
 	
-	private static function __base64Encode (bytes:ByteArray):String {
+	private static function __base64Encode (bytes:Bytes):String {
 		
 		#if (js && html5)
 			
@@ -961,7 +967,7 @@ class Image {
 				
 			}
 			
-			return __base64Encoder.encodeBytes (Bytes.ofData (cast bytes.byteView)).toString () + extension;
+			return __base64Encoder.encodeBytes (bytes).toString () + extension;
 			
 		#else
 		
@@ -1045,7 +1051,7 @@ class Image {
 	}
 	
 	
-	private function __fromBytes (bytes:ByteArray, onload:Image -> Void):Void {
+	private function __fromBytes (bytes:Bytes, onload:Image -> Void):Void {
 		
 		#if (js && html5)
 			
@@ -1065,7 +1071,7 @@ class Image {
 				
 			} else {
 				
-				throw "Image tried to read a PNG/JPG ByteArray, but found an invalid header.";
+				throw "Image tried to read PNG/JPG Bytes, but found an invalid header.";
 				
 			}
 			
@@ -1183,7 +1189,7 @@ class Image {
 				
 				#end
 				
-				var array = new UInt8Array (ByteArray.fromBytes (Bytes.ofData (cast data)));
+				var array = new UInt8Array (Bytes.ofData (cast data));
 				buffer = new ImageBuffer (array, w, h);
 				buffer.format = BGRA32;
 				
@@ -1292,29 +1298,25 @@ class Image {
 	}
 	
 	
-	private static function __isJPG (bytes:ByteArray) {
+	private static function __isJPG (bytes:Bytes) {
 		
-		bytes.position = 0;
-		return bytes.readUnsignedByte () == 0xFF && bytes.readUnsignedByte () == 0xD8;
-		
-	}
-	
-	
-	private static function __isPNG (bytes:ByteArray) {
-		
-		bytes.position = 0;
-		return (bytes.readUnsignedByte () == 0x89 && bytes.readUnsignedByte () == 0x50 && bytes.readUnsignedByte () == 0x4E && bytes.readUnsignedByte () == 0x47 && bytes.readUnsignedByte () == 0x0D && bytes.readUnsignedByte () == 0x0A && bytes.readUnsignedByte () == 0x1A && bytes.readUnsignedByte () == 0x0A);
+		return bytes.get (0) == 0xFF && bytes.get (1) == 0xD8;
 		
 	}
 	
-	private static function __isGIF (bytes:ByteArray) {
+	
+	private static function __isPNG (bytes:Bytes) {
 		
-		bytes.position = 0;
+		return (bytes.get (0) == 0x89 && bytes.get (1) == 0x50 && bytes.get (2) == 0x4E && bytes.get (3) == 0x47 && bytes.get (4) == 0x0D && bytes.get (5) == 0x0A && bytes.get (6) == 0x1A && bytes.get (7) == 0x0A);
 		
-		if (bytes.readUnsignedByte () == 0x47 && bytes.readUnsignedByte () == 0x49 && bytes.readUnsignedByte () == 0x46 && bytes.readUnsignedByte () == 0x38) {
+	}
+	
+	private static function __isGIF (bytes:Bytes) {
+		
+		if (bytes.get (0) == 0x47 && bytes.get (1) == 0x49 && bytes.get (2) == 0x46 && bytes.get (3) == 0x38) {
 			
-			var b = bytes.readUnsignedByte ();
-			return ((b == 0x37 || b == 0x39) && bytes.readUnsignedByte () == 0x61);
+			var b = bytes.get (4);
+			return ((b == 0x37 || b == 0x39) && bytes.get (5) == 0x61);
 			
 		}
 		

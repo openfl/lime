@@ -3,9 +3,8 @@ package lime.audio;
 
 import haxe.io.Bytes;
 import lime.audio.openal.AL;
-import lime.net.URLLoader;
-import lime.net.URLRequest;
-import lime.utils.ByteArray;
+//import lime.net.URLLoader;
+//import lime.net.URLRequest;
 import lime.utils.UInt8Array;
 
 #if (js && html5)
@@ -57,7 +56,7 @@ class AudioBuffer {
 	}
 	
 	
-	public static function fromBytes (bytes:ByteArray):AudioBuffer {
+	public static function fromBytes (bytes:Bytes):AudioBuffer {
 		
 		#if lime_console
 		
@@ -164,15 +163,15 @@ class AudioBuffer {
 			
 			#else
 			
-			var loader = new URLLoader ();
-			loader.onComplete.add (function (_) {
-				var bytes = Bytes.ofString (loader.data);
-				handler (AudioBuffer.fromBytes (ByteArray.fromBytes (bytes)));
-			});
-			loader.onIOError.add (function (_, msg) {
-				handler (null);
-			});
-			loader.load (new URLRequest (url));
+			//var loader = new URLLoader ();
+			//loader.onComplete.add (function (_) {
+				//var bytes = Bytes.ofString (loader.data);
+				//handler (AudioBuffer.fromBytes (bytes));
+			//});
+			//loader.onIOError.add (function (_, msg) {
+				//handler (null);
+			//});
+			//loader.load (new URLRequest (url));
 			
 			#end
 			

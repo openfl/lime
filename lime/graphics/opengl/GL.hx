@@ -4,7 +4,6 @@ package lime.graphics.opengl;
 import lime.utils.ArrayBuffer;
 import lime.utils.ArrayBufferView;
 import lime.utils.Float32Array;
-import lime.utils.IMemoryRange;
 import lime.utils.Int32Array;
 import lime.system.System;
 
