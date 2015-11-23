@@ -106,7 +106,7 @@ namespace lime {
 	}
 	
 	
-	void blend(RGBA sourcePixel, RGBA* destPixel) {
+	inline void blend(RGBA sourcePixel, RGBA* destPixel) {
 		
 		float sourceAlpha = sourcePixel.a / 255.0;
 		float destAlpha = destPixel->a / 255.0;
@@ -122,7 +122,7 @@ namespace lime {
 			
 		} else {
 			
-			destPixel->Set(0, 0, 0, 0);
+			destPixel->Set (0, 0, 0, 0);
 		
 		}
 	}
@@ -142,7 +142,7 @@ namespace lime {
 		bool destPremultiplied = image->buffer->premultiplied;
 		
 		int sourcePosition, destPosition;
-		RGBA sourcePixel, destPixel, resPixel;
+		RGBA sourcePixel, destPixel;
 		
 		uint8_t* alphaData;
 		PixelFormat alphaFormat;
@@ -166,106 +166,34 @@ namespace lime {
 		bool needsMultiplyAlpha = alphaImage != NULL && alphaImage->buffer->transparent;
 		bool needsBlending = mergeAlpha || (needsMultiplyAlpha && !image->buffer->transparent);
 		
-		if (!needsMultiplyAlpha && !needsBlending) {
+		for (int y = 0; y < destView.height; y++) {
 			
-			for (int y = 0; y < destView.height; y++) {
+			sourcePosition = sourceView.Row (y);
+			destPosition = destView.Row (y);
+			if (needsMultiplyAlpha) alphaPosition = alphaView->Row (y);
+			
+			for (int x = 0; x < destView.width; x++) {
 				
-				sourcePosition = sourceView.Row (y);
-				destPosition = destView.Row (y);
+				sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
 				
-				for (int x = 0; x < destView.width; x++) {
-					
-					sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
-					
+				if (needsMultiplyAlpha) {
+					alphaPixel.ReadUInt8 (alphaData, alphaPosition, alphaFormat, alphaPremultiplied);
+					sourcePixel.a = (int) (sourcePixel.a * alphaPixel.a / 255.0);
+					alphaPosition += 4;
+				}
+				
+				if (!needsBlending) {
 					sourcePixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
-					
-					sourcePosition += 4;
-					destPosition += 4;
-					
-				}
-				
-			}
-			
-		} else if (needsMultiplyAlpha) {
-
-			if (needsBlending) {
-		
-				for (int y = 0; y < destView.height; y++) {
-					
-					sourcePosition = sourceView.Row (y);
-					destPosition = destView.Row (y);
-					alphaPosition = alphaView->Row (y);
-					
-					for (int x = 0; x < destView.width; x++) {
-						
-						sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
-						destPixel.ReadUInt8 (destData, destPosition, destFormat, destPremultiplied);
-						
-						alphaPixel.ReadUInt8 (alphaData, alphaPosition, alphaFormat, alphaPremultiplied);
-						sourcePixel.a = (int) (sourcePixel.a * alphaPixel.a / 255.0);
-						
-						blend(sourcePixel, &destPixel);
-						
-						destPixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
-						
-						sourcePosition += 4;
-						destPosition += 4;
-						alphaPosition += 4;
-						
-					}
-					
-				}
-
-			} else { // multiplyAlpha only, no blending
-		
-				for (int y = 0; y < destView.height; y++) {
-					
-					sourcePosition = sourceView.Row (y);
-					destPosition = destView.Row (y);
-					if (needsMultiplyAlpha) alphaPosition = alphaView->Row (y);
-					
-					for (int x = 0; x < destView.width; x++) {
-						
-						sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
-						
-						alphaPixel.ReadUInt8 (alphaData, alphaPosition, alphaFormat, alphaPremultiplied);
-						sourcePixel.a = (int) (sourcePixel.a * alphaPixel.a / 255.0);
-						
-						sourcePixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
-						
-						sourcePosition += 4;
-						destPosition += 4;
-						alphaPosition += 4;
-						
-					}
-					
-				}
-
-			}
-			
-		} else { // blending only
-		
-			for (int y = 0; y < destView.height; y++) {
-				
-				sourcePosition = sourceView.Row (y);
-				destPosition = destView.Row (y);
-				
-				for (int x = 0; x < destView.width; x++) {
-					
-					sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
+				} else {
 					destPixel.ReadUInt8 (destData, destPosition, destFormat, destPremultiplied);
-					
 					blend(sourcePixel, &destPixel);
-					
 					destPixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
-					
-					sourcePosition += 4;
-					destPosition += 4;
-					
 				}
 				
+				sourcePosition += 4;
+				destPosition += 4;
 			}
-
+			
 		}
 		
 	}
