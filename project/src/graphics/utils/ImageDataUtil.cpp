@@ -251,7 +251,13 @@ namespace lime {
 		
 		ImageDataView dataView = ImageDataView (image, rect);
 		int row;
-		RGBA fillColor (color);
+		RGBA fillColor (color), pixel;
+		
+		if (!image.transparent) {
+			
+			fillColor.a = 0xFF;
+			
+		}
 		
 		for (int y = 0; y < dataView.height; y++) {
 			
@@ -259,7 +265,8 @@ namespace lime {
 			
 			for (int x = 0; x < dataView.width; x++) {
 				
-				fillColor.WriteUInt8 (data, row + (x * 4), format, premultiplied);
+				pixel = fillColor; // use a copy of fillColor to prevent multiplyAlpha() to override values
+				pixel.WriteUInt8 (data, row + (x * 4), format, premultiplied);
 				
 			}
 			

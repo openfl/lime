@@ -322,7 +322,7 @@ class ImageDataUtil {
 		var data = image.buffer.data;
 		if (data == null) return;
 		
-		#if (false && (cpp || neko) && !disable_cffi && !macro)
+		#if ((cpp || neko) && !disable_cffi && !macro)
 		if (CFFI.enabled) lime_image_data_util_fill_rect (image, rect, (fillColor >> 16) & 0xFFFF, (fillColor) & 0xFFFF); else // TODO: Better Int32 solution
 		#end
 		{
