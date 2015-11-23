@@ -157,7 +157,7 @@ class ImageDataUtil {
 	
 	public static function copyPixels (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, alphaImage:Image = null, alphaPoint:Vector2 = null, mergeAlpha:Bool = false):Void {
 		
-		#if (false && (cpp || neko) && !disable_cffi && !macro)
+		#if ((cpp || neko) && !disable_cffi && !macro)
 		if (CFFI.enabled) lime_image_data_util_copy_pixels (image, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha); else
 		#end
 		{
@@ -205,117 +205,48 @@ class ImageDataUtil {
 			var needsMultiplyAlpha = alphaImage != null && alphaImage.transparent;
 			var needsBlending = mergeAlpha || (needsMultiplyAlpha && !image.transparent);
 			
+			var alphaData, alphaFormat, alphaPremultiplied, alphaView;
+			var alphaPosition, alphaPixel:RGBA;
+			
 			if (needsMultiplyAlpha) {
 				
 				if (alphaPoint == null) alphaPoint = new Vector2 ();
 				
-				var alphaData = alphaImage.buffer.data;
-				var alphaFormat = alphaImage.buffer.format;
-				var alphaPremultiplied = alphaImage.buffer.premultiplied;
+				alphaData = alphaImage.buffer.data;
+				alphaFormat = alphaImage.buffer.format;
+				alphaPremultiplied = alphaImage.buffer.premultiplied;
 				
-				var alphaView = new ImageDataView (alphaImage, new Rectangle (alphaPoint.x, alphaPoint.y, destView.width, destView.height));
-				var alphaPosition, alphaPixel:RGBA;
+				alphaView = new ImageDataView (alphaImage, new Rectangle (alphaPoint.x, alphaPoint.y, destView.width, destView.height));
+			}	
+			
+			for (y in 0...destView.height) {
 				
-				if (needsBlending) {
+				sourcePosition = sourceView.row (y);
+				destPosition = destView.row (y);
+				if (needsMultiplyAlpha) alphaPosition = alphaView.row (y);
+				
+				for (x in 0...destView.width) {
 					
-					for (y in 0...destView.height) {
-						
-						sourcePosition = sourceView.row (y);
-						destPosition = destView.row (y);
-						alphaPosition = alphaView.row (y);
-						
-						for (x in 0...destView.width) {
-							
-							sourcePixel.readUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
-							destPixel.readUInt8 (destData, destPosition, destFormat, destPremultiplied);
-							alphaPixel.readUInt8 (alphaData, alphaPosition, alphaFormat, alphaPremultiplied);
-							sourcePixel.a = Std.int(sourcePixel.a * alphaPixel.a / 255.0);
-							resPixel = blend(sourcePixel, destPixel);
-							
-							resPixel.writeUInt8 (destData, destPosition, destFormat, destPremultiplied);
-							
-							sourcePosition += 4;
-							destPosition += 4;
-							alphaPosition += 4;
-							
-						}
-						
+					sourcePixel.readUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
+					destPixel.readUInt8 (destData, destPosition, destFormat, destPremultiplied);
+					
+					if (needsMultiplyAlpha) {
+						alphaPixel.readUInt8 (alphaData, alphaPosition, alphaFormat, alphaPremultiplied);
+						sourcePixel.a = Std.int(sourcePixel.a * alphaPixel.a / 255.0);
+						alphaPosition += 4;
 					}
 					
-				} else {
-						
-					for (y in 0...destView.height) {
-						
-						sourcePosition = sourceView.row (y);
-						destPosition = destView.row (y);
-						alphaPosition = alphaView.row (y);
-						
-						for (x in 0...destView.width) {
-							
-							sourcePixel.readUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
-							destPixel.readUInt8 (destData, destPosition, destFormat, destPremultiplied);
-							alphaPixel.readUInt8 (alphaData, alphaPosition, alphaFormat, alphaPremultiplied);
-							sourcePixel.a = Std.int(sourcePixel.a * alphaPixel.a / 255.0);
-							resPixel = sourcePixel;
-							
-							resPixel.writeUInt8 (destData, destPosition, destFormat, destPremultiplied);
-							
-							sourcePosition += 4;
-							destPosition += 4;
-							alphaPosition += 4;
-							
-						}
-						
-					}
+					resPixel = sourcePixel;
+					
+					if (needsBlending) resPixel = blend(sourcePixel, destPixel);
+					
+					resPixel.writeUInt8 (destData, destPosition, destFormat, destPremultiplied);
+					
+					sourcePosition += 4;
+					destPosition += 4;
 					
 				}
 				
-			} else {
-				
-				if (needsBlending) {
-					
-					for (y in 0...destView.height) {
-						
-						sourcePosition = sourceView.row (y);
-						destPosition = destView.row (y);
-						
-						for (x in 0...destView.width) {
-							
-							sourcePixel.readUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
-							destPixel.readUInt8 (destData, destPosition, destFormat, destPremultiplied);
-							resPixel = blend(sourcePixel, destPixel);
-							
-							resPixel.writeUInt8 (destData, destPosition, destFormat, destPremultiplied);
-							
-							sourcePosition += 4;
-							destPosition += 4;
-							
-						}
-						
-					}
-					
-				} else {
-					
-					for (y in 0...destView.height) {
-						
-						sourcePosition = sourceView.row (y);
-						destPosition = destView.row (y);
-						
-						for (x in 0...destView.width) {
-							
-							sourcePixel.readUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
-							destPixel.readUInt8 (destData, destPosition, destFormat, destPremultiplied);
-							resPixel = sourcePixel;
-							
-							resPixel.writeUInt8 (destData, destPosition, destFormat, destPremultiplied);
-							
-							sourcePosition += 4;
-							destPosition += 4;
-							
-						}
-						
-					}
-				}
 			}
 		}
 		
