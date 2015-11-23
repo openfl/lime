@@ -44,10 +44,12 @@ class CFFI {
 	 */
 	public static function load (library:String, method:String, args:Int = 0, lazy:Bool = false):Dynamic {
 		
+		#if sys
 		if (library == "lime" || library == null)
 		{
 			library = (Sys.args().indexOf("--angle") > -1) ? "lime-angle" : "lime" ;
 		}
+		#end
 		
 		#if (disable_cffi || macro)
 		var enabled = false;
@@ -401,9 +403,13 @@ class CFFI {
 	
 	public static function build (defaultLibrary:String = null):Array<Field> {
 		
+		#if sys
 		if (defaultLibrary == null || defaultLibrary == "lime") {
 			defaultLibrary = '" + ((Sys.args().indexOf("--angle") > -1) ? "lime-angle" : "lime") + "';
 		}
+		#else
+		defaultLibrary = "lime";
+		#end
 		
 		var pos = Context.currentPos ();
 		var fields = Context.getBuildFields ();
