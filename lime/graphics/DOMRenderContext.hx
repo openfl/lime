@@ -1,5 +1,5 @@
 package lime.graphics;
-#if (js && html5 && !display)
+#if (js && html5 && !doc_gen)
 typedef DOMRenderContext = js.html.DivElement;
 #else
 

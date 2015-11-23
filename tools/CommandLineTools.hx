@@ -1692,15 +1692,15 @@ class CommandLineTools {
 				
 				LogHelper.info ("", LogHelper.accentColor + "Using publishing target: FIREFOX MARKETPLACE" + LogHelper.resetColor);
 				
-				if (FirefoxMarketplace.isValid (project)) {
-					
-					buildProject (project, "build");
-					
-					LogHelper.info ("", "\n" + LogHelper.accentColor + "Running command: PUBLISH" + LogHelper.resetColor);
-					
-					FirefoxMarketplace.publish (project);
-					
-				}
+				//if (FirefoxMarketplace.isValid (project)) {
+					//
+					//buildProject (project, "build");
+					//
+					//LogHelper.info ("", "\n" + LogHelper.accentColor + "Running command: PUBLISH" + LogHelper.resetColor);
+					//
+					//FirefoxMarketplace.publish (project);
+					//
+				//}
 			
 		}
 		

@@ -1,8 +1,6 @@
 package lime.tools.platforms;
 
 
-//import openfl.utils.ByteArray;
-//import openfl.utils.CompressionAlgorithm;
 import haxe.io.Path;
 import haxe.Json;
 import haxe.Template;

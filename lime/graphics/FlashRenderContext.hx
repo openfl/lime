@@ -1,5 +1,5 @@
 package lime.graphics;
-#if flash
+#if (flash && !doc_gen)
 typedef FlashRenderContext = flash.display.Sprite;
 #else
 

@@ -2,13 +2,13 @@ package lime.graphics.utils;
 
 
 import haxe.format.JsonParser;
+import haxe.io.Bytes;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.graphics.PixelFormat;
 import lime.math.ColorMatrix;
 import lime.math.Rectangle;
 import lime.math.Vector2;
-import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 
 #if (js && html5)
@@ -264,7 +264,7 @@ class ImageCanvasUtil {
 	}
 	
 	
-	public static function getPixels (image:Image, rect:Rectangle, format:PixelFormat):ByteArray {
+	public static function getPixels (image:Image, rect:Rectangle, format:PixelFormat):Bytes {
 		
 		convertToCanvas (image);
 		createImageData (image);
@@ -341,12 +341,12 @@ class ImageCanvasUtil {
 	}
 	
 	
-	public static function setPixels (image:Image, rect:Rectangle, byteArray:ByteArray, format:PixelFormat):Void {
+	public static function setPixels (image:Image, rect:Rectangle, bytes:Bytes, format:PixelFormat):Void {
 		
 		convertToCanvas (image);
 		createImageData (image);
 		
-		ImageDataUtil.setPixels (image, rect, byteArray, format);
+		ImageDataUtil.setPixels (image, rect, bytes, format);
 		
 	}
 	

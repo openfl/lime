@@ -14,7 +14,6 @@ import lime.math.ColorMatrix;
 import lime.math.Rectangle;
 import lime.math.Vector2;
 import lime.system.CFFI;
-import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 
 #if !macro
@@ -637,21 +636,15 @@ class ImageDataUtil {
 	}
 	
 	
-	public static function getPixels (image:Image, rect:Rectangle, format:PixelFormat):ByteArray {
+	public static function getPixels (image:Image, rect:Rectangle, format:PixelFormat):Bytes {
 		
 		if (image.buffer.data == null) return null;
 		
 		var length = Std.int (rect.width * rect.height);
-		
-		#if flash
-		var byteArray = new ByteArray ();
-		#else
-		var byteArray = new ByteArray (length * 4);
-		byteArray.position = 0;
-		#end
+		var bytes = Bytes.alloc (length * 4);
 		
 		#if ((cpp || neko) && !disable_cffi && !macro)
-		if (CFFI.enabled) lime_image_data_util_get_pixels (image, rect, format, byteArray); else
+		if (CFFI.enabled) lime_image_data_util_get_pixels (image, rect, format, bytes); else
 		#end
 		{
 			
@@ -661,10 +654,7 @@ class ImageDataUtil {
 			
 			var dataView = new ImageDataView (image, rect);
 			var position, argb:ARGB, bgra:BGRA, pixel:RGBA;
-			
-			#if !flash
 			var destPosition = 0;
-			#end
 			
 			for (y in 0...dataView.height) {
 				
@@ -682,17 +672,10 @@ class ImageDataUtil {
 						
 					}
 					
-					#if flash
-					byteArray.writeByte (pixel.r);
-					byteArray.writeByte (pixel.g);
-					byteArray.writeByte (pixel.b);
-					byteArray.writeByte (pixel.a);
-					#else
-					byteArray.__set (destPosition++, pixel.r);
-					byteArray.__set (destPosition++, pixel.g);
-					byteArray.__set (destPosition++, pixel.b);
-					byteArray.__set (destPosition++, pixel.a);
-					#end
+					bytes.set (destPosition++, pixel.r);
+					bytes.set (destPosition++, pixel.g);
+					bytes.set (destPosition++, pixel.b);
+					bytes.set (destPosition++, pixel.a);
 					
 					position += 4;
 					
@@ -702,8 +685,7 @@ class ImageDataUtil {
 			
 		}
 		
-		byteArray.position = 0;
-		return byteArray;
+		return bytes;
 		
 	}
 	
@@ -1026,12 +1008,12 @@ class ImageDataUtil {
 	}
 	
 	
-	public static function setPixels (image:Image, rect:Rectangle, byteArray:ByteArray, format:PixelFormat):Void {
+	public static function setPixels (image:Image, rect:Rectangle, bytes:Bytes, format:PixelFormat):Void {
 		
 		if (image.buffer.data == null) return;
 		
 		#if ((cpp || neko) && !disable_cffi && !macro)
-		if (CFFI.enabled) lime_image_data_util_set_pixels (image, rect, byteArray, format); else
+		if (CFFI.enabled) lime_image_data_util_set_pixels (image, rect, bytes, format); else
 		#end
 		{
 			
@@ -1041,6 +1023,7 @@ class ImageDataUtil {
 			var dataView = new ImageDataView (image, rect);
 			var row, color, pixel:RGBA;
 			var transparent = image.transparent;
+			var dataPosition = 0;
 			
 			for (y in 0...dataView.height) {
 				
@@ -1048,7 +1031,8 @@ class ImageDataUtil {
 				
 				for (x in 0...dataView.width) {
 					
-					color = byteArray.readUnsignedInt ();
+					color = bytes.getInt32 (dataPosition);
+					dataPosition += 4;
 					
 					switch (format) {
 						

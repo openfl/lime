@@ -8,8 +8,7 @@ import lime.Assets;
 import js.html.Image;
 import js.html.SpanElement;
 import js.Browser;
-import lime.net.URLLoader;
-import lime.net.URLRequest;
+import lime.net.HTTPRequest;
 #elseif flash
 import flash.display.LoaderInfo;
 import flash.display.Sprite;
@@ -27,7 +26,7 @@ class Preloader #if flash extends Sprite #end {
 	
 	#if (js && html5)
 	public static var images = new Map<String, Image> ();
-	public static var loaders = new Map<String, URLLoader> ();
+	public static var loaders = new Map<String, HTTPRequest> ();
 	private var loaded = 0;
 	private var total = 0;
 	#end
@@ -91,9 +90,7 @@ class Preloader #if flash extends Sprite #end {
 					
 					if (!loaders.exists (url)) {
 						
-						var loader = new URLLoader ();
-						loader.dataFormat = BINARY;
-						loaders.set (url, loader);
+						var loader = new HTTPRequest ();
 						total++;
 						
 					}
@@ -102,8 +99,7 @@ class Preloader #if flash extends Sprite #end {
 					
 					if (!loaders.exists (url)) {
 						
-						var loader = new URLLoader ();
-						loaders.set (url, loader);
+						var loader = new HTTPRequest ();
 						total++;
 						
 					}
@@ -122,8 +118,8 @@ class Preloader #if flash extends Sprite #end {
 		for (url in loaders.keys ()) {
 			
 			var loader = loaders.get (url);
-			loader.onComplete.add (loader_onComplete);
-			loader.load (new URLRequest (url + "?" + cacheVersion));
+			var future = loader.load (url + "?" + cacheVersion);
+			future.onComplete (loader_onComplete);
 			
 		}
 		
@@ -276,7 +272,7 @@ class Preloader #if flash extends Sprite #end {
 	}
 	
 	
-	private function loader_onComplete (loader:URLLoader):Void {
+	private function loader_onComplete (_):Void {
 		
 		loaded++;
 		

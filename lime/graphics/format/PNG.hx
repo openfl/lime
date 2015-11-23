@@ -4,7 +4,6 @@ package lime.graphics.format;
 import haxe.io.Bytes;
 import lime.graphics.Image;
 import lime.system.CFFI;
-import lime.utils.ByteArray;
 
 #if (js && html5)
 import js.Browser;
@@ -28,7 +27,7 @@ import haxe.io.BytesOutput;
 class PNG {
 	
 	
-	public static function decodeBytes (bytes:ByteArray, decodeData:Bool = true):Image {
+	public static function decodeBytes (bytes:Bytes, decodeData:Bool = true):Image {
 		
 		#if ((cpp || neko || nodejs) && !macro)
 		
@@ -70,7 +69,7 @@ class PNG {
 	}
 	
 	
-	public static function encode (image:Image):ByteArray {
+	public static function encode (image:Image):Bytes {
 		
 		if (image.premultiplied || image.format != RGBA32) {
 			
@@ -89,8 +88,7 @@ class PNG {
 		if (CFFI.enabled) {
 			
 			var data:Dynamic = lime_image_encode (image.buffer, 0, 0);
-			var bytes = @:privateAccess new Bytes (data.length, data.b);
-			return ByteArray.fromBytes (bytes);
+			return @:privateAccess new Bytes (data.length, data.b);
 			
 		}
 		
@@ -129,11 +127,7 @@ class PNG {
 				var png = new Writer (output);
 				png.write (data);
 				
-				#if flash
-				return output.getBytes ().getData ();
-				#else
-				return ByteArray.fromBytes (output.getBytes ());
-				#end
+				return output.getBytes ();
 				
 			} catch (e:Dynamic) { }
 			
@@ -147,15 +141,15 @@ class PNG {
 			
 			var data = image.buffer.__srcCanvas.toDataURL ("image/png");
 			var buffer = Browser.window.atob (data.split (";base64,")[1]);
-			var byteArray = new ByteArray (buffer.length);
+			var bytes = Bytes.alloc (buffer.length);
 			
 			for (i in 0...buffer.length) {
 				
-				byteArray.byteView[i] = buffer.charCodeAt (i);
+				bytes[i] = buffer.charCodeAt (i);
 				
 			}
 			
-			return byteArray;
+			return bytes;
 			
 		}
 		

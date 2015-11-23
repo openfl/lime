@@ -1,15 +1,15 @@
 package lime.graphics.format;
 
 
+import haxe.io.Bytes;
 import lime.graphics.Image;
 import lime.math.Rectangle;
-import lime.utils.ByteArray;
 
 
 class BMP {
 	
 	
-	public static function encode (image:Image, type:BMPType = null):ByteArray {
+	public static function encode (image:Image, type:BMPType = null):Bytes {
 		
 		if (image.premultiplied || image.format != RGBA32) {
 			
@@ -50,61 +50,54 @@ class BMP {
 			
 		}
 		
-		#if !flash
-		var data = new ByteArray (fileHeaderLength + infoHeaderLength + pixelValuesLength);
-		#else
-		var data = new ByteArray ();
-		data.length = fileHeaderLength + infoHeaderLength + pixelValuesLength;
-		#end
-		
-		#if (cpp || neko)
-		data.bigEndian = false;
-		#end
+		var data = Bytes.alloc (fileHeaderLength + infoHeaderLength + pixelValuesLength);
+		var position = 0;
 		
 		if (fileHeaderLength > 0) {
 			
-			data.writeByte (0x42);
-			data.writeByte (0x4D);
-			data.writeInt (data.length);
-			data.writeShort (0);
-			data.writeShort (0);
-			data.writeInt (fileHeaderLength + infoHeaderLength);
+			data.set (position++, 0x42);
+			data.set (position++, 0x4D);
+			data.setInt32 (position, data.length); position += 4;
+			data.setUInt16 (position, 0); position += 2;
+			data.setUInt16 (position, 0); position += 2;
+			data.setInt32 (position, fileHeaderLength + infoHeaderLength); position += 4;
 			
 		}
 		
-		data.writeInt (infoHeaderLength);
-		data.writeInt (image.width);
-		data.writeInt (type == ICO ? image.height * 2 : image.height);
-		data.writeShort (1);
-		data.writeShort (type == RGB ? 24 : 32);
-		data.writeInt (type == BITFIELD ? 3 : 0);
-		data.writeInt (pixelValuesLength);
-		data.writeInt (0x2e30);
-		data.writeInt (0x2e30);
-		data.writeInt (0);
-		data.writeInt (0);
+		data.setInt32 (position, infoHeaderLength); position += 4;
+		data.setInt32 (position, image.width); position += 4;
+		data.setInt32 (position, type == ICO ? image.height * 2 : image.height); position += 4;
+		data.setUInt16 (position, 1); position += 2;
+		data.setUInt16 (position, type == RGB ? 24 : 32); position += 2;
+		data.setInt32 (position, type == BITFIELD ? 3 : 0); position += 4;
+		data.setInt32 (position, pixelValuesLength); position += 4;
+		data.setInt32 (position, 0x2e30); position += 4;
+		data.setInt32 (position, 0x2e30); position += 4;
+		data.setInt32 (position, 0); position += 4;
+		data.setInt32 (position, 0); position += 4;
 		
 		if (type == BITFIELD) {
 			
-			data.writeInt (0x00FF0000);
-			data.writeInt (0x0000FF00);
-			data.writeInt (0x000000FF);
-			data.writeInt (0xFF000000);
+			data.setInt32 (position, 0x00FF0000); position += 4;
+			data.setInt32 (position, 0x0000FF00); position += 4;
+			data.setInt32 (position, 0x000000FF); position += 4;
+			data.setInt32 (position, 0xFF000000); position += 4;
 			
-			data.writeByte (0x20);
-			data.writeByte (0x6E);
-			data.writeByte (0x69);
-			data.writeByte (0x57);
+			data.set (position++, 0x20);
+			data.set (position++, 0x6E);
+			data.set (position++, 0x69);
+			data.set (position++, 0x57);
 			
 			for (i in 0...48) {
 				
-				data.writeByte (0);
+				data.set (position++, 0);
 				
 			}
 			
 		}
 		
 		var pixels = image.getPixels (new Rectangle (0, 0, image.width, image.height), ARGB32);
+		var readPosition = 0;
 		var a, r, g, b;
 		
 		switch (type) {
@@ -113,19 +106,19 @@ class BMP {
 				
 				for (y in 0...image.height) {
 					
-					pixels.position = (image.height - 1 - y) * 4 * image.width;
+					readPosition = (image.height - 1 - y) * 4 * image.width;
 					
 					for (x in 0...image.width) {
 						
-						a = pixels.readByte ();
-						r = pixels.readByte ();
-						g = pixels.readByte ();
-						b = pixels.readByte ();
+						a = pixels.get (readPosition++);
+						r = pixels.get (readPosition++);
+						g = pixels.get (readPosition++);
+						b = pixels.get (readPosition++);
 						
-						data.writeByte (b);
-						data.writeByte (g);
-						data.writeByte (r);
-						data.writeByte (a);
+						data.set (position++, b);
+						data.set (position++, g);
+						data.set (position++, r);
+						data.set (position++, a);
 						
 					}
 					
@@ -133,28 +126,24 @@ class BMP {
 			
 			case ICO:
 				
-				#if !flash
-				var andMask = new ByteArray (image.width * image.height);
-				#else
-				var andMask = new ByteArray ();
-				andMask.length = image.width * image.height;
-				#end
+				var andMask = Bytes.alloc (image.width * image.height);
+				var maskPosition = 0;
 				
 				for (y in 0...image.height) {
 					
-					pixels.position = (image.height - 1 - y) * 4 * image.width;
+					readPosition = (image.height - 1 - y) * 4 * image.width;
 					
 					for (x in 0...image.width) {
 						
-						a = pixels.readByte ();
-						r = pixels.readByte ();
-						g = pixels.readByte ();
-						b = pixels.readByte ();
+						a = pixels.get (readPosition++);
+						r = pixels.get (readPosition++);
+						g = pixels.get (readPosition++);
+						b = pixels.get (readPosition++);
 						
-						data.writeByte (b);
-						data.writeByte (g);
-						data.writeByte (r);
-						data.writeByte (a);
+						data.set (position++, b);
+						data.set (position++, g);
+						data.set (position++, r);
+						data.set (position++, a);
 						
 						//if (a < 128) {
 							
@@ -162,7 +151,7 @@ class BMP {
 							
 						//} else {
 							
-							andMask.writeByte (0);
+							andMask.set (maskPosition++, 0);
 							
 						//}
 						
@@ -170,30 +159,30 @@ class BMP {
 					
 				}
 				
-				data.writeBytes (andMask);
+				data.blit (position, andMask, 0, image.width * image.height);
 			
 			case RGB:
 				
 				for (y in 0...image.height) {
 					
-					pixels.position = (image.height - 1 - y) * 4 * image.width;
+					readPosition = (image.height - 1 - y) * 4 * image.width;
 					
 					for (x in 0...image.width) {
 						
-						a = pixels.readByte ();
-						r = pixels.readByte ();
-						g = pixels.readByte ();
-						b = pixels.readByte ();
+						a = pixels.get (readPosition++);
+						r = pixels.get (readPosition++);
+						g = pixels.get (readPosition++);
+						b = pixels.get (readPosition++);
 						
-						data.writeByte (b);
-						data.writeByte (g);
-						data.writeByte (r);
+						data.set (position++, b);
+						data.set (position++, g);
+						data.set (position++, r);
 						
 					}
 					
 					for (i in 0...((image.width * 3) % 4)) {
 						
-						data.writeByte (0);
+						data.set (position++, 0);
 						
 					}
 					
