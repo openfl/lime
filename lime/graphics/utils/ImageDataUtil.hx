@@ -313,12 +313,6 @@ class ImageDataUtil {
 			
 		}
 		
-		if (!image.transparent) {
-			
-			fillColor.a = 0xFF;
-			
-		}
-		
 		var data = image.buffer.data;
 		if (data == null) return;
 		
@@ -331,7 +325,9 @@ class ImageDataUtil {
 			
 			var dataView = new ImageDataView (image, rect);
 			var row;
-			var pixel:RGBA;
+			
+			if (!image.transparent) fillColor.a = 0xFF;
+			if (premultiplied) fillColor.multiplyAlpha();
 			
 			for (y in 0...dataView.height) {
 				
@@ -339,8 +335,7 @@ class ImageDataUtil {
 				
 				for (x in 0...dataView.width) {
 					
-					pixel = fillColor; // use a copy of fillColor to prevent multiplyAlpha to override values
-					pixel.writeUInt8 (data, row + (x * 4), format, premultiplied);
+					fillColor.writeUInt8 (data, row + (x * 4), format, false);
 					
 				}
 				
