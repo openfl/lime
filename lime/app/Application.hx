@@ -128,6 +128,8 @@ class Application extends Module {
 		
 		backend.create (config);
 		
+		processArgs();
+		
 		if (config != null) {
 			
 			if (Reflect.hasField (config, "fps")) {
@@ -731,6 +733,74 @@ class Application extends Module {
 		
 	}
 	
+	
+	private function processArgs ():Void {
+		
+		for (argument in Sys.args ()) {
+			
+			var equals = argument.indexOf ("=");
+			
+			if (equals > 0) {
+				
+				var argValue = argument.substr (equals + 1);
+				// if quotes remain on the argValue we need to strip them off
+				// otherwise the compiler really dislikes the result!
+				var r = ~/^['"](.*)['"]$/;
+				if (r.match(argValue)) {
+					argValue = r.matched(1);
+				}
+				
+				if (argument.substr(0, 2) == "--") {
+					
+					var field = argument.substr(2, equals - 2);
+					
+					if (field.indexOf("window") == 0 && config.windows.length > 0) {
+						
+						var split = field.split ("-");
+						
+						var fieldName = split[0].toLowerCase();
+						var property = split[1].toLowerCase();
+						
+						for (window in config.windows) {
+							
+							//TODO: allow this to work for more than just the first window
+							if (window != null && window == config.windows[0]) {
+							
+								if (Reflect.hasField (window, property)) {
+								
+									var propertyReference = Reflect.field (window, property);
+									
+									if (Std.is (propertyReference, Bool)) {
+									
+										Reflect.setField (window, property, argValue == "true");
+										
+									} else if (Std.is (propertyReference, Int)) {
+										
+										Reflect.setField (window, property, Std.parseInt (argValue));
+										
+									} else if (Std.is (propertyReference, Float)) {
+										
+										Reflect.setField (window, property, Std.parseFloat (argValue));
+										
+									} else if (Std.is (propertyReference, String)) {
+										
+										Reflect.setField (window, property, argValue);
+										
+									}
+								
+								}
+								
+							}
+							
+						}
+						
+					}
+					
+				}
+			}
+			
+		}
+	}
 	
 	/**
 	 * Removes a Window from the Application
