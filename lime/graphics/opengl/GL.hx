@@ -41,7 +41,7 @@ class GL {
 	private static var __USING_ANGLE = false;
 	public static function get_USING_ANGLE():Bool {
 		if(!__INIT_ANGLE) {
-			__USING_ANGLE = if (GL.getParameter(GL.VERSION).indexOf("ANGLE") != -1);
+			__USING_ANGLE = (GL.getParameter(GL.VERSION).indexOf("ANGLE") != -1);
 		}
 		return __USING_ANGLE;
 	}
