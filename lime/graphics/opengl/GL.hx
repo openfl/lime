@@ -35,17 +35,6 @@ typedef Float32 = Float;
 
 class GL {
 	
-	//TODO: hideous hack, please put this somewhere nicer
-	public static var USING_ANGLE(get, null):Bool = false;
-	private static var __INIT_ANGLE = false;
-	private static var __USING_ANGLE = false;
-	public static function get_USING_ANGLE():Bool {
-		if(!__INIT_ANGLE) {
-			__USING_ANGLE = (GL.getParameter(GL.VERSION).indexOf("ANGLE") != -1);
-		}
-		return __USING_ANGLE;
-	}
-	
 	public static inline var DEPTH_BUFFER_BIT = 0x00000100;
 	public static inline var STENCIL_BUFFER_BIT = 0x00000400;
 	public static inline var COLOR_BUFFER_BIT = 0x00004000;
