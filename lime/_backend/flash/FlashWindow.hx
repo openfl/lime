@@ -87,6 +87,12 @@ class FlashWindow {
 	}
 	
 	
+	public function setBorderless (value:Bool):Bool {
+		
+		return value;
+		
+	}
+	
 	public function setEnableTextEvents (value:Bool):Bool {
 		
 		return enableTextEvents = value;
@@ -111,6 +117,13 @@ class FlashWindow {
 	public function setMinimized (value:Bool):Bool {
 		
 		return false;
+		
+	}
+	
+	
+	public function setResizable (value:Bool):Bool {
+		
+		return value;
 		
 	}
 	
