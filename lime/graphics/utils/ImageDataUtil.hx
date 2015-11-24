@@ -1013,7 +1013,7 @@ class ImageDataUtil {
 		if (image.buffer.data == null) return;
 		
 		#if ((cpp || neko) && !disable_cffi && !macro)
-		if (CFFI.enabled) lime_image_data_util_set_pixels (image, rect, bytes, format); else
+		if (false && CFFI.enabled) lime_image_data_util_set_pixels (image, rect, bytes, format); else
 		#end
 		{
 			
@@ -1031,7 +1031,8 @@ class ImageDataUtil {
 				
 				for (x in 0...dataView.width) {
 					
-					color = bytes.getInt32 (dataPosition);
+					//color = bytes.getInt32 (dataPosition);
+					color = bytes.get (dataPosition + 3) | (bytes.get (dataPosition + 2) << 8) | (bytes.get (dataPosition + 1) << 16) | (bytes.get (dataPosition) << 24);
 					dataPosition += 4;
 					
 					switch (format) {
