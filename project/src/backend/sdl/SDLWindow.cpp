@@ -255,6 +255,23 @@ namespace lime {
 	}
 	
 	
+	bool SDLWindow::SetBorderless (bool borderless) {
+		
+		if (borderless) {
+			
+			SDL_SetWindowBordered (sdlWindow, SDL_FALSE);
+			
+		} else {
+			
+			SDL_SetWindowBordered (sdlWindow, SDL_TRUE);
+			
+		}
+		
+		return borderless;
+		
+	}
+	
+	
 	void SDLWindow::SetEnableTextEvents (bool enabled) {
 		
 		if (enabled) {
@@ -323,6 +340,40 @@ namespace lime {
 		SDL_SetWindowTitle (sdlWindow, title);
 		
 		return title;
+		
+	}
+	
+	
+	bool SDLWindow::SetResizable (bool resizable) {
+		
+		SDL_SysWMinfo info;
+		SDL_VERSION(&info.version);
+		SDL_GetWindowWMInfo(sdlWindow, &info);
+		
+		#ifdef HX_WINDOWS
+		//toggling the window "resizable" property after window creation is not currently supported in SDL, so we have to do it manually
+		
+		HWND hwnd = info.info.win.window;
+		DWORD style = GetWindowLong(hwnd, GWL_STYLE);
+		if (resizable)
+			style |= WS_THICKFRAME;
+		else
+			style &= ~WS_THICKFRAME;
+		SetWindowLong(hwnd, GWL_STYLE, style);
+		
+		#endif
+		#ifdef HX_MACOS
+		
+		//TODO
+		
+		#endif
+		#ifdef HX_LINUX
+		
+		//TODO
+		
+		#endif
+		
+		return resizable;
 		
 	}
 	

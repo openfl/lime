@@ -21,10 +21,12 @@ class Window {
 	
 	
 	public var application (default, null):Application;
+	public var borderless(get, set):Bool;
 	public var config:WindowConfig;
 	public var display (get, null):Display;
 	public var enableTextEvents (get, set):Bool;
 	public var fullscreen (get, set):Bool;
+	public var fullscreenBorderless (get, set):Bool;
 	public var height (get, set):Int;
 	public var id (default, null):Int;
 	public var minimized (get, set):Bool;
@@ -51,6 +53,7 @@ class Window {
 	public var onTextEdit = new Event<String->Int->Int->Void> ();
 	public var onTextInput = new Event<String->Void> ();
 	public var renderer:Renderer;
+	public var resizable (get, set):Bool;
 	public var scale (get, null):Float;
 	public var stage:Stage;
 	public var title (get, set):String;
@@ -59,14 +62,17 @@ class Window {
 	public var y (get, set):Int;
 	
 	@:noCompletion private var backend:WindowBackend;
+	@:noCompletion private var __borderless:Bool;
 	@:noCompletion private var __fullscreen:Bool;
 	@:noCompletion private var __height:Int;
 	@:noCompletion private var __minimized:Bool;
+	@:noCompletion private var __resizable:Bool;
 	@:noCompletion private var __scale:Float;
 	@:noCompletion private var __title:String;
 	@:noCompletion private var __width:Int;
 	@:noCompletion private var __x:Int;
 	@:noCompletion private var __y:Int;
+	@:noCompletion private var __returnState: { width:Int, height:Int, x:Int, y:Int, resizable:Bool, borderless:Bool };
 	
 	
 	public function new (config:WindowConfig = null) {
@@ -89,6 +95,8 @@ class Window {
 			if (Reflect.hasField (config, "x")) __x = config.x;
 			if (Reflect.hasField (config, "y")) __y = config.y;
 			if (Reflect.hasField (config, "fullscreen")) __fullscreen = config.fullscreen;
+			if (Reflect.hasField (config, "borderless")) __borderless = config.borderless;
+			if (Reflect.hasField (config, "resizable")) __resizable = config.resizable;
 			if (Reflect.hasField (config, "title")) __title = config.title;
 			
 		}
@@ -315,6 +323,20 @@ class Window {
 	}
 	
 	
+	@:noCompletion private inline function get_borderless ():Bool {
+		
+		return __borderless;
+		
+	}
+	
+	
+	@:noCompletion private function set_borderless (value:Bool):Bool {
+		
+		return __borderless = backend.setBorderless (value);
+		
+	}
+	
+	
 	@:noCompletion private inline function get_enableTextEvents ():Bool {
 		
 		return backend.getEnableTextEvents ();
@@ -343,6 +365,101 @@ class Window {
 	}
 	
 	
+	@:noCompletion private function get_fullscreenBorderless():Bool {
+		
+		return (width  == display.currentMode.width  &&
+				height == display.currentMode.height &&
+				borderless == true &&
+				resizable  == false);
+		
+	}
+	
+	@:noCompletion private function set_fullscreenBorderless(value:Bool):Bool {
+		
+		if (value) {
+			
+			if(!get_fullscreenBorderless()) {
+			
+				__returnState = { width:__width, height:__height, x:__x, y:__y, borderless:__borderless, resizable:__resizable};
+				
+				width  = display.currentMode.width;
+				height = display.currentMode.height;
+				borderless = true;
+				resizable  = false;
+				x = 0;
+				y = 0;
+				
+			}
+			
+		}
+		else {
+			
+			if (__returnState != null) {
+				
+				width  = __returnState.width;
+				height = __returnState.height;
+				borderless = __returnState.borderless;
+				resizable  = __returnState.resizable;
+				x = __returnState.x;
+				y = __returnState.y;
+				__returnState = null;
+				
+			}
+			
+		}
+		
+		return get_fullscreenBorderless();
+	}
+	
+	/*
+	private static function get_fullscreenBorderless():Bool
+	{
+		#if desktop
+		return (stage.stageWidth  == Capabilities.screenResolutionX && 
+				stage.stageHeight == Capabilities.screenResolutionY &&
+				stage.window.borderless == true && 
+				stage.window.resizable  == false);
+		#end
+		return false;
+	}
+	
+	/*private static var _fullscreenBorderlessReturnWidth:Int = 0;
+	private static var _fullscreenBorderlessReturnHeight:Int = 0;
+	private static var _fullscreenBorderlessReturnBorderless:Bool = false;
+	private static var _fullscreenBorderlessReturnResizable:Bool = false;
+	private static var _fullscreenBorderlessReturnX:Int = 0;
+	private static var _fullscreenBorderlessReturnY:Int = 0;
+	
+	private static function set_fullscreenBorderless(Value:Bool):Bool
+	{
+		#if desktop
+			if (Value) {
+				_fullscreenBorderlessReturnWidth = stage.stageWidth;
+				_fullscreenBorderlessReturnHeight = stage.stageHeight;
+				_fullscreenBorderlessReturnBorderless = stage.window.borderless;
+				_fullscreenBorderlessReturnResizable = stage.window.resizable;
+				_fullscreenBorderlessReturnX = stage.window.x;
+				_fullscreenBorderlessReturnY = stage.window.y;
+				resizeGame(Std.int(Capabilities.screenResolutionX), Std.int(Capabilities.screenResolutionY));
+				stage.window.borderless = true;
+				stage.window.resizable = false;
+				stage.window.x = 0;
+				stage.window.y = 0;
+			}
+			else {
+				if(_fullscreenBorderlessReturnWidth != 0 && _fullscreenBorderlessReturnHeight != 0) {
+					resizeGame(_fullscreenBorderlessReturnWidth, _fullscreenBorderlessReturnHeight);
+					stage.window.borderless = _fullscreenBorderlessReturnBorderless;
+					stage.window.resizable = _fullscreenBorderlessReturnResizable;
+					stage.window.x = _fullscreenBorderlessReturnX;
+					stage.window.y = _fullscreenBorderlessReturnY;
+				}
+			}
+			return get_fullscreenBorderless();
+		#end
+		return false;
+	}*/
+	
 	@:noCompletion private inline function get_height ():Int {
 		
 		return __height;
@@ -369,6 +486,22 @@ class Window {
 		
 		return __minimized = backend.setMinimized (value);
 		
+	}
+	
+	
+	@:noCompletion private inline function get_resizable ():Bool {
+		
+		return __resizable;
+		
+	}
+	
+	
+	@:noCompletion private function set_resizable (value:Bool):Bool {
+		
+		__resizable = backend.setResizable(value);
+		backend.setBorderless(!__borderless);		//resizable property won't update until you change another property like the borderless property
+		backend.setBorderless(__borderless);
+		return __resizable;
 	}
 	
 	
