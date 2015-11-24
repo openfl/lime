@@ -206,7 +206,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 			case TEXT, BINARY:
 				
-				return cast (Type.createInstance (className.get (id), []), Bytes);
+				var binaryData = cast (Type.createInstance (className.get (id), []), flash.utils.ByteArray);
+				return Bytes.ofData (binaryData);
 			
 			case IMAGE:
 				
