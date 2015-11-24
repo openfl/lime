@@ -1013,7 +1013,7 @@ class ImageDataUtil {
 		if (image.buffer.data == null) return;
 		
 		#if ((cpp || neko) && !disable_cffi && !macro)
-		if (false && CFFI.enabled) lime_image_data_util_set_pixels (image, rect, bytes, format); else
+		if (CFFI.enabled) lime_image_data_util_set_pixels (image, rect, bytes, format); else
 		#end
 		{
 			
