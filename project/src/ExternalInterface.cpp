@@ -1329,6 +1329,13 @@ namespace lime {
 	}
 	
 	
+	bool lime_window_set_borderless (value window, bool borderless) {
+		
+		Window* targetWindow = (Window*)val_data (window);
+		return targetWindow->SetBorderless (borderless);
+		
+	}
+	
 	void lime_window_set_enable_text_events (value window, bool enabled) {
 		
 		Window* targetWindow = (Window*)val_data (window);
@@ -1361,6 +1368,13 @@ namespace lime {
 		
 	}
 	
+	
+	bool lime_window_set_resizable (value window, bool resizable) {
+		
+		Window* targetWindow = (Window*)val_data (window);
+		return targetWindow->SetResizable (resizable);
+		
+	}
 	
 	value lime_window_set_title (value window, HxString title) {
 		
@@ -1482,10 +1496,12 @@ namespace lime {
 	DEFINE_PRIME1 (lime_window_get_y);
 	DEFINE_PRIME3v (lime_window_move);
 	DEFINE_PRIME3v (lime_window_resize);
+	DEFINE_PRIME2 (lime_window_set_borderless);
 	DEFINE_PRIME2v (lime_window_set_enable_text_events);
 	DEFINE_PRIME2 (lime_window_set_fullscreen);
 	DEFINE_PRIME2v (lime_window_set_icon);
 	DEFINE_PRIME2 (lime_window_set_minimized);
+	DEFINE_PRIME2 (lime_window_set_resizable);
 	DEFINE_PRIME2 (lime_window_set_title);
 	
 	
