@@ -62,6 +62,7 @@ class Window {
 	@:noCompletion private var backend:WindowBackend;
 	@:noCompletion private var __borderless:Bool;
 	@:noCompletion private var __fullscreen:Bool;
+	@:noCompletion private var __fullscreenBorderless:Bool;
 	@:noCompletion private var __height:Int;
 	@:noCompletion private var __minimized:Bool;
 	@:noCompletion private var __resizable:Bool;
@@ -80,6 +81,7 @@ class Window {
 		__width = 0;
 		__height = 0;
 		__fullscreen = false;
+		__fullscreenBorderless = false;
 		__scale = 1;
 		__x = 0;
 		__y = 0;
@@ -365,10 +367,7 @@ class Window {
 	
 	@:noCompletion private function get_fullscreenBorderless():Bool {
 		
-		return (width  == display.currentMode.width  &&
-				height == display.currentMode.height &&
-				borderless == true &&
-				resizable  == false);
+		return __fullscreenBorderless;
 		
 	}
 	
@@ -376,7 +375,7 @@ class Window {
 		
 		if (value) {
 			
-			if(!get_fullscreenBorderless()) {
+			if(!__fullscreenBorderless) {
 			
 				__returnState = { width:__width, height:__height, x:__x, y:__y, borderless:__borderless, resizable:__resizable};
 				
@@ -392,7 +391,7 @@ class Window {
 		}
 		else {
 			
-			if (__returnState != null) {
+			if (__fullscreenBorderless) {
 				
 				width  = __returnState.width;
 				height = __returnState.height;
@@ -400,63 +399,14 @@ class Window {
 				resizable  = __returnState.resizable;
 				x = __returnState.x;
 				y = __returnState.y;
-				__returnState = null;
 				
 			}
 			
 		}
 		
-		return get_fullscreenBorderless();
+		return __fullscreenBorderless = value;
 	}
 	
-	/*
-	private static function get_fullscreenBorderless():Bool
-	{
-		#if desktop
-		return (stage.stageWidth  == Capabilities.screenResolutionX && 
-				stage.stageHeight == Capabilities.screenResolutionY &&
-				stage.window.borderless == true && 
-				stage.window.resizable  == false);
-		#end
-		return false;
-	}
-	
-	/*private static var _fullscreenBorderlessReturnWidth:Int = 0;
-	private static var _fullscreenBorderlessReturnHeight:Int = 0;
-	private static var _fullscreenBorderlessReturnBorderless:Bool = false;
-	private static var _fullscreenBorderlessReturnResizable:Bool = false;
-	private static var _fullscreenBorderlessReturnX:Int = 0;
-	private static var _fullscreenBorderlessReturnY:Int = 0;
-	
-	private static function set_fullscreenBorderless(Value:Bool):Bool
-	{
-		#if desktop
-			if (Value) {
-				_fullscreenBorderlessReturnWidth = stage.stageWidth;
-				_fullscreenBorderlessReturnHeight = stage.stageHeight;
-				_fullscreenBorderlessReturnBorderless = stage.window.borderless;
-				_fullscreenBorderlessReturnResizable = stage.window.resizable;
-				_fullscreenBorderlessReturnX = stage.window.x;
-				_fullscreenBorderlessReturnY = stage.window.y;
-				resizeGame(Std.int(Capabilities.screenResolutionX), Std.int(Capabilities.screenResolutionY));
-				stage.window.borderless = true;
-				stage.window.resizable = false;
-				stage.window.x = 0;
-				stage.window.y = 0;
-			}
-			else {
-				if(_fullscreenBorderlessReturnWidth != 0 && _fullscreenBorderlessReturnHeight != 0) {
-					resizeGame(_fullscreenBorderlessReturnWidth, _fullscreenBorderlessReturnHeight);
-					stage.window.borderless = _fullscreenBorderlessReturnBorderless;
-					stage.window.resizable = _fullscreenBorderlessReturnResizable;
-					stage.window.x = _fullscreenBorderlessReturnX;
-					stage.window.y = _fullscreenBorderlessReturnY;
-				}
-			}
-			return get_fullscreenBorderless();
-		#end
-		return false;
-	}*/
 	
 	@:noCompletion private inline function get_height ():Int {
 		
