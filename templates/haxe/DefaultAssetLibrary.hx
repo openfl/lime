@@ -16,7 +16,6 @@ import lime.system.CFFI;
 import lime.text.Font;
 import lime.utils.UInt8Array;
 import lime.Assets;
-import openfl.utils.ByteArray;
 
 #if sys
 import sys.FileSystem;
@@ -207,7 +206,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 			case TEXT, BINARY:
 				
-				var binaryData = cast (Type.createInstance (className.get (id), []), ByteArray);
+				var binaryData = cast (Type.createInstance (className.get (id), []), flash.utils.ByteArray);
 				return Bytes.ofData (binaryData);
 			
 			case IMAGE:
