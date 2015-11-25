@@ -50,7 +50,8 @@ class HTTPRequest {
 			
 			if (request.status != null && request.status >= 200 && request.status <= 400) {
 				
-				promise.complete (Bytes.ofData (request.response));
+				bytes = Bytes.ofData (request.response);
+				promise.complete (bytes);
 				
 			} else {
 				
@@ -62,7 +63,7 @@ class HTTPRequest {
 		
 		request.open ("GET", url, true);
 		request.responseType = ARRAYBUFFER;
-		request.send (null);
+		request.send ("");
 		
 		#else
 		

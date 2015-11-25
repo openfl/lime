@@ -16,7 +16,11 @@ class Bytes extends HaxeBytes {
 	
 	public function new (length:Int, bytesData:BytesData) {
 		
+		#if js
+		super (bytesData);
+		#else
 		super (length, bytesData);
+		#end
 		
 	}
 	
@@ -24,7 +28,7 @@ class Bytes extends HaxeBytes {
 	public static function alloc (length:Int):Bytes {
 		
 		var bytes = HaxeBytes.alloc (length);
-		return new Bytes (bytes.length, bytes.b);
+		return new Bytes (bytes.length, bytes.getData ());
 		
 	}
 	
@@ -39,7 +43,7 @@ class Bytes extends HaxeBytes {
 	public static function ofData (b:BytesData):Bytes {
 		
 		var bytes = HaxeBytes.ofData (b);
-		return new Bytes (bytes.length, bytes.b);
+		return new Bytes (bytes.length, bytes.getData ());
 		
 	}
 	
@@ -47,7 +51,7 @@ class Bytes extends HaxeBytes {
 	public static function ofString (s:String):Bytes {
 		
 		var bytes = HaxeBytes.ofString (s);
-		return new Bytes (bytes.length, bytes.b);
+		return new Bytes (bytes.length, bytes.getData ());
 		
 	}
 	
