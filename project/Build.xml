@@ -10,6 +10,7 @@
 	<set name="ios" value="1" if="iphone" />
 	<set name="tvos" value="1" if="appletv" />
 
+	<set name="LIME_SDL_ANGLE" value="1" if="windows" unless="LIME_NO_ANGLE"/>
 	<set name="LIME_CAIRO" value="1" />
 	<set name="LIME_CURL" value="1" unless="emscripten" />
 	<set name="LIME_JPEG" value="1" />
