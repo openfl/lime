@@ -1,7 +1,6 @@
 package;
 
 
-import haxe.io.Bytes;
 import haxe.Timer;
 import haxe.Unserializer;
 import lime.app.Future;
@@ -14,6 +13,7 @@ import lime.graphics.Image;
 import lime.net.HTTPRequest;
 import lime.system.CFFI;
 import lime.text.Font;
+import lime.utils.Bytes;
 import lime.utils.UInt8Array;
 import lime.Assets;
 
@@ -152,6 +152,10 @@ class DefaultAssetLibrary extends AssetLibrary {
 				
 				return true;
 				
+			} else if (requestedType == TEXT && assetType == BINARY) {
+				
+				return true;
+				
 			} else if (requestedType == null || path.exists (id)) {
 				
 				return true;
@@ -206,7 +210,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 			case TEXT, BINARY:
 				
-				return cast (Type.createInstance (className.get (id), []), Bytes);
+				return Bytes.ofData (cast (Type.createInstance (className.get (id), []), flash.utils.ByteArray));
 			
 			case IMAGE:
 				
@@ -245,7 +249,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#else
 		
 		if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), Bytes);
-		else return readFile (path.get (id));
+		else return Bytes.readFile (path.get (id));
 		
 		#end
 		
@@ -621,17 +625,17 @@ class DefaultAssetLibrary extends AssetLibrary {
 		try {
 			
 			#if blackberry
-			var bytes = readFile ("app/native/manifest");
+			var bytes = Bytes.readFile ("app/native/manifest");
 			#elseif tizen
-			var bytes = readFile ("../res/manifest");
+			var bytes = Bytes.readFile ("../res/manifest");
 			#elseif emscripten
-			var bytes = readFile ("assets/manifest");
+			var bytes = Bytes.readFile ("assets/manifest");
 			#elseif (mac && java)
-			var bytes = readFile ("../Resources/manifest");
+			var bytes = Bytes.readFile ("../Resources/manifest");
 			#elseif (ios || tvos)
-			var bytes = readFile ("assets/manifest");
+			var bytes = Bytes.readFile ("assets/manifest");
 			#else
-			var bytes = readFile ("manifest");
+			var bytes = Bytes.readFile ("manifest");
 			#end
 			
 			if (bytes != null) {
@@ -726,22 +730,6 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
-	private function readFile (path:String):Bytes {
-		
-		#if (!flash && !html5 && !macro)
-		var data:Dynamic = lime_bytes_read_file (path);
-		if (data != null) return @:privateAccess new Bytes (data.length, data.b);
-		#end
-		return null;
-		
-	}
-	
-	
-	#if (!flash && !html5 && !macro)
-	private static var lime_bytes_read_file = CFFI.load ("lime", "lime_bytes_read_file", 1);
-	#end
-	
-	
 }
 
 
@@ -765,10 +753,10 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 ::if (assets != null)::
 ::foreach assets::::if (embed)::::if (type == "image")::@:image("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends lime.graphics.Image {}
-::elseif (type == "sound")::@:file("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends haxe.io.Bytes {}
-::elseif (type == "music")::@:file("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends haxe.io.Bytes {}
+::elseif (type == "sound")::@:file("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends lime.utils.Bytes {}
+::elseif (type == "music")::@:file("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends lime.utils.Bytes {}
 ::elseif (type == "font")::@:font("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends lime.text.Font {}
-::else::@:file("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends haxe.io.Bytes {}
+::else::@:file("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends lime.utils.Bytes {}
 ::end::::end::::end::
 ::end::
 

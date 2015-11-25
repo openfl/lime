@@ -1,13 +1,13 @@
 package lime.net;
 
 
-import haxe.io.Bytes;
 import lime.app.Future;
 import lime.app.Promise;
 import lime.net.curl.CURLCode;
 import lime.net.curl.CURLEasy;
 import lime.system.BackgroundWorker;
 import lime.system.CFFI;
+import lime.utils.Bytes;
 
 #if (js && html5)
 import js.html.XMLHttpRequest;
@@ -80,7 +80,7 @@ class HTTPRequest {
 					
 				}
 				
-				var bytes = readFile (path);
+				var bytes = Bytes.readFile (path);
 				promise.complete (bytes);
 				
 			});
@@ -144,17 +144,6 @@ class HTTPRequest {
 	}
 	
 	
-	private function readFile (path:String):Bytes {
-		
-		#if (!flash && !html5 && !macro)
-		var data:Dynamic = lime_bytes_read_file (path);
-		if (data != null) return @:privateAccess new Bytes (data.length, data.b);
-		#end
-		return null;
-		
-	}
-	
-	
 	
 	
 	// Event Handlers
@@ -197,11 +186,6 @@ class HTTPRequest {
 		promise.progress (event.loaded / event.total);
 		
 	}
-	
-	
-	#if (!flash && !html5 && !macro)
-	private static var lime_bytes_read_file = CFFI.load ("lime", "lime_bytes_read_file", 1);
-	#end
 	
 	
 }

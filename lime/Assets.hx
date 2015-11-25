@@ -4,7 +4,6 @@ package lime; #if (!lime_legacy || lime_hybrid)
 #if !macro
 
 
-import haxe.io.Bytes;
 import haxe.Json;
 import haxe.Unserializer;
 import lime.app.Event;
@@ -13,6 +12,7 @@ import lime.app.Future;
 import lime.audio.AudioBuffer;
 import lime.graphics.Image;
 import lime.text.Font;
+import lime.utils.Bytes;
 
 /**
  * <p>The Assets class provides a cross-platform interface to access 
@@ -1283,18 +1283,14 @@ class Assets {
 			
 			var constructor = macro { 
 				
-				super();
+				var bytes = haxe.Resource.getBytes (resourceName);
 				
-				#if lime_console
-				throw "not implemented";
-				#else
-				__fromBytes (haxe.Resource.getBytes (resourceName));
-				#end
+				super (bytes.length, bytes.b);
 				
 			};
 			
-			var args = [ { name: "size", opt: true, type: macro :Int, value: macro 0 } ];
-			fields.push ({ name: "new", access: [ APublic ], kind: FFun({ args: args, expr: constructor, params: [], ret: null }), pos: Context.currentPos() });
+			var args = [ { name: "length", opt: false, type: macro :Int }, { name: "bytesData", opt: false, type: macro :haxe.io.BytesData } ];
+			fields.push ({ name: "new", access: [ APublic ], kind: FFun({ args: args, expr: constructor, params: [], ret: null }), pos: Context.currentPos () });
 			
 		}
 		
