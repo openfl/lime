@@ -564,6 +564,13 @@ class HTML5Window {
 	}
 	
 	
+	public function setBorderless (value:Bool):Bool {
+		
+		return false;
+		
+	}
+	
+	
 	public function setEnableTextEvents (value:Bool):Bool {
 		
 		if (value) {
@@ -648,6 +655,13 @@ class HTML5Window {
 	
 	
 	public function setMinimized (value:Bool):Bool {
+		
+		return false;
+		
+	}
+	
+	
+	public function setResizable (value:Bool):Bool {
 		
 		return false;
 		
