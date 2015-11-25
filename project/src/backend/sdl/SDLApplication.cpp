@@ -6,6 +6,10 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+#ifdef HX_WINDOWS
+#include <Windows.h>
+#endif
+
 #ifdef EMSCRIPTEN
 #include "emscripten.h"
 #endif
@@ -16,6 +20,10 @@ namespace lime {
 	
 	AutoGCRoot* Application::callback = 0;
 	SDLApplication* SDLApplication::currentApplication = 0;
+	
+	#ifdef HX_WINDOWS
+	bool isWindowsXP = false;
+	#endif
 	
 	const int analogAxisDeadZone = 1000;
 	std::map<int, std::map<int, int> > gamepadsAxisMap;
@@ -28,6 +36,14 @@ namespace lime {
 			printf ("Could not initialize SDL: %s.\n", SDL_GetError ());
 			
 		}
+		
+		#ifdef HX_WINDOWS
+		DWORD version = GetVersion();
+		DWORD major = (DWORD) (LOBYTE(LOWORD(version)));
+		DWORD minor = (DWORD) (HIBYTE(LOWORD(version)));
+		
+		isWindowsXP = (major > 5) || ((major == 5) && (minor >= 1));
+		#endif
 		
 		currentApplication = this;
 		
