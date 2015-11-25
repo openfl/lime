@@ -34,7 +34,6 @@ typedef Float32 = Float;
 
 class GL {
 	
-	
 	public static inline var DEPTH_BUFFER_BIT = 0x00000100;
 	public static inline var STENCIL_BUFFER_BIT = 0x00000400;
 	public static inline var COLOR_BUFFER_BIT = 0x00004000;

@@ -6,6 +6,7 @@
 	
 	<include name="${HXCPP}/build-tool/BuildCommon.xml" />
 	
+	<set name="lime-angle" value="1" if="LIME_SDL_ANGLE"/>
 	<set name="lime-legacy" value="1" if="legacy || lime_legacy" />
 	<set name="ios" value="1" if="iphone" />
 	<set name="tvos" value="1" if="appletv" />
@@ -253,8 +254,10 @@
 	<include name="lib/zlib/files.xml" />
 	
 	<set name="DEBUGEXTRA" value="-debug" if="fulldebug" />
+	<set name="ANGLEEXTRA" value="-angle" if="lime-angle"/>
+	<set name="ANGLEEXTRA" value="" unless="lime-angle"/>
 	
-	<target id="lime" output="${LIBPREFIX}lime${DEBUGEXTRA}${LIBEXTRA}" tool="linker" toolid="${STD_MODULE_LINK}">
+	<target id="lime" output="${LIBPREFIX}lime${ANGLEEXTRA}${DEBUGEXTRA}${LIBEXTRA}" tool="linker" toolid="${STD_MODULE_LINK}">
 		
 		<outdir name="${OUTPUT_DIR}/${BINDIR}" />
 		
