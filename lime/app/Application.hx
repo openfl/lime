@@ -40,6 +40,8 @@ class Application extends Module {
 	public var window (get, null):Window;
 	public var windows (default, null):Array<Window>;
 	
+	public var forceSoftware (default, null):Bool;
+	
 	@:noCompletion private var backend:ApplicationBackend;
 	@:noCompletion private var windowByID:Map<Int, Window>;
 	

@@ -976,6 +976,31 @@ namespace lime {
 	}
 	
 	
+	int lime_os_major_version () {
+		
+		#ifdef HX_WINDOWS
+		DWORD version = GetVersion();
+		DWORD major = (DWORD) (LOBYTE(LOWORD(version)));
+		return major;
+		#endif
+		
+		return 0;
+		
+	}
+	
+	
+	int lime_os_minor_version () {
+		
+		#ifdef HX_WINDOWS
+		DWORD version = GetVersion();
+		DWORD minor = (DWORD) (HIBYTE(LOWORD(version)));
+		return minor;
+		#endif
+		
+		return 0;
+		
+	}
+	
 	value lime_png_decode_bytes (value data, bool decodeData) {
 		
 		ImageBuffer imageBuffer;
@@ -1431,6 +1456,8 @@ namespace lime {
 	DEFINE_PRIME0v (lime_mouse_show);
 	DEFINE_PRIME3v (lime_mouse_warp);
 	DEFINE_PRIME1v (lime_neko_execute);
+	DEFINE_PRIME0 (lime_os_major_version);
+	DEFINE_PRIME0 (lime_os_minor_version);
 	DEFINE_PRIME2 (lime_png_decode_bytes);
 	DEFINE_PRIME2 (lime_png_decode_file);
 	DEFINE_PRIME1 (lime_renderer_create);

@@ -56,6 +56,20 @@ class NativeRenderer {
 		
 		var type:String = lime_renderer_get_type (handle);
 		
+		if (type == "opengl") {
+			
+			Sys.println("type is opengl");
+				
+			if (parent.window.application.forceSoftware) {
+				
+				Sys.println("forcing software");
+				
+				type = "";
+				
+			}
+			
+		}
+		
 		switch (type) {
 			
 			case "opengl":

@@ -27,10 +27,6 @@ namespace lime {
 			SDLApplication ();
 			~SDLApplication ();
 			
-			#ifdef HX_WINDOWS
-			bool isWindowsXP;
-			#endif
-			
 			virtual int Exec ();
 			virtual void Init ();
 			virtual int Quit ();
