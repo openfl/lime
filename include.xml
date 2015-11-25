@@ -60,10 +60,10 @@
 		<dependency path="dependencies/webgl-debug.js" if="html5 debug" />
 		<dependency path="dependencies/stats.min.js" if="html5 stats" />
 		
-		<dependency path="dependencies/angle/libegl.dll" path="dependencies/angle/libegl.dll" if="lime-angle"/>
-		<dependency path="dependencies/angle/libglesv2.dll" path="dependencies/angle/libglesv2.dll" if="lime-angle"/>
-		<dependency path="dependencies/angle/d3dcompiler_43.dll" path="dependencies/angle/d3dcompiler_43.dll" if="lime-angle"/>
-		<dependency path="dependencies/angle/d3dcompiler_47.dll" path="dependencies/angle/d3dcompiler_47.dll" if="lime-angle"/>
+		<dependency name="dependencies/angle/libegl.dll" path="dependencies/angle/libegl.dll" if="lime-angle"/>
+		<dependency name="dependencies/angle/libglesv2.dll" path="dependencies/angle/libglesv2.dll" if="lime-angle"/>
+		<dependency name="dependencies/angle/d3dcompiler_43.dll" path="dependencies/angle/d3dcompiler_43.dll" if="lime-angle"/>
+		<dependency name="dependencies/angle/d3dcompiler_47.dll" path="dependencies/angle/d3dcompiler_47.dll" if="lime-angle"/>
 		
 		<haxedef name="native-trace" if="flash" unless="haxe-trace || haxetrace" />
 		
