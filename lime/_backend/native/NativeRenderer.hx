@@ -58,11 +58,7 @@ class NativeRenderer {
 		
 		if (type == "opengl") {
 			
-			Sys.println("type is opengl");
-				
 			if (parent.window.application.forceSoftware) {
-				
-				Sys.println("forcing software");
 				
 				type = "";
 				
