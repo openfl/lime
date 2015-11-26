@@ -91,6 +91,7 @@ class Preloader #if flash extends Sprite #end {
 					if (!loaders.exists (url)) {
 						
 						var loader = new HTTPRequest ();
+						loaders.set (url, loader);
 						total++;
 						
 					}
@@ -100,6 +101,7 @@ class Preloader #if flash extends Sprite #end {
 					if (!loaders.exists (url)) {
 						
 						var loader = new HTTPRequest ();
+						loaders.set (url, loader);
 						total++;
 						
 					}
