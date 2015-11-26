@@ -738,6 +738,7 @@ class Application extends Module {
 	
 	private function processArgs ():Void {
 		
+		#if sys
 		for (argument in Sys.args ()) {
 			
 			var equals = argument.indexOf ("=");
@@ -802,6 +803,7 @@ class Application extends Module {
 			}
 			
 		}
+		#end
 	}
 	
 	/**
