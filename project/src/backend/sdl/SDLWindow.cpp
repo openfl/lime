@@ -351,11 +351,13 @@ namespace lime {
 		#ifdef HX_MACOS
 		
 		//TODO
+		//consider: http://stackoverflow.com/questions/10473700/set-window-resizable/10473949#10473949
 		
 		#endif
 		#ifdef HX_LINUX
 		
 		//TODO
+		//maybe something in here? https://tronche.com/gui/x/xlib/ICC/client-to-window-manager/wm-normal-hints.html
 		
 		#endif
 		
