@@ -26,7 +26,6 @@ class Window {
 	public var display (get, null):Display;
 	public var enableTextEvents (get, set):Bool;
 	public var fullscreen (get, set):Bool;
-	public var fullscreenBorderless (get, set):Bool;
 	public var height (get, set):Int;
 	public var id (default, null):Int;
 	public var minimized (get, set):Bool;
@@ -64,7 +63,6 @@ class Window {
 	@:noCompletion private var backend:WindowBackend;
 	@:noCompletion private var __borderless:Bool;
 	@:noCompletion private var __fullscreen:Bool;
-	@:noCompletion private var __fullscreenBorderless:Bool;
 	@:noCompletion private var __height:Int;
 	@:noCompletion private var __minimized:Bool;
 	@:noCompletion private var __resizable:Bool;
@@ -83,7 +81,6 @@ class Window {
 		__width = 0;
 		__height = 0;
 		__fullscreen = false;
-		__fullscreenBorderless = false;
 		__scale = 1;
 		__x = 0;
 		__y = 0;
@@ -364,49 +361,6 @@ class Window {
 		
 		return __fullscreen = backend.setFullscreen (value);
 		
-	}
-	
-	
-	@:noCompletion private function get_fullscreenBorderless():Bool {
-		
-		return __fullscreenBorderless;
-		
-	}
-	
-	@:noCompletion private function set_fullscreenBorderless(value:Bool):Bool {
-		
-		if (value) {
-			
-			if(!__fullscreenBorderless) {
-			
-				__returnState = { width:__width, height:__height, x:__x, y:__y, borderless:__borderless, resizable:__resizable};
-				
-				width  = display.currentMode.width;
-				height = display.currentMode.height;
-				borderless = true;
-				resizable  = false;
-				x = 0;
-				y = 0;
-				
-			}
-			
-		}
-		else {
-			
-			if (__fullscreenBorderless) {
-				
-				width  = __returnState.width;
-				height = __returnState.height;
-				borderless = __returnState.borderless;
-				resizable  = __returnState.resizable;
-				x = __returnState.x;
-				y = __returnState.y;
-				
-			}
-			
-		}
-		
-		return __fullscreenBorderless = value;
 	}
 	
 	
