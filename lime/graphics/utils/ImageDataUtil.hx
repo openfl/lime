@@ -205,8 +205,9 @@ class ImageDataUtil {
 			var needsMultiplyAlpha = alphaImage != null && alphaImage.transparent;
 			var needsBlending = mergeAlpha || (needsMultiplyAlpha && !image.transparent);
 			
-			var alphaData, alphaFormat, alphaPremultiplied, alphaView;
-			var alphaPosition, alphaPixel:RGBA;
+			// TODO: it should be safe to remove these initialiazitions when transitioning to haxe 3.3.0+
+			var alphaData = null, alphaFormat = 0, alphaPremultiplied = false, alphaView = null;
+			var alphaPosition = 0, alphaPixel:RGBA;
 			
 			if (needsMultiplyAlpha) {
 				

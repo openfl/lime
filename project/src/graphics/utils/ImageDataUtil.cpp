@@ -150,17 +150,18 @@ namespace lime {
 		ImageDataView* alphaView = NULL;
 		int alphaPosition;
 		RGBA alphaPixel;
+		Vector2 zeroVec;
 		
 		if (alphaImage != NULL) {
 			
-			if (alphaPoint == NULL) alphaPoint = new Vector2 ();
+			if (alphaPoint == NULL) alphaPoint = &zeroVec;
 			
 			alphaData = (uint8_t*)alphaImage->buffer->data->Data ();
 			alphaFormat = alphaImage->buffer->format;
 			alphaPremultiplied = alphaImage->buffer->premultiplied;
 			
 			Rectangle alphaRect = Rectangle (alphaPoint->x, alphaPoint->y, destView.width, destView.height);
-			alphaView = &ImageDataView (alphaImage, &alphaRect);
+			alphaView = new ImageDataView (alphaImage, &alphaRect);
 		}	
 		
 		bool needsMultiplyAlpha = alphaImage != NULL && alphaImage->buffer->transparent;
@@ -195,6 +196,8 @@ namespace lime {
 			}
 			
 		}
+		
+		if (alphaView != NULL) delete alphaView;
 		
 	}
 	
