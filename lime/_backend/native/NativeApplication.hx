@@ -89,8 +89,6 @@ class NativeApplication {
 		osMajorVersion = lime_os_major_version();
 		osMinorVersion = lime_os_minor_version();
 		
-		Sys.println("os Version = " + osMajorVersion + "." + osMinorVersion);
-		
 		#if windows
 		windowsVersion = 
 		switch(osMajorVersion) {
