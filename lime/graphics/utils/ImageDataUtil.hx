@@ -200,55 +200,89 @@ class ImageDataUtil {
 			var sourcePremultiplied = sourceImage.buffer.premultiplied;
 			var destPremultiplied = image.buffer.premultiplied;
 			
-			var sourcePosition, destPosition, sourcePixel:RGBA, destPixel:RGBA, resPixel:RGBA;
+			var sourcePosition, destPosition, sourcePixel:RGBA, destPixel:RGBA;
 			
 			var needsMultiplyAlpha = alphaImage != null && alphaImage.transparent;
 			var needsBlending = mergeAlpha || (needsMultiplyAlpha && !image.transparent);
 			
-			// TODO: it should be safe to remove these initialiazitions when transitioning to haxe 3.3.0+
-			var alphaData = null, alphaFormat = 0, alphaPremultiplied = false, alphaView = null;
-			var alphaPosition = 0, alphaPixel:RGBA;
-			
-			if (needsMultiplyAlpha) {
+			if (!needsMultiplyAlpha) {
+				
+				for (y in 0...destView.height) {
+					
+					sourcePosition = sourceView.row (y);
+					destPosition = destView.row (y);
+					
+					for (x in 0...destView.width) {
+						
+						sourcePixel.readUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
+						destPixel.readUInt8 (destData, destPosition, destFormat, destPremultiplied);
+						
+						if (needsBlending) {
+							
+							destPixel = blend(sourcePixel, destPixel);
+							
+						} else {
+							
+							destPixel = sourcePixel;
+							
+						}
+						
+						destPixel.writeUInt8 (destData, destPosition, destFormat, destPremultiplied);
+						
+						sourcePosition += 4;
+						destPosition += 4;
+						
+					}
+					
+				}
+				
+			} else {  // needsMultiplyAlpha
 				
 				if (alphaPoint == null) alphaPoint = new Vector2 ();
 				
-				alphaData = alphaImage.buffer.data;
-				alphaFormat = alphaImage.buffer.format;
-				alphaPremultiplied = alphaImage.buffer.premultiplied;
+				var alphaData = alphaImage.buffer.data;
+				var alphaFormat = alphaImage.buffer.format;
+				var alphaPremultiplied = alphaImage.buffer.premultiplied;
+				var alphaPosition, alphaPixel:RGBA;
 				
-				alphaView = new ImageDataView (alphaImage, new Rectangle (alphaPoint.x, alphaPoint.y, destView.width, destView.height));
-			}	
-			
-			for (y in 0...destView.height) {
+				var alphaView = new ImageDataView (alphaImage, new Rectangle (alphaPoint.x, alphaPoint.y, destView.width, destView.height));
 				
-				sourcePosition = sourceView.row (y);
-				destPosition = destView.row (y);
-				if (needsMultiplyAlpha) alphaPosition = alphaView.row (y);
-				
-				for (x in 0...destView.width) {
+				for (y in 0...destView.height) {
 					
-					sourcePixel.readUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
-					destPixel.readUInt8 (destData, destPosition, destFormat, destPremultiplied);
+					sourcePosition = sourceView.row (y);
+					destPosition = destView.row (y);
+					alphaPosition = alphaView.row (y);
 					
-					if (needsMultiplyAlpha) {
+					for (x in 0...destView.width) {
+						
+						sourcePixel.readUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
+						destPixel.readUInt8 (destData, destPosition, destFormat, destPremultiplied);
 						alphaPixel.readUInt8 (alphaData, alphaPosition, alphaFormat, alphaPremultiplied);
+						
 						sourcePixel.a = Std.int(sourcePixel.a * alphaPixel.a / 255.0);
+						
+						if (needsBlending) {
+							
+							destPixel = blend(sourcePixel, destPixel);
+							
+						} else {
+							
+							destPixel = sourcePixel;
+							
+						}
+						
+						destPixel.writeUInt8 (destData, destPosition, destFormat, destPremultiplied);
+						
+						sourcePosition += 4;
+						destPosition += 4;
 						alphaPosition += 4;
+						
 					}
-					
-					resPixel = sourcePixel;
-					
-					if (needsBlending) resPixel = blend(sourcePixel, destPixel);
-					
-					resPixel.writeUInt8 (destData, destPosition, destFormat, destPremultiplied);
-					
-					sourcePosition += 4;
-					destPosition += 4;
 					
 				}
 				
 			}
+			
 		}
 		
 		image.dirty = true;

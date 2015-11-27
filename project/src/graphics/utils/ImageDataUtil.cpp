@@ -144,60 +144,88 @@ namespace lime {
 		int sourcePosition, destPosition;
 		RGBA sourcePixel, destPixel;
 		
-		uint8_t* alphaData;
-		PixelFormat alphaFormat;
-		bool alphaPremultiplied;
-		ImageDataView* alphaView = NULL;
-		int alphaPosition;
-		RGBA alphaPixel;
-		Vector2 zeroVec;
-		
-		if (alphaImage != NULL) {
-			
-			if (alphaPoint == NULL) alphaPoint = &zeroVec;
-			
-			alphaData = (uint8_t*)alphaImage->buffer->data->Data ();
-			alphaFormat = alphaImage->buffer->format;
-			alphaPremultiplied = alphaImage->buffer->premultiplied;
-			
-			Rectangle alphaRect = Rectangle (alphaPoint->x, alphaPoint->y, destView.width, destView.height);
-			alphaView = new ImageDataView (alphaImage, &alphaRect);
-		}	
-		
 		bool needsMultiplyAlpha = alphaImage != NULL && alphaImage->buffer->transparent;
 		bool needsBlending = mergeAlpha || (needsMultiplyAlpha && !image->buffer->transparent);
-		
-		for (int y = 0; y < destView.height; y++) {
 			
-			sourcePosition = sourceView.Row (y);
-			destPosition = destView.Row (y);
-			if (needsMultiplyAlpha) alphaPosition = alphaView->Row (y);
+		if (!needsMultiplyAlpha) {
 			
-			for (int x = 0; x < destView.width; x++) {
+			for (int y = 0; y < destView.height; y++) {
 				
-				sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
+				sourcePosition = sourceView.Row (y);
+				destPosition = destView.Row (y);
 				
-				if (needsMultiplyAlpha) {
-					alphaPixel.ReadUInt8 (alphaData, alphaPosition, alphaFormat, alphaPremultiplied);
-					sourcePixel.a = (int) (sourcePixel.a * alphaPixel.a / 255.0);
-					alphaPosition += 4;
-				}
-				
-				if (!needsBlending) {
-					sourcePixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
-				} else {
+				for (int x = 0; x < destView.width; x++) {
+					
+					sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
 					destPixel.ReadUInt8 (destData, destPosition, destFormat, destPremultiplied);
-					blend(sourcePixel, &destPixel);
+					
+					if (needsBlending) {
+						
+						blend(sourcePixel, &destPixel);
+						
+					} else {
+						
+						destPixel = sourcePixel;
+						
+					}
+					
 					destPixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
+					
+					sourcePosition += 4;
+					destPosition += 4;
+					
 				}
 				
-				sourcePosition += 4;
-				destPosition += 4;
+			} 
+			
+		} else {  // needsMultiplyAlpha
+			
+			Vector2 zeroVec;
+			if (alphaPoint == NULL) alphaPoint = &zeroVec;
+			
+			uint8_t* alphaData = (uint8_t*)alphaImage->buffer->data->Data ();
+			PixelFormat alphaFormat = alphaImage->buffer->format;
+			bool alphaPremultiplied = alphaImage->buffer->premultiplied;
+			int alphaPosition = 0;
+			RGBA alphaPixel;
+			Rectangle alphaRect = Rectangle (alphaPoint->x, alphaPoint->y, destView.width, destView.height);
+			ImageDataView alphaView = ImageDataView (alphaImage, &alphaRect);
+			
+			for (int y = 0; y < destView.height; y++) {
+				
+				sourcePosition = sourceView.Row (y);
+				destPosition = destView.Row (y);
+				alphaPosition = alphaView.Row (y);
+				
+				for (int x = 0; x < destView.width; x++) {
+					
+					sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
+					destPixel.ReadUInt8 (destData, destPosition, destFormat, destPremultiplied);
+					alphaPixel.ReadUInt8 (alphaData, alphaPosition, alphaFormat, alphaPremultiplied);
+					
+					sourcePixel.a = (int)(sourcePixel.a * alphaPixel.a / 255.0);
+					
+					if (needsBlending) {
+						
+						blend(sourcePixel, &destPixel);
+						
+					} else {
+						
+						destPixel = sourcePixel;
+						
+					}
+					
+					destPixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
+					
+					sourcePosition += 4;
+					destPosition += 4;
+					alphaPosition += 4;
+					
+				}
+				
 			}
 			
 		}
-		
-		if (alphaView != NULL) delete alphaView;
 		
 	}
 	
