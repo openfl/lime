@@ -92,14 +92,43 @@ class ImageCanvasUtil {
 	
 	public static function copyPixels (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, alphaImage:Image = null, alphaPoint:Vector2 = null, mergeAlpha:Bool = false):Void {
 		
-		convertToCanvas (sourceImage);
-		createImageData (sourceImage);
-		if (alphaImage != null && alphaImage.transparent) {
-			convertToCanvas (alphaImage);
-			createImageData (alphaImage);
+		if (destPoint == null || destPoint.x >= image.width || destPoint.y >= image.height || sourceRect == null || sourceRect.width < 1 || sourceRect.height < 1) {
+			
+			return;
+			
 		}
 		
-		ImageDataUtil.copyPixels (image, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha);
+		if (alphaImage != null && alphaImage.transparent) {
+			
+			if (alphaPoint == null) alphaPoint = new Vector2 ();
+			
+			// TODO: use faster method
+			
+			var tempData = image.clone ();
+			tempData.copyChannel (alphaImage, new Rectangle (alphaPoint.x, alphaPoint.y, sourceRect.width, sourceRect.height), new Vector2 (sourceRect.x, sourceRect.y), ImageChannel.ALPHA, ImageChannel.ALPHA);
+			sourceImage = tempData;
+			
+		}
+		
+		sync (image, true);
+		
+		if (!mergeAlpha) {
+			
+			if (image.transparent && sourceImage.transparent) {
+				
+				image.buffer.__srcContext.clearRect (destPoint.x + image.offsetX, destPoint.y + image.offsetY, sourceRect.width + image.offsetX, sourceRect.height + image.offsetY);
+				
+			}
+			
+		}
+		
+		sync (sourceImage, false);
+		
+		if (sourceImage.buffer.src != null) {
+			
+			image.buffer.__srcContext.drawImage (sourceImage.buffer.src, Std.int (sourceRect.x + sourceImage.offsetX), Std.int (sourceRect.y + sourceImage.offsetY), Std.int (sourceRect.width), Std.int (sourceRect.height), Std.int (destPoint.x + image.offsetX), Std.int (destPoint.y + image.offsetY), Std.int (sourceRect.width), Std.int (sourceRect.height));
+			
+		}
 		
 	}
 	
