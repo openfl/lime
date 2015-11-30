@@ -3,8 +3,6 @@ package lime.audio.fmod;
 
 
 import lime.ConsoleIncludePaths;
-import lime.system.System;
-import lime.utils.ByteArray;
 
 
 @:include("ConsoleFmodSound.h")

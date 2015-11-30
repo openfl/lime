@@ -4,8 +4,6 @@ package lime.graphics.console; #if lime_console
 import cpp.Pointer;
 import cpp.UInt8;
 import lime.ConsoleIncludePaths;
-import lime.system.System;
-import lime.utils.ByteArray;
 
 
 @:include("ConsoleTextureData.h")
