@@ -330,6 +330,10 @@ class IOSPlatform extends PlatformTarget {
 		
 		context.HXML_PATH = PathHelper.findTemplate (project.templatePaths, "iphone/PROJ/haxe/Build.hxml");
 		context.PRERENDERED_ICON = project.config.getBool ("ios.prerenderedIcon", false);
+
+		var locales = project.config.getArray("ios.locales");
+		if( locales != null )
+			context.LOCALES = locales.filter(function(o) return o!= null && o.locales!=null).map(function(o) return {locale: o.locales});
 		
 		/*var assets = new Array <Asset> ();
 		
