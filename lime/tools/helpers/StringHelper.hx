@@ -92,6 +92,7 @@ class StringHelper {
 		var isAlpha = ~/[A-Z0-9]/i;
 		var variableName = "";
 		var lastWasUpperCase = false;
+		var lastWasAlpha = true;
 		
 		for (i in 0...name.length) {
 			
@@ -101,6 +102,7 @@ class StringHelper {
 				
 				variableName += "_";
 				lastWasUpperCase = false;
+				lastWasAlpha = false;
 				
 			} else {
 				
@@ -118,9 +120,13 @@ class StringHelper {
 							
 						}
 						
-					} else {
+					} else if (lastWasAlpha) {
 						
 						variableName += "_" + char;
+						
+					} else {
+						
+						variableName += char;
 						
 					}
 					
@@ -129,9 +135,11 @@ class StringHelper {
 				} else {
 					
 					variableName += char.toUpperCase ();
-					lastWasUpperCase = false;
+					lastWasUpperCase = i == 0 && char == char.toUpperCase ();
 					
 				}
+				
+				lastWasAlpha = true;
 				
 			}
 			
