@@ -22,6 +22,20 @@ namespace lime {
 		if (flags & WINDOW_FLAG_RESIZABLE) sdlFlags |= SDL_WINDOW_RESIZABLE;
 		if (flags & WINDOW_FLAG_BORDERLESS) sdlFlags |= SDL_WINDOW_BORDERLESS;
 		
+		#if defined (HX_WINDOWS) && defined (NATIVE_TOOLKIT_SDL_ANGLE)
+		OSVERSIONINFOEXW osvi = { sizeof (osvi), 0, 0, 0, 0, {0}, 0, 0 };
+		DWORDLONG const dwlConditionMask = VerSetConditionMask (VerSetConditionMask (VerSetConditionMask (0, VER_MAJORVERSION, VER_GREATER_EQUAL), VER_MINORVERSION, VER_GREATER_EQUAL), VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL);
+		osvi.dwMajorVersion = HIBYTE (_WIN32_WINNT_VISTA);
+		osvi.dwMinorVersion = LOBYTE (_WIN32_WINNT_VISTA);
+		osvi.wServicePackMajor = 0;
+		
+		if (VerifyVersionInfoW (&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_SERVICEPACKMAJOR, dwlConditionMask) == FALSE) {
+			
+			flags &= ~WINDOW_FLAG_HARDWARE;
+			
+		}
+		#endif
+		
 		if (flags & WINDOW_FLAG_HARDWARE) {
 			
 			sdlFlags |= SDL_WINDOW_OPENGL;
