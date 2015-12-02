@@ -4,6 +4,7 @@
 	<set name="lime" />
 	<haxedef name="lime-html5" if="html5" />
 	<haxedef name="lime-native" if="native" />
+	<haxedef name="lime-angle" if="windows" unless="LIME_NO_ANGLE"/>
 	
 	<haxedef name="no-compilation" />
 	
@@ -61,6 +62,11 @@
 		<dependency path="dependencies/angle/d3dcompiler_47.dll" if="windows" unless="static_link" />
 		<dependency path="dependencies/angle/libegl.dll" if="windows" unless="static_link" />
 		<dependency path="dependencies/angle/libglesv2.dll" if="windows" unless="static_link" />
+		
+		<dependency name="dependencies/angle/libegl.dll" path="dependencies/angle/libegl.dll" if="lime-angle"/>
+		<dependency name="dependencies/angle/libglesv2.dll" path="dependencies/angle/libglesv2.dll" if="lime-angle"/>
+		<dependency name="dependencies/angle/d3dcompiler_43.dll" path="dependencies/angle/d3dcompiler_43.dll" if="lime-angle"/>
+		<dependency name="dependencies/angle/d3dcompiler_47.dll" path="dependencies/angle/d3dcompiler_47.dll" if="lime-angle"/>
 		
 		<haxedef name="native-trace" if="flash" unless="haxe-trace || haxetrace" />
 		

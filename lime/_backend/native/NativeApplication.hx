@@ -51,6 +51,16 @@ class NativeApplication {
 	private var unusedTouchesPool = new List<Touch> ();
 	private var windowEventInfo = new WindowEventInfo ();
 	
+	
+	public var osMajorVersion (default, null):Int;
+	public var osMinorVersion (default, null):Int;
+	
+	
+	#if windows
+	public var windowsVersion (default, null):WindowsVersion;
+	#end
+	
+	
 	public var handle:Dynamic;
 	
 	private var frameRate:Float;
@@ -70,11 +80,49 @@ class NativeApplication {
 		
 	}
 	
-	
+	@:access(Application)
 	public function create (config:Config):Void {
 		
 		#if !macro
 		handle = lime_application_create ( { } );
+		
+		osMajorVersion = lime_os_major_version();
+		osMinorVersion = lime_os_minor_version();
+		
+		#if windows
+		windowsVersion = 
+		switch(osMajorVersion) {
+			case 5:
+				switch(osMinorVersion) {
+					case 0: WINDOWS_2000;
+					case 1: WINDOWS_XP;
+					case 2: WINDOWS_XP_64;
+					default: UNKNOWN;
+				}
+			case 6:
+				switch(osMinorVersion) {
+					case 0: WINDOWS_VISTA;
+					case 1: WINDOWS_7;
+					case 2: WINDOWS_8;
+					case 3: WINDOWS_8_1;
+					default: UNKNOWN;
+				}
+			case 10: 
+				switch(osMinorVersion) {
+					case 0: WINDOWS_10;
+					default: UNKNOWN;
+				}
+			default: UNKNOWN;
+		}
+		
+		if (osMajorVersion <= 5) {
+			
+			parent.forceSoftware = true;
+			
+		}
+		
+		#end
+		
 		#end
 		
 	}
@@ -599,6 +647,8 @@ class NativeApplication {
 	@:cffi private static function lime_joystick_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_key_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_mouse_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:cffi private static function lime_os_major_version ():Int;
+	@:cffi private static function lime_os_minor_version ():Int;
 	@:cffi private static function lime_render_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_sensor_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_text_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
@@ -1020,3 +1070,19 @@ private class WindowEventInfo {
 	var WINDOW_RESTORE = 10;
 	
 }
+
+#if windows
+@:enum private abstract WindowsVersion(Int) {
+	
+	var UNKNOWN = -1;
+	var WINDOWS_2000 = 0;
+	var WINDOWS_XP = 1;
+	var WINDOWS_XP_64 = 2;
+	var WINDOWS_VISTA = 3;
+	var WINDOWS_7 = 4;
+	var WINDOWS_8 = 5;
+	var WINDOWS_8_1 = 6;
+	var WINDOWS_10 = 7;
+	
+}
+#end
