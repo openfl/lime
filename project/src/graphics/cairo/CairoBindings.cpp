@@ -597,7 +597,7 @@ namespace lime {
 	int lime_cairo_pattern_get_color_stop_count (value handle) {
 		
 		int count;
-		return cairo_pattern_get_color_stop_count ((cairo_pattern_t*)val_data (handle), &count);
+		cairo_pattern_get_color_stop_count ((cairo_pattern_t*)val_data (handle), &count);
 		return count;
 		
 	}
