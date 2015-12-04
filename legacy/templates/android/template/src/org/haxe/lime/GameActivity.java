@@ -412,7 +412,23 @@ public class GameActivity extends Activity implements SensorEventListener {
 		super.onActivityResult (requestCode, resultCode, data);
 		
 	}
-	
+
+	@Override public void onRequestPermissionsResult (int requestCode, String[] permissions, int[] grantResults ) {
+		
+		for (Extension extension : extensions) {
+			
+			if (!extension.onRequestPermissionsResult (requestCode, permissions, grantResults)) {
+				
+				return;
+				
+			}
+			
+		}
+		
+		super.onRequestPermissionsResult (requestCode, permissions, grantResults);
+		
+	}
+
 	
 	@Override protected void onDestroy () {
 		
