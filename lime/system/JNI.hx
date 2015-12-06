@@ -200,7 +200,7 @@ class JNI {
 	
 	
 	
-	#if (cpp || neko || nodejs)
+	#if android
 	@:cffi private static function lime_jni_call_member (jniMethod:Dynamic, jniObject:Dynamic, args:Dynamic):Dynamic;
 	@:cffi private static function lime_jni_call_static (jniMethod:Dynamic, args:Dynamic):Dynamic;
 	@:cffi private static function lime_jni_create_field (className:String, field:String, signature:String, isStatic:Bool):Dynamic;
@@ -259,7 +259,7 @@ class JNIMemberField {
 	
 	
 	
-	#if (cpp || neko || nodejs)
+	#if android
 	@:cffi private static function lime_jni_get_member (jniField:Dynamic, jniObject:Dynamic):Dynamic;
 	@:cffi private static function lime_jni_set_member (jniField:Dynamic, jniObject:Dynamic, value:Dynamic):Void;
 	#end
@@ -314,7 +314,7 @@ class JNIStaticField {
 	
 	
 	
-	#if (cpp || neko || nodejs)
+	#if android
 	@:cffi private static function lime_jni_get_static (jniField:Dynamic):Dynamic;
 	@:cffi private static function lime_jni_set_static (jniField:Dynamic, value:Dynamic):Void;
 	#end
@@ -400,7 +400,7 @@ class JNIMethod {
 	
 	
 	
-	#if (cpp || neko || nodejs)
+	#if android
 	@:cffi private static function lime_jni_call_member (jniMethod:Dynamic, jniObject:Dynamic, args:Dynamic):Dynamic;
 	@:cffi private static function lime_jni_call_static (jniMethod:Dynamic, args:Dynamic):Dynamic;
 	#end
