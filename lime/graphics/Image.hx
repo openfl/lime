@@ -901,7 +901,7 @@ class Image {
 						var srcData:ByteArray = bytes.getData ();
 						byteArray = new ByteArray ();
 						#if flash
-						@:privateAccess byteArray.length = srcData.length;
+						byteArray.length = srcData.length;
 						#end
 						
 						var color:BGRA;
@@ -922,7 +922,7 @@ class Image {
 						var srcData = bytes.getData ();
 						byteArray = new ByteArray ();
 						#if flash
-						@:privateAccess byteArray.length = srcData.length;
+						byteArray.length = srcData.length;
 						#end
 						
 						var color:RGBA;
