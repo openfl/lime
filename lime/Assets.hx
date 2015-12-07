@@ -1159,6 +1159,56 @@ class Assets {
 		
 	}
 	
+	
+	macro public static function embedBytes ():Array<Field> {
+		
+		var fields = embedData (":file");
+		
+		if (fields != null) {
+			
+			var constructor = macro {
+				
+				var bytes = haxe.Resource.getBytes (resourceName);
+				
+				super (bytes.length, bytes.b);
+				
+			};
+			
+			var args = [ { name: "length", opt: false, type: macro :Int }, { name: "bytesData", opt: false, type: macro :haxe.io.BytesData } ];
+			fields.push ({ name: "new", access: [ APublic ], kind: FFun({ args: args, expr: constructor, params: [], ret: null }), pos: Context.currentPos () });
+			
+		}
+		
+		return fields;
+		
+	}
+	
+	
+	macro public static function embedByteArray ():Array<Field> {
+		
+		var fields = embedData (":file");
+		
+		if (fields != null) {
+			
+			var constructor = macro {
+				
+				super ();
+				
+				var bytes = haxe.Resource.getBytes (resourceName);
+				__fromBytes (bytes);
+				
+			};
+			
+			var args = [ { name: "length", opt: true, type: macro :Int, value: macro 0 } ];
+			fields.push ({ name: "new", access: [ APublic ], kind: FFun({ args: args, expr: constructor, params: [], ret: null }), pos: Context.currentPos () });
+			
+		}
+		
+		return fields;
+		
+	}
+	
+	
 	#if lime_console
 	
 	private static function embedData (metaName:String, encode:Bool = false):Array<Field> {
@@ -1273,30 +1323,6 @@ class Assets {
 	}
 
 	#end
-	
-	
-	macro public static function embedFile ():Array<Field> {
-		
-		var fields = embedData (":file");
-		
-		if (fields != null) {
-			
-			var constructor = macro { 
-				
-				var bytes = haxe.Resource.getBytes (resourceName);
-				
-				super (bytes.length, bytes.b);
-				
-			};
-			
-			var args = [ { name: "length", opt: false, type: macro :Int }, { name: "bytesData", opt: false, type: macro :haxe.io.BytesData } ];
-			fields.push ({ name: "new", access: [ APublic ], kind: FFun({ args: args, expr: constructor, params: [], ret: null }), pos: Context.currentPos () });
-			
-		}
-		
-		return fields;
-		
-	}
 	
 	
 	macro public static function embedFont ():Array<Field> {

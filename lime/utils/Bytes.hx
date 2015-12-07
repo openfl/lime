@@ -8,7 +8,7 @@ import haxe.io.BytesData;
 @:build(lime.system.CFFI.build())
 #end
 
-@:autoBuild(lime.Assets.embedFile())
+@:autoBuild(lime.Assets.embedBytes())
 
 
 class Bytes extends HaxeBytes {
