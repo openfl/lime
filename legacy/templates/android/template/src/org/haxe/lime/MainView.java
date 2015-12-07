@@ -106,6 +106,7 @@ class MainView extends GLSurfaceView {
 						EGL10.EGL_SAMPLE_BUFFERS, 1 /* true */,
 						EGL10.EGL_SAMPLES, ::WIN_ANTIALIASING::,
 						EGL10.EGL_RENDERABLE_TYPE, renderType,
+						EGL10.EGL_ALPHA_SIZE, 8,
 						EGL10.EGL_NONE
 						
 					};
@@ -127,6 +128,7 @@ class MainView extends GLSurfaceView {
 							EGL10.EGL_SAMPLE_BUFFERS, 1 /* true */,
 							EGL10.EGL_SAMPLES, 2,
 							EGL10.EGL_RENDERABLE_TYPE, renderType,
+							EGL10.EGL_ALPHA_SIZE, 8,
 							EGL10.EGL_NONE
 							
 						};
@@ -151,6 +153,7 @@ class MainView extends GLSurfaceView {
 						EGL_COVERAGE_BUFFERS_NV, 1 /* true */,
 						EGL_COVERAGE_SAMPLES_NV, 2,  // always 5 in practice on tegra 2
 						EGL10.EGL_RENDERABLE_TYPE, renderType,
+						EGL10.EGL_ALPHA_SIZE, 8,
 						EGL10.EGL_NONE
 						
 					};
@@ -170,6 +173,7 @@ class MainView extends GLSurfaceView {
 					EGL10.EGL_DEPTH_SIZE, depth,
 					EGL10.EGL_STENCIL_SIZE, stencil,
 					EGL10.EGL_RENDERABLE_TYPE, renderType,
+					EGL10.EGL_ALPHA_SIZE, 8,
 					EGL10.EGL_NONE
 					
 				};
