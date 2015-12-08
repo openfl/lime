@@ -1,3 +1,20 @@
+2.8.0 (12/07/2015)
+------------------
+
+* Removed lime.utils.ByteArray in favor of Haxe (3.2+) Bytes
+* Enabled ANGLE on Windows builds by default
+* Restored compatibility with Windows XP
+* Added support for HTML5 gamepad/joystick events
+* Removed lime.net.URLLoader, added HTTPRequest as a temporary patch
+* Added cache-break support to HTML5 based on each build
+* Fixed use of 32-bit Windows builds on recent HXCPP versions
+* Fixed support for correct touch event coordinates in HTML5 fullscreen
+* Fixed importing of lime.system.JNI on platforms other than Android
+* Fixed an issue that could cause native crashes on null Vector2 values
+* Fixed embed of runtime-generate asset files
+* Fixed default font paths on new versions of iOS (legacy)
+
+
 2.7.0 (10/28/2015)
 ------------------
 
