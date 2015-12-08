@@ -38,6 +38,38 @@ class Joystick {
 	}
 	
 	
+	@:noCompletion private static function __connect (id:Int):Void {
+		
+		if (!devices.exists (id)) {
+			
+			var joystick = new Joystick (id);
+			devices.set (id, joystick);
+			onConnect.dispatch (joystick);
+			
+		}
+		
+	}
+	
+	
+	@:noCompletion private static function __disconnect (id:Int):Void {
+		
+		var joystick = devices.get (id);
+		if (joystick != null) joystick.connected = false;
+		devices.remove (id);
+		if (joystick != null) joystick.onDisconnect.dispatch ();
+		
+	}
+	
+	
+	#if (js && html5)
+	@:noCompletion private static function __getDeviceData ():Array<Dynamic> {
+		
+		return (untyped navigator.getGamepads) ? untyped navigator.getGamepads () : (untyped navigator.webkitGetGamepads) ? untyped navigator.webkitGetGamepads () : null;
+		
+	}
+	#end
+	
+	
 	
 	
 	// Get & Set Methods
@@ -49,6 +81,9 @@ class Joystick {
 		
 		#if ((cpp || neko || nodejs) && !macro)
 		return lime_joystick_get_device_guid (this.id);
+		#elseif (js && html5)
+		var devices = __getDeviceData ();
+		return devices[this.id].id;
 		#else
 		return null;
 		#end
@@ -60,6 +95,9 @@ class Joystick {
 		
 		#if ((cpp || neko || nodejs) && !macro)
 		return lime_joystick_get_device_name (this.id);
+		#elseif (js && html5)
+		var devices = __getDeviceData ();
+		return devices[this.id].id;
 		#else
 		return null;
 		#end
@@ -71,6 +109,9 @@ class Joystick {
 		
 		#if ((cpp || neko || nodejs) && !macro)
 		return lime_joystick_get_num_axes (this.id);
+		#elseif (js && html5)
+		var devices = __getDeviceData ();
+		return devices[this.id].axes.length;
 		#else
 		return 0;
 		#end
@@ -82,6 +123,9 @@ class Joystick {
 		
 		#if ((cpp || neko || nodejs) && !macro)
 		return lime_joystick_get_num_buttons (this.id);
+		#elseif (js && html5)
+		var devices = __getDeviceData ();
+		return devices[this.id].buttons.length;
 		#else
 		return 0;
 		#end

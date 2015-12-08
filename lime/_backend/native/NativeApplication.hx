@@ -190,20 +190,11 @@ class NativeApplication {
 			
 			case CONNECT:
 				
-				if (!Gamepad.devices.exists (gamepadEventInfo.id)) {
-					
-					var gamepad = new Gamepad (gamepadEventInfo.id);
-					Gamepad.devices.set (gamepadEventInfo.id, gamepad);
-					Gamepad.onConnect.dispatch (gamepad);
-					
-				}
+				Gamepad.__connect (gamepadEventInfo.id);
 			
 			case DISCONNECT:
 				
-				var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
-				if (gamepad != null) gamepad.connected = false;
-				Gamepad.devices.remove (gamepadEventInfo.id);
-				if (gamepad != null) gamepad.onDisconnect.dispatch ();
+				Gamepad.__disconnect (gamepadEventInfo.id);
 			
 		}
 		
@@ -241,20 +232,11 @@ class NativeApplication {
 			
 			case CONNECT:
 				
-				if (!Joystick.devices.exists (joystickEventInfo.id)) {
-					
-					var joystick = new Joystick (joystickEventInfo.id);
-					Joystick.devices.set (joystickEventInfo.id, joystick);
-					Joystick.onConnect.dispatch (joystick);
-					
-				}
+				Joystick.__connect (joystickEventInfo.id);
 			
 			case DISCONNECT:
 				
-				var joystick = Joystick.devices.get (joystickEventInfo.id);
-				if (joystick != null) joystick.connected = false;
-				Joystick.devices.remove (joystickEventInfo.id);
-				if (joystick != null) joystick.onDisconnect.dispatch ();
+				Joystick.__disconnect (joystickEventInfo.id);
 			
 		}
 		

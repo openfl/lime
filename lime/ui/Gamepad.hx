@@ -7,6 +7,8 @@ import lime.app.Event;
 @:build(lime.system.CFFI.build())
 #end
 
+@:access(lime.ui.Joystick)
+
 
 class Gamepad {
 	
@@ -41,6 +43,29 @@ class Gamepad {
 	}
 	
 	
+	@:noCompletion private static function __connect (id:Int):Void {
+		
+		if (!devices.exists (id)) {
+			
+			var gamepad = new Gamepad (id);
+			devices.set (id, gamepad);
+			onConnect.dispatch (gamepad);
+			
+		}
+		
+	}
+	
+	
+	@:noCompletion private static function __disconnect (id:Int):Void {
+		
+		var gamepad = devices.get (id);
+		if (gamepad != null) gamepad.connected = false;
+		devices.remove (id);
+		if (gamepad != null) gamepad.onDisconnect.dispatch ();
+		
+	}
+	
+	
 	
 	
 	// Get & Set Methods
@@ -52,6 +77,9 @@ class Gamepad {
 		
 		#if ((cpp || neko || nodejs) && !macro)
 		return lime_gamepad_get_device_guid (this.id);
+		#elseif (js && html5)
+		var devices = Joystick.__getDeviceData ();
+		return devices[this.id].id;
 		#else
 		return null;
 		#end
@@ -63,6 +91,9 @@ class Gamepad {
 		
 		#if ((cpp || neko || nodejs) && !macro)
 		return lime_gamepad_get_device_name (this.id);
+		#elseif (js && html5)
+		var devices = Joystick.__getDeviceData ();
+		return devices[this.id].id;
 		#else
 		return null;
 		#end

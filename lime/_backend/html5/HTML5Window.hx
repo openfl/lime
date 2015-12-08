@@ -19,6 +19,8 @@ import lime.app.Application;
 import lime.graphics.Image;
 import lime.system.Display;
 import lime.system.System;
+import lime.ui.Gamepad;
+import lime.ui.Joystick;
 import lime.ui.Touch;
 import lime.ui.Window;
 
@@ -29,6 +31,8 @@ typedef InputEvent = js.html.Event;
 #end
 
 @:access(lime.app.Application)
+@:access(lime.ui.Gamepad)
+@:access(lime.ui.Joystick)
 @:access(lime.ui.Window)
 
 
@@ -201,6 +205,9 @@ class HTML5Window {
 			element.addEventListener ("touchmove", handleTouchEvent, true);
 			element.addEventListener ("touchend", handleTouchEvent, true);
 			
+			element.addEventListener ("gamepadconnected", handleGamepadEvent, true);
+			element.addEventListener ("gamepaddisconnected", handleGamepadEvent, true);
+			
 		}
 		
 	}
@@ -233,6 +240,34 @@ class HTML5Window {
 			
 			Timer.delay (function () { textInput.focus (); }, 20);
 			
+		}
+		
+	}
+	
+	
+	private function handleGamepadEvent (event:Dynamic):Void {
+		
+		switch (event.type) {
+			
+			case "gamepadconnected":
+				
+				trace ("GAMEPAD CONNECTED");
+				
+				Joystick.__connect (event.gamepad.index);
+				
+				if (event.gamepad.mapping == "standard") {
+					
+					Gamepad.__connect (event.gamepad.index);
+					
+				}
+			
+			case "gamepaddisconnected":
+				
+				Joystick.__disconnect (event.gamepad.index);
+				Gamepad.__disconnect (event.gamepad.index);
+			
+			default:
+				
 		}
 		
 	}

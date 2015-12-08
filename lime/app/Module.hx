@@ -59,7 +59,11 @@ class Module implements IModule {
 	 * Called when a gamepad is connected
 	 * @param	gamepad	The gamepad that was connected
 	 */
-	public function onGamepadConnect (gamepad:Gamepad):Void { }
+	public function onGamepadConnect (gamepad:Gamepad):Void {
+		
+		trace ("onGamepadConnect (module)");
+		
+	}
 	
 	
 	/**

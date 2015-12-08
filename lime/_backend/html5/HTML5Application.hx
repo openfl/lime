@@ -7,18 +7,26 @@ import lime.app.Application;
 import lime.app.Config;
 import lime.audio.AudioManager;
 import lime.graphics.Renderer;
+import lime.ui.GamepadAxis;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
+import lime.ui.Gamepad;
+import lime.ui.GamepadButton;
+import lime.ui.Joystick;
 import lime.ui.Window;
 
 @:access(lime._backend.html5.HTML5Window)
 @:access(lime.app.Application)
 @:access(lime.graphics.Renderer)
+@:access(lime.ui.Gamepad)
+@:access(lime.ui.Joystick)
 @:access(lime.ui.Window)
 
 
 class HTML5Application {
 	
+	
+	private var gameDeviceCache = new Map<Int, GameDeviceData> ();
 	
 	private var currentUpdate:Float;
 	private var deltaTime:Float;
@@ -190,6 +198,8 @@ class HTML5Application {
 	
 	private function handleApplicationEvent (?__):Void {
 		
+		updateGameDevices ();
+		
 		currentUpdate = Date.now ().getTime ();
 		
 		if (currentUpdate >= nextUpdate) {
@@ -327,6 +337,189 @@ class HTML5Application {
 		}
 		
 		return value;
+		
+	}
+	
+	
+	private function updateGameDevices ():Void {
+		
+		var devices = Joystick.__getDeviceData ();
+		if (devices == null) return;
+		
+		var id, gamepad, joystick, data:Dynamic, cache;
+		
+		for (i in 0...devices.length) {
+			
+			id = i;
+			data = devices[id];
+			
+			if (data == null) continue;
+			
+			if (!gameDeviceCache.exists (id)) {
+				
+				cache = new GameDeviceData ();
+				cache.id = id;
+				cache.connected = data.connected;
+				
+				for (i in 0...data.buttons.length) {
+					
+					cache.buttons.push (data.buttons[i].value);
+					
+				}
+				
+				for (i in 0...data.axes.length) {
+					
+					cache.axes.push (data.axes[i]);
+					
+				}
+				
+				if (data.mapping == "standard") {
+					
+					cache.isGamepad = true;
+					
+				}
+				
+				gameDeviceCache.set (id, cache);
+				
+				if (data.connected) {
+					
+					Joystick.__connect (id);
+					
+					if (cache.isGamepad) {
+						
+						Gamepad.__connect (id);
+						
+					}
+					
+				}
+				
+			}
+			
+			cache = gameDeviceCache.get (id);
+			
+			joystick = Joystick.devices.get (id);
+			gamepad = Gamepad.devices.get (id);
+			
+			if (data.connected) {
+				
+				var button:GamepadButton;
+				var value:Float;
+				
+				for (i in 0...data.buttons.length) {
+					
+					value = data.buttons[i].value;
+					
+					if (value != cache.buttons[i]) {
+						
+						if (i == 6) {
+							
+							joystick.onAxisMove.dispatch (data.axes.length, value);
+							if (gamepad != null) gamepad.onAxisMove.dispatch (GamepadAxis.TRIGGER_LEFT, value);
+							
+						} else if (i == 7) {
+							
+							joystick.onAxisMove.dispatch (data.axes.length + 1, value);
+							if (gamepad != null) gamepad.onAxisMove.dispatch (GamepadAxis.TRIGGER_RIGHT, value);
+							
+						} else {
+							
+							if (value > 0) {
+								
+								joystick.onButtonDown.dispatch (i);
+								
+							} else {
+								
+								joystick.onButtonUp.dispatch (i);
+								
+							}
+							
+							if (gamepad != null) {
+								
+								button = switch (i) {
+									
+									case 0: GamepadButton.A;
+									case 1: GamepadButton.B;
+									case 2: GamepadButton.X;
+									case 3: GamepadButton.Y;
+									case 4: GamepadButton.LEFT_SHOULDER;
+									case 5: GamepadButton.RIGHT_SHOULDER;
+									case 8: GamepadButton.BACK;
+									case 9: GamepadButton.START;
+									case 10: GamepadButton.LEFT_STICK;
+									case 11: GamepadButton.RIGHT_STICK;
+									case 12: GamepadButton.DPAD_UP;
+									case 13: GamepadButton.DPAD_DOWN;
+									case 14: GamepadButton.DPAD_LEFT;
+									case 15: GamepadButton.DPAD_RIGHT;
+									case 16: GamepadButton.GUIDE;
+									default: continue;
+									
+								}
+								
+								if (value > 0) {
+									
+									gamepad.onButtonDown.dispatch (button);
+									
+								} else {
+									
+									gamepad.onButtonUp.dispatch (button);
+									
+								}
+								
+							}
+							
+						}
+						
+						cache.buttons[i] = value;
+						
+					}
+					
+				}
+				
+				for (i in 0...data.axes.length) {
+					
+					if (data.axes[i] != cache.axes[i]) {
+						
+						joystick.onAxisMove.dispatch (i, data.axes[i]);
+						if (gamepad != null) gamepad.onAxisMove.dispatch (i, data.axes[i]);
+						cache.axes[i] = data.axes[i];
+						
+					}
+					
+				}
+				
+			} else if (cache.connected) {
+				
+				cache.connected = false;
+				
+				Joystick.__disconnect (id);
+				Gamepad.__disconnect (id);
+				
+			}
+			
+		}
+		
+	}
+	
+	
+}
+
+
+class GameDeviceData {
+	
+	
+	public var connected:Bool;
+	public var id:Int;
+	public var isGamepad:Bool;
+	public var buttons:Array<Float>;
+	public var axes:Array<Float>;
+	
+	
+	public function new () {
+		
+		connected = true;
+		buttons = [];
+		axes = [];
 		
 	}
 	
