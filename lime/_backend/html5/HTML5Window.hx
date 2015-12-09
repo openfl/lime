@@ -251,8 +251,6 @@ class HTML5Window {
 			
 			case "gamepadconnected":
 				
-				trace ("GAMEPAD CONNECTED");
-				
 				Joystick.__connect (event.gamepad.index);
 				
 				if (event.gamepad.mapping == "standard") {
