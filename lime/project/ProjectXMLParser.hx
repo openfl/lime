@@ -427,7 +427,7 @@ class ProjectXMLParser extends HXProject {
 		
 		if (element.has.embed) {
 			
-			embed = substitute (element.att.embed) == "true";
+			embed = parseBool (element.att.embed);
 			
 		}
 		
@@ -590,7 +590,7 @@ class ProjectXMLParser extends HXProject {
 					
 					if (childElement.has.embed) {
 						
-						childEmbed = substitute (childElement.att.embed) == "true";
+						childEmbed = parseBool (childElement.att.embed);
 						
 					}
 					
@@ -758,6 +758,13 @@ class ProjectXMLParser extends HXProject {
 			app.swfVersion = Std.parseFloat (substitute (element.att.resolve ("swf-version")));
 			
 		}
+		
+	}
+	
+	
+	private function parseBool (attribute:String):Bool {
+		
+		return substitute (attribute) == "true";
 		
 	}
 	
@@ -966,7 +973,7 @@ class ProjectXMLParser extends HXProject {
 						
 						if (element.has.validate) {
 							
-							validate = (substitute (element.att.validate) == "true");
+							validate = parseBool (element.att.validate);
 							
 						}
 						
@@ -1056,7 +1063,7 @@ class ProjectXMLParser extends HXProject {
 						
 						if (element.has.register) {
 							
-							registerStatics = (substitute (element.att.register) == "true");
+							registerStatics = parseBool (element.att.register);
 							
 						}
 						
@@ -1259,19 +1266,19 @@ class ProjectXMLParser extends HXProject {
 							
 							if (element.has.embed) {
 								
-								embed = (substitute (element.att.embed) == "true");
+								embed = parseBool (element.att.embed);
 								
 							}
 							
 							if (element.has.preload) {
 								
-								preload = (substitute (element.att.preload) == "true");
+								preload = parseBool (element.att.preload);
 								
 							}
 							
 							if (element.has.generate) {
 								
-								generate = (substitute (element.att.generate) == "true");
+								generate = parseBool (element.att.generate);
 								
 							}
 							
