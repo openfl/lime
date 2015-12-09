@@ -956,10 +956,17 @@ class ProjectXMLParser extends HXProject {
 						
 						var name = substitute (element.att.name);
 						var version = "";
+						var validate = false;
 						
 						if (element.has.version) {
 							
 							version = substitute (element.att.version);
+							
+						}
+						
+						if (element.has.validate) {
+							
+							validate = (substitute (element.att.validate) == "true");
 							
 						}
 						
@@ -979,7 +986,7 @@ class ProjectXMLParser extends HXProject {
 							
 						} else {
 							
-							path = PathHelper.getHaxelib (haxelib, true);
+							path = PathHelper.getHaxelib (haxelib, validate);
 							
 						}
 						
