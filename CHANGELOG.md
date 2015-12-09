@@ -1,3 +1,11 @@
+2.8.1 (12/09/2015)
+------------------
+
+* Disable ANGLE by default on Windows, need to do additional testing
+* Added support for optional haxelib references in XML
+* Fixed an issue with incorrect joystick IDs on connect
+
+
 2.8.0 (12/07/2015)
 ------------------
 
