@@ -706,6 +706,13 @@ class ProjectXMLParser extends HXProject {
 	}
 	
 	
+	private function parseBool (attribute:String):Bool {
+		
+		return substitute (attribute) == "true";
+		
+	}
+	
+	
 	private function parseMetaElement (element:Fast):Void {
 		
 		for (attribute in element.x.attributes ()) {
@@ -758,13 +765,6 @@ class ProjectXMLParser extends HXProject {
 			app.swfVersion = Std.parseFloat (substitute (element.att.resolve ("swf-version")));
 			
 		}
-		
-	}
-	
-	
-	private function parseBool (attribute:String):Bool {
-		
-		return substitute (attribute) == "true";
 		
 	}
 	
@@ -963,7 +963,7 @@ class ProjectXMLParser extends HXProject {
 						
 						var name = substitute (element.att.name);
 						var version = "";
-						var validate = true;
+						var optional = false;
 						
 						if (element.has.version) {
 							
@@ -971,9 +971,9 @@ class ProjectXMLParser extends HXProject {
 							
 						}
 						
-						if (element.has.validate) {
+						if (element.has.optional) {
 							
-							validate = parseBool (element.att.validate);
+							optional = parseBool (element.att.optional);
 							
 						}
 						
@@ -993,10 +993,10 @@ class ProjectXMLParser extends HXProject {
 							
 						} else {
 							
-							path = PathHelper.getHaxelib (haxelib, validate);
+							path = PathHelper.getHaxelib (haxelib, !optional);
 							
 						}
-
+						
 						if (path == "") {
 							
 							continue;
