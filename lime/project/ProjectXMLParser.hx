@@ -963,7 +963,7 @@ class ProjectXMLParser extends HXProject {
 						
 						var name = substitute (element.att.name);
 						var version = "";
-						var validate = false;
+						var validate = true;
 						
 						if (element.has.version) {
 							
@@ -994,6 +994,12 @@ class ProjectXMLParser extends HXProject {
 						} else {
 							
 							path = PathHelper.getHaxelib (haxelib, validate);
+							
+						}
+
+						if (path == "") {
+							
+							continue;
 							
 						}
 						
