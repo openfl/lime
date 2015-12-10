@@ -83,6 +83,7 @@ class ApplicationMain {
 					depthBuffer: ::depthBuffer::,
 					display: ::display::,
 					fullscreen: ::fullscreen::,
+					fullscreenHotkey: ::fullscreenHotkey::,
 					hardware: ::hardware::,
 					height: ::height::,
 					parameters: "::parameters::",

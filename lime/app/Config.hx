@@ -30,6 +30,7 @@ typedef WindowConfig = {
 	@:optional var element:#if (haxe_ver >= "3.2") js.html.Element #else js.html.HtmlElement #end;
 	#end
 	@:optional var fullscreen:Bool;
+	@:optional var fullscreenHotkey:Bool;
 	@:optional var hardware:Bool;
 	@:optional var height:Int;
 	@:optional var parameters:String;
