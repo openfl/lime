@@ -43,7 +43,7 @@ class NekoHelper {
 		output.write (executable);
 		output.close ();
 		
-		if (iconPath != null  && PlatformHelper.hostPlatform == Platform.WINDOWS) {
+		if (iconPath != null && PlatformHelper.hostPlatform == Platform.WINDOWS) {
 			
 			var templates = [ PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates" ].concat (templatePaths);
 			ProcessHelper.runCommand ("", PathHelper.findTemplate (templates, "bin/ReplaceVistaIcon.exe"), [ target, iconPath, "1" ], true, true);
