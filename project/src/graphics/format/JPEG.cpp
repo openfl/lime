@@ -191,7 +191,7 @@ namespace lime {
 		jpegError.base.output_message = OnOutput;
 		
 		FILE_HANDLE *file = NULL;
-		Bytes data = NULL;
+		Bytes data;
 		
 		if (resource->path) {
 			

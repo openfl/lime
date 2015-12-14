@@ -84,7 +84,7 @@ namespace lime {
 		int bit_depth, color_type, interlace_type;
 		
 		FILE_HANDLE *file = NULL;
-		Bytes data = NULL;
+		Bytes data;
 		
 		if (resource->path) {
 			
