@@ -84,6 +84,7 @@ namespace lime {
 		int bit_depth, color_type, interlace_type;
 		
 		FILE_HANDLE *file = NULL;
+		Bytes data;
 		
 		if (resource->path) {
 			
@@ -143,7 +144,7 @@ namespace lime {
 				
 			} else {
 				
-				Bytes data = Bytes (resource->path);
+				data = Bytes (resource->path);
 				ReadBuffer buffer (data.Data (), data.Length ());
 				png_set_read_fn (png_ptr, &buffer, user_read_data_fn);
 				

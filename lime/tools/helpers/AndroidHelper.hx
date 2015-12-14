@@ -370,7 +370,7 @@ class AndroidHelper {
 		} else if (debug) {
 			
 			var filter = "*:E";
-			var includeTags = [ "lime", "Main", "GameActivity", "GLThread", "trace" ];
+			var includeTags = [ "lime", "Lime", "Main", "GameActivity", "SDLActivity", "GLThread", "trace", "Haxe" ];
 			
 			for (tag in includeTags) {
 				

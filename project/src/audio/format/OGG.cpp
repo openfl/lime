@@ -107,6 +107,7 @@ namespace lime {
 	bool OGG::Decode (Resource *resource, AudioBuffer *audioBuffer) {
 		
 		OggVorbis_File oggFile;
+		Bytes data;
 		
 		if (resource->path) {
 			
@@ -130,7 +131,7 @@ namespace lime {
 			} else {
 				
 				lime::fclose (file);
-				Bytes data = Bytes (resource->path);
+				data = Bytes (resource->path);
 				
 				OAL_OggMemoryFile fakeFile = { data.Data (), data.Length (), 0 };
 				
@@ -186,10 +187,10 @@ namespace lime {
 		audioBuffer->data->Resize (dataLength);
 		
 		while (bytes > 0) {
-				
-				bytes = ov_read (&oggFile, (char *)audioBuffer->data->Data () + totalBytes, BUFFER_SIZE, BUFFER_READ_TYPE, 2, 1, &bitStream);
-				totalBytes += bytes;
-				
+			
+			bytes = ov_read (&oggFile, (char *)audioBuffer->data->Data () + totalBytes, BUFFER_SIZE, BUFFER_READ_TYPE, 2, 1, &bitStream);
+			totalBytes += bytes;
+			
 		}
 		
 		if (dataLength != totalBytes) {

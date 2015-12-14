@@ -363,10 +363,10 @@ namespace lime {
 						Bytes data = Bytes (resource->path);
 						faceMemory = (unsigned char*)malloc (data.Length ());
 						memcpy (faceMemory, data.Data (), data.Length ());
-
+						
 						lime::fclose (file);
 						file = 0;
-
+						
 						error = FT_New_Memory_Face (library, faceMemory, data.Length (), faceIndex, &face);
 						
 					}
@@ -415,11 +415,10 @@ namespace lime {
 					}
 					
 				} else {
-
+					
 					FT_Done_FreeType (library);
-
 					free (faceMemory);
-
+					
 				}
 				
 			}

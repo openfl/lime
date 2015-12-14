@@ -191,6 +191,7 @@ namespace lime {
 		jpegError.base.output_message = OnOutput;
 		
 		FILE_HANDLE *file = NULL;
+		Bytes data;
 		
 		if (resource->path) {
 			
@@ -227,7 +228,7 @@ namespace lime {
 				
 			} else {
 				
-				Bytes data = Bytes (resource->path);
+				data = Bytes (resource->path);
 				MySrcManager manager (data.Data (), data.Length ());
 				cinfo.src = &manager.pub;
 				
