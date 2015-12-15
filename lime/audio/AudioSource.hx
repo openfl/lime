@@ -532,6 +532,8 @@ class AudioSource {
 	
 	private function set_length (value:Int):Int {
 		
+		#if (!flash && !html5)
+		
 		if (playing && __length != value) {
 			
 			if (timer != null) {
@@ -550,6 +552,8 @@ class AudioSource {
 			}
 			
 		}
+		
+		#end
 		
 		return __length = value;
 		
