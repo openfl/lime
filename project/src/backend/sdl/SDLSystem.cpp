@@ -169,7 +169,7 @@ namespace lime {
 				
 				#elif defined (IPHONEOS)
 				
-				return "/System/Library/Fonts/Cache";
+				return "/System/Library/Fonts";
 				
 				#elif defined (ANDROID)
 				
