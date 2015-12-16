@@ -11,7 +11,6 @@ import flash.media.SoundChannel;
 import lime.audio.fmod.Channel;
 #end
 
-
 #if lime_console
 // TODO(james4k): this is terribly hacky. looking for more sane solutions.  the
 // caller uses an extern declaration of this function so that it does not need
@@ -23,6 +22,7 @@ void haxe_staticfunc_onFmodChannelEnd (ConsoleFmodChannel c) {
 }
 ")
 #end
+
 
 class AudioSource {
 	
@@ -151,53 +151,47 @@ class AudioSource {
 		
 		#if html5
 		#elseif flash
-			
-			if (channel != null) channel.stop ();
-			var channel = buffer.src.play (pauseTime / 1000);
-			
+		
+		if (channel != null) channel.stop ();
+		var channel = buffer.src.play (pauseTime / 1000);
+		
 		#elseif lime_console
-
-			if (channel.valid) {
-
-				channel.resume ();
-
-			} else {
-
-				channel = buffer.src.play ();
-				channel.setLoopCount (this.__loops);
-
-				var old = setFmodActive (channel, this);
-				if (old != this) {
-					old.channel = Channel.INVALID;
-				}
-
+		
+		if (channel.valid) {
+			
+			channel.resume ();
+			
+		} else {
+			
+			channel = buffer.src.play ();
+			channel.setLoopCount (this.__loops);
+			
+			var old = setFmodActive (channel, this);
+			
+			if (old != this) {
+				
+				old.channel = Channel.INVALID;
+				
 			}
-	
+			
+		}
+		
 		#else
+		
+		if (playing || id == 0) {
 			
-			if (playing || id == 0) {
-				
-				return;
-				
-			}
+			return;
 			
-			playing = true;
-			
-			var time = currentTime;
-			
-			AL.sourcePlay (id);
-			
-			currentTime = time;
-			
-			if (timer != null) {
-				
-				timer.stop ();
-				
-			}
-			
-			timer = new Timer (length - currentTime);
-			timer.run = timer_onRun;
-			
+		}
+		
+		playing = true;
+		
+		var time = currentTime;
+		
+		AL.sourcePlay (id);
+		
+		currentTime = time;
+		
 		#end
 		
 	}
@@ -207,33 +201,33 @@ class AudioSource {
 		
 		#if html5
 		#elseif flash
+		
+		if (channel != null) {
 			
-			if (channel != null) {
-				
-				pauseTime = Std.int (channel.position * 1000);
-				channel.stop ();
-				
-			}
+			pauseTime = Std.int (channel.position * 1000);
+			channel.stop ();
 			
+		}
+		
 		#elseif lime_console
-
-			if (channel.valid) {
-
-				channel.pause ();
-
-			}
-	
+		
+		if (channel.valid) {
+			
+			channel.pause ();
+			
+		}
+		
 		#else
+		
+		playing = false;
+		AL.sourcePause (id);
+		
+		if (timer != null) {
 			
-			playing = false;
-			AL.sourcePause (id);
+			timer.stop ();
 			
-			if (timer != null) {
-				
-				timer.stop ();
-				
-			}
-			
+		}
+		
 		#end
 		
 	}
@@ -243,32 +237,119 @@ class AudioSource {
 		
 		#if html5
 		#elseif flash
+		
+		pauseTime = 0;
+		
+		if (channel != null) {
 			
-			pauseTime = 0;
-			if (channel != null) channel.stop ();
+			channel.stop ();
 			
+		}
+		
 		#elseif lime_console
-
-			if (channel.valid) {
-
-				channel.stop ();
-
-			}
-	
+		
+		if (channel.valid) {
+			
+			channel.stop ();
+			
+		}
+		
 		#else
+		
+		playing = false;
+		AL.sourceStop (id);
+		
+		if (timer != null) {
 			
-			playing = false;
-			AL.sourceStop (id);
+			timer.stop ();
 			
-			if (timer != null) {
-				
-				timer.stop ();
-				
-			}
-			
+		}
+		
 		#end
 		
 	}
+	
+	
+	#if lime_console
+	
+	// TODO(james4k): these arrays become Array<Dynamic> so a lot of hidden
+	// boxing and allocations going on.
+	
+	// can't use Maps because we need by-value key comparisons, so use two arrays.
+	private static var fmodActiveChannels = new Array<Channel> ();
+	private static var fmodActiveSources = new Array<AudioSource> ();
+	
+	
+	// onFmodChannelEnd is called from C++ when an fmod channel end callback is
+	// called.
+	private static function onFmodChannelEnd (channel:Channel) {
+		
+		var source = removeFmodActive (channel);
+		
+		if (source != null) {
+			
+			source.channel = Channel.INVALID;
+			source.onComplete.dispatch ();
+			
+		}
+		
+	}
+	
+	
+	// removeFmodActive disassociates a Channel with its AudioSource, returning
+	// the AudioSource it was associated with.
+	private static function removeFmodActive(key:Channel):AudioSource {
+		
+		for (i in 0...fmodActiveChannels.length) {
+			
+			if (fmodActiveChannels[i] == key) {
+				
+				var source = fmodActiveSources[i];
+				
+				// swap in the last element and pop() to remove from array
+				var last = fmodActiveChannels.length - 1;
+				fmodActiveChannels[i] = fmodActiveChannels[last];
+				fmodActiveSources[i] = fmodActiveSources[last];
+				
+				fmodActiveChannels.pop ();
+				fmodActiveSources.pop ();
+				
+				return source;
+				
+			}
+			
+		}
+		
+		return null;
+		
+	}
+	
+	
+	// setFmodActive associates a Channel with an AudioSource to allow for fmod
+	// channel callbacks to propagate to the user's AudioSource onComplete
+	// callbacks. Returns the previous AudioSource associated with the channel
+	// if there was one, or the passed in AudioSource if not.
+	private static function setFmodActive (key:Channel, value:AudioSource):AudioSource {
+		
+		for (i in 0...fmodActiveChannels.length) {
+			
+			if (fmodActiveChannels[i] == key) {
+				
+				var old = fmodActiveSources[i];
+				fmodActiveSources[i] = value;
+				return old;
+				
+			}
+			
+		}
+		
+		fmodActiveChannels.push (key);
+		fmodActiveSources.push (value);
+		return value;
+		
+	}
+	
+	#end
 	
 	
 	
@@ -303,84 +384,6 @@ class AudioSource {
 		#end
 		
 	}
-
-
-	#if lime_console
-
-
-	// TODO(james4k): these arrays become Array<Dynamic> so a lot of hidden
-	// boxing and allocations going on.
-
-	// can't use Maps because we need by-value key comparisons, so use two arrays.
-	private static var fmodActiveChannels = new Array<Channel> ();
-	private static var fmodActiveSources = new Array<AudioSource> ();
-
-
-	// setFmodActive associates a Channel with an AudioSource to allow for fmod
-	// channel callbacks to propagate to the user's AudioSource onComplete
-	// callbacks. Returns the previous AudioSource associated with the channel
-	// if there was one, or the passed in AudioSource if not.
-	private static function setFmodActive (key:Channel, value:AudioSource):AudioSource {
-		
-		for (i in 0...fmodActiveChannels.length) {
-			if (fmodActiveChannels[i] == key) {
-				var old = fmodActiveSources[i];
-				fmodActiveSources[i] = value;
-				return old;
-			}
-		}
-
-		fmodActiveChannels.push (key);
-		fmodActiveSources.push (value);
-		return value;
-
-	}
-
-
-	// removeFmodActive disassociates a Channel with its AudioSource, returning
-	// the AudioSource it was associated with.
-	private static function removeFmodActive(key:Channel):AudioSource {
-
-		for (i in 0...fmodActiveChannels.length) {
-
-			if (fmodActiveChannels[i] == key) {
-
-				var source = fmodActiveSources[i];
-
-				// swap in the last element and pop() to remove from array
-				var last = fmodActiveChannels.length - 1;
-				fmodActiveChannels[i] = fmodActiveChannels[last];
-				fmodActiveSources[i] = fmodActiveSources[last];
-
-				fmodActiveChannels.pop ();
-				fmodActiveSources.pop ();
-
-				return source;
-
-			}
-
-		}
-
-		return null;
-
-	}
-
-
-	// onFmodChannelEnd is called from C++ when an fmod channel end callback is
-	// called.
-	private static function onFmodChannelEnd (channel:Channel) {
-
-		var source = removeFmodActive (channel);
-
-		if (source != null) {
-			source.channel = Channel.INVALID;
-			source.onComplete.dispatch ();
-		}
-		
-	}
-
-
-	#end
 	
 	
 	
@@ -393,19 +396,19 @@ class AudioSource {
 	private function get_currentTime ():Int {
 		
 		#if html5
-			
-			return 0;
-			
+		
+		return 0;
+		
 		#elseif flash
-			
-			return Std.int (channel.position);
-			
+		
+		return Std.int (channel.position);
+		
 		#else
-			
-			var time = Std.int (AL.getSourcef (id, AL.SEC_OFFSET) * 1000) - offset;
-			if (time < 0) return 0;
-			return time;
-			
+		
+		var time = Std.int (AL.getSourcef (id, AL.SEC_OFFSET) * 1000) - offset;
+		if (time < 0) return 0;
+		return time;
+		
 		#end
 		
 	}
@@ -414,27 +417,46 @@ class AudioSource {
 	private function set_currentTime (value:Int):Int {
 		
 		#if html5
-			
-			return pauseTime = value;
-			
+		
+		return pauseTime = value;
+		
 		#elseif flash
-			
-			// TODO: create new sound channel
-			//channel.position = value;
-			return pauseTime = value;
-			
+		
+		// TODO: create new sound channel
+		//channel.position = value;
+		return pauseTime = value;
+		
 		#else
+		
+		if (buffer != null) {
 			
-			if (buffer != null) {
+			AL.sourceRewind (id);
+			if (playing) AL.sourcePlay (id);
+			AL.sourcef (id, AL.SEC_OFFSET, (value + offset) / 1000);
+			
+		}
+		
+		if (playing) {
+			
+			if (timer != null) {
 				
-				AL.sourceRewind (id);
-				if (playing) AL.sourcePlay (id);
-				AL.sourcef (id, AL.SEC_OFFSET, (value + offset) / 1000);
+				timer.stop ();
 				
 			}
 			
-			return value;
+			var timeRemaining = length - (value + offset);
 			
+			if (timeRemaining > 0) {
+				
+				timer = new Timer (timeRemaining);
+				timer.run = timer_onRun;
+				
+			}
+			
+		}
+		
+		return value;
+		
 		#end
 		
 	}
@@ -443,17 +465,17 @@ class AudioSource {
 	private function get_gain ():Float {
 		
 		#if html5
-			
-			return 1;
-			
+		
+		return 1;
+		
 		#elseif flash
-			
-			return channel.soundTransform.volume;
-			
+		
+		return channel.soundTransform.volume;
+		
 		#else
-			
-			return AL.getSourcef (id, AL.GAIN);
-			
+		
+		return AL.getSourcef (id, AL.GAIN);
+		
 		#end
 		
 	}
@@ -462,51 +484,25 @@ class AudioSource {
 	private function set_gain (value:Float):Float {
 		
 		#if html5
-			
-			return 1;
-			
+		
+		return 1;
+		
 		#elseif flash
-			
-			var soundTransform = channel.soundTransform;
-			soundTransform.volume = value;
-			channel.soundTransform = soundTransform;
-			return value;
-			
+		
+		var soundTransform = channel.soundTransform;
+		soundTransform.volume = value;
+		channel.soundTransform = soundTransform;
+		return value;
+		
 		#else
-			
-			AL.sourcef (id, AL.GAIN, value);
-			return value;
-			
+		
+		AL.sourcef (id, AL.GAIN, value);
+		return value;
+		
 		#end
 		
 	}
-
-
-	private inline function get_loops ():Int {
-
-		#if lime_console
-		if (channel.valid) {
-			__loops = channel.getLoopCount ();
-		}
-		#end
-
-		return __loops;
-
-	}
-
-
-	private inline function set_loops (loops:Int):Int {
-
-		#if lime_console
-		if (channel.valid) {
-			channel.setLoopCount (loops);
-		}
-		#end
-
-		return __loops = loops;
-
-	}
-
+	
 	
 	private function get_length ():Int {
 		
@@ -517,18 +513,18 @@ class AudioSource {
 		}
 		
 		#if html5
-			
-			return 0;
-			
+		
+		return 0;
+		
 		#elseif flash
-			
-			return Std.int (buffer.src.length);
-			
+		
+		return Std.int (buffer.src.length);
+		
 		#else
-			
-			var samples = (buffer.data.length * 8) / (buffer.channels * buffer.bitsPerSample);
-			return Std.int (samples / buffer.sampleRate * 1000) - offset;
-			
+		
+		var samples = (buffer.data.length * 8) / (buffer.channels * buffer.bitsPerSample);
+		return Std.int (samples / buffer.sampleRate * 1000) - offset;
+		
 		#end
 		
 	}
@@ -536,7 +532,64 @@ class AudioSource {
 	
 	private function set_length (value:Int):Int {
 		
+		#if (!flash && !html5)
+		
+		if (playing && __length != value) {
+			
+			if (timer != null) {
+				
+				timer.stop ();
+				
+			}
+			
+			var timeRemaining = value - currentTime;
+			
+			if (timeRemaining > 0) {
+				
+				timer = new Timer (value - currentTime);
+				timer.run = timer_onRun;
+				
+			}
+			
+		}
+		
+		#end
+		
 		return __length = value;
+		
+	}
+	
+	
+	private function get_loops ():Int {
+		
+		#if lime_console
+		
+		if (channel.valid) {
+			
+			__loops = channel.getLoopCount ();
+			
+		}
+		
+		#end
+		
+		return __loops;
+		
+	}
+	
+	
+	private function set_loops (loops:Int):Int {
+		
+		#if lime_console
+		
+		if (channel.valid) {
+			
+			channel.setLoopCount (loops);
+			
+		}
+		
+		#end
+		
+		return __loops = loops;
 		
 	}
 	

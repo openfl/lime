@@ -384,17 +384,17 @@ bool GetFontFile(const std::string& inName,std::string &outFile)
 #ifdef IPHONEOS
    const char *serifFonts[] = {
       "Cache/Georgia.ttf", "Cache/Times.ttf", "Cache/Times New Roman.ttf", //pre 8.2
-      "CoreAddition/Georgia.ttf", "Core/TimesNewRoman.ttf", //8.2+
+      "Core/Georgia.ttf", "CoreAddition/Georgia.ttf", "Core/TimesNewRoman.ttf", "CoreAddition/TimesNewRoman.ttf", //8.2+
       0
    };
    const char *sansFonts[] = {
       "Cache/Arial Black.ttf", "Cache/Arial.ttf", "Cache/Helvetica.ttf", //pre 8.2
-      "CoreAddition/Arial.ttf", "Core/Helvetica.ttf", //8.2+
+      "Core/Arial.ttf", "CoreAddition/Arial.ttf", "Core/Helvetica.ttf", "CoreAddition/Helvetica.ttf", //8.2+
       0
    };
    const char *fixedFonts[] = {
       "Cache/Courier New.ttf", "Cache/Courier.ttf", //pre 8.2
-      "Core/CourierNew.ttf", "Core/Courier.ttf", //8.2+
+      "Core/CourierNew.ttf", "CoreAddition/CourierNew.ttf", "Core/Courier.ttf", "CoreAddition/Courier.ttf", //8.2+
       0
    };
 #else

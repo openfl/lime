@@ -1,6 +1,7 @@
 package lime._backend.html5;
 
 
+import haxe.macro.Compiler;
 import js.html.webgl.RenderingContext;
 import lime.app.Application;
 import lime.graphics.opengl.GL;
@@ -53,24 +54,24 @@ class HTML5Renderer {
 			
 		} else if (parent.window.backend.canvas != null) {
 			
-			#if (canvas || munit)
+			var webgl:RenderingContext = null;
 			
-			var webgl = null;
-			
-			#else
-			
-			var options = {
-				alpha: true,
-				antialias: Reflect.hasField (parent.window.config, "antialiasing") ? parent.window.config.antialiasing > 0 : false,
-				depth: Reflect.hasField (parent.window.config, "depthBuffer") ? parent.window.config.depthBuffer : true,
-				premultipliedAlpha: true,
-				stencil: Reflect.hasField (parent.window.config, "stencilBuffer") ? parent.window.config.stencilBuffer : true,
-				preserveDrawingBuffer: false
-			};
-			
-			var webgl:RenderingContext = cast parent.window.backend.canvas.getContextWebGL (options);
-			
-			#end
+			if (#if (canvas || munit) false #elseif webgl true #else !Reflect.hasField (parent.window.config, "hardware") || parent.window.config.hardware #end) {
+				
+				var options = {
+					
+					alpha: false,
+					antialias: Reflect.hasField (parent.window.config, "antialiasing") ? parent.window.config.antialiasing > 0 : false,
+					depth: Reflect.hasField (parent.window.config, "depthBuffer") ? parent.window.config.depthBuffer : true,
+					premultipliedAlpha: false,
+					stencil: Reflect.hasField (parent.window.config, "stencilBuffer") ? parent.window.config.stencilBuffer : false,
+					preserveDrawingBuffer: false
+					
+				};
+				
+				webgl = cast parent.window.backend.canvas.getContextWebGL (options);
+				
+			}
 			
 			if (webgl == null) {
 				
