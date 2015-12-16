@@ -285,7 +285,7 @@ class NativeApplication {
 			
 			#elseif android
 			
-			if (keyCode == APP_CONTROL_BACK && modifier == NONE && type == KEY_UP && !window.onKeyUp.canceled) {
+			if (keyCode == APP_CONTROL_BACK && modifier == KeyModifier.NONE && type == KEY_UP && !window.onKeyUp.canceled) {
 				
 				System.exit (0);
 				
