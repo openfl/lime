@@ -16,18 +16,20 @@ using haxe.macro.Tools;
 class Event<T> {
 	
 	
-	@:noCompletion @:dox(hide) public var listeners:Array<T>;
-	@:noCompletion @:dox(hide) public var repeat:Array<Bool>;
+	public var canceled (default, null):Bool;
 	
-	private var priorities:Array<Int>;
+	@:noCompletion @:dox(hide) public var __listeners:Array<T>;
+	@:noCompletion @:dox(hide) public var __repeat:Array<Bool>;
+	private var __priorities:Array<Int>;
 	
 	
 	public function new () {
 		
 		#if !macro
-		listeners = new Array ();
-		priorities = new Array<Int> ();
-		repeat = new Array<Bool> ();
+		canceled = false;
+		__listeners = new Array ();
+		__priorities = new Array<Int> ();
+		__repeat = new Array<Bool> ();
 		#end
 		
 	}
@@ -36,22 +38,22 @@ class Event<T> {
 	public function add (listener:T, once:Bool = false, priority:Int = 0):Void {
 		
 		#if !macro
-		for (i in 0...priorities.length) {
+		for (i in 0...__priorities.length) {
 			
-			if (priority > priorities[i]) {
+			if (priority > __priorities[i]) {
 				
-				listeners.insert (i, cast listener);
-				priorities.insert (i, priority);
-				repeat.insert (i, !once);
+				__listeners.insert (i, cast listener);
+				__priorities.insert (i, priority);
+				__repeat.insert (i, !once);
 				return;
 				
 			}
 			
 		}
 		
-		listeners.push (cast listener);
-		priorities.push (priority);
-		repeat.push (!once);
+		__listeners.push (cast listener);
+		__priorities.push (priority);
+		__repeat.push (!once);
 		#end
 		
 	}
@@ -132,8 +134,10 @@ class Event<T> {
 			
 			var dispatch = macro {
 				
-				var listeners = this.listeners;
-				var repeat = this.repeat;
+				canceled = false;
+				
+				var listeners = __listeners;
+				var repeat = __repeat;
 				var i = 0;
 				
 				while (i < listeners.length) {
@@ -150,6 +154,12 @@ class Event<T> {
 						
 					}
 					
+					if (canceled) {
+						
+						break;
+						
+					}
+					
 				}
 				
 			}
@@ -161,7 +171,7 @@ class Event<T> {
 				
 				field = fields[i];
 				
-				if (field.name == "listeners" || field.name == "dispatch") {
+				if (field.name == "__listeners" || field.name == "dispatch") {
 					
 					fields.remove (field);
 					
@@ -173,7 +183,7 @@ class Event<T> {
 				
 			}
 			
-			fields.push ( { name: "listeners", access: [ APublic ], kind: FVar (TPath ({ pack: [], name: "Array", params: [ TPType (typeParam.toComplexType ()) ] })), pos: pos } );
+			fields.push ( { name: "__listeners", access: [ APublic ], kind: FVar (TPath ({ pack: [], name: "Array", params: [ TPType (typeParam.toComplexType ()) ] })), pos: pos } );
 			fields.push ( { name: "dispatch", access: [ APublic ], kind: FFun ( { args: args, expr: dispatch, params: [], ret: macro :Void } ), pos: pos } );
 			
 			Context.defineType ({
@@ -194,6 +204,13 @@ class Event<T> {
 		
 	}
 	#end
+	
+	
+	public function cancel ():Void {
+		
+		canceled = true;
+		
+	}
 	
 	
 	public var dispatch:Dynamic;
@@ -230,7 +247,7 @@ class Event<T> {
 	public function has (listener:T):Bool {
 		
 		#if !macro
-		for (l in listeners) {
+		for (l in __listeners) {
 			
 			if (Reflect.compareMethods (l, listener)) return true;
 			
@@ -245,15 +262,15 @@ class Event<T> {
 	public function remove (listener:T):Void {
 		
 		#if !macro
-		var i = listeners.length;
+		var i = __listeners.length;
 		
 		while (--i >= 0) {
 			
-			if (Reflect.compareMethods (listeners[i], listener)) {
+			if (Reflect.compareMethods (__listeners[i], listener)) {
 				
-				listeners.splice (i, 1);
-				priorities.splice (i, 1);
-				repeat.splice (i, 1);
+				__listeners.splice (i, 1);
+				__priorities.splice (i, 1);
+				__repeat.splice (i, 1);
 				
 			}
 			
