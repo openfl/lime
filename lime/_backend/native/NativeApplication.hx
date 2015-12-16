@@ -18,6 +18,8 @@ import lime.system.System;
 import lime.ui.Gamepad;
 import lime.ui.Joystick;
 import lime.ui.JoystickHatPosition;
+import lime.ui.KeyCode;
+import lime.ui.KeyModifier;
 import lime.ui.Touch;
 import lime.ui.Window;
 
@@ -249,17 +251,47 @@ class NativeApplication {
 		
 		if (window != null) {
 			
-			switch (keyEventInfo.type) {
+			var type:KeyEventType = keyEventInfo.type;
+			var keyCode:KeyCode = keyEventInfo.keyCode;
+			var modifier:KeyModifier = keyEventInfo.modifier;
+			
+			switch (type) {
 				
 				case KEY_DOWN:
 					
-					window.onKeyDown.dispatch (keyEventInfo.keyCode, keyEventInfo.modifier);
+					window.onKeyDown.dispatch (keyCode, modifier);
 				
 				case KEY_UP:
 					
-					window.onKeyUp.dispatch (keyEventInfo.keyCode, keyEventInfo.modifier);
+					window.onKeyUp.dispatch (keyCode, modifier);
 				
 			}
+			
+			#if (windows || linux)
+			
+			if (keyCode == RETURN && (modifier == KeyModifier.LEFT_ALT || modifier == KeyModifier.RIGHT_ALT) && type == KEY_DOWN && !window.onKeyDown.canceled) {
+				
+				window.fullscreen = !window.fullscreen;
+				
+			}
+			
+			#elseif mac
+			
+			if (keyCode == F && modifier.ctrlKey && modifier.metaKey && type == KEY_DOWN && !modifier.altKey && !modifier.shiftKey && !window.onKeyDown.canceled) {
+				
+				window.fullscreen = !window.fullscreen;
+				
+			}
+			
+			#elseif android
+			
+			if (keyCode == APP_CONTROL_BACK && modifier == NONE && type == KEY_UP && !window.onKeyUp.canceled) {
+				
+				System.exit (0);
+				
+			}
+			
+			#end
 			
 		}
 		
