@@ -3,6 +3,8 @@ package lime.tools.helpers;
 
 import lime.project.Haxelib;
 import sys.io.File;
+import lime.tools.helpers.PlatformHelper;
+import lime.project.Platform;
 
 
 class NekoHelper {
@@ -41,7 +43,7 @@ class NekoHelper {
 		output.write (executable);
 		output.close ();
 		
-		if (iconPath != null) {
+		if (iconPath != null && PlatformHelper.hostPlatform == Platform.WINDOWS) {
 			
 			var templates = [ PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates" ].concat (templatePaths);
 			ProcessHelper.runCommand ("", PathHelper.findTemplate (templates, "bin/ReplaceVistaIcon.exe"), [ target, iconPath, "1" ], true, true);
