@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "2.8.1",
-	"releasenote": "Disabled ANGLE for now, joystick fix",
+	"version": "2.8.2",
+	"releasenote": "Enabled WebGL by default on HTML5, added event canceling, more fixes",
 	"contributors": [ "singmajesty" ]
 }
