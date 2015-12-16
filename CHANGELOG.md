@@ -1,3 +1,20 @@
+2.8.2 (12/16/2015)
+------------------
+
+* Enabled WebGL by default on HTML5
+* Added support for Lime event canceling
+* Added default keyboard shortcuts for toggling fullscreen
+* Added default Android back button behavior to quit
+* Added support for <window resizable="false" /> on HTML5 template
+* Changed iOS default system font path to be more generic
+* Fixed issues with OGG decoding on newer Android NDK
+* Fixed AudioSource complete event when setting currentTime or length
+* Fixed minor issue compiling Neko Windows binaries from Linux
+* Minor updates to the default Android ADB output filter
+* Updated ANGLE binaries to resolve ALT + Enter fullscreen issue
+* Fixed font paths on iOS (legacy)
+
+
 2.8.1 (12/09/2015)
 ------------------
 
