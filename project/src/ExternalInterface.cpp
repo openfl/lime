@@ -263,6 +263,17 @@ namespace lime {
 	}
 	
 	
+	value lime_file_dialog_open_directory (HxString filter, HxString defaultPath) {
+		
+		#ifdef LIME_NFD
+		const char* path = FileDialog::OpenDirectory (filter.__s, defaultPath.__s);
+		return path ? alloc_string (path) : alloc_null ();
+		#endif
+		
+		return 0;
+		
+	}
+	
 	value lime_file_dialog_open_file (HxString filter, HxString defaultPath) {
 		
 		#ifdef LIME_NFD
@@ -1374,6 +1385,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_cffi_set_finalizer);
 	DEFINE_PRIME0 (lime_clipboard_get_text);
 	DEFINE_PRIME1v (lime_clipboard_set_text);
+	DEFINE_PRIME2 (lime_file_dialog_open_directory);
 	DEFINE_PRIME2 (lime_file_dialog_open_file);
 	DEFINE_PRIME2 (lime_file_dialog_open_files);
 	DEFINE_PRIME2 (lime_file_dialog_save_file);
