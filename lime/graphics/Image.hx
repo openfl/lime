@@ -1026,6 +1026,7 @@ class Image {
 		
 		#if (js && html5)
 		var image = new JSImage ();
+		image.crossOrigin = "Anonymous";
 		
 		var image_onLoaded = function (event) {
 			
@@ -1112,6 +1113,7 @@ class Image {
 		#if (js && html5)
 			
 			var image = new JSImage ();
+			image.crossOrigin = "Anonymous";
 			
 			image.onload = function (_) {
 				
