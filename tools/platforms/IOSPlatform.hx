@@ -3,6 +3,7 @@ package platforms;
 
 //import openfl.display.BitmapData;
 import haxe.io.Path;
+import haxe.Json;
 import haxe.Template;
 import helpers.ArrayHelper;
 import helpers.AssetHelper;
@@ -214,6 +215,19 @@ class IOSPlatform extends PlatformTarget {
 		context.ENABLE_BITCODE = project.config.exists("ios.bitcode") ? project.config.getBool("ios.bitcode") : project.config.getFloat ("ios.deployment", 5.1) >= 6;
 		context.IOS_COMPILER = project.config.getString ("ios.compiler", "clang");
 		context.CPP_BUILD_LIBRARY = project.config.getString ("cpp.buildLibrary", "hxcpp");
+		
+		var json = Json.parse (File.getContent (PathHelper.getHaxelib (new Haxelib ("hxcpp"), true) + "/haxelib.json"));
+		
+		if (Std.parseFloat (json.version) > 3.1) {
+			
+			context.CPP_LIBPREFIX = "lib";
+			
+		} else {
+			
+			context.CPP_LIBPREFIX = "";
+			
+		}
+
 		context.IOS_LINKER_FLAGS = ["-stdlib=libc++"].concat (project.config.getArrayString ("ios.linker-flags"));
 		
 		var compilerFlags = "";
