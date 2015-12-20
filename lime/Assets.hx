@@ -1164,7 +1164,11 @@ class Assets {
 		
 		var fields = embedData (":file");
 		
+		#if lime_console
+		if (false) {
+		#else
 		if (fields != null) {
+		#end
 			
 			var constructor = macro {
 				
@@ -1188,7 +1192,11 @@ class Assets {
 		
 		var fields = embedData (":file");
 		
+		#if lime_console
+		if (false) {
+		#else
 		if (fields != null) {
+		#end
 			
 			var constructor = macro {
 				
