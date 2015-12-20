@@ -50,33 +50,31 @@ class AudioBuffer {
 	public function dispose ():Void {
 		
 		#if lime_console
-		src.release ();
+		if (channels > 0) {
+			src.release ();
+			channels = 0;
+		}
 		#end
 		
 	}
+
+
+	#if lime_console
+	@:void
+	private static function finalize (a:AudioBuffer):Void {
+
+		a.dispose ();
+
+	}
+	#end
 	
 	
 	public static function fromBytes (bytes:Bytes):AudioBuffer {
 		
 		#if lime_console
 		
+		// TODO(james4k): AudioBuffer.fromBytes
 		openfl.Lib.notImplemented ("Sound.fromBytes");
-		
-		/*
-		var sound:Sound = Sound.fromBytes (bytes);
-		
-		if (sound.valid) {
-			
-			var audioBuffer = new AudioBuffer ();
-			audioBuffer.bitsPerSample = 0;
-			audioBuffer.channels = 0;
-			audioBuffer.data = null;
-			audioBuffer.sampleRate = 0;
-			audioBuffer.src = sound;
-			return audioBuffer;
-			
-		}
-		*/
 		
 		#elseif ((cpp || neko || nodejs) && !macro)
 		
@@ -108,12 +106,20 @@ class AudioBuffer {
 		
 		if (sound.valid) {
 			
+			// TODO(james4k): AudioBuffer needs sound info filled in
+			// TODO(james4k): probably move fmod.Sound creation to AudioSource,
+			// and keep AudioBuffer as raw data. not as efficient for typical
+			// use, but probably less efficient to do complex copy-on-read
+			// mechanisms and such. also, what do we do for compressed sounds?
+			// usually don't want to decompress large music files. I suppose we
+			// can specialize for those and not allow data access.
 			var audioBuffer = new AudioBuffer ();
 			audioBuffer.bitsPerSample = 0;
-			audioBuffer.channels = 0;
+			audioBuffer.channels = 1;
 			audioBuffer.data = null;
 			audioBuffer.sampleRate = 0;
 			audioBuffer.src = sound;
+			cpp.vm.Gc.setFinalizer (audioBuffer, cpp.Function.fromStaticFunction (finalize));
 			return audioBuffer;
 			
 		}
