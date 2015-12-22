@@ -995,11 +995,11 @@ class ProjectXMLParser extends HXProject {
 							
 							path = PathHelper.getHaxelib (haxelib, !optional);
 							
-						}
-						
-						if (path == "") {
-							
-							continue;
+							if (optional && path == "") {
+								
+								continue;
+								
+							}
 							
 						}
 						
