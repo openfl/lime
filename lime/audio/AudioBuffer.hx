@@ -12,7 +12,7 @@ import js.html.Audio;
 #elseif flash
 import flash.media.Sound;
 #elseif lime_console
-import lime.audio.fmod.Sound;
+import lime.audio.fmod.FMODSound;
 #end
 
 #if !macro
@@ -34,7 +34,7 @@ class AudioBuffer {
 	#elseif flash
 	public var src:Sound;
 	#elseif lime_console
-	public var src:Sound;
+	public var src:FMODSound;
 	#else
 	public var src:Dynamic;
 	#end
@@ -102,7 +102,7 @@ class AudioBuffer {
 		
 		#if lime_console
 		
-		var sound:Sound = Sound.fromFile (path);
+		var sound:FMODSound = FMODSound.fromFile (path);
 		
 		if (sound.valid) {
 			

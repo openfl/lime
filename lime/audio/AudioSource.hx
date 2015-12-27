@@ -8,7 +8,7 @@ import lime.audio.openal.AL;
 #if flash
 import flash.media.SoundChannel;
 #elseif lime_console
-import lime.audio.fmod.Channel;
+import lime.audio.fmod.FMODChannel;
 #end
 
 #if lime_console
@@ -45,7 +45,7 @@ class AudioSource {
 	#if flash
 	private var channel:SoundChannel;
 	#elseif lime_console
-	private var channel:Channel;
+	private var channel:FMODChannel;
 	#end
 	
 	#if (cpp || neko || nodejs)
@@ -170,7 +170,7 @@ class AudioSource {
 			
 			if (old != this) {
 				
-				old.channel = Channel.INVALID;
+				old.channel = FMODChannel.INVALID;
 				
 			}
 			
@@ -276,19 +276,19 @@ class AudioSource {
 	// boxing and allocations going on.
 	
 	// can't use Maps because we need by-value key comparisons, so use two arrays.
-	private static var fmodActiveChannels = new Array<Channel> ();
+	private static var fmodActiveChannels = new Array<FMODChannel> ();
 	private static var fmodActiveSources = new Array<AudioSource> ();
 	
 	
 	// onFmodChannelEnd is called from C++ when an fmod channel end callback is
 	// called.
-	private static function onFmodChannelEnd (channel:Channel) {
+	private static function onFmodChannelEnd (channel:FMODChannel) {
 		
 		var source = removeFmodActive (channel);
 		
 		if (source != null) {
 			
-			source.channel = Channel.INVALID;
+			source.channel = FMODChannel.INVALID;
 			source.onComplete.dispatch ();
 			
 		}
@@ -296,9 +296,9 @@ class AudioSource {
 	}
 	
 	
-	// removeFmodActive disassociates a Channel with its AudioSource, returning
+	// removeFmodActive disassociates an FMODChannel with its AudioSource, returning
 	// the AudioSource it was associated with.
-	private static function removeFmodActive(key:Channel):AudioSource {
+	private static function removeFmodActive(key:FMODChannel):AudioSource {
 		
 		for (i in 0...fmodActiveChannels.length) {
 			
@@ -325,11 +325,11 @@ class AudioSource {
 	}
 	
 	
-	// setFmodActive associates a Channel with an AudioSource to allow for fmod
+	// setFmodActive associates an FMODChannel with an AudioSource to allow for fmod
 	// channel callbacks to propagate to the user's AudioSource onComplete
 	// callbacks. Returns the previous AudioSource associated with the channel
 	// if there was one, or the passed in AudioSource if not.
-	private static function setFmodActive (key:Channel, value:AudioSource):AudioSource {
+	private static function setFmodActive (key:FMODChannel, value:AudioSource):AudioSource {
 		
 		for (i in 0...fmodActiveChannels.length) {
 			
