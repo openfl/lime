@@ -32,6 +32,8 @@ namespace lime {
 			static void Resize (Image* image, ImageBuffer* buffer, int width, int height);
 			static void SetFormat (Image* image, PixelFormat format);
 			static void SetPixels (Image* image, Rectangle* rect, Bytes* bytes, PixelFormat format);
+			static int  ThresholdInnerLoop (Image* image, Image* sourceImage, Rectangle* sourceRect, int mask, int threshold, int operation, int color, Rectangle* destRect);
+			static int  Ucompare (int n1, int n2);
 			static void UnmultiplyAlpha (Image* image);
 		
 		

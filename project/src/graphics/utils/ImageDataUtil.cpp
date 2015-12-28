@@ -606,6 +606,124 @@ namespace lime {
 	}
 	
 	
+	int ImageDataUtil::ThresholdInnerLoop (Image* image, Image* sourceImage, Rectangle* sourceRect, int mask, int threshold, int operation, int color, Rectangle* destRect) {
+		
+		int startX = (int)destRect->x;
+		int startY = (int)destRect->y;
+		int destWidth = (int)destRect->width;
+		int destHeight = (int)destRect->height;
+		
+		ImageDataView srcView = ImageDataView (sourceImage, sourceRect);
+		RGBA srcPixel;
+		int srcPosition = 0;
+		PixelFormat srcFormat = image->buffer->format;
+		bool srcPremultiplied = image->buffer->premultiplied;
+		uint8_t* srcData = (uint8_t*)sourceImage->buffer->data->Data ();
+		
+		RGBA colorRGBA = RGBA (color);
+		
+		int pixelMask = 0;
+		int i = 0;
+		bool test = false;
+		int hits = 0;
+		
+		for(int yy = 0; yy < destHeight; yy++) {
+			
+			srcPosition = srcView.Row (yy + startY);
+			srcPosition += (4 * startX);
+			
+			for(int xx = 0; xx < destWidth; xx++) {
+			
+				srcPixel.ReadUInt8 (srcData, srcPosition, srcFormat, srcPremultiplied);
+				pixelMask = srcPixel.Get() & mask;
+				
+				i = Ucompare (pixelMask, threshold);
+				
+				switch(operation) {
+					
+					case 0: test = (i == 0); 			//EQUALS
+						   break;
+					case 1: test = (i == -1);			//LESS_THAN
+						   break;
+					case 2: test = (i == 1); 			//GREATER_THAN
+						   break;
+					case 3: test = (i != 0);				//NOT_EQUALS
+						   break;
+					case 4: test = (i == 0 || i == -1); 	//LESS_THAN_OR_EQUAL_TO
+						   break;
+					case 5: test = (i == 0 || i == 1);		//GREATER_THAN_OR_EQUAL_TO
+						   break;
+				}
+				
+				if (test) {
+					
+					colorRGBA.WriteUInt8 (srcData, srcPosition, srcFormat, srcPremultiplied);
+					hits++;
+					
+				}
+				
+				srcPosition += 4;
+			}
+		}
+		
+		return hits;
+	}
+	
+	int ImageDataUtil::Ucompare (int n1, int n2) {
+	
+		int tmp1;
+		int tmp2;
+		
+		tmp1 = (n1 >> 24) & 0xFF;
+		tmp2 = (n2 >> 24) & 0xFF;
+		
+		if (tmp1 != tmp2) {
+			
+			return (tmp1 > tmp2 ? 1 : -1);
+			
+		} else {
+			
+			tmp1 = (n1 >> 16) & 0xFF;
+			tmp2 = (n2 >> 16) & 0xFF;
+			
+			if (tmp1 != tmp2) {
+				
+				return (tmp1 > tmp2 ? 1 : -1);
+				
+			} else {
+				
+				tmp1 = (n1 >> 8) & 0xFF;
+				tmp2 = (n2 >> 8) & 0xFF;
+				
+				if (tmp1 != tmp2) {
+					
+					return (tmp1 > tmp2 ? 1 : -1);
+					
+				} else {
+					
+					tmp1 = n1 & 0xFF;
+					tmp2 = n2 & 0xFF;
+					
+					if (tmp1 != tmp2) {
+						
+						return (tmp1 > tmp2 ? 1 : -1);
+						
+					} else {
+						
+						return 0;
+						
+					}
+					
+				}
+				
+			}
+			
+		}
+		
+		return 0;
+	
+	}
+	
 	void ImageDataUtil::UnmultiplyAlpha (Image* image) {
 		
 		PixelFormat format = image->buffer->format;
