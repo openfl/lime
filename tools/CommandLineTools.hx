@@ -433,6 +433,20 @@ class CommandLineTools {
 			
 		}
 		
+		if (path == "") {
+			
+			if (FileSystem.exists ("tools.n")) {
+				
+				path = PathHelper.combine (Sys.getCwd (), "../");
+				
+			} else if (FileSystem.exists ("run.n")) {
+				
+				path = Sys.getCwd ();
+				
+			}
+			
+		}
+		
 		process.close ();
 		path += "/ndll/";
 		
@@ -520,15 +534,15 @@ class CommandLineTools {
 				args = args.concat (additionalArguments);
 				
 			}
-
-			if (exeExists) {
-
-				ProcessHelper.runCommand ("", exePath, args);
-
-			} else {
 			
+			if (exeExists) {
+				
+				ProcessHelper.runCommand ("", exePath, args);
+				
+			} else {
+				
 				ProcessHelper.runCommand ("", "haxelib", ["run", handler].concat (args));
-
+				
 			}
 			
 			try {
@@ -1412,12 +1426,13 @@ class CommandLineTools {
 	private function processArguments ():Void {
 		
 		var arguments = Sys.args ();
+		var runFromHaxelib = false;
 		
 		if (arguments.length > 0) {
 			
 			// When the command-line tools are called from haxelib, 
 			// the last argument is the project directory and the
-			// path to NME is the current working directory 
+			// path to Lime is the current working directory 
 			
 			var lastArgument = "";
 			
@@ -1439,6 +1454,25 @@ class CommandLineTools {
 			if (FileSystem.exists (lastArgument) && FileSystem.isDirectory (lastArgument)) {
 				
 				Sys.setCwd (lastArgument);
+				runFromHaxelib = true;
+				
+			} else {
+				
+				arguments.push (lastArgument);
+				
+			}
+			
+		}
+		
+		if (!runFromHaxelib) {
+			
+			if (FileSystem.exists ("tools.n")) {
+				
+				PathHelper.haxelibOverrides.set ("lime", PathHelper.combine (Sys.getCwd (), "../"));
+				
+			} else if (FileSystem.exists ("run.n")) {
+				
+				PathHelper.haxelibOverrides.set ("lime", Sys.getCwd ());
 				
 			}
 			
