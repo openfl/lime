@@ -769,6 +769,15 @@ namespace lime {
 		
 	}
 	
+	int lime_image_data_util_threshold_inner_loop (value image, value sourceImage, value sourceRect, int mask, int threshold, int operation, int color, value destRect) {
+		
+		Image _image = Image (image);
+		Image _sourceImage = Image (sourceImage);
+		Rectangle _sourceRect = Rectangle (sourceRect);
+		Rectangle _destRect = Rectangle (destRect);
+		return ImageDataUtil::ThresholdInnerLoop (&_image, &_sourceImage, &_sourceRect, mask, threshold, operation, color, &_destRect);
+		
+	}
 	
 	void lime_image_data_util_unmultiply_alpha (value image) {
 		
@@ -1411,6 +1420,7 @@ namespace lime {
 	DEFINE_PRIME4v (lime_image_data_util_resize);
 	DEFINE_PRIME2v (lime_image_data_util_set_format);
 	DEFINE_PRIME4v (lime_image_data_util_set_pixels);
+	DEFINE_PRIME8v (lime_image_data_util_threshold_inner_loop);
 	DEFINE_PRIME1v (lime_image_data_util_unmultiply_alpha);
 	DEFINE_PRIME3 (lime_image_encode);
 	DEFINE_PRIME1 (lime_image_load);
