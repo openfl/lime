@@ -830,6 +830,12 @@ class Image {
 		
 	}
 	
+	public function threshold(sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, operation:String, threshold:Int, color:Int = 0x00000000, mask:Int = 0xFFFFFFFF, copySource:Bool = false):Int {
+		
+		return ImageDataUtil.threshold(this, sourceImage, sourceRect, destPoint, operation, threshold, color, mask, copySource);
+		
+	}
+	
 	
 	public function setPixel32 (x:Int, y:Int, color:Int, format:PixelFormat = null):Void {
 		
