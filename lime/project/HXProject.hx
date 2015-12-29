@@ -1012,9 +1012,14 @@ class HXProject {
 					if (!StringTools.startsWith (arg, "-")) {
 						
 						var path = PathHelper.standardize (arg);
-						var param = "-cp " + path;
-						compilerFlags.remove (param);
-						compilerFlags.push (param);
+						
+						if (path != null && StringTools.trim (path) != "") {
+							
+							var param = "-cp " + path;
+							compilerFlags.remove (param);
+							compilerFlags.push (param);
+							
+						}
 						
 						var version = "0.0.0";
 						var jsonPath = PathHelper.combine (path, "haxelib.json");
@@ -1084,7 +1089,11 @@ class HXProject {
 		
 		for (source in sources) {
 			
-			compilerFlags.push ("-cp " + source);
+			if (source != null && StringTools.trim (source) != "") {
+				
+				compilerFlags.push ("-cp " + source);
+				
+			}
 			
 		}
 		
