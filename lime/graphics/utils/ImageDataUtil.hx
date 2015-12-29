@@ -1094,12 +1094,10 @@ class ImageDataUtil {
 			
 			var pixelMask:Int, i, test;
 			
-			if (CFFI.enabled) {
-				
-				hits = lime_image_data_util_threshold_inner_loop (destImage, sourceImage, sourceRect, mask, thresholdRGBA, operationEnum, colorRGBA, new Rectangle(0, 0, sourceRect.width, sourceRect.height));
-				
-			}
-			else {
+			#if ((cpp || neko) && !disable_cffi && !macro)
+			if (CFFI.enabled) hits = lime_image_data_util_threshold_inner_loop (destImage, sourceImage, sourceRect, mask, thresholdRGBA, operationEnum, colorRGBA, new Rectangle(0, 0, sourceRect.width, sourceRect.height)); else
+			#end
+			{
 				
 				hits = __threshold_inner_loop (destImage, sourceImage, sourceRect, mask, thresholdRGBA, operationEnum, colorRGBA, 0, 0, Std.int(sourceRect.width), Std.int(sourceRect.height));
 				
@@ -1165,12 +1163,10 @@ class ImageDataUtil {
 			
 			var pixelMask:Int, i, test;
 			
-			if (CFFI.enabled) {
-				
-				hits = lime_image_data_util_threshold_inner_loop (destImage, sourceImage, sourceRect, mask, thresholdRGBA, operationEnum, cast colorRGBA, new Rectangle(sx, sy, dw, dh));
-				
-			}
-			else {
+			#if ((cpp || neko) && !disable_cffi && !macro)
+			if (CFFI.enabled) hits = lime_image_data_util_threshold_inner_loop (destImage, sourceImage, sourceRect, mask, thresholdRGBA, operationEnum, cast colorRGBA, new Rectangle(sx, sy, dw, dh)); else
+			#end
+			{
 				
 				hits = __threshold_inner_loop (destImage, sourceImage, sourceRect, mask, thresholdRGBA, operationEnum, colorRGBA, sx, sy, dw, dh);
 				
