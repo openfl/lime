@@ -402,6 +402,11 @@ class AudioSource {
 		#elseif flash
 		
 		return Std.int (channel.position);
+
+		#elseif lime_console
+
+		lime.Lib.notImplemented ("AudioSource.get_currentTime");
+		return 0;
 		
 		#else
 		
@@ -425,6 +430,11 @@ class AudioSource {
 		// TODO: create new sound channel
 		//channel.position = value;
 		return pauseTime = value;
+
+		#elseif lime_console
+
+		lime.Lib.notImplemented ("AudioSource.set_currentTime");
+		return value;
 		
 		#else
 		
@@ -471,6 +481,11 @@ class AudioSource {
 		#elseif flash
 		
 		return channel.soundTransform.volume;
+
+		#elseif lime_console
+
+		lime.Lib.notImplemented ("AudioSource.get_gain");
+		return 1;
 		
 		#else
 		
@@ -492,6 +507,11 @@ class AudioSource {
 		var soundTransform = channel.soundTransform;
 		soundTransform.volume = value;
 		channel.soundTransform = soundTransform;
+		return value;
+
+		#elseif lime_console
+
+		lime.Lib.notImplemented ("AudioSource.set_gain");
 		return value;
 		
 		#else
@@ -519,6 +539,11 @@ class AudioSource {
 		#elseif flash
 		
 		return Std.int (buffer.src.length);
+
+		#elseif lime_console
+
+		lime.Lib.notImplemented ("AudioSource.get_length");
+		return 0;
 		
 		#else
 		
@@ -532,7 +557,12 @@ class AudioSource {
 	
 	private function set_length (value:Int):Int {
 		
-		#if (!flash && !html5)
+		#if lime_console
+
+		lime.Lib.notImplemented ("AudioSource.set_length");
+		return value;
+
+		#elseif (!flash && !html5)
 		
 		if (playing && __length != value) {
 			

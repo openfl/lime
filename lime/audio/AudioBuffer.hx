@@ -73,8 +73,7 @@ class AudioBuffer {
 		
 		#if lime_console
 		
-		// TODO(james4k): AudioBuffer.fromBytes
-		openfl.Lib.notImplemented ("Sound.fromBytes");
+		lime.Lib.notImplemented ("AudioBuffer.fromBytes");
 		
 		#elseif ((cpp || neko || nodejs) && !macro)
 		
