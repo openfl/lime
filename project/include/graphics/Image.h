@@ -4,7 +4,6 @@
 
 #include <hx/CFFI.h>
 #include <graphics/ImageBuffer.h>
-#include <utils/ByteArray.h>
 
 
 namespace lime {

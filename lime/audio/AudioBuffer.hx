@@ -87,7 +87,7 @@ class AudioBuffer {
 			var audioBuffer = new AudioBuffer ();
 			audioBuffer.bitsPerSample = data.bitsPerSample;
 			audioBuffer.channels = data.channels;
-			audioBuffer.data = new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b));
+			audioBuffer.data = new UInt8Array (@:privateAccess new Bytes (data.length, data.b));
 			audioBuffer.sampleRate = data.sampleRate;
 			return audioBuffer;
 			
@@ -127,7 +127,7 @@ class AudioBuffer {
 			var audioBuffer = new AudioBuffer ();
 			audioBuffer.bitsPerSample = data.bitsPerSample;
 			audioBuffer.channels = data.channels;
-			audioBuffer.data = new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b));
+			audioBuffer.data = new UInt8Array (@:privateAccess new Bytes (data.length, data.b));
 			audioBuffer.sampleRate = data.sampleRate;
 			return audioBuffer;
 			

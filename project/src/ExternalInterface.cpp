@@ -155,6 +155,7 @@ namespace lime {
 		
 		AudioBuffer audioBuffer;
 		Resource resource;
+		Bytes bytes;
 		
 		if (val_is_string (data)) {
 			
@@ -162,7 +163,7 @@ namespace lime {
 			
 		} else {
 			
-			Bytes bytes (data);
+			bytes = Bytes (data);
 			resource = Resource (&bytes);
 			
 		}
@@ -448,6 +449,7 @@ namespace lime {
 		
 		#ifdef LIME_FREETYPE
 		Resource resource;
+		Bytes bytes;
 		
 		if (val_is_string (data)) {
 			
@@ -455,7 +457,7 @@ namespace lime {
 			
 		} else {
 			
-			Bytes bytes (data);
+			bytes = Bytes (data);
 			resource = Resource (&bytes);
 			
 		}
@@ -612,6 +614,7 @@ namespace lime {
 		
 		ImageBuffer buffer;
 		Resource resource;
+		Bytes bytes;
 		
 		if (val_is_string (data)) {
 			
@@ -619,7 +622,7 @@ namespace lime {
 			
 		} else {
 			
-			Bytes bytes (data);
+			bytes = Bytes (data);
 			resource = Resource (&bytes);
 			
 		}
