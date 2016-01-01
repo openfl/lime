@@ -51,6 +51,7 @@ class NativeRenderer {
 		
 		useHardware = true;
 		parent.context = CONSOLE (new ConsoleRenderContext ());
+		parent.type = CONSOLE;
 		
 		#else
 		
