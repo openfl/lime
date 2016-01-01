@@ -4,13 +4,11 @@
 namespace lime {
 	
 	
-	static int id_b;
 	static int id_bitsPerPixel;
 	static int id_buffer;
 	static int id_data;
 	static int id_format;
 	static int id_height;
-	static int id_length;
 	static int id_premultiplied;
 	static int id_transparent;
 	static int id_width;
@@ -34,7 +32,6 @@ namespace lime {
 		
 		if (!init) {
 			
-			id_b = val_id ("b");
 			id_bitsPerPixel = val_id ("bitsPerPixel");
 			id_transparent = val_id ("transparent");
 			id_buffer = val_id ("buffer");
@@ -42,7 +39,6 @@ namespace lime {
 			id_width = val_id ("width");
 			id_height = val_id ("height");
 			id_format = val_id ("format");
-			id_length = val_id ("length");
 			id_premultiplied = val_id ("premultiplied");
 			init = true;
 			
@@ -120,14 +116,13 @@ namespace lime {
 		
 		if (!init) {
 			
-			id_b = val_id ("b");
 			id_bitsPerPixel = val_id ("bitsPerPixel");
 			id_transparent = val_id ("transparent");
 			id_buffer = val_id ("buffer");
+			id_data = val_id ("data");
 			id_width = val_id ("width");
 			id_height = val_id ("height");
 			id_format = val_id ("format");
-			id_length = val_id ("length");
 			id_premultiplied = val_id ("premultiplied");
 			init = true;
 			
@@ -137,8 +132,7 @@ namespace lime {
 		alloc_field (mValue, id_width, alloc_int (width));
 		alloc_field (mValue, id_height, alloc_int (height));
 		alloc_field (mValue, id_bitsPerPixel, alloc_int (bitsPerPixel));
-		alloc_field (mValue, id_b, data ? val_field (data->Value (), id_b) : alloc_null ());
-		alloc_field (mValue, id_length, data ? val_field (data->Value (), id_length) : alloc_null ());
+		alloc_field (mValue, id_data, data ? data->Value () : alloc_null ());
 		alloc_field (mValue, id_transparent, alloc_bool (transparent));
 		alloc_field (mValue, id_format, alloc_int (format));
 		alloc_field (mValue, id_premultiplied, alloc_bool (premultiplied));

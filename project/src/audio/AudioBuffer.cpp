@@ -4,10 +4,9 @@
 namespace lime {
 	
 	
-	static int id_b;
 	static int id_bitsPerSample;
 	static int id_channels;
-	static int id_length;
+	static int id_data;
 	static int id_sampleRate;
 	static bool init = false;
 	
@@ -33,20 +32,18 @@ namespace lime {
 		
 		if (!init) {
 			
-			id_b = val_id ("b");
 			id_bitsPerSample = val_id ("bitsPerSample");
 			id_channels = val_id ("channels");
-			id_length = val_id ("length");
+			id_data = val_id ("data");
 			id_sampleRate = val_id ("sampleRate");
 			init = true;
 			
 		}
 		
 		mValue = alloc_empty_object ();
-		alloc_field (mValue, id_b, data ? val_field (data->Value (), id_b) : alloc_null ());
 		alloc_field (mValue, id_bitsPerSample, alloc_int (bitsPerSample));
 		alloc_field (mValue, id_channels, alloc_int (channels));
-		alloc_field (mValue, id_length, data ? val_field (data->Value (), id_length) : alloc_null ());
+		alloc_field (mValue, id_data, data ? data->Value () : alloc_null ());
 		alloc_field (mValue, id_sampleRate, alloc_int (sampleRate));
 		return mValue;
 		

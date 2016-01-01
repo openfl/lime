@@ -1089,7 +1089,7 @@ class Image {
 			
 			if (data != null) {
 				
-				__fromImageBuffer (new ImageBuffer (new UInt8Array (@:privateAccess new Bytes (data.length, data.b)), data.width, data.height, data.bitsPerPixel));
+				__fromImageBuffer (new ImageBuffer (new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b)), data.width, data.height, data.bitsPerPixel));
 				
 				if (onload != null) {
 					
@@ -1209,7 +1209,7 @@ class Image {
 				
 				if (data != null) {
 					
-					var u8a = new UInt8Array (@:privateAccess new Bytes (data.length, data.b));
+					var u8a = new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b));
 					buffer = new ImageBuffer (u8a, data.width, data.height, data.bitsPerPixel);
 					
 				}

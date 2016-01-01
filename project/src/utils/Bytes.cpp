@@ -232,7 +232,13 @@ namespace lime {
 		} else {
 			
 			_value = bytes;
-			_root = alloc_root ();
+			
+			if (!_root) {
+				
+				_root = alloc_root ();
+				
+			}
+			
 			*_root = _value;
 			_length = val_int (val_field (bytes, id_length));
 			
