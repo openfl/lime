@@ -615,6 +615,7 @@ class CommandLineTools {
 			
 			if (platform != null) {
 				
+				platform.traceEnabled = traceEnabled;
 				platform.execute (additionalArguments);
 				
 			} else {
