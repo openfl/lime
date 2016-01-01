@@ -107,7 +107,7 @@ namespace lime {
 	bool OGG::Decode (Resource *resource, AudioBuffer *audioBuffer) {
 		
 		OggVorbis_File oggFile;
-		Bytes data;
+		Bytes *data = NULL;
 		
 		if (resource->path) {
 			
@@ -131,12 +131,13 @@ namespace lime {
 			} else {
 				
 				lime::fclose (file);
-				data = Bytes (resource->path);
+				data = new Bytes (resource->path);
 				
-				OAL_OggMemoryFile fakeFile = { data.Data (), data.Length (), 0 };
+				OAL_OggMemoryFile fakeFile = { data->Data (), data->Length (), 0 };
 				
 				if (ov_open_callbacks (&fakeFile, &oggFile, NULL, 0, OAL_CALLBACKS_BUFFER) != 0) {
 					
+					delete data;
 					return false;
 					
 				}
@@ -174,6 +175,13 @@ namespace lime {
 			
 			//LOG_SOUND("FAILED TO READ OGG SOUND INFO, IS THIS EVEN AN OGG FILE?\n");
 			ov_clear (&oggFile);
+			
+			if (data) {
+				
+				delete data;
+				
+			}
+			
 			return false;
 			
 		}
@@ -202,6 +210,12 @@ namespace lime {
 		ov_clear (&oggFile);
 		
 		#undef BUFFER_READ_TYPE
+		
+		if (data) {
+			
+			delete data;
+			
+		}
 		
 		return true;
 		

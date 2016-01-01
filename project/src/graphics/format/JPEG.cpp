@@ -191,7 +191,7 @@ namespace lime {
 		jpegError.base.output_message = OnOutput;
 		
 		FILE_HANDLE *file = NULL;
-		Bytes data;
+		Bytes *data = NULL;
 		
 		if (resource->path) {
 			
@@ -228,8 +228,8 @@ namespace lime {
 				
 			} else {
 				
-				data = Bytes (resource->path);
-				MySrcManager manager (data.Data (), data.Length ());
+				data = new Bytes (resource->path);
+				MySrcManager manager (data->Data (), data->Length ());
 				cinfo.src = &manager.pub;
 				
 			}
@@ -293,6 +293,12 @@ namespace lime {
 		if (file) {
 			
 			lime::fclose (file);
+			
+		}
+		
+		if (data) {
+			
+			delete data;
 			
 		}
 		
