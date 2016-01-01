@@ -134,9 +134,6 @@ namespace lime {
 				lime::fclose (file);
 				data = new Bytes (resource->path);
 				
-				LOG_SOUND ("hello %d\n", data->Data ());
-				LOG_SOUND ("hello %d\n", data->Length ());
-				
 				fakeFile = { data->Data (), data->Length (), 0 };
 				
 				if (ov_open_callbacks (&fakeFile, &oggFile, NULL, 0, OAL_CALLBACKS_BUFFER) != 0) {
@@ -145,8 +142,6 @@ namespace lime {
 					return false;
 					
 				}
-				
-				LOG_SOUND ("%s", "2");
 				
 			}
 			
@@ -161,8 +156,6 @@ namespace lime {
 			}
 			
 		}
-		
-		LOG_SOUND ("%s", "3");
 		
 		// 0 for Little-Endian, 1 for Big-Endian
 		#ifdef HXCPP_BIG_ENDIAN
@@ -194,8 +187,6 @@ namespace lime {
 			
 		}
 		
-		LOG_SOUND ("%s", "4");
-		
 		audioBuffer->channels = pInfo->channels;
 		audioBuffer->sampleRate = pInfo->rate;
 		
@@ -204,26 +195,18 @@ namespace lime {
 		int dataLength = ov_pcm_total (&oggFile, -1) * audioBuffer->channels * audioBuffer->bitsPerSample / 8;
 		audioBuffer->data->Resize (dataLength);
 		
-		LOG_SOUND ("%s", "5");
-		
 		while (bytes > 0) {
 			
 			bytes = ov_read (&oggFile, (char *)audioBuffer->data->Data () + totalBytes, BUFFER_SIZE, BUFFER_READ_TYPE, 2, 1, &bitStream);
-			LOG_SOUND ("bytes %d", bytes);
 			totalBytes += bytes;
-			LOG_SOUND ("totalBytes %d\n", totalBytes);
 			
 		}
-		
-		LOG_SOUND ("%s", "6");
 		
 		if (dataLength != totalBytes) {
 			
 			audioBuffer->data->Resize (totalBytes);
 			
 		}
-		
-		LOG_SOUND ("%s", "7");
 		
 		ov_clear (&oggFile);
 		
@@ -234,8 +217,6 @@ namespace lime {
 			delete data;
 			
 		}
-		
-		LOG_SOUND ("%s", "8");
 		
 		return true;
 		
