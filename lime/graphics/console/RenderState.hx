@@ -35,12 +35,16 @@ package lime.graphics.console;
 	var SRCALPHA_INVSRCALPHA_INVDESTALPHA_ONE_RGBA      = 6;
 	var ZERO_INVSRCCOLOR_ONE_ZERO_RGBA                  = 7;
 	var ZERO_SRCCOLOR_ONE_ZERO_RGBA                     = 8;
-	var SRCALPHA_ONE_ONE_ZERO_RGBA                      = 9;
-	var SRCALPHA_ONE_ONE_ONE_RGBA                       = 10;
-	var DESTCOLOR_SRCCOLOR_ONE_ZERO_RGBA                = 11;
-	var ONE_ONE_ONE_ZERO_RGBA                           = 12;
-	var ONE_ONE_ONE_ONE_RGBA                            = 13;
-	var ONE_ZERO_ONE_ZERO_RGBA                          = 14;
-	var ZERO_ONE_ZERO_ONE                               = 15;
+	var SRCALPHA_ONE_ONE_ZERO_RGB                       = 9;
+	var SRCALPHA_ONE_ONE_ZERO_RGBA                      = 10;
+	var SRCALPHA_ONE_ONE_ONE_RGBA                       = 11;
+	var DESTCOLOR_INVSRCALPHA_ONE_ZERO_RGB              = 12;
+	var DESTCOLOR_INVSRCALPHA_ONE_ZERO_RGBA             = 13;
+	var DESTCOLOR_SRCCOLOR_ONE_ZERO_RGB                 = 14;
+	var DESTCOLOR_SRCCOLOR_ONE_ZERO_RGBA                = 15;
+	var ONE_ONE_ONE_ZERO_RGBA                           = 16;
+	var ONE_ONE_ONE_ONE_RGBA                            = 17;
+	var ONE_ZERO_ONE_ZERO_RGBA                          = 18;
+	var ZERO_ONE_ZERO_ONE                               = 19;
 
 }
