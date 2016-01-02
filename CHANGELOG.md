@@ -1,3 +1,16 @@
+2.8.3 (01/02/2016)
+------------------
+
+* Improved support for the latest Android NDK
+* Improved cross-domain image loading on HTML5
+* Improved support for rebuilding and using tools without haxelib
+* Ensured that OpenAL is disabled in static builds by default
+* Fixed support for the current Haxe development build
+* Fixed the setup command to ensure all requested dependencies
+* Fixed a compile error when using <source /> and an empty path
+* Fixed the -notrace flag (to disable "trace" on "test" commands)
+
+
 2.8.2 (12/16/2015)
 ------------------
 
