@@ -134,7 +134,10 @@ namespace lime {
 				lime::fclose (file);
 				data = new Bytes (resource->path);
 				
-				fakeFile = { data->Data (), data->Length (), 0 };
+				fakeFile = OAL_OggMemoryFile ();
+				fakeFile.data = data->Data ();
+				fakeFile.size = data->Length ();
+				fakeFile.pos = 0;
 				
 				if (ov_open_callbacks (&fakeFile, &oggFile, NULL, 0, OAL_CALLBACKS_BUFFER) != 0) {
 					
@@ -147,7 +150,10 @@ namespace lime {
 			
 		} else {
 			
-			fakeFile = { resource->data->Data (), resource->data->Length (), 0 };
+			fakeFile = OAL_OggMemoryFile ();
+			fakeFile.data = resource->data->Data ();
+			fakeFile.size = resource->data->Length ();
+			fakeFile.pos = 0;
 			
 			if (ov_open_callbacks (&fakeFile, &oggFile, NULL, 0, OAL_CALLBACKS_BUFFER) != 0) {
 				
