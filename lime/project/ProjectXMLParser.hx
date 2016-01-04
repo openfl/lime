@@ -23,6 +23,7 @@ class ProjectXMLParser extends HXProject {
 	
 	public var includePaths:Array <String>;
 	
+	private static var doubleVarMatch = new EReg ("\\$\\${(.*?)}", "");
 	private static var varMatch = new EReg ("\\${(.*?)}", "");
 	
 	
@@ -164,11 +165,13 @@ class ProjectXMLParser extends HXProject {
 			
 			for (optional in optionalDefines) {
 				
+				optional = substitute (optional);
 				var requiredDefines = optional.split (" ");
 				var matchRequired = true;
 				
 				for (required in requiredDefines) {
 					
+					required = substitute (required);
 					var check = StringTools.trim (required);
 					
 					if (check != "" && !defines.exists (check) && check != command) {
@@ -203,11 +206,13 @@ class ProjectXMLParser extends HXProject {
 			
 			for (optional in optionalDefines) {
 				
+				optional = substitute (optional);
 				var requiredDefines = optional.split (" ");
 				var matchRequired = true;
 				
 				for (required in requiredDefines) {
 					
+					required = substitute (required);
 					var check = StringTools.trim (required);
 					if (check != "" && !defines.exists (check) && check != command) {
 						
@@ -1780,6 +1785,29 @@ class ProjectXMLParser extends HXProject {
 	private function substitute (string:String):String {
 		
 		var newString = string;
+		
+		while (doubleVarMatch.match (newString)) {
+			
+			var substring = doubleVarMatch.matched (1);
+			
+			if (substring.substr (0, 8) == "haxelib:") {
+				
+				var path = PathHelper.getHaxelib (new Haxelib (substring.substr (8)), true);
+				substring = PathHelper.standardize (path);
+				
+			} else if (defines.exists (substring)) {
+				
+				substring = defines.get (substring);
+				
+			} else if (environment != null && environment.exists (substring)) {
+				
+				substring = environment.get (substring);
+				
+			}
+			
+			newString = doubleVarMatch.matchedLeft () + "${" + substring + "}" + doubleVarMatch.matchedRight ();
+			
+		}
 		
 		while (varMatch.match (newString)) {
 			
