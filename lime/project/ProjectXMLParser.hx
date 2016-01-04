@@ -149,6 +149,7 @@ class ProjectXMLParser extends HXProject {
 		}
 		
 		defines.set (Std.string (target).toLowerCase (), "1");
+		defines.set ("target", Std.string (target).toLowerCase ());
 		
 	}
 	
