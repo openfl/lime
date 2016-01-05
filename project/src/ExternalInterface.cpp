@@ -449,7 +449,7 @@ namespace lime {
 		
 		#ifdef LIME_FREETYPE
 		Resource resource;
-		Bytes bytes;
+		Bytes* bytes = NULL;
 		
 		if (val_is_string (data)) {
 			
@@ -457,12 +457,18 @@ namespace lime {
 			
 		} else {
 			
-			bytes = Bytes (data);
-			resource = Resource (&bytes);
+			bytes = new Bytes (data);
+			resource = Resource (bytes);
 			
 		}
 		
 		Font *font = new Font (&resource, 0);
+		
+		if (bytes) {
+			
+			delete bytes;
+			
+		}
 		
 		if (font) {
 			
@@ -614,7 +620,7 @@ namespace lime {
 		
 		ImageBuffer buffer;
 		Resource resource;
-		Bytes bytes;
+		Bytes* bytes = NULL;
 		
 		if (val_is_string (data)) {
 			
@@ -622,13 +628,19 @@ namespace lime {
 			
 		} else {
 			
-			bytes = Bytes (data);
-			resource = Resource (&bytes);
+			bytes = new Bytes (data);
+			resource = Resource (bytes);
 			
 		}
 		
 		#ifdef LIME_PNG
 		if (PNG::Decode (&resource, &buffer)) {
+			
+			if (bytes) {
+				
+				delete bytes;
+				
+			}
 			
 			return buffer.Value ();
 			
@@ -638,10 +650,22 @@ namespace lime {
 		#ifdef LIME_JPEG
 		if (JPEG::Decode (&resource, &buffer)) {
 			
+			if (bytes) {
+				
+				delete bytes;
+				
+			}
+			
 			return buffer.Value ();
 			
 		}
 		#endif
+		
+		if (bytes) {
+			
+			delete bytes;
+			
+		}
 		
 		return alloc_null ();
 		
