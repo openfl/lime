@@ -116,10 +116,14 @@ class Window {
 	public function capture (?region:Rectangle):Image {
 		
 		#if !flash
-		if (region == null) region = new Rectangle();
-		region.__expand (region.x, region.y, 0, 0);
-		region.__contract (0, 0, stage.stageWidth, stage.stageHeight);
-		return stage.__renderer.capture (stage, region);
+			#if lime_legacy
+				return null;
+			#else
+				if (region == null) region = new Rectangle();
+				region.__expand (region.x, region.y, 0, 0);
+				region.__contract (0, 0, stage.stageWidth, stage.stageHeight);
+				return stage.__renderer.capture (stage, region);
+			#end
 		#else
 		return null;
 		#end
