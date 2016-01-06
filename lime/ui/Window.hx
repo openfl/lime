@@ -113,18 +113,15 @@ class Window {
 	#if openfl
 	@:access(openfl.display.Stage)
 	#end
-	public function captureImage(callback:Image->Void, ?region:Rectangle):Void {
-		
-		if (region == null) region = new Rectangle();
-		region.__expand(region.x, region.y, 0, 0);
-		region.__contract(0, 0, stage.stageWidth, stage.stageHeight);
+	public function capture (?region:Rectangle):Image {
 		
 		#if !flash
-		if (callback != null) {
-			
-			stage.__renderer.captureImage(stage, callback, region);
-			
-		}
+		if (region == null) region = new Rectangle();
+		region.__expand (region.x, region.y, 0, 0);
+		region.__contract (0, 0, stage.stageWidth, stage.stageHeight);
+		return stage.__renderer.capture (stage, region);
+		#else
+		return null;
 		#end
 		
 	}

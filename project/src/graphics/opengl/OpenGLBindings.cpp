@@ -1117,6 +1117,13 @@ namespace lime {
 	}
 	
 	
+	void lime_gl_read_buffer (int mode) {
+		
+		glReadBuffer (mode);
+		
+	}
+	
+	
 	void lime_gl_read_pixels (int x, int y, int width, int height, int format, int type, value buffer, int offset) {
 		
 		unsigned char *data = 0;
@@ -1667,6 +1674,7 @@ namespace lime {
 	DEFINE_PRIME1v (lime_gl_link_program);
 	DEFINE_PRIME2v (lime_gl_pixel_storei);
 	DEFINE_PRIME2v (lime_gl_polygon_offset);
+	DEFINE_PRIME1v (lime_gl_read_buffer);
 	DEFINE_PRIME8v (lime_gl_read_pixels);
 	DEFINE_PRIME4v (lime_gl_renderbuffer_storage);
 	DEFINE_PRIME2v (lime_gl_sample_coverage);
