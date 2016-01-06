@@ -116,12 +116,8 @@ class Window {
 	public function captureImage(callback:Image->Void, ?region:Rectangle):Void {
 		
 		if (region == null) region = new Rectangle();
-		if (region.x < 0) region.x = 0;
-		if (region.y < 0) region.y = 0;
-		if (region.width  <= 0) region.width  = stage.stageWidth;
-		if (region.height <= 0) region.height = stage.stageHeight;
-		if (region.right  > stage.width)  region.right  = stage.stageWidth;
-		if (region.bottom > stage.height) region.bottom = stage.stageHeight;
+		region.__expand(region.x, region.y, 0, 0);
+		region.__contract(0, 0, stage.stageWidth, stage.stageHeight);
 		
 		#if !flash
 		if (callback != null) {
