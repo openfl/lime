@@ -346,11 +346,12 @@ namespace lime {
 	
 	bool SDLWindow::SetResizable (bool resizable) {
 		
+		#ifdef HX_WINDOWS
+		
 		SDL_SysWMinfo info;
 		SDL_VERSION(&info.version);
 		SDL_GetWindowWMInfo(sdlWindow, &info);
 		
-		#ifdef HX_WINDOWS
 		//toggling the window "resizable" property after window creation is not currently supported in SDL, so we have to do it manually
 		
 		HWND hwnd = info.info.win.window;
