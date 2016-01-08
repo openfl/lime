@@ -3,10 +3,14 @@ package lime._backend.html5;
 
 import haxe.macro.Compiler;
 import js.html.webgl.RenderingContext;
+import js.html.CanvasElement;
+import js.Browser;
 import lime.app.Application;
+import lime.graphics.Image;
 import lime.graphics.opengl.GL;
 import lime.graphics.GLRenderContext;
 import lime.graphics.Renderer;
+import lime.math.Rectangle;
 
 @:access(lime.app.Application)
 @:access(lime.graphics.opengl.GL)
@@ -126,6 +130,42 @@ class HTML5Renderer {
 			default:
 			
 		}
+		
+	}
+	
+	
+	public function readPixels (rect:Rectangle):Image {
+		
+		// TODO: Handle DIV, improve 3D canvas support
+		
+		if (parent.window.backend.canvas != null) {
+			
+			if (rect == null) {
+				
+				rect = new Rectangle (0, 0, parent.window.backend.canvas.width, parent.window.backend.canvas.height);
+				
+			} else {
+				
+				rect.__contract (0, 0, parent.window.backend.canvas.width, parent.window.backend.canvas.height);
+				
+			}
+			
+			if (rect.width > 0 && rect.height > 0) {
+				
+				var canvas:CanvasElement = cast Browser.document.createElement ("canvas");
+				canvas.width = Std.int (rect.width);
+				canvas.height = Std.int (rect.height);
+				
+				var context = canvas.getContext ("2d");
+				context.drawImage (parent.window.backend.canvas, -rect.x, -rect.y);
+				
+				return Image.fromCanvas (canvas);
+				
+			}
+			
+		}
+		
+		return null;
 		
 	}
 	

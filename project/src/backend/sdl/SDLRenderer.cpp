@@ -194,6 +194,34 @@ namespace lime {
 	}
 	
 	
+	void SDLRenderer::ReadPixels (ImageBuffer *buffer, Rectangle *rect) {
+		
+		if (sdlRenderer) {
+			
+			SDL_Rect bounds = { 0, 0, 0, 0 };
+			
+			if (rect) {
+				
+				bounds.x = rect->x;
+				bounds.y = rect->y;
+				bounds.w = rect->width;
+				bounds.h = rect->height;
+				
+			} else {
+				
+				SDL_GetWindowSize (sdlWindow, &bounds.w, &bounds.h);
+				
+			}
+			
+			buffer->Resize (bounds.w, bounds.h, 32);
+			
+			SDL_RenderReadPixels (sdlRenderer, &bounds, SDL_PIXELFORMAT_ABGR8888, buffer->data->Data (), buffer->Stride ());
+			
+		}
+		
+	}
+	
+	
 	const char* SDLRenderer::Type () {
 		
 		if (sdlRenderer) {

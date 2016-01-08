@@ -1,6 +1,7 @@
 package lime._backend.native;
 
 
+import haxe.io.Bytes;
 import lime.graphics.cairo.Cairo;
 import lime.graphics.cairo.CairoFormat;
 import lime.graphics.cairo.CairoImageSurface;
@@ -8,7 +9,11 @@ import lime.graphics.cairo.CairoSurface;
 import lime.graphics.CairoRenderContext;
 import lime.graphics.ConsoleRenderContext;
 import lime.graphics.GLRenderContext;
+import lime.graphics.Image;
+import lime.graphics.ImageBuffer;
 import lime.graphics.Renderer;
+import lime.math.Rectangle;
+import lime.utils.UInt8Array;
 
 #if !macro
 @:build(lime.system.CFFI.build())
@@ -112,6 +117,24 @@ class NativeRenderer {
 	}
 	
 	
+	public function readPixels (rect:Rectangle):Image {
+		
+		var data:Dynamic = lime_renderer_read_pixels (handle, rect);
+		
+		if (data != null) {
+			
+			var buffer = new ImageBuffer (new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b)), data.width, data.height, data.bitsPerPixel);
+			buffer.format = RGBA32;
+			
+			return new Image (buffer);
+			
+		}
+		
+		return null;
+		
+	}
+	
+	
 	public function render ():Void {
 		
 		#if !macro
@@ -164,6 +187,7 @@ class NativeRenderer {
 	@:cffi private static function lime_renderer_get_type (handle:Dynamic):Dynamic;
 	@:cffi private static function lime_renderer_lock (handle:Dynamic):Dynamic;
 	@:cffi private static function lime_renderer_make_current (handle:Dynamic):Void;
+	@:cffi private static function lime_renderer_read_pixels (handle:Dynamic, rect:Dynamic):Dynamic;
 	@:cffi private static function lime_renderer_unlock (handle:Dynamic):Void;
 	#end
 	

@@ -10,6 +10,8 @@ import lime.system.Display;
 
 #if openfl
 import openfl.display.Stage;
+#elseif flash
+import flash.display.Stage;
 #else
 typedef Stage = Dynamic;
 #end

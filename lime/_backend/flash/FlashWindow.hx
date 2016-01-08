@@ -48,6 +48,7 @@ class FlashWindow {
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
 		
 		parent.id = 0;
+		parent.stage = Lib.current.stage;
 		
 	}
 	

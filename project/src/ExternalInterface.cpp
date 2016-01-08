@@ -1088,6 +1088,27 @@ namespace lime {
 	}
 	
 	
+	value lime_renderer_read_pixels (value renderer, value rect) {
+		
+		Renderer* targetRenderer = (Renderer*)val_data (renderer);
+		ImageBuffer buffer;
+		
+		if (!val_is_null (rect)) {
+			
+			Rectangle _rect = Rectangle (rect);
+			targetRenderer->ReadPixels (&buffer, &_rect);
+			
+		} else {
+			
+			targetRenderer->ReadPixels (&buffer, NULL);
+			
+		}
+		
+		return buffer.Value ();
+		
+	}
+	
+	
 	void lime_renderer_unlock (value renderer) {
 		
 		((Renderer*)val_data (renderer))->Unlock ();
@@ -1453,6 +1474,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_renderer_get_type);
 	DEFINE_PRIME1 (lime_renderer_lock);
 	DEFINE_PRIME1v (lime_renderer_make_current);
+	DEFINE_PRIME2 (lime_renderer_read_pixels);
 	DEFINE_PRIME1v (lime_renderer_unlock);
 	DEFINE_PRIME2v (lime_render_event_manager_register);
 	DEFINE_PRIME2v (lime_sensor_event_manager_register);

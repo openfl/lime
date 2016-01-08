@@ -10,6 +10,7 @@ import lime.project.HXProject;
 import sys.io.File;
 import sys.FileSystem;
 
+
 class AssetHelper {
 	
 	
@@ -24,7 +25,7 @@ class AssetHelper {
 				var data = {
 					id : asset.id,
 					path : asset.resourceName,
-					type : Std.string(asset.type)
+					type : Std.string (asset.type)
 				}
 				
 				manifest.push (data);

@@ -459,7 +459,11 @@ class Image {
 	}
 	
 	
-	public static function fromBitmapData (bitmapData:#if flash BitmapData #else Dynamic #end):Image {
+	#if flash
+	public static function fromBitmapData (bitmapData:BitmapData):Image {
+	#else
+	public static function fromBitmapData (bitmapData:Dynamic):Image {
+	#end
 		
 		if (bitmapData == null) return null;
 		#if flash
@@ -483,7 +487,11 @@ class Image {
 	}
 	
 	
-	public static function fromCanvas (canvas:#if (js && html5) CanvasElement #else Dynamic #end):Image {
+	#if (js && html5)
+	public static function fromCanvas (canvas:CanvasElement):Image {
+	#else
+	public static function fromCanvas (canvas:Dynamic):Image {
+	#end
 		
 		if (canvas == null) return null;
 		var buffer = new ImageBuffer (null, canvas.width, canvas.height);
@@ -502,7 +510,11 @@ class Image {
 	}
 	
 	
-	public static function fromImageElement (image:#if (js && html5) ImageElement #else Dynamic #end):Image {
+	#if (js && html5)
+	public static function fromImageElement (image:ImageElement):Image {
+	#else
+	public static function fromImageElement (image:Dynamic):Image {
+	#end
 		
 		if (image == null) return null;
 		var buffer = new ImageBuffer (null, image.width, image.height);
@@ -1563,7 +1575,6 @@ class Image {
 	
 	
 	#if ((cpp || neko || nodejs) && !macro)
-	@:cffi private static function lime_image_encode (buffer:Dynamic, Type:Int, quality:Int):Dynamic;
 	@:cffi private static function lime_image_load (data:Dynamic):Dynamic;
 	#end
 	
