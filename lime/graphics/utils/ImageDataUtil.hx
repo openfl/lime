@@ -1083,6 +1083,20 @@ class ImageDataUtil {
 			
 		}
 		
+		var _operation = switch (operation) {
+			
+			case "!=": NOT_EQUALS;
+			case "==": EQUALS;
+			case "<" : LESS_THAN;
+			case "<=": LESS_THAN_OR_EQUAL_TO;
+			case ">" : GREATER_THAN;
+			case ">=": GREATER_THAN_OR_EQUAL_TO;
+			default: -1;
+			
+		}
+		
+		if (_operation == -1) return 0;
+		
 		var srcData = sourceImage.buffer.data;
 		var destData = image.buffer.data;
 		
@@ -1092,11 +1106,6 @@ class ImageDataUtil {
 		if (CFFI.enabled) return lime_image_data_util_threshold (image, sourceImage, sourceRect, destPoint, operation, threshold, color, mastk, copySource, format); else
 		#end
 		{
-			
-			trace ("hi");
-			trace (operation);
-			trace (StringTools.hex (_mask));
-			trace (StringTools.hex (_threshold));
 			
 			var hits = 0;
 			
@@ -1123,21 +1132,19 @@ class ImageDataUtil {
 					
 					value = __ucompare (pixelMask, _threshold);
 					
-					test = switch (operation) {
+					test = switch (_operation) {
 						
-						case "==": (value == 0);
-						case "<": (value == -1);
-						case ">": (value == 1);
-						case "!=": (value != 0);
-						case "<=": (value == 0 || value == -1);
-						case ">=": (value == 0 || value == 1);
+						case NOT_EQUALS: (value != 0);
+						case EQUALS: (value == 0);
+						case LESS_THAN: (value == -1);
+						case LESS_THAN_OR_EQUAL_TO: (value == 0 || value == -1);
+						case GREATER_THAN: (value == 1);
+						case GREATER_THAN_OR_EQUAL_TO: (value == 0 || value == 1);
 						default: false;
 						
 					}
 					
 					if (test) {
-						
-						
 						
 						_color.writeUInt8 (destData, destPosition, destFormat, destPremultiplied);
 						hits++;
@@ -1338,5 +1345,17 @@ private class ImageDataView {
 		
 	}
 	
+	
+}
+
+
+@:noCompletion @:dox(hide) @:enum private abstract ThresholdOperation(Int) from Int to Int {
+	
+	var NOT_EQUALS = 0;
+	var EQUALS = 1;
+	var LESS_THAN = 2;
+	var LESS_THAN_OR_EQUAL_TO = 3;
+	var GREATER_THAN = 4;
+	var GREATER_THAN_OR_EQUAL_TO = 5;
 	
 }
