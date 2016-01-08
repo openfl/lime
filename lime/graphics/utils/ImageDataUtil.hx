@@ -7,7 +7,6 @@ import haxe.io.Bytes;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.graphics.PixelFormat;
-import lime.graphics.utils.ImageDataUtil.Operation;
 import lime.math.color.ARGB;
 import lime.math.color.BGRA;
 import lime.math.color.RGBA;
@@ -1058,179 +1057,110 @@ class ImageDataUtil {
 	}
 	
 	
-	public static function threshold (destImage:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, operation:String, threshold:Int, color:Int = 0x00000000, mask:Int = 0xFFFFFFFF, copySource:Bool = false):Int {
+	public static function threshold (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, operation:String, threshold:Int, color:Int, mask:Int, copySource:Bool, format:PixelFormat):Int {
 		
-		var thresholdMask:Int = threshold & mask;
+		var _color:RGBA, _mask:RGBA, _threshold:RGBA;
 		
-		var a = (thresholdMask >> 24) & 0xFF;
-		var r = (thresholdMask >> 16) & 0xFF;
-		var g = (thresholdMask >>  8) & 0xFF;
-		var b = (thresholdMask      ) & 0xFF;
-		
-		var thresholdRGBA:RGBA = RGBA.create(r, g, b, a);
-		
-		a = (color >> 24) & 0xFF;
-		r = (color >> 16) & 0xFF;
-		g = (color >>  8) & 0xFF;
-		b = (color      ) & 0xFF;
-		
-		var colorRGBA:RGBA = RGBA.create(r, g, b, a);
-		
-		var operationEnum:Operation = switch(operation) {
+		switch (format) {
 			
-			case "==": EQUALS;
-			case "<" : LESS_THAN;
-			case ">" : GREATER_THAN;
-			case "<=": LESS_THAN_OR_EQUAL_TO;
-			case ">=": GREATER_THAN_OR_EQUAL_TO;
-			case "!=": NOT_EQUALS;
-			default  : EQUALS;
+			case ARGB32:
+				
+				_color = (color:ARGB);
+				_mask = (mask:ARGB);
+				_threshold = (threshold:ARGB);
+			
+			case BGRA32:
+				
+				_color = (color:BGRA);
+				_mask = (mask:BGRA);
+				_threshold = (threshold:BGRA);
+			
+			default:
+				
+				_color = color;
+				_mask = mask;
+				_threshold = threshold;
 			
 		}
 		
-		var hits:Int = 0;
+		var srcData = sourceImage.buffer.data;
+		var destData = image.buffer.data;
 		
-		if (sourceImage == destImage && sourceRect.equals (destImage.rect) && destPoint.x == 0 && destPoint.y == 0) {
+		if (srcData == null || destData == null) return 0;
+		
+		#if (false && (cpp || neko) && !disable_cffi && !macro)
+		if (CFFI.enabled) return lime_image_data_util_threshold (image, sourceImage, sourceRect, destPoint, operation, threshold, color, mastk, copySource, format); else
+		#end
+		{
 			
-			var pixelMask:Int, i, test;
+			trace ("hi");
+			trace (operation);
+			trace (StringTools.hex (_mask));
+			trace (StringTools.hex (_threshold));
 			
-			#if ((cpp || neko) && !disable_cffi && !macro)
-			if (CFFI.enabled) hits = lime_image_data_util_threshold_inner_loop (destImage, sourceImage, sourceRect, mask, thresholdRGBA, operationEnum, colorRGBA, new Rectangle(0, 0, sourceRect.width, sourceRect.height)); else
-			#end
-			{
+			var hits = 0;
+			
+			var srcView = new ImageDataView (sourceImage, sourceRect);
+			var destView = new ImageDataView (image, new Rectangle (destPoint.x, destPoint.y, srcView.width, srcView.height));
+			
+			var srcFormat = sourceImage.buffer.format;
+			var destFormat = image.buffer.format;
+			var srcPremultiplied = sourceImage.buffer.premultiplied;
+			var destPremultiplied = image.buffer.premultiplied;
+			
+			var srcPosition, destPosition, srcPixel:RGBA, destPixel:RGBA, pixelMask:Int, test:Bool, value:Int;
+			
+			for (y in 0...destView.height) {
 				
-				hits = __threshold_inner_loop (destImage, sourceImage, sourceRect, mask, thresholdRGBA, operationEnum, colorRGBA, 0, 0, Std.int(sourceRect.width), Std.int(sourceRect.height));
+				srcPosition = srcView.row (y);
+				destPosition = destView.row (y);
 				
-			}
-			
-		} else {
-			
-			var destData = destImage.buffer.data;
-			var destFormat = destImage.buffer.format;
-			var destPremultiplied = destImage.buffer.premultiplied;
-			
-			sourceRect = sourceRect.clone ();
-			
-			if (sourceRect.right > sourceImage.width) {
-				
-				sourceRect.width = sourceImage.width - sourceRect.x;
-				
-			}
-			
-			if (sourceRect.bottom > sourceImage.height) {
-				
-				sourceRect.height = sourceImage.height - sourceRect.y;
-				
-			}
-			
-			var targetRect = sourceRect.clone ();
-			targetRect.offsetPoint (destPoint);
-			
-			if (targetRect.right > destImage.width) {
-				
-				targetRect.width = destImage.width - targetRect.x;
-				
-			}
-			
-			if (targetRect.bottom > destImage.height) {
-				
-				targetRect.height = destImage.height - targetRect.y;
-				
-			}
-			
-			sourceRect.width = Math.min (sourceRect.width, targetRect.width);
-			sourceRect.height = Math.min (sourceRect.height, targetRect.height);
-			
-			var sx = Std.int (sourceRect.x);
-			var sy = Std.int (sourceRect.y);
-			var sw = Std.int (sourceRect.width);
-			var sh = Std.int (sourceRect.height);
-			
-			var dx = Std.int (destPoint.x);
-			var dy = Std.int (destPoint.y);
-			
-			var bw:Int = destImage.width - sw - dx;
-			var bh:Int = destImage.height - sh - dy;
-			
-			var dw:Int = (bw < 0) ? sw + (destImage.width - sw - dx) : sw;
-			var dh:Int = (bw < 0) ? sh + (destImage.height - sh - dy) : sh;
-			
-			if (copySource) {
-				
-				destImage.copyPixels(sourceImage, sourceRect, destPoint);
+				for (x in 0...destView.width) {
+					
+					srcPixel.readUInt8 (srcData, srcPosition, srcFormat, srcPremultiplied);
+					
+					pixelMask = srcPixel & _mask;
+					
+					value = __ucompare (pixelMask, _threshold);
+					
+					test = switch (operation) {
+						
+						case "==": (value == 0);
+						case "<": (value == -1);
+						case ">": (value == 1);
+						case "!=": (value != 0);
+						case "<=": (value == 0 || value == -1);
+						case ">=": (value == 0 || value == 1);
+						default: false;
+						
+					}
+					
+					if (test) {
+						
+						
+						
+						_color.writeUInt8 (destData, destPosition, destFormat, destPremultiplied);
+						hits++;
+						
+					}
+					
+					srcPosition += 4;
+					destPosition += 4;
+					
+				}
 				
 			}
 			
-			var pixelMask:Int, i, test;
-			
-			#if ((cpp || neko) && !disable_cffi && !macro)
-			if (CFFI.enabled) hits = lime_image_data_util_threshold_inner_loop (destImage, sourceImage, sourceRect, mask, thresholdRGBA, operationEnum, cast colorRGBA, new Rectangle(sx, sy, dw, dh)); else
-			#end
-			{
+			if (hits > 0) {
 				
-				hits = __threshold_inner_loop (destImage, sourceImage, sourceRect, mask, thresholdRGBA, operationEnum, colorRGBA, sx, sy, dw, dh);
+				image.dirty = true;
 				
 			}
 			
 			return hits;
-		}
-		
-		return 0;
-	}
-	
-	private static inline function __threshold_inner_loop (image:Image, sourceImage:Image, sourceRect:Rectangle, mask:Int, threshold:Int, operation:Operation, color:Int, startX:Int, startY:Int, destWidth:Int, destHeight:Int):Int {
-		
-		var srcView = new ImageDataView(sourceImage, sourceRect);
-		var srcPixel:RGBA = 0;
-		var srcPosition:Int = 0;
-		var srcFormat = sourceImage.buffer.format;
-		var srcPremultiplied = sourceImage.buffer.premultiplied;
-		var srcData = sourceImage.buffer.data;
-		
-		var colorRGBA:RGBA = color;
-		
-		var pixelMask:Int = 0;
-		var i = 0;
-		var test = false;
-		var hits = 0;
-		
-		for (yy in 0...destHeight) {
-			
-			srcPosition = srcView.row (yy + startY);
-			srcPosition += (4 * startX);
-			
-			for (xx in 0...destWidth) {
-				
-				srcPixel.readUInt8 (srcData, srcPosition, srcFormat, srcPremultiplied);
-				pixelMask = srcPixel & mask;
-				
-				i = __ucompare (pixelMask, threshold);
-				
-				test = switch(operation) {
-					
-					case EQUALS: (i == 0);
-					case LESS_THAN: (i == -1);
-					case GREATER_THAN: (i == 1);
-					case NOT_EQUALS: (i != 0);
-					case LESS_THAN_OR_EQUAL_TO: (i == 0 || i == -1);
-					case GREATER_THAN_OR_EQUAL_TO: (i == 0 || i == 1);
-					default: false;
-					
-				}
-				
-				if (test) {
-					
-					colorRGBA.writeUInt8(srcData, srcPosition, srcFormat, srcPremultiplied);
-					hits++;
-					
-				}
-				
-				srcPosition += 4;
-			}
 			
 		}
 		
-		return hits;
 	}
 	
 	
@@ -1263,10 +1193,10 @@ class ImageDataUtil {
 	}
 	
 	
-	private static function __ucompare (n1:Int, n2:Int) : Int {
+	private static inline function __ucompare (n1:Int, n2:Int):Int {
 		
-		var tmp1 : Int;
-		var tmp2 : Int;
+		var tmp1:Int;
+		var tmp2:Int;
 		
 		tmp1 = (n1 >> 24) & 0xFF;
 		tmp2 = (n2 >> 24) & 0xFF;
@@ -1315,6 +1245,8 @@ class ImageDataUtil {
 		}
 		
 	}
+	
+	
 	
 	
 	// Native Methods
@@ -1407,14 +1339,4 @@ private class ImageDataView {
 	}
 	
 	
-}
-
-
-@:enum abstract Operation(Int) from Int to Int{
-	var EQUALS = 0;
-	var LESS_THAN = 1;
-	var GREATER_THAN = 2;
-	var LESS_THAN_OR_EQUAL_TO = 3;
-	var GREATER_THAN_OR_EQUAL_TO = 4;
-	var NOT_EQUALS = 5;
 }

@@ -842,12 +842,6 @@ class Image {
 		
 	}
 	
-	public function threshold(sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, operation:String, threshold:Int, color:Int = 0x00000000, mask:Int = 0xFFFFFFFF, copySource:Bool = false):Int {
-		
-		return ImageDataUtil.threshold(this, sourceImage, sourceRect, destPoint, operation, threshold, color, mask, copySource);
-		
-	}
-	
 	
 	public function setPixel32 (x:Int, y:Int, color:Int, format:PixelFormat = null):Void {
 		
@@ -964,6 +958,52 @@ class Image {
 			default:
 			
 		}
+		
+	}
+	
+	
+	public function threshold (sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, operation:String, threshold:Int, color:Int = 0x00000000, mask:Int = 0xFFFFFFFF, copySource:Bool = false, format:PixelFormat = null):Int {
+		
+		if (buffer == null || sourceImage == null || sourceRect == null) return 0;
+		
+		switch (type) {
+			
+			case CANVAS, DATA:
+				
+				#if (js && html5)
+				ImageCanvasUtil.convertToData (this);
+				#end
+				
+				return ImageDataUtil.threshold (this, sourceImage, sourceRect, destPoint, operation, threshold, color, mask, copySource, format);
+			
+			case FLASH:
+				
+				var _color:ARGB = switch (format) {
+					
+					case ARGB32: color;
+					case BGRA32: (color:BGRA);
+					default: (color:RGBA);
+					
+				}
+				
+				var _mask:ARGB = switch (format) {
+					
+					case ARGB32: mask;
+					case BGRA32: (mask:BGRA);
+					default: (mask:RGBA);
+					
+				}
+				
+				sourceRect.offset (sourceImage.offsetX, sourceImage.offsetY);
+				destPoint.offset (offsetX, offsetY);
+				
+				return buffer.__srcBitmapData.threshold (sourceImage.buffer.src, sourceRect.__toFlashRectangle (), destPoint.__toFlashPoint (), operation, threshold, _color, _mask, copySource);
+				
+			default:
+			
+		}
+		
+		return 0;
 		
 	}
 	
