@@ -108,11 +108,11 @@ class FileDialog {
 		var paths:Array<String> = null;
 		
 		switch (type) {
-				
+			
 			case OPEN:
 				
 				path = lime_file_dialog_open_file (filter, defaultPath);
-				
+			
 			case OPEN_DIRECTORY:
 				
 				path = lime_file_dialog_open_directory (filter, defaultPath);
@@ -126,7 +126,7 @@ class FileDialog {
 				path = lime_file_dialog_save_file (filter, defaultPath);
 			
 		}
-			
+		
 		switch (type) {
 			
 			case OPEN, OPEN_DIRECTORY, SAVE:
