@@ -305,7 +305,7 @@ public class SDLActivity extends Activity {
         if (!SDLActivity.mIsPaused && SDLActivity.mIsSurfaceReady) {
             SDLActivity.mIsPaused = true;
             SDLActivity.nativePause();
-            mSurface.enableSensor(Sensor.TYPE_ACCELEROMETER, false);
+            mSurface.handlePause();
         }
     }
 
@@ -432,19 +432,11 @@ public class SDLActivity extends Activity {
     public static native void onNativeAccel(float x, float y, float z);
     public static native void onNativeSurfaceChanged();
     public static native void onNativeSurfaceDestroyed();
-    public static native void nativeFlipBuffers();
     public static native int nativeAddJoystick(int device_id, String name,
                                                int is_accelerometer, int nbuttons,
                                                int naxes, int nhats, int nballs);
     public static native int nativeRemoveJoystick(int device_id);
     public static native String nativeGetHint(String name);
-
-    /**
-     * This method is called by SDL using JNI.
-     */
-    public static void flipBuffers() {
-        SDLActivity.nativeFlipBuffers();
-    }
 
     /**
      * This method is called by SDL using JNI.
@@ -693,12 +685,30 @@ public class SDLActivity extends Activity {
 
     /**
      * This method is called by SDL using JNI.
+     * @return an InputStream on success or null if no expansion file was used.
+     * @throws IOException on errors. Message is set for the SDL error message.
      */
     public InputStream openAPKExpansionInputStream(String fileName) throws IOException {
         // Get a ZipResourceFile representing a merger of both the main and patch files
         if (expansionFile == null) {
-            Integer mainVersion = Integer.valueOf(nativeGetHint("SDL_ANDROID_APK_EXPANSION_MAIN_FILE_VERSION"));
-            Integer patchVersion = Integer.valueOf(nativeGetHint("SDL_ANDROID_APK_EXPANSION_PATCH_FILE_VERSION"));
+            String mainHint = nativeGetHint("SDL_ANDROID_APK_EXPANSION_MAIN_FILE_VERSION");
+            if (mainHint == null) {
+                return null; // no expansion use if no main version was set
+            }
+            String patchHint = nativeGetHint("SDL_ANDROID_APK_EXPANSION_PATCH_FILE_VERSION");
+            if (patchHint == null) {
+                return null; // no expansion use if no patch version was set
+            }
+
+            Integer mainVersion;
+            Integer patchVersion;
+            try {
+                mainVersion = Integer.valueOf(mainHint);
+                patchVersion = Integer.valueOf(patchHint);
+            } catch (NumberFormatException ex) {
+                ex.printStackTrace();
+                throw new IOException("No valid file versions set for APK expansion files", ex);
+            }
 
             try {
                 // To avoid direct dependency on Google APK expansion library that is
@@ -713,6 +723,7 @@ public class SDLActivity extends Activity {
                 ex.printStackTrace();
                 expansionFile = null;
                 expansionFileMethod = null;
+                throw new IOException("Could not access APK expansion support library", ex);
             }
         }
 
@@ -721,12 +732,14 @@ public class SDLActivity extends Activity {
         try {
             fileStream = (InputStream)expansionFileMethod.invoke(expansionFile, fileName);
         } catch (Exception ex) {
+            // calling "getInputStream" failed
             ex.printStackTrace();
-            fileStream = null;
+            throw new IOException("Could not open stream from APK expansion file", ex);
         }
 
         if (fileStream == null) {
-            throw new IOException();
+            // calling "getInputStream" was successful but null was returned
+            throw new IOException("Could not find path in APK expansion file");
         }
 
         return fileStream;
@@ -990,6 +1003,10 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         // Some arbitrary defaults to avoid a potential division by zero
         mWidth = 1.0f;
         mHeight = 1.0f;
+    }
+
+    public void handlePause() {
+        enableSensor(Sensor.TYPE_ACCELEROMETER, false);
     }
 
     public void handleResume() {
