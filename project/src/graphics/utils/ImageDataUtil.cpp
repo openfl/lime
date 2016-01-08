@@ -606,71 +606,8 @@ namespace lime {
 	}
 	
 	
-	int ImageDataUtil::ThresholdInnerLoop (Image* image, Image* sourceImage, Rectangle* sourceRect, int mask, int threshold, int operation, int color, Rectangle* destRect) {
+	int __pixelCompare (int32_t n1, int32_t n2) {
 		
-		int startX = (int)destRect->x;
-		int startY = (int)destRect->y;
-		int destWidth = (int)destRect->width;
-		int destHeight = (int)destRect->height;
-		
-		ImageDataView srcView = ImageDataView (sourceImage, sourceRect);
-		RGBA srcPixel;
-		int srcPosition = 0;
-		PixelFormat srcFormat = image->buffer->format;
-		bool srcPremultiplied = image->buffer->premultiplied;
-		uint8_t* srcData = (uint8_t*)sourceImage->buffer->data->Data ();
-		
-		RGBA colorRGBA = RGBA (color);
-		
-		int pixelMask = 0;
-		int i = 0;
-		bool test = false;
-		int hits = 0;
-		
-		for(int yy = 0; yy < destHeight; yy++) {
-			
-			srcPosition = srcView.Row (yy + startY);
-			srcPosition += (4 * startX);
-			
-			for(int xx = 0; xx < destWidth; xx++) {
-			
-				srcPixel.ReadUInt8 (srcData, srcPosition, srcFormat, srcPremultiplied);
-				pixelMask = srcPixel.Get() & mask;
-				
-				i = Ucompare (pixelMask, threshold);
-				
-				switch(operation) {
-					
-					case 0: test = (i == 0); 			//EQUALS
-						   break;
-					case 1: test = (i == -1);			//LESS_THAN
-						   break;
-					case 2: test = (i == 1); 			//GREATER_THAN
-						   break;
-					case 3: test = (i != 0);				//NOT_EQUALS
-						   break;
-					case 4: test = (i == 0 || i == -1); 	//LESS_THAN_OR_EQUAL_TO
-						   break;
-					case 5: test = (i == 0 || i == 1);		//GREATER_THAN_OR_EQUAL_TO
-						   break;
-				}
-				
-				if (test) {
-					
-					colorRGBA.WriteUInt8 (srcData, srcPosition, srcFormat, srcPremultiplied);
-					hits++;
-					
-				}
-				
-				srcPosition += 4;
-			}
-		}
-		
-		return hits;
-	}
-	
-	int ImageDataUtil::Ucompare (int n1, int n2) {
-	
 		int tmp1;
 		int tmp2;
 		
@@ -721,8 +658,78 @@ namespace lime {
 		}
 		
 		return 0;
-	
+		
 	}
+	
+	
+	int ImageDataUtil::Threshold (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, int operation, int32_t threshold, int32_t color, int32_t mask, bool copySource) {
+		
+		RGBA _color (color);
+		int hits = 0;
+		
+		uint8_t* srcData = (uint8_t*)sourceImage->buffer->data->Data ();
+		uint8_t* destData = (uint8_t*)image->buffer->data->Data ();
+		
+		ImageDataView srcView = ImageDataView (sourceImage, sourceRect);
+		Rectangle destRect = Rectangle (destPoint->x, destPoint->y, srcView.width, srcView.height);
+		ImageDataView destView = ImageDataView (image, &destRect);
+		
+		PixelFormat srcFormat = sourceImage->buffer->format;
+		PixelFormat destFormat = image->buffer->format;
+		bool srcPremultiplied = sourceImage->buffer->premultiplied;
+		bool destPremultiplied = image->buffer->premultiplied;
+		
+		int srcPosition, destPosition, value;
+		RGBA srcPixel, destPixel;
+		int32_t pixelMask;
+		bool test;
+		
+		for (int y = 0; y < destView.height; y++) {
+			
+			srcPosition = srcView.Row (y);
+			destPosition = destView.Row (y);
+			
+			for (int x = 0; x < destView.width; x++) {
+				
+				srcPixel.ReadUInt8 (srcData, srcPosition, srcFormat, srcPremultiplied);
+				
+				pixelMask = srcPixel.Get () & mask;
+				
+				value = __pixelCompare (pixelMask, threshold);
+				
+				switch (operation) {
+					
+					case 0: test = (value != 0); break;
+					case 1: test = (value == 0); break;
+					case 2: test = (value == -1); break;
+					case 3: test = (value == 0 || value == -1); break;
+					case 4: test = (value == 1); break;
+					case 5: test = (value == 0 || value == 1); break;
+					
+				}
+				
+				if (test) {
+					
+					_color.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
+					hits++;
+					
+				} else if (copySource) {
+					
+					srcPixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
+					
+				}
+				
+				srcPosition += 4;
+				destPosition += 4;
+				
+			}
+			
+		}
+		
+		return hits;
+		
+	}
+	
 	
 	void ImageDataUtil::UnmultiplyAlpha (Image* image) {
 		

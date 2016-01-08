@@ -1102,12 +1102,12 @@ class ImageDataUtil {
 		
 		if (srcData == null || destData == null) return 0;
 		
-		#if (false && (cpp || neko) && !disable_cffi && !macro)
-		if (CFFI.enabled) return lime_image_data_util_threshold (image, sourceImage, sourceRect, destPoint, operation, threshold, color, mastk, copySource, format); else
+		var hits = 0;
+		
+		#if ((cpp || neko) && !disable_cffi && !macro)
+		if (CFFI.enabled) hits = lime_image_data_util_threshold (image, sourceImage, sourceRect, destPoint, _operation, (_threshold >> 16) & 0xFFFF, (_threshold) & 0xFFFF, (_color >> 16) & 0xFFFF, (_color) & 0xFFFF, (_mask >> 16) & 0xFFFF, (_mask) & 0xFFFF, copySource); else
 		#end
 		{
-			
-			var hits = 0;
 			
 			var srcView = new ImageDataView (sourceImage, sourceRect);
 			var destView = new ImageDataView (image, new Rectangle (destPoint.x, destPoint.y, srcView.width, srcView.height));
@@ -1130,7 +1130,7 @@ class ImageDataUtil {
 					
 					pixelMask = srcPixel & _mask;
 					
-					value = __ucompare (pixelMask, _threshold);
+					value = __pixelCompare (pixelMask, _threshold);
 					
 					test = switch (_operation) {
 						
@@ -1149,6 +1149,10 @@ class ImageDataUtil {
 						_color.writeUInt8 (destData, destPosition, destFormat, destPremultiplied);
 						hits++;
 						
+					} else if (copySource) {
+						
+						srcPixel.writeUInt8 (destData, destPosition, destFormat, destPremultiplied);
+						
 					}
 					
 					srcPosition += 4;
@@ -1158,15 +1162,15 @@ class ImageDataUtil {
 				
 			}
 			
-			if (hits > 0) {
-				
-				image.dirty = true;
-				
-			}
+		}
+		
+		if (hits > 0) {
 			
-			return hits;
+			image.dirty = true;
 			
 		}
+		
+		return hits;
 		
 	}
 	
@@ -1200,7 +1204,7 @@ class ImageDataUtil {
 	}
 	
 	
-	private static inline function __ucompare (n1:Int, n2:Int):Int {
+	private static inline function __pixelCompare (n1:Int, n2:Int):Int {
 		
 		var tmp1:Int;
 		var tmp2:Int;
@@ -1273,7 +1277,7 @@ class ImageDataUtil {
 	@:cffi private static function lime_image_data_util_resize (image:Dynamic, buffer:Dynamic, width:Int, height:Int):Void;
 	@:cffi private static function lime_image_data_util_set_format (image:Dynamic, format:Int):Void;
 	@:cffi private static function lime_image_data_util_set_pixels (image:Dynamic, rect:Dynamic, bytes:Dynamic, format:Int):Void;
-	@:cffi private static function lime_image_data_util_threshold_inner_loop (image:Dynamic, sourceImage:Image, sourceRect:Dynamic, mask:Int, threshold:Int, operation:Int, color:Int, destRect:Dynamic):Int;
+	@:cffi private static function lime_image_data_util_threshold (image:Dynamic, sourceImage:Image, sourceRect:Dynamic, destPoint:Dynamic, operation:Int, thresholdRG:Int, thresholdBA:Int, colorRG:Int, colorBA:Int, maskRG:Int, maskBA:Int, copySource:Bool):Int;
 	@:cffi private static function lime_image_data_util_unmultiply_alpha (image:Dynamic):Void;
 	#end
 	

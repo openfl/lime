@@ -769,13 +769,16 @@ namespace lime {
 		
 	}
 	
-	int lime_image_data_util_threshold_inner_loop (value image, value sourceImage, value sourceRect, int mask, int threshold, int operation, int color, value destRect) {
+	int lime_image_data_util_threshold (value image, value sourceImage, value sourceRect, value destPoint, int operation, int thresholdRG, int thresholdBA, int colorRG, int colorBA, int maskRG, int maskBA, bool copySource) {
 		
 		Image _image = Image (image);
 		Image _sourceImage = Image (sourceImage);
 		Rectangle _sourceRect = Rectangle (sourceRect);
-		Rectangle _destRect = Rectangle (destRect);
-		return ImageDataUtil::ThresholdInnerLoop (&_image, &_sourceImage, &_sourceRect, mask, threshold, operation, color, &_destRect);
+		Vector2 _destPoint = Vector2 (destPoint);
+		int32_t threshold = (thresholdRG << 16) | thresholdBA;
+		int32_t color = (colorRG << 16) | colorBA;
+		int32_t mask = (maskRG << 16) | maskBA;
+		return ImageDataUtil::Threshold (&_image, &_sourceImage, &_sourceRect, &_destPoint, operation, threshold, color, mask, copySource);
 		
 	}
 	
@@ -1441,7 +1444,7 @@ namespace lime {
 	DEFINE_PRIME4v (lime_image_data_util_resize);
 	DEFINE_PRIME2v (lime_image_data_util_set_format);
 	DEFINE_PRIME4v (lime_image_data_util_set_pixels);
-	DEFINE_PRIME8v (lime_image_data_util_threshold_inner_loop);
+	DEFINE_PRIME12 (lime_image_data_util_threshold);
 	DEFINE_PRIME1v (lime_image_data_util_unmultiply_alpha);
 	DEFINE_PRIME3 (lime_image_encode);
 	DEFINE_PRIME1 (lime_image_load);
