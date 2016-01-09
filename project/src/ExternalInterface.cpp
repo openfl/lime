@@ -1371,6 +1371,7 @@ namespace lime {
 		
 	}
 	
+	
 	void lime_window_set_enable_text_events (value window, bool enabled) {
 		
 		Window* targetWindow = (Window*)val_data (window);
@@ -1410,6 +1411,7 @@ namespace lime {
 		return targetWindow->SetResizable (resizable);
 		
 	}
+	
 	
 	value lime_window_set_title (value window, HxString title) {
 		

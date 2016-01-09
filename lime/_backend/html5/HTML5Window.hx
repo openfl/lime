@@ -599,7 +599,7 @@ class HTML5Window {
 	
 	public function setBorderless (value:Bool):Bool {
 		
-		return false;
+		return value;
 		
 	}
 	
@@ -696,7 +696,7 @@ class HTML5Window {
 	
 	public function setResizable (value:Bool):Bool {
 		
-		return false;
+		return value;
 		
 	}
 	

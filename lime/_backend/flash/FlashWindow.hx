@@ -94,6 +94,7 @@ class FlashWindow {
 		
 	}
 	
+	
 	public function setEnableTextEvents (value:Bool):Bool {
 		
 		return enableTextEvents = value;

@@ -21,7 +21,7 @@ class Window {
 	
 	
 	public var application (default, null):Application;
-	public var borderless(get, set):Bool;
+	public var borderless (get, set):Bool;
 	public var config:WindowConfig;
 	public var display (get, null):Display;
 	public var enableTextEvents (get, set):Bool;
@@ -71,7 +71,6 @@ class Window {
 	@:noCompletion private var __width:Int;
 	@:noCompletion private var __x:Int;
 	@:noCompletion private var __y:Int;
-	@:noCompletion private var __returnState: { width:Int, height:Int, x:Int, y:Int, resizable:Bool, borderless:Bool };
 	
 	
 	public function new (config:WindowConfig = null) {
@@ -402,10 +401,9 @@ class Window {
 	
 	@:noCompletion private function set_resizable (value:Bool):Bool {
 		
-		__resizable = backend.setResizable(value);
-		backend.setBorderless(!__borderless);		//resizable property won't update until you change another property like the borderless property
-		backend.setBorderless(__borderless);
+		__resizable = backend.setResizable (value);
 		return __resizable;
+		
 	}
 	
 	

@@ -274,6 +274,11 @@ class NativeWindow {
 			
 			#if !macro
 			lime_window_set_resizable (handle, value);
+			
+			// TODO: remove need for workaround
+			
+			lime_window_set_borderless (handle, !parent.__borderless);
+			lime_window_set_borderless (handle, parent.__borderless);
 			#end
 			
 		}

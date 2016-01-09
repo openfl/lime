@@ -335,41 +335,35 @@ namespace lime {
 	}
 	
 	
-	const char* SDLWindow::SetTitle (const char* title) {
-		
-		SDL_SetWindowTitle (sdlWindow, title);
-		
-		return title;
-		
-	}
-	
-	
 	bool SDLWindow::SetResizable (bool resizable) {
 		
-		#ifdef HX_WINDOWS
+		#if defined(HX_WINDOWS)
 		
 		SDL_SysWMinfo info;
-		SDL_VERSION(&info.version);
-		SDL_GetWindowWMInfo(sdlWindow, &info);
-		
-		//toggling the window "resizable" property after window creation is not currently supported in SDL, so we have to do it manually
+		SDL_VERSION (&info.version);
+		SDL_GetWindowWMInfo (sdlWindow, &info);
 		
 		HWND hwnd = info.info.win.window;
-		DWORD style = GetWindowLong(hwnd, GWL_STYLE);
-		if (resizable)
-			style |= WS_THICKFRAME;
-		else
-			style &= ~WS_THICKFRAME;
-		SetWindowLong(hwnd, GWL_STYLE, style);
+		DWORD style = GetWindowLong (hwnd, GWL_STYLE);
 		
-		#endif
-		#ifdef HX_MACOS
+		if (resizable) {
+			
+			style |= WS_THICKFRAME;
+			
+		} else {
+			
+			style &= ~WS_THICKFRAME;
+			
+		}
+		
+		SetWindowLong (hwnd, GWL_STYLE, style);
+		
+		#elif defined(HX_MACOS)
 		
 		//TODO
 		//consider: http://stackoverflow.com/questions/10473700/set-window-resizable/10473949#10473949
 		
-		#endif
-		#ifdef HX_LINUX
+		#elif defined(HX_LINUX)
 		
 		//TODO
 		//maybe something in here? https://tronche.com/gui/x/xlib/ICC/client-to-window-manager/wm-normal-hints.html
@@ -377,6 +371,15 @@ namespace lime {
 		#endif
 		
 		return resizable;
+		
+	}
+	
+	
+	const char* SDLWindow::SetTitle (const char* title) {
+		
+		SDL_SetWindowTitle (sdlWindow, title);
+		
+		return title;
 		
 	}
 	
