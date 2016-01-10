@@ -548,7 +548,7 @@ class AudioSource {
 		#else
 		
 		var samples = (buffer.data.length * 8) / (buffer.channels * buffer.bitsPerSample);
-		return Std.int (samples / buffer.sampleRate * 1000) - offset;
+		return Std.int (samples / buffer.sampleRate * 1000);
 		
 		#end
 		
