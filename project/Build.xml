@@ -256,8 +256,10 @@
 	<include name="lib/zlib/files.xml" />
 	
 	<set name="DEBUGEXTRA" value="-debug" if="fulldebug" />
+	<set name="LIBSUFFIX" value="${HX_TARGET_SUFFIX}" if="HX_TARGET_SUFFIX" />
+	<set name="LIBSUFFIX" value="${LIBEXTRA}" unless="LIBSUFFIX" />
 	
-	<target id="lime" output="${LIBPREFIX}lime${DEBUGEXTRA}${LIBEXTRA}" tool="linker" toolid="${STD_MODULE_LINK}">
+	<target id="lime" output="${LIBPREFIX}lime${DEBUGEXTRA}${LIBSUFFIX}" tool="linker" toolid="${STD_MODULE_LINK}">
 		
 		<outdir name="${OUTPUT_DIR}/${BINDIR}" />
 		
