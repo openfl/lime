@@ -2,7 +2,6 @@ package lime.system;
 
 
 import lime.math.Rectangle;
-import lime.system.display;
 
 
 class Display {
