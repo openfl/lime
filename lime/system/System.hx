@@ -163,6 +163,19 @@ class System {
 			}
 			
 			display.currentMode = display.supportedModes[displayInfo.currentMode];
+			
+			var dpi:Dynamic = lime_system_get_display_dpi (id);
+			
+			if (dpi != null) {
+				
+				display.dpi = { vertical:0, horizontal:0, diagonal:0 };
+				
+				display.dpi.vertical   = dpi.vertical;
+				display.dpi.horizontal = dpi.horizontal;
+				display.dpi.diagonal   = dpi.diagonal;
+				
+			}
+			
 			return display;
 			
 		}
@@ -421,6 +434,7 @@ class System {
 	@:cffi private static function lime_system_set_allow_screen_timeout (value:Bool):Bool;
 	@:cffi private static function lime_system_get_directory (type:Int, company:String, title:String):Dynamic;
 	@:cffi private static function lime_system_get_display (index:Int):Dynamic;
+	@:cffi private static function lime_system_get_display_dpi (index:Int):Dynamic;
 	@:cffi private static function lime_system_get_num_displays ():Int;
 	@:cffi private static function lime_system_get_timer ():Float;
 	#end
