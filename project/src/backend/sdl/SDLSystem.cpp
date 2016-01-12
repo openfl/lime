@@ -304,6 +304,27 @@ namespace lime {
 		
 	}
 	
+	value System::GetDisplayDPI (int id) {
+		
+		value dpi = alloc_empty_object ();
+		
+		int id_diagonal   = val_id ("diagonal");
+		int id_horizontal = val_id ("horizontal");
+		int id_vertical   = val_id ("vertical");
+		
+		float ddpi = 0.0;
+		float hdpi = 0.0;
+		float vdpi = 0.0;
+		
+		SDL_GetDisplayDPI (id, &ddpi, &hdpi, &vdpi);
+		
+		alloc_field (dpi, id_diagonal  , alloc_float (ddpi));
+		alloc_field (dpi, id_horizontal, alloc_float (hdpi));
+		alloc_field (dpi, id_vertical  , alloc_float (vdpi));
+		
+		return dpi;
+		
+	}
 	
 	int System::GetNumDisplays () {
 		
