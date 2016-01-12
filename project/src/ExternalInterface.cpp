@@ -1300,6 +1300,14 @@ namespace lime {
 	}
 	
 	
+	int lime_window_get_display (value window) {
+		
+		Window* targetWindow = (Window*)val_data (window);
+		return targetWindow->GetDisplay ();
+		
+	}
+	
+	
 	bool lime_window_get_enable_text_events (value window) {
 		
 		Window* targetWindow = (Window*)val_data (window);
@@ -1527,6 +1535,7 @@ namespace lime {
 	DEFINE_PRIME5 (lime_window_create);
 	DEFINE_PRIME2v (lime_window_event_manager_register);
 	DEFINE_PRIME1v (lime_window_focus);
+	DEFINE_PRIME1 (lime_window_get_display);
 	DEFINE_PRIME1 (lime_window_get_enable_text_events);
 	DEFINE_PRIME1 (lime_window_get_height);
 	DEFINE_PRIME1 (lime_window_get_id);
