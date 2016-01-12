@@ -177,8 +177,10 @@ class System {
 			display.name = "Generic Display";
 			
 			#if flash
+			display.dpi = Capabilities.screenDPI;
 			display.currentMode = new DisplayMode (Std.int (Capabilities.screenResolutionX), Std.int (Capabilities.screenResolutionY), 60, ARGB32);
 			#else
+			display.dpi = 96; // TODO: Detect DPI on HTML5
 			display.currentMode = new DisplayMode (Browser.window.screen.width, Browser.window.screen.height, 60, ARGB32);
 			#end
 			
