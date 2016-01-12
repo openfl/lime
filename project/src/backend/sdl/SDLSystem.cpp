@@ -39,6 +39,7 @@ namespace lime {
 	
 	static int id_bounds;
 	static int id_currentMode;
+	static int id_dpi;
 	static int id_height;
 	static int id_name;
 	static int id_pixelFormat;
@@ -226,6 +227,7 @@ namespace lime {
 			
 			id_bounds = val_id ("bounds");
 			id_currentMode = val_id ("currentMode");
+			id_dpi = val_id ("dpi");
 			id_height = val_id ("height");
 			id_name = val_id ("name");
 			id_pixelFormat = val_id ("pixelFormat");
@@ -250,6 +252,10 @@ namespace lime {
 		SDL_Rect bounds = { 0, 0, 0, 0 };
 		SDL_GetDisplayBounds (id, &bounds);
 		alloc_field (display, id_bounds, Rectangle (bounds.x, bounds.y, bounds.w, bounds.h).Value ());
+		
+		float dpi = 0.0;
+		SDL_GetDisplayDPI (id, &dpi, NULL, NULL);
+		alloc_field (display, id_dpi, alloc_float (dpi));
 		
 		SDL_DisplayMode currentDisplayMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
 		SDL_DisplayMode displayMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
@@ -304,27 +310,6 @@ namespace lime {
 		
 	}
 	
-	value System::GetDisplayDPI (int id) {
-		
-		value dpi = alloc_empty_object ();
-		
-		int id_diagonal   = val_id ("diagonal");
-		int id_horizontal = val_id ("horizontal");
-		int id_vertical   = val_id ("vertical");
-		
-		float ddpi = 0.0;
-		float hdpi = 0.0;
-		float vdpi = 0.0;
-		
-		SDL_GetDisplayDPI (id, &ddpi, &hdpi, &vdpi);
-		
-		alloc_field (dpi, id_diagonal  , alloc_float (ddpi));
-		alloc_field (dpi, id_horizontal, alloc_float (hdpi));
-		alloc_field (dpi, id_vertical  , alloc_float (vdpi));
-		
-		return dpi;
-		
-	}
 	
 	int System::GetNumDisplays () {
 		

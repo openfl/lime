@@ -1160,12 +1160,6 @@ namespace lime {
 	}
 	
 	
-	value lime_system_get_display_dpi (int id) {
-		
-		return System::GetDisplayDPI (id);
-		
-	}
-	
 	int lime_system_get_num_displays () {
 		
 		return System::GetNumDisplays ();
@@ -1518,7 +1512,6 @@ namespace lime {
 	DEFINE_PRIME0 (lime_system_get_allow_screen_timeout);
 	DEFINE_PRIME3 (lime_system_get_directory);
 	DEFINE_PRIME1 (lime_system_get_display);
-	DEFINE_PRIME1 (lime_system_get_display_dpi);
 	DEFINE_PRIME0 (lime_system_get_num_displays);
 	DEFINE_PRIME0 (lime_system_get_timer);
 	DEFINE_PRIME1 (lime_system_set_allow_screen_timeout);

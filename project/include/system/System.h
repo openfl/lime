@@ -28,7 +28,6 @@ namespace lime {
 			static bool GetAllowScreenTimeout ();
 			static const char* GetDirectory (SystemDirectory type, const char* company, const char* title);
 			static value GetDisplay (int id);
-			static value GetDisplayDPI (int id);
 			static int GetNumDisplays ();
 			static double GetTimer ();
 			static bool SetAllowScreenTimeout (bool allow);

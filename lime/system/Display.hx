@@ -2,6 +2,7 @@ package lime.system;
 
 
 import lime.math.Rectangle;
+import lime.system.display;
 
 
 class Display {
@@ -22,7 +23,7 @@ class Display {
 	/**
 	 * Pixel density of the display
 	 */
-	public var dpi (default, null): { diagonal:Float, horizontal:Float, vertical:Float };
+	public var dpi (default, null):Float;
 	
 	/**
 	 * The name of the device, such as "Samsung SyncMaster P2350", "iPhone 6", "Occulus Rift DK2", etc.
