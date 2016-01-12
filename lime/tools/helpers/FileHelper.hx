@@ -245,6 +245,8 @@ class FileHelper {
 				
 			}
 			
+			if (project.config.
+			
 			LogHelper.info ("", " - \x1b[1mCopying library file:\x1b[0m " + path + " \x1b[3;37m->\x1b[0m " + targetPath);
 			
 			PathHelper.mkdir (targetDirectory);
