@@ -1658,14 +1658,18 @@ class CommandLineTools {
 					
 					if (argument.substr (0, 4) == "-arm") {
 						
-						var name = argument.substr (1).toUpperCase ();
-						var value = Type.createEnum (Architecture, name);
-						
-						if (value != null) {
+						try {
 							
-							overrides.architectures.push (value);
+							var name = argument.substr (1).toUpperCase ();
+							var value = Type.createEnum (Architecture, name);
 							
-						}
+							if (value != null) {
+								
+								overrides.architectures.push (value);
+								
+							}
+							
+						} catch (e:Dynamic) {}
 						
 					} else if (argument == "-64") {
 						
