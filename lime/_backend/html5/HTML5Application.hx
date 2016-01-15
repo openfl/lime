@@ -269,9 +269,21 @@ class HTML5Application {
 				
 				parent.window.onKeyDown.dispatch (keyCode, modifier);
 				
+				if (parent.window.onKeyDown.canceled) {
+					
+					event.preventDefault ();
+					
+				}
+				
 			} else {
 				
 				parent.window.onKeyUp.dispatch (keyCode, modifier);
+				
+				if (parent.window.onKeyUp.canceled) {
+					
+					event.preventDefault ();
+					
+				}
 				
 			}
 			
