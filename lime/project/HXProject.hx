@@ -1161,7 +1161,7 @@ class HXProject {
 		}
 		
 		var indexOfPeriod = main.lastIndexOf (".");
-        
+		
 		context.APP_MAIN_PACKAGE = main.substr (0, indexOfPeriod + 1);
 		context.APP_MAIN_CLASS = main.substr (indexOfPeriod + 1);
 		
@@ -1191,7 +1191,9 @@ class HXProject {
 			
 		}
 		
+		context.RELEASE = (type == "release");
 		context.DEBUG = debug;
+		context.FINAL = (type == "final");
 		context.SWF_VERSION = app.swfVersion;
 		context.PRELOADER_NAME = app.preloader;
 		
