@@ -3,6 +3,8 @@
 	
 	<section unless="display">
 		
+		<haxeflag name="--macro" value="exclude('lime')" />
+		
 		<haxelib name="hxcpp" if="cpp" unless="rebuild" />
 		<ndll name="std" haxelib="hxcpp" if="cpp" />
 		<ndll name="regexp" haxelib="hxcpp" if="cpp" />
