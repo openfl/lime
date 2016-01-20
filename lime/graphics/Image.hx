@@ -1084,7 +1084,7 @@ class Image {
 		
 		#if (js && html5)
 		var image = new JSImage ();
-		image.crossOrigin = "Anonymous";
+		//image.crossOrigin = "Anonymous"; // FIXME doesn't work in Safari
 		
 		var image_onLoaded = function (event) {
 			
@@ -1171,7 +1171,7 @@ class Image {
 		#if (js && html5)
 			
 			var image = new JSImage ();
-			image.crossOrigin = "Anonymous";
+			//image.crossOrigin = "Anonymous"; // FIXME doesn't work in Safari
 			
 			image.onload = function (_) {
 				
