@@ -143,6 +143,10 @@ class NativeApplication {
 		
 		AudioManager.shutdown ();
 		
+		#if !macro
+		lime_application_quit (handle);
+		#end
+		
 	}
 	
 	
@@ -499,7 +503,12 @@ class NativeApplication {
 				case WINDOW_CLOSE:
 					
 					window.onClose.dispatch ();
-					window.close ();
+					
+					if (!window.onClose.canceled) {
+						
+						window.close ();
+						
+					}
 				
 				case WINDOW_DEACTIVATE:
 					

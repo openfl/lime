@@ -131,6 +131,12 @@ class System {
 			
 			Application.current.onExit.dispatch (code);
 			
+			if (Application.current.onExit.canceled) {
+				
+				return;
+				
+			}
+			
 		}
 		
 		Sys.exit (code);
