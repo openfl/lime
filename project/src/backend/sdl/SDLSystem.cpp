@@ -253,8 +253,10 @@ namespace lime {
 		SDL_GetDisplayBounds (id, &bounds);
 		alloc_field (display, id_bounds, Rectangle (bounds.x, bounds.y, bounds.w, bounds.h).Value ());
 		
-		float dpi = 0.0;
+		float dpi = 72.0;
+		#ifndef EMSCRIPTEN
 		SDL_GetDisplayDPI (id, &dpi, NULL, NULL);
+		#endif
 		alloc_field (display, id_dpi, alloc_float (dpi));
 		
 		SDL_DisplayMode currentDisplayMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
