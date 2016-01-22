@@ -1,3 +1,27 @@
+2.9.0 (01/22/2016)
+------------------
+
+* Updated to SDL 2.0.4
+* Updated to Cairo 1.14.6 and pixman 0.32.8
+* Changed default Android SDK version to 19 (enables immersive mode)
+* Added initial support for display.dpi
+* Added initial support for window.borderless and window.resizable
+* Added initial support for renderer.readPixels
+* Added support for image.threshold
+* Added open directory support to file dialog
+* Added support for stopping propagation of browser keyboard events
+* Added support for environment variables in if/unless conditionals
+* Added support for variable substitution in if/unless conditionals
+* Added MIPS and MIPSEL to architectures in tools
+* Improved guards against using lime.* classes with legacy
+* Improved support for the newer Android NDK
+* Improved handling of reference leaks in JNI access
+* Removed @:finalizer support, due to issues it caused
+* Fixed compatibility with HXCPP changes regarding Visual Studio 2015
+* Fixed support for window.display on scaled windows
+* Fixed a tool crash when using an unrecognized -armvX flag
+
+
 2.8.3 (01/02/2016)
 ------------------
 
