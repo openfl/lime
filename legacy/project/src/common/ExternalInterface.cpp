@@ -1034,6 +1034,22 @@ value nme_capabilities_get_language() {
 }
 DEFINE_PRIM (nme_capabilities_get_language, 0);
 
+value nme_capabilities_set_keep_screen_on () {
+   
+   CapabilitiesSetKeepScreenOn();
+   return  alloc_null();
+   
+}
+DEFINE_PRIM (nme_capabilities_set_keep_screen_on, 0);
+
+value nme_capabilities_set_keep_screen_auto () {
+   
+   CapabilitiesSetKeepScreenAuto();
+   return  alloc_null();
+   
+}
+DEFINE_PRIM (nme_capabilities_set_keep_screen_auto, 0);
+
 
 // ---  nme.filesystem -------------------------------------------------------------
 value nme_get_resource_path()

@@ -200,6 +200,8 @@ double CapabilitiesGetPixelAspectRatio ();
 double CapabilitiesGetScreenDPI ();
 double CapabilitiesGetScreenResolutionX ();
 double CapabilitiesGetScreenResolutionY ();
+void CapabilitiesSetKeepScreenOn();
+void CapabilitiesSetKeepScreenAuto();
 QuickVec<int>* CapabilitiesGetScreenResolutions ();
 QuickVec<ScreenMode>* CapabilitiesGetScreenModes ();
 

@@ -223,7 +223,38 @@ public class GameActivity extends Activity implements SensorEventListener {
 		return Locale.getDefault ().getLanguage ();
 		
 	}
+
+	public static void CapabilitiesSetKeepScreenOn () {
+		
+		activity.runOnUiThread(new Runnable() {
+			public void run() {
+				try{
+					activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+					Log.i("KSO", "Keep screen on ok");            		
+				}catch(Exception e) {
+					Log.i("KSO", "Exception");
+					Log.i("KSO", e.toString());
+				}
+			}
+		});	
+
+	}
 	
+	public static void CapabilitiesSetKeepScreenAuto () {
+		
+		activity.runOnUiThread(new Runnable() {
+			public void run() {
+				try{
+					activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+					Log.i("KSO", "Keep screen auto ok");            		
+				}catch(Exception e) {
+					Log.i("KSO", "Exception");
+					Log.i("KSO", e.toString());
+				}
+			}
+		});	
+
+	}
 	
 	public static void clearUserPreference (String inId) {
 		
