@@ -65,35 +65,6 @@ namespace nme {
 		return env->CallStaticDoubleMethod (cls, mid);
 		
 	}
-
-	void CapabilitiesSetKeepScreenOn () {
-		
-		JNIEnv *env = GetEnv();
-		#ifdef HX_LIME
-		jclass cls = FindClass("org/haxe/lime/GameActivity");
-        #else
-        jclass cls = FindClass("org/haxe/nme/GameActivity");
-        #endif
-		jmethodID mid = env->GetStaticMethodID(cls, "CapabilitiesSetKeepScreenOn", "()V");
-		if (mid == 0) return ;
-		env->CallStaticVoidMethod (cls, mid);
-	
-	}
-
-	void CapabilitiesSetKeepScreenAuto () {
-		
-		JNIEnv *env = GetEnv();
-		#ifdef HX_LIME
-		jclass cls = FindClass("org/haxe/lime/GameActivity");
-        #else
-        jclass cls = FindClass("org/haxe/nme/GameActivity");
-        #endif
-		jmethodID mid = env->GetStaticMethodID(cls, "CapabilitiesSetKeepScreenAuto", "()V");
-		if (mid == 0) return ;
-		env->CallStaticVoidMethod (cls, mid);
-	
-	}
-	
 	
 	double CapabilitiesGetScreenResolutionY () {
 		
@@ -216,6 +187,34 @@ namespace nme {
 		env->CallStaticVoidMethod(cls, mid, jInId );
 		env->DeleteLocalRef(jInId);
 		return true;
+	}
+
+	void SetKeepScreenAuto () {
+		
+		JNIEnv *env = GetEnv();
+		#ifdef HX_LIME
+		jclass cls = FindClass("org/haxe/lime/GameActivity");
+        #else
+        jclass cls = FindClass("org/haxe/nme/GameActivity");
+        #endif
+		jmethodID mid = env->GetStaticMethodID(cls, "SetKeepScreenAuto", "()V");
+		if (mid == 0) return ;
+		env->CallStaticVoidMethod (cls, mid);
+	
+	}
+
+	void SetKeepScreenOn () {
+		
+		JNIEnv *env = GetEnv();
+		#ifdef HX_LIME
+		jclass cls = FindClass("org/haxe/lime/GameActivity");
+        #else
+        jclass cls = FindClass("org/haxe/nme/GameActivity");
+        #endif
+		jmethodID mid = env->GetStaticMethodID(cls, "SetKeepScreenOn", "()V");
+		if (mid == 0) return ;
+		env->CallStaticVoidMethod (cls, mid);
+	
 	}
 
 

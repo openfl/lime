@@ -1034,21 +1034,23 @@ value nme_capabilities_get_language() {
 }
 DEFINE_PRIM (nme_capabilities_get_language, 0);
 
-value nme_capabilities_set_keep_screen_on () {
-   
-   CapabilitiesSetKeepScreenOn();
+value nme_set_keep_screen_on () {
+   #if defined(ANDROID) 
+   SetKeepScreenOn();
+   #endif 
    return  alloc_null();
    
 }
-DEFINE_PRIM (nme_capabilities_set_keep_screen_on, 0);
+DEFINE_PRIM (nme_set_keep_screen_on, 0);
 
-value nme_capabilities_set_keep_screen_auto () {
-   
-   CapabilitiesSetKeepScreenAuto();
+value nme_set_keep_screen_auto () {
+   #if defined(ANDROID) 
+   SetKeepScreenAuto();
+   #endif
    return  alloc_null();
    
 }
-DEFINE_PRIM (nme_capabilities_set_keep_screen_auto, 0);
+DEFINE_PRIM (nme_set_keep_screen_auto, 0);
 
 
 // ---  nme.filesystem -------------------------------------------------------------

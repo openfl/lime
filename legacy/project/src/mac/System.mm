@@ -53,16 +53,6 @@ double CapabilitiesGetScreenDPI()
 	return result;
 }
 
-void CapabilitiesSetKeepScreenOn()
-{
-
-}
-
-void CapabilitiesSetKeepScreenAuto()
-{
-	
-}
-
 double CapabilitiesGetPixelAspectRatio() {
 	#ifndef OBJC_ARC
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
