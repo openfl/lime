@@ -172,6 +172,16 @@ double CapabilitiesGetScreenResolutionY()
    return screenBounds.size.height;   
 }   
 
+void SetKeepScreenOn () 
+{
+   [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
+}
+
+void SetKeepScreenAuto () 
+{
+   [[UIApplication sharedApplication] setIdleTimerDisabled:NO];  
+}
+
 
 
 
