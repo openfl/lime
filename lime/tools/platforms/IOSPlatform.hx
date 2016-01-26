@@ -301,6 +301,33 @@ class IOSPlatform extends PlatformTarget {
 		
 		context.HXML_PATH = PathHelper.findTemplate (project.templatePaths, "iphone/PROJ/haxe/Build.hxml");
 		context.PRERENDERED_ICON = project.config.getBool ("ios.prerenderedIcon", false);
+
+		var insecureHttpAllowed = project.config.getString ("ios.insecure-http-allowed");
+		if (insecureHttpAllowed != null && insecureHttpAllowed != "") {
+				
+			context.INSECURE_HTTP_ALLOWED = "<key>NSAppTransportSecurity</key><dict>";
+			if (insecureHttpAllowed == "*") {
+			
+				context.INSECURE_HTTP_ALLOWED += "<key>NSAllowsArbitraryLoads</key><true/>";
+
+			}
+			else {
+
+				context.INSECURE_HTTP_ALLOWED += "<key>NSExceptionDomains</key><dict>";
+				var domains = StringTools.trim(insecureHttpAllowed).split('|');
+				for(domain in domains) {
+
+					context.INSECURE_HTTP_ALLOWED += '<key>$domain</key><dict><key>NSIncludesSubdomains</key><true/><key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key><true/><key>NSTemporaryExceptionMinimumTLSVersion</key><string>TLSv1.1</string></dict>';
+
+				}
+
+				context.INSECURE_HTTP_ALLOWED += "</dict>";
+
+			}
+
+			context.INSECURE_HTTP_ALLOWED += "</dict>";
+
+		}
 		
 		/*var assets = new Array <Asset> ();
 		

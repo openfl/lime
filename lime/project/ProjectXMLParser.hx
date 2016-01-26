@@ -1604,6 +1604,12 @@ class ProjectXMLParser extends HXProject {
 								//config.ios.linkerFlags.push (substitute (element.att.resolve ("linker-flags")));
 								
 							}
+
+							if (element.has.resolve("insecure-http-allowed")) {
+
+								config.push ("ios.insecure-http-allowed", substitute (element.att.resolve("insecure-http-allowed")));
+
+							}
 							
 						}
 
