@@ -128,17 +128,13 @@ class NativeWindow {
 	
 	public function getDisplay ():Display {
 		
-		var center = new Vector2 (parent.__x + (parent.__width / 2), parent.__y + (parent.__height / 2));
-		var numDisplays = System.numDisplays;
-		var display;
-		
-		for (i in 0...numDisplays) {
+		if (handle != null) {
 			
-			display = System.getDisplay (i);
+			var index = lime_window_get_display (handle);
 			
-			if (display.bounds.containsPoint (center)) {
+			if (index > -1) {
 				
-				return display;
+				return System.getDisplay (index);
 				
 			}
 			
@@ -307,6 +303,7 @@ class NativeWindow {
 	@:cffi private static function lime_window_close (handle:Dynamic):Void;
 	@:cffi private static function lime_window_create (application:Dynamic, width:Int, height:Int, flags:Int, title:String):Dynamic;
 	@:cffi private static function lime_window_focus (handle:Dynamic):Void;
+	@:cffi private static function lime_window_get_display (handle:Dynamic):Int;
 	@:cffi private static function lime_window_get_enable_text_events (handle:Dynamic):Bool;
 	@:cffi private static function lime_window_get_height (handle:Dynamic):Int;
 	@:cffi private static function lime_window_get_id (handle:Dynamic):Int;

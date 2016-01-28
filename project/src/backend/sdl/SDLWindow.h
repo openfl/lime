@@ -20,6 +20,7 @@ namespace lime {
 			virtual void Alert (const char* message, const char* title);
 			virtual void Close ();
 			virtual void Focus ();
+			virtual int GetDisplay ();
 			virtual bool GetEnableTextEvents ();
 			virtual int GetHeight ();
 			virtual uint32_t GetID ();

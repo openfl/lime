@@ -179,6 +179,13 @@ namespace lime {
 	}
 	
 	
+	int SDLWindow::GetDisplay () {
+		
+		return SDL_GetWindowDisplayIndex (sdlWindow);
+		
+	}
+	
+	
 	bool SDLWindow::GetEnableTextEvents () {
 		
 		return SDL_IsTextInputActive ();

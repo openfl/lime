@@ -131,6 +131,12 @@ class System {
 			
 			Application.current.onExit.dispatch (code);
 			
+			if (Application.current.onExit.canceled) {
+				
+				return;
+				
+			}
+			
 		}
 		
 		Sys.exit (code);
@@ -151,6 +157,8 @@ class System {
 			display.id = id;
 			display.name = displayInfo.name;
 			display.bounds = new Rectangle (displayInfo.bounds.x, displayInfo.bounds.y, displayInfo.bounds.width, displayInfo.bounds.height);
+			display.dpi = displayInfo.dpi;
+			
 			display.supportedModes = [];
 			
 			var displayMode;
@@ -163,6 +171,7 @@ class System {
 			}
 			
 			display.currentMode = display.supportedModes[displayInfo.currentMode];
+			
 			return display;
 			
 		}
@@ -174,8 +183,10 @@ class System {
 			display.name = "Generic Display";
 			
 			#if flash
+			display.dpi = Capabilities.screenDPI;
 			display.currentMode = new DisplayMode (Std.int (Capabilities.screenResolutionX), Std.int (Capabilities.screenResolutionY), 60, ARGB32);
 			#else
+			display.dpi = 96; // TODO: Detect DPI on HTML5
 			display.currentMode = new DisplayMode (Browser.window.screen.width, Browser.window.screen.height, 60, ARGB32);
 			#end
 			
