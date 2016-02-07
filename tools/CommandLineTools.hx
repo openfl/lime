@@ -1352,6 +1352,10 @@ class CommandLineTools {
 				
 				project.templatePaths.push (projectDefines.get (key));
 				
+			} else if (field == "config") {
+
+				project.config.set (attribute, projectDefines.get (key));
+
 			} else {
 				
 				if (Reflect.hasField (project, field)) {
