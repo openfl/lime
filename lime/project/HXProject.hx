@@ -988,80 +988,90 @@ class HXProject {
 			
 			#if (lime && !lime_legacy)
 			
-			var cache = LogHelper.verbose;
-			LogHelper.verbose = false;
-			var output = "";
-			
-			try {
+			if (PathHelper.haxelibOverrides.exists (name)) {
 				
-				output = ProcessHelper.runProcess ("", "haxelib", [ "path", name ], true, true, true);
+				var param = "-cp " + PathHelper.haxelibOverrides.get (name);
+				compilerFlags.remove (param);
+				compilerFlags.push (param);
 				
-			} catch (e:Dynamic) { }
-			
-			LogHelper.verbose = cache;
-			
-			var split = output.split ("\n");
-			var haxelibName = null;
-			
-			for (arg in split) {
+			} else {
 				
-				arg = StringTools.trim (arg);
+				var cache = LogHelper.verbose;
+				LogHelper.verbose = false;
+				var output = "";
 				
-				if (arg != "") {
+				try {
 					
-					if (!StringTools.startsWith (arg, "-")) {
+					output = ProcessHelper.runProcess ("", "haxelib", [ "path", name ], true, true, true);
+					
+				} catch (e:Dynamic) { }
+				
+				LogHelper.verbose = cache;
+				
+				var split = output.split ("\n");
+				var haxelibName = null;
+				
+				for (arg in split) {
+					
+					arg = StringTools.trim (arg);
+					
+					if (arg != "") {
 						
-						var path = PathHelper.standardize (arg);
-						
-						if (path != null && StringTools.trim (path) != "") {
+						if (!StringTools.startsWith (arg, "-")) {
 							
-							var param = "-cp " + path;
-							compilerFlags.remove (param);
-							compilerFlags.push (param);
+							var path = PathHelper.standardize (arg);
 							
-						}
-						
-						var version = "0.0.0";
-						var jsonPath = PathHelper.combine (path, "haxelib.json");
-						
-						try {
-							
-							if (FileSystem.exists (jsonPath)) {
+							if (path != null && StringTools.trim (path) != "") {
 								
-								var json = Json.parse (File.getContent (jsonPath));
-								haxelibName = json.name;
-								compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ "-D " + haxelibName + "=" + json.version ], true);
-								
-							}
-							
-						} catch (e:Dynamic) {}
-						
-					} else {
-						
-						if (StringTools.startsWith (arg, "-D ") && arg.indexOf ("=") == -1) {
-							
-							var name = arg.substr (3);
-							
-							if (name != haxelibName) {
-								
-								compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ "-D " + name ], true);
+								var param = "-cp " + path;
+								compilerFlags.remove (param);
+								compilerFlags.push (param);
 								
 							}
 							
-							/*var haxelib = new Haxelib (arg.substr (3));
-							var path = PathHelper.getHaxelib (haxelib);
-							var version = getHaxelibVersion (haxelib);
+							var version = "0.0.0";
+							var jsonPath = PathHelper.combine (path, "haxelib.json");
 							
-							if (path != null) {
+							try {
 								
-								CompatibilityHelper.patchProject (this, haxelib, version);
-								compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ "-D " + haxelib.name + "=" + version ], true);
+								if (FileSystem.exists (jsonPath)) {
+									
+									var json = Json.parse (File.getContent (jsonPath));
+									haxelibName = json.name;
+									compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ "-D " + haxelibName + "=" + json.version ], true);
+									
+								}
 								
-							}*/
+							} catch (e:Dynamic) {}
 							
-						} else if (!StringTools.startsWith (arg, "-L")) {
+						} else {
 							
-							compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ arg ], true);
+							if (StringTools.startsWith (arg, "-D ") && arg.indexOf ("=") == -1) {
+								
+								var name = arg.substr (3);
+								
+								if (name != haxelibName) {
+									
+									compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ "-D " + name ], true);
+									
+								}
+								
+								/*var haxelib = new Haxelib (arg.substr (3));
+								var path = PathHelper.getHaxelib (haxelib);
+								var version = getHaxelibVersion (haxelib);
+								
+								if (path != null) {
+									
+									CompatibilityHelper.patchProject (this, haxelib, version);
+									compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ "-D " + haxelib.name + "=" + version ], true);
+									
+								}*/
+								
+							} else if (!StringTools.startsWith (arg, "-L")) {
+								
+								compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ arg ], true);
+								
+							}
 							
 						}
 						
