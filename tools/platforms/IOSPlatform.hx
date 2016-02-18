@@ -197,6 +197,13 @@ class IOSPlatform extends PlatformTarget {
 			requiredCapabilities.push( { name: "armv7", value: true } );
 			
 		}
+
+		var reqCap = project.config.getArray("ios.requiredCapabilities");
+		if( reqCap != null )
+			for( e in reqCap ){
+				if( e != null && e.requiredCapabilities != null )
+					requiredCapabilities.push( {name: e.requiredCapabilities, value: true} );
+		}
 		
 		context.REQUIRED_CAPABILITY = requiredCapabilities;
 		context.ARMV6 = armv6;
