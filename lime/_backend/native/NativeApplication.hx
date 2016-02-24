@@ -63,6 +63,11 @@ class NativeApplication {
 		
 		this.parent = parent;
 		frameRate = 60;
+
+		#if (lime_console && final)
+		// suppress traces in final builds
+		haxe.Log.trace = function(v:Dynamic, ?infos:haxe.PosInfos) {};
+		#end
 		
 		AudioManager.init ();
 		
