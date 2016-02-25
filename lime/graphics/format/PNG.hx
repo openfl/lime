@@ -4,6 +4,7 @@ package lime.graphics.format;
 import haxe.io.Bytes;
 import lime.graphics.Image;
 import lime.system.CFFI;
+import lime.utils.UInt8Array;
 
 #if (js && html5)
 import js.Browser;
@@ -35,7 +36,8 @@ class PNG {
 		
 		if (bufferData != null) {
 			
-			var buffer = new ImageBuffer (bufferData.data, bufferData.width, bufferData.height, bufferData.bpp, bufferData.format);
+			var u8a = new UInt8Array (@:privateAccess new Bytes (bufferData.data.length, bufferData.data.b));
+			var buffer = new ImageBuffer (u8a, bufferData.width, bufferData.height, bufferData.bpp, bufferData.format);
 			buffer.transparent = bufferData.transparent;
 			return new Image (buffer);
 			
@@ -55,8 +57,9 @@ class PNG {
 		var bufferData:Dynamic = lime_png_decode_file (path, decodeData);
 		
 		if (bufferData != null) {
-			
-			var buffer = new ImageBuffer (bufferData.data, bufferData.width, bufferData.height, bufferData.bpp, bufferData.format);
+
+			var u8a = new UInt8Array (@:privateAccess new Bytes (bufferData.data.length, bufferData.data.b));
+			var buffer = new ImageBuffer (u8a, bufferData.width, bufferData.height, bufferData.bpp, bufferData.format);
 			buffer.transparent = bufferData.transparent;
 			return new Image (buffer);
 			
