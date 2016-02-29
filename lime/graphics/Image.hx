@@ -23,9 +23,11 @@ import lime.utils.ArrayBuffer;
 import lime.utils.UInt8Array;
 
 #if (js && html5)
+import js.html.AnchorElement;
 import js.html.CanvasElement;
 import js.html.ImageElement;
 import js.html.Image in JSImage;
+import js.html.Location;
 import js.Browser;
 #elseif flash
 import flash.display.BitmapData;
@@ -66,6 +68,12 @@ class Image {
 	
 	private static var __base64Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	private static var __base64Encoder:BaseCode;
+	
+	#if (js && html5)
+	private static var __origin_hostname:String = Browser.location.hostname;
+	private static var __origin_port:String     = Browser.location.port;
+	private static var __origin_protocol:String = Browser.location.protocol;
+	#end
 	
 	public var buffer:ImageBuffer;
 	public var data (get, set):UInt8Array;
@@ -1171,7 +1179,19 @@ class Image {
 		#if (js && html5)
 			
 			var image = new JSImage ();
-			image.crossOrigin = "Anonymous";
+
+			// Do something like the same-origin test, so we can continue
+			// to use credentials for assets on the same site.
+			var a:AnchorElement = Browser.document.createAnchorElement();
+			a.href = path;
+			if ( a.hostname != __origin_hostname || a.port != __origin_port || a.protocol != __origin_protocol )
+			{
+				// Force "anonymous" mode.  For W3C HTML5, this will avoid 
+				// credentials altogether; for WHATWG HTML, this will turn
+				// on "cors" mode and use credentials only for same-origin
+				// requests.
+				image.crossOrigin = "Anonymous";
+			}
 			
 			image.onload = function (_) {
 				
