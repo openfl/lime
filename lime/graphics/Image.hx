@@ -240,6 +240,7 @@ class Image {
 				
 				#if (js && html5)
 				ImageCanvasUtil.convertToData (this);
+				ImageCanvasUtil.convertToData (sourceImage);
 				#end
 				
 				ImageDataUtil.copyChannel (this, sourceImage, sourceRect, destPoint, sourceChannel, destChannel);
