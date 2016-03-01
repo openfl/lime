@@ -3,7 +3,6 @@
 
 
 #include <hx/CFFI.h>
-#include <stdint.h>
 
 
 namespace lime {

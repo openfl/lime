@@ -57,11 +57,6 @@ class Event<T> {
 		#end
 		
 	}
-  
-  public function stopPropagation():Void
-  {
-    interrupt = true;
-  }
 	
 	
 	#if macro
@@ -236,17 +231,17 @@ class Event<T> {
 					//
 					//$ethis.remove (listeners[i]);
 					//
-				// } else {
+				//} else {
 					//
 					//i++;
 					//
-				// }
+				//}
 				//
-			// }
+			//}
 			//
-		// }
+		//}
 		//
-	// }
+	//}
 	
 	
 	public function has (listener:T):Bool {

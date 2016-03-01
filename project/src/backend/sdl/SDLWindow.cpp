@@ -324,20 +324,23 @@ namespace lime {
 		
 	}
 	
-  bool SDLWindow::SetMaximized (bool maximized)
-  {
-    if (maximized)
-    {
-      SDL_MaximizeWindow(sdlWindow);
-      
-    }
-    else
-    {
-      SDL_RestoreWindow(sdlWindow);
-    }
-    
-    return maximized;
-  }
+	
+	bool SDLWindow::SetMaximized (bool maximized) {
+		
+		if (maximized) {
+			
+			SDL_MaximizeWindow (sdlWindow);
+			
+		} else {
+			
+			SDL_RestoreWindow (sdlWindow);
+			
+		}
+		
+		return maximized;
+		
+	}
+	
 	
 	bool SDLWindow::SetMinimized (bool minimized) {
 		

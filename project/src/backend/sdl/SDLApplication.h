@@ -7,11 +7,11 @@
 #include <app/ApplicationEvent.h>
 #include <graphics/RenderEvent.h>
 #include <system/SensorEvent.h>
+#include <ui/DropEvent.h>
 #include <ui/GamepadEvent.h>
 #include <ui/JoystickEvent.h>
 #include <ui/KeyEvent.h>
 #include <ui/MouseEvent.h>
-#include <ui/DropEvent.h>
 #include <ui/TextEvent.h>
 #include <ui/TouchEvent.h>
 #include <ui/WindowEvent.h>
@@ -39,10 +39,10 @@ namespace lime {
 		private:
 			
 			void HandleEvent (SDL_Event* event);
+			void ProcessDropEvent (SDL_Event* event);
 			void ProcessGamepadEvent (SDL_Event* event);
 			void ProcessJoystickEvent (SDL_Event* event);
 			void ProcessKeyEvent (SDL_Event* event);
-			void ProcessDropEvent (SDL_Event* event);
 			void ProcessMouseEvent (SDL_Event* event);
 			void ProcessSensorEvent (SDL_Event* event);
 			void ProcessTextEvent (SDL_Event* event);
@@ -59,10 +59,10 @@ namespace lime {
 			ApplicationEvent applicationEvent;
 			Uint32 currentUpdate;
 			double framePeriod;
+			DropEvent dropEvent;
 			GamepadEvent gamepadEvent;
 			JoystickEvent joystickEvent;
 			KeyEvent keyEvent;
-			DropEvent dropEvent;
 			Uint32 lastUpdate;
 			MouseEvent mouseEvent;
 			double nextUpdate;

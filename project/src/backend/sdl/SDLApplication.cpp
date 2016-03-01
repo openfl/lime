@@ -28,8 +28,6 @@ namespace lime {
 			printf ("Could not initialize SDL: %s.\n", SDL_GetError ());
 			
 		}
-    
-    SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
 		
 		SDL_LogSetPriority (SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_WARN);
 		
@@ -48,10 +46,10 @@ namespace lime {
 		nextUpdate = 0;
 		
 		ApplicationEvent applicationEvent;
+		DropEvent dropEvent;
 		GamepadEvent gamepadEvent;
 		JoystickEvent joystickEvent;
 		KeyEvent keyEvent;
-    DropEvent dropEvent;
 		MouseEvent mouseEvent;
 		RenderEvent renderEvent;
 		SensorEvent sensorEvent;
@@ -59,6 +57,7 @@ namespace lime {
 		TouchEvent touchEvent;
 		WindowEvent windowEvent;
 		
+		SDL_EventState (SDL_DROPFILE, SDL_ENABLE);
 		SDLJoystick::Init ();
 		
 		#ifdef HX_MACOS
@@ -151,6 +150,11 @@ namespace lime {
 				ProcessGamepadEvent (event);
 				break;
 			
+			case SDL_DROPFILE:
+				
+				ProcessDropEvent (event);
+				break;
+			
 			case SDL_FINGERMOTION:
 			case SDL_FINGERDOWN:
 			case SDL_FINGERUP:
@@ -204,11 +208,6 @@ namespace lime {
 				ProcessTextEvent (event);
 				break;
 			
-      case SDL_DROPFILE:
-        
-        ProcessDropEvent (event);
-        break;
-      
 			case SDL_WINDOWEVENT:
 				
 				switch (event->window.event) {
@@ -261,6 +260,21 @@ namespace lime {
 		active = true;
 		lastUpdate = SDL_GetTicks ();
 		nextUpdate = lastUpdate;
+		
+	}
+	
+	
+	void SDLApplication::ProcessDropEvent (SDL_Event* event) {
+		
+		if (DropEvent::callback) {
+			
+			dropEvent.type = DROP_FILE;
+			dropEvent.file = event->drop.file;
+			
+			DropEvent::Dispatch (&dropEvent);
+			SDL_free (dropEvent.file);
+			
+		}
 		
 	}
 	
@@ -462,17 +476,6 @@ namespace lime {
 		
 	}
 	
-  void SDLApplication::ProcessDropEvent (SDL_Event* event)
-  {
-    if (DropEvent::callback)
-    {
-      dropEvent.type = DROP_FILE;
-      dropEvent.file = event->drop.file;
-      
-      DropEvent::Dispatch(&dropEvent);
-      SDL_free(dropEvent.file);
-    }
-  }
 	
 	void SDLApplication::ProcessKeyEvent (SDL_Event* event) {
 		
@@ -513,6 +516,8 @@ namespace lime {
 				
 				case SDL_MOUSEBUTTONDOWN:
 					
+					SDL_CaptureMouse (SDL_TRUE);
+					
 					mouseEvent.type = MOUSE_DOWN;
 					mouseEvent.button = event->button.button - 1;
 					mouseEvent.x = event->button.x;
@@ -520,6 +525,8 @@ namespace lime {
 					break;
 				
 				case SDL_MOUSEBUTTONUP:
+					
+					SDL_CaptureMouse (SDL_FALSE);
 					
 					mouseEvent.type = MOUSE_UP;
 					mouseEvent.button = event->button.button - 1;

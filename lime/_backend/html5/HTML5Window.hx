@@ -687,6 +687,13 @@ class HTML5Window {
 	}
 	
 	
+	public function setMaximized (value:Bool):Bool {
+		
+		return false;
+		
+	}
+	
+	
 	public function setMinimized (value:Bool):Bool {
 		
 		return false;
