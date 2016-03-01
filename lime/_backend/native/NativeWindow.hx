@@ -80,6 +80,7 @@ class NativeWindow {
 				
 			}
 			
+			if (Reflect.hasField (parent.config, "allowHighDPI") && parent.config.allowHighDPI) flags |= cast WindowFlags.WINDOW_FLAG_ALLOW_HIGHDPI;
 			if (Reflect.hasField (parent.config, "borderless") && parent.config.borderless) flags |= cast WindowFlags.WINDOW_FLAG_BORDERLESS;
 			if (Reflect.hasField (parent.config, "depthBuffer") && parent.config.depthBuffer) flags |= cast WindowFlags.WINDOW_FLAG_DEPTH_BUFFER;
 			if (Reflect.hasField (parent.config, "fullscreen") && parent.config.fullscreen) flags |= cast WindowFlags.WINDOW_FLAG_FULLSCREEN;
@@ -354,5 +355,6 @@ class NativeWindow {
 	var WINDOW_FLAG_REQUIRE_SHADERS = 0x00000100;
 	var WINDOW_FLAG_DEPTH_BUFFER = 0x00000200;
 	var WINDOW_FLAG_STENCIL_BUFFER = 0x00000400;
+	var WINDOW_FLAG_ALLOW_HIGHDPI = 0x00000800;
 	
 }
