@@ -87,6 +87,7 @@ class NativeWindow {
 			if (Reflect.hasField (parent.config, "resizable") && parent.config.resizable) flags |= cast WindowFlags.WINDOW_FLAG_RESIZABLE;
 			if (Reflect.hasField (parent.config, "stencilBuffer") && parent.config.stencilBuffer) flags |= cast WindowFlags.WINDOW_FLAG_STENCIL_BUFFER;
 			if (Reflect.hasField (parent.config, "vsync") && parent.config.vsync) flags |= cast WindowFlags.WINDOW_FLAG_VSYNC;
+			if (Reflect.hasField (parent.config, "colors32b") && parent.config.colors32b) flags |= cast WindowFlags.WINDOW_FLAG_COLORS_32B;
 			
 			if (Reflect.hasField (parent.config, "title")) {
 				
@@ -338,5 +339,7 @@ class NativeWindow {
 	var WINDOW_FLAG_REQUIRE_SHADERS = 0x00000100;
 	var WINDOW_FLAG_DEPTH_BUFFER = 0x00000200;
 	var WINDOW_FLAG_STENCIL_BUFFER = 0x00000400;
+	var WINDOW_FLAG_COLORS_32B = 0x00000800;
+
 	
 }

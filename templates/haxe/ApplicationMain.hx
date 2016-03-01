@@ -88,6 +88,7 @@ class ApplicationMain {
 					parameters: "::parameters::",
 					resizable: ::resizable::,
 					stencilBuffer: ::stencilBuffer::,
+					colors32b: ::colors32b::,
 					title: "::title::",
 					vsync: ::vsync::,
 					width: ::width::,
