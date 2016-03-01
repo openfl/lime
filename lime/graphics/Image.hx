@@ -1182,6 +1182,7 @@ class Image {
 
 			// Do something like the same-origin test, so we can continue
 			// to use credentials for assets on the same site.
+			// Note this does not take into account document.domain or similar.
 			var a:AnchorElement = Browser.document.createAnchorElement();
 			a.href = path;
 			if ( a.hostname != __origin_hostname || a.port != __origin_port || a.protocol != __origin_protocol )
