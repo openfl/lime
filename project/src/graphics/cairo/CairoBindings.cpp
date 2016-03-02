@@ -794,6 +794,27 @@ namespace lime {
 	
 	void lime_cairo_set_font_size (value handle, double size) {
 		
+		cairo_font_face_t* face = cairo_get_font_face ((cairo_t*)val_data (handle));
+		
+		if (face) {
+			
+			cairo_font_type_t type = cairo_font_face_get_type (face);
+			
+			if (type == CAIRO_FONT_TYPE_FT) {
+				
+				AutoGCRoot* fontReference = (AutoGCRoot*)cairo_font_face_get_user_data (face, &userData);
+				
+				if (fontReference) {
+					
+					Font* font = (Font*)val_data (fontReference->get ());
+					font->SetSize (size);
+					
+				}
+				
+			}
+			
+		}
+		
 		cairo_set_font_size ((cairo_t*)val_data (handle), size);
 		
 	}

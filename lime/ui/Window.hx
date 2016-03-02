@@ -28,11 +28,13 @@ class Window {
 	public var fullscreen (get, set):Bool;
 	public var height (get, set):Int;
 	public var id (default, null):Int;
+	public var maximized (get, set):Bool;
 	public var minimized (get, set):Bool;
 	public var onActivate = new Event<Void->Void> ();
 	public var onClose = new Event<Void->Void> ();
 	public var onCreate = new Event<Void->Void> ();
 	public var onDeactivate = new Event<Void->Void> ();
+	public var onDropFile = new Event<String->Void> ();
 	public var onEnter = new Event<Void->Void> ();
 	public var onFocusIn = new Event<Void->Void> ();
 	public var onFocusOut = new Event<Void->Void> ();
@@ -64,6 +66,7 @@ class Window {
 	@:noCompletion private var __borderless:Bool;
 	@:noCompletion private var __fullscreen:Bool;
 	@:noCompletion private var __height:Int;
+	@:noCompletion private var __maximized:Bool;
 	@:noCompletion private var __minimized:Bool;
 	@:noCompletion private var __resizable:Bool;
 	@:noCompletion private var __scale:Float;
@@ -378,6 +381,21 @@ class Window {
 	}
 	
 	
+	@:noCompletion private inline function get_maximized ():Bool {
+		
+		return __maximized;
+		
+	}
+	
+	
+	@:noCompletion private inline function set_maximized (value:Bool):Bool {
+		
+		__minimized = false;
+		return __maximized = backend.setMaximized (value);
+		
+	}
+	
+	
 	@:noCompletion private inline function get_minimized ():Bool {
 		
 		return __minimized;
@@ -387,6 +405,7 @@ class Window {
 	
 	@:noCompletion private function set_minimized (value:Bool):Bool {
 		
+		__maximized = false;
 		return __minimized = backend.setMinimized (value);
 		
 	}

@@ -227,6 +227,7 @@
 		<file name="src/system/CFFIPointer.cpp" />
 		<file name="src/system/JNI.cpp" if="android" />
 		<file name="src/system/SensorEvent.cpp" />
+		<file name="src/ui/DropEvent.cpp" />
 		<file name="src/ui/GamepadEvent.cpp" />
 		<file name="src/ui/JoystickEvent.cpp" />
 		<file name="src/ui/KeyEvent.cpp" />

@@ -35,6 +35,7 @@ namespace lime {
 			virtual void SetEnableTextEvents (bool enable) = 0;
 			virtual bool SetFullscreen (bool fullscreen) = 0;
 			virtual void SetIcon (ImageBuffer *imageBuffer) = 0;
+			virtual bool SetMaximized (bool minimized) = 0;
 			virtual bool SetMinimized (bool minimized) = 0;
 			virtual bool SetResizable (bool resizable) = 0;
 			virtual const char* SetTitle (const char* title) = 0;
@@ -62,7 +63,8 @@ namespace lime {
 		WINDOW_FLAG_REQUIRE_SHADERS = 0x00000100,
 		WINDOW_FLAG_DEPTH_BUFFER = 0x00000200,
 		WINDOW_FLAG_STENCIL_BUFFER = 0x00000400,
-		WINDOW_FLAG_COLORS_32B = 0x00000800
+		WINDOW_FLAG_ALLOW_HIGHDPI = 0x00000800,
+		WINDOW_FLAG_COLORS_32B = 0x00001000
 		
 	};
 	

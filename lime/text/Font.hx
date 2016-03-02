@@ -46,6 +46,7 @@ class Font {
 	@:noCompletion private var __fontPathWithoutDirectory:String;
 	#end
 	
+	
 	public function new (name:String = null) {
 		
 		if (name != null) {
@@ -154,7 +155,7 @@ class Font {
 		
 		#if ((cpp || neko || nodejs) && !macro)
 		
-		lime_font_set_size (src, fontSize);
+		__setSize (fontSize);
 		
 		var bytes = Bytes.alloc (0);
 		//bytes.endian = (System.endianness == BIG_ENDIAN ? "bigEndian" : "littleEndian");
@@ -389,6 +390,15 @@ class Font {
 			
 		}
 		
+		#end
+		
+	}
+	
+	
+	@:noCompletion private function __setSize (size:Int):Void {
+		
+		#if ((cpp || neko || nodejs) && !macro)
+		lime_font_set_size (src, size);
 		#end
 		
 	}

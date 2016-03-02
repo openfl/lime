@@ -300,6 +300,13 @@ class Module implements IModule {
 	
 	
 	/**
+	 * Called when a window drop file event is fired
+	 * @param	window	The window dispatching the event
+	 */
+	public function onWindowDropFile (window:Window, file:String):Void { }
+	
+	
+	/**
 	 * Called when a window enter event is fired
 	 * @param	window	The window dispatching the event
 	 */

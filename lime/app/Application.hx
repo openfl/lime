@@ -173,6 +173,7 @@ class Application extends Module {
 		window.onClose.add (onWindowClose.bind (window));
 		window.onCreate.add (onWindowCreate.bind (window));
 		window.onDeactivate.add (onWindowDeactivate.bind (window));
+		window.onDropFile.add (onWindowDropFile.bind (window));
 		window.onEnter.add (onWindowEnter.bind (window));
 		window.onFocusIn.add (onWindowFocusIn.bind (window));
 		window.onFocusOut.add (onWindowFocusOut.bind (window));
@@ -584,6 +585,17 @@ class Application extends Module {
 		for (module in modules) {
 			
 			module.onWindowDeactivate (window);
+			
+		}
+		
+	}
+	
+	
+	public override function onWindowDropFile (window:Window, file:String):Void {
+		
+		for (module in modules) {
+			
+			module.onWindowDropFile (window, file);
 			
 		}
 		

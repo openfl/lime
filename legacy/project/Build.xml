@@ -263,13 +263,16 @@
 		
 	</files>
 	
+	<set name="LIBSUFFIX" value="${HX_TARGET_SUFFIX}" if="HX_TARGET_SUFFIX" />
+	<set name="LIBSUFFIX" value="${LIBEXTRA}" unless="LIBSUFFIX" />
+	
 	<set name="LEGACY_SLIBEXT" value=".lib" if="windows" />
 	<set name="LEGACY_SLIBEXT" value=".a" unless="windows" />
 	<set name="LEGACY_PRELIB" value="${LEGACY_DEV}/lib/${BINDIR}/lib" />
-	<set name="LEGACY_POSTLIB" value="${LIBEXTRA}${LEGACY_SLIBEXT}" />
+	<set name="LEGACY_POSTLIB" value="${LIBSUFFIX}${LEGACY_SLIBEXT}" />
 	<set name="LEGACY_DEBUGEXTRA" value="-debug" if="fulldebug" />
 	
-	<target id="lime-legacy" output="${LIBPREFIX}lime-legacy${MSVC_LIB_VERSION}${LEGACY_DEBUGEXTRA}${LIBEXTRA}" tool="linker" toolid="${STD_MODULE_LINK}">
+	<target id="lime-legacy" output="${LIBPREFIX}lime-legacy${MSVC_LIB_VERSION}${LEGACY_DEBUGEXTRA}${LIBSUFFIX}" tool="linker" toolid="${STD_MODULE_LINK}">
 		
 		<outdir name="${LEGACY_OUTPUT_DIR}/${BINDIR}" />
 		
@@ -422,8 +425,8 @@
 			<section if="blackberry">
 				
 				<lib name="-L../legacy/ndll/BlackBerry" />
-				<lib name="-lSDL${LIBEXTRA}" />
-				<lib name="-lOpenAL${LIBEXTRA}" />
+				<lib name="-lSDL${LIBSUFFIX}" />
+				<lib name="-lOpenAL${LIBSUFFIX}" />
 				<lib name="-lbps" />
 				<lib name="-lscreen" />
 				<lib name="-lEGL" />

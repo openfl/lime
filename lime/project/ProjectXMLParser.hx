@@ -970,6 +970,7 @@ class ProjectXMLParser extends HXProject {
 						var name = substitute (element.att.name);
 						var version = "";
 						var optional = false;
+						var path = null;
 						
 						if (element.has.version) {
 							
@@ -983,6 +984,12 @@ class ProjectXMLParser extends HXProject {
 							
 						}
 						
+						if (element.has.path) {
+							
+							path = substitute (element.att.path);
+							
+						}
+						
 						/*if (name == "nme" && defines.exists ("openfl")) {
 							
 							name = "openfl-nme-compatibility";
@@ -991,21 +998,28 @@ class ProjectXMLParser extends HXProject {
 						}*/
 						
 						var haxelib = new Haxelib (name, version);
-						var path;
 						
-						if (defines.exists ("setup")) {
+						if (path == null) {
 							
-							path = PathHelper.getHaxelib (haxelib);
+							if (defines.exists ("setup")) {
+								
+								path = PathHelper.getHaxelib (haxelib);
+								
+							} else {
+								
+								path = PathHelper.getHaxelib (haxelib, !optional);
+								
+								if (optional && path == "") {
+									
+									continue;
+									
+								}
+								
+							}
 							
 						} else {
 							
-							path = PathHelper.getHaxelib (haxelib, !optional);
-							
-							if (optional && path == "") {
-								
-								continue;
-								
-							}
+							PathHelper.haxelibOverrides.set (name, path);
 							
 						}
 						
@@ -1739,6 +1753,14 @@ class ProjectXMLParser extends HXProject {
 					if (Reflect.hasField (windows[id], name)) {
 						
 						Reflect.setField (windows[id], name, Std.string (value));
+						
+					}
+				
+				case "allow-high-dpi":
+					
+					if (Reflect.hasField (windows[id], "allowHighDPI")) {
+						
+						Reflect.setField (windows[id], "allowHighDPI", value == "true");
 						
 					}
 				
