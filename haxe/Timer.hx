@@ -1,5 +1,5 @@
 package haxe;
-#if (!neko && !cpp && !nodejs && !cs)
+#if !lime_cffi
 
 
 // Original haxe.Timer class
@@ -293,35 +293,6 @@ class Timer {
 			
 			mFireAt += mTime;
 			run ();
-			
-		}
-		
-	}
-	
-	
-	@:noCompletion @:dox(hide) public static function __checkTimers () {
-		
-		var now = getMS ();
-		var foundNull = false;
-		var timer;
-		
-		for (i in 0...sRunningTimers.length) {
-			
-			timer = sRunningTimers[i];
-			
-			if (timer != null) {
-				
-				timer.__check (now);
-				
-			}
-			
-			foundNull = (foundNull || sRunningTimers[i] == null);
-			
-		}
-		
-		if (foundNull) {
-			
-			sRunningTimers = sRunningTimers.filter (function (val) { return val != null; });
 			
 		}
 		
