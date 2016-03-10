@@ -988,7 +988,14 @@ namespace lime {
 	value lime_system_get_directory (int type, HxString company, HxString title) {
 		
 		const char* path = System::GetDirectory ((SystemDirectory)type, company.__s, title.__s);
-		return path ? alloc_string (path) : alloc_null ();
+
+        if (path) {
+            value dirPath = alloc_string(path);
+            free((char *)dirPath);
+            return dirPath;
+        } else {
+            return alloc_null();
+        }
 		
 	}
 	
