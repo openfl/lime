@@ -224,6 +224,11 @@ class NativeWindow {
 			value = lime_window_set_fullscreen (handle, value);
 			#end
 			
+			parent.__width = lime_window_get_width (handle);
+			parent.__height = lime_window_get_height (handle);
+			parent.__x = lime_window_get_x (handle);
+			parent.__y = lime_window_get_y (handle);
+			
 			if (value) {
 				
 				parent.onFullscreen.dispatch ();
