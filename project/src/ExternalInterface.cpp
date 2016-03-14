@@ -247,7 +247,13 @@ namespace lime {
 		
 		if (Clipboard::HasText ()) {
 			
-			return alloc_string (Clipboard::GetText ());
+			const char* text = Clipboard::GetText ();
+			value _text = alloc_string (text);
+			
+			// TODO: Should we free for all backends? (SDL requires it)
+			
+			free ((char*)text);
+			return _text;
 			
 		} else {
 			
@@ -277,7 +283,18 @@ namespace lime {
 		
 		#ifdef LIME_NFD
 		const char* path = FileDialog::OpenDirectory (filter.__s, defaultPath.__s);
-		return path ? alloc_string (path) : alloc_null ();
+		
+		if (path) {
+			
+			value _path = alloc_string (path);
+			free ((char*) path);
+			return _path;
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
 		#endif
 		
 		return 0;
@@ -288,7 +305,18 @@ namespace lime {
 		
 		#ifdef LIME_NFD
 		const char* path = FileDialog::OpenFile (filter.__s, defaultPath.__s);
-		return path ? alloc_string (path) : alloc_null ();
+		
+		if (path) {
+			
+			value _path = alloc_string (path);
+			free ((char*) path);
+			return _path;
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
 		#endif
 		
 		return 0;
@@ -307,6 +335,7 @@ namespace lime {
 		for (int i = 0; i < files.size (); i++) {
 			
 			val_array_set_i (result, i, alloc_string (files[i]));
+			free ((char*)files[i]);
 			
 		}
 		#else
@@ -322,7 +351,18 @@ namespace lime {
 		
 		#ifdef LIME_NFD
 		const char* path = FileDialog::SaveFile (filter.__s, defaultPath.__s);
-		return path ? alloc_string (path) : alloc_null ();
+		
+		if (path) {
+			
+			value _path = alloc_string (path);
+			free ((char*) path);
+			return _path;
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
 		#endif
 		
 		return 0;
@@ -1157,14 +1197,18 @@ namespace lime {
 	value lime_system_get_directory (int type, HxString company, HxString title) {
 		
 		const char* path = System::GetDirectory ((SystemDirectory)type, company.__s, title.__s);
-
-        if (path) {
-            value dirPath = alloc_string(path);
-            free((char *)dirPath);
-            return dirPath;
-        } else {
-            return alloc_null();
-        }
+		
+		if (path) {
+			
+			value _path = alloc_string (path);
+			free ((char*) path);
+			return _path;
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
 		
 	}
 	
@@ -1449,7 +1493,18 @@ namespace lime {
 		
 		Window* targetWindow = (Window*)val_data (window);
 		const char* result = targetWindow->SetTitle (title.__s);
-		return result ? alloc_string (result) : alloc_null ();
+		
+		if (result) {
+			
+			value _result = alloc_string (result);
+			free ((char*) result);
+			return _result;
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
 		
 	}
 	
