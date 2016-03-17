@@ -298,6 +298,13 @@ class TVOSPlatform extends PlatformTarget {
 		
 		//updateIcon ();
 		//updateLaunchImage ();
+
+        var customHaxelib = Sys.getEnv("HAXELIB_PATH");
+        if (customHaxelib != null) {
+            context.CUSTOM_HAXELIB_PATH = 'export HAXELIB_PATH=$customHaxelib;';
+        } else {
+            context.CUSTOM_HAXELIB_PATH = '';
+        }
 		
 		return context;
 		
