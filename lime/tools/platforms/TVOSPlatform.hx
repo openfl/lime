@@ -298,18 +298,17 @@ class TVOSPlatform extends PlatformTarget {
 		context.HXML_PATH = PathHelper.findTemplate (project.templatePaths, "tvos/PROJ/haxe/Build.hxml");
 		context.PRERENDERED_ICON = project.config.getBool ("tvos.prerenderedIcon", false);
 		
-		/*var assets = new Array <Asset> ();
+		var haxelibPath = project.environment.get ("HAXELIB_PATH");
 		
-		for (asset in project.assets) {
+		if (haxelibPath != null) {
 			
-			var newAsset = asset.clone ();
+			context.HAXELIB_PATH = 'export HAXELIB_PATH=$haxelibPath;';
 			
-			assets.push ();
+		} else {
 			
-		}*/
-		
-		//updateIcon ();
-		//updateLaunchImage ();
+			context.HAXELIB_PATH = '';
+			
+		}
 		
 		return context;
 		
