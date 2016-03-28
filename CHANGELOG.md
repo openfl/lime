@@ -1,3 +1,21 @@
+2.9.1 (03/28/2016)
+------------------
+
+* Added automatic support for mouse capture when dragging
+* Added initial support for <haxelib path="" />
+* Added window.onDropFile, window.maximized
+* Added a missing dependency in the iOS project template
+* Added a polyfill for context.isPointInStroke (for IE support)
+* Added a flag to disable "allow-high-dpi" support
+* Improved support for Assets.loadBytes on Flash
+* Fixed some minor memory leaks when allocating CFFI strings
+* Fixed a rare crash in the tools when `haxelib path` does not work
+* Fixed the name suffix for Windows builds on newer HXCPP versions
+* Fixed an issue where Cairo could render text at the wrong size
+* Fixed the default company meta to be blank instead of a dummy value
+* Fixed the window position and size to update after fullscreen
+
+
 2.9.0 (01/22/2016)
 ------------------
 
