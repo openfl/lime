@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "2.9.0",
-	"releasenote": "Updated SDL and Cairo, additional APIs and fixes",
+	"version": "2.9.1",
+	"releasenote": "Added drag/drop and maximize support, other fixes and improvements",
 	"contributors": [ "singmajesty" ]
 }
