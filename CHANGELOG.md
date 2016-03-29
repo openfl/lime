@@ -2,7 +2,7 @@
 ------------------
 
 * Added automatic support for mouse capture when dragging
-* Added initial support for <haxelib path="" />
+* Added initial support for `<haxelib path="" \>`
 * Added window.onDropFile, window.maximized
 * Added a missing dependency in the iOS project template
 * Added a polyfill for context.isPointInStroke (for IE support)
