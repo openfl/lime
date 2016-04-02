@@ -1201,7 +1201,15 @@ namespace lime {
 		if (path) {
 			
 			value _path = alloc_string (path);
-			free ((char*) path);
+			
+			if (type != 4) {
+				
+				// TODO: Make this more consistent
+				
+				free ((char*) path);
+				
+			}
+			
 			return _path;
 			
 		} else {
