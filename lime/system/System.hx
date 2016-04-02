@@ -170,7 +170,15 @@ class System {
 				
 			}
 			
-			display.currentMode = display.supportedModes[displayInfo.currentMode];
+			if (Reflect.hasField (displayInfo, "currentMode")) {
+				
+				display.currentMode = display.supportedModes[displayInfo.currentMode];
+				
+			} else {
+				
+				display.currentMode = new DisplayMode (0, 0, 60, ARGB32);
+				
+			}
 			
 			return display;
 			
