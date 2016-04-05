@@ -1206,7 +1206,11 @@ namespace lime {
 				
 				// TODO: Make this more consistent
 				
-				free ((char*) path);
+				//This free() causes crashes on mac at least. Commenting it out makes it work
+				//again but may cause a small memory leak. Some more consideration is
+				//necessary to figure out what to do here
+				
+				//free ((char*) path);
 				
 			}
 			
