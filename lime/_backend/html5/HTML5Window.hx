@@ -49,10 +49,10 @@ class HTML5Window {
 	public var stats:Dynamic;
 	#end
 	
+	private var cacheMouseX:Float;
+	private var cacheMouseY:Float;
 	private var currentTouches = new Map<Int, Touch> ();
 	private var enableTextEvents:Bool;
-	private var lastMouseX:Float;
-	private var lastMouseY:Float;
 	private var parent:Window;
 	private var primaryTouch:Touch;
 	private var setHeight:Int;
@@ -69,6 +69,9 @@ class HTML5Window {
 			element = parent.config.element;
 			
 		}
+		
+		cacheMouseX = 0;
+		cacheMouseY = 0;
 		
 	}
 	
@@ -343,9 +346,10 @@ class HTML5Window {
 				
 				case "mousemove":
 					
-					if (x != lastMouseX || y != lastMouseY) {
+					if (x != cacheMouseX || y != cacheMouseY) {
 						
 						parent.onMouseMove.dispatch (x, y);
+						parent.onMouseMoveRelative.dispatch (x - cacheMouseX, y - cacheMouseY);
 						
 					}
 				
@@ -353,8 +357,8 @@ class HTML5Window {
 				
 			}
 			
-			lastMouseX = x;
-			lastMouseY = y;
+			cacheMouseX = x;
+			cacheMouseY = y;
 			
 		} else {
 			
