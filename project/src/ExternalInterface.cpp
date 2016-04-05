@@ -164,7 +164,8 @@ namespace lime {
 			
 		} else {
 			
-			bytes = Bytes (data);
+			bytes = Bytes();
+			bytes.Set(data);
 			resource = Resource (&bytes);
 			
 		}
