@@ -31,22 +31,22 @@ class WindowsPlatform extends PlatformTarget {
 	private var applicationDirectory:String;
 	private var executablePath:String;
 	private var targetType:String;
-    private var is64:Bool = false;
+	private var is64:Bool = false;
 
 	
 	public function new (command:String, _project:HXProject, targetFlags:Map <String, String> ) {
 		
 		super (command, _project, targetFlags);
 
-        for (architecture in project.architectures) {
+		for (architecture in project.architectures) {
 
-            if (architecture == Architecture.X64) {
+			if (architecture == Architecture.X64) {
 
-                is64 = true;
+				is64 = true;
 
-            }
+			}
 
-        }
+		}
 
 		if (project.targetFlags.exists ("neko") || project.target != PlatformHelper.hostPlatform) {
 			
@@ -142,10 +142,10 @@ class WindowsPlatform extends PlatformTarget {
 		} else {
 			
 			var haxeArgs = [ hxml ];
-            var flags = [ is64 ? "-DHXCPP_M64" : "" ];
+			var flags = [ is64 ? "-DHXCPP_M64" : "" ];
 
-            haxeArgs.push ("-D");
-            haxeArgs.push ((is64) ? "HXCPP_M64" : "HXCPP_M32");
+			haxeArgs.push ("-D");
+			haxeArgs.push ((is64) ? "HXCPP_M64" : "HXCPP_M32");
 			
 			if (!project.environment.exists ("SHOW_CONSOLE")) {
 				
