@@ -377,7 +377,7 @@ class NativeApplication {
 					if (renderer.backend.useHardware) {
 						
 						#if lime_console
-						renderer.context = CONSOLE (new ConsoleRenderContext ());
+						renderer.context = CONSOLE (ConsoleRenderContext.singleton);
 						#else
 						renderer.context = OPENGL (new GLRenderContext ());
 						#end
