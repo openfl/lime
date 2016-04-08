@@ -174,7 +174,7 @@ void TextField::setDefaultTextFormat(TextFormat *inFmt)
    if (defaultTextFormat)
       defaultTextFormat->DecRef();
    defaultTextFormat = inFmt;
-   textColor = defaultTextFormat->color;
+   textColor = defaultTextFormat->color(textColor);
    mLinesDirty = true;
    mGfxDirty = true;
    if (mCharGroups.empty() || (mCharGroups.size() == 1 && mCharGroups[0]->Chars() == 0))
