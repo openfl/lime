@@ -113,7 +113,7 @@ namespace lime {
 			if (SDL_GetWindowWMInfo (sdlWindow, &wminfo) == 1) {
 				
 				HWND hwnd = wminfo.info.win.window;
-				::SetClassLong (hwnd, GCL_HICON, reinterpret_cast<LONG>(icon));
+				::SetClassLongPtr (hwnd, GCLP_HICON, reinterpret_cast<LONG>(icon));
 				
 			}
 			

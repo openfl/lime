@@ -56,7 +56,7 @@ void init_win32()
 	icon = LoadIcon(handle, (char *)101);
 	SDL_GetWMInfo(&wminfo);
 	hwnd = wminfo.window;
-	SetClassLong(hwnd, GCL_HICON, (LONG)icon);
+	::SetClassLongPtr (hwnd, GCLP_HICON, reinterpret_cast<LONG>(icon));
 
 	SDL_putenv("SDL_VIDEO_WINDOW_POS=center");
 	SDL_putenv("SDL_VIDEO_CENTERED=center");

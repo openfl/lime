@@ -31,12 +31,23 @@ class WindowsPlatform extends PlatformTarget {
 	private var applicationDirectory:String;
 	private var executablePath:String;
 	private var targetType:String;
-	
+    private var is64:Bool = false;
+
 	
 	public function new (command:String, _project:HXProject, targetFlags:Map <String, String> ) {
 		
 		super (command, _project, targetFlags);
-		
+
+        for (architecture in project.architectures) {
+
+            if (architecture == Architecture.X64) {
+
+                is64 = true;
+
+            }
+
+        }
+
 		if (project.targetFlags.exists ("neko") || project.target != PlatformHelper.hostPlatform) {
 			
 			targetType = "neko";
@@ -51,7 +62,7 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 		
-		targetDirectory = project.app.path + "/windows/" + targetType;
+		targetDirectory = project.app.path + "/windows" + (is64 ? "64" : "") + "/" + targetType;
 		applicationDirectory = targetDirectory + "/bin/";
 		executablePath = applicationDirectory + project.app.file + ".exe";
 		
@@ -88,10 +99,10 @@ class WindowsPlatform extends PlatformTarget {
 		}
 		
 		if (!project.targetFlags.exists ("static") || targetType != "cpp") {
-			
+
 			for (ndll in project.ndlls) {
 				
-				FileHelper.copyLibrary (project, ndll, "Windows", "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll", applicationDirectory, project.debug);
+				FileHelper.copyLibrary (project, ndll, (is64) ? "Windows64" : "Windows", "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll", applicationDirectory, project.debug);
 				
 			}
 			
@@ -120,20 +131,21 @@ class WindowsPlatform extends PlatformTarget {
 			}
 			
 			NekoHelper.createWindowsExecutable (project.templatePaths, targetDirectory + "/obj/ApplicationMain.n", executablePath, iconPath);
-			NekoHelper.copyLibraries (project.templatePaths, "windows", applicationDirectory);
+			NekoHelper.copyLibraries (project.templatePaths, "windows" + (is64 ? "64" : ""), applicationDirectory);
 			
 		} else if (targetType == "nodejs") {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
 			//NekoHelper.createExecutable (project.templatePaths, "windows", targetDirectory + "/obj/ApplicationMain.n", executablePath);
-			NekoHelper.copyLibraries (project.templatePaths, "windows", applicationDirectory);
+			NekoHelper.copyLibraries (project.templatePaths, "windows" + (is64 ? "64" : ""), applicationDirectory);
 			
 		} else {
 			
 			var haxeArgs = [ hxml ];
-			var flags = [];
-			
-			flags.push ("-DHXCPP_M32");
+            var flags = [ is64 ? "-DHXCPP_M64" : "" ];
+
+            haxeArgs.push ("-D");
+            haxeArgs.push ((is64) ? "HXCPP_M64" : "HXCPP_M32");
 			
 			if (!project.environment.exists ("SHOW_CONSOLE")) {
 				
@@ -187,7 +199,7 @@ class WindowsPlatform extends PlatformTarget {
 	
 	public override function deploy ():Void {
 		
-		DeploymentHelper.deploy (project, targetFlags, targetDirectory, "Windows");
+		DeploymentHelper.deploy (project, targetFlags, targetDirectory, "Windows" + (is64 ? "64" : ""));
 		
 	}
 	
@@ -222,7 +234,7 @@ class WindowsPlatform extends PlatformTarget {
 		context.NEKO_FILE = targetDirectory + "/obj/ApplicationMain.n";
 		context.NODE_FILE = targetDirectory + "/bin/ApplicationMain.js";
 		context.CPP_DIR = targetDirectory + "/obj";
-		context.BUILD_DIR = project.app.path + "/windows";
+		context.BUILD_DIR = project.app.path + "/windows" + (is64 ? "64" : "");
 		
 		return context;
 		
@@ -238,7 +250,7 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 		
-		CPPHelper.rebuild (project, [[ "-Dwindows" ]]);
+		CPPHelper.rebuild (project, [[ "-Dwindows", (is64) ? "HXCPP_M64" : "HXCPP_M32" ]]);
 		
 	}
 	
@@ -300,7 +312,7 @@ class WindowsPlatform extends PlatformTarget {
 				
 				if (ndll.path == null || ndll.path == "") {
 					
-					context.ndlls[i].path = PathHelper.getLibraryPath (ndll, "Windows", "lib", ".lib", project.debug);
+					context.ndlls[i].path = PathHelper.getLibraryPath (ndll, "Windows" + (is64 ? "64" : ""), "lib", ".lib", project.debug);
 					
 				}
 				
