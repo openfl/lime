@@ -445,6 +445,7 @@ class HXProject {
 		ProcessHelper.runCommand ("", "haxe", [ name, "-main", "lime.project.HXProject", "-cp", tempDirectory, "-neko", nekoOutput, "-cp", PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "tools"), "-lib", "lime", "-D", "lime-curl", "-D", "native", "-D", "lime-native", "-D", "lime-cffi" ]);
 		ProcessHelper.runCommand ("", "neko", [ FileSystem.fullPath (nekoOutput), HXProject._command, name, Std.string (HXProject._target), Std.string (HXProject._debug), Serializer.run (HXProject._targetFlags), Serializer.run (HXProject._templatePaths), Serializer.run (HXProject._userDefines), temporaryFile ]);
 		
+		var tPaths:Array<String> = [];
 		try {
 			
 			var outputPath = PathHelper.combine (tempDirectory, "output.dat");
@@ -456,6 +457,10 @@ class HXProject {
 				unserializer.setResolver (cast { resolveEnum: Type.resolveEnum, resolveClass: resolveClass });
 				project = unserializer.unserialize ();
 				
+				//Because the project file template paths need to take priority,
+				//Add them after loading template paths from haxelibs below
+				tPaths = project.templatePaths; 
+				project.templatePaths = [];
 			}
 			
 		} catch (e:Dynamic) {}
@@ -468,7 +473,9 @@ class HXProject {
 			StringMapHelper.copyKeys (project.defines, defines);
 			
 			processHaxelibs (project, defines);
-			
+		
+			//Adding template paths from the Project file
+			project.templatePaths = ArrayHelper.concatUnique (project.templatePaths, tPaths, true);	
 		}
 		
 		return project;
