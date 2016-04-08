@@ -1297,6 +1297,7 @@ class CommandLineTools {
 			HXProject._debug = debug;
 			HXProject._target = target;
 			HXProject._targetFlags = targetFlags;
+            HXProject._userDefines = userDefines;
 			
 			try { Sys.setCwd (Path.directory (projectFile)); } catch (e:Dynamic) {}
 			

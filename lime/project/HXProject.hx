@@ -60,7 +60,7 @@ class HXProject {
 	public var targetFlags:Map <String, String>;
 	public var targetHandlers:Map <String, String>;
 	public var templateContext (get_templateContext, null):Dynamic;
-	public var templatePaths:Array <String>;
+	public var templatePaths:Array<String>;
 	@:isVar public var window (get, set):WindowData;
 	public var windows:Array <WindowData>;
 	
@@ -71,8 +71,9 @@ class HXProject {
 	public static var _command:String;
 	public static var _debug:Bool;
 	public static var _target:Platform;
-	public static var _targetFlags:Map <String, String>;
-	public static var _templatePaths:Array <String>;
+	public static var _targetFlags:Map<String, String>;
+	public static var _templatePaths:Array<String>;
+	public static var _userDefines:Map<String, Dynamic>;
 	
 	private static var initialized:Bool;
 	
@@ -92,6 +93,7 @@ class HXProject {
 		HXProject._debug = (args[3] == "true");
 		HXProject._targetFlags = Unserializer.run (args[4]);
 		HXProject._templatePaths = Unserializer.run (args[5]);
+		if (args.length > 6) HXProject._userDefines = Unserializer.run (args[6]);
 		
 		initialize ();
 		
@@ -102,7 +104,7 @@ class HXProject {
 		serializer.useCache = true;
 		serializer.serialize (instance);
 		
-		File.saveContent (args[6], serializer.toString ());
+		File.saveContent (args[7], serializer.toString ());
 		
 	}
 	
@@ -210,7 +212,17 @@ class HXProject {
 		window = ObjectHelper.copyFields (defaultWindow, {});
 		windows = [ window ];
 		assets = new Array <Asset> ();
-		defines = new Map <String, Dynamic> ();
+		
+		if (_userDefines != null) {
+			
+			defines = StringMapHelper.copy (_userDefines);
+			
+		} else {
+			
+			defines = new Map <String, Dynamic> ();
+			
+		}
+		
 		dependencies = new Array <Dependency> ();
 		environment = Sys.environment ();
 		haxedefs = new Map <String, Dynamic> ();
@@ -227,6 +239,8 @@ class HXProject {
 		samplePaths = new Array <String> ();
 		splashScreens = new Array <SplashScreen> ();
 		targetHandlers = new Map <String, String> ();
+		
+		
 		
 	}
 	
@@ -413,8 +427,8 @@ class HXProject {
 	
 	#if lime
 	
-	public static function fromFile (projectFile:String, userDefines:Map <String, Dynamic> = null, includePaths:Array <String> = null):HXProject {
-		
+	public static function fromFile (projectFile:String, userDefines:Map<String, Dynamic> = null, includePaths:Array<String> = null):HXProject {
+        
 		var project:HXProject = null;
 		
 		var path = FileSystem.fullPath (Path.withoutDirectory (projectFile));
@@ -429,7 +443,7 @@ class HXProject {
 		FileHelper.copyFile (path, classFile);
 		
 		ProcessHelper.runCommand ("", "haxe", [ name, "-main", "lime.project.HXProject", "-cp", tempDirectory, "-neko", nekoOutput, "-cp", PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "tools"), "-lib", "lime", "-D", "lime-curl", "-D", "native", "-D", "lime-native", "-D", "lime-cffi" ]);
-		ProcessHelper.runCommand ("", "neko", [ FileSystem.fullPath (nekoOutput), HXProject._command, name, Std.string (HXProject._target), Std.string (HXProject._debug), Serializer.run (HXProject._targetFlags), Serializer.run (HXProject._templatePaths), temporaryFile ]);
+		ProcessHelper.runCommand ("", "neko", [ FileSystem.fullPath (nekoOutput), HXProject._command, name, Std.string (HXProject._target), Std.string (HXProject._debug), Serializer.run (HXProject._targetFlags), Serializer.run (HXProject._templatePaths), Serializer.run (HXProject._userDefines), temporaryFile ]);
 		
 		try {
 			
