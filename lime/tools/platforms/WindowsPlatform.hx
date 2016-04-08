@@ -15,6 +15,7 @@ import lime.tools.helpers.NodeJSHelper;
 import lime.tools.helpers.PathHelper;
 import lime.tools.helpers.PlatformHelper;
 import lime.tools.helpers.ProcessHelper;
+import lime.project.Architecture;
 import lime.project.Asset;
 import lime.project.AssetType;
 import lime.project.Haxelib;
