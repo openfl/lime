@@ -313,6 +313,7 @@ DEFINE_LIME_PROP(text_field,auto_size);
 DEFINE_LIME_PROP(text_field,scroll_h);
 DEFINE_LIME_PROP(text_field,scroll_v);
 DEFINE_LIME_PROP(text_field,max_chars);
+DEFINE_LIME_PROP(text_field,caret_index);
 DEFINE_LIME_PROP_READ(text_field,text_width);
 DEFINE_LIME_PROP_READ(text_field,text_height);
 DEFINE_LIME_PROP_READ(text_field,max_scroll_h);

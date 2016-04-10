@@ -3504,6 +3504,7 @@ TEXT_PROP(max_chars,MaxChars,alloc_int,val_int);
 TEXT_PROP_GET_IDX(line_text,LineText,alloc_wstring);
 TEXT_PROP_GET_IDX(line_offset,LineOffset,alloc_int);
 
+TEXT_PROP(caret_index, CaretIndex, alloc_int, val_int);
 
 value nme_bitmap_data_create(value* arg, int nargs)
 {
