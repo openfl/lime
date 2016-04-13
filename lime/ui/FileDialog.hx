@@ -308,7 +308,7 @@ class FileDialog {
 	
 	
 	
-	#if (cpp || neko || nodejs)
+	#if lime_native
 	@:cffi private static function lime_file_dialog_open_directory (filter:String, defaultPath:String):Dynamic;
 	@:cffi private static function lime_file_dialog_open_file (filter:String, defaultPath:String):Dynamic;
 	@:cffi private static function lime_file_dialog_open_files (filter:String, defaultPath:String):Dynamic;

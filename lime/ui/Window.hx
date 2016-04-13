@@ -497,7 +497,7 @@ class Window {
 
 #if flash
 @:noCompletion private typedef WindowBackend = lime._backend.flash.FlashWindow;
-#elseif (js && html5)
+#elseif lime_html5
 @:noCompletion private typedef WindowBackend = lime._backend.html5.HTML5Window;
 #else
 @:noCompletion private typedef WindowBackend = lime._backend.native.NativeWindow;

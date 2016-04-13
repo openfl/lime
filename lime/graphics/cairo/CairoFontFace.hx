@@ -36,7 +36,7 @@ abstract CairoFontFace(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	
 	
-	#if ((cpp || neko || nodejs) && !macro)
+	#if (lime_native && !macro)
 	@:cffi private static function lime_cairo_font_face_status (handle:CFFIPointer):Int;
 	#end
 	

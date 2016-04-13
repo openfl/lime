@@ -4,7 +4,7 @@ package lime.app;
 import lime.app.Event;
 import lime.Assets;
 
-#if (js && html5)
+#if lime_html5
 import js.html.Image;
 import js.html.SpanElement;
 import js.Browser;
@@ -24,7 +24,7 @@ class Preloader #if flash extends Sprite #end {
 	public var onComplete = new Event<Void->Void> ();
 	public var onProgress = new Event<Int->Int->Void> ();
 	
-	#if (js && html5)
+	#if lime_html5
 	public static var images = new Map<String, Image> ();
 	public static var loaders = new Map<String, HTTPRequest> ();
 	private var loaded = 0;
@@ -63,7 +63,7 @@ class Preloader #if flash extends Sprite #end {
 	
 	public function load (urls:Array<String>, types:Array<AssetType>):Void {
 		
-		#if (js && html5)
+		#if lime_html5
 		
 		var url = null;
 		var cacheVersion = Assets.cache.version;
@@ -136,7 +136,7 @@ class Preloader #if flash extends Sprite #end {
 	}
 	
 	
-	#if (js && html5)
+	#if lime_html5
 	private function loadFont (font:String):Void {
 		
 		if (untyped (Browser.document).fonts && untyped (Browser.document).fonts.load) {
@@ -258,7 +258,7 @@ class Preloader #if flash extends Sprite #end {
 	
 	
 	
-	#if (js && html5)
+	#if lime_html5
 	private function image_onLoad (_):Void {
 		
 		loaded++;

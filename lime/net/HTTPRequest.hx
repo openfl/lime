@@ -9,7 +9,7 @@ import lime.system.BackgroundWorker;
 import lime.system.CFFI;
 import lime.utils.Bytes;
 
-#if (js && html5)
+#if lime_html5
 import js.html.XMLHttpRequest;
 #end
 
@@ -40,7 +40,7 @@ class HTTPRequest {
 		
 		
 		
-		#elseif (js && html5)
+		#elseif lime_html5
 		
 		var request = new XMLHttpRequest ();
 		request.addEventListener ("progress", request_onProgress, false);

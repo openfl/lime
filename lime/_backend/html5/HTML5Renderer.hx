@@ -89,7 +89,7 @@ class HTML5Renderer {
 				#end
 				
 				GL.context = webgl;
-				#if (js && html5)
+				#if lime_html5
 				parent.context = OPENGL (cast GL.context);
 				#else
 				parent.context = OPENGL (new GLRenderContext ());

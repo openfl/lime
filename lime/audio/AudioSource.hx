@@ -48,7 +48,7 @@ class AudioSource {
 	private var channel:FMODChannel;
 	#end
 	
-	#if (cpp || neko || nodejs)
+	#if lime_native
 	private var timer:Timer;
 	#end
 	
@@ -176,7 +176,7 @@ class AudioSource {
 			
 		}
 		
-		#else
+		#elseif lime_native
 		
 		if (playing || id == 0) {
 			
@@ -217,7 +217,7 @@ class AudioSource {
 			
 		}
 		
-		#else
+		#elseif lime_native
 		
 		playing = false;
 		AL.sourcePause (id);
@@ -254,7 +254,7 @@ class AudioSource {
 			
 		}
 		
-		#else
+		#elseif lime_native
 		
 		playing = false;
 		AL.sourceStop (id);
@@ -361,7 +361,7 @@ class AudioSource {
 	
 	private function timer_onRun () {
 		
-		#if (!flash && !html5)
+		#if lime_native
 		
 		playing = false;
 		
@@ -408,11 +408,15 @@ class AudioSource {
 		lime.Lib.notImplemented ("AudioSource.get_currentTime");
 		return 0;
 		
-		#else
+		#elseif lime_native
 		
 		var time = Std.int (AL.getSourcef (id, AL.SEC_OFFSET) * 1000) - offset;
 		if (time < 0) return 0;
 		return time;
+		
+		#else
+		
+		return 0;
 		
 		#end
 		
@@ -436,7 +440,7 @@ class AudioSource {
 		lime.Lib.notImplemented ("AudioSource.set_currentTime");
 		return value;
 		
-		#else
+		#elseif lime_native
 		
 		if (buffer != null) {
 			
@@ -467,6 +471,10 @@ class AudioSource {
 		
 		return value;
 		
+		#else
+		
+		return 0;
+		
 		#end
 		
 	}
@@ -487,9 +495,13 @@ class AudioSource {
 		lime.Lib.notImplemented ("AudioSource.get_gain");
 		return 1;
 		
-		#else
+		#elseif lime_native
 		
 		return AL.getSourcef (id, AL.GAIN);
+		
+		#else
+		
+		return 0;
 		
 		#end
 		
@@ -514,10 +526,14 @@ class AudioSource {
 		lime.Lib.notImplemented ("AudioSource.set_gain");
 		return value;
 		
-		#else
+		#elseif lime_native
 		
 		AL.sourcef (id, AL.GAIN, value);
 		return value;
+		
+		#else
+		
+		return 0;
 		
 		#end
 		
@@ -545,10 +561,14 @@ class AudioSource {
 		lime.Lib.notImplemented ("AudioSource.get_length");
 		return 0;
 		
-		#else
+		#elseif lime_native
 		
 		var samples = (buffer.data.length * 8) / (buffer.channels * buffer.bitsPerSample);
 		return Std.int (samples / buffer.sampleRate * 1000) - offset;
+		
+		#else
+		
+		return 0;
 		
 		#end
 		
@@ -562,7 +582,7 @@ class AudioSource {
 		lime.Lib.notImplemented ("AudioSource.set_length");
 		return value;
 
-		#elseif (!flash && !html5)
+		#elseif lime_native
 		
 		if (playing && __length != value) {
 			

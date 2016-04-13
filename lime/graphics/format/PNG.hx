@@ -5,7 +5,7 @@ import haxe.io.Bytes;
 import lime.graphics.Image;
 import lime.system.CFFI;
 
-#if (js && html5)
+#if lime_html5
 import js.Browser;
 #end
 
@@ -29,7 +29,7 @@ class PNG {
 	
 	public static function decodeBytes (bytes:Bytes, decodeData:Bool = true):Image {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_native && !macro)
 		
 		var bufferData:Dynamic = lime_png_decode_bytes (bytes, decodeData);
 		
@@ -50,7 +50,7 @@ class PNG {
 	
 	public static function decodeFile (path:String, decodeData:Bool = true):Image {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_native && !macro)
 		
 		var bufferData:Dynamic = lime_png_decode_file (path, decodeData);
 		
@@ -83,7 +83,7 @@ class PNG {
 		
 		#if java
 		
-		#elseif (sys && (!disable_cffi || !format) && !macro)
+		#elseif (lime_native && (!disable_cffi || !format) && !macro)
 		
 		if (CFFI.enabled) {
 			
@@ -133,7 +133,7 @@ class PNG {
 			
 		}
 		
-		#elseif (js && html5)
+		#elseif lime_html5
 		
 		ImageCanvasUtil.sync (image, false);
 		
@@ -168,7 +168,7 @@ class PNG {
 	
 	
 	
-	#if ((cpp || neko || nodejs) && !macro)
+	#if (lime_native && !macro)
 	@:cffi private static function lime_png_decode_bytes (data:Dynamic, decodeData:Bool):Dynamic;
 	@:cffi private static function lime_png_decode_file (path:String, decodeData:Bool):Dynamic;
 	@:cffi private static function lime_image_encode (data:Dynamic, type:Int, quality:Int):Dynamic;

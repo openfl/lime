@@ -23,7 +23,7 @@ class CFFI {
 	
 	private static function __init__ ():Void {
 		
-		#if (cpp || neko || nodejs)
+		#if lime_native
 		available = true;
 		enabled = #if disable_cffi false; #else true; #end
 		#else
