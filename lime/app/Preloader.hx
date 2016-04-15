@@ -155,7 +155,12 @@ class Preloader #if flash extends Sprite #end {
 			});
 			
 		} else {
-			
+			var baseFont:String;
+			if( font == "Arial" ){
+				baseFont = "serif";
+			} else {
+				baseFont = "sans-serif";
+			}
 			var node:SpanElement = cast Browser.document.createElement ("span");
 			node.innerHTML = "giItT1WQy@!-/#";
 			var style = node.style;
@@ -163,7 +168,7 @@ class Preloader #if flash extends Sprite #end {
 			style.left = "-10000px";
 			style.top = "-10000px";
 			style.fontSize = "300px";
-			style.fontFamily = "sans-serif";
+			style.fontFamily = baseFont;
 			style.fontVariant = "normal";
 			style.fontStyle = "normal";
 			style.fontWeight = "normal";
@@ -171,8 +176,8 @@ class Preloader #if flash extends Sprite #end {
 			Browser.document.body.appendChild (node);
 			
 			var width = node.offsetWidth;
-			style.fontFamily = "'" + font + "', sans-serif";
-			
+			style.fontFamily = "'" + font + "', " + baseFont;
+
 			var interval:Null<Int> = null;
 			var found = false;
 			
