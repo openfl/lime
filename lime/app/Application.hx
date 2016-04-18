@@ -812,7 +812,14 @@ class Application extends Module {
 		joystick.onDisconnect.add (onJoystickDisconnect.bind (joystick));
 		joystick.onHatMove.add (onJoystickHatMove.bind (joystick));
 		joystick.onTrackballMove.add (onJoystickTrackballMove.bind (joystick));
-		
+
+	}
+
+	public function stopUpdating(): Void{
+
+		#if js
+			ApplicationBackend.stopUpdating = true;
+		#end
 	}
 	
 	

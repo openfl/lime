@@ -34,6 +34,7 @@ class HTML5Application {
 	private var lastUpdate:Float;
 	private var nextUpdate:Float;
 	private var parent:Application;
+	public static var stopUpdating:Bool = false;
 	#if stats
 	private var stats:Dynamic;
 	#end
@@ -147,7 +148,7 @@ class HTML5Application {
 				window.requestAnimationFrame = function(callback, element) {
 					var currTime = new Date().getTime();
 					var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-					var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
+					var id = window.setTimeout(function() { callback(currTime + timeToCall); },
 					  timeToCall);
 					lastTime = currTime + timeToCall;
 					return id;
@@ -244,9 +245,11 @@ class HTML5Application {
 			lastUpdate = currentUpdate;
 			
 		}
-		
-		Browser.window.requestAnimationFrame (cast handleApplicationEvent);
-		
+
+		if( !stopUpdating ){
+			Browser.window.requestAnimationFrame (cast handleApplicationEvent);
+		}
+
 	}
 	
 	
