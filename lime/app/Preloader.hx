@@ -23,7 +23,8 @@ class Preloader #if flash extends Sprite #end {
 	public var complete:Bool;
 	public var onComplete = new Event<Void->Void> ();
 	public var onProgress = new Event<Int->Int->Void> ();
-	
+	public var onError = new Event<String->Void> ();
+
 	#if (js && html5)
 	public static var images = new Map<String, Image> ();
 	public static var loaders = new Map<String, HTTPRequest> ();
@@ -81,6 +82,7 @@ class Preloader #if flash extends Sprite #end {
 						var image = new Image ();
 						images.set (url, image);
 						image.onload = image_onLoad;
+						image.onerror = image_onError;
 						image.src = url + "?" + cacheVersion;
 						total++;
 						
@@ -121,8 +123,8 @@ class Preloader #if flash extends Sprite #end {
 			
 			var loader = loaders.get (url);
 			var future = loader.load (url + "?" + cacheVersion);
-			future.onComplete (loader_onComplete);
-			
+			future.onComplete (loader_onComplete).onError(loader_onError);
+
 		}
 		
 		if (total == 0) {
@@ -180,7 +182,8 @@ class Preloader #if flash extends Sprite #end {
 
 			var interval:Null<Int> = null;
 			var found = false;
-			
+			var cycles = 0;
+
 			var checkFont = function () {
 				
 				if (node.offsetWidth != width) {
@@ -213,7 +216,19 @@ class Preloader #if flash extends Sprite #end {
 					}
 					
 					return true;
-					
+
+				} else {
+					++cycles;
+
+					if( cycles > 200 ){
+						if (interval != null) {
+
+							Browser.window.clearInterval (interval);
+
+						}
+
+						onError.dispatch( font );
+					}
 				}
 				
 				return false;
@@ -277,8 +292,12 @@ class Preloader #if flash extends Sprite #end {
 		}
 		
 	}
-	
-	
+
+	private function image_onError (event):Void {
+		onError.dispatch( event.target.src );
+	}
+
+
 	private function loader_onComplete (_):Void {
 		
 		loaded++;
@@ -290,7 +309,11 @@ class Preloader #if flash extends Sprite #end {
 			start ();
 			
 		}
-		
+
+	}
+
+	private function loader_onError (event):Void {
+		onError.dispatch( "unknown" );
 	}
 	#end
 	
