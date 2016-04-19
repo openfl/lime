@@ -63,6 +63,7 @@ extern class ConsoleRenderContext {
 	public function setDepthStencilState (state:DepthStencilState):Void;
 	public function setBlendState (state:BlendState):Void;
 
+	public function setPixelShaderConstantF (startRegister:Int, vec4:Pointer<Float32>, vec4count:Int):Void;
 	public function setVertexShaderConstantF (startRegister:Int, vec4:Pointer<Float32>, vec4count:Int):Void;
 
 	public function setVertexSource (vb:VertexBuffer):Void;
