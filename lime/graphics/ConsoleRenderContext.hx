@@ -75,6 +75,8 @@ extern class ConsoleRenderContext {
 	public function draw (primitive:Primitive, startVertex:UInt32, primitiveCount:UInt32):Void;
 	public function drawIndexed (primitive:Primitive, vertexCount:UInt32, startIndex:UInt32, primitiveCount:UInt32):Void;
 
+	public function debugReadFrameBuffer (dest:Pointer<UInt8>, width:Int, height:Int):Void;
+
 	private function get_width ():Int;
 	private function get_height ():Int;
 
