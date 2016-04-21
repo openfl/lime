@@ -361,6 +361,50 @@ bool GetFontFile(const std::string& inName,std::string &outFile)
 }
 
 #elif defined(__APPLE__)
+
+bool FindFile(const std::string& inName, const std::string& inPath, int inMaxDepth, std::string &outPath)
+{
+   DIR *d = opendir(inPath.c_str());
+   if (d)
+   {
+      while( true )
+      {
+         struct dirent *e = readdir(d);
+         if (!e)
+            break;
+
+         // skip magic dirs
+         if( e->d_name[0] == '.' && (e->d_name[1] == 0 || (e->d_name[1] == '.' && e->d_name[2] == 0)) )
+            continue;
+
+         std::string path = inPath + e->d_name;
+
+         if( !strcmp(e->d_name,inName.c_str()) )
+         {
+            FILE *file = fopen(path.c_str(),"rb");
+            if (file)
+            {
+               outPath = path;
+               closedir(d);
+               return true;
+            }
+         }
+
+         struct stat s;
+         if ( inMaxDepth>0 && stat(path.c_str(),&s)==0 && (s.st_mode & S_IFDIR) )
+         {
+            path += '/';
+            if (FindFile(inName, path, inMaxDepth-1, outPath)){
+               closedir(d);
+               return true;
+            }
+         }
+      }
+      closedir(d);
+   }
+   return false;
+}
+
 bool GetFontFile(const std::string& inName,std::string &outFile)
 {
 // printf("Looking for font %s...", inName.c_str() );
@@ -371,37 +415,21 @@ bool GetFontFile(const std::string& inName,std::string &outFile)
 #define FONT_BASE "/Library/Fonts/"
 #endif
 
-   outFile = FONT_BASE + inName;
-   FILE *file = fopen(outFile.c_str(),"rb");
-   if (file)
+   if (FindFile(inName, FONT_BASE, 2, outFile))
    {
-      //printf("Found actual file %s\n", outFile.c_str());
-      fclose(file);
-      return true;
+      FILE *file = fopen(outFile.c_str(),"rb");
+      if (file)
+      {
+         //printf("Found actual file %s\n", outFile.c_str());
+         fclose(file);
+         return true;
+      }
    }
 
 
-#ifdef IPHONEOS
-   const char *serifFonts[] = {
-      "Cache/Georgia.ttf", "Cache/Times.ttf", "Cache/Times New Roman.ttf", //pre 8.2
-      "Core/Georgia.ttf", "CoreAddition/Georgia.ttf", "Core/TimesNewRoman.ttf", "CoreAddition/TimesNewRoman.ttf", //8.2+
-      0
-   };
-   const char *sansFonts[] = {
-      "Cache/Arial Black.ttf", "Cache/Arial.ttf", "Cache/Helvetica.ttf", //pre 8.2
-      "Core/Arial.ttf", "CoreAddition/Arial.ttf", "Core/Helvetica.ttf", "CoreAddition/Helvetica.ttf", //8.2+
-      0
-   };
-   const char *fixedFonts[] = {
-      "Cache/Courier New.ttf", "Cache/Courier.ttf", //pre 8.2
-      "Core/CourierNew.ttf", "CoreAddition/CourierNew.ttf", "Core/Courier.ttf", "CoreAddition/Courier.ttf", //8.2+
-      0
-   };
-#else
    const char *serifFonts[] = { "Georgia.ttf", "Times.ttf", "Times New Roman.ttf", 0 };
-   const char *sansFonts[] = { "Arial Black.ttf", "Arial.ttf", "Helvetica.ttf", 0 };
+   const char *sansFonts[] = { "Arial.ttf", "Helvetica.ttf", "Arial Black.ttf", 0 };
    const char *fixedFonts[] = { "Courier New.ttf", "Courier.ttf", 0 };
-#endif
 
    const char **test = 0;
 
@@ -418,17 +446,18 @@ bool GetFontFile(const std::string& inName,std::string &outFile)
    {
       while(*test)
       {
-         outFile = FONT_BASE + std::string(*test);
-
          //printf("Try %s\n", outFile.c_str());
+         if (FindFile(*test, FONT_BASE, 2, outFile))
+         {
 
-	 FILE *file = fopen(outFile.c_str(),"rb");
-	 if (file)
-	 {
-	    //printf("Found sub file %s\n", outFile.c_str());
-	    fclose(file);
-	    return true;
-	 }
+            FILE *file = fopen(outFile.c_str(),"rb");
+            if (file)
+            {
+               //printf("Found sub file %s\n", outFile.c_str());
+               fclose(file);
+               return true;
+            }
+         }
          test++;
       }
    }
