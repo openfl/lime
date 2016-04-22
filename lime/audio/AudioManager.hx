@@ -105,9 +105,15 @@ class AudioManager {
 						
 					}
 				
+				case WEB (context):
+					
+					untyped __js__ ("context.close()");
+						
 				default:
 				
 			}
+			
+			context = null;
 			
 		}
 		

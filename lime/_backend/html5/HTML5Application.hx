@@ -173,7 +173,7 @@ class HTML5Application {
 	
 	public function exit ():Void {
 		
-		
+		AudioManager.shutdown ();
 		
 	}
 	
