@@ -38,8 +38,12 @@ class ImageBuffer {
 	@:noCompletion private var __srcCustom:Dynamic;
 	@:noCompletion private var __srcImage:#if (js && html5) HTMLImage #else Dynamic #end;
 	@:noCompletion private var __srcImageData:#if (js && html5) ImageData #else Dynamic #end;
-	
-	
+
+	#if webgl
+		@:noCompletion private var glCompatibleBuffer(get, null):Dynamic;
+	#end
+
+
 	public function new (data:UInt8Array = null, width:Int = 0, height:Int = 0, bitsPerPixel:Int = 32, format:PixelFormat = null) {
 		
 		this.data = data;
@@ -178,6 +182,21 @@ class ImageBuffer {
 		return width * 4;
 		
 	}
-	
-	
+
+	#if webgl
+		@:noCompletion private function get_glCompatibleBuffer():Dynamic{
+
+			if(__srcImageData != null){
+				return __srcImageData;
+			} else if (__srcImage != null){
+				return __srcImage;
+			} else if( __srcCanvas != null){
+				return __srcCanvas;
+			}
+
+			return null;
+		}
+	#end
+
+
 }
