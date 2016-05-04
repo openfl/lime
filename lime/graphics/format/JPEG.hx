@@ -6,6 +6,7 @@ import lime.graphics.utils.ImageCanvasUtil;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.system.CFFI;
+import lime.utils.UInt8Array;
 
 #if (js && html5)
 import js.Browser;
@@ -28,8 +29,13 @@ class JPEG {
 		var bufferData:Dynamic = lime_jpeg_decode_bytes (bytes, decodeData);
 		
 		if (bufferData != null) {
-			
-			var buffer = new ImageBuffer (bufferData.data, bufferData.width, bufferData.height, bufferData.bpp, bufferData.format);
+
+			var u8a : UInt8Array = null;
+
+			if(decodeData){
+				u8a = new UInt8Array (@:privateAccess new Bytes (bufferData.data.length, bufferData.data.b));
+			}
+ 			var buffer = new ImageBuffer (u8a, bufferData.width, bufferData.height, bufferData.bpp, bufferData.format);
 			buffer.transparent = bufferData.transparent;
 			return new Image (buffer);
 			
@@ -49,8 +55,13 @@ class JPEG {
 		var bufferData:Dynamic = lime_jpeg_decode_file (path, decodeData);
 		
 		if (bufferData != null) {
-			
-			var buffer = new ImageBuffer (bufferData.data, bufferData.width, bufferData.height, bufferData.bpp, bufferData.format);
+
+			var u8a : UInt8Array = null;
+
+			if(decodeData){
+				u8a = new UInt8Array (@:privateAccess new Bytes (bufferData.data.length, bufferData.data.b));
+			}
+ 			var buffer = new ImageBuffer (u8a, bufferData.width, bufferData.height, bufferData.bpp, bufferData.format);
 			buffer.transparent = bufferData.transparent;
 			return new Image (buffer);
 			
