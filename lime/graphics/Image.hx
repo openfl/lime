@@ -300,12 +300,12 @@ class Image {
 		//draw area starts too far left or too far above destination image boundaries
 		if (destPoint.x < 0) {
 			sourceRect.width += destPoint.x;	//shrink width by amount off canvas
-			sourceRect.x = -destPoint.x;		//adjust source rect to effective starting point
+			sourceRect.x -= destPoint.x;		//adjust source rect to effective starting point
 			destPoint.x = 0;					//clamp destination point to 0
 		}
 		if (destPoint.y < 0) {
 			sourceRect.height += destPoint.y;	//shrink height by amount off canvas
-			sourceRect.y = -destPoint.y;		//adjust source rect to effective starting point
+			sourceRect.y -= destPoint.y;		//adjust source rect to effective starting point
 			destPoint.y = 0;					//clamp destination point to 0
 		}
 		
