@@ -118,6 +118,8 @@ DEFINE_LIME_LEGACY_PRIM_0(capabilities_get_screen_dpi);
 DEFINE_LIME_LEGACY_PRIM_0(capabilities_get_screen_resolution_x);
 DEFINE_LIME_LEGACY_PRIM_0(capabilities_get_screen_resolution_y);
 DEFINE_LIME_LEGACY_PRIM_0(capabilities_get_language);
+DEFINE_LIME_LEGACY_PRIM_0(set_keep_screen_on);
+DEFINE_LIME_LEGACY_PRIM_0(set_keep_screen_auto);
 DEFINE_LIME_LEGACY_PRIM_0(get_resource_path);
 DEFINE_LIME_LEGACY_PRIM_1(filesystem_get_special_dir);
 DEFINE_LIME_LEGACY_PRIM_2(filesystem_get_volumes);

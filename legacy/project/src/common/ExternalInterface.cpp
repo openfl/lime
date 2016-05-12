@@ -1034,6 +1034,24 @@ value nme_capabilities_get_language() {
 }
 DEFINE_PRIM (nme_capabilities_get_language, 0);
 
+value nme_set_keep_screen_on () {
+   #if defined(ANDROID) || defined(IPHONE)
+   SetKeepScreenOn();
+   #endif 
+   return  alloc_null();
+   
+}
+DEFINE_PRIM (nme_set_keep_screen_on, 0);
+
+value nme_set_keep_screen_auto () {
+   #if defined(ANDROID) || defined(IPHONE) 
+   SetKeepScreenAuto();
+   #endif
+   return  alloc_null();
+   
+}
+DEFINE_PRIM (nme_set_keep_screen_auto, 0);
+
 
 // ---  nme.filesystem -------------------------------------------------------------
 value nme_get_resource_path()
