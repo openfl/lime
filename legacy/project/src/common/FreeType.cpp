@@ -385,6 +385,7 @@ bool FindFile(const std::string& inName, const std::string& inPath, int inMaxDep
             if (file)
             {
                outPath = path;
+               fclose(file);
                closedir(d);
                return true;
             }
