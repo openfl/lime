@@ -35,9 +35,9 @@ namespace lime {
 			id_bitsPerPixel = val_id ("bitsPerPixel");
 			id_transparent = val_id ("transparent");
 			id_buffer = val_id ("buffer");
+			id_data = val_id ("data");
 			id_width = val_id ("width");
 			id_height = val_id ("height");
-			id_data = val_id ("data");
 			id_format = val_id ("format");
 			id_premultiplied = val_id ("premultiplied");
 			init = true;
@@ -119,9 +119,9 @@ namespace lime {
 			id_bitsPerPixel = val_id ("bitsPerPixel");
 			id_transparent = val_id ("transparent");
 			id_buffer = val_id ("buffer");
+			id_data = val_id ("data");
 			id_width = val_id ("width");
 			id_height = val_id ("height");
-			id_data = val_id ("data");
 			id_format = val_id ("format");
 			id_premultiplied = val_id ("premultiplied");
 			init = true;

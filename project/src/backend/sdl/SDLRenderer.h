@@ -21,6 +21,7 @@ namespace lime {
 			virtual double GetScale ();
 			virtual value Lock ();
 			virtual void MakeCurrent ();
+			virtual void ReadPixels (ImageBuffer *buffer, Rectangle *rect);
 			virtual const char* Type ();
 			virtual void Unlock ();
 			

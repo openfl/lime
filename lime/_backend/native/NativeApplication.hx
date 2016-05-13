@@ -18,6 +18,8 @@ import lime.system.System;
 import lime.ui.Gamepad;
 import lime.ui.Joystick;
 import lime.ui.JoystickHatPosition;
+import lime.ui.KeyCode;
+import lime.ui.KeyModifier;
 import lime.ui.Touch;
 import lime.ui.Window;
 
@@ -40,6 +42,7 @@ class NativeApplication {
 	
 	private var applicationEventInfo = new ApplicationEventInfo (UPDATE);
 	private var currentTouches = new Map<Int, Touch> ();
+	private var dropEventInfo = new DropEventInfo ();
 	private var gamepadEventInfo = new GamepadEventInfo ();
 	private var joystickEventInfo = new JoystickEventInfo ();
 	private var keyEventInfo = new KeyEventInfo ();
@@ -61,6 +64,11 @@ class NativeApplication {
 		
 		this.parent = parent;
 		frameRate = 60;
+
+		#if (lime_console && final)
+		// suppress traces in final builds
+		haxe.Log.trace = function(v:Dynamic, ?infos:haxe.PosInfos) {};
+		#end
 		
 		AudioManager.init ();
 		
@@ -85,6 +93,7 @@ class NativeApplication {
 		#if !macro
 		
 		lime_application_event_manager_register (handleApplicationEvent, applicationEventInfo);
+		lime_drop_event_manager_register (handleDropEvent, dropEventInfo);
 		lime_gamepad_event_manager_register (handleGamepadEvent, gamepadEventInfo);
 		lime_joystick_event_manager_register (handleJoystickEvent, joystickEventInfo);
 		lime_key_event_manager_register (handleKeyEvent, keyEventInfo);
@@ -141,6 +150,10 @@ class NativeApplication {
 		
 		AudioManager.shutdown ();
 		
+		#if !macro
+		lime_application_quit (handle);
+		#end
+		
 	}
 	
 	
@@ -163,6 +176,17 @@ class NativeApplication {
 			case EXIT:
 				
 				//parent.onExit.dispatch (0);
+			
+		}
+		
+	}
+	
+	
+	private function handleDropEvent ():Void {
+		
+		for (window in parent.windows) {
+			
+			window.onDropFile.dispatch (dropEventInfo.file);
 			
 		}
 		
@@ -249,17 +273,47 @@ class NativeApplication {
 		
 		if (window != null) {
 			
-			switch (keyEventInfo.type) {
+			var type:KeyEventType = keyEventInfo.type;
+			var keyCode:KeyCode = keyEventInfo.keyCode;
+			var modifier:KeyModifier = keyEventInfo.modifier;
+			
+			switch (type) {
 				
 				case KEY_DOWN:
 					
-					window.onKeyDown.dispatch (keyEventInfo.keyCode, keyEventInfo.modifier);
+					window.onKeyDown.dispatch (keyCode, modifier);
 				
 				case KEY_UP:
 					
-					window.onKeyUp.dispatch (keyEventInfo.keyCode, keyEventInfo.modifier);
+					window.onKeyUp.dispatch (keyCode, modifier);
 				
 			}
+			
+			#if (windows || linux)
+			
+			if (keyCode == RETURN && (modifier == KeyModifier.LEFT_ALT || modifier == KeyModifier.RIGHT_ALT) && type == KEY_DOWN && !window.onKeyDown.canceled) {
+				
+				window.fullscreen = !window.fullscreen;
+				
+			}
+			
+			#elseif mac
+			
+			if (keyCode == F && modifier.ctrlKey && modifier.metaKey && type == KEY_DOWN && !modifier.altKey && !modifier.shiftKey && !window.onKeyDown.canceled) {
+				
+				window.fullscreen = !window.fullscreen;
+				
+			}
+			
+			#elseif android
+			
+			if (keyCode == APP_CONTROL_BACK && modifier == KeyModifier.NONE && type == KEY_UP && !window.onKeyUp.canceled) {
+				
+				System.exit (0);
+				
+			}
+			
+			#end
 			
 		}
 		
@@ -328,7 +382,7 @@ class NativeApplication {
 					if (renderer.backend.useHardware) {
 						
 						#if lime_console
-						renderer.context = CONSOLE (new ConsoleRenderContext ());
+						renderer.context = CONSOLE (ConsoleRenderContext.singleton);
 						#else
 						renderer.context = OPENGL (new GLRenderContext ());
 						#end
@@ -467,7 +521,12 @@ class NativeApplication {
 				case WINDOW_CLOSE:
 					
 					window.onClose.dispatch ();
-					window.close ();
+					
+					if (!window.onClose.canceled) {
+						
+						window.close ();
+						
+					}
 				
 				case WINDOW_DEACTIVATE:
 					
@@ -577,6 +636,7 @@ class NativeApplication {
 	@:cffi private static function lime_application_quit (handle:Dynamic):Int;
 	@:cffi private static function lime_application_set_frame_rate (handle:Dynamic, value:Float):Void;
 	@:cffi private static function lime_application_update (handle:Dynamic):Bool;
+	@:cffi private static function lime_drop_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_gamepad_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_joystick_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_key_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
@@ -621,6 +681,38 @@ private class ApplicationEventInfo {
 	
 	var UPDATE = 0;
 	var EXIT = 1;
+	
+}
+
+
+private class DropEventInfo {
+	
+	
+	public var file:String;
+	public var type:DropEventType;
+	
+	
+	public function new (type:DropEventType = null, file:String = null) {
+		
+		this.type = type;
+		this.file = file;
+		
+	}
+	
+	
+	public function clone ():DropEventInfo {
+		
+		return new DropEventInfo (type, file);
+		
+	}
+	
+	
+}
+
+
+@:enum private abstract DropEventType(Int) {
+	
+	var DROP_FILE = 0;
 	
 }
 

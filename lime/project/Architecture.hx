@@ -10,5 +10,7 @@ enum Architecture {
 	ARM64;
 	X86;
 	X64;
+	MIPS;
+	MIPSEL;
 	
 }

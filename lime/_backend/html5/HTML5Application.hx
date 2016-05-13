@@ -136,6 +136,12 @@ class HTML5Application {
 		#end
 		
 		untyped __js__ ("
+			if (!CanvasRenderingContext2D.prototype.isPointInStroke) {
+				CanvasRenderingContext2D.prototype.isPointInStroke = function (path, x, y) {
+					return false;
+				};
+			}
+			
 			var lastTime = 0;
 			var vendors = ['ms', 'moz', 'webkit', 'o'];
 			for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
@@ -269,9 +275,21 @@ class HTML5Application {
 				
 				parent.window.onKeyDown.dispatch (keyCode, modifier);
 				
+				if (parent.window.onKeyDown.canceled) {
+					
+					event.preventDefault ();
+					
+				}
+				
 			} else {
 				
 				parent.window.onKeyUp.dispatch (keyCode, modifier);
+				
+				if (parent.window.onKeyUp.canceled) {
+					
+					event.preventDefault ();
+					
+				}
 				
 			}
 			

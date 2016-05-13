@@ -251,8 +251,6 @@ class HTML5Window {
 			
 			case "gamepadconnected":
 				
-				trace ("GAMEPAD CONNECTED");
-				
 				Joystick.__connect (event.gamepad.index);
 				
 				if (event.gamepad.mapping == "standard") {
@@ -599,6 +597,13 @@ class HTML5Window {
 	}
 	
 	
+	public function setBorderless (value:Bool):Bool {
+		
+		return value;
+		
+	}
+	
+	
 	public function setEnableTextEvents (value:Bool):Bool {
 		
 		if (value) {
@@ -682,9 +687,23 @@ class HTML5Window {
 	}
 	
 	
+	public function setMaximized (value:Bool):Bool {
+		
+		return false;
+		
+	}
+	
+	
 	public function setMinimized (value:Bool):Bool {
 		
 		return false;
+		
+	}
+	
+	
+	public function setResizable (value:Bool):Bool {
+		
+		return value;
 		
 	}
 	

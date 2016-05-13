@@ -23,6 +23,7 @@ class ProjectXMLParser extends HXProject {
 	
 	public var includePaths:Array <String>;
 	
+	private static var doubleVarMatch = new EReg ("\\$\\${(.*?)}", "");
 	private static var varMatch = new EReg ("\\${(.*?)}", "");
 	
 	
@@ -149,6 +150,7 @@ class ProjectXMLParser extends HXProject {
 		}
 		
 		defines.set (Std.string (target).toLowerCase (), "1");
+		defines.set ("target", Std.string (target).toLowerCase ());
 		
 	}
 	
@@ -163,14 +165,16 @@ class ProjectXMLParser extends HXProject {
 			
 			for (optional in optionalDefines) {
 				
+				optional = substitute (optional);
 				var requiredDefines = optional.split (" ");
 				var matchRequired = true;
 				
 				for (required in requiredDefines) {
 					
+					required = substitute (required);
 					var check = StringTools.trim (required);
 					
-					if (check != "" && !defines.exists (check) && check != command) {
+					if (check != "" && !defines.exists (check) && (environment == null || !environment.exists (check)) && check != command) {
 						
 						matchRequired = false;
 						
@@ -202,13 +206,15 @@ class ProjectXMLParser extends HXProject {
 			
 			for (optional in optionalDefines) {
 				
+				optional = substitute (optional);
 				var requiredDefines = optional.split (" ");
 				var matchRequired = true;
 				
 				for (required in requiredDefines) {
 					
+					required = substitute (required);
 					var check = StringTools.trim (required);
-					if (check != "" && !defines.exists (check) && check != command) {
+					if (check != "" && !defines.exists (check) && (environment == null || !environment.exists (check)) && check != command) {
 						
 						matchRequired = false;
 						
@@ -427,7 +433,7 @@ class ProjectXMLParser extends HXProject {
 		
 		if (element.has.embed) {
 			
-			embed = substitute (element.att.embed) == "true";
+			embed = parseBool (element.att.embed);
 			
 		}
 		
@@ -590,7 +596,7 @@ class ProjectXMLParser extends HXProject {
 					
 					if (childElement.has.embed) {
 						
-						childEmbed = substitute (childElement.att.embed) == "true";
+						childEmbed = parseBool (childElement.att.embed);
 						
 					}
 					
@@ -702,6 +708,13 @@ class ProjectXMLParser extends HXProject {
 			}
 			
 		}
+		
+	}
+	
+	
+	private function parseBool (attribute:String):Bool {
+		
+		return substitute (attribute) == "true";
 		
 	}
 	
@@ -955,10 +968,24 @@ class ProjectXMLParser extends HXProject {
 						
 						var name = substitute (element.att.name);
 						var version = "";
+						var optional = false;
+						var path = null;
 						
 						if (element.has.version) {
 							
 							version = substitute (element.att.version);
+							
+						}
+						
+						if (element.has.optional) {
+							
+							optional = parseBool (element.att.optional);
+							
+						}
+						
+						if (element.has.path) {
+							
+							path = substitute (element.att.path);
 							
 						}
 						
@@ -970,15 +997,28 @@ class ProjectXMLParser extends HXProject {
 						}*/
 						
 						var haxelib = new Haxelib (name, version);
-						var path;
 						
-						if (defines.exists ("setup")) {
+						if (path == null) {
 							
-							path = PathHelper.getHaxelib (haxelib);
+							if (defines.exists ("setup")) {
+								
+								path = PathHelper.getHaxelib (haxelib);
+								
+							} else {
+								
+								path = PathHelper.getHaxelib (haxelib, !optional);
+								
+								if (optional && path == "") {
+									
+									continue;
+									
+								}
+								
+							}
 							
 						} else {
 							
-							path = PathHelper.getHaxelib (haxelib, true);
+							PathHelper.haxelibOverrides.set (name, path);
 							
 						}
 						
@@ -1048,7 +1088,7 @@ class ProjectXMLParser extends HXProject {
 						
 						if (element.has.register) {
 							
-							registerStatics = (substitute (element.att.register) == "true");
+							registerStatics = parseBool (element.att.register);
 							
 						}
 						
@@ -1251,19 +1291,19 @@ class ProjectXMLParser extends HXProject {
 							
 							if (element.has.embed) {
 								
-								embed = (substitute (element.att.embed) == "true");
+								embed = parseBool (element.att.embed);
 								
 							}
 							
 							if (element.has.preload) {
 								
-								preload = (substitute (element.att.preload) == "true");
+								preload = parseBool (element.att.preload);
 								
 							}
 							
 							if (element.has.generate) {
 								
-								generate = (substitute (element.att.generate) == "true");
+								generate = parseBool (element.att.generate);
 								
 							}
 							
@@ -1715,6 +1755,14 @@ class ProjectXMLParser extends HXProject {
 						
 					}
 				
+				case "allow-high-dpi":
+					
+					if (Reflect.hasField (windows[id], "allowHighDPI")) {
+						
+						Reflect.setField (windows[id], "allowHighDPI", value == "true");
+						
+					}
+				
 				default:
 					
 					if (Reflect.hasField (windows[id], name)) {
@@ -1758,6 +1806,29 @@ class ProjectXMLParser extends HXProject {
 	private function substitute (string:String):String {
 		
 		var newString = string;
+		
+		while (doubleVarMatch.match (newString)) {
+			
+			var substring = doubleVarMatch.matched (1);
+			
+			if (substring.substr (0, 8) == "haxelib:") {
+				
+				var path = PathHelper.getHaxelib (new Haxelib (substring.substr (8)), true);
+				substring = PathHelper.standardize (path);
+				
+			} else if (defines.exists (substring)) {
+				
+				substring = defines.get (substring);
+				
+			} else if (environment != null && environment.exists (substring)) {
+				
+				substring = environment.get (substring);
+				
+			}
+			
+			newString = doubleVarMatch.matchedLeft () + "${" + substring + "}" + doubleVarMatch.matchedRight ();
+			
+		}
 		
 		while (varMatch.match (newString)) {
 			

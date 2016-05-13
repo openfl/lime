@@ -2,6 +2,8 @@
 #define LIME_GRAPHICS_RENDERER_H
 
 
+#include <graphics/ImageBuffer.h>
+#include <math/Rectangle.h>
 #include <ui/Window.h>
 #include <hx/CFFI.h>
 
@@ -19,6 +21,7 @@ namespace lime {
 			virtual double GetScale () = 0;
 			virtual value Lock () = 0;
 			virtual void MakeCurrent () = 0;
+			virtual void ReadPixels (ImageBuffer *buffer, Rectangle *rect) = 0;
 			virtual const char* Type () = 0;
 			virtual void Unlock () = 0;
 			

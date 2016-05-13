@@ -1,11 +1,16 @@
 package lime._backend.html5;
 
 
+import haxe.macro.Compiler;
 import js.html.webgl.RenderingContext;
+import js.html.CanvasElement;
+import js.Browser;
 import lime.app.Application;
+import lime.graphics.Image;
 import lime.graphics.opengl.GL;
 import lime.graphics.GLRenderContext;
 import lime.graphics.Renderer;
+import lime.math.Rectangle;
 
 @:access(lime.app.Application)
 @:access(lime.graphics.opengl.GL)
@@ -53,24 +58,24 @@ class HTML5Renderer {
 			
 		} else if (parent.window.backend.canvas != null) {
 			
-			#if (canvas || munit)
+			var webgl:RenderingContext = null;
 			
-			var webgl = null;
-			
-			#else
-			
-			var options = {
-				alpha: true,
-				antialias: Reflect.hasField (parent.window.config, "antialiasing") ? parent.window.config.antialiasing > 0 : false,
-				depth: Reflect.hasField (parent.window.config, "depthBuffer") ? parent.window.config.depthBuffer : true,
-				premultipliedAlpha: true,
-				stencil: Reflect.hasField (parent.window.config, "stencilBuffer") ? parent.window.config.stencilBuffer : true,
-				preserveDrawingBuffer: false
-			};
-			
-			var webgl:RenderingContext = cast parent.window.backend.canvas.getContextWebGL (options);
-			
-			#end
+			if (#if (canvas || munit) false #elseif webgl true #else !Reflect.hasField (parent.window.config, "hardware") || parent.window.config.hardware #end) {
+				
+				var options = {
+					
+					alpha: false,
+					antialias: Reflect.hasField (parent.window.config, "antialiasing") ? parent.window.config.antialiasing > 0 : false,
+					depth: Reflect.hasField (parent.window.config, "depthBuffer") ? parent.window.config.depthBuffer : true,
+					premultipliedAlpha: false,
+					stencil: Reflect.hasField (parent.window.config, "stencilBuffer") ? parent.window.config.stencilBuffer : false,
+					preserveDrawingBuffer: false
+					
+				};
+				
+				webgl = cast parent.window.backend.canvas.getContextWebGL (options);
+				
+			}
 			
 			if (webgl == null) {
 				
@@ -125,6 +130,42 @@ class HTML5Renderer {
 			default:
 			
 		}
+		
+	}
+	
+	
+	public function readPixels (rect:Rectangle):Image {
+		
+		// TODO: Handle DIV, improve 3D canvas support
+		
+		if (parent.window.backend.canvas != null) {
+			
+			if (rect == null) {
+				
+				rect = new Rectangle (0, 0, parent.window.backend.canvas.width, parent.window.backend.canvas.height);
+				
+			} else {
+				
+				rect.__contract (0, 0, parent.window.backend.canvas.width, parent.window.backend.canvas.height);
+				
+			}
+			
+			if (rect.width > 0 && rect.height > 0) {
+				
+				var canvas:CanvasElement = cast Browser.document.createElement ("canvas");
+				canvas.width = Std.int (rect.width);
+				canvas.height = Std.int (rect.height);
+				
+				var context = canvas.getContext ("2d");
+				context.drawImage (parent.window.backend.canvas, -rect.x, -rect.y);
+				
+				return Image.fromCanvas (canvas);
+				
+			}
+			
+		}
+		
+		return null;
 		
 	}
 	

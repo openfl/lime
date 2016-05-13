@@ -80,6 +80,7 @@ class Image {
 	public var src (get, set):Dynamic;
 	public var transparent (get, set):Bool;
 	public var type:ImageType;
+	public var version:Int;
 	public var width:Int;
 	public var x:Float;
 	public var y:Float;
@@ -91,6 +92,8 @@ class Image {
 		this.offsetY = offsetY;
 		this.width = width;
 		this.height = height;
+		
+		version = 0;
 		
 		if (type == null) {
 			
@@ -169,15 +172,13 @@ class Image {
 		
 		if (buffer != null) {
 			
-			if (type == CANVAS && buffer.__srcImage == null) {
-				
-				ImageCanvasUtil.convertToCanvas (this);
-				ImageCanvasUtil.sync (this, true);
-				
-			}
+			#if (js && html5)
+			ImageCanvasUtil.sync (this, true);
+			#end
 			
 			var image = new Image (buffer.clone (), offsetX, offsetY, width, height, null, type);
 			image.dirty = dirty;
+			image.version = version;
 			return image;
 			
 		} else {
@@ -459,7 +460,11 @@ class Image {
 	}
 	
 	
-	public static function fromBitmapData (bitmapData:#if flash BitmapData #else Dynamic #end):Image {
+	#if flash
+	public static function fromBitmapData (bitmapData:BitmapData):Image {
+	#else
+	public static function fromBitmapData (bitmapData:Dynamic):Image {
+	#end
 		
 		if (bitmapData == null) return null;
 		#if flash
@@ -483,12 +488,18 @@ class Image {
 	}
 	
 	
-	public static function fromCanvas (canvas:#if (js && html5) CanvasElement #else Dynamic #end):Image {
+	#if (js && html5)
+	public static function fromCanvas (canvas:CanvasElement):Image {
+	#else
+	public static function fromCanvas (canvas:Dynamic):Image {
+	#end
 		
 		if (canvas == null) return null;
 		var buffer = new ImageBuffer (null, canvas.width, canvas.height);
 		buffer.src = canvas;
-		return new Image (buffer);
+		var image = new Image (buffer);
+		image.type = CANVAS;
+		return image;
 		
 	}
 	
@@ -502,12 +513,18 @@ class Image {
 	}
 	
 	
-	public static function fromImageElement (image:#if (js && html5) ImageElement #else Dynamic #end):Image {
+	#if (js && html5)
+	public static function fromImageElement (image:ImageElement):Image {
+	#else
+	public static function fromImageElement (image:Dynamic):Image {
+	#end
 		
 		if (image == null) return null;
 		var buffer = new ImageBuffer (null, image.width, image.height);
 		buffer.src = image;
-		return new Image (buffer);
+		var _image = new Image (buffer);
+		_image.type = CANVAS;
+		return _image;
 		
 	}
 	
@@ -950,6 +967,52 @@ class Image {
 	}
 	
 	
+	public function threshold (sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, operation:String, threshold:Int, color:Int = 0x00000000, mask:Int = 0xFFFFFFFF, copySource:Bool = false, format:PixelFormat = null):Int {
+		
+		if (buffer == null || sourceImage == null || sourceRect == null) return 0;
+		
+		switch (type) {
+			
+			case CANVAS, DATA:
+				
+				#if (js && html5)
+				ImageCanvasUtil.convertToData (this);
+				#end
+				
+				return ImageDataUtil.threshold (this, sourceImage, sourceRect, destPoint, operation, threshold, color, mask, copySource, format);
+			
+			case FLASH:
+				
+				var _color:ARGB = switch (format) {
+					
+					case ARGB32: color;
+					case BGRA32: (color:BGRA);
+					default: (color:RGBA);
+					
+				}
+				
+				var _mask:ARGB = switch (format) {
+					
+					case ARGB32: mask;
+					case BGRA32: (mask:BGRA);
+					default: (mask:RGBA);
+					
+				}
+				
+				sourceRect.offset (sourceImage.offsetX, sourceImage.offsetY);
+				destPoint.offset (offsetX, offsetY);
+				
+				return buffer.__srcBitmapData.threshold (sourceImage.buffer.src, sourceRect.__toFlashRectangle (), destPoint.__toFlashPoint (), operation, threshold, _color, _mask, copySource);
+				
+			default:
+			
+		}
+		
+		return 0;
+		
+	}
+	
+	
 	private static function __base64Encode (bytes:Bytes):String {
 		
 		#if (js && html5)
@@ -1026,6 +1089,7 @@ class Image {
 		
 		#if (js && html5)
 		var image = new JSImage ();
+		image.crossOrigin = "Anonymous";
 		
 		var image_onLoaded = function (event) {
 			
@@ -1112,6 +1176,7 @@ class Image {
 		#if (js && html5)
 			
 			var image = new JSImage ();
+			image.crossOrigin = "Anonymous";
 			
 			image.onload = function (_) {
 				
@@ -1339,9 +1404,7 @@ class Image {
 			
 			#if (js && html5)
 				
-				ImageCanvasUtil.convertToCanvas (this);
-				ImageCanvasUtil.sync (this, false);
-				ImageCanvasUtil.createImageData (this);
+				ImageCanvasUtil.convertToData (this);
 				
 			#elseif flash
 				
@@ -1555,7 +1618,6 @@ class Image {
 	
 	
 	#if ((cpp || neko || nodejs) && !macro)
-	@:cffi private static function lime_image_encode (buffer:Dynamic, Type:Int, quality:Int):Dynamic;
 	@:cffi private static function lime_image_load (data:Dynamic):Dynamic;
 	#end
 	

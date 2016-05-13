@@ -39,6 +39,7 @@ namespace lime {
 	
 	static int id_bounds;
 	static int id_currentMode;
+	static int id_dpi;
 	static int id_height;
 	static int id_name;
 	static int id_pixelFormat;
@@ -169,7 +170,7 @@ namespace lime {
 				
 				#elif defined (IPHONEOS)
 				
-				return "/System/Library/Fonts/Cache";
+				return "/System/Library/Fonts";
 				
 				#elif defined (ANDROID)
 				
@@ -226,6 +227,7 @@ namespace lime {
 			
 			id_bounds = val_id ("bounds");
 			id_currentMode = val_id ("currentMode");
+			id_dpi = val_id ("dpi");
 			id_height = val_id ("height");
 			id_name = val_id ("name");
 			id_pixelFormat = val_id ("pixelFormat");
@@ -250,6 +252,12 @@ namespace lime {
 		SDL_Rect bounds = { 0, 0, 0, 0 };
 		SDL_GetDisplayBounds (id, &bounds);
 		alloc_field (display, id_bounds, Rectangle (bounds.x, bounds.y, bounds.w, bounds.h).Value ());
+		
+		float dpi = 72.0;
+		#ifndef EMSCRIPTEN
+		SDL_GetDisplayDPI (id, &dpi, NULL, NULL);
+		#endif
+		alloc_field (display, id_dpi, alloc_float (dpi));
 		
 		SDL_DisplayMode currentDisplayMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
 		SDL_DisplayMode displayMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };

@@ -20,6 +20,7 @@ import lime.utils.UInt8Array;
 @:build(lime.system.CFFI.build())
 #end
 
+@:access(lime.graphics.ImageBuffer)
 @:access(lime.math.color.RGBA)
 
 
@@ -67,6 +68,7 @@ class ImageDataUtil {
 		}
 		
 		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -151,6 +153,7 @@ class ImageDataUtil {
 		}
 		
 		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -297,6 +300,7 @@ class ImageDataUtil {
 		}
 		
 		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -348,6 +352,7 @@ class ImageDataUtil {
 		}
 		
 		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -430,6 +435,7 @@ class ImageDataUtil {
 		}
 		
 		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -738,6 +744,7 @@ class ImageDataUtil {
 		}
 		
 		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -767,6 +774,7 @@ class ImageDataUtil {
 		
 		image.buffer.premultiplied = true;
 		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -840,6 +848,16 @@ class ImageDataUtil {
 		buffer.data = newBuffer.data;
 		buffer.width = newWidth;
 		buffer.height = newHeight;
+		
+		#if (js && html5)
+		buffer.__srcImage = null;
+		buffer.__srcImageData = null;
+		buffer.__srcCanvas = null;
+		buffer.__srcContext = null;
+		#end
+		
+		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -959,6 +977,7 @@ class ImageDataUtil {
 		
 		image.buffer.format = format;
 		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -984,6 +1003,7 @@ class ImageDataUtil {
 		pixel.writeUInt8 (image.buffer.data, (4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4), image.buffer.format, image.buffer.premultiplied);
 		
 		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -1004,6 +1024,7 @@ class ImageDataUtil {
 		pixel.writeUInt8 (image.buffer.data, (4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4), image.buffer.format, image.buffer.premultiplied);
 		
 		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -1053,6 +1074,126 @@ class ImageDataUtil {
 		}
 		
 		image.dirty = true;
+		image.version++;
+		
+	}
+	
+	
+	public static function threshold (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, operation:String, threshold:Int, color:Int, mask:Int, copySource:Bool, format:PixelFormat):Int {
+		
+		var _color:RGBA, _mask:RGBA, _threshold:RGBA;
+		
+		switch (format) {
+			
+			case ARGB32:
+				
+				_color = (color:ARGB);
+				_mask = (mask:ARGB);
+				_threshold = (threshold:ARGB);
+			
+			case BGRA32:
+				
+				_color = (color:BGRA);
+				_mask = (mask:BGRA);
+				_threshold = (threshold:BGRA);
+			
+			default:
+				
+				_color = color;
+				_mask = mask;
+				_threshold = threshold;
+			
+		}
+		
+		var _operation = switch (operation) {
+			
+			case "!=": NOT_EQUALS;
+			case "==": EQUALS;
+			case "<" : LESS_THAN;
+			case "<=": LESS_THAN_OR_EQUAL_TO;
+			case ">" : GREATER_THAN;
+			case ">=": GREATER_THAN_OR_EQUAL_TO;
+			default: -1;
+			
+		}
+		
+		if (_operation == -1) return 0;
+		
+		var srcData = sourceImage.buffer.data;
+		var destData = image.buffer.data;
+		
+		if (srcData == null || destData == null) return 0;
+		
+		var hits = 0;
+		
+		#if ((cpp || neko) && !disable_cffi && !macro)
+		if (CFFI.enabled) hits = lime_image_data_util_threshold (image, sourceImage, sourceRect, destPoint, _operation, (_threshold >> 16) & 0xFFFF, (_threshold) & 0xFFFF, (_color >> 16) & 0xFFFF, (_color) & 0xFFFF, (_mask >> 16) & 0xFFFF, (_mask) & 0xFFFF, copySource); else
+		#end
+		{
+			
+			var srcView = new ImageDataView (sourceImage, sourceRect);
+			var destView = new ImageDataView (image, new Rectangle (destPoint.x, destPoint.y, srcView.width, srcView.height));
+			
+			var srcFormat = sourceImage.buffer.format;
+			var destFormat = image.buffer.format;
+			var srcPremultiplied = sourceImage.buffer.premultiplied;
+			var destPremultiplied = image.buffer.premultiplied;
+			
+			var srcPosition, destPosition, srcPixel:RGBA, destPixel:RGBA, pixelMask:Int, test:Bool, value:Int;
+			
+			for (y in 0...destView.height) {
+				
+				srcPosition = srcView.row (y);
+				destPosition = destView.row (y);
+				
+				for (x in 0...destView.width) {
+					
+					srcPixel.readUInt8 (srcData, srcPosition, srcFormat, srcPremultiplied);
+					
+					pixelMask = srcPixel & _mask;
+					
+					value = __pixelCompare (pixelMask, _threshold);
+					
+					test = switch (_operation) {
+						
+						case NOT_EQUALS: (value != 0);
+						case EQUALS: (value == 0);
+						case LESS_THAN: (value == -1);
+						case LESS_THAN_OR_EQUAL_TO: (value == 0 || value == -1);
+						case GREATER_THAN: (value == 1);
+						case GREATER_THAN_OR_EQUAL_TO: (value == 0 || value == 1);
+						default: false;
+						
+					}
+					
+					if (test) {
+						
+						_color.writeUInt8 (destData, destPosition, destFormat, destPremultiplied);
+						hits++;
+						
+					} else if (copySource) {
+						
+						srcPixel.writeUInt8 (destData, destPosition, destFormat, destPremultiplied);
+						
+					}
+					
+					srcPosition += 4;
+					destPosition += 4;
+					
+				}
+				
+			}
+			
+		}
+		
+		if (hits > 0) {
+			
+			image.dirty = true;
+			image.version++;
+			
+		}
+		
+		return hits;
 		
 	}
 	
@@ -1082,6 +1223,61 @@ class ImageDataUtil {
 		
 		image.buffer.premultiplied = false;
 		image.dirty = true;
+		image.version++;
+		
+	}
+	
+	
+	private static inline function __pixelCompare (n1:Int, n2:Int):Int {
+		
+		var tmp1:Int;
+		var tmp2:Int;
+		
+		tmp1 = (n1 >> 24) & 0xFF;
+		tmp2 = (n2 >> 24) & 0xFF;
+		
+		if (tmp1 != tmp2) {
+			
+			return (tmp1 > tmp2 ? 1 : -1);
+			
+		} else {
+			
+			tmp1 = (n1 >> 16) & 0xFF;
+			tmp2 = (n2 >> 16) & 0xFF;
+			
+			if (tmp1 != tmp2) {
+				
+				return (tmp1 > tmp2 ? 1 : -1);
+				
+			} else {
+				
+				tmp1 = (n1 >> 8) & 0xFF;
+				tmp2 = (n2 >> 8) & 0xFF;
+				
+				if (tmp1 != tmp2) {
+					
+					return (tmp1 > tmp2 ? 1 : -1);
+					
+				} else {
+					
+					tmp1 = n1 & 0xFF;
+					tmp2 = n2 & 0xFF;
+					
+					if (tmp1 != tmp2) {
+						
+						return (tmp1 > tmp2 ? 1 : -1);
+						
+					} else {
+						
+						return 0;
+						
+					}
+					
+				}
+				
+			}
+			
+		}
 		
 	}
 	
@@ -1105,6 +1301,7 @@ class ImageDataUtil {
 	@:cffi private static function lime_image_data_util_resize (image:Dynamic, buffer:Dynamic, width:Int, height:Int):Void;
 	@:cffi private static function lime_image_data_util_set_format (image:Dynamic, format:Int):Void;
 	@:cffi private static function lime_image_data_util_set_pixels (image:Dynamic, rect:Dynamic, bytes:Dynamic, format:Int):Void;
+	@:cffi private static function lime_image_data_util_threshold (image:Dynamic, sourceImage:Image, sourceRect:Dynamic, destPoint:Dynamic, operation:Int, thresholdRG:Int, thresholdBA:Int, colorRG:Int, colorBA:Int, maskRG:Int, maskBA:Int, copySource:Bool):Int;
 	@:cffi private static function lime_image_data_util_unmultiply_alpha (image:Dynamic):Void;
 	#end
 	
@@ -1176,5 +1373,17 @@ private class ImageDataView {
 		
 	}
 	
+	
+}
+
+
+@:noCompletion @:dox(hide) @:enum private abstract ThresholdOperation(Int) from Int to Int {
+	
+	var NOT_EQUALS = 0;
+	var EQUALS = 1;
+	var LESS_THAN = 2;
+	var LESS_THAN_OR_EQUAL_TO = 3;
+	var GREATER_THAN = 4;
+	var GREATER_THAN_OR_EQUAL_TO = 5;
 	
 }

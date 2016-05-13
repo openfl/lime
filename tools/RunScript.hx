@@ -160,11 +160,8 @@ class RunScript {
 	public static function main () {
 		
 		var args = Sys.args ();
-		if (args.length == 0) return;
 		
-		var command = args[0].toLowerCase ();
-		
-		if (args.length > 2 && command == "rebuild" && args[1] == "tools") {
+		if (args.length > 2 && args[0] == "rebuild" && args[1] == "tools") {
 			
 			var lastArgument = new Path (args[args.length - 1]).toString ();
 			

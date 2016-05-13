@@ -39,7 +39,12 @@ namespace lime {
 		if (flags & WINDOW_FLAG_HARDWARE) {
 			
 			sdlFlags |= SDL_WINDOW_OPENGL;
-			sdlFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
+			
+			if (flags & WINDOW_FLAG_ALLOW_HIGHDPI) {
+				
+				sdlFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
+				
+			}
 			
 			#if defined (HX_WINDOWS) && defined (NATIVE_TOOLKIT_SDL_ANGLE)
 			SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
@@ -179,6 +184,13 @@ namespace lime {
 	}
 	
 	
+	int SDLWindow::GetDisplay () {
+		
+		return SDL_GetWindowDisplayIndex (sdlWindow);
+		
+	}
+	
+	
 	bool SDLWindow::GetEnableTextEvents () {
 		
 		return SDL_IsTextInputActive ();
@@ -255,6 +267,23 @@ namespace lime {
 	}
 	
 	
+	bool SDLWindow::SetBorderless (bool borderless) {
+		
+		if (borderless) {
+			
+			SDL_SetWindowBordered (sdlWindow, SDL_FALSE);
+			
+		} else {
+			
+			SDL_SetWindowBordered (sdlWindow, SDL_TRUE);
+			
+		}
+		
+		return borderless;
+		
+	}
+	
+	
 	void SDLWindow::SetEnableTextEvents (bool enabled) {
 		
 		if (enabled) {
@@ -301,6 +330,23 @@ namespace lime {
 	}
 	
 	
+	bool SDLWindow::SetMaximized (bool maximized) {
+		
+		if (maximized) {
+			
+			SDL_MaximizeWindow (sdlWindow);
+			
+		} else {
+			
+			SDL_RestoreWindow (sdlWindow);
+			
+		}
+		
+		return maximized;
+		
+	}
+	
+	
 	bool SDLWindow::SetMinimized (bool minimized) {
 		
 		if (minimized) {
@@ -314,6 +360,46 @@ namespace lime {
 		}
 		
 		return minimized;
+		
+	}
+	
+	
+	bool SDLWindow::SetResizable (bool resizable) {
+		
+		#if defined(HX_WINDOWS)
+		
+		SDL_SysWMinfo info;
+		SDL_VERSION (&info.version);
+		SDL_GetWindowWMInfo (sdlWindow, &info);
+		
+		HWND hwnd = info.info.win.window;
+		DWORD style = GetWindowLong (hwnd, GWL_STYLE);
+		
+		if (resizable) {
+			
+			style |= WS_THICKFRAME;
+			
+		} else {
+			
+			style &= ~WS_THICKFRAME;
+			
+		}
+		
+		SetWindowLong (hwnd, GWL_STYLE, style);
+		
+		#elif defined(HX_MACOS)
+		
+		//TODO
+		//consider: http://stackoverflow.com/questions/10473700/set-window-resizable/10473949#10473949
+		
+		#elif defined(HX_LINUX)
+		
+		//TODO
+		//maybe something in here? https://tronche.com/gui/x/xlib/ICC/client-to-window-manager/wm-normal-hints.html
+		
+		#endif
+		
+		return resizable;
 		
 	}
 	

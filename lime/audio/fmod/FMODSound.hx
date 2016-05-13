@@ -3,13 +3,11 @@ package lime.audio.fmod;
 
 
 import lime.ConsoleIncludePaths;
-import lime.system.System;
-import lime.utils.ByteArray;
 
 
 @:include("ConsoleFmodSound.h")
 @:native("cpp::Struct<lime::ConsoleFmodSound>")
-extern class Sound {
+extern class FMODSound {
 
 
 	// valid returns true if this represents a valid handle to a sound.
@@ -18,11 +16,11 @@ extern class Sound {
 
 	// fromFile creates a sound from the named file.
 	@:native("lime::ConsoleFmodSound::fromFile")
-	public static function fromFile (name:String):Sound;
+	public static function fromFile (name:String):FMODSound;
 
 
 	// play plays the sound and returns the channel it was assigned.
-	public function play ():Channel;
+	public function play ():FMODChannel;
 
 
 	// release releases the sound.

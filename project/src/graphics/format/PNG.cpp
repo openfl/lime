@@ -84,6 +84,7 @@ namespace lime {
 		int bit_depth, color_type, interlace_type;
 		
 		FILE_HANDLE *file = NULL;
+		Bytes *data = NULL;
 		
 		if (resource->path) {
 			
@@ -143,8 +144,8 @@ namespace lime {
 				
 			} else {
 				
-				Bytes data = Bytes (resource->path);
-				ReadBuffer buffer (data.Data (), data.Length ());
+				data = new Bytes (resource->path);
+				ReadBuffer buffer (data->Data (), data->Length ());
 				png_set_read_fn (png_ptr, &buffer, user_read_data_fn);
 				
 			}
@@ -211,6 +212,7 @@ namespace lime {
 		png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
 		
 		if (file) lime::fclose (file);
+		if (data) delete data;
 		
 		return true;
 		

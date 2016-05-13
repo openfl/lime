@@ -20,6 +20,7 @@ namespace lime {
 			virtual void Alert (const char* message, const char* title);
 			virtual void Close ();
 			virtual void Focus ();
+			virtual int GetDisplay ();
 			virtual bool GetEnableTextEvents ();
 			virtual int GetHeight ();
 			virtual uint32_t GetID ();
@@ -28,10 +29,13 @@ namespace lime {
 			virtual int GetY ();
 			virtual void Move (int x, int y);
 			virtual void Resize (int width, int height);
+			virtual bool SetBorderless (bool borderless);
 			virtual void SetEnableTextEvents (bool enabled);
 			virtual bool SetFullscreen (bool fullscreen);
 			virtual void SetIcon (ImageBuffer *imageBuffer);
+			virtual bool SetMaximized (bool maximized);
 			virtual bool SetMinimized (bool minimized);
+			virtual bool SetResizable (bool resizable);
 			virtual const char* SetTitle (const char* title);
 			
 			SDL_Window* sdlWindow;

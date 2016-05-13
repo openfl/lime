@@ -6,6 +6,34 @@
 namespace lime {
 	
 	
+	const char* FileDialog::OpenDirectory (const char* filter, const char* defaultPath) {
+		
+		nfdchar_t *savePath = 0;
+		nfdresult_t result = NFD_OpenDirectoryDialog (filter, defaultPath, &savePath);
+		
+		switch (result) {
+			
+			case NFD_OKAY:
+				
+				return savePath;
+				break;
+			
+			case NFD_CANCEL:
+				
+				break;
+			
+			default:
+				
+				printf ("Error: %s\n", NFD_GetError ());
+				break;
+			
+		}
+		
+		return savePath;
+		
+	}
+	
+	
 	const char* FileDialog::OpenFile (const char* filter, const char* defaultPath) {
 		
 		nfdchar_t *savePath = 0;

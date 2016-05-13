@@ -22,6 +22,7 @@ typedef Config = {
 
 typedef WindowConfig = { 
 	
+	@:optional var allowHighDPI:Bool;
 	@:optional var antialiasing:Int;
 	@:optional var background:Int;
 	@:optional var borderless:Bool;

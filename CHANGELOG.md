@@ -1,3 +1,83 @@
+2.9.1 (03/28/2016)
+------------------
+
+* Added automatic support for mouse capture when dragging
+* Added initial support for `<haxelib path="" \>`
+* Added window.onDropFile, window.maximized
+* Added a missing dependency in the iOS project template
+* Added a polyfill for context.isPointInStroke (for IE support)
+* Added a flag to disable "allow-high-dpi" support
+* Improved support for Assets.loadBytes on Flash
+* Fixed some minor memory leaks when allocating CFFI strings
+* Fixed a rare crash in the tools when `haxelib path` does not work
+* Fixed the name suffix for Windows builds on newer HXCPP versions
+* Fixed an issue where Cairo could render text at the wrong size
+* Fixed the default company meta to be blank instead of a dummy value
+* Fixed the window position and size to update after fullscreen
+
+
+2.9.0 (01/22/2016)
+------------------
+
+* Updated to SDL 2.0.4
+* Updated to Cairo 1.14.6 and pixman 0.32.8
+* Changed default Android SDK version to 19 (enables immersive mode)
+* Added initial support for display.dpi
+* Added initial support for window.borderless and window.resizable
+* Added initial support for renderer.readPixels
+* Added support for image.threshold
+* Added open directory support to file dialog
+* Added support for stopping propagation of browser keyboard events
+* Added support for environment variables in if/unless conditionals
+* Added support for variable substitution in if/unless conditionals
+* Added MIPS and MIPSEL to architectures in tools
+* Improved guards against using lime.* classes with legacy
+* Improved support for the newer Android NDK
+* Improved handling of reference leaks in JNI access
+* Removed @:finalizer support, due to issues it caused
+* Fixed compatibility with HXCPP changes regarding Visual Studio 2015
+* Fixed support for window.display on scaled windows
+* Fixed a tool crash when using an unrecognized -armvX flag
+
+
+2.8.3 (01/02/2016)
+------------------
+
+* Improved support for the latest Android NDK
+* Improved cross-domain image loading on HTML5
+* Improved support for rebuilding and using tools without haxelib
+* Ensured that OpenAL is disabled in static builds by default
+* Fixed support for the current Haxe development build
+* Fixed the setup command to ensure all requested dependencies
+* Fixed a compile error when using <source /> and an empty path
+* Fixed the -notrace flag (to disable "trace" on "test" commands)
+
+
+2.8.2 (12/16/2015)
+------------------
+
+* Enabled WebGL by default on HTML5
+* Added support for Lime event canceling
+* Added default keyboard shortcuts for toggling fullscreen
+* Added default Android back button behavior to quit
+* Added support for <window resizable="false" /> on HTML5 template
+* Changed iOS default system font path to be more generic
+* Fixed issues with OGG decoding on newer Android NDK
+* Fixed AudioSource complete event when setting currentTime or length
+* Fixed minor issue compiling Neko Windows binaries from Linux
+* Minor updates to the default Android ADB output filter
+* Updated ANGLE binaries to resolve ALT + Enter fullscreen issue
+* Fixed font paths on iOS (legacy)
+
+
+2.8.1 (12/09/2015)
+------------------
+
+* Disable ANGLE by default on Windows, need to do additional testing
+* Added support for optional haxelib references in XML
+* Fixed an issue with incorrect joystick IDs on connect
+
+
 2.8.0 (12/07/2015)
 ------------------
 

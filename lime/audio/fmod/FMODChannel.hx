@@ -3,13 +3,11 @@ package lime.audio.fmod;
 
 
 import lime.ConsoleIncludePaths;
-import lime.system.System;
-import lime.utils.ByteArray;
 
 
 @:include("ConsoleFmodChannel.h")
 @:native("cpp::Struct<lime::ConsoleFmodChannel>")
-extern class Channel {
+extern class FMODChannel {
 
 
 	// valid is true if this represents a valid handle to a channel.
@@ -35,13 +33,13 @@ extern class Channel {
 
 
 	// INVALID represents an invalid channel handle
-	public static var INVALID (get, never):Channel;
+	public static var INVALID (get, never):FMODChannel;
 
 
 	private function get_valid ():Bool;
 
 	@:native("lime::ConsoleFmodChannel")
-	private static function get_INVALID ():Channel;
+	private static function get_INVALID ():FMODChannel;
 
 
 }

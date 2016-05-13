@@ -46,6 +46,13 @@ namespace lime {
 	}
 	
 	
+	int SDLJoystick::GetInstanceID (int deviceID) {
+		
+		return SDL_JoystickInstanceID (joysticks[deviceID]);
+		
+	}
+	
+	
 	void SDLJoystick::Init () {
 		
 		#if defined(IOS) || defined(ANDROID) || defined(TVOS)

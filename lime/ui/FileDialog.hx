@@ -52,6 +52,10 @@ class FileDialog {
 					
 					worker.sendComplete (lime_file_dialog_open_files (filter, defaultPath));
 				
+				case OPEN_DIRECTORY:
+					
+					worker.sendComplete (lime_file_dialog_open_directory (filter, defaultPath));
+				
 				case SAVE:
 					
 					worker.sendComplete (lime_file_dialog_save_file (filter, defaultPath));
@@ -64,7 +68,7 @@ class FileDialog {
 			
 			switch (type) {
 				
-				case OPEN, SAVE:
+				case OPEN, OPEN_DIRECTORY, SAVE:
 					
 					var path:String = cast result;
 					
@@ -104,10 +108,14 @@ class FileDialog {
 		var paths:Array<String> = null;
 		
 		switch (type) {
-				
+			
 			case OPEN:
 				
 				path = lime_file_dialog_open_file (filter, defaultPath);
+			
+			case OPEN_DIRECTORY:
+				
+				path = lime_file_dialog_open_directory (filter, defaultPath);
 			
 			case OPEN_MULTIPLE:
 				
@@ -118,10 +126,10 @@ class FileDialog {
 				path = lime_file_dialog_save_file (filter, defaultPath);
 			
 		}
-			
+		
 		switch (type) {
 			
-			case OPEN, SAVE:
+			case OPEN, OPEN_DIRECTORY, SAVE:
 				
 				if (path != null) {
 					
@@ -301,6 +309,7 @@ class FileDialog {
 	
 	
 	#if (cpp || neko || nodejs)
+	@:cffi private static function lime_file_dialog_open_directory (filter:String, defaultPath:String):Dynamic;
 	@:cffi private static function lime_file_dialog_open_file (filter:String, defaultPath:String):Dynamic;
 	@:cffi private static function lime_file_dialog_open_files (filter:String, defaultPath:String):Dynamic;
 	@:cffi private static function lime_file_dialog_save_file (filter:String, defaultPath:String):Dynamic;

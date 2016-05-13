@@ -48,6 +48,7 @@ class FlashWindow {
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
 		
 		parent.id = 0;
+		parent.stage = Lib.current.stage;
 		
 	}
 	
@@ -87,6 +88,13 @@ class FlashWindow {
 	}
 	
 	
+	public function setBorderless (value:Bool):Bool {
+		
+		return value;
+		
+	}
+	
+	
 	public function setEnableTextEvents (value:Bool):Bool {
 		
 		return enableTextEvents = value;
@@ -108,9 +116,23 @@ class FlashWindow {
 	}
 	
 	
+	public function setMaximized (value:Bool):Bool {
+		
+		return false;
+		
+	}
+	
+	
 	public function setMinimized (value:Bool):Bool {
 		
 		return false;
+		
+	}
+	
+	
+	public function setResizable (value:Bool):Bool {
+		
+		return value;
 		
 	}
 	

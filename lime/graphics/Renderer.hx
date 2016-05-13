@@ -2,6 +2,7 @@ package lime.graphics;
 
 
 import lime.app.Event;
+import lime.math.Rectangle;
 import lime.ui.Window;
 
 
@@ -39,6 +40,13 @@ class Renderer {
 	public function flip ():Void {
 		
 		backend.flip ();
+		
+	}
+	
+	
+	public function readPixels (rect:Rectangle = null):Image {
+		
+		return backend.readPixels (rect);
 		
 	}
 	

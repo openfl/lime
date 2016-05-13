@@ -191,6 +191,8 @@ namespace lime {
 		jpegError.base.output_message = OnOutput;
 		
 		FILE_HANDLE *file = NULL;
+		Bytes *data = NULL;
+		MySrcManager *manager = NULL; 
 		
 		if (resource->path) {
 			
@@ -212,6 +214,18 @@ namespace lime {
 				
 			}
 			
+			if (manager) {
+				
+				delete manager;
+				
+			}
+			
+			if (data) {
+				
+				delete data;
+				
+			}
+			
 			jpeg_destroy_decompress (&cinfo);
 			return false;
 			
@@ -227,16 +241,16 @@ namespace lime {
 				
 			} else {
 				
-				Bytes data = Bytes (resource->path);
-				MySrcManager manager (data.Data (), data.Length ());
-				cinfo.src = &manager.pub;
+				data = new Bytes (resource->path);
+				manager = new MySrcManager (data->Data (), data->Length ());
+				cinfo.src = &manager->pub;
 				
 			}
 			
 		} else {
 			
-			MySrcManager manager (resource->data->Data (), resource->data->Length ());
-			cinfo.src = &manager.pub;
+			manager = new MySrcManager (resource->data->Data (), resource->data->Length ());
+			cinfo.src = &manager->pub;
 			
 		}
 		
@@ -292,6 +306,18 @@ namespace lime {
 		if (file) {
 			
 			lime::fclose (file);
+			
+		}
+		
+		if (manager) {
+			
+			delete manager;
+			
+		}
+		
+		if (data) {
+			
+			delete data;
 			
 		}
 		

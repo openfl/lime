@@ -116,9 +116,10 @@ class HXProject {
 		targetFlags = StringMapHelper.copy (_targetFlags);
 		templatePaths = _templatePaths.copy ();
 		
-		defaultMeta = { title: "MyApplication", description: "", packageName: "com.example.myapp", version: "1.0.0", company: "Example, Inc.", companyUrl: "", buildNumber: "1", companyId: "", cacheversion: "1" }
+
+		defaultMeta = { title: "MyApplication", description: "", packageName: "com.example.myapp", version: "1.0.0", company: "", companyUrl: "", buildNumber: "1", companyId: "", cacheversion: "1" }
 		defaultApp = { main: "Main", file: "MyApplication", path: "bin", preloader: "", swfVersion: 11.2, url: "", init: null }
-		defaultWindow = { width: 800, height: 600, parameters: "{}", background: 0xFFFFFF, fps: 30, hardware: true, display: 0, resizable: true, borderless: false, orientation: Orientation.AUTO, vsync: false, fullscreen: false, antialiasing: 0, allowShaders: true, requireShaders: false, depthBuffer: false, stencilBuffer: false }
+		defaultWindow = { width: 800, height: 600, parameters: "{}", background: 0xFFFFFF, fps: 30, hardware: true, display: 0, resizable: true, borderless: false, orientation: Orientation.AUTO, vsync: false, fullscreen: false, allowHighDPI: true, antialiasing: 0, allowShaders: true, requireShaders: false, depthBuffer: false, stencilBuffer: false }
 		
 		platformType = PlatformType.DESKTOP;
 		architectures = [];
@@ -988,75 +989,90 @@ class HXProject {
 			
 			#if (lime && !lime_legacy)
 			
-			var cache = LogHelper.verbose;
-			LogHelper.verbose = false;
-			var output = "";
-			
-			try {
+			if (PathHelper.haxelibOverrides.exists (name)) {
 				
-				output = ProcessHelper.runProcess ("", "haxelib", [ "path", name ], true, true, true);
+				var param = "-cp " + PathHelper.haxelibOverrides.get (name);
+				compilerFlags.remove (param);
+				compilerFlags.push (param);
 				
-			} catch (e:Dynamic) { }
-			
-			LogHelper.verbose = cache;
-			
-			var split = output.split ("\n");
-			var haxelibName = null;
-			
-			for (arg in split) {
+			} else {
 				
-				arg = StringTools.trim (arg);
+				var cache = LogHelper.verbose;
+				LogHelper.verbose = false;
+				var output = "";
 				
-				if (arg != "") {
+				try {
 					
-					if (!StringTools.startsWith (arg, "-")) {
+					output = ProcessHelper.runProcess ("", "haxelib", [ "path", name ], true, true, true);
+					
+				} catch (e:Dynamic) { }
+				
+				LogHelper.verbose = cache;
+				
+				var split = output.split ("\n");
+				var haxelibName = null;
+				
+				for (arg in split) {
+					
+					arg = StringTools.trim (arg);
+					
+					if (arg != "") {
 						
-						var path = PathHelper.standardize (arg);
-						var param = "-cp " + path;
-						compilerFlags.remove (param);
-						compilerFlags.push (param);
-						
-						var version = "0.0.0";
-						var jsonPath = PathHelper.combine (path, "haxelib.json");
-						
-						try {
+						if (!StringTools.startsWith (arg, "-")) {
 							
-							if (FileSystem.exists (jsonPath)) {
+							var path = PathHelper.standardize (arg);
+							
+							if (path != null && StringTools.trim (path) != "") {
 								
-								var json = Json.parse (File.getContent (jsonPath));
-								haxelibName = json.name;
-								compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ "-D " + haxelibName + "=" + json.version ], true);
+								var param = "-cp " + path;
+								compilerFlags.remove (param);
+								compilerFlags.push (param);
 								
 							}
 							
-						} catch (e:Dynamic) {}
-						
-					} else {
-						
-						if (StringTools.startsWith (arg, "-D ") && arg.indexOf ("=") == -1) {
+							var version = "0.0.0";
+							var jsonPath = PathHelper.combine (path, "haxelib.json");
 							
-							var name = arg.substr (3);
-							
-							if (name != haxelibName) {
+							try {
 								
-								compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ "-D " + name ], true);
+								if (FileSystem.exists (jsonPath)) {
+									
+									var json = Json.parse (File.getContent (jsonPath));
+									haxelibName = json.name;
+									compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ "-D " + haxelibName + "=" + json.version ], true);
+									
+								}
+								
+							} catch (e:Dynamic) {}
+							
+						} else {
+							
+							if (StringTools.startsWith (arg, "-D ") && arg.indexOf ("=") == -1) {
+								
+								var name = arg.substr (3);
+								
+								if (name != haxelibName) {
+									
+									compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ "-D " + name ], true);
+									
+								}
+								
+								/*var haxelib = new Haxelib (arg.substr (3));
+								var path = PathHelper.getHaxelib (haxelib);
+								var version = getHaxelibVersion (haxelib);
+								
+								if (path != null) {
+									
+									CompatibilityHelper.patchProject (this, haxelib, version);
+									compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ "-D " + haxelib.name + "=" + version ], true);
+									
+								}*/
+								
+							} else if (!StringTools.startsWith (arg, "-L")) {
+								
+								compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ arg ], true);
 								
 							}
-							
-							/*var haxelib = new Haxelib (arg.substr (3));
-							var path = PathHelper.getHaxelib (haxelib);
-							var version = getHaxelibVersion (haxelib);
-							
-							if (path != null) {
-								
-								CompatibilityHelper.patchProject (this, haxelib, version);
-								compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ "-D " + haxelib.name + "=" + version ], true);
-								
-							}*/
-							
-						} else if (!StringTools.startsWith (arg, "-L")) {
-							
-							compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ arg ], true);
 							
 						}
 						
@@ -1084,7 +1100,11 @@ class HXProject {
 		
 		for (source in sources) {
 			
-			compilerFlags.push ("-cp " + source);
+			if (source != null && StringTools.trim (source) != "") {
+				
+				compilerFlags.push ("-cp " + source);
+				
+			}
 			
 		}
 		
@@ -1152,7 +1172,7 @@ class HXProject {
 		}
 		
 		var indexOfPeriod = main.lastIndexOf (".");
-        
+		
 		context.APP_MAIN_PACKAGE = main.substr (0, indexOfPeriod + 1);
 		context.APP_MAIN_CLASS = main.substr (indexOfPeriod + 1);
 		
@@ -1182,7 +1202,9 @@ class HXProject {
 			
 		}
 		
+		context.RELEASE = (type == "release");
 		context.DEBUG = debug;
+		context.FINAL = (type == "final");
 		context.SWF_VERSION = app.swfVersion;
 		context.PRELOADER_NAME = app.preloader;
 		

@@ -245,17 +245,25 @@ class FileHelper {
 				
 			}
 			
-			LogHelper.info ("", " - \x1b[1mCopying library file:\x1b[0m " + path + " \x1b[3;37m->\x1b[0m " + targetPath);
-			
-			PathHelper.mkdir (targetDirectory);
-			
-			try {
+			if (project.config.getBool ("tools.copy-ndlls")) {
 				
-				File.copy (path, targetPath);
+				LogHelper.info ("", " - \x1b[1mCopying library file:\x1b[0m " + path + " \x1b[3;37m->\x1b[0m " + targetPath);
 				
-			} catch (e:Dynamic) {
+				PathHelper.mkdir (targetDirectory);
 				
-				LogHelper.error ("Cannot copy to \"" + targetPath + "\", is the file in use?");
+				try {
+					
+					File.copy (path, targetPath);
+					
+				} catch (e:Dynamic) {
+					
+					LogHelper.error ("Cannot copy to \"" + targetPath + "\", is the file in use?");
+					
+				}
+				
+			} else {
+				
+				LogHelper.info ("", " - \x1b[1mSkipping library file:\x1b[0m " + path + " \x1b[3;37m->\x1b[0m " + targetPath);
 				
 			}
 			

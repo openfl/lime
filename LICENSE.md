@@ -82,15 +82,12 @@ which is available under an "MIT" license. For details, see
 https://github.com/haxenme/nme
 
     legacy/
-    lime/utils/ByteArray.hx
     lime/utils/JNI.hx
-    project/include/utils/ByteArray.h
     project/include/utils/QuickVec.h
     project/src/graphics/format/
     project/src/graphics/opengl/
     project/src/system/JNI.cpp
     project/src/text/Font.cpp
-    project/src/utils/ByteArray.cpp
     project/src/utils/LZMA.cpp
     tools/utils/JavaExternGenerator.hx
 

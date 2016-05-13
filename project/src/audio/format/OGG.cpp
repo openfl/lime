@@ -107,6 +107,8 @@ namespace lime {
 	bool OGG::Decode (Resource *resource, AudioBuffer *audioBuffer) {
 		
 		OggVorbis_File oggFile;
+		Bytes *data = NULL;
+		OAL_OggMemoryFile fakeFile;
 		
 		if (resource->path) {
 			
@@ -130,12 +132,16 @@ namespace lime {
 			} else {
 				
 				lime::fclose (file);
-				Bytes data = Bytes (resource->path);
+				data = new Bytes (resource->path);
 				
-				OAL_OggMemoryFile fakeFile = { data.Data (), data.Length (), 0 };
+				fakeFile = OAL_OggMemoryFile ();
+				fakeFile.data = data->Data ();
+				fakeFile.size = data->Length ();
+				fakeFile.pos = 0;
 				
 				if (ov_open_callbacks (&fakeFile, &oggFile, NULL, 0, OAL_CALLBACKS_BUFFER) != 0) {
 					
+					delete data;
 					return false;
 					
 				}
@@ -144,7 +150,10 @@ namespace lime {
 			
 		} else {
 			
-			OAL_OggMemoryFile fakeFile = { resource->data->Data (), resource->data->Length (), 0 };
+			fakeFile = OAL_OggMemoryFile ();
+			fakeFile.data = resource->data->Data ();
+			fakeFile.size = resource->data->Length ();
+			fakeFile.pos = 0;
 			
 			if (ov_open_callbacks (&fakeFile, &oggFile, NULL, 0, OAL_CALLBACKS_BUFFER) != 0) {
 				
@@ -173,6 +182,13 @@ namespace lime {
 			
 			//LOG_SOUND("FAILED TO READ OGG SOUND INFO, IS THIS EVEN AN OGG FILE?\n");
 			ov_clear (&oggFile);
+			
+			if (data) {
+				
+				delete data;
+				
+			}
+			
 			return false;
 			
 		}
@@ -186,10 +202,10 @@ namespace lime {
 		audioBuffer->data->Resize (dataLength);
 		
 		while (bytes > 0) {
-				
-				bytes = ov_read (&oggFile, (char *)audioBuffer->data->Data () + totalBytes, BUFFER_SIZE, BUFFER_READ_TYPE, 2, 1, &bitStream);
-				totalBytes += bytes;
-				
+			
+			bytes = ov_read (&oggFile, (char *)audioBuffer->data->Data () + totalBytes, BUFFER_SIZE, BUFFER_READ_TYPE, 2, 1, &bitStream);
+			totalBytes += bytes;
+			
 		}
 		
 		if (dataLength != totalBytes) {
@@ -201,6 +217,12 @@ namespace lime {
 		ov_clear (&oggFile);
 		
 		#undef BUFFER_READ_TYPE
+		
+		if (data) {
+			
+			delete data;
+			
+		}
 		
 		return true;
 		

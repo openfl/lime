@@ -1168,9 +1168,12 @@ class Assets {
 			
 			var constructor = macro {
 				
+				#if lime_console
+				throw "not implemented";
+				#else
 				var bytes = haxe.Resource.getBytes (resourceName);
-				
 				super (bytes.length, bytes.b);
+				#end
 				
 			};
 			
@@ -1191,11 +1194,16 @@ class Assets {
 		if (fields != null) {
 			
 			var constructor = macro {
+
 				
 				super ();
 				
+				#if lime_console
+				throw "not implemented";
+				#else
 				var bytes = haxe.Resource.getBytes (resourceName);
 				__fromBytes (bytes);
+				#end
 				
 			};
 			
@@ -1208,50 +1216,6 @@ class Assets {
 		
 	}
 	
-	
-	#if lime_console
-	
-	private static function embedData (metaName:String, encode:Bool = false):Array<Field> {
-		
-		var classType = Context.getLocalClass().get();
-		var metaData = classType.meta.get();
-		var position = Context.currentPos();
-		var fields = Context.getBuildFields();
-		
-		for (meta in metaData) {
-			
-			if (meta.name != metaName || meta.params.length <= 0) {
-				continue;
-			}
-				
-			switch (meta.params[0].expr) {
-				
-				case EConst(CString(filePath)):
-					
-					var fieldValue = {
-						pos: position,
-						expr: EConst(CString(filePath))
-					};
-					fields.push ({
-						kind: FVar(macro :String, fieldValue),
-						name: "filePath",
-						access: [ APrivate, AStatic ],
-						pos: position
-					});
-					
-					return fields;
-					
-				default:
-				
-			}
-			
-		}
-		
-		return null;
-		
-	}
-
-	#else
 	
 	private static function embedData (metaName:String, encode:Bool = false):Array<Field> {
 		
@@ -1269,6 +1233,21 @@ class Assets {
 					switch (meta.params[0].expr) {
 						
 						case EConst(CString(filePath)):
+							
+							#if lime_console
+							
+							var fieldValue = {
+								pos: position,
+								expr: EConst(CString(filePath))
+							};
+							fields.push ({
+								kind: FVar(macro :String, fieldValue),
+								name: "filePath",
+								access: [ APrivate, AStatic ],
+								pos: position
+							});
+							
+							#else
 							
 							var path = filePath;
 							if (!sys.FileSystem.exists(filePath)) {
@@ -1306,6 +1285,8 @@ class Assets {
 							var fieldValue = { pos: position, expr: EConst(CString(resourceName)) };
 							fields.push ({ kind: FVar(macro :String, fieldValue), name: "resourceName", access: [ APrivate, AStatic ], pos: position });
 							
+							#end
+							
 							return fields;
 							
 						default:
@@ -1321,12 +1302,10 @@ class Assets {
 		return null;
 		
 	}
-
-	#end
 	
 	
 	macro public static function embedFont ():Array<Field> {
-		
+
 		var fields = null;
 		
 		var classType = Context.getLocalClass().get();
@@ -1366,6 +1345,10 @@ class Assets {
 		}
 		
 		if (path != null && path != "") {
+
+			#if lime_console
+			throw "not implemented";
+			#end
 			
 			#if html5
 			Sys.command ("haxelib", [ "run", "lime", "generate", "-font-hash", sys.FileSystem.fullPath(path) ]);

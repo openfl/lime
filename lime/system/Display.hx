@@ -20,6 +20,11 @@ class Display {
 	public var id (default, null):Int;
 	
 	/**
+	 * Pixel density of the display
+	 */
+	public var dpi (default, null):Float;
+	
+	/**
 	 * The name of the device, such as "Samsung SyncMaster P2350", "iPhone 6", "Occulus Rift DK2", etc.
 	 **/
 	public var name (default, null):String;
