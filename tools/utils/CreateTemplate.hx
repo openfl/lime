@@ -84,6 +84,7 @@ class CreateTemplate {
 		var projectName = null;
 		var sampleName = null;
 		var outputName = "SampleProject";
+		var cacheversion = "1";
 		
 		if (colonIndex == -1) {
 			
@@ -227,9 +228,9 @@ class CreateTemplate {
 						
 					}
 					
-					if (overrides.meta.release != overrides.defaultMeta.release) {
+					if (overrides.meta.cacheversion != overrides.defaultMeta.cacheversion) {
 						
-						release = overrides.meta.release;
+						cacheversion = overrides.meta.cacheversion;
 						
 					}
 					
@@ -246,6 +247,7 @@ class CreateTemplate {
 				context.version = version;
 				context.company = company;
 				context.file = file;
+				context.cacheversion = cacheversion;
 				
 				for (define in userDefines.keys ()) {
 					

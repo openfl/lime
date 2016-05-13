@@ -74,7 +74,7 @@ class ApplicationMain {
 			orientation: "::WIN_ORIENTATION::",
 			packageName: "::meta.packageName::",
 			version: "::meta.version::",
-			release: "::meta.cacheversion::",
+			cacheversion: "::meta.cacheversion::",
 			windows: [
 				::foreach windows::
 				{
@@ -98,9 +98,6 @@ class ApplicationMain {
 			]
 			
 		};
-
-		trace ("Fetched meta release version " + config.release);
-		trace ("Fetched meta version " + config.version);
 
 		#if (!html5 || munit)
 		create ();

@@ -11,6 +11,6 @@ typedef MetaData = {
 	@:optional var packageName:String;
 	@:optional var title:String;
 	@:optional var version:String;
-	@:optional var release: String;
+	@:optional var cacheversion: String;
 	
 }
