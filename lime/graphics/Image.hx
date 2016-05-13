@@ -173,11 +173,18 @@ class Image {
 		if (buffer != null) {
 			
 			#if (js && html5)
-			ImageCanvasUtil.sync (this, true);
+			if (type == CANVAS) {
+				
+				ImageCanvasUtil.convertToCanvas (this);
+				
+			} else {
+				
+				ImageCanvasUtil.convertToData (this);
+				
+			}
 			#end
 			
 			var image = new Image (buffer.clone (), offsetX, offsetY, width, height, null, type);
-			image.dirty = dirty;
 			image.version = version;
 			return image;
 			
@@ -1525,7 +1532,7 @@ class Image {
 			
 			switch (type) {
 				
-				case DATA:
+				case CANVAS, DATA:
 					
 					#if (js && html5)
 					ImageCanvasUtil.convertToData (this);
