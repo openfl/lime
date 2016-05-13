@@ -164,7 +164,8 @@ namespace lime {
 			
 		} else {
 			
-			bytes = Bytes (data);
+			bytes = Bytes();
+			bytes.Set(data);
 			resource = Resource (&bytes);
 			
 		}
@@ -1203,8 +1204,6 @@ namespace lime {
 			value _path = alloc_string (path);
 			
 			if (type != 4) {
-				
-				// TODO: Make this more consistent
 				
 				free ((char*) path);
 				

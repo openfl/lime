@@ -74,6 +74,7 @@ class ApplicationMain {
 			orientation: "::WIN_ORIENTATION::",
 			packageName: "::meta.packageName::",
 			version: "::meta.version::",
+			cacheversion: "::meta.cacheversion::",
 			windows: [
 				::foreach windows::
 				{
@@ -97,7 +98,7 @@ class ApplicationMain {
 			]
 			
 		};
-		
+
 		#if (!html5 || munit)
 		create ();
 		#end
