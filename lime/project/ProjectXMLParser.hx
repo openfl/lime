@@ -712,14 +712,14 @@ class ProjectXMLParser extends HXProject {
 			
 			switch (attribute) {
 				
-				case "title", "description", "package", "version", "company", "company-id", "build-number", "company-url":
+				case "title", "description", "package", "version", "company", "company-id", "build-number", "company-url", "cacheversion":
 					
 					var value = substitute (element.att.resolve (attribute));
 					
 					defines.set ("APP_" + StringTools.replace (attribute, "-", "_").toUpperCase (), value);
 					
 					var name = formatAttributeName (attribute);
-					
+					trace ("Found meta element " + attribute + ":" + value);
 					if (attribute == "package") {
 						
 						name = "packageName";
@@ -727,9 +727,8 @@ class ProjectXMLParser extends HXProject {
 					}
 					
 					if (Reflect.hasField (meta, name)) {
-						
+						trace ("Reflecting meta element " + attribute + ":" + value);
 						Reflect.setField (meta, name, value);
-						
 					}
 				
 			}

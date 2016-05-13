@@ -227,6 +227,12 @@ class CreateTemplate {
 						
 					}
 					
+					if (overrides.meta.release != overrides.defaultMeta.release) {
+						
+						release = overrides.meta.release;
+						
+					}
+					
 					if (overrides.app.file != overrides.defaultApp.file) {
 						
 						file = overrides.app.file;
