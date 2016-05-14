@@ -1512,8 +1512,7 @@ class AssetCache {
 	
 	private static macro function cacheVersion () {
 		
-		var version = Std.int (Math.random () * 1000000);
-		return Context.makeExpr (version, Context.currentPos ());
+		return macro $v{ Std.int (Math.random () * 1000000) };
 		
 	}
 	
