@@ -50,7 +50,7 @@ class Module implements IModule {
 	@:noCompletion public function addWindow (window:Window):Void {
 		
 		window.onActivate.add (onWindowActivate.bind (window));
-		window.onClose.add (onWindowClose.bind (window));
+		window.onClose.add (__onWindowClose.bind (window));
 		window.onCreate.add (onWindowCreate.bind (window));
 		window.onDeactivate.add (onWindowDeactivate.bind (window));
 		window.onDropFile.add (onWindowDropFile.bind (window));
@@ -552,6 +552,15 @@ class Module implements IModule {
 		joystick.onDisconnect.add (onJoystickDisconnect.bind (joystick));
 		joystick.onHatMove.add (onJoystickHatMove.bind (joystick));
 		joystick.onTrackballMove.add (onJoystickTrackballMove.bind (joystick));
+		
+	}
+	
+	
+	@:noCompletion private function __onWindowClose (window:Window):Void {
+		
+		onWindowClose (window);
+		
+		__windows.remove (window);
 		
 	}
 	

@@ -47,12 +47,18 @@ class NativeWindow {
 	
 	public function close ():Void {
 		
-		if (handle != null) {
+		parent.onClose.dispatch ();
+		
+		if (!parent.onClose.canceled) {
 			
-			#if !macro
-			lime_window_close (handle);
-			#end
-			handle = null;
+			if (handle != null) {
+				
+				#if !macro
+				lime_window_close (handle);
+				#end
+				handle = null;
+				
+			}
 			
 		}
 		

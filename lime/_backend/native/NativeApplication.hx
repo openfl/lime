@@ -520,13 +520,7 @@ class NativeApplication {
 				
 				case WINDOW_CLOSE:
 					
-					window.onClose.dispatch ();
-					
-					if (!window.onClose.canceled) {
-						
-						window.close ();
-						
-					}
+					window.close ();
 				
 				case WINDOW_DEACTIVATE:
 					

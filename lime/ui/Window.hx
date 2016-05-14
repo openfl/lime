@@ -118,8 +118,6 @@ class Window {
 		
 		backend.close ();
 		
-		id = -1;
-		
 	}
 	
 	

@@ -55,8 +55,6 @@ class Application extends Module {
 		}
 		
 		modules = new Array ();
-		renderers = new Array ();
-		windows = new Array ();
 		windowByID = new Map ();
 		
 		backend = new ApplicationBackend (this);
@@ -193,7 +191,7 @@ class Application extends Module {
 		}
 		
 		window.create (this);
-		windows.push (window);
+		__windows.push (window);
 		windowByID.set (window.id, window);
 		
 		window.onCreate.dispatch ();
@@ -223,6 +221,13 @@ class Application extends Module {
 	}
 	
 	
+	public override function onWindowClose (window:Window):Void {
+		
+		removeWindow (window);
+		
+	}
+	
+	
 	/**
 	 * Removes a module from the Application
 	 * @param	module	A module to remove
@@ -243,7 +248,7 @@ class Application extends Module {
 		
 		if (window != null && windowByID.exists (window.id)) {
 			
-			windows.remove (window);
+			__windows.remove (window);
 			windowByID.remove (window.id);
 			window.close ();
 			
@@ -294,7 +299,7 @@ class Application extends Module {
 	
 	@:noCompletion private inline function get_renderer ():Renderer {
 		
-		return renderers[0];
+		return __renderers[0];
 		
 	}
 	
@@ -308,7 +313,7 @@ class Application extends Module {
 	
 	@:noCompletion private inline function get_window ():Window {
 		
-		return windows[0];
+		return __windows[0];
 		
 	}
 	
