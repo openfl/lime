@@ -79,12 +79,6 @@ class Module implements IModule {
 			
 		}
 		
-		if (__application.preloader == null || __application.preloader.complete) {
-			
-			onPreloadComplete ();
-			
-		}
-		
 		__windows.push (window);
 		
 	}

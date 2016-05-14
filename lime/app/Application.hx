@@ -75,12 +75,6 @@ class Application extends Module {
 		module.registerModule (this);
 		modules.push (module);
 		
-		if (preloader != null) {
-			
-			module.setPreloader (preloader);
-			
-		}
-		
 		if (__renderers.length > 0) {
 			
 			for (renderer in __renderers) {
@@ -100,6 +94,8 @@ class Application extends Module {
 			}
 			
 		}
+		
+		module.setPreloader (preloader);
 		
 	}
 	
