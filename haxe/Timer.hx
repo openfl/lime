@@ -309,75 +309,8 @@ class Timer {
 	}
 	
 	
-	@:noCompletion @:dox(hide) public static function __checkTimers () {
-		
-		var now = getMS ();
-		var foundNull = false;
-		var timer;
-		
-		for (i in 0...sRunningTimers.length) {
-			
-			timer = sRunningTimers[i];
-			
-			if (timer != null) {
-				
-				timer.__check (now);
-				
-			}
-			
-			foundNull = (foundNull || sRunningTimers[i] == null);
-			
-		}
-		
-		if (foundNull) {
-			
-			sRunningTimers = sRunningTimers.filter (function (val) { return val != null; });
-			
-		}
-		
-	}
-	
-	
-	#if (lime_legacy || lime_hybrid)
-	@:noCompletion @:dox(hide) public static function __nextWake (limit:Float):Float {
-		
-		var now = getMS ();
-		var sleep;
-		
-		for (timer in sRunningTimers) {
-			
-			if (timer == null)
-				continue;
-			
-			sleep = timer.mFireAt - now;
-			
-			if (sleep < limit) {
-				
-				limit = sleep;
-				
-				if (limit < 0) {
-					
-					return 0;
-					
-				}
-				
-			}
-			
-		}
-		
-		return limit * 0.001;
-		
-	}
-	#end
-	
-	
-	
-	
 	// Native Methods
-	
-	
-	
-	
+
 	#if lime_legacy
 	static var lime_time_stamp:Void->Float = flash.Lib.load ("lime-legacy", "lime_legacy_time_stamp", 0);
 	#end
