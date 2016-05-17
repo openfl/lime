@@ -14,6 +14,7 @@ typedef Config = {
 	@:optional var orientation:String;
 	@:optional var packageName:String;
 	@:optional var version:String;
+	@:optional var cacheversion: String;
 	@:optional var windows:Array<WindowConfig>;
 	
 }

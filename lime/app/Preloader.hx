@@ -42,9 +42,10 @@ class Preloader #if flash extends Sprite #end {
 		
 	}
 	
-	
 	public function create (config:Config):Void {
-		
+		Assets.cache.version = (config.cacheversion != null ? Std.parseInt(config.cacheversion) : Std.int (Math.random() * 1000000));
+		trace ("Asset cache version " + Assets.cache.version);
+
 		#if flash
 		Lib.current.addChild (this);
 		

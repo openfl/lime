@@ -27,6 +27,7 @@ class ApplicationMain {
             height          : Std.int(::WIN_HEIGHT::), 
             orientation     : "::WIN_ORIENTATION::",
             title           : "::APP_TITLE::",
+			cacheversion         : "::meta.cacheversion::",
         };
 
             //Start up
