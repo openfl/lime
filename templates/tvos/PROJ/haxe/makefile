@@ -1,6 +1,6 @@
 
 ifeq ("$(ARCHS)","normal")
-	ARCHS = arm64 i386
+	ARCHS = arm64
 endif
 
 HAXE_BUILDS := $(ARCHS:%=build-haxe-%)
@@ -44,13 +44,6 @@ debug_print:
 
 LIB_BASE := build/$(CONFIG)/::CPP_LIBPREFIX::ApplicationMain$(DEBUG)
 LIB_DEST := $(DEBUG)/libApplicationMain.a
-
-build-haxe-i386:
-	@echo "Haxe simulator build: $(CONFIG)"
-	haxe Build.hxml -D simulator -cpp build/$(CONFIG) $(DEBUG)
-	cd build/$(CONFIG); export HXCPP_NO_COLOR=1; haxelib run ::CPP_BUILD_LIBRARY:: Build.xml -Dtvos -Dsimulator -DHXCPP_CPP11 $(DEF_DEBUG) $(HXCPP_CLANG) `cat Options.txt | while read LINE; do printf " -D$$LINE"; done`
-	cp build/$(CONFIG)/::CPP_LIBPREFIX::ApplicationMain$(DEBUG).appletvsim.a ../lib/i386$(LIB_DEST)
-	touch ../Classes/Main.mm
 
 build-haxe-x86_64:
 	@echo "Haxe simulator build: $(CONFIG)-64"

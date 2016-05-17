@@ -42,7 +42,7 @@ class TVOSHelper {
 		if (project.targetFlags.exists("simulator")) {
 			
 			commands.push ("-arch");
-			commands.push ("i386");
+			commands.push ("x86_64");
 			
 		}
 		
@@ -101,7 +101,6 @@ class TVOSHelper {
 				var best = "";
 				var files = FileSystem.readDirectory (dev_path);
 				var extract_version = ~/^AppleTVOS(.*).sdk$/;
-				
 				for (file in files) {
 					if (extract_version.match (file)) {
 						var ver = extract_version.matched (1);
@@ -110,6 +109,7 @@ class TVOSHelper {
 					}
 				}
 				
+
 				if (best != "")
 					project.environment.set ("TVOS_VER", best);
 			}
@@ -201,9 +201,9 @@ class TVOSHelper {
 			Sys.command ("chmod", [ "+x", launcher ]);
 
             // device config
-            var defaultDevice = "appletv";
-            var devices:Array<String> = ["appletv", "iphone-4s", "iphone-5", "iphone-5s", "iphone-6-plus", "iphone-6", "ipad-2", "ipad-retina", "ipad-air"];
-            var oldDevices:Map<String, String> = ["iphone" => "iphone-6", "ipad" => "ipad-air"];
+            var defaultDevice = "apple-tv-1080p";
+            var devices:Array<String> = ["apple-tv-1080p"];
+            var oldDevices:Map<String, String> = ["appletv" => "apple-tv-1080p"];
 
             var deviceFlag:String = null;
             var deviceTypeID = null;
