@@ -28,7 +28,7 @@ class Application extends Module {
 	public var config (default, null):Config;
 	public var frameRate (get, set):Float;
 	public var modules (default, null):Array<IModule>;
-	public var preloader (default, null):Preloader;
+	public var preloader (get, null):Preloader;
 	
 	/**
 	 * Update events are dispatched each frame (usually just before rendering)
@@ -93,7 +93,7 @@ class Application extends Module {
 			
 		}
 		
-		module.setPreloader (preloader);
+		module.setPreloader (__preloader);
 		
 	}
 	
@@ -151,13 +151,13 @@ class Application extends Module {
 				
 			}
 			
-			if (preloader == null || preloader.complete) {
+			if (__preloader == null || __preloader.complete) {
 				
-				setPreloader (preloader);
+				setPreloader (__preloader);
 				
 				for (module in modules) {
 					
-					setPreloader (preloader);
+					setPreloader (__preloader);
 					
 				}
 				
@@ -293,6 +293,13 @@ class Application extends Module {
 	@:noCompletion private inline function set_frameRate (value:Float):Float {
 		
 		return backend.setFrameRate (value);
+		
+	}
+	
+	
+	@:noCompletion private inline function get_preloader ():Preloader {
+		
+		return __preloader;
 		
 	}
 	
