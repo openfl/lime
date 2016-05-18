@@ -28,15 +28,15 @@ class AndroidHelper {
 			
 		}
 		
-		var ant = project.environment.get ("ANT_HOME");
+		var gradle = project.environment.get ("GRADLE_HOME");
 		
-		if (ant == null || ant == "") {
+		if (gradle == null || gradle == "") {
 			
-			ant = "ant";
+			gradle = "gradle";
 			
 		} else {
 			
-			ant += "/bin/ant";
+			gradle += "/bin/gradle";
 			
 		}
 		
@@ -58,7 +58,7 @@ class AndroidHelper {
 			
 		}
 		
-		ProcessHelper.runCommand (projectDirectory, ant, [ build ]);
+		ProcessHelper.runCommand (projectDirectory, gradle, [ build ]);
 		
 	}
 	
