@@ -2,6 +2,10 @@
 <extension>
 	
 	<set name="lime" />
+	
+	<haxedef name="native" if="cpp || neko || nodejs" />
+	<set name="native" if="cpp || neko || nodejs" />
+	
 	<haxedef name="lime-html5" if="html5" />
 	<haxedef name="lime-native" if="native" />
 	
