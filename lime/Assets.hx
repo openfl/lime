@@ -1,4 +1,4 @@
-package lime; #if (!lime_legacy || lime_hybrid)
+package lime;
 
 
 #if !macro
@@ -1520,7 +1520,6 @@ class AssetCache {
 }
 
 
-#end
 #end
 
 
