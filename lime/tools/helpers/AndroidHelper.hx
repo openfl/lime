@@ -28,18 +28,6 @@ class AndroidHelper {
 			
 		}
 		
-		var gradle = project.environment.get ("GRADLE_HOME");
-		
-		if (gradle == null || gradle == "") {
-			
-			gradle = "gradle";
-			
-		} else {
-			
-			gradle += "/bin/gradle";
-			
-		}
-		
 		var build = "debug";
 		
 		if (project.certificate != null) {
@@ -58,7 +46,7 @@ class AndroidHelper {
 			
 		}
 		
-		ProcessHelper.runCommand (projectDirectory, gradle, [ build ]);
+		ProcessHelper.runCommand (projectDirectory, "gradlew", [ build ]);
 		
 	}
 	
