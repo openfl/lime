@@ -138,7 +138,7 @@ class AudioSource {
 				}
 				
 				id = al.genSource ();
-				al.sourcei (id, al.BUFFER, buffer.id);
+				al.sourcei (id, al.BUFFER, 0);
 			
 			default:
 			
@@ -181,6 +181,15 @@ class AudioSource {
 		if (playing || id == 0) {
 			
 			return;
+			
+		}
+		
+		var buffersQueued = AL.getSourcei(id, AL.BUFFERS_QUEUED);
+		var buffersWanted = (loops < 2) ? (loops + 1) : 3;
+		
+		for (i in buffersQueued...buffersWanted) {
+			
+			AL.sourceQueueBuffer(id, buffer.id);
 			
 		}
 		
@@ -363,16 +372,22 @@ class AudioSource {
 		
 		#if (!flash && !html5)
 		
-		playing = false;
 		
 		if (loops > 0) {
 			
 			loops--;
-			currentTime = 0;
-			play ();
+			
+			if (loops > 1) {
+				
+				AL.sourceQueueBuffer(id, buffer.id);
+				
+			}
+			
 			return;
 			
 		} else {
+			
+			playing = false;
 			
 			AL.sourceStop (id);
 			timer.stop ();

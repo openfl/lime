@@ -846,7 +846,8 @@ class AL {
 	public static function sourceQueueBuffer (source:Int, buffer:Int):Void {
 		
 		#if ((cpp || neko || nodejs) && lime_openal && !macro)
-		lime_al_source_queue_buffers (source, 1, [ buffer ]);
+		var buffers:Array<Int> = [ buffer ];
+		lime_al_source_queue_buffers (source, 1, buffers);
 		#end
 		
 	}
