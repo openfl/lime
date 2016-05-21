@@ -193,6 +193,11 @@ class HXProject {
 				// TODO: Better handle platform type for pluggable targets
 				
 				platformType = PlatformType.CONSOLE;
+
+				defaultWindow.width = 0;
+				defaultWindow.height = 0;
+				defaultWindow.fps = 60;
+				defaultWindow.fullscreen = true;
 			
 		}
 		
