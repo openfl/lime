@@ -1,1 +1,5 @@
 ant.importBuild 'build.xml'
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '::ANDROID_GRADLE_VERSION::'
+}

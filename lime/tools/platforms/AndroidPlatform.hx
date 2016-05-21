@@ -302,6 +302,7 @@ class AndroidPlatform extends PlatformTarget {
 		context.ANDROID_TARGET_SDK_VERSION = project.config.getInt ("android.target-sdk-version", 19);
 		context.ANDROID_EXTENSIONS = project.config.getArrayString ("android.extension");
 		context.ANDROID_PERMISSIONS = project.config.getArrayString ("android.permission", [ "android.permission.WAKE_LOCK", "android.permission.INTERNET", "android.permission.VIBRATE", "android.permission.ACCESS_NETWORK_STATE" ]);
+		context.ANDROID_GRADLE_VERSION = project.config.getString ("android.gradle-version", "2.10");
 		context.ANDROID_LIBRARY_PROJECTS = [];
 		
 		if (Reflect.hasField (context, "KEY_STORE")) context.KEY_STORE = StringTools.replace (context.KEY_STORE, "\\", "\\\\");
