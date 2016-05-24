@@ -1,10 +1,13 @@
 package lime.graphics.opengl;
 
 
+import lime.system.CFFIPointer;
+
+
 class GLObject {
         
         /** The native GL handle/id. read only */
-    public var id (default, null) : Dynamic;
+    public var id (default, null) : CFFIPointer;
         /** The invalidated state. read only */
     public var invalidated (get, null) : Bool;
         /** The valid state. read only */
@@ -12,7 +15,7 @@ class GLObject {
     
     var version:Int;
         
-    public function new (version:Int, id:Dynamic) {
+    public function new (version:Int, id:CFFIPointer) {
         
         this.version = version;
         this.id = id;

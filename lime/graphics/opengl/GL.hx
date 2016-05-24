@@ -5,6 +5,7 @@ import lime.utils.ArrayBuffer;
 import lime.utils.ArrayBufferView;
 import lime.utils.Float32Array;
 import lime.utils.Int32Array;
+import lime.system.CFFIPointer;
 import lime.system.System;
 
 #if (js && html5)
@@ -437,9 +438,9 @@ class GL {
 		#if (js && html5 && !display)
 		context.bindBuffer (target, buffer);
 		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
-		lime_gl_bind_buffer (target, buffer == null ? 0 : buffer.id);
+		lime_gl_bind_buffer (target, buffer == null ? null : buffer.id);
 		#elseif java
-		GL15.glBindBuffer (target, buffer == null ? 0 : buffer.id);
+		GL15.glBindBuffer (target, buffer == null ? null : buffer.id);
 		#end
 		
 	}
@@ -450,9 +451,9 @@ class GL {
 		#if (js && html5 && !display)
 		context.bindFramebuffer (target, framebuffer);
 		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
-		lime_gl_bind_framebuffer (target, framebuffer == null ? 0 : framebuffer.id);
+		lime_gl_bind_framebuffer (target, framebuffer == null ? null : framebuffer.id);
 		#elseif java
-		GL30.glBindFramebuffer (target, framebuffer == null ? 0 : framebuffer.id);
+		GL30.glBindFramebuffer (target, framebuffer == null ? null : framebuffer.id);
 		#end
 		
 	}
@@ -463,9 +464,9 @@ class GL {
 		#if (js && html5 && !display)
 		context.bindRenderbuffer (target, renderbuffer);
 		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
-		lime_gl_bind_renderbuffer (target, renderbuffer == null ? 0 : renderbuffer.id);
+		lime_gl_bind_renderbuffer (target, renderbuffer == null ? null : renderbuffer.id);
 		#elseif java
-		GL30.glBindRenderbuffer (target, renderbuffer == null ? 0 : renderbuffer.id);
+		GL30.glBindRenderbuffer (target, renderbuffer == null ? null : renderbuffer.id);
 		#end
 		
 	}
@@ -476,9 +477,9 @@ class GL {
 		#if (js && html5 && !display)
 		context.bindTexture (target, texture);
 		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
-		lime_gl_bind_texture (target, texture == null ? 0 : texture.id);
+		lime_gl_bind_texture (target, texture == null ? null : texture.id);
 		#elseif java
-		GL11.glBindTexture (target, texture == null ? 0 : texture.id);
+		GL11.glBindTexture (target, texture == null ? null : texture.id);
 		#end
 		
 	}
@@ -2074,7 +2075,7 @@ class GL {
 		#if (js && html5 && !display)
 		context.useProgram (program);
 		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
-		lime_gl_use_program (program == null ? 0 : program.id);
+		lime_gl_use_program (program == null ? null : program.id);
 		#end
 		
 	}
@@ -2214,12 +2215,12 @@ class GL {
 	
 	#if ((cpp || neko || nodejs) && lime_opengl && !macro)
 	@:cffi private static function lime_gl_active_texture (texture:Int):Void;
-	@:cffi private static function lime_gl_attach_shader (program:Int, shader:Int):Void;
-	@:cffi private static function lime_gl_bind_attrib_location (program:Int, index:Int, name:String):Void;
-	@:cffi private static function lime_gl_bind_buffer (target:Int, buffer:Int):Void;
-	@:cffi private static function lime_gl_bind_framebuffer (target:Int, framebuffer:Int):Void;
-	@:cffi private static function lime_gl_bind_renderbuffer (target:Int, renderbuffer:Int):Void;
-	@:cffi private static function lime_gl_bind_texture (target:Int, texture:Int):Void;
+	@:cffi private static function lime_gl_attach_shader (program:CFFIPointer, shader:CFFIPointer):Void;
+	@:cffi private static function lime_gl_bind_attrib_location (program:CFFIPointer, index:Int, name:String):Void;
+	@:cffi private static function lime_gl_bind_buffer (target:Int, buffer:CFFIPointer):Void;
+	@:cffi private static function lime_gl_bind_framebuffer (target:Int, framebuffer:CFFIPointer):Void;
+	@:cffi private static function lime_gl_bind_renderbuffer (target:Int, renderbuffer:CFFIPointer):Void;
+	@:cffi private static function lime_gl_bind_texture (target:Int, texture:CFFIPointer):Void;
 	@:cffi private static function lime_gl_blend_color (red:Float32, green:Float32, blue:Float32, alpha:Float32):Void;
 	@:cffi private static function lime_gl_blend_equation (mode:Int):Void;
 	@:cffi private static function lime_gl_blend_equation_separate (modeRGB:Int, modeAlpha:Int):Void;
@@ -2233,28 +2234,28 @@ class GL {
 	@:cffi private static function lime_gl_clear_depth (depth:Float32):Void;
 	@:cffi private static function lime_gl_clear_stencil (s:Int):Void;
 	@:cffi private static function lime_gl_color_mask (red:Bool, green:Bool, blue:Bool, alpha:Bool):Void;
-	@:cffi private static function lime_gl_compile_shader (shader:Int):Void;
+	@:cffi private static function lime_gl_compile_shader (shader:CFFIPointer):Void;
 	@:cffi private static function lime_gl_compressed_tex_image_2d (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, buffer:Dynamic, byteOffset:Int):Void;
 	@:cffi private static function lime_gl_compressed_tex_sub_image_2d (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, buffer:Dynamic, byteOffset:Int):Void;
 	@:cffi private static function lime_gl_copy_tex_image_2d (target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void;
 	@:cffi private static function lime_gl_copy_tex_sub_image_2d (target:Int, level:Int, xoffset:Int, yoffset:Int, x:Int, y:Int, width:Int, height:Int):Void;
-	@:cffi private static function lime_gl_create_buffer ():Int;
-	@:cffi private static function lime_gl_create_framebuffer ():Int;
-	@:cffi private static function lime_gl_create_program ():Int;
-	@:cffi private static function lime_gl_create_render_buffer ():Int;
-	@:cffi private static function lime_gl_create_shader (type:Int):Int;
-	@:cffi private static function lime_gl_create_texture ():Int;
+	@:cffi private static function lime_gl_create_buffer ():CFFIPointer;
+	@:cffi private static function lime_gl_create_framebuffer ():CFFIPointer;
+	@:cffi private static function lime_gl_create_program ():CFFIPointer;
+	@:cffi private static function lime_gl_create_render_buffer ():CFFIPointer;
+	@:cffi private static function lime_gl_create_shader (type:Int):CFFIPointer;
+	@:cffi private static function lime_gl_create_texture ():CFFIPointer;
 	@:cffi private static function lime_gl_cull_face (mode:Int):Void;
-	@:cffi private static function lime_gl_delete_buffer (buffer:Int):Void;
-	@:cffi private static function lime_gl_delete_framebuffer (framebuffer:Int):Void;
-	@:cffi private static function lime_gl_delete_program (program:Int):Void;
-	@:cffi private static function lime_gl_delete_render_buffer (renderbuffer:Int):Void;
-	@:cffi private static function lime_gl_delete_shader (shader:Int):Void;
-	@:cffi private static function lime_gl_delete_texture (texture:Int):Void;
+	@:cffi private static function lime_gl_delete_buffer (buffer:CFFIPointer):Void;
+	@:cffi private static function lime_gl_delete_framebuffer (framebuffer:CFFIPointer):Void;
+	@:cffi private static function lime_gl_delete_program (program:CFFIPointer):Void;
+	@:cffi private static function lime_gl_delete_render_buffer (renderbuffer:CFFIPointer):Void;
+	@:cffi private static function lime_gl_delete_shader (shader:CFFIPointer):Void;
+	@:cffi private static function lime_gl_delete_texture (texture:CFFIPointer):Void;
 	@:cffi private static function lime_gl_depth_func (func:Int):Void;
 	@:cffi private static function lime_gl_depth_mask (flag:Bool):Void;
 	@:cffi private static function lime_gl_depth_range (zNear:Float32, zFar:Float32):Void;
-	@:cffi private static function lime_gl_detach_shader (program:Int, shader:Int):Void;
+	@:cffi private static function lime_gl_detach_shader (program:CFFIPointer, shader:CFFIPointer):Void;
 	@:cffi private static function lime_gl_disable (cap:Int):Void;
 	@:cffi private static function lime_gl_disable_vertex_attrib_array (index:Int):Void;
 	@:cffi private static function lime_gl_draw_arrays (mode:Int, first:Int, count:Int):Void;
@@ -2263,49 +2264,49 @@ class GL {
 	@:cffi private static function lime_gl_enable_vertex_attrib_array (index:Int):Void;
 	@:cffi private static function lime_gl_finish ():Void;
 	@:cffi private static function lime_gl_flush ():Void;
-	@:cffi private static function lime_gl_framebuffer_renderbuffer (target:Int, attachment:Int, renderbuffertarget:Int, renderbuffer:Int):Void;
-	@:cffi private static function lime_gl_framebuffer_texture2D (target:Int, attachment:Int, textarget:Int, texture:Int, level:Int):Void;
+	@:cffi private static function lime_gl_framebuffer_renderbuffer (target:Int, attachment:Int, renderbuffertarget:Int, renderbuffer:CFFIPointer):Void;
+	@:cffi private static function lime_gl_framebuffer_texture2D (target:Int, attachment:Int, textarget:Int, texture:CFFIPointer, level:Int):Void;
 	@:cffi private static function lime_gl_front_face (mode:Int):Void;
 	@:cffi private static function lime_gl_generate_mipmap (target:Int):Void;
-	@:cffi private static function lime_gl_get_active_attrib (program:Int, index:Int):Dynamic;
-	@:cffi private static function lime_gl_get_active_uniform (program:Int, index:Int):Dynamic;
-	@:cffi private static function lime_gl_get_attrib_location (program:Int, name:String):Int;
+	@:cffi private static function lime_gl_get_active_attrib (program:CFFIPointer, index:Int):Dynamic;
+	@:cffi private static function lime_gl_get_active_uniform (program:CFFIPointer, index:Int):Dynamic;
+	@:cffi private static function lime_gl_get_attrib_location (program:CFFIPointer, name:String):Int;
 	@:cffi private static function lime_gl_get_buffer_parameter (target:Int, pname:Int):Int;
 	@:cffi private static function lime_gl_get_context_attributes ():Dynamic;
 	@:cffi private static function lime_gl_get_error ():Int;
 	@:cffi private static function lime_gl_get_extension (name:String):Dynamic;
 	@:cffi private static function lime_gl_get_framebuffer_attachment_parameter (target:Int, attachment:Int, pname:Int):Int;
 	@:cffi private static function lime_gl_get_parameter (pname:Int):Dynamic;
-	@:cffi private static function lime_gl_get_program_info_log (program:Int):String;
-	@:cffi private static function lime_gl_get_program_parameter (program:Int, pname:Int):Int;
+	@:cffi private static function lime_gl_get_program_info_log (program:CFFIPointer):String;
+	@:cffi private static function lime_gl_get_program_parameter (program:CFFIPointer, pname:Int):Int;
 	@:cffi private static function lime_gl_get_render_buffer_parameter (target:Int, pname:Int):Int;
-	@:cffi private static function lime_gl_get_shader_info_log (shader:Int):String;
-	@:cffi private static function lime_gl_get_shader_parameter (shader:Int, pname:Int):Int;
+	@:cffi private static function lime_gl_get_shader_info_log (shader:CFFIPointer):String;
+	@:cffi private static function lime_gl_get_shader_parameter (shader:CFFIPointer, pname:Int):Int;
 	@:cffi private static function lime_gl_get_shader_precision_format (shadertype:Int, precisiontype:Int):Dynamic;
-	@:cffi private static function lime_gl_get_shader_source (shader:Int):Dynamic;
+	@:cffi private static function lime_gl_get_shader_source (shader:CFFIPointer):Dynamic;
 	@:cffi private static function lime_gl_get_supported_extensions (result:Dynamic):Void;
 	@:cffi private static function lime_gl_get_tex_parameter (target:Int, pname:Int):Int;
-	@:cffi private static function lime_gl_get_uniform (program:Int, location:Int):Dynamic;
-	@:cffi private static function lime_gl_get_uniform_location (program:Int, name:String):Int;
+	@:cffi private static function lime_gl_get_uniform (program:CFFIPointer, location:Int):Dynamic;
+	@:cffi private static function lime_gl_get_uniform_location (program:CFFIPointer, name:String):Int;
 	@:cffi private static function lime_gl_get_vertex_attrib (index:Int, pname:Int):Int;
 	@:cffi private static function lime_gl_get_vertex_attrib_offset (index:Int, pname:Int):Int;
 	@:cffi private static function lime_gl_hint (target:Int, mode:Int):Void;
-	@:cffi private static function lime_gl_is_buffer (buffer:Int):Bool;
+	@:cffi private static function lime_gl_is_buffer (buffer:CFFIPointer):Bool;
 	@:cffi private static function lime_gl_is_enabled (cap:Int):Bool;
-	@:cffi private static function lime_gl_is_framebuffer (framebuffer:Int):Bool;
-	@:cffi private static function lime_gl_is_program (program:Int):Bool;
-	@:cffi private static function lime_gl_is_renderbuffer (renderbuffer:Int):Bool;
-	@:cffi private static function lime_gl_is_shader (shader:Int):Bool;
-	@:cffi private static function lime_gl_is_texture (texture:Int):Bool;
+	@:cffi private static function lime_gl_is_framebuffer (framebuffer:CFFIPointer):Bool;
+	@:cffi private static function lime_gl_is_program (program:CFFIPointer):Bool;
+	@:cffi private static function lime_gl_is_renderbuffer (renderbuffer:CFFIPointer):Bool;
+	@:cffi private static function lime_gl_is_shader (shader:CFFIPointer):Bool;
+	@:cffi private static function lime_gl_is_texture (texture:CFFIPointer):Bool;
 	@:cffi private static function lime_gl_line_width (width:Float32):Void;
-	@:cffi private static function lime_gl_link_program (program:Int):Void;
+	@:cffi private static function lime_gl_link_program (program:CFFIPointer):Void;
 	@:cffi private static function lime_gl_pixel_storei (pname:Int, param:Int):Void;
 	@:cffi private static function lime_gl_polygon_offset (factor:Float32, units:Float32):Void;
 	@:cffi private static function lime_gl_read_pixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, buffer:Dynamic, byteOffset:Int):Void;
 	@:cffi private static function lime_gl_renderbuffer_storage (target:Int, internalformat:Int, width:Int, height:Int):Void;
 	@:cffi private static function lime_gl_sample_coverage (value:Float32, invert:Bool):Void;
 	@:cffi private static function lime_gl_scissor (x:Int, y:Int, width:Int, height:Int):Void;
-	@:cffi private static function lime_gl_shader_source (shader:Int, source:String):Void;
+	@:cffi private static function lime_gl_shader_source (shader:CFFIPointer, source:String):Void;
 	@:cffi private static function lime_gl_stencil_func (func:Int, ref:Int, mask:Int):Void;
 	@:cffi private static function lime_gl_stencil_func_separate (face:Int, func:Int, ref:Int, mask:Int):Void;
 	@:cffi private static function lime_gl_stencil_mask (mask:Int):Void;
@@ -2333,8 +2334,8 @@ class GL {
 	@:cffi private static function lime_gl_uniform4i (location:Int, x:Int, y:Int, z:Int, w:Int):Void;
 	@:cffi private static function lime_gl_uniform4iv (location:Int, v:Dynamic):Void;
 	@:cffi private static function lime_gl_uniform_matrix (location:Int, transpose:Bool, buffer:Dynamic, count:Int):Void;
-	@:cffi private static function lime_gl_use_program (program:Int):Void;
-	@:cffi private static function lime_gl_validate_program (program:Int):Void;
+	@:cffi private static function lime_gl_use_program (program:CFFIPointer):Void;
+	@:cffi private static function lime_gl_validate_program (program:CFFIPointer):Void;
 	@:cffi private static function lime_gl_version ():String;
 	@:cffi private static function lime_gl_vertex_attrib1f (indx:Int, x:Float32):Void;
 	@:cffi private static function lime_gl_vertex_attrib1fv (indx:Int, values:Dynamic):Void;
