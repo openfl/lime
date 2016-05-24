@@ -36,16 +36,6 @@ class AndroidHelper {
 			
 		}
 		
-		// Fix bug in Android build system, force compile
-		
-		var buildProperties = projectDirectory + "/bin/build.prop";
-		
-		if (FileSystem.exists (buildProperties)) {
-			
-			FileSystem.deleteFile (buildProperties);
-			
-		}
-		
 		ProcessHelper.runCommand (projectDirectory, "gradlew", [ build ]);
 		
 	}
