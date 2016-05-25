@@ -1,0 +1,22 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion ::ANDROID_TARGET_SDK_VERSION::
+
+    defaultConfig {
+        applicationId "com.player03.studiotest"
+        minSdkVersion ::ANDROID_MINIMUM_SDK_VERSION::
+        targetSdkVersion ::ANDROID_TARGET_SDK_VERSION::
+        versionCode ::META_BUILD_NUMBER::
+        versionName "::META_VERSION::"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+}
