@@ -81,6 +81,7 @@ class Preloader #if flash extends Sprite #end {
 						
 						var image = new Image ();
 						images.set (url, image);
+						image.crossOrigin = "Anonymous";
 						image.onload = image_onLoad;
 						image.onerror = image_onError;
 						image.src = url + "?" + cacheVersion;
