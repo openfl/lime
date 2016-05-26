@@ -394,12 +394,7 @@ class AndroidPlatform extends PlatformTarget {
 			
 			if (!FileSystem.exists (sourceSet + "/deps/" + library.name + "/build.gradle")) {
 				
-				context.extensionLowerCase = library.name.toLowerCase();
-				
-				var source = PathHelper.getHaxelib (new Haxelib ("lime")) + "templates/extension/dependencies/android/build.gradle";
-				FileHelper.copyFile (source, sourceSet + "/deps/" + library.name + "/build.gradle", context, true);
-				
-				Reflect.deleteField(context, "extensionLowerCase");
+				File.saveContent (sourceSet + "/deps/" + library.name + "/build.gradle", "ant.importBuild 'build.xml'\n");
 				
 			}
 			
