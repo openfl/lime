@@ -19,7 +19,7 @@ namespace lime {
 		
 		public:
 			
-			virtual ~Window() {};
+			virtual ~Window () {};
 			
 			virtual void Alert (const char* message, const char* title) = 0;
 			virtual void Close () = 0;
