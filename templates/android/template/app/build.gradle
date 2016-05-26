@@ -4,7 +4,7 @@ android {
     compileSdkVersion ::ANDROID_TARGET_SDK_VERSION::
 
     defaultConfig {
-        applicationId "com.player03.studiotest"
+        applicationId "::META_PACKAGE_NAME::"
         minSdkVersion ::ANDROID_MINIMUM_SDK_VERSION::
         targetSdkVersion ::ANDROID_TARGET_SDK_VERSION::
         versionCode ::META_BUILD_NUMBER::
