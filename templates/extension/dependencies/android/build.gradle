@@ -1,0 +1,13 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion ::ANDROID_TARGET_SDK_VERSION::
+
+    defaultConfig {
+        applicationId "org.haxe.extension.::extensionLowerCase::"
+        minSdkVersion ::ANDROID_MINIMUM_SDK_VERSION::
+        targetSdkVersion ::ANDROID_TARGET_SDK_VERSION::
+        versionCode ::META_BUILD_NUMBER::
+        versionName "::META_VERSION::"
+    }
+}
