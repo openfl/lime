@@ -15,6 +15,7 @@ import lime.tools.helpers.PathHelper;
 import lime.tools.helpers.ProcessHelper;
 import lime.project.Architecture;
 import lime.project.AssetType;
+import lime.project.Haxelib;
 import lime.project.HXProject;
 import lime.project.Icon;
 import lime.project.PlatformTarget;
@@ -411,6 +412,17 @@ class AndroidPlatform extends PlatformTarget {
 		for (library in context.ANDROID_LIBRARY_PROJECTS) {
 			
 			FileHelper.recursiveCopy (library.source, sourceSet + "/deps/" + library.name, context, true);
+			
+			if (!FileSystem.exists (sourceSet + "/deps/" + library.name + "/build.gradle")) {
+				
+				context.extensionLowerCase = library.name.toLowerCase();
+				
+				var source = PathHelper.getHaxelib (new Haxelib ("lime")) + "templates/extension/dependencies/android/build.gradle";
+				FileHelper.copyFile (source, sourceSet + "/deps/" + library.name + "/build.gradle", context, true);
+				
+				Reflect.deleteField(context, "extensionLowerCase");
+				
+			}
 			
 		}
 		
