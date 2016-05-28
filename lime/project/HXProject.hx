@@ -983,16 +983,6 @@ class HXProject {
 			
 		}
 		
-		context.dependencies = new Array <Dynamic> ();
-		
-		for (dependency in dependencies) {
-			
-			var embeddedDependency:Dynamic = { };
-			ObjectHelper.copyFields (dependency, embeddedDependency);
-			context.dependencies.push (embeddedDependency);
-			
-		}
-		
 		//Reflect.setField (context, "ndlls", ndlls);
 		//Reflect.setField (context, "sslCaCert", sslCaCert);
 		context.sslCaCert = "";
