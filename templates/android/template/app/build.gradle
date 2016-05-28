@@ -1,18 +1,32 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion ::ANDROID_TARGET_SDK_VERSION::
-
+    compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
+    // buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
+	
     defaultConfig {
         applicationId "::META_PACKAGE_NAME::"
-        minSdkVersion ::ANDROID_MINIMUM_SDK_VERSION::
-        targetSdkVersion ::ANDROID_TARGET_SDK_VERSION::
-        versionCode ::META_BUILD_NUMBER::
-        versionName "::META_VERSION::"
+        minSdkVersion Integer.parseInt(project.ANDROID_BUILD_MIN_SDK_VERSION)
+        targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
+        versionCode Integer.parseInt(project.VERSION_CODE)
+        versionName project.VERSION_NAME
     }
+	
+	::if KEY_STORE::
+    signingConfigs {
+        release {
+            storeFile file(project.KEY_STORE)
+            storePassword project.KEY_STORE_PASSWORD
+            keyAlias project.KEY_STORE_ALIAS
+            keyPassword project.KEY_STORE_ALIAS_PASSWORD
+        }
+    }
+	::end::
+	
     buildTypes {
         release {
             minifyEnabled false
+            signingConfig signingConfigs.release
         }
     }
 }
