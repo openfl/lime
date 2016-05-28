@@ -21,6 +21,21 @@ android {
             keyPassword project.KEY_STORE_ALIAS_PASSWORD
         }
     }
+	::else::
+	File signingFile = file('signing.properties');
+	if(signingFile.exists()) {
+		Properties signing = new Properties()
+		signing.load(new FileInputStream(signingFile))
+		
+		signingConfigs {
+			release {
+				storeFile file(signing["KEY_STORE"])
+				storePassword signing["KEY_STORE_PASSWORD"]
+				keyAlias signing["KEY_STORE_ALIAS"]
+				keyPassword signing["KEY_STORE_ALIAS_PASSWORD"]
+			}
+		}
+	}
 	::end::
 	
     buildTypes {
