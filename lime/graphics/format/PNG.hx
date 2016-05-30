@@ -2,6 +2,7 @@ package lime.graphics.format;
 
 
 import haxe.io.Bytes;
+import lime.graphics.utils.ImageCanvasUtil;
 import lime.graphics.Image;
 import lime.system.CFFI;
 
@@ -91,7 +92,8 @@ class PNG {
 			return @:privateAccess new Bytes (data.length, data.b);
 			
 		}
-		
+		#end
+
 		#if (!html5 && format)
 		
 		else {
@@ -145,7 +147,7 @@ class PNG {
 			
 			for (i in 0...buffer.length) {
 				
-				bytes[i] = buffer.charCodeAt (i);
+				bytes.set (i, buffer.charCodeAt (i));
 				
 			}
 			
@@ -153,7 +155,6 @@ class PNG {
 			
 		}
 		
-		#end
 		#end
 		
 		return null;
