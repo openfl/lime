@@ -389,29 +389,42 @@ class HTML5Window {
 				
 			} else {
 				
-				var scaleX = element.clientWidth / setWidth;
-				var scaleY = element.clientHeight / setHeight;
+				var scaleX = (setWidth  != 0) ? (element.clientWidth  / setWidth)  : 1;
+				var scaleY = (setHeight != 0) ? (element.clientHeight / setHeight) : 1;
 				
-				var currentRatio = scaleX / scaleY;
-				var targetRatio = Math.min (scaleX, scaleY);
+				var targetW = element.clientWidth;
+				var targetH = element.clientHeight;
+				var marginLeft = 0;
+				var marginTop = 0;
 				
+				if (scaleX < scaleY) 
+				{
+					targetH = Math.floor(setHeight * scaleX);
+					marginTop = Math.floor((element.clientHeight - targetH) / 2);
+				}
+				else
+				{
+					targetW = Math.floor(setWidth * scaleY);
+					marginLeft = Math.floor((element.clientWidth - targetW) / 2);
+				}
+
 				if (canvas != null) {
 					
 					if (element != cast canvas) {
 						
-						canvas.style.width = setWidth * targetRatio + "px";
-						canvas.style.height = setHeight * targetRatio + "px";
-						canvas.style.marginLeft = ((element.clientWidth - (setWidth * targetRatio)) / 2) + "px";
-						canvas.style.marginTop = ((element.clientHeight - (setHeight * targetRatio)) / 2) + "px";
+						canvas.style.width = targetW + "px";
+						canvas.style.height = targetH + "px";
+						canvas.style.marginLeft = marginLeft + "px";
+						canvas.style.marginTop = marginTop + "px";
 						
 					}
 					
 				} else {
 					
-					div.style.width = setWidth * targetRatio + "px";
-					div.style.height = setHeight * targetRatio + "px";
-					div.style.marginLeft = ((element.clientWidth - (setWidth * targetRatio)) / 2) + "px";
-					div.style.marginTop = ((element.clientHeight - (setHeight * targetRatio)) / 2) + "px";
+					div.style.width = targetW + "px";
+					div.style.height = targetH + "px";
+					div.style.marginLeft = marginLeft + "px";
+					div.style.marginTop = marginTop + "px";
 					
 				}
 				
