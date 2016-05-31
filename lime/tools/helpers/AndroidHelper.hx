@@ -28,15 +28,15 @@ class AndroidHelper {
 			
 		}
 		
-		var build = "debug";
+		var task = "assembleDebug";
 		
 		if (project.certificate != null) {
 			
-			build = "release";
+			task = "assembleRelease";
 			
 		}
 		
-		ProcessHelper.runCommand (projectDirectory, "gradlew", [ build ]);
+		ProcessHelper.runCommand (projectDirectory, "gradlew", [ task ]);
 		
 	}
 	
