@@ -22,7 +22,7 @@ android {
 		}
 	}
 	::else::
-	File signingFile = file('signing.properties');
+	File signingFile = file('signing.properties')
 	if(signingFile.exists()) {
 		Properties signing = new Properties()
 		signing.load(new FileInputStream(signingFile))
@@ -34,6 +34,10 @@ android {
 				keyAlias signing["KEY_STORE_ALIAS"]
 				keyPassword signing["KEY_STORE_ALIAS_PASSWORD"]
 			}
+		}
+	} else {
+		signingConfigs {
+			release
 		}
 	}
 	::end::
