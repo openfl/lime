@@ -52,4 +52,6 @@ android {
 
 dependencies {
 	compile fileTree(dir: 'libs', include: ['*.jar'])
+	::if (ANDROID_LIBRARY_PROJECTS)::::foreach (ANDROID_LIBRARY_PROJECTS)::compile project(':deps:::name::')
+	::end::::end::
 }
