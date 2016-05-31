@@ -415,11 +415,11 @@ class AndroidPlatform extends PlatformTarget {
 		
 		for (library in context.ANDROID_LIBRARY_PROJECTS) {
 			
-			FileHelper.recursiveCopy (library.source, sourceSet + "/deps/" + library.name, context, true);
+			FileHelper.recursiveCopy (library.source, destination + "/deps/" + library.name, context, true);
 			
-			if (!FileSystem.exists (sourceSet + "/deps/" + library.name + "/build.gradle")) {
+			if (!FileSystem.exists (destination + "/deps/" + library.name + "/build.gradle")) {
 				
-				File.saveContent (sourceSet + "/deps/" + library.name + "/build.gradle", "ant.importBuild 'build.xml'\n");
+				File.saveContent (destination + "/deps/" + library.name + "/build.gradle", "ant.importBuild 'build.xml'\n");
 				
 			}
 			
