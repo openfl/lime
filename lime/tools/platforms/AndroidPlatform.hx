@@ -186,7 +186,12 @@ class AndroidPlatform extends PlatformTarget {
 			
 		}
 		
-		deviceID = AndroidHelper.install (project, FileSystem.fullPath (targetDirectory) + "/bin/app/build/outputs/apk/" + project.app.file + "-" + build + ".apk", deviceID);
+		var apkPath = FileSystem.fullPath (targetDirectory) + "/bin/app/build/outputs/apk/";
+		var apkSuffix = "-" + build + ".apk";
+		
+		File.copy (apkPath + "app" + apkSuffix, apkPath + project.app.file + apkSuffix);
+		
+		deviceID = AndroidHelper.install (project, apkPath + project.app.file + apkSuffix, deviceID);
 		
 	}
 	
