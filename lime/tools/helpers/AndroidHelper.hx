@@ -36,6 +36,12 @@ class AndroidHelper {
 			
 		}
 		
+		if (project.environment.exists ("ANDROID_GRADLE_TASK")) {
+			
+			task = project.environment.get ("ANDROID_GRADLE_TASK");
+			
+		}
+		
 		ProcessHelper.runCommand (projectDirectory, "gradlew", [ task ]);
 		
 	}
