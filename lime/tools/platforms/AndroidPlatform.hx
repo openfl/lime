@@ -439,7 +439,7 @@ class AndroidPlatform extends PlatformTarget {
 			
 			if (asset.type == AssetType.TEMPLATE) {
 				
-				var targetPath = PathHelper.combine (sourceSet, asset.targetPath);
+				var targetPath = PathHelper.combine (destination, asset.targetPath);
 				PathHelper.mkdir (Path.directory (targetPath));
 				FileHelper.copyAsset (asset, targetPath, context);
 				
