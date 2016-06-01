@@ -73,9 +73,10 @@ abstract Float32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
         @:generic
         public inline function new<T>(
             ?elements:Int,
+            ?buffer:ArrayBuffer,
             ?array:Array<T>,
             ?view:ArrayBufferView,
-            ?buffer:ArrayBuffer, ?byteoffset:Int = 0, ?len:Null<Int>
+            ?byteoffset:Int = 0, ?len:Null<Int>
         ) {
 
             if(elements != null) {
