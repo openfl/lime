@@ -145,12 +145,16 @@ class DataView {
 
     #if !no_typedarray_inline inline #end
     public function getInt16( byteOffset:Int, ?littleEndian:Bool = true ) : Int {
-        return ArrayBufferIO.getInt16(buffer, byteOffset, littleEndian);
+            return littleEndian ? 
+                ArrayBufferIO.getInt16(buffer, byteOffset) : //little endian
+                ArrayBufferIO.getInt16_BE(buffer, byteOffset); //big endian
     }
 
     #if !no_typedarray_inline inline #end
     public function getInt32( byteOffset:Int, ?littleEndian:Bool = true ) : Int {
-        return ArrayBufferIO.getInt32(buffer, byteOffset, littleEndian);
+            return littleEndian ? 
+                ArrayBufferIO.getInt32(buffer, byteOffset) : //little endian
+                ArrayBufferIO.getInt32_BE(buffer, byteOffset); //big endian
     }
 
     #if !no_typedarray_inline inline #end
@@ -160,22 +164,30 @@ class DataView {
 
     #if !no_typedarray_inline inline #end
     public function getUint16( byteOffset:Int, ?littleEndian:Bool = true ) : UInt {
-        return ArrayBufferIO.getUint16(buffer, byteOffset, littleEndian);
+            return littleEndian ? 
+                ArrayBufferIO.getUint16(buffer, byteOffset) : //little endian
+                ArrayBufferIO.getUint16_BE(buffer, byteOffset); //big endian
     }
 
     #if !no_typedarray_inline inline #end
     public function getUint32( byteOffset:Int, ?littleEndian:Bool = true ) : UInt {
-        return ArrayBufferIO.getUint32(buffer, byteOffset, littleEndian);
+            return littleEndian ? 
+                ArrayBufferIO.getUint32(buffer, byteOffset) : //little endian
+                ArrayBufferIO.getUint32_BE(buffer, byteOffset); //big endian
     }
 
     #if !no_typedarray_inline inline #end
     public function getFloat32( byteOffset:Int, ?littleEndian:Bool = true ) : Float {
-        return ArrayBufferIO.getFloat32(buffer, byteOffset, littleEndian);
+            return littleEndian ? 
+                ArrayBufferIO.getFloat32(buffer, byteOffset) : //little endian
+                ArrayBufferIO.getFloat32_BE(buffer, byteOffset); //big endian
     }
 
     #if !no_typedarray_inline inline #end
     public function getFloat64( byteOffset:Int, ?littleEndian:Bool = true ) : Float {
-        return ArrayBufferIO.getFloat64(buffer, byteOffset, littleEndian);
+            return littleEndian ? 
+                ArrayBufferIO.getFloat64(buffer, byteOffset) : //little endian
+                ArrayBufferIO.getFloat64_BE(buffer, byteOffset); //big endian
     }
 
 
@@ -188,12 +200,16 @@ class DataView {
 
     #if !no_typedarray_inline inline #end
     public function setInt16( byteOffset:Int, value:Int, ?littleEndian:Bool = true) {
-        ArrayBufferIO.setInt16(buffer, byteOffset, value, littleEndian);
+            littleEndian ? 
+                ArrayBufferIO.setInt16(buffer, byteOffset, value) :
+                ArrayBufferIO.setInt16_BE(buffer, byteOffset, value);
     }
 
     #if !no_typedarray_inline inline #end
     public function setInt32( byteOffset:Int, value:Int, ?littleEndian:Bool = true) {
-        ArrayBufferIO.setInt32(buffer, byteOffset, value, littleEndian);
+            littleEndian ? 
+                ArrayBufferIO.setInt32(buffer, byteOffset, value) :
+                ArrayBufferIO.setInt32_BE(buffer, byteOffset, value);
     }
 
     #if !no_typedarray_inline inline #end
@@ -203,22 +219,30 @@ class DataView {
 
     #if !no_typedarray_inline inline #end
     public function setUint16( byteOffset:Int, value:UInt, ?littleEndian:Bool = true) {
-        ArrayBufferIO.setUint16(buffer, byteOffset, value, littleEndian);
+            littleEndian ? 
+                ArrayBufferIO.setUint16(buffer, byteOffset, value) :
+                ArrayBufferIO.setUint16_BE(buffer, byteOffset, value);
     }
 
     #if !no_typedarray_inline inline #end
     public function setUint32( byteOffset:Int, value:UInt, ?littleEndian:Bool = true) {
-        ArrayBufferIO.setUint32(buffer, byteOffset, value, littleEndian);
+            littleEndian ? 
+                ArrayBufferIO.setUint32(buffer, byteOffset, value) :
+                ArrayBufferIO.setUint32_BE(buffer, byteOffset, value);
     }
 
     #if !no_typedarray_inline inline #end
     public function setFloat32( byteOffset:Int, value:Float, ?littleEndian:Bool = true) {
-        ArrayBufferIO.setFloat32(buffer, byteOffset, value, littleEndian);
+            littleEndian ? 
+                ArrayBufferIO.setFloat32(buffer, byteOffset, value) :
+                ArrayBufferIO.setFloat32_BE(buffer, byteOffset, value);
     }
 
     #if !no_typedarray_inline inline #end
     public function setFloat64( byteOffset:Int, value:Float, ?littleEndian:Bool = true) {
-        ArrayBufferIO.setFloat64(buffer, byteOffset, value, littleEndian);
+            littleEndian ? 
+                ArrayBufferIO.setFloat64(buffer, byteOffset, value) :
+                ArrayBufferIO.setFloat64_BE(buffer, byteOffset, value);
     }
 
 
