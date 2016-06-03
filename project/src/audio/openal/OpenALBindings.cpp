@@ -17,7 +17,8 @@ namespace lime {
 	
 	void lime_al_buffer_data (int buffer, int format, value data, int size, int freq) {
 		
-		Bytes bytes (data);
+		Bytes bytes;
+		bytes.Set (data);
 		alBufferData (buffer, format, bytes.Data (), size, freq);
 		
 	}
