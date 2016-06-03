@@ -1,0 +1,3 @@
+include ':app'
+::if (ANDROID_LIBRARY_PROJECTS)::::foreach (ANDROID_LIBRARY_PROJECTS)::include ':deps:::name::'
+::end::::end::

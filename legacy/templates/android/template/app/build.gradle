@@ -1,0 +1,57 @@
+apply plugin: 'com.android.application'
+
+android {
+	compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
+	buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
+	
+	defaultConfig {
+		applicationId "::META_PACKAGE_NAME::"
+		minSdkVersion Integer.parseInt(project.ANDROID_BUILD_MIN_SDK_VERSION)
+		targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
+		versionCode Integer.parseInt(project.VERSION_CODE)
+		versionName project.VERSION_NAME
+	}
+	
+	::if KEY_STORE::
+	signingConfigs {
+		release {
+			storeFile file(project.KEY_STORE)
+			storePassword project.KEY_STORE_PASSWORD
+			keyAlias project.KEY_STORE_ALIAS
+			keyPassword project.KEY_STORE_ALIAS_PASSWORD
+		}
+	}
+	::else::
+	File signingFile = file('signing.properties')
+	if(signingFile.exists()) {
+		Properties signing = new Properties()
+		signing.load(new FileInputStream(signingFile))
+		
+		signingConfigs {
+			release {
+				storeFile file(signing["KEY_STORE"])
+				storePassword signing["KEY_STORE_PASSWORD"]
+				keyAlias signing["KEY_STORE_ALIAS"]
+				keyPassword signing["KEY_STORE_ALIAS_PASSWORD"]
+			}
+		}
+	} else {
+		signingConfigs {
+			release
+		}
+	}
+	::end::
+	
+	buildTypes {
+		release {
+			minifyEnabled false
+			signingConfig signingConfigs.release
+		}
+	}
+}
+
+dependencies {
+	compile fileTree(dir: 'libs', include: ['*.jar'])
+	::if (ANDROID_LIBRARY_PROJECTS)::::foreach (ANDROID_LIBRARY_PROJECTS)::compile project(':deps:::name::')
+	::end::::end::
+}
