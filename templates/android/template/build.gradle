@@ -27,5 +27,32 @@ task wrapper(type: Wrapper) {
 }
 
 configure(subprojects.findAll {!it.file('build.gradle').exists() && it.file('build.xml').exists()}) {
-	ant.importBuild 'build.xml'
+	buildscript {
+		repositories {
+			mavenCentral()
+		}
+		
+		dependencies {
+			classpath 'com.android.tools.build:gradle:2.1.0'
+		}
+	}
+	
+	apply plugin: 'android-library'
+	
+	android {
+		compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
+		buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
+		
+		sourceSets {
+			main {
+				manifest.srcFile 'AndroidManifest.xml'
+				java.srcDirs = ['src']
+				res.srcDirs = ['res']
+			}
+		}
+	}
+	
+	dependencies {
+		compile project(':deps:extension-api')
+	}
 }
