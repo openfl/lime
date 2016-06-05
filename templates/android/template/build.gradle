@@ -25,3 +25,7 @@ task clean(type: Delete) {
 task wrapper(type: Wrapper) {
 	gradleVersion = '::ANDROID_GRADLE_VERSION::'
 }
+
+configure(subprojects.findAll {!it.file('build.gradle').exists() && it.file('build.xml').exists()}) {
+	ant.importBuild 'build.xml'
+}
