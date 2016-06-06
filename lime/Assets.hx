@@ -4,6 +4,7 @@ package lime;
 #if !macro
 
 
+import haxe.CallStack;
 import haxe.Json;
 import haxe.Unserializer;
 import lime.app.Event;
@@ -119,19 +120,19 @@ class Assets {
 					
 				} else {
 					
-					trace ("[Assets] Audio asset \"" + id + "\" exists, but only asynchronously");
+					printError ("[Assets] Audio asset \"" + id + "\" exists, but only asynchronously");
 					
 				}
 				
 			} else {
 				
-				trace ("[Assets] There is no audio asset with an ID of \"" + id + "\"");
+				printError ("[Assets] There is no audio asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
+			printError ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
@@ -168,19 +169,19 @@ class Assets {
 					
 				} else {
 					
-					trace ("[Assets] String or Bytes asset \"" + id + "\" exists, but only asynchronously");
+					printError ("[Assets] String or Bytes asset \"" + id + "\" exists, but only asynchronously");
 					
 				}
 				
 			} else {
 				
-				trace ("[Assets] There is no String or Bytes asset with an ID of \"" + id + "\"");
+				printError ("[Assets] There is no String or Bytes asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
+			printError ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
@@ -231,19 +232,19 @@ class Assets {
 					
 				} else {
 					
-					trace ("[Assets] Font asset \"" + id + "\" exists, but only asynchronously");
+					printError ("[Assets] Font asset \"" + id + "\" exists, but only asynchronously");
 					
 				}
 				
 			} else {
 				
-				trace ("[Assets] There is no Font asset with an ID of \"" + id + "\"");
+				printError ("[Assets] There is no Font asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
+			printError ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
@@ -301,19 +302,19 @@ class Assets {
 					
 				} else {
 					
-					trace ("[Assets] Image asset \"" + id + "\" exists, but only asynchronously");
+					printError ("[Assets] Image asset \"" + id + "\" exists, but only asynchronously");
 					
 				}
 				
 			} else {
 				
-				trace ("[Assets] There is no Image asset with an ID of \"" + id + "\"");
+				printError ("[Assets] There is no Image asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
+			printError ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
@@ -361,13 +362,13 @@ class Assets {
 				
 			} else {
 				
-				trace ("[Assets] There is no asset with an ID of \"" + id + "\"");
+				printError ("[Assets] There is no asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
+			printError ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
@@ -404,19 +405,19 @@ class Assets {
 					
 				} else {
 					
-					trace ("[Assets] String asset \"" + id + "\" exists, but only asynchronously");
+					printError ("[Assets] String asset \"" + id + "\" exists, but only asynchronously");
 					
 				}
 				
 			} else {
 				
-				trace ("[Assets] There is no String asset with an ID of \"" + id + "\"");
+				printError ("[Assets] There is no String asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
+			printError ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
@@ -865,6 +866,17 @@ class Assets {
 	}
 	
 	
+	private static inline function printError (message:String):Void {
+
+		#if debug
+		var callstack = CallStack.callStack ();
+		callstack.reverse();
+		trace (CallStack.toString (callstack) + "\n" + message);
+		#else
+		trace (message);
+		#end
+
+	}
 	
 	
 	// Event Handlers
