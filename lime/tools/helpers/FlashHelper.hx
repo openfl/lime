@@ -73,8 +73,9 @@ class FlashHelper {
 			
 			if (!FileSystem.exists (src)) {
 				
-				Sys.println ("Warning: Could not embed unsupported audio file \"" + name + "\"");
-				return false;
+				Sys.println ("Warning: Could not embed unsupported audio file \"" + name + "\", embedding as binary");
+				inAsset.type = BINARY;
+				return embedAsset (inAsset, packageName, outTags);
 				
 			}
 			
@@ -96,22 +97,25 @@ class FlashHelper {
 					switch (reader.readNext()) {
 						case Frame(frame):
 						if (frame.header.layer != mpeg.audio.Layer.Layer3) {
-							Sys.println ("Warning: Could not embed \"" + name + "\" (Flash only supports Layer-III MP3 files, but file is " + frame.header.layer + ")");
-							return false;
+							Sys.println ("Warning: Could not embed \"" + name + "\" (Flash only supports Layer-III MP3 files, but file is " + frame.header.layer + "), embedding as binary");
+							inAsset.type = BINARY;
+							return embedAsset (inAsset, packageName, outTags);
 						}
 						var frameSamplingFrequency = frame.header.samplingFrequency;
 						if (samplingFrequency == -1) {
 							samplingFrequency = frameSamplingFrequency;
 						} else if (frameSamplingFrequency != samplingFrequency) {
-							Sys.println ("Warning: Could not embed \"" + name + "\" (Flash does not support MP3 audio with variable sampling frequencies)");
-							return false;
+							Sys.println ("Warning: Could not embed \"" + name + "\" (Flash does not support MP3 audio with variable sampling frequencies), embedding as binary");
+							inAsset.type = BINARY;
+							return embedAsset (inAsset, packageName, outTags);
 						}
 						var frameIsStereo = frame.header.mode != mpeg.audio.Mode.SingleChannel;
 						if (isStereo == null) {
 							isStereo = frameIsStereo;
 						} else if (frameIsStereo != isStereo) {
-							Sys.println ("Warning: Could not embed \"" + name + "\" (Flash does not support MP3 audio with mixed mono and stero frames)");
-							return false;
+							Sys.println ("Warning: Could not embed \"" + name + "\" (Flash does not support MP3 audio with mixed mono and stero frames), embedding as binary");
+							inAsset.type = BINARY;
+							return embedAsset (inAsset, packageName, outTags);
 						}
 						frameDataWriter.write(frame.frameData);
 						totalLengthSamples += mpeg.audio.Utils.lookupSamplesPerFrame(frame.header.version, frame.header.layer);
@@ -127,8 +131,9 @@ class FlashHelper {
 				}
 				
 				if (totalLengthSamples == 0) {
-					Sys.println ("Warning: Could not embed \"" + name + "\" (Could not find any valid MP3 audio data)");
-					return false;
+					Sys.println ("Warning: Could not embed \"" + name + "\" (Could not find any valid MP3 audio data), embedding as binary");
+					inAsset.type = BINARY;
+					return embedAsset (inAsset, packageName, outTags);
 				}
 				
 				var flashSamplingFrequency = switch (samplingFrequency) {
@@ -140,8 +145,9 @@ class FlashHelper {
 				
 				if (flashSamplingFrequency == null) {
 					
-					Sys.println ("Warning: Could not embed \"" + name + "\" (Flash supports 11025, 22050 and 44100kHz MP3 files, but file is " + samplingFrequency + "kHz)");
-					return false;
+					Sys.println ("Warning: Could not embed \"" + name + "\" (Flash supports 11025, 22050 and 44100kHz MP3 files, but file is " + samplingFrequency + "kHz), embedding as binary");
+					inAsset.type = BINARY;
+					return embedAsset (inAsset, packageName, outTags);
 					
 				}
 				
@@ -165,13 +171,15 @@ class FlashHelper {
 				
 				if (ext == "ogg" || header == "OggS") {
 					
-					Sys.println ("Warning: Skipping unsupported OGG file \"" + name + "\"");
-					return false;
+					Sys.println ("Warning: Skipping unsupported OGG file \"" + name + "\", embedding as binary");
+					inAsset.type = BINARY;
+					return embedAsset (inAsset, packageName, outTags);
 					
 				} else if (header != "RIFF") {
 					
-					Sys.println ("Warning: Could not embed unrecognized WAV file \"" + name + "\"");
-					return false;
+					Sys.println ("Warning: Could not embed unrecognized WAV file \"" + name + "\", embedding as binary");
+					inAsset.type = BINARY;
+					return embedAsset (inAsset, packageName, outTags);
 					
 				} else {
 					
@@ -184,8 +192,9 @@ class FlashHelper {
 					
 					if (hdr.format != WF_PCM) {
 						
-						Sys.println ("Warning: Could not embed \"" + name + "\" (Only PCM uncompressed WAV files are currently supported)");
-						return false;
+						Sys.println ("Warning: Could not embed \"" + name + "\" (Only PCM uncompressed WAV files are currently supported), embedding as binary");
+						inAsset.type = BINARY;
+						return embedAsset (inAsset, packageName, outTags);
 						
 					}
 					
@@ -202,8 +211,9 @@ class FlashHelper {
 					
 					if (flashRate == null) {
 						
-						Sys.println ("Warning: Could not embed \"" + name + "\" (Flash supports 5512, 11025, 22050 and 44100kHz WAV files, but file is " + hdr.samplingRate + "kHz)");
-						return false;
+						Sys.println ("Warning: Could not embed \"" + name + "\" (Flash supports 5512, 11025, 22050 and 44100kHz WAV files, but file is " + hdr.samplingRate + "kHz), embedding as binary");
+						inAsset.type = BINARY;
+						return embedAsset (inAsset, packageName, outTags);
 						
 					}
 					
@@ -245,8 +255,9 @@ class FlashHelper {
 						
 					} else {
 						
-						Sys.println ("Warning: Could not embed WAV file \"" + name + "\", the file may be corrupted");
-						return false;
+						Sys.println ("Warning: Could not embed WAV file \"" + name + "\", the file may be corrupted, embedding as binary");
+						inAsset.type = BINARY;
+						return embedAsset (inAsset, packageName, outTags);
 						
 					}
 					
@@ -289,7 +300,9 @@ class FlashHelper {
 					
 				} else {
 					
-					throw ("Unknown image type:" + src );
+					Sys.println ("Warning: Could not embed image file \"" + name + "\", unknown image type, embedding as binary");
+					inAsset.type = BINARY;
+					return embedAsset (inAsset, packageName, outTags);
 					
 				}
 				
@@ -831,13 +844,6 @@ class FlashHelper {
 				} catch (e:Dynamic) {
 					
 					Sys.println ("Warning: Could not access \"" + sourcePath + "\", does the file exist?");
-					ignoreAsset = true;
-					
-				}
-				
-				if ((asset.type == SOUND || asset.type == MUSIC) && Path.extension (sourcePath) == "ogg") {
-					
-					Sys.println ("Warning: Skipping unsupported OGG file \"" + sourcePath + "\"");
 					ignoreAsset = true;
 					
 				}
