@@ -51,6 +51,8 @@ class HXProject {
 	public var meta:MetaData;
 	public var ndlls:Array <NDLL>;
 	public var platformType:PlatformType;
+	public var postBuildCallbacks:Array <CLICommand>;
+	public var preBuildCallbacks:Array <CLICommand>;
 	public var samplePaths:Array <String>;
 	public var sources:Array <String>;
 	public var splashScreens:Array <SplashScreen>;
@@ -217,6 +219,8 @@ class HXProject {
 		libraries = new Array <Library> ();
 		libraryHandlers = new Map <String, String> ();
 		ndlls = new Array <NDLL> ();
+		postBuildCallbacks = new Array <CLICommand> ();
+		preBuildCallbacks = new Array <CLICommand> ();
 		sources = new Array <String> ();
 		samplePaths = new Array <String> ();
 		splashScreens = new Array <SplashScreen> ();
@@ -310,6 +314,8 @@ class HXProject {
 		}
 		
 		project.platformType = platformType;
+		project.postBuildCallbacks = postBuildCallbacks.copy ();
+		project.preBuildCallbacks = preBuildCallbacks.copy ();
 		project.samplePaths = samplePaths.copy ();
 		project.sources = sources.copy ();
 		
@@ -714,6 +720,8 @@ class HXProject {
 			javaPaths = ArrayHelper.concatUnique (javaPaths, project.javaPaths, true);
 			libraries = ArrayHelper.concatUnique (libraries, project.libraries, true);
 			ndlls = ArrayHelper.concatUnique (ndlls, project.ndlls);
+			postBuildCallbacks = postBuildCallbacks.concat (project.postBuildCallbacks);
+			preBuildCallbacks = preBuildCallbacks.concat (project.preBuildCallbacks);
 			samplePaths = ArrayHelper.concatUnique (samplePaths, project.samplePaths, true);
 			sources = ArrayHelper.concatUnique (sources, project.sources, true);
 			splashScreens = ArrayHelper.concatUnique (splashScreens, project.splashScreens);

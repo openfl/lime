@@ -4,6 +4,7 @@ package lime.project;
 import haxe.io.Path;
 import haxe.xml.Fast;
 import lime.tools.helpers.ArrayHelper;
+import lime.tools.helpers.CommandHelper;
 import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.ObjectHelper;
 import lime.tools.helpers.PathHelper;
@@ -769,6 +770,53 @@ class ProjectXMLParser extends HXProject {
 		if (element.has.resolve ("swf-version")) {
 			
 			app.swfVersion = Std.parseFloat (substitute (element.att.resolve ("swf-version")));
+			
+		}
+		
+	}
+	
+	
+	private function parseCommandElement (element:Fast, commandList:Array<CLICommand>):Void {
+		
+		var command:CLICommand = null;
+		
+		if (element.has.haxe) {
+			
+			command = CommandHelper.interpretHaxe (substitute (element.att.haxe));
+			
+		}
+		
+		if (element.has.open) {
+			
+			command = CommandHelper.openFile (substitute (element.att.open));
+			
+		}
+		
+		if (element.has.command) {
+			
+			command = CommandHelper.fromSingleString (substitute (element.att.command));
+			
+		}
+		
+		if (element.has.cmd) {
+			
+			command = CommandHelper.fromSingleString (substitute (element.att.cmd));
+			
+		}
+		
+		if (command != null) {
+			
+			for (arg in element.elements) {
+				
+				if (arg.name == "arg") {
+					
+					command.args.push (arg.innerData);
+					
+				}
+				
+			}
+			
+			commandList.push (command);
 			
 		}
 		
@@ -1677,6 +1725,14 @@ class ProjectXMLParser extends HXProject {
 					case "config": 
 						
 						config.parse (element);
+					
+					case "prebuild":
+						
+						parseCommandElement (element, preBuildCallbacks);
+					
+					case "postbuild":
+						
+						parseCommandElement (element, postBuildCallbacks);
 					
 					default :
 						
