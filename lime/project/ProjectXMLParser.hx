@@ -1868,20 +1868,7 @@ class ProjectXMLParser extends HXProject {
 			
 			var substring = doubleVarMatch.matched (1);
 			
-			if (substring.substr (0, 8) == "haxelib:") {
-				
-				var path = PathHelper.getHaxelib (new Haxelib (substring.substr (8)), true);
-				substring = PathHelper.standardize (path);
-				
-			} else if (defines.exists (substring)) {
-				
-				substring = defines.get (substring);
-				
-			} else if (environment != null && environment.exists (substring)) {
-				
-				substring = environment.get (substring);
-				
-			}
+			substring = lookup (substring);
 			
 			newString = doubleVarMatch.matchedLeft () + "${" + substring + "}" + doubleVarMatch.matchedRight ();
 			
@@ -1891,20 +1878,7 @@ class ProjectXMLParser extends HXProject {
 			
 			var substring = varMatch.matched (1);
 			
-			if (substring.substr (0, 8) == "haxelib:") {
-				
-				var path = PathHelper.getHaxelib (new Haxelib (substring.substr (8)), true);
-				substring = PathHelper.standardize (path);
-				
-			} else if (defines.exists (substring)) {
-				
-				substring = defines.get (substring);
-				
-			} else if (environment != null && environment.exists (substring)) {
-				
-				substring = environment.get (substring);
-				
-			}
+			substring = lookup (substring);
 			
 			newString = varMatch.matchedLeft () + substring + varMatch.matchedRight ();
 			
@@ -1914,6 +1888,26 @@ class ProjectXMLParser extends HXProject {
 		
 	}
 	
+	private function lookup (substring:String):String {
+		
+		if (substring.substr (0, 8) == "haxelib:") {
+			
+			var path = PathHelper.getHaxelib (new Haxelib (substring.substr (8)), true);
+			substring = PathHelper.standardize (path);
+			
+		} else if (defines.exists (substring)) {
+			
+			substring = defines.get (substring);
+			
+		} else if (environment != null && environment.exists (substring)) {
+			
+			substring = environment.get (substring);
+			
+		}
+		
+		return substring;
+		
+	}
 	
 	
 }
