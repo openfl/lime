@@ -1903,6 +1903,10 @@ class ProjectXMLParser extends HXProject {
 			
 			substring = environment.get (substring);
 			
+		} else if (substring == "cwd" || substring == "pwd" || substring == "workingDirectory") {
+			
+			substring = Sys.getCwd();
+			
 		}
 		
 		return substring;
