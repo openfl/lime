@@ -28,9 +28,9 @@ class ProjectXMLParser extends HXProject {
 	private static var varMatch = new EReg ("\\${(.*?)}", "");
 	
 	
-	public function new (path:String = "", defines:Map <String, Dynamic> = null, includePaths:Array <String> = null, useExtensionPath:Bool = false) {
+	public function new (path:String = "", defines:Map <String, Dynamic> = null, includePaths:Array <String> = null, useExtensionPath:Bool = false, parent:HXProject = null) {
 		
-		super ();
+		super (parent, FileSystem.absolutePath (Path.directory (path)));
 		
 		if (defines != null) {
 			
@@ -664,7 +664,7 @@ class ProjectXMLParser extends HXProject {
 			
 			if (includePath != null && includePath != "" && FileSystem.exists (includePath) && !FileSystem.isDirectory (includePath)) {
 				
-				var includeProject = new ProjectXMLParser (includePath, defines);
+				var includeProject = new ProjectXMLParser (includePath, defines, null, false, this);
 				merge (includeProject);
 				return;
 				
@@ -941,7 +941,7 @@ class ProjectXMLParser extends HXProject {
 						
 						if (path != null && path != "" && FileSystem.exists (path) && !FileSystem.isDirectory (path)) {
 							
-							var includeProject = new ProjectXMLParser (path, defines);
+							var includeProject = new ProjectXMLParser (path, defines, null, false, this);
 							
 							if (includeProject != null && haxelib != null) {
 								
@@ -1073,7 +1073,7 @@ class ProjectXMLParser extends HXProject {
 						
 						haxelibs.push (haxelib);
 						
-						var includeProject = HXProject.fromHaxelib (haxelib, defines);
+						var includeProject = HXProject.fromHaxelib (haxelib, defines, null, this);
 						
 						if (includeProject != null) {
 							
@@ -1868,7 +1868,7 @@ class ProjectXMLParser extends HXProject {
 			
 			var substring = doubleVarMatch.matched (1);
 			
-			substring = lookup (substring);
+			substring = lookup (this, substring);
 			
 			newString = doubleVarMatch.matchedLeft () + "${" + substring + "}" + doubleVarMatch.matchedRight ();
 			
@@ -1878,7 +1878,7 @@ class ProjectXMLParser extends HXProject {
 			
 			var substring = varMatch.matched (1);
 			
-			substring = lookup (substring);
+			substring = lookup (this, substring);
 			
 			newString = varMatch.matchedLeft () + substring + varMatch.matchedRight ();
 			
@@ -1888,24 +1888,36 @@ class ProjectXMLParser extends HXProject {
 		
 	}
 	
-	private function lookup (substring:String):String {
+	private static function lookup (project:HXProject, substring:String):String {
 		
-		if (substring.substr (0, 8) == "haxelib:") {
+		if (substring.substr (0, 7) == "parent:") {
+			
+			if (project.parent != null) {
+				
+				substring = lookup (project.parent, substring.substr (7));
+				
+			} else {
+				
+				substring = "null";
+				
+			}
+			
+		} else if (substring.substr (0, 8) == "haxelib:") {
 			
 			var path = PathHelper.getHaxelib (new Haxelib (substring.substr (8)), true);
 			substring = PathHelper.standardize (path);
 			
-		} else if (defines.exists (substring)) {
+		} else if (project.defines.exists (substring)) {
 			
-			substring = defines.get (substring);
+			substring = project.defines.get (substring);
 			
-		} else if (environment != null && environment.exists (substring)) {
+		} else if (project.environment != null && project.environment.exists (substring)) {
 			
-			substring = environment.get (substring);
+			substring = project.environment.get (substring);
 			
 		} else if (substring == "cwd" || substring == "pwd" || substring == "workingDirectory") {
 			
-			substring = Sys.getCwd();
+			substring = project.projectDirectory;
 			
 		}
 		
