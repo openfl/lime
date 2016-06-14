@@ -698,7 +698,7 @@ class AudioSource {
 		#else
 		
 		AL.distanceModel (AL.NONE);
-		AL.source3f (id, AL.POSITION, pan, 0, -1 * Math.sqrt (1 - Math.pow (pan, 2)));
+		AL.source3f (id, AL.POSITION, value, 0, -1 * Math.sqrt (1 - Math.pow (value, 2)));
 		return value;
 		
 		#end
