@@ -4,6 +4,7 @@ package lime.audio;
 import haxe.Timer;
 import lime.app.Event;
 import lime.audio.openal.AL;
+import lime.math.Vector4;
 
 #if flash
 import flash.media.SoundChannel;
@@ -35,13 +36,14 @@ class AudioSource {
 	public var length (get, set):Int;
 	public var loops (get, set):Int;
 	public var offset:Int;
-	public var pan (get, set):Float;
+	public var position (get, set):Vector4;
 	
 	private var id:UInt;
 	private var playing:Bool;
 	private var pauseTime:Int;
 	private var __length:Null<Int>;
 	private var __loops:Int;
+	private var __position:Vector4;
 	
 	#if flash
 	private var channel:SoundChannel;
@@ -68,6 +70,8 @@ class AudioSource {
 		
 		this.loops = loops;
 		id = 0;
+		
+		__position = new Vector4 ();
 		
 		if (buffer != null) {
 			
@@ -639,69 +643,51 @@ class AudioSource {
 	}
 	
 	
-	private function get_pan ():Float {
+	private function get_position ():Vector4 {
 		
 		#if html5
-		
-		return 0;
-		
 		#elseif flash
 		
-		return channel.soundTransform.pan;
+		__position.x = channel.soundTransform.pan;
 		
 		#elseif lime_console
-		
-		//if (channel.valid) {
-			//
-			//__gain = channel.getVolume ();
-			//
-		//}
-		//
-		//return __gain;
-		
-		return 0;
-		
 		#else
 		
-		return AL.getSource3f (id, AL.POSITION)[0];
+		var value = AL.getSource3f (id, AL.POSITION);
+		__position.x = value[0];
+		__position.y = value[1];
+		__position.z = value[2];
 		
 		#end
+		
+		return __position;
 		
 	}
 	
 	
-	private function set_pan (value:Float):Float {
+	private function set_position (value:Vector4):Vector4 {
+		
+		__position.x = value.x;
+		__position.y = value.y;
+		__position.z = value.z;
+		__position.w = value.w;
 		
 		#if html5
-		
-		return 0;
-		
 		#elseif flash
 		
 		var soundTransform = channel.soundTransform;
-		soundTransform.pan = value;
+		soundTransform.pan = __position.x;
 		channel.soundTransform = soundTransform;
-		return value;
 		
 		#elseif lime_console
-		
-		//if (channel.valid) {
-			//
-			//channel.setVolume (value);
-			//
-		//}
-		//
-		//return __gain = value;
-		
-		return 0;
-		
 		#else
 		
 		AL.distanceModel (AL.NONE);
-		AL.source3f (id, AL.POSITION, value, 0, -1 * Math.sqrt (1 - Math.pow (value, 2)));
-		return value;
+		AL.source3f (id, AL.POSITION, __position.x, __position.y, __position.z);
 		
 		#end
+		
+		return __position;
 		
 	}
 	
