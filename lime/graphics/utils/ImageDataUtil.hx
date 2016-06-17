@@ -387,6 +387,8 @@ class ImageDataUtil {
 			
 			if (fillColor == hitColor) return;
 			
+			if (premultiplied) fillColor.multiplyAlpha();
+			
 			var dx = [ 0, -1, 1, 0 ];
 			var dy = [ -1, 0, 0, 1 ];
 			
@@ -422,7 +424,7 @@ class ImageDataUtil {
 					
 					if (readColor == hitColor) {
 						
-						fillColor.writeUInt8 (data, nextPointOffset, format, premultiplied);
+						fillColor.writeUInt8 (data, nextPointOffset, format, false);
 						
 						queue.push (nextPointX);
 						queue.push (nextPointY);
