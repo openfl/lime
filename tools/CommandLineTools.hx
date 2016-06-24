@@ -200,6 +200,12 @@ class CommandLineTools {
 					
 					PathHelper.getHaxelib (haxelib, true);
 					
+					if (haxelib.name == "hxcpp") {
+						
+						ProcessHelper.runCommand (PathHelper.combine (PathHelper.getHaxelib (haxelib), "tools/hxcpp"), "haxe", [ "compile.hxml" ]);
+						
+					}
+					
 				}
 				
 				for (targetName in targets) {
