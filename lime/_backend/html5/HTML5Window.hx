@@ -357,7 +357,11 @@ class HTML5Window {
 	
 	
 	private function handleResize ():Void {
-		
+
+		if (!parent.resizable) {
+			return;
+		}
+
 		var stretch = parent.fullscreen || (setWidth == 0 && setHeight == 0);
 		
 		if (element != null && (div == null || (div != null && stretch))) {
