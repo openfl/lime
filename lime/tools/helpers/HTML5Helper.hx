@@ -3,6 +3,7 @@ package lime.tools.helpers;
 
 import haxe.io.Path;
 import haxe.Timer;
+import haxe.Json;
 import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.PathHelper;
 import lime.tools.helpers.PlatformHelper;
@@ -83,7 +84,23 @@ class HTML5Helper {
 			ProcessHelper.runProcess ("", webify, [ FileSystem.fullPath (font.sourcePath) ], true, true, true);
 			
 		}
-		
+
+		var svg_path = font.sourcePath.substr(0, font.sourcePath.length - 3) + "svg";
+
+		var svg_content = File.getContent( svg_path );
+
+		var svg_xml = new haxe.xml.Fast( Xml.parse( svg_content ).firstElement() );
+
+		var font_face = svg_xml.node.defs.node.font.node.resolve('font-face');
+
+		var unitEm = Std.parseInt( font_face.att.resolve('units-per-em') );
+		var ascent = Std.parseInt( font_face.att.ascent );
+		var descent = -Std.parseInt( font_face.att.descent );
+
+		var config_path = font.sourcePath.substr(0, font.sourcePath.length - 3) + "json";
+
+		File.saveContent( config_path, Json.stringify( { unitEm : unitEm, ascent:ascent, descent:descent }) );
+		font.data = { unitEm : unitEm, ascent:ascent, descent:descent };
 	}
 	
 	

@@ -43,8 +43,11 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	private var lastModified:Float;
 	private var timer:Timer;
-	
-	
+
+	#if html5
+		public var fontData( default, null ) = new Map<String, {var ascent:Float; var descent:Float;}>();
+	#end
+
 	public function new () {
 		
 		super ();
@@ -54,7 +57,14 @@ class DefaultAssetLibrary extends AssetLibrary {
 		::foreach assets::::if (type == "font")::openfl.text.Font.registerFont (__ASSET__OPENFL__::flatName::);::end::
 		::end::::end::
 		#end
-		
+
+		#if html5
+		::if (assets != null)::
+		::foreach assets::::if (type == "font")::
+		fontData.set( '::fontName::', {ascent:::data.ascent::/::data.unitEm::, descent:::data.descent::/::data.unitEm::});::end::
+		::end::::end::
+		#end
+
 		#if flash
 		
 		::if (assets != null)::::foreach assets::::if (embed)::className.set ("::id::", __ASSET__::flatName::);::else::path.set ("::id::", "::resourceName::");::end::
