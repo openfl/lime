@@ -26,7 +26,10 @@ import lime.utils.UInt8Array;
 import js.html.CanvasElement;
 import js.html.ImageElement;
 import js.html.Image in JSImage;
+import js.html.ProgressEvent in JSProgressEvent;
 import js.Browser;
+import js.html.XMLHttpRequest;
+import js.html.XMLHttpRequestResponseType;
 #elseif flash
 import flash.display.BitmapData;
 import flash.geom.Matrix;
@@ -511,10 +514,10 @@ class Image {
 	}
 	
 	
-	public static function fromFile (path:String, onload:Image -> Void = null, onerror:Void -> Void = null):Image {
+	public static function fromFile (path:String, onload:Image -> Void = null, onerror:Void -> Void = null, onprog:Float -> Float -> Void = null):Image {
 		
 		var image = new Image ();
-		image.__fromFile (path, onload, onerror);
+		image.__fromFile (path, onload, onerror, onprog);
 		return image;
 		
 	}
@@ -1178,37 +1181,75 @@ class Image {
 	}
 	
 	
-	private function __fromFile (path:String, onload:Image -> Void, onerror:Void -> Void):Void {
+	private function __fromFile (path:String, onload:Image -> Void, onerror:Void -> Void, onprog:Float -> Float -> Void = null):Void {
 		
 		#if (js && html5)
-			
+		
+				
 			var image = new JSImage ();
 			image.crossOrigin = "Anonymous";
-			
-			image.onload = function (_) {
+		
+			if(onprog == null){
 				
-				buffer = new ImageBuffer (null, image.width, image.height);
-				buffer.__srcImage = cast image;
-				
-				width = image.width;
-				height = image.height;
-				
-				if (onload != null) {
+				image.onload = function (_) {
 					
-					onload (this);
+					buffer = new ImageBuffer (null, image.width, image.height);
+					buffer.__srcImage = cast image;
 					
-				}
-				
-			}
-			
-			image.onerror = function (_) {
-				
-				if (onerror != null) {
+					width = image.width;
+					height = image.height;
 					
-					onerror ();
+					if (onload != null) {
+						
+						onload (this);
+						
+					}
 					
 				}
 				
+				image.onerror = function (_) {
+					
+					if (onerror != null) {
+						
+						onerror ();
+						
+					}
+					
+				}
+				
+			}else{
+				
+				var request = new XMLHttpRequest();
+				
+				request.onload = function (_) {
+					
+					__fromBytes( Bytes.ofData(request.response), onload);
+					
+				}
+				
+				request.onerror = function (_) {
+					
+					if (onerror != null) {
+						
+						onerror ();
+						
+					}
+					
+				}
+			
+				request.onprogress = function(e:JSProgressEvent) {
+					
+					if (e.lengthComputable) {
+						
+						onprog(e.loaded, e.total);
+						
+					}
+					
+				}
+				request.responseType = XMLHttpRequestResponseType.ARRAYBUFFER;
+                request.open("GET", path, true);
+                request.overrideMimeType('text/plain; charset=x-user-defined'); 
+                request.send(null);
 			}
 			
 			image.src = path;
