@@ -6,9 +6,6 @@
 	<haxedef name="native" if="cpp || neko || nodejs" />
 	<set name="native" if="cpp || neko || nodejs" />
 	
-	<haxedef name="desktop" if="windows || linux || mac || neko || nodejs" />
-	<set name="desktop" if="windows || linux || mac || neko || nodejs" />
-
 	<haxedef name="lime-html5" if="html5" />
 	<haxedef name="lime-native" if="native" />
 	
