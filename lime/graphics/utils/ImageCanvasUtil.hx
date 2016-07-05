@@ -203,7 +203,7 @@ class ImageCanvasUtil {
 			
 			if (image.transparent && ((color & 0xFF) == 0)) {
 				
-				image.buffer.__srcCanvas.width = image.buffer.width;
+				image.buffer.__srcCanvas.width = image.buffer.width; // force clear canvas
 				return;
 				
 			}
@@ -228,6 +228,8 @@ class ImageCanvasUtil {
 			
 		}
 		
+		// clear first to avoid blending
+		image.buffer.__srcContext.clearRect (rect.x + image.offsetX, rect.y + image.offsetY, rect.width + image.offsetX, rect.height + image.offsetY);
 		image.buffer.__srcContext.fillStyle = 'rgba(' + r + ', ' + g + ', ' + b + ', ' + (a / 255) + ')';
 		image.buffer.__srcContext.fillRect (rect.x + image.offsetX, rect.y + image.offsetY, rect.width + image.offsetX, rect.height + image.offsetY);
 		

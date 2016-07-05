@@ -313,12 +313,6 @@ class ImageDataUtil {
 			
 		}
 		
-		if (!image.transparent) {
-			
-			fillColor.a = 0xFF;
-			
-		}
-		
 		var data = image.buffer.data;
 		if (data == null) return;
 		
@@ -326,12 +320,14 @@ class ImageDataUtil {
 		if (CFFI.enabled) lime_image_data_util_fill_rect (image, rect, (fillColor >> 16) & 0xFFFF, (fillColor) & 0xFFFF); else // TODO: Better Int32 solution
 		#end
 		{
-			
 			var format = image.buffer.format;
 			var premultiplied = image.buffer.premultiplied;
 			
 			var dataView = new ImageDataView (image, rect);
 			var row;
+			
+			if (!image.transparent) fillColor.a = 0xFF;
+			if (premultiplied) fillColor.multiplyAlpha();
 			
 			for (y in 0...dataView.height) {
 				
@@ -339,7 +335,7 @@ class ImageDataUtil {
 				
 				for (x in 0...dataView.width) {
 					
-					fillColor.writeUInt8 (data, row + (x * 4), format, premultiplied);
+					fillColor.writeUInt8 (data, row + (x * 4), format, false);
 					
 				}
 				

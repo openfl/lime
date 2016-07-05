@@ -253,13 +253,16 @@ namespace lime {
 		int row;
 		RGBA fillColor (color);
 		
+		if (!image->buffer->transparent) fillColor.a = 0xFF;
+		if (premultiplied) fillColor.MultiplyAlpha ();
+		
 		for (int y = 0; y < dataView.height; y++) {
 			
 			row = dataView.Row (y);
 			
 			for (int x = 0; x < dataView.width; x++) {
 				
-				fillColor.WriteUInt8 (data, row + (x * 4), format, premultiplied);
+				fillColor.WriteUInt8 (data, row + (x * 4), format, false);
 				
 			}
 			
