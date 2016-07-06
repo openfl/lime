@@ -39,7 +39,7 @@ class IOSPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
-		targetDirectory = PathHelper.combine (project.app.path, "ios");
+		targetDirectory = PathHelper.combine (project.app.path, "ios/" + getBuildType());
 		
 	}
 	
@@ -89,7 +89,10 @@ class IOSPlatform extends PlatformTarget {
 		var hxml = PathHelper.findTemplate (project.templatePaths, "iphone/PROJ/haxe/Build.hxml");
 		var template = new Template (File.getContent (hxml));
 		
-		Sys.println (template.execute (generateContext ()));
+		var context = generateContext ();
+		context.OUTPUT_DIR = targetDirectory;
+
+		Sys.println (template.execute (context));
 		Sys.println ("-D display");
 		
 	}
@@ -398,6 +401,7 @@ class IOSPlatform extends PlatformTarget {
 		project.assets.push (manifest);
 		
 		var context = generateContext ();
+		context.OUTPUT_DIR = targetDirectory;
 		
 		var projectDirectory = targetDirectory + "/" + project.app.file + "/";
 		

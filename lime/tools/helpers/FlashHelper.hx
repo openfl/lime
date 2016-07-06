@@ -606,10 +606,10 @@ class FlashHelper {
 	}
 	
 	
-	private static function compileSWC (project:HXProject, assets:Array<Asset>, id:Int):Void {
+	private static function compileSWC (project:HXProject, assets:Array<Asset>, id:Int, destination:String):Void {
 		
 		#if format
-		var destination = project.app.path + "/flash/obj";
+		destination = destination + "/obj";
 		PathHelper.mkdir (destination);
 		
 		var label = (id > 0 ? Std.string (id + 1) : "");
@@ -751,7 +751,7 @@ class FlashHelper {
 	}*/
 	
 	
-	public static function embedAssets (project:HXProject):Bool {
+	public static function embedAssets (project:HXProject, targetDirectory:String):Bool {
 		
 		var embed = "";
 		var assets = [];
@@ -875,7 +875,7 @@ class FlashHelper {
 		if (embed != "") {
 			
 			//compileSWC (project, embed, id);
-			compileSWC (project, assets, id);
+			compileSWC (project, assets, id, targetDirectory);
 			
 		}
 		
@@ -891,7 +891,7 @@ class FlashHelper {
 		
 		if (assets.length > 0) {
 			
-			project.haxeflags.push ("-swf-lib " + project.app.path + "/flash/obj/assets.swf");
+			project.haxeflags.push ("-swf-lib " + targetDirectory + "/obj/assets.swf");
 			project.haxedefs.set ("flash-use-stage", "");
 			
 			return true;

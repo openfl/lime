@@ -36,8 +36,8 @@ class FlashPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
-		targetDirectory = project.app.path + "/flash";
-		
+		targetDirectory = project.app.path + "/flash/" + getBuildType();
+
 	}
 	
 	
@@ -45,17 +45,7 @@ class FlashPlatform extends PlatformTarget {
 		
 		var destination = targetDirectory + "/bin";
 		
-		var type = "release";
-		
-		if (project.debug) {
-			
-			type = "debug";
-			
-		} else if (project.targetFlags.exists ("final")) {
-			
-			type = "final";
-			
-		}
+		var type = getBuildType ();
 		
 		if (embedded) {
 			
@@ -87,7 +77,7 @@ class FlashPlatform extends PlatformTarget {
 				}
 				
 			}
-				
+			
 			ProcessHelper.runCommand ("", "haxe", args);
 			
 		} else {
@@ -140,22 +130,12 @@ class FlashPlatform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
-		var type = "release";
-		
-		if (project.debug) {
-			
-			type = "debug";
-			
-		} else if (project.targetFlags.exists ("final")) {
-			
-			type = "final";
-			
-		}
-		
+		var type = getBuildType ();
 		var hxml = PathHelper.findTemplate (project.templatePaths, "flash/hxml/" + type + ".hxml");
 		
 		var context = project.templateContext;
 		context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background, 6);
+		context.OUTPUT_DIR = targetDirectory;
 		
 		var template = new Template (File.getContent (hxml));
 		
@@ -257,9 +237,10 @@ class FlashPlatform extends PlatformTarget {
 		var destination = targetDirectory + "/bin/";
 		PathHelper.mkdir (destination);
 		
-		embedded = FlashHelper.embedAssets (project);
+		embedded = FlashHelper.embedAssets (project, targetDirectory);
 		
 		var context = generateContext ();
+		context.OUTPUT_DIR = targetDirectory;
 		
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", targetDirectory + "/haxe", context);
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "flash/hxml", targetDirectory + "/haxe", context);

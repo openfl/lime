@@ -1,4 +1,4 @@
 -main ApplicationMain ::HAXE_FLAGS::
--cp ::BUILD_DIR::/neko/haxe
+-cp ::OUTPUT_DIR::/haxe
 -neko ::NEKO_FILE::
 --macro keep("::APP_MAIN::")

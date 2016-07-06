@@ -35,12 +35,12 @@ class BlackBerryPlatform extends PlatformTarget {
 		
 		if (!project.targetFlags.exists ("html5")) {
 			
-			targetDirectory = project.app.path + "/blackberry/cpp";
+			targetDirectory = project.app.path + "/blackberry/cpp/" + getBuildType();
 			outputFile = targetDirectory + "/bin/" + PathHelper.safeFileName (project.app.file);
 			
 		} else {
 			
-			targetDirectory = project.app.path + "/blackberry/html5";
+			targetDirectory = project.app.path + "/blackberry/html5/" + getBuildType();
 			outputFile = targetDirectory + "/src/" + project.app.file + ".js";
 			
 		}
@@ -66,18 +66,7 @@ class BlackBerryPlatform extends PlatformTarget {
 		
 		if (project.app.main != null) {
 			
-			var type = "release";
-			
-			if (project.debug) {
-				
-				type = "debug";
-				
-			} else if (project.targetFlags.exists ("final")) {
-				
-				type = "final";
-				
-			}
-			
+			var type = getBuildType ();
 			var hxml = targetDirectory + "/haxe/" + type + ".hxml";
 			ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "blackberry" ] );
 			
@@ -177,17 +166,7 @@ class BlackBerryPlatform extends PlatformTarget {
 		var hxml = "";
 		var context = project.templateContext;
 		
-		var type = "release";
-		
-		if (project.debug) {
-			
-			type = "debug";
-			
-		} else if (project.targetFlags.exists ("final")) {
-			
-			type = "final";
-			
-		}
+		var type = getBuildType ();
 		
 		if (!project.targetFlags.exists ("html5")) {
 			
@@ -199,10 +178,11 @@ class BlackBerryPlatform extends PlatformTarget {
 			
 			hxml = PathHelper.findTemplate (project.templatePaths, "html5/hxml/" + type + ".hxml");
 			
-			context.OUTPUT_DIR = targetDirectory;
 			context.OUTPUT_FILE = outputFile;
 			
 		}
+
+		context.OUTPUT_DIR = targetDirectory;
 		
 		var template = new Template (File.getContent (hxml));
 		
@@ -323,11 +303,11 @@ class BlackBerryPlatform extends PlatformTarget {
 			destination = targetDirectory + "/src/";
 			
 			context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background, 6);
-			context.OUTPUT_DIR = targetDirectory;
 			context.OUTPUT_FILE = outputFile;
 			
 		}
 		
+		context.OUTPUT_DIR = targetDirectory;
 		context.BLACKBERRY_AUTHOR_ID = BlackBerryHelper.processDebugToken (project, targetDirectory).authorID;
 		context.APP_FILE_SAFE = PathHelper.safeFileName (project.app.file);
 		

@@ -124,6 +124,32 @@ class PlatformTarget {
 		
 	}
 	
+
+	public function getBuildType (?_project:HXProject):String {
+
+		// Optionnal project parameter used in case the function is called before a super call
+		if (_project == null) {
+
+			_project = project;
+
+		}
+
+		var buildType = "release";
+		
+		if (_project.debug) {
+			
+			buildType = "debug";
+			
+		} else if (_project.targetFlags.exists ("final")) {
+			
+			buildType = "final";
+			
+		}
+
+		return buildType;
+
+	}
+
 	
 	@ignore public function build ():Void {}
 	@ignore public function clean ():Void {}

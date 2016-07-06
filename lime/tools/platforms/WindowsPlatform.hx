@@ -36,7 +36,7 @@ class WindowsPlatform extends PlatformTarget {
 	public function new (command:String, _project:HXProject, targetFlags:Map <String, String> ) {
 		
 		super (command, _project, targetFlags);
-		
+
 		if (project.targetFlags.exists ("neko") || project.target != PlatformHelper.hostPlatform) {
 			
 			targetType = "neko";
@@ -51,7 +51,7 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 		
-		targetDirectory = project.app.path + "/windows/" + targetType;
+		targetDirectory = project.app.path + "/windows/" + targetType + "/" + getBuildType();
 		applicationDirectory = targetDirectory + "/bin/";
 		executablePath = applicationDirectory + project.app.file + ".exe";
 		
@@ -60,18 +60,7 @@ class WindowsPlatform extends PlatformTarget {
 	
 	public override function build ():Void {
 		
-		var type = "release";
-		
-		if (project.debug) {
-			
-			type = "debug";
-			
-		} else if (project.targetFlags.exists ("final")) {
-			
-			type = "final";
-			
-		}
-		
+		var type = getBuildType ();
 		var hxml = targetDirectory + "/haxe/" + type + ".hxml";
 		
 		PathHelper.mkdir (targetDirectory);
@@ -194,22 +183,14 @@ class WindowsPlatform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
-		var type = "release";
-		
-		if (project.debug) {
-			
-			type = "debug";
-			
-		} else if (project.targetFlags.exists ("final")) {
-			
-			type = "final";
-			
-		}
-		
+		var type = getBuildType ();
 		var hxml = PathHelper.findTemplate (project.templatePaths, targetType + "/hxml/" + type + ".hxml");
 		var template = new Template (File.getContent (hxml));
 		
-		Sys.println (template.execute (generateContext ()));
+		var context = generateContext ();
+		context.OUTPUT_DIR = targetDirectory;
+
+		Sys.println (template.execute (context));
 		Sys.println ("-D display");
 		
 	}
@@ -291,6 +272,7 @@ class WindowsPlatform extends PlatformTarget {
 		}
 		
 		var context = generateContext ();
+		context.OUTPUT_DIR = targetDirectory;
 		
 		if (targetType == "cpp" && project.targetFlags.exists ("static")) {
 			

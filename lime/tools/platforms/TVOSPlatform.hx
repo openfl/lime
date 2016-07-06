@@ -39,7 +39,7 @@ class TVOSPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
-		targetDirectory = PathHelper.combine (project.app.path, "tvos");
+		targetDirectory = PathHelper.combine (project.app.path, "tvos/" + getBuildType());
 		
 	}
 	
@@ -88,8 +88,11 @@ class TVOSPlatform extends PlatformTarget {
 		
 		var hxml = PathHelper.findTemplate (project.templatePaths, "tvos/PROJ/haxe/Build.hxml");
 		var template = new Template (File.getContent (hxml));
+
+		var context = generateContext ();
+		context.OUTPUT_DIR = targetDirectory;
 		
-		Sys.println (template.execute (generateContext ()));
+		Sys.println (template.execute (context));
 		Sys.println ("-D display");
 		
 	}
@@ -364,6 +367,7 @@ class TVOSPlatform extends PlatformTarget {
 		project.assets.push (manifest);
 		
 		var context = generateContext ();
+		context.OUTPUT_DIR = targetDirectory;
 		
 		var projectDirectory = targetDirectory + "/" + project.app.file + "/";
 		
