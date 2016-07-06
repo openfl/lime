@@ -22,10 +22,10 @@ class Module implements IModule {
 	 */
 	public var onExit = new Event<Int->Void> ();
 	
-	private var __application:Application;
-	private var __preloader:Preloader;
-	private var __renderers:Array<Renderer>;
-	private var __windows:Array<Window>;
+	@:noCompletion private var __application:Application;
+	@:noCompletion private var __preloader:Preloader;
+	@:noCompletion private var __renderers:Array<Renderer>;
+	@:noCompletion private var __windows:Array<Window>;
 	
 	
 	public function new () {
