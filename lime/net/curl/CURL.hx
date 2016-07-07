@@ -19,7 +19,7 @@ abstract CURL(Float) from Float to Float {
 	
 	public static function getDate (date:String, now:Int):Int {
 		
-		#if ((cpp || neko || nodejs) && lime_curl && !macro)
+		#if (lime_native && lime_curl && !macro)
 		return cast lime_curl_getdate (date, cast now);
 		#else
 		return 0;
@@ -30,7 +30,7 @@ abstract CURL(Float) from Float to Float {
 	
 	public static function globalCleanup ():Void {
 		
-		#if ((cpp || neko || nodejs) && lime_curl && !macro)
+		#if (lime_native && lime_curl && !macro)
 		lime_curl_global_cleanup ();
 		#end
 		
@@ -39,7 +39,7 @@ abstract CURL(Float) from Float to Float {
 	
 	public static function globalInit (flags:Int):CURLCode {
 		
-		#if ((cpp || neko || nodejs) && lime_curl && !macro)
+		#if (lime_native && lime_curl && !macro)
 		return cast lime_curl_global_init (flags);
 		#else
 		return cast 0;
@@ -50,7 +50,7 @@ abstract CURL(Float) from Float to Float {
 	
 	public static function version ():String {
 		
-		#if ((cpp || neko || nodejs) && lime_curl && !macro)
+		#if (lime_native && lime_curl && !macro)
 		return lime_curl_version ();
 		#else
 		return null;
@@ -61,7 +61,7 @@ abstract CURL(Float) from Float to Float {
 	
 	public static function versionInfo (type:CURLVersion):Dynamic {
 		
-		#if ((cpp || neko || nodejs) && lime_curl && !macro)
+		#if (lime_native && lime_curl && !macro)
 		return lime_curl_version_info (cast (type, Int));
 		#else
 		return null;
@@ -77,7 +77,7 @@ abstract CURL(Float) from Float to Float {
 	}
 	
 	
-	#if ((cpp || neko || nodejs) && lime_curl && !macro)
+	#if (lime_native && lime_curl && !macro)
 	@:cffi private static function lime_curl_getdate (date:String, now:Float):Float;
 	@:cffi private static function lime_curl_global_cleanup ():Void;
 	@:cffi private static function lime_curl_global_init (flags:Int):Int;

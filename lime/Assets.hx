@@ -508,7 +508,7 @@ class Assets {
 	private static function isValidImage (buffer:Image):Bool {
 		
 		#if (tools && !display)
-		#if (cpp || neko || nodejs)
+		#if lime_native
 		
 		return (buffer != null);
 		//return (bitmapData.__handle != null);

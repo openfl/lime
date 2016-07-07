@@ -27,7 +27,7 @@ class ApplicationMain {
 		preloader.onComplete.add (start);
 		preloader.create (config);
 		
-		#if (js && html5)
+		#if lime_html5
 		var urls = [];
 		var types = [];
 		

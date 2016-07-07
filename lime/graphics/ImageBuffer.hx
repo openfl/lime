@@ -5,7 +5,7 @@ import haxe.io.Bytes;
 import lime.graphics.cairo.CairoSurface;
 import lime.utils.UInt8Array;
 
-#if (js && html5)
+#if lime_html5
 import js.html.CanvasElement;
 import js.html.CanvasRenderingContext2D;
 import js.html.Image in HTMLImage;
@@ -33,11 +33,11 @@ class ImageBuffer {
 	public var width:Int;
 	
 	@:noCompletion private var __srcBitmapData:#if flash BitmapData #else Dynamic #end;
-	@:noCompletion private var __srcCanvas:#if (js && html5) CanvasElement #else Dynamic #end;
-	@:noCompletion private var __srcContext:#if (js && html5) CanvasRenderingContext2D #else Dynamic #end;
+	@:noCompletion private var __srcCanvas:#if lime_html5 CanvasElement #else Dynamic #end;
+	@:noCompletion private var __srcContext:#if lime_html5 CanvasRenderingContext2D #else Dynamic #end;
 	@:noCompletion private var __srcCustom:Dynamic;
-	@:noCompletion private var __srcImage:#if (js && html5) HTMLImage #else Dynamic #end;
-	@:noCompletion private var __srcImageData:#if (js && html5) ImageData #else Dynamic #end;
+	@:noCompletion private var __srcImage:#if lime_html5 HTMLImage #else Dynamic #end;
+	@:noCompletion private var __srcImageData:#if lime_html5 ImageData #else Dynamic #end;
 	
 	
 	public function new (data:UInt8Array = null, width:Int = 0, height:Int = 0, bitsPerPixel:Int = 32, format:PixelFormat = null) {
@@ -58,7 +58,7 @@ class ImageBuffer {
 		
 		#if flash
 		if (__srcBitmapData != null) buffer.__srcBitmapData = __srcBitmapData.clone ();
-		#elseif (js && html5)
+		#elseif lime_html5
 		if (data != null) {
 			
 			buffer.data = new UInt8Array (data.byteLength);
@@ -125,7 +125,7 @@ class ImageBuffer {
 	
 	private function get_src ():Dynamic {
 		
-		#if (js && html5)
+		#if lime_html5
 			
 			if (__srcImage != null) return __srcImage;
 			return __srcCanvas;
@@ -145,7 +145,7 @@ class ImageBuffer {
 	
 	private function set_src (value:Dynamic):Dynamic {
 		
-		#if (js && html5)
+		#if lime_html5
 			
 			if (Std.is (value, HTMLImage)) {
 				

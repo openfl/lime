@@ -25,7 +25,7 @@ class Clipboard {
 	
 	private static function get_text ():String {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_native && !macro)
 		return lime_clipboard_get_text ();
 		#elseif flash
 		if (FlashClipboard.generalClipboard.hasFormat (TEXT_FORMAT)) {
@@ -42,7 +42,7 @@ class Clipboard {
 	
 	private static function set_text (value:String):String {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_native && !macro)
 		lime_clipboard_set_text (value);
 		return value;
 		#elseif flash
@@ -62,7 +62,7 @@ class Clipboard {
 	
 	
 	
-	#if ((cpp || neko || nodejs) && !macro)
+	#if (lime_native && !macro)
 	@:cffi private static function lime_clipboard_get_text ():Dynamic;
 	@:cffi private static function lime_clipboard_set_text (text:String):Void;
 	#end

@@ -19,7 +19,7 @@ abstract CFFIPointer(Dynamic) from Dynamic to Dynamic {
 		
 		if (this != null) {
 			
-			#if ((cpp || neko || nodejs) && !macro)
+			#if (lime_native && !macro)
 			return lime_cffi_get_native_pointer (this);
 			#end
 			
@@ -51,7 +51,7 @@ abstract CFFIPointer(Dynamic) from Dynamic to Dynamic {
 	
 	
 	
-	#if ((cpp || neko || nodejs) && !macro)
+	#if (lime_native && !macro)
 	@:cffi private static function lime_cffi_get_native_pointer (ptr:Dynamic):Float;
 	#end
 	

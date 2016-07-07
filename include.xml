@@ -3,7 +3,8 @@
 	
 	<set name="lime" />
 	<haxedef name="lime-html5" if="html5" />
-	<haxedef name="lime-native" if="native" />
+	<haxedef name="lime-native" if="native" unless="doc" />
+	<haxedef name="lime-image-data-cffi" if="cpp || neko" />
 	
 	<haxedef name="no-compilation" />
 	

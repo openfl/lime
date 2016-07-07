@@ -22,7 +22,7 @@ import lime.system.CFFI;
 import lime.utils.ArrayBuffer;
 import lime.utils.UInt8Array;
 
-#if (js && html5)
+#if lime_html5
 import js.html.CanvasElement;
 import js.html.ImageElement;
 import js.html.Image in JSImage;
@@ -202,7 +202,7 @@ class Image {
 			
 			case DATA:
 				
-				#if (js && html5)
+				#if lime_html5
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
@@ -238,7 +238,7 @@ class Image {
 			
 			case DATA:
 				
-				#if (js && html5)
+				#if lime_html5
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
@@ -318,7 +318,7 @@ class Image {
 			
 			case DATA:
 				
-				#if (js && html5)
+				#if lime_html5
 				ImageCanvasUtil.convertToData (this);
 				ImageCanvasUtil.convertToData (sourceImage);
 				#end
@@ -383,7 +383,7 @@ class Image {
 			
 			case DATA:
 				
-				#if (js && html5)
+				#if lime_html5
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
@@ -424,7 +424,7 @@ class Image {
 			
 			case DATA:
 				
-				#if (js && html5)
+				#if lime_html5
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
@@ -487,7 +487,7 @@ class Image {
 	}
 	
 	
-	#if (js && html5)
+	#if lime_html5
 	public static function fromCanvas (canvas:CanvasElement):Image {
 	#else
 	public static function fromCanvas (canvas:Dynamic):Image {
@@ -510,7 +510,7 @@ class Image {
 	}
 	
 	
-	#if (js && html5)
+	#if lime_html5
 	public static function fromImageElement (image:ImageElement):Image {
 	#else
 	public static function fromImageElement (image:Dynamic):Image {
@@ -531,7 +531,7 @@ class Image {
 			
 			case CANVAS:
 				
-				#if (js && html5)
+				#if lime_html5
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
@@ -565,7 +565,7 @@ class Image {
 			
 			case DATA:
 				
-				#if (js && html5)
+				#if lime_html5
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
@@ -604,7 +604,7 @@ class Image {
 			
 			case DATA:
 				
-				#if (js && html5)
+				#if lime_html5
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
@@ -643,7 +643,7 @@ class Image {
 			
 			case DATA:
 				
-				#if (js && html5)
+				#if lime_html5
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
@@ -717,7 +717,7 @@ class Image {
 			
 			case DATA:
 				
-				#if (js && html5)
+				#if lime_html5
 				ImageCanvasUtil.convertToData (this);
 				ImageCanvasUtil.convertToData (sourceImage);
 				#end
@@ -787,7 +787,7 @@ class Image {
 			
 			case DATA:
 				
-				//#if (js && html5)
+				//#if lime_html5
 				//ImageCanvasUtil.convertToData (this);
 				//#end
 				
@@ -818,7 +818,7 @@ class Image {
 			
 			case DATA:
 				
-				#if (js && html5)
+				#if lime_html5
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
@@ -855,7 +855,7 @@ class Image {
 			
 			case DATA:
 				
-				#if (js && html5)
+				#if lime_html5
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
@@ -893,7 +893,7 @@ class Image {
 			
 			case DATA:
 				
-				#if (js && html5)
+				#if lime_html5
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
@@ -970,7 +970,7 @@ class Image {
 			
 			case CANVAS, DATA:
 				
-				#if (js && html5)
+				#if lime_html5
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
@@ -1010,7 +1010,7 @@ class Image {
 	
 	private static function __base64Encode (bytes:Bytes):String {
 		
-		#if (js && html5)
+		#if lime_html5
 			
 			var extension = switch (bytes.length % 3) {
 				
@@ -1082,7 +1082,7 @@ class Image {
 	
 	private function __fromBase64 (base64:String, type:String, onload:Image -> Void = null):Void {
 		
-		#if (js && html5)
+		#if lime_html5
 		var image = new JSImage ();
 		image.crossOrigin = "Anonymous";
 		
@@ -1113,7 +1113,7 @@ class Image {
 	
 	private function __fromBytes (bytes:Bytes, onload:Image -> Void):Void {
 		
-		#if (js && html5)
+		#if lime_html5
 			
 			var type = "";
 			
@@ -1141,7 +1141,7 @@ class Image {
 			
 			throw "Image.fromBytes not implemented for console target";
 			
-		#elseif ((cpp || neko || nodejs) && !macro)
+		#elseif (lime_native && !macro)
 			
 			var data:Dynamic = lime_image_load (bytes);
 			
@@ -1168,7 +1168,7 @@ class Image {
 	
 	private function __fromFile (path:String, onload:Image -> Void, onerror:Void -> Void):Void {
 		
-		#if (js && html5)
+		#if lime_html5
 			
 			var image = new JSImage ();
 			image.crossOrigin = "Anonymous";
@@ -1258,7 +1258,7 @@ class Image {
 			
 			#else
 			
-			#if (!sys || disable_cffi || java || macro)
+			#if (!lime_native || disable_cffi || java || macro)
 			if (false) {}
 			#else
 			if (CFFI.enabled) {
@@ -1397,7 +1397,7 @@ class Image {
 		
 		if (buffer.data == null && buffer.width > 0 && buffer.height > 0) {
 			
-			#if (js && html5)
+			#if lime_html5
 				
 				ImageCanvasUtil.convertToCanvas (this);
 				ImageCanvasUtil.sync (this, false);
@@ -1524,7 +1524,7 @@ class Image {
 				
 				case DATA:
 					
-					#if (js && html5)
+					#if lime_html5
 					ImageCanvasUtil.convertToData (this);
 					#end
 					
@@ -1542,7 +1542,7 @@ class Image {
 				
 				case DATA:
 					
-					#if (js && html5)
+					#if lime_html5
 					ImageCanvasUtil.convertToData (this);
 					#end
 					
@@ -1570,7 +1570,7 @@ class Image {
 	
 	private function get_src ():Dynamic {
 		
-		#if (js && html5)
+		#if lime_html5
 		if (buffer.__srcCanvas == null) {
 			
 			ImageCanvasUtil.convertToCanvas (this);
@@ -1614,7 +1614,7 @@ class Image {
 	
 	
 	
-	#if ((cpp || neko || nodejs) && !macro)
+	#if (lime_native && !macro)
 	@:cffi private static function lime_image_load (data:Dynamic):Dynamic;
 	#end
 	

@@ -40,7 +40,7 @@ abstract CairoFTFontFace(CairoFontFace) from CairoFontFace to CairoFontFace from
 	
 	
 	
-	#if ((cpp || neko || nodejs) && !macro)
+	#if (lime_native && !macro)
 	@:cffi private static function lime_cairo_ft_font_face_create (face:CFFIPointer, flags:Int):CFFIPointer;
 	#end
 	

@@ -7,7 +7,7 @@ import lime.audio.openal.AL;
 //import lime.net.URLRequest;
 import lime.utils.UInt8Array;
 
-#if (js && html5)
+#if lime_html5
 import js.html.Audio;
 #elseif flash
 import flash.media.Sound;
@@ -29,7 +29,7 @@ class AudioBuffer {
 	public var id:UInt;
 	public var sampleRate:Int;
 	
-	#if (js && html5)
+	#if lime_html5
 	public var src:Audio;
 	#elseif flash
 	public var src:Sound;
@@ -75,7 +75,7 @@ class AudioBuffer {
 		
 		lime.Lib.notImplemented ("AudioBuffer.fromBytes");
 		
-		#elseif ((cpp || neko || nodejs) && !macro)
+		#elseif (lime_native && !macro)
 		
 		var data:Dynamic = lime_audio_load (bytes);
 		
@@ -123,7 +123,7 @@ class AudioBuffer {
 			
 		}
 		
-		#elseif ((cpp || neko || nodejs) && !macro)
+		#elseif (lime_native && !macro)
 		
 		var data:Dynamic = lime_audio_load (path);
 		
@@ -185,7 +185,7 @@ class AudioBuffer {
 	}
 	
 	
-	#if ((cpp || neko || nodejs) && !macro)
+	#if (lime_native && !macro)
 	@:cffi private static function lime_audio_load (data:Dynamic):Dynamic;
 	#end
 	
