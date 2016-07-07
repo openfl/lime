@@ -30,7 +30,7 @@ class EmscriptenPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
-		targetDirectory = project.app.path + "/emscripten/" + getBuildType();
+		targetDirectory = project.app.path + "/emscripten/" + buildType;
 		outputFile = targetDirectory + "/bin/" + project.app.file + ".js";
 		
 	}
@@ -38,8 +38,7 @@ class EmscriptenPlatform extends PlatformTarget {
 	
 	public override function build ():Void {
 		
-		var type = getBuildType ();
-		var hxml = targetDirectory + "/haxe/" + type + ".hxml";
+		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
 		
 		ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "emscripten", "-D", "webgl", "-D", "static_link" ] );
 		CPPHelper.compile (project, targetDirectory + "/obj", [ "-Demscripten", "-Dwebgl", "-Dstatic_link" ]);
@@ -187,8 +186,7 @@ class EmscriptenPlatform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
-		var type = getBuildType ();
-		var hxml = PathHelper.findTemplate (project.templatePaths, "emscripten/hxml/" + type + ".hxml");
+		var hxml = PathHelper.findTemplate (project.templatePaths, "emscripten/hxml/" + buildType + ".hxml");
 		
 		var context = project.templateContext;
 		context.OUTPUT_DIR = targetDirectory;

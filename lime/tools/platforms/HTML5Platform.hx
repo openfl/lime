@@ -88,8 +88,7 @@ class HTML5Platform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
-		var type = getBuildType ();
-		var hxml = PathHelper.findTemplate (project.templatePaths, "html5/hxml/" + type + ".hxml");
+		var hxml = PathHelper.findTemplate (project.templatePaths, "html5/hxml/" + buildType + ".hxml");
 		
 		var context = project.templateContext;
 		context.OUTPUT_DIR = targetDirectory;
@@ -104,10 +103,10 @@ class HTML5Platform extends PlatformTarget {
 	
 	
 	private function initialize (command:String, project:HXProject):Void {
-	
-		targetDirectory = project.app.path + "/html5/" + getBuildType (project);
+		
+		targetDirectory = project.app.path + "/html5/" + buildType;
 		outputFile = targetDirectory + "/bin/" + project.app.file + ".js";
-
+		
 	}
 	
 	

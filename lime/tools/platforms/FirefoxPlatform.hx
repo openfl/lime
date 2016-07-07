@@ -42,7 +42,7 @@ class FirefoxPlatform extends HTML5Platform {
 	
 	private override function initialize (command:String, project:HXProject):Void {
 		
-		targetDirectory = project.app.path + "/firefox/" + getBuildType();
+		targetDirectory = project.app.path + "/firefox/" + buildType;
 		outputFile = targetDirectory + "/bin/" + project.app.file + ".js";
 		
 	}

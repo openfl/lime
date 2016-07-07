@@ -52,7 +52,7 @@ class AndroidPlatform extends PlatformTarget {
 			
 		}
 		
-		targetDirectory = project.app.path + "/android/" + getBuildType();
+		targetDirectory = project.app.path + "/android/" + buildType;
 		
 	}
 	
@@ -60,9 +60,7 @@ class AndroidPlatform extends PlatformTarget {
 	public override function build ():Void {
 		
 		var destination = targetDirectory + "/bin";
-		
-		var type = getBuildType ();
-		var hxml = targetDirectory + "/haxe/" + type + ".hxml";
+		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
 		
 		var hasARMV5 = (ArrayHelper.containsValue (project.architectures, Architecture.ARMV5) || ArrayHelper.containsValue (project.architectures, Architecture.ARMV6));
 		var hasARMV7 = ArrayHelper.containsValue (project.architectures, Architecture.ARMV7);
@@ -163,8 +161,7 @@ class AndroidPlatform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
-		var type = getBuildType ();
-		var hxml = PathHelper.findTemplate (project.templatePaths, "android/hxml/" + type + ".hxml");
+		var hxml = PathHelper.findTemplate (project.templatePaths, "android/hxml/" + buildType + ".hxml");
 		
 		var context = project.templateContext;
 		context.CPP_DIR = targetDirectory + "/obj";

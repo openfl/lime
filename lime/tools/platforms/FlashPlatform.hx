@@ -36,7 +36,7 @@ class FlashPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
-		targetDirectory = project.app.path + "/flash/" + getBuildType();
+		targetDirectory = project.app.path + "/flash/" + buildType;
 
 	}
 	
@@ -45,11 +45,9 @@ class FlashPlatform extends PlatformTarget {
 		
 		var destination = targetDirectory + "/bin";
 		
-		var type = getBuildType ();
-		
 		if (embedded) {
 			
-			var hxml = File.getContent (targetDirectory + "/haxe/" + type + ".hxml");
+			var hxml = File.getContent (targetDirectory + "/haxe/" + buildType + ".hxml");
 			var args = new Array<String> ();
 			
 			for (line in ~/[\r\n]+/g.split (hxml)) {
@@ -82,7 +80,7 @@ class FlashPlatform extends PlatformTarget {
 			
 		} else {
 			
-			var hxml = targetDirectory + "/haxe/" + type + ".hxml";
+			var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
 			ProcessHelper.runCommand ("", "haxe", [ hxml ] );
 			
 		}
@@ -130,8 +128,7 @@ class FlashPlatform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
-		var type = getBuildType ();
-		var hxml = PathHelper.findTemplate (project.templatePaths, "flash/hxml/" + type + ".hxml");
+		var hxml = PathHelper.findTemplate (project.templatePaths, "flash/hxml/" + buildType + ".hxml");
 		
 		var context = project.templateContext;
 		context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background, 6);
@@ -248,23 +245,23 @@ class FlashPlatform extends PlatformTarget {
 		
 		//SWFHelper.generateSWFClasses (project, targetDirectory + "/haxe");
 		
-		var usesNME = false;
-		
-		for (haxelib in project.haxelibs) {
-			
-			if (haxelib.name == "nme" || haxelib.name == "openfl") {
-				
-				usesNME = true;
-				
-			}
-			
-			if (haxelib.name == "openfl") {
-				
-				CompatibilityHelper.patchAssetLibrary (project, haxelib, targetDirectory + "/haxe/DefaultAssetLibrary.hx", context);
-				
-			}
-			
-		}
+		//var usesLime = false;
+		//
+		//for (haxelib in project.haxelibs) {
+			//
+			//if (haxelib.name == "lime") {
+				//
+				//usesLime = true;
+				//
+			//}
+			//
+			//if (haxelib.name == "openfl") {
+				//
+				//CompatibilityHelper.patchAssetLibrary (project, haxelib, targetDirectory + "/haxe/DefaultAssetLibrary.hx", context);
+				//
+			//}
+			//
+		//}
 		
 		if (project.targetFlags.exists ("web") || project.app.url != "") {
 			
@@ -275,7 +272,7 @@ class FlashPlatform extends PlatformTarget {
 		
 		for (asset in project.assets) {
 			
-			if (asset.type == AssetType.TEMPLATE || asset.embed == false || !usesNME) {
+			if (asset.type == AssetType.TEMPLATE || asset.embed == false /*|| !usesLime*/) {
 				
 				var path = PathHelper.combine (destination, asset.targetPath);
 				

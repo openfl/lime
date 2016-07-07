@@ -39,7 +39,7 @@ class IOSPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
-		targetDirectory = PathHelper.combine (project.app.path, "ios/" + getBuildType());
+		targetDirectory = PathHelper.combine (project.app.path, "ios/" + buildType);
 		
 	}
 	
@@ -91,7 +91,7 @@ class IOSPlatform extends PlatformTarget {
 		
 		var context = generateContext ();
 		context.OUTPUT_DIR = targetDirectory;
-
+		
 		Sys.println (template.execute (context));
 		Sys.println ("-D display");
 		
@@ -286,7 +286,7 @@ class IOSPlatform extends PlatformTarget {
 				name = dependency.name;
 				path = "usr/lib/" + dependency.name;
 				fileType = "sourcecode.text-based-dylib-definition";
-
+				
 			} else if (Path.extension (dependency.path) == "framework") {
 				
 				name = Path.withoutDirectory (dependency.path);
@@ -462,7 +462,7 @@ class IOSPlatform extends PlatformTarget {
 			{ name: "Default-736h@3x.png", w: 1242,	h: 2208 }, // iPhone 6 Plus, portrait
 			{ name: "Default-736h-Landscape@3x.png", w: 2208, h: 1242 }, // iPhone 6 Plus, landscape
 		];
-
+		
 		var splashScreenPath = PathHelper.combine (projectDirectory, "Images.xcassets/LaunchImage.launchimage");
 		PathHelper.mkdir (splashScreenPath);
 		

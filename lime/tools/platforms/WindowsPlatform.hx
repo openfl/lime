@@ -36,7 +36,7 @@ class WindowsPlatform extends PlatformTarget {
 	public function new (command:String, _project:HXProject, targetFlags:Map <String, String> ) {
 		
 		super (command, _project, targetFlags);
-
+		
 		if (project.targetFlags.exists ("neko") || project.target != PlatformHelper.hostPlatform) {
 			
 			targetType = "neko";
@@ -51,7 +51,7 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 		
-		targetDirectory = project.app.path + "/windows/" + targetType + "/" + getBuildType();
+		targetDirectory = project.app.path + "/windows/" + targetType + "/" + buildType;
 		applicationDirectory = targetDirectory + "/bin/";
 		executablePath = applicationDirectory + project.app.file + ".exe";
 		
@@ -60,8 +60,7 @@ class WindowsPlatform extends PlatformTarget {
 	
 	public override function build ():Void {
 		
-		var type = getBuildType ();
-		var hxml = targetDirectory + "/haxe/" + type + ".hxml";
+		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
 		
 		PathHelper.mkdir (targetDirectory);
 		
@@ -183,13 +182,12 @@ class WindowsPlatform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
-		var type = getBuildType ();
-		var hxml = PathHelper.findTemplate (project.templatePaths, targetType + "/hxml/" + type + ".hxml");
+		var hxml = PathHelper.findTemplate (project.templatePaths, targetType + "/hxml/" + buildType + ".hxml");
 		var template = new Template (File.getContent (hxml));
 		
 		var context = generateContext ();
 		context.OUTPUT_DIR = targetDirectory;
-
+		
 		Sys.println (template.execute (context));
 		Sys.println ("-D display");
 		

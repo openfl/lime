@@ -29,7 +29,7 @@ class TizenPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
-		targetDirectory = project.app.path + "/tizen/" + getBuildType();
+		targetDirectory = project.app.path + "/tizen/" + buildType;
 		
 	}
 	
@@ -52,8 +52,7 @@ class TizenPlatform extends PlatformTarget {
 			
 		}
 		
-		var type = getBuildType ();
-		var hxml = targetDirectory + "/haxe/" + type + ".hxml";
+		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
 		
 		ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "tizen" ] );
 		
@@ -92,8 +91,7 @@ class TizenPlatform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
-		var type = getBuildType ();
-		var hxml = PathHelper.findTemplate (project.templatePaths, "tizen/hxml/" + type + ".hxml");
+		var hxml = PathHelper.findTemplate (project.templatePaths, "tizen/hxml/" + buildType + ".hxml");
 		
 		var context = project.templateContext;
 		context.CPP_DIR = targetDirectory + "/obj";

@@ -72,7 +72,7 @@ class LinuxPlatform extends PlatformTarget {
 			
 		}
 		
-		targetDirectory = project.app.path + "/linux" + (is64 ? "64" : "") + (isRaspberryPi ? "-rpi" : "") + "/" + targetType + "/" + getBuildType();
+		targetDirectory = project.app.path + "/linux" + (is64 ? "64" : "") + (isRaspberryPi ? "-rpi" : "") + "/" + targetType + "/" + buildType;
 		applicationDirectory = targetDirectory + "/bin/";
 		executablePath = PathHelper.combine (applicationDirectory, project.app.file);
 		
@@ -81,8 +81,7 @@ class LinuxPlatform extends PlatformTarget {
 	
 	public override function build ():Void {
 		
-		var type = getBuildType ();
-		var hxml = targetDirectory + "/haxe/" + type + ".hxml";
+		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
 		
 		PathHelper.mkdir (targetDirectory);
 		
@@ -187,13 +186,12 @@ class LinuxPlatform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
-		var type = getBuildType ();
-		var hxml = PathHelper.findTemplate (project.templatePaths, targetType + "/hxml/" + type + ".hxml");
+		var hxml = PathHelper.findTemplate (project.templatePaths, targetType + "/hxml/" + buildType + ".hxml");
 		var template = new Template (File.getContent (hxml));
 		
 		var context = generateContext ();
 		context.OUTPUT_DIR = targetDirectory;
-
+		
 		Sys.println (template.execute (context));
 		Sys.println ("-D display");
 		

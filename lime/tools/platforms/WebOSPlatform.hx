@@ -26,7 +26,7 @@ class WebOSPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
-		targetDirectory = project.app.path + "/webos/" + getBuildType();
+		targetDirectory = project.app.path + "/webos/" + buildType;
 		
 	}
 	

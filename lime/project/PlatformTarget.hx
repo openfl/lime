@@ -11,6 +11,7 @@ class PlatformTarget {
 	
 	
 	public var additionalArguments:Array <String>;
+	public var buildType:String;
 	public var command:String;
 	public var project:HXProject;
 	public var targetDirectory:String;
@@ -23,6 +24,22 @@ class PlatformTarget {
 		this.command = command;
 		this.project = project;
 		this.targetFlags = targetFlags;
+		
+		buildType = "release";
+		
+		if (project != null) {
+			
+			if (project.debug) {
+				
+				buildType = "debug";
+				
+			} else if (project.targetFlags.exists ("final")) {
+				
+				buildType = "final";
+				
+			}
+			
+		}
 		
 	}
 	
@@ -124,32 +141,6 @@ class PlatformTarget {
 		
 	}
 	
-
-	public function getBuildType (?_project:HXProject):String {
-
-		// Optionnal project parameter used in case the function is called before a super call
-		if (_project == null) {
-
-			_project = project;
-
-		}
-
-		var buildType = "release";
-		
-		if (_project.debug) {
-			
-			buildType = "debug";
-			
-		} else if (_project.targetFlags.exists ("final")) {
-			
-			buildType = "final";
-			
-		}
-
-		return buildType;
-
-	}
-
 	
 	@ignore public function build ():Void {}
 	@ignore public function clean ():Void {}
