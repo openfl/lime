@@ -101,12 +101,7 @@ class PNG {
 			try {
 				
 				var bytes = Bytes.alloc (image.width * image.height * 4 + image.height);
-				
-				#if flash
-				var sourceBytes = Bytes.ofData (image.buffer.data.getByteBuffer ());
-				#else
-				var sourceBytes = cast image.buffer.data;
-				#end
+				var sourceBytes = image.buffer.data.toBytes ();
 				
 				var sourceIndex:Int, index:Int;
 				
