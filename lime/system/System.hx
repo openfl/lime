@@ -67,7 +67,7 @@ class System {
 		
 		var color = null;
 		
-		if (background != null) {
+		if (background != null && background != "") {
 			
 			background = StringTools.replace (background, "#", "");
 			

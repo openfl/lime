@@ -64,7 +64,7 @@ class HTML5Renderer {
 				
 				var options = {
 					
-					alpha: false,
+					alpha: (Reflect.hasField (parent.window.config, "background") && parent.window.config.background == null) ? true : false,
 					antialias: Reflect.hasField (parent.window.config, "antialiasing") ? parent.window.config.antialiasing > 0 : false,
 					depth: Reflect.hasField (parent.window.config, "depthBuffer") ? parent.window.config.depthBuffer : true,
 					premultipliedAlpha: false,
