@@ -33,8 +33,7 @@ class WebOSPlatform extends PlatformTarget {
 	
 	public override function build ():Void {
 		
-		var type = getBuildType ();
-		var hxml = targetDirectory + "/haxe/" + type + ".hxml";
+		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
 		var destination = targetDirectory + "/bin/";
 		
 		for (ndll in project.ndlls) {
@@ -75,8 +74,7 @@ class WebOSPlatform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
-		var type = getBuildType ();
-		var hxml = PathHelper.findTemplate (project.templatePaths, "webos/hxml/" + type + ".hxml");
+		var hxml = PathHelper.findTemplate (project.templatePaths, "webos/hxml/" + buildType + ".hxml");
 		
 		var context = project.templateContext;
 		context.CPP_DIR = targetDirectory + "/obj";
