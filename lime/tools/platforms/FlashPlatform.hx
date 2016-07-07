@@ -159,7 +159,7 @@ class FlashPlatform extends PlatformTarget {
 		}
 		
 		var context = project.templateContext;
-		context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background, 6);
+		context.WIN_FLASHBACKGROUND = project.window.background != null ? StringTools.hex (project.window.background, 6) : "0xFFFFFF";
 		var assets:Array <Dynamic> = cast context.assets;
 		
 		for (asset in assets) {
