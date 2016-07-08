@@ -20,8 +20,6 @@ class ImageHelper {
 		
 		try {
 			
-			// try using Lime "legacy" to rasterize SVG first, since it is much faster
-			
 			ProcessHelper.runCommand ("", "neko", [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "svg.n"), "process", path, Std.string (width), Std.string (height), temp ], true, true);
 			
 			if (FileSystem.exists (temp)) {
