@@ -1,6 +1,6 @@
 -main ApplicationMain ::HAXE_FLAGS::
 -js ::NODE_FILE::
--cp ::BUILD_DIR::/nodejs/haxe
+-cp ::OUTPUT_DIR::/haxe
 --macro allowPackage("flash")
 --macro define("sys")
 -D nodejs

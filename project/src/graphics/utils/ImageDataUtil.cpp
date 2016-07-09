@@ -253,13 +253,15 @@ namespace lime {
 		int row;
 		RGBA fillColor (color);
 		
+		if (premultiplied) fillColor.MultiplyAlpha ();
+		
 		for (int y = 0; y < dataView.height; y++) {
 			
 			row = dataView.Row (y);
 			
 			for (int x = 0; x < dataView.width; x++) {
 				
-				fillColor.WriteUInt8 (data, row + (x * 4), format, premultiplied);
+				fillColor.WriteUInt8 (data, row + (x * 4), format, false);
 				
 			}
 			
@@ -275,6 +277,8 @@ namespace lime {
 		bool premultiplied = image->buffer->premultiplied;
 		
 		RGBA fillColor (color);
+
+		if (premultiplied) fillColor.MultiplyAlpha ();
 		
 		RGBA hitColor;
 		hitColor.ReadUInt8 (data, ((y + image->offsetY) * (image->buffer->width * 4)) + ((x + image->offsetX) * 4), format, premultiplied);
@@ -324,7 +328,7 @@ namespace lime {
 				
 				if (readColor == hitColor) {
 					
-					fillColor.WriteUInt8 (data, nextPointOffset, format, premultiplied);
+					fillColor.WriteUInt8 (data, nextPointOffset, format, false);
 					
 					queue.push_back (nextPointX);
 					queue.push_back (nextPointY);

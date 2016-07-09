@@ -333,6 +333,7 @@ class ImageDataUtil {
 			
 			var format = image.buffer.format;
 			var premultiplied = image.buffer.premultiplied;
+			if (premultiplied) fillColor.multiplyAlpha();
 			
 			var dataView = new ImageDataView (image, rect);
 			var row;
@@ -343,7 +344,7 @@ class ImageDataUtil {
 				
 				for (x in 0...dataView.width) {
 					
-					fillColor.writeUInt8 (data, row + (x * 4), format, premultiplied);
+					fillColor.writeUInt8 (data, row + (x * 4), format, false);
 					
 				}
 				
@@ -386,6 +387,8 @@ class ImageDataUtil {
 			
 			if (fillColor == hitColor) return;
 			
+			if (premultiplied) fillColor.multiplyAlpha();
+			
 			var dx = [ 0, -1, 1, 0 ];
 			var dy = [ -1, 0, 0, 1 ];
 			
@@ -421,7 +424,7 @@ class ImageDataUtil {
 					
 					if (readColor == hitColor) {
 						
-						fillColor.writeUInt8 (data, nextPointOffset, format, premultiplied);
+						fillColor.writeUInt8 (data, nextPointOffset, format, false);
 						
 						queue.push (nextPointX);
 						queue.push (nextPointY);

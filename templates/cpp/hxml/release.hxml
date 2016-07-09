@@ -1,4 +1,4 @@
 -main ApplicationMain ::HAXE_FLAGS::
--cp ::BUILD_DIR::/cpp/haxe
+-cp ::OUTPUT_DIR::/haxe
 -cpp ::CPP_DIR::
 --macro keep("::APP_MAIN::")

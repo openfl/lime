@@ -26,26 +26,14 @@ class WebOSPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
-		targetDirectory = project.app.path + "/webos";
+		targetDirectory = project.app.path + "/webos/" + buildType;
 		
 	}
 	
 	
 	public override function build ():Void {
 		
-		var type = "release";
-		
-		if (project.debug) {
-			
-			type = "debug";
-			
-		} else if (project.targetFlags.exists ("final")) {
-			
-			type = "final";
-			
-		}
-		
-		var hxml = targetDirectory + "/haxe/" + type + ".hxml";
+		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
 		var destination = targetDirectory + "/bin/";
 		
 		for (ndll in project.ndlls) {
@@ -86,22 +74,11 @@ class WebOSPlatform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
-		var type = "release";
-		
-		if (project.debug) {
-			
-			type = "debug";
-			
-		} else if (project.targetFlags.exists ("final")) {
-			
-			type = "final";
-			
-		}
-		
-		var hxml = PathHelper.findTemplate (project.templatePaths, "webos/hxml/" + type + ".hxml");
+		var hxml = PathHelper.findTemplate (project.templatePaths, "webos/hxml/" + buildType + ".hxml");
 		
 		var context = project.templateContext;
 		context.CPP_DIR = targetDirectory + "/obj";
+		context.OUTPUT_DIR = targetDirectory;
 		
 		var template = new Template (File.getContent (hxml));
 		
@@ -167,6 +144,7 @@ class WebOSPlatform extends PlatformTarget {
 		
 		var context = project.templateContext;
 		context.CPP_DIR = targetDirectory + "/obj";
+		context.OUTPUT_DIR = targetDirectory;
 		
 		var icons = project.icons;
 		

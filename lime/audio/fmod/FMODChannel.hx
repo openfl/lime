@@ -31,6 +31,12 @@ extern class FMODChannel {
 	// setLoopCount sets the channel to loop count times before stopping.
 	public function setLoopCount (count:Int):Void;
 
+	// getVolume retrieves the current linear volume level of the channel.
+	public function getVolume ():cpp.Float32;
+
+	// setVolume sets the channel's linear volume level.
+	public function setVolume (volume:cpp.Float32):Void;
+
 
 	// INVALID represents an invalid channel handle
 	public static var INVALID (get, never):FMODChannel;

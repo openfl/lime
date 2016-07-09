@@ -1,3 +1,29 @@
+3.0.0 (06/08/2016)
+------------------
+
+* Changed to different build directories for release/debug/final
+* Added support for transparent HTML5 windows
+* Added support for cairo.showGlyphs
+* Added garbage collection to the OpenGL bindings
+* Added audioSource.position for panning
+* Improved the behavior of Image when using WebGL
+* Improved the behavior of the HTML5 cache string
+* Improved the Flash target to embed unsupported audio assets
+* Improved support for integer positioning of unscaled HTML5 content
+* Updated the SVG tool using the latest SVG/OpenFL versions
+* Updated the module system to be more resilient to API changes
+* Updated the iOS plist for newer app store submission guidelines
+* Updated the HTML5 canvas to allow for premultiplied alpha
+* Integrated changes to improve tvOS support
+* Fixed issues in the Cairo bindings for improved Neko support
+* Fixed image.copyPixels when using a negative destination
+* Fixed the fillRect behavior when using alpha on native
+* Fixed an issue with PNG encoding on HTML5
+* Fixed an issue in typed arrays where offset/length were ignored
+* Fixed a crash in ExternalInterface
+* Fixed a case where displayInfo.currentMode is not active yet
+
+
 2.9.1 (03/28/2016)
 ------------------
 

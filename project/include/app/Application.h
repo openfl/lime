@@ -13,6 +13,8 @@ namespace lime {
 		
 		public:
 			
+			virtual ~Application () {};
+			
 			static AutoGCRoot* callback;
 			
 			virtual int Exec () = 0;

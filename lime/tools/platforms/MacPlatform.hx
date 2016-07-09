@@ -69,7 +69,7 @@ class MacPlatform extends PlatformTarget {
 			
 		}
 		
-		targetDirectory = project.app.path + "/mac" + (is64 ? "64" : "") + "/" + targetType;
+		targetDirectory = project.app.path + "/mac" + (is64 ? "64" : "") + "/" + targetType + "/" + buildType;
 		applicationDirectory = targetDirectory + "/bin/" + project.app.file + ".app";
 		contentDirectory = applicationDirectory + "/Contents/Resources";
 		executableDirectory = applicationDirectory + "/Contents/MacOS";
@@ -80,19 +80,7 @@ class MacPlatform extends PlatformTarget {
 	
 	public override function build ():Void {
 		
-		var type = "release";
-		
-		if (project.debug) {
-			
-			type = "debug";
-			
-		} else if (project.targetFlags.exists ("final")) {
-			
-			type = "final";
-			
-		}
-		
-		var hxml = targetDirectory + "/haxe/" + type + ".hxml";
+		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
 		
 		PathHelper.mkdir (targetDirectory);
 		
@@ -189,22 +177,13 @@ class MacPlatform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
-		var type = "release";
-		
-		if (project.debug) {
-			
-			type = "debug";
-			
-		} else if (project.targetFlags.exists ("final")) {
-			
-			type = "final";
-			
-		}
-		
-		var hxml = PathHelper.findTemplate (project.templatePaths, targetType + "/hxml/" + type + ".hxml");
+		var hxml = PathHelper.findTemplate (project.templatePaths, targetType + "/hxml/" + buildType + ".hxml");
 		var template = new Template (File.getContent (hxml));
 		
-		Sys.println (template.execute (generateContext ()));
+		var context = generateContext ();
+		context.OUTPUT_DIR = targetDirectory;
+		
+		Sys.println (template.execute (context));
 		Sys.println ("-D display");
 		
 	}
@@ -296,6 +275,7 @@ class MacPlatform extends PlatformTarget {
 		}
 		
 		var context = generateContext ();
+		context.OUTPUT_DIR = targetDirectory;
 		
 		if (targetType == "cpp" && project.targetFlags.exists ("static")) {
 			
