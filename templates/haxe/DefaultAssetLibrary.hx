@@ -45,7 +45,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 	private var lastModified:Float;
 	private var timer:Timer;
 	
-	#if desktop
+	#if (desktop && !mac)
 	private var rootPath = FileSystem.absolutePath (Path.directory (#if (haxe_ver >= 3.3) Sys.programPath () #else Sys.executablePath () #end)) + "/";
 	#else
 	private var rootPath = "";
