@@ -570,7 +570,7 @@ namespace lime {
 		
 		ALfloat val1, val2, val3;
 		
-		alGetBuffer3f (source, param, &val1, &val2, &val3);
+		alGetSource3f (source, param, &val1, &val2, &val3);
 		
 		value result = alloc_array (3);
 		val_array_set_i (result, 0, alloc_float (val1));
