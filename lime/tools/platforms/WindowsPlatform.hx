@@ -274,13 +274,21 @@ class WindowsPlatform extends PlatformTarget {
 		
 		if (targetType == "cpp" && project.targetFlags.exists ("static")) {
 			
+			var suffix = ".lib";
+			
+			if (Sys.getEnv ("VS140COMNTOOLS") != null) {
+				
+				suffix = "-19.lib";
+				
+			}
+			
 			for (i in 0...project.ndlls.length) {
 				
 				var ndll = project.ndlls[i];
 				
 				if (ndll.path == null || ndll.path == "") {
 					
-					context.ndlls[i].path = PathHelper.getLibraryPath (ndll, "Windows", "lib", ".lib", project.debug);
+					context.ndlls[i].path = PathHelper.getLibraryPath (ndll, "Windows", "lib", suffix, project.debug);
 					
 				}
 				
