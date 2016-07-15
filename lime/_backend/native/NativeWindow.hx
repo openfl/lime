@@ -22,6 +22,7 @@ class NativeWindow {
 	
 	public var handle:Dynamic;
 	
+	private var closing:Bool;
 	private var parent:Window;
 	
 	
@@ -47,7 +48,12 @@ class NativeWindow {
 	
 	public function close ():Void {
 		
-		parent.onClose.dispatch ();
+		if (!closing) {
+			
+			closing = true;
+			parent.onClose.dispatch ();
+			
+		}
 		
 		if (!parent.onClose.canceled) {
 			
@@ -59,6 +65,10 @@ class NativeWindow {
 				handle = null;
 				
 			}
+			
+		} else {
+			
+			closing = false;
 			
 		}
 		

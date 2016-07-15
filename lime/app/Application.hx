@@ -191,7 +191,7 @@ class Application extends Module {
 		}
 		
 		window.create (this);
-		__windows.push (window);
+		//__windows.push (window);
 		windowByID.set (window.id, window);
 		
 		window.onCreate.dispatch ();

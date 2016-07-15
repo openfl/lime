@@ -56,8 +56,6 @@ class ImageCanvasUtil {
 			
 		} else {
 			
-			
-			
 			if (image.type == DATA && buffer.__srcImageData != null && image.dirty) {
 				
 				buffer.__srcContext.putImageData (buffer.__srcImageData, 0, 0);
