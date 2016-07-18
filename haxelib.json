@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "3.0.0",
-	"releasenote": "New module API, audioSource.position, improved GL bindings",
+	"version": "3.0.1",
+	"releasenote": "Asset include/exclude filter fix, double dispatch fix",
 	"contributors": [ "singmajesty" ]
 }
