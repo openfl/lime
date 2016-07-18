@@ -373,7 +373,7 @@ class HXProject {
 				filter = StringTools.replace (filter, ".", "\\.");
 				filter = StringTools.replace (filter, "*", ".*");
 				
-				var regexp = new EReg ("^" + filter, "i");
+				var regexp = new EReg ("^" + filter + "$", "i");
 				
 				if (regexp.match (text)) {
 					
