@@ -1,3 +1,12 @@
+3.0.1 (06/18/2016)
+------------------
+
+* Improved the exclude/include filter behavior on <asset /> tags
+* Fixed an issue that caused Window to duplicate event dispatches
+* Fixed the name of generated folder for HTML5 output
+* Fixed support for OpenAL getSource3f
+
+
 3.0.0 (06/08/2016)
 ------------------
 
