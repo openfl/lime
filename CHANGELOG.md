@@ -1,4 +1,4 @@
-3.0.1 (06/18/2016)
+3.0.1 (06/20/2016)
 ------------------
 
 * Improved the exclude/include filter behavior on <asset /> tags
