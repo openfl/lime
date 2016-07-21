@@ -103,7 +103,7 @@
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/lzma/src" />
 			<compilerflag value="-DLIME_LZMA" />
 			
-			<file name="src/utils/LZMA.cpp" />
+			<file name="src/utils/compress/LZMA.cpp" />
 			
 		</section>
 		
@@ -206,8 +206,10 @@
 		<section if="LIME_ZLIB">
 			
 			<compilerflag value="-DSTATIC_LINK" if="emscripten" />
+			<compilerflag value="-DLIME_ZLIB" />
 			
 			<file name="${HXCPP}/project/libs/zlib/ZLib.cpp" if="emscripten || ios || static_link || tvos" />
+			<file name="src/utils/compress/Zlib.cpp" />
 			
 		</section>
 		
