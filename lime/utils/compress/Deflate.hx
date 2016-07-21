@@ -17,6 +17,9 @@ class Deflate {
 		var data:Dynamic = lime_deflate_compress (bytes);
 		if (data == null) return null;
 		return @:privateAccess new Bytes (data.length, data.b);
+		#elseif (js && html5)
+		var deflate = untyped __js__ ("new Zlib.RawDeflate") (bytes.getData ());
+		return Bytes.ofData (deflate.compress ());
 		#else
 		return null;
 		#end
@@ -30,6 +33,9 @@ class Deflate {
 		var data:Dynamic = lime_deflate_decompress (bytes);
 		if (data == null) return null;
 		return @:privateAccess new Bytes (data.length, data.b);
+		#elseif (js && html5)
+		var inflate = untyped __js__ ("new Zlib.RawInflate") (bytes.getData ());
+		return Bytes.ofData (inflate.decompress ());
 		#else
 		return null;
 		#end

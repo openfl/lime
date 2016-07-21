@@ -87,7 +87,7 @@ https://github.com/haxenme/nme
     project/src/graphics/opengl/
     project/src/system/JNI.cpp
     project/src/text/Font.cpp
-    project/src/utils/LZMA.cpp
+    project/src/utils/compress/LZMA.cpp
     tools/utils/JavaExternGenerator.hx
 
 The typed array implementation was developed in collaboration with Sven Bergström
