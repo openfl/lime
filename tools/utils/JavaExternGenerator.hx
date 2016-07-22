@@ -123,7 +123,7 @@ class JavaExternGenerator
 		
 	}
 	
-
+	
 	private function extractAndroidClasses()
 	{
 		if (!extractedAndroidClasses)
@@ -161,7 +161,7 @@ class JavaExternGenerator
 		extractedAndroidClasses = true;
 	}
 	
-
+	
 	private function generate(inClass:String, inMembers:Map<String, String>)
 	{
 		Lib.println(inClass);
@@ -887,7 +887,7 @@ class JavaExternGenerator
 		parseTypes(args, 0);
 	}
 	
-
+	
 	private function toHaxeType(inStr:String)
 	{
 		parsedTypes = [];

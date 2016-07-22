@@ -1,7 +1,7 @@
 package lime.utils;
 
 
-import haxe.io.Bytes; 
+import haxe.io.Bytes;
 
 
 @:deprecated class LZMA {

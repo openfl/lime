@@ -333,7 +333,7 @@ class ImageDataUtil {
 			
 			var format = image.buffer.format;
 			var premultiplied = image.buffer.premultiplied;
-			if (premultiplied) fillColor.multiplyAlpha();
+			if (premultiplied) fillColor.multiplyAlpha ();
 			
 			var dataView = new ImageDataView (image, rect);
 			var row;

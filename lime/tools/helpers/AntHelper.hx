@@ -41,6 +41,6 @@ class AntHelper {
 		ProcessHelper.runCommand (workingDirectory, ant, commands);
 		
 	}
-		
-
+	
+	
 }
