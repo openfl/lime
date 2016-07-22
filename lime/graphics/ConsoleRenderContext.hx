@@ -31,9 +31,12 @@ extern class ConsoleRenderContext {
 	public var width (get, never):Int;
 	public var height (get, never):Int;
 
-	public function createIndexBuffer (indices:Pointer<UInt16>, count:Int):IndexBuffer;
+	public function createIndexBuffer (count:Int):IndexBuffer;
 	public function createVertexBuffer (decl:VertexDecl, count:Int):VertexBuffer;
 	public function createTexture (format:TextureFormat, width:Int, height:Int, data:Pointer<UInt8>):Texture;
+
+	public function transientIndexBuffer (count:Int):IndexBuffer;
+	public function transientVertexBuffer (decl:VertexDecl, count:Int):VertexBuffer;
 
 	public function destroyIndexBuffer (ib:IndexBuffer):Void;
 	public function destroyVertexBuffer (vb:VertexBuffer):Void;
