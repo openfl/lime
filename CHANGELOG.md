@@ -1,4 +1,13 @@
-3.0.1 (06/20/2016)
+3.0.2 (07/22/2016)
+------------------
+
+* Added lime.utils.compress.* Deflate, GZip, LZMA and Zlib
+* Added -Dcairo to force use of Cairo software rendering on native
+* Deprecated lime.utils.LZMA
+* Fixed issue where assets were not found on Linux
+
+
+3.0.1 (07/20/2016)
 ------------------
 
 * Improved the exclude/include filter behavior on <asset /> tags
@@ -7,7 +16,7 @@
 * Fixed support for OpenAL getSource3f
 
 
-3.0.0 (06/08/2016)
+3.0.0 (07/08/2016)
 ------------------
 
 * Changed to different build directories for release/debug/final
