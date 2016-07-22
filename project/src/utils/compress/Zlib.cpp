@@ -41,6 +41,7 @@ namespace lime {
 		
 		if ((ret = deflate (stream, Z_FINISH)) < 0) {
 			
+			//if (stream && stream->msg) printf ("%s\n", stream->msg);
 			//val_throw (stream->msg);
 			deflateEnd (stream);
 			free (buffer);
@@ -127,7 +128,7 @@ namespace lime {
 				readTotal += readSize;
 				
 				result->Resize (readTotal);
-				memcpy (result->Data () - readSize, buffer, readSize);
+				memcpy (result->Data () + readTotal - readSize, buffer, readSize);
 				
 				sourcePosition += readSize;
 				

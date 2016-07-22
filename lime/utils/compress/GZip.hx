@@ -14,10 +14,20 @@ class GZip {
 	public static function compress (bytes:Bytes):Bytes {
 		
 		#if ((cpp || neko || nodejs) && !macro)
+		
 		var data:Dynamic = lime_gzip_compress (bytes);
+		if (data == null) return null;
 		return @:privateAccess new Bytes (data.length, data.b);
+		
+		#elseif (js && html5)
+		
+		var data = untyped __js__ ("pako.gzip") (bytes.getData ());
+		return Bytes.ofData (data);
+		
 		#else
+		
 		return null;
+		
 		#end
 		
 	}
@@ -26,10 +36,20 @@ class GZip {
 	public static function decompress (bytes:Bytes):Bytes {
 		
 		#if ((cpp || neko || nodejs) && !macro)
+		
 		var data:Dynamic = lime_gzip_decompress (bytes);
+		if (data == null) return null;
 		return @:privateAccess new Bytes (data.length, data.b);
+		
+		#elseif (js && html5)
+		
+		var data = untyped __js__ ("pako.ungzip") (bytes.getData ());
+		return Bytes.ofData (data);
+		
 		#else
+		
 		return null;
+		
 		#end
 		
 	}
