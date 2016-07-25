@@ -195,7 +195,7 @@ namespace lime {
 				} else {
 					
 					value s = alloc_raw_string (size);
-					memcpy ((char *)val_string (s), val_string (val_field (_value, id_b)), size);
+					memcpy ((char *)val_string (s), val_string (val_field (_value, id_b)), _length);
 					alloc_field (_value, id_b, s);
 					_data = (unsigned char*)val_string (s);
 					
