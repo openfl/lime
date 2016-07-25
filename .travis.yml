@@ -29,7 +29,6 @@ install:
   - haxelib dev lime $(pwd)
 
 script:
-  - haxelib run lime rebuild linux -64 -Dlegacy > log.txt || cat log.txt
   - haxelib run lime rebuild linux -64 > log.txt || cat log.txt
   - haxelib run lime rebuild tools
   #- haxelib run lime create HandlingInputEvents

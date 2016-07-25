@@ -117,7 +117,7 @@ class RunScript {
 		
 	}
 	
-
+	
 	public static function runCommand (path:String, command:String, args:Array<String>, throwErrors:Bool = true):Int {
 		
 		var oldPath:String = "";

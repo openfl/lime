@@ -1,4 +1,0 @@
-PLATFORM_VER:Tizen 2.2
-ARCHITECTURE:::if (SIMULATOR)::i386::else::armel::end::
-TOOLCHAIN:GCC-4.5
-TYPE:app

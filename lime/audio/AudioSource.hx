@@ -4,6 +4,7 @@ package lime.audio;
 import haxe.Timer;
 import lime.app.Event;
 import lime.audio.openal.AL;
+import lime.math.Vector4;
 
 #if flash
 import flash.media.SoundChannel;
@@ -35,17 +36,20 @@ class AudioSource {
 	public var length (get, set):Int;
 	public var loops (get, set):Int;
 	public var offset:Int;
-
+	public var position (get, set):Vector4;
+	
 	private var id:UInt;
 	private var playing:Bool;
 	private var pauseTime:Int;
 	private var __length:Null<Int>;
 	private var __loops:Int;
+	private var __position:Vector4;
 	
 	#if flash
 	private var channel:SoundChannel;
 	#elseif lime_console
 	private var channel:FMODChannel;
+	private var __gain:Float = 1.0;
 	#end
 	
 	#if (cpp || neko || nodejs)
@@ -67,6 +71,8 @@ class AudioSource {
 		this.loops = loops;
 		id = 0;
 		
+		__position = new Vector4 ();
+		
 		if (buffer != null) {
 			
 			init ();
@@ -74,7 +80,7 @@ class AudioSource {
 		}
 		
 	}
-
+	
 	
 	public function dispose ():Void {
 		
@@ -164,7 +170,10 @@ class AudioSource {
 		} else {
 			
 			channel = buffer.src.play ();
-			channel.setLoopCount (this.__loops);
+			channel.setLoopCount (__loops);
+			if (__gain < 1.0) {
+				channel.setVolume (__gain);
+			}
 			
 			var old = setFmodActive (channel, this);
 			
@@ -402,9 +411,9 @@ class AudioSource {
 		#elseif flash
 		
 		return Std.int (channel.position);
-
+		
 		#elseif lime_console
-
+		
 		lime.Lib.notImplemented ("AudioSource.get_currentTime");
 		return 0;
 		
@@ -430,9 +439,9 @@ class AudioSource {
 		// TODO: create new sound channel
 		//channel.position = value;
 		return pauseTime = value;
-
+		
 		#elseif lime_console
-
+		
 		lime.Lib.notImplemented ("AudioSource.set_currentTime");
 		return value;
 		
@@ -481,11 +490,16 @@ class AudioSource {
 		#elseif flash
 		
 		return channel.soundTransform.volume;
-
+		
 		#elseif lime_console
-
-		lime.Lib.notImplemented ("AudioSource.get_gain");
-		return 1;
+		
+		if (channel.valid) {
+			
+			__gain = channel.getVolume ();
+			
+		}
+		
+		return __gain;
 		
 		#else
 		
@@ -508,11 +522,16 @@ class AudioSource {
 		soundTransform.volume = value;
 		channel.soundTransform = soundTransform;
 		return value;
-
+		
 		#elseif lime_console
-
-		lime.Lib.notImplemented ("AudioSource.set_gain");
-		return value;
+		
+		if (channel.valid) {
+			
+			channel.setVolume (value);
+			
+		}
+		
+		return __gain = value;
 		
 		#else
 		
@@ -539,9 +558,9 @@ class AudioSource {
 		#elseif flash
 		
 		return Std.int (buffer.src.length);
-
+		
 		#elseif lime_console
-
+		
 		lime.Lib.notImplemented ("AudioSource.get_length");
 		return 0;
 		
@@ -558,10 +577,10 @@ class AudioSource {
 	private function set_length (value:Int):Int {
 		
 		#if lime_console
-
+		
 		lime.Lib.notImplemented ("AudioSource.set_length");
 		return value;
-
+		
 		#elseif (!flash && !html5)
 		
 		if (playing && __length != value) {
@@ -620,6 +639,55 @@ class AudioSource {
 		#end
 		
 		return __loops = loops;
+		
+	}
+	
+	
+	private function get_position ():Vector4 {
+		
+		#if html5
+		#elseif flash
+		
+		__position.x = channel.soundTransform.pan;
+		
+		#elseif lime_console
+		#else
+		
+		var value = AL.getSource3f (id, AL.POSITION);
+		__position.x = value[0];
+		__position.y = value[1];
+		__position.z = value[2];
+		
+		#end
+		
+		return __position;
+		
+	}
+	
+	
+	private function set_position (value:Vector4):Vector4 {
+		
+		__position.x = value.x;
+		__position.y = value.y;
+		__position.z = value.z;
+		__position.w = value.w;
+		
+		#if html5
+		#elseif flash
+		
+		var soundTransform = channel.soundTransform;
+		soundTransform.pan = __position.x;
+		channel.soundTransform = soundTransform;
+		
+		#elseif lime_console
+		#else
+		
+		AL.distanceModel (AL.NONE);
+		AL.source3f (id, AL.POSITION, __position.x, __position.y, __position.z);
+		
+		#end
+		
+		return __position;
 		
 	}
 	

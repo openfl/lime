@@ -11,6 +11,10 @@
 namespace lime {
 	
 	
+	static int id_index;
+	static int id_x;
+	static int id_y;
+	static bool init = false;
 	cairo_user_data_key_t userData;
 	
 	
@@ -902,6 +906,36 @@ namespace lime {
 	}
 	
 	
+	void lime_cairo_show_glyphs (value handle, value glyphs) {
+		
+		if (!init) {
+			
+			id_index = val_id ("index");
+			id_x = val_id ("x");
+			id_y = val_id ("y");
+			
+		}
+		
+		int length = val_array_size (glyphs);
+		cairo_glyph_t* _glyphs = cairo_glyph_allocate (length);
+		
+		value glyph;
+		
+		for (int i = 0; i < length; i++) {
+			
+			glyph = val_array_i (glyphs, i);
+			_glyphs[i].index = val_int (val_field (glyph, id_index));
+			_glyphs[i].x = val_number (val_field (glyph, id_x));
+			_glyphs[i].y = val_number (val_field (glyph, id_y));
+			
+		}
+		
+		cairo_show_glyphs ((cairo_t*)val_data (handle), _glyphs, length);
+		cairo_glyph_free (_glyphs);
+		
+	}
+	
+	
 	void lime_cairo_show_page (value handle) {
 		
 		cairo_show_page ((cairo_t*)val_data (handle));
@@ -1088,6 +1122,7 @@ namespace lime {
 	DEFINE_PRIME5v (lime_cairo_set_source_rgba);
 	DEFINE_PRIME4v (lime_cairo_set_source_surface);
 	DEFINE_PRIME2v (lime_cairo_set_tolerance);
+	DEFINE_PRIME2v (lime_cairo_show_glyphs);
 	DEFINE_PRIME1v (lime_cairo_show_page);
 	DEFINE_PRIME2v (lime_cairo_show_text);
 	DEFINE_PRIME1 (lime_cairo_status);

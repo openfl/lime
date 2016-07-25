@@ -12,6 +12,7 @@ import js.html.Audio;
 #elseif flash
 import flash.media.Sound;
 #elseif lime_console
+import lime.audio.fmod.FMODMode;
 import lime.audio.fmod.FMODSound;
 #end
 
@@ -101,7 +102,8 @@ class AudioBuffer {
 		
 		#if lime_console
 		
-		var sound:FMODSound = FMODSound.fromFile (path);
+		var mode = StringTools.endsWith(path, ".wav") ? FMODMode.LOOP_OFF : FMODMode.LOOP_NORMAL;
+		var sound:FMODSound = FMODSound.fromFile (path, mode);
 		
 		if (sound.valid) {
 			

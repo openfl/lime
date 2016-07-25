@@ -5,6 +5,7 @@ import lime.math.Matrix3;
 import lime.math.Vector2;
 import lime.system.CFFI;
 import lime.system.CFFIPointer;
+import lime.text.Glyph;
 
 #if !macro
 @:build(lime.system.CFFI.build())
@@ -402,6 +403,15 @@ class Cairo {
 	}
 	
 	
+	public function showGlyphs (glyphs:Array<CairoGlyph>):Void {
+		
+		#if (lime_cairo && !macro)
+		lime_cairo_show_glyphs (handle, glyphs);
+		#end
+		
+	}
+	
+	
 	public function showPage ():Void {
 		
 		#if (lime_cairo && !macro)
@@ -491,8 +501,6 @@ class Cairo {
 		
 	}
 	
-	
-
 	
 	
 	
@@ -946,6 +954,7 @@ class Cairo {
 	@:cffi private static function lime_cairo_set_source_rgba (handle:CFFIPointer, r:Float, g:Float, b:Float, a:Float):Void;
 	@:cffi private static function lime_cairo_set_source_surface (handle:CFFIPointer, surface:CFFIPointer, x:Float, y:Float):Void;
 	@:cffi private static function lime_cairo_set_tolerance (handle:CFFIPointer, tolerance:Float):Void;
+	@:cffi private static function lime_cairo_show_glyphs (handle:CFFIPointer, glyphs:Dynamic):Void;
 	@:cffi private static function lime_cairo_show_page (handle:CFFIPointer):Void;
 	@:cffi private static function lime_cairo_show_text (handle:CFFIPointer, text:String):Void;
 	@:cffi private static function lime_cairo_status (handle:CFFIPointer):Int;

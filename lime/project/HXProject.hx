@@ -17,7 +17,7 @@ import lime.project.AssetType;
 import sys.FileSystem;
 import sys.io.File;
 
-#if (lime && !lime_legacy)
+#if lime
 import haxe.xml.Fast;
 import lime.text.Font;
 import lime.tools.helpers.FileHelper;
@@ -51,6 +51,8 @@ class HXProject {
 	public var meta:MetaData;
 	public var ndlls:Array <NDLL>;
 	public var platformType:PlatformType;
+	public var postBuildCallbacks:Array <CLICommand>;
+	public var preBuildCallbacks:Array <CLICommand>;
 	public var samplePaths:Array <String>;
 	public var sources:Array <String>;
 	public var splashScreens:Array <SplashScreen>;
@@ -193,6 +195,11 @@ class HXProject {
 				// TODO: Better handle platform type for pluggable targets
 				
 				platformType = PlatformType.CONSOLE;
+
+				defaultWindow.width = 0;
+				defaultWindow.height = 0;
+				defaultWindow.fps = 60;
+				defaultWindow.fullscreen = true;
 			
 		}
 		
@@ -212,6 +219,8 @@ class HXProject {
 		libraries = new Array <Library> ();
 		libraryHandlers = new Map <String, String> ();
 		ndlls = new Array <NDLL> ();
+		postBuildCallbacks = new Array <CLICommand> ();
+		preBuildCallbacks = new Array <CLICommand> ();
 		sources = new Array <String> ();
 		samplePaths = new Array <String> ();
 		splashScreens = new Array <SplashScreen> ();
@@ -305,6 +314,8 @@ class HXProject {
 		}
 		
 		project.platformType = platformType;
+		project.postBuildCallbacks = postBuildCallbacks.copy ();
+		project.preBuildCallbacks = preBuildCallbacks.copy ();
 		project.samplePaths = samplePaths.copy ();
 		project.sources = sources.copy ();
 		
@@ -362,7 +373,7 @@ class HXProject {
 				filter = StringTools.replace (filter, ".", "\\.");
 				filter = StringTools.replace (filter, "*", ".*");
 				
-				var regexp = new EReg ("^" + filter, "i");
+				var regexp = new EReg ("^" + filter + "$", "i");
 				
 				if (regexp.match (text)) {
 					
@@ -398,7 +409,7 @@ class HXProject {
 	}
 	
 	
-	#if (lime && !lime_legacy)
+	#if lime
 	
 	public static function fromFile (projectFile:String, userDefines:Map <String, Dynamic> = null, includePaths:Array <String> = null):HXProject {
 		
@@ -620,7 +631,7 @@ class HXProject {
 	}
 	
 	
-	#if (lime && !lime_legacy)
+	#if lime
 	
 	public function includeXML (xml:String):Void {
 		
@@ -709,6 +720,8 @@ class HXProject {
 			javaPaths = ArrayHelper.concatUnique (javaPaths, project.javaPaths, true);
 			libraries = ArrayHelper.concatUnique (libraries, project.libraries, true);
 			ndlls = ArrayHelper.concatUnique (ndlls, project.ndlls);
+			postBuildCallbacks = postBuildCallbacks.concat (project.postBuildCallbacks);
+			preBuildCallbacks = preBuildCallbacks.concat (project.preBuildCallbacks);
 			samplePaths = ArrayHelper.concatUnique (samplePaths, project.samplePaths, true);
 			sources = ArrayHelper.concatUnique (sources, project.sources, true);
 			splashScreens = ArrayHelper.concatUnique (splashScreens, project.splashScreens);
@@ -734,7 +747,7 @@ class HXProject {
 	}
 	
 	
-	#if (lime && !lime_legacy)
+	#if lime
 	
 	@:noCompletion private static function processHaxelibs (project:HXProject, userDefines:Map <String, Dynamic>):Void {
 		
@@ -930,7 +943,7 @@ class HXProject {
 				
 				embeddedAsset.type = Std.string (asset.type).toLowerCase ();
 				
-				#if (lime && !lime_legacy)
+				#if lime
 				if (asset.type == FONT) {
 					
 					try {
@@ -986,7 +999,7 @@ class HXProject {
 				
 			}
 			
-			#if (lime && !lime_legacy)
+			#if lime
 			
 			if (PathHelper.haxelibOverrides.exists (name)) {
 				
@@ -1281,5 +1294,5 @@ class HXProject {
 		
 	}
 	
-
+	
 }

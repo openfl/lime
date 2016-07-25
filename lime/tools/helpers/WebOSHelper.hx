@@ -73,6 +73,6 @@ class WebOSHelper {
 		runPalmCommand (project, "", "log", args);
 		
 	}
-		
-
+	
+	
 }

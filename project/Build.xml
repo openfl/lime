@@ -6,10 +6,9 @@
 	
 	<include name="${HXCPP}/build-tool/BuildCommon.xml" />
 	
-	<set name="lime-legacy" value="1" if="legacy || lime_legacy" />
 	<set name="ios" value="1" if="iphone" />
 	<set name="tvos" value="1" if="appletv" />
-
+	
 	<set name="LIME_CAIRO" value="1" />
 	<set name="LIME_CURL" value="1" unless="emscripten" />
 	<set name="LIME_JPEG" value="1" />
@@ -104,7 +103,7 @@
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/lzma/src" />
 			<compilerflag value="-DLIME_LZMA" />
 			
-			<file name="src/utils/LZMA.cpp" />
+			<file name="src/utils/compress/LZMA.cpp" />
 			
 		</section>
 		
@@ -150,9 +149,8 @@
 		<section if="LIME_OPENGL">
 			
 			<compilerflag value="-DLIME_OPENGL" />
-			
 			<compilerflag value="-I${DEVELOPER_DIR}/Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS${TVOS_VER}.sdk/" if="tvos" />
-
+			
 			<file name="src/graphics/opengl/OpenGLBindings.cpp" />
 			
 		</section>
@@ -208,8 +206,10 @@
 		<section if="LIME_ZLIB">
 			
 			<compilerflag value="-DSTATIC_LINK" if="emscripten" />
+			<compilerflag value="-DLIME_ZLIB" />
 			
 			<file name="${HXCPP}/project/libs/zlib/ZLib.cpp" if="emscripten || ios || static_link || tvos" />
+			<file name="src/utils/compress/Zlib.cpp" />
 			
 		</section>
 		
@@ -364,7 +364,7 @@
 			</section>
 			
 			<section if="tvos">
-
+				
 				<vflag name="-framework" value="UIKit" />
 				<vflag name="-framework" value="Foundation" />
 				<vflag name="-framework" value="CoreAudio" />
@@ -374,15 +374,15 @@
 				<vflag name="-framework" value="AudioUnit" />
 				<vflag name="-framework" value="OpenAL"/>
 				<vflag name="-framework" value="GameController"/>
-
+				
 				<lib name="-ldl" />
 				<lib name="-lEGL" />
 				<lib name="-lGLESv2" />
-
+				
 			</section>
-
+			
 			<section if="ios">
-
+				
 				<vflag name="-framework" value="UIKit" />
 				<vflag name="-framework" value="Foundation" />
 				<vflag name="-framework" value="CoreAudio" />
@@ -392,11 +392,11 @@
 				<vflag name="-framework" value="AudioUnit" />
 				<vflag name="-framework" value="OpenAL"/>
 				<vflag name="-framework" value="CoreMotion"/>
-
+				
 				<lib name="-ldl" />
 				<lib name="-lEGL" />
 				<lib name="-lGLESv2" />
-
+				
 			</section>
 		</section>
 		

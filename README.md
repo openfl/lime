@@ -68,10 +68,6 @@ The first time you run the "lime" command, it will attempt to build the Lime sta
     lime rebuild windows
     lime rebuild tools
 
-While current Lime projects (and the Lime tools) use the standard Lime binary, by default, OpenFL uses the legacy Lime 1 binary when targeting native platforms. To rebuild Lime legacy, you can use the "legacy" define:
-
-    lime rebuild windows -Dlegacy
-
 You can build additional binaries, or rebuild binaries after making changes, using "lime rebuild":
 
     lime rebuild windows
@@ -115,4 +111,4 @@ Lime currently supports the following targets:
     lime test html5
     lime test flash
 
-Native builds must be built on the same operating system as the target. As supported in Lime legacy, additional platforms (iOS, BlackBerry) will be restored in the near future.
+Desktop builds are currently designed to be built on the same host OS

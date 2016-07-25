@@ -434,8 +434,8 @@ class BlackBerryHelper {
 		ProcessHelper.runCommand (workingDirectory, exe, [ "-getFile", "logs/log", "-", "-device", deviceIP, "-password", devicePassword, targetPath ] );
 		
 	}
-		
-
+	
+	
 }
 
 

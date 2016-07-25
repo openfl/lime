@@ -23,7 +23,7 @@ typedef WindowConfig = {
 	
 	@:optional var allowHighDPI:Bool;
 	@:optional var antialiasing:Int;
-	@:optional var background:Int;
+	@:optional var background:Null<Int>;
 	@:optional var borderless:Bool;
 	@:optional var depthBuffer:Bool;
 	@:optional var display:Int;

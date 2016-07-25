@@ -39,7 +39,7 @@ class IOSPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
-		targetDirectory = PathHelper.combine (project.app.path, "ios");
+		targetDirectory = PathHelper.combine (project.app.path, "ios/" + buildType);
 		
 	}
 	
@@ -89,7 +89,10 @@ class IOSPlatform extends PlatformTarget {
 		var hxml = PathHelper.findTemplate (project.templatePaths, "iphone/PROJ/haxe/Build.hxml");
 		var template = new Template (File.getContent (hxml));
 		
-		Sys.println (template.execute (generateContext ()));
+		var context = generateContext ();
+		context.OUTPUT_DIR = targetDirectory;
+		
+		Sys.println (template.execute (context));
 		Sys.println ("-D display");
 		
 	}
@@ -132,7 +135,7 @@ class IOSPlatform extends PlatformTarget {
 		
 		for (dependency in project.dependencies) {
 			
-			if (!StringTools.endsWith (dependency.name, ".framework") && !StringTools.endsWith (dependency.path, ".framework")) {
+			if (!StringTools.endsWith (dependency.name, ".framework") && !StringTools.endsWith (dependency.name, ".tbd") && !StringTools.endsWith (dependency.path, ".framework")) {
 				
 				if (dependency.path != "") {
 					
@@ -270,16 +273,25 @@ class IOSPlatform extends PlatformTarget {
 			
 			var name = null;
 			var path = null;
+			var fileType = null;
 			
 			if (Path.extension (dependency.name) == "framework") {
 				
 				name = dependency.name;
 				path = "/System/Library/Frameworks/" + dependency.name;
+				fileType = "wrapper.framework";
+				
+			} else if (Path.extension (dependency.name) == "tbd") {
+				
+				name = dependency.name;
+				path = "usr/lib/" + dependency.name;
+				fileType = "sourcecode.text-based-dylib-definition";
 				
 			} else if (Path.extension (dependency.path) == "framework") {
 				
 				name = Path.withoutDirectory (dependency.path);
 				path = PathHelper.tryFullPath (dependency.path);
+				fileType = "wrapper.framework";
 				
 			}
 			
@@ -291,7 +303,7 @@ class IOSPlatform extends PlatformTarget {
 				ArrayHelper.addUnique (context.frameworkSearchPaths, Path.directory (path));
 				
 				context.ADDL_PBX_BUILD_FILE += "		" + frameworkID + " /* " + name + " in Frameworks */ = {isa = PBXBuildFile; fileRef = " + fileID + " /* " + name + " */; };\n";
-				context.ADDL_PBX_FILE_REFERENCE += "		" + fileID + " /* " + name + " */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = \"" + name + "\"; path = \"" + path + "\"; sourceTree = SDKROOT; };\n";
+				context.ADDL_PBX_FILE_REFERENCE += "		" + fileID + " /* " + name + " */ = {isa = PBXFileReference; lastKnownFileType = \"" + fileType + "\"; name = \"" + name + "\"; path = \"" + path + "\"; sourceTree = SDKROOT; };\n";
 				context.ADDL_PBX_FRAMEWORKS_BUILD_PHASE += "				" + frameworkID + " /* " + name + " in Frameworks */,\n";
 				context.ADDL_PBX_FRAMEWORK_GROUP += "				" + fileID + " /* " + name + " */,\n";
 				
@@ -389,6 +401,7 @@ class IOSPlatform extends PlatformTarget {
 		project.assets.push (manifest);
 		
 		var context = generateContext ();
+		context.OUTPUT_DIR = targetDirectory;
 		
 		var projectDirectory = targetDirectory + "/" + project.app.file + "/";
 		
@@ -449,7 +462,7 @@ class IOSPlatform extends PlatformTarget {
 			{ name: "Default-736h@3x.png", w: 1242,	h: 2208 }, // iPhone 6 Plus, portrait
 			{ name: "Default-736h-Landscape@3x.png", w: 2208, h: 1242 }, // iPhone 6 Plus, landscape
 		];
-
+		
 		var splashScreenPath = PathHelper.combine (projectDirectory, "Images.xcassets/LaunchImage.launchimage");
 		PathHelper.mkdir (splashScreenPath);
 		

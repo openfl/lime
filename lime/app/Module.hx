@@ -22,10 +22,153 @@ class Module implements IModule {
 	 */
 	public var onExit = new Event<Int->Void> ();
 	
+	@:noCompletion private var __application:Application;
+	@:noCompletion private var __preloader:Preloader;
+	@:noCompletion private var __renderers:Array<Renderer>;
+	@:noCompletion private var __windows:Array<Window>;
+	
 	
 	public function new () {
 		
+		__renderers = new Array ();
+		__windows = new Array ();
 		
+	}
+	
+	
+	@:noCompletion public function addRenderer (renderer:Renderer):Void {
+		
+		renderer.onRender.add (render.bind (renderer));
+		renderer.onContextLost.add (onRenderContextLost.bind (renderer));
+		renderer.onContextRestored.add (onRenderContextRestored.bind (renderer));
+		
+		__renderers.push (renderer);
+		
+	}
+	
+	
+	@:noCompletion public function addWindow (window:Window):Void {
+		
+		window.onActivate.add (onWindowActivate.bind (window));
+		window.onClose.add (__onWindowClose.bind (window));
+		window.onCreate.add (onWindowCreate.bind (window));
+		window.onDeactivate.add (onWindowDeactivate.bind (window));
+		window.onDropFile.add (onWindowDropFile.bind (window));
+		window.onEnter.add (onWindowEnter.bind (window));
+		window.onFocusIn.add (onWindowFocusIn.bind (window));
+		window.onFocusOut.add (onWindowFocusOut.bind (window));
+		window.onFullscreen.add (onWindowFullscreen.bind (window));
+		window.onKeyDown.add (onKeyDown.bind (window));
+		window.onKeyUp.add (onKeyUp.bind (window));
+		window.onLeave.add (onWindowLeave.bind (window));
+		window.onMinimize.add (onWindowMinimize.bind (window));
+		window.onMouseDown.add (onMouseDown.bind (window));
+		window.onMouseMove.add (onMouseMove.bind (window));
+		window.onMouseMoveRelative.add (onMouseMoveRelative.bind (window));
+		window.onMouseUp.add (onMouseUp.bind (window));
+		window.onMouseWheel.add (onMouseWheel.bind (window));
+		window.onMove.add (onWindowMove.bind (window));
+		window.onResize.add (onWindowResize.bind (window));
+		window.onRestore.add (onWindowRestore.bind (window));
+		window.onTextEdit.add (onTextEdit.bind (window));
+		window.onTextInput.add (onTextInput.bind (window));
+		
+		if (window.id > -1) {
+			
+			onWindowCreate (window);
+			
+		}
+		
+		__windows.push (window);
+		
+	}
+	
+	
+	@:noCompletion public function registerModule (application:Application):Void {
+		
+		__application = application;
+		
+		application.onExit.add (onModuleExit, false, 0);
+		application.onUpdate.add (update);
+		
+		for (gamepad in Gamepad.devices) {
+			
+			__onGamepadConnect (gamepad);
+			
+		}
+		
+		Gamepad.onConnect.add (__onGamepadConnect);
+		
+		for (joystick in Joystick.devices) {
+			
+			__onJoystickConnect (joystick);
+			
+		}
+		
+		Joystick.onConnect.add (__onJoystickConnect);
+		
+		Touch.onStart.add (onTouchStart);
+		Touch.onMove.add (onTouchMove);
+		Touch.onEnd.add (onTouchEnd);
+		
+	}
+	
+	
+	@:noCompletion public function removeRenderer (renderer:Renderer):Void {
+		
+		if (renderer != null && __renderers.indexOf (renderer) > -1) {
+			
+			__renderers.remove (renderer);
+			
+		}
+		
+	}
+	
+	
+	@:noCompletion public function removeWindow (window:Window):Void {
+		
+		
+		
+	}
+	
+	
+	@:noCompletion public function setPreloader (preloader:Preloader):Void {
+		
+		if (__preloader != null) {
+			
+			__preloader.onProgress.remove (onPreloadProgress);
+			__preloader.onComplete.remove (onPreloadComplete);
+			
+		}
+		
+		__preloader = preloader;
+		
+		if (preloader == null || preloader.complete) {
+			
+			onPreloadComplete ();
+			
+		} else {
+			
+			preloader.onProgress.add (onPreloadProgress);
+			preloader.onComplete.add (onPreloadComplete);
+			
+		}
+		
+	}
+	
+	
+	@:noCompletion public function unregisterModule (application:Application):Void {
+		
+		__application.onExit.remove (onModuleExit);
+		__application.onUpdate.remove (update);
+		
+		Gamepad.onConnect.remove (__onGamepadConnect);
+		Joystick.onConnect.remove (__onJoystickConnect);
+		Touch.onStart.remove (onTouchStart);
+		Touch.onMove.remove (onTouchMove);
+		Touch.onEnd.remove (onTouchEnd);
+		
+		onModuleExit (0);
 		
 	}
 	
@@ -385,6 +528,41 @@ class Module implements IModule {
 	 * @param	deltaTime	The amount of time in milliseconds that has elapsed since the last update
 	 */
 	public function update (deltaTime:Int):Void { }
+	
+	
+	@:noCompletion private function __onGamepadConnect (gamepad:Gamepad):Void {
+		
+		onGamepadConnect (gamepad);
+		
+		gamepad.onAxisMove.add (onGamepadAxisMove.bind (gamepad));
+		gamepad.onButtonDown.add (onGamepadButtonDown.bind (gamepad));
+		gamepad.onButtonUp.add (onGamepadButtonUp.bind (gamepad));
+		gamepad.onDisconnect.add (onGamepadDisconnect.bind (gamepad));
+		
+	}
+	
+	
+	@:noCompletion private function __onJoystickConnect (joystick:Joystick):Void {
+		
+		onJoystickConnect (joystick);
+		
+		joystick.onAxisMove.add (onJoystickAxisMove.bind (joystick));
+		joystick.onButtonDown.add (onJoystickButtonDown.bind (joystick));
+		joystick.onButtonUp.add (onJoystickButtonUp.bind (joystick));
+		joystick.onDisconnect.add (onJoystickDisconnect.bind (joystick));
+		joystick.onHatMove.add (onJoystickHatMove.bind (joystick));
+		joystick.onTrackballMove.add (onJoystickTrackballMove.bind (joystick));
+		
+	}
+	
+	
+	@:noCompletion private function __onWindowClose (window:Window):Void {
+		
+		onWindowClose (window);
+		
+		__windows.remove (window);
+		
+	}
 	
 	
 }

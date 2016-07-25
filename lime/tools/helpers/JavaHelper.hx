@@ -12,6 +12,6 @@ class JavaHelper {
 		FileHelper.recursiveCopyTemplate (templatePaths, "java/ndll/" + platformName, targetPath);
 		
 	}
-		
-
+	
+	
 }

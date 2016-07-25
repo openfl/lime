@@ -3,7 +3,7 @@ License
 
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 Joshua Granick and other Lime contributors
+Copyright (c) 2013-2016 Joshua Granick and other Lime contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@ THE SOFTWARE.
 
 -------
 
-This product bundles cairo 1.14.2, which is available under an
+This product bundles cairo 1.14.6, which is available under an
 "MPL 1.1" license. For details, see [project/lib/cairo/](project/lib).
 
 This product bundles libcurl 7.37.1, which is available under an
@@ -56,13 +56,13 @@ an OpenAL-Soft derivative for Android under [project/lib/openal-android/](projec
 _OpenAL-Soft is only included in dynamically-linked builds, it is excluded
 from Lime static builds in order to preserve Lime's permissive nature._
 
-This product bundles pixman 0.32.6, which is available under an
+This product bundles pixman 0.32.8, which is available under an
 "MIT" license. For details, see [project/lib/pixman/](project/lib).
 
 This product bundles libpng 1.6.12, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/png/](project/lib).
 
-This product bundles SDL 2.0.4+9174, which is available under a
+This product bundles SDL 2.0.4, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/sdl/](project/lib).
 
 This product bundles libvorbis 1.3.3, which is available under a
@@ -81,14 +81,13 @@ The following files were developed in collaboration with the NME project,
 which is available under an "MIT" license. For details, see
 https://github.com/haxenme/nme
 
-    legacy/
     lime/utils/JNI.hx
     project/include/utils/QuickVec.h
     project/src/graphics/format/
     project/src/graphics/opengl/
     project/src/system/JNI.cpp
     project/src/text/Font.cpp
-    project/src/utils/LZMA.cpp
+    project/src/utils/compress/LZMA.cpp
     tools/utils/JavaExternGenerator.hx
 
 The typed array implementation was developed in collaboration with Sven Bergström
@@ -104,10 +103,10 @@ created with Lime._
 This product bundles Closure Compiler v20141215, which is available under an
 "Apache 2.0 License" license. For details, see https://github.com/google/closure-compiler.
 
-This product bundles ios-deploy 1.0.3, which is available under an
+This product bundles ios-deploy 1.4.0, which is available under an
 "GPLv3" license. For details, see https://github.com/openfl/ios-deploy.
 
-This product bundles ios-sim 1.8.2, which is available under an
+This product bundles ios-sim 3.1.1, which is available under an
 "MIT" license. For details, see https://github.com/openfl/ios-sim.
 
 This product bundles node.js 0.10.26, which is available under an

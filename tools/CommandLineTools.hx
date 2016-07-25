@@ -511,6 +511,12 @@ class CommandLineTools {
 		
 		if (project.targetHandlers.exists (Std.string (project.target))) {
 			
+			if (command == "build" || command == "test") {
+				
+				CommandHelper.executeCommands (project.preBuildCallbacks);
+				
+			}
+			
 			LogHelper.info ("", LogHelper.accentColor + "Using target platform: " + Std.string (project.target).toUpperCase () + "\x1b[0m");
 			
 			var handler = project.targetHandlers.get (Std.string (project.target));
@@ -551,6 +557,12 @@ class CommandLineTools {
 				
 			} catch (e:Dynamic) {}
 			
+			if (command == "build" || command == "test") {
+				
+				CommandHelper.executeCommands (project.postBuildCallbacks);
+				
+			}
+			
 		} else {
 			
 			var platform:PlatformTarget = null;
@@ -563,7 +575,7 @@ class CommandLineTools {
 					
 				case BLACKBERRY:
 					
-					platform = new BlackBerryPlatform (command, project, targetFlags);
+					//platform = new BlackBerryPlatform (command, project, targetFlags);
 				
 				case IOS:
 					
@@ -571,11 +583,11 @@ class CommandLineTools {
 				
 				case TIZEN:
 					
-					platform = new TizenPlatform (command, project, targetFlags);
+					//platform = new TizenPlatform (command, project, targetFlags);
 				
 				case WEBOS:
 					
-					platform = new WebOSPlatform (command, project, targetFlags);
+					//platform = new WebOSPlatform (command, project, targetFlags);
 				
 				case WINDOWS:
 					
@@ -1352,6 +1364,10 @@ class CommandLineTools {
 				
 				project.templatePaths.push (projectDefines.get (key));
 				
+			} else if (field == "config") {
+
+				project.config.set (attribute, projectDefines.get (key));
+
 			} else {
 				
 				if (Reflect.hasField (project, field)) {

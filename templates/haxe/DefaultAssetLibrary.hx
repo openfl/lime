@@ -18,6 +18,7 @@ import lime.utils.UInt8Array;
 import lime.Assets;
 
 #if sys
+import haxe.io.Path;
 import sys.FileSystem;
 #end
 
@@ -43,6 +44,12 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	private var lastModified:Float;
 	private var timer:Timer;
+	
+	#if windows
+	private var rootPath = FileSystem.absolutePath (Path.directory (#if (haxe_ver >= 3.3) Sys.programPath () #else Sys.executablePath () #end)) + "/";
+	#else
+	private var rootPath = "";
+	#end
 	
 	
 	public function new () {
@@ -195,7 +202,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#else
 		
 		if (className.exists(id)) return AudioBuffer.fromBytes (cast (Type.createInstance (className.get (id), []), Bytes));
-		else return AudioBuffer.fromFile (path.get (id));
+		else return AudioBuffer.fromFile (rootPath + path.get (id));
 		
 		#end
 		
@@ -249,7 +256,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#else
 		
 		if (className.exists(id)) return cast (Type.createInstance (className.get (id), []), Bytes);
-		else return Bytes.readFile (path.get (id));
+		else return Bytes.readFile (rootPath + path.get (id));
 		
 		#end
 		
@@ -279,7 +286,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 		} else {
 			
-			return Font.fromFile (path.get (id));
+			return Font.fromFile (rootPath + path.get (id));
 			
 		}
 		
@@ -307,7 +314,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 		} else {
 			
-			return Image.fromFile (path.get (id));
+			return Image.fromFile (rootPath + path.get (id));
 			
 		}
 		

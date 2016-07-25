@@ -33,10 +33,16 @@
 	</dict>
 	<key>UIStatusBarHidden</key>
 	<::WIN_FULLSCREEN::/>
+	<key>UIRequiresFullScreen</key>
+	<::WIN_FULLSCREEN::/>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<::!WIN_FULLSCREEN::/>
 	::if (IOS_APP_ORIENTATION != null)::
 	<key>UISupportedInterfaceOrientations</key>
 	::IOS_APP_ORIENTATION::::end::
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key><true/>
+	</dict>
 </dict>
 </plist>

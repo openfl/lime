@@ -52,7 +52,7 @@ class AndroidPlatform extends PlatformTarget {
 			
 		}
 		
-		targetDirectory = project.app.path + "/android";
+		targetDirectory = project.app.path + "/android/" + buildType;
 		
 	}
 	
@@ -60,20 +60,7 @@ class AndroidPlatform extends PlatformTarget {
 	public override function build ():Void {
 		
 		var destination = targetDirectory + "/bin";
-		
-		var type = "release";
-		
-		if (project.debug) {
-			
-			type = "debug";
-			
-		} else if (project.targetFlags.exists ("final")) {
-			
-			type = "final";
-			
-		}
-		
-		var hxml = targetDirectory + "/haxe/" + type + ".hxml";
+		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
 		
 		var hasARMV5 = (ArrayHelper.containsValue (project.architectures, Architecture.ARMV5) || ArrayHelper.containsValue (project.architectures, Architecture.ARMV6));
 		var hasARMV7 = ArrayHelper.containsValue (project.architectures, Architecture.ARMV7);
@@ -174,22 +161,11 @@ class AndroidPlatform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
-		var type = "release";
-		
-		if (project.debug) {
-			
-			type = "debug";
-			
-		} else if (project.targetFlags.exists ("final")) {
-			
-			type = "final";
-			
-		}
-		
-		var hxml = PathHelper.findTemplate (project.templatePaths, "android/hxml/" + type + ".hxml");
+		var hxml = PathHelper.findTemplate (project.templatePaths, "android/hxml/" + buildType + ".hxml");
 		
 		var context = project.templateContext;
 		context.CPP_DIR = targetDirectory + "/obj";
+		context.OUTPUT_DIR = targetDirectory;
 		
 		var template = new Template (File.getContent (hxml));
 		
@@ -320,6 +296,7 @@ class AndroidPlatform extends PlatformTarget {
 		var context = project.templateContext;
 		
 		context.CPP_DIR = targetDirectory + "/obj";
+		context.OUTPUT_DIR = targetDirectory;
 		context.ANDROID_INSTALL_LOCATION = project.config.getString ("android.install-location", "auto");
 		context.ANDROID_MINIMUM_SDK_VERSION = project.config.getInt ("android.minimum-sdk-version", 9);
 		context.ANDROID_TARGET_SDK_VERSION = project.config.getInt ("android.target-sdk-version", 19);

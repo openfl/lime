@@ -42,7 +42,8 @@
 #include <ui/TouchEvent.h>
 #include <ui/Window.h>
 #include <ui/WindowEvent.h>
-#include <utils/LZMA.h>
+#include <utils/compress/LZMA.h>
+#include <utils/compress/Zlib.h>
 #include <vm/NekoVM.h>
 
 DEFINE_KIND (k_finalizer);
@@ -164,8 +165,8 @@ namespace lime {
 			
 		} else {
 			
-			bytes = Bytes();
-			bytes.Set(data);
+			bytes = Bytes ();
+			bytes.Set (data);
 			resource = Resource (&bytes);
 			
 		}
@@ -268,6 +269,32 @@ namespace lime {
 	void lime_clipboard_set_text (HxString text) {
 		
 		Clipboard::SetText (text.__s);
+		
+	}
+	
+	
+	value lime_deflate_compress (value buffer) {
+		
+		Bytes data;
+		data.Set (buffer);
+		Bytes result;
+		
+		Zlib::Compress (DEFLATE, &data, &result);
+		
+		return result.Value ();
+		
+	}
+	
+	
+	value lime_deflate_decompress (value buffer) {
+		
+		Bytes data;
+		data.Set (buffer);
+		Bytes result;
+		
+		Zlib::Decompress (DEFLATE, &data, &result);
+		
+		return result.Value ();
 		
 	}
 	
@@ -630,6 +657,32 @@ namespace lime {
 	}
 	
 	
+	value lime_gzip_compress (value buffer) {
+		
+		Bytes data;
+		data.Set (buffer);
+		Bytes result;
+		
+		Zlib::Compress (GZIP, &data, &result);
+		
+		return result.Value ();
+		
+	}
+	
+	
+	value lime_gzip_decompress (value buffer) {
+		
+		Bytes data;
+		data.Set (buffer);
+		Bytes result;
+		
+		Zlib::Decompress (GZIP, &data, &result);
+		
+		return result.Value ();
+		
+	}
+	
+	
 	value lime_image_encode (value buffer, int type, int quality) {
 		
 		ImageBuffer imageBuffer = ImageBuffer (buffer);
@@ -918,7 +971,8 @@ namespace lime {
 		
 		ImageBuffer imageBuffer;
 		
-		Bytes bytes (data);
+		Bytes bytes;
+		bytes.Set (data);
 		Resource resource = Resource (&bytes);
 		
 		#ifdef LIME_JPEG
@@ -960,13 +1014,14 @@ namespace lime {
 	}
 	
 	
-	value lime_lzma_decode (value buffer) {
+	value lime_lzma_compress (value buffer) {
 		
 		#ifdef LIME_LZMA
-		Bytes data = Bytes (buffer);
+		Bytes data;
+		data.Set (buffer);
 		Bytes result;
 		
-		LZMA::Decode (&data, &result);
+		LZMA::Compress (&data, &result);
 		
 		return result.Value ();
 		#else
@@ -976,13 +1031,14 @@ namespace lime {
 	}
 	
 	
-	value lime_lzma_encode (value buffer) {
+	value lime_lzma_decompress (value buffer) {
 		
 		#ifdef LIME_LZMA
-		Bytes data = Bytes (buffer);
+		Bytes data;
+		data.Set (buffer);
 		Bytes result;
 		
-		LZMA::Encode (&data, &result);
+		LZMA::Decompress (&data, &result);
 		
 		return result.Value ();
 		#else
@@ -1284,7 +1340,8 @@ namespace lime {
 		
 		TextLayout *text = (TextLayout*)val_data (textHandle);
 		Font *font = (Font*)val_data (fontHandle);
-		Bytes bytes = Bytes (data);
+		Bytes bytes;
+		bytes.Set (data);
 		text->Position (font, size, textString.__s, &bytes);
 		return bytes.Value ();
 		
@@ -1522,6 +1579,32 @@ namespace lime {
 	}
 	
 	
+	value lime_zlib_compress (value buffer) {
+		
+		Bytes data;
+		data.Set (buffer);
+		Bytes result;
+		
+		Zlib::Compress (ZLIB, &data, &result);
+		
+		return result.Value ();
+		
+	}
+	
+	
+	value lime_zlib_decompress (value buffer) {
+		
+		Bytes data;
+		data.Set (buffer);
+		Bytes result;
+		
+		Zlib::Decompress (ZLIB, &data, &result);
+		
+		return result.Value ();
+		
+	}
+	
+	
 	DEFINE_PRIME1 (lime_application_create);
 	DEFINE_PRIME2v (lime_application_event_manager_register);
 	DEFINE_PRIME1 (lime_application_exec);
@@ -1537,6 +1620,8 @@ namespace lime {
 	DEFINE_PRIME1 (lime_cffi_set_finalizer);
 	DEFINE_PRIME0 (lime_clipboard_get_text);
 	DEFINE_PRIME1v (lime_clipboard_set_text);
+	DEFINE_PRIME1 (lime_deflate_compress);
+	DEFINE_PRIME1 (lime_deflate_decompress);
 	DEFINE_PRIME2v (lime_drop_event_manager_register);
 	DEFINE_PRIME2 (lime_file_dialog_open_directory);
 	DEFINE_PRIME2 (lime_file_dialog_open_file);
@@ -1562,6 +1647,8 @@ namespace lime {
 	DEFINE_PRIME2v (lime_gamepad_event_manager_register);
 	DEFINE_PRIME1 (lime_gamepad_get_device_guid);
 	DEFINE_PRIME1 (lime_gamepad_get_device_name);
+	DEFINE_PRIME1 (lime_gzip_compress);
+	DEFINE_PRIME1 (lime_gzip_decompress);
 	DEFINE_PRIME3v (lime_image_data_util_color_transform);
 	DEFINE_PRIME6v (lime_image_data_util_copy_channel);
 	DEFINE_PRIME7v (lime_image_data_util_copy_pixels);
@@ -1588,8 +1675,8 @@ namespace lime {
 	DEFINE_PRIME2 (lime_jpeg_decode_bytes);
 	DEFINE_PRIME2 (lime_jpeg_decode_file);
 	DEFINE_PRIME2v (lime_key_event_manager_register);
-	DEFINE_PRIME1 (lime_lzma_decode);
-	DEFINE_PRIME1 (lime_lzma_encode);
+	DEFINE_PRIME1 (lime_lzma_compress);
+	DEFINE_PRIME1 (lime_lzma_decompress);
 	DEFINE_PRIME2v (lime_mouse_event_manager_register);
 	DEFINE_PRIME0v (lime_mouse_hide);
 	DEFINE_PRIME1v (lime_mouse_set_cursor);
@@ -1645,6 +1732,8 @@ namespace lime {
 	DEFINE_PRIME2 (lime_window_set_minimized);
 	DEFINE_PRIME2 (lime_window_set_resizable);
 	DEFINE_PRIME2 (lime_window_set_title);
+	DEFINE_PRIME1 (lime_zlib_compress);
+	DEFINE_PRIME1 (lime_zlib_decompress);
 	
 	
 }

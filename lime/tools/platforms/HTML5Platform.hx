@@ -25,9 +25,9 @@ class HTML5Platform extends PlatformTarget {
 	
 	public function new (command:String, _project:HXProject, targetFlags:Map <String, String> ) {
 		
-		initialize (command, _project);
-		
 		super (command, _project, targetFlags);
+		
+		initialize (command, _project);
 		
 	}
 	
@@ -88,19 +88,7 @@ class HTML5Platform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
-		var type = "release";
-		
-		if (project.debug) {
-			
-			type = "debug";
-			
-		} else if (project.targetFlags.exists ("final")) {
-			
-			type = "final";
-			
-		}
-		
-		var hxml = PathHelper.findTemplate (project.templatePaths, "html5/hxml/" + type + ".hxml");
+		var hxml = PathHelper.findTemplate (project.templatePaths, "html5/hxml/" + buildType + ".hxml");
 		
 		var context = project.templateContext;
 		context.OUTPUT_DIR = targetDirectory;
@@ -115,10 +103,10 @@ class HTML5Platform extends PlatformTarget {
 	
 	
 	private function initialize (command:String, project:HXProject):Void {
-	
-		targetDirectory = project.app.path + "/html5";
+		
+		targetDirectory = project.app.path + "/html5/" + buildType;
 		outputFile = targetDirectory + "/bin/" + project.app.file + ".js";
-
+		
 	}
 	
 	
@@ -181,7 +169,7 @@ class HTML5Platform extends PlatformTarget {
 		
 		var context = project.templateContext;
 		
-		context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background, 6);
+		context.WIN_FLASHBACKGROUND = project.window.background != null ? StringTools.hex (project.window.background, 6) : "";
 		context.OUTPUT_DIR = targetDirectory;
 		context.OUTPUT_FILE = outputFile;
 		

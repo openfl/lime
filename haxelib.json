@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "2.9.1",
-	"releasenote": "Added drag/drop and maximize support, other fixes and improvements",
+	"version": "3.0.2",
+	"releasenote": "Added more compress methods, minor fixes",
 	"contributors": [ "singmajesty" ]
 }

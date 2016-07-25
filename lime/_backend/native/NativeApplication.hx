@@ -64,6 +64,11 @@ class NativeApplication {
 		
 		this.parent = parent;
 		frameRate = 60;
+
+		#if (lime_console && final)
+		// suppress traces in final builds
+		haxe.Log.trace = function(v:Dynamic, ?infos:haxe.PosInfos) {};
+		#end
 		
 		AudioManager.init ();
 		
@@ -353,6 +358,8 @@ class NativeApplication {
 		
 		for (renderer in parent.renderers) {
 			
+			if (renderer == null) continue;
+			
 			parent.renderer = renderer;
 			
 			switch (renderEventInfo.type) {
@@ -377,7 +384,7 @@ class NativeApplication {
 					if (renderer.backend.useHardware) {
 						
 						#if lime_console
-						renderer.context = CONSOLE (new ConsoleRenderContext ());
+						renderer.context = CONSOLE (ConsoleRenderContext.singleton);
 						#else
 						renderer.context = OPENGL (new GLRenderContext ());
 						#end
@@ -515,13 +522,7 @@ class NativeApplication {
 				
 				case WINDOW_CLOSE:
 					
-					window.onClose.dispatch ();
-					
-					if (!window.onClose.canceled) {
-						
-						window.close ();
-						
-					}
+					window.close ();
 				
 				case WINDOW_DEACTIVATE:
 					

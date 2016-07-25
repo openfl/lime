@@ -63,7 +63,7 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 		
-		targetDirectory = project.app.path + "/windows" + (is64 ? "64" : "") + "/" + targetType;
+		targetDirectory = project.app.path + "/windows" + (is64 ? "64" : "") + "/" + targetType + "/" + buildType;
 		applicationDirectory = targetDirectory + "/bin/";
 		executablePath = applicationDirectory + project.app.file + ".exe";
 		
@@ -72,19 +72,7 @@ class WindowsPlatform extends PlatformTarget {
 	
 	public override function build ():Void {
 		
-		var type = "release";
-		
-		if (project.debug) {
-			
-			type = "debug";
-			
-		} else if (project.targetFlags.exists ("final")) {
-			
-			type = "final";
-			
-		}
-		
-		var hxml = targetDirectory + "/haxe/" + type + ".hxml";
+		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
 		
 		PathHelper.mkdir (targetDirectory);
 		
@@ -100,7 +88,7 @@ class WindowsPlatform extends PlatformTarget {
 		}
 		
 		if (!project.targetFlags.exists ("static") || targetType != "cpp") {
-
+			
 			for (ndll in project.ndlls) {
 				
 				FileHelper.copyLibrary (project, ndll, (is64) ? "Windows64" : "Windows", "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll", applicationDirectory, project.debug);
@@ -143,10 +131,7 @@ class WindowsPlatform extends PlatformTarget {
 		} else {
 			
 			var haxeArgs = [ hxml ];
-			var flags = [ is64 ? "-DHXCPP_M64" : "" ];
-
-			haxeArgs.push ("-D");
-			haxeArgs.push ((is64) ? "HXCPP_M64" : "HXCPP_M32");
+			var flags = [ is64 ? "-DHXCPP_M64" : "-DHXCPP_M32" ];
 			
 			if (!project.environment.exists ("SHOW_CONSOLE")) {
 				
@@ -207,22 +192,13 @@ class WindowsPlatform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
-		var type = "release";
-		
-		if (project.debug) {
-			
-			type = "debug";
-			
-		} else if (project.targetFlags.exists ("final")) {
-			
-			type = "final";
-			
-		}
-		
-		var hxml = PathHelper.findTemplate (project.templatePaths, targetType + "/hxml/" + type + ".hxml");
+		var hxml = PathHelper.findTemplate (project.templatePaths, targetType + "/hxml/" + buildType + ".hxml");
 		var template = new Template (File.getContent (hxml));
 		
-		Sys.println (template.execute (generateContext ()));
+		var context = generateContext ();
+		context.OUTPUT_DIR = targetDirectory;
+
+		Sys.println (template.execute (context));
 		Sys.println ("-D display");
 		
 	}
@@ -304,16 +280,25 @@ class WindowsPlatform extends PlatformTarget {
 		}
 		
 		var context = generateContext ();
-		
+		context.OUTPUT_DIR = targetDirectory;
+
 		if (targetType == "cpp" && project.targetFlags.exists ("static")) {
 			
+			var suffix = ".lib";
+
+			if (Sys.getEnv ("VS140COMNTOOLS") != null) {
+
+				suffix = "-19.lib";
+
+			}
+
 			for (i in 0...project.ndlls.length) {
 				
 				var ndll = project.ndlls[i];
 				
 				if (ndll.path == null || ndll.path == "") {
 					
-					context.ndlls[i].path = PathHelper.getLibraryPath (ndll, "Windows" + (is64 ? "64" : ""), "lib", ".lib", project.debug);
+					context.ndlls[i].path = PathHelper.getLibraryPath (ndll, "Windows" + (is64 ? "64" : ""), "lib", suffix, project.debug);
 					
 				}
 				
