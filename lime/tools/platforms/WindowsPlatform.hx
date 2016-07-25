@@ -227,7 +227,7 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 		
-		CPPHelper.rebuild (project, [[ "-Dwindows", (is64) ? "HXCPP_M64" : "HXCPP_M32" ]]);
+		CPPHelper.rebuild (project, [[ "-Dwindows", (is64) ? "-DHXCPP_M64" : "-DHXCPP_M32" ]]);
 		
 	}
 	
