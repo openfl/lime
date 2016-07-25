@@ -1,3 +1,0 @@
-#ifndef NME_BINARY_VERSION
-#define NME_BINARY_VERSION 0
-#endif

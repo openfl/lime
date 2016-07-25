@@ -1,9 +1,10 @@
-package lime; #if (!lime_legacy || lime_hybrid)
+package lime;
 
 
 #if !macro
 
 
+import haxe.CallStack;
 import haxe.Json;
 import haxe.Unserializer;
 import lime.app.Event;
@@ -119,19 +120,19 @@ class Assets {
 					
 				} else {
 					
-					trace ("[Assets] Audio asset \"" + id + "\" exists, but only asynchronously");
+					printError ("[Assets] Audio asset \"" + id + "\" exists, but only asynchronously");
 					
 				}
 				
 			} else {
 				
-				trace ("[Assets] There is no audio asset with an ID of \"" + id + "\"");
+				printError ("[Assets] There is no audio asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
+			printError ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
@@ -168,19 +169,19 @@ class Assets {
 					
 				} else {
 					
-					trace ("[Assets] String or Bytes asset \"" + id + "\" exists, but only asynchronously");
+					printError ("[Assets] String or Bytes asset \"" + id + "\" exists, but only asynchronously");
 					
 				}
 				
 			} else {
 				
-				trace ("[Assets] There is no String or Bytes asset with an ID of \"" + id + "\"");
+				printError ("[Assets] There is no String or Bytes asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
+			printError ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
@@ -231,19 +232,19 @@ class Assets {
 					
 				} else {
 					
-					trace ("[Assets] Font asset \"" + id + "\" exists, but only asynchronously");
+					printError ("[Assets] Font asset \"" + id + "\" exists, but only asynchronously");
 					
 				}
 				
 			} else {
 				
-				trace ("[Assets] There is no Font asset with an ID of \"" + id + "\"");
+				printError ("[Assets] There is no Font asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
+			printError ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
@@ -301,19 +302,19 @@ class Assets {
 					
 				} else {
 					
-					trace ("[Assets] Image asset \"" + id + "\" exists, but only asynchronously");
+					printError ("[Assets] Image asset \"" + id + "\" exists, but only asynchronously");
 					
 				}
 				
 			} else {
 				
-				trace ("[Assets] There is no Image asset with an ID of \"" + id + "\"");
+				printError ("[Assets] There is no Image asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
+			printError ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
@@ -361,13 +362,13 @@ class Assets {
 				
 			} else {
 				
-				trace ("[Assets] There is no asset with an ID of \"" + id + "\"");
+				printError ("[Assets] There is no asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
+			printError ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
@@ -404,19 +405,19 @@ class Assets {
 					
 				} else {
 					
-					trace ("[Assets] String asset \"" + id + "\" exists, but only asynchronously");
+					printError ("[Assets] String asset \"" + id + "\" exists, but only asynchronously");
 					
 				}
 				
 			} else {
 				
-				trace ("[Assets] There is no String asset with an ID of \"" + id + "\"");
+				printError ("[Assets] There is no String asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
+			printError ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
@@ -865,6 +866,17 @@ class Assets {
 	}
 	
 	
+	private static inline function printError (message:String):Void {
+
+		#if debug
+		var callstack = CallStack.callStack ();
+		callstack.reverse();
+		trace (CallStack.toString (callstack) + "\n" + message);
+		#else
+		trace (message);
+		#end
+
+	}
 	
 	
 	// Event Handlers
@@ -1060,9 +1072,12 @@ class AssetCache {
 		audio = new Map<String, AudioBuffer> ();
 		font = new Map<String, Dynamic /*Font*/> ();
 		image = new Map<String, Image> ();
-		version = Std.int (Math.random () * 1000000);
+		version = AssetCache.cacheVersion ();
 		
 	}
+	
+	
+	private macro static function cacheVersion () {}
 	
 	
 	public function clear (prefix:String = null):Void {
@@ -1164,17 +1179,16 @@ class Assets {
 		
 		var fields = embedData (":file");
 		
-		#if lime_console
-		if (false) {
-		#else
 		if (fields != null) {
-		#end
 			
 			var constructor = macro {
 				
+				#if lime_console
+				throw "not implemented";
+				#else
 				var bytes = haxe.Resource.getBytes (resourceName);
-				
 				super (bytes.length, bytes.b);
+				#end
 				
 			};
 			
@@ -1192,18 +1206,19 @@ class Assets {
 		
 		var fields = embedData (":file");
 		
-		#if lime_console
-		if (false) {
-		#else
 		if (fields != null) {
-		#end
 			
 			var constructor = macro {
+
 				
 				super ();
 				
+				#if lime_console
+				throw "not implemented";
+				#else
 				var bytes = haxe.Resource.getBytes (resourceName);
 				__fromBytes (bytes);
+				#end
 				
 			};
 			
@@ -1216,50 +1231,6 @@ class Assets {
 		
 	}
 	
-	
-	#if lime_console
-	
-	private static function embedData (metaName:String, encode:Bool = false):Array<Field> {
-		
-		var classType = Context.getLocalClass().get();
-		var metaData = classType.meta.get();
-		var position = Context.currentPos();
-		var fields = Context.getBuildFields();
-		
-		for (meta in metaData) {
-			
-			if (meta.name != metaName || meta.params.length <= 0) {
-				continue;
-			}
-				
-			switch (meta.params[0].expr) {
-				
-				case EConst(CString(filePath)):
-					
-					var fieldValue = {
-						pos: position,
-						expr: EConst(CString(filePath))
-					};
-					fields.push ({
-						kind: FVar(macro :String, fieldValue),
-						name: "filePath",
-						access: [ APrivate, AStatic ],
-						pos: position
-					});
-					
-					return fields;
-					
-				default:
-				
-			}
-			
-		}
-		
-		return null;
-		
-	}
-
-	#else
 	
 	private static function embedData (metaName:String, encode:Bool = false):Array<Field> {
 		
@@ -1277,6 +1248,21 @@ class Assets {
 					switch (meta.params[0].expr) {
 						
 						case EConst(CString(filePath)):
+							
+							#if lime_console
+							
+							var fieldValue = {
+								pos: position,
+								expr: EConst(CString(filePath))
+							};
+							fields.push ({
+								kind: FVar(macro :String, fieldValue),
+								name: "filePath",
+								access: [ APrivate, AStatic ],
+								pos: position
+							});
+							
+							#else
 							
 							var path = filePath;
 							if (!sys.FileSystem.exists(filePath)) {
@@ -1314,6 +1300,8 @@ class Assets {
 							var fieldValue = { pos: position, expr: EConst(CString(resourceName)) };
 							fields.push ({ kind: FVar(macro :String, fieldValue), name: "resourceName", access: [ APrivate, AStatic ], pos: position });
 							
+							#end
+							
 							return fields;
 							
 						default:
@@ -1329,12 +1317,10 @@ class Assets {
 		return null;
 		
 	}
-
-	#end
 	
 	
 	macro public static function embedFont ():Array<Field> {
-		
+
 		var fields = null;
 		
 		var classType = Context.getLocalClass().get();
@@ -1374,6 +1360,10 @@ class Assets {
 		}
 		
 		if (path != null && path != "") {
+
+			#if lime_console
+			throw "not implemented";
+			#end
 			
 			#if html5
 			Sys.command ("haxelib", [ "run", "lime", "generate", "-font-hash", sys.FileSystem.fullPath(path) ]);
@@ -1529,7 +1519,19 @@ class Assets {
 }
 
 
-#end
+class AssetCache {
+	
+	
+	private static macro function cacheVersion () {
+		
+		return macro $v{ Std.int (Math.random () * 1000000) };
+		
+	}
+	
+	
+}
+
+
 #end
 
 

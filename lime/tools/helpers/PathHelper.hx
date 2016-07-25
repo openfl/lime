@@ -192,6 +192,7 @@ class PathHelper {
 				ProcessHelper.dryRun = false;
 				
 				output = ProcessHelper.runProcess (Sys.getEnv ("HAXEPATH"), "haxelib", [ "path", name ], true, true, true);
+				if (output == null) output = "";
 				
 				ProcessHelper.dryRun = cacheDryRun;
 				

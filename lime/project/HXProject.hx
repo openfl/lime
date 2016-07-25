@@ -17,7 +17,7 @@ import lime.project.AssetType;
 import sys.FileSystem;
 import sys.io.File;
 
-#if (lime && !lime_legacy)
+#if lime
 import haxe.xml.Fast;
 import lime.text.Font;
 import lime.tools.helpers.FileHelper;
@@ -51,6 +51,8 @@ class HXProject {
 	public var meta:MetaData;
 	public var ndlls:Array <NDLL>;
 	public var platformType:PlatformType;
+	public var postBuildCallbacks:Array <CLICommand>;
+	public var preBuildCallbacks:Array <CLICommand>;
 	public var samplePaths:Array <String>;
 	public var sources:Array <String>;
 	public var splashScreens:Array <SplashScreen>;
@@ -116,9 +118,9 @@ class HXProject {
 		targetFlags = StringMapHelper.copy (_targetFlags);
 		templatePaths = _templatePaths.copy ();
 		
-		defaultMeta = { title: "MyApplication", description: "", packageName: "com.example.myapp", version: "1.0.0", company: "Example, Inc.", companyUrl: "", buildNumber: "1", companyId: "" }
+		defaultMeta = { title: "MyApplication", description: "", packageName: "com.example.myapp", version: "1.0.0", company: "", companyUrl: "", buildNumber: "1", companyId: "" }
 		defaultApp = { main: "Main", file: "MyApplication", path: "bin", preloader: "", swfVersion: 11.2, url: "", init: null }
-		defaultWindow = { width: 800, height: 600, parameters: "{}", background: 0xFFFFFF, fps: 30, hardware: true, display: 0, resizable: true, borderless: false, orientation: Orientation.AUTO, vsync: false, fullscreen: false, antialiasing: 0, allowShaders: true, requireShaders: false, depthBuffer: false, stencilBuffer: false }
+		defaultWindow = { width: 800, height: 600, parameters: "{}", background: 0xFFFFFF, fps: 30, hardware: true, display: 0, resizable: true, borderless: false, orientation: Orientation.AUTO, vsync: false, fullscreen: false, allowHighDPI: true, antialiasing: 0, allowShaders: true, requireShaders: false, depthBuffer: false, stencilBuffer: false }
 		
 		platformType = PlatformType.DESKTOP;
 		architectures = [];
@@ -193,6 +195,11 @@ class HXProject {
 				// TODO: Better handle platform type for pluggable targets
 				
 				platformType = PlatformType.CONSOLE;
+
+				defaultWindow.width = 0;
+				defaultWindow.height = 0;
+				defaultWindow.fps = 60;
+				defaultWindow.fullscreen = true;
 			
 		}
 		
@@ -212,6 +219,8 @@ class HXProject {
 		libraries = new Array <Library> ();
 		libraryHandlers = new Map <String, String> ();
 		ndlls = new Array <NDLL> ();
+		postBuildCallbacks = new Array <CLICommand> ();
+		preBuildCallbacks = new Array <CLICommand> ();
 		sources = new Array <String> ();
 		samplePaths = new Array <String> ();
 		splashScreens = new Array <SplashScreen> ();
@@ -305,6 +314,8 @@ class HXProject {
 		}
 		
 		project.platformType = platformType;
+		project.postBuildCallbacks = postBuildCallbacks.copy ();
+		project.preBuildCallbacks = preBuildCallbacks.copy ();
 		project.samplePaths = samplePaths.copy ();
 		project.sources = sources.copy ();
 		
@@ -362,7 +373,7 @@ class HXProject {
 				filter = StringTools.replace (filter, ".", "\\.");
 				filter = StringTools.replace (filter, "*", ".*");
 				
-				var regexp = new EReg ("^" + filter, "i");
+				var regexp = new EReg ("^" + filter + "$", "i");
 				
 				if (regexp.match (text)) {
 					
@@ -398,7 +409,7 @@ class HXProject {
 	}
 	
 	
-	#if (lime && !lime_legacy)
+	#if lime
 	
 	public static function fromFile (projectFile:String, userDefines:Map <String, Dynamic> = null, includePaths:Array <String> = null):HXProject {
 		
@@ -620,7 +631,7 @@ class HXProject {
 	}
 	
 	
-	#if (lime && !lime_legacy)
+	#if lime
 	
 	public function includeXML (xml:String):Void {
 		
@@ -709,6 +720,8 @@ class HXProject {
 			javaPaths = ArrayHelper.concatUnique (javaPaths, project.javaPaths, true);
 			libraries = ArrayHelper.concatUnique (libraries, project.libraries, true);
 			ndlls = ArrayHelper.concatUnique (ndlls, project.ndlls);
+			postBuildCallbacks = postBuildCallbacks.concat (project.postBuildCallbacks);
+			preBuildCallbacks = preBuildCallbacks.concat (project.preBuildCallbacks);
 			samplePaths = ArrayHelper.concatUnique (samplePaths, project.samplePaths, true);
 			sources = ArrayHelper.concatUnique (sources, project.sources, true);
 			splashScreens = ArrayHelper.concatUnique (splashScreens, project.splashScreens);
@@ -734,7 +747,7 @@ class HXProject {
 	}
 	
 	
-	#if (lime && !lime_legacy)
+	#if lime
 	
 	@:noCompletion private static function processHaxelibs (project:HXProject, userDefines:Map <String, Dynamic>):Void {
 		
@@ -930,7 +943,7 @@ class HXProject {
 				
 				embeddedAsset.type = Std.string (asset.type).toLowerCase ();
 				
-				#if (lime && !lime_legacy)
+				#if lime
 				if (asset.type == FONT) {
 					
 					try {
@@ -986,82 +999,92 @@ class HXProject {
 				
 			}
 			
-			#if (lime && !lime_legacy)
+			#if lime
 			
-			var cache = LogHelper.verbose;
-			LogHelper.verbose = false;
-			var output = "";
-			
-			try {
+			if (PathHelper.haxelibOverrides.exists (name)) {
 				
-				output = ProcessHelper.runProcess ("", "haxelib", [ "path", name ], true, true, true);
+				var param = "-cp " + PathHelper.haxelibOverrides.get (name);
+				compilerFlags.remove (param);
+				compilerFlags.push (param);
 				
-			} catch (e:Dynamic) { }
-			
-			LogHelper.verbose = cache;
-			
-			var split = output.split ("\n");
-			var haxelibName = null;
-			
-			for (arg in split) {
+			} else {
 				
-				arg = StringTools.trim (arg);
+				var cache = LogHelper.verbose;
+				LogHelper.verbose = false;
+				var output = "";
 				
-				if (arg != "") {
+				try {
 					
-					if (!StringTools.startsWith (arg, "-")) {
+					output = ProcessHelper.runProcess ("", "haxelib", [ "path", name ], true, true, true);
+					
+				} catch (e:Dynamic) { }
+				
+				LogHelper.verbose = cache;
+				
+				var split = output.split ("\n");
+				var haxelibName = null;
+				
+				for (arg in split) {
+					
+					arg = StringTools.trim (arg);
+					
+					if (arg != "") {
 						
-						var path = PathHelper.standardize (arg);
-						
-						if (path != null && StringTools.trim (path) != "") {
+						if (!StringTools.startsWith (arg, "-")) {
 							
-							var param = "-cp " + path;
-							compilerFlags.remove (param);
-							compilerFlags.push (param);
+							var path = PathHelper.standardize (arg);
 							
-						}
-						
-						var version = "0.0.0";
-						var jsonPath = PathHelper.combine (path, "haxelib.json");
-						
-						try {
-							
-							if (FileSystem.exists (jsonPath)) {
+							if (path != null && StringTools.trim (path) != "") {
 								
-								var json = Json.parse (File.getContent (jsonPath));
-								haxelibName = json.name;
-								compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ "-D " + haxelibName + "=" + json.version ], true);
-								
-							}
-							
-						} catch (e:Dynamic) {}
-						
-					} else {
-						
-						if (StringTools.startsWith (arg, "-D ") && arg.indexOf ("=") == -1) {
-							
-							var name = arg.substr (3);
-							
-							if (name != haxelibName) {
-								
-								compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ "-D " + name ], true);
+								var param = "-cp " + path;
+								compilerFlags.remove (param);
+								compilerFlags.push (param);
 								
 							}
 							
-							/*var haxelib = new Haxelib (arg.substr (3));
-							var path = PathHelper.getHaxelib (haxelib);
-							var version = getHaxelibVersion (haxelib);
+							var version = "0.0.0";
+							var jsonPath = PathHelper.combine (path, "haxelib.json");
 							
-							if (path != null) {
+							try {
 								
-								CompatibilityHelper.patchProject (this, haxelib, version);
-								compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ "-D " + haxelib.name + "=" + version ], true);
+								if (FileSystem.exists (jsonPath)) {
+									
+									var json = Json.parse (File.getContent (jsonPath));
+									haxelibName = json.name;
+									compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ "-D " + haxelibName + "=" + json.version ], true);
+									
+								}
 								
-							}*/
+							} catch (e:Dynamic) {}
 							
-						} else if (!StringTools.startsWith (arg, "-L")) {
+						} else {
 							
-							compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ arg ], true);
+							if (StringTools.startsWith (arg, "-D ") && arg.indexOf ("=") == -1) {
+								
+								var name = arg.substr (3);
+								
+								if (name != haxelibName) {
+									
+									compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ "-D " + name ], true);
+									
+								}
+								
+								/*var haxelib = new Haxelib (arg.substr (3));
+								var path = PathHelper.getHaxelib (haxelib);
+								var version = getHaxelibVersion (haxelib);
+								
+								if (path != null) {
+									
+									CompatibilityHelper.patchProject (this, haxelib, version);
+									compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ "-D " + haxelib.name + "=" + version ], true);
+									
+								}*/
+								
+							} else if (!StringTools.startsWith (arg, "-L")) {
+								
+								compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ arg ], true);
+								
+							}
 							
 						}
 						
@@ -1271,5 +1294,5 @@ class HXProject {
 		
 	}
 	
-
+	
 }

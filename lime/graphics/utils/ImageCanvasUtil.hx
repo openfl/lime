@@ -23,18 +23,18 @@ class ImageCanvasUtil {
 	
 	public static function colorTransform (image:Image, rect:Rectangle, colorMatrix:ColorMatrix):Void {
 		
-		convertToCanvas (image);
-		createImageData (image);
+		convertToData (image);
 		
 		ImageDataUtil.colorTransform (image, rect, colorMatrix);
 		
 	}
 	
 	
-	public static function convertToCanvas (image:Image):Void {
+	public static function convertToCanvas (image:Image, clear:Bool = false):Void {
 		
 		var buffer = image.buffer;
 		
+		#if (js && html5)
 		if (buffer.__srcImage != null) {
 			
 			if (buffer.__srcCanvas == null) {
@@ -46,28 +46,80 @@ class ImageCanvasUtil {
 			
 			buffer.__srcImage = null;
 			
-		} else if (buffer.data != null && buffer.__srcCanvas == null) {
+		} else if (buffer.__srcCanvas == null && buffer.data != null) {
 			
+			image.transparent = true;
 			createCanvas (image, buffer.width, buffer.height);
 			createImageData (image);
 			
-		} else if (buffer.data == null && buffer.__srcImageData != null) {
+			buffer.__srcContext.putImageData (buffer.__srcImageData, 0, 0);
 			
-			buffer.data = cast buffer.__srcImageData.data;
+		} else {
+			
+			if (image.type == DATA && buffer.__srcImageData != null && image.dirty) {
+				
+				buffer.__srcContext.putImageData (buffer.__srcImageData, 0, 0);
+				image.dirty = false;
+				
+			}
 			
 		}
+		
+		if (clear) {
+			
+			buffer.data = null;
+			buffer.__srcImageData = null;
+			
+		} else {
+			
+			if (buffer.data == null && buffer.__srcImageData != null) {
+				
+				buffer.data = cast buffer.__srcImageData.data;
+				
+			}
+			
+		}
+		#end
+		
+		image.type = CANVAS;
 		
 	}
 	
 	
-	public static function convertToData (image:Image):Void {
+	public static function convertToData (image:Image, clear:Bool = false):Void {
+		
+		var buffer = image.buffer;
 		
 		#if (js && html5)
-		if (image.buffer.data == null) {
+		if (buffer.__srcImage != null) {
 			
 			convertToCanvas (image);
-			sync (image, false);
+			
+		}
+		
+		if (buffer.__srcCanvas != null && buffer.data == null) {
+			
 			createImageData (image);
+			if (image.type == CANVAS) image.dirty = false;
+			
+		} else if (image.type == CANVAS && buffer.__srcCanvas != null && image.dirty) {
+			
+			if (buffer.__srcImageData == null) {
+				
+				createImageData (image);
+				
+			} else {
+				
+				buffer.__srcImageData = buffer.__srcContext.getImageData (0, 0, buffer.width, buffer.height);
+				buffer.data = new UInt8Array (cast buffer.__srcImageData.data.buffer);
+				
+			}
+			
+			image.dirty = false;
+			
+		}
+		
+		if (clear) {
 			
 			image.buffer.__srcCanvas = null;
 			image.buffer.__srcContext = null;
@@ -75,15 +127,15 @@ class ImageCanvasUtil {
 		}
 		#end
 		
+		image.type = DATA;
+		
 	}
 	
 	
 	public static function copyChannel (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, sourceChannel:ImageChannel, destChannel:ImageChannel):Void {
 		
-		convertToCanvas (sourceImage);
-		createImageData (sourceImage);
-		convertToCanvas (image);
-		createImageData (image);
+		convertToData (sourceImage);
+		convertToData (image);
 		
 		ImageDataUtil.copyChannel (image, sourceImage, sourceRect, destPoint, sourceChannel, destChannel);
 		
@@ -110,7 +162,7 @@ class ImageCanvasUtil {
 			
 		}
 		
-		sync (image, true);
+		convertToCanvas (image, true);
 		
 		if (!mergeAlpha) {
 			
@@ -122,13 +174,16 @@ class ImageCanvasUtil {
 			
 		}
 		
-		sync (sourceImage, false);
+		convertToCanvas (sourceImage);
 		
 		if (sourceImage.buffer.src != null) {
 			
 			image.buffer.__srcContext.drawImage (sourceImage.buffer.src, Std.int (sourceRect.x + sourceImage.offsetX), Std.int (sourceRect.y + sourceImage.offsetY), Std.int (sourceRect.width), Std.int (sourceRect.height), Std.int (destPoint.x + image.offsetX), Std.int (destPoint.y + image.offsetY), Std.int (sourceRect.width), Std.int (sourceRect.height));
 			
 		}
+		
+		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -197,18 +252,6 @@ class ImageCanvasUtil {
 	public static function fillRect (image:Image, rect:Rectangle, color:Int, format:PixelFormat):Void {
 		
 		convertToCanvas (image);
-		sync (image, true);
-		
-		if (rect.x == 0 && rect.y == 0 && rect.width == image.width && rect.height == image.height) {
-			
-			if (image.transparent && ((color & 0xFF) == 0)) {
-				
-				image.buffer.__srcCanvas.width = image.buffer.width;
-				return;
-				
-			}
-			
-		}
 		
 		var r, g, b, a;
 		
@@ -228,16 +271,29 @@ class ImageCanvasUtil {
 			
 		}
 		
+		if (rect.x == 0 && rect.y == 0 && rect.width == image.width && rect.height == image.height) {
+			
+			if (image.transparent && a == 0) {
+				
+				image.buffer.__srcCanvas.width = image.buffer.width;
+				return;
+				
+			}
+			
+		}
+		
 		image.buffer.__srcContext.fillStyle = 'rgba(' + r + ', ' + g + ', ' + b + ', ' + (a / 255) + ')';
 		image.buffer.__srcContext.fillRect (rect.x + image.offsetX, rect.y + image.offsetY, rect.width + image.offsetX, rect.height + image.offsetY);
+		
+		image.dirty = true;
+		image.version++;
 		
 	}
 	
 	
 	public static function floodFill (image:Image, x:Int, y:Int, color:Int, format:PixelFormat):Void {
 		
-		convertToCanvas (image);
-		createImageData (image);
+		convertToData (image);
 		
 		ImageDataUtil.floodFill (image, x, y, color, format);
 		
@@ -246,8 +302,7 @@ class ImageCanvasUtil {
 	
 	public static function getPixel (image:Image, x:Int, y:Int, format:PixelFormat):Int {
 		
-		convertToCanvas (image);
-		createImageData (image);
+		convertToData (image);
 		
 		return ImageDataUtil.getPixel (image, x, y, format);
 		
@@ -256,8 +311,7 @@ class ImageCanvasUtil {
 	
 	public static function getPixel32 (image:Image, x:Int, y:Int, format:PixelFormat):Int {
 		
-		convertToCanvas (image);
-		createImageData (image);
+		convertToData (image);
 		
 		return ImageDataUtil.getPixel32 (image, x, y, format);
 		
@@ -266,8 +320,7 @@ class ImageCanvasUtil {
 	
 	public static function getPixels (image:Image, rect:Rectangle, format:PixelFormat):Bytes {
 		
-		convertToCanvas (image);
-		createImageData (image);
+		convertToData (image);
 		
 		return ImageDataUtil.getPixels (image, rect, format);
 		
@@ -276,10 +329,8 @@ class ImageCanvasUtil {
 	
 	public static function merge (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, redMultiplier:Int, greenMultiplier:Int, blueMultiplier:Int, alphaMultiplier:Int):Void {
 		
-		convertToCanvas (sourceImage);
-		createImageData (sourceImage);
-		convertToCanvas (image);
-		createImageData (image);
+		convertToData (sourceImage);
+		convertToData (image);
 		
 		ImageDataUtil.merge (image, sourceImage, sourceRect, destPoint, redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier);
 		
@@ -297,13 +348,19 @@ class ImageCanvasUtil {
 			
 		} else {
 			
-			sync (image, true);
+			convertToCanvas (image, true);
 			var sourceCanvas = buffer.__srcCanvas;
 			buffer.__srcCanvas = null;
 			createCanvas (image, newWidth, newHeight);
 			buffer.__srcContext.drawImage (sourceCanvas, 0, 0, newWidth, newHeight);
 			
 		}
+		
+		buffer.__srcImageData = null;
+		buffer.data = null;
+		
+		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -312,19 +369,20 @@ class ImageCanvasUtil {
 		
 		if ((x % image.width == 0) && (y % image.height == 0)) return;
 		
-		convertToCanvas (image);
-		sync (image, true);
+		convertToCanvas (image, true);
 		
 		image.buffer.__srcContext.clearRect (x, y, image.width, image.height);
 		image.buffer.__srcContext.drawImage (image.buffer.__srcCanvas, x, y);
+		
+		image.dirty = true;
+		image.version++;
 		
 	}
 	
 	
 	public static function setPixel (image:Image, x:Int, y:Int, color:Int, format:PixelFormat):Void {
 		
-		convertToCanvas (image);
-		createImageData (image);
+		convertToData (image);
 		
 		ImageDataUtil.setPixel (image, x, y, color, format);
 		
@@ -333,8 +391,7 @@ class ImageCanvasUtil {
 	
 	public static function setPixel32 (image:Image, x:Int, y:Int, color:Int, format:PixelFormat):Void {
 		
-		convertToCanvas (image);
-		createImageData (image);
+		convertToData (image);
 		
 		ImageDataUtil.setPixel32 (image, x, y, color, format);
 		
@@ -343,8 +400,7 @@ class ImageCanvasUtil {
 	
 	public static function setPixels (image:Image, rect:Rectangle, bytes:Bytes, format:PixelFormat):Void {
 		
-		convertToCanvas (image);
-		createImageData (image);
+		convertToData (image);
 		
 		ImageDataUtil.setPixels (image, rect, bytes, format);
 		
@@ -354,18 +410,13 @@ class ImageCanvasUtil {
 	public static function sync (image:Image, clear:Bool):Void {
 		
 		#if (js && html5)
-		if (image.dirty && image.buffer.__srcImageData != null && image.type != DATA) {
+		if (image.type == CANVAS) {
 			
-			image.buffer.__srcContext.putImageData (image.buffer.__srcImageData, 0, 0);
-			image.buffer.data = null;
-			image.dirty = false;
+			convertToCanvas (image, clear);
 			
-		}
-		
-		if (clear) {
+		} else {
 			
-			image.buffer.__srcImageData = null;
-			image.buffer.data = null;
+			convertToData (image, clear);
 			
 		}
 		#end

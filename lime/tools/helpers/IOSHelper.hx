@@ -324,5 +324,5 @@ class IOSHelper {
 		
 	}
 	
-
+	
 }

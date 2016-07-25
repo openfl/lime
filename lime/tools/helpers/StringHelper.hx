@@ -271,6 +271,6 @@ class StringHelper {
 		return string + "\n" + StringTools.lpad ("", character, string.length);
 		
 	}
-		
-
+	
+	
 }

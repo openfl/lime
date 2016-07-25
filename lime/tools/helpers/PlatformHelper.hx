@@ -101,6 +101,6 @@ class PlatformHelper {
 		return _hostPlatform;
 		
 	}
-		
-
+	
+	
 }

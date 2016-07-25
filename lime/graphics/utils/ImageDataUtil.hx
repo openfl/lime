@@ -20,6 +20,7 @@ import lime.utils.UInt8Array;
 @:build(lime.system.CFFI.build())
 #end
 
+@:access(lime.graphics.ImageBuffer)
 @:access(lime.math.color.RGBA)
 
 
@@ -67,6 +68,7 @@ class ImageDataUtil {
 		}
 		
 		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -151,6 +153,7 @@ class ImageDataUtil {
 		}
 		
 		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -297,6 +300,7 @@ class ImageDataUtil {
 		}
 		
 		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -329,6 +333,7 @@ class ImageDataUtil {
 			
 			var format = image.buffer.format;
 			var premultiplied = image.buffer.premultiplied;
+			if (premultiplied) fillColor.multiplyAlpha ();
 			
 			var dataView = new ImageDataView (image, rect);
 			var row;
@@ -339,7 +344,7 @@ class ImageDataUtil {
 				
 				for (x in 0...dataView.width) {
 					
-					fillColor.writeUInt8 (data, row + (x * 4), format, premultiplied);
+					fillColor.writeUInt8 (data, row + (x * 4), format, false);
 					
 				}
 				
@@ -348,6 +353,7 @@ class ImageDataUtil {
 		}
 		
 		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -380,6 +386,8 @@ class ImageDataUtil {
 			}
 			
 			if (fillColor == hitColor) return;
+			
+			if (premultiplied) fillColor.multiplyAlpha();
 			
 			var dx = [ 0, -1, 1, 0 ];
 			var dy = [ -1, 0, 0, 1 ];
@@ -416,7 +424,7 @@ class ImageDataUtil {
 					
 					if (readColor == hitColor) {
 						
-						fillColor.writeUInt8 (data, nextPointOffset, format, premultiplied);
+						fillColor.writeUInt8 (data, nextPointOffset, format, false);
 						
 						queue.push (nextPointX);
 						queue.push (nextPointY);
@@ -430,6 +438,7 @@ class ImageDataUtil {
 		}
 		
 		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -738,6 +747,7 @@ class ImageDataUtil {
 		}
 		
 		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -767,6 +777,7 @@ class ImageDataUtil {
 		
 		image.buffer.premultiplied = true;
 		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -840,6 +851,16 @@ class ImageDataUtil {
 		buffer.data = newBuffer.data;
 		buffer.width = newWidth;
 		buffer.height = newHeight;
+		
+		#if (js && html5)
+		buffer.__srcImage = null;
+		buffer.__srcImageData = null;
+		buffer.__srcCanvas = null;
+		buffer.__srcContext = null;
+		#end
+		
+		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -959,6 +980,7 @@ class ImageDataUtil {
 		
 		image.buffer.format = format;
 		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -984,6 +1006,7 @@ class ImageDataUtil {
 		pixel.writeUInt8 (image.buffer.data, (4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4), image.buffer.format, image.buffer.premultiplied);
 		
 		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -1004,6 +1027,7 @@ class ImageDataUtil {
 		pixel.writeUInt8 (image.buffer.data, (4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4), image.buffer.format, image.buffer.premultiplied);
 		
 		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -1053,6 +1077,7 @@ class ImageDataUtil {
 		}
 		
 		image.dirty = true;
+		image.version++;
 		
 	}
 	
@@ -1167,6 +1192,7 @@ class ImageDataUtil {
 		if (hits > 0) {
 			
 			image.dirty = true;
+			image.version++;
 			
 		}
 		
@@ -1200,6 +1226,7 @@ class ImageDataUtil {
 		
 		image.buffer.premultiplied = false;
 		image.dirty = true;
+		image.version++;
 		
 	}
 	

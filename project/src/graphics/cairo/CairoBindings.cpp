@@ -11,6 +11,10 @@
 namespace lime {
 	
 	
+	static int id_index;
+	static int id_x;
+	static int id_y;
+	static bool init = false;
 	cairo_user_data_key_t userData;
 	
 	
@@ -794,6 +798,27 @@ namespace lime {
 	
 	void lime_cairo_set_font_size (value handle, double size) {
 		
+		cairo_font_face_t* face = cairo_get_font_face ((cairo_t*)val_data (handle));
+		
+		if (face) {
+			
+			cairo_font_type_t type = cairo_font_face_get_type (face);
+			
+			if (type == CAIRO_FONT_TYPE_FT) {
+				
+				AutoGCRoot* fontReference = (AutoGCRoot*)cairo_font_face_get_user_data (face, &userData);
+				
+				if (fontReference) {
+					
+					Font* font = (Font*)val_data (fontReference->get ());
+					font->SetSize (size);
+					
+				}
+				
+			}
+			
+		}
+		
 		cairo_set_font_size ((cairo_t*)val_data (handle), size);
 		
 	}
@@ -877,6 +902,36 @@ namespace lime {
 	void lime_cairo_set_tolerance (value handle, double tolerance) {
 		
 		cairo_set_tolerance ((cairo_t*)val_data (handle), tolerance);
+		
+	}
+	
+	
+	void lime_cairo_show_glyphs (value handle, value glyphs) {
+		
+		if (!init) {
+			
+			id_index = val_id ("index");
+			id_x = val_id ("x");
+			id_y = val_id ("y");
+			
+		}
+		
+		int length = val_array_size (glyphs);
+		cairo_glyph_t* _glyphs = cairo_glyph_allocate (length);
+		
+		value glyph;
+		
+		for (int i = 0; i < length; i++) {
+			
+			glyph = val_array_i (glyphs, i);
+			_glyphs[i].index = val_int (val_field (glyph, id_index));
+			_glyphs[i].x = val_number (val_field (glyph, id_x));
+			_glyphs[i].y = val_number (val_field (glyph, id_y));
+			
+		}
+		
+		cairo_show_glyphs ((cairo_t*)val_data (handle), _glyphs, length);
+		cairo_glyph_free (_glyphs);
 		
 	}
 	
@@ -1067,6 +1122,7 @@ namespace lime {
 	DEFINE_PRIME5v (lime_cairo_set_source_rgba);
 	DEFINE_PRIME4v (lime_cairo_set_source_surface);
 	DEFINE_PRIME2v (lime_cairo_set_tolerance);
+	DEFINE_PRIME2v (lime_cairo_show_glyphs);
 	DEFINE_PRIME1v (lime_cairo_show_page);
 	DEFINE_PRIME2v (lime_cairo_show_text);
 	DEFINE_PRIME1 (lime_cairo_status);

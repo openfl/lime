@@ -36,8 +36,8 @@ class FlashPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
-		targetDirectory = project.app.path + "/flash";
-		
+		targetDirectory = project.app.path + "/flash/" + buildType;
+
 	}
 	
 	
@@ -45,21 +45,9 @@ class FlashPlatform extends PlatformTarget {
 		
 		var destination = targetDirectory + "/bin";
 		
-		var type = "release";
-		
-		if (project.debug) {
-			
-			type = "debug";
-			
-		} else if (project.targetFlags.exists ("final")) {
-			
-			type = "final";
-			
-		}
-		
 		if (embedded) {
 			
-			var hxml = File.getContent (targetDirectory + "/haxe/" + type + ".hxml");
+			var hxml = File.getContent (targetDirectory + "/haxe/" + buildType + ".hxml");
 			var args = new Array<String> ();
 			
 			for (line in ~/[\r\n]+/g.split (hxml)) {
@@ -87,12 +75,12 @@ class FlashPlatform extends PlatformTarget {
 				}
 				
 			}
-				
+			
 			ProcessHelper.runCommand ("", "haxe", args);
 			
 		} else {
 			
-			var hxml = targetDirectory + "/haxe/" + type + ".hxml";
+			var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
 			ProcessHelper.runCommand ("", "haxe", [ hxml ] );
 			
 		}
@@ -140,22 +128,11 @@ class FlashPlatform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
-		var type = "release";
-		
-		if (project.debug) {
-			
-			type = "debug";
-			
-		} else if (project.targetFlags.exists ("final")) {
-			
-			type = "final";
-			
-		}
-		
-		var hxml = PathHelper.findTemplate (project.templatePaths, "flash/hxml/" + type + ".hxml");
+		var hxml = PathHelper.findTemplate (project.templatePaths, "flash/hxml/" + buildType + ".hxml");
 		
 		var context = project.templateContext;
 		context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background, 6);
+		context.OUTPUT_DIR = targetDirectory;
 		
 		var template = new Template (File.getContent (hxml));
 		
@@ -182,7 +159,7 @@ class FlashPlatform extends PlatformTarget {
 		}
 		
 		var context = project.templateContext;
-		context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background, 6);
+		context.WIN_FLASHBACKGROUND = project.window.background != null ? StringTools.hex (project.window.background, 6) : "0xFFFFFF";
 		var assets:Array <Dynamic> = cast context.assets;
 		
 		for (asset in assets) {
@@ -257,9 +234,10 @@ class FlashPlatform extends PlatformTarget {
 		var destination = targetDirectory + "/bin/";
 		PathHelper.mkdir (destination);
 		
-		embedded = FlashHelper.embedAssets (project);
+		embedded = FlashHelper.embedAssets (project, targetDirectory);
 		
 		var context = generateContext ();
+		context.OUTPUT_DIR = targetDirectory;
 		
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", targetDirectory + "/haxe", context);
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "flash/hxml", targetDirectory + "/haxe", context);
@@ -267,23 +245,23 @@ class FlashPlatform extends PlatformTarget {
 		
 		//SWFHelper.generateSWFClasses (project, targetDirectory + "/haxe");
 		
-		var usesNME = false;
-		
-		for (haxelib in project.haxelibs) {
-			
-			if (haxelib.name == "nme" || haxelib.name == "openfl") {
-				
-				usesNME = true;
-				
-			}
-			
-			if (haxelib.name == "openfl") {
-				
-				CompatibilityHelper.patchAssetLibrary (project, haxelib, targetDirectory + "/haxe/DefaultAssetLibrary.hx", context);
-				
-			}
-			
-		}
+		//var usesLime = false;
+		//
+		//for (haxelib in project.haxelibs) {
+			//
+			//if (haxelib.name == "lime") {
+				//
+				//usesLime = true;
+				//
+			//}
+			//
+			//if (haxelib.name == "openfl") {
+				//
+				//CompatibilityHelper.patchAssetLibrary (project, haxelib, targetDirectory + "/haxe/DefaultAssetLibrary.hx", context);
+				//
+			//}
+			//
+		//}
 		
 		if (project.targetFlags.exists ("web") || project.app.url != "") {
 			
@@ -294,7 +272,7 @@ class FlashPlatform extends PlatformTarget {
 		
 		for (asset in project.assets) {
 			
-			if (asset.type == AssetType.TEMPLATE || asset.embed == false || !usesNME) {
+			if (asset.type == AssetType.TEMPLATE || asset.embed == false /*|| !usesLime*/) {
 				
 				var path = PathHelper.combine (destination, asset.targetPath);
 				

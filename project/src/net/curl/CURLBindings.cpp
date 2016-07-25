@@ -188,7 +188,8 @@ namespace lime {
 		AutoGCRoot* callback = (AutoGCRoot*)userp;
 		
 		size_t length = size * nmemb;
-		Bytes bytes = Bytes (val_call1 (callback->get (), alloc_int (length)));
+		Bytes bytes;
+		bytes.Set (val_call1 (callback->get (), alloc_int (length)));
 		
 		if (bytes.Length () <= length) length = bytes.Length ();
 		

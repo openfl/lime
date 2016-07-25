@@ -4,6 +4,7 @@ package lime.project;
 import haxe.io.Path;
 import haxe.xml.Fast;
 import lime.tools.helpers.ArrayHelper;
+import lime.tools.helpers.CommandHelper;
 import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.ObjectHelper;
 import lime.tools.helpers.PathHelper;
@@ -775,6 +776,53 @@ class ProjectXMLParser extends HXProject {
 	}
 	
 	
+	private function parseCommandElement (element:Fast, commandList:Array<CLICommand>):Void {
+		
+		var command:CLICommand = null;
+		
+		if (element.has.haxe) {
+			
+			command = CommandHelper.interpretHaxe (substitute (element.att.haxe));
+			
+		}
+		
+		if (element.has.open) {
+			
+			command = CommandHelper.openFile (substitute (element.att.open));
+			
+		}
+		
+		if (element.has.command) {
+			
+			command = CommandHelper.fromSingleString (substitute (element.att.command));
+			
+		}
+		
+		if (element.has.cmd) {
+			
+			command = CommandHelper.fromSingleString (substitute (element.att.cmd));
+			
+		}
+		
+		if (command != null) {
+			
+			for (arg in element.elements) {
+				
+				if (arg.name == "arg") {
+					
+					command.args.push (arg.innerData);
+					
+				}
+				
+			}
+			
+			commandList.push (command);
+			
+		}
+		
+	}
+	
+	
 	private function parseXML (xml:Fast, section:String, extensionPath:String = ""):Void {
 		
 		for (element in xml.elements) {
@@ -970,6 +1018,7 @@ class ProjectXMLParser extends HXProject {
 						var name = substitute (element.att.name);
 						var version = "";
 						var optional = false;
+						var path = null;
 						
 						if (element.has.version) {
 							
@@ -983,6 +1032,12 @@ class ProjectXMLParser extends HXProject {
 							
 						}
 						
+						if (element.has.path) {
+							
+							path = substitute (element.att.path);
+							
+						}
+						
 						/*if (name == "nme" && defines.exists ("openfl")) {
 							
 							name = "openfl-nme-compatibility";
@@ -991,21 +1046,28 @@ class ProjectXMLParser extends HXProject {
 						}*/
 						
 						var haxelib = new Haxelib (name, version);
-						var path;
 						
-						if (defines.exists ("setup")) {
+						if (path == null) {
 							
-							path = PathHelper.getHaxelib (haxelib);
+							if (defines.exists ("setup")) {
+								
+								path = PathHelper.getHaxelib (haxelib);
+								
+							} else {
+								
+								path = PathHelper.getHaxelib (haxelib, !optional);
+								
+								if (optional && path == "") {
+									
+									continue;
+									
+								}
+								
+							}
 							
 						} else {
 							
-							path = PathHelper.getHaxelib (haxelib, !optional);
-							
-							if (optional && path == "") {
-								
-								continue;
-								
-							}
+							PathHelper.haxelibOverrides.set (name, path);
 							
 						}
 						
@@ -1670,6 +1732,14 @@ class ProjectXMLParser extends HXProject {
 						
 						config.parse (element);
 					
+					case "prebuild":
+						
+						parseCommandElement (element, preBuildCallbacks);
+					
+					case "postbuild":
+						
+						parseCommandElement (element, postBuildCallbacks);
+					
 					default :
 						
 						if (StringTools.startsWith (element.name, "config:")) {
@@ -1720,7 +1790,15 @@ class ProjectXMLParser extends HXProject {
 						
 					}
 					
-					windows[id].background = Std.parseInt (value);
+					if (value == "0x" || (value.length == 10 && StringTools.startsWith (value, "0x00"))) {
+						
+						windows[id].background = null;
+						
+					} else {
+						
+						windows[id].background = Std.parseInt (value);
+						
+					}
 				
 				case "orientation":
 					
@@ -1745,6 +1823,14 @@ class ProjectXMLParser extends HXProject {
 					if (Reflect.hasField (windows[id], name)) {
 						
 						Reflect.setField (windows[id], name, Std.string (value));
+						
+					}
+				
+				case "allow-high-dpi":
+					
+					if (Reflect.hasField (windows[id], "allowHighDPI")) {
+						
+						Reflect.setField (windows[id], "allowHighDPI", value == "true");
 						
 					}
 				

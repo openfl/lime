@@ -29,7 +29,7 @@ class TizenPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
-		targetDirectory = project.app.path + "/tizen";
+		targetDirectory = project.app.path + "/tizen/" + buildType;
 		
 	}
 	
@@ -52,19 +52,7 @@ class TizenPlatform extends PlatformTarget {
 			
 		}
 		
-		var type = "release";
-		
-		if (project.debug) {
-			
-			type = "debug";
-			
-		} else if (project.targetFlags.exists ("final")) {
-			
-			type = "final";
-			
-		}
-		
-		var hxml = targetDirectory + "/haxe/" + type + ".hxml";
+		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
 		
 		ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "tizen" ] );
 		
@@ -103,22 +91,11 @@ class TizenPlatform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
-		var type = "release";
-		
-		if (project.debug) {
-			
-			type = "debug";
-			
-		} else if (project.targetFlags.exists ("final")) {
-			
-			type = "final";
-			
-		}
-		
-		var hxml = PathHelper.findTemplate (project.templatePaths, "tizen/hxml/" + type + ".hxml");
+		var hxml = PathHelper.findTemplate (project.templatePaths, "tizen/hxml/" + buildType + ".hxml");
 		
 		var context = project.templateContext;
 		context.CPP_DIR = targetDirectory + "/obj";
+		context.OUTPUT_DIR = targetDirectory;
 		
 		var template = new Template (File.getContent (hxml));
 		
@@ -192,6 +169,7 @@ class TizenPlatform extends PlatformTarget {
 		
 		var context = project.templateContext;
 		context.CPP_DIR = targetDirectory + "/obj";
+		context.OUTPUT_DIR = targetDirectory;
 		context.APP_PACKAGE = TizenHelper.getUUID (project);
 		context.SIMULATOR = project.targetFlags.exists ("simulator");
 		

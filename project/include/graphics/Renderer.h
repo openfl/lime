@@ -16,6 +16,8 @@ namespace lime {
 		
 		public:
 			
+			virtual ~Renderer () {};
+			
 			virtual void Flip () = 0;
 			virtual void* GetContext () = 0;
 			virtual double GetScale () = 0;

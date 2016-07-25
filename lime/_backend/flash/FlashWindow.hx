@@ -116,6 +116,13 @@ class FlashWindow {
 	}
 	
 	
+	public function setMaximized (value:Bool):Bool {
+		
+		return false;
+		
+	}
+	
+	
 	public function setMinimized (value:Bool):Bool {
 		
 		return false;

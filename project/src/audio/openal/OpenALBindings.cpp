@@ -17,7 +17,8 @@ namespace lime {
 	
 	void lime_al_buffer_data (int buffer, int format, value data, int size, int freq) {
 		
-		Bytes bytes (data);
+		Bytes bytes;
+		bytes.Set (data);
 		alBufferData (buffer, format, bytes.Data (), size, freq);
 		
 	}
@@ -46,11 +47,20 @@ namespace lime {
 	
 	void lime_al_bufferfv (int buffer, int param, value values) {
 		
-		float* data = val_array_float (values);
-		
-		if (data) {
+		if (val_is_null (values) == false) {
+			
+			int size = val_array_size (values);
+			ALfloat *data = new ALfloat[size];
+			
+			for (int i = 0; i < size; ++i) {
+				
+				data[i] = (ALfloat)val_float( val_array_i (values, i) );
+				
+			}
 			
 			alBufferfv (buffer, param, data);
+			
+			delete[] data;
 			
 		}
 		
@@ -66,11 +76,20 @@ namespace lime {
 	
 	void lime_al_bufferiv (int buffer, int param, value values) {
 		
-		int* data = val_array_int (values);
-		
-		if (data) {
+		if (val_is_null (values) == false) {
+			
+			int size = val_array_size (values);
+			ALint* data = new ALint[size];
+			
+			for (int i = 0; i < size; ++i) {
+				
+				data[i] = (ALint)val_int( val_array_i (values, i) );
+				
+			}
 			
 			alBufferiv (buffer, param, data);
+			
+			delete[] data;
 			
 		}
 		
@@ -109,11 +128,20 @@ namespace lime {
 	
 	void lime_al_delete_buffers (int n, value buffers) {
 		
-		int* data = val_array_int (buffers);
-		
-		if (data) {
+		if (val_is_null (buffers) == false) {
 			
-			alDeleteBuffers (n, (ALuint*)data);
+			int size = val_array_size (buffers);
+			ALuint* data = new ALuint[size];
+			
+			for (int i = 0; i < size; ++i) {
+				
+				data[i] = (ALuint)val_int( val_array_i (buffers, i) );
+				
+			}
+			
+			alDeleteBuffers (n, data);
+			
+			delete[] data;
 			
 		}
 		
@@ -130,11 +158,20 @@ namespace lime {
 	
 	void lime_al_delete_sources (int n, value sources) {
 		
-		int* data = val_array_int (sources);
-		
-		if (data) {
+		if (val_is_null (sources) == false) {
 			
-			alDeleteSources (n, (ALuint*)data);
+			int size = val_array_size (sources);
+			ALuint* data = new ALuint[size];
+			
+			for (int i = 0; i < size; ++i) {
+				
+				data[i] = (ALuint)val_int( val_array_i (sources, i) );
+				
+			}
+			
+			alDeleteSources (n, data);
+			
+			delete[] data;
 			
 		}
 		
@@ -533,7 +570,7 @@ namespace lime {
 		
 		ALfloat val1, val2, val3;
 		
-		alGetBuffer3f (source, param, &val1, &val2, &val3);
+		alGetSource3f (source, param, &val1, &val2, &val3);
 		
 		value result = alloc_array (3);
 		val_array_set_i (result, 0, alloc_float (val1));
@@ -674,11 +711,20 @@ namespace lime {
 	
 	void lime_al_listenerfv (int param, value values) {
 		
-		float* data = val_array_float (values);
-		
-		if (data) {
+		if (val_is_null (values) == false) {
 			
-			alListenerfv (param, data);
+			int size = val_array_size (values);
+			ALfloat *data = new ALfloat[size];
+			
+			for (int i = 0; i < size; ++i) {
+				
+				data[i] = (ALfloat)val_float( val_array_i (values, i) );
+				
+			}
+			
+			alListenerfv(param, data);
+			
+			delete[] data;
 			
 		}
 		
@@ -694,11 +740,20 @@ namespace lime {
 	
 	void lime_al_listeneriv (int param, value values) {
 		
-		int* data = val_array_int (values);
-		
-		if (data) {
+		if (val_is_null (values) == false) {
+			
+			int size = val_array_size (values);
+			ALint* data = new ALint[size];
+			
+			for (int i = 0; i < size; ++i) {
+				
+				data[i] = (ALint)val_int( val_array_i (values, i) );
+				
+			}
 			
 			alListeneriv (param, data);
+			
+			delete[] data;
 			
 		}
 		
@@ -714,14 +769,22 @@ namespace lime {
 	
 	void lime_al_source_pausev (int n, value sources) {
 		
-		int* data = val_array_int (sources);
-		
-		if (data) {
+		if (val_is_null (sources) == false) {
 			
-			alSourcePausev (n, (ALuint*)data);
+			int size = val_array_size (sources);
+			ALuint* data = new ALuint[size];
+			
+			for (int i = 0; i < size; ++i) {
+				
+				data[i] = (ALuint)val_int( val_array_i (sources, i) );
+				
+			}
+			
+			alSourcePausev (n, data);
+			
+			delete[] data;
 			
 		}
-		
 	}
 	
 	
@@ -734,11 +797,20 @@ namespace lime {
 	
 	void lime_al_source_playv (int n, value sources) {
 		
-		int* data = val_array_int (sources);
-		
-		if (data) {
+		if (val_is_null (sources) == false) {
 			
-			alSourcePlayv (n, (ALuint*)data);
+			int size = val_array_size (sources);
+			ALuint* data = new ALuint[size];
+			
+			for (int i = 0; i < size; ++i) {
+				
+				data[i] = (ALuint)val_int( val_array_i (sources, i) );
+				
+			}
+			
+			alSourcePlayv (n, data);
+			
+			delete[] data;
 			
 		}
 		
@@ -747,11 +819,20 @@ namespace lime {
 	
 	void lime_al_source_queue_buffers (int source, int nb, value buffers) {
 		
-		int* data = val_array_int (buffers);
-		
-		if (data) {
+		if (val_is_null (buffers) == false) {
 			
-			alSourceQueueBuffers (source, nb, (ALuint*)data);
+			int size = val_array_size (buffers);
+			ALuint* data = new ALuint[size];
+			
+			for (int i = 0; i < size; ++i) {
+				
+				data[i] = (ALuint)val_int( val_array_i (buffers, i) );
+				
+			}
+			
+			alSourceQueueBuffers (source, nb, data);
+			
+			delete[] data;
 			
 		}
 		
@@ -767,11 +848,20 @@ namespace lime {
 	
 	void lime_al_source_rewindv (int n, value sources) {
 		
-		int* data = val_array_int (sources);
-		
-		if (data) {
+		if (val_is_null (sources) == false) {
 			
-			alSourceRewindv (n, (ALuint*)data);
+			int size = val_array_size (sources);
+			ALuint* data = new ALuint[size];
+			
+			for (int i = 0; i < size; ++i) {
+				
+				data[i] = (ALuint)val_int( val_array_i (sources, i) );
+				
+			}
+			
+			alSourceRewindv (n, data);
+			
+			delete[] data;
 			
 		}
 		
@@ -787,11 +877,20 @@ namespace lime {
 	
 	void lime_al_source_stopv (int n, value sources) {
 		
-		int* data = val_array_int (sources);
-		
-		if (data) {
+		if (val_is_null (sources) == false) {
 			
-			alSourceStopv (n, (ALuint*)data);
+			int size = val_array_size (sources);
+			ALuint* data = new ALuint[size];
+			
+			for (int i = 0; i < size; ++i) {
+				
+				data[i] = (ALuint)val_int( val_array_i (sources, i) );
+				
+			}
+			
+			alSourceStopv (n, data);
+			
+			delete[] data;
 			
 		}
 		
@@ -840,11 +939,20 @@ namespace lime {
 	
 	void lime_al_sourcefv (int source, int param, value values) {
 		
-		float* data = val_array_float (values);
-		
-		if (data) {
+		if (val_is_null (values) == false) {
+			
+			int size = val_array_size (values);
+			ALfloat *data = new ALfloat[size];
+			
+			for (int i = 0; i < size; ++i) {
+				
+				data[i] = (ALfloat)val_float( val_array_i (values, i) );
+				
+			}
 			
 			alSourcefv (source, param, data);
+			
+			delete[] data;
 			
 		}
 		
@@ -860,11 +968,20 @@ namespace lime {
 	
 	void lime_al_sourceiv (int source, int param, value values) {
 		
-		int* data = val_array_int (values);
-		
-		if (data) {
+		if (val_is_null (values) == false) {
+			
+			int size = val_array_size (values);
+			ALint* data = new ALint[size];
+			
+			for (int i = 0; i < size; ++i) {
+				
+				data[i] = (ALint)val_int( val_array_i (values, i) );
+				
+			}
 			
 			alSourceiv (source, param, data);
+			
+			delete[] data;
 			
 		}
 		
@@ -889,9 +1006,26 @@ namespace lime {
 	value lime_alc_create_context (value device, value attrlist) {
 		
 		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
-		int* list = val_array_int (attrlist);
+		
+		ALCint* list = NULL;
+		
+		if (val_is_null (attrlist) == false) {
+			
+			int size = val_array_size (attrlist);
+			list = new ALCint[size];
+			
+			for (int i = 0; i < size; ++i) {
+				list[i] = (ALCint)val_int( val_array_i (attrlist, i) );
+			}
+			
+		}
 		
 		ALCcontext* alcContext = alcCreateContext (alcDevice, list);
+		
+		if (list != NULL) {
+			delete[] list;
+		}
+		
 		return CFFIPointer (alcContext);
 		
 	}

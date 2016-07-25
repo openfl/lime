@@ -34,26 +34,26 @@ package lime.utils;
             }
         }
 
-        @:arrayAccess inline function __set(idx:Int, val:Float) return this[idx] = val;
-        @:arrayAccess inline function __get(idx:Int) : Float return this[idx];
+        @:arrayAccess @:extern inline function __set(idx:Int, val:Float) : Float return this[idx] = val;
+        @:arrayAccess @:extern inline function __get(idx:Int) : Float return this[idx];
 
 
             //non spec haxe conversions
-        public static function fromBytes( bytes:haxe.io.Bytes, ?byteOffset:Int=0, ?len:Int ) : Float32Array {
+        inline public static function fromBytes( bytes:haxe.io.Bytes, ?byteOffset:Int=0, ?len:Int ) : Float32Array {
             if(byteOffset == null) return new js.html.Float32Array(cast bytes.getData());
             if(len == null) return new js.html.Float32Array(cast bytes.getData(), byteOffset);
             return new js.html.Float32Array(cast bytes.getData(), byteOffset, len);
         }
 
-        public function toBytes() : haxe.io.Bytes {
+        inline public function toBytes() : haxe.io.Bytes {
             #if (haxe_ver < 3.2)
-            return @:privateAccess new haxe.io.Bytes( this.byteLength, cast new js.html.Uint8Array(this.buffer) );
+                return @:privateAccess new haxe.io.Bytes( this.byteLength, cast new js.html.Uint8Array(this.buffer) );
             #else
                 return @:privateAccess new haxe.io.Bytes( cast new js.html.Uint8Array(this.buffer) );
             #end
-    }
+        }
 
-        function toString() return this != null ? 'Float32Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
+        inline function toString() return this != null ? 'Float32Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
 
     }
 
@@ -62,20 +62,20 @@ package lime.utils;
     import lime.utils.ArrayBuffer;
     import lime.utils.ArrayBufferView;
 
-@:forward()
-@:arrayAccess
-abstract Float32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
+    @:forward
+    abstract Float32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
 
-    public inline static var BYTES_PER_ELEMENT : Int = 4;
+        public inline static var BYTES_PER_ELEMENT : Int = 4;
 
-    public var length (get, never):Int;
+        public var length (get, never):Int;
 
         @:generic
         public inline function new<T>(
             ?elements:Int,
+            ?buffer:ArrayBuffer,
             ?array:Array<T>,
             ?view:ArrayBufferView,
-            ?buffer:ArrayBuffer, ?byteoffset:Int = 0, ?len:Null<Int>
+            ?byteoffset:Int = 0, ?len:Null<Int>
         ) {
 
             if(elements != null) {
@@ -91,39 +91,40 @@ abstract Float32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
             }
         }
 
-//Public API
+    //Public API
 
-    public inline function subarray( begin:Int, end:Null<Int> = null) : Float32Array return this.subarray(begin, end);
+        public inline function subarray( begin:Int, end:Null<Int> = null) : Float32Array return this.subarray(begin, end);
 
 
             //non spec haxe conversions
-        public static function fromBytes( bytes:haxe.io.Bytes, ?byteOffset:Int=0, ?len:Int ) : Float32Array {
+        inline public static function fromBytes( bytes:haxe.io.Bytes, ?byteOffset:Int=0, ?len:Int ) : Float32Array {
             return new Float32Array(bytes, byteOffset, len);
         }
 
-        public function toBytes() : haxe.io.Bytes {
+        inline public function toBytes() : haxe.io.Bytes {
             return this.buffer;
         }
 
-//Internal
+    //Internal
 
-        function toString() return this != null ? 'Float32Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
+        inline function toString() return this != null ? 'Float32Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
 
-    inline function get_length() return this.length;
+        @:extern inline function get_length() return this.length;
 
 
-    @:noCompletion
-    @:arrayAccess
-    public inline function __get(idx:Int) : Float {
-        return ArrayBufferIO.getFloat32(this.buffer, this.byteOffset+(idx*BYTES_PER_ELEMENT) );
+        @:noCompletion
+        @:arrayAccess @:extern
+        public inline function __get(idx:Int) : Float {
+            return ArrayBufferIO.getFloat32(this.buffer, this.byteOffset+(idx*BYTES_PER_ELEMENT) );
+        }
+
+        @:noCompletion
+        @:arrayAccess @:extern
+        public inline function __set(idx:Int, val:Float) : Float {
+            ArrayBufferIO.setFloat32(this.buffer, this.byteOffset+(idx*BYTES_PER_ELEMENT), val);
+            return val;
+        }
+
     }
-
-    @:noCompletion
-    @:arrayAccess
-    public inline function __set(idx:Int, val:Float) : Float {
-        return ArrayBufferIO.setFloat32(this.buffer, this.byteOffset+(idx*BYTES_PER_ELEMENT), val);
-    }
-
-}
 
 #end //!js

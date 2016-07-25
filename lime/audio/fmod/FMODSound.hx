@@ -16,7 +16,7 @@ extern class FMODSound {
 
 	// fromFile creates a sound from the named file.
 	@:native("lime::ConsoleFmodSound::fromFile")
-	public static function fromFile (name:String):FMODSound;
+	public static function fromFile (name:String, mode:FMODMode):FMODSound;
 
 
 	// play plays the sound and returns the channel it was assigned.

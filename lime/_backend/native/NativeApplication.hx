@@ -42,6 +42,7 @@ class NativeApplication {
 	
 	private var applicationEventInfo = new ApplicationEventInfo (UPDATE);
 	private var currentTouches = new Map<Int, Touch> ();
+	private var dropEventInfo = new DropEventInfo ();
 	private var gamepadEventInfo = new GamepadEventInfo ();
 	private var joystickEventInfo = new JoystickEventInfo ();
 	private var keyEventInfo = new KeyEventInfo ();
@@ -63,6 +64,11 @@ class NativeApplication {
 		
 		this.parent = parent;
 		frameRate = 60;
+
+		#if (lime_console && final)
+		// suppress traces in final builds
+		haxe.Log.trace = function(v:Dynamic, ?infos:haxe.PosInfos) {};
+		#end
 		
 		AudioManager.init ();
 		
@@ -87,6 +93,7 @@ class NativeApplication {
 		#if !macro
 		
 		lime_application_event_manager_register (handleApplicationEvent, applicationEventInfo);
+		lime_drop_event_manager_register (handleDropEvent, dropEventInfo);
 		lime_gamepad_event_manager_register (handleGamepadEvent, gamepadEventInfo);
 		lime_joystick_event_manager_register (handleJoystickEvent, joystickEventInfo);
 		lime_key_event_manager_register (handleKeyEvent, keyEventInfo);
@@ -169,6 +176,17 @@ class NativeApplication {
 			case EXIT:
 				
 				//parent.onExit.dispatch (0);
+			
+		}
+		
+	}
+	
+	
+	private function handleDropEvent ():Void {
+		
+		for (window in parent.windows) {
+			
+			window.onDropFile.dispatch (dropEventInfo.file);
 			
 		}
 		
@@ -340,6 +358,8 @@ class NativeApplication {
 		
 		for (renderer in parent.renderers) {
 			
+			if (renderer == null) continue;
+			
 			parent.renderer = renderer;
 			
 			switch (renderEventInfo.type) {
@@ -364,7 +384,7 @@ class NativeApplication {
 					if (renderer.backend.useHardware) {
 						
 						#if lime_console
-						renderer.context = CONSOLE (new ConsoleRenderContext ());
+						renderer.context = CONSOLE (ConsoleRenderContext.singleton);
 						#else
 						renderer.context = OPENGL (new GLRenderContext ());
 						#end
@@ -502,13 +522,7 @@ class NativeApplication {
 				
 				case WINDOW_CLOSE:
 					
-					window.onClose.dispatch ();
-					
-					if (!window.onClose.canceled) {
-						
-						window.close ();
-						
-					}
+					window.close ();
 				
 				case WINDOW_DEACTIVATE:
 					
@@ -618,6 +632,7 @@ class NativeApplication {
 	@:cffi private static function lime_application_quit (handle:Dynamic):Int;
 	@:cffi private static function lime_application_set_frame_rate (handle:Dynamic, value:Float):Void;
 	@:cffi private static function lime_application_update (handle:Dynamic):Bool;
+	@:cffi private static function lime_drop_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_gamepad_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_joystick_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_key_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
@@ -662,6 +677,38 @@ private class ApplicationEventInfo {
 	
 	var UPDATE = 0;
 	var EXIT = 1;
+	
+}
+
+
+private class DropEventInfo {
+	
+	
+	public var file:String;
+	public var type:DropEventType;
+	
+	
+	public function new (type:DropEventType = null, file:String = null) {
+		
+		this.type = type;
+		this.file = file;
+		
+	}
+	
+	
+	public function clone ():DropEventInfo {
+		
+		return new DropEventInfo (type, file);
+		
+	}
+	
+	
+}
+
+
+@:enum private abstract DropEventType(Int) {
+	
+	var DROP_FILE = 0;
 	
 }
 

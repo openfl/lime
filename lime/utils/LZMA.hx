@@ -3,49 +3,22 @@ package lime.utils;
 
 import haxe.io.Bytes;
 
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
 
-
-class LZMA {
+@:deprecated class LZMA {
 	
 	
 	public static function decode (bytes:Bytes):Bytes {
 		
-		#if ((cpp || neko || nodejs) && !macro)
-		var data:Dynamic = lime_lzma_decode (bytes);
-		return @:privateAccess new Bytes (data.length, data.b);
-		#else
-		return null;
-		#end
+		return lime.utils.compress.LZMA.decompress (bytes);
 		
 	}
 	
 	
 	public static function encode (bytes:Bytes):Bytes {
 		
-		#if ((cpp || neko || nodejs) && !macro)
-		var data:Dynamic = lime_lzma_encode (bytes);
-		return @:privateAccess new Bytes (data.length, data.b);
-		#else
-		return null;
-		#end
+		return lime.utils.compress.LZMA.compress (bytes);
 		
 	}
-	
-	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	#if ((cpp || neko || nodejs) && !macro)
-	@:cffi private static function lime_lzma_decode (data:Dynamic):Dynamic;
-	@:cffi private static function lime_lzma_encode (data:Dynamic):Dynamic;
-	#end
 	
 	
 }
