@@ -291,6 +291,7 @@ class FlashPlatform extends PlatformTarget {
 	
 	public override function trace ():Void {
 		
+		FlashHelper.enableLogging ();
 		FlashHelper.tailLog (0);
 		
 	}
