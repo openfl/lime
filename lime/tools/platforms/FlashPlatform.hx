@@ -8,6 +8,7 @@ import lime.tools.helpers.CompatibilityHelper;
 import lime.tools.helpers.DeploymentHelper;
 import lime.tools.helpers.FileHelper;
 import lime.tools.helpers.FlashHelper;
+import lime.tools.helpers.HTML5Helper;
 import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.PathHelper;
 import lime.tools.helpers.PlatformHelper;
@@ -203,24 +204,26 @@ class FlashPlatform extends PlatformTarget {
 			
 			if (project.targetFlags.exists ("web")) {
 				
-				targetPath = "index.html";
-				
-			}
-			
-			if (traceEnabled) {
-				
-				#if neko Thread.create (function () { #end
-					
-					FlashHelper.run (project, destination, targetPath);
-					Sys.exit (0);
-					
-				#if neko }); #end
-				
-				Sys.sleep (0.1);
+				HTML5Helper.launch (project, targetDirectory + "/bin");
 				
 			} else {
 				
-				FlashHelper.run (project, destination, targetPath);
+				if (traceEnabled) {
+					
+					#if neko Thread.create (function () { #end
+						
+						FlashHelper.run (project, destination, targetPath);
+						Sys.exit (0);
+						
+					#if neko }); #end
+					
+					Sys.sleep (0.1);
+					
+				} else {
+					
+					FlashHelper.run (project, destination, targetPath);
+					
+				}
 				
 			}
 			
