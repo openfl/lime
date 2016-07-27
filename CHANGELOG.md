@@ -1,3 +1,10 @@
+3.0.3 (07/27/2016)
+------------------
+
+* Improved "lime test flash -web" behavior to use HTTP server
+* Fixed an issue with Neko native byte resizing
+
+
 3.0.2 (07/22/2016)
 ------------------
 
