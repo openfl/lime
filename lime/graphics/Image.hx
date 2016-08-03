@@ -513,6 +513,7 @@ class Image {
 	
 	public static function fromFile (path:String, onload:Image -> Void = null, onerror:Void -> Void = null):Image {
 		
+		if (image == null) return null;
 		var image = new Image ();
 		image.__fromFile (path, onload, onerror);
 		return image;
