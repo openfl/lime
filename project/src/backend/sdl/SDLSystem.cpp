@@ -117,7 +117,7 @@ namespace lime {
 				SHGetFolderPath (NULL, CSIDL_DESKTOPDIRECTORY, NULL, SHGFP_TYPE_CURRENT, result);
 				return WIN_StringToUTF8 (result);
 				
-				#else
+				#elseif !defined (ANDROID)
 				
 				std::string result = std::string (getenv ("HOME")) + std::string ("/Desktop");
 				return result.c_str ();
@@ -141,6 +141,10 @@ namespace lime {
 				char result[MAX_PATH] = "";
 				SHGetFolderPath (NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, result);
 				return WIN_StringToUTF8 (result);
+				
+				#elif defined (ANDROID)
+				
+				return "/mnt/sdcard/Documents";
 				
 				#else
 				
@@ -203,6 +207,10 @@ namespace lime {
 				char result[MAX_PATH] = "";
 				SHGetFolderPath (NULL, CSIDL_PROFILE, NULL, SHGFP_TYPE_CURRENT, result);
 				return WIN_StringToUTF8 (result);
+				
+				#elif defined (ANDROID)
+				
+				return "/mnt/sdcard";
 				
 				#else
 				
