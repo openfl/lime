@@ -35,6 +35,9 @@ class CreateTemplate {
 		context.extensionLowerCase = extension.toLowerCase ();
 		context.extensionUpperCase = extension.toUpperCase ();
 		context.ANDROID_TARGET_SDK_VERSION = "::ANDROID_TARGET_SDK_VERSION::";
+		context.ANDROID_MINIMUM_SDK_VERSION = "::ANDROID_MINIMUM_SDK_VERSION::";
+		context.META_BUILD_NUMBER = "::META_BUILD_NUMBER::";
+		context.META_VERSION = "::META_VERSION::";
 		
 		PathHelper.mkdir (title);
 		FileHelper.recursiveCopyTemplate ([ PathHelper.getHaxelib (new Haxelib ("lime"), true)  + "/templates" ], "extension", title, context);

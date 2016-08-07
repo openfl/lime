@@ -31,8 +31,6 @@ class PlatformSetup {
 	private static var androidMacSDKPath = "http://dl.google.com/android/android-sdk_r22.0.5-macosx.zip";
 	private static var androidWindowsNDKPath = "http://dl.google.com/android/repository/android-ndk-r11c-windows-x86_64.zip";
 	private static var androidWindowsSDKPath = "http://dl.google.com/android/android-sdk_r22.0.5-windows.zip";
-	private static var apacheAntUnixPath = "http://archive.apache.org/dist/ant/binaries/apache-ant-1.9.2-bin.tar.gz";
-	private static var apacheAntWindowsPath = "http://archive.apache.org/dist/ant/binaries/apache-ant-1.9.2-bin.zip";
 	private static var apacheCordovaPath = "http://www.apache.org/dist/incubator/cordova/cordova-2.1.0-incubating-src.zip";
 	private static var appleXcodeURL = "https://developer.apple.com/xcode/download/";
 	private static var blackBerryCodeSigningURL = "https://www.blackberry.com/SignedKeys/";
@@ -724,7 +722,6 @@ class PlatformSetup {
 		
 		var setAndroidSDK = false;
 		var setAndroidNDK = false;
-		var setApacheAnt = false;
 		var setJavaJDK = false;
 		
 		var defines = getDefines ();
@@ -842,47 +839,6 @@ class PlatformSetup {
 			
 		}
 		
-		if (answer == ALWAYS) {
-			
-			LogHelper.println ("Download and install Apache Ant? [y/n/a] a");
-			
-		} else {
-			
-			answer = CLIHelper.ask ("Download and install Apache Ant?");
-			
-		}
-		
-		if (answer == YES || answer == ALWAYS) {
-			
-			var downloadPath = "";
-			var defaultInstallPath = "";
-			var ignoreRootFolder = "apache-ant-1.9.2";
-			
-			if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
-				
-				downloadPath = apacheAntWindowsPath;
-				defaultInstallPath = "C:\\Development\\Apache Ant";
-				
-			} else {
-				
-				downloadPath = apacheAntUnixPath;
-				defaultInstallPath = "/opt/apache-ant";
-				
-			}
-			
-			downloadFile (downloadPath);
-			
-			var path = unescapePath (CLIHelper.param ("Output directory [" + defaultInstallPath + "]"));
-			path = createPath (path, defaultInstallPath);
-			
-			extractFile (Path.withoutDirectory (downloadPath), path, ignoreRootFolder);
-			
-			setApacheAnt = true;
-			defines.set ("ANT_HOME", path);
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
-			
-		}
-		
 		if (PlatformHelper.hostPlatform != Platform.MAC) {
 			
 			if (answer == ALWAYS) {
@@ -932,14 +888,6 @@ class PlatformSetup {
 			
 		}
 		
-		if (/*PlatformHelper.hostPlatform != Platform.MAC &&*/ !setApacheAnt) {
-			
-			requiredVariables.push ("ANT_HOME");
-			requiredVariableDescriptions.push ("Path to Apache Ant");
-			ignoreValues.push ("/SDKs//ant");
-			
-		}
-		
 		if (PlatformHelper.hostPlatform != Platform.MAC && !setJavaJDK) {
 			
 			requiredVariables.push ("JAVA_HOME");
@@ -948,7 +896,7 @@ class PlatformSetup {
 			
 		}
 		
-		if (!setAndroidSDK && !setAndroidNDK && !setApacheAnt) {
+		if (!setAndroidSDK && !setAndroidNDK) {
 			
 			LogHelper.println ("");
 			
@@ -960,31 +908,8 @@ class PlatformSetup {
 			
 			defines.set ("ANDROID_SETUP", "true");
 			
-			if (!setApacheAnt) {
-				
-				try {
-					
-					var antPath = defines.get ("ANT_HOME");
-					
-					if (FileSystem.exists (antPath) && !FileSystem.isDirectory (antPath) && StringTools.endsWith (antPath, "ant")) {
-						
-						antPath = StringTools.replace (antPath, "\\", "/");
-						
-						var splitPath = antPath.split ("/");
-						splitPath.pop ();
-						splitPath.pop ();
-						
-						defines.set ("ANT_HOME", splitPath.join ("/"));
-						
-					}
-					
-				} catch (e:Dynamic) {}
-				
-			}
-			
 			if (PlatformHelper.hostPlatform == Platform.MAC) {
 				
-				//defines.remove ("ANT_HOME");
 				defines.remove ("JAVA_HOME");
 				
 			}
