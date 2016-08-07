@@ -117,7 +117,7 @@ namespace lime {
 				SHGetFolderPath (NULL, CSIDL_DESKTOPDIRECTORY, NULL, SHGFP_TYPE_CURRENT, result);
 				return WIN_StringToUTF8 (result);
 				
-				#elseif !defined (ANDROID)
+				#elif !defined (ANDROID)
 				
 				std::string result = std::string (getenv ("HOME")) + std::string ("/Desktop");
 				return result.c_str ();
