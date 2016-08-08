@@ -84,9 +84,20 @@ namespace lime {
 				
 			}
 			
-			SDL_GL_SetAttribute (SDL_GL_RED_SIZE, 5);
-			SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, 6);
-			SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE, 5);
+			if (flags & WINDOW_FLAG_COLORS_32B) {
+				
+				SDL_GL_SetAttribute (SDL_GL_RED_SIZE, 8);
+				SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, 8);
+				SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE, 8);
+				SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE, 8);
+				
+			} else {
+				
+				SDL_GL_SetAttribute (SDL_GL_RED_SIZE, 5);
+				SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, 6);
+				SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE, 5);
+				
+			}
 			
 		}
 		

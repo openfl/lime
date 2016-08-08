@@ -36,6 +36,7 @@ typedef WindowConfig = {
 	@:optional var parameters:String;
 	@:optional var resizable:Bool;
 	@:optional var stencilBuffer:Bool;
+	@:optional var colors32b:Bool;
 	@:optional var title:String;
 	@:optional var vsync:Bool;
 	@:optional var width:Int;

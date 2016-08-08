@@ -84,13 +84,7 @@ class AndroidPlatform extends PlatformTarget {
 				haxeParams.push ("-D");
 				haxeParams.push ("HXCPP_ARMV7");
 				cppParams.push ("-DHXCPP_ARMV7");
-				
-				if (hasARMV5) {
-					
-					path = targetDirectory + "/bin/libs/armeabi-v7";
-					
-				}
-				
+				path = targetDirectory + "/bin/libs/armeabi-v7a";
 				suffix = "-v7.so";
 				
 			} else if (architecture == Architecture.X86) {
@@ -116,11 +110,11 @@ class AndroidPlatform extends PlatformTarget {
 			
 		}
 		
-		if (!ArrayHelper.containsValue (project.architectures, Architecture.ARMV7) || !hasARMV5) {
+		if (!ArrayHelper.containsValue (project.architectures, Architecture.ARMV7)) {
 			
-			if (FileSystem.exists (targetDirectory + "/bin/libs/armeabi-v7")) {
+			if (FileSystem.exists (targetDirectory + "/bin/libs/armeabi-v7a")) {
 				
-				PathHelper.removeDirectory (targetDirectory + "/bin/libs/armeabi-v7");
+				PathHelper.removeDirectory (targetDirectory + "/bin/libs/armeabi-v7a");
 				
 			}
 			

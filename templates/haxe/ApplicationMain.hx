@@ -77,6 +77,7 @@ class ApplicationMain {
 			windows: [
 				::foreach windows::
 				{
+					allowHighDPI: ::allowHighDPI::,
 					antialiasing: ::antialiasing::,
 					background: ::background::,
 					borderless: ::borderless::,
@@ -88,6 +89,7 @@ class ApplicationMain {
 					parameters: "::parameters::",
 					resizable: ::resizable::,
 					stencilBuffer: ::stencilBuffer::,
+					colors32b: ::colors32b::,
 					title: "::title::",
 					vsync: ::vsync::,
 					width: ::width::,
