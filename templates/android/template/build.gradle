@@ -2,7 +2,9 @@
 
 buildscript {
 	repositories {
-		jcenter()
+		jcenter {
+			url "http://jcenter.bintray.com/"
+		}
 	}
 	dependencies {
 		classpath 'com.android.tools.build:gradle:2.1.0'
@@ -14,7 +16,9 @@ buildscript {
 
 allprojects {
 	repositories {
-		jcenter()
+		jcenter {
+			url "http://jcenter.bintray.com/"
+		}
 	}
 }
 
@@ -29,7 +33,9 @@ task wrapper(type: Wrapper) {
 configure(subprojects.findAll {!it.file('build.gradle').exists() && it.file('build.xml').exists()}) {
 	buildscript {
 		repositories {
-			mavenCentral()
+			maven {
+				url "http://repo1.maven.org/maven2/"
+			}
 		}
 		
 		dependencies {
