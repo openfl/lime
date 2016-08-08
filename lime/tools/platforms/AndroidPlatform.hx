@@ -62,6 +62,7 @@ class AndroidPlatform extends PlatformTarget {
 		
 		var destination = targetDirectory + "/bin";
 		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
+		var sourceSet = destination + "/app/src/main";
 		
 		var hasARMV5 = (ArrayHelper.containsValue (project.architectures, Architecture.ARMV5) || ArrayHelper.containsValue (project.architectures, Architecture.ARMV6));
 		var hasARMV7 = ArrayHelper.containsValue (project.architectures, Architecture.ARMV7);
