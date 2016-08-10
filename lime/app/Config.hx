@@ -33,6 +33,9 @@ typedef WindowConfig = {
 	@:optional var fullscreen:Bool;
 	@:optional var hardware:Bool;
 	@:optional var height:Int;
+	@:optional var hidden:Bool;
+	@:optional var maximized:Bool;
+	@:optional var minimized:Bool;
 	@:optional var parameters:String;
 	@:optional var resizable:Bool;
 	@:optional var stencilBuffer:Bool;

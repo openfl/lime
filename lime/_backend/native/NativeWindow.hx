@@ -101,6 +101,9 @@ class NativeWindow {
 			if (Reflect.hasField (parent.config, "depthBuffer") && parent.config.depthBuffer) flags |= cast WindowFlags.WINDOW_FLAG_DEPTH_BUFFER;
 			if (Reflect.hasField (parent.config, "fullscreen") && parent.config.fullscreen) flags |= cast WindowFlags.WINDOW_FLAG_FULLSCREEN;
 			#if !cairo if (Reflect.hasField (parent.config, "hardware") && parent.config.hardware) flags |= cast WindowFlags.WINDOW_FLAG_HARDWARE; #end
+			if (Reflect.hasField (parent.config, "hidden") && parent.config.hidden) flags |= cast WindowFlags.WINDOW_FLAG_HIDDEN;
+			if (Reflect.hasField (parent.config, "maximized") && parent.config.maximized) flags |= cast WindowFlags.WINDOW_FLAG_MAXIMIZED;
+			if (Reflect.hasField (parent.config, "minimized") && parent.config.minimized) flags |= cast WindowFlags.WINDOW_FLAG_MINIMIZED;
 			if (Reflect.hasField (parent.config, "resizable") && parent.config.resizable) flags |= cast WindowFlags.WINDOW_FLAG_RESIZABLE;
 			if (Reflect.hasField (parent.config, "stencilBuffer") && parent.config.stencilBuffer) flags |= cast WindowFlags.WINDOW_FLAG_STENCIL_BUFFER;
 			if (Reflect.hasField (parent.config, "vsync") && parent.config.vsync) flags |= cast WindowFlags.WINDOW_FLAG_VSYNC;
@@ -377,5 +380,8 @@ class NativeWindow {
 	var WINDOW_FLAG_DEPTH_BUFFER = 0x00000200;
 	var WINDOW_FLAG_STENCIL_BUFFER = 0x00000400;
 	var WINDOW_FLAG_ALLOW_HIGHDPI = 0x00000800;
+	var WINDOW_FLAG_HIDDEN = 0x00001000;
+	var WINDOW_FLAG_MINIMIZED = 0x00002000;
+	var WINDOW_FLAG_MAXIMIZED = 0x00004000;
 	
 }
