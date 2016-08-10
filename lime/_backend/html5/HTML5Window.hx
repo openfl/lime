@@ -357,7 +357,7 @@ class HTML5Window {
 	
 	
 	private function handleResize ():Void {
-		
+		primaryTouch = null;
 		var stretch = parent.fullscreen || (setWidth == 0 && setHeight == 0);
 		
 		if (element != null && (div == null || (div != null && stretch))) {
