@@ -31,19 +31,33 @@ class WindowsPlatform extends PlatformTarget {
 	private var applicationDirectory:String;
 	private var executablePath:String;
 	private var targetType:String;
+	private var enableLinuxMingw:Bool;
 	
 	
 	public function new (command:String, _project:HXProject, targetFlags:Map <String, String> ) {
 		
 		super (command, _project, targetFlags);
 		
-		if (project.targetFlags.exists ("neko") || project.target != PlatformHelper.hostPlatform) {
+		if (project.targetFlags.exists ("neko")) {
 			
 			targetType = "neko";
 			
 		} else if (project.targetFlags.exists ("nodejs")) {
 		
 			targetType = "nodejs";
+			
+		} else if (project.target != PlatformHelper.hostPlatform){
+			
+			if(PlatformHelper.hostPlatform == Platform.LINUX){
+				
+				targetType = "cpp";
+				enableLinuxMingw = true;
+				
+			} else {
+				
+				targetType = "neko";
+				
+			}
 			
 		} else {
 			
@@ -131,12 +145,19 @@ class WindowsPlatform extends PlatformTarget {
 				
 			}
 			
+			if (enableLinuxMingw) {
+
+				flags.push ("-DHXCPP_M32");
+
+			}
+			
 			if (!project.targetFlags.exists ("static")) {
 				
 				ProcessHelper.runCommand ("", "haxe", haxeArgs);
 				CPPHelper.compile (project, targetDirectory + "/obj", flags);
 				
 				FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", executablePath);
+				FileHelper.copyFile (targetDirectory + "/obj/libwinpthread-1.dll", applicationDirectory + "libwinpthread-1.dll");
 				
 			} else {
 				
