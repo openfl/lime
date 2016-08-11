@@ -615,13 +615,22 @@ class FlashHelper {
 		var label = (id > 0 ? Std.string (id + 1) : "");
 		
 		var swfVersions = [ 9, 10, /*10.1,*/ 10.2, 10.3, 11, 11.1, 11.2, 11.3, 11.4, 11.5, 11.6, 11.7, 11.8, 12, 13, 14 ];
+		
 		var flashVersion = 9;
 		
-		for (swfVersion in swfVersions) {
+		if (project.app.swfVersion > 14) {
 			
-			if (project.app.swfVersion > swfVersion) {
+			flashVersion += Std.int ((swfVersions.length - 1) + (project.app.swfVersion - 14));
+			
+		} else {
+			
+			for (swfVersion in swfVersions) {
 				
-				flashVersion++;
+				if (project.app.swfVersion > swfVersion) {
+					
+					flashVersion++;
+					
+				}
 				
 			}
 			
