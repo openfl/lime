@@ -6,6 +6,7 @@ import lime.app.Config;
 import lime.app.Event;
 import lime.graphics.Image;
 import lime.graphics.Renderer;
+import lime.math.Rectangle;
 import lime.system.Display;
 
 #if openfl
@@ -110,6 +111,33 @@ class Window {
 	public function alert (message:String = null, title:String = null):Void {
 		
 		backend.alert (message, title);
+		
+	}
+	
+	
+	/**
+	 * Captures the contents of this window's stage to an Image
+	 * @param	callback	function to call when the capture is taken
+	 * @param	region		the region of the stage to capture. By default, captures the entire stage.
+	 */
+	
+	#if openfl
+	@:access(openfl.display.Stage)
+	#end
+	public function capture (?region:Rectangle):Image {
+		
+		#if !flash
+			#if lime_legacy
+				return null;
+			#else
+				if (region == null) region = new Rectangle();
+				region.__expand (region.x, region.y, 0, 0);
+				region.__contract (0, 0, stage.stageWidth, stage.stageHeight);
+				return stage.__renderer.capture (stage, region);
+			#end
+		#else
+		return null;
+		#end
 		
 	}
 	

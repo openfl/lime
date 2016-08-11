@@ -1658,6 +1658,16 @@ class GL {
 	}
 	
 	
+	public static inline function readBuffer (mode:Int):Void {
+		
+		#if ((cpp || neko) && lime_opengl && !macro)
+		lime_gl_read_buffer(mode);
+		#else
+		//no-op
+		#end
+		
+	}
+	
 	public static inline function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
 		
 		#if (js && html5 && !display)
@@ -2302,6 +2312,7 @@ class GL {
 	@:cffi private static function lime_gl_link_program (program:CFFIPointer):Void;
 	@:cffi private static function lime_gl_pixel_storei (pname:Int, param:Int):Void;
 	@:cffi private static function lime_gl_polygon_offset (factor:Float32, units:Float32):Void;
+	@:cffi private static function lime_gl_read_buffer (mode:Int):Void;
 	@:cffi private static function lime_gl_read_pixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, buffer:Dynamic, byteOffset:Int):Void;
 	@:cffi private static function lime_gl_renderbuffer_storage (target:Int, internalformat:Int, width:Int, height:Int):Void;
 	@:cffi private static function lime_gl_sample_coverage (value:Float32, invert:Bool):Void;

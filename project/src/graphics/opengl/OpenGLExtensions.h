@@ -238,6 +238,7 @@ OGL_EXT(glPolygonOffset,void, (GLfloat factor, GLfloat units));
 //OGL_EXT(glPolygonOffsetx,void, (GLfixed factor, GLfixed units));
 OGL_EXT(glPopMatrix,void, (void));
 OGL_EXT(glPushMatrix,void, (void));
+OGL_EXT(glReadBuffer,void, (GLint mode));
 OGL_EXT(glReadPixels,void, (GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels));
 OGL_EXT(glRotatef,void, (GLfloat angle, GLfloat x, GLfloat y, GLfloat z));
 //OGL_EXT(glRotatex,void, (GLfixed angle, GLfixed x, GLfixed y, GLfixed z));
