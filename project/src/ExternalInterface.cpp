@@ -275,6 +275,7 @@ namespace lime {
 	
 	value lime_deflate_compress (value buffer) {
 		
+		#ifdef LIME_ZLIB
 		Bytes data;
 		data.Set (buffer);
 		Bytes result;
@@ -282,12 +283,16 @@ namespace lime {
 		Zlib::Compress (DEFLATE, &data, &result);
 		
 		return result.Value ();
+		#else
+		return alloc_null();
+		#endif
 		
 	}
 	
 	
 	value lime_deflate_decompress (value buffer) {
 		
+		#ifdef LIME_ZLIB
 		Bytes data;
 		data.Set (buffer);
 		Bytes result;
@@ -295,6 +300,9 @@ namespace lime {
 		Zlib::Decompress (DEFLATE, &data, &result);
 		
 		return result.Value ();
+		#else
+		return alloc_null ();
+		#endif
 		
 	}
 	
@@ -659,6 +667,7 @@ namespace lime {
 	
 	value lime_gzip_compress (value buffer) {
 		
+		#ifdef LIME_ZLIB
 		Bytes data;
 		data.Set (buffer);
 		Bytes result;
@@ -666,12 +675,16 @@ namespace lime {
 		Zlib::Compress (GZIP, &data, &result);
 		
 		return result.Value ();
+		#else
+		return alloc_null ();
+		#endif
 		
 	}
 	
 	
 	value lime_gzip_decompress (value buffer) {
 		
+		#ifdef LIME_ZLIB
 		Bytes data;
 		data.Set (buffer);
 		Bytes result;
@@ -679,6 +692,9 @@ namespace lime {
 		Zlib::Decompress (GZIP, &data, &result);
 		
 		return result.Value ();
+		#else
+		return alloc_null ();
+		#endif
 		
 	}
 	
@@ -1581,6 +1597,7 @@ namespace lime {
 	
 	value lime_zlib_compress (value buffer) {
 		
+		#ifdef LIME_ZLIB
 		Bytes data;
 		data.Set (buffer);
 		Bytes result;
@@ -1588,12 +1605,16 @@ namespace lime {
 		Zlib::Compress (ZLIB, &data, &result);
 		
 		return result.Value ();
+		#else
+		return alloc_null ();
+		#endif
 		
 	}
 	
 	
 	value lime_zlib_decompress (value buffer) {
 		
+		#ifdef LIME_ZLIB
 		Bytes data;
 		data.Set (buffer);
 		Bytes result;
@@ -1601,6 +1622,9 @@ namespace lime {
 		Zlib::Decompress (ZLIB, &data, &result);
 		
 		return result.Value ();
+		#else
+		return alloc_null ();
+		#endif
 		
 	}
 	
