@@ -1171,11 +1171,6 @@ class CommandLineTools {
 		
 		switch (targetName) {
 			
-			case "cpp":
-				
-				target = PlatformHelper.hostPlatform;
-				targetFlags.set ("cpp", "");
-				
 			case "neko":
 				
 				target = PlatformHelper.hostPlatform;
@@ -1208,6 +1203,7 @@ class CommandLineTools {
 			default:
 				
 				target = cast targetName.toLowerCase ();
+				targetFlags.set("cpp", "");
 			
 		}
 		
