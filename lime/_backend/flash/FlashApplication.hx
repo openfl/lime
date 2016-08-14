@@ -28,6 +28,8 @@ class FlashApplication {
 	private var cacheTime:Int;
 	private var currentTouches = new Map<Int, Touch> ();
 	private var mouseLeft:Bool;
+	private var mouseLastX:Float;
+	private var mouseLastY:Float;
 	private var parent:Application;
 	private var unusedTouchesPool = new List<Touch> ();
 	
@@ -248,7 +250,11 @@ class FlashApplication {
 					}
 					
 					parent.window.onMouseMove.dispatch (event.stageX, event.stageY);
-				
+					parent.window.onMouseMoveRelative.dispatch (event.stageX - mouseLastX, event.stageY - mouseLastY);
+					
+					mouseLastX = event.stageX;
+					mouseLastY = event.stageY;
+					
 				case "mouseUp", "middleMouseUp", "rightMouseUp":
 					
 					parent.window.onMouseUp.dispatch (event.stageX, event.stageY, button);
