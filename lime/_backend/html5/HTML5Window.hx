@@ -51,6 +51,8 @@ class HTML5Window {
 	
 	private var currentTouches = new Map<Int, Touch> ();
 	private var enableTextEvents:Bool;
+	private var lastMouseX:Float;
+	private var lastMouseY:Float;
 	private var parent:Window;
 	private var primaryTouch:Touch;
 	private var setHeight:Int;
@@ -341,11 +343,18 @@ class HTML5Window {
 				
 				case "mousemove":
 					
-					parent.onMouseMove.dispatch (x, y);
+					if (x != lastMouseX || y != lastMouseY) {
+						
+						parent.onMouseMove.dispatch (x, y);
+						
+					}
 				
 				default:
 				
 			}
+			
+			lastMouseX = x;
+			lastMouseY = y;
 			
 		} else {
 			
@@ -392,28 +401,29 @@ class HTML5Window {
 				var scaleX = (setWidth  != 0) ? (element.clientWidth  / setWidth)  : 1;
 				var scaleY = (setHeight != 0) ? (element.clientHeight / setHeight) : 1;
 				
-				var targetW = element.clientWidth;
-				var targetH = element.clientHeight;
+				var targetWidth = element.clientWidth;
+				var targetHeight = element.clientHeight;
 				var marginLeft = 0;
 				var marginTop = 0;
 				
-				if (scaleX < scaleY) 
-				{
-					targetH = Math.floor(setHeight * scaleX);
-					marginTop = Math.floor((element.clientHeight - targetH) / 2);
+				if (scaleX < scaleY) {
+					
+					targetHeight = Math.floor (setHeight * scaleX);
+					marginTop = Math.floor ((element.clientHeight - targetHeight) / 2);
+					
+				} else {
+					
+					targetWidth = Math.floor (setWidth * scaleY);
+					marginLeft = Math.floor ((element.clientWidth - targetWidth) / 2);
+					
 				}
-				else
-				{
-					targetW = Math.floor(setWidth * scaleY);
-					marginLeft = Math.floor((element.clientWidth - targetW) / 2);
-				}
-
+				
 				if (canvas != null) {
 					
 					if (element != cast canvas) {
 						
-						canvas.style.width = targetW + "px";
-						canvas.style.height = targetH + "px";
+						canvas.style.width = targetWidth + "px";
+						canvas.style.height = targetHeight + "px";
 						canvas.style.marginLeft = marginLeft + "px";
 						canvas.style.marginTop = marginTop + "px";
 						
@@ -421,8 +431,8 @@ class HTML5Window {
 					
 				} else {
 					
-					div.style.width = targetW + "px";
-					div.style.height = targetH + "px";
+					div.style.width = targetWidth + "px";
+					div.style.height = targetHeight + "px";
 					div.style.marginLeft = marginLeft + "px";
 					div.style.marginTop = marginTop + "px";
 					
