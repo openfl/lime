@@ -279,50 +279,92 @@ package lime.utils;
                 case Int8:
                     while(i<len) {
                         var pos = (offset+i)*bytesPerElement;
+                        #if neko
+                        var value = array[i];
+                        if (value == null) value = 0;
+                        ArrayBufferIO.setInt8(buffer, pos, Std.int(value));
+                        #else
                         ArrayBufferIO.setInt8(buffer,
                             pos, Std.int(array[i]));
+                        #end
                         ++i;
                     }
                 case Int16:
                     while(i<len) {
                         var pos = (offset+i)*bytesPerElement;
+                        #if neko
+                        var value = array[i];
+                        if (value == null) value = 0;
+                        ArrayBufferIO.setInt16(buffer, pos, Std.int(value));
+                        #else
                         ArrayBufferIO.setInt16(buffer,
                             pos, Std.int(array[i]));
+                        #end
                         ++i;
                     }
                 case Int32:
                     while(i<len) {
                         var pos = (offset+i)*bytesPerElement;
+                        #if neko
+                        var value = array[i];
+                        if (value == null) value = 0;
+                        ArrayBufferIO.setInt32(buffer, pos, Std.int(value));
+                        #else
                         ArrayBufferIO.setInt32(buffer,
                             pos, Std.int(array[i]));
+                        #end
                         ++i;
                     }
                 case Uint8:
                     while(i<len) {
                         var pos = (offset+i)*bytesPerElement;
+                        #if neko
+                        var value = array[i];
+                        if (value == null) value = 0;
+                        ArrayBufferIO.setUint8(buffer, pos, Std.int(value));
+                        #else
                         ArrayBufferIO.setUint8(buffer,
                             pos, Std.int(array[i]));
+                        #end
                         ++i;
                     }
                 case Uint16:
                     while(i<len) {
                         var pos = (offset+i)*bytesPerElement;
+                        #if neko
+                        var value = array[i];
+                        if (value == null) value = 0;
+                        ArrayBufferIO.setUint16(buffer, pos, Std.int(value));
+                        #else
                         ArrayBufferIO.setUint16(buffer,
                             pos, Std.int(array[i]));
+                        #end
                         ++i;
                     }
                 case Uint32:
                     while(i<len) {
                         var pos = (offset+i)*bytesPerElement;
+                        #if neko
+                        var value = array[i];
+                        if (value == null) value = 0;
+                        ArrayBufferIO.setUint32(buffer, pos, Std.int(value));
+                        #else
                         ArrayBufferIO.setUint32(buffer,
                             pos, Std.int(array[i]));
+                        #end
                         ++i;
                     }
                 case Uint8Clamped:
                     while(i<len) {
                         var pos = (offset+i)*bytesPerElement;
+                        #if neko
+                        var value = array[i];
+                        if (value == null) value = 0;
+                        ArrayBufferIO.setUint8Clamped(buffer, pos, Std.int(value));
+                        #else
                         ArrayBufferIO.setUint8Clamped(buffer,
                             pos, Std.int(array[i]));
+                        #end
                         ++i;
                     }
                 case Float32:
