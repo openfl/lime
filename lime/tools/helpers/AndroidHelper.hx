@@ -42,10 +42,10 @@ class AndroidHelper {
 			
 		}
 		
-		if (PlatformHelper.hostPlatform != Platform.WINDOWS && targetType != "nodejs") {
+		if (PlatformHelper.hostPlatform != Platform.WINDOWS) {
 			
-			ProcessHelper.runCommand ("", "chmod", [ "755", PathHelper.combine (projectDirectory, "gradlew.sh") ]);
-			ProcessHelper.runCommand (projectDirectory, "./gradlew.sh", [ task ]);
+			ProcessHelper.runCommand ("", "chmod", [ "755", PathHelper.combine (projectDirectory, "gradlew") ]);
+			ProcessHelper.runCommand (projectDirectory, "./gradlew", [ task ]);
 			
 		} else {
 			
