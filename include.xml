@@ -37,11 +37,13 @@
 	
 	<section unless="display">
 		
-		<ndll name="std" haxelib="hxcpp" if="cpp" unless="lime-console" />
-		<ndll name="regexp" haxelib="hxcpp" if="cpp" />
-		<ndll name="zlib" haxelib="hxcpp" if="cpp" unless="emscripten || ios || static_link || tvos" />
-		
-		<ndll name="lime" if="cpp || neko || nodejs" unless="lime-console" />
+		<section unless="lime-console">
+			<ndll name="std" haxelib="hxcpp" if="cpp" />
+			<ndll name="regexp" haxelib="hxcpp" if="cpp" />
+			<ndll name="zlib" haxelib="hxcpp" if="cpp" unless="emscripten || ios || static_link || tvos" />
+			
+			<ndll name="lime" if="cpp || neko || nodejs" />
+		</section>
 		
 		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
 		<dependency path="dependencies/pako.min.js" if="html5" />
