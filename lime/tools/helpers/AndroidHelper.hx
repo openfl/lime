@@ -42,8 +42,16 @@ class AndroidHelper {
 			
 		}
 		
-		ProcessHelper.runCommand (projectDirectory, "gradlew", [ task ]);
-		
+		if (PlatformHelper.hostPlatform != Platform.WINDOWS && targetType != "nodejs") {
+			
+			ProcessHelper.runCommand ("", "chmod", [ "755", PathHelper.combine (projectDirectory, "gradlew.sh") ]);
+			ProcessHelper.runCommand (projectDirectory, "./gradlew.sh", [ task ]);
+			
+		} else {
+			
+			ProcessHelper.runCommand (projectDirectory, "gradlew", [ task ]);
+			
+		}
 	}
 	
 	
@@ -116,33 +124,33 @@ class AndroidHelper {
 		adbName = "adb";
 		androidName = "android";
 		emulatorName = "emulator";
-
+		
 		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
-
+			
 			adbName += ".exe";
 			androidName += ".bat";
 			emulatorName += ".exe";
-
+			
 		}
-
+		
 		if (!FileSystem.exists (adbPath + adbName)) {
-
+			
 			adbPath = project.environment.get ("ANDROID_SDK") + "/platform-tools/";
-
+			
 		}
-
+		
 		if (PlatformHelper.hostPlatform != Platform.WINDOWS) {
-
+			
 			adbName = "./" + adbName;
 			androidName = "./" + androidName;
 			emulatorName = "./" + emulatorName;
-
+			
 		}
 		
 		if (project.environment.exists ("JAVA_HOME")) {
-
+			
 			Sys.putEnv ("JAVA_HOME", project.environment.get ("JAVA_HOME"));
-
+			
 		}
 		
 	}
