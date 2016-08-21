@@ -66,6 +66,10 @@ class LinuxPlatform extends PlatformTarget {
 			
 			targetType = "nodejs";
 			
+		} else if (project.targetFlags.exists ("cppia")) {
+		
+			targetType = "cppia";
+
 		} else {
 			
 			targetType = "cpp";
@@ -125,6 +129,10 @@ class LinuxPlatform extends PlatformTarget {
 			//NekoHelper.createExecutable (project.templatePaths, "linux" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
 			NekoHelper.copyLibraries (project.templatePaths, "linux" + (is64 ? "64" : ""), applicationDirectory);
 			
+		} else if (targetType == "cppia") {
+
+			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+
 		} else {
 			
 			var haxeArgs = [ hxml ];
@@ -326,7 +334,13 @@ class LinuxPlatform extends PlatformTarget {
 		}
 		
 		PathHelper.mkdir (targetDirectory);
-		PathHelper.mkdir (targetDirectory + "/obj");
+
+		if (targetType != "cppia") {
+
+			PathHelper.mkdir (targetDirectory + "/obj");
+
+		}
+		
 		PathHelper.mkdir (targetDirectory + "/haxe");
 		PathHelper.mkdir (applicationDirectory);
 		
@@ -341,6 +355,13 @@ class LinuxPlatform extends PlatformTarget {
 			
 		}
 		
+		if (targetType == "cppia") {
+
+			FileHelper.copyFileTemplate (project.templatePaths, "cppia/bin/host-linux" + (is64 ? "64" : ""), executablePath);
+			FileHelper.copyFileTemplate (project.templatePaths, "cppia/bin/export_classes.info", targetDirectory + "/haxe/export_classes.info");
+
+		}
+
 		//context.HAS_ICON = IconHelper.createIcon (project.icons, 256, 256, PathHelper.combine (applicationDirectory, "icon.png"));
 		for (asset in project.assets) {
 			

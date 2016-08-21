@@ -23,3 +23,4 @@ legacy/ndll/*/lime*
 legacy/ndll/*/liblime*
 legacy/project/all_objs
 legacy/project/obj
+templates/cppia/bin/*

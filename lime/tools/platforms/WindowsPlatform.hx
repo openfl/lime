@@ -45,6 +45,10 @@ class WindowsPlatform extends PlatformTarget {
 		
 			targetType = "nodejs";
 			
+		} else if (project.targetFlags.exists ("cppia")) {
+
+			targetType = "cppia";
+
 		} else {
 			
 			targetType = "cpp";
@@ -115,6 +119,10 @@ class WindowsPlatform extends PlatformTarget {
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
 			//NekoHelper.createExecutable (project.templatePaths, "windows", targetDirectory + "/obj/ApplicationMain.n", executablePath);
 			NekoHelper.copyLibraries (project.templatePaths, "windows", applicationDirectory);
+			
+		} else if (targetType == "cppia") {
+			
+			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
 			
 		} else {
 			
@@ -297,7 +305,13 @@ class WindowsPlatform extends PlatformTarget {
 		}
 		
 		PathHelper.mkdir (targetDirectory);
-		PathHelper.mkdir (targetDirectory + "/obj");
+
+		if (targetType != "cppia") {
+
+			PathHelper.mkdir (targetDirectory + "/obj");
+
+		}
+
 		PathHelper.mkdir (targetDirectory + "/haxe");
 		PathHelper.mkdir (applicationDirectory);
 		
@@ -310,6 +324,13 @@ class WindowsPlatform extends PlatformTarget {
 			
 			FileHelper.recursiveCopyTemplate (project.templatePaths, "cpp/static", targetDirectory + "/obj", context);
 			
+		}
+
+		if (targetType == "cppia") {
+
+			FileHelper.copyFileTemplate (project.templatePaths, "cppia/bin/host-windows", executablePath);
+			FileHelper.copyFileTemplate (project.templatePaths, "cppia/bin/export_classes.info", targetDirectory + "/haxe/export_classes.info");
+
 		}
 		
 		/*if (IconHelper.createIcon (project.icons, 32, 32, PathHelper.combine (applicationDirectory, "icon.png"))) {
