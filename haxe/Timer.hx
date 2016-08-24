@@ -1,5 +1,5 @@
 package haxe;
-#if (!neko && !cpp && !nodejs)
+#if (!neko && !cpp && !nodejs && !cs)
 
 
 // Original haxe.Timer class
