@@ -85,7 +85,7 @@ class CFFI {
 			
 		} else {
 			
-			#if (iphone || emscripten || android || static_link || tvos)
+			#if (cpp && (iphone || emscripten || android || static_link || tvos))
 			return cpp.Lib.load (library, method, args);
 			#end
 			
@@ -98,6 +98,8 @@ class CFFI {
 				return neko.Lib.load (__moduleNames.get (library), method, args);
 				#elseif nodejs
 				return untyped __nodeNDLLModule.load_lib (__moduleNames.get (library), method, args);
+				#elseif cs
+				return untyped CSFunctionLoader.load (__moduleNames.get (library), method, args);
 				#else
 				return null;
 				#end
@@ -327,6 +329,8 @@ class CFFI {
 			var result = neko.Lib.load (name, func, args);
 			#elseif nodejs
 			var result = untyped __nodeNDLLModule.load_lib (name, func, args);
+			#elseif cs
+			var result = CSFunctionLoader.load (name, func, args);
 			#else
 			var result = null;
 			#end

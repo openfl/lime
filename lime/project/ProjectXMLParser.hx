@@ -96,6 +96,11 @@ class ProjectXMLParser extends HXProject {
 			defines.set ("native", "1");
 			defines.set ("nodejs", "1");
 			
+		} else if (targetFlags.exists ("cs")) {
+			
+			defines.set ("native", "1");
+			defines.set ("cs", "1");
+			
 		} else if (target == Platform.FIREFOX) {
 			
 			defines.set ("html5", "1");
@@ -115,7 +120,7 @@ class ProjectXMLParser extends HXProject {
 				
 			}
 			
-		} else if (targetFlags.exists ("cpp") || ((platformType != PlatformType.WEB) && !targetFlags.exists ("html5")) || target == Platform.EMSCRIPTEN) {
+		} else if (targetFlags.exists ("cpp")) {
 			
 			defines.set ("native", "1");
 			defines.set ("cpp", "1");

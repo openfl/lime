@@ -218,6 +218,16 @@ class CommandLineTools {
 							target = PlatformHelper.hostPlatform;
 							targetFlags.set ("nodejs", "");
 							
+						case "cs":
+							
+							target = PlatformHelper.hostPlatform;
+							targetFlags.set ("cs", "");
+							
+						case "android-cs":
+						
+							target = Platform.ANDROID;
+							targetFlags.set ("cs", "");
+							
 						case "iphone", "iphoneos":
 							
 							target = Platform.IOS;
@@ -790,6 +800,8 @@ class CommandLineTools {
 		LogHelper.println ("  \x1b[1mtvos\x1b[0m -- Create a tvOS application");
 		LogHelper.println ("  \x1b[1mwebos\x1b[0m -- Create a webOS application");
 		LogHelper.println ("  \x1b[1mwindows\x1b[0m -- Create a Windows application");
+		LogHelper.println ("  \x1b[1mcs\x1b[0m -- Create a C# application");
+		LogHelper.println ("  \x1b[1mandroid-cs\x1b[0m -- Create an Android-C# application");
 		LogHelper.println ("");
 		LogHelper.println (" " + LogHelper.accentColor + "Options:" + LogHelper.resetColor);
 		LogHelper.println ("");
@@ -1187,6 +1199,16 @@ class CommandLineTools {
 				
 				target = PlatformHelper.hostPlatform;
 				targetFlags.set ("nodejs", "");
+				
+			case "cs":
+				
+				target = PlatformHelper.hostPlatform;
+				targetFlags.set ("cs", "");
+				
+			case "android-cs":
+				
+				target = Platform.ANDROID;
+				targetFlags.set ("cs", "");
 			
 			case "iphone", "iphoneos":
 				
