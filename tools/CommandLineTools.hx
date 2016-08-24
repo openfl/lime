@@ -207,11 +207,6 @@ class CommandLineTools {
 					var target = null;
 					
 					switch (targetName) {
-						
-						case "cpp":
-							
-							target = PlatformHelper.hostPlatform;
-							targetFlags.set ("cpp", "");
 							
 						case "neko":
 							
@@ -245,10 +240,16 @@ class CommandLineTools {
 							
 							target = Platform.TVOS;
 							targetFlags.set ("simulator", "");
+							
+						case "html5":
+							
+							target = Platform.HTML5;
+							targetFlags.set ("html5", "");
 						
 						default:
 							
 							target = cast targetName.toLowerCase ();
+							targetFlags.set ("cpp", "");
 						
 					}
 					
@@ -1172,11 +1173,6 @@ class CommandLineTools {
 		
 		switch (targetName) {
 			
-			case "cpp":
-				
-				target = PlatformHelper.hostPlatform;
-				targetFlags.set ("cpp", "");
-				
 			case "neko":
 				
 				target = PlatformHelper.hostPlatform;
@@ -1205,10 +1201,16 @@ class CommandLineTools {
 				
 				target = Platform.FIREFOX;
 				overrides.haxedefs.set ("firefoxos", "");
+				
+			case "html5":
+				
+				target = Platform.HTML5;
+				targetFlags.set ("html5", "");
 			
 			default:
 				
 				target = cast targetName.toLowerCase ();
+				targetFlags.set("cpp", "");
 			
 		}
 		

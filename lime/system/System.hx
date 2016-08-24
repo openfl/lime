@@ -148,7 +148,7 @@ class System {
 	
 	public static function getDisplay (id:Int):Display {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		var displayInfo:Dynamic = lime_system_get_display (id);
 		
 		if (displayInfo != null) {
@@ -249,7 +249,7 @@ class System {
 	
 	private static function get_allowScreenTimeout ():Bool {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_system_get_allow_screen_timeout ();
 		#else
 		return true;
@@ -260,7 +260,7 @@ class System {
 	
 	private static function set_allowScreenTimeout (value:Bool):Bool {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_system_set_allow_screen_timeout (value);
 		#else
 		return true;
@@ -271,7 +271,7 @@ class System {
 	
 	private static function get_applicationDirectory ():String {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_system_get_directory (SystemDirectory.APPLICATION, null, null);
 		#elseif flash
 		if (Capabilities.playerType == "Desktop") {
@@ -311,7 +311,7 @@ class System {
 			
 		}
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_system_get_directory (SystemDirectory.APPLICATION_STORAGE, company, file);
 		#elseif flash
 		if (Capabilities.playerType == "Desktop") {
@@ -332,7 +332,7 @@ class System {
 	
 	private static function get_desktopDirectory ():String {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_system_get_directory (SystemDirectory.DESKTOP, null, null);
 		#elseif flash
 		if (Capabilities.playerType == "Desktop") {
@@ -353,7 +353,7 @@ class System {
 	
 	private static function get_documentsDirectory ():String {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_system_get_directory (SystemDirectory.DOCUMENTS, null, null);
 		#elseif flash
 		if (Capabilities.playerType == "Desktop") {
@@ -374,7 +374,7 @@ class System {
 	
 	private static function get_fontsDirectory ():String {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_system_get_directory (SystemDirectory.FONTS, null, null);
 		#else
 		return null;
@@ -385,7 +385,7 @@ class System {
 	
 	private static function get_numDisplays ():Int {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_system_get_num_displays ();
 		#else
 		return 1;
@@ -396,7 +396,7 @@ class System {
 	
 	private static function get_userDirectory ():String {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_system_get_directory (SystemDirectory.USER, null, null);
 		#elseif flash
 		if (Capabilities.playerType == "Desktop") {
@@ -435,7 +435,7 @@ class System {
 	
 	
 	
-	#if ((cpp || neko || nodejs) && !macro)
+	#if (lime_cffi && !macro)
 	@:cffi private static function lime_system_get_allow_screen_timeout ():Bool;
 	@:cffi private static function lime_system_set_allow_screen_timeout (value:Bool):Bool;
 	@:cffi private static function lime_system_get_directory (type:Int, company:String, title:String):Dynamic;
