@@ -246,6 +246,10 @@ class CommandLineTools {
 							target = Platform.TVOS;
 							targetFlags.set ("simulator", "");
 						
+						case "mac", "macos":
+							
+							target = Platform.MAC;
+						
 						default:
 							
 							target = cast targetName.toLowerCase ();
@@ -1205,6 +1209,11 @@ class CommandLineTools {
 				
 				target = Platform.FIREFOX;
 				overrides.haxedefs.set ("firefoxos", "");
+			
+			case "mac", "macos":
+				
+				target = Platform.MAC;
+				overrides.haxedefs.set ("macos", "");
 			
 			default:
 				
