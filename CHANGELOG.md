@@ -1,3 +1,16 @@
+3.1.0 (08/29/2016)
+------------------
+
+* Switched from Ant to Gradle for Android builds
+* Added workarounds for some Haxe 3.3.0-rc1 issues
+* Added support for hidden windows on the desktop
+* Improved HTML5 mouse move by ignoring repeat events
+* Fixed issues in ArrayBuffer when values were null
+* Fixed a cross-origin issue that affected some browsers
+* Fixed support for System directories on Android
+* Fixed null fromBytes/fromImage conversion
+
+
 3.0.3 (07/27/2016)
 ------------------
 
