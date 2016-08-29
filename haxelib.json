@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "3.0.3",
-	"releasenote": "Improved flash -web behavior, Neko bytes fix",
+	"version": "3.1.0",
+	"releasenote": "Moved to Gradle, improved Haxe 3.3 support",
 	"contributors": [ "singmajesty" ]
 }
