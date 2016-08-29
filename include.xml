@@ -38,8 +38,8 @@
 	<section unless="display">
 		
 		<section unless="lime-console">
-			<ndll name="std" haxelib="hxcpp" if="cpp" />
-			<ndll name="regexp" haxelib="hxcpp" if="cpp" />
+			<ndll name="std" haxelib="hxcpp" if="cpp" unless="static_link" />
+			<ndll name="regexp" haxelib="hxcpp" if="cpp" unless="static_link" />
 			<ndll name="zlib" haxelib="hxcpp" if="cpp" unless="emscripten || ios || static_link || tvos" />
 			
 			<ndll name="lime" if="cpp || neko || nodejs" />
