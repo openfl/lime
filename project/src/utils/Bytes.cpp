@@ -124,8 +124,7 @@ namespace lime {
 		
 		if (_root) {
 			
-			*_root = 0;
-			free_root (_root);
+			delete _root;
 			
 		}
 		
@@ -160,8 +159,7 @@ namespace lime {
 			if (!_value) {
 				
 				_value = alloc_empty_object ();
-				_root = alloc_root ();
-				*_root = _value;
+				_root = new AutoGCRoot (_value);
 				
 			}
 			
@@ -222,8 +220,7 @@ namespace lime {
 			
 			if (_root) {
 				
-				*_root = 0;
-				free_root (_root);
+				delete _root;
 				
 			}
 			
@@ -235,11 +232,14 @@ namespace lime {
 			
 			if (!_root) {
 				
-				_root = alloc_root ();
+				_root = new AutoGCRoot (_value);
+				
+			} else {
+				
+				_root->set (_value);
 				
 			}
 			
-			*_root = _value;
 			_length = val_int (val_field (bytes, id_length));
 			
 			if (_length > 0) {
@@ -283,8 +283,7 @@ namespace lime {
 			
 			if (_root) {
 				
-				*_root = 0;
-				free_root (_root);
+				delete _root;
 				
 			}
 			
