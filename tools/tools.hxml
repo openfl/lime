@@ -2,6 +2,7 @@
 -neko tools.n
 -D lime-curl
 -D lime
+-D lime-cffi
 -cp ..
 -lib format
 #-lib svg

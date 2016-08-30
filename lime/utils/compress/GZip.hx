@@ -13,7 +13,7 @@ class GZip {
 	
 	public static function compress (bytes:Bytes):Bytes {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		
 		var data:Dynamic = lime_gzip_compress (bytes);
 		if (data == null) return null;
@@ -35,7 +35,7 @@ class GZip {
 	
 	public static function decompress (bytes:Bytes):Bytes {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		
 		var data:Dynamic = lime_gzip_decompress (bytes);
 		if (data == null) return null;
@@ -62,7 +62,7 @@ class GZip {
 	
 	
 	
-	#if ((cpp || neko || nodejs) && !macro)
+	#if (lime_cffi && !macro)
 	@:cffi private static function lime_gzip_compress (data:Dynamic):Dynamic;
 	@:cffi private static function lime_gzip_decompress (data:Dynamic):Dynamic;
 	#end

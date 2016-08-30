@@ -18,7 +18,7 @@ class LZMA {
 	
 	public static function compress (bytes:Bytes):Bytes {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		
 		var data:Dynamic = lime_lzma_compress (bytes);
 		if (data == null) return null;
@@ -45,7 +45,7 @@ class LZMA {
 	
 	public static function decompress (bytes:Bytes):Bytes {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		
 		var data:Dynamic = lime_lzma_decompress (bytes);
 		if (data == null) return null;
@@ -77,7 +77,7 @@ class LZMA {
 	
 	
 	
-	#if ((cpp || neko || nodejs) && !macro)
+	#if (lime_cffi && !macro)
 	@:cffi private static function lime_lzma_compress (data:Dynamic):Dynamic;
 	@:cffi private static function lime_lzma_decompress (data:Dynamic):Dynamic;
 	#end

@@ -17,7 +17,7 @@ class Deflate {
 	
 	public static function compress (bytes:Bytes):Bytes {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		
 		var data:Dynamic = lime_deflate_compress (bytes);
 		if (data == null) return null;
@@ -49,7 +49,7 @@ class Deflate {
 	
 	public static function decompress (bytes:Bytes):Bytes {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		
 		var data:Dynamic = lime_deflate_decompress (bytes);
 		if (data == null) return null;
@@ -86,7 +86,7 @@ class Deflate {
 	
 	
 	
-	#if ((cpp || neko || nodejs) && !macro)
+	#if (lime_cffi && !macro)
 	@:cffi private static function lime_deflate_compress (data:Dynamic):Dynamic;
 	@:cffi private static function lime_deflate_decompress (data:Dynamic):Dynamic;
 	#end

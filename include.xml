@@ -3,11 +3,10 @@
 	
 	<set name="lime" />
 	
-	<haxedef name="native" if="cpp || neko || nodejs" />
-	<set name="native" if="cpp || neko || nodejs" />
+	<haxedef name="native" if="native" />
 	
 	<haxedef name="lime-html5" if="html5" />
-	<haxedef name="lime-native" if="native" />
+	<haxedef name="lime-cffi" if="native" />
 	
 	<haxedef name="no-compilation" />
 	
@@ -42,7 +41,7 @@
 			<ndll name="regexp" haxelib="hxcpp" if="cpp" unless="static_link" />
 			<ndll name="zlib" haxelib="hxcpp" if="cpp" unless="emscripten || ios || static_link || tvos" />
 			
-			<ndll name="lime" if="cpp || neko || nodejs" />
+			<ndll name="lime" if="native" />
 		</section>
 		
 		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
@@ -62,6 +61,8 @@
 		<haxedef name="lime-opengl" unless="lime-console || flash" />
 		<haxedef name="lime-openal" unless="lime-console || static_link || flash || html5" />
 		<haxedef name="lime-openal" if="emscripten" />
+		<haxedef name="no_typedarray_inline" />
+		<haxedef name="unsafe" if="cs" unless="no_unsafe" />
 		
 	</section>
 	

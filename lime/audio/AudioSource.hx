@@ -52,7 +52,7 @@ class AudioSource {
 	private var __gain:Float = 1.0;
 	#end
 	
-	#if (cpp || neko || nodejs)
+	#if lime_cffi
 	private var timer:Timer;
 	#end
 	
