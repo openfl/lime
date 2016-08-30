@@ -216,8 +216,6 @@ namespace lime {
 	
 	value lime_bytes_read_file (HxString path) {
 		
-		printf("SLDJFLKDJF\n");
-		
 		Bytes data = Bytes (path.__s);
 		return data.Value ();
 		
