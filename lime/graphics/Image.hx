@@ -1625,7 +1625,7 @@ class Image {
 	
 	
 	
-	#if ((cpp || neko || nodejs) && !macro)
+	#if (lime_cffi && !macro)
 	@:cffi private static function lime_image_load (data:Dynamic):Dynamic;
 	#end
 	

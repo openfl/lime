@@ -10,6 +10,8 @@ import sys.io.Process;
 import neko.Lib;
 #elseif cpp
 import cpp.Lib;
+#elseif cs
+import cs.Lib;
 #end
 
 

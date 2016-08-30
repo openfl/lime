@@ -191,7 +191,7 @@ class AudioBuffer {
 	}
 	
 	
-	#if ((cpp || neko || nodejs) && !macro)
+	#if (lime_cffi && !macro)
 	@:cffi private static function lime_audio_load (data:Dynamic):Dynamic;
 	#end
 	

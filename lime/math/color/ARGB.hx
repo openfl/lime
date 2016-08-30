@@ -6,7 +6,7 @@ import lime.utils.UInt32Array;
 import lime.utils.UInt8Array;
 
 
-abstract ARGB(Int) from Int to Int from UInt to UInt {
+abstract ARGB(UInt) from Int to Int from UInt to UInt {
 	
 	
 	private static var a16:Int;

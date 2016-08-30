@@ -3,11 +3,12 @@
 	
 	<set name="lime" />
 	
-	<haxedef name="native" if="cpp || neko || nodejs" />
-	<set name="native" if="cpp || neko || nodejs" />
+	<haxedef name="native" if="cpp || neko || nodejs || cs" />
+	<set name="native" if="cpp || neko || nodejs || cs" />
 	
 	<haxedef name="lime-html5" if="html5" />
 	<haxedef name="lime-native" if="native" />
+	<haxedef name="lime-cffi" if="native" unless="disable-cffi" />
 	
 	<haxedef name="no-compilation" />
 	

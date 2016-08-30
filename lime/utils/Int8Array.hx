@@ -94,9 +94,9 @@ package lime.utils;
 
             //non spec haxe conversions
         inline public static function fromBytes( bytes:haxe.io.Bytes, ?byteOffset:Int=0, ?len:Int ) : Int8Array {
-            if(byteOffset == null) return new Int8Array(cast bytes.getData());
-            if(len == null) return new Int8Array(cast bytes.getData(), byteOffset);
-            return new Int8Array(cast bytes.getData(), byteOffset, len);
+            if(byteOffset == null) return new Int8Array(null, null, cast bytes.getData());
+            if(len == null) return new Int8Array(null, null, cast bytes.getData(), byteOffset);
+            return new Int8Array(null, null, cast bytes.getData(), byteOffset, len);
         }
 
         inline public function toBytes() : haxe.io.Bytes {

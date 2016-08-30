@@ -131,7 +131,7 @@ class NativeApplication {
 		untyped setImmediate (eventLoop);
 		return 0;
 		
-		#elseif (cpp || neko)
+		#elseif (cpp || neko || cs)
 		
 		var result = lime_application_exec (handle);
 		parent.onExit.dispatch (result);

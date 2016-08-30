@@ -79,7 +79,7 @@ class Joystick {
 	
 	@:noCompletion private inline function get_guid ():String {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_joystick_get_device_guid (this.id);
 		#elseif (js && html5)
 		var devices = __getDeviceData ();
@@ -93,7 +93,7 @@ class Joystick {
 	
 	@:noCompletion private inline function get_name ():String {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_joystick_get_device_name (this.id);
 		#elseif (js && html5)
 		var devices = __getDeviceData ();
@@ -107,7 +107,7 @@ class Joystick {
 	
 	@:noCompletion private inline function get_numAxes ():Int {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_joystick_get_num_axes (this.id);
 		#elseif (js && html5)
 		var devices = __getDeviceData ();
@@ -121,7 +121,7 @@ class Joystick {
 	
 	@:noCompletion private inline function get_numButtons ():Int {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_joystick_get_num_buttons (this.id);
 		#elseif (js && html5)
 		var devices = __getDeviceData ();
@@ -135,7 +135,7 @@ class Joystick {
 	
 	@:noCompletion private inline function get_numHats ():Int {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_joystick_get_num_hats (this.id);
 		#else
 		return 0;
@@ -146,7 +146,7 @@ class Joystick {
 	
 	@:noCompletion private inline function get_numTrackballs ():Int {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_joystick_get_num_trackballs (this.id);
 		#else
 		return 0;
@@ -162,7 +162,7 @@ class Joystick {
 	
 	
 	
-	#if ((cpp || neko || nodejs) && !macro)
+	#if (lime_cffi && !macro)
 	@:cffi private static function lime_joystick_get_device_guid (id:Int):Dynamic;
 	@:cffi private static function lime_joystick_get_device_name (id:Int):Dynamic;
 	@:cffi private static function lime_joystick_get_num_axes (id:Int):Int;

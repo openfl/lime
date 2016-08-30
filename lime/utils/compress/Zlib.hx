@@ -17,7 +17,7 @@ class Zlib {
 	
 	public static function compress (bytes:Bytes):Bytes {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		
 		var data:Dynamic = lime_zlib_compress (bytes);
 		if (data == null) return null;
@@ -49,7 +49,7 @@ class Zlib {
 	
 	public static function decompress (bytes:Bytes):Bytes {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		
 		var data:Dynamic = lime_zlib_decompress (bytes);
 		if (data == null) return null;
@@ -86,7 +86,7 @@ class Zlib {
 	
 	
 	
-	#if ((cpp || neko || nodejs) && !macro)
+	#if (lime_cffi && !macro)
 	@:cffi private static function lime_zlib_compress (data:Dynamic):Dynamic;
 	@:cffi private static function lime_zlib_decompress (data:Dynamic):Dynamic;
 	#end

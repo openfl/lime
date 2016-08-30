@@ -8,7 +8,7 @@ import lime.utils.UInt8Array;
 @:allow(lime.math.color)
 
 
-abstract RGBA(Int) from Int to Int from UInt to UInt {
+abstract RGBA(UInt) from Int to Int from UInt to UInt {
 	
 	
 	private static var __alpha16:UInt32Array;

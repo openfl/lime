@@ -1,0 +1,6 @@
+-main ApplicationMain ::HAXE_FLAGS::
+-D net-ver=40
+-D real-position
+-cp ::OUTPUT_DIR::/haxe
+-cs ::OUTPUT_DIR::/obj
+--macro keep("::APP_MAIN::")
