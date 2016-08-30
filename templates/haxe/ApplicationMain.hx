@@ -130,6 +130,8 @@ class ApplicationMain {
 	#if neko
 	@:noCompletion @:dox(hide) public static function __init__ () {
 		
+		// Copy from https://github.com/HaxeFoundation/haxe/blob/development/std/neko/_std/Sys.hx#L164
+		// since Sys.programPath () isn't available in __init__
 		var sys_program_path = {
 			var m = neko.vm.Module.local().name;
 			try {
