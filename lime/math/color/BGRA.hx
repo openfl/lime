@@ -6,7 +6,7 @@ import lime.utils.UInt32Array;
 import lime.utils.UInt8Array;
 
 
-abstract BGRA(UInt) from Int to Int from UInt to UInt {
+abstract BGRA(#if flash Int #else UInt #end) from Int to Int from UInt to UInt {
 	
 	
 	private static var a16:Int;
