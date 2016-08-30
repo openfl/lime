@@ -51,7 +51,9 @@ class LogHelper {
 		
 		if (verbose && e != null) {
 			
+			#if !cs
 			Lib.rethrow (e);
+			#end
 			
 		}
 		

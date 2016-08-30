@@ -212,7 +212,7 @@ class CommandLineTools {
 							
 							target = PlatformHelper.hostPlatform;
 							targetFlags.set ("cpp", "");
-							
+						
 						case "neko":
 							
 							target = PlatformHelper.hostPlatform;
@@ -222,11 +222,16 @@ class CommandLineTools {
 							
 							target = PlatformHelper.hostPlatform;
 							targetFlags.set ("nodejs", "");
+						
+						case "cs":
 							
+							target = PlatformHelper.hostPlatform;
+							targetFlags.set ("cs", "");
+						
 						case "iphone", "iphoneos":
 							
 							target = Platform.IOS;
-							
+						
 						case "iphonesim":
 							
 							target = Platform.IOS;
@@ -1180,7 +1185,7 @@ class CommandLineTools {
 				
 				target = PlatformHelper.hostPlatform;
 				targetFlags.set ("cpp", "");
-				
+			
 			case "neko":
 				
 				target = PlatformHelper.hostPlatform;
@@ -1195,6 +1200,11 @@ class CommandLineTools {
 				
 				target = PlatformHelper.hostPlatform;
 				targetFlags.set ("nodejs", "");
+			
+			case "cs":
+				
+				target = PlatformHelper.hostPlatform;
+				targetFlags.set ("cs", "");
 			
 			case "iphone", "iphoneos":
 				

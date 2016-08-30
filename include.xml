@@ -8,8 +8,9 @@
 	
 	<haxedef name="lime-html5" if="html5" />
 	<haxedef name="lime-native" if="native" />
-	<haxedef name="lime-cffi" if="native" unless="disable-cffi" />
+	<haxedef name="lime-cffi" if="native" />
 	
+	<haxedef name="no-typedarray-inline" if="cs" />
 	<haxedef name="no-compilation" />
 	
 	<templatePath name="templates" />
