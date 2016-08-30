@@ -44,7 +44,7 @@ class HTML5Window {
 	
 	public var canvas:CanvasElement;
 	public var div:DivElement;
-	public var element:#if (haxe_ver >= "3.2") Element #else HtmlElement #end;
+	public var element:#if (haxe_ver >= 3.2) Element #else HtmlElement #end;
 	#if stats
 	public var stats:Dynamic;
 	#end

@@ -10,7 +10,7 @@ import flash.Lib;
 #end
 
 #if (js && html5)
-#if (haxe_ver >= "3.2")
+#if (haxe_ver >= 3.2)
 import js.html.Element;
 #else
 import js.html.HtmlElement;
@@ -49,7 +49,7 @@ class System {
 	@:keep @:expose("lime.embed")
 	public static function embed (element:Dynamic, width:Null<Int> = null, height:Null<Int> = null, background:String = null, assetsPrefix:String = null) {
 		
-		var htmlElement:#if (haxe_ver >= "3.2") Element #else HtmlElement #end = null;
+		var htmlElement:#if (haxe_ver >= 3.2) Element #else HtmlElement #end = null;
 		
 		if (Std.is (element, String)) {
 			

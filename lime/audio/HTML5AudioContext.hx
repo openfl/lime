@@ -56,7 +56,7 @@ class HTML5AudioContext {
 	}
 	
 	
-	#if (haxe_ver < "3.2")
+	#if (haxe_ver < 3.2)
 	public function getAudioDecodedByteCount (buffer:AudioBuffer):Int {
 		
 		#if (js && html5)
@@ -103,7 +103,7 @@ class HTML5AudioContext {
 	}
 	
 	
-	#if (haxe_ver < "3.2")
+	#if (haxe_ver < 3.2)
 	public function getController (buffer:AudioBuffer):Dynamic /*MediaController*/ {
 		
 		#if (js && html5)
@@ -210,7 +210,7 @@ class HTML5AudioContext {
 	}
 	
 	
-	#if (haxe_ver < "3.2")
+	#if (haxe_ver < 3.2)
 	public function getInitialTime (buffer:AudioBuffer):Float {
 		
 		#if (js && html5)
@@ -242,7 +242,7 @@ class HTML5AudioContext {
 	}
 	
 	
-	#if (haxe_ver < "3.2")
+	#if (haxe_ver < 3.2)
 	public function getMediaGroup (buffer:AudioBuffer):String {
 		
 		#if (js && html5)
@@ -491,7 +491,7 @@ class HTML5AudioContext {
 	}
 	
 	
-	#if (haxe_ver < "3.2")
+	#if (haxe_ver < 3.2)
 	public function setController (buffer:AudioBuffer, value:Dynamic /*MediaController*/):Void {
 		
 		#if (js && html5)
@@ -545,7 +545,7 @@ class HTML5AudioContext {
 	}
 	
 	
-	#if (haxe_ver < "3.2")
+	#if (haxe_ver < 3.2)
 	public function setMediaGroup (buffer:AudioBuffer, value:String):Void {
 		
 		#if (js && html5)

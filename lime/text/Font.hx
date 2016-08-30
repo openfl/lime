@@ -124,7 +124,7 @@ class Font {
 	}
 	
 	
-	public function getGlyphs (characters:String = #if (display && haxe_ver < "3.2") "" #else "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. " #end):Array<Glyph> {
+	public function getGlyphs (characters:String = #if (display && haxe_ver < 3.2) "" #else "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. " #end):Array<Glyph> {
 		
 		#if ((cpp || neko || nodejs) && !macro)
 		var glyphs:Dynamic = lime_font_get_glyph_indices (src, characters);
