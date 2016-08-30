@@ -44,6 +44,7 @@
 		<compilerflag value="-Iinclude" />
 		
 		<file name="src/ExternalInterface.cpp" />
+		<file name="src/hx/CFFIExt.cpp" unless="static_link" />
 		
 		<section if="LIME_CAIRO">
 			
