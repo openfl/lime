@@ -191,7 +191,7 @@ class AndroidPlatform extends PlatformTarget {
 		
 		if (project.config.exists ("android.gradle-build-directory")) {
 			
-			apkPath = project.config.getString ("android.gradle-build-directory") + "/" + project.meta.title + "/app/outputs/apk/";
+			apkPath = project.config.getString ("android.gradle-build-directory") + "/" + project.app.file + "/app/outputs/apk/";
 			
 		} else {
 			
