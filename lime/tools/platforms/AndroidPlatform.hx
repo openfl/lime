@@ -187,7 +187,8 @@ class AndroidPlatform extends PlatformTarget {
 			
 		}
 		
-		var apkPath = FileSystem.fullPath (targetDirectory) + "/bin/app/build/outputs/apk/";
+		var apkPath = FileSystem.fullPath (targetDirectory) + "/bin/app/build";
+		apkPath = project.config.getString ("android.gradle-build-directory", apkPath) + "/outputs/apk/";
 		var apkSuffix = "-" + build + ".apk";
 		
 		File.copy (apkPath + "app" + apkSuffix, apkPath + project.app.file + apkSuffix);
@@ -311,6 +312,7 @@ class AndroidPlatform extends PlatformTarget {
 		context.ANDROID_EXTENSIONS = project.config.getArrayString ("android.extension");
 		context.ANDROID_PERMISSIONS = project.config.getArrayString ("android.permission", [ "android.permission.WAKE_LOCK", "android.permission.INTERNET", "android.permission.VIBRATE", "android.permission.ACCESS_NETWORK_STATE" ]);
 		context.ANDROID_GRADLE_VERSION = project.config.getString ("android.gradle-version", "2.10");
+		if (project.config.exists ("android.gradle-build-directory")) context.ANDROID_GRADLE_BUILD_DIRECTORY = project.config.getString ("android.gradle-build-directory");
 		context.ANDROID_LIBRARY_PROJECTS = [];
 		
 		var escaped = ~/([ #!=\\:])/g;
