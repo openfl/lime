@@ -187,8 +187,18 @@ class AndroidPlatform extends PlatformTarget {
 			
 		}
 		
-		var apkPath = FileSystem.fullPath (targetDirectory) + "/bin/app/build";
-		apkPath = project.config.getString ("android.gradle-build-directory", apkPath) + "/outputs/apk/";
+		var apkPath:String;
+		
+		if (project.config.exists ("android.gradle-build-directory")) {
+			
+			apkPath = project.config.getString ("android.gradle-build-directory") + "/" + project.meta.title + "/app/outputs/apk/";
+			
+		} else {
+			
+			apkPath = FileSystem.fullPath (targetDirectory) + "/bin/app/build/outputs/apk/";
+			
+		}
+		
 		var apkSuffix = "-" + build + ".apk";
 		
 		File.copy (apkPath + "app" + apkSuffix, apkPath + project.app.file + apkSuffix);
