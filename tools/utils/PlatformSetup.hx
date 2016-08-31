@@ -1716,6 +1716,17 @@ class PlatformSetup {
 			
 		}
 		
+		var whichDnf = ProcessHelper.runProcess ("", "which", ["dnf"], true, true, true);
+		var hasDnf = whichDnf != null && whichDnf != "";
+		
+		if (hasDnf) {
+			
+			var parameters = [ "dnf", "install" ].concat (linuxDnfPackages.split (" "));
+			ProcessHelper.runCommand ("", "sudo", parameters, false);
+			return;
+			
+		}
+		
 		var whichEquo = ProcessHelper.runProcess ("", "which", ["equo"], true,true, true);
 		var hasEquo = whichEquo != null && whichEquo != "";
 		
