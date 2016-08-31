@@ -116,6 +116,9 @@ namespace cs.ndll
         private delegate IntPtr ValToBufferDelegate(IntPtr arg1);
 
         [UnmanagedFunctionPointerAttribute(CallingConvention.Cdecl)]
+        private delegate void BufferSetSizeDelegate(IntPtr inBuffer, int inLen);
+
+        [UnmanagedFunctionPointerAttribute(CallingConvention.Cdecl)]
         private delegate int BufferSizeDelegate(IntPtr inBuffer);
 
         [UnmanagedFunctionPointerAttribute(CallingConvention.Cdecl)]
@@ -190,6 +193,7 @@ namespace cs.ndll
         private static DelegateConverter<BufferDataDelegate> buffer_data;
         private static DelegateConverter<BufferValDelegate> buffer_val;
         private static DelegateConverter<ValToBufferDelegate> val_to_buffer;
+        private static DelegateConverter<BufferSetSizeDelegate> buffer_set_size;
         private static DelegateConverter<BufferSizeDelegate> buffer_size;
         private static DelegateConverter<PinBufferDelegate> pin_buffer;
         private static DelegateConverter<UnPinBufferDelegate> unpin_buffer;
@@ -603,6 +607,14 @@ namespace cs.ndll
             return arg1;
         }
 
+        private static void cs_buffer_set_size(IntPtr inBuffer, int inLen)
+        {
+            byte[] buffer = (byte[])HandleUtils.GetObjectFromIntPtr(inBuffer);
+            if (buffer != null) {
+                System.Array.Resize<byte>(ref buffer, inLen);
+            }
+        }
+
         private static int cs_buffer_size(IntPtr inBuffer)
         {
             byte[] buffer = (byte[])HandleUtils.GetObjectFromIntPtr(inBuffer);
@@ -687,6 +699,7 @@ namespace cs.ndll
             buffer_data = new DelegateConverter<BufferDataDelegate>(new BufferDataDelegate(cs_buffer_data));
             buffer_val = new DelegateConverter<BufferValDelegate>(new BufferValDelegate(cs_buffer_val));
             val_to_buffer = new DelegateConverter<ValToBufferDelegate>(new ValToBufferDelegate(cs_val_to_buffer));
+            buffer_set_size = new DelegateConverter<BufferSetSizeDelegate>(new BufferSetSizeDelegate(cs_buffer_set_size));
             buffer_size = new DelegateConverter<BufferSizeDelegate>(new BufferSizeDelegate(cs_buffer_size));
             pin_buffer = new DelegateConverter<PinBufferDelegate>(new PinBufferDelegate(cs_pin_buffer));
             unpin_buffer = new DelegateConverter<UnPinBufferDelegate>(new UnPinBufferDelegate(cs_unpin_buffer));
@@ -772,6 +785,8 @@ namespace cs.ndll
                     return buffer_val.ToPointer();
                 case "val_to_buffer":
                     return val_to_buffer.ToPointer();
+                case "buffer_set_size":
+                    return buffer_set_size.ToPointer();
                 case "buffer_size":
                     return buffer_size.ToPointer();
                 case "pin_buffer":
