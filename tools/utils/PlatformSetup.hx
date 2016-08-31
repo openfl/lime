@@ -45,6 +45,9 @@ class PlatformSetup {
 	private static var linuxAptPackages = "ia32-libs-multiarch gcc-multilib g++-multilib";
 	private static var linuxUbuntuSaucyPackages = "gcc-multilib g++-multilib libxext-dev";
 	private static var linuxYumPackages = "gcc gcc-c++";
+	private static var linuxDnfPackages = "gcc gcc-c++";
+	private static var linuxEquoPackages = "media-libs/mesa sys-devel/gcc";
+	private static var linuxEmergePackages = "media-libs/mesa sys-devel/gcc";
 	private static var linuxPacman32Packages = "multilib-devel mesa mesa-libgl glu";
 	private static var linuxPacman64Packages = "multilib-devel lib32-mesa lib32-mesa-libgl lib32-glu";
 	private static var tizenSDKURL = "https://developer.tizen.org/downloads/tizen-sdk";
@@ -1715,6 +1718,40 @@ class PlatformSetup {
 			
 		}
 		
+		var whichDnf = ProcessHelper.runProcess ("", "which", ["dnf"], true, true, true);
+		var hasDnf = whichDnf != null && whichDnf != "";
+		
+		if (hasDnf) {
+			
+			var parameters = [ "dnf", "install" ].concat (linuxDnfPackages.split (" "));
+			ProcessHelper.runCommand ("", "sudo", parameters, false);
+			return;
+			
+		}
+		
+		var whichEquo = ProcessHelper.runProcess ("", "which", ["equo"], true,true, true);
+		var hasEquo = whichEquo != null && whichEquo != "";
+		
+		if (hasEquo) {
+			
+			// Sabayon docs recommend not using sudo with equo, and instead using a root login shell
+			var parameters = [ "-l", "-c", "equo", "i", "-av" ].concat (linuxEquoPackages.split (" "));
+			ProcessHelper.runCommand ("", "su", parameters, false);
+			return;
+			
+		}
+		
+		var whichEmerge = ProcessHelper.runProcess ("", "which", ["emerge"], true,true, true);
+		var hasEmerge = whichEmerge != null && whichEmerge != "";
+		
+		if (hasEmerge) {
+			
+			var parameters = [ "emerge", "-av" ].concat (linuxEmergePackages.split (" "));
+			ProcessHelper.runCommand ("", "sudo", parameters, false);
+			return;
+			
+		}
+		
 		var whichPacman = ProcessHelper.runProcess ("", "which", ["pacman"], true, true, true);
 		var hasPacman = whichPacman != null && whichPacman != "";
 		
@@ -1738,7 +1775,7 @@ class PlatformSetup {
 		}
 		
 		LogHelper.println ("Unable to find a supported package manager on your Linux distribution.");
-		LogHelper.println ("For now, only apt-get, yum, and pacman are supported.");
+		LogHelper.println ("For now, only apt-get, yum, dnf, equo, emerge, and pacman are supported.");
 		
 		Sys.exit (1);
 		
