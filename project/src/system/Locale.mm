@@ -25,8 +25,6 @@ namespace lime {
 			result = (char*)malloc ([locale length] + 1);
 			strncpy (result, ptr, [locale length]);
 			
-			printf("%s\n", result);
-			
 		}
 		
 		#ifndef OBJC_ARC
