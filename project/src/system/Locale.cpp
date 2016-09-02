@@ -4,6 +4,7 @@
 #include <windows.h>
 #elif defined(HX_LINUX)
 #include <stdlib.h>
+#include <string.h>
 #include <clocale>
 #endif
 
