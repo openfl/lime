@@ -52,6 +52,35 @@ abstract Locale(String) from String to String {
 	}
 	
 	
+	@:noCompletion @:op(A == B) private static function equals (a:Locale, b:Locale):Bool {
+		
+		var language = a.language;
+		var region = a.region;
+		
+		var language2 = b.language;
+		var region2 = b.region;
+		
+		var languageMatch = (language == language2);
+		var regionMatch = (region == region2);
+		
+		if (!languageMatch && language != null && language2 != null) {
+			
+			languageMatch = (language.toLowerCase () == language2.toLowerCase ());
+			
+		}
+		
+		if (!regionMatch && region != null && region2 != null) {
+			
+			regionMatch = (region.toLowerCase () == region2.toLowerCase ());
+			
+		}
+		
+		return (languageMatch && regionMatch);
+		
+	}
+	
+	
+	
 	
 	
 	// Get & Set Methods
@@ -59,7 +88,7 @@ abstract Locale(String) from String to String {
 	
 	
 	
-	private function get_language ():String {
+	@:noCompletion private function get_language ():String {
 		
 		if (this != null) {
 			
@@ -86,7 +115,7 @@ abstract Locale(String) from String to String {
 	}
 	
 	
-	private function get_region ():String {
+	@:noCompletion private function get_region ():String {
 		
 		if (this != null) {
 			
