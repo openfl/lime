@@ -3,6 +3,7 @@
 #if defined(HX_WINDOWS)
 #include <windows.h>
 #elif defined(HX_LINUX)
+#include <stdlib.h>
 #include <clocale>
 #endif
 
