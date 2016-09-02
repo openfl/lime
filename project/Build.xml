@@ -44,7 +44,6 @@
 		<compilerflag value="-Iinclude" />
 		
 		<file name="src/ExternalInterface.cpp" />
-		<file name="src/hx/CFFIExt.cpp" unless="static_link" />
 		
 		<section if="LIME_CAIRO">
 			
@@ -227,6 +226,7 @@
 		<file name="src/math/Vector2.cpp" />
 		<file name="src/system/CFFIPointer.cpp" />
 		<file name="src/system/JNI.cpp" if="android" />
+		<file name="src/system/Locale.cpp" />
 		<file name="src/system/SensorEvent.cpp" />
 		<file name="src/ui/DropEvent.cpp" />
 		<file name="src/ui/GamepadEvent.cpp" />
@@ -237,6 +237,8 @@
 		<file name="src/ui/TouchEvent.cpp" />
 		<file name="src/ui/WindowEvent.cpp" />
 		<file name="src/utils/Bytes.cpp" />
+		
+		<file name="src/hx/CFFIExt.cpp" unless="static_link" />
 		
 	</files>
 	
