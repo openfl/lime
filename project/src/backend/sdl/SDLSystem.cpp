@@ -165,7 +165,7 @@ namespace lime {
 				
 				#elif defined (ANDROID)
 				
-				return "/mnt/sdcard/Documents";
+				return new std::wstring (L"/mnt/sdcard/Documents");
 				
 				#else
 				
@@ -195,23 +195,23 @@ namespace lime {
 				
 				#elif defined (HX_MACOS)
 				
-				return "/Library/Fonts";
+				return new std::wstring (L"/Library/Fonts");
 				
 				#elif defined (IPHONEOS)
 				
-				return "/System/Library/Fonts";
+				return new std::wstring (L"/System/Library/Fonts");
 				
 				#elif defined (ANDROID)
 				
-				return "/system/fonts";
+				return new std::wstring (L"/system/fonts");
 				
 				#elif defined (BLACKBERRY)
 				
-				return "/usr/fonts/font_repository/monotype";
+				return new std::wstring (L"/usr/fonts/font_repository/monotype");
 				
 				#else
 				
-				return "/usr/share/fonts/truetype";
+				return new std::wstring (L"/usr/share/fonts/truetype");
 				
 				#endif
 				break;
@@ -241,11 +241,11 @@ namespace lime {
 				
 				#elif defined (ANDROID)
 				
-				return "/mnt/sdcard";
+				return new std::wstring (L"/mnt/sdcard");
 				
 				#else
 				
-				std::string result = getenv ("HOME");
+				std::string path = getenv ("HOME");
 				std::wstring* result = new std::wstring (path.begin (), path.end ());
 				return result;
 				
