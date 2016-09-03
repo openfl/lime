@@ -25,8 +25,11 @@ namespace lime {
 			
 			case USER:
 				
-				searchType = NSUserDirectory;
+				//searchType = NSUserDirectory;
+				searchType = NSDocumentDirectory;
 				break;
+			
+			default: break;
 			
 		}
 		

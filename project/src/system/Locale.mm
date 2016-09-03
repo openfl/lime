@@ -28,7 +28,6 @@ namespace lime {
 		}
 		
 		#ifndef OBJC_ARC
-		[locale release];
 		[pool drain];
 		#endif
 		

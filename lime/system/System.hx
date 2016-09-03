@@ -242,7 +242,7 @@ class System {
 	}
 	
 	
-	private static function __getDirectory (type:SystemDirectory):String {
+	@:noCompletion private static function __getDirectory (type:SystemDirectory):String {
 		
 		#if (lime_cffi && !macro)
 		
