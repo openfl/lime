@@ -44,6 +44,8 @@ class System {
 	public static var numDisplays (get, null):Int;
 	public static var userDirectory (get, null):String;
 	
+	@:noCompletion private static var __directories = new Map<SystemDirectory, String> ();
+	
 	
 	#if (js && html5)
 	@:keep @:expose("lime.embed")
@@ -240,6 +242,89 @@ class System {
 	}
 	
 	
+	private static function __getDirectory (type:SystemDirectory):String {
+		
+		#if (lime_cffi && !macro)
+		
+		if (__directories.exists (type)) {
+			
+			return __directories.get (type);
+			
+		} else {
+			
+			var path:String;
+			
+			if (type == APPLICATION_STORAGE) {
+				
+				var company = "MyCompany";
+				var file = "MyApplication";
+				
+				if (Application.current != null && Application.current.config != null) {
+					
+					if (Application.current.config.company != null) {
+						
+						company = Application.current.config.company;
+						
+					}
+					
+					if (Application.current.config.file != null) {
+						
+						file = Application.current.config.file;
+						
+					}
+					
+				}
+				
+				path = lime_system_get_directory (type, company, file);
+				
+			} else {
+				
+				path = lime_system_get_directory (type, null, null);
+				
+			}
+			
+			#if windows
+			var seperator = "\\";
+			#else
+			var seperator = "/";
+			#end
+			
+			if (path != null && path.length > 0 && !StringTools.endsWith (path, seperator)) {
+				
+				path += seperator;
+				
+			}
+			
+			__directories.set (type, path);
+			return path;
+			
+		}
+		
+		#elseif flash
+		
+		if (type != FONTS && Capabilities.playerType == "Desktop") {
+			
+			var propertyName = switch (type) {
+				
+				case APPLICATION: "applicationDirectory";
+				case APPLICATION_STORAGE: "applicationStorageDirectory";
+				case DESKTOP: "desktopDirectory";
+				case DOCUMENTS: "documentsDirectory";
+				default: "userDirectory";
+				
+			}
+			
+			return Reflect.getProperty (Type.resolveClass ("flash.filesystem.File"), propertyName).nativePath;
+			
+		}
+		
+		#end
+		
+		return null;
+		
+	}
+	
+	
 	
 	
 	// Get & Set Methods
@@ -271,114 +356,35 @@ class System {
 	
 	private static function get_applicationDirectory ():String {
 		
-		#if (lime_cffi && !macro)
-		return lime_system_get_directory (SystemDirectory.APPLICATION, null, null);
-		#elseif flash
-		if (Capabilities.playerType == "Desktop") {
-			
-			return Reflect.getProperty (Type.resolveClass ("flash.filesystem.File"), "applicationDirectory").nativePath;
-			
-		} else {
-			
-			return null;
-			
-		}
-		#else
-		return null;
-		#end
+		return __getDirectory (APPLICATION);
 		
 	}
 	
 	
 	private static function get_applicationStorageDirectory ():String {
 		
-		var company = "MyCompany";
-		var file = "MyApplication";
-		
-		if (Application.current != null && Application.current.config != null) {
-			
-			if (Application.current.config.company != null) {
-				
-				company = Application.current.config.company;
-				
-			}
-			
-			if (Application.current.config.file != null) {
-				
-				file = Application.current.config.file;
-				
-			}
-			
-		}
-		
-		#if (lime_cffi && !macro)
-		return lime_system_get_directory (SystemDirectory.APPLICATION_STORAGE, company, file);
-		#elseif flash
-		if (Capabilities.playerType == "Desktop") {
-			
-			return Reflect.getProperty (Type.resolveClass ("flash.filesystem.File"), "applicationStorageDirectory").nativePath;
-			
-		} else {
-			
-			return null;
-			
-		}
-		#else
-		return null;
-		#end
+		return __getDirectory (APPLICATION_STORAGE);
 		
 	}
 	
 	
 	private static function get_desktopDirectory ():String {
 		
-		#if (lime_cffi && !macro)
-		return lime_system_get_directory (SystemDirectory.DESKTOP, null, null);
-		#elseif flash
-		if (Capabilities.playerType == "Desktop") {
-			
-			return Reflect.getProperty (Type.resolveClass ("flash.filesystem.File"), "desktopDirectory").nativePath;
-			
-		} else {
-			
-			return null;
-			
-		}
-		#else
-		return null;
-		#end
+		return __getDirectory (DESKTOP);
 		
 	}
 	
 	
 	private static function get_documentsDirectory ():String {
 		
-		#if (lime_cffi && !macro)
-		return lime_system_get_directory (SystemDirectory.DOCUMENTS, null, null);
-		#elseif flash
-		if (Capabilities.playerType == "Desktop") {
-			
-			return Reflect.getProperty (Type.resolveClass ("flash.filesystem.File"), "documentsDirectory").nativePath;
-			
-		} else {
-			
-			return null;
-			
-		}
-		#else
-		return null;
-		#end
+		return __getDirectory (DOCUMENTS);
 		
 	}
 	
 	
 	private static function get_fontsDirectory ():String {
 		
-		#if (lime_cffi && !macro)
-		return lime_system_get_directory (SystemDirectory.FONTS, null, null);
-		#else
-		return null;
-		#end
+		return __getDirectory (FONTS);
 		
 	}
 	
@@ -396,21 +402,7 @@ class System {
 	
 	private static function get_userDirectory ():String {
 		
-		#if (lime_cffi && !macro)
-		return lime_system_get_directory (SystemDirectory.USER, null, null);
-		#elseif flash
-		if (Capabilities.playerType == "Desktop") {
-			
-			return Reflect.getProperty (Type.resolveClass ("flash.filesystem.File"), "userDirectory").nativePath;
-			
-		} else {
-			
-			return null;
-			
-		}
-		#else
-		return null;
-		#end
+		return __getDirectory (USER);
 		
 	}
 	
