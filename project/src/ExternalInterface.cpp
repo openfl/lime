@@ -1289,25 +1289,13 @@ namespace lime {
 	
 	value lime_system_get_directory (int type, HxString company, HxString title) {
 		
-		const char* path = System::GetDirectory ((SystemDirectory)type, company.__s, title.__s);
+		std::wstring* path = System::GetDirectory ((SystemDirectory)type, company.__s, title.__s);
 		
 		if (path) {
 			
-			value _path = alloc_string (path);
-			
-			if (type != 4) {
-				
-				// TODO: Make this more consistent
-				
-				//This free() causes crashes on mac at least. Commenting it out makes it work
-				//again but may cause a small memory leak. Some more consideration is
-				//necessary to figure out what to do here
-				
-				//free ((char*) path);
-				
-			}
-			
-			return _path;
+			value result = alloc_wstring (path->c_str ());
+			delete path;
+			return result;
 			
 		} else {
 			

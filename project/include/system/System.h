@@ -3,6 +3,7 @@
 
 #include <hx/CFFI.h>
 #include <stdio.h>
+#include <string>
 
 
 namespace lime {
@@ -26,7 +27,10 @@ namespace lime {
 		public:
 			
 			static bool GetAllowScreenTimeout ();
-			static const char* GetDirectory (SystemDirectory type, const char* company, const char* title);
+			static std::wstring* GetDirectory (SystemDirectory type, const char* company, const char* title);
+			#ifdef IPHONE
+			static std::wstring* GetIOSDirectory (SystemDirectory type);
+			#endif
 			static value GetDisplay (int id);
 			static int GetNumDisplays ();
 			static double GetTimer ();
