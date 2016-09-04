@@ -442,7 +442,7 @@ class Window {
 	
 	@:noCompletion private function set_title (value:String):String {
 		
-		return __title = backend.setTitle (__title);
+		return __title = backend.setTitle (value);
 		
 	}
 	
