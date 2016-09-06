@@ -65,9 +65,9 @@ class Event<T> {
 		var typeArgs;
 		var typeResult;
 		
-		switch (Context.getLocalType ()) {
+		switch (Context.follow (Context.getLocalType ())) {
 			
-			case TInst (_, [ TFun (args, result) ]):
+			case TInst (_, [ Context.follow (_) => TFun (args, result) ]):
 				
 				typeArgs = args;
 				typeResult = result;
