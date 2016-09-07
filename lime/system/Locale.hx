@@ -20,15 +20,22 @@ abstract Locale(String) from String to String {
 	
 	private static function __init ():Void {
 		
+		trace ("1");
+		
 		var locale = null;
+		
+		trace ("2");
 		
 		#if flash
 		locale = Capabilities.language;
 		#elseif (js && html5)
 		locale = untyped navigator.language;
 		#elseif (lime_cffi && !macro)
+		trace (lime_locale_get_system_locale);
 		locale = lime_locale_get_system_locale ();
 		#end
+		
+		trace ("3");
 		
 		if (locale != null) {
 			
@@ -40,7 +47,11 @@ abstract Locale(String) from String to String {
 			
 		}
 		
+		trace ("4");
+		
 		currentLocale = systemLocale;
+		
+		trace ("5");
 		
 	}
 	
