@@ -18,7 +18,7 @@ abstract Locale(String) from String to String {
 	public var region (get, never):String;
 	
 	
-	private static function __init__ ():Void {
+	private static function __init ():Void {
 		
 		var locale = null;
 		
