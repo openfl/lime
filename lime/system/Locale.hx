@@ -18,8 +18,7 @@ abstract Locale(String) from String to String {
 	public var region (get, never):String;
 	
 	
-	private static function __init__ ():Void { __init (); }
-	private static function __init ():Void {
+	private static function __init__ ():Void {
 		
 		var locale = null;
 		
@@ -155,18 +154,6 @@ abstract Locale(String) from String to String {
 		return null;
 		
 	}
-	
-	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	#if (lime_cffi && !macro)
-	@:noCompletion private static var lime_locale_get_system_locale = CFFI.load ("lime", "lime_locale_get_system_locale", 0);
-	#end
 	
 	
 }

@@ -3,7 +3,6 @@ import lime.Assets;
 
 
 @:access(lime.app.Application)
-@:access(lime.system.Locale)
 
 
 class ApplicationMain {
@@ -16,8 +15,6 @@ class ApplicationMain {
 	
 	
 	public static function create ():Void {
-		
-		lime.system.Locale.__init ();
 		
 		preloader = new ::if (PRELOADER_NAME != "")::::PRELOADER_NAME::::else::lime.app.Preloader::end:: ();
 		
