@@ -1033,19 +1033,21 @@ namespace lime {
 	
 	value lime_locale_get_system_locale () {
 		
-		char* locale = Locale::GetSystemLocale ();
+		return alloc_null ();
 		
-		if (!locale) {
-			
-			return alloc_null ();
-			
-		} else {
-			
-			value result = alloc_string (locale);
-			free (locale);
-			return result;
-			
-		}
+		//char* locale = Locale::GetSystemLocale ();
+		//
+		//if (!locale) {
+			//
+			//return alloc_null ();
+			//
+		//} else {
+			//
+			//value result = alloc_string (locale);
+			//free (locale);
+			//return result;
+			//
+		//}
 		
 	}
 	
