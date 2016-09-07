@@ -1,6 +1,8 @@
 #ifndef LIME_SYSTEM_LOCALE_H
 #define LIME_SYSTEM_LOCALE_H
 
+#include <string>
+
 
 namespace lime {
 	
@@ -10,7 +12,7 @@ namespace lime {
 		
 		public:
 			
-			static char* GetSystemLocale ();
+			static std::string* GetSystemLocale ();
 		
 		
 	};

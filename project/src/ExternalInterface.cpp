@@ -1033,21 +1033,19 @@ namespace lime {
 	
 	value lime_locale_get_system_locale () {
 		
-		return alloc_null ();
+		std::string* locale = Locale::GetSystemLocale ();
 		
-		//char* locale = Locale::GetSystemLocale ();
-		//
-		//if (!locale) {
-			//
-			//return alloc_null ();
-			//
-		//} else {
-			//
-			//value result = alloc_string (locale);
-			//free (locale);
-			//return result;
-			//
-		//}
+		if (!locale) {
+			
+			return alloc_null ();
+			
+		} else {
+			
+			value result = alloc_string (locale->c_str ());
+			delete locale;
+			return result;
+			
+		}
 		
 	}
 	

@@ -10,20 +10,19 @@
 namespace lime {
 	
 	
-	char* Locale::GetSystemLocale () {
+	std::string* Locale::GetSystemLocale () {
 		
 		#ifndef OBJC_ARC
 		NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 		#endif
 		
 		NSString* locale = [[NSLocale currentLocale] localeIdentifier];
-		char* result = 0;
+		std::string* result = 0;
 		
 		if (locale) {
 			
 			const char* ptr = [locale UTF8String];
-			result = (char*)malloc ([locale length] + 1);
-			strncpy (result, ptr, [locale length]);
+			result = new std::string (ptr);
 			
 		}
 		
