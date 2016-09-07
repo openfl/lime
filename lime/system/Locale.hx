@@ -28,8 +28,7 @@ abstract Locale(String) from String to String {
 		#elseif (js && html5)
 		locale = untyped navigator.language;
 		#elseif (lime_cffi && !macro)
-		trace (lime_locale_get_system_locale);
-		locale = lime_locale_get_system_locale ();
+		locale = CFFI.load ("lime", "lime_locale_get_system_locale", 0) ();
 		#end
 		
 		if (locale != null) {
