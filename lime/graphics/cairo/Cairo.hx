@@ -746,7 +746,8 @@ class Cairo {
 	@:noCompletion private function set_matrix (value:Matrix3):Matrix3 {
 		
 		#if (lime_cairo && !macro)
-		lime_cairo_set_matrix (handle, value);
+		lime_cairo_set_matrix (handle, value.a, value.b, value.c, value.d, value.tx, value.ty);
+		//lime_cairo_set_matrix (handle, value);
 		#end
 		
 		return value;
@@ -946,7 +947,8 @@ class Cairo {
 	@:cffi private static function lime_cairo_set_line_cap (handle:CFFIPointer, cap:Int):Void;
 	@:cffi private static function lime_cairo_set_line_join (handle:CFFIPointer, join:Int):Void;
 	@:cffi private static function lime_cairo_set_line_width (handle:CFFIPointer, width:Float):Void;
-	@:cffi private static function lime_cairo_set_matrix (handle:CFFIPointer, matrix:Dynamic):Void;
+	@:cffi private static function lime_cairo_set_matrix (handle:CFFIPointer, a:Float, b:Float, c:Float, d:Float, tx:Float, ty:Float):Void;
+	//@:cffi private static function lime_cairo_set_matrix (handle:CFFIPointer, matrix:Dynamic):Void;
 	@:cffi private static function lime_cairo_set_miter_limit (handle:CFFIPointer, miterLimit:Float):Void;
 	@:cffi private static function lime_cairo_set_operator (handle:CFFIPointer, op:Int):Void;
 	@:cffi private static function lime_cairo_set_source (handle:CFFIPointer, pattern:CFFIPointer):Void;
