@@ -84,7 +84,7 @@ class HTML5Renderer {
 				
 			} else {
 				
-				#if debug
+				#if webgl_debug
 				webgl = untyped WebGLDebugUtils.makeDebugContext (webgl);
 				#end
 				
