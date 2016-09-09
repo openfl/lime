@@ -116,9 +116,23 @@ class ALCAudioContext {
 	}
 	
 	
+	public function pauseDevice (device:ALDevice):Void {
+		
+		ALC.pauseDevice (device);
+		
+	}
+	
+	
 	public function processContext (context:ALContext):Void {
 		
 		ALC.processContext (context);
+		
+	}
+	
+	
+	public function resumeDevice (device:ALDevice):Void {
+		
+		ALC.resumeDevice (device);
 		
 	}
 	

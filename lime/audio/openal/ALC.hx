@@ -182,10 +182,28 @@ class ALC {
 	}
 	
 	
+	public static function pauseDevice (device:ALDevice):Void {
+		
+		#if (lime_cffi && lime_openal && !macro)
+		lime_alc_pause_device (device);
+		#end
+		
+	}
+	
+	
 	public static function processContext (context:ALContext):Void {
 		
 		#if (lime_cffi && lime_openal && !macro)
 		lime_alc_process_context (context);
+		#end
+		
+	}
+	
+	
+	public static function resumeDevice (device:ALDevice):Void {
+		
+		#if (lime_cffi && lime_openal && !macro)
+		lime_alc_resume_device (device);
 		#end
 		
 	}
@@ -211,7 +229,9 @@ class ALC {
 	@:cffi private static function lime_alc_get_string (device:CFFIPointer, param:Int):Dynamic;
 	@:cffi private static function lime_alc_make_context_current (context:CFFIPointer):Bool;
 	@:cffi private static function lime_alc_open_device (devicename:String):CFFIPointer;
+	@:cffi private static function lime_alc_pause_device (device:CFFIPointer):Void;
 	@:cffi private static function lime_alc_process_context (context:CFFIPointer):Void;
+	@:cffi private static function lime_alc_resume_device (device:CFFIPointer):Void;
 	@:cffi private static function lime_alc_suspend_context (context:CFFIPointer):Void;
 	#end
 	

@@ -4,6 +4,7 @@
 #else
 #include "AL/al.h"
 #include "AL/alc.h"
+#include "AL/alext.h"
 #endif
 
 #include <hx/CFFIPrimePatch.h>
@@ -1111,10 +1112,30 @@ namespace lime {
 	}
 	
 	
+	void lime_alc_pause_device (value device) {
+		
+		#ifdef LIME_OPENALSOFT
+		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
+		alcDevicePauseSOFT (alcDevice);
+		#endif
+		
+	}
+	
+	
 	void lime_alc_process_context (value context) {
 		
 		ALCcontext* alcContext = (ALCcontext*)val_data (context);
 		alcProcessContext (alcContext);
+		
+	}
+	
+	
+	void lime_alc_resume_device (value device) {
+		
+		#ifdef LIME_OPENALSOFT
+		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
+		alcDeviceResumeSOFT (alcDevice);
+		#endif
 		
 	}
 	
@@ -1214,7 +1235,9 @@ namespace lime {
 	DEFINE_PRIME2 (lime_alc_get_string);
 	DEFINE_PRIME1 (lime_alc_make_context_current);
 	DEFINE_PRIME1 (lime_alc_open_device);
+	DEFINE_PRIME1v (lime_alc_pause_device);
 	DEFINE_PRIME1v (lime_alc_process_context);
+	DEFINE_PRIME1v (lime_alc_resume_device);
 	DEFINE_PRIME1v (lime_alc_suspend_context);
 	
 	
