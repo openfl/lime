@@ -14,6 +14,7 @@ package lime.utils;
         public inline function new<T>(
             ?elements:Int,
             ?array:Array<T>,
+            #if openfl ?vector:openfl.Vector<T>, #end
             ?view:ArrayBufferView,
             ?buffer:ArrayBuffer, ?byteoffset:Int = 0, ?len:Null<Int>
         ) {
@@ -21,6 +22,7 @@ package lime.utils;
                 this = new js.html.Float32Array( elements );
             } else if(array != null) {
                 this = new js.html.Float32Array( untyped array );
+            #if openfl } else if(vector != null) { this = new js.html.Float32Array( untyped untyped (vector).__array ); #end
             } else if(view != null) {
                 this = new js.html.Float32Array( untyped view );
             } else if(buffer != null) {
@@ -74,6 +76,7 @@ package lime.utils;
             ?elements:Int,
             ?buffer:ArrayBuffer,
             ?array:Array<T>,
+            #if openfl ?vector:openfl.Vector<T>, #end
             ?view:ArrayBufferView,
             ?byteoffset:Int = 0, ?len:Null<Int>
         ) {
@@ -82,6 +85,7 @@ package lime.utils;
                 this = new ArrayBufferView( elements, Float32 );
             } else if(array != null) {
                 this = new ArrayBufferView(0, Float32).initArray(array);
+            #if openfl } else if(vector != null) { this = new ArrayBufferView(0, Float32).initArray(untyped (vector).__array); #end
             } else if(view != null) {
                 this = new ArrayBufferView(0, Float32).initTypedArray(view);
             } else if(buffer != null) {
