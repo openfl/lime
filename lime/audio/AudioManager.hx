@@ -75,7 +75,15 @@ class AudioManager {
 				
 				case OPENAL (alc, al):
 					
-					alc.processContext (alc.getCurrentContext ());
+					var currentContext = alc.getCurrentContext ();
+					
+					if (currentContext != null) {
+						
+						var device = alc.getContextsDevice (currentContext);
+						alc.resumeDevice (device);
+						alc.processContext (currentContext);
+						
+					}
 				
 				default:
 				
@@ -122,7 +130,15 @@ class AudioManager {
 				
 				case OPENAL (alc, al):
 					
-					alc.suspendContext (alc.getCurrentContext ());
+					var currentContext = alc.getCurrentContext ();
+					
+					if (currentContext != null) {
+						
+						alc.suspendContext (currentContext);
+						var device = alc.getContextsDevice (currentContext);
+						alc.pauseDevice (device);
+						
+					}
 				
 				default:
 				

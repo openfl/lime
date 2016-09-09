@@ -519,6 +519,8 @@ class NativeApplication {
 				case WINDOW_ACTIVATE:
 					
 					window.onActivate.dispatch ();
+					
+					AudioManager.resume ();
 				
 				case WINDOW_CLOSE:
 					
@@ -527,6 +529,8 @@ class NativeApplication {
 				case WINDOW_DEACTIVATE:
 					
 					window.onDeactivate.dispatch ();
+					
+					AudioManager.suspend ();
 				
 				case WINDOW_ENTER:
 					
