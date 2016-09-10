@@ -18,9 +18,9 @@
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
 	<set name="LIME_NFD" value="1" if="windows || mac" />
 	<set name="LIME_OGG" value="1" />
-	<set name="LIME_OPENAL" value="1" unless="static_link" />
-	<set name="LIME_OPENAL" value="1" if="iphone || android || emscripten || tvos" />
-	<set name="LIME_OPENALSOFT" value="1" if="LIME_OPENAL" unless="iphone || emscripten || tvos" />
+	<set name="LIME_OPENALSOFT" value="1" if="windows || linux || android" unless="static_link" />
+	<set name="LIME_OPENAL" value="1" if="mac || iphone || emscripten || tvos" />
+	<set name="LIME_OPENAL" value="1" if="LIME_OPENALSOFT" />
 	<set name="LIME_OPENGL" value="1" />
 	<set name="LIME_PIXMAN" value="1" />
 	<set name="LIME_PNG" value="1" />
@@ -340,7 +340,7 @@
 				<vflag name="-framework" value="ForceFeedback" />
 				<vflag name="-framework" value="Carbon" />
 				<vflag name="-framework" value="AppKit" />
-				<!-- <vflag name="-framework" value="OpenAL"/> -->
+				<vflag name="-framework" value="OpenAL"/>
 				
 				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
 				<lib name="-lm" if="LIME_NEKO" />
