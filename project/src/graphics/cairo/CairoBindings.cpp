@@ -292,7 +292,7 @@ namespace lime {
 			
 		}
 		
-		delete dashes;
+		delete[] dashes;
 		return result;
 		
 	}
@@ -770,7 +770,7 @@ namespace lime {
 		}
 		
 		cairo_set_dash ((cairo_t*)val_data (handle), dashPattern, length, 0);
-		delete dashPattern;
+		delete[] dashPattern;
 		
 	}
 	

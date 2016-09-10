@@ -13,6 +13,7 @@ namespace lime {
 			
 			case DEFLATE: windowBits = -15; break;
 			case GZIP: windowBits = 31; break;
+			default: break;
 			
 		}
 		
@@ -68,6 +69,7 @@ namespace lime {
 			
 			case DEFLATE: windowBits = -15; break;
 			case GZIP: windowBits = 31; break;
+			default: break;
 			
 		}
 		
