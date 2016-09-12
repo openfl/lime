@@ -252,6 +252,12 @@ class Application extends Module {
 			windowByID.remove (window.id);
 			window.close ();
 			
+			if (window.renderer != null) {
+				
+				removeRenderer (window.renderer);
+				
+			}
+			
 			if (this.window == window) {
 				
 				this.window = null;

@@ -127,7 +127,11 @@ class Module implements IModule {
 	
 	@:noCompletion public function removeWindow (window:Window):Void {
 		
-		
+		if (window != null && __windows.indexOf (window) > -1) {
+			
+			__windows.remove (window);
+			
+		}
 		
 	}
 	
