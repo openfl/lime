@@ -151,7 +151,7 @@ class ProjectXMLParser extends HXProject {
 			
 		} else if (defines.exists ("FLASH_PLAYER_EXE")) {
 			
-			environment.set ("FLASH_PLAYER_EXE", defines.get ("SWF_PLAYER"));
+			Sys.putEnv ("FLASH_PLAYER_EXE", defines.get ("FLASH_PLAYER_EXE"));
 			
 		}
 		
