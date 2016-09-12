@@ -60,9 +60,9 @@ class CreateTemplate {
 			
 		}
 		
-		if (FileSystem.exists (title + "/dependencies/android/src/org/haxe/extension/Extension.java")) {
+		if (FileSystem.exists (title + "/dependencies/android/src/main/java/org/haxe/extension/Extension.java")) {
 			
-			FileSystem.rename (title + "/dependencies/android/src/org/haxe/extension/Extension.java", title + "/dependencies/android/src/org/haxe/extension/" + file + ".java");
+			FileSystem.rename (title + "/dependencies/android/src/main/java/org/haxe/extension/Extension.java", title + "/dependencies/android/src/main/java/org/haxe/extension/" + file + ".java");
 			
 		}
 		
