@@ -75,6 +75,7 @@ namespace lime {
 	void ColorMatrix::GetAlphaTable (unsigned char* table) {
 		
 		GetDataTable (table, GetAlphaMultiplier (), GetAlphaOffset ());
+		table[0] = 0;
 		
 	}
 	
