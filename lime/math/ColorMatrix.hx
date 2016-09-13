@@ -104,7 +104,9 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 		
 		var value:Int;
 		
-		for (i in 0...256) {
+		__alphaTable[0] = 0;
+
+		for (i in 1...256) {
 			
 			value = Math.floor (i * alphaMultiplier + alphaOffset);
 			if (value > 0xFF) value = 0xFF;
