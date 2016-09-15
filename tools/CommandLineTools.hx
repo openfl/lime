@@ -1614,6 +1614,8 @@ class CommandLineTools {
 							
 						}
 						
+						if (field == "window-allow-high-dpi") property = "allowHighDPI";
+						
 						var fieldReference = Reflect.field (overrides, fieldName);
 						
 						if (Reflect.hasField (fieldReference, property)) {

@@ -189,6 +189,8 @@ class HXProject {
 					architectures = [ Architecture.X86 ];
 					
 				}
+				
+				defaultWindow.allowHighDPI = false;
 			
 			default:
 				
