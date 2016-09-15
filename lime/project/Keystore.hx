@@ -8,21 +8,23 @@ class Keystore {
 	public var identity:String;
 	public var password:String;
 	public var path:String;
+	public var teamID:String;
 	public var type:String;
 	
-	public function new (path:String = null, password:String = null, alias:String = null, aliasPassword:String = null, identity:String = null) {
+	public function new (path:String = null, password:String = null, alias:String = null, aliasPassword:String = null, identity:String = null, teamID:String = null) {
 		
 		this.path = path;
 		this.password = password;
 		this.alias = alias;
 		this.aliasPassword = aliasPassword;
 		this.identity = identity;
+		this.teamID = teamID;
 		
 	}
 	
 	public function clone ():Keystore {
 		
-		return new Keystore (path, password, alias, aliasPassword, identity);
+		return new Keystore (path, password, alias, aliasPassword, identity, teamID);
 		
 	}
 	
@@ -35,6 +37,7 @@ class Keystore {
 			if (keystore.alias != null) path = keystore.alias;
 			if (keystore.aliasPassword != null) path = keystore.aliasPassword;
 			if (keystore.identity != null) identity = keystore.identity;
+			if (keystore.teamID != null) teamID = keystore.teamID;
 			
 		}
 		

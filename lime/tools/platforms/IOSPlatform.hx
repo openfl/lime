@@ -106,9 +106,8 @@ class IOSPlatform extends PlatformTarget {
 		project.sources = PathHelper.relocatePaths (project.sources, PathHelper.combine (targetDirectory, project.app.file + "/haxe"));
 		//project.dependencies.push ("stdc++");
 		
-		if (project.certificate == null || project.certificate.identity == null) {
+		if (project.certificate != null && project.certificate.identity == null) {
 			
-			project.certificate = new Keystore ();
 			project.certificate.identity = "iPhone Developer";
 			
 		}
@@ -130,6 +129,12 @@ class IOSPlatform extends PlatformTarget {
 		context.HAS_ICON = false;
 		context.HAS_LAUNCH_IMAGE = false;
 		context.OBJC_ARC = false;
+		
+		if (project.certificate != null) {
+			
+			context.DEVELOPMENT_TEAM_ID = project.certificate.teamID;
+			
+		}
 		
 		context.linkedLibraries = [];
 		

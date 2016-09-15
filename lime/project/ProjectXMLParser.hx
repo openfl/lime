@@ -1472,10 +1472,21 @@ class ProjectXMLParser extends HXProject {
 								
 							}
 							
-						} else if (element.has.identity) {
+						} else if (element.has.identity || element.has.resolve ("team-id")) {
 							
 							certificate = new Keystore ();
-							certificate.identity = substitute (element.att.identity);
+							
+							if (element.has.identity) {
+								
+								certificate.identity = substitute (element.att.identity);
+								
+							}
+							
+							if (element.has.resolve ("team-id")) {
+								
+								certificate.teamID = substitute (element.att.resolve ("team-id"));
+								
+							}
 							
 						}
 					
