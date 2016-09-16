@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "3.1.0",
-	"releasenote": "Moved to Gradle, improved Haxe 3.3 support",
+	"version": "3.2.0",
+	"releasenote": "Improved iOS support, updated audio support, initial work on C#",
 	"contributors": [ "singmajesty" ]
 }
