@@ -25,7 +25,7 @@ THE SOFTWARE.
 
 -------
 
-This product bundles cairo 1.14.6, which is available under an
+This product bundles cairo 1.15.2, which is available under an
 "MPL 1.1" license. For details, see [project/lib/cairo/](project/lib).
 
 This product bundles libcurl 7.37.1, which is available under an
@@ -49,7 +49,7 @@ public domain. For details, see [project/lib/lzma/](project/lzma).
 This product bundles libnfd, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/nfd/](project/lib).
 
-This product bundles OpenAL-Soft 1.15.1, which is available under an
+This product bundles OpenAL-Soft 1.17.2, which is available under an
 "LGPLv3" license. For details, see [project/lib/openal/](project/lib). It also bundles
 an OpenAL-Soft derivative for Android under [project/lib/openal-android/](project/lib).
 
