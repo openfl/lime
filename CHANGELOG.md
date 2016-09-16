@@ -1,3 +1,25 @@
+3.2.0 (09/16/2016)
+------------------
+
+* Updated to support Xcode 8 and iOS 10
+* Added lime.system.Locale
+* Added initial changes to support the C# target
+* Updated to OpenAL-Soft 1.17.2
+* Cleaned up some API paths with GC optimizations
+* Changed macOS to use OpenAL.framework, not OpenAL-Soft
+* Changed Android to use the standard OpenAL-Soft release
+* Improved suspend/resume support for Android audio
+* Improved support for `lime setup` on Linux
+* Improved CADisplayLink support for iOS
+* Improved the behavior of ColorMatrix
+* Fixed some crash issues in lime.system.System
+* Fixed setting of window.title
+* Fixed an issue with the Android NDK and debuggable=false
+* Fixed a possible crash when using multiple windows
+* Fixed the Android template for `lime create extension`
+* Corrected support for high DPI windows
+
+
 3.1.0 (08/29/2016)
 ------------------
 
