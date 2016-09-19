@@ -4,7 +4,9 @@
 #else
 #include "AL/al.h"
 #include "AL/alc.h"
+#ifdef LIME_OPENALSOFT
 #include "AL/alext.h"
+#endif
 #endif
 
 #include <hx/CFFIPrimePatch.h>
