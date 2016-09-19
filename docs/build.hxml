@@ -4,6 +4,7 @@
 #-swf obj/docs
 -cpp obj/docs
 -D display
+-D lime-cffi
 ImportAll
 -lib lime
 #-swf-version 11
@@ -110,6 +111,7 @@ ImportAll
 #-js obj/docs
 -cpp obj/docs
 -D display
+-D lime-cffi
 -D html5
 ImportAll
 -lib lime
