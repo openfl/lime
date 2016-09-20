@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "3.2.0",
-	"releasenote": "Improved iOS support, updated audio support, initial work on C#",
+	"version": "3.2.1",
+	"releasenote": "Fixed garbage collection across different threads",
 	"contributors": [ "singmajesty" ]
 }
