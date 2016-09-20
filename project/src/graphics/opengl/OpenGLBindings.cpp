@@ -1,10 +1,10 @@
 #include <hx/CFFIPrimePatch.h>
 //#include <hx/CFFIPrime.h>
 #include <system/CFFIPointer.h>
+#include <system/Mutex.h>
 #include <utils/Bytes.h>
 #include "OpenGL.h"
 #include "OpenGLBindings.h"
-#include <mutex>
 #include <string>
 #include <vector>
 
@@ -49,56 +49,69 @@ namespace lime {
 	
 	std::vector<GCObjectType> gc_gl_type;
 	std::vector<GLuint> gc_gl_id;
-	std::mutex gc_gl_mutex;
+	Mutex gc_gl_mutex;
 	
 	
 	void gc_gl_buffer (value handle) {
 		
-		std::lock_guard<std::mutex> lock (gc_gl_mutex);
+		gc_gl_mutex.Lock ();
+		
 		gc_gl_type.push_back (GC_BUFFER);
 		gc_gl_id.push_back (reinterpret_cast<uintptr_t> (val_data (handle)));
+		
+		gc_gl_mutex.Unlock ();
 		
 	}
 	
 	
 	void gc_gl_framebuffer (value handle) {
 		
-		std::lock_guard<std::mutex> lock (gc_gl_mutex);
+		gc_gl_mutex.Lock ();
+		
 		gc_gl_type.push_back (GC_FRAMEBUFFER);
 		gc_gl_id.push_back (reinterpret_cast<uintptr_t> (val_data (handle)));
+		
+		gc_gl_mutex.Unlock ();
 		
 	}
 	
 	
 	void gc_gl_program (value handle) {
 		
-		std::lock_guard<std::mutex> lock (gc_gl_mutex);
+		gc_gl_mutex.Lock ();
+		
 		gc_gl_type.push_back (GC_PROGRAM);
 		gc_gl_id.push_back (reinterpret_cast<uintptr_t> (val_data (handle)));
+		
+		gc_gl_mutex.Unlock ();
 		
 	}
 	
 	
 	void gc_gl_render_buffer (value handle) {
 		
-		std::lock_guard<std::mutex> lock (gc_gl_mutex);
+		gc_gl_mutex.Lock ();
+		
 		gc_gl_type.push_back (GC_RENDERBUFFER);
 		gc_gl_id.push_back (reinterpret_cast<uintptr_t> (val_data (handle)));
+		
+		gc_gl_mutex.Unlock ();
 		
 	}
 	
 	
 	void gc_gl_run () {
 		
-		std::lock_guard<std::mutex> lock (gc_gl_mutex);
+		gc_gl_mutex.Lock ();
 		
-		int i;
+		int size = gc_gl_type.size ();
 		
-		do {
+		if (size > 0) {
 			
-			i = gc_gl_type.size () - 1;
+			GCObjectType type;
+			GLuint id;
 			
-			if (i > -1) {
+			for (int i = 0; i < size; i++) {
 				
 				GCObjectType type = gc_gl_type[i];
 				GLuint id = gc_gl_id[i];
@@ -137,30 +150,38 @@ namespace lime {
 					
 				}
 				
-				gc_gl_type.pop_back ();
-				gc_gl_id.pop_back ();
-				
 			}
 			
-		} while (i > 0);
+			gc_gl_type.clear ();
+			gc_gl_id.clear ();
+			
+		}
+		
+		gc_gl_mutex.Unlock ();
 		
 	}
 	
 	
 	void gc_gl_shader (value handle) {
 		
-		std::lock_guard<std::mutex> lock (gc_gl_mutex);
+		gc_gl_mutex.Lock ();
+		
 		gc_gl_type.push_back (GC_SHADER);
 		gc_gl_id.push_back (reinterpret_cast<uintptr_t> (val_data (handle)));
+		
+		gc_gl_mutex.Unlock ();
 		
 	}
 	
 	
 	void gc_gl_texture (value handle) {
 		
-		std::lock_guard<std::mutex> lock (gc_gl_mutex);
+		gc_gl_mutex.Lock ();
+		
 		gc_gl_type.push_back (GC_TEXTURE);
 		gc_gl_id.push_back (reinterpret_cast<uintptr_t> (val_data (handle)));
+		
+		gc_gl_mutex.Unlock ();
 		
 	}
 	

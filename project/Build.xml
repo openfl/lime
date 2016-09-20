@@ -202,6 +202,7 @@
 			<file name="src/backend/sdl/SDLGamepad.cpp" />
 			<file name="src/backend/sdl/SDLJoystick.cpp" />
 			<file name="src/backend/sdl/SDLMouse.cpp" />
+			<file name="src/backend/sdl/SDLMutex.cpp" />
 			<file name="src/backend/sdl/SDLSystem.cpp" />
 			
 		</section>
