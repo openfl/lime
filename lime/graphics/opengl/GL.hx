@@ -391,6 +391,8 @@ class GL {
 	private static var context:RenderingContext;
 	#end
 	
+	private static var __currentProgram:GLProgram;
+	
 	
 	public static inline function activeTexture (texture:Int):Void {
 		
@@ -2071,6 +2073,8 @@ class GL {
 	
 	
 	public static inline function useProgram (program:GLProgram):Void {
+		
+		__currentProgram = program;
 		
 		#if (js && html5 && !display)
 		context.useProgram (program);

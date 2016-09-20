@@ -4,7 +4,9 @@
 #include <utils/Bytes.h>
 #include "OpenGL.h"
 #include "OpenGLBindings.h"
+#include <mutex>
 #include <string>
+#include <vector>
 
 #ifdef NEED_EXTENSIONS
 #define DEFINE_EXTENSION
@@ -34,45 +36,131 @@ namespace lime {
 	void lime_gl_delete_shader (value handle);
 	void lime_gl_delete_texture (value handle);
 	
+	enum GCObjectType {
+		
+		GC_BUFFER,
+		GC_FRAMEBUFFER,
+		GC_PROGRAM,
+		GC_RENDERBUFFER,
+		GC_SHADER,
+		GC_TEXTURE
+		
+	};
+	
+	std::vector<GCObjectType> gc_gl_type;
+	std::vector<GLuint> gc_gl_id;
+	std::mutex gc_gl_mutex;
+	
 	
 	void gc_gl_buffer (value handle) {
 		
-		lime_gl_delete_buffer (handle);
+		std::lock_guard<std::mutex> lock (gc_gl_mutex);
+		gc_gl_type.push_back (GC_BUFFER);
+		gc_gl_id.push_back (reinterpret_cast<uintptr_t> (val_data (handle)));
 		
 	}
 	
 	
 	void gc_gl_framebuffer (value handle) {
 		
-		lime_gl_delete_framebuffer (handle);
+		std::lock_guard<std::mutex> lock (gc_gl_mutex);
+		gc_gl_type.push_back (GC_FRAMEBUFFER);
+		gc_gl_id.push_back (reinterpret_cast<uintptr_t> (val_data (handle)));
 		
 	}
 	
 	
 	void gc_gl_program (value handle) {
 		
-		lime_gl_delete_program (handle);
+		std::lock_guard<std::mutex> lock (gc_gl_mutex);
+		gc_gl_type.push_back (GC_PROGRAM);
+		gc_gl_id.push_back (reinterpret_cast<uintptr_t> (val_data (handle)));
 		
 	}
 	
 	
 	void gc_gl_render_buffer (value handle) {
 		
-		lime_gl_delete_render_buffer (handle);
+		std::lock_guard<std::mutex> lock (gc_gl_mutex);
+		gc_gl_type.push_back (GC_RENDERBUFFER);
+		gc_gl_id.push_back (reinterpret_cast<uintptr_t> (val_data (handle)));
+		
+	}
+	
+	
+	void gc_gl_run () {
+		
+		std::lock_guard<std::mutex> lock (gc_gl_mutex);
+		
+		int i;
+		
+		do {
+			
+			i = gc_gl_type.size () - 1;
+			
+			if (i > -1) {
+				
+				GCObjectType type = gc_gl_type[i];
+				GLuint id = gc_gl_id[i];
+				
+				switch (type) {
+					
+					case GC_BUFFER:
+						
+						glDeleteBuffers (1, &id);
+						break;
+					
+					case GC_FRAMEBUFFER:
+						
+						glDeleteFramebuffers (1, &id);
+						break;
+					
+					case GC_PROGRAM:
+						
+						glDeleteProgram (id);
+						break;
+					
+					case GC_RENDERBUFFER:
+						
+						glDeleteRenderbuffers (1, &id);
+						break;
+					
+					case GC_SHADER:
+						
+						glDeleteShader (id);
+						break;
+					
+					case GC_TEXTURE:
+						
+						glDeleteTextures (1, &id);
+						break;
+					
+				}
+				
+				gc_gl_type.pop_back ();
+				gc_gl_id.pop_back ();
+				
+			}
+			
+		} while (i > 0);
 		
 	}
 	
 	
 	void gc_gl_shader (value handle) {
 		
-		lime_gl_delete_shader (handle);
+		std::lock_guard<std::mutex> lock (gc_gl_mutex);
+		gc_gl_type.push_back (GC_SHADER);
+		gc_gl_id.push_back (reinterpret_cast<uintptr_t> (val_data (handle)));
 		
 	}
 	
 	
 	void gc_gl_texture (value handle) {
 		
-		lime_gl_delete_texture (handle);
+		std::lock_guard<std::mutex> lock (gc_gl_mutex);
+		gc_gl_type.push_back (GC_TEXTURE);
+		gc_gl_id.push_back (reinterpret_cast<uintptr_t> (val_data (handle)));
 		
 	}
 	
@@ -210,6 +298,7 @@ namespace lime {
 	
 	void lime_gl_clear (int mask) {
 		
+		gc_gl_run ();
 		glClear (mask);
 		
 	}
