@@ -1,3 +1,9 @@
+3.2.1 (09/20/2016)
+------------------
+
+* Fixed an issue when GC was executed from another thread
+
+
 3.2.0 (09/19/2016)
 ------------------
 
