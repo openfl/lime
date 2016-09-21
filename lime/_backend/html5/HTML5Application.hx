@@ -67,17 +67,31 @@ class HTML5Application {
 			case 17: return KeyCode.LEFT_CTRL;
 			case 18: return KeyCode.LEFT_ALT;
 			case 20: return KeyCode.CAPS_LOCK;
-			case 144: return KeyCode.NUM_LOCK;
+			case 33: return KeyCode.PAGE_UP;
+			case 34: return KeyCode.PAGE_DOWN;
+			case 35: return KeyCode.END;
+			case 36: return KeyCode.HOME;
 			case 37: return KeyCode.LEFT;
 			case 38: return KeyCode.UP;
 			case 39: return KeyCode.RIGHT;
 			case 40: return KeyCode.DOWN;
 			case 45: return KeyCode.INSERT;
 			case 46: return KeyCode.DELETE;
-			case 36: return KeyCode.HOME;
-			case 35: return KeyCode.END;
-			case 33: return KeyCode.PAGE_UP;
-			case 34: return KeyCode.PAGE_DOWN;
+			case 96: return KeyCode.NUMPAD_0;
+			case 97: return KeyCode.NUMPAD_1;
+			case 98: return KeyCode.NUMPAD_2;
+			case 99: return KeyCode.NUMPAD_3;
+			case 100: return KeyCode.NUMPAD_4;
+			case 101: return KeyCode.NUMPAD_5;
+			case 102: return KeyCode.NUMPAD_6;
+			case 103: return KeyCode.NUMPAD_7;
+			case 104: return KeyCode.NUMPAD_8;
+			case 105: return KeyCode.NUMPAD_9;
+			case 106: return KeyCode.NUMPAD_MULTIPLY;
+			case 107: return KeyCode.NUMPAD_PLUS;
+			case 109: return KeyCode.NUMPAD_MINUS;
+			case 110: return KeyCode.NUMPAD_PERIOD;
+			case 111: return KeyCode.NUMPAD_DIVIDE;
 			case 112: return KeyCode.F1;
 			case 113: return KeyCode.F2;
 			case 114: return KeyCode.F3;
@@ -93,6 +107,7 @@ class HTML5Application {
 			case 124: return KeyCode.F13;
 			case 125: return KeyCode.F14;
 			case 126: return KeyCode.F15;
+			case 144: return KeyCode.NUM_LOCK;
 			case 186: return KeyCode.SEMICOLON;
 			case 187: return KeyCode.EQUALS;
 			case 188: return KeyCode.COMMA;
@@ -244,7 +259,6 @@ class HTML5Application {
 					//
 				//}
 				
-				
 			}
 			
 			lastUpdate = currentUpdate;
@@ -267,6 +281,8 @@ class HTML5Application {
 			// 	case 32, 37, 38, 39, 40: event.preventDefault ();
 				
 			// }
+			
+			// TODO: Use event.key instead where supported
 			
 			var keyCode = cast convertKeyCode (event.keyCode != null ? event.keyCode : event.which);
 			var modifier = (event.shiftKey ? (KeyModifier.SHIFT) : 0) | (event.ctrlKey ? (KeyModifier.CTRL) : 0) | (event.altKey ? (KeyModifier.ALT) : 0) | (event.metaKey ? (KeyModifier.META) : 0);
