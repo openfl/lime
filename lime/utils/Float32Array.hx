@@ -14,7 +14,7 @@ package lime.utils;
         public inline function new<T>(
             ?elements:Int,
             ?array:Array<T>,
-            #if openfl ?vector:openfl.Vector<T>, #end
+            #if openfl ?vector:openfl.Vector<Float>, #end
             ?view:ArrayBufferView,
             ?buffer:ArrayBuffer, ?byteoffset:Int = 0, ?len:Null<Int>
         ) {
@@ -76,7 +76,7 @@ package lime.utils;
             ?elements:Int,
             ?buffer:ArrayBuffer,
             ?array:Array<T>,
-            #if openfl ?vector:openfl.Vector<T>, #end
+            #if openfl ?vector:openfl.Vector<Float>, #end
             ?view:ArrayBufferView,
             ?byteoffset:Int = 0, ?len:Null<Int>
         ) {
