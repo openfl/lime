@@ -8,7 +8,7 @@ import haxe.macro.Type;
 using haxe.macro.Tools;
 #end
 
-#if !macro
+#if (!macro && !display)
 @:genericBuild(lime.app.Event.build())
 #end
 
@@ -101,7 +101,7 @@ class Event<T> {
 		typeString = StringTools.replace (typeString, "<", "_");
 		typeString = StringTools.replace (typeString, ">", "_");
 		
-		var name = "Event_" + typeString;
+		var name = "_Event_" + typeString;
 		
 		try {
 			
