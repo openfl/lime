@@ -159,11 +159,7 @@ class Preloader #if flash extends Sprite #end {
 			
 		} else {
 			var baseFont:String;
-			if( font == "Arial" ){
-				baseFont = "serif";
-			} else {
-				baseFont = "sans-serif";
-			}
+			baseFont = "Blank";
 			var node:SpanElement = cast Browser.document.createElement ("span");
 			node.innerHTML = "giItT1WQy@!-/#";
 			var style = node.style;
