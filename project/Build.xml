@@ -242,6 +242,7 @@
 		<file name="src/ui/TextEvent.cpp" />
 		<file name="src/ui/TouchEvent.cpp" />
 		<file name="src/ui/WindowEvent.cpp" />
+		<file name="src/utils/ArrayBufferView.cpp" />
 		<file name="src/utils/Bytes.cpp" />
 		
 		<file name="src/hx/CFFIExt.cpp" />

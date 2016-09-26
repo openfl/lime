@@ -19,9 +19,13 @@ class Deflate {
 		
 		#if (lime_cffi && !macro)
 		
-		var data:Dynamic = lime_deflate_compress (bytes);
+		#if !cs
+		return lime_deflate_compress (bytes, Bytes.alloc (0));
+		#else
+		var data:Dynamic = lime_deflate_compress (bytes, null);
 		if (data == null) return null;
 		return @:privateAccess new Bytes (data.length, data.b);
+		#end
 		
 		#elseif (js && html5)
 		
@@ -51,9 +55,13 @@ class Deflate {
 		
 		#if (lime_cffi && !macro)
 		
-		var data:Dynamic = lime_deflate_decompress (bytes);
+		#if !cs
+		return lime_deflate_decompress (bytes, Bytes.alloc (0));
+		#else
+		var data:Dynamic = lime_deflate_decompress (bytes, null);
 		if (data == null) return null;
 		return @:privateAccess new Bytes (data.length, data.b);
+		#end
 		
 		#elseif (js && html5)
 		
@@ -87,8 +95,8 @@ class Deflate {
 	
 	
 	#if (lime_cffi && !macro)
-	@:cffi private static function lime_deflate_compress (data:Dynamic):Dynamic;
-	@:cffi private static function lime_deflate_decompress (data:Dynamic):Dynamic;
+	@:cffi private static function lime_deflate_compress (data:Dynamic, bytes:Dynamic):Dynamic;
+	@:cffi private static function lime_deflate_decompress (data:Dynamic, bytes:Dynamic):Dynamic;
 	#end
 	
 	

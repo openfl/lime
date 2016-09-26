@@ -4,7 +4,7 @@
 
 #include <hx/CFFI.h>
 #include <graphics/PixelFormat.h>
-#include <utils/Bytes.h>
+#include <utils/ArrayBufferView.h>
 
 
 namespace lime {
@@ -25,7 +25,7 @@ namespace lime {
 			value Value ();
 			
 			int bitsPerPixel;
-			Bytes *data;
+			ArrayBufferView *data;
 			PixelFormat format;
 			int height;
 			bool premultiplied;

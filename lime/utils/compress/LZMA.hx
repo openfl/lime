@@ -20,9 +20,13 @@ class LZMA {
 		
 		#if (lime_cffi && !macro)
 		
-		var data:Dynamic = lime_lzma_compress (bytes);
+		#if !cs
+		return lime_lzma_compress (bytes, Bytes.alloc (0));
+		#else
+		var data:Dynamic = lime_lzma_compress (bytes, null);
 		if (data == null) return null;
 		return @:privateAccess new Bytes (data.length, data.b);
+		#end
 		
 		#elseif flash
 		
@@ -47,9 +51,13 @@ class LZMA {
 		
 		#if (lime_cffi && !macro)
 		
-		var data:Dynamic = lime_lzma_decompress (bytes);
+		#if !cs
+		return lime_lzma_decompress (bytes, Bytes.alloc (0));
+		#else
+		var data:Dynamic = lime_lzma_decompress (bytes, null);
 		if (data == null) return null;
 		return @:privateAccess new Bytes (data.length, data.b);
+		#end
 		
 		#elseif flash
 		
@@ -78,8 +86,8 @@ class LZMA {
 	
 	
 	#if (lime_cffi && !macro)
-	@:cffi private static function lime_lzma_compress (data:Dynamic):Dynamic;
-	@:cffi private static function lime_lzma_decompress (data:Dynamic):Dynamic;
+	@:cffi private static function lime_lzma_compress (data:Dynamic, bytes:Dynamic):Dynamic;
+	@:cffi private static function lime_lzma_decompress (data:Dynamic, bytes:Dynamic):Dynamic;
 	#end
 	
 	

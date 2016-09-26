@@ -87,26 +87,7 @@ namespace lime {
 		_root = 0;
 		_value = 0;
 		
-		FILE_HANDLE *file = lime::fopen (path, "rb");
-		
-		if (!file) {
-			
-			return;
-			
-		}
-		
-		lime::fseek (file, 0, SEEK_END);
-		int size = lime::ftell (file);
-		lime::fseek (file, 0, SEEK_SET);
-		
-		if (size > 0) {
-			
-			Resize (size);
-			int status = lime::fread (_data, _length, 1, file);
-			
-		}
-		
-		lime::fclose (file);
+		ReadFile (path);
 		
 	}
 	
@@ -160,6 +141,32 @@ namespace lime {
 	int Bytes::Length () const {
 		
 		return _length;
+		
+	}
+	
+	
+	void Bytes::ReadFile (const char* path) {
+		
+		FILE_HANDLE *file = lime::fopen (path, "rb");
+		
+		if (!file) {
+			
+			return;
+			
+		}
+		
+		lime::fseek (file, 0, SEEK_END);
+		int size = lime::ftell (file);
+		lime::fseek (file, 0, SEEK_SET);
+		
+		if (size > 0) {
+			
+			Resize (size);
+			int status = lime::fread (_data, _length, 1, file);
+			
+		}
+		
+		lime::fclose (file);
 		
 	}
 	
@@ -241,6 +248,13 @@ namespace lime {
 		} else {
 			
 			_value = bytes;
+			
+			if (!_pin && HAS_pin_buffer ()) {
+				
+				buffer b = val_to_buffer (val_field (_value, id_b));
+				_pin = EXT_pin_buffer (b);
+				
+			}
 			
 			if (!_root) {
 				

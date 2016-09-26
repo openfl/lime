@@ -1156,11 +1156,20 @@ class Image {
 			
 		#elseif (lime_cffi && !macro)
 			
-			var data:Dynamic = lime_image_load (bytes);
+			var imageBuffer:ImageBuffer = null;
 			
+			#if !cs
+			imageBuffer = lime_image_load (bytes, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
+			#else
+			var data = lime_image_load (bytes, null);
 			if (data != null) {
+				imageBuffer = new ImageBuffer (new UInt8Array (@:privateAccess new Bytes (data.data.buffer.length, data.data.buffer.b)), data.width, data.height, data.bitsPerPixel);
+			}
+			#end
+			
+			if (imageBuffer != null) {
 				
-				__fromImageBuffer (new ImageBuffer (new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b)), data.width, data.height, data.bitsPerPixel));
+				__fromImageBuffer (imageBuffer);
 				
 				if (onload != null) {
 					
@@ -1220,7 +1229,7 @@ class Image {
 			
 		#elseif (lime_cffi || java)
 			
-			var buffer = null;
+			var buffer:ImageBuffer = null;
 			
 			#if lime_console
 			
@@ -1276,14 +1285,14 @@ class Image {
 			#else
 			if (CFFI.enabled) {
 				
-				var data:Dynamic = lime_image_load (path);
-				
+				#if !cs
+				buffer = lime_image_load (path, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
+				#else
+				var data = lime_image_load (path, null);
 				if (data != null) {
-					
-					var u8a = new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b));
-					buffer = new ImageBuffer (u8a, data.width, data.height, data.bitsPerPixel);
-					
+					buffer = new ImageBuffer (new UInt8Array (@:privateAccess new Bytes (data.data.buffer.length, data.data.buffer.b)), data.width, data.height, data.bitsPerPixel);
 				}
+				#end
 				
 			}
 			#end
@@ -1626,7 +1635,7 @@ class Image {
 	
 	
 	#if (lime_cffi && !macro)
-	@:cffi private static function lime_image_load (data:Dynamic):Dynamic;
+	@:cffi private static function lime_image_load (data:Dynamic, buffer:Dynamic):Dynamic;
 	#end
 	
 	

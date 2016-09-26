@@ -936,7 +936,7 @@ class AL {
 	@:cffi private static function lime_al_get_listeneri (param:Int):Int;
 	@:cffi private static function lime_al_get_listeneriv (param:Int, count:Int):Dynamic;
 	@:cffi private static function lime_al_get_proc_address (fname:String):Float;
-	@:cffi private static function lime_al_get_source3f (source:Int, param:Int):Dynamic;
+	@:cffi private static function lime_al_get_source3f (source:Int, param:Int):Array<Float>;
 	@:cffi private static function lime_al_get_source3i (source:Int, param:Int):Dynamic;
 	@:cffi private static function lime_al_get_sourcef (source:Int, param:Int):Float32;
 	@:cffi private static function lime_al_get_sourcefv (source:Int, param:Int, count:Int):Dynamic;

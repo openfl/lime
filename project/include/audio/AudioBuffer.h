@@ -3,7 +3,7 @@
 
 
 #include <hx/CFFI.h>
-#include <utils/Bytes.h>
+#include <utils/ArrayBufferView.h>
 
 #ifdef ANDROID
 #include <android/log.h>
@@ -35,6 +35,7 @@ namespace lime {
 		public:
 			
 			AudioBuffer ();
+			AudioBuffer (value audioBuffer);
 			~AudioBuffer ();
 			
 			value Value ();
@@ -42,7 +43,7 @@ namespace lime {
 			int bitsPerSample;
 			int channels;
 			int sampleRate;
-			Bytes *data;
+			ArrayBufferView *data;
 			
 		private:
 			
