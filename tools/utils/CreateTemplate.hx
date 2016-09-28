@@ -463,7 +463,7 @@ class CreateTemplate {
 			
 		}
 		
-		LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + CommandLineTools.commandName + "\x1b[0m create " + (projectName != CommandLineTools.commandName ? projectName : "") + "<sample> (directory)");
+		LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + CommandLineTools.commandName + "\x1b[0m create " + (projectName != CommandLineTools.commandName ? projectName + " " : "") + "<sample> (directory)");
 		
 		
 		
