@@ -255,7 +255,7 @@ class FlashApplication {
 					var mouseX = event.stageX;
 					var mouseY = event.stageY;
 					
-					parent.window.onMouseMove.dispatch (mouseX, y);
+					parent.window.onMouseMove.dispatch (mouseX, mouseY);
 					parent.window.onMouseMoveRelative.dispatch (mouseX - cacheMouseX, mouseY - cacheMouseY);
 					
 					cacheMouseX = mouseX;
