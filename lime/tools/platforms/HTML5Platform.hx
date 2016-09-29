@@ -7,11 +7,13 @@ import lime.tools.helpers.AssetHelper;
 import lime.tools.helpers.DeploymentHelper;
 import lime.tools.helpers.FileHelper;
 import lime.tools.helpers.HTML5Helper;
+import lime.tools.helpers.IconHelper;
 import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.PathHelper;
 import lime.tools.helpers.ProcessHelper;
 import lime.project.AssetType;
 import lime.project.HXProject;
+import lime.project.Icon;
 import lime.project.PlatformTarget;
 import sys.io.File;
 import sys.FileSystem;
@@ -176,6 +178,28 @@ class HTML5Platform extends PlatformTarget {
 		if (project.targetFlags.exists ("webgl")) {
 			
 			context.CPP_DIR = targetDirectory + "/obj";
+			
+		}
+		
+		context.favicons = [];
+		
+		var icons = project.icons;
+		
+		if (icons.length == 0) {
+			
+			icons = [ new Icon (PathHelper.findTemplate (project.templatePaths, "default/icon.svg")) ];
+			
+		}
+		
+		//if (IconHelper.createWindowsIcon (icons, PathHelper.combine (destination, "favicon.ico"))) {
+			//
+			//context.favicons.push ({ rel: "icon", type: "image/x-icon", href: "./favicon.ico" });
+			//
+		//}
+		
+		if (IconHelper.createIcon (icons, 192, 192, PathHelper.combine (destination, "favicon.png"))) {
+			
+			context.favicons.push ({ rel: "shortcut icon", type: "image/png", href: "./favicon.png" });
 			
 		}
 		
