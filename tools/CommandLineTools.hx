@@ -997,7 +997,7 @@ class CommandLineTools {
 	
 	private function getBuildNumber (project:HXProject, increment:Bool = true):Void {
 		
-		if (project.meta.buildNumber == "1") {
+		if (project.meta.buildNumber == null) {
 			
 			var versionFile = PathHelper.combine (project.app.path, ".build");
 			var version = 1;
