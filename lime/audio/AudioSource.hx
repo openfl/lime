@@ -24,6 +24,8 @@ void haxe_staticfunc_onFmodChannelEnd (ConsoleFmodChannel c) {
 ")
 #end
 
+@:access(lime.audio.AudioBuffer)
+
 
 class AudioSource {
 	
@@ -158,10 +160,29 @@ class AudioSource {
 	public function play ():Void {
 		
 		#if html5
+		#if howlerjs
+		
+		if (playing || buffer == null) {
+			
+			return;
+			
+		}
+		
+		playing = true;
+		
+		var time = currentTime;
+		
+		__completed = false;
+		id = buffer.__srcHowl.play ();
+		buffer.__srcHowl.on ("end", howl_onEnd, id);
+		
+		currentTime = time;
+		
+		#end
 		#elseif flash
 		
 		if (channel != null) channel.stop ();
-		channel = buffer.src.play (pauseTime / 1000 + offset, loops + 1);
+		channel = buffer.__srcSound.play (pauseTime / 1000 + offset, loops + 1);
 		
 		#elseif lime_console
 		
@@ -171,7 +192,7 @@ class AudioSource {
 			
 		} else {
 			
-			channel = buffer.src.play ();
+			channel = buffer.__srcSound.play ();
 			channel.setLoopCount (__loops);
 			if (__gain < 1.0) {
 				channel.setVolume (__gain);
@@ -211,6 +232,12 @@ class AudioSource {
 	public function pause ():Void {
 		
 		#if html5
+		#if howlerjs
+		
+		playing = false;
+		buffer.__srcHowl.pause (id);
+		
+		#end
 		#elseif flash
 		
 		if (channel != null) {
@@ -247,6 +274,12 @@ class AudioSource {
 	public function stop ():Void {
 		
 		#if html5
+		#if howlerjs
+		
+		playing = false;
+		buffer.__srcHowl.stop (id);
+		
+		#end
 		#elseif flash
 		
 		pauseTime = 0;
@@ -370,6 +403,34 @@ class AudioSource {
 	
 	
 	
+	private function howl_onEnd () {
+		
+		#if howlerjs
+		
+		playing = false;
+		
+		if (loops > 0) {
+			
+			loops--;
+			stop ();
+			//currentTime = 0;
+			play ();
+			return;
+			
+		} else {
+			
+			buffer.__srcHowl.stop (id);
+			
+		}
+		
+		__completed = true;
+		onComplete.dispatch ();
+		
+		#end
+		
+	}
+	
+	
 	private function timer_onRun () {
 		
 		#if (!flash && !html5)
@@ -408,9 +469,23 @@ class AudioSource {
 	private function get_currentTime ():Int {
 		
 		#if html5
+		#if howlerjs
+		
+		if (__completed) {
+			
+			return length;
+			
+		} else {
+			
+			return Std.int (buffer.__srcHowl.seek (id) * 1000);
+			
+		}
+		
+		#else
 		
 		return 0;
 		
+		#end
 		#elseif flash
 		
 		if (channel != null) {
@@ -450,9 +525,22 @@ class AudioSource {
 	private function set_currentTime (value:Int):Int {
 		
 		#if html5
+		#if howlerjs
+		
+		if (buffer != null) {
+			
+			//if (playing) buffer.__srcHowl.play (id);
+			buffer.__srcHowl.seek ((value + offset) / 1000, id);
+			
+		}
+		
+		return value;
+		
+		#else
 		
 		return pauseTime = value;
 		
+		#end
 		#elseif flash
 		
 		// TODO: create new sound channel
@@ -508,9 +596,15 @@ class AudioSource {
 	private function get_gain ():Float {
 		
 		#if html5
+		#if howlerjs
+		
+		return buffer.__srcHowl.volume (id);
+		
+		#else
 		
 		return 1;
 		
+		#end
 		#elseif flash
 		
 		return channel.soundTransform.volume;
@@ -537,9 +631,16 @@ class AudioSource {
 	private function set_gain (value:Float):Float {
 		
 		#if html5
+		#if howlerjs
+		
+		buffer.__srcHowl.volume (value, id);
+		return value;
+		
+		#else
 		
 		return 1;
 		
+		#end
 		#elseif flash
 		
 		var soundTransform = channel.soundTransform;
@@ -576,12 +677,18 @@ class AudioSource {
 		}
 		
 		#if html5
+		#if howlerjs
+		
+		return Std.int (buffer.__srcHowl.duration () * 1000);
+		
+		#else
 		
 		return 0;
 		
+		#end
 		#elseif flash
 		
-		return Std.int (buffer.src.length) - offset;
+		return Std.int (buffer.__srcSound.length) - offset;
 		
 		#elseif lime_console
 		
@@ -670,6 +777,11 @@ class AudioSource {
 	private function get_position ():Vector4 {
 		
 		#if html5
+		#if howlerjs
+		
+		// TODO: Use 3D audio plugin
+		
+		#end
 		#elseif flash
 		
 		__position.x = channel.soundTransform.pan;

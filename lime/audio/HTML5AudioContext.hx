@@ -5,6 +5,8 @@ package lime.audio;
 import js.html.Audio;
 #end
 
+@:access(lime.audio.AudioBuffer)
+
 
 class HTML5AudioContext {
 	
@@ -30,9 +32,9 @@ class HTML5AudioContext {
 	public function canPlayType (buffer:AudioBuffer, type:String):String {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.canPlayType (type);
+			return buffer.__srcAudio.canPlayType (type);
 			
 		}
 		#end
@@ -46,8 +48,8 @@ class HTML5AudioContext {
 		
 		#if (js && html5)
 		var buffer = new AudioBuffer ();
-		buffer.src = new Audio ();
-		buffer.src.src = urlString;
+		buffer.__srcAudio = new Audio ();
+		buffer.__srcAudio.src = urlString;
 		return buffer;
 		#else
 		return null;
@@ -60,9 +62,9 @@ class HTML5AudioContext {
 	public function getAudioDecodedByteCount (buffer:AudioBuffer):Int {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.audioDecodedByteCount;
+			return buffer.__srcAudio.audioDecodedByteCount;
 			
 		}
 		#end
@@ -76,9 +78,9 @@ class HTML5AudioContext {
 	public function getAutoplay (buffer:AudioBuffer):Bool {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.autoplay;
+			return buffer.__srcAudio.autoplay;
 			
 		}
 		#end
@@ -91,9 +93,9 @@ class HTML5AudioContext {
 	public function getBuffered (buffer:AudioBuffer):Dynamic /*TimeRanges*/ {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.buffered;
+			return buffer.__srcAudio.buffered;
 			
 		}
 		#end
@@ -107,9 +109,9 @@ class HTML5AudioContext {
 	public function getController (buffer:AudioBuffer):Dynamic /*MediaController*/ {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.controller;
+			return buffer.__srcAudio.controller;
 			
 		}
 		#end
@@ -123,9 +125,9 @@ class HTML5AudioContext {
 	public function getCurrentSrc (buffer:AudioBuffer):String {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.currentSrc;
+			return buffer.__srcAudio.currentSrc;
 			
 		}
 		#end
@@ -138,9 +140,9 @@ class HTML5AudioContext {
 	public function getCurrentTime (buffer:AudioBuffer):Float {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.currentTime;
+			return buffer.__srcAudio.currentTime;
 			
 		}
 		#end
@@ -153,9 +155,9 @@ class HTML5AudioContext {
 	public function getDefaultPlaybackRate (buffer:AudioBuffer):Float {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.defaultPlaybackRate;
+			return buffer.__srcAudio.defaultPlaybackRate;
 			
 		}
 		#end
@@ -168,9 +170,9 @@ class HTML5AudioContext {
 	public function getDuration (buffer:AudioBuffer):Float {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.duration;
+			return buffer.__srcAudio.duration;
 			
 		}
 		#end
@@ -183,9 +185,9 @@ class HTML5AudioContext {
 	public function getEnded (buffer:AudioBuffer):Bool {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.ended;
+			return buffer.__srcAudio.ended;
 			
 		}
 		#end
@@ -198,9 +200,9 @@ class HTML5AudioContext {
 	public function getError (buffer:AudioBuffer):Dynamic /*MediaError*/ {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.error;
+			return buffer.__srcAudio.error;
 			
 		}
 		#end
@@ -214,9 +216,9 @@ class HTML5AudioContext {
 	public function getInitialTime (buffer:AudioBuffer):Float {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.initialTime;
+			return buffer.__srcAudio.initialTime;
 			
 		}
 		#end
@@ -230,9 +232,9 @@ class HTML5AudioContext {
 	public function getLoop (buffer:AudioBuffer):Bool {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.loop;
+			return buffer.__srcAudio.loop;
 			
 		}
 		#end
@@ -246,9 +248,9 @@ class HTML5AudioContext {
 	public function getMediaGroup (buffer:AudioBuffer):String {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.mediaGroup;
+			return buffer.__srcAudio.mediaGroup;
 			
 		}
 		#end
@@ -262,9 +264,9 @@ class HTML5AudioContext {
 	public function getMuted (buffer:AudioBuffer):Bool {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.muted;
+			return buffer.__srcAudio.muted;
 			
 		}
 		#end
@@ -277,9 +279,9 @@ class HTML5AudioContext {
 	public function getNetworkState (buffer:AudioBuffer):Int {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.networkState;
+			return buffer.__srcAudio.networkState;
 			
 		}
 		#end
@@ -292,9 +294,9 @@ class HTML5AudioContext {
 	public function getPaused (buffer:AudioBuffer):Bool {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.paused;
+			return buffer.__srcAudio.paused;
 			
 		}
 		#end
@@ -307,9 +309,9 @@ class HTML5AudioContext {
 	public function getPlaybackRate (buffer:AudioBuffer):Float {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.playbackRate;
+			return buffer.__srcAudio.playbackRate;
 			
 		}
 		#end
@@ -322,9 +324,9 @@ class HTML5AudioContext {
 	public function getPlayed (buffer:AudioBuffer):Dynamic /*TimeRanges*/ {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.played;
+			return buffer.__srcAudio.played;
 			
 		}
 		#end
@@ -337,9 +339,9 @@ class HTML5AudioContext {
 	public function getPreload (buffer:AudioBuffer):String {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.preload;
+			return buffer.__srcAudio.preload;
 			
 		}
 		#end
@@ -352,9 +354,9 @@ class HTML5AudioContext {
 	public function getReadyState (buffer:AudioBuffer):Int {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.readyState;
+			return buffer.__srcAudio.readyState;
 			
 		}
 		#end
@@ -367,9 +369,9 @@ class HTML5AudioContext {
 	public function getSeekable (buffer:AudioBuffer):Dynamic /*TimeRanges*/ {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.seekable;
+			return buffer.__srcAudio.seekable;
 			
 		}
 		#end
@@ -382,9 +384,9 @@ class HTML5AudioContext {
 	public function getSeeking (buffer:AudioBuffer):Bool {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.seeking;
+			return buffer.__srcAudio.seeking;
 			
 		}
 		#end
@@ -397,9 +399,9 @@ class HTML5AudioContext {
 	public function getSrc (buffer:AudioBuffer):String {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.src;
+			return buffer.__srcAudio.src;
 			
 		}
 		#end
@@ -412,9 +414,9 @@ class HTML5AudioContext {
 	public function getStartTime (buffer:AudioBuffer):Float {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.playbackRate;
+			return buffer.__srcAudio.playbackRate;
 			
 		}
 		#end
@@ -427,9 +429,9 @@ class HTML5AudioContext {
 	public function getVolume (buffer:AudioBuffer):Float {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.volume;
+			return buffer.__srcAudio.volume;
 			
 		}
 		#end
@@ -442,9 +444,9 @@ class HTML5AudioContext {
 	public function load (buffer:AudioBuffer):Void {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.load ();
+			return buffer.__srcAudio.load ();
 			
 		}
 		#end
@@ -455,9 +457,9 @@ class HTML5AudioContext {
 	public function pause (buffer:AudioBuffer):Void {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.pause ();
+			return buffer.__srcAudio.pause ();
 			
 		}
 		#end
@@ -468,9 +470,9 @@ class HTML5AudioContext {
 	public function play (buffer:AudioBuffer):Void {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			return buffer.src.play ();
+			return buffer.__srcAudio.play ();
 			
 		}
 		#end
@@ -481,9 +483,9 @@ class HTML5AudioContext {
 	public function setAutoplay (buffer:AudioBuffer, value:Bool):Void {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			buffer.src.autoplay = value;
+			buffer.__srcAudio.autoplay = value;
 			
 		}
 		#end
@@ -495,9 +497,9 @@ class HTML5AudioContext {
 	public function setController (buffer:AudioBuffer, value:Dynamic /*MediaController*/):Void {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			buffer.src.controller = value;
+			buffer.__srcAudio.controller = value;
 			
 		}
 		#end
@@ -509,9 +511,9 @@ class HTML5AudioContext {
 	public function setCurrentTime (buffer:AudioBuffer, value:Float):Void {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			buffer.src.currentTime = value;
+			buffer.__srcAudio.currentTime = value;
 			
 		}
 		#end
@@ -522,9 +524,9 @@ class HTML5AudioContext {
 	public function setDefaultPlaybackRate (buffer:AudioBuffer, value:Float):Void {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			buffer.src.defaultPlaybackRate = value;
+			buffer.__srcAudio.defaultPlaybackRate = value;
 			
 		}
 		#end
@@ -535,9 +537,9 @@ class HTML5AudioContext {
 	public function setLoop (buffer:AudioBuffer, value:Bool):Void {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			buffer.src.loop = value;
+			buffer.__srcAudio.loop = value;
 			
 		}
 		#end
@@ -549,9 +551,9 @@ class HTML5AudioContext {
 	public function setMediaGroup (buffer:AudioBuffer, value:String):Void {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			buffer.src.mediaGroup = value;
+			buffer.__srcAudio.mediaGroup = value;
 			
 		}
 		#end
@@ -563,9 +565,9 @@ class HTML5AudioContext {
 	public function setMuted (buffer:AudioBuffer, value:Bool):Void {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			buffer.src.muted = value;
+			buffer.__srcAudio.muted = value;
 			
 		}
 		#end
@@ -576,9 +578,9 @@ class HTML5AudioContext {
 	public function setPlaybackRate (buffer:AudioBuffer, value:Float):Void {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			buffer.src.playbackRate = value;
+			buffer.__srcAudio.playbackRate = value;
 			
 		}
 		#end
@@ -589,9 +591,9 @@ class HTML5AudioContext {
 	public function setPreload (buffer:AudioBuffer, value:String):Void {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			buffer.src.preload = value;
+			buffer.__srcAudio.preload = value;
 			
 		}
 		#end
@@ -602,9 +604,9 @@ class HTML5AudioContext {
 	public function setSrc (buffer:AudioBuffer, value:String):Void {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			buffer.src.src = value;
+			buffer.__srcAudio.src = value;
 			
 		}
 		#end
@@ -615,9 +617,9 @@ class HTML5AudioContext {
 	public function setVolume (buffer:AudioBuffer, value:Float):Void {
 		
 		#if (js && html5)
-		if (buffer.src != null) {
+		if (buffer.__srcAudio != null) {
 			
-			buffer.src.volume = value;
+			buffer.__srcAudio.volume = value;
 			
 		}
 		#end
