@@ -370,7 +370,7 @@ class AndroidPlatform extends PlatformTarget {
 				
 				if (FileSystem.isDirectory (javaPath)) {
 					
-					FileHelper.recursiveCopy (javaPath, sourceSet + "/src", context, true);
+					FileHelper.recursiveCopy (javaPath, sourceSet + "/java", context, true);
 					
 				} else {
 					
@@ -380,7 +380,7 @@ class AndroidPlatform extends PlatformTarget {
 						
 					} else {
 						
-						FileHelper.copyIfNewer (javaPath, sourceSet + "/src/" + Path.withoutDirectory (javaPath));
+						FileHelper.copyIfNewer (javaPath, sourceSet + "/java/" + Path.withoutDirectory (javaPath));
 						
 					}
 					
