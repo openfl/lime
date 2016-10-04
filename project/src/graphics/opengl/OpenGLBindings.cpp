@@ -422,7 +422,7 @@ namespace lime {
 		
 		GLuint buffer;
 		glGenBuffers (1, &buffer);
-		return CFFIPointer ((void*)buffer, gc_gl_buffer);
+		return CFFIPointer ((void*)(uintptr_t)buffer, gc_gl_buffer);
 		
 	}
 	
@@ -431,14 +431,14 @@ namespace lime {
 		
 		GLuint id = 0;
 		glGenFramebuffers (1, &id);
-		return CFFIPointer ((void*)id, gc_gl_framebuffer);
+		return CFFIPointer ((void*)(uintptr_t)id, gc_gl_framebuffer);
 		
 	}
 	
 	
 	value lime_gl_create_program () {
 		
-		return CFFIPointer ((void*)glCreateProgram (), gc_gl_program);
+		return CFFIPointer ((void*)(uintptr_t)glCreateProgram (), gc_gl_program);
 		
 	}
 	
@@ -447,23 +447,23 @@ namespace lime {
 		
 		GLuint id = 0;
 		glGenRenderbuffers (1, &id);
-		return CFFIPointer ((void*)id, gc_gl_render_buffer);
+		return CFFIPointer ((void*)(uintptr_t)id, gc_gl_render_buffer);
 		
 	}
 	
 	
 	value lime_gl_create_shader (int type) {
 		
-		return CFFIPointer ((void*)glCreateShader (type), gc_gl_shader);
+		return CFFIPointer ((void*)(uintptr_t)glCreateShader (type), gc_gl_shader);
 		
 	}
 	
 	
 	value lime_gl_create_texture () {
 		
-		unsigned int id = 0;
+		GLuint id = 0;
 		glGenTextures (1, &id);
-		return CFFIPointer ((void*)id, gc_gl_texture);
+		return CFFIPointer ((void*)(uintptr_t)id, gc_gl_texture);
 		
 	}
 	
