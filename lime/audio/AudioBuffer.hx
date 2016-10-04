@@ -3,6 +3,7 @@ package lime.audio;
 
 import haxe.io.Bytes;
 import lime.audio.openal.AL;
+import lime.audio.openal.ALBuffer;
 import lime.utils.UInt8Array;
 
 #if howlerjs
@@ -28,11 +29,11 @@ class AudioBuffer {
 	public var bitsPerSample:Int;
 	public var channels:Int;
 	public var data:UInt8Array;
-	public var id:UInt;
 	public var sampleRate:Int;
 	public var src (get, set):Dynamic;
 	
 	@:noCompletion private var __srcAudio:#if (js && html5) Audio #else Dynamic #end;
+	@:noCompletion private var __srcBuffer:#if lime_cffi ALBuffer #else Dynamic #end;
 	@:noCompletion private var __srcCustom:Dynamic;
 	@:noCompletion private var __srcFMODSound:#if lime_console FMODSound #else Dynamic #end;
 	@:noCompletion private var __srcHowl:#if howlerjs Howl #else Dynamic #end;
@@ -41,7 +42,7 @@ class AudioBuffer {
 	
 	public function new () {
 		
-		id = 0;
+		
 		
 	}
 	
@@ -50,8 +51,10 @@ class AudioBuffer {
 		
 		#if lime_console
 		if (channels > 0) {
+			
 			src.release ();
 			channels = 0;
+			
 		}
 		#end
 		

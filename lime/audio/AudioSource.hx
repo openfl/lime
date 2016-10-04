@@ -4,6 +4,7 @@ package lime.audio;
 import haxe.Timer;
 import lime.app.Event;
 import lime.audio.openal.AL;
+import lime.audio.openal.ALSource;
 import lime.math.Vector4;
 
 #if flash
@@ -40,7 +41,7 @@ class AudioSource {
 	public var offset:Int;
 	public var position (get, set):Vector4;
 	
-	private var id:UInt;
+	private var id:Dynamic;
 	private var playing:Bool;
 	private var pauseTime:Int;
 	private var __completed:Bool;
@@ -72,7 +73,7 @@ class AudioSource {
 		}
 		
 		this.loops = loops;
-		id = 0;
+		id = null;
 		__completed = false;
 		
 		__position = new Vector4 ();
@@ -111,9 +112,9 @@ class AudioSource {
 			
 			case OPENAL (alc, al):
 				
-				if (buffer.id == 0) {
+				if (buffer.__srcBuffer == null) {
 					
-					buffer.id = al.genBuffer ();
+					buffer.__srcBuffer = al.genBuffer ();
 					
 					var format = 0;
 					
@@ -143,12 +144,12 @@ class AudioSource {
 						
 					}
 					
-					al.bufferData (buffer.id, format, buffer.data, buffer.data.length, buffer.sampleRate);
+					al.bufferData (buffer.__srcBuffer, format, buffer.data, buffer.data.length, buffer.sampleRate);
 					
 				}
 				
 				id = al.genSource ();
-				al.sourcei (id, al.BUFFER, buffer.id);
+				al.sourcei (id, al.BUFFER, buffer.__srcBuffer);
 			
 			default:
 			
@@ -210,7 +211,7 @@ class AudioSource {
 		
 		#else
 		
-		if (playing || id == 0) {
+		if (playing || id == null) {
 			
 			return;
 			

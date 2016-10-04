@@ -2,6 +2,8 @@ package lime.audio;
 
 
 import lime.audio.openal.AL;
+import lime.audio.openal.ALBuffer;
+import lime.audio.openal.ALSource;
 import lime.utils.ArrayBufferView;
 
 
@@ -79,77 +81,77 @@ class ALAudioContext {
 	}
 	
 	
-	public function bufferData (buffer:Int, format:Int, data:ArrayBufferView, size:Int, freq:Int):Void {
+	public function bufferData (buffer:ALBuffer, format:Int, data:ArrayBufferView, size:Int, freq:Int):Void {
 		
 		AL.bufferData (buffer, format, data, size, freq);
 		
 	}
 	
 	
-	public function buffer3f (buffer:Int, param:Int, value1:Float, value2:Float, value3:Float):Void {
+	public function buffer3f (buffer:ALBuffer, param:Int, value1:Float, value2:Float, value3:Float):Void {
 		
 		AL.buffer3f (buffer, param, value1, value2, value3);
 		
 	}
 	
 	
-	public function buffer3i (buffer:Int, param:Int, value1:Int, value2:Int, value3:Int):Void {
+	public function buffer3i (buffer:ALBuffer, param:Int, value1:Int, value2:Int, value3:Int):Void {
 		
 		AL.buffer3i (buffer, param, value1, value2, value3);
 		
 	}
 	
 	
-	public function bufferf (buffer:Int, param:Int, value:Float):Void {
+	public function bufferf (buffer:ALBuffer, param:Int, value:Float):Void {
 		
 		AL.bufferf (buffer, param, value);
 		
 	}
 	
 	
-	public function bufferfv (buffer:Int, param:Int, values:Array<Float>):Void {
+	public function bufferfv (buffer:ALBuffer, param:Int, values:Array<Float>):Void {
 		
 		AL.bufferfv (buffer, param, values);
 		
 	}
 	
 	
-	public function bufferi (buffer:Int, param:Int, value:Int):Void {
+	public function bufferi (buffer:ALBuffer, param:Int, value:Int):Void {
 		
 		AL.bufferi (buffer, param, value);
 		
 	}
 	
 	
-	public function bufferiv (buffer:Int, param:Int, values:Array<Int>):Void {
+	public function bufferiv (buffer:ALBuffer, param:Int, values:Array<Int>):Void {
 		
 		AL.bufferiv (buffer, param, values);
 		
 	}
 	
 	
-	public function deleteBuffer (buffer:Int):Void {
+	public function deleteBuffer (buffer:ALBuffer):Void {
 		
 		AL.deleteBuffer (buffer);
 		
 	}
 	
 	
-	public function deleteBuffers (buffers:Array<Int>):Void {
+	public function deleteBuffers (buffers:Array<ALBuffer>):Void {
 		
 		AL.deleteBuffers (buffers);
 		
 	}
 	
 	
-	public function deleteSource (source:Int):Void {
+	public function deleteSource (source:ALSource):Void {
 		
 		AL.deleteSource (source);
 		
 	}
 	
 	
-	public function deleteSources (sources:Array<Int>):Void {
+	public function deleteSources (sources:Array<ALSource>):Void {
 		
 		AL.deleteSources (sources);
 		
@@ -191,28 +193,28 @@ class ALAudioContext {
 	}
 	
 	
-	public function genSource ():Int {
+	public function genSource ():ALSource {
 		
 		return AL.genSource ();
 		
 	}
 	
 	
-	public function genSources (n:Int):Array<Int> {
+	public function genSources (n:Int):Array<ALSource> {
 		
 		return AL.genSources (n);
 		
 	}
 	
 	
-	public function genBuffer ():Int {
+	public function genBuffer ():ALBuffer {
 		
 		return AL.genBuffer ();
 		
 	}
 	
 	
-	public function genBuffers (n:Int):Array<Int> {
+	public function genBuffers (n:Int):Array<ALBuffer> {
 		
 		return AL.genBuffers (n);
 		
@@ -233,42 +235,42 @@ class ALAudioContext {
 	}
 	
 	
-	public function getBuffer3f (buffer:Int, param:Int):Array<Float> {
+	public function getBuffer3f (buffer:ALBuffer, param:Int):Array<Float> {
 		
 		return AL.getBuffer3f (buffer, param);
 		
 	}
 	
 	
-	public function getBuffer3i (buffer:Int, param:Int):Array<Int> {
+	public function getBuffer3i (buffer:ALBuffer, param:Int):Array<Int> {
 		
 		return AL.getBuffer3i (buffer, param);
 		
 	}
 	
 	
-	public function getBufferf (buffer:Int, param:Int):Float {
+	public function getBufferf (buffer:ALBuffer, param:Int):Float {
 		
 		return AL.getBufferf (buffer, param);
 		
 	}
 	
 	
-	public function getBufferfv (buffer:Int, param:Int, count:Int = 1):Array<Float> {
+	public function getBufferfv (buffer:ALBuffer, param:Int, count:Int = 1):Array<Float> {
 		
 		return AL.getBufferfv (buffer, param, count);
 		
 	}
 	
 	
-	public function getBufferi (buffer:Int, param:Int):Int {
+	public function getBufferi (buffer:ALBuffer, param:Int):Int {
 		
 		return AL.getBufferi (buffer, param);
 		
 	}
 	
 	
-	public function getBufferiv (buffer:Int, param:Int, count:Int = 1):Array<Int> {
+	public function getBufferiv (buffer:ALBuffer, param:Int, count:Int = 1):Array<Int> {
 		
 		return AL.getBufferiv (buffer, param, count);
 		
@@ -387,42 +389,42 @@ class ALAudioContext {
 	}
 	
 	
-	public function getSource3f (source:Int, param:Int):Array<Float> {
+	public function getSource3f (source:ALSource, param:Int):Array<Float> {
 		
 		return AL.getSource3f (source, param);
 		
 	}
 	
 	
-	public function getSourcef (source:Int, param:Int):Float {
+	public function getSourcef (source:ALSource, param:Int):Float {
 		
 		return AL.getSourcef (source, param);
 		
 	}
 	
 	
-	public function getSource3i (source:Int, param:Int):Array<Int> {
+	public function getSource3i (source:ALSource, param:Int):Array<Int> {
 		
 		return AL.getSource3i (source, param);
 		
 	}
 	
 	
-	public function getSourcefv (source:Int, param:Int, count:Int = 1):Array<Float> {
+	public function getSourcefv (source:ALSource, param:Int, count:Int = 1):Array<Float> {
 		
 		return AL.getSourcefv (source, param);
 		
 	}
 	
 	
-	public function getSourcei (source:Int, param:Int):Int {
+	public function getSourcei (source:ALSource, param:Int):Dynamic {
 		
 		return AL.getSourcei (source, param);
 		
 	}
 	
 	
-	public function getSourceiv (source:Int, param:Int, count:Int = 1):Array<Int> {
+	public function getSourceiv (source:ALSource, param:Int, count:Int = 1):Array<Int> {
 		
 		return AL.getSourceiv (source, param, count);
 		
@@ -436,7 +438,7 @@ class ALAudioContext {
 	}
 	
 	
-	public function isBuffer (buffer:Int):Bool {
+	public function isBuffer (buffer:ALBuffer):Bool {
 		
 		return AL.isBuffer (buffer);
 		
@@ -457,7 +459,7 @@ class ALAudioContext {
 	}
 	
 	
-	public function isSource (source:Int):Bool {
+	public function isSource (source:ALSource):Bool {
 		
 		return AL.isSource (source);
 		
@@ -506,126 +508,126 @@ class ALAudioContext {
 	}
 	
 	
-	public function source3f (source:Int, param:Int, value1:Float, value2:Float, value3:Float):Void {
+	public function source3f (source:ALSource, param:Int, value1:Float, value2:Float, value3:Float):Void {
 		
 		AL.source3f (source, param, value1, value2, value3);
 		
 	}
 	
 	
-	public function source3i (source:Int, param:Int, value1:Int, value2:Int, value3:Int):Void {
+	public function source3i (source:ALSource, param:Int, value1:Int, value2:Int, value3:Int):Void {
 		
 		AL.source3i (source, param, value1, value2, value3);
 		
 	}
 	
 	
-	public function sourcef (source:Int, param:Int, value:Float):Void {
+	public function sourcef (source:ALSource, param:Int, value:Float):Void {
 		
 		AL.sourcef (source, param, value);
 		
 	}
 	
 	
-	public function sourcefv (source:Int, param:Int, values:Array<Float>):Void {
+	public function sourcefv (source:ALSource, param:Int, values:Array<Float>):Void {
 		
 		AL.sourcefv (source, param, values);
 		
 	}
 	
 	
-	public function sourcei (source:Int, param:Int, value:Int):Void {
+	public function sourcei (source:ALSource, param:Int, value:Dynamic):Void {
 		
 		AL.sourcei (source, param, value);
 		
 	}
 	
 	
-	public function sourceiv (source:Int, param:Int, values:Array<Int>):Void {
+	public function sourceiv (source:ALSource, param:Int, values:Array<Int>):Void {
 		
 		AL.sourceiv (source, param, values);
 		
 	}
 	
 	
-	public function sourcePlay (source:Int):Void {
+	public function sourcePlay (source:ALSource):Void {
 		
 		AL.sourcePlay (source);
 		
 	}
 	
 	
-	public function sourcePlayv (sources:Array<Int>):Void {
+	public function sourcePlayv (sources:Array<ALSource>):Void {
 		
 		AL.sourcePlayv (sources);
 		
 	}
 	
 	
-	public function sourceStop (source:Int):Void {
+	public function sourceStop (source:ALSource):Void {
 		
 		AL.sourceStop (source);
 		
 	}
 	
 	
-	public function sourceStopv (sources:Array<Int>):Void {
+	public function sourceStopv (sources:Array<ALSource>):Void {
 		
 		AL.sourceStopv (sources);
 		
 	}
 	
 	
-	public function sourceRewind (source:Int):Void {
+	public function sourceRewind (source:ALSource):Void {
 		
 		AL.sourceRewind (source);
 		
 	}
 	
 	
-	public function sourceRewindv (sources:Array<Int>):Void {
+	public function sourceRewindv (sources:Array<ALSource>):Void {
 		
 		AL.sourceRewindv (sources);
 		
 	}
 	
 	
-	public function sourcePause (source:Int):Void {
+	public function sourcePause (source:ALSource):Void {
 		
 		AL.sourcePause (source);
 		
 	}
 	
 	
-	public function sourcePausev (sources:Array<Int>):Void {
+	public function sourcePausev (sources:Array<ALSource>):Void {
 		
 		AL.sourcePausev (sources);
 		
 	}
 	
 	
-	public function sourceQueueBuffer (source:Int, buffer:Int):Void {
+	public function sourceQueueBuffer (source:ALSource, buffer:ALBuffer):Void {
 		
 		AL.sourceQueueBuffer (source, buffer);
 		
 	}
 	
 	
-	public function sourceQueueBuffers (source:Int, nb:Int, buffers:Array<Int>):Void {
+	public function sourceQueueBuffers (source:ALSource, nb:Int, buffers:Array<ALBuffer>):Void {
 		
 		AL.sourceQueueBuffers (source, nb, buffers);
 		
 	}
 	
 	
-	public function sourceUnqueueBuffer (source:Int):Int {
+	public function sourceUnqueueBuffer (source:ALSource):Int {
 		
 		return AL.sourceUnqueueBuffer (source);
 		
 	}
 	
 	
-	public function sourceUnqueueBuffers (source:Int, nb:Int):Array<Int> {
+	public function sourceUnqueueBuffers (source:ALSource, nb:Int):Array<ALBuffer> {
 		
 		return AL.sourceUnqueueBuffers (source, nb);
 		

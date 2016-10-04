@@ -12,43 +12,70 @@
 #include <hx/CFFIPrimePatch.h>
 //#include <hx/CFFIPrime.h>
 #include <system/CFFIPointer.h>
-#include <utils/Bytes.h>
+#include <utils/ArrayBufferView.h>
+#include <map>
 
 
 namespace lime {
 	
 	
-	void lime_al_buffer_data (int buffer, int format, value data, int size, int freq) {
-		
-		Bytes bytes;
-		bytes.Set (data);
-		alBufferData (buffer, format, bytes.Data (), size, freq);
-		
-	}
+	std::map<ALuint, value> gc_al_pointers;
 	
 	
-	void lime_al_buffer3f (int buffer, int param, float value1, float value2, float value3) {
+	void lime_al_delete_buffer (value buffer);
+	void lime_al_delete_source (value source);
+	
+	
+	void gc_al_buffer (value buffer) {
 		
-		alBuffer3f (buffer, param, value1, value2, value3);
+		lime_al_delete_buffer (buffer);
 		
 	}
 	
 	
-	void lime_al_buffer3i (int buffer, int param, int value1, int value2, int value3) {
+	void gc_al_source (value source) {
 		
-		alBuffer3i (buffer, param, value1, value2, value3);
-		
-	}
-	
-	
-	void lime_al_bufferf (int buffer, int param, float value) {
-		
-		alBufferf (buffer, param, value);
+		lime_al_delete_source (source);
 		
 	}
 	
 	
-	void lime_al_bufferfv (int buffer, int param, value values) {
+	void lime_al_buffer_data (value buffer, int format, value data, int size, int freq) {
+		
+		ALuint id = (ALuint)val_data (buffer);
+		ArrayBufferView bufferView (data);
+		alBufferData (id, format, bufferView.Data (), size, freq);
+		
+	}
+	
+	
+	void lime_al_buffer3f (value buffer, int param, float value1, float value2, float value3) {
+		
+		ALuint id = (ALuint)val_data (buffer);
+		alBuffer3f (id, param, value1, value2, value3);
+		
+	}
+	
+	
+	void lime_al_buffer3i (value buffer, int param, int value1, int value2, int value3) {
+		
+		ALuint id = (ALuint)val_data (buffer);
+		alBuffer3i (id, param, value1, value2, value3);
+		
+	}
+	
+	
+	void lime_al_bufferf (value buffer, int param, float value) {
+		
+		ALuint id = (ALuint)val_data (buffer);
+		alBufferf (id, param, value);
+		
+	}
+	
+	
+	void lime_al_bufferfv (value buffer, int param, value values) {
+		
+		ALuint id = (ALuint)val_data (buffer);
 		
 		if (val_is_null (values) == false) {
 			
@@ -57,12 +84,11 @@ namespace lime {
 			
 			for (int i = 0; i < size; ++i) {
 				
-				data[i] = (ALfloat)val_float( val_array_i (values, i) );
+				data[i] = (ALfloat)val_float (val_array_i (values, i));
 				
 			}
 			
-			alBufferfv (buffer, param, data);
-			
+			alBufferfv (id, param, data);
 			delete[] data;
 			
 		}
@@ -70,14 +96,17 @@ namespace lime {
 	}
 	
 	
-	void lime_al_bufferi (int buffer, int param, int value) {
+	void lime_al_bufferi (value buffer, int param, int value) {
 		
-		alBufferi (buffer, param, value);
+		ALuint id = (ALuint)val_data (buffer);
+		alBufferi (id, param, value);
 		
 	}
 	
 	
-	void lime_al_bufferiv (int buffer, int param, value values) {
+	void lime_al_bufferiv (value buffer, int param, value values) {
+		
+		ALuint id = (ALuint)val_data (buffer);
 		
 		if (val_is_null (values) == false) {
 			
@@ -86,12 +115,11 @@ namespace lime {
 			
 			for (int i = 0; i < size; ++i) {
 				
-				data[i] = (ALint)val_int( val_array_i (values, i) );
+				data[i] = (ALint)val_int (val_array_i (values, i));
 				
 			}
 			
-			alBufferiv (buffer, param, data);
-			
+			alBufferiv (id, param, data);
 			delete[] data;
 			
 		}
@@ -121,10 +149,16 @@ namespace lime {
 	}
 	
 	
-	void lime_al_delete_buffer (int buffer) {
+	void lime_al_delete_buffer (value buffer) {
 		
-		ALuint data = buffer;
-		alDeleteBuffers ((ALuint)1, &data);
+		if (!val_is_null (buffer)) {
+			
+			ALuint data = (ALuint)val_data (buffer);
+			val_gc (buffer, 0);
+			alDeleteBuffers ((ALuint)1, &data);
+			gc_al_pointers.erase (data);
+			
+		}
 		
 	}
 	
@@ -135,15 +169,18 @@ namespace lime {
 			
 			int size = val_array_size (buffers);
 			ALuint* data = new ALuint[size];
+			value buffer;
 			
 			for (int i = 0; i < size; ++i) {
 				
-				data[i] = (ALuint)val_int( val_array_i (buffers, i) );
+				buffer = val_array_i (buffers, i);
+				data[i] = (ALuint)val_data (buffer);
+				val_gc (buffer, 0);
+				gc_al_pointers.erase (data[i]);
 				
 			}
 			
 			alDeleteBuffers (n, data);
-			
 			delete[] data;
 			
 		}
@@ -151,9 +188,9 @@ namespace lime {
 	}
 	
 	
-	void lime_al_delete_source (int source) {
+	void lime_al_delete_source (value source) {
 		
-		ALuint data = source;
+		ALuint data = (ALuint)val_data (source);
 		alDeleteSources(1, &data);
 		
 	}
@@ -165,15 +202,17 @@ namespace lime {
 			
 			int size = val_array_size (sources);
 			ALuint* data = new ALuint[size];
+			value source;
 			
 			for (int i = 0; i < size; ++i) {
 				
-				data[i] = (ALuint)val_int( val_array_i (sources, i) );
+				source = val_array_i (sources, i);
+				data[i] = (ALuint)val_data (source);
+				val_gc (source, 0);
 				
 			}
 			
 			alDeleteSources (n, data);
-			
 			delete[] data;
 			
 		}
@@ -216,11 +255,13 @@ namespace lime {
 	}
 	
 	
-	int lime_al_gen_buffer () {
+	value lime_al_gen_buffer () {
 		
 		ALuint buffer;
 		alGenBuffers ((ALuint)1, &buffer);
-		return buffer;
+		value ptr = CFFIPointer ((void*)buffer, gc_al_buffer);
+		gc_al_pointers[buffer] = ptr;
+		return ptr;
 		
 	}
 	
@@ -232,23 +273,30 @@ namespace lime {
 		
 		value result = alloc_array (n);
 		
+		ALuint buffer;
+		value ptr;
+		
 		for (int i = 0; i < n; i++) {
 			
-			val_array_set_i (result, i, alloc_int (buffers[i]));
+			buffer = buffers[i];
+			ptr = CFFIPointer ((void*)buffer, gc_al_buffer);
+			gc_al_pointers[buffer] = ptr;
+			
+			val_array_set_i (result, i, ptr);
 			
 		}
 		
-		delete [] buffers;
+		delete[] buffers;
 		return result;
 		
 	}
 	
 	
-	int lime_al_gen_source () {
+	value lime_al_gen_source () {
 		
 		ALuint source;
 		alGenSources ((ALuint)1, &source);
-		return source;
+		return CFFIPointer ((void*)source, gc_al_source);
 		
 	}
 	
@@ -262,11 +310,11 @@ namespace lime {
 		
 		for (int i = 0; i < n; i++) {
 			
-			val_array_set_i (result, i, alloc_int (sources[i]));
+			val_array_set_i (result, i, CFFIPointer ((void*)alloc_int (sources[i]), gc_al_source));
 			
 		}
 		
-		delete [] sources;
+		delete[] sources;
 		return result;
 		
 	}
@@ -292,17 +340,18 @@ namespace lime {
 			
 		}
 		
-		delete [] values;
+		delete[] values;
 		return result;
 		
 	}
 	
 	
-	value lime_al_get_buffer3f (int buffer, int param) {
+	value lime_al_get_buffer3f (value buffer, int param) {
 		
+		ALuint id = (ALuint)val_data (buffer);
 		ALfloat val1, val2, val3;
 		
-		alGetBuffer3f (buffer, param, &val1, &val2, &val3);
+		alGetBuffer3f (id, param, &val1, &val2, &val3);
 		
 		value result = alloc_array (3);
 		val_array_set_i (result, 0, alloc_float (val1));
@@ -313,11 +362,12 @@ namespace lime {
 	}
 	
 	
-	value lime_al_get_buffer3i (int buffer, int param) {
+	value lime_al_get_buffer3i (value buffer, int param) {
 		
+		ALuint id = (ALuint)val_data (buffer);
 		ALint val1, val2, val3;
 		
-		alGetBuffer3i (buffer, param, &val1, &val2, &val3);
+		alGetBuffer3i (id, param, &val1, &val2, &val3);
 		
 		value result = alloc_array (3);
 		val_array_set_i (result, 0, alloc_int(val1));
@@ -328,19 +378,21 @@ namespace lime {
 	}
 	
 	
-	float lime_al_get_bufferf (int buffer, int param) {
+	float lime_al_get_bufferf (value buffer, int param) {
 		
+		ALuint id = (ALuint)val_data (buffer);
 		ALfloat data;
-		alGetBufferf (buffer, param, &data);
+		alGetBufferf (id, param, &data);
 		return data;
 		
 	}
 	
 	
-	value lime_al_get_bufferfv (int buffer, int param, int count) {
+	value lime_al_get_bufferfv (value buffer, int param, int count) {
 		
+		ALuint id = (ALuint)val_data (buffer);
 		ALfloat* values = new ALfloat[count];
-		alGetBufferfv (buffer, param, values);
+		alGetBufferfv (id, param, values);
 		
 		value result = alloc_array (count);
 		
@@ -350,25 +402,27 @@ namespace lime {
 			
 		}
 		
-		delete [] values;
+		delete[] values;
 		return result;
 		
 	}
 	
 	
-	int lime_al_get_bufferi (int buffer, int param) {
+	int lime_al_get_bufferi (value buffer, int param) {
 		
+		ALuint id = (ALuint)val_data (buffer);
 		ALint data;
-		alGetBufferi (buffer, param, &data);
+		alGetBufferi (id, param, &data);
 		return data;
 		
 	}
 	
 	
-	value lime_al_get_bufferiv (int buffer, int param, int count) {
+	value lime_al_get_bufferiv (value buffer, int param, int count) {
 		
+		ALuint id = (ALuint)val_data (buffer);
 		ALint* values = new ALint[count];
-		alGetBufferiv (buffer, param, values);
+		alGetBufferiv (id, param, values);
 		
 		value result = alloc_array (count);
 		
@@ -378,7 +432,7 @@ namespace lime {
 			
 		}
 		
-		delete [] values;
+		delete[] values;
 		return result;
 		
 	}
@@ -404,7 +458,7 @@ namespace lime {
 			
 		}
 		
-		delete [] values;
+		delete[] values;
 		return result;
 		
 	}
@@ -444,7 +498,7 @@ namespace lime {
 			
 		}
 		
-		delete [] values;
+		delete[] values;
 		return result;
 		
 	}
@@ -470,7 +524,7 @@ namespace lime {
 			
 		}
 		
-		delete [] values;
+		delete[] values;
 		return result;
 		
 	}
@@ -528,7 +582,7 @@ namespace lime {
 			
 		}
 		
-		delete [] values;
+		delete[] values;
 		return result;
 		
 	}
@@ -556,7 +610,7 @@ namespace lime {
 			
 		}
 		
-		delete [] values;
+		delete[] values;
 		return result;
 		
 	}
@@ -569,11 +623,12 @@ namespace lime {
 	}
 	
 	
-	value lime_al_get_source3f (int source, int param) {
+	value lime_al_get_source3f (value source, int param) {
 		
+		ALuint id = (ALuint)val_data (source);
 		ALfloat val1, val2, val3;
 		
-		alGetSource3f (source, param, &val1, &val2, &val3);
+		alGetSource3f (id, param, &val1, &val2, &val3);
 		
 		value result = alloc_array (3);
 		val_array_set_i (result, 0, alloc_float (val1));
@@ -584,11 +639,12 @@ namespace lime {
 	}
 	
 	
-	value lime_al_get_source3i (int source, int param) {
+	value lime_al_get_source3i (value source, int param) {
 		
+		ALuint id = (ALuint)val_data (source);
 		ALint val1, val2, val3;
 		
-		alGetSource3i (source, param, &val1, &val2, &val3);
+		alGetSource3i (id, param, &val1, &val2, &val3);
 		
 		value result = alloc_array (3);
 		val_array_set_i (result, 1, alloc_int (val1));
@@ -599,19 +655,21 @@ namespace lime {
 	}
 	
 	
-	float lime_al_get_sourcef (int source, int param) {
+	float lime_al_get_sourcef (value source, int param) {
 		
+		ALuint id = (ALuint)val_data (source);
 		ALfloat data;
-		alGetSourcef (source, param, &data);
+		alGetSourcef (id, param, &data);
 		return data;
 		
 	}
 	
 	
-	value lime_al_get_sourcefv (int source, int param, int count) {
+	value lime_al_get_sourcefv (value source, int param, int count) {
 		
+		ALuint id = (ALuint)val_data (source);
 		ALfloat* values = new ALfloat[count];
-		alGetSourcefv (source, param, values);
+		alGetSourcefv (id, param, values);
 		
 		value result = alloc_array (count);
 		
@@ -621,25 +679,46 @@ namespace lime {
 			
 		}
 		
-		delete [] values;
+		delete[] values;
 		return result;
 		
 	}
 	
 	
-	int lime_al_get_sourcei (int source, int param) {
+	value lime_al_get_sourcei (value source, int param) {
 		
+		ALuint id = (ALuint)val_data (source);
 		ALint data;
-		alGetSourcei (source, param, &data);
-		return data;
+		alGetSourcei (id, param, &data);
+		
+		if (param == AL_BUFFER) {
+			
+			if (gc_al_pointers.count (data) > 0) {
+				
+				return gc_al_pointers[data];
+				
+			} else {
+				
+				value ptr = CFFIPointer ((void*)data, gc_al_buffer);
+				gc_al_pointers[data] = ptr;
+				return ptr;
+				
+			}
+			
+		} else {
+			
+			return alloc_int (data);
+			
+		}
 		
 	}
 	
 	
-	value lime_al_get_sourceiv (int source, int param, int count) {
+	value lime_al_get_sourceiv (value source, int param, int count) {
 		
+		ALuint id = (ALuint)val_data (source);
 		ALint* values = new ALint[count];
-		alGetSourceiv (source, param, values);
+		alGetSourceiv (id, param, values);
 		
 		value result = alloc_array (count);
 		
@@ -649,7 +728,7 @@ namespace lime {
 			
 		}
 		
-		delete [] values;
+		delete[] values;
 		return result;
 		
 	}
@@ -663,9 +742,10 @@ namespace lime {
 	}
 	
 	
-	bool lime_al_is_buffer (int buffer) {
+	bool lime_al_is_buffer (value buffer) {
 		
-		return alIsBuffer (buffer);
+		ALuint id = (ALuint)val_data (buffer);
+		return alIsBuffer (id);
 		
 	}
 	
@@ -684,9 +764,10 @@ namespace lime {
 	}
 	
 	
-	bool lime_al_is_source (int source) {
+	bool lime_al_is_source (value source) {
 		
-		return alIsSource (source);
+		ALuint id = (ALuint)val_data (source);
+		return alIsSource (id);
 		
 	}
 	
@@ -721,12 +802,11 @@ namespace lime {
 			
 			for (int i = 0; i < size; ++i) {
 				
-				data[i] = (ALfloat)val_float( val_array_i (values, i) );
+				data[i] = (ALfloat)val_float (val_array_i (values, i));
 				
 			}
 			
-			alListenerfv(param, data);
-			
+			alListenerfv (param, data);
 			delete[] data;
 			
 		}
@@ -750,12 +830,11 @@ namespace lime {
 			
 			for (int i = 0; i < size; ++i) {
 				
-				data[i] = (ALint)val_int( val_array_i (values, i) );
+				data[i] = (ALint)val_int (val_array_i (values, i));
 				
 			}
 			
 			alListeneriv (param, data);
-			
 			delete[] data;
 			
 		}
@@ -763,9 +842,10 @@ namespace lime {
 	}
 	
 	
-	void lime_al_source_pause (int source) {
+	void lime_al_source_pause (value source) {
 		
-		alSourcePause (source);
+		ALuint id = (ALuint)val_data (source);
+		alSourcePause (id);
 		
 	}
 	
@@ -779,21 +859,21 @@ namespace lime {
 			
 			for (int i = 0; i < size; ++i) {
 				
-				data[i] = (ALuint)val_int( val_array_i (sources, i) );
+				data[i] = (ALuint)val_data (val_array_i (sources, i));
 				
 			}
 			
 			alSourcePausev (n, data);
-			
 			delete[] data;
 			
 		}
 	}
 	
 	
-	void lime_al_source_play (int source) {
+	void lime_al_source_play (value source) {
 		
-		alSourcePlay (source);
+		ALuint id = (ALuint)val_data (source);
+		alSourcePlay (id);
 		
 	}
 	
@@ -807,12 +887,11 @@ namespace lime {
 			
 			for (int i = 0; i < size; ++i) {
 				
-				data[i] = (ALuint)val_int( val_array_i (sources, i) );
+				data[i] = (ALuint)val_data (val_array_i (sources, i));
 				
 			}
 			
 			alSourcePlayv (n, data);
-			
 			delete[] data;
 			
 		}
@@ -820,7 +899,9 @@ namespace lime {
 	}
 	
 	
-	void lime_al_source_queue_buffers (int source, int nb, value buffers) {
+	void lime_al_source_queue_buffers (value source, int nb, value buffers) {
+		
+		ALuint id = (ALuint)val_data (source);
 		
 		if (val_is_null (buffers) == false) {
 			
@@ -829,12 +910,11 @@ namespace lime {
 			
 			for (int i = 0; i < size; ++i) {
 				
-				data[i] = (ALuint)val_int( val_array_i (buffers, i) );
+				data[i] = (ALuint)val_data (val_array_i (buffers, i));
 				
 			}
 			
-			alSourceQueueBuffers (source, nb, data);
-			
+			alSourceQueueBuffers (id, nb, data);
 			delete[] data;
 			
 		}
@@ -842,9 +922,10 @@ namespace lime {
 	}
 	
 	
-	void lime_al_source_rewind (int source) {
+	void lime_al_source_rewind (value source) {
 		
-		alSourceRewind (source);
+		ALuint id = (ALuint)val_data (source);
+		alSourceRewind (id);
 		
 	}
 	
@@ -858,12 +939,11 @@ namespace lime {
 			
 			for (int i = 0; i < size; ++i) {
 				
-				data[i] = (ALuint)val_int( val_array_i (sources, i) );
+				data[i] = (ALuint)val_data (val_array_i (sources, i));
 				
 			}
 			
 			alSourceRewindv (n, data);
-			
 			delete[] data;
 			
 		}
@@ -871,9 +951,10 @@ namespace lime {
 	}
 	
 	
-	void lime_al_source_stop (int source) {
+	void lime_al_source_stop (value source) {
 		
-		alSourceStop (source);
+		ALuint id = (ALuint)val_data (source);
+		alSourceStop (id);
 		
 	}
 	
@@ -887,12 +968,11 @@ namespace lime {
 			
 			for (int i = 0; i < size; ++i) {
 				
-				data[i] = (ALuint)val_int( val_array_i (sources, i) );
+				data[i] = (ALuint)val_data (val_array_i (sources, i));
 				
 			}
 			
 			alSourceStopv (n, data);
-			
 			delete[] data;
 			
 		}
@@ -900,47 +980,68 @@ namespace lime {
 	}
 	
 	
-	value lime_al_source_unqueue_buffers (int source, int nb) {
+	value lime_al_source_unqueue_buffers (value source, int nb) {
 		
+		ALuint id = (ALuint)val_data (source);
 		ALuint* buffers = new ALuint[nb];
-		alSourceUnqueueBuffers (source, nb, buffers);
+		alSourceUnqueueBuffers (id, nb, buffers);
 		
 		value result = alloc_array (nb);
+		ALuint buffer;
+		value ptr;
 		
 		for (int i = 0; i < nb; i++) {
 			
-			val_array_set_i (result, i, alloc_int (buffers[i]));
+			buffer = buffers[i];
+			
+			if (gc_al_pointers.count (buffer) > 0) {
+				
+				ptr = gc_al_pointers[buffer];
+				
+			} else {
+				
+				ptr = CFFIPointer ((void*)buffer, gc_al_buffer);
+				gc_al_pointers[buffer] = ptr;
+				
+			}
+			
+			val_array_set_i (result, i, ptr);
 			
 		}
 		
-		delete [] buffers;
+		delete[] buffers;
 		return result;
 		
 	}
 	
 	
-	void lime_al_source3f (int source, int param, float value1, float value2, float value3) {
+	void lime_al_source3f (value source, int param, float value1, float value2, float value3) {
 		
-		alSource3f (source, param, value1, value2, value3);
-		
-	}
-	
-	
-	void lime_al_source3i (int source, int param, int value1, int value2, int value3) {
-		
-		alSource3i (source, param, value1, value2, value3);
+		ALuint id = (ALuint)val_data (source);
+		alSource3f (id, param, value1, value2, value3);
 		
 	}
 	
 	
-	void lime_al_sourcef (int source, int param, float value) {
+	void lime_al_source3i (value source, int param, int value1, int value2, int value3) {
 		
-		alSourcef (source, param, value);
+		ALuint id = (ALuint)val_data (source);
+		alSource3i (id, param, value1, value2, value3);
 		
 	}
 	
 	
-	void lime_al_sourcefv (int source, int param, value values) {
+	void lime_al_sourcef (value source, int param, float value) {
+		
+		ALuint id = (ALuint)val_data (source);
+		alSourcef (id, param, value);
+		
+	}
+	
+	
+	void lime_al_sourcefv (value source, int param, value values) {
+		
+		ALuint id = (ALuint)val_data (source);
 		
 		if (val_is_null (values) == false) {
 			
@@ -949,12 +1050,11 @@ namespace lime {
 			
 			for (int i = 0; i < size; ++i) {
 				
-				data[i] = (ALfloat)val_float( val_array_i (values, i) );
+				data[i] = (ALfloat)val_float (val_array_i (values, i));
 				
 			}
 			
-			alSourcefv (source, param, data);
-			
+			alSourcefv (id, param, data);
 			delete[] data;
 			
 		}
@@ -962,14 +1062,29 @@ namespace lime {
 	}
 	
 	
-	void lime_al_sourcei (int source, int param, int value) {
+	void lime_al_sourcei (value source, int param, value val) {
 		
-		alSourcei (source, param, value);
+		ALuint id = (ALuint)val_data (source);
+		ALuint data;
+		
+		if (param == AL_BUFFER) {
+			
+			data = (ALuint)val_data (val);
+			
+		} else {
+			
+			data = val_int (val);
+			
+		}
+		
+		alSourcei (id, param, data);
 		
 	}
 	
 	
-	void lime_al_sourceiv (int source, int param, value values) {
+	void lime_al_sourceiv (value source, int param, value values) {
+		
+		ALuint id = (ALuint)val_data (source);
 		
 		if (val_is_null (values) == false) {
 			
@@ -978,12 +1093,11 @@ namespace lime {
 			
 			for (int i = 0; i < size; ++i) {
 				
-				data[i] = (ALint)val_int( val_array_i (values, i) );
+				data[i] = (ALint)val_data (val_array_i (values, i));
 				
 			}
 			
-			alSourceiv (source, param, data);
-			
+			alSourceiv (id, param, data);
 			delete[] data;
 			
 		}
@@ -1018,7 +1132,9 @@ namespace lime {
 			list = new ALCint[size];
 			
 			for (int i = 0; i < size; ++i) {
-				list[i] = (ALCint)val_int( val_array_i (attrlist, i) );
+				
+				list[i] = (ALCint)val_int (val_array_i (attrlist, i));
+				
 			}
 			
 		}
@@ -1026,7 +1142,9 @@ namespace lime {
 		ALCcontext* alcContext = alcCreateContext (alcDevice, list);
 		
 		if (list != NULL) {
+			
 			delete[] list;
+			
 		}
 		
 		return CFFIPointer (alcContext);
@@ -1082,7 +1200,7 @@ namespace lime {
 			
 		}
 		
-		delete [] values;
+		delete[] values;
 		return result;
 		
 	}
