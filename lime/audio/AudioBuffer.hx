@@ -126,7 +126,7 @@ class AudioBuffer {
 		
 		switch (Path.extension (path)) {
 			
-			case "ogg", "wav": return null:
+			case "ogg", "wav": return null;
 			default:
 			
 		}
