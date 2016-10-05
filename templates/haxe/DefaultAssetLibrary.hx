@@ -412,16 +412,33 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	public override function isLocal (id:String, type:String):Bool {
 		
-		#if (flash || windows || mac || linux)
-			
+		#if flash
+		
 		return className.exists (id);
-			
-		#else
+		
+		#elseif html5
+		
 		var requestedType = type != null ? cast (type, AssetType) : null;
-		if (requestedType == AssetType.FONT)
-			return className.exists (id);
-		else
-			return path.exists (id);
+		
+		return switch (requestedType) {
+			
+			case FONT:
+				
+				className.exists (id);
+			
+			case IMAGE:
+				
+				Preloader.images.exists (path.get (id));
+			
+			default:
+				
+				Preloader.loaders.exists (path.get (id));
+			
+		}
+		
+		#else
+		
+		return true;
 		
 		#end
 		
