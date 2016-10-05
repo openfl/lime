@@ -1,8 +1,10 @@
 package lime.app;
 
 
+import haxe.io.Path;
 import lime.app.Event;
 import lime.Assets;
+import lime.audio.AudioBuffer;
 
 #if (js && html5)
 import js.html.Image;
@@ -25,6 +27,7 @@ class Preloader #if flash extends Sprite #end {
 	public var onProgress = new Event<Int->Int->Void> ();
 	
 	#if (js && html5)
+	public static var audioBuffers = new Map<String, AudioBuffer> ();
 	public static var images = new Map<String, Image> ();
 	public static var loaders = new Map<String, HTTPRequest> ();
 	private var loaded = 0;
@@ -67,6 +70,7 @@ class Preloader #if flash extends Sprite #end {
 		
 		var url = null;
 		var cacheVersion = Assets.cache.version;
+		var soundPaths = new Map<String, Array<String>> ();
 		
 		for (i in 0...urls.length) {
 			
@@ -106,6 +110,28 @@ class Preloader #if flash extends Sprite #end {
 						
 					}
 				
+				case MUSIC, SOUND:
+					
+					var soundName = Path.withoutExtension (url);
+					var extension = Path.extension (url);
+					
+					if (!soundPaths.exists (soundName)) {
+						
+						soundPaths.set (soundName, []);
+						total++;
+						
+					}
+					
+					if (extension == "wav") {
+						
+						soundPaths.get (soundName).push (url);
+						
+					} else {
+						
+						soundPaths.get (soundName).unshift (url);
+						
+					}
+				
 				case FONT:
 					
 					total++;
@@ -122,6 +148,22 @@ class Preloader #if flash extends Sprite #end {
 			var loader = loaders.get (url);
 			var future = loader.load (url + "?" + cacheVersion);
 			future.onComplete (loader_onComplete);
+			
+		}
+		
+		for (paths in soundPaths) {
+			
+			var audioBuffer = AudioBuffer.fromFiles (paths);
+			
+			for (path in paths) {
+				
+				audioBuffers.set (path, audioBuffer);
+				
+			}
+			
+			audioBuffer.src.on ("load", audioBuffer_onLoad);
+			audioBuffer.src.on ("loaderror", audioBuffer_onLoad);
+			audioBuffer.src.load ();
 			
 		}
 		
@@ -259,6 +301,21 @@ class Preloader #if flash extends Sprite #end {
 	
 	
 	#if (js && html5)
+	private function audioBuffer_onLoad ():Void {
+		
+		loaded++;
+		
+		onProgress.dispatch (loaded, total);
+		
+		if (loaded == total) {
+			
+			start ();
+			
+		}
+		
+	}
+	
+	
 	private function image_onLoad (_):Void {
 		
 		loaded++;

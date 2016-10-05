@@ -196,12 +196,11 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#elseif html5
 		
-		return null;
-		//return new Sound (new URLRequest (path.get (id)));
+		return Preloader.audioBuffers.get (path.get (id));
 		
 		#else
 		
-		if (className.exists(id)) return AudioBuffer.fromBytes (cast (Type.createInstance (className.get (id), []), Bytes));
+		if (className.exists (id)) return AudioBuffer.fromBytes (cast (Type.createInstance (className.get (id), []), Bytes));
 		else return AudioBuffer.fromFile (rootPath + path.get (id));
 		
 		#end
@@ -430,6 +429,10 @@ class DefaultAssetLibrary extends AssetLibrary {
 				
 				Preloader.images.exists (path.get (id));
 			
+			case MUSIC, SOUND:
+				
+				Preloader.audioBuffers.exists (path.get (id));
+			
 			default:
 				
 				Preloader.loaders.exists (path.get (id));
@@ -469,7 +472,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		var promise = new Promise<AudioBuffer> ();
 		
-		#if (flash)
+		#if flash
 		
 		if (path.exists (id)) {
 			

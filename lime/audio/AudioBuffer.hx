@@ -224,7 +224,7 @@ class AudioBuffer {
 		#if (js && html5 && howlerjs)
 		
 		var audioBuffer = new AudioBuffer ();
-		audioBuffer.__srcHowl = new Howl ({ src: Assets.__getAlternatePaths (url) });
+		audioBuffer.__srcHowl = new Howl ({ src: [ url ] });
 		audioBuffer.__srcHowl.on ("load", function () { handler (audioBuffer); });
 		audioBuffer.__srcHowl.on ("loaderror", function () { handler (null); });
 		audioBuffer.__srcHowl.load ();
