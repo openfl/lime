@@ -149,6 +149,10 @@ class HTML5AudioSource {
 			
 		}
 		
+		#else
+		
+		return 0;
+		
 		#end
 		
 	}
