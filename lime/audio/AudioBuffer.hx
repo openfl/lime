@@ -303,7 +303,7 @@ class AudioBuffer {
 				
 			});
 			
-			audioBuffer.__srcSound.addEventListener (IOErrorEvent.IO_ERROR, promise.error);
+			audioBuffer.__srcSound.addEventListener (flash.events.IOErrorEvent.IO_ERROR, promise.error);
 			
 			#elseif (js && html5 && howlerjs)
 			
