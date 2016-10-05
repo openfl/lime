@@ -872,7 +872,7 @@ class Assets {
 		
 		// total hack, need to improve
 		
-		#if (tools && !display)
+		#if (tools && !display && js && html5)
 		
 		var name = haxe.io.Path.withoutExtension (path);
 		var paths = [];
