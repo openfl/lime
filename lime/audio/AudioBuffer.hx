@@ -2,6 +2,7 @@ package lime.audio;
 
 
 import haxe.io.Bytes;
+import haxe.io.Path;
 import lime.audio.openal.AL;
 import lime.audio.openal.ALBuffer;
 import lime.utils.UInt8Array;
@@ -13,6 +14,7 @@ import lime.audio.howlerjs.Howl;
 import js.html.Audio;
 #elseif flash
 import flash.media.Sound;
+import flash.net.URLRequest;
 #elseif lime_console
 import lime.audio.fmod.FMODMode;
 import lime.audio.fmod.FMODSound;
@@ -118,6 +120,19 @@ class AudioBuffer {
 		
 		var audioBuffer = new AudioBuffer ();
 		audioBuffer.__srcHowl = new Howl ({ src: [ path ] });
+		return audioBuffer;
+		
+		#elseif flash
+		
+		switch (Path.extension (path)) {
+			
+			case "ogg", "wav": return null:
+			default:
+			
+		}
+		
+		var audioBuffer = new AudioBuffer ();
+		audioBuffer.__srcSound = new Sound (new URLRequest (path));
 		return audioBuffer;
 		
 		#elseif lime_console
