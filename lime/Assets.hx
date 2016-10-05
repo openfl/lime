@@ -868,6 +868,60 @@ class Assets {
 	}
 	
 	
+	private static function __getAlternatePaths (path:String):Array<String> {
+		
+		// total hack, need to improve
+		
+		#if (tools && !display)
+		
+		var name = haxe.io.Path.withoutExtension (path);
+		var paths = [];
+		
+		if (exists (path)) {
+			
+			if (exists (name + ".ogg")) paths.push (name + ".ogg");
+			if (exists (name + ".m4a")) paths.push (name + ".m4a");
+			if (exists (name + ".mp3")) paths.push (name + ".mp3");
+			if (exists (name + ".wav")) paths.push (name + ".wav");
+			
+		} else {
+			
+			var defaultAssetLibrary:DefaultAssetLibrary = cast libraries.get ("default");
+			
+			var ogg = false, m4a = false, mp3 = false, wav = false;
+			
+			for (assetPath in defaultAssetLibrary.path) {
+				
+				if (StringTools.startsWith (assetPath, name)) {
+					
+					if (assetPath == name + ".ogg") ogg = true;
+					if (assetPath == name + ".m4a") m4a = true;
+					if (assetPath == name + ".mp3") mp3 = true;
+					if (assetPath == name + ".wav") wav = true;
+					
+				}
+				
+			}
+			
+			if (ogg) paths.push (name + ".ogg");
+			if (m4a) paths.push (name + ".m4a");
+			if (mp3) paths.push (name + ".mp3");
+			if (wav) paths.push (name + ".wav");
+			
+		}
+		
+		if (paths.length == 0) paths.push (path);
+		return paths;
+		
+		#else
+		
+		return [ path ];
+		
+		#end
+		
+	}
+	
+	
 	
 	
 	// Event Handlers
@@ -1200,7 +1254,6 @@ class Assets {
 		if (fields != null) {
 			
 			var constructor = macro {
-
 				
 				super ();
 				
@@ -1351,7 +1404,7 @@ class Assets {
 		}
 		
 		if (path != null && path != "") {
-
+			
 			#if lime_console
 			throw "not implemented";
 			#end

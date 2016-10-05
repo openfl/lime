@@ -20,6 +20,8 @@ import lime.audio.fmod.FMODMode;
 import lime.audio.fmod.FMODSound;
 #end
 
+@:access(lime.Assets)
+
 #if !macro
 @:build(lime.system.CFFI.build())
 #end
@@ -219,6 +221,16 @@ class AudioBuffer {
 	
 	public static function fromURL (url:String, handler:AudioBuffer->Void):Void {
 		
+		#if (js && html5 && howlerjs)
+		
+		var audioBuffer = new AudioBuffer ();
+		audioBuffer.__srcHowl = new Howl ({ src: Assets.__getAlternatePaths (url) });
+		audioBuffer.__srcHowl.on ("load", function () { handler (audioBuffer); });
+		audioBuffer.__srcHowl.on ("loaderror", function () { handler (null); });
+		audioBuffer.__srcHowl.load ();
+		
+		#else
+		
 		if (url != null && url.indexOf ("http://") == -1 && url.indexOf ("https://") == -1) {
 			
 			handler (AudioBuffer.fromFile (url));
@@ -253,6 +265,8 @@ class AudioBuffer {
 			#end
 			
 		}
+		
+		#end
 		
 	}
 	

@@ -180,13 +180,15 @@ class HTML5AudioSource {
 		
 		#if howlerjs
 		
-		return parent.buffer.__srcHowl.volume (id);
-		
-		#else
-		
-		return 0;
+		if (parent.buffer != null) {
+			
+			return parent.buffer.__srcHowl.volume (id);
+			
+		}
 		
 		#end
+		
+		return 0;
 		
 	}
 	
@@ -195,7 +197,11 @@ class HTML5AudioSource {
 		
 		#if howlerjs
 		
-		parent.buffer.__srcHowl.volume (value, id);
+		if (parent.buffer != null) {
+			
+			parent.buffer.__srcHowl.volume (value, id);
+			
+		}
 		
 		#end
 		
