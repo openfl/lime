@@ -3,6 +3,8 @@ package lime.audio;
 
 import haxe.io.Bytes;
 import haxe.io.Path;
+import lime.app.Future;
+import lime.app.Promise;
 import lime.audio.openal.AL;
 import lime.audio.openal.ALBuffer;
 import lime.utils.UInt8Array;
@@ -267,6 +269,116 @@ class AudioBuffer {
 		}
 		
 		#end
+		
+	}
+	
+	
+	public static function loadFile (path:String):lime.app.Future<AudioBuffer> {
+		
+		var promise = new Promise<AudioBuffer> ();
+		
+		var audioBuffer = AudioBuffer.fromFile (path);
+		
+		if (audioBuffer != null) {
+			
+			#if flash
+			
+			audioBuffer.__srcSound.addEventListener (flash.events.Event.COMPLETE, function (event) {
+				
+				promise.complete (audioBuffer);
+				
+			});
+			
+			audioBuffer.__srcSound.addEventListener (flash.events.ProgressEvent.PROGRESS, function (event) {
+				
+				if (event.bytesTotal == 0) {
+					
+					promise.progress (0);
+					
+				} else {
+					
+					promise.progress (event.bytesLoaded / event.bytesTotal);
+					
+				}
+				
+			});
+			
+			audioBuffer.__srcSound.addEventListener (IOErrorEvent.IO_ERROR, promise.error);
+			
+			#elseif (js && html5 && howlerjs)
+			
+			if (audioBuffer != null) {
+				
+				audioBuffer.__srcHowl.on ("load", function () { 
+					
+					promise.complete (audioBuffer);
+					
+				});
+				
+				audioBuffer.__srcHowl.on ("loaderror", function () {
+					
+					promise.error (null);
+					
+				});
+				
+				audioBuffer.__srcHowl.load ();
+				
+			}
+			
+			#else
+			
+			promise.complete (audioBuffer);
+			
+			#end
+			
+		} else {
+			
+			promise.error (null);
+			
+		}
+		
+		return promise.future;
+		
+	}
+	
+	
+	public static function loadFiles (paths:Array<String>):Future<AudioBuffer> {
+		
+		var promise = new Promise<AudioBuffer> ();
+		
+		#if (js && html5 && howlerjs)
+		
+		var audioBuffer = AudioBuffer.fromFiles (paths);
+		
+		if (audioBuffer != null) {
+			
+			audioBuffer.__srcHowl.on ("load", function () { 
+				
+				promise.complete (audioBuffer);
+				
+			});
+			
+			audioBuffer.__srcHowl.on ("loaderror", function () {
+				
+				promise.error (null);
+				
+			});
+			
+			audioBuffer.__srcHowl.load ();
+			
+		} else {
+			
+			promise.error (null);
+			
+		}
+		
+		#else
+		
+		promise.completeWith (new Future<AudioBuffer> (function () return fromFiles (paths)));
+		
+		#end
+		
+		return promise.future;
 		
 	}
 	

@@ -472,45 +472,19 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		var promise = new Promise<AudioBuffer> ();
 		
-		#if flash
-		
-		if (path.exists (id)) {
+		if (Assets.isLocal (id)) {
 			
-			var soundLoader = new Sound ();
-			soundLoader.addEventListener (Event.COMPLETE, function (event) {
-				
-				var audioBuffer:AudioBuffer = new AudioBuffer();
-				audioBuffer.src = event.currentTarget;
-				promise.complete (audioBuffer);
-				
-			});
-			soundLoader.addEventListener (ProgressEvent.PROGRESS, function (event) {
-				
-				if (event.bytesTotal == 0) {
-					
-					promise.progress (0);
-					
-				} else {
-					
-					promise.progress (event.bytesLoaded / event.bytesTotal);
-					
-				}
-				
-			});
-			soundLoader.addEventListener (IOErrorEvent.IO_ERROR, promise.error);
-			soundLoader.load (new URLRequest (path.get (id)));
+			promise.completeWith (new Future<AudioBuffer> (function () return getAudioBuffer (id)));
+			
+		} else if (path.exists (id)) {
+			
+			promise.completeWith (AudioBuffer.loadFile (path.get (id)));
 			
 		} else {
 			
-			promise.complete (getAudioBuffer (id));
+			promise.error (null);
 			
 		}
-		
-		#else
-		
-		promise.completeWith (new Future<AudioBuffer> (function () return getAudioBuffer (id)));
-		
-		#end
 		
 		return promise.future;
 		

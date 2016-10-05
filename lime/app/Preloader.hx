@@ -153,17 +153,17 @@ class Preloader #if flash extends Sprite #end {
 		
 		for (paths in soundPaths) {
 			
-			var audioBuffer = AudioBuffer.fromFiles (paths);
-			
-			for (path in paths) {
+			AudioBuffer.loadFiles (paths).onComplete (function (audioBuffer) {
 				
-				audioBuffers.set (path, audioBuffer);
+				for (path in paths) {
+					
+					audioBuffers.set (path, audioBuffer);
+					
+				}
 				
-			}
-			
-			audioBuffer.src.on ("load", audioBuffer_onLoad);
-			audioBuffer.src.on ("loaderror", audioBuffer_onLoad);
-			audioBuffer.src.load ();
+				audioBuffer_onLoad ();
+				
+			}).onError (audioBuffer_onLoad);
 			
 		}
 		
@@ -301,7 +301,7 @@ class Preloader #if flash extends Sprite #end {
 	
 	
 	#if (js && html5)
-	private function audioBuffer_onLoad ():Void {
+	private function audioBuffer_onLoad (?_):Void {
 		
 		loaded++;
 		
