@@ -121,7 +121,7 @@ class PlatformTarget {
 			
 		}
 		
-		if (!Reflect.hasField (metaFields.trace, "ignore") && (command == "test" || command == "trace")) {
+		if (!Reflect.hasField (metaFields.trace, "ignore") && (command == "test" || command == "trace" || command == "run" || command == "rerun" )) {
 			
 			if (traceEnabled || command == "trace") {
 				
