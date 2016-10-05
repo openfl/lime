@@ -412,19 +412,18 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	public override function isLocal (id:String, type:String):Bool {
 		
+		#if (flash || windows || mac || linux)
+			
+		return className.exists (id);
+			
+		#else
 		var requestedType = type != null ? cast (type, AssetType) : null;
-		
-		#if flash
-		
-		//if (requestedType != AssetType.MUSIC && requestedType != AssetType.SOUND) {
-			
+		if (requestedType == AssetType.FONT)
 			return className.exists (id);
-			
-		//}
+		else
+			return path.exists (id);
 		
 		#end
-		
-		return true;
 		
 	}
 	
