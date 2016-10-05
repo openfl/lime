@@ -1,24 +1,40 @@
 package lime.system;
 
-
-import lime.system.CFFI;
-
 #if flash
 import flash.system.Capabilities;
+#elseif android
+import lime.system.JNI;
+#elseif (lime_cffi && !macro)
+import lime.system.CFFI;
 #end
 
 
 abstract Locale(String) from String to String {
 	
 	
-	public static var currentLocale:Locale;
-	public static var systemLocale (default, null):Locale;
+	@:isVar public static var currentLocale(get, set):Locale = null;
+	public static var systemLocale(get, null):Locale = null;
 	
 	public var language (get, never):String;
 	public var region (get, never):String;
 	
 	
-	private static function __init__ ():Void {
+	private static function get_currentLocale():Locale {
+		if(systemLocale == null) init();
+		return currentLocale;
+	}
+
+	private static function set_currentLocale(locale:Locale):Locale {
+		if(systemLocale == null) init();
+		return currentLocale = locale;
+	}
+
+	private static function get_systemLocale():Locale {
+		if(systemLocale == null) init();
+		return systemLocale;
+	}
+
+	private static function init():Void {
 		
 		var locale = null;
 		
@@ -26,6 +42,10 @@ abstract Locale(String) from String to String {
 		locale = Capabilities.language;
 		#elseif (js && html5)
 		locale = untyped navigator.language;
+		#elseif (android)
+		var getDefault:Void->Dynamic = JNI.createStaticMethod("java/util/Locale", "getDefault", "()Ljava/util/Locale;");
+		var toString:Dynamic->String = JNI.createMemberMethod("java/util/Locale", "toString", "()Ljava/lang/String;");
+		locale = toString(getDefault());
 		#elseif (lime_cffi && !macro)
 		locale = CFFI.load ("lime", "lime_locale_get_system_locale", 0) ();
 		#end
