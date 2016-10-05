@@ -50,8 +50,7 @@ This product bundles libnfd, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/nfd/](project/lib).
 
 This product bundles OpenAL-Soft 1.17.2, which is available under an
-"LGPLv3" license. For details, see [project/lib/openal/](project/lib). It also bundles
-an OpenAL-Soft derivative for Android under [project/lib/openal-android/](project/lib).
+"LGPLv3" license. For details, see [project/lib/openal/](project/lib).
 
 _OpenAL-Soft is only included in dynamically-linked builds, it is excluded
 from Lime static builds in order to preserve Lime's permissive nature._
