@@ -96,6 +96,26 @@ For details, see https://github.com/underscorediscovery/hxtypedarray
 
 -------
 
+_The following are not embedded in Lime applications directly, but are used
+as dependencies for web-based builds._
+
+This product bundles howler.js 2.0.0, which is available under an
+"MIT" license. For details, see [dependencies/howler.min.js](dependencies/howler.min.js).
+
+This product bundles pako 1.0.2, which is available under an
+"MIT" license. For details, see [dependencies/pako.min.js](dependencies/pako.min.js).
+
+This product bundles stats.js r16, which is available under an
+"MIT" license. For details, see [dependencies/stats.min.js](dependencies/stats.min.js).
+
+This product bundles SWFObject 2.2, which is available under an
+"MIT" license. For details, see [templates/flash/templates/web/swfobject.js](templates/flash/templates/web/swfobject.js).
+
+This product bundles webgl-debug.js 1.0.0, which is available under an
+"MIT" license. For details, see [dependencies/webgl-debug.min.js](dependencies/webgl-debug.min.js).
+
+-------
+
 _The following are not included in Lime applications, but are used by
 the Lime command-line tools. Their licensing does not affect products
 created with Lime._
