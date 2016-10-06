@@ -11,7 +11,7 @@ import lime.utils.Log;
 /*@:generic*/ class Future<T> {
 	
 	
-	public var error:Dynamic;
+	public var error (default, null):Dynamic;
 	public var isComplete (default, null):Bool;
 	public var isError (default, null):Bool;
 	public var value (default, null):T;
