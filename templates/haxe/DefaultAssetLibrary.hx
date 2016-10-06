@@ -478,7 +478,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 		} else if (path.exists (id)) {
 			
-			promise.completeWith (AudioBuffer.loadFile (path.get (id)));
+			promise.completeWith (AudioBuffer.loadFromFile (path.get (id)));
 			
 		} else {
 			

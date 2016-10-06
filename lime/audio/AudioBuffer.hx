@@ -273,7 +273,7 @@ class AudioBuffer {
 	}
 	
 	
-	public static function loadFile (path:String):lime.app.Future<AudioBuffer> {
+	public static function loadFromFile (path:String):Future<AudioBuffer> {
 		
 		var promise = new Promise<AudioBuffer> ();
 		
@@ -342,7 +342,7 @@ class AudioBuffer {
 	}
 	
 	
-	public static function loadFiles (paths:Array<String>):Future<AudioBuffer> {
+	public static function loadFromFiles (paths:Array<String>):Future<AudioBuffer> {
 		
 		var promise = new Promise<AudioBuffer> ();
 		

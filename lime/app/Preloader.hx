@@ -153,7 +153,7 @@ class Preloader #if flash extends Sprite #end {
 		
 		for (paths in soundPaths) {
 			
-			AudioBuffer.loadFiles (paths).onComplete (function (audioBuffer) {
+			AudioBuffer.loadFromFiles (paths).onComplete (function (audioBuffer) {
 				
 				for (path in paths) {
 					
