@@ -1836,7 +1836,7 @@ class ProjectXMLParser extends HXProject {
 						
 					}
 				
-				case "allow-high-dpi":
+				case "allowHighDpi":
 					
 					if (Reflect.hasField (windows[id], "allowHighDPI")) {
 						
