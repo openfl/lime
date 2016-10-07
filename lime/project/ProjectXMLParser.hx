@@ -1785,7 +1785,7 @@ class ProjectXMLParser extends HXProject {
 		
 		for (attribute in element.x.attributes ()) {
 			
-			var name = formatAttributeName (attribute);
+			var name = attribute;
 			var value = substitute (element.att.resolve (attribute));
 			
 			switch (name) {
@@ -1836,7 +1836,7 @@ class ProjectXMLParser extends HXProject {
 						
 					}
 				
-				case "allowHighDpi":
+				case "allow-high-dpi":
 					
 					if (Reflect.hasField (windows[id], "allowHighDPI")) {
 						
