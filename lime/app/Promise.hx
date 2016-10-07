@@ -2,9 +2,10 @@ package lime.app;
 
 
 @:allow(lime.app.Future)
+#if !js @:generic #end
 
 
-@:generic class Promise<T> {
+class Promise<T> {
 	
 	
 	public var future (default, null):Future<T>;
