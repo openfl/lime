@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "3.2.1",
-	"releasenote": "Fixed garbage collection across different threads",
+	"version": "3.3.0",
+	"releasenote": "Garbage collection improvement, HTML5 support for AudioSource, HTML5 favicon support",
 	"contributors": [ "singmajesty" ]
 }
