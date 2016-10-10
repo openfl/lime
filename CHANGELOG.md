@@ -1,3 +1,30 @@
+3.3.0 (10/10/2016)
+-----------------
+
+* Added Future.ready and Future.result
+* Added AudioBuffer.loadFromFile and AudioBuffer.loadFromFiles
+* Added favicon support to HTML5 builds
+* Added automatic garbage collection to OpenAL bindings
+* Improved the behavior of AudioSource, added Howler.js for HTML5
+* Improved CFFI bindings to prevent early GC of bytes
+* Improved the behavior of *.hxp project files
+* Improved support for the C# target
+* Improved <meta build-id="" /> to allow a value of 0
+* Improved support for "-lib lime" from plain HXML
+* Implemented relative mouse movement events for Flash and HTML5
+* Implemented Locale support for Android
+* Updated the behavior of "lime run" to imply "trace" (unless "-notrace")
+* Updated Android template to allow submission to non-touchscreen devices
+* Fixed support for <java path="" /> on Android
+* Fixed the value of Assets.isLocal for certain non-embedded assets
+* Fixed an issue affecting touch events after an HTML5 build was rotated
+* Fixed use of a custom HAXELIB_PATH for iOS builds (in Xcode)
+* Fixed numpad key values in HTML5
+* Fixed C++ casting when converting openfl.Vector to Float32Array
+* Fixed support for <window allow-high-dpi="true" />
+* Fixed Android compilation using debug
+
+
 3.2.1 (09/20/2016)
 ------------------
 
