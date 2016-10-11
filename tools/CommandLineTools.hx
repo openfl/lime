@@ -997,7 +997,36 @@ class CommandLineTools {
 	
 	private function getBuildNumber (project:HXProject, increment:Bool = true):Void {
 		
-		if (project.meta.buildNumber == null) {
+		var buildNumber = project.meta.buildNumber;
+		
+		if (buildNumber == null || StringTools.startsWith (buildNumber, "git")) {
+			
+			var output = ProcessHelper.runProcess ("", "git", [ "rev-list", "HEAD", "--count" ], true, true, true);
+			
+			if (output != null) {
+				
+				var value = Std.parseInt (output);
+				
+				if (value != null) {
+					
+					if (buildNumber != null && buildNumber.indexOf ("+") > -1) {
+						
+						var modifier = Std.parseInt (buildNumber.substr (buildNumber.indexOf ("+") + 1));
+						
+						if (modifier != null) {
+							
+							value += modifier;
+							
+						}
+						
+					}
+					
+					project.meta.buildNumber = Std.string (value);
+					return;
+					
+				}
+				
+			}
 			
 			var versionFile = PathHelper.combine (project.app.path, ".build");
 			var version = 1;
@@ -1039,7 +1068,6 @@ class CommandLineTools {
 				} catch (e:Dynamic) {}
 				
 			}
-			
 			
 		}
 		
