@@ -826,6 +826,12 @@ namespace lime {
 	
 	int SDLApplication::WaitEvent (SDL_Event *event) {
 		
+		#ifdef HX_MACOS
+		
+		return SDL_WaitEvent (event);
+		
+		#else
+		
 		for(;;) {
 			
 			SDL_PumpEvents ();
@@ -839,6 +845,8 @@ namespace lime {
 			}
 			
 		}
+		
+		#endif
 		
 	}
 	
