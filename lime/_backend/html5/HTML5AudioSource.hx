@@ -165,7 +165,9 @@ class HTML5AudioSource {
 		if (parent.buffer != null) {
 			
 			//if (playing) buffer.__srcHowl.play (id);
-			parent.buffer.__srcHowl.seek ((value + parent.offset) / 1000, id);
+			var pos = (value + parent.offset) / 1000;
+			if ( pos < 0 ) pos = 0;
+			parent.buffer.__srcHowl.seek (pos, id);
 			
 		}
 		
