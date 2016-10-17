@@ -3,7 +3,7 @@
 
 #include <hx/CFFI.h>
 
-#ifdef STATIC_LINK
+#if defined(STATIC_LINK) && defined(IMPLEMENT_CFFI_EXT)
 void *LoadFunc(const char *inName) { return 0; }
 #else
 extern void *LoadFunc(const char *inName);
