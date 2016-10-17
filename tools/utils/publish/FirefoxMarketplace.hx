@@ -473,7 +473,7 @@ class FirefoxMarketplace {
 		defines.set ("FIREFOX_MARKETPLACE" + (devServer ? "_DEV_" : "_") + "KEY", key);
 		defines.set ("FIREFOX_MARKETPLACE" + (devServer ? "_DEV_" : "_") + "SECRET", secret);
 		
-		PlatformSetup.writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+		PlatformSetup.writeConfig (defines.get ("LIME_CONFIG"), defines);
 		LogHelper.println ("");
 		
 	}

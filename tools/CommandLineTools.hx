@@ -984,7 +984,7 @@ class CommandLineTools {
 			
 		} else if (targetFlags.exists ("java-externs")) {
 			
-			var config = getHXCPPConfig ();
+			var config = getLimeConfig ();
 			var sourcePath = words[0];
 			var targetPath = words[1];
 			
@@ -1074,14 +1074,14 @@ class CommandLineTools {
 	}
 	
 	
-	public static function getHXCPPConfig ():HXProject {
+	public static function getLimeConfig ():HXProject {
 		
 		var environment = Sys.environment ();
 		var config = "";
 		
-		if (environment.exists ("HXCPP_CONFIG")) {
+		if (environment.exists ("LIME_CONFIG")) {
 			
-			config = environment.get ("HXCPP_CONFIG");
+			config = environment.get ("LIME_CONFIG");
 			
 		} else {
 			
@@ -1097,13 +1097,13 @@ class CommandLineTools {
 				
 			} else {
 				
-				LogHelper.warn ("HXCPP config might be missing (Environment has no \"HOME\" variable)");
+				LogHelper.warn ("Lime config might be missing (Environment has no \"HOME\" variable)");
 				
 				return null;
 				
 			}
 			
-			config = home + "/.hxcpp_config.xml";
+			config = home + "/.lime/config.xml";
 			
 			if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
 				
@@ -1111,17 +1111,57 @@ class CommandLineTools {
 				
 			}
 			
+			if (!FileSystem.exists (config)) {
+				
+				PathHelper.mkdir (Path.directory (config));
+				
+				var hxcppConfig = null;
+				
+				if (environment.exists ("HXCPP_CONFIG")) {
+					
+					hxcppConfig = environment.get ("HXCPP_CONFIG");
+					
+				} else {
+					
+					hxcppConfig = home + "/.hxcpp_config.xml";
+					
+				}
+				
+				if (FileSystem.exists (hxcppConfig)) {
+					
+					var vars = new ProjectXMLParser (hxcppConfig);
+					
+					for (key in vars.defines.keys ()) {
+						
+						if (key != key.toUpperCase ()) {
+							
+							vars.defines.remove (key);
+							
+						}
+						
+					}
+					
+					PlatformSetup.writeConfig (config, vars.defines);
+					
+				} else {
+					
+					PlatformSetup.writeConfig (config, new Map ());
+					
+				}
+				
+			}
+			
 		}
 		
 		if (FileSystem.exists (config)) {
 			
-			LogHelper.info ("", LogHelper.accentColor + "Reading HXCPP config: " + config + LogHelper.resetColor);
+			LogHelper.info ("", LogHelper.accentColor + "Reading Lime config: " + config + LogHelper.resetColor);
 			
 			return new ProjectXMLParser (config);
 			
 		} else {
 			
-			LogHelper.warn ("", "Could not read HXCPP config: " + config);
+			LogHelper.warn ("", "Could not read Lime config: " + config);
 			
 		}
 		
@@ -1253,7 +1293,7 @@ class CommandLineTools {
 			
 		}
 		
-		var config = getHXCPPConfig ();
+		var config = getLimeConfig ();
 		
 		if (config != null) {
 			

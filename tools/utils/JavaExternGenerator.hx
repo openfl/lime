@@ -154,7 +154,7 @@ class JavaExternGenerator
 				
 			} else {
 				
-				throw "Could not find Android SDK directory. Check that ANDROID_SDK is defined in .hxcpp_config.xml";
+				throw "Could not find Android SDK directory. Check that ANDROID_SDK is defined in ~/.lime/config.xml";
 				
 			}
 		}

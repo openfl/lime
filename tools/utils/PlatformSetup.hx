@@ -255,7 +255,7 @@ class PlatformSetup {
 	
 	public static function getDefines (names:Array <String> = null, descriptions:Array <String> = null, ignored:Array <String> = null):Map <String, String> {
 		
-		var config = CommandLineTools.getHXCPPConfig ();
+		var config = CommandLineTools.getLimeConfig ();
 		
 		var defines = null;
 		var env = Sys.environment ();
@@ -281,7 +281,7 @@ class PlatformSetup {
 			
 		}
 		
-		if (!defines.exists ("HXCPP_CONFIG")) {
+		if (!defines.exists ("LIME_CONFIG")) {
 			
 			var home = "";
 			
@@ -295,13 +295,13 @@ class PlatformSetup {
 				
 			} else {
 				
-				LogHelper.println ("Warning : No 'HOME' variable set - .hxcpp_config.xml might be missing.");
+				LogHelper.println ("Warning : No 'HOME' variable set - ~/.lime/config.xml might be missing.");
 				
 				return null;
 				
 			}
 			
-			defines.set ("HXCPP_CONFIG", home + "/.hxcpp_config.xml");
+			defines.set ("LIME_CONFIG", home + "/.lime/config.xml");
 			
 		}
 		
@@ -687,7 +687,7 @@ class PlatformSetup {
 			
 			setAIRSDK = true;
 			defines.set ("AIR_SDK", path);
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
 			LogHelper.println ("");
 			
 		}
@@ -712,7 +712,7 @@ class PlatformSetup {
 		
 		if (defines != null) {
 			
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
 			
 		}
 		
@@ -790,7 +790,7 @@ class PlatformSetup {
 			
 			setAndroidSDK = true;
 			defines.set ("ANDROID_SDK", path);
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
 			LogHelper.println ("");
 			
 		}
@@ -837,7 +837,7 @@ class PlatformSetup {
 			
 			setAndroidNDK = true;
 			defines.set ("ANDROID_NDK_ROOT", path);
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
 			LogHelper.println ("");
 			
 		}
@@ -917,7 +917,7 @@ class PlatformSetup {
 				
 			}
 			
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
 			
 		}
 		
@@ -961,7 +961,7 @@ class PlatformSetup {
 			
 			setAndroidNDK = true;
 			defines.set ("ANDROID_NDK_ROOT", path);
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
 			LogHelper.println ("");*/
 			
 		}
@@ -970,7 +970,7 @@ class PlatformSetup {
 		
 		if (defines != null) {
 			
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
 			
 		}
 		
@@ -1019,7 +1019,7 @@ class PlatformSetup {
 				
 				setAndroidNDK = true;
 				defines.set ("ANDROID_NDK_ROOT", path);
-				writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+				writeConfig (defines.get ("LIME_CONFIG"), defines);
 				LogHelper.println ("");*/
 				
 			}
@@ -1028,7 +1028,7 @@ class PlatformSetup {
 			
 			if (defines != null) {
 				
-				writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+				writeConfig (defines.get ("LIME_CONFIG"), defines);
 				
 			}
 			
@@ -1239,7 +1239,7 @@ class PlatformSetup {
 					var deviceIDs = [];
 					var defines = getDefines ();
 					
-					var config = CommandLineTools.getHXCPPConfig ();
+					var config = CommandLineTools.getLimeConfig ();
 					
 					BlackBerryHelper.initialize (config);
 					var token = BlackBerryHelper.processDebugToken (config);
@@ -1311,7 +1311,7 @@ class PlatformSetup {
 					
 					var defines = getDefines ();
 					defines.set ("BLACKBERRY_DEBUG_TOKEN", debugTokenPath);
-					writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+					writeConfig (defines.get ("LIME_CONFIG"), defines);
 					
 				}
 				
@@ -1337,7 +1337,7 @@ class PlatformSetup {
 				if (defines != null) {
 					
 					defines.set ("BLACKBERRY_SETUP", "true");
-					writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+					writeConfig (defines.get ("LIME_CONFIG"), defines);
 					
 				}
 				
@@ -1391,7 +1391,7 @@ class PlatformSetup {
 			
 			if (defines != null) {
 				
-				writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+				writeConfig (defines.get ("LIME_CONFIG"), defines);
 				
 			}
 			
@@ -1399,7 +1399,7 @@ class PlatformSetup {
 		
 		var defines = getDefines ();
 		defines.set ("BLACKBERRY_SETUP", "true");
-		writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+		writeConfig (defines.get ("LIME_CONFIG"), defines);
 		
 	}
 	
@@ -1425,7 +1425,7 @@ class PlatformSetup {
 		
 		if (defines != null) {
 			
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
 			
 		}
 		
@@ -1571,7 +1571,7 @@ class PlatformSetup {
 			
 			setApacheCordova = true;
 			defines.set ("CORDOVA_PATH", path);
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
 			LogHelper.println ("");
 			
 		}
@@ -1602,7 +1602,7 @@ class PlatformSetup {
 		ProcessHelper.runCommand (defines.get ("CORDOVA_PATH") + "/lib/ios", "make", [ "install" ], true, true);
 		Sys.println ("Done.");*/
 		
-		writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+		writeConfig (defines.get ("LIME_CONFIG"), defines);
 		
 		ProcessHelper.runCommand ("", "haxelib", [ "install", "cordova" ], true, true);
 		
@@ -1679,7 +1679,7 @@ class PlatformSetup {
 			
 			var defines = getDefines ();
 			defines.set ("MAC_USE_CURRENT_SDK", "1");
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
 			
 		}
 		
@@ -1879,7 +1879,7 @@ class PlatformSetup {
 			
 			var defines = getDefines ();
 			defines.set ("MAC_USE_CURRENT_SDK", "1");
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
 			
 		}
 		
@@ -1907,7 +1907,7 @@ class PlatformSetup {
 		
 		if (defines != null) {
 			
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
 			
 		}
 		
@@ -2119,7 +2119,7 @@ class PlatformSetup {
 	}
 	
 	
-	public static function writeConfig (path:String, defines:Map <String, String>):Void {
+	public static function writeConfig (path:String, defines:Map <String, Dynamic>):Void {
 		
 		var newContent = "";
 		var definesText = "";
@@ -2127,9 +2127,9 @@ class PlatformSetup {
 		
 		for (key in defines.keys ()) {
 			
-			if (key != "HXCPP_CONFIG" && (!env.exists (key) || env.get (key) != defines.get (key))) {
+			if (key != "LIME_CONFIG" && key != "LIME_CONFIG" && (!env.exists (key) || env.get (key) != defines.get (key))) {
 				
-				definesText += "		<set name=\"" + key + "\" value=\"" + stripQuotes (defines.get (key)) + "\" />\n";
+				definesText += "\t\t<set name=\"" + key + "\" value=\"" + stripQuotes (Std.string (defines.get (key))) + "\" />\n";
 				
 			}
 			
@@ -2152,7 +2152,7 @@ class PlatformSetup {
 				} catch (e:Dynamic) { }
 				
 				backedUpConfig = true;
-			
+				
 			}
 			
 			#if (haxe_ver > 3.102)
@@ -2161,25 +2161,36 @@ class PlatformSetup {
 			var content = bytes.readString (0, bytes.length);
 			#end
 			
-			var startIndex = content.indexOf ("<section id=\"vars\">");
+			var startIndex = content.indexOf ("<section id=\"defines\">");
 			var endIndex = content.indexOf ("</section>", startIndex);
 			
-			newContent += content.substr (0, startIndex) + "<section id=\"vars\">\n		\n";
+			newContent += content.substr (0, startIndex) + "<section id=\"defines\">\n\t\t\n";
 			newContent += definesText;
-			newContent += "		\n	" + content.substr (endIndex);
+			newContent += "\t\t\n\t" + content.substr (endIndex);
 			
 		} else {
 			
-			newContent += "<xml>\n\n";
-			newContent += "	<section id=\"vars\">\n\n";
+			newContent += "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
+			newContent += "<config>\n\t\n";
+			newContent += "\t<section id=\"defines\">\n\t\t\n";
 			newContent += definesText;
-			newContent += "	</section>\n\n</xml>";
+			newContent += "\t\t\n\t</section>\n\t\n</config>";
 			
 		}
 		
 		var output = File.write (path, false);
 		output.writeString (newContent);
 		output.close ();
+		
+		if (backedUpConfig) {
+			
+			try {
+				
+				FileSystem.deleteFile (path + ".bak");
+				
+			} catch (e:Dynamic) {}
+			
+		}
 		
 	}
 	
