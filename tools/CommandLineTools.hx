@@ -765,13 +765,13 @@ class CommandLineTools {
 		
 		if (words.length == 0) {
 			
-			LogHelper.print (File.getContent (Sys.getEnv ("LIME_CONFIG")));
+			LogHelper.println (File.getContent (Sys.getEnv ("LIME_CONFIG")));
 			
 		} else {
 			
 			if (config.defines.exists (words[0])) {
 				
-				LogHelper.print (config.defines.get (words[0]));
+				LogHelper.println (config.defines.get (words[0]));
 				
 			} else {
 				
