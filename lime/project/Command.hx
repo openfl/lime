@@ -5,6 +5,7 @@ enum Command {
 	
 	BUILD;
 	CLEAN;
+	CONFIG;
 	DEPLOY;
 	DISPLAY;
 	UPDATE;

@@ -89,6 +89,10 @@ class CommandLineTools {
 				
 				displayHelp ();
 			
+			case "config":
+				
+				displayConfig ();
+			
 			case "setup":
 				
 				platformSetup ();
@@ -755,6 +759,31 @@ class CommandLineTools {
 	}
 	
 	
+	private function displayConfig ():Void {
+		
+		var config = getLimeConfig ();
+		
+		if (words.length == 0) {
+			
+			LogHelper.print (File.getContent (Sys.getEnv ("LIME_CONFIG")));
+			
+		} else {
+			
+			if (config.defines.exists (words[0])) {
+				
+				LogHelper.print (config.defines.get (words[0]));
+				
+			} else {
+				
+				LogHelper.error ("\"" + words[0] + "\" is undefined");
+				
+			}
+			
+		}
+		
+	}
+	
+	
 	private function displayHelp ():Void {
 		
 		displayInfo ();
@@ -1150,6 +1179,8 @@ class CommandLineTools {
 				}
 				
 			}
+			
+			Sys.putEnv ("LIME_CONFIG", config);
 			
 		}
 		
