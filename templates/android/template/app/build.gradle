@@ -48,6 +48,16 @@ android {
 			signingConfig signingConfigs.release
 		}
 	}
+	
+	android.applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            def outputFile = output.outputFile
+			
+            if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                output.outputFile = new File(outputFile.parent, "::APP_FILE::-" + variant.buildType.name + ".apk")
+            }
+        }
+    }
 }
 
 dependencies {
