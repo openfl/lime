@@ -278,7 +278,7 @@ class IOSHelper {
 			waitForDeviceState ("xcrun", [ "simctl", "install", currentDeviceID, applicationPath ]);			
 			waitForDeviceState ("xcrun", [ "simctl", "launch", currentDeviceID, project.meta.packageName ]);
 						
-			ProcessHelper.runCommand ("", "tail", [ "-f", "~/Library/Logs/CoreSimulator/" + currentDeviceID + "/system.log"]);
+			ProcessHelper.runCommand ("", "tail", [ "-F", "~/Library/Logs/CoreSimulator/" + currentDeviceID + "/system.log"]);
 			
 		} else {
 			
