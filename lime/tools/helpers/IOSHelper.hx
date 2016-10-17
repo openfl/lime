@@ -300,7 +300,7 @@ class IOSHelper {
 			
 			var xcodeVersion = getXcodeVersion ();
 			
-			ProcessHelper.runCommand ("", launcher, [ "install", "--noninteractive", "--debug", "--timeout", "5", "--bundle", FileSystem.fullPath (applicationPath) ]);
+			ProcessHelper.runCommand ("", launcher, [ "install", "--noninteractive", "--debug", "--bundle", FileSystem.fullPath (applicationPath) ]);
 			
 		}
 		
