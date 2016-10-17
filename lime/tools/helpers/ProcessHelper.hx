@@ -284,7 +284,7 @@ class ProcessHelper {
 					
 				}
 				
-				return _runProcess (path, command, args, waitForOutput, ignoreErrors);
+				return _runProcess (path, command, args, waitForOutput, safeExecute, ignoreErrors);
 				
 			} catch (e:Dynamic) {
 				
@@ -300,14 +300,14 @@ class ProcessHelper {
 			
 		} else {
 			
-			return _runProcess (path, command, args, waitForOutput, ignoreErrors);
+			return _runProcess (path, command, args, waitForOutput, safeExecute, ignoreErrors);
 			
 		}
 		
 	}
 	
 	
-	private static function _runProcess (path:String, command:String, args:Array<String>, waitForOutput:Bool, ignoreErrors:Bool):String {
+	private static function _runProcess (path:String, command:String, args:Array<String>, waitForOutput:Bool, safeExecute:Bool, ignoreErrors:Bool):String {
 		
 		var oldPath:String = "";
 		
@@ -389,6 +389,10 @@ class ProcessHelper {
 						if (ignoreErrors) {
 							
 							output = error;
+							
+						} else if (!safeExecute) {
+							
+							throw error;
 							
 						} else {
 							

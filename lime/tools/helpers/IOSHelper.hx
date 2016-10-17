@@ -263,26 +263,21 @@ class IOSHelper {
 				
 			}
 			
-			ProcessHelper.runCommand ("", "open", [ "-a", "Simulator", "--args", "-CurrentDeviceUDID", currentDeviceID ], true, true);
-			ProcessHelper.runCommand ("", "open", [ "-a", "iOS Simulator", "--args", "-CurrentDeviceUDID", currentDeviceID ], true, true);
-			
-			while (true) {
+			try {
 				
-				output = ProcessHelper.runProcess ("", "xcrun", [ "simctl", "install", currentDeviceID, applicationPath ], true, true, true);
+				ProcessHelper.runProcess ("", "open", [ "-Ra", "iOS Simulator" ], true, false);
+				ProcessHelper.runCommand ("", "open", [ "-a", "iOS Simulator", "--args", "-CurrentDeviceUDID", currentDeviceID ]);
 				
-				if (output != null && output.toLowerCase ().indexOf ("invalid device state") > -1) {
-					
-					Sys.sleep (3);
-					
-				} else {
-					
-					break;
-					
-				}
+			} catch (e:Dynamic) {
+				
+				ProcessHelper.runCommand ("", "open", [ "-a", "Simulator", "--args", "-CurrentDeviceUDID", currentDeviceID ]);
 				
 			}
 			
-			ProcessHelper.runProcess ("", "xcrun", [ "simctl", "launch", currentDeviceID, project.meta.packageName ]);
+			waitForDeviceState ("xcrun", [ "simctl", "uninstall", currentDeviceID, project.meta.packageName ]);
+			waitForDeviceState ("xcrun", [ "simctl", "install", currentDeviceID, applicationPath ]);			
+			waitForDeviceState ("xcrun", [ "simctl", "launch", currentDeviceID, project.meta.packageName ]);
+						
 			ProcessHelper.runCommand ("", "tail", [ "-f", "~/Library/Logs/CoreSimulator/" + currentDeviceID + "/system.log"]);
 			
 		} else {
@@ -345,6 +340,29 @@ class IOSHelper {
 		commands.push (applicationPath);
 		
 		ProcessHelper.runCommand (workingDirectory, "codesign", commands, true, true);
+		
+	}
+	
+	
+	private static function waitForDeviceState (command:String, args:Array<String>):Void {
+		
+		var output;
+		
+		while (true) {
+			
+			output = ProcessHelper.runProcess ("", command, args, true, true, true);
+			
+			if (output != null && output.toLowerCase ().indexOf ("invalid device state") > -1) {
+				
+				Sys.sleep (3);
+				
+			} else {
+				
+				break;
+				
+			}
+			
+		}
 		
 	}
 	
