@@ -1030,7 +1030,12 @@ class CommandLineTools {
 		
 		if (buildNumber == null || StringTools.startsWith (buildNumber, "git")) {
 			
+			var cache = LogHelper.mute;
+			LogHelper.mute = true;
+			
 			var output = ProcessHelper.runProcess ("", "git", [ "rev-list", "HEAD", "--count" ], true, true, true);
+			
+			LogHelper.mute = cache;
 			
 			if (output != null) {
 				

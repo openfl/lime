@@ -974,6 +974,8 @@ class HXProject {
 						var font = Font.fromFile (asset.sourcePath);
 						embeddedAsset.fontName = font.name;
 						
+						LogHelper.info ("", " - \x1b[1mDetecting font name:\x1b[0m " + asset.sourcePath + " \x1b[3;37m->\x1b[0m \"" + font.name + "\"");
+						
 					} catch (e:Dynamic) {}
 					
 				}
