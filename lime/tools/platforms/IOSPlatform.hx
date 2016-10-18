@@ -124,6 +124,9 @@ class IOSPlatform extends PlatformTarget {
 			
 		}
 		
+		IOSHelper.getIOSVersion (project);
+		project.haxedefs.set ("IPHONE_VER", project.environment.get ("IPHONE_VER"));
+		
 		var context = project.templateContext;
 		
 		context.HAS_ICON = false;
@@ -363,6 +366,15 @@ class IOSPlatform extends PlatformTarget {
 				command.push ("-DOBJC_ARC");
 				
 			}
+			
+		}
+		
+		IOSHelper.getIOSVersion (project);
+		var iphoneVer = project.environment.get ("IPHONE_VER");
+		
+		for (command in commands) {
+			
+			command.push ("-DIPHONE_VER=" + iphoneVer);
 			
 		}
 		

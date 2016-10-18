@@ -85,33 +85,52 @@ class IOSHelper {
 	}
 	
 	
-	private static function getIOSVersion (project:HXProject):Void {
+	public static function getIOSVersion (project:HXProject):Void {
 		
-		if (!project.environment.exists("IPHONE_VER")) {
-			if (!project.environment.exists("DEVELOPER_DIR")) {
-				var proc = new Process("xcode-select", ["--print-path"]);
-				var developer_dir = proc.stdout.readLine();
-				proc.close();
-				project.environment.set("DEVELOPER_DIR", developer_dir);
-			}
-			var dev_path = project.environment.get("DEVELOPER_DIR") + "/Platforms/iPhoneOS.platform/Developer/SDKs";
+		if (!project.environment.exists ("IPHONE_VER") || project.environment.get ("IPHONE_VER") == "4.2") {
 			
-			if (FileSystem.exists (dev_path)) {
-				var best = "";
-				var files = FileSystem.readDirectory (dev_path);
-				var extract_version = ~/^iPhoneOS(.*).sdk$/;
+			if (!project.environment.exists("DEVELOPER_DIR")) {
+				
+				var process = new Process ("xcode-select", [ "--print-path" ]);
+				var developerDir = process.stdout.readLine ();
+				process.close ();
+				
+				project.environment.set ("DEVELOPER_DIR", developerDir);
+				
+			}
+			
+			var devPath = project.environment.get ("DEVELOPER_DIR") + "/Platforms/iPhoneOS.platform/Developer/SDKs";
+			
+			if (FileSystem.exists (devPath)) {
+				
+				var files = FileSystem.readDirectory (devPath);
+				var extractVersion = ~/^iPhoneOS(.*).sdk$/;
+				var best = "", version;
 				
 				for (file in files) {
-					if (extract_version.match (file)) {
-						var ver = extract_version.matched (1);
-						if (ver > best)
-							best = ver;
+					
+					if (extractVersion.match (file)) {
+						
+						version = extractVersion.matched (1);
+						
+						if (Std.parseFloat (version) > Std.parseFloat (best)) {
+							
+							best = version;
+							
+						}
+						
 					}
+					
 				}
 				
-				if (best != "")
+				if (best != "") {
+					
 					project.environment.set ("IPHONE_VER", best);
+					
+				}
+				
 			}
+			
 		}
 		
 	}
