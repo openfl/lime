@@ -55,6 +55,7 @@ class HTML5Window {
 	private var enableTextEvents:Bool;
 	private var parent:Window;
 	private var primaryTouch:Touch;
+	private var scale = 1.0;
 	private var setHeight:Int;
 	private var setWidth:Int;
 	private var unusedTouchesPool = new List<Touch> ();
@@ -69,6 +70,16 @@ class HTML5Window {
 			element = parent.config.element;
 			
 		}
+		
+		#if !dom
+		if (parent.config != null && Reflect.hasField (parent.config, "allowHighDPI") && parent.config.allowHighDPI) {
+			
+			scale = Browser.window.devicePixelRatio;
+			
+		}
+		#end
+		
+		parent.__scale = scale;
 		
 		cacheMouseX = 0;
 		cacheMouseY = 0;
@@ -161,8 +172,11 @@ class HTML5Window {
 		
 		if (canvas != null) {
 			
-			canvas.width = parent.width;
-			canvas.height = parent.height;
+			canvas.width = Math.round (parent.width * scale);
+			canvas.height = Math.round (parent.height * scale);
+			
+			canvas.style.width = parent.width + "px";
+			canvas.style.height = parent.height + "px";
 			
 		} else {
 			
@@ -388,8 +402,11 @@ class HTML5Window {
 						
 						if (element != cast canvas) {
 							
-							canvas.width = element.clientWidth;
-							canvas.height = element.clientHeight;
+							canvas.width = Math.round (element.clientWidth * scale);
+							canvas.height = Math.round (element.clientHeight * scale);
+							
+							canvas.style.width = element.clientWidth + "px";
+							canvas.style.height = element.clientHeight + "px";
 							
 						}
 						
@@ -404,7 +421,7 @@ class HTML5Window {
 				
 			} else {
 				
-				var scaleX = (setWidth  != 0) ? (element.clientWidth  / setWidth)  : 1;
+				var scaleX = (setWidth != 0) ? (element.clientWidth / setWidth) : 1;
 				var scaleY = (setHeight != 0) ? (element.clientHeight / setHeight) : 1;
 				
 				var targetWidth = element.clientWidth;

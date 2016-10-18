@@ -133,7 +133,7 @@ class HXProject {
 				
 				platformType = PlatformType.WEB;
 				architectures = [];
-				
+			
 			case HTML5, FIREFOX, EMSCRIPTEN:
 				
 				platformType = PlatformType.WEB;
@@ -143,6 +143,8 @@ class HXProject {
 				defaultWindow.height = 0;
 				defaultWindow.fps = 60;
 				
+				defaultWindow.allowHighDPI = false;
+			
 			case ANDROID, BLACKBERRY, IOS, TIZEN, WEBOS, TVOS:
 				
 				platformType = PlatformType.MOBILE;
@@ -177,7 +179,7 @@ class HXProject {
 				defaultWindow.height = 0;
 				defaultWindow.fullscreen = true;
 				defaultWindow.requireShaders = true;
-				
+			
 			case WINDOWS, MAC, LINUX:
 				
 				platformType = PlatformType.DESKTOP;
@@ -199,7 +201,7 @@ class HXProject {
 				// TODO: Better handle platform type for pluggable targets
 				
 				platformType = PlatformType.CONSOLE;
-
+				
 				defaultWindow.width = 0;
 				defaultWindow.height = 0;
 				defaultWindow.fps = 60;
