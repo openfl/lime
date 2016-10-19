@@ -182,9 +182,11 @@ class Preloader #if flash extends Sprite #end {
 			var cycles = 0;
 
 			var checkFont = function () {
-				
-				if (node.offsetWidth != width) {
-					
+
+				++cycles;
+
+				if (node.offsetWidth != width || cycles > 200 ) {
+
 					// Test font was still not available yet, try waiting one more interval?
 					if (!found) {
 						
@@ -205,27 +207,15 @@ class Preloader #if flash extends Sprite #end {
 					node = null;
 					
 					onProgress.dispatch (loaded, total);
-					
+
 					if (loaded == total) {
-						
+
 						start ();
-						
+
 					}
-					
+
 					return true;
 
-				} else {
-					++cycles;
-
-					if( cycles > 200 ){
-						if (interval != null) {
-
-							Browser.window.clearInterval (interval);
-
-						}
-
-						onError.dispatch( font );
-					}
 				}
 				
 				return false;
