@@ -30,7 +30,6 @@ namespace lime {
 		
 		unsigned char *_data;
 		int _length;
-		value _pin;
 		AutoGCRoot *_root;
 		value _value;
 		
