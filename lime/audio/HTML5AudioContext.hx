@@ -58,23 +58,6 @@ class HTML5AudioContext {
 	}
 	
 	
-	#if (haxe_ver < 3.2)
-	public function getAudioDecodedByteCount (buffer:AudioBuffer):Int {
-		
-		#if (js && html5)
-		if (buffer.__srcAudio != null) {
-			
-			return buffer.__srcAudio.audioDecodedByteCount;
-			
-		}
-		#end
-		
-		return 0;
-		
-	}
-	#end
-	
-	
 	public function getAutoplay (buffer:AudioBuffer):Bool {
 		
 		#if (js && html5)
@@ -103,23 +86,6 @@ class HTML5AudioContext {
 		return null;
 		
 	}
-	
-	
-	#if (haxe_ver < 3.2)
-	public function getController (buffer:AudioBuffer):Dynamic /*MediaController*/ {
-		
-		#if (js && html5)
-		if (buffer.__srcAudio != null) {
-			
-			return buffer.__srcAudio.controller;
-			
-		}
-		#end
-		
-		return null;
-		
-	}
-	#end
 	
 	
 	public function getCurrentSrc (buffer:AudioBuffer):String {
@@ -212,23 +178,6 @@ class HTML5AudioContext {
 	}
 	
 	
-	#if (haxe_ver < 3.2)
-	public function getInitialTime (buffer:AudioBuffer):Float {
-		
-		#if (js && html5)
-		if (buffer.__srcAudio != null) {
-			
-			return buffer.__srcAudio.initialTime;
-			
-		}
-		#end
-		
-		return 0;
-		
-	}
-	#end
-	
-	
 	public function getLoop (buffer:AudioBuffer):Bool {
 		
 		#if (js && html5)
@@ -242,23 +191,6 @@ class HTML5AudioContext {
 		return false;
 		
 	}
-	
-	
-	#if (haxe_ver < 3.2)
-	public function getMediaGroup (buffer:AudioBuffer):String {
-		
-		#if (js && html5)
-		if (buffer.__srcAudio != null) {
-			
-			return buffer.__srcAudio.mediaGroup;
-			
-		}
-		#end
-		
-		return null;
-		
-	}
-	#end
 	
 	
 	public function getMuted (buffer:AudioBuffer):Bool {
@@ -493,21 +425,6 @@ class HTML5AudioContext {
 	}
 	
 	
-	#if (haxe_ver < 3.2)
-	public function setController (buffer:AudioBuffer, value:Dynamic /*MediaController*/):Void {
-		
-		#if (js && html5)
-		if (buffer.__srcAudio != null) {
-			
-			buffer.__srcAudio.controller = value;
-			
-		}
-		#end
-		
-	}
-	#end
-	
-	
 	public function setCurrentTime (buffer:AudioBuffer, value:Float):Void {
 		
 		#if (js && html5)
@@ -545,21 +462,6 @@ class HTML5AudioContext {
 		#end
 		
 	}
-	
-	
-	#if (haxe_ver < 3.2)
-	public function setMediaGroup (buffer:AudioBuffer, value:String):Void {
-		
-		#if (js && html5)
-		if (buffer.__srcAudio != null) {
-			
-			buffer.__srcAudio.mediaGroup = value;
-			
-		}
-		#end
-		
-	}
-	#end
 	
 	
 	public function setMuted (buffer:AudioBuffer, value:Bool):Void {

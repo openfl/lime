@@ -2155,11 +2155,7 @@ class PlatformSetup {
 				
 			}
 			
-			#if (haxe_ver > 3.102)
 			var content = bytes.getString (0, bytes.length);
-			#else
-			var content = bytes.readString (0, bytes.length);
-			#end
 			
 			var startIndex = content.indexOf ("<section id=\"defines\">");
 			var endIndex = content.indexOf ("</section>", startIndex);

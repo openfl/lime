@@ -181,7 +181,7 @@ class CFFI {
 	
 	public static macro function loadPrime (library:String, method:String, signature:String, lazy:Bool = false):Dynamic {
 		
-		#if ((haxe_ver >= 3.2) && !display)
+		#if !display
 		return cpp.Prime.load (library, method, signature, lazy);
 		#else
 		var args = signature.length - 1;
@@ -532,8 +532,6 @@ class CFFI {
 								var cffiName = "cffi_" + field.name;
 								var cffiExpr, cffiType;
 								
-								#if (haxe_ver >= 3.2)
-								
 								if (Context.defined ("cpp")) {
 									
 									cffiExpr = 'new cpp.Callable<$typeString> (cpp.Prime._loadPrime ("$library", "$method", "$typeSignature", $lazy))';
@@ -554,21 +552,6 @@ class CFFI {
 								
 								cffiType = TPath ( { pack: [ "cpp" ], name: "Callable", params: [ TPType (TFun (type.args, type.result).toComplexType ()) ] } );
 								
-								#else
-								
-								var args = typeSignature.length - 1;
-								
-								if (args > 5) {
-									
-									args = -1;
-									
-								}
-								
-								cffiExpr = 'lime.system.CFFI.load ("$library", "$method", $args, $lazy)';
-								cffiType = TPath ( { pack: [ ], name: "Dynamic" } );
-								
-								#end
-								
 								newFields.push ( { name: cffiName, access: [ APrivate, AStatic ], kind: FieldType.FVar (cffiType, Context.parse (cffiExpr, field.pos)), pos: field.pos } );
 								
 								if (type.result.toString () != "Void" && type.result.toString () != "cpp.Void") {
@@ -577,11 +560,7 @@ class CFFI {
 									
 								}
 								
-								#if (haxe_ver >= 3.2)
 								expr += '$cffiName.call (';
-								#else
-								expr += '$cffiName (';
-								#end
 								
 								for (i in 0...type.args.length) {
 									
@@ -615,7 +594,7 @@ class CFFI {
 	
 	private static function __getFunctionType (args:Array<{ name : String, opt : Bool, t : Type }>, result:Type) {
 		
-		#if ((haxe_ver >= 3.2) && !disable_cffi && !display)
+		#if (!disable_cffi && !display)
 		var useCPPTypes = Context.defined ("cpp");
 		#else
 		var useCPPTypes = false;

@@ -4,14 +4,10 @@ package lime._backend.html5;
 import haxe.Timer;
 import js.html.CanvasElement;
 import js.html.DivElement;
-#if (haxe_ver >= 3.2)
 import js.html.Element;
 import js.html.FocusEvent;
 import js.html.InputElement;
 import js.html.InputEvent;
-#else
-import js.html.HtmlElement;
-#end
 import js.html.MouseEvent;
 import js.html.TouchEvent;
 import js.Browser;
@@ -24,11 +20,6 @@ import lime.ui.Joystick;
 import lime.ui.Touch;
 import lime.ui.Window;
 
-#if (haxe_ver < 3.2)
-typedef FocusEvent = js.html.Event;
-typedef InputElement = Dynamic;
-typedef InputEvent = js.html.Event;
-#end
 
 @:access(lime.app.Application)
 @:access(lime.ui.Gamepad)
@@ -44,7 +35,7 @@ class HTML5Window {
 	
 	public var canvas:CanvasElement;
 	public var div:DivElement;
-	public var element:#if (haxe_ver >= 3.2) Element #else HtmlElement #end;
+	public var element:Element;
 	#if stats
 	public var stats:Dynamic;
 	#end
@@ -91,11 +82,7 @@ class HTML5Window {
 		
 		if (message != null) {
 			
-			#if (haxe_ver >= 3.2)
 			Browser.alert (message);
-			#else
-			js.Lib.alert (message);
-			#end
 			
 		}
 		

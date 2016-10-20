@@ -47,11 +47,7 @@ package lime.utils;
         }
 
         inline public function toBytes() : haxe.io.Bytes {
-            #if (haxe_ver < 3.2)
-                return @:privateAccess new haxe.io.Bytes( this.byteLength, cast new js.html.Uint8Array(this.buffer) );
-            #else
-                return @:privateAccess new haxe.io.Bytes( cast new js.html.Uint8Array(this.buffer) );
-            #end
+            return @:privateAccess new haxe.io.Bytes( cast new js.html.Uint8Array(this.buffer) );
         }
 
         inline function toString() return this != null ? 'UInt8Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
