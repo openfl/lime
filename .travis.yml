@@ -12,6 +12,11 @@ addons:
     - libglu1-mesa-dev
     - libgc-dev
     - libgtk-3-dev
+    
+haxe:
+  - 3.2.0
+  - 3.2.1
+  - development
 
 before_install:
   - "export DISPLAY=:99.0"
