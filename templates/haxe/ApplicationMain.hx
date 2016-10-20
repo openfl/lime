@@ -14,6 +14,53 @@ class ApplicationMain {
 	private static var app:lime.app.Application;
 	
 	
+	public static function main () {
+		
+		config = {
+			
+			build: "::meta.buildNumber::",
+			company: "::meta.company::",
+			file: "::APP_FILE::",
+			fps: ::WIN_FPS::,
+			name: "::meta.title::",
+			orientation: "::WIN_ORIENTATION::",
+			packageName: "::meta.packageName::",
+			version: "::meta.version::",
+			windows: [
+				::foreach windows::
+				{
+					allowHighDPI: ::allowHighDPI::,
+					antialiasing: ::antialiasing::,
+					background: ::background::,
+					borderless: ::borderless::,
+					depthBuffer: ::depthBuffer::,
+					display: ::display::,
+					fullscreen: ::fullscreen::,
+					hardware: ::hardware::,
+					height: ::height::,
+					hidden: #if munit true #else ::hidden:: #end,
+					maximized: ::maximized::,
+					minimized: ::minimized::,
+					parameters: "::parameters::",
+					resizable: ::resizable::,
+					stencilBuffer: ::stencilBuffer::,
+					title: "::title::",
+					vsync: ::vsync::,
+					width: ::width::,
+					x: ::x::,
+					y: ::y::
+				},::end::
+			]
+			
+		};
+		
+		#if (!html5 || munit)
+		create ();
+		#end
+		
+	}
+	
+	
 	public static function create ():Void {
 		
 		preloader = new ::if (PRELOADER_NAME != "")::::PRELOADER_NAME::::else::lime.app.Preloader::end:: ();
@@ -62,51 +109,66 @@ class ApplicationMain {
 	}
 	
 	
-	public static function main () {
+	#if (js && html5)
+	@:keep @:expose("lime.embed")
+	public static function embed (element:Dynamic, width:Null<Int> = null, height:Null<Int> = null, background:String = null, assetsPrefix:String = null) {
 		
-		config = {
-			
-			build: "::meta.buildNumber::",
-			company: "::meta.company::",
-			file: "::APP_FILE::",
-			fps: ::WIN_FPS::,
-			name: "::meta.title::",
-			orientation: "::WIN_ORIENTATION::",
-			packageName: "::meta.packageName::",
-			version: "::meta.version::",
-			windows: [
-				::foreach windows::
-				{
-					allowHighDPI: ::allowHighDPI::,
-					antialiasing: ::antialiasing::,
-					background: ::background::,
-					borderless: ::borderless::,
-					depthBuffer: ::depthBuffer::,
-					display: ::display::,
-					fullscreen: ::fullscreen::,
-					hardware: ::hardware::,
-					height: ::height::,
-					hidden: #if munit true #else ::hidden:: #end,
-					maximized: ::maximized::,
-					minimized: ::minimized::,
-					parameters: "::parameters::",
-					resizable: ::resizable::,
-					stencilBuffer: ::stencilBuffer::,
-					title: "::title::",
-					vsync: ::vsync::,
-					width: ::width::,
-					x: ::x::,
-					y: ::y::
-				},::end::
-			]
-			
-		};
+		var htmlElement:js.html.Element = null;
 		
-		#if (!html5 || munit)
+		if (Std.is (element, String)) {
+			
+			htmlElement = cast js.Browser.document.getElementById (cast (element, String));
+			
+		} else if (element == null) {
+			
+			htmlElement = cast js.Browser.document.createElement ("div");
+			
+		} else {
+			
+			htmlElement = cast element;
+			
+		}
+		
+		var color = null;
+		
+		if (background != null && background != "") {
+			
+			background = StringTools.replace (background, "#", "");
+			
+			if (background.indexOf ("0x") > -1) {
+				
+				color = Std.parseInt (background);
+				
+			} else {
+				
+				color = Std.parseInt ("0x" + background);
+				
+			}
+			
+		}
+		
+		if (width == null) {
+			
+			width = 0;
+			
+		}
+		
+		if (height == null) {
+			
+			height = 0;
+			
+		}
+		
+		config.windows[0].background = color;
+		config.windows[0].element = htmlElement;
+		config.windows[0].width = width;
+		config.windows[0].height = height;
+		config.assetsPrefix = assetsPrefix;
+		
 		create ();
-		#end
 		
 	}
+	#end
 	
 	
 	public static function start ():Void {

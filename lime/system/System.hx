@@ -10,7 +10,6 @@ import flash.Lib;
 #end
 
 #if (js && html5)
-import js.html.Element;
 import js.Browser;
 #end
 
@@ -41,69 +40,6 @@ class System {
 	public static var userDirectory (get, null):String;
 	
 	@:noCompletion private static var __directories = new Map<SystemDirectory, String> ();
-	
-	
-	#if (js && html5)
-	@:keep @:expose("lime.embed")
-	public static function embed (element:Dynamic, width:Null<Int> = null, height:Null<Int> = null, background:String = null, assetsPrefix:String = null) {
-		
-		var htmlElement:Element = null;
-		
-		if (Std.is (element, String)) {
-			
-			htmlElement = cast Browser.document.getElementById (cast (element, String));
-			
-		} else if (element == null) {
-			
-			htmlElement = cast Browser.document.createElement ("div");
-			
-		} else {
-			
-			htmlElement = cast element;
-			
-		}
-		
-		var color = null;
-		
-		if (background != null && background != "") {
-			
-			background = StringTools.replace (background, "#", "");
-			
-			if (background.indexOf ("0x") > -1) {
-				
-				color = Std.parseInt (background);
-				
-			} else {
-				
-				color = Std.parseInt ("0x" + background);
-				
-			}
-			
-		}
-		
-		if (width == null) {
-			
-			width = 0;
-			
-		}
-		
-		if (height == null) {
-			
-			height = 0;
-			
-		}
-		
-		#if tools
-		ApplicationMain.config.windows[0].background = color;
-		ApplicationMain.config.windows[0].element = htmlElement;
-		ApplicationMain.config.windows[0].width = width;
-		ApplicationMain.config.windows[0].height = height;
-		ApplicationMain.config.assetsPrefix = assetsPrefix;
-		ApplicationMain.create ();
-		#end
-		
-	}
-	#end
 	
 	
 	public static function exit (code:Int):Void {
