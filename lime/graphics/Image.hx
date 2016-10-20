@@ -1157,15 +1157,11 @@ class Image {
 		#elseif (lime_cffi && !macro)
 			
 			var imageBuffer:ImageBuffer = null;
+			var data = lime_image_load (bytes);
 			
-			#if !cs
-			imageBuffer = lime_image_load (bytes, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
-			#else
-			var data = lime_image_load (bytes, null);
 			if (data != null) {
 				imageBuffer = new ImageBuffer (new UInt8Array (@:privateAccess new Bytes (data.data.buffer.length, data.data.buffer.b)), data.width, data.height, data.bitsPerPixel);
 			}
-			#end
 			
 			if (imageBuffer != null) {
 				
@@ -1285,14 +1281,10 @@ class Image {
 			#else
 			if (CFFI.enabled) {
 				
-				#if !cs
-				buffer = lime_image_load (path, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
-				#else
-				var data = lime_image_load (path, null);
+				var data = lime_image_load (path);
 				if (data != null) {
 					buffer = new ImageBuffer (new UInt8Array (@:privateAccess new Bytes (data.data.buffer.length, data.data.buffer.b)), data.width, data.height, data.bitsPerPixel);
 				}
-				#end
 				
 			}
 			#end
@@ -1635,7 +1627,7 @@ class Image {
 	
 	
 	#if (lime_cffi && !macro)
-	@:cffi private static function lime_image_load (data:Dynamic, buffer:Dynamic):Dynamic;
+	@:cffi private static function lime_image_load (data:Dynamic):Dynamic;
 	#end
 	
 	

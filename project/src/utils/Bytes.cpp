@@ -39,7 +39,6 @@ namespace lime {
 		
 		_data = 0;
 		_length = 0;
-		_root = 0;
 		_value = 0;
 		
 	}
@@ -51,7 +50,6 @@ namespace lime {
 		
 		_data = 0;
 		_length = 0;
-		_root = 0;
 		_value = 0;
 		
 		Resize (size);
@@ -65,7 +63,6 @@ namespace lime {
 		
 		_data = 0;
 		_length = 0;
-		_root = 0;
 		_value = 0;
 		
 		Set (bytes);
@@ -79,7 +76,6 @@ namespace lime {
 		
 		_data = 0;
 		_length = 0;
-		_root = 0;
 		_value = 0;
 		
 		ReadFile (path);
@@ -93,7 +89,6 @@ namespace lime {
 		
 		_data = 0;
 		_length = 0;
-		_root = 0;
 		_value = 0;
 		
 		Set (data);
@@ -103,11 +98,14 @@ namespace lime {
 	
 	Bytes::~Bytes () {
 		
-		if (_root) {
-			
-			delete _root;
-			
-		}
+	}
+	
+	
+	void Bytes::Clear () {
+		
+		_data = 0;
+		_length = 0;
+		_value = 0;
 		
 	}
 	
@@ -166,7 +164,6 @@ namespace lime {
 			if (!_value) {
 				
 				_value = alloc_empty_object ();
-				_root = new AutoGCRoot (_value);
 				
 			}
 			
@@ -225,28 +222,9 @@ namespace lime {
 			_data = 0;
 			_value = 0;
 			
-			if (_root) {
-				
-				delete _root;
-				
-			}
-			
-			_root = 0;
-			
 		} else {
 			
 			_value = bytes;
-			
-			if (!_root) {
-				
-				_root = new AutoGCRoot (_value);
-				
-			} else {
-				
-				_root->set (_value);
-				
-			}
-			
 			_length = val_int (val_field (bytes, id_length));
 			
 			if (_length > 0) {
@@ -287,14 +265,6 @@ namespace lime {
 			
 			_data = 0;
 			_length = 0;
-			
-			if (_root) {
-				
-				delete _root;
-				
-			}
-			
-			_root = 0;
 			
 		}
 		

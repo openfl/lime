@@ -21,11 +21,12 @@ namespace lime {
 			
 			void Blit (const unsigned char *data, int x, int y, int width, int height);
 			void Resize (int width, int height, int bitsPerPixel = 32);
+			void Set (value imageBuffer);
 			int Stride ();
 			value Value ();
 			
 			int bitsPerPixel;
-			ArrayBufferView *data;
+			ArrayBufferView data;
 			PixelFormat format;
 			int height;
 			bool premultiplied;

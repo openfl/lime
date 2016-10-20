@@ -43,7 +43,7 @@ namespace lime {
 			int bitsPerSample;
 			int channels;
 			int sampleRate;
-			ArrayBufferView *data;
+			ArrayBufferView data;
 			
 		private:
 			
