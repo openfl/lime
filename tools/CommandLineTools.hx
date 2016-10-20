@@ -1513,6 +1513,7 @@ class CommandLineTools {
 					
 				} else {
 					
+					project.targetFlags.set (key, projectDefines.get (key));
 					targetFlags.set (key, projectDefines.get (key));
 					
 				}
