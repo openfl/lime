@@ -16,6 +16,8 @@ class ApplicationMain {
 	
 	public static function main () {
 		
+		lime.Assets.registerLibrary ("default", new DefaultAssetLibrary ());
+		
 		config = {
 			
 			build: "::meta.buildNumber::",

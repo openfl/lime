@@ -436,7 +436,7 @@ class Assets {
 			
 			#if (tools && !display)
 			
-			registerLibrary ("default", new DefaultAssetLibrary ());
+			//registerLibrary ("default", new DefaultAssetLibrary ());
 			
 			#end
 			
