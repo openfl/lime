@@ -9,6 +9,7 @@ import lime.tools.helpers.FileHelper;
 import lime.tools.helpers.HTML5Helper;
 import lime.tools.helpers.IconHelper;
 import lime.tools.helpers.LogHelper;
+import lime.tools.helpers.ModuleHelper;
 import lime.tools.helpers.PathHelper;
 import lime.tools.helpers.ProcessHelper;
 import lime.project.AssetType;
@@ -35,6 +36,8 @@ class HTML5Platform extends PlatformTarget {
 	
 	
 	public override function build ():Void {
+		
+		ModuleHelper.buildModules (project, targetDirectory + "/obj", targetDirectory + "/bin");
 		
 		if (project.app.main != null) {
 			
@@ -168,6 +171,8 @@ class HTML5Platform extends PlatformTarget {
 			project.haxedefs.set ("verbose", 1);
 			
 		}
+		
+		ModuleHelper.updateProject (project);
 		
 		var context = project.templateContext;
 		

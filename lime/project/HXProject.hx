@@ -49,6 +49,7 @@ class HXProject {
 	public var libraries:Array <Library>;
 	public var libraryHandlers:Map <String, String>;
 	public var meta:MetaData;
+	public var modules:Map<String, ModuleData>;
 	public var ndlls:Array <NDLL>;
 	public var platformType:PlatformType;
 	public var postBuildCallbacks:Array <CLICommand>;
@@ -234,6 +235,7 @@ class HXProject {
 		javaPaths = new Array <String> ();
 		libraries = new Array <Library> ();
 		libraryHandlers = new Map <String, String> ();
+		modules = new Map<String, ModuleData> ();
 		ndlls = new Array <NDLL> ();
 		postBuildCallbacks = new Array <CLICommand> ();
 		preBuildCallbacks = new Array <CLICommand> ();
@@ -325,6 +327,12 @@ class HXProject {
 		
 		ObjectHelper.copyFields (meta, project.meta);
 		
+		for (key in modules.keys ()) {
+			
+			project.modules.set (key, modules.get (key).clone ());
+			
+		}
+		
 		for (ndll in ndlls) {
 			
 			project.ndlls.push (ndll.clone ());
@@ -370,7 +378,7 @@ class HXProject {
 	}
 	
 	
-	private function filter (text:String, include:Array <String> = null, exclude:Array <String> = null):Bool {
+	private function filter (text:String, include:Array<String> = null, exclude:Array<String> = null):Bool {
 		
 		if (include == null) {
 			
@@ -744,6 +752,21 @@ class HXProject {
 			icons = ArrayHelper.concatUnique (icons, project.icons);
 			javaPaths = ArrayHelper.concatUnique (javaPaths, project.javaPaths, true);
 			libraries = ArrayHelper.concatUnique (libraries, project.libraries, true);
+			
+			for (key in project.modules.keys ()) {
+				
+				if (modules.exists (key)) {
+					
+					modules.get (key).merge (project.modules.get (key));
+					
+				} else {
+					
+					modules.set (key, project.modules.get (key));
+					
+				}
+				
+			}
+			
 			ndlls = ArrayHelper.concatUnique (ndlls, project.ndlls);
 			postBuildCallbacks = postBuildCallbacks.concat (project.postBuildCallbacks);
 			preBuildCallbacks = preBuildCallbacks.concat (project.preBuildCallbacks);

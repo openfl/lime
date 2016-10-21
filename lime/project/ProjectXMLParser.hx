@@ -133,6 +133,10 @@ class ProjectXMLParser extends HXProject {
 			
 			defines.set ("debug", "1");
 			
+		} else if (targetFlags.exists ("final")) {
+			
+			defines.set ("final", "1");
+			
 		} else {
 			
 			defines.set ("release", "1");
@@ -754,6 +758,191 @@ class ProjectXMLParser extends HXProject {
 	}
 	
 	
+	private function parseModuleElement (element:Fast, basePath:String = "", moduleData:ModuleData = null):Void {
+		
+		var topLevel = (moduleData == null);
+		
+		var exclude = "";
+		var include = "*";
+		
+		if (element.has.include) {
+			
+			include = substitute (element.att.include);
+			
+		}
+		
+		if (element.has.exclude) {
+			
+			exclude = substitute (element.att.exclude);
+			
+		}
+		
+		if (moduleData == null) {
+			
+			var name = substitute (element.att.name);
+			
+			if (modules.exists (name)) {
+				
+				moduleData = modules.get (name);
+				
+			} else {
+				
+				moduleData = new ModuleData (name);
+				modules.set (name, moduleData);
+				
+			}
+			
+		}
+		
+		switch (element.name) {
+			
+			case "module":
+				
+				if (element.has.source) {
+					
+					var source = PathHelper.combine (basePath, substitute (element.att.source));
+					
+					if (!FileSystem.exists (source)) {
+						
+						LogHelper.error ("Could not find module source \"" + source + "\"");
+						return;
+						
+					}
+					
+					moduleData.haxeflags.push ("-cp " + source);
+					
+					var path = source;
+					
+					if (element.has.resolve ("package")) {
+						
+						path = PathHelper.combine (source, StringTools.replace (substitute (element.att.resolve ("package")), ".", "/"));
+						
+					}
+					
+					parseModuleElementSource (source, moduleData, include.split ("|"), exclude.split ("|"), path);
+					
+				}
+			
+			case "source":
+				
+				if (element.has.path) {
+					
+					var source = PathHelper.combine (basePath, substitute (element.att.path));
+					
+					if (!FileSystem.exists (source)) {
+						
+						LogHelper.error ("Could not find module source \"" + source + "\"");
+						return;
+						
+					}
+					
+					moduleData.haxeflags.push ("-cp " + source);
+					
+					var path = source;
+					
+					if (element.has.resolve ("package")) {
+						
+						path = PathHelper.combine (source, StringTools.replace (substitute (element.att.resolve ("package")), ".", "/"));
+						
+					}
+					
+					parseModuleElementSource (source, moduleData, include.split ("|"), exclude.split ("|"), path);
+					
+				}
+			
+			case "class":
+				
+				moduleData.classNames.push (substitute (element.att.name));
+			
+			case "haxedef":
+				
+				var value = substitute (element.att.name);
+				
+				if (element.has.value) {
+					
+					value += "=" + substitute (element.att.value);
+					
+				}
+				
+				moduleData.haxeflags.push ("-D " + value);
+			
+			case "haxeflag":
+				
+				var flag = substitute (element.att.name);
+				
+				if (element.has.value) {
+					
+					flag += " " + substitute (element.att.value);
+					
+				}
+				
+				moduleData.haxeflags.push (substitute (flag));
+			
+			case "include":
+				
+				moduleData.includeTypes.push (substitute (element.att.type));
+			
+			case "exclude":
+				
+				moduleData.excludeTypes.push (substitute (element.att.type));
+			
+		}
+		
+		if (topLevel) {
+			
+			for (childElement in element.elements) {
+				
+				if (isValidElement (childElement, "")) {
+					
+					parseModuleElement (childElement, basePath, moduleData);
+					
+				}
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	private function parseModuleElementSource (source:String, moduleData:ModuleData, include:Array<String>, exclude:Array<String>, currentPath:String):Void {
+		
+		var files = FileSystem.readDirectory (currentPath);
+		var filePath, className;
+		
+		for (file in files) {
+			
+			filePath = PathHelper.combine (currentPath, file);
+			
+			if (FileSystem.isDirectory (filePath)) {
+				
+				parseModuleElementSource (source, moduleData, include, exclude, filePath);
+				
+			} else {
+				
+				if (Path.extension (file) != "hx") continue;
+				
+				className = StringTools.replace (filePath, source, "");
+				className = StringTools.replace (className, "\\", "/");
+				
+				while (StringTools.startsWith (className, "/")) className = className.substr (1);
+				
+				className = StringTools.replace (className, "/", ".");
+				className = StringTools.replace (className, ".hx", "");
+				
+				if (filter (className, include, exclude)) {
+					
+					moduleData.classNames.push (className);
+					
+				}
+				
+			}
+			
+		}
+		
+	}
+	
+	
 	private function parseOutputElement (element:Fast):Void {
 		
 		if (element.has.name) {
@@ -1366,6 +1555,10 @@ class ProjectXMLParser extends HXProject {
 							libraries.push (new Library (path, name, type, embed, preload, generate, prefix));
 							
 						}
+					
+					case "module":
+						
+						parseModuleElement (element, extensionPath);
 					
 					case "ssl":
 						
