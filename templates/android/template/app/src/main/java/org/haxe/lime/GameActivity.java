@@ -2,10 +2,12 @@ package org.haxe.lime;
 
 
 import android.content.res.AssetManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +37,32 @@ public class GameActivity extends SDLActivity {
 			}
 			
 		});
+		
+	}
+
+	public static void vibrate (int period, int duration) {
+		
+		Vibrator v = (Vibrator)mSingleton.getSystemService (Context.VIBRATOR_SERVICE);
+		
+		if (period == 0) {
+			
+			v.vibrate (duration);
+			
+		} else {
+				
+			int periodMS = (int)Math.ceil (period / 2);
+			int count = (int)Math.ceil ((duration / period) * 2);
+			long[] pattern = new long[count];
+			
+			for (int i = 0; i < count; i++) {
+				
+				pattern[i] = periodMS;
+				
+			}
+			
+			v.vibrate (pattern, -1);
+			
+		}
 		
 	}
 	
