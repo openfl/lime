@@ -1395,23 +1395,25 @@ class CommandLineTools {
 			
 		}
 		
-		if (Sys.getEnv ("HAXEPATH") == null) {
+		if (Sys.getEnv ("HAXE_STD_PATH") == null) {
 			
 			if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
 				
-				Sys.putEnv ("HAXEPATH", "C:\\HaxeToolkit\\haxe\\");
+				Sys.putEnv ("HAXE_STD_PATH", "C:\\HaxeToolkit\\haxe\\std\\");
 				
 			} else {
 				
-				Sys.putEnv ("HAXEPATH", "/usr/lib/haxe");
+				if (FileSystem.exists ("/usr/lib/haxe")) {
+					
+					Sys.putEnv ("HAXE_STD_PATH", "/usr/lib/haxe/std");
+					
+				} else {
+					
+					Sys.putEnv ("HAXE_STD_PATH", "/usr/local/lib/haxe/std");
+					
+				}
 				
 			}
-			
-		}
-		
-		if (Sys.getEnv ("HAXE_STD_PATH") == null) {
-			
-			Sys.putEnv ("HAXE_STD_PATH", PathHelper.combine (Sys.getEnv ("HAXEPATH"), "std"));
 			
 		}
 		
