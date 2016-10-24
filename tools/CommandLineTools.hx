@@ -1407,6 +1407,10 @@ class CommandLineTools {
 					
 					Sys.putEnv ("HAXE_STD_PATH", "/usr/lib/haxe/std");
 					
+				} else if (FileSystem.exists ("/usr/share/haxe")) {
+					
+					Sys.putEnv ("HAXE_STD_PATH", "/usr/share/haxe/std");
+					
 				} else {
 					
 					Sys.putEnv ("HAXE_STD_PATH", "/usr/local/lib/haxe/std");
