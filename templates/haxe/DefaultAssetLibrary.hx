@@ -503,7 +503,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			loader.dataFormat = flash.net.URLLoaderDataFormat.BINARY;
 			loader.addEventListener (Event.COMPLETE, function (event:Event) {
 				
-				var bytes = Bytes.ofData (event.currentTarget.data);
+				var bytes = Bytes.ofData (loader.data);
 				promise.complete (bytes);
 				
 			});
@@ -564,7 +564,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			var loader = new Loader ();
 			loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event:Event) {
 				
-				var bitmapData = cast (event.currentTarget.content, Bitmap).bitmapData;
+				var bitmapData = cast (loader.content, Bitmap).bitmapData;
 				promise.complete (Image.fromBitmapData (bitmapData));
 				
 			});
