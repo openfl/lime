@@ -2,12 +2,13 @@
 
 #import <AudioToolbox/AudioServices.h>
 
+
 namespace lime {
 	
 	
 	void Haptic::Vibrate (int period, int duration) {
 		
-		AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
+		AudioServicesPlaySystemSound (kSystemSoundID_Vibrate);
 		
 	}
 	

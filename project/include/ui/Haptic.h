@@ -8,10 +8,9 @@ namespace lime {
 	class Haptic {
 		
 		public:
-			#ifdef IPHONE
+			
 			static void Vibrate (int period, int duration);
-			#endif
-
+		
 	};
 	
 	

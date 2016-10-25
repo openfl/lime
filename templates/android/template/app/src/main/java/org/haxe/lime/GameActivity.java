@@ -39,7 +39,8 @@ public class GameActivity extends SDLActivity {
 		});
 		
 	}
-
+	
+	
 	public static void vibrate (int period, int duration) {
 		
 		Vibrator v = (Vibrator)mSingleton.getSystemService (Context.VIBRATOR_SERVICE);
@@ -49,7 +50,7 @@ public class GameActivity extends SDLActivity {
 			v.vibrate (duration);
 			
 		} else {
-				
+			
 			int periodMS = (int)Math.ceil (period / 2);
 			int count = (int)Math.ceil ((duration / period) * 2);
 			long[] pattern = new long[count];

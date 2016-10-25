@@ -1,34 +1,56 @@
 package lime.ui;
 
-#if android
+
 import lime.system.JNI;
-#elseif (lime_cffi && !macro)
-import lime.system.CFFI;
+import lime.utils.Log;
+
+#if !macro
+@:build(lime.system.CFFI.build())
 #end
 
+
 class Haptic {
-
-	#if ( android || ios )
-	private static var __vibrate:Int->Int->Void = null;
-	#end
-
-	public static function vibrate(period:Int, duration:Int){
+	
+	
+	public static function vibrate (period:Int, duration:Int):Void {
+		
 		#if android
-			if(__vibrate==null){
-				__vibrate = JNI.createStaticMethod("org/haxe/lime/GameActivity", "vibrate", "(II)V");
-			}
-			try{
-				// This will raise an exception if you don't have VIBRATE permission
-				__vibrate(period, duration);				
-			} catch (e:Dynamic) {
-				trace("JNI Exception: Have you added VIBRATE permission?");
-			}
-		#elseif ios
-			if(__vibrate == null){
-				__vibrate = CFFI.load ("lime", "lime_haptic_vibrate", 2);
-			}
-			__vibrate(period, duration);
+		
+		if (lime_haptic_vibrate == null) {
+			
+			lime_haptic_vibrate = JNI.createStaticMethod ("org/haxe/lime/GameActivity", "vibrate", "(II)V");
+			
+		}
+		
+		try {
+			
+			lime_haptic_vibrate (period, duration);
+			
+		} catch (e:Dynamic) {
+			
+			Log.warn ("Haptic.vibrate is not available (the VIBRATE permission may be missing)");
+			
+		}
+		
+		#else
+		
+		lime_haptic_vibrate (period, duration);
+		
 		#end
 	}
-
+	
+	
+	
+	
+	// Native Methods
+	
+	
+	
+	
+	#if android
+	private static var lime_haptic_vibrate (period:Int, duration:Int):Void;
+	#elseif (lime_cffi && !macro)
+	@:cffi private static function lime_haptic_vibrate (period:Int, duration:Int):Void;
+	#end
+	
 }
