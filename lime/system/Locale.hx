@@ -1,68 +1,24 @@
 package lime.system;
 
+
 #if flash
 import flash.system.Capabilities;
-#elseif android
-import lime.system.JNI;
-#elseif (lime_cffi && !macro)
-import lime.system.CFFI;
 #end
+
+import lime.system.CFFI;
+import lime.system.JNI;
 
 
 abstract Locale(String) from String to String {
 	
 	
-	@:isVar public static var currentLocale(get, set):Locale = null;
-	public static var systemLocale(get, null):Locale = null;
+	@:isVar public static var currentLocale (get, set):Locale;
+	public static var systemLocale (get, never):Locale;
+	
+	private static var __systemLocale:Locale;
 	
 	public var language (get, never):String;
 	public var region (get, never):String;
-	
-	
-	private static function get_currentLocale():Locale {
-		if(systemLocale == null) init();
-		return currentLocale;
-	}
-
-	private static function set_currentLocale(locale:Locale):Locale {
-		if(systemLocale == null) init();
-		return currentLocale = locale;
-	}
-
-	private static function get_systemLocale():Locale {
-		if(systemLocale == null) init();
-		return systemLocale;
-	}
-
-	private static function init():Void {
-		
-		var locale = null;
-		
-		#if flash
-		locale = Capabilities.language;
-		#elseif (js && html5)
-		locale = untyped navigator.language;
-		#elseif (android)
-		var getDefault:Void->Dynamic = JNI.createStaticMethod("java/util/Locale", "getDefault", "()Ljava/util/Locale;");
-		var toString:Dynamic->String = JNI.createMemberMethod("java/util/Locale", "toString", "()Ljava/lang/String;");
-		locale = toString(getDefault());
-		#elseif (lime_cffi && !macro)
-		locale = CFFI.load ("lime", "lime_locale_get_system_locale", 0) ();
-		#end
-		
-		if (locale != null) {
-			
-			systemLocale = locale;
-			
-		} else {
-			
-			systemLocale = "en-US";
-			
-		}
-		
-		currentLocale = systemLocale;
-		
-	}
 	
 	
 	public function new (value:String) {
@@ -96,6 +52,50 @@ abstract Locale(String) from String to String {
 		}
 		
 		return (languageMatch && regionMatch);
+		
+	}
+	
+	
+	private static function __init ():Void {
+		
+		if (__systemLocale == null) {
+			
+			var locale = null;
+			
+			#if flash
+			
+			locale = Capabilities.language;
+			
+			#elseif (js && html5)
+			
+			locale = untyped navigator.language;
+			
+			#elseif (android)
+			
+			var getDefault:Void->Dynamic = JNI.createStaticMethod ("java/util/Locale", "getDefault", "()Ljava/util/Locale;");
+			var toString:Dynamic->String = JNI.createMemberMethod ("java/util/Locale", "toString", "()Ljava/lang/String;");
+			
+			locale = toString (getDefault ());
+			
+			#elseif (lime_cffi && !macro)
+			
+			locale = CFFI.load ("lime", "lime_locale_get_system_locale", 0) ();
+			
+			#end
+			
+			if (locale != null) {
+				
+				__systemLocale = locale;
+				
+			} else {
+				
+				__systemLocale = "en-US";
+				
+			}
+			
+			currentLocale = __systemLocale;
+			
+		}
 		
 	}
 	
@@ -172,6 +172,40 @@ abstract Locale(String) from String to String {
 		}
 		
 		return null;
+		
+	}
+	
+	
+	
+	
+	// Get & Set Methods
+	
+	
+	
+	
+	private static function get_currentLocale ():Locale {
+		
+		__init ();
+		
+		return currentLocale;
+		
+	}
+	
+	
+	private static function set_currentLocale (value:Locale):Locale {
+		
+		__init ();
+		
+		return currentLocale = value;
+		
+	}
+	
+	
+	private static function get_systemLocale ():Locale {
+		
+		__init ();
+		
+		return __systemLocale;
 		
 	}
 	
