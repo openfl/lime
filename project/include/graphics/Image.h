@@ -18,7 +18,7 @@ namespace lime {
 			Image (value image);
 			~Image ();
 			
-			ImageBuffer *buffer;
+			ImageBuffer buffer;
 			int height;
 			int offsetX;
 			int offsetY;

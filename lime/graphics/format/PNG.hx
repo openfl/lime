@@ -33,10 +33,7 @@ class PNG {
 		
 		#if (lime_cffi && !macro)
 		
-		#if !cs
-		return lime_png_decode_bytes (bytes, decodeData, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
-		#else
-		var bufferData:Dynamic = lime_png_decode_bytes (bytes, decodeData, null);
+		var bufferData:Dynamic = lime_png_decode_bytes (bytes, decodeData);
 		
 		if (bufferData != null) {
 			
@@ -45,7 +42,6 @@ class PNG {
 			return new Image (buffer);
 			
 		}
-		#end
 		
 		#end
 		
@@ -58,10 +54,7 @@ class PNG {
 		
 		#if (lime_cffi && !macro)
 		
-		#if !cs
-		return lime_png_decode_file (path, decodeData, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
-		#else
-		var bufferData:Dynamic = lime_png_decode_file (path, decodeData, null);
+		var bufferData:Dynamic = lime_png_decode_file (path, decodeData);
 		
 		if (bufferData != null) {
 			
@@ -70,7 +63,6 @@ class PNG {
 			return new Image (buffer);
 			
 		}
-		#end
 		
 		#end
 		
@@ -97,12 +89,8 @@ class PNG {
 		
 		if (CFFI.enabled) {
 			
-			#if !cs
-			return lime_image_encode (image.buffer, 0, 0, Bytes.alloc (0));
-			#else
-			var data:Dynamic = lime_image_encode (image.buffer, 0, 0, null);
+			var data:Dynamic = lime_image_encode (image.buffer, 0, 0);
 			return @:privateAccess new Bytes (data.length, data.b);
-			#end
 			
 		}
 		#end
@@ -178,9 +166,9 @@ class PNG {
 	
 	
 	#if (lime_cffi && !macro)
-	@:cffi private static function lime_png_decode_bytes (data:Dynamic, decodeData:Bool, buffer:Dynamic):Dynamic;
-	@:cffi private static function lime_png_decode_file (path:String, decodeData:Bool, buffer:Dynamic):Dynamic;
-	@:cffi private static function lime_image_encode (data:Dynamic, type:Int, quality:Int, bytes:Dynamic):Dynamic;
+	@:cffi private static function lime_png_decode_bytes (data:Dynamic, decodeData:Bool):Dynamic;
+	@:cffi private static function lime_png_decode_file (path:String, decodeData:Bool):Dynamic;
+	@:cffi private static function lime_image_encode (data:Dynamic, type:Int, quality:Int):Dynamic;
 	#end
 	
 	

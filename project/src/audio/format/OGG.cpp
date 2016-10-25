@@ -107,7 +107,7 @@ namespace lime {
 	bool OGG::Decode (Resource *resource, AudioBuffer *audioBuffer) {
 		
 		OggVorbis_File oggFile;
-		Bytes *data = NULL;
+		Bytes data;
 		OAL_OggMemoryFile fakeFile;
 		
 		if (resource->path) {
@@ -132,16 +132,15 @@ namespace lime {
 			} else {
 				
 				lime::fclose (file);
-				data = new Bytes (resource->path);
+				data.ReadFile (resource->path);
 				
 				fakeFile = OAL_OggMemoryFile ();
-				fakeFile.data = data->Data ();
-				fakeFile.size = data->Length ();
+				fakeFile.data = data.Data ();
+				fakeFile.size = data.Length ();
 				fakeFile.pos = 0;
 				
 				if (ov_open_callbacks (&fakeFile, &oggFile, NULL, 0, OAL_CALLBACKS_BUFFER) != 0) {
 					
-					delete data;
 					return false;
 					
 				}
@@ -182,13 +181,6 @@ namespace lime {
 			
 			//LOG_SOUND("FAILED TO READ OGG SOUND INFO, IS THIS EVEN AN OGG FILE?\n");
 			ov_clear (&oggFile);
-			
-			if (data) {
-				
-				delete data;
-				
-			}
-			
 			return false;
 			
 		}
@@ -199,30 +191,24 @@ namespace lime {
 		audioBuffer->bitsPerSample = 16;
 		
 		int dataLength = ov_pcm_total (&oggFile, -1) * audioBuffer->channels * audioBuffer->bitsPerSample / 8;
-		audioBuffer->data->Resize (dataLength);
+		audioBuffer->data.Resize (dataLength);
 		
 		while (bytes > 0) {
 			
-			bytes = ov_read (&oggFile, (char *)audioBuffer->data->Data () + totalBytes, BUFFER_SIZE, BUFFER_READ_TYPE, 2, 1, &bitStream);
+			bytes = ov_read (&oggFile, (char *)audioBuffer->data.Data () + totalBytes, BUFFER_SIZE, BUFFER_READ_TYPE, 2, 1, &bitStream);
 			totalBytes += bytes;
 			
 		}
 		
 		if (dataLength != totalBytes) {
 			
-			audioBuffer->data->Resize (totalBytes);
+			audioBuffer->data.Resize (totalBytes);
 			
 		}
 		
 		ov_clear (&oggFile);
 		
 		#undef BUFFER_READ_TYPE
-		
-		if (data) {
-			
-			delete data;
-			
-		}
 		
 		return true;
 		

@@ -215,9 +215,9 @@ namespace lime {
 			
 			buffer->Resize (bounds.w, bounds.h, 32);
 			
-			SDL_RenderReadPixels (sdlRenderer, &bounds, SDL_PIXELFORMAT_ABGR8888, buffer->data->Data (), buffer->Stride ());
+			SDL_RenderReadPixels (sdlRenderer, &bounds, SDL_PIXELFORMAT_ABGR8888, buffer->data.Data (), buffer->Stride ());
 			
-			for (unsigned char *it=buffer->data->Data () + 3; it < (buffer->data->Data () + buffer->data->Length ()); it += 4) {
+			for (unsigned char *it=buffer->data.Data () + 3; it < (buffer->data.Data () + buffer->data.Length ()); it += 4) {
 				
 				*it = 0xff;
 				
