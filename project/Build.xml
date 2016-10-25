@@ -235,6 +235,7 @@
 		<file name="src/system/System.mm" if="ios" />
 		<file name="src/ui/DropEvent.cpp" />
 		<file name="src/ui/GamepadEvent.cpp" />
+		<file name="src/ui/Haptic.mm" if="ios" />
 		<file name="src/ui/JoystickEvent.cpp" />
 		<file name="src/ui/KeyEvent.cpp" />
 		<file name="src/ui/MouseEvent.cpp" />
