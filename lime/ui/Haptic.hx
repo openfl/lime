@@ -32,7 +32,7 @@ class Haptic {
 			
 		}
 		
-		#else
+		#elseif (lime_cffi && !macro)
 		
 		lime_haptic_vibrate (period, duration);
 		
