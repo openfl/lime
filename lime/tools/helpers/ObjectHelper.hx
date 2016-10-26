@@ -71,10 +71,16 @@ import haxe.ds.StringMap;
 			
 			var result = Type.createInstance (Type.getClass (v), []);
 			
-			untyped {
-				for (ii in 0...v.length) {
-					result.push (deepCopy (v[ii]));
+			if (result != null) {
+				
+				untyped {
+					var copy:Dynamic;
+					for (ii in 0...v.length) {
+						copy = deepCopy (v[ii]);
+						result.push (copy);
+					}
 				}
+				
 			}
 			
 			return result;
