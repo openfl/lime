@@ -44,12 +44,8 @@ class Assets {
 	public static var libraries (default, null) = new Map <String, AssetLibrary> ();
 	public static var onChange = new Event<Void->Void> ();
 	
-	private static var initialized = false;
-	
 	
 	public static function exists (id:String, type:AssetType = null):Bool {
-		
-		initialize ();
 		
 		#if (tools && !display)
 		
@@ -83,8 +79,6 @@ class Assets {
 	 * @return		A new Sound object
 	 */
 	public static function getAudioBuffer (id:String, useCache:Bool = true):AudioBuffer {
-		
-		initialize ();
 		
 		#if (tools && !display)
 		
@@ -153,8 +147,6 @@ class Assets {
 	 */
 	public static function getBytes (id:String):Bytes {
 		
-		initialize ();
-		
 		#if (tools && !display)
 		
 		var libraryName = id.substring (0, id.indexOf(":"));
@@ -201,8 +193,6 @@ class Assets {
 	 * @return		A new Font object
 	 */
 	public static function getFont (id:String, useCache:Bool = true):Font {
-		
-		initialize ();
 		
 		#if (tools && !display)
 		
@@ -265,8 +255,6 @@ class Assets {
 	 * @return		A new BitmapData object
 	 */
 	public static function getImage (id:String, useCache:Bool = true):Image {
-		
-		initialize ();
 		
 		#if (tools && !display)
 		
@@ -348,8 +336,6 @@ class Assets {
 	 */
 	public static function getPath (id:String):String {
 		
-		initialize ();
-		
 		#if (tools && !display)
 		
 		var libraryName = id.substring (0, id.indexOf (":"));
@@ -388,8 +374,6 @@ class Assets {
 	 * @return		A new String object
 	 */
 	public static function getText (id:String):String {
-		
-		initialize ();
 		
 		#if (tools && !display)
 		
@@ -430,26 +414,7 @@ class Assets {
 	}
 	
 	
-	private static function initialize ():Void {
-		
-		if (!initialized) {
-			
-			#if (tools && !display)
-			
-			//registerLibrary ("default", new DefaultAssetLibrary ());
-			
-			#end
-			
-			initialized = true;
-			
-		}
-		
-	}
-	
-	
 	public static function isLocal (id:String, type:AssetType = null, useCache:Bool = true):Bool {
-		
-		initialize ();
 		
 		#if (tools && !display)
 		
@@ -539,8 +504,6 @@ class Assets {
 	
 	public static function list (type:AssetType = null):Array<String> {
 		
-		initialize ();
-		
 		var items = [];
 		
 		for (library in libraries) {
@@ -561,8 +524,6 @@ class Assets {
 	
 	
 	public static function loadAudioBuffer (id:String, useCache:Bool = true):Future<AudioBuffer> {
-		
-		initialize ();
 		
 		var promise = new Promise<AudioBuffer> ();
 		
@@ -620,8 +581,6 @@ class Assets {
 	
 	public static function loadBytes (id:String):Future<Bytes> {
 		
-		initialize ();
-		
 		var promise = new Promise<Bytes> ();
 		
 		#if (tools && !display)
@@ -657,8 +616,6 @@ class Assets {
 	
 	public static function loadFont (id:String):Future<Font> {
 		
-		initialize ();
-		
 		var promise = new Promise<Font> ();
 		
 		#if (tools && !display)
@@ -693,8 +650,6 @@ class Assets {
 	
 	
 	public static function loadImage (id:String, useCache:Bool = true):Future<Image> {
-		
-		initialize ();
 		
 		var promise = new Promise<Image> ();
 		
@@ -752,8 +707,6 @@ class Assets {
 	
 	public static function loadLibrary (name:String):Future<AssetLibrary> {
 		
-		initialize ();
-		
 		var promise = new Promise<AssetLibrary> ();
 		
 		#if (tools && !display)
@@ -782,8 +735,6 @@ class Assets {
 	
 	
 	public static function loadText (id:String):Future<String> {
-		
-		initialize ();
 		
 		var promise = new Promise<String> ();
 		
@@ -846,8 +797,6 @@ class Assets {
 	
 	
 	public static function unloadLibrary (name:String):Void {
-		
-		initialize();
 		
 		#if (tools && !display)
 		

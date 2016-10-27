@@ -1,5 +1,4 @@
-import ::APP_MAIN::;
-import lime.Assets;
+package;
 
 
 @:access(lime.app.Application)
@@ -15,8 +14,6 @@ class ApplicationMain {
 	
 	
 	public static function main () {
-		
-		lime.Assets.registerLibrary ("default", new DefaultAssetLibrary ());
 		
 		config = {
 			
@@ -174,6 +171,8 @@ class ApplicationMain {
 	
 	
 	public static function start ():Void {
+		
+		lime.Assets.registerLibrary ("default", new DefaultAssetLibrary ());
 		
 		#if !munit
 		
