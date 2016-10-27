@@ -30,8 +30,6 @@ import android.media.*;
 import android.hardware.*;
 import android.content.pm.ActivityInfo;
 
-import org.haxe.HXCPP;
-
 /**
     SDL Activity
 */
@@ -73,14 +71,12 @@ public class SDLActivity extends Activity {
      */
     protected String[] getLibraries() {
         return new String[] {
-            ::foreach ndlls::"::name::",
-            ::end::
-            // "SDL2",
+            "SDL2",
             // "SDL2_image",
             // "SDL2_mixer",
             // "SDL2_net",
             // "SDL2_ttf",
-            // "main"
+            "main"
         };
     }
 
@@ -1031,7 +1027,7 @@ class SDLMain implements Runnable {
         // Runs SDL_main()
         SDLActivity.nativeInit(SDLActivity.mSingleton.getArguments());
 
-        HXCPP.run ("ApplicationMain");
+        org.haxe.HXCPP.run("ApplicationMain");
         //Log.v("SDL", "SDL thread terminated");
     }
 }
@@ -1378,8 +1374,7 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
         try {
             Thread.sleep((Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO) ? 16 : 1);
-        } catch (InterruptedException e) {
-        }
+        } catch (InterruptedException e) {}
 
         return true;
    }

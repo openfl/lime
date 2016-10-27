@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.haxe.extension.Extension;
-import org.haxe.HXCPP;
 import org.libsdl.app.SDLActivity;
 
 
@@ -26,6 +25,16 @@ public class GameActivity extends SDLActivity {
 	private static List<Extension> extensions;
 	
 	public Handler handler;
+	
+	
+	protected String[] getLibraries () {
+		
+		return new String[] {
+			::foreach ndlls::"::name::",
+			::end::"ApplicationMain"
+		};
+		
+	}
 	
 	
 	@Override protected void onActivityResult (int requestCode, int resultCode, Intent data) {
@@ -283,7 +292,7 @@ public class GameActivity extends SDLActivity {
 		boolean hasBackKey = KeyCharacterMap.deviceHasKey (KeyEvent.KEYCODE_BACK);
 		boolean hasHomeKey = KeyCharacterMap.deviceHasKey (KeyEvent.KEYCODE_HOME);
 		
-		View decorView = getWindow ().getDecorView ();
+		View decorView = Extension.mainActivity.getWindow ().getDecorView ();
 		
 		if (Build.VERSION.SDK_INT >= 19) {
 			
