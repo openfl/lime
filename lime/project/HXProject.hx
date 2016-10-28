@@ -256,8 +256,6 @@ class HXProject {
 		splashScreens = new Array <SplashScreen> ();
 		targetHandlers = new Map <String, String> ();
 		
-		
-		
 	}
 	
 	
@@ -450,7 +448,7 @@ class HXProject {
 	#if lime
 	
 	public static function fromFile (projectFile:String, userDefines:Map<String, Dynamic> = null, includePaths:Array<String> = null):HXProject {
-        
+		
 		var project:HXProject = null;
 		
 		var path = FileSystem.fullPath (Path.withoutDirectory (projectFile));

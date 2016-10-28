@@ -1089,25 +1089,25 @@ class ProjectXMLParser extends HXProject {
 						
 						if (element.has.verbose) {
 							
-							verbose = element.att.verbose;
+							verbose = substitute (element.att.verbose);
 							
 						}
 						
 						if (element.has.error) {
 							
-							LogHelper.error (element.att.error, verbose);
+							LogHelper.error (substitute (element.att.error), verbose);
 							
 						} else if (element.has.warn) {
 							
-							LogHelper.warn (element.att.warn, verbose);
+							LogHelper.warn (substitute (element.att.warn), verbose);
 							
 						} else if (element.has.info) {
 							
-							LogHelper.info (element.att.info, verbose);
+							LogHelper.info (substitute (element.att.info), verbose);
 							
 						} else if (element.has.value) {
 							
-							LogHelper.info (element.att.value, verbose);
+							LogHelper.info (substitute (element.att.value), verbose);
 							
 						} else if (verbose != "") {
 							
