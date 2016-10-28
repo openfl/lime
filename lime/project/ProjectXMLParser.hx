@@ -2110,6 +2110,13 @@ class ProjectXMLParser extends HXProject {
 				
 				return Std.string (value == substring.substr (index + 2));
 				
+			} else if (substring.indexOf ("!=") > -1) {
+				
+				index = substring.indexOf ("!=");
+				value = replaceVariable (substring.substr (0, index));
+				
+				return Std.string (value != substring.substr (index + 2));
+				
 			} else if (substring.indexOf ("<=") > -1) {
 				
 				index = substring.indexOf ("<=");
