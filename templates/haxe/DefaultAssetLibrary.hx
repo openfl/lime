@@ -14,6 +14,7 @@ import lime.net.HTTPRequest;
 import lime.system.CFFI;
 import lime.text.Font;
 import lime.utils.Bytes;
+import lime.utils.Log;
 import lime.utils.UInt8Array;
 import lime.Assets;
 
@@ -670,13 +671,13 @@ class DefaultAssetLibrary extends AssetLibrary {
 				
 			} else {
 				
-				trace ("Warning: Could not load asset manifest (bytes was null)");
+				Log.warn ("Could not load asset manifest (bytes was null)");
 				
 			}
 		
 		} catch (e:Dynamic) {
 			
-			trace ('Warning: Could not load asset manifest (${e})');
+			Log.warn ('Could not load asset manifest (${e})');
 			
 		}
 		
