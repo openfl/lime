@@ -5,6 +5,7 @@ import haxe.io.Path;
 import haxe.xml.Fast;
 import lime.tools.helpers.ArrayHelper;
 import lime.tools.helpers.CommandHelper;
+import lime.tools.helpers.HaxelibHelper;
 import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.ObjectHelper;
 import lime.tools.helpers.PathHelper;
@@ -180,7 +181,11 @@ class ProjectXMLParser extends HXProject {
 					required = substitute (required);
 					var check = StringTools.trim (required);
 					
-					if (check != "" && !defines.exists (check) && (environment == null || !environment.exists (check)) && check != command) {
+					if (check == "false") {
+						
+						matchRequired = false;
+						
+					} else if (check != "" && check != "true" && !defines.exists (check) && (environment == null || !environment.exists (check)) && check != command) {
 						
 						matchRequired = false;
 						
@@ -1261,6 +1266,7 @@ class ProjectXMLParser extends HXProject {
 							
 						}
 						
+						defines.set (haxelib.name, HaxelibHelper.getVersion (haxelib));
 						haxelibs.push (haxelib);
 						
 						var includeProject = HXProject.fromHaxelib (haxelib, defines);
@@ -2077,53 +2083,83 @@ class ProjectXMLParser extends HXProject {
 	}
 	
 	
+	private function replaceVariable (string:String):String {
+		
+		if (string.substr (0, 8) == "haxelib:") {
+			
+			var path = PathHelper.getHaxelib (new Haxelib (string.substr (8)), true);
+			return PathHelper.standardize (path);
+			
+		} else if (defines.exists (string)) {
+			
+			return defines.get (string);
+			
+		} else if (environment != null && environment.exists (string)) {
+			
+			return environment.get (string);
+			
+		} else {
+			
+			var substring = StringTools.replace (string, " ", "");
+			var index, value;
+			
+			if (substring.indexOf ("==") > -1) {
+				
+				index = substring.indexOf ("==");
+				value = replaceVariable (substring.substr (0, index));
+				
+				return Std.string (value == substring.substr (index + 2));
+				
+			} else if (substring.indexOf ("<=") > -1) {
+				
+				index = substring.indexOf ("<=");
+				value = replaceVariable (substring.substr (0, index));
+				
+				return Std.string (value <= substring.substr (index + 2));
+				
+			} else if (substring.indexOf ("<") > -1) {
+				
+				index = substring.indexOf ("<");
+				value = replaceVariable (substring.substr (0, index));
+				
+				return Std.string (value < substring.substr (index + 1));
+				
+			} else if (substring.indexOf (">=") > -1) {
+				
+				index = substring.indexOf (">=");
+				value = replaceVariable (substring.substr (0, index));
+				
+				return Std.string (value >= substring.substr (index + 2));
+				
+			} else if (substring.indexOf (">") > -1) {
+				
+				index = substring.indexOf (">");
+				value = replaceVariable (substring.substr (0, index));
+				
+				return Std.string (value > substring.substr (index + 1));
+				
+			}
+			
+		}
+		
+		return string;
+		
+	}
+	
+	
 	private function substitute (string:String):String {
 		
 		var newString = string;
 		
 		while (doubleVarMatch.match (newString)) {
 			
-			var substring = doubleVarMatch.matched (1);
-			
-			if (substring.substr (0, 8) == "haxelib:") {
-				
-				var path = PathHelper.getHaxelib (new Haxelib (substring.substr (8)), true);
-				substring = PathHelper.standardize (path);
-				
-			} else if (defines.exists (substring)) {
-				
-				substring = defines.get (substring);
-				
-			} else if (environment != null && environment.exists (substring)) {
-				
-				substring = environment.get (substring);
-				
-			}
-			
-			newString = doubleVarMatch.matchedLeft () + "${" + substring + "}" + doubleVarMatch.matchedRight ();
+			newString = doubleVarMatch.matchedLeft () + "${" + replaceVariable (doubleVarMatch.matched (1)) + "}" + doubleVarMatch.matchedRight ();
 			
 		}
 		
 		while (varMatch.match (newString)) {
 			
-			var substring = varMatch.matched (1);
-			
-			if (substring.substr (0, 8) == "haxelib:") {
-				
-				var path = PathHelper.getHaxelib (new Haxelib (substring.substr (8)), true);
-				substring = PathHelper.standardize (path);
-				
-			} else if (defines.exists (substring)) {
-				
-				substring = defines.get (substring);
-				
-			} else if (environment != null && environment.exists (substring)) {
-				
-				substring = environment.get (substring);
-				
-			}
-			
-			newString = varMatch.matchedLeft () + substring + varMatch.matchedRight ();
+			newString = varMatch.matchedLeft () + replaceVariable (varMatch.matched (1)) + varMatch.matchedRight ();
 			
 		}
 		

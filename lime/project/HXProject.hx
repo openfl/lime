@@ -71,6 +71,7 @@ class HXProject {
 	
 	public static var _command:String;
 	public static var _debug:Bool;
+	public static var _environment:Map<String, String>;
 	public static var _target:Platform;
 	public static var _targetFlags:Map<String, String>;
 	public static var _templatePaths:Array<String>;
@@ -95,6 +96,7 @@ class HXProject {
 		HXProject._targetFlags = Unserializer.run (args[4]);
 		HXProject._templatePaths = Unserializer.run (args[5]);
 		if (args.length > 6) HXProject._userDefines = Unserializer.run (args[6]);
+		if (args.length > 7) HXProject._environment = Unserializer.run (args[7]);
 		
 		initialize ();
 		
@@ -227,7 +229,17 @@ class HXProject {
 		}
 		
 		dependencies = new Array <Dependency> ();
-		environment = Sys.environment ();
+		
+		if (_environment != null) {
+			
+			environment = _environment;
+			
+		} else {
+			
+			environment = Sys.environment ();
+			
+		}
+		
 		haxedefs = new Map <String, Dynamic> ();
 		haxeflags = new Array <String> ();
 		haxelibs = new Array <Haxelib> ();
@@ -453,7 +465,7 @@ class HXProject {
 		FileHelper.copyFile (path, classFile);
 		
 		ProcessHelper.runCommand ("", "haxe", [ name, "-main", "lime.project.HXProject", "-cp", tempDirectory, "-neko", nekoOutput, "-cp", PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "tools"), "-lib", "lime", "-D", "lime-curl", "-D", "native", "-D", "lime-native", "-D", "lime-cffi" ]);
-		ProcessHelper.runCommand ("", "neko", [ FileSystem.fullPath (nekoOutput), HXProject._command, name, Std.string (HXProject._target), Std.string (HXProject._debug), Serializer.run (HXProject._targetFlags), Serializer.run (HXProject._templatePaths), Serializer.run (HXProject._userDefines), temporaryFile ]);
+		ProcessHelper.runCommand ("", "neko", [ FileSystem.fullPath (nekoOutput), HXProject._command, name, Std.string (HXProject._target), Std.string (HXProject._debug), Serializer.run (HXProject._targetFlags), Serializer.run (HXProject._templatePaths), Serializer.run (HXProject._userDefines), Serializer.run (HXProject._environment), temporaryFile ]);
 		
 		var tPaths:Array<String> = [];
 		try {

@@ -4,7 +4,6 @@ package;
 //import openfl.text.Font;
 //import openfl.utils.ByteArray;
 //import openfl.utils.CompressionAlgorithm;
-import haxe.Json;
 import haxe.Serializer;
 import haxe.Unserializer;
 import haxe.io.Path;
@@ -20,8 +19,8 @@ import utils.publish.*;
 import utils.CreateTemplate;
 import utils.JavaExternGenerator;
 import utils.PlatformSetup;
-	
-	
+
+
 class CommandLineTools {
 	
 	
@@ -32,6 +31,7 @@ class CommandLineTools {
 	private var additionalArguments:Array <String>;
 	private var command:String;
 	private var debug:Bool;
+	private var environment:Map<String, String>;
 	private var includePaths:Array <String>;
 	private var overrides:HXProject;
 	private var project:HXProject;
@@ -48,6 +48,7 @@ class CommandLineTools {
 		additionalArguments = new Array <String> ();
 		command = "";
 		debug = false;
+		environment = Sys.environment ();
 		includePaths = new Array <String> ();
 		projectDefines = new Map <String, String> ();
 		targetFlags = new Map <String, String> ();
@@ -61,7 +62,7 @@ class CommandLineTools {
 		PathHelper.haxelibOverrides.set ("lime-tools", PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "tools"));
 		
 		processArguments ();
-		version = getVersion ();
+		version = HaxelibHelper.getVersion ();
 		
 		if (targetFlags.exists ("openfl")) {
 			
@@ -266,9 +267,11 @@ class CommandLineTools {
 					}
 					
 					HXProject._command = command;
+					HXProject._environment = environment;
 					HXProject._debug = debug;
 					HXProject._target = target;
 					HXProject._targetFlags = targetFlags;
+					HXProject._userDefines = userDefines;
 					
 					var project = null;
 					
@@ -885,7 +888,7 @@ class CommandLineTools {
 			LogHelper.println ("\x1b[37m            888                                   \x1b[0m");
 			
 			LogHelper.println ("");
-			LogHelper.println ("\x1b[1mOpenFL Command-Line Tools\x1b[0;1m (" + getVersion (new Haxelib ("openfl")) + "-L" + StringHelper.generateUUID (5, null, StringHelper.generateHashCode (version)) + ")\x1b[0m");
+			LogHelper.println ("\x1b[1mOpenFL Command-Line Tools\x1b[0;1m (" + HaxelibHelper.getVersion (new Haxelib ("openfl")) + "-L" + StringHelper.generateUUID (5, null, StringHelper.generateHashCode (version)) + ")\x1b[0m");
 			
 		} else {
 			
@@ -1206,20 +1209,6 @@ class CommandLineTools {
 	}
 	
 	
-	private function getVersion (haxelib:Haxelib = null):String {
-		
-		if (haxelib == null) {
-			
-			haxelib = new Haxelib ("lime");
-			
-		}
-		
-		var json = Json.parse (File.getContent (PathHelper.getHaxelib (haxelib, true) + "/haxelib.json"));
-		return json.version;
-		
-	}
-	
-	
 	private function initializeProject (project:HXProject = null, targetName:String = ""):HXProject {
 		
 		LogHelper.info ("", LogHelper.accentColor + "Initializing project..." + LogHelper.resetColor);
@@ -1377,45 +1366,53 @@ class CommandLineTools {
 		
 		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
 			
-			if (Sys.getEnv ("JAVA_HOME") != null) {
+			if (environment.get ("JAVA_HOME") != null) {
 				
-				var javaPath = PathHelper.combine (Sys.getEnv ("JAVA_HOME"), "bin");
+				var javaPath = PathHelper.combine (environment.get ("JAVA_HOME"), "bin");
+				var value;
 				
 				if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
 					
-					Sys.putEnv ("PATH", javaPath + ";" + Sys.getEnv ("PATH"));
+					value = javaPath + ";" + Sys.getEnv ("PATH");
 					
 				} else {
 					
-					Sys.putEnv ("PATH", javaPath + ":" + Sys.getEnv ("PATH"));
+					value = javaPath + ":" + Sys.getEnv ("PATH");
 					
 				}
+				
+				environment.set ("PATH", value);
+				Sys.putEnv ("PATH", value);
 				
 			}
 			
 		}
 		
-		// TODO: Nicer solution
+		// Not sure why this gets no output?
 		
-		if (Sys.getEnv ("HAXE_STD_PATH") == null && !userDefines.exists ("HAXE_STD_PATH")) {
+		//var haxeVersion = ProcessHelper.runProcess ("", "haxe", [ "-version" ], true, true, true);
+		//environment.set ("haxe", haxeVersion);
+		//environment.set ("haxe_ver", haxeVersion);
+		
+		if (!environment.exists ("HAXE_STD_PATH")) {
 			
 			if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
 				
-				userDefines.set ("HAXE_STD_PATH", "C:\\HaxeToolkit\\haxe\\std\\");
+				environment.set ("HAXE_STD_PATH", "C:\\HaxeToolkit\\haxe\\std\\");
 				
 			} else {
 				
 				if (FileSystem.exists ("/usr/lib/haxe")) {
 					
-					userDefines.set ("HAXE_STD_PATH", "/usr/lib/haxe/std");
+					environment.set ("HAXE_STD_PATH", "/usr/lib/haxe/std");
 					
 				} else if (FileSystem.exists ("/usr/share/haxe")) {
 					
-					userDefines.set ("HAXE_STD_PATH", "/usr/share/haxe/std");
+					environment.set ("HAXE_STD_PATH", "/usr/share/haxe/std");
 					
 				} else {
 					
-					userDefines.set ("HAXE_STD_PATH", "/usr/local/lib/haxe/std");
+					environment.set ("HAXE_STD_PATH", "/usr/local/lib/haxe/std");
 					
 				}
 				
@@ -1427,9 +1424,10 @@ class CommandLineTools {
 			
 			HXProject._command = command;
 			HXProject._debug = debug;
+			HXProject._environment = environment;
 			HXProject._target = target;
 			HXProject._targetFlags = targetFlags;
-            HXProject._userDefines = userDefines;
+			HXProject._userDefines = userDefines;
 			
 			try { Sys.setCwd (Path.directory (projectFile)); } catch (e:Dynamic) {}
 			
