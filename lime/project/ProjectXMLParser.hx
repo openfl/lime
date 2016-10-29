@@ -1298,7 +1298,12 @@ class ProjectXMLParser extends HXProject {
 							
 						}
 						
-						defines.set (haxelib.name, HaxelibHelper.getVersion (haxelib));
+						if (!defines.exists (haxelib.name)) {
+							
+							defines.set (haxelib.name, HaxelibHelper.getVersion (haxelib));
+							
+						}
+						
 						haxelibs.push (haxelib);
 						
 						var includeProject = HXProject.fromHaxelib (haxelib, defines);

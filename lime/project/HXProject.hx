@@ -7,6 +7,7 @@ import haxe.Serializer;
 import haxe.Unserializer;
 import lime.tools.helpers.ArrayHelper;
 import lime.tools.helpers.CompatibilityHelper;
+import lime.tools.helpers.HaxelibHelper;
 import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.ObjectHelper;
 import lime.tools.helpers.PathHelper;
@@ -518,6 +519,12 @@ class HXProject {
 			return null;
 			
 		}
+		
+		//if (!userDefines.exists (haxelib.name)) {
+			//
+			//userDefines.set (haxelib.name, HaxelibHelper.getVersion (haxelib));
+			//
+		//}
 		
 		return HXProject.fromPath (path, userDefines);
 		
