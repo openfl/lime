@@ -1388,11 +1388,18 @@ class CommandLineTools {
 			
 		}
 		
-		// Not sure why this gets no output?
-		
-		//var haxeVersion = ProcessHelper.runProcess ("", "haxe", [ "-version" ], true, true, true);
-		//environment.set ("haxe", haxeVersion);
-		//environment.set ("haxe_ver", haxeVersion);
+		try {
+			
+			var process = new Process ("haxe", [ "-version" ]);
+			var haxeVersion = StringTools.trim (process.stderr.readAll ().toString ());
+			process.close ();
+			
+			environment.set ("haxe", haxeVersion);
+			environment.set ("haxe_ver", haxeVersion);
+			
+			environment.set ("haxe" + haxeVersion.split (".")[0], "1");
+			
+		} catch (e:Dynamic) {}
 		
 		if (!environment.exists ("HAXE_STD_PATH")) {
 			

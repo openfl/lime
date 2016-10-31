@@ -128,12 +128,6 @@ class ProjectXMLParser extends HXProject {
 			
 		}
 		
-		var p = new sys.io.Process ("haxe", ["-version"]);
-		var haxeVersion = StringTools.replace (p.stderr.readAll ().toString (), "\n", "");
-		p.close ();
-		defines.set ("haxe", haxeVersion);
-		defines.set ("haxe"+haxeVersion.split(".")[0], "1");
-		
 		if (debug) {
 			
 			defines.set ("debug", "1");

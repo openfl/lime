@@ -2,7 +2,7 @@
 <extension>
 	
 	<log error="Lime ${lime} is not compatible with Haxe ${haxe} (version 3.2.0 or higher is required)" if="${haxe < 3.2.0}" />
-
+	
 	<set name="lime" />
 	
 	<haxedef name="native" if="cpp || neko || nodejs || cs" />
