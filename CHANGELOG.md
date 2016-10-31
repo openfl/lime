@@ -1,3 +1,33 @@
+3.4.0 (10/31/2016)
+------------------
+
+* Moved Lime config from ~/.hxcpp_config.xml to ~/.lime/config.xml
+* Added a new "lime config" command to print the current config
+* Added "lime config VARNAME" command to print a value from the current config
+* Added initial support for modular HTML5 builds (generates separate lime.js)
+* Added support for comparisons in project XML (like ${haxe >= 3.2.1})
+* Added lime.ui.Haptic for initial support of vibrate on iOS/Android
+* Added <log /> to project XML for info/warning/error/verbose messages
+* Added a build-time error if Haxe is less than 3.2.0
+* Added support for GIT-based meta build number value
+* Added initial high-DPI support for HTML5
+* Updated SDL to version 2.0.5
+* Improved support for Android immersive mode
+* Improved idle performance on macOS
+* Improved Gradle template to output APK filenames based on build type
+* Improved verbose messages for embedded fonts
+* Removed Neko template binaries, updated tools to use host version
+* Fixed IPHONE_VER issues with certain versions of HXCPP
+* Fixed iOS device deployment on macOS Sierra
+* Fixed iOS simulator deployment on macOS Sierra
+* Fixed node.js HTTP server support on macOS Sierra
+* Fixed duplicate symbol error on iOS
+* Fixed support for older CPUs without SSE4 instruction support
+* Fixed crash on negative seek position for HTML5 AudioSource
+* Fixed initial gain and position when playing HTML5 AudioSource sound
+* Fixed compatibility issues with current Haxe development versions
+
+
 3.3.0 (10/10/2016)
 -----------------
 
