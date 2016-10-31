@@ -7,7 +7,7 @@
 * Added initial support for modular HTML5 builds (generates separate lime.js)
 * Added support for comparisons in project XML (like ${haxe >= 3.2.1})
 * Added lime.ui.Haptic for initial support of vibrate on iOS/Android
-* Added <log /> to project XML for info/warning/error/verbose messages
+* Added `<log />` to project XML for info/warning/error/verbose messages
 * Added a build-time error if Haxe is less than 3.2.0
 * Added support for GIT-based meta build number value
 * Added initial high-DPI support for HTML5
@@ -37,7 +37,7 @@
 * Added automatic garbage collection to OpenAL bindings
 * Improved the behavior of AudioSource, added Howler.js for HTML5
 * Improved CFFI bindings to prevent early GC of bytes
-* Improved the behavior of *.hxp project files
+* Improved the behavior of \*.hxp project files
 * Improved support for the C# target
 * Improved `<meta build-number="" />` to allow a value of 0
 * Improved support for "-lib lime" from plain HXML
