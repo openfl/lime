@@ -76,6 +76,8 @@
 		<set name="module-name" value="lime" unless="openfl" />
 		<set name="module-name" value="openfl" if="openfl" />
 		
+		<setenv name="HAXE_STD_PATH" value="${HAXE_STD_PATH}" if="modular HAXE_STD_PATH" />
+		
 		<module name="${module-name}" if="html5 modular">
 			
 			<source path="${HAXE_STD_PATH}" package="js.html" />
