@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "3.4.0",
-	"releasenote": "",
+	"version": "3.4.1",
+	"releasenote": "Improved lime config, modular HTML5 builds, update to SDL 2.0.5",
 	"contributors": [ "singmajesty" ]
 }
