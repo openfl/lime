@@ -63,6 +63,7 @@ class ApplicationMain {
 	public static function create ():Void {
 		
 		preloader = new ::if (PRELOADER_NAME != "")::::PRELOADER_NAME::::else::lime.app.Preloader::end:: ();
+		preloader.onComplete.add (registerLibrary);
 		
 		#if !munit
 		app = new ::APP_MAIN:: ();
@@ -170,9 +171,14 @@ class ApplicationMain {
 	#end
 	
 	
-	public static function start ():Void {
+	private static function registerLibrary ():Void {
 		
 		lime.Assets.registerLibrary ("default", new DefaultAssetLibrary ());
+		
+	}
+	
+	
+	public static function start ():Void {
 		
 		#if !munit
 		
