@@ -1,3 +1,10 @@
+3.4.1 (11/01/2016)
+------------------
+
+* Fixed order of Assets.registerLibrary and app.onPreloaderComplete
+* Added a workaround for HAXE_STD_PATH error on -Dmodular
+
+
 3.4.0 (10/31/2016)
 ------------------
 
