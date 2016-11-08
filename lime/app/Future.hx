@@ -34,9 +34,17 @@ import lime.utils.Log;
 				
 			} else {
 				
-				trace (work);
-				value = work ();
-				isComplete = true;
+				try {
+					
+					value = work ();
+					isComplete = true;
+					
+				} catch (e:Dynamic) {
+					
+					error = e;
+					isError = true;
+					
+				}
 				
 			}
 			
