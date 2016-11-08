@@ -122,6 +122,11 @@ class HTTPRequest {
 						stringAbstract = isStringAbstract (t.get ());
 						if (!stringAbstract) bytesAbstract = isBytesAbstract (t.get ());
 					
+					case TType (t, args):
+						
+						type = t.get ();
+						typeArgs = args;
+					
 					case TMono (_):
 						
 						Context.fatalError ("Invalid number of type parameters for " + localType.toString (), Context.currentPos ());
