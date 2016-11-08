@@ -8,6 +8,7 @@ import haxe.io.Bytes;
 import lime.app.Future;
 import lime.app.Promise;
 import lime.net.HTTPRequest;
+import lime.net.HTTPRequestHeader;
 
 
 class HTML5HTTPRequest {
@@ -57,26 +58,30 @@ class HTML5HTTPRequest {
 		
 		var query = "";
 		
-		for (key in parent.formData.keys ()) {
+		if (parent.data == null) {
 			
-			if (query.length > 0) query += "&";
-			query += StringTools.urlEncode (key) + "=" + StringTools.urlEncode (Std.string (parent.formData.get (key)));
-			
-		}
-		
-		if (parent.method == GET) {
-			
-			if (uri.indexOf ("?") > -1) {
+			for (key in parent.formData.keys ()) {
 				
-				uri += "&" + query;
-				
-			} else {
-				
-				uri += "?" + query;
+				if (query.length > 0) query += "&";
+				query += StringTools.urlEncode (key) + "=" + StringTools.urlEncode (Std.string (parent.formData.get (key)));
 				
 			}
 			
-			query = "";
+			if (parent.method == GET) {
+				
+				if (uri.indexOf ("?") > -1) {
+					
+					uri += "&" + query;
+					
+				} else {
+					
+					uri += "?" + query;
+					
+				}
+				
+				query = "";
+				
+			}
 			
 		}
 		
@@ -88,13 +93,30 @@ class HTML5HTTPRequest {
 			
 		}
 		
+		var hasContentType = false;
+		
 		for (header in parent.headers) {
 			
+			if (header.name == "Content-Type") hasContentType = true;
 			request.setRequestHeader (header.name, header.value);
 			
 		}
 		
-		request.send (query);
+		if (!hasContentType) {
+			
+			request.setRequestHeader ("Content-Type", parent.contentType);
+			
+		}
+		
+		if (parent.data != null) {
+			
+			request.send (parent.data.getData ());
+			
+		} else {
+			
+			request.send (query);
+			
+		}
 		
 	}
 	
@@ -125,10 +147,12 @@ class HTML5HTTPRequest {
 				
 				bytes = Bytes.ofData (request.response);
 				
+				processResponse ();
 				promise.complete (bytes);
 				
 			} else {
 				
+				processResponse ();
 				promise.error (request.status);
 				
 			}
@@ -161,10 +185,12 @@ class HTML5HTTPRequest {
 			
 			if (request.status != null && request.status >= 200 && request.status <= 400) {
 				
+				processResponse ();
 				promise.complete (request.responseText);
 				
 			} else {
 				
+				processResponse ();
 				promise.error (request.status);
 				
 			}
@@ -177,6 +203,33 @@ class HTML5HTTPRequest {
 		load (uri, progress, readyStateChange);
 		
 		return promise.future;
+		
+	}
+	
+	
+	private function processResponse ():Void {
+		
+		if (parent.enableResponseHeaders) {
+			
+			parent.responseHeaders = [];
+			var name, value;
+			
+			for (line in request.getAllResponseHeaders ().split ("\n")) {
+				
+				name = StringTools.trim (line.substr (0, line.indexOf (":")));
+				value = StringTools.trim (line.substr (line.indexOf (":") + 1));
+				
+				if (name != "") {
+					
+					parent.responseHeaders.push (new HTTPRequestHeader (name, value));
+					
+				}
+				
+			}
+			
+		}
+		
+		parent.responseStatus = request.status;
 		
 	}
 	

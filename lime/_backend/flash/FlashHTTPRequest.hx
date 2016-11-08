@@ -2,8 +2,10 @@ package lime._backend.flash;
 
 
 import flash.events.Event;
+import flash.events.HTTPStatusEvent;
 import flash.events.IOErrorEvent;
 import flash.events.ProgressEvent;
+import flash.events.SecurityErrorEvent;
 import flash.net.URLLoader;
 import flash.net.URLLoaderDataFormat;
 import flash.net.URLRequest;
@@ -19,7 +21,6 @@ import lime.net.HTTPRequest;
 class FlashHTTPRequest {
 	
 	
-	private var binary:Bool;
 	private var parent:IHTTPRequest;
 	private var urlLoader:URLLoader;
 	private var urlRequest:URLRequest;
@@ -43,40 +44,42 @@ class FlashHTTPRequest {
 	}
 	
 	
-	public function init (parent:IHTTPRequest):Void {
-		
-		this.parent = parent;
-		
-	}
-	
-	
-	private function createURLLoader ():Void {
+	private function construct (binary:Bool):Void {
 		
 		urlLoader = new URLLoader ();
+		urlRequest = new URLRequest ();
 		
 		var query = "";
 		var uri = parent.uri;
 		
-		for (key in parent.formData.keys ()) {
+		if (parent.data != null) {
 			
-			if (query.length > 0) query += "&";
-			query += StringTools.urlEncode (key) + "=" + StringTools.urlEncode (Std.string (parent.formData.get (key)));
+			urlRequest.data = parent.data.getData ();
 			
-		}
-		
-		if (parent.method == GET) {
+		} else {
 			
-			if (uri.indexOf ("?") > -1) {
+			for (key in parent.formData.keys ()) {
 				
-				uri += "&" + query;
-				
-			} else {
-				
-				uri += "?" + query;
+				if (query.length > 0) query += "&";
+				query += StringTools.urlEncode (key) + "=" + StringTools.urlEncode (Std.string (parent.formData.get (key)));
 				
 			}
 			
-			query = "";
+			if (query != "" && parent.method == GET) {
+				
+				if (uri.indexOf ("?") > -1) {
+					
+					uri += "&" + query;
+					
+				} else {
+					
+					uri += "?" + query;
+					
+				}
+				
+				query = "";
+				
+			}
 			
 		}
 		
@@ -86,8 +89,12 @@ class FlashHTTPRequest {
 			
 		}
 		
-		urlRequest = new URLRequest (uri);
+		urlRequest.url = uri;
+		urlRequest.contentType = parent.contentType;
+		
 		//urlRequest.userAgent = parent.userAgent;
+		//urlRequest.followRedirects = parent.followRedirects;
+		
 		urlRequest.method = switch (parent.method) {
 			
 			case POST: URLRequestMethod.POST;
@@ -104,12 +111,17 @@ class FlashHTTPRequest {
 	}
 	
 	
+	public function init (parent:IHTTPRequest):Void {
+		
+		this.parent = parent;
+		
+	}
+	
+	
 	public function loadData (uri:String):Future<Bytes> {
 		
 		var promise = new Promise<Bytes> ();
-		
-		binary = true;
-		createURLLoader ();
+		construct (true);
 		
 		urlLoader.addEventListener (ProgressEvent.PROGRESS, function (event) {
 			
@@ -125,9 +137,27 @@ class FlashHTTPRequest {
 			
 		});
 		
+		urlLoader.addEventListener (HTTPStatusEvent.HTTP_STATUS, function (event) {
+			
+			parent.responseStatus = event.status;
+			
+			if (parent.enableResponseHeaders) {
+				
+				parent.responseHeaders = event.responseHeaders;
+				
+			}
+			
+		});
+		
 		urlLoader.addEventListener (IOErrorEvent.IO_ERROR, function (event) {
 			
 			promise.error (event.errorID);
+			
+		});
+		
+		urlLoader.addEventListener (SecurityErrorEvent.SECURITY_ERROR, function (event) {
+			
+			promise.error (403);
 			
 		});
 		
@@ -146,9 +176,7 @@ class FlashHTTPRequest {
 	public function loadText (uri:String):Future<String> {
 		
 		var promise = new Promise<String> ();
-		
-		binary = false;
-		createURLLoader ();
+		construct (false);
 		
 		urlLoader.addEventListener (ProgressEvent.PROGRESS, function (event) {
 			
@@ -164,9 +192,27 @@ class FlashHTTPRequest {
 			
 		});
 		
+		urlLoader.addEventListener (HTTPStatusEvent.HTTP_STATUS, function (event) {
+			
+			parent.responseStatus = event.status;
+			
+			if (parent.enableResponseHeaders) {
+				
+				parent.responseHeaders = event.responseHeaders;
+				
+			}
+			
+		});
+		
 		urlLoader.addEventListener (IOErrorEvent.IO_ERROR, function (event) {
 			
 			promise.error (event.errorID);
+			
+		});
+		
+		urlLoader.addEventListener (SecurityErrorEvent.SECURITY_ERROR, function (event) {
+			
+			promise.error (403);
 			
 		});
 		
