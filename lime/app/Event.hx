@@ -71,7 +71,12 @@ class Event<T> {
 				
 				typeArgs = args;
 				typeResult = result;
+			
+			case TInst (localType, _):
 				
+				Context.fatalError ("Invalid number of type parameters for " + localType.toString (), Context.currentPos ());
+				return null;
+			
 			default:
 				
 				throw false;

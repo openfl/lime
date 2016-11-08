@@ -242,7 +242,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 		}
 		
-		var bytes = loader.bytes;
+		var bytes:Bytes = cast loader.responseData;
 		
 		if (bytes != null) {
 			
@@ -380,7 +380,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 		}
 		
-		var bytes = loader.bytes;
+		var bytes:Bytes = cast loader.responseData;
 		
 		if (bytes != null) {
 			
@@ -475,7 +475,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		if (Assets.isLocal (id)) {
 			
-			promise.completeWith (new Future<AudioBuffer> (function () return getAudioBuffer (id)));
+			promise.completeWith (new Future<AudioBuffer> (function () return getAudioBuffer (id), true));
 			
 		} else if (path.exists (id)) {
 			
@@ -534,7 +534,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		if (path.exists (id)) {
 			
-			var request = new HTTPRequest ();
+			var request = new HTTPRequest<Bytes> ();
 			promise.completeWith (request.load (path.get (id) + "?" + Assets.cache.version));
 			
 		} else {
@@ -545,7 +545,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		promise.completeWith (new Future<Bytes> (function () return getBytes (id)));
+		promise.completeWith (new Future<Bytes> (function () return getBytes (id), true));
 		
 		#end
 		
@@ -612,7 +612,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#else
 		
-		promise.completeWith (new Future<Image> (function () return getImage (id)));
+		promise.completeWith (new Future<Image> (function () return getImage (id), true));
 		
 		#end
 		
@@ -693,11 +693,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		if (path.exists (id)) {
 			
-			var request = new HTTPRequest ();
-			var future = request.load (path.get (id) + "?" + Assets.cache.version);
-			future.onProgress (function (progress) promise.progress (progress));
-			future.onError (function (msg) promise.error (msg));
-			future.onComplete (function (bytes) promise.complete (bytes.getString (0, bytes.length)));
+			var request = new HTTPRequest<String> ();
+			promise.completeWith (request.load (path.get (id) + "?" + Assets.cache.version));
 			
 		} else {
 			
@@ -721,7 +718,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 					
 				}
 				
-			});
+			}, true);
 			
 		}));
 		

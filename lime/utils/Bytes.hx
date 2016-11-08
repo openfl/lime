@@ -40,6 +40,13 @@ class Bytes extends HaxeBytes {
 	}
 	
 	
+	public static function fromBytes (bytes:haxe.io.Bytes):Bytes {
+		
+		return new Bytes (bytes.length, bytes.getData ());
+		
+	}
+	
+	
 	public static function ofData (b:BytesData):Bytes {
 		
 		var bytes = HaxeBytes.ofData (b);

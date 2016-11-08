@@ -1,6 +1,7 @@
 package lime.app;
 
 
+import haxe.io.Bytes;
 import haxe.io.Path;
 import lime.app.Event;
 import lime.Assets;
@@ -29,7 +30,7 @@ class Preloader #if flash extends Sprite #end {
 	#if (js && html5)
 	public static var audioBuffers = new Map<String, AudioBuffer> ();
 	public static var images = new Map<String, Image> ();
-	public static var loaders = new Map<String, HTTPRequest> ();
+	public static var loaders = new Map<String, HTTPRequest<Bytes>> ();
 	private var loaded = 0;
 	private var total = 0;
 	#end
@@ -94,7 +95,7 @@ class Preloader #if flash extends Sprite #end {
 					
 					if (!loaders.exists (url)) {
 						
-						var loader = new HTTPRequest ();
+						var loader = new HTTPRequest<Bytes> ();
 						loaders.set (url, loader);
 						total++;
 						
@@ -104,7 +105,7 @@ class Preloader #if flash extends Sprite #end {
 					
 					if (!loaders.exists (url)) {
 						
-						var loader = new HTTPRequest ();
+						var loader = new HTTPRequest<Bytes> ();
 						loaders.set (url, loader);
 						total++;
 						

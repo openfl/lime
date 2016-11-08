@@ -21,14 +21,24 @@ import lime.utils.Log;
 	private var __progressListeners:Array<Float->Void>;
 	
 	
-	public function new (work:Void->T = null) {
+	public function new (work:Void->T = null, async:Bool = false) {
 		
 		if (work != null) {
 			
-			var promise = new Promise<T> ();
-			promise.future = this;
-			
-			FutureWork.queue ({ promise: promise, work: work });
+			if (async) {
+				
+				var promise = new Promise<T> ();
+				promise.future = this;
+				
+				FutureWork.queue ({ promise: promise, work: work });
+				
+			} else {
+				
+				trace (work);
+				value = work ();
+				isComplete = true;
+				
+			}
 			
 		}
 		
@@ -200,6 +210,26 @@ import lime.utils.Log;
 			return promise.future;
 			
 		}
+		
+	}
+	
+	
+	public static function withError (error:Dynamic):Future<Dynamic> {
+		
+		var future = new Future<Dynamic> ();
+		future.isError = true;
+		future.error = error;
+		return future;
+		
+	}
+	
+	
+	public static function withValue<T> (value:T):Future<T> {
+		
+		var future = new Future<T> ();
+		future.isComplete = true;
+		future.value = value;
+		return future;
 		
 	}
 	

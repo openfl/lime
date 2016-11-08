@@ -20,6 +20,7 @@ class BackgroundWorker {
 	private static var MESSAGE_ERROR = "__ERROR__";
 	
 	public var canceled (default, null):Bool;
+	public var completed (default, null):Bool;
 	public var doWork = new Event<Dynamic->Void> ();
 	public var onComplete = new Event<Dynamic->Void> ();
 	public var onError = new Event<Dynamic->Void> ();
@@ -56,6 +57,7 @@ class BackgroundWorker {
 	public function run (message:Dynamic = null):Void {
 		
 		canceled = false;
+		completed = false;
 		__runMessage = message;
 		
 		#if (cpp || neko)
@@ -75,6 +77,8 @@ class BackgroundWorker {
 	
 	
 	public function sendComplete (message:Dynamic = null):Void {
+		
+		completed = true;
 		
 		#if (cpp || neko)
 		
