@@ -38,7 +38,6 @@ class HTTPRequest<T> implements IHTTPRequest {
 		
 		contentType = "application/x-www-form-urlencoded";
 		followRedirects = true;
-		enableResponseHeaders = true;
 		formData = new Map ();
 		headers = [];
 		method = GET;
