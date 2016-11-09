@@ -99,7 +99,7 @@ class _HTTPRequest_Bytes<T> extends AbstractHTTPRequest<T> {
 			
 		}
 		
-		var promise = new lime.app.Promise<T> ();
+		var promise = new Promise<T> ();
 		var future = backend.loadData (this.uri);
 		
 		future.onProgress (promise.progress);
@@ -138,7 +138,7 @@ class _HTTPRequest_String<T> extends AbstractHTTPRequest<T> {
 			
 		}
 		
-		var promise = new lime.app.Promise<T> ();
+		var promise = new Promise<T> ();
 		var future = backend.loadText (this.uri);
 		
 		future.onProgress (promise.progress);

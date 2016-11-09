@@ -53,6 +53,19 @@ import lime.utils.Log;
 	}
 	
 	
+	public static function ofEvents<T> (onComplete:Event<T->Void>, onError:Event<Dynamic->Void> = null, onProgress:Event<Int->Int->Void> = null):Future<T> {
+		
+		var promise = new Promise<T> ();
+		
+		onComplete.add (function (data) promise.complete (data), true);
+		if (onError != null) onError.add (function (error) promise.error (error), true);
+		if (onProgress != null) onProgress.add (function (progress, total) promise.progress (progress, total), true);
+		
+		return promise.future;
+		
+	}
+	
+	
 	public function onComplete (listener:T->Void):Future<T> {
 		
 		if (listener != null) {
