@@ -20,7 +20,7 @@ class NativeHTTPRequest {
 	private var bytesLoaded:Int;
 	private var bytesTotal:Int;
 	private var curl:CURL;
-	private var parent:IHTTPRequest;
+	private var parent:_IHTTPRequest;
 	private var promise:Promise<Bytes>;
 	
 	
@@ -44,7 +44,7 @@ class NativeHTTPRequest {
 	}
 	
 	
-	public function init (parent:IHTTPRequest):Void {
+	public function init (parent:_IHTTPRequest):Void {
 		
 		this.parent = parent;
 		

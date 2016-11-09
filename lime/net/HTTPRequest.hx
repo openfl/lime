@@ -1,16 +1,27 @@
 package lime.net; #if !macro
 
 
-#if (!macro && !display)
+import haxe.io.Bytes;
+import lime.app.Event;
+import lime.app.Future;
+import lime.app.Promise;
+
+
+#if display
+
+class HTTPRequest<T> {
+
+#else
+
 @:genericBuild(lime.net.HTTPRequest.build())
-#end
+class HTTPRequest<T> extends AbstractHTTPRequest<T> {}
 
-
-class HTTPRequest<T> implements IHTTPRequest {
+private class AbstractHTTPRequest<T> implements _IHTTPRequest {
 	
+#end
 	
 	public var contentType:String;
-	public var data:haxe.io.Bytes;
+	public var data:Bytes;
 	public var enableResponseHeaders:Bool;
 	public var followRedirects:Bool;
 	public var formData:Map<String, Dynamic>;
@@ -23,13 +34,7 @@ class HTTPRequest<T> implements IHTTPRequest {
 	public var uri:String;
 	public var userAgent:String;
 	
-	#if flash
-	private var backend = new lime._backend.flash.FlashHTTPRequest ();
-	#elseif (js && html5)
-	private var backend = new lime._backend.html5.HTML5HTTPRequest ();
-	#else
-	private var backend = new lime._backend.native.NativeHTTPRequest ();
-	#end
+	private var backend:HTTPRequestBackend;
 	
 	
 	public function new (uri:String = null) {
@@ -43,6 +48,7 @@ class HTTPRequest<T> implements IHTTPRequest {
 		method = GET;
 		timeout = 30000;
 		
+		backend = new HTTPRequestBackend ();
 		backend.init (this);
 		
 	}
@@ -55,7 +61,7 @@ class HTTPRequest<T> implements IHTTPRequest {
 	}
 	
 	
-	public function load (uri:String = null):lime.app.Future<T> {
+	public function load (uri:String = null):Future<T> {
 		
 		return null;
 		
@@ -65,7 +71,95 @@ class HTTPRequest<T> implements IHTTPRequest {
 }
 
 
-@:dox(hide) @:noCompletion interface IHTTPRequest {
+#if !display
+
+
+class _HTTPRequest_Bytes<T> extends AbstractHTTPRequest<T> {
+	
+	
+	public function new (uri:String = null) {
+		
+		super (uri);
+		
+	}
+	
+	
+	private function fromBytes (bytes:Bytes):T {
+		
+		return cast bytes;
+		
+	}
+	
+	
+	public override function load (uri:String = null):Future<T> {
+		
+		if (uri != null) {
+			
+			this.uri = uri;
+			
+		}
+		
+		var promise = new lime.app.Promise<T> ();
+		var future = backend.loadData (this.uri);
+		
+		future.onProgress (promise.progress);
+		future.onError (promise.error);
+		
+		future.onComplete (function (bytes) {
+			
+			responseData = fromBytes (bytes);
+			promise.complete (responseData);
+			
+		});
+		
+		return promise.future;
+		
+	}
+	
+	
+}
+
+
+class _HTTPRequest_String<T> extends AbstractHTTPRequest<T> {
+	
+	
+	public function new (uri:String = null) {
+		
+		super (uri);
+		
+	}
+	
+	
+	public override function load (uri:String = null):Future<T> {
+		
+		if (uri != null) {
+			
+			this.uri = uri;
+			
+		}
+		
+		var promise = new lime.app.Promise<T> ();
+		var future = backend.loadText (this.uri);
+		
+		future.onProgress (promise.progress);
+		future.onError (promise.error);
+		
+		future.onComplete (function (text) {
+			
+			responseData = cast text;
+			promise.complete (responseData);
+			
+		});
+		
+		return promise.future;
+		
+	}
+	
+	
+}
+
+
+interface _IHTTPRequest {
 	
 	public var contentType:String;
 	public var data:haxe.io.Bytes;
@@ -84,6 +178,18 @@ class HTTPRequest<T> implements IHTTPRequest {
 	public function cancel ():Void;
 	
 }
+
+
+#end
+
+
+#if flash
+private typedef HTTPRequestBackend = lime._backend.flash.FlashHTTPRequest;
+#elseif (js && html5)
+private typedef HTTPRequestBackend = lime._backend.html5.HTML5HTTPRequest;
+#else
+private typedef HTTPRequestBackend = lime._backend.native.NativeHTTPRequest;
+#end
 
 
 #else
@@ -171,160 +277,70 @@ class HTTPRequest {
 			
 		}
 		
-		var typeParamString = typeString;
+		if (typeString == "String" || stringAbstract) {
+			
+			return TPath ( { pack: [ "lime", "net" ], name: "HTTPRequest", sub: "_HTTPRequest_String", params: [ TPType (paramType.toComplexType ()) ] } ).toType ();
+			
+		} else if (typeString == "haxe.io.Bytes" || bytesAbstract) {
+			
+			return TPath ( { pack: [ "lime", "net" ], name: "HTTPRequest", sub: "_HTTPRequest_Bytes", params: [ TPType (paramType.toComplexType ()) ] } ).toType ();
+			
+		} else {
 		
-		if (typeArgs.length > 0) {
+			var typeParamString = typeString;
 			
-			typeParamString += "<";
-			
-			for (i in 0...typeArgs.length) {
+			if (typeArgs.length > 0) {
 				
-				if (i > 0) typeParamString += ",";
-				typeParamString += typeArgs[i].toString ();
+				typeParamString += "<";
 				
-			}
-			
-			typeParamString += ">";
-			
-		}
-		
-		var flattenedTypeString = typeParamString;
-		
-		flattenedTypeString = StringTools.replace (flattenedTypeString, "->", "_");
-		flattenedTypeString = StringTools.replace (flattenedTypeString, ".", "_");
-		flattenedTypeString = StringTools.replace (flattenedTypeString, "<", "_");
-		flattenedTypeString = StringTools.replace (flattenedTypeString, ">", "_");
-		
-		var name = "_HTTPRequest_" + flattenedTypeString;
-		
-		try {
-			
-			Context.getType ("lime.net." + name);
-			
-		} catch (e:Dynamic) {
-			
-			var pos = Context.currentPos ();
-			var fields = Context.getBuildFields ();
-			var load = null;
-			
-			for (field in fields) {
-				
-				if (field.name == "load") {
+				for (i in 0...typeArgs.length) {
 					
-					load = field;
-					break;
+					if (i > 0) typeParamString += ",";
+					typeParamString += typeArgs[i].toString ();
 					
 				}
 				
+				typeParamString += ">";
+				
 			}
 			
-			switch (load.kind) {
+			var flattenedTypeString = typeParamString;
+			
+			flattenedTypeString = StringTools.replace (flattenedTypeString, "->", "_");
+			flattenedTypeString = StringTools.replace (flattenedTypeString, ".", "_");
+			flattenedTypeString = StringTools.replace (flattenedTypeString, "<", "_");
+			flattenedTypeString = StringTools.replace (flattenedTypeString, ">", "_");
+			
+			var name = "_HTTPRequest_" + flattenedTypeString;
+			
+			try {
 				
-				case FFun (fun):
+				Context.getType ("lime.net." + name);
+				
+			} catch (e:Dynamic) {
+				
+				var pos = Context.currentPos ();
+				
+				var fields = [
+					{ name: "new", access: [ APublic ], kind: FFun({ args: [ { name: "uri", type: macro :String, opt: true } ], expr: macro { super (uri); }, params: [], ret: macro :Void }), pos: Context.currentPos () },
+					{ name: "fromBytes", access: [ APrivate, AOverride ], kind: FFun ( { args: [ { name: "bytes", type: macro :haxe.io.Bytes } ], expr: Context.parse ("return " + typeString + ".fromBytes (bytes)", pos), params: [], ret: paramType.toComplexType () } ), pos: pos }
+				];
+				
+				Context.defineType ({
 					
-					if (typeString == "String") {
-						
-						fun.expr = macro { 
-							
-							if (uri != null) {
-								
-								this.uri = uri;
-								
-							}
-							
-							return cast backend.loadText (this.uri);
-							
-						};
-						
-					} else if (stringAbstract) {
-						
-						fun.expr = macro { 
-							
-							if (uri != null) {
-								
-								this.uri = uri;
-								
-							}
-							
-							var promise = new lime.app.Promise<T> ();
-							var future = backend.loadText (this.uri);
-							
-							future.onProgress (promise.progress);
-							future.onError (promise.error);
-							
-							future.onComplete (function (text) {
-								
-								responseData = cast text;
-								promise.complete (responseData);
-								
-							});
-							
-							return promise.future;
-							
-						};
-						
-					} else {
-						
-						fun.expr = macro { 
-							
-							if (uri != null) {
-								
-								this.uri = uri;
-								
-							}
-							
-							var promise = new lime.app.Promise<T> ();
-							var future = backend.loadData (this.uri);
-							
-							future.onProgress (promise.progress);
-							future.onError (promise.error);
-							
-							future.onComplete (function (bytes) {
-								
-								responseData = cast fromBytes (bytes);
-								promise.complete (responseData);
-								
-							});
-							
-							return promise.future;
-							
-						};
-						
-						var fromBytes = null;
-						
-						if (typeString == "haxe.io.Bytes" || bytesAbstract) {
-							
-							fromBytes = macro { return bytes; }
-							
-						} else {
-							
-							fromBytes = Context.parse ("return " + typeString + ".fromBytes (bytes)", pos);
-							
-						}
-						
-						fields.push ( { name: "fromBytes", access: [ APrivate, AInline ], kind: FFun ( { args: [ { name: "bytes", type: macro :haxe.io.Bytes } ], expr: fromBytes, params: [], ret: paramType.toComplexType () } ), pos: pos } );
-						
-					}
-				
-				default:
+					name: name,
+					pack: [ "lime", "net" ],
+					kind: TDClass ({ pack: [ "lime", "net" ], name: "HTTPRequest", sub: "_HTTPRequest_Bytes", params: [ TPType (paramType.toComplexType ()) ] }, null, false),
+					fields: fields,
+					pos: pos
+					
+				});
 				
 			}
 			
-			Context.defineType ({
-				
-				pos: pos,
-				pack: [ "lime", "net" ],
-				name: name,
-				kind: TDClass (null, [ { pack: [ "lime", "net" ], name: "HTTPRequest", sub: "IHTTPRequest", params: [] } ], null),
-				fields: fields,
-				params: [ { name: "T" } ],
-				meta: [ { name: ":dox", params: [ macro hide ], pos: pos }, { name: ":noCompletion", pos: pos } ]
-				
-			});
+			return TPath ( { pack: [ "lime", "net" ], name: name, params: [] } ).toType ();
 			
 		}
-		
-		return TPath ( { pack: [ "lime", "net" ], name: name, params: [ TPType (paramType.toComplexType ()) ] } ).toType ();
 		
 	}
 	
@@ -337,7 +353,7 @@ class HTTPRequest {
 				
 				case TInst (t, _):
 					
-					return isBytesType (t.get ());
+					return t.get ().module == "haxe.io.Bytes";
 				
 				case TAbstract (t, _):
 					
@@ -348,21 +364,6 @@ class HTTPRequest {
 					return false;
 				
 			}
-			
-		}
-		
-		return false;
-		
-	}
-	
-	
-	private static function isBytesType (type:ClassType):Bool {
-		
-		while (true) {
-			
-			if (type.module == "haxe.io.Bytes") return true;
-			if (type.superClass == null) break;
-			type = type.superClass.t.get ();
 			
 		}
 		

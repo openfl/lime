@@ -21,7 +21,7 @@ import lime.net.HTTPRequest;
 class FlashHTTPRequest {
 	
 	
-	private var parent:IHTTPRequest;
+	private var parent:_IHTTPRequest;
 	private var urlLoader:URLLoader;
 	private var urlRequest:URLRequest;
 	
@@ -111,7 +111,7 @@ class FlashHTTPRequest {
 	}
 	
 	
-	public function init (parent:IHTTPRequest):Void {
+	public function init (parent:_IHTTPRequest):Void {
 		
 		this.parent = parent;
 		

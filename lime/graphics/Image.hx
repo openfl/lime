@@ -1181,7 +1181,7 @@ class Image {
 			
 		#else
 			
-			throw "ImageBuffer.loadFromBytes not supported on this target";
+			throw "Image.fromBytes not supported on this target";
 			
 		#end
 		

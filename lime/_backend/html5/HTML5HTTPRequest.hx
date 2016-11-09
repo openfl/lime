@@ -15,7 +15,7 @@ class HTML5HTTPRequest {
 	
 	
 	private var binary:Bool;
-	private var parent:IHTTPRequest;
+	private var parent:_IHTTPRequest;
 	private var request:XMLHttpRequest;
 	
 	
@@ -37,7 +37,7 @@ class HTML5HTTPRequest {
 	}
 	
 	
-	public function init (parent:IHTTPRequest):Void {
+	public function init (parent:_IHTTPRequest):Void {
 		
 		this.parent = parent;
 		
