@@ -127,7 +127,7 @@ class HTML5HTTPRequest {
 		
 		var progress = function (event) {
 			
-			promise.progress (event.loaded / event.total);
+			promise.progress (event.loaded, event.total);
 			
 		}
 		
@@ -175,7 +175,7 @@ class HTML5HTTPRequest {
 		
 		var progress = function (event) {
 			
-			promise.progress (event.loaded / event.total);
+			promise.progress (event.loaded, event.total);
 			
 		}
 		

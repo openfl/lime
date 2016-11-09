@@ -18,7 +18,7 @@ import lime.utils.Log;
 	
 	private var __completeListeners:Array<T->Void>;
 	private var __errorListeners:Array<Dynamic->Void>;
-	private var __progressListeners:Array<Float->Void>;
+	private var __progressListeners:Array<Int->Int->Void>;
 	
 	
 	public function new (work:Void->T = null, async:Bool = false) {
@@ -107,7 +107,7 @@ import lime.utils.Log;
 	}
 	
 	
-	public function onProgress (listener:Float->Void):Future<T> {
+	public function onProgress (listener:Int->Int->Void):Future<T> {
 		
 		if (listener != null) {
 			

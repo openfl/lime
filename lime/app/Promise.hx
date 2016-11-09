@@ -84,7 +84,7 @@ class Promise<T> {
 	}
 	
 	
-	public function progress (progress:Float):Promise<T> {
+	public function progress (progress:Int, total:Int):Promise<T> {
 		
 		if (!future.isError && !future.isComplete) {
 			
@@ -92,7 +92,7 @@ class Promise<T> {
 				
 				for (listener in future.__progressListeners) {
 					
-					listener (progress);
+					listener (progress, total);
 					
 				}
 				

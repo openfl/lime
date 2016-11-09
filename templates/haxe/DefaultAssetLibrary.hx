@@ -510,15 +510,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			});
 			loader.addEventListener (ProgressEvent.PROGRESS, function (event) {
 				
-				if (event.bytesTotal == 0) {
-					
-					promise.progress (0);
-					
-				} else {
-					
-					promise.progress (event.bytesLoaded / event.bytesTotal);
-					
-				}
+				promise.progress (event.bytesLoaded, event.bytesTotal);
 				
 			});
 			loader.addEventListener (IOErrorEvent.IO_ERROR, promise.error);
@@ -571,15 +563,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			});
 			loader.contentLoaderInfo.addEventListener (ProgressEvent.PROGRESS, function (event) {
 				
-				if (event.bytesTotal == 0) {
-					
-					promise.progress (0);
-					
-				} else {
-					
-					promise.progress (event.bytesLoaded / event.bytesTotal);
-					
-				}
+				promise.progress (event.bytesLoaded, event.bytesTotal);
 				
 			});
 			loader.contentLoaderInfo.addEventListener (IOErrorEvent.IO_ERROR, promise.error);

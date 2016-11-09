@@ -317,7 +317,7 @@ class NativeHTTPRequest {
 			if (uptotal > bytesTotal) bytesTotal = Std.int (uptotal);
 			if (dltotal > bytesTotal) bytesTotal = Std.int (dltotal);
 			
-			promise.progress (bytesLoaded / bytesTotal);
+			promise.progress (bytesLoaded, bytesTotal);
 			
 		}
 		
