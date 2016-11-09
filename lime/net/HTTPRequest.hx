@@ -81,6 +81,8 @@ class HTTPRequest<T> implements IHTTPRequest {
 	public var uri:String;
 	public var userAgent:String;
 	
+	public function cancel ():Void;
+	
 }
 
 
