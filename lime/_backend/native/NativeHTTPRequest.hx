@@ -51,7 +51,7 @@ class NativeHTTPRequest {
 	}
 	
 	
-	public function loadData (uri:String):Future<Bytes> {
+	public function loadData (uri:String, binary:Bool = true):Future<Bytes> {
 		
 		if (uri.indexOf ("http://") == -1 && uri.indexOf ("https://") == -1) {
 			
@@ -59,7 +59,7 @@ class NativeHTTPRequest {
 			
 		} else {
 			
-			loadURL (uri);
+			loadURL (uri, binary);
 			
 		}
 		
@@ -93,7 +93,7 @@ class NativeHTTPRequest {
 	public function loadText (uri:String):Future<String> {
 		
 		var promise = new Promise<String> ();
-		var future = loadData (uri);
+		var future = loadData (uri, false);
 		
 		future.onProgress (promise.progress);
 		future.onError (promise.error);
@@ -117,7 +117,7 @@ class NativeHTTPRequest {
 	}
 	
 	
-	private function loadURL (url:String):Void {
+	private function loadURL (uri:String, binary:Bool):Void {
 		
 		bytes = Bytes.alloc (0);
 		
@@ -134,18 +134,94 @@ class NativeHTTPRequest {
 			
 		}
 		
-		CURLEasy.setopt (curl, URL, url);
-		CURLEasy.setopt (curl, HTTPGET, parent.method == HTTPRequestMethod.GET);
+		var data = parent.data;
+		var query = "";
 		
-		CURLEasy.setopt (curl, FOLLOWLOCATION, true);
+		if (data == null) {
+			
+			for (key in parent.formData.keys ()) {
+				
+				if (query.length > 0) query += "&";
+				query += StringTools.urlEncode (key) + "=" + StringTools.urlEncode (Std.string (parent.formData.get (key)));
+				
+			}
+			
+			if (query != "") {
+				
+				if (parent.method == GET) {
+					
+					if (uri.indexOf ("?") > -1) {
+						
+						uri += "&" + query;
+						
+					} else {
+						
+						uri += "?" + query;
+						
+					}
+					
+					query = "";
+					
+				} else {
+					
+					data = Bytes.ofString (query);
+					
+				}
+				
+			}
+		}
+		
+		CURLEasy.setopt (curl, URL, uri);
+		
+		switch (parent.method) {
+			
+			case HEAD:
+				
+				CURLEasy.setopt (curl, NOBODY, true);
+			
+			case GET:
+				
+				CURLEasy.setopt (curl, HTTPGET, true);
+			
+			case POST:
+				
+				CURLEasy.setopt (curl, POST, true);
+				CURLEasy.setopt (curl, READFUNCTION, curl_onRead.bind (_, data));
+				CURLEasy.setopt (curl, POSTFIELDSIZE, data.length);
+				CURLEasy.setopt (curl, INFILESIZE, data.length);
+			
+			case PUT:
+				
+				CURLEasy.setopt (curl, UPLOAD, true);
+				CURLEasy.setopt (curl, READFUNCTION, curl_onRead.bind (_, data));
+				CURLEasy.setopt (curl, INFILESIZE, data.length);
+			
+			case _:
+				
+				CURLEasy.setopt (curl, CUSTOMREQUEST, Std.string (parent.method));
+				CURLEasy.setopt (curl, READFUNCTION, curl_onRead.bind (_, data));
+				CURLEasy.setopt (curl, INFILESIZE, data.length);
+			
+		}
+		
+		CURLEasy.setopt (curl, FOLLOWLOCATION, parent.followRedirects);
 		CURLEasy.setopt (curl, AUTOREFERER, true);
 		
 		var headers = [];
 		headers.push ("Expect: ");
 		
+		var hasContentType = false;
+		
 		for (header in cast (parent.headers, Array<Dynamic>)) {
 			
+			if (header.name == "Content-Type") hasContentType = true;
 			headers.push ('${header.name}: ${header.value}');
+			
+		}
+		
+		if (!hasContentType) {
+			
+			headers.push ("Content-Type: " + parent.contentType);
 			
 		}
 		
@@ -154,14 +230,20 @@ class NativeHTTPRequest {
 		CURLEasy.setopt (curl, PROGRESSFUNCTION, curl_onProgress);
 		CURLEasy.setopt (curl, WRITEFUNCTION, curl_onWrite);
 		
+		if (parent.enableResponseHeaders) {
+			
+			CURLEasy.setopt (curl, HEADERFUNCTION, curl_onHeader);
+			
+		}
+		
 		CURLEasy.setopt (curl, SSL_VERIFYPEER, false);
 		CURLEasy.setopt (curl, SSL_VERIFYHOST, 0);
-		CURLEasy.setopt (curl, USERAGENT, "libcurl-agent/1.0");
+		CURLEasy.setopt (curl, USERAGENT, parent.userAgent == null ? "libcurl-agent/1.0" : parent.userAgent);
 		
 		//CURLEasy.setopt (curl, CONNECTTIMEOUT, 30);
 		CURLEasy.setopt (curl, NOSIGNAL, true);
 		
-		CURLEasy.setopt (curl, TRANSFERTEXT, 0);
+		CURLEasy.setopt (curl, TRANSFERTEXT, !binary);
 		
 		var worker = new BackgroundWorker ();
 		worker.doWork.add (function (_) {
@@ -173,7 +255,7 @@ class NativeHTTPRequest {
 		});
 		worker.onComplete.add (function (result) {
 			
-			var responseCode = CURLEasy.getinfo (curl, RESPONSE_CODE);
+			parent.responseStatus = CURLEasy.getinfo (curl, RESPONSE_CODE);
 			
 			if (result == CURLCode.OK) {
 				
@@ -215,6 +297,17 @@ class NativeHTTPRequest {
 	
 	
 	
+	private function curl_onHeader (output:Bytes, size:Int, nmemb:Int):Int {
+		
+		parent.responseHeaders = [];
+		
+		// TODO
+		
+		return size * nmemb;
+		
+	}
+	
+	
 	private function curl_onProgress (dltotal:Float, dlnow:Float, uptotal:Float, upnow:Float):Int {
 		
 		if (upnow > bytesLoaded || dlnow > bytesLoaded || uptotal > bytesTotal || dltotal > bytesTotal) {
@@ -229,6 +322,13 @@ class NativeHTTPRequest {
 		}
 		
 		return 0;
+		
+	}
+	
+	
+	private function curl_onRead (max:Int, input:Bytes):Bytes {
+		
+		return input;
 		
 	}
 	

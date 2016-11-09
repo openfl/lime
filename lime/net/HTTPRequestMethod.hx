@@ -5,10 +5,10 @@ enum HTTPRequestMethod {
 	
 	GET;
 	POST;
-	//HEAD;
-	//PUT;
-	//DELETE;
-	//OPTIONS;
-	//CONNECT;
+	HEAD;
+	PUT;
+	DELETE;
+	OPTIONS;
+	CONNECT;
 	
 }
