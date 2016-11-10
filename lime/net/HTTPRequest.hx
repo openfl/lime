@@ -34,7 +34,9 @@ private class AbstractHTTPRequest<T> implements _IHTTPRequest {
 	public var uri:String;
 	public var userAgent:String;
 	
+	#if !display
 	private var backend:HTTPRequestBackend;
+	#end
 	
 	
 	public function new (uri:String = null) {
@@ -48,15 +50,19 @@ private class AbstractHTTPRequest<T> implements _IHTTPRequest {
 		method = GET;
 		timeout = 30000;
 		
+		#if !display
 		backend = new HTTPRequestBackend ();
 		backend.init (this);
+		#end
 		
 	}
 	
 	
 	public function cancel ():Void {
 		
+		#if !display
 		backend.cancel ();
+		#end
 		
 	}
 	
@@ -180,15 +186,13 @@ interface _IHTTPRequest {
 }
 
 
-#end
-
-
 #if flash
 private typedef HTTPRequestBackend = lime._backend.flash.FlashHTTPRequest;
 #elseif (js && html5)
 private typedef HTTPRequestBackend = lime._backend.html5.HTML5HTTPRequest;
 #else
 private typedef HTTPRequestBackend = lime._backend.native.NativeHTTPRequest;
+#end
 #end
 
 
