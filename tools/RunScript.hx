@@ -222,18 +222,22 @@ class RunScript {
 			
 			rebuildTools (rebuildBinaries);
 			
-		} else {
-			
-			if (!FileSystem.exists ("tools/tools.n") || args.indexOf ("-rebuild") > -1) {
+			if (args[args.length - 1] != "-openfl") {
 				
-				rebuildTools ();
+				Sys.exit (0);
 				
 			}
 			
-			var args = [ "tools/tools.n" ].concat (args);
-			Sys.exit (runCommand ("", "neko", args));
+		}
+		
+		if (!FileSystem.exists ("tools/tools.n") || args.indexOf ("-rebuild") > -1) {
+			
+			rebuildTools ();
 			
 		}
+		
+		var args = [ "tools/tools.n" ].concat (args);
+		Sys.exit (runCommand ("", "neko", args));
 		
 	}
 	

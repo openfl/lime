@@ -139,6 +139,18 @@ class CommandLineTools {
 					
 				}
 				
+				if (words.length == 1) {
+					
+					var haxelibPath = PathHelper.getHaxelib (new Haxelib (words[0]), false);
+					
+					if (haxelibPath != "" && haxelibPath != null) {
+						
+						words.push ("tools");
+						
+					}
+					
+				}
+				
 				if (words.length < 2) {
 					
 					if (targetFlags.exists ("openfl")) {
@@ -157,13 +169,17 @@ class CommandLineTools {
 				
 				var haxelib = null;
 				var path = null;
+				var hxmlPath = null;
 				var project = null;
 				
 				if (!FileSystem.exists (words[0])) {
 					
-					if (FileSystem.exists (PathHelper.tryFullPath (words[0]))) {
+					var fullPath = PathHelper.tryFullPath (words[0]);
+					
+					if (FileSystem.exists (fullPath)) {
 						
-						path = PathHelper.combine (PathHelper.tryFullPath (words[0]), "project");
+						path = PathHelper.combine (fullPath, "project");
+						hxmlPath = PathHelper.combine (fullPath, "rebuild.hxml");
 						
 					} else {
 						
@@ -185,9 +201,17 @@ class CommandLineTools {
 							
 						}
 						
+						hxmlPath = PathHelper.combine (words[0], "rebuild.hxml");
+						
 					} else {
 						
 						path = words[0];
+						
+						if (Path.extension (words[0]) == "hxml") {
+							
+							hxmlPath = words[0];
+							
+						}
 						
 					}
 					
@@ -203,7 +227,8 @@ class CommandLineTools {
 				
 				if (haxelib != null) {
 					
-					PathHelper.getHaxelib (haxelib, true);
+					var haxelibPath = PathHelper.getHaxelib (haxelib, true);
+					hxmlPath = PathHelper.combine (haxelibPath, "rebuild.hxml");
 					
 				}
 				
@@ -266,92 +291,104 @@ class CommandLineTools {
 						
 					}
 					
-					HXProject._command = command;
-					HXProject._environment = environment;
-					HXProject._debug = debug;
-					HXProject._target = target;
-					HXProject._targetFlags = targetFlags;
-					HXProject._userDefines = userDefines;
-					
-					var project = null;
-					
-					if (haxelib != null) {
+					if (target == cast "tools") {
 						
-						userDefines.set ("rebuild", 1);
-						project = HXProject.fromHaxelib (haxelib, userDefines);
-						
-						if (project == null) {
+						if (hxmlPath != null && FileSystem.exists (hxmlPath)) {
 							
-							project = new HXProject ();
-							project.config.set ("project.rebuild.path", PathHelper.combine (PathHelper.getHaxelib (haxelib), "project"));
-							
-						} else {
-							
-							project.config.set ("project.rebuild.path", PathHelper.combine (PathHelper.getHaxelib (haxelib), project.config.get ("project.rebuild.path")));
+							ProcessHelper.runCommand (Path.directory (hxmlPath), "haxe", [ "rebuild.hxml" ]);
 							
 						}
 						
 					} else {
 						
-						//project = HXProject.fromPath (path);
+						HXProject._command = command;
+						HXProject._environment = environment;
+						HXProject._debug = debug;
+						HXProject._target = target;
+						HXProject._targetFlags = targetFlags;
+						HXProject._userDefines = userDefines;
 						
-						if (project == null) {
+						var project = null;
+						
+						if (haxelib != null) {
 							
-							project = new HXProject ();
+							userDefines.set ("rebuild", 1);
+							project = HXProject.fromHaxelib (haxelib, userDefines);
 							
-							if (FileSystem.isDirectory (path)) {
+							if (project == null) {
 								
-								project.config.set ("project.rebuild.path", path);
+								project = new HXProject ();
+								project.config.set ("project.rebuild.path", PathHelper.combine (PathHelper.getHaxelib (haxelib), "project"));
 								
 							} else {
 								
-								project.config.set ("project.rebuild.path", Path.directory (path));
-								project.config.set ("project.rebuild.file", Path.withoutDirectory (path));
+								project.config.set ("project.rebuild.path", PathHelper.combine (PathHelper.getHaxelib (haxelib), project.config.get ("project.rebuild.path")));
 								
 							}
 							
-						}
-						
-					}
-					
-					// this needs to be improved
-					
-					var rebuildPath = project.config.get ("project.rebuild.path");
-					var rebuildFile = project.config.get ("project.rebuild.file");
-					
-					project.merge (overrides);
-					
-					for (haxelib in overrides.haxelibs) {
-						
-						var includeProject = HXProject.fromHaxelib (haxelib, project.defines);
-						
-						if (includeProject != null) {
+						} else {
 							
-							for (ndll in includeProject.ndlls) {
+							//project = HXProject.fromPath (path);
+							
+							if (project == null) {
 								
-								if (ndll.haxelib == null) {
+								project = new HXProject ();
+								
+								if (FileSystem.isDirectory (path)) {
 									
-									ndll.haxelib = haxelib;
+									project.config.set ("project.rebuild.path", path);
+									
+								} else {
+									
+									project.config.set ("project.rebuild.path", Path.directory (path));
+									project.config.set ("project.rebuild.file", Path.withoutDirectory (path));
 									
 								}
 								
 							}
 							
-							project.merge (includeProject);
+						}
+						
+						// this needs to be improved
+						
+						var rebuildPath = project.config.get ("project.rebuild.path");
+						var rebuildFile = project.config.get ("project.rebuild.file");
+						
+						project.merge (overrides);
+						
+						for (haxelib in overrides.haxelibs) {
+							
+							var includeProject = HXProject.fromHaxelib (haxelib, project.defines);
+							
+							if (includeProject != null) {
+								
+								for (ndll in includeProject.ndlls) {
+									
+									if (ndll.haxelib == null) {
+										
+										ndll.haxelib = haxelib;
+										
+									}
+									
+								}
+								
+								project.merge (includeProject);
+								
+							}
 							
 						}
 						
-					}
-					
-					project.config.set ("project.rebuild.path", rebuildPath);
-					project.config.set ("project.rebuild.file", rebuildFile);
-					
-					initializeProject (project, targetName);
-					buildProject (project);
-					
-					if (LogHelper.verbose) {
+						project.config.set ("project.rebuild.path", rebuildPath);
+						project.config.set ("project.rebuild.file", rebuildFile);
 						
-						LogHelper.println ("");
+						initializeProject (project, targetName);
+						buildProject (project);
+						
+						if (LogHelper.verbose) {
+							
+							LogHelper.println ("");
+							
+						}
 						
 					}
 					
