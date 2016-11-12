@@ -1328,6 +1328,24 @@ namespace lime {
 	}
 	
 	
+	void lime_system_open_file (HxString path) {
+		
+		#ifdef IPHONE
+		System::OpenFile (path.__s);
+		#endif
+		
+	}
+	
+	
+	void lime_system_open_url (HxString url, HxString target) {
+		
+		#ifdef IPHONE
+		System::OpenURL (url.__s, target.__s);
+		#endif
+		
+	}
+	
+	
 	bool lime_system_set_allow_screen_timeout (bool allow) {
 		
 		return System::SetAllowScreenTimeout (allow);
@@ -1734,6 +1752,8 @@ namespace lime {
 	DEFINE_PRIME1 (lime_system_get_display);
 	DEFINE_PRIME0 (lime_system_get_num_displays);
 	DEFINE_PRIME0 (lime_system_get_timer);
+	DEFINE_PRIME1v (lime_system_open_file);
+	DEFINE_PRIME2v (lime_system_open_url);
 	DEFINE_PRIME1 (lime_system_set_allow_screen_timeout);
 	DEFINE_PRIME2v (lime_text_event_manager_register);
 	DEFINE_PRIME3 (lime_text_layout_create);

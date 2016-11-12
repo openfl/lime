@@ -54,4 +54,48 @@ namespace lime {
 	}
 	
 	
+	void System::OpenFile (const char* path) {
+		
+		OpenURL (path, NULL);
+		
+	}
+	
+	
+	void System::OpenURL (const char* url, const char* target) {
+		
+		#ifndef OBJC_ARC
+		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+		#endif
+		
+		UIApplication *application = [UIApplication sharedApplication];
+		NSString *str = [[NSString alloc] initWithUTF8String: url];
+		NSURL *_url = [NSURL URLWithString: str];
+		
+		if ([[UIApplication sharedApplication] canOpenURL: _url]) {
+			
+			if ([application respondsToSelector: @selector (openURL:options:completionHandler:)]) {
+				
+				[application openURL: _url options: @{}
+					completionHandler:^(BOOL success) {
+						//NSLog(@"Open %@: %d", _url, success);
+					}
+				];
+				
+			} else {
+				
+				BOOL success = [application openURL: _url];
+				//NSLog(@"Open %@: %d",scheme,success);
+				
+			}
+			
+		}
+		
+		#ifndef OBJC_ARC
+		[str release];
+		[pool drain];
+		#endif
+		
+	}
+	
+	
 }

@@ -34,6 +34,8 @@ namespace lime {
 			static value GetDisplay (int id);
 			static int GetNumDisplays ();
 			static double GetTimer ();
+			static void OpenFile (const char* path);
+			static void OpenURL (const char* url, const char* target);
 			static bool SetAllowScreenTimeout (bool allow);
 		
 		

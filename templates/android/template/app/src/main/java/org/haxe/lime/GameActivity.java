@@ -4,13 +4,17 @@ package org.haxe.lime;
 import android.content.res.AssetManager;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.KeyCharacterMap;
 import android.view.View;
+import android.webkit.MimeTypeMap;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -269,6 +273,56 @@ public class GameActivity extends SDLActivity {
 		
 	}
 	::end::
+	
+	
+	public static void openFile (String path) {
+		
+		try {
+			
+			String extension = path;
+			int index = path.lastIndexOf ('.');
+			
+			if (index > 0) {
+				
+				extension = path.substring (index + 1);
+				
+			}
+			
+			String mimeType = MimeTypeMap.getSingleton ().getMimeTypeFromExtension (extension);
+			File file = new File (path);
+			
+			Intent intent = new Intent ();
+			intent.setAction (Intent.ACTION_VIEW);
+			intent.setDataAndType (Uri.fromFile (file), mimeType);
+			
+			Extension.mainActivity.startActivity (intent);
+			
+		} catch (Exception e) {
+			
+			Log.e ("GameActivity", e.toString ());
+			return;
+			
+		}
+		
+	}
+	
+	
+	public static void openURL (String url, String target) {
+		
+		Intent browserIntent = new Intent (Intent.ACTION_VIEW).setData (Uri.parse (url));
+		
+		try {
+			
+			Extension.mainActivity.startActivity (browserIntent);
+			
+		} catch (Exception e) {
+			
+			Log.e ("GameActivity", e.toString ());
+			return;
+			
+		}
+		
+	}
 	
 	
 	public static void postUICallback (final long handle) {

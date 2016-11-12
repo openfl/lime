@@ -5,6 +5,7 @@ import lime.app.Application;
 import lime.math.Rectangle;
 
 #if flash
+import flash.net.URLRequest;
 import flash.system.Capabilities;
 import flash.Lib;
 #end
@@ -163,6 +164,7 @@ class System {
 	}
 	
 	
+	
 	public static inline function load (library:String, method:String, args:Int = 0, lazy:Bool = false):Dynamic {
 		
 		#if !macro
@@ -170,6 +172,78 @@ class System {
 		#else
 		return null;
 		#end
+		
+	}
+	
+	
+	public static function openFile (path:String):Void {
+		
+		if (path != null) {
+			
+			#if windows
+			
+			Sys.command ("start", [ path ]);
+			
+			#elseif mac
+			
+			Sys.command ("/usr/bin/open", [ path ]);
+			
+			#elseif linux
+			
+			Sys.command ("/usr/bin/xdg-open", [ path, "&" ]);
+			
+			#elseif (js && html5)
+			
+			Browser.window.open (path, "_blank");
+			
+			#elseif flash
+			
+			Lib.getURL (new URLRequest (path), "_blank");
+			
+			#elseif android
+			
+			var openFile = JNI.createStaticMethod ("org/haxe/lime/GameActivity", "openFile", "(Ljava/lang/String;)V");
+			openFile (path);
+			
+			#elseif (lime_cffi && !macro)
+			
+			lime_system_open_file (path);
+			
+			#end
+			
+		}
+		
+	}
+	
+	
+	public static function openURL (url:String, target:String = "_blank"):Void {
+		
+		if (url != null) {
+			
+			#if desktop
+			
+			openFile (url);
+			
+			#elseif (js && html5)
+			
+			Browser.window.open (url, target);
+			
+			#elseif flash
+			
+			Lib.getURL (new URLRequest (url), target);
+			
+			#elseif android
+			
+			var openURL = JNI.createStaticMethod ("org/haxe/lime/GameActivity", "openURL", "(Ljava/lang/String;Ljava/lang/String;)V");
+			openURL (url, target);
+			
+			#elseif (lime_cffi && !macro)
+			
+			lime_system_open_url (url, target);
+			
+			#end
+			
+		}
 		
 	}
 	
@@ -366,6 +440,8 @@ class System {
 	@:cffi private static function lime_system_get_display (index:Int):Dynamic;
 	@:cffi private static function lime_system_get_num_displays ():Int;
 	@:cffi private static function lime_system_get_timer ():Float;
+	@:cffi private static function lime_system_open_file (path:String):Void;
+	@:cffi private static function lime_system_open_url (url:String, target:String):Void;
 	#end
 	
 	
