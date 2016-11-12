@@ -1,6 +1,6 @@
 #include <ui/Haptic.h>
 
-#import <AudioToolbox/AudioServices.h>
+#import <AudioToolbox/AudioToolbox.h>
 
 
 namespace lime {
@@ -8,7 +8,7 @@ namespace lime {
 	
 	void Haptic::Vibrate (int period, int duration) {
 		
-		AudioServicesPlaySystemSound (kSystemSoundID_Vibrate);
+		AudioServicesPlayAlertSound (kSystemSoundID_Vibrate);
 		
 	}
 	
