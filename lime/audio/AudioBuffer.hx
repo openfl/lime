@@ -55,7 +55,11 @@ class AudioBuffer {
 	
 	public function dispose ():Void {
 		
-		#if lime_console
+		#if (js && html5 && howlerjs)
+		
+		__srcHowl.unload ();
+		
+		#elseif lime_console
 		if (channels > 0) {
 			
 			src.release ();
