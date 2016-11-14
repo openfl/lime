@@ -912,7 +912,7 @@ class HXProject {
 		}
 		
 		context.assets = new Array <Dynamic> ();
-		
+		var i:Int = 0;
 		for (asset in assets) {
 			
 			if (asset.type != AssetType.TEMPLATE) {
@@ -936,7 +936,13 @@ class HXProject {
 					try {
 						
 						var font = Font.fromFile (asset.sourcePath);
-						embeddedAsset.fontName = font.name;
+						// replace fontname since IE11 can not handle FontFamilies 
+						// that are longer than 31 characters (!!!!)
+						// during build process that max-length is getting even shorter (21)
+						// prefixing with int-number to have unique name
+						// add those fontfamily-names to the  fontaliases of the main class
+						embeddedAsset.fontName = (i + '_' + StringTools.replace(font.name, ' ', '')).substr(0, 21);
+						i++;
 						
 					} catch (e:Dynamic) {}
 					
