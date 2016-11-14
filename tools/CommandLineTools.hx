@@ -1070,37 +1070,17 @@ class CommandLineTools {
 		
 		if (buildNumber == null || StringTools.startsWith (buildNumber, "git")) {
 			
-			var cache = LogHelper.mute;
-			LogHelper.mute = true;
+			buildNumber = getBuildNumber_GIT (project, increment);
 			
-			var output = ProcessHelper.runProcess ("", "git", [ "rev-list", "HEAD", "--count" ], true, true, true);
+		}
+		
+		if (buildNumber == null || StringTools.startsWith (buildNumber, "svn")) {
 			
-			LogHelper.mute = cache;
+			buildNumber = getBuildNumber_SVN (project, increment);
 			
-			if (output != null) {
-				
-				var value = Std.parseInt (output);
-				
-				if (value != null) {
-					
-					if (buildNumber != null && buildNumber.indexOf ("+") > -1) {
-						
-						var modifier = Std.parseInt (buildNumber.substr (buildNumber.indexOf ("+") + 1));
-						
-						if (modifier != null) {
-							
-							value += modifier;
-							
-						}
-						
-					}
-					
-					project.meta.buildNumber = Std.string (value);
-					return;
-					
-				}
-				
-			}
+		}
+		
+		if (buildNumber == null) {
 			
 			var versionFile = PathHelper.combine (project.app.path, ".build");
 			var version = 1;
@@ -1144,6 +1124,93 @@ class CommandLineTools {
 			}
 			
 		}
+		
+	}
+	
+	
+	private function getBuildNumber_GIT (project:HXProject, increment:Bool = true):String {
+		
+		var cache = LogHelper.mute;
+		LogHelper.mute = true;
+		
+		var output = ProcessHelper.runProcess ("", "git", [ "rev-list", "HEAD", "--count" ], true, true, true);
+		
+		LogHelper.mute = cache;
+		
+		if (output != null) {
+			
+			var value = Std.parseInt (output);
+			
+			if (value != null) {
+				
+				var buildNumber = project.meta.buildNumber;
+				
+				if (buildNumber != null && buildNumber.indexOf ("+") > -1) {
+					
+					var modifier = Std.parseInt (buildNumber.substr (buildNumber.indexOf ("+") + 1));
+					
+					if (modifier != null) {
+						
+						value += modifier;
+						
+					}
+					
+				}
+				
+				return project.meta.buildNumber = Std.string (value);
+				
+			}
+			
+		}
+		
+		return null;
+		
+	}
+	
+	
+	private function getBuildNumber_SVN (project:HXProject, increment:Bool = true):String {
+		
+		var cache = LogHelper.mute;
+		LogHelper.mute = true;
+		
+		var output = ProcessHelper.runProcess ("", "svn", [ "info" ], true, true, true);
+		
+		LogHelper.mute = cache;
+		
+		if (output != null) {
+			
+			var searchString = "Revision: ";
+			var index = output.indexOf (searchString);
+			
+			if (index > -1) {
+				
+				var value = Std.parseInt (output.substring (index + searchString.length, output.indexOf ("\n", index)));
+				
+				if (value != null) {
+					
+					var buildNumber = project.meta.buildNumber;
+					
+					if (buildNumber != null && buildNumber.indexOf ("+") > -1) {
+						
+						var modifier = Std.parseInt (buildNumber.substr (buildNumber.indexOf ("+") + 1));
+						
+						if (modifier != null) {
+							
+							value += modifier;
+							
+						}
+						
+					}
+					
+					return project.meta.buildNumber = Std.string (value);
+					
+				}
+				
+			}
+			
+		}
+		
+		return null;
 		
 	}
 	
