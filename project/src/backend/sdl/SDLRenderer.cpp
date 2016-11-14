@@ -139,7 +139,7 @@ namespace lime {
 		
 		SDL_GetWindowSize (sdlWindow, &width, &height);
 		
-		double scale = outputWidth / width;
+		double scale = double(outputWidth) / width;
 		return scale;
 		
 	}
