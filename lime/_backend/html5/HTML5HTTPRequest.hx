@@ -143,9 +143,11 @@ class HTML5HTTPRequest {
 					
 					bytes = Bytes.ofString (request.responseText);
 					
+				} else {
+					
+					bytes = Bytes.ofData (request.response);
+					
 				}
-				
-				bytes = Bytes.ofData (request.response);
 				
 				processResponse ();
 				promise.complete (bytes);
