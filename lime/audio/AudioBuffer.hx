@@ -192,9 +192,11 @@ class AudioBuffer {
 		}
 		
 		#end
-		#end
+		#else
 		
 		return null;
+		
+		#end
 		
 	}
 	
