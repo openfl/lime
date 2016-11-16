@@ -12,6 +12,7 @@ import lime.graphics.GLRenderContext;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.graphics.Renderer;
+import lime.graphics.opengl.GL;
 import lime.math.Rectangle;
 import lime.utils.UInt8Array;
 
@@ -19,7 +20,9 @@ import lime.utils.UInt8Array;
 @:build(lime.system.CFFI.build())
 #end
 
+@:access(lime._backend.native.NativeGLRenderContext)
 @:access(lime.graphics.cairo.Cairo)
+@:access(lime.graphics.opengl.GL)
 @:access(lime.ui.Window)
 
 
@@ -66,9 +69,17 @@ class NativeRenderer {
 			
 			case "opengl":
 				
+				var context = new GLRenderContext ();
+				
 				useHardware = true;
-				parent.context = OPENGL (new GLRenderContext ());
+				parent.context = OPENGL (context);
 				parent.type = OPENGL;
+				
+				if (GL.context == null) {
+					
+					GL.context = context;
+					
+				}
 			
 			default:
 				

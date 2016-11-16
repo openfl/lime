@@ -5,6 +5,7 @@ import haxe.Timer;
 import lime.app.Application;
 import lime.app.Config;
 import lime.audio.AudioManager;
+import lime.graphics.opengl.GL;
 import lime.graphics.ConsoleRenderContext;
 import lime.graphics.GLRenderContext;
 import lime.graphics.RenderContext;
@@ -28,8 +29,10 @@ import lime.ui.Window;
 #end
 
 @:access(haxe.Timer)
+@:access(lime._backend.native.NativeGLRenderContext)
 @:access(lime._backend.native.NativeRenderer)
 @:access(lime.app.Application)
+@:access(lime.graphics.opengl.GL)
 @:access(lime.graphics.Renderer)
 @:access(lime.system.Sensor)
 @:access(lime.ui.Gamepad)
@@ -389,7 +392,8 @@ class NativeApplication {
 						#if lime_console
 						renderer.context = CONSOLE (ConsoleRenderContext.singleton);
 						#else
-						renderer.context = OPENGL (new GLRenderContext ());
+						GL.context = new GLRenderContext ();
+						renderer.context = OPENGL (GL.context);
 						#end
 						
 						renderer.onContextRestored.dispatch (renderer.context);

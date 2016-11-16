@@ -1,34 +1,9 @@
 package lime.graphics.opengl;
 
 
-import lime.utils.ArrayBuffer;
 import lime.utils.ArrayBufferView;
 import lime.utils.Float32Array;
 import lime.utils.Int32Array;
-import lime.system.CFFIPointer;
-import lime.system.System;
-
-#if (js && html5)
-import js.html.webgl.RenderingContext;
-#elseif java
-import org.lwjgl.opengl.EXTBlendColor;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL14;
-import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
-#end
-
-#if cpp
-import cpp.Float32;
-#else
-typedef Float32 = Float;
-#end
-
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
 
 @:allow(lime.ui.Window)
 
@@ -387,1680 +362,875 @@ class GL {
 	
 	public static var version (get, null):Int;
 	
-	#if (js && html5)
-	private static var context:RenderingContext;
-	#end
+	private static var context:GLRenderContext;
 	
 	private static var __currentProgram:GLProgram;
 	
 	
 	public static inline function activeTexture (texture:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.activeTexture (texture);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_active_texture (texture);
-		#elseif java
-		GL13.glActiveTexture (texture);
-		#end
 		
 	}
 	
 	
 	public static inline function attachShader (program:GLProgram, shader:GLShader):Void {
 		
-		#if (js && html5 && !display)
 		context.attachShader (program, shader);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		program.attach (shader);
-		lime_gl_attach_shader (program.id, shader.id);
-		#elseif java
-		program.attach (shader);
-		GL20.glAttachShader (program.id, shader.id);
-		#end
 		
 	}
 	
 	
 	public static inline function bindAttribLocation (program:GLProgram, index:Int, name:String):Void {
 		
-		#if (js && html5 && !display)
 		context.bindAttribLocation (program, index, name);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_bind_attrib_location (program.id, index, name);
-		#elseif java
-		GL20.glBindAttribLocation (program.id, index, name);
-		#end
 		
 	}
 	
 	
 	public static inline function bindBuffer (target:Int, buffer:GLBuffer):Void {
 		
-		#if (js && html5 && !display)
 		context.bindBuffer (target, buffer);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_bind_buffer (target, buffer == null ? null : buffer.id);
-		#elseif java
-		GL15.glBindBuffer (target, buffer == null ? null : buffer.id);
-		#end
 		
 	}
 	
 	
 	public static inline function bindFramebuffer (target:Int, framebuffer:GLFramebuffer):Void {
 		
-		#if (js && html5 && !display)
 		context.bindFramebuffer (target, framebuffer);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_bind_framebuffer (target, framebuffer == null ? null : framebuffer.id);
-		#elseif java
-		GL30.glBindFramebuffer (target, framebuffer == null ? null : framebuffer.id);
-		#end
 		
 	}
 	
 	
 	public static inline function bindRenderbuffer (target:Int, renderbuffer:GLRenderbuffer):Void {
 		
-		#if (js && html5 && !display)
 		context.bindRenderbuffer (target, renderbuffer);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_bind_renderbuffer (target, renderbuffer == null ? null : renderbuffer.id);
-		#elseif java
-		GL30.glBindRenderbuffer (target, renderbuffer == null ? null : renderbuffer.id);
-		#end
 		
 	}
 	
 	
 	public static inline function bindTexture (target:Int, texture:GLTexture):Void {
 		
-		#if (js && html5 && !display)
 		context.bindTexture (target, texture);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_bind_texture (target, texture == null ? null : texture.id);
-		#elseif java
-		GL11.glBindTexture (target, texture == null ? null : texture.id);
-		#end
 		
 	}
 	
 	
 	public static inline function blendColor (red:Float, green:Float, blue:Float, alpha:Float):Void {
 		
-		#if (js && html5 && !display)
 		context.blendColor (red, green, blue, alpha);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_blend_color (red, green, blue, alpha);
-		#elseif java
-		EXTBlendColor.glBlendColorEXT (red, green, blue, alpha);
-		#end
 		
 	}
 	
 	
 	public static inline function blendEquation (mode:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.blendEquation (mode);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_blend_equation (mode);
-		#elseif java
-		GL14.glBlendEquation (mode);
-		#end
 		
 	}
 	
 	
 	public static inline function blendEquationSeparate (modeRGB:Int, modeAlpha:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.blendEquationSeparate (modeRGB, modeAlpha);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_blend_equation_separate (modeRGB, modeAlpha);
-		#elseif java
-		GL20.glBlendEquationSeparate (modeRGB, modeAlpha);
-		#end
 		
 	}
 	
 	
 	public static inline function blendFunc (sfactor:Int, dfactor:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.blendFunc (sfactor, dfactor);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_blend_func (sfactor, dfactor);
-		#elseif java
-		GL11.glBlendFunc (sfactor, dfactor);
-		#end
 		
 	}
 	
 	
 	public static inline function blendFuncSeparate (srcRGB:Int, dstRGB:Int, srcAlpha:Int, dstAlpha:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.blendFuncSeparate (srcRGB, dstRGB, srcAlpha, dstAlpha);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_blend_func_separate (srcRGB, dstRGB, srcAlpha, dstAlpha);
-		#elseif java
-		GL14.glBlendFuncSeparate (srcRGB, dstRGB, srcAlpha, dstAlpha);
-		#end
 		
 	}
 	
 	
 	public static inline function bufferData (target:Int, data:ArrayBufferView, usage:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.bufferData (target, data, usage);
-		#elseif (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_buffer_data (target, data.buffer, data.byteOffset, data.byteLength, usage);
-		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_buffer_data (target, data, data.byteOffset, data.byteLength, usage);
-		#elseif java
-		//GL15.glBufferData (target, data.buffer, data.byteOffset, data.byteLength, usage);
-		#end
 		
 	}
 	
 	
 	public static inline function bufferSubData (target:Int, offset:Int, data:ArrayBufferView):Void {
 		
-		#if (js && html5 && !display)
 		context.bufferSubData (target, offset, data);
-		#elseif (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_buffer_sub_data (target, offset, data.buffer, data.byteOffset, data.byteLength);
-		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_buffer_sub_data (target, offset, data, data.byteOffset, data.byteLength);
-		#elseif java
-		//GL15.glBufferSubData (target, offset, data.buffer, data.byteOffset, data.byteLength);
-		#end
 		
 	}
 	
 	
 	public static inline function checkFramebufferStatus (target:Int):Int {
 		
-		#if (js && html5 && !display)
 		return context.checkFramebufferStatus (target);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return lime_gl_check_framebuffer_status (target);
-		#elseif java
-		return GL30.glCheckFramebufferStatus (target);
-		#else
-		return 0;
-		#end
 		
 	}
 	
 	
 	public static inline function clear (mask:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.clear (mask);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_clear (mask);
-		#elseif java
-		GL11.glClear (mask);
-		#end
 		
 	}
 	
 	
 	public static inline function clearColor (red:Float, green:Float, blue:Float, alpha:Float):Void {
 		
-		#if (js && html5 && !display)
 		context.clearColor (red, green, blue, alpha);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_clear_color (red, green, blue, alpha);
-		#elseif java
-		GL11.glClearColor (red, green, blue, alpha);
-		#end
 		
 	}
 	
 	
 	public static inline function clearDepth (depth:Float):Void {
 		
-		#if (js && html5 && !display)
 		context.clearDepth (depth);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_clear_depth (depth);
-		#elseif java
-		GL11.glClearDepth (depth);
-		#end
 		
 	}
 	
 	
 	public static inline function clearStencil (s:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.clearStencil (s);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_clear_stencil (s);
-		#elseif java
-		GL11.glClearStencil (s);
-		#end
 		
 	}
 	
 	
 	public static inline function colorMask (red:Bool, green:Bool, blue:Bool, alpha:Bool):Void {
 		
-		#if (js && html5 && !display)
 		context.colorMask (red, green, blue, alpha);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_color_mask (red, green, blue, alpha);
-		#elseif java
-		GL11.glColorMask (red, green, blue, alpha);
-		#end
 		
 	}
 	
 	
 	public static inline function compileShader (shader:GLShader):Void {
 		
-		#if (js && html5 && !display)
 		context.compileShader (shader);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_compile_shader (shader.id);
-		#elseif java
-		GL20.glCompileShader (shader.id);
-		#end
 		
 	}
 	
 	
 	public static inline function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, data:ArrayBufferView):Void {
 		
-		#if (js && html5 && !display)
 		context.compressedTexImage2D (target, level, internalformat, width, height, border, data);
-		#elseif (lime_cffi && !nodejs && lime_opengl && !macro)
-		var buffer = data == null ? null : data.buffer;
-		lime_gl_compressed_tex_image_2d (target, level, internalformat, width, height, border, buffer, data == null ? 0 : data.byteOffset);
-		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_compressed_tex_image_2d (target, level, internalformat, width, height, border, data == null ? null : data , data == null ? null : data.byteOffset);
-		#elseif java
-		//GL13.glCompressedTexImage2D (target, level, internalformat, width, height, border, data == null ? null : data.buffer, data == null ? null : data.byteOffset);
-		#end
 		
 	}
 	
 	
 	public static inline function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, data:ArrayBufferView):Void {
 		
-		#if (js && html5 && !display)
 		context.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, data);
-		#elseif (lime_cffi && !nodejs && lime_opengl && !macro)
-		var buffer = data == null ? null : data.buffer;
-		lime_gl_compressed_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, buffer, data == null ? 0 : data.byteOffset);
-		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_compressed_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, data == null ? null : data, data == null ? null : data.byteOffset);
-		#elseif java
-		//GL13.glCompressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, data == null ? null : data.buffer, data == null ? null : data.byteOffset);
-		#end
 		
 	}
 	
 	
 	public static inline function copyTexImage2D (target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.copyTexImage2D (target, level, internalformat, x, y, width, height, border);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_copy_tex_image_2d (target, level, internalformat, x, y, width, height, border);
-		#elseif java
-		GL11.glCopyTexImage2D (target, level, internalformat, x, y, width, height, border);
-		#end
 		
 	}
 	
 	
 	public static inline function copyTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, x:Int, y:Int, width:Int, height:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.copyTexSubImage2D (target, level, xoffset, yoffset, x, y, width, height);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_copy_tex_sub_image_2d (target, level, xoffset, yoffset, x, y, width, height);
-		#elseif java
-		GL11.glCopyTexSubImage2D (target, level, xoffset, yoffset, x, y, width, height);
-		#end
 		
 	}
 	
 	
 	public static inline function createBuffer ():GLBuffer {
 		
-		#if (js && html5 && !display)
 		return context.createBuffer ();
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return new GLBuffer (version, lime_gl_create_buffer ());
-		#elseif java
-		//return new GLBuffer (version, GL15.glGenBuffers (1));
-		return null;
-		#else
-		return null;
-		#end
 		
 	}
 	
 	
 	public static inline function createFramebuffer ():GLFramebuffer {
 		
-		#if (js && html5 && !display)
 		return context.createFramebuffer ();
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return new GLFramebuffer (version, lime_gl_create_framebuffer ());
-		#elseif java
-		//return new GLFramebuffer (version, GL30.glGenFramebuffers (1));
-		return null;
-		#else
-		return null;
-		#end
 		
 	}
 	
 	
 	public static inline function createProgram ():GLProgram {
 		
-		#if (js && html5 && !display)
 		return context.createProgram ();
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return new GLProgram (version, lime_gl_create_program ());
-		#elseif java
-		return new GLProgram (version, GL20.glCreateProgram ());
-		#else
-		return null;
-		#end
 		
 	}
 	
 	
 	public static inline function createRenderbuffer ():GLRenderbuffer {
 		
-		#if (js && html5 && !display)
 		return context.createRenderbuffer ();
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return new GLRenderbuffer (version, lime_gl_create_render_buffer ());
-		#elseif java
-		//return new GLRenderbuffer (version, GL30.glGenRenderbuffers (1));
-		return null;
-		#else
-		return null;
-		#end
 		
 	}
 	
 	
 	public static inline function createShader (type:Int):GLShader {
 		
-		#if (js && html5 && !display)
 		return context.createShader (type);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return new GLShader (version, lime_gl_create_shader (type));
-		#elseif java
-		return new GLShader (version, GL20.glCreateShader (type));
-		#else
-		return null;
-		#end
 		
 	}
 	
 	
 	public static inline function createTexture ():GLTexture {
 		
-		#if (js && html5 && !display)
 		return context.createTexture ();
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return new GLTexture (version, lime_gl_create_texture ());
-		#elseif java
-		//return new GLTexture (version, GL11.glGenTextures (1));
-		return null;
-		#else
-		return null;
-		#end
 		
 	}
 	
 	
 	public static inline function cullFace (mode:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.cullFace (mode);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_cull_face (mode);
-		#elseif java
-		GL11.glCullFace (mode);
-		#end
 		
 	}
 	
 	
 	public static inline function deleteBuffer (buffer:GLBuffer):Void {
 		
-		#if (js && html5 && !display)
 		context.deleteBuffer (buffer);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_delete_buffer (buffer.id);
-		buffer.invalidate ();
-		#elseif java
-		GL15.glDeleteBuffers (buffer.id);
-		buffer.invalidate ();
-		#end
 		
 	}
 	
 	
 	public static inline function deleteFramebuffer (framebuffer:GLFramebuffer):Void {
 		
-		#if (js && html5 && !display)
 		context.deleteFramebuffer (framebuffer);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_delete_framebuffer (framebuffer.id);
-		framebuffer.invalidate ();
-		#elseif
-		GL30.glDeleteFramebuffers (framebuffer.id);
-		framebuffer.invalidate ();
-		#end
 		
 	}
 	
 	
 	public static inline function deleteProgram (program:GLProgram):Void {
 		
-		#if (js && html5 && !display)
 		context.deleteProgram (program);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_delete_program (program.id);
-		program.invalidate ();
-		#elseif java
-		GL20.glDeleteProgram (program.id);
-		program.invalidate ();
-		#end
 		
 	}
 	
 	
 	public static inline function deleteRenderbuffer (renderbuffer:GLRenderbuffer):Void {
 		
-		#if (js && html5 && !display)
 		context.deleteRenderbuffer (renderbuffer);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_delete_render_buffer (renderbuffer.id);
-		renderbuffer.invalidate ();
-		#elseif java
-		GL30.glDeleteRenderbuffers (renderbuffer.id);
-		renderbuffer.invalidate ();
-		#end
 		
 	}
 	
 	
 	public static inline function deleteShader (shader:GLShader):Void {
 		
-		#if (js && html5 && !display)
 		context.deleteShader (shader);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_delete_shader (shader.id);
-		shader.invalidate ();
-		#elseif java
-		GL20.glDeleteShader (shader.id);
-		shader.invalidate ();
-		#end
 		
 	}
 	
 	
 	public static inline function deleteTexture (texture:GLTexture):Void {
 		
-		#if (js && html5 && !display)
 		context.deleteTexture (texture);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_delete_texture (texture.id);
-		texture.invalidate ();
-		#elseif java
-		GL11.glDeleteTextures (texture.id);
-		texture.invalidate ();
-		#end
 		
 	}
 	
 	
 	public static inline function depthFunc (func:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.depthFunc (func);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_depth_func (func);
-		#elseif java
-		GL11.glDepthFunc (func);
-		#end
 		
 	}
 	
 	
 	public static inline function depthMask (flag:Bool):Void {
 		
-		#if (js && html5 && !display)
 		context.depthMask (flag);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_depth_mask (flag);
-		#elseif java
-		GL11.glDepthMask (flag);
-		#end
 		
 	}
 	
 	
 	public static inline function depthRange (zNear:Float, zFar:Float):Void {
 		
-		#if (js && html5 && !display)
 		context.depthRange (zNear, zFar);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_depth_range (zNear, zFar);
-		#elseif java
-		GL11.glDepthRange (zNear, zFar);
-		#end
 		
 	}
 	
 	
 	public static inline function detachShader (program:GLProgram, shader:GLShader):Void {
 		
-		#if (js && html5 && !display)
 		context.detachShader (program, shader);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_detach_shader (program.id, shader.id);
-		#elseif java
-		GL20.glDetachShader (program.id, shader.id);
-		#end
 		
 	}
 	
 	
 	public static inline function disable (cap:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.disable (cap);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_disable (cap);
-		#elseif java
-		GL11.glDisable (cap);
-		#end
 		
 	}
 	
 	
 	public static inline function disableVertexAttribArray (index:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.disableVertexAttribArray (index);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_disable_vertex_attrib_array (index);
-		#elseif java
-		GL20.glDisableVertexAttribArray (index);
-		#end
 		
 	}
 	
 	
 	public static inline function drawArrays (mode:Int, first:Int, count:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.drawArrays (mode, first, count);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_draw_arrays (mode, first, count);
-		#elseif java
-		GL11.glDrawArrays (mode, first, count);
-		#end
 		
 	}
 	
 	
 	public static inline function drawElements (mode:Int, count:Int, type:Int, offset:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.drawElements (mode, count, type, offset);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_draw_elements (mode, count, type, offset);
-		#elseif java
-		//GL11.glDrawElements (mode, count, type, offset);
-		#end
 		
 	}
 	
 	
 	public static inline function enable (cap:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.enable (cap);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_enable (cap);
-		#elseif java
-		GL11.glEnable (cap);
-		#end
 		
 	}
 	
 	
 	public static inline function enableVertexAttribArray (index:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.enableVertexAttribArray (index);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_enable_vertex_attrib_array (index);
-		#elseif java
-		GL20.glEnableVertexAttribArray (index);
-		#end
 		
 	}
 	
 	
 	public static inline function finish ():Void {
 		
-		#if (js && html5 && !display)
 		context.finish ();
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_finish ();
-		#elseif java
-		GL11.glFinish ();
-		#end
 		
 	}
 	
 	
 	public static inline function flush ():Void {
 		
-		#if (js && html5 && !display)
 		context.flush ();
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_flush ();
-		#elseif java
-		GL11.glFlush ();
-		#end
 		
 	}
 	
 	
 	public static inline function framebufferRenderbuffer (target:Int, attachment:Int, renderbuffertarget:Int, renderbuffer:GLRenderbuffer):Void {
 		
-		#if (js && html5 && !display)
 		context.framebufferRenderbuffer (target, attachment, renderbuffertarget, renderbuffer);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_framebuffer_renderbuffer (target, attachment, renderbuffertarget, renderbuffer.id);
-		#elseif java
-		GL30.glFramebufferRenderbuffer (target, attachment, renderbuffertarget, renderbuffer.id);
-		#end
 		
 	}
 	
 	
 	public static inline function framebufferTexture2D (target:Int, attachment:Int, textarget:Int, texture:GLTexture, level:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.framebufferTexture2D (target, attachment, textarget, texture, level);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_framebuffer_texture2D (target, attachment, textarget, texture.id, level);
-		#elseif java
-		GL30.glFramebufferTexture2D (target, attachment, textarget, texture.id, level);
-		#end
 		
 	}
 	
 	
 	public static inline function frontFace (mode:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.frontFace (mode);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_front_face (mode);
-		#elseif java
-		GL11.glFrontFace (mode);
-		#end
 		
 	}
 	
 	
 	public static inline function generateMipmap (target:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.generateMipmap (target);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_generate_mipmap (target);
-		#elseif java
-		GL30.glGenerateMipmap (target);
-		#end
 		
 	}
 	
 	
 	public static inline function getActiveAttrib (program:GLProgram, index:Int):GLActiveInfo {
 		
-		#if (js && html5 && !display)
 		return context.getActiveAttrib (program, index);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		var result:Dynamic = lime_gl_get_active_attrib (program.id, index);
-		return result;
-		#elseif java
-		//return GL20.glGetActiveAttrib (program.id, index);
-		return null;
-		#else
-		return null;
-		#end
 		
 	}
 	
 	
 	public static inline function getActiveUniform (program:GLProgram, index:Int):GLActiveInfo {
 		
-		#if (js && html5 && !display)
 		return context.getActiveUniform (program, index);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		var result:Dynamic = lime_gl_get_active_uniform (program.id, index);
-		return result;
-		#elseif java
-		//return GL20.glGetActiveUniform (program.id, index);
-		return null;
-		#else
-		return null;
-		#end
 		
 	}
 	
 	
 	public static inline function getAttachedShaders (program:GLProgram):Array<GLShader> {
 		
-		#if (js && html5 && !display)
 		return context.getAttachedShaders (program);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return program.getShaders ();
-		#elseif java
-		return program.getShaders ();
-		#else
-		return null;
-		#end
 		
 	}
 	
 	
 	public static inline function getAttribLocation (program:GLProgram, name:String):Int {
 		
-		#if (js && html5 && !display)
 		return context.getAttribLocation (program, name);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_attrib_location (program.id, name);
-		#elseif java
-		return GL20.glGetAttribLocation (program.id, name);
-		#else
-		return 0;
-		#end
 		
 	}
 	
 	
 	public static inline function getBufferParameter (target:Int, pname:Int):Int /*Dynamic*/ {
 		
-		#if (js && html5 && !display)
 		return context.getBufferParameter (target, pname);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_buffer_parameter (target, pname);
-		#elseif java
-		//return GL15.glGetBufferParameter (target, pname);
-		return 0;
-		#else
-		return 0;
-		#end
 		
 	}
 	
 	
 	public static inline function getContextAttributes ():GLContextAttributes {
 		
-		#if (js && html5 && !display)
 		return context.getContextAttributes ();
-		#elseif (lime_cffi && lime_opengl && !macro)
-		var base:Dynamic = lime_gl_get_context_attributes ();
-		base.premultipliedAlpha = false;
-		base.preserveDrawingBuffer = false;
-		return base;
-		#elseif java
-		//var base = lime_gl_get_context_attributes ();
-		var base:Dynamic = {};
-		base.premultipliedAlpha = false;
-		base.preserveDrawingBuffer = false;
-		return base;
-		#else
-		return null;
-		#end
 		
 	}
 	
 	
 	public static inline function getError ():Int {
 		
-		#if (js && html5 && !display)
 		return context.getError ();
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_error ();
-		#elseif java
-		return GL11.glGetError ();
-		#else
-		return 0;
-		#end
 		
 	}
 	
 	
 	public static inline function getExtension (name:String):Dynamic {
 		
-		#if (js && html5 && !display)
 		return context.getExtension (name);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_extension (name);
-		#else
-		return null;
-		#end
 		
 	}
 	
 	
 	public static inline function getFramebufferAttachmentParameter (target:Int, attachment:Int, pname:Int):Int /*Dynamic*/ {
 		
-		#if (js && html5 && !display)
 		return context.getFramebufferAttachmentParameter (target, attachment, pname);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_framebuffer_attachment_parameter (target, attachment, pname);
-		#elseif java
-		//return GL30.glGetFramebufferAttachmentParameter (target, attachment, pname);
-		return 0;
-		#else
-		return 0;
-		#end
 		
 	}
 	
 	
 	public static inline function getParameter (pname:Int):Dynamic {
 		
-		#if (js && html5 && !display)
 		return context.getParameter (pname);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_parameter (pname);
-		#elseif java
-		return null;
-		#else
-		return null;
-		#end
 		
 	}
 	
 	
 	public static inline function getProgramInfoLog (program:GLProgram):String {
 		
-		#if (js && html5 && !display)
 		return context.getProgramInfoLog (program);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_program_info_log (program.id);
-		#elseif java
-		return GL20.glGetProgramInfoLog (program.id);
-		#else
-		return null;
-		#end
 		
 	}
 	
 	
 	public static inline function getProgramParameter (program:GLProgram, pname:Int):Int {
 		
-		#if (js && html5 && !display)
 		return context.getProgramParameter (program, pname);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_program_parameter (program.id, pname);
-		#elseif java
-		//return GL20.glGetProgramParameter (program.id, pname);
-		return 0;
-		#else
-		return 0;
-		#end
 		
 	}
 	
 	
 	public static inline function getRenderbufferParameter (target:Int, pname:Int):Int /*Dynamic*/ {
 		
-		#if (js && html5 && !display)
 		return context.getRenderbufferParameter (target, pname);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_render_buffer_parameter (target, pname);
-		#elseif java
-		//return GL30.glGetRenderbufferParameter (target, pname);
-		return 0;
-		#else
-		return 0;
-		#end
 		
 	}
 	
 	
 	public static inline function getShaderInfoLog (shader:GLShader):String {
 		
-		#if (js && html5 && !display)
 		return context.getShaderInfoLog (shader);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_shader_info_log (shader.id);
-		#elseif java
-		return GL20.glGetShaderInfoLog (shader.id);
-		#else
-		return null;
-		#end
 		
 	}
 	
 	
 	public static inline function getShaderParameter (shader:GLShader, pname:Int):Int {
 		
-		#if (js && html5 && !display)
 		return context.getShaderParameter (shader, pname);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_shader_parameter (shader.id, pname);
-		#elseif java
-		//return GL20.glGetShaderParameter (shader.id, pname);
-		return 0;
-		#else
-		return 0;
-		#end
 		
 	}
 	
 	
 	public static inline function getShaderPrecisionFormat (shadertype:Int, precisiontype:Int):GLShaderPrecisionFormat {
 		
-		#if (js && html5 && !display)
 		return context.getShaderPrecisionFormat (shadertype, precisiontype);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		var result:Dynamic = lime_gl_get_shader_precision_format (shadertype, precisiontype);
-		return result;
-		#elseif java
-		//return GL20.glGetShaderPrecisionFormat (shadertype, precisiontype);
-		return null;
-		#else
-		return null;
-		#end
 		
 	}
 	
 	
 	public static inline function getShaderSource (shader:GLShader):String {
 		
-		#if (js && html5 && !display)
 		return context.getShaderSource (shader);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_shader_source (shader.id);
-		#elseif java
-		return GL20.glGetShaderSource (shader.id);
-		#else
-		return null;
-		#end
 		
 	}
 	
 	
 	public static inline function getSupportedExtensions ():Array<String> {
 		
-		#if (js && html5 && !display)
 		return context.getSupportedExtensions ();
-		#elseif (lime_cffi && lime_opengl && !macro)
-		var result = new Array<String> ();
-		lime_gl_get_supported_extensions (result);
-		return result;
-		#elseif java
-		return null;
-		#else
-		return null;
-		#end
 		
 	}
 	
 	
 	public static inline function getTexParameter (target:Int, pname:Int):Int /*Dynamic*/ {
 		
-		#if (js && html5 && !display)
 		return context.getTexParameter (target, pname);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_tex_parameter (target, pname);
-		#elseif java
-		//return GL11.nglGetTexParameteriv (target, pname);
-		return 0;
-		#else
-		return 0;
-		#end
 		
 	}
 	
 	
 	public static inline function getUniform (program:GLProgram, location:GLUniformLocation):Dynamic {
 		
-		#if (js && html5 && !display)
 		return context.getUniform (program, location);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_uniform (program.id, location);
-		#elseif java
-		//return GL20.glGetUniform (program.id, location);
-		return null;
-		#else
-		return null;
-		#end
 		
 	}
 	
 	
 	public static inline function getUniformLocation (program:GLProgram, name:String):GLUniformLocation {
 		
-		#if (js && html5 && !display)
 		return context.getUniformLocation (program, name);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_uniform_location (program.id, name);
-		#elseif java
-		return GL20.glGetUniformLocation (program.id, name);
-		#else
-		return 0;
-		#end
 		
 	}
 	
 	
 	public static inline function getVertexAttrib (index:Int, pname:Int):Int /*Dynamic*/ {
 		
-		#if (js && html5 && !display)
 		return context.getVertexAttrib (index, pname);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_vertex_attrib (index, pname);
-		#elseif java
-		return 0;
-		#else
-		return 0;
-		#end
 		
 	}
 	
 	
 	public static inline function getVertexAttribOffset (index:Int, pname:Int):Int {
 		
-		#if (js && html5 && !display)
 		return context.getVertexAttribOffset (index, pname);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_vertex_attrib_offset (index, pname);
-		#elseif java
-		return 0;
-		#else
-		return 0;
-		#end
 		
 	}
 	
 	
 	public static inline function hint (target:Int, mode:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.hint (target, mode);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_hint (target, mode);
-		#end
 		
 	}
 	
 	
 	public static inline function isBuffer (buffer:GLBuffer):Bool {
 		
-		#if (js && html5 && !display)
 		return context.isBuffer (buffer);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return buffer != null && buffer.id > 0 && lime_gl_is_buffer (buffer.id);
-		#else
-		return false;
-		#end
 		
 	}
 	
 	
 	public static inline function isContextLost ():Bool {
 		
-		#if (js && html5 && !display)
 		return context.isContextLost ();
-		#else
-		return false;
-		#end
 		
 	}
 	
 	
 	public static inline function isEnabled (cap:Int):Bool {
 		
-		#if (js && html5 && !display)
 		return context.isEnabled (cap);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return lime_gl_is_enabled (cap);
-		#else
-		return false;
-		#end
 		
 	}
 	
 	
 	public static inline function isFramebuffer (framebuffer:GLFramebuffer):Bool {
 		
-		#if (js && html5 && !display)
 		return context.isFramebuffer (framebuffer);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return framebuffer != null && framebuffer.id > 0 && lime_gl_is_framebuffer (framebuffer.id);
-		#else
-		return false;
-		#end
 		
 	}
 	
 	
 	public static inline function isProgram (program:GLProgram):Bool {
 		
-		#if (js && html5 && !display)
 		return context.isProgram (program);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return program != null && program.id > 0 && lime_gl_is_program (program.id);
-		#else
-		return false;
-		#end
 		
 	}
 	
 	
 	public static inline function isRenderbuffer (renderbuffer:GLRenderbuffer):Bool {
 		
-		#if (js && html5 && !display)
 		return context.isRenderbuffer (renderbuffer);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return renderbuffer != null && renderbuffer.id > 0 && lime_gl_is_renderbuffer (renderbuffer.id);
-		#else
-		return false;
-		#end
 		
 	}
 	
 	
 	public static inline function isShader (shader:GLShader):Bool {
 		
-		#if (js && html5 && !display)
 		return context.isShader (shader);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return shader != null && shader.id > 0 && lime_gl_is_shader (shader.id);
-		#else
-		return false;
-		#end
 		
 	}
 	
 	
 	public static inline function isTexture (texture:GLTexture):Bool {
 		
-		#if (js && html5 && !display)
 		return context.isTexture (texture);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		return texture != null && texture.id > 0 && lime_gl_is_texture (texture.id);
-		#else
-		return false;
-		#end
 		
 	}
 	
 	
 	public static inline function lineWidth (width:Float):Void {
 		
-		#if (js && html5 && !display)
 		context.lineWidth (width);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_line_width (width);
-		#end
 		
 	}
 	
 	
 	public static inline function linkProgram (program:GLProgram):Void {
 		
-		#if (js && html5 && !display)
 		context.linkProgram (program);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_link_program (program.id);
-		#end
 		
 	}
 	
 	
 	public static inline function pixelStorei (pname:Int, param:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.pixelStorei (pname, param);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_pixel_storei (pname, param);
-		#end
 		
 	}
 	
 	
 	public static inline function polygonOffset (factor:Float, units:Float):Void {
 		
-		#if (js && html5 && !display)
 		context.polygonOffset (factor, units);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_polygon_offset (factor, units);
-		#end
 		
 	}
 	
 	
 	public static inline function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
 		
-		#if (js && html5 && !display)
 		context.readPixels (x, y, width, height, format, type, pixels);
-		#elseif (lime_cffi && !nodejs && lime_opengl && !macro)
-		var buffer = pixels == null ? null : pixels.buffer;
-		lime_gl_read_pixels (x, y, width, height, format, type, buffer, pixels == null ? 0 : pixels.byteOffset);
-		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_read_pixels (x, y, width, height, format, type, pixels == null ? null : pixels, pixels == null ? null : pixels.byteOffset);
-		#end
 		
 	}
 	
 	
 	public static inline function renderbufferStorage (target:Int, internalformat:Int, width:Int, height:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.renderbufferStorage (target, internalformat, width, height);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_renderbuffer_storage (target, internalformat, width, height);
-		#end
 		
 	}
 	
 	
 	public static inline function sampleCoverage (value:Float, invert:Bool):Void {
 		
-		#if (js && html5 && !display)
 		context.sampleCoverage (value, invert);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_sample_coverage (value, invert);
-		#end
 		
 	}
 	
 	
 	public static inline function scissor (x:Int, y:Int, width:Int, height:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.scissor (x, y, width, height);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_scissor (x, y, width, height);
-		#end
 		
 	}
 	
 	
 	public static inline function shaderSource (shader:GLShader, source:String):Void {
 		
-		#if (js && html5 && !display)
 		context.shaderSource (shader, source);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_shader_source (shader.id, source);
-		#end
 		
 	}
 	
 	
 	public static inline function stencilFunc (func:Int, ref:Int, mask:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.stencilFunc (func, ref, mask);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_stencil_func (func, ref, mask);
-		#end
 		
 	}
 	
 	
 	public static inline function stencilFuncSeparate (face:Int, func:Int, ref:Int, mask:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.stencilFuncSeparate (face, func, ref, mask);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_stencil_func_separate (face, func, ref, mask);
-		#end
 		
 	}
 	
 	
 	public static inline function stencilMask (mask:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.stencilMask (mask);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_stencil_mask (mask);
-		#end
 		
 	}
 	
 	
 	public static inline function stencilMaskSeparate (face:Int, mask:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.stencilMaskSeparate (face, mask);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_stencil_mask_separate (face, mask);
-		#end
 		
 	}
 	
 	
 	public static inline function stencilOp (fail:Int, zfail:Int, zpass:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.stencilOp (fail, zfail, zpass);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_stencil_op (fail, zfail, zpass);
-		#end
 		
 	}
 	
 	
 	public static inline function stencilOpSeparate (face:Int, fail:Int, zfail:Int, zpass:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.stencilOpSeparate (face, fail, zfail, zpass);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_stencil_op_separate (face, fail, zfail, zpass);
-		#end
 		
 	}
 	
 	
 	public static inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
 		
-		#if (js && html5 && !display)
 		context.texImage2D (target, level, internalformat, width, height, border, format, type, pixels);
-		#elseif (lime_cffi && !nodejs && lime_opengl && !macro)
-		var buffer = pixels == null ? null : pixels.buffer;
-		lime_gl_tex_image_2d (target, level, internalformat, width, height, border, format, type, buffer, pixels == null ? 0 : pixels.byteOffset);
-		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_tex_image_2d (target, level, internalformat, width, height, border, format, type, pixels == null ? null : pixels, pixels == null ? null : pixels.byteOffset);
-		#end
 		
 	}
 	
 	
 	public static inline function texParameterf (target:Int, pname:Int, param:Float):Void {
 		
-		#if (js && html5 && !display)
 		context.texParameterf (target, pname, param);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_tex_parameterf (target, pname, param);
-		#end
 		
 	}
 	
 	
 	public static inline function texParameteri (target:Int, pname:Int, param:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.texParameteri (target, pname, param);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_tex_parameteri (target, pname, param);
-		#end
 		
 	}
 	
 	
 	public static inline function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
 		
-		#if (js && html5 && !display)
 		context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, pixels);
-		#elseif (lime_cffi && !nodejs && lime_opengl && !macro)
-		var buffer = pixels == null ? null : pixels.buffer;
-		lime_gl_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, type, buffer, pixels == null ? 0 : pixels.byteOffset);
-		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, type, pixels == null ? null : pixels, pixels == null ? null : pixels.byteOffset);
-		#end
 		
 	}
 	
 	
 	public static inline function uniform1f (location:GLUniformLocation, x:Float):Void {
 		
-		#if (js && html5 && !display)
 		context.uniform1f (location, x);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_uniform1f (location, x);
-		#end
 		
 	}
 	
 	
 	public static inline function uniform1fv (location:GLUniformLocation, x:Float32Array):Void {
 		
-		#if (js && html5 && !display)
 		context.uniform1fv (location, x);
-		#elseif (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_uniform1fv (location, x.buffer);
-		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_uniform1fv (location, x);
-		#end
 		
 	}
 	
 	
 	public static inline function uniform1i (location:GLUniformLocation, x:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.uniform1i (location, x);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_uniform1i (location, x);
-		#end
 		
 	}
 	
 	
 	public static inline function uniform1iv (location:GLUniformLocation, v:Int32Array):Void {
 		
-		#if (js && html5 && !display)
 		context.uniform1iv (location, v);
-		#elseif (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_uniform1iv (location, v.buffer);
-		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_uniform1iv (location, v);
-		#end
 		
 	}
 	
 	
 	public static inline function uniform2f (location:GLUniformLocation, x:Float, y:Float):Void {
 		
-		#if (js && html5 && !display)
 		context.uniform2f (location, x, y);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_uniform2f (location, x, y);
-		#end
 		
 	}
 	
 	
 	public static inline function uniform2fv (location:GLUniformLocation, v:Float32Array):Void {
 		
-		#if (js && html5 && !display)
 		context.uniform2fv (location, v);
-		#elseif (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_uniform2fv (location, v.buffer);
-		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_uniform2fv (location, v);
-		#end
 		
 	}
 	
 	
 	public static inline function uniform2i (location:GLUniformLocation, x:Int, y:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.uniform2i (location, x, y);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_uniform2i (location, x, y);
-		#end
 		
 	}
 	
 	
 	public static inline function uniform2iv (location:GLUniformLocation, v:Int32Array):Void {
 		
-		#if (js && html5 && !display)
 		context.uniform2iv (location, v);
-		#elseif (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_uniform2iv (location, v.buffer);
-		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_uniform2iv (location, v);
-		#end
 		
 	}
 	
 	
 	public static inline function uniform3f (location:GLUniformLocation, x:Float, y:Float, z:Float):Void {
 		
-		#if (js && html5 && !display)
 		context.uniform3f (location, x, y, z);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_uniform3f (location, x, y, z);
-		#end
 		
 	}
 	
 	
 	public static inline function uniform3fv (location:GLUniformLocation, v:Float32Array):Void {
 		
-		#if (js && html5 && !display)
 		context.uniform3fv (location, v);
-		#elseif (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_uniform3fv (location, v.buffer);
-		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_uniform3fv (location, v);
-		#end
 		
 	}
 	
 	
 	public static inline function uniform3i (location:GLUniformLocation, x:Int, y:Int, z:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.uniform3i (location, x, y, z);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_uniform3i (location, x, y, z);
-		#end
 		
 	}
 	
 	
 	public static inline function uniform3iv (location:GLUniformLocation, v:Int32Array):Void {
 		
-		#if (js && html5 && !display)
 		context.uniform3iv (location, v);
-		#elseif (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_uniform3iv (location, v.buffer);
-		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_uniform3iv (location, v);
-		#end
 		
 	}
 	
 	
 	public static inline function uniform4f (location:GLUniformLocation, x:Float, y:Float, z:Float, w:Float):Void {
 		
-		#if (js && html5 && !display)
 		context.uniform4f (location, x, y, z, w);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_uniform4f (location, x, y, z, w);
-		#end
 		
 	}
 	
 	
 	public static inline function uniform4fv (location:GLUniformLocation, v:Float32Array):Void {
 		
-		#if (js && html5 && !display)
 		context.uniform4fv (location, v);
-		#elseif (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_uniform4fv (location, v.buffer);
-		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_uniform4fv (location, v);
-		#end
 		
 	}
 	
 	
 	public static inline function uniform4i (location:GLUniformLocation, x:Int, y:Int, z:Int, w:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.uniform4i (location, x, y, z, w);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_uniform4i (location, x, y, z, w);
-		#end
 		
 	}
 	
 	
 	public static inline function uniform4iv (location:GLUniformLocation, v:Int32Array):Void {
 		
-		#if (js && html5 && !display)
 		context.uniform4iv (location, v);
-		#elseif (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_uniform4iv (location, v.buffer);
-		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_uniform4iv (location, v);
-		#end
 		
 	}
 	
 	
 	public static inline function uniformMatrix2fv (location:GLUniformLocation, transpose:Bool, v:Float32Array):Void {
 		
-		#if (js && html5 && !display)
 		context.uniformMatrix2fv (location, transpose, v);
-		#elseif (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_uniform_matrix (location, transpose, v.buffer, 2);
-		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_uniform_matrix (location, transpose, v, 2);
-		#end
 		
 	}
 	
 	
 	public static inline function uniformMatrix3fv (location:GLUniformLocation, transpose:Bool, v:Float32Array):Void {
 		
-		#if (js && html5 && !display)
 		context.uniformMatrix3fv (location, transpose, v);
-		#elseif (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_uniform_matrix (location, transpose, v.buffer, 3);
-		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_uniform_matrix (location, transpose, v, 3);
-		#end
 		
 	}
 	
 	
 	public static inline function uniformMatrix4fv (location:GLUniformLocation, transpose:Bool, v:Float32Array):Void {
 		
-		#if (js && html5 && !display)
 		context.uniformMatrix4fv (location, transpose, v);
-		#elseif (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_uniform_matrix (location, transpose, v.buffer, 4);
-		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_uniform_matrix (location, transpose, v, 4);
-		#end
 		
 	}
 	
@@ -2076,282 +1246,89 @@ class GL {
 		
 		__currentProgram = program;
 		
-		#if (js && html5 && !display)
 		context.useProgram (program);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_use_program (program == null ? null : program.id);
-		#end
 		
 	}
 	
 	
 	public static inline function validateProgram (program:GLProgram):Void {
 		
-		#if (js && html5 && !display)
 		context.validateProgram (program);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_validate_program (program.id);
-		#end
 		
 	}
 	
 	
 	public static inline function vertexAttrib1f (indx:Int, x:Float):Void {
 		
-		#if (js && html5 && !display)
 		context.vertexAttrib1f (indx, x);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_vertex_attrib1f (indx, x);
-		#end
 		
 	}
 	
 	
 	public static inline function vertexAttrib1fv (indx:Int, values:Float32Array):Void {
 		
-		#if (js && html5 && !display)
 		context.vertexAttrib1fv (indx, values);
-		#elseif (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_vertex_attrib1fv (indx, values.buffer);
-		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_vertex_attrib1fv (indx, values);
-		#end
 		
 	}
 	
 	
 	public static inline function vertexAttrib2f (indx:Int, x:Float, y:Float):Void {
 		
-		#if (js && html5 && !display)
 		context.vertexAttrib2f (indx, x, y);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_vertex_attrib2f (indx, x, y);
-		#end
 		
 	}
 	
 	
 	public static inline function vertexAttrib2fv (indx:Int, values:Float32Array):Void {
 		
-		#if (js && html5 && !display)
 		context.vertexAttrib2fv (indx, values);
-		#elseif (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_vertex_attrib2fv (indx, values.buffer);
-		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_vertex_attrib2fv (indx, values);
-		#end
 		
 	}
 	
 	
 	public static inline function vertexAttrib3f (indx:Int, x:Float, y:Float, z:Float):Void {
 		
-		#if (js && html5 && !display)
 		context.vertexAttrib3f (indx, x, y, z);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_vertex_attrib3f (indx, x, y, z);
-		#end
 		
 	}
 	
 	
 	public static inline function vertexAttrib3fv (indx:Int, values:Float32Array):Void {
 		
-		#if (js && html5 && !display)
 		context.vertexAttrib3fv (indx, values);
-		#elseif (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_vertex_attrib3fv (indx, values.buffer);
-		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_vertex_attrib3fv (indx, values);
-		#end
 		
 	}
 	
 	
 	public static inline function vertexAttrib4f (indx:Int, x:Float, y:Float, z:Float, w:Float):Void {
 		
-		#if (js && html5 && !display)
 		context.vertexAttrib4f (indx, x, y, z, w);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_vertex_attrib4f (indx, x, y, z, w);
-		#end
 		
 	}
 	
 	
 	public static inline function vertexAttrib4fv (indx:Int, values:Float32Array):Void {
 		
-		#if (js && html5 && !display)
 		context.vertexAttrib4fv (indx, values);
-		#elseif (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_vertex_attrib4fv (indx, values.buffer);
-		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_vertex_attrib4fv (indx, values);
-		#end
 		
 	}
 	
 	
 	public static inline function vertexAttribPointer (indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.vertexAttribPointer (indx, size, type, normalized, stride, offset);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_vertex_attrib_pointer (indx, size, type, normalized, stride, offset);
-		#end
 		
 	}
 	
 	
 	public static inline function viewport (x:Int, y:Int, width:Int, height:Int):Void {
 		
-		#if (js && html5 && !display)
 		context.viewport (x, y, width, height);
-		#elseif (lime_cffi && lime_opengl && !macro)
-		lime_gl_viewport (x, y, width, height);
-		#end
 		
 	}
 	
 	
 	private static function get_version ():Int { return 2; }
-	
-	
-	#if (lime_cffi && lime_opengl && !macro)
-	@:cffi private static function lime_gl_active_texture (texture:Int):Void;
-	@:cffi private static function lime_gl_attach_shader (program:CFFIPointer, shader:CFFIPointer):Void;
-	@:cffi private static function lime_gl_bind_attrib_location (program:CFFIPointer, index:Int, name:String):Void;
-	@:cffi private static function lime_gl_bind_buffer (target:Int, buffer:CFFIPointer):Void;
-	@:cffi private static function lime_gl_bind_framebuffer (target:Int, framebuffer:CFFIPointer):Void;
-	@:cffi private static function lime_gl_bind_renderbuffer (target:Int, renderbuffer:CFFIPointer):Void;
-	@:cffi private static function lime_gl_bind_texture (target:Int, texture:CFFIPointer):Void;
-	@:cffi private static function lime_gl_blend_color (red:Float32, green:Float32, blue:Float32, alpha:Float32):Void;
-	@:cffi private static function lime_gl_blend_equation (mode:Int):Void;
-	@:cffi private static function lime_gl_blend_equation_separate (modeRGB:Int, modeAlpha:Int):Void;
-	@:cffi private static function lime_gl_blend_func (sfactor:Int, dfactor:Int):Void;
-	@:cffi private static function lime_gl_blend_func_separate (srcRGB:Int, dstRGB:Int, srcAlpha:Int, dstAlpha:Int):Void;
-	@:cffi private static function lime_gl_buffer_data (target:Int, buffer:Dynamic, byteOffset:Int, size:Int, usage:Int):Void;
-	@:cffi private static function lime_gl_buffer_sub_data (target:Int, offset:Int, buffer:Dynamic, byteOffset:Int, size:Int):Void;
-	@:cffi private static function lime_gl_check_framebuffer_status (target:Int):Int;
-	@:cffi private static function lime_gl_clear (mask:Int):Void;
-	@:cffi private static function lime_gl_clear_color (red:Float32, green:Float32, blue:Float32, alpha:Float32):Void;
-	@:cffi private static function lime_gl_clear_depth (depth:Float32):Void;
-	@:cffi private static function lime_gl_clear_stencil (s:Int):Void;
-	@:cffi private static function lime_gl_color_mask (red:Bool, green:Bool, blue:Bool, alpha:Bool):Void;
-	@:cffi private static function lime_gl_compile_shader (shader:CFFIPointer):Void;
-	@:cffi private static function lime_gl_compressed_tex_image_2d (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, buffer:Dynamic, byteOffset:Int):Void;
-	@:cffi private static function lime_gl_compressed_tex_sub_image_2d (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, buffer:Dynamic, byteOffset:Int):Void;
-	@:cffi private static function lime_gl_copy_tex_image_2d (target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void;
-	@:cffi private static function lime_gl_copy_tex_sub_image_2d (target:Int, level:Int, xoffset:Int, yoffset:Int, x:Int, y:Int, width:Int, height:Int):Void;
-	@:cffi private static function lime_gl_create_buffer ():CFFIPointer;
-	@:cffi private static function lime_gl_create_framebuffer ():CFFIPointer;
-	@:cffi private static function lime_gl_create_program ():CFFIPointer;
-	@:cffi private static function lime_gl_create_render_buffer ():CFFIPointer;
-	@:cffi private static function lime_gl_create_shader (type:Int):CFFIPointer;
-	@:cffi private static function lime_gl_create_texture ():CFFIPointer;
-	@:cffi private static function lime_gl_cull_face (mode:Int):Void;
-	@:cffi private static function lime_gl_delete_buffer (buffer:CFFIPointer):Void;
-	@:cffi private static function lime_gl_delete_framebuffer (framebuffer:CFFIPointer):Void;
-	@:cffi private static function lime_gl_delete_program (program:CFFIPointer):Void;
-	@:cffi private static function lime_gl_delete_render_buffer (renderbuffer:CFFIPointer):Void;
-	@:cffi private static function lime_gl_delete_shader (shader:CFFIPointer):Void;
-	@:cffi private static function lime_gl_delete_texture (texture:CFFIPointer):Void;
-	@:cffi private static function lime_gl_depth_func (func:Int):Void;
-	@:cffi private static function lime_gl_depth_mask (flag:Bool):Void;
-	@:cffi private static function lime_gl_depth_range (zNear:Float32, zFar:Float32):Void;
-	@:cffi private static function lime_gl_detach_shader (program:CFFIPointer, shader:CFFIPointer):Void;
-	@:cffi private static function lime_gl_disable (cap:Int):Void;
-	@:cffi private static function lime_gl_disable_vertex_attrib_array (index:Int):Void;
-	@:cffi private static function lime_gl_draw_arrays (mode:Int, first:Int, count:Int):Void;
-	@:cffi private static function lime_gl_draw_elements (mode:Int, count:Int, type:Int, offset:Int):Void;
-	@:cffi private static function lime_gl_enable (cap:Int):Void;
-	@:cffi private static function lime_gl_enable_vertex_attrib_array (index:Int):Void;
-	@:cffi private static function lime_gl_finish ():Void;
-	@:cffi private static function lime_gl_flush ():Void;
-	@:cffi private static function lime_gl_framebuffer_renderbuffer (target:Int, attachment:Int, renderbuffertarget:Int, renderbuffer:CFFIPointer):Void;
-	@:cffi private static function lime_gl_framebuffer_texture2D (target:Int, attachment:Int, textarget:Int, texture:CFFIPointer, level:Int):Void;
-	@:cffi private static function lime_gl_front_face (mode:Int):Void;
-	@:cffi private static function lime_gl_generate_mipmap (target:Int):Void;
-	@:cffi private static function lime_gl_get_active_attrib (program:CFFIPointer, index:Int):Dynamic;
-	@:cffi private static function lime_gl_get_active_uniform (program:CFFIPointer, index:Int):Dynamic;
-	@:cffi private static function lime_gl_get_attrib_location (program:CFFIPointer, name:String):Int;
-	@:cffi private static function lime_gl_get_buffer_parameter (target:Int, pname:Int):Int;
-	@:cffi private static function lime_gl_get_context_attributes ():Dynamic;
-	@:cffi private static function lime_gl_get_error ():Int;
-	@:cffi private static function lime_gl_get_extension (name:String):Dynamic;
-	@:cffi private static function lime_gl_get_framebuffer_attachment_parameter (target:Int, attachment:Int, pname:Int):Int;
-	@:cffi private static function lime_gl_get_parameter (pname:Int):Dynamic;
-	@:cffi private static function lime_gl_get_program_info_log (program:CFFIPointer):String;
-	@:cffi private static function lime_gl_get_program_parameter (program:CFFIPointer, pname:Int):Int;
-	@:cffi private static function lime_gl_get_render_buffer_parameter (target:Int, pname:Int):Int;
-	@:cffi private static function lime_gl_get_shader_info_log (shader:CFFIPointer):String;
-	@:cffi private static function lime_gl_get_shader_parameter (shader:CFFIPointer, pname:Int):Int;
-	@:cffi private static function lime_gl_get_shader_precision_format (shadertype:Int, precisiontype:Int):Dynamic;
-	@:cffi private static function lime_gl_get_shader_source (shader:CFFIPointer):Dynamic;
-	@:cffi private static function lime_gl_get_supported_extensions (result:Dynamic):Void;
-	@:cffi private static function lime_gl_get_tex_parameter (target:Int, pname:Int):Int;
-	@:cffi private static function lime_gl_get_uniform (program:CFFIPointer, location:Int):Dynamic;
-	@:cffi private static function lime_gl_get_uniform_location (program:CFFIPointer, name:String):Int;
-	@:cffi private static function lime_gl_get_vertex_attrib (index:Int, pname:Int):Int;
-	@:cffi private static function lime_gl_get_vertex_attrib_offset (index:Int, pname:Int):Int;
-	@:cffi private static function lime_gl_hint (target:Int, mode:Int):Void;
-	@:cffi private static function lime_gl_is_buffer (buffer:CFFIPointer):Bool;
-	@:cffi private static function lime_gl_is_enabled (cap:Int):Bool;
-	@:cffi private static function lime_gl_is_framebuffer (framebuffer:CFFIPointer):Bool;
-	@:cffi private static function lime_gl_is_program (program:CFFIPointer):Bool;
-	@:cffi private static function lime_gl_is_renderbuffer (renderbuffer:CFFIPointer):Bool;
-	@:cffi private static function lime_gl_is_shader (shader:CFFIPointer):Bool;
-	@:cffi private static function lime_gl_is_texture (texture:CFFIPointer):Bool;
-	@:cffi private static function lime_gl_line_width (width:Float32):Void;
-	@:cffi private static function lime_gl_link_program (program:CFFIPointer):Void;
-	@:cffi private static function lime_gl_pixel_storei (pname:Int, param:Int):Void;
-	@:cffi private static function lime_gl_polygon_offset (factor:Float32, units:Float32):Void;
-	@:cffi private static function lime_gl_read_pixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, buffer:Dynamic, byteOffset:Int):Void;
-	@:cffi private static function lime_gl_renderbuffer_storage (target:Int, internalformat:Int, width:Int, height:Int):Void;
-	@:cffi private static function lime_gl_sample_coverage (value:Float32, invert:Bool):Void;
-	@:cffi private static function lime_gl_scissor (x:Int, y:Int, width:Int, height:Int):Void;
-	@:cffi private static function lime_gl_shader_source (shader:CFFIPointer, source:String):Void;
-	@:cffi private static function lime_gl_stencil_func (func:Int, ref:Int, mask:Int):Void;
-	@:cffi private static function lime_gl_stencil_func_separate (face:Int, func:Int, ref:Int, mask:Int):Void;
-	@:cffi private static function lime_gl_stencil_mask (mask:Int):Void;
-	@:cffi private static function lime_gl_stencil_mask_separate (face:Int, mask:Int):Void;
-	@:cffi private static function lime_gl_stencil_op (fail:Int, zfail:Int, zpass:Int):Void;
-	@:cffi private static function lime_gl_stencil_op_separate (face:Int, fail:Int, zfail:Int, zpass:Int):Void;
-	@:cffi private static function lime_gl_tex_image_2d (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, buffer:Dynamic, byteOffset:Int):Void;
-	@:cffi private static function lime_gl_tex_parameterf (target:Int, pname:Int, param:Float32):Void;
-	@:cffi private static function lime_gl_tex_parameteri (target:Int, pname:Int, param:Int):Void;
-	@:cffi private static function lime_gl_tex_sub_image_2d (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, buffer:Dynamic, byteOffset:Int):Void;
-	@:cffi private static function lime_gl_uniform1f (location:Int, x:Float32):Void;
-	@:cffi private static function lime_gl_uniform1fv (location:Int, v:Dynamic):Void;
-	@:cffi private static function lime_gl_uniform1i (location:Int, x:Int):Void;
-	@:cffi private static function lime_gl_uniform1iv (location:Int, v:Dynamic):Void;
-	@:cffi private static function lime_gl_uniform2f (location:Int, x:Float32, y:Float32):Void;
-	@:cffi private static function lime_gl_uniform2fv (location:Int, v:Dynamic):Void;
-	@:cffi private static function lime_gl_uniform2i (location:Int, x:Int, y:Int):Void;
-	@:cffi private static function lime_gl_uniform2iv (location:Int, v:Dynamic):Void;
-	@:cffi private static function lime_gl_uniform3f (location:Int, x:Float32, y:Float32, z:Float32):Void;
-	@:cffi private static function lime_gl_uniform3fv (location:Int, v:Dynamic):Void;
-	@:cffi private static function lime_gl_uniform3i (location:Int, x:Int, y:Int, z:Int):Void;
-	@:cffi private static function lime_gl_uniform3iv (location:Int, v:Dynamic):Void;
-	@:cffi private static function lime_gl_uniform4f (location:Int, x:Float32, y:Float32, z:Float32, w:Float32):Void;
-	@:cffi private static function lime_gl_uniform4fv (location:Int, v:Dynamic):Void;
-	@:cffi private static function lime_gl_uniform4i (location:Int, x:Int, y:Int, z:Int, w:Int):Void;
-	@:cffi private static function lime_gl_uniform4iv (location:Int, v:Dynamic):Void;
-	@:cffi private static function lime_gl_uniform_matrix (location:Int, transpose:Bool, buffer:Dynamic, count:Int):Void;
-	@:cffi private static function lime_gl_use_program (program:CFFIPointer):Void;
-	@:cffi private static function lime_gl_validate_program (program:CFFIPointer):Void;
-	@:cffi private static function lime_gl_version ():String;
-	@:cffi private static function lime_gl_vertex_attrib1f (indx:Int, x:Float32):Void;
-	@:cffi private static function lime_gl_vertex_attrib1fv (indx:Int, values:Dynamic):Void;
-	@:cffi private static function lime_gl_vertex_attrib2f (indx:Int, x:Float32, y:Float32):Void;
-	@:cffi private static function lime_gl_vertex_attrib2fv (indx:Int, values:Dynamic):Void;
-	@:cffi private static function lime_gl_vertex_attrib3f (indx:Int, x:Float32, y:Float32, z:Float32):Void;
-	@:cffi private static function lime_gl_vertex_attrib3fv (indx:Int, values:Dynamic):Void;
-	@:cffi private static function lime_gl_vertex_attrib4f (indx:Int, x:Float32, y:Float32, z:Float32, w:Float32):Void;
-	@:cffi private static function lime_gl_vertex_attrib4fv (indx:Int, values:Dynamic):Void;
-	@:cffi private static function lime_gl_vertex_attrib_pointer (indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void;
-	@:cffi private static function lime_gl_viewport (x:Int, y:Int, width:Int, height:Int):Void;
-	#end
 	
 	
 }

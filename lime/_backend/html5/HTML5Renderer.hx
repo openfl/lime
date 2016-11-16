@@ -88,9 +88,9 @@ class HTML5Renderer {
 				webgl = untyped WebGLDebugUtils.makeDebugContext (webgl);
 				#end
 				
-				GL.context = webgl;
+				GL.context = cast webgl;
 				#if (js && html5)
-				parent.context = OPENGL (cast GL.context);
+				parent.context = OPENGL (GL.context);
 				#else
 				parent.context = OPENGL (new GLRenderContext ());
 				#end
