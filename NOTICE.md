@@ -1,5 +1,5 @@
-Notice
-======
+Notices
+=======
 
 ### Lime
 Copyright (c) 2013-2016 Joshua Granick and other Lime contributors
