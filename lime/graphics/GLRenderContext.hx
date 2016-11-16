@@ -21,9 +21,11 @@ import lime.graphics.opengl.GLUniformLocation;
 import js.html.CanvasElement;
 #end
 
-
+#if (js && html5)
 @:native("WebGLRenderingContext")
-extern class HTML5GLRenderContext {
+#end
+
+extern class GLRenderContext {
 	
 	
 	var ACTIVE_ATTRIBUTES:Int;
@@ -448,19 +450,27 @@ extern class HTML5GLRenderContext {
 	function stencilOp (fail:Int, zfail:Int, zpass:Int):Void;
 	function stencilOpSeparate (face:Int, fail:Int, zfail:Int, zpass:Int):Void;
 	/** Throws DOMException. */
+	#if (js && html5)
 	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:lime.utils.ArrayBufferView):Void {})
 	@:overload(function(target:Int, level:Int, internalformat:Int, format:Int, type:Int, pixels:js.html.ImageData):Void {})
 	@:overload(function(target:Int, level:Int, internalformat:Int, format:Int, type:Int, image:js.html.ImageElement):Void {})
 	@:overload(function(target:Int, level:Int, internalformat:Int, format:Int, type:Int, canvas:js.html.CanvasElement):Void {})
 	function texImage2D (target:Int, level:Int, internalformat:Int, format:Int, type:Int, video:js.html.VideoElement):Void;
+	#else
+	function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:lime.utils.ArrayBufferView):Void;
+	#end
 	function texParameterf (target:Int, pname:Int, param:Float):Void;
 	function texParameteri (target:Int, pname:Int, param:Int):Void;
 	/** Throws DOMException. */
+	#if (js && html5)
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:lime.utils.ArrayBufferView):Void {})
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, pixels:js.html.ImageData):Void {})
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, image:js.html.ImageElement):Void {})
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, canvas:js.html.CanvasElement):Void {})
 	function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, video:js.html.VideoElement):Void;
+	#else
+	function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:lime.utils.ArrayBufferView):Void;
+	#end
 	function uniform1f (location:GLUniformLocation, x:Float):Void;
 	function uniform1fv (location:GLUniformLocation, v:lime.utils.Float32Array):Void;
 	function uniform1i (location:GLUniformLocation, x:Int):Void;
