@@ -330,6 +330,10 @@ extern class GLRenderContext {
 	var drawingBufferWidth (default, null):Int;
 	#end
 	
+	#if (!js || !html5)
+	function new();
+	#end
+	
 	function activeTexture (texture:Int):Void;
 	function attachShader (program:GLProgram, shader:GLShader):Void;
 	function bindAttribLocation (program:GLProgram, index:Int, name:String):Void;
