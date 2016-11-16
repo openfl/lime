@@ -143,7 +143,17 @@ class HTML5Helper {
 				
 			});*/
 			
-			var args = [ server, path, "-p", Std.string (port), "-c-1", "-o", "--cors" ];
+			var args = [ server, path, "-p", Std.string (port), "-c-1", "--cors" ];
+			
+			if (project.targetFlags.exists ("nolaunch")) {
+				
+				LogHelper.info ("\x1b[1mStarting local web server:\x1b[0m http://localhost:" + port);
+				
+			} else {
+				
+				args.push ("-o");
+				
+			}
 			
 			if (!LogHelper.verbose) {
 				
