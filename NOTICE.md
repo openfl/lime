@@ -1,7 +1,7 @@
 Notice
 ======
 
-Lime
+### Lime
 Copyright (c) 2013-2016 Joshua Granick and other Lime contributors
 
 This product bundles cairo 1.15.2, which is available under an
