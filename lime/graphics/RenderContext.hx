@@ -10,7 +10,7 @@ import lime.graphics.GLRenderContext;
 
 enum RenderContext {
 	
-	OPENGL (gl:GLRenderContext);
+	OPENGL (gl:#if (!flash || display) GLRenderContext #else Dynamic #end);
 	CANVAS (context:CanvasRenderContext);
 	DOM (element:DOMRenderContext);
 	FLASH (stage:FlashRenderContext);
