@@ -3,6 +3,8 @@ package lime.system;
 
 #if flash
 import flash.desktop.Clipboard in FlashClipboard;
+#elseif js
+import js.Browser.document;
 #end
 
 #if !macro
@@ -14,6 +16,10 @@ class Clipboard {
 	
 	
 	public static var text (get, set):String;
+
+	#if js
+	private static var _text : String;
+	#end
 	
 	
 	
@@ -33,6 +39,8 @@ class Clipboard {
 			return FlashClipboard.generalClipboard.getData (TEXT_FORMAT);
 			
 		}
+		#elseif js
+		return _text;
 		#end
 		
 		return null;
@@ -45,8 +53,19 @@ class Clipboard {
 		#if (lime_cffi && !macro)
 		lime_clipboard_set_text (value);
 		return value;
+		
 		#elseif flash
 		FlashClipboard.generalClipboard.setData (TEXT_FORMAT, value);
+		return value;
+		
+		#elseif js
+		_text = value;
+		
+		#if html5
+		if (document.queryCommandEnabled("copy"))
+			document.execCommand("copy");
+		#end
+		
 		return value;
 		#end
 		
