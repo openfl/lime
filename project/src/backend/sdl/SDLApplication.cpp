@@ -17,8 +17,10 @@ namespace lime {
 	AutoGCRoot* Application::callback = 0;
 	SDLApplication* SDLApplication::currentApplication = 0;
 	
+
 	const int analogAxisDeadZone = 1000;
 	std::map<int, std::map<int, int> > gamepadsAxisMap;
+	bool suspendRender = false;
 	
 	
 	SDLApplication::SDLApplication () {
@@ -112,24 +114,31 @@ namespace lime {
 			
 			case SDL_USEREVENT:
 				
-				currentUpdate = SDL_GetTicks ();
-				applicationEvent.type = UPDATE;
-				applicationEvent.deltaTime = currentUpdate - lastUpdate;
-				lastUpdate = currentUpdate;
-				
-				nextUpdate += framePeriod;
-				
-				while (nextUpdate <= currentUpdate) {
+				if (!suspendRender) {
+					
+					currentUpdate = SDL_GetTicks ();
+					applicationEvent.type = UPDATE;
+					applicationEvent.deltaTime = currentUpdate - lastUpdate;
+					lastUpdate = currentUpdate;
 					
 					nextUpdate += framePeriod;
 					
+					while (nextUpdate <= currentUpdate) {
+						
+						nextUpdate += framePeriod;
+						
+					}
+					
+					ApplicationEvent::Dispatch (&applicationEvent);
+					RenderEvent::Dispatch (&renderEvent);
+					
 				}
 				
-				ApplicationEvent::Dispatch (&applicationEvent);
-				RenderEvent::Dispatch (&renderEvent);
 				break;
 			
 			case SDL_APP_WILLENTERBACKGROUND:
+				
+				suspendRender = true;
 				
 				windowEvent.type = WINDOW_DEACTIVATE;
 				WindowEvent::Dispatch (&windowEvent);
@@ -139,6 +148,8 @@ namespace lime {
 				
 				windowEvent.type = WINDOW_ACTIVATE;
 				WindowEvent::Dispatch (&windowEvent);
+				
+				suspendRender = false;
 				break;
 			
 			case SDL_CONTROLLERAXISMOTION:
@@ -227,13 +238,24 @@ namespace lime {
 					
 					case SDL_WINDOWEVENT_EXPOSED: 
 						
-						RenderEvent::Dispatch (&renderEvent);
+						if (!suspendRender) {
+							
+							RenderEvent::Dispatch (&renderEvent);
+							
+						}
+						
 						break;
 					
 					case SDL_WINDOWEVENT_SIZE_CHANGED:
 						
 						ProcessWindowEvent (event);
-						RenderEvent::Dispatch (&renderEvent);
+						
+						if (!suspendRender) {
+							
+							RenderEvent::Dispatch (&renderEvent);
+							
+						}
+						
 						break;
 					
 					case SDL_WINDOWEVENT_CLOSE:
