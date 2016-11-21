@@ -48,7 +48,7 @@ class Haptic {
 	
 	
 	#if android
-	private static var lime_haptic_vibrate (period:Int, duration:Int):Void;
+	private static var lime_haptic_vibrate:Int->Int->Void;
 	#elseif (lime_cffi && !macro)
 	@:cffi private static function lime_haptic_vibrate (period:Int, duration:Int):Void;
 	#end
