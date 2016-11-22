@@ -19,8 +19,8 @@ namespace lime {
 	
 
 	const int analogAxisDeadZone = 1000;
-	std::map<int, std::map<int, int> > gamepadsAxisMap;
-	bool suspendRender = false;
+	std::map<int, std::map<int, int>> gamepadsAxisMap;
+	bool inBackground = false;
 	
 	
 	SDLApplication::SDLApplication () {
@@ -114,7 +114,7 @@ namespace lime {
 			
 			case SDL_USEREVENT:
 				
-				if (!suspendRender) {
+				if (!inBackground) {
 					
 					currentUpdate = SDL_GetTicks ();
 					applicationEvent.type = UPDATE;
@@ -138,7 +138,7 @@ namespace lime {
 			
 			case SDL_APP_WILLENTERBACKGROUND:
 				
-				suspendRender = true;
+				inBackground = true;
 				
 				windowEvent.type = WINDOW_DEACTIVATE;
 				WindowEvent::Dispatch (&windowEvent);
@@ -148,8 +148,11 @@ namespace lime {
 				
 				windowEvent.type = WINDOW_ACTIVATE;
 				WindowEvent::Dispatch (&windowEvent);
+				break;
+			
+			case SDL_APP_DIDENTERFOREGROUND:
 				
-				suspendRender = false;
+				inBackground = false;
 				break;
 			
 			case SDL_CONTROLLERAXISMOTION:
@@ -238,7 +241,7 @@ namespace lime {
 					
 					case SDL_WINDOWEVENT_EXPOSED: 
 						
-						if (!suspendRender) {
+						if (!inBackground) {
 							
 							RenderEvent::Dispatch (&renderEvent);
 							
@@ -250,7 +253,7 @@ namespace lime {
 						
 						ProcessWindowEvent (event);
 						
-						if (!suspendRender) {
+						if (!inBackground) {
 							
 							RenderEvent::Dispatch (&renderEvent);
 							
