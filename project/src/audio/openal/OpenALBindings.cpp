@@ -190,8 +190,13 @@ namespace lime {
 	
 	void lime_al_delete_source (value source) {
 		
-		ALuint data = (ALuint)(uintptr_t)val_data (source);
-		alDeleteSources(1, &data);
+		if (!val_is_null (source)) {
+			
+			ALuint data = (ALuint)(uintptr_t)val_data (source);
+			alDeleteSources (1, &data);
+			val_gc (source, 0);
+			
+		}
 		
 	}
 	
