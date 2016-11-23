@@ -109,19 +109,24 @@ class DefaultAssetLibrary extends AssetLibrary {
 			if (Sys.args ().indexOf ("-livereload") > -1) {
 				
 				var path = FileSystem.fullPath ("manifest");
-				lastModified = FileSystem.stat (path).mtime.getTime ();
 				
-				timer = new Timer (2000);
-				timer.run = function () {
+				if (FileSystem.exists (path)) {
 					
-					var modified = FileSystem.stat (path).mtime.getTime ();
+					lastModified = FileSystem.stat (path).mtime.getTime ();
 					
-					if (modified > lastModified) {
+					timer = new Timer (2000);
+					timer.run = function () {
 						
-						lastModified = modified;
-						loadManifest ();
+						var modified = FileSystem.stat (path).mtime.getTime ();
 						
-						onChange.dispatch ();
+						if (modified > lastModified) {
+							
+							lastModified = modified;
+							loadManifest ();
+							
+							onChange.dispatch ();
+							
+						}
 						
 					}
 					
