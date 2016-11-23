@@ -176,9 +176,7 @@ class ImageCanvasUtil {
 		if (buffer.__srcImageData == null) {
 			
 			if (buffer.data == null) {
-				throw "getImageData is forbidden";
-				//buffer.__srcImageData = buffer.__srcContext.getImageData (0, 0, buffer.width, buffer.height);
-
+				buffer.__srcImageData = buffer.__srcContext.getImageData (0, 0, buffer.width, buffer.height);
 			} else {
 				
 				buffer.__srcImageData = buffer.__srcContext.createImageData (buffer.width, buffer.height);
