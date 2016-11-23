@@ -19,7 +19,7 @@ namespace lime {
 	
 
 	const int analogAxisDeadZone = 1000;
-	std::map<int, std::map<int, int>> gamepadsAxisMap;
+	std::map<int, std::map<int, int> > gamepadsAxisMap;
 	bool inBackground = false;
 	
 	
