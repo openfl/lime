@@ -363,168 +363,118 @@ class Assets {
 	}
 	
 	
-	public static function loadAudioBuffer (id:String, useCache:Bool = true):Future<AudioBuffer> {
-		
-		var promise = new Promise<AudioBuffer> ();
+	public static function loadAsset (id:String, type:AssetType, useCache:Bool):Future<Dynamic> {
 		
 		#if (tools && !display)
 		
-		if (useCache && cache.enabled && cache.audio.exists (id)) {
+		if (useCache && cache.enabled) {
 			
-			var audio = cache.audio.get (id);
-			
-			if (isValidAudio (audio)) {
+			switch (type) {
+				case BINARY, TEXT: // Not cached
+					
+					useCache = false;
 				
-				promise.complete (audio);
-				return promise.future;
+				case FONT:
+					var font = cache.font.get (id);
+					
+					if (font != null) {
+						
+						var promise = new Promise<Font> ();
+						promise.complete (font);
+						return promise.future;
+						
+					}
 				
+				case IMAGE:
+					var image = cache.image.get (id);
+					
+					if (isValidImage (image)) {
+						
+						var promise = new Promise<Image> ();
+						promise.complete (image);
+						return promise.future;
+						
+					}
+				
+				case MUSIC, SOUND:
+					var audio = cache.audio.get (id);
+					
+					if (isValidAudio (audio)) {
+						
+						var promise = new Promise<AudioBuffer> ();
+						promise.complete(audio);
+						return promise.future;
+						
+					}
+				
+				case TEMPLATE:  throw "Not sure how to get template: " + id;
 			}
 			
 		}
 		
 		__with_library_and_symbolName(id, if (library != null) {
 			
-			if (library.exists (symbolName, cast AssetType.SOUND)) {
+			if (library.exists (symbolName, cast type)) {
 				
-				var future = library.loadAudioBuffer (symbolName);
+				var future = library.loadAsset (symbolName, cast type);
 				
 				if (useCache && cache.enabled) {
 					
-					future.onComplete (function (audio) cache.audio.set (id, audio));
+					future.onComplete (function (audio) cache.set (id, audio, type));
 					
 				}
 				
-				promise.completeWith (future);
+				return future;
 				
 			} else {
 				
-				promise.error ("[Assets] There is no audio asset with an ID of \"" + id + "\"");
+				var promise = new Promise<Dynamic> ();
+				promise.error ("[Assets] There is no " + type + " asset with an ID of \"" + id + "\"");
+				return promise.future;
 				
 			}
 			
 		} else {
 			
+			var promise = new Promise<Dynamic> ();
 			promise.error ("[Assets] There is no asset library named \"" + libraryName + "\"");
+			return promise.future;
 			
 		});
 		
+		#else
+		
+		return null;
+		
 		#end
 		
-		return promise.future;
+	}
+	
+	
+	public static function loadAudioBuffer (id:String, useCache:Bool = true):Future<AudioBuffer> {
+		
+		return cast loadAsset (id, SOUND, useCache);
 		
 	}
 	
 	
 	public static function loadBytes (id:String):Future<Bytes> {
 		
-		var promise = new Promise<Bytes> ();
-		
-		#if (tools && !display)
-		
-		__with_library_and_symbolName(id, if (library != null) {
-			
-			if (library.exists (symbolName, cast AssetType.BINARY)) {
-				
-				promise.completeWith (library.loadBytes (symbolName));
-				
-			} else {
-				
-				promise.error ("[Assets] There is no String or Bytes asset with an ID of \"" + id + "\"");
-				
-			}
-			
-		} else {
-			
-			promise.error ("[Assets] There is no asset library named \"" + libraryName + "\"");
-			
-		});
-		
-		#end
-		
-		return promise.future;
+		return cast loadAsset (id, BINARY, false);
 		
 	}
 	
 	
-	public static function loadFont (id:String):Future<Font> {
+	public static function loadFont (id:String, useCache:Bool = true):Future<Font> {
 		
-		var promise = new Promise<Font> ();
-		
-		#if (tools && !display)
-		
-		__with_library_and_symbolName(id, if (library != null) {
-			
-			if (library.exists (symbolName, cast AssetType.FONT)) {
-				
-				promise.completeWith (library.loadFont (symbolName));
-				
-			} else {
-				
-				promise.error ("[Assets] There is no Font asset with an ID of \"" + id + "\"");
-				
-			}
-			
-		} else {
-			
-			promise.error ("[Assets] There is no asset library named \"" + libraryName + "\"");
-			
-		});
-		
-		#end
-		
-		return promise.future;
+		return cast loadAsset (id, FONT, useCache);
 		
 	}
 	
 	
 	public static function loadImage (id:String, useCache:Bool = true):Future<Image> {
 		
-		var promise = new Promise<Image> ();
-		
-		#if (tools && !display)
-		
-		if (useCache && cache.enabled && cache.image.exists (id)) {
-			
-			var image = cache.image.get (id);
-			
-			if (isValidImage (image)) {
-				
-				promise.complete (image);
-				return promise.future;
-				
-			}
-			
-		}
-		
-		__with_library_and_symbolName(id, if (library != null) {
-			
-			if (library.exists (symbolName, cast AssetType.IMAGE)) {
-				
-				var future = library.loadImage (symbolName);
-				
-				if (useCache && cache.enabled) {
-					
-					future.onComplete (function (image) cache.image.set (id, image));
-					
-				}
-				
-				promise.completeWith (future);
-				
-			} else {
-				
-				promise.error ("[Assets] There is no Image asset with an ID of \"" + id + "\"");
-				
-			}
-			
-		} else {
-			
-			promise.error ("[Assets] There is no asset library named \"" + libraryName + "\"");
-			
-		});
-		
-		#end
-		
-		return promise.future;
+		return cast loadAsset (id, IMAGE, useCache);
 		
 	}
 	
@@ -830,6 +780,20 @@ class AssetLibrary {
 	}
 	
 	
+	public function loadAsset (id:String, type:String):Future<Dynamic> {
+		
+		var type : AssetType = cast type;
+		return switch (type) {
+			case BINARY:    loadBytes(id);
+			case FONT:      loadFont(id);
+			case IMAGE:     loadImage(id);
+			case MUSIC:     loadAudioBuffer(id);
+			case SOUND:     loadAudioBuffer(id);
+			case TEMPLATE:  throw "Not sure how to load template: " + id;
+			case TEXT:      loadText(id);
+		}
+		
+	}
 }
 
 
