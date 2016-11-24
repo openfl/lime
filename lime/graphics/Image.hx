@@ -317,6 +317,14 @@ class Image {
 			destPoint.y = 0;					//clamp destination point to 0
 		}
 		
+		// TODO: Optimize
+		
+		if (sourceImage == this) {
+			
+			sourceImage = clone ();
+			
+		}
+		
 		switch (type) {
 			
 			case CANVAS:
@@ -800,12 +808,6 @@ class Image {
 				ImageCanvasUtil.scroll (this, x, y);
 			
 			case DATA:
-				
-				//#if (js && html5)
-				//ImageCanvasUtil.convertToData (this);
-				//#end
-				
-				//ImageDataUtil.scroll (this, x, y);
 				
 				copyPixels (this, rect, new Vector2 (x, y));
 			
