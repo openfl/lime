@@ -44,6 +44,8 @@ class Assets {
 	public static var libraries (default, null) = new Map<String, AssetLibrary> ();
 	public static var onChange = new Event<Void->Void> ();
 	
+	// See definition in this file in the macro section below
+	public static macro function __with_library_and_symbolName (id:ExprOf<String>, expr:Expr):Expr;
 	
 	public static function exists (id:String, type:AssetType = null):Bool {
 		
@@ -55,19 +57,105 @@ class Assets {
 			
 		}
 		
-		var libraryName = id.substring (0, id.indexOf (":"));
-		var symbolName = id.substr (id.indexOf (":") + 1);
-		var library = getLibrary (libraryName);
-		
-		if (library != null) {
+		__with_library_and_symbolName(id, if (library != null) {
 			
 			return library.exists (symbolName, cast type);
 			
-		}
+		});
 		
 		#end
 		
 		return false;
+		
+	}
+	
+	
+	/**
+	 * Gets an instance of a cached or embedded asset
+	 * @usage		var sound = Assets.getAsset("sound.wav", SOUND);
+	 * @param	id		The ID or asset path for the asset
+	 * @return		An Asset object, or null.
+	 */
+	public static function getAsset (id:String, type:AssetType, useCache:Bool):Dynamic {
+		
+		#if (tools && !display)
+		
+		if (useCache && cache.enabled) {
+			
+			switch (type) {
+				case BINARY, TEXT: // Not cached
+					
+					useCache = false;
+				
+				case FONT:
+					var font = cache.font.get (id);
+					
+					if (font != null) {
+						
+						return font;
+						
+					}
+				
+				case IMAGE:
+					var image = cache.image.get (id);
+					
+					if (isValidImage (image)) {
+						
+						return image;
+						
+					}
+				
+				case MUSIC, SOUND:
+					var audio = cache.audio.get (id);
+					
+					if (isValidAudio (audio)) {
+						
+						return audio;
+						
+					}
+				
+				case TEMPLATE:  throw "Not sure how to get template: " + id;
+			}
+			
+		}
+		
+		__with_library_and_symbolName(id, if (library != null) {
+			
+			if (library.exists (symbolName, cast type)) {
+				
+				if (library.isLocal (symbolName, cast type)) {
+					
+					var asset = library.getAsset (symbolName, cast type);
+					
+					if (useCache && cache.enabled) {
+						
+						cache.set (id, asset, type);
+						
+					}
+					
+					return asset;
+					
+				} else {
+					
+					Log.info (type + " asset \"" + id + "\" exists, but only asynchronously");
+					
+				}
+				
+			} else {
+				
+				Log.info ("There is no " + type + " asset with an ID of \"" + id + "\"");
+				
+			}
+			
+		} else {
+			
+			Log.info ("There is no asset library named \"" + libraryName + "\"");
+			
+		});
+		
+		#end
+		
+		return null;
 		
 	}
 	
@@ -80,61 +168,7 @@ class Assets {
 	 */
 	public static function getAudioBuffer (id:String, useCache:Bool = true):AudioBuffer {
 		
-		#if (tools && !display)
-		
-		if (useCache && cache.enabled && cache.audio.exists (id)) {
-			
-			var audio = cache.audio.get (id);
-			
-			if (isValidAudio (audio)) {
-				
-				return audio;
-				
-			}
-			
-		}
-		
-		var libraryName = id.substring (0, id.indexOf (":"));
-		var symbolName = id.substr (id.indexOf (":") + 1);
-		var library = getLibrary (libraryName);
-		
-		if (library != null) {
-			
-			if (library.exists (symbolName, cast AssetType.SOUND)) {
-				
-				if (library.isLocal (symbolName, cast AssetType.SOUND)) {
-					
-					var audio = library.getAudioBuffer (symbolName);
-					
-					if (useCache && cache.enabled) {
-						
-						cache.audio.set (id, audio);
-						
-					}
-					
-					return audio;
-					
-				} else {
-					
-					Log.info ("Audio asset \"" + id + "\" exists, but only asynchronously");
-					
-				}
-				
-			} else {
-				
-				Log.info ("There is no audio asset with an ID of \"" + id + "\"");
-				
-			}
-			
-		} else {
-			
-			Log.info ("There is no asset library named \"" + libraryName + "\"");
-			
-		}
-		
-		#end
-		
-		return null;
+		return cast getAsset (id, SOUND, useCache);
 		
 	}
 	
@@ -147,41 +181,7 @@ class Assets {
 	 */
 	public static function getBytes (id:String):Bytes {
 		
-		#if (tools && !display)
-		
-		var libraryName = id.substring (0, id.indexOf(":"));
-		var symbolName = id.substr (id.indexOf(":") + 1);
-		var library = getLibrary (libraryName);
-		
-		if (library != null) {
-			
-			if (library.exists (symbolName, cast AssetType.BINARY)) {
-				
-				if (library.isLocal (symbolName, cast AssetType.BINARY)) {
-					
-					return library.getBytes (symbolName);
-					
-				} else {
-					
-					Log.info ("String or Bytes asset \"" + id + "\" exists, but only asynchronously");
-					
-				}
-				
-			} else {
-				
-				Log.info ("There is no String or Bytes asset with an ID of \"" + id + "\"");
-				
-			}
-			
-		} else {
-			
-			Log.info ("There is no asset library named \"" + libraryName + "\"");
-			
-		}
-		
-		#end
-		
-		return null;
+		return cast getAsset (id, BINARY, false);
 		
 	}
 	
@@ -194,55 +194,7 @@ class Assets {
 	 */
 	public static function getFont (id:String, useCache:Bool = true):Font {
 		
-		#if (tools && !display)
-		
-		if (useCache && cache.enabled && cache.font.exists (id)) {
-			
-			return cache.font.get (id);
-			
-		}
-		
-		var libraryName = id.substring (0, id.indexOf (":"));
-		var symbolName = id.substr (id.indexOf (":") + 1);
-		var library = getLibrary (libraryName);
-		
-		if (library != null) {
-			
-			if (library.exists (symbolName, cast AssetType.FONT)) {
-				
-				if (library.isLocal (symbolName, cast AssetType.FONT)) {
-					
-					var font = library.getFont (symbolName);
-					
-					if (useCache && cache.enabled) {
-						
-						cache.font.set (id, font);
-						
-					}
-					
-					return font;
-					
-				} else {
-					
-					Log.info ("Font asset \"" + id + "\" exists, but only asynchronously");
-					
-				}
-				
-			} else {
-				
-				Log.info ("There is no Font asset with an ID of \"" + id + "\"");
-				
-			}
-			
-		} else {
-			
-			Log.info ("There is no asset library named \"" + libraryName + "\"");
-			
-		}
-		
-		#end
-		
-		return null;
+		return getAsset(id, FONT, useCache);
 		
 	}
 	
@@ -256,61 +208,7 @@ class Assets {
 	 */
 	public static function getImage (id:String, useCache:Bool = true):Image {
 		
-		#if (tools && !display)
-		
-		if (useCache && cache.enabled && cache.image.exists (id)) {
-			
-			var image = cache.image.get (id);
-			
-			if (isValidImage (image)) {
-				
-				return image;
-				
-			}
-			
-		}
-		
-		var libraryName = id.substring (0, id.indexOf (":"));
-		var symbolName = id.substr (id.indexOf (":") + 1);
-		var library = getLibrary (libraryName);
-		
-		if (library != null) {
-			
-			if (library.exists (symbolName, cast AssetType.IMAGE)) {
-				
-				if (library.isLocal (symbolName, cast AssetType.IMAGE)) {
-					
-					var image = library.getImage (symbolName);
-					
-					if (useCache && cache.enabled) {
-						
-						cache.image.set (id, image);
-						
-					}
-					
-					return image;
-					
-				} else {
-					
-					Log.info ("Image asset \"" + id + "\" exists, but only asynchronously");
-					
-				}
-				
-			} else {
-				
-				Log.info ("There is no Image asset with an ID of \"" + id + "\"");
-				
-			}
-			
-		} else {
-			
-			Log.info ("There is no asset library named \"" + libraryName + "\"");
-			
-		}
-		
-		#end
-		
-		return null;
+		return getAsset(id, IMAGE, useCache);
 		
 	}
 	
@@ -338,11 +236,7 @@ class Assets {
 		
 		#if (tools && !display)
 		
-		var libraryName = id.substring (0, id.indexOf (":"));
-		var symbolName = id.substr (id.indexOf (":") + 1);
-		var library = getLibrary (libraryName);
-		
-		if (library != null) {
+		__with_library_and_symbolName(id, if (library != null) {
 			
 			if (library.exists (symbolName, null)) {
 				
@@ -358,7 +252,7 @@ class Assets {
 			
 			Log.info ("There is no asset library named \"" + libraryName + "\"");
 			
-		}
+		});
 		
 		#end
 		
@@ -375,41 +269,7 @@ class Assets {
 	 */
 	public static function getText (id:String):String {
 		
-		#if (tools && !display)
-		
-		var libraryName = id.substring (0, id.indexOf(":"));
-		var symbolName = id.substr (id.indexOf(":") + 1);
-		var library = getLibrary (libraryName);
-		
-		if (library != null) {
-			
-			if (library.exists (symbolName, cast AssetType.TEXT)) {
-				
-				if (library.isLocal (symbolName, cast AssetType.TEXT)) {
-					
-					return library.getText (symbolName);
-					
-				} else {
-					
-					Log.info ("String asset \"" + id + "\" exists, but only asynchronously");
-					
-				}
-				
-			} else {
-				
-				Log.info ("There is no String asset with an ID of \"" + id + "\"");
-				
-			}
-			
-		} else {
-			
-			Log.info ("There is no asset library named \"" + libraryName + "\"");
-			
-		}
-		
-		#end
-		
-		return null;
+		return getAsset(id, TEXT, false);
 		
 	}
 	
@@ -420,35 +280,15 @@ class Assets {
 		
 		if (useCache && cache.enabled) {
 			
-			if (type == AssetType.IMAGE || type == null) {
-				
-				if (cache.image.exists (id)) return true;
-				
-			}
-			
-			if (type == AssetType.FONT || type == null) {
-				
-				if (cache.font.exists (id)) return true;
-				
-			}
-			
-			if (type == AssetType.SOUND || type == AssetType.MUSIC || type == null) {
-				
-				if (cache.audio.exists (id)) return true;
-				
-			}
+			if (cache.exists(id, type)) return true;
 			
 		}
 		
-		var libraryName = id.substring (0, id.indexOf (":"));
-		var symbolName = id.substr (id.indexOf (":") + 1);
-		var library = getLibrary (libraryName);
-		
-		if (library != null) {
+		__with_library_and_symbolName(id, if (library != null) {
 			
 			return library.isLocal (symbolName, cast type);
 			
-		}
+		});
 		
 		#end
 		
@@ -542,11 +382,7 @@ class Assets {
 			
 		}
 		
-		var libraryName = id.substring (0, id.indexOf (":"));
-		var symbolName = id.substr (id.indexOf (":") + 1);
-		var library = getLibrary (libraryName);
-		
-		if (library != null) {
+		__with_library_and_symbolName(id, if (library != null) {
 			
 			if (library.exists (symbolName, cast AssetType.SOUND)) {
 				
@@ -570,7 +406,7 @@ class Assets {
 			
 			promise.error ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
-		}
+		});
 		
 		#end
 		
@@ -585,11 +421,7 @@ class Assets {
 		
 		#if (tools && !display)
 		
-		var libraryName = id.substring (0, id.indexOf (":"));
-		var symbolName = id.substr (id.indexOf (":") + 1);
-		var library = getLibrary (libraryName);
-		
-		if (library != null) {
+		__with_library_and_symbolName(id, if (library != null) {
 			
 			if (library.exists (symbolName, cast AssetType.BINARY)) {
 				
@@ -605,7 +437,7 @@ class Assets {
 			
 			promise.error ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
-		}
+		});
 		
 		#end
 		
@@ -620,11 +452,7 @@ class Assets {
 		
 		#if (tools && !display)
 		
-		var libraryName = id.substring (0, id.indexOf (":"));
-		var symbolName = id.substr (id.indexOf (":") + 1);
-		var library = getLibrary (libraryName);
-		
-		if (library != null) {
+		__with_library_and_symbolName(id, if (library != null) {
 			
 			if (library.exists (symbolName, cast AssetType.FONT)) {
 				
@@ -640,7 +468,7 @@ class Assets {
 			
 			promise.error ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
-		}
+		});
 		
 		#end
 		
@@ -668,11 +496,7 @@ class Assets {
 			
 		}
 		
-		var libraryName = id.substring (0, id.indexOf (":"));
-		var symbolName = id.substr (id.indexOf (":") + 1);
-		var library = getLibrary (libraryName);
-		
-		if (library != null) {
+		__with_library_and_symbolName(id, if (library != null) {
 			
 			if (library.exists (symbolName, cast AssetType.IMAGE)) {
 				
@@ -696,7 +520,7 @@ class Assets {
 			
 			promise.error ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
-		}
+		});
 		
 		#end
 		
@@ -740,11 +564,7 @@ class Assets {
 		
 		#if (tools && !display)
 		
-		var libraryName = id.substring (0, id.indexOf (":"));
-		var symbolName = id.substr (id.indexOf (":") + 1);
-		var library = getLibrary (libraryName);
-		
-		if (library != null) {
+		__with_library_and_symbolName(id, if (library != null) {
 			
 			if (library.exists (symbolName, cast AssetType.TEXT)) {
 				
@@ -760,7 +580,7 @@ class Assets {
 			
 			promise.error ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
-		}
+		});
 		
 		#end
 		
@@ -994,6 +814,22 @@ class AssetLibrary {
 	}
 	
 	
+	public function getAsset (id:String, type:String):Dynamic {
+		
+		var type : AssetType = cast type;
+		return switch (type) {
+			case BINARY:    getBytes(id);
+			case FONT:      getFont(id);
+			case IMAGE:     getImage(id);
+			case MUSIC:     getAudioBuffer(id);
+			case SOUND:     getAudioBuffer(id);
+			case TEMPLATE:  throw "Not sure how to get template: " + id;
+			case TEXT:      getText(id);
+		}
+		
+	}
+	
+	
 }
 
 
@@ -1018,6 +854,58 @@ class AssetCache {
 	
 	
 	private macro static function cacheVersion () {}
+	
+	
+	public function exists (id:String, ?type:AssetType):Bool {
+		
+		if (type == AssetType.IMAGE || type == null) {
+			
+			if (image.exists (id)) return true;
+			
+		}
+		
+		if (type == AssetType.FONT || type == null) {
+			
+			if (font.exists (id)) return true;
+			
+		}
+		
+		if (type == AssetType.SOUND || type == AssetType.MUSIC || type == null) {
+			
+			if (audio.exists (id)) return true;
+			
+		}
+		
+		return false;
+		
+	}
+	
+	
+	public function set (id:String, asset:Dynamic, type:AssetType):Void {
+		
+		switch (type) {
+			
+			case FONT:
+				font.set(id, asset);
+			
+			case IMAGE:
+				if (!Std.is(asset, Image))
+					throw "Cannot cache non-Image asset: " + asset + " as Image";
+				
+				image.set(id, asset);
+			
+			case SOUND, MUSIC:
+				if (!Std.is(asset, AudioBuffer))
+					throw "Cannot cache non-AudioBuffer asset: " + asset + " as AudioBuffer";
+				
+				audio.set(id, asset);
+				
+			default:
+				throw type + " assets are not cachable";
+			
+		}
+		
+	}
 	
 	
 	public function clear (prefix:String = null):Void {
@@ -1074,7 +962,7 @@ class AssetCache {
 }
 
 
-#else
+#else // macro
 
 
 import haxe.crypto.BaseCode;
@@ -1112,6 +1000,20 @@ class Assets {
 		
 		return base64Encoder.encodeBytes (bytes).toString () + extension;
 		
+	}
+
+
+	macro public static function __with_library_and_symbolName (id:ExprOf<String>, expr:Expr):Expr {
+
+		return macro {
+			var colonIndex  = ${id}.indexOf (":");
+			var libraryName = ${id}.substring (0, colonIndex);
+			var symbolName  = ${id}.substr (colonIndex + 1);
+			var library     = getLibrary (libraryName);
+
+			${expr};
+		}
+
 	}
 	
 	
