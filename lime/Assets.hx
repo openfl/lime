@@ -129,7 +129,7 @@ class Assets {
 					
 					if (useCache && cache.enabled) {
 						
-						cache.set (id, asset, type);
+						cache.set (id, type, asset);
 						
 					}
 					
@@ -420,7 +420,7 @@ class Assets {
 				
 				if (useCache && cache.enabled) {
 					
-					future.onComplete (function (audio) cache.set (id, audio, type));
+					future.onComplete (function (asset) cache.set (id, type, asset));
 					
 				}
 				
@@ -845,7 +845,7 @@ class AssetCache {
 	}
 	
 	
-	public function set (id:String, asset:Dynamic, type:AssetType):Void {
+	public function set (id:String, type:AssetType, asset:Dynamic):Void {
 		
 		switch (type) {
 			
