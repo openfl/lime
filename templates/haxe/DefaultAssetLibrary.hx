@@ -377,7 +377,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#if html5
 		
-		var loader = Preloader.loaders.get (path.get (id));
+		var loader = Preloader.textLoaders.get (path.get (id));
 		
 		if (loader == null) {
 			
@@ -385,16 +385,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 		}
 		
-		var bytes:Bytes = cast loader.responseData;
-		
-		if (bytes != null) {
-			
-			return bytes.getString (0, bytes.length);
-			
-		} else {
-			
-			return null;
-		}
+		return loader.responseData;
 		
 		#else
 		
@@ -438,6 +429,10 @@ class DefaultAssetLibrary extends AssetLibrary {
 			case MUSIC, SOUND:
 				
 				Preloader.audioBuffers.exists (path.get (id));
+			
+			case TEXT:
+				
+				Preloader.textLoaders.exists (path.get (id));
 			
 			default:
 				
@@ -584,14 +579,17 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		if (path.exists (id)) {
 			
+			var path = path.get (id);
+			
 			var image = new js.html.Image ();
 			image.onload = function (_):Void {
 				
+				Preloader.images.set(path, image);
 				promise.complete (Image.fromImageElement (image));
 				
 			}
 			image.onerror = promise.error;
-			image.src = path.get (id) + "?" + Assets.cache.version;
+			image.src = path + "?" + Assets.cache.version;
 			
 		} else {
 			
@@ -682,8 +680,20 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		if (path.exists (id)) {
 			
-			var request = new HTTPRequest<String> ();
-			promise.completeWith (request.load (path.get (id) + "?" + Assets.cache.version));
+			var path = path.get (id);
+			var request;
+			if (Preloader.textLoaders.exists (path)) {
+
+				request = Preloader.textLoaders.get (path);
+
+			} else {
+
+				request = new HTTPRequest<String> ();
+				Preloader.textLoaders.set (path, request);
+
+			}
+			
+			promise.completeWith (request.load (path + "?" + Assets.cache.version));
 			
 		} else {
 			

@@ -12,6 +12,7 @@ import lime.app.Promise;
 import lime.app.Future;
 import lime.audio.AudioBuffer;
 import lime.graphics.Image;
+import lime.net.HTTPRequest;
 import lime.text.Font;
 import lime.utils.Bytes;
 import lime.utils.Log;
@@ -318,7 +319,6 @@ class Assets {
 		#if (tools && !display)
 		#if lime_cffi
 		
-		return (buffer != null);
 		//return (bitmapData.__handle != null);
 		
 		#elseif flash
@@ -332,12 +332,11 @@ class Assets {
 			return false;
 			
 		}*/
+		
+		#end
+		#end
+		
 		return (buffer != null);
-		
-		#end
-		#end
-		
-		return true;
 		
 	}
 	
@@ -474,22 +473,32 @@ class Assets {
 		var promise = new Promise<AssetLibrary> ();
 		
 		#if (tools && !display)
-		
-		var data = getText ("libraries/" + name + ".json");
-		
-		if (data != null && data != "") {
+
+		var jsonManifest = loadText ("libraries/" + name + ".json");
+
+		jsonManifest.onComplete(function (data) {
 			
 			var info = Json.parse (data);
-			var library = Type.createInstance (Type.resolveClass (info.type), info.args);
-			libraries.set (name, library);
-			library.onChange.add (onChange.dispatch);
-			promise.completeWith (library.load ());
+			var library : AssetLibrary = Type.createInstance (Type.resolveClass (info.type), info.args);
+			var manifest:Array<{type:String, id:String}> = Unserializer.run (info.manifest);
 			
-		} else {
+			var loading = library.preload(manifest);
+			
+			loading.onComplete(function (_) {
+				
+				libraries.set (name, library);
+				library.onChange.add (onChange.dispatch);
+				promise.completeWith (library.load ());
+				
+			});
+			
+		});
+
+		jsonManifest.onError(function (error) {
 			
 			promise.error ("[Assets] There is no asset library named \"" + name + "\"");
 			
-		}
+		});
 		
 		#end
 		
@@ -608,6 +617,22 @@ class AssetLibrary {
 	}
 	
 	
+	private function loadCompleted (id:String, type:String, asset:Dynamic) {
+		
+			
+		switch (cast(type, AssetType)) {
+			
+			case FONT, IMAGE, MUSIC, SOUND:
+			
+				Assets.cache.set(id, cast type, asset);
+			
+			default:
+			
+		}
+		
+	}
+	
+	
 	public function exists (id:String, type:String):Bool {
 		
 		return false;
@@ -645,7 +670,7 @@ class AssetLibrary {
 	
 	public function getPath (id:String):String {
 		
-		return null;
+		return id;
 		
 	}
 	
@@ -689,6 +714,53 @@ class AssetLibrary {
 	}
 	
 	
+	public function preload (manifest:Array<{id:String, type:String}>) {
+		
+			
+		var promise = new Promise<AssetLibrary> ();
+		var total   = 0;
+		var loaded  = 0;
+		
+		var onLoadComplete = function (_) {
+			
+			loaded++;
+			
+			if (loaded >= total) {
+				
+				promise.complete(this);
+				
+			}
+			
+		}
+		
+		var onLoadError = function (e) {
+			
+			loaded++;
+			
+		}
+		
+		for (asset in manifest) {
+			
+			if (!Assets.exists (asset.id) || !Assets.isLocal (asset.id)) {
+				
+				total++;
+				
+				var loadingAsset = this.loadAsset (asset.id, cast asset.type);
+				
+				loadingAsset.onComplete(onLoadComplete);
+				loadingAsset.onError(onLoadError);
+				
+				//onProgress
+				
+			}
+			
+		}
+		
+		return promise.future;
+		
+	}
+	
+	
 	private function load ():Future<AssetLibrary> {
 		
 		return new Future<AssetLibrary> (function () return this);
@@ -705,7 +777,58 @@ class AssetLibrary {
 	
 	public function loadBytes (id:String):Future<Bytes> {
 		
-		return new Future<Bytes> (function () return getBytes (id), true);
+		var promise = new Promise<Bytes> ();
+		
+		#if flash
+		
+		if (!isLocal (id, BYTES)) {
+			
+			var loader = new URLLoader ();
+			loader.dataFormat = flash.net.URLLoaderDataFormat.BINARY;
+			loader.addEventListener (Event.COMPLETE, function (event:Event) {
+				
+				var bytes = Bytes.ofData (loader.data);
+				loadCompleted (id, cast BINARY, bytes);
+				promise.complete (bytes);
+				
+			});
+			loader.addEventListener (ProgressEvent.PROGRESS, function (event) {
+				
+				promise.progress (event.bytesLoaded, event.bytesTotal);
+				
+			});
+			loader.addEventListener (IOErrorEvent.IO_ERROR, promise.error);
+			loader.load (new URLRequest (getPath (id)));
+			
+		} else {
+			
+			promise.complete (getBytes (id));
+			
+		}
+		
+		#elseif html5
+		
+		if (!isLocal (id, cast BINARY)) {
+			
+			var request = new HTTPRequest<Bytes> ();
+			var loadedBytes = request.load (getPath (id) + "?" + Assets.cache.version);
+			loadedBytes.onComplete (function (bytes) loadCompleted (id, cast BINARY, bytes));
+			
+			promise.completeWith (loadedBytes);
+			
+		} else {
+			
+			promise.complete (getBytes (id));
+			
+		}
+		
+		#else
+		
+		promise.completeWith (new Future<Bytes> (function () return getBytes (id), true));
+		
+		#end
+		
+		return promise.future;
 		
 	}
 	
@@ -719,12 +842,91 @@ class AssetLibrary {
 	
 	public function loadImage (id:String):Future<Image> {
 		
-		return new Future<Image> (function () return getImage (id), true);
+		trace("load image: " + id);
+		var promise = new Promise<Image> ();
+		
+		#if flash
+		
+		if (!isLocal (id, cast IMAGE)) {
+			
+			var loader = new Loader ();
+			loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event:Event) {
+				
+				var bitmapData = cast (loader.content, Bitmap).bitmapData;
+				var asset = Image.fromBitmapData (bitmapData);
+				loadCompleted (id, cast IMAGE, asset);
+				promise.complete (asset);
+				
+			});
+			loader.contentLoaderInfo.addEventListener (ProgressEvent.PROGRESS, function (event) {
+				
+				promise.progress (event.bytesLoaded, event.bytesTotal);
+				
+			});
+			loader.contentLoaderInfo.addEventListener (IOErrorEvent.IO_ERROR, promise.error);
+			loader.load (new URLRequest (getPath (id)));
+			
+		} else {
+			
+			promise.complete (getImage (id));
+			
+		}
+		
+		#elseif html5
+		
+		if (!isLocal (id, cast IMAGE)) {
+			
+			var path = getPath (id);
+			
+			var image = new js.html.Image ();
+			image.onload = function (_):Void {
+				
+				var asset = Image.fromImageElement (image);
+				loadCompleted (id, cast IMAGE, asset);
+				promise.complete (asset);
+				
+			}
+			image.onerror = promise.error;
+			image.src = path + "?" + Assets.cache.version;
+			
+		} else {
+			
+			promise.complete (getImage (id));
+			
+		}
+		
+		#else
+		
+		promise.completeWith (new Future<Image> (function () return getImage (id), true));
+		
+		#end
+		
+		return promise.future;
 		
 	}
 	
 	
 	public function loadText (id:String):Future<String> {
+		
+		#if html5
+		
+		trace("Load text", id);
+		
+		if (!isLocal (id, cast TEXT)) {
+			
+			var request = new HTTPRequest<String> ();
+			
+			trace("Not local", getPath (id));
+			
+			return request.load (getPath (id) + "?" + Assets.cache.version);
+			
+		} else {
+			
+			return Future.withValue (getText (id));
+			
+		}
+		
+		#else
 		
 		return loadBytes (id).then (function (bytes) {
 			
@@ -743,6 +945,8 @@ class AssetLibrary {
 			}, true);
 			
 		});
+		
+		#end
 		
 	}
 	
@@ -783,6 +987,7 @@ class AssetLibrary {
 			case TEXT:      loadText(id);
 		}
 		
+		throw "Unknown asset type: " + type;
 	}
 }
 
