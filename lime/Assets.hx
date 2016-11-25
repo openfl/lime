@@ -379,9 +379,7 @@ class Assets {
 					
 					if (font != null) {
 						
-						var promise = new Promise<Font> ();
-						promise.complete (font);
-						return promise.future;
+						return Future.withValue (font);
 						
 					}
 				
@@ -390,9 +388,7 @@ class Assets {
 					
 					if (isValidImage (image)) {
 						
-						var promise = new Promise<Image> ();
-						promise.complete (image);
-						return promise.future;
+						return Future.withValue (image);
 						
 					}
 				
@@ -401,9 +397,7 @@ class Assets {
 					
 					if (isValidAudio (audio)) {
 						
-						var promise = new Promise<AudioBuffer> ();
-						promise.complete(audio);
-						return promise.future;
+						return Future.withValue (audio);
 						
 					}
 				
@@ -428,17 +422,13 @@ class Assets {
 				
 			} else {
 				
-				var promise = new Promise<Dynamic> ();
-				promise.error ("[Assets] There is no " + type + " asset with an ID of \"" + id + "\"");
-				return promise.future;
+				return Future.withError ("[Assets] There is no " + type + " asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			var promise = new Promise<Dynamic> ();
-			promise.error ("[Assets] There is no asset library named \"" + libraryName + "\"");
-			return promise.future;
+			return Future.withError ("[Assets] There is no asset library named \"" + libraryName + "\"");
 			
 		});
 		
