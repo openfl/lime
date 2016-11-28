@@ -936,13 +936,22 @@ class HXProject {
 					try {
 						
 						var font = Font.fromFile (asset.sourcePath);
-						// replace fontname since IE11 can not handle FontFamilies 
-						// that are longer than 31 characters (!!!!)
-						// during build process that max-length is getting even shorter (21)
-						// prefixing with int-number to have unique name
-						// add those fontfamily-names to the  fontaliases of the main class
-						embeddedAsset.fontName = (i + '_' + StringTools.replace(font.name, ' ', '')).substr(0, 21);
-						i++;
+						var maxLength:Int = 21;
+						if (font.name.length <= maxLength)
+						{
+							embeddedAsset.fontName = font.name;	
+						}
+						else 
+						{
+							// replace fontname since IE11 can not handle FontFamilies 
+							// that are longer than 31 characters (!!!!)
+							// during build process that max-length is getting even shorter (21)
+							// prefixing with int-number to have unique name
+							// add those fontfamily-names to the  fontaliases of the main class
+							embeddedAsset.fontName = (i + '_' + StringTools.replace(font.name, ' ', '')).substr(0, maxLength);
+							i++;
+						}
+						
 						
 					} catch (e:Dynamic) {}
 					
