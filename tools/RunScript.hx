@@ -164,6 +164,7 @@ class RunScript {
 		if (args.length > 2 && args[0] == "rebuild" && args[1] == "tools") {
 			
 			var lastArgument = new Path (args[args.length - 1]).toString ();
+			var cacheDirectory = Sys.getCwd ();
 			
 			if (((StringTools.endsWith (lastArgument, "/") && lastArgument != "/") || StringTools.endsWith (lastArgument, "\\")) && !StringTools.endsWith (lastArgument, ":\\")) {
 				
@@ -225,6 +226,10 @@ class RunScript {
 			if (args[args.length - 1] != "-openfl") {
 				
 				Sys.exit (0);
+				
+			} else {
+				
+				Sys.setCwd (cacheDirectory);
 				
 			}
 			
