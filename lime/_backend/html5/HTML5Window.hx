@@ -361,11 +361,19 @@ class HTML5Window {
 				
 				case "mouseenter":
 					
-					parent.onEnter.dispatch ();
+					if (event.target == element) {
+						
+						parent.onEnter.dispatch ();
+						
+					}
 				
 				case "mouseleave":
 					
-					parent.onLeave.dispatch ();
+					if (event.target == element) {
+						
+						parent.onLeave.dispatch ();
+						
+					}
 				
 				case "mouseup":
 					
