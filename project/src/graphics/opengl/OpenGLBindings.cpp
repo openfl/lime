@@ -28,6 +28,7 @@ namespace lime {
 	
 	bool OpenGLBindings::initialized = false;
 	void *OpenGLBindings::handle = 0;
+	int OpenGLBindings::defaultFramebuffer = 0;
 	
 	void lime_gl_delete_buffer (value handle);
 	void lime_gl_delete_framebuffer (value handle);
@@ -216,7 +217,19 @@ namespace lime {
 	
 	void lime_gl_bind_framebuffer (int target, value framebuffer) {
 		
-		glBindFramebuffer (target, val_is_null (framebuffer) ? 0 : reinterpret_cast<uintptr_t> (val_data (framebuffer)));
+		GLuint id;
+		
+		if (val_is_null (framebuffer)) {
+			
+			id = OpenGLBindings::defaultFramebuffer;
+			
+		} else {
+			
+			id = reinterpret_cast<uintptr_t> (val_data (framebuffer));
+			
+		}
+		
+		glBindFramebuffer (target, id);
 		
 	}
 	
