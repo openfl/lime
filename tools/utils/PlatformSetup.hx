@@ -2146,7 +2146,8 @@ class PlatformSetup {
 					
 				}
 				
-				ProcessHelper.runCommand (lib, "git", [ "pull" ]);
+				// Lime is versioned via Duell Tool >> no pull is needed
+				if (haxelib.name != 'lime') ProcessHelper.runCommand (lib, "git", [ "pull" ]);
 				ProcessHelper.runCommand (lib, "git", [ "submodule", "init" ]);
 				ProcessHelper.runCommand (lib, "git", [ "submodule", "update" ]);
 				
