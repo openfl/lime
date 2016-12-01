@@ -781,24 +781,24 @@ class AssetLibrary {
 		
 		#if flash
 		
-		if (!isLocal (id, BYTES)) {
+		if (!isLocal (id, cast BINARY)) {
 			
-			var loader = new URLLoader ();
+			var loader = new flash.net.URLLoader ();
 			loader.dataFormat = flash.net.URLLoaderDataFormat.BINARY;
-			loader.addEventListener (Event.COMPLETE, function (event:Event) {
+			loader.addEventListener (flash.events.Event.COMPLETE, function (event) {
 				
 				var bytes = Bytes.ofData (loader.data);
 				loadCompleted (id, cast BINARY, bytes);
 				promise.complete (bytes);
 				
 			});
-			loader.addEventListener (ProgressEvent.PROGRESS, function (event) {
+			loader.addEventListener (flash.events.ProgressEvent.PROGRESS, function (event) {
 				
 				promise.progress (event.bytesLoaded, event.bytesTotal);
 				
 			});
-			loader.addEventListener (IOErrorEvent.IO_ERROR, promise.error);
-			loader.load (new URLRequest (getPath (id)));
+			loader.addEventListener (flash.events.IOErrorEvent.IO_ERROR, promise.error);
+			loader.load (new flash.net.URLRequest (getPath (id)));
 			
 		} else {
 			
@@ -842,29 +842,28 @@ class AssetLibrary {
 	
 	public function loadImage (id:String):Future<Image> {
 		
-		trace("load image: " + id);
 		var promise = new Promise<Image> ();
 		
 		#if flash
 		
 		if (!isLocal (id, cast IMAGE)) {
 			
-			var loader = new Loader ();
-			loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event:Event) {
+			var loader = new flash.display.Loader ();
+			loader.contentLoaderInfo.addEventListener (flash.events.Event.COMPLETE, function (event) {
 				
-				var bitmapData = cast (loader.content, Bitmap).bitmapData;
+				var bitmapData = cast (loader.content, flash.display.Bitmap).bitmapData;
 				var asset = Image.fromBitmapData (bitmapData);
 				loadCompleted (id, cast IMAGE, asset);
 				promise.complete (asset);
 				
 			});
-			loader.contentLoaderInfo.addEventListener (ProgressEvent.PROGRESS, function (event) {
+			loader.contentLoaderInfo.addEventListener (flash.events.ProgressEvent.PROGRESS, function (event) {
 				
 				promise.progress (event.bytesLoaded, event.bytesTotal);
 				
 			});
-			loader.contentLoaderInfo.addEventListener (IOErrorEvent.IO_ERROR, promise.error);
-			loader.load (new URLRequest (getPath (id)));
+			loader.contentLoaderInfo.addEventListener (flash.events.IOErrorEvent.IO_ERROR, promise.error);
+			loader.load (new flash.net.URLRequest (getPath (id)));
 			
 		} else {
 			
