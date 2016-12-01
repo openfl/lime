@@ -2150,7 +2150,6 @@ class PlatformSetup {
 				if (haxelib.name != 'lime') ProcessHelper.runCommand (lib, "git", [ "pull" ]);
 				ProcessHelper.runCommand (lib, "git", [ "submodule", "init" ]);
 				ProcessHelper.runCommand (lib, "git", [ "submodule", "update" ]);
-				
 			}
 			
 		}
