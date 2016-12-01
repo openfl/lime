@@ -470,48 +470,35 @@ class Assets {
 	
 	public static function loadLibrary (name:String):Future<AssetLibrary> {
 		
-		var promise = new Promise<AssetLibrary> ();
-		
 		#if (tools && !display)
-
-		var jsonManifest = loadText ("libraries/" + name + ".json");
-
-		jsonManifest.onComplete(function (data) {
+		
+		if (libraries.exists (name)) {
 			
-			var info = Json.parse (data);
-			var library : AssetLibrary = Type.createInstance (Type.resolveClass (info.type), info.args);
+			return libraries.get (name).load();
 			
-			libraries.set (name, library);
-			library.onChange.add (onChange.dispatch);
+		} else {
 			
-			if (info.manifest != null) {
-					
-				var manifest:Array<{type:String, id:String}> = Unserializer.run (info.manifest);
-				var loading = library.preload(manifest);
+			var promise = new Promise<AssetLibrary> ();
+			
+			loadText ("libraries/" + name + ".json").onComplete(function (data) {
 				
-				loading.onComplete(function (_) {
-					
-					promise.completeWith (library.load ());
-					
-				});
+				promise.completeWith (AssetLibrary.loadFromString (data));
 				
-			} else {
+			}).onError(function (error) {
 				
-				promise.completeWith (library.load ());
+				promise.error ("[Assets] Failed loading asset library named \"" + name + "\": " + error);
+				
+			});
 			
-			}
+			return promise.future;
 			
-		});
-
-		jsonManifest.onError(function (error) {
-			
-			promise.error ("[Assets] There is no asset library named \"" + name + "\"");
-			
-		});
+		}
+		
+		#else
+		
+		return null;
 		
 		#end
-		
-		return promise.future;
 		
 	}
 	
@@ -615,6 +602,26 @@ class Assets {
 
 class AssetLibrary {
 	
+	
+	public static function loadFromString (data:String):Future<AssetLibrary> {
+		
+		var info = Json.parse (data);
+		var library : AssetLibrary = Type.createInstance (Type.resolveClass (info.type), info.args);
+		
+		Assets.registerLibrary (info.name, library);
+		
+		if (info.manifest != null) {
+			
+			var manifest:Array<{type:String, id:String}> = Unserializer.run (info.manifest);
+			return library.loadFromManifest (manifest);
+			
+		} else {
+			
+			return library.load ();
+		
+		}
+		
+	}
 	
 	public var onChange = new Event<Void->Void> ();
 	
@@ -723,7 +730,7 @@ class AssetLibrary {
 	}
 	
 	
-	public function preload (manifest:Array<{id:String, type:String}>) {
+	public function loadFromManifest (manifest:Array<{id:String, type:String}>) : Future<AssetLibrary> {
 		
 			
 		var promise = new Promise<AssetLibrary> ();
@@ -736,7 +743,7 @@ class AssetLibrary {
 			
 			if (loaded >= total) {
 				
-				promise.complete(this);
+				promise.completeWith (this.load ());
 				
 			}
 			
