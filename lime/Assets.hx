@@ -480,17 +480,26 @@ class Assets {
 			
 			var info = Json.parse (data);
 			var library : AssetLibrary = Type.createInstance (Type.resolveClass (info.type), info.args);
-			var manifest:Array<{type:String, id:String}> = Unserializer.run (info.manifest);
 			
-			var loading = library.preload(manifest);
+			libraries.set (name, library);
+			library.onChange.add (onChange.dispatch);
 			
-			loading.onComplete(function (_) {
+			if (info.manifest != null) {
+					
+				var manifest:Array<{type:String, id:String}> = Unserializer.run (info.manifest);
+				var loading = library.preload(manifest);
 				
-				libraries.set (name, library);
-				library.onChange.add (onChange.dispatch);
+				loading.onComplete(function (_) {
+					
+					promise.completeWith (library.load ());
+					
+				});
+				
+			} else {
+				
 				promise.completeWith (library.load ());
-				
-			});
+			
+			}
 			
 		});
 
