@@ -711,7 +711,7 @@ class AssetLibrary {
 	
 	public function isLocal (id:String, type:String):Bool {
 		
-		return true;
+		return false;
 		
 	}
 	
@@ -916,10 +916,6 @@ class AssetLibrary {
 	
 	public function loadText (id:String):Future<String> {
 		
-		#if html5
-		
-		trace("Load text", id);
-		
 		if (!isLocal (id, cast TEXT)) {
 			
 			var request = new HTTPRequest<String> ();
@@ -933,28 +929,6 @@ class AssetLibrary {
 			return Future.withValue (getText (id));
 			
 		}
-		
-		#else
-		
-		return loadBytes (id).then (function (bytes) {
-			
-			return new Future<String> (function () {
-				
-				if (bytes == null) {
-					
-					return null;
-					
-				} else {
-					
-					return bytes.getString (0, bytes.length);
-					
-				}
-				
-			}, true);
-			
-		});
-		
-		#end
 		
 	}
 	

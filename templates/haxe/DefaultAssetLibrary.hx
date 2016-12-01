@@ -674,9 +674,9 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	public override function loadText (id:String):Future<String> {
 		
-		var promise = new Promise<String> ();
-		
 		#if html5
+		
+		var promise = new Promise<String> ();
 		
 		if (path.exists (id)) {
 			
@@ -701,29 +701,13 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 		}
 		
+		return promise.future;
+		
 		#else
 		
-		promise.completeWith (loadBytes (id).then (function (bytes) {
-			
-			return new Future<String> (function () {
-				
-				if (bytes == null) {
-					
-					return null;
-					
-				} else {
-					
-					return bytes.getString (0, bytes.length);
-					
-				}
-				
-			}, true);
-			
-		}));
+		return super.loadText (id);
 		
 		#end
-		
-		return promise.future;
 		
 	}
 	
