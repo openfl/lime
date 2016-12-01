@@ -1422,6 +1422,13 @@ class CommandLineTools {
 			
 		}
 		
+		HXProject._command = command;
+		HXProject._debug = debug;
+		HXProject._environment = environment;
+		HXProject._target = target;
+		HXProject._targetFlags = targetFlags;
+		HXProject._userDefines = userDefines;
+		
 		var config = getLimeConfig ();
 		
 		if (config != null) {
@@ -1575,7 +1582,8 @@ class CommandLineTools {
 			
 		}
 		
-		project.merge (config);
+		config.merge (project);
+		project = config;
 		
 		project.haxedefs.set ("tools", version);
 		
