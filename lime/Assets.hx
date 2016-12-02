@@ -43,6 +43,7 @@ class Assets {
 	
 	public static var cache = new AssetCache ();
 	public static var libraries (default, null) = new Map<String, AssetLibrary> ();
+	public static var defaultLib (default, null) : AssetLibrary;
 	public static var onChange = new Event<Void->Void> ();
 	
 	// See definition in this file in the macro section below
@@ -216,13 +217,11 @@ class Assets {
 	
 	private static function getLibrary (name:String):AssetLibrary {
 		
-		if (name == null || name == "") {
-			
-			name = "default";
-			
-		}
-		
-		return libraries.get (name);
+		return
+			if (name == null || name == "" || name == "default")
+				defaultLib;
+			else
+				libraries.get (name);
 		
 	}
 	
@@ -553,6 +552,12 @@ class Assets {
 		if (library != null) {
 			
 			library.onChange.add (library_onChange);
+			
+		}
+		
+		if (name == "default") {
+			
+			defaultLib = library;
 			
 		}
 		
@@ -924,6 +929,13 @@ class AssetLibrary {
 	public function loadText (id:String):Future<String> {
 		
 		if (!isLocal (id, TEXT)) {
+			
+			var defaultLib = Assets.defaultLib;
+			if (this != defaultLib && defaultLib.isLocal (id, TEXT)) {
+				
+				return defaultLib.loadText (id);
+				
+			}
 			
 			var request = new HTTPRequest<String> ();
 			
