@@ -60,7 +60,7 @@ class Assets {
 		
 		__with_library_and_symbolName(id, if (library != null) {
 			
-			return library.exists (symbolName, cast type);
+			return library.exists (symbolName, type);
 			
 		});
 		
@@ -122,11 +122,11 @@ class Assets {
 		
 		__with_library_and_symbolName(id, if (library != null) {
 			
-			if (library.exists (symbolName, cast type)) {
+			if (library.exists (symbolName, type)) {
 				
-				if (library.isLocal (symbolName, cast type)) {
+				if (library.isLocal (symbolName, type)) {
 					
-					var asset = library.getAsset (symbolName, cast type);
+					var asset = library.getAsset (symbolName, type);
 					
 					if (useCache && cache.enabled) {
 						
@@ -287,7 +287,7 @@ class Assets {
 		
 		__with_library_and_symbolName(id, if (library != null) {
 			
-			return library.isLocal (symbolName, cast type);
+			return library.isLocal (symbolName, type);
 			
 		});
 		
@@ -347,7 +347,7 @@ class Assets {
 		
 		for (library in libraries) {
 			
-			var libraryItems = library.list (cast type);
+			var libraryItems = library.list (type);
 			
 			if (libraryItems != null) {
 				
@@ -407,9 +407,9 @@ class Assets {
 		
 		__with_library_and_symbolName(id, if (library != null) {
 			
-			if (library.exists (symbolName, cast type)) {
+			if (library.exists (symbolName, type)) {
 				
-				var future = library.loadAsset (symbolName, cast type);
+				var future = library.loadAsset (symbolName, type);
 				
 				if (useCache && cache.enabled) {
 					
@@ -511,7 +511,7 @@ class Assets {
 		
 		__with_library_and_symbolName(id, if (library != null) {
 			
-			if (library.exists (symbolName, cast AssetType.TEXT)) {
+			if (library.exists (symbolName, AssetType.TEXT)) {
 				
 				promise.completeWith (library.loadText (symbolName));
 				
@@ -636,7 +636,7 @@ class AssetLibrary {
 	private function loadCompleted (id:String, type:String, asset:Dynamic) {
 		
 			
-		switch (cast(type, AssetType)) {
+		switch (type) {
 			
 			case FONT, IMAGE, MUSIC, SOUND:
 			
@@ -761,7 +761,7 @@ class AssetLibrary {
 				
 				total++;
 				
-				var loadingAsset = this.loadAsset (asset.id, cast asset.type);
+				var loadingAsset = this.loadAsset (asset.id, asset.type);
 				
 				loadingAsset.onComplete(onLoadComplete);
 				loadingAsset.onError(onLoadError);
@@ -797,14 +797,14 @@ class AssetLibrary {
 		
 		#if flash
 		
-		if (!isLocal (id, cast BINARY)) {
+		if (!isLocal (id, BINARY)) {
 			
 			var loader = new flash.net.URLLoader ();
 			loader.dataFormat = flash.net.URLLoaderDataFormat.BINARY;
 			loader.addEventListener (flash.events.Event.COMPLETE, function (event) {
 				
 				var bytes = Bytes.ofData (loader.data);
-				loadCompleted (id, cast BINARY, bytes);
+				loadCompleted (id, BINARY, bytes);
 				promise.complete (bytes);
 				
 			});
@@ -824,11 +824,11 @@ class AssetLibrary {
 		
 		#elseif html5
 		
-		if (!isLocal (id, cast BINARY)) {
+		if (!isLocal (id, BINARY)) {
 			
 			var request = new HTTPRequest<Bytes> ();
 			var loadedBytes = request.load (getPath (id) + "?" + Assets.cache.version);
-			loadedBytes.onComplete (function (bytes) loadCompleted (id, cast BINARY, bytes));
+			loadedBytes.onComplete (function (bytes) loadCompleted (id, BINARY, bytes));
 			
 			promise.completeWith (loadedBytes);
 			
@@ -862,14 +862,14 @@ class AssetLibrary {
 		
 		#if flash
 		
-		if (!isLocal (id, cast IMAGE)) {
+		if (!isLocal (id, IMAGE)) {
 			
 			var loader = new flash.display.Loader ();
 			loader.contentLoaderInfo.addEventListener (flash.events.Event.COMPLETE, function (event) {
 				
 				var bitmapData = cast (loader.content, flash.display.Bitmap).bitmapData;
 				var asset = Image.fromBitmapData (bitmapData);
-				loadCompleted (id, cast IMAGE, asset);
+				loadCompleted (id, IMAGE, asset);
 				promise.complete (asset);
 				
 			});
@@ -889,7 +889,7 @@ class AssetLibrary {
 		
 		#elseif html5
 		
-		if (!isLocal (id, cast IMAGE)) {
+		if (!isLocal (id, IMAGE)) {
 			
 			var path = getPath (id);
 			
@@ -897,7 +897,7 @@ class AssetLibrary {
 			image.onload = function (_):Void {
 				
 				var asset = Image.fromImageElement (image);
-				loadCompleted (id, cast IMAGE, asset);
+				loadCompleted (id, IMAGE, asset);
 				promise.complete (asset);
 				
 			}
@@ -923,7 +923,7 @@ class AssetLibrary {
 	
 	public function loadText (id:String):Future<String> {
 		
-		if (!isLocal (id, cast TEXT)) {
+		if (!isLocal (id, TEXT)) {
 			
 			var request = new HTTPRequest<String> ();
 			
@@ -949,15 +949,18 @@ class AssetLibrary {
 	
 	public function getAsset (id:String, type:String):Dynamic {
 		
-		var type : AssetType = cast type;
 		return switch (type) {
+			
 			case BINARY:    getBytes(id);
 			case FONT:      getFont(id);
 			case IMAGE:     getImage(id);
 			case MUSIC:     getAudioBuffer(id);
 			case SOUND:     getAudioBuffer(id);
-			case TEMPLATE:  throw "Not sure how to get template: " + id;
 			case TEXT:      getText(id);
+			
+			case TEMPLATE:  throw "Not sure how to get template: " + id;
+			default:		throw "Unknown asset type: " + type;
+			
 		}
 		
 	}
@@ -965,18 +968,20 @@ class AssetLibrary {
 	
 	public function loadAsset (id:String, type:String):Future<Dynamic> {
 		
-		var type : AssetType = cast type;
 		return switch (type) {
+			
 			case BINARY:    loadBytes(id);
 			case FONT:      loadFont(id);
 			case IMAGE:     loadImage(id);
 			case MUSIC:     loadAudioBuffer(id);
 			case SOUND:     loadAudioBuffer(id);
-			case TEMPLATE:  throw "Not sure how to load template: " + id;
 			case TEXT:      loadText(id);
+			
+			case TEMPLATE:  throw "Not sure how to load template: " + id;
+			default:		throw "Unknown asset type: " + type;
+			
 		}
 		
-		throw "Unknown asset type: " + type;
 	}
 }
 
@@ -1524,7 +1529,7 @@ class AssetCache {
 #end
 
 
-@:enum abstract AssetType(String) {
+@:enum abstract AssetType(String) to String {
 	
 	var BINARY = "BINARY";
 	var FONT = "FONT";
