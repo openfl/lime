@@ -608,11 +608,12 @@ class Assets {
 class AssetLibrary {
 	
 	
-	public static function loadFromString (data:String):Future<AssetLibrary> {
+	public static function loadFromString (data:String, ?basePath : String):Future<AssetLibrary> {
 		
 		var info = Json.parse (data);
-		var library : AssetLibrary = Type.createInstance (Type.resolveClass (info.type), info.args);
 		
+		var library : AssetLibrary = Type.createInstance (Type.resolveClass (info.type), info.args);
+		library.basePath = basePath;
 		Assets.registerLibrary (info.name, library);
 		
 		if (info.manifest != null) {
@@ -629,6 +630,7 @@ class AssetLibrary {
 	}
 	
 	public var onChange = new Event<Void->Void> ();
+	public var basePath (default, null) : String;
 	
 	
 	public function new () {
@@ -691,7 +693,7 @@ class AssetLibrary {
 	
 	public function getPath (id:String):String {
 		
-		return id;
+		return if (basePath == null) id else basePath + "/" + id;
 		
 	}
 	
