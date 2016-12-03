@@ -320,8 +320,8 @@ class FlashHelper {
 			if ( font_name == null || font_name.length == 0 )
 				font_name = Path.withoutExtension(name).split("/").pop().split("\\").pop();
 			
-			var glyphs = new Array <Font2GlyphData> ();
-			var glyph_layout = new Array <FontLayoutGlyphData> ();
+			var glyphs = new Array<Font2GlyphData> ();
+			var glyph_layout = new Array<FontLayoutGlyphData> ();
 			
 			for (native_glyph in font.glyphs) {
 				
@@ -332,7 +332,7 @@ class FlashHelper {
 					
 				}
 				
-				var shapeRecords = new Array <ShapeRecord> ();
+				var shapeRecords = new Array<ShapeRecord> ();
 				var i:Int = 0;
 				var styleChanged:Bool = false;
 				var dx = 0;
@@ -431,7 +431,7 @@ class FlashHelper {
 				
 			}
 			
-			var kerning = new Array <FontKerningData> ();
+			var kerning = new Array<FontKerningData> ();
 			
 			if (font.kerning != null) {
 				
@@ -511,7 +511,7 @@ class FlashHelper {
 	#end
 	
 	
-	/*public static function embedAssets (targetPath:String, assets:Array <Asset>, packageName:String = ""):Void {
+	/*public static function embedAssets (targetPath:String, assets:Array<Asset>, packageName:String = ""):Void {
 		
 		try {
 			
@@ -523,7 +523,7 @@ class FlashHelper {
 				var swf = reader.read ();
 				input.close();
 				
-				var new_tags = new Array <SWFTag> ();
+				var new_tags = new Array<SWFTag> ();
 				var inserted = false;
 				
 				for (tag in swf.tags) {

@@ -176,7 +176,7 @@ class FileHelper {
 	}
 	
 	
-	public static function copyFileTemplate (templatePaths:Array <String>, source:String, destination:String, context:Dynamic = null, process:Bool = true) {
+	public static function copyFileTemplate (templatePaths:Array<String>, source:String, destination:String, context:Dynamic = null, process:Bool = true) {
 		
 		var path = PathHelper.findTemplate (templatePaths, source);
 		
@@ -338,7 +338,7 @@ class FileHelper {
 		
 		PathHelper.mkdir (destination);
 		
-		var files:Array <String> = null;
+		var files:Array<String> = null;
 		
 		try {
 			
@@ -374,7 +374,7 @@ class FileHelper {
 	}
 	
 	
-	public static function recursiveCopyTemplate (templatePaths:Array <String>, source:String, destination:String, context:Dynamic = null, process:Bool = true, warnIfNotFound:Bool = true) {
+	public static function recursiveCopyTemplate (templatePaths:Array<String>, source:String, destination:String, context:Dynamic = null, process:Bool = true, warnIfNotFound:Bool = true) {
 		
 		var paths = PathHelper.findTemplates (templatePaths, source, warnIfNotFound);
 		

@@ -16,7 +16,7 @@ class AssetHelper {
 	
 	public static function createManifest (project:HXProject, targetPath:String = ""):String {
 		
-		var manifest = new Array <Dynamic> ();
+		var manifest = new Array<Dynamic> ();
 		
 		for (asset in project.assets) {
 			
@@ -50,7 +50,7 @@ class AssetHelper {
 	
 	public static function processLibraries (project:HXProject, targetDirectory:String = null):Void {
 		
-		var handlers = new Array <String> ();
+		var handlers = new Array<String> ();
 		
 		for (library in project.libraries) {
 			

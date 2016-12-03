@@ -107,7 +107,7 @@ class ProcessHelper {
 	}
 	
 	
-	public static function runCommand (path:String, command:String, args:Array <String>, safeExecute:Bool = true, ignoreErrors:Bool = false, print:Bool = false):Int {
+	public static function runCommand (path:String, command:String, args:Array<String>, safeExecute:Bool = true, ignoreErrors:Bool = false, print:Bool = false):Int {
 		
 		if (print) {
 			
@@ -248,7 +248,7 @@ class ProcessHelper {
 	}
 	
 	
-	public static function runProcess (path:String, command:String, args:Array <String>, waitForOutput:Bool = true, safeExecute:Bool = true, ignoreErrors:Bool = false, print:Bool = false, returnErrorValue:Bool = false):String {
+	public static function runProcess (path:String, command:String, args:Array<String>, waitForOutput:Bool = true, safeExecute:Bool = true, ignoreErrors:Bool = false, print:Bool = false, returnErrorValue:Bool = false):String {
 		
 		if (print) {
 			

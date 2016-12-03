@@ -324,7 +324,7 @@ class FirefoxMarketplace {
 	}
 	
 	
-	public static function setup (askServer:Bool = true, devServer:Bool = false, defines:Map <String, String> = null):Void {
+	public static function setup (askServer:Bool = true, devServer:Bool = false, defines:Map<String, String> = null):Void {
 		
 		if (defines == null) {
 			

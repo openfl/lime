@@ -28,33 +28,33 @@ class CommandLineTools {
 	public static var defaultLibrary = "lime";
 	public static var defaultLibraryName = "Lime";
 	
-	private var additionalArguments:Array <String>;
+	private var additionalArguments:Array<String>;
 	private var command:String;
 	private var debug:Bool;
 	private var environment:Map<String, String>;
-	private var includePaths:Array <String>;
+	private var includePaths:Array<String>;
 	private var overrides:HXProject;
 	private var project:HXProject;
-	private var projectDefines:Map <String, String>;
-	private var targetFlags:Map <String, String>;
+	private var projectDefines:Map<String, String>;
+	private var targetFlags:Map<String, String>;
 	private var traceEnabled:Bool;
-	private var userDefines:Map <String, Dynamic>;
+	private var userDefines:Map<String, Dynamic>;
 	private var version:String;
-	private var words:Array <String>;
+	private var words:Array<String>;
 	
 	
 	public function new () {
 		
-		additionalArguments = new Array <String> ();
+		additionalArguments = new Array<String> ();
 		command = "";
 		debug = false;
 		environment = Sys.environment ();
-		includePaths = new Array <String> ();
-		projectDefines = new Map <String, String> ();
-		targetFlags = new Map <String, String> ();
+		includePaths = new Array<String> ();
+		projectDefines = new Map<String, String> ();
+		targetFlags = new Map<String, String> ();
 		traceEnabled = true;
-		userDefines = new Map <String, Dynamic> ();
-		words = new Array <String> ();
+		userDefines = new Map<String, Dynamic> ();
+		words = new Array<String> ();
 		
 		overrides = new HXProject ();
 		overrides.architectures = [];
@@ -441,7 +441,7 @@ class CommandLineTools {
 		
 		var process = new Process ("haxelib", [ "path", "lime" ]);
 		var path = "";
-		var lines = new Array <String> ();
+		var lines = new Array<String> ();
 		
 		try {
 			
@@ -750,7 +750,7 @@ class CommandLineTools {
 				if (sampleName == null) {
 					
 					var sampleExists = false;
-					var defines = new Map <String, Dynamic> ();
+					var defines = new Map<String, Dynamic> ();
 					defines.set ("create", 1);
 					var project = HXProject.fromHaxelib (new Haxelib (defaultLibrary), defines);
 					
@@ -979,7 +979,7 @@ class CommandLineTools {
 		} else {
 			
 			var files = FileSystem.readDirectory (path);
-			var matches = new Map <String, Array <String>> ();
+			var matches = new Map<String, Array<String>> ();
 			matches.set ("hxp", []);
 			matches.set ("lime", []);
 			matches.set ("nmml", []);
@@ -1836,9 +1836,9 @@ class CommandLineTools {
 						
 					} else if (StringTools.startsWith (field, "certificate-")) {
 						
-						if (overrides.certificate == null) {
+						if (overrides.keystore == null) {
 							
-							overrides.certificate = new Keystore ();
+							overrides.keystore = new Keystore ();
 							
 						}
 						
@@ -1846,9 +1846,21 @@ class CommandLineTools {
 						
 						if (field == "alias-password") field = "aliasPassword";
 						
-						if (Reflect.hasField (overrides.certificate, field)) {
+						if (Reflect.hasField (overrides.keystore, field)) {
 							
-							Reflect.setField (overrides.certificate, field, argValue);
+							Reflect.setField (overrides.keystore, field, argValue);
+							
+						}
+						
+						if (field == "identity") {
+							
+							overrides.config.set ("ios.identity", argValue);
+							overrides.config.set ("tvos.identity", argValue);
+							
+						} else if (field == "team-id") {
+							
+							overrides.config.set ("ios.team-id", argValue);
+							overrides.config.set ("tvos.team-id", argValue);
 							
 						}
 						

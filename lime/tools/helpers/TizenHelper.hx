@@ -25,10 +25,10 @@ class TizenHelper {
 		var keystore = null;
 		var password = null;
 		
-		if (project.certificate != null) {
+		if (project.keystore != null) {
 			
-			keystore = PathHelper.tryFullPath (project.certificate.path);
-			password = project.certificate.password;
+			keystore = PathHelper.tryFullPath (project.keystore.path);
+			password = project.keystore.password;
 			
 			if (password == null) {
 				

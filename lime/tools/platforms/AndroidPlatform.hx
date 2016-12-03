@@ -29,7 +29,7 @@ class AndroidPlatform extends PlatformTarget {
 	private var deviceID:String;
 	
 	
-	public function new (command:String, _project:HXProject, targetFlags:Map <String, String>) {
+	public function new (command:String, _project:HXProject, targetFlags:Map<String, String>) {
 		
 		super (command, _project, targetFlags);
 		
@@ -181,7 +181,7 @@ class AndroidPlatform extends PlatformTarget {
 		
 		var build = "-debug";
 		
-		if (project.certificate != null) {
+		if (project.keystore != null) {
 			
 			build = "-release";
 			

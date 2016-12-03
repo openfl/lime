@@ -58,7 +58,7 @@ class JavaExternGenerator
 		mExactTypes = new Map<String, Bool>();
 		mProcessed.set("java/lang/Object",true);
 		
-		var paths = new Array <String> ();
+		var paths = new Array<String> ();
 		
 		if (FileSystem.isDirectory (javaPath))
 		{
@@ -249,7 +249,7 @@ class JavaExternGenerator
 	}
 	
 	
-	private function getPaths(basePath:String, source:String, paths:Array <String>)
+	private function getPaths(basePath:String, source:String, paths:Array<String>)
 	{
 		var files = FileSystem.readDirectory(basePath + "/" + source);
 		

@@ -13,8 +13,8 @@ import sys.FileSystem;
 class CPPHelper {
 	
 	
-	private static var rebuiltLibraries = new Map <String, Bool> ();
-	private static var rebuiltPaths = new Map <String, Bool> ();
+	private static var rebuiltLibraries = new Map<String, Bool> ();
+	private static var rebuiltPaths = new Map<String, Bool> ();
 	
 	
 	public static function compile (project:HXProject, path:String, flags:Array<String> = null, buildFile:String = "Build.xml"):Void {

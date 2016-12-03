@@ -16,7 +16,7 @@ class TVOSHelper {
 	private static var initialized = false;
 	
 	
-	public static function build (project:HXProject, workingDirectory:String, additionalArguments:Array <String> = null):Void {
+	public static function build (project:HXProject, workingDirectory:String, additionalArguments:Array<String> = null):Void {
 		
 		initialize (project);
 		
@@ -338,20 +338,20 @@ class TVOSHelper {
 			
 		}
 		
-		var identity = "iPhone Developer";
+		var identity = project.config.getString ("tvos.identity", "tvOS Developer");
 		
-		if (project.certificate != null && project.certificate.identity != null) {
-			
-			identity = project.certificate.identity;
-			
-		}
-		
-		var commands = [ "-s", identity ];
+		var commands = [ "-s", identity, "CODE_SIGN_IDENTITY=" + identity ];
 		
 		if (entitlementsPath != null) {
 			
 			commands.push ("--entitlements");
 			commands.push (entitlementsPath);
+			
+		}
+		
+		if (project.config.exists ("tvos.provisioning-profile")) {
+			
+			commands.push ("PROVISIONING_PROFILE=" + project.config.getString ("ios.provisioning-profile"));
 			
 		}
 		

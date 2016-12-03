@@ -22,7 +22,7 @@ import sys.FileSystem;
 class WebOSPlatform extends PlatformTarget {
 	
 	
-	public function new (command:String, _project:HXProject, targetFlags:Map <String, String> ) {
+	public function new (command:String, _project:HXProject, targetFlags:Map<String, String> ) {
 		
 		super (command, _project, targetFlags);
 		

@@ -116,7 +116,7 @@ class PathHelper {
 	}
 	
 	
-	public static function findTemplate (templatePaths:Array <String>, path:String, warnIfNotFound:Bool = true):String {
+	public static function findTemplate (templatePaths:Array<String>, path:String, warnIfNotFound:Bool = true):String {
 		
 		var matches = findTemplates (templatePaths, path, warnIfNotFound);
 		
@@ -131,7 +131,7 @@ class PathHelper {
 	}
 	
 	
-	public static function findTemplates (templatePaths:Array <String>, path:String, warnIfNotFound:Bool = true):Array <String> {
+	public static function findTemplates (templatePaths:Array<String>, path:String, warnIfNotFound:Bool = true):Array<String> {
 		
 		var matches = [];
 		
@@ -564,7 +564,7 @@ class PathHelper {
 	}
 	
 	
-	public static function relocatePaths (paths:Array <String>, targetDirectory:String):Array <String> {
+	public static function relocatePaths (paths:Array<String>, targetDirectory:String):Array<String> {
 		
 		var relocatedPaths = paths.copy ();
 		

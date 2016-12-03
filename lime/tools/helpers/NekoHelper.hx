@@ -12,14 +12,14 @@ import sys.io.File;
 class NekoHelper {
 	
 	
-	public static function copyLibraries (templatePaths:Array <String>, platformName:String, targetPath:String) {
+	public static function copyLibraries (templatePaths:Array<String>, platformName:String, targetPath:String) {
 		
 		//FileHelper.recursiveCopyTemplate (templatePaths, "neko/ndll/" + platformName, targetPath);
 		
 	}
 	
 	
-	public static function createExecutable (templatePaths:Array <String>, platformName:String, source:String, target:String, iconPath:String = null):Void {
+	public static function createExecutable (templatePaths:Array<String>, platformName:String, source:String, target:String, iconPath:String = null):Void {
 		
 		/*var executablePath = PathHelper.findTemplate (templatePaths, "neko/bin/neko-" + platformName);
 		var executable = File.getBytes (executablePath);
@@ -47,7 +47,7 @@ class NekoHelper {
 	}
 	
 	
-	public static function createWindowsExecutable (templatePaths:Array <String>, source:String, target:String, iconPath:String):Void {
+	public static function createWindowsExecutable (templatePaths:Array<String>, source:String, target:String, iconPath:String):Void {
 		
 		/*var executablePath = PathHelper.findTemplate (templatePaths, "neko/bin/neko-windows");
 		var executable = File.getBytes (executablePath);

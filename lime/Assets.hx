@@ -41,7 +41,7 @@ class Assets {
 	
 	
 	public static var cache = new AssetCache ();
-	public static var libraries (default, null) = new Map <String, AssetLibrary> ();
+	public static var libraries (default, null) = new Map<String, AssetLibrary> ();
 	public static var onChange = new Event<Void->Void> ();
 	
 	

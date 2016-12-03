@@ -33,7 +33,7 @@ class FlashPlatform extends PlatformTarget {
 	private var logLength:Int;
 	
 	
-	public function new (command:String, _project:HXProject, targetFlags:Map <String, String>) {
+	public function new (command:String, _project:HXProject, targetFlags:Map<String, String>) {
 		
 		super (command, _project, targetFlags);
 		
@@ -161,7 +161,7 @@ class FlashPlatform extends PlatformTarget {
 		
 		var context = project.templateContext;
 		context.WIN_FLASHBACKGROUND = project.window.background != null ? StringTools.hex (project.window.background, 6) : "0xFFFFFF";
-		var assets:Array <Dynamic> = cast context.assets;
+		var assets:Array<Dynamic> = cast context.assets;
 		
 		for (asset in assets) {
 			

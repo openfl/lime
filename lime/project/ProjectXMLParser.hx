@@ -23,13 +23,13 @@ import sys.FileSystem;
 class ProjectXMLParser extends HXProject {
 	
 	
-	public var includePaths:Array <String>;
+	public var includePaths:Array<String>;
 	
 	private static var doubleVarMatch = new EReg ("\\$\\${(.*?)}", "");
 	private static var varMatch = new EReg ("\\${(.*?)}", "");
 	
 	
-	public function new (path:String = "", defines:Map <String, Dynamic> = null, includePaths:Array <String> = null, useExtensionPath:Bool = false) {
+	public function new (path:String = "", defines:Map<String, Dynamic> = null, includePaths:Array<String> = null, useExtensionPath:Bool = false) {
 		
 		super ();
 		
@@ -45,7 +45,7 @@ class ProjectXMLParser extends HXProject {
 			
 		} else {
 			
-			this.includePaths = new Array <String> ();
+			this.includePaths = new Array<String> ();
 			
 		}
 		
@@ -1674,53 +1674,63 @@ class ProjectXMLParser extends HXProject {
 					
 					case "certificate":
 						
+						var path = null;
+						
 						if (element.has.path) {
 							
-							certificate = new Keystore (PathHelper.combine (extensionPath, substitute (element.att.path)));
+							path = element.att.path;
+							
+						} else if (element.has.keystore) {
+							
+							path = element.att.keystore;
+							
+						}
+						
+						if (path != null) {
+							
+							keystore = new Keystore (PathHelper.combine (extensionPath, substitute (element.att.path)));
 							
 							if (element.has.type) {
 								
-								certificate.type = substitute (element.att.type);
+								keystore.type = substitute (element.att.type);
 								
 							}
 							
 							if (element.has.password) {
 								
-								certificate.password = substitute (element.att.password);
+								keystore.password = substitute (element.att.password);
 								
 							}
 							
 							if (element.has.alias) {
 								
-								certificate.alias = substitute (element.att.alias);
+								keystore.alias = substitute (element.att.alias);
 								
 							}
 							
 							if (element.has.resolve ("alias-password")) {
 								
-								certificate.aliasPassword = substitute (element.att.resolve ("alias-password"));
+								keystore.aliasPassword = substitute (element.att.resolve ("alias-password"));
 								
 							} else if (element.has.alias_password) {
 								
-								certificate.aliasPassword = substitute (element.att.alias_password);
+								keystore.aliasPassword = substitute (element.att.alias_password);
 								
 							}
 							
-						} else if (element.has.identity || element.has.resolve ("team-id")) {
+						}
+						
+						if (element.has.identity) {
 							
-							certificate = new Keystore ();
+							config.set ("ios.identity", element.att.identity);
+							config.set ("tvos.identity", element.att.identity);
 							
-							if (element.has.identity) {
-								
-								certificate.identity = substitute (element.att.identity);
-								
-							}
+						}
+						
+						if (element.has.resolve ("team-id")) {
 							
-							if (element.has.resolve ("team-id")) {
-								
-								certificate.teamID = substitute (element.att.resolve ("team-id"));
-								
-							}
+							config.set ("ios.team-id", element.att.resolve ("team-id"));
+							config.set ("tvos.team-id", element.att.resolve ("team-id"));
 							
 						}
 					

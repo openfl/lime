@@ -35,7 +35,7 @@ import sys.FileSystem;
 class IOSPlatform extends PlatformTarget {
 	
 	
-	public function new (command:String, _project:HXProject, targetFlags:Map <String, String> ) {
+	public function new (command:String, _project:HXProject, targetFlags:Map<String, String> ) {
 		
 		super (command, _project, targetFlags);
 		
@@ -106,12 +106,6 @@ class IOSPlatform extends PlatformTarget {
 		project.sources = PathHelper.relocatePaths (project.sources, PathHelper.combine (targetDirectory, project.app.file + "/haxe"));
 		//project.dependencies.push ("stdc++");
 		
-		if (project.certificate != null && project.certificate.identity == null) {
-			
-			project.certificate.identity = "iPhone Developer";
-			
-		}
-		
 		if (project.targetFlags.exists ("xml")) {
 			
 			project.haxeflags.push ("-xml " + targetDirectory + "/types.xml");
@@ -133,9 +127,9 @@ class IOSPlatform extends PlatformTarget {
 		context.HAS_LAUNCH_IMAGE = false;
 		context.OBJC_ARC = false;
 		
-		if (project.certificate != null) {
+		if (project.config.exists ("ios.team-id")) {
 			
-			context.DEVELOPMENT_TEAM_ID = project.certificate.teamID;
+			context.DEVELOPMENT_TEAM_ID = project.config.getString ("ios.team-id");
 			
 		}
 		
@@ -170,7 +164,7 @@ class IOSPlatform extends PlatformTarget {
 			
 		}
 		
-		var valid_archs = new Array <String> ();
+		var valid_archs = new Array<String> ();
 		var armv6 = false;
 		var armv7 = false;
 		var armv7s = false;

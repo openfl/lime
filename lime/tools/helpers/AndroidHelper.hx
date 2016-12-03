@@ -30,7 +30,7 @@ class AndroidHelper {
 		
 		var task = "assembleDebug";
 		
-		if (project.certificate != null) {
+		if (project.keystore != null) {
 			
 			task = "assembleRelease";
 			
@@ -254,9 +254,9 @@ class AndroidHelper {
 	}
 	
 	
-	public static function listAVDs ():Array <String> {
+	public static function listAVDs ():Array<String> {
 		
-		var avds = new Array <String> ();
+		var avds = new Array<String> ();
 		var output = ProcessHelper.runProcess (androidPath, androidName, [ "list", "avd" ]);
 		
 		if (output != null && output != "") {
@@ -278,9 +278,9 @@ class AndroidHelper {
 	}
 	
 	
-	public static function listDevices ():Array <String> {
+	public static function listDevices ():Array<String> {
 		
-		var devices = new Array <String> ();
+		var devices = new Array<String> ();
 		var output = "";
 		
 		if (PlatformHelper.hostPlatform != Platform.WINDOWS) {

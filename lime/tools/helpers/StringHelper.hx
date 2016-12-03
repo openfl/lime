@@ -11,7 +11,7 @@ class StringHelper {
 	private static var seedNumber = 0;
 	private static var base64Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	private static var base64Encoder:BaseCode;
-	private static var usedFlatNames = new Map <String, String> ();
+	private static var usedFlatNames = new Map<String, String> ();
 	private static var uuidChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 	
 	
@@ -53,7 +53,7 @@ class StringHelper {
 	}
 	
 	
-	public static function formatArray (array:Array <Dynamic>):String {
+	public static function formatArray (array:Array<Dynamic>):String {
 		
 		var output = "[ ";
 		

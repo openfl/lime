@@ -15,7 +15,7 @@ import sys.FileSystem;
 class FirefoxPlatform extends HTML5Platform {
 	
 	
-	public function new (command:String, _project:HXProject, targetFlags:Map <String, String>) {
+	public function new (command:String, _project:HXProject, targetFlags:Map<String, String>) {
 		
 		super (command, _project, targetFlags);
 		

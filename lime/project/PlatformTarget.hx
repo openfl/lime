@@ -10,16 +10,16 @@ import lime.tools.helpers.LogHelper;
 class PlatformTarget {
 	
 	
-	public var additionalArguments:Array <String>;
+	public var additionalArguments:Array<String>;
 	public var buildType:String;
 	public var command:String;
 	public var project:HXProject;
 	public var targetDirectory:String;
-	public var targetFlags:Map <String, String>;
+	public var targetFlags:Map<String, String>;
 	public var traceEnabled = true;
 	
 	
-	public function new (command:String = null, project:HXProject = null, targetFlags:Map <String, String> = null) {
+	public function new (command:String = null, project:HXProject = null, targetFlags:Map<String, String> = null) {
 		
 		this.command = command;
 		this.project = project;
@@ -44,7 +44,7 @@ class PlatformTarget {
 	}
 	
 	
-	public function execute (additionalArguments:Array <String>):Void {
+	public function execute (additionalArguments:Array<String>):Void {
 		
 		LogHelper.info ("", LogHelper.accentColor + "Using target platform: " + Std.string (project.target).toUpperCase () + LogHelper.resetColor);
 		

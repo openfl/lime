@@ -8,7 +8,7 @@ import lime.project.Platform;
 class CommandHelper {
 	
 	
-	public static function executeCommands (commands:Array <CLICommand>):Void {
+	public static function executeCommands (commands:Array<CLICommand>):Void {
 		
 		for (c in commands) {
 			

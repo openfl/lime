@@ -7,12 +7,12 @@ import sys.FileSystem;
 class AIRHelper {
 	
 	
-	/*private static var defines:Map <String, String>;
+	/*private static var defines:Map<String, String>;
 	private static var target:String;
-	private static var targetFlags:Map <String, String>;
+	private static var targetFlags:Map<String, String>;
 	
 	
-	public static function initialize (defines:Map <String, String>, targetFlags:Map <String, String>, target:String, NME:String):Void {
+	public static function initialize (defines:Map<String, String>, targetFlags:Map<String, String>, target:String, NME:String):Void {
 		
 		AIRHelper.defines = defines;
 		AIRHelper.targetFlags = targetFlags;
@@ -33,7 +33,7 @@ class AIRHelper {
 	}
 	
 	
-	public static function build (workingDirectory:String, targetPath:String, applicationXML:String, files:Array <String>, debug:Bool):Void {
+	public static function build (workingDirectory:String, targetPath:String, applicationXML:String, files:Array<String>, debug:Bool):Void {
 		
 		var airTarget = "air";
 		var extension = ".air";

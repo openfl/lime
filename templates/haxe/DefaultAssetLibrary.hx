@@ -39,9 +39,9 @@ import flash.net.URLRequest;
 class DefaultAssetLibrary extends AssetLibrary {
 	
 	
-	public var className (default, null) = new Map <String, Dynamic> ();
-	public var path (default, null) = new Map <String, String> ();
-	public var type (default, null) = new Map <String, AssetType> ();
+	public var className (default, null) = new Map<String, Dynamic> ();
+	public var path (default, null) = new Map<String, String> ();
+	public var type (default, null) = new Map<String, AssetType> ();
 	
 	private var lastModified:Float;
 	private var timer:Timer;

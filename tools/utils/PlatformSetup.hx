@@ -253,7 +253,7 @@ class PlatformSetup {
 	}
 	
 	
-	public static function getDefines (names:Array <String> = null, descriptions:Array <String> = null, ignored:Array <String> = null):Map <String, String> {
+	public static function getDefines (names:Array<String> = null, descriptions:Array<String> = null, ignored:Array<String> = null):Map<String, String> {
 		
 		var config = CommandLineTools.getLimeConfig ();
 		
@@ -277,7 +277,7 @@ class PlatformSetup {
 			
 		} else {
 			
-			defines = new Map <String, String> ();
+			defines = new Map<String, String> ();
 			
 		}
 		
@@ -311,7 +311,7 @@ class PlatformSetup {
 			
 		}
 		
-		var values = new Array <String> ();
+		var values = new Array<String> ();
 		
 		for (i in 0...names.length) {
 			
@@ -576,7 +576,7 @@ class PlatformSetup {
 					var packages = [];
 					var executables = [];
 					
-					var files:Array <String> = FileSystem.readDirectory (volumePath);
+					var files:Array<String> = FileSystem.readDirectory (volumePath);
 					
 					for (file in files) {
 						
@@ -692,8 +692,8 @@ class PlatformSetup {
 			
 		}
 		
-		var requiredVariables = new Array <String> ();
-		var requiredVariableDescriptions = new Array <String> ();
+		var requiredVariables = new Array<String> ();
+		var requiredVariableDescriptions = new Array<String> ();
 		
 		if (!setAIRSDK) {
 			
@@ -871,9 +871,9 @@ class PlatformSetup {
 			
 		}
 		
-		var requiredVariables = new Array <String> ();
-		var requiredVariableDescriptions = new Array <String> ();
-		var ignoreValues = new Array <String> ();
+		var requiredVariables = new Array<String> ();
+		var requiredVariableDescriptions = new Array<String> ();
+		var ignoreValues = new Array<String> ();
 		
 		if (!setAndroidSDK) {
 			
@@ -1436,7 +1436,7 @@ class PlatformSetup {
 		
 		setupHaxelibs.set (haxelib.name, true);
 		
-		var defines = new Map <String, Dynamic> ();
+		var defines = new Map<String, Dynamic> ();
 		defines.set ("setup", 1);
 		
 		var basePath = ProcessHelper.runProcess ("", "haxelib", [ "config" ]);
@@ -2119,7 +2119,7 @@ class PlatformSetup {
 	}
 	
 	
-	public static function writeConfig (path:String, defines:Map <String, Dynamic>):Void {
+	public static function writeConfig (path:String, defines:Map<String, Dynamic>):Void {
 		
 		var newContent = "";
 		var definesText = "";

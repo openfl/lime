@@ -16,7 +16,7 @@ class IOSHelper {
 	private static var initialized = false;
 	
 	
-	public static function build (project:HXProject, workingDirectory:String, additionalArguments:Array <String> = null):Void {
+	public static function build (project:HXProject, workingDirectory:String, additionalArguments:Array<String> = null):Void {
 		
 		initialize (project);
 		
@@ -338,20 +338,20 @@ class IOSHelper {
 			
 		}
 		
-		var identity = "iPhone Developer";
+		var identity = project.config.getString ("ios.identity", "iPhone Developer");
 		
-		if (project.certificate != null && project.certificate.identity != null) {
-			
-			identity = project.certificate.identity;
-			
-		}
-		
-		var commands = [ "-s", identity ];
+		var commands = [ "-s", identity, "CODE_SIGN_IDENTITY=" + identity ];
 		
 		if (entitlementsPath != null) {
 			
 			commands.push ("--entitlements");
 			commands.push (entitlementsPath);
+			
+		}
+		
+		if (project.config.exists ("ios.provisioning-profile")) {
+			
+			commands.push ("PROVISIONING_PROFILE=" + project.config.getString ("ios.provisioning-profile"));
 			
 		}
 		

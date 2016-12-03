@@ -26,7 +26,7 @@ class LogHelper {
 	
 	private static var colorCodes:EReg = ~/\x1b\[[^m]+m/g;
 	private static var colorSupported:Null<Bool>;
-	private static var sentWarnings:Map <String, Bool> = new Map <String, Bool> ();
+	private static var sentWarnings:Map<String, Bool> = new Map<String, Bool> ();
 	
 	
 	public static function error (message:String, verboseMessage:String = "", e:Dynamic = null):Void {

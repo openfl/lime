@@ -31,7 +31,7 @@ class SVGExport {
 		
 		try {
 			
-			var lines = new Array <String> ();
+			var lines = new Array<String> ();
 			
 			while (true) {
 				

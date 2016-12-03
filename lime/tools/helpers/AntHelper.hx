@@ -7,7 +7,7 @@ class AntHelper {
 	private static var ant:String;
 	
 	
-	public static function initialize (defines:Map <String, String>):Void {
+	public static function initialize (defines:Map<String, String>):Void {
 		
 		if (defines.exists ("ANDROID_SDK")) {
 			
@@ -30,7 +30,7 @@ class AntHelper {
 	}
 	
 	
-	public static function run (workingDirectory:String, commands:Array <String>):Void {
+	public static function run (workingDirectory:String, commands:Array<String>):Void {
 		
 		if (commands == null) {
 			

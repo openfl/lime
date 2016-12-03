@@ -18,8 +18,8 @@ class BlackBerryHelper {
 	
 	
 	private static var binDirectory:String;
-	private static var defines:Map <String, String>;
-	private static var targetFlags:Map <String, String>;
+	private static var defines:Map<String, String>;
+	private static var targetFlags:Map<String, String>;
 	
 	
 	public static function createPackage (project:HXProject, workingDirectory:String, descriptorFile:String, targetPath:String):Void {
@@ -27,9 +27,9 @@ class BlackBerryHelper {
 		var args = [ "-package", targetPath, descriptorFile ];
 		var password = null;
 		
-		if (project.certificate != null) {
+		if (project.keystore != null) {
 			
-			password = project.certificate.password;
+			password = project.keystore.password;
 			
 			if (password == null) {
 				
@@ -40,10 +40,10 @@ class BlackBerryHelper {
 			
 		}
 		
-		if (project.certificate != null) {
+		if (project.keystore != null) {
 			
 			args.push ("-keystore");
-			args.push (PathHelper.tryFullPath (project.certificate.path));
+			args.push (PathHelper.tryFullPath (project.keystore.path));
 			
 			if (password != null) {
 				
@@ -75,9 +75,9 @@ class BlackBerryHelper {
 		
 		ProcessHelper.runCommand (workingDirectory, exe, args);
 		
-		if (project.certificate != null) {
+		if (project.keystore != null) {
 			
-			args = [ "-keystore", PathHelper.tryFullPath (project.certificate.path) ];
+			args = [ "-keystore", PathHelper.tryFullPath (project.keystore.path) ];
 			
 			if (password != null) {
 				
@@ -113,9 +113,9 @@ class BlackBerryHelper {
 		var args = [ zipPath ];
 		var params = "";
 		
-		if (project.certificate != null) {
+		if (project.keystore != null) {
 			
-			var password = project.certificate.password;
+			var password = project.keystore.password;
 			
 			if (password == null) {
 				
@@ -126,11 +126,11 @@ class BlackBerryHelper {
 			
 			args = args.concat ([ "--password", password, "--buildId", project.meta.buildNumber ]);
 			
-			//params = "{\n\t\"blackberry-nativepackager\": {\n\t\t\"-keystore\": \"" + PathHelper.tryFullPath (project.certificate.path) + "\"\n\t}\n}";
+			//params = "{\n\t\"blackberry-nativepackager\": {\n\t\t\"-keystore\": \"" + PathHelper.tryFullPath (project.keystore.path) + "\"\n\t}\n}";
 			
 			try {
 				
-				FileHelper.copyFile (PathHelper.tryFullPath (project.certificate.path), PathHelper.combine (project.environment.get ("BLACKBERRY_WEBWORKS_SDK"), "author.p12"));
+				FileHelper.copyFile (PathHelper.tryFullPath (project.keystore.path), PathHelper.combine (project.environment.get ("BLACKBERRY_WEBWORKS_SDK"), "author.p12"));
 				
 			} catch (e:Dynamic) {}
 			

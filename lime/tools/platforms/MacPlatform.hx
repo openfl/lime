@@ -37,7 +37,7 @@ class MacPlatform extends PlatformTarget {
 	private var targetType:String;
 	
 	
-	public function new (command:String, _project:HXProject, targetFlags:Map <String, String> ) {
+	public function new (command:String, _project:HXProject, targetFlags:Map<String, String> ) {
 		
 		super (command, _project, targetFlags);
 		
