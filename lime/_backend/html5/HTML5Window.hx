@@ -209,6 +209,8 @@ class HTML5Window {
 				return true;
 			}, false);
 			
+			element.addEventListener ("contextmenu", handleContextMenuEvent, true);
+			
 			element.addEventListener ("touchstart", handleTouchEvent, true);
 			element.addEventListener ("touchmove", handleTouchEvent, true);
 			element.addEventListener ("touchend", handleTouchEvent, true);
@@ -238,6 +240,17 @@ class HTML5Window {
 	public function getEnableTextEvents ():Bool {
 		
 		return enableTextEvents;
+		
+	}
+	
+	
+	private function handleContextMenuEvent (event:MouseEvent):Void {
+		
+		if (parent.onMouseUp.canceled) {
+			
+			event.preventDefault ();
+			
+		}
 		
 	}
 	
@@ -358,12 +371,24 @@ class HTML5Window {
 				case "mousedown":
 					
 					parent.onMouseDown.dispatch (x, y, event.button);
+					
+					if (parent.onMouseDown.canceled) {
+						
+						event.preventDefault ();
+						
+					}
 				
 				case "mouseenter":
 					
 					if (event.target == element) {
 						
 						parent.onEnter.dispatch ();
+						
+						if (parent.onEnter.canceled) {
+							
+							event.preventDefault ();
+							
+						}
 						
 					}
 				
@@ -373,11 +398,23 @@ class HTML5Window {
 						
 						parent.onLeave.dispatch ();
 						
+						if (parent.onLeave.canceled) {
+							
+							event.preventDefault ();
+							
+						}
+						
 					}
 				
 				case "mouseup":
 					
 					parent.onMouseUp.dispatch (x, y, event.button);
+					
+					if (parent.onMouseUp.canceled) {
+						
+						event.preventDefault ();
+						
+					}
 				
 				case "mousemove":
 					
@@ -385,6 +422,12 @@ class HTML5Window {
 						
 						parent.onMouseMove.dispatch (x, y);
 						parent.onMouseMoveRelative.dispatch (x - cacheMouseX, y - cacheMouseY);
+						
+						if (parent.onMouseMove.canceled || parent.onMouseMoveRelative.canceled) {
+							
+							event.preventDefault ();
+							
+						}
 						
 					}
 				
@@ -398,6 +441,12 @@ class HTML5Window {
 		} else {
 			
 			parent.onMouseWheel.dispatch (untyped event.deltaX, - untyped event.deltaY);
+			
+			if (parent.onMouseWheel.canceled) {
+				
+				event.preventDefault ();
+				
+			}
 			
 		}
 		
