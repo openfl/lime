@@ -46,9 +46,6 @@ class Assets {
 	public static var defaultLib (default, null) : AssetLibrary;
 	public static var onChange = new Event<Void->Void> ();
 	
-	// See definition in this file in the macro section below
-	public static macro function __with_library_and_symbolName (id:ExprOf<String>, expr:Expr):Expr;
-	
 	public static function exists (id:String, type:AssetType = null):Bool {
 		
 		#if (tools && !display)
@@ -59,11 +56,12 @@ class Assets {
 			
 		}
 		
-		__with_library_and_symbolName(id, if (library != null) {
+		var symbol = new LibrarySymbol (id);
+		if (symbol.library != null) {
 			
-			return library.exists (symbolName, type);
+			return symbol.exists (type);
 			
-		});
+		}
 		
 		#end
 		
@@ -121,13 +119,14 @@ class Assets {
 			
 		}
 		
-		__with_library_and_symbolName(id, if (library != null) {
+		var symbol = new LibrarySymbol (id);
+		if (symbol.library != null) {
 			
-			if (library.exists (symbolName, type)) {
+			if (symbol.exists (type)) {
 				
-				if (library.isLocal (symbolName, type)) {
+				if (symbol.isLocal (type)) {
 					
-					var asset = library.getAsset (symbolName, type);
+					var asset = symbol.library.getAsset (symbol.symbolName, type);
 					
 					if (useCache && cache.enabled) {
 						
@@ -151,9 +150,9 @@ class Assets {
 			
 		} else {
 			
-			Log.info ("There is no asset library named \"" + libraryName + "\"");
+			Log.info ("There is no asset library named \"" + symbol.libraryName + "\"");
 			
-		});
+		}
 		
 		#end
 		
@@ -215,7 +214,7 @@ class Assets {
 	}
 	
 	
-	private static function getLibrary (name:String):AssetLibrary {
+	public static function getLibrary (name:String):AssetLibrary {
 		
 		return
 			if (name == null || name == "" || name == "default")
@@ -236,11 +235,12 @@ class Assets {
 		
 		#if (tools && !display)
 		
-		__with_library_and_symbolName(id, if (library != null) {
+		var symbol = new LibrarySymbol (id);
+		if (symbol.library != null) {
 			
-			if (library.exists (symbolName, null)) {
+			if (symbol.exists ()) {
 				
-				return library.getPath (symbolName);
+				return symbol.library.getPath (symbol.symbolName);
 				
 			} else {
 				
@@ -250,9 +250,9 @@ class Assets {
 			
 		} else {
 			
-			Log.info ("There is no asset library named \"" + libraryName + "\"");
+			Log.info ("There is no asset library named \"" + symbol.libraryName + "\"");
 			
-		});
+		}
 		
 		#end
 		
@@ -284,15 +284,14 @@ class Assets {
 			
 		}
 		
-		__with_library_and_symbolName(id, if (library != null) {
-			
-			return library.isLocal (symbolName, type);
-			
-		});
+		var symbol = new LibrarySymbol (id);
+		return symbol.library != null && symbol.isLocal (type);
 		
-		#end
+		#else
 		
 		return false;
+		
+		#end
 		
 	}
 	
@@ -404,11 +403,12 @@ class Assets {
 			
 		}
 		
-		__with_library_and_symbolName(id, if (library != null) {
+		var symbol = new LibrarySymbol (id);
+		if (symbol.library != null) {
 			
-			if (library.exists (symbolName, type)) {
+			if (symbol.exists (type)) {
 				
-				var future = library.loadAsset (symbolName, type);
+				var future = symbol.library.loadAsset (symbol.symbolName, type);
 				
 				if (useCache && cache.enabled) {
 					
@@ -426,9 +426,9 @@ class Assets {
 			
 		} else {
 			
-			return Future.withError ("[Assets] There is no asset library named \"" + libraryName + "\"");
+			return Future.withError ("[Assets] There is no asset library named \"" + symbol.libraryName + "\"");
 			
-		});
+		}
 		
 		#else
 		
@@ -508,11 +508,12 @@ class Assets {
 		
 		#if (tools && !display)
 		
-		__with_library_and_symbolName(id, if (library != null) {
+		var symbol = new LibrarySymbol (id);
+		if (symbol.library != null) {
 			
-			if (library.exists (symbolName, AssetType.TEXT)) {
+			if (symbol.exists (AssetType.TEXT)) {
 				
-				promise.completeWith (library.loadText (symbolName));
+				promise.completeWith (symbol.library.loadText (symbol.symbolName));
 				
 			} else {
 				
@@ -522,9 +523,9 @@ class Assets {
 			
 		} else {
 			
-			promise.error ("[Assets] There is no asset library named \"" + libraryName + "\"");
+			promise.error ("[Assets] There is no asset library named \"" + symbol.libraryName + "\"");
 			
-		});
+		}
 		
 		#end
 		
@@ -1129,6 +1130,29 @@ class AssetCache {
 }
 
 
+class LibrarySymbol {
+	
+	public var libraryName (default, null) : String;
+	public var symbolName  (default, null) : String;
+	public var library     (default, null) : AssetLibrary;
+	
+	
+	public inline function new (id:String) {
+		
+		var colonIndex = id.indexOf (":");
+		libraryName    = id.substring (0, colonIndex);
+		symbolName     = id.substring (colonIndex + 1);
+		library        = Assets.getLibrary (libraryName);
+		
+	}
+	
+	
+	public inline function isLocal (?type) return library.isLocal (symbolName, type);
+	public inline function exists  (?type) return library.exists  (symbolName, type);
+	
+}
+
+
 #else // macro
 
 
@@ -1167,20 +1191,6 @@ class Assets {
 		
 		return base64Encoder.encodeBytes (bytes).toString () + extension;
 		
-	}
-
-
-	macro public static function __with_library_and_symbolName (id:ExprOf<String>, expr:Expr):Expr {
-
-		return macro {
-			var colonIndex  = ${id}.indexOf (":");
-			var libraryName = ${id}.substring (0, colonIndex);
-			var symbolName  = ${id}.substr (colonIndex + 1);
-			var library     = getLibrary (libraryName);
-
-			${expr};
-		}
-
 	}
 	
 	
