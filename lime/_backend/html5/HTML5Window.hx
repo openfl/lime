@@ -608,7 +608,9 @@ class HTML5Window {
 					if (element != cast canvas) {
 		
 						canvas.width = width;
+						canvas.style.width = width + "px";
 						canvas.height = height;
+						canvas.style.height = height + "px";
 
 					}
 
