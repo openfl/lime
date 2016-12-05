@@ -479,6 +479,9 @@ class Assets {
 			
 			var promise = new Promise<AssetLibrary> ();
 			
+			// Prevent double loading of the same library
+			libraries.set (name, new FutureAssetLibrary (promise));
+			
 			loadText ("libraries/" + name + ".json").onComplete(function (data) {
 				
 				promise.completeWith (AssetLibrary.loadFromString (data));
@@ -1000,6 +1003,26 @@ class AssetLibrary {
 	}
 }
 
+
+private class FutureAssetLibrary extends AssetLibrary {
+	
+	public var promise (default, null) : Promise<AssetLibrary>;
+	
+	public function new (promise) {
+		
+		super ();
+		this.promise = promise;
+		
+	}
+	
+	
+	override public function load () {
+		
+		return promise.future;
+		
+	}
+	
+}
 
 class AssetCache {
 	
