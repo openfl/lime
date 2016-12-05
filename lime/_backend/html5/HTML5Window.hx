@@ -596,7 +596,26 @@ class HTML5Window {
 	
 	public function resize (width:Int, height:Int):Void {
 		
+		if (element != null) {
+
+			if (parent.width != width || parent.height != height) {
+
+				parent.width = width;
+				parent.height = height;
+
+				if (canvas != null) {
+
+					if (element != cast canvas) {
 		
+						canvas.width = width;
+						canvas.height = height;
+
+					}
+
+				}
+
+			}
+		}
 		
 	}
 	
