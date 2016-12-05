@@ -600,8 +600,8 @@ class HTML5Window {
 
 			if (parent.width != width || parent.height != height) {
 
-				parent.width = width;
-				parent.height = height;
+				parent.__width = width;
+				parent.__height = height;
 
 				if (canvas != null) {
 
