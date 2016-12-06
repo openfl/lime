@@ -285,7 +285,7 @@ class FlashHelper {
 				
 				var src = path;
 				
-				if (ext == "jpg" || ext == "png" || ext == "gif") {
+				if (ext == "jpg" || ext == "jpeg" || ext == "png" || ext == "gif") {
 					
 					if (!FileSystem.exists (src)) {
 						
