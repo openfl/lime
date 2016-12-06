@@ -411,6 +411,8 @@ class ImageCanvasUtil {
 	
 	public static function sync (image:Image, clear:Bool):Void {
 		
+		if (image == null) return;
+		
 		#if (js && html5)
 		if (image.type == CANVAS) {
 			

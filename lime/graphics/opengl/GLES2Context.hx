@@ -487,8 +487,8 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	private inline function get_ALPHA ():Int { return this.ALPHA; }
 	private inline function get_RGB ():Int { return this.RGB; }
 	private inline function get_RGBA ():Int { return this.RGBA; }
-	private inline function get_BGR_EXT ():Int { return this.BGR_EXT; }
-	private inline function get_BGRA_EXT ():Int { return this.BGRA_EXT; }
+	private inline function get_BGR_EXT ():Int { #if (js && html5) return 0; #else return this.BGR_EXT; #end } // TODO
+	private inline function get_BGRA_EXT ():Int { #if (js && html5) return 0; #else return this.BGRA_EXT; #end } // TODO
 	private inline function get_LUMINANCE ():Int { return this.LUMINANCE; }
 	private inline function get_LUMINANCE_ALPHA ():Int { return this.LUMINANCE_ALPHA; }
 	private inline function get_UNSIGNED_SHORT_4_4_4_4 ():Int { return this.UNSIGNED_SHORT_4_4_4_4; }
@@ -609,8 +609,8 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	private inline function get_VERTEX_ATTRIB_ARRAY_NORMALIZED ():Int { return this.VERTEX_ATTRIB_ARRAY_NORMALIZED; }
 	private inline function get_VERTEX_ATTRIB_ARRAY_POINTER ():Int { return this.VERTEX_ATTRIB_ARRAY_POINTER; }
 	private inline function get_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING ():Int { return this.VERTEX_ATTRIB_ARRAY_BUFFER_BINDING; }
-	private inline function get_VERTEX_PROGRAM_POINT_SIZE ():Int { return this.VERTEX_PROGRAM_POINT_SIZE; }
-	private inline function get_POINT_SPRITE ():Int { return this.POINT_SPRITE; }
+	private inline function get_VERTEX_PROGRAM_POINT_SIZE ():Int { #if (js && html5) return 0; #else return this.VERTEX_PROGRAM_POINT_SIZE; #end } // TODO
+	private inline function get_POINT_SPRITE ():Int { #if (js && html5) return 0; #else return this.POINT_SPRITE; #end } // TODO
 	private inline function get_COMPILE_STATUS ():Int { return this.COMPILE_STATUS; }
 	private inline function get_LOW_FLOAT ():Int { return this.LOW_FLOAT; }
 	private inline function get_MEDIUM_FLOAT ():Int { return this.MEDIUM_FLOAT; }
@@ -659,7 +659,7 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	private inline function get_CONTEXT_LOST_WEBGL ():Int { return this.CONTEXT_LOST_WEBGL; }
 	private inline function get_UNPACK_COLORSPACE_CONVERSION_WEBGL ():Int { return this.UNPACK_COLORSPACE_CONVERSION_WEBGL; }
 	private inline function get_BROWSER_DEFAULT_WEBGL ():Int { return this.BROWSER_DEFAULT_WEBGL; }
-	private inline function get_version ():Int { return this.version; }
+	private inline function get_version ():Int { #if (js && html5) return 2; #else return this.version; #end } // TODO
 	
 	
 	public inline function activeTexture (texture:Int):Void {
