@@ -686,16 +686,18 @@ namespace lime {
 		
 		value result = alloc_empty_object ();
 		
-		char buf[1024];
-		GLsizei outLen = 1024;
+		std::string buffer (GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, 0);
+		GLsizei outLen = 0;
 		GLsizei size = 0;
 		GLenum  type = 0;
 		
-		glGetActiveAttrib (reinterpret_cast<uintptr_t> (val_data (handle)), inIndex, 1024, &outLen, &size, &type, buf);
+		glGetActiveAttrib (reinterpret_cast<uintptr_t> (val_data (handle)), inIndex, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &outLen, &size, &type, &buffer[0]);
+		
+		buffer.resize (outLen);
 		
 		alloc_field (result, val_id ("size"), alloc_int (size));
 		alloc_field (result, val_id ("type"), alloc_int (type));
-		alloc_field (result, val_id ("name"), alloc_string (buf));
+		alloc_field (result, val_id ("name"), alloc_string (buffer.c_str ()));
 		
 		return result;
 		
@@ -704,17 +706,19 @@ namespace lime {
 	
 	value lime_gl_get_active_uniform (value handle, int inIndex) {
 		
-		char buf[1024];
-		GLsizei outLen = 1024;
+		std::string buffer (GL_ACTIVE_UNIFORM_MAX_LENGTH, 0);
+		GLsizei outLen = 0;
 		GLsizei size = 0;
 		GLenum  type = 0;
 		
-		glGetActiveUniform (reinterpret_cast<uintptr_t> (val_data (handle)), inIndex, 1024, &outLen, &size, &type, buf);
+		glGetActiveUniform (reinterpret_cast<uintptr_t> (val_data (handle)), inIndex, GL_ACTIVE_UNIFORM_MAX_LENGTH, &outLen, &size, &type, &buffer[0]);
+		
+		buffer.resize (outLen);
 		
 		value result = alloc_empty_object ();
 		alloc_field (result, val_id ("size"), alloc_int (size));
 		alloc_field (result, val_id ("type"), alloc_int (type));
-		alloc_field (result, val_id ("name"), alloc_string (buf));
+		alloc_field (result, val_id ("name"), alloc_string (buffer.c_str ()));
 		
 		return result;
 		
@@ -971,11 +975,18 @@ namespace lime {
 	}
 	
 	
-	HxString lime_gl_get_program_info_log (value handle) {
+	value lime_gl_get_program_info_log (value handle) {
 		
-		char buf[1024];
-		glGetProgramInfoLog (reinterpret_cast<uintptr_t> (val_data (handle)), 1024, 0, buf);
-		return HxString (buf);
+		GLuint program = reinterpret_cast<uintptr_t> (val_data (handle));
+		
+		GLint logSize = 0;
+		glGetProgramiv (program, GL_INFO_LOG_LENGTH, &logSize);
+		
+		std::string buffer (logSize, 0);
+		
+		glGetProgramInfoLog (program, logSize, 0, &buffer[0]);
+		
+		return alloc_string (buffer.c_str ());
 		
 	}
 	
@@ -998,13 +1009,18 @@ namespace lime {
 	}
 	
 	
-	HxString lime_gl_get_shader_info_log (value handle) {
+	value lime_gl_get_shader_info_log (value handle) {
 		
-		char buf[1024] = "";
+		GLuint shader = reinterpret_cast<uintptr_t> (val_data (handle));
 		
-		glGetShaderInfoLog (reinterpret_cast<uintptr_t> (val_data (handle)), 1024, 0, buf);
+		GLint logSize = 0;
+		glGetShaderiv (shader, GL_INFO_LOG_LENGTH, &logSize);
 		
-		return HxString (buf);
+		std::string buffer (logSize, 0);
+		GLint writeSize;
+		glGetShaderInfoLog (shader, logSize, &writeSize, &buffer[0]);
+		
+		return alloc_string (buffer.c_str ());
 		
 	}
 	
