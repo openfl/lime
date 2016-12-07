@@ -320,7 +320,16 @@ class HTML5Window {
 		
 		if (textInput.value != " ") {
 			
-			parent.onTextInput.dispatch (textInput.value.substr(1));
+			if (textInput.value.length < 2) {
+				
+				parent.onTextInput.dispatch (textInput.value);
+				
+			} else {
+				
+				parent.onTextInput.dispatch (textInput.value.substr (1));
+				
+			}
+			
 			textInput.value = " ";
 			
 		}
