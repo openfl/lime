@@ -134,6 +134,12 @@ class IOSPlatform extends PlatformTarget {
 		context.OBJC_ARC = false;
 		context.KEY_STORE_IDENTITY = project.config.getString ("ios.identity");
 		
+		if (project.config.exists ("ios.provisioning-profile")) {
+			
+			context.IOS_PROVISIONING_PROFILE = PathHelper.tryFullPath (project.config.getString ("ios.provisioning-profile"));
+			
+		}
+		
 		if (project.config.exists ("ios.team-id")) {
 			
 			context.DEVELOPMENT_TEAM_ID = project.config.getString ("ios.team-id");
