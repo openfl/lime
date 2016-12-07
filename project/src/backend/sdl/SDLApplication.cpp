@@ -146,11 +146,12 @@ namespace lime {
 			
 			case SDL_APP_WILLENTERFOREGROUND:
 				
-				windowEvent.type = WINDOW_ACTIVATE;
-				WindowEvent::Dispatch (&windowEvent);
 				break;
 			
 			case SDL_APP_DIDENTERFOREGROUND:
+				
+				windowEvent.type = WINDOW_ACTIVATE;
+				WindowEvent::Dispatch (&windowEvent);
 				
 				inBackground = false;
 				break;
