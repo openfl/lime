@@ -1,12 +1,12 @@
-3.5.0
------
+3.5.0 (12/06/2016)
+------------------
 
 * Significantly improved lime.net.HTTPRequest
 * Added support for lime.system.Clipboard on HTML5
 * Added System.openURL to launch a website externally
 * Added System.openFile to open a file using a system default application
 * Added -nolaunch option for HTML5 "test" command
-* Added support for <config:ios provisioning-profile="" /> for iOS
+* Added support for `<config:ios provisioning-profile="" />` for iOS
 * Updated SDL to dev version to fix Linux keyboard events
 * Updated lime.app.Future with better progress events
 * Updated to initialize WebGL2 on HTML5, when available
@@ -21,7 +21,7 @@
 * Fixed crash when resuming iOS applications from the background
 * Fixed crash if an asset manifest is not found and live reloading is enabled
 * Fixed handling of the default framebuffer on iOS
-* Fixed handling of *.jpeg file extension when making Flash builds
+* Fixed handling of \*.jpeg file extension when making Flash builds
 * Fixed an issue in bytes handling for C#
 * Fixed the behavior of window onEnter/onLeave on DOM
 * Fixed the behavior of image.scroll
