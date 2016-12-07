@@ -32,6 +32,7 @@ import lime.ui.Window;
 class HTML5Window {
 	
 	
+	private static var dummyCharacter = String.fromCharCode (127);
 	private static var textInput:InputElement;
 	private static var windowID:Int = 0;
 	
@@ -318,19 +319,19 @@ class HTML5Window {
 		// In order to ensure that the browser will fire clipboard events, we always need to have something selected.
 		// Therefore, `value` cannot be "".
 		
-		if (textInput.value != " ") {
+		if (textInput.value != dummyCharacter) {
 			
-			if (textInput.value.length < 2) {
-				
-				parent.onTextInput.dispatch (textInput.value);
-				
-			} else {
+			if (textInput.value.charAt (0) == dummyCharacter) {
 				
 				parent.onTextInput.dispatch (textInput.value.substr (1));
 				
+			} else {
+				
+				parent.onTextInput.dispatch (textInput.value);
+				
 			}
 			
-			textInput.value = " ";
+			textInput.value = dummyCharacter;
 			
 		}
 		
@@ -740,7 +741,7 @@ class HTML5Window {
 				textInput.style.position = 'absolute';
 				textInput.style.opacity = "0";
 				textInput.style.color = "transparent";
-				textInput.value = " "; // See: handleInputEvent()
+				textInput.value = dummyCharacter; // See: handleInputEvent()
 				
 				untyped textInput.autocapitalize = "off";
 				untyped textInput.autocorrect = "off";
