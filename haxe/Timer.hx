@@ -41,19 +41,20 @@ package haxe;
 	the child class.
 **/
 class Timer {
-	#if (flash || js || java || python)
 
 	#if (flash || js)
 		private var id : Null<Int>;
 	#elseif java
 		private var timer : java.util.Timer;
 		private var task : java.util.TimerTask;
+	#else
+		private var event : MainLoop.MainEvent;
 	#end
 
 	/**
 		Creates a new timer that will run every `time_ms` milliseconds.
 
-		After creating the Timer instance, it calls `this].run` repeatedly,
+		After creating the Timer instance, it calls `this.run` repeatedly,
 		with delays of `time_ms` milliseconds, until `this.stop` is called.
 
 		The first invocation occurs after `time_ms` milliseconds, not
@@ -71,6 +72,13 @@ class Timer {
 		#elseif java
 			timer = new java.util.Timer();
 			timer.scheduleAtFixedRate(task = new TimerTask(this), haxe.Int64.ofInt(time_ms), haxe.Int64.ofInt(time_ms));
+		#else
+			var dt = time_ms / 1000;
+			event = MainLoop.add(function() {
+				@:privateAccess event.nextRun += dt;
+				run();
+			});
+			event.delay(dt);
 		#end
 	}
 
@@ -93,9 +101,16 @@ class Timer {
 			#end
 			id = null;
 		#elseif java
-			timer.cancel();
-			timer = null;
+			if(timer != null) {
+				timer.cancel();
+				timer = null;
+			}
 			task = null;
+		#else
+			if( event != null ) {
+				event.stop();
+				event = null;
+			}
 		#end
 	}
 
@@ -132,8 +147,6 @@ class Timer {
 		return t;
 	}
 
-	#end
-
 	/**
 		Measures the time it takes to execute `f`, in seconds with fractions.
 
@@ -158,7 +171,7 @@ class Timer {
 		The value itself might differ depending on platforms, only differences
 		between two values make sense.
 	**/
-	public static function stamp() : Float {
+	public static inline function stamp() : Float {
 		#if flash
 			return flash.Lib.getTimer() / 1000;
 		#elseif (neko || php)
@@ -167,8 +180,11 @@ class Timer {
 			return Date.now().getTime() / 1000;
 		#elseif cpp
 			return untyped __global__.__time_stamp();
+		#elseif python
+			return Sys.cpuTime();
 		#elseif sys
 			return Sys.time();
+		
 		#else
 			return 0;
 		#end
@@ -258,7 +274,7 @@ class Timer {
 	}
 	
 	
-	public static function stamp ():Float {
+	public static inline function stamp ():Float {
 		
 		return System.getTimer () / 1000;
 		
