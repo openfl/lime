@@ -369,40 +369,17 @@ namespace lime {
 	
 	bool SDLWindow::SetResizable (bool resizable) {
 		
-		#if defined(HX_WINDOWS)
-		
-		SDL_SysWMinfo info;
-		SDL_VERSION (&info.version);
-		SDL_GetWindowWMInfo (sdlWindow, &info);
-		
-		HWND hwnd = info.info.win.window;
-		DWORD style = GetWindowLong (hwnd, GWL_STYLE);
-		
 		if (resizable) {
 			
-			style |= WS_THICKFRAME;
+			SDL_SetWindowResizable (sdlWindow, SDL_TRUE);
 			
 		} else {
 			
-			style &= ~WS_THICKFRAME;
+			SDL_SetWindowResizable (sdlWindow, SDL_FALSE);
 			
 		}
 		
-		SetWindowLong (hwnd, GWL_STYLE, style);
-		
-		#elif defined(HX_MACOS)
-		
-		//TODO
-		//consider: http://stackoverflow.com/questions/10473700/set-window-resizable/10473949#10473949
-		
-		#elif defined(HX_LINUX)
-		
-		//TODO
-		//maybe something in here? https://tronche.com/gui/x/xlib/ICC/client-to-window-manager/wm-normal-hints.html
-		
-		#endif
-		
-		return resizable;
+		return (SDL_GetWindowFlags (sdlWindow) & SDL_WINDOW_RESIZABLE);
 		
 	}
 	
