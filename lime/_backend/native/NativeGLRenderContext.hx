@@ -1834,10 +1834,10 @@ class NativeGLRenderContext {
 	@:cffi private static function lime_gl_get_extension (name:String):Dynamic;
 	@:cffi private static function lime_gl_get_framebuffer_attachment_parameter (target:Int, attachment:Int, pname:Int):Int;
 	@:cffi private static function lime_gl_get_parameter (pname:Int):Dynamic;
-	@:cffi private static function lime_gl_get_program_info_log (program:CFFIPointer):String;
+	@:cffi private static function lime_gl_get_program_info_log (program:CFFIPointer):Dynamic;
 	@:cffi private static function lime_gl_get_program_parameter (program:CFFIPointer, pname:Int):Int;
 	@:cffi private static function lime_gl_get_render_buffer_parameter (target:Int, pname:Int):Int;
-	@:cffi private static function lime_gl_get_shader_info_log (shader:CFFIPointer):String;
+	@:cffi private static function lime_gl_get_shader_info_log (shader:CFFIPointer):Dynamic;
 	@:cffi private static function lime_gl_get_shader_parameter (shader:CFFIPointer, pname:Int):Int;
 	@:cffi private static function lime_gl_get_shader_precision_format (shadertype:Int, precisiontype:Int):Dynamic;
 	@:cffi private static function lime_gl_get_shader_source (shader:CFFIPointer):Dynamic;
