@@ -230,33 +230,40 @@ class DefaultAssetLibrary extends AssetLibrary {
 				return Bytes.ofData (bitmapData.getPixels (bitmapData.rect));
 			
 			default:
-				
-				return null;
 			
 		}
 		
-		return cast (Type.createInstance (className.get (id), []), Bytes);
+		return null;
 		
 		#elseif html5
 		
-		var loader = Preloader.loaders.get (path.get (id));
-		
-		if (loader == null) {
+		switch (type.get (id)) {
 			
-			return null;
+			case TEXT:
+				
+				var loader = Preloader.textLoaders.get (path.get (id));
+				
+				if (loader != null && loader.responseData != null) {
+					
+					return Bytes.ofString (loader.responseData);
+					
+				}
+				
+			case BINARY:
+				
+				var loader = Preloader.loaders.get (path.get (id));
+				
+				if (loader != null) {
+					
+					return Bytes.fromBytes (loader.responseData);
+					
+				}
+				
+			default:
 			
 		}
 		
-		var bytes:Bytes = cast loader.responseData;
-		
-		if (bytes != null) {
-			
-			return bytes;
-			
-		} else {
-			
-			return null;
-		}
+		return null;
 		
 		#else
 		
@@ -379,15 +386,13 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		var loader = Preloader.textLoaders.get (path.get (id));
 		
-		if (loader == null) {
+		if (loader != null) {
 			
-			return null;
+			return loader.responseData;
 			
 		}
 		
-		return loader.responseData;
-		
-		#else
+		#end
 		
 		var bytes = getBytes (id);
 		
@@ -400,8 +405,6 @@ class DefaultAssetLibrary extends AssetLibrary {
 			return bytes.getString (0, bytes.length);
 			
 		}
-		
-		#end
 		
 	}
 	
@@ -416,6 +419,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		var requestedType = type != null ? cast (type, AssetType) : null;
 		
+		var symbolPath = path.get (id);
+		
 		return switch (requestedType) {
 			
 			case FONT:
@@ -424,19 +429,19 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 			case IMAGE:
 				
-				Preloader.images.exists (path.get (id));
+				Preloader.images.exists (symbolPath);
 			
 			case MUSIC, SOUND:
 				
-				Preloader.audioBuffers.exists (path.get (id));
+				Preloader.audioBuffers.exists (symbolPath);
 			
 			case TEXT:
 				
-				Preloader.textLoaders.exists (path.get (id));
+				Preloader.textLoaders.exists (symbolPath);
 			
 			default:
 				
-				Preloader.loaders.exists (path.get (id));
+				Preloader.loaders.exists (symbolPath) || Preloader.textLoaders.exists (symbolPath);
 			
 		}
 		
