@@ -308,7 +308,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#elseif html5
 		
-		return Image.fromImageElement (Preloader.images.get (path.get (id)));
+		return Preloader.images.get (path.get (id));
 		
 		#else
 		
@@ -548,62 +548,21 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	public override function loadImage (id:String):Future<Image> {
 		
-		var promise = new Promise<Image> ();
+		var image = super.loadImage (id);
 		
-		#if flash
-		
-		if (path.exists (id)) {
-			
-			var loader = new Loader ();
-			loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event:Event) {
-				
-				var bitmapData = cast (loader.content, Bitmap).bitmapData;
-				promise.complete (Image.fromBitmapData (bitmapData));
-				
-			});
-			loader.contentLoaderInfo.addEventListener (ProgressEvent.PROGRESS, function (event) {
-				
-				promise.progress (event.bytesLoaded, event.bytesTotal);
-				
-			});
-			loader.contentLoaderInfo.addEventListener (IOErrorEvent.IO_ERROR, promise.error);
-			loader.load (new URLRequest (path.get (id)));
-			
-		} else {
-			
-			promise.complete (getImage (id));
-			
-		}
-		
-		#elseif html5
+		#if html5
 		
 		if (path.exists (id)) {
 			
-			var path = path.get (id);
-			
-			var image = new js.html.Image ();
-			image.onload = function (_):Void {
-				
-				Preloader.images.set(path, image);
-				promise.complete (Image.fromImageElement (image));
-				
-			}
-			image.onerror = promise.error;
-			image.src = path + "?" + Assets.cache.version;
-			
-		} else {
-			
-			promise.complete (getImage (id));
+			var uri = path.get (id);
+			image.onError (function (e) trace(e));
+			image.onComplete (Preloader.images.set.bind (uri));
 			
 		}
-		
-		#else
-		
-		promise.completeWith (new Future<Image> (function () return getImage (id), true));
 		
 		#end
 		
-		return promise.future;
+		return image;
 		
 	}
 	

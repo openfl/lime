@@ -67,7 +67,7 @@ class HTML5HTTPRequest {
 				
 			}
 			
-			if (parent.method == GET) {
+			if (parent.method == GET && query != "") {
 				
 				if (uri.indexOf ("?") > -1) {
 					

@@ -871,59 +871,18 @@ class AssetLibrary {
 		
 		var promise = new Promise<Image> ();
 		
-		#if flash
-		
-		if (!isLocal (id, IMAGE)) {
-			
-			var loader = new flash.display.Loader ();
-			loader.contentLoaderInfo.addEventListener (flash.events.Event.COMPLETE, function (event) {
-				
-				var bitmapData = cast (loader.content, flash.display.Bitmap).bitmapData;
-				var asset = Image.fromBitmapData (bitmapData);
-				loadCompleted (id, IMAGE, asset);
-				promise.complete (asset);
-				
-			});
-			loader.contentLoaderInfo.addEventListener (flash.events.ProgressEvent.PROGRESS, function (event) {
-				
-				promise.progress (event.bytesLoaded, event.bytesTotal);
-				
-			});
-			loader.contentLoaderInfo.addEventListener (flash.events.IOErrorEvent.IO_ERROR, promise.error);
-			loader.load (new flash.net.URLRequest (getPath (id)));
-			
-		} else {
-			
-			promise.complete (getImage (id));
-			
-		}
-		
-		#elseif html5
+		#if !display
 		
 		if (!isLocal (id, IMAGE)) {
 			
 			var path = getPath (id);
-			
-			var image = new js.html.Image ();
-			image.onload = function (_):Void {
-				
-				var asset = Image.fromImageElement (image);
-				loadCompleted (id, IMAGE, asset);
-				promise.complete (asset);
-				
-			}
-			image.onerror = promise.error;
-			image.src = path + "?" + Assets.cache.version;
+			Image.fromFile (path #if html5 + "?" + Assets.cache.version #end, promise.complete, promise.error, promise.progress);
 			
 		} else {
 			
 			promise.complete (getImage (id));
 			
 		}
-		
-		#else
-		
-		promise.completeWith (new Future<Image> (function () return getImage (id), true));
 		
 		#end
 		
