@@ -1,3 +1,35 @@
+3.5.0
+-----
+
+* Significantly improved lime.net.HTTPRequest
+* Added support for lime.system.Clipboard on HTML5
+* Added System.openURL to launch a website externally
+* Added System.openFile to open a file using a system default application
+* Added -nolaunch option for HTML5 "test" command
+* Added support for <config:ios provisioning-profile="" /> for iOS
+* Updated SDL to dev version to fix Linux keyboard events
+* Updated lime.app.Future with better progress events
+* Updated to initialize WebGL2 on HTML5, when available
+* Refactored certificate storage in HXProject
+* Improved the parsing and merge support for default Lime config
+* Improved the GL context in anticipation for GLES3/WebGL2 support
+* Improved HTML5 mouse events to allow canceling
+* Improved auto-build number detection to support SVN
+* Fixed audioBuffer.dispose for Howler.js buffers
+* Fixed use of deprecated APIs in lime.ui.Haptic implementation on iOS
+* Fixed use of deprecated APIs in accelerometer implementation on iOS
+* Fixed crash when resuming iOS applications from the background
+* Fixed crash if an asset manifest is not found and live reloading is enabled
+* Fixed handling of the default framebuffer on iOS
+* Fixed handling of *.jpeg file extension when making Flash builds
+* Fixed an issue in bytes handling for C#
+* Fixed the behavior of window onEnter/onLeave on DOM
+* Fixed the behavior of image.scroll
+* Fixed garbage collection for lime.audio.openal.ALSource
+* Fixed incorrect window scale calculation on the iPhone Plus
+* Fixed some standard APIs when making modular HTML5 builds
+
+
 3.4.1 (11/01/2016)
 ------------------
 
