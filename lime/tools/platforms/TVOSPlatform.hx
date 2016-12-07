@@ -118,11 +118,18 @@ class TVOSPlatform extends PlatformTarget {
 			
 		}
 		
+		if (!project.config.exists ("tvos.identity")) {
+			
+			project.config.set ("tvos.identity", "tvOS Developer");
+			
+		}
+		
 		var context = project.templateContext;
 		
 		context.HAS_ICON = false;
 		context.HAS_LAUNCH_IMAGE = false;
 		context.OBJC_ARC = false;
+		context.KEY_STORE_IDENTITY = project.config.getString ("tvos.identity");
 		
 		context.linkedLibraries = [];
 		

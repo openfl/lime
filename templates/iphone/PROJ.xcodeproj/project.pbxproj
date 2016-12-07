@@ -259,7 +259,10 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				::end::
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "::KEY_STORE_IDENTITY::";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "::config.ios.identity::";
+				::if (config.ios.provisioning-profile)::
+				PROVISIONING_PROFILE = "::config.ios.provisioning-profile::";
+				::
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -290,7 +293,10 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				::end::
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "::KEY_STORE_IDENTITY::";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "::config.ios.identity::";
+				::if (config.ios.provisioning-profile)::
+				PROVISIONING_PROFILE = "::config.ios.provisioning-profile::";
+				::
 				/* COMPRESS_PNG_FILES = NO; */
 				COPY_PHASE_STRIP = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;

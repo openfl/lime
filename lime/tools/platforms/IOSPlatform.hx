@@ -118,6 +118,12 @@ class IOSPlatform extends PlatformTarget {
 			
 		}
 		
+		if (!project.config.exists ("ios.identity")) {
+			
+			project.config.set ("ios.identity", "iPhone Developer");
+			
+		}
+		
 		IOSHelper.getIOSVersion (project);
 		project.haxedefs.set ("IPHONE_VER", project.environment.get ("IPHONE_VER"));
 		
@@ -126,6 +132,7 @@ class IOSPlatform extends PlatformTarget {
 		context.HAS_ICON = false;
 		context.HAS_LAUNCH_IMAGE = false;
 		context.OBJC_ARC = false;
+		context.KEY_STORE_IDENTITY = project.config.getString ("ios.identity");
 		
 		if (project.config.exists ("ios.team-id")) {
 			
