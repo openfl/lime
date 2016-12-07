@@ -556,7 +556,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			
 			var uri = path.get (id);
 			image.onError (function (e) trace(e));
-			image.onComplete (Preloader.images.set.bind (uri));
+			image.onComplete (function (img) Preloader.images.set (uri, img));
 			
 		}
 		
