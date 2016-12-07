@@ -219,7 +219,7 @@ namespace lime {
 	value lime_bytes_read_file (HxString path, value bytes) {
 		
 		Bytes data (bytes);
-		data.ReadFile (path.__s);
+		data.ReadFile (path.c_str ());
 		return data.Value ();
 		
 	}
@@ -271,7 +271,7 @@ namespace lime {
 	
 	void lime_clipboard_set_text (HxString text) {
 		
-		Clipboard::SetText (text.__s);
+		Clipboard::SetText (text.c_str ());
 		
 	}
 	
@@ -319,7 +319,7 @@ namespace lime {
 	value lime_file_dialog_open_directory (HxString filter, HxString defaultPath) {
 		
 		#ifdef LIME_NFD
-		const char* path = FileDialog::OpenDirectory (filter.__s, defaultPath.__s);
+		const char* path = FileDialog::OpenDirectory (filter.c_str (), defaultPath.c_str ());
 		
 		if (path) {
 			
@@ -341,7 +341,7 @@ namespace lime {
 	value lime_file_dialog_open_file (HxString filter, HxString defaultPath) {
 		
 		#ifdef LIME_NFD
-		const char* path = FileDialog::OpenFile (filter.__s, defaultPath.__s);
+		const char* path = FileDialog::OpenFile (filter.c_str (), defaultPath.c_str ());
 		
 		if (path) {
 			
@@ -366,7 +366,7 @@ namespace lime {
 		#ifdef LIME_NFD
 		std::vector<const char*> files;
 		
-		FileDialog::OpenFiles (&files, filter.__s, defaultPath.__s);
+		FileDialog::OpenFiles (&files, filter.c_str (), defaultPath.c_str ());
 		value result = alloc_array (files.size ());
 		
 		for (int i = 0; i < files.size (); i++) {
@@ -387,7 +387,7 @@ namespace lime {
 	value lime_file_dialog_save_file (HxString filter, HxString defaultPath) {
 		
 		#ifdef LIME_NFD
-		const char* path = FileDialog::SaveFile (filter.__s, defaultPath.__s);
+		const char* path = FileDialog::SaveFile (filter.c_str (), defaultPath.c_str ());
 		
 		if (path) {
 			
@@ -450,7 +450,7 @@ namespace lime {
 		
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)val_data (fontHandle);
-		return font->GetGlyphIndex ((char*)character.__s);
+		return font->GetGlyphIndex ((char*)character.c_str ());
 		#else
 		return -1;
 		#endif
@@ -462,7 +462,7 @@ namespace lime {
 		
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)val_data (fontHandle);
-		return font->GetGlyphIndices ((char*)characters.__s);
+		return font->GetGlyphIndices ((char*)characters.c_str ());
 		#else
 		return alloc_null ();
 		#endif
@@ -1012,7 +1012,7 @@ namespace lime {
 	value lime_jpeg_decode_file (HxString path, bool decodeData, value buffer) {
 		
 		ImageBuffer imageBuffer (buffer);
-		Resource resource = Resource (path.__s);
+		Resource resource = Resource (path.c_str ());
 		
 		#ifdef LIME_JPEG
 		if (JPEG::Decode (&resource, &imageBuffer, decodeData)) {
@@ -1140,7 +1140,7 @@ namespace lime {
 	void lime_neko_execute (HxString module) {
 		
 		#ifdef LIME_NEKO
-		NekoVM::Execute (module.__s);
+		NekoVM::Execute (module.c_str ());
 		#endif
 		
 	}
@@ -1168,7 +1168,7 @@ namespace lime {
 	value lime_png_decode_file (HxString path, bool decodeData, value buffer) {
 		
 		ImageBuffer imageBuffer (buffer);
-		Resource resource = Resource (path.__s);
+		Resource resource = Resource (path.c_str ());
 		
 		#ifdef LIME_PNG
 		if (PNG::Decode (&resource, &imageBuffer, decodeData)) {
@@ -1290,7 +1290,7 @@ namespace lime {
 	
 	value lime_system_get_directory (int type, HxString company, HxString title) {
 		
-		std::wstring* path = System::GetDirectory ((SystemDirectory)type, company.__s, title.__s);
+		std::wstring* path = System::GetDirectory ((SystemDirectory)type, company.c_str (), title.c_str ());
 		
 		if (path) {
 			
@@ -1331,7 +1331,7 @@ namespace lime {
 	void lime_system_open_file (HxString path) {
 		
 		#ifdef IPHONE
-		System::OpenFile (path.__s);
+		System::OpenFile (path.c_str ());
 		#endif
 		
 	}
@@ -1340,7 +1340,7 @@ namespace lime {
 	void lime_system_open_url (HxString url, HxString target) {
 		
 		#ifdef IPHONE
-		System::OpenURL (url.__s, target.__s);
+		System::OpenURL (url.c_str (), target.c_str ());
 		#endif
 		
 	}
@@ -1365,7 +1365,7 @@ namespace lime {
 		
 		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
 		
-		TextLayout *text = new TextLayout (direction, script.__s, language.__s);
+		TextLayout *text = new TextLayout (direction, script.c_str (), language.c_str ());
 		return CFFIPointer (text, gc_text_layout);
 		
 		#else
@@ -1384,7 +1384,7 @@ namespace lime {
 		TextLayout *text = (TextLayout*)val_data (textHandle);
 		Font *font = (Font*)val_data (fontHandle);
 		Bytes bytes (data);
-		text->Position (font, size, textString.__s, &bytes);
+		text->Position (font, size, textString.c_str (), &bytes);
 		return bytes.Value ();
 		
 		#endif
@@ -1408,7 +1408,7 @@ namespace lime {
 		
 		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
 		TextLayout *text = (TextLayout*)val_data (textHandle);
-		text->SetLanguage (language.__s);
+		text->SetLanguage (language.c_str ());
 		#endif
 		
 	}
@@ -1418,7 +1418,7 @@ namespace lime {
 		
 		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
 		TextLayout *text = (TextLayout*)val_data (textHandle);
-		text->SetScript (script.__s);
+		text->SetScript (script.c_str ());
 		#endif
 		
 	}
@@ -1435,7 +1435,7 @@ namespace lime {
 	void lime_window_alert (value window, HxString message, HxString title) {
 		
 		Window* targetWindow = (Window*)val_data (window);
-		targetWindow->Alert (message.__s, title.__s);
+		targetWindow->Alert (message.c_str (), title.c_str ());
 		
 	}
 	
@@ -1450,7 +1450,7 @@ namespace lime {
 	
 	value lime_window_create (value application, int width, int height, int flags, HxString title) {
 		
-		Window* window = CreateWindow ((Application*)val_data (application), width, height, flags, title.__s);
+		Window* window = CreateWindow ((Application*)val_data (application), width, height, flags, title.c_str ());
 		return CFFIPointer (window, gc_window);
 		
 	}
@@ -1604,12 +1604,18 @@ namespace lime {
 	value lime_window_set_title (value window, HxString title) {
 		
 		Window* targetWindow = (Window*)val_data (window);
-		const char* result = targetWindow->SetTitle (title.__s);
+		const char* result = targetWindow->SetTitle (title.c_str ());
 		
 		if (result) {
 			
 			value _result = alloc_string (result);
-			free ((char*) result);
+			
+			if (result != title.c_str ()) {
+				
+				free ((char*) result);
+				
+			}
+			
 			return _result;
 			
 		} else {
