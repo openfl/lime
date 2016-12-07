@@ -28,7 +28,9 @@ import lime.utils.UInt8Array;
 import js.html.CanvasElement;
 import js.html.ImageElement;
 import js.html.Image in JSImage;
+import js.html.ProgressEvent;
 import js.Browser;
+import lime.net.HTTPRequest;
 #elseif flash
 import flash.display.BitmapData;
 import flash.geom.Matrix;
@@ -521,11 +523,11 @@ class Image {
 	}
 	
 	
-	public static function fromFile (path:String, onload:Image -> Void = null, onerror:Void -> Void = null):Image {
+	public static function fromFile (path:String, onload:Image -> Void = null, onerror:Dynamic -> Void = null, onprogress:Int -> Int -> Void = null):Image {
 		
 		if (path == null) return null;
 		var image = new Image ();
-		image.__fromFile (path, onload, onerror);
+		image.__fromFile (path, onload, onerror, onprogress);
 		return image;
 		
 	}
@@ -776,17 +778,11 @@ class Image {
 		
 		var promise = new Promise<Image> ();
 		
-		// TODO: Handle progress
-		
 		fromFile (path, function (image) {
 			
 			promise.complete (image);
 			
-		}, function () {
-			
-			promise.error ("");
-			
-		});
+		}, promise.error, promise.progress);
 		
 		return promise.future;
 		
@@ -1259,7 +1255,7 @@ class Image {
 	}
 	
 	
-	private function __fromFile (path:String, onload:Image -> Void, onerror:Void -> Void):Void {
+	private function __fromFile (path:String, onload:Image -> Void, onerror:Dynamic -> Void, onprogress:Int -> Int -> Void):Void {
 		
 		#if (js && html5)
 			
@@ -1282,17 +1278,36 @@ class Image {
 				
 			}
 			
-			image.onerror = function (_) {
+			if (onerror != null) {
 				
-				if (onerror != null) {
-					
-					onerror ();
-					
-				}
+				image.onerror = onerror;
 				
 			}
 			
-			image.src = path;
+			if (onprogress != null) {
+				
+				// HTML5 does not support progress events on image tags (it's the year 2017).
+				//
+				// Obviously, because it's future proof. In the future, latency no longer exists.
+				// We'll all be quantum computing everything and all encryption is broken and the world will end.
+				// So why bother implementing something as outdated as progress events?
+				//
+				// To work around the lack of futurism accepting users, we first load the image with XMLHttpRequest,
+				// which does support progress (because XML is outdated tech anyway)
+				// and then on completion load the <img> tag.
+				
+				var request = new HTTPRequest<Bytes> (path).load ();
+				var loadImage = function (_:Dynamic) image.src = path;
+				request.onComplete (loadImage);
+				request.onError    (loadImage);
+				request.onProgress (onprogress);
+				if (onerror != null) request.onError (onerror);
+				
+			} else  {
+				
+				image.src = path;
+				
+			}
 			
 			// Another IE9 bug: loading 20+ images fails unless this line is added.
 			// (issue #1019768)
