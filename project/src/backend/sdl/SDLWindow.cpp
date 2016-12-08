@@ -369,6 +369,8 @@ namespace lime {
 	
 	bool SDLWindow::SetResizable (bool resizable) {
 		
+		#ifndef EMSCRIPTEN
+		
 		if (resizable) {
 			
 			SDL_SetWindowResizable (sdlWindow, SDL_TRUE);
@@ -381,6 +383,11 @@ namespace lime {
 		
 		return (SDL_GetWindowFlags (sdlWindow) & SDL_WINDOW_RESIZABLE);
 		
+		#else
+		
+		return resizable;
+		
+		#endif
 	}
 	
 	
