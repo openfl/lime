@@ -1,4 +1,4 @@
-3.5.0 (12/06/2016)
+3.5.0 (12/07/2016)
 ------------------
 
 * Significantly improved lime.net.HTTPRequest
@@ -15,6 +15,7 @@
 * Improved the GL context in anticipation for GLES3/WebGL2 support
 * Improved HTML5 mouse events to allow canceling
 * Improved auto-build number detection to support SVN
+* Improved support for toggling window.resizable on native
 * Fixed audioBuffer.dispose for Howler.js buffers
 * Fixed use of deprecated APIs in lime.ui.Haptic implementation on iOS
 * Fixed use of deprecated APIs in accelerometer implementation on iOS
@@ -28,6 +29,10 @@
 * Fixed garbage collection for lime.audio.openal.ALSource
 * Fixed incorrect window scale calculation on the iPhone Plus
 * Fixed some standard APIs when making modular HTML5 builds
+* Fixed crash when setting window.title
+* Fixed the return value of gl.shaderInfoLog on some platforms
+* Fixed the behavior of Event.ACTIVATE when resuming on iOS
+* Fixed missing input event initially on HTML5
 
 
 3.4.1 (11/01/2016)
