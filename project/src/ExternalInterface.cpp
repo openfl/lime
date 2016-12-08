@@ -698,7 +698,6 @@ namespace lime {
 	}
 	
 	
-<<<<<<< 89d3f850286be9c2b1813f38d8319f20acaa1d7b
 	void lime_haptic_vibrate (int period, int duration) {
 		
 		#ifdef IPHONE
@@ -708,10 +707,7 @@ namespace lime {
 	}
 	
 	
-	value lime_image_encode (value buffer, int type, int quality, value bytes) {
-=======
 	value lime_image_encode (value buffer, int type, int quality) {
->>>>>>> Never allocate CFFI utility classes on heap to avoid GC issues (requires clean build)
 		
 		ImageBuffer imageBuffer = ImageBuffer (buffer);
 		Bytes data;
@@ -1015,13 +1011,8 @@ namespace lime {
 	
 	value lime_jpeg_decode_file (HxString path, bool decodeData) {
 		
-<<<<<<< 89d3f850286be9c2b1813f38d8319f20acaa1d7b
-		ImageBuffer imageBuffer (buffer);
-		Resource resource = Resource (path.c_str ());
-=======
 		ImageBuffer imageBuffer;
-		Resource resource = Resource (path.__s);
->>>>>>> Never allocate CFFI utility classes on heap to avoid GC issues (requires clean build)
+		Resource resource = Resource (path.c_str ());
 		
 		#ifdef LIME_JPEG
 		if (JPEG::Decode (&resource, &imageBuffer, decodeData)) {
@@ -1176,13 +1167,8 @@ namespace lime {
 	
 	value lime_png_decode_file (HxString path, bool decodeData) {
 		
-<<<<<<< 89d3f850286be9c2b1813f38d8319f20acaa1d7b
-		ImageBuffer imageBuffer (buffer);
-		Resource resource = Resource (path.c_str ());
-=======
 		ImageBuffer imageBuffer;
-		Resource resource = Resource (path.__s);
->>>>>>> Never allocate CFFI utility classes on heap to avoid GC issues (requires clean build)
+		Resource resource = Resource (path.c_str ());
 		
 		#ifdef LIME_PNG
 		if (PNG::Decode (&resource, &imageBuffer, decodeData)) {
