@@ -129,7 +129,9 @@ class MacPlatform extends PlatformTarget {
 			var txtPath = targetDirectory + "/obj/hxcs_build.txt";
 			CSHelper.addSourceFiles (txtPath, CSHelper.ndllSourceFiles);
 			CSHelper.addGUID (txtPath, GUID.uuid ());
-			CSHelper.compile (project, targetDirectory + "/obj", applicationDirectory + project.app.file, "x64", "desktop");
+			CSHelper.compile (project, targetDirectory + "/obj", targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : ""), "x64", "desktop");
+			FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", executablePath + ".exe");
+			File.saveContent (executablePath, "#!/bin/sh\nmono ${PWD}/" + project.app.file + ".exe");
 			
 		} else {
 			
