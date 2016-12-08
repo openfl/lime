@@ -5,7 +5,9 @@ import haxe.io.Path;
 import haxe.Template;
 import lime.tools.helpers.AssetHelper;
 import lime.tools.helpers.CPPHelper;
+import lime.tools.helpers.CSHelper;
 import lime.tools.helpers.DeploymentHelper;
+import lime.tools.helpers.GUID;
 import lime.tools.helpers.FileHelper;
 import lime.tools.helpers.IconHelper;
 import lime.tools.helpers.JavaHelper;
@@ -63,6 +65,10 @@ class MacPlatform extends PlatformTarget {
 			
 			targetType = "nodejs";
 			
+		} else if (project.targetFlags.exists ("cs")) {
+			
+			targetType = "cs";
+			
 		} else {
 			
 			targetType = "cpp";
@@ -115,6 +121,15 @@ class MacPlatform extends PlatformTarget {
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
 			//NekoHelper.createExecutable (project.templatePaths, "Mac" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
 			NekoHelper.copyLibraries (project.templatePaths, "Mac" + (is64 ? "64" : ""), executableDirectory);
+			
+		} else if (targetType == "cs") {
+			
+			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+			CSHelper.copySourceFiles (project.templatePaths, targetDirectory + "/obj/src");
+			var txtPath = targetDirectory + "/obj/hxcs_build.txt";
+			CSHelper.addSourceFiles (txtPath, CSHelper.ndllSourceFiles);
+			CSHelper.addGUID (txtPath, GUID.uuid ());
+			CSHelper.compile (project, targetDirectory + "/obj", applicationDirectory + project.app.file, "x64", "desktop");
 			
 		} else {
 			
