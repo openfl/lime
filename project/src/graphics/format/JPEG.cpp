@@ -191,7 +191,7 @@ namespace lime {
 		jpegError.base.output_message = OnOutput;
 		
 		FILE_HANDLE *file = NULL;
-		Bytes *data = NULL;
+		Bytes data;
 		MySrcManager *manager = NULL; 
 		
 		if (resource->path) {
@@ -220,12 +220,6 @@ namespace lime {
 				
 			}
 			
-			if (data) {
-				
-				delete data;
-				
-			}
-			
 			jpeg_destroy_decompress (&cinfo);
 			return false;
 			
@@ -241,8 +235,8 @@ namespace lime {
 				
 			} else {
 				
-				data = new Bytes (resource->path);
-				manager = new MySrcManager (data->Data (), data->Length ());
+				data.ReadFile (resource->path);
+				manager = new MySrcManager (data.Data (), data.Length ());
 				cinfo.src = &manager->pub;
 				
 			}
@@ -266,7 +260,7 @@ namespace lime {
 				int components = cinfo.output_components;
 				imageBuffer->Resize (cinfo.output_width, cinfo.output_height, 32);
 				
-				unsigned char *bytes = imageBuffer->data->Data ();
+				unsigned char *bytes = imageBuffer->data.Data ();
 				unsigned char *scanline = new unsigned char [imageBuffer->width * components];
 				
 				while (cinfo.output_scanline < cinfo.output_height) {
@@ -315,12 +309,6 @@ namespace lime {
 			
 		}
 		
-		if (data) {
-			
-			delete data;
-			
-		}
-		
 		jpeg_destroy_decompress (&cinfo);
 		return decoded;
 		
@@ -363,7 +351,7 @@ namespace lime {
 		jpeg_start_compress (&cinfo, true);
 		
 		JSAMPROW row_pointer = &row_buf[0];
-		unsigned char* imageData = imageBuffer->data->Data();
+		unsigned char* imageData = imageBuffer->data.Data();
 		int stride = imageBuffer->Stride ();
 		
 		while (cinfo.next_scanline < cinfo.image_height) {

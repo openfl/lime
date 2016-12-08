@@ -66,12 +66,8 @@ class Bytes extends HaxeBytes {
 	public static function readFile (path:String):Bytes {
 		
 		#if (!html5 && !macro)
-		#if !cs
-		return lime_bytes_read_file (path, Bytes.alloc (0));
-		#else
-		var data:Dynamic = lime_bytes_read_file (path, null);
+		var data:Dynamic = lime_bytes_read_file (path);
 		if (data != null) return new Bytes (data.length, data.b);
-		#end
 		#end
 		return null;
 		
@@ -98,7 +94,7 @@ class Bytes extends HaxeBytes {
 	#if !macro
 	@:cffi private static function lime_bytes_from_data_pointer (data:Float, length:Int):Dynamic;
 	@:cffi private static function lime_bytes_get_data_pointer (data:Dynamic):Float;
-	@:cffi private static function lime_bytes_read_file (path:String, bytes:Dynamic):Dynamic;
+	@:cffi private static function lime_bytes_read_file (path:String):Dynamic;
 	#end
 	
 	

@@ -125,9 +125,9 @@ namespace lime {
 				
 			}
 			
-			audioBuffer->data->Resize (wave_data.subChunkSize);
+			audioBuffer->data.Resize (wave_data.subChunkSize);
 			
-			if (!lime::fread (audioBuffer->data->Data (), wave_data.subChunkSize, 1, file)) {
+			if (!lime::fread (audioBuffer->data.Data (), wave_data.subChunkSize, 1, file)) {
 				
 				LOG_SOUND ("error loading WAVE data into struct!\n");
 				lime::fclose (file);
@@ -186,7 +186,7 @@ namespace lime {
 				
 			}
 			
-			audioBuffer->data->Resize (wave_data.subChunkSize);
+			audioBuffer->data.Resize (wave_data.subChunkSize);
 			
 			size_t size = wave_data.subChunkSize;
 			
@@ -196,7 +196,7 @@ namespace lime {
 				
 			}
 			
-			unsigned char* bytes = audioBuffer->data->Data ();
+			unsigned char* bytes = audioBuffer->data.Data ();
 			memcpy (bytes, base, size);
 			
 		}

@@ -38,7 +38,7 @@ namespace lime {
 		
 		width = val_int (val_field (image, id_width));
 		height = val_int (val_field (image, id_height));
-		buffer = new ImageBuffer (val_field (image, id_buffer));
+		buffer.Set (val_field (image, id_buffer));
 		offsetX = val_int (val_field (image, id_offsetX));
 		offsetY = val_int (val_field (image, id_offsetY));
 		
@@ -46,8 +46,6 @@ namespace lime {
 	
 	
 	Image::~Image () {
-		
-		delete buffer;
 		
 	}
 	

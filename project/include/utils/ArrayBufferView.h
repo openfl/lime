@@ -19,6 +19,7 @@ namespace lime {
 			ArrayBufferView (value arrayBufferView);
 			~ArrayBufferView ();
 			
+			void Clear ();
 			unsigned char *Data ();
 			const unsigned char *Data () const;
 			int Length () const;
@@ -27,7 +28,7 @@ namespace lime {
 			void Set (const QuickVec<unsigned char> data);
 			value Value ();
 			
-			Bytes *buffer;
+			Bytes buffer;
 			int byteLength;
 			int length;
 		

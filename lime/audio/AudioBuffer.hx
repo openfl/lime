@@ -90,16 +90,8 @@ class AudioBuffer {
 		lime.Lib.notImplemented ("AudioBuffer.fromBytes");
 		
 		#elseif (lime_cffi && !macro)
-		#if !cs
 		
-		var audioBuffer = new AudioBuffer ();
-		audioBuffer.data = new UInt8Array (Bytes.alloc (0));
-		
-		return lime_audio_load (bytes, audioBuffer);
-		
-		#else
-		
-		var data:Dynamic = lime_audio_load (bytes, null);
+		var data:Dynamic = lime_audio_load (bytes);
 		
 		if (data != null) {
 			
@@ -112,7 +104,6 @@ class AudioBuffer {
 			
 		}
 		
-		#end
 		#end
 		
 		return null;
@@ -169,23 +160,15 @@ class AudioBuffer {
 		}
 		
 		#elseif (lime_cffi && !macro)
-		#if !cs
 		
-		var audioBuffer = new AudioBuffer ();
-		audioBuffer.data = new UInt8Array (Bytes.alloc (0));
-		
-		return lime_audio_load (path, audioBuffer);
-		
-		#else
-		
-		var data:Dynamic = lime_audio_load (path, null);
+		var data:Dynamic = lime_audio_load (path);
 		
 		if (data != null) {
 			
 			var audioBuffer = new AudioBuffer ();
 			audioBuffer.bitsPerSample = data.bitsPerSample;
 			audioBuffer.channels = data.channels;
-			audioBuffer.data = new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b));
+			audioBuffer.data = new UInt8Array (@:privateAccess new Bytes (data.data.byteLength, data.data.buffer.b));
 			audioBuffer.sampleRate = data.sampleRate;
 			return audioBuffer;
 			
@@ -193,7 +176,6 @@ class AudioBuffer {
 		
 		return null;
 		
-		#end
 		#else
 		
 		return null;
@@ -456,7 +438,7 @@ class AudioBuffer {
 	
 	
 	#if (lime_cffi && !macro)
-	@:cffi private static function lime_audio_load (data:Dynamic, buffer:Dynamic):Dynamic;
+	@:cffi private static function lime_audio_load (data:Dynamic):Dynamic;
 	#end
 	
 	
