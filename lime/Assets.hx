@@ -481,6 +481,7 @@ class Assets {
 			
 			// Prevent double loading of the same library
 			libraries.set (name, new FutureAssetLibrary (promise));
+			promise.future.onComplete (registerLibrary.bind (name));
 			
 			loadText ("libraries/" + name + ".json").onComplete(function (data) {
 				
@@ -618,7 +619,12 @@ class AssetLibrary {
 		
 		var library : AssetLibrary = Type.createInstance (Type.resolveClass (info.type), info.args);
 		library.basePath = basePath;
-		Assets.registerLibrary (info.name, library);
+		
+		if (info.name != null) {
+			
+			Assets.registerLibrary (info.name, library);
+			
+		}
 		
 		if (info.manifest != null) {
 			
