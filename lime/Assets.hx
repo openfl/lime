@@ -783,6 +783,12 @@ class AssetLibrary {
 			
 		}
 		
+		if (total == 0) {
+			
+			onLoadComplete ();
+			
+		}
+		
 		return promise.future;
 		
 	}
