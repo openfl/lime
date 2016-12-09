@@ -36,7 +36,7 @@ import flash.net.URLRequest;
 #end
 
 
-class DefaultAssetLibrary extends AssetLibrary {
+@:keep class DefaultAssetLibrary extends AssetLibrary {
 	
 	
 	public var className (default, null) = new Map<String, Dynamic> ();
