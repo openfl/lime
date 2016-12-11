@@ -13,7 +13,9 @@ class HTTPRequest<T> {
 
 #else
 
+#if !macro
 @:genericBuild(lime._macros.HTTPRequestMacro.build())
+#end
 class HTTPRequest<T> extends AbstractHTTPRequest<T> {}
 
 private class AbstractHTTPRequest<T> implements _IHTTPRequest {
