@@ -230,33 +230,40 @@ import flash.net.URLRequest;
 				return Bytes.ofData (bitmapData.getPixels (bitmapData.rect));
 			
 			default:
-				
-				return null;
 			
 		}
 		
-		return cast (Type.createInstance (className.get (id), []), Bytes);
+		return null;
 		
 		#elseif html5
 		
-		var loader = Preloader.loaders.get (path.get (id));
-		
-		if (loader == null) {
+		switch (type.get (id)) {
 			
-			return null;
+			case TEXT:
+				
+				var loader = Preloader.textLoaders.get (path.get (id));
+				
+				if (loader != null && loader.responseData != null) {
+					
+					return Bytes.ofString (loader.responseData);
+					
+				}
+				
+			case BINARY:
+				
+				var loader = Preloader.loaders.get (path.get (id));
+				
+				if (loader != null) {
+					
+					return Bytes.fromBytes (loader.responseData);
+					
+				}
+				
+			default:
 			
 		}
 		
-		var bytes:Bytes = cast loader.responseData;
-		
-		if (bytes != null) {
-			
-			return bytes;
-			
-		} else {
-			
-			return null;
-		}
+		return null;
 		
 		#else
 		
@@ -308,7 +315,7 @@ import flash.net.URLRequest;
 		
 		#elseif html5
 		
-		return Image.fromImageElement (Preloader.images.get (path.get (id)));
+		return Preloader.images.get (path.get (id));
 		
 		#else
 		
@@ -377,26 +384,15 @@ import flash.net.URLRequest;
 		
 		#if html5
 		
-		var loader = Preloader.loaders.get (path.get (id));
+		var loader = Preloader.textLoaders.get (path.get (id));
 		
-		if (loader == null) {
+		if (loader != null) {
 			
-			return null;
+			return loader.responseData;
 			
 		}
 		
-		var bytes:Bytes = cast loader.responseData;
-		
-		if (bytes != null) {
-			
-			return bytes.getString (0, bytes.length);
-			
-		} else {
-			
-			return null;
-		}
-		
-		#else
+		#end
 		
 		var bytes = getBytes (id);
 		
@@ -409,8 +405,6 @@ import flash.net.URLRequest;
 			return bytes.getString (0, bytes.length);
 			
 		}
-		
-		#end
 		
 	}
 	
@@ -425,6 +419,8 @@ import flash.net.URLRequest;
 		
 		var requestedType = type != null ? cast (type, AssetType) : null;
 		
+		var symbolPath = path.get (id);
+		
 		return switch (requestedType) {
 			
 			case FONT:
@@ -433,15 +429,19 @@ import flash.net.URLRequest;
 			
 			case IMAGE:
 				
-				Preloader.images.exists (path.get (id));
+				Preloader.images.exists (symbolPath);
 			
 			case MUSIC, SOUND:
 				
-				Preloader.audioBuffers.exists (path.get (id));
+				Preloader.audioBuffers.exists (symbolPath);
+			
+			case TEXT:
+				
+				Preloader.textLoaders.exists (symbolPath);
 			
 			default:
 				
-				Preloader.loaders.exists (path.get (id));
+				Preloader.loaders.exists (symbolPath) || Preloader.textLoaders.exists (symbolPath);
 			
 		}
 		
@@ -553,59 +553,21 @@ import flash.net.URLRequest;
 	
 	public override function loadImage (id:String):Future<Image> {
 		
-		var promise = new Promise<Image> ();
+		var image = super.loadImage (id);
 		
-		#if flash
-		
-		if (path.exists (id)) {
-			
-			var loader = new Loader ();
-			loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event:Event) {
-				
-				var bitmapData = cast (loader.content, Bitmap).bitmapData;
-				promise.complete (Image.fromBitmapData (bitmapData));
-				
-			});
-			loader.contentLoaderInfo.addEventListener (ProgressEvent.PROGRESS, function (event) {
-				
-				promise.progress (event.bytesLoaded, event.bytesTotal);
-				
-			});
-			loader.contentLoaderInfo.addEventListener (IOErrorEvent.IO_ERROR, promise.error);
-			loader.load (new URLRequest (path.get (id)));
-			
-		} else {
-			
-			promise.complete (getImage (id));
-			
-		}
-		
-		#elseif html5
+		#if html5
 		
 		if (path.exists (id)) {
 			
-			var image = new js.html.Image ();
-			image.onload = function (_):Void {
-				
-				promise.complete (Image.fromImageElement (image));
-				
-			}
-			image.onerror = promise.error;
-			image.src = path.get (id) + "?" + Assets.cache.version;
-			
-		} else {
-			
-			promise.complete (getImage (id));
+			var uri = path.get (id);
+			image.onError (function (e) trace(e));
+			image.onComplete (function (img) Preloader.images.set (uri, img));
 			
 		}
-		
-		#else
-		
-		promise.completeWith (new Future<Image> (function () return getImage (id), true));
 		
 		#end
 		
-		return promise.future;
+		return image;
 		
 	}
 	
@@ -676,14 +638,26 @@ import flash.net.URLRequest;
 	
 	public override function loadText (id:String):Future<String> {
 		
-		var promise = new Promise<String> ();
-		
 		#if html5
+		
+		var promise = new Promise<String> ();
 		
 		if (path.exists (id)) {
 			
-			var request = new HTTPRequest<String> ();
-			promise.completeWith (request.load (path.get (id) + "?" + Assets.cache.version));
+			var path = path.get (id);
+			var request;
+			if (Preloader.textLoaders.exists (path)) {
+
+				request = Preloader.textLoaders.get (path);
+
+			} else {
+
+				request = new HTTPRequest<String> ();
+				Preloader.textLoaders.set (path, request);
+
+			}
+			
+			promise.completeWith (request.load (path + "?" + Assets.cache.version));
 			
 		} else {
 			
@@ -691,29 +665,13 @@ import flash.net.URLRequest;
 			
 		}
 		
+		return promise.future;
+		
 		#else
 		
-		promise.completeWith (loadBytes (id).then (function (bytes) {
-			
-			return new Future<String> (function () {
-				
-				if (bytes == null) {
-					
-					return null;
-					
-				} else {
-					
-					return bytes.getString (0, bytes.length);
-					
-				}
-				
-			}, true);
-			
-		}));
+		return super.loadText (id);
 		
 		#end
-		
-		return promise.future;
 		
 	}
 	

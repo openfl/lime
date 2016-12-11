@@ -36,6 +36,7 @@ private class AbstractHTTPRequest<T> implements _IHTTPRequest {
 	
 	#if !display
 	private var backend:HTTPRequestBackend;
+	private var promise:Promise<T>;
 	#end
 	
 	
@@ -99,13 +100,19 @@ class _HTTPRequest_Bytes<T> extends AbstractHTTPRequest<T> {
 	
 	public override function load (uri:String = null):Future<T> {
 		
+		if (promise != null) {
+			
+			return promise.future;
+			
+		}
+
 		if (uri != null) {
 			
 			this.uri = uri;
 			
 		}
 		
-		var promise = new Promise<T> ();
+		promise = new Promise<T> ();
 		var future = backend.loadData (this.uri);
 		
 		future.onProgress (promise.progress);
@@ -138,13 +145,19 @@ class _HTTPRequest_String<T> extends AbstractHTTPRequest<T> {
 	
 	public override function load (uri:String = null):Future<T> {
 		
+		if (promise != null) {
+			
+			return promise.future;
+			
+		}
+
 		if (uri != null) {
 			
 			this.uri = uri;
 			
 		}
 		
-		var promise = new Promise<T> ();
+		promise = new Promise<T> ();
 		var future = backend.loadText (this.uri);
 		
 		future.onProgress (promise.progress);

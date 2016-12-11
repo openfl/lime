@@ -8,7 +8,7 @@ import lime.Assets;
 import lime.audio.AudioBuffer;
 
 #if (js && html5)
-import js.html.Image;
+import lime.graphics.Image;
 import js.html.SpanElement;
 import js.Browser;
 import lime.net.HTTPRequest;
@@ -31,8 +31,11 @@ class Preloader #if flash extends Sprite #end {
 	public static var audioBuffers = new Map<String, AudioBuffer> ();
 	public static var images = new Map<String, Image> ();
 	public static var loaders = new Map<String, HTTPRequest<Bytes>> ();
+	public static var textLoaders = new Map<String, HTTPRequest<String>> ();
 	private var loaded = 0;
 	private var total = 0;
+	private var bytesLoaded = 0;
+	private var bytesTotal = 0;
 	#end
 	
 	
@@ -69,13 +72,12 @@ class Preloader #if flash extends Sprite #end {
 		
 		#if (js && html5)
 		
-		var url = null;
 		var cacheVersion = Assets.cache.version;
 		var soundPaths = new Map<String, Array<String>> ();
 		
 		for (i in 0...urls.length) {
 			
-			url = urls[i];
+			var url = urls[i];
 			
 			switch (types[i]) {
 				
@@ -83,10 +85,8 @@ class Preloader #if flash extends Sprite #end {
 					
 					if (!images.exists (url)) {
 						
-						var image = new Image ();
+						var image = Image.fromFile (url + "?" + cacheVersion, image_onLoad, image_onLoad, progressIncrementer());
 						images.set (url, image);
-						image.onload = image_onLoad;
-						image.src = url + "?" + cacheVersion;
 						total++;
 						
 					}
@@ -103,10 +103,10 @@ class Preloader #if flash extends Sprite #end {
 				
 				case TEXT:
 					
-					if (!loaders.exists (url)) {
+					if (!textLoaders.exists (url)) {
 						
-						var loader = new HTTPRequest<Bytes> ();
-						loaders.set (url, loader);
+						var loader = new HTTPRequest<String> ();
+						textLoaders.set (url, loader);
 						total++;
 						
 					}
@@ -148,6 +148,15 @@ class Preloader #if flash extends Sprite #end {
 			
 			var loader = loaders.get (url);
 			var future = loader.load (url + "?" + cacheVersion);
+			future.onProgress (progressIncrementer ());
+			future.onComplete (loader_onComplete);
+			
+		}
+		for (url in textLoaders.keys ()) {
+			
+			var loader = textLoaders.get (url);
+			var future = loader.load (url + "?" + cacheVersion);
+			future.onProgress (progressIncrementer ());
 			future.onComplete (loader_onComplete);
 			
 		}
@@ -187,7 +196,7 @@ class Preloader #if flash extends Sprite #end {
 			untyped (Browser.document).fonts.load ("1em '" + font + "'").then (function (_) {
 				
 				loaded ++;
-				onProgress.dispatch (loaded, total);
+				onProgress.dispatch (loaded + bytesLoaded, total + bytesTotal);
 				
 				if (loaded == total) {
 					
@@ -242,7 +251,7 @@ class Preloader #if flash extends Sprite #end {
 					node.parentNode.removeChild (node);
 					node = null;
 					
-					onProgress.dispatch (loaded, total);
+					onProgress.dispatch (loaded + bytesLoaded, total + bytesTotal);
 					
 					if (loaded == total) {
 						
@@ -266,6 +275,33 @@ class Preloader #if flash extends Sprite #end {
 			
 		}
 		
+	}
+	
+	
+	private function progressIncrementer () {
+		
+		var bytesLoaded = 0;
+		var bytesTotal = 0;
+		
+		return function (numLoaded, numTotal) {
+			
+			if (numLoaded > bytesLoaded) {
+				
+				this.bytesLoaded += (numLoaded - bytesLoaded);
+				bytesLoaded = numLoaded;
+				
+			}
+			
+			if (numTotal > bytesTotal) {
+				
+				this.bytesTotal += (numTotal - bytesTotal);
+				bytesTotal = numTotal;
+				
+			}
+			
+			onProgress.dispatch (loaded + this.bytesLoaded, total + this.bytesTotal);
+			
+		}
 	}
 	#end
 	
@@ -306,7 +342,7 @@ class Preloader #if flash extends Sprite #end {
 		
 		loaded++;
 		
-		onProgress.dispatch (loaded, total);
+		onProgress.dispatch (loaded + bytesLoaded, total + bytesTotal);
 		
 		if (loaded == total) {
 			
@@ -321,7 +357,7 @@ class Preloader #if flash extends Sprite #end {
 		
 		loaded++;
 		
-		onProgress.dispatch (loaded, total);
+		onProgress.dispatch (loaded + bytesLoaded, total + bytesTotal);
 		
 		if (loaded == total) {
 			
@@ -332,11 +368,11 @@ class Preloader #if flash extends Sprite #end {
 	}
 	
 	
-	private function loader_onComplete (_):Void {
+	private function loader_onComplete (_:Dynamic):Void {
 		
 		loaded++;
 		
-		onProgress.dispatch (loaded, total);
+		onProgress.dispatch (loaded + bytesLoaded, total + bytesTotal);
 		
 		if (loaded == total) {
 			
