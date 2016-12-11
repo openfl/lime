@@ -3,7 +3,7 @@ package lime.system;
 
 import lime._macros.CFFIMacro;
 
-#if sys
+#if (sys && !macro)
 import sys.io.Process;
 #end
 
@@ -211,7 +211,7 @@ class CFFI {
 	
 	private static function __findHaxelib (library:String):String {
 		
-		#if (sys && !html5)
+		#if (sys && !macro && !html5)
 			
 			try {
 				
