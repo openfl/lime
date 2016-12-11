@@ -2,6 +2,8 @@ package lime.text;
 
 
 import haxe.io.Bytes;
+import lime.app.Future;
+import lime.app.Promise;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.math.Vector2;
@@ -11,6 +13,8 @@ import lime.utils.UInt8Array;
 #if (js && html5)
 import js.html.CanvasElement;
 import js.html.CanvasRenderingContext2D;
+import js.html.SpanElement;
+import js.Browser;
 #end
 
 #if (lime_cffi && !macro)
@@ -22,7 +26,7 @@ import haxe.io.Path;
 #end
 
 #if (!display && !nodejs && !macro)
-@:autoBuild(lime.Assets.embedFont())
+@:autoBuild(lime._macros.AssetsMacro.embedFont())
 #end
 
 @:access(lime.text.Glyph)
@@ -108,6 +112,36 @@ class Font {
 		return (font.src != null) ? font : null;
 		#else
 		return font;
+		#end
+		
+	}
+	
+	
+	public static function loadFromBytes (bytes:Bytes):Future<Font> {
+		
+		return Future.withValue (fromBytes (bytes));
+		
+	}
+	
+	
+	public static function loadFromFile (path:String):Future<Font> {
+		
+		return Future.withValue (fromFile (path));
+		
+	}
+	
+	
+	public static function loadFromName (path:String):Future<Font> {
+		
+		#if (js && html5)
+		
+		var font = new Font ();
+		return font.__loadFromName (path);
+		
+		#else
+		
+		return cast Future.withError ("");
+		
 		#end
 		
 	}
@@ -395,6 +429,94 @@ class Font {
 		}
 		
 		#end
+		
+	}
+	
+	
+	private function __loadFromName (name:String):Future<Font> {
+		
+		var promise = new Promise<Font> ();
+		
+		#if (js && html5)
+		
+		this.name = name;
+		var font = name;
+		
+		if (untyped (Browser.document).fonts && untyped (Browser.document).fonts.load) {
+			
+			untyped (Browser.document).fonts.load ("1em '" + font + "'").then (function (_) {
+				
+				promise.complete (this);
+				
+			});
+			
+		} else {
+			
+			var node:SpanElement = cast Browser.document.createElement ("span");
+			node.innerHTML = "giItT1WQy@!-/#";
+			var style = node.style;
+			style.position = "absolute";
+			style.left = "-10000px";
+			style.top = "-10000px";
+			style.fontSize = "300px";
+			style.fontFamily = "sans-serif";
+			style.fontVariant = "normal";
+			style.fontStyle = "normal";
+			style.fontWeight = "normal";
+			style.letterSpacing = "0";
+			Browser.document.body.appendChild (node);
+			
+			var width = node.offsetWidth;
+			style.fontFamily = "'" + font + "', sans-serif";
+			
+			var interval:Null<Int> = null;
+			var found = false;
+			
+			var checkFont = function () {
+				
+				if (node.offsetWidth != width) {
+					
+					// Test font was still not available yet, try waiting one more interval?
+					if (!found) {
+						
+						found = true;
+						return false;
+						
+					}
+					
+					if (interval != null) {
+						
+						Browser.window.clearInterval (interval);
+						
+					}
+					
+					node.parentNode.removeChild (node);
+					node = null;
+					
+					promise.complete (this);
+					return true;
+					
+				}
+				
+				return false;
+				
+			}
+			
+			if (!checkFont ()) {
+				
+				interval = Browser.window.setInterval (checkFont, 50);
+				
+			}
+			
+		}
+		
+		#else
+		
+		promise.error ("");
+		
+		#end
+		
+		return promise.future;
 		
 	}
 	

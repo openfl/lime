@@ -62,8 +62,10 @@ class ApplicationMain {
 	
 	public static function create ():Void {
 		
+		var library = new DefaultAssetLibrary ();
+		lime.utils.Assets.registerLibrary ("default", library);
+		
 		preloader = new ::if (PRELOADER_NAME != "")::::PRELOADER_NAME::::else::lime.app.Preloader::end:: ();
-		preloader.onComplete.add (registerLibrary);
 		
 		#if !munit
 		app = new ::APP_MAIN:: ();
@@ -71,21 +73,24 @@ class ApplicationMain {
 		app.create (config);
 		#end
 		
-		preloader.onComplete.add (start);
 		preloader.create (config);
+		preloader.addLibrary (library);
+		preloader.load ();
 		
-		#if (js && html5)
+		start ();
+		
+		/*#if (js && html5)
 		var urls = [];
 		var types = [];
 		
 		::foreach assets::::if (embed)::
 		urls.push ("::resourceName::");
-		::if (type == "image")::types.push (lime.Assets.AssetType.IMAGE);
-		::elseif (type == "binary")::types.push (lime.Assets.AssetType.BINARY);
-		::elseif (type == "text")::types.push (lime.Assets.AssetType.TEXT);
-		::elseif (type == "font")::types.push (lime.Assets.AssetType.FONT);
-		::elseif (type == "sound")::types.push (lime.Assets.AssetType.SOUND);
-		::elseif (type == "music")::types.push (lime.Assets.AssetType.MUSIC);
+		::if (type == "image")::types.push (lime.utils.AssetType.IMAGE);
+		::elseif (type == "binary")::types.push (lime.utils.AssetType.BINARY);
+		::elseif (type == "text")::types.push (lime.utils.AssetType.TEXT);
+		::elseif (type == "font")::types.push (lime.utils.AssetType.FONT);
+		::elseif (type == "sound")::types.push (lime.utils.AssetType.SOUND);
+		::elseif (type == "music")::types.push (lime.utils.AssetType.MUSIC);
 		::else::types.push (null);::end::
 		::end::::end::
 		
@@ -93,7 +98,7 @@ class ApplicationMain {
 			
 			for (i in 0...urls.length) {
 				
-				if (types[i] != lime.Assets.AssetType.FONT) {
+				if (types[i] != lime.utils.AssetType.FONT) {
 					
 					urls[i] = config.assetsPrefix + urls[i];
 					
@@ -104,7 +109,7 @@ class ApplicationMain {
 		}
 		
 		preloader.load (urls, types);
-		#end
+		#end*/
 		
 	}
 	
@@ -169,13 +174,6 @@ class ApplicationMain {
 		
 	}
 	#end
-	
-	
-	private static function registerLibrary ():Void {
-		
-		lime.Assets.registerLibrary ("default", new DefaultAssetLibrary ());
-		
-	}
 	
 	
 	public static function start ():Void {

@@ -597,6 +597,7 @@ class NativeApplication {
 	
 	private function updateTimer ():Void {
 		
+		#if lime_cffi
 		if (Timer.sRunningTimers.length > 0) {
 			
 			var currentTime = System.getTimer ();
@@ -631,6 +632,7 @@ class NativeApplication {
 			}
 			
 		}
+		#end
 		
 	}
 	

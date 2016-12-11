@@ -3,23 +3,25 @@ package lime.utils;
 
 import haxe.io.Bytes in HaxeBytes;
 import haxe.io.BytesData;
+import lime.app.Future;
 
 #if !macro
 @:build(lime.system.CFFI.build())
 #end
 
-@:autoBuild(lime.Assets.embedBytes())
+@:access(haxe.io.Bytes)
+@:forward()
 
 
-class Bytes extends HaxeBytes {
+abstract Bytes(HaxeBytes) from HaxeBytes to HaxeBytes {
 	
 	
 	public function new (length:Int, bytesData:BytesData) {
 		
 		#if js
-		super (bytesData);
+		this = new HaxeBytes (bytesData);
 		#else
-		super (length, bytesData);
+		this = new HaxeBytes (length, bytesData);
 		#end
 		
 	}
@@ -47,6 +49,31 @@ class Bytes extends HaxeBytes {
 	}
 	
 	
+	public static function fromFile (path:String):Bytes {
+		
+		#if (!html5 && !macro)
+		var data:Dynamic = lime_bytes_read_file (path);
+		if (data != null) return new Bytes (data.length, data.b);
+		#end
+		return null;
+		
+	}
+	
+	
+	public static function loadFromBytes (bytes:haxe.io.Bytes):Future<Bytes> {
+		
+		return Future.withValue (fromBytes (bytes));
+		
+	}
+	
+	
+	public static function loadFromFile (path:String):Future<Bytes> {
+		
+		return new Future<Bytes> (function () return fromFile (path), true);
+		
+	}
+	
+	
 	public static function ofData (b:BytesData):Bytes {
 		
 		var bytes = HaxeBytes.ofData (b);
@@ -59,17 +86,6 @@ class Bytes extends HaxeBytes {
 		
 		var bytes = HaxeBytes.ofString (s);
 		return new Bytes (bytes.length, bytes.getData ());
-		
-	}
-	
-	
-	public static function readFile (path:String):Bytes {
-		
-		#if (!html5 && !macro)
-		var data:Dynamic = lime_bytes_read_file (path);
-		if (data != null) return new Bytes (data.length, data.b);
-		#end
-		return null;
 		
 	}
 	

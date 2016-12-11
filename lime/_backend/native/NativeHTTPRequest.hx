@@ -81,7 +81,7 @@ class NativeHTTPRequest {
 				
 			}
 			
-			bytes = lime.utils.Bytes.readFile (path);
+			bytes = lime.utils.Bytes.fromFile (path);
 			promise.complete (bytes);
 			
 		});

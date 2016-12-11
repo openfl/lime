@@ -128,7 +128,7 @@ class System {
 			#if flash
 			display.dpi = Capabilities.screenDPI;
 			display.currentMode = new DisplayMode (Std.int (Capabilities.screenResolutionX), Std.int (Capabilities.screenResolutionY), 60, ARGB32);
-			#else
+			#elseif (js && html5)
 			display.dpi = 96; // TODO: Detect DPI on HTML5
 			display.currentMode = new DisplayMode (Browser.window.screen.width, Browser.window.screen.height, 60, ARGB32);
 			#end

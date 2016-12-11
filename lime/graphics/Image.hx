@@ -7,6 +7,8 @@ import haxe.io.BytesData;
 import haxe.io.BytesInput;
 import haxe.io.BytesOutput;
 import lime.app.Application;
+import lime.app.Future;
+import lime.app.Promise;
 import lime.graphics.format.BMP;
 import lime.graphics.format.JPEG;
 import lime.graphics.format.PNG;
@@ -52,7 +54,7 @@ import lime.graphics.console.TextureData;
 @:build(lime.system.CFFI.build())
 #end
 
-@:autoBuild(lime.Assets.embedImage())
+@:autoBuild(lime._macros.AssetsMacro.embedImage())
 @:allow(lime.graphics.util.ImageCanvasUtil)
 @:allow(lime.graphics.util.ImageDataUtil)
 @:access(lime.app.Application)
@@ -465,7 +467,7 @@ class Image {
 	}
 	
 	
-	public static function fromBase64 (base64:String, type:String, onload:Image -> Void):Image {
+	public static function fromBase64 (base64:String, type:String, onload:Image->Void):Image {
 		
 		if (base64 == null) return null;
 		var image = new Image ();
@@ -493,7 +495,7 @@ class Image {
 	}
 	
 	
-	public static function fromBytes (bytes:Bytes, onload:Image -> Void = null):Image {
+	public static function fromBytes (bytes:Bytes, onload:Image->Void = null):Image {
 		
 		if (bytes == null) return null;
 		var image = new Image ();
@@ -722,6 +724,77 @@ class Image {
 				return null;
 			
 		}
+		
+	}
+	
+	
+	public static function loadFromBase64 (base64:String, type:String):Future<Image> {
+		
+		var promise = new Promise<Image> ();
+		
+		// TODO: Handle error, progress
+		
+		fromBase64 (base64, type, function (image) {
+			
+			promise.complete (image);
+			
+		});
+		
+		return promise.future;
+		
+	}
+	
+	
+	public static function loadFromBytes (bytes:Bytes):Future<Image> {
+		
+		#if (js && html5)
+		
+		var promise = new Promise<Image> ();
+		
+		// TODO: Handle error, progress
+		
+		fromBytes (bytes, function (image) {
+			
+			promise.complete (image);
+			
+		});
+		
+		return promise.future;
+		
+		#else
+		
+		return new Future<Image> (function () return fromBytes (bytes), true);
+		
+		#end
+		
+	}
+	
+	
+	public static function loadFromFile (path:String):Future<Image> {
+		
+		#if (js && html5)
+		
+		var promise = new Promise<Image> ();
+		
+		// TODO: Handle progress
+		
+		fromFile (path, function (image) {
+			
+			promise.complete (image);
+			
+		}, function () {
+			
+			promise.error ("");
+			
+		});
+		
+		return promise.future;
+		
+		#else
+		
+		return new Future<Image> (function () return fromFile (path), true);
+		
+		#end
 		
 	}
 	

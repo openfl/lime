@@ -132,10 +132,12 @@ class NativeRenderer {
 		
 		var imageBuffer:ImageBuffer = null;
 		
+		#if !macro
 		var data:Dynamic = lime_renderer_read_pixels (handle, rect);
 		if (data != null) {
 			imageBuffer = new ImageBuffer (new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b)), data.width, data.height, data.bitsPerPixel);
 		}
+		#end
 		
 		if (imageBuffer != null) {
 			
