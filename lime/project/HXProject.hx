@@ -108,7 +108,7 @@ class HXProject {
 		serializer.useCache = true;
 		serializer.serialize (instance);
 		
-		File.saveContent (args[7], serializer.toString ());
+		File.saveContent (args[args.length - 1], serializer.toString ());
 		
 	}
 	
