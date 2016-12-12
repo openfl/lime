@@ -7,6 +7,7 @@ import lime.app.Promise;
 import lime.audio.AudioBuffer;
 import lime.graphics.Image;
 import lime.text.Font;
+import lime.utils.AssetType;
 
 #if flash
 import flash.display.BitmapData;
@@ -85,6 +86,24 @@ class AssetLibrary {
 		}
 		
 		return false;
+		
+	}
+	
+	
+	public function getAsset (id:String, type:String):Dynamic {
+		
+		return switch (type) {
+			
+			case BINARY:       getBytes       (id);
+			case FONT:         getFont        (id);
+			case IMAGE:        getImage       (id);
+			case MUSIC, SOUND: getAudioBuffer (id);
+			case TEXT:         getText        (id);
+			
+			case TEMPLATE:  throw "Not sure how to get template: " + id;
+			default:		throw "Unknown asset type: " + type;
+			
+		}
 		
 	}
 	
@@ -303,6 +322,24 @@ class AssetLibrary {
 		}
 		
 		return items;
+		
+	}
+	
+	
+	public function loadAsset (id:String, type:String):Future<Dynamic> {
+		
+		return switch (type) {
+			
+			case BINARY:       loadBytes       (id);
+			case FONT:         loadFont        (id);
+			case IMAGE:        loadImage       (id);
+			case MUSIC, SOUND: loadAudioBuffer (id);
+			case TEXT:         loadText        (id);
+			
+			case TEMPLATE:  throw "Not sure how to load template: " + id;
+			default:		throw "Unknown asset type: " + type;
+			
+		}
 		
 	}
 	
