@@ -32,6 +32,58 @@ class AssetCache {
 	}
 	
 	
+	public function exists (id:String, ?type:AssetType):Bool {
+		
+		if (type == AssetType.IMAGE || type == null) {
+			
+			if (image.exists (id)) return true;
+			
+		}
+		
+		if (type == AssetType.FONT || type == null) {
+			
+			if (font.exists (id)) return true;
+			
+		}
+		
+		if (type == AssetType.SOUND || type == AssetType.MUSIC || type == null) {
+			
+			if (audio.exists (id)) return true;
+			
+		}
+		
+		return false;
+		
+	}
+	
+	
+	public function set (id:String, type:AssetType, asset:Dynamic):Void {
+		
+		switch (type) {
+			
+			case FONT:
+				font.set(id, asset);
+			
+			case IMAGE:
+				if (!Std.is(asset, Image))
+					throw "Cannot cache non-Image asset: " + asset + " as Image";
+				
+				image.set(id, asset);
+			
+			case SOUND, MUSIC:
+				if (!Std.is(asset, AudioBuffer))
+					throw "Cannot cache non-AudioBuffer asset: " + asset + " as AudioBuffer";
+				
+				audio.set(id, asset);
+				
+			default:
+				throw type + " assets are not cachable";
+			
+		}
+		
+	}
+	
+	
 	public function clear (prefix:String = null):Void {
 		
 		if (prefix == null) {
