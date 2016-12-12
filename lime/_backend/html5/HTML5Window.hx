@@ -612,11 +612,12 @@ class HTML5Window {
 		
 						canvas.width = width;
 						canvas.style.width = width + "px";
-						canvas.parentElement.style.width = width + "px";
 						canvas.height = height;
 						canvas.style.height = height + "px";
+						if ( canvas.parentElement != null ) {
+							canvas.parentElement.style.width = width + "px";
 						canvas.parentElement.style.height = height + "px";
-
+						}
 					}
 
 				}
