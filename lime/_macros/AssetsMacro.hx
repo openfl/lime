@@ -1,6 +1,7 @@
-package lime._macros; #if macro
+package lime._macros;
 
 
+#if macro
 import haxe.crypto.BaseCode;
 import haxe.io.Bytes;
 import haxe.macro.Context;
@@ -9,9 +10,19 @@ import haxe.macro.Type;
 import haxe.Serializer;
 import lime.graphics.ImageBuffer;
 import sys.io.File;
+#end
 
 
 class AssetsMacro {
+	
+	
+	#if !macro
+	
+	
+	macro public static function cacheVersion () {}
+	
+	
+	#else
 	
 	
 	private static var base64Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -35,6 +46,13 @@ class AssetsMacro {
 		}
 		
 		return base64Encoder.encodeBytes (bytes).toString () + extension;
+		
+	}
+	
+	
+	macro public static function cacheVersion () {
+		
+		return macro $v{Std.int (Math.random () * 1000000)};
 		
 	}
 	
@@ -379,7 +397,7 @@ class AssetsMacro {
 	}
 	
 	
+	#end
+	
+	
 }
-
-
-#end

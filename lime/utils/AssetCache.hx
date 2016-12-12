@@ -1,6 +1,7 @@
 package lime.utils;
 
 
+import lime._macros.AssetsMacro;
 import lime.audio.AudioBuffer;
 import lime.graphics.Image;
 
@@ -20,14 +21,7 @@ class AssetCache {
 		audio = new Map<String, AudioBuffer> ();
 		font = new Map<String, Dynamic /*Font*/> ();
 		image = new Map<String, Image> ();
-		version = AssetCache.cacheVersion ();
-		
-	}
-	
-	
-	public static macro function cacheVersion () {
-		
-		return macro $v{Std.int (Math.random () * 1000000)};
+		version = AssetsMacro.cacheVersion ();
 		
 	}
 	

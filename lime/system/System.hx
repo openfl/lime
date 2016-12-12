@@ -14,10 +14,6 @@ import flash.Lib;
 import js.Browser;
 #end
 
-#if (sys && !html5)
-import sys.io.Process;
-#end
-
 #if !macro
 @:build(lime.system.CFFI.build())
 #end

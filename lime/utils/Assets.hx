@@ -2,7 +2,6 @@ package lime.utils;
 
 
 import haxe.CallStack;
-import haxe.Json;
 import haxe.Unserializer;
 import lime.app.Event;
 import lime.app.Promise;
@@ -12,6 +11,10 @@ import lime.graphics.Image;
 import lime.text.Font;
 import lime.utils.Bytes;
 import lime.utils.Log;
+
+#if !macro
+import haxe.Json;
+#end
 
 
 /**
@@ -471,7 +474,7 @@ class Assets {
 		
 		var promise = new Promise<AssetLibrary> ();
 		
-		#if (tools && !display)
+		#if (tools && !display && !macro)
 		
 		var data = getText ("libraries/" + name + ".json");
 		
