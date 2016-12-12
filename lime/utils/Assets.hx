@@ -334,7 +334,7 @@ class Assets {
 		#end
 		#end
 		
-		return true;
+		return (buffer != null);
 		
 	}
 	
