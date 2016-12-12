@@ -5,6 +5,10 @@ import haxe.io.Bytes in HaxeBytes;
 import haxe.io.BytesData;
 import lime.app.Future;
 
+#if html5
+import lime.net.HTTPRequest;
+#end
+
 #if !macro
 @:build(lime.system.CFFI.build())
 #end
@@ -69,8 +73,15 @@ abstract Bytes(HaxeBytes) from HaxeBytes to HaxeBytes {
 	
 	public static function loadFromFile (path:String):Future<Bytes> {
 		
+		#if html5
+		
+		return new HTTPRequest<Bytes> (path).load ();
+		
+		#else
+		
 		return new Future<Bytes> (function () return fromFile (path), true);
 		
+		#end
 	}
 	
 	
