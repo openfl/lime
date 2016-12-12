@@ -707,10 +707,10 @@ class Assets {
 		var promise = new Promise<AssetLibrary> ();
 		
 		#if (tools && !display)
-		
-		var data = getText ("libraries/" + name + ".json");
-		
-		if (data != null && data != "") {
+
+		var jsonManifest = loadText ("libraries/" + name + ".json");
+
+		jsonManifest.onComplete(function (data) {
 			
 			var info = Json.parse (data);
 			var library = Type.createInstance (Type.resolveClass (info.type), info.args);
@@ -718,11 +718,13 @@ class Assets {
 			library.onChange.add (onChange.dispatch);
 			promise.completeWith (library.load ());
 			
-		} else {
+		});
+
+		jsonManifest.onError(function (error) {
 			
 			promise.error ("[Assets] There is no asset library named \"" + name + "\"");
 			
-		}
+		});
 		
 		#end
 		
