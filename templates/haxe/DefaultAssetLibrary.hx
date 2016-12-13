@@ -4,6 +4,7 @@ package;
 import haxe.Timer;
 import haxe.Unserializer;
 import lime.utils.AssetLibrary;
+import lime.utils.AssetManifest;
 import lime.utils.AssetType;
 import lime.utils.Bytes;
 import lime.utils.Log;
@@ -131,43 +132,31 @@ import sys.FileSystem;
 		try {
 			
 			#if blackberry
-			var bytes = Bytes.fromFile ("app/native/manifest");
+			var manifest = AssetManifest.fromFile ("app/native/manifest");
 			#elseif tizen
-			var bytes = Bytes.fromFile ("../res/manifest");
+			var manifest = AssetManifest.fromFile ("../res/manifest");
 			#elseif emscripten
-			var bytes = Bytes.fromFile ("assets/manifest");
+			var manifest = AssetManifest.fromFile ("assets/manifest");
 			#elseif (mac && java)
-			var bytes = Bytes.fromFile ("../Resources/manifest");
+			var manifest = AssetManifest.fromFile ("../Resources/manifest");
 			#elseif (ios || tvos)
-			var bytes = Bytes.fromFile ("assets/manifest");
+			var manifest = AssetManifest.fromFile ("assets/manifest");
 			#else
-			var bytes = Bytes.fromFile ("manifest");
+			var manifest = AssetManifest.fromFile ("manifest");
 			#end
 			
-			if (bytes != null) {
+			if (manifest != null) {
 				
-				if (bytes.length > 0) {
+				for (asset in manifest.assets) {
 					
-					var data = bytes.getString (0, bytes.length);
-					
-					if (data != null && data.length > 0) {
+					if (!classTypes.exists (asset.id)) {
 						
-						var manifest:Array<Dynamic> = Unserializer.run (data);
-						
-						for (asset in manifest) {
-							
-							if (!classTypes.exists (asset.id)) {
-								
-								#if (ios || tvos)
-								paths.set (asset.id, rootPath + "assets/" + asset.path);
-								#else
-								paths.set (asset.id, rootPath + asset.path);
-								#end
-								types.set (asset.id, cast (asset.type, AssetType));
-								
-							}
-							
-						}
+						#if (ios || tvos)
+						paths.set (asset.id, rootPath + "assets/" + asset.path);
+						#else
+						paths.set (asset.id, rootPath + asset.path);
+						#end
+						types.set (asset.id, cast (asset.type, AssetType));
 						
 					}
 					

@@ -7,6 +7,7 @@ import haxe.Unserializer;
 import lime.tools.helpers.PathHelper;
 import lime.project.AssetType;
 import lime.project.HXProject;
+import lime.utils.AssetManifest;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -16,25 +17,25 @@ class AssetHelper {
 	
 	public static function createManifest (project:HXProject, targetPath:String = ""):String {
 		
-		var manifest = new Array<Dynamic> ();
+		var manifest = new AssetManifest ();
 		
 		for (asset in project.assets) {
 			
 			if (asset.type != AssetType.TEMPLATE) {
 				
-				var data = {
-					id : asset.id,
-					path : asset.resourceName,
-					type : Std.string (asset.type)
-				}
-				
-				manifest.push (data);
+				manifest.assets.push ({
+					
+					id: asset.id,
+					path: asset.resourceName,
+					type: Std.string (asset.type)
+					
+				});
 				
 			}
 			
 		}
 		
-		var data = Serializer.run (manifest);
+		var data = manifest.serialize ();
 		
 		if (targetPath != "") {
 			
