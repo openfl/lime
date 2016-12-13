@@ -64,7 +64,6 @@ import sys.FileSystem;
 		}
 		
 		for (id in paths.keys()) {
-			trace (id);
 			preload.set (id, true);
 		}
 		

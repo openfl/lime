@@ -17,6 +17,7 @@ class AssetManifest {
 	public var assets:Array<Dynamic>;
 	public var libraryArgs:Array<String>;
 	public var libraryType:String;
+	public var name:String;
 	public var version:Int;
 	
 	
@@ -78,6 +79,7 @@ class AssetManifest {
 		
 		if (manifestData.version == 1) {
 			
+			manifest.name = manifestData.name;
 			manifest.libraryType = manifestData.libraryType;
 			manifest.libraryArgs = manifestData.libraryArgs;
 			manifest.assets = Unserializer.run (manifestData.assets);
@@ -97,13 +99,22 @@ class AssetManifest {
 	
 	public function serialize ():String {
 		
+		#if !macro
+		
 		var manifestData:Dynamic = {};
 		manifestData.version = version;
 		manifestData.libraryType = libraryType;
 		manifestData.libraryArgs = libraryArgs;
+		manifestData.name = name;
 		manifestData.assets = Serializer.run (assets);
 		
 		return Json.stringify (manifestData);
+		
+		#else
+		
+		return null;
+		
+		#end
 		
 	}
 	

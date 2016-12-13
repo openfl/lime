@@ -4,6 +4,7 @@ package lime.utils;
 import haxe.io.Bytes in HaxeBytes;
 import haxe.io.BytesData;
 import lime.app.Future;
+import lime.net.HTTPRequest;
 
 #if !macro
 @:build(lime.system.CFFI.build())
@@ -69,7 +70,8 @@ abstract Bytes(HaxeBytes) from HaxeBytes to HaxeBytes {
 	
 	public static function loadFromFile (path:String):Future<Bytes> {
 		
-		return new Future<Bytes> (function () return fromFile (path), true);
+		var request = new HTTPRequest<Bytes> ();
+		return request.load (path);
 		
 	}
 	

@@ -360,7 +360,7 @@ class TVOSPlatform extends PlatformTarget {
 		
 		var manifest = new Asset ();
 		manifest.id = "__manifest__";
-		manifest.data = AssetHelper.createManifest (project);
+		manifest.data = AssetHelper.createManifest (project).serialize ();
 		manifest.resourceName = manifest.flatName = manifest.targetPath = "manifest";
 		manifest.type = AssetType.TEXT;
 		project.assets.push (manifest);

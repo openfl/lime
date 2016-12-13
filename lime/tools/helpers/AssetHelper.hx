@@ -15,7 +15,7 @@ import sys.FileSystem;
 class AssetHelper {
 	
 	
-	public static function createManifest (project:HXProject, targetPath:String = ""):String {
+	public static function createManifest (project:HXProject, targetPath:String = ""):AssetManifest {
 		
 		var manifest = new AssetManifest ();
 		
@@ -35,16 +35,14 @@ class AssetHelper {
 			
 		}
 		
-		var data = manifest.serialize ();
-		
 		if (targetPath != "") {
 			
 			PathHelper.mkdir (Path.directory (targetPath));
-			File.saveContent (targetPath, data);
+			File.saveContent (targetPath, manifest.serialize ());
 			
 		}
 		
-		return data;
+		return manifest;
 		
 	}
 	

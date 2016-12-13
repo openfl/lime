@@ -480,8 +480,7 @@ class Assets {
 		
 		if (data != null && data != "") {
 			
-			var info = Json.parse (data);
-			var library = Type.createInstance (Type.resolveClass (info.type), info.args);
+			var library = AssetLibrary.fromManifest (AssetManifest.parse (data));
 			libraries.set (name, library);
 			library.onChange.add (onChange.dispatch);
 			promise.completeWith (library.load ());

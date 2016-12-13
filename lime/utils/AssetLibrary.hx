@@ -90,6 +90,31 @@ class AssetLibrary {
 	}
 	
 	
+	public static function fromManifest (manifest:AssetManifest):AssetLibrary {
+		
+		var library:AssetLibrary = null;
+		
+		if (manifest.version == 1) {
+			
+			if (manifest.libraryType == null) {
+				
+				library = new AssetLibrary ();
+				
+			} else {
+				
+				library = Type.createInstance (Type.resolveClass (manifest.libraryType), manifest.libraryArgs);
+				
+			}
+			
+			library.__fromManifest (manifest);
+			
+		}
+		
+		return library;
+		
+	}
+	
+	
 	public function getAsset (id:String, type:String):Dynamic {
 		
 		return switch (type) {
@@ -356,8 +381,6 @@ class AssetLibrary {
 			
 			for (id in preload.keys ()) {
 				
-				trace (id, types.get (id));
-				
 				switch (types.get (id)) {
 					
 					case BINARY:
@@ -545,6 +568,22 @@ class AssetLibrary {
 		if (progressLoaded == progressTotal) {
 			
 			promise.complete (this);
+			
+		}
+		
+	}
+	
+	
+	private function __fromManifest (manifest:AssetManifest):Void {
+		
+		if (manifest.version == 1) {
+			
+			for (asset in manifest.assets) {
+				
+				paths.set (asset.id, asset.path);
+				types.set (asset.id, asset.type);
+				
+			}
 			
 		}
 		
