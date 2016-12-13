@@ -3,6 +3,7 @@ package lime.utils;
 
 import haxe.Serializer;
 import haxe.Unserializer;
+import lime.app.Future;
 import lime.utils.Bytes;
 
 #if !macro
@@ -28,9 +29,7 @@ class AssetManifest {
 	}
 	
 	
-	public static function fromFile (path:String):AssetManifest {
-		
-		var bytes = Bytes.fromFile (path);
+	public static function fromBytes (bytes:Bytes):AssetManifest {
 		
 		if (bytes != null) {
 			
@@ -41,6 +40,31 @@ class AssetManifest {
 			return null;
 			
 		}
+		
+	}
+	
+	
+	public static function fromFile (path:String):AssetManifest {
+		
+		return fromBytes (Bytes.fromFile (path));
+		
+	}
+	
+	
+	public static function loadFromBytes (bytes:Bytes):Future<AssetManifest> {
+		
+		return Future.withValue (fromBytes (bytes));
+		
+	}
+	
+	
+	public static function loadFromFile (path:String):Future<AssetManifest> {
+		
+		return Bytes.loadFromFile (path).then (function (bytes) {
+			
+			return Future.withValue (fromBytes (bytes));
+			
+		});
 		
 	}
 	
