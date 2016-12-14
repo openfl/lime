@@ -7,6 +7,9 @@ import haxe.io.Bytes;
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
+#end
+
+#if (macro && !display)
 import haxe.Serializer;
 import lime.graphics.ImageBuffer;
 import sys.io.File;
@@ -63,6 +66,8 @@ class AssetsMacro {
 		
 		if (fields != null) {
 			
+			#if !display
+			
 			var constructor = macro {
 				
 				#if lime_console
@@ -77,6 +82,8 @@ class AssetsMacro {
 			var args = [ { name: "length", opt: false, type: macro :Int }, { name: "bytesData", opt: false, type: macro :haxe.io.BytesData } ];
 			fields.push ({ name: "new", access: [ APublic ], kind: FFun({ args: args, expr: constructor, params: [], ret: null }), pos: Context.currentPos () });
 			
+			#end
+			
 		}
 		
 		return fields;
@@ -89,6 +96,8 @@ class AssetsMacro {
 		var fields = embedData (":file");
 		
 		if (fields != null) {
+			
+			#if !display
 			
 			var constructor = macro {
 				
@@ -106,6 +115,8 @@ class AssetsMacro {
 			var args = [ { name: "length", opt: true, type: macro :Int, value: macro 0 } ];
 			fields.push ({ name: "new", access: [ APublic ], kind: FFun({ args: args, expr: constructor, params: [], ret: null }), pos: Context.currentPos () });
 			
+			#end
+			
 		}
 		
 		return fields;
@@ -114,6 +125,8 @@ class AssetsMacro {
 	
 	
 	private static function embedData (metaName:String, encode:Bool = false):Array<Field> {
+		
+		#if !display
 		
 		var classType = Context.getLocalClass().get();
 		var metaData = classType.meta.get();
@@ -195,6 +208,8 @@ class AssetsMacro {
 			
 		}
 		
+		#end
+		
 		return null;
 		
 	}
@@ -211,6 +226,8 @@ class AssetsMacro {
 		
 		var path = "";
 		var glyphs = "32-255";
+		
+		#if !display
 		
 		for (meta in metaData) {
 			
@@ -284,6 +301,8 @@ class AssetsMacro {
 			
 		}
 		
+		#end
+		
 		return fields;
 		
 	}
@@ -298,6 +317,8 @@ class AssetsMacro {
 		#end
 		
 		if (fields != null) {
+			
+			#if !display
 			
 			var constructor = macro { 
 				
@@ -357,6 +378,8 @@ class AssetsMacro {
 			
 			fields.push ({ name: "new", access: [ APublic ], kind: FFun({ args: args, expr: constructor, params: [], ret: null }), pos: Context.currentPos() });
 			
+			#end
+			
 		}
 		
 		return fields;
@@ -370,7 +393,7 @@ class AssetsMacro {
 		
 		if (fields != null) {
 			
-			#if (openfl && !html5) // CFFILoader.h(248) : NOT Implemented:api_buffer_data
+			#if (openfl && !html5 && !display) // CFFILoader.h(248) : NOT Implemented:api_buffer_data
 			
 			var constructor = macro { 
 				
