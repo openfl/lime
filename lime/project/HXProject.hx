@@ -823,6 +823,7 @@ class HXProject {
 		
 		for (haxelib in haxelibs) {
 			
+			var validatePath = PathHelper.getHaxelib (haxelib, true);
 			project.haxelibs.push (haxelib);
 			
 			var includeProject = HXProject.fromHaxelib (haxelib, userDefines);
