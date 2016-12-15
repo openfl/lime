@@ -46,6 +46,9 @@ class IOSHelper {
 			
 		}
 		
+		commands.push ("-project");
+		commands.push (project.app.file + ".xcodeproj");
+		
 		if (additionalArguments != null) {
 			
 			commands = commands.concat (additionalArguments);
