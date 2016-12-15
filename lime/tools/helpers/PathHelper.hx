@@ -174,6 +174,12 @@ class PathHelper {
 			
 		}
 		
+		if (haxelibOverrides.exists (name)) {
+			
+			return haxelibOverrides.get (name);
+			
+		}
+		
 		if (clearCache) {
 			
 			haxelibPaths.remove (name);
