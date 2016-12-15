@@ -200,6 +200,12 @@ class IOSPlatform extends PlatformTarget {
 			
 		}
 		
+		if (project.config.getFloat ("ios.deployment", 8) < 7) {
+			
+			ArrayHelper.addUnique (architectures, Architecture.ARMV7);
+			
+		}
+		
 		for (architecture in project.architectures) {
 			
 			switch (architecture) {
