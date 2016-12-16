@@ -30,37 +30,40 @@ class CPPHelper {
 				
 				if (FileSystem.exists (options)) {
 					
-					var list;
-					var input = File.read (options, false);
-					var text = input.readLine ();
+					args.push ("-options");
+					args.push (options);
 					
-					if (StringTools.startsWith (text, " -D")) {
-						
-						list = text.split (" ");
-						
-					} else {
-						
-						list = [ "-D" + StringTools.trim (text) ];
-						
-						while (!input.eof ()) {
-							
-							list.push ("-D" + StringTools.trim (input.readLine ()));
-							
-						}
-						
-						list.pop ();
-						
-					}
+					// var list;
+					// var input = File.read (options, false);
+					// var text = input.readLine ();
 					
-					for (option in list) {
+					// if (StringTools.startsWith (text, " -D")) {
 						
-						if (option != "" && !StringTools.startsWith (option, "-Dno_compilation") && !StringTools.startsWith (option, "-Dno-compilation")) {
-							
-							args.push (option);
-							
-						}
+					// 	list = text.split (" ");
 						
-					}
+					// } else {
+						
+					// 	list = [ "-D" + StringTools.trim (text) ];
+						
+					// 	while (!input.eof ()) {
+							
+					// 		list.push ("-D" + StringTools.trim (input.readLine ()));
+							
+					// 	}
+						
+					// 	list.pop ();
+						
+					// }
+					
+					// for (option in list) {
+						
+					// 	if (option != "" && !StringTools.startsWith (option, "-Dno_compilation") && !StringTools.startsWith (option, "-Dno-compilation")) {
+							
+					// 		args.push (option);
+							
+					// 	}
+						
+					// }
 					
 					foundOptions = true;
 					
@@ -96,7 +99,7 @@ class CPPHelper {
 			
 			if (project.debug) {
 				
-				args.push ("-Ddebug");
+				args.push ("-debug");
 				
 			}
 			

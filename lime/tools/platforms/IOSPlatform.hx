@@ -89,6 +89,7 @@ class IOSPlatform extends PlatformTarget {
 		var hxml = PathHelper.findTemplate (project.templatePaths, "iphone/PROJ/haxe/Build.hxml");
 		var template = new Template (File.getContent (hxml));
 		
+		project = project.clone ();
 		var context = generateContext ();
 		context.OUTPUT_DIR = targetDirectory;
 		
@@ -100,7 +101,7 @@ class IOSPlatform extends PlatformTarget {
 	
 	private function generateContext ():Dynamic {
 		
-		project = project.clone ();
+		//project = project.clone ();
 		
 		project.sources.unshift ("");
 		project.sources = PathHelper.relocatePaths (project.sources, PathHelper.combine (targetDirectory, project.app.file + "/haxe"));
@@ -126,6 +127,15 @@ class IOSPlatform extends PlatformTarget {
 		
 		IOSHelper.getIOSVersion (project);
 		project.haxedefs.set ("IPHONE_VER", project.environment.get ("IPHONE_VER"));
+		
+		project.haxedefs.set ("HXCPP_CPP11", "1");
+		
+		if (project.config.getString ("ios.compiler") == "llvm" || project.config.getString ("ios.compiler", "clang") == "clang") {
+			
+			project.haxedefs.set ("HXCPP_CLANG", "1");
+			project.haxedefs.set ("OBJC_ARC", "1");
+			
+		}
 		
 		var context = project.templateContext;
 		

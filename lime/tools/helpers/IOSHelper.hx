@@ -108,7 +108,7 @@ class IOSHelper {
 				
 				var files = FileSystem.readDirectory (devPath);
 				var extractVersion = ~/^iPhoneOS(.*).sdk$/;
-				var best = "", version;
+				var best = "0", version;
 				
 				for (file in files) {
 					
