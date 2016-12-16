@@ -1,3 +1,23 @@
+3.5.1 (12/16/2016)
+------------------
+
+* Made major changes to Assets and the behavior of asset libraries
+* Made progress on a better asset manifest system
+* Made significant improvements to the iOS project templates
+* Moved lime.Assets to lime.utils.Assets
+* Added lime.utils.AssetLibrary, lime.utils.AssetType, lime.utils.AssetManifest
+* Added static "loadFrom" constructors for core types
+* Improved C++ performance on debug builds, added -Dlime-debug
+* Updated CFFI bytes to better support C# target
+* Fixed the 'cannot find build target "by"' error with current Haxe releases
+* Fixed support for *.hxp projects
+* Fixed some compile errors when core types were used in macros
+* Fixed a minor issue with HTTPRequest on HTML5
+* Fixed Android template so READ\_PHONE\_STATE is not a required permission
+* Fixed support for `<haxelib name="" path="" />`
+* Fixed a regression with the quality of generated SVG icons
+
+
 3.5.0 (12/07/2016)
 ------------------
 
