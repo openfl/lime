@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "3.5.0",
-	"releasenote": "Better HTTPRequest support, added System.openFile/openURL, improved GL context handling, other fixes",
+	"version": "3.5.1",
+	"releasenote": "Updates to asset library support, iOS quality-of-life improvements",
 	"contributors": [ "singmajesty" ]
 }
