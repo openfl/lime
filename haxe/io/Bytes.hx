@@ -30,6 +30,11 @@ using cpp.NativeArray;
 @:autoBuild(lime._macros.AssetsMacro.embedBytes()) // Enable @:bytes embed metadata
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 class Bytes {
 
 	public var length(default,null) : Int;

@@ -5,6 +5,11 @@ package lime.math;
 import flash.geom.Point;
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class Vector2 {
 	

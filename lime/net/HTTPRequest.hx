@@ -6,6 +6,11 @@ import lime.app.Event;
 import lime.app.Future;
 import lime.app.Promise;
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 #if display
 

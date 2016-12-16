@@ -6,6 +6,11 @@ import lime.graphics.opengl.GLShader;
 import lime.graphics.opengl.GL;
 import lime.utils.Log;
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class GLUtils {
 	

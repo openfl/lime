@@ -12,6 +12,11 @@ using haxe.macro.Tools;
 @:genericBuild(lime._macros.EventMacro.build())
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class Event<T> {
 	

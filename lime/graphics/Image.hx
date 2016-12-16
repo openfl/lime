@@ -54,6 +54,11 @@ import lime.graphics.console.TextureData;
 @:build(lime.system.CFFI.build())
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 @:autoBuild(lime._macros.AssetsMacro.embedImage())
 @:allow(lime.graphics.util.ImageCanvasUtil)
 @:allow(lime.graphics.util.ImageDataUtil)

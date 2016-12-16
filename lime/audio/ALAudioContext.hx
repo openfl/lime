@@ -6,6 +6,11 @@ import lime.audio.openal.ALBuffer;
 import lime.audio.openal.ALSource;
 import lime.utils.ArrayBufferView;
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class ALAudioContext {
 	

@@ -5,6 +5,11 @@ import lime.audio.openal.ALC;
 import lime.audio.openal.ALContext;
 import lime.audio.openal.ALDevice;
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class ALCAudioContext {
 	

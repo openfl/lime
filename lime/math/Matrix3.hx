@@ -1,6 +1,12 @@
 package lime.math;
 
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
+
 class Matrix3 {
 	
 	

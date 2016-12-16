@@ -16,6 +16,11 @@ import flash.display.Stage;
 typedef Stage = Dynamic;
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class Window {
 	

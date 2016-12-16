@@ -21,6 +21,11 @@ import flash.events.ProgressEvent;
 import flash.Lib;
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class Preloader #if flash extends Sprite #end {
 	

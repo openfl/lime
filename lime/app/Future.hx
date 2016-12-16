@@ -5,6 +5,11 @@ import lime.system.System;
 import lime.system.ThreadPool;
 import lime.utils.Log;
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 @:allow(lime.app.Promise)
 
 
@@ -256,6 +261,12 @@ import lime.utils.Log;
 	
 	
 }
+
+
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
 
 
 @:dox(hide) private class FutureWork {

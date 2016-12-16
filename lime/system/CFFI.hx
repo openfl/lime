@@ -7,6 +7,11 @@ import lime._macros.CFFIMacro;
 import sys.io.Process;
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class CFFI {
 	

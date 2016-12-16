@@ -5,7 +5,12 @@ package lime.utils;
     typedef ArrayBufferView = js.html.ArrayBufferView;
 
 #else
-
+    
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+    
     class ArrayBufferView {
 
         public var type = TypedArrayType.None;

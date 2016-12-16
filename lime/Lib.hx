@@ -9,6 +9,11 @@ import haxe.macro.Compiler;
 import haxe.macro.Context;
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class Lib {
 	

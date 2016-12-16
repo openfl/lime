@@ -8,6 +8,11 @@ import lime.utils.Log;
 @:build(lime.system.CFFI.build())
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class Haptic {
 	

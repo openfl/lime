@@ -20,6 +20,11 @@ import lime.utils.UInt8Array;
 @:build(lime.system.CFFI.build())
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 @:access(lime.graphics.ImageBuffer)
 @:access(lime.math.color.RGBA)
 

@@ -64,7 +64,7 @@ package lime.utils;
     abstract Float32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
 
         public inline static var BYTES_PER_ELEMENT : Int = 4;
-
+public static var hello:Int;
         public var length (get, never):Int;
 
         @:generic

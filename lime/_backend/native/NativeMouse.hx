@@ -8,6 +8,11 @@ import lime.ui.Window;
 @:build(lime.system.CFFI.build())
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 @:access(lime.ui.Window)
 
 

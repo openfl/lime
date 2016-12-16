@@ -10,6 +10,11 @@ import lime.utils.Bytes;
 import haxe.Json;
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class AssetManifest {
 	

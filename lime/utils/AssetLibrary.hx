@@ -14,6 +14,11 @@ import flash.display.BitmapData;
 import flash.media.Sound;
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class AssetLibrary {
 	

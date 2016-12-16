@@ -10,6 +10,11 @@ import cpp.Float32;
 typedef Float32 = Float;
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 #if !macro
 @:build(lime.system.CFFI.build())
 #end

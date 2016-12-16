@@ -28,6 +28,11 @@ typedef Float32 = Float;
 @:build(lime.system.CFFI.build())
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 @:allow(lime.ui.Window)
 
 

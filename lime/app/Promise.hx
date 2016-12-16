@@ -1,6 +1,11 @@
 package lime.app;
 
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 @:allow(lime.app.Future)
 #if !js @:generic #end
 

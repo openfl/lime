@@ -3,6 +3,11 @@ package lime.graphics.opengl;
 
 import lime.system.CFFIPointer;
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class GLObject {
         

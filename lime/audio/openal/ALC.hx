@@ -3,6 +3,11 @@ package lime.audio.openal;
 
 import lime.system.CFFIPointer;
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 #if !macro
 @:build(lime.system.CFFI.build())
 #end

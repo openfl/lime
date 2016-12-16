@@ -6,6 +6,11 @@ import lime.audio.openal.AL;
 import lime.audio.openal.ALSource;
 import lime.math.Vector4;
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class AudioSource {
 	

@@ -5,6 +5,11 @@ import lime._macros.AssetsMacro;
 import lime.audio.AudioBuffer;
 import lime.graphics.Image;
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class AssetCache {
 	

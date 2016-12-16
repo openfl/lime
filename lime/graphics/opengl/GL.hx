@@ -7,6 +7,11 @@ import lime.utils.Int32Array;
 
 @:allow(lime.ui.Window)
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class GL {
 	

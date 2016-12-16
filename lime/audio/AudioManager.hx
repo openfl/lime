@@ -10,6 +10,11 @@ import lime.audio.openal.ALDevice;
 import js.Browser;
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class AudioManager {
 	

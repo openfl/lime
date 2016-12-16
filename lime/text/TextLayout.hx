@@ -9,6 +9,11 @@ import lime.system.System;
 @:build(lime.system.CFFI.build())
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 @:access(lime.text.Font)
 
 

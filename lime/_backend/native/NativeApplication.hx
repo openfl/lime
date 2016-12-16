@@ -28,6 +28,11 @@ import lime.ui.Window;
 @:build(lime.system.CFFI.build())
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 @:access(haxe.Timer)
 @:access(lime._backend.native.NativeGLRenderContext)
 @:access(lime._backend.native.NativeRenderer)

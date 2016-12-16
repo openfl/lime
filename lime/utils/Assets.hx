@@ -34,6 +34,11 @@ import haxe.Json;
  * in the project file.</p>
  */
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 @:access(lime.utils.AssetLibrary)
 
 

@@ -5,6 +5,11 @@ package lime.math;
 import flash.geom.Rectangle in FlashRectangle;
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class Rectangle {
 	

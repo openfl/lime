@@ -20,6 +20,11 @@ import lime.utils.UInt8Array;
 @:build(lime.system.CFFI.build())
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 @:access(lime._backend.native.NativeGLRenderContext)
 @:access(lime.graphics.cairo.Cairo)
 @:access(lime.graphics.opengl.GL)
