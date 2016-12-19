@@ -494,7 +494,13 @@ class AssetLibrary {
 			
 		} else if (classTypes.exists (id)) {
 			
-			return Future.withValue (Type.createInstance (classTypes.get (id), []));
+			var font:Font = Type.createInstance (classTypes.get (id), []);
+			
+			#if (js && html5)
+			return Font.loadFromName (font.name);
+			#else
+			return Future.withValue (font);
+			#end
 			
 		} else {
 			
