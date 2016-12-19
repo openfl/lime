@@ -50,12 +50,6 @@ class HTML5HTTPRequest {
 		request.addEventListener ("progress", progress, false);
 		request.onreadystatechange = readyStateChange;
 		
-		if (parent.timeout > 0) {
-			
-			request.timeout = parent.timeout;
-			
-		}
-		
 		var query = "";
 		
 		if (parent.data == null) {
@@ -86,6 +80,9 @@ class HTML5HTTPRequest {
 		}
 		
 		request.open (Std.string (parent.method), uri, true);
+		if (parent.timeout > 0) {
+			request.timeout = parent.timeout;
+		}
 		
 		if (binary) {
 			
