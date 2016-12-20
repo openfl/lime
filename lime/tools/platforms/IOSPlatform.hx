@@ -315,7 +315,7 @@ class IOSPlatform extends PlatformTarget {
 			} else if (Path.extension (dependency.name) == "tbd") {
 				
 				name = dependency.name;
-				path = "usr/lib/" + dependency.name;
+				path = "/usr/lib/" + dependency.name;
 				fileType = "sourcecode.text-based-dylib-definition";
 				
 			} else if (Path.extension (dependency.path) == "framework") {
