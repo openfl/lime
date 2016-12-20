@@ -347,6 +347,12 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 					
 					Reflect.setField (destination, field, Reflect.field (source, field));
 					
+					if (Reflect.hasField (source, field + "___array")) {
+						
+						Reflect.setField (destination, field + "___array", Reflect.field (source, field + "___array"));
+						
+					}
+					
 				}
 				
 			}
