@@ -1,3 +1,13 @@
+3.5.2 (12/19/2016)
+------------------
+
+* Fixed issues related to @:bitmap, @:file and @:sound
+* Fixed support for HTML5 font preloading
+* Fixed issue with HTTPRequest and IE 11
+* Fixed an issue when merging multiple project.config values
+* Reverted bytes changes to resolve C++ GC issues
+
+
 3.5.1 (12/16/2016)
 ------------------
 
