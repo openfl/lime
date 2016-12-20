@@ -373,6 +373,27 @@ class AssetLibrary {
 		
 	}
 	
+	public function computeProgressTotal ():Int {
+		
+		var result = 1;
+		
+			for (id in preload.keys ()) {
+				
+				switch (types.get (id)) {
+					
+					case BINARY, FONT, IMAGE, MUSIC, SOUND, TEXT:
+						
+						result++;
+					
+					default:
+					
+				}
+				
+			}
+		
+		return result;
+		
+	}
 	
 	public function load ():Future<AssetLibrary> {
 		
@@ -575,6 +596,7 @@ class AssetLibrary {
 	private function updateProgressLoaded ():Void {
 		
 		progressLoaded++;
+		promise.progress(progressLoaded, progressTotal);
 		
 		if (progressLoaded == progressTotal) {
 			

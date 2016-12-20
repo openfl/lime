@@ -38,6 +38,8 @@ class Preloader #if flash extends Sprite #end {
 	private var loadedLibraries:Int;
 	private var loadedStage:Bool;
 	
+	private var itemsProgressLoaded:Int;
+	private var itemsProgressTotal:Int;
 	
 	public function new () {
 		
@@ -75,14 +77,31 @@ class Preloader #if flash extends Sprite #end {
 	
 	public function load ():Void {
 		
+		itemsProgressLoaded = 0;
+		itemsProgressTotal = 0;
+		
+		for (library in libraries) {
+			
+			itemsProgressTotal += library.computeProgressTotal ();
+			
+		}
+		
 		loadedLibraries = -1;
 		
 		for (library in libraries) {
 			
-			library.load ().onComplete (function (_) {
+			library.load ().onProgress (function (_, _) {
+				
+				updateItemsProgress();
+				
+			}).onComplete (function (_) {
 				
 				loadedLibraries++;
 				updateProgress ();
+				
+			}).onError (function (e) {
+				
+				trace(e);
 				
 			});
 			
@@ -120,7 +139,8 @@ class Preloader #if flash extends Sprite #end {
 	
 	private function updateProgress ():Void {
 		
-		update (loadedLibraries, libraries.length);
+		update (itemsProgressLoaded, itemsProgressTotal);
+		// update (loadedLibraries, libraries.length);
 		
 		if (#if flash loadedStage && #end loadedLibraries == libraries.length) {
 			
@@ -130,6 +150,12 @@ class Preloader #if flash extends Sprite #end {
 		
 	}
 	
+	private function updateItemsProgress ():Void {
+		
+		itemsProgressLoaded++;
+		updateProgress();
+		
+	}
 	
 	#if flash
 	private function current_onEnter (event:flash.events.Event):Void {
