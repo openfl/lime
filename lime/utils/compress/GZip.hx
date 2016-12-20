@@ -20,9 +20,13 @@ class GZip {
 		
 		#if (lime_cffi && !macro)
 		
-		var data:Dynamic = lime_gzip_compress (bytes);
+		#if !cs
+		return lime_gzip_compress (bytes, Bytes.alloc (0));
+		#else
+		var data:Dynamic = lime_gzip_compress (bytes, null);
 		if (data == null) return null;
 		return @:privateAccess new Bytes (data.length, data.b);
+		#end
 		
 		#elseif (js && html5)
 		
@@ -42,9 +46,13 @@ class GZip {
 		
 		#if (lime_cffi && !macro)
 		
-		var data:Dynamic = lime_gzip_decompress (bytes);
+		#if !cs
+		return lime_gzip_decompress (bytes, Bytes.alloc (0));
+		#else
+		var data:Dynamic = lime_gzip_decompress (bytes, null);
 		if (data == null) return null;
 		return @:privateAccess new Bytes (data.length, data.b);
+		#end
 		
 		#elseif (js && html5)
 		
@@ -68,8 +76,8 @@ class GZip {
 	
 	
 	#if (lime_cffi && !macro)
-	@:cffi private static function lime_gzip_compress (data:Dynamic):Dynamic;
-	@:cffi private static function lime_gzip_decompress (data:Dynamic):Dynamic;
+	@:cffi private static function lime_gzip_compress (data:Dynamic, bytes:Dynamic):Dynamic;
+	@:cffi private static function lime_gzip_decompress (data:Dynamic, bytes:Dynamic):Dynamic;
 	#end
 	
 	

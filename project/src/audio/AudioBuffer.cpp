@@ -15,6 +15,7 @@ namespace lime {
 		
 		bitsPerSample = 0;
 		channels = 0;
+		data = new ArrayBufferView ();
 		sampleRate = 0;
 		mValue = 0;
 		
@@ -37,14 +38,14 @@ namespace lime {
 			
 			bitsPerSample = val_int (val_field (audioBuffer, id_bitsPerSample));
 			channels = val_int (val_field (audioBuffer, id_channels));
-			data.Set (val_field (audioBuffer, id_data));
+			data = new ArrayBufferView (val_field (audioBuffer, id_data));
 			sampleRate = val_int (val_field (audioBuffer, id_sampleRate));
 			
 		} else {
 			
 			bitsPerSample = 0;
 			channels = 0;
-			data.Clear ();
+			data = new ArrayBufferView ();
 			sampleRate = 0;
 			
 		}
@@ -55,6 +56,8 @@ namespace lime {
 	
 	
 	AudioBuffer::~AudioBuffer () {
+		
+		delete data;
 		
 	}
 	
@@ -71,7 +74,7 @@ namespace lime {
 			
 		}
 		
-		if (mValue == 0 || val_is_null (mValue)) {
+		if (val_is_null (mValue)) {
 			
 			mValue = alloc_empty_object ();
 			
@@ -79,7 +82,7 @@ namespace lime {
 		
 		alloc_field (mValue, id_bitsPerSample, alloc_int (bitsPerSample));
 		alloc_field (mValue, id_channels, alloc_int (channels));
-		alloc_field (mValue, id_data, data.Value ());
+		alloc_field (mValue, id_data, data ? data->Value () : alloc_null ());
 		alloc_field (mValue, id_sampleRate, alloc_int (sampleRate));
 		return mValue;
 		

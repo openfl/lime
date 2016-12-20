@@ -30,51 +30,6 @@ namespace lime {
 	
 	ImageBuffer::ImageBuffer (value imageBuffer) {
 		
-		Set (imageBuffer);
-		
-	}
-	
-	
-	ImageBuffer::~ImageBuffer () {
-		
-	}
-	
-	
-	void ImageBuffer::Blit (const unsigned char *data, int x, int y, int width, int height) {
-		
-		if (x < 0 || x + width > this->width || y < 0 || y + height > this->height) {
-			
-			return;
-			
-		}
-		
-		int stride = Stride ();
-		unsigned char *bytes = this->data.buffer.Data ();
-		
-		for (int i = 0; i < height; i++) {
-			
-			memcpy (&bytes[(i + y) * this->width + x], &data[i * width], stride);
-			
-		}
-		
-	}
-	
-	
-	void ImageBuffer::Resize (int width, int height, int bitsPerPixel) {
-		
-		this->bitsPerPixel = bitsPerPixel;
-		this->width = width;
-		this->height = height;
-		
-		int stride = Stride ();
-		
-		this->data.Resize (height * stride);
-		
-	}
-	
-	
-	void ImageBuffer::Set (value imageBuffer) {
-		
 		if (!init) {
 			
 			id_bitsPerPixel = val_id ("bitsPerPixel");
@@ -96,7 +51,7 @@ namespace lime {
 			format = (PixelFormat)val_int (val_field (imageBuffer, id_format));
 			transparent = val_bool (val_field (imageBuffer, id_transparent));
 			premultiplied = val_bool (val_field (imageBuffer, id_premultiplied));
-			data.Set (val_field (imageBuffer, id_data));
+			data = new ArrayBufferView (val_field (imageBuffer, id_data));
 			
 		} else {
 			
@@ -104,12 +59,61 @@ namespace lime {
 			height = 0;
 			bitsPerPixel = 32;
 			format = RGBA32;
+			data = 0;
 			premultiplied = false;
 			transparent = false;
 			
 		}
 		
 		mValue = imageBuffer;
+		
+	}
+	
+	
+	ImageBuffer::~ImageBuffer () {
+		
+		delete data;
+		
+	}
+	
+	
+	void ImageBuffer::Blit (const unsigned char *data, int x, int y, int width, int height) {
+		
+		if (x < 0 || x + width > this->width || y < 0 || y + height > this->height) {
+			
+			return;
+			
+		}
+		
+		int stride = Stride ();
+		unsigned char *bytes = this->data->buffer->Data ();
+		
+		for (int i = 0; i < height; i++) {
+			
+			memcpy (&bytes[(i + y) * this->width + x], &data[i * width], stride);
+			
+		}
+		
+	}
+	
+	
+	void ImageBuffer::Resize (int width, int height, int bitsPerPixel) {
+		
+		this->bitsPerPixel = bitsPerPixel;
+		this->width = width;
+		this->height = height;
+		
+		int stride = Stride ();
+		
+		if (!this->data) {
+			
+			this->data = new ArrayBufferView (height * stride);
+			
+		} else {
+			
+			this->data->Resize (height * stride);
+			
+		}
 		
 	}
 	
@@ -136,7 +140,7 @@ namespace lime {
 			
 		}
 		
-		if (mValue == 0 || val_is_null (mValue)) {
+		if (val_is_null (mValue)) {
 			
 			mValue = alloc_empty_object ();
 			
@@ -145,7 +149,7 @@ namespace lime {
 		alloc_field (mValue, id_width, alloc_int (width));
 		alloc_field (mValue, id_height, alloc_int (height));
 		alloc_field (mValue, id_bitsPerPixel, alloc_int (bitsPerPixel));
-		alloc_field (mValue, id_data, data.Value ());
+		alloc_field (mValue, id_data, data ? data->Value () : alloc_null ());
 		alloc_field (mValue, id_transparent, alloc_bool (transparent));
 		alloc_field (mValue, id_format, alloc_int (format));
 		alloc_field (mValue, id_premultiplied, alloc_bool (premultiplied));

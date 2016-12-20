@@ -155,12 +155,12 @@ namespace lime {
 	}
 	
 	
-	value lime_audio_load (value data) {
+	value lime_audio_load (value data, value buffer) {
 		
 		Resource resource;
 		Bytes bytes;
 		
-		AudioBuffer audioBuffer;
+		AudioBuffer audioBuffer = AudioBuffer (buffer);
 		
 		if (val_is_string (data)) {
 			
@@ -216,9 +216,9 @@ namespace lime {
 	}
 	
 	
-	value lime_bytes_read_file (HxString path) {
+	value lime_bytes_read_file (HxString path, value bytes) {
 		
-		Bytes data;
+		Bytes data (bytes);
 		data.ReadFile (path.c_str ());
 		return data.Value ();
 		
@@ -276,11 +276,11 @@ namespace lime {
 	}
 	
 	
-	value lime_deflate_compress (value buffer) {
+	value lime_deflate_compress (value buffer, value bytes) {
 		
 		#ifdef LIME_ZLIB
 		Bytes data (buffer);
-		Bytes result;
+		Bytes result (bytes);
 		
 		Zlib::Compress (DEFLATE, &data, &result);
 		
@@ -292,11 +292,11 @@ namespace lime {
 	}
 	
 	
-	value lime_deflate_decompress (value buffer) {
+	value lime_deflate_decompress (value buffer, value bytes) {
 		
 		#ifdef LIME_ZLIB
 		Bytes data (buffer);
-		Bytes result;
+		Bytes result (bytes);
 		
 		Zlib::Decompress (DEFLATE, &data, &result);
 		
@@ -666,11 +666,11 @@ namespace lime {
 	}
 	
 	
-	value lime_gzip_compress (value buffer) {
+	value lime_gzip_compress (value buffer, value bytes) {
 		
 		#ifdef LIME_ZLIB
 		Bytes data (buffer);
-		Bytes result;
+		Bytes result (bytes);
 		
 		Zlib::Compress (GZIP, &data, &result);
 		
@@ -682,11 +682,11 @@ namespace lime {
 	}
 	
 	
-	value lime_gzip_decompress (value buffer) {
+	value lime_gzip_decompress (value buffer, value bytes) {
 		
 		#ifdef LIME_ZLIB
 		Bytes data (buffer);
-		Bytes result;
+		Bytes result (bytes);
 		
 		Zlib::Decompress (GZIP, &data, &result);
 		
@@ -707,10 +707,10 @@ namespace lime {
 	}
 	
 	
-	value lime_image_encode (value buffer, int type, int quality) {
+	value lime_image_encode (value buffer, int type, int quality, value bytes) {
 		
 		ImageBuffer imageBuffer = ImageBuffer (buffer);
-		Bytes data;
+		Bytes data = Bytes (bytes);
 		
 		switch (type) {
 			
@@ -745,12 +745,12 @@ namespace lime {
 	}
 	
 	
-	value lime_image_load (value data) {
+	value lime_image_load (value data, value buffer) {
 		
 		Resource resource;
 		Bytes bytes;
 		
-		ImageBuffer imageBuffer;
+		ImageBuffer imageBuffer = ImageBuffer (buffer);
 		
 		if (val_is_string (data)) {
 			
@@ -989,9 +989,9 @@ namespace lime {
 	}
 	
 	
-	value lime_jpeg_decode_bytes (value data, bool decodeData) {
+	value lime_jpeg_decode_bytes (value data, bool decodeData, value buffer) {
 		
-		ImageBuffer imageBuffer;
+		ImageBuffer imageBuffer (buffer);
 		
 		Bytes bytes (data);
 		Resource resource = Resource (&bytes);
@@ -1009,9 +1009,9 @@ namespace lime {
 	}
 	
 	
-	value lime_jpeg_decode_file (HxString path, bool decodeData) {
+	value lime_jpeg_decode_file (HxString path, bool decodeData, value buffer) {
 		
-		ImageBuffer imageBuffer;
+		ImageBuffer imageBuffer (buffer);
 		Resource resource = Resource (path.c_str ());
 		
 		#ifdef LIME_JPEG
@@ -1054,11 +1054,11 @@ namespace lime {
 	}
 	
 	
-	value lime_lzma_compress (value buffer) {
+	value lime_lzma_compress (value buffer, value bytes) {
 		
 		#ifdef LIME_LZMA
 		Bytes data (buffer);
-		Bytes result;
+		Bytes result (bytes);
 		
 		LZMA::Compress (&data, &result);
 		
@@ -1070,11 +1070,11 @@ namespace lime {
 	}
 	
 	
-	value lime_lzma_decompress (value buffer) {
+	value lime_lzma_decompress (value buffer, value bytes) {
 		
 		#ifdef LIME_LZMA
 		Bytes data (buffer);
-		Bytes result;
+		Bytes result (bytes);
 		
 		LZMA::Decompress (&data, &result);
 		
@@ -1146,9 +1146,9 @@ namespace lime {
 	}
 	
 	
-	value lime_png_decode_bytes (value data, bool decodeData) {
+	value lime_png_decode_bytes (value data, bool decodeData, value buffer) {
 		
-		ImageBuffer imageBuffer;
+		ImageBuffer imageBuffer (buffer);
 		Bytes bytes (data);
 		Resource resource = Resource (&bytes);
 		
@@ -1165,9 +1165,9 @@ namespace lime {
 	}
 	
 	
-	value lime_png_decode_file (HxString path, bool decodeData) {
+	value lime_png_decode_file (HxString path, bool decodeData, value buffer) {
 		
-		ImageBuffer imageBuffer;
+		ImageBuffer imageBuffer (buffer);
 		Resource resource = Resource (path.c_str ());
 		
 		#ifdef LIME_PNG
@@ -1245,10 +1245,10 @@ namespace lime {
 	}
 	
 	
-	value lime_renderer_read_pixels (value renderer, value rect) {
+	value lime_renderer_read_pixels (value renderer, value rect, value imageBuffer) {
 		
 		Renderer* targetRenderer = (Renderer*)val_data (renderer);
-		ImageBuffer buffer;
+		ImageBuffer buffer (imageBuffer);
 		
 		if (!val_is_null (rect)) {
 			
@@ -1627,11 +1627,11 @@ namespace lime {
 	}
 	
 	
-	value lime_zlib_compress (value buffer) {
+	value lime_zlib_compress (value buffer, value bytes) {
 		
 		#ifdef LIME_ZLIB
 		Bytes data (buffer);
-		Bytes result;
+		Bytes result (bytes);
 		
 		Zlib::Compress (ZLIB, &data, &result);
 		
@@ -1643,11 +1643,11 @@ namespace lime {
 	}
 	
 	
-	value lime_zlib_decompress (value buffer) {
+	value lime_zlib_decompress (value buffer, value bytes) {
 		
 		#ifdef LIME_ZLIB
 		Bytes data (buffer);
-		Bytes result;
+		Bytes result (bytes);
 		
 		Zlib::Decompress (ZLIB, &data, &result);
 		
@@ -1666,16 +1666,16 @@ namespace lime {
 	DEFINE_PRIME1 (lime_application_quit);
 	DEFINE_PRIME2v (lime_application_set_frame_rate);
 	DEFINE_PRIME1 (lime_application_update);
-	DEFINE_PRIME1 (lime_audio_load);
+	DEFINE_PRIME2 (lime_audio_load);
 	DEFINE_PRIME2 (lime_bytes_from_data_pointer);
 	DEFINE_PRIME1 (lime_bytes_get_data_pointer);
-	DEFINE_PRIME1 (lime_bytes_read_file);
+	DEFINE_PRIME2 (lime_bytes_read_file);
 	DEFINE_PRIME1 (lime_cffi_get_native_pointer);
 	DEFINE_PRIME1 (lime_cffi_set_finalizer);
 	DEFINE_PRIME0 (lime_clipboard_get_text);
 	DEFINE_PRIME1v (lime_clipboard_set_text);
-	DEFINE_PRIME1 (lime_deflate_compress);
-	DEFINE_PRIME1 (lime_deflate_decompress);
+	DEFINE_PRIME2 (lime_deflate_compress);
+	DEFINE_PRIME2 (lime_deflate_decompress);
 	DEFINE_PRIME2v (lime_drop_event_manager_register);
 	DEFINE_PRIME2 (lime_file_dialog_open_directory);
 	DEFINE_PRIME2 (lime_file_dialog_open_file);
@@ -1701,8 +1701,8 @@ namespace lime {
 	DEFINE_PRIME2v (lime_gamepad_event_manager_register);
 	DEFINE_PRIME1 (lime_gamepad_get_device_guid);
 	DEFINE_PRIME1 (lime_gamepad_get_device_name);
-	DEFINE_PRIME1 (lime_gzip_compress);
-	DEFINE_PRIME1 (lime_gzip_decompress);
+	DEFINE_PRIME2 (lime_gzip_compress);
+	DEFINE_PRIME2 (lime_gzip_decompress);
 	DEFINE_PRIME2v (lime_haptic_vibrate);
 	DEFINE_PRIME3v (lime_image_data_util_color_transform);
 	DEFINE_PRIME6v (lime_image_data_util_copy_channel);
@@ -1717,8 +1717,8 @@ namespace lime {
 	DEFINE_PRIME4v (lime_image_data_util_set_pixels);
 	DEFINE_PRIME12 (lime_image_data_util_threshold);
 	DEFINE_PRIME1v (lime_image_data_util_unmultiply_alpha);
-	DEFINE_PRIME3 (lime_image_encode);
-	DEFINE_PRIME1 (lime_image_load);
+	DEFINE_PRIME4 (lime_image_encode);
+	DEFINE_PRIME2 (lime_image_load);
 	DEFINE_PRIME0 (lime_jni_getenv);
 	DEFINE_PRIME2v (lime_joystick_event_manager_register);
 	DEFINE_PRIME1 (lime_joystick_get_device_guid);
@@ -1727,12 +1727,12 @@ namespace lime {
 	DEFINE_PRIME1 (lime_joystick_get_num_buttons);
 	DEFINE_PRIME1 (lime_joystick_get_num_hats);
 	DEFINE_PRIME1 (lime_joystick_get_num_trackballs);
-	DEFINE_PRIME2 (lime_jpeg_decode_bytes);
-	DEFINE_PRIME2 (lime_jpeg_decode_file);
+	DEFINE_PRIME3 (lime_jpeg_decode_bytes);
+	DEFINE_PRIME3 (lime_jpeg_decode_file);
 	DEFINE_PRIME2v (lime_key_event_manager_register);
 	DEFINE_PRIME0 (lime_locale_get_system_locale);
-	DEFINE_PRIME1 (lime_lzma_compress);
-	DEFINE_PRIME1 (lime_lzma_decompress);
+	DEFINE_PRIME2 (lime_lzma_compress);
+	DEFINE_PRIME2 (lime_lzma_decompress);
 	DEFINE_PRIME2v (lime_mouse_event_manager_register);
 	DEFINE_PRIME0v (lime_mouse_hide);
 	DEFINE_PRIME1v (lime_mouse_set_cursor);
@@ -1740,8 +1740,8 @@ namespace lime {
 	DEFINE_PRIME0v (lime_mouse_show);
 	DEFINE_PRIME3v (lime_mouse_warp);
 	DEFINE_PRIME1v (lime_neko_execute);
-	DEFINE_PRIME2 (lime_png_decode_bytes);
-	DEFINE_PRIME2 (lime_png_decode_file);
+	DEFINE_PRIME3 (lime_png_decode_bytes);
+	DEFINE_PRIME3 (lime_png_decode_file);
 	DEFINE_PRIME1 (lime_renderer_create);
 	DEFINE_PRIME1v (lime_renderer_flip);
 	DEFINE_PRIME1 (lime_renderer_get_context);
@@ -1749,7 +1749,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_renderer_get_type);
 	DEFINE_PRIME1 (lime_renderer_lock);
 	DEFINE_PRIME1v (lime_renderer_make_current);
-	DEFINE_PRIME2 (lime_renderer_read_pixels);
+	DEFINE_PRIME3 (lime_renderer_read_pixels);
 	DEFINE_PRIME1v (lime_renderer_unlock);
 	DEFINE_PRIME2v (lime_render_event_manager_register);
 	DEFINE_PRIME2v (lime_sensor_event_manager_register);
@@ -1790,8 +1790,8 @@ namespace lime {
 	DEFINE_PRIME2 (lime_window_set_minimized);
 	DEFINE_PRIME2 (lime_window_set_resizable);
 	DEFINE_PRIME2 (lime_window_set_title);
-	DEFINE_PRIME1 (lime_zlib_compress);
-	DEFINE_PRIME1 (lime_zlib_decompress);
+	DEFINE_PRIME2 (lime_zlib_compress);
+	DEFINE_PRIME2 (lime_zlib_decompress);
 	
 	
 }

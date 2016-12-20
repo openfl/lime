@@ -53,8 +53,14 @@ abstract Bytes(HaxeBytes) from HaxeBytes to HaxeBytes {
 	public static function fromFile (path:String):Bytes {
 		
 		#if (!html5 && !macro)
+		#if !cs
+		var bytes = Bytes.alloc (0);
+		lime_bytes_read_file (path, bytes);
+		if (bytes.length > 0) return bytes;
+		#else
 		var data:Dynamic = lime_bytes_read_file (path);
 		if (data != null) return new Bytes (data.length, data.b);
+		#end
 		#end
 		return null;
 		
@@ -112,7 +118,7 @@ abstract Bytes(HaxeBytes) from HaxeBytes to HaxeBytes {
 	#if !macro
 	@:cffi private static function lime_bytes_from_data_pointer (data:Float, length:Int):Dynamic;
 	@:cffi private static function lime_bytes_get_data_pointer (data:Dynamic):Float;
-	@:cffi private static function lime_bytes_read_file (path:String):Dynamic;
+	@:cffi private static function lime_bytes_read_file (path:String, bytes:Dynamic):Dynamic;
 	#end
 	
 	

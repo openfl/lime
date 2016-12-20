@@ -9,10 +9,7 @@
 namespace lime {
 	
 	
-	class Bytes {
-		
-		
-	public:
+	struct Bytes {
 		
 		
 		Bytes ();
@@ -22,7 +19,6 @@ namespace lime {
 		Bytes (const QuickVec<unsigned char> data);
 		~Bytes ();
 		
-		void Clear ();
 		unsigned char *Data ();
 		const unsigned char *Data () const;
 		int Length () const;
@@ -34,6 +30,7 @@ namespace lime {
 		
 		unsigned char *_data;
 		int _length;
+		AutoGCRoot *_root;
 		value _value;
 		
 		

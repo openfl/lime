@@ -84,7 +84,7 @@ namespace lime {
 		int bit_depth, color_type, interlace_type;
 		
 		FILE_HANDLE *file = NULL;
-		Bytes data;
+		Bytes *data = NULL;
 		
 		if (resource->path) {
 			
@@ -144,8 +144,8 @@ namespace lime {
 				
 			} else {
 				
-				data.ReadFile (resource->path);
-				ReadBuffer buffer (data.Data (), data.Length ());
+				data = new Bytes (resource->path);
+				ReadBuffer buffer (data->Data (), data->Length ());
 				png_set_read_fn (png_ptr, &buffer, user_read_data_fn);
 				
 			}
@@ -185,7 +185,7 @@ namespace lime {
 			
 			imageBuffer->Resize (width, height, 32);
 			const unsigned int stride = imageBuffer->Stride ();
-			unsigned char *bytes = imageBuffer->data.Data ();
+			unsigned char *bytes = imageBuffer->data->Data ();
 			
 			int number_of_passes = png_set_interlace_handling (png_ptr);
 			
@@ -212,6 +212,7 @@ namespace lime {
 		png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
 		
 		if (file) lime::fclose (file);
+		if (data) delete data;
 		
 		return true;
 		
@@ -258,7 +259,7 @@ namespace lime {
 		png_write_info (png_ptr, info_ptr);
 		
 		bool do_alpha = (color_type == PNG_COLOR_TYPE_RGBA);
-		unsigned char* imageData = imageBuffer->data.Data();
+		unsigned char* imageData = imageBuffer->data->Data();
 		int stride = imageBuffer->Stride ();
 		
 		{

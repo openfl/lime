@@ -138,10 +138,14 @@ class NativeRenderer {
 		var imageBuffer:ImageBuffer = null;
 		
 		#if !macro
-		var data:Dynamic = lime_renderer_read_pixels (handle, rect);
+		#if !cs
+		imageBuffer = lime_renderer_read_pixels (handle, rect, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
+		#else
+		var data:Dynamic = lime_renderer_read_pixels (handle, rect, null);
 		if (data != null) {
 			imageBuffer = new ImageBuffer (new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b)), data.width, data.height, data.bitsPerPixel);
 		}
+		#end
 		#end
 		
 		if (imageBuffer != null) {
@@ -208,7 +212,7 @@ class NativeRenderer {
 	@:cffi private static function lime_renderer_get_type (handle:Dynamic):Dynamic;
 	@:cffi private static function lime_renderer_lock (handle:Dynamic):Dynamic;
 	@:cffi private static function lime_renderer_make_current (handle:Dynamic):Void;
-	@:cffi private static function lime_renderer_read_pixels (handle:Dynamic, rect:Dynamic):Dynamic;
+	@:cffi private static function lime_renderer_read_pixels (handle:Dynamic, rect:Dynamic, imageBuffer:Dynamic):Dynamic;
 	@:cffi private static function lime_renderer_unlock (handle:Dynamic):Void;
 	#end
 	
