@@ -79,7 +79,7 @@ class AssetsMacro {
 				
 			};
 			
-			var args = [ { name: "length", opt: false, type: macro :Int }, { name: "bytesData", opt: false, type: macro :haxe.io.BytesData } ];
+			var args = [ { name: "length", opt: true, type: macro :Int }, { name: "bytesData", opt: true, type: macro :haxe.io.BytesData } ];
 			fields.push ({ name: "new", access: [ APublic ], kind: FFun({ args: args, expr: constructor, params: [], ret: null }), pos: Context.currentPos () });
 			
 			#end
@@ -159,11 +159,21 @@ class AssetsMacro {
 							#else
 							
 							var path = filePath;
+							
 							if (!sys.FileSystem.exists(filePath)) {
+								
 								path = Context.resolvePath (filePath);
+								
 							}
+							
 							var bytes = File.getBytes (path);
 							var resourceName = "__ASSET__" + metaName + "_" + (classType.pack.length > 0 ? classType.pack.join ("_") + "_" : "") + classType.name;
+							
+							if (Context.getResources ().exists (resourceName)) {
+								
+								return null;
+								
+							}
 							
 							if (encode) {
 								
