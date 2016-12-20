@@ -446,8 +446,15 @@ class Font {
 		
 		this.name = name;
 		var font = name;
+		var ua = Browser.navigator.userAgent.toLowerCase();
 		
-		if (untyped (Browser.document).fonts && untyped (Browser.document).fonts.load) {
+		// When Safari reports that font is loaded, actually font IS NOT loaded.
+		// If you try to use this font immediately after preloader completes,
+		// default font will be used instead.
+		//
+		// We detect Safari, and use old font loading for it.
+		
+		if (!(ua.indexOf(" safari/") >= 0 && ua.indexOf(" chrome/") < 0) && untyped (Browser.document).fonts && untyped (Browser.document).fonts.load) {
 			
 			untyped (Browser.document).fonts.load ("1em '" + font + "'").then (function (_) {
 				
