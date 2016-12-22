@@ -48,7 +48,8 @@ import sys.FileSystem;
 		
 		::if (assets != null)::var id;
 		::foreach assets::id = "::id::";
-		::if (embed)::::if (type == "font")::classTypes.set (id, __ASSET__::flatName::); preload.set (id, true);::else::paths.set (id, ::if (resourceName == id)::id::else::"::resourceName::"::end::);::end::
+		::if (embed)::preload.set (id, true);
+		::if (type == "font")::classTypes.set (id, __ASSET__::flatName::);::else::paths.set (id, ::if (resourceName == id)::id::else::"::resourceName::"::end::);::end::
 		::else::paths.set (id, ::if (resourceName == id)::id::else::"::resourceName::"::end::);::end::
 		types.set (id, AssetType.$$upper(::type::));
 		::end::::end::
@@ -61,10 +62,6 @@ import sys.FileSystem;
 			for (k in paths.keys()) {
 				paths.set(k, assetsPrefix + paths[k]);
 			}
-		}
-		
-		for (id in paths.keys()) {
-			preload.set (id, true);
 		}
 		
 		#else
