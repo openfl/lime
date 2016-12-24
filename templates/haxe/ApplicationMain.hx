@@ -75,6 +75,8 @@ class ApplicationMain {
 		
 		preloader.create (config);
 		preloader.addLibrary (library);
+		::if (libraries != null)::::foreach libraries::::if (preload)::preloader.addLibraryName ("::name::");
+		::end::::end::::end::
 		preloader.load ();
 		
 		start ();

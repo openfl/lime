@@ -34,12 +34,14 @@ class Preloader #if flash extends Sprite #end {
 	public var onComplete = new Event<Void->Void> ();
 	public var onProgress = new Event<Int->Int->Void> ();
 	
+	private var initLibraryNames:Bool;
+	private var itemsProgressLoaded:Int;
+	private var itemsProgressTotal:Int;
 	private var libraries:Array<AssetLibrary>;
+	private var libraryNames:Array<String>;
 	private var loadedLibraries:Int;
 	private var loadedStage:Bool;
 	
-	private var itemsProgressLoaded:Int;
-	private var itemsProgressTotal:Int;
 	
 	public function new () {
 		
@@ -48,6 +50,7 @@ class Preloader #if flash extends Sprite #end {
 		#end
 		
 		libraries = new Array<AssetLibrary> ();
+		libraryNames = new Array<String> ();
 		
 		onProgress.add (update);
 		
@@ -57,6 +60,17 @@ class Preloader #if flash extends Sprite #end {
 	public function addLibrary (library:AssetLibrary):Void {
 		
 		libraries.push (library);
+		
+	}
+	
+	
+	public function addLibraryName (name:String):Void {
+		
+		if (libraryNames.indexOf (name) == -1) {
+			
+			libraryNames.push (name);
+			
+		}
 		
 	}
 	
@@ -92,7 +106,7 @@ class Preloader #if flash extends Sprite #end {
 			
 			library.load ().onProgress (function (_, _) {
 				
-				updateItemsProgress();
+				updateItemsProgress ();
 				
 			}).onComplete (function (_) {
 				
@@ -101,9 +115,15 @@ class Preloader #if flash extends Sprite #end {
 				
 			}).onError (function (e) {
 				
-				trace(e);
+				trace (e);
 				
 			});
+			
+		}
+		
+		for (name in libraryNames) {
+			
+			itemsProgressTotal += 1;
 			
 		}
 		
@@ -142,7 +162,32 @@ class Preloader #if flash extends Sprite #end {
 		update (itemsProgressLoaded, itemsProgressTotal);
 		// update (loadedLibraries, libraries.length);
 		
-		if (#if flash loadedStage && #end loadedLibraries == libraries.length) {
+		if (loadedLibraries == libraries.length && !initLibraryNames) {
+			
+			initLibraryNames = true;
+			
+			for (name in libraryNames) {
+				
+				Assets.loadLibrary (name).onProgress (function (_, _) {
+					
+					updateItemsProgress ();
+					
+				}).onComplete (function (_) {
+					
+					loadedLibraries++;
+					updateProgress ();
+					
+				}).onError (function (e) {
+					
+					trace (e);
+					
+				});
+				
+			}	
+			
+		}
+		
+		if (#if flash loadedStage && #end loadedLibraries == (libraries.length + libraryNames.length)) {
 			
 			start ();
 			
