@@ -239,7 +239,6 @@ class Image {
 		
 		sourceRect = __clipRect (sourceRect);
 		if (buffer == null || sourceRect == null) return;
-		
 		if (destChannel == ALPHA && !transparent) return;
 		if (sourceRect.width <= 0 || sourceRect.height <= 0) return;
 		if (sourceRect.x + sourceRect.width > sourceImage.width) sourceRect.width = sourceImage.width - sourceRect.x;
@@ -255,6 +254,7 @@ class Image {
 				
 				#if (js && html5)
 				ImageCanvasUtil.convertToData (this);
+				ImageCanvasUtil.convertToData (sourceImage);
 				#end
 				
 				ImageDataUtil.copyChannel (this, sourceImage, sourceRect, destPoint, sourceChannel, destChannel);
