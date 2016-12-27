@@ -29,7 +29,7 @@ namespace lime {
 			static void Dispatch (KeyEvent* event);
 			
 			double keyCode;
-			int modifier;
+			uint16_t modifier;
 			KeyEventType type;
 			uint32_t windowID;
 		

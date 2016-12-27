@@ -66,13 +66,15 @@ class NativeApplication {
 	
 	private var frameRate:Float;
 	private var parent:Application;
+	private var toggleFullscreen:Bool;
 	
 	
 	public function new (parent:Application):Void {
 		
 		this.parent = parent;
 		frameRate = 60;
-
+		toggleFullscreen = true;
+		
 		#if (lime_console && final)
 		// suppress traces in final builds
 		haxe.Log.trace = function(v:Dynamic, ?infos:haxe.PosInfos) {};
@@ -302,17 +304,53 @@ class NativeApplication {
 			
 			#if (windows || linux)
 			
-			if (keyCode == RETURN && (modifier == KeyModifier.LEFT_ALT || modifier == KeyModifier.RIGHT_ALT) && type == KEY_DOWN && !window.onKeyDown.canceled) {
+			if (keyCode == RETURN) {
 				
-				window.fullscreen = !window.fullscreen;
+				if (type == KEY_DOWN) {
+					
+					if (toggleFullscreen && modifier.altKey && (!modifier.ctrlKey && !modifier.shiftKey && !modifier.metaKey)) {
+						
+						toggleFullscreen = false;
+						
+						if (!window.onKeyDown.canceled) {
+							
+							window.fullscreen = !window.fullscreen;
+							
+						}
+						
+					}
+					
+				} else {
+					
+					toggleFullscreen = true;
+					
+				}
 				
 			}
 			
 			#elseif mac
 			
-			if (keyCode == F && modifier.ctrlKey && modifier.metaKey && type == KEY_DOWN && !modifier.altKey && !modifier.shiftKey && !window.onKeyDown.canceled) {
+			if (keyCode == F) {
 				
-				window.fullscreen = !window.fullscreen;
+				if (type == KEY_DOWN) {
+					
+					if (toggleFullscreen && (modifier.ctrlKey && modifier.metaKey) && (!modifier.altKey && !modifier.shiftKey)) {
+						
+						toggleFullscreen = false;
+						
+						if (!window.onKeyDown.canceled) {
+							
+							window.fullscreen = !window.fullscreen;
+							
+						}
+						
+					}
+					
+				} else {
+					
+					toggleFullscreen = true;
+					
+				}
 				
 			}
 			
