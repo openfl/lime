@@ -98,6 +98,22 @@ namespace lime {
 	}
 	
 	
+	std::wstring* hxstring_to_wstring (HxString val) {
+		
+		if (val.c_str ()) {
+			
+			std::string _val = std::string (val.c_str ());
+			return new std::wstring (_val.begin (), _val.end ());
+			
+		} else {
+			
+			return 0;
+			
+		}
+		
+	}
+	
+	
 	value lime_application_create (value callback) {
 		
 		Application* application = CreateApplication ();
@@ -318,63 +334,89 @@ namespace lime {
 	
 	value lime_file_dialog_open_directory (HxString filter, HxString defaultPath) {
 		
-		#ifdef LIME_NFD
-		const char* path = FileDialog::OpenDirectory (filter.c_str (), defaultPath.c_str ());
+		#ifdef LIME_TINYFILEDIALOGS
+		
+		std::wstring* _filter = hxstring_to_wstring (filter);
+		std::wstring* _defaultPath = hxstring_to_wstring (defaultPath);
+		
+		std::wstring* path = FileDialog::OpenDirectory (_filter, _defaultPath);
+		
+		if (_filter) delete _filter;
+		if (_defaultPath) delete _defaultPath;
 		
 		if (path) {
 			
-			value _path = alloc_string (path);
-			free ((char*) path);
+			value _path = alloc_wstring (path->c_str ());
+			delete path;
 			return _path;
 			
 		} else {
 			
+			delete path;
 			return alloc_null ();
 			
 		}
+		
 		#endif
 		
-		return 0;
+		return alloc_null ();
 		
 	}
 	
 	value lime_file_dialog_open_file (HxString filter, HxString defaultPath) {
 		
-		#ifdef LIME_NFD
-		const char* path = FileDialog::OpenFile (filter.c_str (), defaultPath.c_str ());
+		#ifdef LIME_TINYFILEDIALOGS
+		
+		std::wstring* _filter = hxstring_to_wstring (filter);
+		std::wstring* _defaultPath = hxstring_to_wstring (defaultPath);
+		
+		std::wstring* path = FileDialog::OpenFile (_filter, _defaultPath);
+		
+		if (_filter) delete _filter;
+		if (_defaultPath) delete _defaultPath;
 		
 		if (path) {
 			
-			value _path = alloc_string (path);
-			free ((char*) path);
+			value _path = alloc_wstring (path->c_str ());
+			delete path;
 			return _path;
 			
 		} else {
 			
+			delete path;
 			return alloc_null ();
 			
 		}
+		
 		#endif
 		
-		return 0;
+		return alloc_null ();
 		
 	}
 	
 	
 	value lime_file_dialog_open_files (HxString filter, HxString defaultPath) {
 		
-		#ifdef LIME_NFD
-		std::vector<const char*> files;
+		#ifdef LIME_TINYFILEDIALOGS
 		
-		FileDialog::OpenFiles (&files, filter.c_str (), defaultPath.c_str ());
+		std::wstring* _filter = hxstring_to_wstring (filter);
+		std::wstring* _defaultPath = hxstring_to_wstring (defaultPath);
+		
+		std::vector<std::wstring*> files;
+		
+		FileDialog::OpenFiles (&files, _filter, _defaultPath);
 		value result = alloc_array (files.size ());
+		
+		if (_filter) delete _filter;
+		if (_defaultPath) delete _defaultPath;
 		
 		for (int i = 0; i < files.size (); i++) {
 			
-			val_array_set_i (result, i, alloc_string (files[i]));
-			free ((char*)files[i]);
+			val_array_set_i (result, i, alloc_wstring (files[i]->c_str ()));
+			delete files[i];
 			
 		}
+		
 		#else
 		value result = alloc_array (0);
 		#endif
@@ -386,23 +428,32 @@ namespace lime {
 	
 	value lime_file_dialog_save_file (HxString filter, HxString defaultPath) {
 		
-		#ifdef LIME_NFD
-		const char* path = FileDialog::SaveFile (filter.c_str (), defaultPath.c_str ());
+		#ifdef LIME_TINYFILEDIALOGS
+		
+		std::wstring* _filter = hxstring_to_wstring (filter);
+		std::wstring* _defaultPath = hxstring_to_wstring (defaultPath);
+		
+		std::wstring* path = FileDialog::SaveFile (_filter, _defaultPath);
+		
+		if (_filter) delete _filter;
+		if (_defaultPath) delete _defaultPath;
 		
 		if (path) {
 			
-			value _path = alloc_string (path);
-			free ((char*) path);
+			value _path = alloc_wstring (path->c_str ());
+			delete path;
 			return _path;
 			
 		} else {
 			
+			delete path;
 			return alloc_null ();
 			
 		}
+		
 		#endif
 		
-		return 0;
+		return alloc_null ();
 		
 	}
 	
@@ -413,7 +464,7 @@ namespace lime {
 		Font *font = (Font*)val_data (fontHandle);
 		return font->GetAscender ();
 		#else
-		return 0;
+		return alloc_null ();
 		#endif
 		
 	}
@@ -425,7 +476,7 @@ namespace lime {
 		Font *font = (Font*)val_data (fontHandle);
 		return font->GetDescender ();
 		#else
-		return 0;
+		return alloc_null ();
 		#endif
 		
 	}
@@ -440,7 +491,7 @@ namespace lime {
 		delete name;
 		return result;
 		#else
-		return 0;
+		return alloc_null ();
 		#endif
 		
 	}
@@ -488,7 +539,7 @@ namespace lime {
 		Font *font = (Font*)val_data (fontHandle);
 		return font->GetHeight ();
 		#else
-		return 0;
+		return alloc_null ();
 		#endif
 		
 	}
@@ -512,7 +563,7 @@ namespace lime {
 		Font *font = (Font*)val_data (fontHandle);
 		return font->GetUnderlinePosition ();
 		#else
-		return 0;
+		return alloc_null ();
 		#endif
 		
 	}
@@ -524,7 +575,7 @@ namespace lime {
 		Font *font = (Font*)val_data (fontHandle);
 		return font->GetUnderlineThickness ();
 		#else
-		return 0;
+		return alloc_null ();
 		#endif
 		
 	}
@@ -536,7 +587,7 @@ namespace lime {
 		Font *font = (Font*)val_data (fontHandle);
 		return font->GetUnitsPerEM ();
 		#else
-		return 0;
+		return alloc_null ();
 		#endif
 		
 	}
