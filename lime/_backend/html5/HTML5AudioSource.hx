@@ -59,9 +59,15 @@ class HTML5AudioSource {
 		var time = getCurrentTime ();
 		
 		completed = false;
+		
+		var cacheVolume = untyped parent.buffer.__srcHowl._volume;
+		untyped parent.buffer.__srcHowl._volume = parent.gain;
+		
 		id = parent.buffer.__srcHowl.play ();
 		
-		setGain (parent.gain);
+		untyped parent.buffer.__srcHowl._volume = cacheVolume;
+		//setGain (parent.gain);
+		
 		setPosition (parent.position);
 		
 		parent.buffer.__srcHowl.on ("end", howl_onEnd, id);
