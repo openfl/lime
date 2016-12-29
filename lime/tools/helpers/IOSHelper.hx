@@ -39,10 +39,11 @@ class IOSHelper {
 		var iphoneVersion = project.environment.get ("IPHONE_VER");
 		var commands = [ "-configuration", configuration, "PLATFORM_NAME=" + platformName, "SDKROOT=" + platformName + iphoneVersion ];
 			
-		if (project.targetFlags.exists("simulator")) {
+		if (project.targetFlags.exists ("simulator")) {
 			
 			commands.push ("-arch");
-			commands.push ("i386");
+			//commands.push ("i386");
+			commands.push ("x86_64");
 			
 		}
 		
@@ -92,7 +93,7 @@ class IOSHelper {
 		
 		if (!project.environment.exists ("IPHONE_VER") || project.environment.get ("IPHONE_VER") == "4.2") {
 			
-			if (!project.environment.exists("DEVELOPER_DIR")) {
+			if (!project.environment.exists ("DEVELOPER_DIR")) {
 				
 				var process = new Process ("xcode-select", [ "--print-path" ]);
 				var developerDir = process.stdout.readLine ();

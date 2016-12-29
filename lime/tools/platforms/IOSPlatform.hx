@@ -232,6 +232,7 @@ class IOSPlatform extends PlatformTarget {
 		
 		context.CURRENT_ARCHS = "( " + valid_archs.join(",") + ") ";
 		
+		valid_archs.push ("x86_64");
 		valid_archs.push ("i386");
 		
 		context.VALID_ARCHS = valid_archs.join(" ");
