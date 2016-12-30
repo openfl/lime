@@ -752,6 +752,7 @@ class HXProject {
 			
 			config.merge (project.config);
 			
+			architectures = ArrayHelper.concatUnique (architectures, project.architectures);
 			assets = ArrayHelper.concatUnique (assets, project.assets);
 			dependencies = ArrayHelper.concatUnique (dependencies, project.dependencies, true);
 			haxeflags = ArrayHelper.concatUnique (haxeflags, project.haxeflags);
