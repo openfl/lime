@@ -24,6 +24,7 @@ class HTML5AudioSource {
 		
 		this.parent = parent;
 		
+		id = -1;
 		gain = 1;
 		position = new Vector4 ();
 		
@@ -146,6 +147,12 @@ class HTML5AudioSource {
 	
 	
 	public function getCurrentTime ():Int {
+		
+		if (id == -1) {
+			
+			return 0;
+			
+		}
 		
 		#if howlerjs
 		
