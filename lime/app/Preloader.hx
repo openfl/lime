@@ -1,8 +1,13 @@
 package lime.app;
 
 
+import haxe.io.Bytes;
+import haxe.io.Path;
 import lime.app.Event;
-import lime.Assets;
+import lime.audio.AudioBuffer;
+import lime.utils.AssetLibrary;
+import lime.utils.Assets;
+import lime.utils.AssetType;
 
 #if (js && html5)
 import js.html.Image;
@@ -16,6 +21,11 @@ import flash.events.ProgressEvent;
 import flash.Lib;
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class Preloader #if flash extends Sprite #end {
 	
@@ -24,12 +34,13 @@ class Preloader #if flash extends Sprite #end {
 	public var onComplete = new Event<Void->Void> ();
 	public var onProgress = new Event<Int->Int->Void> ();
 	
-	#if (js && html5)
-	public static var images = new Map<String, Image> ();
-	public static var loaders = new Map<String, HTTPRequest> ();
-	private var loaded = 0;
-	private var total = 0;
-	#end
+	private var initLibraryNames:Bool;
+	private var itemsProgressLoaded:Int;
+	private var itemsProgressTotal:Int;
+	private var libraries:Array<AssetLibrary>;
+	private var libraryNames:Array<String>;
+	private var loadedLibraries:Int;
+	private var loadedStage:Bool;
 	
 	
 	public function new () {
@@ -38,7 +49,28 @@ class Preloader #if flash extends Sprite #end {
 		super ();
 		#end
 		
+		libraries = new Array<AssetLibrary> ();
+		libraryNames = new Array<String> ();
+		
 		onProgress.add (update);
+		
+	}
+	
+	
+	public function addLibrary (library:AssetLibrary):Void {
+		
+		libraries.push (library);
+		
+	}
+	
+	
+	public function addLibraryName (name:String):Void {
+		
+		if (libraryNames.indexOf (name) == -1) {
+			
+			libraryNames.push (name);
+			
+		}
 		
 	}
 	
@@ -54,177 +86,51 @@ class Preloader #if flash extends Sprite #end {
 		Lib.current.addEventListener (flash.events.Event.ENTER_FRAME, current_onEnter);
 		#end
 		
-		#if (!flash && !html5)
-		start ();
-		#end
-		
 	}
 	
 	
-	public function load (urls:Array<String>, types:Array<AssetType>):Void {
+	public function load ():Void {
 		
-		#if (js && html5)
+		itemsProgressLoaded = 0;
+		itemsProgressTotal = 0;
 		
-		var url = null;
-		var cacheVersion = Assets.cache.version;
-		
-		for (i in 0...urls.length) {
+		for (library in libraries) {
 			
-			url = urls[i];
-			
-			switch (types[i]) {
-				
-				case IMAGE:
-					
-					if (!images.exists (url)) {
-						
-						var image = new Image ();
-						images.set (url, image);
-						image.onload = image_onLoad;
-						image.src = url + "?" + cacheVersion;
-						total++;
-						
-					}
-				
-				case BINARY:
-					
-					if (!loaders.exists (url)) {
-						
-						var loader = new HTTPRequest ();
-						loaders.set (url, loader);
-						total++;
-						
-					}
-				
-				case TEXT:
-					
-					if (!loaders.exists (url)) {
-						
-						var loader = new HTTPRequest ();
-						loaders.set (url, loader);
-						total++;
-						
-					}
-				
-				case FONT:
-					
-					total++;
-					loadFont (url);
-				
-				default:
-				
-			}
+			itemsProgressTotal += library.computeProgressTotal ();
 			
 		}
 		
-		for (url in loaders.keys ()) {
-			
-			var loader = loaders.get (url);
-			var future = loader.load (url + "?" + cacheVersion);
-			future.onComplete (loader_onComplete);
-			
-		}
+		loadedLibraries = -1;
 		
-		if (total == 0) {
+		for (library in libraries) {
 			
-			start ();
-			
-		}
-		
-		#end
-		
-	}
-	
-	
-	#if (js && html5)
-	private function loadFont (font:String):Void {
-		
-		if (untyped (Browser.document).fonts && untyped (Browser.document).fonts.load) {
-			
-			untyped (Browser.document).fonts.load ("1em '" + font + "'").then (function (_) {
+			library.load ().onProgress (function (_, _) {
 				
-				loaded ++;
-				onProgress.dispatch (loaded, total);
+				updateItemsProgress ();
 				
-				if (loaded == total) {
-					
-					start ();
-					
-				}
+			}).onComplete (function (_) {
+				
+				loadedLibraries++;
+				updateProgress ();
+				
+			}).onError (function (e) {
+				
+				trace (e);
 				
 			});
 			
-		} else {
+		}
+		
+		for (name in libraryNames) {
 			
-			var node:SpanElement = cast Browser.document.createElement ("span");
-			node.innerHTML = "giItT1WQy@!-/#";
-			var style = node.style;
-			style.position = "absolute";
-			style.left = "-10000px";
-			style.top = "-10000px";
-			style.fontSize = "300px";
-			style.fontFamily = "sans-serif";
-			style.fontVariant = "normal";
-			style.fontStyle = "normal";
-			style.fontWeight = "normal";
-			style.letterSpacing = "0";
-			Browser.document.body.appendChild (node);
-			
-			var width = node.offsetWidth;
-			style.fontFamily = "'" + font + "', sans-serif";
-			
-			var interval:Null<Int> = null;
-			var found = false;
-			
-			var checkFont = function () {
-				
-				if (node.offsetWidth != width) {
-					
-					// Test font was still not available yet, try waiting one more interval?
-					if (!found) {
-						
-						found = true;
-						return false;
-						
-					}
-					
-					loaded ++;
-					
-					if (interval != null) {
-						
-						Browser.window.clearInterval (interval);
-						
-					}
-					
-					node.parentNode.removeChild (node);
-					node = null;
-					
-					onProgress.dispatch (loaded, total);
-					
-					if (loaded == total) {
-						
-						start ();
-						
-					}
-					
-					return true;
-					
-				}
-				
-				return false;
-				
-			}
-			
-			if (!checkFont ()) {
-				
-				interval = Browser.window.setInterval (checkFont, 50);
-				
-			}
+			itemsProgressTotal += 1;
 			
 		}
 		
+		loadedLibraries++;
+		updateProgress ();
+		
 	}
-	#end
 	
 	
 	private function start ():Void {
@@ -251,21 +157,37 @@ class Preloader #if flash extends Sprite #end {
 	}
 	
 	
-	
-	
-	// Event Handlers
-	
-	
-	
-	
-	#if (js && html5)
-	private function image_onLoad (_):Void {
+	private function updateProgress ():Void {
 		
-		loaded++;
+		update (itemsProgressLoaded, itemsProgressTotal);
+		// update (loadedLibraries, libraries.length);
 		
-		onProgress.dispatch (loaded, total);
+		if (loadedLibraries == libraries.length && !initLibraryNames) {
+			
+			initLibraryNames = true;
+			
+			for (name in libraryNames) {
+				
+				Assets.loadLibrary (name).onProgress (function (_, _) {
+					
+					updateItemsProgress ();
+					
+				}).onComplete (function (_) {
+					
+					loadedLibraries++;
+					updateProgress ();
+					
+				}).onError (function (e) {
+					
+					trace (e);
+					
+				});
+				
+			}	
+			
+		}
 		
-		if (loaded == total) {
+		if (#if flash loadedStage && #end loadedLibraries == (libraries.length + libraryNames.length)) {
 			
 			start ();
 			
@@ -273,41 +195,31 @@ class Preloader #if flash extends Sprite #end {
 		
 	}
 	
-	
-	private function loader_onComplete (_):Void {
+	private function updateItemsProgress ():Void {
 		
-		loaded++;
-		
-		onProgress.dispatch (loaded, total);
-		
-		if (loaded == total) {
-			
-			start ();
-			
-		}
+		itemsProgressLoaded++;
+		updateProgress();
 		
 	}
-	#end
-	
 	
 	#if flash
 	private function current_onEnter (event:flash.events.Event):Void {
 		
-		if (!complete && Lib.current.loaderInfo.bytesLoaded == Lib.current.loaderInfo.bytesTotal) {
+		if (!loadedStage && Lib.current.loaderInfo.bytesLoaded == Lib.current.loaderInfo.bytesTotal) {
 			
-			complete = true;
+			loadedStage = true;
 			onProgress.dispatch (Lib.current.loaderInfo.bytesLoaded, Lib.current.loaderInfo.bytesTotal);
 			
 		}
 		
-		if (complete) {
+		if (loadedStage) {
 			
 			Lib.current.removeEventListener (flash.events.Event.ENTER_FRAME, current_onEnter);
 			Lib.current.loaderInfo.removeEventListener (flash.events.Event.COMPLETE, loaderInfo_onComplete);
 			Lib.current.loaderInfo.removeEventListener (flash.events.Event.INIT, loaderInfo_onInit);
 			Lib.current.loaderInfo.removeEventListener (ProgressEvent.PROGRESS, loaderInfo_onProgress);
 			
-			start ();
+			updateProgress ();
 			
 		}
 		
@@ -316,7 +228,7 @@ class Preloader #if flash extends Sprite #end {
 	
 	private function loaderInfo_onComplete (event:flash.events.Event):Void {
 		
-		complete = true;
+		loadedStage = true;
 		onProgress.dispatch (Lib.current.loaderInfo.bytesLoaded, Lib.current.loaderInfo.bytesTotal);
 		
 	}

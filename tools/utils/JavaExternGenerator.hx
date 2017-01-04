@@ -58,7 +58,7 @@ class JavaExternGenerator
 		mExactTypes = new Map<String, Bool>();
 		mProcessed.set("java/lang/Object",true);
 		
-		var paths = new Array <String> ();
+		var paths = new Array<String> ();
 		
 		if (FileSystem.isDirectory (javaPath))
 		{
@@ -123,7 +123,7 @@ class JavaExternGenerator
 		
 	}
 	
-
+	
 	private function extractAndroidClasses()
 	{
 		if (!extractedAndroidClasses)
@@ -154,14 +154,14 @@ class JavaExternGenerator
 				
 			} else {
 				
-				throw "Could not find Android SDK directory. Check that ANDROID_SDK is defined in .hxcpp_config.xml";
+				throw "Could not find Android SDK directory. Check that ANDROID_SDK is defined in ~/.lime/config.xml";
 				
 			}
 		}
 		extractedAndroidClasses = true;
 	}
 	
-
+	
 	private function generate(inClass:String, inMembers:Map<String, String>)
 	{
 		Lib.println(inClass);
@@ -249,7 +249,7 @@ class JavaExternGenerator
 	}
 	
 	
-	private function getPaths(basePath:String, source:String, paths:Array <String>)
+	private function getPaths(basePath:String, source:String, paths:Array<String>)
 	{
 		var files = FileSystem.readDirectory(basePath + "/" + source);
 		
@@ -887,7 +887,7 @@ class JavaExternGenerator
 		parseTypes(args, 0);
 	}
 	
-
+	
 	private function toHaxeType(inStr:String)
 	{
 		parsedTypes = [];

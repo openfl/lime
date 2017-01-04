@@ -28,38 +28,30 @@ class AndroidHelper {
 			
 		}
 		
-		var ant = project.environment.get ("ANT_HOME");
+		var task = "assembleDebug";
 		
-		if (ant == null || ant == "") {
+		if (project.keystore != null) {
 			
-			ant = "ant";
+			task = "assembleRelease";
+			
+		}
+		
+		if (project.environment.exists ("ANDROID_GRADLE_TASK")) {
+			
+			task = project.environment.get ("ANDROID_GRADLE_TASK");
+			
+		}
+		
+		if (PlatformHelper.hostPlatform != Platform.WINDOWS) {
+			
+			ProcessHelper.runCommand ("", "chmod", [ "755", PathHelper.combine (projectDirectory, "gradlew") ]);
+			ProcessHelper.runCommand (projectDirectory, "./gradlew", [ task ]);
 			
 		} else {
 			
-			ant += "/bin/ant";
+			ProcessHelper.runCommand (projectDirectory, "gradlew", [ task ]);
 			
 		}
-		
-		var build = "debug";
-		
-		if (project.certificate != null) {
-			
-			build = "release";
-			
-		}
-		
-		// Fix bug in Android build system, force compile
-		
-		var buildProperties = projectDirectory + "/bin/build.prop";
-		
-		if (FileSystem.exists (buildProperties)) {
-			
-			FileSystem.deleteFile (buildProperties);
-			
-		}
-		
-		ProcessHelper.runCommand (projectDirectory, ant, [ build ]);
-		
 	}
 	
 	
@@ -132,33 +124,33 @@ class AndroidHelper {
 		adbName = "adb";
 		androidName = "android";
 		emulatorName = "emulator";
-
+		
 		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
-
+			
 			adbName += ".exe";
 			androidName += ".bat";
 			emulatorName += ".exe";
-
+			
 		}
-
+		
 		if (!FileSystem.exists (adbPath + adbName)) {
-
+			
 			adbPath = project.environment.get ("ANDROID_SDK") + "/platform-tools/";
-
+			
 		}
-
+		
 		if (PlatformHelper.hostPlatform != Platform.WINDOWS) {
-
+			
 			adbName = "./" + adbName;
 			androidName = "./" + androidName;
 			emulatorName = "./" + emulatorName;
-
+			
 		}
 		
 		if (project.environment.exists ("JAVA_HOME")) {
-
+			
 			Sys.putEnv ("JAVA_HOME", project.environment.get ("JAVA_HOME"));
-
+			
 		}
 		
 	}
@@ -238,11 +230,11 @@ class AndroidHelper {
 		
 		var args = [ "install", "-r" ];
 		
-		if (getDeviceSDKVersion (deviceID) > 16) {
+		//if (getDeviceSDKVersion (deviceID) > 16) {
 			
 			args.push ("-d");
 			
-		}
+		//}
 		
 		args.push (targetPath);
 		
@@ -262,9 +254,9 @@ class AndroidHelper {
 	}
 	
 	
-	public static function listAVDs ():Array <String> {
+	public static function listAVDs ():Array<String> {
 		
-		var avds = new Array <String> ();
+		var avds = new Array<String> ();
 		var output = ProcessHelper.runProcess (androidPath, androidName, [ "list", "avd" ]);
 		
 		if (output != null && output != "") {
@@ -286,9 +278,9 @@ class AndroidHelper {
 	}
 	
 	
-	public static function listDevices ():Array <String> {
+	public static function listDevices ():Array<String> {
 		
-		var devices = new Array <String> ();
+		var devices = new Array<String> ();
 		var output = "";
 		
 		if (PlatformHelper.hostPlatform != Platform.WINDOWS) {

@@ -1,6 +1,12 @@
 package lime.graphics.opengl; #if (!js || !html5)
 
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
+
 typedef GLContextAttributes = {
 	
 	alpha:Bool, 

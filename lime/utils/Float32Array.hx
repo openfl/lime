@@ -14,6 +14,7 @@ package lime.utils;
         public inline function new<T>(
             ?elements:Int,
             ?array:Array<T>,
+            #if openfl ?vector:openfl.Vector<Float>, #end
             ?view:ArrayBufferView,
             ?buffer:ArrayBuffer, ?byteoffset:Int = 0, ?len:Null<Int>
         ) {
@@ -21,6 +22,7 @@ package lime.utils;
                 this = new js.html.Float32Array( elements );
             } else if(array != null) {
                 this = new js.html.Float32Array( untyped array );
+            #if openfl } else if(vector != null) { this = new js.html.Float32Array( untyped untyped (vector).__array ); #end
             } else if(view != null) {
                 this = new js.html.Float32Array( untyped view );
             } else if(buffer != null) {
@@ -46,11 +48,7 @@ package lime.utils;
         }
 
         inline public function toBytes() : haxe.io.Bytes {
-            #if (haxe_ver < 3.2)
-                return @:privateAccess new haxe.io.Bytes( this.byteLength, cast new js.html.Uint8Array(this.buffer) );
-            #else
-                return @:privateAccess new haxe.io.Bytes( cast new js.html.Uint8Array(this.buffer) );
-            #end
+            return @:privateAccess new haxe.io.Bytes( cast new js.html.Uint8Array(this.buffer) );
         }
 
         inline function toString() return this != null ? 'Float32Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
@@ -66,7 +64,7 @@ package lime.utils;
     abstract Float32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
 
         public inline static var BYTES_PER_ELEMENT : Int = 4;
-
+public static var hello:Int;
         public var length (get, never):Int;
 
         @:generic
@@ -74,6 +72,7 @@ package lime.utils;
             ?elements:Int,
             ?buffer:ArrayBuffer,
             ?array:Array<T>,
+            #if openfl ?vector:openfl.Vector<Float>, #end
             ?view:ArrayBufferView,
             ?byteoffset:Int = 0, ?len:Null<Int>
         ) {
@@ -82,6 +81,7 @@ package lime.utils;
                 this = new ArrayBufferView( elements, Float32 );
             } else if(array != null) {
                 this = new ArrayBufferView(0, Float32).initArray(array);
+            #if openfl } else if(vector != null) { this = new ArrayBufferView(0, Float32).initArray(untyped (vector).__array); #end
             } else if(view != null) {
                 this = new ArrayBufferView(0, Float32).initTypedArray(view);
             } else if(buffer != null) {

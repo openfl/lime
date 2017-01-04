@@ -5,6 +5,7 @@ import haxe.io.Bytes;
 import lime.graphics.utils.ImageCanvasUtil;
 import lime.graphics.Image;
 import lime.system.CFFI;
+import lime.utils.UInt8Array;
 
 #if (js && html5)
 import js.Browser;
@@ -24,15 +25,23 @@ import haxe.io.BytesOutput;
 @:build(lime.system.CFFI.build())
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class PNG {
 	
 	
 	public static function decodeBytes (bytes:Bytes, decodeData:Bool = true):Image {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		
-		var bufferData:Dynamic = lime_png_decode_bytes (bytes, decodeData);
+		#if !cs
+		return lime_png_decode_bytes (bytes, decodeData, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
+		#else
+		var bufferData:Dynamic = lime_png_decode_bytes (bytes, decodeData, null);
 		
 		if (bufferData != null) {
 			
@@ -41,6 +50,7 @@ class PNG {
 			return new Image (buffer);
 			
 		}
+		#end
 		
 		#end
 		
@@ -51,9 +61,12 @@ class PNG {
 	
 	public static function decodeFile (path:String, decodeData:Bool = true):Image {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		
-		var bufferData:Dynamic = lime_png_decode_file (path, decodeData);
+		#if !cs
+		return lime_png_decode_file (path, decodeData, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
+		#else
+		var bufferData:Dynamic = lime_png_decode_file (path, decodeData, null);
 		
 		if (bufferData != null) {
 			
@@ -62,6 +75,7 @@ class PNG {
 			return new Image (buffer);
 			
 		}
+		#end
 		
 		#end
 		
@@ -88,8 +102,12 @@ class PNG {
 		
 		if (CFFI.enabled) {
 			
-			var data:Dynamic = lime_image_encode (image.buffer, 0, 0);
+			#if !cs
+			return lime_image_encode (image.buffer, 0, 0, Bytes.alloc (0));
+			#else
+			var data:Dynamic = lime_image_encode (image.buffer, 0, 0, null);
 			return @:privateAccess new Bytes (data.length, data.b);
+			#end
 			
 		}
 		#end
@@ -101,12 +119,7 @@ class PNG {
 			try {
 				
 				var bytes = Bytes.alloc (image.width * image.height * 4 + image.height);
-				
-				#if flash
-				var sourceBytes = Bytes.ofData (image.buffer.data.getByteBuffer ());
-				#else
-				var sourceBytes = cast image.buffer.data;
-				#end
+				var sourceBytes = image.buffer.data.toBytes ();
 				
 				var sourceIndex:Int, index:Int;
 				
@@ -169,10 +182,10 @@ class PNG {
 	
 	
 	
-	#if ((cpp || neko || nodejs) && !macro)
-	@:cffi private static function lime_png_decode_bytes (data:Dynamic, decodeData:Bool):Dynamic;
-	@:cffi private static function lime_png_decode_file (path:String, decodeData:Bool):Dynamic;
-	@:cffi private static function lime_image_encode (data:Dynamic, type:Int, quality:Int):Dynamic;
+	#if (lime_cffi && !macro)
+	@:cffi private static function lime_png_decode_bytes (data:Dynamic, decodeData:Bool, buffer:Dynamic):Dynamic;
+	@:cffi private static function lime_png_decode_file (path:String, decodeData:Bool, buffer:Dynamic):Dynamic;
+	@:cffi private static function lime_image_encode (data:Dynamic, type:Int, quality:Int, bytes:Dynamic):Dynamic;
 	#end
 	
 	

@@ -56,8 +56,6 @@ class ImageCanvasUtil {
 			
 		} else {
 			
-			
-			
 			if (image.type == DATA && buffer.__srcImageData != null && image.dirty) {
 				
 				buffer.__srcContext.putImageData (buffer.__srcImageData, 0, 0);
@@ -371,10 +369,12 @@ class ImageCanvasUtil {
 		
 		if ((x % image.width == 0) && (y % image.height == 0)) return;
 		
+		var copy = image.clone ();
+		
 		convertToCanvas (image, true);
 		
 		image.buffer.__srcContext.clearRect (x, y, image.width, image.height);
-		image.buffer.__srcContext.drawImage (image.buffer.__srcCanvas, x, y);
+		image.buffer.__srcContext.drawImage (copy.src, x, y);
 		
 		image.dirty = true;
 		image.version++;
@@ -410,6 +410,8 @@ class ImageCanvasUtil {
 	
 	
 	public static function sync (image:Image, clear:Bool):Void {
+		
+		if (image == null) return;
 		
 		#if (js && html5)
 		if (image.type == CANVAS) {

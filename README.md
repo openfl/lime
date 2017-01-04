@@ -17,6 +17,7 @@ Lime supports native, Flash and HTML5 targets with unified support for:
 
 Lime does not include a renderer, but exposes the current context:
 
+ * Cairo
  * Canvas
  * DOM
  * Flash
@@ -66,7 +67,6 @@ The first time you run the "lime" command, it will attempt to build the Lime sta
 
     haxelib install format
     lime rebuild windows
-    lime rebuild tools
 
 You can build additional binaries, or rebuild binaries after making changes, using "lime rebuild":
 
@@ -108,6 +108,7 @@ Lime currently supports the following targets:
     lime test linux
     lime test neko
     lime test android
+    lime test ios
     lime test html5
     lime test flash
 

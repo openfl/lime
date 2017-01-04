@@ -94,7 +94,7 @@ class ArrayHelper {
 	}
 	
 	
-	public static function containsValue<T> (array:Array < T > , value:T):Bool {
+	public static function containsValue<T> (array:Array< T > , value:T):Bool {
 		
 		for (arrayValue in array) {
 			
@@ -107,6 +107,55 @@ class ArrayHelper {
 		}
 		
 		return false;
+		
+	}
+	
+	
+	public static function getUnique<T> (a:Array<T>, b:Array<T>, key:String = null):Array<T> {
+		
+		if (a == null && b == null) {
+			
+			return new Array<T> ();
+			
+		} else if (a == null && b != null) {
+			
+			return b;
+			
+		}
+		
+		var concat = [];
+		
+		for (bValue in b) {
+			
+			var hasValue = false;
+			
+			for (aValue in a) {
+				
+				if (key != null) {
+					
+					if (Reflect.field (aValue, key) == Reflect.field (bValue, key)) {
+						
+						hasValue = true;
+						
+					}
+					
+				} else if (aValue == bValue) {
+					
+					hasValue = true;
+					
+				}
+				
+			}
+			
+			if (!hasValue) {
+				
+				concat.push (bValue);
+				
+			}
+			
+		}
+		
+		return concat;
 		
 	}
 	

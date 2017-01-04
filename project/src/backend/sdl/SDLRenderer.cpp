@@ -69,6 +69,10 @@ namespace lime {
 					valid = true;
 					#endif
 					
+					#ifdef IPHONEOS
+					glGetIntegerv (GL_FRAMEBUFFER_BINDING_OES, &OpenGLBindings::defaultFramebuffer);
+					#endif
+					
 				}
 				
 				if (!valid) {
@@ -139,7 +143,7 @@ namespace lime {
 		
 		SDL_GetWindowSize (sdlWindow, &width, &height);
 		
-		double scale = outputWidth / width;
+		double scale = double(outputWidth) / width;
 		return scale;
 		
 	}
@@ -217,10 +221,12 @@ namespace lime {
 			
 			SDL_RenderReadPixels (sdlRenderer, &bounds, SDL_PIXELFORMAT_ABGR8888, buffer->data->Data (), buffer->Stride ());
 			
-			for (unsigned char *it=buffer->data->Data()+3; it<(buffer->data->Data()+buffer->data->Length());it+=4) {
+			for (unsigned char *it=buffer->data->Data () + 3; it < (buffer->data->Data () + buffer->data->Length ()); it += 4) {
+				
 				*it = 0xff;
+				
 			}
-
+			
 		}
 		
 	}

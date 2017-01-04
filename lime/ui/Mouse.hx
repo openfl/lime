@@ -1,6 +1,12 @@
 package lime.ui;
 
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
+
 class Mouse {
 	
 	

@@ -15,6 +15,7 @@ import lime.tools.helpers.PathHelper;
 import lime.tools.helpers.ProcessHelper;
 import lime.project.Architecture;
 import lime.project.AssetType;
+import lime.project.Haxelib;
 import lime.project.HXProject;
 import lime.project.Icon;
 import lime.project.PlatformTarget;
@@ -28,7 +29,7 @@ class AndroidPlatform extends PlatformTarget {
 	private var deviceID:String;
 	
 	
-	public function new (command:String, _project:HXProject, targetFlags:Map <String, String>) {
+	public function new (command:String, _project:HXProject, targetFlags:Map<String, String>) {
 		
 		super (command, _project, targetFlags);
 		
@@ -52,7 +53,7 @@ class AndroidPlatform extends PlatformTarget {
 			
 		}
 		
-		targetDirectory = project.app.path + "/android";
+		targetDirectory = project.app.path + "/android/" + buildType;
 		
 	}
 	
@@ -60,20 +61,8 @@ class AndroidPlatform extends PlatformTarget {
 	public override function build ():Void {
 		
 		var destination = targetDirectory + "/bin";
-		
-		var type = "release";
-		
-		if (project.debug) {
-			
-			type = "debug";
-			
-		} else if (project.targetFlags.exists ("final")) {
-			
-			type = "final";
-			
-		}
-		
-		var hxml = targetDirectory + "/haxe/" + type + ".hxml";
+		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
+		var sourceSet = destination + "/app/src/main";
 		
 		var hasARMV5 = (ArrayHelper.containsValue (project.architectures, Architecture.ARMV5) || ArrayHelper.containsValue (project.architectures, Architecture.ARMV6));
 		var hasARMV7 = ArrayHelper.containsValue (project.architectures, Architecture.ARMV7);
@@ -89,7 +78,7 @@ class AndroidPlatform extends PlatformTarget {
 			
 			var haxeParams = [ hxml, "-D", "android", "-D", "android-9" ];
 			var cppParams = [ "-Dandroid", "-Dandroid-9" ];
-			var path = targetDirectory + "/bin/libs/armeabi";
+			var path = sourceSet + "/jniLibs/armeabi";
 			var suffix = ".so";
 			
 			if (architecture == Architecture.ARMV7) {
@@ -100,7 +89,7 @@ class AndroidPlatform extends PlatformTarget {
 				
 				if (hasARMV5) {
 					
-					path = targetDirectory + "/bin/libs/armeabi-v7";
+					path = sourceSet + "/jniLibs/armeabi-v7";
 					
 				}
 				
@@ -111,7 +100,7 @@ class AndroidPlatform extends PlatformTarget {
 				haxeParams.push ("-D");
 				haxeParams.push ("HXCPP_X86");
 				cppParams.push ("-DHXCPP_X86");
-				path = targetDirectory + "/bin/libs/x86";
+				path = sourceSet + "/jniLibs/x86";
 				suffix = "-x86.so";
 				
 			}
@@ -131,9 +120,9 @@ class AndroidPlatform extends PlatformTarget {
 		
 		if (!ArrayHelper.containsValue (project.architectures, Architecture.ARMV7) || !hasARMV5) {
 			
-			if (FileSystem.exists (targetDirectory + "/bin/libs/armeabi-v7")) {
+			if (FileSystem.exists (sourceSet + "/jniLibs/armeabi-v7")) {
 				
-				PathHelper.removeDirectory (targetDirectory + "/bin/libs/armeabi-v7");
+				PathHelper.removeDirectory (sourceSet + "/jniLibs/armeabi-v7");
 				
 			}
 			
@@ -141,9 +130,9 @@ class AndroidPlatform extends PlatformTarget {
 		
 		if (!hasX86) {
 			
-			if (FileSystem.exists (targetDirectory + "/bin/libs/x86")) {
+			if (FileSystem.exists (sourceSet + "/jniLibs/x86")) {
 				
-				PathHelper.removeDirectory (targetDirectory + "/bin/libs/x86");
+				PathHelper.removeDirectory (sourceSet + "/jniLibs/x86");
 				
 			}
 			
@@ -174,22 +163,11 @@ class AndroidPlatform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
-		var type = "release";
-		
-		if (project.debug) {
-			
-			type = "debug";
-			
-		} else if (project.targetFlags.exists ("final")) {
-			
-			type = "final";
-			
-		}
-		
-		var hxml = PathHelper.findTemplate (project.templatePaths, "android/hxml/" + type + ".hxml");
+		var hxml = PathHelper.findTemplate (project.templatePaths, "android/hxml/" + buildType + ".hxml");
 		
 		var context = project.templateContext;
 		context.CPP_DIR = targetDirectory + "/obj";
+		context.OUTPUT_DIR = targetDirectory;
 		
 		var template = new Template (File.getContent (hxml));
 		
@@ -201,15 +179,17 @@ class AndroidPlatform extends PlatformTarget {
 	
 	public override function install ():Void {
 		
-		var build = "debug";
+		var build = "-debug";
 		
-		if (project.certificate != null) {
+		if (project.keystore != null) {
 			
-			build = "release";
+			build = "-release";
 			
 		}
 		
-		deviceID = AndroidHelper.install (project, FileSystem.fullPath (targetDirectory) + "/bin/bin/" + project.app.file + "-" + build + ".apk", deviceID);
+		var apkPath = FileSystem.fullPath (targetDirectory) + "/bin/app/build/outputs/apk/" + project.app.file + build + ".apk";
+		
+		deviceID = AndroidHelper.install (project, apkPath, deviceID);
 		
 	}
 	
@@ -271,12 +251,13 @@ class AndroidPlatform extends PlatformTarget {
 		
 		//initialize (project);
 		
-		var destination = targetDirectory + "/bin/";
-		PathHelper.mkdir (destination);
-		PathHelper.mkdir (destination + "/res/drawable-ldpi/");
-		PathHelper.mkdir (destination + "/res/drawable-mdpi/");
-		PathHelper.mkdir (destination + "/res/drawable-hdpi/");
-		PathHelper.mkdir (destination + "/res/drawable-xhdpi/");
+		var destination = targetDirectory + "/bin";
+		var sourceSet = destination + "/app/src/main";
+		PathHelper.mkdir (sourceSet);
+		PathHelper.mkdir (sourceSet + "/res/drawable-ldpi/");
+		PathHelper.mkdir (sourceSet + "/res/drawable-mdpi/");
+		PathHelper.mkdir (sourceSet + "/res/drawable-hdpi/");
+		PathHelper.mkdir (sourceSet + "/res/drawable-xhdpi/");
 		
 		for (asset in project.assets) {
 			
@@ -293,15 +274,15 @@ class AndroidPlatform extends PlatformTarget {
 						//asset.flatName += ((extension != "") ? "." + extension : "");
 						
 						//asset.resourceName = asset.flatName;
-						targetPath = PathHelper.combine (destination + "/assets/", asset.resourceName);
+						targetPath = PathHelper.combine (sourceSet + "/assets/", asset.resourceName);
 						
 						//asset.resourceName = asset.id;
-						//targetPath = destination + "/res/raw/" + asset.flatName + "." + Path.extension (asset.targetPath);
+						//targetPath = sourceSet + "/res/raw/" + asset.flatName + "." + Path.extension (asset.targetPath);
 					
 					//default:
 						
 						//asset.resourceName = asset.flatName;
-						//targetPath = destination + "/assets/" + asset.resourceName;
+						//targetPath = sourceSet + "/assets/" + asset.resourceName;
 					
 				}
 				
@@ -320,12 +301,18 @@ class AndroidPlatform extends PlatformTarget {
 		var context = project.templateContext;
 		
 		context.CPP_DIR = targetDirectory + "/obj";
+		context.OUTPUT_DIR = targetDirectory;
 		context.ANDROID_INSTALL_LOCATION = project.config.getString ("android.install-location", "auto");
 		context.ANDROID_MINIMUM_SDK_VERSION = project.config.getInt ("android.minimum-sdk-version", 9);
 		context.ANDROID_TARGET_SDK_VERSION = project.config.getInt ("android.target-sdk-version", 19);
 		context.ANDROID_EXTENSIONS = project.config.getArrayString ("android.extension");
 		context.ANDROID_PERMISSIONS = project.config.getArrayString ("android.permission", [ "android.permission.WAKE_LOCK", "android.permission.INTERNET", "android.permission.VIBRATE", "android.permission.ACCESS_NETWORK_STATE" ]);
+		context.ANDROID_GRADLE_VERSION = project.config.getString ("android.gradle-version", "2.10");
 		context.ANDROID_LIBRARY_PROJECTS = [];
+		
+		var escaped = ~/([ #!=\\:])/g;
+		context.ANDROID_SDK_ESCAPED = escaped.replace(context.ENV_ANDROID_SDK, "\\$1");
+		context.ANDROID_NDK_ROOT_ESCAPED = escaped.replace(context.ENV_ANDROID_NDK_ROOT, "\\$1");
 		
 		if (Reflect.hasField (context, "KEY_STORE")) context.KEY_STORE = StringTools.replace (context.KEY_STORE, "\\", "\\\\");
 		if (Reflect.hasField (context, "KEY_STORE_ALIAS")) context.KEY_STORE_ALIAS = StringTools.replace (context.KEY_STORE_ALIAS, "\\", "\\\\");
@@ -336,7 +323,7 @@ class AndroidPlatform extends PlatformTarget {
 		
 		for (dependency in project.dependencies) {
 			
-			if (dependency.path != "" && FileSystem.exists (dependency.path) && FileSystem.isDirectory (dependency.path) && FileSystem.exists (PathHelper.combine (dependency.path, "project.properties"))) {
+			if (dependency.path != "" && FileSystem.exists (dependency.path) && FileSystem.isDirectory (dependency.path) && (FileSystem.exists (PathHelper.combine (dependency.path, "project.properties")) || FileSystem.exists (PathHelper.combine (dependency.path, "build.gradle")))) {
 				
 				var name = dependency.name;
 				if (name == "") name = "project" + index;
@@ -360,7 +347,7 @@ class AndroidPlatform extends PlatformTarget {
 		
 		for (i in 0...iconTypes.length) {
 			
-			if (IconHelper.createIcon (icons, iconSizes[i], iconSizes[i], destination + "/res/drawable-" + iconTypes[i] + "/icon.png")) {
+			if (IconHelper.createIcon (icons, iconSizes[i], iconSizes[i], sourceSet + "/res/drawable-" + iconTypes[i] + "/icon.png")) {
 				
 				context.HAS_ICON = true;
 				
@@ -368,10 +355,10 @@ class AndroidPlatform extends PlatformTarget {
 			
 		}
 		
-		IconHelper.createIcon (icons, 732, 412, destination + "/res/drawable-xhdpi/ouya_icon.png");
+		IconHelper.createIcon (icons, 732, 412, sourceSet + "/res/drawable-xhdpi/ouya_icon.png");
 		
 		var packageDirectory = project.meta.packageName;
-		packageDirectory = destination + "/src/" + packageDirectory.split (".").join ("/");
+		packageDirectory = sourceSet + "/java/" + packageDirectory.split (".").join ("/");
 		PathHelper.mkdir (packageDirectory);
 		
 		for (javaPath in project.javaPaths) {
@@ -380,17 +367,17 @@ class AndroidPlatform extends PlatformTarget {
 				
 				if (FileSystem.isDirectory (javaPath)) {
 					
-					FileHelper.recursiveCopy (javaPath, destination + "/src", context, true);
+					FileHelper.recursiveCopy (javaPath, sourceSet + "/java", context, true);
 					
 				} else {
 					
 					if (Path.extension (javaPath) == "jar") {
 						
-						FileHelper.copyIfNewer (javaPath, destination + "/libs/" + Path.withoutDirectory (javaPath));
+						FileHelper.copyIfNewer (javaPath, destination + "/app/libs/" + Path.withoutDirectory (javaPath));
 						
 					} else {
 						
-						FileHelper.copyIfNewer (javaPath, destination + "/src/" + Path.withoutDirectory (javaPath));
+						FileHelper.copyIfNewer (javaPath, sourceSet + "/java/" + Path.withoutDirectory (javaPath));
 						
 					}
 					
@@ -427,7 +414,7 @@ class AndroidPlatform extends PlatformTarget {
 			
 		}
 		
-		AssetHelper.createManifest (project, destination + "/assets/manifest");
+		AssetHelper.createManifest (project, sourceSet + "/assets/manifest");
 		
 	}
 	

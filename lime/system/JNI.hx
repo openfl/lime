@@ -5,6 +5,11 @@ package lime.system;
 @:build(lime.system.CFFI.build())
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class JNI {
 	
@@ -55,7 +60,7 @@ class JNI {
 		
 		init ();
 		
-		#if android
+		#if (android && lime_cffi && !macro)
 		return new JNIMemberField (lime_jni_create_field (className, memberName, signature, false));
 		#else
 		return null;
@@ -68,7 +73,7 @@ class JNI {
 		
 		init ();
 		
-		#if android
+		#if (android && lime_cffi && !macro)
 		className = className.split (".").join ("/");
 		var handle = lime_jni_create_method (className, memberName, signature, false, quietFail);
 		
@@ -97,7 +102,7 @@ class JNI {
 		
 		init ();
 		
-		#if android
+		#if (android && lime_cffi && !macro)
 		return new JNIStaticField (lime_jni_create_field (className, memberName, signature, true));
 		#else
 		return null;
@@ -110,7 +115,7 @@ class JNI {
 		
 		init ();
 		
-		#if android
+		#if (android && lime_cffi && !macro)
 		className = className.split (".").join ("/");
 		var handle = lime_jni_create_method (className, memberName, signature, true, quietFail);
 		
@@ -139,7 +144,7 @@ class JNI {
 		
 		init ();
 		
-		#if android
+		#if (android && lime_cffi && !macro)
 		return lime_jni_get_env ();
 		#else
 		return null;
@@ -184,7 +189,7 @@ class JNI {
 		
 		// TODO: Rename this?
 		
-		#if android
+		#if (android && lime_cffi && !macro)
 		lime_jni_post_ui_callback (callback);
 		#else
 		callback ();
@@ -200,7 +205,7 @@ class JNI {
 	
 	
 	
-	#if android
+	#if (android && lime_cffi && !macro)
 	@:cffi private static function lime_jni_call_member (jniMethod:Dynamic, jniObject:Dynamic, args:Dynamic):Dynamic;
 	@:cffi private static function lime_jni_call_static (jniMethod:Dynamic, args:Dynamic):Dynamic;
 	@:cffi private static function lime_jni_create_field (className:String, field:String, signature:String, isStatic:Bool):Dynamic;
@@ -233,7 +238,7 @@ class JNIMemberField {
 	
 	public function get (jobject:Dynamic):Dynamic {
 		
-		#if android
+		#if (android && lime_cffi && !macro)
 		return lime_jni_get_member (field, jobject);
 		#else
 		return null;
@@ -244,7 +249,7 @@ class JNIMemberField {
 	
 	public function set (jobject:Dynamic, value:Dynamic):Dynamic {
 		
-		#if android
+		#if (android && lime_cffi && !macro)
 		lime_jni_set_member (field, jobject, value);
 		#end
 		return value;
@@ -259,7 +264,7 @@ class JNIMemberField {
 	
 	
 	
-	#if android
+	#if (android && lime_cffi && !macro)
 	@:cffi private static function lime_jni_get_member (jniField:Dynamic, jniObject:Dynamic):Dynamic;
 	@:cffi private static function lime_jni_set_member (jniField:Dynamic, jniObject:Dynamic, value:Dynamic):Void;
 	#end
@@ -288,7 +293,7 @@ class JNIStaticField {
 	
 	public function get ():Dynamic {
 		
-		#if android
+		#if (android && lime_cffi && !macro)
 		return lime_jni_get_static (field);
 		#else
 		return null;
@@ -299,7 +304,7 @@ class JNIStaticField {
 	
 	public function set (value:Dynamic):Dynamic {
 		
-		#if android
+		#if (android && lime_cffi && !macro)
 		lime_jni_set_static (field, value);
 		#end
 		return value;
@@ -314,7 +319,7 @@ class JNIStaticField {
 	
 	
 	
-	#if android
+	#if (android && lime_cffi && !macro)
 	@:cffi private static function lime_jni_get_static (jniField:Dynamic):Dynamic;
 	@:cffi private static function lime_jni_set_static (jniField:Dynamic, value:Dynamic):Void;
 	#end
@@ -342,7 +347,7 @@ class JNIMethod {
 
 	public function callMember (args:Array<Dynamic>):Dynamic {
 		
-		#if android
+		#if (android && lime_cffi && !macro)
 		var jobject = args.shift ();
 		return lime_jni_call_member (method, jobject, args);
 		#else
@@ -354,7 +359,7 @@ class JNIMethod {
 	
 	public function callStatic (args:Array<Dynamic>):Dynamic {
 		
-		#if android
+		#if (android && lime_cffi && !macro)
 		return lime_jni_call_static (method, args);
 		#else
 		return null;
@@ -400,7 +405,7 @@ class JNIMethod {
 	
 	
 	
-	#if android
+	#if (android && lime_cffi && !macro)
 	@:cffi private static function lime_jni_call_member (jniMethod:Dynamic, jniObject:Dynamic, args:Dynamic):Dynamic;
 	@:cffi private static function lime_jni_call_static (jniMethod:Dynamic, args:Dynamic):Dynamic;
 	#end

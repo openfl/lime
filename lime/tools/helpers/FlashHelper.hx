@@ -285,7 +285,7 @@ class FlashHelper {
 				
 				var src = path;
 				
-				if (ext == "jpg" || ext == "png" || ext == "gif") {
+				if (ext == "jpg" || ext == "jpeg" || ext == "png" || ext == "gif") {
 					
 					if (!FileSystem.exists (src)) {
 						
@@ -320,8 +320,8 @@ class FlashHelper {
 			if ( font_name == null || font_name.length == 0 )
 				font_name = Path.withoutExtension(name).split("/").pop().split("\\").pop();
 			
-			var glyphs = new Array <Font2GlyphData> ();
-			var glyph_layout = new Array <FontLayoutGlyphData> ();
+			var glyphs = new Array<Font2GlyphData> ();
+			var glyph_layout = new Array<FontLayoutGlyphData> ();
 			
 			for (native_glyph in font.glyphs) {
 				
@@ -332,7 +332,7 @@ class FlashHelper {
 					
 				}
 				
-				var shapeRecords = new Array <ShapeRecord> ();
+				var shapeRecords = new Array<ShapeRecord> ();
 				var i:Int = 0;
 				var styleChanged:Bool = false;
 				var dx = 0;
@@ -431,7 +431,7 @@ class FlashHelper {
 				
 			}
 			
-			var kerning = new Array <FontKerningData> ();
+			var kerning = new Array<FontKerningData> ();
 			
 			if (font.kerning != null) {
 				
@@ -511,7 +511,7 @@ class FlashHelper {
 	#end
 	
 	
-	/*public static function embedAssets (targetPath:String, assets:Array <Asset>, packageName:String = ""):Void {
+	/*public static function embedAssets (targetPath:String, assets:Array<Asset>, packageName:String = ""):Void {
 		
 		try {
 			
@@ -523,7 +523,7 @@ class FlashHelper {
 				var swf = reader.read ();
 				input.close();
 				
-				var new_tags = new Array <SWFTag> ();
+				var new_tags = new Array<SWFTag> ();
 				var inserted = false;
 				
 				for (tag in swf.tags) {
@@ -606,22 +606,31 @@ class FlashHelper {
 	}
 	
 	
-	private static function compileSWC (project:HXProject, assets:Array<Asset>, id:Int):Void {
+	private static function compileSWC (project:HXProject, assets:Array<Asset>, id:Int, destination:String):Void {
 		
 		#if format
-		var destination = project.app.path + "/flash/obj";
+		destination = destination + "/obj";
 		PathHelper.mkdir (destination);
 		
 		var label = (id > 0 ? Std.string (id + 1) : "");
 		
 		var swfVersions = [ 9, 10, /*10.1,*/ 10.2, 10.3, 11, 11.1, 11.2, 11.3, 11.4, 11.5, 11.6, 11.7, 11.8, 12, 13, 14 ];
+		
 		var flashVersion = 9;
 		
-		for (swfVersion in swfVersions) {
+		if (project.app.swfVersion > 14) {
 			
-			if (project.app.swfVersion > swfVersion) {
+			flashVersion += Std.int ((swfVersions.length - 1) + (project.app.swfVersion - 14));
+			
+		} else {
+			
+			for (swfVersion in swfVersions) {
 				
-				flashVersion++;
+				if (project.app.swfVersion > swfVersion) {
+					
+					flashVersion++;
+					
+				}
 				
 			}
 			
@@ -751,7 +760,7 @@ class FlashHelper {
 	}*/
 	
 	
-	public static function embedAssets (project:HXProject):Bool {
+	public static function embedAssets (project:HXProject, targetDirectory:String):Bool {
 		
 		var embed = "";
 		var assets = [];
@@ -875,7 +884,7 @@ class FlashHelper {
 		if (embed != "") {
 			
 			//compileSWC (project, embed, id);
-			compileSWC (project, assets, id);
+			compileSWC (project, assets, id, targetDirectory);
 			
 		}
 		
@@ -891,7 +900,7 @@ class FlashHelper {
 		
 		if (assets.length > 0) {
 			
-			project.haxeflags.push ("-swf-lib " + project.app.path + "/flash/obj/assets.swf");
+			project.haxeflags.push ("-swf-lib " + targetDirectory + "/obj/assets.swf");
 			project.haxedefs.set ("flash-use-stage", "");
 			
 			return true;

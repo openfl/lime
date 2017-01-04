@@ -7,6 +7,8 @@ import haxe.io.BytesData;
 import haxe.io.BytesInput;
 import haxe.io.BytesOutput;
 import lime.app.Application;
+import lime.app.Future;
+import lime.app.Promise;
 import lime.graphics.format.BMP;
 import lime.graphics.format.JPEG;
 import lime.graphics.format.PNG;
@@ -52,7 +54,12 @@ import lime.graphics.console.TextureData;
 @:build(lime.system.CFFI.build())
 #end
 
-@:autoBuild(lime.Assets.embedImage())
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
+@:autoBuild(lime._macros.AssetsMacro.embedImage())
 @:allow(lime.graphics.util.ImageCanvasUtil)
 @:allow(lime.graphics.util.ImageDataUtil)
 @:access(lime.app.Application)
@@ -232,7 +239,6 @@ class Image {
 		
 		sourceRect = __clipRect (sourceRect);
 		if (buffer == null || sourceRect == null) return;
-		
 		if (destChannel == ALPHA && !transparent) return;
 		if (sourceRect.width <= 0 || sourceRect.height <= 0) return;
 		if (sourceRect.x + sourceRect.width > sourceImage.width) sourceRect.width = sourceImage.width - sourceRect.x;
@@ -248,6 +254,7 @@ class Image {
 				
 				#if (js && html5)
 				ImageCanvasUtil.convertToData (this);
+				ImageCanvasUtil.convertToData (sourceImage);
 				#end
 				
 				ImageDataUtil.copyChannel (this, sourceImage, sourceRect, destPoint, sourceChannel, destChannel);
@@ -315,6 +322,14 @@ class Image {
 			sourceRect.height += destPoint.y;	//shrink height by amount off canvas
 			sourceRect.y -= destPoint.y;		//adjust source rect to effective starting point
 			destPoint.y = 0;					//clamp destination point to 0
+		}
+		
+		// TODO: Optimize
+		
+		if (sourceImage == this) {
+			
+			sourceImage = clone ();
+			
 		}
 		
 		switch (type) {
@@ -457,7 +472,7 @@ class Image {
 	}
 	
 	
-	public static function fromBase64 (base64:String, type:String, onload:Image -> Void):Image {
+	public static function fromBase64 (base64:String, type:String, onload:Image->Void):Image {
 		
 		if (base64 == null) return null;
 		var image = new Image ();
@@ -485,7 +500,7 @@ class Image {
 	}
 	
 	
-	public static function fromBytes (bytes:Bytes, onload:Image -> Void = null):Image {
+	public static function fromBytes (bytes:Bytes, onload:Image->Void = null):Image {
 		
 		if (bytes == null) return null;
 		var image = new Image ();
@@ -513,6 +528,7 @@ class Image {
 	
 	public static function fromFile (path:String, onload:Image -> Void = null, onerror:Void -> Void = null):Image {
 		
+		if (path == null) return null;
 		var image = new Image ();
 		image.__fromFile (path, onload, onerror);
 		return image;
@@ -534,6 +550,7 @@ class Image {
 		return _image;
 		
 	}
+	
 	
 	public function getColorBoundsRect (mask:Int, color:Int, findColor:Bool = true, format:PixelFormat = null):Rectangle {
 		
@@ -716,6 +733,77 @@ class Image {
 	}
 	
 	
+	public static function loadFromBase64 (base64:String, type:String):Future<Image> {
+		
+		var promise = new Promise<Image> ();
+		
+		// TODO: Handle error, progress
+		
+		fromBase64 (base64, type, function (image) {
+			
+			promise.complete (image);
+			
+		});
+		
+		return promise.future;
+		
+	}
+	
+	
+	public static function loadFromBytes (bytes:Bytes):Future<Image> {
+		
+		#if (js && html5)
+		
+		var promise = new Promise<Image> ();
+		
+		// TODO: Handle error, progress
+		
+		fromBytes (bytes, function (image) {
+			
+			promise.complete (image);
+			
+		});
+		
+		return promise.future;
+		
+		#else
+		
+		return new Future<Image> (function () return fromBytes (bytes), true);
+		
+		#end
+		
+	}
+	
+	
+	public static function loadFromFile (path:String):Future<Image> {
+		
+		#if (js && html5)
+		
+		var promise = new Promise<Image> ();
+		
+		// TODO: Handle progress
+		
+		fromFile (path, function (image) {
+			
+			promise.complete (image);
+			
+		}, function () {
+			
+			promise.error ("");
+			
+		});
+		
+		return promise.future;
+		
+		#else
+		
+		return new Future<Image> (function () return fromFile (path), true);
+		
+		#end
+		
+	}
+	
+	
 	public function merge (sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, redMultiplier:Int, greenMultiplier:Int, blueMultiplier:Int, alphaMultiplier:Int):Void {
 		
 		if (buffer == null || sourceImage == null) return;
@@ -743,7 +831,7 @@ class Image {
 			
 			default:
 				
-				return null;
+				return;
 			
 		}
 		
@@ -798,12 +886,6 @@ class Image {
 				ImageCanvasUtil.scroll (this, x, y);
 			
 			case DATA:
-				
-				//#if (js && html5)
-				//ImageCanvasUtil.convertToData (this);
-				//#end
-				
-				//ImageDataUtil.scroll (this, x, y);
 				
 				copyPixels (this, rect, new Vector2 (x, y));
 			
@@ -1096,7 +1178,6 @@ class Image {
 		
 		#if (js && html5)
 		var image = new JSImage ();
-		image.crossOrigin = "Anonymous";
 		
 		var image_onLoaded = function (event) {
 			
@@ -1153,13 +1234,22 @@ class Image {
 			
 			throw "Image.fromBytes not implemented for console target";
 			
-		#elseif ((cpp || neko || nodejs) && !macro)
+		#elseif (lime_cffi && !macro)
 			
-			var data:Dynamic = lime_image_load (bytes);
+			var imageBuffer:ImageBuffer = null;
 			
+			#if !cs
+			imageBuffer = lime_image_load (bytes, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
+			#else
+			var data = lime_image_load (bytes, null);
 			if (data != null) {
+				imageBuffer = new ImageBuffer (new UInt8Array (@:privateAccess new Bytes (data.data.buffer.length, data.data.buffer.b)), data.width, data.height, data.bitsPerPixel);
+			}
+			#end
+			
+			if (imageBuffer != null) {
 				
-				__fromImageBuffer (new ImageBuffer (new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b)), data.width, data.height, data.bitsPerPixel));
+				__fromImageBuffer (imageBuffer);
 				
 				if (onload != null) {
 					
@@ -1171,7 +1261,7 @@ class Image {
 			
 		#else
 			
-			throw "ImageBuffer.loadFromBytes not supported on this target";
+			throw "Image.fromBytes not supported on this target";
 			
 		#end
 		
@@ -1217,9 +1307,9 @@ class Image {
 			// (issue #1019768)
 			if (image.complete) { }
 			
-		#elseif (cpp || neko || nodejs || java)
+		#elseif (lime_cffi || java)
 			
-			var buffer = null;
+			var buffer:ImageBuffer = null;
 			
 			#if lime_console
 			
@@ -1275,14 +1365,14 @@ class Image {
 			#else
 			if (CFFI.enabled) {
 				
-				var data:Dynamic = lime_image_load (path);
-				
+				#if !cs
+				buffer = lime_image_load (path, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
+				#else
+				var data = lime_image_load (path, null);
 				if (data != null) {
-					
-					var u8a = new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b));
-					buffer = new ImageBuffer (u8a, data.width, data.height, data.bitsPerPixel);
-					
+					buffer = new ImageBuffer (new UInt8Array (@:privateAccess new Bytes (data.data.buffer.length, data.data.buffer.b)), data.width, data.height, data.bitsPerPixel);
 				}
+				#end
 				
 			}
 			#end
@@ -1624,8 +1714,8 @@ class Image {
 	
 	
 	
-	#if ((cpp || neko || nodejs) && !macro)
-	@:cffi private static function lime_image_load (data:Dynamic):Dynamic;
+	#if (lime_cffi && !macro)
+	@:cffi private static function lime_image_load (data:Dynamic, buffer:Dynamic):Dynamic;
 	#end
 	
 	

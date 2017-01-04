@@ -31,8 +31,6 @@ class PlatformSetup {
 	private static var androidMacSDKPath = "http://dl.google.com/android/android-sdk_r22.0.5-macosx.zip";
 	private static var androidWindowsNDKPath = "http://dl.google.com/android/repository/android-ndk-r11c-windows-x86_64.zip";
 	private static var androidWindowsSDKPath = "http://dl.google.com/android/android-sdk_r22.0.5-windows.zip";
-	private static var apacheAntUnixPath = "http://archive.apache.org/dist/ant/binaries/apache-ant-1.9.2-bin.tar.gz";
-	private static var apacheAntWindowsPath = "http://archive.apache.org/dist/ant/binaries/apache-ant-1.9.2-bin.zip";
 	private static var apacheCordovaPath = "http://www.apache.org/dist/incubator/cordova/cordova-2.1.0-incubating-src.zip";
 	private static var appleXcodeURL = "https://developer.apple.com/xcode/download/";
 	private static var blackBerryCodeSigningURL = "https://www.blackberry.com/SignedKeys/";
@@ -47,6 +45,9 @@ class PlatformSetup {
 	private static var linuxAptPackages = "ia32-libs-multiarch gcc-multilib g++-multilib";
 	private static var linuxUbuntuSaucyPackages = "gcc-multilib g++-multilib libxext-dev";
 	private static var linuxYumPackages = "gcc gcc-c++";
+	private static var linuxDnfPackages = "gcc gcc-c++";
+	private static var linuxEquoPackages = "media-libs/mesa sys-devel/gcc";
+	private static var linuxEmergePackages = "media-libs/mesa sys-devel/gcc";
 	private static var linuxPacman32Packages = "multilib-devel mesa mesa-libgl glu";
 	private static var linuxPacman64Packages = "multilib-devel lib32-mesa lib32-mesa-libgl lib32-glu";
 	private static var tizenSDKURL = "https://developer.tizen.org/downloads/tizen-sdk";
@@ -252,9 +253,9 @@ class PlatformSetup {
 	}
 	
 	
-	public static function getDefines (names:Array <String> = null, descriptions:Array <String> = null, ignored:Array <String> = null):Map <String, String> {
+	public static function getDefines (names:Array<String> = null, descriptions:Array<String> = null, ignored:Array<String> = null):Map<String, String> {
 		
-		var config = CommandLineTools.getHXCPPConfig ();
+		var config = CommandLineTools.getLimeConfig ();
 		
 		var defines = null;
 		var env = Sys.environment ();
@@ -276,11 +277,11 @@ class PlatformSetup {
 			
 		} else {
 			
-			defines = new Map <String, String> ();
+			defines = new Map<String, String> ();
 			
 		}
 		
-		if (!defines.exists ("HXCPP_CONFIG")) {
+		if (!defines.exists ("LIME_CONFIG")) {
 			
 			var home = "";
 			
@@ -294,13 +295,13 @@ class PlatformSetup {
 				
 			} else {
 				
-				LogHelper.println ("Warning : No 'HOME' variable set - .hxcpp_config.xml might be missing.");
+				LogHelper.println ("Warning : No 'HOME' variable set - ~/.lime/config.xml might be missing.");
 				
 				return null;
 				
 			}
 			
-			defines.set ("HXCPP_CONFIG", home + "/.hxcpp_config.xml");
+			defines.set ("LIME_CONFIG", home + "/.lime/config.xml");
 			
 		}
 		
@@ -310,7 +311,7 @@ class PlatformSetup {
 			
 		}
 		
-		var values = new Array <String> ();
+		var values = new Array<String> ();
 		
 		for (i in 0...names.length) {
 			
@@ -575,7 +576,7 @@ class PlatformSetup {
 					var packages = [];
 					var executables = [];
 					
-					var files:Array <String> = FileSystem.readDirectory (volumePath);
+					var files:Array<String> = FileSystem.readDirectory (volumePath);
 					
 					for (file in files) {
 						
@@ -686,13 +687,13 @@ class PlatformSetup {
 			
 			setAIRSDK = true;
 			defines.set ("AIR_SDK", path);
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
 			LogHelper.println ("");
 			
 		}
 		
-		var requiredVariables = new Array <String> ();
-		var requiredVariableDescriptions = new Array <String> ();
+		var requiredVariables = new Array<String> ();
+		var requiredVariableDescriptions = new Array<String> ();
 		
 		if (!setAIRSDK) {
 			
@@ -711,7 +712,7 @@ class PlatformSetup {
 		
 		if (defines != null) {
 			
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
 			
 		}
 		
@@ -724,7 +725,6 @@ class PlatformSetup {
 		
 		var setAndroidSDK = false;
 		var setAndroidNDK = false;
-		var setApacheAnt = false;
 		var setJavaJDK = false;
 		
 		var defines = getDefines ();
@@ -790,7 +790,7 @@ class PlatformSetup {
 			
 			setAndroidSDK = true;
 			defines.set ("ANDROID_SDK", path);
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
 			LogHelper.println ("");
 			
 		}
@@ -837,49 +837,8 @@ class PlatformSetup {
 			
 			setAndroidNDK = true;
 			defines.set ("ANDROID_NDK_ROOT", path);
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
 			LogHelper.println ("");
-			
-		}
-		
-		if (answer == ALWAYS) {
-			
-			LogHelper.println ("Download and install Apache Ant? [y/n/a] a");
-			
-		} else {
-			
-			answer = CLIHelper.ask ("Download and install Apache Ant?");
-			
-		}
-		
-		if (answer == YES || answer == ALWAYS) {
-			
-			var downloadPath = "";
-			var defaultInstallPath = "";
-			var ignoreRootFolder = "apache-ant-1.9.2";
-			
-			if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
-				
-				downloadPath = apacheAntWindowsPath;
-				defaultInstallPath = "C:\\Development\\Apache Ant";
-				
-			} else {
-				
-				downloadPath = apacheAntUnixPath;
-				defaultInstallPath = "/opt/apache-ant";
-				
-			}
-			
-			downloadFile (downloadPath);
-			
-			var path = unescapePath (CLIHelper.param ("Output directory [" + defaultInstallPath + "]"));
-			path = createPath (path, defaultInstallPath);
-			
-			extractFile (Path.withoutDirectory (downloadPath), path, ignoreRootFolder);
-			
-			setApacheAnt = true;
-			defines.set ("ANT_HOME", path);
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
 			
 		}
 		
@@ -912,9 +871,9 @@ class PlatformSetup {
 			
 		}
 		
-		var requiredVariables = new Array <String> ();
-		var requiredVariableDescriptions = new Array <String> ();
-		var ignoreValues = new Array <String> ();
+		var requiredVariables = new Array<String> ();
+		var requiredVariableDescriptions = new Array<String> ();
+		var ignoreValues = new Array<String> ();
 		
 		if (!setAndroidSDK) {
 			
@@ -932,14 +891,6 @@ class PlatformSetup {
 			
 		}
 		
-		if (/*PlatformHelper.hostPlatform != Platform.MAC &&*/ !setApacheAnt) {
-			
-			requiredVariables.push ("ANT_HOME");
-			requiredVariableDescriptions.push ("Path to Apache Ant");
-			ignoreValues.push ("/SDKs//ant");
-			
-		}
-		
 		if (PlatformHelper.hostPlatform != Platform.MAC && !setJavaJDK) {
 			
 			requiredVariables.push ("JAVA_HOME");
@@ -948,7 +899,7 @@ class PlatformSetup {
 			
 		}
 		
-		if (!setAndroidSDK && !setAndroidNDK && !setApacheAnt) {
+		if (!setAndroidSDK && !setAndroidNDK) {
 			
 			LogHelper.println ("");
 			
@@ -960,36 +911,13 @@ class PlatformSetup {
 			
 			defines.set ("ANDROID_SETUP", "true");
 			
-			if (!setApacheAnt) {
-				
-				try {
-					
-					var antPath = defines.get ("ANT_HOME");
-					
-					if (FileSystem.exists (antPath) && !FileSystem.isDirectory (antPath) && StringTools.endsWith (antPath, "ant")) {
-						
-						antPath = StringTools.replace (antPath, "\\", "/");
-						
-						var splitPath = antPath.split ("/");
-						splitPath.pop ();
-						splitPath.pop ();
-						
-						defines.set ("ANT_HOME", splitPath.join ("/"));
-						
-					}
-					
-				} catch (e:Dynamic) {}
-				
-			}
-			
 			if (PlatformHelper.hostPlatform == Platform.MAC) {
 				
-				//defines.remove ("ANT_HOME");
 				defines.remove ("JAVA_HOME");
 				
 			}
 			
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
 			
 		}
 		
@@ -1033,7 +961,7 @@ class PlatformSetup {
 			
 			setAndroidNDK = true;
 			defines.set ("ANDROID_NDK_ROOT", path);
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
 			LogHelper.println ("");*/
 			
 		}
@@ -1042,7 +970,7 @@ class PlatformSetup {
 		
 		if (defines != null) {
 			
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
 			
 		}
 		
@@ -1091,7 +1019,7 @@ class PlatformSetup {
 				
 				setAndroidNDK = true;
 				defines.set ("ANDROID_NDK_ROOT", path);
-				writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+				writeConfig (defines.get ("LIME_CONFIG"), defines);
 				LogHelper.println ("");*/
 				
 			}
@@ -1100,7 +1028,7 @@ class PlatformSetup {
 			
 			if (defines != null) {
 				
-				writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+				writeConfig (defines.get ("LIME_CONFIG"), defines);
 				
 			}
 			
@@ -1311,7 +1239,7 @@ class PlatformSetup {
 					var deviceIDs = [];
 					var defines = getDefines ();
 					
-					var config = CommandLineTools.getHXCPPConfig ();
+					var config = CommandLineTools.getLimeConfig ();
 					
 					BlackBerryHelper.initialize (config);
 					var token = BlackBerryHelper.processDebugToken (config);
@@ -1383,7 +1311,7 @@ class PlatformSetup {
 					
 					var defines = getDefines ();
 					defines.set ("BLACKBERRY_DEBUG_TOKEN", debugTokenPath);
-					writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+					writeConfig (defines.get ("LIME_CONFIG"), defines);
 					
 				}
 				
@@ -1409,7 +1337,7 @@ class PlatformSetup {
 				if (defines != null) {
 					
 					defines.set ("BLACKBERRY_SETUP", "true");
-					writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+					writeConfig (defines.get ("LIME_CONFIG"), defines);
 					
 				}
 				
@@ -1463,7 +1391,7 @@ class PlatformSetup {
 			
 			if (defines != null) {
 				
-				writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+				writeConfig (defines.get ("LIME_CONFIG"), defines);
 				
 			}
 			
@@ -1471,7 +1399,7 @@ class PlatformSetup {
 		
 		var defines = getDefines ();
 		defines.set ("BLACKBERRY_SETUP", "true");
-		writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+		writeConfig (defines.get ("LIME_CONFIG"), defines);
 		
 	}
 	
@@ -1497,7 +1425,7 @@ class PlatformSetup {
 		
 		if (defines != null) {
 			
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
 			
 		}
 		
@@ -1508,7 +1436,7 @@ class PlatformSetup {
 		
 		setupHaxelibs.set (haxelib.name, true);
 		
-		var defines = new Map <String, Dynamic> ();
+		var defines = new Map<String, Dynamic> ();
 		defines.set ("setup", 1);
 		
 		var basePath = ProcessHelper.runProcess ("", "haxelib", [ "config" ]);
@@ -1643,7 +1571,7 @@ class PlatformSetup {
 			
 			setApacheCordova = true;
 			defines.set ("CORDOVA_PATH", path);
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
 			LogHelper.println ("");
 			
 		}
@@ -1674,7 +1602,7 @@ class PlatformSetup {
 		ProcessHelper.runCommand (defines.get ("CORDOVA_PATH") + "/lib/ios", "make", [ "install" ], true, true);
 		Sys.println ("Done.");*/
 		
-		writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+		writeConfig (defines.get ("LIME_CONFIG"), defines);
 		
 		ProcessHelper.runCommand ("", "haxelib", [ "install", "cordova" ], true, true);
 		
@@ -1751,7 +1679,7 @@ class PlatformSetup {
 			
 			var defines = getDefines ();
 			defines.set ("MAC_USE_CURRENT_SDK", "1");
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
 			
 		}
 		
@@ -1790,6 +1718,40 @@ class PlatformSetup {
 			
 		}
 		
+		var whichDnf = ProcessHelper.runProcess ("", "which", ["dnf"], true, true, true);
+		var hasDnf = whichDnf != null && whichDnf != "";
+		
+		if (hasDnf) {
+			
+			var parameters = [ "dnf", "install" ].concat (linuxDnfPackages.split (" "));
+			ProcessHelper.runCommand ("", "sudo", parameters, false);
+			return;
+			
+		}
+		
+		var whichEquo = ProcessHelper.runProcess ("", "which", ["equo"], true,true, true);
+		var hasEquo = whichEquo != null && whichEquo != "";
+		
+		if (hasEquo) {
+			
+			// Sabayon docs recommend not using sudo with equo, and instead using a root login shell
+			var parameters = [ "-l", "-c", "equo", "i", "-av" ].concat (linuxEquoPackages.split (" "));
+			ProcessHelper.runCommand ("", "su", parameters, false);
+			return;
+			
+		}
+		
+		var whichEmerge = ProcessHelper.runProcess ("", "which", ["emerge"], true,true, true);
+		var hasEmerge = whichEmerge != null && whichEmerge != "";
+		
+		if (hasEmerge) {
+			
+			var parameters = [ "emerge", "-av" ].concat (linuxEmergePackages.split (" "));
+			ProcessHelper.runCommand ("", "sudo", parameters, false);
+			return;
+			
+		}
+		
 		var whichPacman = ProcessHelper.runProcess ("", "which", ["pacman"], true, true, true);
 		var hasPacman = whichPacman != null && whichPacman != "";
 		
@@ -1813,7 +1775,7 @@ class PlatformSetup {
 		}
 		
 		LogHelper.println ("Unable to find a supported package manager on your Linux distribution.");
-		LogHelper.println ("For now, only apt-get, yum, and pacman are supported.");
+		LogHelper.println ("For now, only apt-get, yum, dnf, equo, emerge, and pacman are supported.");
 		
 		Sys.exit (1);
 		
@@ -1917,7 +1879,7 @@ class PlatformSetup {
 			
 			var defines = getDefines ();
 			defines.set ("MAC_USE_CURRENT_SDK", "1");
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
 			
 		}
 		
@@ -1945,7 +1907,7 @@ class PlatformSetup {
 		
 		if (defines != null) {
 			
-			writeConfig (defines.get ("HXCPP_CONFIG"), defines);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
 			
 		}
 		
@@ -2157,7 +2119,7 @@ class PlatformSetup {
 	}
 	
 	
-	public static function writeConfig (path:String, defines:Map <String, String>):Void {
+	public static function writeConfig (path:String, defines:Map<String, Dynamic>):Void {
 		
 		var newContent = "";
 		var definesText = "";
@@ -2165,9 +2127,9 @@ class PlatformSetup {
 		
 		for (key in defines.keys ()) {
 			
-			if (key != "HXCPP_CONFIG" && (!env.exists (key) || env.get (key) != defines.get (key))) {
+			if (key != "LIME_CONFIG" && key != "LIME_CONFIG" && (!env.exists (key) || env.get (key) != defines.get (key))) {
 				
-				definesText += "		<set name=\"" + key + "\" value=\"" + stripQuotes (defines.get (key)) + "\" />\n";
+				definesText += "\t\t<set name=\"" + key + "\" value=\"" + stripQuotes (Std.string (defines.get (key))) + "\" />\n";
 				
 			}
 			
@@ -2190,34 +2152,41 @@ class PlatformSetup {
 				} catch (e:Dynamic) { }
 				
 				backedUpConfig = true;
-			
+				
 			}
 			
-			#if (haxe_ver > 3.102)
 			var content = bytes.getString (0, bytes.length);
-			#else
-			var content = bytes.readString (0, bytes.length);
-			#end
 			
-			var startIndex = content.indexOf ("<section id=\"vars\">");
+			var startIndex = content.indexOf ("<section id=\"defines\">");
 			var endIndex = content.indexOf ("</section>", startIndex);
 			
-			newContent += content.substr (0, startIndex) + "<section id=\"vars\">\n		\n";
+			newContent += content.substr (0, startIndex) + "<section id=\"defines\">\n\t\t\n";
 			newContent += definesText;
-			newContent += "		\n	" + content.substr (endIndex);
+			newContent += "\t\t\n\t" + content.substr (endIndex);
 			
 		} else {
 			
-			newContent += "<xml>\n\n";
-			newContent += "	<section id=\"vars\">\n\n";
+			newContent += "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
+			newContent += "<config>\n\t\n";
+			newContent += "\t<section id=\"defines\">\n\t\t\n";
 			newContent += definesText;
-			newContent += "	</section>\n\n</xml>";
+			newContent += "\t\t\n\t</section>\n\t\n</config>";
 			
 		}
 		
 		var output = File.write (path, false);
 		output.writeString (newContent);
 		output.close ();
+		
+		if (backedUpConfig) {
+			
+			try {
+				
+				FileSystem.deleteFile (path + ".bak");
+				
+			} catch (e:Dynamic) {}
+			
+		}
 		
 	}
 	

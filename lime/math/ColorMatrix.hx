@@ -12,7 +12,11 @@ import flash.geom.ColorTransform;
 abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	
 	
+	private static var __alphaTable:UInt8Array;
+	private static var __blueTable:UInt8Array;
+	private static var __greenTable:UInt8Array;
 	private static var __identity = [ 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0 ];
+	private static var __redTable:UInt8Array;
 	
 	public var alphaMultiplier (get, set):Float;
 	public var alphaOffset (get, set):Float;
@@ -92,84 +96,97 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	
 	public function getAlphaTable ():UInt8Array {
 		
-		var table = new UInt8Array (256);
-		var multiplier = alphaMultiplier;
-		var offset = alphaOffset;
-		var value:Int;
-		
-		for (i in 0...256) {
+		if (__alphaTable == null) {
 			
-			value = Math.floor (i * multiplier + offset);
-			if (value > 0xFF) value = 0xFF;
-			if (value < 0) value = 0;
-			table[i] = value;
+			__alphaTable = new UInt8Array (256);
 			
 		}
 		
-		return table;
+		var value:Int;
+		__alphaTable[0] = 0;
+		
+		for (i in 1...256) {
+			
+			value = Math.floor (i * alphaMultiplier + alphaOffset);
+			if (value > 0xFF) value = 0xFF;
+			if (value < 0) value = 0;
+			__alphaTable[i] = value;
+			
+		}
+		
+		return __alphaTable;
 		
 	}
 	
 	
 	public function getBlueTable ():UInt8Array {
 		
-		var table = new UInt8Array (256);
-		var multiplier = blueMultiplier;
-		var offset = blueOffset;
+		if (__blueTable == null) {
+			
+			__blueTable = new UInt8Array (256);
+			
+		}
+		
 		var value:Int;
 		
 		for (i in 0...256) {
 			
-			value = Math.floor (i * multiplier + offset);
+			value = Math.floor (i * blueMultiplier + blueOffset);
 			if (value > 0xFF) value = 0xFF;
 			if (value < 0) value = 0;
-			table[i] = value;
+			__blueTable[i] = value;
 			
 		}
 		
-		return table;
+		return __blueTable;
 		
 	}
 	
 	
 	public function getGreenTable ():UInt8Array {
 		
-		var table = new UInt8Array (256);
-		var multiplier = greenMultiplier;
-		var offset = greenOffset;
+		if (__greenTable == null) {
+			
+			__greenTable = new UInt8Array (256);
+			
+		}
+		
 		var value:Int;
 		
 		for (i in 0...256) {
 			
-			value = Math.floor (i * multiplier + offset);
+			value = Math.floor (i * greenMultiplier + greenOffset);
 			if (value > 0xFF) value = 0xFF;
 			if (value < 0) value = 0;
-			table[i] = value;
+			__greenTable[i] = value;
 			
 		}
 		
-		return table;
+		return __greenTable;
 		
 	}
 	
 	
 	public function getRedTable ():UInt8Array {
 		
-		var table = new UInt8Array (256);
-		var multiplier = redMultiplier;
-		var offset = redOffset;
+		if (__redTable == null) {
+			
+			__redTable = new UInt8Array (256);
+			
+		}
+		
 		var value:Int;
 		
 		for (i in 0...256) {
 			
-			value = Math.floor (i * multiplier + offset);
+			value = Math.floor (i * redMultiplier + redOffset);
 			if (value > 0xFF) value = 0xFF;
 			if (value < 0) value = 0;
-			table[i] = value;
+			__redTable[i] = value;
 			
 		}
 		
-		return table;
+		return __redTable;
 		
 	}
 	

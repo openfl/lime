@@ -7,6 +7,7 @@ import haxe.Serializer;
 import haxe.Unserializer;
 import lime.tools.helpers.ArrayHelper;
 import lime.tools.helpers.CompatibilityHelper;
+import lime.tools.helpers.HaxelibHelper;
 import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.ObjectHelper;
 import lime.tools.helpers.PathHelper;
@@ -31,40 +32,40 @@ class HXProject {
 	
 	
 	public var app:ApplicationData;
-	public var architectures:Array <Architecture>;
-	public var assets:Array <Asset>;
-	public var certificate:Keystore;
+	public var architectures:Array<Architecture>;
+	public var assets:Array<Asset>;
 	public var command:String;
 	public var config:ConfigData;
 	public var debug:Bool;
-	public var defines:Map <String, Dynamic>;
-	public var dependencies:Array <Dependency>;
-	public var environment:Map <String, String>;
-	public var haxedefs:Map <String, Dynamic>;
-	public var haxeflags:Array <String>;
-	public var haxelibs:Array <Haxelib>;
+	public var defines:Map<String, Dynamic>;
+	public var dependencies:Array<Dependency>;
+	public var environment:Map<String, String>;
+	public var haxedefs:Map<String, Dynamic>;
+	public var haxeflags:Array<String>;
+	public var haxelibs:Array<Haxelib>;
 	public var host (get_host, null):Platform;
-	public var icons:Array <Icon>;
-	public var javaPaths:Array <String>;
-	public var libraries:Array <Library>;
-	public var libraryHandlers:Map <String, String>;
+	public var icons:Array<Icon>;
+	public var javaPaths:Array<String>;
+	public var keystore:Keystore;
+	public var libraries:Array<Library>;
+	public var libraryHandlers:Map<String, String>;
 	public var meta:MetaData;
-	public var ndlls:Array <NDLL>;
-	public var parent:HXProject;
+	public var modules:Map<String, ModuleData>;
+	public var ndlls:Array<NDLL>;
+  public var parent:HXProject;
 	public var platformType:PlatformType;
-	public var postBuildCallbacks:Array <CLICommand>;
-	public var preBuildCallbacks:Array <CLICommand>;
-	public var projectDirectory:String;
-	public var samplePaths:Array <String>;
-	public var sources:Array <String>;
-	public var splashScreens:Array <SplashScreen>;
+	public var postBuildCallbacks:Array<CLICommand>;
+	public var preBuildCallbacks:Array<CLICommand>;
+	public var samplePaths:Array<String>;
+	public var sources:Array<String>;
+	public var splashScreens:Array<SplashScreen>;
 	public var target:Platform;
-	public var targetFlags:Map <String, String>;
-	public var targetHandlers:Map <String, String>;
+	public var targetFlags:Map<String, String>;
+	public var targetHandlers:Map<String, String>;
 	public var templateContext (get_templateContext, null):Dynamic;
-	public var templatePaths:Array <String>;
+	public var templatePaths:Array<String>;
 	@:isVar public var window (get, set):WindowData;
-	public var windows:Array <WindowData>;
+	public var windows:Array<WindowData>;
 	
 	private var defaultApp:ApplicationData;
 	private var defaultMeta:MetaData;
@@ -72,9 +73,11 @@ class HXProject {
 	
 	public static var _command:String;
 	public static var _debug:Bool;
+	public static var _environment:Map<String, String>;
 	public static var _target:Platform;
-	public static var _targetFlags:Map <String, String>;
-	public static var _templatePaths:Array <String>;
+	public static var _targetFlags:Map<String, String>;
+	public static var _templatePaths:Array<String>;
+	public static var _userDefines:Map<String, Dynamic>;
 	
 	private static var initialized:Bool;
 	
@@ -94,6 +97,8 @@ class HXProject {
 		HXProject._debug = (args[3] == "true");
 		HXProject._targetFlags = Unserializer.run (args[4]);
 		HXProject._templatePaths = Unserializer.run (args[5]);
+		if (args.length > 6) HXProject._userDefines = Unserializer.run (args[6]);
+		if (args.length > 7) HXProject._environment = Unserializer.run (args[7]);
 		
 		initialize ();
 		
@@ -104,7 +109,7 @@ class HXProject {
 		serializer.useCache = true;
 		serializer.serialize (instance);
 		
-		File.saveContent (args[6], serializer.toString ());
+		File.saveContent (args[args.length - 1], serializer.toString ());
 		
 	}
 	
@@ -122,7 +127,7 @@ class HXProject {
 		targetFlags = StringMapHelper.copy (_targetFlags);
 		templatePaths = _templatePaths.copy ();
 		
-		defaultMeta = { title: "MyApplication", description: "", packageName: "com.example.myapp", version: "1.0.0", company: "", companyUrl: "", buildNumber: "1", companyId: "" }
+		defaultMeta = { title: "MyApplication", description: "", packageName: "com.example.myapp", version: "1.0.0", company: "", companyUrl: "", buildNumber: null, companyId: "" }
 		defaultApp = { main: "Main", file: "MyApplication", path: "bin", preloader: "", swfVersion: 11.2, url: "", init: null }
 		defaultWindow = { width: 800, height: 600, parameters: "{}", background: 0xFFFFFF, fps: 30, hardware: true, display: 0, resizable: true, borderless: false, orientation: Orientation.AUTO, vsync: false, fullscreen: false, allowHighDPI: true, antialiasing: 0, allowShaders: true, requireShaders: false, depthBuffer: false, stencilBuffer: false }
 		
@@ -135,7 +140,7 @@ class HXProject {
 				
 				platformType = PlatformType.WEB;
 				architectures = [];
-				
+			
 			case HTML5, FIREFOX, EMSCRIPTEN:
 				
 				platformType = PlatformType.WEB;
@@ -145,13 +150,15 @@ class HXProject {
 				defaultWindow.height = 0;
 				defaultWindow.fps = 60;
 				
+				defaultWindow.allowHighDPI = false;
+			
 			case ANDROID, BLACKBERRY, IOS, TIZEN, WEBOS, TVOS:
 				
 				platformType = PlatformType.MOBILE;
 				
 				if (target == Platform.IOS) {
 					
-					architectures = [ Architecture.ARMV7, Architecture.ARM64 ];
+					architectures = [ Architecture.ARM64 ];
 					
 				} else if (target == Platform.ANDROID) {
 					
@@ -179,7 +186,7 @@ class HXProject {
 				defaultWindow.height = 0;
 				defaultWindow.fullscreen = true;
 				defaultWindow.requireShaders = true;
-				
+			
 			case WINDOWS, MAC, LINUX:
 				
 				platformType = PlatformType.DESKTOP;
@@ -193,13 +200,15 @@ class HXProject {
 					architectures = [ Architecture.X86 ];
 					
 				}
+				
+				defaultWindow.allowHighDPI = false;
 			
 			default:
 				
 				// TODO: Better handle platform type for pluggable targets
 				
 				platformType = PlatformType.CONSOLE;
-
+				
 				defaultWindow.width = 0;
 				defaultWindow.height = 0;
 				defaultWindow.fps = 60;
@@ -211,24 +220,45 @@ class HXProject {
 		app = ObjectHelper.copyFields (defaultApp, {});
 		window = ObjectHelper.copyFields (defaultWindow, {});
 		windows = [ window ];
-		assets = new Array <Asset> ();
-		defines = new Map <String, Dynamic> ();
-		dependencies = new Array <Dependency> ();
-		environment = Sys.environment ();
-		haxedefs = new Map <String, Dynamic> ();
-		haxeflags = new Array <String> ();
-		haxelibs = new Array <Haxelib> ();
-		icons = new Array <Icon> ();
-		javaPaths = new Array <String> ();
-		libraries = new Array <Library> ();
-		libraryHandlers = new Map <String, String> ();
-		ndlls = new Array <NDLL> ();
-		postBuildCallbacks = new Array <CLICommand> ();
-		preBuildCallbacks = new Array <CLICommand> ();
-		sources = new Array <String> ();
-		samplePaths = new Array <String> ();
-		splashScreens = new Array <SplashScreen> ();
-		targetHandlers = new Map <String, String> ();
+		assets = new Array<Asset> ();
+		
+		if (_userDefines != null) {
+			
+			defines = StringMapHelper.copy (_userDefines);
+			
+		} else {
+			
+			defines = new Map<String, Dynamic> ();
+			
+		}
+		
+		dependencies = new Array<Dependency> ();
+		
+		if (_environment != null) {
+			
+			environment = _environment;
+			
+		} else {
+			
+			environment = Sys.environment ();
+			
+		}
+		
+		haxedefs = new Map<String, Dynamic> ();
+		haxeflags = new Array<String> ();
+		haxelibs = new Array<Haxelib> ();
+		icons = new Array<Icon> ();
+		javaPaths = new Array<String> ();
+		libraries = new Array<Library> ();
+		libraryHandlers = new Map<String, String> ();
+		modules = new Map<String, ModuleData> ();
+		ndlls = new Array<NDLL> ();
+		postBuildCallbacks = new Array<CLICommand> ();
+		preBuildCallbacks = new Array<CLICommand> ();
+		sources = new Array<String> ();
+		samplePaths = new Array<String> ();
+		splashScreens = new Array<SplashScreen> ();
+		targetHandlers = new Map<String, String> ();
 		
 	}
 	
@@ -244,12 +274,6 @@ class HXProject {
 		for (i in 0...assets.length) {
 			
 			project.assets[i] = assets[i].clone ();
-			
-		}
-		
-		if (certificate != null) {
-			
-			project.certificate = certificate.clone ();
 			
 		}
 		
@@ -297,6 +321,12 @@ class HXProject {
 		
 		project.javaPaths = javaPaths.copy ();
 		
+		if (keystore != null) {
+			
+			project.keystore = keystore.clone ();
+			
+		}
+		
 		for (library in libraries) {
 			
 			project.libraries.push (library.clone ());
@@ -310,6 +340,12 @@ class HXProject {
 		}
 		
 		ObjectHelper.copyFields (meta, project.meta);
+		
+		for (key in modules.keys ()) {
+			
+			project.modules.set (key, modules.get (key).clone ());
+			
+		}
 		
 		for (ndll in ndlls) {
 			
@@ -358,7 +394,7 @@ class HXProject {
 	}
 	
 	
-	private function filter (text:String, include:Array <String> = null, exclude:Array <String> = null):Bool {
+	private function filter (text:String, include:Array<String> = null, exclude:Array<String> = null):Bool {
 		
 		if (include == null) {
 			
@@ -379,7 +415,7 @@ class HXProject {
 				filter = StringTools.replace (filter, ".", "\\.");
 				filter = StringTools.replace (filter, "*", ".*");
 				
-				var regexp = new EReg ("^" + filter, "i");
+				var regexp = new EReg ("^" + filter + "$", "i");
 				
 				if (regexp.match (text)) {
 					
@@ -417,7 +453,7 @@ class HXProject {
 	
 	#if lime
 	
-	public static function fromFile (projectFile:String, userDefines:Map <String, Dynamic> = null, includePaths:Array <String> = null):HXProject {
+	public static function fromFile (projectFile:String, userDefines:Map<String, Dynamic> = null, includePaths:Array<String> = null):HXProject {
 		
 		var project:HXProject = null;
 		
@@ -432,9 +468,10 @@ class HXProject {
 		
 		FileHelper.copyFile (path, classFile);
 		
-		ProcessHelper.runCommand ("", "haxe", [ name, "-main", "lime.project.HXProject", "-cp", tempDirectory, "-neko", nekoOutput, "-cp", PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "tools"), "-lib", "lime", "-D", "lime_curl" ]);
-		ProcessHelper.runCommand ("", "neko", [ FileSystem.fullPath (nekoOutput), HXProject._command, name, Std.string (HXProject._target), Std.string (HXProject._debug), Serializer.run (HXProject._targetFlags), Serializer.run (HXProject._templatePaths), temporaryFile ]);
+		ProcessHelper.runCommand ("", "haxe", [ name, "-main", "lime.project.HXProject", "-cp", tempDirectory, "-neko", nekoOutput, "-cp", PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "tools"), "-lib", "lime", "-D", "lime-curl", "-D", "native", "-D", "lime-native", "-D", "lime-cffi" ]);
+		ProcessHelper.runCommand ("", "neko", [ FileSystem.fullPath (nekoOutput), HXProject._command, name, Std.string (HXProject._target), Std.string (HXProject._debug), Serializer.run (HXProject._targetFlags), Serializer.run (HXProject._templatePaths), Serializer.run (HXProject._userDefines), Serializer.run (HXProject._environment), temporaryFile ]);
 		
+		var tPaths:Array<String> = [];
 		try {
 			
 			var outputPath = PathHelper.combine (tempDirectory, "output.dat");
@@ -446,6 +483,10 @@ class HXProject {
 				unserializer.setResolver (cast { resolveEnum: Type.resolveEnum, resolveClass: resolveClass });
 				project = unserializer.unserialize ();
 				
+				//Because the project file template paths need to take priority,
+				//Add them after loading template paths from haxelibs below
+				tPaths = project.templatePaths; 
+				project.templatePaths = [];
 			}
 			
 		} catch (e:Dynamic) {}
@@ -458,7 +499,9 @@ class HXProject {
 			StringMapHelper.copyKeys (project.defines, defines);
 			
 			processHaxelibs (project, defines);
-			
+		
+			//Adding template paths from the Project file
+			project.templatePaths = ArrayHelper.concatUnique (project.templatePaths, tPaths, true);	
 		}
 		
 		return project;
@@ -466,7 +509,7 @@ class HXProject {
 	}
 	
 	
-	public static function fromHaxelib (haxelib:Haxelib, userDefines:Map <String, Dynamic> = null, clearCache:Bool = false, parent:HXProject = null):HXProject {
+	public static function fromHaxelib (haxelib:Haxelib, userDefines:Map<String, Dynamic> = null, clearCache:Bool = false, parent:HXProject = null):HXProject {
 		
 		if (haxelib.name == null || haxelib.name == "") {
 			
@@ -482,12 +525,18 @@ class HXProject {
 			
 		}
 		
+		//if (!userDefines.exists (haxelib.name)) {
+			//
+			//userDefines.set (haxelib.name, HaxelibHelper.getVersion (haxelib));
+			//
+		//}
+		
 		return HXProject.fromPath (path, userDefines, parent);
 		
 	}
 	
 	
-	public static function fromPath (path:String, userDefines:Map <String, Dynamic> = null, parent:HXProject = null):HXProject {
+	public static function fromPath (path:String, userDefines:Map<String, Dynamic> = null, parent:HXProject = null):HXProject {
 		
 		if (!FileSystem.exists (path) || !FileSystem.isDirectory (path)) {
 			
@@ -563,7 +612,7 @@ class HXProject {
 	}
 	
 	
-	public function includeAssets (path:String, rename:String = null, include:Array <String> = null, exclude:Array <String> = null):Void {
+	public function includeAssets (path:String, rename:String = null, include:Array<String> = null, exclude:Array<String> = null):Void {
 		
 		if (include == null) {
 			
@@ -662,13 +711,13 @@ class HXProject {
 			
 			if (_targetFlags == null) {
 				
-				_targetFlags = new Map <String, String> ();
+				_targetFlags = new Map<String, String> ();
 				
 			}
 			
 			if (_templatePaths == null) {
 				
-				_templatePaths = new Array <String> ();
+				_templatePaths = new Array<String> ();
 				
 			}
 			
@@ -706,25 +755,43 @@ class HXProject {
 			StringMapHelper.copyUniqueKeys (project.libraryHandlers, libraryHandlers);
 			StringMapHelper.copyUniqueKeys (project.targetHandlers, targetHandlers);
 			
-			if (certificate == null) {
-				
-				certificate = project.certificate;
-				
-			} else {
-				
-				certificate.merge (project.certificate);
-				
-			}
-			
 			config.merge (project.config);
 			
+			architectures = ArrayHelper.concatUnique (architectures, project.architectures);
 			assets = ArrayHelper.concatUnique (assets, project.assets);
 			dependencies = ArrayHelper.concatUnique (dependencies, project.dependencies, true);
 			haxeflags = ArrayHelper.concatUnique (haxeflags, project.haxeflags);
 			haxelibs = ArrayHelper.concatUnique (haxelibs, project.haxelibs, true, "name");
 			icons = ArrayHelper.concatUnique (icons, project.icons);
 			javaPaths = ArrayHelper.concatUnique (javaPaths, project.javaPaths, true);
+			
+			if (keystore == null) {
+				
+				keystore = project.keystore;
+				
+			} else {
+				
+				keystore.merge (project.keystore);
+				
+			}
+			
+			
 			libraries = ArrayHelper.concatUnique (libraries, project.libraries, true);
+			
+			for (key in project.modules.keys ()) {
+				
+				if (modules.exists (key)) {
+					
+					modules.get (key).merge (project.modules.get (key));
+					
+				} else {
+					
+					modules.set (key, project.modules.get (key));
+					
+				}
+				
+			}
+			
 			ndlls = ArrayHelper.concatUnique (ndlls, project.ndlls);
 			postBuildCallbacks = postBuildCallbacks.concat (project.postBuildCallbacks);
 			preBuildCallbacks = preBuildCallbacks.concat (project.preBuildCallbacks);
@@ -755,13 +822,14 @@ class HXProject {
 	
 	#if lime
 	
-	@:noCompletion private static function processHaxelibs (project:HXProject, userDefines:Map <String, Dynamic>):Void {
+	@:noCompletion private static function processHaxelibs (project:HXProject, userDefines:Map<String, Dynamic>):Void {
 		
 		var haxelibs = project.haxelibs.copy ();
 		project.haxelibs = [];
 		
 		for (haxelib in haxelibs) {
 			
+			var validatePath = PathHelper.getHaxelib (haxelib, true);
 			project.haxelibs.push (haxelib);
 			
 			var includeProject = HXProject.fromHaxelib (haxelib, userDefines);
@@ -930,7 +998,7 @@ class HXProject {
 			
 		}
 		
-		context.assets = new Array <Dynamic> ();
+		context.assets = new Array<Dynamic> ();
 		
 		for (asset in assets) {
 			
@@ -957,6 +1025,8 @@ class HXProject {
 						var font = Font.fromFile (asset.sourcePath);
 						embeddedAsset.fontName = font.name;
 						
+						LogHelper.info ("", " - \x1b[1mDetecting font name:\x1b[0m " + asset.sourcePath + " \x1b[3;37m->\x1b[0m \"" + font.name + "\"");
+						
 					} catch (e:Dynamic) {}
 					
 				}
@@ -968,7 +1038,7 @@ class HXProject {
 			
 		}
 		
-		context.libraries = new Array <Dynamic> ();
+		context.libraries = new Array<Dynamic> ();
 		
 		for (library in libraries) {
 			
@@ -978,7 +1048,7 @@ class HXProject {
 			
 		}
 		
-		context.ndlls = new Array <Dynamic> ();
+		context.ndlls = new Array<Dynamic> ();
 		
 		for (ndll in ndlls) {
 			
@@ -1226,39 +1296,33 @@ class HXProject {
 		context.SWF_VERSION = app.swfVersion;
 		context.PRELOADER_NAME = app.preloader;
 		
-		if (certificate != null) {
+		if (keystore != null) {
 			
-			context.KEY_STORE = PathHelper.tryFullPath (certificate.path);
+			context.KEY_STORE = PathHelper.tryFullPath (keystore.path);
 			
-			if (certificate.password != null) {
+			if (keystore.password != null) {
 				
-				context.KEY_STORE_PASSWORD = certificate.password;
+				context.KEY_STORE_PASSWORD = keystore.password;
 				
 			}
 			
-			if (certificate.alias != null) {
+			if (keystore.alias != null) {
 				
-				context.KEY_STORE_ALIAS = certificate.alias;
+				context.KEY_STORE_ALIAS = keystore.alias;
 				
-			} else if (certificate.path != null) {
+			} else if (keystore.path != null) {
 				
-				context.KEY_STORE_ALIAS = Path.withoutExtension (Path.withoutDirectory (certificate.path));
-				
-			}
-			
-			if (certificate.aliasPassword != null) {
-				
-				context.KEY_STORE_ALIAS_PASSWORD = certificate.aliasPassword;
-				
-			} else if (certificate.password != null) {
-				
-				context.KEY_STORE_ALIAS_PASSWORD = certificate.password;
+				context.KEY_STORE_ALIAS = Path.withoutExtension (Path.withoutDirectory (keystore.path));
 				
 			}
 			
-			if (certificate.identity != null) {
+			if (keystore.aliasPassword != null) {
 				
-				context.KEY_STORE_IDENTITY = certificate.identity;
+				context.KEY_STORE_ALIAS_PASSWORD = keystore.aliasPassword;
+				
+			} else if (keystore.password != null) {
+				
+				context.KEY_STORE_ALIAS_PASSWORD = keystore.password;
 				
 			}
 			
@@ -1300,5 +1364,5 @@ class HXProject {
 		
 	}
 	
-
+	
 }

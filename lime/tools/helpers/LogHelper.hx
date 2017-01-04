@@ -10,6 +10,8 @@ import sys.io.Process;
 import neko.Lib;
 #elseif cpp
 import cpp.Lib;
+#elseif cs
+import cs.Lib;
 #end
 
 
@@ -24,7 +26,7 @@ class LogHelper {
 	
 	private static var colorCodes:EReg = ~/\x1b\[[^m]+m/g;
 	private static var colorSupported:Null<Bool>;
-	private static var sentWarnings:Map <String, Bool> = new Map <String, Bool> ();
+	private static var sentWarnings:Map<String, Bool> = new Map<String, Bool> ();
 	
 	
 	public static function error (message:String, verboseMessage:String = "", e:Dynamic = null):Void {
@@ -49,7 +51,9 @@ class LogHelper {
 		
 		if (verbose && e != null) {
 			
+			#if !cs
 			Lib.rethrow (e);
+			#end
 			
 		}
 		

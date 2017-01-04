@@ -14,7 +14,7 @@ import sys.FileSystem;
 class CreateTemplate {
 	
 	
-	public static function createExtension (words:Array <String>, userDefines:Map<String, Dynamic>):Void {
+	public static function createExtension (words:Array<String>, userDefines:Map<String, Dynamic>):Void {
 		
 		var title = "SampleExtension";
 		
@@ -35,6 +35,9 @@ class CreateTemplate {
 		context.extensionLowerCase = extension.toLowerCase ();
 		context.extensionUpperCase = extension.toUpperCase ();
 		context.ANDROID_TARGET_SDK_VERSION = "::ANDROID_TARGET_SDK_VERSION::";
+		context.ANDROID_MINIMUM_SDK_VERSION = "::ANDROID_MINIMUM_SDK_VERSION::";
+		context.META_BUILD_NUMBER = "::META_BUILD_NUMBER::";
+		context.META_VERSION = "::META_VERSION::";
 		
 		PathHelper.mkdir (title);
 		FileHelper.recursiveCopyTemplate ([ PathHelper.getHaxelib (new Haxelib ("lime"), true)  + "/templates" ], "extension", title, context);
@@ -57,9 +60,9 @@ class CreateTemplate {
 			
 		}
 		
-		if (FileSystem.exists (title + "/dependencies/android/src/org/haxe/extension/Extension.java")) {
+		if (FileSystem.exists (title + "/dependencies/android/src/main/java/org/haxe/extension/Extension.java")) {
 			
-			FileSystem.rename (title + "/dependencies/android/src/org/haxe/extension/Extension.java", title + "/dependencies/android/src/org/haxe/extension/" + file + ".java");
+			FileSystem.rename (title + "/dependencies/android/src/main/java/org/haxe/extension/Extension.java", title + "/dependencies/android/src/main/java/org/haxe/extension/" + file + ".java");
 			
 		}
 		
@@ -77,7 +80,7 @@ class CreateTemplate {
 	}
 	
 	
-	public static function createProject (words:Array <String>, userDefines:Map<String, Dynamic>, overrides:HXProject):Void {
+	public static function createProject (words:Array<String>, userDefines:Map<String, Dynamic>, overrides:HXProject):Void {
 		
 		var colonIndex = words[0].indexOf (":");
 		
@@ -134,7 +137,7 @@ class CreateTemplate {
 		
 		if (projectName != null && projectName != "") {
 			
-			var defines = new Map <String, Dynamic> ();
+			var defines = new Map<String, Dynamic> ();
 			defines.set ("create", 1);
 			var project = HXProject.fromHaxelib (new Haxelib (projectName), defines);
 			
@@ -303,7 +306,7 @@ class CreateTemplate {
 	}
 	
 	
-	public static function createSample (words:Array <String>, userDefines:Map<String, Dynamic>) {
+	public static function createSample (words:Array<String>, userDefines:Map<String, Dynamic>) {
 		
 		var colonIndex = words[0].indexOf (":");
 		
@@ -348,7 +351,7 @@ class CreateTemplate {
 			
 		}
 		
-		var defines = new Map <String, Dynamic> ();
+		var defines = new Map<String, Dynamic> ();
 		defines.set ("create", 1);
 		var project = HXProject.fromHaxelib (new Haxelib (projectName), defines);
 		
@@ -399,7 +402,7 @@ class CreateTemplate {
 		
 		if (projectName != null && projectName != "") {
 			
-			var defines = new Map <String, Dynamic> ();
+			var defines = new Map<String, Dynamic> ();
 			defines.set ("create", 1);
 			var project = HXProject.fromHaxelib (new Haxelib (projectName), defines);
 			
@@ -460,7 +463,7 @@ class CreateTemplate {
 			
 		}
 		
-		LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + CommandLineTools.commandName + "\x1b[0m create " + (projectName != CommandLineTools.commandName ? projectName : "") + "<sample> (directory)");
+		LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + CommandLineTools.commandName + "\x1b[0m create " + (projectName != CommandLineTools.commandName ? projectName + " " : "") + "<sample> (directory)");
 		
 		
 		

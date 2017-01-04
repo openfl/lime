@@ -189,7 +189,7 @@ class IconHelper {
 	}
 	
 	
-	public static function createWindowsIcon (icons:Array <Icon>, targetPath:String):Bool {
+	public static function createWindowsIcon (icons:Array<Icon>, targetPath:String):Bool {
 		
 		if (canUseCache (targetPath, icons)) {
 			
@@ -298,7 +298,7 @@ class IconHelper {
 	}
 	
 	
-	public static function findMatch (icons:Array <Icon>, width:Int, height:Int):Icon {
+	public static function findMatch (icons:Array<Icon>, width:Int, height:Int):Icon {
 		
 		var match = null;
 		
@@ -317,7 +317,7 @@ class IconHelper {
 	}
 	
 	
-	public static function findNearestMatch (icons:Array <Icon>, width:Int, height:Int):Icon {
+	public static function findNearestMatch (icons:Array<Icon>, width:Int, height:Int):Icon {
 		
 		var match = null;
 		
@@ -360,7 +360,7 @@ class IconHelper {
 	}
 	
 	
-	private static function getIconImage (icons:Array <Icon>, width:Int, height:Int, backgroundColor:Int = null):Image {
+	private static function getIconImage (icons:Array<Icon>, width:Int, height:Int, backgroundColor:Int = null):Image {
 		
 		var icon = findMatch (icons, width, height);
 		

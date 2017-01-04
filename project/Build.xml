@@ -16,16 +16,17 @@
 	<set name="LIME_HARFBUZZ" value="1" />
 	<set name="LIME_LZMA" value="1" />
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
-	<set name="LIME_NFD" value="1" if="windows || mac" />
 	<set name="LIME_OGG" value="1" />
-	<set name="LIME_OPENAL" value="1" unless="static_link" />
-	<set name="LIME_OPENAL" value="1" if="iphone || android || emscripten || tvos" />
+	<set name="LIME_OPENALSOFT" value="1" if="windows || linux || android" unless="static_link" />
+	<set name="LIME_OPENAL" value="1" if="mac || iphone || emscripten || tvos" />
+	<set name="LIME_OPENAL" value="1" if="LIME_OPENALSOFT" />
 	<set name="LIME_OPENGL" value="1" />
 	<set name="LIME_PIXMAN" value="1" />
 	<set name="LIME_PNG" value="1" />
 	<set name="LIME_SDL" value="1" />
 	<!-- <set name="LIME_SDL_ANGLE" value="1" if="windows" unless="static_link" /> -->
 	<set name="LIME_SDL_ANGLE" value="1" if="windows LIME_SDL_ANGLE" unless="static_link" />
+	<set name="LIME_TINYFILEDIALOGS" value="1" if="windows || mac || linux" />
 	<set name="LIME_VORBIS" value="1" />
 	<set name="LIME_ZLIB" value="1" />
 	
@@ -103,7 +104,7 @@
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/lzma/src" />
 			<compilerflag value="-DLIME_LZMA" />
 			
-			<file name="src/utils/LZMA.cpp" />
+			<file name="src/utils/compress/LZMA.cpp" />
 			
 		</section>
 		
@@ -113,15 +114,6 @@
 			<compilerflag value="-DLIME_NEKO" />
 			
 			<file name="src/vm/NekoVM.cpp" />
-			
-		</section>
-		
-		<section if="LIME_NFD">
-			
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/nfd/src/include/" />
-			<compilerflag value="-DLIME_NFD" />
-			
-			<file name="src/ui/FileDialog.cpp" />
 			
 		</section>
 		
@@ -137,10 +129,11 @@
 		
 		<section if="LIME_OPENAL">
 			
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/include/" unless="android || emscripten" />
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal-android/include/" if="android" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/include/" unless="emscripten" />
 			<compilerflag value="-DLIME_OPENAL" />
+			<compilerflag value="-DLIME_OPENALSOFT" if="LIME_OPENALSOFT" />
 			<compilerflag value="-DAL_LIBTYPE_STATIC=1" />
+			<compilerflag value="-DAL_ALEXT_PROTOTYPES" />
 			
 			<file name="src/audio/openal/OpenALBindings.cpp" />
 			
@@ -199,15 +192,27 @@
 			<file name="src/backend/sdl/SDLGamepad.cpp" />
 			<file name="src/backend/sdl/SDLJoystick.cpp" />
 			<file name="src/backend/sdl/SDLMouse.cpp" />
+			<file name="src/backend/sdl/SDLMutex.cpp" />
 			<file name="src/backend/sdl/SDLSystem.cpp" />
+			
+		</section>
+		
+		<section if="LIME_TINYFILEDIALOGS">
+			
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/tinyfiledialogs/" />
+			<compilerflag value="-DLIME_TINYFILEDIALOGS" />
+			
+			<file name="src/ui/FileDialog.cpp" />
 			
 		</section>
 		
 		<section if="LIME_ZLIB">
 			
 			<compilerflag value="-DSTATIC_LINK" if="emscripten" />
+			<compilerflag value="-DLIME_ZLIB" />
 			
 			<file name="${HXCPP}/project/libs/zlib/ZLib.cpp" if="emscripten || ios || static_link || tvos" />
+			<file name="src/utils/compress/Zlib.cpp" />
 			
 		</section>
 		
@@ -224,16 +229,23 @@
 		<file name="src/math/Vector2.cpp" />
 		<file name="src/system/CFFIPointer.cpp" />
 		<file name="src/system/JNI.cpp" if="android" />
+		<file name="src/system/Locale.cpp" unless="mac || ios" />
+		<file name="src/system/Locale.mm" if="mac || ios" />
 		<file name="src/system/SensorEvent.cpp" />
+		<file name="src/system/System.mm" if="ios" />
 		<file name="src/ui/DropEvent.cpp" />
 		<file name="src/ui/GamepadEvent.cpp" />
+		<file name="src/ui/Haptic.mm" if="ios" />
 		<file name="src/ui/JoystickEvent.cpp" />
 		<file name="src/ui/KeyEvent.cpp" />
 		<file name="src/ui/MouseEvent.cpp" />
 		<file name="src/ui/TextEvent.cpp" />
 		<file name="src/ui/TouchEvent.cpp" />
 		<file name="src/ui/WindowEvent.cpp" />
+		<file name="src/utils/ArrayBufferView.cpp" />
 		<file name="src/utils/Bytes.cpp" />
+		
+		<file name="src/hx/CFFIExt.cpp" />
 		
 	</files>
 	
@@ -244,13 +256,12 @@
 	<include name="lib/jpeg/files.xml" />
 	<include name="lib/lzma/files.xml" />
 	<include name="lib/neko/files.xml" />
-	<include name="lib/nfd/files.xml" />
 	<include name="lib/ogg/files.xml" />
 	<include name="lib/openal/files.xml" />
-	<include name="lib/openal-android/files.xml" if="android" />
 	<include name="lib/pixman/files.xml" />
 	<include name="lib/png/files.xml" />
 	<include name="lib/sdl/files.xml" />
+	<include name="lib/tinyfiledialogs/files.xml" />
 	<include name="lib/vorbis/files.xml" />
 	<include name="lib/zlib/files.xml" />
 	
@@ -271,13 +282,12 @@
 		<files id="native-toolkit-harfbuzz" if="LIME_HARFBUZZ" />
 		<files id="native-toolkit-lzma" if="LIME_LZMA" />
 		<files id="native-toolkit-neko" if="LIME_NEKO" />
-		<files id="native-toolkit-nfd" if="LIME_NFD" />
 		<files id="native-toolkit-ogg" if="LIME_OGG" />
-		<files id="native-toolkit-openal" if="LIME_OPENAL" unless="iphone || android || emscripten || tvos" />
-		<files id="native-toolkit-openal-android" if="LIME_OPENAL android" />
+		<files id="native-toolkit-openal" if="LIME_OPENALSOFT" />
 		<files id="native-toolkit-pixman" if="LIME_PIXMAN" />
 		<files id="native-toolkit-png" if="LIME_PNG" />
 		<files id="native-toolkit-sdl" if="LIME_SDL" unless="emscripten" />
+		<files id="native-toolkit-tinyfiledialogs" if="LIME_TINYFILEDIALOGS" />
 		<files id="native-toolkit-vorbis" if="LIME_VORBIS" />
 		<files id="native-toolkit-zlib" if="LIME_ZLIB" />
 		
@@ -330,7 +340,7 @@
 				<vflag name="-framework" value="ForceFeedback" />
 				<vflag name="-framework" value="Carbon" />
 				<vflag name="-framework" value="AppKit" />
-				<!-- <vflag name="-framework" value="OpenAL"/> -->
+				<vflag name="-framework" value="OpenAL"/>
 				
 				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
 				<lib name="-lm" if="LIME_NEKO" />

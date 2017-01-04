@@ -117,7 +117,7 @@ class RunScript {
 		
 	}
 	
-
+	
 	public static function runCommand (path:String, command:String, args:Array<String>, throwErrors:Bool = true):Int {
 		
 		var oldPath:String = "";
@@ -164,6 +164,7 @@ class RunScript {
 		if (args.length > 2 && args[0] == "rebuild" && args[1] == "tools") {
 			
 			var lastArgument = new Path (args[args.length - 1]).toString ();
+			var cacheDirectory = Sys.getCwd ();
 			
 			if (((StringTools.endsWith (lastArgument, "/") && lastArgument != "/") || StringTools.endsWith (lastArgument, "\\")) && !StringTools.endsWith (lastArgument, ":\\")) {
 				
@@ -222,18 +223,26 @@ class RunScript {
 			
 			rebuildTools (rebuildBinaries);
 			
-		} else {
-			
-			if (!FileSystem.exists ("tools/tools.n") || args.indexOf ("-rebuild") > -1) {
+			if (args[args.length - 1] != "-openfl") {
 				
-				rebuildTools ();
+				Sys.exit (0);
+				
+			} else {
+				
+				Sys.setCwd (cacheDirectory);
 				
 			}
 			
-			var args = [ "tools/tools.n" ].concat (args);
-			Sys.exit (runCommand ("", "neko", args));
+		}
+		
+		if (!FileSystem.exists ("tools/tools.n") || args.indexOf ("-rebuild") > -1) {
+			
+			rebuildTools ();
 			
 		}
+		
+		var args = [ "tools/tools.n" ].concat (args);
+		Sys.exit (runCommand ("", "neko", args));
 		
 	}
 	

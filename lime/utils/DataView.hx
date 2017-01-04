@@ -103,7 +103,12 @@ import lime.utils.ArrayBufferView;
 
 #else
 
-    import lime.utils.ArrayBuffer;
+import lime.utils.ArrayBuffer;
+
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
 
 class DataView {
 

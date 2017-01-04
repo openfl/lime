@@ -3,23 +3,26 @@ package lime.utils;
 
 import haxe.io.Bytes in HaxeBytes;
 import haxe.io.BytesData;
+import lime.app.Future;
+import lime.net.HTTPRequest;
 
 #if !macro
 @:build(lime.system.CFFI.build())
 #end
 
-@:autoBuild(lime.Assets.embedBytes())
+@:access(haxe.io.Bytes)
+@:forward()
 
 
-class Bytes extends HaxeBytes {
+abstract Bytes(HaxeBytes) from HaxeBytes to HaxeBytes {
 	
 	
 	public function new (length:Int, bytesData:BytesData) {
 		
 		#if js
-		super (bytesData);
+		this = new HaxeBytes (bytesData);
 		#else
-		super (length, bytesData);
+		this = new HaxeBytes (length, bytesData);
 		#end
 		
 	}
@@ -40,6 +43,45 @@ class Bytes extends HaxeBytes {
 	}
 	
 	
+	public static function fromBytes (bytes:haxe.io.Bytes):Bytes {
+		
+		return new Bytes (bytes.length, bytes.getData ());
+		
+	}
+	
+	
+	public static function fromFile (path:String):Bytes {
+		
+		#if (!html5 && !macro)
+		#if !cs
+		var bytes = Bytes.alloc (0);
+		lime_bytes_read_file (path, bytes);
+		if (bytes.length > 0) return bytes;
+		#else
+		var data:Dynamic = lime_bytes_read_file (path);
+		if (data != null) return new Bytes (data.length, data.b);
+		#end
+		#end
+		return null;
+		
+	}
+	
+	
+	public static function loadFromBytes (bytes:haxe.io.Bytes):Future<Bytes> {
+		
+		return Future.withValue (fromBytes (bytes));
+		
+	}
+	
+	
+	public static function loadFromFile (path:String):Future<Bytes> {
+		
+		var request = new HTTPRequest<Bytes> ();
+		return request.load (path);
+		
+	}
+	
+	
 	public static function ofData (b:BytesData):Bytes {
 		
 		var bytes = HaxeBytes.ofData (b);
@@ -56,18 +98,7 @@ class Bytes extends HaxeBytes {
 	}
 	
 	
-	public static function readFile (path:String):Bytes {
-		
-		#if (!html5 && !macro)
-		var data:Dynamic = lime_bytes_read_file (path);
-		if (data != null) return new Bytes (data.length, data.b);
-		#end
-		return null;
-		
-	}
-	
-	
-	#if ((cpp || neko || nodejs) && !macro)
+	#if (lime_cffi && !macro)
 	public static function __fromNativePointer (data:Dynamic, length:Int):Bytes {
 		
 		var bytes:Dynamic = lime_bytes_from_data_pointer (data, length);
@@ -87,7 +118,7 @@ class Bytes extends HaxeBytes {
 	#if !macro
 	@:cffi private static function lime_bytes_from_data_pointer (data:Float, length:Int):Dynamic;
 	@:cffi private static function lime_bytes_get_data_pointer (data:Dynamic):Float;
-	@:cffi private static function lime_bytes_read_file (path:String):Dynamic;
+	@:cffi private static function lime_bytes_read_file (path:String, bytes:Dynamic):Dynamic;
 	#end
 	
 	

@@ -12,6 +12,7 @@ import lime.graphics.GLRenderContext;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.graphics.Renderer;
+import lime.graphics.opengl.GL;
 import lime.math.Rectangle;
 import lime.utils.UInt8Array;
 
@@ -19,7 +20,14 @@ import lime.utils.UInt8Array;
 @:build(lime.system.CFFI.build())
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
+@:access(lime._backend.native.NativeGLRenderContext)
 @:access(lime.graphics.cairo.Cairo)
+@:access(lime.graphics.opengl.GL)
 @:access(lime.ui.Window)
 
 
@@ -66,9 +74,17 @@ class NativeRenderer {
 			
 			case "opengl":
 				
+				var context = new GLRenderContext ();
+				
 				useHardware = true;
-				parent.context = OPENGL (new GLRenderContext ());
+				parent.context = OPENGL (context);
 				parent.type = OPENGL;
+				
+				if (GL.context == null) {
+					
+					GL.context = context;
+					
+				}
 			
 			default:
 				
@@ -119,14 +135,23 @@ class NativeRenderer {
 	
 	public function readPixels (rect:Rectangle):Image {
 		
-		var data:Dynamic = lime_renderer_read_pixels (handle, rect);
+		var imageBuffer:ImageBuffer = null;
 		
+		#if !macro
+		#if !cs
+		imageBuffer = lime_renderer_read_pixels (handle, rect, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
+		#else
+		var data:Dynamic = lime_renderer_read_pixels (handle, rect, null);
 		if (data != null) {
+			imageBuffer = new ImageBuffer (new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b)), data.width, data.height, data.bitsPerPixel);
+		}
+		#end
+		#end
+		
+		if (imageBuffer != null) {
 			
-			var buffer = new ImageBuffer (new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b)), data.width, data.height, data.bitsPerPixel);
-			buffer.format = RGBA32;
-			
-			return new Image (buffer);
+			imageBuffer.format = RGBA32;
+			return new Image (imageBuffer);
 			
 		}
 		
@@ -187,7 +212,7 @@ class NativeRenderer {
 	@:cffi private static function lime_renderer_get_type (handle:Dynamic):Dynamic;
 	@:cffi private static function lime_renderer_lock (handle:Dynamic):Dynamic;
 	@:cffi private static function lime_renderer_make_current (handle:Dynamic):Void;
-	@:cffi private static function lime_renderer_read_pixels (handle:Dynamic, rect:Dynamic):Dynamic;
+	@:cffi private static function lime_renderer_read_pixels (handle:Dynamic, rect:Dynamic, imageBuffer:Dynamic):Dynamic;
 	@:cffi private static function lime_renderer_unlock (handle:Dynamic):Void;
 	#end
 	

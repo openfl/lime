@@ -13,6 +13,7 @@ package lime.utils;
         public inline function new<T>(
             ?elements:Int,
             ?array:Array<T>,
+            #if openfl ?vector:openfl.Vector<Int>, #end
             ?view:ArrayBufferView,
             ?buffer:ArrayBuffer, ?byteoffset:Int = 0, ?len:Null<Int>
         ) {
@@ -20,6 +21,7 @@ package lime.utils;
                 this = new js.html.Uint8Array( elements );
             } else if(array != null) {
                 this = new js.html.Uint8Array( untyped array );
+            #if openfl } else if(vector != null) { this = new js.html.Uint8Array( untyped untyped (vector).__array ); #end
             } else if(view != null) {
                 this = new js.html.Uint8Array( untyped view );
             } else if(buffer != null) {
@@ -45,11 +47,7 @@ package lime.utils;
         }
 
         inline public function toBytes() : haxe.io.Bytes {
-            #if (haxe_ver < 3.2)
-                return @:privateAccess new haxe.io.Bytes( this.byteLength, cast new js.html.Uint8Array(this.buffer) );
-            #else
-                return @:privateAccess new haxe.io.Bytes( cast new js.html.Uint8Array(this.buffer) );
-            #end
+            return @:privateAccess new haxe.io.Bytes( cast new js.html.Uint8Array(this.buffer) );
         }
 
         inline function toString() return this != null ? 'UInt8Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
@@ -72,6 +70,7 @@ package lime.utils;
             ?elements:Int,
             ?buffer:ArrayBuffer,
             ?array:Array<T>,
+            #if openfl ?vector:openfl.Vector<Int>, #end
             ?view:ArrayBufferView,
             ?byteoffset:Int = 0, ?len:Null<Int>
         ) {
@@ -80,6 +79,7 @@ package lime.utils;
                 this = new ArrayBufferView( elements, Uint8 );
             } else if(array != null) {
                 this = new ArrayBufferView(0, Uint8).initArray(array);
+            #if openfl } else if(vector != null) { this = new ArrayBufferView(0, Uint8).initArray(untyped (vector).__array); #end
             } else if(view != null) {
                 this = new ArrayBufferView(0, Uint8).initTypedArray(view);
             } else if(buffer != null) {

@@ -4,6 +4,12 @@ package lime.utils;
 import lime.graphics.opengl.GLProgram;
 import lime.graphics.opengl.GLShader;
 import lime.graphics.opengl.GL;
+import lime.utils.Log;
+
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
 
 
 class GLUtils {
@@ -17,13 +23,16 @@ class GLUtils {
 		
 		if (GL.getShaderParameter (shader, GL.COMPILE_STATUS) == 0) {
 			
-			switch (type) {
+			var message = switch (type) {
 				
-				case GL.VERTEX_SHADER: throw "Error compiling vertex shader";
-				case GL.FRAGMENT_SHADER: throw "Error compiling fragment shader";
-				default: throw "Error compiling unknown shader type";
+				case GL.VERTEX_SHADER: "Error compiling vertex shader";
+				case GL.FRAGMENT_SHADER: "Error compiling fragment shader";
+				default: "Error compiling unknown shader type";
 				
 			}
+			
+			message += "\n" + GL.getShaderInfoLog (shader);
+			Log.error (message);
 			
 		}
 		
@@ -44,7 +53,7 @@ class GLUtils {
 		
 		if (GL.getProgramParameter (program, GL.LINK_STATUS) == 0) {
 			
-			throw "Unable to initialize the shader program.";
+			Log.error ("Unable to initialize the shader program");
 			
 		}
 		

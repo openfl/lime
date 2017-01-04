@@ -1,28 +1,35 @@
 package lime.app;
 
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 @:allow(lime.app.Future)
+#if !js @:generic #end
 
 
 class Promise<T> {
 	
 	
 	public var future (default, null):Future<T>;
-	public var isCompleted (get, null):Bool;
+	public var isComplete (get, null):Bool;
+	public var isError (get, null):Bool;
 	
 	
 	public function new () {
 		
-		future = new Future ();
+		future = new Future<T> ();
 		
 	}
 	
 	
 	public function complete (data:T):Promise<T> {
 		
-		if (!future.__errored) {
+		if (!future.isError) {
 			
-			future.__completed = true;
+			future.isComplete = true;
 			future.value = data;
 			
 			if (future.__completeListeners != null) {
@@ -58,10 +65,10 @@ class Promise<T> {
 	
 	public function error (msg:Dynamic):Promise<T> {
 		
-		if (!future.__completed) {
+		if (!future.isComplete) {
 			
-			future.__errored = true;
-			future.__errorMessage = msg;
+			future.isError = true;
+			future.error = msg;
 			
 			if (future.__errorListeners != null) {
 				
@@ -82,15 +89,15 @@ class Promise<T> {
 	}
 	
 	
-	public function progress (progress:Float):Promise<T> {
+	public function progress (progress:Int, total:Int):Promise<T> {
 		
-		if (!future.__errored && !future.__completed) {
+		if (!future.isError && !future.isComplete) {
 			
 			if (future.__progressListeners != null) {
 				
 				for (listener in future.__progressListeners) {
 					
-					listener (progress);
+					listener (progress, total);
 					
 				}
 				
@@ -110,9 +117,16 @@ class Promise<T> {
 	
 	
 	
-	private function get_isCompleted ():Bool {
+	private function get_isComplete ():Bool {
 		
-		return future.isCompleted;
+		return future.isComplete;
+		
+	}
+	
+	
+	private function get_isError ():Bool {
+		
+		return future.isError;
 		
 	}
 	

@@ -2,6 +2,8 @@ package lime.text;
 
 
 import haxe.io.Bytes;
+import lime.app.Future;
+import lime.app.Promise;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.math.Vector2;
@@ -11,9 +13,11 @@ import lime.utils.UInt8Array;
 #if (js && html5)
 import js.html.CanvasElement;
 import js.html.CanvasRenderingContext2D;
+import js.html.SpanElement;
+import js.Browser;
 #end
 
-#if ((cpp || neko || nodejs) && !macro)
+#if (lime_cffi && !macro)
 import haxe.io.Path;
 #end
 
@@ -21,8 +25,13 @@ import haxe.io.Path;
 @:build(lime.system.CFFI.build())
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 #if (!display && !nodejs && !macro)
-@:autoBuild(lime.Assets.embedFont())
+@:autoBuild(lime._macros.AssetsMacro.embedFont())
 #end
 
 @:access(lime.text.Glyph)
@@ -42,7 +51,7 @@ class Font {
 	public var unitsPerEM (get, null):Int;
 	
 	@:noCompletion private var __fontPath:String;
-	#if (cpp || neko || nodejs)
+	#if lime_cffi
 	@:noCompletion private var __fontPathWithoutDirectory:String;
 	#end
 	
@@ -66,7 +75,7 @@ class Font {
 	
 	public function decompose ():NativeFontData {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		
 		if (src == null) throw "Uninitialized font handle.";
 		var data:Dynamic = lime_font_outline_decompose (src, 1024 * 20);
@@ -83,10 +92,12 @@ class Font {
 	
 	public static function fromBytes (bytes:Bytes):Font {
 		
+		if (bytes == null) return null;
+		
 		var font = new Font ();
 		font.__fromBytes (bytes);
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return (font.src != null) ? font : null;
 		#else
 		return font;
@@ -97,10 +108,12 @@ class Font {
 	
 	public static function fromFile (path:String):Font {
 		
+		if (path == null) return null;
+		
 		var font = new Font ();
 		font.__fromFile (path);
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return (font.src != null) ? font : null;
 		#else
 		return font;
@@ -109,9 +122,39 @@ class Font {
 	}
 	
 	
+	public static function loadFromBytes (bytes:Bytes):Future<Font> {
+		
+		return Future.withValue (fromBytes (bytes));
+		
+	}
+	
+	
+	public static function loadFromFile (path:String):Future<Font> {
+		
+		return Future.withValue (fromFile (path));
+		
+	}
+	
+	
+	public static function loadFromName (path:String):Future<Font> {
+		
+		#if (js && html5)
+		
+		var font = new Font ();
+		return font.__loadFromName (path);
+		
+		#else
+		
+		return cast Future.withError ("");
+		
+		#end
+		
+	}
+	
+	
 	public function getGlyph (character:String):Glyph {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_font_get_glyph_index (src, character);
 		#else
 		return -1;
@@ -120,9 +163,9 @@ class Font {
 	}
 	
 	
-	public function getGlyphs (characters:String = #if (display && haxe_ver < "3.2") "" #else "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. " #end):Array<Glyph> {
+	public function getGlyphs (characters:String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. "):Array<Glyph> {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		var glyphs:Dynamic = lime_font_get_glyph_indices (src, characters);
 		return glyphs;
 		#else
@@ -134,7 +177,7 @@ class Font {
 	
 	public function getGlyphMetrics (glyph:Glyph):GlyphMetrics {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		var value:Dynamic = lime_font_get_glyph_metrics (src, glyph);
 		var metrics = new GlyphMetrics ();
 		
@@ -153,7 +196,7 @@ class Font {
 	
 	public function renderGlyph (glyph:Glyph, fontSize:Int):Image {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		
 		__setSize (fontSize);
 		
@@ -191,7 +234,7 @@ class Font {
 	
 	public function renderGlyphs (glyphs:Array<Glyph>, fontSize:Int):Map<Glyph, Image> {
 		
-		//#if ((cpp || neko || nodejs) && !macro)
+		//#if (lime_cffi && !macro)
 		//
 		//var uniqueGlyphs = new Map<Int, Bool> ();
 		//
@@ -357,7 +400,7 @@ class Font {
 		
 		__fontPath = null;
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		
 		__fontPathWithoutDirectory = null;
 		
@@ -378,7 +421,7 @@ class Font {
 		
 		__fontPath = path;
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		
 		__fontPathWithoutDirectory = Path.withoutDirectory (__fontPath);
 		
@@ -395,9 +438,104 @@ class Font {
 	}
 	
 	
+	private function __loadFromName (name:String):Future<Font> {
+		
+		var promise = new Promise<Font> ();
+		
+		#if (js && html5)
+		
+		this.name = name;
+		var font = name;
+		var ua = Browser.navigator.userAgent.toLowerCase();
+		
+		// When Safari reports that font is loaded, actually font IS NOT loaded.
+		// If you try to use this font immediately after preloader completes,
+		// default font will be used instead.
+		//
+		// We detect Safari, and use old font loading for it.
+		
+		if (!(ua.indexOf(" safari/") >= 0 && ua.indexOf(" chrome/") < 0) && untyped (Browser.document).fonts && untyped (Browser.document).fonts.load) {
+			
+			untyped (Browser.document).fonts.load ("1em '" + font + "'").then (function (_) {
+				
+				promise.complete (this);
+				
+			});
+			
+		} else {
+			
+			var node:SpanElement = cast Browser.document.createElement ("span");
+			node.innerHTML = "giItT1WQy@!-/#";
+			var style = node.style;
+			style.position = "absolute";
+			style.left = "-10000px";
+			style.top = "-10000px";
+			style.fontSize = "300px";
+			style.fontFamily = "sans-serif";
+			style.fontVariant = "normal";
+			style.fontStyle = "normal";
+			style.fontWeight = "normal";
+			style.letterSpacing = "0";
+			Browser.document.body.appendChild (node);
+			
+			var width = node.offsetWidth;
+			style.fontFamily = "'" + font + "', sans-serif";
+			
+			var interval:Null<Int> = null;
+			var found = false;
+			
+			var checkFont = function () {
+				
+				if (node.offsetWidth != width) {
+					
+					// Test font was still not available yet, try waiting one more interval?
+					if (!found) {
+						
+						found = true;
+						return false;
+						
+					}
+					
+					if (interval != null) {
+						
+						Browser.window.clearInterval (interval);
+						
+					}
+					
+					node.parentNode.removeChild (node);
+					node = null;
+					
+					promise.complete (this);
+					return true;
+					
+				}
+				
+				return false;
+				
+			}
+			
+			if (!checkFont ()) {
+				
+				interval = Browser.window.setInterval (checkFont, 50);
+				
+			}
+			
+		}
+		
+		#else
+		
+		promise.error ("");
+		
+		#end
+		
+		return promise.future;
+		
+	}
+	
+	
 	@:noCompletion private function __setSize (size:Int):Void {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		lime_font_set_size (src, size);
 		#end
 		
@@ -413,7 +551,7 @@ class Font {
 	
 	private function get_ascender ():Int {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_font_get_ascender (src);
 		#else
 		return 0;
@@ -424,7 +562,7 @@ class Font {
 	
 	private function get_descender ():Int {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_font_get_descender (src);
 		#else
 		return 0;
@@ -435,7 +573,7 @@ class Font {
 	
 	private function get_height ():Int {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_font_get_height (src);
 		#else
 		return 0;
@@ -446,7 +584,7 @@ class Font {
 	
 	private function get_numGlyphs ():Int {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_font_get_num_glyphs (src);
 		#else
 		return 0;
@@ -457,7 +595,7 @@ class Font {
 	
 	private function get_underlinePosition ():Int {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_font_get_underline_position (src);
 		#else
 		return 0;
@@ -468,7 +606,7 @@ class Font {
 	
 	private function get_underlineThickness ():Int {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_font_get_underline_thickness (src);
 		#else
 		return 0;
@@ -479,7 +617,7 @@ class Font {
 	
 	private function get_unitsPerEM ():Int {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_font_get_units_per_em (src);
 		#else
 		return 0;
@@ -495,7 +633,7 @@ class Font {
 	
 	
 	
-	#if ((cpp || neko || nodejs) && !macro)
+	#if (lime_cffi && !macro)
 	@:cffi private static function lime_font_get_ascender (handle:Dynamic):Int;
 	@:cffi private static function lime_font_get_descender (handle:Dynamic):Int;
 	@:cffi private static function lime_font_get_family_name (handle:Dynamic):Dynamic;

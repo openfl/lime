@@ -24,6 +24,7 @@
 #include <system/CFFIPointer.h>
 #include <system/Clipboard.h>
 #include <system/JNI.h>
+#include <system/Locale.h>
 #include <system/SensorEvent.h>
 #include <system/System.h>
 #include <text/Font.h>
@@ -32,6 +33,7 @@
 #include <ui/FileDialog.h>
 #include <ui/Gamepad.h>
 #include <ui/GamepadEvent.h>
+#include <ui/Haptic.h>
 #include <ui/Joystick.h>
 #include <ui/JoystickEvent.h>
 #include <ui/KeyEvent.h>
@@ -42,7 +44,8 @@
 #include <ui/TouchEvent.h>
 #include <ui/Window.h>
 #include <ui/WindowEvent.h>
-#include <utils/LZMA.h>
+#include <utils/compress/LZMA.h>
+#include <utils/compress/Zlib.h>
 #include <vm/NekoVM.h>
 
 DEFINE_KIND (k_finalizer);
@@ -91,6 +94,22 @@ namespace lime {
 		
 		Window* window = (Window*)val_data (handle);
 		delete window;
+		
+	}
+	
+	
+	std::wstring* hxstring_to_wstring (HxString val) {
+		
+		if (val.c_str ()) {
+			
+			std::string _val = std::string (val.c_str ());
+			return new std::wstring (_val.begin (), _val.end ());
+			
+		} else {
+			
+			return 0;
+			
+		}
 		
 	}
 	
@@ -152,11 +171,12 @@ namespace lime {
 	}
 	
 	
-	value lime_audio_load (value data) {
+	value lime_audio_load (value data, value buffer) {
 		
-		AudioBuffer audioBuffer;
 		Resource resource;
 		Bytes bytes;
+		
+		AudioBuffer audioBuffer = AudioBuffer (buffer);
 		
 		if (val_is_string (data)) {
 			
@@ -164,7 +184,6 @@ namespace lime {
 			
 		} else {
 			
-			bytes = Bytes ();
 			bytes.Set (data);
 			resource = Resource (&bytes);
 			
@@ -192,7 +211,7 @@ namespace lime {
 	value lime_bytes_from_data_pointer (double data, int length) {
 		
 		intptr_t ptr = (intptr_t)data;
-		Bytes bytes = Bytes (length);
+		Bytes bytes (length);
 		
 		if (ptr) {
 			
@@ -213,9 +232,10 @@ namespace lime {
 	}
 	
 	
-	value lime_bytes_read_file (HxString path) {
+	value lime_bytes_read_file (HxString path, value bytes) {
 		
-		Bytes data = Bytes (path.__s);
+		Bytes data (bytes);
+		data.ReadFile (path.c_str ());
 		return data.Value ();
 		
 	}
@@ -267,7 +287,39 @@ namespace lime {
 	
 	void lime_clipboard_set_text (HxString text) {
 		
-		Clipboard::SetText (text.__s);
+		Clipboard::SetText (text.c_str ());
+		
+	}
+	
+	
+	value lime_deflate_compress (value buffer, value bytes) {
+		
+		#ifdef LIME_ZLIB
+		Bytes data (buffer);
+		Bytes result (bytes);
+		
+		Zlib::Compress (DEFLATE, &data, &result);
+		
+		return result.Value ();
+		#else
+		return alloc_null();
+		#endif
+		
+	}
+	
+	
+	value lime_deflate_decompress (value buffer, value bytes) {
+		
+		#ifdef LIME_ZLIB
+		Bytes data (buffer);
+		Bytes result (bytes);
+		
+		Zlib::Decompress (DEFLATE, &data, &result);
+		
+		return result.Value ();
+		#else
+		return alloc_null ();
+		#endif
 		
 	}
 	
@@ -282,63 +334,89 @@ namespace lime {
 	
 	value lime_file_dialog_open_directory (HxString filter, HxString defaultPath) {
 		
-		#ifdef LIME_NFD
-		const char* path = FileDialog::OpenDirectory (filter.__s, defaultPath.__s);
+		#ifdef LIME_TINYFILEDIALOGS
+		
+		std::wstring* _filter = hxstring_to_wstring (filter);
+		std::wstring* _defaultPath = hxstring_to_wstring (defaultPath);
+		
+		std::wstring* path = FileDialog::OpenDirectory (_filter, _defaultPath);
+		
+		if (_filter) delete _filter;
+		if (_defaultPath) delete _defaultPath;
 		
 		if (path) {
 			
-			value _path = alloc_string (path);
-			free ((char*) path);
+			value _path = alloc_wstring (path->c_str ());
+			delete path;
 			return _path;
 			
 		} else {
 			
+			delete path;
 			return alloc_null ();
 			
 		}
+		
 		#endif
 		
-		return 0;
+		return alloc_null ();
 		
 	}
 	
 	value lime_file_dialog_open_file (HxString filter, HxString defaultPath) {
 		
-		#ifdef LIME_NFD
-		const char* path = FileDialog::OpenFile (filter.__s, defaultPath.__s);
+		#ifdef LIME_TINYFILEDIALOGS
+		
+		std::wstring* _filter = hxstring_to_wstring (filter);
+		std::wstring* _defaultPath = hxstring_to_wstring (defaultPath);
+		
+		std::wstring* path = FileDialog::OpenFile (_filter, _defaultPath);
+		
+		if (_filter) delete _filter;
+		if (_defaultPath) delete _defaultPath;
 		
 		if (path) {
 			
-			value _path = alloc_string (path);
-			free ((char*) path);
+			value _path = alloc_wstring (path->c_str ());
+			delete path;
 			return _path;
 			
 		} else {
 			
+			delete path;
 			return alloc_null ();
 			
 		}
+		
 		#endif
 		
-		return 0;
+		return alloc_null ();
 		
 	}
 	
 	
 	value lime_file_dialog_open_files (HxString filter, HxString defaultPath) {
 		
-		#ifdef LIME_NFD
-		std::vector<const char*> files;
+		#ifdef LIME_TINYFILEDIALOGS
 		
-		FileDialog::OpenFiles (&files, filter.__s, defaultPath.__s);
+		std::wstring* _filter = hxstring_to_wstring (filter);
+		std::wstring* _defaultPath = hxstring_to_wstring (defaultPath);
+		
+		std::vector<std::wstring*> files;
+		
+		FileDialog::OpenFiles (&files, _filter, _defaultPath);
 		value result = alloc_array (files.size ());
+		
+		if (_filter) delete _filter;
+		if (_defaultPath) delete _defaultPath;
 		
 		for (int i = 0; i < files.size (); i++) {
 			
-			val_array_set_i (result, i, alloc_string (files[i]));
-			free ((char*)files[i]);
+			val_array_set_i (result, i, alloc_wstring (files[i]->c_str ()));
+			delete files[i];
 			
 		}
+		
 		#else
 		value result = alloc_array (0);
 		#endif
@@ -350,23 +428,32 @@ namespace lime {
 	
 	value lime_file_dialog_save_file (HxString filter, HxString defaultPath) {
 		
-		#ifdef LIME_NFD
-		const char* path = FileDialog::SaveFile (filter.__s, defaultPath.__s);
+		#ifdef LIME_TINYFILEDIALOGS
+		
+		std::wstring* _filter = hxstring_to_wstring (filter);
+		std::wstring* _defaultPath = hxstring_to_wstring (defaultPath);
+		
+		std::wstring* path = FileDialog::SaveFile (_filter, _defaultPath);
+		
+		if (_filter) delete _filter;
+		if (_defaultPath) delete _defaultPath;
 		
 		if (path) {
 			
-			value _path = alloc_string (path);
-			free ((char*) path);
+			value _path = alloc_wstring (path->c_str ());
+			delete path;
 			return _path;
 			
 		} else {
 			
+			delete path;
 			return alloc_null ();
 			
 		}
+		
 		#endif
 		
-		return 0;
+		return alloc_null ();
 		
 	}
 	
@@ -377,7 +464,7 @@ namespace lime {
 		Font *font = (Font*)val_data (fontHandle);
 		return font->GetAscender ();
 		#else
-		return 0;
+		return alloc_null ();
 		#endif
 		
 	}
@@ -389,7 +476,7 @@ namespace lime {
 		Font *font = (Font*)val_data (fontHandle);
 		return font->GetDescender ();
 		#else
-		return 0;
+		return alloc_null ();
 		#endif
 		
 	}
@@ -404,7 +491,7 @@ namespace lime {
 		delete name;
 		return result;
 		#else
-		return 0;
+		return alloc_null ();
 		#endif
 		
 	}
@@ -414,7 +501,7 @@ namespace lime {
 		
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)val_data (fontHandle);
-		return font->GetGlyphIndex ((char*)character.__s);
+		return font->GetGlyphIndex ((char*)character.c_str ());
 		#else
 		return -1;
 		#endif
@@ -426,7 +513,7 @@ namespace lime {
 		
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)val_data (fontHandle);
-		return font->GetGlyphIndices ((char*)characters.__s);
+		return font->GetGlyphIndices ((char*)characters.c_str ());
 		#else
 		return alloc_null ();
 		#endif
@@ -452,7 +539,7 @@ namespace lime {
 		Font *font = (Font*)val_data (fontHandle);
 		return font->GetHeight ();
 		#else
-		return 0;
+		return alloc_null ();
 		#endif
 		
 	}
@@ -476,7 +563,7 @@ namespace lime {
 		Font *font = (Font*)val_data (fontHandle);
 		return font->GetUnderlinePosition ();
 		#else
-		return 0;
+		return alloc_null ();
 		#endif
 		
 	}
@@ -488,7 +575,7 @@ namespace lime {
 		Font *font = (Font*)val_data (fontHandle);
 		return font->GetUnderlineThickness ();
 		#else
-		return 0;
+		return alloc_null ();
 		#endif
 		
 	}
@@ -500,7 +587,7 @@ namespace lime {
 		Font *font = (Font*)val_data (fontHandle);
 		return font->GetUnitsPerEM ();
 		#else
-		return 0;
+		return alloc_null ();
 		#endif
 		
 	}
@@ -561,7 +648,7 @@ namespace lime {
 		
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)val_data (fontHandle);
-		Bytes bytes = Bytes (data);
+		Bytes bytes (data);
 		return font->RenderGlyph (index, &bytes);
 		#else
 		return false;
@@ -574,7 +661,7 @@ namespace lime {
 		
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)val_data (fontHandle);
-		Bytes bytes = Bytes (data);
+		Bytes bytes (data);
 		return font->RenderGlyphs (indices, &bytes);
 		#else
 		return false;
@@ -630,10 +717,51 @@ namespace lime {
 	}
 	
 	
-	value lime_image_encode (value buffer, int type, int quality) {
+	value lime_gzip_compress (value buffer, value bytes) {
+		
+		#ifdef LIME_ZLIB
+		Bytes data (buffer);
+		Bytes result (bytes);
+		
+		Zlib::Compress (GZIP, &data, &result);
+		
+		return result.Value ();
+		#else
+		return alloc_null ();
+		#endif
+		
+	}
+	
+	
+	value lime_gzip_decompress (value buffer, value bytes) {
+		
+		#ifdef LIME_ZLIB
+		Bytes data (buffer);
+		Bytes result (bytes);
+		
+		Zlib::Decompress (GZIP, &data, &result);
+		
+		return result.Value ();
+		#else
+		return alloc_null ();
+		#endif
+		
+	}
+	
+	
+	void lime_haptic_vibrate (int period, int duration) {
+		
+		#ifdef IPHONE
+		Haptic::Vibrate (period, duration);
+		#endif
+		
+	}
+	
+	
+	value lime_image_encode (value buffer, int type, int quality, value bytes) {
 		
 		ImageBuffer imageBuffer = ImageBuffer (buffer);
-		Bytes data;
+		Bytes data = Bytes (bytes);
 		
 		switch (type) {
 			
@@ -642,7 +770,6 @@ namespace lime {
 				#ifdef LIME_PNG
 				if (PNG::Encode (&imageBuffer, &data)) {
 					
-					//delete imageBuffer.data;
 					return data.Value ();
 					
 				}
@@ -654,7 +781,6 @@ namespace lime {
 				#ifdef LIME_JPEG
 				if (JPEG::Encode (&imageBuffer, &data, quality)) {
 					
-					//delete imageBuffer.data;
 					return data.Value ();
 					
 				}
@@ -665,17 +791,17 @@ namespace lime {
 			
 		}
 		
-		//delete imageBuffer.data;
 		return alloc_null ();
 		
 	}
 	
 	
-	value lime_image_load (value data) {
+	value lime_image_load (value data, value buffer) {
 		
-		ImageBuffer buffer;
 		Resource resource;
 		Bytes bytes;
+		
+		ImageBuffer imageBuffer = ImageBuffer (buffer);
 		
 		if (val_is_string (data)) {
 			
@@ -689,17 +815,17 @@ namespace lime {
 		}
 		
 		#ifdef LIME_PNG
-		if (PNG::Decode (&resource, &buffer)) {
+		if (PNG::Decode (&resource, &imageBuffer)) {
 			
-			return buffer.Value ();
+			return imageBuffer.Value ();
 			
 		}
 		#endif
 		
 		#ifdef LIME_JPEG
-		if (JPEG::Decode (&resource, &buffer)) {
+		if (JPEG::Decode (&resource, &imageBuffer)) {
 			
-			return buffer.Value ();
+			return imageBuffer.Value ();
 			
 		}
 		#endif
@@ -824,7 +950,7 @@ namespace lime {
 		
 		Image _image = Image (image);
 		Rectangle _rect = Rectangle (rect);
-		Bytes _bytes = Bytes (bytes);
+		Bytes _bytes (bytes);
 		PixelFormat _format = (PixelFormat)format;
 		ImageDataUtil::SetPixels (&_image, &_rect, &_bytes, _format);
 		
@@ -914,12 +1040,11 @@ namespace lime {
 	}
 	
 	
-	value lime_jpeg_decode_bytes (value data, bool decodeData) {
+	value lime_jpeg_decode_bytes (value data, bool decodeData, value buffer) {
 		
-		ImageBuffer imageBuffer;
+		ImageBuffer imageBuffer (buffer);
 		
-		Bytes bytes;
-		bytes.Set (data);
+		Bytes bytes (data);
 		Resource resource = Resource (&bytes);
 		
 		#ifdef LIME_JPEG
@@ -935,10 +1060,10 @@ namespace lime {
 	}
 	
 	
-	value lime_jpeg_decode_file (HxString path, bool decodeData) {
+	value lime_jpeg_decode_file (HxString path, bool decodeData, value buffer) {
 		
-		ImageBuffer imageBuffer;
-		Resource resource = Resource (path.__s);
+		ImageBuffer imageBuffer (buffer);
+		Resource resource = Resource (path.c_str ());
 		
 		#ifdef LIME_JPEG
 		if (JPEG::Decode (&resource, &imageBuffer, decodeData)) {
@@ -961,14 +1086,32 @@ namespace lime {
 	}
 	
 	
-	value lime_lzma_decode (value buffer) {
+	value lime_locale_get_system_locale () {
+		
+		std::string* locale = Locale::GetSystemLocale ();
+		
+		if (!locale) {
+			
+			return alloc_null ();
+			
+		} else {
+			
+			value result = alloc_string (locale->c_str ());
+			delete locale;
+			return result;
+			
+		}
+		
+	}
+	
+	
+	value lime_lzma_compress (value buffer, value bytes) {
 		
 		#ifdef LIME_LZMA
-		Bytes data;
-		data.Set (buffer);
-		Bytes result;
+		Bytes data (buffer);
+		Bytes result (bytes);
 		
-		LZMA::Decode (&data, &result);
+		LZMA::Compress (&data, &result);
 		
 		return result.Value ();
 		#else
@@ -978,14 +1121,13 @@ namespace lime {
 	}
 	
 	
-	value lime_lzma_encode (value buffer) {
+	value lime_lzma_decompress (value buffer, value bytes) {
 		
 		#ifdef LIME_LZMA
-		Bytes data;
-		data.Set (buffer);
-		Bytes result;
+		Bytes data (buffer);
+		Bytes result (bytes);
 		
-		LZMA::Encode (&data, &result);
+		LZMA::Decompress (&data, &result);
 		
 		return result.Value ();
 		#else
@@ -1049,16 +1191,15 @@ namespace lime {
 	void lime_neko_execute (HxString module) {
 		
 		#ifdef LIME_NEKO
-		NekoVM::Execute (module.__s);
+		NekoVM::Execute (module.c_str ());
 		#endif
 		
 	}
 	
 	
-	value lime_png_decode_bytes (value data, bool decodeData) {
+	value lime_png_decode_bytes (value data, bool decodeData, value buffer) {
 		
-		ImageBuffer imageBuffer;
-		
+		ImageBuffer imageBuffer (buffer);
 		Bytes bytes (data);
 		Resource resource = Resource (&bytes);
 		
@@ -1075,10 +1216,10 @@ namespace lime {
 	}
 	
 	
-	value lime_png_decode_file (HxString path, bool decodeData) {
+	value lime_png_decode_file (HxString path, bool decodeData, value buffer) {
 		
-		ImageBuffer imageBuffer;
-		Resource resource = Resource (path.__s);
+		ImageBuffer imageBuffer (buffer);
+		Resource resource = Resource (path.c_str ());
 		
 		#ifdef LIME_PNG
 		if (PNG::Decode (&resource, &imageBuffer, decodeData)) {
@@ -1155,10 +1296,10 @@ namespace lime {
 	}
 	
 	
-	value lime_renderer_read_pixels (value renderer, value rect) {
+	value lime_renderer_read_pixels (value renderer, value rect, value imageBuffer) {
 		
 		Renderer* targetRenderer = (Renderer*)val_data (renderer);
-		ImageBuffer buffer;
+		ImageBuffer buffer (imageBuffer);
 		
 		if (!val_is_null (rect)) {
 			
@@ -1200,25 +1341,13 @@ namespace lime {
 	
 	value lime_system_get_directory (int type, HxString company, HxString title) {
 		
-		const char* path = System::GetDirectory ((SystemDirectory)type, company.__s, title.__s);
+		std::wstring* path = System::GetDirectory ((SystemDirectory)type, company.c_str (), title.c_str ());
 		
 		if (path) {
 			
-			value _path = alloc_string (path);
-			
-			if (type != 4) {
-				
-				// TODO: Make this more consistent
-				
-				//This free() causes crashes on mac at least. Commenting it out makes it work
-				//again but may cause a small memory leak. Some more consideration is
-				//necessary to figure out what to do here
-				
-				//free ((char*) path);
-				
-			}
-			
-			return _path;
+			value result = alloc_wstring (path->c_str ());
+			delete path;
+			return result;
 			
 		} else {
 			
@@ -1250,6 +1379,24 @@ namespace lime {
 	}
 	
 	
+	void lime_system_open_file (HxString path) {
+		
+		#ifdef IPHONE
+		System::OpenFile (path.c_str ());
+		#endif
+		
+	}
+	
+	
+	void lime_system_open_url (HxString url, HxString target) {
+		
+		#ifdef IPHONE
+		System::OpenURL (url.c_str (), target.c_str ());
+		#endif
+		
+	}
+	
+	
 	bool lime_system_set_allow_screen_timeout (bool allow) {
 		
 		return System::SetAllowScreenTimeout (allow);
@@ -1269,7 +1416,7 @@ namespace lime {
 		
 		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
 		
-		TextLayout *text = new TextLayout (direction, script.__s, language.__s);
+		TextLayout *text = new TextLayout (direction, script.c_str (), language.c_str ());
 		return CFFIPointer (text, gc_text_layout);
 		
 		#else
@@ -1287,9 +1434,8 @@ namespace lime {
 		
 		TextLayout *text = (TextLayout*)val_data (textHandle);
 		Font *font = (Font*)val_data (fontHandle);
-		Bytes bytes;
-		bytes.Set (data);
-		text->Position (font, size, textString.__s, &bytes);
+		Bytes bytes (data);
+		text->Position (font, size, textString.c_str (), &bytes);
 		return bytes.Value ();
 		
 		#endif
@@ -1313,7 +1459,7 @@ namespace lime {
 		
 		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
 		TextLayout *text = (TextLayout*)val_data (textHandle);
-		text->SetLanguage (language.__s);
+		text->SetLanguage (language.c_str ());
 		#endif
 		
 	}
@@ -1323,7 +1469,7 @@ namespace lime {
 		
 		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
 		TextLayout *text = (TextLayout*)val_data (textHandle);
-		text->SetScript (script.__s);
+		text->SetScript (script.c_str ());
 		#endif
 		
 	}
@@ -1340,7 +1486,7 @@ namespace lime {
 	void lime_window_alert (value window, HxString message, HxString title) {
 		
 		Window* targetWindow = (Window*)val_data (window);
-		targetWindow->Alert (message.__s, title.__s);
+		targetWindow->Alert (message.c_str (), title.c_str ());
 		
 	}
 	
@@ -1355,7 +1501,7 @@ namespace lime {
 	
 	value lime_window_create (value application, int width, int height, int flags, HxString title) {
 		
-		Window* window = CreateWindow ((Application*)val_data (application), width, height, flags, title.__s);
+		Window* window = CreateWindow ((Application*)val_data (application), width, height, flags, title.c_str ());
 		return CFFIPointer (window, gc_window);
 		
 	}
@@ -1509,12 +1655,18 @@ namespace lime {
 	value lime_window_set_title (value window, HxString title) {
 		
 		Window* targetWindow = (Window*)val_data (window);
-		const char* result = targetWindow->SetTitle (title.__s);
+		const char* result = targetWindow->SetTitle (title.c_str ());
 		
 		if (result) {
 			
 			value _result = alloc_string (result);
-			free ((char*) result);
+			
+			if (result != title.c_str ()) {
+				
+				free ((char*) result);
+				
+			}
+			
 			return _result;
 			
 		} else {
@@ -1526,6 +1678,38 @@ namespace lime {
 	}
 	
 	
+	value lime_zlib_compress (value buffer, value bytes) {
+		
+		#ifdef LIME_ZLIB
+		Bytes data (buffer);
+		Bytes result (bytes);
+		
+		Zlib::Compress (ZLIB, &data, &result);
+		
+		return result.Value ();
+		#else
+		return alloc_null ();
+		#endif
+		
+	}
+	
+	
+	value lime_zlib_decompress (value buffer, value bytes) {
+		
+		#ifdef LIME_ZLIB
+		Bytes data (buffer);
+		Bytes result (bytes);
+		
+		Zlib::Decompress (ZLIB, &data, &result);
+		
+		return result.Value ();
+		#else
+		return alloc_null ();
+		#endif
+		
+	}
+	
+	
 	DEFINE_PRIME1 (lime_application_create);
 	DEFINE_PRIME2v (lime_application_event_manager_register);
 	DEFINE_PRIME1 (lime_application_exec);
@@ -1533,14 +1717,16 @@ namespace lime {
 	DEFINE_PRIME1 (lime_application_quit);
 	DEFINE_PRIME2v (lime_application_set_frame_rate);
 	DEFINE_PRIME1 (lime_application_update);
-	DEFINE_PRIME1 (lime_audio_load);
+	DEFINE_PRIME2 (lime_audio_load);
 	DEFINE_PRIME2 (lime_bytes_from_data_pointer);
 	DEFINE_PRIME1 (lime_bytes_get_data_pointer);
-	DEFINE_PRIME1 (lime_bytes_read_file);
+	DEFINE_PRIME2 (lime_bytes_read_file);
 	DEFINE_PRIME1 (lime_cffi_get_native_pointer);
 	DEFINE_PRIME1 (lime_cffi_set_finalizer);
 	DEFINE_PRIME0 (lime_clipboard_get_text);
 	DEFINE_PRIME1v (lime_clipboard_set_text);
+	DEFINE_PRIME2 (lime_deflate_compress);
+	DEFINE_PRIME2 (lime_deflate_decompress);
 	DEFINE_PRIME2v (lime_drop_event_manager_register);
 	DEFINE_PRIME2 (lime_file_dialog_open_directory);
 	DEFINE_PRIME2 (lime_file_dialog_open_file);
@@ -1566,6 +1752,9 @@ namespace lime {
 	DEFINE_PRIME2v (lime_gamepad_event_manager_register);
 	DEFINE_PRIME1 (lime_gamepad_get_device_guid);
 	DEFINE_PRIME1 (lime_gamepad_get_device_name);
+	DEFINE_PRIME2 (lime_gzip_compress);
+	DEFINE_PRIME2 (lime_gzip_decompress);
+	DEFINE_PRIME2v (lime_haptic_vibrate);
 	DEFINE_PRIME3v (lime_image_data_util_color_transform);
 	DEFINE_PRIME6v (lime_image_data_util_copy_channel);
 	DEFINE_PRIME7v (lime_image_data_util_copy_pixels);
@@ -1579,8 +1768,8 @@ namespace lime {
 	DEFINE_PRIME4v (lime_image_data_util_set_pixels);
 	DEFINE_PRIME12 (lime_image_data_util_threshold);
 	DEFINE_PRIME1v (lime_image_data_util_unmultiply_alpha);
-	DEFINE_PRIME3 (lime_image_encode);
-	DEFINE_PRIME1 (lime_image_load);
+	DEFINE_PRIME4 (lime_image_encode);
+	DEFINE_PRIME2 (lime_image_load);
 	DEFINE_PRIME0 (lime_jni_getenv);
 	DEFINE_PRIME2v (lime_joystick_event_manager_register);
 	DEFINE_PRIME1 (lime_joystick_get_device_guid);
@@ -1589,11 +1778,12 @@ namespace lime {
 	DEFINE_PRIME1 (lime_joystick_get_num_buttons);
 	DEFINE_PRIME1 (lime_joystick_get_num_hats);
 	DEFINE_PRIME1 (lime_joystick_get_num_trackballs);
-	DEFINE_PRIME2 (lime_jpeg_decode_bytes);
-	DEFINE_PRIME2 (lime_jpeg_decode_file);
+	DEFINE_PRIME3 (lime_jpeg_decode_bytes);
+	DEFINE_PRIME3 (lime_jpeg_decode_file);
 	DEFINE_PRIME2v (lime_key_event_manager_register);
-	DEFINE_PRIME1 (lime_lzma_decode);
-	DEFINE_PRIME1 (lime_lzma_encode);
+	DEFINE_PRIME0 (lime_locale_get_system_locale);
+	DEFINE_PRIME2 (lime_lzma_compress);
+	DEFINE_PRIME2 (lime_lzma_decompress);
 	DEFINE_PRIME2v (lime_mouse_event_manager_register);
 	DEFINE_PRIME0v (lime_mouse_hide);
 	DEFINE_PRIME1v (lime_mouse_set_cursor);
@@ -1601,8 +1791,8 @@ namespace lime {
 	DEFINE_PRIME0v (lime_mouse_show);
 	DEFINE_PRIME3v (lime_mouse_warp);
 	DEFINE_PRIME1v (lime_neko_execute);
-	DEFINE_PRIME2 (lime_png_decode_bytes);
-	DEFINE_PRIME2 (lime_png_decode_file);
+	DEFINE_PRIME3 (lime_png_decode_bytes);
+	DEFINE_PRIME3 (lime_png_decode_file);
 	DEFINE_PRIME1 (lime_renderer_create);
 	DEFINE_PRIME1v (lime_renderer_flip);
 	DEFINE_PRIME1 (lime_renderer_get_context);
@@ -1610,7 +1800,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_renderer_get_type);
 	DEFINE_PRIME1 (lime_renderer_lock);
 	DEFINE_PRIME1v (lime_renderer_make_current);
-	DEFINE_PRIME2 (lime_renderer_read_pixels);
+	DEFINE_PRIME3 (lime_renderer_read_pixels);
 	DEFINE_PRIME1v (lime_renderer_unlock);
 	DEFINE_PRIME2v (lime_render_event_manager_register);
 	DEFINE_PRIME2v (lime_sensor_event_manager_register);
@@ -1619,6 +1809,8 @@ namespace lime {
 	DEFINE_PRIME1 (lime_system_get_display);
 	DEFINE_PRIME0 (lime_system_get_num_displays);
 	DEFINE_PRIME0 (lime_system_get_timer);
+	DEFINE_PRIME1v (lime_system_open_file);
+	DEFINE_PRIME2v (lime_system_open_url);
 	DEFINE_PRIME1 (lime_system_set_allow_screen_timeout);
 	DEFINE_PRIME2v (lime_text_event_manager_register);
 	DEFINE_PRIME3 (lime_text_layout_create);
@@ -1649,6 +1841,8 @@ namespace lime {
 	DEFINE_PRIME2 (lime_window_set_minimized);
 	DEFINE_PRIME2 (lime_window_set_resizable);
 	DEFINE_PRIME2 (lime_window_set_title);
+	DEFINE_PRIME2 (lime_zlib_compress);
+	DEFINE_PRIME2 (lime_zlib_decompress);
 	
 	
 }

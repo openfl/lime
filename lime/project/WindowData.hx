@@ -7,7 +7,7 @@ typedef WindowData = {
 	@:optional var height:Int;
 	@:optional var x:Float;
 	@:optional var y:Float;
-	@:optional var background:Int;
+	@:optional var background:Null<Int>;
 	@:optional var parameters:String;
 	@:optional var fps:Int;
 	@:optional var hardware:Bool;
@@ -25,7 +25,7 @@ typedef WindowData = {
 	@:optional var stencilBuffer:Bool;
 	@:optional var title:String;
 	#if (js && html5)
-	@:optional var element:#if (haxe_ver >= "3.2") js.html.Element #else js.html.HtmlElement #end;
+	@:optional var element:js.html.Element;
 	#end
 	
 }

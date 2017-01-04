@@ -5,6 +5,11 @@ import haxe.io.Bytes;
 import lime.graphics.Image;
 import lime.math.Rectangle;
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class BMP {
 	

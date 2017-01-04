@@ -3,6 +3,11 @@ package lime.system;
 
 import lime.graphics.PixelFormat;
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class DisplayMode {
 	

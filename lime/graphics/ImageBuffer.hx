@@ -17,6 +17,11 @@ import lime.graphics.utils.ImageCanvasUtil;
 import flash.display.BitmapData;
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 @:allow(lime.graphics.Image)
 
 

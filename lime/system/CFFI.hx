@@ -1,8 +1,15 @@
-package lime.system; #if !macro
+package lime.system;
 
 
-#if sys
+import lime._macros.CFFIMacro;
+
+#if (sys && !macro)
 import sys.io.Process;
+#end
+
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
 #end
 
 
@@ -23,7 +30,7 @@ class CFFI {
 	
 	private static function __init__ ():Void {
 		
-		#if (cpp || neko || nodejs)
+		#if lime_cffi
 		available = true;
 		enabled = #if disable_cffi false; #else true; #end
 		#else
@@ -32,6 +39,15 @@ class CFFI {
 		#end
 		
 	}
+	
+	
+	#if macro
+	public static function build (defaultLibrary:String = "lime") {
+		
+		return CFFIMacro.build (defaultLibrary);
+		
+	}
+	#end
 	
 	
 	/**
@@ -85,7 +101,7 @@ class CFFI {
 			
 		} else {
 			
-			#if (iphone || emscripten || android || static_link || tvos)
+			#if (cpp && (iphone || emscripten || android || static_link || tvos))
 			return cpp.Lib.load (library, method, args);
 			#end
 			
@@ -98,6 +114,8 @@ class CFFI {
 				return neko.Lib.load (__moduleNames.get (library), method, args);
 				#elseif nodejs
 				return untyped __nodeNDLLModule.load_lib (__moduleNames.get (library), method, args);
+				#elseif cs
+				return untyped CSFunctionLoader.load (__moduleNames.get (library), method, args);
 				#else
 				return null;
 				#end
@@ -179,7 +197,7 @@ class CFFI {
 	
 	public static macro function loadPrime (library:String, method:String, signature:String, lazy:Bool = false):Dynamic {
 		
-		#if ((haxe_ver >= 3.2) && !display)
+		#if (!display && !macro)
 		return cpp.Prime.load (library, method, signature, lazy);
 		#else
 		var args = signature.length - 1;
@@ -198,7 +216,7 @@ class CFFI {
 	
 	private static function __findHaxelib (library:String):String {
 		
-		#if (sys && !html5)
+		#if (sys && !macro && !html5)
 			
 			try {
 				
@@ -327,6 +345,8 @@ class CFFI {
 			var result = neko.Lib.load (name, func, args);
 			#elseif nodejs
 			var result = untyped __nodeNDLLModule.load_lib (name, func, args);
+			#elseif cs
+			var result = CSFunctionLoader.load (name, func, args);
 			#else
 			var result = null;
 			#end
@@ -355,361 +375,82 @@ class CFFI {
 }
 
 
-#else
-
-
-import haxe.macro.Context;
-import haxe.macro.Expr;
-import haxe.macro.Type;
-
-using haxe.macro.ComplexTypeTools;
-using haxe.macro.ExprTools;
-using haxe.macro.TypeTools;
-
-
-class CFFI {
-	
-	
-	public static function build (defaultLibrary:String = "lime"):Array<Field> {
+#if cs
+@:dox(hide) private class CSFunctionLoader
+{
+	public static function load (name:String, func:String, args:Int):Dynamic {
 		
-		var pos = Context.currentPos ();
-		var fields = Context.getBuildFields ();
-		var newFields:Array<Field> = [];
+		var func:cs.ndll.NDLLFunction = cs.ndll.NDLLFunction.Load (name, func, args);
 		
-		for (field in fields) {
+		if (func == null) {
 			
-			switch (field) {
+			return null;
+			
+		}
+		
+		if (args == -1) {
+			
+			var haxeFunc:Dynamic = function (args:Array<Dynamic>):Dynamic {
 				
-				case _ => { kind: FFun (fun), meta: meta } :
-					
-					for (m in meta) {
-						
-						if (m.name == ":cffi") {
-							
-							var library = null;
-							var method = null;
-							var lazy = false;
-							
-							if (Reflect.hasField (m, "params")) {
-								
-								if (m.params.length > 0) library = m.params[0].getValue ();
-								if (m.params.length > 1) method = m.params[1].getValue ();
-								if (m.params.length > 2) lazy = m.params[2].getValue ();
-								
-							}
-							
-							if (library == null || library == "") {
-								
-								library = defaultLibrary;
-								
-							}
-							
-							if (method == null || method == "") {
-								
-								method = field.name;
-								
-							}
-							
-							var typeArgs = [];
-							
-							for (arg in fun.args) {
-								
-								typeArgs.push ( { name: arg.name, opt: false, t: arg.type.toType () } );
-								
-							}
-							
-							var type = __getFunctionType (typeArgs, fun.ret.toType ());
-							
-							var typeString = type.string;
-							var typeSignature = type.signature;
-							var expr = "";
-							
-							if (Context.defined ("display") || Context.defined ("disable_cffi")) {
-								
-								switch (type.result.toString ()) {
-									
-									case "Int", "Float":
-										
-										expr += "return 0";
-									
-									case "Bool":
-										
-										expr += "return false";
-									
-									default:
-										
-										expr += "return null";
-									
-								}
-								
-							} else {
-								
-								var cffiName = "cffi_" + field.name;
-								var cffiExpr, cffiType;
-								
-								#if (haxe_ver >= 3.2)
-								
-								if (Context.defined ("cpp")) {
-									
-									cffiExpr = 'new cpp.Callable<$typeString> (cpp.Prime._loadPrime ("$library", "$method", "$typeSignature", $lazy))';
-									
-								} else {
-									
-									var args = typeSignature.length - 1;
-									
-									if (args > 5) {
-										
-										args = -1;
-										
-									}
-									
-									cffiExpr = 'new cpp.Callable<$typeString> (lime.system.CFFI.load ("$library", "$method", $args, $lazy))';
-									
-								}
-								
-								cffiType = TPath ( { pack: [ "cpp" ], name: "Callable", params: [ TPType (TFun (type.args, type.result).toComplexType ()) ] } );
-								
-								#else
-								
-								var args = typeSignature.length - 1;
-								
-								if (args > 5) {
-									
-									args = -1;
-									
-								}
-								
-								cffiExpr = 'lime.system.CFFI.load ("$library", "$method", $args, $lazy)';
-								cffiType = TPath ( { pack: [ ], name: "Dynamic" } );
-								
-								#end
-								
-								newFields.push ( { name: cffiName, access: [ APrivate, AStatic ], kind: FieldType.FVar (cffiType, Context.parse (cffiExpr, field.pos)), pos: field.pos } );
-								
-								if (type.result.toString () != "Void" && type.result.toString () != "cpp.Void") {
-									
-									expr += "return ";
-									
-								}
-								
-								#if (haxe_ver >= 3.2)
-								expr += '$cffiName.call (';
-								#else
-								expr += '$cffiName (';
-								#end
-								
-								for (i in 0...type.args.length) {
-									
-									if (i > 0) expr += ", ";
-									expr += type.args[i].name;
-									
-								}
-								
-								expr += ")";
-								
-							}
-							
-							field.access.push (AInline);
-							fun.expr = Context.parse (expr, field.pos);
-							
-						}
-						
-					}
+				return func.CallMult(args);
 				
-				default:
+			}
+			
+			return Reflect.makeVarArgs (haxeFunc);
+			
+		} else if (args == 0) {
+			
+			return function ():Dynamic {
+				
+				return func.Call0();
+				
+			}
+			
+		} else if (args == 1) {
+			
+			return function (arg1:Dynamic):Dynamic {
+				
+				return func.Call1(arg1);
+				
+			}
+			
+		} else if (args == 2) {
+			
+			return function (arg1:Dynamic, arg2:Dynamic):Dynamic {
+				
+				return func.Call2(arg1, arg2);
+				
+			}
+			
+		} else if (args == 3) {
+			
+			return function (arg1:Dynamic, arg2:Dynamic, arg3:Dynamic):Dynamic {
+				
+				return func.Call3(arg1, arg2, arg3);
+				
+			}
+			
+		} else if (args == 4) {
+			
+			return function (arg1:Dynamic, arg2:Dynamic, arg3:Dynamic, arg4:Dynamic):Dynamic {
+				
+				return func.Call4(arg1, arg2, arg3, arg4);
+				
+			}
+			
+			
+		} else if (args == 5) {
+			
+			return function (arg1:Dynamic, arg2:Dynamic, arg3:Dynamic, arg4:Dynamic, arg5:Dynamic):Dynamic {
+				
+				return func.Call5(arg1, arg2, arg3, arg4, arg5);
 				
 			}
 			
 		}
 		
-		fields = fields.concat (newFields);
-		return fields;
+		return null;
 		
 	}
-	
-	
-	private static function __getFunctionType (args:Array<{ name : String, opt : Bool, t : Type }>, result:Type) {
-		
-		#if ((haxe_ver >= 3.2) && !disable_cffi && !display)
-		var useCPPTypes = Context.defined ("cpp");
-		#else
-		var useCPPTypes = false;
-		#end
-		
-		var typeArgs = [];
-		var typeResult = null;
-		var typeSignature = "";
-		
-		for (arg in args) {
-			
-			switch (arg.t.toString ()) {
-				
-				case "Int", "cpp.Int16", "cpp.Int32":
-					
-					typeArgs.push (arg);
-					typeSignature += "i";
-				
-				case "Bool":
-					
-					typeArgs.push (arg);
-					typeSignature += "b";
-				
-				case "cpp.Float32":
-					
-					if (useCPPTypes) {
-						
-						typeArgs.push ( { name: arg.name, opt: false, t: (macro :cpp.Float32).toType () } );
-						
-					} else {
-						
-						typeArgs.push (arg);
-						
-					}
-					
-					typeSignature += "f";
-				
-				case "Float", "cpp.Float64":
-					
-					typeArgs.push (arg);
-					typeSignature += "d";
-				
-				case "String":
-					
-					typeArgs.push (arg);
-					typeSignature += "s";
-				
-				case "cpp.ConstCharStar":
-					
-					typeArgs.push (arg);
-					typeSignature += "c";
-				
-				case "Void", "cpp.Void":
-					
-					if (useCPPTypes) {
-						
-						typeArgs.push ( { name: arg.name, opt: false, t: (macro :cpp.Void).toType () } );
-						
-					} else {
-						
-						typeArgs.push (arg);
-						
-					}
-					
-					typeSignature += "v";
-				
-				default:
-					
-					if (useCPPTypes) {
-						
-						typeArgs.push ( { name: arg.name, opt: false, t: (macro :cpp.Object).toType () } );
-						
-					} else {
-						
-						typeArgs.push ( { name: arg.name, opt: false, t: (macro :Dynamic).toType () } );
-						
-					}
-					
-					typeSignature += "o";
-				
-			}
-			
-		}
-		
-		switch (result.toString ()) {
-			
-			case "Int", "cpp.Int16", "cpp.Int32":
-				
-				typeResult = result;
-				typeSignature += "i";
-			
-			case "Bool":
-				
-				typeResult = result;
-				typeSignature += "b";
-			
-			case "cpp.Float32":
-				
-				if (useCPPTypes) {
-					
-					typeResult = (macro :cpp.Float32).toType ();
-					
-				} else {
-					
-					typeResult = result;
-					
-				}
-				
-				typeSignature += "f";
-			
-			case "Float", "cpp.Float64":
-				
-				typeResult = result;
-				typeSignature += "d";
-			
-			case "String":
-				
-				typeResult = result;
-				typeSignature += "s";
-			
-			case "cpp.ConstCharStar":
-				
-				typeResult = result;
-				typeSignature += "c";
-			
-			case "Void", "cpp.Void":
-				
-				if (useCPPTypes) {
-					
-					typeResult = (macro :cpp.Void).toType ();
-					
-				} else {
-					
-					typeResult = result;
-					
-				}
-				
-				typeSignature += "v";
-				
-			default:
-				
-				if (useCPPTypes) {
-					
-					typeResult = (macro :cpp.Object).toType ();
-					
-				} else {
-					
-					typeResult = (macro :Dynamic).toType ();
-					
-				}
-				
-				typeSignature += "o";
-			
-		}
-		
-		var typeString = "";
-		
-		if (typeArgs.length == 0) {
-			
-			typeString = "Void->";
-			
-		} else {
-			
-			for (arg in typeArgs) {
-				
-				typeString += arg.t.toString () + "->";
-				
-			}
-			
-		}
-		
-		typeString += typeResult.toString ();
-		
-		return { args: typeArgs, result: typeResult, string: typeString, signature: typeSignature };
-		
-	}
-	
-	
 }
-
-
 #end

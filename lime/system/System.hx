@@ -5,25 +5,22 @@ import lime.app.Application;
 import lime.math.Rectangle;
 
 #if flash
+import flash.net.URLRequest;
 import flash.system.Capabilities;
 import flash.Lib;
 #end
 
 #if (js && html5)
-#if (haxe_ver >= "3.2")
-import js.html.Element;
-#else
-import js.html.HtmlElement;
-#end
 import js.Browser;
-#end
-
-#if (sys && !html5)
-import sys.io.Process;
 #end
 
 #if !macro
 @:build(lime.system.CFFI.build())
+#end
+
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
 #end
 
 @:access(lime.system.Display)
@@ -44,68 +41,7 @@ class System {
 	public static var numDisplays (get, null):Int;
 	public static var userDirectory (get, null):String;
 	
-	
-	#if (js && html5)
-	@:keep @:expose("lime.embed")
-	public static function embed (element:Dynamic, width:Null<Int> = null, height:Null<Int> = null, background:String = null, assetsPrefix:String = null) {
-		
-		var htmlElement:#if (haxe_ver >= "3.2") Element #else HtmlElement #end = null;
-		
-		if (Std.is (element, String)) {
-			
-			htmlElement = cast Browser.document.getElementById (cast (element, String));
-			
-		} else if (element == null) {
-			
-			htmlElement = cast Browser.document.createElement ("div");
-			
-		} else {
-			
-			htmlElement = cast element;
-			
-		}
-		
-		var color = null;
-		
-		if (background != null) {
-			
-			background = StringTools.replace (background, "#", "");
-			
-			if (background.indexOf ("0x") > -1) {
-				
-				color = Std.parseInt (background);
-				
-			} else {
-				
-				color = Std.parseInt ("0x" + background);
-				
-			}
-			
-		}
-		
-		if (width == null) {
-			
-			width = 0;
-			
-		}
-		
-		if (height == null) {
-			
-			height = 0;
-			
-		}
-		
-		#if tools
-		ApplicationMain.config.windows[0].background = color;
-		ApplicationMain.config.windows[0].element = htmlElement;
-		ApplicationMain.config.windows[0].width = width;
-		ApplicationMain.config.windows[0].height = height;
-		ApplicationMain.config.assetsPrefix = assetsPrefix;
-		ApplicationMain.create ();
-		#end
-		
-	}
-	#end
+	@:noCompletion private static var __directories = new Map<SystemDirectory, String> ();
 	
 	
 	public static function exit (code:Int):Void {
@@ -148,7 +84,7 @@ class System {
 	
 	public static function getDisplay (id:Int):Display {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		var displayInfo:Dynamic = lime_system_get_display (id);
 		
 		if (displayInfo != null) {
@@ -193,7 +129,7 @@ class System {
 			#if flash
 			display.dpi = Capabilities.screenDPI;
 			display.currentMode = new DisplayMode (Std.int (Capabilities.screenResolutionX), Std.int (Capabilities.screenResolutionY), 60, ARGB32);
-			#else
+			#elseif (js && html5)
 			display.dpi = 96; // TODO: Detect DPI on HTML5
 			display.currentMode = new DisplayMode (Browser.window.screen.width, Browser.window.screen.height, 60, ARGB32);
 			#end
@@ -229,6 +165,7 @@ class System {
 	}
 	
 	
+	
 	public static inline function load (library:String, method:String, args:Int = 0, lazy:Bool = false):Dynamic {
 		
 		#if !macro
@@ -236,6 +173,161 @@ class System {
 		#else
 		return null;
 		#end
+		
+	}
+	
+	
+	public static function openFile (path:String):Void {
+		
+		if (path != null) {
+			
+			#if windows
+			
+			Sys.command ("start", [ path ]);
+			
+			#elseif mac
+			
+			Sys.command ("/usr/bin/open", [ path ]);
+			
+			#elseif linux
+			
+			Sys.command ("/usr/bin/xdg-open", [ path, "&" ]);
+			
+			#elseif (js && html5)
+			
+			Browser.window.open (path, "_blank");
+			
+			#elseif flash
+			
+			Lib.getURL (new URLRequest (path), "_blank");
+			
+			#elseif android
+			
+			var openFile = JNI.createStaticMethod ("org/haxe/lime/GameActivity", "openFile", "(Ljava/lang/String;)V");
+			openFile (path);
+			
+			#elseif (lime_cffi && !macro)
+			
+			lime_system_open_file (path);
+			
+			#end
+			
+		}
+		
+	}
+	
+	
+	public static function openURL (url:String, target:String = "_blank"):Void {
+		
+		if (url != null) {
+			
+			#if desktop
+			
+			openFile (url);
+			
+			#elseif (js && html5)
+			
+			Browser.window.open (url, target);
+			
+			#elseif flash
+			
+			Lib.getURL (new URLRequest (url), target);
+			
+			#elseif android
+			
+			var openURL = JNI.createStaticMethod ("org/haxe/lime/GameActivity", "openURL", "(Ljava/lang/String;Ljava/lang/String;)V");
+			openURL (url, target);
+			
+			#elseif (lime_cffi && !macro)
+			
+			lime_system_open_url (url, target);
+			
+			#end
+			
+		}
+		
+	}
+	
+	
+	@:noCompletion private static function __getDirectory (type:SystemDirectory):String {
+		
+		#if (lime_cffi && !macro)
+		
+		if (__directories.exists (type)) {
+			
+			return __directories.get (type);
+			
+		} else {
+			
+			var path:String;
+			
+			if (type == APPLICATION_STORAGE) {
+				
+				var company = "MyCompany";
+				var file = "MyApplication";
+				
+				if (Application.current != null && Application.current.config != null) {
+					
+					if (Application.current.config.company != null) {
+						
+						company = Application.current.config.company;
+						
+					}
+					
+					if (Application.current.config.file != null) {
+						
+						file = Application.current.config.file;
+						
+					}
+					
+				}
+				
+				path = lime_system_get_directory (type, company, file);
+				
+			} else {
+				
+				path = lime_system_get_directory (type, null, null);
+				
+			}
+			
+			#if windows
+			var seperator = "\\";
+			#else
+			var seperator = "/";
+			#end
+			
+			if (path != null && path.length > 0 && !StringTools.endsWith (path, seperator)) {
+				
+				path += seperator;
+				
+			}
+			
+			__directories.set (type, path);
+			return path;
+			
+		}
+		
+		#elseif flash
+		
+		if (type != FONTS && Capabilities.playerType == "Desktop") {
+			
+			var propertyName = switch (type) {
+				
+				case APPLICATION: "applicationDirectory";
+				case APPLICATION_STORAGE: "applicationStorageDirectory";
+				case DESKTOP: "desktopDirectory";
+				case DOCUMENTS: "documentsDirectory";
+				default: "userDirectory";
+				
+			}
+			
+			return Reflect.getProperty (Type.resolveClass ("flash.filesystem.File"), propertyName).nativePath;
+			
+		}
+		
+		#end
+		
+		return null;
 		
 	}
 	
@@ -249,7 +341,7 @@ class System {
 	
 	private static function get_allowScreenTimeout ():Bool {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_system_get_allow_screen_timeout ();
 		#else
 		return true;
@@ -260,7 +352,7 @@ class System {
 	
 	private static function set_allowScreenTimeout (value:Bool):Bool {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_system_set_allow_screen_timeout (value);
 		#else
 		return true;
@@ -271,121 +363,42 @@ class System {
 	
 	private static function get_applicationDirectory ():String {
 		
-		#if ((cpp || neko || nodejs) && !macro)
-		return lime_system_get_directory (SystemDirectory.APPLICATION, null, null);
-		#elseif flash
-		if (Capabilities.playerType == "Desktop") {
-			
-			return Reflect.getProperty (Type.resolveClass ("flash.filesystem.File"), "applicationDirectory").nativePath;
-			
-		} else {
-			
-			return null;
-			
-		}
-		#else
-		return null;
-		#end
+		return __getDirectory (APPLICATION);
 		
 	}
 	
 	
 	private static function get_applicationStorageDirectory ():String {
 		
-		var company = "MyCompany";
-		var file = "MyApplication";
-		
-		if (Application.current != null && Application.current.config != null) {
-			
-			if (Application.current.config.company != null) {
-				
-				company = Application.current.config.company;
-				
-			}
-			
-			if (Application.current.config.file != null) {
-				
-				file = Application.current.config.file;
-				
-			}
-			
-		}
-		
-		#if ((cpp || neko || nodejs) && !macro)
-		return lime_system_get_directory (SystemDirectory.APPLICATION_STORAGE, company, file);
-		#elseif flash
-		if (Capabilities.playerType == "Desktop") {
-			
-			return Reflect.getProperty (Type.resolveClass ("flash.filesystem.File"), "applicationStorageDirectory").nativePath;
-			
-		} else {
-			
-			return null;
-			
-		}
-		#else
-		return null;
-		#end
+		return __getDirectory (APPLICATION_STORAGE);
 		
 	}
 	
 	
 	private static function get_desktopDirectory ():String {
 		
-		#if ((cpp || neko || nodejs) && !macro)
-		return lime_system_get_directory (SystemDirectory.DESKTOP, null, null);
-		#elseif flash
-		if (Capabilities.playerType == "Desktop") {
-			
-			return Reflect.getProperty (Type.resolveClass ("flash.filesystem.File"), "desktopDirectory").nativePath;
-			
-		} else {
-			
-			return null;
-			
-		}
-		#else
-		return null;
-		#end
+		return __getDirectory (DESKTOP);
 		
 	}
 	
 	
 	private static function get_documentsDirectory ():String {
 		
-		#if ((cpp || neko || nodejs) && !macro)
-		return lime_system_get_directory (SystemDirectory.DOCUMENTS, null, null);
-		#elseif flash
-		if (Capabilities.playerType == "Desktop") {
-			
-			return Reflect.getProperty (Type.resolveClass ("flash.filesystem.File"), "documentsDirectory").nativePath;
-			
-		} else {
-			
-			return null;
-			
-		}
-		#else
-		return null;
-		#end
+		return __getDirectory (DOCUMENTS);
 		
 	}
 	
 	
 	private static function get_fontsDirectory ():String {
 		
-		#if ((cpp || neko || nodejs) && !macro)
-		return lime_system_get_directory (SystemDirectory.FONTS, null, null);
-		#else
-		return null;
-		#end
+		return __getDirectory (FONTS);
 		
 	}
 	
 	
 	private static function get_numDisplays ():Int {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		return lime_system_get_num_displays ();
 		#else
 		return 1;
@@ -396,21 +409,7 @@ class System {
 	
 	private static function get_userDirectory ():String {
 		
-		#if ((cpp || neko || nodejs) && !macro)
-		return lime_system_get_directory (SystemDirectory.USER, null, null);
-		#elseif flash
-		if (Capabilities.playerType == "Desktop") {
-			
-			return Reflect.getProperty (Type.resolveClass ("flash.filesystem.File"), "userDirectory").nativePath;
-			
-		} else {
-			
-			return null;
-			
-		}
-		#else
-		return null;
-		#end
+		return __getDirectory (USER);
 		
 	}
 	
@@ -435,13 +434,15 @@ class System {
 	
 	
 	
-	#if ((cpp || neko || nodejs) && !macro)
+	#if (lime_cffi && !macro)
 	@:cffi private static function lime_system_get_allow_screen_timeout ():Bool;
 	@:cffi private static function lime_system_set_allow_screen_timeout (value:Bool):Bool;
 	@:cffi private static function lime_system_get_directory (type:Int, company:String, title:String):Dynamic;
 	@:cffi private static function lime_system_get_display (index:Int):Dynamic;
 	@:cffi private static function lime_system_get_num_displays ():Int;
 	@:cffi private static function lime_system_get_timer ():Float;
+	@:cffi private static function lime_system_open_file (path:String):Void;
+	@:cffi private static function lime_system_open_url (url:String, target:String):Void;
 	#end
 	
 	

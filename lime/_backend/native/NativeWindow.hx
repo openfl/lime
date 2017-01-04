@@ -13,6 +13,11 @@ import lime.ui.Window;
 @:build(lime.system.CFFI.build())
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 @:access(lime.app.Application)
 @:access(lime.ui.Window)
 
@@ -22,6 +27,7 @@ class NativeWindow {
 	
 	public var handle:Dynamic;
 	
+	private var closing:Bool;
 	private var parent:Window;
 	
 	
@@ -47,7 +53,12 @@ class NativeWindow {
 	
 	public function close ():Void {
 		
-		parent.onClose.dispatch ();
+		if (!closing) {
+			
+			closing = true;
+			parent.onClose.dispatch ();
+			
+		}
 		
 		if (!parent.onClose.canceled) {
 			
@@ -59,6 +70,10 @@ class NativeWindow {
 				handle = null;
 				
 			}
+			
+		} else {
+			
+			closing = false;
 			
 		}
 		
@@ -90,7 +105,10 @@ class NativeWindow {
 			if (Reflect.hasField (parent.config, "borderless") && parent.config.borderless) flags |= cast WindowFlags.WINDOW_FLAG_BORDERLESS;
 			if (Reflect.hasField (parent.config, "depthBuffer") && parent.config.depthBuffer) flags |= cast WindowFlags.WINDOW_FLAG_DEPTH_BUFFER;
 			if (Reflect.hasField (parent.config, "fullscreen") && parent.config.fullscreen) flags |= cast WindowFlags.WINDOW_FLAG_FULLSCREEN;
-			if (Reflect.hasField (parent.config, "hardware") && parent.config.hardware) flags |= cast WindowFlags.WINDOW_FLAG_HARDWARE;
+			#if !cairo if (Reflect.hasField (parent.config, "hardware") && parent.config.hardware) flags |= cast WindowFlags.WINDOW_FLAG_HARDWARE; #end
+			if (Reflect.hasField (parent.config, "hidden") && parent.config.hidden) flags |= cast WindowFlags.WINDOW_FLAG_HIDDEN;
+			if (Reflect.hasField (parent.config, "maximized") && parent.config.maximized) flags |= cast WindowFlags.WINDOW_FLAG_MAXIMIZED;
+			if (Reflect.hasField (parent.config, "minimized") && parent.config.minimized) flags |= cast WindowFlags.WINDOW_FLAG_MINIMIZED;
 			if (Reflect.hasField (parent.config, "resizable") && parent.config.resizable) flags |= cast WindowFlags.WINDOW_FLAG_RESIZABLE;
 			if (Reflect.hasField (parent.config, "stencilBuffer") && parent.config.stencilBuffer) flags |= cast WindowFlags.WINDOW_FLAG_STENCIL_BUFFER;
 			if (Reflect.hasField (parent.config, "vsync") && parent.config.vsync) flags |= cast WindowFlags.WINDOW_FLAG_VSYNC;
@@ -137,6 +155,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
+			#if !macro
 			var index = lime_window_get_display (handle);
 			
 			if (index > -1) {
@@ -144,6 +163,7 @@ class NativeWindow {
 				return System.getDisplay (index);
 				
 			}
+			#end
 			
 		}
 		
@@ -228,12 +248,12 @@ class NativeWindow {
 			
 			#if !macro
 			value = lime_window_set_fullscreen (handle, value);
-			#end
 			
 			parent.__width = lime_window_get_width (handle);
 			parent.__height = lime_window_get_height (handle);
 			parent.__x = lime_window_get_x (handle);
 			parent.__y = lime_window_get_y (handle);
+			#end
 			
 			if (value) {
 				
@@ -367,5 +387,8 @@ class NativeWindow {
 	var WINDOW_FLAG_DEPTH_BUFFER = 0x00000200;
 	var WINDOW_FLAG_STENCIL_BUFFER = 0x00000400;
 	var WINDOW_FLAG_ALLOW_HIGHDPI = 0x00000800;
+	var WINDOW_FLAG_HIDDEN = 0x00001000;
+	var WINDOW_FLAG_MINIMIZED = 0x00002000;
+	var WINDOW_FLAG_MAXIMIZED = 0x00004000;
 	
 }

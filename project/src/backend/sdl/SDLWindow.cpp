@@ -21,6 +21,9 @@ namespace lime {
 		if (flags & WINDOW_FLAG_FULLSCREEN) sdlFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 		if (flags & WINDOW_FLAG_RESIZABLE) sdlFlags |= SDL_WINDOW_RESIZABLE;
 		if (flags & WINDOW_FLAG_BORDERLESS) sdlFlags |= SDL_WINDOW_BORDERLESS;
+		if (flags & WINDOW_FLAG_HIDDEN) sdlFlags |= SDL_WINDOW_HIDDEN;
+		if (flags & WINDOW_FLAG_MINIMIZED) sdlFlags |= SDL_WINDOW_MINIMIZED;
+		if (flags & WINDOW_FLAG_MAXIMIZED) sdlFlags |= SDL_WINDOW_MAXIMIZED;
 		
 		#if defined (HX_WINDOWS) && defined (NATIVE_TOOLKIT_SDL_ANGLE)
 		OSVERSIONINFOEXW osvi = { sizeof (osvi), 0, 0, 0, 0, {0}, 0, 0 };
@@ -366,41 +369,25 @@ namespace lime {
 	
 	bool SDLWindow::SetResizable (bool resizable) {
 		
-		#if defined(HX_WINDOWS)
-		
-		SDL_SysWMinfo info;
-		SDL_VERSION (&info.version);
-		SDL_GetWindowWMInfo (sdlWindow, &info);
-		
-		HWND hwnd = info.info.win.window;
-		DWORD style = GetWindowLong (hwnd, GWL_STYLE);
+		#ifndef EMSCRIPTEN
 		
 		if (resizable) {
 			
-			style |= WS_THICKFRAME;
+			SDL_SetWindowResizable (sdlWindow, SDL_TRUE);
 			
 		} else {
 			
-			style &= ~WS_THICKFRAME;
+			SDL_SetWindowResizable (sdlWindow, SDL_FALSE);
 			
 		}
 		
-		SetWindowLong (hwnd, GWL_STYLE, style);
+		return (SDL_GetWindowFlags (sdlWindow) & SDL_WINDOW_RESIZABLE);
 		
-		#elif defined(HX_MACOS)
-		
-		//TODO
-		//consider: http://stackoverflow.com/questions/10473700/set-window-resizable/10473949#10473949
-		
-		#elif defined(HX_LINUX)
-		
-		//TODO
-		//maybe something in here? https://tronche.com/gui/x/xlib/ICC/client-to-window-manager/wm-normal-hints.html
-		
-		#endif
+		#else
 		
 		return resizable;
 		
+		#endif
 	}
 	
 	

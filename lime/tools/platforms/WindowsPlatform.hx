@@ -10,6 +10,8 @@ import lime.tools.helpers.DeploymentHelper;
 import lime.tools.helpers.FileHelper;
 import lime.tools.helpers.IconHelper;
 import lime.tools.helpers.LogHelper;
+import lime.tools.helpers.CSHelper;
+import lime.tools.helpers.GUID;
 import lime.tools.helpers.NekoHelper;
 import lime.tools.helpers.NodeJSHelper;
 import lime.tools.helpers.PathHelper;
@@ -33,7 +35,7 @@ class WindowsPlatform extends PlatformTarget {
 	private var targetType:String;
 	
 	
-	public function new (command:String, _project:HXProject, targetFlags:Map <String, String> ) {
+	public function new (command:String, _project:HXProject, targetFlags:Map<String, String> ) {
 		
 		super (command, _project, targetFlags);
 		
@@ -42,8 +44,12 @@ class WindowsPlatform extends PlatformTarget {
 			targetType = "neko";
 			
 		} else if (project.targetFlags.exists ("nodejs")) {
-		
+			
 			targetType = "nodejs";
+			
+		} else if (project.targetFlags.exists ("cs")) {
+			
+			targetType = "cs";
 			
 		} else {
 			
@@ -51,7 +57,7 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 		
-		targetDirectory = project.app.path + "/windows/" + targetType;
+		targetDirectory = project.app.path + "/windows/" + targetType + "/" + buildType;
 		applicationDirectory = targetDirectory + "/bin/";
 		executablePath = applicationDirectory + project.app.file + ".exe";
 		
@@ -60,19 +66,7 @@ class WindowsPlatform extends PlatformTarget {
 	
 	public override function build ():Void {
 		
-		var type = "release";
-		
-		if (project.debug) {
-			
-			type = "debug";
-			
-		} else if (project.targetFlags.exists ("final")) {
-			
-			type = "final";
-			
-		}
-		
-		var hxml = targetDirectory + "/haxe/" + type + ".hxml";
+		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
 		
 		PathHelper.mkdir (targetDirectory);
 		
@@ -127,6 +121,15 @@ class WindowsPlatform extends PlatformTarget {
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
 			//NekoHelper.createExecutable (project.templatePaths, "windows", targetDirectory + "/obj/ApplicationMain.n", executablePath);
 			NekoHelper.copyLibraries (project.templatePaths, "windows", applicationDirectory);
+			
+		} else if (targetType == "cs") {
+			
+			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+			CSHelper.copySourceFiles (project.templatePaths, targetDirectory + "/obj/src");
+			var txtPath = targetDirectory + "/obj/hxcs_build.txt";
+			CSHelper.addSourceFiles (txtPath, CSHelper.ndllSourceFiles);
+			CSHelper.addGUID (txtPath, GUID.uuid ());
+			CSHelper.compile (project, targetDirectory + "/obj", applicationDirectory + project.app.file, "x86", "desktop");
 			
 		} else {
 			
@@ -194,22 +197,13 @@ class WindowsPlatform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
-		var type = "release";
-		
-		if (project.debug) {
-			
-			type = "debug";
-			
-		} else if (project.targetFlags.exists ("final")) {
-			
-			type = "final";
-			
-		}
-		
-		var hxml = PathHelper.findTemplate (project.templatePaths, targetType + "/hxml/" + type + ".hxml");
+		var hxml = PathHelper.findTemplate (project.templatePaths, targetType + "/hxml/" + buildType + ".hxml");
 		var template = new Template (File.getContent (hxml));
 		
-		Sys.println (template.execute (generateContext ()));
+		var context = generateContext ();
+		context.OUTPUT_DIR = targetDirectory;
+		
+		Sys.println (template.execute (context));
 		Sys.println ("-D display");
 		
 	}
@@ -291,8 +285,17 @@ class WindowsPlatform extends PlatformTarget {
 		}
 		
 		var context = generateContext ();
+		context.OUTPUT_DIR = targetDirectory;
 		
 		if (targetType == "cpp" && project.targetFlags.exists ("static")) {
+			
+			var suffix = ".lib";
+			
+			if (Sys.getEnv ("VS140COMNTOOLS") != null) {
+				
+				suffix = "-19.lib";
+				
+			}
 			
 			for (i in 0...project.ndlls.length) {
 				
@@ -300,7 +303,7 @@ class WindowsPlatform extends PlatformTarget {
 				
 				if (ndll.path == null || ndll.path == "") {
 					
-					context.ndlls[i].path = PathHelper.getLibraryPath (ndll, "Windows", "lib", ".lib", project.debug);
+					context.ndlls[i].path = PathHelper.getLibraryPath (ndll, "Windows", "lib", suffix, project.debug);
 					
 				}
 				

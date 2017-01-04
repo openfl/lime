@@ -3,6 +3,11 @@ package lime.system;
 
 import lime.math.Rectangle;
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class Display {
 	

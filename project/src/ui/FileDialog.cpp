@@ -1,124 +1,208 @@
 #include <ui/FileDialog.h>
-#include <nfd.h>
 #include <stdio.h>
+#include <cstdlib>
+
+#include <tinyfiledialogs.h>
 
 
 namespace lime {
 	
 	
-	const char* FileDialog::OpenDirectory (const char* filter, const char* defaultPath) {
+	std::wstring* FileDialog::OpenDirectory (std::wstring* filter, std::wstring* defaultPath) {
 		
-		nfdchar_t *savePath = 0;
-		nfdresult_t result = NFD_OpenDirectoryDialog (filter, defaultPath, &savePath);
+		// TODO: Filters
 		
-		switch (result) {
+		#ifdef HX_WINDOWS
+		
+		const wchar_t* path = tinyfd_selectFolderDialogW (L"", defaultPath ? defaultPath->c_str () : 0);
+		
+		if (path) {
 			
-			case NFD_OKAY:
-				
-				return savePath;
-				break;
-			
-			case NFD_CANCEL:
-				
-				break;
-			
-			default:
-				
-				printf ("Error: %s\n", NFD_GetError ());
-				break;
+			std::wstring* _path = new std::wstring (path);
+			return _path;
 			
 		}
 		
-		return savePath;
+		#else
+		
+		char* _defaultPath = 0;
+		
+		if (defaultPath) {
+			
+			int size = std::wcslen (defaultPath->c_str ());
+			char* _defaultPath = (char*)malloc (size);
+			std::wcstombs (_defaultPath, defaultPath->c_str (), size);
+			
+		}
+		
+		const char* path = tinyfd_selectFolderDialog ("", _defaultPath);
+		
+		if (_defaultPath) free (_defaultPath);
+		
+		if (path) {
+			
+			std::string _path = std::string (path);
+			std::wstring* __path = new std::wstring (_path.begin (), _path.end ());
+			return __path;
+			
+		}
+		
+		#endif
+		
+		return 0;
 		
 	}
 	
 	
-	const char* FileDialog::OpenFile (const char* filter, const char* defaultPath) {
+	std::wstring* FileDialog::OpenFile (std::wstring* filter, std::wstring* defaultPath) {
 		
-		nfdchar_t *savePath = 0;
-		nfdresult_t result = NFD_OpenDialog (filter, defaultPath, &savePath);
+		// TODO: Filters
 		
-		switch (result) {
+		#ifdef HX_WINDOWS
+		
+		const wchar_t* path = tinyfd_openFileDialogW (L"", defaultPath ? defaultPath->c_str () : 0, 0, NULL, NULL, 0);
+		
+		if (path) {
 			
-			case NFD_OKAY:
-				
-				return savePath;
-				break;
-			
-			case NFD_CANCEL:
-				
-				break;
-			
-			default:
-				
-				printf ("Error: %s\n", NFD_GetError ());
-				break;
+			std::wstring* _path = new std::wstring (path);
+			return _path;
 			
 		}
 		
-		return savePath;
+		#else
+		
+		char* _defaultPath = 0;
+		
+		if (defaultPath) {
+			
+			int size = std::wcslen (defaultPath->c_str ());
+			char* _defaultPath = (char*)malloc (size);
+			std::wcstombs (_defaultPath, defaultPath->c_str (), size);
+			
+		}
+		
+		const char* path = tinyfd_openFileDialog ("", _defaultPath, 0, NULL, NULL, 0);
+		
+		if (_defaultPath) free (_defaultPath);
+		
+		if (path) {
+			
+			std::string _path = std::string (path);
+			std::wstring* __path = new std::wstring (_path.begin (), _path.end ());
+			return __path;
+			
+		}
+		
+		#endif
+		
+		return 0;
 		
 	}
 	
 	
-	void FileDialog::OpenFiles (std::vector<const char*>* files, const char* filter, const char* defaultPath) {
+	void FileDialog::OpenFiles (std::vector<std::wstring*>* files, std::wstring* filter, std::wstring* defaultPath) {
 		
-		nfdpathset_t pathSet;
-		nfdresult_t result = NFD_OpenDialogMultiple (filter, defaultPath, &pathSet);
+		// TODO: Filters
 		
-		switch (result) {
+		std::wstring* __paths = 0;
+		
+		#ifdef HX_WINDOWS
+		
+		const wchar_t* paths = tinyfd_openFileDialogW (L"", defaultPath ? defaultPath->c_str () : 0, 0, NULL, NULL, 1);
+		
+		if (paths) {
 			
-			case NFD_OKAY:
-			{
-				for (int i = 0; i < NFD_PathSet_GetCount (&pathSet); i++) {
-					
-					files->push_back (NFD_PathSet_GetPath (&pathSet, i));
-					
-				}
+			__paths = new std::wstring (paths);
+			
+		}
+		
+		#else
+		
+		char* _defaultPath = 0;
+		
+		if (defaultPath) {
+			
+			int size = std::wcslen (defaultPath->c_str ());
+			char* _defaultPath = (char*)malloc (size);
+			std::wcstombs (_defaultPath, defaultPath->c_str (), size);
+			
+		}
+		
+		const char* paths = tinyfd_openFileDialog ("", _defaultPath, 0, NULL, NULL, 1);
+		
+		if (_defaultPath) free (_defaultPath);
+		
+		if (paths) {
+			
+			std::string _paths = std::string (paths);
+			__paths = new std::wstring (_paths.begin (), _paths.end ());
+			
+		}
+		
+		#endif
+		
+		if (__paths) {
+			
+			std::wstring sep = L"|";
+			
+			std::size_t start = 0, end = 0;
+			
+			while ((end = __paths->find (sep, start)) != std::wstring::npos) {
 				
-				NFD_PathSet_Free (&pathSet);
-				break;
+				files->push_back (new std::wstring (__paths->substr (start, end - start).c_str ()));
+				start = end + 1;
+				
 			}
 			
-			case NFD_CANCEL:
-				
-				break;
-			
-			default:
-				
-				printf ("Error: %s\n", NFD_GetError ());
-				break;
+			files->push_back (new std::wstring (__paths->substr (start).c_str ()));
 			
 		}
 		
 	}
 	
 	
-	const char* FileDialog::SaveFile (const char* filter, const char* defaultPath) {
+	std::wstring* FileDialog::SaveFile (std::wstring* filter, std::wstring* defaultPath) {
 		
-		nfdchar_t *savePath = 0;
-		nfdresult_t result = NFD_SaveDialog (filter, defaultPath, &savePath);
+		// TODO: Filters
 		
-		switch (result) {
+		#ifdef HX_WINDOWS
+		
+		const wchar_t* path = tinyfd_saveFileDialogW (L"", defaultPath ? defaultPath->c_str () : 0, 0, NULL, NULL);
+		
+		if (path) {
 			
-			case NFD_OKAY:
-				
-				return savePath;
-				break;
-			
-			case NFD_CANCEL:
-				
-				break;
-			
-			default:
-				
-				printf ("Error: %s\n", NFD_GetError ());
-				break;
+			std::wstring* _path = new std::wstring (path);
+			return _path;
 			
 		}
 		
-		return savePath;
+		#else
+		
+		char* _defaultPath = 0;
+		
+		if (defaultPath) {
+			
+			int size = std::wcslen (defaultPath->c_str ());
+			char* _defaultPath = (char*)malloc (size);
+			std::wcstombs (_defaultPath, defaultPath->c_str (), size);
+			
+		}
+		
+		const char* path = tinyfd_saveFileDialog ("", _defaultPath, 0, NULL, NULL);
+		
+		if (_defaultPath) free (_defaultPath);
+		
+		if (path) {
+			
+			std::string _path = std::string (path);
+			std::wstring* __path = new std::wstring (_path.begin (), _path.end ());
+			return __path;
+			
+		}
+		
+		#endif
+		
+		return 0;
 		
 	}
 	

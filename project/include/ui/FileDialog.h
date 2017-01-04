@@ -2,6 +2,7 @@
 #define LIME_UI_FILE_DIALOG_H
 
 
+#include <string>
 #include <vector>
 
 
@@ -12,10 +13,10 @@ namespace lime {
 		
 		public:
 			
-			static const char* OpenDirectory (const char* filter = 0, const char* defaultPath = 0);
-			static const char* OpenFile (const char* filter = 0, const char* defaultPath = 0);
-			static void OpenFiles (std::vector<const char*>* files, const char* filter = 0, const char* defaultPath = 0);
-			static const char* SaveFile (const char* filter = 0, const char* defaultPath = 0);
+			static std::wstring* OpenDirectory (std::wstring* filter = 0, std::wstring* defaultPath = 0);
+			static std::wstring* OpenFile (std::wstring* filter = 0, std::wstring* defaultPath = 0);
+			static void OpenFiles (std::vector<std::wstring*>* files, std::wstring* filter = 0, std::wstring* defaultPath = 0);
+			static std::wstring* SaveFile (std::wstring* filter = 0, std::wstring* defaultPath = 0);
 		
 	};
 	

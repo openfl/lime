@@ -1,5 +1,12 @@
 package lime.net;
 
+
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
+
 // Based on http://blog.stevenlevithan.com/archives/parseuri
 class URIParser {
 
@@ -69,4 +76,4 @@ class URIParser {
 
 }
 
-typedef KVPair = { k:String, v:String };
+@:dox(hide) typedef KVPair = { k:String, v:String };

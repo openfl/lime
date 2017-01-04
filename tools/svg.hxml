@@ -4,5 +4,6 @@
 -cp ..
 -lib openfl
 -lib svg
--D lime_cairo
+-D lime-cairo
+-D lime-cffi
 --remap flash:openfl

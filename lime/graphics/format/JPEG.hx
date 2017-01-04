@@ -6,6 +6,7 @@ import lime.graphics.utils.ImageCanvasUtil;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.system.CFFI;
+import lime.utils.UInt8Array;
 
 #if (js && html5)
 import js.Browser;
@@ -17,15 +18,23 @@ import js.Browser;
 @:build(lime.system.CFFI.build())
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class JPEG {
 	
 	
 	public static function decodeBytes (bytes:Bytes, decodeData:Bool = true):Image {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		
-		var bufferData:Dynamic = lime_jpeg_decode_bytes (bytes, decodeData);
+		#if !cs
+		return lime_jpeg_decode_bytes (bytes, decodeData, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
+		#else
+		var bufferData:Dynamic = lime_jpeg_decode_bytes (bytes, decodeData, null);
 		
 		if (bufferData != null) {
 			
@@ -34,6 +43,7 @@ class JPEG {
 			return new Image (buffer);
 			
 		}
+		#end
 		
 		#end
 		
@@ -44,9 +54,12 @@ class JPEG {
 	
 	public static function decodeFile (path:String, decodeData:Bool = true):Image {
 		
-		#if ((cpp || neko || nodejs) && !macro)
+		#if (lime_cffi && !macro)
 		
-		var bufferData:Dynamic = lime_jpeg_decode_file (path, decodeData);
+		#if !cs
+		return lime_jpeg_decode_file (path, decodeData, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
+		#else
+		var bufferData:Dynamic = lime_jpeg_decode_file (path, decodeData, null);
 		
 		if (bufferData != null) {
 			
@@ -55,6 +68,7 @@ class JPEG {
 			return new Image (buffer);
 			
 		}
+		#end
 		
 		#end
 		
@@ -79,8 +93,12 @@ class JPEG {
 		
 		#elseif (sys && (!disable_cffi || !format) && !macro)
 			
-			var data:Dynamic = lime_image_encode (image.buffer, 1, quality);
+			#if !cs
+			return lime_image_encode (image.buffer, 1, quality, Bytes.alloc (0));
+			#else
+			var data:Dynamic = lime_image_encode (image.buffer, 1, quality, null);
 			return @:privateAccess new Bytes (data.length, data.b);
+			#end
 			
 		#elseif (js && html5)
 		
@@ -88,11 +106,7 @@ class JPEG {
 		
 		if (image.buffer.__srcCanvas != null) {
 			
-			#if (haxe_ver >= 3.2)
 			var data = image.buffer.__srcCanvas.toDataURL ("image/jpeg", quality / 100);
-			#else
-			var data = image.buffer.__srcCanvas.toDataURL ("image/jpeg");
-			#end
 			var buffer = Browser.window.atob (data.split (";base64,")[1]);
 			var bytes = Bytes.alloc (buffer.length);
 			
@@ -120,10 +134,10 @@ class JPEG {
 	
 	
 	
-	#if ((cpp || neko || nodejs) && !macro)
-	@:cffi private static function lime_jpeg_decode_bytes (data:Dynamic, decodeData:Bool):Dynamic;
-	@:cffi private static function lime_jpeg_decode_file (path:String, decodeData:Bool):Dynamic;
-	@:cffi private static function lime_image_encode (data:Dynamic, type:Int, quality:Int):Dynamic;
+	#if (lime_cffi && !macro)
+	@:cffi private static function lime_jpeg_decode_bytes (data:Dynamic, decodeData:Bool, buffer:Dynamic):Dynamic;
+	@:cffi private static function lime_jpeg_decode_file (path:String, decodeData:Bool, buffer:Dynamic):Dynamic;
+	@:cffi private static function lime_image_encode (data:Dynamic, type:Int, quality:Int, bytes:Dynamic):Dynamic;
 	#end
 	
 	

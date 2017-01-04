@@ -5,6 +5,7 @@ import haxe.Timer;
 import lime.app.Application;
 import lime.app.Config;
 import lime.audio.AudioManager;
+import lime.graphics.opengl.GL;
 import lime.graphics.ConsoleRenderContext;
 import lime.graphics.GLRenderContext;
 import lime.graphics.RenderContext;
@@ -27,9 +28,16 @@ import lime.ui.Window;
 @:build(lime.system.CFFI.build())
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 @:access(haxe.Timer)
+@:access(lime._backend.native.NativeGLRenderContext)
 @:access(lime._backend.native.NativeRenderer)
 @:access(lime.app.Application)
+@:access(lime.graphics.opengl.GL)
 @:access(lime.graphics.Renderer)
 @:access(lime.system.Sensor)
 @:access(lime.ui.Gamepad)
@@ -58,13 +66,15 @@ class NativeApplication {
 	
 	private var frameRate:Float;
 	private var parent:Application;
+	private var toggleFullscreen:Bool;
 	
 	
 	public function new (parent:Application):Void {
 		
 		this.parent = parent;
 		frameRate = 60;
-
+		toggleFullscreen = true;
+		
 		#if (lime_console && final)
 		// suppress traces in final builds
 		haxe.Log.trace = function(v:Dynamic, ?infos:haxe.PosInfos) {};
@@ -131,10 +141,13 @@ class NativeApplication {
 		untyped setImmediate (eventLoop);
 		return 0;
 		
-		#elseif (cpp || neko)
+		#elseif lime_cffi
 		
 		var result = lime_application_exec (handle);
+		
+		#if (!emscripten && !ios && !nodejs)
 		parent.onExit.dispatch (result);
+		#end
 		
 		return result;
 		
@@ -291,17 +304,53 @@ class NativeApplication {
 			
 			#if (windows || linux)
 			
-			if (keyCode == RETURN && (modifier == KeyModifier.LEFT_ALT || modifier == KeyModifier.RIGHT_ALT) && type == KEY_DOWN && !window.onKeyDown.canceled) {
+			if (keyCode == RETURN) {
 				
-				window.fullscreen = !window.fullscreen;
+				if (type == KEY_DOWN) {
+					
+					if (toggleFullscreen && modifier.altKey && (!modifier.ctrlKey && !modifier.shiftKey && !modifier.metaKey)) {
+						
+						toggleFullscreen = false;
+						
+						if (!window.onKeyDown.canceled) {
+							
+							window.fullscreen = !window.fullscreen;
+							
+						}
+						
+					}
+					
+				} else {
+					
+					toggleFullscreen = true;
+					
+				}
 				
 			}
 			
 			#elseif mac
 			
-			if (keyCode == F && modifier.ctrlKey && modifier.metaKey && type == KEY_DOWN && !modifier.altKey && !modifier.shiftKey && !window.onKeyDown.canceled) {
+			if (keyCode == F) {
 				
-				window.fullscreen = !window.fullscreen;
+				if (type == KEY_DOWN) {
+					
+					if (toggleFullscreen && (modifier.ctrlKey && modifier.metaKey) && (!modifier.altKey && !modifier.shiftKey)) {
+						
+						toggleFullscreen = false;
+						
+						if (!window.onKeyDown.canceled) {
+							
+							window.fullscreen = !window.fullscreen;
+							
+						}
+						
+					}
+					
+				} else {
+					
+					toggleFullscreen = true;
+					
+				}
 				
 			}
 			
@@ -358,6 +407,8 @@ class NativeApplication {
 		
 		for (renderer in parent.renderers) {
 			
+			if (renderer == null) continue;
+			
 			parent.renderer = renderer;
 			
 			switch (renderEventInfo.type) {
@@ -384,7 +435,8 @@ class NativeApplication {
 						#if lime_console
 						renderer.context = CONSOLE (ConsoleRenderContext.singleton);
 						#else
-						renderer.context = OPENGL (new GLRenderContext ());
+						GL.context = new GLRenderContext ();
+						renderer.context = OPENGL (GL.context);
 						#end
 						
 						renderer.onContextRestored.dispatch (renderer.context);
@@ -517,6 +569,8 @@ class NativeApplication {
 				case WINDOW_ACTIVATE:
 					
 					window.onActivate.dispatch ();
+					
+					AudioManager.resume ();
 				
 				case WINDOW_CLOSE:
 					
@@ -525,6 +579,8 @@ class NativeApplication {
 				case WINDOW_DEACTIVATE:
 					
 					window.onDeactivate.dispatch ();
+					
+					AudioManager.suspend ();
 				
 				case WINDOW_ENTER:
 					
@@ -584,6 +640,7 @@ class NativeApplication {
 	
 	private function updateTimer ():Void {
 		
+		#if lime_cffi
 		if (Timer.sRunningTimers.length > 0) {
 			
 			var currentTime = System.getTimer ();
@@ -618,6 +675,7 @@ class NativeApplication {
 			}
 			
 		}
+		#end
 		
 	}
 	

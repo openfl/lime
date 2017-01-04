@@ -3,6 +3,11 @@ package lime.audio.openal;
 
 import lime.system.CFFIPointer;
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 #if !macro
 @:build(lime.system.CFFI.build())
 #end
@@ -36,7 +41,7 @@ class ALC {
 	
 	public static function closeDevice (device:ALDevice):Bool {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_alc_close_device (device);
 		#else
 		return false;
@@ -47,7 +52,7 @@ class ALC {
 	
 	public static function createContext (device:ALDevice, attrlist:Array<Int> = null):ALContext {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		var handle:Dynamic = lime_alc_create_context (device, attrlist);
 		
 		if (handle != null) {
@@ -64,7 +69,7 @@ class ALC {
 	
 	public static function destroyContext (context:ALContext):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_alc_destroy_context (context);
 		#end
 		
@@ -73,7 +78,7 @@ class ALC {
 	
 	public static function getContextsDevice (context:ALContext):ALDevice {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		var handle:Dynamic = lime_alc_get_contexts_device (context);
 		
 		if (handle != null) {
@@ -90,7 +95,7 @@ class ALC {
 	
 	public static function getCurrentContext ():ALContext {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		var handle:Dynamic = lime_alc_get_current_context ();
 		
 		if (handle != null) {
@@ -107,7 +112,7 @@ class ALC {
 	
 	public static function getError (device:ALDevice):Int {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_alc_get_error (device);
 		#else
 		return 0;
@@ -134,7 +139,7 @@ class ALC {
 	
 	public static function getIntegerv (device:ALDevice, param:Int, size:Int):Array<Int> {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_alc_get_integerv (device, param, size);
 		#else
 		return null;
@@ -145,7 +150,7 @@ class ALC {
 	
 	public static function getString (device:ALDevice, param:Int):String {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_alc_get_string (device, param);
 		#else
 		return null;
@@ -156,7 +161,7 @@ class ALC {
 	
 	public static function makeContextCurrent (context:ALContext):Bool {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_alc_make_context_current (context);
 		#else
 		return false;
@@ -167,7 +172,7 @@ class ALC {
 	
 	public static function openDevice (deviceName:String = null):ALDevice {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		var handle:Dynamic = lime_alc_open_device (deviceName);
 		
 		if (handle != null) {
@@ -182,10 +187,28 @@ class ALC {
 	}
 	
 	
+	public static function pauseDevice (device:ALDevice):Void {
+		
+		#if (lime_cffi && lime_openal && !macro)
+		lime_alc_pause_device (device);
+		#end
+		
+	}
+	
+	
 	public static function processContext (context:ALContext):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_alc_process_context (context);
+		#end
+		
+	}
+	
+	
+	public static function resumeDevice (device:ALDevice):Void {
+		
+		#if (lime_cffi && lime_openal && !macro)
+		lime_alc_resume_device (device);
 		#end
 		
 	}
@@ -193,14 +216,14 @@ class ALC {
 	
 	public static function suspendContext (context:ALContext):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_alc_suspend_context (context);
 		#end
 		
 	}
 	
 	
-	#if ((cpp || neko || nodejs) && lime_openal && !macro)
+	#if (lime_cffi && lime_openal && !macro)
 	@:cffi private static function lime_alc_close_device (device:CFFIPointer):Bool;
 	@:cffi private static function lime_alc_create_context (device:CFFIPointer, attrlist:Dynamic):CFFIPointer;
 	@:cffi private static function lime_alc_destroy_context (context:CFFIPointer):Void;
@@ -211,7 +234,9 @@ class ALC {
 	@:cffi private static function lime_alc_get_string (device:CFFIPointer, param:Int):Dynamic;
 	@:cffi private static function lime_alc_make_context_current (context:CFFIPointer):Bool;
 	@:cffi private static function lime_alc_open_device (devicename:String):CFFIPointer;
+	@:cffi private static function lime_alc_pause_device (device:CFFIPointer):Void;
 	@:cffi private static function lime_alc_process_context (context:CFFIPointer):Void;
+	@:cffi private static function lime_alc_resume_device (device:CFFIPointer):Void;
 	@:cffi private static function lime_alc_suspend_context (context:CFFIPointer):Void;
 	#end
 	

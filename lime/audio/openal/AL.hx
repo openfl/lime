@@ -1,12 +1,18 @@
 package lime.audio.openal;
 
 
+import lime.system.CFFIPointer;
 import lime.utils.ArrayBufferView;
 
-#if ((haxe_ver >= 3.2) && cpp)
+#if cpp
 import cpp.Float32;
 #else
 typedef Float32 = Float;
+#end
+
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
 #end
 
 #if !macro
@@ -81,103 +87,99 @@ class AL {
 	public static inline var EXPONENT_DISTANCE_CLAMPED:Int = 0xD006;
 	
 	
-	public static function bufferData (buffer:Int, format:Int, data:ArrayBufferView, size:Int, freq:Int):Void {
+	public static function bufferData (buffer:ALBuffer, format:Int, data:ArrayBufferView, size:Int, freq:Int):Void {
 		
-		#if ((cpp || neko) && lime_openal && !macro)
-		lime_al_buffer_data (buffer, format, data.buffer, size, freq);
-		#elseif (nodejs && lime_openal && !macro)
-		lime_al_buffer_data (buffer, format, data, size, freq);
-		#elseif (nodejs && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_buffer_data (buffer, format, data, size, freq);
 		#end
 		
 	}
 	
 	
-	public static function buffer3f (buffer:Int, param:Int, value1:Float, value2:Float, value3:Float):Void {
+	public static function buffer3f (buffer:ALBuffer, param:Int, value1:Float, value2:Float, value3:Float):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_buffer3f (buffer, param, value1, value2, value3);
 		#end
 		
 	}
 	
 	
-	public static function buffer3i (buffer:Int, param:Int, value1:Int, value2:Int, value3:Int):Void {
+	public static function buffer3i (buffer:ALBuffer, param:Int, value1:Int, value2:Int, value3:Int):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_buffer3i (buffer, param, value1, value2, value3);
 		#end
 		
 	}
 	
 	
-	public static function bufferf (buffer:Int, param:Int, value:Float):Void {
+	public static function bufferf (buffer:ALBuffer, param:Int, value:Float):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_bufferf (buffer, param, value);
 		#end
 		
 	}
 	
 	
-	public static function bufferfv (buffer:Int, param:Int, values:Array<Float>):Void {
+	public static function bufferfv (buffer:ALBuffer, param:Int, values:Array<Float>):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_bufferfv (buffer, param, values);
 		#end
 		
 	}
 	
 	
-	public static function bufferi (buffer:Int, param:Int, value:Int):Void {
+	public static function bufferi (buffer:ALBuffer, param:Int, value:Int):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_bufferi (buffer, param, value);
 		#end
 		
 	}
 	
 	
-	public static function bufferiv (buffer:Int, param:Int, values:Array<Int>):Void {
+	public static function bufferiv (buffer:ALBuffer, param:Int, values:Array<Int>):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_bufferiv (buffer, param, values);
 		#end
 		
 	}
 	
 	
-	public static function deleteBuffer (buffer:Int):Void {
+	public static function deleteBuffer (buffer:ALBuffer):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_delete_buffer (buffer);
 		#end
 		
 	}
 	
 	
-	public static function deleteBuffers (buffers:Array<Int>):Void {
+	public static function deleteBuffers (buffers:Array<ALBuffer>):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_delete_buffers (buffers.length, buffers);
 		#end
 		
 	}
 	
 	
-	public static function deleteSource (source:Int):Void {
+	public static function deleteSource (source:ALSource):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_delete_source (source);
 		#end
 		
 	}
 	
 	
-	public static function deleteSources (sources:Array<Int>):Void {
+	public static function deleteSources (sources:Array<ALSource>):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_delete_sources (sources.length, sources);
 		#end
 		
@@ -186,7 +188,7 @@ class AL {
 	
 	public static function disable (capability:Int):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_disable (capability);
 		#end
 		
@@ -195,7 +197,7 @@ class AL {
 	
 	public static function distanceModel (distanceModel:Int):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_distance_model (distanceModel);
 		#end
 		
@@ -204,7 +206,7 @@ class AL {
 	
 	public static function dopplerFactor (value:Float):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_doppler_factor (value);
 		#end
 		
@@ -213,7 +215,7 @@ class AL {
 	
 	public static function dopplerVelocity (value:Float):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_doppler_velocity (value);
 		#end
 		
@@ -222,27 +224,27 @@ class AL {
 	
 	public static function enable (capability:Int):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_enable (capability);
 		#end
 		
 	}
 	
 	
-	public static function genSource ():Int {
+	public static function genSource ():ALSource {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_gen_source ();
 		#else
-		return 0;
+		return null;
 		#end
 		
 	}
 	
 	
-	public static function genSources (n:Int):Array<Int> {
+	public static function genSources (n:Int):Array<ALSource> {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_gen_sources (n);
 		#else
 		return null;
@@ -251,20 +253,20 @@ class AL {
 	}
 	
 	
-	public static function genBuffer ():Int {
+	public static function genBuffer ():ALBuffer {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_gen_buffer ();
 		#else
-		return 0;
+		return null;
 		#end
 		
 	}
 	
 	
-	public static function genBuffers (n:Int):Array<Int> {
+	public static function genBuffers (n:Int):Array<ALBuffer> {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_gen_buffers (n);
 		#else
 		return null;
@@ -275,7 +277,7 @@ class AL {
 	
 	public static function getBoolean (param:Int):Bool {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_boolean (param);
 		#else
 		return false;
@@ -286,7 +288,7 @@ class AL {
 	
 	public static function getBooleanv (param:Int, count:Int = 1):Array<Bool> {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_booleanv (param, 1);
 		#else
 		return null;
@@ -295,9 +297,9 @@ class AL {
 	}
 	
 	
-	public static function getBuffer3f (buffer:Int, param:Int):Array<Float> {
+	public static function getBuffer3f (buffer:ALBuffer, param:Int):Array<Float> {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_buffer3f (buffer, param);
 		#else
 		return null;
@@ -306,9 +308,9 @@ class AL {
 	}
 	
 	
-	public static function getBuffer3i (buffer:Int, param:Int):Array<Int> {
+	public static function getBuffer3i (buffer:ALBuffer, param:Int):Array<Int> {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_buffer3i (buffer, param);
 		#else
 		return null;
@@ -317,9 +319,9 @@ class AL {
 	}
 	
 	
-	public static function getBufferf (buffer:Int, param:Int):Float {
+	public static function getBufferf (buffer:ALBuffer, param:Int):Float {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_bufferf (buffer, param);
 		#else
 		return 0;
@@ -328,9 +330,9 @@ class AL {
 	}
 	
 	
-	public static function getBufferfv (buffer:Int, param:Int, count:Int = 1):Array<Float> {
+	public static function getBufferfv (buffer:ALBuffer, param:Int, count:Int = 1):Array<Float> {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_bufferfv (buffer, param, count);
 		#else
 		return null;
@@ -339,9 +341,9 @@ class AL {
 	}
 	
 	
-	public static function getBufferi (buffer:Int, param:Int):Int {
+	public static function getBufferi (buffer:ALBuffer, param:Int):Int {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_bufferi (buffer, param);
 		#else
 		return 0;
@@ -350,9 +352,9 @@ class AL {
 	}
 	
 	
-	public static function getBufferiv (buffer:Int, param:Int, count:Int = 1):Array<Int> {
+	public static function getBufferiv (buffer:ALBuffer, param:Int, count:Int = 1):Array<Int> {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_bufferiv (buffer, param, count);
 		#else
 		return null;
@@ -363,7 +365,7 @@ class AL {
 	
 	public static function getDouble (param:Int):Float {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_double (param);
 		#else
 		return 0;
@@ -374,7 +376,7 @@ class AL {
 	
 	public static function getDoublev (param:Int, count:Int = 1):Array<Float> {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_doublev (param, count);
 		#else
 		return null;
@@ -385,7 +387,7 @@ class AL {
 	
 	public static function getEnumValue (ename:String):Int {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_enum_value (ename);
 		#else
 		return 0;
@@ -396,7 +398,7 @@ class AL {
 	
 	public static function getError ():Int {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_error ();
 		#else
 		return 0;
@@ -423,7 +425,7 @@ class AL {
 	
 	public static function getFloat (param:Int):Float {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_float (param);
 		#else
 		return 0;
@@ -434,7 +436,7 @@ class AL {
 	
 	public static function getFloatv (param:Int, count:Int = 1):Array<Float> {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_floatv (param, count);
 		#else
 		return null;
@@ -445,7 +447,7 @@ class AL {
 	
 	public static function getInteger (param:Int):Int {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_integer (param);
 		#else
 		return 0;
@@ -456,7 +458,7 @@ class AL {
 	
 	public static function getIntegerv (param:Int, count:Int = 1):Array<Int> {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_integerv (param, count);
 		#else
 		return null;
@@ -467,7 +469,7 @@ class AL {
 	
 	public static function getListener3f (param:Int):Array<Float> {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_listener3f (param);
 		#else
 		return null;
@@ -478,7 +480,7 @@ class AL {
 	
 	public static function getListener3i (param:Int):Array<Int> {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_listener3i (param);
 		#else
 		return null;
@@ -489,7 +491,7 @@ class AL {
 	
 	public static function getListenerf (param:Int):Float {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_listenerf (param);
 		#else
 		return 0;
@@ -500,7 +502,7 @@ class AL {
 	
 	public static function getListenerfv (param:Int, count:Int = 1):Array<Float> {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_listenerfv (param, count);
 		#else
 		return null;
@@ -511,7 +513,7 @@ class AL {
 	
 	public static function getListeneri (param:Int):Int {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_listeneri (param);
 		#else
 		return 0;
@@ -522,7 +524,7 @@ class AL {
 	
 	public static function getListeneriv (param:Int, count:Int = 1):Array<Int> {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_listeneriv (param, count);
 		#else
 		return null;
@@ -533,7 +535,7 @@ class AL {
 	
 	public static function getProcAddress (fname:String):Dynamic {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_proc_address (fname);
 		#else
 		return null;
@@ -542,9 +544,9 @@ class AL {
 	}
 	
 	
-	public static function getSource3f (source:Int, param:Int):Array<Float> {
+	public static function getSource3f (source:ALSource, param:Int):Array<Float> {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_source3f (source, param);
 		#else
 		return null;
@@ -553,9 +555,9 @@ class AL {
 	}
 	
 	
-	public static function getSourcef (source:Int, param:Int):Float {
+	public static function getSourcef (source:ALSource, param:Int):Float {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_sourcef (source, param);
 		#else
 		return 0;
@@ -564,9 +566,9 @@ class AL {
 	}
 	
 	
-	public static function getSource3i (source:Int, param:Int):Array<Int> {
+	public static function getSource3i (source:ALSource, param:Int):Array<Int> {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_source3i (source, param);
 		#else
 		return null;
@@ -575,9 +577,9 @@ class AL {
 	}
 	
 	
-	public static function getSourcefv (source:Int, param:Int, count:Int = 1):Array<Float> {
+	public static function getSourcefv (source:ALSource, param:Int, count:Int = 1):Array<Float> {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_sourcefv (source, param, count);
 		#else
 		return null;
@@ -586,9 +588,9 @@ class AL {
 	}
 	
 	
-	public static function getSourcei (source:Int, param:Int):Int {
+	public static function getSourcei (source:ALSource, param:Int):Dynamic {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_sourcei (source, param);
 		#else
 		return 0;
@@ -597,9 +599,9 @@ class AL {
 	}
 	
 	
-	public static function getSourceiv (source:Int, param:Int, count:Int = 1):Array<Int> {
+	public static function getSourceiv (source:ALSource, param:Int, count:Int = 1):Array<Int> {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_sourceiv (source, param, count);
 		#else
 		return null;
@@ -610,7 +612,7 @@ class AL {
 	
 	public static function getString (param:Int):String {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_get_string (param);
 		#else
 		return null;
@@ -619,9 +621,9 @@ class AL {
 	}
 	
 	
-	public static function isBuffer (buffer:Int):Bool {
+	public static function isBuffer (buffer:ALBuffer):Bool {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_is_buffer (buffer);
 		#else
 		return false;
@@ -632,7 +634,7 @@ class AL {
 	
 	public static function isEnabled (capability:Int):Bool {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_is_enabled (capability);
 		#else
 		return false;
@@ -643,7 +645,7 @@ class AL {
 	
 	public static function isExtensionPresent (extname:String):Bool {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_is_extension_present (extname);
 		#else
 		return false;
@@ -652,9 +654,9 @@ class AL {
 	}
 	
 	
-	public static function isSource (source:Int):Bool {
+	public static function isSource (source:ALSource):Bool {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_is_source (source);
 		#else
 		return false;
@@ -665,7 +667,7 @@ class AL {
 	
 	public static function listener3f (param:Int, value1:Float, value2:Float, value3:Float):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_listener3f (param, value1, value2, value3);
 		#end
 		
@@ -674,7 +676,7 @@ class AL {
 	
 	public static function listener3i (param:Int, value1:Int, value2:Int, value3:Int):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_listener3i (param, value1, value2, value3);
 		#end
 		
@@ -683,7 +685,7 @@ class AL {
 	
 	public static function listenerf (param:Int, value:Float):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_listenerf (param, value);
 		#end
 		
@@ -692,7 +694,7 @@ class AL {
 	
 	public static function listenerfv (param:Int, values:Array<Float>):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_listenerfv (param, values);
 		#end
 		
@@ -701,7 +703,7 @@ class AL {
 	
 	public static function listeneri (param:Int, value:Int):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_listeneri (param, value);
 		#end
 		
@@ -710,161 +712,161 @@ class AL {
 	
 	public static function listeneriv (param:Int, values:Array<Int>):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_listeneriv (param, values);
 		#end
 		
 	}
 	
 	
-	public static function source3f (source:Int, param:Int, value1:Float, value2:Float, value3:Float):Void {
+	public static function source3f (source:ALSource, param:Int, value1:Float, value2:Float, value3:Float):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_source3f (source, param, value1, value2, value3);
 		#end
 		
 	}
 	
 	
-	public static function source3i (source:Int, param:Int, value1:Int, value2:Int, value3:Int):Void {
+	public static function source3i (source:ALSource, param:Int, value1:Int, value2:Int, value3:Int):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_source3i (source, param, value1, value2, value3);
 		#end
 		
 	}
 	
 	
-	public static function sourcef (source:Int, param:Int, value:Float):Void {
+	public static function sourcef (source:ALSource, param:Int, value:Float):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_sourcef (source, param, value);
 		#end
 		
 	}
 	
 	
-	public static function sourcefv (source:Int, param:Int, values:Array<Float>):Void {
+	public static function sourcefv (source:ALSource, param:Int, values:Array<Float>):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_sourcefv (source, param, values);
 		#end
 		
 	}
 	
 	
-	public static function sourcei (source:Int, param:Int, value:Int):Void {
+	public static function sourcei (source:ALSource, param:Int, value:Dynamic):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_sourcei (source, param, value);
 		#end
 		
 	}
 	
 	
-	public static function sourceiv (source:Int, param:Int, values:Array<Int>):Void {
+	public static function sourceiv (source:ALSource, param:Int, values:Array<Int>):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_sourceiv (source, param, values);
 		#end
 		
 	}
 	
 	
-	public static function sourcePlay (source:Int):Void {
+	public static function sourcePlay (source:ALSource):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_source_play (source);
 		#end
 		
 	}
 	
 	
-	public static function sourcePlayv (sources:Array<Int>):Void {
+	public static function sourcePlayv (sources:Array<ALSource>):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_source_playv (sources.length, sources);
 		#end
 		
 	}
 	
 	
-	public static function sourceStop (source:Int):Void {
+	public static function sourceStop (source:ALSource):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_source_stop (source);
 		#end
 		
 	}
 	
 	
-	public static function sourceStopv (sources:Array<Int>):Void {
+	public static function sourceStopv (sources:Array<ALSource>):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_source_stopv (sources.length, sources);
 		#end
 		
 	}
 	
 	
-	public static function sourceRewind (source:Int):Void {
+	public static function sourceRewind (source:ALSource):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_source_rewind (source);
 		#end
 		
 	}
 	
 	
-	public static function sourceRewindv (sources:Array<Int>):Void {
+	public static function sourceRewindv (sources:Array<ALSource>):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_source_rewindv (sources.length, sources);
 		#end
 		
 	}
 	
 	
-	public static function sourcePause (source:Int):Void {
+	public static function sourcePause (source:ALSource):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_source_pause (source);
 		#end
 		
 	}
 	
 	
-	public static function sourcePausev (sources:Array<Int>):Void {
+	public static function sourcePausev (sources:Array<ALSource>):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_source_pausev (sources.length, sources);
 		#end
 		
 	}
 	
 	
-	public static function sourceQueueBuffer (source:Int, buffer:Int):Void {
+	public static function sourceQueueBuffer (source:ALSource, buffer:ALBuffer):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
-		var buffers:Array<Int> = [ buffer ];
+		#if (lime_cffi && lime_openal && !macro)
+		var buffers:Array<ALBuffer> = [ buffer ];
 		lime_al_source_queue_buffers (source, 1, buffers);
 		#end
 		
 	}
 	
 	
-	public static function sourceQueueBuffers (source:Int, nb:Int, buffers:Array<Int>):Void {
+	public static function sourceQueueBuffers (source:ALSource, nb:Int, buffers:Array<ALBuffer>):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_source_queue_buffers (source, nb, buffers);
 		#end
 		
 	}
 	
 	
-	public static function sourceUnqueueBuffer (source:Int):Int {
+	public static function sourceUnqueueBuffer (source:ALSource):ALBuffer {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		var res = lime_al_source_unqueue_buffers (source, 1);
 		return res[0];
 		#else
@@ -874,9 +876,9 @@ class AL {
 	}
 	
 	
-	public static function sourceUnqueueBuffers (source:Int, nb:Int):Array<Int> {
+	public static function sourceUnqueueBuffers (source:ALSource, nb:Int):Array<ALBuffer> {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		return lime_al_source_unqueue_buffers (source, nb);
 		#else
 		return null;
@@ -887,90 +889,90 @@ class AL {
 	
 	public static function speedOfSound (value:Float):Void {
 		
-		#if ((cpp || neko || nodejs) && lime_openal && !macro)
+		#if (lime_cffi && lime_openal && !macro)
 		lime_al_speed_of_sound (value);
 		#end
 		
 	}
 	
 	
-	#if ((cpp || neko || nodejs) && lime_openal && !macro)
-	@:cffi private static function lime_al_buffer_data (buffer:Int, format:Int, data:Dynamic, size:Int, freq:Int):Void;
-	@:cffi private static function lime_al_buffer3f (buffer:Int, param:Int, value1:Float32, value2:Float32, value3:Float32):Void;
-	@:cffi private static function lime_al_buffer3i (buffer:Int, param:Int, value1:Int, value2:Int, value3:Int):Void;
-	@:cffi private static function lime_al_bufferf (buffer:Int, param:Int, value:Float32):Void;
-	@:cffi private static function lime_al_bufferfv (buffer:Int, param:Int, values:Dynamic):Void;
-	@:cffi private static function lime_al_bufferi (buffer:Int, param:Int, value:Int):Void;
-	@:cffi private static function lime_al_bufferiv (buffer:Int, param:Int, values:Dynamic):Void;
-	@:cffi private static function lime_al_delete_buffer (buffer:Int):Void;
+	#if (lime_cffi && lime_openal && !macro)
+	@:cffi private static function lime_al_buffer_data (buffer:CFFIPointer, format:Int, data:Dynamic, size:Int, freq:Int):Void;
+	@:cffi private static function lime_al_buffer3f (buffer:CFFIPointer, param:Int, value1:Float32, value2:Float32, value3:Float32):Void;
+	@:cffi private static function lime_al_buffer3i (buffer:CFFIPointer, param:Int, value1:Int, value2:Int, value3:Int):Void;
+	@:cffi private static function lime_al_bufferf (buffer:CFFIPointer, param:Int, value:Float32):Void;
+	@:cffi private static function lime_al_bufferfv (buffer:CFFIPointer, param:Int, values:Dynamic):Void;
+	@:cffi private static function lime_al_bufferi (buffer:CFFIPointer, param:Int, value:Int):Void;
+	@:cffi private static function lime_al_bufferiv (buffer:CFFIPointer, param:Int, values:Dynamic):Void;
+	@:cffi private static function lime_al_delete_buffer (buffer:CFFIPointer):Void;
 	@:cffi private static function lime_al_delete_buffers (n:Int, buffers:Dynamic):Void;
-	@:cffi private static function lime_al_delete_source (source:Int):Void;
+	@:cffi private static function lime_al_delete_source (source:CFFIPointer):Void;
 	@:cffi private static function lime_al_delete_sources (n:Int, sources:Dynamic):Void;
 	@:cffi private static function lime_al_disable (capability:Int):Void;
 	@:cffi private static function lime_al_distance_model (distanceModel:Int):Void;
 	@:cffi private static function lime_al_doppler_factor (value:Float32):Void;
 	@:cffi private static function lime_al_doppler_velocity (value:Float32):Void;
 	@:cffi private static function lime_al_enable (capability:Int):Void;
-	@:cffi private static function lime_al_gen_source ():Int;
-	@:cffi private static function lime_al_gen_sources (n:Int):Dynamic;
+	@:cffi private static function lime_al_gen_source ():CFFIPointer;
+	@:cffi private static function lime_al_gen_sources (n:Int):Array<CFFIPointer>;
 	@:cffi private static function lime_al_get_boolean (param:Int):Bool;
-	@:cffi private static function lime_al_get_booleanv (param:Int, count:Int):Dynamic;
-	@:cffi private static function lime_al_gen_buffer ():Int;
-	@:cffi private static function lime_al_gen_buffers (n:Int):Dynamic;
-	@:cffi private static function lime_al_get_buffer3f (buffer:Int, param:Int):Dynamic;
-	@:cffi private static function lime_al_get_buffer3i (buffer:Int, param:Int):Dynamic;
-	@:cffi private static function lime_al_get_bufferf (buffer:Int, param:Int):Float32;
-	@:cffi private static function lime_al_get_bufferfv (buffer:Int, param:Int, count:Int):Dynamic;
-	@:cffi private static function lime_al_get_bufferi (buffer:Int, param:Int):Int;
-	@:cffi private static function lime_al_get_bufferiv (buffer:Int, param:Int, count:Int):Dynamic;
+	@:cffi private static function lime_al_get_booleanv (param:Int, count:Int):Array<Bool>;
+	@:cffi private static function lime_al_gen_buffer ():CFFIPointer;
+	@:cffi private static function lime_al_gen_buffers (n:Int):Array<CFFIPointer>;
+	@:cffi private static function lime_al_get_buffer3f (buffer:CFFIPointer, param:Int):Array<Float>;
+	@:cffi private static function lime_al_get_buffer3i (buffer:CFFIPointer, param:Int):Array<Int>;
+	@:cffi private static function lime_al_get_bufferf (buffer:CFFIPointer, param:Int):Float32;
+	@:cffi private static function lime_al_get_bufferfv (buffer:CFFIPointer, param:Int, count:Int):Array<Float>;
+	@:cffi private static function lime_al_get_bufferi (buffer:CFFIPointer, param:Int):Int;
+	@:cffi private static function lime_al_get_bufferiv (buffer:CFFIPointer, param:Int, count:Int):Array<Int>;
 	@:cffi private static function lime_al_get_double (param:Int):Float;
-	@:cffi private static function lime_al_get_doublev (param:Int, count:Int):Dynamic;
+	@:cffi private static function lime_al_get_doublev (param:Int, count:Int):Array<Float>;
 	@:cffi private static function lime_al_get_enum_value (ename:String):Int;
 	@:cffi private static function lime_al_get_error ():Int;
 	@:cffi private static function lime_al_get_float (param:Int):Float32;
-	@:cffi private static function lime_al_get_floatv (param:Int, count:Int):Dynamic;
+	@:cffi private static function lime_al_get_floatv (param:Int, count:Int):Array<Float>;
 	@:cffi private static function lime_al_get_integer (param:Int):Int;
-	@:cffi private static function lime_al_get_integerv (param:Int, count:Int):Dynamic;
-	@:cffi private static function lime_al_get_listener3f (param:Int):Dynamic;
-	@:cffi private static function lime_al_get_listener3i (param:Int):Dynamic;
+	@:cffi private static function lime_al_get_integerv (param:Int, count:Int):Array<Int>;
+	@:cffi private static function lime_al_get_listener3f (param:Int):Array<Float>;
+	@:cffi private static function lime_al_get_listener3i (param:Int):Array<Int>;
 	@:cffi private static function lime_al_get_listenerf (param:Int):Float32;
-	@:cffi private static function lime_al_get_listenerfv (param:Int, count:Int):Dynamic;
+	@:cffi private static function lime_al_get_listenerfv (param:Int, count:Int):Array<Float>;
 	@:cffi private static function lime_al_get_listeneri (param:Int):Int;
-	@:cffi private static function lime_al_get_listeneriv (param:Int, count:Int):Dynamic;
+	@:cffi private static function lime_al_get_listeneriv (param:Int, count:Int):Array<Int>;
 	@:cffi private static function lime_al_get_proc_address (fname:String):Float;
-	@:cffi private static function lime_al_get_source3f (source:Int, param:Int):Dynamic;
-	@:cffi private static function lime_al_get_source3i (source:Int, param:Int):Dynamic;
-	@:cffi private static function lime_al_get_sourcef (source:Int, param:Int):Float32;
-	@:cffi private static function lime_al_get_sourcefv (source:Int, param:Int, count:Int):Dynamic;
-	@:cffi private static function lime_al_get_sourcei (source:Int, param:Int):Int;
-	@:cffi private static function lime_al_get_sourceiv (source:Int, param:Int, count:Int):Dynamic;
+	@:cffi private static function lime_al_get_source3f (source:CFFIPointer, param:Int):Array<Float>;
+	@:cffi private static function lime_al_get_source3i (source:CFFIPointer, param:Int):Array<Int>;
+	@:cffi private static function lime_al_get_sourcef (source:CFFIPointer, param:Int):Float32;
+	@:cffi private static function lime_al_get_sourcefv (source:CFFIPointer, param:Int, count:Int):Array<Float>;
+	@:cffi private static function lime_al_get_sourcei (source:CFFIPointer, param:Int):Dynamic;
+	@:cffi private static function lime_al_get_sourceiv (source:CFFIPointer, param:Int, count:Int):Array<Int>;
 	@:cffi private static function lime_al_get_string (param:Int):Dynamic;
-	@:cffi private static function lime_al_is_buffer (buffer:Int):Bool;
+	@:cffi private static function lime_al_is_buffer (buffer:CFFIPointer):Bool;
 	@:cffi private static function lime_al_is_enabled (capability:Int):Bool;
 	@:cffi private static function lime_al_is_extension_present (extname:String):Bool;
-	@:cffi private static function lime_al_is_source (source:Int):Bool;
+	@:cffi private static function lime_al_is_source (source:CFFIPointer):Bool;
 	@:cffi private static function lime_al_listener3f (param:Int, value1:Float32, value2:Float32, value3:Float32):Void;
 	@:cffi private static function lime_al_listener3i (param:Int, value1:Int, value2:Int, value3:Int):Void;
 	@:cffi private static function lime_al_listenerf (param:Int, value1:Float32):Void;
 	@:cffi private static function lime_al_listenerfv (param:Int, values:Dynamic):Void;
 	@:cffi private static function lime_al_listeneri (param:Int, value1:Int):Void;
 	@:cffi private static function lime_al_listeneriv (param:Int, values:Dynamic):Void;
-	@:cffi private static function lime_al_source_pause (source:Int):Void;
+	@:cffi private static function lime_al_source_pause (source:CFFIPointer):Void;
 	@:cffi private static function lime_al_source_pausev (n:Int, sources:Dynamic):Void;
-	@:cffi private static function lime_al_source_play (source:Int):Void;
+	@:cffi private static function lime_al_source_play (source:CFFIPointer):Void;
 	@:cffi private static function lime_al_source_playv (n:Int, sources:Dynamic):Void;
-	@:cffi private static function lime_al_source_queue_buffers (source:Int, nb:Int, buffers:Dynamic):Void;
-	@:cffi private static function lime_al_source_rewind (source:Int):Void;
+	@:cffi private static function lime_al_source_queue_buffers (source:CFFIPointer, nb:Int, buffers:Dynamic):Void;
+	@:cffi private static function lime_al_source_rewind (source:CFFIPointer):Void;
 	@:cffi private static function lime_al_source_rewindv (n:Int, sources:Dynamic):Void;
-	@:cffi private static function lime_al_source_stop (source:Int):Void;
+	@:cffi private static function lime_al_source_stop (source:CFFIPointer):Void;
 	@:cffi private static function lime_al_source_stopv (n:Int, sources:Dynamic):Void;
-	@:cffi private static function lime_al_source_unqueue_buffers (source:Int, nb:Int):Dynamic;
-	@:cffi private static function lime_al_source3f (source:Int, param:Int, value1:Float32, value2:Float32, value3:Float32):Void;
-	@:cffi private static function lime_al_source3i (source:Int, param:Int, value1:Int, value2:Int, value3:Int):Void;
-	@:cffi private static function lime_al_sourcef (source:Int, param:Int, value:Float32):Void;
-	@:cffi private static function lime_al_sourcefv (source:Int, param:Int, values:Dynamic):Void;
-	@:cffi private static function lime_al_sourcei (source:Int, param:Int, value:Int):Void;
-	@:cffi private static function lime_al_sourceiv (source:Int, param:Int, values:Dynamic):Void;
+	@:cffi private static function lime_al_source_unqueue_buffers (source:CFFIPointer, nb:Int):Dynamic;
+	@:cffi private static function lime_al_source3f (source:CFFIPointer, param:Int, value1:Float32, value2:Float32, value3:Float32):Void;
+	@:cffi private static function lime_al_source3i (source:CFFIPointer, param:Int, value1:Int, value2:Int, value3:Int):Void;
+	@:cffi private static function lime_al_sourcef (source:CFFIPointer, param:Int, value:Float32):Void;
+	@:cffi private static function lime_al_sourcefv (source:CFFIPointer, param:Int, values:Dynamic):Void;
+	@:cffi private static function lime_al_sourcei (source:CFFIPointer, param:Int, value:Dynamic):Void;
+	@:cffi private static function lime_al_sourceiv (source:CFFIPointer, param:Int, values:Dynamic):Void;
 	@:cffi private static function lime_al_speed_of_sound (speed:Float32):Void;
 	#end
 	

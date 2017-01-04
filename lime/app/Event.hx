@@ -8,8 +8,13 @@ import haxe.macro.Type;
 using haxe.macro.Tools;
 #end
 
-#if !macro
-@:genericBuild(lime.app.Event.build())
+#if (!macro && !display)
+@:genericBuild(lime._macros.EventMacro.build())
+#end
+
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
 #end
 
 
@@ -65,13 +70,18 @@ class Event<T> {
 		var typeArgs;
 		var typeResult;
 		
-		switch (Context.getLocalType ()) {
+		switch (Context.follow (Context.getLocalType ())) {
 			
-			case TInst (_, [ TFun (args, result) ]):
+			case TInst (_, [ Context.follow (_) => TFun (args, result) ]):
 				
 				typeArgs = args;
 				typeResult = result;
+			
+			case TInst (localType, _):
 				
+				Context.fatalError ("Invalid number of type parameters for " + localType.toString (), Context.currentPos ());
+				return null;
+			
 			default:
 				
 				throw false;
@@ -101,7 +111,7 @@ class Event<T> {
 		typeString = StringTools.replace (typeString, "<", "_");
 		typeString = StringTools.replace (typeString, ">", "_");
 		
-		var name = "Event_" + typeString;
+		var name = "_Event_" + typeString;
 		
 		try {
 			

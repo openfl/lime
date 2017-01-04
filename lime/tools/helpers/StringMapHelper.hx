@@ -7,9 +7,9 @@ import haxe.ds.StringMap;
 class StringMapHelper {
 	
 	
-	public static function copy <T> (source:StringMap <T>):StringMap <T> {
+	public static function copy <T> (source:StringMap<T>):StringMap<T> {
 		
-		var target = new StringMap <T> ();
+		var target = new StringMap<T> ();
 		
 		for (key in source.keys ()) {
 			
@@ -22,7 +22,7 @@ class StringMapHelper {
 	}
 	
 	
-	public static function copyKeys <T> (source:StringMap <T>, target:StringMap <T>):Void {
+	public static function copyKeys <T> (source:StringMap<T>, target:StringMap<T>):Void {
 		
 		for (key in source.keys ()) {
 			
@@ -33,7 +33,7 @@ class StringMapHelper {
 	}
 	
 	
-	public static function copyUniqueKeys <T> (source:StringMap <T>, target:StringMap <T>):Void {
+	public static function copyUniqueKeys <T> (source:StringMap<T>, target:StringMap<T>):Void {
 		
 		for (key in source.keys ()) {
 			

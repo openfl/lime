@@ -35,11 +35,11 @@ import sys.FileSystem;
 class IOSPlatform extends PlatformTarget {
 	
 	
-	public function new (command:String, _project:HXProject, targetFlags:Map <String, String> ) {
+	public function new (command:String, _project:HXProject, targetFlags:Map<String, String> ) {
 		
 		super (command, _project, targetFlags);
 		
-		targetDirectory = PathHelper.combine (project.app.path, "ios");
+		targetDirectory = PathHelper.combine (project.app.path, "ios/" + buildType);
 		
 	}
 	
@@ -89,7 +89,11 @@ class IOSPlatform extends PlatformTarget {
 		var hxml = PathHelper.findTemplate (project.templatePaths, "iphone/PROJ/haxe/Build.hxml");
 		var template = new Template (File.getContent (hxml));
 		
-		Sys.println (template.execute (generateContext ()));
+		project = project.clone ();
+		var context = generateContext ();
+		context.OUTPUT_DIR = targetDirectory;
+		
+		Sys.println (template.execute (context));
 		Sys.println ("-D display");
 		
 	}
@@ -97,18 +101,11 @@ class IOSPlatform extends PlatformTarget {
 	
 	private function generateContext ():Dynamic {
 		
-		project = project.clone ();
+		//project = project.clone ();
 		
 		project.sources.unshift ("");
 		project.sources = PathHelper.relocatePaths (project.sources, PathHelper.combine (targetDirectory, project.app.file + "/haxe"));
 		//project.dependencies.push ("stdc++");
-		
-		if (project.certificate == null || project.certificate.identity == null) {
-			
-			project.certificate = new Keystore ();
-			project.certificate.identity = "iPhone Developer";
-			
-		}
 		
 		if (project.targetFlags.exists ("xml")) {
 			
@@ -122,11 +119,42 @@ class IOSPlatform extends PlatformTarget {
 			
 		}
 		
+		if (!project.config.exists ("ios.identity")) {
+			
+			project.config.set ("ios.identity", "iPhone Developer");
+			
+		}
+		
+		IOSHelper.getIOSVersion (project);
+		project.haxedefs.set ("IPHONE_VER", project.environment.get ("IPHONE_VER"));
+		
+		project.haxedefs.set ("HXCPP_CPP11", "1");
+		
+		if (project.config.getString ("ios.compiler") == "llvm" || project.config.getString ("ios.compiler", "clang") == "clang") {
+			
+			project.haxedefs.set ("HXCPP_CLANG", "1");
+			project.haxedefs.set ("OBJC_ARC", "1");
+			
+		}
+		
 		var context = project.templateContext;
 		
 		context.HAS_ICON = false;
 		context.HAS_LAUNCH_IMAGE = false;
 		context.OBJC_ARC = false;
+		context.KEY_STORE_IDENTITY = project.config.getString ("ios.identity");
+		
+		if (project.config.exists ("ios.provisioning-profile")) {
+			
+			context.IOS_PROVISIONING_PROFILE = PathHelper.tryFullPath (project.config.getString ("ios.provisioning-profile"));
+			
+		}
+		
+		if (project.config.exists ("ios.team-id")) {
+			
+			context.DEVELOPMENT_TEAM_ID = project.config.getString ("ios.team-id");
+			
+		}
 		
 		context.linkedLibraries = [];
 		
@@ -159,7 +187,7 @@ class IOSPlatform extends PlatformTarget {
 			
 		}
 		
-		var valid_archs = new Array <String> ();
+		var valid_archs = new Array<String> ();
 		var armv6 = false;
 		var armv7 = false;
 		var armv7s = false;
@@ -174,11 +202,17 @@ class IOSPlatform extends PlatformTarget {
 		
 		if (project.config.getString ("ios.device", "universal") == "universal" || project.config.getString ("ios.device") == "iphone") {
 			
-			if (project.config.getFloat ("ios.deployment", 5.1) < 5) {
+			if (project.config.getFloat ("ios.deployment", 8) < 5) {
 				
 				ArrayHelper.addUnique (architectures, Architecture.ARMV6);
 				
 			}
+			
+		}
+		
+		if (project.config.getFloat ("ios.deployment", 8) < 7) {
+			
+			ArrayHelper.addUnique (architectures, Architecture.ARMV7);
 			
 		}
 		
@@ -198,6 +232,7 @@ class IOSPlatform extends PlatformTarget {
 		
 		context.CURRENT_ARCHS = "( " + valid_archs.join(",") + ") ";
 		
+		valid_archs.push ("x86_64");
 		valid_archs.push ("i386");
 		
 		context.VALID_ARCHS = valid_archs.join(" ");
@@ -217,15 +252,15 @@ class IOSPlatform extends PlatformTarget {
 		context.ARMV7S = armv7s;
 		context.ARM64 = arm64;
 		context.TARGET_DEVICES = switch (project.config.getString ("ios.device", "universal")) { case "iphone": "1"; case "ipad": "2"; default: "1,2";  }
-		context.DEPLOYMENT = project.config.getString ("ios.deployment", "5.1.1");
+		context.DEPLOYMENT = project.config.getString ("ios.deployment", "8.0");
 		
 		if (project.config.getString ("ios.compiler") == "llvm" || project.config.getString ("ios.compiler", "clang") == "clang") {
 			
 			context.OBJC_ARC = true;
 			
 		}
-
-		//context.ENABLE_BITCODE = (project.config.getFloat ("ios.deployment", 5.1) >= 6);
+		
+		//context.ENABLE_BITCODE = (project.config.getFloat ("ios.deployment", 8) >= 6);
 		context.ENABLE_BITCODE = project.config.getBool ("ios.enable-bitcode", false);
 		context.IOS_COMPILER = project.config.getString ("ios.compiler", "clang");
 		context.CPP_BUILD_LIBRARY = project.config.getString ("cpp.buildLibrary", "hxcpp");
@@ -281,9 +316,9 @@ class IOSPlatform extends PlatformTarget {
 			} else if (Path.extension (dependency.name) == "tbd") {
 				
 				name = dependency.name;
-				path = "usr/lib/" + dependency.name;
+				path = "/usr/lib/" + dependency.name;
 				fileType = "sourcecode.text-based-dylib-definition";
-
+				
 			} else if (Path.extension (dependency.path) == "framework") {
 				
 				name = Path.withoutDirectory (dependency.path);
@@ -311,18 +346,17 @@ class IOSPlatform extends PlatformTarget {
 		context.HXML_PATH = PathHelper.findTemplate (project.templatePaths, "iphone/PROJ/haxe/Build.hxml");
 		context.PRERENDERED_ICON = project.config.getBool ("ios.prerenderedIcon", false);
 		
-		/*var assets = new Array <Asset> ();
+		var haxelibPath = project.environment.get ("HAXELIB_PATH");
 		
-		for (asset in project.assets) {
+		if (haxelibPath != null) {
 			
-			var newAsset = asset.clone ();
+			context.HAXELIB_PATH = 'export HAXELIB_PATH=$haxelibPath;';
 			
-			assets.push ();
+		} else {
 			
-		}*/
-		
-		//updateIcon ();
-		//updateLaunchImage ();
+			context.HAXELIB_PATH = '';
+			
+		}
 		
 		return context;
 		
@@ -359,6 +393,15 @@ class IOSPlatform extends PlatformTarget {
 			
 		}
 		
+		IOSHelper.getIOSVersion (project);
+		var iphoneVer = project.environment.get ("IPHONE_VER");
+		
+		for (command in commands) {
+			
+			command.push ("-DIPHONE_VER=" + iphoneVer);
+			
+		}
+		
 		CPPHelper.rebuild (project, commands);
 		
 	}
@@ -392,12 +435,13 @@ class IOSPlatform extends PlatformTarget {
 		
 		var manifest = new Asset ();
 		manifest.id = "__manifest__";
-		manifest.data = AssetHelper.createManifest (project);
+		manifest.data = AssetHelper.createManifest (project).serialize ();
 		manifest.resourceName = manifest.flatName = manifest.targetPath = "manifest";
 		manifest.type = AssetType.TEXT;
 		project.assets.push (manifest);
 		
 		var context = generateContext ();
+		context.OUTPUT_DIR = targetDirectory;
 		
 		var projectDirectory = targetDirectory + "/" + project.app.file + "/";
 		
@@ -407,20 +451,21 @@ class IOSPlatform extends PlatformTarget {
 		PathHelper.mkdir (projectDirectory + "/haxe/lime/installer");
 		
 		var iconSizes:Array<IconSize> = [
-			{ name : "Icon-Small.png", size : 29 },
-			{ name : "Icon-Small-40.png", size : 40 },
-			{ name : "Icon-Small-50.png", size : 50 },
-			{ name : "Icon.png", size : 57 },
-			{ name : "Icon-Small@2x.png", size : 58 },
-			{ name : "Icon-72.png", size : 72 },
-			{ name : "Icon-76.png", size : 76 },
-			{ name : "Icon-Small-40@2x.png", size : 80 },
-			{ name : "Icon-Small-50@2x.png", size : 100 },
-			{ name : "Icon@2x.png", size : 114 },
-			{ name : "Icon-60@2x.png", size : 120 },
-			{ name : "Icon-72@2x.png", size : 144 },
-			{ name : "Icon-76@2x.png", size : 152 },
-			{ name : "Icon-60@3x.png", size : 180 },
+			{ name: "Icon-Small.png", size: 29 },
+			{ name: "Icon-Small-40.png", size: 40 },
+			{ name: "Icon-Small-50.png", size: 50 },
+			{ name: "Icon.png", size: 57 },
+			{ name: "Icon-Small@2x.png", size: 58 },
+			{ name: "Icon-72.png", size: 72 },
+			{ name: "Icon-76.png", size: 76 },
+			{ name: "Icon-Small-40@2x.png", size: 80 },
+			{ name: "Icon-Small-50@2x.png", size: 100 },
+			{ name: "Icon@2x.png", size: 114 },
+			{ name: "Icon-60@2x.png", size: 120 },
+			{ name: "Icon-72@2x.png", size: 144 },
+			{ name: "Icon-76@2x.png", size: 152 },
+			{ name: "Icon-83.5@2x.png", size: 167 },
+			{ name: "Icon-60@3x.png", size: 180 },
 		];
 		
 		context.HAS_ICON = true;
@@ -458,7 +503,7 @@ class IOSPlatform extends PlatformTarget {
 			{ name: "Default-736h@3x.png", w: 1242,	h: 2208 }, // iPhone 6 Plus, portrait
 			{ name: "Default-736h-Landscape@3x.png", w: 2208, h: 1242 }, // iPhone 6 Plus, landscape
 		];
-
+		
 		var splashScreenPath = PathHelper.combine (projectDirectory, "Images.xcassets/LaunchImage.launchimage");
 		PathHelper.mkdir (splashScreenPath);
 		
