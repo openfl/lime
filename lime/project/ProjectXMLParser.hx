@@ -2165,6 +2165,14 @@ class ProjectXMLParser extends HXProject {
 			
 			return project.environment.get (string);
 			
+		} else if (project.app != null && Reflect.exists (project.app, string)) {
+			
+			return Reflect.get (project.app, string);
+			
+		} else if (project.meta != null && Reflect.exists (project.meta, string)) {
+			
+			return Reflect.get (project.meta, string);
+			
 		} else if (string == "directory") {
 			
 			return project.projectDirectory;
