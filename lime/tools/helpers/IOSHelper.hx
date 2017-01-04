@@ -45,19 +45,20 @@ class IOSHelper {
 			//commands.push ("i386");
 			commands.push ("x86_64");
 			
-		} else if (!project.targetFlags.exists ("final")) {
+		} else if (project.targetFlags.exists ("armv7")) {
 			
-			for (architecture in project.architectures) {
-				
-				if (architecture == ARMV7) {
-					
-					commands.push ("-arch");
-					commands.push ("armv7");
-					break;
-					
-				}
-				
-			}
+			commands.push ("-arch");
+			commands.push ("armv7");
+			
+		} else if (project.targetFlags.exists ("armv7s")) {
+			
+			commands.push ("-arch");
+			commands.push ("armv7s");
+			
+		} else if (project.targetFlags.exists ("arm64")) {
+			
+			commands.push ("-arch");
+			commands.push ("arm64");
 			
 		}
 		
