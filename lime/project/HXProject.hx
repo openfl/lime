@@ -56,6 +56,7 @@ class HXProject {
 	public var platformType:PlatformType;
 	public var postBuildCallbacks:Array<CLICommand>;
 	public var preBuildCallbacks:Array<CLICommand>;
+	public var projectDirectory:String;
 	public var samplePaths:Array<String>;
 	public var sources:Array<String>;
 	public var splashScreens:Array<SplashScreen>;
