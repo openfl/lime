@@ -230,11 +230,11 @@ class AndroidHelper {
 		
 		var args = [ "install", "-r" ];
 		
-		if (getDeviceSDKVersion (deviceID) > 16) {
+		//if (getDeviceSDKVersion (deviceID) > 16) {
 			
 			args.push ("-d");
 			
-		}
+		//}
 		
 		args.push (targetPath);
 		
