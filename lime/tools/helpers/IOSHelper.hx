@@ -35,15 +35,29 @@ class IOSHelper {
 			configuration = "Debug";
 			
 		}
-			
+		
 		var iphoneVersion = project.environment.get ("IPHONE_VER");
 		var commands = [ "-configuration", configuration, "PLATFORM_NAME=" + platformName, "SDKROOT=" + platformName + iphoneVersion ];
-			
+		
 		if (project.targetFlags.exists ("simulator")) {
 			
 			commands.push ("-arch");
 			//commands.push ("i386");
 			commands.push ("x86_64");
+			
+		} else if (!project.targetFlags.exists ("final")) {
+			
+			for (architecture in project.architectures) {
+				
+				if (architecture == ARMV7) {
+					
+					commands.push ("-arch");
+					commands.push ("armv7");
+					break;
+					
+				}
+				
+			}
 			
 		}
 		
@@ -300,7 +314,7 @@ class IOSHelper {
 			waitForDeviceState ("xcrun", [ "simctl", "uninstall", currentDeviceID, project.meta.packageName ]);
 			waitForDeviceState ("xcrun", [ "simctl", "install", currentDeviceID, applicationPath ]);			
 			waitForDeviceState ("xcrun", [ "simctl", "launch", currentDeviceID, project.meta.packageName ]);
-						
+			
 			ProcessHelper.runCommand ("", "tail", [ "-F", "~/Library/Logs/CoreSimulator/" + currentDeviceID + "/system.log"]);
 			
 		} else {
