@@ -26,16 +26,16 @@
 	
 	<target name="ps3" handler="lime-ps3" />
 	<haxelib name="lime-ps3" if="ps3" />
-
+	
 	<target name="ps4" handler="lime-ps4" />
 	<haxelib name="lime-ps4" if="ps4" />
 	
 	<target name="vita" handler="lime-vita" />
 	<haxelib name="lime-vita" if="vita" />
-
+	
 	<target name="wiiu" handler="lime-wiiu" />
 	<haxelib name="lime-wiiu" if="wiiu" />
-
+	
 	<target name="xbox1" handler="lime-xbox1" />
 	<haxelib name="lime-xbox1" if="xbox1" />
 	
