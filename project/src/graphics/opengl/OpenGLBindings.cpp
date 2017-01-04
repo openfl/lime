@@ -932,7 +932,17 @@ namespace lime {
 			
 		} else if (strings == 1) {
 			
-			return alloc_string ((const char *)glGetString (pname));
+			const char* val = (const char*)glGetString (pname);
+			
+			if (val) {
+				
+				return alloc_string (val);
+				
+			} else {
+				
+				return alloc_null ();
+				
+			}
 			
 		} else if (floats == 1) {
 			
@@ -982,6 +992,12 @@ namespace lime {
 		GLint logSize = 0;
 		glGetProgramiv (program, GL_INFO_LOG_LENGTH, &logSize);
 		
+		if (logSize == 0) {
+			
+			return alloc_null ();
+			
+		}
+		
 		std::string buffer (logSize, 0);
 		
 		glGetProgramInfoLog (program, logSize, 0, &buffer[0]);
@@ -1015,6 +1031,12 @@ namespace lime {
 		
 		GLint logSize = 0;
 		glGetShaderiv (shader, GL_INFO_LOG_LENGTH, &logSize);
+		
+		if (logSize == 0) {
+			
+			return alloc_null ();
+			
+		}
 		
 		std::string buffer (logSize, 0);
 		GLint writeSize;
