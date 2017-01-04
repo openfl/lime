@@ -2165,6 +2165,10 @@ class ProjectXMLParser extends HXProject {
 			
 			return project.environment.get (string);
 			
+		} else if (string == "directory") {
+			
+			return project.projectDirectory;
+			
 		} else {
 			
 			var substring = StringTools.replace (string, " ", "");
