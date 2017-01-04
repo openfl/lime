@@ -2139,7 +2139,7 @@ class ProjectXMLParser extends HXProject {
 	
 	
 	private function replaceVariable (project:HXProject, string:String):String {
-    
+		
 		if (string.substr (0, 7) == "parent:") {
 			
 			if (project.parent != null) {

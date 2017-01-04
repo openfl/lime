@@ -52,7 +52,7 @@ class HXProject {
 	public var meta:MetaData;
 	public var modules:Map<String, ModuleData>;
 	public var ndlls:Array<NDLL>;
-  public var parent:HXProject;
+	public var parent:HXProject;
 	public var platformType:PlatformType;
 	public var postBuildCallbacks:Array<CLICommand>;
 	public var preBuildCallbacks:Array<CLICommand>;
