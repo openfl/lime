@@ -2,7 +2,7 @@ package lime.text;
 
 
 import haxe.io.Bytes;
-import lime._backend.native.NativeFont;
+import lime._backend.native.NativeCFFI;
 import lime.app.Future;
 import lime.app.Promise;
 import lime.graphics.Image;
@@ -31,7 +31,7 @@ import haxe.io.Path;
 @:autoBuild(lime._macros.AssetsMacro.embedFont())
 #end
 
-@:access(lime._backend.native.NativeFont)
+@:access(lime._backend.native.NativeCFFI)
 @:access(lime.text.Glyph)
 
 
@@ -76,7 +76,7 @@ class Font {
 		#if (lime_cffi && !macro)
 		
 		if (src == null) throw "Uninitialized font handle.";
-		var data:Dynamic = NativeFont.lime_font_outline_decompose (src, 1024 * 20);
+		var data:Dynamic = NativeCFFI.lime_font_outline_decompose (src, 1024 * 20);
 		return data;
 		
 		#else
@@ -153,7 +153,7 @@ class Font {
 	public function getGlyph (character:String):Glyph {
 		
 		#if (lime_cffi && !macro)
-		return NativeFont.lime_font_get_glyph_index (src, character);
+		return NativeCFFI.lime_font_get_glyph_index (src, character);
 		#else
 		return -1;
 		#end
@@ -164,7 +164,7 @@ class Font {
 	public function getGlyphs (characters:String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. "):Array<Glyph> {
 		
 		#if (lime_cffi && !macro)
-		var glyphs:Dynamic = NativeFont.lime_font_get_glyph_indices (src, characters);
+		var glyphs:Dynamic = NativeCFFI.lime_font_get_glyph_indices (src, characters);
 		return glyphs;
 		#else
 		return null;
@@ -176,7 +176,7 @@ class Font {
 	public function getGlyphMetrics (glyph:Glyph):GlyphMetrics {
 		
 		#if (lime_cffi && !macro)
-		var value:Dynamic = NativeFont.lime_font_get_glyph_metrics (src, glyph);
+		var value:Dynamic = NativeCFFI.lime_font_get_glyph_metrics (src, glyph);
 		var metrics = new GlyphMetrics ();
 		
 		metrics.advance = new Vector2 (value.horizontalAdvance, value.verticalAdvance);
@@ -203,7 +203,7 @@ class Font {
 		
 		var dataPosition = 0;
 		
-		if (NativeFont.lime_font_render_glyph (src, glyph, bytes)) {
+		if (NativeCFFI.lime_font_render_glyph (src, glyph, bytes)) {
 			
 			var index = bytes.getInt32 (dataPosition); dataPosition += 4;
 			var width = bytes.getInt32 (dataPosition); dataPosition += 4;
@@ -250,12 +250,12 @@ class Font {
 			//
 		//}
 		//
-		//NativeFont.lime_font_set_size (src, fontSize);
+		//NativeCFFI.lime_font_set_size (src, fontSize);
 		//
 		//var bytes = new ByteArray ();
 		//bytes.endian = (System.endianness == BIG_ENDIAN ? "bigEndian" : "littleEndian");
 		//
-		//if (NativeFont.lime_font_render_glyphs (src, glyphList, bytes)) {
+		//if (NativeCFFI.lime_font_render_glyphs (src, glyphList, bytes)) {
 			//
 			//bytes.position = 0;
 			//
@@ -402,11 +402,11 @@ class Font {
 		
 		__fontPathWithoutDirectory = null;
 		
-		src = NativeFont.lime_font_load (bytes);
+		src = NativeCFFI.lime_font_load (bytes);
 		
 		if (src != null && name == null) {
 			
-			name = cast NativeFont.lime_font_get_family_name (src);
+			name = cast NativeCFFI.lime_font_get_family_name (src);
 			
 		}
 		
@@ -423,11 +423,11 @@ class Font {
 		
 		__fontPathWithoutDirectory = Path.withoutDirectory (__fontPath);
 		
-		src = NativeFont.lime_font_load (__fontPath);
+		src = NativeCFFI.lime_font_load (__fontPath);
 		
 		if (src != null && name == null) {
 			
-			name = cast NativeFont.lime_font_get_family_name (src);
+			name = cast NativeCFFI.lime_font_get_family_name (src);
 			
 		}
 		
@@ -534,7 +534,7 @@ class Font {
 	@:noCompletion private function __setSize (size:Int):Void {
 		
 		#if (lime_cffi && !macro)
-		NativeFont.lime_font_set_size (src, size);
+		NativeCFFI.lime_font_set_size (src, size);
 		#end
 		
 	}
@@ -550,7 +550,7 @@ class Font {
 	private function get_ascender ():Int {
 		
 		#if (lime_cffi && !macro)
-		return NativeFont.lime_font_get_ascender (src);
+		return NativeCFFI.lime_font_get_ascender (src);
 		#else
 		return 0;
 		#end
@@ -561,7 +561,7 @@ class Font {
 	private function get_descender ():Int {
 		
 		#if (lime_cffi && !macro)
-		return NativeFont.lime_font_get_descender (src);
+		return NativeCFFI.lime_font_get_descender (src);
 		#else
 		return 0;
 		#end
@@ -572,7 +572,7 @@ class Font {
 	private function get_height ():Int {
 		
 		#if (lime_cffi && !macro)
-		return NativeFont.lime_font_get_height (src);
+		return NativeCFFI.lime_font_get_height (src);
 		#else
 		return 0;
 		#end
@@ -583,7 +583,7 @@ class Font {
 	private function get_numGlyphs ():Int {
 		
 		#if (lime_cffi && !macro)
-		return NativeFont.lime_font_get_num_glyphs (src);
+		return NativeCFFI.lime_font_get_num_glyphs (src);
 		#else
 		return 0;
 		#end
@@ -594,7 +594,7 @@ class Font {
 	private function get_underlinePosition ():Int {
 		
 		#if (lime_cffi && !macro)
-		return NativeFont.lime_font_get_underline_position (src);
+		return NativeCFFI.lime_font_get_underline_position (src);
 		#else
 		return 0;
 		#end
@@ -605,7 +605,7 @@ class Font {
 	private function get_underlineThickness ():Int {
 		
 		#if (lime_cffi && !macro)
-		return NativeFont.lime_font_get_underline_thickness (src);
+		return NativeCFFI.lime_font_get_underline_thickness (src);
 		#else
 		return 0;
 		#end
@@ -616,7 +616,7 @@ class Font {
 	private function get_unitsPerEM ():Int {
 		
 		#if (lime_cffi && !macro)
-		return NativeFont.lime_font_get_units_per_em (src);
+		return NativeCFFI.lime_font_get_units_per_em (src);
 		#else
 		return 0;
 		#end
