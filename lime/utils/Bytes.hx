@@ -50,7 +50,7 @@ abstract Bytes(HaxeBytes) from HaxeBytes to HaxeBytes {
 	
 	public static function fromFile (path:String):Bytes {
 		
-		#if (!html5 && !macro)
+		#if (sys && lime_cffi && !macro)
 		#if !cs
 		var bytes = Bytes.alloc (0);
 		NativeCFFI.lime_bytes_read_file (path, bytes);
