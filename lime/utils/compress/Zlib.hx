@@ -2,19 +2,18 @@ package lime.utils.compress;
 
 
 import haxe.io.Bytes;
+import lime._backend.native.NativeCFFI;
 
 #if flash
 import flash.utils.ByteArray;
-#end
-
-#if !macro
-@:build(lime.system.CFFI.build())
 #end
 
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+
+@:access(lime._backend.native.NativeCFFI)
 
 
 class Zlib {
@@ -25,9 +24,9 @@ class Zlib {
 		#if (lime_cffi && !macro)
 		
 		#if !cs
-		return lime_zlib_compress (bytes, Bytes.alloc (0));
+		return NativeCFFI.lime_zlib_compress (bytes, Bytes.alloc (0));
 		#else
-		var data:Dynamic = lime_zlib_compress (bytes, null);
+		var data:Dynamic = NativeCFFI.lime_zlib_compress (bytes, null);
 		if (data == null) return null;
 		return @:privateAccess new Bytes (data.length, data.b);
 		#end
@@ -61,9 +60,9 @@ class Zlib {
 		#if (lime_cffi && !macro)
 		
 		#if !cs
-		return lime_zlib_decompress (bytes, Bytes.alloc (0));
+		return NativeCFFI.lime_zlib_decompress (bytes, Bytes.alloc (0));
 		#else
-		var data:Dynamic = lime_zlib_decompress (bytes, null);
+		var data:Dynamic = NativeCFFI.lime_zlib_decompress (bytes, null);
 		if (data == null) return null;
 		return @:privateAccess new Bytes (data.length, data.b);
 		#end
@@ -90,19 +89,6 @@ class Zlib {
 		#end
 		
 	}
-	
-	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	#if (lime_cffi && !macro)
-	@:cffi private static function lime_zlib_compress (data:Dynamic, bytes:Dynamic):Dynamic;
-	@:cffi private static function lime_zlib_decompress (data:Dynamic, bytes:Dynamic):Dynamic;
-	#end
 	
 	
 }

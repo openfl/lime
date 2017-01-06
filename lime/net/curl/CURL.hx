@@ -1,9 +1,9 @@
 package lime.net.curl;
 
 
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
+import lime._backend.native.NativeCFFI;
+
+@:access(lime._backend.native.NativeCFFI)
 
 
 abstract CURL(Float) from Float to Float {
@@ -20,7 +20,7 @@ abstract CURL(Float) from Float to Float {
 	public static function getDate (date:String, now:Int):Int {
 		
 		#if (lime_cffi && lime_curl && !macro)
-		return cast lime_curl_getdate (date, cast now);
+		return cast NativeCFFI.lime_curl_getdate (date, cast now);
 		#else
 		return 0;
 		#end
@@ -31,7 +31,7 @@ abstract CURL(Float) from Float to Float {
 	public static function globalCleanup ():Void {
 		
 		#if (lime_cffi && lime_curl && !macro)
-		lime_curl_global_cleanup ();
+		NativeCFFI.lime_curl_global_cleanup ();
 		#end
 		
 	}
@@ -40,7 +40,7 @@ abstract CURL(Float) from Float to Float {
 	public static function globalInit (flags:Int):CURLCode {
 		
 		#if (lime_cffi && lime_curl && !macro)
-		return cast lime_curl_global_init (flags);
+		return cast NativeCFFI.lime_curl_global_init (flags);
 		#else
 		return cast 0;
 		#end
@@ -51,7 +51,7 @@ abstract CURL(Float) from Float to Float {
 	public static function version ():String {
 		
 		#if (lime_cffi && lime_curl && !macro)
-		return lime_curl_version ();
+		return NativeCFFI.lime_curl_version ();
 		#else
 		return null;
 		#end
@@ -62,7 +62,7 @@ abstract CURL(Float) from Float to Float {
 	public static function versionInfo (type:CURLVersion):Dynamic {
 		
 		#if (lime_cffi && lime_curl && !macro)
-		return lime_curl_version_info (cast (type, Int));
+		return NativeCFFI.lime_curl_version_info (cast (type, Int));
 		#else
 		return null;
 		#end
@@ -75,15 +75,6 @@ abstract CURL(Float) from Float to Float {
 		return (a:Float) > b;
 		
 	}
-	
-	
-	#if (lime_cffi && lime_curl && !macro)
-	@:cffi private static function lime_curl_getdate (date:String, now:Float):Float;
-	@:cffi private static function lime_curl_global_cleanup ():Void;
-	@:cffi private static function lime_curl_global_init (flags:Int):Int;
-	@:cffi private static function lime_curl_version ():Dynamic;
-	@:cffi private static function lime_curl_version_info (type:Int):Dynamic;
-	#end
 	
 	
 }

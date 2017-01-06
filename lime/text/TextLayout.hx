@@ -2,18 +2,16 @@ package lime.text;
 
 
 import haxe.io.Bytes;
+import lime._backend.native.NativeCFFI;
 import lime.math.Vector2;
 import lime.system.System;
-
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
 
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
 
+@:access(lime._backend.native.NativeCFFI)
 @:access(lime.text.Font)
 
 
@@ -51,7 +49,7 @@ class TextLayout {
 		__dirty = true;
 		
 		#if (lime_cffi && !macro)
-		__handle = lime_text_layout_create (__direction, __script, __language);
+		__handle = NativeCFFI.lime_text_layout_create (__direction, __script, __language);
 		#end
 	}
 	
@@ -71,7 +69,7 @@ class TextLayout {
 				
 			}
 			
-			var data = lime_text_layout_position (__handle, font.src, size, text, #if cs null #else __buffer #end);
+			var data = NativeCFFI.lime_text_layout_position (__handle, font.src, size, text, #if cs null #else __buffer #end);
 			var position = 0;
 			
 			if (__buffer.length > 4) {
@@ -134,7 +132,7 @@ class TextLayout {
 		__direction = value;
 		
 		#if (lime_cffi && !macro)
-		lime_text_layout_set_direction (__handle, value);
+		NativeCFFI.lime_text_layout_set_direction (__handle, value);
 		#end
 		
 		__dirty = true;
@@ -184,7 +182,7 @@ class TextLayout {
 		__language = value;
 		
 		#if (lime_cffi && !macro)
-		lime_text_layout_set_language (__handle, value);
+		NativeCFFI.lime_text_layout_set_language (__handle, value);
 		#end
 		
 		__dirty = true;
@@ -208,7 +206,7 @@ class TextLayout {
 		__script = value;
 		
 		#if (lime_cffi && !macro)
-		lime_text_layout_set_script (__handle, value);
+		NativeCFFI.lime_text_layout_set_script (__handle, value);
 		#end
 		
 		__dirty = true;
@@ -238,22 +236,6 @@ class TextLayout {
 		return value;
 		
 	}
-	
-	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	#if (lime_cffi && !macro)
-	@:cffi private static function lime_text_layout_create (direction:Int, script:String, language:String):Dynamic;
-	@:cffi private static function lime_text_layout_position (textHandle:Dynamic, fontHandle:Dynamic, size:Int, textString:String, data:Dynamic):Dynamic;
-	@:cffi private static function lime_text_layout_set_direction (textHandle:Dynamic, direction:Int):Void;
-	@:cffi private static function lime_text_layout_set_language (textHandle:Dynamic, language:String):Void;
-	@:cffi private static function lime_text_layout_set_script (textHandle:Dynamic, script:String):Void;
-	#end
 	
 	
 }

@@ -3,14 +3,12 @@ package lime.utils;
 
 import haxe.io.Bytes in HaxeBytes;
 import haxe.io.BytesData;
+import lime._backend.native.NativeCFFI;
 import lime.app.Future;
 import lime.net.HTTPRequest;
 
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
-
 @:access(haxe.io.Bytes)
+@:access(lime._backend.native.NativeCFFI)
 @:forward()
 
 
@@ -55,10 +53,10 @@ abstract Bytes(HaxeBytes) from HaxeBytes to HaxeBytes {
 		#if (!html5 && !macro)
 		#if !cs
 		var bytes = Bytes.alloc (0);
-		lime_bytes_read_file (path, bytes);
+		NativeCFFI.lime_bytes_read_file (path, bytes);
 		if (bytes.length > 0) return bytes;
 		#else
-		var data:Dynamic = lime_bytes_read_file (path);
+		var data:Dynamic = NativeCFFI.lime_bytes_read_file (path);
 		if (data != null) return new Bytes (data.length, data.b);
 		#end
 		#end
@@ -101,24 +99,10 @@ abstract Bytes(HaxeBytes) from HaxeBytes to HaxeBytes {
 	#if (lime_cffi && !macro)
 	public static function __fromNativePointer (data:Dynamic, length:Int):Bytes {
 		
-		var bytes:Dynamic = lime_bytes_from_data_pointer (data, length);
+		var bytes:Dynamic = NativeCFFI.lime_bytes_from_data_pointer (data, length);
 		return new Bytes (bytes.length, bytes.b);
 		
 	}
-	#end
-	
-	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	#if !macro
-	@:cffi private static function lime_bytes_from_data_pointer (data:Float, length:Int):Dynamic;
-	@:cffi private static function lime_bytes_get_data_pointer (data:Dynamic):Float;
-	@:cffi private static function lime_bytes_read_file (path:String, bytes:Dynamic):Dynamic;
 	#end
 	
 	

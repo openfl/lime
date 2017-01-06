@@ -1,11 +1,10 @@
 package lime.graphics.cairo;
 
 
+import lime._backend.native.NativeCFFI;
 import lime.system.CFFIPointer;
 
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
+@:access(lime._backend.native.NativeCFFI)
 
 
 abstract CairoFontFace(CFFIPointer) from CFFIPointer to CFFIPointer {
@@ -20,25 +19,13 @@ abstract CairoFontFace(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	public function status ():CairoStatus {
 		
-		#if (lime_cairo && !macro)
-		return lime_cairo_font_face_status (this);
+		#if (lime_cffi && lime_cairo && !macro)
+		return NativeCFFI.lime_cairo_font_face_status (this);
 		#else
 		return 0;
 		#end
 		
 	}
-	
-	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	#if (lime_cffi && !macro)
-	@:cffi private static function lime_cairo_font_face_status (handle:CFFIPointer):Int;
-	#end
 	
 	
 }

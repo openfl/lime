@@ -2,15 +2,14 @@ package lime.utils.compress;
 
 
 import haxe.io.Bytes;
-
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
+import lime._backend.native.NativeCFFI;
 
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+
+@:access(lime._backend.native.NativeCFFI)
 
 
 class GZip {
@@ -21,9 +20,9 @@ class GZip {
 		#if (lime_cffi && !macro)
 		
 		#if !cs
-		return lime_gzip_compress (bytes, Bytes.alloc (0));
+		return NativeCFFI.lime_gzip_compress (bytes, Bytes.alloc (0));
 		#else
-		var data:Dynamic = lime_gzip_compress (bytes, null);
+		var data:Dynamic = NativeCFFI.lime_gzip_compress (bytes, null);
 		if (data == null) return null;
 		return @:privateAccess new Bytes (data.length, data.b);
 		#end
@@ -47,9 +46,9 @@ class GZip {
 		#if (lime_cffi && !macro)
 		
 		#if !cs
-		return lime_gzip_decompress (bytes, Bytes.alloc (0));
+		return NativeCFFI.lime_gzip_decompress (bytes, Bytes.alloc (0));
 		#else
-		var data:Dynamic = lime_gzip_decompress (bytes, null);
+		var data:Dynamic = NativeCFFI.lime_gzip_decompress (bytes, null);
 		if (data == null) return null;
 		return @:privateAccess new Bytes (data.length, data.b);
 		#end
@@ -66,19 +65,6 @@ class GZip {
 		#end
 		
 	}
-	
-	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	#if (lime_cffi && !macro)
-	@:cffi private static function lime_gzip_compress (data:Dynamic, bytes:Dynamic):Dynamic;
-	@:cffi private static function lime_gzip_decompress (data:Dynamic, bytes:Dynamic):Dynamic;
-	#end
 	
 	
 }

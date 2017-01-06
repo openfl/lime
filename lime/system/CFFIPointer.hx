@@ -1,9 +1,10 @@
 package lime.system;
 
 
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
+import lime._backend.native.NativeCFFI;
+
+@:access(lime._backend.native.NativeCFFI)
+
 
 abstract CFFIPointer(Dynamic) from Dynamic to Dynamic {
 	
@@ -20,7 +21,7 @@ abstract CFFIPointer(Dynamic) from Dynamic to Dynamic {
 		if (this != null) {
 			
 			#if (lime_cffi && !macro)
-			return lime_cffi_get_native_pointer (this);
+			return NativeCFFI.lime_cffi_get_native_pointer (this);
 			#end
 			
 		}
@@ -42,18 +43,6 @@ abstract CFFIPointer(Dynamic) from Dynamic to Dynamic {
 	@:noCompletion @:op(A <= B) private static inline function lessThanOrEqualPointer (a:CFFIPointer, b:CFFIPointer):Bool { return a.get () <= b.get (); }
 	@:noCompletion @:op(A != B) private static inline function notEquals (a:CFFIPointer, b:Int):Bool { return a.get () != b; }
 	@:noCompletion @:op(A != B) private static inline function notEqualsPointer (a:CFFIPointer, b:CFFIPointer):Bool { return a.get () != b.get (); }
-	
-	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	#if (lime_cffi && !macro)
-	@:cffi private static function lime_cffi_get_native_pointer (ptr:Dynamic):Float;
-	#end
 	
 	
 }

@@ -1,14 +1,14 @@
 package lime.system;
 
 
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
+import lime._backend.native.NativeCFFI;
 
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+
+@:access(lime._backend.native.NativeCFFI)
 
 
 class JNI {
@@ -61,7 +61,7 @@ class JNI {
 		init ();
 		
 		#if (android && lime_cffi && !macro)
-		return new JNIMemberField (lime_jni_create_field (className, memberName, signature, false));
+		return new JNIMemberField (NativeCFFI.lime_jni_create_field (className, memberName, signature, false));
 		#else
 		return null;
 		#end
@@ -75,7 +75,7 @@ class JNI {
 		
 		#if (android && lime_cffi && !macro)
 		className = className.split (".").join ("/");
-		var handle = lime_jni_create_method (className, memberName, signature, false, quietFail);
+		var handle = NativeCFFI.lime_jni_create_method (className, memberName, signature, false, quietFail);
 		
 		if (handle == null) {
 			
@@ -103,7 +103,7 @@ class JNI {
 		init ();
 		
 		#if (android && lime_cffi && !macro)
-		return new JNIStaticField (lime_jni_create_field (className, memberName, signature, true));
+		return new JNIStaticField (NativeCFFI.lime_jni_create_field (className, memberName, signature, true));
 		#else
 		return null;
 		#end
@@ -117,7 +117,7 @@ class JNI {
 		
 		#if (android && lime_cffi && !macro)
 		className = className.split (".").join ("/");
-		var handle = lime_jni_create_method (className, memberName, signature, true, quietFail);
+		var handle = NativeCFFI.lime_jni_create_method (className, memberName, signature, true, quietFail);
 		
 		if (handle == null) {
 			
@@ -145,7 +145,7 @@ class JNI {
 		init ();
 		
 		#if (android && lime_cffi && !macro)
-		return lime_jni_get_env ();
+		return NativeCFFI.lime_jni_get_env ();
 		#else
 		return null;
 		#end
@@ -160,7 +160,7 @@ class JNI {
 			initialized = true;
 			
 			#if android
-			var method = System.load ("lime", "lime_jni_init_callback", 1);
+			var method = System.load ("lime", "NativeCFFI.lime_jni_init_callback", 1);
 			method (onCallback);
 			#end
 			
@@ -190,7 +190,7 @@ class JNI {
 		// TODO: Rename this?
 		
 		#if (android && lime_cffi && !macro)
-		lime_jni_post_ui_callback (callback);
+		NativeCFFI.lime_jni_post_ui_callback (callback);
 		#else
 		callback ();
 		#end
@@ -198,29 +198,10 @@ class JNI {
 	}
 	
 	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	#if (android && lime_cffi && !macro)
-	@:cffi private static function lime_jni_call_member (jniMethod:Dynamic, jniObject:Dynamic, args:Dynamic):Dynamic;
-	@:cffi private static function lime_jni_call_static (jniMethod:Dynamic, args:Dynamic):Dynamic;
-	@:cffi private static function lime_jni_create_field (className:String, field:String, signature:String, isStatic:Bool):Dynamic;
-	@:cffi private static function lime_jni_create_method (className:String, method:String, signature:String, isStatic:Bool, quiet:Bool):Dynamic;
-	@:cffi private static function lime_jni_get_env ():Float;
-	@:cffi private static function lime_jni_post_ui_callback (callback:Dynamic):Void;
-	#end
-	
-	
 }
 
 
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
+@:access(lime._backend.native.NativeCFFI)
 
 
 class JNIMemberField {
@@ -239,7 +220,7 @@ class JNIMemberField {
 	public function get (jobject:Dynamic):Dynamic {
 		
 		#if (android && lime_cffi && !macro)
-		return lime_jni_get_member (field, jobject);
+		return NativeCFFI.lime_jni_get_member (field, jobject);
 		#else
 		return null;
 		#end
@@ -250,32 +231,17 @@ class JNIMemberField {
 	public function set (jobject:Dynamic, value:Dynamic):Dynamic {
 		
 		#if (android && lime_cffi && !macro)
-		lime_jni_set_member (field, jobject, value);
+		NativeCFFI.lime_jni_set_member (field, jobject, value);
 		#end
 		return value;
 		
 	}
 	
 	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	#if (android && lime_cffi && !macro)
-	@:cffi private static function lime_jni_get_member (jniField:Dynamic, jniObject:Dynamic):Dynamic;
-	@:cffi private static function lime_jni_set_member (jniField:Dynamic, jniObject:Dynamic, value:Dynamic):Void;
-	#end
-	
-	
 }
 
 
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
+@:access(lime._backend.native.NativeCFFI)
 
 
 class JNIStaticField {
@@ -294,7 +260,7 @@ class JNIStaticField {
 	public function get ():Dynamic {
 		
 		#if (android && lime_cffi && !macro)
-		return lime_jni_get_static (field);
+		return NativeCFFI.lime_jni_get_static (field);
 		#else
 		return null;
 		#end
@@ -305,32 +271,17 @@ class JNIStaticField {
 	public function set (value:Dynamic):Dynamic {
 		
 		#if (android && lime_cffi && !macro)
-		lime_jni_set_static (field, value);
+		NativeCFFI.lime_jni_set_static (field, value);
 		#end
 		return value;
 		
 	}
 	
 	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	#if (android && lime_cffi && !macro)
-	@:cffi private static function lime_jni_get_static (jniField:Dynamic):Dynamic;
-	@:cffi private static function lime_jni_set_static (jniField:Dynamic, value:Dynamic):Void;
-	#end
-	
-	
 }
 
 
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
+@:access(lime._backend.native.NativeCFFI)
 
 
 class JNIMethod {
@@ -349,7 +300,7 @@ class JNIMethod {
 		
 		#if (android && lime_cffi && !macro)
 		var jobject = args.shift ();
-		return lime_jni_call_member (method, jobject, args);
+		return NativeCFFI.lime_jni_call_member (method, jobject, args);
 		#else
 		return null;
 		#end
@@ -360,7 +311,7 @@ class JNIMethod {
 	public function callStatic (args:Array<Dynamic>):Dynamic {
 		
 		#if (android && lime_cffi && !macro)
-		return lime_jni_call_static (method, args);
+		return NativeCFFI.lime_jni_call_static (method, args);
 		#else
 		return null;
 		#end
@@ -396,19 +347,6 @@ class JNIMethod {
 		}
 		
 	}
-	
-	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	#if (android && lime_cffi && !macro)
-	@:cffi private static function lime_jni_call_member (jniMethod:Dynamic, jniObject:Dynamic, args:Dynamic):Dynamic;
-	@:cffi private static function lime_jni_call_static (jniMethod:Dynamic, args:Dynamic):Dynamic;
-	#end
 	
 	
 }

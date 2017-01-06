@@ -1,6 +1,7 @@
 package lime.ui;
 
 
+import lime._backend.native.NativeCFFI;
 import lime.app.Event;
 import lime.system.BackgroundWorker;
 import lime.utils.Resource;
@@ -9,14 +10,12 @@ import lime.utils.Resource;
 import sys.io.File;
 #end
 
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
-
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+
+@:access(lime._backend.native.NativeCFFI)
 
 
 class FileDialog {
@@ -50,19 +49,19 @@ class FileDialog {
 				
 				case OPEN:
 					
-					worker.sendComplete (lime_file_dialog_open_file (filter, defaultPath));
+					worker.sendComplete (NativeCFFI.lime_file_dialog_open_file (filter, defaultPath));
 				
 				case OPEN_MULTIPLE:
 					
-					worker.sendComplete (lime_file_dialog_open_files (filter, defaultPath));
+					worker.sendComplete (NativeCFFI.lime_file_dialog_open_files (filter, defaultPath));
 				
 				case OPEN_DIRECTORY:
 					
-					worker.sendComplete (lime_file_dialog_open_directory (filter, defaultPath));
+					worker.sendComplete (NativeCFFI.lime_file_dialog_open_directory (filter, defaultPath));
 				
 				case SAVE:
 					
-					worker.sendComplete (lime_file_dialog_save_file (filter, defaultPath));
+					worker.sendComplete (NativeCFFI.lime_file_dialog_save_file (filter, defaultPath));
 				
 			}
 			
@@ -126,7 +125,7 @@ class FileDialog {
 		
 		worker.doWork.add (function (_) {
 			
-			worker.sendComplete (lime_file_dialog_open_file (filter, defaultPath));
+			worker.sendComplete (NativeCFFI.lime_file_dialog_open_file (filter, defaultPath));
 			
 		});
 		
@@ -170,7 +169,7 @@ class FileDialog {
 		
 		worker.doWork.add (function (_) {
 			
-			worker.sendComplete (lime_file_dialog_save_file (filter, defaultPath));
+			worker.sendComplete (NativeCFFI.lime_file_dialog_save_file (filter, defaultPath));
 			
 		});
 		
@@ -204,21 +203,6 @@ class FileDialog {
 		#end
 		
 	}
-	
-	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	#if lime_cffi
-	@:cffi private static function lime_file_dialog_open_directory (filter:String, defaultPath:String):Dynamic;
-	@:cffi private static function lime_file_dialog_open_file (filter:String, defaultPath:String):Dynamic;
-	@:cffi private static function lime_file_dialog_open_files (filter:String, defaultPath:String):Dynamic;
-	@:cffi private static function lime_file_dialog_save_file (filter:String, defaultPath:String):Dynamic;
-	#end
 	
 	
 }

@@ -3,6 +3,7 @@ package lime.audio;
 
 import haxe.io.Bytes;
 import haxe.io.Path;
+import lime._backend.native.NativeCFFI;
 import lime.app.Future;
 import lime.app.Promise;
 import lime.audio.openal.AL;
@@ -22,11 +23,8 @@ import lime.audio.fmod.FMODMode;
 import lime.audio.fmod.FMODSound;
 #end
 
+@:access(lime._backend.native.NativeCFFI)
 @:access(lime.Assets)
-
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
 
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
@@ -100,11 +98,11 @@ class AudioBuffer {
 		var audioBuffer = new AudioBuffer ();
 		audioBuffer.data = new UInt8Array (Bytes.alloc (0));
 		
-		return lime_audio_load (bytes, audioBuffer);
+		return NativeCFFI.lime_audio_load (bytes, audioBuffer);
 		
 		#else
 		
-		var data:Dynamic = lime_audio_load (bytes, null);
+		var data:Dynamic = NativeCFFI.lime_audio_load (bytes, null);
 		
 		if (data != null) {
 			
@@ -179,11 +177,11 @@ class AudioBuffer {
 		var audioBuffer = new AudioBuffer ();
 		audioBuffer.data = new UInt8Array (Bytes.alloc (0));
 		
-		return lime_audio_load (path, audioBuffer);
+		return NativeCFFI.lime_audio_load (path, audioBuffer);
 		
 		#else
 		
-		var data:Dynamic = lime_audio_load (path, null);
+		var data:Dynamic = NativeCFFI.lime_audio_load (path, null);
 		
 		if (data != null) {
 			
@@ -451,18 +449,6 @@ class AudioBuffer {
 		#end
 		
 	}
-	
-	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	#if (lime_cffi && !macro)
-	@:cffi private static function lime_audio_load (data:Dynamic, buffer:Dynamic):Dynamic;
-	#end
 	
 	
 }

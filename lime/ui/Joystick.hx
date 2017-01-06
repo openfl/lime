@@ -1,16 +1,15 @@
 package lime.ui;
 
 
+import lime._backend.native.NativeCFFI;
 import lime.app.Event;
-
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
 
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+
+@:access(lime._backend.native.NativeCFFI)
 
 
 class Joystick {
@@ -85,7 +84,7 @@ class Joystick {
 	@:noCompletion private inline function get_guid ():String {
 		
 		#if (lime_cffi && !macro)
-		return lime_joystick_get_device_guid (this.id);
+		return NativeCFFI.lime_joystick_get_device_guid (this.id);
 		#elseif (js && html5)
 		var devices = __getDeviceData ();
 		return devices[this.id].id;
@@ -99,7 +98,7 @@ class Joystick {
 	@:noCompletion private inline function get_name ():String {
 		
 		#if (lime_cffi && !macro)
-		return lime_joystick_get_device_name (this.id);
+		return NativeCFFI.lime_joystick_get_device_name (this.id);
 		#elseif (js && html5)
 		var devices = __getDeviceData ();
 		return devices[this.id].id;
@@ -113,7 +112,7 @@ class Joystick {
 	@:noCompletion private inline function get_numAxes ():Int {
 		
 		#if (lime_cffi && !macro)
-		return lime_joystick_get_num_axes (this.id);
+		return NativeCFFI.lime_joystick_get_num_axes (this.id);
 		#elseif (js && html5)
 		var devices = __getDeviceData ();
 		return devices[this.id].axes.length;
@@ -127,7 +126,7 @@ class Joystick {
 	@:noCompletion private inline function get_numButtons ():Int {
 		
 		#if (lime_cffi && !macro)
-		return lime_joystick_get_num_buttons (this.id);
+		return NativeCFFI.lime_joystick_get_num_buttons (this.id);
 		#elseif (js && html5)
 		var devices = __getDeviceData ();
 		return devices[this.id].buttons.length;
@@ -141,7 +140,7 @@ class Joystick {
 	@:noCompletion private inline function get_numHats ():Int {
 		
 		#if (lime_cffi && !macro)
-		return lime_joystick_get_num_hats (this.id);
+		return NativeCFFI.lime_joystick_get_num_hats (this.id);
 		#else
 		return 0;
 		#end
@@ -152,29 +151,12 @@ class Joystick {
 	@:noCompletion private inline function get_numTrackballs ():Int {
 		
 		#if (lime_cffi && !macro)
-		return lime_joystick_get_num_trackballs (this.id);
+		return NativeCFFI.lime_joystick_get_num_trackballs (this.id);
 		#else
 		return 0;
 		#end
 		
 	}
-	
-	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	#if (lime_cffi && !macro)
-	@:cffi private static function lime_joystick_get_device_guid (id:Int):Dynamic;
-	@:cffi private static function lime_joystick_get_device_name (id:Int):Dynamic;
-	@:cffi private static function lime_joystick_get_num_axes (id:Int):Int;
-	@:cffi private static function lime_joystick_get_num_buttons (id:Int):Int;
-	@:cffi private static function lime_joystick_get_num_hats (id:Int):Int;
-	@:cffi private static function lime_joystick_get_num_trackballs (id:Int):Int;
-	#end
 	
 	
 }

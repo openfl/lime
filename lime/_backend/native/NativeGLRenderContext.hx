@@ -18,22 +18,13 @@ import lime.utils.Int32Array;
 import lime.system.CFFIPointer;
 import lime.system.System;
 
-#if cpp
-import cpp.Float32;
-#else
-typedef Float32 = Float;
-#end
-
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
-
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
 
 @:allow(lime.ui.Window)
+@:access(lime._backend.native.NativeCFFI)
 
 
 class NativeGLRenderContext {
@@ -403,7 +394,7 @@ class NativeGLRenderContext {
 	public function activeTexture (texture:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_active_texture (texture);
+		NativeCFFI.lime_gl_active_texture (texture);
 		#end
 		
 	}
@@ -413,7 +404,7 @@ class NativeGLRenderContext {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		program.attach (shader);
-		lime_gl_attach_shader (program.id, shader.id);
+		NativeCFFI.lime_gl_attach_shader (program.id, shader.id);
 		#end
 		
 	}
@@ -422,7 +413,7 @@ class NativeGLRenderContext {
 	public function bindAttribLocation (program:GLProgram, index:Int, name:String):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_bind_attrib_location (program.id, index, name);
+		NativeCFFI.lime_gl_bind_attrib_location (program.id, index, name);
 		#end
 		
 	}
@@ -431,7 +422,7 @@ class NativeGLRenderContext {
 	public function bindBuffer (target:Int, buffer:GLBuffer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_bind_buffer (target, buffer == null ? null : buffer.id);
+		NativeCFFI.lime_gl_bind_buffer (target, buffer == null ? null : buffer.id);
 		#end
 		
 	}
@@ -440,7 +431,7 @@ class NativeGLRenderContext {
 	public function bindFramebuffer (target:Int, framebuffer:GLFramebuffer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_bind_framebuffer (target, framebuffer == null ? null : framebuffer.id);
+		NativeCFFI.lime_gl_bind_framebuffer (target, framebuffer == null ? null : framebuffer.id);
 		#end
 		
 	}
@@ -449,7 +440,7 @@ class NativeGLRenderContext {
 	public function bindRenderbuffer (target:Int, renderbuffer:GLRenderbuffer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_bind_renderbuffer (target, renderbuffer == null ? null : renderbuffer.id);
+		NativeCFFI.lime_gl_bind_renderbuffer (target, renderbuffer == null ? null : renderbuffer.id);
 		#end
 		
 	}
@@ -458,7 +449,7 @@ class NativeGLRenderContext {
 	public function bindTexture (target:Int, texture:GLTexture):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_bind_texture (target, texture == null ? null : texture.id);
+		NativeCFFI.lime_gl_bind_texture (target, texture == null ? null : texture.id);
 		#end
 		
 	}
@@ -467,7 +458,7 @@ class NativeGLRenderContext {
 	public function blendColor (red:Float, green:Float, blue:Float, alpha:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_blend_color (red, green, blue, alpha);
+		NativeCFFI.lime_gl_blend_color (red, green, blue, alpha);
 		#end
 		
 	}
@@ -476,7 +467,7 @@ class NativeGLRenderContext {
 	public function blendEquation (mode:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_blend_equation (mode);
+		NativeCFFI.lime_gl_blend_equation (mode);
 		#end
 		
 	}
@@ -485,7 +476,7 @@ class NativeGLRenderContext {
 	public function blendEquationSeparate (modeRGB:Int, modeAlpha:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_blend_equation_separate (modeRGB, modeAlpha);
+		NativeCFFI.lime_gl_blend_equation_separate (modeRGB, modeAlpha);
 		#end
 		
 	}
@@ -494,7 +485,7 @@ class NativeGLRenderContext {
 	public function blendFunc (sfactor:Int, dfactor:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_blend_func (sfactor, dfactor);
+		NativeCFFI.lime_gl_blend_func (sfactor, dfactor);
 		#end
 		
 	}
@@ -503,7 +494,7 @@ class NativeGLRenderContext {
 	public function blendFuncSeparate (srcRGB:Int, dstRGB:Int, srcAlpha:Int, dstAlpha:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_blend_func_separate (srcRGB, dstRGB, srcAlpha, dstAlpha);
+		NativeCFFI.lime_gl_blend_func_separate (srcRGB, dstRGB, srcAlpha, dstAlpha);
 		#end
 		
 	}
@@ -512,9 +503,9 @@ class NativeGLRenderContext {
 	public function bufferData (target:Int, data:ArrayBufferView, usage:Int):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_buffer_data (target, data.buffer, data.byteOffset, data.byteLength, usage);
+		NativeCFFI.lime_gl_buffer_data (target, data.buffer, data.byteOffset, data.byteLength, usage);
 		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_buffer_data (target, data, data.byteOffset, data.byteLength, usage);
+		NativeCFFI.lime_gl_buffer_data (target, data, data.byteOffset, data.byteLength, usage);
 		#end
 		
 	}
@@ -523,9 +514,9 @@ class NativeGLRenderContext {
 	public function bufferSubData (target:Int, offset:Int, data:ArrayBufferView):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_buffer_sub_data (target, offset, data.buffer, data.byteOffset, data.byteLength);
+		NativeCFFI.lime_gl_buffer_sub_data (target, offset, data.buffer, data.byteOffset, data.byteLength);
 		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_buffer_sub_data (target, offset, data, data.byteOffset, data.byteLength);
+		NativeCFFI.lime_gl_buffer_sub_data (target, offset, data, data.byteOffset, data.byteLength);
 		#end
 		
 	}
@@ -534,7 +525,7 @@ class NativeGLRenderContext {
 	public function checkFramebufferStatus (target:Int):Int {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return lime_gl_check_framebuffer_status (target);
+		return NativeCFFI.lime_gl_check_framebuffer_status (target);
 		#else
 		return 0;
 		#end
@@ -545,7 +536,7 @@ class NativeGLRenderContext {
 	public function clear (mask:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_clear (mask);
+		NativeCFFI.lime_gl_clear (mask);
 		#end
 		
 	}
@@ -554,7 +545,7 @@ class NativeGLRenderContext {
 	public function clearColor (red:Float, green:Float, blue:Float, alpha:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_clear_color (red, green, blue, alpha);
+		NativeCFFI.lime_gl_clear_color (red, green, blue, alpha);
 		#end
 		
 	}
@@ -563,7 +554,7 @@ class NativeGLRenderContext {
 	public function clearDepth (depth:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_clear_depth (depth);
+		NativeCFFI.lime_gl_clear_depth (depth);
 		#end
 		
 	}
@@ -572,7 +563,7 @@ class NativeGLRenderContext {
 	public function clearStencil (s:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_clear_stencil (s);
+		NativeCFFI.lime_gl_clear_stencil (s);
 		#end
 		
 	}
@@ -581,7 +572,7 @@ class NativeGLRenderContext {
 	public function colorMask (red:Bool, green:Bool, blue:Bool, alpha:Bool):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_color_mask (red, green, blue, alpha);
+		NativeCFFI.lime_gl_color_mask (red, green, blue, alpha);
 		#end
 		
 	}
@@ -590,7 +581,7 @@ class NativeGLRenderContext {
 	public function compileShader (shader:GLShader):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_compile_shader (shader.id);
+		NativeCFFI.lime_gl_compile_shader (shader.id);
 		#end
 		
 	}
@@ -600,9 +591,9 @@ class NativeGLRenderContext {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
 		var buffer = data == null ? null : data.buffer;
-		lime_gl_compressed_tex_image_2d (target, level, internalformat, width, height, border, buffer, data == null ? 0 : data.byteOffset);
+		NativeCFFI.lime_gl_compressed_tex_image_2d (target, level, internalformat, width, height, border, buffer, data == null ? 0 : data.byteOffset);
 		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_compressed_tex_image_2d (target, level, internalformat, width, height, border, data == null ? null : data , data == null ? null : data.byteOffset);
+		NativeCFFI.lime_gl_compressed_tex_image_2d (target, level, internalformat, width, height, border, data == null ? null : data , data == null ? null : data.byteOffset);
 		#end
 		
 	}
@@ -612,9 +603,9 @@ class NativeGLRenderContext {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
 		var buffer = data == null ? null : data.buffer;
-		lime_gl_compressed_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, buffer, data == null ? 0 : data.byteOffset);
+		NativeCFFI.lime_gl_compressed_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, buffer, data == null ? 0 : data.byteOffset);
 		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_compressed_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, data == null ? null : data, data == null ? null : data.byteOffset);
+		NativeCFFI.lime_gl_compressed_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, data == null ? null : data, data == null ? null : data.byteOffset);
 		#end
 		
 	}
@@ -623,7 +614,7 @@ class NativeGLRenderContext {
 	public function copyTexImage2D (target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_copy_tex_image_2d (target, level, internalformat, x, y, width, height, border);
+		NativeCFFI.lime_gl_copy_tex_image_2d (target, level, internalformat, x, y, width, height, border);
 		#end
 		
 	}
@@ -632,7 +623,7 @@ class NativeGLRenderContext {
 	public function copyTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, x:Int, y:Int, width:Int, height:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_copy_tex_sub_image_2d (target, level, xoffset, yoffset, x, y, width, height);
+		NativeCFFI.lime_gl_copy_tex_sub_image_2d (target, level, xoffset, yoffset, x, y, width, height);
 		#end
 		
 	}
@@ -641,7 +632,7 @@ class NativeGLRenderContext {
 	public function createBuffer ():GLBuffer {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return new GLBuffer (version, lime_gl_create_buffer ());
+		return new GLBuffer (version, NativeCFFI.lime_gl_create_buffer ());
 		#else
 		return null;
 		#end
@@ -652,7 +643,7 @@ class NativeGLRenderContext {
 	public function createFramebuffer ():GLFramebuffer {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return new GLFramebuffer (version, lime_gl_create_framebuffer ());
+		return new GLFramebuffer (version, NativeCFFI.lime_gl_create_framebuffer ());
 		#else
 		return null;
 		#end
@@ -663,7 +654,7 @@ class NativeGLRenderContext {
 	public function createProgram ():GLProgram {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return new GLProgram (version, lime_gl_create_program ());
+		return new GLProgram (version, NativeCFFI.lime_gl_create_program ());
 		#else
 		return null;
 		#end
@@ -674,7 +665,7 @@ class NativeGLRenderContext {
 	public function createRenderbuffer ():GLRenderbuffer {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return new GLRenderbuffer (version, lime_gl_create_render_buffer ());
+		return new GLRenderbuffer (version, NativeCFFI.lime_gl_create_render_buffer ());
 		#else
 		return null;
 		#end
@@ -685,7 +676,7 @@ class NativeGLRenderContext {
 	public function createShader (type:Int):GLShader {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return new GLShader (version, lime_gl_create_shader (type));
+		return new GLShader (version, NativeCFFI.lime_gl_create_shader (type));
 		#else
 		return null;
 		#end
@@ -696,7 +687,7 @@ class NativeGLRenderContext {
 	public function createTexture ():GLTexture {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return new GLTexture (version, lime_gl_create_texture ());
+		return new GLTexture (version, NativeCFFI.lime_gl_create_texture ());
 		#else
 		return null;
 		#end
@@ -707,7 +698,7 @@ class NativeGLRenderContext {
 	public function cullFace (mode:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_cull_face (mode);
+		NativeCFFI.lime_gl_cull_face (mode);
 		#end
 		
 	}
@@ -716,7 +707,7 @@ class NativeGLRenderContext {
 	public function deleteBuffer (buffer:GLBuffer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_delete_buffer (buffer.id);
+		NativeCFFI.lime_gl_delete_buffer (buffer.id);
 		buffer.invalidate ();
 		#end
 		
@@ -726,7 +717,7 @@ class NativeGLRenderContext {
 	public function deleteFramebuffer (framebuffer:GLFramebuffer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_delete_framebuffer (framebuffer.id);
+		NativeCFFI.lime_gl_delete_framebuffer (framebuffer.id);
 		framebuffer.invalidate ();
 		#end
 		
@@ -736,7 +727,7 @@ class NativeGLRenderContext {
 	public function deleteProgram (program:GLProgram):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_delete_program (program.id);
+		NativeCFFI.lime_gl_delete_program (program.id);
 		program.invalidate ();
 		#end
 		
@@ -746,7 +737,7 @@ class NativeGLRenderContext {
 	public function deleteRenderbuffer (renderbuffer:GLRenderbuffer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_delete_render_buffer (renderbuffer.id);
+		NativeCFFI.lime_gl_delete_render_buffer (renderbuffer.id);
 		renderbuffer.invalidate ();
 		#end
 		
@@ -756,7 +747,7 @@ class NativeGLRenderContext {
 	public function deleteShader (shader:GLShader):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_delete_shader (shader.id);
+		NativeCFFI.lime_gl_delete_shader (shader.id);
 		shader.invalidate ();
 		#end
 		
@@ -766,7 +757,7 @@ class NativeGLRenderContext {
 	public function deleteTexture (texture:GLTexture):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_delete_texture (texture.id);
+		NativeCFFI.lime_gl_delete_texture (texture.id);
 		texture.invalidate ();
 		#end
 		
@@ -776,7 +767,7 @@ class NativeGLRenderContext {
 	public function depthFunc (func:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_depth_func (func);
+		NativeCFFI.lime_gl_depth_func (func);
 		#end
 		
 	}
@@ -785,7 +776,7 @@ class NativeGLRenderContext {
 	public function depthMask (flag:Bool):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_depth_mask (flag);
+		NativeCFFI.lime_gl_depth_mask (flag);
 		#end
 		
 	}
@@ -794,7 +785,7 @@ class NativeGLRenderContext {
 	public function depthRange (zNear:Float, zFar:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_depth_range (zNear, zFar);
+		NativeCFFI.lime_gl_depth_range (zNear, zFar);
 		#end
 		
 	}
@@ -803,7 +794,7 @@ class NativeGLRenderContext {
 	public function detachShader (program:GLProgram, shader:GLShader):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_detach_shader (program.id, shader.id);
+		NativeCFFI.lime_gl_detach_shader (program.id, shader.id);
 		#end
 		
 	}
@@ -812,7 +803,7 @@ class NativeGLRenderContext {
 	public function disable (cap:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_disable (cap);
+		NativeCFFI.lime_gl_disable (cap);
 		#end
 		
 	}
@@ -821,7 +812,7 @@ class NativeGLRenderContext {
 	public function disableVertexAttribArray (index:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_disable_vertex_attrib_array (index);
+		NativeCFFI.lime_gl_disable_vertex_attrib_array (index);
 		#end
 		
 	}
@@ -830,7 +821,7 @@ class NativeGLRenderContext {
 	public function drawArrays (mode:Int, first:Int, count:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_draw_arrays (mode, first, count);
+		NativeCFFI.lime_gl_draw_arrays (mode, first, count);
 		#end
 		
 	}
@@ -839,7 +830,7 @@ class NativeGLRenderContext {
 	public function drawElements (mode:Int, count:Int, type:Int, offset:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_draw_elements (mode, count, type, offset);
+		NativeCFFI.lime_gl_draw_elements (mode, count, type, offset);
 		#end
 		
 	}
@@ -848,7 +839,7 @@ class NativeGLRenderContext {
 	public function enable (cap:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_enable (cap);
+		NativeCFFI.lime_gl_enable (cap);
 		#end
 		
 	}
@@ -857,7 +848,7 @@ class NativeGLRenderContext {
 	public function enableVertexAttribArray (index:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_enable_vertex_attrib_array (index);
+		NativeCFFI.lime_gl_enable_vertex_attrib_array (index);
 		#end
 		
 	}
@@ -866,7 +857,7 @@ class NativeGLRenderContext {
 	public function finish ():Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_finish ();
+		NativeCFFI.lime_gl_finish ();
 		#end
 		
 	}
@@ -875,7 +866,7 @@ class NativeGLRenderContext {
 	public function flush ():Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_flush ();
+		NativeCFFI.lime_gl_flush ();
 		#end
 		
 	}
@@ -884,7 +875,7 @@ class NativeGLRenderContext {
 	public function framebufferRenderbuffer (target:Int, attachment:Int, renderbuffertarget:Int, renderbuffer:GLRenderbuffer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_framebuffer_renderbuffer (target, attachment, renderbuffertarget, renderbuffer.id);
+		NativeCFFI.lime_gl_framebuffer_renderbuffer (target, attachment, renderbuffertarget, renderbuffer.id);
 		#end
 		
 	}
@@ -893,7 +884,7 @@ class NativeGLRenderContext {
 	public function framebufferTexture2D (target:Int, attachment:Int, textarget:Int, texture:GLTexture, level:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_framebuffer_texture2D (target, attachment, textarget, texture.id, level);
+		NativeCFFI.lime_gl_framebuffer_texture2D (target, attachment, textarget, texture.id, level);
 		#end
 		
 	}
@@ -902,7 +893,7 @@ class NativeGLRenderContext {
 	public function frontFace (mode:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_front_face (mode);
+		NativeCFFI.lime_gl_front_face (mode);
 		#end
 		
 	}
@@ -911,7 +902,7 @@ class NativeGLRenderContext {
 	public function generateMipmap (target:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_generate_mipmap (target);
+		NativeCFFI.lime_gl_generate_mipmap (target);
 		#end
 		
 	}
@@ -920,7 +911,7 @@ class NativeGLRenderContext {
 	public function getActiveAttrib (program:GLProgram, index:Int):GLActiveInfo {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		var result:Dynamic = lime_gl_get_active_attrib (program.id, index);
+		var result:Dynamic = NativeCFFI.lime_gl_get_active_attrib (program.id, index);
 		return result;
 		#else
 		return null;
@@ -932,7 +923,7 @@ class NativeGLRenderContext {
 	public function getActiveUniform (program:GLProgram, index:Int):GLActiveInfo {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		var result:Dynamic = lime_gl_get_active_uniform (program.id, index);
+		var result:Dynamic = NativeCFFI.lime_gl_get_active_uniform (program.id, index);
 		return result;
 		#else
 		return null;
@@ -955,7 +946,7 @@ class NativeGLRenderContext {
 	public function getAttribLocation (program:GLProgram, name:String):Int {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_attrib_location (program.id, name);
+		return NativeCFFI.lime_gl_get_attrib_location (program.id, name);
 		#else
 		return 0;
 		#end
@@ -966,7 +957,7 @@ class NativeGLRenderContext {
 	public function getBufferParameter (target:Int, pname:Int):Int /*Dynamic*/ {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_buffer_parameter (target, pname);
+		return NativeCFFI.lime_gl_get_buffer_parameter (target, pname);
 		#else
 		return 0;
 		#end
@@ -977,7 +968,7 @@ class NativeGLRenderContext {
 	public function getContextAttributes ():GLContextAttributes {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		var base:Dynamic = lime_gl_get_context_attributes ();
+		var base:Dynamic = NativeCFFI.lime_gl_get_context_attributes ();
 		base.premultipliedAlpha = false;
 		base.preserveDrawingBuffer = false;
 		return base;
@@ -991,7 +982,7 @@ class NativeGLRenderContext {
 	public function getError ():Int {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_error ();
+		return NativeCFFI.lime_gl_get_error ();
 		#else
 		return 0;
 		#end
@@ -1005,7 +996,7 @@ class NativeGLRenderContext {
 		
 		// TODO: Return extension objects
 		
-		return lime_gl_get_extension (name);
+		return NativeCFFI.lime_gl_get_extension (name);
 		#else
 		return null;
 		#end
@@ -1016,7 +1007,7 @@ class NativeGLRenderContext {
 	public function getFramebufferAttachmentParameter (target:Int, attachment:Int, pname:Int):Int /*Dynamic*/ {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_framebuffer_attachment_parameter (target, attachment, pname);
+		return NativeCFFI.lime_gl_get_framebuffer_attachment_parameter (target, attachment, pname);
 		#else
 		return 0;
 		#end
@@ -1027,7 +1018,7 @@ class NativeGLRenderContext {
 	public function getParameter (pname:Int):Dynamic {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_parameter (pname);
+		return NativeCFFI.lime_gl_get_parameter (pname);
 		#else
 		return null;
 		#end
@@ -1038,7 +1029,7 @@ class NativeGLRenderContext {
 	public function getProgramInfoLog (program:GLProgram):String {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_program_info_log (program.id);
+		return NativeCFFI.lime_gl_get_program_info_log (program.id);
 		#else
 		return null;
 		#end
@@ -1049,7 +1040,7 @@ class NativeGLRenderContext {
 	public function getProgramParameter (program:GLProgram, pname:Int):Int {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_program_parameter (program.id, pname);
+		return NativeCFFI.lime_gl_get_program_parameter (program.id, pname);
 		#else
 		return 0;
 		#end
@@ -1060,7 +1051,7 @@ class NativeGLRenderContext {
 	public function getRenderbufferParameter (target:Int, pname:Int):Int /*Dynamic*/ {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_render_buffer_parameter (target, pname);
+		return NativeCFFI.lime_gl_get_render_buffer_parameter (target, pname);
 		#else
 		return 0;
 		#end
@@ -1071,7 +1062,7 @@ class NativeGLRenderContext {
 	public function getShaderInfoLog (shader:GLShader):String {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_shader_info_log (shader.id);
+		return NativeCFFI.lime_gl_get_shader_info_log (shader.id);
 		#else
 		return null;
 		#end
@@ -1082,7 +1073,7 @@ class NativeGLRenderContext {
 	public function getShaderParameter (shader:GLShader, pname:Int):Int {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_shader_parameter (shader.id, pname);
+		return NativeCFFI.lime_gl_get_shader_parameter (shader.id, pname);
 		#else
 		return 0;
 		#end
@@ -1093,7 +1084,7 @@ class NativeGLRenderContext {
 	public function getShaderPrecisionFormat (shadertype:Int, precisiontype:Int):GLShaderPrecisionFormat {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		var result:Dynamic = lime_gl_get_shader_precision_format (shadertype, precisiontype);
+		var result:Dynamic = NativeCFFI.lime_gl_get_shader_precision_format (shadertype, precisiontype);
 		return result;
 		#else
 		return null;
@@ -1105,7 +1096,7 @@ class NativeGLRenderContext {
 	public function getShaderSource (shader:GLShader):String {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_shader_source (shader.id);
+		return NativeCFFI.lime_gl_get_shader_source (shader.id);
 		#else
 		return null;
 		#end
@@ -1117,7 +1108,7 @@ class NativeGLRenderContext {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		var result = new Array<String> ();
-		lime_gl_get_supported_extensions (result);
+		NativeCFFI.lime_gl_get_supported_extensions (result);
 		return result;
 		#else
 		return null;
@@ -1129,7 +1120,7 @@ class NativeGLRenderContext {
 	public function getTexParameter (target:Int, pname:Int):Int /*Dynamic*/ {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_tex_parameter (target, pname);
+		return NativeCFFI.lime_gl_get_tex_parameter (target, pname);
 		#else
 		return 0;
 		#end
@@ -1140,7 +1131,7 @@ class NativeGLRenderContext {
 	public function getUniform (program:GLProgram, location:GLUniformLocation):Dynamic {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_uniform (program.id, location);
+		return NativeCFFI.lime_gl_get_uniform (program.id, location);
 		#else
 		return null;
 		#end
@@ -1151,7 +1142,7 @@ class NativeGLRenderContext {
 	public function getUniformLocation (program:GLProgram, name:String):GLUniformLocation {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_uniform_location (program.id, name);
+		return NativeCFFI.lime_gl_get_uniform_location (program.id, name);
 		#else
 		return 0;
 		#end
@@ -1162,7 +1153,7 @@ class NativeGLRenderContext {
 	public function getVertexAttrib (index:Int, pname:Int):Int /*Dynamic*/ {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_vertex_attrib (index, pname);
+		return NativeCFFI.lime_gl_get_vertex_attrib (index, pname);
 		#else
 		return 0;
 		#end
@@ -1173,7 +1164,7 @@ class NativeGLRenderContext {
 	public function getVertexAttribOffset (index:Int, pname:Int):Int {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return lime_gl_get_vertex_attrib_offset (index, pname);
+		return NativeCFFI.lime_gl_get_vertex_attrib_offset (index, pname);
 		#else
 		return 0;
 		#end
@@ -1184,7 +1175,7 @@ class NativeGLRenderContext {
 	public function hint (target:Int, mode:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_hint (target, mode);
+		NativeCFFI.lime_gl_hint (target, mode);
 		#end
 		
 	}
@@ -1193,7 +1184,7 @@ class NativeGLRenderContext {
 	public function isBuffer (buffer:GLBuffer):Bool {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return buffer != null && buffer.id > 0 && lime_gl_is_buffer (buffer.id);
+		return buffer != null && buffer.id > 0 && NativeCFFI.lime_gl_is_buffer (buffer.id);
 		#else
 		return false;
 		#end
@@ -1211,7 +1202,7 @@ class NativeGLRenderContext {
 	public function isEnabled (cap:Int):Bool {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return lime_gl_is_enabled (cap);
+		return NativeCFFI.lime_gl_is_enabled (cap);
 		#else
 		return false;
 		#end
@@ -1222,7 +1213,7 @@ class NativeGLRenderContext {
 	public function isFramebuffer (framebuffer:GLFramebuffer):Bool {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return framebuffer != null && framebuffer.id > 0 && lime_gl_is_framebuffer (framebuffer.id);
+		return framebuffer != null && framebuffer.id > 0 && NativeCFFI.lime_gl_is_framebuffer (framebuffer.id);
 		#else
 		return false;
 		#end
@@ -1233,7 +1224,7 @@ class NativeGLRenderContext {
 	public function isProgram (program:GLProgram):Bool {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return program != null && program.id > 0 && lime_gl_is_program (program.id);
+		return program != null && program.id > 0 && NativeCFFI.lime_gl_is_program (program.id);
 		#else
 		return false;
 		#end
@@ -1244,7 +1235,7 @@ class NativeGLRenderContext {
 	public function isRenderbuffer (renderbuffer:GLRenderbuffer):Bool {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return renderbuffer != null && renderbuffer.id > 0 && lime_gl_is_renderbuffer (renderbuffer.id);
+		return renderbuffer != null && renderbuffer.id > 0 && NativeCFFI.lime_gl_is_renderbuffer (renderbuffer.id);
 		#else
 		return false;
 		#end
@@ -1255,7 +1246,7 @@ class NativeGLRenderContext {
 	public function isShader (shader:GLShader):Bool {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return shader != null && shader.id > 0 && lime_gl_is_shader (shader.id);
+		return shader != null && shader.id > 0 && NativeCFFI.lime_gl_is_shader (shader.id);
 		#else
 		return false;
 		#end
@@ -1266,7 +1257,7 @@ class NativeGLRenderContext {
 	public function isTexture (texture:GLTexture):Bool {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return texture != null && texture.id > 0 && lime_gl_is_texture (texture.id);
+		return texture != null && texture.id > 0 && NativeCFFI.lime_gl_is_texture (texture.id);
 		#else
 		return false;
 		#end
@@ -1277,7 +1268,7 @@ class NativeGLRenderContext {
 	public function lineWidth (width:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_line_width (width);
+		NativeCFFI.lime_gl_line_width (width);
 		#end
 		
 	}
@@ -1286,7 +1277,7 @@ class NativeGLRenderContext {
 	public function linkProgram (program:GLProgram):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_link_program (program.id);
+		NativeCFFI.lime_gl_link_program (program.id);
 		#end
 		
 	}
@@ -1295,7 +1286,7 @@ class NativeGLRenderContext {
 	public function pixelStorei (pname:Int, param:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_pixel_storei (pname, param);
+		NativeCFFI.lime_gl_pixel_storei (pname, param);
 		#end
 		
 	}
@@ -1304,7 +1295,7 @@ class NativeGLRenderContext {
 	public function polygonOffset (factor:Float, units:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_polygon_offset (factor, units);
+		NativeCFFI.lime_gl_polygon_offset (factor, units);
 		#end
 		
 	}
@@ -1314,9 +1305,9 @@ class NativeGLRenderContext {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
 		var buffer = pixels == null ? null : pixels.buffer;
-		lime_gl_read_pixels (x, y, width, height, format, type, buffer, pixels == null ? 0 : pixels.byteOffset);
+		NativeCFFI.lime_gl_read_pixels (x, y, width, height, format, type, buffer, pixels == null ? 0 : pixels.byteOffset);
 		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_read_pixels (x, y, width, height, format, type, pixels == null ? null : pixels, pixels == null ? null : pixels.byteOffset);
+		NativeCFFI.lime_gl_read_pixels (x, y, width, height, format, type, pixels == null ? null : pixels, pixels == null ? null : pixels.byteOffset);
 		#end
 		
 	}
@@ -1325,7 +1316,7 @@ class NativeGLRenderContext {
 	public function renderbufferStorage (target:Int, internalformat:Int, width:Int, height:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_renderbuffer_storage (target, internalformat, width, height);
+		NativeCFFI.lime_gl_renderbuffer_storage (target, internalformat, width, height);
 		#end
 		
 	}
@@ -1334,7 +1325,7 @@ class NativeGLRenderContext {
 	public function sampleCoverage (value:Float, invert:Bool):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_sample_coverage (value, invert);
+		NativeCFFI.lime_gl_sample_coverage (value, invert);
 		#end
 		
 	}
@@ -1343,7 +1334,7 @@ class NativeGLRenderContext {
 	public function scissor (x:Int, y:Int, width:Int, height:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_scissor (x, y, width, height);
+		NativeCFFI.lime_gl_scissor (x, y, width, height);
 		#end
 		
 	}
@@ -1352,7 +1343,7 @@ class NativeGLRenderContext {
 	public function shaderSource (shader:GLShader, source:String):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_shader_source (shader.id, source);
+		NativeCFFI.lime_gl_shader_source (shader.id, source);
 		#end
 		
 	}
@@ -1361,7 +1352,7 @@ class NativeGLRenderContext {
 	public function stencilFunc (func:Int, ref:Int, mask:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_stencil_func (func, ref, mask);
+		NativeCFFI.lime_gl_stencil_func (func, ref, mask);
 		#end
 		
 	}
@@ -1370,7 +1361,7 @@ class NativeGLRenderContext {
 	public function stencilFuncSeparate (face:Int, func:Int, ref:Int, mask:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_stencil_func_separate (face, func, ref, mask);
+		NativeCFFI.lime_gl_stencil_func_separate (face, func, ref, mask);
 		#end
 		
 	}
@@ -1379,7 +1370,7 @@ class NativeGLRenderContext {
 	public function stencilMask (mask:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_stencil_mask (mask);
+		NativeCFFI.lime_gl_stencil_mask (mask);
 		#end
 		
 	}
@@ -1388,7 +1379,7 @@ class NativeGLRenderContext {
 	public function stencilMaskSeparate (face:Int, mask:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_stencil_mask_separate (face, mask);
+		NativeCFFI.lime_gl_stencil_mask_separate (face, mask);
 		#end
 		
 	}
@@ -1397,7 +1388,7 @@ class NativeGLRenderContext {
 	public function stencilOp (fail:Int, zfail:Int, zpass:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_stencil_op (fail, zfail, zpass);
+		NativeCFFI.lime_gl_stencil_op (fail, zfail, zpass);
 		#end
 		
 	}
@@ -1406,7 +1397,7 @@ class NativeGLRenderContext {
 	public function stencilOpSeparate (face:Int, fail:Int, zfail:Int, zpass:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_stencil_op_separate (face, fail, zfail, zpass);
+		NativeCFFI.lime_gl_stencil_op_separate (face, fail, zfail, zpass);
 		#end
 		
 	}
@@ -1416,9 +1407,9 @@ class NativeGLRenderContext {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
 		var buffer = pixels == null ? null : pixels.buffer;
-		lime_gl_tex_image_2d (target, level, internalformat, width, height, border, format, type, buffer, pixels == null ? 0 : pixels.byteOffset);
+		NativeCFFI.lime_gl_tex_image_2d (target, level, internalformat, width, height, border, format, type, buffer, pixels == null ? 0 : pixels.byteOffset);
 		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_tex_image_2d (target, level, internalformat, width, height, border, format, type, pixels == null ? null : pixels, pixels == null ? null : pixels.byteOffset);
+		NativeCFFI.lime_gl_tex_image_2d (target, level, internalformat, width, height, border, format, type, pixels == null ? null : pixels, pixels == null ? null : pixels.byteOffset);
 		#end
 		
 	}
@@ -1427,7 +1418,7 @@ class NativeGLRenderContext {
 	public function texParameterf (target:Int, pname:Int, param:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_tex_parameterf (target, pname, param);
+		NativeCFFI.lime_gl_tex_parameterf (target, pname, param);
 		#end
 		
 	}
@@ -1436,7 +1427,7 @@ class NativeGLRenderContext {
 	public function texParameteri (target:Int, pname:Int, param:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_tex_parameteri (target, pname, param);
+		NativeCFFI.lime_gl_tex_parameteri (target, pname, param);
 		#end
 		
 	}
@@ -1446,9 +1437,9 @@ class NativeGLRenderContext {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
 		var buffer = pixels == null ? null : pixels.buffer;
-		lime_gl_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, type, buffer, pixels == null ? 0 : pixels.byteOffset);
+		NativeCFFI.lime_gl_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, type, buffer, pixels == null ? 0 : pixels.byteOffset);
 		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, type, pixels == null ? null : pixels, pixels == null ? null : pixels.byteOffset);
+		NativeCFFI.lime_gl_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, type, pixels == null ? null : pixels, pixels == null ? null : pixels.byteOffset);
 		#end
 		
 	}
@@ -1457,7 +1448,7 @@ class NativeGLRenderContext {
 	public function uniform1f (location:GLUniformLocation, x:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_uniform1f (location, x);
+		NativeCFFI.lime_gl_uniform1f (location, x);
 		#end
 		
 	}
@@ -1466,9 +1457,9 @@ class NativeGLRenderContext {
 	public function uniform1fv (location:GLUniformLocation, x:Float32Array):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_uniform1fv (location, x.buffer);
+		NativeCFFI.lime_gl_uniform1fv (location, x.buffer);
 		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_uniform1fv (location, x);
+		NativeCFFI.lime_gl_uniform1fv (location, x);
 		#end
 		
 	}
@@ -1477,7 +1468,7 @@ class NativeGLRenderContext {
 	public function uniform1i (location:GLUniformLocation, x:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_uniform1i (location, x);
+		NativeCFFI.lime_gl_uniform1i (location, x);
 		#end
 		
 	}
@@ -1486,9 +1477,9 @@ class NativeGLRenderContext {
 	public function uniform1iv (location:GLUniformLocation, v:Int32Array):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_uniform1iv (location, v.buffer);
+		NativeCFFI.lime_gl_uniform1iv (location, v.buffer);
 		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_uniform1iv (location, v);
+		NativeCFFI.lime_gl_uniform1iv (location, v);
 		#end
 		
 	}
@@ -1497,7 +1488,7 @@ class NativeGLRenderContext {
 	public function uniform2f (location:GLUniformLocation, x:Float, y:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_uniform2f (location, x, y);
+		NativeCFFI.lime_gl_uniform2f (location, x, y);
 		#end
 		
 	}
@@ -1506,9 +1497,9 @@ class NativeGLRenderContext {
 	public function uniform2fv (location:GLUniformLocation, v:Float32Array):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_uniform2fv (location, v.buffer);
+		NativeCFFI.lime_gl_uniform2fv (location, v.buffer);
 		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_uniform2fv (location, v);
+		NativeCFFI.lime_gl_uniform2fv (location, v);
 		#end
 		
 	}
@@ -1517,7 +1508,7 @@ class NativeGLRenderContext {
 	public function uniform2i (location:GLUniformLocation, x:Int, y:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_uniform2i (location, x, y);
+		NativeCFFI.lime_gl_uniform2i (location, x, y);
 		#end
 		
 	}
@@ -1526,9 +1517,9 @@ class NativeGLRenderContext {
 	public function uniform2iv (location:GLUniformLocation, v:Int32Array):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_uniform2iv (location, v.buffer);
+		NativeCFFI.lime_gl_uniform2iv (location, v.buffer);
 		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_uniform2iv (location, v);
+		NativeCFFI.lime_gl_uniform2iv (location, v);
 		#end
 		
 	}
@@ -1537,7 +1528,7 @@ class NativeGLRenderContext {
 	public function uniform3f (location:GLUniformLocation, x:Float, y:Float, z:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_uniform3f (location, x, y, z);
+		NativeCFFI.lime_gl_uniform3f (location, x, y, z);
 		#end
 		
 	}
@@ -1546,9 +1537,9 @@ class NativeGLRenderContext {
 	public function uniform3fv (location:GLUniformLocation, v:Float32Array):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_uniform3fv (location, v.buffer);
+		NativeCFFI.lime_gl_uniform3fv (location, v.buffer);
 		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_uniform3fv (location, v);
+		NativeCFFI.lime_gl_uniform3fv (location, v);
 		#end
 		
 	}
@@ -1557,7 +1548,7 @@ class NativeGLRenderContext {
 	public function uniform3i (location:GLUniformLocation, x:Int, y:Int, z:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_uniform3i (location, x, y, z);
+		NativeCFFI.lime_gl_uniform3i (location, x, y, z);
 		#end
 		
 	}
@@ -1566,9 +1557,9 @@ class NativeGLRenderContext {
 	public function uniform3iv (location:GLUniformLocation, v:Int32Array):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_uniform3iv (location, v.buffer);
+		NativeCFFI.lime_gl_uniform3iv (location, v.buffer);
 		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_uniform3iv (location, v);
+		NativeCFFI.lime_gl_uniform3iv (location, v);
 		#end
 		
 	}
@@ -1577,7 +1568,7 @@ class NativeGLRenderContext {
 	public function uniform4f (location:GLUniformLocation, x:Float, y:Float, z:Float, w:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_uniform4f (location, x, y, z, w);
+		NativeCFFI.lime_gl_uniform4f (location, x, y, z, w);
 		#end
 		
 	}
@@ -1586,9 +1577,9 @@ class NativeGLRenderContext {
 	public function uniform4fv (location:GLUniformLocation, v:Float32Array):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_uniform4fv (location, v.buffer);
+		NativeCFFI.lime_gl_uniform4fv (location, v.buffer);
 		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_uniform4fv (location, v);
+		NativeCFFI.lime_gl_uniform4fv (location, v);
 		#end
 		
 	}
@@ -1597,7 +1588,7 @@ class NativeGLRenderContext {
 	public function uniform4i (location:GLUniformLocation, x:Int, y:Int, z:Int, w:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_uniform4i (location, x, y, z, w);
+		NativeCFFI.lime_gl_uniform4i (location, x, y, z, w);
 		#end
 		
 	}
@@ -1606,9 +1597,9 @@ class NativeGLRenderContext {
 	public function uniform4iv (location:GLUniformLocation, v:Int32Array):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_uniform4iv (location, v.buffer);
+		NativeCFFI.lime_gl_uniform4iv (location, v.buffer);
 		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_uniform4iv (location, v);
+		NativeCFFI.lime_gl_uniform4iv (location, v);
 		#end
 		
 	}
@@ -1617,9 +1608,9 @@ class NativeGLRenderContext {
 	public function uniformMatrix2fv (location:GLUniformLocation, transpose:Bool, v:Float32Array):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_uniform_matrix (location, transpose, v.buffer, 2);
+		NativeCFFI.lime_gl_uniform_matrix (location, transpose, v.buffer, 2);
 		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_uniform_matrix (location, transpose, v, 2);
+		NativeCFFI.lime_gl_uniform_matrix (location, transpose, v, 2);
 		#end
 		
 	}
@@ -1628,9 +1619,9 @@ class NativeGLRenderContext {
 	public function uniformMatrix3fv (location:GLUniformLocation, transpose:Bool, v:Float32Array):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_uniform_matrix (location, transpose, v.buffer, 3);
+		NativeCFFI.lime_gl_uniform_matrix (location, transpose, v.buffer, 3);
 		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_uniform_matrix (location, transpose, v, 3);
+		NativeCFFI.lime_gl_uniform_matrix (location, transpose, v, 3);
 		#end
 		
 	}
@@ -1639,9 +1630,9 @@ class NativeGLRenderContext {
 	public function uniformMatrix4fv (location:GLUniformLocation, transpose:Bool, v:Float32Array):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_uniform_matrix (location, transpose, v.buffer, 4);
+		NativeCFFI.lime_gl_uniform_matrix (location, transpose, v.buffer, 4);
 		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_uniform_matrix (location, transpose, v, 4);
+		NativeCFFI.lime_gl_uniform_matrix (location, transpose, v, 4);
 		#end
 		
 	}
@@ -1649,7 +1640,7 @@ class NativeGLRenderContext {
 	
 	/*public function uniformMatrix3D(location:GLUniformLocation, transpose:Bool, matrix:Matrix3D):Void {
 		
-		lime_gl_uniform_matrix(location, transpose, Float32Array.fromMatrix(matrix).getByteBuffer() , 4);
+		NativeCFFI.lime_gl_uniform_matrix(location, transpose, Float32Array.fromMatrix(matrix).getByteBuffer() , 4);
 		
 	}*/
 	
@@ -1659,7 +1650,7 @@ class NativeGLRenderContext {
 		__currentProgram = program;
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_use_program (program == null ? null : program.id);
+		NativeCFFI.lime_gl_use_program (program == null ? null : program.id);
 		#end
 		
 	}
@@ -1668,7 +1659,7 @@ class NativeGLRenderContext {
 	public function validateProgram (program:GLProgram):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_validate_program (program.id);
+		NativeCFFI.lime_gl_validate_program (program.id);
 		#end
 		
 	}
@@ -1677,7 +1668,7 @@ class NativeGLRenderContext {
 	public function vertexAttrib1f (indx:Int, x:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_vertex_attrib1f (indx, x);
+		NativeCFFI.lime_gl_vertex_attrib1f (indx, x);
 		#end
 		
 	}
@@ -1686,9 +1677,9 @@ class NativeGLRenderContext {
 	public function vertexAttrib1fv (indx:Int, values:Float32Array):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_vertex_attrib1fv (indx, values.buffer);
+		NativeCFFI.lime_gl_vertex_attrib1fv (indx, values.buffer);
 		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_vertex_attrib1fv (indx, values);
+		NativeCFFI.lime_gl_vertex_attrib1fv (indx, values);
 		#end
 		
 	}
@@ -1697,7 +1688,7 @@ class NativeGLRenderContext {
 	public function vertexAttrib2f (indx:Int, x:Float, y:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_vertex_attrib2f (indx, x, y);
+		NativeCFFI.lime_gl_vertex_attrib2f (indx, x, y);
 		#end
 		
 	}
@@ -1706,9 +1697,9 @@ class NativeGLRenderContext {
 	public function vertexAttrib2fv (indx:Int, values:Float32Array):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_vertex_attrib2fv (indx, values.buffer);
+		NativeCFFI.lime_gl_vertex_attrib2fv (indx, values.buffer);
 		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_vertex_attrib2fv (indx, values);
+		NativeCFFI.lime_gl_vertex_attrib2fv (indx, values);
 		#end
 		
 	}
@@ -1717,7 +1708,7 @@ class NativeGLRenderContext {
 	public function vertexAttrib3f (indx:Int, x:Float, y:Float, z:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_vertex_attrib3f (indx, x, y, z);
+		NativeCFFI.lime_gl_vertex_attrib3f (indx, x, y, z);
 		#end
 		
 	}
@@ -1726,9 +1717,9 @@ class NativeGLRenderContext {
 	public function vertexAttrib3fv (indx:Int, values:Float32Array):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_vertex_attrib3fv (indx, values.buffer);
+		NativeCFFI.lime_gl_vertex_attrib3fv (indx, values.buffer);
 		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_vertex_attrib3fv (indx, values);
+		NativeCFFI.lime_gl_vertex_attrib3fv (indx, values);
 		#end
 		
 	}
@@ -1737,7 +1728,7 @@ class NativeGLRenderContext {
 	public function vertexAttrib4f (indx:Int, x:Float, y:Float, z:Float, w:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_vertex_attrib4f (indx, x, y, z, w);
+		NativeCFFI.lime_gl_vertex_attrib4f (indx, x, y, z, w);
 		#end
 		
 	}
@@ -1746,9 +1737,9 @@ class NativeGLRenderContext {
 	public function vertexAttrib4fv (indx:Int, values:Float32Array):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		lime_gl_vertex_attrib4fv (indx, values.buffer);
+		NativeCFFI.lime_gl_vertex_attrib4fv (indx, values.buffer);
 		#elseif (nodejs && lime_opengl && !macro)
-		lime_gl_vertex_attrib4fv (indx, values);
+		NativeCFFI.lime_gl_vertex_attrib4fv (indx, values);
 		#end
 		
 	}
@@ -1757,7 +1748,7 @@ class NativeGLRenderContext {
 	public function vertexAttribPointer (indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_vertex_attrib_pointer (indx, size, type, normalized, stride, offset);
+		NativeCFFI.lime_gl_vertex_attrib_pointer (indx, size, type, normalized, stride, offset);
 		#end
 		
 	}
@@ -1766,150 +1757,13 @@ class NativeGLRenderContext {
 	public function viewport (x:Int, y:Int, width:Int, height:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		lime_gl_viewport (x, y, width, height);
+		NativeCFFI.lime_gl_viewport (x, y, width, height);
 		#end
 		
 	}
 	
 	
 	private function get_version ():Int { return 2; }
-	
-	
-	#if (lime_cffi && lime_opengl && !macro)
-	@:cffi private static function lime_gl_active_texture (texture:Int):Void;
-	@:cffi private static function lime_gl_attach_shader (program:CFFIPointer, shader:CFFIPointer):Void;
-	@:cffi private static function lime_gl_bind_attrib_location (program:CFFIPointer, index:Int, name:String):Void;
-	@:cffi private static function lime_gl_bind_buffer (target:Int, buffer:CFFIPointer):Void;
-	@:cffi private static function lime_gl_bind_framebuffer (target:Int, framebuffer:CFFIPointer):Void;
-	@:cffi private static function lime_gl_bind_renderbuffer (target:Int, renderbuffer:CFFIPointer):Void;
-	@:cffi private static function lime_gl_bind_texture (target:Int, texture:CFFIPointer):Void;
-	@:cffi private static function lime_gl_blend_color (red:Float32, green:Float32, blue:Float32, alpha:Float32):Void;
-	@:cffi private static function lime_gl_blend_equation (mode:Int):Void;
-	@:cffi private static function lime_gl_blend_equation_separate (modeRGB:Int, modeAlpha:Int):Void;
-	@:cffi private static function lime_gl_blend_func (sfactor:Int, dfactor:Int):Void;
-	@:cffi private static function lime_gl_blend_func_separate (srcRGB:Int, dstRGB:Int, srcAlpha:Int, dstAlpha:Int):Void;
-	@:cffi private static function lime_gl_buffer_data (target:Int, buffer:Dynamic, byteOffset:Int, size:Int, usage:Int):Void;
-	@:cffi private static function lime_gl_buffer_sub_data (target:Int, offset:Int, buffer:Dynamic, byteOffset:Int, size:Int):Void;
-	@:cffi private static function lime_gl_check_framebuffer_status (target:Int):Int;
-	@:cffi private static function lime_gl_clear (mask:Int):Void;
-	@:cffi private static function lime_gl_clear_color (red:Float32, green:Float32, blue:Float32, alpha:Float32):Void;
-	@:cffi private static function lime_gl_clear_depth (depth:Float32):Void;
-	@:cffi private static function lime_gl_clear_stencil (s:Int):Void;
-	@:cffi private static function lime_gl_color_mask (red:Bool, green:Bool, blue:Bool, alpha:Bool):Void;
-	@:cffi private static function lime_gl_compile_shader (shader:CFFIPointer):Void;
-	@:cffi private static function lime_gl_compressed_tex_image_2d (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, buffer:Dynamic, byteOffset:Int):Void;
-	@:cffi private static function lime_gl_compressed_tex_sub_image_2d (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, buffer:Dynamic, byteOffset:Int):Void;
-	@:cffi private static function lime_gl_copy_tex_image_2d (target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void;
-	@:cffi private static function lime_gl_copy_tex_sub_image_2d (target:Int, level:Int, xoffset:Int, yoffset:Int, x:Int, y:Int, width:Int, height:Int):Void;
-	@:cffi private static function lime_gl_create_buffer ():CFFIPointer;
-	@:cffi private static function lime_gl_create_framebuffer ():CFFIPointer;
-	@:cffi private static function lime_gl_create_program ():CFFIPointer;
-	@:cffi private static function lime_gl_create_render_buffer ():CFFIPointer;
-	@:cffi private static function lime_gl_create_shader (type:Int):CFFIPointer;
-	@:cffi private static function lime_gl_create_texture ():CFFIPointer;
-	@:cffi private static function lime_gl_cull_face (mode:Int):Void;
-	@:cffi private static function lime_gl_delete_buffer (buffer:CFFIPointer):Void;
-	@:cffi private static function lime_gl_delete_framebuffer (framebuffer:CFFIPointer):Void;
-	@:cffi private static function lime_gl_delete_program (program:CFFIPointer):Void;
-	@:cffi private static function lime_gl_delete_render_buffer (renderbuffer:CFFIPointer):Void;
-	@:cffi private static function lime_gl_delete_shader (shader:CFFIPointer):Void;
-	@:cffi private static function lime_gl_delete_texture (texture:CFFIPointer):Void;
-	@:cffi private static function lime_gl_depth_func (func:Int):Void;
-	@:cffi private static function lime_gl_depth_mask (flag:Bool):Void;
-	@:cffi private static function lime_gl_depth_range (zNear:Float32, zFar:Float32):Void;
-	@:cffi private static function lime_gl_detach_shader (program:CFFIPointer, shader:CFFIPointer):Void;
-	@:cffi private static function lime_gl_disable (cap:Int):Void;
-	@:cffi private static function lime_gl_disable_vertex_attrib_array (index:Int):Void;
-	@:cffi private static function lime_gl_draw_arrays (mode:Int, first:Int, count:Int):Void;
-	@:cffi private static function lime_gl_draw_elements (mode:Int, count:Int, type:Int, offset:Int):Void;
-	@:cffi private static function lime_gl_enable (cap:Int):Void;
-	@:cffi private static function lime_gl_enable_vertex_attrib_array (index:Int):Void;
-	@:cffi private static function lime_gl_finish ():Void;
-	@:cffi private static function lime_gl_flush ():Void;
-	@:cffi private static function lime_gl_framebuffer_renderbuffer (target:Int, attachment:Int, renderbuffertarget:Int, renderbuffer:CFFIPointer):Void;
-	@:cffi private static function lime_gl_framebuffer_texture2D (target:Int, attachment:Int, textarget:Int, texture:CFFIPointer, level:Int):Void;
-	@:cffi private static function lime_gl_front_face (mode:Int):Void;
-	@:cffi private static function lime_gl_generate_mipmap (target:Int):Void;
-	@:cffi private static function lime_gl_get_active_attrib (program:CFFIPointer, index:Int):Dynamic;
-	@:cffi private static function lime_gl_get_active_uniform (program:CFFIPointer, index:Int):Dynamic;
-	@:cffi private static function lime_gl_get_attrib_location (program:CFFIPointer, name:String):Int;
-	@:cffi private static function lime_gl_get_buffer_parameter (target:Int, pname:Int):Int;
-	@:cffi private static function lime_gl_get_context_attributes ():Dynamic;
-	@:cffi private static function lime_gl_get_error ():Int;
-	@:cffi private static function lime_gl_get_extension (name:String):Dynamic;
-	@:cffi private static function lime_gl_get_framebuffer_attachment_parameter (target:Int, attachment:Int, pname:Int):Int;
-	@:cffi private static function lime_gl_get_parameter (pname:Int):Dynamic;
-	@:cffi private static function lime_gl_get_program_info_log (program:CFFIPointer):Dynamic;
-	@:cffi private static function lime_gl_get_program_parameter (program:CFFIPointer, pname:Int):Int;
-	@:cffi private static function lime_gl_get_render_buffer_parameter (target:Int, pname:Int):Int;
-	@:cffi private static function lime_gl_get_shader_info_log (shader:CFFIPointer):Dynamic;
-	@:cffi private static function lime_gl_get_shader_parameter (shader:CFFIPointer, pname:Int):Int;
-	@:cffi private static function lime_gl_get_shader_precision_format (shadertype:Int, precisiontype:Int):Dynamic;
-	@:cffi private static function lime_gl_get_shader_source (shader:CFFIPointer):Dynamic;
-	@:cffi private static function lime_gl_get_supported_extensions (result:Dynamic):Void;
-	@:cffi private static function lime_gl_get_tex_parameter (target:Int, pname:Int):Int;
-	@:cffi private static function lime_gl_get_uniform (program:CFFIPointer, location:Int):Dynamic;
-	@:cffi private static function lime_gl_get_uniform_location (program:CFFIPointer, name:String):Int;
-	@:cffi private static function lime_gl_get_vertex_attrib (index:Int, pname:Int):Int;
-	@:cffi private static function lime_gl_get_vertex_attrib_offset (index:Int, pname:Int):Int;
-	@:cffi private static function lime_gl_hint (target:Int, mode:Int):Void;
-	@:cffi private static function lime_gl_is_buffer (buffer:CFFIPointer):Bool;
-	@:cffi private static function lime_gl_is_enabled (cap:Int):Bool;
-	@:cffi private static function lime_gl_is_framebuffer (framebuffer:CFFIPointer):Bool;
-	@:cffi private static function lime_gl_is_program (program:CFFIPointer):Bool;
-	@:cffi private static function lime_gl_is_renderbuffer (renderbuffer:CFFIPointer):Bool;
-	@:cffi private static function lime_gl_is_shader (shader:CFFIPointer):Bool;
-	@:cffi private static function lime_gl_is_texture (texture:CFFIPointer):Bool;
-	@:cffi private static function lime_gl_line_width (width:Float32):Void;
-	@:cffi private static function lime_gl_link_program (program:CFFIPointer):Void;
-	@:cffi private static function lime_gl_pixel_storei (pname:Int, param:Int):Void;
-	@:cffi private static function lime_gl_polygon_offset (factor:Float32, units:Float32):Void;
-	@:cffi private static function lime_gl_read_pixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, buffer:Dynamic, byteOffset:Int):Void;
-	@:cffi private static function lime_gl_renderbuffer_storage (target:Int, internalformat:Int, width:Int, height:Int):Void;
-	@:cffi private static function lime_gl_sample_coverage (value:Float32, invert:Bool):Void;
-	@:cffi private static function lime_gl_scissor (x:Int, y:Int, width:Int, height:Int):Void;
-	@:cffi private static function lime_gl_shader_source (shader:CFFIPointer, source:String):Void;
-	@:cffi private static function lime_gl_stencil_func (func:Int, ref:Int, mask:Int):Void;
-	@:cffi private static function lime_gl_stencil_func_separate (face:Int, func:Int, ref:Int, mask:Int):Void;
-	@:cffi private static function lime_gl_stencil_mask (mask:Int):Void;
-	@:cffi private static function lime_gl_stencil_mask_separate (face:Int, mask:Int):Void;
-	@:cffi private static function lime_gl_stencil_op (fail:Int, zfail:Int, zpass:Int):Void;
-	@:cffi private static function lime_gl_stencil_op_separate (face:Int, fail:Int, zfail:Int, zpass:Int):Void;
-	@:cffi private static function lime_gl_tex_image_2d (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, buffer:Dynamic, byteOffset:Int):Void;
-	@:cffi private static function lime_gl_tex_parameterf (target:Int, pname:Int, param:Float32):Void;
-	@:cffi private static function lime_gl_tex_parameteri (target:Int, pname:Int, param:Int):Void;
-	@:cffi private static function lime_gl_tex_sub_image_2d (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, buffer:Dynamic, byteOffset:Int):Void;
-	@:cffi private static function lime_gl_uniform1f (location:Int, x:Float32):Void;
-	@:cffi private static function lime_gl_uniform1fv (location:Int, v:Dynamic):Void;
-	@:cffi private static function lime_gl_uniform1i (location:Int, x:Int):Void;
-	@:cffi private static function lime_gl_uniform1iv (location:Int, v:Dynamic):Void;
-	@:cffi private static function lime_gl_uniform2f (location:Int, x:Float32, y:Float32):Void;
-	@:cffi private static function lime_gl_uniform2fv (location:Int, v:Dynamic):Void;
-	@:cffi private static function lime_gl_uniform2i (location:Int, x:Int, y:Int):Void;
-	@:cffi private static function lime_gl_uniform2iv (location:Int, v:Dynamic):Void;
-	@:cffi private static function lime_gl_uniform3f (location:Int, x:Float32, y:Float32, z:Float32):Void;
-	@:cffi private static function lime_gl_uniform3fv (location:Int, v:Dynamic):Void;
-	@:cffi private static function lime_gl_uniform3i (location:Int, x:Int, y:Int, z:Int):Void;
-	@:cffi private static function lime_gl_uniform3iv (location:Int, v:Dynamic):Void;
-	@:cffi private static function lime_gl_uniform4f (location:Int, x:Float32, y:Float32, z:Float32, w:Float32):Void;
-	@:cffi private static function lime_gl_uniform4fv (location:Int, v:Dynamic):Void;
-	@:cffi private static function lime_gl_uniform4i (location:Int, x:Int, y:Int, z:Int, w:Int):Void;
-	@:cffi private static function lime_gl_uniform4iv (location:Int, v:Dynamic):Void;
-	@:cffi private static function lime_gl_uniform_matrix (location:Int, transpose:Bool, buffer:Dynamic, count:Int):Void;
-	@:cffi private static function lime_gl_use_program (program:CFFIPointer):Void;
-	@:cffi private static function lime_gl_validate_program (program:CFFIPointer):Void;
-	@:cffi private static function lime_gl_version ():String;
-	@:cffi private static function lime_gl_vertex_attrib1f (indx:Int, x:Float32):Void;
-	@:cffi private static function lime_gl_vertex_attrib1fv (indx:Int, values:Dynamic):Void;
-	@:cffi private static function lime_gl_vertex_attrib2f (indx:Int, x:Float32, y:Float32):Void;
-	@:cffi private static function lime_gl_vertex_attrib2fv (indx:Int, values:Dynamic):Void;
-	@:cffi private static function lime_gl_vertex_attrib3f (indx:Int, x:Float32, y:Float32, z:Float32):Void;
-	@:cffi private static function lime_gl_vertex_attrib3fv (indx:Int, values:Dynamic):Void;
-	@:cffi private static function lime_gl_vertex_attrib4f (indx:Int, x:Float32, y:Float32, z:Float32, w:Float32):Void;
-	@:cffi private static function lime_gl_vertex_attrib4fv (indx:Int, values:Dynamic):Void;
-	@:cffi private static function lime_gl_vertex_attrib_pointer (indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void;
-	@:cffi private static function lime_gl_viewport (x:Int, y:Int, width:Int, height:Int):Void;
-	#end
 	
 	
 }

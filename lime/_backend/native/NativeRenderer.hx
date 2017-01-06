@@ -16,15 +16,12 @@ import lime.graphics.opengl.GL;
 import lime.math.Rectangle;
 import lime.utils.UInt8Array;
 
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
-
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
 
+@:access(lime._backend.native.NativeCFFI)
 @:access(lime._backend.native.NativeGLRenderContext)
 @:access(lime.graphics.cairo.Cairo)
 @:access(lime.graphics.opengl.GL)
@@ -56,9 +53,9 @@ class NativeRenderer {
 	public function create ():Void {
 		
 		#if !macro
-		handle = lime_renderer_create (parent.window.backend.handle);
+		handle = NativeCFFI.lime_renderer_create (parent.window.backend.handle);
 		
-		parent.window.__scale = lime_renderer_get_scale (handle);
+		parent.window.__scale = NativeCFFI.lime_renderer_get_scale (handle);
 		
 		#if lime_console
 		
@@ -68,7 +65,7 @@ class NativeRenderer {
 		
 		#else
 		
-		var type:String = lime_renderer_get_type (handle);
+		var type:String = NativeCFFI.lime_renderer_get_type (handle);
 		
 		switch (type) {
 			
@@ -123,11 +120,11 @@ class NativeRenderer {
 				
 			}
 			#end
-			lime_renderer_unlock (handle);
+			NativeCFFI.lime_renderer_unlock (handle);
 			
 		}
 		
-		lime_renderer_flip (handle);
+		NativeCFFI.lime_renderer_flip (handle);
 		#end
 		
 	}
@@ -139,9 +136,9 @@ class NativeRenderer {
 		
 		#if !macro
 		#if !cs
-		imageBuffer = lime_renderer_read_pixels (handle, rect, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
+		imageBuffer = NativeCFFI.lime_renderer_read_pixels (handle, rect, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
 		#else
-		var data:Dynamic = lime_renderer_read_pixels (handle, rect, null);
+		var data:Dynamic = NativeCFFI.lime_renderer_read_pixels (handle, rect, null);
 		if (data != null) {
 			imageBuffer = new ImageBuffer (new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b)), data.width, data.height, data.bitsPerPixel);
 		}
@@ -163,12 +160,12 @@ class NativeRenderer {
 	public function render ():Void {
 		
 		#if !macro
-		lime_renderer_make_current (handle);
+		NativeCFFI.lime_renderer_make_current (handle);
 		
 		if (!useHardware) {
 			
 			#if lime_cairo
-			var lock:Dynamic = lime_renderer_lock (handle);
+			var lock:Dynamic = NativeCFFI.lime_renderer_lock (handle);
 			
 			if (cacheLock == null || cacheLock.pixels != lock.pixels || cacheLock.width != lock.width || cacheLock.height != lock.height) {
 				
@@ -197,26 +194,4 @@ class NativeRenderer {
 	}
 	
 	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	#if !macro
-	@:cffi private static function lime_renderer_create (window:Dynamic):Dynamic;
-	@:cffi private static function lime_renderer_flip (handle:Dynamic):Void;
-	@:cffi private static function lime_renderer_get_context (handle:Dynamic):Float;
-	@:cffi private static function lime_renderer_get_scale (handle:Dynamic):Float;
-	@:cffi private static function lime_renderer_get_type (handle:Dynamic):Dynamic;
-	@:cffi private static function lime_renderer_lock (handle:Dynamic):Dynamic;
-	@:cffi private static function lime_renderer_make_current (handle:Dynamic):Void;
-	@:cffi private static function lime_renderer_read_pixels (handle:Dynamic, rect:Dynamic, imageBuffer:Dynamic):Dynamic;
-	@:cffi private static function lime_renderer_unlock (handle:Dynamic):Void;
-	#end
-	
-	
 }
-
-

@@ -1,6 +1,7 @@
 package lime.system;
 
 
+import lime._backend.native.NativeCFFI;
 import lime.app.Application;
 import lime.math.Rectangle;
 
@@ -14,15 +15,12 @@ import flash.Lib;
 import js.Browser;
 #end
 
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
-
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
 
+@:access(lime._backend.native.NativeCFFI)
 @:access(lime.system.Display)
 @:access(lime.system.DisplayMode)
 
@@ -85,7 +83,7 @@ class System {
 	public static function getDisplay (id:Int):Display {
 		
 		#if (lime_cffi && !macro)
-		var displayInfo:Dynamic = lime_system_get_display (id);
+		var displayInfo:Dynamic = NativeCFFI.lime_system_get_display (id);
 		
 		if (displayInfo != null) {
 			
@@ -153,7 +151,7 @@ class System {
 		#elseif js
 		return cast Date.now ().getTime ();
 		#elseif (!disable_cffi && !macro)
-		return cast lime_system_get_timer ();
+		return cast NativeCFFI.lime_system_get_timer ();
 		#elseif cpp
 		return Std.int (untyped __global__.__time_stamp () * 1000);
 		#elseif sys
@@ -208,7 +206,7 @@ class System {
 			
 			#elseif (lime_cffi && !macro)
 			
-			lime_system_open_file (path);
+			NativeCFFI.lime_system_open_file (path);
 			
 			#end
 			
@@ -240,7 +238,7 @@ class System {
 			
 			#elseif (lime_cffi && !macro)
 			
-			lime_system_open_url (url, target);
+			NativeCFFI.lime_system_open_url (url, target);
 			
 			#end
 			
@@ -282,11 +280,11 @@ class System {
 					
 				}
 				
-				path = lime_system_get_directory (type, company, file);
+				path = NativeCFFI.lime_system_get_directory (type, company, file);
 				
 			} else {
 				
-				path = lime_system_get_directory (type, null, null);
+				path = NativeCFFI.lime_system_get_directory (type, null, null);
 				
 			}
 			
@@ -342,7 +340,7 @@ class System {
 	private static function get_allowScreenTimeout ():Bool {
 		
 		#if (lime_cffi && !macro)
-		return lime_system_get_allow_screen_timeout ();
+		return NativeCFFI.lime_system_get_allow_screen_timeout ();
 		#else
 		return true;
 		#end
@@ -353,7 +351,7 @@ class System {
 	private static function set_allowScreenTimeout (value:Bool):Bool {
 		
 		#if (lime_cffi && !macro)
-		return lime_system_set_allow_screen_timeout (value);
+		return NativeCFFI.lime_system_set_allow_screen_timeout (value);
 		#else
 		return true;
 		#end
@@ -399,7 +397,7 @@ class System {
 	private static function get_numDisplays ():Int {
 		
 		#if (lime_cffi && !macro)
-		return lime_system_get_num_displays ();
+		return NativeCFFI.lime_system_get_num_displays ();
 		#else
 		return 1;
 		#end
@@ -425,25 +423,6 @@ class System {
 		#end
 		
 	}
-	
-	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	#if (lime_cffi && !macro)
-	@:cffi private static function lime_system_get_allow_screen_timeout ():Bool;
-	@:cffi private static function lime_system_set_allow_screen_timeout (value:Bool):Bool;
-	@:cffi private static function lime_system_get_directory (type:Int, company:String, title:String):Dynamic;
-	@:cffi private static function lime_system_get_display (index:Int):Dynamic;
-	@:cffi private static function lime_system_get_num_displays ():Int;
-	@:cffi private static function lime_system_get_timer ():Float;
-	@:cffi private static function lime_system_open_file (path:String):Void;
-	@:cffi private static function lime_system_open_url (url:String, target:String):Void;
-	#end
 	
 	
 }

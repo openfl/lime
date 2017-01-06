@@ -6,6 +6,7 @@ import haxe.io.Bytes;
 import haxe.io.BytesData;
 import haxe.io.BytesInput;
 import haxe.io.BytesOutput;
+import lime._backend.native.NativeCFFI;
 import lime.app.Application;
 import lime.app.Future;
 import lime.app.Promise;
@@ -50,10 +51,6 @@ import sys.io.File;
 import lime.graphics.console.TextureData;
 #end
 
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
-
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
@@ -62,6 +59,7 @@ import lime.graphics.console.TextureData;
 @:autoBuild(lime._macros.AssetsMacro.embedImage())
 @:allow(lime.graphics.util.ImageCanvasUtil)
 @:allow(lime.graphics.util.ImageDataUtil)
+@:access(lime._backend.native.NativeCFFI)
 @:access(lime.app.Application)
 @:access(lime.math.ColorMatrix)
 @:access(lime.math.Rectangle)
@@ -1239,9 +1237,9 @@ class Image {
 			var imageBuffer:ImageBuffer = null;
 			
 			#if !cs
-			imageBuffer = lime_image_load (bytes, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
+			imageBuffer = NativeCFFI.lime_image_load (bytes, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
 			#else
-			var data = lime_image_load (bytes, null);
+			var data = NativeCFFI.lime_image_load (bytes, null);
 			if (data != null) {
 				imageBuffer = new ImageBuffer (new UInt8Array (@:privateAccess new Bytes (data.data.buffer.length, data.data.buffer.b)), data.width, data.height, data.bitsPerPixel);
 			}
@@ -1366,9 +1364,9 @@ class Image {
 			if (CFFI.enabled) {
 				
 				#if !cs
-				buffer = lime_image_load (path, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
+				buffer = NativeCFFI.lime_image_load (path, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
 				#else
-				var data = lime_image_load (path, null);
+				var data = NativeCFFI.lime_image_load (path, null);
 				if (data != null) {
 					buffer = new ImageBuffer (new UInt8Array (@:privateAccess new Bytes (data.data.buffer.length, data.data.buffer.b)), data.width, data.height, data.bitsPerPixel);
 				}
@@ -1705,18 +1703,6 @@ class Image {
 		return buffer.transparent = value;
 		
 	}
-	
-	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	#if (lime_cffi && !macro)
-	@:cffi private static function lime_image_load (data:Dynamic, buffer:Dynamic):Dynamic;
-	#end
 	
 	
 }

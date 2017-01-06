@@ -1,6 +1,7 @@
 package lime.audio.openal;
 
 
+import lime._backend.native.NativeCFFI;
 import lime.system.CFFIPointer;
 
 #if !lime_debug
@@ -8,9 +9,7 @@ import lime.system.CFFIPointer;
 @:noDebug
 #end
 
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
+@:access(lime._backend.native.NativeCFFI)
 
 
 class ALC {
@@ -42,7 +41,7 @@ class ALC {
 	public static function closeDevice (device:ALDevice):Bool {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return lime_alc_close_device (device);
+		return NativeCFFI.lime_alc_close_device (device);
 		#else
 		return false;
 		#end
@@ -53,7 +52,7 @@ class ALC {
 	public static function createContext (device:ALDevice, attrlist:Array<Int> = null):ALContext {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		var handle:Dynamic = lime_alc_create_context (device, attrlist);
+		var handle:Dynamic = NativeCFFI.lime_alc_create_context (device, attrlist);
 		
 		if (handle != null) {
 			
@@ -70,7 +69,7 @@ class ALC {
 	public static function destroyContext (context:ALContext):Void {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		lime_alc_destroy_context (context);
+		NativeCFFI.lime_alc_destroy_context (context);
 		#end
 		
 	}
@@ -79,7 +78,7 @@ class ALC {
 	public static function getContextsDevice (context:ALContext):ALDevice {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		var handle:Dynamic = lime_alc_get_contexts_device (context);
+		var handle:Dynamic = NativeCFFI.lime_alc_get_contexts_device (context);
 		
 		if (handle != null) {
 			
@@ -96,7 +95,7 @@ class ALC {
 	public static function getCurrentContext ():ALContext {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		var handle:Dynamic = lime_alc_get_current_context ();
+		var handle:Dynamic = NativeCFFI.lime_alc_get_current_context ();
 		
 		if (handle != null) {
 			
@@ -113,7 +112,7 @@ class ALC {
 	public static function getError (device:ALDevice):Int {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return lime_alc_get_error (device);
+		return NativeCFFI.lime_alc_get_error (device);
 		#else
 		return 0;
 		#end
@@ -140,7 +139,7 @@ class ALC {
 	public static function getIntegerv (device:ALDevice, param:Int, size:Int):Array<Int> {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return lime_alc_get_integerv (device, param, size);
+		return NativeCFFI.lime_alc_get_integerv (device, param, size);
 		#else
 		return null;
 		#end
@@ -151,7 +150,7 @@ class ALC {
 	public static function getString (device:ALDevice, param:Int):String {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return lime_alc_get_string (device, param);
+		return NativeCFFI.lime_alc_get_string (device, param);
 		#else
 		return null;
 		#end
@@ -162,7 +161,7 @@ class ALC {
 	public static function makeContextCurrent (context:ALContext):Bool {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return lime_alc_make_context_current (context);
+		return NativeCFFI.lime_alc_make_context_current (context);
 		#else
 		return false;
 		#end
@@ -173,7 +172,7 @@ class ALC {
 	public static function openDevice (deviceName:String = null):ALDevice {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		var handle:Dynamic = lime_alc_open_device (deviceName);
+		var handle:Dynamic = NativeCFFI.lime_alc_open_device (deviceName);
 		
 		if (handle != null) {
 			
@@ -190,7 +189,7 @@ class ALC {
 	public static function pauseDevice (device:ALDevice):Void {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		lime_alc_pause_device (device);
+		NativeCFFI.lime_alc_pause_device (device);
 		#end
 		
 	}
@@ -199,7 +198,7 @@ class ALC {
 	public static function processContext (context:ALContext):Void {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		lime_alc_process_context (context);
+		NativeCFFI.lime_alc_process_context (context);
 		#end
 		
 	}
@@ -208,7 +207,7 @@ class ALC {
 	public static function resumeDevice (device:ALDevice):Void {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		lime_alc_resume_device (device);
+		NativeCFFI.lime_alc_resume_device (device);
 		#end
 		
 	}
@@ -217,28 +216,10 @@ class ALC {
 	public static function suspendContext (context:ALContext):Void {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		lime_alc_suspend_context (context);
+		NativeCFFI.lime_alc_suspend_context (context);
 		#end
 		
 	}
-	
-	
-	#if (lime_cffi && lime_openal && !macro)
-	@:cffi private static function lime_alc_close_device (device:CFFIPointer):Bool;
-	@:cffi private static function lime_alc_create_context (device:CFFIPointer, attrlist:Dynamic):CFFIPointer;
-	@:cffi private static function lime_alc_destroy_context (context:CFFIPointer):Void;
-	@:cffi private static function lime_alc_get_contexts_device (context:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_alc_get_current_context ():CFFIPointer;
-	@:cffi private static function lime_alc_get_error (device:CFFIPointer):Int;
-	@:cffi private static function lime_alc_get_integerv (device:CFFIPointer, param:Int, size:Int):Dynamic;
-	@:cffi private static function lime_alc_get_string (device:CFFIPointer, param:Int):Dynamic;
-	@:cffi private static function lime_alc_make_context_current (context:CFFIPointer):Bool;
-	@:cffi private static function lime_alc_open_device (devicename:String):CFFIPointer;
-	@:cffi private static function lime_alc_pause_device (device:CFFIPointer):Void;
-	@:cffi private static function lime_alc_process_context (context:CFFIPointer):Void;
-	@:cffi private static function lime_alc_resume_device (device:CFFIPointer):Void;
-	@:cffi private static function lime_alc_suspend_context (context:CFFIPointer):Void;
-	#end
 	
 	
 }

@@ -1,20 +1,24 @@
 package lime.ui;
 
 
+import lime._backend.native.NativeCFFI;
 import lime.system.JNI;
 import lime.utils.Log;
-
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
 
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
 
+@:access(lime._backend.native.NativeCFFI)
+
 
 class Haptic {
+	
+	
+	#if android
+	private static var lime_haptic_vibrate:Int->Int->Void;
+	#end
 	
 	
 	public static function vibrate (period:Int, duration:Int):Void {
@@ -39,23 +43,11 @@ class Haptic {
 		
 		#elseif (lime_cffi && !macro)
 		
-		lime_haptic_vibrate (period, duration);
+		NativeCFFI.lime_haptic_vibrate (period, duration);
 		
 		#end
+		
 	}
 	
-	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	#if android
-	private static var lime_haptic_vibrate:Int->Int->Void;
-	#elseif (lime_cffi && !macro)
-	@:cffi private static function lime_haptic_vibrate (period:Int, duration:Int):Void;
-	#end
 	
 }

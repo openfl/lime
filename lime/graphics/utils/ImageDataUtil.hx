@@ -4,6 +4,7 @@ package lime.graphics.utils;
 import haxe.ds.Vector;
 import haxe.Int32;
 import haxe.io.Bytes;
+import lime._backend.native.NativeCFFI;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.graphics.PixelFormat;
@@ -16,15 +17,12 @@ import lime.math.Vector2;
 import lime.system.CFFI;
 import lime.utils.UInt8Array;
 
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
-
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
 
+@:access(lime._backend.native.NativeCFFI)
 @:access(lime.graphics.ImageBuffer)
 @:access(lime.math.color.RGBA)
 
@@ -38,7 +36,7 @@ class ImageDataUtil {
 		if (data == null) return;
 		
 		#if (lime_cffi && !disable_cffi && !macro)
-		if (CFFI.enabled) lime_image_data_util_color_transform (image, rect, colorMatrix); else
+		if (CFFI.enabled) NativeCFFI.lime_image_data_util_color_transform (image, rect, colorMatrix); else
 		#end
 		{
 			
@@ -104,7 +102,7 @@ class ImageDataUtil {
 		if (srcData == null || destData == null) return;
 		
 		#if (lime_cffi && !disable_cffi && !macro)
-		if (CFFI.enabled) lime_image_data_util_copy_channel (image, sourceImage, sourceRect, destPoint, srcIdx, destIdx); else
+		if (CFFI.enabled) NativeCFFI.lime_image_data_util_copy_channel (image, sourceImage, sourceRect, destPoint, srcIdx, destIdx); else
 		#end
 		{
 			
@@ -166,7 +164,7 @@ class ImageDataUtil {
 	public static function copyPixels (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, alphaImage:Image = null, alphaPoint:Vector2 = null, mergeAlpha:Bool = false):Void {
 		
 		#if (lime_cffi && !disable_cffi && !macro)
-		if (CFFI.enabled) lime_image_data_util_copy_pixels (image, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha); else
+		if (CFFI.enabled) NativeCFFI.lime_image_data_util_copy_pixels (image, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha); else
 		#end
 		{
 			
@@ -332,7 +330,7 @@ class ImageDataUtil {
 		if (data == null) return;
 		
 		#if (lime_cffi && !disable_cffi && !macro)
-		if (CFFI.enabled) lime_image_data_util_fill_rect (image, rect, (fillColor >> 16) & 0xFFFF, (fillColor) & 0xFFFF); else // TODO: Better Int32 solution
+		if (CFFI.enabled) NativeCFFI.lime_image_data_util_fill_rect (image, rect, (fillColor >> 16) & 0xFFFF, (fillColor) & 0xFFFF); else // TODO: Better Int32 solution
 		#end
 		{
 			
@@ -371,7 +369,7 @@ class ImageDataUtil {
 		if (format == ARGB32) color = ((color & 0xFFFFFF) << 8) | ((color >> 24) & 0xFF);
 		
 		#if (lime_cffi && !disable_cffi && !macro)
-		if (CFFI.enabled) lime_image_data_util_flood_fill (image, x, y, (color >> 16) & 0xFFFF, (color) & 0xFFFF); else // TODO: Better Int32 solution
+		if (CFFI.enabled) NativeCFFI.lime_image_data_util_flood_fill (image, x, y, (color >> 16) & 0xFFFF, (color) & 0xFFFF); else // TODO: Better Int32 solution
 		#end
 		{
 			
@@ -658,7 +656,7 @@ class ImageDataUtil {
 		var bytes = Bytes.alloc (length * 4);
 		
 		#if (lime_cffi && !disable_cffi && !macro)
-		if (CFFI.enabled) lime_image_data_util_get_pixels (image, rect, format, bytes); else
+		if (CFFI.enabled) NativeCFFI.lime_image_data_util_get_pixels (image, rect, format, bytes); else
 		#end
 		{
 			
@@ -709,7 +707,7 @@ class ImageDataUtil {
 		if (image.buffer.data == null || sourceImage.buffer.data == null) return;
 		
 		#if (lime_cffi && !disable_cffi && !macro)
-		if (CFFI.enabled) lime_image_data_util_merge (image, sourceImage, sourceRect, destPoint, redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier); else
+		if (CFFI.enabled) NativeCFFI.lime_image_data_util_merge (image, sourceImage, sourceRect, destPoint, redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier); else
 		#end
 		{
 			
@@ -763,7 +761,7 @@ class ImageDataUtil {
 		if (data == null || !image.buffer.transparent) return;
 		
 		#if (lime_cffi && !disable_cffi && !macro)
-		if (CFFI.enabled) lime_image_data_util_multiply_alpha (image); else
+		if (CFFI.enabled) NativeCFFI.lime_image_data_util_multiply_alpha (image); else
 		#end
 		{
 			
@@ -794,7 +792,7 @@ class ImageDataUtil {
 		var newBuffer = new ImageBuffer (new UInt8Array (newWidth * newHeight * 4), newWidth, newHeight);
 		
 		#if (lime_cffi && !disable_cffi && !macro)
-		if (CFFI.enabled) lime_image_data_util_resize (image, newBuffer, newWidth, newHeight); else
+		if (CFFI.enabled) NativeCFFI.lime_image_data_util_resize (image, newBuffer, newWidth, newHeight); else
 		#end
 		{
 			
@@ -906,7 +904,7 @@ class ImageDataUtil {
 		if (data == null) return;
 		
 		#if (lime_cffi && !disable_cffi && !macro)
-		if (CFFI.enabled) lime_image_data_util_set_format (image, format); else
+		if (CFFI.enabled) NativeCFFI.lime_image_data_util_set_format (image, format); else
 		#end
 		{
 			
@@ -1042,7 +1040,7 @@ class ImageDataUtil {
 		if (image.buffer.data == null) return;
 		
 		#if (lime_cffi && !disable_cffi && !macro)
-		if (CFFI.enabled) lime_image_data_util_set_pixels (image, rect, bytes, format); else
+		if (CFFI.enabled) NativeCFFI.lime_image_data_util_set_pixels (image, rect, bytes, format); else
 		#end
 		{
 			
@@ -1135,7 +1133,7 @@ class ImageDataUtil {
 		var hits = 0;
 		
 		#if (lime_cffi && !disable_cffi && !macro)
-		if (CFFI.enabled) hits = lime_image_data_util_threshold (image, sourceImage, sourceRect, destPoint, _operation, (_threshold >> 16) & 0xFFFF, (_threshold) & 0xFFFF, (_color >> 16) & 0xFFFF, (_color) & 0xFFFF, (_mask >> 16) & 0xFFFF, (_mask) & 0xFFFF, copySource); else
+		if (CFFI.enabled) hits = NativeCFFI.lime_image_data_util_threshold (image, sourceImage, sourceRect, destPoint, _operation, (_threshold >> 16) & 0xFFFF, (_threshold) & 0xFFFF, (_color >> 16) & 0xFFFF, (_color) & 0xFFFF, (_mask >> 16) & 0xFFFF, (_mask) & 0xFFFF, copySource); else
 		#end
 		{
 			
@@ -1212,7 +1210,7 @@ class ImageDataUtil {
 		if (data == null) return;
 		
 		#if (lime_cffi && !disable_cffi && !macro)
-		if (CFFI.enabled) lime_image_data_util_unmultiply_alpha (image); else
+		if (CFFI.enabled) NativeCFFI.lime_image_data_util_unmultiply_alpha (image); else
 		#end
 		{
 			
@@ -1288,30 +1286,6 @@ class ImageDataUtil {
 		}
 		
 	}
-	
-	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	#if (lime_cffi && !macro)
-	@:cffi private static function lime_image_data_util_color_transform (image:Dynamic, rect:Dynamic, colorMatrix:Dynamic):Void;
-	@:cffi private static function lime_image_data_util_copy_channel (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, srcChannel:Int, destChannel:Int):Void;
-	@:cffi private static function lime_image_data_util_copy_pixels (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, alphaImage:Dynamic, alphaPoint:Dynamic, mergeAlpha:Bool):Void;
-	@:cffi private static function lime_image_data_util_fill_rect (image:Dynamic, rect:Dynamic, rg:Int, ba:Int):Void;
-	@:cffi private static function lime_image_data_util_flood_fill (image:Dynamic, x:Int, y:Int, rg:Int, ba:Int):Void;
-	@:cffi private static function lime_image_data_util_get_pixels (image:Dynamic, rect:Dynamic, format:Int, bytes:Dynamic):Void;
-	@:cffi private static function lime_image_data_util_merge (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, redMultiplier:Int, greenMultiplier:Int, blueMultiplier:Int, alphaMultiplier:Int):Void;
-	@:cffi private static function lime_image_data_util_multiply_alpha (image:Dynamic):Void;
-	@:cffi private static function lime_image_data_util_resize (image:Dynamic, buffer:Dynamic, width:Int, height:Int):Void;
-	@:cffi private static function lime_image_data_util_set_format (image:Dynamic, format:Int):Void;
-	@:cffi private static function lime_image_data_util_set_pixels (image:Dynamic, rect:Dynamic, bytes:Dynamic, format:Int):Void;
-	@:cffi private static function lime_image_data_util_threshold (image:Dynamic, sourceImage:Image, sourceRect:Dynamic, destPoint:Dynamic, operation:Int, thresholdRG:Int, thresholdBA:Int, colorRG:Int, colorBA:Int, maskRG:Int, maskBA:Int, copySource:Bool):Int;
-	@:cffi private static function lime_image_data_util_unmultiply_alpha (image:Dynamic):Void;
-	#end
 	
 	
 }

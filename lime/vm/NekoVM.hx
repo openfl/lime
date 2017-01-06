@@ -1,9 +1,9 @@
 package lime.vm;
 
 
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
+import lime._backend.native.NativeCFFI;
+
+@:access(lime._backend.native.NativeCFFI)
 
 
 class NekoVM {
@@ -11,12 +11,11 @@ class NekoVM {
 	
 	public static function loadModule (path:String):Void {
 		
-		lime_neko_execute (path);
+		#if (lime_cffi && !macro)
+		NativeCFFI.lime_neko_execute (path);
+		#end
 		
 	}
-	
-	
-	@:cffi private static function lime_neko_execute (module:String):Void;
 	
 	
 }

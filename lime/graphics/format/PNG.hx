@@ -2,6 +2,7 @@ package lime.graphics.format;
 
 
 import haxe.io.Bytes;
+import lime._backend.native.NativeCFFI;
 import lime.graphics.utils.ImageCanvasUtil;
 import lime.graphics.Image;
 import lime.system.CFFI;
@@ -19,16 +20,13 @@ import haxe.io.Bytes;
 import haxe.io.BytesOutput;
 #end
 
-@:access(lime.graphics.ImageBuffer)
-
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
-
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+
+@:access(lime._backend.native.NativeCFFI)
+@:access(lime.graphics.ImageBuffer)
 
 
 class PNG {
@@ -39,9 +37,9 @@ class PNG {
 		#if (lime_cffi && !macro)
 		
 		#if !cs
-		return lime_png_decode_bytes (bytes, decodeData, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
+		return NativeCFFI.lime_png_decode_bytes (bytes, decodeData, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
 		#else
-		var bufferData:Dynamic = lime_png_decode_bytes (bytes, decodeData, null);
+		var bufferData:Dynamic = NativeCFFI.lime_png_decode_bytes (bytes, decodeData, null);
 		
 		if (bufferData != null) {
 			
@@ -64,9 +62,9 @@ class PNG {
 		#if (lime_cffi && !macro)
 		
 		#if !cs
-		return lime_png_decode_file (path, decodeData, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
+		return NativeCFFI.lime_png_decode_file (path, decodeData, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
 		#else
-		var bufferData:Dynamic = lime_png_decode_file (path, decodeData, null);
+		var bufferData:Dynamic = NativeCFFI.lime_png_decode_file (path, decodeData, null);
 		
 		if (bufferData != null) {
 			
@@ -103,9 +101,9 @@ class PNG {
 		if (CFFI.enabled) {
 			
 			#if !cs
-			return lime_image_encode (image.buffer, 0, 0, Bytes.alloc (0));
+			return NativeCFFI.lime_image_encode (image.buffer, 0, 0, Bytes.alloc (0));
 			#else
-			var data:Dynamic = lime_image_encode (image.buffer, 0, 0, null);
+			var data:Dynamic = NativeCFFI.lime_image_encode (image.buffer, 0, 0, null);
 			return @:privateAccess new Bytes (data.length, data.b);
 			#end
 			
@@ -173,20 +171,6 @@ class PNG {
 		return null;
 		
 	}
-	
-	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	#if (lime_cffi && !macro)
-	@:cffi private static function lime_png_decode_bytes (data:Dynamic, decodeData:Bool, buffer:Dynamic):Dynamic;
-	@:cffi private static function lime_png_decode_file (path:String, decodeData:Bool, buffer:Dynamic):Dynamic;
-	@:cffi private static function lime_image_encode (data:Dynamic, type:Int, quality:Int, bytes:Dynamic):Dynamic;
-	#end
 	
 	
 }

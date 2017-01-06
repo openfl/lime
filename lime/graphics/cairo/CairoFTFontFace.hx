@@ -1,12 +1,11 @@
 package lime.graphics.cairo;
 
 
+import lime._backend.native.NativeCFFI;
 import lime.system.CFFIPointer;
 import lime.text.Font;
 
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
+@:access(lime._backend.native.NativeCFFI)
 
 
 abstract CairoFTFontFace(CairoFontFace) from CairoFontFace to CairoFontFace from CFFIPointer to CFFIPointer {
@@ -24,25 +23,13 @@ abstract CairoFTFontFace(CairoFontFace) from CairoFontFace to CairoFontFace from
 	
 	public static function create (face:Font, loadFlags:Int):CairoFTFontFace {
 		
-		#if (lime_cairo && !macro)
-		return lime_cairo_ft_font_face_create (face.src, loadFlags);
+		#if (lime_cffi && lime_cairo && !macro)
+		return NativeCFFI.lime_cairo_ft_font_face_create (face.src, loadFlags);
 		#else
 		return cast 0;
 		#end
 		
 	}
-	
-	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	#if (lime_cffi && !macro)
-	@:cffi private static function lime_cairo_ft_font_face_create (face:CFFIPointer, flags:Int):CFFIPointer;
-	#end
 	
 	
 }

@@ -1,12 +1,11 @@
 package lime.graphics.cairo;
 
 
+import lime._backend.native.NativeCFFI;
 import lime.system.CFFIPointer;
 import lime.text.Font;
 
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
+@:access(lime._backend.native.NativeCFFI)
 
 
 abstract CairoFontOptions(CFFIPointer) from CFFIPointer to CFFIPointer {
@@ -20,8 +19,8 @@ abstract CairoFontOptions(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	public function new () {
 		
-		#if (lime_cairo && !macro)
-		this = lime_cairo_font_options_create ();
+		#if (lime_cffi && lime_cairo && !macro)
+		this = NativeCFFI.lime_cairo_font_options_create ();
 		#else
 		this = null;
 		#end
@@ -38,8 +37,8 @@ abstract CairoFontOptions(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	@:noCompletion private function get_antialias ():CairoAntialias {
 		
-		#if (lime_cairo && !macro)
-		return lime_cairo_font_options_get_antialias (this);
+		#if (lime_cffi && lime_cairo && !macro)
+		return NativeCFFI.lime_cairo_font_options_get_antialias (this);
 		#end
 		
 		return cast 0;
@@ -49,8 +48,8 @@ abstract CairoFontOptions(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	@:noCompletion private function set_antialias (value:CairoAntialias):CairoAntialias {
 		
-		#if (lime_cairo && !macro)
-		lime_cairo_font_options_set_antialias (this, value);
+		#if (lime_cffi && lime_cairo && !macro)
+		NativeCFFI.lime_cairo_font_options_set_antialias (this, value);
 		#end
 		
 		return value;
@@ -60,8 +59,8 @@ abstract CairoFontOptions(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	@:noCompletion private function get_hintMetrics ():CairoHintMetrics {
 		
-		#if (lime_cairo && !macro)
-		return lime_cairo_font_options_get_hint_metrics (this);
+		#if (lime_cffi && lime_cairo && !macro)
+		return NativeCFFI.lime_cairo_font_options_get_hint_metrics (this);
 		#end
 		
 		return cast 0;
@@ -71,8 +70,8 @@ abstract CairoFontOptions(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	@:noCompletion private function set_hintMetrics (value:CairoHintMetrics):CairoHintMetrics {
 		
-		#if (lime_cairo && !macro)
-		lime_cairo_font_options_set_hint_metrics (this, value);
+		#if (lime_cffi && lime_cairo && !macro)
+		NativeCFFI.lime_cairo_font_options_set_hint_metrics (this, value);
 		#end
 		
 		return value;
@@ -83,8 +82,8 @@ abstract CairoFontOptions(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	@:noCompletion private function get_hintStyle ():CairoHintStyle {
 		
-		#if (lime_cairo && !macro)
-		return lime_cairo_font_options_get_hint_style (this);
+		#if (lime_cffi && lime_cairo && !macro)
+		return NativeCFFI.lime_cairo_font_options_get_hint_style (this);
 		#end
 		
 		return cast 0;
@@ -94,8 +93,8 @@ abstract CairoFontOptions(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	@:noCompletion private function set_hintStyle (value:CairoHintStyle):CairoHintStyle {
 		
-		#if (lime_cairo && !macro)
-		lime_cairo_font_options_set_hint_style (this, value);
+		#if (lime_cffi && lime_cairo && !macro)
+		NativeCFFI.lime_cairo_font_options_set_hint_style (this, value);
 		#end
 		
 		return value;
@@ -105,8 +104,8 @@ abstract CairoFontOptions(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	@:noCompletion private function get_subpixelOrder ():CairoSubpixelOrder {
 		
-		#if (lime_cairo && !macro)
-		return lime_cairo_font_options_get_subpixel_order (this);
+		#if (lime_cffi && lime_cairo && !macro)
+		return NativeCFFI.lime_cairo_font_options_get_subpixel_order (this);
 		#end
 		
 		return cast 0;
@@ -116,33 +115,13 @@ abstract CairoFontOptions(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	@:noCompletion private function set_subpixelOrder (value:CairoSubpixelOrder):CairoSubpixelOrder {
 		
-		#if (lime_cairo && !macro)
-		lime_cairo_font_options_set_subpixel_order (this, value);
+		#if (lime_cffi && lime_cairo && !macro)
+		NativeCFFI.lime_cairo_font_options_set_subpixel_order (this, value);
 		#end
 		
 		return value;
 		
 	}
-	
-	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	#if (lime_cffi && !macro)
-	@:cffi private static function lime_cairo_font_options_create ():CFFIPointer;
-	@:cffi private static function lime_cairo_font_options_get_antialias (handle:CFFIPointer):Int;
-	@:cffi private static function lime_cairo_font_options_get_hint_metrics (handle:CFFIPointer):Int;
-	@:cffi private static function lime_cairo_font_options_get_hint_style (handle:CFFIPointer):Int;
-	@:cffi private static function lime_cairo_font_options_get_subpixel_order (handle:CFFIPointer):Int;
-	@:cffi private static function lime_cairo_font_options_set_antialias (handle:CFFIPointer, v:Int):Void;
-	@:cffi private static function lime_cairo_font_options_set_hint_metrics (handle:CFFIPointer, v:Int):Void;
-	@:cffi private static function lime_cairo_font_options_set_hint_style (handle:CFFIPointer, v:Int):Void;
-	@:cffi private static function lime_cairo_font_options_set_subpixel_order (handle:CFFIPointer, v:Int):Void;
-	#end
 	
 	
 }

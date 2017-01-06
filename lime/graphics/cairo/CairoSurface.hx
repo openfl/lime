@@ -1,11 +1,10 @@
 package lime.graphics.cairo;
 
 
+import lime._backend.native.NativeCFFI;
 import lime.system.CFFIPointer;
 
-#if !macro
-@:build(lime.system.CFFI.build())
-#end
+@:access(lime._backend.native.NativeCFFI)
 
 
 abstract CairoSurface(CFFIPointer) from CFFIPointer to CFFIPointer {
@@ -13,23 +12,11 @@ abstract CairoSurface(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	public function flush ():Void {
 		
-		#if (lime_cairo && !macro)
-		lime_cairo_surface_flush (this);
+		#if (lime_cffi && lime_cairo && !macro)
+		NativeCFFI.lime_cairo_surface_flush (this);
 		#end
 		
 	}
-	
-	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	#if (lime_cairo && !macro)
-	@:cffi private static function lime_cairo_surface_flush (surface:CFFIPointer):Void;
-	#end
 	
 	
 }
