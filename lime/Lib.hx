@@ -31,6 +31,7 @@ class Lib {
 				Compiler.define ("lime-cffi");
 				Compiler.define ("native");
 				Compiler.define ("lime-curl");
+				Compiler.define ("lime-vorbis");
 				
 			}
 			

@@ -2,10 +2,10 @@ package lime._backend.flash;
 
 
 import flash.media.SoundChannel;
-import lime.audio.AudioSource;
+import lime.media.AudioSource;
 import lime.math.Vector4;
 
-@:access(lime.audio.AudioBuffer)
+@:access(lime.media.AudioBuffer)
 
 
 class FlashAudioSource {

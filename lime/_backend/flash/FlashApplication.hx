@@ -11,7 +11,7 @@ import flash.ui.Multitouch;
 import flash.Lib;
 import lime.app.Application;
 import lime.app.Config;
-import lime.audio.AudioManager;
+import lime.media.AudioManager;
 import lime.graphics.Renderer;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;

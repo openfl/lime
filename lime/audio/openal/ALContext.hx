@@ -1,20 +1,4 @@
-package lime.audio.openal;
+package lime.media.openal;
 
 
-import lime.system.CFFIPointer;
-
-@:allow(lime.audio.openal.AL)
-@:allow(lime.audio.openal.ALC)
-
-
-abstract ALContext(CFFIPointer) from CFFIPointer to CFFIPointer {
-	
-	
-	private inline function new (handle:CFFIPointer) {
-		
-		this = handle;
-		
-	}
-	
-	
-}
+@:deprecated("The lime.audio package has been moved to lime.media.*") typedef ALContext = lime.media.openal.ALContext;

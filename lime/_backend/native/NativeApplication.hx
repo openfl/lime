@@ -5,7 +5,7 @@ import haxe.Timer;
 import lime._backend.native.NativeCFFI;
 import lime.app.Application;
 import lime.app.Config;
-import lime.audio.AudioManager;
+import lime.media.AudioManager;
 import lime.graphics.opengl.GL;
 import lime.graphics.ConsoleRenderContext;
 import lime.graphics.GLRenderContext;

@@ -1,8 +1,8 @@
-#ifndef LIME_AUDIO_FORMAT_WAV_H
-#define LIME_AUDIO_FORMAT_WAV_H
+#ifndef LIME_MEDIA_CONTAINERS_WAV_H
+#define LIME_MEDIA_CONTAINERS_WAV_H
 
 
-#include <audio/AudioBuffer.h>
+#include <media/AudioBuffer.h>
 #include <utils/Resource.h>
 
 

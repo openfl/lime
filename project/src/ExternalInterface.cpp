@@ -7,13 +7,9 @@
 #endif
 
 
-#include <hx/CFFIPrimePatch.h>
-//#include <hx/CFFIPrime.h>
+#include <hx/CFFIPrime.h>
 #include <app/Application.h>
 #include <app/ApplicationEvent.h>
-#include <audio/format/OGG.h>
-#include <audio/format/WAV.h>
-#include <audio/AudioBuffer.h>
 #include <graphics/format/JPEG.h>
 #include <graphics/format/PNG.h>
 #include <graphics/utils/ImageDataUtil.h>
@@ -21,6 +17,9 @@
 #include <graphics/ImageBuffer.h>
 #include <graphics/Renderer.h>
 #include <graphics/RenderEvent.h>
+#include <media/containers/OGG.h>
+#include <media/containers/WAV.h>
+#include <media/AudioBuffer.h>
 #include <system/CFFIPointer.h>
 #include <system/Clipboard.h>
 #include <system/JNI.h>
@@ -1870,6 +1869,12 @@ extern "C" int lime_openal_register_prims () { return 0; }
 extern "C" int lime_opengl_register_prims ();
 #else
 extern "C" int lime_opengl_register_prims () { return 0; }
+#endif
+
+#ifdef LIME_VORBIS
+extern "C" int lime_vorbis_register_prims ();
+#else
+extern "C" int lime_vorbis_register_prims () { return 0; }
 #endif
 
 

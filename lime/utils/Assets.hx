@@ -6,7 +6,7 @@ import haxe.Unserializer;
 import lime.app.Event;
 import lime.app.Promise;
 import lime.app.Future;
-import lime.audio.AudioBuffer;
+import lime.media.AudioBuffer;
 import lime.graphics.Image;
 import lime.text.Font;
 import lime.utils.Bytes;

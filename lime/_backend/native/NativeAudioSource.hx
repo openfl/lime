@@ -2,10 +2,10 @@ package lime._backend.native;
 
 
 import haxe.Timer;
-import lime.audio.AudioManager;
-import lime.audio.AudioSource;
-import lime.audio.openal.AL;
-import lime.audio.openal.ALSource;
+import lime.media.AudioManager;
+import lime.media.AudioSource;
+import lime.media.openal.AL;
+import lime.media.openal.ALSource;
 import lime.math.Vector4;
 
 #if !lime_debug
@@ -13,7 +13,7 @@ import lime.math.Vector4;
 @:noDebug
 #end
 
-@:access(lime.audio.AudioBuffer)
+@:access(lime.media.AudioBuffer)
 
 
 class NativeAudioSource {

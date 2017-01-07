@@ -2,7 +2,7 @@ package lime.utils;
 
 
 import lime._macros.AssetsMacro;
-import lime.audio.AudioBuffer;
+import lime.media.AudioBuffer;
 import lime.graphics.Image;
 
 #if !lime_debug

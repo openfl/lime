@@ -1,16 +1,4 @@
-package lime.audio.fmod;
-#if lime_console
+package lime.media.fmod;
 
 
-import lime.ConsoleIncludePaths;
-
-
-@:enum abstract FMODMode(Int) {
-
-	var LOOP_OFF    = 0x00000001;
-	var LOOP_NORMAL = 0x00000002;
-
-}
-
-
-#end
+@:deprecated("The lime.audio package has been moved to lime.media.*") typedef FMODMode = lime.media.fmod.FMODMode;

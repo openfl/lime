@@ -4,7 +4,7 @@ package lime.app;
 import haxe.io.Bytes;
 import haxe.io.Path;
 import lime.app.Event;
-import lime.audio.AudioBuffer;
+import lime.media.AudioBuffer;
 import lime.utils.AssetLibrary;
 import lime.utils.Assets;
 import lime.utils.AssetType;

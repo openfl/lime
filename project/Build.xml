@@ -123,7 +123,7 @@
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/vorbis/include/" />
 			<compilerflag value="-DLIME_OGG" />
 			
-			<file name="src/audio/format/OGG.cpp" />
+			<file name="src/media/containers/OGG.cpp" />
 			
 		</section>
 		
@@ -135,7 +135,7 @@
 			<compilerflag value="-DAL_LIBTYPE_STATIC=1" />
 			<compilerflag value="-DAL_ALEXT_PROTOTYPES" />
 			
-			<file name="src/audio/openal/OpenALBindings.cpp" />
+			<file name="src/media/openal/OpenALBindings.cpp" />
 			
 		</section>
 		
@@ -206,6 +206,16 @@
 			
 		</section>
 		
+		<section if="LIME_VORBIS">
+			
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/ogg/include/" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/vorbis/include/" />
+			<compilerflag value="-DLIME_VORBIS" />
+			
+			<file name="src/media/codecs/VorbisBindings.cpp" />
+			
+		</section>
+		
 		<section if="LIME_ZLIB">
 			
 			<compilerflag value="-DSTATIC_LINK" if="emscripten" />
@@ -217,8 +227,6 @@
 		</section>
 		
 		<file name="src/app/ApplicationEvent.cpp" />
-		<file name="src/audio/format/WAV.cpp" />
-		<file name="src/audio/AudioBuffer.cpp" />
 		<file name="src/graphics/utils/ImageDataUtil.cpp" />
 		<file name="src/graphics/Image.cpp" />
 		<file name="src/graphics/ImageBuffer.cpp" />
@@ -227,6 +235,8 @@
 		<file name="src/math/Matrix3.cpp" />
 		<file name="src/math/Rectangle.cpp" />
 		<file name="src/math/Vector2.cpp" />
+		<file name="src/media/containers/WAV.cpp" />
+		<file name="src/media/AudioBuffer.cpp" />
 		<file name="src/system/CFFIPointer.cpp" />
 		<file name="src/system/JNI.cpp" if="android" />
 		<file name="src/system/Locale.cpp" unless="mac || ios" />

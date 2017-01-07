@@ -4,7 +4,7 @@ package lime.utils;
 import lime.app.Event;
 import lime.app.Future;
 import lime.app.Promise;
-import lime.audio.AudioBuffer;
+import lime.media.AudioBuffer;
 import lime.graphics.Image;
 import lime.text.Font;
 import lime.utils.AssetType;

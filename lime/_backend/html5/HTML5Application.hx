@@ -5,7 +5,7 @@ import js.html.KeyboardEvent;
 import js.Browser;
 import lime.app.Application;
 import lime.app.Config;
-import lime.audio.AudioManager;
+import lime.media.AudioManager;
 import lime.graphics.Renderer;
 import lime.ui.GamepadAxis;
 import lime.ui.KeyCode;

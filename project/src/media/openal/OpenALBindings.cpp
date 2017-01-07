@@ -9,8 +9,7 @@
 #endif
 #endif
 
-#include <hx/CFFIPrimePatch.h>
-//#include <hx/CFFIPrime.h>
+#include <hx/CFFIPrime.h>
 #include <system/CFFIPointer.h>
 #include <utils/ArrayBufferView.h>
 #include <map>

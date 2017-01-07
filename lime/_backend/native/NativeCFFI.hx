@@ -534,5 +534,37 @@ class NativeCFFI {
 	@:cffi private static function lime_gl_viewport (x:Int, y:Int, width:Int, height:Int):Void;
 	#end
 	
+	#if (lime_cffi && !macro && lime_vorbis)
+	@:cffi private static function lime_vorbis_file_bitrate (vorbisFile:Dynamic, bitstream:Int):Int;
+	@:cffi private static function lime_vorbis_file_bitrate_instant (vorbisFile:Dynamic):Int;
+	@:cffi private static function lime_vorbis_file_clear (vorbisFile:Dynamic):Void;
+	@:cffi private static function lime_vorbis_file_comment (vorbisFile:Dynamic, bitstream:Int):Dynamic;
+	@:cffi private static function lime_vorbis_file_crosslap (vorbisFile:Dynamic, otherVorbisFile:Dynamic):Dynamic;
+	@:cffi private static function lime_vorbis_file_from_bytes (bytes:Dynamic):Dynamic;
+	@:cffi private static function lime_vorbis_file_from_file (path:String):Dynamic;
+	@:cffi private static function lime_vorbis_file_info (vorbisFile:Dynamic, bitstream:Int):Dynamic;
+	@:cffi private static function lime_vorbis_file_pcm_seek (vorbisFile:Dynamic, posLow:Dynamic, posHigh:Dynamic):Int;
+	@:cffi private static function lime_vorbis_file_pcm_seek_lap (vorbisFile:Dynamic, posLow:Dynamic, posHigh:Dynamic):Int;
+	@:cffi private static function lime_vorbis_file_pcm_seek_page (vorbisFile:Dynamic, posLow:Dynamic, posHigh:Dynamic):Int;
+	@:cffi private static function lime_vorbis_file_pcm_seek_page_lap (vorbisFile:Dynamic, posLow:Dynamic, posHigh:Dynamic):Int;
+	@:cffi private static function lime_vorbis_file_raw_seek (vorbisFile:Dynamic, posLow:Dynamic, posHigh:Dynamic):Int;
+	@:cffi private static function lime_vorbis_file_raw_seek_lap (vorbisFile:Dynamic, posLow:Dynamic, posHigh:Dynamic):Int;
+	@:cffi private static function lime_vorbis_file_pcm_tell (vorbisFile:Dynamic):Dynamic;
+	@:cffi private static function lime_vorbis_file_pcm_total (vorbisFile:Dynamic, bitstream:Int):Dynamic;
+	@:cffi private static function lime_vorbis_file_raw_tell (vorbisFile:Dynamic):Dynamic;
+	@:cffi private static function lime_vorbis_file_raw_total (vorbisFile:Dynamic, bitstream:Int):Dynamic;
+	@:cffi private static function lime_vorbis_file_read (vorbisFile:Dynamic, buffer:Dynamic, length:Int, bigendianp:Bool, word:Int, signed:Bool):Dynamic;
+	@:cffi private static function lime_vorbis_file_read_float (vorbisFile:Dynamic, pcmChannels:Dynamic, samples:Int):Dynamic;
+	@:cffi private static function lime_vorbis_file_seekable (vorbisFile:Dynamic):Bool;
+	@:cffi private static function lime_vorbis_file_serial_number (vorbisFile:Dynamic, bitstream:Int):Int;
+	@:cffi private static function lime_vorbis_file_streams (vorbisFile:Dynamic):Int;
+	@:cffi private static function lime_vorbis_file_time_seek (vorbisFile:Dynamic, s:Float):Int;
+	@:cffi private static function lime_vorbis_file_time_seek_lap (vorbisFile:Dynamic, s:Float):Int;
+	@:cffi private static function lime_vorbis_file_time_seek_page (vorbisFile:Dynamic, s:Float):Int;
+	@:cffi private static function lime_vorbis_file_time_seek_page_lap (vorbisFile:Dynamic, s:Float):Int;
+	@:cffi private static function lime_vorbis_file_time_tell (vorbisFile:Dynamic):Float;
+	@:cffi private static function lime_vorbis_file_time_total (vorbisFile:Dynamic, bitstream:Int):Float;
+	#end
+	
 	
 }
