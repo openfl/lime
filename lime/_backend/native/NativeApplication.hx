@@ -112,7 +112,7 @@ class NativeApplication {
 		NativeCFFI.lime_window_event_manager_register (handleWindowEvent, windowEventInfo);
 		
 		#if (ios || android || tvos)
-		lime_sensor_event_manager_register (handleSensorEvent, sensorEventInfo);
+		NativeCFFI.lime_sensor_event_manager_register (handleSensorEvent, sensorEventInfo);
 		#end
 		
 		#if nodejs
