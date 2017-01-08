@@ -109,7 +109,7 @@ class PNG {
 			
 		}
 		#end
-
+		
 		#if (!html5 && format)
 		
 		else {

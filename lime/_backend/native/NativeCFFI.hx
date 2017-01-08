@@ -551,7 +551,7 @@ class NativeCFFI {
 	@:cffi private static function lime_vorbis_file_pcm_total (vorbisFile:Dynamic, bitstream:Int):Dynamic;
 	@:cffi private static function lime_vorbis_file_raw_tell (vorbisFile:Dynamic):Dynamic;
 	@:cffi private static function lime_vorbis_file_raw_total (vorbisFile:Dynamic, bitstream:Int):Dynamic;
-	@:cffi private static function lime_vorbis_file_read (vorbisFile:Dynamic, buffer:Dynamic, length:Int, bigendianp:Bool, word:Int, signed:Bool):Dynamic;
+	@:cffi private static function lime_vorbis_file_read (vorbisFile:Dynamic, buffer:Dynamic, position:Int, length:Int, bigendianp:Bool, word:Int, signed:Bool):Dynamic;
 	@:cffi private static function lime_vorbis_file_read_float (vorbisFile:Dynamic, pcmChannels:Dynamic, samples:Int):Dynamic;
 	@:cffi private static function lime_vorbis_file_seekable (vorbisFile:Dynamic):Bool;
 	@:cffi private static function lime_vorbis_file_serial_number (vorbisFile:Dynamic, bitstream:Int):Int;

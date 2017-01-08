@@ -7,13 +7,46 @@
 namespace lime {
 	
 	
+	static int id_bitrateUpper;
+	static int id_bitrateNominal;
+	static int id_bitrateLower;
 	static int id_bitstream;
+	static int id_channels;
 	static int id_high;
 	static int id_low;
+	static int id_rate;
 	static int id_returnValue;
+	static int id_version;
+	static value infoValue;
 	static value int64Value;
 	static value readValue;
 	static bool init = false;
+	
+	
+	inline void _initializeVorbis () {
+		
+		if (!init) {
+			
+			id_bitrateUpper = val_id ("bitrateUpper");
+			id_bitrateNominal = val_id ("bitrateNominal");
+			id_bitrateLower = val_id ("bitrateLower");
+			id_bitstream = val_id ("bitstream");
+			id_channels = val_id ("channels");
+			id_high = val_id ("high");
+			id_low = val_id ("low");
+			id_rate = val_id ("rate");
+			id_returnValue = val_id ("returnValue");
+			id_version = val_id ("version");
+			
+			infoValue = alloc_empty_object ();
+			int64Value = alloc_empty_object ();
+			readValue = alloc_empty_object ();
+			
+			init = true;
+			
+		}
+		
+	}
 	
 	
 	value allocInt64 (ogg_int64_t val) {
@@ -21,17 +54,7 @@ namespace lime {
 		ogg_int32_t low = val;
 		ogg_int32_t high = (val >> 32);
 		
-		if (!init) {
-			
-			id_bitstream = val_id ("bitstream");
-			id_high = val_id ("high");
-			id_low = val_id ("low");
-			id_returnValue = val_id ("returnValue");
-			int64Value = alloc_empty_object ();
-			readValue = alloc_empty_object ();
-			init = true;
-			
-		}
+		_initializeVorbis ();
 		
 		alloc_field (int64Value, id_low, alloc_int (low));
 		alloc_field (int64Value, id_high, alloc_int (high));
@@ -69,8 +92,13 @@ namespace lime {
 	
 	void lime_vorbis_file_clear (value vorbisFile) {
 		
-		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)val_data (vorbisFile);
-		ov_clear (file);
+		if (!val_is_null (vorbisFile)) {
+			
+			OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)val_data (vorbisFile);
+			val_gc (vorbisFile, 0);
+			ov_clear (file);
+			
+		}
 		
 	}
 	
@@ -92,6 +120,24 @@ namespace lime {
 	
 	
 	value lime_vorbis_file_info (value vorbisFile, int bitstream) {
+		
+		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)val_data (vorbisFile);
+		vorbis_info *info = ov_info (file, bitstream);
+		
+		if (info) {
+			
+			_initializeVorbis ();
+			
+			alloc_field (infoValue, id_version, alloc_int (info->version));
+			alloc_field (infoValue, id_channels, alloc_int (info->channels));
+			alloc_field (infoValue, id_rate, alloc_int (info->rate));
+			alloc_field (infoValue, id_bitrateUpper, alloc_int (info->bitrate_upper));
+			alloc_field (infoValue, id_bitrateNominal, alloc_int (info->bitrate_nominal));
+			alloc_field (infoValue, id_bitrateLower, alloc_int (info->bitrate_lower));
+			
+			return infoValue;
+			
+		}
 		
 		return alloc_null ();
 		
@@ -217,7 +263,13 @@ namespace lime {
 	}
 	
 	
-	value lime_vorbis_file_read (value vorbisFile, value buffer, int length, bool bigendianp, int word, bool sgned) {
+	value lime_vorbis_file_read (value vorbisFile, value buffer, int position, int length, bool bigendianp, int word, bool sgned) {
+		
+		if (val_is_null (buffer)) {
+			
+			return alloc_null ();
+			
+		}
 		
 		Bytes bytes;
 		bytes.Set (buffer);
@@ -225,7 +277,9 @@ namespace lime {
 		int bitstream;
 		
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)val_data (vorbisFile);
-		long result = ov_read (file, (char*)bytes.Data (), length, bigendianp, word, sgned, &bitstream);
+		long result = ov_read (file, (char*)bytes.Data () + position, length, bigendianp, word, sgned, &bitstream);
+		
+		_initializeVorbis ();
 		
 		alloc_field (readValue, id_bitstream, alloc_int (bitstream));
 		alloc_field (readValue, id_returnValue, alloc_int (result));
@@ -345,7 +399,7 @@ namespace lime {
 	DEFINE_PRIME3 (lime_vorbis_file_raw_seek_lap);
 	DEFINE_PRIME1 (lime_vorbis_file_raw_tell);
 	DEFINE_PRIME2 (lime_vorbis_file_raw_total);
-	DEFINE_PRIME6 (lime_vorbis_file_read);
+	DEFINE_PRIME7 (lime_vorbis_file_read);
 	DEFINE_PRIME3 (lime_vorbis_file_read_float);
 	DEFINE_PRIME1 (lime_vorbis_file_seekable);
 	DEFINE_PRIME2 (lime_vorbis_file_serial_number);

@@ -190,10 +190,16 @@ class VorbisFile {
 	public function pcmTell ():Int64 {
 		
 		#if (lime_cffi && lime_vorbis && !macro)
-		return NativeCFFI.lime_vorbis_file_pcm_tell (handle);
-		#else
-		return 0;
+		var data = NativeCFFI.lime_vorbis_file_pcm_tell (handle);
+		
+		if (data != null) {
+			
+			return Int64.make (data.high, data.low);
+			
+		}
 		#end
+		
+		return Int64.ofInt (0);
 		
 	}
 	
@@ -202,10 +208,16 @@ class VorbisFile {
 	public function pcmTotal (bitstream:Int = -1):Int64 {
 		
 		#if (lime_cffi && lime_vorbis && !macro)
-		return NativeCFFI.lime_vorbis_file_pcm_total (handle, bitstream);
-		#else
-		return 0;
+		var data = NativeCFFI.lime_vorbis_file_pcm_total (handle, bitstream);
+		
+		if (data != null) {
+			
+			return Int64.make (data.high, data.low);
+			
+		}
 		#end
+		
+		return Int64.ofInt (0);
 		
 	}
 	
@@ -234,11 +246,18 @@ class VorbisFile {
 	
 	public function rawTell ():Int64 {
 		
+		
 		#if (lime_cffi && lime_vorbis && !macro)
-		return NativeCFFI.lime_vorbis_file_raw_tell (handle);
-		#else
-		return 0;
+		var data = NativeCFFI.lime_vorbis_file_raw_tell (handle);
+		
+		if (data != null) {
+			
+			return Int64.make (data.high, data.low);
+			
+		}
 		#end
+		
+		return Int64.ofInt (0);
 		
 	}
 	
@@ -246,18 +265,24 @@ class VorbisFile {
 	public function rawTotal (bitstream:Int = -1):Int64 {
 		
 		#if (lime_cffi && lime_vorbis && !macro)
-		return NativeCFFI.lime_vorbis_file_raw_total (handle, bitstream);
-		#else
-		return 0;
+		var data = NativeCFFI.lime_vorbis_file_raw_total (handle, bitstream);
+		
+		if (data != null) {
+			
+			return Int64.make (data.high, data.low);
+			
+		}
 		#end
+		
+		return Int64.ofInt (0);
 		
 	}
 	
 	
-	public function read (buffer:Bytes, length:Int = 4096, bigEndianPacking:Bool = false, wordSize:Int = 2, signed:Bool = true):Int {
+	public function read (buffer:Bytes, position:Int, length:Int = 4096, bigEndianPacking:Bool = false, wordSize:Int = 2, signed:Bool = true):Int {
 		
 		#if (lime_cffi && lime_vorbis && !macro)
-		var data = NativeCFFI.lime_vorbis_file_read (handle, buffer, length, bigEndianPacking, wordSize, signed);
+		var data = NativeCFFI.lime_vorbis_file_read (handle, buffer, position, length, bigEndianPacking, wordSize, signed);
 		bitstream = data.bitstream;
 		return data.returnValue;
 		#else

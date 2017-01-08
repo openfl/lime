@@ -11,7 +11,7 @@ namespace lime {
 	static bool useBuffer = false;
 	
 	
-	inline void initialize () {
+	inline void _initializeBytes () {
 		
 		if (!init) {
 			
@@ -35,7 +35,7 @@ namespace lime {
 	
 	Bytes::Bytes () {
 		
-		initialize ();
+		_initializeBytes ();
 		
 		_data = 0;
 		_length = 0;
@@ -46,7 +46,7 @@ namespace lime {
 	
 	Bytes::Bytes (int size) {
 		
-		initialize ();
+		_initializeBytes ();
 		
 		_data = 0;
 		_length = 0;
@@ -59,7 +59,7 @@ namespace lime {
 	
 	Bytes::Bytes (value bytes) {
 		
-		initialize ();
+		_initializeBytes ();
 		
 		_data = 0;
 		_length = 0;
@@ -72,7 +72,7 @@ namespace lime {
 	
 	Bytes::Bytes (const char* path) {
 		
-		initialize ();
+		_initializeBytes ();
 		
 		_data = 0;
 		_length = 0;
@@ -85,7 +85,7 @@ namespace lime {
 	
 	Bytes::Bytes (const QuickVec<unsigned char> data) {
 		
-		initialize ();
+		_initializeBytes ();
 		
 		_data = 0;
 		_length = 0;
@@ -218,7 +218,7 @@ namespace lime {
 		} else {
 			
 			_value = bytes;
-			_length = val_int (val_field (bytes, id_length));
+			_length = val_int (val_field (bytes, val_id ("length")));
 			
 			if (_length > 0) {
 				
