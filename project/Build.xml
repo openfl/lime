@@ -212,7 +212,8 @@
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/vorbis/include/" />
 			<compilerflag value="-DLIME_VORBIS" />
 			
-			<file name="src/media/codecs/VorbisBindings.cpp" />
+			<file name="src/media/codecs/vorbis/VorbisBindings.cpp" />
+			<file name="src/media/codecs/vorbis/VorbisFile.cpp" />
 			
 		</section>
 		

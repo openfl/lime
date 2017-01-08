@@ -1,8 +1,7 @@
 #include <hx/CFFIPrime.h>
+#include <media/codecs/vorbis/VorbisFile.h>
 #include <system/CFFIPointer.h>
-#include <system/System.h>
 #include <utils/Bytes.h>
-#include <vorbis/vorbisfile.h>
 
 
 namespace lime {
@@ -40,104 +39,6 @@ namespace lime {
 		return int64Value;
 		
 	}
-	
-	
-	typedef struct {
-		
-		unsigned char* data;
-		ogg_int64_t size;
-		ogg_int64_t pos;
-		
-	} Vorbis_BufferData;
-	
-	
-	static size_t Vorbis_BufferRead (void* dest, size_t eltSize, size_t nelts, Vorbis_BufferData* src) {
-		
-		size_t len = eltSize * nelts;
-		
-		if ((src->pos + len) > src->size) {
-			
-			len = src->size - src->pos;
-			
-		}
-		
-		if (len > 0) {
-			
-			memcpy (dest, (src->data + src->pos), len);
-			src->pos += len;
-			
-		}
-		
-		return len;
-		
-	}
-	
-	
-	static int Vorbis_BufferSeek (Vorbis_BufferData* src, ogg_int64_t pos, int whence) {
-		
-		switch (whence) {
-			
-			case SEEK_CUR:
-				
-				src->pos += pos;
-				break;
-			
-			case SEEK_END:
-				
-				src->pos = src->size - pos;
-				break;
-			
-			case SEEK_SET:
-				
-				src->pos = pos;
-				break;
-			
-			default:
-				
-				return -1;
-			
-		}
-		
-		if (src->pos < 0) {
-			
-			src->pos = 0;
-			return -1;
-			
-		}
-		
-		if (src->pos > src->size) {
-			
-			return -1;
-			
-		}
-		
-		return 0;
-		
-	}
-	
-	
-	static int Vorbis_BufferClose (Vorbis_BufferData* src) {
-		
-		return 0;
-		
-	}
-	
-	
-	static long Vorbis_BufferTell (Vorbis_BufferData *src) {
-		
-		return src->pos;
-		
-	}
-	
-	
-	static ov_callbacks VORBIS_CALLBACKS_BUFFER = {
-		
-		(size_t (*)(void *, size_t, size_t, void *)) Vorbis_BufferRead,
-		(int (*)(void *, ogg_int64_t, int)) Vorbis_BufferSeek,
-		(int (*)(void *)) Vorbis_BufferClose,
-		(long (*)(void *)) Vorbis_BufferTell
-		
-	};
 	
 	
 	void lime_vorbis_file_clear (value vorbisFile);
@@ -199,73 +100,29 @@ namespace lime {
 	
 	value lime_vorbis_file_from_bytes (value data) {
 		
-		OggVorbis_File* vorbisFile = new OggVorbis_File;
-		memset (vorbisFile, 0, sizeof (OggVorbis_File));
-		
 		Bytes bytes;
 		bytes.Set (data);
 		
-		Vorbis_BufferData buffer = Vorbis_BufferData ();
-		buffer.data = bytes.Data ();
-		buffer.size = bytes.Length ();
-		buffer.pos = 0;
+		OggVorbis_File* vorbisFile = VorbisFile::FromBytes (&bytes);
 		
-		if (ov_open_callbacks (&buffer, vorbisFile, NULL, 0, VORBIS_CALLBACKS_BUFFER) != 0) {
+		if (vorbisFile) {
 			
-			free (vorbisFile);
-			return alloc_null ();
+			return CFFIPointer ((void*)(uintptr_t)vorbisFile, gc_vorbis_file);
 			
 		}
 		
-		return CFFIPointer ((void*)(uintptr_t)vorbisFile, gc_vorbis_file);
+		return alloc_null ();
 		
 	}
 	
 	
 	value lime_vorbis_file_from_file (HxString path) {
 		
-		if (path.c_str ()) {
+		OggVorbis_File* vorbisFile = VorbisFile::FromFile (path.c_str ());
+		
+		if (vorbisFile) {
 			
-			FILE_HANDLE *file = lime::fopen (path.c_str (), "rb");
-			
-			if (file) {
-				
-				OggVorbis_File* vorbisFile = new OggVorbis_File;
-				memset (vorbisFile, 0, sizeof (OggVorbis_File));
-				
-				if (file->isFile ()) {
-					
-					if (ov_open (file->getFile (), vorbisFile, NULL, file->getLength ()) != 0) {
-						
-						free (vorbisFile);
-						lime::fclose (file);
-						return alloc_null ();
-						
-					}
-					
-				} else {
-					
-					lime::fclose (file);
-					Bytes* bytes = new Bytes (path.c_str ());
-					
-					Vorbis_BufferData buffer = Vorbis_BufferData ();
-					buffer.data = bytes->Data ();
-					buffer.size = bytes->Length ();
-					buffer.pos = 0;
-					
-					if (ov_open_callbacks (&buffer, vorbisFile, NULL, 0, VORBIS_CALLBACKS_BUFFER) != 0) {
-						
-						delete bytes;
-						free (vorbisFile);
-						return alloc_null ();
-						
-					}
-					
-				}
-				
-				return CFFIPointer ((void*)(uintptr_t)vorbisFile, gc_vorbis_file);
-				
-			}
+			return CFFIPointer ((void*)(uintptr_t)vorbisFile, gc_vorbis_file);
 			
 		}
 		
