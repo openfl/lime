@@ -14,6 +14,9 @@
 
 #ifdef LIME_SDL
 #include <SDL.h>
+#ifdef NATIVE_TOOLKIT_SDL_ANGLE
+#include <SDL_egl.h>
+#endif
 #endif
 
 
@@ -24,14 +27,30 @@
 #define OGL_EXT(func,ret,args) \
    namespace lime { extern ret (CALLING_CONVENTION *func)args; }
 
+#define EGL_EXT(func,ret,args) \
+   namespace lime { extern ret (CALLING_CONVENTION *func)args; }
+
 #elif defined(DEFINE_EXTENSION)
 
 #define OGL_EXT(func,ret,args) \
    namespace lime { ret (CALLING_CONVENTION *func)args=0; }
 
+#define EGL_EXT(func, ret, args) \
+   namespace lime { ret (CALLING_CONVENTION *func)args=0; }
+
 #elif defined(GET_EXTENSION)
 
-#ifdef LIME_SDL
+#if defined (LIME_SDL) && defined (NATIVE_TOOLKIT_SDL_ANGLE)
+   #define OGL_EXT(func,ret,args) \
+   {\
+      *(void **)&lime::func = (void *)SDL_GL_GetProcAddress(#func);\
+   }
+   
+   #define EGL_EXT(func,ret,args) \
+   {\
+      *(void **)&lime::func = (void *)GetProcAddress((HMODULE)lime::OpenGLBindings::eglHandle.get (), #func);\
+   }
+#elif LIME_SDL
    #define OGL_EXT(func,ret,args) \
    {\
       *(void **)&lime::func = (void *)SDL_GL_GetProcAddress(#func);\
@@ -164,7 +183,11 @@ OGL_EXT(glBlendFunc,void, (GLenum sfactor, GLenum dfactor));
 OGL_EXT(glClear,void, (GLbitfield mask));
 OGL_EXT(glClearColor,void, (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha));
 //OGL_EXT(glClearColorx,void, (GLclampx red, GLclampx green, GLclampx blue, GLclampx alpha));
+#if !defined(LIME_GLES)
 OGL_EXT(glClearDepth,void, (GLclampd depth));
+#else
+OGL_EXT(glClearDepthf,void, (GLclampf depth));
+#endif
 //OGL_EXT(glClearDepthx,void, (GLclampx depth));
 OGL_EXT(glClearStencil,void, (GLint s));
 OGL_EXT(glClientActiveTexture,void, (GLenum texture));
@@ -180,7 +203,11 @@ OGL_EXT(glCullFace,void, (GLenum mode));
 OGL_EXT(glDeleteTextures,void, (GLsizei n, const GLuint *textures));
 OGL_EXT(glDepthFunc,void, (GLenum func));
 OGL_EXT(glDepthMask,void, (GLboolean flag));
+#if !defined(LIME_GLES)
 OGL_EXT(glDepthRange,void, (GLclampd zNear, GLclampd zFar));
+#else
+OGL_EXT(glDepthRangef,void, (GLclampf nearVal,GLclampf farVal));
+#endif
 //OGL_EXT(glDepthRangex,void, (GLclampx zNear, GLclampx zFar));
 OGL_EXT(glDisable,void, (GLenum cap));
 OGL_EXT(glDisableClientState,void, (GLenum array));
@@ -201,6 +228,9 @@ OGL_EXT(glGenTextures,void, (GLsizei n, GLuint *textures));
 OGL_EXT(glGetError,GLenum, (void));
 OGL_EXT(glGetFloatv,void, (GLenum pname, GLfloat* params));
 OGL_EXT(glGetIntegerv,void, (GLenum pname, GLint *params));
+#ifdef LIME_GLES
+OGL_EXT(glGetShaderPrecisionFormat,void, (GLenum shaderType, GLenum precisionType, GLint *range, GLint *precision));
+#endif
 OGL_EXT(glGetString, const GLubyte *,(GLenum name));
 OGL_EXT(glHint,void, (GLenum target, GLenum mode));
 OGL_EXT(glLightModelf,void, (GLenum pname, GLfloat param));
@@ -267,10 +297,22 @@ OGL_EXT(glGetTexParameteriv,void,(GLenum target,  GLenum pname,  GLint * params)
 OGL_EXT(glIsTexture, GLboolean, ( GLuint texture) );
 OGL_EXT(glIsEnabled, GLboolean, ( GLuint texture) );
 
-
+#ifdef NATIVE_TOOLKIT_SDL_ANGLE
+EGL_EXT(eglBindTexImage, EGLBoolean, (EGLDisplay dpy, EGLSurface surface, EGLint buffer));
+EGL_EXT(eglChooseConfig, EGLBoolean, (EGLDisplay dpy, const EGLint *attrib_list, EGLConfig *configs, EGLint config_size, EGLint *num_config));
+EGL_EXT(eglCreatePbufferSurface, EGLSurface, (EGLDisplay dpy, EGLConfig config, const EGLint *attrib_list));
+EGL_EXT(eglDestroySurface, EGLBoolean, (EGLDisplay display, EGLSurface surface));
+EGL_EXT(eglGetDisplay, EGLDisplay, (EGLNativeDisplayType display_id));
+EGL_EXT(eglGetError, EGLint, (void));
+EGL_EXT(eglGetConfigs, EGLBoolean, (EGLDisplay dpy, EGLConfig *configs,EGLint config_size, EGLint *num_config));
+EGL_EXT(eglGetConfigAttrib, EGLBoolean, (EGLDisplay dpy, EGLConfig config, EGLint attribute, EGLint *value));
+EGL_EXT(eglReleaseTexImage, EGLBoolean, (EGLDisplay display, EGLSurface surface, EGLint buffer));
+EGL_EXT(eglQuerySurfacePointerANGLE, EGLBoolean, (EGLDisplay dpy, EGLSurface surface, EGLint attribute, void **value));
+#endif
 
 #endif
 
 
 #undef OGL_EXT
+#undef EGL_EXT
 #undef CALLING_CONVENTION
