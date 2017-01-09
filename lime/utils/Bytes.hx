@@ -56,7 +56,7 @@ abstract Bytes(HaxeBytes) from HaxeBytes to HaxeBytes {
 		NativeCFFI.lime_bytes_read_file (path, bytes);
 		if (bytes.length > 0) return bytes;
 		#else
-		var data:Dynamic = NativeCFFI.lime_bytes_read_file (path);
+		var data:Dynamic = NativeCFFI.lime_bytes_read_file (path, null);
 		if (data != null) return new Bytes (data.length, data.b);
 		#end
 		#end
