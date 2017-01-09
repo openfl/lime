@@ -4,7 +4,7 @@ package;
 @:access(lime.app.Application)
 
 
-class ApplicationMain {
+@:dox(hide) class ApplicationMain {
 	
 	
 	public static var config:lime.app.Config;

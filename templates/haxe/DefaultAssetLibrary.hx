@@ -15,7 +15,7 @@ import sys.FileSystem;
 #end
 
 
-@:keep class DefaultAssetLibrary extends AssetLibrary {
+@:keep @:dox(hide) class DefaultAssetLibrary extends AssetLibrary {
 	
 	
 	private var lastModified:Float;
