@@ -100,8 +100,7 @@ class HTML5Platform extends PlatformTarget {
 			
 		}
 		
-		var hxml = PathHelper.findTemplate (project.templatePaths, "html5/hxml/" + type + ".hxml");
-		
+		var hxml = targetDirectory + "/haxe/" + type + ".hxml";
 		var context = project.templateContext;
 		context.OUTPUT_DIR = targetDirectory;
 		context.OUTPUT_FILE = outputFile;
@@ -109,8 +108,6 @@ class HTML5Platform extends PlatformTarget {
 		var template = new Template (File.getContent (hxml));
 		
 		Sys.println (template.execute (context));
-		Sys.println ("-D display");
-		
 	}
 	
 	
