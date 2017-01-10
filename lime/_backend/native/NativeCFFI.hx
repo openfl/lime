@@ -3,6 +3,12 @@ package lime._backend.native;
 
 import lime.system.CFFIPointer;
 
+#if cpp
+import cpp.Float32;
+#else
+typedef Float32 = Float;
+#end
+
 #if !macro
 @:build(lime.system.CFFI.build())
 #end
@@ -562,10 +568,3 @@ class NativeCFFI {
 	
 	
 }
-
-
-#if cpp
-import cpp.Float32;
-#else
-typedef Float32 = Float;
-#end
