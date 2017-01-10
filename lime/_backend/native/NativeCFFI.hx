@@ -3,12 +3,6 @@ package lime._backend.native;
 
 import lime.system.CFFIPointer;
 
-#if cpp
-import cpp.Float32;
-#else
-typedef Float32 = Float;
-#end
-
 #if !macro
 @:build(lime.system.CFFI.build())
 #end
@@ -85,8 +79,8 @@ class NativeCFFI {
 	@:cffi private static function lime_joystick_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_jpeg_decode_bytes (data:Dynamic, decodeData:Bool, buffer:Dynamic):Dynamic;
 	@:cffi private static function lime_jpeg_decode_file (path:String, decodeData:Bool, buffer:Dynamic):Dynamic;
-	@:cffi private static function lime_key_code_from_scan_code (scanCodeA:Int, scanCodeB:Int):Dynamic;
-	@:cffi private static function lime_key_code_to_scan_code (keyCodeA:Int, keyCodeB:Int):Dynamic;
+	@:cffi private static function lime_key_code_from_scan_code (scanCode:Float32):Float32;
+	@:cffi private static function lime_key_code_to_scan_code (keyCode:Float32):Float32;
 	@:cffi private static function lime_key_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_lzma_compress (data:Dynamic, bytes:Dynamic):Dynamic;
 	@:cffi private static function lime_lzma_decompress (data:Dynamic, bytes:Dynamic):Dynamic;
@@ -568,3 +562,10 @@ class NativeCFFI {
 	
 	
 }
+
+
+#if cpp
+import cpp.Float32;
+#else
+typedef Float32 = Float;
+#end

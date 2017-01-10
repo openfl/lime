@@ -250,12 +250,7 @@ import lime._backend.native.NativeCFFI;
 		
 		#if (lime_cffi && !macro)
 		var code:Int = scanCode;
-		#if neko
-		var code:Float = code;
-		var code:Int = Std.int (code);
-		#end
-		var code:Int = NativeCFFI.lime_key_code_from_scan_code (((code:Int) >> 16) & 0xFFFF, (code:Int) & 0xFFFF);
-		return code;
+		return Std.int (NativeCFFI.lime_key_code_from_scan_code (code));
 		#else
 		return KeyCode.UNKNOWN;
 		#end
@@ -266,12 +261,7 @@ import lime._backend.native.NativeCFFI;
 		
 		#if (lime_cffi && !macro)
 		var code:Int = keyCode;
-		#if neko
-		var code:Float = code;
-		var code:Int = Std.int (code);
-		#end
-		var code:Int = NativeCFFI.lime_key_code_to_scan_code (((code:Int) >> 16) & 0xFFFF, (code:Int) & 0xFFFF);
-		return code;
+		return Std.int (NativeCFFI.lime_key_code_to_scan_code (code));
 		#else
 		return ScanCode.UNKNOWN;
 		#end
