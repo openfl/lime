@@ -25,9 +25,6 @@ This product bundles libogg 1.3.0, which is available under a
 This product bundles LZMA SDK 4.65, which is available under
 public domain. For details, see [project/lib/lzma/](project/lzma).
 
-This product bundles libnfd, which is available under a
-"zlib" (BSD-style) license. For details, see [project/lib/nfd/](project/lib).
-
 This product bundles OpenAL-Soft 1.17.2, which is available under an
 "LGPLv3" license. For details, see [project/lib/openal/](project/lib).
 
@@ -42,6 +39,9 @@ This product bundles libpng 1.6.12, which is available under a
 
 This product bundles SDL 2.0.5, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/sdl/](project/lib).
+
+This product bundles tinyfiledialogs 2.7.2, which is available under a
+"zlib" (BSD-style) license. For details, see [project/lib/tinyfiledialogs/](project/lib).
 
 This product bundles libvorbis 1.3.3, which is available under a
 "BSD" license. For details, see [project/lib/vorbis/](project/lib).
@@ -78,7 +78,7 @@ _The following are not embedded in Lime applications directly, but are used
 as dependencies for web-based builds. Their licensing does not affect products
 created with Lime._
 
-This product bundles howler.js 2.0.0, which is available under an
+This product bundles howler.js 2.0.2, which is available under an
 "MIT" license. For details, see [dependencies/howler.min.js](dependencies/howler.min.js).
 
 This product bundles pako 1.0.2, which is available under an
@@ -102,11 +102,8 @@ created with Lime._
 This product bundles Closure Compiler v20141215, which is available under an
 "Apache 2.0 License" license. For details, see https://github.com/google/closure-compiler.
 
-This product bundles ios-deploy 1.4.0, which is available under an
-"GPLv3" license. For details, see https://github.com/openfl/ios-deploy.
-
-This product bundles ios-sim 3.1.1, which is available under an
-"MIT" license. For details, see https://github.com/openfl/ios-sim.
+This product bundles ios-deploy 1.9.0, which is available under an
+"GPLv3" license. For details, see https://github.com/phonegap/ios-deploy.
 
 This product bundles node.js 0.10.26, which is available under an
 "MIT" license. For details, see https://github.com/joyent/node.
