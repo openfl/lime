@@ -71,7 +71,7 @@ class CFFIMacro {
 								
 								switch (type.result.toString ()) {
 									
-									case "Int", "Float":
+									case "Int", "Float", "cpp.Float32", "cpp.Int16", "cpp.Int32", "cpp.Float64":
 										
 										expr += "return 0";
 									
