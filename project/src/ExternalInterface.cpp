@@ -35,6 +35,7 @@
 #include <ui/Haptic.h>
 #include <ui/Joystick.h>
 #include <ui/JoystickEvent.h>
+#include <ui/KeyCode.h>
 #include <ui/KeyEvent.h>
 #include <ui/Mouse.h>
 #include <ui/MouseCursor.h>
@@ -1077,6 +1078,22 @@ namespace lime {
 	}
 	
 	
+	value lime_key_code_from_scan_code (int codeA, int codeB) {
+		
+		int32_t code = (codeA << 16) | codeB;
+		return alloc_int32 (KeyCode::FromScanCode (code));
+		
+	}
+	
+	
+	value lime_key_code_to_scan_code (int codeA, int codeB) {
+		
+		int32_t code = (codeA << 16) | codeB;
+		return alloc_int32 (KeyCode::ToScanCode (code));
+		
+	}
+	
+	
 	void lime_key_event_manager_register (value callback, value eventObject) {
 		
 		KeyEvent::callback = new AutoGCRoot (callback);
@@ -1779,6 +1796,8 @@ namespace lime {
 	DEFINE_PRIME1 (lime_joystick_get_num_trackballs);
 	DEFINE_PRIME3 (lime_jpeg_decode_bytes);
 	DEFINE_PRIME3 (lime_jpeg_decode_file);
+	DEFINE_PRIME2 (lime_key_code_from_scan_code);
+	DEFINE_PRIME2 (lime_key_code_to_scan_code);
 	DEFINE_PRIME2v (lime_key_event_manager_register);
 	DEFINE_PRIME0 (lime_locale_get_system_locale);
 	DEFINE_PRIME2 (lime_lzma_compress);
