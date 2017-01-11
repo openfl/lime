@@ -50,8 +50,9 @@ namespace lime {
 					
 					#ifndef LIME_GLES
 					int version = 0;
+					#ifdef GL_MAJOR_VERSION
 					glGetIntegerv (GL_MAJOR_VERSION, &version);
-					
+					#endif
 					if (version == 0) {
 						
 						float versionScan = 0;
