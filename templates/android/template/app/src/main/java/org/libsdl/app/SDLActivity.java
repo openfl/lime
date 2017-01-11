@@ -323,6 +323,9 @@ public class SDLActivity extends Activity {
     public static void handleNativeExit() {
         SDLActivity.mSDLThread = null;
         mSingleton.finish();
+
+        // This fixes bad state errors when calling exit from C++, then resuming later
+        System.exit(0);
     }
 
 
