@@ -56,24 +56,26 @@ class NativeWindow {
 			closing = true;
 			parent.onClose.dispatch ();
 			
-		}
-		
-		if (!parent.onClose.canceled) {
-			
-			if (handle != null) {
+			if (!parent.onClose.canceled) {
 				
-				#if !macro
-				NativeCFFI.lime_window_close (handle);
-				#end
-				handle = null;
+				if (handle != null) {
+					
+					#if !macro
+					NativeCFFI.lime_window_close (handle);
+					#end
+					handle = null;
+					
+				}
+				
+			} else {
+				
+				closing = false;
 				
 			}
 			
-		} else {
-			
-			closing = false;
-			
 		}
+		
+		
 		
 	}
 	

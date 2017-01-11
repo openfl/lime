@@ -55,7 +55,7 @@ class Module implements IModule {
 	@:noCompletion public function addWindow (window:Window):Void {
 		
 		window.onActivate.add (onWindowActivate.bind (window));
-		window.onClose.add (__onWindowClose.bind (window));
+		window.onClose.add (__onWindowClose.bind (window), false, -10000);
 		window.onCreate.add (onWindowCreate.bind (window));
 		window.onDeactivate.add (onWindowDeactivate.bind (window));
 		window.onDropFile.add (onWindowDropFile.bind (window));

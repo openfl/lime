@@ -265,6 +265,19 @@ namespace lime {
 					case SDL_WINDOWEVENT_CLOSE:
 						
 						ProcessWindowEvent (event);
+						
+						// Avoid handling SDL_QUIT if in response to window.close
+						SDL_Event event;
+						
+						if (SDL_PollEvent (&event)) {
+							
+							if (event.type != SDL_QUIT) {
+								
+								HandleEvent (&event);
+								
+							}
+							
+						}
 						break;
 					
 				}

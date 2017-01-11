@@ -3,6 +3,7 @@ package lime.app;
 
 import lime.graphics.Renderer;
 import lime.graphics.RenderContext;
+import lime.system.System;
 import lime.ui.Gamepad;
 import lime.ui.GamepadAxis;
 import lime.ui.GamepadButton;
@@ -266,6 +267,12 @@ class Application extends Module {
 			if (this.window == window) {
 				
 				this.window = null;
+				
+			}
+			
+			if (__windows.length == 0) {
+				
+				System.exit (0);
 				
 			}
 			
