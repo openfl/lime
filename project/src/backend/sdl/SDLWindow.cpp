@@ -132,6 +132,7 @@ namespace lime {
 		if (sdlWindow) {
 			
 			SDL_DestroyWindow (sdlWindow);
+			sdlWindow = 0;
 			
 		}
 		
@@ -174,6 +175,7 @@ namespace lime {
 		if (sdlWindow) {
 			
 			SDL_DestroyWindow (sdlWindow);
+			sdlWindow = 0;
 			
 		}
 		
