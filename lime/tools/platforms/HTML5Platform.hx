@@ -174,6 +174,8 @@ class HTML5Platform extends PlatformTarget {
 		
 		ModuleHelper.updateProject (project);
 		
+		project.haxeflags.push ("-resource " + targetDirectory + "/obj/manifest@__ASSET_MANIFEST__");
+		
 		var context = project.templateContext;
 		
 		context.WIN_FLASHBACKGROUND = project.window.background != null ? StringTools.hex (project.window.background, 6) : "";
@@ -271,7 +273,7 @@ class HTML5Platform extends PlatformTarget {
 			FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", targetDirectory + "/haxe", context);
 			FileHelper.recursiveCopyTemplate (project.templatePaths, "html5/haxe", targetDirectory + "/haxe", context, true, false);
 			FileHelper.recursiveCopyTemplate (project.templatePaths, "html5/hxml", targetDirectory + "/haxe", context);
-				
+			
 			if (project.targetFlags.exists ("webgl")) {
 				
 				FileHelper.recursiveCopyTemplate (project.templatePaths, "webgl/hxml", targetDirectory + "/haxe", context, true, false);
@@ -293,7 +295,7 @@ class HTML5Platform extends PlatformTarget {
 			
 		}
 		
-		AssetHelper.createManifest (project, PathHelper.combine (destination, "manifest"));
+		AssetHelper.createManifest (project, PathHelper.combine (targetDirectory, "obj/manifest"));
 		
 	}
 	
