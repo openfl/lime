@@ -359,8 +359,8 @@ namespace lime {
 		cinfo.in_color_space = JCS_RGB;
 		
 		jpeg_set_defaults (&cinfo);
-		jpeg_set_quality (&cinfo, quality, true);
-		jpeg_start_compress (&cinfo, true);
+		jpeg_set_quality (&cinfo, quality, TRUE);
+		jpeg_start_compress (&cinfo, TRUE);
 		
 		JSAMPROW row_pointer = &row_buf[0];
 		unsigned char* imageData = imageBuffer->data->Data();
