@@ -83,7 +83,7 @@ namespace lime {
 				
 			}
 			
-			return true;
+			return TRUE;
 			
 		}
 		
@@ -109,7 +109,7 @@ namespace lime {
 			
 			MySrcManager *man = (MySrcManager *)cinfo->src;
 			man->mUsed = false;
-			return true;
+			return TRUE;
 			
 		}
 		
