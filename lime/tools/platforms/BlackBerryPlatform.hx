@@ -71,7 +71,7 @@ class BlackBerryPlatform extends PlatformTarget {
 			
 		}
 		
-		if (project.targetFlags.exists ("no-output")) return;
+		if (noOutput) return;
 		
 		if (!project.targetFlags.exists ("html5")) {
 			

@@ -107,7 +107,7 @@ class LinuxPlatform extends PlatformTarget {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
 			
-			if (project.targetFlags.exists ("no-output")) return;
+			if (noOutput) return;
 			
 			if (isRaspberryPi) {
 				
@@ -144,7 +144,7 @@ class LinuxPlatform extends PlatformTarget {
 				
 				ProcessHelper.runCommand ("", "haxe", haxeArgs);
 				
-				if (project.targetFlags.exists ("no-output")) return;
+				if (noOutput) return;
 				
 				CPPHelper.compile (project, targetDirectory + "/obj", flags);
 				
@@ -154,7 +154,7 @@ class LinuxPlatform extends PlatformTarget {
 				
 				ProcessHelper.runCommand ("", "haxe", haxeArgs.concat ([ "-D", "static_link" ]));
 				
-				if (project.targetFlags.exists ("no-output")) return;
+				if (noOutput) return;
 				
 				CPPHelper.compile (project, targetDirectory + "/obj", flags.concat ([ "-Dstatic_link" ]));
 				CPPHelper.compile (project, targetDirectory + "/obj", flags, "BuildMain.xml");

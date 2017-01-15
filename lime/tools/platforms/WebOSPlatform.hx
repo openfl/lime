@@ -44,7 +44,7 @@ class WebOSPlatform extends PlatformTarget {
 		
 		ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "webos", "-D", "HXCPP_LOAD_DEBUG", "-D", "HXCPP_RTLD_LAZY" ] );
 		
-		if (project.targetFlags.exists ("no-output")) return;
+		if (noOutput) return;
 		
 		CPPHelper.compile (project, targetDirectory + "/obj", [ "-Dwebos", "-DHXCPP_LOAD_DEBUG", "-DHXCPP_RTLD_LAZY" ]);
 		

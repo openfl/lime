@@ -104,7 +104,7 @@ class MacPlatform extends PlatformTarget {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
 			
-			if (project.targetFlags.exists ("no-output")) return;
+			if (noOutput) return;
 			
 			NekoHelper.createExecutable (project.templatePaths, "mac" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
 			NekoHelper.copyLibraries (project.templatePaths, "mac" + (is64 ? "64" : ""), executableDirectory);
@@ -115,7 +115,7 @@ class MacPlatform extends PlatformTarget {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml, "-java-lib", libPath + "disruptor.jar", "-java-lib", libPath + "lwjgl.jar" ]);
 			
-			if (project.targetFlags.exists ("no-output")) return;
+			if (noOutput) return;
 			
 			ProcessHelper.runCommand (targetDirectory + "/obj", "haxelib", [ "run", "hxjava", "hxjava_build.txt", "--haxe-version", "3103" ]);
 			FileHelper.recursiveCopy (targetDirectory + "/obj/lib", PathHelper.combine (executableDirectory, "lib"));
@@ -126,7 +126,7 @@ class MacPlatform extends PlatformTarget {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
 			
-			if (project.targetFlags.exists ("no-output")) return;
+			if (noOutput) return;
 			
 			//NekoHelper.createExecutable (project.templatePaths, "Mac" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
 			NekoHelper.copyLibraries (project.templatePaths, "Mac" + (is64 ? "64" : ""), executableDirectory);
@@ -135,7 +135,7 @@ class MacPlatform extends PlatformTarget {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
 			
-			if (project.targetFlags.exists ("no-output")) return;
+			if (noOutput) return;
 			
 			CSHelper.copySourceFiles (project.templatePaths, targetDirectory + "/obj/src");
 			var txtPath = targetDirectory + "/obj/hxcs_build.txt";
@@ -162,7 +162,7 @@ class MacPlatform extends PlatformTarget {
 				
 				ProcessHelper.runCommand ("", "haxe", haxeArgs);
 				
-				if (project.targetFlags.exists ("no-output")) return;
+				if (noOutput) return;
 				
 				CPPHelper.compile (project, targetDirectory + "/obj", flags);
 				
@@ -172,7 +172,7 @@ class MacPlatform extends PlatformTarget {
 				
 				ProcessHelper.runCommand ("", "haxe", haxeArgs.concat ([ "-D", "static_link" ]));
 				
-				if (project.targetFlags.exists ("no-output")) return;
+				if (noOutput) return;
 				
 				CPPHelper.compile (project, targetDirectory + "/obj", flags.concat ([ "-Dstatic_link" ]));
 				CPPHelper.compile (project, targetDirectory + "/obj", flags, "BuildMain.xml");

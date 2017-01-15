@@ -56,7 +56,7 @@ class HTML5Platform extends PlatformTarget {
 			var hxml = targetDirectory + "/haxe/" + type + ".hxml";
 			ProcessHelper.runCommand ("", "haxe", [ hxml ] );
 			
-			if (project.targetFlags.exists ("no-output")) return;
+			if (noOutput) return;
 			
 			if (project.targetFlags.exists ("webgl")) {
 				

@@ -42,7 +42,7 @@ class EmscriptenPlatform extends PlatformTarget {
 		
 		ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "emscripten", "-D", "webgl", "-D", "static_link" ] );
 		
-		if (project.targetFlags.exists ("no-output")) return;
+		if (noOutput) return;
 		
 		CPPHelper.compile (project, targetDirectory + "/obj", [ "-Demscripten", "-Dwebgl", "-Dstatic_link" ]);
 		

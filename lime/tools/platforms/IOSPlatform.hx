@@ -54,7 +54,7 @@ class IOSPlatform extends PlatformTarget {
 			
 			IOSHelper.build (project, targetDirectory);
 			
-			if (project.targetFlags.exists ("no-output")) return;
+			if (noOutput) return;
 			
 			if (!project.targetFlags.exists ("simulator")) {
 				
