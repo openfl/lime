@@ -54,6 +54,8 @@ class TVOSPlatform extends PlatformTarget {
 			
 			TVOSHelper.build (project, targetDirectory);
 			
+			if (project.targetFlags.exists ("no-output")) return;
+			
 			if (!project.targetFlags.exists ("simulator")) {
 				
 				var entitlements = targetDirectory + "/" + project.app.file + "/" + project.app.file + "-Entitlements.plist";

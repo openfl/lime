@@ -105,6 +105,8 @@ class WindowsPlatform extends PlatformTarget {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
 			
+			if (noOutput) return;
+			
 			var iconPath = PathHelper.combine (applicationDirectory, "icon.ico");
 			
 			if (!IconHelper.createWindowsIcon (icons, iconPath)) {
@@ -119,12 +121,18 @@ class WindowsPlatform extends PlatformTarget {
 		} else if (targetType == "nodejs") {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+			
+			if (noOutput) return;
+			
 			//NekoHelper.createExecutable (project.templatePaths, "windows", targetDirectory + "/obj/ApplicationMain.n", executablePath);
 			NekoHelper.copyLibraries (project.templatePaths, "windows", applicationDirectory);
 			
 		} else if (targetType == "cs") {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+			
+			if (noOutput) return;
+			
 			CSHelper.copySourceFiles (project.templatePaths, targetDirectory + "/obj/src");
 			var txtPath = targetDirectory + "/obj/hxcs_build.txt";
 			CSHelper.addSourceFiles (txtPath, CSHelper.ndllSourceFiles);
@@ -149,6 +157,9 @@ class WindowsPlatform extends PlatformTarget {
 			if (!project.targetFlags.exists ("static")) {
 				
 				ProcessHelper.runCommand ("", "haxe", haxeArgs);
+				
+				if (noOutput) return;
+				
 				CPPHelper.compile (project, targetDirectory + "/obj", flags);
 				
 				FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", executablePath);
@@ -156,6 +167,9 @@ class WindowsPlatform extends PlatformTarget {
 			} else {
 				
 				ProcessHelper.runCommand ("", "haxe", haxeArgs.concat ([ "-D", "static_link" ]));
+				
+				if (noOutput) return;
+				
 				CPPHelper.compile (project, targetDirectory + "/obj", flags.concat ([ "-Dstatic_link" ]));
 				CPPHelper.compile (project, targetDirectory + "/obj", flags, "BuildMain.xml");
 				

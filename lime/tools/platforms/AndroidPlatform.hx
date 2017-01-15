@@ -112,6 +112,9 @@ class AndroidPlatform extends PlatformTarget {
 			}
 			
 			ProcessHelper.runCommand ("", "haxe", haxeParams);
+			
+			if (noOutput) return;
+			
 			CPPHelper.compile (project, targetDirectory + "/obj", cppParams);
 			
 			FileHelper.copyIfNewer (targetDirectory + "/obj/libApplicationMain" + (project.debug ? "-debug" : "") + suffix, path + "/libApplicationMain.so");
@@ -137,6 +140,8 @@ class AndroidPlatform extends PlatformTarget {
 			}
 			
 		}
+		
+		if (noOutput) return;
 		
 		AndroidHelper.build (project, destination);
 		

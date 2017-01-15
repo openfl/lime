@@ -13,6 +13,7 @@ class PlatformTarget {
 	public var additionalArguments:Array<String>;
 	public var buildType:String;
 	public var command:String;
+	public var noOutput:Bool;
 	public var project:HXProject;
 	public var targetDirectory:String;
 	public var targetFlags:Map<String, String>;
@@ -36,6 +37,16 @@ class PlatformTarget {
 			} else if (project.targetFlags.exists ("final")) {
 				
 				buildType = "final";
+				
+			}
+			
+		}
+		
+		for (haxeflag in project.haxeflags) {
+			
+			if (haxeflag == "--no-output") {
+				
+				noOutput = true;
 				
 			}
 			

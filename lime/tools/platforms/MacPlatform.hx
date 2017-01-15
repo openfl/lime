@@ -103,6 +103,9 @@ class MacPlatform extends PlatformTarget {
 		if (targetType == "neko") {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+			
+			if (project.targetFlags.exists ("no-output")) return;
+			
 			NekoHelper.createExecutable (project.templatePaths, "mac" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
 			NekoHelper.copyLibraries (project.templatePaths, "mac" + (is64 ? "64" : ""), executableDirectory);
 			
@@ -111,6 +114,9 @@ class MacPlatform extends PlatformTarget {
 			var libPath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "templates/java/lib/");
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml, "-java-lib", libPath + "disruptor.jar", "-java-lib", libPath + "lwjgl.jar" ]);
+			
+			if (project.targetFlags.exists ("no-output")) return;
+			
 			ProcessHelper.runCommand (targetDirectory + "/obj", "haxelib", [ "run", "hxjava", "hxjava_build.txt", "--haxe-version", "3103" ]);
 			FileHelper.recursiveCopy (targetDirectory + "/obj/lib", PathHelper.combine (executableDirectory, "lib"));
 			FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".jar", PathHelper.combine (executableDirectory, project.app.file + ".jar"));
@@ -119,12 +125,18 @@ class MacPlatform extends PlatformTarget {
 		} else if (targetType == "nodejs") {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+			
+			if (project.targetFlags.exists ("no-output")) return;
+			
 			//NekoHelper.createExecutable (project.templatePaths, "Mac" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
 			NekoHelper.copyLibraries (project.templatePaths, "Mac" + (is64 ? "64" : ""), executableDirectory);
 			
 		} else if (targetType == "cs") {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+			
+			if (project.targetFlags.exists ("no-output")) return;
+			
 			CSHelper.copySourceFiles (project.templatePaths, targetDirectory + "/obj/src");
 			var txtPath = targetDirectory + "/obj/hxcs_build.txt";
 			CSHelper.addSourceFiles (txtPath, CSHelper.ndllSourceFiles);
@@ -149,6 +161,9 @@ class MacPlatform extends PlatformTarget {
 			if (!project.targetFlags.exists ("static")) {
 				
 				ProcessHelper.runCommand ("", "haxe", haxeArgs);
+				
+				if (project.targetFlags.exists ("no-output")) return;
+				
 				CPPHelper.compile (project, targetDirectory + "/obj", flags);
 				
 				FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : ""), executablePath);
@@ -156,6 +171,9 @@ class MacPlatform extends PlatformTarget {
 			} else {
 				
 				ProcessHelper.runCommand ("", "haxe", haxeArgs.concat ([ "-D", "static_link" ]));
+				
+				if (project.targetFlags.exists ("no-output")) return;
+				
 				CPPHelper.compile (project, targetDirectory + "/obj", flags.concat ([ "-Dstatic_link" ]));
 				CPPHelper.compile (project, targetDirectory + "/obj", flags, "BuildMain.xml");
 				

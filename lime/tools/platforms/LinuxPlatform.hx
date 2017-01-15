@@ -107,6 +107,8 @@ class LinuxPlatform extends PlatformTarget {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
 			
+			if (project.targetFlags.exists ("no-output")) return;
+			
 			if (isRaspberryPi) {
 				
 				NekoHelper.createExecutable (project.templatePaths, "rpi", targetDirectory + "/obj/ApplicationMain.n", executablePath);
@@ -141,6 +143,9 @@ class LinuxPlatform extends PlatformTarget {
 			if (!project.targetFlags.exists ("static")) {
 				
 				ProcessHelper.runCommand ("", "haxe", haxeArgs);
+				
+				if (project.targetFlags.exists ("no-output")) return;
+				
 				CPPHelper.compile (project, targetDirectory + "/obj", flags);
 				
 				FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : ""), executablePath);
@@ -148,6 +153,9 @@ class LinuxPlatform extends PlatformTarget {
 			} else {
 				
 				ProcessHelper.runCommand ("", "haxe", haxeArgs.concat ([ "-D", "static_link" ]));
+				
+				if (project.targetFlags.exists ("no-output")) return;
+				
 				CPPHelper.compile (project, targetDirectory + "/obj", flags.concat ([ "-Dstatic_link" ]));
 				CPPHelper.compile (project, targetDirectory + "/obj", flags, "BuildMain.xml");
 				

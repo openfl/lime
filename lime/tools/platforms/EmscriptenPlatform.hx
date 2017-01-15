@@ -41,6 +41,9 @@ class EmscriptenPlatform extends PlatformTarget {
 		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
 		
 		ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "emscripten", "-D", "webgl", "-D", "static_link" ] );
+		
+		if (project.targetFlags.exists ("no-output")) return;
+		
 		CPPHelper.compile (project, targetDirectory + "/obj", [ "-Demscripten", "-Dwebgl", "-Dstatic_link" ]);
 		
 		if (project.environment.exists ("EMSCRIPTEN_SDK")) {
