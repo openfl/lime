@@ -26,6 +26,11 @@ class AssetLibrary {
 	
 	public var onChange = new Event<Void->Void> ();
 	
+	private var assetsLoaded:Int;
+	private var assetsTotal:Int;
+	private var bytesLoaded:Int;
+	private var bytesLoadedCache:Map<String, Int>;
+	private var bytesTotal:Int;
 	private var cachedAudioBuffers = new Map<String, AudioBuffer> ();
 	private var cachedBytes = new Map<String, Bytes> ();
 	private var cachedFonts = new Map<String, Font> ();
@@ -34,12 +39,8 @@ class AssetLibrary {
 	private var classTypes = new Map<String, Class<Dynamic>> ();
 	private var paths = new Map<String, String> ();
 	private var preload = new Map<String, Bool> ();
-	private var progressBytesLoadedCache:Map<String, Int>;
-	private var progressBytesLoaded:Int;
-	private var progressBytesTotal:Int;
-	private var progressLoaded:Int;
-	private var progressTotal:Int;
 	private var promise:Promise<AssetLibrary>;
+	private var sizes = new Map<String, Int> ();
 	private var types = new Map<String, AssetType> ();
 	
 	#if (js && html5)
@@ -49,7 +50,8 @@ class AssetLibrary {
 	
 	public function new () {
 		
-		
+		bytesLoaded = 0;
+		bytesTotal = 0;
 		
 	}
 	
@@ -104,21 +106,17 @@ class AssetLibrary {
 		
 		var library:AssetLibrary = null;
 		
-		if (manifest.version == 1) {
+		if (manifest.libraryType == null) {
 			
-			if (manifest.libraryType == null) {
-				
-				library = new AssetLibrary ();
-				
-			} else {
-				
-				library = Type.createInstance (Type.resolveClass (manifest.libraryType), manifest.libraryArgs);
-				
-			}
+			library = new AssetLibrary ();
 			
-			library.__fromManifest (manifest);
+		} else {
+			
+			library = Type.createInstance (Type.resolveClass (manifest.libraryType), manifest.libraryArgs);
 			
 		}
+		
+		library.__fromManifest (manifest);
 		
 		return library;
 		
@@ -378,37 +376,16 @@ class AssetLibrary {
 		
 	}
 	
-	public function computeProgressTotal ():Int {
-		
-		var result = 1;
-		
-			for (id in preload.keys ()) {
-				
-				switch (types.get (id)) {
-					
-					case BINARY, FONT, IMAGE, MUSIC, SOUND, TEXT:
-						
-						result++;
-					
-					default:
-					
-				}
-				
-			}
-		
-		return result;
-		
-	}
 	
 	public function load ():Future<AssetLibrary> {
 		
 		if (promise == null) {
 			
 			promise = new Promise<AssetLibrary> ();
-			progressBytesLoadedCache = new Map ();
+			bytesLoadedCache = new Map ();
 			
-			progressLoaded = 0;
-			progressTotal = 1;
+			assetsLoaded = 0;
+			assetsTotal = 1;
 			
 			for (id in preload.keys ()) {
 				
@@ -416,7 +393,7 @@ class AssetLibrary {
 					
 					case BINARY:
 						
-						progressTotal++;
+						assetsTotal++;
 						
 						var future = loadBytes (id);
 						future.onProgress (load_onProgress.bind (id));
@@ -425,7 +402,7 @@ class AssetLibrary {
 					
 					case FONT:
 						
-						progressTotal++;
+						assetsTotal++;
 						
 						var future = loadFont (id);
 						future.onProgress (load_onProgress.bind (id));
@@ -434,7 +411,7 @@ class AssetLibrary {
 					
 					case IMAGE:
 						
-						progressTotal++;
+						assetsTotal++;
 						
 						var future = loadImage (id);
 						future.onProgress (load_onProgress.bind (id));
@@ -443,7 +420,7 @@ class AssetLibrary {
 					
 					case MUSIC, SOUND:
 						
-						progressTotal++;
+						assetsTotal++;
 						
 						var future = loadAudioBuffer (id);
 						future.onProgress (load_onProgress.bind (id));
@@ -452,7 +429,7 @@ class AssetLibrary {
 					
 					case TEXT:
 						
-						progressTotal++;
+						assetsTotal++;
 						
 						var future = loadText (id);
 						future.onProgress (load_onProgress.bind (id));
@@ -465,7 +442,7 @@ class AssetLibrary {
 				
 			}
 			
-			updateProgressLoaded ();
+			__assetLoaded (null);
 			
 		}
 		
@@ -637,13 +614,41 @@ class AssetLibrary {
 	}
 	
 	
-	private function updateProgressLoaded ():Void {
+	private function __assetLoaded (id:String):Void {
 		
-		progressLoaded++;
-		promise.progress(progressLoaded, progressTotal);
+		assetsLoaded++;
 		
-		if (progressLoaded == progressTotal) {
+		if (id != null) {
 			
+			var size = sizes.get (id);
+			
+			if (!bytesLoadedCache.exists (id)) {
+				
+				bytesLoaded += size;
+				
+			} else {
+				
+				var cache = bytesLoadedCache.get (id);
+				
+				if (cache < size) {
+					
+					bytesLoaded += (size - cache);
+					
+				}
+				
+			}
+			
+			bytesLoadedCache.set (id, size);
+			
+		}
+		
+		if (assetsLoaded < assetsTotal) {
+			
+			promise.progress (bytesLoaded, bytesTotal);
+			
+		} else {
+			
+			promise.progress (bytesTotal, bytesTotal);
 			promise.complete (this);
 			
 		}
@@ -653,12 +658,22 @@ class AssetLibrary {
 	
 	private function __fromManifest (manifest:AssetManifest):Void {
 		
-		if (manifest.version == 1) {
+		var hasSize = (manifest.version >= 2);
+		var size;
+		
+		bytesTotal = 0;
+		
+		for (asset in manifest.assets) {
 			
-			for (asset in manifest.assets) {
+			size = hasSize ? asset.size : 100;
+			
+			paths.set (asset.id, asset.path);
+			sizes.set (asset.id, size);
+			types.set (asset.id, asset.type);
+			
+			if (preload.exists (asset.id)) {
 				
-				paths.set (asset.id, asset.path);
-				types.set (asset.id, asset.type);
+				bytesTotal += size;
 				
 			}
 			
@@ -677,7 +692,7 @@ class AssetLibrary {
 	private function loadAudioBuffer_onComplete (id:String, audioBuffer:AudioBuffer):Void {
 		
 		cachedAudioBuffers.set (id, audioBuffer);
-		updateProgressLoaded ();
+		__assetLoaded (id);
 		
 	}
 	
@@ -685,7 +700,7 @@ class AssetLibrary {
 	private function loadBytes_onComplete (id:String, bytes:Bytes):Void {
 		
 		cachedBytes.set (id, bytes);
-		updateProgressLoaded ();
+		__assetLoaded (id);
 		
 	}
 	
@@ -693,7 +708,7 @@ class AssetLibrary {
 	private function loadFont_onComplete (id:String, font:Font):Void {
 		
 		cachedFonts.set (id, font);
-		updateProgressLoaded ();
+		__assetLoaded (id);
 		
 	}
 	
@@ -701,7 +716,7 @@ class AssetLibrary {
 	private function loadImage_onComplete (id:String, image:Image):Void {
 		
 		cachedImages.set (id, image);
-		updateProgressLoaded ();
+		__assetLoaded (id);
 		
 	}
 	
@@ -709,7 +724,7 @@ class AssetLibrary {
 	private function loadText_onComplete (id:String, text:String):Void {
 		
 		cachedText.set (id, text);
-		updateProgressLoaded ();
+		__assetLoaded (id);
 		
 	}
 	
@@ -723,21 +738,42 @@ class AssetLibrary {
 	
 	private function load_onProgress (id:String, bytesLoaded:Int, bytesTotal:Int):Void {
 		
-		if (progressBytesLoadedCache.exists (id)) {
+		if (bytesLoaded > 0) {
 			
-			var previous = progressBytesLoadedCache.get (id);
-			progressBytesLoaded += (bytesLoaded - previous);
-			progressBytesLoadedCache.set (id, bytesLoaded);
-			
-			promise.progress (progressBytesLoaded, progressBytesTotal);
-			
-		} else {
+			var size = sizes.get (id);
+			var percent;
 			
 			if (bytesTotal > 0) {
 				
-				progressBytesLoadedCache.set (id, bytesLoaded);
-				progressBytesLoaded += bytesLoaded;
-				progressBytesTotal += bytesTotal;
+				// Use a ratio in case the real bytesTotal is different than our precomputed total
+				
+				percent = (bytesLoaded / bytesTotal);
+				if (percent > 1) percent = 1;
+				bytesLoaded = Math.floor (percent * size);
+				
+			} else if (bytesLoaded > size) {
+				
+				bytesLoaded = size;
+				
+			}
+			
+			if (bytesLoadedCache.exists (id)) {
+				
+				var cache = bytesLoadedCache.get (id);
+				
+				if (bytesLoaded != cache) {
+					
+					bytesLoaded += (bytesLoaded - cache);
+					
+				}
+				
+				bytesLoadedCache.set (id, bytesLoaded);
+				promise.progress (this.bytesLoaded, this.bytesTotal);
+				
+			} else {
+				
+				bytesLoadedCache.set (id, bytesLoaded);
+				this.bytesLoaded += bytesLoaded;
 				
 			}
 			

@@ -21,6 +21,8 @@ import flash.events.ProgressEvent;
 import flash.Lib;
 #end
 
+@:access(lime.utils.AssetLibrary)
+
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
@@ -34,9 +36,10 @@ class Preloader #if flash extends Sprite #end {
 	public var onComplete = new Event<Void->Void> ();
 	public var onProgress = new Event<Int->Int->Void> ();
 	
+	private var bytesLoaded:Int;
+	private var bytesTotal:Int;
+	private var bytesTotalCache = new Map<String, Int> ();
 	private var initLibraryNames:Bool;
-	private var itemsProgressLoaded:Int;
-	private var itemsProgressTotal:Int;
 	private var libraries:Array<AssetLibrary>;
 	private var libraryNames:Array<String>;
 	private var loadedLibraries:Int;
@@ -49,6 +52,8 @@ class Preloader #if flash extends Sprite #end {
 		super ();
 		#end
 		
+		bytesLoaded = 0;
+		bytesTotal = 0;
 		libraries = new Array<AssetLibrary> ();
 		libraryNames = new Array<String> ();
 		
@@ -91,12 +96,9 @@ class Preloader #if flash extends Sprite #end {
 	
 	public function load ():Void {
 		
-		itemsProgressLoaded = 0;
-		itemsProgressTotal = 0;
-		
 		for (library in libraries) {
 			
-			itemsProgressTotal += library.computeProgressTotal ();
+			bytesTotal += library.bytesTotal;
 			
 		}
 		
@@ -104,9 +106,10 @@ class Preloader #if flash extends Sprite #end {
 		
 		for (library in libraries) {
 			
-			library.load ().onProgress (function (_, _) {
+			library.load ().onProgress (function (loaded, total) {
 				
-				updateItemsProgress ();
+				bytesLoaded += loaded;
+				onProgress.dispatch (bytesLoaded, bytesTotal);
 				
 			}).onComplete (function (_) {
 				
@@ -121,9 +124,11 @@ class Preloader #if flash extends Sprite #end {
 			
 		}
 		
+		// TODO: Handle bytes total better
+		
 		for (name in libraryNames) {
 			
-			itemsProgressTotal += 1;
+			bytesTotal += 200;
 			
 		}
 		
@@ -159,8 +164,7 @@ class Preloader #if flash extends Sprite #end {
 	
 	private function updateProgress ():Void {
 		
-		update (itemsProgressLoaded, itemsProgressTotal);
-		// update (loadedLibraries, libraries.length);
+		onProgress.dispatch (bytesLoaded, bytesTotal);
 		
 		if (loadedLibraries == libraries.length && !initLibraryNames) {
 			
@@ -168,9 +172,23 @@ class Preloader #if flash extends Sprite #end {
 			
 			for (name in libraryNames) {
 				
-				Assets.loadLibrary (name).onProgress (function (_, _) {
+				Assets.loadLibrary (name).onProgress (function (loaded, total) {
 					
-					updateItemsProgress ();
+					if (total > 0) {
+						
+						if (!bytesTotalCache.exists (name)) {
+							
+							bytesTotalCache.set (name, total);
+							bytesTotal += (total - 200);
+							
+						}
+						
+						if (loaded > total) loaded = total;
+						bytesLoaded += loaded;
+						
+						onProgress.dispatch (bytesLoaded, bytesTotal);
+						
+					}
 					
 				}).onComplete (function (_) {
 					
@@ -195,15 +213,11 @@ class Preloader #if flash extends Sprite #end {
 		
 	}
 	
-	private function updateItemsProgress ():Void {
-		
-		itemsProgressLoaded++;
-		updateProgress();
-		
-	}
 	
 	#if flash
 	private function current_onEnter (event:flash.events.Event):Void {
+		
+		// TODO: Merge progress with library load progress
 		
 		if (!loadedStage && Lib.current.loaderInfo.bytesLoaded == Lib.current.loaderInfo.bytesTotal) {
 			

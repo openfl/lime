@@ -165,16 +165,13 @@ import sys.FileSystem;
 	
 	private override function __fromManifest (manifest:AssetManifest):Void {
 		
-		if (manifest.version == 1) {
+		super.__fromManifest (manifest);
+		
+		if (rootPath != "") {
 			
 			for (asset in manifest.assets) {
 				
-				if (!classTypes.exists (asset.id)) {
-					
-					paths.set (asset.id, rootPath + asset.path);
-					types.set (asset.id, cast (asset.type, AssetType));
-					
-				}
+				paths.set (asset.id, rootPath + asset.path);
 				
 			}
 			

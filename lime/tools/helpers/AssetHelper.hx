@@ -23,11 +23,20 @@ class AssetHelper {
 			
 			if (asset.type != AssetType.TEMPLATE) {
 				
+				var size = 100;
+				
+				if (FileSystem.exists (asset.sourcePath)) {
+					
+					size = FileSystem.stat (asset.sourcePath).size;
+					
+				}
+				
 				manifest.assets.push ({
 					
 					id: asset.id,
 					path: asset.resourceName,
-					type: Std.string (asset.type)
+					type: Std.string (asset.type),
+					size: size
 					
 				});
 				

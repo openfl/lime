@@ -30,7 +30,7 @@ class AssetManifest {
 		
 		assets = [];
 		libraryArgs = [];
-		version = 1;
+		version = 2;
 		
 	}
 	
@@ -82,14 +82,10 @@ class AssetManifest {
 		var manifestData = Json.parse (data);
 		var manifest = new AssetManifest ();
 		
-		if (manifestData.version == 1) {
-			
-			manifest.name = manifestData.name;
-			manifest.libraryType = manifestData.libraryType;
-			manifest.libraryArgs = manifestData.libraryArgs;
-			manifest.assets = Unserializer.run (manifestData.assets);
-			
-		}
+		manifest.name = manifestData.name;
+		manifest.libraryType = manifestData.libraryType;
+		manifest.libraryArgs = manifestData.libraryArgs;
+		manifest.assets = Unserializer.run (manifestData.assets);
 		
 		return manifest;
 		
