@@ -453,41 +453,6 @@ class AssetLibrary {
 	
 	public function loadAudioBuffer (id:String):Future<AudioBuffer> {
 		
-		// TODO: Better solution
-		
-		#if (js && html5)
-		if (pathGroups == null) {
-			
-			pathGroups = new Map<String, Array<String>> ();
-			
-			var sounds = new Map<String, Array<String>> ();
-			var type, path, soundName;
-			
-			for (id in types.keys ()) {
-				
-				type = types.get (id);
-				
-				if (type == MUSIC || type == SOUND) {
-					
-					path = paths.get (id);
-					soundName = Path.withoutExtension (path);
-					
-					if (!sounds.exists (soundName)) {
-						
-						sounds.set (soundName, new Array ());
-						
-					}
-					
-					sounds.get (soundName).push (path);
-					pathGroups.set (id, sounds.get (soundName));
-					
-				}
-				
-			}
-			
-		}
-		#end
-		
 		if (cachedAudioBuffers.exists (id)) {
 			
 			return Future.withValue (cachedAudioBuffers.get (id));
@@ -499,10 +464,14 @@ class AssetLibrary {
 		} else {
 			
 			#if (js && html5)
-			return AudioBuffer.loadFromFiles (pathGroups.get (id));
-			#else
-			return AudioBuffer.loadFromFile (paths.get (id));
+			if (pathGroups.exists (id)) {
+				
+				return AudioBuffer.loadFromFiles (pathGroups.get (id));
+				
+			}
 			#end
+			
+			return AudioBuffer.loadFromFile (paths.get (id));
 			
 		}
 		
@@ -678,6 +647,57 @@ class AssetLibrary {
 			}
 			
 		}
+		
+		// TODO: Better solution
+		
+		#if (js && html5)
+		if (pathGroups == null) {
+			
+			pathGroups = new Map<String, Array<String>> ();
+			
+		}
+		
+		var sounds = new Map<String, Array<String>> ();
+		var preloadGroups = new Map<String, Bool> ();
+		var type, path, soundName;
+		
+		for (id in types.keys ()) {
+			
+			type = types.get (id);
+			
+			if (type == MUSIC || type == SOUND) {
+				
+				path = paths.get (id);
+				soundName = Path.withoutExtension (path);
+				
+				if (!sounds.exists (soundName)) {
+					
+					sounds.set (soundName, new Array ());
+					
+				}
+				
+				sounds.get (soundName).push (path);
+				pathGroups.set (id, sounds.get (soundName));
+				
+				if (preload.exists (id)) {
+					
+					if (preloadGroups.exists (soundName)) {
+						
+						preload.remove (id);
+						
+					} else {
+						
+						preloadGroups.set (soundName, true);
+						
+					}
+					
+				}
+				
+			}
+			
+		}
+		#end
+		
 		
 	}
 	
