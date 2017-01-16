@@ -1,3 +1,29 @@
+3.6.0 (01/16/2017)
+------------------
+
+* Moved "lime.audio" to "lime.media"
+* Added Vorbis bindings under "lime.media.codecs.vorbis"
+* Added lime.ui.ScanCode, with conversion support to/from KeyCode on native
+* Added tool support for the "--no-output" argument
+* Migrated from NFD to tinyfiledialogs for better dialog support
+* Made window.close cancelable on desktop platforms
+* Updated libjpeg to 9b
+* Updated howler.js to 2.0.2
+* Improved support for Haxe 3.4
+* Improved support for progress events while preloading
+* Fixed force install when deploying to Android (API 16+ devices)
+* Fixed an invalid state when returning from background on Android
+* Fixed playback of a single audio buffer multiple times on HTML5
+* Fixed initial volume level in AudioSource on HTML5
+* Fixed a regression in the default architecture list for iOS
+* Fixed merging of multiple <architecture /> tags in project files
+* Fixed a possible crash when retrieving OpenGL strings
+* Fixed the default template for HTML5 when multiple projects are embedded
+* Fixed support for non-preloaded assets on HTML5
+* Fixed support for image.copyChannel on HTML5 when using WebGL
+* Fixed support for command-line arguments with "lime rebuild"
+
+
 3.5.2 (12/19/2016)
 ------------------
 
