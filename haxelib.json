@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "3.5.2",
-	"releasenote": "Stability improvements",
+	"version": "3.6.0",
+	"releasenote": "Improved Haxe 3.4 support, better preload progress, Vorbis bindings",
 	"contributors": [ "singmajesty" ]
 }
