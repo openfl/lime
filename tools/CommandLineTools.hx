@@ -381,7 +381,9 @@ class CommandLineTools {
 						project.config.set ("project.rebuild.path", rebuildPath);
 						project.config.set ("project.rebuild.file", rebuildFile);
 						
-						initializeProject (project, targetName);
+						// TODO: Fix use of initialize without resetting reference?
+						
+						project = initializeProject (project, targetName);
 						buildProject (project);
 						
 						if (LogHelper.verbose) {
