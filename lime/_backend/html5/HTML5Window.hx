@@ -379,6 +379,8 @@ class HTML5Window {
 							
 							canvas.width = element.clientWidth;
 							canvas.height = element.clientHeight;
+							canvas.style.marginLeft = "0px";
+							canvas.style.marginTop = "0px";
 							
 						}
 						
@@ -386,7 +388,8 @@ class HTML5Window {
 						
 						div.style.width = element.clientWidth + "px";
 						div.style.height = element.clientHeight + "px";
-						
+						div.style.marginLeft = "0px";
+						div.style.marginTop = "0px";
 					}
 					
 				}
@@ -596,7 +599,31 @@ class HTML5Window {
 	
 	public function resize (width:Int, height:Int):Void {
 		
+		if (element != null) {
+
+			if (parent.width != width || parent.height != height) {
+
+				parent.__width = width;
+				parent.__height = height;
+
+				if (canvas != null) {
+
+					if (element != cast canvas) {
 		
+						canvas.width = width;
+						canvas.style.width = width + "px";
+						canvas.height = height;
+						canvas.style.height = height + "px";
+						if ( canvas.parentElement != null ) {
+							canvas.parentElement.style.width = width + "px";
+						canvas.parentElement.style.height = height + "px";
+						}
+					}
+
+				}
+
+			}
+		}
 		
 	}
 	
