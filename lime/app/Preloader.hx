@@ -37,6 +37,8 @@ class Preloader #if flash extends Sprite #end {
 	public var onProgress = new Event<Int->Int->Void> ();
 	
 	private var bytesLoaded:Int;
+	private var bytesLoadedCache = new Map<AssetLibrary, Int> ();
+	private var bytesLoadedCache2 = new Map<String, Int> ();
 	private var bytesTotal:Int;
 	private var bytesTotalCache = new Map<String, Int> ();
 	private var initLibraryNames:Bool;
@@ -108,10 +110,31 @@ class Preloader #if flash extends Sprite #end {
 			
 			library.load ().onProgress (function (loaded, total) {
 				
-				bytesLoaded += loaded;
+				if (!bytesLoadedCache.exists (library)) {
+					
+					bytesLoaded += loaded;
+					
+				} else {
+					
+					bytesLoaded += loaded - bytesLoadedCache.get (library);
+					
+				}
+				
+				bytesLoadedCache.set (library, loaded);
+				
 				onProgress.dispatch (bytesLoaded, bytesTotal);
 				
 			}).onComplete (function (_) {
+				
+				if (!bytesLoadedCache.exists (library)) {
+					
+					bytesLoaded += library.bytesTotal;
+					
+				} else {
+					
+					bytesLoaded += library.bytesTotal - bytesLoadedCache.get (library);
+					
+				}
 				
 				loadedLibraries++;
 				updateProgress ();
@@ -184,13 +207,42 @@ class Preloader #if flash extends Sprite #end {
 						}
 						
 						if (loaded > total) loaded = total;
-						bytesLoaded += loaded;
+						
+						if (!bytesLoadedCache2.exists (name)) {
+							
+							bytesLoaded += loaded;
+							
+						} else {
+							
+							bytesLoaded += loaded - bytesLoadedCache2.get (name);
+							
+						}
+						
+						bytesLoadedCache2.set (name, loaded);
 						
 						onProgress.dispatch (bytesLoaded, bytesTotal);
 						
 					}
 					
-				}).onComplete (function (_) {
+				}).onComplete (function (library) {
+					
+					var total = 200;
+					
+					if (bytesTotalCache.exists (name)) {
+						
+						total = bytesTotalCache.get (name);
+						
+					}
+					
+					if (!bytesLoadedCache2.exists (name)) {
+						
+						bytesLoaded += total;
+						
+					} else {
+						
+						bytesLoaded += total - bytesLoadedCache2.get (name);
+						
+					}
 					
 					loadedLibraries++;
 					updateProgress ();

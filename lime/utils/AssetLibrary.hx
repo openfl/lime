@@ -628,23 +628,16 @@ class AssetLibrary {
 	private function __fromManifest (manifest:AssetManifest):Void {
 		
 		var hasSize = (manifest.version >= 2);
-		var size;
-		
-		bytesTotal = 0;
+		var size, id;
 		
 		for (asset in manifest.assets) {
 			
 			size = hasSize ? asset.size : 100;
+			id = asset.id;
 			
-			paths.set (asset.id, asset.path);
-			sizes.set (asset.id, size);
-			types.set (asset.id, asset.type);
-			
-			if (preload.exists (asset.id)) {
-				
-				bytesTotal += size;
-				
-			}
+			paths.set (id, asset.path);
+			sizes.set (id, size);
+			types.set (id, asset.type);
 			
 		}
 		
@@ -698,6 +691,19 @@ class AssetLibrary {
 		}
 		#end
 		
+		bytesTotal = 0;
+		
+		for (asset in manifest.assets) {
+			
+			id = asset.id;
+			
+			if (preload.exists (id)) {
+				
+				bytesTotal += sizes.get (id);
+				
+			}
+			
+		}
 		
 	}
 	
@@ -783,19 +789,18 @@ class AssetLibrary {
 				
 				if (bytesLoaded != cache) {
 					
-					bytesLoaded += (bytesLoaded - cache);
+					this.bytesLoaded += (bytesLoaded - cache);
 					
 				}
 				
-				bytesLoadedCache.set (id, bytesLoaded);
-				promise.progress (this.bytesLoaded, this.bytesTotal);
-				
 			} else {
 				
-				bytesLoadedCache.set (id, bytesLoaded);
 				this.bytesLoaded += bytesLoaded;
 				
 			}
+			
+			bytesLoadedCache.set (id, bytesLoaded);
+			promise.progress (this.bytesLoaded, this.bytesTotal);
 			
 		}
 		
