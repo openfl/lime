@@ -160,7 +160,7 @@ class JNI {
 			initialized = true;
 			
 			#if android
-			var method = System.load ("lime", "NativeCFFI.lime_jni_init_callback", 1);
+			var method = System.load ("lime", "lime_jni_init_callback", 1);
 			method (onCallback);
 			#end
 			
