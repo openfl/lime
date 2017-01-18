@@ -215,6 +215,8 @@ class NativeAudioSource {
 	
 	private function refillBuffers (buffers:Array<ALBuffer> = null):Void {
 		
+		#if lime_vorbis
+		
 		var vorbisFile = null;
 		var position = 0;
 		
@@ -272,6 +274,8 @@ class NativeAudioSource {
 			AL.sourceQueueBuffers (handle, numBuffers, buffers);
 			
 		}
+		
+		#end
 		
 	}
 	
