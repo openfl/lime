@@ -1,3 +1,12 @@
+3.6.1 (01/18/2017)
+------------------
+
+* Added streaming audio support to AudioSource
+* Fixed issues in bytesLoaded/bytesTotal calculation
+* Fixed a regression in support for static-linking
+* Fixed a regression in support for lime.utils.JNI
+
+
 3.6.0 (01/16/2017)
 ------------------
 
