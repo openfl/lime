@@ -6,6 +6,7 @@ import haxe.io.Path;
 import lime._backend.native.NativeCFFI;
 import lime.app.Future;
 import lime.app.Promise;
+import lime.media.codecs.vorbis.VorbisFile;
 import lime.media.openal.AL;
 import lime.media.openal.ALBuffer;
 import lime.utils.UInt8Array;
@@ -47,6 +48,7 @@ class AudioBuffer {
 	@:noCompletion private var __srcFMODSound:#if lime_console FMODSound #else Dynamic #end;
 	@:noCompletion private var __srcHowl:#if howlerjs Howl #else Dynamic #end;
 	@:noCompletion private var __srcSound:#if flash Sound #else Dynamic #end;
+	@:noCompletion private var __srcVorbisFile:#if lime_vorbis VorbisFile #else Dynamic #end;
 	
 	
 	public function new () {
@@ -284,6 +286,35 @@ class AudioBuffer {
 	}
 	
 	
+	#if lime_vorbis
+	
+	public static function fromVorbisFile (vorbisFile:VorbisFile):AudioBuffer {
+		
+		if (vorbisFile == null) return null;
+		
+		var info = vorbisFile.info ();
+		
+		var audioBuffer = new AudioBuffer ();
+		audioBuffer.channels = info.channels;
+		audioBuffer.sampleRate = info.rate;
+		audioBuffer.bitsPerSample = 16;
+		audioBuffer.__srcVorbisFile = vorbisFile;
+		
+		return audioBuffer;
+		
+	}
+	
+	#else
+	
+	public static function fromVorbisFile (vorbisFile:Dynamic):AudioBuffer {
+		
+		return null;
+		
+	}
+	
+	#end
+	
+	
 	public static function loadFromFile (path:String):Future<AudioBuffer> {
 		
 		var promise = new Promise<AudioBuffer> ();
@@ -413,6 +444,10 @@ class AudioBuffer {
 		
 		return __srcFMODSound;
 		
+		#elseif lime_vorbis
+		
+		return __srcVorbisFile;
+		
 		#else
 		
 		return __srcCustom;
@@ -441,6 +476,10 @@ class AudioBuffer {
 		#elseif lime_console
 		
 		return __srcFMODSound = value;
+		
+		#elseif lime_vorbis
+		
+		return __srcVorbisFile = value;
 		
 		#else
 		

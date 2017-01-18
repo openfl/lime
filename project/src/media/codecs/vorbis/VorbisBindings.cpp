@@ -42,6 +42,15 @@ namespace lime {
 			int64Value = alloc_empty_object ();
 			readValue = alloc_empty_object ();
 			
+			value* root = alloc_root ();
+			*root = infoValue;
+			
+			value* root2 = alloc_root ();
+			*root2 = int64Value;
+			
+			value* root3 = alloc_root ();
+			*root3 = readValue;
+			
 			init = true;
 			
 		}
