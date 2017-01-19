@@ -2235,7 +2235,7 @@ class Progress extends haxe.io.Output {
 	public function new(o) {
 		this.o = o;
 		cur = 0;
-		start = haxe.Timer.stamp();
+		start = (lime.system.System.getTimer() / 1000);
 	}
 	
 	function bytes(n) {
@@ -2260,7 +2260,7 @@ class Progress extends haxe.io.Output {
 	public override function close() {
 		super.close();
 		o.close();
-		var time = haxe.Timer.stamp() - start;
+		var time = (lime.system.System.getTimer() / 1000) - start;
 		var speed = (cur / time) / 1024;
 		time = Std.int(time * 10) / 10;
 		speed = Std.int(speed * 10) / 10;

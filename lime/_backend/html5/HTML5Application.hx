@@ -204,7 +204,9 @@ class HTML5Application {
 
 	private function handleApplicationEvent (?__):Void {
 
-		updateGameDevices ();
+		#if supports_devices
+			updateGameDevices ();
+		#end
 
 		currentUpdate = Date.now ().getTime ();
 
