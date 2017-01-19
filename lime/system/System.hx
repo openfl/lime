@@ -202,12 +202,12 @@ class System {
 	}
 	
 	
-	public static function getTimer ():Int {
+	public static inline function getTimer ():Int {
 		
 		#if flash
 		return flash.Lib.getTimer ();
 		#elseif js
-		return cast Date.now ().getTime ();
+		return untyped __js__ ( "Date.now ()" );
 		#elseif (!disable_cffi && !macro)
 		return cast lime_system_get_timer ();
 		#elseif cpp
