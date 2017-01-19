@@ -404,9 +404,17 @@ class PathHelper {
 		
 		if (parts.length > 0 && parts[0].indexOf (":") > -1) {
 			
-			oldPath = Sys.getCwd ();
-			Sys.setCwd (parts[0] + "\\");
-			parts.shift ();
+			try {
+				
+				oldPath = Sys.getCwd ();
+				Sys.setCwd (parts[0] + "\\");
+				parts.shift ();
+				
+			} catch (e:Dynamic) {
+				
+				LogHelper.error ("Cannot create directory \"" + directory + "\"");
+				
+			}
 			
 		}
 		
