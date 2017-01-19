@@ -935,7 +935,6 @@ class HXProject {
 				if (asset.type == FONT) {
 					try {
 						var font = Font.fromFile (asset.sourcePath);
-						font.name = Math.round(Math.random() * 100) + font.name;
 						var assetHolder:Dynamic = {};
 						assetHolder.embeddedAsset = embeddedAsset;
 						assetHolder.font = font;
