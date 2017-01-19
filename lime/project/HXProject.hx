@@ -955,8 +955,8 @@ class HXProject {
 		// now sort all gathered font-assets and shorten their names if necessary
 
 		ArraySort.sort(fontAssets, function (a:Dynamic, b:Dynamic): Int {
-			if (a.font.fontName < b.font.fontName) return -1;
-			if (a.font.fontName > b.font.fontName) return 1;
+			if (a.font.name < b.font.name) return -1;
+			if (a.font.name > b.font.name) return 1;
 			return 0;
 		});
 
