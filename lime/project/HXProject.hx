@@ -951,7 +951,7 @@ class HXProject {
 
 
 		#if (lime && !lime_legacy)
-		// now sort all gathered font-assets and shorten their names if necessary
+		// now sort all gathered font-assets
 
 		ArraySort.sort(fontAssets, function (a:Dynamic, b:Dynamic): Int {
 			if (a.font.name < b.font.name) return -1;
@@ -959,7 +959,7 @@ class HXProject {
 			return 0;
 		});
 
-		
+		// now shorten the font names that are too long if necessary
 		var i:Int = 0;
 		for (assetHolder in fontAssets) {
 		try {
