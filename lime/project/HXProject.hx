@@ -913,7 +913,7 @@ class HXProject {
 		}
 		
 		context.assets = new Array <Dynamic> ();
-		fontAssets = new Array <Dynamic> ();
+		var fontAssets = new Array <Dynamic> ();
 		for (asset in assets) {
 			
 			if (asset.type != AssetType.TEMPLATE) {
