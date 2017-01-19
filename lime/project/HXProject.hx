@@ -935,6 +935,7 @@ class HXProject {
 				if (asset.type == FONT) {
 					try {
 						var font = Font.fromFile (asset.sourcePath);
+						font.name = Math.round(Math.random() * 100) + font.name;
 						var assetHolder:Dynamic = {};
 						assetHolder.embeddedAsset = embeddedAsset;
 						assetHolder.font = font;
@@ -948,16 +949,16 @@ class HXProject {
 			}
 			
 		}
+
+
 		#if (lime && !lime_legacy)
 		// now sort all gathered font-assets and shorten their names if necessary
-
 
 		ArraySort.sort(fontAssets, function (a:Dynamic, b:Dynamic): Int {
 			if (a.font.fontName < b.font.fontName) return -1;
 			if (a.font.fontName > b.font.fontName) return 1;
 			return 0;
 		});
-
 
 		
 		var i:Int = 0;
