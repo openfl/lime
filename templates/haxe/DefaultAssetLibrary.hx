@@ -62,7 +62,10 @@ import sys.FileSystem;
 		var id;
 		::if (assets != null)::::foreach assets::id = "::id::";::if (type == "font")::
 		classTypes.set (id, __ASSET__::flatName::);
-		types.set (id, AssetType.$$upper(::type::)); ::else::::if (embed)::
+		types.set (id, AssetType.$$upper(::type::));
+		#if html5
+		preload.set (id, true);
+		#end ::else::::if (embed)::
 		#if html5
 		preload.set (id, true);
 		#elseif (desktop || cpp)
