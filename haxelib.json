@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "3.6.1",
-	"releasenote": "Added streaming audio support to AudioSource, preload and mobile fixes",
+	"version": "3.6.2",
+	"releasenote": "Minor fixes",
 	"contributors": [ "singmajesty" ]
 }
