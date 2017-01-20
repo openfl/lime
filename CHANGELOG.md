@@ -1,3 +1,12 @@
+3.6.2 (01/20/2017)
+------------------
+
+* Improved error when making a directory on an unavailable drive letter
+* Fixed regression in support for HTML5 font preloading
+* Fixed possible font overflow when embedding fonts on Flash target
+* Fixed crash on Neko when using AudioSource with no AudioBuffer
+
+
 3.6.1 (01/18/2017)
 ------------------
 
