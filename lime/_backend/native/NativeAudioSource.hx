@@ -65,6 +65,7 @@ class NativeAudioSource {
 	
 	public function init ():Void {
 		
+		dataLength = 0;
 		format = 0;
 		
 		if (parent.buffer.channels == 1) {
