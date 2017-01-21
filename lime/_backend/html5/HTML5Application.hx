@@ -156,6 +156,11 @@ class HTML5Application {
 					return false;
 				};
 			}
+			if (!CanvasRenderingContext2D.prototype.isPointInPath) {
+				CanvasRenderingContext2D.prototype.isPointInPath = function (path, x, y) {
+					return false;
+				};
+			}
 			
 			var lastTime = 0;
 			var vendors = ['ms', 'moz', 'webkit', 'o'];
