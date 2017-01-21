@@ -481,9 +481,7 @@ class Assets {
 		
 		#if (tools && !display && !macro)
 		
-		var data = getText ("libraries/" + name + ".json");
-		
-		if (data != null && data != "") {
+		loadText ("libraries/" + name + ".json").onComplete (function (data) {
 			
 			var library = AssetLibrary.fromManifest (AssetManifest.parse (data));
 			
@@ -499,11 +497,11 @@ class Assets {
 				
 			}
 			
-		} else {
+		}).onError (function (_) {
 			
 			promise.error ("[Assets] There is no asset library named \"" + name + "\"");
 			
-		}
+		});
 		
 		#end
 		
