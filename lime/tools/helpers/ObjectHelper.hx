@@ -73,7 +73,9 @@ import haxe.ds.StringMap;
 			
 			untyped {
 				for (ii in 0...v.length) {
-					result.push (deepCopy (v[ii]));
+					// :NOTE: Needed due to a potential bug in the haxe 3.4 rc0.2 compiler
+					var temp = deepCopy (v[ii]);
+					result.push (temp);
 				}
 			}
 			
