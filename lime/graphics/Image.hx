@@ -740,6 +740,8 @@ class Image {
 	
 	public static function loadFromBase64 (base64:String, type:String):Future<Image> {
 		
+		if (base64 == null || type == null) return Future.withValue (null);
+		
 		var promise = new Promise<Image> ();
 		
 		#if (js && html5)
@@ -781,6 +783,8 @@ class Image {
 	
 	public static function loadFromBytes (bytes:Bytes):Future<Image> {
 		
+		if (bytes == null) return Future.withValue (null);
+		
 		#if (js && html5)
 		
 		var type = "";
@@ -805,6 +809,34 @@ class Image {
 		
 		return loadFromBase64 (__base64Encode (bytes), type);
 		
+		#elseif flash
+		
+		var promise = new Promise<Image> ();
+		
+		var loader = new Loader ();
+		
+		loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event) {
+			
+			promise.complete (Image.fromBitmapData (cast (loader.content, Bitmap).bitmapData));
+			
+		});
+		
+		loader.contentLoaderInfo.addEventListener (ProgressEvent.PROGRESS, function (event) {
+			
+			promise.progress (event.bytesLoaded, event.bytesTotal);
+			
+		});
+		
+		loader.contentLoaderInfo.addEventListener (IOErrorEvent.IO_ERROR, function (event) {
+			
+			promise.error (event.error);
+			
+		});
+		
+		loader.loadBytes (bytes.getData ());
+		
+		return promise.future;
+		
 		#else
 		
 		return new Future<Image> (function () return fromBytes (bytes), true);
@@ -815,6 +847,8 @@ class Image {
 	
 	
 	public static function loadFromFile (path:String):Future<Image> {
+		
+		if (path == null) return Future.withValue (null);
 		
 		#if (js && html5)
 		
