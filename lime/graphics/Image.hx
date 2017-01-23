@@ -742,13 +742,37 @@ class Image {
 		
 		var promise = new Promise<Image> ();
 		
-		// TODO: Handle error, progress
+		#if (js && html5)
+		var image = new JSImage ();
 		
-		fromBase64 (base64, type, function (image) {
+		image.addEventListener ("load", function (event) {
 			
-			promise.complete (image);
+			var buffer = new ImageBuffer (null, image.width, image.height);
+			buffer.__srcImage = cast image;
 			
-		});
+			promise.complete (new Image (buffer));
+			
+		}, false);
+		
+		image.addEventListener ("progress", function (event) {
+			
+			promise.progress (event.loaded, event.total);
+			
+		}, false);
+		
+		image.addEventListener ("error", function (event) {
+			
+			promise.error (event.detail);
+			
+		}, false);
+		
+		image.src = "data:" + type + ";base64," + base64;
+		
+		#else
+		
+		promise.error ("");
+		
+		#end
 		
 		return promise.future;
 		
@@ -759,17 +783,27 @@ class Image {
 		
 		#if (js && html5)
 		
-		var promise = new Promise<Image> ();
+		var type = "";
 		
-		// TODO: Handle error, progress
-		
-		fromBytes (bytes, function (image) {
+		if (__isPNG (bytes)) {
 			
-			promise.complete (image);
+			type = "image/png";
 			
-		});
+		} else if (__isJPG (bytes)) {
+			
+			type = "image/jpeg";
+			
+		} else if (__isGIF (bytes)) {
+			
+			type = "image/gif";
+			
+		} else {
+			
+			throw "Image tried to read PNG/JPG Bytes, but found an invalid header.";
+			
+		}
 		
-		return promise.future;
+		return loadFromBase64 (__base64Encode (bytes), type);
 		
 		#else
 		
@@ -786,17 +820,31 @@ class Image {
 		
 		var promise = new Promise<Image> ();
 		
-		// TODO: Handle progress
+		var image = new JSImage ();
+		image.crossOrigin = "Anonymous";
 		
-		fromFile (path, function (image) {
+		image.addEventListener ("load", function (event) {
 			
-			promise.complete (image);
+			var buffer = new ImageBuffer (null, image.width, image.height);
+			buffer.__srcImage = cast image;
 			
-		}, function () {
+			promise.complete (new Image (buffer));
 			
-			promise.error ("");
+		}, false);
+		
+		image.addEventListener ("progress", function (event) {
 			
-		});
+			promise.progress (event.loaded, event.total);
+			
+		}, false);
+		
+		image.addEventListener ("error", function (event) {
+			
+			promise.error (event.detail);
+			
+		}, false);
+		
+		image.src = path;
 		
 		return promise.future;
 		
