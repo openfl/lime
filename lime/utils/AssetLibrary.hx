@@ -104,6 +104,8 @@ class AssetLibrary {
 	
 	public static function fromManifest (manifest:AssetManifest):AssetLibrary {
 		
+		if (manifest == null) return null;
+		
 		var library:AssetLibrary = null;
 		
 		if (manifest.libraryType == null) {
@@ -486,7 +488,11 @@ class AssetLibrary {
 			
 		} else if (classTypes.exists (id)) {
 			
+			#if flash
+			return Future.withValue (Bytes.ofData (Type.createInstance (classTypes.get (id), [])));
+			#else
 			return Future.withValue (Type.createInstance (classTypes.get (id), []));
+			#end
 			
 		} else {
 			

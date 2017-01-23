@@ -4,6 +4,7 @@ package lime.tools.platforms;
 import haxe.io.Path;
 import haxe.Json;
 import haxe.Template;
+import lime.tools.helpers.AssetHelper;
 import lime.tools.helpers.CompatibilityHelper;
 import lime.tools.helpers.DeploymentHelper;
 import lime.tools.helpers.FileHelper;
@@ -38,7 +39,7 @@ class FlashPlatform extends PlatformTarget {
 		super (command, _project, targetFlags);
 		
 		targetDirectory = project.app.path + "/flash/" + buildType;
-
+		
 	}
 	
 	
@@ -237,6 +238,11 @@ class FlashPlatform extends PlatformTarget {
 		var destination = targetDirectory + "/bin/";
 		PathHelper.mkdir (destination);
 		
+		project = project.clone ();
+		
+		AssetHelper.createManifest (project, PathHelper.combine (targetDirectory, "obj/manifest"));
+		project.haxeflags.push ("-resource " + targetDirectory + "/obj/manifest@__ASSET_MANIFEST__");
+		
 		embedded = FlashHelper.embedAssets (project, targetDirectory);
 		
 		var context = generateContext ();
@@ -285,6 +291,8 @@ class FlashPlatform extends PlatformTarget {
 			}
 			
 		}
+		
+		AssetHelper.createManifest (project, PathHelper.combine (targetDirectory, "obj/manifest"));
 		
 	}
 	

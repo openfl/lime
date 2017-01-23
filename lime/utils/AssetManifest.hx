@@ -77,6 +77,8 @@ class AssetManifest {
 	
 	public static function parse (data:String):AssetManifest {
 		
+		if (data == null || data == "") return null;
+		
 		#if !macro
 		
 		var manifestData = Json.parse (data);
