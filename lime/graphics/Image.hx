@@ -31,8 +31,15 @@ import js.html.ImageElement;
 import js.html.Image in JSImage;
 import js.Browser;
 #elseif flash
+import flash.display.Bitmap;
 import flash.display.BitmapData;
+import flash.display.Loader;
+import flash.events.Event;
+import flash.events.IOErrorEvent;
+import flash.events.ProgressEvent;
 import flash.geom.Matrix;
+import flash.net.URLRequest;
+import flash.system.LoaderContext;
 import flash.utils.ByteArray;
 #end
 
@@ -793,6 +800,34 @@ class Image {
 		
 		return promise.future;
 		
+		#elseif flash
+		
+		var promise = new Promise<Image> ();
+		
+		var loader = new Loader ();
+		
+		loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event) {
+			
+			promise.complete (Image.fromBitmapData (cast (loader.content, Bitmap).bitmapData));
+			
+		});
+		
+		loader.contentLoaderInfo.addEventListener (ProgressEvent.PROGRESS, function (event) {
+			
+			promise.progress (event.bytesLoaded, event.bytesTotal);
+			
+		});
+		
+		loader.contentLoaderInfo.addEventListener (IOErrorEvent.IO_ERROR, function (event) {
+			
+			promise.error (event.error);
+			
+		});
+		
+		loader.load (new URLRequest (path), new LoaderContext (true));
+		
+		return promise.future;
+		
 		#else
 		
 		return new Future<Image> (function () return fromFile (path), true);
@@ -1426,10 +1461,10 @@ class Image {
 				}
 				
 			}
-			
+		
 		#else
 			
-			throw "ImageBuffer.loadFromFile not supported on this target";
+			throw "Image.fromFile not supported on this target";
 			
 		#end
 		
