@@ -27,7 +27,7 @@ import haxe.io.Path;
 @:noDebug
 #end
 
-#if (!display && !nodejs && !macro)
+#if (!display && !flash && !nodejs && !macro)
 @:autoBuild(lime._macros.AssetsMacro.embedFont())
 #end
 
