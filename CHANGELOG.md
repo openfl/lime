@@ -1,3 +1,24 @@
+3.7.0 (01/24/2017)
+------------------
+
+* Added `<define />` (implies `<set />` and `<haxedef />`)
+* Added `<dependency force-load="" />` (will default to false in Lime 4)
+* Added `-Dsimulate-preloader=3000` for simulating preload progress
+* Improved Image.loadFromBase64/loadFromBytes/loadFromFile on HTML5
+* Improved Image.loadFromBytes/loadFromFile support on Flash target
+* Improved support for "library.json" files that are not embedded
+* Improved support for browsers that do not have context.isPointInPath
+* Improved `lime setup linux` command for some newer environments
+* Improved caching behavior of text assets in AssetLibrary
+* Improved seeking behavior for AudioSource on native targets
+* Improved preload behavior on Flash target
+* Fixed metadata-based font embedding for Flash Player
+* Fixed issues with Windows paths when building tools with Haxe 3.4
+* Fixed preloading of fonts similar to default sans-serif on HTML5
+* Fixed base path for assets loaded from non-default asset libraries
+* Fixed scale of mouse events dispatched for high-DPI HTML5 windows
+
+
 3.6.2 (01/20/2017)
 ------------------
 
