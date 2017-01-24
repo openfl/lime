@@ -74,7 +74,11 @@ class AssetsMacro {
 				throw "not implemented";
 				#else
 				var bytes = haxe.Resource.getBytes (resourceName);
+				#if html5
+				super (bytes.b.buffer);
+				#else
 				super (bytes.length, bytes.b);
+				#end
 				#end
 				
 			};

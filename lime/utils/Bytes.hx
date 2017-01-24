@@ -43,6 +43,8 @@ abstract Bytes(HaxeBytes) from HaxeBytes to HaxeBytes {
 	
 	public static function fromBytes (bytes:haxe.io.Bytes):Bytes {
 		
+		if (bytes == null) return null;
+		
 		return new Bytes (bytes.length, bytes.getData ());
 		
 	}
