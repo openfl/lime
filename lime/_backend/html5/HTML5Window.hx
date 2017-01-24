@@ -376,6 +376,9 @@ class HTML5Window {
 				
 			}
 			
+			x /= scale;
+			y /= scale;
+			
 			switch (event.type) {
 				
 				case "mousedown":
