@@ -35,6 +35,7 @@ class HTML5Application {
 	private var nextUpdate:Float;
 	private var parent:Application;
 	public static var stopUpdating:Bool = false;
+	private static var instance:HTML5Application;
 	#if stats
 	private var stats:Dynamic;
 	#end
@@ -51,6 +52,7 @@ class HTML5Application {
 
 		AudioManager.init ();
 
+		instance = this;
 	}
 
 
@@ -208,7 +210,7 @@ class HTML5Application {
 			updateGameDevices ();
 		#end
 
-		currentUpdate = Date.now ().getTime ();
+		currentUpdate = lime.system.System.getTimer();
 
 		if (currentUpdate >= nextUpdate) {
 
@@ -254,11 +256,15 @@ class HTML5Application {
 		}
 
 		if( !stopUpdating ){
-			Browser.window.requestAnimationFrame (cast handleApplicationEvent);
+			Browser.window.requestAnimationFrame (cast staticHandleApplicationEvent);
 		}
 
 	}
 
+	private static function staticHandleApplicationEvent()
+	{
+		instance.handleApplicationEvent();
+	}
 
 	private function handleKeyEvent (event:KeyboardEvent):Void {
 
