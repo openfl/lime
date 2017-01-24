@@ -636,6 +636,7 @@ class AssetLibrary {
 	private function __fromManifest (manifest:AssetManifest):Void {
 		
 		var hasSize = (manifest.version >= 2);
+		var basePath = manifest.basePath;
 		var size, id;
 		
 		for (asset in manifest.assets) {
@@ -643,7 +644,7 @@ class AssetLibrary {
 			size = hasSize ? asset.size : 100;
 			id = asset.id;
 			
-			paths.set (id, asset.path);
+			paths.set (id, basePath + asset.path);
 			sizes.set (id, size);
 			types.set (id, asset.type);
 			

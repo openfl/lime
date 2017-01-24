@@ -114,7 +114,9 @@ import sys.FileSystem;
 		
 		if (bytes != null) {
 			
-			__fromManifest (AssetManifest.fromBytes (bytes));
+			var manifest = AssetManifest.fromBytes (bytes);
+			manifest.basePath = rootPath;
+			__fromManifest (manifest);
 			
 		} else {
 			
@@ -124,6 +126,7 @@ import sys.FileSystem;
 			
 			if (manifest != null) {
 				
+				manifest.basePath = rootPath;
 				__fromManifest (manifest);
 				
 			} else {
@@ -151,23 +154,6 @@ import sys.FileSystem;
 				//Log.warn ('Could not load asset manifest (${e})');
 				//
 			//});
-			
-		}
-		
-	}
-	
-	
-	private override function __fromManifest (manifest:AssetManifest):Void {
-		
-		super.__fromManifest (manifest);
-		
-		if (rootPath != "") {
-			
-			for (asset in manifest.assets) {
-				
-				paths.set (asset.id, rootPath + asset.path);
-				
-			}
 			
 		}
 		

@@ -474,7 +474,25 @@ class Assets {
 		
 		loadText ("libraries/" + name + ".json").onComplete (function (data) {
 			
-			var library = AssetLibrary.fromManifest (AssetManifest.parse (data));
+			// TODO: Smarter base path logic
+			var manifest = AssetManifest.parse (data);
+			
+			if (manifest == null) {
+				
+				promise.error ("[Assets] Cannot parse asset manifest for library \"" + name + "\"");
+				return;
+				
+			}
+			
+			#if (ios || tvos)
+			if (manifest.basePath == "") {
+				
+				manifest.basePath = "assets/";
+				
+			}
+			#end
+			
+			var library = AssetLibrary.fromManifest (manifest);
 			
 			if (library == null) {
 				

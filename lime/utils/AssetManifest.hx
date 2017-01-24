@@ -20,6 +20,7 @@ class AssetManifest {
 	
 	
 	public var assets:Array<Dynamic>;
+	public var basePath:String;
 	public var libraryArgs:Array<String>;
 	public var libraryType:String;
 	public var name:String;
@@ -29,6 +30,7 @@ class AssetManifest {
 	public function new () {
 		
 		assets = [];
+		basePath = "";
 		libraryArgs = [];
 		version = 2;
 		
