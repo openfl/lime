@@ -436,6 +436,30 @@ class Font {
 	}
 	
 	
+	#if (js && html5)
+	
+	private static function __makeLoaderNode (fontFamily : String) {
+		
+		var node:SpanElement = cast Browser.document.createElement ("span");
+		node.innerHTML = "giItT1WQy@!-/#";
+		var style = node.style;
+		style.position = "absolute";
+		style.left = "-10000px";
+		style.top = "-10000px";
+		style.fontSize = "300px";
+		style.fontFamily = fontFamily;
+		style.fontVariant = "normal";
+		style.fontStyle = "normal";
+		style.fontWeight = "normal";
+		style.letterSpacing = "0";
+		Browser.document.body.appendChild (node);
+		return node;
+		
+	}
+	
+	#end
+	
+	
 	private function __loadFromName (name:String):Future<Font> {
 		
 		var promise = new Promise<Font> ();
@@ -462,29 +486,20 @@ class Font {
 			
 		} else {
 			
-			var node:SpanElement = cast Browser.document.createElement ("span");
-			node.innerHTML = "giItT1WQy@!-/#";
-			var style = node.style;
-			style.position = "absolute";
-			style.left = "-10000px";
-			style.top = "-10000px";
-			style.fontSize = "300px";
-			style.fontFamily = "sans-serif";
-			style.fontVariant = "normal";
-			style.fontStyle = "normal";
-			style.fontWeight = "normal";
-			style.letterSpacing = "0";
-			Browser.document.body.appendChild (node);
+			var node1 = __makeLoaderNode("sans-serif");
+			var node2 = __makeLoaderNode("serif");
+			var width1 = node1.offsetWidth;
+			var width2 = node2.offsetWidth;
 			
-			var width = node.offsetWidth;
-			style.fontFamily = "'" + font + "', sans-serif";
+			node1.style.fontFamily = "'" + name + "', sans-serif";
+			node2.style.fontFamily = "'" + name + "', serif";
 			
 			var interval:Null<Int> = null;
 			var found = false;
 			
 			var checkFont = function () {
 				
-				if (node.offsetWidth != width) {
+				if (node1.offsetWidth != width1 || node2.offsetWidth != width2) {
 					
 					// Test font was still not available yet, try waiting one more interval?
 					if (!found) {
@@ -500,8 +515,10 @@ class Font {
 						
 					}
 					
-					node.parentNode.removeChild (node);
-					node = null;
+					node1.parentNode.removeChild (node1);
+					node2.parentNode.removeChild (node2);
+					node1 = null;
+					node2 = null;
 					
 					promise.complete (this);
 					return true;
