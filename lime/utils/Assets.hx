@@ -61,6 +61,7 @@ class Assets {
 		}
 		
 		var symbol = new LibrarySymbol (id);
+		
 		if (symbol.library != null) {
 			
 			return symbol.exists (type);
@@ -87,11 +88,13 @@ class Assets {
 		if (useCache && cache.enabled) {
 			
 			switch (type) {
+				
 				case BINARY, TEXT: // Not cached
 					
 					useCache = false;
 				
 				case FONT:
+					
 					var font = cache.font.get (id);
 					
 					if (font != null) {
@@ -101,6 +104,7 @@ class Assets {
 					}
 				
 				case IMAGE:
+					
 					var image = cache.image.get (id);
 					
 					if (isValidImage (image)) {
@@ -110,6 +114,7 @@ class Assets {
 					}
 				
 				case MUSIC, SOUND:
+					
 					var audio = cache.audio.get (id);
 					
 					if (isValidAudio (audio)) {
@@ -118,12 +123,16 @@ class Assets {
 						
 					}
 				
-				case TEMPLATE:  throw "Not sure how to get template: " + id;
+				case TEMPLATE:
+					
+					throw "Not sure how to get template: " + id;
+				
 			}
 			
 		}
 		
 		var symbol = new LibrarySymbol (id);
+		
 		if (symbol.library != null) {
 			
 			if (symbol.exists (type)) {
@@ -199,7 +208,7 @@ class Assets {
 	 */
 	public static function getFont (id:String, useCache:Bool = true):Font {
 		
-		return getAsset(id, FONT, useCache);
+		return getAsset (id, FONT, useCache);
 		
 	}
 	
@@ -213,7 +222,7 @@ class Assets {
 	 */
 	public static function getImage (id:String, useCache:Bool = true):Image {
 		
-		return getAsset(id, IMAGE, useCache);
+		return getAsset (id, IMAGE, useCache);
 		
 	}
 	
@@ -242,6 +251,7 @@ class Assets {
 		#if (tools && !display)
 		
 		var symbol = new LibrarySymbol (id);
+		
 		if (symbol.library != null) {
 			
 			if (symbol.exists ()) {
@@ -275,7 +285,7 @@ class Assets {
 	 */
 	public static function getText (id:String):String {
 		
-		return getAsset(id, TEXT, false);
+		return getAsset (id, TEXT, false);
 		
 	}
 	
@@ -304,45 +314,18 @@ class Assets {
 	
 	private static function isValidAudio (buffer:AudioBuffer):Bool {
 		
-		#if (tools && !display)
+		// TODO: Check disposed
 		
-		return (buffer != null);
-		//return (sound.__handle != null && sound.__handle != 0);
-		
-		#else
-		
-		return true;
-		
-		#end
+		return buffer != null;
 		
 	}
 	
 	
-	private static function isValidImage (buffer:Image):Bool {
+	private static function isValidImage (image:Image):Bool {
 		
-		#if (tools && !display)
-		#if lime_cffi
+		// TODO: Check disposed
 		
-		return (buffer != null);
-		//return (bitmapData.__handle != null);
-		
-		#elseif flash
-		
-		/*try {
-			
-			image.bytes.width;
-			
-		} catch (e:Dynamic) {
-			
-			return false;
-			
-		}*/
-		return (buffer != null);
-		
-		#end
-		#end
-		
-		return (buffer != null);
+		return image.buffer != null;
 		
 	}
 	
@@ -375,11 +358,13 @@ class Assets {
 		if (useCache && cache.enabled) {
 			
 			switch (type) {
+				
 				case BINARY, TEXT: // Not cached
 					
 					useCache = false;
 				
 				case FONT:
+					
 					var font = cache.font.get (id);
 					
 					if (font != null) {
@@ -389,6 +374,7 @@ class Assets {
 					}
 				
 				case IMAGE:
+					
 					var image = cache.image.get (id);
 					
 					if (isValidImage (image)) {
@@ -398,6 +384,7 @@ class Assets {
 					}
 				
 				case MUSIC, SOUND:
+					
 					var audio = cache.audio.get (id);
 					
 					if (isValidAudio (audio)) {
@@ -406,12 +393,16 @@ class Assets {
 						
 					}
 				
-				case TEMPLATE:  throw "Not sure how to get template: " + id;
+				case TEMPLATE:
+					
+					throw "Not sure how to get template: " + id;
+				
 			}
 			
 		}
 		
 		var symbol = new LibrarySymbol (id);
+		
 		if (symbol.library != null) {
 			
 			if (symbol.exists (type)) {
@@ -512,32 +503,7 @@ class Assets {
 	
 	public static function loadText (id:String):Future<String> {
 		
-		var promise = new Promise<String> ();
-		
-		#if (tools && !display)
-		
-		var symbol = new LibrarySymbol (id);
-		if (symbol.library != null) {
-			
-			if (symbol.exists (AssetType.TEXT)) {
-				
-				promise.completeWith (symbol.library.loadText (symbol.symbolName));
-				
-			} else {
-				
-				promise.error ("[Assets] There is no String asset with an ID of \"" + id + "\"");
-				
-			}
-			
-		} else {
-			
-			promise.error ("[Assets] There is no asset library named \"" + symbol.libraryName + "\"");
-			
-		}
-		
-		#end
-		
-		return promise.future;
+		return cast loadAsset (id, TEXT, false);
 		
 	}
 	
@@ -604,22 +570,24 @@ class Assets {
 		
 	}
 	
+	
 }
 
 
 private class LibrarySymbol {
 	
-	public var libraryName (default, null) : String;
-	public var symbolName  (default, null) : String;
-	public var library     (default, null) : AssetLibrary;
+	
+	public var library (default, null):AssetLibrary;
+	public var libraryName (default, null):String;
+	public var symbolName (default, null):String;
 	
 	
 	public inline function new (id:String) {
 		
 		var colonIndex = id.indexOf (":");
-		libraryName    = id.substring (0, colonIndex);
-		symbolName     = id.substring (colonIndex + 1);
-		library        = Assets.getLibrary (libraryName);
+		libraryName = id.substring (0, colonIndex);
+		symbolName = id.substring (colonIndex + 1);
+		library = Assets.getLibrary (libraryName);
 		
 	}
 	
