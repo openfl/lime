@@ -4,6 +4,9 @@ package lime.project;
 class Dependency {
 	
 	
+	// TODO: Is "forceLoad" the best name? Implement "whole-archive" on GCC
+	
+	public var forceLoad:Bool;
 	public var name:String;
 	public var path:String;
 	
@@ -18,7 +21,9 @@ class Dependency {
 	
 	public function clone ():Dependency {
 		
-		return new Dependency (name, path);
+		var dependency = new Dependency (name, path);
+		dependency.forceLoad = forceLoad;
+		return dependency;
 		
 	}
 	

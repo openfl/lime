@@ -1785,6 +1785,18 @@ class ProjectXMLParser extends HXProject {
 							
 						}
 						
+						var dependency = new Dependency (name, path);
+						
+						#if (lime < "4.0.0")
+						dependency.forceLoad = true;
+						#end
+						
+						if (element.has.resolve ("force-load")) {
+							
+							dependency.forceLoad = (substitute (element.att.resolve ("force-load")) == "true");
+							
+						}
+						
 						var i = dependencies.length;
 						
 						while (i-- > 0) {
@@ -1797,7 +1809,7 @@ class ProjectXMLParser extends HXProject {
 							
 						}
 						
-						dependencies.push (new Dependency (name, path));
+						dependencies.push (dependency);
 					
 					case "android":
 						
