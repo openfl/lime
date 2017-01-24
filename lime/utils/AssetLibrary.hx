@@ -569,7 +569,9 @@ class AssetLibrary {
 						
 					} else {
 						
-						return bytes.getString (0, bytes.length);
+						var text = bytes.getString (0, bytes.length);
+						cachedText.set(id, text);
+						return text;
 						
 					}
 					
