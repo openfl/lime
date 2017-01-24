@@ -210,7 +210,7 @@ class HTML5Application {
 			updateGameDevices ();
 		#end
 
-		currentUpdate = Date.now ().getTime ();
+		currentUpdate = lime.system.System.getTimer();
 
 		if (currentUpdate >= nextUpdate) {
 
