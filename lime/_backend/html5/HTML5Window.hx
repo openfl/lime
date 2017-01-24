@@ -453,7 +453,7 @@ class HTML5Window {
 			
 		} else {
 			
-			parent.onMouseWheel.dispatch (untyped event.deltaX, - untyped event.deltaY);
+			parent.onMouseWheel.dispatch (untyped event.deltaX / scale, - untyped event.deltaY / scale);
 			
 			if (parent.onMouseWheel.canceled) {
 				
