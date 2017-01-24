@@ -3,8 +3,11 @@ package lime.app;
 
 import haxe.io.Bytes;
 import haxe.io.Path;
+import haxe.macro.Compiler;
+import haxe.Timer;
 import lime.app.Event;
 import lime.media.AudioBuffer;
+import lime.system.System;
 import lime.utils.AssetLibrary;
 import lime.utils.Assets;
 import lime.utils.AssetType;
@@ -46,6 +49,7 @@ class Preloader #if flash extends Sprite #end {
 	private var libraryNames:Array<String>;
 	private var loadedLibraries:Int;
 	private var loadedStage:Bool;
+	private var simulateProgress:Bool;
 	
 	
 	public function new () {
@@ -60,6 +64,39 @@ class Preloader #if flash extends Sprite #end {
 		libraryNames = new Array<String> ();
 		
 		onProgress.add (update);
+		
+		#if simulate_preloader
+		var preloadTime = Std.parseInt (Compiler.getDefine ("simulate_preloader"));
+		
+		if (preloadTime == 1) {
+			
+			preloadTime = 3000;
+			
+		}
+		
+		var startTime = System.getTimer ();
+		var currentTime = 0;
+		var timeStep = Std.int (1000 / 60);
+		var timer = new Timer (timeStep);
+		
+		simulateProgress = true;
+		
+		timer.run = function () {
+			
+			currentTime = System.getTimer () - startTime;
+			onProgress.dispatch (currentTime, preloadTime);
+			
+			if (currentTime >= preloadTime) {
+				
+				timer.stop ();
+				
+				simulateProgress = false;
+				start ();
+				
+			}
+			
+		};
+		#end
 		
 	}
 	
@@ -122,7 +159,11 @@ class Preloader #if flash extends Sprite #end {
 				
 				bytesLoadedCache.set (library, loaded);
 				
-				onProgress.dispatch (bytesLoaded, bytesTotal);
+				if (!simulateProgress) {
+					
+					onProgress.dispatch (bytesLoaded, bytesTotal);
+					
+				}
 				
 			}).onComplete (function (_) {
 				
@@ -187,7 +228,11 @@ class Preloader #if flash extends Sprite #end {
 	
 	private function updateProgress ():Void {
 		
-		onProgress.dispatch (bytesLoaded, bytesTotal);
+		if (!simulateProgress) {
+			
+			onProgress.dispatch (bytesLoaded, bytesTotal);
+			
+		}
 		
 		if (loadedLibraries == libraries.length && !initLibraryNames) {
 			
@@ -220,7 +265,11 @@ class Preloader #if flash extends Sprite #end {
 						
 						bytesLoadedCache2.set (name, loaded);
 						
-						onProgress.dispatch (bytesLoaded, bytesTotal);
+						if (!simulateProgress) {
+							
+							onProgress.dispatch (bytesLoaded, bytesTotal);
+							
+						}
 						
 					}
 					
@@ -257,7 +306,7 @@ class Preloader #if flash extends Sprite #end {
 			
 		}
 		
-		if (#if flash loadedStage && #end loadedLibraries == (libraries.length + libraryNames.length)) {
+		if (!simulateProgress && #if flash loadedStage && #end loadedLibraries == (libraries.length + libraryNames.length)) {
 			
 			start ();
 			
@@ -269,12 +318,19 @@ class Preloader #if flash extends Sprite #end {
 	#if flash
 	private function current_onEnter (event:flash.events.Event):Void {
 		
-		// TODO: Merge progress with library load progress
-		
 		if (!loadedStage && Lib.current.loaderInfo.bytesLoaded == Lib.current.loaderInfo.bytesTotal) {
 			
 			loadedStage = true;
-			onProgress.dispatch (Lib.current.loaderInfo.bytesLoaded, Lib.current.loaderInfo.bytesTotal);
+			
+			if (bytesTotalCache["_root"] > 0) {
+				
+				var loaded = Lib.current.loaderInfo.bytesLoaded;
+				bytesLoaded += loaded - bytesLoadedCache2["_root"];
+				bytesLoadedCache2["_root"] = loaded;
+				
+				updateProgress ();
+				
+			}
 			
 		}
 		
@@ -295,21 +351,49 @@ class Preloader #if flash extends Sprite #end {
 	private function loaderInfo_onComplete (event:flash.events.Event):Void {
 		
 		loadedStage = true;
-		onProgress.dispatch (Lib.current.loaderInfo.bytesLoaded, Lib.current.loaderInfo.bytesTotal);
+		
+		if (bytesTotalCache["_root"] > 0) {
+			
+			var loaded = Lib.current.loaderInfo.bytesLoaded;
+			bytesLoaded += loaded - bytesLoadedCache2["_root"];
+			bytesLoadedCache2["_root"] = loaded;
+			
+			updateProgress ();
+			
+		}
 		
 	}
 	
 	
 	private function loaderInfo_onInit (event:flash.events.Event):Void {
 		
-		onProgress.dispatch (Lib.current.loaderInfo.bytesLoaded, Lib.current.loaderInfo.bytesTotal);
+		bytesTotal += Lib.current.loaderInfo.bytesTotal;
+		bytesTotalCache["_root"] = Lib.current.loaderInfo.bytesTotal;
+		
+		if (bytesTotalCache["_root"] > 0) {
+			
+			var loaded = Lib.current.loaderInfo.bytesLoaded;
+			bytesLoaded += loaded;
+			bytesLoadedCache2["_root"] = loaded;
+			
+			updateProgress ();
+			
+		}
 		
 	}
 	
 	
 	private function loaderInfo_onProgress (event:flash.events.ProgressEvent):Void {
 		
-		onProgress.dispatch (Lib.current.loaderInfo.bytesLoaded, Lib.current.loaderInfo.bytesTotal);
+		if (bytesTotalCache["_root"] > 0) {
+			
+			var loaded = Lib.current.loaderInfo.bytesLoaded;
+			bytesLoaded += loaded - bytesLoadedCache2["_root"];
+			bytesLoadedCache2["_root"] = loaded;
+			
+			updateProgress ();
+			
+		}
 		
 	}
 	#end
