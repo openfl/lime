@@ -37,6 +37,7 @@ class NativeAudioSource {
 	private var parent:AudioSource;
 	private var playing:Bool;
 	private var position:Vector4;
+	private var samples:Int;
 	private var stream:Bool;
 	private var streamTimer:Timer;
 	private var timer:Timer;
@@ -126,6 +127,8 @@ class NativeAudioSource {
 			AL.sourcei (handle, AL.BUFFER, parent.buffer.__srcBuffer);
 			
 		}
+		
+		samples = Std.int ((dataLength * 8) / (parent.buffer.channels * parent.buffer.bitsPerSample));
 		
 	}
 	
@@ -360,7 +363,13 @@ class NativeAudioSource {
 			
 		} else {
 			
-			var time = Std.int (AL.getSourcef (handle, AL.SEC_OFFSET) * 1000) - parent.offset;
+			var offset = AL.getSourcei (handle, AL.BYTE_OFFSET);
+			var ratio = (offset / dataLength);
+			var totalSeconds = samples / parent.buffer.sampleRate;
+			
+			var time = Std.int (totalSeconds * ratio * 1000) - parent.offset;
+			
+			//var time = Std.int (AL.getSourcef (handle, AL.SEC_OFFSET) * 1000) - parent.offset;
 			if (time < 0) return 0;
 			return time;
 			
@@ -385,7 +394,19 @@ class NativeAudioSource {
 			
 			AL.sourceRewind (handle);
 			if (playing) AL.sourcePlay (handle);
-			AL.sourcef (handle, AL.SEC_OFFSET, (value + parent.offset) / 1000);
+			//AL.sourcef (handle, AL.SEC_OFFSET, (value + parent.offset) / 1000);
+			
+			var secondOffset = (value + parent.offset) / 1000;
+			var totalSeconds = samples / parent.buffer.sampleRate;
+			
+			if (secondOffset < 0) secondOffset = 0;
+			if (secondOffset > totalSeconds) secondOffset = totalSeconds;
+			
+			var ratio = (secondOffset / totalSeconds);
+			var totalOffset = Std.int (dataLength * ratio);
+			var currentOffset = AL.getSourcei (handle, AL.BYTE_OFFSET);
+			
+			AL.sourcei (handle, AL.BYTE_OFFSET, totalOffset - currentOffset);
 			
 		}
 		
@@ -441,7 +462,6 @@ class NativeAudioSource {
 			
 		}
 		
-		var samples = (dataLength * 8) / (parent.buffer.channels * parent.buffer.bitsPerSample);
 		return Std.int (samples / parent.buffer.sampleRate * 1000) - parent.offset;
 		
 	}
