@@ -1,3 +1,11 @@
+3.7.1 (01/25/2017)
+------------------
+
+* Improved output of Flash Player log output
+* Fixed minor issues with Flash Player preload logic
+* Fixed use of AudioBuffer in multiple native AudioSource instances
+
+
 3.7.0 (01/24/2017)
 ------------------
 
