@@ -35,7 +35,7 @@ import flash.Lib;
 class Preloader #if flash extends Sprite #end {
 	
 	
-	public var complete:Bool;
+	public var complete (default, null):Bool;
 	public var onComplete = new Event<Void->Void> ();
 	public var onProgress = new Event<Int->Int->Void> ();
 	
@@ -204,6 +204,8 @@ class Preloader #if flash extends Sprite #end {
 	
 	private function start ():Void {
 		
+		if (complete) return;
+		
 		complete = true;
 		
 		#if flash
@@ -350,7 +352,7 @@ class Preloader #if flash extends Sprite #end {
 	
 	private function loaderInfo_onComplete (event:flash.events.Event):Void {
 		
-		loadedStage = true;
+		//loadedStage = true;
 		
 		if (bytesTotalCache["_root"] > 0) {
 			
