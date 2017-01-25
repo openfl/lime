@@ -773,7 +773,7 @@ class FlashHelper {
 			
 			if (asset.embed == null || asset.embed == true) {
 				
-				LogHelper.info ("", " - \x1b[1mEmbedding asset:\x1b[0m \x1b[3;37m(" + asset.type + ")\x1b[0m " + asset.sourcePath);
+				//LogHelper.info ("", " - \x1b[1mEmbedding asset:\x1b[0m \x1b[3;37m(" + asset.type + ")\x1b[0m " + asset.sourcePath);
 				
 				var flashClass = switch (asset.type) {
 					
@@ -988,6 +988,7 @@ class FlashHelper {
 					try {
 						
 						File.saveContent (path, "");
+						position = 0;
 						
 					} catch (e:Dynamic) {}
 					

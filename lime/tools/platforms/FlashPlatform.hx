@@ -31,7 +31,7 @@ class FlashPlatform extends PlatformTarget {
 	
 	
 	private var embedded:Bool;
-	private var logLength:Int;
+	private var logLength:Int = 0;
 	
 	
 	public function new (command:String, _project:HXProject, targetFlags:Map<String, String>) {
@@ -300,7 +300,7 @@ class FlashPlatform extends PlatformTarget {
 	public override function trace ():Void {
 		
 		FlashHelper.enableLogging ();
-		FlashHelper.tailLog (0);
+		FlashHelper.tailLog (logLength);
 		
 	}
 	
