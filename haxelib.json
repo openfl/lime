@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "3.7.0",
-	"releasenote": "Improved preload support, added define tag, other improvements",
+	"version": "3.7.1",
+	"releasenote": "Improved output of Flash log output, Flash preload fix, AudioSource fix",
 	"contributors": [ "singmajesty" ]
 }
