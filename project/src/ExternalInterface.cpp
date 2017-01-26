@@ -1379,6 +1379,17 @@ namespace lime {
 	}
 	
 	
+	bool lime_system_get_ios_tablet () {
+		
+		#ifdef IPHONE
+		return System::GetIOSTablet ();
+		#else
+		return false;
+		#endif
+		
+	}
+	
+	
 	int lime_system_get_num_displays () {
 		
 		return System::GetNumDisplays ();
@@ -1823,6 +1834,7 @@ namespace lime {
 	DEFINE_PRIME0 (lime_system_get_allow_screen_timeout);
 	DEFINE_PRIME3 (lime_system_get_directory);
 	DEFINE_PRIME1 (lime_system_get_display);
+	DEFINE_PRIME0 (lime_system_get_ios_tablet);
 	DEFINE_PRIME0 (lime_system_get_num_displays);
 	DEFINE_PRIME0 (lime_system_get_timer);
 	DEFINE_PRIME1v (lime_system_open_file);

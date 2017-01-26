@@ -54,6 +54,13 @@ namespace lime {
 	}
 	
 	
+	bool System::GetIOSTablet () {
+		
+		return (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) ? 1 : 0;
+		
+	}
+	
+	
 	void System::OpenFile (const char* path) {
 		
 		OpenURL (path, NULL);

@@ -30,6 +30,7 @@ namespace lime {
 			static std::wstring* GetDirectory (SystemDirectory type, const char* company, const char* title);
 			#ifdef IPHONE
 			static std::wstring* GetIOSDirectory (SystemDirectory type);
+			static bool GetIOSTablet ();
 			#endif
 			static value GetDisplay (int id);
 			static int GetNumDisplays ();

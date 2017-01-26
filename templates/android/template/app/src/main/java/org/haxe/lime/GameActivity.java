@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.KeyCharacterMap;
@@ -27,8 +28,23 @@ public class GameActivity extends SDLActivity {
 	
 	private static AssetManager assetManager;
 	private static List<Extension> extensions;
+	private static DisplayMetrics metrics;
 	
 	public Handler handler;
+	
+	
+	public static double getDisplayDPI () {
+		
+		if (metrics == null) {
+			
+			metrics = new DisplayMetrics ();
+			getWindowManager ().getDefaultDisplay ().getMetrics (metrics);
+			
+		}
+		
+		return metrics.xdpi;
+		
+	}
 	
 	
 	protected String[] getLibraries () {
