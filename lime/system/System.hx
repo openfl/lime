@@ -102,7 +102,7 @@ class System {
 			}
 			#elseif android
 			var getDisplayDPI = JNI.createStaticMethod ("org/haxe/lime/GameActivity", "getDisplayDPI", "()D");
-			display.dpi = getDisplayDPI ();
+			display.dpi = Math.round (getDisplayDPI ());
 			#else
 			display.dpi = displayInfo.dpi;
 			#end
@@ -142,7 +142,12 @@ class System {
 			display.dpi = Capabilities.screenDPI;
 			display.currentMode = new DisplayMode (Std.int (Capabilities.screenResolutionX), Std.int (Capabilities.screenResolutionY), 60, ARGB32);
 			#elseif (js && html5)
-			display.dpi = 96 * Browser.window.devicePixelRatio; // TODO: Detect actual DPI
+			var div = Browser.document.createElement ("div");
+			div.style.width = "1in";
+			Browser.document.body.appendChild (div);
+			var ppi = Browser.document.defaultView.getComputedStyle (div, null).getPropertyValue ("width");
+			Browser.document.body.removeChild (div);
+			display.dpi = Std.parseFloat (ppi);
 			display.currentMode = new DisplayMode (Browser.window.screen.width, Browser.window.screen.height, 60, ARGB32);
 			#end
 			
