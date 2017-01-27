@@ -142,12 +142,13 @@ class System {
 			display.dpi = Capabilities.screenDPI;
 			display.currentMode = new DisplayMode (Std.int (Capabilities.screenResolutionX), Std.int (Capabilities.screenResolutionY), 60, ARGB32);
 			#elseif (js && html5)
-			var div = Browser.document.createElement ("div");
-			div.style.width = "1in";
-			Browser.document.body.appendChild (div);
-			var ppi = Browser.document.defaultView.getComputedStyle (div, null).getPropertyValue ("width");
-			Browser.document.body.removeChild (div);
-			display.dpi = Std.parseFloat (ppi);
+			//var div = Browser.document.createElement ("div");
+			//div.style.width = "1in";
+			//Browser.document.body.appendChild (div);
+			//var ppi = Browser.document.defaultView.getComputedStyle (div, null).getPropertyValue ("width");
+			//Browser.document.body.removeChild (div);
+			//display.dpi = Std.parseFloat (ppi);
+			display.dpi = 96 * Browser.window.devicePixelRatio;
 			display.currentMode = new DisplayMode (Browser.window.screen.width, Browser.window.screen.height, 60, ARGB32);
 			#end
 			
