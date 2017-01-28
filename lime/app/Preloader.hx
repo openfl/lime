@@ -84,6 +84,7 @@ class Preloader #if flash extends Sprite #end {
 		timer.run = function () {
 			
 			currentTime = System.getTimer () - startTime;
+			if (currentTime > preloadTime) currentTime = preloadTime;
 			onProgress.dispatch (currentTime, preloadTime);
 			
 			if (currentTime >= preloadTime) {
