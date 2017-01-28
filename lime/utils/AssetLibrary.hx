@@ -178,6 +178,12 @@ class AssetLibrary {
 			
 			return cachedBytes.get (id);
 			
+		} else if (cachedText.exists (id)) {
+			
+			var bytes = Bytes.ofString (cachedText.get (id));
+			cachedBytes.set (id, bytes);
+			return bytes;
+			
 		} else if (classTypes.exists (id)) {
 			
 			#if flash
