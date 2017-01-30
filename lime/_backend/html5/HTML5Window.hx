@@ -71,6 +71,7 @@ class HTML5Window {
 			
 		}
 		
+		parent.onFocusIn.add (focus);
 	}
 	
 	
@@ -225,9 +226,10 @@ class HTML5Window {
 	
 	
 	public function focus ():Void {
-		
-		
-		
+		if (canvas != null)
+		{
+			canvasBoundingClientRect = canvas.getBoundingClientRect();
+		}
 	}
 	
 	
