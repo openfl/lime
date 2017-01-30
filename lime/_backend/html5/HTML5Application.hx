@@ -329,8 +329,6 @@ class HTML5Application {
 					var cacheWidth = parent.window.width;
 					var cacheHeight = parent.window.height;
 
-					parent.window.backend.handleResize ();
-
 					if (parent.window.width != cacheWidth || parent.window.height != cacheHeight) {
 
 						parent.window.onResize.dispatch (parent.window.width, parent.window.height);

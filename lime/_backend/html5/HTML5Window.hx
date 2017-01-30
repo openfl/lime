@@ -167,8 +167,6 @@ class HTML5Window {
 			
 		}
 		
-		handleResize ();
-		
 		if (element != null) {
 			
 			if (canvas != null) {
@@ -351,79 +349,6 @@ class HTML5Window {
 		} else {
 			
 			parent.onMouseWheel.dispatch (untyped event.deltaX, - untyped event.deltaY);
-			
-		}
-		
-	}
-	
-	
-	private function handleResize ():Void {
-
-		if (!parent.resizable) {
-			return;
-		}
-
-		var stretch = parent.fullscreen || (setWidth == 0 && setHeight == 0);
-		
-		if (element != null && (div == null || (div != null && stretch))) {
-			
-			if (stretch) {
-				
-				if (parent.width != element.clientWidth || parent.height != element.clientHeight) {
-					
-					parent.width = element.clientWidth;
-					parent.height = element.clientHeight;
-					
-					if (canvas != null) {
-						
-						if (element != cast canvas) {
-							
-							canvas.width = element.clientWidth;
-							canvas.height = element.clientHeight;
-							canvas.style.marginLeft = "0px";
-							canvas.style.marginTop = "0px";
-							
-						}
-						
-					} else {
-						
-						div.style.width = element.clientWidth + "px";
-						div.style.height = element.clientHeight + "px";
-						div.style.marginLeft = "0px";
-						div.style.marginTop = "0px";
-					}
-					
-				}
-				
-			} else {
-				
-				var scaleX = element.clientWidth / setWidth;
-				var scaleY = element.clientHeight / setHeight;
-				
-				var currentRatio = scaleX / scaleY;
-				var targetRatio = Math.min (scaleX, scaleY);
-				
-				if (canvas != null) {
-					
-					if (element != cast canvas) {
-						
-						canvas.style.width = setWidth * targetRatio + "px";
-						canvas.style.height = setHeight * targetRatio + "px";
-						canvas.style.marginLeft = ((element.clientWidth - (setWidth * targetRatio)) / 2) + "px";
-						canvas.style.marginTop = ((element.clientHeight - (setHeight * targetRatio)) / 2) + "px";
-						
-					}
-					
-				} else {
-					
-					div.style.width = setWidth * targetRatio + "px";
-					div.style.height = setHeight * targetRatio + "px";
-					div.style.marginLeft = ((element.clientWidth - (setWidth * targetRatio)) / 2) + "px";
-					div.style.marginTop = ((element.clientHeight - (setHeight * targetRatio)) / 2) + "px";
-					
-				}
-				
-			}
 			
 		}
 		
