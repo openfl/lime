@@ -136,7 +136,14 @@ class HTML5Window {
 			
 		}
 		
-		if (parent.width == 0 && parent.height == 0) {
+		if ( parent.resizable ) {
+
+			parent.__displayWidth = parent.width;
+			parent.__displayHeight = parent.height;
+			parent.width = Browser.window.innerWidth;
+			parent.height = Browser.window.innerHeight;
+
+		} else if (parent.width == 0 && parent.height == 0) {
 			
 			if (element != null && element.clientWidth != 0 && element.clientHeight != 0 ) {
 				

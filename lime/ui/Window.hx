@@ -24,6 +24,8 @@ class Window {
 	public var borderless (get, set):Bool;
 	public var config:WindowConfig;
 	public var display (get, null):Display;
+	public var displayWidth(get, never):Int;
+	public var displayHeight(get, never):Int;
 	public var enableTextEvents (get, set):Bool;
 	public var fullscreen (get, set):Bool;
 	public var height (get, set):Int;
@@ -62,6 +64,8 @@ class Window {
 	
 	@:noCompletion private var backend:WindowBackend;
 	@:noCompletion private var __borderless:Bool;
+	@:noCompletion private var __displayWidth:Int;
+	@:noCompletion private var __displayHeight:Int;
 	@:noCompletion private var __fullscreen:Bool;
 	@:noCompletion private var __height:Int;
 	@:noCompletion private var __minimized:Bool;
@@ -88,8 +92,14 @@ class Window {
 		
 		if (config != null) {
 			
-			if (Reflect.hasField (config, "width")) __width = config.width;
-			if (Reflect.hasField (config, "height")) __height = config.height;
+			if (Reflect.hasField (config, "width")) {
+				__width = config.width;
+				__displayWidth = config.width;
+			}
+			if (Reflect.hasField (config, "height")) {
+				__height = config.height;
+				__displayHeight = config.height;
+			}
 			if (Reflect.hasField (config, "x")) __x = config.x;
 			if (Reflect.hasField (config, "y")) __y = config.y;
 			if (Reflect.hasField (config, "fullscreen")) __fullscreen = config.fullscreen;
@@ -334,6 +344,18 @@ class Window {
 		
 	}
 	
+	@:noCompletion private function get_displayWidth(): Int {
+
+		return __displayWidth;
+
+	}
+
+	@:noCompletion private function get_displayHeight(): Int {
+
+		return __displayHeight;
+
+	}
+
 	
 	@:noCompletion private inline function get_enableTextEvents ():Bool {
 		
