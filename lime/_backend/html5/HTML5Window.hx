@@ -536,8 +536,6 @@ class HTML5Window {
 		
 		if (element != null) {
 
-			if (parent.width != width || parent.height != height) {
-
 				parent.__width = width;
 				parent.__height = height;
 
@@ -557,8 +555,6 @@ class HTML5Window {
 							margin_top = ( Browser.window.innerHeight - height ) / 2.0;
 						}
 
-
-
 						canvas.width = width;
 						canvas.style.width = width + "px";
 						canvas.style.marginLeft = margin_left + "px";
@@ -573,7 +569,6 @@ class HTML5Window {
 
 				}
 
-			}
 		}
 		
 	}
