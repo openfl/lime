@@ -30,6 +30,8 @@ typedef InputElement = Dynamic;
 typedef InputEvent = js.html.Event;
 #end
 
+import openfl.display.StageScaleMode;
+
 @:access(lime.app.Application)
 @:access(lime.ui.Gamepad)
 @:access(lime.ui.Joystick)
@@ -543,8 +545,24 @@ class HTML5Window {
 
 					if (element != cast canvas) {
 		
+						var margin_left : Float = 0;
+						var margin_top : Float = 0;
+						var stage = this.parent.stage;
+						if ( stage != null  ) {
+							if( stage.scaleMode != StageScaleMode.NO_SCALE ) {
+								width = Std.int(stage.stageWidth * stage.scaleX);
+								height = Std.int(stage.stageHeight * stage.scaleY);
+							}
+							margin_left = ( Browser.window.innerWidth - width ) / 2.0;
+							margin_top = ( Browser.window.innerHeight - height ) / 2.0;
+						}
+
+
+
 						canvas.width = width;
 						canvas.style.width = width + "px";
+						canvas.style.marginLeft = margin_left + "px";
+						canvas.style.marginTop = margin_top + "px";
 						canvas.height = height;
 						canvas.style.height = height + "px";
 						if ( canvas.parentElement != null ) {
