@@ -138,7 +138,7 @@ class HTML5Window {
 		
 		if (parent.width == 0 && parent.height == 0) {
 			
-			if (element != null) {
+			if (element != null && element.clientWidth != 0 && element.clientHeight != 0 ) {
 				
 				parent.width = element.clientWidth;
 				parent.height = element.clientHeight;
@@ -150,7 +150,8 @@ class HTML5Window {
 				
 			}
 			
-			parent.fullscreen = true;
+			// :NOTE: Can't start fullscreen.
+			// parent.fullscreen = true;
 			
 		}
 		
