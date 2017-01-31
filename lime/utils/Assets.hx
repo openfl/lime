@@ -325,7 +325,7 @@ class Assets {
 		
 		// TODO: Check disposed
 		
-		return image.buffer != null;
+		return (image != null && image.buffer != null);
 		
 	}
 	
