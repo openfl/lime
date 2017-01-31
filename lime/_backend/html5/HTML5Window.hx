@@ -589,6 +589,7 @@ class HTML5Window {
 						}
 					}
 
+					canvasBoundingClientRect = canvas.getBoundingClientRect();
 				}
 
 		}
