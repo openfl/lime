@@ -289,11 +289,11 @@ class Window {
 	
 	public function resize (width:Int, height:Int):Void {
 		
-		backend.resize (width, height);
-		
 		__width = width;
 		__height = height;
 		
+		backend.resize (width, height);
+
 	}
 	
 	
