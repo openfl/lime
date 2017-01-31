@@ -224,7 +224,8 @@ class HTML5Application {
 
 			if (parent.renderer != null) {
 
-				parent.renderer.onRender.dispatch ();
+				//parent.renderer.onRender.dispatch ();
+				parent.render(parent.renderer);
 				parent.renderer.flip ();
 
 			}
