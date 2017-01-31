@@ -45,6 +45,7 @@ class HTML5Window {
 	private static var windowID:Int = 0;
 	
 	public var canvas:CanvasElement;
+	public var canvasBoundingClientRect:Dynamic;
 	public var div:DivElement;
 	public var element:#if (haxe_ver >= "3.2") Element #else HtmlElement #end;
 	#if stats
@@ -70,6 +71,7 @@ class HTML5Window {
 			
 		}
 		
+		parent.onFocusIn.add (focus);
 	}
 	
 	
@@ -224,9 +226,10 @@ class HTML5Window {
 	
 	
 	public function focus ():Void {
-		
-		
-		
+		if (canvas != null)
+		{
+			canvasBoundingClientRect = canvas.getBoundingClientRect();
+		}
 	}
 	
 	
@@ -304,7 +307,12 @@ class HTML5Window {
 				
 				if (canvas != null) {
 					
-					var rect = canvas.getBoundingClientRect ();
+					var rect = canvasBoundingClientRect;
+
+					if(rect.left == rect.right) { // The first getBoundingClientRect call is too realy, rect is degenerated.
+						canvasBoundingClientRect = canvas.getBoundingClientRect();
+					}
+
 					x = (event.clientX - rect.left) * (parent.width / rect.width);
 					y = (event.clientY - rect.top) * (parent.height / rect.height);
 					
@@ -363,6 +371,10 @@ class HTML5Window {
 			
 		}
 		
+		if (canvas != null)
+		{
+			canvasBoundingClientRect = canvas.getBoundingClientRect();
+		}
 	}
 	
 	
@@ -376,7 +388,7 @@ class HTML5Window {
 			
 			if (canvas != null) {
 				
-				rect = canvas.getBoundingClientRect ();
+				rect = canvasBoundingClientRect;
 				
 			} else if (div != null) {
 				
