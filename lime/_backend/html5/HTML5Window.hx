@@ -730,6 +730,29 @@ class HTML5Window {
 	}
 	
 	
+	public function setClipboard (value:String):Void {
+		
+		if (Browser.document.queryCommandEnabled ("copy")) {
+			
+			var inputEnabled = enableTextEvents;
+			
+			setEnableTextEvents (true); // create textInput if necessary
+			setEnableTextEvents (false);
+			
+			var cacheText = textInput.value;
+			textInput.value = value;
+			
+			Browser.document.execCommand ("copy");
+			
+			textInput.value = cacheText;
+			
+			setEnableTextEvents (inputEnabled);
+			
+		}
+		
+	}
+	
+	
 	public function setEnableTextEvents (value:Bool):Bool {
 		
 		if (value) {

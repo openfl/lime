@@ -2,14 +2,12 @@ package lime.system;
 
 
 import lime._backend.native.NativeCFFI;
+import lime.app.Application;
 
 #if flash
 import flash.desktop.Clipboard in FlashClipboard;
 #elseif js
 import lime._backend.html5.HTML5Window;
-import js.Browser.document;
-
-@:access(lime._backend.html5.HTML5Window)
 #end
 
 #if !lime_debug
@@ -18,6 +16,7 @@ import js.Browser.document;
 #end
 
 @:access(lime._backend.native.NativeCFFI)
+@:access(lime.ui.Window)
 
 
 class Clipboard {
@@ -61,30 +60,17 @@ class Clipboard {
 		#if (lime_cffi && !macro)
 		NativeCFFI.lime_clipboard_set_text (value);
 		return value;
-		
 		#elseif flash
 		FlashClipboard.generalClipboard.setData (TEXT_FORMAT, value);
 		return value;
-		
-		#elseif js
+		#elseif (js && html5)
 		_text = value;
-		
-		#if html5 // HTML5 needs focus on <input> field for clipboard events to work
-		if  (HTML5Window.textInput != null) {
+		var window = Application.current.window;
+		if (window != null) {
 			
-			HTML5Window.textInput.focus();
-			HTML5Window.textInput.value = _text;
-			HTML5Window.textInput.select();
+			window.backend.setClipboard (value);
 			
 		}
-		
-		if (document.queryCommandEnabled("copy")) {
-			
-			document.execCommand("copy");
-			
-		}
-		#end
-		
 		return value;
 		#end
 		
