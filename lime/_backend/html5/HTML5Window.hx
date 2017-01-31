@@ -144,6 +144,10 @@ class HTML5Window {
 			parent.__displayHeight = parent.height;
 			parent.width = Browser.window.innerWidth;
 			parent.height = Browser.window.innerHeight;
+			#if duell_container
+				// :NOTE: account for menu bar
+				parent.height -= 25;
+			#end
 
 		} else if (parent.width == 0 && parent.height == 0) {
 			
