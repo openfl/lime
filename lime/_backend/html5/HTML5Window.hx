@@ -554,6 +554,8 @@ class HTML5Window {
 							if( stage.scaleMode != StageScaleMode.NO_SCALE ) {
 								width = Std.int(stage.stageWidth * stage.scaleX);
 								height = Std.int(stage.stageHeight * stage.scaleY);
+								parent.__width = width;
+								parent.__height = height;
 							}
 							margin_left = ( Browser.window.innerWidth - width ) / 2.0;
 							#if duell_container
