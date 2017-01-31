@@ -556,7 +556,11 @@ class HTML5Window {
 								height = Std.int(stage.stageHeight * stage.scaleY);
 							}
 							margin_left = ( Browser.window.innerWidth - width ) / 2.0;
-							margin_top = ( Browser.window.innerHeight - height ) / 2.0;
+							#if duell_container
+								margin_top = ( Browser.window.innerHeight - 25 - height ) / 2.0;
+							#else
+								margin_top = ( Browser.window.innerHeight - height ) / 2.0;
+							#end
 						}
 
 						canvas.width = width;
