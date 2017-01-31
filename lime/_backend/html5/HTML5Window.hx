@@ -173,6 +173,8 @@ class HTML5Window {
 			canvas.width = parent.width;
 			canvas.height = parent.height;
 			
+			canvasBoundingClientRect = canvas.getBoundingClientRect();
+
 		} else {
 			
 			div.style.width = parent.width + "px";
