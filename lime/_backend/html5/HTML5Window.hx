@@ -142,24 +142,22 @@ class HTML5Window {
 
 			parent.__displayWidth = parent.width;
 			parent.__displayHeight = parent.height;
-			parent.width = Browser.window.innerWidth;
-			parent.height = Browser.window.innerHeight;
 			#if duell_container
 				// :NOTE: account for menu bar
-				parent.height -= 25;
+				parent.resize(Browser.window.innerWidth, Std.int(Browser.window.innerHeight - 25));
+			#else
+				parent.resize(Browser.window.innerWidth, Browser.window.innerHeight);
 			#end
 
 		} else if (parent.width == 0 && parent.height == 0) {
 			
 			if (element != null && element.clientWidth != 0 && element.clientHeight != 0 ) {
 				
-				parent.width = element.clientWidth;
-				parent.height = element.clientHeight;
+				parent.resize(element.clientWidth, element.clientHeight);
 				
 			} else {
 				
-				parent.width = Browser.window.innerWidth;
-				parent.height = Browser.window.innerHeight;
+				parent.resize(Browser.window.innerWidth, Browser.window.innerHeight);
 				
 			}
 			
