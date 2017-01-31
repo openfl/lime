@@ -308,6 +308,11 @@ class HTML5Window {
 				if (canvas != null) {
 					
 					var rect = canvasBoundingClientRect;
+
+					if(rect.left == rect.right) { // The first getBoundingClientRect call is too realy, rect is degenerated.
+						canvasBoundingClientRect = canvas.getBoundingClientRect();
+					}
+
 					x = (event.clientX - rect.left) * (parent.width / rect.width);
 					y = (event.clientY - rect.top) * (parent.height / rect.height);
 					
