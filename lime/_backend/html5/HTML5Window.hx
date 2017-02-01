@@ -584,8 +584,8 @@ class HTML5Window {
 						canvas.height = height;
 						canvas.style.height = height + "px";
 						if ( canvas.parentElement != null ) {
-							canvas.parentElement.style.width = width + "px";
-						canvas.parentElement.style.height = height + "px";
+							canvas.parentElement.style.width = width + 2 * margin_left + "px";
+							canvas.parentElement.style.height = height + 2 * margin_top + "px";
 						}
 					}
 
