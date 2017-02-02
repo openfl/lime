@@ -374,11 +374,6 @@ class HTML5Window {
 			parent.onMouseWheel.dispatch (untyped event.deltaX, - untyped event.deltaY);
 
 		}
-
-		if (canvas != null)
-		{
-			canvasBoundingClientRect = canvas.getBoundingClientRect();
-		}
 	}
 
 
