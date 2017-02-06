@@ -1277,7 +1277,11 @@ class Assets {
 					switch (meta.params[0].expr) {
 						
 						case EConst(CString(filePath)):
-							
+
+							if( filePath == "" ){
+								continue;
+							}
+
 							var path = filePath;
 							if (!sys.FileSystem.exists(filePath)) {
 								path = Context.resolvePath (filePath);
