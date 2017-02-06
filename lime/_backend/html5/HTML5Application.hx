@@ -36,6 +36,7 @@ class HTML5Application {
 	private var parent:Application;
 	public static var stopUpdating:Bool = false;
 	private static var instance:HTML5Application;
+	private var requestAnimFrameFunc:Dynamic;
 	#if stats
 	private var stats:Dynamic;
 	#end
@@ -171,6 +172,8 @@ class HTML5Application {
 
 		lastUpdate = Date.now ().getTime ();
 
+		requestAnimFrameFunc = untyped __js__("window.requestAnimationFrame");
+
 		handleApplicationEvent ();
 
 		return 0;
@@ -257,9 +260,8 @@ class HTML5Application {
 		}
 
 		if( !stopUpdating ){
-			Browser.window.requestAnimationFrame (cast staticHandleApplicationEvent);
+			requestAnimFrameFunc.call(untyped __js__("window"), staticHandleApplicationEvent);
 		}
-
 	}
 
 	private static function staticHandleApplicationEvent()
