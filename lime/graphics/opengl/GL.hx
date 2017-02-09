@@ -1793,7 +1793,14 @@ class GL {
 		#end
 		
 	}
-	
+
+	#if (js && html5)
+		public static inline function texImage2DWeb (target:Int, level:Int, internalformat:Int, format:Int, type:Int, data:Dynamic):Void {
+			
+			context.texImage2D (target, level, internalformat, format, type, data);
+			
+		}
+	#end
 	
 	public static inline function texParameterf (target:Int, pname:Int, param:Float):Void {
 		
