@@ -173,10 +173,6 @@ class HTML5Window {
 			canvas.width = parent.width;
 			canvas.height = parent.height;
 
-			haxe.Timer.delay(function() {
-				canvasBoundingClientRect = canvas.getBoundingClientRect();
-			}, 1);
-
 		} else {
 
 			div.style.width = parent.width + "px";
@@ -313,8 +309,9 @@ class HTML5Window {
 
 					var rect = canvasBoundingClientRect;
 
-					if(rect.left == rect.right) { // The first getBoundingClientRect call is too realy, rect is degenerated.
-						throw "getBoundingClientRect is empty!";
+					if(rect == null || rect.left == rect.right) { // The first getBoundingClientRect call is too realy, rect is degenerated.
+						canvasBoundingClientRect = canvas.getBoundingClientRect();
+						rect = canvasBoundingClientRect;
 					}
 
 					x = (event.clientX - rect.left) * (parent.width / rect.width);
