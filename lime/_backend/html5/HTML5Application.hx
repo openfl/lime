@@ -176,6 +176,11 @@ class HTML5Application {
 
 		handleApplicationEvent ();
 
+		#if profile
+		untyped __js__("window.frameIndex = 0;");
+		untyped __js__("window.updateCalls = 0;");
+		#end
+
 		return 0;
 
 	}
@@ -260,6 +265,19 @@ class HTML5Application {
 		}
 
 		if( !stopUpdating ){
+			#if profile
+			untyped __js__("
+				if(window.countUpdate) {
+					++window.frameIndex;
+					if(window.frameIndex == 150) {
+						var cpf = window.updateCalls / 150;
+						console.log('__update/frame: ' + cpf);
+						window.frameIndex = 0;
+						window.updateCalls = 0;
+					}
+				}
+			");
+			#end
 			requestAnimFrameFunc.call(untyped __js__("window"), staticHandleApplicationEvent);
 		}
 	}
