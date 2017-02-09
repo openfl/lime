@@ -10,6 +10,7 @@ import lime.utils.Int32Array;
 
 class GLRenderContext {
 	
+	private static var currentProgram:GLProgram;
 	
 	public var DEPTH_BUFFER_BIT = 0x00000100;
 	public var STENCIL_BUFFER_BIT = 0x00000400;
@@ -1254,7 +1255,12 @@ class GLRenderContext {
 	
 	public inline function useProgram (program:GLProgram):Void {
 		
-		GL.useProgram (program);
+		if (program != currentProgram) {
+			
+			GL.useProgram (program);
+			program = currentProgram;
+			
+		}
 		
 	}
 	
