@@ -20,8 +20,8 @@ import flash.display.BitmapData;
 
 
 class ImageBuffer {
-	
-	
+
+
 	public var bitsPerPixel:Int;
 	public var data:UInt8Array;
 	public var format:PixelFormat;
@@ -31,7 +31,7 @@ class ImageBuffer {
 	public var stride (get, never):Int;
 	public var transparent:Bool;
 	public var width:Int;
-	
+
 	@:noCompletion private var __srcBitmapData:#if flash BitmapData #else Dynamic #end;
 	@:noCompletion private var __srcCanvas:#if (js && html5) CanvasElement #else Dynamic #end;
 	@:noCompletion private var __srcContext:#if (js && html5) CanvasRenderingContext2D #else Dynamic #end;
@@ -151,11 +151,11 @@ class ImageBuffer {
 		
 		#if (js && html5)
 			
-			if (Std.is (value, HTMLImage)) {
+			if (untyped __js__("value instanceof HTMLImageElement")) {
 				
 				__srcImage = cast value;
 				
-			} else if (Std.is (value, CanvasElement)) {
+			} else if (untyped __js__("value instanceof HTMLCanvasElement")) {
 				
 				__srcCanvas = cast value;
 				__srcContext = cast __srcCanvas.getContext ("2d");
