@@ -11,6 +11,7 @@ import lime.utils.Int32Array;
 class GLRenderContext {
 	
 	private static var currentProgram:GLProgram;
+	private static var currentActiveTexture:Int;
 	
 	public var DEPTH_BUFFER_BIT = 0x00000100;
 	public var STENCIL_BUFFER_BIT = 0x00000400;
@@ -373,7 +374,12 @@ class GLRenderContext {
 	
 	public inline function activeTexture (texture:Int):Void {
 		
-		GL.activeTexture (texture);
+		if (texture != currentActiveTexture) {
+			
+			GL.activeTexture (texture);
+			currentActiveTexture = texture;
+			
+		}
 		
 	}
 	
