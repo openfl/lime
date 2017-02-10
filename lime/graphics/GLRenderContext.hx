@@ -1,5 +1,6 @@
 package lime.graphics;
 
+import haxe.ds.Vector;
 
 import lime.graphics.opengl.*;
 import lime.utils.ArrayBuffer;
@@ -12,6 +13,8 @@ class GLRenderContext {
 	
 	private static var currentProgram:GLProgram;
 	private static var currentActiveTexture:Int;
+	private static var currentBoundTexture:Vector<GLTexture> = new Vector (8);
+	private static var textureStateCache:Map<GLTexture, TextureState> = new Map ();
 	
 	public var DEPTH_BUFFER_BIT = 0x00000100;
 	public var STENCIL_BUFFER_BIT = 0x00000400;
@@ -421,7 +424,17 @@ class GLRenderContext {
 	
 	public inline function bindTexture (target:Int, texture:GLTexture):Void {
 		
-		GL.bindTexture (target, texture);
+		if ( currentBoundTexture[currentActiveTexture] != texture) {
+			
+			GL.bindTexture (target, texture);
+			currentBoundTexture[currentActiveTexture] = texture;
+			
+			if (textureStateCache.get (texture) == null) {
+				
+				textureStateCache.set (texture, new TextureState());
+				
+			}
+		}
 		
 	}
 	
@@ -1107,7 +1120,13 @@ class GLRenderContext {
 	
 	public inline function texParameteri (target:Int, pname:Int, param:Int):Void {
 		
-		GL.texParameteri (target, pname, param);
+		var currentTexture = currentBoundTexture[currentActiveTexture];
+		var state = textureStateCache.get (currentTexture);
+		
+		if (state.get (pname) != param) {
+			GL.texParameteri (target, pname, param);
+			state.set (pname, param);
+		}
 		
 	}
 	
@@ -1352,3 +1371,5 @@ class GLRenderContext {
 	
 	
 }
+
+private typedef TextureState = Map<Int, Int>;
