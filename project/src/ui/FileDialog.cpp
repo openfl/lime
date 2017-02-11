@@ -165,8 +165,8 @@ namespace lime {
 		
 		#ifdef HX_WINDOWS
 		
-		std::wstring temp(L"*.");
-		const wchar_t* filters[] = {filter ? (temp + *filter).c_str() : NULL};
+		std::wstring temp (L"*.");
+		const wchar_t* filters[] = {filter ? (temp + *filter).c_str () : NULL};
 
 		const wchar_t* path = tinyfd_saveFileDialogW (L"", defaultPath ? defaultPath->c_str () : 0, filter ? 1 : 0, filter ? filters : NULL, NULL);
 		
