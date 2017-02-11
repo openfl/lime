@@ -163,11 +163,12 @@ namespace lime {
 	
 	std::wstring* FileDialog::SaveFile (std::wstring* filter, std::wstring* defaultPath) {
 		
-		// TODO: Filters
-		
 		#ifdef HX_WINDOWS
 		
-		const wchar_t* path = tinyfd_saveFileDialogW (L"", defaultPath ? defaultPath->c_str () : 0, 0, NULL, NULL);
+		std::wstring temp (L"*.");
+		const wchar_t* filters[] = {filter ? (temp + *filter).c_str () : NULL};
+
+		const wchar_t* path = tinyfd_saveFileDialogW (L"", defaultPath ? defaultPath->c_str () : 0, filter ? 1 : 0, filter ? filters : NULL, NULL);
 		
 		if (path) {
 			
@@ -177,6 +178,8 @@ namespace lime {
 		}
 		
 		#else
+		
+		// TODO: Filters
 		
 		char* _defaultPath = 0;
 		
