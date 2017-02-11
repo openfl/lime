@@ -77,6 +77,13 @@ class FileDialog {
 					
 					if (path != null) {
 						
+						// Makes sure the filename ends with extension
+						if (type == SAVE && filter != null && path.indexOf (".") == -1) {
+							
+							path += "." + filter;
+							
+						}
+						
 						onSelect.dispatch (path);
 						
 					} else {
