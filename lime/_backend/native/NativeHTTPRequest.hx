@@ -279,7 +279,7 @@ class NativeHTTPRequest {
 			
 			Timer.delay (function () {
 				
-				if (!worker.completed) {
+				if (bytesLoaded == 0 && bytesTotal == 0 && !worker.completed) {
 					
 					worker.cancel ();
 					cancel ();
