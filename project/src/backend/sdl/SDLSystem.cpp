@@ -94,8 +94,9 @@ namespace lime {
 			
 			case APPLICATION: {
 				
-				std::string path = std::string (SDL_GetBasePath ());
-				std::wstring* result = new std::wstring (path.begin (), path.end ());
+				char* path = SDL_GetBasePath ();
+				std::wstring* result = new std::wstring (path, path + strlen (path));
+				SDL_free (path);
 				return result;
 				break;
 				
@@ -103,8 +104,9 @@ namespace lime {
 			
 			case APPLICATION_STORAGE: {
 				
-				std::string path = std::string (SDL_GetPrefPath (company, title));
-				std::wstring* result = new std::wstring (path.begin (), path.end ());
+				char* path = SDL_GetPrefPath (company, title);
+				std::wstring* result = new std::wstring (path, path + strlen (path));
+				SDL_free (path);
 				return result;
 				break;
 				
