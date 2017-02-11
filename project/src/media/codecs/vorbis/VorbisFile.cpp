@@ -81,6 +81,7 @@ namespace lime {
 	
 	static int VorbisFile_BufferClose (VorbisFile_Buffer* src) {
 		
+		free (src);
 		return 0;
 		
 	}
@@ -146,13 +147,14 @@ namespace lime {
 		OggVorbis_File* vorbisFile = new OggVorbis_File;
 		memset (vorbisFile, 0, sizeof (OggVorbis_File));
 		
-		VorbisFile_Buffer buffer = VorbisFile_Buffer ();
-		buffer.data = bytes->Data ();
-		buffer.size = bytes->Length ();
-		buffer.pos = 0;
+		VorbisFile_Buffer* buffer = new VorbisFile_Buffer ();
+		buffer->data = bytes->Data ();
+		buffer->size = bytes->Length ();
+		buffer->pos = 0;
 		
-		if (ov_open_callbacks (&buffer, vorbisFile, NULL, 0, VORBIS_FILE_BUFFER_CALLBACKS) != 0) {
+		if (ov_open_callbacks (buffer, vorbisFile, NULL, 0, VORBIS_FILE_BUFFER_CALLBACKS) != 0) {
 			
+			free (buffer);
 			free (vorbisFile);
 			return 0;
 			
