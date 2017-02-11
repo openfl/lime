@@ -8,6 +8,15 @@
 namespace lime {
 	
 	
+	void wstringToChar (std::wstring source, char* destination) {
+		
+		int size = std::wcslen (source->c_str ());
+		destination = (char*)malloc (size);
+		std::wcstombs (destination, source->c_str (), size);
+		
+	}
+	
+	
 	std::wstring* FileDialog::OpenDirectory (std::wstring* filter, std::wstring* defaultPath) {
 		
 		// TODO: Filter?
@@ -26,14 +35,7 @@ namespace lime {
 		#else
 		
 		char* _defaultPath = 0;
-		
-		if (defaultPath) {
-			
-			int size = std::wcslen (defaultPath->c_str ());
-			char* _defaultPath = (char*)malloc (size);
-			std::wcstombs (_defaultPath, defaultPath->c_str (), size);
-			
-		}
+		wstringToChar (defaultPath, _defaultPath);
 		
 		const char* path = tinyfd_selectFolderDialog ("", _defaultPath);
 		
@@ -56,10 +58,10 @@ namespace lime {
 	
 	std::wstring* FileDialog::OpenFile (std::wstring* filter, std::wstring* defaultPath) {
 		
+		#ifdef HX_WINDOWS
+		
 		std::wstring temp (L"*.");
 		const wchar_t* filters[] = { filter ? (temp + *filter).c_str () : NULL };
-		
-		#ifdef HX_WINDOWS
 		
 		const wchar_t* path = tinyfd_openFileDialogW (L"", defaultPath ? defaultPath->c_str () : 0, filter ? 1 : 0, filter ? filters : NULL, NULL, 0);
 		
@@ -72,13 +74,25 @@ namespace lime {
 		
 		#else
 		
-		char* _defaultPath = 0;
+		char* _filter = 0;
 		
-		if (defaultPath) {
+		if (filter) {
 			
-			int size = std::wcslen (defaultPath->c_str ());
-			char* _defaultPath = (char*)malloc (size);
-			std::wcstombs (_defaultPath, defaultPath->c_str (), size);
+			
+			
+		}
+		
+		char* _filter = 0;
+		char* _defaultPath = 0;
+		wstringToChar (filter, _filter);
+		wstringToChar (defaultPath, _defaultPath);
+		
+		const char_t* filters[] = { NULL };
+		
+		if (_filter) {
+			
+			std::string temp = std::string ("*.") + std::string (_filter);
+			filters[0] = temp.c_str ();
 			
 		}
 		
@@ -103,12 +117,12 @@ namespace lime {
 	
 	void FileDialog::OpenFiles (std::vector<std::wstring*>* files, std::wstring* filter, std::wstring* defaultPath) {
 		
-		std::wstring temp (L"*.");
-		const wchar_t* filters[] = { filter ? (temp + *filter).c_str () : NULL };
-		
 		std::wstring* __paths = 0;
 		
 		#ifdef HX_WINDOWS
+		
+		std::wstring temp (L"*.");
+		const wchar_t* filters[] = { filter ? (temp + *filter).c_str () : NULL };
 		
 		const wchar_t* paths = tinyfd_openFileDialogW (L"", defaultPath ? defaultPath->c_str () : 0, filter ? 1 : 0, filter ? filters : NULL, NULL, 1);
 		
@@ -120,13 +134,17 @@ namespace lime {
 		
 		#else
 		
+		char* _filter = 0;
 		char* _defaultPath = 0;
+		wstringToChar (filter, _filter);
+		wstringToChar (defaultPath, _defaultPath);
 		
-		if (defaultPath) {
+		const char_t* filters[] = { NULL };
+		
+		if (_filter) {
 			
-			int size = std::wcslen (defaultPath->c_str ());
-			char* _defaultPath = (char*)malloc (size);
-			std::wcstombs (_defaultPath, defaultPath->c_str (), size);
+			std::string temp = std::string ("*.") + std::string (_filter);
+			filters[0] = temp.c_str ();
 			
 		}
 		
@@ -165,10 +183,10 @@ namespace lime {
 	
 	std::wstring* FileDialog::SaveFile (std::wstring* filter, std::wstring* defaultPath) {
 		
+		#ifdef HX_WINDOWS
+		
 		std::wstring temp (L"*.");
 		const wchar_t* filters[] = { filter ? (temp + *filter).c_str () : NULL };
-		
-		#ifdef HX_WINDOWS
 		
 		const wchar_t* path = tinyfd_saveFileDialogW (L"", defaultPath ? defaultPath->c_str () : 0, filter ? 1 : 0, filter ? filters : NULL, NULL);
 		
@@ -181,13 +199,17 @@ namespace lime {
 		
 		#else
 		
+		char* _filter = 0;
 		char* _defaultPath = 0;
+		wstringToChar (filter, _filter);
+		wstringToChar (defaultPath, _defaultPath);
 		
-		if (defaultPath) {
+		const char_t* filters[] = { NULL };
+		
+		if (_filter) {
 			
-			int size = std::wcslen (defaultPath->c_str ());
-			char* _defaultPath = (char*)malloc (size);
-			std::wcstombs (_defaultPath, defaultPath->c_str (), size);
+			std::string temp = std::string ("*.") + std::string (_filter);
+			filters[0] = temp.c_str ();
 			
 		}
 		
