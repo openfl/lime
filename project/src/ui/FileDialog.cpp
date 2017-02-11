@@ -8,7 +8,7 @@
 namespace lime {
 	
 	
-	void wstringToChar (std::wstring source, char* destination) {
+	void wstringToChar (std::wstring* source, char* destination) {
 		
 		int size = std::wcslen (source->c_str ());
 		destination = (char*)malloc (size);
@@ -75,19 +75,11 @@ namespace lime {
 		#else
 		
 		char* _filter = 0;
-		
-		if (filter) {
-			
-			
-			
-		}
-		
-		char* _filter = 0;
 		char* _defaultPath = 0;
 		wstringToChar (filter, _filter);
 		wstringToChar (defaultPath, _defaultPath);
 		
-		const char_t* filters[] = { NULL };
+		const char* filters[] = { NULL };
 		
 		if (_filter) {
 			
@@ -139,7 +131,7 @@ namespace lime {
 		wstringToChar (filter, _filter);
 		wstringToChar (defaultPath, _defaultPath);
 		
-		const char_t* filters[] = { NULL };
+		const char* filters[] = { NULL };
 		
 		if (_filter) {
 			
@@ -204,7 +196,7 @@ namespace lime {
 		wstringToChar (filter, _filter);
 		wstringToChar (defaultPath, _defaultPath);
 		
-		const char_t* filters[] = { NULL };
+		const char* filters[] = { NULL };
 		
 		if (_filter) {
 			
