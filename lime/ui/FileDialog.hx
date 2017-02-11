@@ -76,7 +76,7 @@ class FileDialog {
 					var path:String = cast result;
 					
 					// Makes sure the filename ends with extension
-					if (type == SAVE && filter != null && !StringTools.endsWith (path, "." + filter) ) {
+					if (type == SAVE && filter != null && path.indexOf (".") == -1) {
 						
 						path += "." + filter;
 						
