@@ -35,7 +35,7 @@ class FileDialog {
 	}
 	
 	
-	public function browse (type:FileDialogType = null, filter:String = null, defaultPath:String = null):Bool {
+	public function browse (type:FileDialogType = null, filter:String = null, defaultPath:String = null, title:String = null):Bool {
 		
 		if (type == null) type = FileDialogType.OPEN;
 		
@@ -49,19 +49,35 @@ class FileDialog {
 				
 				case OPEN:
 					
-					worker.sendComplete (NativeCFFI.lime_file_dialog_open_file (filter, defaultPath));
+					#if linux
+					if (title == null) title = "Open File";
+					#end
+					
+					worker.sendComplete (NativeCFFI.lime_file_dialog_open_file (title, filter, defaultPath));
 				
 				case OPEN_MULTIPLE:
 					
-					worker.sendComplete (NativeCFFI.lime_file_dialog_open_files (filter, defaultPath));
+					#if linux
+					if (title == null) title = "Open Files";
+					#end
+					
+					worker.sendComplete (NativeCFFI.lime_file_dialog_open_files (title, filter, defaultPath));
 				
 				case OPEN_DIRECTORY:
 					
-					worker.sendComplete (NativeCFFI.lime_file_dialog_open_directory (filter, defaultPath));
+					#if linux
+					if (title == null) title = "Open Directory";
+					#end
+					
+					worker.sendComplete (NativeCFFI.lime_file_dialog_open_directory (title, filter, defaultPath));
 				
 				case SAVE:
 					
-					worker.sendComplete (NativeCFFI.lime_file_dialog_save_file (filter, defaultPath));
+					#if linux
+					if (title == null) title = "Save File";
+					#end
+					trace (title);
+					worker.sendComplete (NativeCFFI.lime_file_dialog_save_file (title, filter, defaultPath));
 				
 			}
 			
@@ -124,7 +140,7 @@ class FileDialog {
 	}
 	
 	
-	public function open (filter:String = null, defaultPath:String = null):Bool {
+	public function open (filter:String = null, defaultPath:String = null, title:String = null):Bool {
 		
 		#if desktop
 		
@@ -132,7 +148,11 @@ class FileDialog {
 		
 		worker.doWork.add (function (_) {
 			
-			worker.sendComplete (NativeCFFI.lime_file_dialog_open_file (filter, defaultPath));
+			#if linux
+			if (title == null) title = "Open File";
+			#end
+			
+			worker.sendComplete (NativeCFFI.lime_file_dialog_open_file (title, filter, defaultPath));
 			
 		});
 		
@@ -168,7 +188,7 @@ class FileDialog {
 	}
 	
 	
-	public function save (data:Resource, filter:String = null, defaultPath:String = null):Bool {
+	public function save (data:Resource, filter:String = null, defaultPath:String = null, title:String = null):Bool {
 		
 		#if desktop
 		
@@ -176,7 +196,11 @@ class FileDialog {
 		
 		worker.doWork.add (function (_) {
 			
-			worker.sendComplete (NativeCFFI.lime_file_dialog_save_file (filter, defaultPath));
+			#if linux
+			if (title == null) title = "Save File";
+			#end
+			
+			worker.sendComplete (NativeCFFI.lime_file_dialog_save_file (title, filter, defaultPath));
 			
 		});
 		

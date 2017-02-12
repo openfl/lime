@@ -40,10 +40,10 @@ class NativeCFFI {
 	@:cffi private static function lime_deflate_compress (data:Dynamic, bytes:Dynamic):Dynamic;
 	@:cffi private static function lime_deflate_decompress (data:Dynamic, bytes:Dynamic):Dynamic;
 	@:cffi private static function lime_drop_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
-	@:cffi private static function lime_file_dialog_open_directory (filter:String, defaultPath:String):Dynamic;
-	@:cffi private static function lime_file_dialog_open_file (filter:String, defaultPath:String):Dynamic;
-	@:cffi private static function lime_file_dialog_open_files (filter:String, defaultPath:String):Dynamic;
-	@:cffi private static function lime_file_dialog_save_file (filter:String, defaultPath:String):Dynamic;
+	@:cffi private static function lime_file_dialog_open_directory (title:String, filter:String, defaultPath:String):Dynamic;
+	@:cffi private static function lime_file_dialog_open_file (title:String, filter:String, defaultPath:String):Dynamic;
+	@:cffi private static function lime_file_dialog_open_files (title:String, filter:String, defaultPath:String):Dynamic;
+	@:cffi private static function lime_file_dialog_save_file (title:String, filter:String, defaultPath:String):Dynamic;
 	@:cffi private static function lime_font_get_ascender (handle:Dynamic):Int;
 	@:cffi private static function lime_font_get_descender (handle:Dynamic):Int;
 	@:cffi private static function lime_font_get_family_name (handle:Dynamic):Dynamic;

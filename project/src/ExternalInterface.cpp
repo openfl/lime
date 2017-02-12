@@ -332,15 +332,17 @@ namespace lime {
 	}
 	
 	
-	value lime_file_dialog_open_directory (HxString filter, HxString defaultPath) {
+	value lime_file_dialog_open_directory (HxString title, HxString filter, HxString defaultPath) {
 		
 		#ifdef LIME_TINYFILEDIALOGS
 		
+		std::wstring* _title = hxstring_to_wstring (title);
 		std::wstring* _filter = hxstring_to_wstring (filter);
 		std::wstring* _defaultPath = hxstring_to_wstring (defaultPath);
 		
-		std::wstring* path = FileDialog::OpenDirectory (_filter, _defaultPath);
+		std::wstring* path = FileDialog::OpenDirectory (_title, _filter, _defaultPath);
 		
+		if (_title) delete _title;
 		if (_filter) delete _filter;
 		if (_defaultPath) delete _defaultPath;
 		
@@ -363,15 +365,17 @@ namespace lime {
 		
 	}
 	
-	value lime_file_dialog_open_file (HxString filter, HxString defaultPath) {
+	value lime_file_dialog_open_file (HxString title, HxString filter, HxString defaultPath) {
 		
 		#ifdef LIME_TINYFILEDIALOGS
 		
+		std::wstring* _title = hxstring_to_wstring (title);
 		std::wstring* _filter = hxstring_to_wstring (filter);
 		std::wstring* _defaultPath = hxstring_to_wstring (defaultPath);
 		
-		std::wstring* path = FileDialog::OpenFile (_filter, _defaultPath);
+		std::wstring* path = FileDialog::OpenFile (_title, _filter, _defaultPath);
 		
+		if (_title) delete _title;
 		if (_filter) delete _filter;
 		if (_defaultPath) delete _defaultPath;
 		
@@ -395,18 +399,20 @@ namespace lime {
 	}
 	
 	
-	value lime_file_dialog_open_files (HxString filter, HxString defaultPath) {
+	value lime_file_dialog_open_files (HxString title, HxString filter, HxString defaultPath) {
 		
 		#ifdef LIME_TINYFILEDIALOGS
 		
+		std::wstring* _title = hxstring_to_wstring (title);
 		std::wstring* _filter = hxstring_to_wstring (filter);
 		std::wstring* _defaultPath = hxstring_to_wstring (defaultPath);
 		
 		std::vector<std::wstring*> files;
 		
-		FileDialog::OpenFiles (&files, _filter, _defaultPath);
+		FileDialog::OpenFiles (&files, _title, _filter, _defaultPath);
 		value result = alloc_array (files.size ());
 		
+		if (_title) delete _title;
 		if (_filter) delete _filter;
 		if (_defaultPath) delete _defaultPath;
 		
@@ -426,15 +432,17 @@ namespace lime {
 	}
 	
 	
-	value lime_file_dialog_save_file (HxString filter, HxString defaultPath) {
+	value lime_file_dialog_save_file (HxString title, HxString filter, HxString defaultPath) {
 		
 		#ifdef LIME_TINYFILEDIALOGS
 		
+		std::wstring* _title = hxstring_to_wstring (title);
 		std::wstring* _filter = hxstring_to_wstring (filter);
 		std::wstring* _defaultPath = hxstring_to_wstring (defaultPath);
 		
-		std::wstring* path = FileDialog::SaveFile (_filter, _defaultPath);
+		std::wstring* path = FileDialog::SaveFile (_title, _filter, _defaultPath);
 		
+		if (_title) delete _title;
 		if (_filter) delete _filter;
 		if (_defaultPath) delete _defaultPath;
 		
@@ -1753,10 +1761,10 @@ namespace lime {
 	DEFINE_PRIME2 (lime_deflate_compress);
 	DEFINE_PRIME2 (lime_deflate_decompress);
 	DEFINE_PRIME2v (lime_drop_event_manager_register);
-	DEFINE_PRIME2 (lime_file_dialog_open_directory);
-	DEFINE_PRIME2 (lime_file_dialog_open_file);
-	DEFINE_PRIME2 (lime_file_dialog_open_files);
-	DEFINE_PRIME2 (lime_file_dialog_save_file);
+	DEFINE_PRIME3 (lime_file_dialog_open_directory);
+	DEFINE_PRIME3 (lime_file_dialog_open_file);
+	DEFINE_PRIME3 (lime_file_dialog_open_files);
+	DEFINE_PRIME3 (lime_file_dialog_save_file);
 	DEFINE_PRIME1 (lime_font_get_ascender);
 	DEFINE_PRIME1 (lime_font_get_descender);
 	DEFINE_PRIME1 (lime_font_get_family_name);
