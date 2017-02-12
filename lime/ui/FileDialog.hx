@@ -76,7 +76,7 @@ class FileDialog {
 					#if linux
 					if (title == null) title = "Save File";
 					#end
-					trace (title);
+					
 					worker.sendComplete (NativeCFFI.lime_file_dialog_save_file (title, filter, defaultPath));
 				
 			}
