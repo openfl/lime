@@ -1,3 +1,19 @@
+3.7.3 (02/13/2017)
+------------------
+
+* Improved support for Raspberry Pi
+* Improved configuration for Gradle version on Android builds
+* Fixed a crash in VorbisFile.fromBytes
+* Fixed httpRequest.timeout to timeout only on opening a connection
+* Fixed setting of system clipboard when using Clipboard.text on HTML5
+* Fixed Assets.getBytes for cached text assets
+* Fixed the final progress value when using -Dsimulate-preloader
+* Fixed valid image check when returning cached image assets
+* Fixed a minor memory leak in System application directories
+* Fixed filters and default file name in FileDialog
+* Fixed AudioBuffer.loadFromFile on native for remote assets
+
+
 3.7.2 (01/26/2017)
 ------------------
 
