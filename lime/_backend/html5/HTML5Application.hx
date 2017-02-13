@@ -347,16 +347,7 @@ class HTML5Application {
 
 				case "resize":
 
-					var cacheWidth = parent.window.width;
-					var cacheHeight = parent.window.height;
-
-					if (parent.window.width != cacheWidth || parent.window.height != cacheHeight) {
-
-						parent.window.onResize.dispatch (parent.window.width, parent.window.height);
-
-					}
-
-					canvasBoundingClientRect = canvas.getBoundingClientRect();
+					parent.window.resize (parent.window.width, parent.window.height);
 
 				case "beforeunload":
 
