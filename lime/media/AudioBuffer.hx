@@ -9,6 +9,7 @@ import lime.app.Promise;
 import lime.media.codecs.vorbis.VorbisFile;
 import lime.media.openal.AL;
 import lime.media.openal.ALBuffer;
+import lime.net.HTTPRequest;
 import lime.utils.UInt8Array;
 
 #if howlerjs
@@ -317,6 +318,8 @@ class AudioBuffer {
 	
 	public static function loadFromFile (path:String):Future<AudioBuffer> {
 		
+		#if (flash || (js && html5))
+		
 		var promise = new Promise<AudioBuffer> ();
 		
 		var audioBuffer = AudioBuffer.fromFile (path);
@@ -372,6 +375,19 @@ class AudioBuffer {
 		}
 		
 		return promise.future;
+		
+		#else
+		
+		// TODO: Streaming
+		
+		var request = new HTTPRequest<Bytes> ();
+		return request.load (path).then (function (bytes) {
+			
+			return Future.withValue (AudioBuffer.fromBytes (bytes));
+			
+		});
+		
+		#end
 		
 	}
 	
