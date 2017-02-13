@@ -583,11 +583,12 @@ class HTML5Window {
 							}
 						}
 
-						canvasBoundingClientRect = canvas.getBoundingClientRect();
 					}
 
 			}
 		}
+
+		canvasBoundingClientRect = canvas.getBoundingClientRect();
 
 	}
 
