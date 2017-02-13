@@ -356,6 +356,8 @@ class HTML5Application {
 
 					}
 
+					canvasBoundingClientRect = canvas.getBoundingClientRect();
+
 				case "beforeunload":
 
 					parent.window.onClose.dispatch ();
