@@ -123,7 +123,7 @@ class ApplicationMain {
 		
 	}
 	
-	public function resize(object:Dynamic): Void {
+	public static function resize(object:Dynamic): Void {
 	}
 	
 	#if neko
