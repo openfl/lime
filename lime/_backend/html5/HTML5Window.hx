@@ -142,8 +142,8 @@ class HTML5Window {
 
 		if ( parent.resizable ) {
 
-			parent.__displayWidth = parent.width;
-			parent.__displayHeight = parent.height;
+			parent.__originalWidth = parent.width;
+			parent.__originalHeight = parent.height;
 			#if duell_container
 				// :NOTE: account for menu bar
 				parent.resize(Browser.window.innerWidth, Std.int(Browser.window.innerHeight - 25));
@@ -701,6 +701,14 @@ class HTML5Window {
 
 		return value;
 
+	}
+
+	public function getScreenWidth() : Int {
+		return js.Browser.window.screen.width;
+	}
+
+	public function getScreenHeight() : Int {
+		return js.Browser.window.screen.height;
 	}
 
 
