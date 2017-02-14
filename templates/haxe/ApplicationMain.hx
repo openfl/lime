@@ -54,6 +54,9 @@ package;
 		};
 		
 		#if (!html5 || munit)
+		#if flash
+		config.assetsPrefix = flash.Lib.current.loaderInfo.parameters.assetsPrefix;
+		#end
 		create ();
 		#end
 		

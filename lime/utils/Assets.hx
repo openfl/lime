@@ -483,15 +483,13 @@ class Assets {
 				return;
 				
 			}
-			
-			#if (ios || tvos)
+
 			if (manifest.basePath == "") {
-				
-				manifest.basePath = "assets/";
-				
+
+				manifest.basePath = DefaultAssetLibrary.getRootPath();
+
 			}
-			#end
-			
+
 			var library = AssetLibrary.fromManifest (manifest);
 			
 			if (library == null) {

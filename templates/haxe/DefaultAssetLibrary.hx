@@ -27,24 +27,8 @@ import sys.FileSystem;
 	public function new () {
 		
 		super ();
-		
-		if (ApplicationMain.config != null && Reflect.hasField (ApplicationMain.config, "assetsPrefix")) {
-			
-			rootPath = Reflect.field (ApplicationMain.config, "assetsPrefix");
-			
-		}
-		
-		if (rootPath == null) {
-			
-			#if (ios || tvos)
-			rootPath = "assets/";
-			#elseif (windows && !cs)
-			rootPath = FileSystem.absolutePath (Path.directory (#if (haxe_ver >= 3.3) Sys.programPath () #else Sys.executablePath () #end)) + "/";
-			#else
-			rootPath = "";
-			#end
-			
-		}
+
+		rootPath = getRootPath();
 		
 		#if (openfl && !flash && !display)
 		::if (assets != null)::::foreach assets::::if (type == "font")::openfl.text.Font.registerFont (__ASSET__OPENFL__::flatName::);
@@ -125,7 +109,7 @@ import sys.FileSystem;
 			var manifest = AssetManifest.fromFile (rootPath + "manifest");
 			
 			if (manifest != null) {
-				
+
 				manifest.basePath = rootPath;
 				__fromManifest (manifest);
 				
@@ -157,6 +141,33 @@ import sys.FileSystem;
 			
 		}
 		
+	}
+
+
+	public static function getRootPath():String {
+
+		var rootPath:String = null;
+
+		if (ApplicationMain.config != null && Reflect.hasField (ApplicationMain.config, "assetsPrefix")) {
+
+			rootPath = Reflect.field (ApplicationMain.config, "assetsPrefix");
+
+		}
+
+		if (rootPath == null) {
+
+			#if (ios || tvos)
+			rootPath = "assets/";
+			#elseif (windows && !cs)
+			rootPath = FileSystem.absolutePath (Path.directory (#if (haxe_ver >= 3.3) Sys.programPath () #else Sys.executablePath () #end)) + "/";
+			#else
+			rootPath = "";
+			#end
+
+		}
+
+		return rootPath;
+
 	}
 	
 	
