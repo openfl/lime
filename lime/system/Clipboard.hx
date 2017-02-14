@@ -80,3 +80,12 @@ class Clipboard {
 	
 	
 }
+
+
+@:enum abstract ClipboardAction(String) from String {
+	
+	var COPY  = "copy";
+	var CUT   = "cut";
+	var PASTE = "paste";
+	
+}

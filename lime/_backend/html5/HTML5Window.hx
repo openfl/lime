@@ -24,6 +24,7 @@ import lime.ui.Window;
 
 
 @:access(lime.app.Application)
+@:access(lime.system.Clipboard)
 @:access(lime.ui.Gamepad)
 @:access(lime.ui.Joystick)
 @:access(lime.ui.Window)
@@ -295,6 +296,8 @@ class HTML5Window {
 	
 	private function handleCutOrCopyEvent (event:ClipboardEvent):Void {
 		
+		parent.onClipboard.dispatch (event.type);
+		
 		event.clipboardData.setData('text/plain', Clipboard.text);
 		event.preventDefault(); // We want our data, not data from any selection, to be written to the clipboard
 		
@@ -303,9 +306,12 @@ class HTML5Window {
 
 	private function handlePasteEvent (event:ClipboardEvent):Void {
 		
-		if(untyped event.clipboardData.types.indexOf('text/plain') > -1){
-			var text = Clipboard.text = event.clipboardData.getData('text/plain');
-			parent.onTextInput.dispatch (text);
+		if (untyped event.clipboardData.types.indexOf('text/plain') > -1) {
+			
+			// Set the internal _text value to system clipboard contents:
+			var text = Clipboard._text = event.clipboardData.getData('text/plain');
+			
+			parent.onClipboard.dispatch (event.type);
 			
 			// We are already handling the data from the clipboard, we do not want it inserted into the hidden input
 			event.preventDefault();
