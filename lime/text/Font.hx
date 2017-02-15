@@ -8,6 +8,7 @@ import lime.app.Promise;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.math.Vector2;
+import lime.net.HTTPRequest;
 import lime.system.System;
 import lime.utils.UInt8Array;
 
@@ -129,7 +130,20 @@ class Font {
 	
 	public static function loadFromFile (path:String):Future<Font> {
 		
-		return Future.withValue (fromFile (path));
+		var request = new HTTPRequest<Font> ();
+		return request.load (path).then (function (font) {
+			
+			if (font != null) {
+				
+				return Future.withValue (font);
+				
+			} else {
+				
+				return cast Future.withError ("");
+				
+			}
+			
+		});
 		
 	}
 	

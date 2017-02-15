@@ -235,6 +235,7 @@ class AudioBuffer {
 	}
 	
 	
+	#if (lime < "4.0.0")
 	public static function fromURL (url:String, handler:AudioBuffer->Void):Void {
 		
 		#if (js && html5 && howlerjs)
@@ -285,6 +286,7 @@ class AudioBuffer {
 		#end
 		
 	}
+	#end
 	
 	
 	#if lime_vorbis
@@ -380,10 +382,18 @@ class AudioBuffer {
 		
 		// TODO: Streaming
 		
-		var request = new HTTPRequest<Bytes> ();
-		return request.load (path).then (function (bytes) {
+		var request = new HTTPRequest<AudioBuffer> ();
+		return request.load (path).then (function (buffer) {
 			
-			return Future.withValue (AudioBuffer.fromBytes (bytes));
+			if (buffer != null) {
+				
+				return Future.withValue (buffer);
+				
+			} else {
+				
+				return cast Future.withError ("");
+				
+			}
 			
 		});
 		

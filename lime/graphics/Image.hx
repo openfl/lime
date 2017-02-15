@@ -21,6 +21,7 @@ import lime.math.color.RGBA;
 import lime.math.ColorMatrix;
 import lime.math.Rectangle;
 import lime.math.Vector2;
+import lime.net.HTTPRequest;
 import lime.system.CFFI;
 import lime.utils.ArrayBuffer;
 import lime.utils.UInt8Array;
@@ -477,7 +478,7 @@ class Image {
 	}
 	
 	
-	public static function fromBase64 (base64:String, type:String, onload:Image->Void):Image {
+	public static function fromBase64 (base64:String, type:String #if (lime < "4.0.0"), onload:Image->Void #end):Image {
 		
 		if (base64 == null) return null;
 		var image = new Image ();
@@ -505,7 +506,7 @@ class Image {
 	}
 	
 	
-	public static function fromBytes (bytes:Bytes, onload:Image->Void = null):Image {
+	public static function fromBytes (bytes:Bytes #if (lime < "4.0.0"), onload:Image->Void = null #end):Image {
 		
 		if (bytes == null) return null;
 		var image = new Image ();
@@ -531,7 +532,7 @@ class Image {
 	}
 	
 	
-	public static function fromFile (path:String, onload:Image -> Void = null, onerror:Void -> Void = null):Image {
+	public static function fromFile (path:String #if (lime < "4.0.0"), onload:Image -> Void = null, onerror:Void -> Void = null #end):Image {
 		
 		if (path == null) return null;
 		var image = new Image ();
@@ -912,7 +913,20 @@ class Image {
 		
 		#else
 		
-		return new Future<Image> (function () return fromFile (path), true);
+		var request = new HTTPRequest<Image> ();
+		return request.load (path).then (function (image) {
+			
+			if (image != null) {
+				
+				return Future.withValue (image);
+				
+			} else {
+				
+				return cast Future.withError ("");
+				
+			}
+			
+		});
 		
 		#end
 		
