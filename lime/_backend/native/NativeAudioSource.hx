@@ -404,9 +404,8 @@ class NativeAudioSource {
 			
 			var ratio = (secondOffset / totalSeconds);
 			var totalOffset = Std.int (dataLength * ratio);
-			var currentOffset = AL.getSourcei (handle, AL.BYTE_OFFSET);
 			
-			AL.sourcei (handle, AL.BYTE_OFFSET, totalOffset - currentOffset);
+			AL.sourcei (handle, AL.BYTE_OFFSET, totalOffset);
 			
 		}
 		
