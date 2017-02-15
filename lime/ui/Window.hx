@@ -24,8 +24,6 @@ class Window {
 	public var borderless (get, set):Bool;
 	public var config:WindowConfig;
 	public var display (get, null):Display;
-	public var displayWidth(get, never):Int;
-	public var displayHeight(get, never):Int;
 	public var enableTextEvents (get, set):Bool;
 	public var fullscreen (get, set):Bool;
 	public var height (get, set):Int;
@@ -53,10 +51,14 @@ class Window {
 	public var onRestore = new Event<Void->Void> ();
 	public var onTextEdit = new Event<String->Int->Int->Void> ();
 	public var onTextInput = new Event<String->Void> ();
+	public var originalWidth(get, never):Int;
+	public var originalHeight(get, never):Int;
 	public var renderer:Renderer;
 	public var resizable (get, set):Bool;
 	public var scale (get, null):Float;
 	public var stage:Stage;
+	public var screenWidth(get, never):Int;
+	public var screenHeight(get, never):Int;
 	public var title (get, set):String;
 	public var width (get, set):Int;
 	public var x (get, set):Int;
@@ -64,8 +66,8 @@ class Window {
 	
 	@:noCompletion private var backend:WindowBackend;
 	@:noCompletion private var __borderless:Bool;
-	@:noCompletion private var __displayWidth:Int;
-	@:noCompletion private var __displayHeight:Int;
+	@:noCompletion private var __originalWidth:Int;
+	@:noCompletion private var __originalHeight:Int;
 	@:noCompletion private var __fullscreen:Bool;
 	@:noCompletion private var __height:Int;
 	@:noCompletion private var __minimized:Bool;
@@ -94,11 +96,11 @@ class Window {
 			
 			if (Reflect.hasField (config, "width")) {
 				__width = config.width;
-				__displayWidth = config.width;
+				__originalWidth = config.width;
 			}
 			if (Reflect.hasField (config, "height")) {
 				__height = config.height;
-				__displayHeight = config.height;
+				__originalHeight = config.height;
 			}
 			if (Reflect.hasField (config, "x")) __x = config.x;
 			if (Reflect.hasField (config, "y")) __y = config.y;
@@ -344,15 +346,15 @@ class Window {
 		
 	}
 	
-	@:noCompletion private function get_displayWidth(): Int {
+	@:noCompletion private function get_originalWidth(): Int {
 
-		return __displayWidth;
+		return __originalWidth;
 
 	}
 
-	@:noCompletion private function get_displayHeight(): Int {
+	@:noCompletion private function get_originalHeight(): Int {
 
-		return __displayHeight;
+		return __originalHeight;
 
 	}
 
@@ -435,6 +437,17 @@ class Window {
 		
 	}
 	
+	private inline function get_screenWidth ():Int {
+
+		return backend.getScreenWidth();
+
+	}
+
+	private inline function get_screenHeight ():Int {
+
+		return backend.getScreenHeight();
+
+	}
 	
 	@:noCompletion private inline function get_title ():String {
 		
