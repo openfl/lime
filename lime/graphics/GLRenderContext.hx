@@ -429,7 +429,7 @@ class GLRenderContext {
 			GL.bindTexture (target, texture);
 			currentBoundTexture[currentActiveTexture] = texture;
 			
-			if (textureStateCache.get (texture) == null) {
+			if (!textureStateCache.exists (texture)) {
 				
 				textureStateCache.set (texture, new TextureState());
 				
@@ -651,6 +651,7 @@ class GLRenderContext {
 	
 	public inline function deleteTexture (texture:GLTexture):Void {
 		
+		textureStateCache.remove (texture);
 		GL.deleteTexture (texture);
 		
 	}
