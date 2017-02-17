@@ -151,19 +151,19 @@ class Assets {
 					
 				} else {
 					
-					Log.info (type + " asset \"" + id + "\" exists, but only asynchronously");
+					Log.error (type + " asset \"" + id + "\" exists, but only asynchronously");
 					
 				}
 				
 			} else {
 				
-				Log.info ("There is no " + type + " asset with an ID of \"" + id + "\"");
+				Log.error ("There is no " + type + " asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			Log.info ("There is no asset library named \"" + symbol.libraryName + "\"");
+			Log.error ("There is no asset library named \"" + symbol.libraryName + "\"");
 			
 		}
 		
@@ -260,13 +260,13 @@ class Assets {
 				
 			} else {
 				
-				Log.info ("There is no asset with an ID of \"" + id + "\"");
+				Log.error ("There is no asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			Log.info ("There is no asset library named \"" + symbol.libraryName + "\"");
+			Log.error ("There is no asset library named \"" + symbol.libraryName + "\"");
 			
 		}
 		
