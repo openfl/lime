@@ -419,13 +419,13 @@ class Assets {
 				
 			} else {
 				
-				return Future.withError ("[Assets] There is no " + type + " asset with an ID of \"" + id + "\"");
+				return Future.withError ("There is no " + type + " asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			return Future.withError ("[Assets] There is no asset library named \"" + symbol.libraryName + "\"");
+			return Future.withError ("There is no asset library named \"" + symbol.libraryName + "\"");
 			
 		}
 		
@@ -479,7 +479,7 @@ class Assets {
 			
 			if (manifest == null) {
 				
-				promise.error ("[Assets] Cannot parse asset manifest for library \"" + name + "\"");
+				promise.error ("Cannot parse asset manifest for library \"" + name + "\"");
 				return;
 				
 			}
@@ -496,7 +496,7 @@ class Assets {
 			
 			if (library == null) {
 				
-				promise.error ("[Assets] Cannot open library \"" + name + "\"");
+				promise.error ("Cannot open library \"" + name + "\"");
 				
 			} else {
 				
@@ -508,7 +508,7 @@ class Assets {
 			
 		}).onError (function (_) {
 			
-			promise.error ("[Assets] There is no asset library named \"" + name + "\"");
+			promise.error ("There is no asset library named \"" + name + "\"");
 			
 		});
 		

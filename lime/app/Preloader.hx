@@ -187,7 +187,7 @@ class Preloader #if flash extends Sprite #end {
 				
 			}).onError (function (e) {
 				
-				trace (e);
+				Log.error (e);
 				
 			});
 			
@@ -331,7 +331,7 @@ class Preloader #if flash extends Sprite #end {
 					
 				}).onError (function (e) {
 					
-					trace (e);
+					Log.error (e);
 					
 				});
 				
