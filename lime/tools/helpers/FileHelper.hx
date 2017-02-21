@@ -25,7 +25,7 @@ import cpp.Lib;
 class FileHelper {
 	
 	
-	private static var binaryExtensions = [ "jpg", "jpeg", "png", "exe", "gif", "ini", "zip", "tar", "gz", "fla", "swf" ];
+	private static var binaryExtensions = [ "jpg", "jpeg", "png", "exe", "gif", "ini", "zip", "tar", "gz", "fla", "swf", "atf" ];
 	private static var textExtensions = [ "xml", "java", "hx", "hxml", "html", "ini", "gpe", "pch", "pbxproj", "plist", "json", "cpp", "mm", "properties", "hxproj", "nmml", "lime" ];
 	
 	
@@ -33,7 +33,7 @@ class FileHelper {
 		
 		if (asset.sourcePath != "") {
 			
-			copyFile (asset.sourcePath, destination, context);
+			copyFile (asset.sourcePath, destination, context, asset.type == TEMPLATE);
 			
 		} else {
 			
@@ -70,7 +70,7 @@ class FileHelper {
 			
 			if (isNewer (asset.sourcePath, destination)) {
 				
-				copyFile (asset.sourcePath, destination, null, false);
+				copyFile (asset.sourcePath, destination, null, asset.type == TEMPLATE);
 				
 			}
 			
