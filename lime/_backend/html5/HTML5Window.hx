@@ -43,6 +43,8 @@ class HTML5Window {
 	public var stats:Dynamic;
 	#end
 	
+	private var cacheElementHeight:Float;
+	private var cacheElementWidth:Float;
 	private var cacheMouseX:Float;
 	private var cacheMouseY:Float;
 	private var currentTouches = new Map<Int, Touch> ();
@@ -156,6 +158,9 @@ class HTML5Window {
 				
 			}
 			
+			cacheElementWidth = parent.width;
+			cacheElementHeight = parent.height;
+			
 			parent.fullscreen = true;
 			
 		}
@@ -175,7 +180,7 @@ class HTML5Window {
 			
 		}
 		
-		handleResize ();
+		updateSize ();
 		
 		if (element != null) {
 			
@@ -463,87 +468,10 @@ class HTML5Window {
 	}
 	
 	
-	private function handleResize ():Void {
+	private function handleResizeEvent (event:js.html.Event):Void {
 		
 		primaryTouch = null;
-		
-		var stretch = parent.fullscreen || (setWidth == 0 && setHeight == 0);
-		
-		if (element != null && (div == null || (div != null && stretch))) {
-			
-			if (stretch) {
-				
-				if (parent.width != element.clientWidth || parent.height != element.clientHeight) {
-					
-					parent.width = element.clientWidth;
-					parent.height = element.clientHeight;
-					
-					if (canvas != null) {
-						
-						if (element != cast canvas) {
-							
-							canvas.width = Math.round (element.clientWidth * scale);
-							canvas.height = Math.round (element.clientHeight * scale);
-							
-							canvas.style.width = element.clientWidth + "px";
-							canvas.style.height = element.clientHeight + "px";
-							
-						}
-						
-					} else {
-						
-						div.style.width = element.clientWidth + "px";
-						div.style.height = element.clientHeight + "px";
-						
-					}
-					
-				}
-				
-			} else {
-				
-				var scaleX = (setWidth != 0) ? (element.clientWidth / setWidth) : 1;
-				var scaleY = (setHeight != 0) ? (element.clientHeight / setHeight) : 1;
-				
-				var targetWidth = element.clientWidth;
-				var targetHeight = element.clientHeight;
-				var marginLeft = 0;
-				var marginTop = 0;
-				
-				if (scaleX < scaleY) {
-					
-					targetHeight = Math.floor (setHeight * scaleX);
-					marginTop = Math.floor ((element.clientHeight - targetHeight) / 2);
-					
-				} else {
-					
-					targetWidth = Math.floor (setWidth * scaleY);
-					marginLeft = Math.floor ((element.clientWidth - targetWidth) / 2);
-					
-				}
-				
-				if (canvas != null) {
-					
-					if (element != cast canvas) {
-						
-						canvas.style.width = targetWidth + "px";
-						canvas.style.height = targetHeight + "px";
-						canvas.style.marginLeft = marginLeft + "px";
-						canvas.style.marginTop = marginTop + "px";
-						
-					}
-					
-				} else {
-					
-					div.style.width = targetWidth + "px";
-					div.style.height = targetHeight + "px";
-					div.style.marginLeft = marginLeft + "px";
-					div.style.marginTop = marginTop + "px";
-					
-				}
-				
-			}
-			
-		}
+		updateSize ();
 		
 	}
 	
@@ -867,6 +795,114 @@ class HTML5Window {
 	public function setTitle (value:String):String {
 		
 		return value;
+		
+	}
+	
+	
+	private function updateSize ():Void {
+		
+		var elementWidth, elementHeight;
+		
+		if (element != null) {
+			
+			elementWidth = element.clientWidth;
+			elementHeight = element.clientHeight;
+			
+		} else {
+			
+			elementWidth = Browser.window.innerWidth;
+			elementHeight = Browser.window.innerHeight;
+			
+		}
+		
+		trace (elementWidth, elementHeight);
+		
+		if (elementWidth != cacheElementWidth || elementHeight != cacheElementHeight) {
+			
+			cacheElementWidth = elementWidth;
+			cacheElementHeight = elementHeight;
+			
+			var stretch = parent.fullscreen || (setWidth == 0 && setHeight == 0);
+			
+			if (element != null && (div == null || (div != null && stretch))) {
+				
+				if (stretch) {
+					
+					if (parent.width != elementWidth || parent.height != elementHeight) {
+						
+						parent.width = elementWidth;
+						parent.height = elementHeight;
+						
+						if (canvas != null) {
+							
+							if (element != cast canvas) {
+								
+								canvas.width = Math.round (elementWidth * scale);
+								canvas.height = Math.round (elementHeight * scale);
+								
+								canvas.style.width = elementWidth + "px";
+								canvas.style.height = elementHeight + "px";
+								
+							}
+							
+						} else {
+							
+							div.style.width = elementWidth + "px";
+							div.style.height = elementHeight + "px";
+							
+						}
+						
+						parent.onResize.dispatch (elementWidth, elementHeight);
+						
+					}
+					
+				} else {
+					
+					var scaleX = (setWidth != 0) ? (elementWidth / setWidth) : 1;
+					var scaleY = (setHeight != 0) ? (elementHeight / setHeight) : 1;
+					
+					var targetWidth = elementWidth;
+					var targetHeight = elementHeight;
+					var marginLeft = 0;
+					var marginTop = 0;
+					
+					if (scaleX < scaleY) {
+						
+						targetHeight = Math.floor (setHeight * scaleX);
+						marginTop = Math.floor ((elementHeight - targetHeight) / 2);
+						
+					} else {
+						
+						targetWidth = Math.floor (setWidth * scaleY);
+						marginLeft = Math.floor ((elementWidth - targetWidth) / 2);
+						
+					}
+					
+					if (canvas != null) {
+						
+						if (element != cast canvas) {
+							
+							canvas.style.width = targetWidth + "px";
+							canvas.style.height = targetHeight + "px";
+							canvas.style.marginLeft = marginLeft + "px";
+							canvas.style.marginTop = marginTop + "px";
+							
+						}
+						
+					} else {
+						
+						div.style.width = targetWidth + "px";
+						div.style.height = targetHeight + "px";
+						div.style.marginLeft = marginLeft + "px";
+						div.style.marginTop = marginTop + "px";
+						
+					}
+					
+				}
+				
+			}
+			
+		}
 		
 	}
 	
