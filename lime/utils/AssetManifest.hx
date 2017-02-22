@@ -1,6 +1,7 @@
 package lime.utils;
 
 
+import haxe.io.Path;
 import haxe.Serializer;
 import haxe.Unserializer;
 import lime.app.Future;
@@ -37,11 +38,11 @@ class AssetManifest {
 	}
 	
 	
-	public static function fromBytes (bytes:Bytes):AssetManifest {
+	public static function fromBytes (bytes:Bytes, basePath:String = null):AssetManifest {
 		
 		if (bytes != null) {
 			
-			return parse (bytes.getString (0, bytes.length));
+			return parse (bytes.getString (0, bytes.length), basePath);
 			
 		} else {
 			
@@ -52,32 +53,62 @@ class AssetManifest {
 	}
 	
 	
-	public static function fromFile (path:String):AssetManifest {
+	public static function fromFile (path:String, basePath:String = null):AssetManifest {
 		
-		return fromBytes (Bytes.fromFile (path));
+		if (path == null) return null;
+		
+		if (basePath == null) {
+			
+			if (path.indexOf ("?") > -1) {
+				
+				basePath = Path.directory (path.substr (0, path.indexOf ("?")));
+				
+			} else {
+				
+				basePath = Path.directory (path);
+				
+			}
+			
+		}
+		
+		return fromBytes (Bytes.fromFile (path), basePath);
 		
 	}
 	
 	
-	public static function loadFromBytes (bytes:Bytes):Future<AssetManifest> {
+	public static function loadFromBytes (bytes:Bytes, basePath:String = null):Future<AssetManifest> {
 		
-		return Future.withValue (fromBytes (bytes));
+		return Future.withValue (fromBytes (bytes, basePath));
 		
 	}
 	
 	
-	public static function loadFromFile (path:String):Future<AssetManifest> {
+	public static function loadFromFile (path:String, basePath:String = null):Future<AssetManifest> {
 		
 		return Bytes.loadFromFile (path).then (function (bytes) {
 			
-			return Future.withValue (fromBytes (bytes));
+			if (basePath == null) {
+				
+				if (path.indexOf ("?") > -1) {
+					
+					basePath = Path.directory (path.substr (0, path.indexOf ("?")));
+					
+				} else {
+					
+					basePath = Path.directory (path);
+					
+				}
+				
+			}
+			
+			return Future.withValue (fromBytes (bytes, basePath));
 			
 		});
 		
 	}
 	
 	
-	public static function parse (data:String):AssetManifest {
+	public static function parse (data:String, basePath:String = null):AssetManifest {
 		
 		if (data == null || data == "") return null;
 		
@@ -90,6 +121,12 @@ class AssetManifest {
 		manifest.libraryType = manifestData.libraryType;
 		manifest.libraryArgs = manifestData.libraryArgs;
 		manifest.assets = Unserializer.run (manifestData.assets);
+		
+		if (basePath != null) {
+			
+			manifest.basePath = basePath;
+			
+		}
 		
 		return manifest;
 		

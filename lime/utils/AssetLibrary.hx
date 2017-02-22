@@ -660,7 +660,16 @@ class AssetLibrary {
 			size = hasSize ? asset.size : 100;
 			id = asset.id;
 			
-			paths.set (id, basePath + asset.path);
+			if (basePath != "") {
+			
+				paths.set (id, basePath + "/" + asset.path);
+				
+			} else {
+				
+				paths.set (id, asset.path);
+				
+			}
+			
 			sizes.set (id, size);
 			types.set (id, asset.type);
 			
