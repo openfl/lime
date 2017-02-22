@@ -28,6 +28,7 @@ class AssetLibrary {
 	
 	private var assetsLoaded:Int;
 	private var assetsTotal:Int;
+	private var basePath:String;
 	private var bytesLoaded:Int;
 	private var bytesLoadedCache:Map<String, Int>;
 	private var bytesTotal:Int;
@@ -52,6 +53,7 @@ class AssetLibrary {
 		
 		bytesLoaded = 0;
 		bytesTotal = 0;
+		basePath = "";
 		
 	}
 	
@@ -650,7 +652,7 @@ class AssetLibrary {
 	private function __fromManifest (manifest:AssetManifest):Void {
 		
 		var hasSize = (manifest.version >= 2);
-		var basePath = manifest.basePath;
+		basePath = manifest.basePath;
 		var size, id;
 		
 		for (asset in manifest.assets) {
