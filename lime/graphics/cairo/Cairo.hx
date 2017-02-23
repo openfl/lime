@@ -472,6 +472,15 @@ class Cairo {
 	}
 	
 	
+	public function textPath (utf8:String):Void {
+		
+		#if (lime_cffi && lime_cairo && !macro)
+		NativeCFFI.lime_cairo_text_path (handle, utf8);
+		#end
+		
+	}
+	
+	
 	public function transform (matrix:Matrix3):Void {
 		
 		#if (lime_cffi && lime_cairo && !macro)

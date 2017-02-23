@@ -345,6 +345,7 @@ class NativeCFFI {
 	@:cffi private static function lime_cairo_stroke (handle:CFFIPointer):Void;
 	@:cffi private static function lime_cairo_stroke_extents (handle:CFFIPointer, x1:Float, y1:Float, x2:Float, y2:Float):Void;
 	@:cffi private static function lime_cairo_stroke_preserve (handle:CFFIPointer):Void;
+	@:cffi private static function lime_cairo_text_path (handle:CFFIPointer, text:String):Void;
 	@:cffi private static function lime_cairo_transform (handle:CFFIPointer, matrix:Dynamic):Void;
 	@:cffi private static function lime_cairo_translate (handle:CFFIPointer, x:Float, y:Float):Void;
 	@:cffi private static function lime_cairo_version ():Int;

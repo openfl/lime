@@ -994,6 +994,13 @@ namespace lime {
 	}
 	
 	
+	void lime_cairo_text_path (value handle, HxString text) {
+		
+		cairo_text_path ((cairo_t*)val_data (handle), (char*)text.__s);
+		
+	}
+	
+	
 	void lime_cairo_transform (value handle, value matrix) {
 		
 		Matrix3 mat3 = Matrix3 (matrix);
@@ -1140,6 +1147,7 @@ namespace lime {
 	DEFINE_PRIME5v (lime_cairo_stroke_extents);
 	DEFINE_PRIME1v (lime_cairo_stroke_preserve);
 	DEFINE_PRIME1v (lime_cairo_surface_flush);
+	DEFINE_PRIME2v (lime_cairo_text_path);
 	DEFINE_PRIME2v (lime_cairo_transform);
 	DEFINE_PRIME3v (lime_cairo_translate);
 	DEFINE_PRIME0 (lime_cairo_version);
