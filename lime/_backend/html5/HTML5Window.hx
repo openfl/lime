@@ -815,8 +815,6 @@ class HTML5Window {
 			
 		}
 		
-		trace (elementWidth, elementHeight);
-		
 		if (elementWidth != cacheElementWidth || elementHeight != cacheElementHeight) {
 			
 			cacheElementWidth = elementWidth;
