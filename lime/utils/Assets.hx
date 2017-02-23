@@ -485,9 +485,9 @@ class Assets {
 			}
 			
 			#if (ios || tvos)
-			if (manifest.basePath == "") {
+			if (manifest.rootPath == null || manifest.rootPath == "") {
 				
-				manifest.basePath = "assets/";
+				manifest.rootPath = "assets/";
 				
 			}
 			#end

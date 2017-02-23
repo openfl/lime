@@ -21,28 +21,27 @@ class AssetManifest {
 	
 	
 	public var assets:Array<Dynamic>;
-	public var basePath:String;
 	public var libraryArgs:Array<String>;
 	public var libraryType:String;
 	public var name:String;
+	public var rootPath:String;
 	public var version:Int;
 	
 	
 	public function new () {
 		
 		assets = [];
-		basePath = "";
 		libraryArgs = [];
 		version = 2;
 		
 	}
 	
 	
-	public static function fromBytes (bytes:Bytes, basePath:String = null):AssetManifest {
+	public static function fromBytes (bytes:Bytes, rootPath:String = null):AssetManifest {
 		
 		if (bytes != null) {
 			
-			return parse (bytes.getString (0, bytes.length), basePath);
+			return parse (bytes.getString (0, bytes.length), rootPath);
 			
 		} else {
 			
@@ -53,62 +52,42 @@ class AssetManifest {
 	}
 	
 	
-	public static function fromFile (path:String, basePath:String = null):AssetManifest {
+	public static function fromFile (path:String, rootPath:String = null):AssetManifest {
+		
+		path = __resolvePath (path);
+		rootPath = __resolveRootPath (rootPath, path);
 		
 		if (path == null) return null;
 		
-		if (basePath == null) {
-			
-			if (path.indexOf ("?") > -1) {
-				
-				basePath = Path.directory (path.substr (0, path.indexOf ("?")));
-				
-			} else {
-				
-				basePath = Path.directory (path);
-				
-			}
-			
-		}
-		
-		return fromBytes (Bytes.fromFile (path), basePath);
+		return fromBytes (Bytes.fromFile (path), rootPath);
 		
 	}
 	
 	
-	public static function loadFromBytes (bytes:Bytes, basePath:String = null):Future<AssetManifest> {
+	public static function loadFromBytes (bytes:Bytes, rootPath:String = null):Future<AssetManifest> {
 		
-		return Future.withValue (fromBytes (bytes, basePath));
+		return Future.withValue (fromBytes (bytes, rootPath));
 		
 	}
 	
 	
-	public static function loadFromFile (path:String, basePath:String = null):Future<AssetManifest> {
+	public static function loadFromFile (path:String, rootPath:String = null):Future<AssetManifest> {
+		
+		path = __resolvePath (path);
+		rootPath = __resolveRootPath (rootPath, path);
+		
+		if (path == null) return null;
 		
 		return Bytes.loadFromFile (path).then (function (bytes) {
 			
-			if (basePath == null) {
-				
-				if (path.indexOf ("?") > -1) {
-					
-					basePath = Path.directory (path.substr (0, path.indexOf ("?")));
-					
-				} else {
-					
-					basePath = Path.directory (path);
-					
-				}
-				
-			}
-			
-			return Future.withValue (fromBytes (bytes, basePath));
+			return Future.withValue (fromBytes (bytes, rootPath));
 			
 		});
 		
 	}
 	
 	
-	public static function parse (data:String, basePath:String = null):AssetManifest {
+	public static function parse (data:String, rootPath:String = null):AssetManifest {
 		
 		if (data == null || data == "") return null;
 		
@@ -122,9 +101,9 @@ class AssetManifest {
 		manifest.libraryArgs = manifestData.libraryArgs;
 		manifest.assets = Unserializer.run (manifestData.assets);
 		
-		if (basePath != null) {
+		if (rootPath != null) {
 			
-			manifest.basePath = basePath;
+			manifest.rootPath = rootPath;
 			
 		}
 		
@@ -159,6 +138,99 @@ class AssetManifest {
 		#end
 		
 	}
+	
+	
+	private static function __resolvePath (path:String):String {
+		
+		if (path == null) return null;
+		
+		var queryIndex = path.indexOf ("?");
+		var basePath;
+		
+		if (queryIndex > -1) {
+			
+			basePath = path.substr (0, queryIndex);
+			
+		} else {
+			
+			basePath = path;
+			
+		}
+		
+		StringTools.replace (basePath, "\\", "/");
+		
+		while (StringTools.endsWith (basePath, "/")) {
+			
+			basePath = basePath.substr (0, basePath.length - 1);
+			
+		}
+		
+		if (StringTools.endsWith (basePath, ".bundle")) {
+			
+			if (queryIndex > -1) {
+				
+				return basePath + "/library.json" + path.substr (queryIndex);
+				
+			} else {
+				
+				return basePath + "/library.json";
+				
+			}
+			
+		} else {
+			
+			return path;
+			
+		}
+		
+	}
+	
+	
+	private static function __resolveRootPath (rootPath:String, path:String):String {
+		
+		if (rootPath != null) return rootPath;
+		
+		var queryIndex = path.indexOf ("?");
+		
+		if (queryIndex > -1) {
+			
+			rootPath = path.substr (0, queryIndex);
+			
+		} else {
+			
+			rootPath = path;
+			
+		}
+		
+		StringTools.replace (rootPath, "\\", "/");
+		
+		while (StringTools.endsWith (rootPath, "/")) {
+			
+			if (rootPath == "/") return rootPath;
+			rootPath = rootPath.substr (0, rootPath.length - 1);
+			
+		}
+		
+		if (StringTools.endsWith (rootPath, ".bundle")) {
+			
+			return rootPath;
+			
+		} else {
+			
+			return Path.directory (rootPath);
+			
+		}
+		
+		return rootPath;
+		
+	}
+	
+	
+	#if (lime < "4.0.0")
+	@:deprecated public var basePath (get, set):String;
+	private function get_basePath ():String { return rootPath; }
+	private function set_basePath (value:String):String { return rootPath = value; }
+	#end
 	
 	
 }

@@ -114,24 +114,32 @@ import sys.FileSystem;
 		
 		if (bytes != null) {
 			
-			var manifest = AssetManifest.fromBytes (bytes);
-			manifest.basePath = rootPath;
-			__fromManifest (manifest);
+			var manifest = AssetManifest.fromBytes (bytes, rootPath);
+			
+			if (manifest != null) {
+				
+				__fromManifest (manifest);
+				
+			} else {
+				
+				Log.warn ('Could not load asset manifest');
+				
+			}
+			
 			
 		} else {
 			
 			// TODO: Make asynchronous
 			
-			var manifest = AssetManifest.fromFile (rootPath + "manifest");
+			var manifest = AssetManifest.fromFile (rootPath + "manifest", rootPath);
 			
 			if (manifest != null) {
 				
-				manifest.basePath = rootPath;
 				__fromManifest (manifest);
 				
 			} else {
 				
-				Log.warn ("Could not load asset manifest (bytes was null)");
+				Log.warn ("Could not load asset manifest");
 				
 			}
 			

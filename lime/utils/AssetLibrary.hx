@@ -28,7 +28,6 @@ class AssetLibrary {
 	
 	private var assetsLoaded:Int;
 	private var assetsTotal:Int;
-	private var basePath:String;
 	private var bytesLoaded:Int;
 	private var bytesLoadedCache:Map<String, Int>;
 	private var bytesTotal:Int;
@@ -53,7 +52,6 @@ class AssetLibrary {
 		
 		bytesLoaded = 0;
 		bytesTotal = 0;
-		basePath = "";
 		
 	}
 	
@@ -100,6 +98,20 @@ class AssetLibrary {
 		}
 		
 		return false;
+		
+	}
+	
+	
+	public static function fromBytes (bytes:Bytes, rootPath:String = null):AssetLibrary {
+		
+		return fromManifest (AssetManifest.fromBytes (bytes, rootPath));
+		
+	}
+	
+	
+	public static function fromFile (path:String, rootPath:String = null):AssetLibrary {
+		
+		return fromManifest (AssetManifest.fromFile (path, rootPath));
 		
 	}
 	
@@ -542,6 +554,45 @@ class AssetLibrary {
 	}
 	
 	
+	public static function loadFromBytes (bytes:Bytes, rootPath:String = null):Future<AssetLibrary> {
+		
+		return AssetManifest.loadFromBytes (bytes, rootPath).then (function (manifest) {
+			
+			return loadFromManifest (manifest);
+			
+		});
+		
+	}
+	
+	
+	public static function loadFromFile (path:String, rootPath:String = null):Future<AssetLibrary> {
+		
+		return AssetManifest.loadFromFile (path, rootPath).then (function (manifest) {
+			
+			return loadFromManifest (manifest);
+			
+		});
+		
+	}
+	
+	
+	public static function loadFromManifest (manifest:AssetManifest):Future<AssetLibrary> {
+		
+		var library = fromManifest (manifest);
+		
+		if (library != null) {
+			
+			return library.load ();
+			
+		} else {
+			
+			return cast Future.withError ("Could not load asset manifest");
+			
+		}
+		
+	}
+	
+	
 	public function loadImage (id:String):Future<Image> {
 		
 		if (cachedImages.exists (id)) {
@@ -652,24 +703,18 @@ class AssetLibrary {
 	private function __fromManifest (manifest:AssetManifest):Void {
 		
 		var hasSize = (manifest.version >= 2);
-		basePath = manifest.basePath;
 		var size, id;
+		
+		var basePath = manifest.rootPath;
+		if (basePath == null) basePath = "";
+		if (basePath != "") basePath += "/";
 		
 		for (asset in manifest.assets) {
 			
 			size = hasSize ? asset.size : 100;
 			id = asset.id;
 			
-			if (basePath != "") {
-			
-				paths.set (id, basePath + "/" + asset.path);
-				
-			} else {
-				
-				paths.set (id, asset.path);
-				
-			}
-			
+			paths.set (id, basePath + asset.path);
 			sizes.set (id, size);
 			types.set (id, asset.type);
 			
