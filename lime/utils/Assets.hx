@@ -1,6 +1,7 @@
 package lime.utils;
 
 
+import haxe.io.Path;
 import haxe.CallStack;
 import haxe.Unserializer;
 import lime.app.Event;
@@ -485,9 +486,15 @@ class Assets {
 			
 		}
 		
+		if (!exists (manifestID)) {
+			
+			manifestID = "libraries/" + id + ".json";
+			
+		}
+		
 		loadText (manifestID).onComplete (function (data) {
 			
-			var manifest = AssetManifest.parse (data, haxe.io.Path.directory (getPath (manifestID)));
+			var manifest = AssetManifest.parse (data, Path.directory (getPath (manifestID)));
 			
 			if (manifest == null) {
 				
@@ -495,14 +502,6 @@ class Assets {
 				return;
 				
 			}
-			
-			#if (ios || tvos)
-			if (manifest.rootPath == null || manifest.rootPath == "") {
-				
-				manifest.rootPath = "assets/";
-				
-			}
-			#end
 			
 			var library = AssetLibrary.fromManifest (manifest);
 			
