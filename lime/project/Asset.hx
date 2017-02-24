@@ -57,6 +57,10 @@ class Asset {
 			
 			switch (extension.toLowerCase ()) {
 				
+				case "bundle":
+					
+					this.type = AssetType.ASSET_LIBRARY;
+				
 				case "jpg", "jpeg", "png", "gif":
 					
 					this.type = AssetType.IMAGE;

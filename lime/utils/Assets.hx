@@ -23,15 +23,12 @@ import haxe.Json;
  * 
  * <p>The contents are populated automatically when an application
  * is compiled using the Lime command-line tools, based on the
- * contents of the *.xml project file.</p>
+ * contents of the project file.</p>
  * 
  * <p>For most platforms, the assets are included in the same directory
  * or package as the application, and the paths are handled
  * automatically. For web content, the assets are preloaded before
- * the start of the rest of the application. You can customize the 
- * preloader by extending the <code>NMEPreloader</code> class,
- * and specifying a custom preloader using <window preloader="" />
- * in the project file.</p>
+ * the start of the rest of the application.</p>
  */
 
 #if !lime_debug
@@ -46,7 +43,7 @@ class Assets {
 	
 	
 	public static var cache:AssetCache = new AssetCache ();
-	public static var libraries (default, null) = new Map<String, AssetLibrary> ();
+	#if (lime < "4.0.0") @:noCompletion public #else private #end static var libraries (default, null) = new Map<String, AssetLibrary> ();
 	public static var onChange = new Event<Void->Void> ();
 	
 	
@@ -126,6 +123,10 @@ class Assets {
 				case TEMPLATE:
 					
 					throw "Not sure how to get template: " + id;
+				
+				default:
+					
+					return null;
 				
 			}
 			
@@ -397,6 +398,10 @@ class Assets {
 					
 					throw "Not sure how to get template: " + id;
 				
+				default:
+					
+					return null;
+				
 			}
 			
 		}
@@ -466,20 +471,27 @@ class Assets {
 	}
 	
 	
-	public static function loadLibrary (name:String):Future<AssetLibrary> {
+	public static function loadLibrary (id:String):Future<AssetLibrary> {
 		
 		var promise = new Promise<AssetLibrary> ();
 		
 		#if (tools && !display && !macro)
 		
-		loadText ("libraries/" + name + ".json").onComplete (function (data) {
+		var manifestID = id;
+		
+		if (!exists (manifestID)) {
 			
-			// TODO: Smarter base path logic
-			var manifest = AssetManifest.parse (data);
+			manifestID += "/library.json";
+			
+		}
+		
+		loadText (manifestID).onComplete (function (data) {
+			
+			var manifest = AssetManifest.parse (data, haxe.io.Path.directory (getPath (manifestID)));
 			
 			if (manifest == null) {
 				
-				promise.error ("Cannot parse asset manifest for library \"" + name + "\"");
+				promise.error ("Cannot parse asset manifest for library \"" + id + "\"");
 				return;
 				
 			}
@@ -496,11 +508,11 @@ class Assets {
 			
 			if (library == null) {
 				
-				promise.error ("Cannot open library \"" + name + "\"");
+				promise.error ("Cannot open library \"" + id + "\"");
 				
 			} else {
 				
-				libraries.set (name, library);
+				libraries.set (id, library);
 				library.onChange.add (onChange.dispatch);
 				promise.completeWith (library.load ());
 				
@@ -508,7 +520,7 @@ class Assets {
 			
 		}).onError (function (_) {
 			
-			promise.error ("There is no asset library named \"" + name + "\"");
+			promise.error ("There is no asset library with an ID of \"" + id + "\"");
 			
 		});
 		

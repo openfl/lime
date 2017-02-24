@@ -1,7 +1,8 @@
 package lime.project;
 
 enum AssetType {
-
+	
+	ASSET_LIBRARY;
 	BINARY;
 	FONT;
 	IMAGE;
@@ -10,5 +11,5 @@ enum AssetType {
 	SOUND;
 	TEMPLATE;
 	TEXT;
-
+	
 }

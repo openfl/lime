@@ -494,7 +494,7 @@ class ProjectXMLParser extends HXProject {
 				
 			}
 			
-			if (!FileSystem.isDirectory (path)) {
+			if (!FileSystem.isDirectory (path) || Path.extension (path) == "bundle") {
 				
 				var asset = new Asset (path, targetPath, type, embed);
 				
