@@ -128,7 +128,18 @@ class AssetLibrary {
 			
 		} else {
 			
-			library = Type.createInstance (Type.resolveClass (manifest.libraryType), manifest.libraryArgs);
+			var libraryClass = Type.resolveClass (manifest.libraryType);
+			
+			if (libraryClass != null) {
+				
+				library = Type.createInstance (libraryClass, manifest.libraryArgs);
+				
+			} else {
+				
+				Log.warn ("Could not find library type: " + manifest.libraryType);
+				return null;
+				
+			}
 			
 		}
 		
