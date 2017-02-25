@@ -5,7 +5,6 @@ import haxe.io.Path;
 import haxe.Template;
 import lime.tools.helpers.AndroidHelper;
 import lime.tools.helpers.ArrayHelper;
-import lime.tools.helpers.AssetHelper;
 import lime.tools.helpers.CPPHelper;
 import lime.tools.helpers.DeploymentHelper;
 import lime.tools.helpers.FileHelper;
@@ -419,8 +418,6 @@ class AndroidPlatform extends PlatformTarget {
 			}
 			
 		}
-		
-		AssetHelper.createManifest (project, sourceSet + "/assets/manifest");
 		
 	}
 	

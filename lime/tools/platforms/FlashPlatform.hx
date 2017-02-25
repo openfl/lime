@@ -4,7 +4,6 @@ package lime.tools.platforms;
 import haxe.io.Path;
 import haxe.Json;
 import haxe.Template;
-import lime.tools.helpers.AssetHelper;
 import lime.tools.helpers.CompatibilityHelper;
 import lime.tools.helpers.DeploymentHelper;
 import lime.tools.helpers.FileHelper;
@@ -240,9 +239,6 @@ class FlashPlatform extends PlatformTarget {
 		
 		project = project.clone ();
 		
-		AssetHelper.createManifest (project, PathHelper.combine (targetDirectory, "obj/manifest"));
-		project.haxeflags.push ("-resource " + targetDirectory + "/obj/manifest@__ASSET_MANIFEST__");
-		
 		embedded = FlashHelper.embedAssets (project, targetDirectory);
 		
 		var context = generateContext ();
@@ -251,26 +247,6 @@ class FlashPlatform extends PlatformTarget {
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", targetDirectory + "/haxe", context);
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "flash/hxml", targetDirectory + "/haxe", context);
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "flash/haxe", targetDirectory + "/haxe", context, true, false);
-		
-		//SWFHelper.generateSWFClasses (project, targetDirectory + "/haxe");
-		
-		//var usesLime = false;
-		//
-		//for (haxelib in project.haxelibs) {
-			//
-			//if (haxelib.name == "lime") {
-				//
-				//usesLime = true;
-				//
-			//}
-			//
-			//if (haxelib.name == "openfl") {
-				//
-				//CompatibilityHelper.patchAssetLibrary (project, haxelib, targetDirectory + "/haxe/DefaultAssetLibrary.hx", context);
-				//
-			//}
-			//
-		//}
 		
 		if (project.targetFlags.exists ("web") || project.app.url != "") {
 			
@@ -291,8 +267,6 @@ class FlashPlatform extends PlatformTarget {
 			}
 			
 		}
-		
-		AssetHelper.createManifest (project, PathHelper.combine (targetDirectory, "obj/manifest"));
 		
 	}
 	

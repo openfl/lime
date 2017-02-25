@@ -2,6 +2,7 @@ package;
 
 
 @:access(lime.app.Application)
+@:access(lime.utils.AssetLibrary)
 
 
 @:dox(hide) class ApplicationMain {
@@ -11,6 +12,7 @@ package;
 	public static var preloader:lime.app.Preloader;
 	
 	private static var app:lime.app.Application;
+	private static var rootPath:String;
 	
 	
 	public static function main () {
@@ -24,6 +26,7 @@ package;
 			name: "::meta.title::",
 			orientation: "::WIN_ORIENTATION::",
 			packageName: "::meta.packageName::",
+import lime.utils.AssetLibrary;
 			version: "::meta.version::",
 			windows: [
 				::foreach windows::
@@ -62,8 +65,7 @@ package;
 	
 	public static function create ():Void {
 		
-		var library = new DefaultAssetLibrary ();
-		lime.utils.Assets.registerLibrary ("default", library);
+		ManifestResources.init ();
 		
 		preloader = new ::if (PRELOADER_NAME != "")::::PRELOADER_NAME::::else::lime.app.Preloader::end:: ();
 		
@@ -74,44 +76,22 @@ package;
 		#end
 		
 		preloader.create (config);
-		preloader.addLibrary (library);
-		::if (libraries != null)::::foreach libraries::::if (preload)::preloader.addLibraryName ("::name::");
-		::end::::end::::end::
-		preloader.load ();
 		
-		start ();
-		
-		/*#if (js && html5)
-		var urls = [];
-		var types = [];
-		
-		::foreach assets::::if (embed)::
-		urls.push ("::resourceName::");
-		::if (type == "image")::types.push (lime.utils.AssetType.IMAGE);
-		::elseif (type == "binary")::types.push (lime.utils.AssetType.BINARY);
-		::elseif (type == "text")::types.push (lime.utils.AssetType.TEXT);
-		::elseif (type == "font")::types.push (lime.utils.AssetType.FONT);
-		::elseif (type == "sound")::types.push (lime.utils.AssetType.SOUND);
-		::elseif (type == "music")::types.push (lime.utils.AssetType.MUSIC);
-		::else::types.push (null);::end::
-		::end::::end::
-		
-		if (config.assetsPrefix != null) {
+		for (library in ManifestResources.preloadLibraries) {
 			
-			for (i in 0...urls.length) {
-				
-				if (types[i] != lime.utils.AssetType.FONT) {
-					
-					urls[i] = config.assetsPrefix + urls[i];
-					
-				}
-				
-			}
+			preloader.addLibrary (library);
 			
 		}
 		
-		preloader.load (urls, types);
-		#end*/
+		for (name in ManifestResources.preloadLibraryNames) {
+			
+			preloader.addLibraryName (name);
+			
+		}
+		
+		preloader.load ();
+		
+		start ();
 		
 	}
 	

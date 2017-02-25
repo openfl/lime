@@ -20,6 +20,7 @@ class Asset {
 	public var format:String;
 	public var glyphs:String;
 	public var id:String;
+	public var library:String;
 	//public var path:String;
 	//public var rename:String;
 	public var resourceName:String;
@@ -59,7 +60,7 @@ class Asset {
 				
 				case "bundle":
 					
-					this.type = AssetType.ASSET_LIBRARY;
+					this.type = AssetType.MANIFEST;
 				
 				case "jpg", "jpeg", "png", "gif":
 					
@@ -138,6 +139,7 @@ class Asset {
 		asset.format = format;
 		asset.glyphs = glyphs;
 		asset.id = id;
+		asset.library = library;
 		asset.resourceName = resourceName;
 		asset.sourcePath = sourcePath;
 		asset.targetPath = targetPath;

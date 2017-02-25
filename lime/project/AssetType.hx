@@ -2,10 +2,10 @@ package lime.project;
 
 enum AssetType {
 	
-	ASSET_LIBRARY;
 	BINARY;
 	FONT;
 	IMAGE;
+	MANIFEST;
 	MOVIE_CLIP;
 	MUSIC;
 	SOUND;

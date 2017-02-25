@@ -266,7 +266,7 @@ class Preloader #if flash extends Sprite #end {
 			
 		}
 		
-		if (loadedLibraries == libraries.length && !initLibraryNames) {
+		if (#if flash loadedStage && #end loadedLibraries == libraries.length && !initLibraryNames) {
 			
 			initLibraryNames = true;
 			

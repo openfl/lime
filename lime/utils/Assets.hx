@@ -47,6 +47,8 @@ class Assets {
 	#if (lime < "4.0.0") @:noCompletion public #else private #end static var libraries (default, null) = new Map<String, AssetLibrary> ();
 	public static var onChange = new Event<Void->Void> ();
 	
+	private static var libraryPaths = new Map<String, String> ();
+	
 	
 	public static function exists (id:String, type:AssetType = null):Bool {
 		
@@ -478,23 +480,29 @@ class Assets {
 		
 		#if (tools && !display && !macro)
 		
-		var manifestID = id;
+		var library = getLibrary (id);
 		
-		if (!exists (manifestID)) {
+		if (library != null) {
 			
-			manifestID += "/library.json";
+			return library.load ();
 			
 		}
 		
-		if (!exists (manifestID)) {
+		var path = id;
+		var rootPath = null;
+		
+		if (libraryPaths.exists (id)) {
 			
-			manifestID = "libraries/" + id + ".json";
+			path = libraryPaths[id];
+			rootPath = "";
+			
+		} else if (StringTools.endsWith (path, ".bundle")) {
+			
+			path += "/library.json";
 			
 		}
 		
-		loadText (manifestID).onComplete (function (data) {
-			
-			var manifest = AssetManifest.parse (data, Path.directory (getPath (manifestID)));
+		AssetManifest.loadFromFile (path, rootPath).onComplete (function (manifest) {
 			
 			if (manifest == null) {
 				

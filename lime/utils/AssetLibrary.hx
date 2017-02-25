@@ -37,6 +37,7 @@ class AssetLibrary {
 	private var cachedImages = new Map<String, Image> ();
 	private var cachedText = new Map<String, String> ();
 	private var classTypes = new Map<String, Class<Dynamic>> ();
+	private var loaded:Bool;
 	private var paths = new Map<String, String> ();
 	private var preload = new Map<String, Bool> ();
 	private var promise:Promise<AssetLibrary>;
@@ -154,14 +155,14 @@ class AssetLibrary {
 		
 		return switch (type) {
 			
-			case BINARY:       getBytes       (id);
-			case FONT:         getFont        (id);
-			case IMAGE:        getImage       (id);
+			case BINARY: getBytes (id);
+			case FONT: getFont (id);
+			case IMAGE: getImage (id);
 			case MUSIC, SOUND: getAudioBuffer (id);
-			case TEXT:         getText        (id);
+			case TEXT: getText (id);
 			
-			case TEMPLATE:  throw "Not sure how to get template: " + id;
-			default:		throw "Unknown asset type: " + type;
+			case TEMPLATE: throw "Not sure how to get template: " + id;
+			default: throw "Unknown asset type: " + type;
 			
 		}
 		
@@ -212,6 +213,9 @@ class AssetLibrary {
 		} else if (classTypes.exists (id)) {
 			
 			#if flash
+			
+			var data = Type.createInstance (classTypes.get (id), []);
+			var bytes:flash.utils.ByteArray = cast data;
 			
 			switch (types.get (id)) {
 				
@@ -396,14 +400,14 @@ class AssetLibrary {
 		
 		return switch (type) {
 			
-			case BINARY:       loadBytes       (id);
-			case FONT:         loadFont        (id);
-			case IMAGE:        loadImage       (id);
+			case BINARY: loadBytes (id);
+			case FONT: loadFont (id);
+			case IMAGE: loadImage (id);
 			case MUSIC, SOUND: loadAudioBuffer (id);
-			case TEXT:         loadText        (id);
+			case TEXT: loadText (id);
 			
-			case TEMPLATE:  throw "Not sure how to load template: " + id;
-			default:		throw "Unknown asset type: " + type;
+			case TEMPLATE: throw "Not sure how to load template: " + id;
+			default: throw "Unknown asset type: " + type;
 			
 		}
 		
@@ -411,6 +415,12 @@ class AssetLibrary {
 	
 	
 	public function load ():Future<AssetLibrary> {
+		
+		if (loaded) {
+			
+			return Future.withValue (this);
+			
+		}
 		
 		if (promise == null) {
 			
@@ -703,6 +713,7 @@ class AssetLibrary {
 			
 		} else {
 			
+			loaded = true;
 			promise.progress (bytesTotal, bytesTotal);
 			promise.complete (this);
 			
@@ -728,6 +739,18 @@ class AssetLibrary {
 			paths.set (id, basePath + asset.path);
 			sizes.set (id, size);
 			types.set (id, asset.type);
+			
+			if (Reflect.hasField (asset, "preload")) {
+				
+				preload.set (id, Reflect.field (asset, "preload"));
+				
+			}
+			
+			if (Reflect.hasField (asset, "className")) {
+				
+				classTypes.set (id, Type.resolveClass (Reflect.field (asset, "className")));
+				
+			}
 			
 		}
 		

@@ -6,7 +6,6 @@ import haxe.io.Path;
 import haxe.Json;
 import haxe.Template;
 import lime.tools.helpers.ArrayHelper;
-import lime.tools.helpers.AssetHelper;
 import lime.tools.helpers.CPPHelper;
 import lime.tools.helpers.DeploymentHelper;
 import lime.tools.helpers.FileHelper;
@@ -432,12 +431,12 @@ class IOSPlatform extends PlatformTarget {
 			
 		}
 		
-		var manifest = new Asset ();
-		manifest.id = "__manifest__";
-		manifest.data = AssetHelper.createManifest (project).serialize ();
-		manifest.resourceName = manifest.flatName = manifest.targetPath = "manifest";
-		manifest.type = AssetType.TEXT;
-		project.assets.push (manifest);
+		//var manifest = new Asset ();
+		//manifest.id = "__manifest__";
+		//manifest.data = AssetHelper.createManifest (project).serialize ();
+		//manifest.resourceName = manifest.flatName = manifest.targetPath = "manifest";
+		//manifest.type = AssetType.TEXT;
+		//project.assets.push (manifest);
 		
 		var context = generateContext ();
 		context.OUTPUT_DIR = targetDirectory;

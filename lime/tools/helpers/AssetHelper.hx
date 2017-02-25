@@ -6,7 +6,9 @@ import haxe.Serializer;
 import haxe.Unserializer;
 import lime.tools.helpers.PathHelper;
 import lime.project.AssetType;
+import lime.project.Asset;
 import lime.project.HXProject;
+import lime.project.Library;
 import lime.utils.AssetManifest;
 import sys.io.File;
 import sys.FileSystem;
@@ -15,11 +17,14 @@ import sys.FileSystem;
 class AssetHelper {
 	
 	
-	public static function createManifest (project:HXProject, targetPath:String = ""):AssetManifest {
+	public static function createManifest (project:HXProject, library:String = null, targetPath:String = null):AssetManifest {
 		
 		var manifest = new AssetManifest ();
+		var assetData:Dynamic;
 		
 		for (asset in project.assets) {
+			
+			if (asset.library != library) continue;
 			
 			if (asset.type != AssetType.TEMPLATE) {
 				
@@ -31,20 +36,46 @@ class AssetHelper {
 					
 				}
 				
-				manifest.assets.push ({
+				assetData = {
 					
 					id: asset.id,
 					path: asset.resourceName,
 					type: Std.string (asset.type),
 					size: size
 					
-				});
+				};
+				
+				if (asset.type == FONT) {
+					
+					assetData.className = "__ASSET__" + asset.flatName;
+					
+					if (project.target == HTML5) {
+						
+						assetData.preload = true;
+						
+					}
+					
+				} else if (asset.embed != false) {
+					
+					if (project.target == HTML5) {
+						
+						assetData.preload = true;
+						
+					} else if (project.platformType == DESKTOP || project.target == FLASH) {
+						
+						assetData.classNames = "__ASSET__" + asset.flatName;
+						
+					}
+					
+				}
+				
+				manifest.assets.push (assetData);
 				
 			}
 			
 		}
 		
-		if (targetPath != "") {
+		if (targetPath != null) {
 			
 			PathHelper.mkdir (Path.directory (targetPath));
 			File.saveContent (targetPath, manifest.serialize ());
@@ -56,26 +87,106 @@ class AssetHelper {
 	}
 	
 	
-	public static function processLibraries (project:HXProject, targetDirectory:String = null):Void {
+	public static function createManifests (project:HXProject, targetDirectory:String = null):Array<AssetManifest> {
 		
-		var handlers = new Array<String> ();
+		var libraryNames = new Map<String, Bool> ();
 		
-		for (library in project.libraries) {
+		for (asset in project.assets) {
 			
-			var type = library.type;
-			
-			if (type == null) {
+			if (asset.library != null && !libraryNames.exists (asset.library)) {
 				
-				type = Path.extension (library.sourcePath).toLowerCase ();
+				libraryNames[asset.library] = true;
 				
 			}
 			
-			if (project.libraryHandlers.exists (type)) {
+		}
+		
+		var manifest = createManifest (project);
+		manifest.name = "default";
+		var manifests = [ manifest ];
+		
+		for (library in libraryNames.keys ()) {
+			
+			manifest = createManifest (project, library);
+			manifest.name = library;
+			manifests.push (manifest);
+			
+		}
+		
+		if (targetDirectory != null) {
+			
+			PathHelper.mkdir (targetDirectory);
+			
+			for (manifest in manifests) {
 				
-				var handler = project.libraryHandlers.get (type);
+				File.saveContent (PathHelper.combine (targetDirectory, manifest.name + ".json"), manifest.serialize ());
 				
-				handlers.remove (handler);
-				handlers.push (handler);
+			}
+			
+		}
+		
+		return manifests;
+		
+	}
+	
+	
+	public static function processLibraries (project:HXProject, targetDirectory:String = null):Void {
+		
+		var libraryMap = new Map<String, Bool> ();
+		
+		for (library in project.libraries) {
+			
+			libraryMap[library.name] = true;
+			
+		}
+		
+		var library;
+		
+		for (asset in project.assets) {
+			
+			if (asset.library != null && !libraryMap.exists (asset.library)) {
+				
+				library = new Library (null, asset.library);
+				project.libraries.push (library);
+				
+				libraryMap[asset.library] = true;
+				
+			}
+			
+		}
+		
+		if (!libraryMap.exists ("default")) {
+			
+			library = new Library (null, "default");
+			project.libraries.push (library);
+			
+		}
+		
+		var handlers = new Array<String> ();
+		var type;
+		
+		for (library in project.libraries) {
+			
+			type = library.type;
+			
+			if (library.sourcePath != null || type != null) {
+				
+				if (type == null) {
+					
+					type = Path.extension (library.sourcePath).toLowerCase ();
+					
+				}
+				
+				if (project.libraryHandlers.exists (type)) {
+					
+					var handler = project.libraryHandlers.get (type);
+					
+					handlers.remove (handler);
+					handlers.push (handler);
+					
+					library.type = type;
+					
+				}
 				
 			}
 			
@@ -136,6 +247,29 @@ class AssetHelper {
 				FileSystem.deleteFile (temporaryFile);
 				
 			} catch (e:Dynamic) {}
+			
+		}
+		
+		var manifest, asset;
+		
+		for (library in project.libraries) {
+			
+			if (library.type == null) {
+				
+				manifest = createManifest (project, library.name != "default" ? library.name : null);
+				
+				if (library.name == "default") {
+					
+					library.preload = true;
+					
+				}
+				
+				asset = new Asset ("", "manifest/" + library.name + ".json", AssetType.MANIFEST);
+				asset.library = library.name;
+				asset.data = manifest.serialize ();
+				project.assets.push (asset);
+				
+			}
 			
 		}
 		

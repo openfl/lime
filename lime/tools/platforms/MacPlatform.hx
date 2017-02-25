@@ -3,7 +3,6 @@ package lime.tools.platforms;
 
 import haxe.io.Path;
 import haxe.Template;
-import lime.tools.helpers.AssetHelper;
 import lime.tools.helpers.CPPHelper;
 import lime.tools.helpers.CSHelper;
 import lime.tools.helpers.DeploymentHelper;
@@ -377,8 +376,6 @@ class MacPlatform extends PlatformTarget {
 			}
 			
 		}
-		
-		AssetHelper.createManifest (project, PathHelper.combine (contentDirectory, "manifest"));
 		
 	}
 	
