@@ -63,7 +63,7 @@ class AssetHelper {
 						
 					} else if (project.platformType == DESKTOP || project.target == FLASH) {
 						
-						assetData.classNames = "__ASSET__" + asset.flatName;
+						assetData.className = "__ASSET__" + asset.flatName;
 						
 					}
 					

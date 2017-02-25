@@ -26,7 +26,6 @@ package;
 			name: "::meta.title::",
 			orientation: "::WIN_ORIENTATION::",
 			packageName: "::meta.packageName::",
-import lime.utils.AssetLibrary;
 			version: "::meta.version::",
 			windows: [
 				::foreach windows::
