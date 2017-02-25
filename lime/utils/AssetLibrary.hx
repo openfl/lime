@@ -736,7 +736,12 @@ class AssetLibrary {
 			size = hasSize ? asset.size : 100;
 			id = asset.id;
 			
-			paths.set (id, basePath + asset.path);
+			if (Reflect.hasField (asset, "path")) {
+				
+				paths.set (id, basePath + Reflect.field (asset, "path"));
+				
+			}
+			
 			sizes.set (id, size);
 			types.set (id, asset.type);
 			

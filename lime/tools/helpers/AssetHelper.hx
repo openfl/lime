@@ -39,7 +39,6 @@ class AssetHelper {
 				assetData = {
 					
 					id: asset.id,
-					path: asset.resourceName,
 					type: Std.string (asset.type),
 					size: size
 					
@@ -55,15 +54,24 @@ class AssetHelper {
 						
 					}
 					
-				} else if (asset.embed != false) {
+				} else {
 					
-					if (project.target == HTML5) {
+					if (asset.embed == true || (asset.embed == null && (project.platformType == WEB))) {
 						
-						assetData.preload = true;
+						if (project.target == HTML5) {
+							
+							assetData.path = asset.resourceName;
+							assetData.preload = true;
+							
+						} else {
+							
+							assetData.className = "__ASSET__" + asset.flatName;
+							
+						}
 						
-					} else if (project.platformType == DESKTOP || project.target == FLASH) {
+					} else {
 						
-						assetData.className = "__ASSET__" + asset.flatName;
+						assetData.path = asset.resourceName;
 						
 					}
 					
