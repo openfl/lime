@@ -43,13 +43,15 @@ import sys.FileSystem;
 			
 		}
 		
+		Assets.defaultRootPath = rootPath;
+		
 		var data, manifest, library;
 		
 		::foreach assets::::if (type == "manifest")::::if (embed)::data = '::data::';
 		manifest = AssetManifest.parse (data, rootPath);
 		library = AssetLibrary.fromManifest (manifest);
 		Assets.registerLibrary ("::library::", library);
-		::else::Assets.libraryPaths["::library::"] = "::resourceName::";
+		::else::Assets.libraryPaths["::library::"] = rootPath + "::resourceName::";
 		::end::::end::::end::
 		
 		::foreach libraries::::if (preload)::library = Assets.getLibrary ("::name::");

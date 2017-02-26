@@ -47,6 +47,7 @@ class Assets {
 	#if (lime < "4.0.0") @:noCompletion public #else private #end static var libraries (default, null) = new Map<String, AssetLibrary> ();
 	public static var onChange = new Event<Void->Void> ();
 	
+	private static var defaultRootPath:String;
 	private static var libraryPaths = new Map<String, String> ();
 	
 	
@@ -494,7 +495,7 @@ class Assets {
 		if (libraryPaths.exists (id)) {
 			
 			path = libraryPaths[id];
-			rootPath = "";
+			rootPath = defaultRootPath;
 			
 		} else if (StringTools.endsWith (path, ".bundle")) {
 			
