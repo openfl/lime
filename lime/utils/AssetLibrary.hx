@@ -779,6 +779,8 @@ class AssetLibrary {
 			if (type == MUSIC || type == SOUND) {
 				
 				path = paths.get (id);
+				if (path == null) continue;
+				
 				soundName = Path.withoutExtension (path);
 				
 				if (!sounds.exists (soundName)) {
@@ -836,6 +838,38 @@ class AssetLibrary {
 	private function loadAudioBuffer_onComplete (id:String, audioBuffer:AudioBuffer):Void {
 		
 		cachedAudioBuffers.set (id, audioBuffer);
+		
+		#if (js && html5)
+		var type, path, soundName;
+		
+		path = paths.get (id);
+		
+		if (path != null) {
+			
+			soundName = Path.withoutExtension (path);
+			
+			for (otherID in types.keys ()) {
+				
+				type = types.get (otherID);
+				
+				if (type == MUSIC || type == SOUND) {
+					
+					path = paths.get (otherID);
+					if (path == null) continue;
+					
+					if (soundName == Path.withoutExtension (path)) {
+						
+						cachedAudioBuffers.set (otherID, audioBuffer);
+						
+					}
+					
+				}
+				
+			}
+			
+		}
+		#end
+		
 		__assetLoaded (id);
 		
 	}
