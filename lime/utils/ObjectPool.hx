@@ -32,7 +32,7 @@ package lime.utils;
 		
 		if (__inactiveObjects.length > 0) {
 			
-			var object = __inactiveObjects.first ();
+			var object = __inactiveObjects.pop ();
 			__activeObjects.add (object);
 			return object;
 			
@@ -54,7 +54,7 @@ package lime.utils;
 		
 		if (__inactiveObjects.length > 0) {
 			
-			object = __inactiveObjects.first ();
+			object = __inactiveObjects.pop ();
 			__activeObjects.add (object);
 			
 		} else if (__size == null) {
@@ -111,12 +111,12 @@ package lime.utils;
 				
 				if (__inactiveObjects.length > 0) {
 					
-					__inactiveObjects.first ();
+					__inactiveObjects.pop ();
 					current--;
 					
 				} else if (__activeObjects.length > 0) {
 					
-					__activeObjects.first ();
+					__activeObjects.pop ();
 					current--;
 					
 				} else {
