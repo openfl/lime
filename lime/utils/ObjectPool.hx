@@ -89,7 +89,7 @@ package lime.utils;
 	
 	private function get_size ():Int {
 		
-		if (__size != null) return null;
+		if (__size != null) return __size;
 		return __inactiveObjects.length + __activeObjects.length;
 		
 	}
