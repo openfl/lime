@@ -430,6 +430,14 @@ class PathHelper {
 				
 				total += part;
 				
+				if (FileSystem.exists (total) && !FileSystem.isDirectory (total)) {
+					
+					LogHelper.info ("", " - \x1b[1mRemoving file:\x1b[0m " + total);
+					
+					FileSystem.deleteFile (total);
+					
+				}
+				
 				if (!FileSystem.exists (total)) {
 					
 					LogHelper.info ("", " - \x1b[1mCreating directory:\x1b[0m " + total);
