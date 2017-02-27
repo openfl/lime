@@ -1603,6 +1603,25 @@ class CommandLineTools {
 		
 		project.merge (overrides);
 		
+		for (haxelib in project.haxelibs) {
+			
+			if (haxelib.name == "lime" && haxelib.version != null && haxelib.version != "" && haxelib.version != "dev" && haxelib.version != version) {
+				
+				LogHelper.info ("", LogHelper.accentColor + "Switching to Lime version " + Std.string (haxelib.version) + "...\x1b[0m");
+				
+				var path = PathHelper.getHaxelib (haxelib);
+				
+				var args = Sys.args ();
+				var workingDirectory = args.pop ();
+				args.push ("--haxelib-lime=" + path);
+				
+				var args = [ "run", "lime:" + haxelib.version ].concat (args);
+				Sys.exit (Sys.command ("haxelib", args));
+				
+			}
+			
+		}
+		
 		if (overrides.architectures.length > 0) {
 			
 			project.architectures = overrides.architectures;
