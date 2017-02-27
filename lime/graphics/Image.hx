@@ -27,6 +27,7 @@ import lime.utils.ArrayBuffer;
 import lime.utils.UInt8Array;
 
 #if (js && html5)
+import js.html.AnchorElement;
 import js.html.CanvasElement;
 import js.html.ImageElement;
 import js.html.Image in JSImage;
@@ -79,6 +80,13 @@ class Image {
 	
 	private static var __base64Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	private static var __base64Encoder:BaseCode;
+	
+	#if (js && html5)
+	private static var __origin_hostname:String = Browser.location.hostname;
+	private static var __origin_port:String     = Browser.location.port;
+	private static var __origin_protocol:String = Browser.location.protocol;
+	private static var __origin_test_element:AnchorElement = null;
+	#end
 	
 	public var buffer:ImageBuffer;
 	public var data (get, set):UInt8Array;
@@ -1398,12 +1406,129 @@ class Image {
 	}
 	
 	
+	#if (js && html5)
+	private function __fixHostname (hostname:String):String {
+		
+		if (hostname == null) {
+		
+			hostname = "";
+			
+		}
+		
+		return hostname;
+		
+	}
+
+	private function __fixProtocol (protocol:String):String {
+		
+		if ((protocol == null) || (protocol == "")) {
+			
+			protocol = "http:";
+
+		}
+		
+		return protocol;
+		
+	}
+
+	private function __fixPort (port:String, protocol:String):String {
+		
+		if ((port == null) || (port == "")) {
+
+			// From https://url.spec.whatwg.org/#default-port
+			port = switch (protocol) {
+				case "ftp:":     "21";
+				case "gopher:":  "70";
+				case "http:":    "80";
+				case "https:":  "443";
+				case "ws:":      "80";
+				case "wss:":    "443";
+				default:           "";
+			}
+			
+		}
+		
+		return port;
+		
+	}
+	#end
+	
 	private function __fromFile (path:String, onload:Image -> Void, onerror:Void -> Void):Void {
 		
 		#if (js && html5)
 			
 			var image = new JSImage ();
-			image.crossOrigin = "Anonymous";
+			
+			// Do something like the same-origin test, so we can continue
+			// to use credentials for assets on the same site.
+			// See https://en.wikipedia.org/wiki/Same-origin_policy .
+			
+			if (__origin_test_element == null) {
+				
+				// Create only one test element and reuse it.
+				__origin_test_element = Browser.document.createAnchorElement ();
+				
+				// Doublecheck origin settings, provide reasonable defaults if necessary.
+				__origin_hostname = __fixHostname (__origin_hostname);
+				__origin_protocol = __fixProtocol (__origin_protocol);
+				__origin_port     = __fixPort (__origin_port, __origin_protocol);
+				
+			}
+			
+			// Use the DOM anchor element to parse the URI for us.
+			//
+			// We could use "new URL" to tap into the browser's URI
+			// parser, but that is not widely supported yet.
+			//
+			// Parsing "path" ourselves is way too error-prone.
+			var a = __origin_test_element;
+			a.href = path;
+			
+			if (a.hostname == "") {
+				
+				// Workaround for Internet Explorer and relative URLs:
+				// the first set of href using a relative URL will not
+				// set the properties we care about, but it will extend
+				// our relative URL to an absolute URL; we can re-set
+				// and will gain those properties.
+				a.href = a.href;
+				
+			}
+
+			// Provide reasonable defaults if necessary.
+			var path_hostname:String = __fixHostname (a.hostname);
+			var path_protocol:String = __fixProtocol (a.protocol);
+			var path_port:String = __fixPort (a.port, path_protocol);
+			
+			// We generally prefer false negatives (i.e. sameOrigin=false)
+			// to false positives (i.e. sameOrigin=true).
+			//
+			// The below may incorrectly return sameOrigin=false
+			// (false negative) in several cases:
+			//
+			// This does not take into account document.domain,
+			// Internet Explorer "Security Zone",
+			// Access-Control-Allow-Origin headers, 
+			// or similar CORS settings.
+			var sameOrigin:Bool = (path_protocol != 'file:') &&
+				(path_hostname == __origin_hostname) &&
+				(path_protocol == __origin_protocol) &&
+				(path_port == __origin_port);
+			if (! sameOrigin)
+			{
+				
+				// Force "anonymous" mode.  For W3C HTML5, this will avoid 
+				// credentials altogether; for WHATWG HTML, this will turn
+				// on "cors" mode and use credentials only for same-origin
+				// requests.
+				//
+				// This may be made unconditional when all target browsers
+				// use the WHATWG "same-origin" credentials mode for
+				// the "anonymous" keyword on CORS settings attributes:
+				// https://html.spec.whatwg.org/multipage/infrastructure.html#cors-settings-attribute
+				image.crossOrigin = "Anonymous";
+				
+			}
 			
 			image.onload = function (_) {
 				
