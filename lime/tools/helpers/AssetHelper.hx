@@ -20,66 +20,79 @@ class AssetHelper {
 	public static function createManifest (project:HXProject, library:String = null, targetPath:String = null):AssetManifest {
 		
 		var manifest = new AssetManifest ();
+		var pathGroups = new Map<String, Array<String>> ();
+		var size, soundName;
 		var assetData:Dynamic;
 		
 		for (asset in project.assets) {
 			
-			if (asset.library != library) continue;
+			if (asset.library != library || asset.type == TEMPLATE) continue;
 			
-			if (asset.type != AssetType.TEMPLATE) {
+			size = 100;
+			
+			if (FileSystem.exists (asset.sourcePath)) {
 				
-				var size = 100;
+				size = FileSystem.stat (asset.sourcePath).size;
 				
-				if (FileSystem.exists (asset.sourcePath)) {
+			}
+			
+			assetData = {
+				
+				id: asset.id,
+				size: size,
+				type: Std.string (asset.type)
+				
+			};
+			
+			if (project.target != HTML5) {
+				
+				if (asset.embed == true || asset.type == FONT || (asset.embed == null && (project.platformType == WEB))) {
 					
-					size = FileSystem.stat (asset.sourcePath).size;
+					assetData.className = "__ASSET__" + asset.flatName;
+					
+				} else {
+					
+					assetData.path = asset.resourceName;
 					
 				}
 				
-				assetData = {
-					
-					id: asset.id,
-					type: Std.string (asset.type),
-					size: size
-					
-				};
+			} else {
 				
 				if (asset.type == FONT) {
 					
 					assetData.className = "__ASSET__" + asset.flatName;
-					
-					if (project.target == HTML5) {
-						
-						assetData.preload = true;
-						
-					}
+					assetData.preload = true;
 					
 				} else {
 					
-					if (asset.embed == true || (asset.embed == null && (project.platformType == WEB))) {
+					assetData.path = asset.resourceName;
+					assetData.preload = (asset.embed != false);
+					
+					if (asset.type == MUSIC || asset.type == SOUND) {
 						
-						if (project.target == HTML5) {
+						soundName = Path.withoutExtension (assetData.path);
+						
+						if (!pathGroups.exists (soundName)) {
 							
-							assetData.path = asset.resourceName;
-							assetData.preload = true;
+							pathGroups.set (soundName, [ assetData.path ]);
 							
 						} else {
 							
-							assetData.className = "__ASSET__" + asset.flatName;
+							pathGroups[soundName].push (assetData.path);
+							assetData.preload = false;
 							
 						}
 						
-					} else {
-						
-						assetData.path = asset.resourceName;
+						Reflect.deleteField (assetData, "path");
+						assetData.pathGroup = pathGroups[soundName];
 						
 					}
 					
 				}
 				
-				manifest.assets.push (assetData);
-				
 			}
+			
+			manifest.assets.push (assetData);
 			
 		}
 		

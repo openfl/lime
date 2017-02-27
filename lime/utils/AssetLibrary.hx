@@ -38,15 +38,12 @@ class AssetLibrary {
 	private var cachedText = new Map<String, String> ();
 	private var classTypes = new Map<String, Class<Dynamic>> ();
 	private var loaded:Bool;
+	private var pathGroups = new Map<String, Array<String>> ();
 	private var paths = new Map<String, String> ();
 	private var preload = new Map<String, Bool> ();
 	private var promise:Promise<AssetLibrary>;
 	private var sizes = new Map<String, Int> ();
 	private var types = new Map<String, AssetType> ();
-	
-	#if (js && html5)
-	private var pathGroups:Map<String, Array<String>>;
-	#end
 	
 	
 	public function new () {
@@ -508,15 +505,15 @@ class AssetLibrary {
 			
 		} else {
 			
-			#if (js && html5)
 			if (pathGroups.exists (id)) {
 				
 				return AudioBuffer.loadFromFiles (pathGroups.get (id));
 				
+			} else {
+				
+				return AudioBuffer.loadFromFile (paths.get (id));
+				
 			}
-			#end
-			
-			return AudioBuffer.loadFromFile (paths.get (id));
 			
 		}
 		
@@ -725,7 +722,7 @@ class AssetLibrary {
 	private function __fromManifest (manifest:AssetManifest):Void {
 		
 		var hasSize = (manifest.version >= 2);
-		var size, id;
+		var size, id, pathGroup:Array<String>;
 		
 		var basePath = manifest.rootPath;
 		if (basePath == null) basePath = "";
@@ -739,6 +736,20 @@ class AssetLibrary {
 			if (Reflect.hasField (asset, "path")) {
 				
 				paths.set (id, basePath + Reflect.field (asset, "path"));
+				
+			}
+			
+			if (Reflect.hasField (asset, "pathGroup")) {
+				
+				pathGroup = Reflect.field (asset, "pathGroup");
+				
+				for (i in 0...pathGroup.length) {
+					
+					pathGroup[i] = basePath + pathGroup[i];
+					
+				}
+				
+				pathGroups.set (id, pathGroup);
 				
 			}
 			
@@ -758,58 +769,6 @@ class AssetLibrary {
 			}
 			
 		}
-		
-		// TODO: Better solution
-		
-		#if (js && html5)
-		if (pathGroups == null) {
-			
-			pathGroups = new Map<String, Array<String>> ();
-			
-		}
-		
-		var sounds = new Map<String, Array<String>> ();
-		var preloadGroups = new Map<String, Bool> ();
-		var type, path, soundName;
-		
-		for (id in types.keys ()) {
-			
-			type = types.get (id);
-			
-			if (type == MUSIC || type == SOUND) {
-				
-				path = paths.get (id);
-				if (path == null) continue;
-				
-				soundName = Path.withoutExtension (path);
-				
-				if (!sounds.exists (soundName)) {
-					
-					sounds.set (soundName, new Array ());
-					
-				}
-				
-				sounds.get (soundName).push (path);
-				pathGroups.set (id, sounds.get (soundName));
-				
-				if (preload.exists (id)) {
-					
-					if (preloadGroups.exists (soundName)) {
-						
-						preload.remove (id);
-						
-					} else {
-						
-						preloadGroups.set (soundName, true);
-						
-					}
-					
-				}
-				
-			}
-			
-		}
-		#end
 		
 		bytesTotal = 0;
 		
@@ -839,27 +798,20 @@ class AssetLibrary {
 		
 		cachedAudioBuffers.set (id, audioBuffer);
 		
-		#if (js && html5)
-		var type, path, soundName;
-		
-		path = paths.get (id);
-		
-		if (path != null) {
+		if (pathGroups.exists (id)) {
 			
-			soundName = Path.withoutExtension (path);
+			var pathGroup = pathGroups.get (id);
 			
-			for (otherID in types.keys ()) {
+			for (otherID in pathGroups.keys ()) {
 				
-				type = types.get (otherID);
+				if (otherID == id) continue;
 				
-				if (type == MUSIC || type == SOUND) {
+				for (path in pathGroup) {
 					
-					path = paths.get (otherID);
-					if (path == null) continue;
-					
-					if (soundName == Path.withoutExtension (path)) {
+					if (pathGroups.get (otherID).indexOf (path) > -1) {
 						
 						cachedAudioBuffers.set (otherID, audioBuffer);
+						break;
 						
 					}
 					
@@ -868,7 +820,6 @@ class AssetLibrary {
 			}
 			
 		}
-		#end
 		
 		__assetLoaded (id);
 		
