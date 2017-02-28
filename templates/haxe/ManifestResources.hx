@@ -1,6 +1,7 @@
 package;
 
 
+import lime.app.Config;
 import lime.utils.AssetLibrary;
 import lime.utils.AssetManifest;
 import lime.utils.Assets;
@@ -19,15 +20,15 @@ import sys.FileSystem;
 	public static var preloadLibraryNames:Array<String>;
 	
 	
-	public static function init ():Void {
+	public static function init (config:Config):Void {
 		
 		preloadLibraries = new Array ();
 		preloadLibraryNames = new Array ();
 		var rootPath = null;
 		
-		if (ApplicationMain.config != null && Reflect.hasField (ApplicationMain.config, "assetsPrefix")) {
+		if (config != null && Reflect.hasField (config, "assetsPrefix")) {
 			
-			rootPath = Reflect.field (ApplicationMain.config, "assetsPrefix");
+			rootPath = Reflect.field (config, "assetsPrefix");
 			
 		}
 		

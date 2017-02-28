@@ -3,8 +3,8 @@ package lime.app;
 
 typedef Config = {
 	
-	#if (js && html5)
-	@:optional var assetsPrefix:String;
+	#if ((js && html5) && lime < "5.0.0")
+	@:deprecated @:optional var assetsPrefix:String;
 	#end
 	@:optional var build:String;
 	@:optional var company:String;
@@ -13,6 +13,7 @@ typedef Config = {
 	@:optional var name:String;
 	@:optional var orientation:String;
 	@:optional var packageName:String;
+	@:optional var rootPath:String;
 	@:optional var version:String;
 	@:optional var windows:Array<WindowConfig>;
 	
@@ -36,7 +37,7 @@ typedef WindowConfig = {
 	@:optional var hidden:Bool;
 	@:optional var maximized:Bool;
 	@:optional var minimized:Bool;
-	@:optional var parameters:String;
+	@:optional var parameters:Dynamic;
 	@:optional var resizable:Bool;
 	@:optional var stencilBuffer:Bool;
 	@:optional var title:String;
