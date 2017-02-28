@@ -118,15 +118,21 @@ class System {
 				
 			}
 			
-			if (Reflect.hasField (displayInfo, "currentMode")) {
+			var mode = displayInfo.currentMode;
+			var currentMode = new DisplayMode (mode.width, mode.height, mode.refreshRate, mode.pixelFormat);
+			
+			for (mode in display.supportedModes) {
 				
-				display.currentMode = display.supportedModes[displayInfo.currentMode];
-				
-			} else {
-				
-				display.currentMode = new DisplayMode (0, 0, 60, ARGB32);
+				if (currentMode.pixelFormat == mode.pixelFormat && currentMode.width == mode.width && currentMode.height == mode.height && currentMode.refreshRate == mode.refreshRate) {
+					
+					currentMode = mode;
+					break;
+					
+				}
 				
 			}
+			
+			display.currentMode = currentMode;
 			
 			return display;
 			

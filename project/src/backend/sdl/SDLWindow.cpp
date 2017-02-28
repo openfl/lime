@@ -11,6 +11,9 @@
 namespace lime {
 	
 	
+	static bool displayModeSet = false;
+	
+	
 	SDLWindow::SDLWindow (Application* application, int width, int height, int flags, const char* title) {
 		
 		currentApplication = application;
@@ -196,6 +199,38 @@ namespace lime {
 	}
 	
 	
+	void SDLWindow::GetDisplayMode (DisplayMode* displayMode) {
+		
+		SDL_DisplayMode mode;
+		SDL_GetWindowDisplayMode (sdlWindow, &mode);
+		
+		displayMode->width = mode.w;
+		displayMode->height = mode.h;
+		
+		switch (mode.format) {
+			
+			case SDL_PIXELFORMAT_ARGB8888:
+				
+				displayMode->pixelFormat = ARGB32;
+				break;
+			
+			case SDL_PIXELFORMAT_BGRA8888:
+			case SDL_PIXELFORMAT_BGRX8888:
+				
+				displayMode->pixelFormat = BGRA32;
+				break;
+			
+			default:
+				
+				displayMode->pixelFormat = RGBA32;
+			
+		}
+		
+		displayMode->refreshRate = mode.refresh_rate;
+		
+	}
+	
+	
 	bool SDLWindow::GetEnableTextEvents () {
 		
 		return SDL_IsTextInputActive ();
@@ -289,6 +324,45 @@ namespace lime {
 	}
 	
 	
+	void SDLWindow::SetDisplayMode (DisplayMode* displayMode) {
+		
+		Uint32 pixelFormat = 0;
+		
+		switch (displayMode->pixelFormat) {
+			
+			case ARGB32:
+				
+				pixelFormat = SDL_PIXELFORMAT_ARGB8888;
+				break;
+			
+			case BGRA32:
+				
+				pixelFormat = SDL_PIXELFORMAT_BGRA8888;
+				break;
+			
+			default:
+				
+				pixelFormat = SDL_PIXELFORMAT_RGBA8888;
+			
+		}
+		
+		SDL_DisplayMode mode = { pixelFormat, displayMode->width, displayMode->height, displayMode->refreshRate, 0 };
+		
+		if (SDL_SetWindowDisplayMode (sdlWindow, &mode) == 0) {
+			
+			displayModeSet = true;
+			
+			if (SDL_GetWindowFlags (sdlWindow) & SDL_WINDOW_FULLSCREEN_DESKTOP) {
+				
+				SDL_SetWindowFullscreen (sdlWindow, SDL_WINDOW_FULLSCREEN);
+				
+			}
+			
+		}
+		
+	}
+	
+	
 	void SDLWindow::SetEnableTextEvents (bool enabled) {
 		
 		if (enabled) {
@@ -308,7 +382,15 @@ namespace lime {
 		
 		if (fullscreen) {
 			
-			SDL_SetWindowFullscreen (sdlWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+			if (displayModeSet) {
+				
+				SDL_SetWindowFullscreen (sdlWindow, SDL_WINDOW_FULLSCREEN);
+				
+			} else {
+				
+				SDL_SetWindowFullscreen (sdlWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+				
+			}
 			
 		} else {
 			

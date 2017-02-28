@@ -15,6 +15,7 @@ import js.Browser;
 import lime.app.Application;
 import lime.graphics.Image;
 import lime.system.Display;
+import lime.system.DisplayMode;
 import lime.system.System;
 import lime.system.Clipboard;
 import lime.ui.Gamepad;
@@ -239,6 +240,20 @@ class HTML5Window {
 	public function getDisplay ():Display {
 		
 		return System.getDisplay (0);
+		
+	}
+	
+	
+	public function getDisplayMode ():DisplayMode {
+		
+		return System.getDisplay (0).currentMode;
+		
+	}
+	
+	
+	public function setDisplayMode (value:DisplayMode):DisplayMode {
+		
+		return value;
 		
 	}
 	

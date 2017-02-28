@@ -1564,6 +1564,16 @@ namespace lime {
 	}
 	
 	
+	value lime_window_get_display_mode (value window) {
+		
+		Window* targetWindow = (Window*)val_data (window);
+		DisplayMode displayMode;
+		targetWindow->GetDisplayMode (&displayMode);
+		return displayMode.Value ();
+		
+	}
+	
+	
 	bool lime_window_get_enable_text_events (value window) {
 		
 		Window* targetWindow = (Window*)val_data (window);
@@ -1632,6 +1642,17 @@ namespace lime {
 		
 		Window* targetWindow = (Window*)val_data (window);
 		return targetWindow->SetBorderless (borderless);
+		
+	}
+	
+	
+	value lime_window_set_display_mode (value window, value displayMode) {
+		
+		Window* targetWindow = (Window*)val_data (window);
+		DisplayMode _displayMode (displayMode);
+		targetWindow->SetDisplayMode (&_displayMode);
+		targetWindow->GetDisplayMode (&_displayMode);
+		return _displayMode.Value ();
 		
 	}
 	
@@ -1861,6 +1882,7 @@ namespace lime {
 	DEFINE_PRIME2v (lime_window_event_manager_register);
 	DEFINE_PRIME1v (lime_window_focus);
 	DEFINE_PRIME1 (lime_window_get_display);
+	DEFINE_PRIME1 (lime_window_get_display_mode);
 	DEFINE_PRIME1 (lime_window_get_enable_text_events);
 	DEFINE_PRIME1 (lime_window_get_height);
 	DEFINE_PRIME1 (lime_window_get_id);
@@ -1870,6 +1892,7 @@ namespace lime {
 	DEFINE_PRIME3v (lime_window_move);
 	DEFINE_PRIME3v (lime_window_resize);
 	DEFINE_PRIME2 (lime_window_set_borderless);
+	DEFINE_PRIME2 (lime_window_set_display_mode);
 	DEFINE_PRIME2v (lime_window_set_enable_text_events);
 	DEFINE_PRIME2 (lime_window_set_fullscreen);
 	DEFINE_PRIME2v (lime_window_set_icon);

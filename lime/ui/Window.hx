@@ -7,6 +7,7 @@ import lime.app.Event;
 import lime.graphics.Image;
 import lime.graphics.Renderer;
 import lime.system.Display;
+import lime.system.DisplayMode;
 
 #if openfl
 import openfl.display.Stage;
@@ -29,6 +30,7 @@ class Window {
 	public var borderless (get, set):Bool;
 	public var config:WindowConfig;
 	public var display (get, null):Display;
+	public var displayMode (get, set):DisplayMode;
 	public var enableTextEvents (get, set):Bool;
 	public var fullscreen (get, set):Bool;
 	public var height (get, set):Int;
@@ -410,6 +412,20 @@ class Window {
 	@:noCompletion private function get_display ():Display {
 		
 		return backend.getDisplay ();
+		
+	}
+	
+	
+	@:noCompletion private function get_displayMode ():DisplayMode {
+		
+		return backend.getDisplayMode ();
+		
+	}
+	
+	
+	@:noCompletion private function set_displayMode (value:DisplayMode):DisplayMode {
+		
+		return backend.setDisplayMode (value);
 		
 	}
 	
