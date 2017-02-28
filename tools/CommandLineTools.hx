@@ -932,13 +932,15 @@ class CommandLineTools {
 			
 		} else {
 			
-			LogHelper.println ("\x1b[32;1m ___     \x1b[0m");
-			LogHelper.println ("\x1b[32m/\x1b[1m\\_ \\    __                       \x1b[0m");
-			LogHelper.println ("\x1b[32m\\//\x1b[1m\\ \\  \x1b[0m\x1b[32m/\x1b[1m\\\x1b[0m\x1b[32m_\x1b[1m\\    ___ ___      __   \x1b[0m");
-			LogHelper.println ("\x1b[32m  \\ \x1b[1m\\ \\ \x1b[0m\x1b[32m\\/\x1b[1m\\ \\ /' __` __`\\  /'__`\\ \x1b[0m");
-			LogHelper.println ("\x1b[32m   \\\x1b[1m_\\ \\_\x1b[0m\x1b[32m\\ \x1b[1m\\ \\\x1b[0m\x1b[32m/\x1b[1m\\ \\\x1b[0m\x1b[32m/\x1b[1m\\ \\\x1b[0m\x1b[32m/\x1b[1m\\ \\\x1b[0m\x1b[32m/\x1b[1m\\  __/ \x1b[0m");
-			LogHelper.println ("\x1b[32m   /\x1b[1m\\____\\\x1b[0m\x1b[32m\\ \x1b[1m\\_\\ \\_\\ \\_\\ \\_\\ \\____\\\x1b[0m");
-			LogHelper.println ("\x1b[32m   \\/____/ \\/_/\\/_/\\/_/\\/_/\\/____/\x1b[0m");
+			LogHelper.println ("\x1b[32m_\x1b[1m/\\\\\\\\\\\\\x1b[0m\x1b[32m______________________________________________\x1b[0m");
+			LogHelper.println ("\x1b[32m_\x1b[1m\\////\\\\\\\x1b[0m\x1b[32m______________________________________________\x1b[0m");
+			LogHelper.println ("\x1b[32m_____\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_____\x1b[1m/\\\\\\\x1b[0m\x1b[32m_____________________________________\x1b[0m");
+			LogHelper.println ("\x1b[32m______\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m____\x1b[1m\\///\x1b[0m\x1b[32m_____\x1b[1m/\\\\\\\\\\\x1b[0m\x1b[32m__\x1b[1m/\\\\\\\\\\\x1b[0m\x1b[32m_______\x1b[1m/\\\\\\\\\\\\\\\\\x1b[0m\x1b[32m___\x1b[0m");
+			LogHelper.println ("\x1b[32m_______\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_____\x1b[1m/\\\\\\\x1b[0m\x1b[32m__\x1b[1m/\\\\\\///\\\\\\\\\\///\\\\\\\x1b[0m\x1b[32m___\x1b[1m/\\\\\\/////\\\\\\\x1b[0m\x1b[32m__\x1b[0m");
+			LogHelper.println ("\x1b[32m________\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m____\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_\x1b[1m\\//\\\\\\\x1b[0m\x1b[32m__\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m__\x1b[1m/\\\\\\\\\\\\\\\\\\\\\\\x1b[0m\x1b[32m___\x1b[0m");
+			LogHelper.println ("\x1b[32m_________\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m____\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m__\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m__\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_\x1b[1m\\//\\\\///////\x1b[0m\x1b[32m____\x1b[0m");
+			LogHelper.println ("\x1b[32m________\x1b[1m/\\\\\\\\\\\\\\\\\\\x1b[0m\x1b[32m_\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m__\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m__\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m__\x1b[1m\\//\\\\\\\\\\\\\\\\\\\\\x1b[0m\x1b[32m__\x1b[0m");
+			LogHelper.println ("\x1b[32m________\x1b[1m\\/////////\x1b[0m\x1b[32m__\x1b[1m\\///\x1b[0m\x1b[32m__\x1b[1m\\///\x1b[0m\x1b[32m___\x1b[1m\\///\x1b[0m\x1b[32m___\x1b[1m\\///\x1b[0m\x1b[32m____\x1b[1m\\//////////\x1b[0m\x1b[32m___\x1b[0m");
 			
 			LogHelper.println ("");
 			LogHelper.println ("\x1b[1mLime Command-Line Tools\x1b[0;1m (" + getToolsVersion () + ")\x1b[0m");
