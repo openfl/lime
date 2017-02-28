@@ -928,7 +928,7 @@ class CommandLineTools {
 			LogHelper.println ("\x1b[37m            888                                   \x1b[0m");
 			
 			LogHelper.println ("");
-			LogHelper.println ("\x1b[1mOpenFL Command-Line Tools\x1b[0;1m (" + HaxelibHelper.getVersion (new Haxelib ("openfl")) + "-L" + StringHelper.generateUUID (5, null, StringHelper.generateHashCode (version)) + ")\x1b[0m");
+			LogHelper.println ("\x1b[1mOpenFL Command-Line Tools\x1b[0;1m (" + getToolsVersion () + ")\x1b[0m");
 			
 		} else {
 			
@@ -941,7 +941,7 @@ class CommandLineTools {
 			LogHelper.println ("\x1b[32m   \\/____/ \\/_/\\/_/\\/_/\\/_/\\/____/\x1b[0m");
 			
 			LogHelper.println ("");
-			LogHelper.println ("\x1b[1mLime Command-Line Tools\x1b[0;1m (" + version + ")\x1b[0m");
+			LogHelper.println ("\x1b[1mLime Command-Line Tools\x1b[0;1m (" + getToolsVersion () + ")\x1b[0m");
 			
 		}
 		
@@ -1316,6 +1316,23 @@ class CommandLineTools {
 	}
 	
 	
+	private function getToolsVersion (version:String = null):String {
+		
+		if (version == null) version = this.version;
+		
+		if (targetFlags.exists ("openfl")) {
+			
+			return HaxelibHelper.getVersion (new Haxelib ("openfl")) + "-L" + StringHelper.generateUUID (5, null, StringHelper.generateHashCode (version));
+			
+		} else {
+			
+			return version;
+			
+		}
+		
+	}
+	
+	
 	private function initializeProject (project:HXProject = null, targetName:String = ""):HXProject {
 		
 		LogHelper.info ("", LogHelper.accentColor + "Initializing project..." + LogHelper.resetColor);
@@ -1607,16 +1624,39 @@ class CommandLineTools {
 			
 			if (haxelib.name == "lime" && haxelib.version != null && haxelib.version != "" && haxelib.version != "dev" && haxelib.version != version) {
 				
-				LogHelper.info ("", LogHelper.accentColor + "Switching to Lime version " + Std.string (haxelib.version) + "...\x1b[0m");
-				
-				var path = PathHelper.getHaxelib (haxelib);
-				
-				var args = Sys.args ();
-				var workingDirectory = args.pop ();
-				args.push ("--haxelib-lime=" + path);
-				
-				var args = [ "run", "lime:" + haxelib.version ].concat (args);
-				Sys.exit (Sys.command ("haxelib", args));
+				if (!project.targetFlags.exists ("notoolscheck")) {
+					
+					if (targetFlags.exists ("openfl")) {
+						
+						for (haxelib in project.haxelibs) {
+							
+							if (haxelib.name == "openfl") {
+								
+								PathHelper.haxelibOverrides.set ("openfl", PathHelper.getHaxelib (haxelib));
+								
+							}
+							
+						}
+						
+					}
+					
+					LogHelper.info ("", LogHelper.accentColor + "Requesting tools version " + getToolsVersion (haxelib.version) + "...\x1b[0m");
+					
+					var path = PathHelper.getHaxelib (haxelib);
+					
+					var args = Sys.args ();
+					var workingDirectory = args.pop ();
+					args.push ("--haxelib-lime=" + path);
+					args.push ("-notoolscheck");
+					
+					var args = [ "run", "lime:" + haxelib.version ].concat (args);
+					Sys.exit (Sys.command ("haxelib", args));
+					
+				} else {
+					
+					LogHelper.warn ("", LogHelper.accentColor + "Could not switch to requested tools version\x1b[0m");
+					
+				}
 				
 			}
 			
