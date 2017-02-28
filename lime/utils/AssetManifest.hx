@@ -226,11 +226,4 @@ class AssetManifest {
 	}
 	
 	
-	#if (lime < "4.0.0")
-	@:deprecated public var basePath (get, set):String;
-	private function get_basePath ():String { return rootPath; }
-	private function set_basePath (value:String):String { return rootPath = value; }
-	#end
-	
-	
 }

@@ -44,10 +44,10 @@ class Assets {
 	
 	
 	public static var cache:AssetCache = new AssetCache ();
-	#if (lime < "4.0.0") @:noCompletion public #else private #end static var libraries (default, null) = new Map<String, AssetLibrary> ();
 	public static var onChange = new Event<Void->Void> ();
 	
 	private static var defaultRootPath:String;
+	private static var libraries (default, null) = new Map<String, AssetLibrary> ();
 	private static var libraryPaths = new Map<String, String> ();
 	
 	

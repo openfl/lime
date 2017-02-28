@@ -478,11 +478,11 @@ class Image {
 	}
 	
 	
-	public static function fromBase64 (base64:String, type:String #if (lime < "4.0.0"), onload:Image->Void #end):Image {
+	public static function fromBase64 (base64:String, type:String):Image {
 		
 		if (base64 == null) return null;
 		var image = new Image ();
-		image.__fromBase64 (base64, type, onload);
+		image.__fromBase64 (base64, type);
 		return image;
 		
 	}
@@ -506,11 +506,11 @@ class Image {
 	}
 	
 	
-	public static function fromBytes (bytes:Bytes #if (lime < "4.0.0"), onload:Image->Void = null #end):Image {
+	public static function fromBytes (bytes:Bytes):Image {
 		
 		if (bytes == null) return null;
 		var image = new Image ();
-		image.__fromBytes (bytes, onload);
+		image.__fromBytes (bytes);
 		return image;
 		
 	}
@@ -532,11 +532,11 @@ class Image {
 	}
 	
 	
-	public static function fromFile (path:String #if (lime < "4.0.0"), onload:Image -> Void = null, onerror:Void -> Void = null #end):Image {
+	public static function fromFile (path:String):Image {
 		
 		if (path == null) return null;
 		var image = new Image ();
-		image.__fromFile (path, onload, onerror);
+		image.__fromFile (path);
 		return image;
 		
 	}
@@ -1304,7 +1304,7 @@ class Image {
 	}
 	
 	
-	private function __fromBase64 (base64:String, type:String, onload:Image -> Void = null):Void {
+	private function __fromBase64 (base64:String, type:String, onload:Image->Void = null):Void {
 		
 		#if (js && html5)
 		var image = new JSImage ();
@@ -1334,7 +1334,7 @@ class Image {
 	}
 	
 	
-	private function __fromBytes (bytes:Bytes, onload:Image -> Void):Void {
+	private function __fromBytes (bytes:Bytes, onload:Image->Void = null):Void {
 		
 		#if (js && html5)
 			
@@ -1398,7 +1398,7 @@ class Image {
 	}
 	
 	
-	private function __fromFile (path:String, onload:Image -> Void, onerror:Void -> Void):Void {
+	private function __fromFile (path:String, onload:Image->Void = null, onerror:Void->Void = null):Void {
 		
 		#if (js && html5)
 			

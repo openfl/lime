@@ -1808,10 +1808,6 @@ class ProjectXMLParser extends HXProject {
 						
 						var dependency = new Dependency (name, path);
 						
-						#if (lime < "4.0.0")
-						dependency.forceLoad = true;
-						#end
-						
 						if (element.has.resolve ("force-load")) {
 							
 							dependency.forceLoad = (substitute (element.att.resolve ("force-load")) == "true");
