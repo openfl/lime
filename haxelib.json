@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "3.7.4",
-	"releasenote": "Improved loadFromFile, fixed iOS audio crash",
+	"version": "4.0.0",
+	"releasenote": "",
 	"contributors": [ "singmajesty" ]
 }
