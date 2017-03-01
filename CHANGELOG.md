@@ -1,3 +1,12 @@
+3.7.4 (02/15/2017)
+------------------
+
+* Improved AudioBuffer/Font/Image/Sound.loadFromFile to support URLs
+* Deprecated AudioBuffer.fromURL and onload/onerror callbacks
+* Added verbose log messages during asset library preload
+* Fixed crash on iOS when rewinding or looping sounds
+
+
 3.7.3 (02/13/2017)
 ------------------
 

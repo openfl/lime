@@ -413,9 +413,13 @@ class NativeApplication {
 				
 				case RENDER:
 					
-					renderer.render ();
-					renderer.onRender.dispatch ();
-					renderer.flip ();
+					if (renderer.context != null) {
+						
+						renderer.render ();
+						renderer.onRender.dispatch ();
+						renderer.flip ();
+						
+					}
 					
 				case RENDER_CONTEXT_LOST:
 					

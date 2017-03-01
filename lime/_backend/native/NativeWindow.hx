@@ -7,6 +7,7 @@ import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.math.Vector2;
 import lime.system.Display;
+import lime.system.DisplayMode;
 import lime.system.System;
 import lime.ui.Window;
 
@@ -17,6 +18,7 @@ import lime.ui.Window;
 
 @:access(lime._backend.native.NativeCFFI)
 @:access(lime.app.Application)
+@:access(lime.system.DisplayMode)
 @:access(lime.ui.Window)
 
 
@@ -26,12 +28,15 @@ class NativeWindow {
 	public var handle:Dynamic;
 	
 	private var closing:Bool;
+	private var displayMode:DisplayMode;
 	private var parent:Window;
 	
 	
 	public function new (parent:Window) {
 		
 		this.parent = parent;
+		
+		displayMode = new DisplayMode (0, 0, 0, 0);
 		
 	}
 	
@@ -168,6 +173,44 @@ class NativeWindow {
 		}
 		
 		return null;
+		
+	}
+	
+	
+	public function getDisplayMode ():DisplayMode {
+		
+		if (handle != null) {
+			
+			#if !macro
+			var data:Dynamic = NativeCFFI.lime_window_get_display_mode (handle);
+			displayMode.width = data.width;
+			displayMode.height = data.height;
+			displayMode.pixelFormat = data.pixelFormat;
+			displayMode.refreshRate = data.refreshRate;
+			#end
+			
+		}
+		
+		return displayMode;
+		
+	}
+	
+	
+	public function setDisplayMode (value:DisplayMode):DisplayMode {
+		
+		if (handle != null) {
+			
+			#if !macro
+			var data:Dynamic = NativeCFFI.lime_window_set_display_mode (handle, value);
+			displayMode.width = data.width;
+			displayMode.height = data.height;
+			displayMode.pixelFormat = data.pixelFormat;
+			displayMode.refreshRate = data.refreshRate;
+			#end
+			
+		}
+		
+		return displayMode;
 		
 	}
 	

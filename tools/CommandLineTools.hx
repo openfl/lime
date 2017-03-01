@@ -858,16 +858,16 @@ class CommandLineTools {
 		LogHelper.println (" " + LogHelper.accentColor + "Targets:" + LogHelper.resetColor);
 		LogHelper.println ("");
 		LogHelper.println ("  \x1b[1mandroid\x1b[0m -- Create an Android application");
-		LogHelper.println ("  \x1b[1mblackberry\x1b[0m -- Create a BlackBerry application");
+		//LogHelper.println ("  \x1b[1mblackberry\x1b[0m -- Create a BlackBerry application");
 		LogHelper.println ("  \x1b[1memscripten\x1b[0m -- Create an Emscripten application");
 		LogHelper.println ("  \x1b[1mflash\x1b[0m -- Create a Flash SWF application");
 		LogHelper.println ("  \x1b[1mhtml5\x1b[0m -- Create an HTML5 canvas application");
 		LogHelper.println ("  \x1b[1mios\x1b[0m -- Create an iOS application");
 		LogHelper.println ("  \x1b[1mlinux\x1b[0m -- Create a Linux application");
 		LogHelper.println ("  \x1b[1mmac\x1b[0m -- Create a Mac OS X application");
-		LogHelper.println ("  \x1b[1mtizen\x1b[0m -- Create a Tizen application");
+		//LogHelper.println ("  \x1b[1mtizen\x1b[0m -- Create a Tizen application");
 		LogHelper.println ("  \x1b[1mtvos\x1b[0m -- Create a tvOS application");
-		LogHelper.println ("  \x1b[1mwebos\x1b[0m -- Create a webOS application");
+		//LogHelper.println ("  \x1b[1mwebos\x1b[0m -- Create a webOS application");
 		LogHelper.println ("  \x1b[1mwindows\x1b[0m -- Create a Windows application");
 		LogHelper.println ("");
 		LogHelper.println (" " + LogHelper.accentColor + "Options:" + LogHelper.resetColor);
@@ -882,7 +882,8 @@ class CommandLineTools {
 		LogHelper.println ("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-neko\x1b[0m -- Build with Neko instead of C++");
 		LogHelper.println ("  \x1b[3m(mac|linux)\x1b[0m \x1b[1m-32\x1b[0m -- Compile for 32-bit instead of the OS default");
 		LogHelper.println ("  \x1b[3m(mac|linux)\x1b[0m \x1b[1m-64\x1b[0m -- Compile for 64-bit instead of the OS default");
-		LogHelper.println ("  \x1b[3m(ios|blackberry|tizen|tvos|webos)\x1b[0m \x1b[1m-simulator\x1b[0m -- Target the device simulator");
+		//LogHelper.println ("  \x1b[3m(ios|blackberry|tizen|tvos|webos)\x1b[0m \x1b[1m-simulator\x1b[0m -- Target the device simulator");
+		LogHelper.println ("  \x1b[3m(ios|tvos)\x1b[0m \x1b[1m-simulator\x1b[0m -- Target the device simulator");
 		LogHelper.println ("  \x1b[3m(ios)\x1b[0m \x1b[1m-simulator -ipad\x1b[0m -- Build/test for the iPad Simulator");
 		LogHelper.println ("  \x1b[3m(android)\x1b[0m \x1b[1m-emulator\x1b[0m -- Target the device emulator");
 		LogHelper.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-minify\x1b[0m -- Minify output using the Google Closure compiler");
@@ -927,20 +928,22 @@ class CommandLineTools {
 			LogHelper.println ("\x1b[37m            888                                   \x1b[0m");
 			
 			LogHelper.println ("");
-			LogHelper.println ("\x1b[1mOpenFL Command-Line Tools\x1b[0;1m (" + HaxelibHelper.getVersion (new Haxelib ("openfl")) + "-L" + StringHelper.generateUUID (5, null, StringHelper.generateHashCode (version)) + ")\x1b[0m");
+			LogHelper.println ("\x1b[1mOpenFL Command-Line Tools\x1b[0;1m (" + getToolsVersion () + ")\x1b[0m");
 			
 		} else {
 			
-			LogHelper.println ("\x1b[32;1m ___     \x1b[0m");
-			LogHelper.println ("\x1b[32m/\x1b[1m\\_ \\    __                       \x1b[0m");
-			LogHelper.println ("\x1b[32m\\//\x1b[1m\\ \\  \x1b[0m\x1b[32m/\x1b[1m\\\x1b[0m\x1b[32m_\x1b[1m\\    ___ ___      __   \x1b[0m");
-			LogHelper.println ("\x1b[32m  \\ \x1b[1m\\ \\ \x1b[0m\x1b[32m\\/\x1b[1m\\ \\ /' __` __`\\  /'__`\\ \x1b[0m");
-			LogHelper.println ("\x1b[32m   \\\x1b[1m_\\ \\_\x1b[0m\x1b[32m\\ \x1b[1m\\ \\\x1b[0m\x1b[32m/\x1b[1m\\ \\\x1b[0m\x1b[32m/\x1b[1m\\ \\\x1b[0m\x1b[32m/\x1b[1m\\ \\\x1b[0m\x1b[32m/\x1b[1m\\  __/ \x1b[0m");
-			LogHelper.println ("\x1b[32m   /\x1b[1m\\____\\\x1b[0m\x1b[32m\\ \x1b[1m\\_\\ \\_\\ \\_\\ \\_\\ \\____\\\x1b[0m");
-			LogHelper.println ("\x1b[32m   \\/____/ \\/_/\\/_/\\/_/\\/_/\\/____/\x1b[0m");
+			LogHelper.println ("\x1b[32m_\x1b[1m/\\\\\\\\\\\\\x1b[0m\x1b[32m______________________________________________\x1b[0m");
+			LogHelper.println ("\x1b[32m_\x1b[1m\\////\\\\\\\x1b[0m\x1b[32m______________________________________________\x1b[0m");
+			LogHelper.println ("\x1b[32m_____\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_____\x1b[1m/\\\\\\\x1b[0m\x1b[32m_____________________________________\x1b[0m");
+			LogHelper.println ("\x1b[32m______\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m____\x1b[1m\\///\x1b[0m\x1b[32m_____\x1b[1m/\\\\\\\\\\\x1b[0m\x1b[32m__\x1b[1m/\\\\\\\\\\\x1b[0m\x1b[32m_______\x1b[1m/\\\\\\\\\\\\\\\\\x1b[0m\x1b[32m___\x1b[0m");
+			LogHelper.println ("\x1b[32m_______\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_____\x1b[1m/\\\\\\\x1b[0m\x1b[32m__\x1b[1m/\\\\\\///\\\\\\\\\\///\\\\\\\x1b[0m\x1b[32m___\x1b[1m/\\\\\\/////\\\\\\\x1b[0m\x1b[32m__\x1b[0m");
+			LogHelper.println ("\x1b[32m________\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m____\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_\x1b[1m\\//\\\\\\\x1b[0m\x1b[32m__\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m__\x1b[1m/\\\\\\\\\\\\\\\\\\\\\\\x1b[0m\x1b[32m___\x1b[0m");
+			LogHelper.println ("\x1b[32m_________\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m____\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m__\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m__\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_\x1b[1m\\//\\\\///////\x1b[0m\x1b[32m____\x1b[0m");
+			LogHelper.println ("\x1b[32m________\x1b[1m/\\\\\\\\\\\\\\\\\\\x1b[0m\x1b[32m_\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m__\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m__\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m__\x1b[1m\\//\\\\\\\\\\\\\\\\\\\\\x1b[0m\x1b[32m__\x1b[0m");
+			LogHelper.println ("\x1b[32m________\x1b[1m\\/////////\x1b[0m\x1b[32m__\x1b[1m\\///\x1b[0m\x1b[32m__\x1b[1m\\///\x1b[0m\x1b[32m___\x1b[1m\\///\x1b[0m\x1b[32m___\x1b[1m\\///\x1b[0m\x1b[32m____\x1b[1m\\//////////\x1b[0m\x1b[32m___\x1b[0m");
 			
 			LogHelper.println ("");
-			LogHelper.println ("\x1b[1mLime Command-Line Tools\x1b[0;1m (" + version + ")\x1b[0m");
+			LogHelper.println ("\x1b[1mLime Command-Line Tools\x1b[0;1m (" + getToolsVersion () + ")\x1b[0m");
 			
 		}
 		
@@ -1315,6 +1318,23 @@ class CommandLineTools {
 	}
 	
 	
+	private function getToolsVersion (version:String = null):String {
+		
+		if (version == null) version = this.version;
+		
+		if (targetFlags.exists ("openfl")) {
+			
+			return HaxelibHelper.getVersion (new Haxelib ("openfl")) + "-L" + StringHelper.generateUUID (5, null, StringHelper.generateHashCode (version));
+			
+		} else {
+			
+			return version;
+			
+		}
+		
+	}
+	
+	
 	private function initializeProject (project:HXProject = null, targetName:String = ""):HXProject {
 		
 		LogHelper.info ("", LogHelper.accentColor + "Initializing project..." + LogHelper.resetColor);
@@ -1601,6 +1621,48 @@ class CommandLineTools {
 		}*/
 		
 		project.merge (overrides);
+		
+		for (haxelib in project.haxelibs) {
+			
+			if (haxelib.name == "lime" && haxelib.version != null && haxelib.version != "" && haxelib.version != "dev" && haxelib.version != version) {
+				
+				if (!project.targetFlags.exists ("notoolscheck")) {
+					
+					if (targetFlags.exists ("openfl")) {
+						
+						for (haxelib in project.haxelibs) {
+							
+							if (haxelib.name == "openfl") {
+								
+								PathHelper.haxelibOverrides.set ("openfl", PathHelper.getHaxelib (haxelib));
+								
+							}
+							
+						}
+						
+					}
+					
+					LogHelper.info ("", LogHelper.accentColor + "Requesting tools version " + getToolsVersion (haxelib.version) + "...\x1b[0m");
+					
+					var path = PathHelper.getHaxelib (haxelib);
+					
+					var args = Sys.args ();
+					var workingDirectory = args.pop ();
+					args.push ("--haxelib-lime=" + path);
+					args.push ("-notoolscheck");
+					
+					var args = [ "run", "lime:" + haxelib.version ].concat (args);
+					Sys.exit (Sys.command ("haxelib", args));
+					
+				} else {
+					
+					LogHelper.warn ("", LogHelper.accentColor + "Could not switch to requested tools version\x1b[0m");
+					
+				}
+				
+			}
+			
+		}
 		
 		if (overrides.architectures.length > 0) {
 			

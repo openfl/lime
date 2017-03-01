@@ -1,6 +1,7 @@
 #include <graphics/PixelFormat.h>
 #include <math/Rectangle.h>
 #include <system/Clipboard.h>
+#include <system/DisplayMode.h>
 #include <system/JNI.h>
 #include <system/System.h>
 
@@ -301,51 +302,69 @@ namespace lime {
 		#endif
 		alloc_field (display, id_dpi, alloc_float (dpi));
 		
-		SDL_DisplayMode currentDisplayMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
 		SDL_DisplayMode displayMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
+		DisplayMode mode;
 		
-		SDL_GetCurrentDisplayMode (id, &currentDisplayMode);
+		SDL_GetDesktopDisplayMode (id, &displayMode);
+		
+		mode.height = displayMode.h;
+		
+		switch (displayMode.format) {
+			
+			case SDL_PIXELFORMAT_ARGB8888:
+				
+				mode.pixelFormat = ARGB32;
+				break;
+			
+			case SDL_PIXELFORMAT_BGRA8888:
+			case SDL_PIXELFORMAT_BGRX8888:
+				
+				mode.pixelFormat = BGRA32;
+				break;
+			
+			default:
+				
+				mode.pixelFormat = RGBA32;
+			
+		}
+		
+		mode.refreshRate = displayMode.refresh_rate;
+		mode.width = displayMode.w;
+		
+		alloc_field (display, id_currentMode, mode.Value ());
 		
 		int numDisplayModes = SDL_GetNumDisplayModes (id);
 		value supportedModes = alloc_array (numDisplayModes);
-		value mode;
 		
 		for (int i = 0; i < numDisplayModes; i++) {
 			
 			SDL_GetDisplayMode (id, i, &displayMode);
 			
-			if (displayMode.format == currentDisplayMode.format && displayMode.w == currentDisplayMode.w && displayMode.h == currentDisplayMode.h && displayMode.refresh_rate == currentDisplayMode.refresh_rate) {
-				
-				alloc_field (display, id_currentMode, alloc_int (i));
-				
-			}
-			
-			mode = alloc_empty_object ();
-			alloc_field (mode, id_height, alloc_int (displayMode.h));
+			mode.height = displayMode.h;
 			
 			switch (displayMode.format) {
 				
 				case SDL_PIXELFORMAT_ARGB8888:
 					
-					alloc_field (mode, id_pixelFormat, alloc_int (ARGB32));
+					mode.pixelFormat = ARGB32;
 					break;
 				
 				case SDL_PIXELFORMAT_BGRA8888:
 				case SDL_PIXELFORMAT_BGRX8888:
 					
-					alloc_field (mode, id_pixelFormat, alloc_int (BGRA32));
+					mode.pixelFormat = BGRA32;
 					break;
 				
 				default:
 					
-					alloc_field (mode, id_pixelFormat, alloc_int (RGBA32));
+					mode.pixelFormat = RGBA32;
 				
 			}
 			
-			alloc_field (mode, id_refreshRate, alloc_int (displayMode.refresh_rate));
-			alloc_field (mode, id_width, alloc_int (displayMode.w));
+			mode.refreshRate = displayMode.refresh_rate;
+			mode.width = displayMode.w;
 			
-			val_array_set_i (supportedModes, i, mode);
+			val_array_set_i (supportedModes, i, mode.Value ());
 			
 		}
 		

@@ -430,6 +430,7 @@ class ProjectXMLParser extends HXProject {
 		
 		var path = "";
 		var embed:Null<Bool> = null;
+		var library = null;
 		var targetPath = "";
 		var glyphs = null;
 		var type = null;
@@ -453,6 +454,12 @@ class ProjectXMLParser extends HXProject {
 		} else if (element.has.path) {
 			
 			targetPath = substitute (element.att.path);
+			
+		}
+		
+		if (element.has.library) {
+			
+			library = substitute (element.att.library);
 			
 		}
 		
@@ -494,9 +501,10 @@ class ProjectXMLParser extends HXProject {
 				
 			}
 			
-			if (!FileSystem.isDirectory (path)) {
+			if (!FileSystem.isDirectory (path) || Path.extension (path) == "bundle") {
 				
 				var asset = new Asset (path, targetPath, type, embed);
+				asset.library = library;
 				
 				if (element.has.id) {
 					
@@ -567,7 +575,7 @@ class ProjectXMLParser extends HXProject {
 					
 				}
 				
-				parseAssetsElementDirectory (path, targetPath, include, exclude, type, embed, glyphs, true);
+				parseAssetsElementDirectory (path, targetPath, include, exclude, type, embed, library, glyphs, true);
 				
 			}
 			
@@ -594,6 +602,7 @@ class ProjectXMLParser extends HXProject {
 					var childPath = substitute (childElement.has.name ? childElement.att.name : childElement.att.path);
 					var childTargetPath = childPath;
 					var childEmbed:Null<Bool> = embed;
+					var childLibrary = library;
 					var childType = type;
 					var childGlyphs = glyphs;
 					
@@ -609,6 +618,12 @@ class ProjectXMLParser extends HXProject {
 						
 					}
 					
+					if (childElement.has.library) {
+						
+						childLibrary = substitute (childElement.att.library);
+						
+					}
+					
 					if (childElement.has.glyphs) {
 						
 						childGlyphs = substitute (childElement.att.glyphs);
@@ -620,6 +635,10 @@ class ProjectXMLParser extends HXProject {
 						case "image", "sound", "music", "font", "template":
 							
 							childType = Reflect.field (AssetType, childElement.name.toUpperCase ());
+						
+						case "library", "manifest":
+							
+							childType = AssetType.MANIFEST;
 						
 						default:
 							
@@ -645,6 +664,7 @@ class ProjectXMLParser extends HXProject {
 					}
 					
 					var asset = new Asset (path + childPath, targetPath + childTargetPath, childType, childEmbed);
+					asset.library = childLibrary;
 					asset.id = id;
 					
 					if (childGlyphs != null) {
@@ -664,7 +684,7 @@ class ProjectXMLParser extends HXProject {
 	}
 	
 	
-	private function parseAssetsElementDirectory (path:String, targetPath:String, include:String, exclude:String, type:AssetType, embed:Null<Bool>, glyphs:String, recursive:Bool):Void {
+	private function parseAssetsElementDirectory (path:String, targetPath:String, include:String, exclude:String, type:AssetType, embed:Null<Bool>, library:String, glyphs:String, recursive:Bool):Void {
 		
 		if (StringTools.endsWith (path, ".bundle")) {
 			
@@ -694,7 +714,7 @@ class ProjectXMLParser extends HXProject {
 				
 				if (filter (file, [ "*" ], exclude.split ("|"))) {
 					
-					parseAssetsElementDirectory (path + "/" + file, targetPath + file, include, exclude, type, embed, glyphs, true);
+					parseAssetsElementDirectory (path + "/" + file, targetPath + file, include, exclude, type, embed, library, glyphs, true);
 					
 				}
 				
@@ -703,6 +723,7 @@ class ProjectXMLParser extends HXProject {
 				if (filter (file, include.split ("|"), exclude.split ("|"))) {
 					
 					var asset = new Asset (path + "/" + file, targetPath + file, type, embed);
+					asset.library = library;
 					
 					if (glyphs != null) {
 						
@@ -1786,10 +1807,6 @@ class ProjectXMLParser extends HXProject {
 						}
 						
 						var dependency = new Dependency (name, path);
-						
-						#if (lime < "4.0.0")
-						dependency.forceLoad = true;
-						#end
 						
 						if (element.has.resolve ("force-load")) {
 							

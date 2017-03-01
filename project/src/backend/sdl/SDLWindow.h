@@ -21,6 +21,7 @@ namespace lime {
 			virtual void Close ();
 			virtual void Focus ();
 			virtual int GetDisplay ();
+			virtual void GetDisplayMode (DisplayMode* displayMode);
 			virtual bool GetEnableTextEvents ();
 			virtual int GetHeight ();
 			virtual uint32_t GetID ();
@@ -30,6 +31,7 @@ namespace lime {
 			virtual void Move (int x, int y);
 			virtual void Resize (int width, int height);
 			virtual bool SetBorderless (bool borderless);
+			virtual void SetDisplayMode (DisplayMode* displayMode);
 			virtual void SetEnableTextEvents (bool enabled);
 			virtual bool SetFullscreen (bool fullscreen);
 			virtual void SetIcon (ImageBuffer *imageBuffer);

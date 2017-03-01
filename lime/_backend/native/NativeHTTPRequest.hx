@@ -12,6 +12,10 @@ import lime.net.HTTPRequest;
 import lime.net.HTTPRequestMethod;
 import lime.system.BackgroundWorker;
 
+#if sys
+import sys.FileSystem;
+#end
+
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
@@ -86,8 +90,24 @@ class NativeHTTPRequest {
 				
 			}
 			
-			bytes = lime.utils.Bytes.fromFile (path);
-			promise.complete (bytes);
+			#if (sys && !windows)
+			if (StringTools.startsWith (path, "~/")) {
+				
+				path = Sys.getEnv ("HOME") + "/" + path.substr (2);
+				
+			}
+			#end
+			
+			if (path == null #if sys || !FileSystem.exists (path) #end) {
+				
+				promise.error ("Cannot load file: " + path);
+				
+			} else {
+				
+				bytes = lime.utils.Bytes.fromFile (path);
+				promise.complete (bytes);
+				
+			}
 			
 		});
 		worker.run ();

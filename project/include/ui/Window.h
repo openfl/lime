@@ -8,6 +8,7 @@
 
 #include <app/Application.h>
 #include <graphics/ImageBuffer.h>
+#include <system/DisplayMode.h>
 #include <stdint.h>
 
 
@@ -25,6 +26,7 @@ namespace lime {
 			virtual void Close () = 0;
 			virtual void Focus () = 0;
 			virtual int GetDisplay () = 0;
+			virtual void GetDisplayMode (DisplayMode* displayMode) = 0;
 			virtual bool GetEnableTextEvents () = 0;
 			virtual int GetHeight () = 0;
 			virtual uint32_t GetID () = 0;
@@ -34,6 +36,7 @@ namespace lime {
 			virtual void Move (int x, int y) = 0;
 			virtual void Resize (int width, int height) = 0;
 			virtual bool SetBorderless (bool borderless) = 0;
+			virtual void SetDisplayMode (DisplayMode* displayMode) = 0;
 			virtual void SetEnableTextEvents (bool enable) = 0;
 			virtual bool SetFullscreen (bool fullscreen) = 0;
 			virtual void SetIcon (ImageBuffer *imageBuffer) = 0;

@@ -46,11 +46,12 @@ class Clipboard {
 			return FlashClipboard.generalClipboard.getData (TEXT_FORMAT);
 			
 		}
+		return null;
 		#elseif js
 		return _text;
-		#end
-		
+		#else
 		return null;
+		#end
 		
 	}
 	
@@ -72,9 +73,9 @@ class Clipboard {
 			
 		}
 		return value;
-		#end
-		
+		#else
 		return null;
+		#end
 		
 	}
 	

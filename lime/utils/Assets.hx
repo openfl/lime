@@ -1,6 +1,7 @@
 package lime.utils;
 
 
+import haxe.io.Path;
 import haxe.CallStack;
 import haxe.Unserializer;
 import lime.app.Event;
@@ -23,15 +24,12 @@ import haxe.Json;
  * 
  * <p>The contents are populated automatically when an application
  * is compiled using the Lime command-line tools, based on the
- * contents of the *.xml project file.</p>
+ * contents of the project file.</p>
  * 
  * <p>For most platforms, the assets are included in the same directory
  * or package as the application, and the paths are handled
  * automatically. For web content, the assets are preloaded before
- * the start of the rest of the application. You can customize the 
- * preloader by extending the <code>NMEPreloader</code> class,
- * and specifying a custom preloader using <window preloader="" />
- * in the project file.</p>
+ * the start of the rest of the application.</p>
  */
 
 #if !lime_debug
@@ -46,8 +44,11 @@ class Assets {
 	
 	
 	public static var cache:AssetCache = new AssetCache ();
-	public static var libraries (default, null) = new Map<String, AssetLibrary> ();
 	public static var onChange = new Event<Void->Void> ();
+	
+	private static var defaultRootPath:String;
+	private static var libraries (default, null) = new Map<String, AssetLibrary> ();
+	private static var libraryPaths = new Map<String, String> ();
 	
 	
 	public static function exists (id:String, type:AssetType = null):Bool {
@@ -127,6 +128,10 @@ class Assets {
 					
 					throw "Not sure how to get template: " + id;
 				
+				default:
+					
+					return null;
+				
 			}
 			
 		}
@@ -151,19 +156,19 @@ class Assets {
 					
 				} else {
 					
-					Log.info (type + " asset \"" + id + "\" exists, but only asynchronously");
+					Log.error (type + " asset \"" + id + "\" exists, but only asynchronously");
 					
 				}
 				
 			} else {
 				
-				Log.info ("There is no " + type + " asset with an ID of \"" + id + "\"");
+				Log.error ("There is no " + type + " asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			Log.info ("There is no asset library named \"" + symbol.libraryName + "\"");
+			Log.error ("There is no asset library named \"" + symbol.libraryName + "\"");
 			
 		}
 		
@@ -260,13 +265,13 @@ class Assets {
 				
 			} else {
 				
-				Log.info ("There is no asset with an ID of \"" + id + "\"");
+				Log.error ("There is no asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			Log.info ("There is no asset library named \"" + symbol.libraryName + "\"");
+			Log.error ("There is no asset library named \"" + symbol.libraryName + "\"");
 			
 		}
 		
@@ -397,6 +402,10 @@ class Assets {
 					
 					throw "Not sure how to get template: " + id;
 				
+				default:
+					
+					return null;
+				
 			}
 			
 		}
@@ -419,13 +428,13 @@ class Assets {
 				
 			} else {
 				
-				return Future.withError ("[Assets] There is no " + type + " asset with an ID of \"" + id + "\"");
+				return Future.withError ("There is no " + type + " asset with an ID of \"" + id + "\"");
 				
 			}
 			
 		} else {
 			
-			return Future.withError ("[Assets] There is no asset library named \"" + symbol.libraryName + "\"");
+			return Future.withError ("There is no asset library named \"" + symbol.libraryName + "\"");
 			
 		}
 		
@@ -466,39 +475,52 @@ class Assets {
 	}
 	
 	
-	public static function loadLibrary (name:String):Future<AssetLibrary> {
+	public static function loadLibrary (id:String):Future<AssetLibrary> {
 		
 		var promise = new Promise<AssetLibrary> ();
 		
 		#if (tools && !display && !macro)
 		
-		loadText ("libraries/" + name + ".json").onComplete (function (data) {
+		var library = getLibrary (id);
+		
+		if (library != null) {
 			
-			// TODO: Smarter base path logic
-			var manifest = AssetManifest.parse (data);
+			return library.load ();
+			
+		}
+		
+		var path = id;
+		var rootPath = null;
+
+		if (libraryPaths.exists (id)) {
+			
+			path = libraryPaths[id];
+			rootPath = defaultRootPath;
+			
+		} else if (StringTools.endsWith (path, ".bundle")) {
+			
+			path += "/library.json";
+			
+		}
+
+		AssetManifest.loadFromFile (path, rootPath).onComplete (function (manifest) {
 			
 			if (manifest == null) {
 				
-				promise.error ("[Assets] Cannot parse asset manifest for library \"" + name + "\"");
+				promise.error ("Cannot parse asset manifest for library \"" + id + "\"");
 				return;
 				
-			}
-
-			if (manifest.basePath == "") {
-
-				manifest.basePath = DefaultAssetLibrary.getRootPath();
-
 			}
 
 			var library = AssetLibrary.fromManifest (manifest);
 			
 			if (library == null) {
 				
-				promise.error ("[Assets] Cannot open library \"" + name + "\"");
+				promise.error ("Cannot open library \"" + id + "\"");
 				
 			} else {
 				
-				libraries.set (name, library);
+				libraries.set (id, library);
 				library.onChange.add (onChange.dispatch);
 				promise.completeWith (library.load ());
 				
@@ -506,7 +528,7 @@ class Assets {
 			
 		}).onError (function (_) {
 			
-			promise.error ("[Assets] There is no asset library named \"" + name + "\"");
+			promise.error ("There is no asset library with an ID of \"" + id + "\"");
 			
 		});
 		

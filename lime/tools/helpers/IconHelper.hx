@@ -376,7 +376,7 @@ class IconHelper {
 			
 		}
 		
-		if (!FileSystem.exists (icon.path)) {
+		if (icon.path == null || !FileSystem.exists (icon.path)) {
 			
 			LogHelper.warn ("Could not find icon path: " + icon.path);
 			return null;

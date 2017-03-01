@@ -1034,12 +1034,27 @@ class HXProject {
 		}
 		
 		context.libraries = new Array<Dynamic> ();
+		var embeddedLibraries = new Map<String, Dynamic> ();
 		
 		for (library in libraries) {
 			
 			var embeddedLibrary:Dynamic = { };
 			ObjectHelper.copyFields (library, embeddedLibrary);
 			context.libraries.push (embeddedLibrary);
+			embeddedLibraries[library.name] = embeddedLibrary;
+			
+		}
+		
+		for (asset in assets) {
+			
+			if (asset.library != null && !embeddedLibraries.exists (asset.library)) {
+				
+				var embeddedLibrary:Dynamic = { };
+				embeddedLibrary.name = asset.library;
+				context.libraries.push (embeddedLibrary);
+				embeddedLibraries[asset.library] = embeddedLibrary;
+				
+			}
 			
 		}
 		

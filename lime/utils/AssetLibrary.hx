@@ -37,15 +37,13 @@ class AssetLibrary {
 	private var cachedImages = new Map<String, Image> ();
 	private var cachedText = new Map<String, String> ();
 	private var classTypes = new Map<String, Class<Dynamic>> ();
+	private var loaded:Bool;
+	private var pathGroups = new Map<String, Array<String>> ();
 	private var paths = new Map<String, String> ();
 	private var preload = new Map<String, Bool> ();
 	private var promise:Promise<AssetLibrary>;
 	private var sizes = new Map<String, Int> ();
 	private var types = new Map<String, AssetType> ();
-	
-	#if (js && html5)
-	private var pathGroups:Map<String, Array<String>>;
-	#end
 	
 	
 	public function new () {
@@ -102,6 +100,20 @@ class AssetLibrary {
 	}
 	
 	
+	public static function fromBytes (bytes:Bytes, rootPath:String = null):AssetLibrary {
+		
+		return fromManifest (AssetManifest.fromBytes (bytes, rootPath));
+		
+	}
+	
+	
+	public static function fromFile (path:String, rootPath:String = null):AssetLibrary {
+		
+		return fromManifest (AssetManifest.fromFile (path, rootPath));
+		
+	}
+	
+	
 	public static function fromManifest (manifest:AssetManifest):AssetLibrary {
 		
 		if (manifest == null) return null;
@@ -114,7 +126,18 @@ class AssetLibrary {
 			
 		} else {
 			
-			library = Type.createInstance (Type.resolveClass (manifest.libraryType), manifest.libraryArgs);
+			var libraryClass = Type.resolveClass (manifest.libraryType);
+			
+			if (libraryClass != null) {
+				
+				library = Type.createInstance (libraryClass, manifest.libraryArgs);
+				
+			} else {
+				
+				Log.warn ("Could not find library type: " + manifest.libraryType);
+				return null;
+				
+			}
 			
 		}
 		
@@ -129,14 +152,14 @@ class AssetLibrary {
 		
 		return switch (type) {
 			
-			case BINARY:       getBytes       (id);
-			case FONT:         getFont        (id);
-			case IMAGE:        getImage       (id);
+			case BINARY: getBytes (id);
+			case FONT: getFont (id);
+			case IMAGE: getImage (id);
 			case MUSIC, SOUND: getAudioBuffer (id);
-			case TEXT:         getText        (id);
+			case TEXT: getText (id);
 			
-			case TEMPLATE:  throw "Not sure how to get template: " + id;
-			default:		throw "Unknown asset type: " + type;
+			case TEMPLATE: throw "Not sure how to get template: " + id;
+			default: throw "Unknown asset type: " + type;
 			
 		}
 		
@@ -187,6 +210,9 @@ class AssetLibrary {
 		} else if (classTypes.exists (id)) {
 			
 			#if flash
+			
+			var data = Type.createInstance (classTypes.get (id), []);
+			var bytes:flash.utils.ByteArray = cast data;
 			
 			switch (types.get (id)) {
 				
@@ -371,14 +397,14 @@ class AssetLibrary {
 		
 		return switch (type) {
 			
-			case BINARY:       loadBytes       (id);
-			case FONT:         loadFont        (id);
-			case IMAGE:        loadImage       (id);
+			case BINARY: loadBytes (id);
+			case FONT: loadFont (id);
+			case IMAGE: loadImage (id);
 			case MUSIC, SOUND: loadAudioBuffer (id);
-			case TEXT:         loadText        (id);
+			case TEXT: loadText (id);
 			
-			case TEMPLATE:  throw "Not sure how to load template: " + id;
-			default:		throw "Unknown asset type: " + type;
+			case TEMPLATE: throw "Not sure how to load template: " + id;
+			default: throw "Unknown asset type: " + type;
 			
 		}
 		
@@ -386,6 +412,12 @@ class AssetLibrary {
 	
 	
 	public function load ():Future<AssetLibrary> {
+		
+		if (loaded) {
+			
+			return Future.withValue (this);
+			
+		}
 		
 		if (promise == null) {
 			
@@ -396,6 +428,8 @@ class AssetLibrary {
 			assetsTotal = 1;
 			
 			for (id in preload.keys ()) {
+				
+				Log.verbose ("Preloading asset: " + id);
 				
 				switch (types.get (id)) {
 					
@@ -471,15 +505,15 @@ class AssetLibrary {
 			
 		} else {
 			
-			#if (js && html5)
 			if (pathGroups.exists (id)) {
 				
 				return AudioBuffer.loadFromFiles (pathGroups.get (id));
 				
+			} else {
+				
+				return AudioBuffer.loadFromFile (paths.get (id));
+				
 			}
-			#end
-			
-			return AudioBuffer.loadFromFile (paths.get (id));
 			
 		}
 		
@@ -532,6 +566,45 @@ class AssetLibrary {
 			#else
 			return Font.loadFromFile (paths.get (id));
 			#end
+			
+		}
+		
+	}
+	
+	
+	public static function loadFromBytes (bytes:Bytes, rootPath:String = null):Future<AssetLibrary> {
+		
+		return AssetManifest.loadFromBytes (bytes, rootPath).then (function (manifest) {
+			
+			return loadFromManifest (manifest);
+			
+		});
+		
+	}
+	
+	
+	public static function loadFromFile (path:String, rootPath:String = null):Future<AssetLibrary> {
+		
+		return AssetManifest.loadFromFile (path, rootPath).then (function (manifest) {
+			
+			return loadFromManifest (manifest);
+			
+		});
+		
+	}
+	
+	
+	public static function loadFromManifest (manifest:AssetManifest):Future<AssetLibrary> {
+		
+		var library = fromManifest (manifest);
+		
+		if (library != null) {
+			
+			return library.load ();
+			
+		} else {
+			
+			return cast Future.withError ("Could not load asset manifest");
 			
 		}
 		
@@ -603,6 +676,12 @@ class AssetLibrary {
 		
 		if (id != null) {
 			
+			Log.verbose ("Loaded asset: " + id + " [" + (assetsLoaded - 1) + "/" + (assetsTotal - 1) + "]");
+			
+		}
+		
+		if (id != null) {
+			
 			var size = sizes.get (id);
 			
 			if (!bytesLoadedCache.exists (id)) {
@@ -631,6 +710,7 @@ class AssetLibrary {
 			
 		} else {
 			
+			loaded = true;
 			promise.progress (bytesTotal, bytesTotal);
 			promise.complete (this);
 			
@@ -642,69 +722,53 @@ class AssetLibrary {
 	private function __fromManifest (manifest:AssetManifest):Void {
 		
 		var hasSize = (manifest.version >= 2);
-		var basePath = manifest.basePath;
-		var size, id;
+		var size, id, pathGroup:Array<String>;
+		
+		var basePath = manifest.rootPath;
+		if (basePath == null) basePath = "";
+		if (basePath != "") basePath += "/";
 		
 		for (asset in manifest.assets) {
 			
 			size = hasSize ? asset.size : 100;
 			id = asset.id;
 			
-			paths.set (id, basePath + asset.path);
+			if (Reflect.hasField (asset, "path")) {
+				
+				paths.set (id, basePath + Reflect.field (asset, "path"));
+				
+			}
+			
+			if (Reflect.hasField (asset, "pathGroup")) {
+				
+				pathGroup = Reflect.field (asset, "pathGroup");
+				
+				for (i in 0...pathGroup.length) {
+					
+					pathGroup[i] = basePath + pathGroup[i];
+					
+				}
+				
+				pathGroups.set (id, pathGroup);
+				
+			}
+			
 			sizes.set (id, size);
 			types.set (id, asset.type);
 			
-		}
-		
-		// TODO: Better solution
-		
-		#if (js && html5)
-		if (pathGroups == null) {
-			
-			pathGroups = new Map<String, Array<String>> ();
-			
-		}
-		
-		var sounds = new Map<String, Array<String>> ();
-		var preloadGroups = new Map<String, Bool> ();
-		var type, path, soundName;
-		
-		for (id in types.keys ()) {
-			
-			type = types.get (id);
-			
-			if (type == MUSIC || type == SOUND) {
+			if (Reflect.hasField (asset, "preload")) {
 				
-				path = paths.get (id);
-				soundName = Path.withoutExtension (path);
+				preload.set (id, Reflect.field (asset, "preload"));
 				
-				if (!sounds.exists (soundName)) {
-					
-					sounds.set (soundName, new Array ());
-					
-				}
+			}
+			
+			if (Reflect.hasField (asset, "className")) {
 				
-				sounds.get (soundName).push (path);
-				pathGroups.set (id, sounds.get (soundName));
-				
-				if (preload.exists (id)) {
-					
-					if (preloadGroups.exists (soundName)) {
-						
-						preload.remove (id);
-						
-					} else {
-						
-						preloadGroups.set (soundName, true);
-						
-					}
-					
-				}
+				classTypes.set (id, Type.resolveClass (Reflect.field (asset, "className")));
 				
 			}
 			
 		}
-		#end
 		
 		bytesTotal = 0;
 		
@@ -733,6 +797,30 @@ class AssetLibrary {
 	private function loadAudioBuffer_onComplete (id:String, audioBuffer:AudioBuffer):Void {
 		
 		cachedAudioBuffers.set (id, audioBuffer);
+		
+		if (pathGroups.exists (id)) {
+			
+			var pathGroup = pathGroups.get (id);
+			
+			for (otherID in pathGroups.keys ()) {
+				
+				if (otherID == id) continue;
+				
+				for (path in pathGroup) {
+					
+					if (pathGroups.get (otherID).indexOf (path) > -1) {
+						
+						cachedAudioBuffers.set (otherID, audioBuffer);
+						break;
+						
+					}
+					
+				}
+				
+			}
+			
+		}
+		
 		__assetLoaded (id);
 		
 	}

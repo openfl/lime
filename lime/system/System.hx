@@ -1,8 +1,10 @@
 package lime.system;
 
 
+import haxe.Constraints;
 import lime._backend.native.NativeCFFI;
 import lime.app.Application;
+import lime.app.Config;
 import lime.math.Rectangle;
 
 #if flash
@@ -12,6 +14,7 @@ import flash.Lib;
 #end
 
 #if (js && html5)
+import js.html.Element;
 import js.Browser;
 #end
 
@@ -39,7 +42,133 @@ class System {
 	public static var numDisplays (get, null):Int;
 	public static var userDirectory (get, null):String;
 	
+	@:noCompletion private static var __applicationConfig:Map<String, Config>;
+	@:noCompletion private static var __applicationEntryPoint:Map<String, Function>;
 	@:noCompletion private static var __directories = new Map<SystemDirectory, String> ();
+	
+	
+	#if (js && html5)
+	@:keep @:expose("lime.embed")
+	public static function embed (projectName:String, element:Dynamic, width:Null<Int> = null, height:Null<Int> = null, windowConfig:Dynamic = null):Void {
+		
+		if (__applicationEntryPoint == null || __applicationConfig == null) return;
+		
+		if (__applicationEntryPoint.exists (projectName)) {
+			
+			var htmlElement:Element = null;
+			
+			if (Std.is (element, String)) {
+				
+				htmlElement = cast Browser.document.getElementById (element);
+				
+			} else if (element == null) {
+				
+				htmlElement = cast Browser.document.createElement ("div");
+				
+			} else {
+				
+				htmlElement = cast element;
+				
+			}
+			
+			if (htmlElement == null) {
+				
+				Browser.window.console.log ("[lime.embed] ERROR: Cannot find target element: " + element);
+				return;
+				
+			}
+			
+			if (width == null) {
+				
+				width = 0;
+				
+			}
+			
+			if (height == null) {
+				
+				height = 0;
+				
+			}
+			
+			var defaultConfig = __applicationConfig[projectName];
+			var config:Config = {};
+			
+			__copyMissingFields (config, defaultConfig);
+			
+			if (windowConfig != null) {
+				
+				config.windows = [];
+				
+				if (Std.is (windowConfig, Array)) {
+					
+					config.windows = windowConfig;
+					
+				} else {
+					
+					config.windows[0] = windowConfig;
+					
+				}
+				
+				for (i in 0...config.windows.length) {
+					
+					if (i < defaultConfig.windows.length) {
+						
+						__copyMissingFields (config.windows[i], defaultConfig.windows[i]);
+						
+					}
+					
+					__copyMissingFields (config.windows[i].parameters, defaultConfig.windows[i].parameters);
+					
+					if (Std.is (windowConfig.background, String)) {
+						
+						var background = StringTools.replace (Std.string (windowConfig.background), "#", "");
+						
+						if (background.indexOf ("0x") > -1) {
+							
+							windowConfig.background = Std.parseInt (background);
+							
+						} else {
+							
+							windowConfig.background = Std.parseInt ("0x" + background);
+							
+						}
+						
+					}
+					
+				}
+				
+			}
+			
+			if (Reflect.field (config.windows[0], "rootPath")) {
+				
+				config.rootPath = Reflect.field (config.windows[0], "rootPath");
+				#if (lime < "5.0.0")
+				Reflect.setField (config, "assetsPrefix", config.rootPath);
+				#end
+				Reflect.deleteField (config.windows[0], "rootPath");
+				
+			}
+			
+			#if (lime < "5.0.0")
+			if (Reflect.field (config.windows[0], "assetsPrefix")) {
+				
+				config.rootPath = Reflect.field (config.windows[0], "assetsPrefix");
+				Reflect.setField (config, "assetsPrefix", config.rootPath);
+				Reflect.deleteField (config.windows[0], "assetsPrefix");
+				
+			}
+			#end
+			
+			config.windows[0].element = htmlElement;
+			config.windows[0].width = width;
+			config.windows[0].height = height;
+			
+			__applicationEntryPoint[projectName] (config);
+			
+		}
+		
+	}
+	#end
 	
 	
 	public static function exit (code:Int):Void {
@@ -118,15 +247,21 @@ class System {
 				
 			}
 			
-			if (Reflect.hasField (displayInfo, "currentMode")) {
+			var mode = displayInfo.currentMode;
+			var currentMode = new DisplayMode (mode.width, mode.height, mode.refreshRate, mode.pixelFormat);
+			
+			for (mode in display.supportedModes) {
 				
-				display.currentMode = display.supportedModes[displayInfo.currentMode];
-				
-			} else {
-				
-				display.currentMode = new DisplayMode (0, 0, 60, ARGB32);
+				if (currentMode.pixelFormat == mode.pixelFormat && currentMode.width == mode.width && currentMode.height == mode.height && currentMode.refreshRate == mode.refreshRate) {
+					
+					currentMode = mode;
+					break;
+					
+				}
 				
 			}
+			
+			display.currentMode = currentMode;
 			
 			return display;
 			
@@ -267,6 +402,23 @@ class System {
 	}
 	
 	
+	@:noCompletion private static function __copyMissingFields (target:Dynamic, source:Dynamic):Void {
+		
+		if (source == null || target == null) return;
+		
+		for (field in Reflect.fields (source)) {
+			
+			if (!Reflect.hasField (target, field)) {
+				
+				Reflect.setField (target, field, Reflect.field (source, field));
+				
+			}
+			
+		}
+		
+	}
+	
+	
 	@:noCompletion private static function __getDirectory (type:SystemDirectory):String {
 		
 		#if (lime_cffi && !macro)
@@ -346,6 +498,26 @@ class System {
 		#end
 		
 		return null;
+		
+	}
+	
+	
+	private static function __registerEntryPoint (projectName:String, entryPoint:Function, config:Config):Void {
+		
+		if (__applicationConfig == null) {
+			
+			__applicationConfig = new Map ();
+			
+		}
+		
+		if (__applicationEntryPoint == null) {
+			
+			__applicationEntryPoint = new Map ();
+			
+		}
+		
+		__applicationEntryPoint[projectName] = entryPoint;
+		__applicationConfig[projectName] = config;
 		
 	}
 	

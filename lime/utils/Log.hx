@@ -13,6 +13,7 @@ class Log {
 	
 	
 	public static var level:LogLevel;
+	public static var throwErrors:Bool = true;
 	
 	
 	public static function debug (message:String, ?info:PosInfos):Void {
@@ -30,7 +31,17 @@ class Log {
 		
 		if (level >= LogLevel.ERROR) {
 			
-			println ("[" + info.className + "] ERROR: " + message);
+			var message = "[" + info.className + "] ERROR: " + message;
+			
+			if (throwErrors) {
+				
+				throw message;
+				
+			} else {
+				
+				println (message);
+				
+			}
 			
 		}
 		
@@ -129,6 +140,10 @@ class Log {
 		if (untyped __js__("console").log == null) {
 			untyped __js__("console").log = function () {};
 		}
+		#end
+		
+		#if (lime >= "4.0.0")
+		throwErrors = true;
 		#end
 		
 	}

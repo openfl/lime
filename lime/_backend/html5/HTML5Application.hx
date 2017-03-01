@@ -224,6 +224,12 @@ class HTML5Application {
 	
 	private function handleApplicationEvent (?__):Void {
 		
+		if (parent.window != null) {
+			
+			parent.window.backend.updateSize ();
+			
+		}
+		
 		updateGameDevices ();
 		
 		currentUpdate = Date.now ().getTime ();
@@ -238,8 +244,9 @@ class HTML5Application {
 			
 			parent.onUpdate.dispatch (Std.int (deltaTime));
 			
-			if (parent.renderer != null) {
+			if (parent.renderer != null && parent.renderer.context != null) {
 				
+				parent.renderer.render ();
 				parent.renderer.onRender.dispatch ();
 				parent.renderer.flip ();
 				
@@ -337,16 +344,7 @@ class HTML5Application {
 				
 				case "resize":
 					
-					var cacheWidth = parent.window.width;
-					var cacheHeight = parent.window.height;
-					
-					parent.window.backend.handleResize ();
-					
-					if (parent.window.width != cacheWidth || parent.window.height != cacheHeight) {
-						
-						parent.window.onResize.dispatch (parent.window.width, parent.window.height);
-						
-					}
+					parent.window.backend.handleResizeEvent (event);
 				
 				case "beforeunload":
 					

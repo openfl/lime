@@ -3,7 +3,6 @@ package lime.tools.platforms;
 
 import haxe.io.Path;
 import haxe.Template;
-import lime.tools.helpers.AssetHelper;
 import lime.tools.helpers.DeploymentHelper;
 import lime.tools.helpers.FileHelper;
 import lime.tools.helpers.HTML5Helper;
@@ -176,7 +175,25 @@ class HTML5Platform extends PlatformTarget {
 		
 		ModuleHelper.updateProject (project);
 		
-		project.haxeflags.push ("-resource " + targetDirectory + "/obj/manifest@__ASSET_MANIFEST__");
+		var libraryNames = new Map<String, Bool> ();
+		
+		for (asset in project.assets) {
+			
+			if (asset.library != null && !libraryNames.exists (asset.library)) {
+				
+				libraryNames[asset.library] = true;
+				
+			}
+			
+		}
+		
+		//for (library in libraryNames.keys ()) {
+			//
+			//project.haxeflags.push ("-resource " + targetDirectory + "/obj/manifest/" + library + ".json@__ASSET_MANIFEST__" + library);
+			//
+		//}
+		
+		//project.haxeflags.push ("-resource " + targetDirectory + "/obj/manifest/default.json@__ASSET_MANIFEST__default");
 		
 		var context = project.templateContext;
 		
@@ -296,8 +313,6 @@ class HTML5Platform extends PlatformTarget {
 			}
 			
 		}
-		
-		AssetHelper.createManifest (project, PathHelper.combine (targetDirectory, "obj/manifest"));
 		
 	}
 	

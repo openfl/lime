@@ -137,6 +137,7 @@ class NativeCFFI {
 	@:cffi private static function lime_window_create (application:Dynamic, width:Int, height:Int, flags:Int, title:String):Dynamic;
 	@:cffi private static function lime_window_focus (handle:Dynamic):Void;
 	@:cffi private static function lime_window_get_display (handle:Dynamic):Int;
+	@:cffi private static function lime_window_get_display_mode (handle:Dynamic):Dynamic;
 	@:cffi private static function lime_window_get_enable_text_events (handle:Dynamic):Bool;
 	@:cffi private static function lime_window_get_height (handle:Dynamic):Int;
 	@:cffi private static function lime_window_get_id (handle:Dynamic):Int;
@@ -146,6 +147,7 @@ class NativeCFFI {
 	@:cffi private static function lime_window_move (handle:Dynamic, x:Int, y:Int):Void;
 	@:cffi private static function lime_window_resize (handle:Dynamic, width:Int, height:Int):Void;
 	@:cffi private static function lime_window_set_borderless (handle:Dynamic, borderless:Bool):Bool;
+	@:cffi private static function lime_window_set_display_mode (handle:Dynamic, displayMode:Dynamic):Dynamic;
 	@:cffi private static function lime_window_set_enable_text_events (handle:Dynamic, enabled:Bool):Void;
 	@:cffi private static function lime_window_set_fullscreen (handle:Dynamic, fullscreen:Bool):Bool;
 	@:cffi private static function lime_window_set_icon (handle:Dynamic, buffer:Dynamic):Void;
@@ -345,6 +347,7 @@ class NativeCFFI {
 	@:cffi private static function lime_cairo_stroke (handle:CFFIPointer):Void;
 	@:cffi private static function lime_cairo_stroke_extents (handle:CFFIPointer, x1:Float, y1:Float, x2:Float, y2:Float):Void;
 	@:cffi private static function lime_cairo_stroke_preserve (handle:CFFIPointer):Void;
+	@:cffi private static function lime_cairo_text_path (handle:CFFIPointer, text:String):Void;
 	@:cffi private static function lime_cairo_transform (handle:CFFIPointer, matrix:Dynamic):Void;
 	@:cffi private static function lime_cairo_translate (handle:CFFIPointer, x:Float, y:Float):Void;
 	@:cffi private static function lime_cairo_version ():Int;

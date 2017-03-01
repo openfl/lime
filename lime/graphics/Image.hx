@@ -21,6 +21,7 @@ import lime.math.color.RGBA;
 import lime.math.ColorMatrix;
 import lime.math.Rectangle;
 import lime.math.Vector2;
+import lime.net.HTTPRequest;
 import lime.system.CFFI;
 import lime.utils.ArrayBuffer;
 import lime.utils.UInt8Array;
@@ -477,11 +478,11 @@ class Image {
 	}
 	
 	
-	public static function fromBase64 (base64:String, type:String, onload:Image->Void):Image {
+	public static function fromBase64 (base64:String, type:String):Image {
 		
 		if (base64 == null) return null;
 		var image = new Image ();
-		image.__fromBase64 (base64, type, onload);
+		image.__fromBase64 (base64, type);
 		return image;
 		
 	}
@@ -505,11 +506,11 @@ class Image {
 	}
 	
 	
-	public static function fromBytes (bytes:Bytes, onload:Image->Void = null):Image {
+	public static function fromBytes (bytes:Bytes):Image {
 		
 		if (bytes == null) return null;
 		var image = new Image ();
-		image.__fromBytes (bytes, onload);
+		image.__fromBytes (bytes);
 		return image;
 		
 	}
@@ -531,11 +532,11 @@ class Image {
 	}
 	
 	
-	public static function fromFile (path:String, onload:Image -> Void = null, onerror:Void -> Void = null):Image {
+	public static function fromFile (path:String):Image {
 		
 		if (path == null) return null;
 		var image = new Image ();
-		image.__fromFile (path, onload, onerror);
+		image.__fromFile (path);
 		return image;
 		
 	}
@@ -912,7 +913,20 @@ class Image {
 		
 		#else
 		
-		return new Future<Image> (function () return fromFile (path), true);
+		var request = new HTTPRequest<Image> ();
+		return request.load (path).then (function (image) {
+			
+			if (image != null) {
+				
+				return Future.withValue (image);
+				
+			} else {
+				
+				return cast Future.withError ("");
+				
+			}
+			
+		});
 		
 		#end
 		
@@ -1181,6 +1195,7 @@ class Image {
 				
 				#if (js && html5)
 				ImageCanvasUtil.convertToData (this);
+				ImageCanvasUtil.convertToData (sourceImage);
 				#end
 				
 				return ImageDataUtil.threshold (this, sourceImage, sourceRect, destPoint, operation, threshold, color, mask, copySource, format);
@@ -1289,7 +1304,7 @@ class Image {
 	}
 	
 	
-	private function __fromBase64 (base64:String, type:String, onload:Image -> Void = null):Void {
+	private function __fromBase64 (base64:String, type:String, onload:Image->Void = null):Void {
 		
 		#if (js && html5)
 		var image = new JSImage ();
@@ -1319,7 +1334,7 @@ class Image {
 	}
 	
 	
-	private function __fromBytes (bytes:Bytes, onload:Image -> Void):Void {
+	private function __fromBytes (bytes:Bytes, onload:Image->Void = null):Void {
 		
 		#if (js && html5)
 			
@@ -1383,7 +1398,7 @@ class Image {
 	}
 	
 	
-	private function __fromFile (path:String, onload:Image -> Void, onerror:Void -> Void):Void {
+	private function __fromFile (path:String, onload:Image->Void = null, onerror:Void->Void = null):Void {
 		
 		#if (js && html5)
 			

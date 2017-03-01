@@ -235,58 +235,6 @@ class AudioBuffer {
 	}
 	
 	
-	public static function fromURL (url:String, handler:AudioBuffer->Void):Void {
-		
-		#if (js && html5 && howlerjs)
-		
-		var audioBuffer = new AudioBuffer ();
-		audioBuffer.__srcHowl = new Howl ({ src: [ url ] });
-		audioBuffer.__srcHowl.on ("load", function () { handler (audioBuffer); });
-		audioBuffer.__srcHowl.on ("loaderror", function () { handler (null); });
-		audioBuffer.__srcHowl.load ();
-		
-		#else
-		
-		if (url != null && url.indexOf ("http://") == -1 && url.indexOf ("https://") == -1) {
-			
-			handler (AudioBuffer.fromFile (url));
-			
-		} else {
-			
-			// TODO: Support streaming sound
-			
-			#if flash
-			
-			var loader = new flash.net.URLLoader ();
-			loader.addEventListener (flash.events.Event.COMPLETE, function (_) {
-				handler (AudioBuffer.fromBytes (cast loader.data));
-			});
-			loader.addEventListener (flash.events.IOErrorEvent.IO_ERROR, function (_) {
-				handler (null);
-			});
-			loader.load (new flash.net.URLRequest (url));
-			
-			#else
-			
-			//var loader = new URLLoader ();
-			//loader.onComplete.add (function (_) {
-				//var bytes = Bytes.ofString (loader.data);
-				//handler (AudioBuffer.fromBytes (bytes));
-			//});
-			//loader.onIOError.add (function (_, msg) {
-				//handler (null);
-			//});
-			//loader.load (new URLRequest (url));
-			
-			#end
-			
-		}
-		
-		#end
-		
-	}
-	
-	
 	#if lime_vorbis
 	
 	public static function fromVorbisFile (vorbisFile:VorbisFile):AudioBuffer {
@@ -380,10 +328,18 @@ class AudioBuffer {
 		
 		// TODO: Streaming
 		
-		var request = new HTTPRequest<Bytes> ();
-		return request.load (path).then (function (bytes) {
+		var request = new HTTPRequest<AudioBuffer> ();
+		return request.load (path).then (function (buffer) {
 			
-			return Future.withValue (AudioBuffer.fromBytes (bytes));
+			if (buffer != null) {
+				
+				return Future.withValue (buffer);
+				
+			} else {
+				
+				return cast Future.withError ("");
+				
+			}
 			
 		});
 		
