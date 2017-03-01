@@ -186,7 +186,7 @@ class Preloader #if flash extends Sprite #end {
 				loadedAssetLibrary ();
 				
 			}).onError (function (e) {
-
+				
 				Log.error (e);
 				
 			});

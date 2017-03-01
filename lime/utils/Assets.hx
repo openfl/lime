@@ -491,7 +491,7 @@ class Assets {
 		
 		var path = id;
 		var rootPath = null;
-
+		
 		if (libraryPaths.exists (id)) {
 			
 			path = libraryPaths[id];
@@ -502,7 +502,7 @@ class Assets {
 			path += "/library.json";
 			
 		}
-
+		
 		AssetManifest.loadFromFile (path, rootPath).onComplete (function (manifest) {
 			
 			if (manifest == null) {
@@ -511,7 +511,7 @@ class Assets {
 				return;
 				
 			}
-
+			
 			var library = AssetLibrary.fromManifest (manifest);
 			
 			if (library == null) {

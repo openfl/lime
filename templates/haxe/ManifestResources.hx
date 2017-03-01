@@ -45,9 +45,9 @@ import sys.FileSystem;
 		}
 		
 		Assets.defaultRootPath = rootPath;
-
+		
 		var data, manifest, library;
-
+		
 		::foreach assets::::if (type == "manifest")::::if (embed)::data = '::data::';
 		manifest = AssetManifest.parse (data, rootPath);
 		library = AssetLibrary.fromManifest (manifest);

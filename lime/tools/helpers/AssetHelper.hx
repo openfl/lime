@@ -182,7 +182,7 @@ class AssetHelper {
 			project.libraries.push (library);
 			
 		}
-
+		
 		var handlers = new Array<String> ();
 		var type;
 		
