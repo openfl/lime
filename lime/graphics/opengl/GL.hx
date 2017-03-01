@@ -165,6 +165,8 @@ class GL {
 	public static inline var ALPHA = 0x1906;
 	public static inline var RGB = 0x1907;
 	public static inline var RGBA = 0x1908;
+	public static inline var RGBA32F = 0x881A;
+	public static inline var RGBA16F = 0x8814;
 	public static inline var BGR_EXT = 0x80E0;
 	public static inline var BGRA_EXT = 0x80E1;
 	public static inline var LUMINANCE = 0x1909;
@@ -310,6 +312,7 @@ class GL {
 	public static inline var LOW_FLOAT = 0x8DF0;
 	public static inline var MEDIUM_FLOAT = 0x8DF1;
 	public static inline var HIGH_FLOAT = 0x8DF2;
+	public static inline var HALF_FLOAT = 0x8D61;
 	public static inline var LOW_INT = 0x8DF3;
 	public static inline var MEDIUM_INT = 0x8DF4;
 	public static inline var HIGH_INT = 0x8DF5;
