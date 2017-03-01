@@ -217,6 +217,19 @@ namespace lime {
 				ProcessMouseEvent (event);
 				break;
 			
+			#ifndef EMSCRIPTEN
+			case SDL_RENDER_DEVICE_RESET:
+				
+				renderEvent.type = RENDER_CONTEXT_LOST;
+				RenderEvent::Dispatch (&renderEvent);
+				
+				renderEvent.type = RENDER_CONTEXT_RESTORED;
+				RenderEvent::Dispatch (&renderEvent);
+				
+				renderEvent.type = RENDER;
+				break;
+			#endif
+			
 			case SDL_TEXTINPUT:
 			case SDL_TEXTEDITING:
 				

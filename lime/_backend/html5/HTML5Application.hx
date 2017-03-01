@@ -244,8 +244,9 @@ class HTML5Application {
 			
 			parent.onUpdate.dispatch (Std.int (deltaTime));
 			
-			if (parent.renderer != null) {
+			if (parent.renderer != null && parent.renderer.context != null) {
 				
+				parent.renderer.render ();
 				parent.renderer.onRender.dispatch ();
 				parent.renderer.flip ();
 				
