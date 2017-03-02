@@ -1,12 +1,23 @@
 package lime.graphics.opengl;
 
 
+import lime.utils.ArrayBuffer;
 import lime.utils.ArrayBufferView;
 import lime.utils.Float32Array;
 import lime.utils.Int32Array;
+import lime.utils.UInt8Array;
+
+#if (js && html5)
+import js.html.CanvasElement;
+import js.html.ImageData;
+import js.html.ImageElement;
+import js.html.VideoElement;
+#end
+
+@:access(lime._backend.html5.HTML5GLRenderContext)
 
 
-abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
+abstract WebGLContext(GLRenderContext) from GLRenderContext to GLRenderContext {
 	
 	
 	public var DEPTH_BUFFER_BIT (get, never):Int;
@@ -748,18 +759,34 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function bufferData (target:Int, data:ArrayBufferView, usage:Int):Void {
+	#if (!js || !html5 || display)
+	public inline function bufferData (target:Int, srcData:ArrayBufferView, usage:Int):Void {
 		
-		this.bufferData (target, data, usage);
-		
-	}
-	
-	
-	public inline function bufferSubData (target:Int, offset:Int, data:ArrayBufferView):Void {
-		
-		this.bufferSubData (target, offset, data);
+		this.bufferData (target, srcData, usage, 0);
 		
 	}
+	#else
+	public inline function bufferData (target:Int, srcData:Dynamic, usage:Int):Void {
+		
+		this.bufferData (target, srcData, usage, 0);
+		
+	}
+	#end
+	
+	
+	#if (!js || !html5 || display)
+	public inline function bufferSubData (target:Int, offset:Int, srcData:ArrayBufferView):Void {
+		
+		this.bufferSubData (target, offset, srcData, 0);
+		
+	}
+	#else
+	public inline function bufferSubData (target:Int, offset:Int, srcData:Dynamic):Void {
+		
+		this.bufferSubData (target, offset, srcData, 0);
+		
+	}
+	#end
 	
 	
 	public inline function checkFramebufferStatus (target:Int):Int {
@@ -811,9 +838,9 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, data:ArrayBufferView):Void {
+	public inline function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, pixels:ArrayBufferView):Void {
 		
-		this.compressedTexImage2D (target, level, internalformat, width, height, border, data);
+		this.compressedTexImage2D (target, level, internalformat, width, height, border, pixels);
 		
 	}
 	
@@ -1371,11 +1398,25 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
+	#if (!js || !html5 || display)
 	public inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
 		
 		this.texImage2D (target, level, internalformat, width, height, border, format, type, pixels);
 		
 	}
+	#else
+	//public function texImage2D (target:Int, level:Int, internalformat:Int, format:Int, type:Int, pixels:Dynamic /*ImageBitmap*/):Void {
+	//public function texImage2D (target:Int, level:Int, internalformat:Int, format:Int, type:Int, pixels:#if (js && html5) CanvasElement #else Dynamic #end):Void {
+	//public function texImage2D (target:Int, level:Int, internalformat:Int, format:Int, type:Int, pixels:#if (js && html5) ImageData #else Dynamic #end):Void {
+	//public function texImage2D (target:Int, level:Int, internalformat:Int, format:Int, type:Int, pixels:#if (js && html5) ImageElement #else Dynamic #end):Void {
+	//public function texImage2D (target:Int, level:Int, internalformat:Int, format:Int, type:Int, pixels:#if (js && html5) VideoElement #else Dynamic #end):Void {
+	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
+	public inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Dynamic, ?format:Int, ?type:Int, ?pixels:ArrayBufferView):Void {
+		
+		this.texImage2D (target, level, internalformat, width, height, border, format, type, pixels);
+		
+	}
+	#end
 	
 	
 	public inline function texParameterf (target:Int, pname:Int, param:Float):Void {
@@ -1392,11 +1433,25 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
+	#if (!js || !html5 || display)
 	public inline function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
 		
 		this.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, pixels);
 		
 	}
+	#else
+	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, pixels:#if (js && html5) CanvasElement #else Dynamic #end):Void {
+	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, pixels:Dynamic /*ImageBitmap*/):Void {
+	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, pixels:#if (js && html5) ImageData #else Dynamic #end):Void {
+	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, pixels:#if (js && html5) ImageElement #else Dynamic #end):Void {
+	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, pixels:#if (js && html5) VideoElement #else Dynamic #end):Void {
+	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
+	public inline function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Dynamic, ?type:Int, ?pixels:ArrayBufferView):Void {
+		
+		this.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, pixels);
+		
+	}
+	#end
 	
 	
 	public inline function uniform1f (location:GLUniformLocation, x:Float):Void {

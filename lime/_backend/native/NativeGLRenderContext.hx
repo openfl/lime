@@ -4,6 +4,7 @@ package lime._backend.native;
 import lime.graphics.opengl.GLActiveInfo;
 import lime.graphics.opengl.GLBuffer;
 import lime.graphics.opengl.GLContextAttributes;
+import lime.graphics.opengl.GLContextType;
 import lime.graphics.opengl.GLFramebuffer;
 import lime.graphics.opengl.GLProgram;
 import lime.graphics.opengl.GLRenderbuffer;
@@ -29,6 +30,8 @@ import lime.system.System;
 
 class NativeGLRenderContext {
 	
+	
+	private static var __lastContextID = 0;
 	
 	public var DEPTH_BUFFER_BIT = 0x00000100;
 	public var STENCIL_BUFFER_BIT = 0x00000400;
@@ -379,14 +382,34 @@ class NativeGLRenderContext {
 	public var UNPACK_COLORSPACE_CONVERSION_WEBGL = 0x9243;
 	public var BROWSER_DEFAULT_WEBGL = 0x9244;
 	
-	public var version (get, null):Int;
+	public var type (default, null):GLContextType;
+	public var version (default, null):Float;
 	
+	private var __contextID:Int;
 	private var __currentProgram:GLProgram;
 	
 	
 	private function new () {
 		
+		__contextID = __lastContextID++;
 		
+		#if (lime_cffi && lime_opengl && !macro)
+		var versionString:String = getParameter (VERSION);
+		if (versionString.indexOf ("OpenGL ES") > -1) {
+			type = GLES;
+		} else {
+			type = OPENGL;
+		}
+		var ereg = ~/[0-9]+[.]?[0-9]?/i;
+		if (ereg.match (versionString)) {
+			version = Std.parseFloat (ereg.matched (0));
+		} else {
+			version = 2;
+		}
+		#else
+		type = OPENGL;
+		version = 2;
+		#end
 		
 	}
 	
@@ -500,7 +523,7 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function bufferData (target:Int, data:ArrayBufferView, usage:Int):Void {
+	public function bufferData (target:Int, data:ArrayBufferView, usage:Int, srcOffset:Int = 0, length:Int = 0):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
 		NativeCFFI.lime_gl_buffer_data (target, data.buffer, data.byteOffset, data.byteLength, usage);
@@ -511,7 +534,7 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function bufferSubData (target:Int, offset:Int, data:ArrayBufferView):Void {
+	public function bufferSubData (target:Int, offset:Int, data:ArrayBufferView, srcOffset:Int = 0, length:Int = 0):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
 		NativeCFFI.lime_gl_buffer_sub_data (target, offset, data.buffer, data.byteOffset, data.byteLength);
@@ -587,7 +610,7 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, data:ArrayBufferView):Void {
+	public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, data:ArrayBufferView, srcOffset:Int = 0, length:Int = 0):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
 		var buffer = data == null ? null : data.buffer;
@@ -599,7 +622,7 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, data:ArrayBufferView):Void {
+	public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, data:ArrayBufferView, srcOffset:Int = 0, length:Int = 0):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
 		var buffer = data == null ? null : data.buffer;
@@ -632,7 +655,7 @@ class NativeGLRenderContext {
 	public function createBuffer ():GLBuffer {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return new GLBuffer (version, NativeCFFI.lime_gl_create_buffer ());
+		return new GLBuffer (__contextID, NativeCFFI.lime_gl_create_buffer ());
 		#else
 		return null;
 		#end
@@ -643,7 +666,7 @@ class NativeGLRenderContext {
 	public function createFramebuffer ():GLFramebuffer {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return new GLFramebuffer (version, NativeCFFI.lime_gl_create_framebuffer ());
+		return new GLFramebuffer (__contextID, NativeCFFI.lime_gl_create_framebuffer ());
 		#else
 		return null;
 		#end
@@ -654,7 +677,7 @@ class NativeGLRenderContext {
 	public function createProgram ():GLProgram {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return new GLProgram (version, NativeCFFI.lime_gl_create_program ());
+		return new GLProgram (__contextID, NativeCFFI.lime_gl_create_program ());
 		#else
 		return null;
 		#end
@@ -665,7 +688,7 @@ class NativeGLRenderContext {
 	public function createRenderbuffer ():GLRenderbuffer {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return new GLRenderbuffer (version, NativeCFFI.lime_gl_create_render_buffer ());
+		return new GLRenderbuffer (__contextID, NativeCFFI.lime_gl_create_render_buffer ());
 		#else
 		return null;
 		#end
@@ -676,7 +699,7 @@ class NativeGLRenderContext {
 	public function createShader (type:Int):GLShader {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return new GLShader (version, NativeCFFI.lime_gl_create_shader (type));
+		return new GLShader (__contextID, NativeCFFI.lime_gl_create_shader (type));
 		#else
 		return null;
 		#end
@@ -687,7 +710,7 @@ class NativeGLRenderContext {
 	public function createTexture ():GLTexture {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return new GLTexture (version, NativeCFFI.lime_gl_create_texture ());
+		return new GLTexture (__contextID, NativeCFFI.lime_gl_create_texture ());
 		#else
 		return null;
 		#end
@@ -1761,9 +1784,6 @@ class NativeGLRenderContext {
 		#end
 		
 	}
-	
-	
-	private function get_version ():Int { return 2; }
 	
 	
 }

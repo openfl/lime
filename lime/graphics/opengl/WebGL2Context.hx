@@ -6,7 +6,7 @@ import lime.utils.Float32Array;
 import lime.utils.Int32Array;
 
 
-abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
+abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	
 	
 	public var DEPTH_BUFFER_BIT (get, never):Int;
@@ -748,16 +748,16 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function bufferData (target:Int, data:ArrayBufferView, usage:Int):Void {
+	public inline function bufferData (target:Int, srcData:ArrayBufferView, usage:Int, srcOffset:Int = 0, length:Int = 0):Void {
 		
-		this.bufferData (target, data, usage);
+		this.bufferData (target, srcData, usage, srcOffset, length);
 		
 	}
 	
 	
-	public inline function bufferSubData (target:Int, offset:Int, data:ArrayBufferView):Void {
+	public inline function bufferSubData (target:Int, dstByteOffset:Int, srcData:ArrayBufferView, srcOffset:Int = 0, length:Int = 0):Void {
 		
-		this.bufferSubData (target, offset, data);
+		this.bufferSubData (target, dstByteOffset, srcData, srcOffset, length);
 		
 	}
 	
@@ -811,18 +811,38 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, data:ArrayBufferView):Void {
+	#if (!js || !html5 || display)
+	public inline function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:ArrayBufferView, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
 		
-		this.compressedTexImage2D (target, level, internalformat, width, height, border, data);
-		
-	}
-	
-	
-	public inline function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, data:ArrayBufferView):Void {
-		
-		this.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, data);
+		this.compressedTexImage2D (target, level, internalformat, width, height, border, srcData, srcOffset, srcLengthOverride);
 		
 	}
+	#else
+	//public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, offset:Int):Void {
+	//public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:ArrayBufferView, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
+	public inline function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
+		
+		this.compressedTexImage2D (target, level, internalformat, width, height, border, srcData, srcOffset, srcLengthOverride);
+		
+	}
+	#end
+	
+	
+	#if (!js || !html5 || display)
+	public inline function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:ArrayBufferView, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
+		
+		this.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, srcData, srcOffset, srcLengthOverride);
+		
+	}
+	#else
+	//public function compressedTexSubImage2D_Offset (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, offset:Int):Void {
+	//public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:ArrayBufferView, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
+	public inline function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
+		
+		this.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, srcData, srcOffset, srcLengthOverride);
+		
+	}
+	#end
 	
 	
 	public inline function copyTexImage2D (target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void {
@@ -1371,11 +1391,26 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
+	#if (!js || !html5 || display)
+	public inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int):Void {
 		
-		this.texImage2D (target, level, internalformat, width, height, border, format, type, pixels);
+		this.texImage2D (target, level, internalformat, width, height, border, format, type, srcData, srcOffset);
 		
 	}
+	#else
+	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:CanvasElement):Void {
+	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:Dynamic /*ImageBitmap*/):Void {
+	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:ImageData):Void {
+	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:ImageElement):Void {
+	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, offset:Int):Void {
+	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:VideoElement):Void {
+	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int):Void {
+	public inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:Dynamic, ?srcOffset:Int):Void {
+		
+		this.texImage2D (target, level, internalformat, width, height, border, format, type, srcData, srcOffset);
+		
+	}
+	#end
 	
 	
 	public inline function texParameterf (target:Int, pname:Int, param:Float):Void {
@@ -1392,11 +1427,26 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
+	#if (!js || !html5 || display)
+	public inline function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int):Void {
 		
-		this.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, pixels);
+		this.texImage2D (target, level, internalformat, width, height, border, format, type, srcData, srcOffset);
 		
 	}
+	#else
+	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:CanvasElement):Void {
+	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:Dynamic /*ImageBitmap*/):Void {
+	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:ImageData):Void {
+	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:ImageElement):Void {
+	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, offset:Int):Void {
+	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:VideoElement):Void {
+	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int):Void {
+	public inline function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:Dynamic, ?srcOffset:Int):Void {
+		
+		this.texImage2D (target, level, internalformat, width, height, border, format, type, srcData, srcOffset);
+		
+	}
+	#end
 	
 	
 	public inline function uniform1f (location:GLUniformLocation, x:Float):Void {
