@@ -11,6 +11,7 @@ typedef GLRenderContext = lime._backend.html5.HTML5GLRenderContext;
 import lime.graphics.opengl.GLActiveInfo;
 import lime.graphics.opengl.GLBuffer;
 import lime.graphics.opengl.GLContextAttributes;
+import lime.graphics.opengl.GLContextType;
 import lime.graphics.opengl.GLFramebuffer;
 import lime.graphics.opengl.GLProgram;
 import lime.graphics.opengl.GLRenderbuffer;
@@ -349,7 +350,7 @@ extern class GLRenderContext {
 	public function blendEquationSeparate (modeRGB:Int, modeAlpha:Int):Void;
 	public function blendFunc (sfactor:Int, dfactor:Int):Void;
 	public function blendFuncSeparate (srcRGB:Int, dstRGB:Int, srcAlpha:Int, dstAlpha:Int):Void;
-	public function bufferData (target:Int, size:Int, usage:Int, srcOffset:Int = 0, length:Int = 0):Void;
+	public function bufferData (target:Int, srcData:lime.utils.ArrayBufferView, usage:Int, srcOffset:Int = 0, length:Int = 0):Void;
 	public function bufferSubData (target:Int, offset:Int, srcData:lime.utils.ArrayBufferView, srcOffset:Int = 0, length:Int = 0):Void;
 	public function checkFramebufferStatus (target:Int):Int;
 	public function clear (mask:Int):Void;

@@ -15,6 +15,7 @@ import lime.math.Rectangle;
 @:access(lime._backend.html5.HTML5GLRenderContext)
 @:access(lime.app.Application)
 @:access(lime.graphics.opengl.GL)
+@:access(lime.graphics.GLRenderContext)
 @:access(lime.graphics.Renderer)
 @:access(lime.ui.Window)
 
@@ -94,7 +95,7 @@ class HTML5Renderer {
 				webgl = untyped WebGLDebugUtils.makeDebugContext (webgl);
 				#end
 				
-				#if (js && html5)
+				#if ((js && html5) && !display)
 				GL.context = new GLRenderContext (cast webgl);
 				parent.context = OPENGL (GL.context);
 				#else
@@ -125,11 +126,13 @@ class HTML5Renderer {
 				
 				event.preventDefault ();
 				
+				#if !display
 				if (GL.context != null) {
 					
 					GL.context.__contextLost = true;
 					
 				}
+				#end
 				
 				parent.context = null;
 				

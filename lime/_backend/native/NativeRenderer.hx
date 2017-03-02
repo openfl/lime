@@ -25,6 +25,7 @@ import lime.utils.UInt8Array;
 @:access(lime._backend.native.NativeGLRenderContext)
 @:access(lime.graphics.cairo.Cairo)
 @:access(lime.graphics.opengl.GL)
+@:access(lime.graphics.GLRenderContext)
 @:access(lime.ui.Window)
 
 

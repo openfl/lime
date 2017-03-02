@@ -36,6 +36,7 @@ import lime.ui.Window;
 @:access(lime._backend.native.NativeRenderer)
 @:access(lime.app.Application)
 @:access(lime.graphics.opengl.GL)
+@:access(lime.graphics.GLRenderContext)
 @:access(lime.graphics.Renderer)
 @:access(lime.system.Sensor)
 @:access(lime.ui.Gamepad)
