@@ -429,7 +429,7 @@ class AssetLibrary {
 			
 			for (id in preload.keys ()) {
 				
-				Log.verbose ("Preloading asset: " + id);
+				Log.verbose ("Preloading asset: " + id + " [" + types.get (id) + "]");
 				
 				switch (types.get (id)) {
 					
@@ -676,7 +676,7 @@ class AssetLibrary {
 		
 		if (id != null) {
 			
-			Log.verbose ("Loaded asset: " + id + " [" + (assetsLoaded - 1) + "/" + (assetsTotal - 1) + "]");
+			Log.verbose ("Loaded asset: " + id + " [" + types.get (id) + "] (" + (assetsLoaded - 1) + "/" + (assetsTotal - 1) + ")");
 			
 		}
 		
