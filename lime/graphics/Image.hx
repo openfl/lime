@@ -588,6 +588,7 @@ class Image {
 		
 	}
 	
+	
 	public function getPixel (x:Int, y:Int, format:PixelFormat = null):Int {
 		
 		if (buffer == null || x < 0 || y < 0 || x >= width || y >= height) return 0;

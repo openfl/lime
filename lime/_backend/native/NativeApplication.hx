@@ -430,8 +430,10 @@ class NativeApplication {
 							
 							case OPENGL (gl):
 								
+								#if !display
 								(gl:NativeGLRenderContext).__contextLost ();
 								if (GL.context == gl) GL.context = null;
+								#end
 							
 							default:
 							
