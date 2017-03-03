@@ -169,8 +169,6 @@ abstract WebGLContext(GLRenderContext) from GLRenderContext to GLRenderContext {
 	public var ALPHA (get, never):Int;
 	public var RGB (get, never):Int;
 	public var RGBA (get, never):Int;
-	public var BGR_EXT (get, never):Int;
-	public var BGRA_EXT (get, never):Int;
 	public var LUMINANCE (get, never):Int;
 	public var LUMINANCE_ALPHA (get, never):Int;
 	
@@ -499,8 +497,6 @@ abstract WebGLContext(GLRenderContext) from GLRenderContext to GLRenderContext {
 	private inline function get_ALPHA ():Int { return this.ALPHA; }
 	private inline function get_RGB ():Int { return this.RGB; }
 	private inline function get_RGBA ():Int { return this.RGBA; }
-	private inline function get_BGR_EXT ():Int { #if (js && html5) return 0; #else return this.BGR_EXT; #end } // TODO
-	private inline function get_BGRA_EXT ():Int { #if (js && html5) return 0; #else return this.BGRA_EXT; #end } // TODO
 	private inline function get_LUMINANCE ():Int { return this.LUMINANCE; }
 	private inline function get_LUMINANCE_ALPHA ():Int { return this.LUMINANCE_ALPHA; }
 	private inline function get_UNSIGNED_SHORT_4_4_4_4 ():Int { return this.UNSIGNED_SHORT_4_4_4_4; }
@@ -762,13 +758,13 @@ abstract WebGLContext(GLRenderContext) from GLRenderContext to GLRenderContext {
 	#if (!js || !html5 || display)
 	public inline function bufferData (target:Int, srcData:ArrayBufferView, usage:Int):Void {
 		
-		this.bufferData (target, srcData, usage, 0);
+		this.bufferData (target, srcData.byteLength, srcData, usage, 0);
 		
 	}
 	#else
 	public inline function bufferData (target:Int, srcData:Dynamic, usage:Int):Void {
 		
-		this.bufferData (target, srcData, usage, 0);
+		this.bufferData (target, srcData, usage);
 		
 	}
 	#end
@@ -777,13 +773,13 @@ abstract WebGLContext(GLRenderContext) from GLRenderContext to GLRenderContext {
 	#if (!js || !html5 || display)
 	public inline function bufferSubData (target:Int, offset:Int, srcData:ArrayBufferView):Void {
 		
-		this.bufferSubData (target, offset, srcData, 0);
+		this.bufferSubData (target, offset, srcData.byteLength, srcData);
 		
 	}
 	#else
 	public inline function bufferSubData (target:Int, offset:Int, srcData:Dynamic):Void {
 		
-		this.bufferSubData (target, offset, srcData, 0);
+		this.bufferSubData (target, offset, srcData);
 		
 	}
 	#end
