@@ -1618,13 +1618,13 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
+	public function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:BytePointer, dstOffset:Int = 0):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		var buffer = pixels == null ? null : pixels.buffer;
-		NativeCFFI.lime_gl_read_pixels (x, y, width, height, format, type, buffer, pixels == null ? 0 : pixels.byteOffset);
+		var buffer = pixels == null ? null : pixels.bytes;
+		NativeCFFI.lime_gl_read_pixels (x, y, width, height, format, type, buffer, pixels == null ? 0 : pixels.offset);
 		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_read_pixels (x, y, width, height, format, type, pixels == null ? null : pixels, pixels == null ? null : pixels.byteOffset);
+		NativeCFFI.lime_gl_read_pixels (x, y, width, height, format, type, pixels == null ? null : pixels.bytes.getData (), pixels == null ? null : pixels.offset);
 		#end
 		
 	}

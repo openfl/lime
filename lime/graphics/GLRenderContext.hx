@@ -1,4 +1,5 @@
 package lime.graphics;
+import lime.utils.BytePointer;
 
 
 #if (sys && !display)
@@ -327,6 +328,9 @@ extern class GLRenderContext {
 	public var VIEWPORT:Int;
 	public var ZERO:Int;
 	
+	public var POINT_SPRITE:Int;
+	public var VERTEX_PROGRAM_POINT_SIZE:Int;
+	
 	#if (js && html5)
 	public var canvas (get, never):CanvasElement;
 	public var drawingBufferHeight (get, never):Int;
@@ -350,8 +354,8 @@ extern class GLRenderContext {
 	public function blendEquationSeparate (modeRGB:Int, modeAlpha:Int):Void;
 	public function blendFunc (sfactor:Int, dfactor:Int):Void;
 	public function blendFuncSeparate (srcRGB:Int, dstRGB:Int, srcAlpha:Int, dstAlpha:Int):Void;
-	public function bufferData (target:Int, size:Int, srcData:lime.utils.ArrayBufferView, usage:Int, srcOffset:Int = 0, length:Int = 0):Void;
-	public function bufferSubData (target:Int, dstByteOffset:Int, size:Int, srcData:lime.utils.ArrayBufferView, srcOffset:Int = 0, length:Int = 0):Void;
+	public function bufferData (target:Int, size:Int, srcData:BytePointer, usage:Int, srcOffset:Int = 0, length:Int = 0):Void;
+	public function bufferSubData (target:Int, dstByteOffset:Int, size:Int, srcData:BytePointer, srcOffset:Int = 0, length:Int = 0):Void;
 	public function checkFramebufferStatus (target:Int):Int;
 	public function clear (mask:Int):Void;
 	public function clearColor (red:Float, green:Float, blue:Float, alpha:Float):Void;
@@ -359,8 +363,8 @@ extern class GLRenderContext {
 	public function clearStencil (s:Int):Void;
 	public function colorMask (red:Bool, green:Bool, blue:Bool, alpha:Bool):Void;
 	public function compileShader (shader:GLShader):Void;
-	public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:lime.utils.ArrayBufferView, srcOffset:Int = 0, length:Int = 0):Void;
-	public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:lime.utils.ArrayBufferView, srcOffset:Int = 0, length:Int = 0):Void;
+	public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:BytePointer, srcOffset:Int = 0, length:Int = 0):Void;
+	public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:BytePointer, srcOffset:Int = 0, length:Int = 0):Void;
 	public function copyTexImage2D (target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void;
 	public function copyTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, x:Int, y:Int, width:Int, height:Int):Void;
 	public function createBuffer ():GLBuffer;
@@ -396,11 +400,17 @@ extern class GLRenderContext {
 	public function getActiveUniform (program:GLProgram, index:Int):GLActiveInfo;
 	public function getAttachedShaders (program:GLProgram):Array<GLShader>;
 	public function getAttribLocation (program:GLProgram, name:String):Int;
+	public function getBoolean (pname:Int):Bool;
+	public function getBooleanv (pname:Int):Array<Bool>;
 	public function getBufferParameter (target:Int, pname:Int):Int;
 	public function getContextAttributes ():GLContextAttributes;
 	public function getError ():Int;
 	public function getExtension (name:String):Dynamic;
+	public function getFloat (pname:Int):Float;
+	public function getFloatv (pname:Int):Array<Float>;
 	public function getFramebufferAttachmentParameter (target:Int, attachment:Int, pname:Int):Dynamic;
+	public function getInteger (pname:Int):Int;
+	public function getIntegerv (pname:Int):Array<Int>;
 	public function getParameter (pname:Int):Dynamic;
 	public function getProgramInfoLog (program:GLProgram):String;
 	public function getProgramParameter (program:GLProgram, pname:Int):Dynamic;
@@ -409,6 +419,7 @@ extern class GLRenderContext {
 	public function getShaderParameter (shader:GLShader, pname:Int):Dynamic;
 	public function getShaderPrecisionFormat (shadertype:Int, precisiontype:Int):GLShaderPrecisionFormat;
 	public function getShaderSource (shader:GLShader):String;
+	public function getString (pname:Int):String;
 	public function getSupportedExtensions ():Array<String>;
 	public function getTexParameter (target:Int, pname:Int):Dynamic;
 	public function getUniform (program:GLProgram, location:GLUniformLocation):Dynamic;
@@ -428,7 +439,7 @@ extern class GLRenderContext {
 	public function linkProgram (program:GLProgram):Void;
 	public function pixelStorei (pname:Int, param:Int):Void;
 	public function polygonOffset (factor:Float, units:Float):Void;
-	public function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:lime.utils.ArrayBufferView):Void;
+	public function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:BytePointer, dstOffset:Int = 0):Void;
 	public function releaseShaderCompiler ():Void;
 	public function renderbufferStorage (target:Int, internalformat:Int, width:Int, height:Int):Void;
 	public function sampleCoverage (value:Float, invert:Bool):Void;
@@ -440,10 +451,10 @@ extern class GLRenderContext {
 	public function stencilMaskSeparate (face:Int, mask:Int):Void;
 	public function stencilOp (fail:Int, zfail:Int, zpass:Int):Void;
 	public function stencilOpSeparate (face:Int, fail:Int, zfail:Int, zpass:Int):Void;
-	public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:lime.utils.ArrayBufferView, srcOffset:Int = 0):Void;
+	public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:BytePointer, srcOffset:Int = 0):Void;
 	public function texParameterf (target:Int, pname:Int, param:Float):Void;
 	public function texParameteri (target:Int, pname:Int, param:Int):Void;
-	public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:lime.utils.ArrayBufferView, srcOffset:Int = 0):Void;
+	public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:BytePointer, srcOffset:Int = 0):Void;
 	public function uniform1f (location:GLUniformLocation, x:Float):Void;
 	public function uniform1fv (location:GLUniformLocation, v:lime.utils.Float32Array):Void;
 	public function uniform1i (location:GLUniformLocation, x:Int):Void;
