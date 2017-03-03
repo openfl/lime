@@ -1,6 +1,12 @@
 package lime.utils;
 
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
+
 @:generic class ObjectPool<T> {
 	
 	
