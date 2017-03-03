@@ -973,13 +973,13 @@ class CommandLineTools {
 			
 			return PathHelper.combine (path, "project.lime");
 			
-		} else if (FileSystem.exists (PathHelper.combine (path, "project.nmml"))) {
-			
-			return PathHelper.combine (path, "project.nmml");
-			
 		} else if (FileSystem.exists (PathHelper.combine (path, "project.xml"))) {
 			
 			return PathHelper.combine (path, "project.xml");
+			
+		} else if (FileSystem.exists (PathHelper.combine (path, "project.nmml"))) {
+			
+			return PathHelper.combine (path, "project.nmml");
 			
 		} else {
 			
