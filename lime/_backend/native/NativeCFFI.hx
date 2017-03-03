@@ -472,8 +472,8 @@ class NativeCFFI {
 	@:cffi private static function lime_gl_get_context_attributes ():Dynamic;
 	@:cffi private static function lime_gl_get_error ():Int;
 	@:cffi private static function lime_gl_get_extension (name:String):Dynamic;
-	@:cffi private static function lime_gl_get_float (pname:Int):Float;
-	@:cffi private static function lime_gl_get_floatv (pname:Int):Array<Float>;
+	@:cffi private static function lime_gl_get_float (pname:Int):Float32;
+	@:cffi private static function lime_gl_get_floatv (pname:Int):Dynamic;
 	@:cffi private static function lime_gl_get_framebuffer_attachment_parameter (target:Int, attachment:Int, pname:Int):Int;
 	@:cffi private static function lime_gl_get_integer (pname:Int):Int;
 	@:cffi private static function lime_gl_get_integerv (pname:Int):Array<Int>;
@@ -482,10 +482,10 @@ class NativeCFFI {
 	@:cffi private static function lime_gl_get_program_parameter (program:CFFIPointer, pname:Int):Dynamic;
 	@:cffi private static function lime_gl_get_render_buffer_parameter (target:Int, pname:Int):Int;
 	@:cffi private static function lime_gl_get_shader_info_log (shader:CFFIPointer):Dynamic;
-	@:cffi private static function lime_gl_get_shader_parameter (shader:CFFIPointer, pname:Int):Int;
+	@:cffi private static function lime_gl_get_shader_parameter (shader:CFFIPointer, pname:Int):Dynamic;
 	@:cffi private static function lime_gl_get_shader_precision_format (shadertype:Int, precisiontype:Int):Dynamic;
 	@:cffi private static function lime_gl_get_shader_source (shader:CFFIPointer):Dynamic;
-	@:cffi private static function lime_gl_get_string (pname:Int):String;
+	@:cffi private static function lime_gl_get_string (pname:Int):Dynamic;
 	@:cffi private static function lime_gl_get_supported_extensions (result:Dynamic):Void;
 	@:cffi private static function lime_gl_get_tex_parameter (target:Int, pname:Int):Int;
 	@:cffi private static function lime_gl_get_uniform (program:CFFIPointer, location:Int):Dynamic;
