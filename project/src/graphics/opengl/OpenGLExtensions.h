@@ -226,6 +226,7 @@ OGL_EXT(glFrustumf,void, (GLfloat left, GLfloat right, GLfloat bottom, GLfloat t
 //OGL_EXT(glFrustumx,void, (GLfixed left, GLfixed right, GLfixed bottom, GLfixed top, GLfixed zNear, GLfixed zFar));
 OGL_EXT(glGenTextures,void, (GLsizei n, GLuint *textures));
 OGL_EXT(glGetError,GLenum, (void));
+OGL_EXT(glGetBooleanv,void, (GLenum pname, GLboolean* params));
 OGL_EXT(glGetFloatv,void, (GLenum pname, GLfloat* params));
 OGL_EXT(glGetIntegerv,void, (GLenum pname, GLint *params));
 #ifdef LIME_GLES
