@@ -2,6 +2,7 @@ package lime.graphics.opengl;
 
 
 import lime.utils.ArrayBufferView;
+import lime.utils.BytePointer;
 import lime.utils.Float32Array;
 import lime.utils.Int32Array;
 
@@ -300,6 +301,9 @@ class GL {
 	public static inline var VERTEX_ATTRIB_ARRAY_POINTER = 0x8645;
 	public static inline var VERTEX_ATTRIB_ARRAY_BUFFER_BINDING = 0x889F;
 	
+	public static inline var IMPLEMENTATION_COLOR_READ_TYPE = 0x8B9A;
+	public static inline var IMPLEMENTATION_COLOR_READ_FORMAT = 0x8B9B;
+	
 	public static inline var VERTEX_PROGRAM_POINT_SIZE = 0x8642;
 	public static inline var POINT_SPRITE = 0x8861;
 	
@@ -455,16 +459,16 @@ class GL {
 	}
 	
 	
-	public static inline function bufferData (target:Int, data:ArrayBufferView, usage:Int):Void {
+	public static inline function bufferData (target:Int, size:Int, data:BytePointer, usage:Int):Void {
 		
-		context.bufferData (target, data, usage);
+		context.bufferData (target, size, data, usage);
 		
 	}
 	
 	
-	public static inline function bufferSubData (target:Int, offset:Int, data:ArrayBufferView):Void {
+	public static inline function bufferSubData (target:Int, offset:Int, size:Int, data:BytePointer):Void {
 		
-		context.bufferSubData (target, offset, data);
+		context.bufferSubData (target, offset, size, data);
 		
 	}
 	
@@ -518,14 +522,14 @@ class GL {
 	}
 	
 	
-	public static inline function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, data:ArrayBufferView):Void {
+	public static inline function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, data:BytePointer):Void {
 		
 		context.compressedTexImage2D (target, level, internalformat, width, height, border, data);
 		
 	}
 	
 	
-	public static inline function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, data:ArrayBufferView):Void {
+	public static inline function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, data:BytePointer):Void {
 		
 		context.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, data);
 		
@@ -1078,9 +1082,9 @@ class GL {
 	}
 	
 	
-	public static inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
+	public static inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:BytePointer):Void {
 		
-		context.texImage2D (target, level, internalformat, width, height, border, format, type, pixels);
+		context.texImage2D (target, level, internalformat, width, height, border, format, type, data);
 		
 	}
 	

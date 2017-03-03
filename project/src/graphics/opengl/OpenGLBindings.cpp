@@ -740,6 +740,38 @@ namespace lime {
 	}
 	
 	
+	bool lime_gl_get_boolean (int pname) {
+		
+		unsigned char val;
+		glGetBooleanv (pname, &val);
+		return val;
+		
+	}
+	
+	
+	value lime_gl_get_booleanv (int pname) {
+		
+		unsigned char vals[4] = { 255, 255, 255, 255 };
+		glGetBooleanv (pname, vals);
+		
+		int len = 0;
+		for (int i = 0; i < 4; i++) {
+			if (vals[i] != 255) len++;
+		}
+		
+		value result = alloc_array (len);
+		
+		for (int i = 0; i < len; i++) {
+			
+			val_array_set_i (result, i, alloc_bool (vals[i]));
+			
+		}
+		
+		return result;
+		
+	}
+	
+	
 	value lime_gl_get_context_attributes () {
 		
 		value result = alloc_empty_object ();
@@ -790,10 +822,76 @@ namespace lime {
 	}
 	
 	
+	float lime_gl_get_float (int pname) {
+		
+		float val;
+		glGetFloatv (pname, &val);
+		return val;
+		
+	}
+	
+	
+	value lime_gl_get_floatv (int pname) {
+		
+		float unset = -0.0012321;
+		float vals[4] = { unset, unset, unset, unset };
+		glGetFloatv (pname, vals);
+		
+		int len = 0;
+		for (int i = 0; i < 4; i++) {
+			if (vals[i] != unset) len++;
+		}
+		
+		value result = alloc_array (len);
+		
+		for (int i = 0; i < len; i++) {
+			
+			val_array_set_i (result, i, alloc_float (vals[i]));
+			
+		}
+		
+		return result;
+		
+	}
+	
+	
 	int lime_gl_get_framebuffer_attachment_parameter (int target, int attachment, int pname) {
 		
 		GLint result = 0;
 		glGetFramebufferAttachmentParameteriv (target, attachment, pname, &result);
+		return result;
+		
+	}
+	
+	
+	int lime_gl_get_integer (int pname) {
+		
+		int val;
+		glGetIntegerv (pname, &val);
+		return val;
+		
+	}
+	
+	
+	value lime_gl_get_integerv (int pname) {
+		
+		int unset = -1232123;
+		int vals[4] = { unset, unset, unset, unset };
+		glGetIntegerv (pname, vals);
+		
+		int len = 0;
+		for (int i = 0; i < 4; i++) {
+			if (vals[i] != unset) len++;
+		}
+		
+		value result = alloc_array (len);
+		
+		for (int i = 0; i < len; i++) {
+			
+			val_array_set_i (result, i, alloc_int (vals[i]));
+			
+		}
+		
 		return result;
 		
 	}
@@ -822,7 +920,8 @@ namespace lime {
 				ints = 4;
 				break;
 			
-			//case GL_COMPRESSED_TEXTURE_FORMATS  null
+			case GL_COMPRESSED_TEXTURE_FORMATS:
+				glGetIntegerv (GL_NUM_COMPRESSED_TEXTURE_FORMATS, &ints);
 			
 			case GL_MAX_VIEWPORT_DIMS:
 				ints = 2;
@@ -949,6 +1048,22 @@ namespace lime {
 			glGetFloatv (pname, &f);
 			return alloc_float (f);
 			
+		} else if (ints > 4) {
+			
+			int* vals;
+			vals = new int[ints];
+			glGetIntegerv (pname, vals);
+			value result = alloc_array (ints);
+			
+			for (int i = 0; i < ints; i++) {
+				
+				val_array_set_i (result, i, alloc_int (vals[i]));
+				
+			}
+			
+			delete[] vals;
+			return result;
+			
 		} else if (ints > 0) {
 			
 			int vals[4];
@@ -1006,11 +1121,23 @@ namespace lime {
 	}
 	
 	
-	int lime_gl_get_program_parameter (value handle, int inName) {
+	value lime_gl_get_program_parameter (value handle, int inName) {
 		
 		int result = 0;
 		glGetProgramiv (reinterpret_cast<uintptr_t> (val_data (handle)), inName, &result);
-		return result;
+		
+		switch (inName) {
+			
+			case GL_DELETE_STATUS:
+			case GL_LINK_STATUS:
+			case GL_VALIDATE_STATUS:
+				
+				return alloc_bool (result);
+				break;
+			
+		}
+		
+		return alloc_int (result);
 		
 	}
 	
@@ -1046,11 +1173,22 @@ namespace lime {
 	}
 	
 	
-	int lime_gl_get_shader_parameter (value handle, int inName) {
+	value lime_gl_get_shader_parameter (value handle, int inName) {
 		
 		int result = 0;
 		glGetShaderiv (reinterpret_cast<uintptr_t> (val_data (handle)), inName, &result);
-		return result;
+		
+		switch (inName) {
+			
+			case GL_DELETE_STATUS:
+			case GL_COMPILE_STATUS:
+				
+				return alloc_bool (result);
+				break;
+			
+		}
+		
+		return alloc_int (result);
 		
 	}
 	
@@ -1097,6 +1235,23 @@ namespace lime {
 		delete [] buf;
 		
 		return result;
+		
+	}
+	
+	
+	value lime_gl_get_string (int pname) {
+		
+		const char* val = (const char*)glGetString (pname);
+		
+		if (val) {
+			
+			return alloc_string (val);
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
 		
 	}
 	
@@ -1889,10 +2044,16 @@ namespace lime {
 	DEFINE_PRIME2 (lime_gl_get_active_uniform);
 	DEFINE_PRIME2 (lime_gl_get_attrib_location);
 	DEFINE_PRIME2 (lime_gl_get_buffer_parameter);
+	DEFINE_PRIME1 (lime_gl_get_boolean);
+	DEFINE_PRIME1 (lime_gl_get_booleanv);
 	DEFINE_PRIME0 (lime_gl_get_context_attributes);
 	DEFINE_PRIME0 (lime_gl_get_error);
 	DEFINE_PRIME1 (lime_gl_get_extension);
+	DEFINE_PRIME1 (lime_gl_get_float);
+	DEFINE_PRIME1 (lime_gl_get_floatv);
 	DEFINE_PRIME3 (lime_gl_get_framebuffer_attachment_parameter);
+	DEFINE_PRIME1 (lime_gl_get_integer);
+	DEFINE_PRIME1 (lime_gl_get_integerv);
 	DEFINE_PRIME1 (lime_gl_get_parameter);
 	DEFINE_PRIME1 (lime_gl_get_program_info_log);
 	DEFINE_PRIME2 (lime_gl_get_program_parameter);
@@ -1901,6 +2062,7 @@ namespace lime {
 	DEFINE_PRIME2 (lime_gl_get_shader_parameter);
 	DEFINE_PRIME2 (lime_gl_get_shader_precision_format);
 	DEFINE_PRIME1 (lime_gl_get_shader_source);
+	DEFINE_PRIME1 (lime_gl_get_string);
 	DEFINE_PRIME1v (lime_gl_get_supported_extensions);
 	DEFINE_PRIME2 (lime_gl_get_tex_parameter);
 	DEFINE_PRIME2 (lime_gl_get_uniform);

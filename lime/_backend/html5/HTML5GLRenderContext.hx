@@ -1,6 +1,7 @@
 package lime._backend.html5;
 
 
+import haxe.io.Bytes;
 import js.html.webgl.RenderingContext in WebGLRenderingContext;
 import js.html.CanvasElement;
 import lime.graphics.opengl.GLActiveInfo;
@@ -16,6 +17,7 @@ import lime.graphics.opengl.GLTexture;
 import lime.graphics.opengl.GLUniformLocation;
 import lime.utils.ArrayBuffer;
 import lime.utils.ArrayBufferView;
+import lime.utils.BytePointer;
 import lime.utils.Float32Array;
 import lime.utils.Int32Array;
 import lime.utils.UInt8Array;
@@ -503,15 +505,34 @@ class HTML5GLRenderContext {
 	//public function bufferData (target:Int, srcData:ArrayBuffer, usage:Int):Void {
 	//public function bufferData (target:Int, size:Int, usage:Int):Void {
 	//public function bufferData (target:Int, srcData:ArrayBufferView, usage:Int, srcOffset:Int = 0, length:Int = 0):Void {
-	public function bufferData (target:Int, srcData:Dynamic, usage:Int, ?srcOffset:Int, ?length:Int):Void {
+	public function bufferData (target:Int, size:Dynamic, srcData:Dynamic, ?usage:Int, ?srcOffset:Int, ?length:Int):Void {
 		
-		if (version > 1) {
+		if (!Std.is (srcData, Int)) {
 			
-			__context.bufferData (target, srcData, usage, srcOffset, length);
+			srcData = __prepareData (size, srcData);
+			if (srcData == null) return;
+			
+			if (version > 1) {
+				
+				__context.bufferData (target, srcData, usage, srcOffset, length);
+				
+			} else {
+				
+				__context.bufferData (target, srcData, usage);
+				
+			}
 			
 		} else {
 			
-			__context.bufferData (target, srcData, usage);
+			if (version > 1) {
+				
+				__context.bufferData (target, size, srcData, usage, srcOffset); // target, srcData, usage, srcOffset, length
+				
+			} else {
+				
+				__context.bufferData (target, size, srcData); // target, srcData, usage
+				
+			}
 			
 		}
 		
@@ -521,15 +542,34 @@ class HTML5GLRenderContext {
 	//public function bufferSubData (target:Int, dstByteOffset:Int, srcData:ArrayBufferView):Void {
 	//public function bufferSubData (target:Int, dstByteOffset:Int, srcData:ArrayBuffer):Void {
 	//public function bufferSubData (target:Int, dstByteOffset:Int, srcData:ArrayBufferView, srcOffset:Int = 0, length:Int = 0):Void {
-	public function bufferSubData (target:Int, dstByteOffset:Int, srcData:Dynamic, ?srcOffset:Int, ?length:Int):Void {
+	public function bufferSubData (target:Int, dstByteOffset:Int, size:Dynamic, ?srcData:Dynamic, ?srcOffset:Int, ?length:Int):Void {
 		
-		if (version > 1) {
+		if (Std.is (size, Int)) {
 			
-			__context.bufferSubData (target, dstByteOffset, srcData, srcOffset, length);
+			srcData = __prepareData (size, srcData);
+			if (srcData == null) return;
+			
+			if (version > 1) {
+				
+				__context.bufferSubData (target, dstByteOffset, srcData, srcOffset, length);
+				
+			} else {
+				
+				__context.bufferSubData (target, dstByteOffset, srcData);
+				
+			}
 			
 		} else {
 			
-			__context.bufferSubData (target, dstByteOffset, srcData);
+			if (version > 1) {
+				
+				__context.bufferSubData (target, dstByteOffset, size, srcData, srcOffset); // target, dstByteOffset, srcData, srcOffset, length
+				
+			} else {
+				
+				__context.bufferSubData (target, dstByteOffset, srcData); // target, dstByteOffset, srcData
+				
+			}
 			
 		}
 		
@@ -590,6 +630,9 @@ class HTML5GLRenderContext {
 	//public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, offset:Int):Void {
 	public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
 		
+		srcData = __prepareData (null, srcData);
+		if (srcData == null) return;
+		
 		if (version > 1) {
 			
 			__context.compressedTexImage2D (target, level, internalformat, width, height, border, srcData, srcOffset, srcLengthOverride);
@@ -607,6 +650,9 @@ class HTML5GLRenderContext {
 	//public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:ArrayBufferView, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
 	//public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, offset::Int):Void {
 	public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
+		
+		srcData = __prepareData (null, srcData);
+		if (srcData == null) return;
 		
 		if (version > 1) {
 			
@@ -866,6 +912,23 @@ class HTML5GLRenderContext {
 	}
 	
 	
+	public inline function getBoolean (pname:Int):Bool {
+		
+		return __context.getParameter (pname);
+		
+	}
+	
+	
+	public function getBooleanv (pname:Int):Array<Bool> {
+		
+		var result = __context.getParameter (pname);
+		if (result == null) return null;
+		
+		return untyped __js__("Array.prototype.slice.call (result)");
+		
+	}
+	
+	
 	public inline function getBufferParameter (target:Int, pname:Int):Int /*Dynamic*/ {
 		
 		return __context.getBufferParameter (target, pname);
@@ -894,9 +957,43 @@ class HTML5GLRenderContext {
 	}
 	
 	
+	public inline function getFloat (pname:Int):Float {
+		
+		return __context.getParameter (pname);
+		
+	}
+	
+	
+	public function getFloatv (pname:Int):Array<Float> {
+		
+		var result:Float32Array = __context.getParameter (pname);
+		if (result == null) return null;
+		
+		return untyped __js__("Array.prototype.slice.call (result)");
+		
+	}
+	
+	
 	public inline function getFramebufferAttachmentParameter (target:Int, attachment:Int, pname:Int):Int /*Dynamic*/ {
 		
 		return __context.getFramebufferAttachmentParameter (target, attachment, pname);
+		
+	}
+	
+	
+	public inline function getInteger (pname:Int):Int {
+		
+		return __context.getParameter (pname);
+		
+	}
+	
+	
+	public function getIntegerv (pname:Int):Array<Int> {
+		
+		var result:Int32Array = __context.getParameter (pname);
+		if (result == null) return null;
+		
+		return untyped __js__("Array.prototype.slice.call (result)");
 		
 	}
 	
@@ -953,6 +1050,13 @@ class HTML5GLRenderContext {
 	public inline function getShaderSource (shader:GLShader):String {
 		
 		return __context.getShaderSource (shader);
+		
+	}
+	
+	
+	public inline function getString (pname:Int):String {
+		
+		return __context.getParameter (pname);
 		
 	}
 	
@@ -1180,7 +1284,7 @@ class HTML5GLRenderContext {
 	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, offset:Int):Void {
 	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:VideoElement):Void {
 	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int):Void {
-	public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Dynamic, ?format:Int, ?type:Int, ?srcData:ArrayBufferView, ?srcOffset:Int):Void {
+	public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Dynamic, ?format:Int, ?type:Int, ?srcData:Dynamic, ?srcOffset:Int):Void {
 		
 		if (version > 1) {
 			
@@ -1194,6 +1298,10 @@ class HTML5GLRenderContext {
 				
 			} else {
 				
+				srcData = __prepareData (null, srcData);
+				if (srcData == null) return;
+				if (Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
+				
 				__context.texImage2D (target, level, internalformat, width, height, border, format, type, srcData, srcOffset);
 				
 			}
@@ -1202,9 +1310,13 @@ class HTML5GLRenderContext {
 			
 			if (format == null) {
 				
-				__context.texImage2D (target, level, internalformat, width, height, border); // format, type, pixels
+				__context.texImage2D (target, level, internalformat, width, height, border); // target, level, internalformat, format, type, pixels
 				
 			} else {
+				
+				srcData = __prepareData (null, srcData);
+				if (srcData == null) return;
+				if (Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
 				
 				__context.texImage2D (target, level, internalformat, width, height, border, format, type, srcData);
 				
@@ -1248,9 +1360,13 @@ class HTML5GLRenderContext {
 			
 			if (type == null) {
 				
-				__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format); // format, type, pixels/offset
+				__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format); // target, level, xoffset, yoffset, format, type, pixels
 				
 			} else {
+				
+				srcData = __prepareData (null, srcData);
+				if (srcData == null) return;
+				if (Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
 				
 				__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, srcData, srcOffset);
 				
@@ -1260,9 +1376,13 @@ class HTML5GLRenderContext {
 			
 			if (type == null) {
 				
-				__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format); // format, type, pixels
+				__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format); // target, level, xoffset, yoffset, format, type, pixels
 				
 			} else {
+				
+				srcData = __prepareData (null, srcData);
+				if (srcData == null) return;
+				if (Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
 				
 				__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, srcData);
 				
@@ -1486,6 +1606,77 @@ class HTML5GLRenderContext {
 	public inline function viewport (x:Int, y:Int, width:Int, height:Int):Void {
 		
 		__context.viewport (x, y, width, height);
+		
+	}
+	
+	
+	private function __isArrayBufferView (object:Dynamic):Bool {
+		
+		return untyped __js__ ("object && object.buffer instanceof ArrayBuffer && object.byteLength !== undefined");
+		
+	}
+	
+	
+	private function __prepareData (size:Null<Int>, data:Dynamic):Dynamic {
+		
+		if (data != null) {
+			
+			if (size != null) {
+				
+				if (size <= 0) {
+					
+					return null;
+					
+				} else if (__isArrayBufferView (data)) {
+					
+					var arrayBufferView:ArrayBufferView = data;
+					return new UInt8Array (arrayBufferView.buffer, arrayBufferView.byteOffset, size);
+					
+				} else if (Std.is (data, ArrayBuffer)) {
+					
+					var arrayBuffer:ArrayBuffer = data;
+					return new UInt8Array (arrayBuffer, 0, size);
+					
+				} else if (Std.is (data, BytePointerData)) {
+					
+					var bytePointer:BytePointer = data;
+					return new UInt8Array (bytePointer.bytes.getData (), bytePointer.offset, size);
+					
+				} else if (Std.is (data, Bytes)) {
+					
+					var bytes:Bytes = data;
+					return new UInt8Array (bytes.getData (), 0, size);
+					
+				}
+				
+			} else {
+				
+				if (Std.is (data, BytePointerData)) {
+					
+					var bytePointer:BytePointer = data;
+					
+					if (bytePointer.offset != 0) {
+						
+						return new UInt8Array (bytePointer.bytes.getData (), bytePointer.offset);
+						
+					} else {
+						
+						return bytePointer.bytes.getData ();
+						
+					}
+					
+				} else if (Std.is (data, Bytes)) {
+					
+					var bytes:Bytes = data;
+					return bytes.getData ();
+					
+				}
+				
+			}
+			
+		}
+		
+		return data;
 		
 	}
 	

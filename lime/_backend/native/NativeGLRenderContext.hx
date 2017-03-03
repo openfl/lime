@@ -13,8 +13,10 @@ import lime.graphics.opengl.GLShader;
 import lime.graphics.opengl.GLShaderPrecisionFormat;
 import lime.graphics.opengl.GLTexture;
 import lime.graphics.opengl.GLUniformLocation;
+import lime.graphics.opengl.GL;
 import lime.utils.ArrayBuffer;
 import lime.utils.ArrayBufferView;
+import lime.utils.BytePointer;
 import lime.utils.Float32Array;
 import lime.utils.Int32Array;
 import lime.system.CFFIPointer;
@@ -401,8 +403,15 @@ class NativeGLRenderContext {
 	public var type (default, null):GLContextType;
 	public var version (default, null):Float;
 	
+	private var __arrayBufferBinding:GLBuffer;
+	private var __elementBufferBinding:GLBuffer;
 	private var __contextID:Int;
 	private var __currentProgram:GLProgram;
+	private var __framebufferBinding:GLFramebuffer;
+	private var __isContextLost:Bool;
+	private var __renderbufferBinding:GLRenderbuffer;
+	private var __texture2DBinding:GLTexture;
+	private var __textureCubeMapBinding:GLTexture;
 	
 	
 	private function new () {
@@ -563,6 +572,9 @@ class NativeGLRenderContext {
 	
 	public function bindBuffer (target:Int, buffer:GLBuffer):Void {
 		
+		if (target == ARRAY_BUFFER) __arrayBufferBinding = buffer;
+		if (target == ELEMENT_ARRAY_BUFFER) __elementBufferBinding = buffer;
+		
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_bind_buffer (target, buffer == null ? null : buffer.id);
 		#end
@@ -571,6 +583,8 @@ class NativeGLRenderContext {
 	
 	
 	public function bindFramebuffer (target:Int, framebuffer:GLFramebuffer):Void {
+		
+		__framebufferBinding = framebuffer;
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_bind_framebuffer (target, framebuffer == null ? null : framebuffer.id);
@@ -581,6 +595,8 @@ class NativeGLRenderContext {
 	
 	public function bindRenderbuffer (target:Int, renderbuffer:GLRenderbuffer):Void {
 		
+		__renderbufferBinding = renderbuffer;
+		
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_bind_renderbuffer (target, renderbuffer == null ? null : renderbuffer.id);
 		#end
@@ -589,6 +605,9 @@ class NativeGLRenderContext {
 	
 	
 	public function bindTexture (target:Int, texture:GLTexture):Void {
+		
+		if (target == TEXTURE_2D) __texture2DBinding = texture;
+		if (target == TEXTURE_CUBE_MAP) __textureCubeMapBinding = texture;
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_bind_texture (target, texture == null ? null : texture.id);
@@ -642,23 +661,23 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function bufferData (target:Int, data:ArrayBufferView, usage:Int, srcOffset:Int = 0, length:Int = 0):Void {
+	public function bufferData (target:Int, size:Int, srcData:BytePointer, usage:Int, srcOffset:Int = 0, length:Int = 0):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_buffer_data (target, data.buffer, data.byteOffset, data.byteLength, usage);
+		NativeCFFI.lime_gl_buffer_data (target, srcData.bytes, srcData.offset, size, usage);
 		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_buffer_data (target, data, data.byteOffset, data.byteLength, usage);
+		NativeCFFI.lime_gl_buffer_data (target, srcData.bytes.getData (), srcData.offset, size, usage);
 		#end
 		
 	}
 	
 	
-	public function bufferSubData (target:Int, offset:Int, data:ArrayBufferView, srcOffset:Int = 0, length:Int = 0):Void {
+	public function bufferSubData (target:Int, dstByteOffset:Int, size:Int, srcData:BytePointer, srcOffset:Int = 0, length:Int = 0):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_buffer_sub_data (target, offset, data.buffer, data.byteOffset, data.byteLength);
+		NativeCFFI.lime_gl_buffer_sub_data (target, dstByteOffset, srcData.bytes, srcData.offset, size);
 		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_buffer_sub_data (target, offset, data, data.byteOffset, data.byteLength);
+		NativeCFFI.lime_gl_buffer_sub_data (target, dstByteOffset, srcData.bytes.getData (), srcData.offset, size);
 		#end
 		
 	}
@@ -729,25 +748,25 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, data:ArrayBufferView, srcOffset:Int = 0, length:Int = 0):Void {
+	public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:BytePointer, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		var buffer = data == null ? null : data.buffer;
-		NativeCFFI.lime_gl_compressed_tex_image_2d (target, level, internalformat, width, height, border, buffer, data == null ? 0 : data.byteOffset);
+		var buffer = srcData == null ? null : srcData.bytes;
+		NativeCFFI.lime_gl_compressed_tex_image_2d (target, level, internalformat, width, height, border, buffer, srcData == null ? 0 : srcData.offset);
 		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_compressed_tex_image_2d (target, level, internalformat, width, height, border, data == null ? null : data , data == null ? null : data.byteOffset);
+		NativeCFFI.lime_gl_compressed_tex_image_2d (target, level, internalformat, width, height, border, srcData == null ? null : srcData.bytes.getData (), srcData == null ? null : srcData.offset);
 		#end
 		
 	}
 	
 	
-	public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, data:ArrayBufferView, srcOffset:Int = 0, length:Int = 0):Void {
+	public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:BytePointer, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		var buffer = data == null ? null : data.buffer;
-		NativeCFFI.lime_gl_compressed_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, buffer, data == null ? 0 : data.byteOffset);
+		var buffer = srcData == null ? null : srcData.bytes;
+		NativeCFFI.lime_gl_compressed_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, buffer, srcData == null ? 0 : srcData.offset);
 		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_compressed_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, data == null ? null : data, data == null ? null : data.byteOffset);
+		NativeCFFI.lime_gl_compressed_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, srcData == null ? null : srcData.bytes.getData (), srcData == null ? null : srcData.offset);
 		#end
 		
 	}
@@ -1096,6 +1115,28 @@ class NativeGLRenderContext {
 	}
 	
 	
+	public function getBoolean (pname:Int):Bool {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		return NativeCFFI.lime_gl_get_boolean (pname);
+		#else
+		return false;
+		#end
+		
+	}
+	
+	
+	public function getBooleanv (pname:Int):Array<Bool> {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		return NativeCFFI.lime_gl_get_booleanv (pname);
+		#else
+		return null;
+		#end
+		
+	}
+	
+	
 	public function getBufferParameter (target:Int, pname:Int):Int /*Dynamic*/ {
 		
 		#if (lime_cffi && lime_opengl && !macro)
@@ -1153,7 +1194,31 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function getFramebufferAttachmentParameter (target:Int, attachment:Int, pname:Int):Int /*Dynamic*/ {
+	public function getFloat (pname:Int):Float {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		return NativeCFFI.lime_gl_get_float (pname);
+		#else
+		return 0;
+		#end
+		
+	}
+	
+	
+	public function getFloatv (pname:Int):Array<Float> {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		return NativeCFFI.lime_gl_get_floatv (pname);
+		#else
+		return null;
+		#end
+		
+	}
+	
+	
+	public function getFramebufferAttachmentParameter (target:Int, attachment:Int, pname:Int):Dynamic {
+		
+		// TODO: FRAMEBUFFER_ATTACHMENT_OBJECT_NAME
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		return NativeCFFI.lime_gl_get_framebuffer_attachment_parameter (target, attachment, pname);
@@ -1164,13 +1229,91 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function getParameter (pname:Int):Dynamic {
+	public function getInteger (pname:Int):Int {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_parameter (pname);
+		return NativeCFFI.lime_gl_get_integer (pname);
+		#else
+		return 0;
+		#end
+		
+	}
+	
+	
+	public function getIntegerv (pname:Int):Array<Int> {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		return NativeCFFI.lime_gl_get_integerv (pname);
 		#else
 		return null;
 		#end
+		
+	}
+	
+	
+	public function getParameter (pname:Int):Dynamic {
+		
+		switch (pname) {
+			
+			case GL.BLEND, GL.CULL_FACE, GL.DEPTH_TEST, GL.DEPTH_WRITEMASK, GL.DITHER, GL.POLYGON_OFFSET_FILL, GL.SAMPLE_COVERAGE_INVERT, GL.SCISSOR_TEST, GL.STENCIL_TEST, GL.UNPACK_FLIP_Y_WEBGL, GL.UNPACK_PREMULTIPLY_ALPHA_WEBGL:
+				
+				return getBoolean (pname);
+			
+			case GL.COLOR_WRITEMASK:
+				
+				return getBooleanv (pname);
+			
+			case GL.DEPTH_CLEAR_VALUE, GL.LINE_WIDTH, GL.POLYGON_OFFSET_FACTOR, GL.POLYGON_OFFSET_UNITS, GL.SAMPLE_COVERAGE_VALUE:
+				
+				return getFloat (pname);
+			
+			case GL.ALIASED_LINE_WIDTH_RANGE, GL.ALIASED_POINT_SIZE_RANGE, GL.BLEND_COLOR, GL.COLOR_CLEAR_VALUE, GL.DEPTH_RANGE:
+				
+				return getFloatv (pname);
+			
+			case GL.ACTIVE_TEXTURE, GL.ALPHA_BITS, GL.BLEND_DST_ALPHA, GL.BLEND_DST_RGB, GL.BLEND_EQUATION, GL.BLEND_EQUATION_ALPHA, GL.BLEND_EQUATION_RGB, GL.BLEND_SRC_ALPHA, GL.BLEND_SRC_RGB, GL.BLUE_BITS, GL.CULL_FACE_MODE, GL.DEPTH_BITS, GL.DEPTH_FUNC, GL.FRONT_FACE, GL.GENERATE_MIPMAP_HINT, GL.GREEN_BITS, GL.IMPLEMENTATION_COLOR_READ_FORMAT, GL.IMPLEMENTATION_COLOR_READ_TYPE, GL.MAX_COMBINED_TEXTURE_IMAGE_UNITS, GL.MAX_CUBE_MAP_TEXTURE_SIZE, GL.MAX_FRAGMENT_UNIFORM_VECTORS, GL.MAX_RENDERBUFFER_SIZE, GL.MAX_TEXTURE_IMAGE_UNITS, GL.MAX_TEXTURE_SIZE, GL.MAX_VARYING_VECTORS, GL.MAX_VERTEX_ATTRIBS, GL.MAX_VERTEX_TEXTURE_IMAGE_UNITS, GL.MAX_VERTEX_UNIFORM_VECTORS, GL.PACK_ALIGNMENT, GL.RED_BITS, GL.SAMPLE_BUFFERS, GL.SAMPLES, GL.STENCIL_BACK_FAIL, GL.STENCIL_BACK_FUNC, GL.STENCIL_BACK_PASS_DEPTH_FAIL, GL.STENCIL_BACK_PASS_DEPTH_PASS, GL.STENCIL_BACK_REF, GL.STENCIL_BACK_VALUE_MASK, GL.STENCIL_BACK_WRITEMASK, GL.STENCIL_BITS, GL.STENCIL_CLEAR_VALUE, GL.STENCIL_FAIL, GL.STENCIL_FUNC, GL.STENCIL_PASS_DEPTH_FAIL, GL.STENCIL_PASS_DEPTH_PASS, GL.STENCIL_REF, GL.STENCIL_VALUE_MASK, GL.STENCIL_WRITEMASK, GL.SUBPIXEL_BITS, GL.UNPACK_ALIGNMENT, GL.UNPACK_COLORSPACE_CONVERSION_WEBGL:
+				
+				return getInteger (pname);
+			
+			case GL.COMPRESSED_TEXTURE_FORMATS, GL.MAX_VIEWPORT_DIMS, GL.SCISSOR_BOX, GL.VIEWPORT:
+				
+				return getIntegerv (pname);
+			
+			case GL.RENDERER, GL.SHADING_LANGUAGE_VERSION, GL.VENDOR, GL.VERSION:
+				
+				return getString (pname);
+			
+			// TODO: Handle if context is modified elsewhere
+			
+			case GL.ARRAY_BUFFER_BINDING:
+				
+				return __arrayBufferBinding;
+			
+			case GL.ELEMENT_ARRAY_BUFFER_BINDING:
+				
+				return __elementBufferBinding;
+			
+			case GL.CURRENT_PROGRAM:
+				
+				return __currentProgram;
+			
+			case GL.FRAMEBUFFER_BINDING:
+				
+				return __framebufferBinding;
+			
+			case GL.TEXTURE_BINDING_2D:
+				
+				return __texture2DBinding;
+			
+			case GL.TEXTURE_BINDING_CUBE_MAP:
+				
+				return __textureCubeMapBinding;
+			
+			default:
+				
+				return null;
+			
+		}
 		
 	}
 	
@@ -1186,7 +1329,7 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function getProgramParameter (program:GLProgram, pname:Int):Int {
+	public function getProgramParameter (program:GLProgram, pname:Int):Dynamic {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		return NativeCFFI.lime_gl_get_program_parameter (program.id, pname);
@@ -1246,6 +1389,17 @@ class NativeGLRenderContext {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		return NativeCFFI.lime_gl_get_shader_source (shader.id);
+		#else
+		return null;
+		#end
+		
+	}
+	
+	
+	public function getString (pname:Int):String {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		return NativeCFFI.lime_gl_get_string (pname);
 		#else
 		return null;
 		#end
@@ -1357,7 +1511,7 @@ class NativeGLRenderContext {
 	
 	public function isContextLost ():Bool {
 		
-		return false;
+		return __isContextLost;
 		
 	}
 	
@@ -1566,13 +1720,13 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
+	public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:BytePointer, srcOffset:Int = 0):Void {
 		
 		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		var buffer = pixels == null ? null : pixels.buffer;
-		NativeCFFI.lime_gl_tex_image_2d (target, level, internalformat, width, height, border, format, type, buffer, pixels == null ? 0 : pixels.byteOffset);
+		var buffer = srcData == null ? null : srcData.bytes;
+		NativeCFFI.lime_gl_tex_image_2d (target, level, internalformat, width, height, border, format, type, buffer, srcData == null ? 0 : srcData.offset);
 		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_tex_image_2d (target, level, internalformat, width, height, border, format, type, pixels == null ? null : pixels, pixels == null ? null : pixels.byteOffset);
+		NativeCFFI.lime_gl_tex_image_2d (target, level, internalformat, width, height, border, format, type, srcData == null ? null : srcData.bytes.getData (), srcData == null ? null : srcData.offset);
 		#end
 		
 	}
@@ -1801,13 +1955,6 @@ class NativeGLRenderContext {
 	}
 	
 	
-	/*public function uniformMatrix3D(location:GLUniformLocation, transpose:Bool, matrix:Matrix3D):Void {
-		
-		NativeCFFI.lime_gl_uniform_matrix(location, transpose, Float32Array.fromMatrix(matrix).getByteBuffer() , 4);
-		
-	}*/
-	
-	
 	public function useProgram (program:GLProgram):Void {
 		
 		__currentProgram = program;
@@ -1922,6 +2069,20 @@ class NativeGLRenderContext {
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_viewport (x, y, width, height);
 		#end
+		
+	}
+	
+	
+	private function __contextLost ():Void {
+		
+		__isContextLost = true;
+		__arrayBufferBinding = null;
+		__elementBufferBinding = null;
+		__currentProgram = null;
+		__framebufferBinding = null;
+		__renderbufferBinding = null;
+		__texture2DBinding = null;
+		__textureCubeMapBinding = null;
 		
 	}
 	

@@ -424,7 +424,18 @@ class NativeApplication {
 					
 				case RENDER_CONTEXT_LOST:
 					
-					if (renderer.backend.useHardware) {
+					if (renderer.backend.useHardware && renderer.context != null) {
+						
+						switch (renderer.context) {
+							
+							case OPENGL (gl):
+								
+								(gl:NativeGLRenderContext).__contextLost ();
+								if (GL.context == gl) GL.context = null;
+							
+							default:
+							
+						}
 						
 						renderer.context = null;
 						renderer.onContextLost.dispatch ();

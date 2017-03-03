@@ -350,8 +350,8 @@ extern class GLRenderContext {
 	public function blendEquationSeparate (modeRGB:Int, modeAlpha:Int):Void;
 	public function blendFunc (sfactor:Int, dfactor:Int):Void;
 	public function blendFuncSeparate (srcRGB:Int, dstRGB:Int, srcAlpha:Int, dstAlpha:Int):Void;
-	public function bufferData (target:Int, srcData:lime.utils.ArrayBufferView, usage:Int, srcOffset:Int = 0, length:Int = 0):Void;
-	public function bufferSubData (target:Int, offset:Int, srcData:lime.utils.ArrayBufferView, srcOffset:Int = 0, length:Int = 0):Void;
+	public function bufferData (target:Int, size:Int, srcData:lime.utils.ArrayBufferView, usage:Int, srcOffset:Int = 0, length:Int = 0):Void;
+	public function bufferSubData (target:Int, dstByteOffset:Int, size:Int, srcData:lime.utils.ArrayBufferView, srcOffset:Int = 0, length:Int = 0):Void;
 	public function checkFramebufferStatus (target:Int):Int;
 	public function clear (mask:Int):Void;
 	public function clearColor (red:Float, green:Float, blue:Float, alpha:Float):Void;
@@ -396,7 +396,7 @@ extern class GLRenderContext {
 	public function getActiveUniform (program:GLProgram, index:Int):GLActiveInfo;
 	public function getAttachedShaders (program:GLProgram):Array<GLShader>;
 	public function getAttribLocation (program:GLProgram, name:String):Int;
-	public function getBufferParameter (target:Int, pname:Int):Dynamic;
+	public function getBufferParameter (target:Int, pname:Int):Int;
 	public function getContextAttributes ():GLContextAttributes;
 	public function getError ():Int;
 	public function getExtension (name:String):Dynamic;
@@ -404,7 +404,7 @@ extern class GLRenderContext {
 	public function getParameter (pname:Int):Dynamic;
 	public function getProgramInfoLog (program:GLProgram):String;
 	public function getProgramParameter (program:GLProgram, pname:Int):Dynamic;
-	public function getRenderbufferParameter (target:Int, pname:Int):Dynamic;
+	public function getRenderbufferParameter (target:Int, pname:Int):Int;
 	public function getShaderInfoLog (shader:GLShader):String;
 	public function getShaderParameter (shader:GLShader, pname:Int):Dynamic;
 	public function getShaderPrecisionFormat (shadertype:Int, precisiontype:Int):GLShaderPrecisionFormat;

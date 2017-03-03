@@ -1,13 +1,19 @@
 package lime.graphics.opengl;
 
 
+import haxe.io.Bytes;
 import lime.utils.ArrayBufferView;
+import lime.utils.BytePointer;
 import lime.utils.Float32Array;
 import lime.utils.Int32Array;
 
 
 abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	
+	
+	private static var __extensions:String;
+	
+	public var EXTENSIONS (get, never):Int;
 	
 	public var DEPTH_BUFFER_BIT (get, never):Int;
 	public var STENCIL_BUFFER_BIT (get, never):Int;
@@ -158,8 +164,6 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	public var ALPHA (get, never):Int;
 	public var RGB (get, never):Int;
 	public var RGBA (get, never):Int;
-	public var BGR_EXT (get, never):Int;
-	public var BGRA_EXT (get, never):Int;
 	public var LUMINANCE (get, never):Int;
 	public var LUMINANCE_ALPHA (get, never):Int;
 	
@@ -361,6 +365,7 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	public var type (get, never):GLContextType;
 	public var version (get, never):Float;
 	
+	private inline function get_EXTENSIONS ():Int { return 0x1F03; }
 	private inline function get_DEPTH_BUFFER_BIT ():Int { return this.DEPTH_BUFFER_BIT; }
 	private inline function get_STENCIL_BUFFER_BIT ():Int { return this.STENCIL_BUFFER_BIT; }
 	private inline function get_COLOR_BUFFER_BIT ():Int { return this.COLOR_BUFFER_BIT; }
@@ -488,8 +493,6 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	private inline function get_ALPHA ():Int { return this.ALPHA; }
 	private inline function get_RGB ():Int { return this.RGB; }
 	private inline function get_RGBA ():Int { return this.RGBA; }
-	private inline function get_BGR_EXT ():Int { #if (js && html5) return 0; #else return this.BGR_EXT; #end } // TODO
-	private inline function get_BGRA_EXT ():Int { #if (js && html5) return 0; #else return this.BGRA_EXT; #end } // TODO
 	private inline function get_LUMINANCE ():Int { return this.LUMINANCE; }
 	private inline function get_LUMINANCE_ALPHA ():Int { return this.LUMINANCE_ALPHA; }
 	private inline function get_UNSIGNED_SHORT_4_4_4_4 ():Int { return this.UNSIGNED_SHORT_4_4_4_4; }
@@ -748,16 +751,16 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function bufferData (target:Int, data:ArrayBufferView, usage:Int):Void {
+	public inline function bufferData (target:Int, size:Int, data:BytePointer, usage:Int):Void {
 		
-		this.bufferData (target, data, usage);
+		this.bufferData (target, size, data, usage);
 		
 	}
 	
 	
-	public inline function bufferSubData (target:Int, offset:Int, data:ArrayBufferView):Void {
+	public inline function bufferSubData (target:Int, offset:Int, size:Int, data:BytePointer):Void {
 		
-		this.bufferSubData (target, offset, data);
+		this.bufferSubData (target, offset, size, data);
 		
 	}
 	
@@ -783,7 +786,7 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function clearDepth (depth:Float):Void {
+	public inline function clearDepthf (depth:Float):Void {
 		
 		this.clearDepth (depth);
 		
@@ -811,14 +814,14 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, data:ArrayBufferView):Void {
+	public inline function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, imageSize:Int, data:BytePointer):Void {
 		
 		this.compressedTexImage2D (target, level, internalformat, width, height, border, data);
 		
 	}
 	
 	
-	public inline function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, data:ArrayBufferView):Void {
+	public inline function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, imageSize:Int, data:BytePointer):Void {
 		
 		this.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, data);
 		
@@ -944,7 +947,7 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function depthRange (zNear:Float, zFar:Float):Void {
+	public inline function depthRangef (zNear:Float, zFar:Float):Void {
 		
 		this.depthRange (zNear, zFar);
 		
@@ -979,9 +982,9 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function drawElements (mode:Int, count:Int, type:Int, offset:Int):Void {
+	public inline function drawElements (mode:Int, count:Int, type:Int, pointer:Int):Void {
 		
-		this.drawElements (mode, count, type, offset);
+		this.drawElements (mode, count, type, pointer);
 		
 	}
 	
@@ -1035,9 +1038,69 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
+	public function genBuffers (n:Int, buffers:Array<GLBuffer> = null):Array<GLBuffer> {
+		
+		if (buffers == null) buffers = [];
+		
+		for (i in 0...n) {
+			
+			buffers[i] = createBuffer ();
+			
+		}
+		
+		return buffers;
+		
+	}
+	
+	
 	public inline function generateMipmap (target:Int):Void {
 		
 		this.generateMipmap (target);
+		
+	}
+	
+	
+	public function genFramebuffers (n:Int, framebuffers:Array<GLFramebuffer> = null):Array<GLFramebuffer> {
+		
+		if (framebuffers == null) framebuffers = [];
+		
+		for (i in 0...n) {
+			
+			framebuffers[i] = createFramebuffer ();
+			
+		}
+		
+		return framebuffers;
+		
+	}
+	
+	
+	public function genRenderbuffers (n:Int, renderbuffers:Array<GLRenderbuffer> = null):Array<GLRenderbuffer> {
+		
+		if (renderbuffers == null) renderbuffers = [];
+		
+		for (i in 0...n) {
+			
+			renderbuffers[i] = createRenderbuffer ();
+			
+		}
+		
+		return renderbuffers;
+		
+	}
+	
+	
+	public function genTextures (n:Int, textures:Array<GLTexture> = null):Array<GLTexture> {
+		
+		if (textures == null) textures = [];
+		
+		for (i in 0...n) {
+			
+			textures[i] = createTexture ();
+			
+		}
+		
+		return textures;
 		
 	}
 	
@@ -1070,16 +1133,65 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function getBufferParameter (target:Int, pname:Int):Int /*Dynamic*/ {
+	public inline function getBoolean (pname:Int):Bool {
+		
+		return this.getBoolean (pname);
+		
+	}
+	
+	
+	public function getBooleanv (pname:Int, params:Array<Bool> = null):Array<Bool> {
+		
+		var result = this.getBooleanv (pname);
+		
+		if (params != null) {
+			
+			for (i in 0...result.length) {
+				
+				params[i] = result[i];
+				
+			}
+			
+			return params;
+			
+		}
+		
+		return result;
+		
+	}
+	
+	
+	public inline function getBufferParameteri (target:Int, pname:Int):Int {
 		
 		return this.getBufferParameter (target, pname);
 		
 	}
 	
 	
-	public inline function getContextAttributes ():GLContextAttributes {
+	public function getBufferParameteriv (target:Int, pname:Int, params:Array<Int> = null):Array<Int> {
 		
-		return this.getContextAttributes ();
+		var result:Int = this.getBufferParameter (target, pname);
+		
+		if (params == null) params = [];
+		params[0] = result;
+		
+		return params;
+		
+		//var result = this.getBufferParameter (target, attachment, pname);
+		//
+		//if (params != null) {
+			//
+			//for (i in 0...result.length) {
+				//
+				//params[i] = result[i];;
+				//
+			//}
+			//
+			//return params;
+			//
+		//}
+		//
+		//return result;
 		
 	}
 	
@@ -1091,23 +1203,93 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function getExtension (name:String):Dynamic {
+	public inline function getFloat (pname:Int):Float {
 		
-		return this.getExtension (name);
+		return this.getFloat (pname);
 		
 	}
 	
 	
-	public inline function getFramebufferAttachmentParameter (target:Int, attachment:Int, pname:Int):Int /*Dynamic*/ {
+	public function getFloatv (pname:Int, params:Array<Float> = null):Array<Float> {
+		
+		var result = this.getFloatv (pname);
+		
+		if (params != null) {
+			
+			for (i in 0...result.length) {
+				
+				params[i] = result[i];
+				
+			}
+			
+			return params;
+			
+		}
+		
+		return result;
+		
+	}
+	
+	
+	public inline function getFramebufferAttachmentParameteri (target:Int, attachment:Int, pname:Int):Dynamic {
 		
 		return this.getFramebufferAttachmentParameter (target, attachment, pname);
 		
 	}
 	
 	
-	public inline function getParameter (pname:Int):Dynamic {
+	public function getFramebufferAttachmentParameteriv (target:Int, attachment:Int, pname:Int, params:Array<Dynamic> = null):Array<Dynamic> {
 		
-		return this.getParameter (pname);
+		var result:Dynamic = this.getFramebufferAttachmentParameter (target, attachment, pname);
+		
+		if (params == null) params = [];
+		params[0] = result;
+		
+		return params;
+		
+		//var result = this.getFramebufferAttachmentParameter (target, attachment, pname);
+		//
+		//if (params != null) {
+			//
+			//for (i in 0...result.length) {
+				//
+				//params[i] = result[i];;
+				//
+			//}
+			//
+			//return params;
+			//
+		//}
+		//
+		//return result;
+		
+	}
+	
+	
+	public inline function getInteger (pname:Int):Int {
+		
+		return this.getInteger (pname);
+		
+	}
+	
+	
+	public function getIntegerv (pname:Int, params:Array<Int> = null):Array<Int> {
+		
+		var result = this.getIntegerv (pname);
+		
+		if (params != null) {
+			
+			for (i in 0...result.length) {
+				
+				params[i] = result[i];
+				
+			}
+			
+			return params;
+			
+		}
+		
+		return result;
 		
 	}
 	
@@ -1119,16 +1301,79 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function getProgramParameter (program:GLProgram, pname:Int):Int {
+	public inline function getProgrami (program:GLProgram, pname:Int):Dynamic {
 		
 		return this.getProgramParameter (program, pname);
 		
 	}
 	
 	
-	public inline function getRenderbufferParameter (target:Int, pname:Int):Int /*Dynamic*/ {
+	public function getProgramiv (program:GLProgram, pname:Int, params:Array<Dynamic> = null):Array<Dynamic> {
+		
+		var result:Dynamic = this.getProgramParameter (program, pname);
+		
+		if (params == null) params = [];
+		params[0] = result;
+		
+		return params;
+		
+		//var result:Array<Int> = this.getProgramParameter (program, pname);
+		//
+		//if (params != null) {
+			//
+			//for (i in 0...result.length) {
+				//
+				//params[i] = result[i];
+				//
+			//}
+			//
+			//return params;
+			//
+		//}
+		//
+		//return result;
+		
+	}
+	
+	
+	public inline function getRenderbufferParameteri (target:Int, pname:Int):Dynamic {
 		
 		return this.getRenderbufferParameter (target, pname);
+		
+	}
+	
+	
+	public function getRenderbufferParameteriv (target:Int, pname:Int, params:Array<Dynamic> = null):Array<Dynamic> {
+		
+		var result:Dynamic = this.getRenderbufferParameter (target, pname);
+		
+		if (params == null) params = [];
+		params[0] = result;
+		
+		return params;
+		
+		//var result:Array<Int> = this.getRenderbufferParameter (target, pname);
+		//
+		//if (params != null) {
+			//
+			//for (i in 0...result.length) {
+				//
+				//params[i] = result[i];
+				//
+			//}
+			//
+			//return params;
+			//
+		//}
+		//
+		//return result;
+		
+	}
+	
+	
+	public inline function getShaderi (shader:GLShader, pname:Int):Dynamic {
+		
+		return this.getShaderParameter (shader, pname);
 		
 	}
 	
@@ -1140,9 +1385,30 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function getShaderParameter (shader:GLShader, pname:Int):Int {
+	public function getShaderiv (shader:GLShader, pname:Int, params:Array<Int> = null):Array<Int> {
 		
-		return this.getShaderParameter (shader, pname);
+		var result:Dynamic = this.getShaderParameter (shader, pname);
+		
+		if (params == null) params = [];
+		params[0] = result;
+		
+		return params;
+		
+		//var result:Array<Int> = this.getShaderParameter (shader, pname);
+		//
+		//if (params != null) {
+			//
+			//for (i in 0...result.length) {
+				//
+				//params[i] = result[i];
+				//
+			//}
+			//
+			//return params;
+			//
+		//}
+		//
+		//return result;
 		
 	}
 	
@@ -1161,16 +1427,93 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function getSupportedExtensions ():Array<String> {
+	public inline function getString (name:Int):String {
 		
-		return this.getSupportedExtensions ();
+		if (name == EXTENSIONS) {
+			
+			if (__extensions == null) {
+				
+				__extensions = this.getSupportedExtensions ().join (" ");
+				
+			}
+			
+			return __extensions;
+			
+		} else {
+			
+			return this.getString (name);
+			
+		}
 		
 	}
 	
 	
-	public inline function getTexParameter (target:Int, pname:Int):Int /*Dynamic*/ {
+	public inline function getTexParameterf (target:Int, pname:Int):Float {
 		
 		return this.getTexParameter (target, pname);
+		
+	}
+	
+	
+	public function getTexParameterfv (target:Int, pname:Int, params:Array<Float> = null):Array<Float> {
+		
+		var result:Float = this.getTexParameter (target, pname);
+		
+		if (params == null) params = [];
+		params[0] = result;
+		
+		return params;
+		
+		//var result:Array<Float> = this.getTexParameter (target, pname);
+		//
+		//if (params != null) {
+			//
+			//for (i in 0...result.length) {
+				//
+				//params[i] = result[i];
+				//
+			//}
+			//
+			//return params;
+			//
+		//}
+		//
+		//return result;
+		
+	}
+	
+	
+	public inline function getTexParameteri (target:Int, pname:Int):Dynamic {
+		
+		return this.getTexParameter (target, pname);
+		
+	}
+	
+	
+	public function getTexParameteriv (target:Int, pname:Int, params:Array<Dynamic> = null):Array<Dynamic> {
+		
+		var result:Dynamic = this.getTexParameter (target, pname);
+		
+		if (params == null) params = [];
+		params[0] = result;
+		
+		return params;
+		
+		//var result:Array<Float> = this.getTexParameter (target, pname);
+		//
+		//if (params != null) {
+			//
+			//for (i in 0...result.length) {
+				//
+				//params[i] = result[i];
+				//
+			//}
+			//
+			//return params;
+			//
+		//}
+		//
+		//return result;
 		
 	}
 	
@@ -1189,14 +1532,77 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function getVertexAttrib (index:Int, pname:Int):Int /*Dynamic*/ {
+	public inline function getVertexAttribf (index:Int, pname:Int):Float {
 		
 		return this.getVertexAttrib (index, pname);
 		
 	}
 	
 	
-	public inline function getVertexAttribOffset (index:Int, pname:Int):Int {
+	public function getVertexAttribfv (index:Int, pname:Int, params:Array<Float> = null):Array<Float> {
+		
+		var result:Float = this.getVertexAttrib (index, pname);
+		
+		if (params == null) params = [];
+		params[0] = result;
+		
+		return params;
+		
+		//var result:Array<Float> = this.getVertexAttrib (index, pname);
+		//
+		//if (params != null) {
+			//
+			//for (i in 0...result.length) {
+				//
+				//params[i] = result[i];
+				//
+			//}
+			//
+			//return params;
+			//
+		//}
+		//
+		//return result;
+		
+	}
+	
+	
+	public inline function getVertexAttribi (index:Int, pname:Int):Dynamic {
+		
+		return this.getVertexAttrib (index, pname);
+		
+	}
+	
+	
+	public function getVertexAttribiv (index:Int, pname:Int, params:Array<Dynamic> = null):Array<Dynamic> {
+		
+		var result:Dynamic = this.getTexParameter (index, pname);
+		
+		if (params == null) params = [];
+		params[0] = result;
+		
+		return params;
+		
+		//var result:Array<Int> = this.getVertexAttrib (target, pname);
+		//
+		//if (params != null) {
+			//
+			//for (i in 0...result.length) {
+				//
+				//params[i] = result[i];
+				//
+			//}
+			//
+			//return params;
+			//
+		//}
+		//
+		//return result;
+		
+	}
+	
+	
+	public inline function getVertexAttribPointerv (index:Int, pname:Int):Int {
 		
 		return this.getVertexAttribOffset (index, pname);
 		
@@ -1213,13 +1619,6 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	public inline function isBuffer (buffer:GLBuffer):Bool {
 		
 		return this.isBuffer (buffer);
-		
-	}
-	
-	
-	public inline function isContextLost ():Bool {
-		
-		return this.isContextLost ();
 		
 	}
 	
@@ -1294,9 +1693,16 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
+	public inline function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, data:BytePointer):Void {
 		
-		this.readPixels (x, y, width, height, format, type, pixels);
+		this.readPixels (x, y, width, height, format, type, data);
+		
+	}
+	
+	
+	public inline function releaseShaderCompiler ():Void {
+		
+		
 		
 	}
 	
@@ -1318,6 +1724,13 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	public inline function scissor (x:Int, y:Int, width:Int, height:Int):Void {
 		
 		this.scissor (x, y, width, height);
+		
+	}
+	
+	
+	public inline function shaderBinary (n:Int, shaders:Array<GLShader>, binaryformat:Int, binary:BytePointer, length:Int):Void {
+		
+		
 		
 	}
 	
@@ -1357,23 +1770,23 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function stencilOp (fail:Int, zfail:Int, zpass:Int):Void {
+	public inline function stencilOp (sfail:Int, dpfail:Int, dppass:Int):Void {
 		
-		this.stencilOp (fail, zfail, zpass);
-		
-	}
-	
-	
-	public inline function stencilOpSeparate (face:Int, fail:Int, zfail:Int, zpass:Int):Void {
-		
-		this.stencilOpSeparate (face, fail, zfail, zpass);
+		this.stencilOp (sfail, dpfail, dppass);
 		
 	}
 	
 	
-	public inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
+	public inline function stencilOpSeparate (face:Int, sfail:Int, dpfail:Int, dppass:Int):Void {
 		
-		this.texImage2D (target, level, internalformat, width, height, border, format, type, pixels);
+		this.stencilOpSeparate (face, sfail, dpfail, dppass);
+		
+	}
+	
+	
+	public inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:BytePointer):Void {
+		
+		this.texImage2D (target, level, internalformat, width, height, border, format, type, data);
 		
 	}
 	
@@ -1392,9 +1805,9 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
+	public inline function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, data:BytePointer):Void {
 		
-		this.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, pixels);
+		this.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, data);
 		
 	}
 	
@@ -1532,13 +1945,6 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	/*public inline function uniformMatrix3D(location:GLUniformLocation, transpose:Bool, matrix:Matrix3D):Void {
-		
-		lime_gl_uniform_matrix(location, transpose, Float32Array.fromMatrix(matrix).getByteBuffer() , 4);
-		
-	}*/
-	
-	
 	public inline function useProgram (program:GLProgram):Void {
 		
 		this.useProgram (program);
@@ -1609,9 +2015,9 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function vertexAttribPointer (indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void {
+	public inline function vertexAttribPointer (indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, pointer:Int):Void {
 		
-		this.vertexAttribPointer (indx, size, type, normalized, stride, offset);
+		this.vertexAttribPointer (indx, size, type, normalized, stride, pointer);
 		
 	}
 	
