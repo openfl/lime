@@ -367,10 +367,9 @@ class GL {
 	public static inline var UNPACK_COLORSPACE_CONVERSION_WEBGL = 0x9243;
 	public static inline var BROWSER_DEFAULT_WEBGL = 0x9244;
 	
+	public static var context (default, null):GLRenderContext;
 	public static var type (get, null):GLContextType;
 	public static var version (get, null):Float;
-	
-	private static var context:GLRenderContext;
 	
 	private static var __currentProgram:GLProgram;
 	
