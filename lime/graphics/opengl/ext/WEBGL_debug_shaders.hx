@@ -1,0 +1,17 @@
+package lime.graphics.opengl.ext; #if (js && html5)
+
+
+import lime.graphics.opengl.GLShader;
+
+
+@:native("WEBGL_debug_shaders")
+extern class WEBGL_debug_shaders {
+	
+	
+	public function getTranslatedShaderSource (shader:GLShader):String;
+	
+	
+}
+
+
+#end

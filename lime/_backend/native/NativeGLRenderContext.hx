@@ -1,6 +1,7 @@
 package lime._backend.native;
 
 
+import lime.graphics.opengl.ext.*;
 import lime.graphics.opengl.GLActiveInfo;
 import lime.graphics.opengl.GLBuffer;
 import lime.graphics.opengl.GLContextAttributes;
@@ -31,7 +32,10 @@ import lime.system.System;
 class NativeGLRenderContext {
 	
 	
+	private static var __extensionObjects = new Map<String, Dynamic> ();
+	private static var __extensionObjectTypes = new Map<String, Class<Dynamic>> ();
 	private static var __lastContextID = 0;
+	private static var __supportedExtensions:Array<String>;
 	
 	public var DEPTH_BUFFER_BIT = 0x00000100;
 	public var STENCIL_BUFFER_BIT = 0x00000400;
@@ -93,6 +97,8 @@ class NativeGLRenderContext {
 	public var FRONT = 0x0404;
 	public var BACK = 0x0405;
 	public var FRONT_AND_BACK = 0x0408;
+	
+	public var TEXTURE_2D = 0x0DE1;
 	
 	public var CULL_FACE = 0x0B44;
 	public var BLEND = 0x0BE2;
@@ -162,6 +168,7 @@ class NativeGLRenderContext {
 	public var SAMPLE_COVERAGE_VALUE = 0x80AA;
 	public var SAMPLE_COVERAGE_INVERT = 0x80AB;
 	
+	public var NUM_COMPRESSED_TEXTURE_FORMATS = 0x86A2;
 	public var COMPRESSED_TEXTURE_FORMATS = 0x86A3;
 	
 	public var DONT_CARE = 0x1100;
@@ -177,13 +184,12 @@ class NativeGLRenderContext {
 	public var INT = 0x1404;
 	public var UNSIGNED_INT = 0x1405;
 	public var FLOAT = 0x1406;
+	public var FIXED = 0x0140C;
 	
 	public var DEPTH_COMPONENT = 0x1902;
 	public var ALPHA = 0x1906;
 	public var RGB = 0x1907;
 	public var RGBA = 0x1908;
-	public var BGR_EXT = 0x80E0;
-	public var BGRA_EXT = 0x80E1;
 	public var LUMINANCE = 0x1909;
 	public var LUMINANCE_ALPHA = 0x190A;
 	
@@ -206,7 +212,9 @@ class NativeGLRenderContext {
 	public var VALIDATE_STATUS = 0x8B83;
 	public var ATTACHED_SHADERS = 0x8B85;
 	public var ACTIVE_UNIFORMS = 0x8B86;
+	public var ACTIVE_UNIFORMS_MAX_LENGTH = 0x8B87;
 	public var ACTIVE_ATTRIBUTES = 0x8B89;
+	public var ACTIVE_ATTRIBUTES_MAX_LENGTH = 0x8B8A;
 	public var SHADING_LANGUAGE_VERSION = 0x8B8C;
 	public var CURRENT_PROGRAM = 0x8B8D;
 	
@@ -230,6 +238,7 @@ class NativeGLRenderContext {
 	public var VENDOR = 0x1F00;
 	public var RENDERER = 0x1F01;
 	public var VERSION = 0x1F02;
+	public var EXTENSIONS = 0x1F03;
 	
 	public var NEAREST = 0x2600;
 	public var LINEAR = 0x2601;
@@ -244,7 +253,6 @@ class NativeGLRenderContext {
 	public var TEXTURE_WRAP_S = 0x2802;
 	public var TEXTURE_WRAP_T = 0x2803;
 	
-	public var TEXTURE_2D = 0x0DE1;
 	public var TEXTURE = 0x1702;
 	
 	public var TEXTURE_CUBE_MAP = 0x8513;
@@ -319,10 +327,18 @@ class NativeGLRenderContext {
 	public var VERTEX_ATTRIB_ARRAY_POINTER = 0x8645;
 	public var VERTEX_ATTRIB_ARRAY_BUFFER_BINDING = 0x889F;
 	
+	public var IMPLEMENTATION_COLOR_READ_TYPE = 0x8B9A;
+	public var IMPLEMENTATION_COLOR_READ_FORMAT = 0x8B9B;
+	
 	public var VERTEX_PROGRAM_POINT_SIZE = 0x8642;
 	public var POINT_SPRITE = 0x8861;
 	
 	public var COMPILE_STATUS = 0x8B81;
+	public var INFO_LOG_LENGTH = 0x8B84;
+	public var SHADER_SOURCE_LENGTH = 0x8B88;
+	public var SHADER_COMPILER = 0x8DFA;
+	public var SHADER_BINARY_FORMATS = 0x8DF8;
+	public var NUM_SHADER_BINARY_FORMATS = 0x8DF9;
 	
 	public var LOW_FLOAT = 0x8DF0;
 	public var MEDIUM_FLOAT = 0x8DF1;
@@ -392,6 +408,109 @@ class NativeGLRenderContext {
 	private function new () {
 		
 		__contextID = __lastContextID++;
+		
+		__extensionObjectTypes["AMD_compressed_3DC_texture"] = AMD_compressed_3DC_texture;
+		__extensionObjectTypes["AMD_compressed_ATC_texture"] = AMD_compressed_ATC_texture;
+		__extensionObjectTypes["AMD_performance_monitor"] = AMD_performance_monitor;
+		__extensionObjectTypes["AMD_program_binary_Z400"] = AMD_program_binary_Z400;
+		__extensionObjectTypes["ANGLE_framebuffer_blit"] = ANGLE_framebuffer_blit;
+		__extensionObjectTypes["ANGLE_framebuffer_multisample"] = ANGLE_framebuffer_multisample;
+		__extensionObjectTypes["ANGLE_instanced_arrays"] = ANGLE_instanced_arrays;
+		__extensionObjectTypes["ANGLE_pack_reverse_row_order"] = ANGLE_pack_reverse_row_order;
+		__extensionObjectTypes["ANGLE_texture_compression_dxt3"] = ANGLE_texture_compression_dxt3;
+		__extensionObjectTypes["ANGLE_texture_compression_dxt5"] = ANGLE_texture_compression_dxt5;
+		__extensionObjectTypes["ANGLE_texture_usage"] = ANGLE_texture_usage;
+		__extensionObjectTypes["ANGLE_translated_shader_source"] = ANGLE_translated_shader_source;
+		__extensionObjectTypes["APPLE_copy_texture_levels"] = APPLE_copy_texture_levels;
+		__extensionObjectTypes["APPLE_framebuffer_multisample"] = APPLE_framebuffer_multisample;
+		__extensionObjectTypes["APPLE_rgb_422"] = APPLE_rgb_422;
+		__extensionObjectTypes["APPLE_sync"] = APPLE_sync;
+		__extensionObjectTypes["APPLE_texture_format_BGRA8888"] = APPLE_texture_format_BGRA8888;
+		__extensionObjectTypes["APPLE_texture_max_level"] = APPLE_texture_max_level;
+		__extensionObjectTypes["ARM_mali_program_binary"] = ARM_mali_program_binary;
+		__extensionObjectTypes["ARM_mali_shader_binary"] = ARM_mali_shader_binary;
+		__extensionObjectTypes["ARM_rgba8"] = ARM_rgba8;
+		__extensionObjectTypes["DMP_shader_binary"] = DMP_shader_binary;
+		__extensionObjectTypes["EXT_blend_minmax"] = EXT_blend_minmax;
+		__extensionObjectTypes["EXT_color_buffer_float"] = EXT_color_buffer_float;
+		__extensionObjectTypes["EXT_color_buffer_half_float"] = EXT_color_buffer_half_float;
+		__extensionObjectTypes["EXT_debug_label"] = EXT_debug_label;
+		__extensionObjectTypes["EXT_debug_marker"] = EXT_debug_marker;
+		__extensionObjectTypes["EXT_discard_framebuffer"] = EXT_discard_framebuffer;
+		__extensionObjectTypes["EXT_map_buffer_range"] = EXT_map_buffer_range;
+		__extensionObjectTypes["EXT_multi_draw_arrays"] = EXT_multi_draw_arrays;
+		__extensionObjectTypes["EXT_multisampled_render_to_texture"] = EXT_multisampled_render_to_texture;
+		__extensionObjectTypes["EXT_multiview_draw_buffers"] = EXT_multiview_draw_buffers;
+		__extensionObjectTypes["EXT_occlusion_query_boolean"] = EXT_occlusion_query_boolean;
+		__extensionObjectTypes["EXT_read_format_bgra"] = EXT_read_format_bgra;
+		__extensionObjectTypes["EXT_robustness"] = EXT_robustness;
+		__extensionObjectTypes["EXT_sRGB"] = EXT_sRGB;
+		__extensionObjectTypes["EXT_separate_shader_objects"] = EXT_separate_shader_objects;
+		__extensionObjectTypes["EXT_shader_framebuffer_fetch"] = EXT_shader_framebuffer_fetch;
+		__extensionObjectTypes["EXT_shader_texture_lod"] = EXT_shader_texture_lod;
+		__extensionObjectTypes["EXT_shadow_samplers"] = EXT_shadow_samplers;
+		__extensionObjectTypes["EXT_texture_compression_dxt1"] = EXT_texture_compression_dxt1;
+		__extensionObjectTypes["EXT_texture_filter_anisotropic"] = EXT_texture_filter_anisotropic;
+		__extensionObjectTypes["EXT_texture_format_BGRA8888"] = EXT_texture_format_BGRA8888;
+		__extensionObjectTypes["EXT_texture_rg"] = EXT_texture_rg;
+		__extensionObjectTypes["EXT_texture_storage"] = EXT_texture_storage;
+		__extensionObjectTypes["EXT_texture_type_2_10_10_10_REV"] = EXT_texture_type_2_10_10_10_REV;
+		__extensionObjectTypes["EXT_unpack_subimage"] = EXT_unpack_subimage;
+		__extensionObjectTypes["FJ_shader_binary_GCCSO"] = FJ_shader_binary_GCCSO;
+		__extensionObjectTypes["IMG_multisampled_render_to_texture"] = IMG_multisampled_render_to_texture;
+		__extensionObjectTypes["IMG_program_binary"] = IMG_program_binary;
+		__extensionObjectTypes["IMG_read_format"] = IMG_read_format;
+		__extensionObjectTypes["IMG_shader_binary"] = IMG_shader_binary;
+		__extensionObjectTypes["IMG_texture_compression_pvrtc"] = IMG_texture_compression_pvrtc;
+		__extensionObjectTypes["KHR_debug"] = KHR_debug;
+		__extensionObjectTypes["KHR_texture_compression_astc_ldr"] = KHR_texture_compression_astc_ldr;
+		__extensionObjectTypes["NV_coverage_sample"] = NV_coverage_sample;
+		__extensionObjectTypes["NV_depth_nonlinear"] = NV_depth_nonlinear;
+		__extensionObjectTypes["NV_draw_buffers"] = NV_draw_buffers;
+		__extensionObjectTypes["NV_fbo_color_attachments"] = NV_fbo_color_attachments;
+		__extensionObjectTypes["NV_fence"] = NV_fence;
+		__extensionObjectTypes["NV_read_buffer"] = NV_read_buffer;
+		__extensionObjectTypes["NV_read_buffer_front"] = NV_read_buffer_front;
+		__extensionObjectTypes["NV_read_depth"] = NV_read_depth;
+		__extensionObjectTypes["NV_read_depth_stencil"] = NV_read_depth_stencil;
+		__extensionObjectTypes["NV_read_stencil"] = NV_read_stencil;
+		__extensionObjectTypes["NV_texture_compression_s3tc_update"] = NV_texture_compression_s3tc_update;
+		__extensionObjectTypes["NV_texture_npot_2D_mipmap"] = NV_texture_npot_2D_mipmap;
+		__extensionObjectTypes["OES_EGL_image"] = OES_EGL_image;
+		__extensionObjectTypes["OES_EGL_image_external"] = OES_EGL_image_external;
+		__extensionObjectTypes["OES_compressed_ETC1_RGB8_texture"] = OES_compressed_ETC1_RGB8_texture;
+		__extensionObjectTypes["OES_compressed_paletted_texture"] = OES_compressed_paletted_texture;
+		__extensionObjectTypes["OES_depth24"] = OES_depth24;
+		__extensionObjectTypes["OES_depth32"] = OES_depth32;
+		__extensionObjectTypes["OES_depth_texture"] = OES_depth_texture;
+		__extensionObjectTypes["OES_element_index_uint"] = OES_element_index_uint;
+		__extensionObjectTypes["OES_get_program_binary"] = OES_get_program_binary;
+		__extensionObjectTypes["OES_mapbuffer"] = OES_mapbuffer;
+		__extensionObjectTypes["OES_packed_depth_stencil"] = OES_packed_depth_stencil;
+		__extensionObjectTypes["OES_required_internalformat"] = OES_required_internalformat;
+		__extensionObjectTypes["OES_rgb8_rgba8"] = OES_rgb8_rgba8;
+		__extensionObjectTypes["OES_standard_derivatives"] = OES_standard_derivatives;
+		__extensionObjectTypes["OES_stencil1"] = OES_stencil1;
+		__extensionObjectTypes["OES_stencil4"] = OES_stencil4;
+		__extensionObjectTypes["OES_surfaceless_context"] = OES_surfaceless_context;
+		__extensionObjectTypes["OES_texture_3D"] = OES_texture_3D;
+		__extensionObjectTypes["OES_texture_float"] = OES_texture_float;
+		__extensionObjectTypes["OES_texture_float_linear"] = OES_texture_float_linear;
+		__extensionObjectTypes["OES_texture_half_float"] = OES_texture_half_float;
+		__extensionObjectTypes["OES_texture_half_float_linear"] = OES_texture_half_float_linear;
+		__extensionObjectTypes["OES_texture_npot"] = OES_texture_npot;
+		__extensionObjectTypes["OES_vertex_array_object"] = OES_vertex_array_object;
+		__extensionObjectTypes["OES_vertex_half_float"] = OES_vertex_half_float;
+		__extensionObjectTypes["OES_vertex_type_10_10_10_2"] = OES_vertex_type_10_10_10_2;
+		__extensionObjectTypes["QCOM_alpha_test"] = QCOM_alpha_test;
+		__extensionObjectTypes["QCOM_binning_control"] = QCOM_binning_control;
+		__extensionObjectTypes["QCOM_driver_control"] = QCOM_driver_control;
+		__extensionObjectTypes["QCOM_extended_get"] = QCOM_extended_get;
+		__extensionObjectTypes["QCOM_extended_get2"] = QCOM_extended_get2;
+		__extensionObjectTypes["QCOM_perfmon_global_mode"] = QCOM_perfmon_global_mode;
+		__extensionObjectTypes["QCOM_tiled_rendering"] = QCOM_tiled_rendering;
+		__extensionObjectTypes["QCOM_writeonly_rendering"] = QCOM_writeonly_rendering;
+		__extensionObjectTypes["VIV_shader_binary"] = VIV_shader_binary;
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		var versionString:String = getParameter (VERSION);
@@ -1015,14 +1134,21 @@ class NativeGLRenderContext {
 	
 	public function getExtension (name:String):Dynamic {
 		
-		#if (lime_cffi && lime_opengl && !macro)
-		
-		// TODO: Return extension objects
-		
-		return NativeCFFI.lime_gl_get_extension (name);
-		#else
-		return null;
-		#end
+		if (__extensionObjects.exists (name)) {
+			
+			return __extensionObjects.get (name);
+			
+		} else if (__extensionObjectTypes.exists (name)) {
+			
+			var object = Type.createInstance (__extensionObjectTypes.get (name), []);
+			__extensionObjects.set (name, object);
+			return object;
+			
+		} else {
+			
+			return null;
+			
+		}
 		
 	}
 	
@@ -1129,13 +1255,27 @@ class NativeGLRenderContext {
 	
 	public function getSupportedExtensions ():Array<String> {
 		
-		#if (lime_cffi && lime_opengl && !macro)
-		var result = new Array<String> ();
-		NativeCFFI.lime_gl_get_supported_extensions (result);
-		return result;
-		#else
-		return null;
-		#end
+		if (__supportedExtensions == null) {
+			
+			__supportedExtensions = new Array<String> ();
+			
+			#if (lime_cffi && lime_opengl && !macro)
+			NativeCFFI.lime_gl_get_supported_extensions (__supportedExtensions);
+			
+			for (i in 0...__supportedExtensions.length) {
+				
+				if (StringTools.startsWith (__supportedExtensions[i], "GL_")) {
+					
+					__supportedExtensions[i] = __supportedExtensions[i].substr (3);
+					
+				}
+				
+			}
+			#end
+			
+		}
+		
+		return __supportedExtensions;
 		
 	}
 	

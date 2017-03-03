@@ -165,8 +165,6 @@ class GL {
 	public static inline var ALPHA = 0x1906;
 	public static inline var RGB = 0x1907;
 	public static inline var RGBA = 0x1908;
-	public static inline var BGR_EXT = 0x80E0;
-	public static inline var BGRA_EXT = 0x80E1;
 	public static inline var LUMINANCE = 0x1909;
 	public static inline var LUMINANCE_ALPHA = 0x190A;
 	
@@ -365,7 +363,8 @@ class GL {
 	public static inline var UNPACK_COLORSPACE_CONVERSION_WEBGL = 0x9243;
 	public static inline var BROWSER_DEFAULT_WEBGL = 0x9244;
 	
-	public static var version (get, null):Int;
+	public static var type (get, null):GLContextType;
+	public static var version (get, null):Float;
 	
 	private static var context:GLRenderContext;
 	
@@ -1333,7 +1332,8 @@ class GL {
 	}
 	
 	
-	private static function get_version ():Int { return 2; }
+	private static function get_type ():GLContextType { return context.type; }
+	private static function get_version ():Float { return context.version; }
 	
 	
 }

@@ -1184,11 +1184,31 @@ class HTML5GLRenderContext {
 		
 		if (version > 1) {
 			
-			__context.texImage2D (target, level, internalformat, width, height, border, format, type, srcData, srcOffset);
+			if (format == null) {
+				
+				var format:Int = width;
+				var type:Int = height;
+				var element:Dynamic = border;
+				
+				__context.texImage2D (target, level, internalformat, element.width, element.height, 0, format, type, element);
+				
+			} else {
+				
+				__context.texImage2D (target, level, internalformat, width, height, border, format, type, srcData, srcOffset);
+				
+			}
 			
 		} else {
 			
-			__context.texImage2D (target, level, internalformat, width, height, border, format, type, srcData);
+			if (format == null) {
+				
+				__context.texImage2D (target, level, internalformat, width, height, border); // format, type, pixels
+				
+			} else {
+				
+				__context.texImage2D (target, level, internalformat, width, height, border, format, type, srcData);
+				
+			}
 			
 		}
 		
@@ -1226,11 +1246,27 @@ class HTML5GLRenderContext {
 		
 		if (version > 1) {
 			
-			__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, srcData, srcOffset);
+			if (type == null) {
+				
+				__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format); // format, type, pixels/offset
+				
+			} else {
+				
+				__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, srcData, srcOffset);
+				
+			}
 			
 		} else {
 			
-			__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, srcData);
+			if (type == null) {
+				
+				__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format); // format, type, pixels
+				
+			} else {
+				
+				__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, srcData);
+				
+			}
 			
 		}
 		

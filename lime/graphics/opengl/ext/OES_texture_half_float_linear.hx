@@ -1,0 +1,32 @@
+package lime.graphics.opengl.ext;
+
+
+#if (!js || !html5 || display)
+
+
+class OES_texture_half_float_linear {
+	
+	
+	private function new () {
+		
+		
+		
+	}
+	
+	
+}
+
+
+#else
+
+
+@:native("OES_texture_half_float_linear")
+extern class OES_texture_half_float_linear {
+	
+	
+	
+	
+}
+
+
+#end
