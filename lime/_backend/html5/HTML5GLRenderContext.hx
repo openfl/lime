@@ -1199,9 +1199,9 @@ class HTML5GLRenderContext {
 	//public function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView, ?dstOffset:Int):Void {
 	public function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:Dynamic, ?dstOffset:Int):Void {
 		
-		srcData = __prepareData (null, srcData);
-		if (srcData == null) return;
-		if (Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
+		pixels = __prepareData (null, pixels);
+		if (pixels == null) return;
+		if (Std.is (pixels, ArrayBuffer)) pixels = new UInt8Array (pixels);
 		
 		if (version > 1) {
 			
