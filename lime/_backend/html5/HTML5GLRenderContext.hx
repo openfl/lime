@@ -1743,7 +1743,12 @@ extern class WebGL2RenderingContext extends WebGLRenderingContext {
 	
 	@:overload(function (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, offset:Int):Void {})
 	@:overload(function (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:js.html.ArrayBufferView, ?srcOffset:Int, ?srcLengthOverride:Int):Void {})
-	override function compressedTexSubImage2D( target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, data:js.html.ArrayBufferView):Void;
+	override function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, data:js.html.ArrayBufferView):Void;
+	
+	@:overload(function (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:js.html.ArrayBufferView):Void {})
+	@:overload(function (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, offset:Int):Void {})
+	@:overload(function (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:js.html.ArrayBufferView, dstOffset:Int):Void {})
+	override function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:js.html.ArrayBufferView):Void;
 	
 	@:overload(function (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, offset:Int):Void {})
 	@:overload(function (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:js.html.ArrayBufferView, srcOffset:Int):Void {})
@@ -1769,7 +1774,7 @@ extern class WebGL2RenderingContext extends WebGLRenderingContext {
 	@:overload(function (target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, pixels:js.html.ImageData):Void {})
 	@:overload(function (target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, image:js.html.ImageElement):Void {})
 	@:overload(function (target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, canvas:js.html.CanvasElement):Void {})
-	override function texSubImage2D( target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, video:js.html.VideoElement):Void;
+	override function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, video:js.html.VideoElement):Void;
 	
 	
 }
