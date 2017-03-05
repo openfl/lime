@@ -39,7 +39,7 @@ abstract BytePointer(BytePointerData) from BytePointerData to BytePointerData {
 		
 		if (arrayBufferView == null) return null;
 		
-		#if js
+		#if (js && !display)
 		return new BytePointerData (Bytes.ofData (arrayBufferView.buffer), arrayBufferView.byteOffset);
 		#else
 		return new BytePointerData ((arrayBufferView.buffer:Bytes), arrayBufferView.byteOffset);
@@ -52,7 +52,7 @@ abstract BytePointer(BytePointerData) from BytePointerData to BytePointerData {
 		
 		if (buffer == null) return null;
 		
-		#if js
+		#if (js && !display)
 		return new BytePointerData (Bytes.ofData (buffer), 0);
 		#else
 		return new BytePointerData ((buffer:Bytes), 0);
@@ -95,7 +95,7 @@ abstract BytePointer(BytePointerData) from BytePointerData to BytePointerData {
 	
 	@:to @:noCompletion public static function toUInt8Array (bytePointer:BytePointer):UInt8Array {
 		
-		#if js
+		#if (js && !display)
 		return new UInt8Array (bytePointer.bytes.getData (), Std.int (bytePointer.offset / 8));
 		#else
 		return new UInt8Array (bytePointer.bytes, Std.int (bytePointer.offset / 8));
@@ -106,7 +106,7 @@ abstract BytePointer(BytePointerData) from BytePointerData to BytePointerData {
 	
 	@:to @:noCompletion public static function toUInt8ClampedArray (bytePointer:BytePointer):UInt8ClampedArray {
 		
-		#if js
+		#if (js && !display)
 		return new UInt8ClampedArray (bytePointer.bytes.getData (), Std.int (bytePointer.offset / 8));
 		#else
 		return new UInt8ClampedArray (bytePointer.bytes, Std.int (bytePointer.offset / 8));
@@ -117,7 +117,7 @@ abstract BytePointer(BytePointerData) from BytePointerData to BytePointerData {
 	
 	@:to @:noCompletion public static function toInt8Array (bytePointer:BytePointer):Int8Array {
 		
-		#if js
+		#if (js && !display)
 		return new Int8Array (bytePointer.bytes.getData (), Std.int (bytePointer.offset / 8));
 		#else
 		return new Int8Array (bytePointer.bytes, Std.int (bytePointer.offset / 8));
@@ -128,7 +128,7 @@ abstract BytePointer(BytePointerData) from BytePointerData to BytePointerData {
 	
 	@:to @:noCompletion public static function toUInt16Array (bytePointer:BytePointer):UInt16Array {
 		
-		#if js
+		#if (js && !display)
 		return new UInt16Array (bytePointer.bytes.getData (), Std.int (bytePointer.offset / 16));
 		#else
 		return new UInt16Array (bytePointer.bytes, Std.int (bytePointer.offset / 16));
@@ -139,7 +139,7 @@ abstract BytePointer(BytePointerData) from BytePointerData to BytePointerData {
 	
 	@:to @:noCompletion public static function toInt16Array (bytePointer:BytePointer):Int16Array {
 		
-		#if js
+		#if (js && !display)
 		return new Int16Array (bytePointer.bytes.getData (), Std.int (bytePointer.offset / 16));
 		#else
 		return new Int16Array (bytePointer.bytes, Std.int (bytePointer.offset / 16));
@@ -150,7 +150,7 @@ abstract BytePointer(BytePointerData) from BytePointerData to BytePointerData {
 	
 	@:to @:noCompletion public static function toUInt32Array (bytePointer:BytePointer):UInt32Array {
 		
-		#if js
+		#if (js && !display)
 		return new UInt32Array (bytePointer.bytes.getData (), Std.int (bytePointer.offset / 32));
 		#else
 		return new UInt32Array (bytePointer.bytes, Std.int (bytePointer.offset / 32));
@@ -161,7 +161,7 @@ abstract BytePointer(BytePointerData) from BytePointerData to BytePointerData {
 	
 	@:to @:noCompletion public static function toInt32Array (bytePointer:BytePointer):Int32Array {
 		
-		#if js
+		#if (js && !display)
 		return new Int32Array (bytePointer.bytes.getData (), Std.int (bytePointer.offset / 32));
 		#else
 		return new Int32Array (bytePointer.bytes, Std.int (bytePointer.offset / 32));
@@ -172,7 +172,7 @@ abstract BytePointer(BytePointerData) from BytePointerData to BytePointerData {
 	
 	@:to @:noCompletion public static function toFloat32Array (bytePointer:BytePointer):Float32Array {
 		
-		#if js
+		#if (js && !display)
 		return new Float32Array (bytePointer.bytes.getData (), Std.int (bytePointer.offset / 32));
 		#else
 		return new Float32Array (bytePointer.bytes, Std.int (bytePointer.offset / 32));
@@ -183,7 +183,7 @@ abstract BytePointer(BytePointerData) from BytePointerData to BytePointerData {
 	
 	@:to @:noCompletion public static function toFloat64Array (bytePointer:BytePointer):Float64Array {
 		
-		#if js
+		#if (js && !display)
 		return new Float64Array (bytePointer.bytes.getData (), Std.int (bytePointer.offset / 64));
 		#else
 		return new Float64Array (bytePointer.bytes, Std.int (bytePointer.offset / 64));
