@@ -821,7 +821,7 @@ class HTML5GLRenderContext {
 	}
 	
 	
-	public inline function drawElements (mode:Int, count:Int, type:Int, offset:Int):Void {
+	public inline function drawElements (mode:Int, count:Int, type:Int, offset:Dynamic /*GLintptr*/):Void {
 		
 		__context.drawElements (mode, count, type, offset);
 		
@@ -1096,7 +1096,7 @@ class HTML5GLRenderContext {
 	}
 	
 	
-	public inline function getVertexAttribOffset (index:Int, pname:Int):Int {
+	public inline function getVertexAttribOffset (index:Int, pname:Int):Dynamic /*GLintptr*/ {
 		
 		return __context.getVertexAttribOffset (index, pname);
 		

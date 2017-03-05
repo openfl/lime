@@ -454,7 +454,7 @@ class NativeCFFI {
 	@:cffi private static function lime_gl_disable (cap:Int):Void;
 	@:cffi private static function lime_gl_disable_vertex_attrib_array (index:Int):Void;
 	@:cffi private static function lime_gl_draw_arrays (mode:Int, first:Int, count:Int):Void;
-	@:cffi private static function lime_gl_draw_elements (mode:Int, count:Int, type:Int, offset:Int):Void;
+	@:cffi private static function lime_gl_draw_elements (mode:Int, count:Int, type:Int, offset:CFFIPointer):Void;
 	@:cffi private static function lime_gl_enable (cap:Int):Void;
 	@:cffi private static function lime_gl_enable_vertex_attrib_array (index:Int):Void;
 	@:cffi private static function lime_gl_finish ():Void;
@@ -491,7 +491,7 @@ class NativeCFFI {
 	@:cffi private static function lime_gl_get_uniform (program:CFFIPointer, location:Int):Dynamic;
 	@:cffi private static function lime_gl_get_uniform_location (program:CFFIPointer, name:String):Int;
 	@:cffi private static function lime_gl_get_vertex_attrib (index:Int, pname:Int):Int;
-	@:cffi private static function lime_gl_get_vertex_attrib_offset (index:Int, pname:Int):Int;
+	@:cffi private static function lime_gl_get_vertex_attrib_offset (index:Int, pname:Int):CFFIPointer;
 	@:cffi private static function lime_gl_hint (target:Int, mode:Int):Void;
 	@:cffi private static function lime_gl_is_buffer (buffer:CFFIPointer):Bool;
 	@:cffi private static function lime_gl_is_enabled (cap:Int):Bool;

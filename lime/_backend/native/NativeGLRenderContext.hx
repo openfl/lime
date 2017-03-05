@@ -988,7 +988,7 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function drawElements (mode:Int, count:Int, type:Int, offset:Int):Void {
+	public function drawElements (mode:Int, count:Int, type:Int, offset:CFFIPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_draw_elements (mode, count, type, offset);
@@ -1478,7 +1478,7 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function getVertexAttribOffset (index:Int, pname:Int):Int {
+	public function getVertexAttribOffset (index:Int, pname:Int):CFFIPointer {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		return NativeCFFI.lime_gl_get_vertex_attrib_offset (index, pname);

@@ -387,7 +387,7 @@ extern class GLRenderContext {
 	public function disable (cap:Int):Void;
 	public function disableVertexAttribArray (index:Int):Void;
 	public function drawArrays (mode:Int, first:Int, count:Int):Void;
-	public function drawElements (mode:Int, count:Int, type:Int, offset:Int):Void;
+	public function drawElements (mode:Int, count:Int, type:Int, offset:Dynamic):Void;
 	public function enable (cap:Int):Void;
 	public function enableVertexAttribArray (index:Int):Void;
 	public function finish ():Void;
@@ -425,7 +425,7 @@ extern class GLRenderContext {
 	public function getUniform (program:GLProgram, location:GLUniformLocation):Dynamic;
 	public function getUniformLocation (program:GLProgram, name:String):GLUniformLocation;
 	public function getVertexAttrib (index:Int, pname:Int):Dynamic;
-	public function getVertexAttribOffset (index:Int, pname:Int):Int;
+	public function getVertexAttribOffset (index:Int, pname:Int):Dynamic;
 	public function hint (target:Int, mode:Int):Void;
 	public function isBuffer (buffer:GLBuffer):Bool;
 	public function isContextLost ():Bool;

@@ -618,9 +618,14 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_draw_elements (int inMode, int inCount, int inType, int inOffset) {
+	void lime_gl_draw_elements (int inMode, int inCount, int inType, value inOffset) {
 		
-		glDrawElements (inMode, inCount, inType, (void *)(intptr_t)inOffset);
+		if (!val_is_null (inOffset)) {
+			
+			GLintptr indices = reinterpret_cast<uintptr_t> (val_data (inOffset));
+			glDrawElements (inMode, inCount, inType, (void *)indices);
+			
+		}
 		
 	}
 	
@@ -1425,11 +1430,11 @@ namespace lime {
 	}
 	
 	
-	int lime_gl_get_vertex_attrib_offset (int index, int name) {
+	value lime_gl_get_vertex_attrib_offset (int index, int name) {
 		
-		int result = 0;
+		GLintptr result = 0;
 		glGetVertexAttribPointerv (index, name, (void **)&result);
-		return result;
+		return CFFIPointer ((void*)(uintptr_t)result);
 		
 	}
 	
