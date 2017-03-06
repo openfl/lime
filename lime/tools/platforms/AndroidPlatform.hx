@@ -315,6 +315,13 @@ class AndroidPlatform extends PlatformTarget {
 		context.ANDROID_GRADLE_PLUGIN = project.config.getString ("android.gradle-plugin", "2.1.0");
 		context.ANDROID_LIBRARY_PROJECTS = [];
 		
+		if (!project.environment.exists ("ANDROID_SDK") || !project.environment.exists ("ANDROID_NDK_ROOT")) {
+			
+			LogHelper.error ("You must define ANDROID_SDK and ANDROID_NDK_ROOT to target Android, please run '" + CommandLineTools.commandName + " setup android' first");
+			Sys.exit (1);
+			
+		}
+		
 		var escaped = ~/([ #!=\\:])/g;
 		context.ANDROID_SDK_ESCAPED = escaped.replace(context.ENV_ANDROID_SDK, "\\$1");
 		context.ANDROID_NDK_ROOT_ESCAPED = escaped.replace(context.ENV_ANDROID_NDK_ROOT, "\\$1");
