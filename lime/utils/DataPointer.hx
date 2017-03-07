@@ -27,7 +27,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 		#if (lime_cffi && !macro)
 		var float:Float = value;
 		return new DataPointer (float);
-		#elseif js
+		#elseif (js && !display)
 		return new DataPointer (value);
 		#else
 		return null;
@@ -40,7 +40,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 		
 		#if (lime_cffi && !macro)
 		return new DataPointer (value);
-		#elseif js
+		#elseif (js && !display)
 		return new DataPointer (value);
 		#else
 		return null;
@@ -55,7 +55,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 		if (pointer == null) return cast 0;
 		var data:Float = NativeCFFI.lime_bytes_get_data_pointer (pointer.bytes);
 		return new DataPointer (data + pointer.offset);
-		#elseif js
+		#elseif (js && !display)
 		return fromBytes (pointer.bytes);
 		#else
 		return null;
@@ -69,7 +69,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 		#if (lime_cffi && !macro)
 		if (arrayBufferView == null) return cast 0;
 		return fromBytes (arrayBufferView.buffer);
-		#elseif js
+		#elseif (js && !display)
 		return new DataPointer (arrayBufferView);
 		#else
 		return null;
@@ -83,7 +83,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 		#if (lime_cffi && !macro)
 		if (buffer == null) return cast 0;
 		return fromBytes (buffer);
-		#elseif js
+		#elseif (js && !display)
 		return new DataPointer (buffer);
 		#else
 		return null;
@@ -98,7 +98,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 		if (bytes == null) return cast 0;
 		var data:Float = NativeCFFI.lime_bytes_get_data_pointer (bytes);
 		return new DataPointer (data);
-		#elseif js
+		#elseif (js && !display)
 		return fromArrayBuffer (bytes.getData ());
 		#else
 		return null;
@@ -112,7 +112,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 		#if (lime_cffi && !macro)
 		if (bytesData == null) return cast 0;
 		return fromBytes (Bytes.ofData (bytesData));
-		#elseif js
+		#elseif (js && !display)
 		return fromArrayBuffer (bytesData);
 		#else
 		return null;

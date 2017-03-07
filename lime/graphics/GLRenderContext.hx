@@ -608,6 +608,10 @@ class GLRenderContext {
 	public var canvas (get, never):CanvasElement;
 	public var drawingBufferHeight (get, never):Int;
 	public var drawingBufferWidth (get, never):Int;
+	
+	private function get_canvas () { return null; }
+	private function get_drawingBufferHeight () { return 0; }
+	private function get_drawingBufferWidth () { return 0; }
 	#end
 	
 	public var type (default, null):GLContextType;
@@ -757,7 +761,7 @@ class GLRenderContext {
 	public function vertexAttrib3fv (indx:Int, values:lime.utils.Float32Array):Void {}
 	public function vertexAttrib4f (indx:Int, x:Float, y:Float, z:Float, w:Float):Void {}
 	public function vertexAttrib4fv (indx:Int, values:lime.utils.Float32Array):Void {}
-	public function vertexAttribPointer (indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void {}
+	public function vertexAttribPointer (indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:DataPointer):Void {}
 	public function viewport (x:Int, y:Int, width:Int, height:Int):Void {}
 	
 }

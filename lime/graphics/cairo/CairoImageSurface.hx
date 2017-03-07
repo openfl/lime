@@ -63,7 +63,7 @@ import lime.utils.DataPointer;
 		#if (lime_cffi && lime_cairo && !macro)
 		return NativeCFFI.lime_cairo_image_surface_get_data (this);
 		#else
-		return null;
+		return 0;
 		#end
 		
 	}

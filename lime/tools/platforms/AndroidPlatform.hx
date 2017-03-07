@@ -317,7 +317,12 @@ class AndroidPlatform extends PlatformTarget {
 		
 		if (!project.environment.exists ("ANDROID_SDK") || !project.environment.exists ("ANDROID_NDK_ROOT")) {
 			
-			LogHelper.error ("You must define ANDROID_SDK and ANDROID_NDK_ROOT to target Android, please run '" + CommandLineTools.commandName + " setup android' first");
+			var command = "lime";
+			var toolsBase = Type.resolveClass ("CommandLineTools");
+			if (toolsBase != null)
+				command = Reflect.field (toolsBase, "commandName");
+			
+			LogHelper.error ("You must define ANDROID_SDK and ANDROID_NDK_ROOT to target Android, please run '" + command + " setup android' first");
 			Sys.exit (1);
 			
 		}
