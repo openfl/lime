@@ -135,6 +135,20 @@ class ALAudioContext {
 	}
 	
 	
+	public function createSource ():ALSource {
+		
+		return AL.createSource ();
+		
+	}
+	
+	
+	public function createBuffer ():ALBuffer {
+		
+		return AL.createBuffer ();
+		
+	}
+	
+	
 	public function deleteBuffer (buffer:ALBuffer):Void {
 		
 		AL.deleteBuffer (buffer);
@@ -198,9 +212,9 @@ class ALAudioContext {
 	}
 	
 	
-	public function genSource ():ALSource {
+	@:deprecated public function genSource ():ALSource {
 		
-		return AL.genSource ();
+		return createSource ();
 		
 	}
 	
@@ -212,9 +226,9 @@ class ALAudioContext {
 	}
 	
 	
-	public function genBuffer ():ALBuffer {
+	@:deprecated public function genBuffer ():ALBuffer {
 		
-		return AL.genBuffer ();
+		return createBuffer ();
 		
 	}
 	

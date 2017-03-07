@@ -3,7 +3,7 @@ package lime.graphics.opengl;
 
 import haxe.io.Bytes;
 import lime.utils.ArrayBufferView;
-import lime.utils.BytePointer;
+import lime.utils.DataPointer;
 import lime.utils.Float32Array;
 import lime.utils.Int32Array;
 
@@ -751,14 +751,14 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function bufferData (target:Int, size:Int, data:BytePointer, usage:Int):Void {
+	public inline function bufferData (target:Int, size:Int, data:DataPointer, usage:Int):Void {
 		
 		this.bufferData (target, size, data, usage);
 		
 	}
 	
 	
-	public inline function bufferSubData (target:Int, offset:Int, size:Int, data:BytePointer):Void {
+	public inline function bufferSubData (target:Int, offset:Int, size:Int, data:DataPointer):Void {
 		
 		this.bufferSubData (target, offset, size, data);
 		
@@ -814,16 +814,16 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, imageSize:Int, data:BytePointer):Void {
+	public inline function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, imageSize:Int, data:DataPointer):Void {
 		
-		this.compressedTexImage2D (target, level, internalformat, width, height, border, data);
+		this.compressedTexImage2D (target, level, internalformat, width, height, border, imageSize, data);
 		
 	}
 	
 	
-	public inline function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, imageSize:Int, data:BytePointer):Void {
+	public inline function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, imageSize:Int, data:DataPointer):Void {
 		
-		this.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, data);
+		this.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, imageSize, data);
 		
 	}
 	
@@ -1602,7 +1602,7 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function getVertexAttribPointerv (index:Int, pname:Int):Int {
+	public inline function getVertexAttribPointerv (index:Int, pname:Int):DataPointer {
 		
 		return this.getVertexAttribOffset (index, pname);
 		
@@ -1693,7 +1693,7 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, data:BytePointer):Void {
+	public inline function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, data:DataPointer):Void {
 		
 		this.readPixels (x, y, width, height, format, type, data);
 		
@@ -1728,7 +1728,7 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function shaderBinary (n:Int, shaders:Array<GLShader>, binaryformat:Int, binary:BytePointer, length:Int):Void {
+	public inline function shaderBinary (n:Int, shaders:Array<GLShader>, binaryformat:Int, binary:DataPointer, length:Int):Void {
 		
 		
 		
@@ -1784,7 +1784,7 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:BytePointer):Void {
+	public inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:DataPointer):Void {
 		
 		this.texImage2D (target, level, internalformat, width, height, border, format, type, data);
 		
@@ -1805,7 +1805,7 @@ abstract GLES2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, data:BytePointer):Void {
+	public inline function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, data:DataPointer):Void {
 		
 		this.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, data);
 		

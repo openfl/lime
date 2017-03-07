@@ -3,6 +3,8 @@ package lime.graphics.opengl;
 
 import lime.utils.ArrayBuffer;
 import lime.utils.ArrayBufferView;
+import lime.utils.Bytes;
+import lime.utils.DataPointer;
 import lime.utils.Float32Array;
 import lime.utils.Int32Array;
 import lime.utils.UInt8Array;
@@ -366,6 +368,283 @@ abstract WebGLContext(GLRenderContext) from GLRenderContext to GLRenderContext {
 	public var CONTEXT_LOST_WEBGL (get, never):Int;
 	public var UNPACK_COLORSPACE_CONVERSION_WEBGL (get, never):Int;
 	public var BROWSER_DEFAULT_WEBGL (get, never):Int;
+	
+		public var READ_BUFFER (get, never):Int;
+	public var UNPACK_ROW_LENGTH (get, never):Int;
+	public var UNPACK_SKIP_ROWS (get, never):Int;
+	public var UNPACK_SKIP_PIXELS (get, never):Int;
+	public var PACK_ROW_LENGTH (get, never):Int;
+	public var PACK_SKIP_ROWS (get, never):Int;
+	public var PACK_SKIP_PIXELS (get, never):Int;
+	public var TEXTURE_BINDING_3D (get, never):Int;
+	public var UNPACK_SKIP_IMAGES (get, never):Int;
+	public var UNPACK_IMAGE_HEIGHT (get, never):Int;
+	public var MAX_3D_TEXTURE_SIZE (get, never):Int;
+	public var MAX_ELEMENTS_VERTICES (get, never):Int;
+	public var MAX_ELEMENTS_INDICES (get, never):Int;
+	public var MAX_TEXTURE_LOD_BIAS (get, never):Int;
+	public var MAX_FRAGMENT_UNIFORM_COMPONENTS (get, never):Int;
+	public var MAX_VERTEX_UNIFORM_COMPONENTS (get, never):Int;
+	public var MAX_ARRAY_TEXTURE_LAYERS (get, never):Int;
+	public var MIN_PROGRAM_TEXEL_OFFSET (get, never):Int;
+	public var MAX_PROGRAM_TEXEL_OFFSET (get, never):Int;
+	public var MAX_VARYING_COMPONENTS (get, never):Int;
+	public var FRAGMENT_SHADER_DERIVATIVE_HINT (get, never):Int;
+	public var RASTERIZER_DISCARD (get, never):Int;
+	public var VERTEX_ARRAY_BINDING (get, never):Int;
+	public var MAX_VERTEX_OUTPUT_COMPONENTS (get, never):Int;
+	public var MAX_FRAGMENT_INPUT_COMPONENTS (get, never):Int;
+	public var MAX_SERVER_WAIT_TIMEOUT (get, never):Int;
+	public var MAX_ELEMENT_INDEX (get, never):Int;
+	
+	public var RED (get, never):Int;
+	public var RGB8 (get, never):Int;
+	public var RGBA8 (get, never):Int;
+	public var RGB10_A2 (get, never):Int;
+	public var TEXTURE_3D (get, never):Int;
+	public var TEXTURE_WRAP_R (get, never):Int;
+	public var TEXTURE_MIN_LOD (get, never):Int;
+	public var TEXTURE_MAX_LOD (get, never):Int;
+	public var TEXTURE_BASE_LEVEL (get, never):Int;
+	public var TEXTURE_MAX_LEVEL (get, never):Int;
+	public var TEXTURE_COMPARE_MODE (get, never):Int;
+	public var TEXTURE_COMPARE_FUNC (get, never):Int;
+	public var SRGB (get, never):Int;
+	public var SRGB8 (get, never):Int;
+	public var SRGB8_ALPHA8 (get, never):Int;
+	public var COMPARE_REF_TO_TEXTURE (get, never):Int;
+	public var RGBA32F (get, never):Int;
+	public var RGB32F (get, never):Int;
+	public var RGBA16F (get, never):Int;
+	public var RGB16F (get, never):Int;
+	public var TEXTURE_2D_ARRAY (get, never):Int;
+	public var TEXTURE_BINDING_2D_ARRAY (get, never):Int;
+	public var R11F_G11F_B10F (get, never):Int;
+	public var RGB9_E5 (get, never):Int;
+	public var RGBA32UI (get, never):Int;
+	public var RGB32UI (get, never):Int;
+	public var RGBA16UI (get, never):Int;
+	public var RGB16UI (get, never):Int;
+	public var RGBA8UI (get, never):Int;
+	public var RGB8UI (get, never):Int;
+	public var RGBA32I (get, never):Int;
+	public var RGB32I (get, never):Int;
+	public var RGBA16I (get, never):Int;
+	public var RGB16I (get, never):Int;
+	public var RGBA8I (get, never):Int;
+	public var RGB8I (get, never):Int;
+	public var RED_INTEGER (get, never):Int;
+	public var RGB_INTEGER (get, never):Int;
+	public var RGBA_INTEGER (get, never):Int;
+	public var R8 (get, never):Int;
+	public var RG8 (get, never):Int;
+	public var R16F (get, never):Int;
+	public var R32F (get, never):Int;
+	public var RG16F (get, never):Int;
+	public var RG32F (get, never):Int;
+	public var R8I (get, never):Int;
+	public var R8UI (get, never):Int;
+	public var R16I (get, never):Int;
+	public var R16UI (get, never):Int;
+	public var R32I (get, never):Int;
+	public var R32UI (get, never):Int;
+	public var RG8I (get, never):Int;
+	public var RG8UI (get, never):Int;
+	public var RG16I (get, never):Int;
+	public var RG16UI (get, never):Int;
+	public var RG32I (get, never):Int;
+	public var RG32UI (get, never):Int;
+	public var R8_SNORM (get, never):Int;
+	public var RG8_SNORM (get, never):Int;
+	public var RGB8_SNORM (get, never):Int;
+	public var RGBA8_SNORM (get, never):Int;
+	public var RGB10_A2UI (get, never):Int;
+	public var TEXTURE_IMMUTABLE_FORMAT (get, never):Int;
+	public var TEXTURE_IMMUTABLE_LEVELS (get, never):Int;
+	
+	public var UNSIGNED_INT_2_10_10_10_REV (get, never):Int;
+	public var UNSIGNED_INT_10F_11F_11F_REV (get, never):Int;
+	public var UNSIGNED_INT_5_9_9_9_REV (get, never):Int;
+	public var FLOAT_32_UNSIGNED_INT_24_8_REV (get, never):Int;
+	public var UNSIGNED_INT_24_8 (get, never):Int;
+	public var HALF_FLOAT (get, never):Int;
+	public var RG (get, never):Int;
+	public var RG_INTEGER (get, never):Int;
+	public var INT_2_10_10_10_REV (get, never):Int;
+	
+	public var CURRENT_QUERY (get, never):Int;
+	public var QUERY_RESULT (get, never):Int;
+	public var QUERY_RESULT_AVAILABLE (get, never):Int;
+	public var ANY_SAMPLES_PASSED (get, never):Int;
+	public var ANY_SAMPLES_PASSED_CONSERVATIVE (get, never):Int;
+	
+	public var MAX_DRAW_BUFFERS (get, never):Int;
+	public var DRAW_BUFFER0 (get, never):Int;
+	public var DRAW_BUFFER1 (get, never):Int;
+	public var DRAW_BUFFER2 (get, never):Int;
+	public var DRAW_BUFFER3 (get, never):Int;
+	public var DRAW_BUFFER4 (get, never):Int;
+	public var DRAW_BUFFER5 (get, never):Int;
+	public var DRAW_BUFFER6 (get, never):Int;
+	public var DRAW_BUFFER7 (get, never):Int;
+	public var DRAW_BUFFER8 (get, never):Int;
+	public var DRAW_BUFFER9 (get, never):Int;
+	public var DRAW_BUFFER10 (get, never):Int;
+	public var DRAW_BUFFER11 (get, never):Int;
+	public var DRAW_BUFFER12 (get, never):Int;
+	public var DRAW_BUFFER13 (get, never):Int;
+	public var DRAW_BUFFER14 (get, never):Int;
+	public var DRAW_BUFFER15 (get, never):Int;
+	public var MAX_COLOR_ATTACHMENTS (get, never):Int;
+	public var COLOR_ATTACHMENT1 (get, never):Int;
+	public var COLOR_ATTACHMENT2 (get, never):Int;
+	public var COLOR_ATTACHMENT3 (get, never):Int;
+	public var COLOR_ATTACHMENT4 (get, never):Int;
+	public var COLOR_ATTACHMENT5 (get, never):Int;
+	public var COLOR_ATTACHMENT6 (get, never):Int;
+	public var COLOR_ATTACHMENT7 (get, never):Int;
+	public var COLOR_ATTACHMENT8 (get, never):Int;
+	public var COLOR_ATTACHMENT9 (get, never):Int;
+	public var COLOR_ATTACHMENT10 (get, never):Int;
+	public var COLOR_ATTACHMENT11 (get, never):Int;
+	public var COLOR_ATTACHMENT12 (get, never):Int;
+	public var COLOR_ATTACHMENT13 (get, never):Int;
+	public var COLOR_ATTACHMENT14 (get, never):Int;
+	public var COLOR_ATTACHMENT15 (get, never):Int;
+	
+	public var SAMPLER_3D (get, never):Int;
+	public var SAMPLER_2D_SHADOW (get, never):Int;
+	public var SAMPLER_2D_ARRAY (get, never):Int;
+	public var SAMPLER_2D_ARRAY_SHADOW (get, never):Int;
+	public var SAMPLER_CUBE_SHADOW (get, never):Int;
+	public var INT_SAMPLER_2D (get, never):Int;
+	public var INT_SAMPLER_3D (get, never):Int;
+	public var INT_SAMPLER_CUBE (get, never):Int;
+	public var INT_SAMPLER_2D_ARRAY (get, never):Int;
+	public var UNSIGNED_INT_SAMPLER_2D (get, never):Int;
+	public var UNSIGNED_INT_SAMPLER_3D (get, never):Int;
+	public var UNSIGNED_INT_SAMPLER_CUBE (get, never):Int;
+	public var UNSIGNED_INT_SAMPLER_2D_ARRAY (get, never):Int;
+	public var MAX_SAMPLES (get, never):Int;
+	public var SAMPLER_BINDING (get, never):Int;
+	
+	public var PIXEL_PACK_BUFFER (get, never):Int;
+	public var PIXEL_UNPACK_BUFFER (get, never):Int;
+	public var PIXEL_PACK_BUFFER_BINDING (get, never):Int;
+	public var PIXEL_UNPACK_BUFFER_BINDING (get, never):Int;
+	public var COPY_READ_BUFFER (get, never):Int;
+	public var COPY_WRITE_BUFFER (get, never):Int;
+	public var COPY_READ_BUFFER_BINDING (get, never):Int;
+	public var COPY_WRITE_BUFFER_BINDING (get, never):Int;
+	
+	public var FLOAT_MAT2x3 (get, never):Int;
+	public var FLOAT_MAT2x4 (get, never):Int;
+	public var FLOAT_MAT3x2 (get, never):Int;
+	public var FLOAT_MAT3x4 (get, never):Int;
+	public var FLOAT_MAT4x2 (get, never):Int;
+	public var FLOAT_MAT4x3 (get, never):Int;
+	public var UNSIGNED_INT_VEC2 (get, never):Int;
+	public var UNSIGNED_INT_VEC3 (get, never):Int;
+	public var UNSIGNED_INT_VEC4 (get, never):Int;
+	public var UNSIGNED_NORMALIZED (get, never):Int;
+	public var SIGNED_NORMALIZED (get, never):Int;
+	
+	public var VERTEX_ATTRIB_ARRAY_INTEGER (get, never):Int;
+	public var VERTEX_ATTRIB_ARRAY_DIVISOR (get, never):Int;
+	
+	public var TRANSFORM_FEEDBACK_BUFFER_MODE (get, never):Int;
+	public var MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS (get, never):Int;
+	public var TRANSFORM_FEEDBACK_VARYINGS (get, never):Int;
+	public var TRANSFORM_FEEDBACK_BUFFER_START (get, never):Int;
+	public var TRANSFORM_FEEDBACK_BUFFER_SIZE (get, never):Int;
+	public var TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN (get, never):Int;
+	public var MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS (get, never):Int;
+	public var MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS (get, never):Int;
+	public var INTERLEAVED_ATTRIBS (get, never):Int;
+	public var SEPARATE_ATTRIBS (get, never):Int;
+	public var TRANSFORM_FEEDBACK_BUFFER (get, never):Int;
+	public var TRANSFORM_FEEDBACK_BUFFER_BINDING (get, never):Int;
+	public var TRANSFORM_FEEDBACK (get, never):Int;
+	public var TRANSFORM_FEEDBACK_PAUSED (get, never):Int;
+	public var TRANSFORM_FEEDBACK_ACTIVE (get, never):Int;
+	public var TRANSFORM_FEEDBACK_BINDING (get, never):Int;
+	
+	public var FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING (get, never):Int;
+	public var FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE (get, never):Int;
+	public var FRAMEBUFFER_ATTACHMENT_RED_SIZE (get, never):Int;
+	public var FRAMEBUFFER_ATTACHMENT_GREEN_SIZE (get, never):Int;
+	public var FRAMEBUFFER_ATTACHMENT_BLUE_SIZE (get, never):Int;
+	public var FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE (get, never):Int;
+	public var FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE (get, never):Int;
+	public var FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE (get, never):Int;
+	public var FRAMEBUFFER_DEFAULT (get, never):Int;
+	public var DEPTH24_STENCIL8 (get, never):Int;
+	public var DRAW_FRAMEBUFFER_BINDING (get, never):Int;
+	public var READ_FRAMEBUFFER (get, never):Int;
+	public var DRAW_FRAMEBUFFER (get, never):Int;
+	public var READ_FRAMEBUFFER_BINDING (get, never):Int;
+	public var RENDERBUFFER_SAMPLES (get, never):Int;
+	public var FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER (get, never):Int;
+	public var FRAMEBUFFER_INCOMPLETE_MULTISAMPLE (get, never):Int;
+	
+	public var UNIFORM_BUFFER (get, never):Int;
+	public var UNIFORM_BUFFER_BINDING (get, never):Int;
+	public var UNIFORM_BUFFER_START (get, never):Int;
+	public var UNIFORM_BUFFER_SIZE (get, never):Int;
+	public var MAX_VERTEX_UNIFORM_BLOCKS (get, never):Int;
+	public var MAX_FRAGMENT_UNIFORM_BLOCKS (get, never):Int;
+	public var MAX_COMBINED_UNIFORM_BLOCKS (get, never):Int;
+	public var MAX_UNIFORM_BUFFER_BINDINGS (get, never):Int;
+	public var MAX_UNIFORM_BLOCK_SIZE (get, never):Int;
+	public var MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS (get, never):Int;
+	public var MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS (get, never):Int;
+	public var UNIFORM_BUFFER_OFFSET_ALIGNMENT (get, never):Int;
+	public var ACTIVE_UNIFORM_BLOCKS (get, never):Int;
+	public var UNIFORM_TYPE (get, never):Int;
+	public var UNIFORM_SIZE (get, never):Int;
+	public var UNIFORM_BLOCK_INDEX (get, never):Int;
+	public var UNIFORM_OFFSET (get, never):Int;
+	public var UNIFORM_ARRAY_STRIDE (get, never):Int;
+	public var UNIFORM_MATRIX_STRIDE (get, never):Int;
+	public var UNIFORM_IS_ROW_MAJOR (get, never):Int;
+	public var UNIFORM_BLOCK_BINDING (get, never):Int;
+	public var UNIFORM_BLOCK_DATA_SIZE (get, never):Int;
+	public var UNIFORM_BLOCK_ACTIVE_UNIFORMS (get, never):Int;
+	public var UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES (get, never):Int;
+	public var UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER (get, never):Int;
+	public var UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER (get, never):Int;
+	
+	public var OBJECT_TYPE (get, never):Int;
+	public var SYNC_CONDITION (get, never):Int;
+	public var SYNC_STATUS (get, never):Int;
+	public var SYNC_FLAGS (get, never):Int;
+	public var SYNC_FENCE (get, never):Int;
+	public var SYNC_GPU_COMMANDS_COMPLETE (get, never):Int;
+	public var UNSIGNALED (get, never):Int;
+	public var SIGNALED (get, never):Int;
+	public var ALREADY_SIGNALED (get, never):Int;
+	public var TIMEOUT_EXPIRED (get, never):Int;
+	public var CONDITION_SATISFIED (get, never):Int;
+	public var WAIT_FAILED (get, never):Int;
+	public var SYNC_FLUSH_COMMANDS_BIT (get, never):Int;
+	
+	public var COLOR (get, never):Int;
+	public var DEPTH (get, never):Int;
+	public var STENCIL (get, never):Int;
+	public var MIN (get, never):Int;
+	public var MAX (get, never):Int;
+	public var DEPTH_COMPONENT24 (get, never):Int;
+	public var STREAM_READ (get, never):Int;
+	public var STREAM_COPY (get, never):Int;
+	public var STATIC_READ (get, never):Int;
+	public var STATIC_COPY (get, never):Int;
+	public var DYNAMIC_READ (get, never):Int;
+	public var DYNAMIC_COPY (get, never):Int;
+	public var DEPTH_COMPONENT32F (get, never):Int;
+	public var DEPTH32F_STENCIL8 (get, never):Int;
+	public var INVALID_INDEX (get, never):Int;
+	public var TIMEOUT_IGNORED (get, never):Int;
+	public var MAX_CLIENT_WAIT_TIMEOUT_WEBGL (get, never):Int;
 	
 	public var type (get, never):GLContextType;
 	public var version (get, never):Float;
@@ -758,7 +1037,7 @@ abstract WebGLContext(GLRenderContext) from GLRenderContext to GLRenderContext {
 	#if (!js || !html5 || display)
 	public inline function bufferData (target:Int, srcData:ArrayBufferView, usage:Int):Void {
 		
-		this.bufferData (target, srcData.byteLength, srcData, usage, 0);
+		this.bufferData (target, srcData != null ? srcData.byteLength : 0, srcData, usage);
 		
 	}
 	#else
@@ -773,7 +1052,7 @@ abstract WebGLContext(GLRenderContext) from GLRenderContext to GLRenderContext {
 	#if (!js || !html5 || display)
 	public inline function bufferSubData (target:Int, offset:Int, srcData:ArrayBufferView):Void {
 		
-		this.bufferSubData (target, offset, srcData.byteLength, srcData);
+		this.bufferSubData (target, offset, srcData != null ? srcData.byteLength : 0, srcData);
 		
 	}
 	#else
@@ -836,14 +1115,14 @@ abstract WebGLContext(GLRenderContext) from GLRenderContext to GLRenderContext {
 	
 	public inline function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, pixels:ArrayBufferView):Void {
 		
-		this.compressedTexImage2D (target, level, internalformat, width, height, border, pixels);
+		this.compressedTexImage2D (target, level, internalformat, width, height, border, pixels != null ? pixels.byteLength : 0, pixels);
 		
 	}
 	
 	
 	public inline function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, data:ArrayBufferView):Void {
 		
-		this.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, data);
+		this.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, data != null ? data.byteLength : 0, data);
 		
 	}
 	
@@ -1219,7 +1498,7 @@ abstract WebGLContext(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function getVertexAttribOffset (index:Int, pname:Int):Int {
+	public inline function getVertexAttribOffset (index:Int, pname:Int):DataPointer {
 		
 		return this.getVertexAttribOffset (index, pname);
 		
@@ -1660,7 +1939,7 @@ abstract WebGLContext(GLRenderContext) from GLRenderContext to GLRenderContext {
 	}
 	
 	
-	public inline function vertexAttribPointer (indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void {
+	public inline function vertexAttribPointer (indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:DataPointer):Void {
 		
 		this.vertexAttribPointer (indx, size, type, normalized, stride, offset);
 		

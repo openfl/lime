@@ -2,6 +2,7 @@ package lime._backend.native;
 
 
 import lime.system.CFFIPointer;
+import lime.utils.DataPointer;
 
 #if cpp
 import cpp.Float32;
@@ -364,8 +365,8 @@ class NativeCFFI {
 	@:cffi private static function lime_cairo_font_options_set_subpixel_order (handle:CFFIPointer, v:Int):Void;
 	@:cffi private static function lime_cairo_ft_font_face_create (face:CFFIPointer, flags:Int):CFFIPointer;
 	@:cffi private static function lime_cairo_image_surface_create (format:Int, width:Int, height:Int):CFFIPointer;
-	@:cffi private static function lime_cairo_image_surface_create_for_data (data:Float, format:Int, width:Int, height:Int, stride:Int):CFFIPointer;
-	@:cffi private static function lime_cairo_image_surface_get_data (handle:CFFIPointer):Float;
+	@:cffi private static function lime_cairo_image_surface_create_for_data (data:DataPointer, format:Int, width:Int, height:Int, stride:Int):CFFIPointer;
+	@:cffi private static function lime_cairo_image_surface_get_data (handle:CFFIPointer):DataPointer;
 	@:cffi private static function lime_cairo_image_surface_get_format (handle:CFFIPointer):Int;
 	@:cffi private static function lime_cairo_image_surface_get_height (handle:CFFIPointer):Int;
 	@:cffi private static function lime_cairo_image_surface_get_stride (handle:CFFIPointer):Int;
@@ -421,8 +422,8 @@ class NativeCFFI {
 	@:cffi private static function lime_gl_blend_equation_separate (modeRGB:Int, modeAlpha:Int):Void;
 	@:cffi private static function lime_gl_blend_func (sfactor:Int, dfactor:Int):Void;
 	@:cffi private static function lime_gl_blend_func_separate (srcRGB:Int, dstRGB:Int, srcAlpha:Int, dstAlpha:Int):Void;
-	@:cffi private static function lime_gl_buffer_data (target:Int, buffer:Dynamic, byteOffset:Int, size:Int, usage:Int):Void;
-	@:cffi private static function lime_gl_buffer_sub_data (target:Int, offset:Int, buffer:Dynamic, byteOffset:Int, size:Int):Void;
+	@:cffi private static function lime_gl_buffer_data (target:Int, size:Int, srcData:DataPointer, usage:Int):Void;
+	@:cffi private static function lime_gl_buffer_sub_data (target:Int, offset:Int, size:Int, srcData:DataPointer):Void;
 	@:cffi private static function lime_gl_check_framebuffer_status (target:Int):Int;
 	@:cffi private static function lime_gl_clear (mask:Int):Void;
 	@:cffi private static function lime_gl_clear_color (red:Float32, green:Float32, blue:Float32, alpha:Float32):Void;
@@ -430,8 +431,8 @@ class NativeCFFI {
 	@:cffi private static function lime_gl_clear_stencil (s:Int):Void;
 	@:cffi private static function lime_gl_color_mask (red:Bool, green:Bool, blue:Bool, alpha:Bool):Void;
 	@:cffi private static function lime_gl_compile_shader (shader:CFFIPointer):Void;
-	@:cffi private static function lime_gl_compressed_tex_image_2d (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, buffer:Dynamic, byteOffset:Int):Void;
-	@:cffi private static function lime_gl_compressed_tex_sub_image_2d (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, buffer:Dynamic, byteOffset:Int):Void;
+	@:cffi private static function lime_gl_compressed_tex_image_2d (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, imageSize:Int, srcData:DataPointer):Void;
+	@:cffi private static function lime_gl_compressed_tex_sub_image_2d (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, imageSize:Int, srcData:DataPointer):Void;
 	@:cffi private static function lime_gl_copy_tex_image_2d (target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void;
 	@:cffi private static function lime_gl_copy_tex_sub_image_2d (target:Int, level:Int, xoffset:Int, yoffset:Int, x:Int, y:Int, width:Int, height:Int):Void;
 	@:cffi private static function lime_gl_create_buffer ():CFFIPointer;
@@ -454,7 +455,7 @@ class NativeCFFI {
 	@:cffi private static function lime_gl_disable (cap:Int):Void;
 	@:cffi private static function lime_gl_disable_vertex_attrib_array (index:Int):Void;
 	@:cffi private static function lime_gl_draw_arrays (mode:Int, first:Int, count:Int):Void;
-	@:cffi private static function lime_gl_draw_elements (mode:Int, count:Int, type:Int, offset:CFFIPointer):Void;
+	@:cffi private static function lime_gl_draw_elements (mode:Int, count:Int, type:Int, offset:DataPointer):Void;
 	@:cffi private static function lime_gl_enable (cap:Int):Void;
 	@:cffi private static function lime_gl_enable_vertex_attrib_array (index:Int):Void;
 	@:cffi private static function lime_gl_finish ():Void;
@@ -468,30 +469,30 @@ class NativeCFFI {
 	@:cffi private static function lime_gl_get_attrib_location (program:CFFIPointer, name:String):Int;
 	@:cffi private static function lime_gl_get_boolean (pname:Int):Bool;
 	@:cffi private static function lime_gl_get_booleanv (pname:Int):Array<Bool>;
-	@:cffi private static function lime_gl_get_buffer_parameter (target:Int, pname:Int):Int;
+	@:cffi private static function lime_gl_get_buffer_parameter (target:Int, pname:Int):Dynamic;
 	@:cffi private static function lime_gl_get_context_attributes ():Dynamic;
 	@:cffi private static function lime_gl_get_error ():Int;
 	@:cffi private static function lime_gl_get_extension (name:String):Dynamic;
 	@:cffi private static function lime_gl_get_float (pname:Int):Float32;
 	@:cffi private static function lime_gl_get_floatv (pname:Int):Dynamic;
-	@:cffi private static function lime_gl_get_framebuffer_attachment_parameter (target:Int, attachment:Int, pname:Int):Int;
+	@:cffi private static function lime_gl_get_framebuffer_attachment_parameter (target:Int, attachment:Int, pname:Int):Dynamic;
 	@:cffi private static function lime_gl_get_integer (pname:Int):Int;
 	@:cffi private static function lime_gl_get_integerv (pname:Int):Array<Int>;
 	@:cffi private static function lime_gl_get_parameter (pname:Int):Dynamic;
 	@:cffi private static function lime_gl_get_program_info_log (program:CFFIPointer):Dynamic;
 	@:cffi private static function lime_gl_get_program_parameter (program:CFFIPointer, pname:Int):Dynamic;
-	@:cffi private static function lime_gl_get_render_buffer_parameter (target:Int, pname:Int):Int;
+	@:cffi private static function lime_gl_get_render_buffer_parameter (target:Int, pname:Int):Dynamic;
 	@:cffi private static function lime_gl_get_shader_info_log (shader:CFFIPointer):Dynamic;
 	@:cffi private static function lime_gl_get_shader_parameter (shader:CFFIPointer, pname:Int):Dynamic;
 	@:cffi private static function lime_gl_get_shader_precision_format (shadertype:Int, precisiontype:Int):Dynamic;
 	@:cffi private static function lime_gl_get_shader_source (shader:CFFIPointer):Dynamic;
 	@:cffi private static function lime_gl_get_string (pname:Int):Dynamic;
 	@:cffi private static function lime_gl_get_supported_extensions (result:Dynamic):Void;
-	@:cffi private static function lime_gl_get_tex_parameter (target:Int, pname:Int):Int;
+	@:cffi private static function lime_gl_get_tex_parameter (target:Int, pname:Int):Dynamic;
 	@:cffi private static function lime_gl_get_uniform (program:CFFIPointer, location:Int):Dynamic;
 	@:cffi private static function lime_gl_get_uniform_location (program:CFFIPointer, name:String):Int;
-	@:cffi private static function lime_gl_get_vertex_attrib (index:Int, pname:Int):Int;
-	@:cffi private static function lime_gl_get_vertex_attrib_offset (index:Int, pname:Int):CFFIPointer;
+	@:cffi private static function lime_gl_get_vertex_attrib (index:Int, pname:Int):Dynamic;
+	@:cffi private static function lime_gl_get_vertex_attrib_offset (index:Int, pname:Int):DataPointer;
 	@:cffi private static function lime_gl_hint (target:Int, mode:Int):Void;
 	@:cffi private static function lime_gl_is_buffer (buffer:CFFIPointer):Bool;
 	@:cffi private static function lime_gl_is_enabled (cap:Int):Bool;
@@ -504,7 +505,7 @@ class NativeCFFI {
 	@:cffi private static function lime_gl_link_program (program:CFFIPointer):Void;
 	@:cffi private static function lime_gl_pixel_storei (pname:Int, param:Int):Void;
 	@:cffi private static function lime_gl_polygon_offset (factor:Float32, units:Float32):Void;
-	@:cffi private static function lime_gl_read_pixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, buffer:Dynamic, byteOffset:Int):Void;
+	@:cffi private static function lime_gl_read_pixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:DataPointer):Void;
 	@:cffi private static function lime_gl_renderbuffer_storage (target:Int, internalformat:Int, width:Int, height:Int):Void;
 	@:cffi private static function lime_gl_sample_coverage (value:Float32, invert:Bool):Void;
 	@:cffi private static function lime_gl_scissor (x:Int, y:Int, width:Int, height:Int):Void;
@@ -515,10 +516,10 @@ class NativeCFFI {
 	@:cffi private static function lime_gl_stencil_mask_separate (face:Int, mask:Int):Void;
 	@:cffi private static function lime_gl_stencil_op (fail:Int, zfail:Int, zpass:Int):Void;
 	@:cffi private static function lime_gl_stencil_op_separate (face:Int, fail:Int, zfail:Int, zpass:Int):Void;
-	@:cffi private static function lime_gl_tex_image_2d (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, buffer:Dynamic, byteOffset:Int):Void;
+	@:cffi private static function lime_gl_tex_image_2d (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:DataPointer):Void;
 	@:cffi private static function lime_gl_tex_parameterf (target:Int, pname:Int, param:Float32):Void;
 	@:cffi private static function lime_gl_tex_parameteri (target:Int, pname:Int, param:Int):Void;
-	@:cffi private static function lime_gl_tex_sub_image_2d (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, buffer:Dynamic, byteOffset:Int):Void;
+	@:cffi private static function lime_gl_tex_sub_image_2d (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:DataPointer):Void;
 	@:cffi private static function lime_gl_uniform1f (location:Int, x:Float32):Void;
 	@:cffi private static function lime_gl_uniform1fv (location:Int, v:Dynamic):Void;
 	@:cffi private static function lime_gl_uniform1i (location:Int, x:Int):Void;
@@ -547,7 +548,7 @@ class NativeCFFI {
 	@:cffi private static function lime_gl_vertex_attrib3fv (indx:Int, values:Dynamic):Void;
 	@:cffi private static function lime_gl_vertex_attrib4f (indx:Int, x:Float32, y:Float32, z:Float32, w:Float32):Void;
 	@:cffi private static function lime_gl_vertex_attrib4fv (indx:Int, values:Dynamic):Void;
-	@:cffi private static function lime_gl_vertex_attrib_pointer (indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void;
+	@:cffi private static function lime_gl_vertex_attrib_pointer (indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:DataPointer):Void;
 	@:cffi private static function lime_gl_viewport (x:Int, y:Int, width:Int, height:Int):Void;
 	#end
 	

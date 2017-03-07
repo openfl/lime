@@ -2,6 +2,7 @@ package lime.graphics.opengl;
 
 
 import lime.utils.ArrayBufferView;
+import lime.utils.DataPointer;
 import lime.utils.Float32Array;
 import lime.utils.Int32Array;
 
@@ -356,6 +357,283 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	public var UNPACK_COLORSPACE_CONVERSION_WEBGL (get, never):Int;
 	public var BROWSER_DEFAULT_WEBGL (get, never):Int;
 	
+		public var READ_BUFFER (get, never):Int;
+	public var UNPACK_ROW_LENGTH (get, never):Int;
+	public var UNPACK_SKIP_ROWS (get, never):Int;
+	public var UNPACK_SKIP_PIXELS (get, never):Int;
+	public var PACK_ROW_LENGTH (get, never):Int;
+	public var PACK_SKIP_ROWS (get, never):Int;
+	public var PACK_SKIP_PIXELS (get, never):Int;
+	public var TEXTURE_BINDING_3D (get, never):Int;
+	public var UNPACK_SKIP_IMAGES (get, never):Int;
+	public var UNPACK_IMAGE_HEIGHT (get, never):Int;
+	public var MAX_3D_TEXTURE_SIZE (get, never):Int;
+	public var MAX_ELEMENTS_VERTICES (get, never):Int;
+	public var MAX_ELEMENTS_INDICES (get, never):Int;
+	public var MAX_TEXTURE_LOD_BIAS (get, never):Int;
+	public var MAX_FRAGMENT_UNIFORM_COMPONENTS (get, never):Int;
+	public var MAX_VERTEX_UNIFORM_COMPONENTS (get, never):Int;
+	public var MAX_ARRAY_TEXTURE_LAYERS (get, never):Int;
+	public var MIN_PROGRAM_TEXEL_OFFSET (get, never):Int;
+	public var MAX_PROGRAM_TEXEL_OFFSET (get, never):Int;
+	public var MAX_VARYING_COMPONENTS (get, never):Int;
+	public var FRAGMENT_SHADER_DERIVATIVE_HINT (get, never):Int;
+	public var RASTERIZER_DISCARD (get, never):Int;
+	public var VERTEX_ARRAY_BINDING (get, never):Int;
+	public var MAX_VERTEX_OUTPUT_COMPONENTS (get, never):Int;
+	public var MAX_FRAGMENT_INPUT_COMPONENTS (get, never):Int;
+	public var MAX_SERVER_WAIT_TIMEOUT (get, never):Int;
+	public var MAX_ELEMENT_INDEX (get, never):Int;
+	
+	public var RED (get, never):Int;
+	public var RGB8 (get, never):Int;
+	public var RGBA8 (get, never):Int;
+	public var RGB10_A2 (get, never):Int;
+	public var TEXTURE_3D (get, never):Int;
+	public var TEXTURE_WRAP_R (get, never):Int;
+	public var TEXTURE_MIN_LOD (get, never):Int;
+	public var TEXTURE_MAX_LOD (get, never):Int;
+	public var TEXTURE_BASE_LEVEL (get, never):Int;
+	public var TEXTURE_MAX_LEVEL (get, never):Int;
+	public var TEXTURE_COMPARE_MODE (get, never):Int;
+	public var TEXTURE_COMPARE_FUNC (get, never):Int;
+	public var SRGB (get, never):Int;
+	public var SRGB8 (get, never):Int;
+	public var SRGB8_ALPHA8 (get, never):Int;
+	public var COMPARE_REF_TO_TEXTURE (get, never):Int;
+	public var RGBA32F (get, never):Int;
+	public var RGB32F (get, never):Int;
+	public var RGBA16F (get, never):Int;
+	public var RGB16F (get, never):Int;
+	public var TEXTURE_2D_ARRAY (get, never):Int;
+	public var TEXTURE_BINDING_2D_ARRAY (get, never):Int;
+	public var R11F_G11F_B10F (get, never):Int;
+	public var RGB9_E5 (get, never):Int;
+	public var RGBA32UI (get, never):Int;
+	public var RGB32UI (get, never):Int;
+	public var RGBA16UI (get, never):Int;
+	public var RGB16UI (get, never):Int;
+	public var RGBA8UI (get, never):Int;
+	public var RGB8UI (get, never):Int;
+	public var RGBA32I (get, never):Int;
+	public var RGB32I (get, never):Int;
+	public var RGBA16I (get, never):Int;
+	public var RGB16I (get, never):Int;
+	public var RGBA8I (get, never):Int;
+	public var RGB8I (get, never):Int;
+	public var RED_INTEGER (get, never):Int;
+	public var RGB_INTEGER (get, never):Int;
+	public var RGBA_INTEGER (get, never):Int;
+	public var R8 (get, never):Int;
+	public var RG8 (get, never):Int;
+	public var R16F (get, never):Int;
+	public var R32F (get, never):Int;
+	public var RG16F (get, never):Int;
+	public var RG32F (get, never):Int;
+	public var R8I (get, never):Int;
+	public var R8UI (get, never):Int;
+	public var R16I (get, never):Int;
+	public var R16UI (get, never):Int;
+	public var R32I (get, never):Int;
+	public var R32UI (get, never):Int;
+	public var RG8I (get, never):Int;
+	public var RG8UI (get, never):Int;
+	public var RG16I (get, never):Int;
+	public var RG16UI (get, never):Int;
+	public var RG32I (get, never):Int;
+	public var RG32UI (get, never):Int;
+	public var R8_SNORM (get, never):Int;
+	public var RG8_SNORM (get, never):Int;
+	public var RGB8_SNORM (get, never):Int;
+	public var RGBA8_SNORM (get, never):Int;
+	public var RGB10_A2UI (get, never):Int;
+	public var TEXTURE_IMMUTABLE_FORMAT (get, never):Int;
+	public var TEXTURE_IMMUTABLE_LEVELS (get, never):Int;
+	
+	public var UNSIGNED_INT_2_10_10_10_REV (get, never):Int;
+	public var UNSIGNED_INT_10F_11F_11F_REV (get, never):Int;
+	public var UNSIGNED_INT_5_9_9_9_REV (get, never):Int;
+	public var FLOAT_32_UNSIGNED_INT_24_8_REV (get, never):Int;
+	public var UNSIGNED_INT_24_8 (get, never):Int;
+	public var HALF_FLOAT (get, never):Int;
+	public var RG (get, never):Int;
+	public var RG_INTEGER (get, never):Int;
+	public var INT_2_10_10_10_REV (get, never):Int;
+	
+	public var CURRENT_QUERY (get, never):Int;
+	public var QUERY_RESULT (get, never):Int;
+	public var QUERY_RESULT_AVAILABLE (get, never):Int;
+	public var ANY_SAMPLES_PASSED (get, never):Int;
+	public var ANY_SAMPLES_PASSED_CONSERVATIVE (get, never):Int;
+	
+	public var MAX_DRAW_BUFFERS (get, never):Int;
+	public var DRAW_BUFFER0 (get, never):Int;
+	public var DRAW_BUFFER1 (get, never):Int;
+	public var DRAW_BUFFER2 (get, never):Int;
+	public var DRAW_BUFFER3 (get, never):Int;
+	public var DRAW_BUFFER4 (get, never):Int;
+	public var DRAW_BUFFER5 (get, never):Int;
+	public var DRAW_BUFFER6 (get, never):Int;
+	public var DRAW_BUFFER7 (get, never):Int;
+	public var DRAW_BUFFER8 (get, never):Int;
+	public var DRAW_BUFFER9 (get, never):Int;
+	public var DRAW_BUFFER10 (get, never):Int;
+	public var DRAW_BUFFER11 (get, never):Int;
+	public var DRAW_BUFFER12 (get, never):Int;
+	public var DRAW_BUFFER13 (get, never):Int;
+	public var DRAW_BUFFER14 (get, never):Int;
+	public var DRAW_BUFFER15 (get, never):Int;
+	public var MAX_COLOR_ATTACHMENTS (get, never):Int;
+	public var COLOR_ATTACHMENT1 (get, never):Int;
+	public var COLOR_ATTACHMENT2 (get, never):Int;
+	public var COLOR_ATTACHMENT3 (get, never):Int;
+	public var COLOR_ATTACHMENT4 (get, never):Int;
+	public var COLOR_ATTACHMENT5 (get, never):Int;
+	public var COLOR_ATTACHMENT6 (get, never):Int;
+	public var COLOR_ATTACHMENT7 (get, never):Int;
+	public var COLOR_ATTACHMENT8 (get, never):Int;
+	public var COLOR_ATTACHMENT9 (get, never):Int;
+	public var COLOR_ATTACHMENT10 (get, never):Int;
+	public var COLOR_ATTACHMENT11 (get, never):Int;
+	public var COLOR_ATTACHMENT12 (get, never):Int;
+	public var COLOR_ATTACHMENT13 (get, never):Int;
+	public var COLOR_ATTACHMENT14 (get, never):Int;
+	public var COLOR_ATTACHMENT15 (get, never):Int;
+	
+	public var SAMPLER_3D (get, never):Int;
+	public var SAMPLER_2D_SHADOW (get, never):Int;
+	public var SAMPLER_2D_ARRAY (get, never):Int;
+	public var SAMPLER_2D_ARRAY_SHADOW (get, never):Int;
+	public var SAMPLER_CUBE_SHADOW (get, never):Int;
+	public var INT_SAMPLER_2D (get, never):Int;
+	public var INT_SAMPLER_3D (get, never):Int;
+	public var INT_SAMPLER_CUBE (get, never):Int;
+	public var INT_SAMPLER_2D_ARRAY (get, never):Int;
+	public var UNSIGNED_INT_SAMPLER_2D (get, never):Int;
+	public var UNSIGNED_INT_SAMPLER_3D (get, never):Int;
+	public var UNSIGNED_INT_SAMPLER_CUBE (get, never):Int;
+	public var UNSIGNED_INT_SAMPLER_2D_ARRAY (get, never):Int;
+	public var MAX_SAMPLES (get, never):Int;
+	public var SAMPLER_BINDING (get, never):Int;
+	
+	public var PIXEL_PACK_BUFFER (get, never):Int;
+	public var PIXEL_UNPACK_BUFFER (get, never):Int;
+	public var PIXEL_PACK_BUFFER_BINDING (get, never):Int;
+	public var PIXEL_UNPACK_BUFFER_BINDING (get, never):Int;
+	public var COPY_READ_BUFFER (get, never):Int;
+	public var COPY_WRITE_BUFFER (get, never):Int;
+	public var COPY_READ_BUFFER_BINDING (get, never):Int;
+	public var COPY_WRITE_BUFFER_BINDING (get, never):Int;
+	
+	public var FLOAT_MAT2x3 (get, never):Int;
+	public var FLOAT_MAT2x4 (get, never):Int;
+	public var FLOAT_MAT3x2 (get, never):Int;
+	public var FLOAT_MAT3x4 (get, never):Int;
+	public var FLOAT_MAT4x2 (get, never):Int;
+	public var FLOAT_MAT4x3 (get, never):Int;
+	public var UNSIGNED_INT_VEC2 (get, never):Int;
+	public var UNSIGNED_INT_VEC3 (get, never):Int;
+	public var UNSIGNED_INT_VEC4 (get, never):Int;
+	public var UNSIGNED_NORMALIZED (get, never):Int;
+	public var SIGNED_NORMALIZED (get, never):Int;
+	
+	public var VERTEX_ATTRIB_ARRAY_INTEGER (get, never):Int;
+	public var VERTEX_ATTRIB_ARRAY_DIVISOR (get, never):Int;
+	
+	public var TRANSFORM_FEEDBACK_BUFFER_MODE (get, never):Int;
+	public var MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS (get, never):Int;
+	public var TRANSFORM_FEEDBACK_VARYINGS (get, never):Int;
+	public var TRANSFORM_FEEDBACK_BUFFER_START (get, never):Int;
+	public var TRANSFORM_FEEDBACK_BUFFER_SIZE (get, never):Int;
+	public var TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN (get, never):Int;
+	public var MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS (get, never):Int;
+	public var MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS (get, never):Int;
+	public var INTERLEAVED_ATTRIBS (get, never):Int;
+	public var SEPARATE_ATTRIBS (get, never):Int;
+	public var TRANSFORM_FEEDBACK_BUFFER (get, never):Int;
+	public var TRANSFORM_FEEDBACK_BUFFER_BINDING (get, never):Int;
+	public var TRANSFORM_FEEDBACK (get, never):Int;
+	public var TRANSFORM_FEEDBACK_PAUSED (get, never):Int;
+	public var TRANSFORM_FEEDBACK_ACTIVE (get, never):Int;
+	public var TRANSFORM_FEEDBACK_BINDING (get, never):Int;
+	
+	public var FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING (get, never):Int;
+	public var FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE (get, never):Int;
+	public var FRAMEBUFFER_ATTACHMENT_RED_SIZE (get, never):Int;
+	public var FRAMEBUFFER_ATTACHMENT_GREEN_SIZE (get, never):Int;
+	public var FRAMEBUFFER_ATTACHMENT_BLUE_SIZE (get, never):Int;
+	public var FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE (get, never):Int;
+	public var FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE (get, never):Int;
+	public var FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE (get, never):Int;
+	public var FRAMEBUFFER_DEFAULT (get, never):Int;
+	public var DEPTH24_STENCIL8 (get, never):Int;
+	public var DRAW_FRAMEBUFFER_BINDING (get, never):Int;
+	public var READ_FRAMEBUFFER (get, never):Int;
+	public var DRAW_FRAMEBUFFER (get, never):Int;
+	public var READ_FRAMEBUFFER_BINDING (get, never):Int;
+	public var RENDERBUFFER_SAMPLES (get, never):Int;
+	public var FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER (get, never):Int;
+	public var FRAMEBUFFER_INCOMPLETE_MULTISAMPLE (get, never):Int;
+	
+	public var UNIFORM_BUFFER (get, never):Int;
+	public var UNIFORM_BUFFER_BINDING (get, never):Int;
+	public var UNIFORM_BUFFER_START (get, never):Int;
+	public var UNIFORM_BUFFER_SIZE (get, never):Int;
+	public var MAX_VERTEX_UNIFORM_BLOCKS (get, never):Int;
+	public var MAX_FRAGMENT_UNIFORM_BLOCKS (get, never):Int;
+	public var MAX_COMBINED_UNIFORM_BLOCKS (get, never):Int;
+	public var MAX_UNIFORM_BUFFER_BINDINGS (get, never):Int;
+	public var MAX_UNIFORM_BLOCK_SIZE (get, never):Int;
+	public var MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS (get, never):Int;
+	public var MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS (get, never):Int;
+	public var UNIFORM_BUFFER_OFFSET_ALIGNMENT (get, never):Int;
+	public var ACTIVE_UNIFORM_BLOCKS (get, never):Int;
+	public var UNIFORM_TYPE (get, never):Int;
+	public var UNIFORM_SIZE (get, never):Int;
+	public var UNIFORM_BLOCK_INDEX (get, never):Int;
+	public var UNIFORM_OFFSET (get, never):Int;
+	public var UNIFORM_ARRAY_STRIDE (get, never):Int;
+	public var UNIFORM_MATRIX_STRIDE (get, never):Int;
+	public var UNIFORM_IS_ROW_MAJOR (get, never):Int;
+	public var UNIFORM_BLOCK_BINDING (get, never):Int;
+	public var UNIFORM_BLOCK_DATA_SIZE (get, never):Int;
+	public var UNIFORM_BLOCK_ACTIVE_UNIFORMS (get, never):Int;
+	public var UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES (get, never):Int;
+	public var UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER (get, never):Int;
+	public var UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER (get, never):Int;
+	
+	public var OBJECT_TYPE (get, never):Int;
+	public var SYNC_CONDITION (get, never):Int;
+	public var SYNC_STATUS (get, never):Int;
+	public var SYNC_FLAGS (get, never):Int;
+	public var SYNC_FENCE (get, never):Int;
+	public var SYNC_GPU_COMMANDS_COMPLETE (get, never):Int;
+	public var UNSIGNALED (get, never):Int;
+	public var SIGNALED (get, never):Int;
+	public var ALREADY_SIGNALED (get, never):Int;
+	public var TIMEOUT_EXPIRED (get, never):Int;
+	public var CONDITION_SATISFIED (get, never):Int;
+	public var WAIT_FAILED (get, never):Int;
+	public var SYNC_FLUSH_COMMANDS_BIT (get, never):Int;
+	
+	public var COLOR (get, never):Int;
+	public var DEPTH (get, never):Int;
+	public var STENCIL (get, never):Int;
+	public var MIN (get, never):Int;
+	public var MAX (get, never):Int;
+	public var DEPTH_COMPONENT24 (get, never):Int;
+	public var STREAM_READ (get, never):Int;
+	public var STREAM_COPY (get, never):Int;
+	public var STATIC_READ (get, never):Int;
+	public var STATIC_COPY (get, never):Int;
+	public var DYNAMIC_READ (get, never):Int;
+	public var DYNAMIC_COPY (get, never):Int;
+	public var DEPTH_COMPONENT32F (get, never):Int;
+	public var DEPTH32F_STENCIL8 (get, never):Int;
+	public var INVALID_INDEX (get, never):Int;
+	public var TIMEOUT_IGNORED (get, never):Int;
+	public var MAX_CLIENT_WAIT_TIMEOUT_WEBGL (get, never):Int;
+	
 	public var type (get, never):GLContextType;
 	public var version (get, never):Float;
 	
@@ -659,6 +937,283 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	private inline function get_type ():GLContextType { return this.type; }
 	private inline function get_version ():Float { return this.version; }
 	
+		private inline function get_READ_BUFFER ():Int { return this.READ_BUFFER; }
+	private inline function get_UNPACK_ROW_LENGTH ():Int { return this.UNPACK_ROW_LENGTH; }
+	private inline function get_UNPACK_SKIP_ROWS ():Int { return this.UNPACK_SKIP_ROWS; }
+	private inline function get_UNPACK_SKIP_PIXELS ():Int { return this.UNPACK_SKIP_PIXELS; }
+	private inline function get_PACK_ROW_LENGTH ():Int { return this.PACK_ROW_LENGTH; }
+	private inline function get_PACK_SKIP_ROWS ():Int { return this.PACK_SKIP_ROWS; }
+	private inline function get_PACK_SKIP_PIXELS ():Int { return this.PACK_SKIP_PIXELS; }
+	private inline function get_TEXTURE_BINDING_3D ():Int { return this.TEXTURE_BINDING_3D; }
+	private inline function get_UNPACK_SKIP_IMAGES ():Int { return this.UNPACK_SKIP_IMAGES; }
+	private inline function get_UNPACK_IMAGE_HEIGHT ():Int { return this.UNPACK_IMAGE_HEIGHT; }
+	private inline function get_MAX_3D_TEXTURE_SIZE ():Int { return this.MAX_3D_TEXTURE_SIZE; }
+	private inline function get_MAX_ELEMENTS_VERTICES ():Int { return this.MAX_ELEMENTS_VERTICES; }
+	private inline function get_MAX_ELEMENTS_INDICES ():Int { return this.MAX_ELEMENTS_INDICES; }
+	private inline function get_MAX_TEXTURE_LOD_BIAS ():Int { return this.MAX_TEXTURE_LOD_BIAS; }
+	private inline function get_MAX_FRAGMENT_UNIFORM_COMPONENTS ():Int { return this.MAX_FRAGMENT_UNIFORM_COMPONENTS; }
+	private inline function get_MAX_VERTEX_UNIFORM_COMPONENTS ():Int { return this.MAX_VERTEX_UNIFORM_COMPONENTS; }
+	private inline function get_MAX_ARRAY_TEXTURE_LAYERS ():Int { return this.MAX_ARRAY_TEXTURE_LAYERS; }
+	private inline function get_MIN_PROGRAM_TEXEL_OFFSET ():Int { return this.MIN_PROGRAM_TEXEL_OFFSET; }
+	private inline function get_MAX_PROGRAM_TEXEL_OFFSET ():Int { return this.MAX_PROGRAM_TEXEL_OFFSET; }
+	private inline function get_MAX_VARYING_COMPONENTS ():Int { return this.MAX_VARYING_COMPONENTS; }
+	private inline function get_FRAGMENT_SHADER_DERIVATIVE_HINT ():Int { return this.FRAGMENT_SHADER_DERIVATIVE_HINT; }
+	private inline function get_RASTERIZER_DISCARD ():Int { return this.RASTERIZER_DISCARD; }
+	private inline function get_VERTEX_ARRAY_BINDING ():Int { return this.VERTEX_ARRAY_BINDING; }
+	private inline function get_MAX_VERTEX_OUTPUT_COMPONENTS ():Int { return this.MAX_VERTEX_OUTPUT_COMPONENTS; }
+	private inline function get_MAX_FRAGMENT_INPUT_COMPONENTS ():Int { return this.MAX_FRAGMENT_INPUT_COMPONENTS; }
+	private inline function get_MAX_SERVER_WAIT_TIMEOUT ():Int { return this.MAX_SERVER_WAIT_TIMEOUT; }
+	private inline function get_MAX_ELEMENT_INDEX ():Int { return this.MAX_ELEMENT_INDEX; }
+	
+	private inline function get_RED ():Int { return this.RED; }
+	private inline function get_RGB8 ():Int { return this.RGB8; }
+	private inline function get_RGBA8 ():Int { return this.RGBA8; }
+	private inline function get_RGB10_A2 ():Int { return this.RGB10_A2; }
+	private inline function get_TEXTURE_3D ():Int { return this.TEXTURE_3D; }
+	private inline function get_TEXTURE_WRAP_R ():Int { return this.TEXTURE_WRAP_R; }
+	private inline function get_TEXTURE_MIN_LOD ():Int { return this.TEXTURE_MIN_LOD; }
+	private inline function get_TEXTURE_MAX_LOD ():Int { return this.TEXTURE_MAX_LOD; }
+	private inline function get_TEXTURE_BASE_LEVEL ():Int { return this.TEXTURE_BASE_LEVEL; }
+	private inline function get_TEXTURE_MAX_LEVEL ():Int { return this.TEXTURE_MAX_LEVEL; }
+	private inline function get_TEXTURE_COMPARE_MODE ():Int { return this.TEXTURE_COMPARE_MODE; }
+	private inline function get_TEXTURE_COMPARE_FUNC ():Int { return this.TEXTURE_COMPARE_FUNC; }
+	private inline function get_SRGB ():Int { return this.SRGB; }
+	private inline function get_SRGB8 ():Int { return this.SRGB8; }
+	private inline function get_SRGB8_ALPHA8 ():Int { return this.SRGB8_ALPHA8; }
+	private inline function get_COMPARE_REF_TO_TEXTURE ():Int { return this.COMPARE_REF_TO_TEXTURE; }
+	private inline function get_RGBA32F ():Int { return this.RGBA32F; }
+	private inline function get_RGB32F ():Int { return this.RGB32F; }
+	private inline function get_RGBA16F ():Int { return this.RGBA16F; }
+	private inline function get_RGB16F ():Int { return this.RGB16F; }
+	private inline function get_TEXTURE_2D_ARRAY ():Int { return this.TEXTURE_2D_ARRAY; }
+	private inline function get_TEXTURE_BINDING_2D_ARRAY ():Int { return this.TEXTURE_BINDING_2D_ARRAY; }
+	private inline function get_R11F_G11F_B10F ():Int { return this.R11F_G11F_B10F; }
+	private inline function get_RGB9_E5 ():Int { return this.RGB9_E5; }
+	private inline function get_RGBA32UI ():Int { return this.RGBA32UI; }
+	private inline function get_RGB32UI ():Int { return this.RGB32UI; }
+	private inline function get_RGBA16UI ():Int { return this.RGBA16UI; }
+	private inline function get_RGB16UI ():Int { return this.RGB16UI; }
+	private inline function get_RGBA8UI ():Int { return this.RGBA8UI; }
+	private inline function get_RGB8UI ():Int { return this.RGB8UI; }
+	private inline function get_RGBA32I ():Int { return this.RGBA32I; }
+	private inline function get_RGB32I ():Int { return this.RGB32I; }
+	private inline function get_RGBA16I ():Int { return this.RGBA16I; }
+	private inline function get_RGB16I ():Int { return this.RGB16I; }
+	private inline function get_RGBA8I ():Int { return this.RGBA8I; }
+	private inline function get_RGB8I ():Int { return this.RGB8I; }
+	private inline function get_RED_INTEGER ():Int { return this.RED_INTEGER; }
+	private inline function get_RGB_INTEGER ():Int { return this.RGB_INTEGER; }
+	private inline function get_RGBA_INTEGER ():Int { return this.RGBA_INTEGER; }
+	private inline function get_R8 ():Int { return this.R8; }
+	private inline function get_RG8 ():Int { return this.RG8; }
+	private inline function get_R16F ():Int { return this.R16F; }
+	private inline function get_R32F ():Int { return this.R32F; }
+	private inline function get_RG16F ():Int { return this.RG16F; }
+	private inline function get_RG32F ():Int { return this.RG32F; }
+	private inline function get_R8I ():Int { return this.R8I; }
+	private inline function get_R8UI ():Int { return this.R8UI; }
+	private inline function get_R16I ():Int { return this.R16I; }
+	private inline function get_R16UI ():Int { return this.R16UI; }
+	private inline function get_R32I ():Int { return this.R32I; }
+	private inline function get_R32UI ():Int { return this.R32UI; }
+	private inline function get_RG8I ():Int { return this.RG8I; }
+	private inline function get_RG8UI ():Int { return this.RG8UI; }
+	private inline function get_RG16I ():Int { return this.RG16I; }
+	private inline function get_RG16UI ():Int { return this.RG16UI; }
+	private inline function get_RG32I ():Int { return this.RG32I; }
+	private inline function get_RG32UI ():Int { return this.RG32UI; }
+	private inline function get_R8_SNORM ():Int { return this.R8_SNORM; }
+	private inline function get_RG8_SNORM ():Int { return this.RG8_SNORM; }
+	private inline function get_RGB8_SNORM ():Int { return this.RGB8_SNORM; }
+	private inline function get_RGBA8_SNORM ():Int { return this.RGBA8_SNORM; }
+	private inline function get_RGB10_A2UI ():Int { return this.RGB10_A2UI; }
+	private inline function get_TEXTURE_IMMUTABLE_FORMAT ():Int { return this.TEXTURE_IMMUTABLE_FORMAT; }
+	private inline function get_TEXTURE_IMMUTABLE_LEVELS ():Int { return this.TEXTURE_IMMUTABLE_LEVELS; }
+	
+	private inline function get_UNSIGNED_INT_2_10_10_10_REV ():Int { return this.UNSIGNED_INT_2_10_10_10_REV; }
+	private inline function get_UNSIGNED_INT_10F_11F_11F_REV ():Int { return this.UNSIGNED_INT_10F_11F_11F_REV; }
+	private inline function get_UNSIGNED_INT_5_9_9_9_REV ():Int { return this.UNSIGNED_INT_5_9_9_9_REV; }
+	private inline function get_FLOAT_32_UNSIGNED_INT_24_8_REV ():Int { return this.FLOAT_32_UNSIGNED_INT_24_8_REV; }
+	private inline function get_UNSIGNED_INT_24_8 ():Int { return this.UNSIGNED_INT_24_8; }
+	private inline function get_HALF_FLOAT ():Int { return this.HALF_FLOAT; }
+	private inline function get_RG ():Int { return this.RG; }
+	private inline function get_RG_INTEGER ():Int { return this.RG_INTEGER; }
+	private inline function get_INT_2_10_10_10_REV ():Int { return this.INT_2_10_10_10_REV; }
+	
+	private inline function get_CURRENT_QUERY ():Int { return this.CURRENT_QUERY; }
+	private inline function get_QUERY_RESULT ():Int { return this.QUERY_RESULT; }
+	private inline function get_QUERY_RESULT_AVAILABLE ():Int { return this.QUERY_RESULT_AVAILABLE; }
+	private inline function get_ANY_SAMPLES_PASSED ():Int { return this.ANY_SAMPLES_PASSED; }
+	private inline function get_ANY_SAMPLES_PASSED_CONSERVATIVE ():Int { return this.ANY_SAMPLES_PASSED_CONSERVATIVE; }
+	
+	private inline function get_MAX_DRAW_BUFFERS ():Int { return this.MAX_DRAW_BUFFERS; }
+	private inline function get_DRAW_BUFFER0 ():Int { return this.DRAW_BUFFER0; }
+	private inline function get_DRAW_BUFFER1 ():Int { return this.DRAW_BUFFER1; }
+	private inline function get_DRAW_BUFFER2 ():Int { return this.DRAW_BUFFER2; }
+	private inline function get_DRAW_BUFFER3 ():Int { return this.DRAW_BUFFER3; }
+	private inline function get_DRAW_BUFFER4 ():Int { return this.DRAW_BUFFER4; }
+	private inline function get_DRAW_BUFFER5 ():Int { return this.DRAW_BUFFER5; }
+	private inline function get_DRAW_BUFFER6 ():Int { return this.DRAW_BUFFER6; }
+	private inline function get_DRAW_BUFFER7 ():Int { return this.DRAW_BUFFER7; }
+	private inline function get_DRAW_BUFFER8 ():Int { return this.DRAW_BUFFER8; }
+	private inline function get_DRAW_BUFFER9 ():Int { return this.DRAW_BUFFER9; }
+	private inline function get_DRAW_BUFFER10 ():Int { return this.DRAW_BUFFER10; }
+	private inline function get_DRAW_BUFFER11 ():Int { return this.DRAW_BUFFER11; }
+	private inline function get_DRAW_BUFFER12 ():Int { return this.DRAW_BUFFER12; }
+	private inline function get_DRAW_BUFFER13 ():Int { return this.DRAW_BUFFER13; }
+	private inline function get_DRAW_BUFFER14 ():Int { return this.DRAW_BUFFER14; }
+	private inline function get_DRAW_BUFFER15 ():Int { return this.DRAW_BUFFER15; }
+	private inline function get_MAX_COLOR_ATTACHMENTS ():Int { return this.MAX_COLOR_ATTACHMENTS; }
+	private inline function get_COLOR_ATTACHMENT1 ():Int { return this.COLOR_ATTACHMENT1; }
+	private inline function get_COLOR_ATTACHMENT2 ():Int { return this.COLOR_ATTACHMENT2; }
+	private inline function get_COLOR_ATTACHMENT3 ():Int { return this.COLOR_ATTACHMENT3; }
+	private inline function get_COLOR_ATTACHMENT4 ():Int { return this.COLOR_ATTACHMENT4; }
+	private inline function get_COLOR_ATTACHMENT5 ():Int { return this.COLOR_ATTACHMENT5; }
+	private inline function get_COLOR_ATTACHMENT6 ():Int { return this.COLOR_ATTACHMENT6; }
+	private inline function get_COLOR_ATTACHMENT7 ():Int { return this.COLOR_ATTACHMENT7; }
+	private inline function get_COLOR_ATTACHMENT8 ():Int { return this.COLOR_ATTACHMENT8; }
+	private inline function get_COLOR_ATTACHMENT9 ():Int { return this.COLOR_ATTACHMENT9; }
+	private inline function get_COLOR_ATTACHMENT10 ():Int { return this.COLOR_ATTACHMENT10; }
+	private inline function get_COLOR_ATTACHMENT11 ():Int { return this.COLOR_ATTACHMENT11; }
+	private inline function get_COLOR_ATTACHMENT12 ():Int { return this.COLOR_ATTACHMENT12; }
+	private inline function get_COLOR_ATTACHMENT13 ():Int { return this.COLOR_ATTACHMENT13; }
+	private inline function get_COLOR_ATTACHMENT14 ():Int { return this.COLOR_ATTACHMENT14; }
+	private inline function get_COLOR_ATTACHMENT15 ():Int { return this.COLOR_ATTACHMENT15; }
+	
+	private inline function get_SAMPLER_3D ():Int { return this.SAMPLER_3D; }
+	private inline function get_SAMPLER_2D_SHADOW ():Int { return this.SAMPLER_2D_SHADOW; }
+	private inline function get_SAMPLER_2D_ARRAY ():Int { return this.SAMPLER_2D_ARRAY; }
+	private inline function get_SAMPLER_2D_ARRAY_SHADOW ():Int { return this.SAMPLER_2D_ARRAY_SHADOW; }
+	private inline function get_SAMPLER_CUBE_SHADOW ():Int { return this.SAMPLER_CUBE_SHADOW; }
+	private inline function get_INT_SAMPLER_2D ():Int { return this.INT_SAMPLER_2D; }
+	private inline function get_INT_SAMPLER_3D ():Int { return this.INT_SAMPLER_3D; }
+	private inline function get_INT_SAMPLER_CUBE ():Int { return this.INT_SAMPLER_CUBE; }
+	private inline function get_INT_SAMPLER_2D_ARRAY ():Int { return this.INT_SAMPLER_2D_ARRAY; }
+	private inline function get_UNSIGNED_INT_SAMPLER_2D ():Int { return this.UNSIGNED_INT_SAMPLER_2D; }
+	private inline function get_UNSIGNED_INT_SAMPLER_3D ():Int { return this.UNSIGNED_INT_SAMPLER_3D; }
+	private inline function get_UNSIGNED_INT_SAMPLER_CUBE ():Int { return this.UNSIGNED_INT_SAMPLER_CUBE; }
+	private inline function get_UNSIGNED_INT_SAMPLER_2D_ARRAY ():Int { return this.UNSIGNED_INT_SAMPLER_2D_ARRAY; }
+	private inline function get_MAX_SAMPLES ():Int { return this.MAX_SAMPLES; }
+	private inline function get_SAMPLER_BINDING ():Int { return this.SAMPLER_BINDING; }
+	
+	private inline function get_PIXEL_PACK_BUFFER ():Int { return this.PIXEL_PACK_BUFFER; }
+	private inline function get_PIXEL_UNPACK_BUFFER ():Int { return this.PIXEL_UNPACK_BUFFER; }
+	private inline function get_PIXEL_PACK_BUFFER_BINDING ():Int { return this.PIXEL_PACK_BUFFER_BINDING; }
+	private inline function get_PIXEL_UNPACK_BUFFER_BINDING ():Int { return this.PIXEL_UNPACK_BUFFER_BINDING; }
+	private inline function get_COPY_READ_BUFFER ():Int { return this.COPY_READ_BUFFER; }
+	private inline function get_COPY_WRITE_BUFFER ():Int { return this.COPY_WRITE_BUFFER; }
+	private inline function get_COPY_READ_BUFFER_BINDING ():Int { return this.COPY_READ_BUFFER_BINDING; }
+	private inline function get_COPY_WRITE_BUFFER_BINDING ():Int { return this.COPY_WRITE_BUFFER_BINDING; }
+	
+	private inline function get_FLOAT_MAT2x3 ():Int { return this.FLOAT_MAT2x3; }
+	private inline function get_FLOAT_MAT2x4 ():Int { return this.FLOAT_MAT2x4; }
+	private inline function get_FLOAT_MAT3x2 ():Int { return this.FLOAT_MAT3x2; }
+	private inline function get_FLOAT_MAT3x4 ():Int { return this.FLOAT_MAT3x4; }
+	private inline function get_FLOAT_MAT4x2 ():Int { return this.FLOAT_MAT4x2; }
+	private inline function get_FLOAT_MAT4x3 ():Int { return this.FLOAT_MAT4x3; }
+	private inline function get_UNSIGNED_INT_VEC2 ():Int { return this.UNSIGNED_INT_VEC2; }
+	private inline function get_UNSIGNED_INT_VEC3 ():Int { return this.UNSIGNED_INT_VEC3; }
+	private inline function get_UNSIGNED_INT_VEC4 ():Int { return this.UNSIGNED_INT_VEC4; }
+	private inline function get_UNSIGNED_NORMALIZED ():Int { return this.UNSIGNED_NORMALIZED; }
+	private inline function get_SIGNED_NORMALIZED ():Int { return this.SIGNED_NORMALIZED; }
+	
+	private inline function get_VERTEX_ATTRIB_ARRAY_INTEGER ():Int { return this.VERTEX_ATTRIB_ARRAY_INTEGER; }
+	private inline function get_VERTEX_ATTRIB_ARRAY_DIVISOR ():Int { return this.VERTEX_ATTRIB_ARRAY_DIVISOR; }
+	
+	private inline function get_TRANSFORM_FEEDBACK_BUFFER_MODE ():Int { return this.TRANSFORM_FEEDBACK_BUFFER_MODE; }
+	private inline function get_MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS ():Int { return this.MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS; }
+	private inline function get_TRANSFORM_FEEDBACK_VARYINGS ():Int { return this.TRANSFORM_FEEDBACK_VARYINGS; }
+	private inline function get_TRANSFORM_FEEDBACK_BUFFER_START ():Int { return this.TRANSFORM_FEEDBACK_BUFFER_START; }
+	private inline function get_TRANSFORM_FEEDBACK_BUFFER_SIZE ():Int { return this.TRANSFORM_FEEDBACK_BUFFER_SIZE; }
+	private inline function get_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN ():Int { return this.TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN; }
+	private inline function get_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS ():Int { return this.MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS; }
+	private inline function get_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS ():Int { return this.MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS; }
+	private inline function get_INTERLEAVED_ATTRIBS ():Int { return this.INTERLEAVED_ATTRIBS; }
+	private inline function get_SEPARATE_ATTRIBS ():Int { return this.SEPARATE_ATTRIBS; }
+	private inline function get_TRANSFORM_FEEDBACK_BUFFER ():Int { return this.TRANSFORM_FEEDBACK_BUFFER; }
+	private inline function get_TRANSFORM_FEEDBACK_BUFFER_BINDING ():Int { return this.TRANSFORM_FEEDBACK_BUFFER_BINDING; }
+	private inline function get_TRANSFORM_FEEDBACK ():Int { return this.TRANSFORM_FEEDBACK; }
+	private inline function get_TRANSFORM_FEEDBACK_PAUSED ():Int { return this.TRANSFORM_FEEDBACK_PAUSED; }
+	private inline function get_TRANSFORM_FEEDBACK_ACTIVE ():Int { return this.TRANSFORM_FEEDBACK_ACTIVE; }
+	private inline function get_TRANSFORM_FEEDBACK_BINDING ():Int { return this.TRANSFORM_FEEDBACK_BINDING; }
+	
+	private inline function get_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING ():Int { return this.FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING; }
+	private inline function get_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE ():Int { return this.FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE; }
+	private inline function get_FRAMEBUFFER_ATTACHMENT_RED_SIZE ():Int { return this.FRAMEBUFFER_ATTACHMENT_RED_SIZE; }
+	private inline function get_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE ():Int { return this.FRAMEBUFFER_ATTACHMENT_GREEN_SIZE; }
+	private inline function get_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE ():Int { return this.FRAMEBUFFER_ATTACHMENT_BLUE_SIZE; }
+	private inline function get_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE ():Int { return this.FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE; }
+	private inline function get_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE ():Int { return this.FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE; }
+	private inline function get_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE ():Int { return this.FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE; }
+	private inline function get_FRAMEBUFFER_DEFAULT ():Int { return this.FRAMEBUFFER_DEFAULT; }
+	private inline function get_DEPTH24_STENCIL8 ():Int { return this.DEPTH24_STENCIL8; }
+	private inline function get_DRAW_FRAMEBUFFER_BINDING ():Int { return this.DRAW_FRAMEBUFFER_BINDING; }
+	private inline function get_READ_FRAMEBUFFER ():Int { return this.READ_FRAMEBUFFER; }
+	private inline function get_DRAW_FRAMEBUFFER ():Int { return this.DRAW_FRAMEBUFFER; }
+	private inline function get_READ_FRAMEBUFFER_BINDING ():Int { return this.READ_FRAMEBUFFER_BINDING; }
+	private inline function get_RENDERBUFFER_SAMPLES ():Int { return this.RENDERBUFFER_SAMPLES; }
+	private inline function get_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER ():Int { return this.FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER; }
+	private inline function get_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE ():Int { return this.FRAMEBUFFER_INCOMPLETE_MULTISAMPLE; }
+	
+	private inline function get_UNIFORM_BUFFER ():Int { return this.UNIFORM_BUFFER; }
+	private inline function get_UNIFORM_BUFFER_BINDING ():Int { return this.UNIFORM_BUFFER_BINDING; }
+	private inline function get_UNIFORM_BUFFER_START ():Int { return this.UNIFORM_BUFFER_START; }
+	private inline function get_UNIFORM_BUFFER_SIZE ():Int { return this.UNIFORM_BUFFER_SIZE; }
+	private inline function get_MAX_VERTEX_UNIFORM_BLOCKS ():Int { return this.MAX_VERTEX_UNIFORM_BLOCKS; }
+	private inline function get_MAX_FRAGMENT_UNIFORM_BLOCKS ():Int { return this.MAX_FRAGMENT_UNIFORM_BLOCKS; }
+	private inline function get_MAX_COMBINED_UNIFORM_BLOCKS ():Int { return this.MAX_COMBINED_UNIFORM_BLOCKS; }
+	private inline function get_MAX_UNIFORM_BUFFER_BINDINGS ():Int { return this.MAX_UNIFORM_BUFFER_BINDINGS; }
+	private inline function get_MAX_UNIFORM_BLOCK_SIZE ():Int { return this.MAX_UNIFORM_BLOCK_SIZE; }
+	private inline function get_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS ():Int { return this.MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS; }
+	private inline function get_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS ():Int { return this.MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS; }
+	private inline function get_UNIFORM_BUFFER_OFFSET_ALIGNMENT ():Int { return this.UNIFORM_BUFFER_OFFSET_ALIGNMENT; }
+	private inline function get_ACTIVE_UNIFORM_BLOCKS ():Int { return this.ACTIVE_UNIFORM_BLOCKS; }
+	private inline function get_UNIFORM_TYPE ():Int { return this.UNIFORM_TYPE; }
+	private inline function get_UNIFORM_SIZE ():Int { return this.UNIFORM_SIZE; }
+	private inline function get_UNIFORM_BLOCK_INDEX ():Int { return this.UNIFORM_BLOCK_INDEX; }
+	private inline function get_UNIFORM_OFFSET ():Int { return this.UNIFORM_OFFSET; }
+	private inline function get_UNIFORM_ARRAY_STRIDE ():Int { return this.UNIFORM_ARRAY_STRIDE; }
+	private inline function get_UNIFORM_MATRIX_STRIDE ():Int { return this.UNIFORM_MATRIX_STRIDE; }
+	private inline function get_UNIFORM_IS_ROW_MAJOR ():Int { return this.UNIFORM_IS_ROW_MAJOR; }
+	private inline function get_UNIFORM_BLOCK_BINDING ():Int { return this.UNIFORM_BLOCK_BINDING; }
+	private inline function get_UNIFORM_BLOCK_DATA_SIZE ():Int { return this.UNIFORM_BLOCK_DATA_SIZE; }
+	private inline function get_UNIFORM_BLOCK_ACTIVE_UNIFORMS ():Int { return this.UNIFORM_BLOCK_ACTIVE_UNIFORMS; }
+	private inline function get_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES ():Int { return this.UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES; }
+	private inline function get_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER ():Int { return this.UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER; }
+	private inline function get_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER ():Int { return this.UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER; }
+	
+	private inline function get_OBJECT_TYPE ():Int { return this.OBJECT_TYPE; }
+	private inline function get_SYNC_CONDITION ():Int { return this.SYNC_CONDITION; }
+	private inline function get_SYNC_STATUS ():Int { return this.SYNC_STATUS; }
+	private inline function get_SYNC_FLAGS ():Int { return this.SYNC_FLAGS; }
+	private inline function get_SYNC_FENCE ():Int { return this.SYNC_FENCE; }
+	private inline function get_SYNC_GPU_COMMANDS_COMPLETE ():Int { return this.SYNC_GPU_COMMANDS_COMPLETE; }
+	private inline function get_UNSIGNALED ():Int { return this.UNSIGNALED; }
+	private inline function get_SIGNALED ():Int { return this.SIGNALED; }
+	private inline function get_ALREADY_SIGNALED ():Int { return this.ALREADY_SIGNALED; }
+	private inline function get_TIMEOUT_EXPIRED ():Int { return this.TIMEOUT_EXPIRED; }
+	private inline function get_CONDITION_SATISFIED ():Int { return this.CONDITION_SATISFIED; }
+	private inline function get_WAIT_FAILED ():Int { return this.WAIT_FAILED; }
+	private inline function get_SYNC_FLUSH_COMMANDS_BIT ():Int { return this.SYNC_FLUSH_COMMANDS_BIT; }
+	
+	private inline function get_COLOR ():Int { return this.COLOR; }
+	private inline function get_DEPTH ():Int { return this.DEPTH; }
+	private inline function get_STENCIL ():Int { return this.STENCIL; }
+	private inline function get_MIN ():Int { return this.MIN; }
+	private inline function get_MAX ():Int { return this.MAX; }
+	private inline function get_DEPTH_COMPONENT24 ():Int { return this.DEPTH_COMPONENT24; }
+	private inline function get_STREAM_READ ():Int { return this.STREAM_READ; }
+	private inline function get_STREAM_COPY ():Int { return this.STREAM_COPY; }
+	private inline function get_STATIC_READ ():Int { return this.STATIC_READ; }
+	private inline function get_STATIC_COPY ():Int { return this.STATIC_COPY; }
+	private inline function get_DYNAMIC_READ ():Int { return this.DYNAMIC_READ; }
+	private inline function get_DYNAMIC_COPY ():Int { return this.DYNAMIC_COPY; }
+	private inline function get_DEPTH_COMPONENT32F ():Int { return this.DEPTH_COMPONENT32F; }
+	private inline function get_DEPTH32F_STENCIL8 ():Int { return this.DEPTH32F_STENCIL8; }
+	private inline function get_INVALID_INDEX ():Int { return this.INVALID_INDEX; }
+	private inline function get_TIMEOUT_IGNORED ():Int { return this.TIMEOUT_IGNORED; }
+	private inline function get_MAX_CLIENT_WAIT_TIMEOUT_WEBGL ():Int { return this.MAX_CLIENT_WAIT_TIMEOUT_WEBGL; }
+	
 	
 	public inline function activeTexture (texture:Int):Void {
 		
@@ -810,7 +1365,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	#if (!js || !html5 || display)
 	public inline function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:ArrayBufferView, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
 		
-		this.compressedTexImage2D (target, level, internalformat, width, height, border, srcData, srcOffset, srcLengthOverride);
+		this.compressedTexImage2D (target, level, internalformat, width, height, border, srcData.byteLength, srcData, srcOffset, srcLengthOverride);
 		
 	}
 	#else
@@ -818,7 +1373,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	//public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:ArrayBufferView, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
 	public inline function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
 		
-		this.compressedTexImage2D (target, level, internalformat, width, height, border, srcData, srcOffset, srcLengthOverride);
+		this.compressedTexImage2D (target, level, internalformat, width, height, border, srcData.byteLength, srcData, srcOffset, srcLengthOverride);
 		
 	}
 	#end
@@ -827,7 +1382,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	#if (!js || !html5 || display)
 	public inline function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:ArrayBufferView, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
 		
-		this.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, srcData, srcOffset, srcLengthOverride);
+		this.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, srcData.byteLength, srcData, srcOffset, srcLengthOverride);
 		
 	}
 	#else
@@ -835,7 +1390,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	//public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:ArrayBufferView, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
 	public inline function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
 		
-		this.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, srcData, srcOffset, srcLengthOverride);
+		this.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, srcData.byteLength, srcData, srcOffset, srcLengthOverride);
 		
 	}
 	#end
@@ -995,7 +1550,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	}
 	
 	
-	public inline function drawElements (mode:Int, count:Int, type:Int, offset:Int):Void {
+	public inline function drawElements (mode:Int, count:Int, type:Int, offset:DataPointer):Void {
 		
 		this.drawElements (mode, count, type, offset);
 		
@@ -1086,7 +1641,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	}
 	
 	
-	public inline function getBufferParameter (target:Int, pname:Int):Int /*Dynamic*/ {
+	public inline function getBufferParameter (target:Int, pname:Int):Dynamic {
 		
 		return this.getBufferParameter (target, pname);
 		
@@ -1114,7 +1669,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	}
 	
 	
-	public inline function getFramebufferAttachmentParameter (target:Int, attachment:Int, pname:Int):Int /*Dynamic*/ {
+	public inline function getFramebufferAttachmentParameter (target:Int, attachment:Int, pname:Int):Dynamic {
 		
 		return this.getFramebufferAttachmentParameter (target, attachment, pname);
 		
@@ -1135,14 +1690,14 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	}
 	
 	
-	public inline function getProgramParameter (program:GLProgram, pname:Int):Int {
+	public inline function getProgramParameter (program:GLProgram, pname:Int):Dynamic {
 		
 		return this.getProgramParameter (program, pname);
 		
 	}
 	
 	
-	public inline function getRenderbufferParameter (target:Int, pname:Int):Int /*Dynamic*/ {
+	public inline function getRenderbufferParameter (target:Int, pname:Int):Dynamic {
 		
 		return this.getRenderbufferParameter (target, pname);
 		
@@ -1156,7 +1711,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	}
 	
 	
-	public inline function getShaderParameter (shader:GLShader, pname:Int):Int {
+	public inline function getShaderParameter (shader:GLShader, pname:Int):Dynamic {
 		
 		return this.getShaderParameter (shader, pname);
 		
@@ -1184,7 +1739,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	}
 	
 	
-	public inline function getTexParameter (target:Int, pname:Int):Int /*Dynamic*/ {
+	public inline function getTexParameter (target:Int, pname:Int):Dynamic {
 		
 		return this.getTexParameter (target, pname);
 		
@@ -1205,14 +1760,14 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	}
 	
 	
-	public inline function getVertexAttrib (index:Int, pname:Int):Int /*Dynamic*/ {
+	public inline function getVertexAttrib (index:Int, pname:Int):Dynamic {
 		
 		return this.getVertexAttrib (index, pname);
 		
 	}
 	
 	
-	public inline function getVertexAttribOffset (index:Int, pname:Int):Int {
+	public inline function getVertexAttribOffset (index:Int, pname:Int):DataPointer {
 		
 		return this.getVertexAttribOffset (index, pname);
 		
@@ -1388,7 +1943,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	
 	
 	#if (!js || !html5 || display)
-	public inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int):Void {
+	public inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int = 0):Void {
 		
 		this.texImage2D (target, level, internalformat, width, height, border, format, type, srcData, srcOffset);
 		
@@ -1398,7 +1953,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:Dynamic /*ImageBitmap*/):Void {
 	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:ImageData):Void {
 	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:ImageElement):Void {
-	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, offset:Int):Void {
+	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, offset:DataPointer):Void {
 	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:VideoElement):Void {
 	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int):Void {
 	public inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:Dynamic, ?srcOffset:Int):Void {
@@ -1424,7 +1979,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	
 	
 	#if (!js || !html5 || display)
-	public inline function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int):Void {
+	public inline function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int = 0):Void {
 		
 		this.texImage2D (target, level, xoffset, yoffset, width, height, format, type, srcData, srcOffset);
 		
@@ -1655,7 +2210,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	}
 	
 	
-	public inline function vertexAttribPointer (indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void {
+	public inline function vertexAttribPointer (indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:DataPointer):Void {
 		
 		this.vertexAttribPointer (indx, size, type, normalized, stride, offset);
 		

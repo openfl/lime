@@ -186,9 +186,9 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_active_texture (int inSlot) {
+	void lime_gl_active_texture (int texture) {
 		
-		glActiveTexture (inSlot);
+		glActiveTexture (texture);
 		
 	}
 	
@@ -200,9 +200,9 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_bind_attrib_location (value handle, int inSlot, HxString inName) {
+	void lime_gl_bind_attrib_location (value handle, int index, HxString name) {
 		
-		glBindAttribLocation (reinterpret_cast<uintptr_t> (val_data (handle)), inSlot, inName.__s);
+		glBindAttribLocation (reinterpret_cast<uintptr_t> (val_data (handle)), index, name.__s);
 		
 	}
 	
@@ -268,56 +268,30 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_blend_func (int s, int d) {
+	void lime_gl_blend_func (int sfactor, int dfactor) {
 		
-		glBlendFunc (s, d);
-		
-	}
-	
-	
-	void lime_gl_blend_func_separate (int srgb, int drgb, int sa, int da) {
-		
-		glBlendFuncSeparate (srgb, drgb, sa, da);
+		glBlendFunc (sfactor, dfactor);
 		
 	}
 	
 	
-	void lime_gl_buffer_data (int inTarget, value inByteBuffer, int start, int len, int inUsage) {
+	void lime_gl_blend_func_separate (int srcRGB, int destRGB, int srcAlpha, int destAlpha) {
 		
-		if (len == 0) return;
-		
-		Bytes bytes;
-		bytes.Set (inByteBuffer);
-		const unsigned char *data = bytes.Data ();
-		int size = bytes.Length ();
-		
-		if (len + start > size) {
-			
-			val_throw (alloc_string ("Invalid byte length"));
-			
-		}
-		
-		glBufferData (inTarget, len, data + start, inUsage);
+		glBlendFuncSeparate (srcRGB, destRGB, srcAlpha, destAlpha);
 		
 	}
 	
 	
-	void lime_gl_buffer_sub_data (int inTarget, int inOffset, value inByteBuffer, int start, int len) {
+	void lime_gl_buffer_data (int target, int size, double srcData, int usage) {
 		
-		if (len == 0) return;
+		glBufferData (target, size, (void*)(uintptr_t)srcData, usage);
 		
-		Bytes bytes;
-		bytes.Set (inByteBuffer);
-		const unsigned char *data = bytes.Data ();
-		int size = bytes.Length ();
+	}
+	
+	
+	void lime_gl_buffer_sub_data (int target, int offset, int size, double srcData) {
 		
-		if (len + start > size) {
-			
-			val_throw (alloc_string ("Invalid byte length"));
-			
-		}
-		
-		glBufferSubData (inTarget, inOffset, len, data + start);
+		glBufferSubData (target, offset, size, (void*)(uintptr_t)srcData);
 		
 	}
 	
@@ -337,9 +311,9 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_clear_color (float r, float g, float b, float a) {
+	void lime_gl_clear_color (float red, float green, float blue, float alpha) {
 		
-		glClearColor (r, g, b, a);
+		glClearColor (red, green, blue, alpha);
 		
 	}
 	
@@ -362,9 +336,9 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_color_mask (bool r, bool g, bool b, bool a) {
+	void lime_gl_color_mask (bool red, bool green, bool blue, bool alpha) {
 		
-		glColorMask (r, g, b, a);
+		glColorMask (red, green, blue, alpha);
 		
 	}
 	
@@ -376,56 +350,30 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_compressed_tex_image_2d (int target, int level, int internalFormat, int width, int height, int border, value buffer, int offset) {
+	void lime_gl_compressed_tex_image_2d (int target, int level, int internalformat, int width, int height, int border, int imageSize, double srcData) {
 		
-		unsigned char *data = 0;
-		int size = 0;
-		
-		Bytes bytes;
-		bytes.Set (buffer);
-		
-		if (bytes.Length ()) {
-			
-			data = bytes.Data () + offset;
-			size = bytes.Length () - offset;
-			
-		}
-		
-		glCompressedTexImage2D (target, level, internalFormat, width, height, border, size, data);
+		glCompressedTexImage2D (target, level, internalformat, width, height, border, imageSize, (void*)(uintptr_t)srcData);
 		
 	}
 	
 	
-	void lime_gl_compressed_tex_sub_image_2d (int target, int level, int xOffset, int yOffset, int width, int height, int format, value buffer, int offset) {
+	void lime_gl_compressed_tex_sub_image_2d (int target, int level, int xoffset, int yoffset, int width, int height, int format, int imageSize, double srcData) {
 		
-		unsigned char *data = 0;
-		int size = 0;
-		
-		Bytes bytes;
-		bytes.Set (buffer);
-		
-		if (bytes.Length ()) {
-			
-			data = bytes.Data () + offset;
-			size = bytes.Length () - offset;
-			
-		}
-		
-		glCompressedTexSubImage2D (target, level, xOffset, yOffset, width, height, format, size, data);
+		glCompressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, imageSize, (void*)(uintptr_t)srcData);
 		
 	}
 	
 	
-	void lime_gl_copy_tex_image_2d (int target, int level, int internalFormat, int x, int y, int width, int height, int border) {
+	void lime_gl_copy_tex_image_2d (int target, int level, int internalformat, int x, int y, int width, int height, int border) {
 		
-		glCopyTexImage2D (target, level, internalFormat, x, y, width, height, border);
+		glCopyTexImage2D (target, level, internalformat, x, y, width, height, border);
 		
 	}
 	
 	
-	void lime_gl_copy_tex_sub_image_2d (int target, int level, int xOffset, int yOffset, int x, int y, int width, int height) {
+	void lime_gl_copy_tex_sub_image_2d (int target, int level, int xoffset, int yoffset, int x, int y, int width, int height) {
 		
-		glCopyTexSubImage2D (target, level, xOffset, yOffset, x, y, width, height);
+		glCopyTexSubImage2D (target, level, xoffset, yoffset, x, y, width, height);
 		
 	}
 	
@@ -572,19 +520,19 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_depth_mask (bool mask) {
+	void lime_gl_depth_mask (bool flag) {
 		
-		glDepthMask (mask);
+		glDepthMask (flag);
 		
 	}
 	
 	
-	void lime_gl_depth_range (float inNear, float inFar) {
+	void lime_gl_depth_range (float zNear, float zFar) {
 		
 		#ifdef LIME_GLES
-		glDepthRangef (inNear, inFar);
+		glDepthRangef (zNear, zFar);
 		#else
-		glDepthRange (inNear, inFar);
+		glDepthRange (zNear, zFar);
 		#endif
 		
 	}
@@ -604,42 +552,37 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_disable_vertex_attrib_array (int inIndex) {
+	void lime_gl_disable_vertex_attrib_array (int index) {
 		
-		glDisableVertexAttribArray (inIndex);
-		
-	}
-	
-	
-	void lime_gl_draw_arrays (int inMode, int inFirst, int inCount) {
-		
-		glDrawArrays (inMode, inFirst, inCount);
+		glDisableVertexAttribArray (index);
 		
 	}
 	
 	
-	void lime_gl_draw_elements (int inMode, int inCount, int inType, value inOffset) {
+	void lime_gl_draw_arrays (int mode, int first, int count) {
 		
-		if (!val_is_null (inOffset)) {
-			
-			GLintptr indices = reinterpret_cast<uintptr_t> (val_data (inOffset));
-			glDrawElements (inMode, inCount, inType, (void *)indices);
-			
-		}
+		glDrawArrays (mode, first, count);
 		
 	}
 	
 	
-	void lime_gl_enable (int inCap) {
+	void lime_gl_draw_elements (int mode, int count, int type, double offset) {
 		
-		glEnable (inCap);
+		glDrawElements (mode, count, type, (void*)(uintptr_t)offset);
 		
 	}
 	
 	
-	void lime_gl_enable_vertex_attrib_array (int inIndex) {
+	void lime_gl_enable (int cap) {
 		
-		glEnableVertexAttribArray (inIndex);
+		glEnable (cap);
+		
+	}
+	
+	
+	void lime_gl_enable_vertex_attrib_array (int index) {
+		
+		glEnableVertexAttribArray (index);
 		
 	}
 	
@@ -672,21 +615,21 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_front_face (int inFace) {
+	void lime_gl_front_face (int face) {
 		
-		glFrontFace (inFace);
-		
-	}
-	
-	
-	void lime_gl_generate_mipmap (int inTarget) {
-		
-		glGenerateMipmap (inTarget);
+		glFrontFace (face);
 		
 	}
 	
 	
-	value lime_gl_get_active_attrib (value handle, int inIndex) {
+	void lime_gl_generate_mipmap (int target) {
+		
+		glGenerateMipmap (target);
+		
+	}
+	
+	
+	value lime_gl_get_active_attrib (value handle, int index) {
 		
 		value result = alloc_empty_object ();
 		
@@ -695,7 +638,7 @@ namespace lime {
 		GLsizei size = 0;
 		GLenum  type = 0;
 		
-		glGetActiveAttrib (reinterpret_cast<uintptr_t> (val_data (handle)), inIndex, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &outLen, &size, &type, &buffer[0]);
+		glGetActiveAttrib (reinterpret_cast<uintptr_t> (val_data (handle)), index, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &outLen, &size, &type, &buffer[0]);
 		
 		buffer.resize (outLen);
 		
@@ -708,14 +651,14 @@ namespace lime {
 	}
 	
 	
-	value lime_gl_get_active_uniform (value handle, int inIndex) {
+	value lime_gl_get_active_uniform (value handle, int index) {
 		
 		std::string buffer (GL_ACTIVE_UNIFORM_MAX_LENGTH, 0);
 		GLsizei outLen = 0;
 		GLsizei size = 0;
 		GLenum  type = 0;
 		
-		glGetActiveUniform (reinterpret_cast<uintptr_t> (val_data (handle)), inIndex, GL_ACTIVE_UNIFORM_MAX_LENGTH, &outLen, &size, &type, &buffer[0]);
+		glGetActiveUniform (reinterpret_cast<uintptr_t> (val_data (handle)), index, GL_ACTIVE_UNIFORM_MAX_LENGTH, &outLen, &size, &type, &buffer[0]);
 		
 		buffer.resize (outLen);
 		
@@ -729,18 +672,18 @@ namespace lime {
 	}
 	
 	
-	int lime_gl_get_attrib_location (value handle, HxString inName) {
+	int lime_gl_get_attrib_location (value handle, HxString name) {
 		
-		return glGetAttribLocation (reinterpret_cast<uintptr_t> (val_data (handle)), inName.__s);
+		return glGetAttribLocation (reinterpret_cast<uintptr_t> (val_data (handle)), name.__s);
 		
 	}
 	
 	
-	int lime_gl_get_buffer_parameter (int inTarget, int inIndex) {
+	value lime_gl_get_buffer_parameter (int target, int index) {
 		
 		GLint data = 0;
-		glGetBufferParameteriv (inTarget, inIndex, &data);
-		return data;
+		glGetBufferParameteriv (target, index, &data);
+		return alloc_int (data);
 		
 	}
 	
@@ -860,11 +803,11 @@ namespace lime {
 	}
 	
 	
-	int lime_gl_get_framebuffer_attachment_parameter (int target, int attachment, int pname) {
+	value lime_gl_get_framebuffer_attachment_parameter (int target, int attachment, int pname) {
 		
 		GLint result = 0;
 		glGetFramebufferAttachmentParameteriv (target, attachment, pname, &result);
-		return result;
+		return alloc_int (result);
 		
 	}
 	
@@ -1126,12 +1069,12 @@ namespace lime {
 	}
 	
 	
-	value lime_gl_get_program_parameter (value handle, int inName) {
+	value lime_gl_get_program_parameter (value handle, int pname) {
 		
 		int result = 0;
-		glGetProgramiv (reinterpret_cast<uintptr_t> (val_data (handle)), inName, &result);
+		glGetProgramiv (reinterpret_cast<uintptr_t> (val_data (handle)), pname, &result);
 		
-		switch (inName) {
+		switch (pname) {
 			
 			case GL_DELETE_STATUS:
 			case GL_LINK_STATUS:
@@ -1147,11 +1090,11 @@ namespace lime {
 	}
 	
 	
-	int lime_gl_get_render_buffer_parameter (int target, int pname) {
+	value lime_gl_get_render_buffer_parameter (int target, int pname) {
 		
 		int result = 0;
 		glGetRenderbufferParameteriv (target, pname, &result);
-		return result;
+		return alloc_int (result);
 		
 	}
 	
@@ -1178,12 +1121,12 @@ namespace lime {
 	}
 	
 	
-	value lime_gl_get_shader_parameter (value handle, int inName) {
+	value lime_gl_get_shader_parameter (value handle, int pname) {
 		
 		int result = 0;
-		glGetShaderiv (reinterpret_cast<uintptr_t> (val_data (handle)), inName, &result);
+		glGetShaderiv (reinterpret_cast<uintptr_t> (val_data (handle)), pname, &result);
 		
-		switch (inName) {
+		switch (pname) {
 			
 			case GL_DELETE_STATUS:
 			case GL_COMPILE_STATUS:
@@ -1198,14 +1141,14 @@ namespace lime {
 	}
 	
 	
-	value lime_gl_get_shader_precision_format (int shaderType, int inPrec) {
+	value lime_gl_get_shader_precision_format (int shadertype, int precisiontype) {
 		
 		#ifdef LIME_GLES
 		
 		int range[2];
 		int precision;
 		
-		glGetShaderPrecisionFormat (shaderType, inPrec, range, &precision);
+		glGetShaderPrecisionFormat (shadertype, precisiontype, range, &precision);
 		
 		value result = alloc_empty_object ();
 		alloc_field (result, val_id ("rangeMin"), alloc_int (range[0]));
@@ -1261,7 +1204,7 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_get_supported_extensions (value ioList) {
+	void lime_gl_get_supported_extensions (value extensions) {
 		
 		const char *ext = (const char *)glGetString (GL_EXTENSIONS);
 		
@@ -1277,7 +1220,7 @@ namespace lime {
 					
 				}
 				
-				val_array_push (ioList, alloc_string_len (ext, next - ext));
+				val_array_push (extensions, alloc_string_len (ext, next - ext));
 				
 				if (!*next || !next[1]) {
 					
@@ -1295,16 +1238,16 @@ namespace lime {
 	}
 	
 	
-	int lime_gl_get_tex_parameter (int inTarget, int inPname) {
+	value lime_gl_get_tex_parameter (int target, int pname) {
 		
 		int result = 0;
-		glGetTexParameteriv (inTarget, inPname, &result);
-		return result;
+		glGetTexParameteriv (target, pname, &result);
+		return alloc_int (result);
 		
 	}
 	
 	
-	value lime_gl_get_uniform (value handle, int loc) {
+	value lime_gl_get_uniform (value handle, int location) {
 		
 		char buf[1];
 		GLsizei outLen = 1;
@@ -1312,7 +1255,7 @@ namespace lime {
 		GLenum  type = 0;
 		GLuint id = reinterpret_cast<uintptr_t> (val_data (handle));
 		
-		glGetActiveUniform (id, loc, 1, &outLen, &size, &type, buf);
+		glGetActiveUniform (id, location, 1, &outLen, &size, &type, buf);
 		int ints = 0;
 		int floats = 0;
 		int bools = 0;
@@ -1322,7 +1265,7 @@ namespace lime {
 			case GL_FLOAT: {
 				
 				float result = 0;
-				glGetUniformfv (id, loc, &result);
+				glGetUniformfv (id, location, &result);
 				return alloc_float (result);
 				
 			}
@@ -1368,7 +1311,7 @@ namespace lime {
 			{
 				
 				int result = 0;
-				glGetUniformiv (id, loc, &result);
+				glGetUniformiv (id, location, &result);
 				return alloc_int (result);
 				
 			}
@@ -1378,7 +1321,7 @@ namespace lime {
 		if (ints + bools > 0) {
 			
 			int buffer[4];
-			glGetUniformiv (id, loc, buffer);
+			glGetUniformiv (id, location, buffer);
 			
 			value result = alloc_array (ints + bools);
 			
@@ -1395,7 +1338,7 @@ namespace lime {
 		if (floats > 0) {
 			
 			float buffer[16 * 3];
-			glGetUniformfv (id, loc, buffer);
+			glGetUniformfv (id, location, buffer);
 			
 			value result = alloc_array (floats);
 			
@@ -1414,34 +1357,34 @@ namespace lime {
 	}
 	
 	
-	int lime_gl_get_uniform_location (value handle, HxString inName) {
+	int lime_gl_get_uniform_location (value handle, HxString name) {
 		
-		return glGetUniformLocation (reinterpret_cast<uintptr_t> (val_data (handle)), inName.__s);
+		return glGetUniformLocation (reinterpret_cast<uintptr_t> (val_data (handle)), name.__s);
 		
 	}
 	
 	
-	int lime_gl_get_vertex_attrib (int index, int name) {
+	value lime_gl_get_vertex_attrib (int index, int pname) {
 		
 		int result = 0;
-		glGetVertexAttribiv (index, name, &result);
-		return result;
+		glGetVertexAttribiv (index, pname, &result);
+		return alloc_int (result);
 		
 	}
 	
 	
-	value lime_gl_get_vertex_attrib_offset (int index, int name) {
+	double lime_gl_get_vertex_attrib_offset (int index, int pname) {
 		
-		GLintptr result = 0;
-		glGetVertexAttribPointerv (index, name, (void **)&result);
-		return CFFIPointer ((void*)(uintptr_t)result);
+		uintptr_t result = 0;
+		glGetVertexAttribPointerv (index, pname, (void**)result);
+		return (double)result;
 		
 	}
 	
 	
-	void lime_gl_hint (int inTarget, int inValue) {
+	void lime_gl_hint (int target, int mode) {
 		
-		glHint (inTarget, inValue);
+		glHint (target, mode);
 		
 	}
 	
@@ -1453,9 +1396,9 @@ namespace lime {
 	}
 	
 	
-	bool lime_gl_is_enabled (int val) {
+	bool lime_gl_is_enabled (int cap) {
 		
-		return glIsEnabled (val);
+		return glIsEnabled (cap);
 		
 	}
 	
@@ -1495,9 +1438,9 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_line_width (float inWidth) {
+	void lime_gl_line_width (float width) {
 		
-		glLineWidth (inWidth);
+		glLineWidth (width);
 		
 	}
 	
@@ -1523,40 +1466,30 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_read_pixels (int x, int y, int width, int height, int format, int type, value buffer, int offset) {
+	void lime_gl_read_pixels (int x, int y, int width, int height, int format, int type, double pixels) {
 		
-		unsigned char *data = 0;
-		Bytes bytes;
-		bytes.Set (buffer);
-		
-		if (bytes.Length ()) {
-			
-			data = bytes.Data () + offset;
-			
-		}
-		
-		glReadPixels (x, y, width, height, format, type, data);
+		glReadPixels (x, y, width, height, format, type, (void*)(uintptr_t)pixels);
 		
 	}
 	
 	
-	void lime_gl_renderbuffer_storage (int target, int internalFormat, int width, int height) {
+	void lime_gl_renderbuffer_storage (int target, int internalformat, int width, int height) {
 		
-		glRenderbufferStorage (target, internalFormat, width, height);
-		
-	}
-	
-	
-	void lime_gl_sample_coverage (float f, bool invert) {
-		
-		glSampleCoverage (f, invert);
+		glRenderbufferStorage (target, internalformat, width, height);
 		
 	}
 	
 	
-	void lime_gl_scissor (int inX, int inY, int inW, int inH) {
+	void lime_gl_sample_coverage (float val, bool invert) {
 		
-		glScissor (inX, inY, inW, inH);
+		glSampleCoverage (val, invert);
+		
+	}
+	
+	
+	void lime_gl_scissor (int x, int y, int width, int height) {
+		
+		glScissor (x, y, width, height);
 		
 	}
 	
@@ -1596,238 +1529,217 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_stencil_op (int fail, int zfail, int zpass) {
+	void lime_gl_stencil_op (int sfail, int dpfail, int dppass) {
 		
-		glStencilOp (fail, zfail, zpass);
-		
-	}
-	
-	
-	void lime_gl_stencil_op_separate (int face, int fail, int zfail, int zpass) {
-		
-		glStencilOpSeparate (face, fail, zfail, zpass);
+		glStencilOp (sfail, dpfail, dppass);
 		
 	}
 	
 	
-	void lime_gl_tex_image_2d (int target, int level, int internal, int width, int height, int border, int format, int type, value buffer, int offset) {
+	void lime_gl_stencil_op_separate (int face, int sfail, int dpfail, int dppass) {
 		
-		unsigned char *data = 0;
-		
-		Bytes bytes;
-		bytes.Set (buffer);
-		
-		if (bytes.Length ()) {
-			
-			data = bytes.Data () + offset;
-			
-		}
-		
-		glTexImage2D (target, level, internal, width, height, border, format, type, data);
+		glStencilOpSeparate (face, sfail, dpfail, dppass);
 		
 	}
 	
 	
-	void lime_gl_tex_parameterf (int inTarget, int inPName, float inVal) {
+	void lime_gl_tex_image_2d (int target, int level, int internalformat, int width, int height, int border, int format, int type, double srcData) {
 		
-		glTexParameterf (inTarget, inPName, inVal);
-		
-	}
-	
-	
-	void lime_gl_tex_parameteri (int inTarget, int inPName, int inVal) {
-		
-		glTexParameterf (inTarget, inPName, inVal);
+		glTexImage2D (target, level, internalformat, width, height, border, format, type, (void*)(uintptr_t)srcData);
 		
 	}
 	
 	
-	void lime_gl_tex_sub_image_2d (int target, int level, int xOffset, int yOffset, int width, int height, int format, int type, value buffer, int offset) {
+	void lime_gl_tex_parameterf (int target, int pname, float param) {
 		
-		unsigned char *data = 0;
-		Bytes bytes;
-		bytes.Set (buffer);
-		
-		if (bytes.Length ()) {
-			
-			data = bytes.Data () + offset;
-			
-		}
-		
-		glTexSubImage2D (target, level, xOffset, yOffset, width, height, format, type, data);
+		glTexParameterf (target, pname, param);
 		
 	}
 	
 	
-	void lime_gl_uniform_matrix (int loc, bool trans, value inBytes, int count) {
+	void lime_gl_tex_parameteri (int target, int pname, int param) {
 		
-		Bytes bytes;
-		bytes.Set (inBytes);
-		int size = bytes.Length ();
-		const float *data = (float *)bytes.Data ();
+		glTexParameterf (target, pname, param);
+		
+	}
+	
+	
+	void lime_gl_tex_sub_image_2d (int target, int level, int xoffset, int yoffset, int width, int height, int format, int type, double srcData) {
+		
+		glTexSubImage2D (target, level, xoffset, yoffset, width, height, format, type, (void*)(uintptr_t)srcData);
+		
+	}
+	
+	
+	void lime_gl_uniform_matrix (int location, bool transpose, value bytes, int count) {
+		
+		Bytes _bytes;
+		_bytes.Set (bytes);
+		int size = _bytes.Length ();
+		const float *data = (float *)_bytes.Data ();
 		int nbElems = size / sizeof (float);
 		
 		switch (count) {
 			
-			case 2: glUniformMatrix2fv (loc, nbElems >> 2, trans, data); break;
-			case 3: glUniformMatrix3fv (loc, nbElems / 9, trans, data); break;
-			case 4: glUniformMatrix4fv (loc, nbElems >> 4, trans, data); break;
+			case 2: glUniformMatrix2fv (location, nbElems >> 2, transpose, data); break;
+			case 3: glUniformMatrix3fv (location, nbElems / 9, transpose, data); break;
+			case 4: glUniformMatrix4fv (location, nbElems >> 4, transpose, data); break;
 			
 		}
 		
 	}
 	
 	
-	void lime_gl_uniform1f (int inLocation, float inV0) {
+	void lime_gl_uniform1f (int location, float v0) {
 		
-		glUniform1f (inLocation, inV0);
+		glUniform1f (location, v0);
 		
 	}
 	
 	
-	void lime_gl_uniform1fv (int loc, value inByteBuffer) {
+	void lime_gl_uniform1fv (int location, value bytes) {
 		
-		Bytes bytes;
-		bytes.Set (inByteBuffer);
-		int size = bytes.Length ();
-		const float *data = (float *)bytes.Data ();
+		Bytes _bytes;
+		_bytes.Set (bytes);
+		int size = _bytes.Length ();
+		const float *data = (float *)_bytes.Data ();
 		int nbElems = size / sizeof (float);
 		
-		glUniform1fv (loc, nbElems, data);
+		glUniform1fv (location, nbElems, data);
 		
 	}
 	
 	
-	void lime_gl_uniform1i (int inLocation, int inV0) {
+	void lime_gl_uniform1i (int location, int v0) {
 		
-		glUniform1i (inLocation, inV0);
+		glUniform1i (location, v0);
 		
 	}
 	
 	
-	void lime_gl_uniform1iv (int loc, value inByteBuffer) {
+	void lime_gl_uniform1iv (int location, value bytes) {
 		
-		Bytes bytes;
-		bytes.Set (inByteBuffer);
-		int size = bytes.Length ();
-		const int *data = (int *)bytes.Data ();
+		Bytes _bytes;
+		_bytes.Set (bytes);
+		int size = _bytes.Length ();
+		const int *data = (int *)_bytes.Data ();
 		int nbElems = size / sizeof (int);
 		
-		glUniform1iv (loc, nbElems, data);
+		glUniform1iv (location, nbElems, data);
 		
 	}
 	
 	
-	void lime_gl_uniform2f (int inLocation, float inV0, float inV1) {
+	void lime_gl_uniform2f (int location, float v0, float v1) {
 		
-		glUniform2f (inLocation, inV0, inV1);
+		glUniform2f (location, v0, v1);
 		
 	}
 	
 	
-	void lime_gl_uniform2fv (int loc, value inByteBuffer) {
+	void lime_gl_uniform2fv (int location, value bytes) {
 		
-		Bytes bytes (inByteBuffer);
-		int size = bytes.Length ();
-		const float *data = (float *)bytes.Data ();
+		Bytes _bytes (bytes);
+		int size = _bytes.Length ();
+		const float *data = (float *)_bytes.Data ();
 		int nbElems = size / sizeof (float);
 		
-		glUniform2fv (loc, nbElems >> 1, data);
+		glUniform2fv (location, nbElems >> 1, data);
 		
 	}
 	
 	
-	void lime_gl_uniform2i (int inLocation, int inV0, int inV1) {
+	void lime_gl_uniform2i (int location, int v0, int v1) {
 		
-		glUniform2i (inLocation, inV0, inV1);
+		glUniform2i (location, v0, v1);
 		
 	}
 	
 	
-	void lime_gl_uniform2iv (int loc, value inByteBuffer) {
+	void lime_gl_uniform2iv (int location, value bytes) {
 		
-		Bytes bytes (inByteBuffer);
-		int size = bytes.Length ();
-		const int *data = (int *)bytes.Data ();
+		Bytes _bytes (bytes);
+		int size = _bytes.Length ();
+		const int *data = (int *)_bytes.Data ();
 		int nbElems = size / sizeof (int);
 		
-		glUniform2iv (loc, nbElems >> 1, data);
+		glUniform2iv (location, nbElems >> 1, data);
 		
 	}
 	
 	
-	void lime_gl_uniform3f (int inLocation, float inV0, float inV1, float inV2) {
+	void lime_gl_uniform3f (int location, float v0, float v1, float v2) {
 		
-		glUniform3f (inLocation, inV0, inV1, inV2);
+		glUniform3f (location, v0, v1, v2);
 		
 	}
 	
 	
-	void lime_gl_uniform3fv (int loc, value inByteBuffer) {
+	void lime_gl_uniform3fv (int location, value bytes) {
 		
-		Bytes bytes (inByteBuffer);
-		int size = bytes.Length ();
-		const float *data = (float *)bytes.Data ();
+		Bytes _bytes (bytes);
+		int size = _bytes.Length ();
+		const float *data = (float *)_bytes.Data ();
 		int nbElems = size / sizeof (float);
 		
-		glUniform3fv (loc, nbElems / 3, data);
+		glUniform3fv (location, nbElems / 3, data);
 		
 	}
 	
 	
-	void lime_gl_uniform3i (int inLocation, int inV0, int inV1, int inV2) {
+	void lime_gl_uniform3i (int location, int v0, int v1, int v2) {
 		
-		glUniform3i (inLocation, inV0, inV1, inV2);
+		glUniform3i (location, v0, v1, v2);
 		
 	}
 	
 	
-	void lime_gl_uniform3iv (int loc, value inByteBuffer) {
+	void lime_gl_uniform3iv (int location, value bytes) {
 		
-		Bytes bytes (inByteBuffer);
-		int size = bytes.Length ();
-		const int *data = (int *)bytes.Data ();
+		Bytes _bytes (bytes);
+		int size = _bytes.Length ();
+		const int *data = (int *)_bytes.Data ();
 		int nbElems = size / sizeof (int);
 		
-		glUniform3iv (loc, nbElems / 3, data);
+		glUniform3iv (location, nbElems / 3, data);
 		
 	}
 	
 	
-	void lime_gl_uniform4f (int inLocation, float inV0, float inV1, float inV2, float inV3) {
+	void lime_gl_uniform4f (int location, float v0, float v1, float v2, float v3) {
 		
-		glUniform4f (inLocation, inV0, inV1, inV2, inV3);
+		glUniform4f (location, v0, v1, v2, v3);
 		
 	}
 	
 	
-	void lime_gl_uniform4fv (int loc, value inByteBuffer) {
+	void lime_gl_uniform4fv (int location, value bytes) {
 		
-		Bytes bytes (inByteBuffer);
-		int size = bytes.Length ();
-		const float *data = (float *)bytes.Data ();
+		Bytes _bytes (bytes);
+		int size = _bytes.Length ();
+		const float *data = (float *)_bytes.Data ();
 		int nbElems = size / sizeof (float);
 		
-		glUniform4fv (loc, nbElems >> 2, data);
+		glUniform4fv (location, nbElems >> 2, data);
 		
 	}
 	
 	
-	void lime_gl_uniform4i (int inLocation, int inV0, int inV1, int inV2, int inV3) {
+	void lime_gl_uniform4i (int location, int v0, int v1, int v2, int v3) {
 		
-		glUniform4i (inLocation, inV0, inV1, inV2, inV3);
+		glUniform4i (location, v0, v1, v2, v3);
 		
 	}
 	
 	
-	void lime_gl_uniform4iv (int loc, value inByteBuffer) {
+	void lime_gl_uniform4iv (int location, value bytes) {
 		
-		Bytes bytes (inByteBuffer);
-		int size = bytes.Length ();
-		const int *data = (int *)bytes.Data ();
+		Bytes _bytes (bytes);
+		int size = _bytes.Length ();
+		const int *data = (int *)_bytes.Data ();
 		int nbElems = size / sizeof (int);
 		
-		glUniform4iv (loc, nbElems >> 2, data);
+		glUniform4iv (location, nbElems >> 2, data);
 		
 	}
 	
@@ -1865,88 +1777,88 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_vertex_attrib_pointer (int index, int size, int type, bool normalized, int stride, int offset) {
+	void lime_gl_vertex_attrib_pointer (int index, int size, int type, bool normalized, int stride, double offset) {
 		
-		glVertexAttribPointer (index, size, type, normalized, stride, (void *)(intptr_t)offset);
-		
-	}
-	
-	
-	void lime_gl_vertex_attrib1f (int inLocation, float inV0) {
-		
-		glVertexAttrib1f (inLocation, inV0);
+		glVertexAttribPointer (index, size, type, normalized, stride, (void*)(uintptr_t)offset);
 		
 	}
 	
 	
-	void lime_gl_vertex_attrib1fv (int loc, value inByteBuffer) {
+	void lime_gl_vertex_attrib1f (int indx, float v0) {
 		
-		Bytes bytes (inByteBuffer);
-		int size = bytes.Length ();
-		const float *data = (float *)bytes.Data ();
-		
-		glVertexAttrib1fv (loc, data);
+		glVertexAttrib1f (indx, v0);
 		
 	}
 	
 	
-	void lime_gl_vertex_attrib2f (int inLocation, float inV0, float inV1) {
+	void lime_gl_vertex_attrib1fv (int indx, value bytes) {
 		
-		glVertexAttrib2f (inLocation, inV0, inV1);
+		Bytes _bytes (bytes);
+		int size = _bytes.Length ();
+		const float *data = (float *)_bytes.Data ();
+		
+		glVertexAttrib1fv (indx, data);
 		
 	}
 	
 	
-	void lime_gl_vertex_attrib2fv (int loc, value inByteBuffer) {
+	void lime_gl_vertex_attrib2f (int indx, float v0, float v1) {
 		
-		Bytes bytes (inByteBuffer);
-		int size = bytes.Length ();
-		const float *data = (float *)bytes.Data ();
+		glVertexAttrib2f (indx, v0, v1);
+		
+	}
+	
+	
+	void lime_gl_vertex_attrib2fv (int loc, value bytes) {
+		
+		Bytes _bytes (bytes);
+		int size = _bytes.Length ();
+		const float *data = (float *)_bytes.Data ();
 		
 		glVertexAttrib2fv (loc, data);
 		
 	}
 	
 	
-	void lime_gl_vertex_attrib3f (int inLocation, float inV0, float inV1, float inV2) {
+	void lime_gl_vertex_attrib3f (int indx, float v0, float v1, float v2) {
 		
-		glVertexAttrib3f (inLocation, inV0, inV1, inV2);
-		
-	}
-	
-	
-	void lime_gl_vertex_attrib3fv (int loc, value inByteBuffer) {
-		
-		Bytes bytes (inByteBuffer);
-		int size = bytes.Length ();
-		const float *data = (float *)bytes.Data ();
-		
-		glVertexAttrib3fv (loc, data);
+		glVertexAttrib3f (indx, v0, v1, v2);
 		
 	}
 	
 	
-	void lime_gl_vertex_attrib4f (int inLocation, float inV0, float inV1, float inV2, float inV3) {
+	void lime_gl_vertex_attrib3fv (int indx, value bytes) {
 		
-		glVertexAttrib4f (inLocation, inV0, inV1, inV2, inV3);
+		Bytes _bytes (bytes);
+		int size = _bytes.Length ();
+		const float *data = (float *)_bytes.Data ();
 		
-	}
-	
-	
-	void lime_gl_vertex_attrib4fv (int loc, value inByteBuffer) {
-		
-		Bytes bytes (inByteBuffer);
-		int size = bytes.Length ();
-		const float *data = (float *)bytes.Data ();
-		
-		glVertexAttrib4fv (loc, data);
+		glVertexAttrib3fv (indx, data);
 		
 	}
 	
 	
-	void lime_gl_viewport (int inX, int inY, int inW, int inH) {
+	void lime_gl_vertex_attrib4f (int indx, float v0, float v1, float v2, float v3) {
 		
-		glViewport (inX, inY, inW, inH);
+		glVertexAttrib4f (indx, v0, v1, v2, v3);
+		
+	}
+	
+	
+	void lime_gl_vertex_attrib4fv (int indx, value bytes) {
+		
+		Bytes _bytes (bytes);
+		int size = _bytes.Length ();
+		const float *data = (float *)_bytes.Data ();
+		
+		glVertexAttrib4fv (indx, data);
+		
+	}
+	
+	
+	void lime_gl_viewport (int x, int y, int width, int height) {
+		
+		glViewport (x, y, width, height);
 		
 	}
 	
@@ -2003,8 +1915,8 @@ namespace lime {
 	DEFINE_PRIME2v (lime_gl_blend_equation_separate);
 	DEFINE_PRIME2v (lime_gl_blend_func);
 	DEFINE_PRIME4v (lime_gl_blend_func_separate);
-	DEFINE_PRIME5v (lime_gl_buffer_data);
-	DEFINE_PRIME5v (lime_gl_buffer_sub_data);
+	DEFINE_PRIME4v (lime_gl_buffer_data);
+	DEFINE_PRIME4v (lime_gl_buffer_sub_data);
 	DEFINE_PRIME1 (lime_gl_check_framebuffer_status);
 	DEFINE_PRIME1v (lime_gl_clear);
 	DEFINE_PRIME4v (lime_gl_clear_color);
@@ -2086,7 +1998,7 @@ namespace lime {
 	DEFINE_PRIME1v (lime_gl_link_program);
 	DEFINE_PRIME2v (lime_gl_pixel_storei);
 	DEFINE_PRIME2v (lime_gl_polygon_offset);
-	DEFINE_PRIME8v (lime_gl_read_pixels);
+	DEFINE_PRIME7v (lime_gl_read_pixels);
 	DEFINE_PRIME4v (lime_gl_renderbuffer_storage);
 	DEFINE_PRIME2v (lime_gl_sample_coverage);
 	DEFINE_PRIME4v (lime_gl_scissor);
@@ -2097,10 +2009,10 @@ namespace lime {
 	DEFINE_PRIME2v (lime_gl_stencil_mask_separate);
 	DEFINE_PRIME3v (lime_gl_stencil_op);
 	DEFINE_PRIME4v (lime_gl_stencil_op_separate);
-	DEFINE_PRIME10v (lime_gl_tex_image_2d);
+	DEFINE_PRIME9v (lime_gl_tex_image_2d);
 	DEFINE_PRIME3v (lime_gl_tex_parameterf);
 	DEFINE_PRIME3v (lime_gl_tex_parameteri);
-	DEFINE_PRIME10v (lime_gl_tex_sub_image_2d);
+	DEFINE_PRIME9v (lime_gl_tex_sub_image_2d);
 	DEFINE_PRIME4v (lime_gl_uniform_matrix);
 	DEFINE_PRIME2v (lime_gl_uniform1f);
 	DEFINE_PRIME2v (lime_gl_uniform1fv);

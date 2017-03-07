@@ -14,13 +14,13 @@ import lime.graphics.opengl.GLShaderPrecisionFormat;
 import lime.graphics.opengl.GLTexture;
 import lime.graphics.opengl.GLUniformLocation;
 import lime.graphics.opengl.GL;
+import lime.system.System;
 import lime.utils.ArrayBuffer;
 import lime.utils.ArrayBufferView;
-import lime.utils.BytePointer;
+import lime.utils.DataPointer;
 import lime.utils.Float32Array;
 import lime.utils.Int32Array;
-import lime.system.CFFIPointer;
-import lime.system.System;
+
 
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
@@ -34,7 +34,7 @@ import lime.system.System;
 class NativeGLRenderContext {
 	
 	
-	private static var __extensionObjects = new Map<String, Dynamic> ();
+	private static var __extensionObjects:Map<String, Dynamic>;
 	private static var __extensionObjectTypes = new Map<String, Class<Dynamic>> ();
 	private static var __lastContextID = 0;
 	private static var __supportedExtensions:Array<String>;
@@ -400,6 +400,283 @@ class NativeGLRenderContext {
 	public var UNPACK_COLORSPACE_CONVERSION_WEBGL = 0x9243;
 	public var BROWSER_DEFAULT_WEBGL = 0x9244;
 	
+	public var READ_BUFFER = 0x0C02;
+	public var UNPACK_ROW_LENGTH = 0x0CF2;
+	public var UNPACK_SKIP_ROWS = 0x0CF3;
+	public var UNPACK_SKIP_PIXELS = 0x0CF4;
+	public var PACK_ROW_LENGTH = 0x0D02;
+	public var PACK_SKIP_ROWS = 0x0D03;
+	public var PACK_SKIP_PIXELS = 0x0D04;
+	public var TEXTURE_BINDING_3D = 0x806A;
+	public var UNPACK_SKIP_IMAGES = 0x806D;
+	public var UNPACK_IMAGE_HEIGHT = 0x806E;
+	public var MAX_3D_TEXTURE_SIZE = 0x8073;
+	public var MAX_ELEMENTS_VERTICES = 0x80E8;
+	public var MAX_ELEMENTS_INDICES = 0x80E9;
+	public var MAX_TEXTURE_LOD_BIAS = 0x84FD;
+	public var MAX_FRAGMENT_UNIFORM_COMPONENTS = 0x8B49;
+	public var MAX_VERTEX_UNIFORM_COMPONENTS = 0x8B4A;
+	public var MAX_ARRAY_TEXTURE_LAYERS = 0x88FF;
+	public var MIN_PROGRAM_TEXEL_OFFSET = 0x8904;
+	public var MAX_PROGRAM_TEXEL_OFFSET = 0x8905;
+	public var MAX_VARYING_COMPONENTS = 0x8B4B;
+	public var FRAGMENT_SHADER_DERIVATIVE_HINT = 0x8B8B;
+	public var RASTERIZER_DISCARD = 0x8C89;
+	public var VERTEX_ARRAY_BINDING = 0x85B5;
+	public var MAX_VERTEX_OUTPUT_COMPONENTS = 0x9122;
+	public var MAX_FRAGMENT_INPUT_COMPONENTS = 0x9125;
+	public var MAX_SERVER_WAIT_TIMEOUT = 0x9111;
+	public var MAX_ELEMENT_INDEX = 0x8D6B;
+	
+	public var RED = 0x1903;
+	public var RGB8 = 0x8051;
+	public var RGBA8 = 0x8058;
+	public var RGB10_A2 = 0x8059;
+	public var TEXTURE_3D = 0x806F;
+	public var TEXTURE_WRAP_R = 0x8072;
+	public var TEXTURE_MIN_LOD = 0x813A;
+	public var TEXTURE_MAX_LOD = 0x813B;
+	public var TEXTURE_BASE_LEVEL = 0x813C;
+	public var TEXTURE_MAX_LEVEL = 0x813D;
+	public var TEXTURE_COMPARE_MODE = 0x884C;
+	public var TEXTURE_COMPARE_FUNC = 0x884D;
+	public var SRGB = 0x8C40;
+	public var SRGB8 = 0x8C41;
+	public var SRGB8_ALPHA8 = 0x8C43;
+	public var COMPARE_REF_TO_TEXTURE = 0x884E;
+	public var RGBA32F = 0x8814;
+	public var RGB32F = 0x8815;
+	public var RGBA16F = 0x881A;
+	public var RGB16F = 0x881B;
+	public var TEXTURE_2D_ARRAY = 0x8C1A;
+	public var TEXTURE_BINDING_2D_ARRAY = 0x8C1D;
+	public var R11F_G11F_B10F = 0x8C3A;
+	public var RGB9_E5 = 0x8C3D;
+	public var RGBA32UI = 0x8D70;
+	public var RGB32UI = 0x8D71;
+	public var RGBA16UI = 0x8D76;
+	public var RGB16UI = 0x8D77;
+	public var RGBA8UI = 0x8D7C;
+	public var RGB8UI = 0x8D7D;
+	public var RGBA32I = 0x8D82;
+	public var RGB32I = 0x8D83;
+	public var RGBA16I = 0x8D88;
+	public var RGB16I = 0x8D89;
+	public var RGBA8I = 0x8D8E;
+	public var RGB8I = 0x8D8F;
+	public var RED_INTEGER = 0x8D94;
+	public var RGB_INTEGER = 0x8D98;
+	public var RGBA_INTEGER = 0x8D99;
+	public var R8 = 0x8229;
+	public var RG8 = 0x822B;
+	public var R16F = 0x822D;
+	public var R32F = 0x822E;
+	public var RG16F = 0x822F;
+	public var RG32F = 0x8230;
+	public var R8I = 0x8231;
+	public var R8UI = 0x8232;
+	public var R16I = 0x8233;
+	public var R16UI = 0x8234;
+	public var R32I = 0x8235;
+	public var R32UI = 0x8236;
+	public var RG8I = 0x8237;
+	public var RG8UI = 0x8238;
+	public var RG16I = 0x8239;
+	public var RG16UI = 0x823A;
+	public var RG32I = 0x823B;
+	public var RG32UI = 0x823C;
+	public var R8_SNORM = 0x8F94;
+	public var RG8_SNORM = 0x8F95;
+	public var RGB8_SNORM = 0x8F96;
+	public var RGBA8_SNORM = 0x8F97;
+	public var RGB10_A2UI = 0x906F;
+	public var TEXTURE_IMMUTABLE_FORMAT = 0x912F;
+	public var TEXTURE_IMMUTABLE_LEVELS = 0x82DF;
+	
+	public var UNSIGNED_INT_2_10_10_10_REV = 0x8368;
+	public var UNSIGNED_INT_10F_11F_11F_REV = 0x8C3B;
+	public var UNSIGNED_INT_5_9_9_9_REV = 0x8C3E;
+	public var FLOAT_32_UNSIGNED_INT_24_8_REV = 0x8DAD;
+	public var UNSIGNED_INT_24_8 = 0x84FA;
+	public var HALF_FLOAT = 0x140B;
+	public var RG = 0x8227;
+	public var RG_INTEGER = 0x8228;
+	public var INT_2_10_10_10_REV = 0x8D9F;
+	
+	public var CURRENT_QUERY = 0x8865;
+	public var QUERY_RESULT = 0x8866;
+	public var QUERY_RESULT_AVAILABLE = 0x8867;
+	public var ANY_SAMPLES_PASSED = 0x8C2F;
+	public var ANY_SAMPLES_PASSED_CONSERVATIVE = 0x8D6A;
+	
+	public var MAX_DRAW_BUFFERS = 0x8824;
+	public var DRAW_BUFFER0 = 0x8825;
+	public var DRAW_BUFFER1 = 0x8826;
+	public var DRAW_BUFFER2 = 0x8827;
+	public var DRAW_BUFFER3 = 0x8828;
+	public var DRAW_BUFFER4 = 0x8829;
+	public var DRAW_BUFFER5 = 0x882A;
+	public var DRAW_BUFFER6 = 0x882B;
+	public var DRAW_BUFFER7 = 0x882C;
+	public var DRAW_BUFFER8 = 0x882D;
+	public var DRAW_BUFFER9 = 0x882E;
+	public var DRAW_BUFFER10 = 0x882F;
+	public var DRAW_BUFFER11 = 0x8830;
+	public var DRAW_BUFFER12 = 0x8831;
+	public var DRAW_BUFFER13 = 0x8832;
+	public var DRAW_BUFFER14 = 0x8833;
+	public var DRAW_BUFFER15 = 0x8834;
+	public var MAX_COLOR_ATTACHMENTS = 0x8CDF;
+	public var COLOR_ATTACHMENT1 = 0x8CE1;
+	public var COLOR_ATTACHMENT2 = 0x8CE2;
+	public var COLOR_ATTACHMENT3 = 0x8CE3;
+	public var COLOR_ATTACHMENT4 = 0x8CE4;
+	public var COLOR_ATTACHMENT5 = 0x8CE5;
+	public var COLOR_ATTACHMENT6 = 0x8CE6;
+	public var COLOR_ATTACHMENT7 = 0x8CE7;
+	public var COLOR_ATTACHMENT8 = 0x8CE8;
+	public var COLOR_ATTACHMENT9 = 0x8CE9;
+	public var COLOR_ATTACHMENT10 = 0x8CEA;
+	public var COLOR_ATTACHMENT11 = 0x8CEB;
+	public var COLOR_ATTACHMENT12 = 0x8CEC;
+	public var COLOR_ATTACHMENT13 = 0x8CED;
+	public var COLOR_ATTACHMENT14 = 0x8CEE;
+	public var COLOR_ATTACHMENT15 = 0x8CEF;
+	
+	public var SAMPLER_3D = 0x8B5F;
+	public var SAMPLER_2D_SHADOW = 0x8B62;
+	public var SAMPLER_2D_ARRAY = 0x8DC1;
+	public var SAMPLER_2D_ARRAY_SHADOW = 0x8DC4;
+	public var SAMPLER_CUBE_SHADOW = 0x8DC5;
+	public var INT_SAMPLER_2D = 0x8DCA;
+	public var INT_SAMPLER_3D = 0x8DCB;
+	public var INT_SAMPLER_CUBE = 0x8DCC;
+	public var INT_SAMPLER_2D_ARRAY = 0x8DCF;
+	public var UNSIGNED_INT_SAMPLER_2D = 0x8DD2;
+	public var UNSIGNED_INT_SAMPLER_3D = 0x8DD3;
+	public var UNSIGNED_INT_SAMPLER_CUBE = 0x8DD4;
+	public var UNSIGNED_INT_SAMPLER_2D_ARRAY = 0x8DD7;
+	public var MAX_SAMPLES = 0x8D57;
+	public var SAMPLER_BINDING = 0x8919;
+	
+	public var PIXEL_PACK_BUFFER = 0x88EB;
+	public var PIXEL_UNPACK_BUFFER = 0x88EC;
+	public var PIXEL_PACK_BUFFER_BINDING = 0x88ED;
+	public var PIXEL_UNPACK_BUFFER_BINDING = 0x88EF;
+	public var COPY_READ_BUFFER = 0x8F36;
+	public var COPY_WRITE_BUFFER = 0x8F37;
+	public var COPY_READ_BUFFER_BINDING = 0x8F36;
+	public var COPY_WRITE_BUFFER_BINDING = 0x8F37;
+	
+	public var FLOAT_MAT2x3 = 0x8B65;
+	public var FLOAT_MAT2x4 = 0x8B66;
+	public var FLOAT_MAT3x2 = 0x8B67;
+	public var FLOAT_MAT3x4 = 0x8B68;
+	public var FLOAT_MAT4x2 = 0x8B69;
+	public var FLOAT_MAT4x3 = 0x8B6A;
+	public var UNSIGNED_INT_VEC2 = 0x8DC6;
+	public var UNSIGNED_INT_VEC3 = 0x8DC7;
+	public var UNSIGNED_INT_VEC4 = 0x8DC8;
+	public var UNSIGNED_NORMALIZED = 0x8C17;
+	public var SIGNED_NORMALIZED = 0x8F9C;
+	
+	public var VERTEX_ATTRIB_ARRAY_INTEGER = 0x88FD;
+	public var VERTEX_ATTRIB_ARRAY_DIVISOR = 0x88FE;
+	
+	public var TRANSFORM_FEEDBACK_BUFFER_MODE = 0x8C7F;
+	public var MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS = 0x8C80;
+	public var TRANSFORM_FEEDBACK_VARYINGS = 0x8C83;
+	public var TRANSFORM_FEEDBACK_BUFFER_START = 0x8C84;
+	public var TRANSFORM_FEEDBACK_BUFFER_SIZE = 0x8C85;
+	public var TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN = 0x8C88;
+	public var MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS = 0x8C8A;
+	public var MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS = 0x8C8B;
+	public var INTERLEAVED_ATTRIBS = 0x8C8C;
+	public var SEPARATE_ATTRIBS = 0x8C8D;
+	public var TRANSFORM_FEEDBACK_BUFFER = 0x8C8E;
+	public var TRANSFORM_FEEDBACK_BUFFER_BINDING = 0x8C8F;
+	public var TRANSFORM_FEEDBACK = 0x8E22;
+	public var TRANSFORM_FEEDBACK_PAUSED = 0x8E23;
+	public var TRANSFORM_FEEDBACK_ACTIVE = 0x8E24;
+	public var TRANSFORM_FEEDBACK_BINDING = 0x8E25;
+	
+	public var FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING = 0x8210;
+	public var FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE = 0x8211;
+	public var FRAMEBUFFER_ATTACHMENT_RED_SIZE = 0x8212;
+	public var FRAMEBUFFER_ATTACHMENT_GREEN_SIZE = 0x8213;
+	public var FRAMEBUFFER_ATTACHMENT_BLUE_SIZE = 0x8214;
+	public var FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE = 0x8215;
+	public var FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE = 0x8216;
+	public var FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE = 0x8217;
+	public var FRAMEBUFFER_DEFAULT = 0x8218;
+	public var DEPTH24_STENCIL8 = 0x88F0;
+	public var DRAW_FRAMEBUFFER_BINDING = 0x8CA6;
+	public var READ_FRAMEBUFFER = 0x8CA8;
+	public var DRAW_FRAMEBUFFER = 0x8CA9;
+	public var READ_FRAMEBUFFER_BINDING = 0x8CAA;
+	public var RENDERBUFFER_SAMPLES = 0x8CAB;
+	public var FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER = 0x8CD4;
+	public var FRAMEBUFFER_INCOMPLETE_MULTISAMPLE = 0x8D56;
+	
+	public var UNIFORM_BUFFER = 0x8A11;
+	public var UNIFORM_BUFFER_BINDING = 0x8A28;
+	public var UNIFORM_BUFFER_START = 0x8A29;
+	public var UNIFORM_BUFFER_SIZE = 0x8A2A;
+	public var MAX_VERTEX_UNIFORM_BLOCKS = 0x8A2B;
+	public var MAX_FRAGMENT_UNIFORM_BLOCKS = 0x8A2D;
+	public var MAX_COMBINED_UNIFORM_BLOCKS = 0x8A2E;
+	public var MAX_UNIFORM_BUFFER_BINDINGS = 0x8A2F;
+	public var MAX_UNIFORM_BLOCK_SIZE = 0x8A30;
+	public var MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS = 0x8A31;
+	public var MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS = 0x8A33;
+	public var UNIFORM_BUFFER_OFFSET_ALIGNMENT = 0x8A34;
+	public var ACTIVE_UNIFORM_BLOCKS = 0x8A36;
+	public var UNIFORM_TYPE = 0x8A37;
+	public var UNIFORM_SIZE = 0x8A38;
+	public var UNIFORM_BLOCK_INDEX = 0x8A3A;
+	public var UNIFORM_OFFSET = 0x8A3B;
+	public var UNIFORM_ARRAY_STRIDE = 0x8A3C;
+	public var UNIFORM_MATRIX_STRIDE = 0x8A3D;
+	public var UNIFORM_IS_ROW_MAJOR = 0x8A3E;
+	public var UNIFORM_BLOCK_BINDING = 0x8A3F;
+	public var UNIFORM_BLOCK_DATA_SIZE = 0x8A40;
+	public var UNIFORM_BLOCK_ACTIVE_UNIFORMS = 0x8A42;
+	public var UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES = 0x8A43;
+	public var UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER = 0x8A44;
+	public var UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER = 0x8A46;
+	
+	public var OBJECT_TYPE = 0x9112;
+	public var SYNC_CONDITION = 0x9113;
+	public var SYNC_STATUS = 0x9114;
+	public var SYNC_FLAGS = 0x9115;
+	public var SYNC_FENCE = 0x9116;
+	public var SYNC_GPU_COMMANDS_COMPLETE = 0x9117;
+	public var UNSIGNALED = 0x9118;
+	public var SIGNALED = 0x9119;
+	public var ALREADY_SIGNALED = 0x911A;
+	public var TIMEOUT_EXPIRED = 0x911B;
+	public var CONDITION_SATISFIED = 0x911C;
+	public var WAIT_FAILED = 0x911D;
+	public var SYNC_FLUSH_COMMANDS_BIT = 0x00000001;
+	
+	public var COLOR = 0x1800;
+	public var DEPTH = 0x1801;
+	public var STENCIL = 0x1802;
+	public var MIN = 0x8007;
+	public var MAX = 0x8008;
+	public var DEPTH_COMPONENT24 = 0x81A6;
+	public var STREAM_READ = 0x88E1;
+	public var STREAM_COPY = 0x88E2;
+	public var STATIC_READ = 0x88E5;
+	public var STATIC_COPY = 0x88E6;
+	public var DYNAMIC_READ = 0x88E9;
+	public var DYNAMIC_COPY = 0x88EA;
+	public var DEPTH_COMPONENT32F = 0x8CAC;
+	public var DEPTH32F_STENCIL8 = 0x8CAD;
+	public var INVALID_INDEX = 0xFFFFFFFF;
+	public var TIMEOUT_IGNORED = -1;
+	public var MAX_CLIENT_WAIT_TIMEOUT_WEBGL = 0x9247;
+	
 	public var type (default, null):GLContextType;
 	public var version (default, null):Float;
 	
@@ -440,6 +717,7 @@ class NativeGLRenderContext {
 		__extensionObjectTypes["ARM_mali_shader_binary"] = ARM_mali_shader_binary;
 		__extensionObjectTypes["ARM_rgba8"] = ARM_rgba8;
 		__extensionObjectTypes["DMP_shader_binary"] = DMP_shader_binary;
+		__extensionObjectTypes["EXT_bgra"] = EXT_bgra;
 		__extensionObjectTypes["EXT_blend_minmax"] = EXT_blend_minmax;
 		__extensionObjectTypes["EXT_color_buffer_float"] = EXT_color_buffer_float;
 		__extensionObjectTypes["EXT_color_buffer_half_float"] = EXT_color_buffer_half_float;
@@ -661,23 +939,19 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function bufferData (target:Int, size:Int, srcData:BytePointer, usage:Int, srcOffset:Int = 0, length:Int = 0):Void {
+	public function bufferData (target:Int, size:Int, srcData:DataPointer, usage:Int, srcOffset:Int = 0, length:Int = 0):Void {
 		
-		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_buffer_data (target, srcData.bytes, srcData.offset, size, usage);
-		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_buffer_data (target, srcData.bytes.getData (), srcData.offset, size, usage);
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_buffer_data (target, size, srcData, usage);
 		#end
 		
 	}
 	
 	
-	public function bufferSubData (target:Int, dstByteOffset:Int, size:Int, srcData:BytePointer, srcOffset:Int = 0, length:Int = 0):Void {
+	public function bufferSubData (target:Int, dstByteOffset:Int, size:Int, srcData:DataPointer, srcOffset:Int = 0, length:Int = 0):Void {
 		
-		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_buffer_sub_data (target, dstByteOffset, srcData.bytes, srcData.offset, size);
-		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_buffer_sub_data (target, dstByteOffset, srcData.bytes.getData (), srcData.offset, size);
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_buffer_sub_data (target, dstByteOffset, size, srcData);
 		#end
 		
 	}
@@ -748,25 +1022,19 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:BytePointer, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
+	public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, imageSize:Int, srcData:DataPointer, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
 		
-		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		var buffer = srcData == null ? null : srcData.bytes;
-		NativeCFFI.lime_gl_compressed_tex_image_2d (target, level, internalformat, width, height, border, buffer, srcData == null ? 0 : srcData.offset);
-		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_compressed_tex_image_2d (target, level, internalformat, width, height, border, srcData == null ? null : srcData.bytes.getData (), srcData == null ? null : srcData.offset);
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_compressed_tex_image_2d (target, level, internalformat, width, height, border, imageSize, srcData);
 		#end
 		
 	}
 	
 	
-	public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:BytePointer, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
+	public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, imageSize:Int, srcData:DataPointer, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
 		
-		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		var buffer = srcData == null ? null : srcData.bytes;
-		NativeCFFI.lime_gl_compressed_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, buffer, srcData == null ? 0 : srcData.offset);
-		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_compressed_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, srcData == null ? null : srcData.bytes.getData (), srcData == null ? null : srcData.offset);
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_compressed_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, imageSize, srcData);
 		#end
 		
 	}
@@ -988,7 +1256,7 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function drawElements (mode:Int, count:Int, type:Int, offset:CFFIPointer):Void {
+	public function drawElements (mode:Int, count:Int, type:Int, offset:DataPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_draw_elements (mode, count, type, offset);
@@ -1137,7 +1405,7 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function getBufferParameter (target:Int, pname:Int):Int /*Dynamic*/ {
+	public function getBufferParameter (target:Int, pname:Int):Dynamic {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		return NativeCFFI.lime_gl_get_buffer_parameter (target, pname);
@@ -1175,14 +1443,34 @@ class NativeGLRenderContext {
 	
 	public function getExtension (name:String):Dynamic {
 		
+		if (__extensionObjects == null) {
+			
+			__extensionObjects = new Map ();
+			var supportedExtensions = getSupportedExtensions ();
+			
+			for (extension in supportedExtensions) {
+				
+				if (__extensionObjectTypes.exists (extension)) {
+					
+					__extensionObjects.set (extension, null);
+					
+				}
+				
+			}
+			
+		}
+		
 		if (__extensionObjects.exists (name)) {
 			
-			return __extensionObjects.get (name);
+			var object = __extensionObjects.get (name);
 			
-		} else if (__extensionObjectTypes.exists (name)) {
+			if (object == null) {
+				
+				object = Type.createInstance (__extensionObjectTypes.get (name), []);
+				__extensionObjects.set (name, object);
+				
+			}
 			
-			var object = Type.createInstance (__extensionObjectTypes.get (name), []);
-			__extensionObjects.set (name, object);
 			return object;
 			
 		} else {
@@ -1340,7 +1628,7 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function getRenderbufferParameter (target:Int, pname:Int):Int /*Dynamic*/ {
+	public function getRenderbufferParameter (target:Int, pname:Int):Dynamic {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		return NativeCFFI.lime_gl_get_render_buffer_parameter (target, pname);
@@ -1362,7 +1650,7 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function getShaderParameter (shader:GLShader, pname:Int):Int {
+	public function getShaderParameter (shader:GLShader, pname:Int):Dynamic {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		return NativeCFFI.lime_gl_get_shader_parameter (shader.id, pname);
@@ -1434,7 +1722,7 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function getTexParameter (target:Int, pname:Int):Int /*Dynamic*/ {
+	public function getTexParameter (target:Int, pname:Int):Dynamic {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		return NativeCFFI.lime_gl_get_tex_parameter (target, pname);
@@ -1467,7 +1755,7 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function getVertexAttrib (index:Int, pname:Int):Int /*Dynamic*/ {
+	public function getVertexAttrib (index:Int, pname:Int):Dynamic {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		return NativeCFFI.lime_gl_get_vertex_attrib (index, pname);
@@ -1478,7 +1766,7 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function getVertexAttribOffset (index:Int, pname:Int):CFFIPointer {
+	public function getVertexAttribOffset (index:Int, pname:Int):DataPointer {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		return NativeCFFI.lime_gl_get_vertex_attrib_offset (index, pname);
@@ -1618,13 +1906,10 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:BytePointer, dstOffset:Int = 0):Void {
+	public function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:DataPointer, dstOffset:Int = 0):Void {
 		
-		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		var buffer = pixels == null ? null : pixels.bytes;
-		NativeCFFI.lime_gl_read_pixels (x, y, width, height, format, type, buffer, pixels == null ? 0 : pixels.offset);
-		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_read_pixels (x, y, width, height, format, type, pixels == null ? null : pixels.bytes.getData (), pixels == null ? null : pixels.offset);
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_read_pixels (x, y, width, height, format, type, pixels);
 		#end
 		
 	}
@@ -1720,13 +2005,10 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:BytePointer, srcOffset:Int = 0):Void {
+	public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:DataPointer, srcOffset:Int = 0):Void {
 		
-		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		var buffer = srcData == null ? null : srcData.bytes;
-		NativeCFFI.lime_gl_tex_image_2d (target, level, internalformat, width, height, border, format, type, buffer, srcData == null ? 0 : srcData.offset);
-		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_tex_image_2d (target, level, internalformat, width, height, border, format, type, srcData == null ? null : srcData.bytes.getData (), srcData == null ? null : srcData.offset);
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_tex_image_2d (target, level, internalformat, width, height, border, format, type, srcData);
 		#end
 		
 	}
@@ -1750,13 +2032,10 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
+	public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:DataPointer):Void {
 		
-		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		var buffer = pixels == null ? null : pixels.buffer;
-		NativeCFFI.lime_gl_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, type, buffer, pixels == null ? 0 : pixels.byteOffset);
-		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, type, pixels == null ? null : pixels, pixels == null ? null : pixels.byteOffset);
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, type, pixels);
 		#end
 		
 	}
@@ -2055,7 +2334,7 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function vertexAttribPointer (indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void {
+	public function vertexAttribPointer (indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:DataPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_vertex_attrib_pointer (indx, size, type, normalized, stride, offset);

@@ -143,6 +143,28 @@ class AL {
 	}
 	
 	
+	public static function createBuffer ():ALBuffer {
+		
+		#if (lime_cffi && lime_openal && !macro)
+		return NativeCFFI.lime_al_gen_buffer ();
+		#else
+		return null;
+		#end
+		
+	}
+	
+	
+	public static function createSource ():ALSource {
+		
+		#if (lime_cffi && lime_openal && !macro)
+		return NativeCFFI.lime_al_gen_source ();
+		#else
+		return null;
+		#end
+		
+	}
+	
+	
 	public static function deleteBuffer (buffer:ALBuffer):Void {
 		
 		#if (lime_cffi && lime_openal && !macro)
@@ -224,7 +246,7 @@ class AL {
 	}
 	
 	
-	public static function genSource ():ALSource {
+	@:deprecated("genSource has been renamed to 'createSource' for consistency with OpenGL") public static function genSource ():ALSource {
 		
 		#if (lime_cffi && lime_openal && !macro)
 		return NativeCFFI.lime_al_gen_source ();
@@ -246,7 +268,7 @@ class AL {
 	}
 	
 	
-	public static function genBuffer ():ALBuffer {
+	@:deprecated("genBuffer has been renamed to 'createBuffer' for consistency with OpenGL") public static function genBuffer ():ALBuffer {
 		
 		#if (lime_cffi && lime_openal && !macro)
 		return NativeCFFI.lime_al_gen_buffer ();
@@ -522,6 +544,14 @@ class AL {
 		#else
 		return null;
 		#end
+		
+	}
+	
+	
+	@:dox(hide) @:noCompletion public static function getParameter (param:Int):Dynamic {
+		
+		// TODO, return any type value (similar to WebGL getParameter)
+		return null;
 		
 	}
 	

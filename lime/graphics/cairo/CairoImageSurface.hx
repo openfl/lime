@@ -3,6 +3,7 @@ package lime.graphics.cairo;
 
 import lime._backend.native.NativeCFFI;
 import lime.system.CFFIPointer;
+import lime.utils.DataPointer;
 
 @:access(lime._backend.native.NativeCFFI)
 
@@ -10,7 +11,7 @@ import lime.system.CFFIPointer;
 @:forward abstract CairoImageSurface(CairoSurface) from CairoSurface to CairoSurface from CFFIPointer to CFFIPointer {
 	
 	
-	public var data (get, never):Dynamic;
+	public var data (get, never):DataPointer;
 	public var format (get, never):CairoFormat;
 	public var height (get, never):Int;
 	public var stride (get, never):Int;
@@ -28,7 +29,7 @@ import lime.system.CFFIPointer;
 	}
 	
 	
-	public static function create (data:Dynamic, format:CairoFormat, width:Int, height:Int, stride:Int):CairoSurface {
+	public static function create (data:DataPointer, format:CairoFormat, width:Int, height:Int, stride:Int):CairoSurface {
 		
 		#if (lime_cffi && lime_cairo && !macro)
 		return NativeCFFI.lime_cairo_image_surface_create_for_data (data, format, width, height, stride);
@@ -42,7 +43,7 @@ import lime.system.CFFIPointer;
 	public static function fromImage (image:Image):CairoSurface {
 		
 		#if (lime_cffi && lime_cairo && !macro)
-		return create (NativeCFFI.lime_bytes_get_data_pointer (#if nodejs image.data #else image.data.buffer #end), CairoFormat.ARGB32, image.width, image.height, image.buffer.stride);
+		return create (#if nodejs image.data #else image.data.buffer #end, CairoFormat.ARGB32, image.width, image.height, image.buffer.stride);
 		#else
 		return null;
 		#end
@@ -57,7 +58,7 @@ import lime.system.CFFIPointer;
 	
 	
 	
-	@:noCompletion private function get_data ():Dynamic {
+	@:noCompletion private function get_data ():DataPointer {
 		
 		#if (lime_cffi && lime_cairo && !macro)
 		return NativeCFFI.lime_cairo_image_surface_get_data (this);

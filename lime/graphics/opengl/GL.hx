@@ -3,6 +3,7 @@ package lime.graphics.opengl;
 
 import lime.utils.ArrayBufferView;
 import lime.utils.BytePointer;
+import lime.utils.DataPointer;
 import lime.utils.Float32Array;
 import lime.utils.Int32Array;
 
@@ -367,6 +368,283 @@ class GL {
 	public static inline var UNPACK_COLORSPACE_CONVERSION_WEBGL = 0x9243;
 	public static inline var BROWSER_DEFAULT_WEBGL = 0x9244;
 	
+	public static inline var READ_BUFFER = 0x0C02;
+	public static inline var UNPACK_ROW_LENGTH = 0x0CF2;
+	public static inline var UNPACK_SKIP_ROWS = 0x0CF3;
+	public static inline var UNPACK_SKIP_PIXELS = 0x0CF4;
+	public static inline var PACK_ROW_LENGTH = 0x0D02;
+	public static inline var PACK_SKIP_ROWS = 0x0D03;
+	public static inline var PACK_SKIP_PIXELS = 0x0D04;
+	public static inline var TEXTURE_BINDING_3D = 0x806A;
+	public static inline var UNPACK_SKIP_IMAGES = 0x806D;
+	public static inline var UNPACK_IMAGE_HEIGHT = 0x806E;
+	public static inline var MAX_3D_TEXTURE_SIZE = 0x8073;
+	public static inline var MAX_ELEMENTS_VERTICES = 0x80E8;
+	public static inline var MAX_ELEMENTS_INDICES = 0x80E9;
+	public static inline var MAX_TEXTURE_LOD_BIAS = 0x84FD;
+	public static inline var MAX_FRAGMENT_UNIFORM_COMPONENTS = 0x8B49;
+	public static inline var MAX_VERTEX_UNIFORM_COMPONENTS = 0x8B4A;
+	public static inline var MAX_ARRAY_TEXTURE_LAYERS = 0x88FF;
+	public static inline var MIN_PROGRAM_TEXEL_OFFSET = 0x8904;
+	public static inline var MAX_PROGRAM_TEXEL_OFFSET = 0x8905;
+	public static inline var MAX_VARYING_COMPONENTS = 0x8B4B;
+	public static inline var FRAGMENT_SHADER_DERIVATIVE_HINT = 0x8B8B;
+	public static inline var RASTERIZER_DISCARD = 0x8C89;
+	public static inline var VERTEX_ARRAY_BINDING = 0x85B5;
+	public static inline var MAX_VERTEX_OUTPUT_COMPONENTS = 0x9122;
+	public static inline var MAX_FRAGMENT_INPUT_COMPONENTS = 0x9125;
+	public static inline var MAX_SERVER_WAIT_TIMEOUT = 0x9111;
+	public static inline var MAX_ELEMENT_INDEX = 0x8D6B;
+	
+	public static inline var RED = 0x1903;
+	public static inline var RGB8 = 0x8051;
+	public static inline var RGBA8 = 0x8058;
+	public static inline var RGB10_A2 = 0x8059;
+	public static inline var TEXTURE_3D = 0x806F;
+	public static inline var TEXTURE_WRAP_R = 0x8072;
+	public static inline var TEXTURE_MIN_LOD = 0x813A;
+	public static inline var TEXTURE_MAX_LOD = 0x813B;
+	public static inline var TEXTURE_BASE_LEVEL = 0x813C;
+	public static inline var TEXTURE_MAX_LEVEL = 0x813D;
+	public static inline var TEXTURE_COMPARE_MODE = 0x884C;
+	public static inline var TEXTURE_COMPARE_FUNC = 0x884D;
+	public static inline var SRGB = 0x8C40;
+	public static inline var SRGB8 = 0x8C41;
+	public static inline var SRGB8_ALPHA8 = 0x8C43;
+	public static inline var COMPARE_REF_TO_TEXTURE = 0x884E;
+	public static inline var RGBA32F = 0x8814;
+	public static inline var RGB32F = 0x8815;
+	public static inline var RGBA16F = 0x881A;
+	public static inline var RGB16F = 0x881B;
+	public static inline var TEXTURE_2D_ARRAY = 0x8C1A;
+	public static inline var TEXTURE_BINDING_2D_ARRAY = 0x8C1D;
+	public static inline var R11F_G11F_B10F = 0x8C3A;
+	public static inline var RGB9_E5 = 0x8C3D;
+	public static inline var RGBA32UI = 0x8D70;
+	public static inline var RGB32UI = 0x8D71;
+	public static inline var RGBA16UI = 0x8D76;
+	public static inline var RGB16UI = 0x8D77;
+	public static inline var RGBA8UI = 0x8D7C;
+	public static inline var RGB8UI = 0x8D7D;
+	public static inline var RGBA32I = 0x8D82;
+	public static inline var RGB32I = 0x8D83;
+	public static inline var RGBA16I = 0x8D88;
+	public static inline var RGB16I = 0x8D89;
+	public static inline var RGBA8I = 0x8D8E;
+	public static inline var RGB8I = 0x8D8F;
+	public static inline var RED_INTEGER = 0x8D94;
+	public static inline var RGB_INTEGER = 0x8D98;
+	public static inline var RGBA_INTEGER = 0x8D99;
+	public static inline var R8 = 0x8229;
+	public static inline var RG8 = 0x822B;
+	public static inline var R16F = 0x822D;
+	public static inline var R32F = 0x822E;
+	public static inline var RG16F = 0x822F;
+	public static inline var RG32F = 0x8230;
+	public static inline var R8I = 0x8231;
+	public static inline var R8UI = 0x8232;
+	public static inline var R16I = 0x8233;
+	public static inline var R16UI = 0x8234;
+	public static inline var R32I = 0x8235;
+	public static inline var R32UI = 0x8236;
+	public static inline var RG8I = 0x8237;
+	public static inline var RG8UI = 0x8238;
+	public static inline var RG16I = 0x8239;
+	public static inline var RG16UI = 0x823A;
+	public static inline var RG32I = 0x823B;
+	public static inline var RG32UI = 0x823C;
+	public static inline var R8_SNORM = 0x8F94;
+	public static inline var RG8_SNORM = 0x8F95;
+	public static inline var RGB8_SNORM = 0x8F96;
+	public static inline var RGBA8_SNORM = 0x8F97;
+	public static inline var RGB10_A2UI = 0x906F;
+	public static inline var TEXTURE_IMMUTABLE_FORMAT = 0x912F;
+	public static inline var TEXTURE_IMMUTABLE_LEVELS = 0x82DF;
+	
+	public static inline var UNSIGNED_INT_2_10_10_10_REV = 0x8368;
+	public static inline var UNSIGNED_INT_10F_11F_11F_REV = 0x8C3B;
+	public static inline var UNSIGNED_INT_5_9_9_9_REV = 0x8C3E;
+	public static inline var FLOAT_32_UNSIGNED_INT_24_8_REV = 0x8DAD;
+	public static inline var UNSIGNED_INT_24_8 = 0x84FA;
+	public static inline var HALF_FLOAT = 0x140B;
+	public static inline var RG = 0x8227;
+	public static inline var RG_INTEGER = 0x8228;
+	public static inline var INT_2_10_10_10_REV = 0x8D9F;
+	
+	public static inline var CURRENT_QUERY = 0x8865;
+	public static inline var QUERY_RESULT = 0x8866;
+	public static inline var QUERY_RESULT_AVAILABLE = 0x8867;
+	public static inline var ANY_SAMPLES_PASSED = 0x8C2F;
+	public static inline var ANY_SAMPLES_PASSED_CONSERVATIVE = 0x8D6A;
+	
+	public static inline var MAX_DRAW_BUFFERS = 0x8824;
+	public static inline var DRAW_BUFFER0 = 0x8825;
+	public static inline var DRAW_BUFFER1 = 0x8826;
+	public static inline var DRAW_BUFFER2 = 0x8827;
+	public static inline var DRAW_BUFFER3 = 0x8828;
+	public static inline var DRAW_BUFFER4 = 0x8829;
+	public static inline var DRAW_BUFFER5 = 0x882A;
+	public static inline var DRAW_BUFFER6 = 0x882B;
+	public static inline var DRAW_BUFFER7 = 0x882C;
+	public static inline var DRAW_BUFFER8 = 0x882D;
+	public static inline var DRAW_BUFFER9 = 0x882E;
+	public static inline var DRAW_BUFFER10 = 0x882F;
+	public static inline var DRAW_BUFFER11 = 0x8830;
+	public static inline var DRAW_BUFFER12 = 0x8831;
+	public static inline var DRAW_BUFFER13 = 0x8832;
+	public static inline var DRAW_BUFFER14 = 0x8833;
+	public static inline var DRAW_BUFFER15 = 0x8834;
+	public static inline var MAX_COLOR_ATTACHMENTS = 0x8CDF;
+	public static inline var COLOR_ATTACHMENT1 = 0x8CE1;
+	public static inline var COLOR_ATTACHMENT2 = 0x8CE2;
+	public static inline var COLOR_ATTACHMENT3 = 0x8CE3;
+	public static inline var COLOR_ATTACHMENT4 = 0x8CE4;
+	public static inline var COLOR_ATTACHMENT5 = 0x8CE5;
+	public static inline var COLOR_ATTACHMENT6 = 0x8CE6;
+	public static inline var COLOR_ATTACHMENT7 = 0x8CE7;
+	public static inline var COLOR_ATTACHMENT8 = 0x8CE8;
+	public static inline var COLOR_ATTACHMENT9 = 0x8CE9;
+	public static inline var COLOR_ATTACHMENT10 = 0x8CEA;
+	public static inline var COLOR_ATTACHMENT11 = 0x8CEB;
+	public static inline var COLOR_ATTACHMENT12 = 0x8CEC;
+	public static inline var COLOR_ATTACHMENT13 = 0x8CED;
+	public static inline var COLOR_ATTACHMENT14 = 0x8CEE;
+	public static inline var COLOR_ATTACHMENT15 = 0x8CEF;
+	
+	public static inline var SAMPLER_3D = 0x8B5F;
+	public static inline var SAMPLER_2D_SHADOW = 0x8B62;
+	public static inline var SAMPLER_2D_ARRAY = 0x8DC1;
+	public static inline var SAMPLER_2D_ARRAY_SHADOW = 0x8DC4;
+	public static inline var SAMPLER_CUBE_SHADOW = 0x8DC5;
+	public static inline var INT_SAMPLER_2D = 0x8DCA;
+	public static inline var INT_SAMPLER_3D = 0x8DCB;
+	public static inline var INT_SAMPLER_CUBE = 0x8DCC;
+	public static inline var INT_SAMPLER_2D_ARRAY = 0x8DCF;
+	public static inline var UNSIGNED_INT_SAMPLER_2D = 0x8DD2;
+	public static inline var UNSIGNED_INT_SAMPLER_3D = 0x8DD3;
+	public static inline var UNSIGNED_INT_SAMPLER_CUBE = 0x8DD4;
+	public static inline var UNSIGNED_INT_SAMPLER_2D_ARRAY = 0x8DD7;
+	public static inline var MAX_SAMPLES = 0x8D57;
+	public static inline var SAMPLER_BINDING = 0x8919;
+	
+	public static inline var PIXEL_PACK_BUFFER = 0x88EB;
+	public static inline var PIXEL_UNPACK_BUFFER = 0x88EC;
+	public static inline var PIXEL_PACK_BUFFER_BINDING = 0x88ED;
+	public static inline var PIXEL_UNPACK_BUFFER_BINDING = 0x88EF;
+	public static inline var COPY_READ_BUFFER = 0x8F36;
+	public static inline var COPY_WRITE_BUFFER = 0x8F37;
+	public static inline var COPY_READ_BUFFER_BINDING = 0x8F36;
+	public static inline var COPY_WRITE_BUFFER_BINDING = 0x8F37;
+	
+	public static inline var FLOAT_MAT2x3 = 0x8B65;
+	public static inline var FLOAT_MAT2x4 = 0x8B66;
+	public static inline var FLOAT_MAT3x2 = 0x8B67;
+	public static inline var FLOAT_MAT3x4 = 0x8B68;
+	public static inline var FLOAT_MAT4x2 = 0x8B69;
+	public static inline var FLOAT_MAT4x3 = 0x8B6A;
+	public static inline var UNSIGNED_INT_VEC2 = 0x8DC6;
+	public static inline var UNSIGNED_INT_VEC3 = 0x8DC7;
+	public static inline var UNSIGNED_INT_VEC4 = 0x8DC8;
+	public static inline var UNSIGNED_NORMALIZED = 0x8C17;
+	public static inline var SIGNED_NORMALIZED = 0x8F9C;
+	
+	public static inline var VERTEX_ATTRIB_ARRAY_INTEGER = 0x88FD;
+	public static inline var VERTEX_ATTRIB_ARRAY_DIVISOR = 0x88FE;
+	
+	public static inline var TRANSFORM_FEEDBACK_BUFFER_MODE = 0x8C7F;
+	public static inline var MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS = 0x8C80;
+	public static inline var TRANSFORM_FEEDBACK_VARYINGS = 0x8C83;
+	public static inline var TRANSFORM_FEEDBACK_BUFFER_START = 0x8C84;
+	public static inline var TRANSFORM_FEEDBACK_BUFFER_SIZE = 0x8C85;
+	public static inline var TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN = 0x8C88;
+	public static inline var MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS = 0x8C8A;
+	public static inline var MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS = 0x8C8B;
+	public static inline var INTERLEAVED_ATTRIBS = 0x8C8C;
+	public static inline var SEPARATE_ATTRIBS = 0x8C8D;
+	public static inline var TRANSFORM_FEEDBACK_BUFFER = 0x8C8E;
+	public static inline var TRANSFORM_FEEDBACK_BUFFER_BINDING = 0x8C8F;
+	public static inline var TRANSFORM_FEEDBACK = 0x8E22;
+	public static inline var TRANSFORM_FEEDBACK_PAUSED = 0x8E23;
+	public static inline var TRANSFORM_FEEDBACK_ACTIVE = 0x8E24;
+	public static inline var TRANSFORM_FEEDBACK_BINDING = 0x8E25;
+	
+	public static inline var FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING = 0x8210;
+	public static inline var FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE = 0x8211;
+	public static inline var FRAMEBUFFER_ATTACHMENT_RED_SIZE = 0x8212;
+	public static inline var FRAMEBUFFER_ATTACHMENT_GREEN_SIZE = 0x8213;
+	public static inline var FRAMEBUFFER_ATTACHMENT_BLUE_SIZE = 0x8214;
+	public static inline var FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE = 0x8215;
+	public static inline var FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE = 0x8216;
+	public static inline var FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE = 0x8217;
+	public static inline var FRAMEBUFFER_DEFAULT = 0x8218;
+	public static inline var DEPTH24_STENCIL8 = 0x88F0;
+	public static inline var DRAW_FRAMEBUFFER_BINDING = 0x8CA6;
+	public static inline var READ_FRAMEBUFFER = 0x8CA8;
+	public static inline var DRAW_FRAMEBUFFER = 0x8CA9;
+	public static inline var READ_FRAMEBUFFER_BINDING = 0x8CAA;
+	public static inline var RENDERBUFFER_SAMPLES = 0x8CAB;
+	public static inline var FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER = 0x8CD4;
+	public static inline var FRAMEBUFFER_INCOMPLETE_MULTISAMPLE = 0x8D56;
+	
+	public static inline var UNIFORM_BUFFER = 0x8A11;
+	public static inline var UNIFORM_BUFFER_BINDING = 0x8A28;
+	public static inline var UNIFORM_BUFFER_START = 0x8A29;
+	public static inline var UNIFORM_BUFFER_SIZE = 0x8A2A;
+	public static inline var MAX_VERTEX_UNIFORM_BLOCKS = 0x8A2B;
+	public static inline var MAX_FRAGMENT_UNIFORM_BLOCKS = 0x8A2D;
+	public static inline var MAX_COMBINED_UNIFORM_BLOCKS = 0x8A2E;
+	public static inline var MAX_UNIFORM_BUFFER_BINDINGS = 0x8A2F;
+	public static inline var MAX_UNIFORM_BLOCK_SIZE = 0x8A30;
+	public static inline var MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS = 0x8A31;
+	public static inline var MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS = 0x8A33;
+	public static inline var UNIFORM_BUFFER_OFFSET_ALIGNMENT = 0x8A34;
+	public static inline var ACTIVE_UNIFORM_BLOCKS = 0x8A36;
+	public static inline var UNIFORM_TYPE = 0x8A37;
+	public static inline var UNIFORM_SIZE = 0x8A38;
+	public static inline var UNIFORM_BLOCK_INDEX = 0x8A3A;
+	public static inline var UNIFORM_OFFSET = 0x8A3B;
+	public static inline var UNIFORM_ARRAY_STRIDE = 0x8A3C;
+	public static inline var UNIFORM_MATRIX_STRIDE = 0x8A3D;
+	public static inline var UNIFORM_IS_ROW_MAJOR = 0x8A3E;
+	public static inline var UNIFORM_BLOCK_BINDING = 0x8A3F;
+	public static inline var UNIFORM_BLOCK_DATA_SIZE = 0x8A40;
+	public static inline var UNIFORM_BLOCK_ACTIVE_UNIFORMS = 0x8A42;
+	public static inline var UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES = 0x8A43;
+	public static inline var UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER = 0x8A44;
+	public static inline var UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER = 0x8A46;
+	
+	public static inline var OBJECT_TYPE = 0x9112;
+	public static inline var SYNC_CONDITION = 0x9113;
+	public static inline var SYNC_STATUS = 0x9114;
+	public static inline var SYNC_FLAGS = 0x9115;
+	public static inline var SYNC_FENCE = 0x9116;
+	public static inline var SYNC_GPU_COMMANDS_COMPLETE = 0x9117;
+	public static inline var UNSIGNALED = 0x9118;
+	public static inline var SIGNALED = 0x9119;
+	public static inline var ALREADY_SIGNALED = 0x911A;
+	public static inline var TIMEOUT_EXPIRED = 0x911B;
+	public static inline var CONDITION_SATISFIED = 0x911C;
+	public static inline var WAIT_FAILED = 0x911D;
+	public static inline var SYNC_FLUSH_COMMANDS_BIT = 0x00000001;
+	
+	public static inline var COLOR = 0x1800;
+	public static inline var DEPTH = 0x1801;
+	public static inline var STENCIL = 0x1802;
+	public static inline var MIN = 0x8007;
+	public static inline var MAX = 0x8008;
+	public static inline var DEPTH_COMPONENT24 = 0x81A6;
+	public static inline var STREAM_READ = 0x88E1;
+	public static inline var STREAM_COPY = 0x88E2;
+	public static inline var STATIC_READ = 0x88E5;
+	public static inline var STATIC_COPY = 0x88E6;
+	public static inline var DYNAMIC_READ = 0x88E9;
+	public static inline var DYNAMIC_COPY = 0x88EA;
+	public static inline var DEPTH_COMPONENT32F = 0x8CAC;
+	public static inline var DEPTH32F_STENCIL8 = 0x8CAD;
+	public static inline var INVALID_INDEX = 0xFFFFFFFF;
+	public static inline var TIMEOUT_IGNORED = -1;
+	public static inline var MAX_CLIENT_WAIT_TIMEOUT_WEBGL = 0x9247;
+	
 	public static var context (default, null):GLRenderContext;
 	public static var type (get, null):GLContextType;
 	public static var version (get, null):Float;
@@ -458,14 +736,14 @@ class GL {
 	}
 	
 	
-	public static inline function bufferData (target:Int, size:Int, data:BytePointer, usage:Int):Void {
+	public static inline function bufferData (target:Int, size:Int, data:DataPointer, usage:Int):Void {
 		
 		context.bufferData (target, size, data, usage);
 		
 	}
 	
 	
-	public static inline function bufferSubData (target:Int, offset:Int, size:Int, data:BytePointer):Void {
+	public static inline function bufferSubData (target:Int, offset:Int, size:Int, data:DataPointer):Void {
 		
 		context.bufferSubData (target, offset, size, data);
 		
@@ -521,16 +799,16 @@ class GL {
 	}
 	
 	
-	public static inline function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, data:BytePointer):Void {
+	public static inline function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, imageSize:Int, data:DataPointer):Void {
 		
-		context.compressedTexImage2D (target, level, internalformat, width, height, border, data);
+		context.compressedTexImage2D (target, level, internalformat, width, height, border, imageSize, data);
 		
 	}
 	
 	
-	public static inline function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, data:BytePointer):Void {
+	public static inline function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, imageSize:Int, data:DataPointer):Void {
 		
-		context.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, data);
+		context.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, imageSize, data);
 		
 	}
 	
@@ -780,7 +1058,7 @@ class GL {
 	}
 	
 	
-	public static inline function getBufferParameter (target:Int, pname:Int):Int /*Dynamic*/ {
+	public static inline function getBufferParameter (target:Int, pname:Int):Dynamic {
 		
 		return context.getBufferParameter (target, pname);
 		
@@ -808,7 +1086,7 @@ class GL {
 	}
 	
 	
-	public static inline function getFramebufferAttachmentParameter (target:Int, attachment:Int, pname:Int):Int /*Dynamic*/ {
+	public static inline function getFramebufferAttachmentParameter (target:Int, attachment:Int, pname:Int):Dynamic {
 		
 		return context.getFramebufferAttachmentParameter (target, attachment, pname);
 		
@@ -829,14 +1107,14 @@ class GL {
 	}
 	
 	
-	public static inline function getProgramParameter (program:GLProgram, pname:Int):Int {
+	public static inline function getProgramParameter (program:GLProgram, pname:Int):Dynamic {
 		
 		return context.getProgramParameter (program, pname);
 		
 	}
 	
 	
-	public static inline function getRenderbufferParameter (target:Int, pname:Int):Int /*Dynamic*/ {
+	public static inline function getRenderbufferParameter (target:Int, pname:Int):Dynamic {
 		
 		return context.getRenderbufferParameter (target, pname);
 		
@@ -850,7 +1128,7 @@ class GL {
 	}
 	
 	
-	public static inline function getShaderParameter (shader:GLShader, pname:Int):Int {
+	public static inline function getShaderParameter (shader:GLShader, pname:Int):Dynamic {
 		
 		return context.getShaderParameter (shader, pname);
 		
@@ -878,7 +1156,7 @@ class GL {
 	}
 	
 	
-	public static inline function getTexParameter (target:Int, pname:Int):Int /*Dynamic*/ {
+	public static inline function getTexParameter (target:Int, pname:Int):Dynamic {
 		
 		return context.getTexParameter (target, pname);
 		
@@ -899,14 +1177,14 @@ class GL {
 	}
 	
 	
-	public static inline function getVertexAttrib (index:Int, pname:Int):Int /*Dynamic*/ {
+	public static inline function getVertexAttrib (index:Int, pname:Int):Dynamic {
 		
 		return context.getVertexAttrib (index, pname);
 		
 	}
 	
 	
-	public static inline function getVertexAttribOffset (index:Int, pname:Int):Int {
+	public static inline function getVertexAttribOffset (index:Int, pname:Int):DataPointer {
 		
 		return context.getVertexAttribOffset (index, pname);
 		
@@ -1004,7 +1282,7 @@ class GL {
 	}
 	
 	
-	public static inline function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
+	public static inline function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:BytePointer):Void {
 		
 		context.readPixels (x, y, width, height, format, type, pixels);
 		
@@ -1081,7 +1359,7 @@ class GL {
 	}
 	
 	
-	public static inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:BytePointer):Void {
+	public static inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:DataPointer):Void {
 		
 		context.texImage2D (target, level, internalformat, width, height, border, format, type, data);
 		
@@ -1321,7 +1599,7 @@ class GL {
 	}
 	
 	
-	public static inline function vertexAttribPointer (indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void {
+	public static inline function vertexAttribPointer (indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:DataPointer):Void {
 		
 		context.vertexAttribPointer (indx, size, type, normalized, stride, offset);
 		

@@ -190,7 +190,7 @@ class CFFIMacro {
 					
 					typeSignature += "f";
 				
-				case "Float", "cpp.Float64":
+				case "Float", "cpp.Float64", "lime.utils.DataPointer":
 					
 					typeArgs.push (arg);
 					typeSignature += "d";
@@ -263,7 +263,7 @@ class CFFIMacro {
 				
 				typeSignature += "f";
 			
-			case "Float", "cpp.Float64":
+			case "Float", "cpp.Float64", "lime.utils.DataPointer":
 				
 				typeResult = result;
 				typeSignature += "d";

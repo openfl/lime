@@ -106,24 +106,24 @@ class NativeAudioSource {
 			
 			for (i in 0...STREAM_NUM_BUFFERS) {
 				
-				buffers.push (AL.genBuffer ());
+				buffers.push (AL.createBuffer ());
 				
 			}
 			
-			handle = AL.genSource ();
+			handle = AL.createSource ();
 			
 		} else {
 			
 			if (parent.buffer.__srcBuffer == null) {
 				
-				parent.buffer.__srcBuffer = AL.genBuffer ();
+				parent.buffer.__srcBuffer = AL.createBuffer ();
 				AL.bufferData (parent.buffer.__srcBuffer, format, parent.buffer.data, parent.buffer.data.length, parent.buffer.sampleRate);
 				
 			}
 			
 			dataLength = parent.buffer.data.length;
 			
-			handle = AL.genSource ();
+			handle = AL.createSource ();
 			AL.sourcei (handle, AL.BUFFER, parent.buffer.__srcBuffer);
 			
 		}

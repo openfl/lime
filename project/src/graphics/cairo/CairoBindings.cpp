@@ -432,7 +432,7 @@ namespace lime {
 	
 	value lime_cairo_image_surface_create_for_data (double data, int format, int width, int height, int stride) {
 		
-		cairo_surface_t* surface = cairo_image_surface_create_for_data ((unsigned char*)(intptr_t)data, (cairo_format_t)format, width, height, stride);
+		cairo_surface_t* surface = cairo_image_surface_create_for_data ((unsigned char*)(uintptr_t)data, (cairo_format_t)format, width, height, stride);
 		return CFFIPointer (surface, gc_cairo_surface);
 		
 	}
