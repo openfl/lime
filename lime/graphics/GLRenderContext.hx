@@ -25,11 +25,7 @@ import lime.utils.DataPointer;
 import js.html.CanvasElement;
 #end
 
-#if (js && html5)
-@:native("WebGLRenderingContext")
-#end
-
-extern class GLRenderContext {
+class GLRenderContext {
 	
 	
 	public var ACTIVE_ATTRIBUTES:Int;
@@ -617,152 +613,152 @@ extern class GLRenderContext {
 	public var type (default, null):GLContextType;
 	public var version (default, null):Float;
 	
-	private function new ();
+	private function new () {}
 	
-	public function activeTexture (texture:Int):Void;
-	public function attachShader (program:GLProgram, shader:GLShader):Void;
-	public function bindAttribLocation (program:GLProgram, index:Int, name:String):Void;
-	public function bindBuffer (target:Int, buffer:GLBuffer):Void;
-	public function bindFramebuffer (target:Int, framebuffer:GLFramebuffer):Void;
-	public function bindRenderbuffer (target:Int, renderbuffer:GLRenderbuffer):Void;
-	public function bindTexture (target:Int, texture:GLTexture):Void;
-	public function blendColor (red:Float, green:Float, blue:Float, alpha:Float):Void;
-	public function blendEquation (mode:Int):Void;
-	public function blendEquationSeparate (modeRGB:Int, modeAlpha:Int):Void;
-	public function blendFunc (sfactor:Int, dfactor:Int):Void;
-	public function blendFuncSeparate (srcRGB:Int, dstRGB:Int, srcAlpha:Int, dstAlpha:Int):Void;
-	public function bufferData (target:Int, size:Int, srcData:DataPointer, usage:Int, srcOffset:Int = 0, length:Int = 0):Void;
-	public function bufferSubData (target:Int, dstByteOffset:Int, size:Int, srcData:DataPointer, srcOffset:Int = 0, length:Int = 0):Void;
-	public function checkFramebufferStatus (target:Int):Int;
-	public function clear (mask:Int):Void;
-	public function clearColor (red:Float, green:Float, blue:Float, alpha:Float):Void;
-	public function clearDepth (depth:Float):Void;
-	public function clearStencil (s:Int):Void;
-	public function colorMask (red:Bool, green:Bool, blue:Bool, alpha:Bool):Void;
-	public function compileShader (shader:GLShader):Void;
-	public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:DataPointer, srcOffset:Int = 0, length:Int = 0):Void;
-	public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:DataPointer, srcOffset:Int = 0, length:Int = 0):Void;
-	public function copyTexImage2D (target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void;
-	public function copyTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, x:Int, y:Int, width:Int, height:Int):Void;
-	public function createBuffer ():GLBuffer;
-	public function createFramebuffer ():GLFramebuffer;
-	public function createProgram ():GLProgram;
-	public function createRenderbuffer ():GLRenderbuffer;
-	public function createShader (type:Int):GLShader;
-	public function createTexture ():GLTexture;
-	public function cullFace (mode:Int):Void;
-	public function deleteBuffer (buffer:GLBuffer):Void;
-	public function deleteFramebuffer (framebuffer:GLFramebuffer):Void;
-	public function deleteProgram (program:GLProgram):Void;
-	public function deleteRenderbuffer (renderbuffer:GLRenderbuffer):Void;
-	public function deleteShader (shader:GLShader):Void;
-	public function deleteTexture (texture:GLTexture):Void;
-	public function depthFunc (func:Int):Void;
-	public function depthMask (flag:Bool):Void;
-	public function depthRange (zNear:Float, zFar:Float):Void;
-	public function detachShader (program:GLProgram, shader:GLShader):Void;
-	public function disable (cap:Int):Void;
-	public function disableVertexAttribArray (index:Int):Void;
-	public function drawArrays (mode:Int, first:Int, count:Int):Void;
-	public function drawElements (mode:Int, count:Int, type:Int, offset:Dynamic):Void;
-	public function enable (cap:Int):Void;
-	public function enableVertexAttribArray (index:Int):Void;
-	public function finish ():Void;
-	public function flush ():Void;
-	public function framebufferRenderbuffer (target:Int, attachment:Int, renderbuffertarget:Int, renderbuffer:GLRenderbuffer):Void;
-	public function framebufferTexture2D (target:Int, attachment:Int, textarget:Int, texture:GLTexture, level:Int):Void;
-	public function frontFace (mode:Int):Void;
-	public function generateMipmap (target:Int):Void;
-	public function getActiveAttrib (program:GLProgram, index:Int):GLActiveInfo;
-	public function getActiveUniform (program:GLProgram, index:Int):GLActiveInfo;
-	public function getAttachedShaders (program:GLProgram):Array<GLShader>;
-	public function getAttribLocation (program:GLProgram, name:String):Int;
-	public function getBoolean (pname:Int):Bool;
-	public function getBooleanv (pname:Int):Array<Bool>;
-	public function getBufferParameter (target:Int, pname:Int):Dynamic;
-	public function getContextAttributes ():GLContextAttributes;
-	public function getError ():Int;
-	public function getExtension (name:String):Dynamic;
-	public function getFloat (pname:Int):Float;
-	public function getFloatv (pname:Int):Array<Float>;
-	public function getFramebufferAttachmentParameter (target:Int, attachment:Int, pname:Int):Dynamic;
-	public function getInteger (pname:Int):Int;
-	public function getIntegerv (pname:Int):Array<Int>;
-	public function getParameter (pname:Int):Dynamic;
-	public function getProgramInfoLog (program:GLProgram):String;
-	public function getProgramParameter (program:GLProgram, pname:Int):Dynamic;
-	public function getRenderbufferParameter (target:Int, pname:Int):Dynamic;
-	public function getShaderInfoLog (shader:GLShader):String;
-	public function getShaderParameter (shader:GLShader, pname:Int):Dynamic;
-	public function getShaderPrecisionFormat (shadertype:Int, precisiontype:Int):GLShaderPrecisionFormat;
-	public function getShaderSource (shader:GLShader):String;
-	public function getString (pname:Int):String;
-	public function getSupportedExtensions ():Array<String>;
-	public function getTexParameter (target:Int, pname:Int):Dynamic;
-	public function getUniform (program:GLProgram, location:GLUniformLocation):Dynamic;
-	public function getUniformLocation (program:GLProgram, name:String):GLUniformLocation;
-	public function getVertexAttrib (index:Int, pname:Int):Dynamic;
-	public function getVertexAttribOffset (index:Int, pname:Int):Int;
-	public function hint (target:Int, mode:Int):Void;
-	public function isBuffer (buffer:GLBuffer):Bool;
-	public function isContextLost ():Bool;
-	public function isEnabled (cap:Int):Bool;
-	public function isFramebuffer (framebuffer:GLFramebuffer):Bool;
-	public function isProgram (program:GLProgram):Bool;
-	public function isRenderbuffer (renderbuffer:GLRenderbuffer):Bool;
-	public function isShader (shader:GLShader):Bool;
-	public function isTexture (texture:GLTexture):Bool;
-	public function lineWidth (width:Float):Void;
-	public function linkProgram (program:GLProgram):Void;
-	public function pixelStorei (pname:Int, param:Int):Void;
-	public function polygonOffset (factor:Float, units:Float):Void;
-	public function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:DataPointer, dstOffset:Int = 0):Void;
-	public function releaseShaderCompiler ():Void;
-	public function renderbufferStorage (target:Int, internalformat:Int, width:Int, height:Int):Void;
-	public function sampleCoverage (value:Float, invert:Bool):Void;
-	public function scissor (x:Int, y:Int, width:Int, height:Int):Void;
-	public function shaderSource (shader:GLShader, string:String):Void;
-	public function stencilFunc (func:Int, ref:Int, mask:Int):Void;
-	public function stencilFuncSeparate (face:Int, func:Int, ref:Int, mask:Int):Void;
-	public function stencilMask (mask:Int):Void;
-	public function stencilMaskSeparate (face:Int, mask:Int):Void;
-	public function stencilOp (fail:Int, zfail:Int, zpass:Int):Void;
-	public function stencilOpSeparate (face:Int, fail:Int, zfail:Int, zpass:Int):Void;
-	public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:DataPointer, srcOffset:Int = 0):Void;
-	public function texParameterf (target:Int, pname:Int, param:Float):Void;
-	public function texParameteri (target:Int, pname:Int, param:Int):Void;
-	public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:DataPointer, srcOffset:Int = 0):Void;
-	public function uniform1f (location:GLUniformLocation, x:Float):Void;
-	public function uniform1fv (location:GLUniformLocation, v:lime.utils.Float32Array):Void;
-	public function uniform1i (location:GLUniformLocation, x:Int):Void;
-	public function uniform1iv (location:GLUniformLocation, v:lime.utils.Int32Array):Void;
-	public function uniform2f (location:GLUniformLocation, x:Float, y:Float):Void;
-	public function uniform2fv (location:GLUniformLocation, v:lime.utils.Float32Array):Void;
-	public function uniform2i (location:GLUniformLocation, x:Int, y:Int):Void;
-	public function uniform2iv (location:GLUniformLocation, v:lime.utils.Int32Array):Void;
-	public function uniform3f (location:GLUniformLocation, x:Float, y:Float, z:Float):Void;
-	public function uniform3fv(location:GLUniformLocation, v:lime.utils.Float32Array):Void;
-	public function uniform3i (location:GLUniformLocation, x:Int, y:Int, z:Int):Void;
-	public function uniform3iv (location:GLUniformLocation, v:lime.utils.Int32Array):Void;
-	public function uniform4f (location:GLUniformLocation, x:Float, y:Float, z:Float, w:Float):Void;
-	public function uniform4fv (location:GLUniformLocation, v:lime.utils.Float32Array):Void;
-	public function uniform4i (location:GLUniformLocation, x:Int, y:Int, z:Int, w:Int):Void;
-	public function uniform4iv (location:GLUniformLocation, v:lime.utils.Int32Array):Void;
-	public function uniformMatrix2fv (location:GLUniformLocation, transpose:Bool, array:lime.utils.Float32Array):Void;
-	public function uniformMatrix3fv (location:GLUniformLocation, transpose:Bool, array:lime.utils.Float32Array):Void;
-	public function uniformMatrix4fv (location:GLUniformLocation, transpose:Bool, array:lime.utils.Float32Array):Void;
-	public function useProgram (program:GLProgram):Void;
-	public function validateProgram (program:GLProgram):Void;
-	public function vertexAttrib1f (indx:Int, x:Float):Void;
-	public function vertexAttrib1fv (indx:Int, values:lime.utils.Float32Array):Void;
-	public function vertexAttrib2f (indx:Int, x:Float, y:Float):Void;
-	public function vertexAttrib2fv (indx:Int, values:lime.utils.Float32Array):Void;
-	public function vertexAttrib3f (indx:Int, x:Float, y:Float, z:Float):Void;
-	public function vertexAttrib3fv (indx:Int, values:lime.utils.Float32Array):Void;
-	public function vertexAttrib4f (indx:Int, x:Float, y:Float, z:Float, w:Float):Void;
-	public function vertexAttrib4fv (indx:Int, values:lime.utils.Float32Array):Void;
-	public function vertexAttribPointer (indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void;
-	public function viewport (x:Int, y:Int, width:Int, height:Int):Void;
+	public function activeTexture (texture:Int):Void {}
+	public function attachShader (program:GLProgram, shader:GLShader):Void {}
+	public function bindAttribLocation (program:GLProgram, index:Int, name:String):Void {}
+	public function bindBuffer (target:Int, buffer:GLBuffer):Void {}
+	public function bindFramebuffer (target:Int, framebuffer:GLFramebuffer):Void {}
+	public function bindRenderbuffer (target:Int, renderbuffer:GLRenderbuffer):Void {}
+	public function bindTexture (target:Int, texture:GLTexture):Void {}
+	public function blendColor (red:Float, green:Float, blue:Float, alpha:Float):Void {}
+	public function blendEquation (mode:Int):Void {}
+	public function blendEquationSeparate (modeRGB:Int, modeAlpha:Int):Void {}
+	public function blendFunc (sfactor:Int, dfactor:Int):Void {}
+	public function blendFuncSeparate (srcRGB:Int, dstRGB:Int, srcAlpha:Int, dstAlpha:Int):Void {}
+	public function bufferData (target:Int, size:Int, srcData:DataPointer, usage:Int, srcOffset:Int = 0, length:Int = 0):Void {}
+	public function bufferSubData (target:Int, dstByteOffset:Int, size:Int, srcData:DataPointer, srcOffset:Int = 0, length:Int = 0):Void {}
+	public function checkFramebufferStatus (target:Int):Int { return 0; }
+	public function clear (mask:Int):Void {}
+	public function clearColor (red:Float, green:Float, blue:Float, alpha:Float):Void {}
+	public function clearDepth (depth:Float):Void {}
+	public function clearStencil (s:Int):Void {}
+	public function colorMask (red:Bool, green:Bool, blue:Bool, alpha:Bool):Void {}
+	public function compileShader (shader:GLShader):Void {}
+	public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, imageSize:Int, srcData:DataPointer, srcOffset:Int = 0, length:Int = 0):Void {}
+	public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, imageSize:Int, srcData:DataPointer, srcOffset:Int = 0, length:Int = 0):Void {}
+	public function copyTexImage2D (target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void {}
+	public function copyTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, x:Int, y:Int, width:Int, height:Int):Void {}
+	public function createBuffer ():GLBuffer { return null; }
+	public function createFramebuffer ():GLFramebuffer { return null; }
+	public function createProgram ():GLProgram { return null; }
+	public function createRenderbuffer ():GLRenderbuffer { return null; }
+	public function createShader (type:Int):GLShader { return null; }
+	public function createTexture ():GLTexture { return null; }
+	public function cullFace (mode:Int):Void {}
+	public function deleteBuffer (buffer:GLBuffer):Void {}
+	public function deleteFramebuffer (framebuffer:GLFramebuffer):Void {}
+	public function deleteProgram (program:GLProgram):Void {}
+	public function deleteRenderbuffer (renderbuffer:GLRenderbuffer):Void {}
+	public function deleteShader (shader:GLShader):Void {}
+	public function deleteTexture (texture:GLTexture):Void {}
+	public function depthFunc (func:Int):Void {}
+	public function depthMask (flag:Bool):Void {}
+	public function depthRange (zNear:Float, zFar:Float):Void {}
+	public function detachShader (program:GLProgram, shader:GLShader):Void {}
+	public function disable (cap:Int):Void {}
+	public function disableVertexAttribArray (index:Int):Void {}
+	public function drawArrays (mode:Int, first:Int, count:Int):Void {}
+	public function drawElements (mode:Int, count:Int, type:Int, offset:Dynamic):Void {}
+	public function enable (cap:Int):Void {}
+	public function enableVertexAttribArray (index:Int):Void {}
+	public function finish ():Void {}
+	public function flush ():Void {}
+	public function framebufferRenderbuffer (target:Int, attachment:Int, renderbuffertarget:Int, renderbuffer:GLRenderbuffer):Void {}
+	public function framebufferTexture2D (target:Int, attachment:Int, textarget:Int, texture:GLTexture, level:Int):Void {}
+	public function frontFace (mode:Int):Void {}
+	public function generateMipmap (target:Int):Void {}
+	public function getActiveAttrib (program:GLProgram, index:Int):GLActiveInfo { return null; }
+	public function getActiveUniform (program:GLProgram, index:Int):GLActiveInfo { return null; }
+	public function getAttachedShaders (program:GLProgram):Array<GLShader> { return null; }
+	public function getAttribLocation (program:GLProgram, name:String):Int { return 0; }
+	public function getBoolean (pname:Int):Bool { return false; }
+	public function getBooleanv (pname:Int):Array<Bool> { return null; }
+	public function getBufferParameter (target:Int, pname:Int):Dynamic { return null; }
+	public function getContextAttributes ():GLContextAttributes { return null; }
+	public function getError ():Int { return 0; }
+	public function getExtension (name:String):Dynamic { return null; }
+	public function getFloat (pname:Int):Float { return 0; }
+	public function getFloatv (pname:Int):Array<Float> { return null; };
+	public function getFramebufferAttachmentParameter (target:Int, attachment:Int, pname:Int):Dynamic { return null; }
+	public function getInteger (pname:Int):Int { return 0; }
+	public function getIntegerv (pname:Int):Array<Int> { return null; }
+	public function getParameter (pname:Int):Dynamic { return null; }
+	public function getProgramInfoLog (program:GLProgram):String { return null; }
+	public function getProgramParameter (program:GLProgram, pname:Int):Dynamic { return null; }
+	public function getRenderbufferParameter (target:Int, pname:Int):Dynamic { return null; }
+	public function getShaderInfoLog (shader:GLShader):String { return null; }
+	public function getShaderParameter (shader:GLShader, pname:Int):Dynamic { return null; }
+	public function getShaderPrecisionFormat (shadertype:Int, precisiontype:Int):GLShaderPrecisionFormat { return null; }
+	public function getShaderSource (shader:GLShader):String { return null; }
+	public function getString (pname:Int):String { return null; }
+	public function getSupportedExtensions ():Array<String> { return null; }
+	public function getTexParameter (target:Int, pname:Int):Dynamic { return null; }
+	public function getUniform (program:GLProgram, location:GLUniformLocation):Dynamic { return null; }
+	public function getUniformLocation (program:GLProgram, name:String):GLUniformLocation { return 0; }
+	public function getVertexAttrib (index:Int, pname:Int):Dynamic { return null; }
+	public function getVertexAttribOffset (index:Int, pname:Int):Int { return 0; }
+	public function hint (target:Int, mode:Int):Void {}
+	public function isBuffer (buffer:GLBuffer):Bool { return false; }
+	public function isContextLost ():Bool { return false; }
+	public function isEnabled (cap:Int):Bool { return false; }
+	public function isFramebuffer (framebuffer:GLFramebuffer):Bool { return false; }
+	public function isProgram (program:GLProgram):Bool { return false; }
+	public function isRenderbuffer (renderbuffer:GLRenderbuffer):Bool { return false; }
+	public function isShader (shader:GLShader):Bool { return false; }
+	public function isTexture (texture:GLTexture):Bool { return false; }
+	public function lineWidth (width:Float):Void {}
+	public function linkProgram (program:GLProgram):Void {}
+	public function pixelStorei (pname:Int, param:Int):Void {}
+	public function polygonOffset (factor:Float, units:Float):Void {}
+	public function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:DataPointer, dstOffset:Int = 0):Void {}
+	public function releaseShaderCompiler ():Void {}
+	public function renderbufferStorage (target:Int, internalformat:Int, width:Int, height:Int):Void {}
+	public function sampleCoverage (value:Float, invert:Bool):Void {}
+	public function scissor (x:Int, y:Int, width:Int, height:Int):Void {}
+	public function shaderSource (shader:GLShader, string:String):Void {}
+	public function stencilFunc (func:Int, ref:Int, mask:Int):Void {}
+	public function stencilFuncSeparate (face:Int, func:Int, ref:Int, mask:Int):Void {}
+	public function stencilMask (mask:Int):Void {}
+	public function stencilMaskSeparate (face:Int, mask:Int):Void {}
+	public function stencilOp (fail:Int, zfail:Int, zpass:Int):Void {}
+	public function stencilOpSeparate (face:Int, fail:Int, zfail:Int, zpass:Int):Void {}
+	public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:DataPointer, srcOffset:Int = 0):Void {}
+	public function texParameterf (target:Int, pname:Int, param:Float):Void {}
+	public function texParameteri (target:Int, pname:Int, param:Int):Void {}
+	public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:DataPointer, srcOffset:Int = 0):Void {}
+	public function uniform1f (location:GLUniformLocation, x:Float):Void {}
+	public function uniform1fv (location:GLUniformLocation, v:lime.utils.Float32Array):Void {}
+	public function uniform1i (location:GLUniformLocation, x:Int):Void {}
+	public function uniform1iv (location:GLUniformLocation, v:lime.utils.Int32Array):Void {}
+	public function uniform2f (location:GLUniformLocation, x:Float, y:Float):Void {}
+	public function uniform2fv (location:GLUniformLocation, v:lime.utils.Float32Array):Void {}
+	public function uniform2i (location:GLUniformLocation, x:Int, y:Int):Void {}
+	public function uniform2iv (location:GLUniformLocation, v:lime.utils.Int32Array):Void {}
+	public function uniform3f (location:GLUniformLocation, x:Float, y:Float, z:Float):Void {}
+	public function uniform3fv(location:GLUniformLocation, v:lime.utils.Float32Array):Void {}
+	public function uniform3i (location:GLUniformLocation, x:Int, y:Int, z:Int):Void {}
+	public function uniform3iv (location:GLUniformLocation, v:lime.utils.Int32Array):Void {}
+	public function uniform4f (location:GLUniformLocation, x:Float, y:Float, z:Float, w:Float):Void {}
+	public function uniform4fv (location:GLUniformLocation, v:lime.utils.Float32Array):Void {}
+	public function uniform4i (location:GLUniformLocation, x:Int, y:Int, z:Int, w:Int):Void {}
+	public function uniform4iv (location:GLUniformLocation, v:lime.utils.Int32Array):Void {}
+	public function uniformMatrix2fv (location:GLUniformLocation, transpose:Bool, array:lime.utils.Float32Array):Void {}
+	public function uniformMatrix3fv (location:GLUniformLocation, transpose:Bool, array:lime.utils.Float32Array):Void {}
+	public function uniformMatrix4fv (location:GLUniformLocation, transpose:Bool, array:lime.utils.Float32Array):Void {}
+	public function useProgram (program:GLProgram):Void {}
+	public function validateProgram (program:GLProgram):Void {}
+	public function vertexAttrib1f (indx:Int, x:Float):Void {}
+	public function vertexAttrib1fv (indx:Int, values:lime.utils.Float32Array):Void {}
+	public function vertexAttrib2f (indx:Int, x:Float, y:Float):Void {}
+	public function vertexAttrib2fv (indx:Int, values:lime.utils.Float32Array):Void {}
+	public function vertexAttrib3f (indx:Int, x:Float, y:Float, z:Float):Void {}
+	public function vertexAttrib3fv (indx:Int, values:lime.utils.Float32Array):Void {}
+	public function vertexAttrib4f (indx:Int, x:Float, y:Float, z:Float, w:Float):Void {}
+	public function vertexAttrib4fv (indx:Int, values:lime.utils.Float32Array):Void {}
+	public function vertexAttribPointer (indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void {}
+	public function viewport (x:Int, y:Int, width:Int, height:Int):Void {}
 	
 }
 
