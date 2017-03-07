@@ -12,10 +12,10 @@ import lime._backend.native.NativeCFFI;
 #end
 
 
-abstract DataPointer(Dynamic) to Dynamic {
+abstract DataPointer(DataPointerType) to DataPointerType {
 	
 	
-	private function new (data:Dynamic) {
+	private function new (data:DataPointerType) {
 		
 		this = data;
 		
@@ -152,3 +152,10 @@ abstract DataPointer(Dynamic) to Dynamic {
 	
 	
 }
+
+
+#if (lime_cffi && !js)
+private typedef DataPointerType = Float;
+#else
+private typedef DataPointerType = Dynamic;
+#end

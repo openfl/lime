@@ -2659,6 +2659,8 @@ class HTML5GLRenderContext {
 		
 		if (data != null) {
 			
+			if (data == 0) return null;
+			
 			if (size != null) {
 				
 				if (size <= 0) {
