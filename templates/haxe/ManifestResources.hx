@@ -46,14 +46,19 @@ import sys.FileSystem;
 		
 		Assets.defaultRootPath = rootPath;
 		
+		#if (openfl && !flash)
+		::if (assets != null)::::foreach assets::::if (type == "font")::openfl.text.Font.registerFont (__ASSET__OPENFL__::flatName::);
+		::end::::end::::end::
+		#end
+		
 		var data, manifest, library;
 		
-		::foreach assets::::if (type == "manifest")::::if (embed)::data = '::data::';
+		::if (assets != null)::::foreach assets::::if (type == "manifest")::::if (embed)::data = '::data::';
 		manifest = AssetManifest.parse (data, rootPath);
 		library = AssetLibrary.fromManifest (manifest);
 		Assets.registerLibrary ("::library::", library);
 		::else::Assets.libraryPaths["::library::"] = rootPath + "::resourceName::";
-		::end::::end::::end::
+		::end::::end::::end::::end::
 		
 		::foreach libraries::::if (preload)::library = Assets.getLibrary ("::name::");
 		if (library != null) preloadLibraries.push (library);
