@@ -736,18 +736,34 @@ class GL {
 	}
 	
 	
-	public static inline function bufferData (target:Int, size:Int, data:DataPointer, usage:Int):Void {
+	#if (!js || !html5 || display)
+	public static inline function bufferData (target:Int, size:Int, srcData:DataPointer, usage:Int):Void {
 		
-		context.bufferData (target, size, data, usage);
-		
-	}
-	
-	
-	public static inline function bufferSubData (target:Int, offset:Int, size:Int, data:DataPointer):Void {
-		
-		context.bufferSubData (target, offset, size, data);
+		context.bufferData (target, size, srcData, usage);
 		
 	}
+	#else
+	public static inline function bufferData (target:Int, size:Dynamic, srcData:Dynamic, ?usage:Int, ?srcOffset:Int, ?length:Int):Void {
+		
+		context.bufferData (target, size, srcData, usage, srcOffset, length);
+		
+	}
+	#end
+	
+	
+	#if (!js || !html5 || display)
+	public static inline function bufferSubData (target:Int, dstByteOffset:Int, size:Int, srcData:DataPointer):Void {
+		
+		context.bufferSubData (target, dstByteOffset, size, srcData);
+		
+	}
+	#else
+	public static inline function bufferSubData (target:Int, dstByteOffset:Int, size:Dynamic, ?srcData:Dynamic, ?srcOffset:Int, ?length:Int):Void {
+		
+		context.bufferSubData (target, dstByteOffset, size, srcData, srcOffset, length);
+		
+	}
+	#end
 	
 	
 	public static inline function checkFramebufferStatus (target:Int):Int {
@@ -799,18 +815,34 @@ class GL {
 	}
 	
 	
+	#if (!js || !html5 || display)
 	public static inline function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, imageSize:Int, data:DataPointer):Void {
 		
 		context.compressedTexImage2D (target, level, internalformat, width, height, border, imageSize, data);
 		
 	}
+	#else
+	public static inline function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, imageSize:Dynamic, ?srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
+		
+		context.compressedTexImage2D (target, level, internalformat, width, height, border, imageSize, srcData, srcOffset, srcLengthOverride);
+		
+	}
+	#end
 	
 	
+	#if (!js || !html5 || display)
 	public static inline function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, imageSize:Int, data:DataPointer):Void {
 		
 		context.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, imageSize, data);
 		
 	}
+	#else
+	public static inline function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, imageSize:Dynamic, ?srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
+		
+		context.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, imageSize, srcData, srcOffset, srcLengthOverride);
+		
+	}
+	#end
 	
 	
 	public static inline function copyTexImage2D (target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void {
@@ -1282,11 +1314,19 @@ class GL {
 	}
 	
 	
+	#if (!js || !html5 || display)
 	public static inline function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:BytePointer):Void {
 		
 		context.readPixels (x, y, width, height, format, type, pixels);
 		
 	}
+	#else
+	public static inline function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:Dynamic, ?dstOffset:Int):Void {
+		
+		context.readPixels (x, y, width, height, format, type, pixels, dstOffset);
+		
+	}
+	#end
 	
 	
 	public static inline function renderbufferStorage (target:Int, internalformat:Int, width:Int, height:Int):Void {
@@ -1359,11 +1399,19 @@ class GL {
 	}
 	
 	
+	#if (!js || !html5 || display)
 	public static inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:DataPointer):Void {
 		
 		context.texImage2D (target, level, internalformat, width, height, border, format, type, data);
 		
 	}
+	#else
+	public static inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Dynamic, ?format:Int, ?type:Int, ?srcData:Dynamic, ?srcOffset:Int):Void {
+		
+		context.texImage2D (target, level, internalformat, width, height, border, format, type, srcData, srcOffset);
+		
+	}
+	#end
 	
 	
 	public static inline function texParameterf (target:Int, pname:Int, param:Float):Void {
@@ -1380,11 +1428,19 @@ class GL {
 	}
 	
 	
+	#if (!js || !html5 || display)
 	public static inline function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
 		
 		context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, pixels);
 		
 	}
+	#else
+	public static inline function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Dynamic, ?type:Int, ?srcData:Dynamic, ?srcOffset:Int):Void {
+		
+		context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, srcData, srcOffset);
+		
+	}
+	#end
 	
 	
 	public static inline function uniform1f (location:GLUniformLocation, x:Float):Void {

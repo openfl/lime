@@ -835,7 +835,6 @@ class HTML5GLRenderContext {
 		if (!Std.is (srcData, Int)) {
 			
 			srcData = __prepareData (size, srcData);
-			if (srcData == null) return;
 			
 			if (version > 1) {
 				
@@ -872,7 +871,6 @@ class HTML5GLRenderContext {
 		if (Std.is (size, Int)) {
 			
 			srcData = __prepareData (size, srcData);
-			if (srcData == null) return;
 			
 			if (version > 1) {
 				
@@ -992,7 +990,6 @@ class HTML5GLRenderContext {
 	public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, imageSize:Dynamic, ?srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
 		
 		srcData = __prepareData (null, srcData);
-		if (srcData == null) return;
 		
 		if (Std.is (imageSize, Int)) {
 			
@@ -1039,7 +1036,6 @@ class HTML5GLRenderContext {
 	public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, imageSize:Dynamic, ?srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
 		
 		srcData = __prepareData (null, srcData);
-		if (srcData == null) return;
 		
 		if (Std.is (imageSize, Int)) {
 			
@@ -2051,8 +2047,7 @@ class HTML5GLRenderContext {
 			} else {
 				
 				srcData = __prepareData (null, srcData);
-				if (srcData == null) return;
-				if (Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
+				if (srcData != null && Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
 				
 				__context.texImage2D (target, level, internalformat, width, height, border, format, type, srcData, srcOffset);
 				
@@ -2067,8 +2062,7 @@ class HTML5GLRenderContext {
 			} else {
 				
 				srcData = __prepareData (null, srcData);
-				if (srcData == null) return;
-				if (Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
+				if (srcData != null && Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
 				
 				__context.texImage2D (target, level, internalformat, width, height, border, format, type, srcData);
 				
@@ -2144,8 +2138,7 @@ class HTML5GLRenderContext {
 			} else {
 				
 				srcData = __prepareData (null, srcData);
-				if (srcData == null) return;
-				if (Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
+				if (srcData != null && Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
 				
 				__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, srcData, srcOffset);
 				
@@ -2160,8 +2153,7 @@ class HTML5GLRenderContext {
 			} else {
 				
 				srcData = __prepareData (null, srcData);
-				if (srcData == null) return;
-				if (Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
+				if (srcData != null && Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
 				
 				__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, srcData);
 				
