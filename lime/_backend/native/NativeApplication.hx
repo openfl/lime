@@ -430,7 +430,7 @@ class NativeApplication {
 							
 							case OPENGL (gl):
 								
-								#if !display
+								#if (lime_cffi && lime_opengl && !display)
 								(gl:NativeGLRenderContext).__contextLost ();
 								if (GL.context == gl) GL.context = null;
 								#end
