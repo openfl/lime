@@ -7,16 +7,19 @@ package lime.graphics.opengl; #if (!js || !html5 || display)
 #end
 
 
-class GLSampler extends GLObject {
+class GLSampler {
 	
 	
-	private override function getType ():String {
+	private var id:Int;
+	
+	
+	private function new (id:Int) {
 		
-		return "Sampler";
+		this.id = id;
 		
 	}
-    
-    
+	
+	
 }
 
 

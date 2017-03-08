@@ -7,16 +7,19 @@ package lime.graphics.opengl; #if (!js || !html5 || display)
 #end
 
 
-class GLTransformFeedback extends GLObject {
+class GLTransformFeedback {
 	
 	
-	private override function getType ():String {
+	private var id:Int;
+	
+	
+	private function new (id:Int) {
 		
-		return "TransformFeedback";
+		this.id = id;
 		
 	}
-    
-    
+	
+	
 }
 
 

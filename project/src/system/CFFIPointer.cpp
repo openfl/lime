@@ -27,4 +27,17 @@ namespace lime {
 	}
 	
 	
+	value CFFIPointer (value handle, hx::finalizer finalizer) {
+		
+		if (!val_is_null (handle) && finalizer) {
+			
+			val_gc (handle, finalizer);
+			
+		}
+		
+		return handle;
+		
+	}
+	
+	
 }

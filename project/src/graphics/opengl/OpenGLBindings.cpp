@@ -4,6 +4,7 @@
 #include <utils/Bytes.h>
 #include "OpenGL.h"
 #include "OpenGLBindings.h"
+#include <map>
 #include <string>
 #include <vector>
 
@@ -29,71 +30,80 @@ namespace lime {
 	void *OpenGLBindings::handle = 0;
 	int OpenGLBindings::defaultFramebuffer = 0;
 	
+	
+	std::map<GLObjectType, value> objectConstructor;
+	std::map<GLObjectType, value*> objectConstructorRoot;
+	int id_id = 0;
+	
+	GLuint GLObjectID (value object) {
+		
+		if (val_is_null (object)) {
+			
+			return 0;
+			
+		} else {
+			
+			return val_int (val_field (object, id_id));
+			
+		}
+		
+	}
+	
+	
 	void lime_gl_delete_buffer (value handle);
 	void lime_gl_delete_framebuffer (value handle);
 	void lime_gl_delete_program (value handle);
-	void lime_gl_delete_render_buffer (value handle);
+	void lime_gl_delete_renderbuffer (value handle);
 	void lime_gl_delete_shader (value handle);
 	void lime_gl_delete_texture (value handle);
 	
-	enum GCObjectType {
-		
-		GC_BUFFER,
-		GC_FRAMEBUFFER,
-		GC_PROGRAM,
-		GC_RENDERBUFFER,
-		GC_SHADER,
-		GC_TEXTURE
-		
-	};
-	
-	std::vector<GCObjectType> gc_gl_type;
+	std::vector<GLObjectType> gc_gl_type;
 	std::vector<GLuint> gc_gl_id;
 	Mutex gc_gl_mutex;
 	
 	
-	void gc_gl_buffer (value handle) {
+	void gc_gl_buffer (value buffer) {
 		
 		gc_gl_mutex.Lock ();
 		
-		gc_gl_type.push_back (GC_BUFFER);
-		gc_gl_id.push_back (reinterpret_cast<uintptr_t> (val_data (handle)));
+		gc_gl_type.push_back (TYPE_BUFFER);
+		gc_gl_id.push_back (GLObjectID (buffer));
 		
 		gc_gl_mutex.Unlock ();
 		
 	}
 	
 	
-	void gc_gl_framebuffer (value handle) {
+	void gc_gl_framebuffer (value framebuffer) {
 		
 		gc_gl_mutex.Lock ();
 		
-		gc_gl_type.push_back (GC_FRAMEBUFFER);
-		gc_gl_id.push_back (reinterpret_cast<uintptr_t> (val_data (handle)));
+		gc_gl_type.push_back (TYPE_FRAMEBUFFER);
+		gc_gl_id.push_back (GLObjectID (framebuffer));
 		
 		gc_gl_mutex.Unlock ();
 		
 	}
 	
 	
-	void gc_gl_program (value handle) {
+	void gc_gl_program (value program) {
 		
 		gc_gl_mutex.Lock ();
 		
-		gc_gl_type.push_back (GC_PROGRAM);
-		gc_gl_id.push_back (reinterpret_cast<uintptr_t> (val_data (handle)));
+		gc_gl_type.push_back (TYPE_PROGRAM);
+		gc_gl_id.push_back (GLObjectID (program));
 		
 		gc_gl_mutex.Unlock ();
 		
 	}
 	
 	
-	void gc_gl_render_buffer (value handle) {
+	void gc_gl_renderbuffer (value renderbuffer) {
 		
 		gc_gl_mutex.Lock ();
 		
-		gc_gl_type.push_back (GC_RENDERBUFFER);
-		gc_gl_id.push_back (reinterpret_cast<uintptr_t> (val_data (handle)));
+		gc_gl_type.push_back (TYPE_RENDERBUFFER);
+		gc_gl_id.push_back (GLObjectID (renderbuffer));
 		
 		gc_gl_mutex.Unlock ();
 		
@@ -108,42 +118,42 @@ namespace lime {
 		
 		if (size > 0) {
 			
-			GCObjectType type;
+			GLObjectType type;
 			GLuint id;
 			
 			for (int i = 0; i < size; i++) {
 				
-				GCObjectType type = gc_gl_type[i];
-				GLuint id = gc_gl_id[i];
+				type = gc_gl_type[i];
+				id = gc_gl_id[i];
 				
 				switch (type) {
 					
-					case GC_BUFFER:
+					case TYPE_BUFFER:
 						
 						glDeleteBuffers (1, &id);
 						break;
 					
-					case GC_FRAMEBUFFER:
+					case TYPE_FRAMEBUFFER:
 						
 						glDeleteFramebuffers (1, &id);
 						break;
 					
-					case GC_PROGRAM:
+					case TYPE_PROGRAM:
 						
 						glDeleteProgram (id);
 						break;
 					
-					case GC_RENDERBUFFER:
+					case TYPE_RENDERBUFFER:
 						
 						glDeleteRenderbuffers (1, &id);
 						break;
 					
-					case GC_SHADER:
+					case TYPE_SHADER:
 						
 						glDeleteShader (id);
 						break;
 					
-					case GC_TEXTURE:
+					case TYPE_TEXTURE:
 						
 						glDeleteTextures (1, &id);
 						break;
@@ -162,24 +172,24 @@ namespace lime {
 	}
 	
 	
-	void gc_gl_shader (value handle) {
+	void gc_gl_shader (value shader) {
 		
 		gc_gl_mutex.Lock ();
 		
-		gc_gl_type.push_back (GC_SHADER);
-		gc_gl_id.push_back (reinterpret_cast<uintptr_t> (val_data (handle)));
+		gc_gl_type.push_back (TYPE_SHADER);
+		gc_gl_id.push_back (GLObjectID (shader));
 		
 		gc_gl_mutex.Unlock ();
 		
 	}
 	
 	
-	void gc_gl_texture (value handle) {
+	void gc_gl_texture (value texture) {
 		
 		gc_gl_mutex.Lock ();
 		
-		gc_gl_type.push_back (GC_TEXTURE);
-		gc_gl_id.push_back (reinterpret_cast<uintptr_t> (val_data (handle)));
+		gc_gl_type.push_back (TYPE_TEXTURE);
+		gc_gl_id.push_back (GLObjectID (texture));
 		
 		gc_gl_mutex.Unlock ();
 		
@@ -195,36 +205,32 @@ namespace lime {
 	
 	void lime_gl_attach_shader (value program, value shader) {
 		
-		glAttachShader (reinterpret_cast<uintptr_t> (val_data (program)), reinterpret_cast<uintptr_t> (val_data (shader)));
+		glAttachShader (GLObjectID (program), GLObjectID (shader));
 		
 	}
 	
 	
-	void lime_gl_bind_attrib_location (value handle, int index, HxString name) {
+	void lime_gl_bind_attrib_location (value program, int index, HxString name) {
 		
-		glBindAttribLocation (reinterpret_cast<uintptr_t> (val_data (handle)), index, name.__s);
+		glBindAttribLocation (GLObjectID (program), index, name.__s);
 		
 	}
 	
 	
 	void lime_gl_bind_buffer (int target, value buffer) {
 		
-		glBindBuffer (target, val_is_null (buffer) ? 0 : reinterpret_cast<uintptr_t> (val_data (buffer)));
+		glBindBuffer (target, GLObjectID (buffer));
 		
 	}
 	
 	
 	void lime_gl_bind_framebuffer (int target, value framebuffer) {
 		
-		GLuint id;
+		GLuint id = GLObjectID (framebuffer);
 		
-		if (val_is_null (framebuffer)) {
+		if (!id) {
 			
 			id = OpenGLBindings::defaultFramebuffer;
-			
-		} else {
-			
-			id = reinterpret_cast<uintptr_t> (val_data (framebuffer));
 			
 		}
 		
@@ -235,14 +241,14 @@ namespace lime {
 	
 	void lime_gl_bind_renderbuffer (int target, value renderbuffer) {
 		
-		glBindRenderbuffer (target, val_is_null (renderbuffer) ? 0 : reinterpret_cast<uintptr_t> (val_data (renderbuffer)));
+		glBindRenderbuffer (target, GLObjectID (renderbuffer));
 		
 	}
 	
 	
 	void lime_gl_bind_texture (int target, value texture) {
 		
-		glBindTexture (target, val_is_null (texture) ? 0 : reinterpret_cast<uintptr_t> (val_data (texture)));
+		glBindTexture (target, GLObjectID (texture));
 		
 	}
 	
@@ -343,9 +349,9 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_compile_shader (value handle) {
+	void lime_gl_compile_shader (value shader) {
 		
-		glCompileShader (reinterpret_cast<uintptr_t> (val_data (handle)));
+		glCompileShader (GLObjectID (shader));
 		
 	}
 	
@@ -380,9 +386,9 @@ namespace lime {
 	
 	value lime_gl_create_buffer () {
 		
-		GLuint buffer;
-		glGenBuffers (1, &buffer);
-		return CFFIPointer ((void*)(uintptr_t)buffer, gc_gl_buffer);
+		GLuint id;
+		glGenBuffers (1, &id);
+		return CFFIPointer (val_call1 (objectConstructor[TYPE_BUFFER], alloc_int (id)), gc_gl_buffer);
 		
 	}
 	
@@ -391,30 +397,32 @@ namespace lime {
 		
 		GLuint id = 0;
 		glGenFramebuffers (1, &id);
-		return CFFIPointer ((void*)(uintptr_t)id, gc_gl_framebuffer);
+		return CFFIPointer (val_call1 (objectConstructor[TYPE_FRAMEBUFFER], alloc_int (id)), gc_gl_framebuffer);
 		
 	}
 	
 	
 	value lime_gl_create_program () {
 		
-		return CFFIPointer ((void*)(uintptr_t)glCreateProgram (), gc_gl_program);
+		GLuint id = glCreateProgram ();
+		return CFFIPointer (val_call1 (objectConstructor[TYPE_PROGRAM], alloc_int (id)), gc_gl_program);
 		
 	}
 	
 	
-	value lime_gl_create_render_buffer () {
+	value lime_gl_create_renderbuffer () {
 		
 		GLuint id = 0;
 		glGenRenderbuffers (1, &id);
-		return CFFIPointer ((void*)(uintptr_t)id, gc_gl_render_buffer);
+		return CFFIPointer (val_call1 (objectConstructor[TYPE_RENDERBUFFER], alloc_int (id)), gc_gl_renderbuffer);
 		
 	}
 	
 	
 	value lime_gl_create_shader (int type) {
 		
-		return CFFIPointer ((void*)(uintptr_t)glCreateShader (type), gc_gl_shader);
+		GLuint id = glCreateShader (type);
+		return CFFIPointer (val_call1 (objectConstructor[TYPE_SHADER], alloc_int (id)), gc_gl_shader);
 		
 	}
 	
@@ -423,7 +431,7 @@ namespace lime {
 		
 		GLuint id = 0;
 		glGenTextures (1, &id);
-		return CFFIPointer ((void*)(uintptr_t)id, gc_gl_texture);
+		return CFFIPointer (val_call1 (objectConstructor[TYPE_TEXTURE], alloc_int (id)), gc_gl_texture);
 		
 	}
 	
@@ -435,12 +443,13 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_delete_buffer (value handle) {
+	void lime_gl_delete_buffer (value buffer) {
 		
-		if (!val_is_null (handle)) {
+		GLuint id = GLObjectID (buffer);
+		
+		if (id) {
 			
-			GLuint id = reinterpret_cast<uintptr_t> (val_data (handle));
-			val_gc (handle, 0);
+			val_gc (buffer, 0);
 			glDeleteBuffers (1, &id);
 			
 		}
@@ -448,12 +457,13 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_delete_framebuffer (value handle) {
+	void lime_gl_delete_framebuffer (value framebuffer) {
 		
-		if (!val_is_null (handle)) {
+		GLuint id = GLObjectID (framebuffer);
+		
+		if (id) {
 			
-			GLuint id = reinterpret_cast<uintptr_t> (val_data (handle));
-			val_gc (handle, 0);
+			val_gc (framebuffer, 0);
 			glDeleteFramebuffers (1, &id);
 			
 		}
@@ -461,12 +471,13 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_delete_program (value handle) {
+	void lime_gl_delete_program (value program) {
 		
-		if (!val_is_null (handle)) {
+		GLuint id = GLObjectID (program);
+		
+		if (id) {
 			
-			GLuint id = reinterpret_cast<uintptr_t> (val_data (handle));
-			val_gc (handle, 0);
+			val_gc (program, 0);
 			glDeleteProgram (id);
 			
 		}
@@ -474,12 +485,13 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_delete_render_buffer (value handle) {
+	void lime_gl_delete_renderbuffer (value renderbuffer) {
 		
-		if (!val_is_null (handle)) {
+		GLuint id = GLObjectID (renderbuffer);
+		
+		if (id) {
 			
-			GLuint id = reinterpret_cast<uintptr_t> (val_data (handle));
-			val_gc (handle, 0);
+			val_gc (renderbuffer, 0);
 			glDeleteRenderbuffers (1, &id);
 			
 		}
@@ -487,12 +499,13 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_delete_shader (value handle) {
+	void lime_gl_delete_shader (value shader) {
 		
-		if (!val_is_null (handle)) {
+		GLuint id = GLObjectID (shader);
+		
+		if (id) {
 			
-			GLuint id = reinterpret_cast<uintptr_t> (val_data (handle));
-			val_gc (handle, 0);
+			val_gc (shader, 0);
 			glDeleteShader (id);
 			
 		}
@@ -500,12 +513,13 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_delete_texture (value handle) {
+	void lime_gl_delete_texture (value texture) {
 		
-		if (!val_is_null (handle)) {
+		GLuint id = GLObjectID (texture);
+		
+		if (id) {
 			
-			GLuint id = reinterpret_cast<uintptr_t> (val_data (handle));
-			val_gc (handle, 0);
+			val_gc (texture, 0);
 			glDeleteTextures (1, &id);
 			
 		}
@@ -540,7 +554,7 @@ namespace lime {
 	
 	void lime_gl_detach_shader (value program, value shader) {
 		
-		glDetachShader (reinterpret_cast<uintptr_t> (val_data (program)), reinterpret_cast<uintptr_t> (val_data (shader)));
+		glDetachShader (GLObjectID (program), GLObjectID (shader));
 		
 	}
 	
@@ -603,14 +617,14 @@ namespace lime {
 	
 	void lime_gl_framebuffer_renderbuffer (int target, int attachment, int renderbuffertarget, value renderbuffer) {
 		
-		glFramebufferRenderbuffer (target, attachment, renderbuffertarget, reinterpret_cast<uintptr_t> (val_data (renderbuffer)));
+		glFramebufferRenderbuffer (target, attachment, renderbuffertarget, GLObjectID (renderbuffer));
 		
 	}
 	
 	
 	void lime_gl_framebuffer_texture2D (int target, int attachment, int textarget, value texture, int level) {
 		
-		glFramebufferTexture2D (target, attachment, textarget, reinterpret_cast<uintptr_t> (val_data (texture)), level);
+		glFramebufferTexture2D (target, attachment, textarget, GLObjectID (texture), level);
 		
 	}
 	
@@ -629,7 +643,7 @@ namespace lime {
 	}
 	
 	
-	value lime_gl_get_active_attrib (value handle, int index) {
+	value lime_gl_get_active_attrib (value program, int index) {
 		
 		value result = alloc_empty_object ();
 		
@@ -638,7 +652,7 @@ namespace lime {
 		GLsizei size = 0;
 		GLenum  type = 0;
 		
-		glGetActiveAttrib (reinterpret_cast<uintptr_t> (val_data (handle)), index, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &outLen, &size, &type, &buffer[0]);
+		glGetActiveAttrib (GLObjectID (program), index, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &outLen, &size, &type, &buffer[0]);
 		
 		buffer.resize (outLen);
 		
@@ -651,14 +665,14 @@ namespace lime {
 	}
 	
 	
-	value lime_gl_get_active_uniform (value handle, int index) {
+	value lime_gl_get_active_uniform (value program, int index) {
 		
 		std::string buffer (GL_ACTIVE_UNIFORM_MAX_LENGTH, 0);
 		GLsizei outLen = 0;
 		GLsizei size = 0;
 		GLenum  type = 0;
 		
-		glGetActiveUniform (reinterpret_cast<uintptr_t> (val_data (handle)), index, GL_ACTIVE_UNIFORM_MAX_LENGTH, &outLen, &size, &type, &buffer[0]);
+		glGetActiveUniform (GLObjectID (program), index, GL_ACTIVE_UNIFORM_MAX_LENGTH, &outLen, &size, &type, &buffer[0]);
 		
 		buffer.resize (outLen);
 		
@@ -672,9 +686,9 @@ namespace lime {
 	}
 	
 	
-	int lime_gl_get_attrib_location (value handle, HxString name) {
+	int lime_gl_get_attrib_location (value program, HxString name) {
 		
-		return glGetAttribLocation (reinterpret_cast<uintptr_t> (val_data (handle)), name.__s);
+		return glGetAttribLocation (GLObjectID (program), name.__s);
 		
 	}
 	
@@ -1049,7 +1063,7 @@ namespace lime {
 	
 	value lime_gl_get_program_info_log (value handle) {
 		
-		GLuint program = reinterpret_cast<uintptr_t> (val_data (handle));
+		GLuint program = GLObjectID (handle);
 		
 		GLint logSize = 0;
 		glGetProgramiv (program, GL_INFO_LOG_LENGTH, &logSize);
@@ -1069,10 +1083,10 @@ namespace lime {
 	}
 	
 	
-	value lime_gl_get_program_parameter (value handle, int pname) {
+	value lime_gl_get_program_parameter (value program, int pname) {
 		
 		int result = 0;
-		glGetProgramiv (reinterpret_cast<uintptr_t> (val_data (handle)), pname, &result);
+		glGetProgramiv (GLObjectID (program), pname, &result);
 		
 		switch (pname) {
 			
@@ -1090,7 +1104,7 @@ namespace lime {
 	}
 	
 	
-	value lime_gl_get_render_buffer_parameter (int target, int pname) {
+	value lime_gl_get_renderbuffer_parameter (int target, int pname) {
 		
 		int result = 0;
 		glGetRenderbufferParameteriv (target, pname, &result);
@@ -1101,7 +1115,7 @@ namespace lime {
 	
 	value lime_gl_get_shader_info_log (value handle) {
 		
-		GLuint shader = reinterpret_cast<uintptr_t> (val_data (handle));
+		GLuint shader = GLObjectID (handle);
 		
 		GLint logSize = 0;
 		glGetShaderiv (shader, GL_INFO_LOG_LENGTH, &logSize);
@@ -1121,10 +1135,10 @@ namespace lime {
 	}
 	
 	
-	value lime_gl_get_shader_parameter (value handle, int pname) {
+	value lime_gl_get_shader_parameter (value shader, int pname) {
 		
 		int result = 0;
-		glGetShaderiv (reinterpret_cast<uintptr_t> (val_data (handle)), pname, &result);
+		glGetShaderiv (GLObjectID (shader), pname, &result);
 		
 		switch (pname) {
 			
@@ -1165,10 +1179,12 @@ namespace lime {
 	}
 	
 	
-	value lime_gl_get_shader_source (value handle) {
+	value lime_gl_get_shader_source (value shader) {
+		
+		GLuint id = GLObjectID (shader);
 		
 		int len = 0;
-		glGetShaderiv (reinterpret_cast<uintptr_t> (val_data (handle)), GL_SHADER_SOURCE_LENGTH, &len);
+		glGetShaderiv (id, GL_SHADER_SOURCE_LENGTH, &len);
 		
 		if (len == 0) {
 			
@@ -1177,7 +1193,7 @@ namespace lime {
 		}
 		
 		char *buf = new char[len + 1];
-		glGetShaderSource (reinterpret_cast<uintptr_t> (val_data (handle)), len + 1, 0, buf);
+		glGetShaderSource (id, len + 1, 0, buf);
 		value result = alloc_string (buf);
 		
 		delete [] buf;
@@ -1247,13 +1263,13 @@ namespace lime {
 	}
 	
 	
-	value lime_gl_get_uniform (value handle, int location) {
+	value lime_gl_get_uniform (value program, int location) {
 		
 		char buf[1];
 		GLsizei outLen = 1;
 		GLsizei size = 0;
 		GLenum  type = 0;
-		GLuint id = reinterpret_cast<uintptr_t> (val_data (handle));
+		GLuint id = GLObjectID (program);
 		
 		glGetActiveUniform (id, location, 1, &outLen, &size, &type, buf);
 		int ints = 0;
@@ -1357,9 +1373,9 @@ namespace lime {
 	}
 	
 	
-	int lime_gl_get_uniform_location (value handle, HxString name) {
+	int lime_gl_get_uniform_location (value program, HxString name) {
 		
-		return glGetUniformLocation (reinterpret_cast<uintptr_t> (val_data (handle)), name.__s);
+		return glGetUniformLocation (GLObjectID (program), name.__s);
 		
 	}
 	
@@ -1391,7 +1407,7 @@ namespace lime {
 	
 	bool lime_gl_is_buffer (value handle) {
 		
-		return glIsBuffer (reinterpret_cast<uintptr_t> (val_data (handle)));
+		return glIsBuffer (GLObjectID (handle));
 		
 	}
 	
@@ -1405,35 +1421,35 @@ namespace lime {
 	
 	bool lime_gl_is_framebuffer (value handle) {
 		
-		return glIsFramebuffer (reinterpret_cast<uintptr_t> (val_data (handle)));
+		return glIsFramebuffer (GLObjectID (handle));
 		
 	}
 	
 	
 	bool lime_gl_is_program (value handle) {
 		
-		return glIsProgram (reinterpret_cast<uintptr_t> (val_data (handle)));
+		return glIsProgram (GLObjectID (handle));
 		
 	}
 	
 	
 	bool lime_gl_is_renderbuffer (value handle) {
 		
-		return glIsRenderbuffer (reinterpret_cast<uintptr_t> (val_data (handle)));
+		return glIsRenderbuffer (GLObjectID (handle));
 		
 	}
 	
 	
 	bool lime_gl_is_shader (value handle) {
 		
-		return glIsShader (reinterpret_cast<uintptr_t> (val_data (handle)));
+		return glIsShader (GLObjectID (handle));
 		
 	}
 	
 	
 	bool lime_gl_is_texture (value handle) {
 		
-		return glIsTexture (reinterpret_cast<uintptr_t> (val_data (handle)));
+		return glIsTexture (GLObjectID (handle));
 		
 	}
 	
@@ -1445,9 +1461,28 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_link_program (value handle) {
+	void lime_gl_link_program (value program) {
 		
-		glLinkProgram (reinterpret_cast<uintptr_t> (val_data (handle)));
+		glLinkProgram (GLObjectID (program));
+		
+	}
+	
+	
+	void lime_gl_object_constructor (int type, value constructor) {
+		
+		GLObjectType _type = (GLObjectType)type;
+		
+		value* root = alloc_root ();
+		*root = constructor;
+		
+		if (objectConstructorRoot[_type]) {
+			
+			free_root (objectConstructorRoot[_type]);
+			
+		}
+		
+		objectConstructorRoot[_type] = root;
+		objectConstructor[_type] = constructor;
 		
 	}
 	
@@ -1496,7 +1531,7 @@ namespace lime {
 	
 	void lime_gl_shader_source (value handle, HxString source) {
 		
-		glShaderSource (reinterpret_cast<uintptr_t> (val_data (handle)), 1, &source.__s, 0);
+		glShaderSource (GLObjectID (handle), 1, &source.__s, 0);
 		
 	}
 	
@@ -1746,14 +1781,14 @@ namespace lime {
 	
 	void lime_gl_use_program (value handle) {
 		
-		glUseProgram (val_is_null (handle) ? 0 : reinterpret_cast<uintptr_t> (val_data (handle)));
+		glUseProgram (GLObjectID (handle));
 		
 	}
 	
 	
 	void lime_gl_validate_program (value handle) {
 		
-		glValidateProgram (reinterpret_cast<uintptr_t> (val_data (handle)));
+		glValidateProgram (GLObjectID (handle));
 		
 	}
 	
@@ -1871,6 +1906,8 @@ namespace lime {
 			
 			initialized = true;
 			
+			id_id = val_id ("id");
+			
 			#ifdef HX_LINUX
 			
 			OpenGLBindings::handle = dlopen ("libGL.so.1", RTLD_NOW|RTLD_GLOBAL);
@@ -1931,14 +1968,14 @@ namespace lime {
 	DEFINE_PRIME0 (lime_gl_create_buffer);
 	DEFINE_PRIME0 (lime_gl_create_framebuffer);
 	DEFINE_PRIME0 (lime_gl_create_program);
-	DEFINE_PRIME0 (lime_gl_create_render_buffer);
+	DEFINE_PRIME0 (lime_gl_create_renderbuffer);
 	DEFINE_PRIME1 (lime_gl_create_shader);
 	DEFINE_PRIME0 (lime_gl_create_texture);
 	DEFINE_PRIME1v (lime_gl_cull_face);
 	DEFINE_PRIME1v (lime_gl_delete_buffer);
 	DEFINE_PRIME1v (lime_gl_delete_framebuffer);
 	DEFINE_PRIME1v (lime_gl_delete_program);
-	DEFINE_PRIME1v (lime_gl_delete_render_buffer);
+	DEFINE_PRIME1v (lime_gl_delete_renderbuffer);
 	DEFINE_PRIME1v (lime_gl_delete_shader);
 	DEFINE_PRIME1v (lime_gl_delete_texture);
 	DEFINE_PRIME2v (lime_gl_detach_shader);
@@ -1974,7 +2011,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_gl_get_parameter);
 	DEFINE_PRIME1 (lime_gl_get_program_info_log);
 	DEFINE_PRIME2 (lime_gl_get_program_parameter);
-	DEFINE_PRIME2 (lime_gl_get_render_buffer_parameter);
+	DEFINE_PRIME2 (lime_gl_get_renderbuffer_parameter);
 	DEFINE_PRIME1 (lime_gl_get_shader_info_log);
 	DEFINE_PRIME2 (lime_gl_get_shader_parameter);
 	DEFINE_PRIME2 (lime_gl_get_shader_precision_format);
@@ -1996,6 +2033,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_gl_is_texture);
 	DEFINE_PRIME1v (lime_gl_line_width);
 	DEFINE_PRIME1v (lime_gl_link_program);
+	DEFINE_PRIME2v (lime_gl_object_constructor);
 	DEFINE_PRIME2v (lime_gl_pixel_storei);
 	DEFINE_PRIME2v (lime_gl_polygon_offset);
 	DEFINE_PRIME7v (lime_gl_read_pixels);

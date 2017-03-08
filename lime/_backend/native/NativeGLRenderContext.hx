@@ -1,6 +1,11 @@
 package lime._backend.native;
 
 
+import lime.graphics.opengl.GLQuery;
+import lime.graphics.opengl.GLSampler;
+import lime.graphics.opengl.GLSync;
+import lime.graphics.opengl.GLTransformFeedback;
+import lime.graphics.opengl.GLVertexArrayObject;
 import lime.graphics.opengl.ext.*;
 import lime.graphics.opengl.GLActiveInfo;
 import lime.graphics.opengl.GLBuffer;
@@ -29,6 +34,7 @@ import lime.utils.Int32Array;
 
 @:allow(lime.ui.Window)
 @:access(lime._backend.native.NativeCFFI)
+@:access(lime.graphics.opengl)
 
 
 class NativeGLRenderContext {
@@ -685,6 +691,7 @@ class NativeGLRenderContext {
 	private var __contextID:Int;
 	private var __currentProgram:GLProgram;
 	private var __framebufferBinding:GLFramebuffer;
+	private var __initialized:Bool;
 	private var __isContextLost:Bool;
 	private var __renderbufferBinding:GLRenderbuffer;
 	private var __texture2DBinding:GLTexture;
@@ -695,109 +702,7 @@ class NativeGLRenderContext {
 		
 		__contextID = __lastContextID++;
 		
-		__extensionObjectTypes["AMD_compressed_3DC_texture"] = AMD_compressed_3DC_texture;
-		__extensionObjectTypes["AMD_compressed_ATC_texture"] = AMD_compressed_ATC_texture;
-		__extensionObjectTypes["AMD_performance_monitor"] = AMD_performance_monitor;
-		__extensionObjectTypes["AMD_program_binary_Z400"] = AMD_program_binary_Z400;
-		__extensionObjectTypes["ANGLE_framebuffer_blit"] = ANGLE_framebuffer_blit;
-		__extensionObjectTypes["ANGLE_framebuffer_multisample"] = ANGLE_framebuffer_multisample;
-		__extensionObjectTypes["ANGLE_instanced_arrays"] = ANGLE_instanced_arrays;
-		__extensionObjectTypes["ANGLE_pack_reverse_row_order"] = ANGLE_pack_reverse_row_order;
-		__extensionObjectTypes["ANGLE_texture_compression_dxt3"] = ANGLE_texture_compression_dxt3;
-		__extensionObjectTypes["ANGLE_texture_compression_dxt5"] = ANGLE_texture_compression_dxt5;
-		__extensionObjectTypes["ANGLE_texture_usage"] = ANGLE_texture_usage;
-		__extensionObjectTypes["ANGLE_translated_shader_source"] = ANGLE_translated_shader_source;
-		__extensionObjectTypes["APPLE_copy_texture_levels"] = APPLE_copy_texture_levels;
-		__extensionObjectTypes["APPLE_framebuffer_multisample"] = APPLE_framebuffer_multisample;
-		__extensionObjectTypes["APPLE_rgb_422"] = APPLE_rgb_422;
-		__extensionObjectTypes["APPLE_sync"] = APPLE_sync;
-		__extensionObjectTypes["APPLE_texture_format_BGRA8888"] = APPLE_texture_format_BGRA8888;
-		__extensionObjectTypes["APPLE_texture_max_level"] = APPLE_texture_max_level;
-		__extensionObjectTypes["ARM_mali_program_binary"] = ARM_mali_program_binary;
-		__extensionObjectTypes["ARM_mali_shader_binary"] = ARM_mali_shader_binary;
-		__extensionObjectTypes["ARM_rgba8"] = ARM_rgba8;
-		__extensionObjectTypes["DMP_shader_binary"] = DMP_shader_binary;
-		__extensionObjectTypes["EXT_bgra"] = EXT_bgra;
-		__extensionObjectTypes["EXT_blend_minmax"] = EXT_blend_minmax;
-		__extensionObjectTypes["EXT_color_buffer_float"] = EXT_color_buffer_float;
-		__extensionObjectTypes["EXT_color_buffer_half_float"] = EXT_color_buffer_half_float;
-		__extensionObjectTypes["EXT_debug_label"] = EXT_debug_label;
-		__extensionObjectTypes["EXT_debug_marker"] = EXT_debug_marker;
-		__extensionObjectTypes["EXT_discard_framebuffer"] = EXT_discard_framebuffer;
-		__extensionObjectTypes["EXT_map_buffer_range"] = EXT_map_buffer_range;
-		__extensionObjectTypes["EXT_multi_draw_arrays"] = EXT_multi_draw_arrays;
-		__extensionObjectTypes["EXT_multisampled_render_to_texture"] = EXT_multisampled_render_to_texture;
-		__extensionObjectTypes["EXT_multiview_draw_buffers"] = EXT_multiview_draw_buffers;
-		__extensionObjectTypes["EXT_occlusion_query_boolean"] = EXT_occlusion_query_boolean;
-		__extensionObjectTypes["EXT_read_format_bgra"] = EXT_read_format_bgra;
-		__extensionObjectTypes["EXT_robustness"] = EXT_robustness;
-		__extensionObjectTypes["EXT_sRGB"] = EXT_sRGB;
-		__extensionObjectTypes["EXT_separate_shader_objects"] = EXT_separate_shader_objects;
-		__extensionObjectTypes["EXT_shader_framebuffer_fetch"] = EXT_shader_framebuffer_fetch;
-		__extensionObjectTypes["EXT_shader_texture_lod"] = EXT_shader_texture_lod;
-		__extensionObjectTypes["EXT_shadow_samplers"] = EXT_shadow_samplers;
-		__extensionObjectTypes["EXT_texture_compression_dxt1"] = EXT_texture_compression_dxt1;
-		__extensionObjectTypes["EXT_texture_filter_anisotropic"] = EXT_texture_filter_anisotropic;
-		__extensionObjectTypes["EXT_texture_format_BGRA8888"] = EXT_texture_format_BGRA8888;
-		__extensionObjectTypes["EXT_texture_rg"] = EXT_texture_rg;
-		__extensionObjectTypes["EXT_texture_storage"] = EXT_texture_storage;
-		__extensionObjectTypes["EXT_texture_type_2_10_10_10_REV"] = EXT_texture_type_2_10_10_10_REV;
-		__extensionObjectTypes["EXT_unpack_subimage"] = EXT_unpack_subimage;
-		__extensionObjectTypes["FJ_shader_binary_GCCSO"] = FJ_shader_binary_GCCSO;
-		__extensionObjectTypes["IMG_multisampled_render_to_texture"] = IMG_multisampled_render_to_texture;
-		__extensionObjectTypes["IMG_program_binary"] = IMG_program_binary;
-		__extensionObjectTypes["IMG_read_format"] = IMG_read_format;
-		__extensionObjectTypes["IMG_shader_binary"] = IMG_shader_binary;
-		__extensionObjectTypes["IMG_texture_compression_pvrtc"] = IMG_texture_compression_pvrtc;
-		__extensionObjectTypes["KHR_debug"] = KHR_debug;
-		__extensionObjectTypes["KHR_texture_compression_astc_ldr"] = KHR_texture_compression_astc_ldr;
-		__extensionObjectTypes["NV_coverage_sample"] = NV_coverage_sample;
-		__extensionObjectTypes["NV_depth_nonlinear"] = NV_depth_nonlinear;
-		__extensionObjectTypes["NV_draw_buffers"] = NV_draw_buffers;
-		__extensionObjectTypes["NV_fbo_color_attachments"] = NV_fbo_color_attachments;
-		__extensionObjectTypes["NV_fence"] = NV_fence;
-		__extensionObjectTypes["NV_read_buffer"] = NV_read_buffer;
-		__extensionObjectTypes["NV_read_buffer_front"] = NV_read_buffer_front;
-		__extensionObjectTypes["NV_read_depth"] = NV_read_depth;
-		__extensionObjectTypes["NV_read_depth_stencil"] = NV_read_depth_stencil;
-		__extensionObjectTypes["NV_read_stencil"] = NV_read_stencil;
-		__extensionObjectTypes["NV_texture_compression_s3tc_update"] = NV_texture_compression_s3tc_update;
-		__extensionObjectTypes["NV_texture_npot_2D_mipmap"] = NV_texture_npot_2D_mipmap;
-		__extensionObjectTypes["OES_EGL_image"] = OES_EGL_image;
-		__extensionObjectTypes["OES_EGL_image_external"] = OES_EGL_image_external;
-		__extensionObjectTypes["OES_compressed_ETC1_RGB8_texture"] = OES_compressed_ETC1_RGB8_texture;
-		__extensionObjectTypes["OES_compressed_paletted_texture"] = OES_compressed_paletted_texture;
-		__extensionObjectTypes["OES_depth24"] = OES_depth24;
-		__extensionObjectTypes["OES_depth32"] = OES_depth32;
-		__extensionObjectTypes["OES_depth_texture"] = OES_depth_texture;
-		__extensionObjectTypes["OES_element_index_uint"] = OES_element_index_uint;
-		__extensionObjectTypes["OES_get_program_binary"] = OES_get_program_binary;
-		__extensionObjectTypes["OES_mapbuffer"] = OES_mapbuffer;
-		__extensionObjectTypes["OES_packed_depth_stencil"] = OES_packed_depth_stencil;
-		__extensionObjectTypes["OES_required_internalformat"] = OES_required_internalformat;
-		__extensionObjectTypes["OES_rgb8_rgba8"] = OES_rgb8_rgba8;
-		__extensionObjectTypes["OES_standard_derivatives"] = OES_standard_derivatives;
-		__extensionObjectTypes["OES_stencil1"] = OES_stencil1;
-		__extensionObjectTypes["OES_stencil4"] = OES_stencil4;
-		__extensionObjectTypes["OES_surfaceless_context"] = OES_surfaceless_context;
-		__extensionObjectTypes["OES_texture_3D"] = OES_texture_3D;
-		__extensionObjectTypes["OES_texture_float"] = OES_texture_float;
-		__extensionObjectTypes["OES_texture_float_linear"] = OES_texture_float_linear;
-		__extensionObjectTypes["OES_texture_half_float"] = OES_texture_half_float;
-		__extensionObjectTypes["OES_texture_half_float_linear"] = OES_texture_half_float_linear;
-		__extensionObjectTypes["OES_texture_npot"] = OES_texture_npot;
-		__extensionObjectTypes["OES_vertex_array_object"] = OES_vertex_array_object;
-		__extensionObjectTypes["OES_vertex_half_float"] = OES_vertex_half_float;
-		__extensionObjectTypes["OES_vertex_type_10_10_10_2"] = OES_vertex_type_10_10_10_2;
-		__extensionObjectTypes["QCOM_alpha_test"] = QCOM_alpha_test;
-		__extensionObjectTypes["QCOM_binning_control"] = QCOM_binning_control;
-		__extensionObjectTypes["QCOM_driver_control"] = QCOM_driver_control;
-		__extensionObjectTypes["QCOM_extended_get"] = QCOM_extended_get;
-		__extensionObjectTypes["QCOM_extended_get2"] = QCOM_extended_get2;
-		__extensionObjectTypes["QCOM_perfmon_global_mode"] = QCOM_perfmon_global_mode;
-		__extensionObjectTypes["QCOM_tiled_rendering"] = QCOM_tiled_rendering;
-		__extensionObjectTypes["QCOM_writeonly_rendering"] = QCOM_writeonly_rendering;
-		__extensionObjectTypes["VIV_shader_binary"] = VIV_shader_binary;
+		__initialize ();
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		var versionString:String = getParameter (VERSION);
@@ -831,9 +736,14 @@ class NativeGLRenderContext {
 	
 	public function attachShader (program:GLProgram, shader:GLShader):Void {
 		
+		if (program != null && shader != null && program.shaders.indexOf (shader) == -1) {
+			
+			program.shaders.push (shader);
+			
+		}
+		
 		#if (lime_cffi && lime_opengl && !macro)
-		program.attach (shader);
-		NativeCFFI.lime_gl_attach_shader (program.id, shader.id);
+		NativeCFFI.lime_gl_attach_shader (program, shader);
 		#end
 		
 	}
@@ -842,7 +752,7 @@ class NativeGLRenderContext {
 	public function bindAttribLocation (program:GLProgram, index:Int, name:String):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_bind_attrib_location (program.id, index, name);
+		NativeCFFI.lime_gl_bind_attrib_location (program, index, name);
 		#end
 		
 	}
@@ -854,7 +764,7 @@ class NativeGLRenderContext {
 		if (target == ELEMENT_ARRAY_BUFFER) __elementBufferBinding = buffer;
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_bind_buffer (target, buffer == null ? null : buffer.id);
+		NativeCFFI.lime_gl_bind_buffer (target, buffer);
 		#end
 		
 	}
@@ -865,7 +775,7 @@ class NativeGLRenderContext {
 		__framebufferBinding = framebuffer;
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_bind_framebuffer (target, framebuffer == null ? null : framebuffer.id);
+		NativeCFFI.lime_gl_bind_framebuffer (target, framebuffer);
 		#end
 		
 	}
@@ -876,7 +786,7 @@ class NativeGLRenderContext {
 		__renderbufferBinding = renderbuffer;
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_bind_renderbuffer (target, renderbuffer == null ? null : renderbuffer.id);
+		NativeCFFI.lime_gl_bind_renderbuffer (target, renderbuffer);
 		#end
 		
 	}
@@ -888,7 +798,7 @@ class NativeGLRenderContext {
 		if (target == TEXTURE_CUBE_MAP) __textureCubeMapBinding = texture;
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_bind_texture (target, texture == null ? null : texture.id);
+		NativeCFFI.lime_gl_bind_texture (target, texture);
 		#end
 		
 	}
@@ -1016,7 +926,7 @@ class NativeGLRenderContext {
 	public function compileShader (shader:GLShader):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_compile_shader (shader.id);
+		NativeCFFI.lime_gl_compile_shader (shader);
 		#end
 		
 	}
@@ -1061,7 +971,7 @@ class NativeGLRenderContext {
 	public function createBuffer ():GLBuffer {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return new GLBuffer (__contextID, NativeCFFI.lime_gl_create_buffer ());
+		return NativeCFFI.lime_gl_create_buffer ();
 		#else
 		return null;
 		#end
@@ -1072,7 +982,7 @@ class NativeGLRenderContext {
 	public function createFramebuffer ():GLFramebuffer {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return new GLFramebuffer (__contextID, NativeCFFI.lime_gl_create_framebuffer ());
+		return NativeCFFI.lime_gl_create_framebuffer ();
 		#else
 		return null;
 		#end
@@ -1083,7 +993,7 @@ class NativeGLRenderContext {
 	public function createProgram ():GLProgram {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return new GLProgram (__contextID, NativeCFFI.lime_gl_create_program ());
+		return NativeCFFI.lime_gl_create_program ();
 		#else
 		return null;
 		#end
@@ -1094,7 +1004,7 @@ class NativeGLRenderContext {
 	public function createRenderbuffer ():GLRenderbuffer {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return new GLRenderbuffer (__contextID, NativeCFFI.lime_gl_create_render_buffer ());
+		return NativeCFFI.lime_gl_create_renderbuffer ();
 		#else
 		return null;
 		#end
@@ -1105,7 +1015,7 @@ class NativeGLRenderContext {
 	public function createShader (type:Int):GLShader {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return new GLShader (__contextID, NativeCFFI.lime_gl_create_shader (type));
+		return NativeCFFI.lime_gl_create_shader (type);
 		#else
 		return null;
 		#end
@@ -1116,7 +1026,7 @@ class NativeGLRenderContext {
 	public function createTexture ():GLTexture {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return new GLTexture (__contextID, NativeCFFI.lime_gl_create_texture ());
+		return NativeCFFI.lime_gl_create_texture ();
 		#else
 		return null;
 		#end
@@ -1136,8 +1046,7 @@ class NativeGLRenderContext {
 	public function deleteBuffer (buffer:GLBuffer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_delete_buffer (buffer.id);
-		buffer.invalidate ();
+		NativeCFFI.lime_gl_delete_buffer (buffer);
 		#end
 		
 	}
@@ -1146,8 +1055,7 @@ class NativeGLRenderContext {
 	public function deleteFramebuffer (framebuffer:GLFramebuffer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_delete_framebuffer (framebuffer.id);
-		framebuffer.invalidate ();
+		NativeCFFI.lime_gl_delete_framebuffer (framebuffer);
 		#end
 		
 	}
@@ -1156,8 +1064,7 @@ class NativeGLRenderContext {
 	public function deleteProgram (program:GLProgram):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_delete_program (program.id);
-		program.invalidate ();
+		NativeCFFI.lime_gl_delete_program (program);
 		#end
 		
 	}
@@ -1166,8 +1073,7 @@ class NativeGLRenderContext {
 	public function deleteRenderbuffer (renderbuffer:GLRenderbuffer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_delete_render_buffer (renderbuffer.id);
-		renderbuffer.invalidate ();
+		NativeCFFI.lime_gl_delete_renderbuffer (renderbuffer);
 		#end
 		
 	}
@@ -1176,8 +1082,7 @@ class NativeGLRenderContext {
 	public function deleteShader (shader:GLShader):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_delete_shader (shader.id);
-		shader.invalidate ();
+		NativeCFFI.lime_gl_delete_shader (shader);
 		#end
 		
 	}
@@ -1186,8 +1091,7 @@ class NativeGLRenderContext {
 	public function deleteTexture (texture:GLTexture):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_delete_texture (texture.id);
-		texture.invalidate ();
+		NativeCFFI.lime_gl_delete_texture (texture);
 		#end
 		
 	}
@@ -1222,8 +1126,14 @@ class NativeGLRenderContext {
 	
 	public function detachShader (program:GLProgram, shader:GLShader):Void {
 		
+		if (program != null) {
+			
+			program.shaders.remove (shader);
+			
+		}
+		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_detach_shader (program.id, shader.id);
+		NativeCFFI.lime_gl_detach_shader (program, shader);
 		#end
 		
 	}
@@ -1304,7 +1214,7 @@ class NativeGLRenderContext {
 	public function framebufferRenderbuffer (target:Int, attachment:Int, renderbuffertarget:Int, renderbuffer:GLRenderbuffer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_framebuffer_renderbuffer (target, attachment, renderbuffertarget, renderbuffer.id);
+		NativeCFFI.lime_gl_framebuffer_renderbuffer (target, attachment, renderbuffertarget, renderbuffer);
 		#end
 		
 	}
@@ -1313,7 +1223,7 @@ class NativeGLRenderContext {
 	public function framebufferTexture2D (target:Int, attachment:Int, textarget:Int, texture:GLTexture, level:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_framebuffer_texture2D (target, attachment, textarget, texture.id, level);
+		NativeCFFI.lime_gl_framebuffer_texture2D (target, attachment, textarget, texture, level);
 		#end
 		
 	}
@@ -1340,7 +1250,7 @@ class NativeGLRenderContext {
 	public function getActiveAttrib (program:GLProgram, index:Int):GLActiveInfo {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		var result:Dynamic = NativeCFFI.lime_gl_get_active_attrib (program.id, index);
+		var result:Dynamic = NativeCFFI.lime_gl_get_active_attrib (program, index);
 		return result;
 		#else
 		return null;
@@ -1352,7 +1262,7 @@ class NativeGLRenderContext {
 	public function getActiveUniform (program:GLProgram, index:Int):GLActiveInfo {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		var result:Dynamic = NativeCFFI.lime_gl_get_active_uniform (program.id, index);
+		var result:Dynamic = NativeCFFI.lime_gl_get_active_uniform (program, index);
 		return result;
 		#else
 		return null;
@@ -1363,11 +1273,13 @@ class NativeGLRenderContext {
 	
 	public function getAttachedShaders (program:GLProgram):Array<GLShader> {
 		
-		#if (lime_cffi && lime_opengl && !macro)
-		return program.getShaders ();
-		#else
-		return null;
-		#end
+		return program.shaders;
+		
+		//#if (lime_cffi && lime_opengl && !macro)
+		//return program.__attachedShaders;
+		//#else
+		//return null;
+		//#end
 		
 	}
 	
@@ -1375,7 +1287,7 @@ class NativeGLRenderContext {
 	public function getAttribLocation (program:GLProgram, name:String):Int {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_attrib_location (program.id, name);
+		return NativeCFFI.lime_gl_get_attrib_location (program, name);
 		#else
 		return 0;
 		#end
@@ -1609,7 +1521,7 @@ class NativeGLRenderContext {
 	public function getProgramInfoLog (program:GLProgram):String {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_program_info_log (program.id);
+		return NativeCFFI.lime_gl_get_program_info_log (program);
 		#else
 		return null;
 		#end
@@ -1620,7 +1532,7 @@ class NativeGLRenderContext {
 	public function getProgramParameter (program:GLProgram, pname:Int):Dynamic {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_program_parameter (program.id, pname);
+		return NativeCFFI.lime_gl_get_program_parameter (program, pname);
 		#else
 		return 0;
 		#end
@@ -1631,7 +1543,7 @@ class NativeGLRenderContext {
 	public function getRenderbufferParameter (target:Int, pname:Int):Dynamic {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_render_buffer_parameter (target, pname);
+		return NativeCFFI.lime_gl_get_renderbuffer_parameter (target, pname);
 		#else
 		return 0;
 		#end
@@ -1642,7 +1554,7 @@ class NativeGLRenderContext {
 	public function getShaderInfoLog (shader:GLShader):String {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_shader_info_log (shader.id);
+		return NativeCFFI.lime_gl_get_shader_info_log (shader);
 		#else
 		return null;
 		#end
@@ -1653,7 +1565,7 @@ class NativeGLRenderContext {
 	public function getShaderParameter (shader:GLShader, pname:Int):Dynamic {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_shader_parameter (shader.id, pname);
+		return NativeCFFI.lime_gl_get_shader_parameter (shader, pname);
 		#else
 		return 0;
 		#end
@@ -1676,7 +1588,7 @@ class NativeGLRenderContext {
 	public function getShaderSource (shader:GLShader):String {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_shader_source (shader.id);
+		return NativeCFFI.lime_gl_get_shader_source (shader);
 		#else
 		return null;
 		#end
@@ -1736,7 +1648,7 @@ class NativeGLRenderContext {
 	public function getUniform (program:GLProgram, location:GLUniformLocation):Dynamic {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_uniform (program.id, location);
+		return NativeCFFI.lime_gl_get_uniform (program, location);
 		#else
 		return null;
 		#end
@@ -1747,7 +1659,7 @@ class NativeGLRenderContext {
 	public function getUniformLocation (program:GLProgram, name:String):GLUniformLocation {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_uniform_location (program.id, name);
+		return NativeCFFI.lime_gl_get_uniform_location (program, name);
 		#else
 		return 0;
 		#end
@@ -1789,7 +1701,7 @@ class NativeGLRenderContext {
 	public function isBuffer (buffer:GLBuffer):Bool {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return buffer != null && buffer.id > 0 && NativeCFFI.lime_gl_is_buffer (buffer.id);
+		return NativeCFFI.lime_gl_is_buffer (buffer);
 		#else
 		return false;
 		#end
@@ -1818,7 +1730,7 @@ class NativeGLRenderContext {
 	public function isFramebuffer (framebuffer:GLFramebuffer):Bool {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return framebuffer != null && framebuffer.id > 0 && NativeCFFI.lime_gl_is_framebuffer (framebuffer.id);
+		return NativeCFFI.lime_gl_is_framebuffer (framebuffer);
 		#else
 		return false;
 		#end
@@ -1829,7 +1741,7 @@ class NativeGLRenderContext {
 	public function isProgram (program:GLProgram):Bool {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return program != null && program.id > 0 && NativeCFFI.lime_gl_is_program (program.id);
+		return NativeCFFI.lime_gl_is_program (program);
 		#else
 		return false;
 		#end
@@ -1840,7 +1752,7 @@ class NativeGLRenderContext {
 	public function isRenderbuffer (renderbuffer:GLRenderbuffer):Bool {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return renderbuffer != null && renderbuffer.id > 0 && NativeCFFI.lime_gl_is_renderbuffer (renderbuffer.id);
+		return NativeCFFI.lime_gl_is_renderbuffer (renderbuffer);
 		#else
 		return false;
 		#end
@@ -1851,7 +1763,7 @@ class NativeGLRenderContext {
 	public function isShader (shader:GLShader):Bool {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return shader != null && shader.id > 0 && NativeCFFI.lime_gl_is_shader (shader.id);
+		return NativeCFFI.lime_gl_is_shader (shader);
 		#else
 		return false;
 		#end
@@ -1862,7 +1774,7 @@ class NativeGLRenderContext {
 	public function isTexture (texture:GLTexture):Bool {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return texture != null && texture.id > 0 && NativeCFFI.lime_gl_is_texture (texture.id);
+		return NativeCFFI.lime_gl_is_texture (texture);
 		#else
 		return false;
 		#end
@@ -1882,7 +1794,7 @@ class NativeGLRenderContext {
 	public function linkProgram (program:GLProgram):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_link_program (program.id);
+		NativeCFFI.lime_gl_link_program (program);
 		#end
 		
 	}
@@ -1945,7 +1857,7 @@ class NativeGLRenderContext {
 	public function shaderSource (shader:GLShader, source:String):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_shader_source (shader.id, source);
+		NativeCFFI.lime_gl_shader_source (shader, source);
 		#end
 		
 	}
@@ -2239,7 +2151,7 @@ class NativeGLRenderContext {
 		__currentProgram = program;
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_use_program (program == null ? null : program.id);
+		NativeCFFI.lime_gl_use_program (program);
 		#end
 		
 	}
@@ -2248,7 +2160,7 @@ class NativeGLRenderContext {
 	public function validateProgram (program:GLProgram):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_validate_program (program.id);
+		NativeCFFI.lime_gl_validate_program (program);
 		#end
 		
 	}
@@ -2365,5 +2277,151 @@ class NativeGLRenderContext {
 		
 	}
 	
+	
+	private function __initialize ():Void {
+		
+		if (!__initialized) {
+			
+			__extensionObjectTypes["AMD_compressed_3DC_texture"] = AMD_compressed_3DC_texture;
+			__extensionObjectTypes["AMD_compressed_ATC_texture"] = AMD_compressed_ATC_texture;
+			__extensionObjectTypes["AMD_performance_monitor"] = AMD_performance_monitor;
+			__extensionObjectTypes["AMD_program_binary_Z400"] = AMD_program_binary_Z400;
+			__extensionObjectTypes["ANGLE_framebuffer_blit"] = ANGLE_framebuffer_blit;
+			__extensionObjectTypes["ANGLE_framebuffer_multisample"] = ANGLE_framebuffer_multisample;
+			__extensionObjectTypes["ANGLE_instanced_arrays"] = ANGLE_instanced_arrays;
+			__extensionObjectTypes["ANGLE_pack_reverse_row_order"] = ANGLE_pack_reverse_row_order;
+			__extensionObjectTypes["ANGLE_texture_compression_dxt3"] = ANGLE_texture_compression_dxt3;
+			__extensionObjectTypes["ANGLE_texture_compression_dxt5"] = ANGLE_texture_compression_dxt5;
+			__extensionObjectTypes["ANGLE_texture_usage"] = ANGLE_texture_usage;
+			__extensionObjectTypes["ANGLE_translated_shader_source"] = ANGLE_translated_shader_source;
+			__extensionObjectTypes["APPLE_copy_texture_levels"] = APPLE_copy_texture_levels;
+			__extensionObjectTypes["APPLE_framebuffer_multisample"] = APPLE_framebuffer_multisample;
+			__extensionObjectTypes["APPLE_rgb_422"] = APPLE_rgb_422;
+			__extensionObjectTypes["APPLE_sync"] = APPLE_sync;
+			__extensionObjectTypes["APPLE_texture_format_BGRA8888"] = APPLE_texture_format_BGRA8888;
+			__extensionObjectTypes["APPLE_texture_max_level"] = APPLE_texture_max_level;
+			__extensionObjectTypes["ARM_mali_program_binary"] = ARM_mali_program_binary;
+			__extensionObjectTypes["ARM_mali_shader_binary"] = ARM_mali_shader_binary;
+			__extensionObjectTypes["ARM_rgba8"] = ARM_rgba8;
+			__extensionObjectTypes["DMP_shader_binary"] = DMP_shader_binary;
+			__extensionObjectTypes["EXT_bgra"] = EXT_bgra;
+			__extensionObjectTypes["EXT_blend_minmax"] = EXT_blend_minmax;
+			__extensionObjectTypes["EXT_color_buffer_float"] = EXT_color_buffer_float;
+			__extensionObjectTypes["EXT_color_buffer_half_float"] = EXT_color_buffer_half_float;
+			__extensionObjectTypes["EXT_debug_label"] = EXT_debug_label;
+			__extensionObjectTypes["EXT_debug_marker"] = EXT_debug_marker;
+			__extensionObjectTypes["EXT_discard_framebuffer"] = EXT_discard_framebuffer;
+			__extensionObjectTypes["EXT_map_buffer_range"] = EXT_map_buffer_range;
+			__extensionObjectTypes["EXT_multi_draw_arrays"] = EXT_multi_draw_arrays;
+			__extensionObjectTypes["EXT_multisampled_render_to_texture"] = EXT_multisampled_render_to_texture;
+			__extensionObjectTypes["EXT_multiview_draw_buffers"] = EXT_multiview_draw_buffers;
+			__extensionObjectTypes["EXT_occlusion_query_boolean"] = EXT_occlusion_query_boolean;
+			__extensionObjectTypes["EXT_read_format_bgra"] = EXT_read_format_bgra;
+			__extensionObjectTypes["EXT_robustness"] = EXT_robustness;
+			__extensionObjectTypes["EXT_sRGB"] = EXT_sRGB;
+			__extensionObjectTypes["EXT_separate_shader_objects"] = EXT_separate_shader_objects;
+			__extensionObjectTypes["EXT_shader_framebuffer_fetch"] = EXT_shader_framebuffer_fetch;
+			__extensionObjectTypes["EXT_shader_texture_lod"] = EXT_shader_texture_lod;
+			__extensionObjectTypes["EXT_shadow_samplers"] = EXT_shadow_samplers;
+			__extensionObjectTypes["EXT_texture_compression_dxt1"] = EXT_texture_compression_dxt1;
+			__extensionObjectTypes["EXT_texture_filter_anisotropic"] = EXT_texture_filter_anisotropic;
+			__extensionObjectTypes["EXT_texture_format_BGRA8888"] = EXT_texture_format_BGRA8888;
+			__extensionObjectTypes["EXT_texture_rg"] = EXT_texture_rg;
+			__extensionObjectTypes["EXT_texture_storage"] = EXT_texture_storage;
+			__extensionObjectTypes["EXT_texture_type_2_10_10_10_REV"] = EXT_texture_type_2_10_10_10_REV;
+			__extensionObjectTypes["EXT_unpack_subimage"] = EXT_unpack_subimage;
+			__extensionObjectTypes["FJ_shader_binary_GCCSO"] = FJ_shader_binary_GCCSO;
+			__extensionObjectTypes["IMG_multisampled_render_to_texture"] = IMG_multisampled_render_to_texture;
+			__extensionObjectTypes["IMG_program_binary"] = IMG_program_binary;
+			__extensionObjectTypes["IMG_read_format"] = IMG_read_format;
+			__extensionObjectTypes["IMG_shader_binary"] = IMG_shader_binary;
+			__extensionObjectTypes["IMG_texture_compression_pvrtc"] = IMG_texture_compression_pvrtc;
+			__extensionObjectTypes["KHR_debug"] = KHR_debug;
+			__extensionObjectTypes["KHR_texture_compression_astc_ldr"] = KHR_texture_compression_astc_ldr;
+			__extensionObjectTypes["NV_coverage_sample"] = NV_coverage_sample;
+			__extensionObjectTypes["NV_depth_nonlinear"] = NV_depth_nonlinear;
+			__extensionObjectTypes["NV_draw_buffers"] = NV_draw_buffers;
+			__extensionObjectTypes["NV_fbo_color_attachments"] = NV_fbo_color_attachments;
+			__extensionObjectTypes["NV_fence"] = NV_fence;
+			__extensionObjectTypes["NV_read_buffer"] = NV_read_buffer;
+			__extensionObjectTypes["NV_read_buffer_front"] = NV_read_buffer_front;
+			__extensionObjectTypes["NV_read_depth"] = NV_read_depth;
+			__extensionObjectTypes["NV_read_depth_stencil"] = NV_read_depth_stencil;
+			__extensionObjectTypes["NV_read_stencil"] = NV_read_stencil;
+			__extensionObjectTypes["NV_texture_compression_s3tc_update"] = NV_texture_compression_s3tc_update;
+			__extensionObjectTypes["NV_texture_npot_2D_mipmap"] = NV_texture_npot_2D_mipmap;
+			__extensionObjectTypes["OES_EGL_image"] = OES_EGL_image;
+			__extensionObjectTypes["OES_EGL_image_external"] = OES_EGL_image_external;
+			__extensionObjectTypes["OES_compressed_ETC1_RGB8_texture"] = OES_compressed_ETC1_RGB8_texture;
+			__extensionObjectTypes["OES_compressed_paletted_texture"] = OES_compressed_paletted_texture;
+			__extensionObjectTypes["OES_depth24"] = OES_depth24;
+			__extensionObjectTypes["OES_depth32"] = OES_depth32;
+			__extensionObjectTypes["OES_depth_texture"] = OES_depth_texture;
+			__extensionObjectTypes["OES_element_index_uint"] = OES_element_index_uint;
+			__extensionObjectTypes["OES_get_program_binary"] = OES_get_program_binary;
+			__extensionObjectTypes["OES_mapbuffer"] = OES_mapbuffer;
+			__extensionObjectTypes["OES_packed_depth_stencil"] = OES_packed_depth_stencil;
+			__extensionObjectTypes["OES_required_internalformat"] = OES_required_internalformat;
+			__extensionObjectTypes["OES_rgb8_rgba8"] = OES_rgb8_rgba8;
+			__extensionObjectTypes["OES_standard_derivatives"] = OES_standard_derivatives;
+			__extensionObjectTypes["OES_stencil1"] = OES_stencil1;
+			__extensionObjectTypes["OES_stencil4"] = OES_stencil4;
+			__extensionObjectTypes["OES_surfaceless_context"] = OES_surfaceless_context;
+			__extensionObjectTypes["OES_texture_3D"] = OES_texture_3D;
+			__extensionObjectTypes["OES_texture_float"] = OES_texture_float;
+			__extensionObjectTypes["OES_texture_float_linear"] = OES_texture_float_linear;
+			__extensionObjectTypes["OES_texture_half_float"] = OES_texture_half_float;
+			__extensionObjectTypes["OES_texture_half_float_linear"] = OES_texture_half_float_linear;
+			__extensionObjectTypes["OES_texture_npot"] = OES_texture_npot;
+			__extensionObjectTypes["OES_vertex_array_object"] = OES_vertex_array_object;
+			__extensionObjectTypes["OES_vertex_half_float"] = OES_vertex_half_float;
+			__extensionObjectTypes["OES_vertex_type_10_10_10_2"] = OES_vertex_type_10_10_10_2;
+			__extensionObjectTypes["QCOM_alpha_test"] = QCOM_alpha_test;
+			__extensionObjectTypes["QCOM_binning_control"] = QCOM_binning_control;
+			__extensionObjectTypes["QCOM_driver_control"] = QCOM_driver_control;
+			__extensionObjectTypes["QCOM_extended_get"] = QCOM_extended_get;
+			__extensionObjectTypes["QCOM_extended_get2"] = QCOM_extended_get2;
+			__extensionObjectTypes["QCOM_perfmon_global_mode"] = QCOM_perfmon_global_mode;
+			__extensionObjectTypes["QCOM_tiled_rendering"] = QCOM_tiled_rendering;
+			__extensionObjectTypes["QCOM_writeonly_rendering"] = QCOM_writeonly_rendering;
+			__extensionObjectTypes["VIV_shader_binary"] = VIV_shader_binary;
+			
+			#if (lime_cffi && lime_opengl && !macro)
+			NativeCFFI.lime_gl_object_constructor (GLObjectType.PROGRAM, function (id) return new GLProgram (id));
+			NativeCFFI.lime_gl_object_constructor (GLObjectType.SHADER, function (id) return new GLShader (id));
+			NativeCFFI.lime_gl_object_constructor (GLObjectType.BUFFER, function (id) return new GLBuffer (id));
+			NativeCFFI.lime_gl_object_constructor (GLObjectType.TEXTURE, function (id) return new GLTexture (id));
+			NativeCFFI.lime_gl_object_constructor (GLObjectType.FRAMEBUFFER, function (id) return new GLFramebuffer (id));
+			NativeCFFI.lime_gl_object_constructor (GLObjectType.RENDERBUFFER, function (id) return new GLRenderbuffer (id));
+			NativeCFFI.lime_gl_object_constructor (GLObjectType.VERTEX_ARRAY_OBJECT, function (id) return new GLVertexArrayObject (id));
+			NativeCFFI.lime_gl_object_constructor (GLObjectType.QUERY, function (id) return new GLQuery (id));
+			NativeCFFI.lime_gl_object_constructor (GLObjectType.SAMPLER, function (id) return new GLSampler (id));
+			NativeCFFI.lime_gl_object_constructor (GLObjectType.SYNC, function (id) return new GLSync (id));
+			NativeCFFI.lime_gl_object_constructor (GLObjectType.TRANSFORM_FEEDBACK, function (id) return new GLTransformFeedback (id));
+			#end
+			
+		}
+		
+		__initialized = true;
+		
+	}
+	
+	
+}
+
+
+@:enum private abstract GLObjectType(Int) to Int {
+	
+	var PROGRAM = 0;
+	var SHADER = 1;
+	var BUFFER = 2;
+	var TEXTURE = 3;
+	var FRAMEBUFFER = 4;
+	var RENDERBUFFER = 5;
+	var VERTEX_ARRAY_OBJECT = 6;
+	var QUERY = 7;
+	var SAMPLER = 8;
+	var SYNC = 9;
+	var TRANSFORM_FEEDBACK = 10;
 	
 }

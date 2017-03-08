@@ -7,19 +7,15 @@ package lime.graphics.opengl; #if (!js || !html5 || display)
 #end
 
 
-class GLShader extends GLObject {
+class GLShader {
 	
 	
-	private override function getType ():String {
+	private var id:Int;
+	
+	
+	private function new (id:Int) {
 		
-		return "Shader";
-		
-	}
-	
-	
-	public override function isValid ():Bool {
-		
-		return id != 0 && id != null && version == GL.version;
+		this.id = id;
 		
 	}
 	

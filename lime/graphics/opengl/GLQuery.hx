@@ -7,16 +7,19 @@ package lime.graphics.opengl; #if (!js || !html5 || display)
 #end
 
 
-class GLQuery extends GLObject {
+class GLQuery {
 	
 	
-	private override function getType ():String {
+	private var id:Int;
+	
+	
+	private function new (id:Int) {
 		
-		return "Query";
+		this.id = id;
 		
 	}
-    
-    
+	
+	
 }
 
 

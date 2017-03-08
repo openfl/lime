@@ -17,6 +17,7 @@ namespace lime {
 	
 	
 	value CFFIPointer (void* ptr, hx::finalizer finalizer = 0);
+	value CFFIPointer (value handle, hx::finalizer finalizer = 0);
 	
 	
 }

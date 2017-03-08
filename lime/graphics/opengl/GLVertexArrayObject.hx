@@ -7,16 +7,19 @@ package lime.graphics.opengl; #if (!js || !html5 || display)
 #end
 
 
-class GLVertexArrayObject extends GLObject {
+class GLVertexArrayObject {
 	
 	
-	private override function getType ():String {
+	private var id:Int;
+	
+	
+	private function new (id:Int) {
 		
-		return "VertexArrayObject";
+		this.id = id;
 		
 	}
-    
-    
+	
+	
 }
 
 

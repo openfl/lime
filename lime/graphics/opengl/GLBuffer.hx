@@ -7,12 +7,15 @@ package lime.graphics.opengl; #if (!js || !html5 || display)
 #end
 
 
-class GLBuffer extends GLObject {
+class GLBuffer {
 	
 	
-	private override function getType ():String {
+	private var id:Int;
+	
+	
+	private function new (id:Int) {
 		
-		return "Buffer";
+		this.id = id;
 		
 	}
 	

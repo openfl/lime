@@ -7,37 +7,17 @@ package lime.graphics.opengl; #if (!js || !html5 || display)
 #end
 
 
-class GLProgram extends GLObject {
+class GLProgram {
 	
 	
-	public var shaders:Array<GLShader>;
+	private var id:Int;
+	private var shaders:Array<GLShader>;
 	
 	
-	public function new (version:Int, id:Dynamic) {
+	private function new (id:Int) {
 		
-		super (version, id);
-		shaders = new Array<GLShader> ();
-		
-	}
-	
-	
-	public function attach (shader:GLShader):Void {
-		
-		shaders.push (shader);
-		
-	}
-	
-	
-	public function getShaders ():Array<GLShader> {
-		
-		return shaders.copy ();
-		
-	}
-	
-	
-	private override function getType ():String {
-		
-		return "Program";
+		this.id = id;
+		shaders = [];
 		
 	}
 	
