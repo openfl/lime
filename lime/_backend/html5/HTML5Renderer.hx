@@ -75,7 +75,7 @@ class HTML5Renderer {
 					
 				};
 				
-				for (name in [ "webgl2", "webgl", "experimental-webgl" ]) {
+				for (name in [ #if !webgl1 "webgl2", #end "webgl", "experimental-webgl" ]) {
 					
 					webgl = cast parent.window.backend.canvas.getContext (name, options);
 					if (webgl != null) break;
