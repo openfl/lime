@@ -4,6 +4,7 @@ package lime._backend.html5;
 import haxe.io.Bytes;
 import js.html.webgl.RenderingContext in WebGLRenderingContext;
 import js.html.CanvasElement;
+import js.Browser;
 import lime.graphics.opengl.*;
 import lime.utils.ArrayBuffer;
 import lime.utils.ArrayBufferView;
@@ -673,11 +674,11 @@ class HTML5GLRenderContext {
 				
 				gl = Reflect.field (context, "rawgl");
 				
-				if (Std.is (gl, WebGL2RenderingContext)) {
-					
-					version = 2;
-					
-				}
+			}
+			
+			if (Reflect.hasField (Browser.window, "WebGL2RenderingContext") && Std.is (gl, WebGL2RenderingContext)) {
+				
+				version = 2;
 				
 			}
 			
@@ -836,7 +837,7 @@ class HTML5GLRenderContext {
 			
 			srcData = __prepareData (size, srcData);
 			
-			if (version > 1) {
+			if (version > 1 && srcOffset != null) {
 				
 				__context.bufferData (target, srcData, usage, srcOffset, length);
 				
@@ -848,7 +849,7 @@ class HTML5GLRenderContext {
 			
 		} else {
 			
-			if (version > 1) {
+			if (version > 1 && usage != null) {
 				
 				__context.bufferData (target, size, srcData, usage, srcOffset); // target, srcData, usage, srcOffset, length
 				
@@ -872,7 +873,7 @@ class HTML5GLRenderContext {
 			
 			srcData = __prepareData (size, srcData);
 			
-			if (version > 1) {
+			if (version > 1 && srcOffset != null) {
 				
 				__context.bufferSubData (target, dstByteOffset, srcData, srcOffset, length);
 				
@@ -884,13 +885,13 @@ class HTML5GLRenderContext {
 			
 		} else {
 			
-			if (version > 1) {
+			if (version > 1 && srcData != null) {
 				
 				__context.bufferSubData (target, dstByteOffset, size, srcData, srcOffset); // target, dstByteOffset, srcData, srcOffset, length
 				
 			} else {
 				
-				__context.bufferSubData (target, dstByteOffset, srcData); // target, dstByteOffset, srcData
+				__context.bufferSubData (target, dstByteOffset, size); // target, dstByteOffset, srcData
 				
 			}
 			
@@ -993,7 +994,7 @@ class HTML5GLRenderContext {
 		
 		if (Std.is (imageSize, Int)) {
 			
-			if (version > 1) {
+			if (version > 1 && srcOffset != null) {
 				
 				__context.compressedTexImage2D (target, level, internalformat, width, height, border, srcData, srcOffset, srcLengthOverride);
 				
@@ -1005,7 +1006,7 @@ class HTML5GLRenderContext {
 			
 		} else {
 			
-			if (version > 1) {
+			if (version > 1 && srcData != null) {
 				
 				__context.compressedTexImage2D (target, level, internalformat, width, height, border, imageSize, srcData, srcOffset); // target, level, internalformat, width, height, border, srcData, srcOffset, srcLengthOverride
 				
@@ -1039,7 +1040,7 @@ class HTML5GLRenderContext {
 		
 		if (Std.is (imageSize, Int)) {
 			
-			if (version > 1) {
+			if (version > 1 && srcOffset != null) {
 				
 				__context.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, srcData, srcOffset, srcLengthOverride);
 				
@@ -1051,7 +1052,7 @@ class HTML5GLRenderContext {
 			
 		} else {
 			
-			if (version > 1) {
+			if (version > 1 && srcData != null) {
 				
 				__context.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, imageSize, srcData, srcOffset); // target, level, xoffset, yoffset, width, height, format, srcData, srcOffset, srcLengthOverride
 				
@@ -1908,7 +1909,7 @@ class HTML5GLRenderContext {
 		if (pixels == null) return;
 		if (Std.is (pixels, ArrayBuffer)) pixels = new UInt8Array (pixels);
 		
-		if (version > 1) {
+		if (version > 1 && dstOffset != null) {
 			
 			__context.readPixels (x, y, width, height, format, type, pixels, dstOffset);
 			
@@ -2034,35 +2035,20 @@ class HTML5GLRenderContext {
 	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int):Void {
 	public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Dynamic, ?format:Int, ?type:Int, ?srcData:Dynamic, ?srcOffset:Int):Void {
 		
-		if (version > 1) {
+		if (format == null) {
 			
-			if (format == null) {
-				
-				var format:Int = width;
-				var type:Int = height;
-				var element:Dynamic = border;
-				
-				__context.texImage2D (target, level, internalformat, element.width, element.height, 0, format, type, element);
-				
-			} else {
-				
-				srcData = __prepareData (null, srcData);
-				if (srcData != null && Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
-				
-				__context.texImage2D (target, level, internalformat, width, height, border, format, type, srcData, srcOffset);
-				
-			}
+			__context.texImage2D (target, level, internalformat, width, height, border); // target, level, internalformat, format, type, pixels
 			
 		} else {
 			
-			if (format == null) {
+			srcData = __prepareData (null, srcData);
+			if (srcData != null && Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
+			
+			if (version > 1 && srcOffset != null) {
 				
-				__context.texImage2D (target, level, internalformat, width, height, border); // target, level, internalformat, format, type, pixels
+				__context.texImage2D (target, level, internalformat, width, height, border, format, type, srcData, srcOffset);
 				
 			} else {
-				
-				srcData = __prepareData (null, srcData);
-				if (srcData != null && Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
 				
 				__context.texImage2D (target, level, internalformat, width, height, border, format, type, srcData);
 				
@@ -2129,31 +2115,20 @@ class HTML5GLRenderContext {
 	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int):Void {
 	public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Dynamic, ?type:Int, ?srcData:Dynamic, ?srcOffset:Int):Void {
 		
-		if (version > 1) {
+		if (type == null) {
 			
-			if (type == null) {
-				
-				__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format); // target, level, xoffset, yoffset, format, type, pixels
-				
-			} else {
-				
-				srcData = __prepareData (null, srcData);
-				if (srcData != null && Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
-				
-				__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, srcData, srcOffset);
-				
-			}
+			__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format); // target, level, xoffset, yoffset, format, type, pixels
 			
 		} else {
 			
-			if (type == null) {
+			srcData = __prepareData (null, srcData);
+			if (srcData != null && Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
+			
+			if (version > 1 && srcOffset != null) {
 				
-				__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format); // target, level, xoffset, yoffset, format, type, pixels
+				__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, srcData, srcOffset);
 				
 			} else {
-				
-				srcData = __prepareData (null, srcData);
-				if (srcData != null && Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
 				
 				__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, srcData);
 				
@@ -2193,7 +2168,7 @@ class HTML5GLRenderContext {
 	
 	public function uniform1fv (location:GLUniformLocation, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		if (version > 1) {
+		if (version > 1 && srcOffset != null) {
 			
 			__context.uniform1fv (location, data, srcOffset, srcLength);
 			
@@ -2215,7 +2190,7 @@ class HTML5GLRenderContext {
 	
 	public function uniform1iv (location:GLUniformLocation, data:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		if (version > 1) {
+		if (version > 1 && srcOffset != null) {
 			
 			__context.uniform1iv (location, data, srcOffset, srcLength);
 			
@@ -2251,7 +2226,7 @@ class HTML5GLRenderContext {
 	
 	public function uniform2fv (location:GLUniformLocation, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		if (version > 1) {
+		if (version > 1 && srcOffset != null) {
 			
 			__context.uniform2fv (location, data, srcOffset, srcLength);
 			
@@ -2273,7 +2248,7 @@ class HTML5GLRenderContext {
 	
 	public function uniform2iv (location:GLUniformLocation, data:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		if (version > 1) {
+		if (version > 1 && srcOffset != null) {
 			
 			__context.uniform2iv (location, data, srcOffset, srcLength);
 			
@@ -2309,7 +2284,7 @@ class HTML5GLRenderContext {
 	
 	public function uniform3fv (location:GLUniformLocation, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		if (version > 1) {
+		if (version > 1 && srcOffset != null) {
 			
 			__context.uniform3fv (location, data, srcOffset, srcLength);
 			
@@ -2331,7 +2306,7 @@ class HTML5GLRenderContext {
 	
 	public function uniform3iv (location:GLUniformLocation, data:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		if (version > 1) {
+		if (version > 1 && srcOffset != null) {
 			
 			__context.uniform3iv (location, data, srcOffset, srcLength);
 			
@@ -2367,7 +2342,7 @@ class HTML5GLRenderContext {
 	
 	public function uniform4fv (location:GLUniformLocation, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		if (version > 1) {
+		if (version > 1 && srcOffset != null) {
 			
 			__context.uniform4fv (location, data, srcOffset, srcLength);
 			
@@ -2389,7 +2364,7 @@ class HTML5GLRenderContext {
 	
 	public function uniform4iv (location:GLUniformLocation, data:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		if (version > 1) {
+		if (version > 1 && srcOffset != null) {
 			
 			__context.uniform4iv (location, data, srcOffset, srcLength);
 			
@@ -2425,7 +2400,7 @@ class HTML5GLRenderContext {
 	
 	public function uniformMatrix2fv (location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		if (version > 1) {
+		if (version > 1 && srcOffset != null) {
 			
 			__context.uniformMatrix2fv (location, transpose, data, srcOffset, srcLength);
 			
@@ -2455,7 +2430,7 @@ class HTML5GLRenderContext {
 	
 	public function uniformMatrix3fv (location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		if (version > 1) {
+		if (version > 1 && srcOffset != null) {
 			
 			__context.uniformMatrix3fv (location, transpose, data, srcOffset, srcLength);
 			
@@ -2484,7 +2459,7 @@ class HTML5GLRenderContext {
 	
 	public function uniformMatrix4fv (location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		if (version > 1) {
+		if (version > 1 && srcOffset != null) {
 			
 			__context.uniformMatrix4fv (location, transpose, data, srcOffset, srcLength);
 			
