@@ -212,7 +212,6 @@ class AssetLibrary {
 			#if flash
 			
 			var data = Type.createInstance (classTypes.get (id), []);
-			var bytes:flash.utils.ByteArray = cast data;
 			
 			switch (types.get (id)) {
 				
