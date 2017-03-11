@@ -1,21 +1,15 @@
 package lime.graphics.opengl; #if (!js || !html5 || display)
 
 
-#if !lime_debug
-@:fileXml('tags="haxe,release"')
-@:noDebug
-#end
+import lime.graphics.opengl.GL;
 
 
-class GLTransformFeedback {
+abstract GLTransformFeedback(GLObject) from GLObject to GLObject {
 	
 	
-	private var id:Int;
-	
-	
-	private function new (id:Int) {
+	@:from private static function fromInt (id:Int):GLTransformFeedback {
 		
-		this.id = id;
+		return GLObject.fromInt (TRANSFORM_FEEDBACK, id);
 		
 	}
 	
@@ -24,16 +18,6 @@ class GLTransformFeedback {
 
 
 #else
-
-
 @:native("WebGLTransformFeedback")
-extern class GLTransformFeedback {
-	
-	
-	
-	
-	
-}
-
-
+extern class GLTransformFeedback {}
 #end

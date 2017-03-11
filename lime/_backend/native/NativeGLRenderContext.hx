@@ -1,6 +1,8 @@
 package lime._backend.native;
 
 
+import haxe.Int64;
+import haxe.io.Bytes;
 import lime.graphics.opengl.GLQuery;
 import lime.graphics.opengl.GLSampler;
 import lime.graphics.opengl.GLSync;
@@ -25,6 +27,7 @@ import lime.utils.ArrayBufferView;
 import lime.utils.DataPointer;
 import lime.utils.Float32Array;
 import lime.utils.Int32Array;
+import lime.utils.UInt32Array;
 
 
 #if !lime_debug
@@ -736,15 +739,37 @@ class NativeGLRenderContext {
 	
 	public function attachShader (program:GLProgram, shader:GLShader):Void {
 		
-		if (program != null && shader != null && program.shaders.indexOf (shader) == -1) {
+		if (program != null && shader != null) {
 			
-			program.shaders.push (shader);
+			if (program.refs == null) {
+				
+				program.refs = [ shader ];
+				
+			} else if (program.refs.indexOf (shader) == -1) {
+				
+				program.refs.push (shader);
+				
+			}
 			
 		}
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_attach_shader (program, shader);
 		#end
+		
+	}
+	
+	
+	public function beginQuery (target:Int, query:GLQuery):Void {
+		
+		
+		
+	}
+	
+	
+	public function beginTransformFeedback (primitiveNode:Int):Void {
+		
+		
 		
 	}
 	
@@ -766,6 +791,18 @@ class NativeGLRenderContext {
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_bind_buffer (target, buffer);
 		#end
+		
+	}
+	
+	
+	public inline function bindBufferBase (target:Int, index:Int, buffer:GLBuffer):Void {
+		
+		
+	}
+	
+	
+	public inline function bindBufferRange (target:Int, index:Int, buffer:GLBuffer, offset:DataPointer, size:DataPointer):Void {
+		
 		
 	}
 	
@@ -792,6 +829,12 @@ class NativeGLRenderContext {
 	}
 	
 	
+	public inline function bindSampler (unit:Int, sampler:GLSampler):Void {
+		
+		
+	}
+	
+	
 	public function bindTexture (target:Int, texture:GLTexture):Void {
 		
 		if (target == TEXTURE_2D) __texture2DBinding = texture;
@@ -800,6 +843,18 @@ class NativeGLRenderContext {
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_bind_texture (target, texture);
 		#end
+		
+	}
+	
+	
+	public inline function bindTransformFeedback (target:Int, transformFeedback:GLTransformFeedback):Void {
+		
+		
+	}
+	
+	
+	public inline function bindVertexArray (vertexArray:GLVertexArrayObject):Void {
+		
 		
 	}
 	
@@ -849,7 +904,13 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function bufferData (target:Int, size:Int, srcData:DataPointer, usage:Int, srcOffset:Int = 0, length:Int = 0):Void {
+	public inline function blitFramebuffer (srcX0:Int, srcY0:Int, srcX1:Int, srcY1:Int, dstX0:Int, dstY0:Int, dstX1:Int, dstY1:Int, mask:Int, filter:Int):Void {
+		
+		
+	}
+	
+	
+	public function bufferData (target:Int, size:Int, srcData:DataPointer, usage:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_buffer_data (target, size, srcData, usage);
@@ -858,7 +919,7 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function bufferSubData (target:Int, dstByteOffset:Int, size:Int, srcData:DataPointer, srcOffset:Int = 0, length:Int = 0):Void {
+	public function bufferSubData (target:Int, dstByteOffset:Int, size:Int, srcData:DataPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_buffer_sub_data (target, dstByteOffset, size, srcData);
@@ -887,6 +948,30 @@ class NativeGLRenderContext {
 	}
 	
 	
+	public inline function clearBufferfi (buffer:Int, drawbuffer:Int, depth:Float, stencil:Int):Void {
+		
+		
+	}
+	
+	
+	public inline function clearBufferfv (buffer:Int, drawbuffer:Int, value:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public inline function clearBufferiv (buffer:Int, drawbuffer:Int, value:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public inline function clearBufferuiv (buffer:Int, drawbuffer:Int, value:DataPointer):Void {
+		
+		
+	}
+	
+	
 	public function clearColor (red:Float, green:Float, blue:Float, alpha:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
@@ -896,10 +981,10 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function clearDepth (depth:Float):Void {
+	public function clearDepthf (depth:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_clear_depth (depth);
+		NativeCFFI.lime_gl_clear_depthf (depth);
 		#end
 		
 	}
@@ -910,6 +995,13 @@ class NativeGLRenderContext {
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_clear_stencil (s);
 		#end
+		
+	}
+	
+	
+	public inline function clientWaitSync (sync:GLSync, flags:Int, timeout:Int64):Int {
+		
+		return 0;
 		
 	}
 	
@@ -932,20 +1024,38 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, imageSize:Int, srcData:DataPointer, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
+	public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, imageSize:Int, data:DataPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_compressed_tex_image_2d (target, level, internalformat, width, height, border, imageSize, srcData);
+		NativeCFFI.lime_gl_compressed_tex_image_2d (target, level, internalformat, width, height, border, imageSize, data);
 		#end
 		
 	}
 	
 	
-	public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, imageSize:Int, srcData:DataPointer, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
+	public inline function compressedTexImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, imageSize:Int, data:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, imageSize:Int, data:DataPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_compressed_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, imageSize, srcData);
+		NativeCFFI.lime_gl_compressed_tex_sub_image_2d (target, level, xoffset, yoffset, width, height, format, imageSize, data);
 		#end
+		
+	}
+	
+	
+	public inline function compressedTexSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, imageSize:Int, data:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public inline function copyBufferSubData (readTarget:Int, writeTarget:Int, readOffset:DataPointer, writeOffset:DataPointer, size:Int):Void {
+		
 		
 	}
 	
@@ -964,6 +1074,12 @@ class NativeGLRenderContext {
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_copy_tex_sub_image_2d (target, level, xoffset, yoffset, x, y, width, height);
 		#end
+		
+	}
+	
+	
+	public inline function copyTexSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, x:Int, y:Int, width:Int, height:Int):Void {
+		
 		
 	}
 	
@@ -1001,6 +1117,13 @@ class NativeGLRenderContext {
 	}
 	
 	
+	public inline function createQuery ():GLQuery {
+		
+		return null;
+		
+	}
+	
+	
 	public function createRenderbuffer ():GLRenderbuffer {
 		
 		#if (lime_cffi && lime_opengl && !macro)
@@ -1008,6 +1131,13 @@ class NativeGLRenderContext {
 		#else
 		return null;
 		#end
+		
+	}
+	
+	
+	public inline function createSampler ():GLSampler {
+		
+		return null;
 		
 	}
 	
@@ -1030,6 +1160,20 @@ class NativeGLRenderContext {
 		#else
 		return null;
 		#end
+		
+	}
+	
+	
+	public inline function createTransformFeedback ():GLTransformFeedback {
+		
+		return null;
+		
+	}
+	
+	
+	public inline function createVertexArray ():GLVertexArrayObject {
+		
+		return null;
 		
 	}
 	
@@ -1070,11 +1214,23 @@ class NativeGLRenderContext {
 	}
 	
 	
+	public inline function deleteQuery (query:GLQuery):Void {
+		
+		
+	}
+	
+	
 	public function deleteRenderbuffer (renderbuffer:GLRenderbuffer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_delete_renderbuffer (renderbuffer);
 		#end
+		
+	}
+	
+	
+	public inline function deleteSampler (sampler:GLSampler):Void {
+		
 		
 	}
 	
@@ -1088,11 +1244,29 @@ class NativeGLRenderContext {
 	}
 	
 	
+	public inline function deleteSync (sync:GLSync):Void {
+		
+		
+	}
+	
+	
 	public function deleteTexture (texture:GLTexture):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_delete_texture (texture);
 		#end
+		
+	}
+	
+	
+	public inline function deleteTransformFeedback (transformFeedback:GLTransformFeedback):Void {
+		
+		
+	}
+	
+	
+	public inline function deleteVertexArray (vertexArray:GLVertexArrayObject):Void {
+		
 		
 	}
 	
@@ -1115,10 +1289,10 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function depthRange (zNear:Float, zFar:Float):Void {
+	public function depthRangef (zNear:Float, zFar:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_depth_range (zNear, zFar);
+		NativeCFFI.lime_gl_depth_rangef (zNear, zFar);
 		#end
 		
 	}
@@ -1126,9 +1300,9 @@ class NativeGLRenderContext {
 	
 	public function detachShader (program:GLProgram, shader:GLShader):Void {
 		
-		if (program != null) {
+		if (program != null && program.refs != null) {
 			
-			program.shaders.remove (shader);
+			program.refs.remove (shader);
 			
 		}
 		
@@ -1166,11 +1340,35 @@ class NativeGLRenderContext {
 	}
 	
 	
+	public inline function drawArraysInstanced (mode:Int, first:Int, count:Int, instanceCount:Int):Void {
+		
+		
+	}
+	
+	
+	public inline function drawBuffers (buffers:Array<Int>):Void {
+		
+		
+	}
+	
+	
 	public function drawElements (mode:Int, count:Int, type:Int, offset:DataPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_draw_elements (mode, count, type, offset);
 		#end
+		
+	}
+	
+	
+	public inline function drawElementsInstanced (mode:Int, count:Int, type:Int, offset:DataPointer, instanceCount:Int):Void {
+		
+		
+	}
+	
+	
+	public inline function drawRangeElements (mode:Int, start:Int, end:Int, count:Int, type:Int, offset:DataPointer):Void {
+		
 		
 	}
 	
@@ -1189,6 +1387,25 @@ class NativeGLRenderContext {
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_enable_vertex_attrib_array (index);
 		#end
+		
+	}
+	
+	
+	public inline function endQuery (target:Int):Void {
+		
+		
+	}
+	
+	
+	public inline function endTransformFeedback ():Void {
+		
+		
+	}
+	
+	
+	public inline function fenceSync (condition:Int, flags:Int):GLSync {
+		
+		return null;
 		
 	}
 	
@@ -1225,6 +1442,12 @@ class NativeGLRenderContext {
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_framebuffer_texture2D (target, attachment, textarget, texture, level);
 		#end
+		
+	}
+	
+	
+	public inline function framebufferTextureLayer (target:Int, attachment:Int, texture:GLTexture, level:Int, layer:Int):Void {
+		
 		
 	}
 	
@@ -1271,15 +1494,53 @@ class NativeGLRenderContext {
 	}
 	
 	
+	public inline function getActiveUniformBlocki (program:GLProgram, uniformBlockIndex:Int, pname:Int):Int {
+		
+		return 0;
+		
+	}
+	
+	
+	public inline function getActiveUniformBlockiv (program:GLProgram, uniformBlockIndex:Int, pname:Int, params:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public inline function getActiveUniformBlockName (program:GLProgram, uniformBlockIndex:Int):String {
+		
+		return null;
+		
+	}
+	
+	
+	public inline function getActiveUniformBlockParameter (program:GLProgram, uniformBlockIndex:Int, pname:Int):Dynamic {
+		
+		return null;
+		
+	}
+	
+	
+	public inline function getActiveUniforms (program:GLProgram, uniformIndices:Array<Int>, pname:Int):Dynamic {
+		
+		return null;
+		
+	}
+	
+	
+	public inline function getActiveUniformsiv (program:GLProgram, uniformIndices:Array<Int>, pname:Int, params:DataPointer):Void {
+		
+		
+	}
+	
+	
 	public function getAttachedShaders (program:GLProgram):Array<GLShader> {
 		
-		return program.shaders;
-		
-		//#if (lime_cffi && lime_opengl && !macro)
-		//return program.__attachedShaders;
-		//#else
-		//return null;
-		//#end
+		#if (lime_cffi && lime_opengl && !macro)
+		return NativeCFFI.lime_gl_get_attached_shaders (program);
+		#else
+		return null;
+		#end
 		
 	}
 	
@@ -1306,12 +1567,10 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function getBooleanv (pname:Int):Array<Bool> {
+	public function getBooleanv (pname:Int, params:DataPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_booleanv (pname);
-		#else
-		return null;
+		NativeCFFI.lime_gl_get_booleanv (pname, params);
 		#end
 		
 	}
@@ -1319,11 +1578,46 @@ class NativeGLRenderContext {
 	
 	public function getBufferParameter (target:Int, pname:Int):Dynamic {
 		
+		return getBufferParameteri (target, pname);
+		
+	}
+	
+	
+	public function getBufferParameteri (target:Int, pname:Int):Int {
+		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_buffer_parameter (target, pname);
+		return NativeCFFI.lime_gl_get_buffer_parameteri (target, pname);
 		#else
 		return 0;
 		#end
+		
+	}
+	
+	
+	public function getBufferParameteri64v (target:Int, pname:Int, params:DataPointer):Void{
+		
+		
+	}
+	
+	
+	public function getBufferParameteriv (target:Int, pname:Int, data:DataPointer):Void {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_get_buffer_parameteriv (target, pname, data);
+		#end
+		
+	}
+	
+	
+	public inline function getBufferPointeriv (target:Int, srcByteOffset:DataPointer, dstData:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public inline function getBufferSubData (target:Int, srcByteOffset:DataPointer, dstData:ArrayBuffer, srcOffset:Int = 0, length:Int = 0):Void {
+		
+		// use mapBufferRange
 		
 	}
 	
@@ -1405,26 +1699,64 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function getFloatv (pname:Int):Array<Float> {
+	public function getFloatv (pname:Int, params:DataPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_floatv (pname);
-		#else
-		return null;
+		NativeCFFI.lime_gl_get_floatv (pname, params);
 		#end
+		
+	}
+	
+	
+	public inline function getFragDataLocation (program:GLProgram, name:String):Int {
+		
+		return 0;
 		
 	}
 	
 	
 	public function getFramebufferAttachmentParameter (target:Int, attachment:Int, pname:Int):Dynamic {
 		
-		// TODO: FRAMEBUFFER_ATTACHMENT_OBJECT_NAME
+		var value = getFramebufferAttachmentParameteri (target, attachment, pname);
+		
+		if (pname == FRAMEBUFFER_ATTACHMENT_OBJECT_NAME) {
+			
+			var texture:GLTexture = value;
+			if (texture != null) return texture;
+			
+			var renderbuffer:GLRenderbuffer = value;
+			if (renderbuffer != null) return renderbuffer;
+			
+		}
+		
+		return value;
+		
+	}
+	
+	
+	public function getFramebufferAttachmentParameteri (target:Int, attachment:Int, pname:Int):Int {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_framebuffer_attachment_parameter (target, attachment, pname);
+		return NativeCFFI.lime_gl_get_framebuffer_attachment_parameteri (target, attachment, pname);
 		#else
 		return 0;
 		#end
+		
+	}
+	
+	
+	public function getFramebufferAttachmentParameteriv (target:Int, attachment:Int, pname:Int, params:DataPointer):Void {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_get_framebuffer_attachment_parameteriv (target, attachment, pname, params);
+		#end
+		
+	}
+	
+	
+	public inline function getIndexedParameter (target:Int, index:Int):Dynamic {
+		
+		return null;
 		
 	}
 	
@@ -1440,13 +1772,70 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function getIntegerv (pname:Int):Array<Int> {
+	public inline function getInteger64 (pname:Int):Int64 {
+		
+		return null;
+		
+	}
+	
+	
+	public inline function getInteger64i (pname:Int):Int64 {
+		
+		return null;
+		
+	}
+	
+	
+	public inline function getInteger64i_v (pname:Int, params:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public function getInteger64v (pname:Int, params:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public inline function getIntegeri (pname:Int):Int {
+		
+		return 0;
+		
+	}
+	
+	
+	public inline function getIntegeri_v (pname:Int, params:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public function getIntegerv (pname:Int, params:DataPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_integerv (pname);
-		#else
-		return null;
+		NativeCFFI.lime_gl_get_integerv (pname, params);
 		#end
+		
+	}
+	
+	
+	public inline function getInternalformati (target:Int, internalformat:Int, pname:Int):Int {
+		
+		return 0;
+		
+	}
+	
+	
+	public function getInternalformativ (target:Int, internalformat:Int, pname:Int, params:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public inline function getInternalformatParameter (target:Int, internalformat:Int, pname:Int):Dynamic {
+		
+		return null;
 		
 	}
 	
@@ -1461,59 +1850,107 @@ class NativeGLRenderContext {
 			
 			case GL.COLOR_WRITEMASK:
 				
-				return getBooleanv (pname);
+				var params = Bytes.alloc (4);
+				getBooleanv (pname, params);
+				
+				var data = new Array<Bool> ();
+				for (i in 0...4) data[i] = params.get (i) != 0;
+				return data;
 			
 			case GL.DEPTH_CLEAR_VALUE, GL.LINE_WIDTH, GL.POLYGON_OFFSET_FACTOR, GL.POLYGON_OFFSET_UNITS, GL.SAMPLE_COVERAGE_VALUE:
 				
 				return getFloat (pname);
 			
-			case GL.ALIASED_LINE_WIDTH_RANGE, GL.ALIASED_POINT_SIZE_RANGE, GL.BLEND_COLOR, GL.COLOR_CLEAR_VALUE, GL.DEPTH_RANGE:
+			case GL.ALIASED_LINE_WIDTH_RANGE, GL.ALIASED_POINT_SIZE_RANGE, GL.DEPTH_RANGE:
 				
-				return getFloatv (pname);
+				var params = new Float32Array (2);
+				getFloatv (pname, params);
+				return params;
+			
+			case GL.BLEND_COLOR, GL.COLOR_CLEAR_VALUE:
+				
+				var params = new Float32Array (4);
+				getFloatv (pname, params);
+				return params;
 			
 			case GL.ACTIVE_TEXTURE, GL.ALPHA_BITS, GL.BLEND_DST_ALPHA, GL.BLEND_DST_RGB, GL.BLEND_EQUATION, GL.BLEND_EQUATION_ALPHA, GL.BLEND_EQUATION_RGB, GL.BLEND_SRC_ALPHA, GL.BLEND_SRC_RGB, GL.BLUE_BITS, GL.CULL_FACE_MODE, GL.DEPTH_BITS, GL.DEPTH_FUNC, GL.FRONT_FACE, GL.GENERATE_MIPMAP_HINT, GL.GREEN_BITS, GL.IMPLEMENTATION_COLOR_READ_FORMAT, GL.IMPLEMENTATION_COLOR_READ_TYPE, GL.MAX_COMBINED_TEXTURE_IMAGE_UNITS, GL.MAX_CUBE_MAP_TEXTURE_SIZE, GL.MAX_FRAGMENT_UNIFORM_VECTORS, GL.MAX_RENDERBUFFER_SIZE, GL.MAX_TEXTURE_IMAGE_UNITS, GL.MAX_TEXTURE_SIZE, GL.MAX_VARYING_VECTORS, GL.MAX_VERTEX_ATTRIBS, GL.MAX_VERTEX_TEXTURE_IMAGE_UNITS, GL.MAX_VERTEX_UNIFORM_VECTORS, GL.PACK_ALIGNMENT, GL.RED_BITS, GL.SAMPLE_BUFFERS, GL.SAMPLES, GL.STENCIL_BACK_FAIL, GL.STENCIL_BACK_FUNC, GL.STENCIL_BACK_PASS_DEPTH_FAIL, GL.STENCIL_BACK_PASS_DEPTH_PASS, GL.STENCIL_BACK_REF, GL.STENCIL_BACK_VALUE_MASK, GL.STENCIL_BACK_WRITEMASK, GL.STENCIL_BITS, GL.STENCIL_CLEAR_VALUE, GL.STENCIL_FAIL, GL.STENCIL_FUNC, GL.STENCIL_PASS_DEPTH_FAIL, GL.STENCIL_PASS_DEPTH_PASS, GL.STENCIL_REF, GL.STENCIL_VALUE_MASK, GL.STENCIL_WRITEMASK, GL.SUBPIXEL_BITS, GL.UNPACK_ALIGNMENT, GL.UNPACK_COLORSPACE_CONVERSION_WEBGL:
 				
 				return getInteger (pname);
 			
-			case GL.COMPRESSED_TEXTURE_FORMATS, GL.MAX_VIEWPORT_DIMS, GL.SCISSOR_BOX, GL.VIEWPORT:
+			case GL.COMPRESSED_TEXTURE_FORMATS:
 				
-				return getIntegerv (pname);
+				var params = new UInt32Array (getInteger (GL.NUM_COMPRESSED_TEXTURE_FORMATS));
+				getIntegerv (pname, params);
+				return params;
+			
+			case GL.MAX_VIEWPORT_DIMS:
+				
+				var params = new Int32Array (2);
+				getIntegerv (pname, params);
+				return params;
+			
+			case GL.SCISSOR_BOX, GL.VIEWPORT:
+				
+				var params = new Int32Array (4);
+				getIntegerv (pname, params);
+				return params;
 			
 			case GL.RENDERER, GL.SHADING_LANGUAGE_VERSION, GL.VENDOR, GL.VERSION:
 				
 				return getString (pname);
 			
-			// TODO: Handle if context is modified elsewhere
-			
-			case GL.ARRAY_BUFFER_BINDING:
+			case GL.ARRAY_BUFFER_BINDING, GL.ELEMENT_ARRAY_BUFFER_BINDING:
 				
-				return __arrayBufferBinding;
-			
-			case GL.ELEMENT_ARRAY_BUFFER_BINDING:
-				
-				return __elementBufferBinding;
+				var data:GLBuffer = getInteger (pname);
+				return data;
 			
 			case GL.CURRENT_PROGRAM:
 				
-				return __currentProgram;
+				var data:GLProgram = getInteger (pname);
+				return data;
 			
 			case GL.FRAMEBUFFER_BINDING:
 				
-				return __framebufferBinding;
+				var data:GLFramebuffer = getInteger (pname);
+				return data;
 			
-			case GL.TEXTURE_BINDING_2D:
+			case GL.TEXTURE_BINDING_2D, GL.TEXTURE_BINDING_CUBE_MAP:
 				
-				return __texture2DBinding;
-			
-			case GL.TEXTURE_BINDING_CUBE_MAP:
-				
-				return __textureCubeMapBinding;
+				var data:GLTexture = getInteger (pname);
+				return data;
 			
 			default:
 				
 				return null;
 			
 		}
+		
+	}
+	
+	
+	public function getProgrami (program:GLProgram, pname:Int):Int {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		return NativeCFFI.lime_gl_get_programi (program, pname);
+		#else
+		return 0;
+		#end
+		
+	}
+	
+	
+	public function getProgramiv (program:GLProgram, pname:Int, params:DataPointer):Void {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_get_programiv (program, pname, params);
+		#end
+		
+	}
+	
+	
+	public inline function getProgramBinary (program:GLProgram, binaryFormat:Int):Bytes {
+		
+		return null;
 		
 	}
 	
@@ -1531,8 +1968,64 @@ class NativeGLRenderContext {
 	
 	public function getProgramParameter (program:GLProgram, pname:Int):Dynamic {
 		
+		return getProgrami (program, pname);
+		
+	}
+	
+	
+	public inline function getQuery (target:Int, pname:Int):GLQuery {
+		
+		return null;
+		
+	}
+	
+	
+	public inline function getQueryi (target:Int, pname:Int):Int {
+		
+		return 0;
+		
+	}
+	
+	
+	public function getQueryiv (target:Int, pname:Int, params:DataPointer):Void {
+		
+		
+		
+	}
+	
+	
+	public inline function getQueryObjectui (query:GLQuery, pname:Int):Int {
+		
+		return 0;
+		
+	}
+	
+	
+	public function getQueryObjectuiv (query:GLQuery, pname:Int, params:DataPointer):Void {
+		
+		
+		
+	}
+	
+	
+	public inline function getQueryParameter (query:GLQuery, pname:Int):Dynamic {
+		
+		return null;
+		
+	}
+	
+	
+	public function getRenderbufferParameter (target:Int, pname:Int):Dynamic {
+		
+		return getRenderbufferParameteri (target, pname);
+		
+	}
+	
+	
+	public function getRenderbufferParameteri (target:Int, pname:Int):Int {
+		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_program_parameter (program, pname);
+		return NativeCFFI.lime_gl_get_renderbuffer_parameteri (target, pname);
 		#else
 		return 0;
 		#end
@@ -1540,12 +2033,63 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function getRenderbufferParameter (target:Int, pname:Int):Dynamic {
+	public function getRenderbufferParameteriv (target:Int, pname:Int, params:DataPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_renderbuffer_parameter (target, pname);
+		NativeCFFI.lime_gl_get_renderbuffer_parameteriv (target, pname, params);
+		#end
+		
+	}
+	
+	
+	public inline function getSamplerParameter (sampler:GLSampler, pname:Int):Dynamic {
+		
+		return null;
+		
+	}
+	
+	
+	public inline function getSamplerParameterf (sampler:GLSampler, pname:Int):Float {
+		
+		return 0;
+		
+	}
+	
+	
+	public function getSamplerParameterfv (sampler:GLSampler, pname:Int, params:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public inline function getSamplerParameteri (sampler:GLSampler, pname:Int):Int {
+		
+		return 0;
+		
+	}
+	
+	
+	public function getSamplerParameteriv (sampler:GLSampler, pname:Int, params:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public function getShaderi (shader:GLShader, pname:Int):Int {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		return NativeCFFI.lime_gl_get_shaderi (shader, pname);
 		#else
 		return 0;
+		#end
+		
+	}
+	
+	
+	public function getShaderiv (shader:GLShader, pname:Int, params:DataPointer):Void {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_get_shaderiv (shader, pname, params);
 		#end
 		
 	}
@@ -1564,11 +2108,7 @@ class NativeGLRenderContext {
 	
 	public function getShaderParameter (shader:GLShader, pname:Int):Dynamic {
 		
-		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_shader_parameter (shader, pname);
-		#else
-		return 0;
-		#end
+		return getShaderi (shader, pname);
 		
 	}
 	
@@ -1607,25 +2147,41 @@ class NativeGLRenderContext {
 	}
 	
 	
+	public inline function getStringi (name:Int, index:Int):String {
+		
+		return null;
+		
+	}
+	
+	
 	public function getSupportedExtensions ():Array<String> {
 		
 		if (__supportedExtensions == null) {
 			
+			// TODO: getStringi for newer GL versions
+			
 			__supportedExtensions = new Array<String> ();
+			var extensions = getString (GL.EXTENSIONS);
 			
-			#if (lime_cffi && lime_opengl && !macro)
-			NativeCFFI.lime_gl_get_supported_extensions (__supportedExtensions);
-			
-			for (i in 0...__supportedExtensions.length) {
+			if (extensions != null) {
 				
-				if (StringTools.startsWith (__supportedExtensions[i], "GL_")) {
+				var extensionList = extensions.split (" ");
+				
+				for (extension in extensionList) {
 					
-					__supportedExtensions[i] = __supportedExtensions[i].substr (3);
+					if (StringTools.startsWith (extension, "GL_")) {
+						
+						__supportedExtensions.push (extension.substr (3));
+						
+					} else {
+						
+						__supportedExtensions.push (extension);
+						
+					}
 					
 				}
 				
 			}
-			#end
 			
 		}
 		
@@ -1634,10 +2190,51 @@ class NativeGLRenderContext {
 	}
 	
 	
+	public inline function getSyncParameter (sync:GLSync, pname:Int):Dynamic {
+		
+		return null;
+		
+	}
+	
+	
+	public inline function getSyncParameteri (sync:GLSync, pname:Int):Int {
+		
+		return 0;
+		
+	}
+	
+	
+	public function getSyncParameteriv (sync:GLSync, pname:Int, params:DataPointer):Void {
+		
+		
+	}
+	
+	
 	public function getTexParameter (target:Int, pname:Int):Dynamic {
 		
+		switch (pname) {
+			
+			case GL.TEXTURE_MAX_LOD, GL.TEXTURE_MIN_LOD:
+				
+				return getTexParameterf (target, pname);
+			
+			case GL.TEXTURE_IMMUTABLE_FORMAT:
+				
+				return getTexParameterf (target, pname) != 0;
+			
+			default:
+				
+				return getTexParameteri (target, pname);
+			
+		}
+		
+	}
+	
+	
+	public function getTexParameterf (target:Int, pname:Int):Float {
+		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_tex_parameter (target, pname);
+		return NativeCFFI.lime_gl_get_tex_parameterf (target, pname);
 		#else
 		return 0;
 		#end
@@ -1645,13 +2242,189 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function getUniform (program:GLProgram, location:GLUniformLocation):Dynamic {
+	public function getTexParameterfv (target:Int, pname:Int, params:DataPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_uniform (program, location);
-		#else
-		return null;
+		NativeCFFI.lime_gl_get_tex_parameterfv (target, pname, params);
 		#end
+		
+	}
+	
+	
+	public function getTexParameteri (target:Int, pname:Int):Int {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		return NativeCFFI.lime_gl_get_tex_parameteri (target, pname);
+		#else
+		return 0;
+		#end
+		
+	}
+	
+	
+	public function getTexParameteriv (target:Int, pname:Int, params:DataPointer):Void {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_get_tex_parameteriv (target, pname, params);
+		#end
+		
+	}
+	
+	
+	public inline function getTransformFeedbackVarying (program:GLProgram, index:Int):GLActiveInfo {
+		
+		return null;
+		
+	}
+	
+	
+	public function getUniform (program:GLProgram, location:GLUniformLocation):Dynamic {
+		
+		var info = getActiveUniform (program, location);
+		
+		var bools = 0;
+		var ints = 0;
+		var floats = 0;
+		
+		switch (info.type) {
+			
+			case GL.BOOL: bools = 1;
+			case GL.INT: ints = 1;
+			case GL.FLOAT: floats = 1;
+			case GL.FLOAT_VEC2: floats = 2;
+			case GL.INT_VEC2: ints = 2;
+			case GL.BOOL_VEC2: bools = 2;
+			case GL.FLOAT_VEC3: floats = 3;
+			case GL.INT_VEC3: ints = 3;
+			case GL.BOOL_VEC3: bools = 3;
+			case GL.FLOAT_VEC4: floats = 4;
+			case GL.INT_VEC4: ints = 4;
+			case GL.BOOL_VEC4: bools = 4;
+			case GL.FLOAT_MAT2: floats = 4;
+			case GL.FLOAT_MAT2x3: floats = 12;
+			case GL.FLOAT_MAT2x4: floats = 16;
+			case GL.FLOAT_MAT3: floats = 9;
+			case GL.FLOAT_MAT3x2: floats = 18;
+			case GL.FLOAT_MAT3x4: floats = 36;
+			case GL.FLOAT_MAT4: floats = 16;
+			case GL.FLOAT_MAT4x2: floats = 32;
+			case GL.FLOAT_MAT4x3: floats = 48;
+			case GL.SAMPLER_2D, GL.SAMPLER_3D, GL.SAMPLER_CUBE, GL.SAMPLER_2D_SHADOW: ints = 1;
+			default: return null;
+			
+		}
+		
+		if (bools == 1) {
+			
+			return getUniformi (program, location) != 0;
+			
+		} else if (ints == 1) {
+			
+			return getUniformi (program, location);
+			
+		} else if (floats == 1) {
+			
+			return getUniformf (program, location);
+			
+		} else if (bools > 0) {
+			
+			var params = Bytes.alloc (bools);
+			getUniformiv (program, location, params);
+			
+			var data = new Array<Bool> ();
+			
+			for (i in 0...bools) {
+				
+				data[i] = params.get (i) != 0;
+				
+			}
+			
+			return data;
+			
+		} else if (ints > 0) {
+			
+			var params = new Int32Array (ints);
+			getUniformiv (program, location, params);
+			return params;
+			
+		} else if (floats > 0) {
+			
+			var params = new Float32Array (floats);
+			getUniformfv (program, location, params);
+			return params;
+			
+		} else {
+			
+			return null;
+			
+		}
+		
+	}
+	
+	
+	public function getUniformf (program:GLProgram, location:GLUniformLocation):Float {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		return NativeCFFI.lime_gl_get_uniformf (program, location);
+		#else
+		return 0;
+		#end
+		
+	}
+	
+	
+	public function getUniformfv (program:GLProgram, location:GLUniformLocation, params:DataPointer):Void {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_get_uniformfv (program, location, params);
+		#end
+		
+	}
+	
+	
+	public function getUniformi (program:GLProgram, location:GLUniformLocation):Int {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		return NativeCFFI.lime_gl_get_uniformi (program, location);
+		#else
+		return 0;
+		#end
+		
+	}
+	
+	
+	public function getUniformiv (program:GLProgram, location:GLUniformLocation, params:DataPointer):Void {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_get_uniformiv (program, location, params);
+		#end
+		
+	}
+	
+	
+	public inline function getUniformui (program:GLProgram, location:GLUniformLocation):Int {
+		
+		return 0;
+		
+	}
+	
+	
+	public function getUniformuiv (program:GLProgram, location:GLUniformLocation, params:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public inline function getUniformBlockIndex (program:GLProgram, uniformBlockName:String):Int {
+		
+		return 0;
+		
+	}
+	
+	
+	public inline function getUniformIndices (program:GLProgram, uniformNames:Array<String>):Array<Int> {
+		
+		return null;
 		
 	}
 	
@@ -1669,8 +2442,29 @@ class NativeGLRenderContext {
 	
 	public function getVertexAttrib (index:Int, pname:Int):Dynamic {
 		
+		return getVertexAttribi (index, pname);
+		
+	}
+	
+	
+	public inline function getVertexAttribf (index:Int, pname:Int):Float {
+		
+		return 0;
+		
+	}
+	
+	
+	public function getVertexAttribfv (index:Int, pname:Int, params:DataPointer):Void {
+		
+		
+		
+	}
+	
+	
+	public function getVertexAttribi (index:Int, pname:Int):Int {
+		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_vertex_attrib (index, pname);
+		return NativeCFFI.lime_gl_get_vertex_attribi (index, pname);
 		#else
 		return 0;
 		#end
@@ -1678,10 +2472,45 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function getVertexAttribOffset (index:Int, pname:Int):DataPointer {
+	public inline function getVertexAttribIi (index:Int, pname:Int):Int {
+		
+		return 0;
+		
+	}
+	
+	
+	public inline function getVertexAttribIiv (index:Int, pname:Int, params:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public inline function getVertexAttribIui (index:Int, pname:Int):Int {
+		
+		return 0;
+		
+	}
+	
+	
+	public inline function getVertexAttribIuiv (index:Int, pname:Int, params:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public function getVertexAttribiv (index:Int, pname:Int, params:DataPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_vertex_attrib_offset (index, pname);
+		NativeCFFI.lime_gl_get_vertex_attribiv (index, pname, params);
+		#end
+		
+	}
+	
+	
+	public function getVertexAttribPointerv (index:Int, pname:Int):DataPointer {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		return NativeCFFI.lime_gl_get_vertex_attrib_pointerv (index, pname);
 		#else
 		return 0;
 		#end
@@ -1694,6 +2523,18 @@ class NativeGLRenderContext {
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_hint (target, mode);
 		#end
+		
+	}
+	
+	
+	public inline function invalidateFramebuffer (target:Int, attachments:Array<Int>):Void {
+		
+		
+	}
+	
+	
+	public inline function invalidateSubFramebuffer (target:Int, attachments:Array<Int>, x:Int, y:Int, width:Int, height:Int):Void {
+		
 		
 	}
 	
@@ -1749,6 +2590,13 @@ class NativeGLRenderContext {
 	}
 	
 	
+	public inline function isQuery (query:GLQuery):Bool {
+		
+		return false;
+		
+	}
+	
+	
 	public function isRenderbuffer (renderbuffer:GLRenderbuffer):Bool {
 		
 		#if (lime_cffi && lime_opengl && !macro)
@@ -1756,6 +2604,13 @@ class NativeGLRenderContext {
 		#else
 		return false;
 		#end
+		
+	}
+	
+	
+	public inline function isSampler (sampler:GLSampler):Bool {
+		
+		return false;
 		
 	}
 	
@@ -1771,6 +2626,13 @@ class NativeGLRenderContext {
 	}
 	
 	
+	public inline function isSync (sync:GLSync):Bool {
+		
+		return false;
+		
+	}
+	
+	
 	public function isTexture (texture:GLTexture):Bool {
 		
 		#if (lime_cffi && lime_opengl && !macro)
@@ -1778,6 +2640,20 @@ class NativeGLRenderContext {
 		#else
 		return false;
 		#end
+		
+	}
+	
+	
+	public inline function isTransformFeedback (transformFeedback:GLTransformFeedback):Bool {
+		
+		return false;
+		
+	}
+	
+	
+	public inline function isVertexArray (vertexArray:GLVertexArrayObject):Bool {
+		
+		return false;
 		
 	}
 	
@@ -1800,6 +2676,19 @@ class NativeGLRenderContext {
 	}
 	
 	
+	public inline function mapBufferRange (target:Int, offset:DataPointer, length:DataPointer, access:Int):DataPointer {
+		
+		return 0;
+		
+	}
+	
+	
+	public inline function pauseTransformFeedback ():Void {
+		
+		
+	}
+	
+	
 	public function pixelStorei (pname:Int, param:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
@@ -1818,11 +2707,38 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:DataPointer, dstOffset:Int = 0):Void {
+	public inline function programBinary (program:GLProgram, binaryFormat:Int, binary:DataPointer, length:Int):Void {
+		
+		
+		
+	}
+	
+	
+	public inline function programParameteri (program:GLProgram, pname:Int, value:Int):Void {
+		
+		
+		
+	}
+	
+	
+	public inline function readBuffer (src:Int):Void {
+		
+		
+	}
+	
+	
+	public function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:DataPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_read_pixels (x, y, width, height, format, type, pixels);
 		#end
+		
+	}
+	
+	
+	public inline function releaseShaderCompiler ():Void {
+		
+		
 		
 	}
 	
@@ -1836,6 +2752,18 @@ class NativeGLRenderContext {
 	}
 	
 	
+	public inline function renderbufferStorageMultisample (target:Int, samples:Int, internalFormat:Int, width:Int, height:Int):Void {
+		
+		
+	}
+	
+	
+	public inline function resumeTransformFeedback ():Void {
+		
+		
+	}
+	
+	
 	public function sampleCoverage (value:Float, invert:Bool):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
@@ -1845,11 +2773,30 @@ class NativeGLRenderContext {
 	}
 	
 	
+	public inline function samplerParameterf (sampler:GLSampler, pname:Int, param:Float):Void {
+		
+		
+	}
+	
+	
+	public inline function samplerParameteri (sampler:GLSampler, pname:Int, param:Int):Void {
+		
+		
+	}
+	
+	
 	public function scissor (x:Int, y:Int, width:Int, height:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_scissor (x, y, width, height);
 		#end
+		
+	}
+	
+	
+	public inline function shaderBinary (shaders:Array<GLShader>, binaryformat:Int, binary:DataPointer, length:Int):Void {
+		
+		
 		
 	}
 	
@@ -1917,11 +2864,29 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:DataPointer, srcOffset:Int = 0):Void {
+	public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:DataPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_tex_image_2d (target, level, internalformat, width, height, border, format, type, srcData);
+		NativeCFFI.lime_gl_tex_image_2d (target, level, internalformat, width, height, border, format, type, data);
 		#end
+		
+	}
+	
+	
+	public inline function texImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, data:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public inline function texStorage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int):Void {
+		
+		
+	}
+	
+	
+	public inline function texStorage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int):Void {
+		
 		
 	}
 	
@@ -1953,195 +2918,234 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function uniform1f (location:GLUniformLocation, x:Float):Void {
+	public inline function texSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, data:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public inline function transformFeedbackVaryings (program:GLProgram, varyings:Array<String>, bufferMode:Int):Void {
+		
+		
+	}
+	
+	
+	public function uniform1f (location:GLUniformLocation, v0:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform1f (location, x);
+		NativeCFFI.lime_gl_uniform1f (location, v0);
 		#end
 		
 	}
 	
 	
-	public function uniform1fv (location:GLUniformLocation, x:Float32Array):Void {
-		
-		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform1fv (location, x.buffer);
-		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform1fv (location, x);
-		#end
-		
-	}
-	
-	
-	public function uniform1i (location:GLUniformLocation, x:Int):Void {
+	public function uniform1fv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform1i (location, x);
+		NativeCFFI.lime_gl_uniform1fv (location, count, v);
 		#end
 		
 	}
 	
 	
-	public function uniform1iv (location:GLUniformLocation, v:Int32Array):Void {
-		
-		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform1iv (location, v.buffer);
-		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform1iv (location, v);
-		#end
-		
-	}
-	
-	
-	public function uniform2f (location:GLUniformLocation, x:Float, y:Float):Void {
+	public function uniform1i (location:GLUniformLocation, v0:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform2f (location, x, y);
+		NativeCFFI.lime_gl_uniform1i (location, v0);
 		#end
 		
 	}
 	
 	
-	public function uniform2fv (location:GLUniformLocation, v:Float32Array):Void {
-		
-		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform2fv (location, v.buffer);
-		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform2fv (location, v);
-		#end
-		
-	}
-	
-	
-	public function uniform2i (location:GLUniformLocation, x:Int, y:Int):Void {
+	public function uniform1iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform2i (location, x, y);
+		NativeCFFI.lime_gl_uniform1iv (location, count, v);
 		#end
 		
 	}
 	
 	
-	public function uniform2iv (location:GLUniformLocation, v:Int32Array):Void {
-		
-		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform2iv (location, v.buffer);
-		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform2iv (location, v);
-		#end
-		
-	}
-	
-	
-	public function uniform3f (location:GLUniformLocation, x:Float, y:Float, z:Float):Void {
+	public function uniform2f (location:GLUniformLocation, v0:Float, v1:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform3f (location, x, y, z);
+		NativeCFFI.lime_gl_uniform2f (location, v0, v1);
 		#end
 		
 	}
 	
 	
-	public function uniform3fv (location:GLUniformLocation, v:Float32Array):Void {
-		
-		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform3fv (location, v.buffer);
-		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform3fv (location, v);
-		#end
-		
-	}
-	
-	
-	public function uniform3i (location:GLUniformLocation, x:Int, y:Int, z:Int):Void {
+	public function uniform2fv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform3i (location, x, y, z);
+		NativeCFFI.lime_gl_uniform2fv (location, count, v);
 		#end
 		
 	}
 	
 	
-	public function uniform3iv (location:GLUniformLocation, v:Int32Array):Void {
-		
-		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform3iv (location, v.buffer);
-		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform3iv (location, v);
-		#end
-		
-	}
-	
-	
-	public function uniform4f (location:GLUniformLocation, x:Float, y:Float, z:Float, w:Float):Void {
+	public function uniform2i (location:GLUniformLocation, v0:Int, v1:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform4f (location, x, y, z, w);
+		NativeCFFI.lime_gl_uniform2i (location, v0, v1);
 		#end
 		
 	}
 	
 	
-	public function uniform4fv (location:GLUniformLocation, v:Float32Array):Void {
-		
-		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform4fv (location, v.buffer);
-		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform4fv (location, v);
-		#end
-		
-	}
-	
-	
-	public function uniform4i (location:GLUniformLocation, x:Int, y:Int, z:Int, w:Int):Void {
+	public function uniform2iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform4i (location, x, y, z, w);
+		NativeCFFI.lime_gl_uniform2iv (location, count, v);
 		#end
 		
 	}
 	
 	
-	public function uniform4iv (location:GLUniformLocation, v:Int32Array):Void {
+	public function uniform3f (location:GLUniformLocation, v0:Float, v1:Float, v2:Float):Void {
 		
-		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform4iv (location, v.buffer);
-		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform4iv (location, v);
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_uniform3f (location, v0, v1, v2);
 		#end
 		
 	}
 	
 	
-	public function uniformMatrix2fv (location:GLUniformLocation, transpose:Bool, v:Float32Array):Void {
+	public function uniform3fv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
 		
-		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform_matrix (location, transpose, v.buffer, 2);
-		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform_matrix (location, transpose, v, 2);
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_uniform3fv (location, count, v);
 		#end
 		
 	}
 	
 	
-	public function uniformMatrix3fv (location:GLUniformLocation, transpose:Bool, v:Float32Array):Void {
+	public function uniform3i (location:GLUniformLocation, v0:Int, v1:Int, v2:Int):Void {
 		
-		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform_matrix (location, transpose, v.buffer, 3);
-		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform_matrix (location, transpose, v, 3);
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_uniform3i (location, v0, v1, v2);
 		#end
 		
 	}
 	
 	
-	public function uniformMatrix4fv (location:GLUniformLocation, transpose:Bool, v:Float32Array):Void {
+	public function uniform3iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
 		
-		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform_matrix (location, transpose, v.buffer, 4);
-		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_uniform_matrix (location, transpose, v, 4);
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_uniform3iv (location, count, v);
 		#end
+		
+	}
+	
+	
+	public function uniform4f (location:GLUniformLocation, v0:Float, v1:Float, v2:Float, v3:Float):Void {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_uniform4f (location, v0, v1, v2, v3);
+		#end
+		
+	}
+	
+	
+	public function uniform4fv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_uniform4fv (location, count, v);
+		#end
+		
+	}
+	
+	
+	public function uniform4i (location:GLUniformLocation, v0:Int, v1:Int, v2:Int, v3:Int):Void {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_uniform4i (location, v0, v1, v2, v3);
+		#end
+		
+	}
+	
+	
+	public function uniform4iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_uniform4iv (location, count, v);
+		#end
+		
+	}
+	
+	
+	public inline function uniformBlockBinding (program:GLProgram, uniformBlockIndex:Int, uniformBlockBinding:Int):Void {
+		
+		
+	}
+	
+	
+	public function uniformMatrix2fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_uniform_matrix2fv (location, count, transpose, v);
+		#end
+		
+	}
+	
+	
+	public function uniformMatrix2x3fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public function uniformMatrix2x4fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public function uniformMatrix3fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_uniform_matrix3fv (location, count, transpose, v);
+		#end
+		
+	}
+	
+	
+	public function uniformMatrix3x2fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public function uniformMatrix3x4fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public function uniformMatrix4fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_uniform_matrix4fv (location, count, transpose, v);
+		#end
+		
+	}
+	
+	
+	public function uniformMatrix4x2fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public function uniformMatrix4x3fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public inline function unmapBuffer (target:Int):Bool {
+		
+		return false;
 		
 	}
 	
@@ -2166,90 +3170,122 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function vertexAttrib1f (indx:Int, x:Float):Void {
+	public function vertexAttrib1f (index:Int, v0:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_vertex_attrib1f (indx, x);
+		NativeCFFI.lime_gl_vertex_attrib1f (index, v0);
 		#end
 		
 	}
 	
 	
-	public function vertexAttrib1fv (indx:Int, values:Float32Array):Void {
-		
-		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_vertex_attrib1fv (indx, values.buffer);
-		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_vertex_attrib1fv (indx, values);
-		#end
-		
-	}
-	
-	
-	public function vertexAttrib2f (indx:Int, x:Float, y:Float):Void {
+	public function vertexAttrib1fv (index:Int, v:DataPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_vertex_attrib2f (indx, x, y);
+		NativeCFFI.lime_gl_vertex_attrib1fv (index, v);
 		#end
 		
 	}
 	
 	
-	public function vertexAttrib2fv (indx:Int, values:Float32Array):Void {
-		
-		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_vertex_attrib2fv (indx, values.buffer);
-		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_vertex_attrib2fv (indx, values);
-		#end
-		
-	}
-	
-	
-	public function vertexAttrib3f (indx:Int, x:Float, y:Float, z:Float):Void {
+	public function vertexAttrib2f (index:Int, v0:Float, y:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_vertex_attrib3f (indx, x, y, z);
+		NativeCFFI.lime_gl_vertex_attrib2f (index, v0, y);
 		#end
 		
 	}
 	
 	
-	public function vertexAttrib3fv (indx:Int, values:Float32Array):Void {
-		
-		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_vertex_attrib3fv (indx, values.buffer);
-		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_vertex_attrib3fv (indx, values);
-		#end
-		
-	}
-	
-	
-	public function vertexAttrib4f (indx:Int, x:Float, y:Float, z:Float, w:Float):Void {
+	public function vertexAttrib2fv (index:Int, v:DataPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_vertex_attrib4f (indx, x, y, z, w);
+		NativeCFFI.lime_gl_vertex_attrib2fv (index, v);
 		#end
 		
 	}
 	
 	
-	public function vertexAttrib4fv (indx:Int, values:Float32Array):Void {
-		
-		#if (lime_cffi && !nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_vertex_attrib4fv (indx, values.buffer);
-		#elseif (nodejs && lime_opengl && !macro)
-		NativeCFFI.lime_gl_vertex_attrib4fv (indx, values);
-		#end
-		
-	}
-	
-	
-	public function vertexAttribPointer (indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:DataPointer):Void {
+	public function vertexAttrib3f (index:Int, v0:Float, v1:Float, v2:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_vertex_attrib_pointer (indx, size, type, normalized, stride, offset);
+		NativeCFFI.lime_gl_vertex_attrib3f (index, v0, v1, v2);
+		#end
+		
+	}
+	
+	
+	public function vertexAttrib3fv (index:Int, v:DataPointer):Void {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_vertex_attrib3fv (index, v);
+		#end
+		
+	}
+	
+	
+	public function vertexAttrib4f (index:Int, v0:Float, v1:Float, v2:Float, v3:Float):Void {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_vertex_attrib4f (index, v0, v1, v2, v3);
+		#end
+		
+	}
+	
+	
+	public function vertexAttrib4fv (index:Int, v:DataPointer):Void {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_vertex_attrib4fv (index, v);
+		#end
+		
+	}
+	
+	
+	public inline function vertexAttribDivisor (index:Int, divisor:Int):Void {
+		
+		
+	}
+	
+	
+	public inline function vertexAttribI4i (index:Int, v0:Int, v1:Int, v2:Int, v3:Int):Void {
+		
+		
+	}
+	
+	
+	//public inline function vertexAttribI4iv (index:Int, value:js.html.Int32Array) {
+	//public inline function vertexAttribI4iv (index:Int, value:Array<Int>) {
+	public inline function vertexAttribI4iv (index:Int, value:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public inline function vertexAttribI4ui (index:Int, v0:Int, v1:Int, v2:Int, v3:Int):Void {
+		
+		
+	}
+	
+	
+	//public inline function vertexAttribI4iv (index:Int, value:js.html.Int32Array) {
+	//public inline function vertexAttribI4iv (index:Int, value:Array<Int>) {
+	public inline function vertexAttribI4uiv (index:Int, value:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public inline function vertexAttribIPointer (index:Int, size:Int, type:Int, stride:Int, offset:DataPointer):Void {
+		
+		
+	}
+	
+	
+	public function vertexAttribPointer (index:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:DataPointer):Void {
+		
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_vertex_attrib_pointer (index, size, type, normalized, stride, offset);
 		#end
 		
 	}
@@ -2264,6 +3300,12 @@ class NativeGLRenderContext {
 	}
 	
 	
+	public inline function waitSync (sync:GLSync, flags:Int, timeout:Dynamic /*int64*/):Void {
+		
+		
+	}
+	
+	
 	private function __contextLost ():Void {
 		
 		__isContextLost = true;
@@ -2274,6 +3316,13 @@ class NativeGLRenderContext {
 		__renderbufferBinding = null;
 		__texture2DBinding = null;
 		__textureCubeMapBinding = null;
+		
+	}
+	
+	
+	private function __createObject (id:Int):GLObject {
+		
+		return new GLObject (id);
 		
 	}
 	
@@ -2387,17 +3436,7 @@ class NativeGLRenderContext {
 			__extensionObjectTypes["VIV_shader_binary"] = VIV_shader_binary;
 			
 			#if (lime_cffi && lime_opengl && !macro)
-			NativeCFFI.lime_gl_object_constructor (GLObjectType.PROGRAM, function (id) return new GLProgram (id));
-			NativeCFFI.lime_gl_object_constructor (GLObjectType.SHADER, function (id) return new GLShader (id));
-			NativeCFFI.lime_gl_object_constructor (GLObjectType.BUFFER, function (id) return new GLBuffer (id));
-			NativeCFFI.lime_gl_object_constructor (GLObjectType.TEXTURE, function (id) return new GLTexture (id));
-			NativeCFFI.lime_gl_object_constructor (GLObjectType.FRAMEBUFFER, function (id) return new GLFramebuffer (id));
-			NativeCFFI.lime_gl_object_constructor (GLObjectType.RENDERBUFFER, function (id) return new GLRenderbuffer (id));
-			NativeCFFI.lime_gl_object_constructor (GLObjectType.VERTEX_ARRAY_OBJECT, function (id) return new GLVertexArrayObject (id));
-			NativeCFFI.lime_gl_object_constructor (GLObjectType.QUERY, function (id) return new GLQuery (id));
-			NativeCFFI.lime_gl_object_constructor (GLObjectType.SAMPLER, function (id) return new GLSampler (id));
-			NativeCFFI.lime_gl_object_constructor (GLObjectType.SYNC, function (id) return new GLSync (id));
-			NativeCFFI.lime_gl_object_constructor (GLObjectType.TRANSFORM_FEEDBACK, function (id) return new GLTransformFeedback (id));
+			NativeCFFI.lime_gl_object_constructor (__createObject);
 			#end
 			
 		}
@@ -2406,22 +3445,5 @@ class NativeGLRenderContext {
 		
 	}
 	
-	
-}
-
-
-@:enum private abstract GLObjectType(Int) to Int {
-	
-	var PROGRAM = 0;
-	var SHADER = 1;
-	var BUFFER = 2;
-	var TEXTURE = 3;
-	var FRAMEBUFFER = 4;
-	var RENDERBUFFER = 5;
-	var VERTEX_ARRAY_OBJECT = 6;
-	var QUERY = 7;
-	var SAMPLER = 8;
-	var SYNC = 9;
-	var TRANSFORM_FEEDBACK = 10;
 	
 }

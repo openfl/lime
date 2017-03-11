@@ -8,17 +8,25 @@ typedef GLRenderContext = lime._backend.html5.HTML5GLRenderContext;
 #else
 
 
+import haxe.io.Bytes;
+import haxe.Int64;
 import lime.graphics.opengl.GLActiveInfo;
 import lime.graphics.opengl.GLBuffer;
 import lime.graphics.opengl.GLContextAttributes;
 import lime.graphics.opengl.GLContextType;
 import lime.graphics.opengl.GLFramebuffer;
 import lime.graphics.opengl.GLProgram;
+import lime.graphics.opengl.GLQuery;
 import lime.graphics.opengl.GLRenderbuffer;
+import lime.graphics.opengl.GLSampler;
 import lime.graphics.opengl.GLShader;
 import lime.graphics.opengl.GLShaderPrecisionFormat;
+import lime.graphics.opengl.GLSync;
 import lime.graphics.opengl.GLTexture;
+import lime.graphics.opengl.GLTransformFeedback;
 import lime.graphics.opengl.GLUniformLocation;
+import lime.graphics.opengl.GLVertexArrayObject;
+import lime.utils.ArrayBuffer;
 import lime.utils.DataPointer;
 
 #if (js && html5)
@@ -621,106 +629,224 @@ class GLRenderContext {
 	
 	public function activeTexture (texture:Int):Void {}
 	public function attachShader (program:GLProgram, shader:GLShader):Void {}
+	public function beginQuery (target:Int, query:GLQuery):Void {}
+	public function beginTransformFeedback (primitiveNode:Int):Void {}
 	public function bindAttribLocation (program:GLProgram, index:Int, name:String):Void {}
 	public function bindBuffer (target:Int, buffer:GLBuffer):Void {}
+	public function bindBufferBase (target:Int, index:Int, buffer:GLBuffer):Void {}
+	public function bindBufferRange (target:Int, index:Int, buffer:GLBuffer, offset:DataPointer, size:DataPointer):Void {}
 	public function bindFramebuffer (target:Int, framebuffer:GLFramebuffer):Void {}
 	public function bindRenderbuffer (target:Int, renderbuffer:GLRenderbuffer):Void {}
+	public function bindSampler (unit:Int, sampler:GLSampler):Void {}
 	public function bindTexture (target:Int, texture:GLTexture):Void {}
+	public function bindTransformFeedback (target:Int, transformFeedback:GLTransformFeedback):Void {}
+	public function bindVertexArray (vertexArray:GLVertexArrayObject):Void {}
+	public function blitFramebuffer (srcX0:Int, srcY0:Int, srcX1:Int, srcY1:Int, dstX0:Int, dstY0:Int, dstX1:Int, dstY1:Int, mask:Int, filter:Int):Void {}
 	public function blendColor (red:Float, green:Float, blue:Float, alpha:Float):Void {}
 	public function blendEquation (mode:Int):Void {}
 	public function blendEquationSeparate (modeRGB:Int, modeAlpha:Int):Void {}
 	public function blendFunc (sfactor:Int, dfactor:Int):Void {}
 	public function blendFuncSeparate (srcRGB:Int, dstRGB:Int, srcAlpha:Int, dstAlpha:Int):Void {}
-	public function bufferData (target:Int, size:Int, srcData:DataPointer, usage:Int, srcOffset:Int = 0, length:Int = 0):Void {}
-	public function bufferSubData (target:Int, dstByteOffset:Int, size:Int, srcData:DataPointer, srcOffset:Int = 0, length:Int = 0):Void {}
+	public function bufferData (target:Int, size:Int, data:DataPointer, usage:Int):Void {}
+	public function bufferSubData (target:Int, dstByteOffset:Int, size:Int, data:DataPointer):Void {}
 	public function checkFramebufferStatus (target:Int):Int { return 0; }
 	public function clear (mask:Int):Void {}
+	public function clearBufferfi (buffer:Int, drawbuffer:Int, depth:Float, stencil:Int):Void {}
+	public function clearBufferfv (buffer:Int, drawbuffer:Int, value:DataPointer):Void {}
+	public function clearBufferiv (buffer:Int, drawbuffer:Int, value:DataPointer):Void {}
+	public function clearBufferuiv (buffer:Int, drawbuffer:Int, value:DataPointer):Void {}
 	public function clearColor (red:Float, green:Float, blue:Float, alpha:Float):Void {}
-	public function clearDepth (depth:Float):Void {}
+	public function clearDepthf (depth:Float):Void {}
 	public function clearStencil (s:Int):Void {}
+	public function clientWaitSync (sync:GLSync, flags:Int, timeout:Int64):Int { return 0; }
 	public function colorMask (red:Bool, green:Bool, blue:Bool, alpha:Bool):Void {}
 	public function compileShader (shader:GLShader):Void {}
-	public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, imageSize:Int, srcData:DataPointer, srcOffset:Int = 0, length:Int = 0):Void {}
-	public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, imageSize:Int, srcData:DataPointer, srcOffset:Int = 0, length:Int = 0):Void {}
+	public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, imageSize:Int, data:DataPointer):Void {}
+	public function compressedTexImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, imageSize:Int, data:DataPointer):Void {}
+	public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, imageSize:Int, data:DataPointer):Void {}
+	public function copyBufferSubData (readTarget:Int, writeTarget:Int, readOffset:DataPointer, writeOffset:DataPointer, size:Int):Void {}
+	public function compressedTexSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, imageSize:Int, data:DataPointer):Void {}
 	public function copyTexImage2D (target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void {}
 	public function copyTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, x:Int, y:Int, width:Int, height:Int):Void {}
+	public function copyTexSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, x:Int, y:Int, width:Int, height:Int):Void {}
 	public function createBuffer ():GLBuffer { return null; }
 	public function createFramebuffer ():GLFramebuffer { return null; }
 	public function createProgram ():GLProgram { return null; }
+	public function createQuery ():GLQuery { return null; }
 	public function createRenderbuffer ():GLRenderbuffer { return null; }
+	public function createSampler ():GLSampler { return null; }
 	public function createShader (type:Int):GLShader { return null; }
 	public function createTexture ():GLTexture { return null; }
+	public function createTransformFeedback ():GLTransformFeedback { return null; }
+	public function createVertexArray ():GLVertexArrayObject { return null; }
 	public function cullFace (mode:Int):Void {}
 	public function deleteBuffer (buffer:GLBuffer):Void {}
 	public function deleteFramebuffer (framebuffer:GLFramebuffer):Void {}
 	public function deleteProgram (program:GLProgram):Void {}
+	public function deleteQuery (query:GLQuery):Void {}
 	public function deleteRenderbuffer (renderbuffer:GLRenderbuffer):Void {}
+	public function deleteSampler (sampler:GLSampler):Void {}
 	public function deleteShader (shader:GLShader):Void {}
+	public function deleteSync (sync:GLSync):Void {}
 	public function deleteTexture (texture:GLTexture):Void {}
+	public function deleteTransformFeedback (transformFeedback:GLTransformFeedback):Void {}
+	public function deleteVertexArray (vertexArray:GLVertexArrayObject):Void {}
 	public function depthFunc (func:Int):Void {}
 	public function depthMask (flag:Bool):Void {}
-	public function depthRange (zNear:Float, zFar:Float):Void {}
+	public function depthRangef (zNear:Float, zFar:Float):Void {}
 	public function detachShader (program:GLProgram, shader:GLShader):Void {}
 	public function disable (cap:Int):Void {}
 	public function disableVertexAttribArray (index:Int):Void {}
 	public function drawArrays (mode:Int, first:Int, count:Int):Void {}
+	public function drawArraysInstanced (mode:Int, first:Int, count:Int, instanceCount:Int):Void {}
+	public function drawBuffers (buffers:Array<Int>):Void {}
 	public function drawElements (mode:Int, count:Int, type:Int, offset:Dynamic):Void {}
+	public function drawElementsInstanced (mode:Int, count:Int, type:Int, offset:DataPointer, instanceCount:Int):Void {}
+	public function drawRangeElements (mode:Int, start:Int, end:Int, count:Int, type:Int, offset:DataPointer):Void {}
 	public function enable (cap:Int):Void {}
 	public function enableVertexAttribArray (index:Int):Void {}
+	public function endQuery (target:Int):Void {}
+	public function endTransformFeedback ():Void {}
+	public function fenceSync (condition:Int, flags:Int):GLSync { return null; }
 	public function finish ():Void {}
 	public function flush ():Void {}
 	public function framebufferRenderbuffer (target:Int, attachment:Int, renderbuffertarget:Int, renderbuffer:GLRenderbuffer):Void {}
 	public function framebufferTexture2D (target:Int, attachment:Int, textarget:Int, texture:GLTexture, level:Int):Void {}
+	public function framebufferTextureLayer (target:Int, attachment:Int, texture:GLTexture, level:Int, layer:Int):Void {}
 	public function frontFace (mode:Int):Void {}
 	public function generateMipmap (target:Int):Void {}
 	public function getActiveAttrib (program:GLProgram, index:Int):GLActiveInfo { return null; }
 	public function getActiveUniform (program:GLProgram, index:Int):GLActiveInfo { return null; }
+	public function getActiveUniformBlocki (program:GLProgram, uniformBlockIndex:Int, pname:Int):Int { return 0; }
+	public function getActiveUniformBlockiv (program:GLProgram, uniformBlockIndex:Int, pname:Int, params:DataPointer):Void {}
+	public function getActiveUniformBlockName (program:GLProgram, uniformBlockIndex:Int):String { return null; }
+	public function getActiveUniformBlockParameter (program:GLProgram, uniformBlockIndex:Int, pname:Int):Dynamic { return null; }
+	public function getActiveUniforms (program:GLProgram, uniformIndices:Array<Int>, pname:Int):Dynamic { return null; }
+	public function getActiveUniformsiv (program:GLProgram, uniformIndices:Array<Int>, pname:Int, params:DataPointer):Void {}
 	public function getAttachedShaders (program:GLProgram):Array<GLShader> { return null; }
 	public function getAttribLocation (program:GLProgram, name:String):Int { return 0; }
 	public function getBoolean (pname:Int):Bool { return false; }
-	public function getBooleanv (pname:Int):Array<Bool> { return null; }
+	public function getBooleanv (pname:Int, params:DataPointer):Void {}
 	public function getBufferParameter (target:Int, pname:Int):Dynamic { return null; }
+	public function getBufferParameteri (target:Int, pname:Int):Int { return 0; }
+	public function getBufferParameteri64v (target:Int, pname:Int, params:DataPointer):Void {}
+	public function getBufferParameteriv (target:Int, pname:Int, data:DataPointer):Void {}
+	public function getBufferPointeriv (target:Int, srcByteOffset:DataPointer, dstData:DataPointer):Void {}
+	public function getBufferSubData (target:Int, srcByteOffset:DataPointer, dstData:ArrayBuffer, srcOffset:Int = 0, length:Int = 0):Void {}
 	public function getContextAttributes ():GLContextAttributes { return null; }
 	public function getError ():Int { return 0; }
 	public function getExtension (name:String):Dynamic { return null; }
 	public function getFloat (pname:Int):Float { return 0; }
-	public function getFloatv (pname:Int):Array<Float> { return null; };
+	public function getFloatv (pname:Int, params:DataPointer):Void {}
+	public function getFragDataLocation (program:GLProgram, name:String):Int { return 0; }
 	public function getFramebufferAttachmentParameter (target:Int, attachment:Int, pname:Int):Dynamic { return null; }
+	public function getFramebufferAttachmentParameteri (target:Int, attachment:Int, pname:Int):Int { return 0; }
+	public function getFramebufferAttachmentParameteriv (target:Int, attachment:Int, pname:Int, params:DataPointer):Void {}
+	public function getIndexedParameter (target:Int, index:Int):Dynamic { return null; }
 	public function getInteger (pname:Int):Int { return 0; }
-	public function getIntegerv (pname:Int):Array<Int> { return null; }
+	public function getInteger64 (pname:Int):Int64 { return null; }
+	public function getInteger64i (pname:Int):Int64 { return null; }
+	public function getInteger64i_v (pname:Int, params:DataPointer):Void {}
+	public function getInteger64v (pname:Int, params:DataPointer):Void {}
+	public function getIntegeri (pname:Int):Int { return 0; }
+	public function getIntegeri_v (pname:Int, params:DataPointer):Void {}
+	public function getIntegerv (pname:Int, params:DataPointer):Void {}
+	public function getInternalformati (target:Int, internalformat:Int, pname:Int):Int { return 0; }
+	public function getInternalformativ (target:Int, internalformat:Int, pname:Int, params:DataPointer):Void {}
+	public function getInternalformatParameter (target:Int, internalformat:Int, pname:Int):Dynamic { return null; }
 	public function getParameter (pname:Int):Dynamic { return null; }
+	public function getProgrami (program:GLProgram, pname:Int):Int { return 0; }
+	public function getProgramiv (program:GLProgram, pname:Int, params:DataPointer):Void {}
+	public function getProgramBinary (program:GLProgram, binaryFormat:Int):Bytes { return null; }
 	public function getProgramInfoLog (program:GLProgram):String { return null; }
 	public function getProgramParameter (program:GLProgram, pname:Int):Dynamic { return null; }
+	public function getQuery (target:Int, pname:Int):GLQuery { return null; }
+	public function getQueryi (target:Int, pname:Int):Int { return 0; }
+	public function getQueryiv (target:Int, pname:Int, params:DataPointer):Void {}
+	public function getQueryObjectui (query:GLQuery, pname:Int):Int { return 0; }
+	public function getQueryObjectuiv (query:GLQuery, pname:Int, params:DataPointer):Void {}
+	public function getQueryParameter (query:GLQuery, pname:Int):Dynamic { return null; }
 	public function getRenderbufferParameter (target:Int, pname:Int):Dynamic { return null; }
+	public function getRenderbufferParameteri (target:Int, pname:Int):Int { return 0; }
+	public function getRenderbufferParameteriv (target:Int, pname:Int, params:DataPointer):Void {}
+	public function getSamplerParameter (sampler:GLSampler, pname:Int):Dynamic { return null; }
+	public function getSamplerParameterf (sampler:GLSampler, pname:Int):Float { return 0; }
+	public function getSamplerParameterfv (sampler:GLSampler, pname:Int, params:DataPointer):Void {}
+	public function getSamplerParameteri (sampler:GLSampler, pname:Int):Int { return 0; }
+	public function getSamplerParameteriv (sampler:GLSampler, pname:Int, params:DataPointer):Void {}
+	public function getShaderi (shader:GLShader, pname:Int):Int { return 0; }
+	public function getShaderiv (shader:GLShader, pname:Int, params:DataPointer):Void {}
 	public function getShaderInfoLog (shader:GLShader):String { return null; }
 	public function getShaderParameter (shader:GLShader, pname:Int):Dynamic { return null; }
 	public function getShaderPrecisionFormat (shadertype:Int, precisiontype:Int):GLShaderPrecisionFormat { return null; }
 	public function getShaderSource (shader:GLShader):String { return null; }
 	public function getString (pname:Int):String { return null; }
+	public function getStringi (name:Int, index:Int):String { return null; }
 	public function getSupportedExtensions ():Array<String> { return null; }
+	public function getSyncParameter (sync:GLSync, pname:Int):Dynamic { return null; }
+	public function getSyncParameteri (sync:GLSync, pname:Int):Int { return 0; }
+	public function getSyncParameteriv (sync:GLSync, pname:Int, params:DataPointer):Void {}
 	public function getTexParameter (target:Int, pname:Int):Dynamic { return null; }
+	public function getTexParameterf (target:Int, pname:Int):Float { return 0; }
+	public function getTexParameterfv (target:Int, pname:Int, params:DataPointer):Void {}
+	public function getTexParameteri (target:Int, pname:Int):Int { return 0; }
+	public function getTexParameteriv (target:Int, pname:Int, params:DataPointer):Void {}
+	public function getTransformFeedbackVarying (program:GLProgram, index:Int):GLActiveInfo { return null; }
 	public function getUniform (program:GLProgram, location:GLUniformLocation):Dynamic { return null; }
+	public function getUniformf (program:GLProgram, location:GLUniformLocation):Float { return 0; }
+	public function getUniformfv (program:GLProgram, location:GLUniformLocation, params:DataPointer):Void {}
+	public function getUniformi (program:GLProgram, location:GLUniformLocation):Int { return 0; }
+	public function getUniformiv (program:GLProgram, location:GLUniformLocation, params:DataPointer):Void {}
+	public function getUniformui (program:GLProgram, location:GLUniformLocation):Int { return 0; }
+	public function getUniformuiv (program:GLProgram, location:GLUniformLocation, params:DataPointer):Void {}
+	public function getUniformBlockIndex (program:GLProgram, uniformBlockName:String):Int { return 0; }
+	public function getUniformIndices (program:GLProgram, uniformNames:Array<String>):Array<Int> { return null; }
 	public function getUniformLocation (program:GLProgram, name:String):GLUniformLocation { return 0; }
 	public function getVertexAttrib (index:Int, pname:Int):Dynamic { return null; }
-	public function getVertexAttribOffset (index:Int, pname:Int):Int { return 0; }
+	public function getVertexAttribf (index:Int, pname:Int):Float { return 0; }
+	public function getVertexAttribfv (index:Int, pname:Int, params:DataPointer):Void {}
+	public function getVertexAttribi (index:Int, pname:Int):Int { return 0; }
+	public function getVertexAttribIi (index:Int, pname:Int):Int { return 0; }
+	public function getVertexAttribIiv (index:Int, pname:Int, params:DataPointer):Void {}
+	public function getVertexAttribIui (index:Int, pname:Int):Int { return 0; }
+	public function getVertexAttribIuiv (index:Int, pname:Int, params:DataPointer):Void {}
+	public function getVertexAttribiv (index:Int, pname:Int, params:DataPointer):Void {}
+	public function getVertexAttribPointerv (index:Int, pname:Int):Int { return 0; }
 	public function hint (target:Int, mode:Int):Void {}
+	public function invalidateFramebuffer (target:Int, attachments:Array<Int>):Void {}
+	public function invalidateSubFramebuffer (target:Int, attachments:Array<Int>, x:Int, y:Int, width:Int, height:Int):Void {}
 	public function isBuffer (buffer:GLBuffer):Bool { return false; }
 	public function isContextLost ():Bool { return false; }
 	public function isEnabled (cap:Int):Bool { return false; }
 	public function isFramebuffer (framebuffer:GLFramebuffer):Bool { return false; }
 	public function isProgram (program:GLProgram):Bool { return false; }
+	public function isQuery (query:GLQuery):Bool { return false; }
 	public function isRenderbuffer (renderbuffer:GLRenderbuffer):Bool { return false; }
+	public function isSampler (sampler:GLSampler):Bool { return false; }
 	public function isShader (shader:GLShader):Bool { return false; }
+	public function isSync (sync:GLSync):Bool { return false; }
 	public function isTexture (texture:GLTexture):Bool { return false; }
+	public function isTransformFeedback (transformFeedback:GLTransformFeedback):Bool { return false; }
+	public function isVertexArray (vertexArray:GLVertexArrayObject):Bool { return false; }
 	public function lineWidth (width:Float):Void {}
 	public function linkProgram (program:GLProgram):Void {}
+	public function mapBufferRange (target:Int, offset:DataPointer, length:DataPointer, access:Int):DataPointer { return 0; }
+	public function pauseTransformFeedback ():Void {}
 	public function pixelStorei (pname:Int, param:Int):Void {}
 	public function polygonOffset (factor:Float, units:Float):Void {}
-	public function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:DataPointer, dstOffset:Int = 0):Void {}
+	public function programBinary (program:GLProgram, binaryFormat:Int, binary:DataPointer, length:Int):Void {}
+	public function programParameteri (program:GLProgram, pname:Int, value:Int):Void {}
+	public function readBuffer (src:Int):Void {}
+	public function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:DataPointer):Void {}
 	public function releaseShaderCompiler ():Void {}
 	public function renderbufferStorage (target:Int, internalformat:Int, width:Int, height:Int):Void {}
+	public function renderbufferStorageMultisample (target:Int, samples:Int, internalFormat:Int, width:Int, height:Int):Void {}
+	public function resumeTransformFeedback ():Void {}
 	public function sampleCoverage (value:Float, invert:Bool):Void {}
+	public function samplerParameterf (sampler:GLSampler, pname:Int, param:Float):Void {}
+	public function samplerParameteri (sampler:GLSampler, pname:Int, param:Int):Void {}
 	public function scissor (x:Int, y:Int, width:Int, height:Int):Void {}
+	public function shaderBinary (shaders:Array<GLShader>, binaryformat:Int, binary:DataPointer, length:Int):Void {}
 	public function shaderSource (shader:GLShader, string:String):Void {}
 	public function stencilFunc (func:Int, ref:Int, mask:Int):Void {}
 	public function stencilFuncSeparate (face:Int, func:Int, ref:Int, mask:Int):Void {}
@@ -728,41 +854,61 @@ class GLRenderContext {
 	public function stencilMaskSeparate (face:Int, mask:Int):Void {}
 	public function stencilOp (fail:Int, zfail:Int, zpass:Int):Void {}
 	public function stencilOpSeparate (face:Int, fail:Int, zfail:Int, zpass:Int):Void {}
-	public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:DataPointer, srcOffset:Int = 0):Void {}
+	public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:DataPointer):Void {}
+	public function texImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, data:DataPointer):Void {}
+	public function texStorage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int):Void {}
+	public function texStorage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int):Void {}
 	public function texParameterf (target:Int, pname:Int, param:Float):Void {}
 	public function texParameteri (target:Int, pname:Int, param:Int):Void {}
-	public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:DataPointer, srcOffset:Int = 0):Void {}
-	public function uniform1f (location:GLUniformLocation, x:Float):Void {}
-	public function uniform1fv (location:GLUniformLocation, v:lime.utils.Float32Array):Void {}
-	public function uniform1i (location:GLUniformLocation, x:Int):Void {}
-	public function uniform1iv (location:GLUniformLocation, v:lime.utils.Int32Array):Void {}
-	public function uniform2f (location:GLUniformLocation, x:Float, y:Float):Void {}
-	public function uniform2fv (location:GLUniformLocation, v:lime.utils.Float32Array):Void {}
-	public function uniform2i (location:GLUniformLocation, x:Int, y:Int):Void {}
-	public function uniform2iv (location:GLUniformLocation, v:lime.utils.Int32Array):Void {}
-	public function uniform3f (location:GLUniformLocation, x:Float, y:Float, z:Float):Void {}
-	public function uniform3fv(location:GLUniformLocation, v:lime.utils.Float32Array):Void {}
-	public function uniform3i (location:GLUniformLocation, x:Int, y:Int, z:Int):Void {}
-	public function uniform3iv (location:GLUniformLocation, v:lime.utils.Int32Array):Void {}
-	public function uniform4f (location:GLUniformLocation, x:Float, y:Float, z:Float, w:Float):Void {}
-	public function uniform4fv (location:GLUniformLocation, v:lime.utils.Float32Array):Void {}
-	public function uniform4i (location:GLUniformLocation, x:Int, y:Int, z:Int, w:Int):Void {}
-	public function uniform4iv (location:GLUniformLocation, v:lime.utils.Int32Array):Void {}
-	public function uniformMatrix2fv (location:GLUniformLocation, transpose:Bool, array:lime.utils.Float32Array):Void {}
-	public function uniformMatrix3fv (location:GLUniformLocation, transpose:Bool, array:lime.utils.Float32Array):Void {}
-	public function uniformMatrix4fv (location:GLUniformLocation, transpose:Bool, array:lime.utils.Float32Array):Void {}
+	public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, data:DataPointer):Void {}
+	public function texSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, data:DataPointer):Void {}
+	public function transformFeedbackVaryings (program:GLProgram, varyings:Array<String>, bufferMode:Int):Void {}
+	public function uniform1f (location:GLUniformLocation, v0:Float):Void {}
+	public function uniform1fv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	public function uniform1i (location:GLUniformLocation, v0:Int):Void {}
+	public function uniform1iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	public function uniform2f (location:GLUniformLocation, v0:Float, v1:Float):Void {}
+	public function uniform2fv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	public function uniform2i (location:GLUniformLocation, v0:Int, v1:Int):Void {}
+	public function uniform2iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	public function uniform3f (location:GLUniformLocation, v0:Float, v1:Float, v2:Float):Void {}
+	public function uniform3fv(location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	public function uniform3i (location:GLUniformLocation, v0:Int, v1:Int, v2:Int):Void {}
+	public function uniform3iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	public function uniform4f (location:GLUniformLocation, v0:Float, v1:Float, v2:Float, v3:Float):Void {}
+	public function uniform4fv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	public function uniform4i (location:GLUniformLocation, v0:Int, v1:Int, v2:Int, v3:Int):Void {}
+	public function uniform4iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	public function uniformBlockBinding (program:GLProgram, uniformBlockIndex:Int, uniformBlockBinding:Int):Void {}
+	public function uniformMatrix2fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {}
+	public function uniformMatrix2x3fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {}
+	public function uniformMatrix2x4fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {}
+	public function uniformMatrix3fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {}
+	public function uniformMatrix3x2fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {}
+	public function uniformMatrix3x4fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {}
+	public function uniformMatrix4fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {}
+	public function uniformMatrix4x2fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {}
+	public function uniformMatrix4x3fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {}
+	public function unmapBuffer (target:Int):Bool { return false; }
 	public function useProgram (program:GLProgram):Void {}
 	public function validateProgram (program:GLProgram):Void {}
-	public function vertexAttrib1f (indx:Int, x:Float):Void {}
-	public function vertexAttrib1fv (indx:Int, values:lime.utils.Float32Array):Void {}
-	public function vertexAttrib2f (indx:Int, x:Float, y:Float):Void {}
-	public function vertexAttrib2fv (indx:Int, values:lime.utils.Float32Array):Void {}
-	public function vertexAttrib3f (indx:Int, x:Float, y:Float, z:Float):Void {}
-	public function vertexAttrib3fv (indx:Int, values:lime.utils.Float32Array):Void {}
-	public function vertexAttrib4f (indx:Int, x:Float, y:Float, z:Float, w:Float):Void {}
-	public function vertexAttrib4fv (indx:Int, values:lime.utils.Float32Array):Void {}
-	public function vertexAttribPointer (indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:DataPointer):Void {}
+	public function vertexAttrib1f (indx:Int, v0:Float):Void {}
+	public function vertexAttrib1fv (indx:Int, v:DataPointer):Void {}
+	public function vertexAttrib2f (indx:Int, v0:Float, v1:Float):Void {}
+	public function vertexAttrib2fv (indx:Int, v:DataPointer):Void {}
+	public function vertexAttrib3f (indx:Int, v0:Float, v1:Float, v2:Float):Void {}
+	public function vertexAttrib3fv (indx:Int, v:DataPointer):Void {}
+	public function vertexAttrib4f (indx:Int, v0:Float, v1:Float, v2:Float, v3:Float):Void {}
+	public function vertexAttrib4fv (indx:Int, v:DataPointer):Void {}
+	public function vertexAttribDivisor (index:Int, divisor:Int):Void {}
+	public function vertexAttribI4i (index:Int, v0:Int, v1:Int, v2:Int, v3:Int):Void {}
+	public function vertexAttribI4iv (index:Int, value:DataPointer):Void {}
+	public function vertexAttribI4ui (index:Int, v0:Int, v1:Int, v2:Int, v3:Int):Void {}
+	public function vertexAttribI4uiv (index:Int, value:DataPointer):Void {}
+	public function vertexAttribIPointer (index:Int, size:Int, type:Int, stride:Int, offset:DataPointer):Void {}
+	public function vertexAttribPointer (index:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:DataPointer):Void {}
 	public function viewport (x:Int, y:Int, width:Int, height:Int):Void {}
+	public function waitSync (sync:GLSync, flags:Int, timeout:Dynamic /*int64*/):Void {}
 	
 }
 

@@ -25,6 +25,7 @@ namespace lime {
 	
 	enum GLObjectType {
 		
+		TYPE_UNKNOWN,
 		TYPE_PROGRAM,
 		TYPE_SHADER,
 		TYPE_BUFFER,

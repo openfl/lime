@@ -1,23 +1,17 @@
 package lime.graphics.opengl; #if (!js || !html5 || display)
 
 
-#if !lime_debug
-@:fileXml('tags="haxe,release"')
-@:noDebug
-#end
+import lime.graphics.opengl.GL;
+
+@:forward(refs)
 
 
-class GLProgram {
+abstract GLProgram(GLObject) from GLObject to GLObject {
 	
 	
-	private var id:Int;
-	private var shaders:Array<GLShader>;
-	
-	
-	private function new (id:Int) {
+	@:from private static function fromInt (id:Int):GLProgram {
 		
-		this.id = id;
-		shaders = [];
+		return GLObject.fromInt (PROGRAM, id);
 		
 	}
 	

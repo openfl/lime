@@ -1,21 +1,15 @@
 package lime.graphics.opengl; #if (!js || !html5 || display)
 
 
-#if !lime_debug
-@:fileXml('tags="haxe,release"')
-@:noDebug
-#end
+import lime.graphics.opengl.GL;
 
 
-class GLRenderbuffer {
+abstract GLRenderbuffer(GLObject) from GLObject to GLObject {
 	
 	
-	private var id:Int;
-	
-	
-	private function new (id:Int) {
+	@:from private static function fromInt (id:Int):GLRenderbuffer {
 		
-		this.id = id;
+		return GLObject.fromInt (RENDERBUFFER, id);
 		
 	}
 	

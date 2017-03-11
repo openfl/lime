@@ -1,21 +1,15 @@
 package lime.graphics.opengl; #if (!js || !html5 || display)
 
 
-#if !lime_debug
-@:fileXml('tags="haxe,release"')
-@:noDebug
-#end
+import lime.graphics.opengl.GL;
 
 
-class GLQuery {
+abstract GLQuery(GLObject) from GLObject to GLObject {
 	
 	
-	private var id:Int;
-	
-	
-	private function new (id:Int) {
+	@:from private static function fromInt (id:Int):GLQuery {
 		
-		this.id = id;
+		return GLObject.fromInt (QUERY, id);
 		
 	}
 	
@@ -24,16 +18,6 @@ class GLQuery {
 
 
 #else
-
-
 @:native("WebGLQuery")
-extern class GLQuery {
-	
-	
-	
-	
-	
-}
-
-
+extern class GLQuery {}
 #end
