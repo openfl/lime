@@ -1702,14 +1702,14 @@ class HTML5GLRenderContext {
 	
 	public inline function getInteger64 (pname:Int):Int64 {
 		
-		return null;
+		return Int64.ofInt (0);
 		
 	}
 	
 	
 	public inline function getInteger64i (pname:Int):Int64 {
 		
-		return null;
+		return Int64.ofInt (0);
 		
 	}
 	

@@ -744,7 +744,7 @@ class GLRenderContext {
 	public function getFramebufferAttachmentParameteriv (target:Int, attachment:Int, pname:Int, params:DataPointer):Void {}
 	public function getIndexedParameter (target:Int, index:Int):Dynamic { return null; }
 	public function getInteger (pname:Int):Int { return 0; }
-	public function getInteger64 (pname:Int):Int64 { return null; }
+	public function getInteger64 (pname:Int):Int64 { return Int64.ofInt (; }
 	public function getInteger64i (pname:Int):Int64 { return null; }
 	public function getInteger64i_v (pname:Int, params:DataPointer):Void {}
 	public function getInteger64v (pname:Int, params:DataPointer):Void {}
