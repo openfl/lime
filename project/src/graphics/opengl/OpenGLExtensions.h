@@ -294,6 +294,7 @@ OGL_EXT(glTranslatef,void, (GLfloat x, GLfloat y, GLfloat z));
 //OGL_EXT(glTranslatex,void, (GLfixed x, GLfixed y, GLfixed z));
 OGL_EXT(glVertexPointer,void, (GLint size, GLenum type, GLsizei stride, const GLvoid *pointer));
 OGL_EXT(glViewport,void, (GLint x, GLint y, GLsizei width, GLsizei height));
+OGL_EXT(glGetTexParameterfv,void,(GLenum target,  GLenum pname,  GLfloat * params));
 OGL_EXT(glGetTexParameteriv,void,(GLenum target,  GLenum pname,  GLint * params));
 OGL_EXT(glIsTexture, GLboolean, ( GLuint texture) );
 OGL_EXT(glIsEnabled, GLboolean, ( GLuint texture) );
