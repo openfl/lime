@@ -3,6 +3,7 @@ package lime.graphics.opengl;
 
 import haxe.io.Bytes;
 import haxe.Int64;
+import lime.graphics.opengl.GL.GLObject;
 import lime.utils.ArrayBufferView;
 import lime.utils.ArrayBuffer;
 import lime.utils.BytePointer;
@@ -1636,7 +1637,7 @@ class GL {
 	
 	public static inline function getInternalformatParameter (target:Int, internalformat:Int, pname:Int):Dynamic {
 		
-		return getInternalformatParameter (target, internalformat, pname);
+		return context.getInternalformatParameter (target, internalformat, pname);
 		
 	}
 	
@@ -2917,10 +2918,18 @@ class GL {
 	private static function get_version ():Float { return context.version; }
 	
 	
+	private static inline function __getObjectID (object:GLObject):Int {
+		
+		return (object == null) ? 0 : @:privateAccess object.id;
+		
+	}
+	
+	
 }
 
 
 #if (!js || !html5 || display)
+@:access(lime._backend.native.NativeCFFI)
 @:dox(hide) @:noCompletion class GLObject {
 	
 	
@@ -2938,7 +2947,17 @@ class GL {
 	public static function fromInt (type:GLObjectType, id:Int):GLObject {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return @:privateAccess NativeCFFI.lime_gl_object_from_id (type, id);
+		var object = NativeCFFI.lime_gl_object_from_id (id);
+		
+		if (object != null) {
+			
+			return object;
+			
+		}
+		
+		object = new GLObject (id);
+		NativeCFFI.lime_gl_object_register (id, type, object);
+		return object;
 		#else
 		return null;
 		#end

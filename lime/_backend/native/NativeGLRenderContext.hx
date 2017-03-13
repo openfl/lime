@@ -754,7 +754,7 @@ class NativeGLRenderContext {
 		}
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_attach_shader (program, shader);
+		NativeCFFI.lime_gl_attach_shader (__getObjectID (program), __getObjectID (shader));
 		#end
 		
 	}
@@ -777,7 +777,7 @@ class NativeGLRenderContext {
 	public function bindAttribLocation (program:GLProgram, index:Int, name:String):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_bind_attrib_location (program, index, name);
+		NativeCFFI.lime_gl_bind_attrib_location (__getObjectID (program), index, name);
 		#end
 		
 	}
@@ -789,7 +789,7 @@ class NativeGLRenderContext {
 		if (target == ELEMENT_ARRAY_BUFFER) __elementBufferBinding = buffer;
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_bind_buffer (target, buffer);
+		NativeCFFI.lime_gl_bind_buffer (target, __getObjectID (buffer));
 		#end
 		
 	}
@@ -812,7 +812,7 @@ class NativeGLRenderContext {
 		__framebufferBinding = framebuffer;
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_bind_framebuffer (target, framebuffer);
+		NativeCFFI.lime_gl_bind_framebuffer (target, __getObjectID (framebuffer));
 		#end
 		
 	}
@@ -823,7 +823,7 @@ class NativeGLRenderContext {
 		__renderbufferBinding = renderbuffer;
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_bind_renderbuffer (target, renderbuffer);
+		NativeCFFI.lime_gl_bind_renderbuffer (target, __getObjectID (renderbuffer));
 		#end
 		
 	}
@@ -841,7 +841,7 @@ class NativeGLRenderContext {
 		if (target == TEXTURE_CUBE_MAP) __textureCubeMapBinding = texture;
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_bind_texture (target, texture);
+		NativeCFFI.lime_gl_bind_texture (target, __getObjectID (texture));
 		#end
 		
 	}
@@ -1018,7 +1018,7 @@ class NativeGLRenderContext {
 	public function compileShader (shader:GLShader):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_compile_shader (shader);
+		NativeCFFI.lime_gl_compile_shader (__getObjectID (shader));
 		#end
 		
 	}
@@ -1087,7 +1087,10 @@ class NativeGLRenderContext {
 	public function createBuffer ():GLBuffer {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_create_buffer ();
+		var id = NativeCFFI.lime_gl_create_buffer ();
+		var object = new GLObject (id);
+		NativeCFFI.lime_gl_object_register (id, GLObjectType.BUFFER, object);
+		return object;
 		#else
 		return null;
 		#end
@@ -1098,7 +1101,10 @@ class NativeGLRenderContext {
 	public function createFramebuffer ():GLFramebuffer {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_create_framebuffer ();
+		var id = NativeCFFI.lime_gl_create_framebuffer ();
+		var object = new GLObject (id);
+		NativeCFFI.lime_gl_object_register (id, GLObjectType.FRAMEBUFFER, object);
+		return object;
 		#else
 		return null;
 		#end
@@ -1109,7 +1115,10 @@ class NativeGLRenderContext {
 	public function createProgram ():GLProgram {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_create_program ();
+		var id = NativeCFFI.lime_gl_create_program ();
+		var object = new GLObject (id);
+		NativeCFFI.lime_gl_object_register (id, GLObjectType.PROGRAM, object);
+		return object;
 		#else
 		return null;
 		#end
@@ -1127,7 +1136,10 @@ class NativeGLRenderContext {
 	public function createRenderbuffer ():GLRenderbuffer {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_create_renderbuffer ();
+		var id = NativeCFFI.lime_gl_create_renderbuffer ();
+		var object = new GLObject (id);
+		NativeCFFI.lime_gl_object_register (id, GLObjectType.RENDERBUFFER, object);
+		return object;
 		#else
 		return null;
 		#end
@@ -1145,7 +1157,10 @@ class NativeGLRenderContext {
 	public function createShader (type:Int):GLShader {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_create_shader (type);
+		var id = NativeCFFI.lime_gl_create_shader (type);
+		var object = new GLObject (id);
+		NativeCFFI.lime_gl_object_register (id, GLObjectType.SHADER, object);
+		return object;
 		#else
 		return null;
 		#end
@@ -1156,7 +1171,10 @@ class NativeGLRenderContext {
 	public function createTexture ():GLTexture {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_create_texture ();
+		var id = NativeCFFI.lime_gl_create_texture ();
+		var object = new GLObject (id);
+		NativeCFFI.lime_gl_object_register (id, GLObjectType.TEXTURE, object);
+		return object;
 		#else
 		return null;
 		#end
@@ -1190,7 +1208,7 @@ class NativeGLRenderContext {
 	public function deleteBuffer (buffer:GLBuffer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_delete_buffer (buffer);
+		NativeCFFI.lime_gl_delete_buffer (__getObjectID (buffer));
 		#end
 		
 	}
@@ -1199,7 +1217,7 @@ class NativeGLRenderContext {
 	public function deleteFramebuffer (framebuffer:GLFramebuffer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_delete_framebuffer (framebuffer);
+		NativeCFFI.lime_gl_delete_framebuffer (__getObjectID (framebuffer));
 		#end
 		
 	}
@@ -1208,7 +1226,7 @@ class NativeGLRenderContext {
 	public function deleteProgram (program:GLProgram):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_delete_program (program);
+		NativeCFFI.lime_gl_delete_program (__getObjectID (program));
 		#end
 		
 	}
@@ -1223,7 +1241,7 @@ class NativeGLRenderContext {
 	public function deleteRenderbuffer (renderbuffer:GLRenderbuffer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_delete_renderbuffer (renderbuffer);
+		NativeCFFI.lime_gl_delete_renderbuffer (__getObjectID (renderbuffer));
 		#end
 		
 	}
@@ -1238,7 +1256,7 @@ class NativeGLRenderContext {
 	public function deleteShader (shader:GLShader):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_delete_shader (shader);
+		NativeCFFI.lime_gl_delete_shader (__getObjectID (shader));
 		#end
 		
 	}
@@ -1253,7 +1271,7 @@ class NativeGLRenderContext {
 	public function deleteTexture (texture:GLTexture):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_delete_texture (texture);
+		NativeCFFI.lime_gl_delete_texture (__getObjectID (texture));
 		#end
 		
 	}
@@ -1307,7 +1325,7 @@ class NativeGLRenderContext {
 		}
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_detach_shader (program, shader);
+		NativeCFFI.lime_gl_detach_shader (__getObjectID (program), __getObjectID (shader));
 		#end
 		
 	}
@@ -1431,7 +1449,7 @@ class NativeGLRenderContext {
 	public function framebufferRenderbuffer (target:Int, attachment:Int, renderbuffertarget:Int, renderbuffer:GLRenderbuffer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_framebuffer_renderbuffer (target, attachment, renderbuffertarget, renderbuffer);
+		NativeCFFI.lime_gl_framebuffer_renderbuffer (target, attachment, renderbuffertarget, __getObjectID (renderbuffer));
 		#end
 		
 	}
@@ -1440,7 +1458,7 @@ class NativeGLRenderContext {
 	public function framebufferTexture2D (target:Int, attachment:Int, textarget:Int, texture:GLTexture, level:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_framebuffer_texture2D (target, attachment, textarget, texture, level);
+		NativeCFFI.lime_gl_framebuffer_texture2D (target, attachment, textarget, __getObjectID (texture), level);
 		#end
 		
 	}
@@ -1473,7 +1491,7 @@ class NativeGLRenderContext {
 	public function getActiveAttrib (program:GLProgram, index:Int):GLActiveInfo {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		var result:Dynamic = NativeCFFI.lime_gl_get_active_attrib (program, index);
+		var result:Dynamic = NativeCFFI.lime_gl_get_active_attrib (__getObjectID (program), index);
 		return result;
 		#else
 		return null;
@@ -1485,7 +1503,7 @@ class NativeGLRenderContext {
 	public function getActiveUniform (program:GLProgram, index:Int):GLActiveInfo {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		var result:Dynamic = NativeCFFI.lime_gl_get_active_uniform (program, index);
+		var result:Dynamic = NativeCFFI.lime_gl_get_active_uniform (__getObjectID (program), index);
 		return result;
 		#else
 		return null;
@@ -1537,7 +1555,7 @@ class NativeGLRenderContext {
 	public function getAttachedShaders (program:GLProgram):Array<GLShader> {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_attached_shaders (program);
+		return NativeCFFI.lime_gl_get_attached_shaders (__getObjectID (program));
 		#else
 		return null;
 		#end
@@ -1548,7 +1566,7 @@ class NativeGLRenderContext {
 	public function getAttribLocation (program:GLProgram, name:String):Int {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_attrib_location (program, name);
+		return NativeCFFI.lime_gl_get_attrib_location (__getObjectID (program), name);
 		#else
 		return 0;
 		#end
@@ -1931,7 +1949,7 @@ class NativeGLRenderContext {
 	public function getProgrami (program:GLProgram, pname:Int):Int {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_programi (program, pname);
+		return NativeCFFI.lime_gl_get_programi (__getObjectID (program), pname);
 		#else
 		return 0;
 		#end
@@ -1942,7 +1960,7 @@ class NativeGLRenderContext {
 	public function getProgramiv (program:GLProgram, pname:Int, params:DataPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_get_programiv (program, pname, params);
+		NativeCFFI.lime_gl_get_programiv (__getObjectID (program), pname, params);
 		#end
 		
 	}
@@ -1958,7 +1976,7 @@ class NativeGLRenderContext {
 	public function getProgramInfoLog (program:GLProgram):String {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_program_info_log (program);
+		return NativeCFFI.lime_gl_get_program_info_log (__getObjectID (program));
 		#else
 		return null;
 		#end
@@ -1968,7 +1986,7 @@ class NativeGLRenderContext {
 	
 	public function getProgramParameter (program:GLProgram, pname:Int):Dynamic {
 		
-		return getProgrami (program, pname);
+		return getProgrami (__getObjectID (program), pname);
 		
 	}
 	
@@ -2078,7 +2096,7 @@ class NativeGLRenderContext {
 	public function getShaderi (shader:GLShader, pname:Int):Int {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_shaderi (shader, pname);
+		return NativeCFFI.lime_gl_get_shaderi (__getObjectID (shader), pname);
 		#else
 		return 0;
 		#end
@@ -2089,7 +2107,7 @@ class NativeGLRenderContext {
 	public function getShaderiv (shader:GLShader, pname:Int, params:DataPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_get_shaderiv (shader, pname, params);
+		NativeCFFI.lime_gl_get_shaderiv (__getObjectID (shader), pname, params);
 		#end
 		
 	}
@@ -2098,7 +2116,7 @@ class NativeGLRenderContext {
 	public function getShaderInfoLog (shader:GLShader):String {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_shader_info_log (shader);
+		return NativeCFFI.lime_gl_get_shader_info_log (__getObjectID (shader));
 		#else
 		return null;
 		#end
@@ -2108,7 +2126,7 @@ class NativeGLRenderContext {
 	
 	public function getShaderParameter (shader:GLShader, pname:Int):Dynamic {
 		
-		return getShaderi (shader, pname);
+		return getShaderi (__getObjectID (shader), pname);
 		
 	}
 	
@@ -2128,7 +2146,7 @@ class NativeGLRenderContext {
 	public function getShaderSource (shader:GLShader):String {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_shader_source (shader);
+		return NativeCFFI.lime_gl_get_shader_source (__getObjectID (shader));
 		#else
 		return null;
 		#end
@@ -2365,7 +2383,7 @@ class NativeGLRenderContext {
 	public function getUniformf (program:GLProgram, location:GLUniformLocation):Float {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_uniformf (program, location);
+		return NativeCFFI.lime_gl_get_uniformf (__getObjectID (program), location);
 		#else
 		return 0;
 		#end
@@ -2376,7 +2394,7 @@ class NativeGLRenderContext {
 	public function getUniformfv (program:GLProgram, location:GLUniformLocation, params:DataPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_get_uniformfv (program, location, params);
+		NativeCFFI.lime_gl_get_uniformfv (__getObjectID (program), location, params);
 		#end
 		
 	}
@@ -2385,7 +2403,7 @@ class NativeGLRenderContext {
 	public function getUniformi (program:GLProgram, location:GLUniformLocation):Int {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_uniformi (program, location);
+		return NativeCFFI.lime_gl_get_uniformi (__getObjectID (program), location);
 		#else
 		return 0;
 		#end
@@ -2396,7 +2414,7 @@ class NativeGLRenderContext {
 	public function getUniformiv (program:GLProgram, location:GLUniformLocation, params:DataPointer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_get_uniformiv (program, location, params);
+		NativeCFFI.lime_gl_get_uniformiv (__getObjectID (program), location, params);
 		#end
 		
 	}
@@ -2432,7 +2450,7 @@ class NativeGLRenderContext {
 	public function getUniformLocation (program:GLProgram, name:String):GLUniformLocation {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_get_uniform_location (program, name);
+		return NativeCFFI.lime_gl_get_uniform_location (__getObjectID (program), name);
 		#else
 		return 0;
 		#end
@@ -2542,7 +2560,7 @@ class NativeGLRenderContext {
 	public function isBuffer (buffer:GLBuffer):Bool {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_is_buffer (buffer);
+		return NativeCFFI.lime_gl_is_buffer (__getObjectID (buffer));
 		#else
 		return false;
 		#end
@@ -2571,7 +2589,7 @@ class NativeGLRenderContext {
 	public function isFramebuffer (framebuffer:GLFramebuffer):Bool {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_is_framebuffer (framebuffer);
+		return NativeCFFI.lime_gl_is_framebuffer (__getObjectID (framebuffer));
 		#else
 		return false;
 		#end
@@ -2582,7 +2600,7 @@ class NativeGLRenderContext {
 	public function isProgram (program:GLProgram):Bool {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_is_program (program);
+		return NativeCFFI.lime_gl_is_program (__getObjectID (program));
 		#else
 		return false;
 		#end
@@ -2600,7 +2618,7 @@ class NativeGLRenderContext {
 	public function isRenderbuffer (renderbuffer:GLRenderbuffer):Bool {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_is_renderbuffer (renderbuffer);
+		return NativeCFFI.lime_gl_is_renderbuffer (__getObjectID (renderbuffer));
 		#else
 		return false;
 		#end
@@ -2618,7 +2636,7 @@ class NativeGLRenderContext {
 	public function isShader (shader:GLShader):Bool {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_is_shader (shader);
+		return NativeCFFI.lime_gl_is_shader (__getObjectID (shader));
 		#else
 		return false;
 		#end
@@ -2636,7 +2654,7 @@ class NativeGLRenderContext {
 	public function isTexture (texture:GLTexture):Bool {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		return NativeCFFI.lime_gl_is_texture (texture);
+		return NativeCFFI.lime_gl_is_texture (__getObjectID (texture));
 		#else
 		return false;
 		#end
@@ -2670,7 +2688,7 @@ class NativeGLRenderContext {
 	public function linkProgram (program:GLProgram):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_link_program (program);
+		NativeCFFI.lime_gl_link_program (__getObjectID (program));
 		#end
 		
 	}
@@ -2804,7 +2822,7 @@ class NativeGLRenderContext {
 	public function shaderSource (shader:GLShader, source:String):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_shader_source (shader, source);
+		NativeCFFI.lime_gl_shader_source (__getObjectID (shader), source);
 		#end
 		
 	}
@@ -3155,7 +3173,7 @@ class NativeGLRenderContext {
 		__currentProgram = program;
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_use_program (program);
+		NativeCFFI.lime_gl_use_program (__getObjectID (program));
 		#end
 		
 	}
@@ -3164,7 +3182,7 @@ class NativeGLRenderContext {
 	public function validateProgram (program:GLProgram):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		NativeCFFI.lime_gl_validate_program (program);
+		NativeCFFI.lime_gl_validate_program (__getObjectID (program));
 		#end
 		
 	}
@@ -3327,6 +3345,13 @@ class NativeGLRenderContext {
 	}
 	
 	
+	private inline function __getObjectID (object:GLObject):Int {
+		
+		return (object == null) ? 0 : object.id;
+		
+	}
+	
+	
 	private function __initialize ():Void {
 		
 		if (!__initialized) {
@@ -3434,10 +3459,6 @@ class NativeGLRenderContext {
 			__extensionObjectTypes["QCOM_tiled_rendering"] = QCOM_tiled_rendering;
 			__extensionObjectTypes["QCOM_writeonly_rendering"] = QCOM_writeonly_rendering;
 			__extensionObjectTypes["VIV_shader_binary"] = VIV_shader_binary;
-			
-			#if (lime_cffi && lime_opengl && !macro)
-			NativeCFFI.lime_gl_object_constructor (__createObject);
-			#end
 			
 		}
 		

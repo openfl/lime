@@ -31,112 +31,80 @@ namespace lime {
 	int OpenGLBindings::defaultFramebuffer = 0;
 	
 	
-	void gc_gl_object (value object);
-	
 	std::map<GLuint, value> glObjects;
-	std::map<GLuint, GLObjectType> glObjectTypes;
-	value glObjectConstructor;
-	value *glObjectConstructorRoot;
-	int id_id = 0;
-	
-	GLuint GLObjectID (value object) {
-		
-		if (val_is_null (object)) {
-			
-			return 0;
-			
-		} else {
-			
-			return val_int (val_field (object, id_id));
-			
-		}
-		
-	}
-	
-	value GLObjectFromID (GLObjectType type, GLuint id) {
-		
-		if (glObjects.find (id) == glObjects.end ()) {
-			
-			glObjectTypes[id] = type;
-			glObjects[id] = CFFIPointer (val_call1 (glObjectConstructor, alloc_int (id)), gc_gl_object);
-			
-		}
-		
-		return glObjects[id];
-		
-	}
-	
-	
-	void lime_gl_delete_buffer (value handle);
-	void lime_gl_delete_framebuffer (value handle);
-	void lime_gl_delete_program (value handle);
-	void lime_gl_delete_renderbuffer (value handle);
-	void lime_gl_delete_shader (value handle);
-	void lime_gl_delete_texture (value handle);
+	std::map<value, GLuint> glObjectIDs;
+	std::map<value, GLObjectType> glObjectTypes;
 	
 	std::vector<GLuint> gc_gl_id;
+	std::vector<GLObjectType> gc_gl_type;
 	Mutex gc_gl_mutex;
 	
 	void gc_gl_object (value object) {
 		
 		gc_gl_mutex.Lock ();
-		gc_gl_id.push_back (GLObjectID (object));
+		
+		if (glObjectIDs.find (object) != glObjectIDs.end ()) {
+			
+			GLuint id = glObjectIDs[object];
+			
+			gc_gl_id.push_back (id);
+			gc_gl_type.push_back (glObjectTypes[object]);
+			
+			glObjects.erase (id);
+			glObjectIDs.erase (object);
+			glObjectTypes.erase (object);
+			
+		}
+		
 		gc_gl_mutex.Unlock ();
 		
 	}
 	
 	void gc_gl_run () {
 		
-		gc_gl_mutex.Lock ();
-		
-		int size = gc_gl_id.size ();
-		
-		if (size > 0) {
+		if (gc_gl_id.size () > 0) {
 			
+			gc_gl_mutex.Lock ();
+			
+			int size = gc_gl_id.size ();
 			GLuint id;
 			GLObjectType type;
 			
 			for (int i = 0; i < size; i++) {
 				
 				id = gc_gl_id[i];
-				type = glObjectTypes[id];
+				type = gc_gl_type[i];
 				
 				switch (type) {
 					
 					case TYPE_BUFFER:
 						
-						glDeleteBuffers (1, &id);
+						if (glIsBuffer (id)) glDeleteBuffers (1, &id);
 						break;
 					
 					case TYPE_FRAMEBUFFER:
 						
-						glDeleteFramebuffers (1, &id);
+						if (glIsFramebuffer (id)) glDeleteFramebuffers (1, &id);
 						break;
 					
 					case TYPE_PROGRAM:
 						
-						glDeleteProgram (id);
+						if (glIsProgram (id)) glDeleteProgram (id);
 						break;
 					
 					case TYPE_RENDERBUFFER:
 						
-						glDeleteRenderbuffers (1, &id);
+						if (glIsProgram (id)) glDeleteRenderbuffers (1, &id);
 						break;
 					
 					case TYPE_SHADER:
 						
-						glDeleteShader (id);
+						if (glIsShader (id)) glDeleteShader (id);
 						break;
 					
 					case TYPE_TEXTURE:
 						
-						glDeleteTextures (1, &id);
-						break;
-					
-					case TYPE_UNKNOWN:
-						
-						glObjectTypes.erase (id);
-						glObjects.erase (id);
+						if (glIsTexture (id)) glDeleteTextures (1, &id);
 						break;
 					
 				}
@@ -144,10 +112,11 @@ namespace lime {
 			}
 			
 			gc_gl_id.clear ();
+			gc_gl_type.clear ();
+			
+			gc_gl_mutex.Unlock ();
 			
 		}
-		
-		gc_gl_mutex.Unlock ();
 		
 	}
 	
@@ -159,30 +128,30 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_attach_shader (value program, value shader) {
+	void lime_gl_attach_shader (int program, int shader) {
 		
-		glAttachShader (GLObjectID (program), GLObjectID (shader));
-		
-	}
-	
-	
-	void lime_gl_bind_attrib_location (value program, int index, HxString name) {
-		
-		glBindAttribLocation (GLObjectID (program), index, name.__s);
+		glAttachShader (program, shader);
 		
 	}
 	
 	
-	void lime_gl_bind_buffer (int target, value buffer) {
+	void lime_gl_bind_attrib_location (int program, int index, HxString name) {
 		
-		glBindBuffer (target, GLObjectID (buffer));
+		glBindAttribLocation (program, index, name.__s);
 		
 	}
 	
 	
-	void lime_gl_bind_framebuffer (int target, value framebuffer) {
+	void lime_gl_bind_buffer (int target, int buffer) {
 		
-		GLuint id = GLObjectID (framebuffer);
+		glBindBuffer (target, buffer);
+		
+	}
+	
+	
+	void lime_gl_bind_framebuffer (int target, int framebuffer) {
+		
+		GLuint id = framebuffer;
 		
 		if (!id) {
 			
@@ -195,16 +164,16 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_bind_renderbuffer (int target, value renderbuffer) {
+	void lime_gl_bind_renderbuffer (int target, int renderbuffer) {
 		
-		glBindRenderbuffer (target, GLObjectID (renderbuffer));
+		glBindRenderbuffer (target, renderbuffer);
 		
 	}
 	
 	
-	void lime_gl_bind_texture (int target, value texture) {
+	void lime_gl_bind_texture (int target, int texture) {
 		
-		glBindTexture (target, GLObjectID (texture));
+		glBindTexture (target, texture);
 		
 	}
 	
@@ -305,9 +274,9 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_compile_shader (value shader) {
+	void lime_gl_compile_shader (int shader) {
 		
-		glCompileShader (GLObjectID (shader));
+		glCompileShader (shader);
 		
 	}
 	
@@ -340,54 +309,54 @@ namespace lime {
 	}
 	
 	
-	value lime_gl_create_buffer () {
+	int lime_gl_create_buffer () {
 		
 		GLuint id;
 		glGenBuffers (1, &id);
-		return GLObjectFromID (TYPE_BUFFER, id);
+		return id;
 		
 	}
 	
 	
-	value lime_gl_create_framebuffer () {
+	int lime_gl_create_framebuffer () {
 		
 		GLuint id = 0;
 		glGenFramebuffers (1, &id);
-		return GLObjectFromID (TYPE_FRAMEBUFFER, id);
+		return id;
 		
 	}
 	
 	
-	value lime_gl_create_program () {
+	int lime_gl_create_program () {
 		
 		GLuint id = glCreateProgram ();
-		return GLObjectFromID (TYPE_PROGRAM, id);
+		return id;
 		
 	}
 	
 	
-	value lime_gl_create_renderbuffer () {
+	int lime_gl_create_renderbuffer () {
 		
 		GLuint id = 0;
 		glGenRenderbuffers (1, &id);
-		return GLObjectFromID (TYPE_RENDERBUFFER, id);
+		return id;
 		
 	}
 	
 	
-	value lime_gl_create_shader (int type) {
+	int lime_gl_create_shader (int type) {
 		
 		GLuint id = glCreateShader (type);
-		return GLObjectFromID (TYPE_SHADER, id);
+		return id;
 		
 	}
 	
 	
-	value lime_gl_create_texture () {
+	int lime_gl_create_texture () {
 		
 		GLuint id = 0;
 		glGenTextures (1, &id);
-		return GLObjectFromID (TYPE_TEXTURE, id);
+		return id;
 		
 	}
 	
@@ -399,98 +368,44 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_delete_buffer (value buffer) {
+	void lime_gl_delete_buffer (int buffer) {
 		
-		GLuint id = GLObjectID (buffer);
-		
-		if (id) {
-			
-			val_gc (buffer, 0);
-			glDeleteBuffers (1, &id);
-			glObjectTypes.erase (id);
-			glObjects.erase (id);
-			
-		}
+		glDeleteBuffers (1, (GLuint*)&buffer);
 		
 	}
 	
 	
-	void lime_gl_delete_framebuffer (value framebuffer) {
+	void lime_gl_delete_framebuffer (int framebuffer) {
 		
-		GLuint id = GLObjectID (framebuffer);
-		
-		if (id) {
-			
-			val_gc (framebuffer, 0);
-			glDeleteFramebuffers (1, &id);
-			glObjectTypes.erase (id);
-			glObjects.erase (id);
-			
-		}
+		glDeleteFramebuffers (1, (GLuint*)&framebuffer);
 		
 	}
 	
 	
-	void lime_gl_delete_program (value program) {
+	void lime_gl_delete_program (int program) {
 		
-		GLuint id = GLObjectID (program);
-		
-		if (id) {
-			
-			val_gc (program, 0);
-			glDeleteProgram (id);
-			glObjectTypes.erase (id);
-			glObjects.erase (id);
-			
-		}
+		glDeleteProgram (program);
 		
 	}
 	
 	
-	void lime_gl_delete_renderbuffer (value renderbuffer) {
+	void lime_gl_delete_renderbuffer (int renderbuffer) {
 		
-		GLuint id = GLObjectID (renderbuffer);
-		
-		if (id) {
-			
-			val_gc (renderbuffer, 0);
-			glDeleteRenderbuffers (1, &id);
-			glObjectTypes.erase (id);
-			glObjects.erase (id);
-			
-		}
+		glDeleteRenderbuffers (1, (GLuint*)&renderbuffer);
 		
 	}
 	
 	
-	void lime_gl_delete_shader (value shader) {
+	void lime_gl_delete_shader (int shader) {
 		
-		GLuint id = GLObjectID (shader);
-		
-		if (id) {
-			
-			val_gc (shader, 0);
-			glDeleteShader (id);
-			glObjectTypes.erase (id);
-			glObjects.erase (id);
-			
-		}
+		glDeleteShader (shader);
 		
 	}
 	
 	
-	void lime_gl_delete_texture (value texture) {
+	void lime_gl_delete_texture (int texture) {
 		
-		GLuint id = GLObjectID (texture);
-		
-		if (id) {
-			
-			val_gc (texture, 0);
-			glDeleteTextures (1, &id);
-			glObjectTypes.erase (id);
-			glObjects.erase (id);
-			
-		}
+		glDeleteTextures (1, (GLuint*)&texture);
 		
 	}
 	
@@ -520,9 +435,9 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_detach_shader (value program, value shader) {
+	void lime_gl_detach_shader (int program, int shader) {
 		
-		glDetachShader (GLObjectID (program), GLObjectID (shader));
+		glDetachShader (program, shader);
 		
 	}
 	
@@ -583,16 +498,16 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_framebuffer_renderbuffer (int target, int attachment, int renderbuffertarget, value renderbuffer) {
+	void lime_gl_framebuffer_renderbuffer (int target, int attachment, int renderbuffertarget, int renderbuffer) {
 		
-		glFramebufferRenderbuffer (target, attachment, renderbuffertarget, GLObjectID (renderbuffer));
+		glFramebufferRenderbuffer (target, attachment, renderbuffertarget, renderbuffer);
 		
 	}
 	
 	
-	void lime_gl_framebuffer_texture2D (int target, int attachment, int textarget, value texture, int level) {
+	void lime_gl_framebuffer_texture2D (int target, int attachment, int textarget, int texture, int level) {
 		
-		glFramebufferTexture2D (target, attachment, textarget, GLObjectID (texture), level);
+		glFramebufferTexture2D (target, attachment, textarget, texture, level);
 		
 	}
 	
@@ -611,7 +526,7 @@ namespace lime {
 	}
 	
 	
-	value lime_gl_get_active_attrib (value program, int index) {
+	value lime_gl_get_active_attrib (int program, int index) {
 		
 		value result = alloc_empty_object ();
 		
@@ -620,7 +535,7 @@ namespace lime {
 		GLsizei size = 0;
 		GLenum  type = 0;
 		
-		glGetActiveAttrib (GLObjectID (program), index, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &outLen, &size, &type, &buffer[0]);
+		glGetActiveAttrib (program, index, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &outLen, &size, &type, &buffer[0]);
 		
 		buffer.resize (outLen);
 		
@@ -633,14 +548,14 @@ namespace lime {
 	}
 	
 	
-	value lime_gl_get_active_uniform (value program, int index) {
+	value lime_gl_get_active_uniform (int program, int index) {
 		
 		std::string buffer (GL_ACTIVE_UNIFORM_MAX_LENGTH, 0);
 		GLsizei outLen = 0;
 		GLsizei size = 0;
 		GLenum  type = 0;
 		
-		glGetActiveUniform (GLObjectID (program), index, GL_ACTIVE_UNIFORM_MAX_LENGTH, &outLen, &size, &type, &buffer[0]);
+		glGetActiveUniform (program, index, GL_ACTIVE_UNIFORM_MAX_LENGTH, &outLen, &size, &type, &buffer[0]);
 		
 		buffer.resize (outLen);
 		
@@ -654,9 +569,9 @@ namespace lime {
 	}
 	
 	
-	value lime_gl_get_attached_shaders (value program) {
+	value lime_gl_get_attached_shaders (int program) {
 		
-		GLuint id = GLObjectID (program);
+		GLuint id = program;
 		GLsizei maxCount = 0;
 		
 		glGetProgramiv (id, GL_ATTACHED_SHADERS, &maxCount);
@@ -676,7 +591,7 @@ namespace lime {
 		
 		for (int i = 0; i < maxCount; i++) {
 			
-			val_array_set_i (data, i, GLObjectFromID (TYPE_SHADER, shaders[i]));
+			val_array_set_i (data, i, alloc_int (shaders[i]));
 			
 		}
 		
@@ -686,9 +601,9 @@ namespace lime {
 	}
 	
 	
-	int lime_gl_get_attrib_location (value program, HxString name) {
+	int lime_gl_get_attrib_location (int program, HxString name) {
 		
-		return glGetAttribLocation (GLObjectID (program), name.__s);
+		return glGetAttribLocation (program, name.__s);
 		
 	}
 	
@@ -823,9 +738,9 @@ namespace lime {
 	}
 	
 	
-	value lime_gl_get_program_info_log (value handle) {
+	value lime_gl_get_program_info_log (int handle) {
 		
-		GLuint program = GLObjectID (handle);
+		GLuint program = handle;
 		
 		GLint logSize = 0;
 		glGetProgramiv (program, GL_INFO_LOG_LENGTH, &logSize);
@@ -845,18 +760,18 @@ namespace lime {
 	}
 	
 	
-	int lime_gl_get_programi (value program, int pname) {
+	int lime_gl_get_programi (int program, int pname) {
 		
 		GLint params = 0;
-		glGetProgramiv (GLObjectID (program), pname, &params);
+		glGetProgramiv (program, pname, &params);
 		return params;
 		
 	}
 	
 	
-	void lime_gl_get_programiv (value program, int pname, double params) {
+	void lime_gl_get_programiv (int program, int pname, double params) {
 		
-		glGetProgramiv (GLObjectID (program), pname, (GLint*)(uintptr_t)params);
+		glGetProgramiv (program, pname, (GLint*)(uintptr_t)params);
 		
 	}
 	
@@ -877,9 +792,9 @@ namespace lime {
 	}
 	
 	
-	value lime_gl_get_shader_info_log (value handle) {
+	value lime_gl_get_shader_info_log (int handle) {
 		
-		GLuint shader = GLObjectID (handle);
+		GLuint shader = handle;
 		
 		GLint logSize = 0;
 		glGetShaderiv (shader, GL_INFO_LOG_LENGTH, &logSize);
@@ -899,18 +814,18 @@ namespace lime {
 	}
 	
 	
-	int lime_gl_get_shaderi (value shader, int pname) {
+	int lime_gl_get_shaderi (int shader, int pname) {
 		
 		GLint params = 0;
-		glGetShaderiv (GLObjectID (shader), pname, &params);
+		glGetShaderiv (shader, pname, &params);
 		return params;
 		
 	}
 	
 	
-	void lime_gl_get_shaderiv (value shader, int pname, double params) {
+	void lime_gl_get_shaderiv (int shader, int pname, double params) {
 		
-		glGetShaderiv (GLObjectID (shader), pname, (GLint*)(uintptr_t)params);
+		glGetShaderiv (shader, pname, (GLint*)(uintptr_t)params);
 		
 	}
 	
@@ -939,9 +854,9 @@ namespace lime {
 	}
 	
 	
-	value lime_gl_get_shader_source (value shader) {
+	value lime_gl_get_shader_source (int shader) {
 		
-		GLuint id = GLObjectID (shader);
+		GLuint id = shader;
 		
 		GLint len = 0;
 		glGetShaderiv (id, GL_SHADER_SOURCE_LENGTH, &len);
@@ -1012,41 +927,41 @@ namespace lime {
 	}
 	
 	
-	float lime_gl_get_uniformf (value program, int location) {
+	float lime_gl_get_uniformf (int program, int location) {
 		
 		GLfloat params = 0;
-		glGetUniformfv (GLObjectID (program), location, &params);
+		glGetUniformfv (program, location, &params);
 		return params;
 		
 	}
 	
 	
-	void lime_gl_get_uniformfv (value program, int location, double params) {
+	void lime_gl_get_uniformfv (int program, int location, double params) {
 		
-		glGetUniformfv (GLObjectID (program), location, (GLfloat*)(uintptr_t)params);
+		glGetUniformfv (program, location, (GLfloat*)(uintptr_t)params);
 		
 	}
 	
 	
-	int lime_gl_get_uniformi (value program, int location) {
+	int lime_gl_get_uniformi (int program, int location) {
 		
 		GLint params = 0;
-		glGetUniformiv (GLObjectID (program), location, &params);
+		glGetUniformiv (program, location, &params);
 		return params;
 		
 	}
 	
 	
-	void lime_gl_get_uniformiv (value program, int location, double params) {
+	void lime_gl_get_uniformiv (int program, int location, double params) {
 		
-		glGetUniformiv (GLObjectID (program), location, (GLint*)(uintptr_t)params);
+		glGetUniformiv (program, location, (GLint*)(uintptr_t)params);
 		
 	}
 	
 	
-	int lime_gl_get_uniform_location (value program, HxString name) {
+	int lime_gl_get_uniform_location (int program, HxString name) {
 		
-		return glGetUniformLocation (GLObjectID (program), name.__s);
+		return glGetUniformLocation (program, name.__s);
 		
 	}
 	
@@ -1083,9 +998,9 @@ namespace lime {
 	}
 	
 	
-	bool lime_gl_is_buffer (value handle) {
+	bool lime_gl_is_buffer (int handle) {
 		
-		return glIsBuffer (GLObjectID (handle));
+		return glIsBuffer (handle);
 		
 	}
 	
@@ -1097,37 +1012,37 @@ namespace lime {
 	}
 	
 	
-	bool lime_gl_is_framebuffer (value handle) {
+	bool lime_gl_is_framebuffer (int handle) {
 		
-		return glIsFramebuffer (GLObjectID (handle));
-		
-	}
-	
-	
-	bool lime_gl_is_program (value handle) {
-		
-		return glIsProgram (GLObjectID (handle));
+		return glIsFramebuffer (handle);
 		
 	}
 	
 	
-	bool lime_gl_is_renderbuffer (value handle) {
+	bool lime_gl_is_program (int handle) {
 		
-		return glIsRenderbuffer (GLObjectID (handle));
-		
-	}
-	
-	
-	bool lime_gl_is_shader (value handle) {
-		
-		return glIsShader (GLObjectID (handle));
+		return glIsProgram (handle);
 		
 	}
 	
 	
-	bool lime_gl_is_texture (value handle) {
+	bool lime_gl_is_renderbuffer (int handle) {
 		
-		return glIsTexture (GLObjectID (handle));
+		return glIsRenderbuffer (handle);
+		
+	}
+	
+	
+	bool lime_gl_is_shader (int handle) {
+		
+		return glIsShader (handle);
+		
+	}
+	
+	
+	bool lime_gl_is_texture (int handle) {
+		
+		return glIsTexture (handle);
 		
 	}
 	
@@ -1139,43 +1054,35 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_link_program (value program) {
+	void lime_gl_link_program (int program) {
 		
-		glLinkProgram (GLObjectID (program));
-		
-	}
-	
-	
-	void lime_gl_object_constructor (value constructor) {
-		
-		value* root = alloc_root ();
-		*root = constructor;
-		
-		if (glObjectConstructorRoot) {
-			
-			free_root (glObjectConstructorRoot);
-			
-		}
-		
-		glObjectConstructorRoot = root;
-		glObjectConstructor = constructor;
+		glLinkProgram (program);
 		
 	}
 	
 	
-	value lime_gl_object_from_id (int type, int id) {
+	value lime_gl_object_from_id (int id) {
 		
-		GLObjectType _type = (GLObjectType)type;
-		
-		if (glObjectTypes.find (id) != glObjectTypes.end () && glObjectTypes[id] != _type) {
+		if (glObjects.find (id) != glObjects.end ()) {
 			
-			return alloc_null ();
+			return glObjects[id];
 			
 		} else {
 			
-			return GLObjectFromID (_type, id);
+			return alloc_null ();
 			
 		}
+		
+	}
+	
+	
+	void lime_gl_object_register (int id, int type, value object) {
+		
+		glObjectTypes[object] = (GLObjectType)type;
+		glObjectIDs[object] = id;
+		glObjects[id] = object;
+		
+		val_gc (object, gc_gl_object);
 		
 	}
 	
@@ -1222,9 +1129,9 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_shader_source (value handle, HxString source) {
+	void lime_gl_shader_source (int handle, HxString source) {
 		
-		glShaderSource (GLObjectID (handle), 1, &source.__s, 0);
+		glShaderSource (handle, 1, &source.__s, 0);
 		
 	}
 	
@@ -1432,16 +1339,16 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_use_program (value handle) {
+	void lime_gl_use_program (int handle) {
 		
-		glUseProgram (GLObjectID (handle));
+		glUseProgram (handle);
 		
 	}
 	
 	
-	void lime_gl_validate_program (value handle) {
+	void lime_gl_validate_program (int handle) {
 		
-		glValidateProgram (GLObjectID (handle));
+		glValidateProgram (handle);
 		
 	}
 	
@@ -1523,8 +1430,6 @@ namespace lime {
 		if (!initialized) {
 			
 			initialized = true;
-			
-			id_id = val_id ("id");
 			
 			#ifdef HX_LINUX
 			
@@ -1662,8 +1567,8 @@ namespace lime {
 	DEFINE_PRIME1 (lime_gl_is_texture);
 	DEFINE_PRIME1v (lime_gl_line_width);
 	DEFINE_PRIME1v (lime_gl_link_program);
-	DEFINE_PRIME1v (lime_gl_object_constructor);
-	DEFINE_PRIME2 (lime_gl_object_from_id);
+	DEFINE_PRIME1 (lime_gl_object_from_id);
+	DEFINE_PRIME3v (lime_gl_object_register);
 	DEFINE_PRIME2v (lime_gl_pixel_storei);
 	DEFINE_PRIME2v (lime_gl_polygon_offset);
 	DEFINE_PRIME7v (lime_gl_read_pixels);
