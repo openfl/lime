@@ -368,15 +368,15 @@ class ProjectXMLParser extends HXProject {
 	}
 	
 	
-	private function parseAppElement (element:Fast):Void {
+	private function parseAppElement (element:Fast, extensionPath:String):Void {
 		
 		for (attribute in element.x.attributes ()) {
-
+			
 			switch (attribute) {
 				
 				case "path":
 					
-					app.path = substitute (element.att.path);
+					app.path = PathHelper.combine (extensionPath, substitute (element.att.path));
 				
 				case "min-swf-version":
 					
@@ -967,7 +967,7 @@ class ProjectXMLParser extends HXProject {
 	}
 	
 	
-	private function parseOutputElement (element:Fast):Void {
+	private function parseOutputElement (element:Fast, extensionPath:String):Void {
 		
 		if (element.has.name) {
 			
@@ -977,7 +977,7 @@ class ProjectXMLParser extends HXProject {
 		
 		if (element.has.path) {
 			
-			app.path = substitute (element.att.path);
+			app.path = PathHelper.combine (extensionPath, substitute (element.att.path));
 			
 		}
 		
@@ -1267,7 +1267,7 @@ class ProjectXMLParser extends HXProject {
 					
 					case "app":
 						
-						parseAppElement (element);
+						parseAppElement (element, extensionPath);
 					
 					case "java":
 						
@@ -1294,7 +1294,7 @@ class ProjectXMLParser extends HXProject {
 						
 						if (element.has.path) {
 							
-							path = substitute (element.att.path);
+							path = PathHelper.combine (extensionPath, substitute (element.att.path));
 							
 						}
 						
@@ -1451,19 +1451,19 @@ class ProjectXMLParser extends HXProject {
 					
 					case "launchImage", "splashscreen", "splashScreen":
 						
-						var name:String = "";
+						var path = "";
 						
 						if (element.has.path) {
 							
-							name = substitute (element.att.path);
+							path = PathHelper.combine (extensionPath, substitute (element.att.path));
 							
 						} else {
 							
-							name = substitute (element.att.name);
+							path = PathHelper.combine (extensionPath, substitute (element.att.name));
 							
 						}
 						
-						var splashScreen = new SplashScreen (name);
+						var splashScreen = new SplashScreen (path);
 						
 						if (element.has.width) {
 							
@@ -1711,7 +1711,9 @@ class ProjectXMLParser extends HXProject {
 					
 					case "output":
 						
-						parseOutputElement (element);
+						// deprecated?
+						
+						parseOutputElement (element, extensionPath);
 					
 					case "section":
 						
