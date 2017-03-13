@@ -2245,6 +2245,25 @@ class ProjectXMLParser extends HXProject {
 				
 				return Std.string (value > substring.substr (index + 1));
 				
+			} else if (substring.indexOf (".") > -1) {
+				
+				var index = substring.indexOf (".");
+				var fieldName = substring.substr (0, index);
+				var subField = substring.substr (index + 1);
+				
+				if (Reflect.hasField (this, fieldName)) {
+					
+					var field = Reflect.field (this, fieldName);
+					
+					if (Reflect.hasField (field, subField)) {
+						
+						return Std.string (Reflect.field (field, subField));
+						
+					}
+					
+				}
+				
+				
 			}
 			
 		}
