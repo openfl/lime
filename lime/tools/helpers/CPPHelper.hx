@@ -31,7 +31,7 @@ class CPPHelper {
 				if (FileSystem.exists (options)) {
 					
 					args.push ("-options");
-					args.push (options);
+					args.push (PathHelper.tryFullPath (options));
 					
 					// var list;
 					// var input = File.read (options, false);
