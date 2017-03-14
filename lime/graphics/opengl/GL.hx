@@ -907,7 +907,9 @@ class GL {
 	#if (js && html5)
 	@:dox(hide) @:noCompletion public static inline function clearDepth (depth:Float):Void {
 		
+		#if !display
 		context.clearDepth (depth);
+		#end
 		
 	}
 	#end
@@ -1207,7 +1209,9 @@ class GL {
 	#if (js && html5)
 	@:dox(hide) @:noCompletion public static inline function depthRange (zNear:Float, zFar:Float):Void {
 		
+		#if !display
 		context.depthRange (zNear, zFar);
+		#end
 		
 	}
 	#end
@@ -2051,7 +2055,11 @@ class GL {
 	#if (js && html5)
 	@:dox(hide) @:noCompletion public static inline function getVertexAttribOffset (index:Int, pname:Int):DataPointer {
 		
+		#if !display
 		return context.getVertexAttribOffset (index, pname);
+		#else
+		return cast 0;
+		#end
 		
 	}
 	#end

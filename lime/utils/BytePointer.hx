@@ -25,7 +25,7 @@ abstract BytePointer(BytePointerData) from BytePointerData to BytePointerData {
 		if (buffer != null) {
 			
 			#if (js && html5)
-			bytes = Bytes.ofData (buffer);
+			bytes = Bytes.ofData (cast buffer);
 			#else
 			bytes = buffer;
 			#end
@@ -40,7 +40,7 @@ abstract BytePointer(BytePointerData) from BytePointerData to BytePointerData {
 		} else {
 			
 			#if (js && html5)
-			this.bytes = Bytes.ofData (bufferView.buffer);
+			this.bytes = Bytes.ofData (cast bufferView.buffer);
 			#else
 			this.bytes = bufferView.buffer;
 			#end
