@@ -10,20 +10,28 @@ package lime.utils;
 @:generic class ObjectPool<T> {
 	
 	
-	public var allocator:Void->T;
-	public var size (get, set):Int;
+	public var activeObjects (get, never):Int;
+	public var inactiveObjects (get, never):Int;
+	public var size (get, set):Null<Int>;
 	
 	private var __activeObjects:List<T>;
 	private var __inactiveObjects:List<T>;
 	private var __size:Null<Int>;
 	
 	
-	public function new (allocator:Void->T, size:Null<Int> = null) {
+	public function new (create:Void->T = null, clean:T->Void = null, size:Null<Int> = null) {
 		
-		this.allocator = allocator;
+		if (create != null) {
+			
+			this.create = create;
+			
+		}
 		
-		__activeObjects = new List<T> ();
-		__inactiveObjects = new List<T> ();
+		if (clean != null) {
+			
+			this.clean = clean;
+			
+		}
 		
 		if (size != null) {
 			
@@ -31,25 +39,46 @@ package lime.utils;
 			
 		}
 		
+		__activeObjects = new List<T> ();
+		__inactiveObjects = new List<T> ();
+		
 	}
 	
 	
-	public function create ():T {
+	public function add (object:Null<T>):Void {
 		
-		if (__inactiveObjects.length > 0) {
+		if (object != null) {
 			
-			var object = __inactiveObjects.pop ();
-			__activeObjects.add (object);
-			return object;
+			__activeObjects.remove (object);
+			__inactiveObjects.remove (object);
 			
-		} else {
+			clean (object);
 			
-			var object = Reflect.callMethod (allocator, allocator, []);
-			__activeObjects.add (object);
-			size = __size;
-			return object;
+			__inactiveObjects.add (object);
 			
 		}
+		
+	}
+	
+	
+	public dynamic function clean (object:T):Void {
+		
+		
+		
+	}
+	
+	
+	public function clear ():Void {
+		
+		__inactiveObjects.clear ();
+		__activeObjects.clear ();
+		
+	}
+	
+	
+	public dynamic function create ():Null<T> {
+		
+		return null;
 		
 	}
 	
@@ -63,10 +92,15 @@ package lime.utils;
 			object = __inactiveObjects.pop ();
 			__activeObjects.add (object);
 			
-		} else if (__size == null) {
+		} else if (__size == null || __activeObjects.length < __size) {
 			
-			object = Reflect.callMethod (allocator, allocator, []);
-			__activeObjects.add (object);
+			object = create ();
+			
+			if (object != null) {
+				
+				__activeObjects.add (object);
+				
+			}
 			
 		}
 		
@@ -79,7 +113,13 @@ package lime.utils;
 		
 		if (__activeObjects.remove (object)) {
 			
-			__inactiveObjects.add (object);
+			clean (object);
+			
+			if (__size == null || __activeObjects.length + __inactiveObjects.length < __size) {
+				
+				__inactiveObjects.add (object);
+				
+			}
 			
 		}
 		
@@ -93,24 +133,36 @@ package lime.utils;
 	
 	
 	
-	private function get_size ():Int {
+	private function get_activeObjects ():Int {
 		
-		if (__size != null) return __size;
-		return __inactiveObjects.length + __activeObjects.length;
+		return __activeObjects.length;
 		
 	}
 	
 	
-	private function set_size (value:Int):Int {
+	private function get_inactiveObjects ():Int {
 		
-		var current = __inactiveObjects.length + __activeObjects.length;
+		return __inactiveObjects.length;
 		
-		if (value <= 0) {
+	}
+	
+	
+	private function get_size ():Null<Int> {
+		
+		return __size;
+		
+	}
+	
+	
+	private function set_size (value:Null<Int>):Null<Int> {
+		
+		if (value == null) {
 			
 			__size = null;
 			
 		} else {
 			
+			var current = __inactiveObjects.length + __activeObjects.length;
 			__size = value;
 			
 			while (current > value) {
@@ -133,16 +185,28 @@ package lime.utils;
 				
 			}
 			
+			var object;
+			
 			while (value > current) {
 				
-				__inactiveObjects.add (Reflect.callMethod (allocator, allocator, []));
-				current++;
+				object = create ();
+				
+				if (object != null) {
+					
+					__inactiveObjects.add (object);
+					current++;
+					
+				} else {
+					
+					break;
+					
+				}
 				
 			}
 			
 		}
 		
-		return current;
+		return value;
 		
 	}
 	
