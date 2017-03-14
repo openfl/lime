@@ -135,6 +135,13 @@ namespace lime {
 	}
 	
 	
+	//void lime_gl_begin_query (int target, int query) {
+		//
+		//glBeginQuery (target, query);
+		//
+	//}
+	
+	
 	void lime_gl_bind_attrib_location (int program, int index, HxString name) {
 		
 		glBindAttribLocation (program, index, name.__s);
@@ -151,15 +158,13 @@ namespace lime {
 	
 	void lime_gl_bind_framebuffer (int target, int framebuffer) {
 		
-		GLuint id = framebuffer;
-		
-		if (!id) {
+		if (!framebuffer) {
 			
-			id = OpenGLBindings::defaultFramebuffer;
+			framebuffer = OpenGLBindings::defaultFramebuffer;
 			
 		}
 		
-		glBindFramebuffer (target, id);
+		glBindFramebuffer (target, framebuffer);
 		
 	}
 	
@@ -311,7 +316,7 @@ namespace lime {
 	
 	int lime_gl_create_buffer () {
 		
-		GLuint id;
+		GLuint id = 0;
 		glGenBuffers (1, &id);
 		return id;
 		
@@ -329,8 +334,7 @@ namespace lime {
 	
 	int lime_gl_create_program () {
 		
-		GLuint id = glCreateProgram ();
-		return id;
+		return glCreateProgram ();
 		
 	}
 	
@@ -346,8 +350,7 @@ namespace lime {
 	
 	int lime_gl_create_shader (int type) {
 		
-		GLuint id = glCreateShader (type);
-		return id;
+		return glCreateShader (type);
 		
 	}
 	
@@ -571,10 +574,8 @@ namespace lime {
 	
 	value lime_gl_get_attached_shaders (int program) {
 		
-		GLuint id = program;
 		GLsizei maxCount = 0;
-		
-		glGetProgramiv (id, GL_ATTACHED_SHADERS, &maxCount);
+		glGetProgramiv (program, GL_ATTACHED_SHADERS, &maxCount);
 		
 		if (!maxCount) {
 			
@@ -585,7 +586,7 @@ namespace lime {
 		GLsizei count;
 		GLuint* shaders = new GLuint[maxCount];
 		
-		glGetAttachedShaders (id, maxCount, &count, shaders);
+		glGetAttachedShaders (program, maxCount, &count, shaders);
 		
 		value data = alloc_array (maxCount);
 		
@@ -856,10 +857,8 @@ namespace lime {
 	
 	value lime_gl_get_shader_source (int shader) {
 		
-		GLuint id = shader;
-		
 		GLint len = 0;
-		glGetShaderiv (id, GL_SHADER_SOURCE_LENGTH, &len);
+		glGetShaderiv (shader, GL_SHADER_SOURCE_LENGTH, &len);
 		
 		if (len == 0) {
 			
@@ -868,7 +867,7 @@ namespace lime {
 		}
 		
 		char *buf = new char[len + 1];
-		glGetShaderSource (id, len + 1, 0, buf);
+		glGetShaderSource (shader, len + 1, 0, buf);
 		value result = alloc_string (buf);
 		
 		delete [] buf;

@@ -109,6 +109,13 @@ abstract WebGLContext(WebGL2Context) from GLRenderContext from WebGL2Context {
 	}
 	
 	
+	@:from private static function fromGL (gl:Class<GL>):WebGLContext {
+		
+		return cast GL.context;
+		
+	}
+	
+	
 	@:from private static function fromGLES2Context (gl:GLES2Context):WebGLContext {
 		
 		return cast gl;

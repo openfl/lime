@@ -3145,4 +3145,11 @@ abstract GLES3Context(GLRenderContext) from GLRenderContext to GLRenderContext t
 	}
 	
 	
+	@:from private static function fromGL (gl:Class<GL>):GLES3Context {
+		
+		return cast GL.context;
+		
+	}
+	
+	
 }
