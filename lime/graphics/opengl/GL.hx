@@ -3,7 +3,6 @@ package lime.graphics.opengl;
 
 import haxe.io.Bytes;
 import haxe.Int64;
-import lime.graphics.opengl.GL.GLObject;
 import lime.utils.ArrayBufferView;
 import lime.utils.ArrayBuffer;
 import lime.utils.BytePointer;
@@ -2918,7 +2917,7 @@ class GL {
 	private static function get_version ():Float { return context.version; }
 	
 	
-	private static inline function __getObjectID (object:GLObject):Int {
+	private static inline function __getObjectID (object:#if (!js || !html5 || display) GLObject #else Dynamic #end):Int {
 		
 		return (object == null) ? 0 : @:privateAccess object.id;
 		
