@@ -66,9 +66,10 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 	
 	@:from @:noCompletion public static function fromArrayBufferView (arrayBufferView:ArrayBufferView):DataPointer {
 		
-		#if (lime_cffi && !macro)
+		#if (lime_cffi && !js && !macro)
 		if (arrayBufferView == null) return cast 0;
-		return fromBytes (arrayBufferView.buffer);
+		var data:Float = NativeCFFI.lime_bytes_get_data_pointer (arrayBufferView.buffer);
+		return new DataPointer (data + arrayBufferView.byteOffset);
 		#elseif (js && !display)
 		return new DataPointer (arrayBufferView);
 		#else

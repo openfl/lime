@@ -45,7 +45,7 @@ abstract BytePointer(BytePointerData) from BytePointerData to BytePointerData {
 			this.bytes = bufferView.buffer;
 			#end
 			
-			this.offset = offset != null ? bufferView.byteOffset : offset;
+			this.offset = offset != null ? bufferView.byteOffset + offset : bufferView.byteOffset;
 			
 		}
 		
