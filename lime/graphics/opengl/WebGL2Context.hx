@@ -1265,7 +1265,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	}
 	
 	
-	public inline function bindBufferRange (target:Int, index:Int, buffer:GLBuffer, offset:DataPointer, size:DataPointer):Void {
+	public inline function bindBufferRange (target:Int, index:Int, buffer:GLBuffer, offset:DataPointer, size:Int):Void {
 		
 		this.bindBufferRange (target, index, buffer, offset, size);
 		
@@ -1994,7 +1994,8 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	#if (!js || !html5 || display)
 	public inline function getBufferSubData (target:Int, srcByteOffset:DataPointer, dstData:ArrayBuffer, srcOffset:Int = 0, length:Int = 0):Void {
 		
-		this.getBufferSubData (target, srcByteOffset, dstData, srcOffset, length);
+		var size = (length != null) ? length : (dstData != null) ? dstData.length : 0;
+		this.getBufferSubData (target, srcByteOffset + srcOffset, size, dstData);
 		
 	}
 	#else
@@ -2641,6 +2642,13 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	}
 	
 	
+	public inline function uniform1ui (location:GLUniformLocation, v0:Int):Void {
+		
+		this.uniform1ui (location, v0);
+		
+	}
+	
+	
 	public inline function uniform1uiv (location:GLUniformLocation, v:UInt32Array):Void {
 		
 		#if (!js || !html5 || display)
@@ -2685,6 +2693,13 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 		#else
 		this.uniform2fv (location, v);
 		#end
+		
+	}
+	
+	
+	public inline function uniform2ui (location:GLUniformLocation, v0:Int, v1:Int):Void {
+		
+		this.uniform2ui (location, v0, v1);
 		
 	}
 	
@@ -2736,6 +2751,13 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	}
 	
 	
+	public inline function uniform3ui (location:GLUniformLocation, v0:Int, v1:Int, v2:Int):Void {
+		
+		this.uniform3ui (location, v0, v1, v2);
+		
+	}
+	
+	
 	public inline function uniform3uiv (location:GLUniformLocation, v:UInt32Array):Void {
 		
 		#if (!js || !html5 || display)
@@ -2779,6 +2801,13 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 		#else
 		this.uniform4iv (location, v);
 		#end
+		
+	}
+	
+	
+	public inline function uniform4ui (location:GLUniformLocation, v0:Int, v1:Int, v2:Int, v3:Int):Void {
+		
+		this.uniform4ui (location, v0, v1, v2, v3);
 		
 	}
 	

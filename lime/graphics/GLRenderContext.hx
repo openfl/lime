@@ -868,18 +868,26 @@ class GLRenderContext {
 	public function uniform1fv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
 	public function uniform1i (location:GLUniformLocation, v0:Int):Void {}
 	public function uniform1iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	public function uniform1ui (location:GLUniformLocation, v0:Int):Void {}
+	public function uniform1uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
 	public function uniform2f (location:GLUniformLocation, v0:Float, v1:Float):Void {}
 	public function uniform2fv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
 	public function uniform2i (location:GLUniformLocation, v0:Int, v1:Int):Void {}
 	public function uniform2iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	public function uniform2ui (location:GLUniformLocation, v0:Int, v1:Int):Void {}
+	public function uniform2uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
 	public function uniform3f (location:GLUniformLocation, v0:Float, v1:Float, v2:Float):Void {}
 	public function uniform3fv(location:GLUniformLocation, count:Int, v:DataPointer):Void {}
 	public function uniform3i (location:GLUniformLocation, v0:Int, v1:Int, v2:Int):Void {}
 	public function uniform3iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	public function uniform3ui (location:GLUniformLocation, v0:Int, v1:Int, v2:Int):Void {}
+	public function uniform3uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
 	public function uniform4f (location:GLUniformLocation, v0:Float, v1:Float, v2:Float, v3:Float):Void {}
 	public function uniform4fv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
 	public function uniform4i (location:GLUniformLocation, v0:Int, v1:Int, v2:Int, v3:Int):Void {}
 	public function uniform4iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	public function uniform4ui (location:GLUniformLocation, v0:Int, v1:Int, v2:Int, v3:Int):Void {}
+	public function uniform4uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
 	public function uniformBlockBinding (program:GLProgram, uniformBlockIndex:Int, uniformBlockBinding:Int):Void {}
 	public function uniformMatrix2fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {}
 	public function uniformMatrix2x3fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {}

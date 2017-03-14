@@ -1270,7 +1270,7 @@ abstract GLES3Context(GLRenderContext) from GLRenderContext to GLRenderContext t
 	}
 	
 	
-	public inline function bindBufferRange (target:Int, index:Int, buffer:GLBuffer, offset:DataPointer, size:DataPointer):Void {
+	public inline function bindBufferRange (target:Int, index:Int, buffer:GLBuffer, offset:DataPointer, size:Int):Void {
 		
 		this.bindBufferRange (target, index, buffer, offset, size);
 		
@@ -2032,9 +2032,9 @@ abstract GLES3Context(GLRenderContext) from GLRenderContext to GLRenderContext t
 	}
 	
 	
-	public inline function getBufferPointeriv (target:Int, srcByteOffset:DataPointer, dstData:DataPointer):Void {
+	public inline function getBufferPointerv (target:Int, pname:Int):DataPointer {
 		
-		this.getBufferPointeriv (target, srcByteOffset, dstData);
+		return this.getBufferPointerv (target, pname);
 		
 	}
 	
@@ -2592,9 +2592,9 @@ abstract GLES3Context(GLRenderContext) from GLRenderContext to GLRenderContext t
 	}
 	
 	
-	public inline function mapBufferRange (target:Int, offset:DataPointer, length:DataPointer, access:Int):DataPointer {
+	public inline function mapBufferRange (target:Int, offset:DataPointer, length:Int, access:Int):Void {
 		
-		return this.mapBufferRange (target, offset, length, access);
+		this.mapBufferRange (target, offset, length, access);
 		
 	}
 	
@@ -2851,6 +2851,20 @@ abstract GLES3Context(GLRenderContext) from GLRenderContext to GLRenderContext t
 	}
 	
 	
+	public inline function uniform1ui (location:GLUniformLocation, v0:Int):Void {
+		
+		this.uniform1ui (location, v0);
+		
+	}
+	
+	
+	public inline function uniform1uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
+		
+		this.uniform1uiv (location, count, v);
+		
+	}
+	
+	
 	public inline function uniform2f (location:GLUniformLocation, v0:Float, v1:Float):Void {
 		
 		this.uniform2f (location, v0, v1);
@@ -2875,6 +2889,20 @@ abstract GLES3Context(GLRenderContext) from GLRenderContext to GLRenderContext t
 	public inline function uniform2iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
 		
 		this.uniform2iv (location, count, v);
+		
+	}
+	
+	
+	public inline function uniform2ui (location:GLUniformLocation, v0:Int, v1:Int):Void {
+		
+		this.uniform2ui (location, v0, v1);
+		
+	}
+	
+	
+	public inline function uniform2uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
+		
+		this.uniform2uiv (location, count, v);
 		
 	}
 	
@@ -2907,6 +2935,20 @@ abstract GLES3Context(GLRenderContext) from GLRenderContext to GLRenderContext t
 	}
 	
 	
+	public inline function uniform3ui (location:GLUniformLocation, v0:Int, v1:Int, v2:Int):Void {
+		
+		this.uniform3ui (location, v0, v1, v2);
+		
+	}
+	
+	
+	public inline function uniform3uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
+		
+		this.uniform3uiv (location, count, v);
+		
+	}
+	
+	
 	public inline function uniform4f (location:GLUniformLocation, v0:Float, v1:Float, v2:Float, v3:Float):Void {
 		
 		this.uniform4f (location, v0, v1, v2, v3);
@@ -2931,6 +2973,20 @@ abstract GLES3Context(GLRenderContext) from GLRenderContext to GLRenderContext t
 	public inline function uniform4iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
 		
 		this.uniform4iv (location, count, v);
+		
+	}
+	
+	
+	public inline function uniform4ui (location:GLUniformLocation, v0:Int, v1:Int, v2:Int, v3:Int):Void {
+		
+		this.uniform4ui (location, v0, v1, v2, v3);
+		
+	}
+	
+	
+	public inline function uniform4uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
+		
+		this.uniform4uiv (location, count, v);
 		
 	}
 	

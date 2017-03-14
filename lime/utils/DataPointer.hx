@@ -152,6 +152,24 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 	}
 	
 	
+	@:noCompletion @:op(A == B) private static inline function equals (a:DataPointer, b:Int):Bool { return (a:Float) == b; }
+	@:noCompletion @:op(A == B) private static inline function equalsPointer (a:DataPointer, b:DataPointer):Bool { return (a:Float) == (b:Float); }
+	@:noCompletion @:op(A > B) private static inline function greaterThan (a:DataPointer, b:Int):Bool { return (a:Float) > b; }
+	@:noCompletion @:op(A > B) private static inline function greaterThanPointer (a:DataPointer, b:CFFIPointer):Bool { return (a:Float) > b; }
+	@:noCompletion @:op(A >= B) private static inline function greaterThanOrEqual (a:DataPointer, b:Int):Bool { return (a:Float) >= b; }
+	@:noCompletion @:op(A >= B) private static inline function greaterThanOrEqualPointer (a:DataPointer, b:CFFIPointer):Bool { return (a:Float) >= b; }
+	@:noCompletion @:op(A < B) private static inline function lessThan (a:DataPointer, b:Int):Bool { return (a:Float) < b; }
+	@:noCompletion @:op(A < B) private static inline function lessThanPointer (a:DataPointer, b:CFFIPointer):Bool { return (a:Float) < b; }
+	@:noCompletion @:op(A <= B) private static inline function lessThanOrEqual (a:DataPointer, b:Int):Bool { return (a:Float) <= b; }
+	@:noCompletion @:op(A <= B) private static inline function lessThanOrEqualPointer (a:DataPointer, b:CFFIPointer):Bool { return (a:Float) <= b; }
+	@:noCompletion @:op(A != B) private static inline function notEquals (a:DataPointer, b:Int):Bool { return (a:Float) != b; }
+	@:noCompletion @:op(A != B) private static inline function notEqualsPointer (a:DataPointer, b:DataPointer):Bool { return (a:Float) != (b:Float); }
+	@:noCompletion @:op(A + B) private static inline function plus (a:DataPointer, b:Int):DataPointer { return new DataPointer ((a:Float) + b); }
+	@:noCompletion @:op(A + B) private static inline function plusPointer (a:DataPointer, b:DataPointer):DataPointer { return  new DataPointer ((a:Float) + (b:Float)); }
+	@:noCompletion @:op(A - B) private static inline function minus (a:DataPointer, b:Int):DataPointer { return  new DataPointer ((a:Float) - b); }
+	@:noCompletion @:op(A - B) private static inline function minusPointer (a:DataPointer, b:DataPointer):DataPointer { return  new DataPointer ((a:Float) - (b:Float)); }
+	
+	
 }
 
 

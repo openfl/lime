@@ -2990,6 +2990,18 @@ class NativeGLRenderContext {
 	}
 	
 	
+	public function uniform1ui (location:GLUniformLocation, v0:Int):Void {
+		
+		
+	}
+	
+	
+	public function uniform1uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
+		
+		
+	}
+	
+	
 	public function uniform2f (location:GLUniformLocation, v0:Float, v1:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
@@ -3022,6 +3034,18 @@ class NativeGLRenderContext {
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_uniform2iv (location, count, v);
 		#end
+		
+	}
+	
+	
+	public function uniform2ui (location:GLUniformLocation, v0:Int, v1:Int):Void {
+		
+		
+	}
+	
+	
+	public function uniform2uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
+		
 		
 	}
 	
@@ -3062,6 +3086,18 @@ class NativeGLRenderContext {
 	}
 	
 	
+	public function uniform3ui (location:GLUniformLocation, v0:Int, v1:Int, v2:Int):Void {
+		
+		
+	}
+	
+	
+	public function uniform3uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
+		
+		
+	}
+	
+	
 	public function uniform4f (location:GLUniformLocation, v0:Float, v1:Float, v2:Float, v3:Float):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
@@ -3094,6 +3130,18 @@ class NativeGLRenderContext {
 		#if (lime_cffi && lime_opengl && !macro)
 		NativeCFFI.lime_gl_uniform4iv (location, count, v);
 		#end
+		
+	}
+	
+	
+	public function uniform4ui (location:GLUniformLocation, v0:Int, v1:Int, v2:Int, v3:Int):Void {
+		
+		
+	}
+	
+	
+	public function uniform4uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
+		
 		
 	}
 	

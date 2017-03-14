@@ -2505,6 +2505,28 @@ class GL {
 	#end
 	
 	
+	public static inline function uniform1ui (location:GLUniformLocation, v0:Int):Void {
+		
+		context.uniform1ui (location, v0);
+		
+	}
+	
+	
+	#if (!js || !html5 || display)
+	public static inline function uniform1uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
+		
+		context.uniform1uiv (location, count, v);
+		
+	}
+	#else
+	public static inline function uniform1uiv (location:GLUniformLocation, count:Dynamic, ?data:Dynamic, ?srcOffset:Int):Void {
+		
+		context.uniform1uiv (location, count, data, srcOffset);
+		
+	}
+	#end
+	
+	
 	public static inline function uniform2f (location:GLUniformLocation, v0:Float, v1:Float):Void {
 		
 		context.uniform2f (location, v0, v1);
@@ -2544,6 +2566,28 @@ class GL {
 	public static inline function uniform2iv (location:GLUniformLocation, count:Dynamic, ?data:Dynamic, ?srcOffset:Int):Void {
 		
 		context.uniform2iv (location, count, data, srcOffset);
+		
+	}
+	#end
+	
+	
+	public static inline function uniform2ui (location:GLUniformLocation, x:Int, y:Int):Void {
+		
+		context.uniform2ui (location, x, y);
+		
+	}
+	
+	
+	#if (!js || !html5 || display)
+	public static inline function uniform2uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
+		
+		context.uniform2uiv (location, count, v);
+		
+	}
+	#else
+	public static inline function uniform2uiv (location:GLUniformLocation, count:Dynamic, ?data:Dynamic, ?srcOffset:Int):Void {
+		
+		context.uniform2uiv (location, count, data, srcOffset);
 		
 	}
 	#end
@@ -2593,6 +2637,28 @@ class GL {
 	#end
 	
 	
+	public static inline function uniform3ui (location:GLUniformLocation, v0:Int, v1:Int, v2:Int):Void {
+		
+		context.uniform3ui (location, v0, v1, v2);
+		
+	}
+	
+	
+	#if (!js || !html5 || display)
+	public static inline function uniform3uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
+		
+		context.uniform3uiv (location, count, v);
+		
+	}
+	#else
+	public static inline function uniform3uiv (location:GLUniformLocation, count:Dynamic, ?data:Dynamic, ?srcOffset:Int):Void {
+		
+		context.uniform3uiv (location, count, data, srcOffset);
+		
+	}
+	#end
+	
+	
 	public static inline function uniform4f (location:GLUniformLocation, v0:Float, v1:Float, v2:Float, v3:Float):Void {
 		
 		context.uniform4f (location, v0, v1, v2, v3);
@@ -2632,6 +2698,28 @@ class GL {
 	public static inline function uniform4iv (location:GLUniformLocation, count:Dynamic, ?data:Dynamic, ?srcOffset:Int):Void {
 		
 		context.uniform4iv (location, count, data, srcOffset);
+		
+	}
+	#end
+	
+	
+	public static inline function uniform4ui (location:GLUniformLocation, v0:Int, v1:Int, v2:Int, v3:Int):Void {
+		
+		context.uniform4ui (location, v0, v1, v2, v3);
+		
+	}
+	
+	
+	#if (!js || !html5 || display)
+	public static inline function uniform4uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
+		
+		context.uniform4uiv (location, count, v);
+		
+	}
+	#else
+	public static inline function uniform4uiv (location:GLUniformLocation, count:Dynamic, ?data:Dynamic, ?srcOffset:Int):Void {
+		
+		context.uniform4uiv (location, count, data, srcOffset);
 		
 	}
 	#end
