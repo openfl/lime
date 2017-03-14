@@ -282,6 +282,7 @@ class ImageCanvasUtil {
 			
 		}
 		
+		image.buffer.__srcContext.clearRect (rect.x, rect.y, rect.width, rect.height);
 		image.buffer.__srcContext.fillStyle = 'rgba(' + r + ', ' + g + ', ' + b + ', ' + (a / 255) + ')';
 		image.buffer.__srcContext.fillRect (rect.x + image.offsetX, rect.y + image.offsetY, rect.width + image.offsetX, rect.height + image.offsetY);
 		
