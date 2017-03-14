@@ -1208,6 +1208,7 @@ class NativeGLRenderContext {
 	public function deleteBuffer (buffer:GLBuffer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
+		if (buffer != null) NativeCFFI.lime_gl_object_deregister (buffer);
 		NativeCFFI.lime_gl_delete_buffer (__getObjectID (buffer));
 		#end
 		
@@ -1217,6 +1218,7 @@ class NativeGLRenderContext {
 	public function deleteFramebuffer (framebuffer:GLFramebuffer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
+		if (framebuffer != null) NativeCFFI.lime_gl_object_deregister (framebuffer);
 		NativeCFFI.lime_gl_delete_framebuffer (__getObjectID (framebuffer));
 		#end
 		
@@ -1226,6 +1228,7 @@ class NativeGLRenderContext {
 	public function deleteProgram (program:GLProgram):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
+		if (program != null) NativeCFFI.lime_gl_object_deregister (program);
 		NativeCFFI.lime_gl_delete_program (__getObjectID (program));
 		#end
 		
@@ -1241,6 +1244,7 @@ class NativeGLRenderContext {
 	public function deleteRenderbuffer (renderbuffer:GLRenderbuffer):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
+		if (renderbuffer != null) NativeCFFI.lime_gl_object_deregister (renderbuffer);
 		NativeCFFI.lime_gl_delete_renderbuffer (__getObjectID (renderbuffer));
 		#end
 		
@@ -1256,6 +1260,7 @@ class NativeGLRenderContext {
 	public function deleteShader (shader:GLShader):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
+		if (shader != null) NativeCFFI.lime_gl_object_deregister (shader);
 		NativeCFFI.lime_gl_delete_shader (__getObjectID (shader));
 		#end
 		
@@ -1271,6 +1276,7 @@ class NativeGLRenderContext {
 	public function deleteTexture (texture:GLTexture):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
+		if (texture != null) NativeCFFI.lime_gl_object_deregister (texture);
 		NativeCFFI.lime_gl_delete_texture (__getObjectID (texture));
 		#end
 		

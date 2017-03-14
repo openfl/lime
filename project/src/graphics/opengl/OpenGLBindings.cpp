@@ -1060,6 +1060,27 @@ namespace lime {
 	}
 	
 	
+	void lime_gl_object_deregister (value object) {
+		
+		val_gc (object, 0);
+		
+		if (glObjectIDs.find (object) != glObjectIDs.end ()) {
+			
+			int id = glObjectIDs[object];
+			glObjectTypes.erase (object);
+			glObjectIDs.erase (object);
+			
+			if (glObjects[id] == object) {
+				
+				glObjects.erase (id);
+				
+			}
+			
+		}
+		
+	}
+	
+	
 	value lime_gl_object_from_id (int id) {
 		
 		if (glObjects.find (id) != glObjects.end ()) {
@@ -1566,6 +1587,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_gl_is_texture);
 	DEFINE_PRIME1v (lime_gl_line_width);
 	DEFINE_PRIME1v (lime_gl_link_program);
+	DEFINE_PRIME1v (lime_gl_object_deregister);
 	DEFINE_PRIME1 (lime_gl_object_from_id);
 	DEFINE_PRIME3v (lime_gl_object_register);
 	DEFINE_PRIME2v (lime_gl_pixel_storei);

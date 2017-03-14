@@ -520,6 +520,7 @@ class NativeCFFI {
 	@:cffi private static function lime_gl_is_texture (texture:Int):Bool;
 	@:cffi private static function lime_gl_line_width (width:Float32):Void;
 	@:cffi private static function lime_gl_link_program (program:Int):Void;
+	@:cffi private static function lime_gl_object_deregister (object:Dynamic):Void;
 	@:cffi private static function lime_gl_object_from_id (id:Int):Dynamic;
 	@:cffi private static function lime_gl_object_register (type:Int, id:Int, object:Dynamic):Void;
 	@:cffi private static function lime_gl_pixel_storei (pname:Int, param:Int):Void;
