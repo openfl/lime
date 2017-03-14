@@ -735,7 +735,7 @@ class HTML5GLRenderContext {
 	}
 	
 	
-	public inline function bindBufferRange (target:Int, index:Int, buffer:GLBuffer, offset:DataPointer, size:DataPointer):Void {
+	public inline function bindBufferRange (target:Int, index:Int, buffer:GLBuffer, offset:DataPointer, size:Int):Void {
 		
 		__context.bindBufferRange (target, index, buffer, offset, size);
 		
@@ -1580,18 +1580,31 @@ class HTML5GLRenderContext {
 	}
 	
 	
-	public inline function getBufferPointeriv (target:Int, srcByteOffset:DataPointer, dstData:DataPointer):Void {
+	public inline function getBufferPointerv (target:Int, pname:Int):DataPointer {
 		
-		getBufferSubData (target, srcByteOffset, dstData);
+		return 0;
 		
 	}
 	
 	
 	//public function getBufferSubData (target:Int, srcByteOffset:DataPointer, dstData:js.html.ArrayBuffer, ?srcOffset:Int, ?length:Int):Void {
 	//public function getBufferSubData (target:Int, srcByteOffset:DataPointer, dstData:Dynamic /*SharedArrayBuffer*/, ?srcOffset:Int, ?length:Int):Void {
-	@:dox(hide) @:noCompletion public inline function getBufferSubData (target:Int, srcByteOffset:DataPointer, dstData:Dynamic, ?srcOffset:Int, ?length:Int):Void {
+	//public function getBufferSubData (target:Int, offset:DataPointer, size:Int, data:DataPointer):Void {
+	public function getBufferSubData (target:Int, srcByteOffset:DataPointer, dstData:Dynamic, ?srcOffset:Dynamic, ?length:Int):Void {
 		
-		__context.getBufferSubData (target, srcByteOffset, dstData, srcOffset, length);
+		if (Std.is (dstData, Int)) {
+			
+			__context.getBufferSubData (target, srcByteOffset, srcOffset); // target, srcByteOffset, dstData
+			
+		} else if (srcOffset != null) {
+			
+			__context.getBufferSubData (target, srcByteOffset, dstData, srcOffset, length);
+			
+		} else {
+			
+			__context.getBufferSubData (target, srcByteOffset, dstData);
+			
+		}
 		
 	}
 	
@@ -2348,9 +2361,8 @@ class HTML5GLRenderContext {
 	}
 	
 	
-	public inline function mapBufferRange (target:Int, offset:DataPointer, length:DataPointer, access:Int):DataPointer {
+	public inline function mapBufferRange (target:Int, offset:DataPointer, length:Int, access:Int):Void {
 		
-		return 0;
 		
 	}
 	

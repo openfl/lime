@@ -33,6 +33,7 @@ import lime.utils.DataPointer;
 import js.html.CanvasElement;
 #end
 
+
 class GLRenderContext {
 	
 	
@@ -634,7 +635,7 @@ class GLRenderContext {
 	public function bindAttribLocation (program:GLProgram, index:Int, name:String):Void {}
 	public function bindBuffer (target:Int, buffer:GLBuffer):Void {}
 	public function bindBufferBase (target:Int, index:Int, buffer:GLBuffer):Void {}
-	public function bindBufferRange (target:Int, index:Int, buffer:GLBuffer, offset:DataPointer, size:DataPointer):Void {}
+	public function bindBufferRange (target:Int, index:Int, buffer:GLBuffer, offset:DataPointer, size:Int /*GLsizeiptr*/):Void {}
 	public function bindFramebuffer (target:Int, framebuffer:GLFramebuffer):Void {}
 	public function bindRenderbuffer (target:Int, renderbuffer:GLRenderbuffer):Void {}
 	public function bindSampler (unit:Int, sampler:GLSampler):Void {}
@@ -731,8 +732,8 @@ class GLRenderContext {
 	public function getBufferParameteri (target:Int, pname:Int):Int { return 0; }
 	public function getBufferParameteri64v (target:Int, pname:Int, params:DataPointer):Void {}
 	public function getBufferParameteriv (target:Int, pname:Int, data:DataPointer):Void {}
-	public function getBufferPointeriv (target:Int, srcByteOffset:DataPointer, dstData:DataPointer):Void {}
-	public function getBufferSubData (target:Int, srcByteOffset:DataPointer, dstData:ArrayBuffer, srcOffset:Int = 0, length:Int = 0):Void {}
+	public function getBufferPointerv (target:Int, pname:Int):DataPointer { return 0; }
+	public function getBufferSubData (target:Int, offset:DataPointer, size:Int /*GLsizeiptr*/, data:DataPointer):Void {}
 	public function getContextAttributes ():GLContextAttributes { return null; }
 	public function getError ():Int { return 0; }
 	public function getExtension (name:String):Dynamic { return null; }
@@ -830,7 +831,7 @@ class GLRenderContext {
 	public function isVertexArray (vertexArray:GLVertexArrayObject):Bool { return false; }
 	public function lineWidth (width:Float):Void {}
 	public function linkProgram (program:GLProgram):Void {}
-	public function mapBufferRange (target:Int, offset:DataPointer, length:DataPointer, access:Int):DataPointer { return 0; }
+	public function mapBufferRange (target:Int, offset:DataPointer, length:Int /*GLsizeiptr*/, access:Int):Void {}
 	public function pauseTransformFeedback ():Void {}
 	public function pixelStorei (pname:Int, param:Int):Void {}
 	public function polygonOffset (factor:Float, units:Float):Void {}

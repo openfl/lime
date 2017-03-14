@@ -801,7 +801,7 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public inline function bindBufferRange (target:Int, index:Int, buffer:GLBuffer, offset:DataPointer, size:DataPointer):Void {
+	public inline function bindBufferRange (target:Int, index:Int, buffer:GLBuffer, offset:DataPointer, size:Int):Void {
 		
 		
 	}
@@ -1627,15 +1627,16 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public inline function getBufferPointeriv (target:Int, srcByteOffset:DataPointer, dstData:DataPointer):Void {
+	public inline function getBufferPointerv (target:Int, pname:Int):DataPointer {
 		
+		return 0;
 		
 	}
 	
 	
-	public inline function getBufferSubData (target:Int, srcByteOffset:DataPointer, dstData:ArrayBuffer, srcOffset:Int = 0, length:Int = 0):Void {
+	public inline function getBufferSubData (target:Int, offset:DataPointer, size:Int, data:DataPointer):Void {
 		
-		// use mapBufferRange
+		
 		
 	}
 	
@@ -2694,9 +2695,8 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public inline function mapBufferRange (target:Int, offset:DataPointer, length:DataPointer, access:Int):DataPointer {
+	public inline function mapBufferRange (target:Int, offset:DataPointer, length:Int, access:Int):Void {
 		
-		return 0;
 		
 	}
 	

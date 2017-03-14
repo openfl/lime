@@ -710,7 +710,7 @@ class GL {
 	}
 	
 	
-	public static inline function bindBufferRange (target:Int, index:Int, buffer:GLBuffer, offset:DataPointer, size:DataPointer):Void {
+	public static inline function bindBufferRange (target:Int, index:Int, buffer:GLBuffer, offset:DataPointer, size:Int):Void {
 		
 		context.bindBufferRange (target, index, buffer, offset, size);
 		
@@ -1480,18 +1480,26 @@ class GL {
 	}
 	
 	
-	public static inline function getBufferPointeriv (target:Int, srcByteOffset:DataPointer, dstData:DataPointer):Void {
+	public static inline function getBufferPointerv (target:Int, pname:Int):DataPointer {
 		
-		context.getBufferPointeriv (target, srcByteOffset, dstData);
+		return context.getBufferPointerv (target, pname);
 		
 	}
 	
 	
-	public static inline function getBufferSubData (target:Int, srcByteOffset:DataPointer, dstData:ArrayBuffer, srcOffset:Int = 0, length:Int = 0):Void {
+	#if (!js || !html5 || display)
+	public static inline function getBufferSubData (target:Int, offset:DataPointer, size:Int, data:DataPointer):Void {
+		
+		context.getBufferSubData (target, offset, size, data);
+		
+	}
+	#else
+	public static inline function getBufferSubData (target:Int, srcByteOffset:DataPointer, dstData:Dynamic, ?srcOffset:Dynamic, ?length:Int):Void {
 		
 		context.getBufferSubData (target, srcByteOffset, dstData, srcOffset, length);
 		
 	}
+	#end
 	
 	
 	public static inline function getContextAttributes ():GLContextAttributes {
@@ -2182,9 +2190,9 @@ class GL {
 	}
 	
 	
-	public static inline function mapBufferRange (target:Int, offset:DataPointer, length:DataPointer, access:Int):DataPointer {
+	public static inline function mapBufferRange (target:Int, offset:DataPointer, length:Int, access:Int):Void {
 		
-		return context.mapBufferRange (target, offset, length, access);
+		context.mapBufferRange (target, offset, length, access);
 		
 	}
 	
