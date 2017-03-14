@@ -8,6 +8,7 @@ import lime.utils.BytePointer;
 import lime.utils.DataPointer;
 import lime.utils.Float32Array;
 import lime.utils.Int32Array;
+import lime.utils.UInt32Array;
 
 
 abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext {
@@ -2614,7 +2615,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	public inline function uniform1fv (location:GLUniformLocation, v:Float32Array):Void {
 		
 		#if (!js || !html5 || display)
-		this.uniform1fv (location, v != null ? v.byteLength : 0, v);
+		this.uniform1fv (location, v != null ? v.length : 0, v);
 		#else
 		this.uniform1fv (location, v);
 		#end
@@ -2632,9 +2633,20 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	public inline function uniform1iv (location:GLUniformLocation, v:Int32Array):Void {
 		
 		#if (!js || !html5 || display)
-		this.uniform1iv (location, v != null ? v.byteLength : 0, v);
+		this.uniform1iv (location, v != null ? v.length : 0, v);
 		#else
 		this.uniform1iv (location, v);
+		#end
+		
+	}
+	
+	
+	public inline function uniform1uiv (location:GLUniformLocation, v:UInt32Array):Void {
+		
+		#if (!js || !html5 || display)
+		this.uniform1uiv (location, v != null ? v.length : 0, v);
+		#else
+		this.uniform1uiv (location, v);
 		#end
 		
 	}
@@ -2651,7 +2663,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 		
 		
 		#if (!js || !html5 || display)
-		this.uniform2fv (location, v != null ? v.byteLength : 0, v);
+		this.uniform2fv (location, v != null ? v.length >> 1 : 0, v);
 		#else
 		this.uniform2fv (location, v);
 		#end
@@ -2669,9 +2681,20 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	public inline function uniform2iv (location:GLUniformLocation, v:Int32Array):Void {
 		
 		#if (!js || !html5 || display)
-		this.uniform2iv (location, v != null ? v.byteLength : 0, v);
+		this.uniform2iv (location, v != null ? v.length >> 1 : 0, v);
 		#else
 		this.uniform2fv (location, v);
+		#end
+		
+	}
+	
+	
+	public inline function uniform2uiv (location:GLUniformLocation, v:UInt32Array):Void {
+		
+		#if (!js || !html5 || display)
+		this.uniform2uiv (location, v != null ? v.length >> 1 : 0, v);
+		#else
+		this.uniform2uiv (location, v);
 		#end
 		
 	}
@@ -2687,7 +2710,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	public inline function uniform3fv (location:GLUniformLocation, v:Float32Array):Void {
 		
 		#if (!js || !html5 || display)
-		this.uniform3fv (location, v != null ? v.byteLength : 0, v);
+		this.uniform3fv (location, v != null ? Std.int (v.length / 3) : 0, v);
 		#else
 		this.uniform3fv (location, v);
 		#end
@@ -2705,9 +2728,20 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	public inline function uniform3iv (location:GLUniformLocation, v:Int32Array):Void {
 		
 		#if (!js || !html5 || display)
-		this.uniform3iv (location, v != null ? v.byteLength : 0, v);
+		this.uniform3iv (location, v != null ? Std.int (v.length / 3) : 0, v);
 		#else
 		this.uniform3iv (location, v);
+		#end
+		
+	}
+	
+	
+	public inline function uniform3uiv (location:GLUniformLocation, v:UInt32Array):Void {
+		
+		#if (!js || !html5 || display)
+		this.uniform3uiv (location, v != null ? Std.int (v.length / 3) : 0, v);
+		#else
+		this.uniform3uiv (location, v);
 		#end
 		
 	}
@@ -2723,7 +2757,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	public inline function uniform4fv (location:GLUniformLocation, v:Float32Array):Void {
 		
 		#if (!js || !html5 || display)
-		this.uniform4fv (location, v != null ? v.byteLength : 0, v);
+		this.uniform4fv (location, v != null ? v.length >> 2 : 0, v);
 		#else
 		this.uniform4fv (location, v);
 		#end
@@ -2741,9 +2775,20 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	public inline function uniform4iv (location:GLUniformLocation, v:Int32Array):Void {
 		
 		#if (!js || !html5 || display)
-		this.uniform4iv (location, v != null ? v.byteLength : 0, v);
+		this.uniform4iv (location, v != null ? v.length >> 2 : 0, v);
 		#else
 		this.uniform4iv (location, v);
+		#end
+		
+	}
+	
+	
+	public inline function uniform4uiv (location:GLUniformLocation, v:UInt32Array):Void {
+		
+		#if (!js || !html5 || display)
+		this.uniform4uiv (location, v != null ? v.length >> 2 : 0, v);
+		#else
+		this.uniform4uiv (location, v);
 		#end
 		
 	}

@@ -2475,9 +2475,9 @@ class GL {
 		
 	}
 	#else
-	public static inline function uniform1fv (location:GLUniformLocation, count:Dynamic, ?v:DataPointer):Void {
+	public static inline function uniform1fv (location:GLUniformLocation, count:Dynamic, ?data:Dynamic, ?srcOffset:Int):Void {
 		
-		context.uniform1fv (location, count, v);
+		context.uniform1fv (location, count, data, srcOffset);
 		
 	}
 	#end
@@ -2497,9 +2497,9 @@ class GL {
 		
 	}
 	#else
-	public static inline function uniform1iv (location:GLUniformLocation, count:Dynamic, ?v:DataPointer):Void {
+	public static inline function uniform1iv (location:GLUniformLocation, count:Dynamic, ?data:Dynamic, ?srcOffset:Int):Void {
 		
-		context.uniform1iv (location, count, v);
+		context.uniform1iv (location, count, data, srcOffset);
 		
 	}
 	#end
@@ -2519,9 +2519,9 @@ class GL {
 		
 	}
 	#else
-	public static inline function uniform2fv (location:GLUniformLocation, count:Dynamic, ?v:DataPointer):Void {
+	public static inline function uniform2fv (location:GLUniformLocation, count:Dynamic, ?data:Dynamic, ?srcOffset:Int):Void {
 		
-		context.uniform2fv (location, count, v);
+		context.uniform2fv (location, count, data, srcOffset);
 		
 	}
 	#end
@@ -2541,9 +2541,9 @@ class GL {
 		
 	}
 	#else
-	public static inline function uniform2iv (location:GLUniformLocation, count:Dynamic, ?v:DataPointer):Void {
+	public static inline function uniform2iv (location:GLUniformLocation, count:Dynamic, ?data:Dynamic, ?srcOffset:Int):Void {
 		
-		context.uniform2iv (location, count, v);
+		context.uniform2iv (location, count, data, srcOffset);
 		
 	}
 	#end
@@ -2563,9 +2563,9 @@ class GL {
 		
 	}
 	#else
-	public static inline function uniform3fv (location:GLUniformLocation, count:Dynamic, ?v:DataPointer):Void {
+	public static inline function uniform3fv (location:GLUniformLocation, count:Dynamic, ?data:Dynamic, ?srcOffset:Int):Void {
 		
-		context.uniform3fv (location, count, v);
+		context.uniform3fv (location, count, data, srcOffset);
 		
 	}
 	#end
@@ -2585,9 +2585,9 @@ class GL {
 		
 	}
 	#else
-	public static inline function uniform3iv (location:GLUniformLocation, count:Dynamic, ?v:DataPointer):Void {
+	public static inline function uniform3iv (location:GLUniformLocation, count:Dynamic, ?data:Dynamic, ?srcOffset:Int):Void {
 		
-		context.uniform3iv (location, count, v);
+		context.uniform3iv (location, count, data, srcOffset);
 		
 	}
 	#end
@@ -2607,9 +2607,9 @@ class GL {
 		
 	}
 	#else
-	public static inline function uniform4fv (location:GLUniformLocation, count:Dynamic, ?v:DataPointer):Void {
+	public static inline function uniform4fv (location:GLUniformLocation, count:Dynamic, ?data:Dynamic, ?srcOffset:Int):Void {
 		
-		context.uniform4fv (location, count, v);
+		context.uniform4fv (location, count, data, srcOffset);
 		
 	}
 	#end
@@ -2629,9 +2629,9 @@ class GL {
 		
 	}
 	#else
-	public static inline function uniform4iv (location:GLUniformLocation, count:Dynamic, ?v:DataPointer):Void {
+	public static inline function uniform4iv (location:GLUniformLocation, count:Dynamic, ?data:Dynamic, ?srcOffset:Int):Void {
 		
-		context.uniform4iv (location, count, v);
+		context.uniform4iv (location, count, data, srcOffset);
 		
 	}
 	#end

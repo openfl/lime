@@ -2701,13 +2701,18 @@ class HTML5GLRenderContext {
 	
 	//public function uniform1fv (location:GLUniformLocation, data:Float32Array):Void {
 	//public function uniform1fv (location:GLUniformLocation, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniform1fv (location:GLUniformLocation, data:DataPointer):Void {
-	public function uniform1fv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
+	//public function uniform1fv (location:GLUniformLocation, count:Int, data:DataPointer):Void {
+	public function uniform1fv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Dynamic, ?srcLength:Int):Void {
 		
-		data = __prepareData (null, data);
-		if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
-		
-		if (version > 1 && srcOffset != null) {
+		if (Std.is (data, Int)) {
+			
+			var data = srcOffset;
+			data = __prepareData (null, data);
+			if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
+			
+			__context.uniform1fv (location, data);
+			
+		} else if (version > 1 && srcOffset != null) {
 			
 			__context.uniform1fv (location, data, srcOffset, srcLength);
 			
@@ -2729,13 +2734,18 @@ class HTML5GLRenderContext {
 	
 	//public function uniform1iv (location:GLUniformLocation, data:Int32Array):Void {
 	//public function uniform1iv (location:GLUniformLocation, data:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniform1iv (location:GLUniformLocation, data:DataPointer):Void {
-	public function uniform1iv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
+	//public function uniform1iv (location:GLUniformLocation, count:Int, data:DataPointer):Void {
+	public function uniform1iv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Dynamic, ?srcLength:Int):Void {
 		
-		data = __prepareData (null, data);
-		if (Std.is (data, ArrayBuffer)) data = new Int32Array (data);
-		
-		if (version > 1 && srcOffset != null) {
+		if (Std.is (data, Int)) {
+			
+			var data = srcOffset;
+			data = __prepareData (null, data);
+			if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
+			
+			__context.uniform1iv (location, data);
+			
+		} else if (version > 1 && srcOffset != null) {
 			
 			__context.uniform1iv (location, data, srcOffset, srcLength);
 			
@@ -2756,13 +2766,18 @@ class HTML5GLRenderContext {
 	
 	
 	//public inline function uniform1uiv (location:GLUniformLocation, data:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public inline function uniform1uiv (location:GLUniformLocation, data:DataPointer):Void {
-	public function uniform1uiv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
+	//public function uniform1uiv (location:GLUniformLocation, count:Int, data:DataPointer):Void {
+	public function uniform1uiv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Dynamic, ?srcLength:Int):Void {
 		
-		data = __prepareData (null, data);
-		if (Std.is (data, ArrayBuffer)) data = new UInt32Array (data);
-		
-		if (srcOffset != null) {
+		if (Std.is (data, Int)) {
+			
+			var data = srcOffset;
+			data = __prepareData (null, data);
+			if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
+			
+			__context.uniform1uiv (location, data);
+			
+		} else if (srcOffset != null) {
 			
 			__context.uniform1uiv (location, data, srcOffset, srcLength);
 			
@@ -2784,13 +2799,18 @@ class HTML5GLRenderContext {
 	
 	//public function uniform2fv (location:GLUniformLocation, data:Float32Array):Void {
 	//public function uniform2fv (location:GLUniformLocation, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniform2fv (location:GLUniformLocation, data:DataPointer):Void {
-	public function uniform2fv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
+	//public function uniform2fv (location:GLUniformLocation, count:Int, data:DataPointer):Void {
+	public function uniform2fv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Dynamic, ?srcLength:Int):Void {
 		
-		data = __prepareData (null, data);
-		if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
-		
-		if (version > 1 && srcOffset != null) {
+		if (Std.is (data, Int)) {
+			
+			var data = srcOffset;
+			data = __prepareData (null, data);
+			if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
+			
+			__context.uniform2fv (location, data);
+			
+		} else if (version > 1 && srcOffset != null) {
 			
 			__context.uniform2fv (location, data, srcOffset, srcLength);
 			
@@ -2812,13 +2832,18 @@ class HTML5GLRenderContext {
 	
 	//public function uniform2iv (location:GLUniformLocation, data:Int32Array):Void {
 	//public function uniform2iv (location:GLUniformLocation, data:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniform2iv (location:GLUniformLocation, data:DataPointer):Void {
-	public function uniform2iv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
+	//public function uniform2iv (location:GLUniformLocation, count:Int, data:DataPointer):Void {
+	public function uniform2iv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Dynamic, ?srcLength:Int):Void {
 		
-		data = __prepareData (null, data);
-		if (Std.is (data, ArrayBuffer)) data = new Int32Array (data);
-		
-		if (version > 1 && srcOffset != null) {
+		if (Std.is (data, Int)) {
+			
+			var data = srcOffset;
+			data = __prepareData (null, data);
+			if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
+			
+			__context.uniform2iv (location, data);
+			
+		} else if (version > 1 && srcOffset != null) {
 			
 			__context.uniform2iv (location, data, srcOffset, srcLength);
 			
@@ -2839,13 +2864,18 @@ class HTML5GLRenderContext {
 	
 	
 	//public function uniform2uiv (location:GLUniformLocation, data:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniform2uiv (location:GLUniformLocation, data:DataPointer):Void {
-	public function uniform2uiv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
+	//public function uniform2uiv (location:GLUniformLocation, count:Int, data:DataPointer):Void {
+	public function uniform2uiv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Dynamic, ?srcLength:Int):Void {
 		
-		data = __prepareData (null, data);
-		if (Std.is (data, ArrayBuffer)) data = new UInt32Array (data);
-		
-		if (srcOffset != null) {
+		if (Std.is (data, Int)) {
+			
+			var data = srcOffset;
+			data = __prepareData (null, data);
+			if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
+			
+			__context.uniform2uiv (location, data);
+			
+		} else if (srcOffset != null) {
 			
 			__context.uniform2uiv (location, data, srcOffset, srcLength);
 			
@@ -2867,13 +2897,18 @@ class HTML5GLRenderContext {
 	
 	//public function uniform3fv (location:GLUniformLocation, data:Float32Array):Void {
 	//public function uniform3fv (location:GLUniformLocation, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniform3fv (location:GLUniformLocation, data:DataPointer):Void {
-	public function uniform3fv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
+	//public function uniform3fv (location:GLUniformLocation, count:Int, data:DataPointer):Void {
+	public function uniform3fv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Dynamic, ?srcLength:Int):Void {
 		
-		data = __prepareData (null, data);
-		if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
-		
-		if (version > 1 && srcOffset != null) {
+		if (Std.is (data, Int)) {
+			
+			var data = srcOffset;
+			data = __prepareData (null, data);
+			if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
+			
+			__context.uniform3fv (location, data);
+			
+		} else if (version > 1 && srcOffset != null) {
 			
 			__context.uniform3fv (location, data, srcOffset, srcLength);
 			
@@ -2895,14 +2930,18 @@ class HTML5GLRenderContext {
 	
 	//public function uniform3iv (location:GLUniformLocation, data:Int32Array):Void {
 	//public function uniform3iv (location:GLUniformLocation, data:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniform3iv (location:GLUniformLocation, data:DataPointer):Void {
-	public function uniform3iv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
+	//public function uniform3iv (location:GLUniformLocation, count:Int, data:DataPointer):Void {
+	public function uniform3iv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Dynamic, ?srcLength:Int):Void {
 		
-		data = __prepareData (null, data);
-		if (Std.is (data, ArrayBuffer)) data = new Int32Array (data);
-		
-		
-		if (version > 1 && srcOffset != null) {
+		if (Std.is (data, Int)) {
+			
+			var data = srcOffset;
+			data = __prepareData (null, data);
+			if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
+			
+			__context.uniform3iv (location, data);
+			
+		} else if (version > 1 && srcOffset != null) {
 			
 			__context.uniform3iv (location, data, srcOffset, srcLength);
 			
@@ -2923,13 +2962,18 @@ class HTML5GLRenderContext {
 	
 	
 	//public function uniform3uiv (location:GLUniformLocation, data:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniform3uiv (location:GLUniformLocation, data:DataPointer):Void {
-	public function uniform3uiv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
+	//public function uniform3uiv (location:GLUniformLocation, count:Int, data:DataPointer):Void {
+	public function uniform3uiv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Dynamic, ?srcLength:Int):Void {
 		
-		data = __prepareData (null, data);
-		if (Std.is (data, ArrayBuffer)) data = new UInt32Array (data);
-		
-		if (srcOffset != null) {
+		if (Std.is (data, Int)) {
+			
+			var data = srcOffset;
+			data = __prepareData (null, data);
+			if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
+			
+			__context.uniform3uiv (location, data);
+			
+		} else if (srcOffset != null) {
 			
 			__context.uniform3uiv (location, data, srcOffset, srcLength);
 			
@@ -2951,13 +2995,18 @@ class HTML5GLRenderContext {
 	
 	//public function uniform4fv (location:GLUniformLocation, data:Float32Array):Void {
 	//public function uniform4fv (location:GLUniformLocation, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniform4fv (location:GLUniformLocation, data:DataPointer):Void {
-	public function uniform4fv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
+	//public function uniform4fv (location:GLUniformLocation, count:Int, data:DataPointer):Void {
+	public function uniform4fv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Dynamic, ?srcLength:Int):Void {
 		
-		data = __prepareData (null, data);
-		if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
-		
-		if (version > 1 && srcOffset != null) {
+		if (Std.is (data, Int)) {
+			
+			var data = srcOffset;
+			data = __prepareData (null, data);
+			if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
+			
+			__context.uniform4fv (location, data);
+			
+		} else if (version > 1 && srcOffset != null) {
 			
 			__context.uniform4fv (location, data, srcOffset, srcLength);
 			
@@ -2979,13 +3028,18 @@ class HTML5GLRenderContext {
 	
 	//public function uniform4iv (location:GLUniformLocation, data:Int32Array):Void {
 	//public function uniform4iv (location:GLUniformLocation, data:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniform4iv (location:GLUniformLocation, data:DataPointer):Void {
-	public function uniform4iv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
+	//public function uniform4iv (location:GLUniformLocation, count:Int, data:DataPointer):Void {
+	public function uniform4iv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Dynamic, ?srcLength:Int):Void {
 		
-		data = __prepareData (null, data);
-		if (Std.is (data, ArrayBuffer)) data = new Int32Array (data);
-		
-		if (version > 1 && srcOffset != null) {
+		if (Std.is (data, Int)) {
+			
+			var data = srcOffset;
+			data = __prepareData (null, data);
+			if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
+			
+			__context.uniform4iv (location, data);
+			
+		} else if (version > 1 && srcOffset != null) {
 			
 			__context.uniform4iv (location, data, srcOffset, srcLength);
 			
@@ -3006,13 +3060,18 @@ class HTML5GLRenderContext {
 	
 	
 	//public function uniform4uiv (location:GLUniformLocation, data:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniform4uiv (location:GLUniformLocation, data:DataPointer):Void {
-	public function uniform4uiv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
+	//public function uniform4uiv (location:GLUniformLocation, count:Int, data:DataPointer):Void {
+	public function uniform4uiv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Dynamic, ?srcLength:Int):Void {
 		
-		data = __prepareData (null, data);
-		if (Std.is (data, ArrayBuffer)) data = new UInt32Array (data);
-		
-		if (srcOffset != null) {
+		if (Std.is (data, Int)) {
+			
+			var data = srcOffset;
+			data = __prepareData (null, data);
+			if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
+			
+			__context.uniform4uiv (location, data);
+			
+		} else if (srcOffset != null) {
 			
 			__context.uniform4uiv (location, data, srcOffset, srcLength);
 			
