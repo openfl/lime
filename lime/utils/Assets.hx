@@ -168,7 +168,15 @@ class Assets {
 			
 		} else {
 			
-			Log.error ("There is no asset library named \"" + symbol.libraryName + "\"");
+			var libraryName = symbol.libraryName;
+			
+			if (libraryName == null || libraryName == "") {
+				
+				libraryName = "default";
+				
+			}
+			
+			Log.error ("There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
@@ -271,7 +279,15 @@ class Assets {
 			
 		} else {
 			
-			Log.error ("There is no asset library named \"" + symbol.libraryName + "\"");
+			var libraryName = symbol.libraryName;
+			
+			if (libraryName == null || libraryName == "") {
+				
+				libraryName = "default";
+				
+			}
+			
+			Log.error ("There is no asset library named \"" + libraryName + "\"");
 			
 		}
 		
