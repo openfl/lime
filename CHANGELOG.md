@@ -1,3 +1,48 @@
+4.0.0 (03/15/2017)
+------------------
+
+* Added support for WebGL 2 APIs on HTML5
+* Recreated GL bindings in preparation for GLES3 support
+* Added support for running different Lime tools to match project version
+* Added WebGL, WebGL 2, GLES 2 and GLES 3 abstracts
+* Added initial support for WebGL/GLES2 extension constants
+* Added GL context, type and version properties
+* Added window.displayMode for full-screen display mode switching
+* Added lime.utils.DataPointer for managing native pointers
+* Added lime.utils.BytePointer for Bytes + offset without a new typed array
+* Added lime.utils.ObjectPool as a convenience API for object pooling
+* Added support for <assets path="" library="" /> for library packing
+* Added support for loading *.bundle directories as asset libraries
+* Added support for `${meta.title}` and other project data in project.xml
+* Added support for Cairo textPath
+* Added support for multiple Lime embeds, rewrote HTML5 embed code
+* Added asset type to verbose Preloader messages
+* Added `-Dwebgl1` to use a WebGL 1 context instead of WebGL 2 on HTML5
+* Removed deprecated behaviors from Lime 3
+* Updated Gamepad mappings to support additional models
+* Updated HTML5 window to dispatch resize event if parent element is resized
+* Improved support for deferred loading of asset libraries
+* Improved Asset error events, updated to throw errors when assets not found
+* Improved handling of GL context loss on WebGL
+* Improved behavior of asset manifests included as assets of another library
+* Improved behavior of path groups for audioBuffer assets
+* Improved error message if ANDROID_SDK or ANDROID_NDK_ROOT is not defined
+* Fixed caching for HTML5 cache groups
+* Fixed native HTTPRequest if file is not found or uses ~/ for home directory
+* Fixed copying of files when a directory exists of the same name
+* Fixed dispatch of Renderer.onRender when there is no context
+* Fixed dispatch of Renderer.onContextLost on native platforms
+* Fixed use of image.threshold when source is canvas or HTML5 image
+* Fixed missing warning if <icon path="" /> is null
+* Fixed `<app path="" />` to be relative to include.xml path
+* Fixed `<splashScreen path="" />` to be relative to include.xml path
+* Fixed case where assets could be processed as templates
+* Fixed support for ATF textures on Flash target
+* Fixed ID value for Joystick/Gamepad guid property
+* Fixed double dispatch of preloader complete verbose message
+* Fixed path of `-options` parameter when calling HXCPP
+
+
 3.7.4 (02/15/2017)
 ------------------
 
