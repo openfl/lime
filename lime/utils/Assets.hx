@@ -4,6 +4,7 @@ package lime.utils;
 import haxe.io.Path;
 import haxe.CallStack;
 import haxe.Unserializer;
+import lime.app.Application;
 import lime.app.Event;
 import lime.app.Promise;
 import lime.app.Future;
@@ -168,15 +169,7 @@ class Assets {
 			
 		} else {
 			
-			var libraryName = symbol.libraryName;
-			
-			if (libraryName == null || libraryName == "") {
-				
-				libraryName = "default";
-				
-			}
-			
-			Log.error ("There is no asset library named \"" + libraryName + "\"");
+			Log.error (__libraryNotFound (symbol.libraryName));
 			
 		}
 		
@@ -279,15 +272,7 @@ class Assets {
 			
 		} else {
 			
-			var libraryName = symbol.libraryName;
-			
-			if (libraryName == null || libraryName == "") {
-				
-				libraryName = "default";
-				
-			}
-			
-			Log.error ("There is no asset library named \"" + libraryName + "\"");
+			Log.error (__libraryNotFound (symbol.libraryName));
 			
 		}
 		
@@ -450,7 +435,7 @@ class Assets {
 			
 		} else {
 			
-			return Future.withError ("There is no asset library named \"" + symbol.libraryName + "\"");
+			return Future.withError (__libraryNotFound (symbol.libraryName));
 			
 		}
 		
@@ -606,6 +591,27 @@ class Assets {
 		libraries.remove (name);
 		
 		#end
+		
+	}
+	
+	
+	private static function __libraryNotFound (name:String):String {
+		
+		if (name == null || name == "") {
+			
+			name = "default";
+			
+		}
+		
+		if (Application.current != null && Application.current.preloader != null && !Application.current.preloader.complete) {
+			
+			return "There is no asset library named \"" + name + "\", or it is not yet preloaded";
+			
+		} else {
+			
+			return "There is no asset library named \"" + name + "\"";
+			
+		}
 		
 	}
 	
