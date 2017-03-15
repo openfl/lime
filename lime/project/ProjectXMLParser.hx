@@ -1588,13 +1588,19 @@ class ProjectXMLParser extends HXProject {
 							
 						} else {
 							
-							var path = PathHelper.combine (extensionPath, substitute (element.att.path));
+							var path = null;
 							var name = "";
 							var type = null;
 							var embed:Null<Bool> = null;
 							var preload = false;
 							var generate = false;
 							var prefix = "";
+							
+							if (element.has.path) {
+								
+								path = PathHelper.combine (extensionPath, substitute (element.att.path));
+								
+							}
 							
 							if (element.has.name) {
 								
