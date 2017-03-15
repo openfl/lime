@@ -11,8 +11,8 @@
 * Added lime.utils.DataPointer for managing native pointers
 * Added lime.utils.BytePointer for Bytes + offset without a new typed array
 * Added lime.utils.ObjectPool as a convenience API for object pooling
-* Added support for <assets path="" library="" /> for library packing
-* Added support for loading *.bundle directories as asset libraries
+* Added support for `<assets path="" library="" />` for library packing
+* Added support for loading \*.bundle directories as asset libraries
 * Added support for `${meta.title}` and other project data in project.xml
 * Added support for Cairo textPath
 * Added support for multiple Lime embeds, rewrote HTML5 embed code
@@ -33,7 +33,7 @@
 * Fixed dispatch of Renderer.onRender when there is no context
 * Fixed dispatch of Renderer.onContextLost on native platforms
 * Fixed use of image.threshold when source is canvas or HTML5 image
-* Fixed missing warning if <icon path="" /> is null
+* Fixed missing warning if `<icon path="" />` is null
 * Fixed `<app path="" />` to be relative to include.xml path
 * Fixed `<splashScreen path="" />` to be relative to include.xml path
 * Fixed case where assets could be processed as templates
