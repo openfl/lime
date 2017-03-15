@@ -5,6 +5,6 @@
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
 	"version": "4.0.0",
-	"releasenote": "",
+	"releasenote": "Revised the OpenGL API, added DataPointer/BytePointer, asset library improvements",
 	"contributors": [ "singmajesty" ]
 }
