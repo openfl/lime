@@ -24,7 +24,7 @@ package lime.utils;
 
         @:allow(lime.utils)
         #if !no_typedarray_inline inline #end
-        function new( ?elements:Null<Int> = null, in_type:TypedArrayType) {
+        function new( elements:Null<Int> = null, in_type:TypedArrayType) {
 
             type = in_type;
             bytesPerElement = bytesForType(type);
@@ -77,7 +77,7 @@ package lime.utils;
 
         @:allow(lime.utils)
         #if !no_typedarray_inline inline #end
-        function initBuffer( in_buffer:ArrayBuffer, ?in_byteOffset:Int = 0, len:Null<Int> = null ) {
+        function initBuffer( in_buffer:ArrayBuffer, in_byteOffset:Int = 0, len:Null<Int> = null ) {
 
             if(in_byteOffset < 0) throw TAError.RangeError;
             if(in_byteOffset % bytesPerElement != 0) throw TAError.RangeError;
@@ -132,7 +132,7 @@ package lime.utils;
 
         //T is required because it can translate [0,0] as Int array
         #if !no_typedarray_inline inline #end
-        public function set<T>( ?view:ArrayBufferView, ?array:Array<T>, offset:Int = 0 ) : Void {
+        public function set<T>( view:ArrayBufferView = null, array:Array<T> = null, offset:Int = 0 ) : Void {
 
             if(view != null && array == null) {
                 buffer.blit( toByteLength(offset), view.buffer, view.byteOffset, view.byteLength );
@@ -275,7 +275,7 @@ package lime.utils;
     //Non-spec
 
         #if !no_typedarray_inline #end
-        function copyFromArray(array:Array<Float>, ?offset : Int = 0 ) {
+        function copyFromArray(array:Array<Float>, offset : Int = 0 ) {
 
             //Ideally, native semantics could be used, like cpp.NativeArray.blit
             var i = 0, len = array.length;
