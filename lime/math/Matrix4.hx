@@ -253,7 +253,33 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
    
    
-	public static function createABCD (a:Float, b:Float, c:Float, d:Float, tx:Float, ty:Float) {
+	public static function createABCD (a:Float, b:Float, c:Float, d:Float, tx:Float, ty:Float, matrix:Matrix4=null) {
+		
+		if (matrix != null) {
+			
+			matrix[ 0 ] = a;
+			matrix[ 1 ] = b;
+			matrix[ 2 ] = 0;
+			matrix[ 3 ] = 0;
+			
+			matrix[ 4 ] = c;
+			matrix[ 5 ] = d;
+			matrix[ 6 ] = 0;
+			matrix[ 7 ] = 0;
+			
+			matrix[ 8 ] = 0;
+			matrix[ 9 ] = 0;
+			matrix[ 10 ] = 1;
+			matrix[ 11 ] = 0;
+			
+			matrix[ 12 ] = tx;
+			matrix[ 13 ] = ty;
+			matrix[ 14 ] = 0;
+			matrix[ 15 ] = 1;
+			
+			return matrix;
+			
+		}
 		
 		return new Matrix4 (new Float32Array ([
 			a, b, 0, 0,
