@@ -521,8 +521,8 @@ class NativeCFFI {
 	@:cffi private static function lime_gl_line_width (width:Float32):Void;
 	@:cffi private static function lime_gl_link_program (program:Int):Void;
 	@:cffi private static function lime_gl_object_deregister (object:Dynamic):Void;
-	@:cffi private static function lime_gl_object_from_id (id:Int):Dynamic;
-	@:cffi private static function lime_gl_object_register (type:Int, id:Int, object:Dynamic):Void;
+	@:cffi private static function lime_gl_object_from_id (id:Int, type:Int):Dynamic;
+	@:cffi private static function lime_gl_object_register (id:Int, type:Int, object:Dynamic):Void;
 	@:cffi private static function lime_gl_pixel_storei (pname:Int, param:Int):Void;
 	@:cffi private static function lime_gl_polygon_offset (factor:Float32, units:Float32):Void;
 	@:cffi private static function lime_gl_read_pixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:DataPointer):Void;

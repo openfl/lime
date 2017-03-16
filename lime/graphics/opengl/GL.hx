@@ -3050,7 +3050,7 @@ class GL {
 	public static function fromInt (type:GLObjectType, id:Int):GLObject {
 		
 		#if (lime_cffi && lime_opengl && !macro)
-		var object = NativeCFFI.lime_gl_object_from_id (id);
+		var object = NativeCFFI.lime_gl_object_from_id (id, type);
 		
 		if (object != null) {
 			

@@ -31,7 +31,7 @@ namespace lime {
 	int OpenGLBindings::defaultFramebuffer = 0;
 	
 	
-	std::map<GLuint, value> glObjects;
+	std::map<GLObjectType, std::map <GLuint, value> > glObjects;
 	std::map<value, GLuint> glObjectIDs;
 	std::map<value, GLObjectType> glObjectTypes;
 	
@@ -46,11 +46,12 @@ namespace lime {
 		if (glObjectIDs.find (object) != glObjectIDs.end ()) {
 			
 			GLuint id = glObjectIDs[object];
+			GLObjectType type = glObjectTypes[object];
 			
 			gc_gl_id.push_back (id);
-			gc_gl_type.push_back (glObjectTypes[object]);
+			gc_gl_type.push_back (type);
 			
-			glObjects.erase (id);
+			glObjects[type].erase (id);
 			glObjectIDs.erase (object);
 			glObjectTypes.erase (object);
 			
@@ -67,6 +68,7 @@ namespace lime {
 			gc_gl_mutex.Lock ();
 			
 			int size = gc_gl_id.size ();
+			
 			GLuint id;
 			GLObjectType type;
 			
@@ -1066,26 +1068,25 @@ namespace lime {
 		
 		if (glObjectIDs.find (object) != glObjectIDs.end ()) {
 			
-			int id = glObjectIDs[object];
+			GLuint id = glObjectIDs[object];
+			GLObjectType type = glObjectTypes[object];
+			
+			glObjects[type].erase (id);
 			glObjectTypes.erase (object);
 			glObjectIDs.erase (object);
-			
-			if (glObjects[id] == object) {
-				
-				glObjects.erase (id);
-				
-			}
 			
 		}
 		
 	}
 	
 	
-	value lime_gl_object_from_id (int id) {
+	value lime_gl_object_from_id (int id, int type) {
 		
-		if (glObjects.find (id) != glObjects.end ()) {
+		GLObjectType _type = (GLObjectType)type;
+		
+		if (glObjects[_type].find (id) != glObjects[_type].end ()) {
 			
-			return glObjects[id];
+			return glObjects[_type][id];
 			
 		} else {
 			
@@ -1098,9 +1099,23 @@ namespace lime {
 	
 	void lime_gl_object_register (int id, int type, value object) {
 		
+		GLObjectType _type = (GLObjectType)type;
+		
+		//if (glObjects[_type].find (id) != glObjects[_type].end ()) {
+			//
+			//value otherObject = glObjects[_type][id];
+			//if (otherObject == object) return;
+			//
+			//glObjectTypes.erase (otherObject);
+			//glObjectIDs.erase (object);
+			//
+			//val_gc (otherObject, 0);
+			//
+		//}
+		
 		glObjectTypes[object] = (GLObjectType)type;
 		glObjectIDs[object] = id;
-		glObjects[id] = object;
+		glObjects[_type][id] = object;
 		
 		val_gc (object, gc_gl_object);
 		
@@ -1588,7 +1603,7 @@ namespace lime {
 	DEFINE_PRIME1v (lime_gl_line_width);
 	DEFINE_PRIME1v (lime_gl_link_program);
 	DEFINE_PRIME1v (lime_gl_object_deregister);
-	DEFINE_PRIME1 (lime_gl_object_from_id);
+	DEFINE_PRIME2 (lime_gl_object_from_id);
 	DEFINE_PRIME3v (lime_gl_object_register);
 	DEFINE_PRIME2v (lime_gl_pixel_storei);
 	DEFINE_PRIME2v (lime_gl_polygon_offset);
