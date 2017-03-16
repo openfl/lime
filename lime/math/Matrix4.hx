@@ -797,21 +797,24 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	private inline function _swap(a:Int, b:Int) {
+		
+		var temp = this[a];
+		this[a] = this[b];
+		this[b] = temp;
+		
+	}
+	
+	
 	public function transpose ():Void {
 		
-		var othis = new Float32Array (this);
-		this[1] = othis[4];
-		this[2] = othis[8];
-		this[3] = othis[12];
-		this[4] = othis[1];
-		this[6] = othis[9];
-		this[7] = othis[13];
-		this[8] = othis[2];
-		this[9] = othis[6];
-		this[11] = othis[14];
-		this[12] = othis[3];
-		this[13] = othis[7];
-		this[14] = othis[11];
+		_swap(1, 4);
+		_swap(2, 8);
+		_swap(3, 12);
+		_swap(4, 1);
+		_swap(6, 9);
+		_swap(7, 13);
+		_swap(11, 14);
 		
 	}
 
