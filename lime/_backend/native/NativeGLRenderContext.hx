@@ -1088,6 +1088,7 @@ class NativeGLRenderContext {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		var id = NativeCFFI.lime_gl_create_buffer ();
+		if (id == 0) return null;
 		var object = new GLObject (id);
 		NativeCFFI.lime_gl_object_register (id, GLObjectType.BUFFER, object);
 		return object;
@@ -1102,6 +1103,7 @@ class NativeGLRenderContext {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		var id = NativeCFFI.lime_gl_create_framebuffer ();
+		if (id == 0) return null;
 		var object = new GLObject (id);
 		NativeCFFI.lime_gl_object_register (id, GLObjectType.FRAMEBUFFER, object);
 		return object;
@@ -1116,6 +1118,7 @@ class NativeGLRenderContext {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		var id = NativeCFFI.lime_gl_create_program ();
+		if (id == 0) return null;
 		var object = new GLObject (id);
 		NativeCFFI.lime_gl_object_register (id, GLObjectType.PROGRAM, object);
 		return object;
@@ -1137,6 +1140,7 @@ class NativeGLRenderContext {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		var id = NativeCFFI.lime_gl_create_renderbuffer ();
+		if (id == 0) return null;
 		var object = new GLObject (id);
 		NativeCFFI.lime_gl_object_register (id, GLObjectType.RENDERBUFFER, object);
 		return object;
@@ -1158,6 +1162,7 @@ class NativeGLRenderContext {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		var id = NativeCFFI.lime_gl_create_shader (type);
+		if (id == 0) return null;
 		var object = new GLObject (id);
 		NativeCFFI.lime_gl_object_register (id, GLObjectType.SHADER, object);
 		return object;
@@ -1172,6 +1177,7 @@ class NativeGLRenderContext {
 		
 		#if (lime_cffi && lime_opengl && !macro)
 		var id = NativeCFFI.lime_gl_create_texture ();
+		if (id == 0) return null;
 		var object = new GLObject (id);
 		NativeCFFI.lime_gl_object_register (id, GLObjectType.TEXTURE, object);
 		return object;

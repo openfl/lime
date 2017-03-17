@@ -3049,6 +3049,8 @@ class GL {
 	
 	public static function fromInt (type:GLObjectType, id:Int):GLObject {
 		
+		if (id == 0) return null;
+		
 		#if (lime_cffi && lime_opengl && !macro)
 		var object = NativeCFFI.lime_gl_object_from_id (id, type);
 		
