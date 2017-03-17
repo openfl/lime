@@ -1,3 +1,15 @@
+4.0.1 (03/17/2017)
+------------------
+
+* Improved error message when an asset library is not found
+* Improved generated code performance when using ArrayBufferView
+* Fixed some issues with incorrect OpenGL garbage collection
+* Fixed AssetLibrary loadText to use text (not binary) loading on HTML5
+* Fixed support `<library />` tag without using a "path" attribute
+* Fixed premature loading of `embed="false"` assets on HTML5
+* Fixed OpenGL bindings to return null OpenGL objects if an ID is zero
+
+
 4.0.0 (03/15/2017)
 ------------------
 
