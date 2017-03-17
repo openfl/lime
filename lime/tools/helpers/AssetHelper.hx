@@ -66,7 +66,12 @@ class AssetHelper {
 				} else {
 					
 					assetData.path = asset.resourceName;
-					assetData.preload = (asset.embed != false);
+					
+					if (asset.embed != false) {
+						
+						assetData.preload = true;
+						
+					}
 					
 					if (asset.type == MUSIC || asset.type == SOUND) {
 						
@@ -79,7 +84,7 @@ class AssetHelper {
 						} else {
 							
 							pathGroups[soundName].push (assetData.path);
-							assetData.preload = false;
+							Reflect.deleteField (assetData, "preload");
 							
 						}
 						

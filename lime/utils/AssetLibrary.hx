@@ -429,6 +429,8 @@ class AssetLibrary {
 			
 			for (id in preload.keys ()) {
 				
+				if (!preload.get (id)) continue;
+				
 				Log.verbose ("Preloading asset: " + id + " [" + types.get (id) + "]");
 				
 				switch (types.get (id)) {
@@ -775,7 +777,7 @@ class AssetLibrary {
 			
 			id = asset.id;
 			
-			if (preload.exists (id)) {
+			if (preload.exists (id) && preload.get (id)) {
 				
 				bytesTotal += sizes.get (id);
 				
