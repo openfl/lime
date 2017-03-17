@@ -3,6 +3,8 @@ package lime.graphics.opengl; #if (!js || !html5 || display)
 
 import lime.graphics.opengl.GL;
 
+@:forward(id)
+
 
 abstract GLTransformFeedback(GLObject) from GLObject to GLObject {
 	
