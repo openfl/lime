@@ -7,6 +7,7 @@
 * Fixed AssetLibrary loadText to use text (not binary) loading on HTML5
 * Fixed support `<library />` tag without using a "path" attribute
 * Fixed premature loading of `embed="false"` assets on HTML5
+* Fixed missing bufferData API in WebGLContext
 * Fixed OpenGL bindings to return null OpenGL objects if an ID is zero
 
 
