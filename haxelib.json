@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "4.0.0",
-	"releasenote": "Revised the OpenGL API, added DataPointer/BytePointer, asset library improvements",
+	"version": "4.0.1",
+	"releasenote": "OpenGL API and AssetLibrary fixes",
 	"contributors": [ "singmajesty" ]
 }
