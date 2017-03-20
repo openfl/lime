@@ -100,7 +100,7 @@ class NativeHTTPRequest {
 			
 			if (path == null #if (sys && !android) || !FileSystem.exists (path) #end) {
 				
-				promise.error ("Cannot load file: " + path);
+				worker.sendError ("Cannot load file: " + path);
 				
 			} else {
 				
@@ -108,15 +108,25 @@ class NativeHTTPRequest {
 				
 				if (bytes != null) {
 					
-					promise.complete (bytes);
+					worker.sendComplete (bytes);
 					
 				} else {
 					
-					promise.error ("Cannot load file: " + path);
+					worker.sendError ("Cannot load file: " + path);
 					
 				}
 				
 			}
+			
+		});
+		worker.onComplete.add (function (result) {
+			
+			promise.complete (result);
+			
+		});
+		worker.onError.add (function (message) {
+			
+			promise.error (message);
 			
 		});
 		worker.run ();
