@@ -1004,9 +1004,9 @@ class HTML5GLRenderContext {
 	//public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, offset:DataPointer):Void {
 	public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, imageSize:Dynamic, ?srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
 		
-		srcData = __prepareData (null, srcData);
-		
 		if (Std.is (imageSize, Int)) {
+			
+			srcData = __prepareData (null, srcData);
 			
 			if (version > 1 && srcOffset != null) {
 				
@@ -1050,9 +1050,9 @@ class HTML5GLRenderContext {
 	//public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, offset:DataPointer):Void {
 	public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, imageSize:Dynamic, ?srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
 		
-		srcData = __prepareData (null, srcData);
-		
 		if (Std.is (imageSize, Int)) {
+			
+			srcData = __prepareData (null, srcData);
 			
 			if (version > 1 && srcOffset != null) {
 				
@@ -3531,7 +3531,11 @@ class HTML5GLRenderContext {
 		
 		if (data != null) {
 			
-			if (data == 0) return null;
+			#if js
+			untyped __js__ ("if (!data) return null");
+			#else
+			if (Std.is (data, Float) && data == 0) return null;
+			#end
 			
 			if (size != null) {
 				
@@ -3542,6 +3546,7 @@ class HTML5GLRenderContext {
 				} else if (__isArrayBufferView (data)) {
 					
 					var arrayBufferView:ArrayBufferView = data;
+					if (arrayBufferView.byteLength == size) return data;
 					return new UInt8Array (arrayBufferView.buffer, arrayBufferView.byteOffset, size);
 					
 				} else if (Std.is (data, ArrayBuffer)) {
