@@ -428,7 +428,7 @@ namespace lime {
 			{
 				/*#ifdef HX_WINDOWS
 				printf("SDKFLJDSLFKJ\n");
-				int fd = _open_osfhandle ((intptr_t)((SDL_RWops*)handle)->hidden.windowsio.h, _O_RDONLY);
+				int fd = _open_osfhandle ((uintptr_t)((SDL_RWops*)handle)->hidden.windowsio.h, _O_RDONLY);
 				
 				if (fd != -1) {
 					printf("SDKFLJDSLFKJ\n");

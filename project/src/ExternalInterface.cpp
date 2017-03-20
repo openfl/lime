@@ -210,7 +210,7 @@ namespace lime {
 	
 	value lime_bytes_from_data_pointer (double data, int length) {
 		
-		intptr_t ptr = (intptr_t)data;
+		uintptr_t ptr = (uintptr_t)data;
 		Bytes bytes (length);
 		
 		if (ptr) {
@@ -227,7 +227,7 @@ namespace lime {
 	double lime_bytes_get_data_pointer (value bytes) {
 		
 		Bytes data = Bytes (bytes);
-		return (intptr_t)data.Data ();
+		return (uintptr_t)data.Data ();
 		
 	}
 	
@@ -243,7 +243,7 @@ namespace lime {
 	
 	double lime_cffi_get_native_pointer (value handle) {
 		
-		return (intptr_t)val_data (handle);
+		return (uintptr_t)val_data (handle);
 		
 	}
 	
@@ -988,7 +988,7 @@ namespace lime {
 	double lime_jni_getenv () {
 		
 		#ifdef ANDROID
-		return (intptr_t)JNI::GetEnv ();
+		return (uintptr_t)JNI::GetEnv ();
 		#else
 		return 0;
 		#endif
@@ -1282,7 +1282,7 @@ namespace lime {
 	double lime_renderer_get_context (value renderer) {
 		
 		Renderer* targetRenderer = (Renderer*)val_data (renderer);
-		return (intptr_t)targetRenderer->GetContext ();
+		return (uintptr_t)targetRenderer->GetContext ();
 		
 	}
 	

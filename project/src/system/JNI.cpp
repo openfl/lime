@@ -1959,7 +1959,7 @@ namespace lime {
 	double lime_jni_get_env () {
 		
 		JNIEnv *env = (JNIEnv*)JNI::GetEnv ();
-		return (intptr_t)env;
+		return (uintptr_t)env;
 		
 	}
 	

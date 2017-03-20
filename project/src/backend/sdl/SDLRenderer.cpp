@@ -177,7 +177,7 @@ namespace lime {
 			
 			alloc_field (result, val_id ("width"), alloc_int (width));
 			alloc_field (result, val_id ("height"), alloc_int (height));
-			alloc_field (result, val_id ("pixels"), alloc_float ((intptr_t)pixels));
+			alloc_field (result, val_id ("pixels"), alloc_float ((uintptr_t)pixels));
 			alloc_field (result, val_id ("pitch"), alloc_int (pitch));
 			
 		}

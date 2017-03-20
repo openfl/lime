@@ -9,21 +9,21 @@ namespace lime {
 	
 	void lime_curl_easy_cleanup (double handle) {
 		
-		curl_easy_cleanup ((CURL*)(intptr_t)handle);
+		curl_easy_cleanup ((CURL*)(uintptr_t)handle);
 		
 	}
 	
 	
 	double lime_curl_easy_duphandle (double handle) {
 		
-		return (intptr_t)curl_easy_duphandle ((CURL*)(intptr_t)handle);
+		return (uintptr_t)curl_easy_duphandle ((CURL*)(uintptr_t)handle);
 		
 	}
 	
 	
 	value lime_curl_easy_escape (double curl, HxString url, int length) {
 		
-		char* result = curl_easy_escape ((CURL*)(intptr_t)curl, url.__s, length);
+		char* result = curl_easy_escape ((CURL*)(uintptr_t)curl, url.__s, length);
 		return result ? alloc_string (result) : alloc_null ();
 		
 	}
@@ -32,7 +32,7 @@ namespace lime {
 	value lime_curl_easy_getinfo (double curl, int info) {
 		
 		CURLcode code = CURLE_OK;
-		CURL* handle = (CURL*)(intptr_t)curl;
+		CURL* handle = (CURL*)(uintptr_t)curl;
 		CURLINFO type = (CURLINFO)info;
 		
 		switch (type) {
@@ -120,21 +120,21 @@ namespace lime {
 	
 	double lime_curl_easy_init () {
 		
-		return (intptr_t)curl_easy_init ();
+		return (uintptr_t)curl_easy_init ();
 		
 	}
 	
 	
 	int lime_curl_easy_pause (double handle, int bitmask) {
 		
-		return curl_easy_pause ((CURL*)(intptr_t)handle, bitmask);
+		return curl_easy_pause ((CURL*)(uintptr_t)handle, bitmask);
 		
 	}
 	
 	
 	int lime_curl_easy_perform (double easy_handle) {
 		
-		return curl_easy_perform ((CURL*)(intptr_t)easy_handle);
+		return curl_easy_perform ((CURL*)(uintptr_t)easy_handle);
 		
 	}
 	
@@ -150,7 +150,7 @@ namespace lime {
 	
 	void lime_curl_easy_reset (double curl) {
 		
-		curl_easy_reset ((CURL*)(intptr_t)curl);
+		curl_easy_reset ((CURL*)(uintptr_t)curl);
 		
 	}
 	
@@ -218,7 +218,7 @@ namespace lime {
 	int lime_curl_easy_setopt (double handle, int option, value parameter) {
 		
 		CURLcode code = CURLE_OK;
-		CURL* curl = (CURL*)(intptr_t)handle;
+		CURL* curl = (CURL*)(uintptr_t)handle;
 		CURLoption type = (CURLoption)option;
 		
 		switch (type) {
@@ -513,7 +513,7 @@ namespace lime {
 	
 	value lime_curl_easy_unescape (double curl, HxString url, int inlength, int outlength) {
 		
-		char* result = curl_easy_unescape ((CURL*)(intptr_t)curl, url.__s, inlength, &outlength);
+		char* result = curl_easy_unescape ((CURL*)(uintptr_t)curl, url.__s, inlength, &outlength);
 		return result ? alloc_string (result) : alloc_null ();
 		
 	}

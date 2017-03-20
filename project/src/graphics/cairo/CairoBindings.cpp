@@ -440,7 +440,7 @@ namespace lime {
 	
 	double lime_cairo_image_surface_get_data (value handle) {
 		
-		return (intptr_t)cairo_image_surface_get_data ((cairo_surface_t*)val_data (handle));
+		return (uintptr_t)cairo_image_surface_get_data ((cairo_surface_t*)val_data (handle));
 		
 	}
 	

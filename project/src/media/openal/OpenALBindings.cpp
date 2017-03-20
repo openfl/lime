@@ -622,7 +622,7 @@ namespace lime {
 	
 	double lime_al_get_proc_address (HxString fname) {
 		
-		return (intptr_t)alGetProcAddress (fname.__s);
+		return (uintptr_t)alGetProcAddress (fname.__s);
 		
 	}
 	
