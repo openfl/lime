@@ -98,14 +98,23 @@ class NativeHTTPRequest {
 			}
 			#end
 			
-			if (path == null #if sys || !FileSystem.exists (path) #end) {
+			if (path == null #if (sys && !android) || !FileSystem.exists (path) #end) {
 				
 				promise.error ("Cannot load file: " + path);
 				
 			} else {
 				
 				bytes = lime.utils.Bytes.fromFile (path);
-				promise.complete (bytes);
+				
+				if (bytes != null) {
+					
+					promise.complete (bytes);
+					
+				} else {
+					
+					promise.error ("Cannot load file: " + path);
+					
+				}
 				
 			}
 			
