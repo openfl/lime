@@ -129,15 +129,15 @@ class LinuxPlatform extends PlatformTarget {
 		} else {
 			
 			var haxeArgs = [ hxml ];
+			var flags = [];
 			
 			if (is64) {
 				
 				haxeArgs.push ("-D");
 				haxeArgs.push ("HXCPP_M64");
+				flags.push ("-DHXCPP_M64");
 				
 			}
-			
-			var flags = [ is64 ? "-DHXCPP_M64" : "" ];
 			
 			if (!project.targetFlags.exists ("static")) {
 				
