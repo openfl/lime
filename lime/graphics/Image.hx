@@ -27,6 +27,7 @@ import lime.utils.ArrayBuffer;
 import lime.utils.UInt8Array;
 
 #if (js && html5)
+import lime._backend.html5.HTML5HTTPRequest;
 import js.html.CanvasElement;
 import js.html.ImageElement;
 import js.html.Image in JSImage;
@@ -72,6 +73,10 @@ import lime.graphics.console.TextureData;
 @:access(lime.math.ColorMatrix)
 @:access(lime.math.Rectangle)
 @:access(lime.math.Vector2)
+
+#if (js && html5)
+@:access(lime._backend.html5.HTML5HTTPRequest)
+#end
 
 
 class Image {
@@ -744,41 +749,15 @@ class Image {
 		
 		if (base64 == null || type == null) return Future.withValue (null);
 		
-		var promise = new Promise<Image> ();
-		
 		#if (js && html5)
-		var image = new JSImage ();
 		
-		image.addEventListener ("load", function (event) {
-			
-			var buffer = new ImageBuffer (null, image.width, image.height);
-			buffer.__srcImage = cast image;
-			
-			promise.complete (new Image (buffer));
-			
-		}, false);
-		
-		image.addEventListener ("progress", function (event) {
-			
-			promise.progress (event.loaded, event.total);
-			
-		}, false);
-		
-		image.addEventListener ("error", function (event) {
-			
-			promise.error (event.detail);
-			
-		}, false);
-		
-		image.src = "data:" + type + ";base64," + base64;
+		return HTML5HTTPRequest.loadImage ("data:" + type + ";base64," + base64);
 		
 		#else
 		
-		promise.error ("");
+		return cast Future.withError ("");
 		
 		#end
-		
-		return promise.future;
 		
 	}
 	
@@ -854,35 +833,7 @@ class Image {
 		
 		#if (js && html5)
 		
-		var promise = new Promise<Image> ();
-		
-		var image = new JSImage ();
-		image.crossOrigin = "Anonymous";
-		
-		image.addEventListener ("load", function (event) {
-			
-			var buffer = new ImageBuffer (null, image.width, image.height);
-			buffer.__srcImage = cast image;
-			
-			promise.complete (new Image (buffer));
-			
-		}, false);
-		
-		image.addEventListener ("progress", function (event) {
-			
-			promise.progress (event.loaded, event.total);
-			
-		}, false);
-		
-		image.addEventListener ("error", function (event) {
-			
-			promise.error (event.detail);
-			
-		}, false);
-		
-		image.src = path;
-		
-		return promise.future;
+		return HTML5HTTPRequest.loadImage (path);
 		
 		#elseif flash
 		

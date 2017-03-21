@@ -2,21 +2,27 @@ package lime._backend.html5;
 
 
 import js.html.Event;
+import js.html.Image in JSImage;
 import js.html.ProgressEvent;
 import js.html.XMLHttpRequest;
 import haxe.io.Bytes;
 import lime.app.Future;
 import lime.app.Promise;
+import lime.graphics.Image;
+import lime.graphics.ImageBuffer;
 import lime.net.HTTPRequest;
 import lime.net.HTTPRequestHeader;
+import lime.utils.AssetType;
+
+@:access(lime.graphics.ImageBuffer)
 
 
 class HTML5HTTPRequest {
 	
 	
-	private static var activeRequests:Int;
-	private static var requestLimit:Int;
-	private static var requestQueue:List<QueueItem>;
+	private static var activeRequests = 0;
+	private static var requestLimit = 4;
+	private static var requestQueue = new List<QueueItem> ();
 	
 	private var binary:Bool;
 	private var parent:_IHTTPRequest;
@@ -44,14 +50,6 @@ class HTML5HTTPRequest {
 	public function init (parent:_IHTTPRequest):Void {
 		
 		this.parent = parent;
-		
-		if (requestQueue == null) {
-			
-			activeRequests = 0;
-			requestLimit = 6;
-			requestQueue = new List<QueueItem> ();
-			
-		}
 		
 	}
 	
@@ -134,6 +132,124 @@ class HTML5HTTPRequest {
 		
 		var promise = new Promise<Bytes> ();
 		
+		if (activeRequests < requestLimit) {
+			
+			activeRequests++;
+			__loadData (uri, promise);
+			
+		} else {
+			
+			requestQueue.add ({ instance: this, uri: uri, promise: promise, type: AssetType.BINARY });
+			
+		}
+		
+		return promise.future;
+		
+	}
+	
+	
+	private static function loadImage (uri:String):Future<Image> {
+		
+		var promise = new Promise<Image> ();
+		
+		if (activeRequests < requestLimit) {
+			
+			activeRequests++;
+			__loadImage (uri, promise);
+			
+		} else {
+			
+			requestQueue.add ({ instance: null, uri: uri, promise: promise, type: AssetType.IMAGE });
+			
+		}
+		
+		return promise.future;
+		
+	}
+	
+	
+	public function loadText (uri:String):Future<String> {
+		
+		var promise = new Promise<String> ();
+		
+		if (activeRequests < requestLimit) {
+			
+			activeRequests++;
+			__loadText (uri, promise);
+			
+		} else {
+			
+			requestQueue.add ({ instance: this, uri: uri, promise: promise, type: AssetType.TEXT });
+			
+		}
+		
+		return promise.future;
+		
+	}
+	
+	
+	private static function processQueue ():Void {
+		
+		if (activeRequests < requestLimit && requestQueue.length > 0) {
+			
+			activeRequests++;
+			
+			var queueItem = requestQueue.pop ();
+			
+			switch (queueItem.type) {
+				
+				case IMAGE:
+					
+					__loadImage (queueItem.uri, queueItem.promise);
+				
+				case TEXT:
+					
+					queueItem.instance.__loadText (queueItem.uri, queueItem.promise);
+				
+				case BINARY:
+					
+					queueItem.instance.__loadData (queueItem.uri, queueItem.promise);
+				
+				default:
+					
+					activeRequests--;
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	private function processResponse ():Void {
+		
+		if (parent.enableResponseHeaders) {
+			
+			parent.responseHeaders = [];
+			var name, value;
+			
+			for (line in request.getAllResponseHeaders ().split ("\n")) {
+				
+				name = StringTools.trim (line.substr (0, line.indexOf (":")));
+				value = StringTools.trim (line.substr (line.indexOf (":") + 1));
+				
+				if (name != "") {
+					
+					parent.responseHeaders.push (new HTTPRequestHeader (name, value));
+					
+				}
+				
+			}
+			
+		}
+		
+		parent.responseStatus = request.status;
+		
+	}
+	
+	
+	public function __loadData (uri:String, promise:Promise<Bytes>):Void {
+		
 		var progress = function (event) {
 			
 			promise.progress (event.loaded, event.total);
@@ -176,26 +292,49 @@ class HTML5HTTPRequest {
 		}
 		
 		binary = true;
-		
-		if (activeRequests < requestLimit) {
-			
-			activeRequests++;
-			load (uri, progress, readyStateChange);
-			
-		} else {
-			
-			requestQueue.add ({ instance: this, uri: uri, progress: progress, readyStateChange: readyStateChange });
-			
-		}
-		
-		return promise.future;
+		load (uri, progress, readyStateChange);
 		
 	}
 	
 	
-	public function loadText (uri:String):Future<String> {
+	private static function __loadImage (uri:String, promise:Promise<Image>):Void {
 		
-		var promise = new Promise<String> ();
+		var image = new JSImage ();
+		image.crossOrigin = "Anonymous";
+		
+		image.addEventListener ("load", function (event) {
+			
+			var buffer = new ImageBuffer (null, image.width, image.height);
+			buffer.__srcImage = cast image;
+			
+			activeRequests--;
+			processQueue ();
+			
+			promise.complete (new Image (buffer));
+			
+		}, false);
+		
+		image.addEventListener ("progress", function (event) {
+			
+			promise.progress (event.loaded, event.total);
+			
+		}, false);
+		
+		image.addEventListener ("error", function (event) {
+			
+			activeRequests--;
+			processQueue ();
+			
+			promise.error (event.detail);
+			
+		}, false);
+		
+		image.src = uri;
+		
+	}
+	
+	
+	private function __loadText (uri:String, promise:Promise<String>):Void {
 		
 		var progress = function (event) {
 			
@@ -227,60 +366,7 @@ class HTML5HTTPRequest {
 		}
 		
 		binary = false;
-		
-		if (activeRequests < requestLimit) {
-			
-			activeRequests++;
-			load (uri, progress, readyStateChange);
-			
-		} else {
-			
-			requestQueue.add ({ instance: this, uri: uri, progress: progress, readyStateChange: readyStateChange });
-			
-		}
-		
-		return promise.future;
-		
-	}
-	
-	
-	private function processQueue ():Void {
-		
-		if (activeRequests < requestLimit && requestQueue.length > 0) {
-			
-			activeRequests++;
-			
-			var queueItem = requestQueue.pop ();
-			queueItem.instance.load (queueItem.uri, queueItem.progress, queueItem.readyStateChange);
-			
-		}
-		
-	}
-	
-	
-	private function processResponse ():Void {
-		
-		if (parent.enableResponseHeaders) {
-			
-			parent.responseHeaders = [];
-			var name, value;
-			
-			for (line in request.getAllResponseHeaders ().split ("\n")) {
-				
-				name = StringTools.trim (line.substr (0, line.indexOf (":")));
-				value = StringTools.trim (line.substr (line.indexOf (":") + 1));
-				
-				if (name != "") {
-					
-					parent.responseHeaders.push (new HTTPRequestHeader (name, value));
-					
-				}
-				
-			}
-			
-		}
-		
-		parent.responseStatus = request.status;
+		load (uri, progress, readyStateChange);
 		
 	}
 	
@@ -288,11 +374,11 @@ class HTML5HTTPRequest {
 }
 
 
-@:dox(hide) private typedef QueueItem = {
+@:dox(hide) typedef QueueItem = {
 	
 	var instance:HTML5HTTPRequest;
+	var type:AssetType;
+	var promise:Dynamic;
 	var uri:String;
-	var progress:Dynamic;
-	var readyStateChange:Dynamic;
 	
 }
