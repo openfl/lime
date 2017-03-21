@@ -164,7 +164,7 @@ package lime.utils;
         #if !no_typedarray_inline inline #end
         function subarray<T_subarray>( begin:Int, end:Null<Int> = null ) : T_subarray {
 
-            if (end == null) end == length;
+            if (end == null) end = length;
             var len = end - begin;
             var byte_offset = toByteLength(begin) + byteOffset;
 
