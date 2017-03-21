@@ -14,6 +14,10 @@ import lime.net.HTTPRequestHeader;
 class HTML5HTTPRequest {
 	
 	
+	private static var activeRequests:Int;
+	private static var requestLimit:Int;
+	private static var requestQueue:List<QueueItem>;
+	
 	private var binary:Bool;
 	private var parent:_IHTTPRequest;
 	private var request:XMLHttpRequest;
@@ -40,6 +44,14 @@ class HTML5HTTPRequest {
 	public function init (parent:_IHTTPRequest):Void {
 		
 		this.parent = parent;
+		
+		if (requestQueue == null) {
+			
+			activeRequests = 0;
+			requestLimit = 6;
+			requestQueue = new List<QueueItem> ();
+			
+		}
 		
 	}
 	
@@ -158,10 +170,23 @@ class HTML5HTTPRequest {
 			
 			request = null;
 			
+			activeRequests--;
+			processQueue ();
+			
 		}
 		
 		binary = true;
-		load (uri, progress, readyStateChange);
+		
+		if (activeRequests < requestLimit) {
+			
+			activeRequests++;
+			load (uri, progress, readyStateChange);
+			
+		} else {
+			
+			requestQueue.add ({ instance: this, uri: uri, progress: progress, readyStateChange: readyStateChange });
+			
+		}
 		
 		return promise.future;
 		
@@ -196,12 +221,39 @@ class HTML5HTTPRequest {
 			
 			request = null;
 			
+			activeRequests--;
+			processQueue ();
+			
 		}
 		
 		binary = false;
-		load (uri, progress, readyStateChange);
+		
+		if (activeRequests < requestLimit) {
+			
+			activeRequests++;
+			load (uri, progress, readyStateChange);
+			
+		} else {
+			
+			requestQueue.add ({ instance: this, uri: uri, progress: progress, readyStateChange: readyStateChange });
+			
+		}
 		
 		return promise.future;
+		
+	}
+	
+	
+	private function processQueue ():Void {
+		
+		if (activeRequests < requestLimit && requestQueue.length > 0) {
+			
+			activeRequests++;
+			
+			var queueItem = requestQueue.pop ();
+			queueItem.instance.load (queueItem.uri, queueItem.progress, queueItem.readyStateChange);
+			
+		}
 		
 	}
 	
@@ -232,5 +284,15 @@ class HTML5HTTPRequest {
 		
 	}
 	
+	
+}
+
+
+@:dox(hide) private typedef QueueItem = {
+	
+	var instance:HTML5HTTPRequest;
+	var uri:String;
+	var progress:Dynamic;
+	var readyStateChange:Dynamic;
 	
 }
