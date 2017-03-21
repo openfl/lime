@@ -10,7 +10,7 @@ import lime.net.curl.CURLEasy;
 import lime.net.curl.CURL;
 import lime.net.HTTPRequest;
 import lime.net.HTTPRequestMethod;
-import lime.system.BackgroundWorker;
+import lime.system.ThreadPool;
 
 #if sys
 import sys.FileSystem;
@@ -24,6 +24,8 @@ import sys.FileSystem;
 
 class NativeHTTPRequest {
 	
+	
+	private static var threadPool:ThreadPool;
 	
 	private var bytes:Bytes;
 	private var bytesLoaded:Int;
@@ -62,15 +64,34 @@ class NativeHTTPRequest {
 	
 	public function loadData (uri:String, binary:Bool = true):Future<Bytes> {
 		
-		if (uri.indexOf ("http://") == -1 && uri.indexOf ("https://") == -1) {
+		if (threadPool == null) {
 			
-			loadFile (uri);
+			CURL.globalInit (CURL.GLOBAL_ALL);
 			
-		} else {
-			
-			loadURL (uri, binary);
+			threadPool = new ThreadPool (1, 5);
+			threadPool.doWork.add (threadPool_doWork);
+			threadPool.onComplete.add (threadPool_onComplete);
+			threadPool.onError.add (threadPool_onError);
 			
 		}
+		
+		if (parent.timeout > 0) {
+			
+			Timer.delay (function () {
+				
+				if (bytesLoaded == 0 && bytesTotal == 0 && !promise.isComplete && !promise.isError) {
+					
+					//cancel ();
+					
+					promise.error (CURLCode.OPERATION_TIMEDOUT);
+					
+				}
+				
+			}, parent.timeout);
+			
+		}
+		
+		threadPool.queue ({ instance: this, uri: uri, binary: binary });
 		
 		return promise.future;
 		
@@ -79,57 +100,41 @@ class NativeHTTPRequest {
 	
 	private function loadFile (path:String):Void {
 		
-		var worker = new BackgroundWorker ();
-		worker.doWork.add (function (_) {
+		var index = path.indexOf ("?");
+		
+		if (index > -1) {
 			
-			var index = path.indexOf ("?");
+			path = path.substring (0, index);
 			
-			if (index > -1) {
-				
-				path = path.substring (0, index);
-				
-			}
+		}
+		
+		#if (sys && !windows)
+		if (StringTools.startsWith (path, "~/")) {
 			
-			#if (sys && !windows)
-			if (StringTools.startsWith (path, "~/")) {
-				
-				path = Sys.getEnv ("HOME") + "/" + path.substr (2);
-				
-			}
-			#end
+			path = Sys.getEnv ("HOME") + "/" + path.substr (2);
 			
-			if (path == null #if (sys && !android) || !FileSystem.exists (path) #end) {
+		}
+		#end
+		
+		if (path == null #if (sys && !android) || !FileSystem.exists (path) #end) {
+			
+			threadPool.sendError ({ promise: promise, error: "Cannot load file: " + path });
+			
+		} else {
+			
+			bytes = lime.utils.Bytes.fromFile (path);
+			
+			if (bytes != null) {
 				
-				worker.sendError ("Cannot load file: " + path);
+				threadPool.sendComplete ({ promise: promise, result: bytes });
 				
 			} else {
 				
-				bytes = lime.utils.Bytes.fromFile (path);
-				
-				if (bytes != null) {
-					
-					worker.sendComplete (bytes);
-					
-				} else {
-					
-					worker.sendError ("Cannot load file: " + path);
-					
-				}
+				threadPool.sendError ({ promise: promise, error: "Cannot load file: " + path });
 				
 			}
 			
-		});
-		worker.onComplete.add (function (result) {
-			
-			promise.complete (result);
-			
-		});
-		worker.onError.add (function (message) {
-			
-			promise.error (message);
-			
-		});
-		worker.run ();
+		}
 		
 	}
 	
@@ -289,45 +294,16 @@ class NativeHTTPRequest {
 		
 		CURLEasy.setopt (curl, TRANSFERTEXT, !binary);
 		
-		var worker = new BackgroundWorker ();
-		worker.doWork.add (function (_) {
-			
-			var result = CURLEasy.perform (curl);
-			
-			worker.sendComplete (result);
-			
-		});
-		worker.onComplete.add (function (result) {
-			
-			parent.responseStatus = CURLEasy.getinfo (curl, RESPONSE_CODE);
-			
-			if (result == CURLCode.OK) {
-				
-				promise.complete (bytes);
-				
-			} else {
-				
-				promise.error (result);
-				
-			}
-			
-		});
-		worker.run ();
+		var result = CURLEasy.perform (curl);
+		parent.responseStatus = CURLEasy.getinfo (curl, RESPONSE_CODE);
 		
-		if (parent.timeout > 0) {
+		if (result == CURLCode.OK) {
 			
-			Timer.delay (function () {
-				
-				if (bytesLoaded == 0 && bytesTotal == 0 && !worker.completed) {
-					
-					worker.cancel ();
-					cancel ();
-					
-					promise.error (CURLCode.OPERATION_TIMEDOUT);
-					
-				}
-				
-			}, parent.timeout);
+			threadPool.sendComplete ({ promise: promise, result: bytes });
+			
+		} else {
+			
+			threadPool.sendError ({ promise: promise, error: result });
 			
 		}
 		
@@ -385,6 +361,39 @@ class NativeHTTPRequest {
 		bytes.blit (cacheBytes.length, output, 0, output.length);
 		
 		return size * nmemb;
+		
+	}
+	
+	
+	private static function threadPool_doWork (state:Dynamic):Void {
+		
+		var instance:NativeHTTPRequest = state.instance;
+		var uri:String = state.uri;
+		var binary:Bool = state.binary;
+		
+		if (uri.indexOf ("http://") == -1 && uri.indexOf ("https://") == -1) {
+			
+			instance.loadFile (uri);
+			
+		} else {
+			
+			instance.loadURL (uri, binary);
+			
+		}
+		
+	}
+	
+	
+	private static function threadPool_onComplete (state:Dynamic):Void {
+		
+		state.promise.complete (state.result);
+		
+	}
+	
+	
+	private static function threadPool_onError (state:Dynamic):Void {
+		
+		state.promise.error (state.error);
 		
 	}
 	
