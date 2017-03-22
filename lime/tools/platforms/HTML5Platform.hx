@@ -263,8 +263,8 @@ class HTML5Platform extends PlatformTarget {
 				
 				var name = Path.withoutDirectory (dependency.path);
 				
-				context.linkedLibraries.push ("./lib/" + name);
-				FileHelper.copyIfNewer (dependency.path, PathHelper.combine (destination, PathHelper.combine ("lib", name)));
+				context.linkedLibraries.push ("./lib-html5/" + name);
+				FileHelper.copyIfNewer (dependency.path, PathHelper.combine (destination, PathHelper.combine ("lib-html5", name)));
 				
 			}
 			
