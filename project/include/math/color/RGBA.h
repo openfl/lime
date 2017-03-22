@@ -19,7 +19,7 @@ namespace lime {
 		
 		for (int i = 0; i < 256; i++) {
 			
-			__alpha16[i] = ceil ((float)(i + 1) * ((1 << 16) / 0xFF)); 
+			__alpha16[i] = (int) ceil ((float)(i + 1) * ((1 << 16) / 0xFF)); 
 			
 		}
 		

@@ -525,7 +525,7 @@ namespace lime {
 	
 	void ImageDataUtil::SetFormat (Image* image, PixelFormat format) {
 		
-		int index, a16;
+		int index;
 		int length = image->buffer->data->Length () / 4;
 		int r1, g1, b1, a1, r2, g2, b2, a2;
 		int r, g, b, a;
@@ -796,10 +796,10 @@ namespace lime {
 		
 		stride = image->buffer->Stride ();
 		
-		x = ceil (this->rect->x);
-		y = ceil (this->rect->y);
-		width = floor (this->rect->width);
-		height = floor (this->rect->height);
+		x = (int) ceil (this->rect->x);
+		y = (int) ceil (this->rect->y);
+		width = (int) floor (this->rect->width);
+		height = (int) floor (this->rect->height);
 		offset = (stride * (this->y + image->offsetY)) + ((this->x + image->offsetX) * 4);
 		
 		
@@ -810,10 +810,10 @@ namespace lime {
 		
 		rect->Contract (x, y, width, height);
 		
-		this->x = ceil (rect->x);
-		this->y = ceil (rect->y);
-		this->width = floor (rect->width);
-		this->height = floor (rect->height);
+		this->x = (int) ceil (rect->x);
+		this->y = (int) ceil (rect->y);
+		this->width = (int) floor (rect->width);
+		this->height = (int) floor (rect->height);
 		offset = (stride * (this->y + image->offsetY)) + ((this->x + image->offsetX) * 4);
 		
 		
