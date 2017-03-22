@@ -64,7 +64,7 @@ class TextLayout {
 			
 			if (__buffer == null) {
 				
-				__buffer = Bytes.alloc (1);
+				__buffer = Bytes.alloc (text.length);
 				//__buffer.endian = (System.endianness == BIG_ENDIAN ? "bigEndian" : "littleEndian");
 				
 			}
