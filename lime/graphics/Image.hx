@@ -24,6 +24,7 @@ import lime.math.Vector2;
 import lime.net.HTTPRequest;
 import lime.system.CFFI;
 import lime.utils.ArrayBuffer;
+import lime.utils.Log;
 import lime.utils.UInt8Array;
 
 #if (js && html5)
@@ -786,7 +787,8 @@ class Image {
 			
 		} else {
 			
-			throw "Image tried to read PNG/JPG Bytes, but found an invalid header.";
+			//throw "Image tried to read PNG/JPG Bytes, but found an invalid header.";
+			return Future.withValue (null);
 			
 		}
 		
@@ -1308,7 +1310,8 @@ class Image {
 				
 			} else {
 				
-				throw "Image tried to read PNG/JPG Bytes, but found an invalid header.";
+				//throw "Image tried to read PNG/JPG Bytes, but found an invalid header.";
+				return;
 				
 			}
 			
@@ -1316,7 +1319,7 @@ class Image {
 			
 		#elseif lime_console
 			
-			throw "Image.fromBytes not implemented for console target";
+			Log.warn ("Image.fromBytes not implemented for console target");
 			
 		#elseif (lime_cffi && !macro)
 			
@@ -1345,7 +1348,7 @@ class Image {
 			
 		#else
 			
-			throw "Image.fromBytes not supported on this target";
+			Log.warn ("Image.fromBytes not supported on this target");
 			
 		#end
 		
@@ -1515,7 +1518,7 @@ class Image {
 		
 		#else
 			
-			throw "Image.fromFile not supported on this target";
+			Log.warn ("Image.fromFile not supported on this target");
 			
 		#end
 		
