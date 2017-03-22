@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "4.0.1",
-	"releasenote": "OpenGL API and AssetLibrary fixes",
+	"version": "4.0.2",
+	"releasenote": "Android fixes, network improvements",
 	"contributors": [ "singmajesty" ]
 }
