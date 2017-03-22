@@ -1,3 +1,18 @@
+4.0.2 (03/21/2017)
+------------------
+
+* Added an internal transfer queue for limiting simultaneous HTML5 requests
+* Added an internal thread pool for limiting simultaneous native HTTPRequests
+* Fixed compilation support with newer Haxe releases on Raspberry Pi
+* Fixed the default "end" argument value of ArrayBufferView subarray
+* Fixed a performance regression in WebGL support
+* Fixed native HTTPRequest so that it always returns on the correct thread
+* Fixed path resolution to APK-based assets using HTTPRequest on Android
+* Fixed "unused pattern" warning caused by duplicate constant in GL bindings
+* Fixed a mismatch between intptr_t and uintptr_t (affecting Android)
+* Fixed several Window properties when creating a new window without a config
+
+
 4.0.1 (03/17/2017)
 ------------------
 
