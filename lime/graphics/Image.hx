@@ -27,7 +27,9 @@ import lime.utils.ArrayBuffer;
 import lime.utils.UInt8Array;
 
 #if (js && html5)
+#if !display
 import lime._backend.html5.HTML5HTTPRequest;
+#end
 import js.html.CanvasElement;
 import js.html.ImageElement;
 import js.html.Image in JSImage;
@@ -74,7 +76,7 @@ import lime.graphics.console.TextureData;
 @:access(lime.math.Rectangle)
 @:access(lime.math.Vector2)
 
-#if (js && html5)
+#if (js && html5 && !display)
 @:access(lime._backend.html5.HTML5HTTPRequest)
 #end
 
@@ -749,7 +751,7 @@ class Image {
 		
 		if (base64 == null || type == null) return Future.withValue (null);
 		
-		#if (js && html5)
+		#if (js && html5 && !display)
 		
 		return HTML5HTTPRequest.loadImage ("data:" + type + ";base64," + base64);
 		
@@ -831,7 +833,7 @@ class Image {
 		
 		if (path == null) return Future.withValue (null);
 		
-		#if (js && html5)
+		#if (js && html5 && !display)
 		
 		return HTML5HTTPRequest.loadImage (path);
 		
