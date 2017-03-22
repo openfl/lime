@@ -118,26 +118,43 @@ namespace lime {
 		
 		PixelFormat sourceFormat = sourceImage->buffer->format;
 		PixelFormat destFormat = image->buffer->format;
-		bool sourcePremultiplied = sourceImage->buffer->premultiplied;
-		bool destPremultiplied = image->buffer->premultiplied;
 		
 		int sourcePosition, destPosition;
 		RGBA sourcePixel;
 		
+		bool sourcePremultiplied = sourceImage->buffer->premultiplied;
+		bool destPremultiplied = image->buffer->premultiplied;
+		
 		if (!mergeAlpha || !sourceImage->buffer->transparent) {
 			
-			for (int y = 0; y < destView.height; y++) {
+			if(sourceFormat == destFormat && sourcePremultiplied == destPremultiplied) {
 				
-				sourcePosition = sourceView.Row (y);
-				destPosition = destView.Row (y);
+				for (int y = 0; y < destView.height; y++) {
+					
+					sourcePosition = sourceView.Row (y);
+					destPosition = destView.Row (y);
+					
+					image->buffer->BlitRow(sourceData, sourcePosition, destPosition, sourceView.width, destView.x, destView.y+y);
+					
+				}
 				
-				for (int x = 0; x < destView.width; x++) {
+			}
+			else {
+				
+				for (int y = 0; y < destView.height; y++) {
 					
-					sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
-					sourcePixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
+					sourcePosition = sourceView.Row (y);
+					destPosition = destView.Row (y);
 					
-					sourcePosition += 4;
-					destPosition += 4;
+					for (int x = 0; x < destView.width; x++) {
+						
+						sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
+						sourcePixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
+						
+						sourcePosition += 4;
+						destPosition += 4;
+						
+					}
 					
 				}
 				
