@@ -97,13 +97,7 @@ namespace lime {
 	}
 	
 	
-	void ImageBuffer::BlitRow (const unsigned char *data, int sourcePosition, int destPosition, int sourceW, int destX, int destY) {
-		
-		if (destX < 0 || destX + sourceW > this->width || destY < 0 || destY + 1 > this->height) {
-			
-			return;
-			
-		}
+	void ImageBuffer::BlitRow (const unsigned char *data, int sourcePosition, int destPosition, int sourceW) {
 		
 		int stride = (sourceW * (((bitsPerPixel + 3) & ~0x3) >> 3));
 		
