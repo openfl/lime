@@ -129,12 +129,16 @@ namespace lime {
 			
 			if(sourceFormat == destFormat && sourcePremultiplied == destPremultiplied) {
 				
-				for (int y = 0; y < destView.height; y++) {
+				if (false == (destView.x < 0 || destView.x + sourceView.width > image->width || destView.y < 0 || destView.y + destView.height > image->height)) {
 					
-					sourcePosition = sourceView.Row (y);
-					destPosition = destView.Row (y);
-					
-					image->buffer->BlitRow(sourceData, sourcePosition, destPosition, sourceView.width, destView.x, destView.y+y);
+					for (int y = 0; y < destView.height; y++) {
+						
+						sourcePosition = sourceView.Row (y);
+						destPosition = destView.Row (y);
+						
+						image->buffer->BlitRow(sourceData, sourcePosition, destPosition, sourceView.width);
+						
+					}
 					
 				}
 				
