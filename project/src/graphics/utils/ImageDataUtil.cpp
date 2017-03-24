@@ -250,9 +250,21 @@ namespace lime {
 		PixelFormat format = image->buffer->format;
 		bool premultiplied = image->buffer->premultiplied;
 		
+		RGBA fillColor (color);
+		
+		if (rect->x == 0 && rect->y == 0 && rect->width == image->width && rect->height == image->height) {
+			
+			if (fillColor.a == fillColor.r && fillColor.r == fillColor.g && fillColor.g == fillColor.b) {
+				
+				memset (data, fillColor.a, image->buffer->data->byteLength);
+				return;
+				
+			}
+			
+		}
+		
 		ImageDataView dataView = ImageDataView (image, rect);
 		int row;
-		RGBA fillColor (color);
 		
 		if (premultiplied) fillColor.MultiplyAlpha ();
 		
