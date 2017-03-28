@@ -1,3 +1,12 @@
+4.0.3 (03/28/2017)
+------------------
+
+* Added support for GL EXT_packed_depth_stencil
+* Improved safety around DataPointer when performing arithmetic
+* Improved Image.loadFromBytes when bytes are not a known image type
+* Improved the performance of Image.fillRect in some cases
+
+
 4.0.2 (03/21/2017)
 ------------------
 
