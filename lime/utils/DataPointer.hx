@@ -52,9 +52,9 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 	@:from @:noCompletion public static function fromBytesPointer (pointer:BytePointer):DataPointer {
 		
 		#if (lime_cffi && !macro)
-		if (pointer == null) return cast 0;
-		var data:Float = NativeCFFI.lime_bytes_get_data_pointer (pointer.bytes);
-		return new DataPointer (data + pointer.offset);
+		if (pointer == null || pointer.bytes == null) return cast 0;
+		var data:Float = NativeCFFI.lime_bytes_get_data_pointer (pointer.bytes, pointer.offset);
+		return new DataPointer (data);
 		#elseif (js && !display)
 		return fromBytes (pointer.bytes);
 		#else
@@ -68,8 +68,8 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 		
 		#if (lime_cffi && !js && !macro)
 		if (arrayBufferView == null) return cast 0;
-		var data:Float = NativeCFFI.lime_bytes_get_data_pointer (arrayBufferView.buffer);
-		return new DataPointer (data + arrayBufferView.byteOffset);
+		var data:Float = NativeCFFI.lime_bytes_get_data_pointer (arrayBufferView.buffer, arrayBufferView.byteOffset);
+		return new DataPointer (data);
 		#elseif (js && !display)
 		return new DataPointer (arrayBufferView);
 		#else
@@ -97,7 +97,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 		
 		#if (lime_cffi && !macro)
 		if (bytes == null) return cast 0;
-		var data:Float = NativeCFFI.lime_bytes_get_data_pointer (bytes);
+		var data:Float = NativeCFFI.lime_bytes_get_data_pointer (bytes, 0);
 		return new DataPointer (data);
 		#elseif (js && !display)
 		return fromArrayBuffer (bytes.getData ());
@@ -152,6 +152,19 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 	}
 	
 	
+	private static function __withOffset (data:DataPointer, offset:Int):DataPointer {
+		
+		#if (lime_cffi && !macro)
+		if (data == 0) return cast 0;
+		var data:Float = NativeCFFI.lime_data_pointer_offset (data, offset);
+		return new DataPointer (data);
+		#else
+		return null;
+		#end
+		
+	}
+	
+	
 	@:noCompletion @:op(A == B) private static inline function equals (a:DataPointer, b:Int):Bool { return (a:Float) == b; }
 	@:noCompletion @:op(A == B) private static inline function equalsPointer (a:DataPointer, b:DataPointer):Bool { return (a:Float) == (b:Float); }
 	@:noCompletion @:op(A > B) private static inline function greaterThan (a:DataPointer, b:Int):Bool { return (a:Float) > b; }
@@ -164,10 +177,10 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 	@:noCompletion @:op(A <= B) private static inline function lessThanOrEqualPointer (a:DataPointer, b:CFFIPointer):Bool { return (a:Float) <= b; }
 	@:noCompletion @:op(A != B) private static inline function notEquals (a:DataPointer, b:Int):Bool { return (a:Float) != b; }
 	@:noCompletion @:op(A != B) private static inline function notEqualsPointer (a:DataPointer, b:DataPointer):Bool { return (a:Float) != (b:Float); }
-	@:noCompletion @:op(A + B) private static inline function plus (a:DataPointer, b:Int):DataPointer { return new DataPointer ((a:Float) + b); }
-	@:noCompletion @:op(A + B) private static inline function plusPointer (a:DataPointer, b:DataPointer):DataPointer { return  new DataPointer ((a:Float) + (b:Float)); }
-	@:noCompletion @:op(A - B) private static inline function minus (a:DataPointer, b:Int):DataPointer { return  new DataPointer ((a:Float) - b); }
-	@:noCompletion @:op(A - B) private static inline function minusPointer (a:DataPointer, b:DataPointer):DataPointer { return  new DataPointer ((a:Float) - (b:Float)); }
+	@:noCompletion @:op(A + B) private static inline function plus (a:DataPointer, b:Int):DataPointer { return __withOffset (a, b); }
+	@:noCompletion @:op(A + B) private static inline function plusPointer (a:DataPointer, b:DataPointer):DataPointer { return  __withOffset (a, Std.int ((b:Float))); }
+	@:noCompletion @:op(A - B) private static inline function minus (a:DataPointer, b:Int):DataPointer { return __withOffset (a, -b); }
+	@:noCompletion @:op(A - B) private static inline function minusPointer (a:DataPointer, b:DataPointer):DataPointer { return __withOffset (a, -Std.int ((b:Float))); }
 	
 	
 }

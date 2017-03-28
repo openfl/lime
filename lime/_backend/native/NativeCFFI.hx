@@ -39,11 +39,12 @@ class NativeCFFI {
 	@:cffi private static function lime_application_update (handle:Dynamic):Bool;
 	@:cffi private static function lime_audio_load (data:Dynamic, buffer:Dynamic):Dynamic;
 	@:cffi private static function lime_bytes_from_data_pointer (data:Float, length:Int):Dynamic;
-	@:cffi private static function lime_bytes_get_data_pointer (data:Dynamic):Float;
+	@:cffi private static function lime_bytes_get_data_pointer (data:Dynamic, offset:Int):Float;
 	@:cffi private static function lime_bytes_read_file (path:String, bytes:Dynamic):Dynamic;
 	@:cffi private static function lime_cffi_get_native_pointer (ptr:Dynamic):Float;
 	@:cffi private static function lime_clipboard_get_text ():Dynamic;
 	@:cffi private static function lime_clipboard_set_text (text:String):Void;
+	@:cffi private static function lime_data_pointer_offset (dataPointer:DataPointer, offset:Int):Float;
 	@:cffi private static function lime_deflate_compress (data:Dynamic, bytes:Dynamic):Dynamic;
 	@:cffi private static function lime_deflate_decompress (data:Dynamic, bytes:Dynamic):Dynamic;
 	@:cffi private static function lime_drop_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
