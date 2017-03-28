@@ -3450,6 +3450,7 @@ class NativeGLRenderContext {
 			__extensionObjectTypes["EXT_multisampled_render_to_texture"] = EXT_multisampled_render_to_texture;
 			__extensionObjectTypes["EXT_multiview_draw_buffers"] = EXT_multiview_draw_buffers;
 			__extensionObjectTypes["EXT_occlusion_query_boolean"] = EXT_occlusion_query_boolean;
+			__extensionObjectTypes["EXT_packed_depth_stencil"] = EXT_packed_depth_stencil;
 			__extensionObjectTypes["EXT_read_format_bgra"] = EXT_read_format_bgra;
 			__extensionObjectTypes["EXT_robustness"] = EXT_robustness;
 			__extensionObjectTypes["EXT_sRGB"] = EXT_sRGB;
