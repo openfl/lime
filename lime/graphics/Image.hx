@@ -785,6 +785,10 @@ class Image {
 			
 			type = "image/gif";
 			
+		} else if (__isWebP (bytes)) {
+			
+			type = "image/webp";
+			
 		} else {
 			
 			//throw "Image tried to read PNG/JPG Bytes, but found an invalid header.";
@@ -1548,29 +1552,37 @@ class Image {
 	}
 	
 	
-	private static function __isJPG (bytes:Bytes) {
+	private static function __isGIF (bytes:Bytes):Bool {
 		
-		return bytes.get (0) == 0xFF && bytes.get (1) == 0xD8;
+		if (bytes.length < 6) return false;
+		
+		var header = bytes.getString (0, 6);
+		return (header == "GIF87a" || header == "GIF89a");
+		
+	}
+	
+	
+	private static function __isJPG (bytes:Bytes):Bool {
+		
+		if (bytes.length < 4) return false;
+		
+		return bytes.get (0) == 0xFF && bytes.get (1) == 0xD8 && bytes.get (bytes.length - 2) == 0xFF && bytes.get (bytes.length -1) == 0xD9;
 		
 	}
 	
 	
-	private static function __isPNG (bytes:Bytes) {
+	private static function __isPNG (bytes:Bytes):Bool {
 		
-		return (bytes.get (0) == 0x89 && bytes.get (1) == 0x50 && bytes.get (2) == 0x4E && bytes.get (3) == 0x47 && bytes.get (4) == 0x0D && bytes.get (5) == 0x0A && bytes.get (6) == 0x1A && bytes.get (7) == 0x0A);
+		return (bytes.get (0) == 0x89 && bytes.get (1) == "P".code && bytes.get (2) == "N".code && bytes.get (3) == "G".code && bytes.get (4) == "\r".code && bytes.get (5) == "\n".code && bytes.get (6) == 0x1A && bytes.get (7) == "\n".code);
 		
 	}
 	
-	private static function __isGIF (bytes:Bytes) {
+	
+	private static function __isWebP (bytes:Bytes):Bool {
 		
-		if (bytes.get (0) == 0x47 && bytes.get (1) == 0x49 && bytes.get (2) == 0x46 && bytes.get (3) == 0x38) {
-			
-			var b = bytes.get (4);
-			return ((b == 0x37 || b == 0x39) && bytes.get (5) == 0x61);
-			
-		}
+		if (bytes.length < 16) return false;
 		
-		return false;
+		return (bytes.getString (0, 4) == "RIFF" && bytes.getString (8, 4) == "WEBP");
 		
 	}
 	

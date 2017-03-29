@@ -62,7 +62,7 @@ class Asset {
 					
 					this.type = AssetType.MANIFEST;
 				
-				case "jpg", "jpeg", "png", "gif":
+				case "jpg", "jpeg", "png", "gif", "webp":
 					
 					this.type = AssetType.IMAGE;
 				

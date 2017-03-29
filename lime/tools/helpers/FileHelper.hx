@@ -8,6 +8,7 @@ import lime.tools.helpers.PlatformHelper;
 import lime.tools.helpers.StringHelper;
 import lime.project.Asset;
 import lime.project.AssetEncoding;
+import lime.project.AssetType;
 import lime.project.HXProject;
 import lime.project.NDLL;
 import lime.project.Platform;
@@ -25,8 +26,60 @@ import cpp.Lib;
 class FileHelper {
 	
 	
-	private static var binaryExtensions = [ "jpg", "jpeg", "png", "exe", "gif", "ini", "zip", "tar", "gz", "fla", "swf", "atf" ];
-	private static var textExtensions = [ "xml", "java", "hx", "hxml", "html", "ini", "gpe", "pch", "pbxproj", "plist", "json", "cpp", "mm", "properties", "hxproj", "nmml", "lime" ];
+	private static var knownExtensions:Map<String, AssetType>;
+	
+	
+	private static function __init__ ():Void {
+		
+		knownExtensions = [
+			
+			"jpg" => IMAGE,
+			"jpeg" => IMAGE,
+			"png" => IMAGE,
+			"gif" => IMAGE,
+			"webp" => IMAGE,
+			"bmp" => IMAGE,
+			"tiff" => IMAGE,
+			"jfif" => IMAGE,
+			"exe" => BINARY,
+			"bin" => BINARY,
+			"so" => BINARY,
+			"pch" => BINARY,
+			"dll" => BINARY,
+			"zip" => BINARY,
+			"tar" => BINARY,
+			"gz" => BINARY,
+			"fla" => BINARY,
+			"swf" => BINARY,
+			"atf" => BINARY,
+			"psd" => BINARY,
+			"txt" => TEXT,
+			"xml" => TEXT,
+			"java" => TEXT,
+			"hx" => TEXT,
+			"cpp" => TEXT,
+			"c" => TEXT,
+			"h" => TEXT,
+			"cs" => TEXT,
+			"js" => TEXT,
+			"mm" => TEXT,
+			"hxml" => TEXT,
+			"html" => TEXT,
+			"json" => TEXT,
+			"css" => TEXT,
+			"gpe" => TEXT,
+			"pbxproj" => TEXT,
+			"plist" => TEXT,
+			"properties" => TEXT,
+			"ini" => TEXT,
+			"hxproj" => TEXT,
+			"nmml" => TEXT,
+			"lime" => TEXT,
+			"svg" => TEXT,
+			
+		];
+		
+	}
 	
 	
 	public static function copyAsset (asset:Asset, destination:String, context:Dynamic = null) {
@@ -111,37 +164,26 @@ class FileHelper {
 		
 		if (process && context != null) {
 			
-			for (binary in binaryExtensions) {
+			if (knownExtensions.exists (extension) && knownExtensions.get (extension) != TEXT) {
 				
-				if (extension == binary) {
-					
-					copyIfNewer (source, destination);
-					return;
-					
-				}
+				copyIfNewer (source, destination);
+				return;
 				
 			}
 			
-			var match = false;
+			var _isText = false;
 			
-			for (text in textExtensions) {
+			if (knownExtensions.exists (extension) && knownExtensions.get (extension) == TEXT) {
 				
-				if (extension == text) {
-					
-					match = true;
-					break;
-					
-				}
+				_isText = true;
+				
+			} else {
+				
+				_isText = isText (source);
 				
 			}
 			
-			if (!match) {
-				
-				match = isText (source);
-				
-			}
-			
-			if (match) {
+			if (_isText) {
 				
 				LogHelper.info ("", " - \x1b[1mCopying template file:\x1b[0m " + source + " \x1b[3;37m->\x1b[0m " + destination);
 				
