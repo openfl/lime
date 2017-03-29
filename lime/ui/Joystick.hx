@@ -31,7 +31,7 @@ class Joystick {
 	public var onButtonUp = new Event<Int->Void> ();
 	public var onDisconnect = new Event<Void->Void> ();
 	public var onHatMove = new Event<Int->JoystickHatPosition->Void> ();
-	public var onTrackballMove = new Event<Int->Float->Void> ();
+	public var onTrackballMove = new Event<Int->Float->Float->Void> ();
 	
 	
 	public function new (id:Int) {

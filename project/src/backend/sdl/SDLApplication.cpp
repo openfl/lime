@@ -434,7 +434,7 @@ namespace lime {
 						
 						joystickEvent.type = JOYSTICK_AXIS_MOVE;
 						joystickEvent.index = event->jaxis.axis;
-						joystickEvent.eventValue = event->jaxis.value / (event->jaxis.value > 0 ? 32767.0 : 32768.0);
+						joystickEvent.x = event->jaxis.value / (event->jaxis.value > 0 ? 32767.0 : 32768.0);
 						joystickEvent.id = event->jaxis.which;
 						
 						JoystickEvent::Dispatch (&joystickEvent);
@@ -448,8 +448,8 @@ namespace lime {
 						
 						joystickEvent.type = JOYSTICK_TRACKBALL_MOVE;
 						joystickEvent.index = event->jball.ball;
-						joystickEvent.x = event->jball.xrel;
-						joystickEvent.y = event->jball.yrel;
+						joystickEvent.x = event->jball.xrel / (event->jball.xrel > 0 ? 32767.0 : 32768.0);
+						joystickEvent.y = event->jball.yrel / (event->jball.yrel > 0 ? 32767.0 : 32768.0);
 						joystickEvent.id = event->jball.which;
 						
 						JoystickEvent::Dispatch (&joystickEvent);
@@ -489,7 +489,7 @@ namespace lime {
 						
 						joystickEvent.type = JOYSTICK_HAT_MOVE;
 						joystickEvent.index = event->jhat.hat;
-						joystickEvent.x = event->jhat.value;
+						joystickEvent.eventValue = event->jhat.value;
 						joystickEvent.id = event->jhat.which;
 						
 						JoystickEvent::Dispatch (&joystickEvent);

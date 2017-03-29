@@ -50,9 +50,9 @@ namespace lime {
 			alloc_field (object, id_id, alloc_int (event->id));
 			alloc_field (object, id_index, alloc_int (event->index));
 			alloc_field (object, id_type, alloc_int (event->type));
-			alloc_field (object, id_value, alloc_float (event->eventValue));
-			alloc_field (object, id_x, alloc_int (event->x));
-			alloc_field (object, id_y, alloc_int (event->y));
+			alloc_field (object, id_value, alloc_int (event->eventValue));
+			alloc_field (object, id_x, alloc_float (event->x));
+			alloc_field (object, id_y, alloc_float (event->y));
 			
 			val_call0 (JoystickEvent::callback->get ());
 			

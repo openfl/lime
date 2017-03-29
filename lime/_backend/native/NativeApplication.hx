@@ -253,17 +253,17 @@ class NativeApplication {
 			case AXIS_MOVE:
 				
 				var joystick = Joystick.devices.get (joystickEventInfo.id);
-				if (joystick != null) joystick.onAxisMove.dispatch (joystickEventInfo.index, joystickEventInfo.value);
+				if (joystick != null) joystick.onAxisMove.dispatch (joystickEventInfo.index, joystickEventInfo.x);
 			
 			case HAT_MOVE:
 				
 				var joystick = Joystick.devices.get (joystickEventInfo.id);
-				if (joystick != null) joystick.onHatMove.dispatch (joystickEventInfo.index, joystickEventInfo.x);
+				if (joystick != null) joystick.onHatMove.dispatch (joystickEventInfo.index, joystickEventInfo.value);
 			
 			case TRACKBALL_MOVE:
 				
 				var joystick = Joystick.devices.get (joystickEventInfo.id);
-				if (joystick != null) joystick.onTrackballMove.dispatch (joystickEventInfo.index, joystickEventInfo.value);
+				if (joystick != null) joystick.onTrackballMove.dispatch (joystickEventInfo.index, joystickEventInfo.x, joystickEventInfo.y);
 			
 			case BUTTON_DOWN:
 				

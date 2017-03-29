@@ -32,12 +32,12 @@ namespace lime {
 			
 			static void Dispatch (JoystickEvent* event);
 			
-			double eventValue;
+			int eventValue;
 			int id;
 			int index;
 			JoystickEventType type;
-			int x;
-			int y;
+			double x;
+			double y;
 		
 	};
 	
