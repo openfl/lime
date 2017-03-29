@@ -826,12 +826,12 @@ private class JoystickEventInfo {
 	public var id:Int;
 	public var index:Int;
 	public var type:JoystickEventType;
-	public var value:Float;
-	public var x:Int;
-	public var y:Int;
+	public var value:Int;
+	public var x:Float;
+	public var y:Float;
 	
 	
-	public function new (type:JoystickEventType = null, id:Int = 0, index:Int = 0, value:Float = 0, x:Int = 0, y:Int = 0) {
+	public function new (type:JoystickEventType = null, id:Int = 0, index:Int = 0, value:Int = 0, x:Float = 0, y:Float = 0) {
 		
 		this.type = type;
 		this.id = id;
