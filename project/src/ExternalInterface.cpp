@@ -224,7 +224,15 @@ namespace lime {
 	}
 	
 	
-	double lime_bytes_get_data_pointer (value bytes, int offset) {
+	double lime_bytes_get_data_pointer (value bytes) {
+		
+		Bytes data = Bytes (bytes);
+		return (uintptr_t)data.Data ();
+		
+	}
+	
+	
+	double lime_bytes_get_data_pointer_offset (value bytes, int offset) {
 		
 		Bytes data = Bytes (bytes);
 		return (uintptr_t)data.Data () + offset;
@@ -1780,7 +1788,8 @@ namespace lime {
 	DEFINE_PRIME1 (lime_application_update);
 	DEFINE_PRIME2 (lime_audio_load);
 	DEFINE_PRIME2 (lime_bytes_from_data_pointer);
-	DEFINE_PRIME2 (lime_bytes_get_data_pointer);
+	DEFINE_PRIME1 (lime_bytes_get_data_pointer);
+	DEFINE_PRIME2 (lime_bytes_get_data_pointer_offset);
 	DEFINE_PRIME2 (lime_bytes_read_file);
 	DEFINE_PRIME1 (lime_cffi_get_native_pointer);
 	DEFINE_PRIME1 (lime_cffi_set_finalizer);

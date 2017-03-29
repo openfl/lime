@@ -53,7 +53,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 		
 		#if (lime_cffi && !macro)
 		if (pointer == null || pointer.bytes == null) return cast 0;
-		var data:Float = NativeCFFI.lime_bytes_get_data_pointer (pointer.bytes, pointer.offset);
+		var data:Float = NativeCFFI.lime_bytes_get_data_pointer_offset (pointer.bytes, pointer.offset);
 		return new DataPointer (data);
 		#elseif (js && !display)
 		return fromBytes (pointer.bytes);
@@ -68,7 +68,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 		
 		#if (lime_cffi && !js && !macro)
 		if (arrayBufferView == null) return cast 0;
-		var data:Float = NativeCFFI.lime_bytes_get_data_pointer (arrayBufferView.buffer, arrayBufferView.byteOffset);
+		var data:Float = NativeCFFI.lime_bytes_get_data_pointer_offset (arrayBufferView.buffer, arrayBufferView.byteOffset);
 		return new DataPointer (data);
 		#elseif (js && !display)
 		return new DataPointer (arrayBufferView);
@@ -97,7 +97,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 		
 		#if (lime_cffi && !macro)
 		if (bytes == null) return cast 0;
-		var data:Float = NativeCFFI.lime_bytes_get_data_pointer (bytes, 0);
+		var data:Float = NativeCFFI.lime_bytes_get_data_pointer (bytes);
 		return new DataPointer (data);
 		#elseif (js && !display)
 		return fromArrayBuffer (bytes.getData ());
