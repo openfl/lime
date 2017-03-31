@@ -1233,7 +1233,7 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
             SDLActivity.mSDLThread.start();
         }
 
-        if (SDLActivity.mHasFocus) {
+        if (SDLActivity.mHasFocus && !SDLActivity.mIsPaused) {
             SDLActivity.handleResume();
         }
     }
