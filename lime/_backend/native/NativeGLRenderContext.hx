@@ -44,7 +44,7 @@ class NativeGLRenderContext {
 	
 	
 	private static var __extensionObjects:Map<String, Dynamic>;
-	private static var __extensionObjectTypes = new Map<String, Class<Dynamic>> ();
+	private static var __extensionObjectConstructors = new Map<String, Void -> Dynamic> ();
 	private static var __lastContextID = 0;
 	private static var __supportedExtensions:Array<String>;
 	
@@ -1687,7 +1687,7 @@ class NativeGLRenderContext {
 			
 			for (extension in supportedExtensions) {
 				
-				if (__extensionObjectTypes.exists (extension)) {
+				if (__extensionObjectConstructors.exists (extension)) {
 					
 					__extensionObjects.set (extension, null);
 					
@@ -1703,7 +1703,7 @@ class NativeGLRenderContext {
 			
 			if (object == null) {
 				
-				object = Type.createInstance (__extensionObjectTypes.get (name), []);
+				object = __extensionObjectConstructors.get (name) ();
 				__extensionObjects.set (name, object);
 				
 			}
@@ -3416,110 +3416,110 @@ class NativeGLRenderContext {
 		
 		if (!__initialized) {
 			
-			__extensionObjectTypes["AMD_compressed_3DC_texture"] = AMD_compressed_3DC_texture;
-			__extensionObjectTypes["AMD_compressed_ATC_texture"] = AMD_compressed_ATC_texture;
-			__extensionObjectTypes["AMD_performance_monitor"] = AMD_performance_monitor;
-			__extensionObjectTypes["AMD_program_binary_Z400"] = AMD_program_binary_Z400;
-			__extensionObjectTypes["ANGLE_framebuffer_blit"] = ANGLE_framebuffer_blit;
-			__extensionObjectTypes["ANGLE_framebuffer_multisample"] = ANGLE_framebuffer_multisample;
-			__extensionObjectTypes["ANGLE_instanced_arrays"] = ANGLE_instanced_arrays;
-			__extensionObjectTypes["ANGLE_pack_reverse_row_order"] = ANGLE_pack_reverse_row_order;
-			__extensionObjectTypes["ANGLE_texture_compression_dxt3"] = ANGLE_texture_compression_dxt3;
-			__extensionObjectTypes["ANGLE_texture_compression_dxt5"] = ANGLE_texture_compression_dxt5;
-			__extensionObjectTypes["ANGLE_texture_usage"] = ANGLE_texture_usage;
-			__extensionObjectTypes["ANGLE_translated_shader_source"] = ANGLE_translated_shader_source;
-			__extensionObjectTypes["APPLE_copy_texture_levels"] = APPLE_copy_texture_levels;
-			__extensionObjectTypes["APPLE_framebuffer_multisample"] = APPLE_framebuffer_multisample;
-			__extensionObjectTypes["APPLE_rgb_422"] = APPLE_rgb_422;
-			__extensionObjectTypes["APPLE_sync"] = APPLE_sync;
-			__extensionObjectTypes["APPLE_texture_format_BGRA8888"] = APPLE_texture_format_BGRA8888;
-			__extensionObjectTypes["APPLE_texture_max_level"] = APPLE_texture_max_level;
-			__extensionObjectTypes["ARM_mali_program_binary"] = ARM_mali_program_binary;
-			__extensionObjectTypes["ARM_mali_shader_binary"] = ARM_mali_shader_binary;
-			__extensionObjectTypes["ARM_rgba8"] = ARM_rgba8;
-			__extensionObjectTypes["DMP_shader_binary"] = DMP_shader_binary;
-			__extensionObjectTypes["EXT_bgra"] = EXT_bgra;
-			__extensionObjectTypes["EXT_blend_minmax"] = EXT_blend_minmax;
-			__extensionObjectTypes["EXT_color_buffer_float"] = EXT_color_buffer_float;
-			__extensionObjectTypes["EXT_color_buffer_half_float"] = EXT_color_buffer_half_float;
-			__extensionObjectTypes["EXT_debug_label"] = EXT_debug_label;
-			__extensionObjectTypes["EXT_debug_marker"] = EXT_debug_marker;
-			__extensionObjectTypes["EXT_discard_framebuffer"] = EXT_discard_framebuffer;
-			__extensionObjectTypes["EXT_map_buffer_range"] = EXT_map_buffer_range;
-			__extensionObjectTypes["EXT_multi_draw_arrays"] = EXT_multi_draw_arrays;
-			__extensionObjectTypes["EXT_multisampled_render_to_texture"] = EXT_multisampled_render_to_texture;
-			__extensionObjectTypes["EXT_multiview_draw_buffers"] = EXT_multiview_draw_buffers;
-			__extensionObjectTypes["EXT_occlusion_query_boolean"] = EXT_occlusion_query_boolean;
-			__extensionObjectTypes["EXT_packed_depth_stencil"] = EXT_packed_depth_stencil;
-			__extensionObjectTypes["EXT_read_format_bgra"] = EXT_read_format_bgra;
-			__extensionObjectTypes["EXT_robustness"] = EXT_robustness;
-			__extensionObjectTypes["EXT_sRGB"] = EXT_sRGB;
-			__extensionObjectTypes["EXT_separate_shader_objects"] = EXT_separate_shader_objects;
-			__extensionObjectTypes["EXT_shader_framebuffer_fetch"] = EXT_shader_framebuffer_fetch;
-			__extensionObjectTypes["EXT_shader_texture_lod"] = EXT_shader_texture_lod;
-			__extensionObjectTypes["EXT_shadow_samplers"] = EXT_shadow_samplers;
-			__extensionObjectTypes["EXT_texture_compression_dxt1"] = EXT_texture_compression_dxt1;
-			__extensionObjectTypes["EXT_texture_filter_anisotropic"] = EXT_texture_filter_anisotropic;
-			__extensionObjectTypes["EXT_texture_format_BGRA8888"] = EXT_texture_format_BGRA8888;
-			__extensionObjectTypes["EXT_texture_rg"] = EXT_texture_rg;
-			__extensionObjectTypes["EXT_texture_storage"] = EXT_texture_storage;
-			__extensionObjectTypes["EXT_texture_type_2_10_10_10_REV"] = EXT_texture_type_2_10_10_10_REV;
-			__extensionObjectTypes["EXT_unpack_subimage"] = EXT_unpack_subimage;
-			__extensionObjectTypes["FJ_shader_binary_GCCSO"] = FJ_shader_binary_GCCSO;
-			__extensionObjectTypes["IMG_multisampled_render_to_texture"] = IMG_multisampled_render_to_texture;
-			__extensionObjectTypes["IMG_program_binary"] = IMG_program_binary;
-			__extensionObjectTypes["IMG_read_format"] = IMG_read_format;
-			__extensionObjectTypes["IMG_shader_binary"] = IMG_shader_binary;
-			__extensionObjectTypes["IMG_texture_compression_pvrtc"] = IMG_texture_compression_pvrtc;
-			__extensionObjectTypes["KHR_debug"] = KHR_debug;
-			__extensionObjectTypes["KHR_texture_compression_astc_ldr"] = KHR_texture_compression_astc_ldr;
-			__extensionObjectTypes["NV_coverage_sample"] = NV_coverage_sample;
-			__extensionObjectTypes["NV_depth_nonlinear"] = NV_depth_nonlinear;
-			__extensionObjectTypes["NV_draw_buffers"] = NV_draw_buffers;
-			__extensionObjectTypes["NV_fbo_color_attachments"] = NV_fbo_color_attachments;
-			__extensionObjectTypes["NV_fence"] = NV_fence;
-			__extensionObjectTypes["NV_read_buffer"] = NV_read_buffer;
-			__extensionObjectTypes["NV_read_buffer_front"] = NV_read_buffer_front;
-			__extensionObjectTypes["NV_read_depth"] = NV_read_depth;
-			__extensionObjectTypes["NV_read_depth_stencil"] = NV_read_depth_stencil;
-			__extensionObjectTypes["NV_read_stencil"] = NV_read_stencil;
-			__extensionObjectTypes["NV_texture_compression_s3tc_update"] = NV_texture_compression_s3tc_update;
-			__extensionObjectTypes["NV_texture_npot_2D_mipmap"] = NV_texture_npot_2D_mipmap;
-			__extensionObjectTypes["OES_EGL_image"] = OES_EGL_image;
-			__extensionObjectTypes["OES_EGL_image_external"] = OES_EGL_image_external;
-			__extensionObjectTypes["OES_compressed_ETC1_RGB8_texture"] = OES_compressed_ETC1_RGB8_texture;
-			__extensionObjectTypes["OES_compressed_paletted_texture"] = OES_compressed_paletted_texture;
-			__extensionObjectTypes["OES_depth24"] = OES_depth24;
-			__extensionObjectTypes["OES_depth32"] = OES_depth32;
-			__extensionObjectTypes["OES_depth_texture"] = OES_depth_texture;
-			__extensionObjectTypes["OES_element_index_uint"] = OES_element_index_uint;
-			__extensionObjectTypes["OES_get_program_binary"] = OES_get_program_binary;
-			__extensionObjectTypes["OES_mapbuffer"] = OES_mapbuffer;
-			__extensionObjectTypes["OES_packed_depth_stencil"] = OES_packed_depth_stencil;
-			__extensionObjectTypes["OES_required_internalformat"] = OES_required_internalformat;
-			__extensionObjectTypes["OES_rgb8_rgba8"] = OES_rgb8_rgba8;
-			__extensionObjectTypes["OES_standard_derivatives"] = OES_standard_derivatives;
-			__extensionObjectTypes["OES_stencil1"] = OES_stencil1;
-			__extensionObjectTypes["OES_stencil4"] = OES_stencil4;
-			__extensionObjectTypes["OES_surfaceless_context"] = OES_surfaceless_context;
-			__extensionObjectTypes["OES_texture_3D"] = OES_texture_3D;
-			__extensionObjectTypes["OES_texture_float"] = OES_texture_float;
-			__extensionObjectTypes["OES_texture_float_linear"] = OES_texture_float_linear;
-			__extensionObjectTypes["OES_texture_half_float"] = OES_texture_half_float;
-			__extensionObjectTypes["OES_texture_half_float_linear"] = OES_texture_half_float_linear;
-			__extensionObjectTypes["OES_texture_npot"] = OES_texture_npot;
-			__extensionObjectTypes["OES_vertex_array_object"] = OES_vertex_array_object;
-			__extensionObjectTypes["OES_vertex_half_float"] = OES_vertex_half_float;
-			__extensionObjectTypes["OES_vertex_type_10_10_10_2"] = OES_vertex_type_10_10_10_2;
-			__extensionObjectTypes["QCOM_alpha_test"] = QCOM_alpha_test;
-			__extensionObjectTypes["QCOM_binning_control"] = QCOM_binning_control;
-			__extensionObjectTypes["QCOM_driver_control"] = QCOM_driver_control;
-			__extensionObjectTypes["QCOM_extended_get"] = QCOM_extended_get;
-			__extensionObjectTypes["QCOM_extended_get2"] = QCOM_extended_get2;
-			__extensionObjectTypes["QCOM_perfmon_global_mode"] = QCOM_perfmon_global_mode;
-			__extensionObjectTypes["QCOM_tiled_rendering"] = QCOM_tiled_rendering;
-			__extensionObjectTypes["QCOM_writeonly_rendering"] = QCOM_writeonly_rendering;
-			__extensionObjectTypes["VIV_shader_binary"] = VIV_shader_binary;
+			__extensionObjectConstructors["AMD_compressed_3DC_texture"] = AMD_compressed_3DC_texture.new;
+			__extensionObjectConstructors["AMD_compressed_ATC_texture"] = AMD_compressed_ATC_texture.new;
+			__extensionObjectConstructors["AMD_performance_monitor"] = AMD_performance_monitor.new;
+			__extensionObjectConstructors["AMD_program_binary_Z400"] = AMD_program_binary_Z400.new;
+			__extensionObjectConstructors["ANGLE_framebuffer_blit"] = ANGLE_framebuffer_blit.new;
+			__extensionObjectConstructors["ANGLE_framebuffer_multisample"] = ANGLE_framebuffer_multisample.new;
+			__extensionObjectConstructors["ANGLE_instanced_arrays"] = ANGLE_instanced_arrays.new;
+			__extensionObjectConstructors["ANGLE_pack_reverse_row_order"] = ANGLE_pack_reverse_row_order.new;
+			__extensionObjectConstructors["ANGLE_texture_compression_dxt3"] = ANGLE_texture_compression_dxt3.new;
+			__extensionObjectConstructors["ANGLE_texture_compression_dxt5"] = ANGLE_texture_compression_dxt5.new;
+			__extensionObjectConstructors["ANGLE_texture_usage"] = ANGLE_texture_usage.new;
+			__extensionObjectConstructors["ANGLE_translated_shader_source"] = ANGLE_translated_shader_source.new;
+			__extensionObjectConstructors["APPLE_copy_texture_levels"] = APPLE_copy_texture_levels.new;
+			__extensionObjectConstructors["APPLE_framebuffer_multisample"] = APPLE_framebuffer_multisample.new;
+			__extensionObjectConstructors["APPLE_rgb_422"] = APPLE_rgb_422.new;
+			__extensionObjectConstructors["APPLE_sync"] = APPLE_sync.new;
+			__extensionObjectConstructors["APPLE_texture_format_BGRA8888"] = APPLE_texture_format_BGRA8888.new;
+			__extensionObjectConstructors["APPLE_texture_max_level"] = APPLE_texture_max_level.new;
+			__extensionObjectConstructors["ARM_mali_program_binary"] = ARM_mali_program_binary.new;
+			__extensionObjectConstructors["ARM_mali_shader_binary"] = ARM_mali_shader_binary.new;
+			__extensionObjectConstructors["ARM_rgba8"] = ARM_rgba8.new;
+			__extensionObjectConstructors["DMP_shader_binary"] = DMP_shader_binary.new;
+			__extensionObjectConstructors["EXT_bgra"] = EXT_bgra.new;
+			__extensionObjectConstructors["EXT_blend_minmax"] = EXT_blend_minmax.new;
+			__extensionObjectConstructors["EXT_color_buffer_float"] = EXT_color_buffer_float.new;
+			__extensionObjectConstructors["EXT_color_buffer_half_float"] = EXT_color_buffer_half_float.new;
+			__extensionObjectConstructors["EXT_debug_label"] = EXT_debug_label.new;
+			__extensionObjectConstructors["EXT_debug_marker"] = EXT_debug_marker.new;
+			__extensionObjectConstructors["EXT_discard_framebuffer"] = EXT_discard_framebuffer.new;
+			__extensionObjectConstructors["EXT_map_buffer_range"] = EXT_map_buffer_range.new;
+			__extensionObjectConstructors["EXT_multi_draw_arrays"] = EXT_multi_draw_arrays.new;
+			__extensionObjectConstructors["EXT_multisampled_render_to_texture"] = EXT_multisampled_render_to_texture.new;
+			__extensionObjectConstructors["EXT_multiview_draw_buffers"] = EXT_multiview_draw_buffers.new;
+			__extensionObjectConstructors["EXT_occlusion_query_boolean"] = EXT_occlusion_query_boolean.new;
+			__extensionObjectConstructors["EXT_packed_depth_stencil"] = EXT_packed_depth_stencil.new;
+			__extensionObjectConstructors["EXT_read_format_bgra"] = EXT_read_format_bgra.new;
+			__extensionObjectConstructors["EXT_robustness"] = EXT_robustness.new;
+			__extensionObjectConstructors["EXT_sRGB"] = EXT_sRGB.new;
+			__extensionObjectConstructors["EXT_separate_shader_objects"] = EXT_separate_shader_objects.new;
+			__extensionObjectConstructors["EXT_shader_framebuffer_fetch"] = EXT_shader_framebuffer_fetch.new;
+			__extensionObjectConstructors["EXT_shader_texture_lod"] = EXT_shader_texture_lod.new;
+			__extensionObjectConstructors["EXT_shadow_samplers"] = EXT_shadow_samplers.new;
+			__extensionObjectConstructors["EXT_texture_compression_dxt1"] = EXT_texture_compression_dxt1.new;
+			__extensionObjectConstructors["EXT_texture_filter_anisotropic"] = EXT_texture_filter_anisotropic.new;
+			__extensionObjectConstructors["EXT_texture_format_BGRA8888"] = EXT_texture_format_BGRA8888.new;
+			__extensionObjectConstructors["EXT_texture_rg"] = EXT_texture_rg.new;
+			__extensionObjectConstructors["EXT_texture_storage"] = EXT_texture_storage.new;
+			__extensionObjectConstructors["EXT_texture_type_2_10_10_10_REV"] = EXT_texture_type_2_10_10_10_REV.new;
+			__extensionObjectConstructors["EXT_unpack_subimage"] = EXT_unpack_subimage.new;
+			__extensionObjectConstructors["FJ_shader_binary_GCCSO"] = FJ_shader_binary_GCCSO.new;
+			__extensionObjectConstructors["IMG_multisampled_render_to_texture"] = IMG_multisampled_render_to_texture.new;
+			__extensionObjectConstructors["IMG_program_binary"] = IMG_program_binary.new;
+			__extensionObjectConstructors["IMG_read_format"] = IMG_read_format.new;
+			__extensionObjectConstructors["IMG_shader_binary"] = IMG_shader_binary.new;
+			__extensionObjectConstructors["IMG_texture_compression_pvrtc"] = IMG_texture_compression_pvrtc.new;
+			__extensionObjectConstructors["KHR_debug"] = KHR_debug.new;
+			__extensionObjectConstructors["KHR_texture_compression_astc_ldr"] = KHR_texture_compression_astc_ldr.new;
+			__extensionObjectConstructors["NV_coverage_sample"] = NV_coverage_sample.new;
+			__extensionObjectConstructors["NV_depth_nonlinear"] = NV_depth_nonlinear.new;
+			__extensionObjectConstructors["NV_draw_buffers"] = NV_draw_buffers.new;
+			__extensionObjectConstructors["NV_fbo_color_attachments"] = NV_fbo_color_attachments.new;
+			__extensionObjectConstructors["NV_fence"] = NV_fence.new;
+			__extensionObjectConstructors["NV_read_buffer"] = NV_read_buffer.new;
+			__extensionObjectConstructors["NV_read_buffer_front"] = NV_read_buffer_front.new;
+			__extensionObjectConstructors["NV_read_depth"] = NV_read_depth.new;
+			__extensionObjectConstructors["NV_read_depth_stencil"] = NV_read_depth_stencil.new;
+			__extensionObjectConstructors["NV_read_stencil"] = NV_read_stencil.new;
+			__extensionObjectConstructors["NV_texture_compression_s3tc_update"] = NV_texture_compression_s3tc_update.new;
+			__extensionObjectConstructors["NV_texture_npot_2D_mipmap"] = NV_texture_npot_2D_mipmap.new;
+			__extensionObjectConstructors["OES_EGL_image"] = OES_EGL_image.new;
+			__extensionObjectConstructors["OES_EGL_image_external"] = OES_EGL_image_external.new;
+			__extensionObjectConstructors["OES_compressed_ETC1_RGB8_texture"] = OES_compressed_ETC1_RGB8_texture.new;
+			__extensionObjectConstructors["OES_compressed_paletted_texture"] = OES_compressed_paletted_texture.new;
+			__extensionObjectConstructors["OES_depth24"] = OES_depth24.new;
+			__extensionObjectConstructors["OES_depth32"] = OES_depth32.new;
+			__extensionObjectConstructors["OES_depth_texture"] = OES_depth_texture.new;
+			__extensionObjectConstructors["OES_element_index_uint"] = OES_element_index_uint.new;
+			__extensionObjectConstructors["OES_get_program_binary"] = OES_get_program_binary.new;
+			__extensionObjectConstructors["OES_mapbuffer"] = OES_mapbuffer.new;
+			__extensionObjectConstructors["OES_packed_depth_stencil"] = OES_packed_depth_stencil.new;
+			__extensionObjectConstructors["OES_required_internalformat"] = OES_required_internalformat.new;
+			__extensionObjectConstructors["OES_rgb8_rgba8"] = OES_rgb8_rgba8.new;
+			__extensionObjectConstructors["OES_standard_derivatives"] = OES_standard_derivatives.new;
+			__extensionObjectConstructors["OES_stencil1"] = OES_stencil1.new;
+			__extensionObjectConstructors["OES_stencil4"] = OES_stencil4.new;
+			__extensionObjectConstructors["OES_surfaceless_context"] = OES_surfaceless_context.new;
+			__extensionObjectConstructors["OES_texture_3D"] = OES_texture_3D.new;
+			__extensionObjectConstructors["OES_texture_float"] = OES_texture_float.new;
+			__extensionObjectConstructors["OES_texture_float_linear"] = OES_texture_float_linear.new;
+			__extensionObjectConstructors["OES_texture_half_float"] = OES_texture_half_float.new;
+			__extensionObjectConstructors["OES_texture_half_float_linear"] = OES_texture_half_float_linear.new;
+			__extensionObjectConstructors["OES_texture_npot"] = OES_texture_npot.new;
+			__extensionObjectConstructors["OES_vertex_array_object"] = OES_vertex_array_object.new;
+			__extensionObjectConstructors["OES_vertex_half_float"] = OES_vertex_half_float.new;
+			__extensionObjectConstructors["OES_vertex_type_10_10_10_2"] = OES_vertex_type_10_10_10_2.new;
+			__extensionObjectConstructors["QCOM_alpha_test"] = QCOM_alpha_test.new;
+			__extensionObjectConstructors["QCOM_binning_control"] = QCOM_binning_control.new;
+			__extensionObjectConstructors["QCOM_driver_control"] = QCOM_driver_control.new;
+			__extensionObjectConstructors["QCOM_extended_get"] = QCOM_extended_get.new;
+			__extensionObjectConstructors["QCOM_extended_get2"] = QCOM_extended_get2.new;
+			__extensionObjectConstructors["QCOM_perfmon_global_mode"] = QCOM_perfmon_global_mode.new;
+			__extensionObjectConstructors["QCOM_tiled_rendering"] = QCOM_tiled_rendering.new;
+			__extensionObjectConstructors["QCOM_writeonly_rendering"] = QCOM_writeonly_rendering.new;
+			__extensionObjectConstructors["VIV_shader_binary"] = VIV_shader_binary.new;
 			
 		}
 		
