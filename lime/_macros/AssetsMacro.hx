@@ -10,8 +10,6 @@ import haxe.macro.Type;
 #end
 
 #if (macro && !display)
-import haxe.Serializer;
-import lime.graphics.ImageBuffer;
 import sys.io.File;
 #end
 
