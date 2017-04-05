@@ -293,7 +293,32 @@ class AssetHelper {
 				asset = new Asset ("", "manifest/" + library.name + ".json", AssetType.MANIFEST);
 				asset.library = library.name;
 				asset.data = manifest.serialize ();
-				if (manifest.assets.length == 0) asset.embed = true;
+				
+				if (manifest.assets.length == 0) {
+					
+					asset.embed = true;
+					
+				} else {
+					
+					// TODO: Make this assumption elsewhere?
+					
+					var allEmbedded = true;
+					
+					for (childAsset in manifest.assets) {
+						
+						if (!Reflect.hasField (childAsset, "className") || childAsset.className == null) {
+							
+							allEmbedded = false;
+							break;
+							
+						}
+						
+					}
+					
+					if (allEmbedded) asset.embed = true;
+					
+				}
+				
 				project.assets.push (asset);
 				
 			}
