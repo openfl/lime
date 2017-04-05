@@ -1852,6 +1852,10 @@ class ProjectXMLParser extends HXProject {
 								case "target-sdk-version":
 									
 									config.set ("android.target-sdk-version", Std.parseInt (value));
+
+								case "build-tools-version":
+
+									config.set ("android.build-tools-version", value);
 								
 								case "install-location":
 									
