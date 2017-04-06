@@ -179,7 +179,7 @@ class PathHelper {
 					
 					if (file.substr (0, 1) != ".") {
 						
-						var itemSource = source + "/" + file;
+						var itemSource = PathHelper.combine (source, file);
 						
 						if (!templateMatched.exists (itemSource)) {
 							
