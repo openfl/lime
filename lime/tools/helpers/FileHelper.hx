@@ -185,7 +185,7 @@ class FileHelper {
 			
 			if (_isText) {
 				
-				LogHelper.info ("", " - \x1b[1mCopying template file:\x1b[0m " + source + " \x1b[3;37m->\x1b[0m " + destination);
+				//LogHelper.info ("", " - \x1b[1mProcessing template file:\x1b[0m " + source + " \x1b[3;37m->\x1b[0m " + destination);
 				
 				var fileContents:String = File.getContent (source);
 				var template:Template = new Template (fileContents);
@@ -194,6 +194,19 @@ class FileHelper {
 					upper: function (_, s) return s.toUpperCase (),
 					replace: function (_, s, sub, by) return StringTools.replace(s, sub, by)
 				});
+				
+				try {
+					
+					if (FileSystem.exists (destination)) {
+						
+						var existingContent = File.getContent (destination);
+						if (result == existingContent) return;
+						
+					}
+					
+				} catch (e:Dynamic) {}
+				
+				LogHelper.info ("", " - \x1b[1mCopying template file:\x1b[0m " + source + " \x1b[3;37m->\x1b[0m " + destination);
 				
 				try {
 					
@@ -418,11 +431,20 @@ class FileHelper {
 	
 	public static function recursiveCopyTemplate (templatePaths:Array<String>, source:String, destination:String, context:Dynamic = null, process:Bool = true, warnIfNotFound:Bool = true) {
 		
-		var paths = PathHelper.findTemplates (templatePaths, source, warnIfNotFound);
+		var destinations = [];
+		var paths = PathHelper.findTemplateRecursive (templatePaths, source, warnIfNotFound, destinations);
 		
-		for (path in paths) {
+		if (paths != null) {
 			
-			recursiveCopy (path, destination, context, process);
+			PathHelper.mkdir (destination);
+			
+			for (i in 0...paths.length) {
+				
+				var itemDestination = PathHelper.combine (destination, destinations[i]);
+				
+				copyFile (paths[i], itemDestination, context, process);
+				
+			}
 			
 		}
 		

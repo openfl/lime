@@ -131,6 +131,89 @@ class PathHelper {
 	}
 	
 	
+	public static function findTemplateRecursive (templatePaths:Array<String>, path:String, warnIfNotFound:Bool = true, destinationPaths:Array<String> = null):Array<String> {
+		
+		var paths = findTemplates (templatePaths, path, warnIfNotFound);
+		if (paths.length == 0) return null;
+		
+		try {
+			
+			if (FileSystem.isDirectory (paths[0])) {
+				
+				var templateFiles = new Array<String> ();
+				var templateMatched = new Map<String, Bool> ();
+				
+				paths.reverse ();
+				
+				findTemplateRecursive_ (paths, "", templateFiles, templateMatched, destinationPaths);
+				return templateFiles;
+				
+			}
+			
+		} catch (e:Dynamic) {}
+		
+		paths.splice (0, paths.length - 1);
+		
+		if (destinationPaths != null) {
+			
+			destinationPaths.push (paths[0]);
+			
+		}
+		
+		return paths;
+		
+	}
+	
+	
+	private static function findTemplateRecursive_ (templatePaths:Array<String>, source:String, templateFiles:Array<String>, templateMatched:Map<String, Bool>, destinationPaths:Array<String>):Void {
+		
+		var files:Array<String>;
+		
+		for (templatePath in templatePaths) {
+			
+			try {
+				
+				files = FileSystem.readDirectory (templatePath + source);
+				
+				for (file in files) {
+					
+					if (file.substr (0, 1) != ".") {
+						
+						var itemSource = source + "/" + file;
+						
+						if (!templateMatched.exists (itemSource)) {
+							
+							templateMatched.set (itemSource, true);
+							
+							if (FileSystem.isDirectory (templatePath + itemSource)) {
+								
+								findTemplateRecursive_ (templatePaths, itemSource, templateFiles, templateMatched, destinationPaths);
+								
+							} else {
+								
+								templateFiles.push (templatePath + itemSource);
+								
+								if (destinationPaths != null) {
+									
+									destinationPaths.push (itemSource);
+									
+								}
+								
+							}
+							
+						}
+						
+					}
+					
+				}
+				
+			} catch (e:Dynamic) {}
+			
+		}
+		
+	}
+	
+	
 	public static function findTemplates (templatePaths:Array<String>, path:String, warnIfNotFound:Bool = true):Array<String> {
 		
 		var matches = [];
