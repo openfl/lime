@@ -184,14 +184,15 @@ class PathHelper {
 						if (!templateMatched.exists (itemSource)) {
 							
 							templateMatched.set (itemSource, true);
+							var path = PathHelper.combine (templatePath, itemSource);
 							
-							if (FileSystem.isDirectory (templatePath + itemSource)) {
+							if (FileSystem.isDirectory (path)) {
 								
 								findTemplateRecursive_ (templatePaths, itemSource, templateFiles, templateMatched, destinationPaths);
 								
 							} else {
 								
-								templateFiles.push (templatePath + itemSource);
+								templateFiles.push (path);
 								
 								if (destinationPaths != null) {
 									
