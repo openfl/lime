@@ -665,8 +665,8 @@ class GLRenderContext {
 	public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, imageSize:Int, data:DataPointer):Void {}
 	public function compressedTexImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, imageSize:Int, data:DataPointer):Void {}
 	public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, imageSize:Int, data:DataPointer):Void {}
-	public function copyBufferSubData (readTarget:Int, writeTarget:Int, readOffset:DataPointer, writeOffset:DataPointer, size:Int):Void {}
 	public function compressedTexSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, imageSize:Int, data:DataPointer):Void {}
+	public function copyBufferSubData (readTarget:Int, writeTarget:Int, readOffset:DataPointer, writeOffset:DataPointer, size:Int):Void {}
 	public function copyTexImage2D (target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void {}
 	public function copyTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, x:Int, y:Int, width:Int, height:Int):Void {}
 	public function copyTexSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, x:Int, y:Int, width:Int, height:Int):Void {}
@@ -877,7 +877,7 @@ class GLRenderContext {
 	public function uniform2ui (location:GLUniformLocation, v0:Int, v1:Int):Void {}
 	public function uniform2uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
 	public function uniform3f (location:GLUniformLocation, v0:Float, v1:Float, v2:Float):Void {}
-	public function uniform3fv(location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	public function uniform3fv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
 	public function uniform3i (location:GLUniformLocation, v0:Int, v1:Int, v2:Int):Void {}
 	public function uniform3iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
 	public function uniform3ui (location:GLUniformLocation, v0:Int, v1:Int, v2:Int):Void {}

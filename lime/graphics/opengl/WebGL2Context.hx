@@ -1367,7 +1367,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	#else
 	public inline function bufferData (target:Int, srcData:Dynamic, usage:Int, ?srcOffset:Int, ?length:Int):Void {
 		
-		this.bufferData (target, srcData, usage, srcOffset, length);
+		this.bufferDataWEBGL (target, srcData, usage, srcOffset, length);
 		
 	}
 	#end
@@ -1384,7 +1384,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	#else
 	public inline function bufferSubData (target:Int, offset:Int, srcData:Dynamic, ?srcOffset:Int, ?length:Int):Void {
 		
-		this.bufferSubData (target, offset, srcData, srcOffset, length);
+		this.bufferSubDataWEBGL (target, offset, srcData, srcOffset, length);
 		
 	}
 	#end
@@ -1421,7 +1421,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	#else
 	public inline function clearBufferfv (buffer:Int, drawbuffer:Int, values:Dynamic, ?srcOffset:Int):Void {
 		
-		this.clearBufferfv (buffer, drawbuffer, values, srcOffset);
+		this.clearBufferfvWEBGL (buffer, drawbuffer, values, srcOffset);
 		
 	}
 	#end
@@ -1437,7 +1437,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	#else
 	public inline function clearBufferiv (buffer:Int, drawbuffer:Int, values:Dynamic, ?srcOffset:Int):Void {
 		
-		this.clearBufferiv (buffer, drawbuffer, values, srcOffset);
+		this.clearBufferivWEBGL (buffer, drawbuffer, values, srcOffset);
 		
 	}
 	#end
@@ -1453,7 +1453,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	#else
 	public inline function clearBufferuiv (buffer:Int, drawbuffer:Int, values:Dynamic, ?srcOffset:Int):Void {
 		
-		this.clearBufferuiv (buffer, drawbuffer, values, srcOffset);
+		this.clearBufferuivWEBGL (buffer, drawbuffer, values, srcOffset);
 		
 	}
 	#end
@@ -1522,7 +1522,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	//public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:ArrayBufferView, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
 	public inline function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
 		
-		this.compressedTexImage2D (target, level, internalformat, width, height, border, srcData, srcOffset, srcLengthOverride);
+		this.compressedTexImage2DWEBGL (target, level, internalformat, width, height, border, srcData, srcOffset, srcLengthOverride);
 		
 	}
 	#end
@@ -1541,7 +1541,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	//public function compressedTexImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, srcData:ArrayBufferView, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
 	public inline function compressedTexImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
 		
-		this.compressedTexImage3D (target, level, internalformat, width, height, depth, border, srcData, srcOffset, srcLengthOverride);
+		this.compressedTexImage3DWEBGL (target, level, internalformat, width, height, depth, border, srcData, srcOffset, srcLengthOverride);
 		
 	}
 	#end
@@ -1560,7 +1560,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	//public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:ArrayBufferView, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
 	public inline function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
 		
-		this.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, srcData, srcOffset, srcLengthOverride);
+		this.compressedTexSubImage2DWEBGL (target, level, xoffset, yoffset, width, height, format, srcData, srcOffset, srcLengthOverride);
 		
 	}
 	#end
@@ -1579,7 +1579,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	//public function compressedTexSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, srcData:ArrayBufferView, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
 	public inline function compressedTexSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
 		
-		this.compressedTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, srcData, srcOffset, srcLengthOverride);
+		this.compressedTexSubImage3DWEBGL (target, level, xoffset, yoffset, zoffset, width, height, depth, format, srcData, srcOffset, srcLengthOverride);
 		
 	}
 	#end
@@ -2003,7 +2003,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	//public function getBufferSubData (target:Int, srcByteOffset:DataPointer, dstData:Dynamic /*SharedArrayBuffer*/, ?srcOffset:Int, ?length:Int):Void {
 	public inline function getBufferSubData (target:Int, srcByteOffset:DataPointer, dstData:Dynamic, ?srcOffset:Int, ?length:Int):Void {
 		
-		this.getBufferSubData (target, srcByteOffset, dstData, srcOffset, length);
+		this.getBufferSubDataWEBGL (target, srcByteOffset, dstData, srcOffset, length);
 		
 	}
 	#end
@@ -2375,7 +2375,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	//public function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView, ?dstOffset:Int):Void {
 	public inline function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:Dynamic, ?dstOffset:Int):Void {
 		
-		this.readPixels (x, y, width, height, format, type, pixels, dstOffset);
+		this.readPixelsWEBGL (x, y, width, height, format, type, pixels, dstOffset);
 		
 	}
 	#end
@@ -2496,7 +2496,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int):Void {
 	public inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:Dynamic, ?srcOffset:Int):Void {
 		
-		this.texImage2D (target, level, internalformat, width, height, border, format, type, srcData, srcOffset);
+		this.texImage2DWEBGL (target, level, internalformat, width, height, border, format, type, srcData, srcOffset);
 		
 	}
 	#end
@@ -2519,7 +2519,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	//public inline function texImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, srcData:js.html.ArrayBufferView, ?srcOffset:Int):Void {
 	public inline function texImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, srcData:Dynamic, ?srcOffset:Int):Void {
 		
-		this.texImage3D (target, level, internalformat, width, height, depth, border, format, type, srcData, srcOffset);
+		this.texImage3DWEBGL (target, level, internalformat, width, height, depth, border, format, type, srcData, srcOffset);
 		
 	}
 	#end
@@ -2570,7 +2570,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int):Void {
 	public inline function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:Dynamic, ?srcOffset:Int):Void {
 		
-		this.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, srcData, srcOffset);
+		this.texSubImage2DWEBGL (target, level, xoffset, yoffset, width, height, format, type, srcData, srcOffset);
 		
 	}
 	#end
@@ -2593,7 +2593,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int):Void {
 	public inline function texSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, srcData:Dynamic, ?srcOffset:Int):Void {
 		
-		this.texSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, srcData, srcOffset);
+		this.texSubImage3DWEBGL (target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, srcData, srcOffset);
 		
 	}
 	#end
@@ -2618,7 +2618,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 		#if (!js || !html5 || display)
 		this.uniform1fv (location, v != null ? v.length : 0, v);
 		#else
-		this.uniform1fv (location, v);
+		this.uniform1fvWEBGL (location, v);
 		#end
 		
 	}
@@ -2636,7 +2636,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 		#if (!js || !html5 || display)
 		this.uniform1iv (location, v != null ? v.length : 0, v);
 		#else
-		this.uniform1iv (location, v);
+		this.uniform1ivWEBGL (location, v);
 		#end
 		
 	}
@@ -2654,7 +2654,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 		#if (!js || !html5 || display)
 		this.uniform1uiv (location, v != null ? v.length : 0, v);
 		#else
-		this.uniform1uiv (location, v);
+		this.uniform1uivWEBGL (location, v);
 		#end
 		
 	}
@@ -2673,7 +2673,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 		#if (!js || !html5 || display)
 		this.uniform2fv (location, v != null ? v.length >> 1 : 0, v);
 		#else
-		this.uniform2fv (location, v);
+		this.uniform2fvWEBGL (location, v);
 		#end
 		
 	}
@@ -2691,7 +2691,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 		#if (!js || !html5 || display)
 		this.uniform2iv (location, v != null ? v.length >> 1 : 0, v);
 		#else
-		this.uniform2fv (location, v);
+		this.uniform2fvWEBGL (location, v);
 		#end
 		
 	}
@@ -2709,7 +2709,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 		#if (!js || !html5 || display)
 		this.uniform2uiv (location, v != null ? v.length >> 1 : 0, v);
 		#else
-		this.uniform2uiv (location, v);
+		this.uniform2uivWEBGL (location, v);
 		#end
 		
 	}
@@ -2727,7 +2727,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 		#if (!js || !html5 || display)
 		this.uniform3fv (location, v != null ? Std.int (v.length / 3) : 0, v);
 		#else
-		this.uniform3fv (location, v);
+		this.uniform3fvWEBGL (location, v);
 		#end
 		
 	}
@@ -2745,7 +2745,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 		#if (!js || !html5 || display)
 		this.uniform3iv (location, v != null ? Std.int (v.length / 3) : 0, v);
 		#else
-		this.uniform3iv (location, v);
+		this.uniform3ivWEBGL (location, v);
 		#end
 		
 	}
@@ -2763,7 +2763,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 		#if (!js || !html5 || display)
 		this.uniform3uiv (location, v != null ? Std.int (v.length / 3) : 0, v);
 		#else
-		this.uniform3uiv (location, v);
+		this.uniform3uivWEBGL (location, v);
 		#end
 		
 	}
@@ -2781,7 +2781,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 		#if (!js || !html5 || display)
 		this.uniform4fv (location, v != null ? v.length >> 2 : 0, v);
 		#else
-		this.uniform4fv (location, v);
+		this.uniform4fvWEBGL (location, v);
 		#end
 		
 	}
@@ -2799,7 +2799,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 		#if (!js || !html5 || display)
 		this.uniform4iv (location, v != null ? v.length >> 2 : 0, v);
 		#else
-		this.uniform4iv (location, v);
+		this.uniform4ivWEBGL (location, v);
 		#end
 		
 	}
@@ -2817,7 +2817,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 		#if (!js || !html5 || display)
 		this.uniform4uiv (location, v != null ? v.length >> 2 : 0, v);
 		#else
-		this.uniform4uiv (location, v);
+		this.uniform4uivWEBGL (location, v);
 		#end
 		
 	}
@@ -2828,6 +2828,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 		this.uniformBlockBinding (program, uniformBlockIndex, uniformBlockBinding);
 		
 	}
+	
 	
 	
 	#if (!js || !html5 || display)
@@ -2845,7 +2846,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	#else
 	public inline function uniformMatrix2fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		this.uniformMatrix2fv (location, transpose, v, srcOffset, srcLength);
+		this.uniformMatrix2fvWEBGL (location, transpose, v, srcOffset, srcLength);
 		
 	}
 	#end
@@ -2866,7 +2867,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	#else
 	public inline function uniformMatrix2x3fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		this.uniformMatrix2x3fv (location, transpose, v, srcOffset, srcLength);
+		this.uniformMatrix2x3fvWEBGL (location, transpose, v, srcOffset, srcLength);
 		
 	}
 	#end
@@ -2887,7 +2888,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	#else
 	public inline function uniformMatrix2x4fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		this.uniformMatrix2x4fv (location, transpose, v, srcOffset, srcLength);
+		this.uniformMatrix2x4fvWEBGL (location, transpose, v, srcOffset, srcLength);
 		
 	}
 	#end
@@ -2908,7 +2909,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	#else
 	public inline function uniformMatrix3fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		this.uniformMatrix3fv (location, transpose, v, srcOffset, srcLength);
+		this.uniformMatrix3fvWEBGL (location, transpose, v, srcOffset, srcLength);
 		
 	}
 	#end
@@ -2929,7 +2930,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	#else
 	public inline function uniformMatrix3x2fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		this.uniformMatrix3x2fv (location, transpose, v, srcOffset, srcLength);
+		this.uniformMatrix3x2fvWEBGL (location, transpose, v, srcOffset, srcLength);
 		
 	}
 	#end
@@ -2950,7 +2951,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	#else
 	public inline function uniformMatrix3x4fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		this.uniformMatrix3x4fv (location, transpose, v, srcOffset, srcLength);
+		this.uniformMatrix3x4fvWEBGL (location, transpose, v, srcOffset, srcLength);
 		
 	}
 	#end
@@ -2971,7 +2972,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	#else
 	public inline function uniformMatrix4fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		this.uniformMatrix4fv (location, transpose, v, srcOffset, srcLength);
+		this.uniformMatrix4fvWEBGL (location, transpose, v, srcOffset, srcLength);
 		
 	}
 	#end
@@ -2992,7 +2993,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	#else
 	public inline function uniformMatrix4x2fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		this.uniformMatrix4x2fv (location, transpose, v, srcOffset, srcLength);
+		this.uniformMatrix4x2fvWEBGL (location, transpose, v, srcOffset, srcLength);
 		
 	}
 	#end
@@ -3013,7 +3014,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	#else
 	public inline function uniformMatrix4x3fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		this.uniformMatrix4x3fv (location, transpose, v, srcOffset, srcLength);
+		this.uniformMatrix4x3fvWEBGL (location, transpose, v, srcOffset, srcLength);
 		
 	}
 	#end

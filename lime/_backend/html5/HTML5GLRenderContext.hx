@@ -737,7 +737,7 @@ class HTML5GLRenderContext {
 	
 	public inline function bindBufferRange (target:Int, index:Int, buffer:GLBuffer, offset:DataPointer, size:Int):Void {
 		
-		__context.bindBufferRange (target, index, buffer, offset, size);
+		__context.bindBufferRange (target, index, buffer, offset.toValue (), size);
 		
 	}
 	
@@ -826,39 +826,39 @@ class HTML5GLRenderContext {
 	}
 	
 	
+	public function bufferData (target:Int, size:Int, data:DataPointer, usage:Int):Void {
+		
+		trace ("bufferData");
+		
+		__context.bufferData (target, data.toBufferView (size), usage);
+		
+	}
+	
+	
 	//public function bufferData (target:Int, srcData:ArrayBufferView, usage:Int):Void {
 	//public function bufferData (target:Int, srcData:ArrayBuffer, usage:Int):Void {
 	//public function bufferData (target:Int, size:Int, usage:Int):Void {
 	//public function bufferData (target:Int, srcData:ArrayBufferView, usage:Int, srcOffset:Int = 0, length:Int = 0):Void {
-	public function bufferData (target:Int, size:Dynamic, srcData:Dynamic, ?usage:Int, ?srcOffset:Int, ?length:Int):Void {
+	public function bufferDataWEBGL (target:Int, srcData:Dynamic, usage:Int, ?srcOffset:Int, ?length:Int):Void {
 		
-		if (!Std.is (srcData, Int)) {
+		trace ("bufferDataWEBGL");
+		
+		if (srcOffset != null) {
 			
-			srcData = __prepareData (size, srcData);
-			
-			if (version > 1 && srcOffset != null) {
-				
-				__context.bufferData (target, srcData, usage, srcOffset, length);
-				
-			} else {
-				
-				__context.bufferData (target, srcData, usage);
-				
-			}
+			__context.bufferData (target, srcData, usage, srcOffset, length);
 			
 		} else {
 			
-			if (version > 1 && usage != null) {
-				
-				__context.bufferData (target, size, srcData, usage, srcOffset); // target, srcData, usage, srcOffset, length
-				
-			} else {
-				
-				__context.bufferData (target, size, srcData); // target, srcData, usage
-				
-			}
+			__context.bufferData (target, srcData, usage);
 			
 		}
+		
+	}
+	
+	
+	public function bufferSubData (target:Int, dstByteOffset:Int, size:Int, data:DataPointer):Void {
+		
+		__context.bufferSubData (target, dstByteOffset, data.toBufferView (size));
 		
 	}
 	
@@ -866,33 +866,15 @@ class HTML5GLRenderContext {
 	//public function bufferSubData (target:Int, dstByteOffset:Int, srcData:ArrayBufferView):Void {
 	//public function bufferSubData (target:Int, dstByteOffset:Int, srcData:ArrayBuffer):Void {
 	//public function bufferSubData (target:Int, dstByteOffset:Int, srcData:ArrayBufferView, srcOffset:Int = 0, length:Int = 0):Void {
-	public function bufferSubData (target:Int, dstByteOffset:Int, size:Dynamic, ?srcData:Dynamic, ?srcOffset:Int, ?length:Int):Void {
+	public function bufferSubDataWEBGL (target:Int, dstByteOffset:Int, srcData:Dynamic, ?srcOffset:Int, ?length:Int):Void {
 		
-		if (Std.is (size, Int)) {
+		if (srcOffset != null) {
 			
-			srcData = __prepareData (size, srcData);
-			
-			if (version > 1 && srcOffset != null) {
-				
-				__context.bufferSubData (target, dstByteOffset, srcData, srcOffset, length);
-				
-			} else {
-				
-				__context.bufferSubData (target, dstByteOffset, srcData);
-				
-			}
+			__context.bufferSubData (target, dstByteOffset, srcData, srcOffset, length);
 			
 		} else {
 			
-			if (version > 1 && srcData != null) {
-				
-				__context.bufferSubData (target, dstByteOffset, size, srcData, srcOffset); // target, dstByteOffset, srcData, srcOffset, length
-				
-			} else {
-				
-				__context.bufferSubData (target, dstByteOffset, size); // target, dstByteOffset, srcData
-				
-			}
+			__context.bufferSubData (target, dstByteOffset, srcData);
 			
 		}
 		
@@ -920,21 +902,42 @@ class HTML5GLRenderContext {
 	}
 	
 	
-	public inline function clearBufferfv (buffer:Int, drawbuffer:Int, values:Dynamic, ?srcOffset:Int):Void {
+	public inline function clearBufferfv (buffer:Int, drawbuffer:Int, values:DataPointer):Void {
+		
+		__context.clearBufferfv (buffer, drawbuffer, values.toFloat32Array ());
+		
+	}
+	
+	
+	public inline function clearBufferfvWEBGL (buffer:Int, drawbuffer:Int, values:Dynamic, ?srcOffset:Int):Void {
 		
 		__context.clearBufferfv (buffer, drawbuffer, values, srcOffset);
 		
 	}
 	
 	
-	public inline function clearBufferiv (buffer:Int, drawbuffer:Int, values:Dynamic, ?srcOffset:Int):Void {
+	public inline function clearBufferiv (buffer:Int, drawbuffer:Int, values:DataPointer):Void {
+		
+		__context.clearBufferiv (buffer, drawbuffer, values.toInt32Array ());
+		
+	}
+	
+	
+	public inline function clearBufferivWEBGL (buffer:Int, drawbuffer:Int, values:Dynamic, ?srcOffset:Int):Void {
 		
 		__context.clearBufferiv (buffer, drawbuffer, values, srcOffset);
 		
 	}
 	
 	
-	public inline function clearBufferuiv (buffer:Int, drawbuffer:Int, values:Dynamic, ?srcOffset:Int):Void {
+	public inline function clearBufferuiv (buffer:Int, drawbuffer:Int, values:DataPointer):Void {
+		
+		__context.clearBufferuiv (buffer, drawbuffer, values.toUInt32Array ());
+		
+	}
+	
+	
+	public inline function clearBufferuivWEBGL (buffer:Int, drawbuffer:Int, values:Dynamic, ?srcOffset:Int):Void {
 		
 		__context.clearBufferuiv (buffer, drawbuffer, values, srcOffset);
 		
@@ -998,94 +1001,78 @@ class HTML5GLRenderContext {
 	}
 	
 	
-	//public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:ArrayBufferView):Void {
-	//public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:ArrayBufferView, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
-	//public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, imageSize:Int, srcData:ArrayBufferView, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
-	//public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, offset:DataPointer):Void {
-	public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, imageSize:Dynamic, ?srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
+	public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, imageSize:Int, data:DataPointer):Void {
 		
-		if (Std.is (imageSize, Int)) {
+		__context.compressedTexImage2D (target, level, internalformat, width, height, border, data.toBufferView (imageSize));
+		
+	}
+	
+	
+	//public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:ArrayBufferView):Void {
+	//public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, offset:Int):Void {
+	//public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:ArrayBufferView, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
+	public function compressedTexImage2DWEBGL (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
+		
+		if (srcOffset != null) {
 			
-			srcData = __prepareData (null, srcData);
-			if (srcData != null && Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
-			
-			if (version > 1 && srcOffset != null) {
-				
-				__context.compressedTexImage2D (target, level, internalformat, width, height, border, srcData, srcOffset, srcLengthOverride);
-				
-			} else {
-				
-				__context.compressedTexImage2D (target, level, internalformat, width, height, border, srcData);
-				
-			}
+			__context.compressedTexImage2D (target, level, internalformat, width, height, border, srcData, srcOffset, srcLengthOverride);
 			
 		} else {
 			
-			if (version > 1 && srcData != null) {
-				
-				__context.compressedTexImage2D (target, level, internalformat, width, height, border, imageSize, srcData, srcOffset); // target, level, internalformat, width, height, border, srcData, srcOffset, srcLengthOverride
-				
-			} else {
-				
-				__context.compressedTexImage2D (target, level, internalformat, width, height, border, imageSize); // target, level, internalformat, width, height, border, srcData
-				
-			}
+			__context.compressedTexImage2D (target, level, internalformat, width, height, border, srcData);
 			
 		}
 		
 	}
 	
 	
-	//public function compressedTexImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, offset:DataPointer):Void {
-	//public function compressedTexImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, srcData:ArrayBufferView, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
-	public inline function compressedTexImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
+	public function compressedTexImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, imageSize:Int, data:DataPointer):Void {
+		
+		__context.compressedTexImage3D (target, level, internalformat, width, height, depth, border, data.toBufferView (imageSize));
+		
+	}
+	
+	
+	public inline function compressedTexImage3DWEBGL (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
 		
 		__context.compressedTexImage3D (target, level, internalformat, width, height, depth, border, srcData, srcOffset, srcLengthOverride);
 		
 	}
 	
 	
-	//public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:ArrayBufferView):Void {
-	//public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, imageSize:Int, srcData:ArrayBufferView, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
-	//public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:ArrayBufferView, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
-	//public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, offset:DataPointer):Void {
-	public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, imageSize:Dynamic, ?srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
+	public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, imageSize:Int, data:DataPointer):Void {
 		
-		if (Std.is (imageSize, Int)) {
+		__context.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, data.toBufferView (imageSize));
+		
+	}
+	
+	
+	//public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:ArrayBufferView):Void {
+	//public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, offset:Int):Void {
+	//public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:ArrayBufferView, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
+	public function compressedTexSubImage2DWEBGL (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
+		
+		if (srcOffset != null) {
 			
-			srcData = __prepareData (null, srcData);
-			if (srcData != null && Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
-			
-			if (version > 1 && srcOffset != null) {
-				
-				__context.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, srcData, srcOffset, srcLengthOverride);
-				
-			} else {
-				
-				__context.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, srcData);
-				
-			}
+			__context.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, srcData, srcOffset, srcLengthOverride);
 			
 		} else {
 			
-			if (version > 1 && srcData != null) {
-				
-				__context.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, imageSize, srcData, srcOffset); // target, level, xoffset, yoffset, width, height, format, srcData, srcOffset, srcLengthOverride
-				
-			} else {
-				
-				__context.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, imageSize); // target, level, xoffset, yoffset, width, height, format, srcData
-				
-			}
+			__context.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, srcData);
 			
 		}
 		
 	}
 	
 	
-	//public function compressedTexSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, offset:DataPointer):Void {
-	//public function compressedTexSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, srcData:ArrayBufferView, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
-	public inline function compressedTexSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
+	public function compressedTexSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, imageSize:Int, data:DataPointer):Void {
+		
+		__context.compressedTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, data.toBufferView (imageSize));
+		
+	}
+	
+	
+	public inline function compressedTexSubImage3DWEBGL (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, srcData:ArrayBufferView, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
 		
 		__context.compressedTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, srcData, srcOffset, srcLengthOverride);
 		
@@ -1094,7 +1081,7 @@ class HTML5GLRenderContext {
 	
 	public inline function copySubBufferData (readTarget:Int, writeTarget:Int, readOffset:DataPointer, writeOffset:DataPointer, size:Int):Void {
 		
-		__context.copySubBufferData (readTarget, writeTarget, readOffset, writeOffset, size);
+		__context.copySubBufferData (readTarget, writeTarget, readOffset.toValue (), writeOffset.toValue (), size);
 		
 	}
 	
@@ -1346,21 +1333,21 @@ class HTML5GLRenderContext {
 	
 	public inline function drawElements (mode:Int, count:Int, type:Int, offset:DataPointer):Void {
 		
-		__context.drawElements (mode, count, type, offset);
+		__context.drawElements (mode, count, type, offset.toValue ());
 		
 	}
 	
 	
 	public inline function drawElementsInstanced (mode:Int, count:Int, type:Int, offset:DataPointer, instanceCount:Int):Void {
 		
-		__context.drawElementsInstanced (mode, count, type, offset, instanceCount);
+		__context.drawElementsInstanced (mode, count, type, offset.toValue (), instanceCount);
 		
 	}
 	
 	
 	public inline function drawRangeElements (mode:Int, start:Int, end:Int, count:Int, type:Int, offset:DataPointer):Void {
 		
-		__context.drawRangeElements (mode, start, end, count, type, offset);
+		__context.drawRangeElements (mode, start, end, count, type, offset.toValue ());
 		
 	}
 	
@@ -1472,8 +1459,7 @@ class HTML5GLRenderContext {
 	
 	public inline function getActiveUniformBlockiv (program:GLProgram, uniformBlockIndex:Int, pname:Int, params:DataPointer):Void {
 		
-		var buffer:ArrayBuffer = params;
-		var view = new Int32Array (buffer);
+		var view = params.toInt32Array ();
 		view[0] = getActiveUniformBlockParameter (program, uniformBlockIndex, pname);
 		
 	}
@@ -1529,9 +1515,7 @@ class HTML5GLRenderContext {
 	
 	public inline function getBooleanv (pname:Int, params:DataPointer):Void {
 		
-		var buffer:ArrayBuffer = params;
-		var view = new UInt8Array (params);
-		
+		var view = params.toUInt8Array ();
 		var result = getParameter (pname);
 		
 		if (Std.is (result, Array)) {
@@ -1575,8 +1559,7 @@ class HTML5GLRenderContext {
 	
 	public inline function getBufferParameteriv (target:Int, pname:Int, data:DataPointer):Void {
 		
-		var buffer:ArrayBuffer = data;
-		var view = new Int32Array (buffer);
+		var view = data.toInt32Array ();
 		view[0] = getBufferParameter (target, pname);
 		
 	}
@@ -1589,16 +1572,18 @@ class HTML5GLRenderContext {
 	}
 	
 	
+	public function getBufferSubData (target:Int, offset:DataPointer, size:Int /*GLsizeiptr*/, data:DataPointer):Void {
+		
+		__context.getBufferSubData (target, offset.toValue (), data.toBufferView (size));
+		
+	}
+	
+	
 	//public function getBufferSubData (target:Int, srcByteOffset:DataPointer, dstData:js.html.ArrayBuffer, ?srcOffset:Int, ?length:Int):Void {
 	//public function getBufferSubData (target:Int, srcByteOffset:DataPointer, dstData:Dynamic /*SharedArrayBuffer*/, ?srcOffset:Int, ?length:Int):Void {
-	//public function getBufferSubData (target:Int, offset:DataPointer, size:Int, data:DataPointer):Void {
-	public function getBufferSubData (target:Int, srcByteOffset:DataPointer, dstData:Dynamic, ?srcOffset:Dynamic, ?length:Int):Void {
+	public function getBufferSubDataWEBGL (target:Int, srcByteOffset:DataPointer, dstData:Dynamic, ?srcOffset:Int, ?length:Int):Void {
 		
-		if (Std.is (dstData, Int)) {
-			
-			__context.getBufferSubData (target, srcByteOffset, srcOffset); // target, srcByteOffset, dstData
-			
-		} else if (srcOffset != null) {
+		if (srcOffset != null) {
 			
 			__context.getBufferSubData (target, srcByteOffset, dstData, srcOffset, length);
 			
@@ -1641,8 +1626,7 @@ class HTML5GLRenderContext {
 	
 	public function getFloatv (pname:Int, params:DataPointer):Void {
 		
-		var buffer:ArrayBuffer = params;
-		var view = new Float32Array (params);
+		var view = params.toFloat32Array ();
 		
 		var result = getParameter (pname);
 		
@@ -1690,13 +1674,8 @@ class HTML5GLRenderContext {
 		
 		var value = getFramebufferAttachmentParameteri (target, attachment, pname);
 		
-		if (Std.is (params, Int)) {
-			
-			var buffer:ArrayBuffer = params;
-			var view = new Int32Array (buffer);
-			view[0] = value;
-			
-		}
+		var view = params.toInt32Array ();
+		view[0] = value;
 		
 	}
 	
@@ -1756,9 +1735,7 @@ class HTML5GLRenderContext {
 	
 	public function getIntegerv (pname:Int, params:DataPointer):Void {
 		
-		var buffer:ArrayBuffer = params;
-		var view = new Int32Array (params);
-		
+		var view = params.toInt32Array ();
 		var result = getParameter (pname);
 		
 		if (Std.is (result, ArrayBufferView)) {
@@ -1823,8 +1800,7 @@ class HTML5GLRenderContext {
 	
 	public function getProgramiv (program:GLProgram, pname:Int, params:DataPointer):Void {
 		
-		var buffer:ArrayBuffer = params;
-		var view = new Int32Array (buffer);
+		var view = params.toInt32Array ();
 		view[0] = getProgramParameter (program, pname);
 		
 	}
@@ -1902,8 +1878,7 @@ class HTML5GLRenderContext {
 	
 	public function getRenderbufferParameteriv (target:Int, pname:Int, params:DataPointer):Void {
 		
-		var buffer:ArrayBuffer = params;
-		var view = new Int32Array (buffer);
+		var view = params.toInt32Array ();
 		view[0] = getRenderbufferParameter (target, pname);
 		
 	}
@@ -1951,8 +1926,7 @@ class HTML5GLRenderContext {
 	
 	public function getShaderiv (shader:GLShader, pname:Int, params:DataPointer):Void {
 		
-		var buffer:ArrayBuffer = params;
-		var view = new Int32Array (buffer);
+		var view = params.toInt32Array ();
 		view[0] = getShaderParameter (shader, pname);
 		
 	}
@@ -2051,8 +2025,7 @@ class HTML5GLRenderContext {
 	
 	public function getTexParameterfv (target:Int, pname:Int, params:DataPointer):Void {
 		
-		var buffer:ArrayBuffer = params;
-		var view = new Float32Array (buffer);
+		var view = params.toFloat32Array ();
 		view[0] = getTexParameter (target, pname);
 		
 	}
@@ -2067,8 +2040,7 @@ class HTML5GLRenderContext {
 	
 	public function getTexParameteriv (target:Int, pname:Int, params:DataPointer):Void {
 		
-		var buffer:ArrayBuffer = params;
-		var view = new Int32Array (buffer);
+		var view = params.toInt32Array ();
 		view[0] = getTexParameter (target, pname);
 		
 	}
@@ -2097,8 +2069,7 @@ class HTML5GLRenderContext {
 	
 	public function getUniformfv (program:GLProgram, location:GLUniformLocation, params:DataPointer):Void {
 		
-		var buffer:ArrayBuffer = params;
-		var view = new Float32Array (buffer);
+		var view = params.toFloat32Array ();
 		view[0] = getUniformf (program, location);
 		
 	}
@@ -2115,13 +2086,8 @@ class HTML5GLRenderContext {
 		
 		var value = getUniformi (program, location);
 		
-		if (Std.is (value, Int)) {
-			
-			var buffer:ArrayBuffer = params;
-			var view = new Int32Array (buffer);
-			view[0] = value;
-			
-		}
+		var view = params.toInt32Array ();
+		view[0] = value;
 		
 	}
 	
@@ -2411,16 +2377,18 @@ class HTML5GLRenderContext {
 	}
 	
 	
+	public function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:DataPointer):Void {
+		
+		__context.readPixels (x, y, width, height, format, type, pixels.toBufferView ());
+		
+	}
+	
+	
 	//public function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
-	//public function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, offset:DataPointer):Void {
 	//public function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView, ?dstOffset:Int):Void {
-	public function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:Dynamic, ?dstOffset:Int):Void {
+	public function readPixelsWEBGL (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView, ?dstOffset:Int):Void {
 		
-		pixels = __prepareData (null, pixels);
-		if (pixels == null) return;
-		if (Std.is (pixels, ArrayBuffer)) pixels = new UInt8Array (pixels);
-		
-		if (version > 1 && dstOffset != null) {
+		if (dstOffset != null) {
 			
 			__context.readPixels (x, y, width, height, format, type, pixels, dstOffset);
 			
@@ -2545,6 +2513,15 @@ class HTML5GLRenderContext {
 	}
 	
 	
+	public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:DataPointer):Void {
+		
+		trace ("texImage2D");
+		
+		__context.texImage2D (target, level, internalformat, width, height, border, format, type, data.toBufferView ());
+		
+	}
+	
+	
 	//public function texImage2D (target:Int, level:Int, internalformat:Int, format:Int, type:Int, pixels:Dynamic /*ImageBitmap*/):Void {
 	//public function texImage2D (target:Int, level:Int, internalformat:Int, format:Int, type:Int, pixels:#if (js && html5) CanvasElement #else Dynamic #end):Void {
 	//public function texImage2D (target:Int, level:Int, internalformat:Int, format:Int, type:Int, pixels:#if (js && html5) ImageData #else Dynamic #end):Void {
@@ -2558,28 +2535,30 @@ class HTML5GLRenderContext {
 	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, offset:DataPointer):Void {
 	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:VideoElement):Void {
 	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int):Void {
-	public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Dynamic, ?format:Int, ?type:Int, ?srcData:Dynamic, ?srcOffset:Int):Void {
+	public function texImage2DWEBGL (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Dynamic, ?format:Int, ?type:Int, ?srcData:Dynamic, ?srcOffset:Int):Void {
 		
-		if (format == null) {
+		trace ("texImage2DWEBGL");
+		
+		if (srcOffset != null) {
 			
-			__context.texImage2D (target, level, internalformat, width, height, border); // target, level, internalformat, format, type, pixels
+			__context.texImage2D (target, level, internalformat, width, height, border, format, type, srcData, srcOffset);
+			
+		} else if (format != null) {
+			
+			__context.texImage2D (target, level, internalformat, width, height, border, format, type, srcData);
 			
 		} else {
 			
-			srcData = __prepareData (null, srcData);
-			if (srcData != null && Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
-			
-			if (version > 1 && srcOffset != null) {
-				
-				__context.texImage2D (target, level, internalformat, width, height, border, format, type, srcData, srcOffset);
-				
-			} else {
-				
-				__context.texImage2D (target, level, internalformat, width, height, border, format, type, srcData);
-				
-			}
+			__context.texImage2D (target, level, internalformat, width, height, border); // target, level, internalformat, format, type, pixels
 			
 		}
+		
+	}
+	
+	
+	public function texImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, data:DataPointer):Void {
+		
+		__context.texImage3D (target, level, internalformat, width, height, depth, border, format, type, data.toBufferView ());
 		
 	}
 	
@@ -2591,7 +2570,7 @@ class HTML5GLRenderContext {
 	//public inline function texImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, source:js.html.ImageData):Void {
 	//public inline function texImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, offset:DataPointer):Void {
 	//public inline function texImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, srcData:js.html.ArrayBufferView, ?srcOffset:Int):Void {
-	public inline function texImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, srcData:Dynamic, ?srcOffset:Int):Void {
+	public inline function texImage3DWEBGL (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, srcData:Dynamic, ?srcOffset:Int):Void {
 		
 		__context.texImage3D (target, level, internalformat, width, height, depth, border, format, type, srcData, srcOffset);
 		
@@ -2626,6 +2605,13 @@ class HTML5GLRenderContext {
 	}
 	
 	
+	public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, data:DataPointer):Void {
+		
+		__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, data.toBufferView ());
+		
+	}
+	
+	
 	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, pixels:#if (js && html5) CanvasElement #else Dynamic #end):Void {
 	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, pixels:Dynamic /*ImageBitmap*/):Void {
 	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, pixels:#if (js && html5) ImageData #else Dynamic #end):Void {
@@ -2639,28 +2625,28 @@ class HTML5GLRenderContext {
 	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, offset:DataPointer):Void {
 	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:VideoElement):Void {
 	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int):Void {
-	public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Dynamic, ?type:Int, ?srcData:Dynamic, ?srcOffset:Int):Void {
+	public function texSubImage2DWEBGL (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Dynamic, ?type:Int, ?srcData:Dynamic, ?srcOffset:Int):Void {
 		
-		if (type == null) {
+		if (srcOffset != null) {
 			
-			__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format); // target, level, xoffset, yoffset, format, type, pixels
+			__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, srcData, srcOffset);
+			
+		} else if (type != null) {
+			
+			__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, srcData);
 			
 		} else {
 			
-			srcData = __prepareData (null, srcData);
-			if (srcData != null && Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
-			
-			if (version > 1 && srcOffset != null) {
-				
-				__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, srcData, srcOffset);
-				
-			} else {
-				
-				__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, srcData);
-				
-			}
+			__context.texSubImage2D (target, level, xoffset, yoffset, width, height, format); // target, level, xoffset, yoffset, format, type, pixels
 			
 		}
+		
+	}
+	
+	
+	public function texSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, data:DataPointer):Void {
+		
+		__context.texSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, data.toBufferView ());
 		
 	}
 	
@@ -2672,17 +2658,9 @@ class HTML5GLRenderContext {
 	//public inline function texSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, source:js.html.VideoElement):Void {
 	//public inline function texSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, source:Dynamic /*ImageBitmap*/):Void {
 	//public inline function texSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, pixels:js.html.ArrayBufferView):Void {
-	public function texSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, source:Dynamic, ?srcOffset:Int):Void {
+	public function texSubImage3DWEBGL (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, source:Dynamic, ?srcOffset:Int):Void {
 		
-		if (srcOffset != null) {
-			
-			__context.texSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, source, srcOffset);
-			
-		} else {
-			
-			__context.texSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, source);
-			
-		}
+		__context.texSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, source, srcOffset);
 		
 	}
 	
@@ -2701,20 +2679,19 @@ class HTML5GLRenderContext {
 	}
 	
 	
+	public function uniform1fv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
+		
+		__context.uniform1fv (location, v.toFloat32Array (count * Float32Array.BYTES_PER_ELEMENT));
+		
+	}
+	
+	
 	//public function uniform1fv (location:GLUniformLocation, data:Float32Array):Void {
 	//public function uniform1fv (location:GLUniformLocation, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniform1fv (location:GLUniformLocation, count:Int, data:DataPointer):Void {
-	public function uniform1fv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Dynamic, ?srcLength:Int):Void {
+	//public function uniform1fv (location:GLUniformLocation, data:Array<Float>):Void {
+	public function uniform1fvWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		if (Std.is (data, Int)) {
-			
-			var data = srcOffset;
-			data = __prepareData (null, data);
-			if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
-			
-			__context.uniform1fv (location, data);
-			
-		} else if (version > 1 && srcOffset != null) {
+		if (srcOffset != null) {
 			
 			__context.uniform1fv (location, data, srcOffset, srcLength);
 			
@@ -2734,20 +2711,19 @@ class HTML5GLRenderContext {
 	}
 	
 	
+	public function uniform1iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
+		
+		__context.uniform1iv (location, v.toInt32Array (count * Int32Array.BYTES_PER_ELEMENT));
+		
+	}
+	
+	
 	//public function uniform1iv (location:GLUniformLocation, data:Int32Array):Void {
 	//public function uniform1iv (location:GLUniformLocation, data:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniform1iv (location:GLUniformLocation, count:Int, data:DataPointer):Void {
-	public function uniform1iv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Dynamic, ?srcLength:Int):Void {
+	//public function uniform1iv (location:GLUniformLocation, data:Array<Int>):Void {
+	public function uniform1ivWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		if (Std.is (data, Int)) {
-			
-			var data = srcOffset;
-			data = __prepareData (null, data);
-			if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
-			
-			__context.uniform1iv (location, data);
-			
-		} else if (version > 1 && srcOffset != null) {
+		if (srcOffset != null) {
 			
 			__context.uniform1iv (location, data, srcOffset, srcLength);
 			
@@ -2767,27 +2743,16 @@ class HTML5GLRenderContext {
 	}
 	
 	
-	//public inline function uniform1uiv (location:GLUniformLocation, data:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniform1uiv (location:GLUniformLocation, count:Int, data:DataPointer):Void {
-	public function uniform1uiv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Dynamic, ?srcLength:Int):Void {
+	public function uniform1uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
 		
-		if (Std.is (data, Int)) {
-			
-			var data = srcOffset;
-			data = __prepareData (null, data);
-			if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
-			
-			__context.uniform1uiv (location, data);
-			
-		} else if (srcOffset != null) {
-			
-			__context.uniform1uiv (location, data, srcOffset, srcLength);
-			
-		} else {
-			
-			__context.uniform1uiv (location, data);
-			
-		}
+		__context.uniform1uiv (location, v.toUInt32Array (count * UInt32Array.BYTES_PER_ELEMENT));
+		
+	}
+	
+	
+	public function uniform1uivWEBGL (location:GLUniformLocation, data:UInt32Array, ?srcOffset:Dynamic, ?srcLength:Int):Void {
+		
+		__context.uniform1uiv (location, data, srcOffset, srcLength);
 		
 	}
 	
@@ -2799,20 +2764,19 @@ class HTML5GLRenderContext {
 	}
 	
 	
+	public function uniform2fv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
+		
+		__context.uniform2fv (location, v.toFloat32Array (count * Float32Array.BYTES_PER_ELEMENT * 2));
+		
+	}
+	
+	
 	//public function uniform2fv (location:GLUniformLocation, data:Float32Array):Void {
 	//public function uniform2fv (location:GLUniformLocation, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniform2fv (location:GLUniformLocation, count:Int, data:DataPointer):Void {
-	public function uniform2fv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Dynamic, ?srcLength:Int):Void {
+	//public function uniform2fv (location:GLUniformLocation, data:Array<Float>):Void {
+	public function uniform2fvWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		if (Std.is (data, Int)) {
-			
-			var data = srcOffset;
-			data = __prepareData (null, data);
-			if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
-			
-			__context.uniform2fv (location, data);
-			
-		} else if (version > 1 && srcOffset != null) {
+		if (srcOffset != null) {
 			
 			__context.uniform2fv (location, data, srcOffset, srcLength);
 			
@@ -2832,20 +2796,19 @@ class HTML5GLRenderContext {
 	}
 	
 	
+	public function uniform2iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
+		
+		__context.uniform2iv (location, v.toInt32Array (count * Int32Array.BYTES_PER_ELEMENT * 2));
+		
+	}
+	
+	
 	//public function uniform2iv (location:GLUniformLocation, data:Int32Array):Void {
 	//public function uniform2iv (location:GLUniformLocation, data:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniform2iv (location:GLUniformLocation, count:Int, data:DataPointer):Void {
-	public function uniform2iv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Dynamic, ?srcLength:Int):Void {
+	//public function uniform2iv (location:GLUniformLocation, data:Array<Int>):Void {
+	public function uniform2ivWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		if (Std.is (data, Int)) {
-			
-			var data = srcOffset;
-			data = __prepareData (null, data);
-			if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
-			
-			__context.uniform2iv (location, data);
-			
-		} else if (version > 1 && srcOffset != null) {
+		if (srcOffset != null) {
 			
 			__context.uniform2iv (location, data, srcOffset, srcLength);
 			
@@ -2865,27 +2828,16 @@ class HTML5GLRenderContext {
 	}
 	
 	
-	//public function uniform2uiv (location:GLUniformLocation, data:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniform2uiv (location:GLUniformLocation, count:Int, data:DataPointer):Void {
-	public function uniform2uiv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Dynamic, ?srcLength:Int):Void {
+	public function uniform2uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
 		
-		if (Std.is (data, Int)) {
-			
-			var data = srcOffset;
-			data = __prepareData (null, data);
-			if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
-			
-			__context.uniform2uiv (location, data);
-			
-		} else if (srcOffset != null) {
-			
-			__context.uniform2uiv (location, data, srcOffset, srcLength);
-			
-		} else {
-			
-			__context.uniform2uiv (location, data);
-			
-		}
+		__context.uniform2uiv (location, v.toUInt32Array (count * UInt32Array.BYTES_PER_ELEMENT * 2));
+		
+	}
+	
+	
+	public function uniform2uivWEBGL (location:GLUniformLocation, data:UInt32Array, ?srcOffset:Dynamic, ?srcLength:Int):Void {
+		
+		__context.uniform2uiv (location, data, srcOffset, srcLength);
 		
 	}
 	
@@ -2897,20 +2849,19 @@ class HTML5GLRenderContext {
 	}
 	
 	
+	public function uniform3fv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
+		
+		__context.uniform3fv (location, v.toFloat32Array (count * Float32Array.BYTES_PER_ELEMENT * 3));
+		
+	}
+	
+	
 	//public function uniform3fv (location:GLUniformLocation, data:Float32Array):Void {
 	//public function uniform3fv (location:GLUniformLocation, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniform3fv (location:GLUniformLocation, count:Int, data:DataPointer):Void {
-	public function uniform3fv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Dynamic, ?srcLength:Int):Void {
+	//public function uniform3fv (location:GLUniformLocation, data:Array<Float>):Void {
+	public function uniform3fvWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		if (Std.is (data, Int)) {
-			
-			var data = srcOffset;
-			data = __prepareData (null, data);
-			if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
-			
-			__context.uniform3fv (location, data);
-			
-		} else if (version > 1 && srcOffset != null) {
+		if (srcOffset != null) {
 			
 			__context.uniform3fv (location, data, srcOffset, srcLength);
 			
@@ -2930,20 +2881,19 @@ class HTML5GLRenderContext {
 	}
 	
 	
+	public function uniform3iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
+		
+		__context.uniform3iv (location, v.toInt32Array (count * Int32Array.BYTES_PER_ELEMENT * 3));
+		
+	}
+	
+	
 	//public function uniform3iv (location:GLUniformLocation, data:Int32Array):Void {
 	//public function uniform3iv (location:GLUniformLocation, data:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniform3iv (location:GLUniformLocation, count:Int, data:DataPointer):Void {
-	public function uniform3iv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Dynamic, ?srcLength:Int):Void {
+	//public function uniform3iv (location:GLUniformLocation, data:Array<Int>):Void {
+	public function uniform3ivWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		if (Std.is (data, Int)) {
-			
-			var data = srcOffset;
-			data = __prepareData (null, data);
-			if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
-			
-			__context.uniform3iv (location, data);
-			
-		} else if (version > 1 && srcOffset != null) {
+		if (srcOffset != null) {
 			
 			__context.uniform3iv (location, data, srcOffset, srcLength);
 			
@@ -2963,27 +2913,16 @@ class HTML5GLRenderContext {
 	}
 	
 	
-	//public function uniform3uiv (location:GLUniformLocation, data:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniform3uiv (location:GLUniformLocation, count:Int, data:DataPointer):Void {
-	public function uniform3uiv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Dynamic, ?srcLength:Int):Void {
+	public function uniform3uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
 		
-		if (Std.is (data, Int)) {
-			
-			var data = srcOffset;
-			data = __prepareData (null, data);
-			if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
-			
-			__context.uniform3uiv (location, data);
-			
-		} else if (srcOffset != null) {
-			
-			__context.uniform3uiv (location, data, srcOffset, srcLength);
-			
-		} else {
-			
-			__context.uniform3uiv (location, data);
-			
-		}
+		__context.uniform3uiv (location, v.toUInt32Array (count * UInt32Array.BYTES_PER_ELEMENT * 3));
+		
+	}
+	
+	
+	public function uniform3uivWEBGL (location:GLUniformLocation, data:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void {
+		
+		__context.uniform3uiv (location, data, srcOffset, srcLength);
 		
 	}
 	
@@ -2995,20 +2934,19 @@ class HTML5GLRenderContext {
 	}
 	
 	
+	public function uniform4fv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
+		
+		__context.uniform4fv (location, v.toFloat32Array (count * Float32Array.BYTES_PER_ELEMENT * 4));
+		
+	}
+	
+	
 	//public function uniform4fv (location:GLUniformLocation, data:Float32Array):Void {
 	//public function uniform4fv (location:GLUniformLocation, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniform4fv (location:GLUniformLocation, count:Int, data:DataPointer):Void {
-	public function uniform4fv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Dynamic, ?srcLength:Int):Void {
+	//public function uniform4fv (location:GLUniformLocation, data:Array<Float>):Void {
+	public function uniform4fvWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		if (Std.is (data, Int)) {
-			
-			var data = srcOffset;
-			data = __prepareData (null, data);
-			if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
-			
-			__context.uniform4fv (location, data);
-			
-		} else if (version > 1 && srcOffset != null) {
+		if (srcOffset != null) {
 			
 			__context.uniform4fv (location, data, srcOffset, srcLength);
 			
@@ -3028,20 +2966,19 @@ class HTML5GLRenderContext {
 	}
 	
 	
+	public function uniform4iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
+		
+		__context.uniform4iv (location, v.toInt32Array (count * Int32Array.BYTES_PER_ELEMENT * 4));
+		
+	}
+	
+	
 	//public function uniform4iv (location:GLUniformLocation, data:Int32Array):Void {
 	//public function uniform4iv (location:GLUniformLocation, data:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniform4iv (location:GLUniformLocation, count:Int, data:DataPointer):Void {
-	public function uniform4iv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Dynamic, ?srcLength:Int):Void {
+	//public function uniform4iv (location:GLUniformLocation, data:Array<Int>):Void {
+	public function uniform4ivWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		if (Std.is (data, Int)) {
-			
-			var data = srcOffset;
-			data = __prepareData (null, data);
-			if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
-			
-			__context.uniform4iv (location, data);
-			
-		} else if (version > 1 && srcOffset != null) {
+		if (srcOffset != null) {
 			
 			__context.uniform4iv (location, data, srcOffset, srcLength);
 			
@@ -3061,27 +2998,16 @@ class HTML5GLRenderContext {
 	}
 	
 	
-	//public function uniform4uiv (location:GLUniformLocation, data:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniform4uiv (location:GLUniformLocation, count:Int, data:DataPointer):Void {
-	public function uniform4uiv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Dynamic, ?srcLength:Int):Void {
+	public function uniform4uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
 		
-		if (Std.is (data, Int)) {
-			
-			var data = srcOffset;
-			data = __prepareData (null, data);
-			if (Std.is (data, ArrayBuffer)) data = new Float32Array (data);
-			
-			__context.uniform4uiv (location, data);
-			
-		} else if (srcOffset != null) {
-			
-			__context.uniform4uiv (location, data, srcOffset, srcLength);
-			
-		} else {
-			
-			__context.uniform4uiv (location, data);
-			
-		}
+		__context.uniform4uiv (location, v.toUInt32Array (count * UInt32Array.BYTES_PER_ELEMENT * 4));
+		
+	}
+	
+	
+	public function uniform4uivWEBGL (location:GLUniformLocation, data:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void {
+		
+		__context.uniform4uiv (location, data, srcOffset, srcLength);
 		
 	}
 	
@@ -3093,257 +3019,169 @@ class HTML5GLRenderContext {
 	}
 	
 	
+	public function uniformMatrix2fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
+		
+		__context.uniformMatrix2fv (location, transpose, v.toFloat32Array (count * Float32Array.BYTES_PER_ELEMENT * 4));
+		
+	}
+	
+	
 	//public function uniformMatrix2fv (location:GLUniformLocation, transpose:Bool, data:Float32Array):Void {
 	//public function uniformMatrix2fv (location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniformMatrix2fv (location:GLUniformLocation, count:Int, transpose:Bool, data:DataPointer):Void {
-	public function uniformMatrix2fv (location:GLUniformLocation, count:Dynamic, transpose:Dynamic, ?v:Dynamic, ?srcOffset:Int):Void {
+	//public function uniformMatrix2fv (location:GLUniformLocation, transpose:Bool, data:Array<Float>):Void {
+	public function uniformMatrix2fvWEBGL (location:GLUniformLocation, transpose:Bool, ?data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		if (v != null) {
+		if (srcOffset != null) {
 			
-			if (version > 1 && Std.is (v, Int)) {
-				
-				__context.uniformMatrix2fv (location, count, transpose, v, srcOffset); // location, transpose, data, srcOffset, srcLength
-				
-			} else {
-				
-				v = __prepareData (null, v);
-				if (Std.is (v, ArrayBuffer)) v = new Float32Array (v);
-				
-				__context.uniformMatrix2fv (location, transpose, v);
-				
-			}
+			__context.uniformMatrix2fv (location, transpose, data, srcOffset, srcLength);
 			
 		} else {
 			
-			__context.uniformMatrix2fv (location, count, transpose); // location, transpose, data
+			__context.uniformMatrix2fv (location, transpose, data);
 			
 		}
 		
 	}
 	
 	
-	//public function uniformMatrix2x3fv (location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniformMatrix2x3fv (location:GLUniformLocation, count:Int, transpose:Bool, data:DataPointer):Void {
-	public function uniformMatrix2x3fv (location:GLUniformLocation, count:Dynamic, transpose:Dynamic, ?v:Dynamic, ?srcOffset:Int):Void {
+	public function uniformMatrix2x3fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
 		
-		if (v != null) {
-			
-			if (Std.is (v, Int)) {
-				
-				__context.uniformMatrix2x3fv (location, count, transpose, v, srcOffset); // location, transpose, data, srcOffset, srcLength
-				
-			} else {
-				
-				v = __prepareData (null, v);
-				if (Std.is (v, ArrayBuffer)) v = new Float32Array (v);
-				
-				__context.uniformMatrix2x3fv (location, transpose, v);
-				
-			}
-			
-		} else {
-			
-			__context.uniformMatrix2x3fv (location, count, transpose); // location, transpose, data
-			
-		}
+		__context.uniformMatrix2x3fv (location, transpose, v.toFloat32Array (count * Float32Array.BYTES_PER_ELEMENT * 6));
 		
 	}
 	
 	
-	//public function uniformMatrix2x4fv (location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniformMatrix2x4fv (location:GLUniformLocation, count:Int, transpose:Bool, data:DataPointer):Void {
-	public function uniformMatrix2x4fv (location:GLUniformLocation, count:Dynamic, transpose:Dynamic, ?v:Dynamic, ?srcOffset:Int):Void {
+	public function uniformMatrix2x3fvWEBGL (location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		if (v != null) {
-			
-			if (Std.is (v, Int)) {
-				
-				__context.uniformMatrix2x4fv (location, count, transpose, v, srcOffset); // location, transpose, data, srcOffset, srcLength
-				
-			} else {
-				
-				v = __prepareData (null, v);
-				if (Std.is (v, ArrayBuffer)) v = new Float32Array (v);
-				
-				__context.uniformMatrix2x3fv (location, transpose, v);
-				
-			}
-			
-		} else {
-			
-			__context.uniformMatrix2x4fv (location, count, transpose); // location, transpose, data
-			
-		}
+		__context.uniformMatrix2x3fv (location, transpose, data, srcOffset, srcLength);
+		
+	}
+	
+	
+	public function uniformMatrix2x4fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
+		
+		__context.uniformMatrix2x4fv (location, transpose, v.toFloat32Array (count * Float32Array.BYTES_PER_ELEMENT * 8));
+		
+	}
+	
+	
+	public function uniformMatrix2x4fvWEBGL (location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
+		
+		__context.uniformMatrix2x4fv (location, transpose, data, srcOffset, srcLength);
+		
+	}
+	
+	
+	public function uniformMatrix3fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
+		
+		__context.uniformMatrix3fv (location, transpose, v.toFloat32Array (count * Float32Array.BYTES_PER_ELEMENT * 9));
 		
 	}
 	
 	
 	//public function uniformMatrix3fv (location:GLUniformLocation, transpose:Bool, data:Float32Array):Void {
 	//public function uniformMatrix3fv (location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniformMatrix3fv (location:GLUniformLocation, count:Int, transpose:Bool, data:DataPointer):Void {
-	public function uniformMatrix3fv (location:GLUniformLocation, count:Dynamic, transpose:Dynamic, ?v:Dynamic, ?srcOffset:Int):Void {
+	//public function uniformMatrix3fv (location:GLUniformLocation, transpose:Bool, data:Array<Float>):Void {
+	public function uniformMatrix3fvWEBGL (location:GLUniformLocation, transpose:Bool, ?data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		if (v != null) {
+		if (srcOffset != null) {
 			
-			if (version > 1 && Std.is (v, Int)) {
-				
-				__context.uniformMatrix3fv (location, count, transpose, v, srcOffset); // location, transpose, data, srcOffset, srcLength
-				
-			} else {
-				
-				v = __prepareData (null, v);
-				if (Std.is (v, ArrayBuffer)) v = new Float32Array (v);
-				
-				__context.uniformMatrix3fv (location, transpose, v);
-				
-			}
+			__context.uniformMatrix3fv (location, transpose, data, srcOffset, srcLength);
 			
 		} else {
 			
-			__context.uniformMatrix3fv (location, count, transpose); // location, transpose, data
+			__context.uniformMatrix3fv (location, transpose, data);
 			
 		}
 		
 	}
 	
 	
-	//public function uniformMatrix3x2fv (location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniformMatrix3x2fv (location:GLUniformLocation, count:Int, transpose:Bool, data:DataPointer):Void {
-	public function uniformMatrix3x2fv (location:GLUniformLocation, count:Dynamic, transpose:Dynamic, ?v:Dynamic, ?srcOffset:Int):Void {
+	public function uniformMatrix3x2fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
 		
-		if (v != null) {
-			
-			if (Std.is (v, Int)) {
-				
-				__context.uniformMatrix3x2fv (location, count, transpose, v, srcOffset); // location, transpose, data, srcOffset, srcLength
-				
-			} else {
-				
-				v = __prepareData (null, v);
-				if (Std.is (v, ArrayBuffer)) v = new Float32Array (v);
-				
-				__context.uniformMatrix3x2fv (location, transpose, v);
-				
-			}
-			
-		} else {
-			
-			__context.uniformMatrix3x2fv (location, count, transpose); // location, transpose, data
-			
-		}
+		__context.uniformMatrix3x2fv (location, transpose, v.toFloat32Array (count * Float32Array.BYTES_PER_ELEMENT * 6));
 		
 	}
 	
 	
-	//public function uniformMatrix3x4fv (location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniformMatrix3x4fv (location:GLUniformLocation, count:Int, transpose:Bool, data:DataPointer):Void {
-	public function uniformMatrix3x4fv (location:GLUniformLocation, count:Dynamic, transpose:Dynamic, ?v:Dynamic, ?srcOffset:Int):Void {
+	public function uniformMatrix3x2fvWEBGL (location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		if (v != null) {
-			
-			if (Std.is (v, Int)) {
-				
-				__context.uniformMatrix3x4fv (location, count, transpose, v, srcOffset); // location, transpose, data, srcOffset, srcLength
-				
-			} else {
-				
-				v = __prepareData (null, v);
-				if (Std.is (v, ArrayBuffer)) v = new Float32Array (v);
-				
-				__context.uniformMatrix3x4fv (location, transpose, v);
-				
-			}
-			
-		} else {
-			
-			__context.uniformMatrix3x4fv (location, count, transpose); // location, transpose, data
-			
-		}
+		__context.uniformMatrix3x2fv (location, transpose, data, srcOffset, srcLength);
+		
+	}
+	
+	
+	public function uniformMatrix3x4fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
+		
+		__context.uniformMatrix3x4fv (location, transpose, v.toFloat32Array (count * Float32Array.BYTES_PER_ELEMENT * 12));
+		
+	}
+	
+	
+	public function uniformMatrix3x4fvWEBGL (location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
+		
+		__context.uniformMatrix3x4fv (location, transpose, data, srcOffset, srcLength);
+		
+	}
+	
+	
+	public function uniformMatrix4fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
+		
+		__context.uniformMatrix4fv (location, transpose, v.toFloat32Array (count * Float32Array.BYTES_PER_ELEMENT * 16));
 		
 	}
 	
 	
 	//public function uniformMatrix4fv (location:GLUniformLocation, transpose:Bool, data:Float32Array):Void {
 	//public function uniformMatrix4fv (location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniformMatrix4fv (location:GLUniformLocation, count:Int, transpose:Bool, data:DataPointer):Void {
-	public function uniformMatrix4fv (location:GLUniformLocation, count:Dynamic, transpose:Dynamic, ?v:Dynamic, ?srcOffset:Int):Void {
+	//public function uniformMatrix4fv (location:GLUniformLocation, transpose:Bool, data:Array<Float>):Void {
+	public function uniformMatrix4fvWEBGL (location:GLUniformLocation, transpose:Bool, ?data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		if (v != null) {
+		if (srcOffset != null) {
 			
-			if (version > 1 && Std.is (v, Int)) {
-				
-				__context.uniformMatrix4fv (location, count, transpose, v, srcOffset); // location, transpose, data, srcOffset, srcLength
-				
-			} else {
-				
-				v = __prepareData (null, v);
-				if (Std.is (v, ArrayBuffer)) v = new Float32Array (v);
-				
-				__context.uniformMatrix4fv (location, transpose, v);
-				
-			}
+			__context.uniformMatrix4fv (location, transpose, data, srcOffset, srcLength);
 			
 		} else {
 			
-			__context.uniformMatrix4fv (location, count, transpose); // location, transpose, data
+			__context.uniformMatrix4fv (location, transpose, data);
 			
 		}
 		
 	}
 	
 	
-	//public function uniformMatrix4x2fv (location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniformMatrix4x2fv (location:GLUniformLocation, count:Int, transpose:Bool, data:DataPointer):Void {
-	public function uniformMatrix4x2fv (location:GLUniformLocation, count:Dynamic, transpose:Dynamic, ?v:Dynamic, ?srcOffset:Int):Void {
+	public function uniformMatrix4x2fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
 		
-		if (v != null) {
+		__context.uniformMatrix4x2fv (location, transpose, v.toFloat32Array (count * Float32Array.BYTES_PER_ELEMENT * 8));
+		
+	}
+	
+	
+	public function uniformMatrix4x2fvWEBGL (location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
+		
+		if (srcOffset != null) {
 			
-			if (Std.is (v, Int)) {
-				
-				__context.uniformMatrix4x2fv (location, count, transpose, v, srcOffset); // location, transpose, data, srcOffset, srcLength
-				
-			} else {
-				
-				v = __prepareData (null, v);
-				if (Std.is (v, ArrayBuffer)) v = new Float32Array (v);
-				
-				__context.uniformMatrix4x2fv (location, transpose, v);
-				
-			}
+			__context.uniformMatrix4x2fv (location, transpose, data, srcOffset, srcLength);
 			
 		} else {
 			
-			__context.uniformMatrix4x2fv (location, count, transpose); // location, transpose, data
+			__context.uniformMatrix4x2fv (location, transpose, data);
 			
 		}
 		
 	}
 	
 	
-	//public function uniformMatrix4x3fv (location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-	//public function uniformMatrix4x3fv (location:GLUniformLocation, count:Int, transpose:Bool, data:DataPointer):Void {
-	public function uniformMatrix4x3fv (location:GLUniformLocation, count:Dynamic, transpose:Dynamic, ?v:Dynamic, ?srcOffset:Int):Void {
+	public function uniformMatrix4x3fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
 		
-		if (v != null) {
-			
-			if (Std.is (v, Int)) {
-				
-				__context.uniformMatrix4x3fv (location, count, transpose, v, srcOffset); // location, transpose, data, srcOffset, srcLength
-				
-			} else {
-				
-				v = __prepareData (null, v);
-				if (Std.is (v, ArrayBuffer)) v = new Float32Array (v);
-				
-				__context.uniformMatrix4x3fv (location, transpose, v);
-				
-			}
-			
-		} else {
-			
-			__context.uniformMatrix4x3fv (location, count, transpose); // location, transpose, data
-			
-		}
+		__context.uniformMatrix4x3fv (location, transpose, v.toFloat32Array (count * Float32Array.BYTES_PER_ELEMENT * 12));
+		
+	}
+	
+	
+	public function uniformMatrix4x3fvWEBGL (location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
+		
+		__context.uniformMatrix4x3fv (location, transpose, data, srcOffset, srcLength);
 		
 	}
 	
@@ -3376,12 +3214,16 @@ class HTML5GLRenderContext {
 	}
 	
 	
-	//public function vertexAttrib1fv (index:Int, v:Float32Array):Void {
-	//public function vertexAttrib1fv (index:Int, v:DataPointer):Void {
-	public function vertexAttrib1fv (index:Int, v:Dynamic):Void {
+	public function vertexAttrib1fv (index:Int, v:DataPointer):Void {
 		
-		v = __prepareData (null, v);
-		if (Std.is (v, ArrayBuffer)) v = new Float32Array (v);
+		__context.vertexAttrib1fv (index, v.toFloat32Array ());
+		
+	}
+	
+	
+	//public function vertexAttrib1fv (index:Int, v:Float32Array):Void {
+	//public function vertexAttrib1fv (index:Int, v:Array<Float>):Void {
+	public function vertexAttrib1fvWEBGL (index:Int, v:Dynamic):Void {
 		
 		__context.vertexAttrib1fv (index, v);
 		
@@ -3395,12 +3237,16 @@ class HTML5GLRenderContext {
 	}
 	
 	
-	//public function vertexAttrib2fv (index:Int, v:Float32Array):Void {
-	//public function vertexAttrib2fv (index:Int, v:DataPointer):Void {
-	public function vertexAttrib2fv (index:Int, v:Dynamic):Void {
+	public function vertexAttrib2fv (index:Int, v:DataPointer):Void {
 		
-		v = __prepareData (null, v);
-		if (Std.is (v, ArrayBuffer)) v = new Float32Array (v);
+		__context.vertexAttrib2fv (index, v.toFloat32Array ());
+		
+	}
+	
+	
+	//public function vertexAttrib2fv (index:Int, v:Float32Array):Void {
+	//public function vertexAttrib2fv (index:Int, v:Array<Float>):Void {
+	public function vertexAttrib2fvWEBGL (index:Int, v:Dynamic):Void {
 		
 		__context.vertexAttrib2fv (index, v);
 		
@@ -3414,12 +3260,16 @@ class HTML5GLRenderContext {
 	}
 	
 	
-	//public function vertexAttrib3fv (index:Int, v:Float32Array):Void {
-	//public function vertexAttrib3fv (index:Int, v:DataPointer):Void {
-	public function vertexAttrib3fv (index:Int, v:Dynamic):Void {
+	public function vertexAttrib3fv (index:Int, v:DataPointer):Void {
 		
-		v = __prepareData (null, v);
-		if (Std.is (v, ArrayBuffer)) v = new Float32Array (v);
+		__context.vertexAttrib3fv (index, v.toFloat32Array ());
+		
+	}
+	
+	
+	//public function vertexAttrib3fv (index:Int, v:Float32Array):Void {
+	//public function vertexAttrib3fv (index:Int, v:Array<Float>):Void {
+	public function vertexAttrib3fvWEBGL (index:Int, v:Dynamic):Void {
 		
 		__context.vertexAttrib3fv (index, v);
 		
@@ -3433,12 +3283,16 @@ class HTML5GLRenderContext {
 	}
 	
 	
-	//public function vertexAttrib4fv (index:Int, v:Float32Array):Void {
-	//public function vertexAttrib4fv (index:Int, v:DataPointer):Void {
-	public function vertexAttrib4fv (index:Int, v:Dynamic):Void {
+	public function vertexAttrib4fv (index:Int, v:DataPointer):Void {
 		
-		v = __prepareData (null, v);
-		if (Std.is (v, ArrayBuffer)) v = new Float32Array (v);
+		__context.vertexAttrib4fv (index, v.toFloat32Array ());
+		
+	}
+	
+	
+	//public function vertexAttrib4fv (index:Int, v:Float32Array):Void {
+	//public function vertexAttrib4fv (index:Int, v:Array<Float>):Void {
+	public function vertexAttrib4fvWEBGL (index:Int, v:Dynamic):Void {
 		
 		__context.vertexAttrib4fv (index, v);
 		
@@ -3459,13 +3313,16 @@ class HTML5GLRenderContext {
 	}
 	
 	
+	public function vertexAttribI4iv (index:Int, v:DataPointer):Void {
+		
+		__context.vertexAttribI4iv (index, v.toInt32Array ());
+		
+	}
+	
+	
 	//public function vertexAttribI4iv (index:Int, v:js.html.Int32Array) {
 	//public function vertexAttribI4iv (index:Int, v:Array<Int>) {
-	//public function vertexAttribI4iv (index:Int, v:DataPointer) {
-	public function vertexAttribI4iv (index:Int, v:Dynamic):Void {
-		
-		v = __prepareData (null, v);
-		if (Std.is (v, ArrayBuffer)) v = new Int32Array (v);
+	public function vertexAttribI4ivWEBGL (index:Int, v:Dynamic):Void {
 		
 		__context.vertexAttribI4iv (index, v);
 		
@@ -3479,13 +3336,16 @@ class HTML5GLRenderContext {
 	}
 	
 	
+	public function vertexAttribI4uiv (index:Int, v:DataPointer):Void {
+		
+		__context.vertexAttribI4uiv (index, v.toUInt32Array ());
+		
+	}
+	
+	
 	//public function vertexAttribI4iv (index:Int, v:js.html.Uint32Array) {
 	//public function vertexAttribI4iv (index:Int, v:Array<Int>) {
-	//public function vertexAttribI4iv (index:Int, v:DataPointer) {
-	public function vertexAttribI4uiv (index:Int, v:Dynamic):Void {
-		
-		v = __prepareData (null, v);
-		if (Std.is (v, ArrayBuffer)) v = new UInt32Array (v);
+	public function vertexAttribI4uivWEBGL (index:Int, v:Dynamic):Void {
 		
 		__context.vertexAttribI4uiv (index, v);
 		
@@ -3494,14 +3354,14 @@ class HTML5GLRenderContext {
 	
 	public inline function vertexAttribIPointer (index:Int, size:Int, type:Int, stride:Int, offset:DataPointer):Void {
 		
-		__context.vertexAttribIPointer (index, size, type, stride, offset);
+		__context.vertexAttribIPointer (index, size, type, stride, offset.toValue ());
 		
 	}
 	
 	
 	public inline function vertexAttribPointer (index:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:DataPointer):Void {
 		
-		__context.vertexAttribPointer (index, size, type, normalized, stride, offset);
+		__context.vertexAttribPointer (index, size, type, normalized, stride, offset.toValue ());
 		
 	}
 	
@@ -3518,84 +3378,6 @@ class HTML5GLRenderContext {
 	public inline function waitSync (sync:GLSync, flags:Int, timeout:Dynamic /*int64*/):Void {
 		
 		__context.waitSync (sync, flags, timeout);
-		
-	}
-	
-	
-	private function __isArrayBufferView (object:Dynamic):Bool {
-		
-		return untyped __js__ ("object && object.buffer instanceof ArrayBuffer && object.byteLength !== undefined");
-		
-	}
-	
-	
-	private function __prepareData (size:Null<Int>, data:Dynamic):Dynamic {
-		
-		if (data != null) {
-			
-			#if js
-			untyped __js__ ("if (!data) return null");
-			#else
-			if (Std.is (data, Float) && data == 0) return null;
-			#end
-			
-			if (size != null) {
-				
-				if (size <= 0) {
-					
-					return null;
-					
-				} else if (__isArrayBufferView (data)) {
-					
-					var arrayBufferView:ArrayBufferView = data;
-					if (arrayBufferView.byteLength == size) return data;
-					return new UInt8Array (arrayBufferView.buffer, arrayBufferView.byteOffset, size);
-					
-				} else if (Std.is (data, ArrayBuffer)) {
-					
-					var arrayBuffer:ArrayBuffer = data;
-					return new UInt8Array (arrayBuffer, 0, size);
-					
-				} else if (Std.is (data, BytePointerData)) {
-					
-					var bytePointer:BytePointer = data;
-					return new UInt8Array (bytePointer.bytes.getData (), bytePointer.offset, size);
-					
-				} else if (Std.is (data, Bytes)) {
-					
-					var bytes:Bytes = data;
-					return new UInt8Array (bytes.getData (), 0, size);
-					
-				}
-				
-			} else {
-				
-				if (Std.is (data, BytePointerData)) {
-					
-					var bytePointer:BytePointer = data;
-					
-					if (bytePointer.offset != 0) {
-						
-						return new UInt8Array (bytePointer.bytes.getData (), bytePointer.offset);
-						
-					} else {
-						
-						return bytePointer.bytes.getData ();
-						
-					}
-					
-				} else if (Std.is (data, Bytes)) {
-					
-					var bytes:Bytes = data;
-					return bytes.getData ();
-					
-				}
-				
-			}
-			
-		}
-		
-		return data;
 		
 	}
 	
@@ -4227,14 +4009,17 @@ extern class WebGL2RenderingContext extends WebGLRenderingContext {
 	
 	public function clearBufferfi (buffer:Int, drawbuffer:Int, depth:Float, stencil:Int):Void;
 	
-	@:overload(function (buffer:Int, drawbuffer:Int, values:js.html.Float32Array, depth:Float, ?srcOffset:Int):Void {})
-	public function clearBufferfv (buffer:Int, drawbuffer:Int, values:Array<Float>, depth:Float, ?srcOffset:Int):Void;
+	@:overload(function (buffer:Int, drawbuffer:Int, values:js.html.Float32Array, ?srcOffset:Int):Void {})
+	@:overload(function (buffer:Int, drawbuffer:Int, depth:Float, stencil:Int):Void {})
+	public function clearBufferfv (buffer:Int, drawbuffer:Int, values:Array<Float>, ?srcOffset:Int):Void;
 	
-	@:overload(function (buffer:Int, drawbuffer:Int, values:js.html.Int32Array, depth:Float, ?srcOffset:Int):Void {})
-	public function clearBufferiv (buffer:Int, drawbuffer:Int, values:Array<Int>, depth:Float, ?srcOffset:Int):Void;
+	@:overload(function (buffer:Int, drawbuffer:Int, values:js.html.Int32Array, ?srcOffset:Int):Void {})
+	@:overload(function (buffer:Int, drawbuffer:Int, depth:Float, stencil:Int):Void {})
+	public function clearBufferiv (buffer:Int, drawbuffer:Int, values:Array<Int>, ?srcOffset:Int):Void;
 	
-	@:overload(function (buffer:Int, drawbuffer:Int, values:js.html.Uint32Array, depth:Float, ?srcOffset:Int):Void {})
-	public function clearBufferuiv (buffer:Int, drawbuffer:Int, values:Array<Int>, depth:Float, ?srcOffset:Int):Void;
+	@:overload(function (buffer:Int, drawbuffer:Int, values:js.html.Uint32Array, ?srcOffset:Int):Void {})
+	@:overload(function (buffer:Int, drawbuffer:Int, depth:Float, stencil:Int):Void {})
+	public function clearBufferuiv (buffer:Int, drawbuffer:Int, values:Array<Int>, ?srcOffset:Int):Void;
 	
 	public function clientWaitSync (sync:GLSync, flags:Int, timeout:Dynamic /*Int64*/):Int;
 	
