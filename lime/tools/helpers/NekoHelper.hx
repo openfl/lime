@@ -32,7 +32,11 @@ class NekoHelper {
 		output.writeInt32 (executable.length);
 		output.close ();*/
 		
-		ProcessHelper.runCommand ("", "nekotools", [ "boot", PathHelper.tryFullPath (source) ]);
+		var path = PathHelper.tryFullPath (source);
+		var file = Path.withoutDirectory (path);
+		var dir = Path.directory (path);
+		
+		ProcessHelper.runCommand (dir, "nekotools", [ "boot", file ]);
 		
 		var path = Path.withoutExtension (source);
 		
