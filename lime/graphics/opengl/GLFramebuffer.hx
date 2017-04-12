@@ -1,4 +1,4 @@
-package lime.graphics.opengl; #if (!js || !html5 || display)
+package lime.graphics.opengl; #if lime_opengl #if (!js || !html5 || display)
 
 
 import lime.graphics.opengl.GL;
@@ -21,4 +21,7 @@ abstract GLFramebuffer(GLObject) from GLObject to GLObject {
 
 #else
 typedef GLFramebuffer = js.html.webgl.Framebuffer;
+#end
+#else
+typedef GLFramebuffer = Dynamic;
 #end

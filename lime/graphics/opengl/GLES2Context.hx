@@ -91,9 +91,13 @@ EXTENSIONS, type, version)
 abstract GLES2Context(GLES3Context) from GLES3Context from GLRenderContext to WebGLContext {
 	
 	
-	@:from private static function fromGL (gl:Class<GL>):GLES2Context {
+	@:from private static function fromGL (gl:#if lime_opengl Class<GL> #else Dynamic #end):GLES2Context {
 		
+		#if lime_opengl
 		return cast GL.context;
+		#else
+		return null;
+		#end
 		
 	}
 	

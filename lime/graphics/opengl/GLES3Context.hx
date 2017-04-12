@@ -3201,9 +3201,13 @@ abstract GLES3Context(GLRenderContext) from GLRenderContext to GLRenderContext t
 	}
 	
 	
-	@:from private static function fromGL (gl:Class<GL>):GLES3Context {
+	@:from private static function fromGL (gl:#if lime_opengl Class<GL> #else Dynamic #end):GLES3Context {
 		
+		#if lime_opengl
 		return cast GL.context;
+		#else
+		return null;
+		#end
 		
 	}
 	

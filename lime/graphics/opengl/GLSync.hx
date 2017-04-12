@@ -1,4 +1,4 @@
-package lime.graphics.opengl; #if (!js || !html5 || display)
+package lime.graphics.opengl; #if lime_opengl #if (!js || !html5 || display)
 
 
 import lime.graphics.opengl.GL;
@@ -22,4 +22,7 @@ abstract GLSync(GLObject) from GLObject to GLObject {
 #else
 @:native("WebGLSync")
 extern class GLSync {}
+#end
+#else
+typedef GLSync = Dynamic;
 #end

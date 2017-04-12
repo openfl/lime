@@ -1,4 +1,4 @@
-package lime.graphics.opengl; #if (!js || !html5 || display)
+package lime.graphics.opengl; #if lime_opengl #if (!js || !html5 || display)
 
 
 import lime.graphics.opengl.GL;
@@ -22,4 +22,7 @@ abstract GLSampler(GLObject) from GLObject to GLObject {
 #else
 @:native("WebGLSampler")
 extern class GLSampler {}
+#end
+#else
+typedef GLSampler = Dynamic;
 #end

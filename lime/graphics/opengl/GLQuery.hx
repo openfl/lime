@@ -1,4 +1,4 @@
-package lime.graphics.opengl; #if (!js || !html5 || display)
+package lime.graphics.opengl; #if lime_opengl #if (!js || !html5 || display)
 
 
 import lime.graphics.opengl.GL;
@@ -22,4 +22,7 @@ abstract GLQuery(GLObject) from GLObject to GLObject {
 #else
 @:native("WebGLQuery")
 extern class GLQuery {}
+#end
+#else
+typedef GLQuery = Dynamic;
 #end
