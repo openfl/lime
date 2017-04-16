@@ -20,7 +20,7 @@
 	<target id="NDLL" output="${LIBPREFIX}::extensionLowerCase::${MSVC_LIB_VERSION}${DEBUGEXTRA}${LIBEXTRA}" tool="linker" toolid="${STD_MODULE_LINK}">
 		
 		<outdir name="../ndll/${BINDIR}"/>
-		<ext value=".ndll" if="windows || mac || linux"/>
+		<ext value=".ndll" if="windows || mac || macos || linux"/>
 		<files id="common"/>
 		
 	</target>
