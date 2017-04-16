@@ -3459,6 +3459,7 @@ class NativeGLRenderContext {
 			__extensionObjectConstructors["EXT_shader_texture_lod"] = EXT_shader_texture_lod.new;
 			__extensionObjectConstructors["EXT_shadow_samplers"] = EXT_shadow_samplers.new;
 			__extensionObjectConstructors["EXT_texture_compression_dxt1"] = EXT_texture_compression_dxt1.new;
+			__extensionObjectConstructors["EXT_texture_compression_s3tc"] = EXT_texture_compression_s3tc.new;
 			__extensionObjectConstructors["EXT_texture_filter_anisotropic"] = EXT_texture_filter_anisotropic.new;
 			__extensionObjectConstructors["EXT_texture_format_BGRA8888"] = EXT_texture_format_BGRA8888.new;
 			__extensionObjectConstructors["EXT_texture_rg"] = EXT_texture_rg.new;
