@@ -267,7 +267,7 @@ class WindowsPlatform extends PlatformTarget {
 		} else if (project.target == PlatformHelper.hostPlatform) {
 			
 			arguments = arguments.concat ([ "-livereload" ]);
-			ProcessHelper.runCommand (applicationDirectory, Path.withoutDirectory (executablePath), arguments);
+			ProcessHelper.runCommand (applicationDirectory, "./" + Path.withoutDirectory (executablePath), arguments);
 			
 		}
 		
