@@ -206,6 +206,8 @@ class FileHelper {
 					
 				} catch (e:Dynamic) {}
 				
+				PathHelper.mkdir (Path.directory (destination));
+				
 				LogHelper.info ("", " - \x1b[1mCopying template file:\x1b[0m " + source + " \x1b[3;37m->\x1b[0m " + destination);
 				
 				try {

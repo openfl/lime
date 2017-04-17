@@ -173,11 +173,11 @@ class PathHelper {
 			
 			try {
 				
-				files = FileSystem.readDirectory (templatePath + source);
+				files = FileSystem.readDirectory (PathHelper.combine (templatePath, source));
 				
 				for (file in files) {
 					
-					if (file.substr (0, 1) != ".") {
+					//if (file.substr (0, 1) != ".") {
 						
 						var itemSource = PathHelper.combine (source, file);
 						
@@ -204,7 +204,7 @@ class PathHelper {
 							
 						}
 						
-					}
+					//}
 					
 				}
 				
