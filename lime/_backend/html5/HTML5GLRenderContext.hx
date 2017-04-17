@@ -1007,6 +1007,7 @@ class HTML5GLRenderContext {
 		if (Std.is (imageSize, Int)) {
 			
 			srcData = __prepareData (null, srcData);
+			if (srcData != null && Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
 			
 			if (version > 1 && srcOffset != null) {
 				
@@ -1053,6 +1054,7 @@ class HTML5GLRenderContext {
 		if (Std.is (imageSize, Int)) {
 			
 			srcData = __prepareData (null, srcData);
+			if (srcData != null && Std.is (srcData, ArrayBuffer)) srcData = new UInt8Array (srcData);
 			
 			if (version > 1 && srcOffset != null) {
 				
