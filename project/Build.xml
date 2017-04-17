@@ -38,6 +38,8 @@
 	<set name="NATIVE_TOOLKIT_SDL_STATIC" value="1" />
 	
 	<set name="NATIVE_TOOLKIT_SDL_ANGLE" value="1" if="LIME_SDL_ANGLE" />
+	<set name="NATIVE_TOOLKIT_HAVE_CAIRO" value="1" if="LIME_CAIRO" />
+	<set name="NATIVE_TOOLKIT_HAVE_FREETYPE" value="1" if="LIME_FREETYPE" />
 	
 	
 	<files id="lime">
