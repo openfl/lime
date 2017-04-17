@@ -32,16 +32,21 @@ class WindowsPlatform extends PlatformTarget {
 	private var applicationDirectory:String;
 	private var executablePath:String;
 	private var targetType:String;
+	private var enableMingw:Bool;
 	
 	
 	public function new (command:String, _project:HXProject, targetFlags:Map<String, String> ) {
 		
 		super (command, _project, targetFlags);
 		
-		if (project.targetFlags.exists ("neko") || project.target != PlatformHelper.hostPlatform) {
+		if (project.targetFlags.exists ("neko")) {
 			
 			targetType = "neko";
 			
+		} else if (project.target != PlatformHelper.hostPlatform && PlatformHelper.hostPlatform != Platform.LINUX){
+
+			targetType = "neko";
+
 		} else if (project.targetFlags.exists ("nodejs")) {
 			
 			targetType = "nodejs";
@@ -54,6 +59,12 @@ class WindowsPlatform extends PlatformTarget {
 			
 			targetType = "cpp";
 			
+			if (project.target != PlatformHelper.hostPlatform){
+				
+				enableMingw = true;
+				
+			}
+
 		}
 		
 		targetDirectory = project.app.path + "/windows/" + targetType + "/" + buildType;
@@ -89,6 +100,20 @@ class WindowsPlatform extends PlatformTarget {
 			}
 			
 		}
+
+		if(PlatformHelper.hostPlatform == Platform.LINUX){
+
+			//to do, modify the following to be able to search mingw on other directory on different Linux system
+			FileHelper.copyFile ("/lib/haxe/lib/hxcpp/3,2,102/bin/Windows/regexp" + (project.debug ? "-debug" : "") + ".dll", applicationDirectory + "regexp" + (project.debug ? "-debug" : "") + ".dll");
+			FileHelper.copyFile ("/lib/haxe/lib/hxcpp/3,2,102/bin/Windows/std" + (project.debug ? "-debug" : "") + ".dll", applicationDirectory + "std" + (project.debug ? "-debug" : "") + ".dll");
+			FileHelper.copyFile ("/lib/haxe/lib/hxcpp/3,2,102/bin/Windows/zlib" + (project.debug ? "-debug" : "") + ".dll", applicationDirectory + "zlib" + (project.debug ? "-debug" : "") + ".dll");
+			FileHelper.copyFile ("/usr/i686-w64-mingw32/sys-root/mingw/bin/libgcc_s_dw2-1" + (project.debug ? "-debug" : "") + ".dll", applicationDirectory + "libgcc_s_dw2-1" + (project.debug ? "-debug" : "") + ".dll");
+			FileHelper.copyFile ("/usr/i686-w64-mingw32/sys-root/mingw/bin/libgcc_s_sjlj-1" + (project.debug ? "-debug" : "") + ".dll", applicationDirectory + "libgcc_s_sjlj-1" + (project.debug ? "-debug" : "") + ".dll");
+			FileHelper.copyFile ("/usr/i686-w64-mingw32/sys-root/mingw/bin/libstdc++-6" + (project.debug ? "-debug" : "") + ".dll", applicationDirectory + "libstdc++-6" + (project.debug ? "-debug" : "") + ".dll");
+			FileHelper.copyFile ("/usr/i686-w64-mingw32/sys-root/mingw/bin/libwinpthread-1" + (project.debug ? "-debug" : "") + ".dll", applicationDirectory + "libwinpthread-1" + (project.debug ? "-debug" : "") + ".dll");
+
+		}
+
 		
 		var icons = project.icons;
 		
@@ -151,6 +176,19 @@ class WindowsPlatform extends PlatformTarget {
 				haxeArgs.push ("no_console");
 				flags.push ("-Dno_console");
 				
+			}
+
+			if (enableMingw) {
+
+				haxeArgs.push ("-D");
+				haxeArgs.push ("mingw");
+				flags.push ("-Dmingw");
+
+				haxeArgs.push ("-D");
+				haxeArgs.push ("toolchain=mingw_linux_host");
+				flags.push ("-Dtoolchain=mingw_linux_host");
+
+
 			}
 			
 			if (!project.targetFlags.exists ("static")) {
