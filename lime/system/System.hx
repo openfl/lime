@@ -608,7 +608,7 @@ class System {
 		
 		// TODO: Make this smarter
 		
-		#if (ps3 || wiiu)
+		#if (ps3 || wiiu || flash)
 		return BIG_ENDIAN;
 		#else
 		return LITTLE_ENDIAN;
