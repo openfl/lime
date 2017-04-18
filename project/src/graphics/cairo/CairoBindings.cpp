@@ -1,5 +1,6 @@
 #include <cairo.h>
 #include <cairo-ft.h>
+#include <map>
 #include <math/Matrix3.h>
 #include <math/Vector2.h>
 #include <hx/CFFIPrime.h>
@@ -15,6 +16,7 @@ namespace lime {
 	static int id_y;
 	static bool init = false;
 	cairo_user_data_key_t userData;
+	std::map<void*, value> cairoObjects;
 	
 	
 	void gc_cairo (value handle) {
@@ -22,6 +24,7 @@ namespace lime {
 		if (!val_is_null (handle)) {
 			
 			cairo_t* cairo = (cairo_t*)val_data (handle);
+			cairoObjects.erase (cairo);
 			cairo_destroy (cairo);
 			
 		}
@@ -34,6 +37,7 @@ namespace lime {
 		if (!val_is_null (handle)) {
 			
 			cairo_font_face_t* face = (cairo_font_face_t*)val_data (handle);
+			cairoObjects.erase (face);
 			cairo_font_face_destroy (face);
 			
 		}
@@ -58,6 +62,7 @@ namespace lime {
 		if (!val_is_null (handle)) {
 			
 			cairo_pattern_t* pattern = (cairo_pattern_t*)val_data (handle);
+			cairoObjects.erase (pattern);
 			cairo_pattern_destroy (pattern);
 			
 		}
@@ -70,6 +75,7 @@ namespace lime {
 		if (!val_is_null (handle)) {
 			
 			cairo_surface_t* surface = (cairo_surface_t*)val_data (handle);
+			cairoObjects.erase (surface);
 			cairo_surface_destroy (surface);
 			
 		}
@@ -137,7 +143,10 @@ namespace lime {
 	value lime_cairo_create (value surface) {
 		
 		cairo_t* cairo = cairo_create ((cairo_surface_t*)val_data (surface));
-		return CFFIPointer (cairo, gc_cairo);
+		
+		value object = CFFIPointer (cairo, gc_cairo);
+		cairoObjects[cairo] = object;
+		return object;
 		
 	}
 	
@@ -179,7 +188,8 @@ namespace lime {
 	
 	value lime_cairo_font_options_create () {
 		
-		return CFFIPointer (cairo_font_options_create (), gc_cairo_font_options);
+		cairo_font_options_t* options = cairo_font_options_create ();
+		return CFFIPointer (options, gc_cairo_font_options);
 		
 	}
 	
@@ -249,7 +259,9 @@ namespace lime {
 		AutoGCRoot* fontReference = new AutoGCRoot (face);
 		cairo_font_face_set_user_data (cairoFont, &userData, fontReference, gc_user_data);
 		
-		return CFFIPointer (cairoFont, gc_cairo_font_face);
+		value object = CFFIPointer (cairoFont, gc_cairo_font_face);
+		cairoObjects[cairoFont] = object;
+		return object;
 		#else
 		return 0;
 		#endif
@@ -314,8 +326,20 @@ namespace lime {
 	value lime_cairo_get_font_face (value handle) {
 		
 		cairo_font_face_t* face = cairo_get_font_face ((cairo_t*)val_data (handle));
-		cairo_font_face_reference (face);
-		return CFFIPointer (face, gc_cairo_font_face);
+		
+		if (cairoObjects.find (face) != cairoObjects.end ()) {
+			
+			return cairoObjects[face];
+			
+		} else {
+			
+			cairo_font_face_reference (face);
+			
+			value object = CFFIPointer (face, gc_cairo_font_face);
+			cairoObjects[face] = object;
+			return object;
+			
+		}
 		
 	}
 	
@@ -332,8 +356,20 @@ namespace lime {
 	value lime_cairo_get_group_target (value handle) {
 		
 		cairo_surface_t* surface = cairo_get_group_target ((cairo_t*)val_data (handle));
-		cairo_surface_reference (surface);
-		return CFFIPointer (surface, gc_cairo_surface);
+		
+		if (cairoObjects.find (surface) != cairoObjects.end ()) {
+			
+			return cairoObjects[surface];
+			
+		} else {
+			
+			cairo_surface_reference (surface);
+			
+			value object = CFFIPointer (surface, gc_cairo_surface);
+			cairoObjects[surface] = object;
+			return object;
+			
+		}
 		
 	}
 	
@@ -386,8 +422,20 @@ namespace lime {
 	value lime_cairo_get_source (value handle) {
 		
 		cairo_pattern_t* pattern = cairo_get_source ((cairo_t*)val_data (handle));
-		cairo_pattern_reference (pattern);
-		return CFFIPointer (pattern, gc_cairo_pattern);
+		
+		if (cairoObjects.find (pattern) != cairoObjects.end ()) {
+			
+			return cairoObjects[pattern];
+			
+		} else {
+			
+			cairo_pattern_reference (pattern);
+			
+			value object = CFFIPointer (pattern, gc_cairo_pattern);
+			cairoObjects[pattern] = object;
+			return object;
+			
+		}
 		
 	}
 	
@@ -395,8 +443,20 @@ namespace lime {
 	value lime_cairo_get_target (value handle) {
 		
 		cairo_surface_t* surface = cairo_get_target ((cairo_t*)val_data (handle));
-		cairo_surface_reference (surface);
-		return CFFIPointer (surface, gc_cairo_surface);
+		
+		if (cairoObjects.find (surface) != cairoObjects.end ()) {
+			
+			return cairoObjects[surface];
+			
+		} else {
+			
+			cairo_surface_reference (surface);
+			
+			value object = CFFIPointer (surface, gc_cairo_surface);
+			cairoObjects[surface] = object;
+			return object;
+			
+		}
 		
 	}
 	
@@ -425,7 +485,10 @@ namespace lime {
 	value lime_cairo_image_surface_create (int format, int width, int height) {
 		
 		cairo_surface_t* surface = cairo_image_surface_create ((cairo_format_t)format, width, height);
-		return CFFIPointer (surface, gc_cairo_surface);
+		
+		value object = CFFIPointer (surface, gc_cairo_surface);
+		cairoObjects[surface] = object;
+		return object;
 		
 	}
 	
@@ -433,7 +496,10 @@ namespace lime {
 	value lime_cairo_image_surface_create_for_data (double data, int format, int width, int height, int stride) {
 		
 		cairo_surface_t* surface = cairo_image_surface_create_for_data ((unsigned char*)(uintptr_t)data, (cairo_format_t)format, width, height, stride);
-		return CFFIPointer (surface, gc_cairo_surface);
+		
+		value object = CFFIPointer (surface, gc_cairo_surface);
+		cairoObjects[surface] = object;
+		return object;
 		
 	}
 	
@@ -560,7 +626,10 @@ namespace lime {
 	value lime_cairo_pattern_create_for_surface (value surface) {
 		
 		cairo_pattern_t* pattern = cairo_pattern_create_for_surface ((cairo_surface_t*)val_data (surface));
-		return CFFIPointer (pattern, gc_cairo_pattern);
+		
+		value object = CFFIPointer (pattern, gc_cairo_pattern);
+		cairoObjects[pattern] = object;
+		return object;
 		
 	}
 	
@@ -568,7 +637,10 @@ namespace lime {
 	value lime_cairo_pattern_create_linear (double x0, double y0, double x1, double y1) {
 		
 		cairo_pattern_t* pattern = cairo_pattern_create_linear (x0, y0, x1, y1);
-		return CFFIPointer (pattern, gc_cairo_pattern);
+		
+		value object = CFFIPointer (pattern, gc_cairo_pattern);
+		cairoObjects[pattern] = object;
+		return object;
 		
 	}
 	
@@ -576,7 +648,10 @@ namespace lime {
 	value lime_cairo_pattern_create_radial (double cx0, double cy0, double radius0, double cx1, double cy1, double radius1) {
 		
 		cairo_pattern_t* pattern = cairo_pattern_create_radial (cx0, cy0, radius0, cx1, cy1, radius1);
-		return CFFIPointer (pattern, gc_cairo_pattern);
+		
+		value object = CFFIPointer (pattern, gc_cairo_pattern);
+		cairoObjects[pattern] = object;
+		return object;
 		
 	}
 	
@@ -584,7 +659,10 @@ namespace lime {
 	value lime_cairo_pattern_create_rgb (double r, double g, double b) {
 		
 		cairo_pattern_t* pattern = cairo_pattern_create_rgb (r, g, b);
-		return CFFIPointer (pattern, gc_cairo_pattern);
+		
+		value object = CFFIPointer (pattern, gc_cairo_pattern);
+		cairoObjects[pattern] = object;
+		return object;
 		
 	}
 	
@@ -592,7 +670,10 @@ namespace lime {
 	value lime_cairo_pattern_create_rgba (double r, double g, double b, double a) {
 		
 		cairo_pattern_t* pattern = cairo_pattern_create_rgba (r, g, b, a);
-		return CFFIPointer (pattern, gc_cairo_pattern);
+		
+		value object = CFFIPointer (pattern, gc_cairo_pattern);
+		cairoObjects[pattern] = object;
+		return object;
 		
 	}
 	
@@ -659,8 +740,20 @@ namespace lime {
 	value lime_cairo_pop_group (value handle) {
 		
 		cairo_pattern_t* pattern = cairo_pop_group ((cairo_t*)val_data (handle));
-		cairo_pattern_reference (pattern);
-		return CFFIPointer (pattern, gc_cairo_pattern);
+		
+		if (cairoObjects.find (pattern) != cairoObjects.end ()) {
+			
+			return cairoObjects[pattern];
+			
+		} else {
+			
+			cairo_pattern_reference (pattern);
+			
+			value object = CFFIPointer (pattern, gc_cairo_pattern);
+			cairoObjects[pattern] = object;
+			return object;
+			
+		}
 		
 	}
 	
