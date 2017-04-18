@@ -274,7 +274,9 @@ class ProcessHelper {
 			
 		}
 		
+		#if (haxe_ver < "3.3.0")
 		command = PathHelper.escape (command);
+		#end
 		
 		if (safeExecute) {
 			
