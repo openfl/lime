@@ -17,6 +17,7 @@ typedef WindowData = {
 	@:optional var vsync:Bool;
 	@:optional var fullscreen:Bool;
 	@:optional var allowHighDPI:Bool;
+	@:optional var alwaysOnTop:Bool;
 	@:optional var antialiasing:Int;
 	@:optional var orientation:Orientation;
 	@:optional var allowShaders:Bool;
