@@ -18,7 +18,8 @@
 namespace lime {
 	
 	
-	std::map<ALuint, value> gc_al_pointers;
+	std::map<ALuint, value> alObjects;
+	std::map<void*, value> alcObjects;
 	
 	
 	void lime_al_delete_buffer (value buffer);
@@ -35,6 +36,13 @@ namespace lime {
 	void gc_al_source (value source) {
 		
 		lime_al_delete_source (source);
+		
+	}
+	
+	
+	void gc_alc_object (value object) {
+		
+		alcObjects.erase (object);
 		
 	}
 	
@@ -155,7 +163,7 @@ namespace lime {
 			ALuint data = (ALuint)(uintptr_t)val_data (buffer);
 			val_gc (buffer, 0);
 			alDeleteBuffers ((ALuint)1, &data);
-			gc_al_pointers.erase (data);
+			alObjects.erase (data);
 			
 		}
 		
@@ -175,7 +183,7 @@ namespace lime {
 				buffer = val_array_i (buffers, i);
 				data[i] = (ALuint)(uintptr_t)val_data (buffer);
 				val_gc (buffer, 0);
-				gc_al_pointers.erase (data[i]);
+				alObjects.erase (data[i]);
 				
 			}
 			
@@ -264,7 +272,7 @@ namespace lime {
 		ALuint buffer;
 		alGenBuffers ((ALuint)1, &buffer);
 		value ptr = CFFIPointer ((void*)(uintptr_t)buffer, gc_al_buffer);
-		gc_al_pointers[buffer] = ptr;
+		alObjects[buffer] = ptr;
 		return ptr;
 		
 	}
@@ -284,7 +292,7 @@ namespace lime {
 			
 			buffer = buffers[i];
 			ptr = CFFIPointer ((void*)(uintptr_t)buffer, gc_al_buffer);
-			gc_al_pointers[buffer] = ptr;
+			alObjects[buffer] = ptr;
 			
 			val_array_set_i (result, i, ptr);
 			
@@ -697,14 +705,14 @@ namespace lime {
 		
 		if (param == AL_BUFFER) {
 			
-			if (gc_al_pointers.count (data) > 0) {
+			if (alObjects.count (data) > 0) {
 				
-				return gc_al_pointers[data];
+				return alObjects[data];
 				
 			} else {
 				
 				value ptr = CFFIPointer ((void*)(uintptr_t)data, gc_al_buffer);
-				gc_al_pointers[data] = ptr;
+				alObjects[data] = ptr;
 				return ptr;
 				
 			}
@@ -998,14 +1006,14 @@ namespace lime {
 			
 			buffer = buffers[i];
 			
-			if (gc_al_pointers.count (buffer) > 0) {
+			if (alObjects.count (buffer) > 0) {
 				
-				ptr = gc_al_pointers[buffer];
+				ptr = alObjects[buffer];
 				
 			} else {
 				
 				ptr = CFFIPointer ((void*)(uintptr_t)buffer, gc_al_buffer);
-				gc_al_pointers[buffer] = ptr;
+				alObjects[buffer] = ptr;
 				
 			}
 			
@@ -1119,6 +1127,7 @@ namespace lime {
 	bool lime_alc_close_device (value device) {
 		
 		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
+		alcObjects.erase (alcDevice);
 		return alcCloseDevice (alcDevice);
 		
 	}
@@ -1151,7 +1160,9 @@ namespace lime {
 			
 		}
 		
-		return CFFIPointer (alcContext);
+		value object = CFFIPointer (alcContext, gc_alc_object);
+		alcObjects[alcContext] = object;
+		return object;
 		
 	}
 	
@@ -1159,6 +1170,7 @@ namespace lime {
 	void lime_alc_destroy_context (value context) {
 		
 		ALCcontext* alcContext = (ALCcontext*)val_data (context);
+		alcObjects.erase (alcContext);
 		alcDestroyContext (alcContext);
 		
 	}
@@ -1168,7 +1180,18 @@ namespace lime {
 		
 		ALCcontext* alcContext = (ALCcontext*)val_data (context);
 		ALCdevice* alcDevice = alcGetContextsDevice (alcContext);
-		return CFFIPointer (alcDevice);
+		
+		if (alcObjects.find (alcDevice) != alcObjects.end ()) {
+			
+			return alcObjects[alcDevice];
+			
+		} else {
+			
+			value object = CFFIPointer (alcDevice, gc_alc_object);
+			alcObjects[alcDevice] = object;
+			return object;
+			
+		}
 		
 	}
 	
@@ -1176,7 +1199,18 @@ namespace lime {
 	value lime_alc_get_current_context () {
 		
 		ALCcontext* alcContext = alcGetCurrentContext ();
-		return CFFIPointer (alcContext);
+		
+		if (alcObjects.find (alcContext) != alcObjects.end ()) {
+			
+			return alcObjects[alcContext];
+			
+		} else {
+			
+			value object = CFFIPointer (alcContext, gc_alc_object);
+			alcObjects[alcContext] = object;
+			return object;
+			
+		}
 		
 	}
 	
@@ -1231,7 +1265,10 @@ namespace lime {
 		
 		ALCdevice* alcDevice = alcOpenDevice (devicename.__s);
 		atexit (lime_al_cleanup);
-		return CFFIPointer (alcDevice);
+		
+		value ptr = CFFIPointer (alcDevice, gc_alc_object);
+		alcObjects[alcDevice] = ptr;
+		return ptr;
 		
 	}
 	
