@@ -109,7 +109,7 @@ class HTML5HTTPRequest {
 			
 		}
 		
-		if (!hasContentType) {
+		if (!hasContentType && parent.contentType != null) {
 			
 			request.setRequestHeader ("Content-Type", parent.contentType);
 			
