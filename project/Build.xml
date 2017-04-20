@@ -33,6 +33,9 @@
 	<set name="OUTPUT_DIR" value="../ndll" unless="OUTPUT_DIR" />
 	<set name="NATIVE_TOOLKIT_PATH" value="lib" unless="NATIVE_TOOLKIT_PATH" />
 	
+	<set name="NATIVE_TOOLKIT_HAVE_HARFBUZZ" value="1" if="LIME_HARFBUZZ" />
+	<set name="NATIVE_TOOLKIT_HAVE_PNG" value="1" if="LIME_PNG" />
+	
 	<set name="NATIVE_TOOLKIT_CURL_SSL" value="1" />
 	<set name="NATIVE_TOOLKIT_CURL_DISABLE_AXTLS_NONBLOCKING" value="1" />
 	<set name="NATIVE_TOOLKIT_SDL_STATIC" value="1" />
@@ -95,6 +98,7 @@
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/harfbuzz/src" />
 				<compilerflag value="-DLIME_HARFBUZZ" />
 				
+				<!--<file name="src/text/harfbuzz/HarfbuzzBindings.cpp" />-->
 				<file name="src/text/TextLayout.cpp" />
 				
 			</section>
