@@ -31,6 +31,7 @@ class CFFI {
 	private static function __init__ ():Void {
 		
 		#if lime_cffi
+		var init = lime._backend.native.NativeCFFI;
 		available = true;
 		enabled = #if disable_cffi false; #else true; #end
 		#else
