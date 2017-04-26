@@ -68,6 +68,15 @@ class NativeApplication {
 	private var toggleFullscreen:Bool;
 	
 	
+	private static function __init__ () {
+		
+		#if (lime_cffi && !macro)
+		var init = NativeCFFI;
+		#end
+		
+	}
+	
+	
 	public function new (parent:Application):Void {
 		
 		this.parent = parent;

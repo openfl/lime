@@ -50,6 +50,13 @@ class Application extends Module {
 	@:noCompletion private var windowByID:Map<Int, Window>;
 	
 	
+	private static function __init__ () {
+		
+		var init = ApplicationBackend;
+		
+	}
+	
+	
 	public function new () {
 		
 		super ();

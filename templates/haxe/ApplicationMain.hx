@@ -87,7 +87,9 @@ package;
 		
 		preloader.load ();
 		
+		#if !munit
 		start (app);
+		#end
 		
 	}
 	
@@ -113,9 +115,7 @@ package;
 	
 	@:noCompletion @:dox(hide) public static function __init__ () {
 		
-		#if lime_cffi
-		var init = lime.system.CFFI;
-		#end
+		var init = lime.app.Application;
 		
 		#if neko
 		// Copy from https://github.com/HaxeFoundation/haxe/blob/development/std/neko/_std/Sys.hx#L164
@@ -142,6 +142,7 @@ package;
 		loader.addPath (haxe.io.Path.directory (#if (haxe_ver >= 3.3) sys_program_path #else Sys.executablePath () #end));
 		loader.addPath ("./");
 		loader.addPath ("@executable_path/");
+		#end
 		
 	}
 	
