@@ -41,9 +41,17 @@ class IOSHelper {
 		
 		if (project.targetFlags.exists ("simulator")) {
 			
-			commands.push ("-arch");
-			//commands.push ("i386");
-			commands.push ("x86_64");
+			if (project.targetFlags.exists ("i386")) {
+				
+				commands.push ("-arch");
+				commands.push ("i386");
+				
+			} else {
+				
+				commands.push ("-arch");
+				commands.push ("x86_64");
+			
+			}
 			
 		} else if (project.targetFlags.exists ("armv7")) {
 			
