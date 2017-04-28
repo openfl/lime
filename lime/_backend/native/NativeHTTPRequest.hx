@@ -386,14 +386,16 @@ class NativeHTTPRequest {
 	
 	private static function threadPool_onComplete (state:Dynamic):Void {
 		
-		state.promise.complete (state.result);
+		var promise:Promise<Bytes> = state.promise;
+		promise.complete (state.result);
 		
 	}
 	
 	
 	private static function threadPool_onError (state:Dynamic):Void {
 		
-		state.promise.error (state.error);
+		var promise:Promise<Bytes> = state.promise;
+		promise.error (state.error);
 		
 	}
 	
