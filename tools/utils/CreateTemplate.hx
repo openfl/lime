@@ -38,6 +38,7 @@ class CreateTemplate {
 		context.ANDROID_MINIMUM_SDK_VERSION = "::ANDROID_MINIMUM_SDK_VERSION::";
 		context.META_BUILD_NUMBER = "::META_BUILD_NUMBER::";
 		context.META_VERSION = "::META_VERSION::";
+		context.ANDROID_GRADLE_PLUGIN = "::ANDROID_GRADLE_PLUGIN::";
 		
 		PathHelper.mkdir (title);
 		FileHelper.recursiveCopyTemplate ([ PathHelper.getHaxelib (new Haxelib ("lime"), true)  + "/templates" ], "extension", title, context);
