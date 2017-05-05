@@ -827,7 +827,6 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 		__swap (1, 4);
 		__swap (2, 8);
 		__swap (3, 12);
-		__swap (4, 1);
 		__swap (6, 9);
 		__swap (7, 13);
 		__swap (11, 14);
