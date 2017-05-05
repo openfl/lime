@@ -94,19 +94,7 @@ namespace lime {
 			
 		}
 		
-	}
-	
-	
-	void ImageBuffer::BlitRow (const unsigned char *data, int sourcePosition, int destPosition, int sourceW) {
-		
-		int stride = (sourceW * (((bitsPerPixel + 3) & ~0x3) >> 3));
-		
-		unsigned char *bytes = this->data->Data ();
-		
-		memcpy (&bytes[destPosition], &data[sourcePosition], stride);
-		
-	}
-	
+	}	
 	
 	
 	void ImageBuffer::Resize (int width, int height, int bitsPerPixel) {

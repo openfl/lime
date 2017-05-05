@@ -186,23 +186,40 @@ class ImageDataUtil {
 				var destFormat = image.buffer.format;
 				var sourcePremultiplied = sourceImage.buffer.premultiplied;
 				var destPremultiplied = image.buffer.premultiplied;
+				var sourceBitsPerPixel = sourceImage.buffer.bitsPerPixel;
+				var destBitsPerPixel = image.buffer.bitsPerPixel;
 				
 				var sourcePosition, destPosition, sourcePixel:RGBA;
 				
 				if (!mergeAlpha || !sourceImage.transparent) {
 					
-					for (y in 0...destView.height) {
+					if (sourceFormat == destFormat && sourcePremultiplied == destPremultiplied && sourceBitsPerPixel == destBitsPerPixel) {
 						
-						sourcePosition = sourceView.row (y);
-						destPosition = destView.row (y);
+						for (y in 0...destView.height) {
+							
+							sourcePosition = sourceView.row (y);
+							destPosition = destView.row (y);
+							
+							destData.buffer.blit (destPosition, sourceData.buffer, sourcePosition, destView.width * destBitsPerPixel);
+							
+						}
 						
-						for (x in 0...destView.width) {
+					} else {
+						
+						for (y in 0...destView.height) {
 							
-							sourcePixel.readUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
-							sourcePixel.writeUInt8 (destData, destPosition, destFormat, destPremultiplied);
+							sourcePosition = sourceView.row (y);
+							destPosition = destView.row (y);
 							
-							sourcePosition += 4;
-							destPosition += 4;
+							for (x in 0...destView.width) {
+								
+								sourcePixel.readUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
+								sourcePixel.writeUInt8 (destData, destPosition, destFormat, destPremultiplied);
+								
+								sourcePosition += 4;
+								destPosition += 4;
+								
+							}
 							
 						}
 						
