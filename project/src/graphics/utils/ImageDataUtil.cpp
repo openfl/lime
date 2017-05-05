@@ -124,26 +124,23 @@ namespace lime {
 		
 		bool sourcePremultiplied = sourceImage->buffer->premultiplied;
 		bool destPremultiplied = image->buffer->premultiplied;
+		int sourceBitsPerPixel = sourceImage->buffer->bitsPerPixel;
+		int destBitsPerPixel = image->buffer->bitsPerPixel;
 		
 		if (!mergeAlpha || !sourceImage->buffer->transparent) {
 			
-			if(sourceFormat == destFormat && sourcePremultiplied == destPremultiplied) {
+			if (sourceFormat == destFormat && sourcePremultiplied == destPremultiplied && sourceBitsPerPixel == destBitsPerPixel) {
 				
-				if (false == (destView.x < 0 || destView.x + sourceView.width > image->width || destView.y < 0 || destView.y + destView.height > image->height)) {
+				for (int y = 0; y < destView.height; y++) {
 					
-					for (int y = 0; y < destView.height; y++) {
-						
-						sourcePosition = sourceView.Row (y);
-						destPosition = destView.Row (y);
-						
-						image->buffer->BlitRow(sourceData, sourcePosition, destPosition, sourceView.width);
-						
-					}
+					sourcePosition = sourceView.Row (y);
+					destPosition = destView.Row (y);
+					
+					memcpy (&destData[destPosition], &sourceData[sourcePosition], destView.width * destBitsPerPixel);
 					
 				}
 				
-			}
-			else {
+			} else {
 				
 				for (int y = 0; y < destView.height; y++) {
 					
