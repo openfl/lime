@@ -170,8 +170,9 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 		this.set (other);
 
 	}
-
-	public function copythisFrom( array:Float32Array, index:Int = 0, transposeValues:Bool = false ) {
+	
+	
+	@:deprecated public function copythisFrom( array:Float32Array, index:Int = 0, transposeValues:Bool = false ) {
 		
 		if ( transposeValues )
 			transpose();
@@ -186,7 +187,7 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 
 
-	public function copythisTo( array:Float32Array, index:Int = 0, transposeValues:Bool = false ) {
+	@:deprecated public function copythisTo( array:Float32Array, index:Int = 0, transposeValues:Bool = false ) {
 
 		if ( transposeValues )
 		   transpose();
