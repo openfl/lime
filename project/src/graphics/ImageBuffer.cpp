@@ -94,7 +94,7 @@ namespace lime {
 			
 		}
 		
-	}	
+	}
 	
 	
 	void ImageBuffer::Resize (int width, int height, int bitsPerPixel) {
