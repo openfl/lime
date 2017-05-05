@@ -165,7 +165,7 @@ class ImageDataUtil {
 		
 		if (image.width == sourceImage.width && image.height == sourceImage.height && sourceRect.width == sourceImage.width && sourceRect.height == sourceImage.height && sourceRect.x == 0 && sourceRect.y == 0 && destPoint.x == 0 && destPoint.y == 0 && alphaImage == null && alphaPoint == null && mergeAlpha == false && image.format == sourceImage.format) {
 			
-			image.buffer.data.buffer.blit (0, sourceImage.buffer.data.toBytes(), 0, image.buffer.data.byteLength);
+			image.buffer.data.set (sourceImage.buffer.data);
 			
 		} else {
 			
@@ -200,7 +200,11 @@ class ImageDataUtil {
 							sourcePosition = sourceView.row (y);
 							destPosition = destView.row (y);
 							
-							destData.buffer.blit (destPosition, sourceData.buffer, sourcePosition, destView.width * destBitsPerPixel);
+							#if js
+							destData.set (sourceData.subarray (sourcePosition, destView.width * destBitsPerPixel), destPosition);
+							#else
+							sourceData.buffer.blit (destPosition, destData.buffer, sourcePosition, destView.width * destBitsPerPixel);
+							#end
 							
 						}
 						
