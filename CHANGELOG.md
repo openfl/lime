@@ -3,7 +3,7 @@
 
 * Updated SDL to latest development version
 * Updated Freetype to 2.7.1
-* Updated Harfbuzz to 1.4.5
+* Updated Harfbuzz to 1.4.6
 * Updated Howler.js to 2.0.3
 * Added window.alwaysOnTop, with initial support on Windows and Linux
 * Added WebP compatibility on HTML5, improved file format detection
