@@ -1,6 +1,9 @@
 package lime.graphics.opengl.ext; #if (js && html5)
 
 
+@:keep
+
+
 @:native("WEBGL_draw_buffers")
 extern class WEBGL_draw_buffers {
 	

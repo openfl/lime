@@ -1,6 +1,9 @@
 package lime.graphics.opengl.ext; #if (js && html5)
 
 
+@:keep
+
+
 @:native("WEBGL_color_buffer_float")
 extern class WEBGL_color_buffer_float {
 	

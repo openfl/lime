@@ -1,6 +1,8 @@
 package lime.graphics.opengl.ext;
 
 
+@:keep
+
 class IMG_multisampled_render_to_texture {
 	
 	

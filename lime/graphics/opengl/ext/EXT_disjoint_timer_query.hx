@@ -1,6 +1,8 @@
 package lime.graphics.opengl.ext; #if (js && html5)
 
 
+@:keep
+
 @:native("EXT_disjoint_timer_query")
 extern class EXT_disjoint_timer_query {
 	

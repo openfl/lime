@@ -1,6 +1,8 @@
 package lime.graphics.opengl.ext;
 
 
+@:keep
+
 class KHR_texture_compression_astc_ldr {
 	
 	

@@ -1,6 +1,9 @@
 package lime.graphics.opengl.ext; #if (js && html5)
 
 
+@:keep
+
+
 @:native("WEBGL_debug_renderer_info")
 extern class WEBGL_debug_renderer_info {
 	

@@ -1,6 +1,9 @@
 package lime.graphics.opengl.ext;
 
 
+@:keep
+
+
 class OES_rgb8_rgba8 {
 	
 	

@@ -4,6 +4,8 @@ package lime.graphics.opengl.ext; #if (js && html5)
 import lime.graphics.opengl.GLShader;
 
 
+@:keep
+
 @:native("WEBGL_debug_shaders")
 extern class WEBGL_debug_shaders {
 	

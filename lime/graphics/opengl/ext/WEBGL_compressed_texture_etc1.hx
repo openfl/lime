@@ -1,6 +1,9 @@
 package lime.graphics.opengl.ext; #if (js && html5)
 
 
+@:keep
+
+
 @:native("WEBGL_compressed_texture_etc1")
 extern class WEBGL_compressed_texture_etc1 {
 	

@@ -4,6 +4,8 @@ package lime.graphics.opengl.ext; #if (js && html5)
 import lime.graphics.opengl.GLShader;
 
 
+@:keep
+
 @:native("WEBGL_depth_texture")
 extern class WEBGL_depth_texture {
 	
