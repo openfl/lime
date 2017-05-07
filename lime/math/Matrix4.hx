@@ -2,6 +2,7 @@ package lime.math;
 
 
 import lime.utils.Float32Array;
+import lime.utils.Log;
 
 
 abstract Matrix4(Float32Array) from Float32Array to Float32Array {
@@ -64,7 +65,7 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	
 	public function appendRotation (degrees:Float, axis:Vector4, pivotPoint:Vector4 = null):Void {
 		
-		var m = getAxisRotation (axis.x, axis.y, axis.z, degrees);
+		var m = __getAxisRotation (axis.x, axis.y, axis.z, degrees);
 		
 		if (pivotPoint != null) {
 			
@@ -103,135 +104,159 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	
 	public function copyColumnFrom (column:Int, vector:Vector4):Void {
 		
-		switch( column ) {
-		
+		switch (column) {
+			
 			case 0:
-				this[ 0 ] = vector.x;
-				this[ 1 ] = vector.y;
-				this[ 2 ] = vector.z;
-				this[ 3 ] = vector.w;
+				
+				this[0] = vector.x;
+				this[1] = vector.y;
+				this[2] = vector.z;
+				this[3] = vector.w;
+			
 			case 1:
-				this[ 4 ] = vector.x;
-				this[ 5 ] = vector.y;
-				this[ 6 ] = vector.z;
-				this[ 7 ] = vector.w;
+				
+				this[4] = vector.x;
+				this[5] = vector.y;
+				this[6] = vector.z;
+				this[7] = vector.w;
+			
 			case 2:
-				this[ 8 ] = vector.x;
-				this[ 9 ] = vector.y;
-				this[ 10 ] = vector.z;
-				this[ 11 ] = vector.w;
+				
+				this[8] = vector.x;
+				this[9] = vector.y;
+				this[10] = vector.z;
+				this[11] = vector.w;
+			
 			case 3:
-				this[ 12 ] = vector.x;
-				this[ 13 ] = vector.y;
-				this[ 14 ] = vector.z;
-				this[ 15 ] = vector.w;
+				
+				this[12] = vector.x;
+				this[13] = vector.y;
+				this[14] = vector.z;
+				this[15] = vector.w;
+			
 			default:
-				throw "Error, Column " + column + " out of bounds [0, ..., 3]";
-				//throw new Error( "Error, Column " + column + " out of bounds [0, ..., 3]");
+				
+				Log.error ("Column " + column + " out of bounds [0, ..., 3]");
+			
 		}
 		
 	}
 	
 	
 	public function copyColumnTo (column:Int, vector:Vector4):Void {
-
-		switch( column )
-		{
+		
+		switch (column) {
+			
 			case 0:
-				vector.x = this[ 0 ];
-				vector.y = this[ 1 ];
-				vector.z = this[ 2 ];
-				vector.w = this[ 3 ];
+				
+				vector.x = this[0];
+				vector.y = this[1];
+				vector.z = this[2];
+				vector.w = this[3];
+			
 			case 1:
-				vector.x = this[ 4 ];
-				vector.y = this[ 5 ];
-				vector.z = this[ 6 ];
-				vector.w = this[ 7 ];
+				
+				vector.x = this[4];
+				vector.y = this[5];
+				vector.z = this[6];
+				vector.w = this[7];
+			
 			case 2:
-				vector.x = this[ 8 ];
-				vector.y = this[ 9 ];
-				vector.z = this[ 10 ];
-				vector.w = this[ 11 ];
+				
+				vector.x = this[8];
+				vector.y = this[9];
+				vector.z = this[10];
+				vector.w = this[11];
+			
 			case 3:
-				vector.x = this[ 12 ];
-				vector.y = this[ 13 ];
-				vector.z = this[ 14 ];
-				vector.w = this[ 15 ];
+				
+				vector.x = this[12];
+				vector.y = this[13];
+				vector.z = this[14];
+				vector.w = this[15];
+			
 			default:
-				throw "Error, Column " + column + " out of bounds [0, ..., 3]";
-				//throw new Error( "Error, Column " + column + " out of bounds [0, ..., 3]");
+				
+				Log.error ("Column " + column + " out of bounds [0, ..., 3]");
+			
 		}
 		
 	}
-
-
+	
+	
 	public function copyFrom (other:Matrix4):Void {
-
+		
 		this.set (other);
-
-	}
-
-	public function copythisFrom( array:Float32Array, index:Int = 0, transposeValues:Bool = false ) {
 		
-		if ( transposeValues )
-			transpose();
-	  
-		var l : UInt = array.length - index;
-		for ( c in 0...l )
-			this[c] = array[c+index];
-	  
-		if ( transposeValues )
-			transpose();
-
 	}
-
-
-	public function copythisTo( array:Float32Array, index:Int = 0, transposeValues:Bool = false ) {
-
-		if ( transposeValues )
-		   transpose();
-
-		var l : UInt = this.length;
-		for ( c in 0...l )
-			array[c + index ] = this[c];
+	
+	
+	@:deprecated public function copythisFrom (array:Float32Array, index:Int = 0, transposeValues:Bool = false) {
 		
-		if ( transposeValues )
-			transpose();
-
+		if (transposeValues)
+			transpose ();
+		
+		var l:UInt = array.length - index;
+		for (c in 0...l)
+			this[c] = array[c + index];
+		
+		if (transposeValues)
+			transpose ();
+		
 	}
-
-
-	public function copyRowFrom( row:Int, vector:Vector4 ) {
-
-		switch( row ) {
-
+	
+	
+	@:deprecated public function copythisTo (array:Float32Array, index:Int = 0, transposeValues:Bool = false) {
+		
+		if (transposeValues)
+			transpose ();
+		
+		var l:UInt = this.length;
+		for (c in 0...l)
+			array[c + index] = this[c];
+		
+		if (transposeValues)
+			transpose();
+		
+	}
+	
+	
+	public function copyRowFrom (row:Int, vector:Vector4) {
+		
+		switch (row) {
+			
 			case 0:
-				this[ 0 ] = vector.x;
-				this[ 4 ] = vector.y;
-				this[ 8 ] = vector.z;
-				this[ 12 ] = vector.w;
+				
+				this[0] = vector.x;
+				this[4] = vector.y;
+				this[8] = vector.z;
+				this[12] = vector.w;
 			
 			case 1:
-				this[ 1 ] = vector.x;
-				this[ 5 ] = vector.y;
-				this[ 9 ] = vector.z;
-				this[ 13 ] = vector.w;
+				
+				this[1] = vector.x;
+				this[5] = vector.y;
+				this[9] = vector.z;
+				this[13] = vector.w;
 			
 			case 2:
-				this[ 2 ] = vector.x;
-				this[ 6 ] = vector.y;
-				this[ 10 ] = vector.z;
-				this[ 14 ] = vector.w;
+				
+				this[2] = vector.x;
+				this[6] = vector.y;
+				this[10] = vector.z;
+				this[14] = vector.w;
 			
 			case 3:
-				this[ 3 ] = vector.x;
-				this[ 7 ] = vector.y;
-				this[ 11 ] = vector.z;
-				this[ 15 ] = vector.w;
+				
+				this[3] = vector.x;
+				this[7] = vector.y;
+				this[11] = vector.z;
+				this[15] = vector.w;
 			
 			default:
-				throw "Error, Row " + row + " out of bounds [0, ..., 3]";
-				//throw new Error( "Error, Row " + row + " out of bounds [0, ..., 3]");
+				
+				Log.error ("Row " + row + " out of bounds [0, ..., 3]");
+			
 		}
 		
 	}
@@ -251,16 +276,33 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 		]));
 		
 	}
-   
-   
-	public static function createABCD (a:Float, b:Float, c:Float, d:Float, tx:Float, ty:Float) {
+	
+	
+	public static function createABCD (a:Float, b:Float, c:Float, d:Float, tx:Float, ty:Float, matrix:Matrix4 = null) {
 		
-		return new Matrix4 (new Float32Array ([
-			a, b, 0, 0,
-			c, d, 0, 0,
-			0, 0, 1, 0,
-			tx,ty,0, 1
-		]));
+		if (matrix == null) matrix = new Matrix4 ();
+		
+		matrix[0] = a;
+		matrix[1] = b;
+		matrix[2] = 0;
+		matrix[3] = 0;
+		
+		matrix[4] = c;
+		matrix[5] = d;
+		matrix[6] = 0;
+		matrix[7] = 0;
+		
+		matrix[8] = 0;
+		matrix[9] = 0;
+		matrix[10] = 1;
+		matrix[11] = 0;
+		
+		matrix[12] = tx;
+		matrix[13] = ty;
+		matrix[14] = 0;
+		matrix[15] = 1;
+		
+		return matrix;
 		
 	}
 	
@@ -282,52 +324,58 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	
 	
 	public function copyRowTo (row:Int, vector:Vector4):Void {
-
-		switch( row ) {
 		
+		switch (row) {
+			
 			case 0:
-				vector.x = this[ 0 ];
-				vector.y = this[ 4 ];
-				vector.z = this[ 8 ];
-				vector.w = this[ 12 ];
+				
+				vector.x = this[0];
+				vector.y = this[4];
+				vector.z = this[8];
+				vector.w = this[12];
 			
 			case 1:
-				vector.x = this[ 1 ];
-				vector.y = this[ 5 ];
-				vector.z = this[ 9 ];
-				vector.w = this[ 13 ];
+				
+				vector.x = this[1];
+				vector.y = this[5];
+				vector.z = this[9];
+				vector.w = this[13];
 			
 			case 2:
-				vector.x = this[ 2 ];
-				vector.y = this[ 6 ];
-				vector.z = this[ 10 ];
-				vector.w = this[ 14 ];
+				
+				vector.x = this[2];
+				vector.y = this[6];
+				vector.z = this[10];
+				vector.w = this[14];
 			
 			case 3:
-				vector.x = this[ 3 ];
-				vector.y = this[ 7 ];
-				vector.z = this[ 11 ];
-				vector.w = this[ 15 ];
+				
+				vector.x = this[3];
+				vector.y = this[7];
+				vector.z = this[11];
+				vector.w = this[15];
 			
 			default:
-				throw "Error, Row " + row + " out of bounds [0, ..., 3]";
-				//throw new Error( "Error, Row " + row + " out of bounds [0, ..., 3]");
+				
+				Log.error ("Row " + row + " out of bounds [0, ..., 3]");
+			
 		}
 		
 	}
-
-
+	
+	
 	public function copyToMatrix4 (other:Matrix4):Void {
 		
 		cast (other, Float32Array).set (this);
-
+		
 	}
-
+	
+	
 	/**
 	 * Returns the transformation matrix's translation, rotation, and scale settings as a Vector of three Vector4 objects.
 	 */
 	/*public function decompose(?orientationStyle:Orientation3D):Vector<Vector4> {
-
+		
 		if (orientationStyle==null)
 			orientationStyle = Orientation3D.EULER_ANGLES;
 		
@@ -367,7 +415,7 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 			
 			case Orientation3D.AXIS_ANGLE:
 				rot.w = Math.acos((mr[0] + mr[5] + mr[10] - 1) / 2);
-
+				
 				var len = Math.sqrt((mr[6] - mr[9]) * (mr[6] - mr[9]) + (mr[8] - mr[2]) * (mr[8] - mr[2]) + (mr[1] - mr[4]) * (mr[1] - mr[4]));
 				rot.x = (mr[6] - mr[9]) / len;
 				rot.y = (mr[8] - mr[2]) / len;
@@ -375,10 +423,10 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 			
 			case Orientation3D.QUATERNION:
 				var tr = mr[0] + mr[5] + mr[10];
-
+				
 				if (tr > 0) {
 					rot.w = Math.sqrt(1 + tr) / 2;
-
+					
 					rot.x = (mr[6] - mr[9]) / (4 * rot.w);
 					rot.y = (mr[8] - mr[2]) / (4 * rot.w);
 					rot.z = (mr[1] - mr[4]) / (4 * rot.w);
@@ -390,13 +438,13 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 					rot.z = (mr[8] + mr[2]) / (4 * rot.x);
 				} else if (mr[5] > mr[10]) {
 					rot.y = Math.sqrt(1 + mr[5] - mr[0] - mr[10]) / 2;
-
+					
 					rot.x = (mr[1] + mr[4]) / (4 * rot.y);
 					rot.w = (mr[8] - mr[2]) / (4 * rot.y);
 					rot.z = (mr[6] + mr[9]) / (4 * rot.y);
 				} else {
 					rot.z = Math.sqrt(1 + mr[10] - mr[0] - mr[5]) / 2;
-
+					
 					rot.x = (mr[8] + mr[2]) / (4 * rot.z);
 					rot.y = (mr[6] + mr[9]) / (4 * rot.z);
 					rot.w = (mr[1] - mr[4]) / (4 * rot.z);
@@ -404,7 +452,7 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 			
 			case Orientation3D.EULER_ANGLES:
 				rot.y = Math.asin(-mr[2]);
-
+				
 				if (mr[2] != 1 && mr[2] != -1) {
 					rot.x = Math.atan2(mr[6], mr[10]);
 					rot.z = Math.atan2(mr[1], mr[0]);
@@ -419,23 +467,23 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 		vec.push(scale);
 		
 		return vec;
-
+		
 	}*/
-
-
-	public function deltaTransformVector( v:Vector4 ):Vector4 {
-
+	
+	
+	public function deltaTransformVector (v:Vector4):Vector4 {
+		
 		var x:Float = v.x, y:Float = v.y, z:Float = v.z;
-
+		
 		return new Vector4 (
 			(x * this[0] + y * this[4] + z * this[8] + this[3]),
 			(x * this[1] + y * this[5] + z * this[9] + this[7]),
 			(x * this[2] + y * this[6] + z * this[10] + this[11]),
 			0);
-
+		
 	}
-
-
+	
+	
 	public function identity () {
 		
 		this[0] = 1;
@@ -536,8 +584,8 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 			
 		}
 		
-		var dir = at.subtract(pos);
-		var vup = up.clone();
+		var dir = at.subtract (pos);
+		var vup = up.clone ();
 		var right:Vector4;
 		
 		dir.normalize ();
@@ -625,7 +673,7 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	
 	public function prependRotation (degrees:Float, axis:Vector4, pivotPoint:Vector4 = null):Void {
 		
-		var m = getAxisRotation (axis.x, axis.y, axis.z, degrees);
+		var m = __getAxisRotation (axis.x, axis.y, axis.z, degrees);
 		
 		if (pivotPoint != null) {
 			
@@ -659,19 +707,19 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 		
 		if (components.length < 3 || components[2].x == 0 || components[2].y == 0 || components[2].z == 0)
 			return false;
-	  
+		
 		if (orientationStyle == null)
 			orientationStyle = Orientation3D.EULER_ANGLES;
-
+		
 		identity();
-
+		
 		var scale = [];
 		scale[0] = scale[1] = scale[2] = components[2].x;
 		scale[4] = scale[5] = scale[6] = components[2].y;
 		scale[8] = scale[9] = scale[10] = components[2].z;
-
+		
 		switch (orientationStyle) {
-
+			
 			case Orientation3D.EULER_ANGLES:
 				var cx = Math.cos(components[1].x);
 				var cy = Math.cos(components[1].y);
@@ -696,9 +744,9 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 				this[13]=components[0].y;
 				this[14]=components[0].z;
 				this[15]=1;
-
+			
 			default:
-
+				
 				var x = components[1].x;
 				var y = components[1].y;
 				var z = components[1].z;
@@ -755,10 +803,13 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	public function transformVectors (ain:Float32Array, aout:Float32Array):Void {
 		
 		var i = 0;
+		var x:Float, y:Float, z:Float;
 		
 		while (i + 3 <= ain.length) {
 			
-			var x:Float = ain[i], y:Float = ain[i + 1], z:Float = ain[i + 2];
+			x = ain[i];
+			y = ain[i + 1];
+			z = ain[i + 2];
 			
 			aout[i] = x * this[0] + y * this[4] + z * this[8] + this[12];
 			aout[i + 1] = x * this[1] + y * this[5] + z * this[9] + this[13];
@@ -773,36 +824,30 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	
 	public function transpose ():Void {
 		
-		var othis = new Float32Array (this);
-		this[1] = othis[4];
-		this[2] = othis[8];
-		this[3] = othis[12];
-		this[4] = othis[1];
-		this[6] = othis[9];
-		this[7] = othis[13];
-		this[8] = othis[2];
-		this[9] = othis[6];
-		this[11] = othis[14];
-		this[12] = othis[3];
-		this[13] = othis[7];
-		this[14] = othis[11];
+		__swap (1, 4);
+		__swap (2, 8);
+		__swap (3, 12);
+		__swap (6, 9);
+		__swap (7, 13);
+		__swap (11, 14);
 		
 	}
-
-	private static function getAxisRotation( x:Float, y:Float, z:Float, degrees:Float ):Matrix4 {
-
-		var m = new Matrix4();
-
-		var a1 = new Vector4(x, y, z);
+	
+	
+	private function __getAxisRotation (x:Float, y:Float, z:Float, degrees:Float):Matrix4 {
+		
+		var m = new Matrix4 ();
+		
+		var a1 = new Vector4 (x, y, z);
 		var rad = -degrees * (Math.PI / 180);
-		var c = Math.cos(rad);
-		var s = Math.sin(rad);
+		var c = Math.cos (rad);
+		var s = Math.sin (rad);
 		var t = 1.0 - c;
-
+		
 		m[0] = c + a1.x * a1.x * t;
 		m[5] = c + a1.y * a1.y * t;
 		m[10] = c + a1.z * a1.z * t;
-
+		
 		var tmp1 = a1.x * a1.y * t;
 		var tmp2 = a1.z * s;
 		m[4] = tmp1 + tmp2;
@@ -815,9 +860,18 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 		tmp2 = a1.x*s;
 		m[9] = tmp1 + tmp2;
 		m[6] = tmp1 - tmp2;
-
+		
 		return m;
-
+		
+	}
+	
+	
+	private inline function __swap (a:Int, b:Int):Void {
+		
+		var temp = this[a];
+		this[a] = this[b];
+		this[b] = temp;
+		
 	}
 	
 	
@@ -829,14 +883,14 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	
 	
 	private function get_determinant ():Float {
-
+		
 		return 1 * ((this[0] * this[5] - this[4] * this[1]) * (this[10] * this[15] - this[14] * this[11]) 
 			- (this[0] * this[9] - this[8] * this[1]) * (this[6] * this[15] - this[14] * this[7])
 			+ (this[0] * this[13] - this[12] * this[1]) * (this[6] * this[11] - this[10] * this[7])
 			+ (this[4] * this[9] - this[8] * this[5]) * (this[2] * this[15] - this[14] * this[3])
 			- (this[4] * this[13] - this[12] * this[5]) * (this[2] * this[11] - this[10] * this[3])
 			+ (this[8] * this[13] - this[12] * this[9]) * (this[2] * this[7] - this[6] * this[3]));
-	
+		
 	}
 	
 	

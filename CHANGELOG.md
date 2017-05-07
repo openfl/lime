@@ -1,3 +1,34 @@
+4.1.0 (05/04/2017)
+------------------
+
+* Updated SDL to latest development version
+* Updated Freetype to 2.7.1
+* Updated Harfbuzz to 1.4.6
+* Updated Howler.js to 2.0.3
+* Added window.alwaysOnTop, with initial support on Windows and Linux
+* Added WebP compatibility on HTML5, improved file format detection
+* Added EXT_texture_compression_s3tc to GL extensions
+* Added ability to specify architecture when performing iOS simulator builds
+* Removed deprecated HTML meta for Google Chrome Frame
+* Improved macro compile performance
+* Improved asset manifests to embed when all of their assets are embedded
+* Improved the web template for Flash for better relative URL resolution
+* Improved support for OpenGL extensions when dead-code-elimination is enabled
+* Improved the suspend/resume behavior on Android
+* Improved System.endianness to return BIG_ENDIAN on Flash Player
+* Improved file copying in tools to not copy templates that have not changed
+* Improved Cairo bindings to return the same object reference when possible
+* Improved OpenAL bindings to return the same object reference when possible
+* Fixed an issue with exiting fullscreen on HTML5
+* Fixed an issue with escaped paths when generating Neko executables
+* Fixed possible cases where paths could have been escaped twice in Haxe 3.3
+* Fixed support for GL.compressedTexImage on HTML5
+* Fixed CORS exception on HTML5 if there is no content-type header
+* Fixed static initialization order of core lime.system.CFFI methods
+* Fixed a dead-code-elimination issue in NativeHTTPRequest
+* Fixed the Android Gradle Plugin setting in the Lime extension template
+
+
 4.0.3 (03/28/2017)
 ------------------
 

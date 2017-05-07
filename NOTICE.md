@@ -10,10 +10,10 @@ This product bundles cairo 1.15.2, which is available under an
 This product bundles libcurl 7.37.1, which is available under an
 "MIT/X derivate" license. For details, see [project/lib/curl/](project/lib).
 
-This product bundles freetype 2.5.3, which is available under an
+This product bundles freetype 2.7.1, which is available under an
 "FTL" (BSD-style) license. For details, see [project/lib/freetype/](project/lib).
 
-This product bundles harfbuzz 0.9.32, which is available under an
+This product bundles harfbuzz 1.4.6, which is available under an
 "MIT" license. For details, see [project/lib/harfbuzz/](project/lib).
 
 This product bundles libjpeg 6b, which is available under a
@@ -37,7 +37,7 @@ This product bundles pixman 0.32.8, which is available under an
 This product bundles libpng 1.6.12, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/png/](project/lib).
 
-This product bundles SDL 2.0.5, which is available under a
+This product bundles SDL dev (22a0b777d7cd), which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/sdl/](project/lib).
 
 This product bundles tinyfiledialogs 2.7.2, which is available under a
@@ -78,7 +78,7 @@ _The following are not embedded in Lime applications directly, but are used
 as dependencies for web-based builds. Their licensing does not affect products
 created with Lime._
 
-This product bundles howler.js 2.0.2, which is available under an
+This product bundles howler.js 2.0.3, which is available under an
 "MIT" license. For details, see [dependencies/howler.min.js](dependencies/howler.min.js).
 
 This product bundles pako 1.0.2, which is available under an

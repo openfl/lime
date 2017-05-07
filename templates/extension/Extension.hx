@@ -1,14 +1,8 @@
 package;
 
-#if cpp
-import cpp.Lib;
-#elseif neko
-import neko.Lib;
-#end
 
-#if (android && openfl)
-import openfl.utils.JNI;
-#end
+import lime.system.CFFI;
+import lime.system.JNI;
 
 
 class ::className:: {
@@ -16,7 +10,7 @@ class ::className:: {
 	
 	public static function sampleMethod (inputValue:Int):Int {
 		
-		#if (android && openfl)
+		#if android
 		
 		var resultJNI = ::extensionLowerCase::_sample_method_jni(inputValue);
 		var resultNative = ::extensionLowerCase::_sample_method(inputValue);
@@ -38,9 +32,9 @@ class ::className:: {
 	}
 	
 	
-	private static var ::extensionLowerCase::_sample_method = Lib.load ("::extensionLowerCase::", "::extensionLowerCase::_sample_method", 1);
+	private static var ::extensionLowerCase::_sample_method = CFFI.load ("::extensionLowerCase::", "::extensionLowerCase::_sample_method", 1);
 	
-	#if (android && openfl)
+	#if android
 	private static var ::extensionLowerCase::_sample_method_jni = JNI.createStaticMethod ("org.haxe.extension.::className::", "sampleMethod", "(I)I");
 	#end
 	
