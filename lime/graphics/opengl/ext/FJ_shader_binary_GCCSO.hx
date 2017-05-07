@@ -1,6 +1,8 @@
 package lime.graphics.opengl.ext;
 
 
+@:keep
+
 class FJ_shader_binary_GCCSO {
 	
 	

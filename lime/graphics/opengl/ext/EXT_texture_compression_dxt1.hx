@@ -1,6 +1,8 @@
 package lime.graphics.opengl.ext;
 
 
+@:keep
+
 class EXT_texture_compression_dxt1 {
 	
 	

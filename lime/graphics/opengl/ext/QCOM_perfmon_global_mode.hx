@@ -1,6 +1,8 @@
 package lime.graphics.opengl.ext;
 
 
+@:keep
+
 class QCOM_perfmon_global_mode {
 	
 	

@@ -1,6 +1,8 @@
 package lime.graphics.opengl.ext;
 
 
+@:keep
+
 class OES_compressed_ETC1_RGB8_texture {
 	
 	

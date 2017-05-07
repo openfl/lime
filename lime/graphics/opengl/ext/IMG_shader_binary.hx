@@ -1,6 +1,8 @@
 package lime.graphics.opengl.ext;
 
 
+@:keep
+
 class IMG_shader_binary {
 	
 	

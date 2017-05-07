@@ -1,6 +1,9 @@
 package lime.graphics.opengl.ext; #if (js && html5)
 
 
+@:keep
+
+
 @:native("WEBGL_compressed_texture_pvrtc")
 extern class WEBGL_compressed_texture_pvrtc {
 	

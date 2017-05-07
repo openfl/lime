@@ -1,6 +1,8 @@
 package lime.graphics.opengl.ext;
 
 
+@:keep
+
 class AMD_program_binary_Z400 {
 	
 	

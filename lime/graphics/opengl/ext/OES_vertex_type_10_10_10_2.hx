@@ -1,6 +1,8 @@
 package lime.graphics.opengl.ext;
 
 
+@:keep
+
 class OES_vertex_type_10_10_10_2 {
 	
 	

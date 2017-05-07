@@ -1,6 +1,8 @@
 package lime.graphics.opengl.ext;
 
 
+@:keep
+
 class AMD_compressed_ATC_texture {
 	
 	

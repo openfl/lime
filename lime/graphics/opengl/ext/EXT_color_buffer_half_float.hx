@@ -1,6 +1,9 @@
 package lime.graphics.opengl.ext;
 
 
+@:keep
+
+
 #if (!js || !html5 || display)
 
 

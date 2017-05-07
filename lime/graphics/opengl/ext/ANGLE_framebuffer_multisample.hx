@@ -1,6 +1,8 @@
 package lime.graphics.opengl.ext;
 
 
+@:keep
+
 class ANGLE_framebuffer_multisample {
 	
 	
