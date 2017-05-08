@@ -15,7 +15,7 @@ extern class EXT_disjoint_timer_query {
 	public var TIMESTAMP_EXT:Int;
 	public var GPU_DISJOINT_EXT:Int;
 	
-	public function createQueryEXT ():Dynamic /*WebGLQuery*/
+	public function createQueryEXT ():Dynamic; /*WebGLQuery*/
 	public function deleteQueryEXT (query:Dynamic /*WebGLQuery*/):Void;
 	public function isQueryEXT (query:Dynamic /*WebGLQuery*/):Bool;
 	public function beginQueryEXT (target:Int, query:Dynamic /*WebGLQuery*/):Void;
