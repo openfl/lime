@@ -213,7 +213,7 @@ class FlashPlatform extends PlatformTarget {
 					#if neko Thread.create (function () { #end
 						
 						FlashHelper.run (project, destination, targetPath);
-						Sys.exit (0);
+						//Sys.exit (0);
 						
 					#if neko }); #end
 					
