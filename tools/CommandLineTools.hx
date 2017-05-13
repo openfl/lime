@@ -1087,7 +1087,8 @@ class CommandLineTools {
 		
 		if (buildNumber == null) {
 			
-			var versionFile = PathHelper.combine (project.app.path, ".build");
+			var versionFile = project.haxedefs.get("lime-buildnumber-file");
+			if (versionFile == null) versionFile = PathHelper.combine (project.app.path, ".build");
 			var version = 1;
 			
 			try {
