@@ -223,7 +223,7 @@ class ProjectXMLParser extends HXProject {
 					
 					required = substitute (required);
 					var check = StringTools.trim (required);
-					if (check != "" && !defines.exists (check) && (environment == null || !environment.exists (check)) && check != command) {
+					if (check != "" && check != "true" && !defines.exists (check) && (environment == null || !environment.exists (check)) && check != command) {
 						
 						matchRequired = false;
 						
