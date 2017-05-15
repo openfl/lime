@@ -427,7 +427,12 @@ class NativeApplication {
 						
 						renderer.render ();
 						renderer.onRender.dispatch ();
-						renderer.flip ();
+						
+						if (!renderer.onRender.canceled) {
+							
+							renderer.flip ();
+							
+						}
 						
 					}
 					
