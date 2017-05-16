@@ -2934,14 +2934,14 @@ class GL {
 	}
 	
 	
-	public inline function vertexAttrib1f (index:Int, v0:Float):Void {
+	public static inline function vertexAttrib1f (index:Int, v0:Float):Void {
 		
 		context.vertexAttrib1f (index, v0);
 		
 	}
 	
 	
-	public function vertexAttrib1fv (index:Int, v:DataPointer):Void {
+	public static inline function vertexAttrib1fv (index:Int, v:DataPointer):Void {
 		
 		context.vertexAttrib1fv (index, v);
 		
@@ -2949,7 +2949,7 @@ class GL {
 	
 	
 	#if (js && html5)
-	public function vertexAttrib1fvWEBGL (index:Int, v:Dynamic):Void {
+	public static inline function vertexAttrib1fvWEBGL (index:Int, v:Dynamic):Void {
 		
 		context.vertexAttrib1fv (index, v);
 		
@@ -2957,14 +2957,14 @@ class GL {
 	#end
 	
 	
-	public inline function vertexAttrib2f (index:Int, v0:Float, v1:Float):Void {
+	public static inline function vertexAttrib2f (index:Int, v0:Float, v1:Float):Void {
 		
 		context.vertexAttrib2f (index, v0, v1);
 		
 	}
 	
 	
-	public function vertexAttrib2fv (index:Int, v:DataPointer):Void {
+	public static inline function vertexAttrib2fv (index:Int, v:DataPointer):Void {
 		
 		context.vertexAttrib2fv (index, v);
 		
@@ -2972,7 +2972,7 @@ class GL {
 	
 	
 	#if (js && html5)
-	public function vertexAttrib2fvWEBGL (index:Int, v:Dynamic):Void {
+	public static inline function vertexAttrib2fvWEBGL (index:Int, v:Dynamic):Void {
 		
 		context.vertexAttrib2fv (index, v);
 		
@@ -2980,14 +2980,14 @@ class GL {
 	#end
 	
 	
-	public inline function vertexAttrib3f (index:Int, v0:Float, v1:Float, v2:Float):Void {
+	public static inline function vertexAttrib3f (index:Int, v0:Float, v1:Float, v2:Float):Void {
 		
 		context.vertexAttrib3f (index, v0, v1, v2);
 		
 	}
 	
 	
-	public function vertexAttrib3fv (index:Int, v:DataPointer):Void {
+	public static inline function vertexAttrib3fv (index:Int, v:DataPointer):Void {
 		
 		context.vertexAttrib3fv (index, v);
 		
@@ -2995,7 +2995,7 @@ class GL {
 	
 	
 	#if (js && html5)
-	public function vertexAttrib3fvWEBGL (index:Int, v:Dynamic):Void {
+	public static inline function vertexAttrib3fvWEBGL (index:Int, v:Dynamic):Void {
 		
 		context.vertexAttrib3fv (index, v);
 		
@@ -3003,14 +3003,14 @@ class GL {
 	#end
 	
 	
-	public inline function vertexAttrib4f (index:Int, v0:Float, v1:Float, v2:Float, v3:Float):Void {
+	public static inline function vertexAttrib4f (index:Int, v0:Float, v1:Float, v2:Float, v3:Float):Void {
 		
 		context.vertexAttrib4f (index, v0, v1, v2, v3);
 		
 	}
 	
 	
-	public function vertexAttrib4fv (index:Int, v:DataPointer):Void {
+	public static inline function vertexAttrib4fv (index:Int, v:DataPointer):Void {
 		
 		context.vertexAttrib4fv (index, v);
 		
@@ -3018,7 +3018,7 @@ class GL {
 	
 	
 	#if (js && html5)
-	public function vertexAttrib4fvWEBGL (index:Int, v:Dynamic):Void {
+	public static inline function vertexAttrib4fvWEBGL (index:Int, v:Dynamic):Void {
 		
 		context.vertexAttrib4fv (index, v);
 		
@@ -3026,21 +3026,21 @@ class GL {
 	#end
 	
 	
-	public inline function vertexAttribDivisor (index:Int, divisor:Int):Void {
+	public static inline function vertexAttribDivisor (index:Int, divisor:Int):Void {
 		
 		context.vertexAttribDivisor (index, divisor);
 		
 	}
 	
 	
-	public inline function vertexAttribI4i (index:Int, v0:Int, v1:Int, v2:Int, v3:Int):Void {
+	public static inline function vertexAttribI4i (index:Int, v0:Int, v1:Int, v2:Int, v3:Int):Void {
 		
 		context.vertexAttribI4i (index, v0, v1, v2, v3);
 		
 	}
 	
 	
-	public function vertexAttribI4iv (index:Int, v:DataPointer):Void {
+	public static inline function vertexAttribI4iv (index:Int, v:DataPointer):Void {
 		
 		context.vertexAttribI4iv (index, v);
 		
@@ -3048,7 +3048,7 @@ class GL {
 	
 	
 	#if (js && html5)
-	public function vertexAttribI4ivWEBGL (index:Int, v:Dynamic):Void {
+	public static inline function vertexAttribI4ivWEBGL (index:Int, v:Dynamic):Void {
 		
 		context.vertexAttribI4iv (index, v);
 		
@@ -3056,14 +3056,14 @@ class GL {
 	#end
 	
 	
-	public inline function vertexAttribI4ui (index:Int, v0:Int, v1:Int, v2:Int, v3:Int):Void {
+	public static inline function vertexAttribI4ui (index:Int, v0:Int, v1:Int, v2:Int, v3:Int):Void {
 		
 		context.vertexAttribI4ui (index, v0, v1, v2, v3);
 		
 	}
 	
 	
-	public function vertexAttribI4uiv (index:Int, v:DataPointer):Void {
+	public static inline function vertexAttribI4uiv (index:Int, v:DataPointer):Void {
 		
 		context.vertexAttribI4uiv (index, v);
 		
@@ -3071,7 +3071,7 @@ class GL {
 	
 	
 	#if (js && html5)
-	public function vertexAttribI4uivWEBGL (index:Int, v:Dynamic):Void {
+	public static inline function vertexAttribI4uivWEBGL (index:Int, v:Dynamic):Void {
 		
 		context.vertexAttribI4uiv (index, v);
 		
