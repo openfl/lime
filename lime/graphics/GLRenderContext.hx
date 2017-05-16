@@ -649,13 +649,28 @@ class GLRenderContext {
 	public function blendFunc (sfactor:Int, dfactor:Int):Void {}
 	public function blendFuncSeparate (srcRGB:Int, dstRGB:Int, srcAlpha:Int, dstAlpha:Int):Void {}
 	public function bufferData (target:Int, size:Int, data:DataPointer, usage:Int):Void {}
+	#if (js && html5)
+	public function bufferDataWEBGL (target:Int, srcData:Dynamic, usage:Int, ?srcOffset:Int, ?length:Int) {}
+	#end
 	public function bufferSubData (target:Int, dstByteOffset:Int, size:Int, data:DataPointer):Void {}
+	#if (js && html5)
+	public function bufferSubDataWEBGL (target:Int, dstByteOffset:Int, srcData:Dynamic, ?srcOffset:Int, ?length:Int):Void {}
+	#end
 	public function checkFramebufferStatus (target:Int):Int { return 0; }
 	public function clear (mask:Int):Void {}
 	public function clearBufferfi (buffer:Int, drawbuffer:Int, depth:Float, stencil:Int):Void {}
 	public function clearBufferfv (buffer:Int, drawbuffer:Int, value:DataPointer):Void {}
+	#if (js && html5)
+	public function clearBufferfvWEBGL (buffer:Int, drawbuffer:Int, values:Dynamic, ?srcOffset:Int):Void {}
+	#end
 	public function clearBufferiv (buffer:Int, drawbuffer:Int, value:DataPointer):Void {}
+	#if (js && html5)
+	public function clearBufferivWEBGL (buffer:Int, drawbuffer:Int, values:Dynamic, ?srcOffset:Int):Void {}
+	#end
 	public function clearBufferuiv (buffer:Int, drawbuffer:Int, value:DataPointer):Void {}
+	#if (js && html5)
+	public function clearBufferuivWEBGL (buffer:Int, drawbuffer:Int, values:Dynamic, ?srcOffset:Int):Void {}
+	#end
 	public function clearColor (red:Float, green:Float, blue:Float, alpha:Float):Void {}
 	public function clearDepthf (depth:Float):Void {}
 	public function clearStencil (s:Int):Void {}
@@ -663,9 +678,21 @@ class GLRenderContext {
 	public function colorMask (red:Bool, green:Bool, blue:Bool, alpha:Bool):Void {}
 	public function compileShader (shader:GLShader):Void {}
 	public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, imageSize:Int, data:DataPointer):Void {}
+	#if (js && html5)
+	public function compressedTexImage2DWEBGL (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {}
+	#end
 	public function compressedTexImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, imageSize:Int, data:DataPointer):Void {}
+	#if (js && html5)
+	public function compressedTexImage3DWEBGL (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {}
+	#end
 	public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, imageSize:Int, data:DataPointer):Void {}
+	#if (js && html5)
+	public function compressedTexSubImage2DWEBGL (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {}
+	#end
 	public function compressedTexSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, imageSize:Int, data:DataPointer):Void {}
+	#if (js && html5)
+	public function compressedTexSubImage3DWEBGL (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {}
+	#end
 	public function copyBufferSubData (readTarget:Int, writeTarget:Int, readOffset:DataPointer, writeOffset:DataPointer, size:Int):Void {}
 	public function copyTexImage2D (target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void {}
 	public function copyTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, x:Int, y:Int, width:Int, height:Int):Void {}
@@ -734,6 +761,9 @@ class GLRenderContext {
 	public function getBufferParameteriv (target:Int, pname:Int, data:DataPointer):Void {}
 	public function getBufferPointerv (target:Int, pname:Int):DataPointer { return 0; }
 	public function getBufferSubData (target:Int, offset:DataPointer, size:Int /*GLsizeiptr*/, data:DataPointer):Void {}
+	#if (js && html5)
+	public function getBufferSubDataWEBGL (target:Int, srcByteOffset:DataPointer, dstData:Dynamic, ?srcOffset:Dynamic, ?length:Int):Void {}
+	#end
 	public function getContextAttributes ():GLContextAttributes { return null; }
 	public function getError ():Int { return 0; }
 	public function getExtension (name:String):Dynamic { return null; }
@@ -839,6 +869,9 @@ class GLRenderContext {
 	public function programParameteri (program:GLProgram, pname:Int, value:Int):Void {}
 	public function readBuffer (src:Int):Void {}
 	public function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:DataPointer):Void {}
+	#if (js && html5)
+	public function readPixelsWEBGL (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:Dynamic, ?dstOffset:Int):Void {}
+	#end
 	public function releaseShaderCompiler ():Void {}
 	public function renderbufferStorage (target:Int, internalformat:Int, width:Int, height:Int):Void {}
 	public function renderbufferStorageMultisample (target:Int, samples:Int, internalFormat:Int, width:Int, height:Int):Void {}
@@ -856,64 +889,157 @@ class GLRenderContext {
 	public function stencilOp (fail:Int, zfail:Int, zpass:Int):Void {}
 	public function stencilOpSeparate (face:Int, fail:Int, zfail:Int, zpass:Int):Void {}
 	public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:DataPointer):Void {}
+	#if (js && html5)
+	public function texImage2DWEBGL (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Dynamic, ?format:Int, ?type:Int, ?srcData:Dynamic, ?srcOffset:Int):Void {}
+	#end
 	public function texImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, data:DataPointer):Void {}
+	#if (js && html5)
+	public function texImage3DWEBGL (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, srcData:Dynamic, ?srcOffset:Int):Void {}
+	#end
 	public function texStorage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int):Void {}
 	public function texStorage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int):Void {}
 	public function texParameterf (target:Int, pname:Int, param:Float):Void {}
 	public function texParameteri (target:Int, pname:Int, param:Int):Void {}
 	public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, data:DataPointer):Void {}
+	#if (js && html5)
+	public function texSubImage2DWEBGL (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Dynamic, ?type:Int, ?srcData:Dynamic, ?srcOffset:Int):Void {}
+	#end
 	public function texSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, data:DataPointer):Void {}
+	#if (js && html5)
+	public function texSubImage3DWEBGL (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, source:Dynamic, ?srcOffset:Int):Void {}
+	#end
 	public function transformFeedbackVaryings (program:GLProgram, varyings:Array<String>, bufferMode:Int):Void {}
 	public function uniform1f (location:GLUniformLocation, v0:Float):Void {}
 	public function uniform1fv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	#if (js && html5)
+	public function uniform1fvWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {}
+	#end
 	public function uniform1i (location:GLUniformLocation, v0:Int):Void {}
 	public function uniform1iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	#if (js && html5)
+	public function uniform1ivWEBGL (location:GLUniformLocation, ?data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {}
+	#end
 	public function uniform1ui (location:GLUniformLocation, v0:Int):Void {}
 	public function uniform1uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	#if (js && html5)
+	public function uniform1uivWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {}
+	#end
 	public function uniform2f (location:GLUniformLocation, v0:Float, v1:Float):Void {}
 	public function uniform2fv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	#if (js && html5)
+	public function uniform2fvWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {}
+	#end
 	public function uniform2i (location:GLUniformLocation, v0:Int, v1:Int):Void {}
 	public function uniform2iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	#if (js && html5)
+	public function uniform2ivWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {}
+	#end
 	public function uniform2ui (location:GLUniformLocation, v0:Int, v1:Int):Void {}
 	public function uniform2uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	#if (js && html5)
+	public function uniform2uivWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {}
+	#end
 	public function uniform3f (location:GLUniformLocation, v0:Float, v1:Float, v2:Float):Void {}
 	public function uniform3fv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	#if (js && html5)
+	public function uniform3fvWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {}
+	#end
 	public function uniform3i (location:GLUniformLocation, v0:Int, v1:Int, v2:Int):Void {}
 	public function uniform3iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	#if (js && html5)
+	public function uniform3ivWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {}
+	#end
 	public function uniform3ui (location:GLUniformLocation, v0:Int, v1:Int, v2:Int):Void {}
 	public function uniform3uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	#if (js && html5)
+	public function uniform3uivWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {}
+	#end
 	public function uniform4f (location:GLUniformLocation, v0:Float, v1:Float, v2:Float, v3:Float):Void {}
 	public function uniform4fv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	#if (js && html5)
+	public function uniform4fvWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {}
+	#end
 	public function uniform4i (location:GLUniformLocation, v0:Int, v1:Int, v2:Int, v3:Int):Void {}
 	public function uniform4iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	#if (js && html5)
+	public function uniform4ivWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {}
+	#end
 	public function uniform4ui (location:GLUniformLocation, v0:Int, v1:Int, v2:Int, v3:Int):Void {}
 	public function uniform4uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {}
+	#if (js && html5)
+	public function uniform4uivWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {}
+	#end
 	public function uniformBlockBinding (program:GLProgram, uniformBlockIndex:Int, uniformBlockBinding:Int):Void {}
 	public function uniformMatrix2fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {}
+	#if (js && html5)
+	public function uniformMatrix2fvWEBGL (location:GLUniformLocation, transpose:Bool, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {}
+	#end
 	public function uniformMatrix2x3fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {}
+	#if (js && html5)
+	public function uniformMatrix2x3fvWEBGL (location:GLUniformLocation, transpose:Bool, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {}
+	#end
 	public function uniformMatrix2x4fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {}
+	#if (js && html5)
+	public function uniformMatrix2x4fvWEBGL (location:GLUniformLocation, transpose:Bool, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {}
+	#end
 	public function uniformMatrix3fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {}
+	#if (js && html5)
+	public function uniformMatrix3fvWEBGL (location:GLUniformLocation, transpose:Bool, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {}
+	#end
 	public function uniformMatrix3x2fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {}
+	#if (js && html5)
+	public function uniformMatrix3x2fvWEBGL (location:GLUniformLocation, transpose:Bool, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {}
+	#end
 	public function uniformMatrix3x4fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {}
+	#if (js && html5)
+	public function uniformMatrix3x4fvWEBGL (location:GLUniformLocation, transpose:Bool, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {}
+	#end
 	public function uniformMatrix4fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {}
+	#if (js && html5)
+	public function uniformMatrix4fvWEBGL (location:GLUniformLocation, transpose:Bool, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {}
+	#end
 	public function uniformMatrix4x2fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {}
+	#if (js && html5)
+	public function uniformMatrix4x2fvWEBGL (location:GLUniformLocation, transpose:Bool, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {}
+	#end
 	public function uniformMatrix4x3fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {}
+	#if (js && html5)
+	public function uniformMatrix4x3fvWEBGL (location:GLUniformLocation, transpose:Dynamic, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {}
+	#end
 	public function unmapBuffer (target:Int):Bool { return false; }
 	public function useProgram (program:GLProgram):Void {}
 	public function validateProgram (program:GLProgram):Void {}
 	public function vertexAttrib1f (indx:Int, v0:Float):Void {}
 	public function vertexAttrib1fv (indx:Int, v:DataPointer):Void {}
+	#if (js && html5)
+	public function vertexAttrib1fvWEBGL (index:Int, v:Dynamic):Void {}
+	#end
 	public function vertexAttrib2f (indx:Int, v0:Float, v1:Float):Void {}
 	public function vertexAttrib2fv (indx:Int, v:DataPointer):Void {}
+	#if (js && html5)
+	public function vertexAttrib2fvWEBGL (index:Int, v:Dynamic):Void {}
+	#end
 	public function vertexAttrib3f (indx:Int, v0:Float, v1:Float, v2:Float):Void {}
 	public function vertexAttrib3fv (indx:Int, v:DataPointer):Void {}
+	#if (js && html5)
+	public function vertexAttrib3fvWEBGL (index:Int, v:Dynamic):Void {}
+	#end
 	public function vertexAttrib4f (indx:Int, v0:Float, v1:Float, v2:Float, v3:Float):Void {}
 	public function vertexAttrib4fv (indx:Int, v:DataPointer):Void {}
+	#if (js && html5)
+	public function vertexAttrib4fvWEBGL (index:Int, v:Dynamic):Void {}
+	#end
 	public function vertexAttribDivisor (index:Int, divisor:Int):Void {}
 	public function vertexAttribI4i (index:Int, v0:Int, v1:Int, v2:Int, v3:Int):Void {}
 	public function vertexAttribI4iv (index:Int, value:DataPointer):Void {}
+	#if (js && html5)
+	public function vertexAttribI4ivWEBGL (index:Int, v:Dynamic):Void {}
+	#end
 	public function vertexAttribI4ui (index:Int, v0:Int, v1:Int, v2:Int, v3:Int):Void {}
 	public function vertexAttribI4uiv (index:Int, value:DataPointer):Void {}
+	#if (js && html5)
+	public function vertexAttribI4uivWEBGL (index:Int, v:Dynamic):Void {}
+	#end
 	public function vertexAttribIPointer (index:Int, size:Int, type:Int, stride:Int, offset:DataPointer):Void {}
 	public function vertexAttribPointer (index:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:DataPointer):Void {}
 	public function viewport (x:Int, y:Int, width:Int, height:Int):Void {}
