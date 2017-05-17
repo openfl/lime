@@ -1514,9 +1514,7 @@ class CommandLineTools {
 					
 				}
 				
-				environment.set ("PATH", value);
-				Sys.putEnv ("PATH", value);
-				
+				setEnv ("PATH", value);				
 			}
 			
 		}
@@ -1527,10 +1525,9 @@ class CommandLineTools {
 			var haxeVersion = StringTools.trim (process.stderr.readAll ().toString ());
 			process.close ();
 			
-			environment.set ("haxe", haxeVersion);
-			environment.set ("haxe_ver", haxeVersion);
-			
-			environment.set ("haxe" + haxeVersion.split (".")[0], "1");
+			setEnv ("haxe", haxeVersion);			
+			setEnv ("haxe_ver", haxeVersion);
+			setEnv ("haxe" + haxeVersion.split (".")[0], "1");
 			
 		} catch (e:Dynamic) {}
 		
@@ -1538,21 +1535,21 @@ class CommandLineTools {
 			
 			if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
 				
-				environment.set ("HAXE_STD_PATH", "C:\\HaxeToolkit\\haxe\\std\\");
+				setEnv ("HAXE_STD_PATH", "C:\\HaxeToolkit\\haxe\\std\\");
 				
 			} else {
 				
 				if (FileSystem.exists ("/usr/lib/haxe")) {
 					
-					environment.set ("HAXE_STD_PATH", "/usr/lib/haxe/std");
+					setEnv ("HAXE_STD_PATH", "/usr/lib/haxe/std");
 					
 				} else if (FileSystem.exists ("/usr/share/haxe")) {
 					
-					environment.set ("HAXE_STD_PATH", "/usr/share/haxe/std");
+					setEnv ("HAXE_STD_PATH", "/usr/share/haxe/std");
 					
 				} else {
 					
-					environment.set ("HAXE_STD_PATH", "/usr/local/lib/haxe/std");
+					setEnv ("HAXE_STD_PATH", "/usr/local/lib/haxe/std");
 					
 				}
 				
@@ -1577,7 +1574,11 @@ class CommandLineTools {
 				
 			} else if (Path.extension (projectFile) == "hxp") {
 				
-				project = HXProject.fromFile (projectFile, userDefines, includePaths);
+				try {
+					project = HXProject.fromFile (projectFile, userDefines, includePaths);
+				}catch (e:Dynamic) {
+					LogHelper.println("" + e);
+				}
 				
 				if (project != null) {
 					
@@ -2163,10 +2164,11 @@ class CommandLineTools {
 					LogHelper.warn ("\"" + haxelib.name + "\" is not a valid haxelib, or has not been installed");
 					
 				}
-			
 		}
-		
 	}
-	
-	
+
+	private function setEnv (name:String, value:String):Void {
+		environment.set (name, value);
+		Sys.putEnv (name, value);
+	}
 }
