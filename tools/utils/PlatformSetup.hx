@@ -1485,7 +1485,7 @@ class PlatformSetup {
 			
 		} else if (!dependency) {
 			
-			LogHelper.warn ("No setup is required for " + haxelib.name + ", or it is not a valid target");
+			//LogHelper.warn ("No setup is required for " + haxelib.name + ", or it is not a valid target");
 			
 		}
 		
