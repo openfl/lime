@@ -152,7 +152,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 	}
 	
 	
-	#if (js && html5)
+	#if (js && html5 && !display)
 	@:dox(hide) @:noCompletion public function toBufferOrBufferView (?length:Int):Dynamic {
 		
 		var data:DataPointerObject = this;
