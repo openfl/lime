@@ -1087,9 +1087,9 @@ class HXProject {
 			
 			#if lime
 			
-			if (PathHelper.haxelibOverrides.exists (name)) {
+			if (HaxelibHelper.pathOverrides.exists (name)) {
 				
-				var param = "-cp " + PathHelper.haxelibOverrides.get (name);
+				var param = "-cp " + HaxelibHelper.pathOverrides.get (name);
 				compilerFlags.remove (param);
 				compilerFlags.push (param);
 				

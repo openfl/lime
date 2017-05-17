@@ -1188,7 +1188,7 @@ class ProjectXMLParser extends HXProject {
 						if (element.has.haxelib) {
 							
 							haxelib = new Haxelib (substitute (element.att.haxelib));
-							path = findIncludeFile (PathHelper.getHaxelib (haxelib, true));
+							path = findIncludeFile (HaxelibHelper.getPath (haxelib, true));
 							addSourcePath = false;
 							
 						} else if (element.has.path) {
@@ -1303,12 +1303,12 @@ class ProjectXMLParser extends HXProject {
 							
 						}
 						
-						/*if (name == "nme" && defines.exists ("openfl")) {
+						if (version != "" && defines.exists (name) && defines.get (name) != version) {
 							
-							name = "openfl-nme-compatibility";
-							version = "";
+							LogHelper.warn ("Ignoring requested haxelib \"" + name + "\" version " + version + " (version " + defines.get (name) + " was already included)");
+							continue;
 							
-						}*/
+						}
 						
 						var haxelib = new Haxelib (name, version);
 						
@@ -1316,11 +1316,11 @@ class ProjectXMLParser extends HXProject {
 							
 							if (defines.exists ("setup")) {
 								
-								path = PathHelper.getHaxelib (haxelib);
+								path = HaxelibHelper.getPath (haxelib);
 								
 							} else {
 								
-								path = PathHelper.getHaxelib (haxelib, !optional);
+								path = HaxelibHelper.getPath (haxelib, !optional);
 								
 								if (optional && path == "") {
 									
@@ -1336,11 +1336,11 @@ class ProjectXMLParser extends HXProject {
 							
 							if (version != "") {
 								
-								PathHelper.haxelibOverrides.set (name + ":" + version, path);
+								HaxelibHelper.pathOverrides.set (name + ":" + version, path);
 								
 							} else {
 								
-								PathHelper.haxelibOverrides.set (name, path);
+								HaxelibHelper.pathOverrides.set (name, path);
 								
 							}
 							
@@ -1684,7 +1684,7 @@ class ProjectXMLParser extends HXProject {
 							
 							if (element.has.haxelib) {
 								
-								var haxelibPath = PathHelper.getHaxelib (new Haxelib (substitute (element.att.haxelib)), true);
+								var haxelibPath = HaxelibHelper.getPath (new Haxelib (substitute (element.att.haxelib)), true);
 								var path = PathHelper.combine (haxelibPath, substitute (element.att.path));
 								templatePaths.push (path);
 								
@@ -2198,7 +2198,7 @@ class ProjectXMLParser extends HXProject {
 		
 		if (string.substr (0, 8) == "haxelib:") {
 			
-			var path = PathHelper.getHaxelib (new Haxelib (string.substr (8)), true);
+			var path = HaxelibHelper.getPath (new Haxelib (string.substr (8)), true);
 			return PathHelper.standardize (path);
 			
 		} else if (defines.exists (string)) {

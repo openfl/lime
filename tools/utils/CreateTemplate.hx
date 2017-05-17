@@ -2,6 +2,7 @@ package utils;
 
 
 import lime.tools.helpers.FileHelper;
+import lime.tools.helpers.HaxelibHelper;
 import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.PathHelper;
 import lime.project.Haxelib;
@@ -41,7 +42,7 @@ class CreateTemplate {
 		context.ANDROID_GRADLE_PLUGIN = "::ANDROID_GRADLE_PLUGIN::";
 		
 		PathHelper.mkdir (title);
-		FileHelper.recursiveCopyTemplate ([ PathHelper.getHaxelib (new Haxelib ("lime"), true)  + "/templates" ], "extension", title, context);
+		FileHelper.recursiveCopyTemplate ([ HaxelibHelper.getPath (new Haxelib ("lime"), true)  + "/templates" ], "extension", title, context);
 		
 		if (FileSystem.exists (title + "/Extension.hx")) {
 			

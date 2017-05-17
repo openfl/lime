@@ -8,6 +8,7 @@ import haxe.zip.Reader;
 import lime.tools.helpers.BlackBerryHelper;
 import lime.tools.helpers.CLIHelper;
 import lime.tools.helpers.FileHelper;
+import lime.tools.helpers.HaxelibHelper;
 import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.PathHelper;
 import lime.tools.helpers.PlatformHelper;
@@ -784,7 +785,7 @@ class PlatformSetup {
 			if (PlatformHelper.hostPlatform != Platform.WINDOWS && FileSystem.exists (Sys.getEnv ("HOME") + "/.android")) {
 				
 				ProcessHelper.runCommand ("", "chmod", [ "-R", "777", "~/.android" ], false);
-				ProcessHelper.runCommand ("", "cp", [ PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates/bin/debug.keystore", "~/.android/debug.keystore" ], false);
+				ProcessHelper.runCommand ("", "cp", [ HaxelibHelper.getPath (new Haxelib ("lime")) + "/templates/bin/debug.keystore", "~/.android/debug.keystore" ], false);
 				
 			}
 			
@@ -1445,7 +1446,7 @@ class PlatformSetup {
 			basePath = StringTools.trim (basePath.split ("\n")[0]);
 			
 		}
-		var lib = PathHelper.getHaxelib (haxelib, false, true);
+		var lib = HaxelibHelper.getPath (haxelib, false, true);
 		if (lib != null && !StringTools.startsWith (PathHelper.standardize (lib), PathHelper.standardize (basePath))) {
 			
 			defines.set ("dev", 1);
@@ -1460,7 +1461,7 @@ class PlatformSetup {
 				
 				if (setupHaxelibs.exists (lib.name)) continue;
 				
-				var path = PathHelper.getHaxelib (lib, false, true);
+				var path = HaxelibHelper.getPath (lib, false, true);
 				
 				if (path == null || path == "" || (lib.version != null && lib.version != "")) {
 					
@@ -1623,8 +1624,8 @@ class PlatformSetup {
 				
 			}
 			
-			try { File.copy (PathHelper.getHaxelib (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.exe", haxePath + "\\lime.exe"); } catch (e:Dynamic) {}
-			try { File.copy (PathHelper.getHaxelib (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.sh", haxePath + "\\lime"); } catch (e:Dynamic) {}
+			try { File.copy (HaxelibHelper.getPath (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.exe", haxePath + "\\lime.exe"); } catch (e:Dynamic) {}
+			try { File.copy (HaxelibHelper.getPath (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.sh", haxePath + "\\lime"); } catch (e:Dynamic) {}
 			
 		} else {
 			
@@ -1651,7 +1652,7 @@ class PlatformSetup {
 				
 				try {
 					
-					ProcessHelper.runCommand ("", "sudo", [ "cp", "-f", PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates/bin/lime.sh", "/usr/local/bin/lime" ], false);
+					ProcessHelper.runCommand ("", "sudo", [ "cp", "-f", HaxelibHelper.getPath (new Haxelib ("lime")) + "/templates/bin/lime.sh", "/usr/local/bin/lime" ], false);
 					ProcessHelper.runCommand ("", "sudo", [ "chmod", "755", "/usr/local/bin/lime" ], false);
 					installedCommand = true;
 					
@@ -1667,7 +1668,7 @@ class PlatformSetup {
 				Sys.println (" a) Manually add an alias called \"lime\" to run \"haxelib run lime\"");
 				Sys.println (" b) Run the following commands:");
 				Sys.println ("");
-				Sys.println ("sudo cp \"" + PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "templates/bin/lime.sh") + "\" /usr/local/bin/lime");
+				Sys.println ("sudo cp \"" + PathHelper.combine (HaxelibHelper.getPath (new Haxelib ("lime")), "templates/bin/lime.sh") + "\" /usr/local/bin/lime");
 				Sys.println ("sudo chmod 755 /usr/local/bin/lime");
 				Sys.println ("");
 				
@@ -1817,10 +1818,10 @@ class PlatformSetup {
 				
 			}
 			
-			try { File.copy (PathHelper.getHaxelib (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.exe", haxePath + "\\lime.exe"); } catch (e:Dynamic) {}
-			try { File.copy (PathHelper.getHaxelib (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.sh", haxePath + "\\lime"); } catch (e:Dynamic) {}
-			try { File.copy (PathHelper.getHaxelib (new Haxelib ("openfl")) + "\\templates\\\\bin\\openfl.exe", haxePath + "\\openfl.exe"); } catch (e:Dynamic) {}
-			try { File.copy (PathHelper.getHaxelib (new Haxelib ("openfl")) + "\\templates\\\\bin\\openfl.sh", haxePath + "\\openfl"); } catch (e:Dynamic) {}
+			try { File.copy (HaxelibHelper.getPath (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.exe", haxePath + "\\lime.exe"); } catch (e:Dynamic) {}
+			try { File.copy (HaxelibHelper.getPath (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.sh", haxePath + "\\lime"); } catch (e:Dynamic) {}
+			try { File.copy (HaxelibHelper.getPath (new Haxelib ("openfl")) + "\\templates\\\\bin\\openfl.exe", haxePath + "\\openfl.exe"); } catch (e:Dynamic) {}
+			try { File.copy (HaxelibHelper.getPath (new Haxelib ("openfl")) + "\\templates\\\\bin\\openfl.sh", haxePath + "\\openfl"); } catch (e:Dynamic) {}
 			
 		} else {
 			
@@ -1847,9 +1848,9 @@ class PlatformSetup {
 				
 				try {
 					
-					ProcessHelper.runCommand ("", "sudo", [ "cp", "-f", PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates/bin/lime.sh", "/usr/local/bin/lime" ], false);
+					ProcessHelper.runCommand ("", "sudo", [ "cp", "-f", HaxelibHelper.getPath (new Haxelib ("lime")) + "/templates/bin/lime.sh", "/usr/local/bin/lime" ], false);
 					ProcessHelper.runCommand ("", "sudo", [ "chmod", "755", "/usr/local/bin/lime" ], false);
-					ProcessHelper.runCommand ("", "sudo", [ "cp", "-f", PathHelper.getHaxelib (new Haxelib ("openfl")) + "/templates/bin/openfl.sh", "/usr/local/bin/openfl" ], false);
+					ProcessHelper.runCommand ("", "sudo", [ "cp", "-f", HaxelibHelper.getPath (new Haxelib ("openfl")) + "/templates/bin/openfl.sh", "/usr/local/bin/openfl" ], false);
 					ProcessHelper.runCommand ("", "sudo", [ "chmod", "755", "/usr/local/bin/openfl" ], false);
 					installedCommand = true;
 					
@@ -1865,9 +1866,9 @@ class PlatformSetup {
 				Sys.println (" a) Manually add an alias called \"openfl\" to run \"haxelib run openfl\"");
 				Sys.println (" b) Run the following commands:");
 				Sys.println ("");
-				Sys.println ("sudo cp \"" + PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "templates/bin/lime.sh") + "\" /usr/local/bin/lime");
+				Sys.println ("sudo cp \"" + PathHelper.combine (HaxelibHelper.getPath (new Haxelib ("lime")), "templates/bin/lime.sh") + "\" /usr/local/bin/lime");
 				Sys.println ("sudo chmod 755 /usr/local/bin/lime");
-				Sys.println ("sudo cp \"" +  PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("openfl")), "templates/bin/openfl.sh") + "\" /usr/local/bin/openfl");
+				Sys.println ("sudo cp \"" +  PathHelper.combine (HaxelibHelper.getPath (new Haxelib ("openfl")), "templates/bin/openfl.sh") + "\" /usr/local/bin/openfl");
 				Sys.println ("sudo chmod 755 /usr/local/bin/openfl");
 				Sys.println ("");
 				
@@ -2082,7 +2083,7 @@ class PlatformSetup {
 			
 		}
 		
-		var lib = PathHelper.getHaxelib (haxelib, false, true);
+		var lib = HaxelibHelper.getPath (haxelib, false, true);
 		
 		if (StringTools.startsWith (PathHelper.standardize (lib), PathHelper.standardize (basePath))) {
 			

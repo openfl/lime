@@ -18,9 +18,9 @@ class RunScript {
 	
 	private static function rebuildTools (rebuildBinaries = true):Void {
 		
-		var limeDirectory = PathHelper.getHaxelib (new Haxelib ("lime"), true);
+		var limeDirectory = HaxelibHelper.getPath (new Haxelib ("lime"), true);
 		var toolsDirectory = PathHelper.combine (limeDirectory, "tools");
-		/*var extendedToolsDirectory = PathHelper.getHaxelib (new Haxelib ("lime-extended"), false);
+		/*var extendedToolsDirectory = HaxelibHelper.getPath (new Haxelib ("lime-extended"), false);
 		
 		if (extendedToolsDirectory != null && extendedToolsDirectory != "") {
 			
