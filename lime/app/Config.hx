@@ -3,9 +3,6 @@ package lime.app;
 
 typedef Config = {
 	
-	#if ((js && html5) && lime < "5.0.0")
-	@:deprecated @:optional var assetsPrefix:String;
-	#end
 	@:optional var build:String;
 	@:optional var company:String;
 	@:optional var file:String;
