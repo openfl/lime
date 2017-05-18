@@ -132,7 +132,7 @@ class CPPHelper {
 			
 			Sys.putEnv ("HXCPP_EXIT_ON_ERROR", "");
 			
-			var code = ProcessHelper.runCommand (path, "haxelib", args);
+			var code = HaxelibHelper.runCommand (path, args);
 			
 			if (code != 0) {
 				
@@ -322,7 +322,7 @@ class CPPHelper {
 		
 		Sys.putEnv ("HXCPP_EXIT_ON_ERROR", "");
 		
-		ProcessHelper.runCommand (path, "haxelib", args);
+		HaxelibHelper.runCommand (path, args);
 		
 	}
 	

@@ -242,7 +242,7 @@ class AssetHelper {
 					
 				}
 				
-				ProcessHelper.runCommand ("", "haxelib", args);
+				HaxelibHelper.runCommand ("", args);
 				
 				if (FileSystem.exists (outputFile)) {
 					

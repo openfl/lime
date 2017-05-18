@@ -367,7 +367,7 @@ class PlatformSetup {
 		if (version != null && version.indexOf ("*") > -1) {
 			
 			var regexp = new EReg ("^.+[0-9]+-[0-9]+-[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +([a-z0-9.-]+) +", "gi");
-			var output = ProcessHelper.runProcess ("", "haxelib", [ "info", haxelib.name ]);
+			var output = HaxelibHelper.runProcess ("", [ "info", haxelib.name ]);
 			var lines = output.split ("\n");
 			
 			var versions = new Array<Version> ();
@@ -410,7 +410,7 @@ class PlatformSetup {
 			
 		}
 		
-		ProcessHelper.runCommand ("", "haxelib", args);
+		HaxelibHelper.runCommand ("", args);
 		
 	}
 	
@@ -759,7 +759,7 @@ class PlatformSetup {
 			
 		}
 		
-		ProcessHelper.runCommand ("", "haxelib", [ "install", "air3" ], true, true);
+		HaxelibHelper.runCommand ("", [ "install", "air3" ], true, true);
 		
 	}
 	
@@ -1482,7 +1482,7 @@ class PlatformSetup {
 		var defines = new Map<String, Dynamic> ();
 		defines.set ("setup", 1);
 		
-		var basePath = ProcessHelper.runProcess ("", "haxelib", [ "config" ]);
+		var basePath = HaxelibHelper.runProcess ("", [ "config" ]);
 		if (basePath != null) {
 			
 			basePath = StringTools.trim (basePath.split ("\n")[0]);
@@ -1647,7 +1647,7 @@ class PlatformSetup {
 		
 		writeConfig (defines.get ("LIME_CONFIG"), defines);
 		
-		ProcessHelper.runCommand ("", "haxelib", [ "install", "cordova" ], true, true);
+		HaxelibHelper.runCommand ("", [ "install", "cordova" ], true, true);
 		
 	}
 	
@@ -2117,7 +2117,7 @@ class PlatformSetup {
 	
 	public static function updateHaxelib (haxelib:Haxelib):Void {
 		
-		var basePath = ProcessHelper.runProcess ("", "haxelib", [ "config" ]);
+		var basePath = HaxelibHelper.runProcess ("", [ "config" ]);
 		
 		if (basePath != null) {
 			
@@ -2129,7 +2129,7 @@ class PlatformSetup {
 		
 		if (StringTools.startsWith (PathHelper.standardize (lib), PathHelper.standardize (basePath))) {
 			
-			ProcessHelper.runCommand ("", "haxelib", [ "update", haxelib.name ]);
+			HaxelibHelper.runCommand ("", [ "update", haxelib.name ]);
 			
 		} else {
 			

@@ -1124,15 +1124,6 @@ class HXProject {
 			
 			#if lime
 			
-			// TODO: Need to be able to handle this without 'haxelib path'
-			
-			if (version == HaxelibHelper.getVersion (new Haxelib (haxelib.name))) {
-				
-				// Fix case where using dev directory newer than other versions
-				name = haxelib.name;
-				
-			}
-			
 			if (HaxelibHelper.pathOverrides.exists (name)) {
 				
 				var param = "-cp " + HaxelibHelper.pathOverrides.get (name);
@@ -1147,7 +1138,7 @@ class HXProject {
 				
 				try {
 					
-					output = ProcessHelper.runProcess ("", "haxelib", [ "path", name ], true, true, true);
+					output = HaxelibHelper.runProcess ("", [ "path", name ], true, true, true);
 					
 				} catch (e:Dynamic) { }
 				

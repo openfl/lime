@@ -59,7 +59,7 @@ class CommandLineTools {
 		overrides = new HXProject ();
 		overrides.architectures = [];
 		
-		HaxelibHelper.setOverridePath (new Haxelib ("lime-tools"), PathHelper.combine (HaxelibHelper.getPath (new Haxelib ("lime")), "tools"));
+		//HaxelibHelper.setOverridePath (new Haxelib ("lime-tools"), PathHelper.combine (HaxelibHelper.getPath (new Haxelib ("lime")), "tools"));
 		
 		processArguments ();
 		version = HaxelibHelper.getVersion ();
@@ -602,7 +602,7 @@ class CommandLineTools {
 				
 			} else {
 				
-				ProcessHelper.runCommand ("", "haxelib", [ "run", handler ].concat (args));
+				HaxelibHelper.runCommand ("", [ "run", handler ].concat (args));
 				
 			}
 			
@@ -1813,6 +1813,8 @@ class CommandLineTools {
 			
 			if (FileSystem.exists (lastArgument) && FileSystem.isDirectory (lastArgument)) {
 				
+				HaxelibHelper.setOverridePath (new Haxelib ("lime-tools"), PathHelper.combine (Sys.getCwd (), "tools"));
+				
 				Sys.setCwd (lastArgument);
 				runFromHaxelib = true;
 				
@@ -1826,15 +1828,24 @@ class CommandLineTools {
 		
 		if (!runFromHaxelib) {
 			
+			var path = null;
+			
 			if (FileSystem.exists ("tools.n")) {
 				
-				HaxelibHelper.setOverridePath (new Haxelib ("lime"), PathHelper.combine (Sys.getCwd (), "../"));
+				path = PathHelper.combine (Sys.getCwd (), "../");
 				
 			} else if (FileSystem.exists ("run.n")) {
 				
-				HaxelibHelper.setOverridePath (new Haxelib ("lime"), Sys.getCwd ());
+				path = Sys.getCwd ();
+				
+			} else {
+				
+				LogHelper.error ("Could not run Lime tools from this directory");
 				
 			}
+			
+			HaxelibHelper.setOverridePath (new Haxelib ("lime"), path);
+			HaxelibHelper.setOverridePath (new Haxelib ("lime-tools"), PathHelper.combine (path, "tools"));
 			
 		}
 		
@@ -2161,7 +2172,7 @@ class CommandLineTools {
 				
 				if (path != null && path != "") {
 					
-					ProcessHelper.runCommand ("", "haxelib", [ "remove", name ]);
+					HaxelibHelper.runCommand ("", [ "remove", name ]);
 					
 				}
 			

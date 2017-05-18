@@ -17,6 +17,7 @@ class HaxelibHelper {
 	
 	private static var repositoryPath:String;
 	private static var paths = new Map<String, String> ();
+	private static var toolPath = null;
 	private static var versions = new Map<String, Version> ();
 	
 	
@@ -90,8 +91,7 @@ class HaxelibHelper {
 				
 				var cacheDryRun = ProcessHelper.dryRun;
 				ProcessHelper.dryRun = false;
-				
-				output = ProcessHelper.runProcess (Sys.getEnv ("HAXEPATH"), "haxelib", [ "config" ], true, true, true);
+				output = HaxelibHelper.runProcess ("", [ "config" ], true, true, true);
 				if (output == null) output = "";
 				
 				ProcessHelper.dryRun = cacheDryRun;
@@ -329,6 +329,19 @@ class HaxelibHelper {
 	}
 	
 	
+	public static function getToolPath ():String {
+		
+		if (toolPath == null) {
+			
+			toolPath = PathHelper.combine (pathOverrides.get ("lime-tools"), "haxelib.n");
+			
+		}
+		
+		return toolPath;
+		
+	}
+	
+	
 	public static function getVersion (haxelib:Haxelib = null):Version {
 		
 		var clearCache = false;
@@ -349,6 +362,20 @@ class HaxelibHelper {
 		//}
 		
 		return versions.get (haxelib.name);
+		
+	}
+	
+	
+	public static function runCommand (path:String, args:Array<String>, safeExecute:Bool = true, ignoreErrors:Bool = false, print:Bool = false):Int {
+		
+		return ProcessHelper.runCommand (path, "neko", [ getToolPath () ].concat (args), safeExecute, ignoreErrors, print);
+		
+	}
+	
+	
+	public static function runProcess (path:String, args:Array<String>, waitForOutput:Bool = true, safeExecute:Bool = true, ignoreErrors:Bool = false, print:Bool = false, returnErrorValue:Bool = false):String {
+		
+		return ProcessHelper.runProcess (path, "neko", [ getToolPath () ].concat (args), waitForOutput, safeExecute, ignoreErrors, print, returnErrorValue);
 		
 	}
 	

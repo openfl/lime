@@ -259,7 +259,7 @@ class CSHelper {
 		var args = [ "run", project.config.getString ("cs.buildLibrary", "hxcs"), buildFile, "--arch", arch, "--platform", platform, "--out", outPath, "--unsafe" ];
 		if (noCompile)
 			args.push ("--no-compile");
-		var code = ProcessHelper.runCommand (path, "haxelib", args);
+		var code = HaxelibHelper.runCommand (path, args);
 		
 		if (code != 0) {
 			
