@@ -373,6 +373,21 @@ class ProjectXMLParser extends HXProject {
 	}
 	
 	
+	public static function fromFile (path:String, defines:Map<String, Dynamic> = null, includePaths:Array<String> = null, useExtensionPath:Bool = false):ProjectXMLParser {
+		
+		if (path == null) return null;
+		
+		if (FileSystem.exists (path)) {
+			
+			return new ProjectXMLParser (path, defines, includePaths, useExtensionPath);
+			
+		}
+		
+		return null;
+		
+	}
+	
+	
 	private function parseAppElement (element:Fast, extensionPath:String):Void {
 		
 		for (attribute in element.x.attributes ()) {
