@@ -5,6 +5,7 @@ import haxe.Json;
 import lime.project.Architecture;
 import lime.project.Haxelib;
 import lime.project.Platform;
+import lime.project.Version;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -16,7 +17,65 @@ class HaxelibHelper {
 	
 	private static var repositoryPath:String;
 	private static var paths = new Map<String, String> ();
-	private static var versions = new Map<String, String> ();
+	private static var versions = new Map<String, Version> ();
+	
+	
+	public static function findFolderMatch (haxelib:Haxelib, directory:String):Version {
+		
+		var versions = new Array<Version> ();
+		var version:Version;
+		
+		try {
+			
+			for (file in FileSystem.readDirectory (directory)) {
+				
+				try {
+					
+					version = StringTools.replace (file, ",", ".");
+					versions.push (version);
+					
+				} catch (e:Dynamic) {}
+				
+			}
+			
+		} catch (e:Dynamic) {}
+		
+		return findMatch (haxelib, versions);
+		
+	}
+	
+	
+	public static function findMatch (haxelib:Haxelib, otherVersions:Array<Version>):Version {
+		
+		var matches = [];
+		
+		for (otherVersion in otherVersions) {
+			
+			if (haxelib.versionMatches (otherVersion)) {
+				
+				matches.push (otherVersion);
+				
+			}
+			
+		}
+		
+		if (matches.length == 0) return null;
+		
+		var bestMatch = null;
+		
+		for (match in matches) {
+			
+			if (bestMatch == null || match > bestMatch) {
+				
+				bestMatch = match;
+				
+			}
+			
+		}
+		
+		return bestMatch;
+		
+	}
 	
 	
 	public static function getRepositoryPath ():String {
@@ -66,7 +125,7 @@ class HaxelibHelper {
 			
 		}
 		
-		if (haxelib.version != "") {
+		if (haxelib.version != null && haxelib.version != "") {
 			
 			name += ":" + haxelib.version;
 			
@@ -76,8 +135,9 @@ class HaxelibHelper {
 			
 			if (!versions.exists (name)) {
 				
-				versions.set (haxelib.name, haxelib.version);
-				versions.set (name, haxelib.version);
+				var version = getPathVersion (pathOverrides.get (name));
+				versions.set (haxelib.name, version);
+				versions.set (name, version);
 				
 			}
 			
@@ -101,22 +161,41 @@ class HaxelibHelper {
 				
 				var devPath = PathHelper.combine (libraryPath, ".dev");
 				var currentPath = PathHelper.combine (libraryPath, ".current");
+				var matched = false, version;
 				
-				if (haxelib.version != "") {
+				if (haxelib.version != "" && haxelib.version != null) {
 					
 					if (FileSystem.exists (devPath)) {
 						
 						result = StringTools.trim (File.getContent (devPath));
 						
-						if (!FileSystem.exists (result) || getPathVersion (result) != haxelib.version) {
+						if (FileSystem.exists (result)) {
 							
-							result = PathHelper.combine (libraryPath, StringTools.replace (haxelib.version, ".", ","));
+							version = getPathVersion (result);
+							
+							if (haxelib.versionMatches (version)) {
+								
+								matched = true;
+								
+							}
 							
 						}
 						
-					} else {
+					}
+					
+					if (!matched) {
 						
-						result = PathHelper.combine (libraryPath, StringTools.replace (haxelib.version, ".", ","));
+						var match = findFolderMatch (haxelib, libraryPath);
+						
+						if (match != null) {
+							
+							result = PathHelper.combine (libraryPath, StringTools.replace (match, ".", ","));
+							
+						} else {
+							
+							result = "";
+							
+						}
 						
 					}
 					
@@ -135,7 +214,8 @@ class HaxelibHelper {
 					
 				}
 				
-				if (!FileSystem.exists (result)) result = "";
+				if (result == null) result == "";
+				if (result != "" && !FileSystem.exists (result)) result = "";
 				
 			}
 			
@@ -205,12 +285,13 @@ class HaxelibHelper {
 			
 			paths.set (name, result);
 			
-			if (haxelib.version != "") {
+			if (haxelib.version != "" && haxelib.version != null) {
 				
 				paths.set (haxelib.name, result);
+				var version = getPathVersion (result);
 				
-				versions.set (name, haxelib.version);
-				versions.set (haxelib.name, haxelib.version);
+				versions.set (name, version);
+				versions.set (haxelib.name, version);
 				
 			} else {
 				
@@ -225,23 +306,30 @@ class HaxelibHelper {
 	}
 	
 	
-	public static function getPathVersion (path:String):String {
+	public static function getPathVersion (path:String):Version {
 		
 		path = PathHelper.combine (path, "haxelib.json");
 		
 		if (FileSystem.exists (path)) {
 			
 			var json = Json.parse (File.getContent (path));
-			return json.version;
+			
+			try {
+				
+				var versionString:String = json.version;
+				var version:Version = versionString;
+				return version;
+				
+			} catch (e:Dynamic) {}
 			
 		}
 		
-		return "";
+		return null;
 		
 	}
 	
 	
-	public static function getVersion (haxelib:Haxelib = null):String {
+	public static function getVersion (haxelib:Haxelib = null):Version {
 		
 		var clearCache = false;
 		
@@ -252,13 +340,11 @@ class HaxelibHelper {
 			
 		}
 		
-		if (haxelib.version != "") {
+		//if (haxelib.version != "") {
 			
-			return haxelib.version;
+			//return haxelib.version;
 			
-		}
-		
-		getPath (haxelib, true, clearCache);
+		//}
 		
 		return versions.get (haxelib.name);
 		
@@ -268,16 +354,11 @@ class HaxelibHelper {
 	public static function setOverridePath (haxelib:Haxelib, path:String):Void {
 		
 		var name = haxelib.name;
-		var version = haxelib.version;
-		
-		if (version == "") {
-			
-			version = getPathVersion (path);
-			
-		}
+		var version = getPathVersion (path);
 		
 		pathOverrides.set (name, path);
 		pathOverrides.set (name + ":" + version, path);
+		
 		versions.set (name, version);
 		versions.set (name + ":" + version, version);
 		

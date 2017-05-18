@@ -1320,7 +1320,7 @@ class ProjectXMLParser extends HXProject {
 						
 						if (version != "" && defines.exists (name) && defines.get (name) != version) {
 							
-							LogHelper.warn ("Ignoring requested haxelib \"" + name + "\" version " + version + " (version " + defines.get (name) + " was already included)");
+							LogHelper.warn ("Ignoring requested haxelib \"" + name + "\" version \"" + version + "\" (version \"" + defines.get (name) + "\" was already included)");
 							continue;
 							
 						}

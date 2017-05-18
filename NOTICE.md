@@ -72,6 +72,9 @@ The typed array implementation was developed in collaboration with Sven Bergstr√
 and the hxtypedarray project, which is available under an "MIT" license.
 For details, see https://github.com/underscorediscovery/hxtypedarray
 
+lime/project/Version is adapted from thx.semver project, which is available under
+an "MIT" license. For details, see https://github.com/fponticelli/thx.semver
+
 -------
 
 _The following are not embedded in Lime applications directly, but are used

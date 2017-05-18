@@ -24,4 +24,20 @@ class Haxelib {
 	}
 	
 	
+	public function versionMatches (other:String):Bool {
+		
+		if (version == "" || version == null) return true;
+		if (other == "" || other == null) return false;
+		
+		var filter = version;
+		filter = StringTools.replace (filter, ".", "\\.");
+		filter = StringTools.replace (filter, "*", ".*");
+		
+		var regexp = new EReg ("^" + filter, "i");
+		
+		return regexp.match (other);
+		
+	}
+	
+	
 }
