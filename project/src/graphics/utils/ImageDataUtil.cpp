@@ -124,19 +124,19 @@ namespace lime {
 		
 		bool sourcePremultiplied = sourceImage->buffer->premultiplied;
 		bool destPremultiplied = image->buffer->premultiplied;
-		int sourceBitsPerPixel = sourceImage->buffer->bitsPerPixel;
-		int destBitsPerPixel = image->buffer->bitsPerPixel;
+		int sourceBytesPerPixel = sourceImage->buffer->bitsPerPixel / 8;
+		int destBytesPerPixel = image->buffer->bitsPerPixel / 8;
 		
 		if (!mergeAlpha || !sourceImage->buffer->transparent) {
 			
-			if (sourceFormat == destFormat && sourcePremultiplied == destPremultiplied && sourceBitsPerPixel == destBitsPerPixel) {
+			if (sourceFormat == destFormat && sourcePremultiplied == destPremultiplied && sourceBytesPerPixel == destBytesPerPixel) {
 				
 				for (int y = 0; y < destView.height; y++) {
 					
 					sourcePosition = sourceView.Row (y);
 					destPosition = destView.Row (y);
 					
-					memcpy (&destData[destPosition], &sourceData[sourcePosition], destView.width * destBitsPerPixel);
+					memcpy (&destData[destPosition], &sourceData[sourcePosition], destView.width * destBytesPerPixel);
 					
 				}
 				

@@ -186,14 +186,14 @@ class ImageDataUtil {
 				var destFormat = image.buffer.format;
 				var sourcePremultiplied = sourceImage.buffer.premultiplied;
 				var destPremultiplied = image.buffer.premultiplied;
-				var sourceBitsPerPixel = sourceImage.buffer.bitsPerPixel;
-				var destBitsPerPixel = image.buffer.bitsPerPixel;
+				var sourceBytesPerPixel = Std.int (sourceImage.buffer.bitsPerPixel / 8);
+				var destBytesPerPixel = Std.int (image.buffer.bitsPerPixel / 8);
 				
 				var sourcePosition, destPosition, sourcePixel:RGBA;
 				
 				if (!mergeAlpha || !sourceImage.transparent) {
 					
-					if (sourceFormat == destFormat && sourcePremultiplied == destPremultiplied && sourceBitsPerPixel == destBitsPerPixel) {
+					if (sourceFormat == destFormat && sourcePremultiplied == destPremultiplied && sourceBytesPerPixel == destBytesPerPixel) {
 						
 						for (y in 0...destView.height) {
 							
@@ -201,9 +201,9 @@ class ImageDataUtil {
 							destPosition = destView.row (y);
 							
 							#if js
-							destData.set (sourceData.subarray (sourcePosition, destView.width * destBitsPerPixel), destPosition);
+							destData.set (sourceData.subarray (sourcePosition, sourcePosition + destView.width * destBytesPerPixel), destPosition);
 							#else
-							sourceData.buffer.blit (destPosition, destData.buffer, sourcePosition, destView.width * destBitsPerPixel);
+							destData.buffer.blit (destPosition, sourceData.buffer, sourcePosition, destView.width * destBytesPerPixel);
 							#end
 							
 						}
