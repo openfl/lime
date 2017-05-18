@@ -1624,7 +1624,7 @@ class CommandLineTools {
 		
 		for (haxelib in project.haxelibs) {
 			
-			if (haxelib.name == "lime" && haxelib.version != null && haxelib.version != "" && haxelib.version != "dev" && haxelib.version != version) {
+			if (haxelib.name == "lime" && haxelib.version != null && haxelib.version != "" && haxelib.version != "dev" && !haxelib.versionMatches (version)) {
 				
 				if (!project.targetFlags.exists ("notoolscheck")) {
 					

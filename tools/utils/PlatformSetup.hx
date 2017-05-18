@@ -5,6 +5,10 @@ import haxe.Http;
 import haxe.io.Eof;
 import haxe.io.Path;
 import haxe.zip.Reader;
+import lime.project.Haxelib;
+import lime.project.HXProject;
+import lime.project.Platform;
+import lime.project.Version;
 import lime.tools.helpers.BlackBerryHelper;
 import lime.tools.helpers.CLIHelper;
 import lime.tools.helpers.FileHelper;
@@ -13,9 +17,6 @@ import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.PathHelper;
 import lime.tools.helpers.PlatformHelper;
 import lime.tools.helpers.ProcessHelper;
-import lime.project.Haxelib;
-import lime.project.HXProject;
-import lime.project.Platform;
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
@@ -361,14 +362,55 @@ class PlatformSetup {
 	public static function installHaxelib (haxelib:Haxelib):Void {
 		
 		var name = haxelib.name;
+		var version = haxelib.version;
 		
-		if (haxelib.version != null && haxelib.version != "") {
+		if (version != null && version.indexOf ("*") > -1) {
 			
-			name += ":" + haxelib.version;
+			var regexp = new EReg ("^.+[0-9]+-[0-9]+-[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +([a-z0-9.-]+) +", "gi");
+			var output = ProcessHelper.runProcess ("", "haxelib", [ "info", haxelib.name ]);
+			var lines = output.split ("\n");
+			
+			var versions = new Array<Version> ();
+			var ver:Version;
+			
+			for (line in lines) {
+				
+				if (regexp.match (line)) {
+					
+					try {
+						
+						ver = regexp.matched (1);
+						versions.push (ver);
+						
+					} catch (e:Dynamic) {}
+					
+				}
+				
+			}
+			
+			var match = HaxelibHelper.findMatch (haxelib, versions);
+			
+			if (match != null) {
+				
+				version = match;
+				
+			} else {
+				
+				LogHelper.error ("Could not find version \"" + haxelib.version + "\" for haxelib \"" + haxelib.name + "\"");
+				
+			}
 			
 		}
 		
-		ProcessHelper.runCommand ("", "haxelib", [ "install", name ]);
+		var args = [ "install", name ];
+		
+		if (version != null && version != "" && version.indexOf ("*") == -1) {
+			
+			args.push (version);
+			
+		}
+		
+		ProcessHelper.runCommand ("", "haxelib", args);
 		
 	}
 	

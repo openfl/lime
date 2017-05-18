@@ -173,7 +173,7 @@ class HaxelibHelper {
 							
 							version = getPathVersion (result);
 							
-							if (haxelib.versionMatches (version)) {
+							if (haxelib.version == "dev" || haxelib.versionMatches (version)) {
 								
 								matched = true;
 								

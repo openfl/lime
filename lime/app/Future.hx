@@ -168,7 +168,7 @@ import lime.utils.Log;
 		} else {
 			
 			var time = System.getTimer ();
-			var end = (waitTime > -1) ? time + waitTime : time;
+			var end = time + waitTime;
 			
 			while (!isComplete && !isError && time <= end) {
 				
