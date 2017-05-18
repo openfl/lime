@@ -1318,14 +1318,14 @@ class ProjectXMLParser extends HXProject {
 							
 						}
 						
-						if (version != "" && defines.exists (name) && defines.get (name) != version) {
+						var haxelib = new Haxelib (name, version);
+						
+						if (version != "" && defines.exists (name) && !haxelib.versionMatches (defines.get (name))) {
 							
 							LogHelper.warn ("Ignoring requested haxelib \"" + name + "\" version \"" + version + "\" (version \"" + defines.get (name) + "\" was already included)");
 							continue;
 							
 						}
-						
-						var haxelib = new Haxelib (name, version);
 						
 						if (path == null) {
 							
@@ -1363,7 +1363,7 @@ class ProjectXMLParser extends HXProject {
 						
 						if (!defines.exists (haxelib.name)) {
 							
-							defines.set (haxelib.name, HaxelibHelper.getVersion (haxelib));
+							defines.set (haxelib.name, Std.string (HaxelibHelper.getVersion (haxelib)));
 							
 						}
 						

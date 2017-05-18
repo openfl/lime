@@ -340,6 +340,8 @@ class HaxelibHelper {
 			
 		}
 		
+		getPath (haxelib, true, clearCache);
+		
 		//if (haxelib.version != "") {
 			
 			//return haxelib.version;

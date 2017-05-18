@@ -1114,14 +1114,24 @@ class HXProject {
 		for (haxelib in haxelibs) {
 			
 			var name = haxelib.name;
+			var version = HaxelibHelper.getVersion (haxelib);
 			
-			if (haxelib.version != "") {
+			if (haxelib.version != null) {
 				
-				name += ":" + haxelib.version;
+				name += ":" + version;
 				
 			}
 			
 			#if lime
+			
+			// TODO: Need to be able to handle this without 'haxelib path'
+			
+			if (version == HaxelibHelper.getVersion (new Haxelib (haxelib.name))) {
+				
+				// Fix case where using dev directory newer than other versions
+				name = haxelib.name;
+				
+			}
 			
 			if (HaxelibHelper.pathOverrides.exists (name)) {
 				
