@@ -154,7 +154,113 @@ class HaxelibHelper {
 		
 		if (!paths.exists (name)) {
 			
-			var libraryPath = PathHelper.combine (getRepositoryPath (), haxelib.name);
+			var cache = LogHelper.verbose;
+			LogHelper.verbose = false;
+			var output = "";
+			
+			try {
+				
+				var cacheDryRun = ProcessHelper.dryRun;
+				ProcessHelper.dryRun = false;
+				
+				output = HaxelibHelper.runProcess ("", [ "path", name ], true, true, true);
+				if (output == null) output = "";
+				
+				ProcessHelper.dryRun = cacheDryRun;
+				
+			} catch (e:Dynamic) { }
+			
+			LogHelper.verbose = cache;
+			
+			var lines = output.split ("\n");
+			var result = "";
+			
+			for (i in 1...lines.length) {
+				
+				var trim = StringTools.trim (lines[i]);
+				
+				if (trim == "-D " + haxelib.name || StringTools.startsWith (trim, "-D " + haxelib.name + "=")) {
+					
+					result = StringTools.trim (lines[i - 1]);
+					
+				}
+				
+			}
+			
+			if (result == "") {
+				
+				try {
+					
+					for (line in lines) {
+						
+						if (line != "" && line.substr (0, 1) != "-") {
+							
+							if (FileSystem.exists (line)) {
+								
+								result = line;
+								break;
+								
+							}
+							
+						}
+						
+					}
+					
+				} catch (e:Dynamic) {}
+				
+			}
+			
+			if (validate) {
+				
+				if (result == "") {
+					
+					if (output.indexOf ("does not have") > -1) {
+						
+						var directoryName = "";
+						
+						if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
+							
+							directoryName = "Windows";
+							
+						} else if (PlatformHelper.hostPlatform == Platform.MAC) {
+							
+							directoryName = PlatformHelper.hostArchitecture == Architecture.X64 ? "Mac64" : "Mac";
+							
+						} else {
+							
+							directoryName = PlatformHelper.hostArchitecture == Architecture.X64 ? "Linux64" : "Linux";
+							
+						}
+						
+						LogHelper.error ("haxelib \"" + haxelib.name + "\" does not have an \"ndll/" + directoryName + "\" directory");
+						
+					} else if (output.indexOf ("haxelib install ") > -1 && output.indexOf ("haxelib install " + haxelib.name) == -1) {
+						
+						var start = output.indexOf ("haxelib install ") + 16;
+						var end = output.lastIndexOf ("'");
+						var dependencyName = output.substring (start, end);
+						
+						LogHelper.error ("Could not find haxelib \"" + dependencyName + "\" (dependency of \"" + haxelib.name + "\"), does it need to be installed?");
+						
+					} else {
+						
+						if (haxelib.version != "") {
+							
+							LogHelper.error ("Could not find haxelib \"" + haxelib.name + "\" version \"" + haxelib.version + "\", does it need to be installed?");
+							
+						} else {
+							
+							LogHelper.error ("Could not find haxelib \"" + haxelib.name + "\", does it need to be installed?");
+							
+						}
+						
+					}
+					
+				}
+				
+			}
+			
+			/*var libraryPath = PathHelper.combine (getRepositoryPath (), haxelib.name);
 			var result = "";
 			
 			if (FileSystem.exists (libraryPath)) {
@@ -231,57 +337,7 @@ class HaxelibHelper {
 					
 				}
 				
-			}
-			
-			// if (validate) {
-				
-			// 	if (result == "") {
-					
-			// 		if (output.indexOf ("does not have") > -1) {
-						
-			// 			var directoryName = "";
-						
-			// 			if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
-							
-			// 				directoryName = "Windows";
-							
-			// 			} else if (PlatformHelper.hostPlatform == Platform.MAC) {
-							
-			// 				directoryName = PlatformHelper.hostArchitecture == Architecture.X64 ? "Mac64" : "Mac";
-							
-			// 			} else {
-							
-			// 				directoryName = PlatformHelper.hostArchitecture == Architecture.X64 ? "Linux64" : "Linux";
-							
-			// 			}
-						
-			// 			LogHelper.error ("haxelib \"" + haxelib.name + "\" does not have an \"ndll/" + directoryName + "\" directory");
-						
-			// 		} else if (output.indexOf ("haxelib install ") > -1 && output.indexOf ("haxelib install " + haxelib.name) == -1) {
-						
-			// 			var start = output.indexOf ("haxelib install ") + 16;
-			// 			var end = output.lastIndexOf ("'");
-			// 			var dependencyName = output.substring (start, end);
-						
-			// 			LogHelper.error ("Could not find haxelib \"" + dependencyName + "\" (dependency of \"" + haxelib.name + "\"), does it need to be installed?");
-						
-			// 		} else {
-						
-			// 			if (haxelib.version != "") {
-							
-			// 				LogHelper.error ("Could not find haxelib \"" + haxelib.name + "\" version \"" + haxelib.version + "\", does it need to be installed?");
-							
-			// 			} else {
-							
-			// 				LogHelper.error ("Could not find haxelib \"" + haxelib.name + "\", does it need to be installed?");
-							
-			// 			}
-						
-			// 		}
-					
-			// 	}
-				
-			// }
+			}*/
 			
 			paths.set (name, result);
 			

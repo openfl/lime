@@ -652,16 +652,21 @@ class Main {
 		if( inf.versions.length == 0 )
 			throw "The library "+inf.name+" has not yet released a version";
 		var version = if( reqversion != null ) reqversion else inf.getLatest();
-		var found = false;
+		var matches = [];
+		var best = null;
 		for( v in inf.versions )
-			if( v.name == version ) {
-				found = true;
-				break;
+			if( matchVersion(version,v.name) ) {
+				matches.push(v.name);
 			}
-		if( !found )
+		for( match in matches ) {
+			if (best == null || match > best) {
+				best = match;
+			}
+		}
+		if( best == null )
 			throw "No such version "+version+" for library "+inf.name;
 
-		return version;
+		return best;
 	}
 
 	function installFromHxml( rep:String, path:String ) {
