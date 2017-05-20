@@ -1,3 +1,27 @@
+5.0.0 (05/19/2017)
+------------------
+
+* Updated the OpenGL bindings for better performance on HTML5
+* WebGL-specific signatures are now available using "WEBGL" suffix
+* Added support for wildcard haxelib versions (such as "1.0.\*")
+* Added a new joystick.onTrackballMove with both x and y values
+* Added support for ThreadPool when there is no Application instance
+* Added haxelib to Lime tools to support path resolution fixes
+* Added ProjectXMLParser.fromFile for consistency
+* Updated default SWF version to 17 to prevent common compile issues
+* Removed deprecated config.assetsPrefix (use config.rootPath)
+* Improved support for HXP projects on Windows
+* Improved performance of image.copyPixels
+* Improved the `lime create extension <name>` template
+* Improved the behavior of Flash Player logging on Linux
+* Improved memory use in Matrix4 and TextLayout
+* Improved render event to allow canceling (avoids a screen flip)
+* Improved `lime setup` to quiet the "no setup required" message
+* Fixed dead-code-elimination with OpenGL extension classes
+* Fixed support for >, <, >=, <= and == in XML "unless" attribute
+* Fixed complete exit on Android when using the back button
+
+
 4.1.0 (05/04/2017)
 ------------------
 
