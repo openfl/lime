@@ -5,6 +5,6 @@
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
 	"version": "5.0.0",
-	"releasenote": "",
+	"releasenote": "Sped-up WebGL performance, improved trackball events, added wildcard version support",
 	"contributors": [ "singmajesty" ]
 }
