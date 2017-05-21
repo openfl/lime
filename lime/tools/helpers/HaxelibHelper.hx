@@ -387,9 +387,19 @@ class HaxelibHelper {
 	
 	public static function getToolPath ():String {
 		
+		// TODO: Fix support from tools other than Lime command-line
+		
 		if (toolPath == null) {
 			
-			toolPath = PathHelper.combine (pathOverrides.get ("lime-tools"), "haxelib.n");
+			if (pathOverrides.exists ("lime-tools")) {
+				
+				toolPath = PathHelper.combine (pathOverrides.get ("lime-tools"), "haxelib.n");
+				
+			} else {
+				
+				toolPath = PathHelper.combine (pathOverrides.get ("lime"), "tools/haxelib.n");
+				
+			}
 			
 		}
 		
@@ -424,14 +434,34 @@ class HaxelibHelper {
 	
 	public static function runCommand (path:String, args:Array<String>, safeExecute:Bool = true, ignoreErrors:Bool = false, print:Bool = false):Int {
 		
-		return ProcessHelper.runCommand (path, "neko", [ getToolPath () ].concat (args), safeExecute, ignoreErrors, print);
+		var toolPath = getToolPath ();
+		
+		if (FileSystem.exists (toolPath)) {
+			
+			return ProcessHelper.runCommand (path, "neko", [ toolPath ].concat (args), safeExecute, ignoreErrors, print);
+			
+		} else {
+			
+			return ProcessHelper.runCommand (path, "haxelib", args, safeExecute, ignoreErrors, print);
+			
+		}
 		
 	}
 	
 	
 	public static function runProcess (path:String, args:Array<String>, waitForOutput:Bool = true, safeExecute:Bool = true, ignoreErrors:Bool = false, print:Bool = false, returnErrorValue:Bool = false):String {
 		
-		return ProcessHelper.runProcess (path, "neko", [ getToolPath () ].concat (args), waitForOutput, safeExecute, ignoreErrors, print, returnErrorValue);
+		var toolPath = getToolPath ();
+		
+		if (FileSystem.exists (toolPath)) {
+			
+			return ProcessHelper.runProcess (path, "neko", [ toolPath ].concat (args), waitForOutput, safeExecute, ignoreErrors, print, returnErrorValue);
+			
+		} else {
+			
+			return ProcessHelper.runProcess (path, "haxelib", args, waitForOutput, safeExecute, ignoreErrors, print, returnErrorValue);
+			
+		}
 		
 	}
 	
