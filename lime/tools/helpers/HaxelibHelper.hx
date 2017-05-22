@@ -242,18 +242,6 @@ class HaxelibHelper {
 						
 						LogHelper.error ("Could not find haxelib \"" + dependencyName + "\" (dependency of \"" + haxelib.name + "\"), does it need to be installed?");
 						
-					} else if (output.indexOf ("is not installed") > -1) {
-						
-						var start = output.indexOf ("Library " + 8);
-						var end = output.indexOf (" ", start);
-						var dependencyName = output.substring (start, end);
-						
-						start = output.indexOf ("version ") + 8;
-						end = output.indexOf (" ", start);
-						var version = output.substring (start, end);
-						
-						LogHelper.error ("Could not find haxelib \"" + dependencyName + "\" version \"" + version + "\", does it need to be installed?");
-						
 					} else {
 						
 						if (haxelib.version != "") {
