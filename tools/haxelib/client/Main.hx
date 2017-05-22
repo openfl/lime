@@ -1081,6 +1081,7 @@ class Main {
 		}
 		var matches = [];
 		for( v in FileSystem.readDirectory(dir) ) {
+			if( v == version) return dir + "/" + v;
 			if( v.charAt(0) == "." )
 				continue;
 			v = Data.unsafe(v);
