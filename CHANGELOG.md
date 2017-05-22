@@ -1,3 +1,9 @@
+5.0.2 (05/22/2017)
+------------------
+
+* Improved support for finding versioned haxelib path when using haxelib git
+
+
 5.0.1 (05/22/2017)
 ------------------
 
