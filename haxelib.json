@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "5.0.0",
-	"releasenote": "Sped-up WebGL performance, improved trackball events, added wildcard version support",
+	"version": "5.0.1",
+	"releasenote": "Fixed regressions in haxelib path resolution",
 	"contributors": [ "singmajesty" ]
 }
