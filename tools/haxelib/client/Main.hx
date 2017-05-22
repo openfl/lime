@@ -1079,9 +1079,13 @@ class Main {
 				return dev;
 			}
 		}
+		var current = try getCurrent(dir) catch(e:Dynamic) null;
+		if ( current != null && matchVersion(version, current) ) {
+			return dir+"/"+Data.safe(current);
+		}
 		var matches = [];
 		for( v in FileSystem.readDirectory(dir) ) {
-			if( v == version) return dir + "/" + v;
+			if( v == version ) return dir+"/"+v;
 			if( v.charAt(0) == "." )
 				continue;
 			v = Data.unsafe(v);
@@ -1098,7 +1102,7 @@ class Main {
 		}
 		var best:Dynamic = null;
 		for( match in matches ) {
-			if (best == null || match.ver > best.ver) {
+			if (best == null || match.ver > best.ver || (match.ver == best.ver && match.dir.indexOf (",") == -1)) {
 				best = match;
 			}
 		}
