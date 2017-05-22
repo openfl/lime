@@ -1086,16 +1086,23 @@ class Main {
 				continue;
 			v = Data.unsafe(v);
 			var semver = try SemVer.ofString(v) catch (_:Dynamic) null;
+			if ( semver == null ) {
+				var json = try File.getContent(dir+"/"+v+"/"+Data.JSON) catch( e : Dynamic ) null;
+				if ( json != null ) {
+					var inf = Data.readData(json, false);
+					semver = try SemVer.ofString(inf.version) catch (_:Dynamic) null;
+				}
+			}
 			if (semver != null && matchVersion(version, semver))
-				matches.push(semver);
+				matches.push({ dir: v, ver: semver });
 		}
-		var best = null;
+		var best:Dynamic = null;
 		for( match in matches ) {
-			if (best == null || match > best) {
+			if (best == null || match.ver > best.ver) {
 				best = match;
 			}
 		}
-		return if (best != null) dir + "/" + Data.safe(best) else null;
+		return if (best != null) dir + "/" + Data.safe(best.dir) else null;
 	}
 
 	function list() {
