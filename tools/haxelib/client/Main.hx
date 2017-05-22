@@ -1290,7 +1290,7 @@ class Main {
 		var dev = try getDev(pdir) catch (_:Dynamic) null;
 		var vdir = try getVersionDir(version,dev,pdir) catch (_:Dynamic) null;
 
-		if( vdir != null && !FileSystem.exists(vdir) )
+		if( vdir == null || !FileSystem.exists(vdir) )
 			throw "Library "+prj+" version "+version+" is not installed";
 
 		for( p in l )

@@ -1116,7 +1116,7 @@ class HXProject {
 			var name = haxelib.name;
 			var version = HaxelibHelper.getVersion (haxelib);
 			
-			if (haxelib.version != null) {
+			if (version != null) {
 				
 				name += ":" + version;
 				
