@@ -1,3 +1,10 @@
+5.0.1 (05/22/2017)
+------------------
+
+* Fixed an issue with PathHelper.getHaxelib outside of Lime tools
+* Fixed regressions in haxelib path resolution
+
+
 5.0.0 (05/19/2017)
 ------------------
 
