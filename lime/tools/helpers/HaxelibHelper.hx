@@ -13,6 +13,7 @@ import sys.FileSystem;
 class HaxelibHelper {
 	
 	
+	public static var debug = false;
 	public static var pathOverrides = new Map<String, String> ();
 	
 	private static var repositoryPath:String;
@@ -84,7 +85,7 @@ class HaxelibHelper {
 		if (repositoryPath == null) {
 			
 			var cache = LogHelper.verbose;
-			LogHelper.verbose = false;
+			LogHelper.verbose = debug;
 			var output = "";
 			
 			try {
@@ -155,7 +156,7 @@ class HaxelibHelper {
 		if (!paths.exists (name)) {
 			
 			var cache = LogHelper.verbose;
-			LogHelper.verbose = false;
+			LogHelper.verbose = debug;
 			var output = "";
 			
 			try {

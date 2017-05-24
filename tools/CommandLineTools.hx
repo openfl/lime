@@ -2037,6 +2037,10 @@ class CommandLineTools {
 				
 				includePaths.push (argument.substr (2));
 				
+			} else if (argument == "-haxelib-debug") {
+				
+				HaxelibHelper.debug = true;
+				
 			} else if (argument == "-args") {
 				
 				catchArguments = true;

@@ -1133,7 +1133,7 @@ class HXProject {
 			} else {
 				
 				var cache = LogHelper.verbose;
-				LogHelper.verbose = false;
+				LogHelper.verbose = HaxelibHelper.debug;
 				var output = "";
 				
 				try {
