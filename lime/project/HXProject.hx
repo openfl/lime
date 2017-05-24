@@ -1153,7 +1153,11 @@ class HXProject {
 					
 					if (arg != "") {
 						
-						if (!StringTools.startsWith (arg, "-")) {
+						if (StringTools.startsWith (arg, "Error: ")) {
+							
+							LogHelper.error (arg.substr (7));
+							
+						} else if (!StringTools.startsWith (arg, "-")) {
 							
 							var path = PathHelper.standardize (arg);
 							
