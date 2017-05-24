@@ -46,6 +46,9 @@ script:
   - haxelib run lime create SimpleImage
   - haxelib run lime create TextRendering
   #- haxelib run lime build HandlingInputEvents html5
+  - haxelib run lime
+  - haxelib
+  - haxelib path lime
   - haxelib run lime build HelloWorld html5
   - haxelib run lime build SimpleAudio html5
   - haxelib run lime build SimpleImage html5
