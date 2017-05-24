@@ -426,14 +426,14 @@ class HaxelibHelper {
 			
 		} else {
 			
-			var haxe = Sys.getEnv ("HAXEPATH");
+			// var haxe = Sys.getEnv ("HAXEPATH");
 			var command = "haxelib";
 			
-			if (haxe != null) {
+			// if (haxe != null) {
 				
-				command = PathHelper.combine (haxe, command);
+			// 	command = PathHelper.combine (haxe, command);
 				
-			}
+			// }
 			
 			return ProcessHelper.runCommand (path, command, args, safeExecute, ignoreErrors, print);
 			
@@ -458,14 +458,14 @@ class HaxelibHelper {
 			
 		} else {
 			
-			var haxe = Sys.getEnv ("HAXEPATH");
+			// var haxe = Sys.getEnv ("HAXEPATH");
 			var command = "haxelib";
 			
-			if (haxe != null) {
+			// if (haxe != null) {
 				
-				command = PathHelper.combine (haxe, command);
+			// 	command = PathHelper.combine (haxe, command);
 				
-			}
+			// }
 			
 			return ProcessHelper.runProcess (path, command, args, waitForOutput, safeExecute, ignoreErrors, print, returnErrorValue);
 			
