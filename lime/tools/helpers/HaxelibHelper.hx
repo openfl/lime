@@ -385,29 +385,6 @@ class HaxelibHelper {
 	}
 	
 	
-	public static function getToolPath ():String {
-		
-		// TODO: Fix support from tools other than Lime command-line
-		
-		if (toolPath == null) {
-			
-			if (pathOverrides.exists ("lime-tools")) {
-				
-				toolPath = PathHelper.combine (pathOverrides.get ("lime-tools"), "haxelib.n");
-				
-			} else {
-				
-				toolPath = PathHelper.combine (pathOverrides.get ("lime"), "tools/haxelib.n");
-				
-			}
-			
-		}
-		
-		return toolPath;
-		
-	}
-	
-	
 	public static function getVersion (haxelib:Haxelib = null):Version {
 		
 		var clearCache = false;
@@ -434,11 +411,17 @@ class HaxelibHelper {
 	
 	public static function runCommand (path:String, args:Array<String>, safeExecute:Bool = true, ignoreErrors:Bool = false, print:Bool = false):Int {
 		
-		var toolPath = getToolPath ();
-		
-		if (FileSystem.exists (toolPath)) {
+		if (pathOverrides.exists ("haxelib")) {
 			
-			return ProcessHelper.runCommand (path, "neko", [ toolPath ].concat (args), safeExecute, ignoreErrors, print);
+			var script = PathHelper.combine (pathOverrides.get ("haxelib"), "run.n");
+			
+			if (!FileSystem.exists (script)) {
+				
+				LogHelper.error ("Cannot find haxelib script: " + script);
+				
+			}
+			
+			return ProcessHelper.runCommand (path, "neko", [ script ].concat (args), safeExecute, ignoreErrors, print);
 			
 		} else {
 			
@@ -451,11 +434,17 @@ class HaxelibHelper {
 	
 	public static function runProcess (path:String, args:Array<String>, waitForOutput:Bool = true, safeExecute:Bool = true, ignoreErrors:Bool = false, print:Bool = false, returnErrorValue:Bool = false):String {
 		
-		var toolPath = getToolPath ();
-		
-		if (FileSystem.exists (toolPath)) {
+		if (pathOverrides.exists ("haxelib")) {
 			
-			return ProcessHelper.runProcess (path, "neko", [ toolPath ].concat (args), waitForOutput, safeExecute, ignoreErrors, print, returnErrorValue);
+			var script = PathHelper.combine (pathOverrides.get ("haxelib"), "run.n");
+			
+			if (!FileSystem.exists (script)) {
+				
+				LogHelper.error ("Cannot find haxelib script: " + script);
+				
+			}
+			
+			return ProcessHelper.runProcess (path, "neko", [ script ].concat (args), waitForOutput, safeExecute, ignoreErrors, print, returnErrorValue);
 			
 		} else {
 			

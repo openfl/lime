@@ -7,8 +7,3 @@
 -lib format
 #-lib svg
 -D optional-cffi
-
---next
-
--neko haxelib.n
--main haxelib.client.Main
