@@ -33,6 +33,7 @@ class NativeHTTPRequest {
 	private var curl:CURL;
 	private var parent:_IHTTPRequest;
 	private var promise:Promise<Bytes>;
+	private var readPosition:Int;
 	
 	
 	public function new () {
@@ -172,6 +173,7 @@ class NativeHTTPRequest {
 		
 		bytesLoaded = 0;
 		bytesTotal = 0;
+		readPosition = 0;
 		
 		if (curl == 0) {
 			
@@ -348,7 +350,29 @@ class NativeHTTPRequest {
 	
 	private function curl_onRead (max:Int, input:Bytes):Bytes {
 		
-		return input;
+		if (readPosition == 0 && max >= input.length) {
+			
+			return input;
+			
+		} else if (readPosition >= input.length) {
+			
+			return Bytes.alloc (0);
+			
+		} else {
+			
+			var length = max;
+			
+			if (readPosition + length > input.length) {
+				
+				length = input.length - readPosition;
+				
+			}
+			
+			var data = input.sub (readPosition, length);
+			readPosition += length;
+			return data;
+			
+		}
 		
 	}
 	
