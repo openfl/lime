@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "5.0.2",
-	"releasenote": "Minor fix when using haxelib git",
+	"version": "5.0.3",
+	"releasenote": "Removed custom haxelib, additional fixes",
 	"contributors": [ "singmajesty" ]
 }
