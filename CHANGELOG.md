@@ -1,3 +1,14 @@
+5.0.3 (05/24/2017)
+------------------
+
+* Reverted inclusion of custom haxelib build in Lime tools
+* Support for wildcard versioning requires a compatible install of haxelib
+* Added support for optional runtime overriding of haxelib script
+* Improved handling of haxelib errors during HXML generation
+* Fixed support for uploading larger byte objects using HTTPRequest
+* Fixed support for config.rootPath
+
+
 5.0.2 (05/22/2017)
 ------------------
 
