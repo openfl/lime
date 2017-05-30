@@ -88,7 +88,7 @@ namespace lime {
 				
 				if (wave_format.subChunkID[0] != 'f' || wave_format.subChunkID[1] != 'm' || wave_format.subChunkID[2] != 't' || wave_format.subChunkID[3] != ' ') {
 					
-					lime::fseek (file, wave_format.subChunkSize, SEEK_CUR);
+					lime::fseek (file, currentHead + sizeof (WAVE_Data) + wave_format.subChunkSize, SEEK_SET);
 					
 				} else {
 					
