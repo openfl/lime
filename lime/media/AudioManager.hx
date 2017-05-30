@@ -114,13 +114,20 @@ class AudioManager {
 						var device = alc.getContextsDevice (currentContext);
 						alc.makeContextCurrent (null);
 						alc.destroyContext (currentContext);
-						alc.closeDevice (device);
+						
+						if (device != null) {
+							
+							alc.closeDevice (device);
+							
+						}
 						
 					}
 				
 				default:
 				
 			}
+			
+			context = null;
 			
 		}
 		
