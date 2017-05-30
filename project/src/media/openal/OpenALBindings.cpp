@@ -42,7 +42,7 @@ namespace lime {
 	
 	void gc_alc_object (value object) {
 		
-		alcObjects.erase (object);
+		alcObjects.erase (val_data (object));
 		
 	}
 	
