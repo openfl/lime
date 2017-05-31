@@ -88,7 +88,7 @@ class NativeCFFI {
 	@:cffi private static function lime_image_data_util_multiply_alpha (image:Dynamic):Void;
 	@:cffi private static function lime_image_data_util_resize (image:Dynamic, buffer:Dynamic, width:Int, height:Int):Void;
 	@:cffi private static function lime_image_data_util_set_format (image:Dynamic, format:Int):Void;
-	@:cffi private static function lime_image_data_util_set_pixels (image:Dynamic, rect:Dynamic, bytes:Dynamic, format:Int):Void;
+	@:cffi private static function lime_image_data_util_set_pixels (image:Dynamic, rect:Dynamic, bytes:Dynamic, offset:Int, format:Int):Void;
 	@:cffi private static function lime_image_data_util_threshold (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, operation:Int, thresholdRG:Int, thresholdBA:Int, colorRG:Int, colorBA:Int, maskRG:Int, maskBA:Int, copySource:Bool):Int;
 	@:cffi private static function lime_image_data_util_unmultiply_alpha (image:Dynamic):Void;
 	@:cffi private static function lime_joystick_get_device_guid (id:Int):Dynamic;

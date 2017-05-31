@@ -608,7 +608,7 @@ namespace lime {
 	}
 	
 	
-	void ImageDataUtil::SetPixels (Image* image, Rectangle* rect, Bytes* bytes, PixelFormat format) {
+	void ImageDataUtil::SetPixels (Image* image, Rectangle* rect, Bytes* bytes, int offset, PixelFormat format) {
 		
 		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
 		PixelFormat sourceFormat = image->buffer->format;
@@ -618,7 +618,7 @@ namespace lime {
 		RGBA pixel;
 		
 		uint8_t* byteArray = (uint8_t*)bytes->Data ();
-		int srcPosition = 0;
+		int srcPosition = offset;
 		
 		bool transparent = image->buffer->transparent;
 		

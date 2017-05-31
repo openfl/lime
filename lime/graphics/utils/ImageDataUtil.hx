@@ -15,6 +15,7 @@ import lime.math.ColorMatrix;
 import lime.math.Rectangle;
 import lime.math.Vector2;
 import lime.system.CFFI;
+import lime.utils.BytePointer;
 import lime.utils.UInt8Array;
 
 #if !lime_debug
@@ -1064,12 +1065,12 @@ class ImageDataUtil {
 	}
 	
 	
-	public static function setPixels (image:Image, rect:Rectangle, bytes:Bytes, format:PixelFormat):Void {
+	public static function setPixels (image:Image, rect:Rectangle, bytePointer:BytePointer, format:PixelFormat):Void {
 		
 		if (image.buffer.data == null) return;
 		
 		#if (lime_cffi && !disable_cffi && !macro)
-		if (CFFI.enabled) NativeCFFI.lime_image_data_util_set_pixels (image, rect, bytes, format); else
+		if (CFFI.enabled) NativeCFFI.lime_image_data_util_set_pixels (image, rect, bytePointer.bytes, bytePointer.offset, format); else
 		#end
 		{
 			
@@ -1079,7 +1080,8 @@ class ImageDataUtil {
 			var dataView = new ImageDataView (image, rect);
 			var row, color, pixel:RGBA;
 			var transparent = image.transparent;
-			var dataPosition = 0;
+			var bytes = bytePointer.bytes;
+			var dataPosition = bytePointer.offset;
 			
 			for (y in 0...dataView.height) {
 				

@@ -24,6 +24,7 @@ import lime.math.Vector2;
 import lime.net.HTTPRequest;
 import lime.system.CFFI;
 import lime.utils.ArrayBuffer;
+import lime.utils.BytePointer;
 import lime.utils.Log;
 import lime.utils.UInt8Array;
 
@@ -1063,7 +1064,7 @@ class Image {
 	}
 	
 	
-	public function setPixels (rect:Rectangle, bytes:Bytes, format:PixelFormat = null):Void {
+	public function setPixels (rect:Rectangle, bytePointer:BytePointer, format:PixelFormat = null):Void {
 		
 		rect = __clipRect (rect);
 		if (buffer == null || rect == null) return;
@@ -1072,7 +1073,7 @@ class Image {
 			
 			case CANVAS:
 				
-				ImageCanvasUtil.setPixels (this, rect, bytes, format);
+				ImageCanvasUtil.setPixels (this, rect, bytePointer, format);
 			
 			case DATA:
 				
@@ -1080,7 +1081,7 @@ class Image {
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
-				ImageDataUtil.setPixels (this, rect, bytes, format);
+				ImageDataUtil.setPixels (this, rect, bytePointer, format);
 			
 			case FLASH:
 				
