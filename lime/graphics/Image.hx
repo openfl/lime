@@ -1094,8 +1094,9 @@ class Image {
 					case ARGB32: // do nothing
 					case BGRA32:
 						
-						var srcData:ByteArray = bytes.getData ();
+						var srcData:ByteArray = bytePointer.bytes.getData ();
 						byteArray = new ByteArray ();
+						byteArray.position = bytePointer.offset;
 						#if flash
 						byteArray.length = srcData.length;
 						#end
@@ -1115,8 +1116,9 @@ class Image {
 					
 					default:
 						
-						var srcData = bytes.getData ();
+						var srcData = bytePointer.bytes.getData ();
 						byteArray = new ByteArray ();
+						byteArray.position = bytePointer.offset;
 						#if flash
 						byteArray.length = srcData.length;
 						#end
