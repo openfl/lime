@@ -355,8 +355,21 @@ class Image {
 			
 			case CANVAS:
 				
-				ImageCanvasUtil.convertToCanvas (this);
-				ImageCanvasUtil.copyPixels (this, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha);
+				if (alphaImage != null) {
+					
+					ImageCanvasUtil.convertToData (this);
+					ImageCanvasUtil.convertToData (sourceImage);
+					if (alphaImage != null) ImageCanvasUtil.convertToData (alphaImage);
+					
+					ImageDataUtil.copyPixels (this, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha);
+					
+				} else {
+					
+					ImageCanvasUtil.convertToCanvas (this);
+					ImageCanvasUtil.convertToCanvas (sourceImage);
+					ImageCanvasUtil.copyPixels (this, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha);
+					
+				}
 			
 			case DATA:
 				
