@@ -304,45 +304,49 @@ class Image {
 	
 	public function copyPixels (sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, alphaImage:Image = null, alphaPoint:Vector2 = null, mergeAlpha:Bool = false):Void {
 		
-		//fast fails -- if source or destination is null or of 0 dimensions, do nothing
 		if (buffer == null || sourceImage == null) return;
 		if (sourceRect.width <= 0 || sourceRect.height <= 0) return;
 		if (width <= 0 || height <= 0) return;
 		
-		//source rect expands too far right or too far below source image boundaries
 		if (sourceRect.x + sourceRect.width > sourceImage.width) sourceRect.width = sourceImage.width - sourceRect.x;
 		if (sourceRect.y + sourceRect.height > sourceImage.height) sourceRect.height = sourceImage.height - sourceRect.y;
 		
-		//source rect starts too far left or too far above source image boundaries
 		if (sourceRect.x < 0) {
-			sourceRect.width += sourceRect.x;	//shrink width by amount off canvas
-			sourceRect.x = 0;					//clamp rect to 0
-		}
-		if (sourceRect.y < 0) {
-			sourceRect.height += sourceRect.y;	//shrink height by amount off canvas
-			sourceRect.y = 0;					//clamp rect to 0
+			
+			sourceRect.width += sourceRect.x;
+			sourceRect.x = 0;
+			
 		}
 		
-		//draw area expands too far right or too far below destination image boundaries
+		if (sourceRect.y < 0) {
+			
+			sourceRect.height += sourceRect.y;
+			sourceRect.y = 0;
+			
+		}
+		
 		if (destPoint.x + sourceRect.width > width) sourceRect.width = width - destPoint.x;
 		if (destPoint.y + sourceRect.height > height) sourceRect.height = height - destPoint.y;
 		
-		//draw area starts too far left or too far above destination image boundaries
 		if (destPoint.x < 0) {
-			sourceRect.width += destPoint.x;	//shrink width by amount off canvas
-			sourceRect.x -= destPoint.x;		//adjust source rect to effective starting point
-			destPoint.x = 0;					//clamp destination point to 0
-		}
-		if (destPoint.y < 0) {
-			sourceRect.height += destPoint.y;	//shrink height by amount off canvas
-			sourceRect.y -= destPoint.y;		//adjust source rect to effective starting point
-			destPoint.y = 0;					//clamp destination point to 0
-		}
-		
-		// TODO: Optimize
-		
-		if (sourceImage == this) {
 			
+			sourceRect.width += destPoint.x;
+			sourceRect.x -= destPoint.x;
+			destPoint.x = 0;
+			
+		}
+		
+		if (destPoint.y < 0) {
+			
+			sourceRect.height += destPoint.y;
+			sourceRect.y -= destPoint.y;
+			destPoint.y = 0;
+			
+		}
+		
+		if (sourceImage == this && destPoint.x < sourceRect.right && destPoint.y < sourceRect.bottom) {
+			
+			// TODO: Optimize further?
 			sourceImage = clone ();
 			
 		}
@@ -359,6 +363,7 @@ class Image {
 				#if (js && html5)
 				ImageCanvasUtil.convertToData (this);
 				ImageCanvasUtil.convertToData (sourceImage);
+				if (alphaImage != null) ImageCanvasUtil.convertToData (alphaImage);
 				#end
 				
 				ImageDataUtil.copyPixels (this, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha);

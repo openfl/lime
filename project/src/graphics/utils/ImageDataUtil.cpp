@@ -112,6 +112,8 @@ namespace lime {
 		uint8_t* sourceData = (uint8_t*)sourceImage->buffer->data->Data ();
 		uint8_t* destData = (uint8_t*)image->buffer->data->Data ();
 		
+		if (!sourceData || !destData) return;
+		
 		ImageDataView sourceView = ImageDataView (sourceImage, sourceRect);
 		Rectangle destRect = Rectangle (destPoint->x, destPoint->y, sourceView.width, sourceView.height);
 		ImageDataView destView = ImageDataView (image, &destRect);
@@ -120,53 +122,20 @@ namespace lime {
 		PixelFormat destFormat = image->buffer->format;
 		
 		int sourcePosition, destPosition;
-		RGBA sourcePixel;
+		float sourceAlpha, destAlpha, oneMinusSourceAlpha, blendAlpha;
+		RGBA sourcePixel, destPixel;
 		
 		bool sourcePremultiplied = sourceImage->buffer->premultiplied;
 		bool destPremultiplied = image->buffer->premultiplied;
 		int sourceBytesPerPixel = sourceImage->buffer->bitsPerPixel / 8;
 		int destBytesPerPixel = image->buffer->bitsPerPixel / 8;
 		
-		if (!mergeAlpha || !sourceImage->buffer->transparent) {
+		bool useAlphaImage = (alphaImage && alphaImage->buffer->transparent);
+		bool blend = (mergeAlpha || (useAlphaImage && !image->buffer->transparent));
+		
+		if (!useAlphaImage) {
 			
-			if (sourceFormat == destFormat && sourcePremultiplied == destPremultiplied && sourceBytesPerPixel == destBytesPerPixel) {
-				
-				for (int y = 0; y < destView.height; y++) {
-					
-					sourcePosition = sourceView.Row (y);
-					destPosition = destView.Row (y);
-					
-					memcpy (&destData[destPosition], &sourceData[sourcePosition], destView.width * destBytesPerPixel);
-					
-				}
-				
-			} else {
-				
-				for (int y = 0; y < destView.height; y++) {
-					
-					sourcePosition = sourceView.Row (y);
-					destPosition = destView.Row (y);
-					
-					for (int x = 0; x < destView.width; x++) {
-						
-						sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
-						sourcePixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
-						
-						sourcePosition += 4;
-						destPosition += 4;
-						
-					}
-					
-				}
-				
-			}
-			
-		} else {
-			
-			float sourceAlpha, destAlpha, oneMinusSourceAlpha, blendAlpha;
-			RGBA destPixel;
-			
-			if (alphaImage == 0) {
+			if (blend) {
 				
 				for (int y = 0; y < destView.height; y++) {
 					
@@ -205,51 +174,108 @@ namespace lime {
 					
 				}
 				
-			} else {
+			} else if (sourceFormat == destFormat && sourcePremultiplied == destPremultiplied && sourceBytesPerPixel == destBytesPerPixel) {
 				
-				uint8_t* alphaData = (uint8_t*)alphaImage->buffer->data->Data ();
-				PixelFormat alphaFormat = alphaImage->buffer->format;
-				bool alphaPremultiplied = alphaImage->buffer->premultiplied;
-				
-				Rectangle alphaRect = Rectangle (alphaPoint->x, alphaPoint->y, destView.width, destView.height);
-				ImageDataView alphaView = ImageDataView (alphaImage, &alphaRect);
-				int alphaPosition;
-				RGBA alphaPixel;
-				
-				for (int y = 0; y < alphaView.height; y++) {
+				for (int y = 0; y < destView.height; y++) {
 					
 					sourcePosition = sourceView.Row (y);
 					destPosition = destView.Row (y);
-					alphaPosition = alphaView.Row (y);
 					
-					for (int x = 0; x < alphaView.width; x++) {
+					memcpy (&destData[destPosition], &sourceData[sourcePosition], destView.width * destBytesPerPixel);
+					
+				}
+				
+			} else {
+				
+				for (int y = 0; y < destView.height; y++) {
+					
+					sourcePosition = sourceView.Row (y);
+					destPosition = destView.Row (y);
+					
+					for (int x = 0; x < destView.width; x++) {
+						
+						sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
+						sourcePixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
+						
+						sourcePosition += 4;
+						destPosition += 4;
+						
+					}
+					
+				}
+				
+			}
+			
+		} else {
+			
+			uint8_t* alphaData = (uint8_t*)alphaImage->buffer->data->Data ();
+			PixelFormat alphaFormat = alphaImage->buffer->format;
+			bool alphaPremultiplied = alphaImage->buffer->premultiplied;
+			
+			Rectangle alphaRect = Rectangle (alphaPoint->x, alphaPoint->y, destView.width, destView.height);
+			ImageDataView alphaView = ImageDataView (alphaImage, &alphaRect);
+			int alphaPosition;
+			RGBA alphaPixel;
+			int alphaOffsetY = alphaView.y - destView.y;
+			
+			if (blend) {
+				
+				for (int y = 0; y < destView.height; y++) {
+					
+					sourcePosition = sourceView.Row (y);
+					destPosition = destView.Row (y);
+					alphaPosition = alphaView.Row (y + alphaOffsetY);
+					
+					for (int x = 0; x < destView.width; x++) {
 						
 						sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
 						destPixel.ReadUInt8 (destData, destPosition, destFormat, destPremultiplied);
-						alphaPixel.ReadUInt8 (alphaData, alphaPosition, alphaFormat, alphaPremultiplied);
+						alphaPixel.ReadUInt8 (alphaData, alphaPosition, alphaFormat, false);
 						
-						sourceAlpha = alphaPixel.a / 0xFF;
-						destAlpha = destPixel.a / 0xFF;
-						oneMinusSourceAlpha = 1 - sourceAlpha;
-						blendAlpha = sourceAlpha + (destAlpha * oneMinusSourceAlpha);
+						sourceAlpha = (alphaPixel.a / 255.0) * (sourcePixel.a / 255.0);
 						
-						if (blendAlpha == 0) {
+						if (sourceAlpha > 0) {
 							
-							destPixel.Set (0, 0, 0, 0);
-							
-						} else {
+							destAlpha = destPixel.a / 255.0;
+							oneMinusSourceAlpha = 1 - sourceAlpha;
+							blendAlpha = sourceAlpha + (destAlpha * oneMinusSourceAlpha);
 							
 							destPixel.r = __clamp[int (0.5 + (sourcePixel.r * sourceAlpha + destPixel.r * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
 							destPixel.g = __clamp[int (0.5 + (sourcePixel.g * sourceAlpha + destPixel.g * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
 							destPixel.b = __clamp[int (0.5 + (sourcePixel.b * sourceAlpha + destPixel.b * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
 							destPixel.a = __clamp[int (0.5 + blendAlpha * 255.0)];
 							
+							destPixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
+							
 						}
-						
-						destPixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
 						
 						sourcePosition += 4;
 						destPosition += 4;
+						alphaPosition += 4;
+						
+					}
+					
+				}
+				
+			} else {
+				
+				for (int y = 0; y < destView.height; y++) {
+					
+					sourcePosition = sourceView.Row (y);
+					destPosition = destView.Row (y);
+					alphaPosition = alphaView.Row (y + alphaOffsetY);
+					
+					for (int x = 0; x < destView.width; x++) {
+						
+						sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
+						alphaPixel.ReadUInt8 (alphaData, alphaPosition, alphaFormat, false);
+						
+						sourcePixel.a = int (0.5 + (sourcePixel.a * (alphaPixel.a / 255.0)));
+						sourcePixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
+						
+						sourcePosition += 4;
+						destPosition += 4;
+						alphaPosition += 4;
 						
 					}
 					
