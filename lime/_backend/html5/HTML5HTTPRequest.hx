@@ -318,7 +318,7 @@ class HTML5HTTPRequest {
 		var port = __fixPort (a.port, protocol);
 		
 		var sameOrigin = (protocol != "file:") && hostname == originHostname && protocol == originProtocol && port == originPort;
-		trace (sameOrigin);
+		
 		return sameOrigin;
 		
 	}
