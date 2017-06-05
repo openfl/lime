@@ -1982,6 +1982,7 @@ class CommandLineTools {
 						}
 						
 						if (field == "window-allow-high-dpi") property = "allowHighDPI";
+						if (field == "window-color-depth") property = "colorDepth";
 						
 						var fieldReference = Reflect.field (overrides, fieldName);
 						

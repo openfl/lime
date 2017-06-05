@@ -24,6 +24,7 @@ typedef WindowConfig = {
 	@:optional var antialiasing:Int;
 	@:optional var background:Null<Int>;
 	@:optional var borderless:Bool;
+	@:optional var colorDepth:Int;
 	@:optional var depthBuffer:Bool;
 	@:optional var display:Int;
 	#if (js && html5)

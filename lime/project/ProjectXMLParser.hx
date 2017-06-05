@@ -2169,6 +2169,14 @@ class ProjectXMLParser extends HXProject {
 						
 					}
 				
+				case "color-depth":
+					
+					if (Reflect.hasField (windows[id], "colorDepth")) {
+						
+						Reflect.setField (windows[id], "colorDepth", Std.parseInt (value));
+						
+					}
+				
 				default:
 					
 					if (Reflect.hasField (windows[id], name)) {

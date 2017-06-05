@@ -28,5 +28,6 @@ typedef WindowData = {
 	#if (js && html5)
 	@:optional var element:js.html.Element;
 	#end
+	@:optional var colorDepth:Int;
 	
 }

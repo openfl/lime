@@ -30,6 +30,7 @@ package;
 					antialiasing: ::antialiasing::,
 					background: ::background::,
 					borderless: ::borderless::,
+					colorDepth: ::colorDepth::,
 					depthBuffer: ::depthBuffer::,
 					display: ::display::,
 					fullscreen: ::fullscreen::,
