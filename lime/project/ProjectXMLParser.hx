@@ -1182,16 +1182,6 @@ class ProjectXMLParser extends HXProject {
 							
 						}
 						
-						/*if (defines.get ("HOST") == "windows") {
-							
-							Sys.putEnv ("PATH", value + ";" + Sys.getEnv ("PATH"));
-							
-						} else {
-							
-							Sys.putEnv ("PATH", value + ":" + Sys.getEnv ("PATH"));
-							
-						}*/
-						
 						path (value);
 					
 					case "include":
@@ -1412,18 +1402,6 @@ class ProjectXMLParser extends HXProject {
 							haxelib = new Haxelib (config.getString ("cpp.buildLibrary", "hxcpp"));
 							
 						}
-						
-						/*if (haxelib != null && haxelib.name == "nme" && !defines.exists ("nme")) {
-							
-							haxelib = new Haxelib ("lime");
-							
-						}
-						
-						if (name == "nme" && !defines.exists ("nme")) {
-							
-							name = "lime";
-							
-						}*/
 						
 						if (element.has.type) {
 							
@@ -1737,7 +1715,7 @@ class ProjectXMLParser extends HXProject {
 					
 					case "output":
 						
-						// deprecated?
+						// deprecated
 						
 						parseOutputElement (element, extensionPath);
 					
@@ -1858,6 +1836,8 @@ class ProjectXMLParser extends HXProject {
 					
 					case "android":
 						
+						// deprecated
+						
 						for (attribute in element.x.attributes ()) {
 							
 							var name = attribute;
@@ -1886,8 +1866,6 @@ class ProjectXMLParser extends HXProject {
 										config.push ("android.extension", value);
 										
 									}
-									
-									//ArrayHelper.addUnique (config.android.extensions, value);
 								
 								case "permission":
 									
@@ -1898,8 +1876,6 @@ class ProjectXMLParser extends HXProject {
 										config.push ("android.permission", value);
 										
 									}
-									
-									//ArrayHelper.addUnique (config.android.permissions, value);
 								
 								case "gradle-version":
 									
@@ -1908,18 +1884,14 @@ class ProjectXMLParser extends HXProject {
 								default:
 									
 									name = formatAttributeName (attribute);
-									
-									//if (Reflect.hasField (config.android, name)) {
-										
-										//Reflect.setField (config.android, name, value);
-										
-									//}
 								
 							}
 							
 						}
 					
 					case "cpp":
+						
+						// deprecated
 						
 						for (attribute in element.x.attributes ()) {
 							
@@ -1935,18 +1907,14 @@ class ProjectXMLParser extends HXProject {
 								default:
 									
 									name = formatAttributeName (attribute);
-									
-									///if (Reflect.hasField (config.android, name)) {
-										
-										//Reflect.setField (config.android, name, value);
-										
-									//}
 								
 							}
 							
 						}
 					
 					case "ios":
+						
+						// deprecated
 						
 						if (target == Platform.IOS) {
 							
@@ -2004,13 +1972,14 @@ class ProjectXMLParser extends HXProject {
 							if (element.has.resolve ("linker-flags")) {
 								
 								config.push ("ios.linker-flags", substitute (element.att.resolve ("linker-flags")));
-								//config.ios.linkerFlags.push (substitute (element.att.resolve ("linker-flags")));
 								
 							}
 							
 						}
 					
 					case "tvos":
+						
+						// deprecated
 						
 						if (target == Platform.TVOS) {
 							
@@ -2057,7 +2026,6 @@ class ProjectXMLParser extends HXProject {
 							if (element.has.resolve ("linker-flags")) {
 								
 								config.push ("tvos.linker-flags", substitute (element.att.resolve ("linker-flags")));
-								//config.ios.linkerFlags.push (substitute (element.att.resolve ("linker-flags")));
 								
 							}
 							
