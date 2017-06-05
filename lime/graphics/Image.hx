@@ -1385,7 +1385,12 @@ class Image {
 		#if (js && html5)
 			
 			var image = new JSImage ();
-			image.crossOrigin = "Anonymous";
+			
+			if (!HTML5HTTPRequest.__isSameOrigin (path)) {
+				
+				image.crossOrigin = "Anonymous";
+				
+			}
 			
 			image.onload = function (_) {
 				

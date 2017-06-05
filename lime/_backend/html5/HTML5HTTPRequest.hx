@@ -1,10 +1,12 @@
 package lime._backend.html5;
 
 
+import js.html.AnchorElement;
 import js.html.Event;
 import js.html.Image in JSImage;
 import js.html.ProgressEvent;
 import js.html.XMLHttpRequest;
+import js.Browser;
 import haxe.io.Bytes;
 import lime.app.Future;
 import lime.app.Promise;
@@ -21,6 +23,10 @@ class HTML5HTTPRequest {
 	
 	
 	private static var activeRequests = 0;
+	private static var originElement:AnchorElement;
+	private static var originHostname:String;
+	private static var originPort:String;
+	private static var originProtocol:String;
 	private static var requestLimit = 4;
 	private static var requestQueue = new List<QueueItem> ();
 	
@@ -248,6 +254,76 @@ class HTML5HTTPRequest {
 	}
 	
 	
+	private static function __fixHostname (hostname:String):String {
+		
+		return hostname == null ? "" : hostname;
+		
+	}
+	
+	
+	private static function __fixPort (port:String, protocol:String):String {
+		
+		if (port == null || port == "") {
+			
+			return switch (protocol) {
+				
+				case "ftp:": "21";
+				case "gopher:": "70";
+				case "http:": "80";
+				case "https:": "443";
+				case "ws:": "80";
+				case "wss:": "443";
+				default: "";
+				
+			}
+			
+		}
+		
+		return port;
+		
+	}
+	
+	
+	private static function __fixProtocol (protocol:String):String {
+		
+		return (protocol == null || protocol == "") ? "http:" : protocol;
+		
+	}
+	
+	
+	private static function __isSameOrigin (path:String):Bool {
+		
+		if (originElement == null) {
+			
+			originElement = Browser.document.createAnchorElement ();
+			
+			originHostname = __fixHostname (Browser.location.hostname);
+			originProtocol = __fixProtocol (Browser.location.protocol);
+			originPort = __fixPort (Browser.location.port, originProtocol);
+			
+		}
+		
+		var a = originElement;
+		a.href = path;
+		
+		if (a.hostname == "") {
+			
+			// Workaround for IE, updates other properties
+			a.href = a.href;
+			
+		}
+		
+		var hostname = __fixHostname (a.hostname);
+		var protocol = __fixProtocol (a.protocol);
+		var port = __fixPort (a.port, protocol);
+		
+		var sameOrigin = (protocol != "file:") && hostname == originHostname && protocol == originProtocol && port == originPort;
+		trace (sameOrigin);
+		return sameOrigin;
+		
+	}
+	
+	
 	public function __loadData (uri:String, promise:Promise<Bytes>):Void {
 		
 		var progress = function (event) {
@@ -300,7 +376,12 @@ class HTML5HTTPRequest {
 	private static function __loadImage (uri:String, promise:Promise<Image>):Void {
 		
 		var image = new JSImage ();
-		image.crossOrigin = "Anonymous";
+		
+		if (!__isSameOrigin (uri)) {
+			
+			image.crossOrigin = "Anonymous";
+			
+		}
 		
 		image.addEventListener ("load", function (event) {
 			
