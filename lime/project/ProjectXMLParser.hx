@@ -2009,7 +2009,7 @@ class ProjectXMLParser extends HXProject {
 							}
 							
 						}
-
+					
 					case "tvos":
 						
 						if (target == Platform.TVOS) {

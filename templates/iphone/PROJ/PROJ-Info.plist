@@ -26,10 +26,8 @@
 	<true/>
 	<key>UIRequiredDeviceCapabilities</key>
 	<dict>
-		::foreach REQUIRED_CAPABILITY::
-			<key>::name::</key>
-			::if value::<true/>::else::<false/>::end::
-		::end::
+		::foreach REQUIRED_CAPABILITY::<key>::name::</key>
+		::if value::<true/>::else::<false/>::end::::end::
 	</dict>
 	<key>UIStatusBarHidden</key>
 	<::WIN_FULLSCREEN::/>
@@ -37,12 +35,23 @@
 	<::WIN_FULLSCREEN::/>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<::!WIN_FULLSCREEN::/>
-	::if (IOS_APP_ORIENTATION != null)::
-	<key>UISupportedInterfaceOrientations</key>
+	::if (IOS_APP_ORIENTATION != null)::<key>UISupportedInterfaceOrientations</key>
 	::IOS_APP_ORIENTATION::::end::
 	<key>NSAppTransportSecurity</key>
 	<dict>
-		<key>NSAllowsArbitraryLoads</key><true/>
+		::if (IOS_ALLOW_INSECURE_HTTP != null)::<key>NSExceptionDomains</key>
+		<dict>
+			::foreach IOS_ALLOW_INSECURE_HTTP::<key>::domain::</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSTemporaryExceptionMinimumTLSVersion</key>
+				<string>TLSv1.1</string>
+			</dict>
+		</dict>::end::::else::<key>NSAllowsArbitraryLoads</key>
+		<true/>::end::
 	</dict>
 </dict>
 </plist>

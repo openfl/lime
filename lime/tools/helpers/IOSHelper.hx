@@ -116,7 +116,7 @@ class IOSHelper {
 		
 		if (!project.environment.exists ("IPHONE_VER") || project.environment.get ("IPHONE_VER") == "4.2") {
 			
-			if (!project.environment.exists ("DEVELOPER_DIR")) {
+			if (!project.environment.exists ("DEVELOPER_DIR") && PlatformHelper.hostPlatform == MAC) {
 				
 				var process = new Process ("xcode-select", [ "--print-path" ]);
 				var developerDir = process.stdout.readLine ();

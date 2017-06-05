@@ -613,7 +613,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 			var typeSource = Type.typeof (value).getName ();
 			var typeDest = Type.typeof (valueDest).getName ();
 			
-			// trace(node + " / existed in dest as " + type_dest + " / " + type_source );
+			// trace (node + " / existed in dest as " + typeDest + " / " + typeSource );
 			
 			if (typeSource != "TObject" && typeDest == "TObject") {
 				
@@ -624,9 +624,15 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 			
 			if (doCopy) {
 				
-				if (typeSource != "TObject" && !Reflect.hasField (bucket, node + "___array")) {
+				if (typeSource != "TObject") {
 					
-					Reflect.setField (bucket, node + "___array", [ ObjectHelper.deepCopy (Reflect.field (bucket, node)) ]);
+					if (!Reflect.hasField (bucket, node + "___array")) {
+						
+						Reflect.setField (bucket, node + "___array", [ ObjectHelper.deepCopy (Reflect.field (bucket, node)) ]);
+						
+					}
+					
+					cast (Reflect.field (bucket, node + "___array"), Array<Dynamic>).push (value);
 					
 				}
 				

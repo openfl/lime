@@ -344,6 +344,28 @@ class IOSPlatform extends PlatformTarget {
 		context.HXML_PATH = PathHelper.findTemplate (project.templatePaths, "iphone/PROJ/haxe/Build.hxml");
 		context.PRERENDERED_ICON = project.config.getBool ("ios.prerenderedIcon", false);
 		
+		var allowInsecureHTTP = project.config.getString ("ios.allow-insecure-http", "*");
+		
+		if (allowInsecureHTTP != "*" && allowInsecureHTTP != "true") {
+			
+			var sites = [];
+			
+			if (allowInsecureHTTP != "false") {
+				
+				var domains = project.config.getArrayString ("ios.allow-insecure-http");
+				
+				for (domain in domains) {
+					
+					sites.push ({ domain: domain });
+					
+				}
+				
+			}
+			
+			context.IOS_ALLOW_INSECURE_HTTP = sites;
+			
+		}
+		
 		var haxelibPath = project.environment.get ("HAXELIB_PATH");
 		
 		if (haxelibPath != null) {
