@@ -1,7 +1,7 @@
 /*
  * core.js: Core functionality for the Flatiron HTTP (with SPDY support) plugin.
  *
- * (C) 2011, Nodejitsu Inc.
+ * (C) 2011, Charlie Robbins & the Contributors
  * MIT LICENSE
  *
  */

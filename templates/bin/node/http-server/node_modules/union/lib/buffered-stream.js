@@ -4,7 +4,7 @@
  * (C) 2010, Mikeal Rogers
  *
  * Adapted for Flatiron
- * (C) 2011, Nodejitsu Inc.
+ * (C) 2011, Charlie Robbins & the Contributors
  * MIT LICENSE
  *
  */

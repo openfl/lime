@@ -1,7 +1,7 @@
 /*
  * http-stream.js: Idomatic buffered stream which pipes additional HTTP information.
  *
- * (C) 2011, Nodejitsu Inc.
+ * (C) 2011, Charlie Robbins & the Contributors
  * MIT LICENSE
  *
  */

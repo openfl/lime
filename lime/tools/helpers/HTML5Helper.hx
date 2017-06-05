@@ -120,7 +120,7 @@ class HTML5Helper {
 			
 			var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "templates") ].concat (project.templatePaths);
 			var node = PathHelper.findTemplate (templatePaths, "bin/node/node" + suffix);
-			var server = PathHelper.findTemplate (templatePaths, "bin/node/http-server/http-server");
+			var server = PathHelper.findTemplate (templatePaths, "bin/node/http-server/bin/http-server");
 			
 			if (PlatformHelper.hostPlatform != Platform.WINDOWS) {
 				
