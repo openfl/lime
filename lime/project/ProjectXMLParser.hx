@@ -2297,6 +2297,9 @@ class ProjectXMLParser extends HXProject {
 					
 				}
 				
+			} else if (substring == "projectDirectory") {
+				
+				return Std.string (Sys.getCwd ());
 				
 			}
 			
