@@ -29,9 +29,9 @@ class ProjectXMLParser extends HXProject {
 	private static var varMatch = new EReg ("\\${(.*?)}", "");
 	
 	
-	public function new (path:String = "", defines:Map<String, Dynamic> = null, includePaths:Array<String> = null, useExtensionPath:Bool = false) {
+	public function new (path:String = "", defines:Map<String, Dynamic> = null, includePaths:Array<String> = null, useExtensionPath:Bool = false, parent:HXProject = null) {
 		
-		super ();
+		super (parent, FileSystem.absolutePath (Path.directory (path)));
 		
 		if (defines != null) {
 			
@@ -712,7 +712,7 @@ class ProjectXMLParser extends HXProject {
 			
 			if (includePath != null && includePath != "" && FileSystem.exists (includePath) && !FileSystem.isDirectory (includePath)) {
 				
-				var includeProject = new ProjectXMLParser (includePath, defines);
+				var includeProject = new ProjectXMLParser (includePath, defines, null, false, this);
 				merge (includeProject);
 				return;
 				
@@ -1221,7 +1221,7 @@ class ProjectXMLParser extends HXProject {
 						
 						if (path != null && path != "" && FileSystem.exists (path) && !FileSystem.isDirectory (path)) {
 							
-							var includeProject = new ProjectXMLParser (path, defines);
+							var includeProject = new ProjectXMLParser (path, defines, null, false, this);
 							
 							if (includeProject != null && haxelib != null) {
 								
@@ -1369,7 +1369,7 @@ class ProjectXMLParser extends HXProject {
 						
 						haxelibs.push (haxelib);
 						
-						var includeProject = HXProject.fromHaxelib (haxelib, defines);
+						var includeProject = HXProject.fromHaxelib (haxelib, defines, null, this);
 						
 						if (includeProject != null) {
 							
@@ -2217,20 +2217,48 @@ class ProjectXMLParser extends HXProject {
 	}
 	
 	
-	private function replaceVariable (string:String):String {
+	private function replaceVariable (project:HXProject, string:String):String {
 		
-		if (string.substr (0, 8) == "haxelib:") {
+		if (string.substr (0, 7) == "parent:") {
+			
+			if (project.parent != null) {
+				
+				string = replaceVariable (project.parent, string.substr (7));
+				
+			} else {
+				
+				string = "null";
+				
+			}
+			
+		} else if (string.substr (0, 8) == "haxelib:") {
 			
 			var path = HaxelibHelper.getPath (new Haxelib (string.substr (8)), true);
 			return PathHelper.standardize (path);
 			
-		} else if (defines.exists (string)) {
+		} else if (project.defines.exists (string)) {
 			
-			return defines.get (string);
+			return project.defines.get (string);
 			
-		} else if (environment != null && environment.exists (string)) {
+		} else if (project.environment != null && project.environment.exists (string)) {
 			
-			return environment.get (string);
+			return project.environment.get (string);
+			
+		} else if (project.app != null && Reflect.hasField (project.app, string)) {
+			
+			return Reflect.field (project.app, string);
+			
+		} else if (project.meta != null && Reflect.hasField (project.meta, string)) {
+			
+			return Reflect.field (project.meta, string);
+			
+		} else if (project.window != null && Reflect.hasField (project.window, string)) {
+			
+			return Reflect.field (project.window, string);
+			
+		} else if (string == "directory") {
+			
+			return project.projectDirectory;
 			
 		} else {
 			
@@ -2240,42 +2268,42 @@ class ProjectXMLParser extends HXProject {
 			if (substring.indexOf ("==") > -1) {
 				
 				index = substring.indexOf ("==");
-				value = replaceVariable (substring.substr (0, index));
+				value = replaceVariable (project, substring.substr (0, index));
 				
 				return Std.string (value == substring.substr (index + 2));
 				
 			} else if (substring.indexOf ("!=") > -1) {
 				
 				index = substring.indexOf ("!=");
-				value = replaceVariable (substring.substr (0, index));
+				value = replaceVariable (project, substring.substr (0, index));
 				
 				return Std.string (value != substring.substr (index + 2));
 				
 			} else if (substring.indexOf ("<=") > -1) {
 				
 				index = substring.indexOf ("<=");
-				value = replaceVariable (substring.substr (0, index));
+				value = replaceVariable (project, substring.substr (0, index));
 				
 				return Std.string (value <= substring.substr (index + 2));
 				
 			} else if (substring.indexOf ("<") > -1) {
 				
 				index = substring.indexOf ("<");
-				value = replaceVariable (substring.substr (0, index));
+				value = replaceVariable (project, substring.substr (0, index));
 				
 				return Std.string (value < substring.substr (index + 1));
 				
 			} else if (substring.indexOf (">=") > -1) {
 				
 				index = substring.indexOf (">=");
-				value = replaceVariable (substring.substr (0, index));
+				value = replaceVariable (project, substring.substr (0, index));
 				
 				return Std.string (value >= substring.substr (index + 2));
 				
 			} else if (substring.indexOf (">") > -1) {
 				
 				index = substring.indexOf (">");
-				value = replaceVariable (substring.substr (0, index));
+				value = replaceVariable (project, substring.substr (0, index));
 				
 				return Std.string (value > substring.substr (index + 1));
 				
@@ -2316,20 +2344,19 @@ class ProjectXMLParser extends HXProject {
 		
 		while (doubleVarMatch.match (newString)) {
 			
-			newString = doubleVarMatch.matchedLeft () + "${" + replaceVariable (doubleVarMatch.matched (1)) + "}" + doubleVarMatch.matchedRight ();
+			newString = doubleVarMatch.matchedLeft () + "${" + replaceVariable (this, doubleVarMatch.matched (1)) + "}" + doubleVarMatch.matchedRight ();
 			
 		}
 		
 		while (varMatch.match (newString)) {
 			
-			newString = varMatch.matchedLeft () + replaceVariable (varMatch.matched (1)) + varMatch.matchedRight ();
+			newString = varMatch.matchedLeft () + replaceVariable (this, varMatch.matched (1)) + varMatch.matchedRight ();
 			
 		}
 		
 		return newString;
 		
 	}
-	
 	
 	
 }

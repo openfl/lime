@@ -52,9 +52,11 @@ class HXProject {
 	public var meta:MetaData;
 	public var modules:Map<String, ModuleData>;
 	public var ndlls:Array<NDLL>;
+	public var parent:HXProject;
 	public var platformType:PlatformType;
 	public var postBuildCallbacks:Array<CLICommand>;
 	public var preBuildCallbacks:Array<CLICommand>;
+	public var projectDirectory:String;
 	public var samplePaths:Array<String>;
 	public var sources:Array<String>;
 	public var splashScreens:Array<SplashScreen>;
@@ -116,13 +118,15 @@ class HXProject {
 	}
 	
 	
-	public function new () {
+	public function new (parent:HXProject = null, projectDirectory:String = null) {
 		
 		initialize ();
 		
 		command = _command;
 		config = new ConfigData ();
 		debug = _debug;
+		this.parent = parent;
+		this.projectDirectory = projectDirectory != null ? projectDirectory : Sys.getCwd();
 		target = _target;
 		targetFlags = StringMapHelper.copy (_targetFlags);
 		templatePaths = _templatePaths.copy ();
@@ -353,9 +357,11 @@ class HXProject {
 			
 		}
 		
+		project.parent = parent;
 		project.platformType = platformType;
 		project.postBuildCallbacks = postBuildCallbacks.copy ();
 		project.preBuildCallbacks = preBuildCallbacks.copy ();
+		project.projectDirectory = projectDirectory;
 		project.samplePaths = samplePaths.copy ();
 		project.sources = sources.copy ();
 		
@@ -540,7 +546,7 @@ class HXProject {
 	}
 	
 	
-	public static function fromHaxelib (haxelib:Haxelib, userDefines:Map<String, Dynamic> = null, clearCache:Bool = false):HXProject {
+	public static function fromHaxelib (haxelib:Haxelib, userDefines:Map<String, Dynamic> = null, clearCache:Bool = false, parent:HXProject = null):HXProject {
 		
 		if (haxelib.name == null || haxelib.name == "") {
 			
@@ -562,12 +568,12 @@ class HXProject {
 			//
 		//}
 		
-		return HXProject.fromPath (path, userDefines);
+		return HXProject.fromPath (path, userDefines, parent);
 		
 	}
 	
 	
-	public static function fromPath (path:String, userDefines:Map<String, Dynamic> = null):HXProject {
+	public static function fromPath (path:String, userDefines:Map<String, Dynamic> = null, parent:HXProject = null):HXProject {
 		
 		if (!FileSystem.exists (path) || !FileSystem.isDirectory (path)) {
 			
@@ -590,7 +596,7 @@ class HXProject {
 		
 		if (projectFile != null) {
 			
-			var project = new ProjectXMLParser (projectFile, userDefines);
+			var project = new ProjectXMLParser (projectFile, userDefines, null, false, parent);
 			
 			if (project.config.get ("project.rebuild.path") == null) {
 				
