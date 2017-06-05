@@ -369,10 +369,9 @@ class HaxelibHelper {
 		
 		if (FileSystem.exists (path)) {
 			
-			var json = Json.parse (File.getContent (path));
-			
 			try {
 				
+				var json = Json.parse (File.getContent (path));
 				var versionString:String = json.version;
 				var version:Version = versionString;
 				return version;
