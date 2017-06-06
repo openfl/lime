@@ -152,7 +152,7 @@ class Image {
 						this.buffer = new ImageBuffer (null, width, height);
 						ImageCanvasUtil.createCanvas (this, width, height);
 						
-						if (color != null) {
+						if (color != null && color != 0) {
 							
 							fillRect (new Rectangle (0, 0, width, height), color);
 							
@@ -162,7 +162,7 @@ class Image {
 						
 						this.buffer = new ImageBuffer (new UInt8Array (width * height * 4), width, height);
 						
-						if (color != null) {
+						if (color != null && color != 0) {
 							
 							fillRect (new Rectangle (0, 0, width, height), color);
 							
@@ -355,7 +355,9 @@ class Image {
 			
 			case CANVAS:
 				
-				if (alphaImage != null) {
+				// The data path appears to be much faster, even with no alpha image
+				
+				//if (alphaImage != null || sourceImage.type != CANVAS) {
 					
 					ImageCanvasUtil.convertToData (this);
 					ImageCanvasUtil.convertToData (sourceImage);
@@ -363,13 +365,13 @@ class Image {
 					
 					ImageDataUtil.copyPixels (this, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha);
 					
-				} else {
-					
-					ImageCanvasUtil.convertToCanvas (this);
-					ImageCanvasUtil.convertToCanvas (sourceImage);
-					ImageCanvasUtil.copyPixels (this, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha);
-					
-				}
+				//} else {
+					//
+					//ImageCanvasUtil.convertToCanvas (this);
+					//ImageCanvasUtil.convertToCanvas (sourceImage);
+					//ImageCanvasUtil.copyPixels (this, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha);
+					//
+				//}
 			
 			case DATA:
 				
