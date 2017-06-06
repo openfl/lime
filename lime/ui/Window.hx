@@ -6,6 +6,7 @@ import lime.app.Config;
 import lime.app.Event;
 import lime.graphics.Image;
 import lime.graphics.Renderer;
+import lime.system.Clipboard;
 import lime.system.Display;
 import lime.system.DisplayMode;
 
@@ -60,6 +61,7 @@ class Window {
 	public var onRestore = new Event<Void->Void> ();
 	public var onTextEdit = new Event<String->Int->Int->Void> ();
 	public var onTextInput = new Event<String->Void> ();
+	public var onClipboard = new Event<ClipboardAction->Void> ();
 	public var renderer:Renderer;
 	public var resizable (get, set):Bool;
 	public var scale (get, null):Float;
