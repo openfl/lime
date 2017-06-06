@@ -267,7 +267,19 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 		
-		CPPHelper.rebuild (project, [[ "-Dwindows" ]]);
+		var commands = [];
+		
+		if (targetFlags.exists ("64")) {
+			
+			commands.push ([ "-Dwindow", "-DHXCPP_M64" ]);
+			
+		} else {
+			
+			commands.push ([ "-Dwindow", "-DHXCPP_M32" ]);
+			
+		}
+		
+		CPPHelper.rebuild (project, commands);
 		
 	}
 	
