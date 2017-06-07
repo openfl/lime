@@ -781,14 +781,112 @@ class HTML5Window {
 	
 	public function setFullscreen (value:Bool):Bool {
 		
+		trace ("setFullscreen", value);
+		if (value) {
+			var elem = Browser.document.getElementById ("openfl-content");
+			if (elem == null) return false;
+			
+			//Browser.document.addEventListener ("fullscreenchange", handleFullscreenChange);
+			//Browser.document.addEventListener ("fullscreenerror", handleFullscreenChange);
+			
+			untyped {
+				if (elem.requestFullscreen) {
+					document.addEventListener ("fullscreenchange", handleFullscreenChange, false);
+					document.addEventListener ("fullscreenerror", handleFullscreenChange, false);
+					elem.requestFullscreen ();
+				} else if (elem.mozRequestFullScreen) {
+					document.addEventListener ("mozfullscreenchange", handleFullscreenChange, false);
+					document.addEventListener ("mozfullscreenerror", handleFullscreenChange, false);
+					elem.mozRequestFullScreen ();
+				} else if (elem.webkitRequestFullscreen) {
+					document.addEventListener ("webkitfullscreenchange", handleFullscreenChange, false);
+					document.addEventListener ("webkitfullscreenerror", handleFullscreenChange, false);
+					elem.webkitRequestFullscreen ();
+				} else if (elem.msRequestFullscreen) {
+					document.addEventListener ("MSFullscreenChange", handleFullscreenChange, false);
+					document.addEventListener ("MSFullscreenError", handleFullscreenChange, false);
+					elem.msRequestFullscreen ();
+				} else return false;
+			}
+			
+		} else {
+			untyped {
+				if (document.exitFullscreen) document.exitFullscreen ();
+				else if (document.mozCancelFullScreen) document.mozCancelFullScreen ();
+				else if (document.webkitExitFullscreen) document.webkitExitFullscreen ();
+				else if (document.msExitFullscreen) document.msExitFullscreen ();
+			}
+		}
+		
 		return value;
+		
+	}
+	
+	
+	private function handleFullscreenChange ():Void {
+		
+		var value = untyped (document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+		trace ("fullscreenchange", value);
+		
+		if (value != null) {
+			
+			//parent.onFullscreen.dispatch ();
+			parent.__fullscreen = true;
+			
+		} else {
+			
+			//parent.onFullscreen.dispatch ();
+			parent.__fullscreen = false;
+			
+			//Browser.document.removeEventListener ('fullscreenchange', handleFullscreenChange);
+			//Browser.document.removeEventListener ("fullscreenerror", handleFullscreenChange);
+			
+			untyped __js__ ('
+				if (document.fullscreenElement !== undefined) {
+					document.removeEventListener ("fullscreenchange", {0});
+					document.removeEventListener ("fullscreenerror", {0});
+				} else if (document.mozFullScreenElement !== undefined) {
+					document.removeEventListener ("mozfullscreenchange", {0});
+					document.removeEventListener ("mozfullscreenerror", {0});
+				} else if (document.webkitFullscreenElement !== undefined) {
+					document.removeEventListener ("webkitfullscreenchange", {0});
+					document.removeEventListener ("webkitfullscreenerror", {0});
+				} else if (document.msFullscreenElement !== undefined) {
+					document.removeEventListener ("MSFullscreenChange", {0});
+					document.removeEventListener ("MSFullscreenError", {0});
+				}', handleFullscreenChange);
+		}
 		
 	}
 	
 	
 	public function setIcon (image:Image):Void {
 		
+		var w = 16, h = 16;
+		if (image.width != w || image.height != h) image.resize(w, h);
+		var pixels = image.getPixels (new lime.math.Rectangle (0, 0, image.width, image.height), lime.graphics.PixelFormat.ARGB32);
 		
+		untyped {
+			var canvas = document.createElement ('canvas');
+			canvas.width = w; canvas.height = h;
+			var ctx = canvas.getContext ('2d');
+			var img = ctx.createImageData (w, h);
+			var i = 0, len = img.data.length;
+			while (i < len) {
+				img.data[i]     = pixels.get (i + 1);
+				img.data[i + 1] = pixels.get (i + 2);
+				img.data[i + 2] = pixels.get (i + 3);
+				img.data[i + 3] = pixels.get (i);
+				i += 4;
+			}
+			ctx.putImageData (img, 0, 0);
+			
+			var link = document.querySelector ("link[rel*='icon']") || document.createElement ('link');
+			link.type = 'image/x-icon';
+			link.rel = 'shortcut icon';
+			link.href = canvas.toDataURL ("image/x-icon");
+			document.getElementsByTagName ('head')[0].appendChild (link);
+		}
 		
 	}
 	
@@ -815,6 +913,12 @@ class HTML5Window {
 	
 	
 	public function setTitle (value:String):String {
+		
+		if (value != null) {
+			
+			Browser.document.title = value;
+			
+		}
 		
 		return value;
 		
