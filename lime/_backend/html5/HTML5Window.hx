@@ -276,6 +276,14 @@ class HTML5Window {
 	}
 	
 	
+	private function handleCutOrCopyEvent (event:ClipboardEvent):Void {
+		
+		event.clipboardData.setData ("text/plain", Clipboard.text);
+		event.preventDefault ();
+		
+	}
+	
+	
 	private function handleFocusEvent (event:FocusEvent):Void {
 		
 		if (enableTextEvents) {
@@ -313,27 +321,6 @@ class HTML5Window {
 	}
 	
 	
-	private function handleCutOrCopyEvent (event:ClipboardEvent):Void {
-		
-		event.clipboardData.setData('text/plain', Clipboard.text);
-		event.preventDefault(); // We want our data, not data from any selection, to be written to the clipboard
-		
-	}
-
-
-	private function handlePasteEvent (event:ClipboardEvent):Void {
-		
-		if(untyped event.clipboardData.types.indexOf('text/plain') > -1){
-			var text = Clipboard.text = event.clipboardData.getData('text/plain');
-			parent.onTextInput.dispatch (text);
-			
-			// We are already handling the data from the clipboard, we do not want it inserted into the hidden input
-			event.preventDefault();
-		}
-		
-	}
-
-
 	private function handleInputEvent (event:InputEvent):Void {
 		
 		// In order to ensure that the browser will fire clipboard events, we always need to have something selected.
@@ -470,13 +457,33 @@ class HTML5Window {
 			
 		} else {
 			
-			parent.onMouseWheel.dispatch (untyped event.deltaX, - untyped event.deltaY);
+			parent.onMouseWheel.dispatch (untyped event.deltaX, -untyped event.deltaY);
 			
 			if (parent.onMouseWheel.canceled) {
 				
 				event.preventDefault ();
 				
 			}
+			
+		}
+		
+	}
+	
+	
+	private function handlePasteEvent (event:ClipboardEvent):Void {
+		
+		if (untyped event.clipboardData.types.indexOf ("text/plain") > -1) {
+			
+			var text = event.clipboardData.getData ("text/plain");
+			Clipboard.text = text;
+			
+			if (enableTextEvents) {
+				
+				parent.onTextInput.dispatch (text);
+				
+			}
+			
+			event.preventDefault ();
 			
 		}
 		
@@ -675,23 +682,23 @@ class HTML5Window {
 	
 	public function setClipboard (value:String):Void {
 		
+		var inputEnabled = enableTextEvents;
+		
+		setEnableTextEvents (true); // create textInput if necessary
+		
+		var cacheText = textInput.value;
+		textInput.value = value;
+		textInput.select ();
+		
 		if (Browser.document.queryCommandEnabled ("copy")) {
-			
-			var inputEnabled = enableTextEvents;
-			
-			setEnableTextEvents (true); // create textInput if necessary
-			setEnableTextEvents (false);
-			
-			var cacheText = textInput.value;
-			textInput.value = value;
 			
 			Browser.document.execCommand ("copy");
 			
-			textInput.value = cacheText;
-			
-			setEnableTextEvents (inputEnabled);
-			
 		}
+		
+		textInput.value = cacheText;
+		
+		setEnableTextEvents (inputEnabled);
 		
 	}
 	

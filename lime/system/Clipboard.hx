@@ -3,6 +3,7 @@ package lime.system;
 
 import lime._backend.native.NativeCFFI;
 import lime.app.Application;
+import lime.app.Event;
 
 #if flash
 import flash.desktop.Clipboard in FlashClipboard;
@@ -22,11 +23,35 @@ import lime._backend.html5.HTML5Window;
 class Clipboard {
 	
 	
+	public static var onUpdate = new Event<Void->Void> ();
 	public static var text (get, set):String;
-
-	#if js
-	private static var _text : String;
-	#end
+	
+	private static var _text:String;
+	
+	
+	
+	private static function __update ():Void {
+		
+		var cacheText = _text;
+		
+		#if (lime_cffi && !macro)
+		_text = NativeCFFI.lime_clipboard_get_text ();
+		#elseif flash
+		if (FlashClipboard.generalClipboard.hasFormat (TEXT_FORMAT)) {
+			
+			_text = FlashClipboard.generalClipboard.getData (TEXT_FORMAT);
+			
+		}
+		_text = null;
+		#end
+		
+		if (_text != cacheText) {
+			
+			onUpdate.dispatch ();
+			
+		}
+		
+	}
 	
 	
 	
@@ -38,44 +63,40 @@ class Clipboard {
 	
 	private static function get_text ():String {
 		
-		#if (lime_cffi && !macro)
-		return NativeCFFI.lime_clipboard_get_text ();
-		#elseif flash
-		if (FlashClipboard.generalClipboard.hasFormat (TEXT_FORMAT)) {
-			
-			return FlashClipboard.generalClipboard.getData (TEXT_FORMAT);
-			
-		}
-		return null;
-		#elseif js
-		return _text;
-		#else
-		return null;
+		#if flash
+		__update ();
 		#end
+		
+		return _text;
 		
 	}
 	
 	
 	private static function set_text (value:String):String {
 		
+		var cacheText = _text;
+		_text = value;
+		
 		#if (lime_cffi && !macro)
 		NativeCFFI.lime_clipboard_set_text (value);
-		return value;
 		#elseif flash
 		FlashClipboard.generalClipboard.setData (TEXT_FORMAT, value);
-		return value;
 		#elseif (js && html5)
-		_text = value;
 		var window = Application.current.window;
 		if (window != null) {
 			
 			window.backend.setClipboard (value);
 			
 		}
-		return value;
-		#else
-		return null;
 		#end
+		
+		if (_text != cacheText) {
+			
+			onUpdate.dispatch ();
+			
+		}
+		
+		return value;
 		
 	}
 	

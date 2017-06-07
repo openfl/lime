@@ -48,6 +48,7 @@ namespace lime {
 		nextUpdate = 0;
 		
 		ApplicationEvent applicationEvent;
+		ClipboardEvent clipboardEvent;
 		DropEvent dropEvent;
 		GamepadEvent gamepadEvent;
 		JoystickEvent joystickEvent;
@@ -154,6 +155,11 @@ namespace lime {
 				WindowEvent::Dispatch (&windowEvent);
 				
 				inBackground = false;
+				break;
+			
+			case SDL_CLIPBOARDUPDATE:
+				
+				ProcessClipboardEvent (event);
 				break;
 			
 			case SDL_CONTROLLERAXISMOTION:
@@ -312,6 +318,19 @@ namespace lime {
 		active = true;
 		lastUpdate = SDL_GetTicks ();
 		nextUpdate = lastUpdate;
+		
+	}
+	
+	
+	void SDLApplication::ProcessClipboardEvent (SDL_Event* event) {
+		
+		if (ClipboardEvent::callback) {
+			
+			clipboardEvent.type = CLIPBOARD_UPDATE;
+			
+			ClipboardEvent::Dispatch (&clipboardEvent);
+			
+		}
 		
 	}
 	

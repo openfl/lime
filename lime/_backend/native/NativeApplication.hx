@@ -12,6 +12,7 @@ import lime.graphics.GLRenderContext;
 import lime.graphics.RenderContext;
 import lime.graphics.Renderer;
 import lime.math.Rectangle;
+import lime.system.Clipboard;
 import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.Sensor;
@@ -38,6 +39,7 @@ import lime.ui.Window;
 @:access(lime.graphics.opengl.GL)
 @:access(lime.graphics.GLRenderContext)
 @:access(lime.graphics.Renderer)
+@:access(lime.system.Clipboard)
 @:access(lime.system.Sensor)
 @:access(lime.ui.Gamepad)
 @:access(lime.ui.Joystick)
@@ -48,6 +50,7 @@ class NativeApplication {
 	
 	
 	private var applicationEventInfo = new ApplicationEventInfo (UPDATE);
+	private var clipboardEventInfo = new ClipboardEventInfo ();
 	private var currentTouches = new Map<Int, Touch> ();
 	private var dropEventInfo = new DropEventInfo ();
 	private var gamepadEventInfo = new GamepadEventInfo ();
@@ -111,6 +114,7 @@ class NativeApplication {
 		#if !macro
 		
 		NativeCFFI.lime_application_event_manager_register (handleApplicationEvent, applicationEventInfo);
+		NativeCFFI.lime_clipboard_event_manager_register (handleClipboardEvent, clipboardEventInfo);
 		NativeCFFI.lime_drop_event_manager_register (handleDropEvent, dropEventInfo);
 		NativeCFFI.lime_gamepad_event_manager_register (handleGamepadEvent, gamepadEventInfo);
 		NativeCFFI.lime_joystick_event_manager_register (handleJoystickEvent, joystickEventInfo);
@@ -199,6 +203,13 @@ class NativeApplication {
 				//parent.onExit.dispatch (0);
 			
 		}
+		
+	}
+	
+	
+	private function handleClipboardEvent ():Void {
+		
+		Clipboard.__update ();
 		
 	}
 	
@@ -742,6 +753,36 @@ private class ApplicationEventInfo {
 	
 	var UPDATE = 0;
 	var EXIT = 1;
+	
+}
+
+
+private class ClipboardEventInfo {
+	
+	
+	public var type:ClipboardEventType;
+	
+	
+	public function new (type:ClipboardEventType = null) {
+		
+		this.type = type;
+		
+	}
+	
+	
+	public function clone ():ClipboardEventInfo {
+		
+		return new ClipboardEventInfo (type);
+		
+	}
+	
+	
+}
+
+
+@:enum private abstract ClipboardEventType(Int) {
+	
+	var UPDATE = 0;
 	
 }
 

@@ -22,6 +22,7 @@
 #include <media/AudioBuffer.h>
 #include <system/CFFIPointer.h>
 #include <system/Clipboard.h>
+#include <system/ClipboardEvent.h>
 #include <system/JNI.h>
 #include <system/Locale.h>
 #include <system/SensorEvent.h>
@@ -268,6 +269,14 @@ namespace lime {
 		value abstract = alloc_abstract (k_finalizer, callback);
 		val_gc (abstract, lime_cffi_finalizer);
 		return abstract;
+		
+	}
+	
+	
+	void lime_clipboard_event_manager_register (value callback, value eventObject) {
+		
+		ClipboardEvent::callback = new AutoGCRoot (callback);
+		ClipboardEvent::eventObject = new AutoGCRoot (eventObject);
 		
 	}
 	
@@ -1794,6 +1803,7 @@ namespace lime {
 	DEFINE_PRIME2 (lime_bytes_read_file);
 	DEFINE_PRIME1 (lime_cffi_get_native_pointer);
 	DEFINE_PRIME1 (lime_cffi_set_finalizer);
+	DEFINE_PRIME2v (lime_clipboard_event_manager_register);
 	DEFINE_PRIME0 (lime_clipboard_get_text);
 	DEFINE_PRIME1v (lime_clipboard_set_text);
 	DEFINE_PRIME2 (lime_data_pointer_offset);

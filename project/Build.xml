@@ -255,6 +255,7 @@
 		<file name="src/media/containers/WAV.cpp" />
 		<file name="src/media/AudioBuffer.cpp" />
 		<file name="src/system/CFFIPointer.cpp" />
+		<file name="src/system/ClipboardEvent.cpp" />
 		<file name="src/system/DisplayMode.cpp" />
 		<file name="src/system/JNI.cpp" if="android" />
 		<file name="src/system/Locale.cpp" unless="mac || ios" />

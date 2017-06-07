@@ -6,6 +6,7 @@
 #include <app/Application.h>
 #include <app/ApplicationEvent.h>
 #include <graphics/RenderEvent.h>
+#include <system/ClipboardEvent.h>
 #include <system/SensorEvent.h>
 #include <ui/DropEvent.h>
 #include <ui/GamepadEvent.h>
@@ -39,6 +40,7 @@ namespace lime {
 		private:
 			
 			void HandleEvent (SDL_Event* event);
+			void ProcessClipboardEvent (SDL_Event* event);
 			void ProcessDropEvent (SDL_Event* event);
 			void ProcessGamepadEvent (SDL_Event* event);
 			void ProcessJoystickEvent (SDL_Event* event);
@@ -57,6 +59,7 @@ namespace lime {
 			
 			bool active;
 			ApplicationEvent applicationEvent;
+			ClipboardEvent clipboardEvent;
 			Uint32 currentUpdate;
 			double framePeriod;
 			DropEvent dropEvent;
