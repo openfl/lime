@@ -1,3 +1,29 @@
+5.1.0 (06/07/2017)
+------------------
+
+* Added `lime.text.UTF8String` with unifill for handling UTF-8 text
+* Added support for `Clipboard.onUpdate` on native and HTML5
+* Added initial support for HTML5 fullscreen
+* Added initial support for `window.setIcon` and `window.title` on HTML5
+* Added support for 32-bit GL color depth on native platforms
+* Added support for making 64-bit Windows builds
+* Added support for automatically detecting latest Android build tools
+* Added support for setting `<config:android build-tools-version="" />`
+* Added support for `<config:ios allow-insecure-http="" />`
+* Added support for `<config:android gradle-build-directory="" />`
+* Updated Node http-server to version 0.10.0
+* Improved handling of crossOrigin requests on HTML5 for same-origin
+* Improved the accuracy of `image.copyPixels` when using alpha image
+* Improved performance of ObjectPool when constantly recycling objects
+* Improved `image.setPixels` to accept bytes and offset
+* Improved performance of creating a new Image with no fill color
+* Fixed issue with OpenAL GC
+* Fixed loading of some WAV files
+* Fixed minor issues in using output of `lime display` for code completion
+* Fixed semi-transparent fillRect on canvas-based Image
+* Fixed minor issues with cURL
+
+
 5.0.3 (05/24/2017)
 ------------------
 
