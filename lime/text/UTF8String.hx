@@ -280,6 +280,7 @@ abstract UTF8String(String) from String to String {
 	
 	@:op(A == B) private static function equals (a:UTF8String, b:UTF8String):Bool {
 		
+		if (a == null || b == null) return (a:String) == (b:String);
 		return Unifill.uCompare (a, b) == 0;
 		
 	}
@@ -287,6 +288,8 @@ abstract UTF8String(String) from String to String {
 	
 	@:op(A < B) private static function lt (a:UTF8String, b:UTF8String):Bool {
 		
+		if (b == null) return false;
+		if (a == null) return true;
 		return Unifill.uCompare (a, b) == -1;
 		
 	}
@@ -294,6 +297,8 @@ abstract UTF8String(String) from String to String {
 	
 	@:op(A > B) private static function gt (a:UTF8String, b:UTF8String):Bool {
 		
+		if (a == null) return false;
+		if (b == null) return true;
 		return Unifill.uCompare (a, b) == 1;
 		
 	}
@@ -301,6 +306,8 @@ abstract UTF8String(String) from String to String {
 	
 	@:op(A <= B) private static function lteq (a:UTF8String, b:UTF8String):Bool {
 		
+		if (b == null) return (a == null);
+		if (a == null) return true;
 		return Unifill.uCompare (a, b) != 1;
 		
 	}
@@ -308,12 +315,18 @@ abstract UTF8String(String) from String to String {
 	
 	@:op(A >= B) static function gteq (a:UTF8String, b:UTF8String):Bool {
 		
+		if (a == null) return (b == null);
+		if (b == null) return true;
 		return Unifill.uCompare (a, b) != -1;
 		
 	}
 	
 	
 	@:op(A + B) static function plus (a:UTF8String, b:UTF8String):UTF8String {
+		
+		if (a == null && b == null) return null;
+		if (a == null) return b;
+		if (b == null) return a;
 		
 		var sb = new StringBuf ();
 		sb.add (Std.string (a));
@@ -332,7 +345,7 @@ abstract UTF8String(String) from String to String {
 	
 	private function get_length ():Int {
 		
-		return Utf8.length (this);
+		return this == null ? 0 : Utf8.length (this);
 		
 	}
 	
