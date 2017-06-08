@@ -177,6 +177,25 @@ class AndroidHelper {
 		
 		return 0;
 	}
+
+	public static function getPlatformToolsVersion ():String {
+
+		var propertiesPath = adbPath + "source.properties";
+		var properties = File.getContent(propertiesPath);
+		
+		for (line in properties.split ("\n")) {
+
+			if(StringTools.startsWith (line, "Pkg.Revision")) {
+
+				return line.substr (line.indexOf ("=") + 1);
+
+			}
+
+		}
+
+		return "";
+
+	}
 	
 	
 	public static function initialize (project:HXProject):Void {
@@ -292,14 +311,20 @@ class AndroidHelper {
 			
 		}
 		
-		var args = [ "install", "-r" ];
+		var args = [ "install" ];
 		
-		//if (getDeviceSDKVersion (deviceID) > 16) {
-			
-			args.push ("-d");
-			
-		//}
-		
+		var platformToolsMajorVersion = Std.parseInt(getPlatformToolsVersion ().split (".")[0]);
+
+		if (platformToolsMajorVersion >= 23) {
+
+			args.push("-rd");
+
+		} else {
+
+			args.push("-r");
+
+		}
+
 		args.push (targetPath);
 		
 		if (deviceID != null && deviceID != "") {
