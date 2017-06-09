@@ -38,7 +38,7 @@ class LinuxPlatform extends PlatformTarget {
 		
 		for (architecture in project.architectures) {
 			
-			if (architecture == Architecture.X64) {
+			if (!targetFlags.exists ("32") && architecture == Architecture.X64) {
 				
 				is64 = true;
 				
@@ -136,6 +136,12 @@ class LinuxPlatform extends PlatformTarget {
 				haxeArgs.push ("-D");
 				haxeArgs.push ("HXCPP_M64");
 				flags.push ("-DHXCPP_M64");
+				
+			} else {
+				
+				haxeArgs.push ("-D");
+				haxeArgs.push ("HXCPP_M32");
+				flags.push ("-DHXCPP_M32");
 				
 			}
 			
