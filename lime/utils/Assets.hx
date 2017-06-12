@@ -296,6 +296,19 @@ class Assets {
 	}
 	
 	
+	public static function hasLibrary (name:String):Bool {
+		
+		if (name == null || name == "") {
+			
+			name = "default";
+			
+		}
+		
+		return libraries.exists (name);
+		
+	}
+	
+	
 	public static function isLocal (id:String, type:AssetType = null, useCache:Bool = true):Bool {
 		
 		#if (tools && !display)
