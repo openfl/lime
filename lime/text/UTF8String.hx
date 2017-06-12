@@ -313,7 +313,7 @@ abstract UTF8String(String) from String to String {
 	}
 	
 	
-	@:op(A >= B) static function gteq (a:UTF8String, b:UTF8String):Bool {
+	@:op(A >= B) private static function gteq (a:UTF8String, b:UTF8String):Bool {
 		
 		if (a == null) return (b == null);
 		if (b == null) return true;
@@ -322,7 +322,7 @@ abstract UTF8String(String) from String to String {
 	}
 	
 	
-	@:op(A + B) static function plus (a:UTF8String, b:UTF8String):UTF8String {
+	@:op(A + B) private static function plus (a:UTF8String, b:UTF8String):UTF8String {
 		
 		if (a == null && b == null) return null;
 		if (a == null) return b;
@@ -332,6 +332,13 @@ abstract UTF8String(String) from String to String {
 		sb.add (Std.string (a));
 		sb.add (Std.string (b));
 		return sb.toString ();
+		
+	}
+	
+	
+	@:from static function fromDynamic (value:Dynamic):UTF8String {
+		
+		return Std.string (value);
 		
 	}
 	
