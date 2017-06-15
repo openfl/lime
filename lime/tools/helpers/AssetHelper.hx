@@ -24,6 +24,14 @@ class AssetHelper {
 		var size, soundName;
 		var assetData:Dynamic;
 		
+		var libraries = new Map<String, Library> ();
+		
+		for (lib in project.libraries) {
+			
+			libraries[lib.name] = lib;
+			
+		}
+		
 		for (asset in project.assets) {
 			
 			if (asset.library != library || asset.type == TEMPLATE) continue;
@@ -44,9 +52,9 @@ class AssetHelper {
 				
 			};
 			
-			if (project.target != HTML5) {
+			if (project.target == FLASH) {
 				
-				if (asset.embed == true || asset.type == FONT || (asset.embed == null && (project.platformType == WEB))) {
+				if (asset.embed != false || asset.type == FONT) {
 					
 					assetData.className = "__ASSET__" + asset.flatName;
 					
@@ -56,7 +64,13 @@ class AssetHelper {
 					
 				}
 				
-			} else {
+				if (asset.embed == false && asset.library != null && libraries.exists (asset.library)) {
+					
+					assetData.preload = libraries[asset.library].preload;
+					
+				}
+				
+			} else if (project.target == HTML5) {
 				
 				if (asset.type == FONT) {
 					
@@ -67,7 +81,7 @@ class AssetHelper {
 					
 					assetData.path = asset.resourceName;
 					
-					if (asset.embed != false) {
+					if (asset.embed != false || (asset.library != null && libraries.exists (asset.library) && libraries[asset.library].preload)) {
 						
 						assetData.preload = true;
 						
@@ -92,6 +106,18 @@ class AssetHelper {
 						assetData.pathGroup = pathGroups[soundName];
 						
 					}
+					
+				}
+				
+			} else {
+				
+				if (asset.embed == true || asset.type == FONT) {
+					
+					assetData.className = "__ASSET__" + asset.flatName;
+					
+				} else {
+					
+					assetData.path = asset.resourceName;
 					
 				}
 				
