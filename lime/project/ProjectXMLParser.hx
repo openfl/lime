@@ -521,7 +521,7 @@ class ProjectXMLParser extends HXProject {
 				
 			}
 			
-			if (!FileSystem.isDirectory (path) || Path.extension (path) == "bundle") {
+			if (!FileSystem.isDirectory (path)) {
 				
 				var asset = new Asset (path, targetPath, type, embed);
 				asset.library = library;
@@ -539,6 +539,31 @@ class ProjectXMLParser extends HXProject {
 				}
 				
 				assets.push (asset);
+				
+			} else if (Path.extension (path) == "bundle") {
+				
+				var includePath = findIncludeFile (path);
+				
+				if (includePath != null && includePath != "" && FileSystem.exists (includePath) && !FileSystem.isDirectory (includePath)) {
+					
+					var includeProject = new ProjectXMLParser (includePath, defines);
+					merge (includeProject);
+					return;
+					
+				} else {
+					
+					var asset = new Asset (path, targetPath, type, embed);
+					asset.library = library;
+					
+					if (element.has.id) {
+						
+						asset.id = substitute (element.att.id);
+						
+					}
+					
+					assets.push (asset);
+					
+				}
 				
 			} else {
 				
@@ -705,20 +730,6 @@ class ProjectXMLParser extends HXProject {
 	
 	
 	private function parseAssetsElementDirectory (path:String, targetPath:String, include:String, exclude:String, type:AssetType, embed:Null<Bool>, library:String, glyphs:String, recursive:Bool):Void {
-		
-		if (StringTools.endsWith (path, ".bundle")) {
-			
-			var includePath = findIncludeFile (path);
-			
-			if (includePath != null && includePath != "" && FileSystem.exists (includePath) && !FileSystem.isDirectory (includePath)) {
-				
-				var includeProject = new ProjectXMLParser (includePath, defines);
-				merge (includeProject);
-				return;
-				
-			}
-			
-		}
 		
 		var files = FileSystem.readDirectory (path);
 		
