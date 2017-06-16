@@ -130,6 +130,7 @@ class HTML5Platform extends PlatformTarget {
 		var destination = targetDirectory + "/bin/";
 		PathHelper.mkdir (destination);
 		
+		var webfontDirectory = targetDirectory + "/obj/webfont";
 		var useWebfonts = true;
 		
 		for (haxelib in project.haxelibs) {
@@ -142,13 +143,28 @@ class HTML5Platform extends PlatformTarget {
 			
 		}
 		
+		var fontPath;
+		
 		for (asset in project.assets) {
 			
 			if (asset.type == AssetType.FONT) {
 				
 				if (useWebfonts) {
 					
-					HTML5Helper.generateWebfonts (project, asset);
+					fontPath = PathHelper.combine (webfontDirectory, Path.withoutDirectory (asset.targetPath));
+					
+					if (!FileSystem.exists (fontPath)) {
+						
+						PathHelper.mkdir (webfontDirectory);
+						FileHelper.copyFile (asset.sourcePath, fontPath);
+						
+						asset.sourcePath = fontPath;
+						
+						HTML5Helper.generateWebfonts (project, asset);
+						
+					}
+					
+					asset.sourcePath = fontPath;
 					asset.targetPath = Path.withoutExtension (asset.targetPath);
 					
 				} else {
