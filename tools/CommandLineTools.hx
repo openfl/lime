@@ -889,6 +889,7 @@ class CommandLineTools {
 		LogHelper.println ("");
 		LogHelper.println ("  \x1b[1m-D\x1b[0;3mvalue\x1b[0m -- Specify a define to use when processing other commands");
 		LogHelper.println ("  \x1b[1m-debug\x1b[0m -- Use debug configuration instead of release");
+		LogHelper.println ("  \x1b[1m-final\x1b[0m -- Use final configuration instead of release");
 		LogHelper.println ("  \x1b[1m-verbose\x1b[0m -- Print additional information (when available)");
 		LogHelper.println ("  \x1b[1m-clean\x1b[0m -- Add a \"clean\" action before running the current command");
 		LogHelper.println ("  \x1b[1m-nocolor\x1b[0m -- Disable ANSI format codes in output");
