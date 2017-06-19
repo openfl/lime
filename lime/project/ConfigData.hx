@@ -362,7 +362,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 	}
 	
 	
-	public function parse (elem:Fast):Void {
+	public function parse (elem:Fast, substitute:String->String = null):Void {
 		
 		var bucket = this;
 		var bucketType = "";
@@ -386,21 +386,22 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 			
 		}
 		
-		parseAttributes (elem, bucket);
-		parseChildren (elem, bucket);
+		parseAttributes (elem, bucket, substitute);
+		parseChildren (elem, bucket, 0, substitute);
 		
 		log ("> current config : " + this);
 		
 	}
 	
 	
-	private function parseAttributes (elem:Fast, bucket:Dynamic):Void {
+	private function parseAttributes (elem:Fast, bucket:Dynamic, substitute:String->String = null):Void {
 		
 		for (attrName in elem.x.attributes ()) {
 			
 			if (attrName != "type") {
 				
 				var attrValue = elem.x.get (attrName);
+				if (substitute != null) attrValue = substitute (attrValue);
 				setNode (bucket, attrName, attrValue);
 				
 			}
@@ -410,7 +411,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 	}
 	
 	
-	private function parseChildren (elem:Fast, bucket:Dynamic, depth:Int = 0):Void {
+	private function parseChildren (elem:Fast, bucket:Dynamic, depth:Int = 0, substitute:String->String = null):Void {
 		
 		for (child in elem.elements) {
 			
@@ -437,19 +438,19 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 					
 					if (hasAttributes) {
 						
-						parseAttributes (child, arrayBucket);
+						parseAttributes (child, arrayBucket, substitute);
 						
 					}
 					
 					if (hasChildren) {
 						
-						parseChildren (child, arrayBucket, d);
+						parseChildren (child, arrayBucket, d, substitute);
 						
 					}
 					
 					if (!hasChildren && !hasAttributes) {
 						
-						parseValue (child, arrayBucket);
+						parseValue (child, arrayBucket, substitute);
 						
 					}
 					
@@ -457,7 +458,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 				
 				if (!hasChildren && !hasAttributes) {
 					
-					parseValue (child, bucket);
+					parseValue (child, bucket, substitute);
 					
 				} else {
 					
@@ -465,13 +466,13 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 					
 					if (hasAttributes) {
 						
-						parseAttributes (child, childBucket);
+						parseAttributes (child, childBucket, substitute);
 						
 					}
 					
 					if (hasChildren) {
 						
-						parseChildren (child, childBucket, d);
+						parseChildren (child, childBucket, d, substitute);
 						
 					}
 					
@@ -483,11 +484,13 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 	}
 	
 	
-	private function parseValue (elem:Fast, bucket:Dynamic):Void {
+	private function parseValue (elem:Fast, bucket:Dynamic, substitute:String->String = null):Void {
 		
 		if (elem.innerHTML != "") {
 			
-			setNode (bucket, elem.name, elem.innerHTML);
+			var value = elem.innerHTML;
+			if (substitute != null) value = substitute (value);
+			setNode (bucket, elem.name, value);
 			
 		}
 		

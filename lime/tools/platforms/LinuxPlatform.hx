@@ -71,7 +71,7 @@ class LinuxPlatform extends PlatformTarget {
 			
 		}
 		
-		targetDirectory = project.app.path + "/linux" + (is64 ? "64" : "") + (isRaspberryPi ? "-rpi" : "") + "/" + targetType + "/" + buildType;
+		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("linux.output-directory", "linux" + (is64 ? "64" : "") + (isRaspberryPi ? "-rpi" : "") + "/" + targetType + "/" + buildType));
 		applicationDirectory = targetDirectory + "/bin/";
 		executablePath = PathHelper.combine (applicationDirectory, project.app.file);
 		

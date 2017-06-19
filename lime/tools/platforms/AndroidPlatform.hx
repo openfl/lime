@@ -52,7 +52,7 @@ class AndroidPlatform extends PlatformTarget {
 			
 		}
 		
-		targetDirectory = project.app.path + "/android/" + buildType;
+		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("android.output-directory", "android/" + buildType));
 		
 	}
 	
