@@ -29,11 +29,33 @@ import lime.ui.Window;
 class Application extends Module {
 	
 	
+	/**
+	 * The current Application instance that is executing
+	**/
 	public static var current (default, null):Application;
 	
+	
+	/**
+	 * Configuration values for the application, such as window options or a package name
+	**/
 	public var config (default, null):Config;
+	
+	/**
+	 * The current frame rate (measured in frames-per-second) of the application.
+	 *
+	 * On some platforms, a frame rate of 60 or greater may imply vsync, which will
+	 * perform more quickly on displays with a higher refresh rate
+	**/
 	public var frameRate (get, set):Float;
+	
+	/**
+	 * A list of currently attached Module instances
+	**/
 	public var modules (default, null):Array<IModule>;
+	
+	/**
+	 * The Preloader for the current Application
+	**/
 	public var preloader (get, null):Preloader;
 	
 	/**
@@ -41,9 +63,26 @@ class Application extends Module {
 	 */
 	public var onUpdate = new Event<Int->Void> ();
 	
+	/**
+	 * The Renderer associated with this Application, or the first Renderer
+	 * if there are multiple Renderer instances
+	**/
 	public var renderer (get, null):Renderer;
+	
+	/**
+	 * A list of Renderer instances associated with this Application
+	**/
 	public var renderers (get, null):Array<Renderer>;
+	
+	/**
+	 * The Window associated with this Application, or the first Window
+	 * if there are multiple Windows active
+	**/
 	public var window (get, null):Window;
+	
+	/**
+	 * A list of active Window instances associated with this Application
+	**/
 	public var windows (get, null):Array<Window>;
 	
 	@:noCompletion private var backend:ApplicationBackend;
@@ -57,6 +96,9 @@ class Application extends Module {
 	}
 	
 	
+	/**
+	 * Creates a new Application instance
+	**/
 	public function new () {
 		
 		super ();

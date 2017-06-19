@@ -18,6 +18,7 @@ tools/*.n
 tools/*.exe
 haxedoc.xml
 docs/*.xml
+docs/xml
 docs/pages*
 legacy/ndll/*/lime*
 legacy/ndll/*/liblime*
