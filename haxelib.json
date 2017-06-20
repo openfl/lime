@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "5.1.0",
-	"releasenote": "UTF8String, copyPixels improvements, performance improvements",
+	"version": "5.2.0",
+	"releasenote": "Added Assets.hasLibrary, output directory override, other improvements",
 	"contributors": [ "singmajesty" ]
 }
