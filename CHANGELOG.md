@@ -1,3 +1,17 @@
+5.2.0 (06/20/2017)
+------------------
+
+* Added ability to override the target output directory
+* Added `Assets.hasLibrary` to check if a given library is registered
+* Improved webfonts to cache upon generation and not save in asset directory
+* Updated JavaScript timers to use `performance.now()` instead of `new Date()`
+* Fixed support for *.bundle directories which include "include.xml"
+* Fixed `AssetLibrary` to preload non-embedded assets if set to preload
+* Fixed an issue when converting non-String values to `UTF8String`
+* Fixed an issue with Node http-server resolving properly to localhost
+* Fixed support for `lime test linux -32` on 64-bit systems
+
+
 5.1.0 (06/07/2017)
 ------------------
 
