@@ -84,7 +84,7 @@
 		
 		<module name="${module-name}" if="html5 modular">
 			
-			<source path="${HAXE_STD_PATH}" package="js.html" />
+			<!--<source path="${HAXE_STD_PATH}" package="js.html" />-->
 			<source path="${HAXE_STD_PATH}" package="haxe.ds" exclude="haxe.ds.StringMap" />
 			<source path="${HAXE_STD_PATH}" package="haxe.io" />
 			
