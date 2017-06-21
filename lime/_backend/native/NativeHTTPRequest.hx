@@ -261,18 +261,45 @@ class NativeHTTPRequest {
 		var headers = [];
 		headers.push ("Expect: ");
 		
-		var hasContentType = false;
+		var contentType = null;
 		
 		for (header in cast (parent.headers, Array<Dynamic>)) {
 			
-			if (header.name == "Content-Type") hasContentType = true;
-			headers.push ('${header.name}: ${header.value}');
+			if (header.name == "Content-Type") {
+				
+				contentType = header.value;
+				
+			} else {
+				
+				headers.push ('${header.name}: ${header.value}');
+				
+			}
 			
 		}
 		
-		if (!hasContentType) {
+		if (parent.contentType != null) {
 			
-			headers.push ("Content-Type: " + parent.contentType);
+			contentType = parent.contentType;
+			
+		}
+		
+		if (contentType == null) {
+			
+			if (parent.data != null) {
+				
+				contentType = "application/octet-stream";
+				
+			} else if (query != "") {
+				
+				contentType = "application/x-www-form-urlencoded";
+				
+			}
+			
+		}
+		
+		if (contentType != null) {
+			
+			headers.push ("Content-Type: " + contentType);
 			
 		}
 		

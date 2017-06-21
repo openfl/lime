@@ -96,8 +96,11 @@ class HTML5HTTPRequest {
 		}
 		
 		request.open (Std.string (parent.method), uri, true);
+		
 		if (parent.timeout > 0) {
+			
 			request.timeout = parent.timeout;
+			
 		}
 		
 		if (binary) {
@@ -106,18 +109,45 @@ class HTML5HTTPRequest {
 			
 		}
 		
-		var hasContentType = false;
+		var contentType = null;
 		
 		for (header in parent.headers) {
 			
-			if (header.name == "Content-Type") hasContentType = true;
-			request.setRequestHeader (header.name, header.value);
+			if (header.name == "Content-Type") {
+				
+				contentType = header.value;
+				
+			} else {
+				
+				request.setRequestHeader (header.name, header.value);
+				
+			}
 			
 		}
 		
-		if (!hasContentType && parent.contentType != null) {
+		if (parent.contentType != null) {
 			
-			request.setRequestHeader ("Content-Type", parent.contentType);
+			contentType = parent.contentType;
+			
+		}
+		
+		if (contentType == null) {
+			
+			if (parent.data != null) {
+				
+				contentType = "application/octet-stream";
+				
+			} else if (query != "") {
+				
+				contentType = "application/x-www-form-urlencoded";
+				
+			}
+			
+		}
+		
+		if (contentType != null) {
+			
+			request.setRequestHeader ("Content-Type", contentType);
 			
 		}
 		
