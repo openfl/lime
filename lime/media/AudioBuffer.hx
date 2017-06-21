@@ -133,7 +133,7 @@ class AudioBuffer {
 		#if (js && html5 && howlerjs)
 		
 		var audioBuffer = new AudioBuffer ();
-		audioBuffer.__srcHowl = new Howl ({ src: [ path ] });
+		audioBuffer.__srcHowl = new Howl ({ src: [ path ], preload: false });
 		return audioBuffer;
 		
 		#elseif flash
@@ -214,7 +214,7 @@ class AudioBuffer {
 		#if (js && html5 && howlerjs)
 		
 		var audioBuffer = new AudioBuffer ();
-		audioBuffer.__srcHowl = new Howl ({ src: paths });
+		audioBuffer.__srcHowl = new Howl ({ src: paths, preload: false });
 		return audioBuffer;
 		
 		#else
@@ -265,7 +265,7 @@ class AudioBuffer {
 	
 	
 	public static function loadFromFile (path:String):Future<AudioBuffer> {
-		
+
 		#if (flash || (js && html5))
 		
 		var promise = new Promise<AudioBuffer> ();
