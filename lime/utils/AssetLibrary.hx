@@ -723,7 +723,7 @@ class AssetLibrary {
 	private function __fromManifest (manifest:AssetManifest):Void {
 		
 		var hasSize = (manifest.version >= 2);
-		var size, id, pathGroup:Array<String>;
+		var size, id, pathGroup:Array<String>, classRef;
 		
 		var basePath = manifest.rootPath;
 		if (basePath == null) basePath = "";
@@ -765,7 +765,17 @@ class AssetLibrary {
 			
 			if (Reflect.hasField (asset, "className")) {
 				
-				classTypes.set (id, Type.resolveClass (Reflect.field (asset, "className")));
+				classRef = Type.resolveClass (Reflect.field (asset, "className"));
+				
+				#if (js && html5 && modular)
+				if (classRef == null) {
+					
+					classRef = untyped $hx_exports[asset.className];
+					
+				}
+				#end
+				
+				classTypes.set (id, classRef);
 				
 			}
 			
