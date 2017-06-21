@@ -1,3 +1,11 @@
+5.2.1 (06/21/2017)
+------------------
+
+* Improved HTTPRequest with default "Content-Type" headers when sending data
+* Fixed case where HTML5 could preload sounds twice, unintentionally
+* Fixed support for compiling HTML5 -Dmodular builds
+
+
 5.2.0 (06/20/2017)
 ------------------
 
