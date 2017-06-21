@@ -265,7 +265,7 @@ class AudioBuffer {
 	
 	
 	public static function loadFromFile (path:String):Future<AudioBuffer> {
-		
+
 		#if (flash || (js && html5))
 		
 		var promise = new Promise<AudioBuffer> ();
@@ -305,9 +305,7 @@ class AudioBuffer {
 					promise.error (null);
 					
 				});
-				
-				audioBuffer.__srcHowl.load ();
-				
+
 			}
 			
 			#else
@@ -369,9 +367,7 @@ class AudioBuffer {
 				promise.error (null);
 				
 			});
-			
-			audioBuffer.__srcHowl.load ();
-			
+
 		} else {
 			
 			promise.error (null);
