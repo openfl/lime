@@ -11,6 +11,7 @@ import haxe.macro.Type;
 
 #if (macro && !display)
 import sys.io.File;
+import sys.FileSystem;
 #end
 
 
@@ -162,9 +163,15 @@ class AssetsMacro {
 							
 							var path = filePath;
 							
-							if (!sys.FileSystem.exists(filePath)) {
+							if (!FileSystem.exists (filePath)) {
 								
 								path = Context.resolvePath (filePath);
+								
+							}
+							
+							if (path == null || path == null || !FileSystem.exists (path) || FileSystem.isDirectory (path)) {
+								
+								return null;
 								
 							}
 							
