@@ -9,6 +9,8 @@ import lime.tools.helpers.PathHelper;
 import lime.project.AssetType;
 import sys.FileSystem;
 
+@:access(lime.tools.helpers.FileHelper)
+
 
 class Asset {
 	
@@ -34,7 +36,7 @@ class Asset {
 		if (!setDefaults) return;
 		
 		this.embed = embed;
-		sourcePath = PathHelper.standardize(path);
+		sourcePath = PathHelper.standardize (path);
 		
 		if (rename == "") {
 			
@@ -56,66 +58,54 @@ class Asset {
 			
 			var extension = Path.extension (path);
 			
-			switch (extension.toLowerCase ()) {
+			if (FileHelper.knownExtensions.exists (extension)) {
 				
-				case "bundle":
-					
-					this.type = AssetType.MANIFEST;
+				this.type = FileHelper.knownExtensions.get (extension);
 				
-				case "jpg", "jpeg", "png", "gif", "webp":
-					
-					this.type = AssetType.IMAGE;
+			} else {
 				
-				case "otf", "ttf":
+				switch (extension.toLowerCase ()) {
 					
-					this.type = AssetType.FONT;
-				
-				case "wav":
-					
-					this.type = AssetType.SOUND;
-					
-				case "ogg", "m4a":
-					
-					if (FileSystem.exists (path)) {
+					case "bundle":
 						
-						var stat = FileSystem.stat (path);
+						this.type = AssetType.MANIFEST;
+					
+					case "ogg", "m4a":
 						
-						//if (stat.size > 1024 * 128) {
-						if (stat.size > 1024 * 1024) {
+						if (FileSystem.exists (path)) {
 							
-							this.type = AssetType.MUSIC;
+							var stat = FileSystem.stat (path);
+							
+							//if (stat.size > 1024 * 128) {
+							if (stat.size > 1024 * 1024) {
+								
+								this.type = AssetType.MUSIC;
+								
+							} else {
+								
+								this.type = AssetType.SOUND;
+								
+							}
 							
 						} else {
 							
 							this.type = AssetType.SOUND;
 							
 						}
-						
-					} else {
-						
-						this.type = AssetType.SOUND;
-						
-					}
-				
-				case "mp3", "mp2":
 					
-					this.type = AssetType.MUSIC;
-				
-				case "text", "txt", "json", "xml", "svg", "css", "plist":
+					default:
+						
+						if (path != "" && FileHelper.isText (path)) {
+							
+							this.type = AssetType.TEXT;
+							
+						} else {
+							
+							this.type = AssetType.BINARY;
+							
+						}
 					
-					this.type = AssetType.TEXT;
-				
-				default:
-					
-					if (path != "" && FileHelper.isText (path)) {
-						
-						this.type = AssetType.TEXT;
-						
-					} else {
-						
-						this.type = AssetType.BINARY;
-						
-					}
+				}
 				
 			}
 			
