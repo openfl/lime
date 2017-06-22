@@ -109,6 +109,8 @@ namespace lime {
 						if (glIsTexture (id)) glDeleteTextures (1, &id);
 						break;
 					
+					default: break;
+					
 				}
 				
 			}
