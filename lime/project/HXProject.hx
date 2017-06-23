@@ -141,7 +141,7 @@ class HXProject {
 				platformType = PlatformType.WEB;
 				architectures = [];
 			
-			case HTML5, FIREFOX, EMSCRIPTEN:
+			case HTML5, FIREFOX:
 				
 				platformType = PlatformType.WEB;
 				architectures = [];
@@ -149,7 +149,14 @@ class HXProject {
 				defaultWindow.width = 0;
 				defaultWindow.height = 0;
 				defaultWindow.fps = 60;
+				defaultWindow.allowHighDPI = false;
+			
+			case EMSCRIPTEN:
 				
+				platformType = PlatformType.WEB;
+				architectures = [];
+				
+				defaultWindow.fps = 60;
 				defaultWindow.allowHighDPI = false;
 			
 			case ANDROID, BLACKBERRY, IOS, TIZEN, WEBOS, TVOS:
