@@ -90,8 +90,19 @@ class EmscriptenPlatform extends PlatformTarget {
 		
 		args.push ("-s");
 		args.push ("NO_EXIT_RUNTIME=1");
+		
 		args.push ("-s");
 		args.push ("USE_SDL=2");
+		
+		for (dependency in project.dependencies) {
+			
+			if (dependency.name != "") {
+				
+				args.push ("-l" + dependency.name);
+				
+			}
+			
+		}
 		
 		if (project.targetFlags.exists ("final")) {
 			

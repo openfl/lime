@@ -5,18 +5,15 @@
 	
 	<set name="lime" />
 	
-	<haxedef name="native" if="cpp || neko || nodejs || cs" />
-	<set name="native" if="cpp || neko || nodejs || cs" />
+	<define name="native" if="cpp || neko || nodejs || cs" />
+	<define name="howlerjs" if="html5" />
 	
-	<haxedef name="howlerjs" if="html5" />
-	<set name="howlerjs" if="html5" />
+	<define name="lime-html5" if="html5" />
+	<define name="lime-native" if="native" />
+	<define name="lime-cffi" if="native" />
+	<define name="lime-vorbis" if="native" />
 	
-	<haxedef name="lime-html5" if="html5" />
-	<haxedef name="lime-native" if="native" />
-	<haxedef name="lime-cffi" if="native" />
-	<haxedef name="lime-vorbis" if="native" />
-	
-	<haxedef name="no-typedarray-inline" if="cs" />
+	<define name="no-typedarray-inline" if="cs" />
 	<haxedef name="no-compilation" />
 	
 	<templatePath name="templates" />
@@ -64,16 +61,23 @@
 		<dependency path="dependencies/angle/libegl.dll" if="windows angle" unless="static_link" />
 		<dependency path="dependencies/angle/libglesv2.dll" if="windows angle" unless="static_link" />
 		
-		<haxedef name="native-trace" if="flash" unless="haxe-trace || haxetrace" />
-		<haxedef name="MACOSX_DEPLOYMENT_TARGET" value="10.6" if="mac" unless="MACOSX_DEPLOYMENT_TARGET" />
+		<define name="native-trace" if="flash" unless="haxe-trace || haxetrace" />
+		<define name="MACOSX_DEPLOYMENT_TARGET" value="10.6" if="mac" unless="MACOSX_DEPLOYMENT_TARGET" />
 		
 		<architecture name="armv7" if="android" />
 		
-		<haxedef name="lime-cairo" unless="flash || html5" />
-		<haxedef name="lime-curl" unless="lime-console || emscripten || flash || html5" />
-		<haxedef name="lime-opengl" unless="lime-console || flash" />
-		<haxedef name="lime-openal" unless="lime-console || static_link || flash || html5" />
-		<haxedef name="lime-openal" if="emscripten" />
+		<define name="lime-cairo" unless="flash || html5" />
+		<define name="lime-curl" unless="lime-console || emscripten || flash || html5" />
+		<define name="lime-opengl" unless="lime-console || flash" />
+		<define name="lime-openal" unless="lime-console || static_link || flash || html5" />
+		<define name="lime-openal" if="emscripten" />
+		
+		<section if="emscripten">
+			
+			<dependency name="pthread" />
+			<dependency name="openal" if="lime-openal" />
+			
+		</section>
 		
 		<!-- TODO: Fix inheritance with separate modules -->
 		

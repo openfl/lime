@@ -138,8 +138,8 @@
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/include/" unless="emscripten" />
 			<compilerflag value="-DLIME_OPENAL" />
 			<compilerflag value="-DLIME_OPENALSOFT" if="LIME_OPENALSOFT" />
-			<compilerflag value="-DAL_LIBTYPE_STATIC=1" />
-			<compilerflag value="-DAL_ALEXT_PROTOTYPES" />
+			<compilerflag value="-DAL_LIBTYPE_STATIC=1" if="LIME_OPENALSOFT" />
+			<compilerflag value="-DAL_ALEXT_PROTOTYPES" if="LIME_OPENALSOFT" />
 			
 			<file name="src/media/openal/OpenALBindings.cpp" />
 			
@@ -437,6 +437,7 @@
 				<lib name="-lGLESv2" />
 				
 			</section>
+			
 		</section>
 		
 	</target>

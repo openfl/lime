@@ -508,10 +508,13 @@ class NativeAudioSource {
 	
 	public function getPosition ():Vector4 {
 		
+		#if !emscripten
 		var value = AL.getSource3f (handle, AL.POSITION);
 		position.x = value[0];
 		position.y = value[1];
 		position.z = value[2];
+		#end
+		
 		return position;
 		
 	}
