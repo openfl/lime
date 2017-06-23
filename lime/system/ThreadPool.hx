@@ -50,6 +50,10 @@ class ThreadPool {
 		__workCompleted = 0;
 		#end
 		
+		#if emscripten
+		__synchronous = true;
+		#end
+		
 	}
 	
 	

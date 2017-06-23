@@ -38,8 +38,16 @@ class EmscriptenPlatform extends PlatformTarget {
 	public override function build ():Void {
 		
 		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
+		var args = [ hxml, "-D", "emscripten", "-D", "webgl", "-D", "static_link"];
 		
-		ProcessHelper.runCommand ("", "haxe", [ hxml, "-D", "emscripten", "-D", "webgl", "-D", "static_link" ] );
+		if (LogHelper.verbose) {
+			
+			args.push ("-D");
+			args.push ("verbose");
+			
+		}
+		
+		ProcessHelper.runCommand ("", "haxe", args);
 		
 		if (noOutput) return;
 		
@@ -53,7 +61,7 @@ class EmscriptenPlatform extends PlatformTarget {
 		
 		ProcessHelper.runCommand ("", "emcc", [ targetDirectory + "/obj/Main.cpp", "-o", targetDirectory + "/obj/Main.o" ], true, false, true);
 		
-		var args = [ "Main.o" ];
+		args = [ "Main.o" ];
 		
 		for (ndll in project.ndlls) {
 			
