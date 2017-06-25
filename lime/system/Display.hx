@@ -30,7 +30,7 @@ class Display {
 	public var dpi (default, null):Float;
 	
 	/**
-	 * The name of the device, such as "Samsung SyncMaster P2350", "iPhone 6", "Occulus Rift DK2", etc.
+	 * The name of the device, such as "Samsung SyncMaster P2350", "iPhone 6", "Oculus Rift DK2", etc.
 	 **/
 	public var name (default, null):String;
 	
