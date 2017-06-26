@@ -927,7 +927,15 @@ class ProjectXMLParser extends HXProject {
 			
 			case "class":
 				
-				moduleData.classNames.push (substitute (element.att.name));
+				if (element.has.remove) {
+					
+					moduleData.classNames.remove (substitute (element.att.remove));
+					
+				} else {
+					
+					moduleData.classNames.push (substitute (element.att.name));
+					
+				}
 			
 			case "haxedef":
 				

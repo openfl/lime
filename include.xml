@@ -79,14 +79,9 @@
 			
 		</section>
 		
-		<!-- TODO: Fix inheritance with separate modules -->
-		
-		<set name="module-name" value="lime" unless="openfl" />
-		<set name="module-name" value="openfl" if="openfl" />
-		
 		<setenv name="HAXE_STD_PATH" value="${HAXE_STD_PATH}" if="modular HAXE_STD_PATH" />
 		
-		<module name="${module-name}" if="html5 modular">
+		<module name="haxe" if="html5 modular">
 			
 			<!--<source path="${HAXE_STD_PATH}" package="js.html" />-->
 			<source path="${HAXE_STD_PATH}" package="haxe.ds" exclude="haxe.ds.StringMap" />
@@ -125,9 +120,9 @@
 			
 		</module>
 		
-		<module name="${module-name}" if="html5 modular">
+		<module name="lime" if="html5 modular">
 			
-			<source path="" package="lime" exclude="lime._backend.*|lime.project.*|lime.tools.*|lime.net.*|lime.graphics.console.*" />
+			<source path="" package="lime" exclude="lime._backend.*|lime.project.*|lime.tools.*|lime.net.*|lime.graphics.console.*|lime.text.harfbuzz.*" />
 			<source path="" package="lime" include="lime._backend.html5" />
 			
 			<class name="lime.net.HTTPRequest" />
@@ -136,6 +131,16 @@
 			<include type="lime.graphics.utils._ImageDataUtil.ImageDataView" />
 			<include type="lime.system._ThreadPool.ThreadPoolMessageType" />
 			<include type="lime.AssetLibrary" />
+			
+			<!-- @:expose on enums do not work in Haxe 3.4.2 -->
+			<class remove="lime.graphics.opengl.GLContextType" />
+			<class remove="lime.graphics.ImageChannel" />
+			<class remove="lime.graphics.ImageType" />
+			<class remove="lime.graphics.RendererType" />
+			<class remove="lime.ui.FileDialogType" />
+			<class remove="lime.ui.MouseCursor" />
+			<class remove="lime.system.Endian" />
+			<class remove="lime.system.SensorType" />
 			
 			<exclude type="lime.graphics.console.IndexBuffer" />
 			<exclude type="lime.graphics.console.PointerUtil" />
