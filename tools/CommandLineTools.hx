@@ -300,6 +300,11 @@ class CommandLineTools {
 							
 							target = Platform.MAC;
 						
+						case "webassembly", "wasm":
+							
+							target = Platform.EMSCRIPTEN;
+							targetFlags.set ("webassembly", "");
+						
 						default:
 							
 							target = cast targetName.toLowerCase ();
@@ -1453,6 +1458,11 @@ class CommandLineTools {
 				
 				target = Platform.MAC;
 				overrides.haxedefs.set ("macos", "");
+			
+			case "webassembly", "wasm":
+				
+				target = Platform.EMSCRIPTEN;
+				targetFlags.set ("webassembly", "");
 			
 			default:
 				
