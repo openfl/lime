@@ -197,7 +197,7 @@ class ModuleHelper {
 		for (type in types) {
 			
 			Compiler.exclude (type);
-			Compiler.addMetadata ("@:native(\"$hx_exports.$hxClasses_" + type + "\")", type);
+			Compiler.addMetadata ("@:native(\"$hx_exports." + type + "\")", type);
 			
 		}
 		
@@ -208,7 +208,7 @@ class ModuleHelper {
 		
 		for (className in classNames) {
 			
-			Compiler.addMetadata ("@:expose('$hxClasses_" + className + "')", className);
+			Compiler.addMetadata ("@:expose('" + className + "')", className);
 			
 		}
 		
