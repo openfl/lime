@@ -5,6 +5,7 @@ import lime.project.Dependency;
 import lime.project.Haxelib;
 import lime.project.HXProject;
 import sys.io.File;
+import sys.FileSystem;
 
 
 class ModuleHelper {
@@ -93,7 +94,7 @@ class ModuleHelper {
 				}
 				
 				hxml += "\n--macro lime.tools.helpers.ModuleHelper.expose(['" + includeTypes.join ("','") + "'])";
-				hxml += "\n--macro lime.tools.helpers.ModuleHelper.generate()";
+				//hxml += "\n--macro lime.tools.helpers.ModuleHelper.generate()";
 				
 				hxml += "\n" + importName;
 				
@@ -102,11 +103,34 @@ class ModuleHelper {
 				
 				ProcessHelper.runCommand ("", "haxe", [ hxmlPath ]);
 				
+				patchFile (outputPath);
+				
 				if (project.targetFlags.exists ("final")) {
 					
 					HTML5Helper.minify (project, outputPath);
 					
 				}
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	public static function patchFile (outputPath:String):Void {
+		
+		if (FileSystem.exists (outputPath)) {
+			
+			var output = File.getContent (outputPath);
+			
+			var replaceString = "var $hxClasses = {}";
+			var index = output.indexOf (replaceString);
+			
+			if (index > -1) {
+				
+				output = output.substr (0, index) + "if (!$hx_exports.$hxClasses) $hx_exports.$hxClasses = {};\nvar $hxClasses = $hx_exports.$hxClasses" + output.substr (index + replaceString.length);
+				File.saveContent (outputPath, output);
 				
 			}
 			
@@ -139,11 +163,11 @@ class ModuleHelper {
 			
 		}
 		
-		if (hasModules) {
-			
-			project.haxeflags.push ("--macro lime.tools.helpers.ModuleHelper.generate()");
-			
-		}
+		//if (hasModules) {
+			//
+			//project.haxeflags.push ("--macro lime.tools.helpers.ModuleHelper.generate()");
+			//
+		//}
 		
 	}
 	
@@ -173,7 +197,7 @@ class ModuleHelper {
 		for (type in types) {
 			
 			Compiler.exclude (type);
-			Compiler.addMetadata ("@:native(\"$hx_exports.$hxClasses['" + type + "']\")", type);
+			Compiler.addMetadata ("@:native(\"$hx_exports.$hxClasses_" + type + "\")", type);
 			
 		}
 		
@@ -184,7 +208,7 @@ class ModuleHelper {
 		
 		for (className in classNames) {
 			
-			Compiler.addMetadata ("@:expose('" + className + "')", className);
+			Compiler.addMetadata ("@:expose('$hxClasses_" + className + "')", className);
 			
 		}
 		
@@ -193,7 +217,7 @@ class ModuleHelper {
 	
 	public static function generate() {
 		
-		Compiler.setCustomJSGenerator(function(api) new Generator(api).generate());
+		//Compiler.setCustomJSGenerator(function(api) new Generator(api).generate());
 		
 	}
 	

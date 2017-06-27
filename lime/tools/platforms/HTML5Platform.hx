@@ -63,6 +63,12 @@ class HTML5Platform extends PlatformTarget {
 				
 			}
 			
+			if (project.modules.iterator ().hasNext ()) {
+				
+				ModuleHelper.patchFile (outputFile);
+				
+			}
+			
 			if (project.targetFlags.exists ("minify") || type == "final") {
 				
 				HTML5Helper.minify (project, targetDirectory + "/bin/" + project.app.file + ".js");
