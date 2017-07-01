@@ -43,9 +43,13 @@ class ModuleHelper {
 				moduleImport = "package;\n\nimport " + module.classNames.join (";\nimport ") + ";";
 				
 				hxml = "-cp " + tempDirectory;
-				
 				hxml += "\n" + module.haxeflags.join ("\n");
-				hxml += "\n-cp " + PathHelper.getHaxelib (new Haxelib ("lime"));
+				
+				for (haxelib in project.haxelibs) {
+					
+					hxml += "\n-cp " + PathHelper.getHaxelib (haxelib);
+					
+				}
 				
 				for (key in project.haxedefs.keys ()) {
 					
