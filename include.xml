@@ -111,7 +111,7 @@
 			
 			<include type="haxe.ds._StringMap.StringMapIterator" />
 			<include type="haxe.ds.TreeNode" />
-			<include type="haxe.IMap" />
+			<!-- <include type="haxe.IMap" /> -->
 			<include type="haxe._Int64.___Int64" />
 			<include type="haxe.StackItem" />
 			<include type="js.html._CanvasElement.CanvasUtil" />
