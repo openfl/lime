@@ -31,6 +31,12 @@ public class Extension {
 		return true;
 		
 	}
+
+	public boolean onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+
+		return true;
+
+	}
 	
 	
 	public boolean onBackPressed () {
