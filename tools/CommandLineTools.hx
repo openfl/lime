@@ -84,6 +84,13 @@ class CommandLineTools {
 			
 			case "":
 				
+				if (targetFlags.exists ("version")) {
+					
+					Sys.println (getToolsVersion ());
+					return;
+					
+				}
+				
 				displayInfo (true);
 			
 			case "help":
