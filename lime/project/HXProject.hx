@@ -19,6 +19,7 @@ import sys.FileSystem;
 import sys.io.File;
 
 #if lime
+import haxe.io.Eof;
 import haxe.xml.Fast;
 import lime.text.Font;
 import lime.tools.helpers.FileHelper;
@@ -472,7 +473,29 @@ class HXProject {
 		
 		FileHelper.copyFile (path, classFile);
 		
-		ProcessHelper.runCommand ("", "haxe", [ name, "-main", "lime.project.HXProject", "-cp", tempDirectory, "-neko", nekoOutput, "-cp", PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "tools"), "-lib", "lime", "-D", "lime-curl", "-D", "native", "-D", "lime-native", "-D", "lime-cffi" ]);
+		var args = [ name, "-main", "lime.project.HXProject", "-cp", tempDirectory, "-neko", nekoOutput, "-cp", PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "tools"), "-lib", "lime", "-D", "lime-curl", "-D", "native", "-D", "lime-native", "-D", "lime-cffi" ];
+		var input = File.read (classFile, false);
+		var tag = "@:compiler(";
+		
+		try {
+			
+			while (true) {
+				
+				var line = input.readLine ();
+				
+				if (StringTools.startsWith (line, tag)) {
+					
+					args.push (line.substring (tag.length + 1, line.length - 2));
+					
+				}
+				
+			}
+			
+		} catch (ex:Eof) {}
+		
+		input.close ();
+		
+		ProcessHelper.runCommand ("", "haxe", args);
 		
 		var inputFile = PathHelper.combine (tempDirectory, "input.dat");
 		var outputFile = PathHelper.combine (tempDirectory, "output.dat");
