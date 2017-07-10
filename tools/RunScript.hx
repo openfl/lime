@@ -7,6 +7,7 @@ import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
 import lime.tools.helpers.FileHelper;
+import lime.tools.helpers.HaxelibHelper;
 import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.PathHelper;
 import lime.tools.helpers.PlatformHelper;
@@ -193,7 +194,7 @@ class RunScript {
 					if (StringTools.startsWith (field, "haxelib-")) {
 						
 						var name = field.substr (8);
-						PathHelper.haxelibOverrides.set (name, PathHelper.tryFullPath (argValue));
+						HaxelibHelper.pathOverrides.set (name, PathHelper.tryFullPath (argValue));
 						
 					}
 					
