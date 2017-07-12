@@ -1731,6 +1731,7 @@ class CommandLineTools {
 					
 					LogHelper.info ("", LogHelper.accentColor + "Requesting tools version " + getToolsVersion (haxelib.version) + "...\x1b[0m\n");
 					
+					HaxelibHelper.pathOverrides.remove ("lime");
 					var path = HaxelibHelper.getPath (haxelib);
 					
 					var args = Sys.args ();
@@ -1748,16 +1749,19 @@ class CommandLineTools {
 					var args = [ PathHelper.combine (path, "run.n") ].concat (args);
 					args.push (workingDirectory);
 					
-					//trace (args);
-					
 					Sys.exit (Sys.command ("neko", args));
+					return null;
 					
 					//var args = [ "run", "lime:" + haxelib.version ].concat (args);
 					//Sys.exit (Sys.command ("haxelib", args));
 					
 				} else {
 					
-					LogHelper.warn ("", LogHelper.accentColor + "Could not switch to requested tools version\x1b[0m");
+					if (Std.string (version) != Std.string (HaxelibHelper.getVersion (haxelib))) {
+						
+						LogHelper.warn ("", LogHelper.accentColor + "Could not switch to requested tools version\x1b[0m");
+						
+					}
 					
 				}
 				
