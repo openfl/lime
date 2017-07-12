@@ -1443,7 +1443,7 @@ class CommandLineTools {
 					
 					if (!StringTools.startsWith (toolsPath, limePath)) {
 						
-						LogHelper.info ("", LogHelper.accentColor + "Requesting alternate tools from .haxelib repository...\x1b[0m\n");
+						LogHelper.info ("", LogHelper.accentColor + "Requesting alternate tools from .haxelib repository...\x1b[0m\n\n");
 						
 						var args = Sys.args ();
 						args.pop ();
@@ -1729,7 +1729,7 @@ class CommandLineTools {
 						
 					}
 					
-					LogHelper.info ("", LogHelper.accentColor + "Requesting tools version " + getToolsVersion (haxelib.version) + "...\x1b[0m\n");
+					LogHelper.info ("", LogHelper.accentColor + "Requesting tools version " + getToolsVersion (haxelib.version) + "...\x1b[0m\n\n");
 					
 					HaxelibHelper.pathOverrides.remove ("lime");
 					var path = HaxelibHelper.getPath (haxelib);
