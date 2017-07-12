@@ -1451,6 +1451,7 @@ class CommandLineTools {
 						Sys.setCwd (limePath);
 						
 						args = [ PathHelper.combine (limePath, "run.n") ].concat (args);
+						args.push ("--haxelib-lime=" + limePath);
 						args.push ("-nolocalrepocheck");
 						args.push (workingDirectory);
 						
