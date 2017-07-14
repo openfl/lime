@@ -450,30 +450,6 @@ class Font {
 	}
 	
 	
-	#if (js && html5)
-	
-	private static function __makeLoaderNode (fontFamily : String) {
-		
-		var node:SpanElement = cast Browser.document.createElement ("span");
-		node.innerHTML = "giItT1WQy@!-/#";
-		var style = node.style;
-		style.position = "absolute";
-		style.left = "-10000px";
-		style.top = "-10000px";
-		style.fontSize = "300px";
-		style.fontFamily = fontFamily;
-		style.fontVariant = "normal";
-		style.fontStyle = "normal";
-		style.fontWeight = "normal";
-		style.letterSpacing = "0";
-		Browser.document.body.appendChild (node);
-		return node;
-		
-	}
-	
-	#end
-	
-	
 	private function __loadFromName (name:String):Future<Font> {
 		
 		var promise = new Promise<Font> ();
@@ -482,15 +458,11 @@ class Font {
 		
 		this.name = name;
 		var font = name;
+		
 		var ua = Browser.navigator.userAgent.toLowerCase();
+		var isSafari = (ua.indexOf(" safari/") >= 0 && ua.indexOf(" chrome/") < 0);
 		
-		// When Safari reports that font is loaded, actually font IS NOT loaded.
-		// If you try to use this font immediately after preloader completes,
-		// default font will be used instead.
-		//
-		// We detect Safari, and use old font loading for it.
-		
-		if (!(ua.indexOf(" safari/") >= 0 && ua.indexOf(" chrome/") < 0) && untyped (Browser.document).fonts && untyped (Browser.document).fonts.load) {
+		if (!isSafari && untyped (Browser.document).fonts && untyped (Browser.document).fonts.load) {
 			
 			untyped (Browser.document).fonts.load ("1em '" + font + "'").then (function (_) {
 				
@@ -500,54 +472,36 @@ class Font {
 			
 		} else {
 			
-			var node1 = __makeLoaderNode("sans-serif");
-			var node2 = __makeLoaderNode("serif");
+			var node1 = __measureFontNode ("'" + name + "', sans-serif");
+			var node2 = __measureFontNode ("'" + name + "', serif");
+			
 			var width1 = node1.offsetWidth;
 			var width2 = node2.offsetWidth;
 			
-			node1.style.fontFamily = "'" + name + "', sans-serif";
-			node2.style.fontFamily = "'" + name + "', serif";
-			
-			var interval:Null<Int> = null;
-			var found = false;
+			var interval = -1;
+			var timeout = 3000;
+			var intervalLength = 50;
+			var intervalCount = 0;
 			
 			var checkFont = function () {
 				
-				if (node1.offsetWidth != width1 || node2.offsetWidth != width2) {
+				intervalCount++;
+				
+				if ((node1.offsetWidth != width1 || node2.offsetWidth != width2) || (intervalCount * intervalLength >= timeout)) {
 					
-					// Test font was still not available yet, try waiting one more interval?
-					if (!found) {
-						
-						found = true;
-						return false;
-						
-					}
-					
-					if (interval != null) {
-						
-						Browser.window.clearInterval (interval);
-						
-					}
-					
+					Browser.window.clearInterval (interval);
 					node1.parentNode.removeChild (node1);
 					node2.parentNode.removeChild (node2);
 					node1 = null;
 					node2 = null;
 					
 					promise.complete (this);
-					return true;
 					
 				}
 				
-				return false;
-				
 			}
 			
-			if (!checkFont ()) {
-				
-				interval = Browser.window.setInterval (checkFont, 50);
-				
-			}
+			interval = Browser.window.setInterval (checkFont, intervalLength);
 			
 		}
 		
@@ -560,6 +514,34 @@ class Font {
 		return promise.future;
 		
 	}
+	
+	
+	#if (js && html5)
+	private static function __measureFontNode (fontFamily:String):SpanElement {
+		
+		var node:SpanElement = cast Browser.document.createElement ("span");
+		node.setAttribute ("aria-hidden", "true");
+		var text = Browser.document.createTextNode ("BESbswy");
+		node.appendChild (text);
+		var style = node.style;
+		style.display = "block";
+		style.position = "absolute";
+		style.top = "-9999px";
+		style.left = "-9999px";
+		style.fontSize = "300px";
+		style.width = "auto";
+		style.height = "auto";
+		style.lineHeight = "normal";
+		style.margin = "0";
+		style.padding = "0";
+		style.fontVariant = "normal";
+		style.whiteSpace = "nowrap";
+		style.fontFamily = fontFamily;
+		Browser.document.body.appendChild (node);
+		return node;
+		
+	}
+	#end
 	
 	
 	@:noCompletion private function __setSize (size:Int):Void {
