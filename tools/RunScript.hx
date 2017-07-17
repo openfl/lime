@@ -176,10 +176,10 @@ class RunScript {
 			if (FileSystem.exists (lastArgument) && FileSystem.isDirectory (lastArgument)) {
 				
 				Sys.setCwd (lastArgument);
-				args.pop ();
 				
 			}
 			
+			HaxelibHelper.workingDirectory = Sys.getCwd ();
 			var rebuildBinaries = true;
 			
 			for (arg in args) {
@@ -224,13 +224,13 @@ class RunScript {
 			
 			rebuildTools (rebuildBinaries);
 			
-			if (args[args.length - 1] != "-openfl") {
+			if (args.indexOf ("-openfl") > -1) {
 				
-				Sys.exit (0);
+				Sys.setCwd (cacheDirectory);
 				
 			} else {
 				
-				Sys.setCwd (cacheDirectory);
+				Sys.exit (0);
 				
 			}
 			
