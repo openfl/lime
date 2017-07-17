@@ -1914,6 +1914,8 @@ class CommandLineTools {
 				
 			}
 			
+			HaxelibHelper.workingDirectory = Sys.getCwd ();
+			
 		}
 		
 		if (!runFromHaxelib) {

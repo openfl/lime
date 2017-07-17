@@ -15,6 +15,7 @@ class HaxelibHelper {
 	
 	public static var debug = false;
 	public static var pathOverrides = new Map<String, String> ();
+	public static var workingDirectory = "";
 	
 	private static var repositoryPath:String;
 	private static var paths = new Map<String, String> ();
@@ -92,7 +93,7 @@ class HaxelibHelper {
 				
 				var cacheDryRun = ProcessHelper.dryRun;
 				ProcessHelper.dryRun = false;
-				output = HaxelibHelper.runProcess ("", [ "config" ], true, true, true);
+				output = HaxelibHelper.runProcess (workingDirectory, [ "config" ], true, true, true);
 				if (output == null) output = "";
 				
 				ProcessHelper.dryRun = cacheDryRun;
@@ -164,7 +165,7 @@ class HaxelibHelper {
 				var cacheDryRun = ProcessHelper.dryRun;
 				ProcessHelper.dryRun = false;
 				
-				output = HaxelibHelper.runProcess ("", [ "path", name ], true, true, true);
+				output = HaxelibHelper.runProcess (workingDirectory, [ "path", name ], true, true, true);
 				if (output == null) output = "";
 				
 				ProcessHelper.dryRun = cacheDryRun;
