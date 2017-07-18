@@ -328,7 +328,11 @@ class CommandLineTools {
 							
 							ProcessHelper.runCommand (Path.directory (hxmlPath), "haxe", [ Path.withoutDirectory (hxmlPath) ]);
 							
-							Sys.putEnv ("HAXELIB_PATH", cacheValue);
+							if (cacheValue != null) {
+								
+								Sys.putEnv ("HAXELIB_PATH", cacheValue);
+								
+							}
 							
 						}
 						
