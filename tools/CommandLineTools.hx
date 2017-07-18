@@ -323,7 +323,12 @@ class CommandLineTools {
 						
 						if (hxmlPath != null && FileSystem.exists (hxmlPath)) {
 							
+							var cacheValue = Sys.getEnv ("HAXELIB_PATH");
+							Sys.putEnv ("HAXELIB_PATH", HaxelibHelper.getRepositoryPath ());
+							
 							ProcessHelper.runCommand (Path.directory (hxmlPath), "haxe", [ Path.withoutDirectory (hxmlPath) ]);
+							
+							Sys.putEnv ("HAXELIB_PATH", cacheValue);
 							
 						}
 						
