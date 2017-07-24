@@ -478,68 +478,70 @@ class CommandLineTools {
 			
 		}
 		
-		var process = new Process ("haxelib", [ "path", "lime" ]);
 		var path = "";
-		var lines = new Array<String> ();
 		
-		try {
+		if (FileSystem.exists ("tools.n")) {
 			
-			while (true) {
-				
-				var length = lines.length;
-				var line = StringTools.trim (process.stdout.readLine ());
-				
-				if (length > 0 && (line == "-D lime" || StringTools.startsWith (line, "-D lime="))) {
-					
-					path = StringTools.trim (lines[length - 1]);
-					
-				}
-				
-				lines.push (line);
-				
-			}
+			path = PathHelper.combine (Sys.getCwd (), "../");
 			
-		} catch (e:Dynamic) {
+		} else if (FileSystem.exists ("run.n")) {
+			
+			path = Sys.getCwd ();
 			
 		}
 		
 		if (path == "") {
 			
-			for (line in lines) {
+			var process = new Process ("haxelib", [ "path", "lime" ]);
+			var lines = new Array<String> ();
+			
+			try {
 				
-				if (line != "" && line.substr (0, 1) != "-") {
+				while (true) {
 					
-					try {
+					var length = lines.length;
+					var line = StringTools.trim (process.stdout.readLine ());
+					
+					if (length > 0 && (line == "-D lime" || StringTools.startsWith (line, "-D lime="))) {
 						
-						if (FileSystem.exists (line)) {
-							
-							path = line;
-							
-						}
+						path = StringTools.trim (lines[length - 1]);
 						
-					} catch (e:Dynamic) {}
+					}
+					
+					lines.push (line);
+					
+				}
+				
+			} catch (e:Dynamic) {
+				
+			}
+			
+			if (path == "") {
+				
+				for (line in lines) {
+					
+					if (line != "" && line.substr (0, 1) != "-") {
+						
+						try {
+							
+							if (FileSystem.exists (line)) {
+								
+								path = line;
+								
+							}
+							
+						} catch (e:Dynamic) {}
+						
+					}
 					
 				}
 				
 			}
 			
-		}
-		
-		if (path == "") {
-			
-			if (FileSystem.exists ("tools.n")) {
-				
-				path = PathHelper.combine (Sys.getCwd (), "../");
-				
-			} else if (FileSystem.exists ("run.n")) {
-				
-				path = Sys.getCwd ();
-				
-			}
+			process.close ();
 			
 		}
 		
-		process.close ();
 		path += "/ndll/";
 		
 		switch (PlatformHelper.hostPlatform) {
