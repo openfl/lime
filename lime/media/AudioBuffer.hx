@@ -300,9 +300,9 @@ class AudioBuffer {
 					
 				});
 				
-				audioBuffer.__srcHowl.on ("loaderror", function () {
+				audioBuffer.__srcHowl.on ("loaderror", function (id, msg) {
 					
-					promise.error (null);
+					promise.error (msg);
 					
 				});
 				
