@@ -11,6 +11,8 @@ jobs:
      - run:
         name: Setup Lime dev directory
         command: haxelib dev lime ~/project
+     - run: git clone --recursive https://github.com/openfl/lime-samples ~/lime-samples --depth 1
+     - run: haxelib dev lime-samples ~/lime-samples
      - run: haxelib run lime rebuild tools -nocffi
      - run: haxelib run lime create HelloWorld
      - run: haxelib run lime create SimpleAudio
@@ -29,6 +31,8 @@ jobs:
      - run:
         name: Setup Lime dev directory
         command: haxelib dev lime ~/project
+     - run: git clone --recursive https://github.com/openfl/lime-samples ~/lime-samples --depth 1
+     - run: haxelib dev lime-samples ~/lime-samples
      - run: haxelib run lime rebuild linux -release -64 -nocffi
      - run: haxelib run lime rebuild tools -nocffi
      - run: haxelib run lime create HelloWorld
@@ -48,6 +52,8 @@ jobs:
      - run:
         name: Setup Lime dev directory
         command: haxelib dev lime ~/project
+     - run: git clone --recursive https://github.com/openfl/lime-samples ~/lime-samples --depth 1
+     - run: haxelib dev lime-samples ~/lime-samples
      - run: haxelib run lime rebuild linux -release -64 -nocffi
      - run: haxelib run lime rebuild tools -nocffi
      - run: haxelib run lime create HelloWorld
@@ -66,6 +72,8 @@ jobs:
      - run:
         name: Setup Lime dev directory
         command: haxelib dev lime ~/project
+     - run: git clone --recursive https://github.com/openfl/lime-samples ~/lime-samples --depth 1
+     - run: haxelib dev lime-samples ~/lime-samples
      - run: haxelib run lime rebuild tools -nocffi
      - run: haxelib run lime create HelloWorld
      - run: haxelib run lime create SimpleAudio
@@ -97,6 +105,8 @@ jobs:
      - run:
         name: Setup Lime dev directory
         command: haxelib dev lime ~/project
+     - run: git clone --recursive https://github.com/openfl/lime-samples ~/lime-samples --depth 1
+     - run: haxelib dev lime-samples ~/lime-samples
      - run: haxelib run lime rebuild tools -nocffi
      - run: haxelib run lime create HelloWorld
      - run: haxelib run lime create SimpleAudio
@@ -115,6 +125,8 @@ jobs:
      - run:
         name: Setup Lime dev directory
         command: haxelib dev lime ~/project
+     - run: git clone --recursive https://github.com/openfl/lime-samples ~/lime-samples --depth 1
+     - run: haxelib dev lime-samples ~/lime-samples
      - run: haxelib run lime rebuild linux -release -64 -nocffi
      - run: haxelib run lime rebuild tools -nocffi
      - run: haxelib run lime create HelloWorld
@@ -134,6 +146,8 @@ jobs:
      - run:
         name: Setup Lime dev directory
         command: haxelib dev lime ~/project
+     - run: git clone --recursive https://github.com/openfl/lime-samples ~/lime-samples --depth 1
+     - run: haxelib dev lime-samples ~/lime-samples
      - run: haxelib run lime rebuild linux -release -64 -nocffi
      - run: haxelib run lime rebuild tools -nocffi
      - run: haxelib run lime create HelloWorld
@@ -152,6 +166,8 @@ jobs:
      - run:
         name: Setup Lime dev directory
         command: haxelib dev lime ~/project
+     - run: git clone --recursive https://github.com/openfl/lime-samples ~/lime-samples --depth 1
+     - run: haxelib dev lime-samples ~/lime-samples
      - run: haxelib run lime rebuild tools -nocffi
      - run: haxelib run lime create HelloWorld
      - run: haxelib run lime create SimpleAudio
