@@ -1,207 +1,214 @@
 version: 2
 jobs:
 
-  #TODO: Use 'persist_to_workspace' to reduce duplication
-
-  html5-3.2:
+  Setup (Haxe 3.2.1):
     docker:
      - image: openfl/openfl-tests-unit-3.2:0.0.1
+    working_directory: /workspace/lime
     steps:
      - checkout
      - run:
         name: Setup Lime dev directory
-        command: haxelib dev lime ~/project
-     - run: git clone --recursive https://github.com/openfl/lime-samples ~/lime-samples --depth 1
-     - run: haxelib dev lime-samples ~/lime-samples
+        command: haxelib dev lime .
      - run: haxelib run lime rebuild tools -nocffi
+     - run: git clone --recursive https://github.com/openfl/lime-samples ../lime-samples --depth 1
+     - run: haxelib dev lime-samples ../lime-samples
+     - persist_to_workspace:
+         root: /
+         paths:
+          - usr/local/lib/haxe/lib/*/.dev
+          - workspace
+  
+  Setup (Haxe 3.4.x):
+    docker:
+     - image: openfl/openfl-tests-unit-3.4:0.0.2
+    working_directory: /workspace/lime
+    steps:
+     - checkout
+     - run:
+        name: Setup Lime dev directory
+        command: haxelib dev lime .
+     - run: haxelib run lime rebuild tools -nocffi
+     - run: git clone --recursive https://github.com/openfl/lime-samples ../lime-samples --depth 1
+     - run: haxelib dev lime-samples ../lime-samples
+     - persist_to_workspace:
+         root: /
+         paths:
+          - usr/local/lib/haxe/lib/*/.dev
+          - workspace
+  
+  
+  HTML5 (Haxe 3.2.1):
+    docker:
+     - image: openfl/openfl-tests-unit-3.2:0.0.1
+    steps:
+     - attach_workspace:
+         at: /
      - run: haxelib run lime create HelloWorld
      - run: haxelib run lime create SimpleAudio
      - run: haxelib run lime create SimpleImage
-     - run: haxelib run lime create TextRendering
      - run: haxelib run lime build HelloWorld html5
      - run: haxelib run lime build SimpleAudio html5
      - run: haxelib run lime build SimpleImage html5
-
-  neko-3.2:
+  
+  HTML5 (Haxe 3.4.x):
     docker:
-     - image: openfl/openfl-tests-unit-3.2:0.0.1
+     - image: openfl/openfl-tests-unit-3.4:0.0.2
     steps:
-     - checkout
-     - run: cd ~/project && git submodule update --init
-     - run:
-        name: Setup Lime dev directory
-        command: haxelib dev lime ~/project
-     - run: git clone --recursive https://github.com/openfl/lime-samples ~/lime-samples --depth 1
-     - run: haxelib dev lime-samples ~/lime-samples
-     - run: haxelib run lime rebuild linux -release -64 -nocffi
-     - run: haxelib run lime rebuild tools -nocffi
+     - attach_workspace:
+         at: /
      - run: haxelib run lime create HelloWorld
      - run: haxelib run lime create SimpleAudio
      - run: haxelib run lime create SimpleImage
-     - run: haxelib run lime create TextRendering
+     - run: haxelib run lime build HelloWorld html5
+     - run: haxelib run lime build SimpleAudio html5
+     - run: haxelib run lime build SimpleImage html5
+  
+  
+  Neko (Haxe 3.2.1):
+    docker:
+     - image: openfl/openfl-tests-unit-3.2:0.0.1
+    steps:
+     - attach_workspace:
+         at: /
+     - run: haxelib run lime rebuild linux -release -64 -nocffi
+     - run: haxelib run lime create HelloWorld
+     - run: haxelib run lime create SimpleAudio
+     - run: haxelib run lime create SimpleImage
      - run: haxelib run lime build HelloWorld neko
      - run: haxelib run lime build SimpleAudio neko
      - run: haxelib run lime build SimpleImage neko
-
-  cpp-3.2:
+  
+  Neko (Haxe 3.4.x):
     docker:
-     - image: openfl/openfl-tests-unit-3.2:0.0.1
+     - image: openfl/openfl-tests-unit-3.4:0.0.2
     steps:
-     - checkout
-     - run: cd ~/project && git submodule update --init
-     - run:
-        name: Setup Lime dev directory
-        command: haxelib dev lime ~/project
-     - run: git clone --recursive https://github.com/openfl/lime-samples ~/lime-samples --depth 1
-     - run: haxelib dev lime-samples ~/lime-samples
+     - attach_workspace:
+         at: /
      - run: haxelib run lime rebuild linux -release -64 -nocffi
-     - run: haxelib run lime rebuild tools -nocffi
      - run: haxelib run lime create HelloWorld
      - run: haxelib run lime create SimpleAudio
      - run: haxelib run lime create SimpleImage
-     - run: haxelib run lime create TextRendering
+     - run: haxelib run lime build HelloWorld neko
+     - run: haxelib run lime build SimpleAudio neko
+     - run: haxelib run lime build SimpleImage neko
+  
+  
+  C++ (Haxe 3.2.1):
+    docker:
+     - image: openfl/openfl-tests-unit-3.2:0.0.1
+    steps:
+     - attach_workspace:
+         at: /
+     - run: haxelib run lime rebuild linux -release -64 -nocffi
+     - run: haxelib run lime create HelloWorld
+     - run: haxelib run lime create SimpleAudio
+     - run: haxelib run lime create SimpleImage
      - run: haxelib run lime build HelloWorld linux
      - run: haxelib run lime build SimpleAudio linux
      - run: haxelib run lime build SimpleImage linux
   
-  flash-3.2:
-    docker:
-     - image: openfl/openfl-tests-unit-3.2:0.0.1
-    steps:
-     - checkout
-     - run:
-        name: Setup Lime dev directory
-        command: haxelib dev lime ~/project
-     - run: git clone --recursive https://github.com/openfl/lime-samples ~/lime-samples --depth 1
-     - run: haxelib dev lime-samples ~/lime-samples
-     - run: haxelib run lime rebuild tools -nocffi
-     - run: haxelib run lime create HelloWorld
-     - run: haxelib run lime create SimpleAudio
-     - run: haxelib run lime create SimpleImage
-     - run: haxelib run lime create TextRendering
-     - run: haxelib run lime build HelloWorld flash
-     - run: haxelib run lime build SimpleAudio flash
-     - run: haxelib run lime build SimpleImage flash
-  
-  docs-3.2:
-    docker:
-     - image: openfl/openfl-tests-unit-3.2:0.0.1
-    steps:
-     - checkout
-     - run:
-        name: Setup Lime dev directory
-        command: haxelib dev lime ~/project
-     - run: git clone https://github.com/openfl/dox ~/dox --depth 1
-     - run: haxelib dev dox ~/dox
-     - run: cd ~/project/docs && haxe build.hxml
-
-######
-
-  html5-3.4:
+  C++ (Haxe 3.4.x):
     docker:
      - image: openfl/openfl-tests-unit-3.4:0.0.2
     steps:
-     - checkout
-     - run:
-        name: Setup Lime dev directory
-        command: haxelib dev lime ~/project
-     - run: git clone --recursive https://github.com/openfl/lime-samples ~/lime-samples --depth 1
-     - run: haxelib dev lime-samples ~/lime-samples
-     - run: haxelib run lime rebuild tools -nocffi
-     - run: haxelib run lime create HelloWorld
-     - run: haxelib run lime create SimpleAudio
-     - run: haxelib run lime create SimpleImage
-     - run: haxelib run lime create TextRendering
-     - run: haxelib run lime build HelloWorld html5
-     - run: haxelib run lime build SimpleAudio html5
-     - run: haxelib run lime build SimpleImage html5
-
-  neko-3.4:
-    docker:
-     - image: openfl/openfl-tests-unit-3.4:0.0.2
-    steps:
-     - checkout
-     - run: cd ~/project && git submodule update --init
-     - run:
-        name: Setup Lime dev directory
-        command: haxelib dev lime ~/project
-     - run: git clone --recursive https://github.com/openfl/lime-samples ~/lime-samples --depth 1
-     - run: haxelib dev lime-samples ~/lime-samples
+     - attach_workspace:
+         at: /
      - run: haxelib run lime rebuild linux -release -64 -nocffi
-     - run: haxelib run lime rebuild tools -nocffi
      - run: haxelib run lime create HelloWorld
      - run: haxelib run lime create SimpleAudio
      - run: haxelib run lime create SimpleImage
-     - run: haxelib run lime create TextRendering
-     - run: haxelib run lime build HelloWorld neko
-     - run: haxelib run lime build SimpleAudio neko
-     - run: haxelib run lime build SimpleImage neko
-
-  cpp-3.4:
-    docker:
-     - image: openfl/openfl-tests-unit-3.4:0.0.2
-    steps:
-     - checkout
-     - run: cd ~/project && git submodule update --init
-     - run:
-        name: Setup Lime dev directory
-        command: haxelib dev lime ~/project
-     - run: git clone --recursive https://github.com/openfl/lime-samples ~/lime-samples --depth 1
-     - run: haxelib dev lime-samples ~/lime-samples
-     - run: haxelib run lime rebuild linux -release -64 -nocffi
-     - run: haxelib run lime rebuild tools -nocffi
-     - run: haxelib run lime create HelloWorld
-     - run: haxelib run lime create SimpleAudio
-     - run: haxelib run lime create SimpleImage
-     - run: haxelib run lime create TextRendering
      - run: haxelib run lime build HelloWorld linux
      - run: haxelib run lime build SimpleAudio linux
      - run: haxelib run lime build SimpleImage linux
   
-  flash-3.4:
+  
+  Flash (Haxe 3.2.1):
     docker:
-     - image: openfl/openfl-tests-unit-3.4:0.0.2
+     - image: openfl/openfl-tests-unit-3.2:0.0.1
     steps:
-     - checkout
-     - run:
-        name: Setup Lime dev directory
-        command: haxelib dev lime ~/project
-     - run: git clone --recursive https://github.com/openfl/lime-samples ~/lime-samples --depth 1
-     - run: haxelib dev lime-samples ~/lime-samples
-     - run: haxelib run lime rebuild tools -nocffi
+     - attach_workspace:
+         at: /
      - run: haxelib run lime create HelloWorld
      - run: haxelib run lime create SimpleAudio
      - run: haxelib run lime create SimpleImage
-     - run: haxelib run lime create TextRendering
      - run: haxelib run lime build HelloWorld flash
      - run: haxelib run lime build SimpleAudio flash
      - run: haxelib run lime build SimpleImage flash
   
-  docs-3.4:
+  Flash (Haxe 3.4.x):
     docker:
      - image: openfl/openfl-tests-unit-3.4:0.0.2
     steps:
-     - checkout
-     - run:
-        name: Setup Lime dev directory
-        command: haxelib dev lime ~/project
+     - attach_workspace:
+         at: /
+     - run: haxelib run lime create HelloWorld
+     - run: haxelib run lime create SimpleAudio
+     - run: haxelib run lime create SimpleImage
+     - run: haxelib run lime build HelloWorld flash
+     - run: haxelib run lime build SimpleAudio flash
+     - run: haxelib run lime build SimpleImage flash
+  
+  Documentation (Haxe 3.2.1):
+    docker:
+     - image: openfl/openfl-tests-unit-3.2:0.0.1
+    working_directory: /workspace/lime/docs
+    steps:
+     - attach_workspace:
+         at: /
      - run: git clone https://github.com/openfl/dox ~/dox --depth 1
      - run: haxelib dev dox ~/dox
-     - run: cd ~/project/docs && haxe build.hxml
+     - run: haxe build.hxml
+  
+  Documentation (Haxe 3.4.x):
+    docker:
+     - image: openfl/openfl-tests-unit-3.4:0.0.2
+    working_directory: /workspace/lime/docs
+    steps:
+     - attach_workspace:
+         at: /
+     - run: git clone https://github.com/openfl/dox ~/dox --depth 1
+     - run: haxelib dev dox ~/dox
+     - run: haxe build.hxml
+
 
 workflows:
   version: 2
-  haxe-3.2:
+  
+  Tests (Haxe 3.2.1):
     jobs:
-     - html5-3.2
-     - neko-3.2
-     - cpp-3.2
-     - flash-3.2
-     - docs-3.2
-  haxe-3.4:
+     - Setup (Haxe 3.2.1)
+     - HTML5 (Haxe 3.2.1):
+         requires:
+          - Setup (Haxe 3.2.1)
+     - Neko (Haxe 3.2.1):
+         requires:
+          - Setup (Haxe 3.2.1)
+     - C++ (Haxe 3.2.1):
+         requires:
+          - Setup (Haxe 3.2.1)
+     - Flash (Haxe 3.2.1):
+         requires:
+          - Setup (Haxe 3.2.1)
+     - Documentation (Haxe 3.2.1):
+         requires:
+          - Setup (Haxe 3.2.1)
+  
+  Tests (Haxe 3.4.x):
     jobs:
-     - html5-3.4
-     - neko-3.4
-     - cpp-3.4
-     - flash-3.4
-     - docs-3.4
+     - Setup (Haxe 3.4.x)
+     - HTML5 (Haxe 3.4.x):
+         requires:
+          - Setup (Haxe 3.4.x)
+     - Neko (Haxe 3.4.x):
+         requires:
+          - Setup (Haxe 3.4.x)
+     - C++ (Haxe 3.4.x):
+         requires:
+          - Setup (Haxe 3.4.x)
+     - Flash (Haxe 3.4.x):
+         requires:
+          - Setup (Haxe 3.4.x)
+     - Documentation (Haxe 3.4.x):
+         requires:
+          - Setup (Haxe 3.4.x)
