@@ -8,11 +8,17 @@ jobs:
     steps:
      - checkout
      - run:
-        name: Setup Lime dev directory
-        command: haxelib dev lime .
-     - run: haxelib run lime rebuild tools -nocffi
-     - run: git clone --recursive https://github.com/openfl/lime-samples ../lime-samples --depth 1
-     - run: haxelib dev lime-samples ../lime-samples
+         name: Set Lime Development Directory
+         command: haxelib dev lime .
+     - run:
+         name: Rebuild Lime Tools
+         command: haxelib run lime rebuild tools -nocffi
+     - run:
+         name: Clone Lime Samples
+         command: git clone --recursive https://github.com/openfl/lime-samples ../lime-samples --depth 1
+     - run:
+         name: Set Lime Samples Development Directory
+         command: haxelib dev lime-samples ../lime-samples
      - persist_to_workspace:
          root: /
          paths:
@@ -26,11 +32,17 @@ jobs:
     steps:
      - checkout
      - run:
-        name: Setup Lime dev directory
-        command: haxelib dev lime .
-     - run: haxelib run lime rebuild tools -nocffi
-     - run: git clone --recursive https://github.com/openfl/lime-samples ../lime-samples --depth 1
-     - run: haxelib dev lime-samples ../lime-samples
+         name: Set Lime Development Directory
+         command: haxelib dev lime .
+     - run:
+         name: Rebuild Lime Tools
+         command: haxelib run lime rebuild tools -nocffi
+     - run:
+         name: Clone Lime Samples
+         command: git clone --recursive https://github.com/openfl/lime-samples ../lime-samples --depth 1
+     - run:
+         name: Set Lime Samples Development Directory
+         command: haxelib dev lime-samples ../lime-samples
      - persist_to_workspace:
          root: /
          paths:
@@ -156,9 +168,15 @@ jobs:
     steps:
      - attach_workspace:
          at: /
-     - run: git clone https://github.com/openfl/dox ~/dox --depth 1
-     - run: haxelib dev dox ~/dox
-     - run: haxe build.hxml
+     - run:
+         name: Clone Dox
+         command: git clone https://github.com/openfl/dox ~/dox --depth 1
+     - run:
+         name: Set Dox Development Directory
+         command: haxelib dev dox ~/dox
+     - run:
+         name: Generate Documentation
+         command: haxe build.hxml
   
   Documentation (Haxe 3.4.x):
     docker:
@@ -167,9 +185,15 @@ jobs:
     steps:
      - attach_workspace:
          at: /
-     - run: git clone https://github.com/openfl/dox ~/dox --depth 1
-     - run: haxelib dev dox ~/dox
-     - run: haxe build.hxml
+     - run:
+         name: Clone Dox
+         command: git clone https://github.com/openfl/dox ~/dox --depth 1
+     - run:
+         name: Set Dox Development Directory
+         command: haxelib dev dox ~/dox
+     - run:
+         name: Generate Documentation
+         command: haxe build.hxml
 
 
 workflows:
