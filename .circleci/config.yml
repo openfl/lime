@@ -8,6 +8,9 @@ jobs:
     steps:
      - checkout
      - run:
+         name: Update Git Submodules
+         command: git submodule update --init
+     - run:
          name: Set Lime Development Directory
          command: haxelib dev lime .
      - run:
@@ -31,6 +34,9 @@ jobs:
     working_directory: /workspace/lime
     steps:
      - checkout
+     - run:
+         name: Update Git Submodules
+         command: git submodule update --init
      - run:
          name: Set Lime Development Directory
          command: haxelib dev lime .
