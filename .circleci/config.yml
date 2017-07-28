@@ -12,12 +12,6 @@ jobs:
         name: Setup Lime dev directory
         command: haxelib dev lime ~/project
      - run: haxelib run lime rebuild tools -nocffi
-    #  - run:
-    #      working_directory: ~/project/tests/unit
-    #      command: haxelib run munit gen
-    #  - run:
-    #      working_directory: ~/project/tests/unit
-    #      command: haxelib run munit test -browser phantomjs -nocffi
      - run: haxelib run lime create HelloWorld
      - run: haxelib run lime create SimpleAudio
      - run: haxelib run lime create SimpleImage
@@ -36,15 +30,6 @@ jobs:
         command: haxelib dev lime ~/project
      - run: haxelib run lime rebuild linux -release -64 -nocffi
      - run: haxelib run lime rebuild tools -nocffi
-    #  - run:
-    #      working_directory: ~/project/tests/unit
-    #      command: haxelib run munit gen
-    #  - run:
-    #      working_directory: ~/project/tests/unit
-    #      command: haxelib run lime build neko -nocffi
-    #  - run:
-    #      working_directory: ~/project/tests/unit
-    #      command: haxelib run lime build neko -Ddisable-cffi -nocffi
      - run: haxelib run lime create HelloWorld
      - run: haxelib run lime create SimpleAudio
      - run: haxelib run lime create SimpleImage
@@ -63,12 +48,6 @@ jobs:
         command: haxelib dev lime ~/project
      - run: haxelib run lime rebuild linux -release -64 -nocffi
      - run: haxelib run lime rebuild tools -nocffi
-    #  - run:
-    #      working_directory: ~/project/tests/unit
-    #      command: haxelib run munit gen
-    #  - run:
-    #      working_directory: ~/project/tests/unit
-    #      command: haxelib run lime test linux --window-hardware=false
      - run: haxelib run lime create HelloWorld
      - run: haxelib run lime create SimpleAudio
      - run: haxelib run lime create SimpleImage
@@ -86,12 +65,6 @@ jobs:
         name: Setup Lime dev directory
         command: haxelib dev lime ~/project
      - run: haxelib run lime rebuild tools -nocffi
-    #  - run:
-    #      working_directory: ~/project/tests/unit
-    #      command: haxelib run munit gen
-    #  - run:
-    #      working_directory: ~/project/tests/unit
-    #      command: haxelib run munit test -as3 -norun -nocffi
      - run: haxelib run lime create HelloWorld
      - run: haxelib run lime create SimpleAudio
      - run: haxelib run lime create SimpleImage
@@ -123,12 +96,6 @@ jobs:
         name: Setup Lime dev directory
         command: haxelib dev lime ~/project
      - run: haxelib run lime rebuild tools -nocffi
-    #  - run:
-    #      working_directory: ~/project/tests/unit
-    #      command: haxelib run munit gen
-    #  - run:
-    #      working_directory: ~/project/tests/unit
-    #      command: haxelib run munit test -browser phantomjs -nocffi
      - run: haxelib run lime create HelloWorld
      - run: haxelib run lime create SimpleAudio
      - run: haxelib run lime create SimpleImage
@@ -147,15 +114,6 @@ jobs:
         command: haxelib dev lime ~/project
      - run: haxelib run lime rebuild linux -release -64 -nocffi
      - run: haxelib run lime rebuild tools -nocffi
-    #  - run:
-    #      working_directory: ~/project/tests/unit
-    #      command: haxelib run munit gen
-    #  - run:
-    #      working_directory: ~/project/tests/unit
-    #      command: haxelib run lime build neko -nocffi
-    #  - run:
-    #      working_directory: ~/project/tests/unit
-    #      command: haxelib run lime build neko -Ddisable-cffi -nocffi
      - run: haxelib run lime create HelloWorld
      - run: haxelib run lime create SimpleAudio
      - run: haxelib run lime create SimpleImage
@@ -174,12 +132,6 @@ jobs:
         command: haxelib dev lime ~/project
      - run: haxelib run lime rebuild linux -release -64 -nocffi
      - run: haxelib run lime rebuild tools -nocffi
-    #  - run:
-    #      working_directory: ~/project/tests/unit
-    #      command: haxelib run munit gen
-    #  - run:
-    #      working_directory: ~/project/tests/unit
-    #      command: haxelib run lime test linux --window-hardware=false
      - run: haxelib run lime create HelloWorld
      - run: haxelib run lime create SimpleAudio
      - run: haxelib run lime create SimpleImage
@@ -197,12 +149,6 @@ jobs:
         name: Setup Lime dev directory
         command: haxelib dev lime ~/project
      - run: haxelib run lime rebuild tools -nocffi
-    #  - run:
-    #      working_directory: ~/project/tests/unit
-    #      command: haxelib run munit gen
-    #  - run:
-    #      working_directory: ~/project/tests/unit
-    #      command: haxelib run munit test -as3 -norun -nocffi
      - run: haxelib run lime create HelloWorld
      - run: haxelib run lime create SimpleAudio
      - run: haxelib run lime create SimpleImage
