@@ -25,6 +25,7 @@ jobs:
      - image: openfl/openfl-tests-unit-3.2:0.0.1
     steps:
      - checkout
+     - run: cd ~/project && git submodule update --init
      - run:
         name: Setup Lime dev directory
         command: haxelib dev lime ~/project
@@ -43,6 +44,7 @@ jobs:
      - image: openfl/openfl-tests-unit-3.2:0.0.1
     steps:
      - checkout
+     - run: cd ~/project && git submodule update --init
      - run:
         name: Setup Lime dev directory
         command: haxelib dev lime ~/project
@@ -109,6 +111,7 @@ jobs:
      - image: openfl/openfl-tests-unit-3.4:0.0.2
     steps:
      - checkout
+     - run: cd ~/project && git submodule update --init
      - run:
         name: Setup Lime dev directory
         command: haxelib dev lime ~/project
@@ -127,6 +130,7 @@ jobs:
      - image: openfl/openfl-tests-unit-3.4:0.0.2
     steps:
      - checkout
+     - run: cd ~/project && git submodule update --init
      - run:
         name: Setup Lime dev directory
         command: haxelib dev lime ~/project
