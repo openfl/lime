@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "5.2.1",
-	"releasenote": "Improved HTTPRequest, minor fixes",
+	"version": "5.3.0",
+	"releasenote": "Added WebAssembly, HTML5 improvements, local .haxelib support",
 	"contributors": [ "singmajesty" ]
 }
