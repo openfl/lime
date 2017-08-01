@@ -351,7 +351,7 @@ class TVOSHelper {
 		
 		if (project.config.exists ("tvos.provisioning-profile")) {
 			
-			commands.push ("PROVISIONING_PROFILE=" + project.config.getString ("ios.provisioning-profile"));
+			commands.push ("PROVISIONING_PROFILE=" + project.config.getString ("tvos.provisioning-profile"));
 			
 		}
 		
