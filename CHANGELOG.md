@@ -1,3 +1,19 @@
+5.3.0 (07/31/2017)
+------------------
+
+* Added support for WebAssembly (`emscripten -webassembly` or `-wasm`)
+* Added `lime -version` for simpler Lime version output
+* Added `@:compiler` to add extra compiler arguments to HXP projects
+* Updated howler.js to 2.0.4, plus an additional Firefox WebAudio patch
+* Improved support for using Lime in local .haxelib directories
+* Improved detection of default asset type in command-line tools
+* Improved support for HTML5 -Dmodular builds
+* Improved handling of error messages from howler.js
+* Fixed support for asset libraries in Emscripten/WebAssembly target
+* Fixed `lime create extension` to preserve `ANDROID_GRADLE_PLUGIN` variable
+* Fixed support for preloading fonts on Safari
+
+
 5.2.1 (06/21/2017)
 ------------------
 
