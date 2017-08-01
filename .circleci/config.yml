@@ -68,6 +68,12 @@ jobs:
      - run: haxelib run lime build HelloWorld html5
      - run: haxelib run lime build SimpleAudio html5
      - run: haxelib run lime build SimpleImage html5
+     - run: haxelib run lime build HelloWorld html5 -Dcanvas
+     - run: haxelib run lime build SimpleAudio html5 -Dcanvas
+     - run: haxelib run lime build SimpleImage html5 -Dcanvas
+     - run: haxelib run lime build HelloWorld html5 -Ddom
+     - run: haxelib run lime build SimpleAudio html5 -Ddom
+     - run: haxelib run lime build SimpleImage html5 -Ddom
   
   HTML5 (Haxe 3.4.x):
     docker:
@@ -81,6 +87,12 @@ jobs:
      - run: haxelib run lime build HelloWorld html5
      - run: haxelib run lime build SimpleAudio html5
      - run: haxelib run lime build SimpleImage html5
+     - run: haxelib run lime build HelloWorld html5 -Dcanvas
+     - run: haxelib run lime build SimpleAudio html5 -Dcanvas
+     - run: haxelib run lime build SimpleImage html5 -Dcanvas
+     - run: haxelib run lime build HelloWorld html5 -Ddom
+     - run: haxelib run lime build SimpleAudio html5 -Ddom
+     - run: haxelib run lime build SimpleImage html5 -Ddom
   
   
   Neko (Haxe 3.2.1):
@@ -96,6 +108,9 @@ jobs:
      - run: haxelib run lime build HelloWorld neko
      - run: haxelib run lime build SimpleAudio neko
      - run: haxelib run lime build SimpleImage neko
+     - run: haxelib run lime build HelloWorld neko -Dcairo
+     - run: haxelib run lime build SimpleAudio neko -Dcairo
+     - run: haxelib run lime build SimpleImage neko -Dcairo
   
   Neko (Haxe 3.4.x):
     docker:
@@ -110,6 +125,9 @@ jobs:
      - run: haxelib run lime build HelloWorld neko
      - run: haxelib run lime build SimpleAudio neko
      - run: haxelib run lime build SimpleImage neko
+     - run: haxelib run lime build HelloWorld neko -Dcairo
+     - run: haxelib run lime build SimpleAudio neko -Dcairo
+     - run: haxelib run lime build SimpleImage neko -Dcairo
   
   
   C++ (Haxe 3.2.1):
