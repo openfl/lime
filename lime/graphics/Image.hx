@@ -587,30 +587,6 @@ class Image {
 	}
 	
 	
-	public function gaussianBlur (sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, blurX:Float = 4, blurY:Float = 4, quality:Int = 1, strength:Int = 1):Void {
-		
-		switch (type) {
-			
-			case CANVAS, DATA:
-				
-				#if (js && html5)
-				ImageCanvasUtil.convertToData (this);
-				ImageCanvasUtil.convertToData (sourceImage);
-				#end
-				
-				return ImageDataUtil.gaussianBlur (this, sourceImage, sourceRect, destPoint, blurX, blurY, quality, strength);
-			
-			case FLASH:
-				
-				// TODO
-			
-			default:
-			
-		}
-		
-	}
-	
-	
 	public function getColorBoundsRect (mask:Int, color:Int, findColor:Bool = true, format:PixelFormat = null):Rectangle {
 		
 		if (buffer == null) return null;
