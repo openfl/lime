@@ -1905,10 +1905,15 @@ class CommandLineTools {
 			}
 			
 			lastArgument = new Path (lastArgument).toString ();
+			var isRootDirectory = false;
 			
-			if (((StringTools.endsWith (lastArgument, "/") && lastArgument != "/") || StringTools.endsWith (lastArgument, "\\")) && !StringTools.endsWith (lastArgument, ":\\")) {
+			if (PlatformHelper.hostPlatform == WINDOWS) {
 				
-				lastArgument = lastArgument.substr (0, lastArgument.length - 1);
+				isRootDirectory = (lastArgument.length == 3 && lastArgument.charAt (1) == ":" && (lastArgument.charAt (2) == "/" || lastArgument.charAt (2) == "\\"));
+				
+			} else {
+				
+				isRootDirectory = (lastArgument == "/");
 				
 			}
 			
@@ -1919,7 +1924,7 @@ class CommandLineTools {
 				Sys.setCwd (lastArgument);
 				runFromHaxelib = true;
 				
-			} else {
+			} else if (!isRootDirectory) {
 				
 				arguments.push (lastArgument);
 				
