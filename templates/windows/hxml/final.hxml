@@ -1,0 +1,8 @@
+-main ApplicationMain ::HAXE_FLAGS::
+-js ::OUTPUT_FILE::
+-cp ::OUTPUT_DIR::/haxe
+-D html5
+-D html
+-D final
+-D js-flatten
+-dce full
