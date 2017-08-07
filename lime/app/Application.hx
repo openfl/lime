@@ -43,6 +43,8 @@ class Application extends Module {
 	 * A list of currently attached Module instances
 	**/
 	public var modules (default, null):Array<IModule>;
+
+	public var httpReqTimeout (default, null):Int;
 	
 	/**
 	 * The Preloader for the current Application
@@ -182,6 +184,12 @@ class Application extends Module {
 				
 			}
 			
+			if (Reflect.hasField (config, "httpReqTimeout")) {
+				
+				httpReqTimeout = config.httpReqTimeout;
+				
+			}
+
 			if (Reflect.hasField (config, "windows")) {
 				
 				for (windowConfig in config.windows) {

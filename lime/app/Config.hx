@@ -48,6 +48,8 @@ typedef Config = {
 	 * corresponds to the `<meta title="" />` attribute in XML
 	**/
 	@:optional var name:String;
+
+	@:optional var httpReqTimeout:Int;
 	
 	/**
 	 * An application orientation
