@@ -72,23 +72,6 @@ public class GameActivity extends SDLActivity {
 		super.onActivityResult (requestCode, resultCode, data);
 		
 	}
-
-	@Override
-	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-
-		for (Extension extension : extensions) {
-
-			if (!extension.onRequestPermissionsResult (requestCode, permissions, grantResults)) {
-
-				return;
-
-			}
-
-		}
-
-		super.onRequestPermissionsResult (requestCode, permissions, grantResults);
-
-	}
 	
 	
 	@Override public void onBackPressed () {
@@ -205,6 +188,25 @@ public class GameActivity extends SDLActivity {
 		}
 		
 	}
+	
+	
+	::if (ANDROID_TARGET_SDK_VERSION >= 23)::
+	@Override public void onRequestPermissionsResult (int requestCode, String permissions[], int[] grantResults) {
+		
+		for (Extension extension : extensions) {
+			
+			if (!extension.onRequestPermissionsResult (requestCode, permissions, grantResults)) {
+				
+				return;
+				
+			}
+			
+		}
+		
+		super.onRequestPermissionsResult (requestCode, permissions, grantResults);
+		
+	}
+	::end::
 	
 	
 	@Override protected void onRestart () {
