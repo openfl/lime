@@ -44,65 +44,7 @@ class FlashPlatform extends PlatformTarget {
 	
 	public override function build ():Void {
 		
-		var destination = targetDirectory + "/bin";
-		
-		if (embedded) {
-			
-			var hxml = File.getContent (targetDirectory + "/haxe/" + buildType + ".hxml");
-			var args = new Array<String> ();
-			
-			for (line in ~/[\r\n]+/g.split (hxml)) {
-				
-				line = StringTools.ltrim (line);
-				
-				if (StringTools.startsWith (line, "#") || line.indexOf ("-swf-header") > -1) {
-					
-					continue;
-					
-				}
-				
-				var space = line.indexOf (" ");
-				
-				if (space == -1) {
-					
-					args.push (StringTools.rtrim (line));
-					
-				} else {
-					
-					args.push (line.substr (0, space));
-					
-					args.push (StringTools.trim (line.substr (space + 1)));
-					
-				}
-				
-			}
-			
-			ProcessHelper.runCommand ("", "haxe", args);
-			
-		} else {
-			
-			var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
-			ProcessHelper.runCommand ("", "haxe", [ hxml ] );
-			
-		}
-		
-		/*var usesOpenFL = false;
-		
-		for (haxelib in project.haxelibs) {
-			
-			if (haxelib.name == "nme" || haxelib.name == "openfl") {
-				
-				usesOpenFL = true;
-				
-			}
-			
-		}
-		
-		if (usesOpenFL) {
-			
-			FlashHelper.embedAssets (destination + "/" + project.app.file + ".swf", project.assets);
-			
-		}*/
+		ProcessHelper.runCommand ("", "haxe", [ targetDirectory + "/haxe/" + buildType + ".hxml" ]);
 		
 	}
 	
@@ -252,6 +194,40 @@ class FlashPlatform extends PlatformTarget {
 			
 			PathHelper.mkdir (destination);
 			FileHelper.recursiveCopyTemplate (project.templatePaths, "flash/templates/web", destination, generateContext ());
+			
+		}
+		
+		if (embedded) {
+			
+			var files = [ "debug.hxml", "release.hxml", "final.hxml" ];
+			var path, hxml, lines, output;
+			
+			for (file in files) {
+				
+				path = targetDirectory + "/haxe/" + file;
+				hxml = File.getContent (path);
+				
+				if (hxml.indexOf ("-swf-header") > -1) {
+					
+					lines = ~/[\r\n]+/g.split (hxml);
+					output = [];
+					
+					for (line in lines) {
+						
+						if (line.indexOf ("-swf-header") > -1) continue;
+						output.push (line);
+						
+					}
+					
+					if (output.length < lines.length) {
+						
+						File.saveContent (path, output.join ("\n"));
+						
+					}
+					
+				}
+				
+			}
 			
 		}
 		
