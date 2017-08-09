@@ -100,6 +100,8 @@ class WindowsPlatform extends PlatformTarget {
 		// for now build html5 	
 		if (project.targetFlags.exists ("uwp")) {
 			Sys.println ("I am building some magic UWP shit!");
+			Sys.println("targetDirectory: " + targetDirectory);
+			Sys.println("project.app.file: " + project.app.file);
 			ModuleHelper.buildModules (project, targetDirectory + "/obj", targetDirectory + "/bin");
 		
 			if (project.app.main != null) {
@@ -308,7 +310,7 @@ class WindowsPlatform extends PlatformTarget {
 	
 	
 	public override function deploy ():Void {
-		
+		Sys.println("WINDOWS platform deploy does nothing.");
 		DeploymentHelper.deploy (project, targetFlags, targetDirectory, "Windows" + (is64 ? "64" : ""));
 		
 	}

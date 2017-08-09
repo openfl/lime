@@ -30,8 +30,8 @@ import sys.io.Process;
 
 
 class HXProject {
-	
-	
+
+
 	public var app:ApplicationData;
 	public var architectures:Array<Architecture>;
 	public var assets:Array<Asset>;
@@ -66,11 +66,11 @@ class HXProject {
 	public var templatePaths:Array<String>;
 	@:isVar public var window (get, set):WindowData;
 	public var windows:Array<WindowData>;
-	
+
 	private var defaultApp:ApplicationData;
 	private var defaultMeta:MetaData;
 	private var defaultWindow:WindowData;
-	
+
 	public static var _command:String;
 	public static var _debug:Bool;
 	public static var _environment:Map<String, String>;
@@ -78,23 +78,23 @@ class HXProject {
 	public static var _targetFlags:Map<String, String>;
 	public static var _templatePaths:Array<String>;
 	public static var _userDefines:Map<String, Dynamic>;
-	
+
 	private static var initialized:Bool;
-	
-	
+
+
 	public static function main () {
-		
+
 		var args = Sys.args ();
-		
+
 		if (args.length < 2) {
-			
+
 			return;
-			
+
 		}
-		
+
 		var inputData = Unserializer.run (File.getContent (args[0]));
 		var outputFile = args[1];
-		
+
 		HXProject._command = inputData.command;
 		HXProject._target = cast inputData.target;
 		HXProject._debug = inputData.debug;
@@ -102,156 +102,168 @@ class HXProject {
 		HXProject._templatePaths = inputData.templatePaths;
 		HXProject._userDefines = inputData.userDefines;
 		HXProject._environment = inputData.environment;
-		
+
 		initialize ();
-		
+
 		var classRef = Type.resolveClass (inputData.name);
 		var instance = Type.createInstance (classRef, []);
-		
+
 		var serializer = new Serializer ();
 		serializer.useCache = true;
 		serializer.serialize (instance);
-		
+
 		File.saveContent (outputFile, serializer.toString ());
-		
+
 	}
-	
-	
+
+
 	public function new () {
-		
+
 		initialize ();
-		
+
 		command = _command;
 		config = new ConfigData ();
 		debug = _debug;
 		target = _target;
 		targetFlags = StringMapHelper.copy (_targetFlags);
 		templatePaths = _templatePaths.copy ();
-		
+
 		defaultMeta = { title: "MyApplication", description: "", packageName: "com.example.myapp", version: "1.0.0", company: "", companyUrl: "", buildNumber: null, companyId: "" }
 		defaultApp = { main: "Main", file: "MyApplication", path: "bin", preloader: "", swfVersion: 17, url: "", init: null }
 		defaultWindow = { width: 800, height: 600, parameters: "{}", background: 0xFFFFFF, fps: 30, hardware: true, display: 0, resizable: true, borderless: false, orientation: Orientation.AUTO, vsync: false, fullscreen: false, allowHighDPI: true, alwaysOnTop: false, antialiasing: 0, allowShaders: true, requireShaders: false, depthBuffer: false, stencilBuffer: false, colorDepth: 16 }
-		
+
+		Sys.println('targetFlags: ' + targetFlags);
+
 		platformType = PlatformType.DESKTOP;
 		architectures = [];
-		
+
 		switch (target) {
-			
+
 			case FLASH:
-				
+
 				platformType = PlatformType.WEB;
 				architectures = [];
-			
+
 			case HTML5, FIREFOX:
-				
+
 				platformType = PlatformType.WEB;
 				architectures = [];
-				
+
 				defaultWindow.width = 0;
 				defaultWindow.height = 0;
 				defaultWindow.fps = 60;
 				defaultWindow.allowHighDPI = false;
-			
+
 			case EMSCRIPTEN:
-				
+
 				platformType = PlatformType.WEB;
 				architectures = [];
-				
+
 				defaultWindow.fps = 60;
 				defaultWindow.allowHighDPI = false;
-			
+
 			case ANDROID, BLACKBERRY, IOS, TIZEN, WEBOS, TVOS:
-				
+
 				platformType = PlatformType.MOBILE;
-				
+
 				if (target == Platform.IOS) {
-					
+
 					architectures = [ Architecture.ARMV7, Architecture.ARM64 ];
-					
+
 				} else if (target == Platform.ANDROID) {
-					
+
 					if (targetFlags.exists ("simulator") || targetFlags.exists ("emulator")) {
-						
+
 						architectures = [ Architecture.X86 ];
-						
+
 					} else {
-						
+
 						architectures = [ Architecture.ARMV7 ];
-						
+
 					}
-					
+
 				} else if (target == Platform.TVOS) {
-					
+
 					architectures = [ Architecture.ARM64 ];
-					
+
 				} else {
-					
+
 					architectures = [ Architecture.ARMV6 ];
-					
+
 				}
-				
+
 				defaultWindow.width = 0;
 				defaultWindow.height = 0;
 				defaultWindow.fullscreen = true;
 				defaultWindow.requireShaders = true;
-			
+
 			case WINDOWS, MAC, LINUX:
-				
+
 				platformType = PlatformType.DESKTOP;
-				
+
 				if (target == Platform.LINUX || target == Platform.MAC) {
-					
+
 					architectures = [ PlatformHelper.hostArchitecture ];
-					
+
+				} else if(targetFlags.exists ("uwp")) {
+					Sys.println("forcing platform to WEB");
+					target = Platform.HTML5;
+					platformType = PlatformType.WEB;
+					architectures = [];
+					defaultWindow.width = 0;
+					defaultWindow.height = 0;
+					defaultWindow.fps = 60;
+					defaultWindow.allowHighDPI = false;
+
 				} else {
-					
+
 					architectures = [ Architecture.X86 ];
-					
+
 				}
-				
+
 				defaultWindow.allowHighDPI = false;
-			
+
 			default:
-				
+
 				// TODO: Better handle platform type for pluggable targets
-				
+
 				platformType = PlatformType.CONSOLE;
-				
+
 				defaultWindow.width = 0;
 				defaultWindow.height = 0;
 				defaultWindow.fps = 60;
 				defaultWindow.fullscreen = true;
-			
+
 		}
-		
+
 		meta = ObjectHelper.copyFields (defaultMeta, {});
 		app = ObjectHelper.copyFields (defaultApp, {});
 		window = ObjectHelper.copyFields (defaultWindow, {});
 		windows = [ window ];
 		assets = new Array<Asset> ();
-		
+
 		if (_userDefines != null) {
-			
+
 			defines = StringMapHelper.copy (_userDefines);
-			
+
 		} else {
-			
+
 			defines = new Map<String, Dynamic> ();
-			
+
 		}
-		
+
 		dependencies = new Array<Dependency> ();
-		
+
 		if (_environment != null) {
-			
+
 			environment = _environment;
-			
+
 		} else {
-			
+
 			environment = Sys.environment ();
-			
+
 		}
-		
+
 		haxedefs = new Map<String, Dynamic> ();
 		haxeflags = new Array<String> ();
 		haxelibs = new Array<Haxelib> ();
@@ -267,196 +279,196 @@ class HXProject {
 		samplePaths = new Array<String> ();
 		splashScreens = new Array<SplashScreen> ();
 		targetHandlers = new Map<String, String> ();
-		
+
 	}
-	
-	
+
+
 	public function clone ():HXProject {
-		
+
 		var project = new HXProject ();
-		
+
 		ObjectHelper.copyFields (app, project.app);
 		project.architectures = architectures.copy ();
 		project.assets = assets.copy ();
-		
+
 		for (i in 0...assets.length) {
-			
+
 			project.assets[i] = assets[i].clone ();
-			
+
 		}
-		
+
 		project.command = command;
 		project.config = config.clone ();
 		project.debug = debug;
-		
+
 		for (key in defines.keys ()) {
-			
+
 			project.defines.set (key, defines.get (key));
-			
+
 		}
-		
+
 		for (dependency in dependencies) {
-			
+
 			project.dependencies.push (dependency.clone ());
-			
+
 		}
-		
+
 		for (key in environment.keys ()) {
-			
+
 			project.environment.set (key, environment.get (key));
-			
+
 		}
-		
+
 		for (key in haxedefs.keys ()) {
-			
+
 			project.haxedefs.set (key, haxedefs.get (key));
-			
+
 		}
-		
+
 		project.haxeflags = haxeflags.copy ();
-		
+
 		for (haxelib in haxelibs) {
-			
+
 			project.haxelibs.push (haxelib.clone ());
-			
+
 		}
-		
+
 		for (icon in icons) {
-			
+
 			project.icons.push (icon.clone ());
-			
+
 		}
-		
+
 		project.javaPaths = javaPaths.copy ();
-		
+
 		if (keystore != null) {
-			
+
 			project.keystore = keystore.clone ();
-			
+
 		}
-		
+
 		for (library in libraries) {
-			
+
 			project.libraries.push (library.clone ());
-			
+
 		}
-		
+
 		for (key in libraryHandlers.keys ()) {
-			
+
 			project.libraryHandlers.set (key, libraryHandlers.get (key));
-			
+
 		}
-		
+
 		ObjectHelper.copyFields (meta, project.meta);
-		
+
 		for (key in modules.keys ()) {
-			
+
 			project.modules.set (key, modules.get (key).clone ());
-			
+
 		}
-		
+
 		for (ndll in ndlls) {
-			
+
 			project.ndlls.push (ndll.clone ());
-			
+
 		}
-		
+
 		project.platformType = platformType;
 		project.postBuildCallbacks = postBuildCallbacks.copy ();
 		project.preBuildCallbacks = preBuildCallbacks.copy ();
 		project.samplePaths = samplePaths.copy ();
 		project.sources = sources.copy ();
-		
+
 		for (splashScreen in splashScreens) {
-			
+
 			project.splashScreens.push (splashScreen.clone ());
-			
+
 		}
-		
+
 		project.target = target;
-		
+
 		for (key in targetFlags.keys ()) {
-			
+
 			project.targetFlags.set (key, targetFlags.get (key));
-			
+
 		}
-		
+
 		for (key in targetHandlers.keys ()) {
-			
+
 			project.targetHandlers.set (key, targetHandlers.get (key));
-			
+
 		}
-		
+
 		project.templatePaths = templatePaths.copy ();
-		
+
 		for (i in 0...windows.length) {
-			
+
 			project.windows[i] = (ObjectHelper.copyFields (windows[i], {}));
-			
+
 		}
-		
+
 		return project;
-		
+
 	}
-	
-	
+
+
 	private function filter (text:String, include:Array<String> = null, exclude:Array<String> = null):Bool {
-		
+
 		if (include == null) {
-			
+
 			include = [ "*" ];
-			
+
 		}
-		
+
 		if (exclude == null) {
-			
+
 			exclude = [];
-			
+
 		}
-		
+
 		for (filter in exclude) {
-			
+
 			if (filter != "") {
-				
+
 				filter = StringTools.replace (filter, ".", "\\.");
 				filter = StringTools.replace (filter, "*", ".*");
-				
+
 				var regexp = new EReg ("^" + filter + "$", "i");
-				
+
 				if (regexp.match (text)) {
-					
+
 					return false;
-					
+
 				}
-				
+
 			}
-			
+
 		}
-		
+
 		for (filter in include) {
-			
+
 			if (filter != "") {
-				
+
 				filter = StringTools.replace (filter, ".", "\\.");
 				filter = StringTools.replace (filter, "*", ".*");
-				
+
 				var regexp = new EReg ("^" + filter, "i");
-				
+
 				if (regexp.match (text)) {
-					
+
 					return true;
-					
+
 				}
-				
+
 			}
-			
+
 		}
-		
+
 		return false;
-		
+
 	}
-	
-	
+
+
 	#if lime
 	
 	public static function fromFile (projectFile:String, userDefines:Map<String, Dynamic> = null, includePaths:Array<String> = null):HXProject {
@@ -637,116 +649,116 @@ class HXProject {
 	}
 	
 	#end
-	
-	
+
+
 	private function getHaxelibVersion (haxelib:Haxelib):String {
-		
+
 		var version = haxelib.version;
-		
+
 		if (version == "" || version == null) {
-			
+
 			var haxelibPath = PathHelper.getHaxelib (haxelib);
 			var jsonPath = PathHelper.combine (haxelibPath, "haxelib.json");
-			
+
 			try {
-				
+
 				if (FileSystem.exists (jsonPath)) {
-					
+
 					var json = Json.parse (File.getContent (jsonPath));
 					version = json.version;
-					
+
 				}
-				
+
 			} catch (e:Dynamic) {}
-			
+
 		}
-		
+
 		return version;
-		
+
 	}
-	
-	
+
+
 	public function include (path:String):Void {
-		
+
 		// extend project file somehow?
-		
+
 	}
-	
-	
+
+
 	public function includeAssets (path:String, rename:String = null, include:Array<String> = null, exclude:Array<String> = null):Void {
-		
+
 		if (include == null) {
-			
+
 			include = [ "*" ];
-			
+
 		}
-		
+
 		if (exclude == null) {
-			
+
 			exclude = [];
-			
+
 		}
-		
+
 		exclude = exclude.concat ([ ".*", "cvs", "thumbs.db", "desktop.ini", "*.hash" ]);
-			
+
 		if (path == "") {
-			
+
 			return;
-			
+
 		}
-		
+
 		var targetPath = "";
-		
+
 		if (rename != null) {
-			
+
 			targetPath = rename;
-			
+
 		} else {
-			
+
 			targetPath = path;
-			
+
 		}
-		
+
 		if (!FileSystem.exists (path)) {
-			
+
 			LogHelper.error ("Could not find asset path \"" + path + "\"");
 			return;
-			
+
 		}
-		
+
 		var files = FileSystem.readDirectory (path);
-		
+
 		if (targetPath != "") {
-			
+
 			targetPath += "/";
-			
+
 		}
-		
+
 		for (file in files) {
-			
+
 			if (FileSystem.isDirectory (path + "/" + file)) {
-				
+
 				if (filter (file, [ "*" ], exclude)) {
-					
+
 					includeAssets (path + "/" + file, targetPath + file, include, exclude);
-					
+
 				}
-				
+
 			} else {
-				
+
 				if (filter (file, include, exclude)) {
-					
+
 					assets.push (new Asset (path + "/" + file, targetPath + file));
-					
+
 				}
-				
+
 			}
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 	#if lime
 	
 	public function includeXML (xml:String):Void {
@@ -758,66 +770,66 @@ class HXProject {
 	}
 	
 	#end
-	
-	
+
+
 	private static function initialize ():Void {
-		
+
 		if (!initialized) {
-			
+
 			if (_target == null) {
-				
+
 				_target = PlatformHelper.hostPlatform;
-				
+
 			}
-			
+
 			if (_targetFlags == null) {
-				
+
 				_targetFlags = new Map<String, String> ();
-				
+
 			}
-			
+
 			if (_templatePaths == null) {
-				
+
 				_templatePaths = new Array<String> ();
-				
+
 			}
-			
+
 			initialized = true;
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 	public function merge (project:HXProject):Void {
-		
+
 		if (project != null) {
-			
+
 			ObjectHelper.copyUniqueFields (project.meta, meta, project.defaultMeta);
 			ObjectHelper.copyUniqueFields (project.app, app, project.defaultApp);
-			
+
 			for (i in 0...project.windows.length) {
-				
+
 				if (i < windows.length) {
-					
+
 					ObjectHelper.copyUniqueFields (project.windows[i], windows[i], project.defaultWindow);
-					
+
 				} else {
-					
+
 					windows.push (ObjectHelper.copyFields (project.windows[i], {}));
-					
+
 				}
-				
+
 			}
-			
+
 			StringMapHelper.copyUniqueKeys (project.defines, defines);
 			StringMapHelper.copyUniqueKeys (project.environment, environment);
 			StringMapHelper.copyUniqueKeys (project.haxedefs, haxedefs);
 			StringMapHelper.copyUniqueKeys (project.libraryHandlers, libraryHandlers);
 			StringMapHelper.copyUniqueKeys (project.targetHandlers, targetHandlers);
-			
+
 			config.merge (project.config);
-			
+
 			architectures = ArrayHelper.concatUnique (architectures, project.architectures);
 			assets = ArrayHelper.concatUnique (assets, project.assets);
 			dependencies = ArrayHelper.concatUnique (dependencies, project.dependencies, true);
@@ -825,34 +837,34 @@ class HXProject {
 			haxelibs = ArrayHelper.concatUnique (haxelibs, project.haxelibs, true, "name");
 			icons = ArrayHelper.concatUnique (icons, project.icons);
 			javaPaths = ArrayHelper.concatUnique (javaPaths, project.javaPaths, true);
-			
+
 			if (keystore == null) {
-				
+
 				keystore = project.keystore;
-				
+
 			} else {
-				
+
 				keystore.merge (project.keystore);
-				
+
 			}
-			
-			
+
+
 			libraries = ArrayHelper.concatUnique (libraries, project.libraries, true);
-			
+
 			for (key in project.modules.keys ()) {
-				
+
 				if (modules.exists (key)) {
-					
+
 					modules.get (key).merge (project.modules.get (key));
-					
+
 				} else {
-					
+
 					modules.set (key, project.modules.get (key));
-					
+
 				}
-				
+
 			}
-			
+
 			ndlls = ArrayHelper.concatUnique (ndlls, project.ndlls);
 			postBuildCallbacks = postBuildCallbacks.concat (project.postBuildCallbacks);
 			preBuildCallbacks = preBuildCallbacks.concat (project.preBuildCallbacks);
@@ -860,27 +872,27 @@ class HXProject {
 			sources = ArrayHelper.concatUnique (sources, project.sources, true);
 			splashScreens = ArrayHelper.concatUnique (splashScreens, project.splashScreens);
 			templatePaths = ArrayHelper.concatUnique (templatePaths, project.templatePaths, true);
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 	public function path (value:String):Void {
-		
+
 		if (host == Platform.WINDOWS) {
-			
+
 			setenv ("PATH", value + ";" + Sys.getEnv ("PATH"));
-			
+
 		} else {
-			
+
 			setenv ("PATH", value + ":" + Sys.getEnv ("PATH"));
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 	#if lime
 	
 	@:noCompletion private static function processHaxelibs (project:HXProject, userDefines:Map<String, Dynamic>):Void {
@@ -933,151 +945,151 @@ class HXProject {
 	}
 	
 	#end
-	
-	
+
+
 	public function setenv (name:String, value:String):Void {
-		
+
 		Sys.putEnv (name, value);
-		
+
 	}
-	
-	
-	
-	
+
+
+
+
 	// Getters & Setters
-	
-	
-	
-	
+
+
+
+
 	private function get_host ():Platform {
-		
+
 		return PlatformHelper.hostPlatform;
-		
+
 	}
-	
-	
+
+
 	private function get_templateContext ():Dynamic {
-		
+
 		var context:Dynamic = {};
-		
+
 		if (app == null) app = { };
 		if (meta == null) meta = { };
-		
+
 		if (window == null) {
-			
+
 			window = { };
 			windows = [ window ];
-			
+
 		}
-		
+
 		ObjectHelper.copyMissingFields (defaultApp, app);
 		ObjectHelper.copyMissingFields (defaultMeta, meta);
-		
+
 		for (item in windows) {
-			
+
 			ObjectHelper.copyMissingFields (defaultWindow, item);
-			
+
 		}
-		
+
 		//config.populate ();
-		
+
 		for (field in Reflect.fields (app)) {
-			
+
 			Reflect.setField (context, "APP_" + StringHelper.formatUppercaseVariable (field), Reflect.field (app, field));
-			
+
 		}
-		
+
 		context.BUILD_DIR = app.path;
-		
-		for (key in environment.keys ()) { 
-			
+
+		for (key in environment.keys ()) {
+
 			Reflect.setField (context, "ENV_" + key, environment.get (key));
-			
+
 		}
-		
+
 		context.meta = meta;
-		
+
 		for (field in Reflect.fields (meta)) {
-			
+
 			Reflect.setField (context, "APP_" + StringHelper.formatUppercaseVariable (field), Reflect.field (meta, field));
 			Reflect.setField (context, "META_" + StringHelper.formatUppercaseVariable (field), Reflect.field (meta, field));
-			
+
 		}
-		
+
 		context.APP_PACKAGE = context.META_PACKAGE = meta.packageName;
-		
+
 		for (field in Reflect.fields (windows[0])) {
-			
+
 			Reflect.setField (context, "WIN_" + StringHelper.formatUppercaseVariable (field), Reflect.field (windows[0], field));
 			Reflect.setField (context, "WINDOW_" + StringHelper.formatUppercaseVariable (field), Reflect.field (windows[0], field));
-			
+
 		}
-		
+
 		if (windows[0].orientation == Orientation.LANDSCAPE || windows[0].orientation == Orientation.PORTRAIT) {
-			
+
 			context.WIN_ORIENTATION = Std.string (windows[0].orientation).toLowerCase ();
 			context.WINDOW_ORIENTATION = Std.string (windows[0].orientation).toLowerCase ();
-			
+
 		} else {
-			
+
 			context.WIN_ORIENTATION = "";
 			context.WINDOW_ORIENTATION = "";
-			
+
 		}
-		
+
 		context.windows = windows;
-		
+
 		for (i in 0...windows.length) {
-			
+
 			for (field in Reflect.fields (windows[i])) {
-				
+
 				Reflect.setField (context, "WINDOW_" + StringHelper.formatUppercaseVariable (field) + "_" + i, Reflect.field (windows[i], field));
-				
+
 			}
-			
+
 			if (windows[i].orientation == Orientation.LANDSCAPE || windows[i].orientation == Orientation.PORTRAIT) {
-				
+
 				Reflect.setField (context, "WINDOW_ORIENTATION_" + i, Std.string (windows[i].orientation).toLowerCase ());
-				
+
 			} else {
-				
+
 				Reflect.setField (context, "WINDOW_ORIENTATION_" + i, "");
-				
+
 			}
-			
+
 			windows[i].title = meta.title;
-			
+
 		}
-		
+
 		for (haxeflag in haxeflags) {
-			
+
 			if (StringTools.startsWith (haxeflag, "-lib")) {
-				
+
 				Reflect.setField (context, "LIB_" + StringHelper.formatUppercaseVariable (haxeflag.substr (5)), "true");
-				
+
 			}
-			
+
 		}
-		
+
 		context.assets = new Array<Dynamic> ();
-		
+
 		for (asset in assets) {
-			
+
 			if (asset.type != AssetType.TEMPLATE) {
-				
+
 				var embeddedAsset:Dynamic = { };
 				ObjectHelper.copyFields (asset, embeddedAsset);
-				
+
 				embeddedAsset.sourcePath = PathHelper.standardize (asset.sourcePath);
-				
+
 				if (asset.embed == null) {
-					
+
 					embeddedAsset.embed = (platformType == PlatformType.WEB);
-					
+
 				}
-				
+
 				embeddedAsset.type = Std.string (asset.type).toLowerCase ();
-				
+
 				#if lime
 				if (asset.type == FONT) {
 					
@@ -1092,69 +1104,69 @@ class HXProject {
 					
 				}
 				#end
-				
+
 				context.assets.push (embeddedAsset);
-				
+
 			}
-			
+
 		}
-		
+
 		context.libraries = new Array<Dynamic> ();
 		var embeddedLibraries = new Map<String, Dynamic> ();
-		
+
 		for (library in libraries) {
-			
+
 			var embeddedLibrary:Dynamic = { };
 			ObjectHelper.copyFields (library, embeddedLibrary);
 			context.libraries.push (embeddedLibrary);
 			embeddedLibraries[library.name] = embeddedLibrary;
-			
+
 		}
-		
+
 		for (asset in assets) {
-			
+
 			if (asset.library != null && !embeddedLibraries.exists (asset.library)) {
-				
+
 				var embeddedLibrary:Dynamic = { };
 				embeddedLibrary.name = asset.library;
 				context.libraries.push (embeddedLibrary);
 				embeddedLibraries[asset.library] = embeddedLibrary;
-				
+
 			}
-			
+
 		}
-		
+
 		context.ndlls = new Array<Dynamic> ();
-		
+
 		for (ndll in ndlls) {
-			
+
 			var templateNDLL:Dynamic = { };
 			ObjectHelper.copyFields (ndll, templateNDLL);
 			templateNDLL.nameSafe = StringTools.replace (ndll.name, "-", "_");
 			context.ndlls.push (templateNDLL);
-			
+
 		}
-		
+
 		//Reflect.setField (context, "ndlls", ndlls);
 		//Reflect.setField (context, "sslCaCert", sslCaCert);
 		context.sslCaCert = "";
-		
+
 		var compilerFlags = [];
-		
+
 		for (haxelib in haxelibs) {
-			
+
 			var name = haxelib.name;
-			
+
 			// TODO: Handle real version when better/smarter haxelib available
 			var version = haxelib.version;
 			//var version = HaxelibHelper.getVersion (haxelib);
-			
+
 			if (version != null && version != "") {
-				
+
 				name += ":" + version;
-				
+
 			}
-			
+
 			#if lime
 			
 			if (HaxelibHelper.pathOverrides.exists (name)) {
@@ -1255,198 +1267,198 @@ class HXProject {
 			}
 			
 			#else
-			
+
 			compilerFlags.push ("-lib " + name);
-			
+
 			#end
-			
+
 			Reflect.setField (context, "LIB_" + StringHelper.formatUppercaseVariable (haxelib.name), true);
-			
+
 			if (name == "nme") {
-				
+
 				context.EMBED_ASSETS = false;
-				
+
 			}
-			
+
 		}
-		
+
 		for (source in sources) {
-			
+
 			if (source != null && StringTools.trim (source) != "") {
-				
+
 				compilerFlags.push ("-cp " + source);
-				
+
 			}
-			
+
 		}
-		
+
 		for (key in defines.keys ()) {
-			
+
 			var value = defines.get (key);
-			
+
 			if (value == null || value == "") {
-				
+
 				Reflect.setField (context, "SET_" + StringHelper.formatUppercaseVariable (key), true);
-				
+
 			} else {
-				
+
 				Reflect.setField (context, "SET_" + StringHelper.formatUppercaseVariable (key), value);
-				
+
 			}
-			
+
 		}
-		
+
 		for (key in haxedefs.keys ()) {
-			
+
 			var value = haxedefs.get (key);
-			
+
 			if (value == null || value == "") {
-				
+
 				compilerFlags.push ("-D " + key);
-				
+
 				Reflect.setField (context, "DEFINE_" + StringHelper.formatUppercaseVariable (key), true);
-				
+
 			} else {
-				
+
 				compilerFlags.push ("-D " + key + "=" + value);
-				
+
 				Reflect.setField (context, "DEFINE_" + StringHelper.formatUppercaseVariable (key), value);
-				
+
 			}
-			
+
 		}
-		
+
 		if (target != Platform.FLASH) {
-			
+
 			compilerFlags.push ("-D " + Std.string (target).toLowerCase ());
-			
+
 		}
-		
+
 		compilerFlags.push ("-D " + Std.string (platformType).toLowerCase ());
 		compilerFlags = compilerFlags.concat (haxeflags);
-		
+
 		if (compilerFlags.length == 0) {
-			
+
 			context.HAXE_FLAGS = "";
-			
+
 		} else {
-			
+
 			context.HAXE_FLAGS = "\n" + compilerFlags.join ("\n");
-			
+
 		}
-		
+
 		var main = app.main;
-		
+
 		if (main == null) {
-			
+
 			main = defaultApp.main;
-			
+
 		}
-		
+
 		var indexOfPeriod = main.lastIndexOf (".");
-		
+
 		context.APP_MAIN_PACKAGE = main.substr (0, indexOfPeriod + 1);
 		context.APP_MAIN_CLASS = main.substr (indexOfPeriod + 1);
-		
+
 		var type = "release";
-		
+
 		if (debug) {
-			
+
 			type = "debug";
-			
+
 		} else if (targetFlags.exists ("final")) {
-			
+
 			type = "final";
-			
+
 		}
-		
+
 		var hxml = Std.string (target).toLowerCase () + "/hxml/" + type + ".hxml";
-		
+
 		for (templatePath in templatePaths) {
-			
+
 			var path = PathHelper.combine (templatePath, hxml);
-			
+
 			if (FileSystem.exists (path)) {
-				
+
 				context.HXML_PATH = path;
-				
+
 			}
-			
+
 		}
-		
+
 		context.RELEASE = (type == "release");
 		context.DEBUG = debug;
 		context.FINAL = (type == "final");
 		context.SWF_VERSION = app.swfVersion;
 		context.PRELOADER_NAME = app.preloader;
-		
+
 		if (keystore != null) {
-			
+
 			context.KEY_STORE = PathHelper.tryFullPath (keystore.path);
-			
+
 			if (keystore.password != null) {
-				
+
 				context.KEY_STORE_PASSWORD = keystore.password;
-				
+
 			}
-			
+
 			if (keystore.alias != null) {
-				
+
 				context.KEY_STORE_ALIAS = keystore.alias;
-				
+
 			} else if (keystore.path != null) {
-				
+
 				context.KEY_STORE_ALIAS = Path.withoutExtension (Path.withoutDirectory (keystore.path));
-				
+
 			}
-			
+
 			if (keystore.aliasPassword != null) {
-				
+
 				context.KEY_STORE_ALIAS_PASSWORD = keystore.aliasPassword;
-				
+
 			} else if (keystore.password != null) {
-				
+
 				context.KEY_STORE_ALIAS_PASSWORD = keystore.password;
-				
+
 			}
-			
+
 		}
-		
+
 		context.config = config;
-		
+
 		return context;
-		
+
 	}
-	
-	
+
+
 	private function get_window ():WindowData {
-		
+
 		if (windows != null) {
-			
+
 			return windows[0];
-			
+
 		} else {
-			
+
 			return window;
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 	private function set_window (value:WindowData):WindowData {
-		
+
 		if (windows != null) {
-			
+
 			return windows[0] = window = value;
-			
+
 		} else {
-			
+
 			return window = value;
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 }
