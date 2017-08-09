@@ -223,6 +223,16 @@ class HXProject {
 					
 					architectures = [ PlatformHelper.hostArchitecture ];
 					
+				} else if(targetFlags.exists ("uwp")) {
+					Sys.println("forcing platform to WEB");
+					target = Platform.HTML5;
+					platformType = PlatformType.WEB;
+					architectures = [];
+					defaultWindow.width = 0;
+					defaultWindow.height = 0;
+					defaultWindow.fps = 60;
+					defaultWindow.allowHighDPI = false;
+					
 				} else {
 					
 					architectures = [ Architecture.X86 ];
@@ -1088,7 +1098,7 @@ class HXProject {
 		
 		context.BUILD_DIR = app.path;
 		
-		for (key in environment.keys ()) { 
+		for (key in environment.keys ()) {
 			
 			Reflect.setField (context, "ENV_" + key, environment.get (key));
 			

@@ -703,7 +703,11 @@ class CommandLineTools {
 				
 				case HTML5:
 					
-					platform = new HTML5Platform (command, project, targetFlags);
+					if(targetFlags.exists ("uwp")) {
+						platform = new WindowsPlatform (command, project, targetFlags);
+					} else {
+						platform = new HTML5Platform (command, project, targetFlags);
+					}
 				
 				case FIREFOX:
 					
@@ -741,7 +745,7 @@ class CommandLineTools {
 	}
 	
 	
-	private function compress () { 
+	private function compress () {
 		
 		if (words.length > 0) {
 			

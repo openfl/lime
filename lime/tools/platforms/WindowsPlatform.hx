@@ -29,8 +29,6 @@ import sys.io.File;
 import sys.FileSystem;
 
 
-
-
 class WindowsPlatform extends PlatformTarget {
 	
 	
@@ -80,16 +78,14 @@ class WindowsPlatform extends PlatformTarget {
 		
 		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("windows.output-directory", targetType == "cpp" ? "windows" : targetType));
 		targetDirectory = StringTools.replace (targetDirectory, "arch64", is64 ? "64" : "");
-
-
-
 		applicationDirectory = targetDirectory + "/bin/";
 		executablePath = applicationDirectory + project.app.file + ".exe";
 		
-	}	
+	}
+	
 	
 	public override function build ():Void {
-
+		
 		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
 		
 		PathHelper.mkdir (targetDirectory);
@@ -100,6 +96,8 @@ class WindowsPlatform extends PlatformTarget {
 		// for now build html5 	
 		if (project.targetFlags.exists ("uwp")) {
 			Sys.println ("I am building some magic UWP shit!");
+			Sys.println("targetDirectory: " + targetDirectory);
+			Sys.println("project.app.file: " + project.app.file);
 			ModuleHelper.buildModules (project, targetDirectory + "/obj", targetDirectory + "/bin");
 		
 			if (project.app.main != null) {
@@ -143,7 +141,6 @@ class WindowsPlatform extends PlatformTarget {
 			}
 			
 		}
-
 		
 		if (!project.targetFlags.exists ("static") || targetType != "cpp") {
 			

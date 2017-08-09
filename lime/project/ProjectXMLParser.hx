@@ -62,8 +62,6 @@ class ProjectXMLParser extends HXProject {
 	
 	private function initialize ():Void {
 		
-		Sys.println ("ProjectXMLParser initialize() platformType: " + platformType + " target: " + target + " flags: " + targetFlags);
-
 		switch (platformType) {
 			
 			case MOBILE:
@@ -126,21 +124,21 @@ class ProjectXMLParser extends HXProject {
 			
 			defines.set ("native", "1");
 			
-			if (target == Platform.WINDOWS && !targetFlags.exists ("uwp")) {
-				Sys.println ("Setting targetType CPP");
+			if (target == Platform.WINDOWS) {
+				
 				defines.set ("targetType", "cpp");
 				defines.set ("cpp", "1");
 				defines.set ("mingw", "1");
 				
 			} else {
-				Sys.println ("Setting targetType NEKO?");
+				
 				defines.set ("targetType", "neko");
 				defines.set ("neko", "1");
 				
 			}
 			
 		} else if (targetFlags.exists ("cpp") || ((platformType != PlatformType.WEB) && !targetFlags.exists ("html5")) || target == Platform.EMSCRIPTEN) {
-			Sys.println ("Setting targetType CPP?");
+			
 			defines.set ("targetType", "cpp");
 			defines.set ("native", "1");
 			defines.set ("cpp", "1");
@@ -2087,7 +2085,7 @@ class ProjectXMLParser extends HXProject {
 							
 						}
 					
-					case "config": 
+					case "config":
 						
 						config.parse (element, substitute);
 					
