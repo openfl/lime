@@ -9,5 +9,17 @@
         "paramFormat": "",
         "returnFormat": "",
         "neverAskTemplate": true
+    },
+    "files.associations": {
+        "initializer_list": "cpp",
+        "list": "cpp",
+        "type_traits": "cpp",
+        "vector": "cpp",
+        "xhash": "cpp",
+        "xstring": "cpp",
+        "xtree": "cpp",
+        "xutility": "cpp",
+        "system_error": "cpp",
+        "xfunctional": "cpp"
     }
 }
