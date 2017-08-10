@@ -1378,6 +1378,9 @@ class NativeGLRenderContext {
 	
 	public inline function drawBuffers (buffers:Array<Int>):Void {
 		
+		#if (lime_cffi && lime_opengl && !macro)
+		NativeCFFI.lime_gl_draw_buffers (buffers);
+		#end
 		
 	}
 	

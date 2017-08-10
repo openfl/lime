@@ -464,6 +464,7 @@ class NativeCFFI {
 	@:cffi private static function lime_gl_disable (cap:Int):Void;
 	@:cffi private static function lime_gl_disable_vertex_attrib_array (index:Int):Void;
 	@:cffi private static function lime_gl_draw_arrays (mode:Int, first:Int, count:Int):Void;
+	@:cffi private static function lime_gl_draw_buffers (buffers:Dynamic):Void;
 	@:cffi private static function lime_gl_draw_elements (mode:Int, count:Int, type:Int, offset:DataPointer):Void;
 	@:cffi private static function lime_gl_enable (cap:Int):Void;
 	@:cffi private static function lime_gl_enable_vertex_attrib_array (index:Int):Void;

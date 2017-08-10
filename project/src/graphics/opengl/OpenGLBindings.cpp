@@ -470,6 +470,22 @@ namespace lime {
 	}
 	
 	
+	void lime_gl_draw_buffers (value buffers) {
+		
+		GLsizei size = val_array_size (buffers);
+		GLenum *_buffers = (GLenum*)alloca (size);
+		
+		for (int i = 0; i < size; i++) {
+			
+			_buffers[i] = val_int (val_array_i (buffers, i));
+			
+		}
+		
+		glDrawBuffers (size, _buffers);
+		
+	}
+	
+	
 	void lime_gl_draw_elements (int mode, int count, int type, double offset) {
 		
 		glDrawElements (mode, count, type, (void*)(uintptr_t)offset);
@@ -1545,6 +1561,7 @@ namespace lime {
 	DEFINE_PRIME1v (lime_gl_disable);
 	DEFINE_PRIME1v (lime_gl_disable_vertex_attrib_array);
 	DEFINE_PRIME3v (lime_gl_draw_arrays);
+	DEFINE_PRIME1v (lime_gl_draw_buffers);
 	DEFINE_PRIME4v (lime_gl_draw_elements);
 	DEFINE_PRIME1v (lime_gl_enable);
 	DEFINE_PRIME1v (lime_gl_enable_vertex_attrib_array);
