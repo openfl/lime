@@ -119,27 +119,17 @@ class Image {
 		
 		if (type == null) {
 			
-			if (Application.current != null && Application.current.renderer != null) {
-				
-				this.type = switch (Application.current.renderer.context) {
-					
-					case DOM (_), CANVAS (_): CANVAS;
-					case FLASH (_): FLASH;
-					default: DATA;
-					
-				}
-				
-			} else {
-				
-				this.type = DATA;
-				
-			}
-			
-		} else {
-			
-			this.type = type;
+			#if (js && html5)
+			type = CANVAS;
+			#elseif flash
+			type = FLASH;
+			#else
+			type = DATA;
+			#end
 			
 		}
+		
+		this.type = type;
 		
 		if (buffer == null) {
 			
