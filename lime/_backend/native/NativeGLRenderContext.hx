@@ -1627,7 +1627,7 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public function getBufferParameteri64v (target:Int, pname:Int, params:DataPointer):Void{
+	public function getBufferParameteri64v (target:Int, pname:Int, params:DataPointer):Void {
 		
 		
 	}
@@ -1832,14 +1832,7 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public inline function getIntegeri (pname:Int):Int {
-		
-		return 0;
-		
-	}
-	
-	
-	public inline function getIntegeri_v (pname:Int, params:DataPointer):Void {
+	public inline function getIntegeri_v (pname:Int, index:Int, params:DataPointer):Void {
 		
 		
 	}
@@ -3381,7 +3374,7 @@ class NativeGLRenderContext {
 	}
 	
 	
-	public inline function waitSync (sync:GLSync, flags:Int, timeout:Dynamic /*int64*/):Void {
+	public inline function waitSync (sync:GLSync, flags:Int, timeout:Int64):Void {
 		
 		
 	}

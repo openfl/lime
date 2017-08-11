@@ -234,6 +234,8 @@ OGL_EXT(glGetShaderPrecisionFormat,void, (GLenum shaderType, GLenum precisionTyp
 #endif
 OGL_EXT(glGetString, const GLubyte *,(GLenum name));
 OGL_EXT(glHint,void, (GLenum target, GLenum mode));
+OGL_EXT(glInvalidateFramebuffer,void, (GLenum target, GLsizei numAttachments, const GLenum *attachments));
+OGL_EXT(glInvalidateSubFramebuffer,void, (GLenum target, GLsizei numAttachments, const GLenum *attachments, int x, int y, GLsizei width, GLsizei height));
 OGL_EXT(glLightModelf,void, (GLenum pname, GLfloat param));
 OGL_EXT(glLightModelfv,void, (GLenum pname, const GLfloat *params));
 //OGL_EXT(glLightModelx,void, (GLenum pname, GLfixed param));

@@ -2123,16 +2123,9 @@ abstract GLES3Context(GLRenderContext) from GLRenderContext to GLRenderContext t
 	}
 	
 	
-	public inline function getIntegeri (pname:Int):Int {
+	public inline function getIntegeri_v (pname:Int, index:Int, params:DataPointer):Void {
 		
-		return this.getIntegeri (pname);
-		
-	}
-	
-	
-	public inline function getIntegeri_v (pname:Int, params:DataPointer):Void {
-		
-		this.getIntegeri_v (pname, params);
+		this.getIntegeri_v (pname, index, params);
 		
 	}
 	

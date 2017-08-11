@@ -1621,16 +1621,9 @@ class GL {
 	}
 	
 	
-	public static inline function getIntegeri (pname:Int):Int {
+	public static inline function getIntegeri_v (pname:Int, index:Int, params:DataPointer):Void {
 		
-		return context.getIntegeri (pname);
-		
-	}
-	
-	
-	public static inline function getIntegeri_v (pname:Int, params:DataPointer):Void {
-		
-		return context.getIntegeri_v (pname, params);
+		return context.getIntegeri_v (pname, index, params);
 		
 	}
 	

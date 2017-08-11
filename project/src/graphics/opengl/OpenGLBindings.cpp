@@ -33,9 +33,11 @@ namespace lime {
 	
 	std::map<GLObjectType, std::map <GLuint, value> > glObjects;
 	std::map<value, GLuint> glObjectIDs;
+	std::map<value, uintptr_t> glObjectPtrs;
 	std::map<value, GLObjectType> glObjectTypes;
 	
 	std::vector<GLuint> gc_gl_id;
+	std::vector<uintptr_t> gc_gl_ptr;
 	std::vector<GLObjectType> gc_gl_type;
 	Mutex gc_gl_mutex;
 	
@@ -43,17 +45,31 @@ namespace lime {
 		
 		gc_gl_mutex.Lock ();
 		
-		if (glObjectIDs.find (object) != glObjectIDs.end ()) {
+		if (glObjectTypes.find (object) != glObjectTypes.end ()) {
 			
-			GLuint id = glObjectIDs[object];
 			GLObjectType type = glObjectTypes[object];
 			
-			gc_gl_id.push_back (id);
-			gc_gl_type.push_back (type);
-			
-			glObjects[type].erase (id);
-			glObjectIDs.erase (object);
-			glObjectTypes.erase (object);
+			if (type != TYPE_SYNC) {
+				
+				GLuint id = glObjectIDs[object];
+				
+				gc_gl_id.push_back (id);
+				gc_gl_type.push_back (type);
+				
+				glObjects[type].erase (id);
+				glObjectIDs.erase (object);
+				glObjectTypes.erase (object);
+				
+			} else {
+				
+				uintptr_t ptr = glObjectPtrs[object];
+				
+				gc_gl_ptr.push_back (ptr);
+				
+				glObjectPtrs.erase (object);
+				glObjectTypes.erase (object);
+				
+			}
 			
 		}
 		
@@ -94,9 +110,19 @@ namespace lime {
 						if (glIsProgram (id)) glDeleteProgram (id);
 						break;
 					
+					case TYPE_QUERY:
+						
+						if (glIsQuery (id)) glDeleteQueries (1, &id);
+						break;
+					
 					case TYPE_RENDERBUFFER:
 						
 						if (glIsProgram (id)) glDeleteRenderbuffers (1, &id);
+						break;
+					
+					case TYPE_SAMPLER:
+						
+						if (glIsSampler (id)) glDeleteSamplers (1, &id);
 						break;
 					
 					case TYPE_SHADER:
@@ -109,13 +135,31 @@ namespace lime {
 						if (glIsTexture (id)) glDeleteTextures (1, &id);
 						break;
 					
+					case TYPE_VERTEX_ARRAY_OBJECT:
+						
+						if (glIsVertexArray (id)) glDeleteVertexArrays (1, &id);
+						break;
+					
 					default: break;
 					
 				}
 				
 			}
 			
+			size = gc_gl_ptr.size ();
+			uintptr_t ptr;
+			
+			for (int i = 0; i < size; i++) {
+				
+				ptr = gc_gl_ptr[i];
+				//type = gc_gl_type[i];
+				
+				if (glIsSync ((GLsync)ptr)) glDeleteSync ((GLsync)ptr);
+				
+			}
+			
 			gc_gl_id.clear ();
+			gc_gl_ptr.clear ();
 			gc_gl_type.clear ();
 			
 			gc_gl_mutex.Unlock ();
@@ -139,11 +183,18 @@ namespace lime {
 	}
 	
 	
-	//void lime_gl_begin_query (int target, int query) {
-		//
-		//glBeginQuery (target, query);
-		//
-	//}
+	void lime_gl_begin_query (int target, int query) {
+		
+		glBeginQuery (target, query);
+		
+	}
+	
+	
+	void lime_gl_begin_transform_feedback (int primitiveNode) {
+		
+		glBeginTransformFeedback (primitiveNode);
+		
+	}
 	
 	
 	void lime_gl_bind_attrib_location (int program, int index, HxString name) {
@@ -156,6 +207,21 @@ namespace lime {
 	void lime_gl_bind_buffer (int target, int buffer) {
 		
 		glBindBuffer (target, buffer);
+		
+	}
+	
+	
+	void lime_gl_bind_buffer_base (int target, int index, int buffer) {
+		
+		glBindBufferBase (target, index, buffer);
+		
+	}
+	
+	
+	void lime_gl_bind_buffer_range (int target, int index, int buffer, double offset, int size) {
+		
+		glBindBufferRange (target, index, buffer, (GLintptr)(uintptr_t)offset, size);
+		
 		
 	}
 	
@@ -180,9 +246,30 @@ namespace lime {
 	}
 	
 	
+	void lime_gl_bind_sampler (int unit, int sampler) {
+		
+		glBindSampler (unit, sampler);
+		
+	}
+	
+	
 	void lime_gl_bind_texture (int target, int texture) {
 		
 		glBindTexture (target, texture);
+		
+	}
+	
+	
+	void lime_gl_bind_transform_feedback (int target, int transformFeedback) {
+		
+		glBindTransformFeedback (target, transformFeedback);
+		
+	}
+	
+	
+	void lime_gl_bind_vertex_array (int vertexArray) {
+		
+		glBindVertexArray (vertexArray);
 		
 	}
 	
@@ -222,6 +309,13 @@ namespace lime {
 	}
 	
 	
+	void lime_gl_blit_framebuffer (int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, int mask, int filter) {
+		
+		glBlitFramebuffer (srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
+		
+	}
+	
+	
 	void lime_gl_buffer_data (int target, int size, double data, int usage) {
 		
 		glBufferData (target, size, (void*)(uintptr_t)data, usage);
@@ -247,6 +341,42 @@ namespace lime {
 		
 		gc_gl_run ();
 		glClear (mask);
+		
+	}
+	
+	
+	void lime_gl_clear_bufferfi (int buffer, int drawBuffer, float depth, int stencil) {
+		
+		glClearBufferfi (buffer, drawBuffer, depth, stencil);
+		
+	}
+	
+	
+	void lime_gl_clear_bufferfv (int buffer, int drawBuffer, double data) {
+		
+		glClearBufferfv (buffer, drawBuffer, (GLfloat*)(uintptr_t)data);
+		
+	}
+	
+	
+	void lime_gl_clear_bufferiv (int buffer, int drawBuffer, double data) {
+		
+		glClearBufferiv (buffer, drawBuffer, (GLint*)(uintptr_t)data);
+		
+	}
+	
+	
+	void lime_gl_clear_bufferuiv (int buffer, int drawBuffer, double data) {
+		
+		glClearBufferuiv (buffer, drawBuffer, (GLuint*)(uintptr_t)data);
+		
+	}
+	
+	
+	int lime_gl_client_wait_sync (double sync, int flags, int timeoutA, int timeoutB) {
+		
+		GLuint64 timeout = (GLuint64) timeoutA << 32 | timeoutB;
+		return glClientWaitSync ((GLsync)(uintptr_t)sync, flags, timeout);
 		
 	}
 	
@@ -297,9 +427,30 @@ namespace lime {
 	}
 	
 	
+	void lime_gl_compressed_tex_image_3d (int target, int level, int internalformat, int width, int height, int depth, int border, int imageSize, double data) {
+		
+		glCompressedTexImage3D (target, level, internalformat, width, height, depth, border, imageSize, (void*)(uintptr_t)data);
+		
+	}
+	
+	
 	void lime_gl_compressed_tex_sub_image_2d (int target, int level, int xoffset, int yoffset, int width, int height, int format, int imageSize, double data) {
 		
 		glCompressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, imageSize, (void*)(uintptr_t)data);
+		
+	}
+	
+	
+	void lime_gl_compressed_tex_sub_image_3d (int target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, int format, int imageSize, double data) {
+		
+		glCompressedTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, (void*)(uintptr_t)data);
+		
+	}
+	
+	
+	void lime_gl_copy_buffer_sub_data (int readTarget, int writeTarget, double readOffset, double writeOffset, int size) {
+		
+		glCopyBufferSubData (readTarget, writeTarget, (GLintptr)(uintptr_t)readOffset, (GLintptr)(uintptr_t)writeOffset, size);
 		
 	}
 	
@@ -314,6 +465,13 @@ namespace lime {
 	void lime_gl_copy_tex_sub_image_2d (int target, int level, int xoffset, int yoffset, int x, int y, int width, int height) {
 		
 		glCopyTexSubImage2D (target, level, xoffset, yoffset, x, y, width, height);
+		
+	}
+	
+	
+	void lime_gl_copy_tex_sub_image_3d (int target, int level, int xoffset, int yoffset, int zoffset, int x, int y, int width, int height) {
+		
+		glCopyTexSubImage3D (target, level, xoffset, yoffset, zoffset, x, y, width, height);
 		
 	}
 	
@@ -343,10 +501,28 @@ namespace lime {
 	}
 	
 	
+	int lime_gl_create_query () {
+		
+		GLuint id = 0;
+		glGenQueries (1, &id);
+		return id;
+		
+	}
+	
+	
 	int lime_gl_create_renderbuffer () {
 		
 		GLuint id = 0;
 		glGenRenderbuffers (1, &id);
+		return id;
+		
+	}
+	
+	
+	int lime_gl_create_sampler () {
+		
+		GLuint id = 0;
+		glGenSamplers (1, &id);
 		return id;
 		
 	}
@@ -363,6 +539,24 @@ namespace lime {
 		
 		GLuint id = 0;
 		glGenTextures (1, &id);
+		return id;
+		
+	}
+	
+	
+	int lime_gl_create_transform_feedback () {
+		
+		GLuint id = 0;
+		glGenTransformFeedbacks (1, &id);
+		return id;
+		
+	}
+	
+	
+	int lime_gl_create_vertex_array () {
+		
+		GLuint id = 0;
+		glGenVertexArrays (1, &id);
 		return id;
 		
 	}
@@ -396,9 +590,23 @@ namespace lime {
 	}
 	
 	
+	void lime_gl_delete_query (int query) {
+		
+		glDeleteQueries (1, (GLuint*)&query);
+		
+	}
+	
+	
 	void lime_gl_delete_renderbuffer (int renderbuffer) {
 		
 		glDeleteRenderbuffers (1, (GLuint*)&renderbuffer);
+		
+	}
+	
+	
+	void lime_gl_delete_sampler (int sampler) {
+		
+		glDeleteSamplers (1, (GLuint*)&sampler);
 		
 	}
 	
@@ -410,9 +618,30 @@ namespace lime {
 	}
 	
 	
+	void lime_gl_delete_sync (double sync) {
+		
+		glDeleteSync ((GLsync)(uintptr_t)sync);
+		
+	}
+	
+	
 	void lime_gl_delete_texture (int texture) {
 		
 		glDeleteTextures (1, (GLuint*)&texture);
+		
+	}
+	
+	
+	void lime_gl_delete_transform_feedback (int transformFeedback) {
+		
+		glDeleteTransformFeedbacks (1, (GLuint*)&transformFeedback);
+		
+	}
+	
+	
+	void lime_gl_delete_vertex_array (int vertexArray) {
+		
+		glDeleteVertexArrays (1, (GLuint*)&vertexArray);
 		
 	}
 	
@@ -470,10 +699,17 @@ namespace lime {
 	}
 	
 	
+	void lime_gl_draw_arrays_instanced (int mode, int first, int count, int instanceCount) {
+		
+		glDrawArraysInstanced (mode, first, count, instanceCount);
+		
+	}
+	
+	
 	void lime_gl_draw_buffers (value buffers) {
 		
 		GLsizei size = val_array_size (buffers);
-		GLenum *_buffers = (GLenum*)alloca (size);
+		GLenum *_buffers = (GLenum*)alloca (size * sizeof(GLenum));
 		
 		for (int i = 0; i < size; i++) {
 			
@@ -493,6 +729,20 @@ namespace lime {
 	}
 	
 	
+	void lime_gl_draw_elements_instanced (int mode, int count, int type, double offset, int instanceCount) {
+		
+		glDrawElementsInstanced (mode, count, type, (void*)(uintptr_t)offset, instanceCount);
+		
+	}
+	
+	
+	void lime_gl_draw_range_elements (int mode, int start, int end, int count, int type, double offset) {
+		
+		glDrawRangeElements (mode, start, end, count, type, (void*)(uintptr_t)offset);
+		
+	}
+	
+	
 	void lime_gl_enable (int cap) {
 		
 		glEnable (cap);
@@ -503,6 +753,28 @@ namespace lime {
 	void lime_gl_enable_vertex_attrib_array (int index) {
 		
 		glEnableVertexAttribArray (index);
+		
+	}
+	
+	
+	void lime_gl_end_query (int target) {
+		
+		glEndQuery (target);
+		
+	}
+	
+	
+	void lime_gl_end_transform_feedback () {
+		
+		glEndTransformFeedback ();
+		
+	}
+	
+	
+	value lime_gl_fence_sync (int condition, int flags) {
+		
+		GLsync result = glFenceSync (condition, flags);
+		return CFFIPointer (result, gc_gl_object);
 		
 	}
 	
@@ -535,6 +807,13 @@ namespace lime {
 	}
 	
 	
+	void lime_gl_framebuffer_texture_layer (int target, int attachment, int texture, int level, int layer) {
+		
+		glFramebufferTextureLayer (target, attachment, texture, level, layer);
+		
+	}
+	
+	
 	void lime_gl_front_face (int face) {
 		
 		glFrontFace (face);
@@ -556,7 +835,7 @@ namespace lime {
 		std::string buffer (GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, 0);
 		GLsizei outLen = 0;
 		GLsizei size = 0;
-		GLenum  type = 0;
+		GLenum type = 0;
 		
 		glGetActiveAttrib (program, index, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &outLen, &size, &type, &buffer[0]);
 		
@@ -588,6 +867,52 @@ namespace lime {
 		alloc_field (result, val_id ("name"), alloc_string (buffer.c_str ()));
 		
 		return result;
+		
+	}
+	
+	
+	int lime_gl_get_active_uniform_blocki (int program, int uniformBlockIndex, int pname) {
+		
+		GLint param = 0;
+		glGetActiveUniformBlockiv (program, uniformBlockIndex, pname, &param);
+		return param;
+		
+	}
+	
+	
+	void lime_gl_get_active_uniform_blockiv (int program, int uniformBlockIndex, int pname, double params) {
+		
+		glGetActiveUniformBlockiv (program, uniformBlockIndex, pname, (GLint*)(uintptr_t)params);
+		
+	}
+	
+	
+	value lime_gl_get_active_uniform_block_name (int program, int uniformBlockIndex) {
+		
+		GLint length;
+		glGetActiveUniformBlockiv (program, uniformBlockIndex, GL_UNIFORM_BLOCK_NAME_LENGTH, &length);
+		
+		std::string buffer (length, 0);
+		
+		glGetActiveUniformBlockName (program, uniformBlockIndex, length, 0, &buffer[0]);
+		
+		return alloc_string (buffer.c_str ());
+		
+	}
+	
+	
+	void lime_gl_get_active_uniformsiv (int program, value uniformIndices, int pname, double params) {
+		
+		GLsizei size = val_array_size (uniformIndices);
+		GLenum *_uniformIndices = (GLenum*)alloca (size * sizeof(GLenum));
+		
+		for (int i = 0; i < size; i++) {
+			
+			_uniformIndices[i] = val_int (val_array_i (uniformIndices, i));
+			
+		}
+		
+		glGetActiveUniformsiv (program, size, _uniformIndices, pname, (GLint*)(uintptr_t)params);
 		
 	}
 	
@@ -629,22 +954,6 @@ namespace lime {
 	}
 	
 	
-	int lime_gl_get_buffer_parameteri (int target, int index) {
-		
-		GLint params = 0;
-		glGetBufferParameteriv (target, index, &params);
-		return params;
-		
-	}
-	
-	
-	void lime_gl_get_buffer_parameteriv (int target, int index, double params) {
-		
-		glGetBufferParameteriv (target, index, (GLint*)(uintptr_t)params);
-		
-	}
-	
-	
 	bool lime_gl_get_boolean (int pname) {
 		
 		unsigned char params;
@@ -657,6 +966,45 @@ namespace lime {
 	void lime_gl_get_booleanv (int pname, double params) {
 		
 		glGetBooleanv (pname, (unsigned char*)(uintptr_t)params);
+		
+	}
+	
+	
+	int lime_gl_get_buffer_parameteri (int target, int index) {
+		
+		GLint params = 0;
+		glGetBufferParameteriv (target, index, &params);
+		return params;
+		
+	}
+	
+	
+	void lime_gl_get_buffer_parameteri64v (int target, int index, double params) {
+		
+		glGetBufferParameteri64v (target, index, (GLint64*)(uintptr_t)params);
+		
+	}
+	
+	
+	void lime_gl_get_buffer_parameteriv (int target, int index, double params) {
+		
+		glGetBufferParameteriv (target, index, (GLint*)(uintptr_t)params);
+		
+	}
+	
+	
+	double lime_gl_get_buffer_pointerv (int target, int pname) {
+		
+		uintptr_t result = 0;
+		glGetBufferPointerv (target, pname, (void**)result);
+		return (double)result;
+		
+	}
+	
+	
+	void lime_gl_get_buffer_sub_data (int target, double offset, int size, double data) {
+		
+		glGetBufferSubData (target, (GLintptr)(uintptr_t)offset, size, (void*)(uintptr_t)data);
 		
 	}
 	
@@ -727,6 +1075,13 @@ namespace lime {
 	}
 	
 	
+	int lime_gl_get_frag_data_location (int program, HxString name) {
+		
+		return glGetFragDataLocation (program, name.__s);
+		
+	}
+	
+	
 	int lime_gl_get_framebuffer_attachment_parameteri (int target, int attachment, int pname) {
 		
 		GLint params = 0;
@@ -752,9 +1107,54 @@ namespace lime {
 	}
 	
 	
+	void lime_gl_get_integer64v (int pname, double params) {
+		
+		glGetInteger64v (pname, (GLint64*)(uintptr_t)params);
+		
+	}
+	
+	
+	void lime_gl_get_integer64i_v (int pname, int index, double params) {
+		
+		glGetInteger64i_v (pname, index, (GLint64*)(uintptr_t)params);
+		
+	}
+	
+	
 	void lime_gl_get_integerv (int pname, double params) {
 		
 		glGetIntegerv (pname, (GLint*)(uintptr_t)params);
+		
+	}
+	
+	
+	void lime_gl_get_integeri_v (int pname, int index, double params) {
+		
+		glGetIntegeri_v (pname, index, (GLint*)(uintptr_t)params);
+		
+	}
+	
+	
+	void lime_gl_get_internal_formativ (int target, int internalformat, int pname, int bufSize, double params) {
+		
+		glGetInternalformativ (target, internalformat, pname, (GLsizei)bufSize, (GLint*)(uintptr_t)params);
+		
+	}
+	
+	
+	void lime_gl_get_program_binary (int program, int binaryFormat, value bytes) {
+		
+		GLint size = 0;
+		glGetProgramiv (program, GL_PROGRAM_BINARY_LENGTH, &size);
+		
+		if (size > 0) {
+			
+			Bytes _bytes (bytes);
+			_bytes.Resize (size);
+			
+			glGetProgramBinary (program, size, &size, (GLenum*)&binaryFormat, _bytes.Data ());
+			
+		}
 		
 	}
 	
@@ -797,11 +1197,43 @@ namespace lime {
 	}
 	
 	
+	int lime_gl_get_queryi (int target, int pname) {
+		
+		GLint param = 0;
+		glGetQueryiv (target, pname, &param);
+		return param;
+		
+	}
+	
+	
+	void lime_gl_get_queryiv (int target, int pname, double params) {
+		
+		glGetQueryiv (target, pname, (GLint*)(uintptr_t)params);
+		
+	}
+	
+	
+	int lime_gl_get_query_objectui (int query, int pname) {
+		
+		GLuint param = 0;
+		glGetQueryObjectuiv (query, pname, &param);
+		return param;
+		
+	}
+	
+	
+	void lime_gl_get_query_objectuiv (int query, int pname, double params) {
+		
+		glGetQueryObjectuiv (query, pname, (GLuint*)(uintptr_t)params);
+		
+	}
+	
+	
 	int lime_gl_get_renderbuffer_parameteri (int target, int pname) {
 		
-		GLint params = 0;
-		glGetRenderbufferParameteriv (target, pname, &params);
-		return params;
+		GLint param = 0;
+		glGetRenderbufferParameteriv (target, pname, &param);
+		return param;
 		
 	}
 	
@@ -809,6 +1241,38 @@ namespace lime {
 	void lime_gl_get_renderbuffer_parameteriv (int target, int pname, double params) {
 		
 		glGetRenderbufferParameteriv (target, pname, (GLint*)(uintptr_t)params);
+		
+	}
+	
+	
+	float lime_gl_get_sampler_parameterf (int sampler, int pname) {
+		
+		GLfloat param = 0;
+		glGetSamplerParameterfv (sampler, pname, &param);
+		return param;
+		
+	}
+	
+	
+	void lime_gl_get_sampler_parameterfv (int sampler, int pname, double params) {
+		
+		glGetSamplerParameterfv (sampler, pname, (GLfloat*)(uintptr_t)params);
+		
+	}
+	
+	
+	int lime_gl_get_sampler_parameteri (int sampler, int pname) {
+		
+		GLint param = 0;
+		glGetSamplerParameteriv (sampler, pname, &param);
+		return param;
+		
+	}
+	
+	
+	void lime_gl_get_sampler_parameteriv (int sampler, int pname, double params) {
+		
+		glGetSamplerParameteriv (sampler, pname, (GLint*)(uintptr_t)params);
 		
 	}
 	
@@ -914,6 +1378,43 @@ namespace lime {
 	}
 	
 	
+	value lime_gl_get_stringi (int pname, int index) {
+		
+		const char* val = (const char*)glGetStringi (pname, index);
+		
+		if (val) {
+			
+			return alloc_string (val);
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
+		
+	}
+	
+	
+	int lime_gl_get_sync_parameteri (double sync, int pname) {
+		
+		// TODO
+		
+		GLint param = 0;
+		//glGetSynciv ((GLsync)(uintptr_t)sync, pname, &param);
+		return param;
+		
+	}
+	
+	
+	void lime_gl_get_sync_parameteriv (double sync, int pname, double params) {
+		
+		// TODO
+		
+		//glGetSynciv ((GLsync)(uintptr_t)sync, pname, (GLint*)(uintptr_t)param);
+		
+	}
+	
+	
 	float lime_gl_get_tex_parameterf (int target, int pname) {
 		
 		GLfloat params = 0;
@@ -942,6 +1443,32 @@ namespace lime {
 	void lime_gl_get_tex_parameteriv (int target, int pname, double params) {
 		
 		glGetTexParameteriv (target, pname, (GLint*)(uintptr_t)params);
+		
+	}
+	
+	
+	value lime_gl_get_transform_feedback_varying (int program, int index) {
+		
+		value result = alloc_empty_object ();
+		
+		GLint maxLength = 0;
+		glGetProgramiv (program, GL_TRANSFORM_FEEDBACK_VARYING_MAX_LENGTH, &maxLength);
+		
+		GLsizei outLen = 0;
+		GLsizei size = 0;
+		GLenum type = 0;
+		
+		std::string buffer (maxLength, 0);
+		
+		glGetTransformFeedbackVarying (program, index, maxLength, &outLen, &size, &type, &buffer[0]);
+		
+		buffer.resize (outLen);
+		
+		alloc_field (result, val_id ("size"), alloc_int (size));
+		alloc_field (result, val_id ("type"), alloc_int (type));
+		alloc_field (result, val_id ("name"), alloc_string (buffer.c_str ()));
+		
+		return result;
 		
 	}
 	
@@ -978,9 +1505,48 @@ namespace lime {
 	}
 	
 	
+	int lime_gl_get_uniformui (int program, int location) {
+		
+		GLuint params = 0;
+		glGetUniformuiv (program, location, &params);
+		return params;
+		
+	}
+	
+	
+	void lime_gl_get_uniformuiv (int program, int location, double params) {
+		
+		glGetUniformuiv (program, location, (GLuint*)(uintptr_t)params);
+		
+	}
+	
+	
+	int lime_gl_get_uniform_block_index (int program, HxString uniformBlockName) {
+		
+		return glGetUniformBlockIndex (program, uniformBlockName.__s);
+		
+	}
+	
+	
 	int lime_gl_get_uniform_location (int program, HxString name) {
 		
 		return glGetUniformLocation (program, name.__s);
+		
+	}
+	
+	
+	float lime_gl_get_vertex_attribf (int index, int pname) {
+		
+		GLfloat params = 0;
+		glGetVertexAttribfv (index, pname, &params);
+		return params;
+		
+	}
+	
+	
+	void lime_gl_get_vertex_attribfv (int index, int pname, double params) {
+		
+		glGetVertexAttribfv (index, pname, (GLfloat*)(uintptr_t)params);
 		
 	}
 	
@@ -1001,6 +1567,38 @@ namespace lime {
 	}
 	
 	
+	int lime_gl_get_vertex_attribii (int index, int pname) {
+		
+		GLint params = 0;
+		glGetVertexAttribIiv (index, pname, &params);
+		return params;
+		
+	}
+	
+	
+	void lime_gl_get_vertex_attribiiv (int index, int pname, double params) {
+		
+		glGetVertexAttribIiv (index, pname, (GLint*)(uintptr_t)params);
+		
+	}
+	
+	
+	int lime_gl_get_vertex_attribiui (int index, int pname) {
+		
+		GLuint params = 0;
+		glGetVertexAttribIuiv (index, pname, &params);
+		return params;
+		
+	}
+	
+	
+	void lime_gl_get_vertex_attribiuiv (int index, int pname, double params) {
+		
+		glGetVertexAttribIuiv (index, pname, (GLuint*)(uintptr_t)params);
+		
+	}
+	
+	
 	double lime_gl_get_vertex_attrib_pointerv (int index, int pname) {
 		
 		uintptr_t result = 0;
@@ -1013,6 +1611,42 @@ namespace lime {
 	void lime_gl_hint (int target, int mode) {
 		
 		glHint (target, mode);
+		
+	}
+	
+	
+	void lime_gl_invalidate_framebuffer (int target, value attachments) {
+		
+		#ifndef HX_MACOS
+		GLint size = val_array_size (attachments);
+		GLenum *_attachments = (GLenum*)alloca (size * sizeof(GLenum));
+		
+		for (int i = 0; i < size; i++) {
+			
+			_attachments[i] = val_int (val_array_i (attachments, i));
+			
+		}
+		
+		glInvalidateFramebuffer (target, size, _attachments);
+		#endif
+		
+	}
+	
+	
+	void lime_gl_invalidate_sub_framebuffer (int target, value attachments, int x, int y, int width, int height) {
+		
+		#ifndef HX_MACOS
+		GLint size = val_array_size (attachments);
+		GLenum *_attachments = (GLenum*)alloca (size * sizeof(GLenum));
+		
+		for (int i = 0; i < size; i++) {
+			
+			_attachments[i] = val_int (val_array_i (attachments, i));
+			
+		}
+		
+		glInvalidateSubFramebuffer (target, size, _attachments, x, y, width, height);
+		#endif
 		
 	}
 	
@@ -1045,9 +1679,23 @@ namespace lime {
 	}
 	
 	
+	bool lime_gl_is_query (int handle) {
+		
+		return glIsQuery (handle);
+		
+	}
+	
+	
 	bool lime_gl_is_renderbuffer (int handle) {
 		
 		return glIsRenderbuffer (handle);
+		
+	}
+	
+	
+	bool lime_gl_is_sampler (int handle) {
+		
+		return glIsSampler (handle);
 		
 	}
 	
@@ -1059,9 +1707,30 @@ namespace lime {
 	}
 	
 	
+	bool lime_gl_is_sync (double handle) {
+		
+		return glIsSync ((GLsync)(uintptr_t)handle);
+		
+	}
+	
+	
 	bool lime_gl_is_texture (int handle) {
 		
 		return glIsTexture (handle);
+		
+	}
+	
+	
+	bool lime_gl_is_transform_feedback (int handle) {
+		
+		return glIsTransformFeedback (handle);
+		
+	}
+	
+	
+	bool lime_gl_is_vertex_array (int handle) {
+		
+		return glIsQuery (handle);
 		
 	}
 	
@@ -1076,6 +1745,13 @@ namespace lime {
 	void lime_gl_link_program (int program) {
 		
 		glLinkProgram (program);
+		
+	}
+	
+	
+	void lime_gl_map_buffer_range (int target, double offset, int length, int access) {
+		
+		glMapBufferRange (target, (GLintptr)(uintptr_t)offset, length, access);
 		
 	}
 	
@@ -1140,6 +1816,13 @@ namespace lime {
 	}
 	
 	
+	void lime_gl_pause_transform_feedback () {
+		
+		glPauseTransformFeedback ();
+		
+	}
+	
+	
 	void lime_gl_pixel_storei (int pname, int param) {
 		
 		glPixelStorei (pname, param);
@@ -1154,9 +1837,37 @@ namespace lime {
 	}
 	
 	
+	void lime_gl_program_binary (int program, int binaryFormat, double binary, int length) {
+		
+		glProgramBinary (program, binaryFormat, (void*)(uintptr_t)binary, length);
+		
+	}
+	
+	
+	void lime_gl_program_parameteri (int program, int pname, int value) {
+		
+		glProgramParameteri (program, pname, value);
+		
+	}
+	
+	
+	void lime_gl_read_buffer (int src) {
+		
+		glReadBuffer (src);
+		
+	}
+	
+	
 	void lime_gl_read_pixels (int x, int y, int width, int height, int format, int type, double pixels) {
 		
 		glReadPixels (x, y, width, height, format, type, (void*)(uintptr_t)pixels);
+		
+	}
+	
+	
+	void lime_gl_release_shader_compiler () {
+		
+		glReleaseShaderCompiler ();
 		
 	}
 	
@@ -1168,6 +1879,20 @@ namespace lime {
 	}
 	
 	
+	void lime_gl_renderbuffer_storage_multisample (int target, int samples, int internalformat, int width, int height) {
+		
+		glRenderbufferStorageMultisample (target, samples, internalformat, width, height);
+		
+	}
+	
+	
+	void lime_gl_resume_transform_feedback () {
+		
+		glResumeTransformFeedback ();
+		
+	}
+	
+	
 	void lime_gl_sample_coverage (float val, bool invert) {
 		
 		glSampleCoverage (val, invert);
@@ -1175,9 +1900,39 @@ namespace lime {
 	}
 	
 	
+	void lime_gl_sampler_parameterf (int sampler, int pname, float param) {
+		
+		glSamplerParameterf (sampler, pname, param);
+		
+	}
+	
+	
+	void lime_gl_sampler_parameteri (int sampler, int pname, int param) {
+		
+		glSamplerParameteri (sampler, pname, param);
+		
+	}
+	
+	
 	void lime_gl_scissor (int x, int y, int width, int height) {
 		
 		glScissor (x, y, width, height);
+		
+	}
+	
+	
+	void lime_gl_shader_binary (value shaders, int binaryformat, double binary, int length) {
+		
+		GLsizei size = val_array_size (shaders);
+		GLenum *_shaders = (GLenum*)alloca (size * sizeof(GLenum));
+		
+		for (int i = 0; i < size; i++) {
+			
+			_shaders[i] = val_int (val_array_i (shaders, i));
+			
+		}
+		
+		glShaderBinary (size, _shaders, binaryformat, (void*)(uintptr_t)binary, length);
 		
 	}
 	
@@ -1238,6 +1993,13 @@ namespace lime {
 	}
 	
 	
+	void lime_gl_tex_image_3d (int target, int level, int internalformat, int width, int height, int depth, int border, int format, int type, double data) {
+		
+		glTexImage3D (target, level, internalformat, width, height, depth, border, format, type, (void*)(uintptr_t)data);
+		
+	}
+	
+	
 	void lime_gl_tex_parameterf (int target, int pname, float param) {
 		
 		glTexParameterf (target, pname, param);
@@ -1252,9 +2014,47 @@ namespace lime {
 	}
 	
 	
+	void lime_gl_tex_storage_2d (int target, int level, int internalformat, int width, int height) {
+		
+		glTexStorage2D (target, level, internalformat, width, height);
+		
+	}
+	
+	
+	void lime_gl_tex_storage_3d (int target, int level, int internalformat, int width, int height, int depth) {
+		
+		glTexStorage3D (target, level, internalformat, width, height, depth);
+		
+	}
+	
+	
 	void lime_gl_tex_sub_image_2d (int target, int level, int xoffset, int yoffset, int width, int height, int format, int type, double data) {
 		
 		glTexSubImage2D (target, level, xoffset, yoffset, width, height, format, type, (void*)(uintptr_t)data);
+		
+	}
+	
+	
+	void lime_gl_tex_sub_image_3d (int target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, int format, int type, double data) {
+		
+		glTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, (void*)(uintptr_t)data);
+		
+	}
+	
+	
+	void lime_gl_transform_feedback_varyings (int program, value varyings, int bufferMode) {
+		
+		GLsizei size = val_array_size (varyings);
+		const char **_varyings = (const char**)alloca (size * sizeof(GLenum));
+		
+		for (int i = 0; i < size; i++) {
+			
+			_varyings[i] = val_string (val_array_i (varyings, i));
+			
+		}
+		
+		glTransformFeedbackVaryings (program, size, _varyings, bufferMode);
+		
 		
 	}
 	
@@ -1287,6 +2087,20 @@ namespace lime {
 	}
 	
 	
+	void lime_gl_uniform1ui (int location, int v0) {
+		
+		glUniform1ui (location, v0);
+		
+	}
+	
+	
+	void lime_gl_uniform1uiv (int location, int count, double _value) {
+		
+		glUniform1uiv (location, count, (GLuint*)(uintptr_t)_value);
+		
+	}
+	
+	
 	void lime_gl_uniform2f (int location, float v0, float v1) {
 		
 		glUniform2f (location, v0, v1);
@@ -1311,6 +2125,20 @@ namespace lime {
 	void lime_gl_uniform2iv (int location, int count, double _value) {
 		
 		glUniform2iv (location, count, (GLint*)(uintptr_t)_value);
+		
+	}
+	
+	
+	void lime_gl_uniform2ui (int location, int v0, int v1) {
+		
+		glUniform2ui (location, v0, v1);
+		
+	}
+	
+	
+	void lime_gl_uniform2uiv (int location, int count, double _value) {
+		
+		glUniform2uiv (location, count, (GLuint*)(uintptr_t)_value);
 		
 	}
 	
@@ -1343,6 +2171,20 @@ namespace lime {
 	}
 	
 	
+	void lime_gl_uniform3ui (int location, int v0, int v1, int v2) {
+		
+		glUniform3ui (location, v0, v1, v2);
+		
+	}
+	
+	
+	void lime_gl_uniform3uiv (int location, int count, double _value) {
+		
+		glUniform3uiv (location, count, (GLuint*)(uintptr_t)_value);
+		
+	}
+	
+	
 	void lime_gl_uniform4f (int location, float v0, float v1, float v2, float v3) {
 		
 		glUniform4f (location, v0, v1, v2, v3);
@@ -1371,9 +2213,44 @@ namespace lime {
 	}
 	
 	
+	void lime_gl_uniform4ui (int location, int v0, int v1, int v2, int v3) {
+		
+		glUniform4ui (location, v0, v1, v2, v3);
+		
+	}
+	
+	
+	void lime_gl_uniform4uiv (int location, int count, double _value) {
+		
+		glUniform4uiv (location, count, (GLuint*)(uintptr_t)_value);
+		
+	}
+	
+	
+	void lime_gl_uniform_block_binding (int program, int uniformBlockIndex, int uniformBlockBinding) {
+		
+		glUniformBlockBinding (program, uniformBlockIndex, uniformBlockBinding);
+		
+	}
+	
+	
 	void lime_gl_uniform_matrix2fv (int location, int count, bool transpose, double _value) {
 		
 		glUniformMatrix2fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		
+	}
+	
+	
+	void lime_gl_uniform_matrix2x3fv (int location, int count, bool transpose, double _value) {
+		
+		glUniformMatrix2x3fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		
+	}
+	
+	
+	void lime_gl_uniform_matrix2x4fv (int location, int count, bool transpose, double _value) {
+		
+		glUniformMatrix2x4fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
 		
 	}
 	
@@ -1385,9 +2262,44 @@ namespace lime {
 	}
 	
 	
+	void lime_gl_uniform_matrix3x2fv (int location, int count, bool transpose, double _value) {
+		
+		glUniformMatrix3x2fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		
+	}
+	
+	
+	void lime_gl_uniform_matrix3x4fv (int location, int count, bool transpose, double _value) {
+		
+		glUniformMatrix3x4fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		
+	}
+	
+	
 	void lime_gl_uniform_matrix4fv (int location, int count, bool transpose, double _value) {
 		
 		glUniformMatrix4fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		
+	}
+	
+	
+	void lime_gl_uniform_matrix4x2fv (int location, int count, bool transpose, double _value) {
+		
+		glUniformMatrix4x2fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		
+	}
+	
+	
+	void lime_gl_uniform_matrix4x3fv (int location, int count, bool transpose, double _value) {
+		
+		glUniformMatrix4x3fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		
+	}
+	
+	
+	bool lime_gl_unmap_buffer (int target) {
+		
+		return glUnmapBuffer (target);
 		
 	}
 	
@@ -1406,9 +2318,51 @@ namespace lime {
 	}
 	
 	
+	void lime_gl_vertex_attrib_divisor (int index, int divisor) {
+		
+		glVertexAttribDivisor (index, divisor);
+		
+	}
+	
+	
+	void lime_gl_vertex_attrib_ipointer (int index, int size, int type, int stride, double offset) {
+		
+		glVertexAttribIPointer (index, size, type, stride, (void*)(uintptr_t)offset);
+		
+	}
+	
+	
 	void lime_gl_vertex_attrib_pointer (int index, int size, int type, bool normalized, int stride, double offset) {
 		
 		glVertexAttribPointer (index, size, type, normalized, stride, (void*)(uintptr_t)offset);
+		
+	}
+	
+	
+	void lime_gl_vertex_attribi4i (int index, int v0, int v1, int v2, int v3) {
+		
+		glVertexAttribI4i (index, v0, v1, v2, v3);
+		
+	}
+	
+	
+	void lime_gl_vertex_attribi4iv (int index, double v) {
+		
+		glVertexAttribI4iv (index, (GLint*)(uintptr_t)v);
+		
+	}
+	
+	
+	void lime_gl_vertex_attribi4ui (int index, int v0, int v1, int v2, int v3) {
+		
+		glVertexAttribI4ui (index, v0, v1, v2, v3);
+		
+	}
+	
+	
+	void lime_gl_vertex_attribi4uiv (int index, double v) {
+		
+		glVertexAttribI4uiv (index, (GLuint*)(uintptr_t)v);
 		
 	}
 	
@@ -1476,6 +2430,14 @@ namespace lime {
 	}
 	
 	
+	void lime_gl_wait_sync (double sync, int flags, int timeoutA, int timeoutB) {
+		
+		GLuint64 timeout = (GLuint64) timeoutA << 32 | timeoutB;
+		glWaitSync ((GLsync)(uintptr_t)sync, flags, timeout);
+		
+	}
+	
+	
 	bool OpenGLBindings::Init () {
 		
 		static bool result = true;
@@ -1518,42 +2480,68 @@ namespace lime {
 	
 	DEFINE_PRIME1v (lime_gl_active_texture);
 	DEFINE_PRIME2v (lime_gl_attach_shader);
+	DEFINE_PRIME2v (lime_gl_begin_query);
+	DEFINE_PRIME1v (lime_gl_begin_transform_feedback);
 	DEFINE_PRIME3v (lime_gl_bind_attrib_location);
 	DEFINE_PRIME2v (lime_gl_bind_buffer);
+	DEFINE_PRIME3v (lime_gl_bind_buffer_base);
+	DEFINE_PRIME5v (lime_gl_bind_buffer_range);
 	DEFINE_PRIME2v (lime_gl_bind_framebuffer);
 	DEFINE_PRIME2v (lime_gl_bind_renderbuffer);
+	DEFINE_PRIME2v (lime_gl_bind_sampler);
 	DEFINE_PRIME2v (lime_gl_bind_texture);
+	DEFINE_PRIME2v (lime_gl_bind_transform_feedback);
+	DEFINE_PRIME1v (lime_gl_bind_vertex_array);
 	DEFINE_PRIME4v (lime_gl_blend_color);
 	DEFINE_PRIME1v (lime_gl_blend_equation);
 	DEFINE_PRIME2v (lime_gl_blend_equation_separate);
 	DEFINE_PRIME2v (lime_gl_blend_func);
 	DEFINE_PRIME4v (lime_gl_blend_func_separate);
+	DEFINE_PRIME10v (lime_gl_blit_framebuffer);
 	DEFINE_PRIME4v (lime_gl_buffer_data);
 	DEFINE_PRIME4v (lime_gl_buffer_sub_data);
 	DEFINE_PRIME1 (lime_gl_check_framebuffer_status);
 	DEFINE_PRIME1v (lime_gl_clear);
+	DEFINE_PRIME4v (lime_gl_clear_bufferfi);
+	DEFINE_PRIME3v (lime_gl_clear_bufferfv);
+	DEFINE_PRIME3v (lime_gl_clear_bufferiv);
+	DEFINE_PRIME3v (lime_gl_clear_bufferuiv);
 	DEFINE_PRIME4v (lime_gl_clear_color);
 	DEFINE_PRIME1v (lime_gl_clear_depthf);
 	DEFINE_PRIME1v (lime_gl_clear_stencil);
+	DEFINE_PRIME4 (lime_gl_client_wait_sync);
 	DEFINE_PRIME4v (lime_gl_color_mask);
 	DEFINE_PRIME1v (lime_gl_compile_shader);
 	DEFINE_PRIME8v (lime_gl_compressed_tex_image_2d);
+	DEFINE_PRIME9v (lime_gl_compressed_tex_image_3d);
 	DEFINE_PRIME9v (lime_gl_compressed_tex_sub_image_2d);
+	DEFINE_PRIME11v (lime_gl_compressed_tex_sub_image_3d);
+	DEFINE_PRIME5v (lime_gl_copy_buffer_sub_data);
 	DEFINE_PRIME8v (lime_gl_copy_tex_image_2d);
 	DEFINE_PRIME8v (lime_gl_copy_tex_sub_image_2d);
+	DEFINE_PRIME9v (lime_gl_copy_tex_sub_image_3d);
 	DEFINE_PRIME0 (lime_gl_create_buffer);
 	DEFINE_PRIME0 (lime_gl_create_framebuffer);
 	DEFINE_PRIME0 (lime_gl_create_program);
+	DEFINE_PRIME0 (lime_gl_create_query);
 	DEFINE_PRIME0 (lime_gl_create_renderbuffer);
+	DEFINE_PRIME0 (lime_gl_create_sampler);
 	DEFINE_PRIME1 (lime_gl_create_shader);
 	DEFINE_PRIME0 (lime_gl_create_texture);
+	DEFINE_PRIME0 (lime_gl_create_transform_feedback);
+	DEFINE_PRIME0 (lime_gl_create_vertex_array);
 	DEFINE_PRIME1v (lime_gl_cull_face);
 	DEFINE_PRIME1v (lime_gl_delete_buffer);
 	DEFINE_PRIME1v (lime_gl_delete_framebuffer);
 	DEFINE_PRIME1v (lime_gl_delete_program);
+	DEFINE_PRIME1v (lime_gl_delete_query);
 	DEFINE_PRIME1v (lime_gl_delete_renderbuffer);
+	DEFINE_PRIME1v (lime_gl_delete_sampler);
 	DEFINE_PRIME1v (lime_gl_delete_shader);
+	DEFINE_PRIME1v (lime_gl_delete_sync);
 	DEFINE_PRIME1v (lime_gl_delete_texture);
+	DEFINE_PRIME1v (lime_gl_delete_transform_feedback);
+	DEFINE_PRIME1v (lime_gl_delete_vertex_array);
 	DEFINE_PRIME2v (lime_gl_detach_shader);
 	DEFINE_PRIME1v (lime_gl_depth_func);
 	DEFINE_PRIME1v (lime_gl_depth_mask);
@@ -1561,75 +2549,134 @@ namespace lime {
 	DEFINE_PRIME1v (lime_gl_disable);
 	DEFINE_PRIME1v (lime_gl_disable_vertex_attrib_array);
 	DEFINE_PRIME3v (lime_gl_draw_arrays);
+	DEFINE_PRIME4v (lime_gl_draw_arrays_instanced);
 	DEFINE_PRIME1v (lime_gl_draw_buffers);
 	DEFINE_PRIME4v (lime_gl_draw_elements);
+	DEFINE_PRIME5v (lime_gl_draw_elements_instanced);
+	DEFINE_PRIME6v (lime_gl_draw_range_elements);
 	DEFINE_PRIME1v (lime_gl_enable);
 	DEFINE_PRIME1v (lime_gl_enable_vertex_attrib_array);
+	DEFINE_PRIME1v (lime_gl_end_query);
+	DEFINE_PRIME0v (lime_gl_end_transform_feedback);
+	DEFINE_PRIME2 (lime_gl_fence_sync);
 	DEFINE_PRIME0v (lime_gl_finish);
 	DEFINE_PRIME0v (lime_gl_flush);
 	DEFINE_PRIME4v (lime_gl_framebuffer_renderbuffer);
+	DEFINE_PRIME5v (lime_gl_framebuffer_texture_layer);
 	DEFINE_PRIME5v (lime_gl_framebuffer_texture2D);
 	DEFINE_PRIME1v (lime_gl_front_face);
 	DEFINE_PRIME1v (lime_gl_generate_mipmap);
 	DEFINE_PRIME2 (lime_gl_get_active_attrib);
 	DEFINE_PRIME2 (lime_gl_get_active_uniform);
+	DEFINE_PRIME3 (lime_gl_get_active_uniform_blocki);
+	DEFINE_PRIME4v (lime_gl_get_active_uniform_blockiv);
+	DEFINE_PRIME2 (lime_gl_get_active_uniform_block_name);
+	DEFINE_PRIME4v (lime_gl_get_active_uniformsiv);
 	DEFINE_PRIME1 (lime_gl_get_attached_shaders);
 	DEFINE_PRIME2 (lime_gl_get_attrib_location);
-	DEFINE_PRIME2 (lime_gl_get_buffer_parameteri);
-	DEFINE_PRIME3v (lime_gl_get_buffer_parameteriv);
 	DEFINE_PRIME1 (lime_gl_get_boolean);
 	DEFINE_PRIME2v (lime_gl_get_booleanv);
+	DEFINE_PRIME2 (lime_gl_get_buffer_parameteri);
+	DEFINE_PRIME3v (lime_gl_get_buffer_parameteriv);
+	DEFINE_PRIME3v (lime_gl_get_buffer_parameteri64v);
+	DEFINE_PRIME2 (lime_gl_get_buffer_pointerv);
+	DEFINE_PRIME4v (lime_gl_get_buffer_sub_data);
 	DEFINE_PRIME0 (lime_gl_get_context_attributes);
 	DEFINE_PRIME0 (lime_gl_get_error);
 	DEFINE_PRIME1 (lime_gl_get_extension);
 	DEFINE_PRIME1 (lime_gl_get_float);
 	DEFINE_PRIME2v (lime_gl_get_floatv);
+	DEFINE_PRIME2 (lime_gl_get_frag_data_location);
 	DEFINE_PRIME3 (lime_gl_get_framebuffer_attachment_parameteri);
 	DEFINE_PRIME4v (lime_gl_get_framebuffer_attachment_parameteriv);
 	DEFINE_PRIME1 (lime_gl_get_integer);
 	DEFINE_PRIME2v (lime_gl_get_integerv);
-	DEFINE_PRIME1 (lime_gl_get_program_info_log);
+	DEFINE_PRIME2v (lime_gl_get_integer64v);
+	DEFINE_PRIME3v (lime_gl_get_integer64i_v);
+	DEFINE_PRIME3v (lime_gl_get_integeri_v);
+	DEFINE_PRIME5v (lime_gl_get_internal_formativ);
 	DEFINE_PRIME2 (lime_gl_get_programi);
 	DEFINE_PRIME3v (lime_gl_get_programiv);
+	DEFINE_PRIME3v (lime_gl_get_program_binary);
+	DEFINE_PRIME1 (lime_gl_get_program_info_log);
+	DEFINE_PRIME2 (lime_gl_get_queryi);
+	DEFINE_PRIME3v (lime_gl_get_queryiv);
+	DEFINE_PRIME2 (lime_gl_get_query_objectui);
+	DEFINE_PRIME3v (lime_gl_get_query_objectuiv);
 	DEFINE_PRIME2 (lime_gl_get_renderbuffer_parameteri);
 	DEFINE_PRIME3v (lime_gl_get_renderbuffer_parameteriv);
+	DEFINE_PRIME2 (lime_gl_get_sampler_parameterf);
+	DEFINE_PRIME3v (lime_gl_get_sampler_parameterfv);
+	DEFINE_PRIME2 (lime_gl_get_sampler_parameteri);
+	DEFINE_PRIME3v (lime_gl_get_sampler_parameteriv);
 	DEFINE_PRIME1 (lime_gl_get_shader_info_log);
 	DEFINE_PRIME2 (lime_gl_get_shaderi);
 	DEFINE_PRIME3v (lime_gl_get_shaderiv);
 	DEFINE_PRIME2 (lime_gl_get_shader_precision_format);
 	DEFINE_PRIME1 (lime_gl_get_shader_source);
 	DEFINE_PRIME1 (lime_gl_get_string);
+	DEFINE_PRIME2 (lime_gl_get_stringi);
+	DEFINE_PRIME2 (lime_gl_get_sync_parameteri);
+	DEFINE_PRIME3v (lime_gl_get_sync_parameteriv);
 	DEFINE_PRIME2 (lime_gl_get_tex_parameterf);
 	DEFINE_PRIME3v (lime_gl_get_tex_parameterfv);
 	DEFINE_PRIME2 (lime_gl_get_tex_parameteri);
 	DEFINE_PRIME3v (lime_gl_get_tex_parameteriv);
+	DEFINE_PRIME2 (lime_gl_get_transform_feedback_varying);
 	DEFINE_PRIME2 (lime_gl_get_uniformf);
 	DEFINE_PRIME3v (lime_gl_get_uniformfv);
 	DEFINE_PRIME2 (lime_gl_get_uniformi);
 	DEFINE_PRIME3v (lime_gl_get_uniformiv);
+	DEFINE_PRIME2 (lime_gl_get_uniformui);
+	DEFINE_PRIME3v (lime_gl_get_uniformuiv);
+	DEFINE_PRIME2 (lime_gl_get_uniform_block_index);
 	DEFINE_PRIME2 (lime_gl_get_uniform_location);
+	DEFINE_PRIME2 (lime_gl_get_vertex_attribf);
+	DEFINE_PRIME3v (lime_gl_get_vertex_attribfv);
 	DEFINE_PRIME2 (lime_gl_get_vertex_attribi);
 	DEFINE_PRIME3v (lime_gl_get_vertex_attribiv);
+	DEFINE_PRIME2 (lime_gl_get_vertex_attribii);
+	DEFINE_PRIME3v (lime_gl_get_vertex_attribiiv);
+	DEFINE_PRIME2 (lime_gl_get_vertex_attribiui);
+	DEFINE_PRIME3v (lime_gl_get_vertex_attribiuiv);
 	DEFINE_PRIME2 (lime_gl_get_vertex_attrib_pointerv);
 	DEFINE_PRIME2v (lime_gl_hint);
+	DEFINE_PRIME2v (lime_gl_invalidate_framebuffer);
+	DEFINE_PRIME6v (lime_gl_invalidate_sub_framebuffer);
 	DEFINE_PRIME1 (lime_gl_is_buffer);
 	DEFINE_PRIME1 (lime_gl_is_enabled);
 	DEFINE_PRIME1 (lime_gl_is_framebuffer);
 	DEFINE_PRIME1 (lime_gl_is_program);
+	DEFINE_PRIME1 (lime_gl_is_query);
 	DEFINE_PRIME1 (lime_gl_is_renderbuffer);
+	DEFINE_PRIME1 (lime_gl_is_sampler);
 	DEFINE_PRIME1 (lime_gl_is_shader);
+	DEFINE_PRIME1 (lime_gl_is_sync);
 	DEFINE_PRIME1 (lime_gl_is_texture);
+	DEFINE_PRIME1 (lime_gl_is_transform_feedback);
+	DEFINE_PRIME1 (lime_gl_is_vertex_array);
 	DEFINE_PRIME1v (lime_gl_line_width);
 	DEFINE_PRIME1v (lime_gl_link_program);
+	DEFINE_PRIME4v (lime_gl_map_buffer_range);
 	DEFINE_PRIME1v (lime_gl_object_deregister);
 	DEFINE_PRIME2 (lime_gl_object_from_id);
 	DEFINE_PRIME3v (lime_gl_object_register);
+	DEFINE_PRIME0v (lime_gl_pause_transform_feedback);
 	DEFINE_PRIME2v (lime_gl_pixel_storei);
 	DEFINE_PRIME2v (lime_gl_polygon_offset);
+	DEFINE_PRIME4v (lime_gl_program_binary);
+	DEFINE_PRIME3v (lime_gl_program_parameteri);
+	DEFINE_PRIME1v (lime_gl_read_buffer);
 	DEFINE_PRIME7v (lime_gl_read_pixels);
+	DEFINE_PRIME0v (lime_gl_release_shader_compiler);
 	DEFINE_PRIME4v (lime_gl_renderbuffer_storage);
+	DEFINE_PRIME5v (lime_gl_renderbuffer_storage_multisample);
+	DEFINE_PRIME0v (lime_gl_resume_transform_feedback);
 	DEFINE_PRIME2v (lime_gl_sample_coverage);
+	DEFINE_PRIME3v (lime_gl_sampler_parameterf);
+	DEFINE_PRIME3v (lime_gl_sampler_parameteri);
 	DEFINE_PRIME4v (lime_gl_scissor);
+	DEFINE_PRIME4v (lime_gl_shader_binary);
 	DEFINE_PRIME2v (lime_gl_shader_source);
 	DEFINE_PRIME3v (lime_gl_stencil_func);
 	DEFINE_PRIME4v (lime_gl_stencil_func_separate);
@@ -1638,32 +2685,59 @@ namespace lime {
 	DEFINE_PRIME3v (lime_gl_stencil_op);
 	DEFINE_PRIME4v (lime_gl_stencil_op_separate);
 	DEFINE_PRIME9v (lime_gl_tex_image_2d);
+	DEFINE_PRIME10v (lime_gl_tex_image_3d);
 	DEFINE_PRIME3v (lime_gl_tex_parameterf);
 	DEFINE_PRIME3v (lime_gl_tex_parameteri);
+	DEFINE_PRIME5v (lime_gl_tex_storage_2d);
+	DEFINE_PRIME6v (lime_gl_tex_storage_3d);
 	DEFINE_PRIME9v (lime_gl_tex_sub_image_2d);
+	DEFINE_PRIME11v (lime_gl_tex_sub_image_3d);
+	DEFINE_PRIME3v (lime_gl_transform_feedback_varyings);
 	DEFINE_PRIME2v (lime_gl_uniform1f);
 	DEFINE_PRIME3v (lime_gl_uniform1fv);
 	DEFINE_PRIME2v (lime_gl_uniform1i);
 	DEFINE_PRIME3v (lime_gl_uniform1iv);
+	DEFINE_PRIME2v (lime_gl_uniform1ui);
+	DEFINE_PRIME3v (lime_gl_uniform1uiv);
 	DEFINE_PRIME3v (lime_gl_uniform2f);
 	DEFINE_PRIME3v (lime_gl_uniform2fv);
 	DEFINE_PRIME3v (lime_gl_uniform2i);
 	DEFINE_PRIME3v (lime_gl_uniform2iv);
+	DEFINE_PRIME3v (lime_gl_uniform2ui);
+	DEFINE_PRIME3v (lime_gl_uniform2uiv);
 	DEFINE_PRIME4v (lime_gl_uniform3f);
 	DEFINE_PRIME3v (lime_gl_uniform3fv);
 	DEFINE_PRIME4v (lime_gl_uniform3i);
 	DEFINE_PRIME3v (lime_gl_uniform3iv);
+	DEFINE_PRIME4v (lime_gl_uniform3ui);
+	DEFINE_PRIME3v (lime_gl_uniform3uiv);
 	DEFINE_PRIME5v (lime_gl_uniform4f);
 	DEFINE_PRIME3v (lime_gl_uniform4fv);
 	DEFINE_PRIME5v (lime_gl_uniform4i);
 	DEFINE_PRIME3v (lime_gl_uniform4iv);
+	DEFINE_PRIME5v (lime_gl_uniform4ui);
+	DEFINE_PRIME3v (lime_gl_uniform4uiv);
+	DEFINE_PRIME3v (lime_gl_uniform_block_binding);
 	DEFINE_PRIME4v (lime_gl_uniform_matrix2fv);
+	DEFINE_PRIME4v (lime_gl_uniform_matrix2x3fv);
+	DEFINE_PRIME4v (lime_gl_uniform_matrix2x4fv);
 	DEFINE_PRIME4v (lime_gl_uniform_matrix3fv);
+	DEFINE_PRIME4v (lime_gl_uniform_matrix3x2fv);
+	DEFINE_PRIME4v (lime_gl_uniform_matrix3x4fv);
 	DEFINE_PRIME4v (lime_gl_uniform_matrix4fv);
+	DEFINE_PRIME4v (lime_gl_uniform_matrix4x2fv);
+	DEFINE_PRIME4v (lime_gl_uniform_matrix4x3fv);
+	DEFINE_PRIME1 (lime_gl_unmap_buffer);
 	DEFINE_PRIME1v (lime_gl_use_program);
 	DEFINE_PRIME1v (lime_gl_validate_program);
 	DEFINE_PRIME4v (lime_gl_viewport);
+	DEFINE_PRIME2v (lime_gl_vertex_attrib_divisor);
+	DEFINE_PRIME5v (lime_gl_vertex_attrib_ipointer);
 	DEFINE_PRIME6v (lime_gl_vertex_attrib_pointer);
+	DEFINE_PRIME5v (lime_gl_vertex_attribi4i);
+	DEFINE_PRIME2v (lime_gl_vertex_attribi4iv);
+	DEFINE_PRIME5v (lime_gl_vertex_attribi4ui);
+	DEFINE_PRIME2v (lime_gl_vertex_attribi4uiv);
 	DEFINE_PRIME2v (lime_gl_vertex_attrib1f);
 	DEFINE_PRIME2v (lime_gl_vertex_attrib1fv);
 	DEFINE_PRIME3v (lime_gl_vertex_attrib2f);
@@ -1672,6 +2746,7 @@ namespace lime {
 	DEFINE_PRIME2v (lime_gl_vertex_attrib3fv);
 	DEFINE_PRIME5v (lime_gl_vertex_attrib4f);
 	DEFINE_PRIME2v (lime_gl_vertex_attrib4fv);
+	DEFINE_PRIME4v (lime_gl_wait_sync);
 	
 	
 }

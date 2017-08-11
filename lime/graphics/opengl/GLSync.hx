@@ -1,19 +1,14 @@
 package lime.graphics.opengl; #if lime_opengl #if (!js || !html5 || display)
 
 
-import lime.graphics.opengl.GL;
+import lime._backend.native.NativeCFFI;
+import lime.system.CFFIPointer;
 
-@:forward(id)
+@:access(lime._backend.native.NativeCFFI)
 
 
-abstract GLSync(GLObject) from GLObject to GLObject {
+abstract GLSync(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
-	
-	@:from private static function fromInt (id:Int):GLSync {
-		
-		return GLObject.fromInt (SYNC, id);
-		
-	}
 	
 	
 }
