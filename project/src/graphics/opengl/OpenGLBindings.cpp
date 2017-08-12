@@ -1007,7 +1007,9 @@ namespace lime {
 	
 	void lime_gl_get_buffer_sub_data (int target, double offset, int size, double data) {
 		
+		#ifndef LIME_GLES
 		glGetBufferSubData (target, (GLintptr)(uintptr_t)offset, size, (void*)(uintptr_t)data);
+		#endif
 		
 	}
 	

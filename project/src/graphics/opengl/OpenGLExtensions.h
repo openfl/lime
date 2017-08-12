@@ -199,7 +199,9 @@ OGL_EXT(glEndQuery, void, (GLenum target));
 OGL_EXT(glGetActiveUniformBlockiv, void, (GLuint program, GLuint uniformBlockIndex, GLenum pname, GLint *params));
 OGL_EXT(glGetActiveUniformsiv, void, (GLuint program, GLsizei uniformCount, const GLuint *uniformIndices, GLenum pname, GLint *params));
 OGL_EXT(glGetBufferPointerv, void, (GLenum target, GLenum pname, GLvoid ** params));
+#ifndef LIME_GLES
 OGL_EXT(glGetBufferSubData, void, (GLenum target, GLintptr offset, GLsizeiptr size, GLvoid * data));
+#endif
 OGL_EXT(glGetInteger64v, void, (GLenum pname, GLint64 * params));
 OGL_EXT(glGetInteger64i_v, void, (GLenum pname, GLuint index, GLint64 * data));
 OGL_EXT(glGetInternalformativ, void, (GLenum target, GLenum internalformat, GLenum pname, GLsizei bufSize, GLint *params));
