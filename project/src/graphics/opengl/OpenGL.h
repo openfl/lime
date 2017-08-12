@@ -2,7 +2,14 @@
 #define LIME_GRAPHICS_OPENGL_OPENGL_H
 
 
-#if defined (BLACKBERRY) || defined (ANDROID) || defined (WEBOS) || defined (GPH) || defined (EMSCRIPTEN) || defined (RASPBERRYPI)
+#if defined (ANDROID)
+
+#define LIME_GLES
+#include <GLES3/gl3.h>
+#define __gl2_h_
+#include <GLES2/gl2ext.h>
+
+#elif defined (EMSCRIPTEN) || defined (RASPBERRYPI)
 
 #define LIME_GLES
 #include <GLES3/gl3.h>
