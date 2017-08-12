@@ -33,11 +33,11 @@ namespace lime {
 	
 	std::map<GLObjectType, std::map <GLuint, value> > glObjects;
 	std::map<value, GLuint> glObjectIDs;
-	std::map<value, uintptr_t> glObjectPtrs;
+	std::map<value, void*> glObjectPtrs;
 	std::map<value, GLObjectType> glObjectTypes;
 	
 	std::vector<GLuint> gc_gl_id;
-	std::vector<uintptr_t> gc_gl_ptr;
+	std::vector<void*> gc_gl_ptr;
 	std::vector<GLObjectType> gc_gl_type;
 	Mutex gc_gl_mutex;
 	
@@ -62,7 +62,7 @@ namespace lime {
 				
 			} else {
 				
-				uintptr_t ptr = glObjectPtrs[object];
+				void* ptr = glObjectPtrs[object];
 				
 				gc_gl_ptr.push_back (ptr);
 				
@@ -147,7 +147,7 @@ namespace lime {
 			}
 			
 			size = gc_gl_ptr.size ();
-			uintptr_t ptr;
+			void* ptr;
 			
 			for (int i = 0; i < size; i++) {
 				
@@ -373,10 +373,10 @@ namespace lime {
 	}
 	
 	
-	int lime_gl_client_wait_sync (double sync, int flags, int timeoutA, int timeoutB) {
+	int lime_gl_client_wait_sync (value sync, int flags, int timeoutA, int timeoutB) {
 		
 		GLuint64 timeout = (GLuint64) timeoutA << 32 | timeoutB;
-		return glClientWaitSync ((GLsync)(uintptr_t)sync, flags, timeout);
+		return glClientWaitSync ((GLsync)val_data (sync), flags, timeout);
 		
 	}
 	
@@ -618,9 +618,10 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_delete_sync (double sync) {
+	void lime_gl_delete_sync (value sync) {
 		
-		glDeleteSync ((GLsync)(uintptr_t)sync);
+		if (val_is_null (sync)) return;
+		glDeleteSync ((GLsync)val_data (sync));
 		
 	}
 	
@@ -774,7 +775,9 @@ namespace lime {
 	value lime_gl_fence_sync (int condition, int flags) {
 		
 		GLsync result = glFenceSync (condition, flags);
-		return CFFIPointer (result, gc_gl_object);
+		value handle = CFFIPointer (result, gc_gl_object);
+		glObjectPtrs[handle] = result;
+		return handle;
 		
 	}
 	
@@ -1135,7 +1138,7 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_get_internal_formativ (int target, int internalformat, int pname, int bufSize, double params) {
+	void lime_gl_get_internalformativ (int target, int internalformat, int pname, int bufSize, double params) {
 		
 		glGetInternalformativ (target, internalformat, pname, (GLsizei)bufSize, (GLint*)(uintptr_t)params);
 		
@@ -1707,9 +1710,10 @@ namespace lime {
 	}
 	
 	
-	bool lime_gl_is_sync (double handle) {
+	bool lime_gl_is_sync (value handle) {
 		
-		return glIsSync ((GLsync)(uintptr_t)handle);
+		if (val_is_null (handle)) return false;
+		return glIsSync ((GLsync)val_data (handle));
 		
 	}
 	
@@ -1749,9 +1753,10 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_map_buffer_range (int target, double offset, int length, int access) {
+	double lime_gl_map_buffer_range (int target, double offset, int length, int access) {
 		
-		glMapBufferRange (target, (GLintptr)(uintptr_t)offset, length, access);
+		uintptr_t result = glMapBufferRange (target, (GLintptr)(uintptr_t)offset, length, access);
+		return (double)result;
 		
 	}
 	
@@ -2430,10 +2435,10 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_wait_sync (double sync, int flags, int timeoutA, int timeoutB) {
+	void lime_gl_wait_sync (value sync, int flags, int timeoutA, int timeoutB) {
 		
 		GLuint64 timeout = (GLuint64) timeoutA << 32 | timeoutB;
-		glWaitSync ((GLsync)(uintptr_t)sync, flags, timeout);
+		glWaitSync ((GLsync)val_data (sync), flags, timeout);
 		
 	}
 	
@@ -2594,7 +2599,7 @@ namespace lime {
 	DEFINE_PRIME2v (lime_gl_get_integer64v);
 	DEFINE_PRIME3v (lime_gl_get_integer64i_v);
 	DEFINE_PRIME3v (lime_gl_get_integeri_v);
-	DEFINE_PRIME5v (lime_gl_get_internal_formativ);
+	DEFINE_PRIME5v (lime_gl_get_internalformativ);
 	DEFINE_PRIME2 (lime_gl_get_programi);
 	DEFINE_PRIME3v (lime_gl_get_programiv);
 	DEFINE_PRIME3v (lime_gl_get_program_binary);
@@ -2657,7 +2662,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_gl_is_vertex_array);
 	DEFINE_PRIME1v (lime_gl_line_width);
 	DEFINE_PRIME1v (lime_gl_link_program);
-	DEFINE_PRIME4v (lime_gl_map_buffer_range);
+	DEFINE_PRIME4 (lime_gl_map_buffer_range);
 	DEFINE_PRIME1v (lime_gl_object_deregister);
 	DEFINE_PRIME2 (lime_gl_object_from_id);
 	DEFINE_PRIME3v (lime_gl_object_register);

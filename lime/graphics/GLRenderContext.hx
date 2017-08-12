@@ -777,13 +777,13 @@ class GLRenderContext {
 	public function getInteger (pname:Int):Int { return 0; }
 	public function getInteger64 (pname:Int):Int64 { return Int64.ofInt (0); }
 	public function getInteger64i (pname:Int):Int64 { return Int64.ofInt (0); }
-	public function getInteger64i_v (pname:Int, params:DataPointer):Void {}
+	public function getInteger64i_v (pname:Int, index:Int, params:DataPointer):Void {}
 	public function getInteger64v (pname:Int, params:DataPointer):Void {}
 	public function getIntegeri (pname:Int):Int { return 0; }
-	public function getIntegeri_v (pname:Int, params:DataPointer):Void {}
+	public function getIntegeri_v (pname:Int, index:Int, params:DataPointer):Void {}
 	public function getIntegerv (pname:Int, params:DataPointer):Void {}
 	public function getInternalformati (target:Int, internalformat:Int, pname:Int):Int { return 0; }
-	public function getInternalformativ (target:Int, internalformat:Int, pname:Int, params:DataPointer):Void {}
+	public function getInternalformativ (target:Int, internalformat:Int, pname:Int, bufSize:Int, params:DataPointer):Void {}
 	public function getInternalformatParameter (target:Int, internalformat:Int, pname:Int):Dynamic { return null; }
 	public function getParameter (pname:Int):Dynamic { return null; }
 	public function getProgrami (program:GLProgram, pname:Int):Int { return 0; }
@@ -861,7 +861,7 @@ class GLRenderContext {
 	public function isVertexArray (vertexArray:GLVertexArrayObject):Bool { return false; }
 	public function lineWidth (width:Float):Void {}
 	public function linkProgram (program:GLProgram):Void {}
-	public function mapBufferRange (target:Int, offset:DataPointer, length:Int /*GLsizeiptr*/, access:Int):Void {}
+	public function mapBufferRange (target:Int, offset:DataPointer, length:Int /*GLsizeiptr*/, access:Int):DataPointer { return 0; }
 	public function pauseTransformFeedback ():Void {}
 	public function pixelStorei (pname:Int, param:Int):Void {}
 	public function polygonOffset (factor:Float, units:Float):Void {}
