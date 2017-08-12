@@ -1755,7 +1755,7 @@ namespace lime {
 	
 	double lime_gl_map_buffer_range (int target, double offset, int length, int access) {
 		
-		uintptr_t result = glMapBufferRange (target, (GLintptr)(uintptr_t)offset, length, access);
+		uintptr_t result = (uintptr_t)glMapBufferRange (target, (GLintptr)(uintptr_t)offset, length, access);
 		return (double)result;
 		
 	}
