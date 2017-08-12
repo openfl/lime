@@ -35,6 +35,8 @@
 
 #elif defined (HX_MACOS)
 
+#define NEED_EXTENSIONS
+#define DYNAMIC_OGL
 #define GL_GLEXT_PROTOTYPES
 #include <SDL_opengl.h>
 #include <SDL_opengl_glext.h>
@@ -62,10 +64,12 @@
 #ifndef NATIVE_TOOLKIT_SDL_ANGLE
 #include <gl/GL.h>
 #endif
+
 typedef ptrdiff_t GLsizeiptrARB;
 #define NEED_EXTENSIONS
-#ifdef NATIVE_TOOLKIT_SDL_ANGLE
 #define DYNAMIC_OGL
+
+#ifdef NATIVE_TOOLKIT_SDL_ANGLE
 #define LIME_GLES
 #endif
 
