@@ -410,6 +410,8 @@ namespace lime {
 		#ifdef LIME_GLES3_API
 		GLuint64 timeout = (GLuint64) timeoutA << 32 | timeoutB;
 		return glClientWaitSync ((GLsync)val_data (sync), flags, timeout);
+		#else
+		return 0;
 		#endif
 		
 	}
@@ -2539,6 +2541,8 @@ namespace lime {
 		
 		#ifdef LIME_GLES3_API
 		return glUnmapBuffer (target);
+		#else
+		return false;
 		#endif
 		
 	}
