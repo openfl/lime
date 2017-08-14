@@ -90,6 +90,7 @@ typedef ptrdiff_t GLsizeiptrARB;
 #ifdef NATIVE_TOOLKIT_SDL_ANGLE
 #include <SDL_opengles2.h>
 #else
+#define GL_GLEXT_PROTOTYPES
 #include <SDL_opengl.h>
 #include <SDL_opengl_glext.h>
 #endif

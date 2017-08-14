@@ -1528,7 +1528,7 @@ namespace lime {
 	}
 	
 	
-	int lime_gl_get_sync_parameteri (double sync, int pname) {
+	int lime_gl_get_sync_parameteri (value sync, int pname) {
 		
 		// TODO
 		
@@ -1539,7 +1539,7 @@ namespace lime {
 	}
 	
 	
-	void lime_gl_get_sync_parameteriv (double sync, int pname, double params) {
+	void lime_gl_get_sync_parameteriv (value sync, int pname, double params) {
 		
 		// TODO
 		
