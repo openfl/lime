@@ -231,6 +231,10 @@ class TVOSPlatform extends PlatformTarget {
 		}
 		
 		context.IOS_LINKER_FLAGS = ["-stdlib=libc++"].concat (project.config.getArrayString ("tvos.linker-flags"));
+
+		if (project.config.exists("ios.non_encryption")) {
+            context.NON_ENCRYPTION = project.config.getBool ("ios.non_encryption", false);
+        }
 		
 		switch (project.window.orientation) {
 			
