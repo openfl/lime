@@ -70,6 +70,7 @@ class HXProject {
 	private var defaultApp:ApplicationData;
 	private var defaultMeta:MetaData;
 	private var defaultWindow:WindowData;
+	private var needRerun:Bool;
 	
 	public static var _command:String;
 	public static var _debug:Bool;

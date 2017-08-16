@@ -1163,9 +1163,30 @@ class ProjectXMLParser extends HXProject {
 						
 						var name = substitute (element.att.name);
 						
-						defines.set (name, value);
-						environment.set (name, value);
-						setenv (name, value);
+						if (name == "HAXELIB_PATH") {
+							
+							var currentPath = HaxelibHelper.getRepositoryPath ();
+							
+							defines.set (name, value);
+							environment.set (name, value);
+							setenv (name, value);
+							
+							var newPath = HaxelibHelper.getRepositoryPath (true);
+							
+							if (currentPath != newPath) {
+								
+								needRerun = true;
+								return;
+								
+							}
+							
+						} else {
+							
+							defines.set (name, value);
+							environment.set (name, value);
+							setenv (name, value);
+							
+						}
 					
 					case "error":
 						

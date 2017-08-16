@@ -20,6 +20,8 @@ import utils.CreateTemplate;
 import utils.JavaExternGenerator;
 import utils.PlatformSetup;
 
+@:access(lime.project.HXProject)
+
 
 class CommandLineTools {
 	
@@ -1692,6 +1694,30 @@ class CommandLineTools {
 				}
 				
 			}
+			
+		}
+		
+		if (project != null && project.needRerun && !project.targetFlags.exists ("norerun")) {
+			
+			HaxelibHelper.pathOverrides.remove ("lime");
+			var workingDirectory = Sys.getCwd ();
+			var limePath = HaxelibHelper.getPath (new Haxelib ("lime"), true, true);
+			Sys.setCwd (workingDirectory);
+			
+			LogHelper.info ("", LogHelper.accentColor + "Requesting alternate tools from custom haxelib path...\x1b[0m\n\n");
+			
+			var args = Sys.args ();
+			args.pop ();
+			
+			Sys.setCwd (limePath);
+			
+			args = [ PathHelper.combine (limePath, "run.n") ].concat (args);
+			args.push ("--haxelib-lime=" + limePath);
+			args.push ("-norerun");
+			args.push (workingDirectory);
+			
+			Sys.exit (Sys.command ("neko", args));
+			return null;
 			
 		}
 		
