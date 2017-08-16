@@ -938,7 +938,23 @@ class HXProject {
 	
 	public function setenv (name:String, value:String):Void {
 		
-		Sys.putEnv (name, value);
+		if (name == "HAXELIB_PATH") {
+			
+			var currentPath = HaxelibHelper.getRepositoryPath ();
+			Sys.putEnv (name, value);
+			var newPath = HaxelibHelper.getRepositoryPath (true);
+			
+			if (currentPath != newPath) {
+				
+				needRerun = true;
+				
+			}
+			
+		} else {
+			
+			Sys.putEnv (name, value);
+			
+		}
 		
 	}
 	

@@ -1163,30 +1163,11 @@ class ProjectXMLParser extends HXProject {
 						
 						var name = substitute (element.att.name);
 						
-						if (name == "HAXELIB_PATH") {
-							
-							var currentPath = HaxelibHelper.getRepositoryPath ();
-							
-							defines.set (name, value);
-							environment.set (name, value);
-							setenv (name, value);
-							
-							var newPath = HaxelibHelper.getRepositoryPath (true);
-							
-							if (currentPath != newPath) {
-								
-								needRerun = true;
-								return;
-								
-							}
-							
-						} else {
-							
-							defines.set (name, value);
-							environment.set (name, value);
-							setenv (name, value);
-							
-						}
+						defines.set (name, value);
+						environment.set (name, value);
+						setenv (name, value);
+						
+						if (needRerun) return;
 					
 					case "error":
 						
@@ -1344,6 +1325,14 @@ class ProjectXMLParser extends HXProject {
 						javaPaths.push (PathHelper.combine (extensionPath, substitute (element.att.path)));
 					
 					case "haxelib":
+						
+						if (element.has.repository) {
+							
+							setenv ("HAXELIB_PATH", PathHelper.combine (Sys.getCwd (), element.att.repository));
+							if (needRerun) return;
+							continue;
+							
+						}
 						
 						var name = substitute (element.att.name);
 						var version = "";
