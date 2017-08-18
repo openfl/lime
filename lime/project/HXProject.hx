@@ -103,6 +103,10 @@ class HXProject {
 		HXProject._templatePaths = inputData.templatePaths;
 		HXProject._userDefines = inputData.userDefines;
 		HXProject._environment = inputData.environment;
+		LogHelper.verbose = inputData.logVerbose;
+		LogHelper.enableColor = inputData.logEnableColor;
+		ProcessHelper.dryRun = inputData.processDryRun;
+		HaxelibHelper.debug = inputData.haxelibDebug;
 		
 		initialize ();
 		
@@ -496,6 +500,9 @@ class HXProject {
 		
 		input.close ();
 		
+		var cacheDryRun = ProcessHelper.dryRun;
+		ProcessHelper.dryRun = false;
+		
 		ProcessHelper.runCommand ("", "haxe", args);
 		
 		var inputFile = PathHelper.combine (tempDirectory, "input.dat");
@@ -510,7 +517,11 @@ class HXProject {
 			targetFlags: HXProject._targetFlags,
 			templatePaths: HXProject._templatePaths,
 			userDefines: HXProject._userDefines,
-			environment: HXProject._environment
+			environment: HXProject._environment,
+			logVerbose: LogHelper.verbose,
+			logEnableColor: LogHelper.enableColor,
+			processDryRun: cacheDryRun,
+			haxelibDebug: HaxelibHelper.debug
 			
 		});
 		
@@ -526,6 +537,8 @@ class HXProject {
 			Sys.exit (1);
 			
 		}
+		
+		ProcessHelper.dryRun = cacheDryRun;
 		
 		var tPaths:Array<String> = [];
 		
