@@ -116,6 +116,10 @@ class ProjectXMLParser extends HXProject {
 
 			defines.set ("targetType", "js");
 			defines.set ("html5", "1");
+		} else if (targetFlags.exists("uwp")) {
+
+			defines.set ("targetType", "js");
+			defines.set ("html5", "1");
 
 		} else if (platformType == DESKTOP && target != PlatformHelper.hostPlatform) {
 
