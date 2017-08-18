@@ -951,6 +951,8 @@ class HXProject {
 	
 	public function setenv (name:String, value:String):Void {
 		
+		if (value == null) value = "";
+		
 		if (name == "HAXELIB_PATH") {
 			
 			var currentPath = HaxelibHelper.getRepositoryPath ();
@@ -959,7 +961,17 @@ class HXProject {
 			
 			if (currentPath != newPath) {
 				
-				needRerun = true;
+				var valid = try { (newPath != null && newPath != "" && FileSystem.exists (FileSystem.fullPath (newPath))); } catch (e:Dynamic) { false; }
+				
+				if (!valid) {
+					
+					LogHelper.error ("The specified haxelib repository path \"" + value + "\" does not exist");
+					
+				} else {
+					
+					needRerun = true;
+					
+				}
 				
 			}
 			
