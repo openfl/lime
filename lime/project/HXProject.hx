@@ -570,6 +570,12 @@ class HXProject {
 		
 		if (project != null) {
 			
+			for (key in project.environment.keys ()) {
+				
+				Sys.putEnv (key, project.environment[key]);
+				
+			}
+			
 			var defines = StringMapHelper.copy (userDefines);
 			StringMapHelper.copyKeys (project.defines, defines);
 			
@@ -951,7 +957,12 @@ class HXProject {
 	
 	public function setenv (name:String, value:String):Void {
 		
-		if (value == null) value = "";
+		if (value == null) {
+			
+			environment.remove (name);
+			value = "";
+			
+		}
 		
 		if (name == "HAXELIB_PATH") {
 			
@@ -978,6 +989,12 @@ class HXProject {
 		} else {
 			
 			Sys.putEnv (name, value);
+			
+		}
+		
+		if (value != "") {
+			
+			environment.set (name, value);
 			
 		}
 		
