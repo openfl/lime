@@ -503,7 +503,7 @@ class ImageDataUtil {
 	}
 	
 	
-	public static function gaussianBlur (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, blurX:Float = 4, blurY:Float = 4, quality:Int = 1, strength:Int = 1):Image {
+	public static function gaussianBlur (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, blurX:Float = 4, blurY:Float = 4, quality:Int = 1, strength:Float = 1):Image {
 		
 		// TODO: Support sourceRect better, do not modify sourceImage, create C++ implementation for native
 		
