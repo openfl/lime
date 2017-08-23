@@ -105,6 +105,9 @@ class WindowsPlatform extends PlatformTarget {
 			if (project.app.main != null) {
 				
 				ProcessHelper.runCommand ("", "haxe", [ hxml ] );
+				ProcessHelper.runCommand("","MSBuild",[ targetDirectory + "/bin/source/uwp-project.jsproj",
+					"/p:Configuration=Release", "/t:HelloWorld"]);
+				//MSBuild temp/uwa/vws/vws.jsproj /p:Configuration=Release"
 				
 				if (noOutput) return;
 				
@@ -342,11 +345,7 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 		
-		if (project.targetFlags.exists ("uwp")) {
-			
-			HTML5Helper.launch (project, targetDirectory + "/bin");
-			
-		} else if (targetType == "nodejs") {
+		if (targetType == "nodejs") {
 			
 			NodeJSHelper.run (project, targetDirectory + "/bin/ApplicationMain.js", arguments);
 		
@@ -368,7 +367,7 @@ class WindowsPlatform extends PlatformTarget {
 		
 		project = project.clone ();
 		
-		var destination = targetDirectory + "/bin/";
+		var destination = targetDirectory + "/bin/source/";
 		PathHelper.mkdir (destination);
 		
 		var webfontDirectory = targetDirectory + "/obj/webfont";
@@ -489,6 +488,9 @@ class WindowsPlatform extends PlatformTarget {
 		context.linkedLibraries = [];
 		
 		for (dependency in project.dependencies) {
+
+			Sys.println("found dependency: " + dependency.name + " path: " + dependency.path);
+
 			
 			if (StringTools.endsWith (dependency.name, ".js")) {
 				
@@ -498,12 +500,14 @@ class WindowsPlatform extends PlatformTarget {
 				
 				var name = Path.withoutDirectory (dependency.path);
 				
-				context.linkedLibraries.push ("./lib/" + name);
-				FileHelper.copyIfNewer (dependency.path, PathHelper.combine (destination, PathHelper.combine ("lib", name)));
-				
+				context.linkedLibraries.push ("./js/lib/" + name);
+				FileHelper.copyIfNewer (dependency.path, PathHelper.combine (destination, PathHelper.combine ("js/lib", name)));
+
 			}
 			
 		}
+
+		context.guid = GUID.uuid();
 		
 		for (asset in project.assets) {
 			
@@ -542,7 +546,10 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 		
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "windows/template", destination, context);
+		//FileHelper.recursiveCopyTemplate (project.templatePaths, "windows/template", destination, context);
+		FileHelper.recursiveCopyTemplate (project.templatePaths, "windows/template", targetDirectory + "/bin/", context);
+		Sys.println("project.templatePaths: " + project.templatePaths);
+
 		
 		if (project.app.main != null) {
 			

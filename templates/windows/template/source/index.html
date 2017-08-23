@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>::APP_TITLE::</title>
+    <title>::APP_TITLE:: - ::guid::</title>
     <link href="css/default.css" rel="stylesheet" />
     <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11,7 +11,9 @@
 
     ::if linkedLibraries::::foreach (linkedLibraries)::
     <script type="text/javascript" src="::__current__::"></script>::end::::end::
-    <script type="text/javascript" src="./::APP_FILE::.js"></script>
+    <script type="text/javascript" src="./js/::APP_FILE::.js"></script>
+    <script src="lib/winjs-4.0.1/js/base.js"></script>
+    <script src="lib/winjs-4.0.1/js/ui.js"></script>
     <script>
 		window.addEventListener ("touchmove", function (event) { event.preventDefault (); }, false);
 		if (typeof window.devicePixelRatio != 'undefined' && window.devicePixelRatio > 2) {
@@ -38,7 +40,6 @@
 
 </head>
 <body>
-    <div>Content goes here!</div>
     <script src="js/main.js"></script>
 
     ::foreach assets::::if (type == "font")::
@@ -46,8 +47,6 @@
 
     <div id="content"></div>
 
-    <script type="text/javascript">
-		lime.embed ("::APP_FILE::", "content", ::WIN_WIDTH::, ::WIN_HEIGHT::);
-	</script>
+
 </body>
 </html>
