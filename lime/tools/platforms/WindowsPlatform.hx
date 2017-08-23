@@ -55,7 +55,7 @@ class WindowsPlatform extends PlatformTarget {
 		
 		if (project.targetFlags.exists ("uwp")) {
 			
-			targetType = "js";
+			targetType = "html5";
 			
 		} else if (project.targetFlags.exists ("neko") || project.target != PlatformHelper.hostPlatform) {
 			
@@ -75,12 +75,13 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 		
-		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("windows.output-directory", "windows" + (is64 ? "64" : "") + "/" + targetType + "/" + buildType));
+		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("windows.output-directory", targetType == "cpp" ? "windows" : targetType));
+		
 		if (project.targetFlags.exists ("uwp")) {
-			// openfl overrides this for some reason. ignore any garbage xml nonsense
-			targetDirectory = PathHelper.combine (project.app.path,  "windows" + (is64 ? "64" : "") + "/" + targetType + "/" + buildType);
-			outputFile = targetDirectory + "/bin/" + project.app.file + ".js";
+			targetDirectory = PathHelper.combine (project.app.path, "windows" + (is64 ? "64" : "") + "/" + targetType + "/" + buildType);
+			outputFile = targetDirectory + "/bin/source/js/" + project.app.file + ".js";
 		}
+		
 		targetDirectory = StringTools.replace (targetDirectory, "arch64", is64 ? "64" : "");
 		
 		applicationDirectory = targetDirectory + "/bin/";
@@ -100,7 +101,7 @@ class WindowsPlatform extends PlatformTarget {
 		if (project.targetFlags.exists ("uwp")) {
 			
 			ModuleHelper.buildModules (project, targetDirectory + "/obj", targetDirectory + "/bin");
-		
+			
 			if (project.app.main != null) {
 				
 				ProcessHelper.runCommand ("", "haxe", [ hxml ] );
@@ -341,7 +342,11 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 		
-		if (targetType == "nodejs") {
+		if (project.targetFlags.exists ("uwp")) {
+			
+			HTML5Helper.launch (project, targetDirectory + "/bin");
+			
+		} else if (targetType == "nodejs") {
 			
 			NodeJSHelper.run (project, targetDirectory + "/bin/ApplicationMain.js", arguments);
 		
@@ -537,13 +542,13 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 		
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "html5/template", destination, context);
+		FileHelper.recursiveCopyTemplate (project.templatePaths, "windows/template", destination, context);
 		
 		if (project.app.main != null) {
 			
 			FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", targetDirectory + "/haxe", context);
-			FileHelper.recursiveCopyTemplate (project.templatePaths, "html5/haxe", targetDirectory + "/haxe", context, true, false);
-			FileHelper.recursiveCopyTemplate (project.templatePaths, "html5/hxml", targetDirectory + "/haxe", context);
+			FileHelper.recursiveCopyTemplate (project.templatePaths, "windows/haxe", targetDirectory + "/haxe", context, true, false);
+			FileHelper.recursiveCopyTemplate (project.templatePaths, "windows/hxml", targetDirectory + "/haxe", context);
 			
 			if (project.targetFlags.exists ("webgl")) {
 				
