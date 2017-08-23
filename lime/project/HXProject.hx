@@ -133,6 +133,7 @@ class HXProject {
 		defaultWindow = { width: 800, height: 600, parameters: "{}", background: 0xFFFFFF, fps: 30, hardware: true, display: 0, resizable: true, borderless: false, orientation: Orientation.AUTO, vsync: false, fullscreen: false, allowHighDPI: true, alwaysOnTop: false, antialiasing: 0, allowShaders: true, requireShaders: false, depthBuffer: false, stencilBuffer: false, colorDepth: 16 }
 
 		Sys.println('targetFlags: ' + targetFlags);
+		Sys.println('config: ' + config);
 
 		platformType = PlatformType.DESKTOP;
 		architectures = [];

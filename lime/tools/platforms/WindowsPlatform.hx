@@ -55,31 +55,41 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 
+<<<<<<< HEAD
 		Sys.println("project.target: " + project.target);
 		Sys.println("PlatformHelper.hostPlatform: " + PlatformHelper.hostPlatform);
 
 		if (project.targetFlags.exists ("uwp")) {
 
 			targetType = "html5";
+=======
+		if (project.targetFlags.exists ("uwp")) {
+
+			targetType = "js";
+>>>>>>> 533d3647bffe14fdc3879a6f37f83e64c448782d
 
 		} else if (project.targetFlags.exists ("neko") || project.target != PlatformHelper.hostPlatform) {
 			
 			targetType = "neko";
-			
+
 		} else if (project.targetFlags.exists ("nodejs")) {
 			
 			targetType = "nodejs";
-			
+
 		} else if (project.targetFlags.exists ("cs")) {
 			
 			targetType = "cs";
+<<<<<<< HEAD
 			
+=======
+
+>>>>>>> 533d3647bffe14fdc3879a6f37f83e64c448782d
 		} else {
 			
 			targetType = "cpp";
 			
 		}
-		
+
 		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("windows.output-directory", "windows" + (is64 ? "64" : "") + "/" + targetType + "/" + buildType));
 
 
@@ -107,15 +117,24 @@ class WindowsPlatform extends PlatformTarget {
 		// universal windows platform
 		// for now build html5 	
 		if (project.targetFlags.exists ("uwp")) {
+<<<<<<< HEAD
 			//outputFile = targetDirectory + "/bin/" + project.app.file + ".js";
 			Sys.println ("I am building some magic UWP shit!");
 			Sys.println("targetDirectory: " + targetDirectory);
 			Sys.println("project.app.file: " + project.app.file);
+=======
+			Sys.println ("Start UWP Build");
+>>>>>>> 533d3647bffe14fdc3879a6f37f83e64c448782d
 			ModuleHelper.buildModules (project, targetDirectory + "/obj", targetDirectory + "/bin");
 		
 			if (project.app.main != null) {
 				
 
+<<<<<<< HEAD
+=======
+				Sys.println("$$$$$ outputFile: " + outputFile);
+				Sys.println("$$$$$ hxml: " + hxml);
+>>>>>>> 533d3647bffe14fdc3879a6f37f83e64c448782d
 				ProcessHelper.runCommand ("", "haxe", [ hxml ] );
 				
 				if (noOutput) return;
@@ -127,7 +146,7 @@ class WindowsPlatform extends PlatformTarget {
 				}
 				
 				if (project.modules.iterator ().hasNext ()) {
-					
+					Sys.println("$$$$$ patchFile: " + outputFile);
 					ModuleHelper.patchFile (outputFile);
 					
 				}
@@ -139,7 +158,7 @@ class WindowsPlatform extends PlatformTarget {
 				}
 				
 			}
-			return;
+			//return;
 		} else {
 			Sys.println ("I am NOT building some magic UWP shit! " + targetType);
 		}
@@ -174,139 +193,106 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 		
-		//IconHelper.createIcon (project.icons, 32, 32, PathHelper.combine (applicationDirectory, "icon.png"));
-		
-		if (targetType == "neko") {
-			
-			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
-			
-			if (noOutput) return;
-			
-			var iconPath = PathHelper.combine (applicationDirectory, "icon.ico");
-			
-			if (!IconHelper.createWindowsIcon (icons, iconPath)) {
-				
-				iconPath = null;
-				
-			}
-			
-			NekoHelper.createWindowsExecutable (project.templatePaths, targetDirectory + "/obj/ApplicationMain.n", executablePath, iconPath);
-			NekoHelper.copyLibraries (project.templatePaths, "windows" + (is64 ? "64" : ""), applicationDirectory);
-			
-		} else if (targetType == "nodejs") {
-			
-			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
-			
-			if (noOutput) return;
-			
-			//NekoHelper.createExecutable (project.templatePaths, "windows" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
-			NekoHelper.copyLibraries (project.templatePaths, "windows" + (is64 ? "64" : ""), applicationDirectory);
-			
-		} else if (targetType == "cs") {
-			
-			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
-			
-			if (noOutput) return;
-			
-			CSHelper.copySourceFiles (project.templatePaths, targetDirectory + "/obj/src");
-			var txtPath = targetDirectory + "/obj/hxcs_build.txt";
-			CSHelper.addSourceFiles (txtPath, CSHelper.ndllSourceFiles);
-			CSHelper.addGUID (txtPath, GUID.uuid ());
-			CSHelper.compile (project, targetDirectory + "/obj", applicationDirectory + project.app.file, "x86", "desktop");
-		} else if(project.targetFlags.exists ("uwp")) {
-
-			ModuleHelper.buildModules (project, targetDirectory + "/obj", targetDirectory + "/bin");
-		
-			if (project.app.main != null) {
-				
-				var outputFile = targetDirectory + "/bin/" + project.app.file + ".js";
-				var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
-				ProcessHelper.runCommand ("", "haxe", [ hxml ] );
-				
-				if (noOutput) return;
-				
-				if (project.targetFlags.exists ("webgl")) {
-					
-					FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain.js", outputFile);
-					
-				}
-				
-				if (project.modules.iterator ().hasNext ()) {
-					
-					ModuleHelper.patchFile (outputFile);
-					
-				}
-				
-				if (project.targetFlags.exists ("minify") || buildType == "final") {
-					
-					HTML5Helper.minify (project, targetDirectory + "/bin/" + project.app.file + ".js");
-					
-				}
-				
-			}
-
-		} else {
-			
-			var haxeArgs = [ hxml ];
-			var flags = [];
-			
-			if (is64) {
-				
-				haxeArgs.push ("-D");
-				haxeArgs.push ("HXCPP_M64");
-				flags.push ("-DHXCPP_M64");
-				
-			} else {
-				
-				flags.push ("-DHXCPP_M32");
-				
-			}
-			
-			if (!project.environment.exists ("SHOW_CONSOLE")) {
-				
-				haxeArgs.push ("-D");
-				haxeArgs.push ("no_console");
-				flags.push ("-Dno_console");
-				
-			}
-			
-			if (!project.targetFlags.exists ("static")) {
-				
-				ProcessHelper.runCommand ("", "haxe", haxeArgs);
-				
-				if (noOutput) return;
-				
-				CPPHelper.compile (project, targetDirectory + "/obj", flags);
-				
-				FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", executablePath);
-				
-			} else {
-				
-				ProcessHelper.runCommand ("", "haxe", haxeArgs.concat ([ "-D", "static_link" ]));
-				
-				if (noOutput) return;
-				
-				CPPHelper.compile (project, targetDirectory + "/obj", flags.concat ([ "-Dstatic_link" ]));
-				CPPHelper.compile (project, targetDirectory + "/obj", flags, "BuildMain.xml");
-				
-				FileHelper.copyFile (targetDirectory + "/obj/Main" + (project.debug ? "-debug" : "") + ".exe", executablePath);
-				
-			}
-			
-			var iconPath = PathHelper.combine (applicationDirectory, "icon.ico");
-			
-			if (IconHelper.createWindowsIcon (icons, iconPath) && PlatformHelper.hostPlatform == Platform.WINDOWS) {
-				
-				var templates = [ PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates" ].concat (project.templatePaths);
-				ProcessHelper.runCommand ("", PathHelper.findTemplate (templates, "bin/ReplaceVistaIcon.exe"), [ executablePath, iconPath, "1" ], true, true);
-				
-			}
-			
-		}
+//		//IconHelper.createIcon (project.icons, 32, 32, PathHelper.combine (applicationDirectory, "icon.png"));
+//
+//		if (targetType == "neko") {
+//
+//			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+//
+//			if (noOutput) return;
+//
+//			var iconPath = PathHelper.combine (applicationDirectory, "icon.ico");
+//
+//			if (!IconHelper.createWindowsIcon (icons, iconPath)) {
+//
+//				iconPath = null;
+//
+//			}
+//
+//			NekoHelper.createWindowsExecutable (project.templatePaths, targetDirectory + "/obj/ApplicationMain.n", executablePath, iconPath);
+//			NekoHelper.copyLibraries (project.templatePaths, "windows" + (is64 ? "64" : ""), applicationDirectory);
+//
+//		} else if (targetType == "nodejs") {
+//
+//			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+//
+//			if (noOutput) return;
+//
+//			//NekoHelper.createExecutable (project.templatePaths, "windows" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
+//			NekoHelper.copyLibraries (project.templatePaths, "windows" + (is64 ? "64" : ""), applicationDirectory);
+//
+//		} else if (targetType == "cs") {
+//
+//			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+//
+//			if (noOutput) return;
+//
+//			CSHelper.copySourceFiles (project.templatePaths, targetDirectory + "/obj/src");
+//			var txtPath = targetDirectory + "/obj/hxcs_build.txt";
+//			CSHelper.addSourceFiles (txtPath, CSHelper.ndllSourceFiles);
+//			CSHelper.addGUID (txtPath, GUID.uuid ());
+//			CSHelper.compile (project, targetDirectory + "/obj", applicationDirectory + project.app.file, "x86", "desktop");
+//		} else {
+//
+//			var haxeArgs = [ hxml ];
+//			var flags = [];
+//
+//			if (is64) {
+//
+//				haxeArgs.push ("-D");
+//				haxeArgs.push ("HXCPP_M64");
+//				flags.push ("-DHXCPP_M64");
+//
+//			} else {
+//
+//				flags.push ("-DHXCPP_M32");
+//
+//			}
+//
+//			if (!project.environment.exists ("SHOW_CONSOLE")) {
+//
+//				haxeArgs.push ("-D");
+//				haxeArgs.push ("no_console");
+//				flags.push ("-Dno_console");
+//
+//			}
+//
+//			if (!project.targetFlags.exists ("static")) {
+//
+//				ProcessHelper.runCommand ("", "haxe", haxeArgs);
+//
+//				if (noOutput) return;
+//
+//				CPPHelper.compile (project, targetDirectory + "/obj", flags);
+//
+//				FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", executablePath);
+//
+//			} else {
+//
+//				ProcessHelper.runCommand ("", "haxe", haxeArgs.concat ([ "-D", "static_link" ]));
+//
+//				if (noOutput) return;
+//
+//				CPPHelper.compile (project, targetDirectory + "/obj", flags.concat ([ "-Dstatic_link" ]));
+//				CPPHelper.compile (project, targetDirectory + "/obj", flags, "BuildMain.xml");
+//
+//				FileHelper.copyFile (targetDirectory + "/obj/Main" + (project.debug ? "-debug" : "") + ".exe", executablePath);
+//
+//			}
+//
+//			var iconPath = PathHelper.combine (applicationDirectory, "icon.ico");
+//
+//			if (IconHelper.createWindowsIcon (icons, iconPath) && PlatformHelper.hostPlatform == Platform.WINDOWS) {
+//
+//				var templates = [ PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates" ].concat (project.templatePaths);
+//				ProcessHelper.runCommand ("", PathHelper.findTemplate (templates, "bin/ReplaceVistaIcon.exe"), [ executablePath, iconPath, "1" ], true, true);
+//
+//			}
+//
+//		}
 		
 	}
-	
-	
+
 	public override function clean ():Void {
 		
 		if (FileSystem.exists (targetDirectory)) {
@@ -388,6 +374,7 @@ class WindowsPlatform extends PlatformTarget {
 			arguments.push ("-verbose");
 			
 		}
+<<<<<<< HEAD
 
 		if (project.targetFlags.exists ("uwp")) {
 
@@ -395,10 +382,14 @@ class WindowsPlatform extends PlatformTarget {
 
 		} else if (targetType == "nodejs") {
 			
+=======
+		
+		if (targetType == "nodejs") {
+>>>>>>> 533d3647bffe14fdc3879a6f37f83e64c448782d
 			NodeJSHelper.run (project, targetDirectory + "/bin/ApplicationMain.js", arguments);
-			
+		} else if (project.targetFlags.exists ("uwp")) {
+			HTML5Helper.launch (project, targetDirectory + "/bin");
 		} else if (project.target == PlatformHelper.hostPlatform) {
-			
 			arguments = arguments.concat ([ "-livereload" ]);
 			ProcessHelper.runCommand (applicationDirectory, Path.withoutDirectory (executablePath), arguments);
 			
@@ -406,7 +397,7 @@ class WindowsPlatform extends PlatformTarget {
 		
 	}
 
-	public override function update ():Void {
+	public function updateUwp ():Void {
 		
 		project = project.clone ();
 		
@@ -614,10 +605,13 @@ class WindowsPlatform extends PlatformTarget {
 		}
 		
 	}
-	/*
-	
-	
+
 	public override function update ():Void {
+
+		if(project.targetFlags.exists("uwp")) {
+			updateUwp();
+			return;
+		}
 		
 		project = project.clone ();
 		
@@ -683,12 +677,12 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 		
-		*//*if (IconHelper.createIcon (project.icons, 32, 32, PathHelper.combine (applicationDirectory, "icon.png"))) {
+		/*if (IconHelper.createIcon (project.icons, 32, 32, PathHelper.combine (applicationDirectory, "icon.png"))) {
 			
 			context.HAS_ICON = true;
 			context.WIN_ICON = "icon.png";
 			
-		}*//*
+		}*/
 		
 		for (asset in project.assets) {
 			
@@ -712,7 +706,7 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 		
-	}*/
+	}
 	
 	
 	@ignore public override function install ():Void {}
