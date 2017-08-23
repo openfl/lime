@@ -54,8 +54,15 @@ class WindowsPlatform extends PlatformTarget {
 			}
 			
 		}
-		
-		if (project.targetFlags.exists ("neko") || project.target != PlatformHelper.hostPlatform) {
+
+		Sys.println("project.target: " + project.target);
+		Sys.println("PlatformHelper.hostPlatform: " + PlatformHelper.hostPlatform);
+
+		if (project.targetFlags.exists ("uwp")) {
+
+			targetType = "html5";
+
+		} else if (project.targetFlags.exists ("neko") || project.target != PlatformHelper.hostPlatform) {
 			
 			targetType = "neko";
 			
@@ -67,11 +74,6 @@ class WindowsPlatform extends PlatformTarget {
 			
 			targetType = "cs";
 			
-		} else if (project.targetFlags.exists ("uwp")) {
-
-			targetType = "windows"; 	
-			outputFile = targetDirectory + "/bin/" + project.app.file + ".js";
-
 		} else {
 			
 			targetType = "cpp";
@@ -79,9 +81,15 @@ class WindowsPlatform extends PlatformTarget {
 		}
 		
 		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("windows.output-directory", "windows" + (is64 ? "64" : "") + "/" + targetType + "/" + buildType));
+
+
+		if (project.targetFlags.exists ("uwp")) {
+			targetDirectory = PathHelper.combine (project.app.path, "windows" + (is64 ? "64" : "") + "/" + targetType + "/" + buildType);
+			outputFile = targetDirectory + "/bin/source/js/" + project.app.file + ".js";
+
+		}
+
 		targetDirectory = StringTools.replace (targetDirectory, "arch64", is64 ? "64" : "");
-
-
 
 		applicationDirectory = targetDirectory + "/bin/";
 		executablePath = applicationDirectory + project.app.file + ".exe";
@@ -99,6 +107,7 @@ class WindowsPlatform extends PlatformTarget {
 		// universal windows platform
 		// for now build html5 	
 		if (project.targetFlags.exists ("uwp")) {
+			//outputFile = targetDirectory + "/bin/" + project.app.file + ".js";
 			Sys.println ("I am building some magic UWP shit!");
 			Sys.println("targetDirectory: " + targetDirectory);
 			Sys.println("project.app.file: " + project.app.file);
@@ -106,7 +115,7 @@ class WindowsPlatform extends PlatformTarget {
 		
 			if (project.app.main != null) {
 				
-				var outputFile = targetDirectory + "/bin/" + project.app.file + ".js";
+
 				ProcessHelper.runCommand ("", "haxe", [ hxml ] );
 				
 				if (noOutput) return;
@@ -379,8 +388,12 @@ class WindowsPlatform extends PlatformTarget {
 			arguments.push ("-verbose");
 			
 		}
-		
-		if (targetType == "nodejs") {
+
+		if (project.targetFlags.exists ("uwp")) {
+
+			HTML5Helper.launch (project, targetDirectory + "/bin");
+
+		} else if (targetType == "nodejs") {
 			
 			NodeJSHelper.run (project, targetDirectory + "/bin/ApplicationMain.js", arguments);
 			
@@ -571,13 +584,13 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 		
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "html5/template", destination, context);
+		FileHelper.recursiveCopyTemplate (project.templatePaths, "windows/template", destination, context);
 		
 		if (project.app.main != null) {
 			
 			FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", targetDirectory + "/haxe", context);
-			FileHelper.recursiveCopyTemplate (project.templatePaths, "html5/haxe", targetDirectory + "/haxe", context, true, false);
-			FileHelper.recursiveCopyTemplate (project.templatePaths, "html5/hxml", targetDirectory + "/haxe", context);
+			FileHelper.recursiveCopyTemplate (project.templatePaths, "windows/haxe", targetDirectory + "/haxe", context, true, false);
+			FileHelper.recursiveCopyTemplate (project.templatePaths, "windows/hxml", targetDirectory + "/haxe", context);
 			
 			if (project.targetFlags.exists ("webgl")) {
 				
