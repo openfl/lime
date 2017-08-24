@@ -1,6 +1,8 @@
 package lime.tools.platforms;
 
 
+import lime.project.Platform;
+import lime.project.PlatformType;
 import lime.tools.helpers.AIRHelper;
 import lime.tools.helpers.DeploymentHelper;
 import lime.tools.helpers.FileHelper;
@@ -16,11 +18,17 @@ import sys.FileSystem;
 class AIRPlatform extends FlashPlatform {
 	
 	
+	private var targetPlatform:Platform;
+	private var targetPlatformType:PlatformType;
+	
+	
 	public function new (command:String, _project:HXProject, targetFlags:Map<String, String>) {
 		
 		super (command, _project, targetFlags);
 		
 		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("air.output-directory", "air/" + buildType));
+		targetPlatform = PlatformHelper.hostPlatform;
+		targetPlatformType = DESKTOP;
 		
 	}
 	
@@ -35,18 +43,22 @@ class AIRPlatform extends FlashPlatform {
 			
 		}
 		
-		var files = [ project.app.file + ".swf" ];
-		for (asset in project.assets) {
+		if (targetPlatformType != DESKTOP || project.targetFlags.exists ("final")) {
 			
-			if (asset.embed == false && asset.type != TEMPLATE) {
+			var files = [ project.app.file + ".swf" ];
+			for (asset in project.assets) {
 				
-				files.push (asset.targetPath);
+				if (asset.embed == false && asset.type != TEMPLATE) {
+					
+					files.push (asset.targetPath);
+					
+				}
 				
 			}
 			
+			AIRHelper.build (project, targetPlatform, targetDirectory + "/bin", project.app.file + ".air", "application.xml", files);
+			
 		}
-		
-		AIRHelper.build (project, PlatformHelper.hostPlatform, targetDirectory + "/bin", project.app.file + ".air", "application.xml", files);
 		
 	}
 	
@@ -71,7 +83,7 @@ class AIRPlatform extends FlashPlatform {
 	
 	public override function run ():Void {
 		
-		AIRHelper.run (project, PlatformHelper.hostPlatform, targetDirectory + "/bin");
+		AIRHelper.run (project, targetPlatform, targetDirectory + "/bin");
 		
 	}
 	
@@ -82,7 +94,7 @@ class AIRPlatform extends FlashPlatform {
 		
 		var context = project.templateContext;
 		
-		//FileHelper.recursiveCopyTemplate (project.templatePaths, "air/hxml", targetDirectory + "/haxe", context);
+		FileHelper.recursiveCopyTemplate (project.templatePaths, "air/hxml", targetDirectory + "/haxe", context, true, false);
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "air/template", targetDirectory + "/bin", context);
 		
 		//var sizes = [ 32, 48, 60, 64, 128, 512 ];
