@@ -7,7 +7,7 @@ package flash.ui;
 	var customItems : Array<Dynamic>;
 	@:require(flash10) var link : flash.net.URLRequest;
 	function new() : Void;
-	function clone() : ContextMenu;
+	//function clone() : ContextMenu;
 	function hideBuiltInItems() : Void;
 	@:require(flash10_1) static var isSupported(default,never) : Bool;
 	//override function clone() : flash.display.NativeMenu;
