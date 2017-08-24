@@ -37,7 +37,7 @@ class FlashPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
-		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("flash.output-directory", "flash/" + buildType));
+		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("flash.output-directory", "flash"));
 		
 	}
 	

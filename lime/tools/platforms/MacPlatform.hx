@@ -75,7 +75,7 @@ class MacPlatform extends PlatformTarget {
 			
 		}
 		
-		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("mac.output-directory", "mac" + (is64 ? "64" : "") + "/" + targetType + "/" + buildType));
+		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("mac.output-directory", targetType == "cpp" ? "macos" : targetType));
 		targetDirectory = StringTools.replace (targetDirectory, "arch64", is64 ? "64" : "");
 		applicationDirectory = targetDirectory + "/bin/" + project.app.file + ".app";
 		contentDirectory = applicationDirectory + "/Contents/Resources";

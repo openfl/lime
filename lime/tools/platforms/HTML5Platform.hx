@@ -116,7 +116,7 @@ class HTML5Platform extends PlatformTarget {
 	
 	private function initialize (command:String, project:HXProject):Void {
 		
-		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("html5.output-directory", "html5/" + buildType));
+		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("html5.output-directory", "html5"));
 		outputFile = targetDirectory + "/bin/" + project.app.file + ".js";
 		
 	}

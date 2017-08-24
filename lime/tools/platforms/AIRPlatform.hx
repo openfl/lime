@@ -26,7 +26,7 @@ class AIRPlatform extends FlashPlatform {
 		
 		super (command, _project, targetFlags);
 		
-		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("air.output-directory", "air/" + buildType));
+		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("air.output-directory", "air"));
 		targetPlatform = PlatformHelper.hostPlatform;
 		targetPlatformType = DESKTOP;
 		

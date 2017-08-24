@@ -38,7 +38,7 @@ class IOSPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
-		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("ios.output-directory", "ios/" + buildType));
+		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("ios.output-directory", "ios"));
 		
 	}
 	

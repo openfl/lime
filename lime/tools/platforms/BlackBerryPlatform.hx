@@ -34,12 +34,12 @@ class BlackBerryPlatform extends PlatformTarget {
 		
 		if (!project.targetFlags.exists ("html5")) {
 			
-			targetDirectory = project.app.path + "/blackberry/cpp/" + buildType;
+			targetDirectory = project.app.path + "/blackberry";
 			outputFile = targetDirectory + "/bin/" + PathHelper.safeFileName (project.app.file);
 			
 		} else {
 			
-			targetDirectory = project.app.path + "/blackberry/html5/" + buildType;
+			targetDirectory = project.app.path + "/blackberry";
 			outputFile = targetDirectory + "/src/" + project.app.file + ".js";
 			
 		}

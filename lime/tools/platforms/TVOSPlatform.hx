@@ -38,7 +38,7 @@ class TVOSPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
-		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("tvos.output-directory", "tvos/" + buildType));
+		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("tvos.output-directory", "tvos"));
 		
 	}
 	
