@@ -142,6 +142,11 @@ class HXProject {
 		
 		switch (target) {
 			
+			case AIR:
+				
+				platformType = PlatformType.DESKTOP;
+				architectures = [];
+			
 			case FLASH:
 				
 				platformType = PlatformType.WEB;

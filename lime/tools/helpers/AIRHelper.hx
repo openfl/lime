@@ -1,48 +1,24 @@
 package lime.tools.helpers;
 
 
+import lime.project.HXProject;
+import lime.project.Platform;
 import sys.FileSystem;
 
 
 class AIRHelper {
 	
 	
-	/*private static var defines:Map<String, String>;
-	private static var target:String;
-	private static var targetFlags:Map<String, String>;
-	
-	
-	public static function initialize (defines:Map<String, String>, targetFlags:Map<String, String>, target:String, NME:String):Void {
-		
-		AIRHelper.defines = defines;
-		AIRHelper.targetFlags = targetFlags;
-		AIRHelper.target = target;
-		
-		switch (target) {
-			
-			case "ios":
-				
-				IOSHelper.initialize (defines, targetFlags, NME);
-			
-			case "android":
-				
-				AndroidHelper.initialize (defines);
-			
-		}
-		
-	}
-	
-	
-	public static function build (workingDirectory:String, targetPath:String, applicationXML:String, files:Array<String>, debug:Bool):Void {
+	public static function build (project:HXProject, targetPlatform:Platform, workingDirectory:String, targetPath:String, applicationXML:String, files:Array<String>):Void {
 		
 		var airTarget = "air";
 		var extension = ".air";
 		
-		if (target == "ios") {
+		if (targetPlatform == IOS) {
 			
-			if (targetFlags.exists ("simulator")) {
+			if (project.targetFlags.exists ("simulator")) {
 				
-				if (debug) {
+				if (project.debug) {
 					
 					airTarget = "ipa-debug-interpreter-simulator";
 					
@@ -54,7 +30,7 @@ class AIRHelper {
 				
 			} else {
 				
-				if (debug) {
+				if (project.debug) {
 					
 					airTarget = "ipa-debug";
 					
@@ -68,9 +44,9 @@ class AIRHelper {
 			
 			extension = ".ipa";
 			
-		} else if (target == "android") {
+		} else if (targetPlatform == ANDROID) {
 			
-			if (debug) {
+			if (project.debug) {
 				
 				airTarget = "apk-debug";
 				
@@ -84,26 +60,53 @@ class AIRHelper {
 			
 		}
 		
-		var signingOptions = [ "-storetype", defines.get ("KEY_STORE_TYPE"), "-keystore", defines.get ("KEY_STORE") ];
+		var signingOptions = [];
 		
-		if (defines.exists ("KEY_STORE_ALIAS")) {
+		if (project.defines.exists ("KEY_STORE")) {
 			
-			signingOptions.push ("-alias");
-			signingOptions.push (defines.get ("KEY_STORE_ALIAS"));
+			var keystore = project.defines.get ("KEY_STORE");
+			var keystoreType = "pkcs12";
 			
-		}
-		
-		if (defines.exists ("KEY_STORE_PASSWORD")) {
+			if (project.defines.exists ("KEY_STORE_TYPE")) {
+				
+				keystoreType = project.defines.get ("KEY_STORE_TYPE");
+				
+			}
 			
+			signingOptions.push ("-storetype");
+			signingOptions.push (keystoreType);
+			signingOptions.push ("-keystore");
+			signingOptions.push (keystore);
+			
+			if (project.defines.exists ("KEY_STORE_ALIAS")) {
+				
+				signingOptions.push ("-alias");
+				signingOptions.push (project.defines.get ("KEY_STORE_ALIAS"));
+				
+			}
+			
+			if (project.defines.exists ("KEY_STORE_PASSWORD")) {
+				
+				signingOptions.push ("-storepass");
+				signingOptions.push (project.defines.get ("KEY_STORE_PASSWORD"));
+				
+			}
+			
+			if (project.defines.exists ("KEY_STORE_ALIAS_PASSWORD")) {
+				
+				signingOptions.push ("-keypass");
+				signingOptions.push (project.defines.get ("KEY_STORE_ALIAS_PASSWORD"));
+				
+			}
+			
+		} else {
+			
+			signingOptions.push ("-storetype");
+			signingOptions.push ("pkcs12");
+			signingOptions.push ("-keystore");
+			signingOptions.push (PathHelper.findTemplate (project.templatePaths, "air/debug.pfx"));
 			signingOptions.push ("-storepass");
-			signingOptions.push (defines.get ("KEY_STORE_PASSWORD"));
-			
-		}
-		
-		if (defines.exists ("KEY_STORE_ALIAS_PASSWORD")) {
-			
-			signingOptions.push ("-keypass");
-			signingOptions.push (defines.get ("KEY_STORE_ALIAS_PASSWORD"));
+			signingOptions.push ("samplePassword");
 			
 		}
 		
@@ -123,7 +126,7 @@ class AIRHelper {
 			
 		}
 		
-		if (target == "ios") {
+		if (targetPlatform == IOS) {
 			
 			args.push ("-provisioning-profile");
 			args.push (IOSHelper.getProvisioningFile ());
@@ -132,57 +135,56 @@ class AIRHelper {
 		
 		args = args.concat ([ targetPath, applicationXML ]);
 		
-		
-		if (target == "ios") {
+		if (targetPlatform == IOS) {
 			
 			args.push ("-platformsdk");
-			args.push (IOSHelper.getSDKDirectory ());
+			args.push (IOSHelper.getSDKDirectory (project));
 			
 		}
 		
 		args = args.concat (files);
 		
-		ProcessHelper.runCommand (workingDirectory, defines.get ("AIR_SDK") + "/bin/adt", args);
+		ProcessHelper.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adt", args);
 		
 	}
 	
 	
-	public static function run (workingDirectory:String, debug:Bool):Void {
+	public static function run (project:HXProject, targetPlatform:Platform, workingDirectory:String):Void {
 		
-		if (target == "android") {
+		if (targetPlatform == ANDROID) {
 			
-			AndroidHelper.install (FileSystem.fullPath (workingDirectory) + "/" + defines.get ("APP_FILE") + ".apk");
-			AndroidHelper.run ("air." + defines.get ("APP_PACKAGE") + "/.AppEntry");
+			AndroidHelper.install (project, FileSystem.fullPath (workingDirectory) + "/" + project.app.file + ".apk");
+			AndroidHelper.run ("air." + project.meta.packageName + "/.AppEntry");
 			
-		} else if (target == "ios") {
+		} else if (targetPlatform == IOS) {
 			
 			var args = [ "-platform", "ios" ];
 			
-			if (targetFlags.exists ("simulator")) {
+			if (project.targetFlags.exists ("simulator")) {
 				
 				args.push ("-device");
 				args.push ("ios-simulator");
 				args.push ("-platformsdk");
-				args.push (IOSHelper.getSDKDirectory ());
+				args.push (IOSHelper.getSDKDirectory (project));
 				
 				ProcessHelper.runCommand ("", "killall", [ "iPhone Simulator" ], true, true);
 				
 			}
 			
-			ProcessHelper.runCommand (workingDirectory, defines.get ("AIR_SDK") + "/bin/adt", [ "-uninstallApp" ].concat (args).concat ([ "-appid", defines.get ("APP_PACKAGE") ]));
-			ProcessHelper.runCommand (workingDirectory, defines.get ("AIR_SDK") + "/bin/adt", [ "-installApp" ].concat (args).concat ([ "-package", FileSystem.fullPath (workingDirectory) + "/" + defines.get ("APP_FILE") + ".ipa" ]));
+			ProcessHelper.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adt", [ "-uninstallApp" ].concat (args).concat ([ "-appid", project.meta.packageName ]));
+			ProcessHelper.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adt", [ "-installApp" ].concat (args).concat ([ "-package", FileSystem.fullPath (workingDirectory) + "/" + project.app.file + ".ipa" ]));
 			
-			if (targetFlags.exists ("simulator")) {
+			if (project.targetFlags.exists ("simulator")) {
 				
 				ProcessHelper.runCommand ("", "open", [ "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone Simulator.app/" ]);
 				
 			}
-				
+			
 		} else {
 			
 			var args = [ "-profile", "desktop" ];
 			
-			if (!debug) {
+			if (!project.debug) {
 				
 				args.push ("-nodebug");
 				
@@ -190,11 +192,11 @@ class AIRHelper {
 			
 			args.push ("application.xml");
 			
-			ProcessHelper.runCommand (workingDirectory, defines.get ("AIR_SDK") + "/bin/adl", args);
+			ProcessHelper.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adl", args);
 			
 		}
 		
-	}*/
+	}
 	
 	
 }

@@ -717,6 +717,10 @@ class CommandLineTools {
 					
 					platform = new TVOSPlatform (command, project, targetFlags);
 				
+				case AIR:
+					
+					platform = new AIRPlatform (command, project, targetFlags);
+				
 				default:
 				
 			}

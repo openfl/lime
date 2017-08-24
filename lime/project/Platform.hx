@@ -3,6 +3,7 @@ package lime.project;
 
 @:enum abstract Platform(String) {
 	
+	var AIR = "air";
 	var ANDROID = "android";
 	var BLACKBERRY = "blackberry";
 	var CONSOLE_PC = "console-pc";

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<application xmlns="http://ns.adobe.com/air/application/3.3">
+<application xmlns="http://ns.adobe.com/air/application/25.0">
     <id>::APP_PACKAGE::</id>
     <versionNumber>::APP_VERSION::</versionNumber>
     <filename>::APP_FILE::</filename>

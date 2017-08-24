@@ -17,6 +17,7 @@
 	<haxedef name="no-compilation" />
 	
 	<templatePath name="templates" />
+	<source path="externs/air" if="air" />
 	<sample path="samples" unless="openfl" />
 	
 	<haxelib name="nodejs" if="nodejs" />
