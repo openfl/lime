@@ -1136,7 +1136,7 @@ class HXProject {
 				
 				if (asset.embed == null) {
 					
-					embeddedAsset.embed = (platformType == PlatformType.WEB);
+					embeddedAsset.embed = (platformType == PlatformType.WEB || target == AIR);
 					
 				}
 				
