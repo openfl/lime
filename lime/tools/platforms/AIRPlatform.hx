@@ -22,6 +22,7 @@ import sys.FileSystem;
 class AIRPlatform extends FlashPlatform {
 	
 	
+	private var iconData:Array<Dynamic>;
 	private var targetPlatform:Platform;
 	private var targetPlatformType:PlatformType;
 	
@@ -47,7 +48,9 @@ class AIRPlatform extends FlashPlatform {
 			
 		}
 		
-		if (targetPlatformType != DESKTOP || project.targetFlags.exists ("final")) {
+		// TODO: Should we package on desktop in "deploy" command instead?
+		
+		if (targetPlatformType != DESKTOP) {
 			
 			var files = [ project.app.file + ".swf" ];
 			for (asset in project.assets) {
@@ -60,7 +63,13 @@ class AIRPlatform extends FlashPlatform {
 				
 			}
 			
-			AIRHelper.build (project, targetPlatform, targetDirectory + "/bin", project.app.file + ".air", "application.xml", files);
+			for (icon in iconData) {
+				
+				files.push (icon.path);
+				
+			}
+			
+			AIRHelper.build (project, targetDirectory, targetPlatform, "bin/" + project.app.file + ".air", "application.xml", files, "bin");
 			
 		}
 		
@@ -80,14 +89,34 @@ class AIRPlatform extends FlashPlatform {
 	
 	public override function deploy ():Void {
 		
-		DeploymentHelper.deploy (project, targetFlags, targetDirectory, "AIR");
+		if (targetFlags.exists ("gdrive") || targetFlags.exists ("zip")) {
+			
+			DeploymentHelper.deploy (project, targetFlags, targetDirectory, "AIR");
+			
+		} else {
+			
+			var name = project.meta.title + " (" + project.meta.version + " build " + project.meta.buildNumber + ").air";
+			
+			var rootDirectory = targetDirectory + "/bin";
+			var paths = PathHelper.readDirectory (rootDirectory);
+			var files = [];
+			
+			for (path in paths) {
+				
+				files.push (path.substr (rootDirectory.length + 1));
+				
+			}
+			
+			AIRHelper.build (project, targetDirectory, targetPlatform, name, "application.xml", files, "bin");
+			
+		}
 		
 	}
 	
 	
 	public override function run ():Void {
 		
-		AIRHelper.run (project, targetPlatform, targetDirectory + "/bin");
+		AIRHelper.run (project, targetDirectory, targetPlatform, "application.xml", "bin");
 		
 	}
 	
@@ -104,9 +133,31 @@ class AIRPlatform extends FlashPlatform {
 		var context = generateContext ();
 		context.OUTPUT_DIR = targetDirectory;
 		
+		var iconSizes = [ 16, 32, 48, 128 ];
+		var icons = project.icons;
+		iconData = [];
+		
+		if (icons.length == 0) {
+			
+			icons = [ new Icon (PathHelper.findTemplate (project.templatePaths, "default/icon.svg")) ];
+			
+		}
+		
+		for (size in iconSizes) {
+			
+			if (IconHelper.createIcon (icons, size, size, targetDirectory + "/bin/_res/icon-" + size + ".png")) {
+				
+				iconData.push ({ size: size, path: "_res/icon-" + size + ".png" });
+				
+			}
+			
+		}
+		
+		if (iconData.length > 0) context.icons = iconData;
+		
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", targetDirectory + "/haxe", context);
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "air/hxml", targetDirectory + "/haxe", context);
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "air/template", targetDirectory + "/bin", context);
+		FileHelper.recursiveCopyTemplate (project.templatePaths, "air/template", targetDirectory, context);
 		
 		if (embedded) {
 			
@@ -154,21 +205,6 @@ class AIRPlatform extends FlashPlatform {
 			}
 			
 		}
-		
-		//var sizes = [ 32, 48, 60, 64, 128, 512 ];
-		//var icons = project.icons;
-		//
-		//if (icons.length == 0) {
-			//
-			//icons = [ new Icon (PathHelper.findTemplate (project.templatePaths, "default/icon.svg")) ];
-			//
-		//}
-		//
-		//for (size in sizes) {
-			//
-			//IconHelper.createIcon (icons, size, size, PathHelper.combine (destination, "icon-" + size + ".png"));
-			//
-		//}
 		
 	}
 	

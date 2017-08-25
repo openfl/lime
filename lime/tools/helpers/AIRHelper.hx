@@ -9,7 +9,7 @@ import sys.FileSystem;
 class AIRHelper {
 	
 	
-	public static function build (project:HXProject, targetPlatform:Platform, workingDirectory:String, targetPath:String, applicationXML:String, files:Array<String>):Void {
+	public static function build (project:HXProject, workingDirectory:String, targetPlatform:Platform, targetPath:String, applicationXML:String, files:Array<String>, fileDirectory:String = null):Void {
 		
 		var airTarget = "air";
 		var extension = ".air";
@@ -142,6 +142,13 @@ class AIRHelper {
 			
 		}
 		
+		if (fileDirectory != null && fileDirectory != "") {
+			
+			args.push ("-C");
+			args.push (fileDirectory);
+			
+		}
+		
 		args = args.concat (files);
 		
 		ProcessHelper.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adt", args);
@@ -149,7 +156,7 @@ class AIRHelper {
 	}
 	
 	
-	public static function run (project:HXProject, targetPlatform:Platform, workingDirectory:String):Void {
+	public static function run (project:HXProject, workingDirectory:String, targetPlatform:Platform, applicationXML:String, rootDirectory:String = null):Void {
 		
 		if (targetPlatform == ANDROID) {
 			
@@ -190,7 +197,13 @@ class AIRHelper {
 				
 			}
 			
-			args.push ("application.xml");
+			args.push (applicationXML);
+			
+			if (rootDirectory != null && rootDirectory != "") {
+				
+				args.push (rootDirectory);
+				
+			}
 			
 			ProcessHelper.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adl", args);
 			
