@@ -7,5 +7,5 @@ extern class BrowserInvokeEvent extends Event {
 	var sandboxType(default,never) : String;
 	var securityDomain(default,never) : String;
 	function new(type : String, bubbles : Bool, cancelable : Bool, arguments : Array<Dynamic>, sandboxType : String, securityDomain : String, isHTTPS : Bool, isUserEvent : Bool) : Void;
-	static var BROWSER_INVOKE : String;
+	static var BROWSER_INVOKE(default,never) : String;
 }

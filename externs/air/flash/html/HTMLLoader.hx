@@ -14,6 +14,7 @@ extern class HTMLLoader extends flash.display.Sprite {
 	var location(default,never) : String;
 	var manageCookies : Bool;
 	var navigateInSystemBrowser : Bool;
+	var pageApplicationDomain(default,never) : flash.system.ApplicationDomain;
 	var paintsDefaultBackground : Bool;
 	var placeLoadStringContentInApplicationSandbox : Bool;
 	var runtimeApplicationDomain : flash.system.ApplicationDomain;

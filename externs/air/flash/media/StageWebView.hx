@@ -1,9 +1,10 @@
 package flash.media;
 
-extern class StageWebView extends flash.events.EventDispatcher {
+@:final extern class StageWebView extends flash.events.EventDispatcher {
 	var isHistoryBackEnabled(default,never) : Bool;
 	var isHistoryForwardEnabled(default,never) : Bool;
 	var location(default,never) : String;
+	var mediaPlaybackRequiresUserAction : Bool;
 	var stage : flash.display.Stage;
 	var title(default,never) : String;
 	var viewPort : flash.geom.Rectangle;

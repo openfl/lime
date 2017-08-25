@@ -1,7 +1,7 @@
 package flash.html;
 
 extern class HTMLSWFCapability {
-	static var ERROR_INSTALLED_PLAYER_NOT_FOUND:Int = 3221;
-	static var ERROR_INSTALLED_PLAYER_TOO_OLD:Int = 3222;
-	static var STATUS_OK:Int = 0;
+	static var ERROR_INSTALLED_PLAYER_NOT_FOUND(default,never) : Int;
+	static var ERROR_INSTALLED_PLAYER_TOO_OLD(default,never) : Int;
+	static var STATUS_OK(default,never) : Int;
 }

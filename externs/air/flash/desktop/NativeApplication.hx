@@ -8,6 +8,7 @@ extern class NativeApplication extends flash.events.EventDispatcher {
 	var executeInBackground : Bool;
 	var icon(default,never) : InteractiveIcon;
 	var idleThreshold : Int;
+	var isCompiledAOT(default,never) : Bool;
 	var menu : flash.display.NativeMenu;
 	var openedWindows(default,never) : Array<Dynamic>;
 	var publisherID(default,never) : String;

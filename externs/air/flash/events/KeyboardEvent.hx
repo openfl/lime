@@ -5,8 +5,8 @@ extern class KeyboardEvent extends Event {
 	var charCode : UInt;
 	#if air
 	var commandKey : Bool;
-	var controlKey : Bool;
 	#end
+	var controlKey : Bool;
 	var ctrlKey : Bool;
 	var keyCode : UInt;
 	var keyLocation : flash.ui.KeyLocation;

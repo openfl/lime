@@ -5,6 +5,7 @@ extern class HTMLHost {
 	var windowRect : flash.geom.Rectangle;
 	function new(defaultBehaviors : Bool=true) : Void;
 	function createWindow(windowCreateOptions : HTMLWindowCreateOptions) : HTMLLoader;
+	//function setHTMLControl(loader : HTMLLoader) : Void;
 	function updateLocation(locationURL : String) : Void;
 	function updateStatus(status : String) : Void;
 	function updateTitle(title : String) : Void;

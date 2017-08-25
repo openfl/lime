@@ -10,6 +10,7 @@ extern class File extends flash.net.FileReference {
 	var isSymbolicLink(default,never) : Bool;
 	var nativePath : String;
 	var parent(default,never) : File;
+	var preventBackup : Bool;
 	var spaceAvailable(default,never) : Float;
 	var url : String;
 	function new(?path : String) : Void;
@@ -37,9 +38,11 @@ extern class File extends flash.net.FileReference {
 	function resolvePath(path : String) : File;
 	static var applicationDirectory(default,never) : File;
 	static var applicationStorageDirectory(default,never) : File;
+	static var cacheDirectory(default,never) : File;
 	static var desktopDirectory(default,never) : File;
 	static var documentsDirectory(default,never) : File;
 	static var lineEnding(default,never) : String;
+	static var permissionStatus(default,never) : String;
 	static var separator(default,never) : String;
 	static var systemCharset(default,never) : String;
 	static var userDirectory(default,never) : File;

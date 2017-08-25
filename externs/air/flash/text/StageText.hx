@@ -1,8 +1,9 @@
 package flash.text;
 
-extern class StageText extends flash.events.EventDispatcher {
+@:final extern class StageText extends flash.events.EventDispatcher {
 	var autoCapitalize : AutoCapitalize;
 	var autoCorrect : Bool;
+	var clearButtonMode(never,default) : StageTextClearButtonMode;
 	var color : UInt;
 	var displayAsPassword : Bool;
 	var editable : Bool;

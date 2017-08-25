@@ -7,5 +7,5 @@ extern class DatagramSocketDataEvent extends Event {
 	var srcAddress : String;
 	var srcPort : Int;
 	function new(type : String, bubbles : Bool=false, cancelable : Bool=false, srcAddress : String="", srcPort : Int=0, dstAddress : String="", dstPort : Int=0, ?data : flash.utils.ByteArray) : Void;
-	static var DATA : String;
+	static var DATA(default,never) : String;
 }

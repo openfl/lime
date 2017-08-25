@@ -4,8 +4,8 @@ package flash.events;
 	var altKey : Bool;
 	#if air
 	var commandKey : Bool;
-	var controlKey : Bool;
 	#end
+	var controlKey : Bool;
 	var ctrlKey : Bool;
 	var localX : Float;
 	var localY : Float;

@@ -21,7 +21,7 @@ extern class Capabilities {
 	@:require(flash10) static var isEmbeddedInAcrobat(default,never) : Bool;
 	static var language(default,never) : String;
 	#if air
-	static var languages(default,never) : Array<Dynamic>;
+	static var languages(default,never) : Array<String>;
 	#end
 	static var localFileReadDisable(default,never) : Bool;
 	static var manufacturer(default,never) : String;

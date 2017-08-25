@@ -1,11 +1,11 @@
 package flash.events;
 
-extern class TouchEvent extends Event {
+@:require(flash10_1) extern class TouchEvent extends Event {
 	var altKey : Bool;
 	#if air
 	var commandKey : Bool;
-	var controlKey : Bool;
 	#end
+	var controlKey : Bool;
 	var ctrlKey : Bool;
 	var isPrimaryTouchPoint : Bool;
 	var isRelatedObjectInaccessible : Bool;

@@ -6,4 +6,5 @@ extern class AVMPlusDigest {
 	function Init(algorithm : UInt) : Void;
 	function Update(data : flash.utils.IDataInput) : UInt;
 	function UpdateWithString(data : String) : UInt;
+	static var DIGESTMETHOD_SHA256(default,never) : UInt;
 }

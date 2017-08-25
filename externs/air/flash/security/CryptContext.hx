@@ -33,4 +33,15 @@ extern class CryptContext extends flash.events.EventDispatcher {
 	function useCodeSigningValidationRules() : Void;
 	function useSystemTrustStore(trusted : Bool) : Void;
 	function verifyTimestamp(tsp : String, data : String, ignoreCertTime : Bool) : Void;
+	static var REVCHECK_ALWAYSREQUIRED(default,never) : UInt;
+	static var REVCHECK_BEST_EFFORT(default,never) : UInt;
+	static var REVCHECK_NEVER(default,never) : UInt;
+	static var REVCHECK_REQUIRED_IF_AVAILABLE(default,never) : UInt;
+	static var STATUS_INVALID(default,never) : UInt;
+	static var STATUS_TROUBLE(default,never) : UInt;
+	static var STATUS_UNKNOWN(default,never) : UInt;
+	static var STATUS_VALID(default,never) : UInt;
+	static var TRUSTFLAG_CODESIGNING(default,never) : UInt;
+	static var TRUSTFLAG_PLAYLISTSIGNING(default,never) : UInt;
+	static var TRUSTFLAG_SIGNING(default,never) : UInt;
 }

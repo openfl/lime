@@ -10,5 +10,5 @@ extern class NativeProcess extends flash.events.EventDispatcher {
 	function exit(force : Bool=false) : Void;
 	function start(info : NativeProcessStartupInfo) : Void;
 	static var isSupported(default,never) : Bool;
-	//static function isValidExecutable(f : flash.filesystem.File) : Bool;
+	static function isValidExecutable(f : flash.filesystem.File) : Bool;
 }

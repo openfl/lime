@@ -1,8 +1,8 @@
 package flash.media;
 
-extern interface IDataInput {
+extern class InputMediaStream extends flash.events.EventDispatcher implements flash.utils.IDataInput {
 	var bytesAvailable(default,never) : UInt;
-	var endian : String;
+	var endian : flash.utils.Endian;
 	var objectEncoding : UInt;
 	//function new() : Void;
 	function close() : Dynamic;
