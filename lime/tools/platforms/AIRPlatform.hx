@@ -32,8 +32,33 @@ class AIRPlatform extends FlashPlatform {
 		super (command, _project, targetFlags);
 		
 		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("air.output-directory", "air"));
-		targetPlatform = PlatformHelper.hostPlatform;
-		targetPlatformType = DESKTOP;
+		
+		if (targetFlags.exists ("android")) {
+			
+			targetPlatform = Platform.ANDROID;
+			targetPlatformType = MOBILE;
+			
+		} else if (targetFlags.exists ("ios")) {
+			
+			targetPlatform = Platform.IOS;
+			targetPlatformType = MOBILE;
+			
+		} else if (targetFlags.exists ("windows")) {
+			
+			targetPlatform = Platform.WINDOWS;
+			targetPlatformType = DESKTOP;
+			
+		} else if (targetFlags.exists ("mac")) {
+			
+			targetPlatform = Platform.MAC;
+			targetPlatformType = DESKTOP;
+			
+		} else {
+			
+			targetPlatform = PlatformHelper.hostPlatform;
+			targetPlatformType = DESKTOP;
+			
+		}
 		
 	}
 	
@@ -69,6 +94,14 @@ class AIRPlatform extends FlashPlatform {
 				
 			}
 			
+			var targetPath = switch (targetPlatform) {
+				
+				case ANDROID: "bin/" + project.app.file + ".apk";
+				case IOS: "bin/" + project.app.file + ".ipa";
+				default: "bin/" + project.app.file + ".air";
+				
+			}
+			
 			AIRHelper.build (project, targetDirectory, targetPlatform, "bin/" + project.app.file + ".air", "application.xml", files, "bin");
 			
 		}
@@ -98,7 +131,7 @@ class AIRPlatform extends FlashPlatform {
 			var name = project.meta.title + " (" + project.meta.version + " build " + project.meta.buildNumber + ").air";
 			
 			var rootDirectory = targetDirectory + "/bin";
-			var paths = PathHelper.readDirectory (rootDirectory);
+			var paths = PathHelper.readDirectory (rootDirectory, [ project.app.file + ".apk", project.app.file + ".ipa", project.app.file + ".air" ]);
 			var files = [];
 			
 			for (path in paths) {
@@ -107,7 +140,8 @@ class AIRPlatform extends FlashPlatform {
 				
 			}
 			
-			AIRHelper.build (project, targetDirectory, targetPlatform, name, "application.xml", files, "bin");
+			PathHelper.mkdir (targetDirectory + "/dist");
+			AIRHelper.build (project, targetDirectory, targetPlatform, "dist/" + name, "application.xml", files, "bin");
 			
 		}
 		

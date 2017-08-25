@@ -128,14 +128,20 @@ class AIRHelper {
 		
 		if (targetPlatform == IOS) {
 			
-			args.push ("-provisioning-profile");
-			args.push (IOSHelper.getProvisioningFile ());
+			var provisioningProfile = IOSHelper.getProvisioningFile ();
+			
+			if (provisioningProfile != "") {
+				
+				args.push ("-provisioning-profile");
+				args.push (provisioningProfile);
+				
+			}
 			
 		}
 		
 		args = args.concat ([ targetPath, applicationXML ]);
 		
-		if (targetPlatform == IOS) {
+		if (targetPlatform == IOS && PlatformHelper.hostPlatform == Platform.MAC) {
 			
 			args.push ("-platformsdk");
 			args.push (IOSHelper.getSDKDirectory (project));
@@ -151,6 +157,12 @@ class AIRHelper {
 		
 		args = args.concat (files);
 		
+		if (targetPlatform == ANDROID) {
+			
+			Sys.putEnv ("AIR_NOANDROIDFLAIR", "true");
+			
+		}
+		
 		ProcessHelper.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adt", args);
 		
 	}
@@ -160,6 +172,7 @@ class AIRHelper {
 		
 		if (targetPlatform == ANDROID) {
 			
+			AndroidHelper.initialize (project);
 			AndroidHelper.install (project, FileSystem.fullPath (workingDirectory) + "/" + project.app.file + ".apk");
 			AndroidHelper.run ("air." + project.meta.packageName + "/.AppEntry");
 			

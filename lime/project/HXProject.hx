@@ -144,7 +144,16 @@ class HXProject {
 			
 			case AIR:
 				
-				platformType = PlatformType.DESKTOP;
+				if (targetFlags.exists ("ios") || targetFlags.exists ("android")) {
+					
+					platformType = PlatformType.MOBILE;
+					
+				} else {
+					
+					platformType = PlatformType.DESKTOP;
+					
+				}
+				
 				architectures = [];
 			
 			case FLASH:
