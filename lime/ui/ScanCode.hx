@@ -253,7 +253,7 @@ import lime._backend.native.NativeCFFI;
 		
 	}
 	
-	@:to private static function toKeyCode (scanCode:ScanCode):KeyCode {
+	private static function toKeyCode (scanCode:ScanCode):KeyCode {
 		
 		return KeyCode.fromScanCode (scanCode);
 		
