@@ -257,7 +257,7 @@ import lime._backend.native.NativeCFFI;
 		
 	}
 	
-	@:to private static function toScanCode (keyCode:KeyCode):ScanCode {
+	private static function toScanCode (keyCode:KeyCode):ScanCode {
 		
 		#if (lime_cffi && !macro)
 		var code:Int = keyCode;
