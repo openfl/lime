@@ -9,54 +9,64 @@ import sys.FileSystem;
 class AIRHelper {
 	
 	
-	public static function build (project:HXProject, workingDirectory:String, targetPlatform:Platform, targetPath:String, applicationXML:String, files:Array<String>, fileDirectory:String = null):Void {
+	public static function build (project:HXProject, workingDirectory:String, targetPlatform:Platform, targetPath:String, applicationXML:String, files:Array<String>, fileDirectory:String = null):String {
 		
-		var airTarget = "air";
-		var extension = ".air";
+		//var airTarget = "air";
+		//var extension = ".air";
+		var airTarget = "bundle";
+		var extension = "";
 		
-		if (targetPlatform == IOS) {
+		switch (targetPlatform) {
 			
-			if (project.targetFlags.exists ("simulator")) {
+			case MAC:
 				
-				if (project.debug) {
+				extension = ".app";
+			
+			case IOS:
+				
+				if (project.targetFlags.exists ("simulator")) {
 					
-					airTarget = "ipa-debug-interpreter-simulator";
+					if (project.debug) {
+						
+						airTarget = "ipa-debug-interpreter-simulator";
+						
+					} else {
+						
+						airTarget = "ipa-test-interpreter-simulator";
+						
+					}
 					
 				} else {
 					
-					airTarget = "ipa-test-interpreter-simulator";
+					if (project.debug) {
+						
+						airTarget = "ipa-debug";
+						
+					} else {
+						
+						airTarget = "ipa-test";
+						
+					}
 					
 				}
 				
-			} else {
+				extension = ".ipa";
+			
+			case ANDROID:
 				
 				if (project.debug) {
 					
-					airTarget = "ipa-debug";
+					airTarget = "apk-debug";
 					
 				} else {
 					
-					airTarget = "ipa-test";
+					airTarget = "apk";
 					
 				}
 				
-			}
+				extension = ".apk";
 			
-			extension = ".ipa";
-			
-		} else if (targetPlatform == ANDROID) {
-			
-			if (project.debug) {
-				
-				airTarget = "apk-debug";
-				
-			} else {
-				
-				airTarget = "apk";
-				
-			}
-			
-			extension = ".apk";
+			default:
 			
 		}
 		
@@ -112,11 +122,13 @@ class AIRHelper {
 		
 		var args = [ "-package" ];
 		
-		if (airTarget == "air") {
+		// TODO: Is this an old workaround fixed in newer AIR SDK?
+		
+		if (airTarget == "air" || airTarget == "bundle") {
 			
 			args = args.concat (signingOptions);
 			args.push ("-target");
-			args.push ("air");
+			args.push (airTarget);
 			
 		} else {
 			
@@ -139,7 +151,7 @@ class AIRHelper {
 			
 		}
 		
-		args = args.concat ([ targetPath, applicationXML ]);
+		args = args.concat ([ targetPath + extension, applicationXML ]);
 		
 		if (targetPlatform == IOS && PlatformHelper.hostPlatform == Platform.MAC) {
 			
@@ -164,6 +176,8 @@ class AIRHelper {
 		}
 		
 		ProcessHelper.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adt", args);
+		
+		return targetPath + extension;
 		
 	}
 	

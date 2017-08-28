@@ -15,6 +15,7 @@ import lime.tools.helpers.IconHelper;
 import lime.tools.helpers.PathHelper;
 import lime.tools.helpers.PlatformHelper;
 import lime.tools.helpers.LogHelper;
+import lime.tools.helpers.ZipHelper;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -128,8 +129,6 @@ class AIRPlatform extends FlashPlatform {
 			
 		} else {
 			
-			var name = project.meta.title + " (" + project.meta.version + " build " + project.meta.buildNumber + ").air";
-			
 			var rootDirectory = targetDirectory + "/bin";
 			var paths = PathHelper.readDirectory (rootDirectory, [ project.app.file + ".apk", project.app.file + ".ipa", project.app.file + ".air" ]);
 			var files = [];
@@ -140,8 +139,41 @@ class AIRPlatform extends FlashPlatform {
 				
 			}
 			
+			var name = project.meta.title + " (" + project.meta.version + " build " + project.meta.buildNumber + ")";
+			
+			switch (targetPlatform) {
+				
+				case WINDOWS:
+					
+					name += " (Windows)";
+				
+				case MAC:
+					
+					name += " (macOS)";
+				
+				case IOS:
+					
+					name += " (iOS)";
+				
+				case ANDROID:
+					
+					name += " (Android)";
+				
+				default:
+				
+			}
+			
+			var outputPath = "dist/" + name;
+			
 			PathHelper.mkdir (targetDirectory + "/dist");
-			AIRHelper.build (project, targetDirectory, targetPlatform, "dist/" + name, "application.xml", files, "bin");
+			
+			outputPath = AIRHelper.build (project, targetDirectory, targetPlatform, outputPath, "application.xml", files, "bin");
+			
+			if (targetPlatformType == DESKTOP) {
+				
+				ZipHelper.compress (PathHelper.combine (targetDirectory, outputPath), PathHelper.combine (targetDirectory, "dist/" + name + ".zip"));
+				
+			}
 			
 		}
 		
