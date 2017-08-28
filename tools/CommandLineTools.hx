@@ -661,8 +661,6 @@ class CommandLineTools {
 
 			var platform:PlatformTarget = null;
 
-			Sys.println("CommandLineTools.  for correct platform tools? " + project.targetFlags);
-
 
 			switch (project.target) {
 

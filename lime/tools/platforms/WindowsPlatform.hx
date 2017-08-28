@@ -56,9 +56,6 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 
-		Sys.println("project.target: " + project.target);
-		Sys.println("PlatformHelper.hostPlatform: " + PlatformHelper.hostPlatform);
-
 		if (project.targetFlags.exists ("uwp")) {
 
 			targetType = "html5";
@@ -126,7 +123,6 @@ class WindowsPlatform extends PlatformTarget {
 				}
 				
 				if (project.modules.iterator ().hasNext ()) {
-					Sys.println("$$$$$ patchFile: " + outputFile);
 					ModuleHelper.patchFile (outputFile);
 					
 				}
@@ -139,8 +135,6 @@ class WindowsPlatform extends PlatformTarget {
 				
 			}
 			//return;
-		} else {
-			Sys.println ("I am NOT building some magic UWP shit! " + targetType);
 		}
 
 		for (dependency in project.dependencies) {
@@ -285,7 +279,6 @@ class WindowsPlatform extends PlatformTarget {
 	
 	
 	public override function deploy ():Void {
-		Sys.println("WINDOWS platform deploy does nothing.");
 		DeploymentHelper.deploy (project, targetFlags, targetDirectory, "Windows" + (is64 ? "64" : ""));
 		
 	}
@@ -510,8 +503,20 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 
-		context.guid = GUID.uuid();
-		
+		var seed = "unknown";
+		if(project.defines.exists("APP_PACKAGE")) {
+			seed = project.defines.get("APP_PACKAGE");
+		} else if(project.defines.exists("APP_TITLE")) {
+			seed = project.defines.get("APP_TITLE");
+		}
+		var guid = GUID.seededUuid(seed);
+		context.APP_GUID = guid;
+		var guidNoBrackets = guid.split("{").join("").split("}").join("");
+		Sys.println("guid: " + guid);
+		Sys.println("guidNoBrackets: " + guidNoBrackets);
+		context.APP_GUID_NOBRACKETS = guidNoBrackets;
+
+
 		for (asset in project.assets) {
 			
 			var path = PathHelper.combine (destination, asset.targetPath);
@@ -551,7 +556,6 @@ class WindowsPlatform extends PlatformTarget {
 		
 		//FileHelper.recursiveCopyTemplate (project.templatePaths, "windows/template", destination, context);
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "windows/template", targetDirectory + "/bin/", context);
-		Sys.println("project.templatePaths: " + project.templatePaths);
 
 		
 		if (project.app.main != null) {

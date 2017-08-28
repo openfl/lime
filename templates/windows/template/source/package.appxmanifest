@@ -6,11 +6,11 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="e9d48192-1008-49be-8a59-932a3ef1a1ca"
+    Name="::APP_GUID_NOBRACKETS::"
     Version="1.0.0.0"
     Publisher="CN=Braden" />
 
-  <mp:PhoneIdentity PhoneProductId="e9d48192-1008-49be-8a59-932a3ef1a1ca" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
+  <mp:PhoneIdentity PhoneProductId="::APP_GUID_NOBRACKETS::" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
 
   <Properties>
     <DisplayName>::APP_TITLE::</DisplayName>

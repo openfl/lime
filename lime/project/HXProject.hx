@@ -132,9 +132,6 @@ class HXProject {
 		defaultApp = { main: "Main", file: "MyApplication", path: "bin", preloader: "", swfVersion: 17, url: "", init: null }
 		defaultWindow = { width: 800, height: 600, parameters: "{}", background: 0xFFFFFF, fps: 30, hardware: true, display: 0, resizable: true, borderless: false, orientation: Orientation.AUTO, vsync: false, fullscreen: false, allowHighDPI: true, alwaysOnTop: false, antialiasing: 0, allowShaders: true, requireShaders: false, depthBuffer: false, stencilBuffer: false, colorDepth: 16 }
 
-		Sys.println('targetFlags: ' + targetFlags);
-		Sys.println('config: ' + config);
-
 		platformType = PlatformType.DESKTOP;
 		architectures = [];
 
@@ -207,7 +204,6 @@ class HXProject {
 					architectures = [ PlatformHelper.hostArchitecture ];
 
 				} else if(targetFlags.exists ("uwp")) {
-					Sys.println("forcing platform to WEB");
 					target = Platform.HTML5;
 					platformType = PlatformType.WEB;
 					architectures = [];
