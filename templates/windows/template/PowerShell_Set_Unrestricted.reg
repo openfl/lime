@@ -1,0 +1,6 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell]
+"Path"="C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+"ExecutionPolicy"="Unrestricted"
+

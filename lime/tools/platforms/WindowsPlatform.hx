@@ -105,8 +105,9 @@ class WindowsPlatform extends PlatformTarget {
 			if (project.app.main != null) {
 				
 				ProcessHelper.runCommand ("", "haxe", [ hxml ] );
+				//ProcessHelper.runCommand("","MSBuild",[ targetDirectory + "/bin/source/uwp-project.jsproj", "/p:Configuration=Release", "/t:HelloWorld"]);
 				ProcessHelper.runCommand("","MSBuild",[ targetDirectory + "/bin/source/uwp-project.jsproj",
-					"/p:Configuration=Release", "/t:HelloWorld"]);
+					"/p:Configuration=Release"]);
 				//MSBuild temp/uwa/vws/vws.jsproj /p:Configuration=Release"
 				
 				if (noOutput) return;
@@ -351,7 +352,67 @@ class WindowsPlatform extends PlatformTarget {
 		
 		} else if (project.targetFlags.exists ("uwp")) {
 			
-			HTML5Helper.launch (project, targetDirectory + "/bin");
+			/*
+
+			The 'test' target is problematic for UWP applications.  UWP applications are bundled in appx packages and
+			require app certs to properly install.
+
+			There are two options to trigger an appx install from the command line.
+
+			A. Use the WinAppDeployCmd.exe utility to deploy to local and remote devices
+
+			B. Execute the Add-AppDevPackage.ps1 powershell script that is an
+			   artifact of the UWP msbuild
+
+			A: WinAppDeployCmd.exe
+			https://docs.microsoft.com/en-us/windows/uwp/packaging/install-universal-windows-apps-with-the-winappdeploycmd-tool
+			https://msdn.microsoft.com/en-us/windows/desktop/mt627714
+			Windows 10 SDK: https://developer.microsoft.com/windows/downloads/windows-10-sdk
+
+			I've never actually got this to work, but I feel like I was close.  The WinAppDeployCmd.exe is a part of the
+			Windows 10 SDK and not a part of the Visual Studio 2017 community edition.  It will appear magically if you
+			check enough boxes when installing various project templates for Visual Studio.  It appeared for me, and I
+			have no clue how it got there.
+
+			A developer must take a few steps in order for this command to work.
+			1. Install Visual Studio 2017 Community Edition
+			2. Install the Windows 10 SDK
+			3. Modify Windows 10 Settings to enable side loading and device discovery
+			3. Enabling device discovery generates a pin number that is displayed to the user
+			4. Open the "Developer Command Promp for VS 2017" from the Start menu
+			5. run:
+				> WinAppDeployCmd devices
+			6. Make sure your device shows up in the list (if it does not appear try step 3 again, toggling things on/off)
+			7. run: (replase file, ip and pin with your values)
+				> WinAppDeployCmd install -file "uwp-project_1.0.0.0_AnyCPU.appx" -ip 192.168.27.167 -pin 326185
+
+
+			B: Add-AppDevPackage.ps1 + PowerShell_Set_Unrestricted.reg
+			The UWP build generates a powershell script by default. This script is usually executed by the user
+			by right clicking the file and choosing "run with powershell". Executing this script directly from the cmd
+			prompt results in a security error: "Add-AppDevPackage.ps1 cannot be loaded because running scripts is
+			disabled on this system."
+
+			We must edit the registry if we want to run this script directly from a shell.
+			See lime/templates/windows/template/PowerShell_Set_Unrestricted.reg
+
+			1. run:
+				> regedit /s PowerShell_Set_Unrestricted.reg
+			2. run:
+	 			> powershell "& ""./Add-AppDevPackage.ps1"""
+
+	 		note: the nonsensical double quotes are required.
+
+	 		*/
+
+			// Using option B because obtaining the device pin programatically does not seem possible.
+			ProcessHelper.runCommand ("", "regedit", [ '/s', '"' + targetDirectory + '/bin/PowerShell_Set_Unrestricted.reg"' ] );
+			var test = '"& ""' + targetDirectory + '/bin/PowerShell_Set_Unrestricted.reg"""';
+			ProcessHelper.runCommand ("", "powershell", [ '& ""' + targetDirectory + '/bin/source/AppPackages/uwp-project_1.0.0.0_AnyCPU_Test/Add-AppDevPackage.ps1""' ] );
+
+			//source/AppPackages/uwp-project_1.0.0.0_AnyCPU_Test/Add-AppDevPackage.ps1
+
+			//HTML5Helper.launch (project, targetDirectory + "/bin");
 			
 		} else if (project.target == PlatformHelper.hostPlatform) {
 			
