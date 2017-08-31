@@ -424,11 +424,9 @@ class NativeHTTPRequest {
 			var cacheBytes = bytes;
 			bytes = Bytes.alloc (writePosition + output.length);
 			bytes.blit (0, cacheBytes, 0, cacheBytes.length);
-			bytes.blit (writePosition, output, 0, output.length);
-		} else {
-			bytes.blit (writePosition, output, 0, output.length);
 		}
 
+		bytes.blit (writePosition, output, 0, output.length);
 		writePosition += output.length;
 		
 		return size * nmemb;
