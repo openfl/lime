@@ -33,6 +33,7 @@ class NativeHTTPRequest {
 	private var curl:CURL;
 	private var parent:_IHTTPRequest;
 	private var promise:Promise<Bytes>;
+	private var readPosition:Int;
 	private var writePosition:Int;
 	
 	
@@ -173,6 +174,7 @@ class NativeHTTPRequest {
 		
 		bytesLoaded = 0;
 		bytesTotal = 0;
+		readPosition = 0;
 		writePosition = 0;
 		
 		if (curl == 0) {
@@ -261,18 +263,45 @@ class NativeHTTPRequest {
 		var headers = [];
 		headers.push ("Expect: ");
 		
-		var hasContentType = false;
+		var contentType = null;
 		
 		for (header in cast (parent.headers, Array<Dynamic>)) {
 			
-			if (header.name == "Content-Type") hasContentType = true;
-			headers.push ('${header.name}: ${header.value}');
+			if (header.name == "Content-Type") {
+				
+				contentType = header.value;
+				
+			} else {
+				
+				headers.push ('${header.name}: ${header.value}');
+				
+			}
 			
 		}
 		
-		if (!hasContentType) {
+		if (parent.contentType != null) {
 			
-			headers.push ("Content-Type: " + parent.contentType);
+			contentType = parent.contentType;
+			
+		}
+		
+		if (contentType == null) {
+			
+			if (parent.data != null) {
+				
+				contentType = "application/octet-stream";
+				
+			} else if (query != "") {
+				
+				contentType = "application/x-www-form-urlencoded";
+				
+			}
+			
+		}
+		
+		if (contentType != null) {
+			
+			headers.push ("Content-Type: " + contentType);
 			
 		}
 		
@@ -311,6 +340,18 @@ class NativeHTTPRequest {
 		
 	}
 	
+
+	private function growBuffer (length:Int) {
+
+		if (length > bytes.length) {
+
+			var cacheBytes = bytes;
+			bytes = Bytes.alloc (length);
+			bytes.blit (0, cacheBytes, 0, cacheBytes.length);
+		
+		}
+
+	}
 	
 	
 	
@@ -323,18 +364,18 @@ class NativeHTTPRequest {
 		
 		parent.responseHeaders = [];
 		
-		var parts = Std.string(output).split(': ');
+		var parts = Std.string (output).split (': ');
+
 		if (parts.length == 2) {
+
 			switch (parts[0]) {
+
 				case 'Content-Length': 
-					var length = Std.parseInt(parts[1]);
-					if (length > bytes.length) {
-						var cacheBytes = bytes;
-						bytes = Bytes.alloc (length);
-						bytes.blit (0, cacheBytes, 0, cacheBytes.length);
-					}
-				// TODO
+					
+					growBuffer (Std.parseInt (parts[1]));
+			
 			}
+		
 		}
 		
 		return size * nmemb;
@@ -362,22 +403,38 @@ class NativeHTTPRequest {
 	
 	private function curl_onRead (max:Int, input:Bytes):Bytes {
 		
-		return input;
+		if (readPosition == 0 && max >= input.length) {
+			
+			return input;
+			
+		} else if (readPosition >= input.length) {
+			
+			return Bytes.alloc (0);
+			
+		} else {
+			
+			var length = max;
+			
+			if (readPosition + length > input.length) {
+				
+				length = input.length - readPosition;
+				
+			}
+			
+			var data = input.sub (readPosition, length);
+			readPosition += length;
+			return data;
+			
+		}
 		
 	}
 	
 	
 	private function curl_onWrite (output:Bytes, size:Int, nmemb:Int):Int {
 		
-		if (bytes.length < writePosition + output.length) {
-			var cacheBytes = bytes;
-			bytes = Bytes.alloc (writePosition + output.length);
-			bytes.blit (0, cacheBytes, 0, cacheBytes.length);
-			bytes.blit (writePosition, output, 0, output.length);
-		} else {
-			bytes.blit (writePosition, output, 0, output.length);
-		}
-
+		growBuffer (writePosition + output.length);
+		bytes.blit (writePosition, output, 0, output.length);
+		
 		writePosition += output.length;
 		
 		return size * nmemb;
