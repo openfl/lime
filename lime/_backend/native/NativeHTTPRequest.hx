@@ -340,6 +340,18 @@ class NativeHTTPRequest {
 		
 	}
 	
+
+	private function growBuffer (length:Int) {
+
+		if (length > bytes.length) {
+
+			var cacheBytes = bytes;
+			bytes = Bytes.alloc (length);
+			bytes.blit (0, cacheBytes, 0, cacheBytes.length);
+		
+		}
+
+	}
 	
 	
 	
@@ -352,18 +364,18 @@ class NativeHTTPRequest {
 		
 		parent.responseHeaders = [];
 		
-		var parts = Std.string(output).split(': ');
+		var parts = Std.string (output).split (': ');
+
 		if (parts.length == 2) {
+
 			switch (parts[0]) {
+
 				case 'Content-Length': 
-					var length = Std.parseInt(parts[1]);
-					if (length > bytes.length) {
-						var cacheBytes = bytes;
-						bytes = Bytes.alloc (length);
-						bytes.blit (0, cacheBytes, 0, cacheBytes.length);
-					}
-				// TODO
+					
+					growBuffer (Std.parseInt (parts[1]));
+			
 			}
+		
 		}
 		
 		return size * nmemb;
@@ -421,9 +433,9 @@ class NativeHTTPRequest {
 	private function curl_onWrite (output:Bytes, size:Int, nmemb:Int):Int {
 		
 		if (bytes.length < writePosition + output.length) {
-			var cacheBytes = bytes;
-			bytes = Bytes.alloc (writePosition + output.length);
-			bytes.blit (0, cacheBytes, 0, cacheBytes.length);
+			
+			growBuffer (writePosition + output.length);
+		
 		}
 
 		bytes.blit (writePosition, output, 0, output.length);
