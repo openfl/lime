@@ -432,13 +432,9 @@ class NativeHTTPRequest {
 	
 	private function curl_onWrite (output:Bytes, size:Int, nmemb:Int):Int {
 		
-		if (bytes.length < writePosition + output.length) {
-			
-			growBuffer (writePosition + output.length);
-		
-		}
-
+		growBuffer (writePosition + output.length);
 		bytes.blit (writePosition, output, 0, output.length);
+		
 		writePosition += output.length;
 		
 		return size * nmemb;
