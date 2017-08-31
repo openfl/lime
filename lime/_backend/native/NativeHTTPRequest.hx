@@ -40,7 +40,6 @@ class NativeHTTPRequest {
 	public function new () {
 		
 		curl = 0;
-		promise = new Promise<Bytes> ();
 		
 	}
 	
@@ -60,7 +59,7 @@ class NativeHTTPRequest {
 	public function init (parent:_IHTTPRequest):Void {
 		
 		this.parent = parent;
-		
+		this.promise = new Promise<Bytes> ();
 	}
 	
 	
@@ -81,7 +80,7 @@ class NativeHTTPRequest {
 			
 			Timer.delay (function () {
 				
-				if (bytesLoaded == 0 && bytesTotal == 0 && !promise.isComplete && !promise.isError) {
+				if (promise != null && bytesLoaded == 0 && bytesTotal == 0 && !promise.isComplete && !promise.isError) {
 					
 					//cancel ();
 					
@@ -329,7 +328,6 @@ class NativeHTTPRequest {
 		parent.responseStatus = CURLEasy.getinfo (curl, RESPONSE_CODE);
 		
 		if (result == CURLCode.OK) {
-			
 			threadPool.sendComplete ({ promise: promise, result: bytes });
 			
 		} else {
@@ -337,7 +335,10 @@ class NativeHTTPRequest {
 			threadPool.sendError ({ promise: promise, error: result });
 			
 		}
-		
+
+		bytes = null;
+		parent = null;
+		promise = null;
 	}
 	
 
