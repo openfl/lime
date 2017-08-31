@@ -134,6 +134,10 @@ class NativeHTTPRequest {
 				threadPool.sendError ({ promise: promise, error: "Cannot load file: " + path });
 				
 			}
+
+			bytes = null;
+			parent = null;
+			promise = null;
 			
 		}
 		
