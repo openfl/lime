@@ -113,9 +113,7 @@ class _HTTPRequest_Bytes<T> extends AbstractHTTPRequest<T> {
 			
 		}
 		
-		#if !display
 		backend.init (this);
-		#end
 
 		var promise = new Promise<T> ();
 		var future = backend.loadData (this.uri);
@@ -156,9 +154,7 @@ class _HTTPRequest_String<T> extends AbstractHTTPRequest<T> {
 			
 		}
 
-		#if !display
 		backend.init (this);
-		#end
 		
 		var promise = new Promise<T> ();
 		var future = backend.loadText (this.uri);

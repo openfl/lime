@@ -65,6 +65,10 @@ class NativeHTTPRequest {
 	
 	public function loadData (uri:String, binary:Bool = true):Future<Bytes> {
 		
+		if (parent == null || promise == null) {
+			return cast Future.withError('No parent!');
+		}
+
 		if (threadPool == null) {
 			
 			CURL.globalInit (CURL.GLOBAL_ALL);
