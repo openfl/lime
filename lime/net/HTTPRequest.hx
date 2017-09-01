@@ -52,7 +52,6 @@ private class AbstractHTTPRequest<T> implements _IHTTPRequest {
 		
 		contentType = "application/x-www-form-urlencoded";
 		followRedirects = true;
-		enableResponseHeaders = true;
 		formData = new Map ();
 		headers = [];
 		method = GET;
@@ -113,8 +112,6 @@ class _HTTPRequest_Bytes<T> extends AbstractHTTPRequest<T> {
 			
 		}
 		
-		backend.init (this);
-
 		var promise = new Promise<T> ();
 		var future = backend.loadData (this.uri);
 		
@@ -153,8 +150,6 @@ class _HTTPRequest_String<T> extends AbstractHTTPRequest<T> {
 			this.uri = uri;
 			
 		}
-
-		backend.init (this);
 		
 		var promise = new Promise<T> ();
 		var future = backend.loadText (this.uri);

@@ -33,13 +33,12 @@ class NativeHTTPRequest {
 	private var curl:CURL;
 	private var parent:_IHTTPRequest;
 	private var promise:Promise<Bytes>;
-	private var readPosition:Int;
-	private var writePosition:Int;
 	
 	
 	public function new () {
 		
 		curl = 0;
+		promise = new Promise<Bytes> ();
 		
 	}
 	
@@ -59,16 +58,12 @@ class NativeHTTPRequest {
 	public function init (parent:_IHTTPRequest):Void {
 		
 		this.parent = parent;
-		this.promise = new Promise<Bytes> ();
+		
 	}
 	
 	
 	public function loadData (uri:String, binary:Bool = true):Future<Bytes> {
 		
-		if (parent == null || promise == null) {
-			return cast Future.withError('No parent!');
-		}
-
 		if (threadPool == null) {
 			
 			CURL.globalInit (CURL.GLOBAL_ALL);
@@ -84,7 +79,7 @@ class NativeHTTPRequest {
 			
 			Timer.delay (function () {
 				
-				if (promise != null && bytesLoaded == 0 && bytesTotal == 0 && !promise.isComplete && !promise.isError) {
+				if (bytesLoaded == 0 && bytesTotal == 0 && !promise.isComplete && !promise.isError) {
 					
 					//cancel ();
 					
@@ -138,10 +133,6 @@ class NativeHTTPRequest {
 				threadPool.sendError ({ promise: promise, error: "Cannot load file: " + path });
 				
 			}
-
-			bytes = null;
-			parent = null;
-			promise = null;
 			
 		}
 		
@@ -181,8 +172,6 @@ class NativeHTTPRequest {
 		
 		bytesLoaded = 0;
 		bytesTotal = 0;
-		readPosition = 0;
-		writePosition = 0;
 		
 		if (curl == 0) {
 			
@@ -270,45 +259,18 @@ class NativeHTTPRequest {
 		var headers = [];
 		headers.push ("Expect: ");
 		
-		var contentType = null;
+		var hasContentType = false;
 		
 		for (header in cast (parent.headers, Array<Dynamic>)) {
 			
-			if (header.name == "Content-Type") {
-				
-				contentType = header.value;
-				
-			} else {
-				
-				headers.push ('${header.name}: ${header.value}');
-				
-			}
+			if (header.name == "Content-Type") hasContentType = true;
+			headers.push ('${header.name}: ${header.value}');
 			
 		}
 		
-		if (parent.contentType != null) {
+		if (!hasContentType) {
 			
-			contentType = parent.contentType;
-			
-		}
-		
-		if (contentType == null) {
-			
-			if (parent.data != null) {
-				
-				contentType = "application/octet-stream";
-				
-			} else if (query != "") {
-				
-				contentType = "application/x-www-form-urlencoded";
-				
-			}
-			
-		}
-		
-		if (contentType != null) {
-			
-			headers.push ("Content-Type: " + contentType);
+			headers.push ("Content-Type: " + parent.contentType);
 			
 		}
 		
@@ -336,6 +298,7 @@ class NativeHTTPRequest {
 		parent.responseStatus = CURLEasy.getinfo (curl, RESPONSE_CODE);
 		
 		if (result == CURLCode.OK) {
+			
 			threadPool.sendComplete ({ promise: promise, result: bytes });
 			
 		} else {
@@ -343,24 +306,9 @@ class NativeHTTPRequest {
 			threadPool.sendError ({ promise: promise, error: result });
 			
 		}
-
-		bytes = null;
-		parent = null;
-		promise = null;
+		
 	}
 	
-
-	private function growBuffer (length:Int) {
-
-		if (length > bytes.length) {
-
-			var cacheBytes = bytes;
-			bytes = Bytes.alloc (length);
-			bytes.blit (0, cacheBytes, 0, cacheBytes.length);
-		
-		}
-
-	}
 	
 	
 	
@@ -373,19 +321,7 @@ class NativeHTTPRequest {
 		
 		parent.responseHeaders = [];
 		
-		var parts = Std.string (output).split (': ');
-
-		if (parts.length == 2) {
-
-			switch (parts[0]) {
-
-				case 'Content-Length': 
-					
-					growBuffer (Std.parseInt (parts[1]));
-			
-			}
-		
-		}
+		// TODO
 		
 		return size * nmemb;
 		
@@ -412,39 +348,17 @@ class NativeHTTPRequest {
 	
 	private function curl_onRead (max:Int, input:Bytes):Bytes {
 		
-		if (readPosition == 0 && max >= input.length) {
-			
-			return input;
-			
-		} else if (readPosition >= input.length) {
-			
-			return Bytes.alloc (0);
-			
-		} else {
-			
-			var length = max;
-			
-			if (readPosition + length > input.length) {
-				
-				length = input.length - readPosition;
-				
-			}
-			
-			var data = input.sub (readPosition, length);
-			readPosition += length;
-			return data;
-			
-		}
+		return input;
 		
 	}
 	
 	
 	private function curl_onWrite (output:Bytes, size:Int, nmemb:Int):Int {
 		
-		growBuffer (writePosition + output.length);
-		bytes.blit (writePosition, output, 0, output.length);
-		
-		writePosition += output.length;
+		var cacheBytes = bytes;
+		bytes = Bytes.alloc (bytes.length + output.length);
+		bytes.blit (0, cacheBytes, 0, cacheBytes.length);
+		bytes.blit (cacheBytes.length, output, 0, output.length);
 		
 		return size * nmemb;
 		
