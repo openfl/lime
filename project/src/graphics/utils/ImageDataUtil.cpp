@@ -3,6 +3,7 @@
 #include <system/System.h>
 #include <utils/QuickVec.h>
 #include <math.h>
+#include <cmath>
 
 
 namespace lime {
@@ -448,8 +449,7 @@ namespace lime {
 		
 	}
 	
-	
-	void ImageDataUtil::Resize (Image* image, ImageBuffer* buffer, int newWidth, int newHeight) {
+	void ImageDataUtil::ResizeFast (Image* image, ImageBuffer* buffer, int newWidth, int newHeight) {
 		
 		int imageWidth = image->width;
 		int imageHeight = image->height;
@@ -500,9 +500,79 @@ namespace lime {
 				}
 				
 			}
-			
+	
 		}
+
+	}
+
+	void ImageDataUtil::Resize (Image* image, ImageBuffer* buffer, int W2, int H2) {
 		
+		int W = image->width;
+		int H = image->height;
+		
+		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
+		uint8_t* newData = (uint8_t*)buffer->data->Data ();
+		
+		float ratio_w = float(W) / float(W2);
+		float ratio_h = float(H) / float(H2);
+		float ratio_w_half = ceil(ratio_w/2.0);
+		float ratio_h_half = ceil(ratio_h/2.0);
+		
+		float gx_r, gx_g, gx_b, gx_a;
+		float weight, weights, weights_alpha, center_x, center_y;
+		float dy, w0, dx0, w;
+
+		int x2, dx;
+
+		// Hermite interpolation
+		// I just stole the code and translate it to cpp
+		// https://en.wikipedia.org/wiki/Hermite_interpolation
+		for (int j = 0; j < H2; j++) {
+			for (int i = 0; i < W2; i++) {
+
+				x2 = (i + j * W2) * 4;
+				weight = 0.0;
+				weights = 0.0;
+				weights_alpha = 0.0;
+				
+				gx_r = gx_g = gx_b = gx_a = 0.0;
+
+				center_y = (j + 0.5) * ratio_h;
+
+				for (int yy = floor(j * ratio_h); yy < ceil((j + 1.0) * ratio_h); yy++) {
+					dy = std::abs(center_y - (yy + 0.5)) / ratio_h_half;
+					center_x = (i + 0.5) * ratio_w;
+					w0 = dy * dy;
+
+					for (int xx = floor(i * ratio_w); xx < ceil((i + 1) * ratio_w); xx++) {
+						dx0 = std::abs(center_x - (xx + 0.5)) / ratio_w_half;
+						w = sqrt(w0 + dx0 * dx0);
+
+						if (w >= -1 && w <= 1) {
+							weight = 2 * w * w * w - 3 * w * w + 1;
+							if (weight > 0) {
+								dx = 4 * (xx + yy * W);
+								
+								gx_a += weight * data[dx + 3];
+								weights_alpha += weight;
+								
+								if (data[dx + 3] < 255)
+									weight = weight * data[dx + 3] / 250.0;
+								gx_r += weight * data[dx];
+								gx_g += weight * data[dx + 1];
+								gx_b += weight * data[dx + 2];
+								weights += weight;
+							}
+						}
+					}
+				}
+
+				newData[x2] = int(gx_r / weights);
+				newData[x2 + 1] = int(gx_g / weights);
+				newData[x2 + 2] = int(gx_b / weights);
+				newData[x2 + 3] = int(gx_a / weights_alpha);
+			}
+		}
 	}
 	
 	

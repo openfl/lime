@@ -29,6 +29,7 @@ namespace lime {
 			static void GetPixels (Image* image, Rectangle* rect, PixelFormat format, Bytes* pixels);
 			static void Merge (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, int redMultiplier, int greenMultiplier, int blueMultiplier, int alphaMultiplier);
 			static void MultiplyAlpha (Image* image);
+			static void ResizeFast (Image* image, ImageBuffer* buffer, int width, int height);
 			static void Resize (Image* image, ImageBuffer* buffer, int width, int height);
 			static void SetFormat (Image* image, PixelFormat format);
 			static void SetPixels (Image* image, Rectangle* rect, Bytes* bytes, PixelFormat format);
