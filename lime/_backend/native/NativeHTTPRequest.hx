@@ -67,52 +67,7 @@ class NativeHTTPRequest {
 	}
 	
 	
-	public function init (parent:_IHTTPRequest):Void {
-		
-		this.parent = parent;
-		
-	}
-	
-	
-	public function loadData (uri:String, binary:Bool = true):Future<Bytes> {
-		
-		this.promise = new Promise<Bytes> ();
-		
-		if (threadPool == null) {
-			
-			CURL.globalInit (CURL.GLOBAL_ALL);
-			
-			threadPool = new ThreadPool (1, 5);
-			threadPool.doWork.add (threadPool_doWork);
-			threadPool.onComplete.add (threadPool_onComplete);
-			threadPool.onError.add (threadPool_onError);
-			
-		}
-		
-		if (parent.timeout > 0) {
-			
-			timeout = Timer.delay (function () {
-				
-				if (promise != null && bytesLoaded == 0 && bytesTotal == 0 && !promise.isComplete && !promise.isError) {
-					
-					//cancel ();
-					
-					promise.error (CURLCode.OPERATION_TIMEDOUT);
-					
-				}
-				
-			}, parent.timeout);
-			
-		}
-		
-		threadPool.queue ({ instance: this, uri: uri, binary: binary });
-		
-		return promise.future;
-		
-	}
-	
-	
-	private function loadFile (path:String):Void {
+	private function doWork_loadFile (path:String):Void {
 		
 		var index = path.indexOf ("?");
 		
@@ -132,7 +87,7 @@ class NativeHTTPRequest {
 		
 		if (path == null #if (sys && !android) || !FileSystem.exists (path) #end) {
 			
-			threadPool.sendError ({ promise: promise, error: "Cannot load file: " + path });
+			threadPool.sendError ({ instance: this, promise: promise, error: "Cannot load file: " + path });
 			
 		} else {
 			
@@ -140,11 +95,11 @@ class NativeHTTPRequest {
 			
 			if (bytes != null) {
 				
-				threadPool.sendComplete ({ promise: promise, result: bytes });
+				threadPool.sendComplete ({ instance: this, promise: promise, result: bytes });
 				
 			} else {
 				
-				threadPool.sendError ({ promise: promise, error: "Cannot load file: " + path });
+				threadPool.sendError ({ instance: this, promise: promise, error: "Cannot load file: " + path });
 				
 			}
 			
@@ -153,34 +108,7 @@ class NativeHTTPRequest {
 	}
 	
 	
-	public function loadText (uri:String):Future<String> {
-		
-		var promise = new Promise<String> ();
-		var future = loadData (uri, false);
-		
-		future.onProgress (promise.progress);
-		future.onError (promise.error);
-		
-		future.onComplete (function (bytes) {
-			
-			if (bytes == null) {
-				
-				promise.complete (null);
-				
-			} else {
-				
-				promise.complete (bytes.getString (0, bytes.length));
-				
-			}
-			
-		});
-		
-		return promise.future;
-		
-	}
-	
-	
-	private function loadURL (uri:String, binary:Bool):Void {
+	private function doWork_loadURL (uri:String, binary:Bool):Void {
 		
 		bytes = Bytes.alloc (0);
 		
@@ -341,25 +269,88 @@ class NativeHTTPRequest {
 		
 		CURLEasy.cleanup (curl);
 		
-		if (timeout != null) {
-			
-			timeout.stop ();
-			timeout = null;
-			
-		}
-		
 		if (result == CURLCode.OK) {
 			
-			threadPool.sendComplete ({ promise: promise, result: bytes });
+			threadPool.sendComplete ({ instance: this, promise: promise, result: bytes });
 			
 		} else {
 			
-			threadPool.sendError ({ promise: promise, error: result });
+			threadPool.sendError ({ instance: this, promise: promise, error: result });
 			
 		}
 		
-		bytes = null;
-		promise = null;
+	}
+	
+	
+	public function init (parent:_IHTTPRequest):Void {
+		
+		this.parent = parent;
+		
+	}
+	
+	
+	public function loadData (uri:String, binary:Bool = true):Future<Bytes> {
+		
+		var promise = new Promise<Bytes> ();
+		this.promise = promise;
+		
+		if (threadPool == null) {
+			
+			CURL.globalInit (CURL.GLOBAL_ALL);
+			
+			threadPool = new ThreadPool (1, 1);
+			threadPool.doWork.add (threadPool_doWork);
+			threadPool.onComplete.add (threadPool_onComplete);
+			threadPool.onError.add (threadPool_onError);
+			
+		}
+		
+		if (parent.timeout > 0) {
+			
+			timeout = Timer.delay (function () {
+				
+				if (this.promise != null && bytesLoaded == 0 && bytesTotal == 0 && !this.promise.isComplete && !this.promise.isError) {
+					
+					//cancel ();
+					
+					this.promise.error (CURLCode.OPERATION_TIMEDOUT);
+					
+				}
+				
+			}, parent.timeout);
+			
+		}
+		
+		threadPool.queue ({ instance: this, uri: uri, binary: binary });
+		
+		return promise.future;
+		
+	}
+	
+	
+	public function loadText (uri:String):Future<String> {
+		
+		var promise = new Promise<String> ();
+		var future = loadData (uri, false);
+		
+		future.onProgress (promise.progress);
+		future.onError (promise.error);
+		
+		future.onComplete (function (bytes) {
+			
+			if (bytes == null) {
+				
+				promise.complete (null);
+				
+			} else {
+				
+				promise.complete (bytes.getString (0, bytes.length));
+				
+			}
+			
+		});
+		
+		return promise.future;
 		
 	}
 	
@@ -449,11 +440,11 @@ class NativeHTTPRequest {
 		
 		if (uri.indexOf ("http://") == -1 && uri.indexOf ("https://") == -1) {
 			
-			instance.loadFile (uri);
+			instance.doWork_loadFile (uri);
 			
 		} else {
 			
-			instance.loadURL (uri, binary);
+			instance.doWork_loadURL (uri, binary);
 			
 		}
 		
@@ -465,6 +456,18 @@ class NativeHTTPRequest {
 		var promise:Promise<Bytes> = state.promise;
 		promise.complete (state.result);
 		
+		var instance = state.instance;
+		
+		if (instance.timeout != null) {
+			
+			instance.timeout.stop ();
+			instance.timeout = null;
+			
+		}
+		
+		instance.bytes = null;
+		instance.promise = null;
+		
 	}
 	
 	
@@ -472,6 +475,18 @@ class NativeHTTPRequest {
 		
 		var promise:Promise<Bytes> = state.promise;
 		promise.error (state.error);
+		
+		var instance = state.instance;
+		
+		if (instance.timeout != null) {
+			
+			instance.timeout.stop ();
+			instance.timeout = null;
+			
+		}
+		
+		instance.bytes = null;
+		instance.promise = null;
 		
 	}
 	
