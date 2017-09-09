@@ -30,7 +30,7 @@ class CURLEasy {
 		#if (lime_cffi && lime_curl && !macro)
 		return NativeCFFI.lime_curl_easy_duphandle (handle);
 		#else
-		return 0;
+		return null;
 		#end
 		
 	}
@@ -63,7 +63,7 @@ class CURLEasy {
 		#if (lime_cffi && lime_curl && !macro)
 		return NativeCFFI.lime_curl_easy_init ();
 		#else
-		return 0;
+		return null;
 		#end
 		
 	}

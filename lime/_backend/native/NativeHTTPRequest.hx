@@ -34,22 +34,33 @@ class NativeHTTPRequest {
 	private var parent:_IHTTPRequest;
 	private var promise:Promise<Bytes>;
 	private var readPosition:Int;
+	private var timeout:Timer;
 	
 	
 	public function new () {
 		
-		curl = 0;
-		promise = new Promise<Bytes> ();
+		curl = null;
 		
 	}
 	
 	
 	public function cancel ():Void {
 		
-		if (curl != 0) {
+		if (curl != null) {
 			
-			CURLEasy.reset (curl);
-			CURLEasy.perform (curl);
+			// This is probably run from a different thread if cURL is running
+			// TODO
+			
+			//CURLEasy.cleanup (curl);
+			//CURLEasy.reset (curl);
+			//CURLEasy.perform (curl);
+			
+		}
+		
+		if (timeout != null) {
+			
+			timeout.stop ();
+			timeout = null;
 			
 		}
 		
@@ -65,6 +76,8 @@ class NativeHTTPRequest {
 	
 	public function loadData (uri:String, binary:Bool = true):Future<Bytes> {
 		
+		this.promise = new Promise<Bytes> ();
+		
 		if (threadPool == null) {
 			
 			CURL.globalInit (CURL.GLOBAL_ALL);
@@ -78,9 +91,9 @@ class NativeHTTPRequest {
 		
 		if (parent.timeout > 0) {
 			
-			Timer.delay (function () {
+			timeout = Timer.delay (function () {
 				
-				if (bytesLoaded == 0 && bytesTotal == 0 && !promise.isComplete && !promise.isError) {
+				if (promise != null && bytesLoaded == 0 && bytesTotal == 0 && !promise.isComplete && !promise.isError) {
 					
 					//cancel ();
 					
@@ -175,7 +188,7 @@ class NativeHTTPRequest {
 		bytesTotal = 0;
 		readPosition = 0;
 		
-		if (curl == 0) {
+		if (curl == null) {
 			
 			curl = CURLEasy.init ();
 			
@@ -326,6 +339,15 @@ class NativeHTTPRequest {
 		var result = CURLEasy.perform (curl);
 		parent.responseStatus = CURLEasy.getinfo (curl, RESPONSE_CODE);
 		
+		CURLEasy.cleanup (curl);
+		
+		if (timeout != null) {
+			
+			timeout.stop ();
+			timeout = null;
+			
+		}
+		
 		if (result == CURLCode.OK) {
 			
 			threadPool.sendComplete ({ promise: promise, result: bytes });
@@ -335,6 +357,9 @@ class NativeHTTPRequest {
 			threadPool.sendError ({ promise: promise, error: result });
 			
 		}
+		
+		bytes = null;
+		promise = null;
 		
 	}
 	

@@ -2,11 +2,12 @@ package lime.net.curl;
 
 
 import lime._backend.native.NativeCFFI;
+import lime.system.CFFIPointer;
 
 @:access(lime._backend.native.NativeCFFI)
 
 
-abstract CURL(Float) from Float to Float {
+abstract CURL(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	
 	public static inline var GLOBAL_SSL:Int = 1 << 0;
