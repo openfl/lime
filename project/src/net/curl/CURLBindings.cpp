@@ -1,38 +1,119 @@
 #include <curl/curl.h>
 #include <hx/CFFIPrime.h>
+#include <system/CFFIPointer.h>
 #include <utils/Bytes.h>
 #include <string.h>
+#include <map>
 
 
 namespace lime {
 	
 	
-	void lime_curl_easy_cleanup (double handle) {
+	std::map<value, bool> curlValid;
+	std::map<value, AutoGCRoot*> headerCallbacks;
+	std::map<value, AutoGCRoot*> progressCallbacks;
+	std::map<value, AutoGCRoot*> readCallbacks;
+	std::map<value, AutoGCRoot*> writeCallbacks;
+	
+	
+	void lime_curl_easy_cleanup (value handle);
+	
+	
+	void gc_curl (value handle) {
 		
-		curl_easy_cleanup ((CURL*)(uintptr_t)handle);
+		lime_curl_easy_cleanup (handle);
 		
 	}
 	
 	
-	double lime_curl_easy_duphandle (double handle) {
+	void lime_curl_easy_cleanup (value handle) {
 		
-		return (uintptr_t)curl_easy_duphandle ((CURL*)(uintptr_t)handle);
+		if (!val_is_null (handle)) {
+			
+			AutoGCRoot* callback;
+			
+			if (headerCallbacks.find (handle) != headerCallbacks.end ()) {
+				
+				callback = headerCallbacks[handle];
+				headerCallbacks.erase (handle);
+				delete callback;
+				
+			}
+			
+			if (progressCallbacks.find (handle) != progressCallbacks.end ()) {
+				
+				callback = progressCallbacks[handle];
+				progressCallbacks.erase (handle);
+				delete callback;
+				
+			}
+			
+			if (readCallbacks.find (handle) != readCallbacks.end ()) {
+				
+				callback = readCallbacks[handle];
+				readCallbacks.erase (handle);
+				delete callback;
+				
+			}
+			
+			if (writeCallbacks.find (handle) != writeCallbacks.end ()) {
+				
+				callback = writeCallbacks[handle];
+				writeCallbacks.erase (handle);
+				delete callback;
+				
+			}
+			
+			if (curlValid.find (handle) != curlValid.end ()) {
+				
+				curlValid.erase (handle);
+				curl_easy_cleanup ((CURL*)val_data(handle));
+				
+			}
+			
+		}
 		
 	}
 	
 	
-	value lime_curl_easy_escape (double curl, HxString url, int length) {
+	value lime_curl_easy_duphandle (value handle) {
 		
-		char* result = curl_easy_escape ((CURL*)(uintptr_t)curl, url.__s, length);
+		value duphandle = CFFIPointer (curl_easy_duphandle ((CURL*)val_data(handle)), gc_curl);
+		curlValid[duphandle] = true;
+		
+		if (headerCallbacks.find (handle) != headerCallbacks.end ()) {
+			headerCallbacks[duphandle] = new AutoGCRoot (headerCallbacks[handle]->get());
+		}
+		
+		if (progressCallbacks.find (handle) != progressCallbacks.end ()) {
+			progressCallbacks[duphandle] = new AutoGCRoot (progressCallbacks[handle]->get());
+		}
+		
+		if (readCallbacks.find (handle) != readCallbacks.end ()) {
+			readCallbacks[duphandle] = new AutoGCRoot (readCallbacks[handle]->get());
+		}
+		
+		if (writeCallbacks.find (handle) != writeCallbacks.end ()) {
+			writeCallbacks[duphandle] = new AutoGCRoot (writeCallbacks[handle]->get());
+		}
+		
+		return duphandle;
+		
+	}
+	
+	
+	value lime_curl_easy_escape (value curl, HxString url, int length) {
+		
+		char* result = curl_easy_escape ((CURL*)val_data(curl), url.__s, length);
 		return result ? alloc_string (result) : alloc_null ();
 		
 	}
 	
 	
-	value lime_curl_easy_getinfo (double curl, int info) {
+	value lime_curl_easy_getinfo (value curl, int info) {
 		
 		CURLcode code = CURLE_OK;
-		CURL* handle = (CURL*)(uintptr_t)curl;
+		CURL* handle = (CURL*)val_data(curl);
 		CURLINFO type = (CURLINFO)info;
 		
 		switch (type) {
@@ -118,28 +199,30 @@ namespace lime {
 	}
 	
 	
-	double lime_curl_easy_init () {
+	value lime_curl_easy_init () {
 		
-		return (uintptr_t)curl_easy_init ();
-		
-	}
-	
-	
-	int lime_curl_easy_pause (double handle, int bitmask) {
-		
-		return curl_easy_pause ((CURL*)(uintptr_t)handle, bitmask);
+		value handle = CFFIPointer (curl_easy_init (), gc_curl);
+		curlValid[handle] = true;
+		return handle;
 		
 	}
 	
 	
-	int lime_curl_easy_perform (double easy_handle) {
+	int lime_curl_easy_pause (value handle, int bitmask) {
 		
-		return curl_easy_perform ((CURL*)(uintptr_t)easy_handle);
+		return curl_easy_pause ((CURL*)val_data(handle), bitmask);
 		
 	}
 	
 	
-	int lime_curl_easy_recv (double curl, value buffer, int buflen, int n) {
+	int lime_curl_easy_perform (value easy_handle) {
+		
+		return curl_easy_perform ((CURL*)val_data(easy_handle));
+		
+	}
+	
+	
+	int lime_curl_easy_recv (value curl, value buffer, int buflen, int n) {
 		
 		// TODO
 		
@@ -148,14 +231,14 @@ namespace lime {
 	}
 	
 	
-	void lime_curl_easy_reset (double curl) {
+	void lime_curl_easy_reset (value curl) {
 		
-		curl_easy_reset ((CURL*)(uintptr_t)curl);
+		curl_easy_reset ((CURL*)val_data(curl));
 		
 	}
 	
 	
-	int lime_curl_easy_send (double curl, value buffer, int buflen, int n) {
+	int lime_curl_easy_send (value curl, value buffer, int buflen, int n) {
 		
 		// TODO
 		
@@ -215,10 +298,10 @@ namespace lime {
 	}
 	
 	
-	int lime_curl_easy_setopt (double handle, int option, value parameter) {
+	int lime_curl_easy_setopt (value handle, int option, value parameter) {
 		
 		CURLcode code = CURLE_OK;
-		CURL* curl = (CURL*)(uintptr_t)handle;
+		CURL* curl = (CURL*)val_data(handle);
 		CURLoption type = (CURLoption)option;
 		
 		switch (type) {
@@ -450,6 +533,7 @@ namespace lime {
 			case CURLOPT_READFUNCTION:
 			{
 				AutoGCRoot* callback = new AutoGCRoot (parameter);
+				readCallbacks[handle] = callback;
 				code = curl_easy_setopt (curl, type, read_callback);
 				curl_easy_setopt (curl, CURLOPT_READDATA, callback);
 				break;
@@ -457,6 +541,7 @@ namespace lime {
 			case CURLOPT_WRITEFUNCTION:
 			{
 				AutoGCRoot* callback = new AutoGCRoot (parameter);
+				writeCallbacks[handle] = callback;
 				code = curl_easy_setopt (curl, type, write_callback);
 				curl_easy_setopt (curl, CURLOPT_WRITEDATA, callback);
 				break;
@@ -464,6 +549,7 @@ namespace lime {
 			case CURLOPT_HEADERFUNCTION:
 			{
 				AutoGCRoot* callback = new AutoGCRoot (parameter);
+				headerCallbacks[handle] = callback;
 				code = curl_easy_setopt (curl, type, write_callback);
 				curl_easy_setopt (curl, CURLOPT_HEADERDATA, callback);
 				break;
@@ -471,6 +557,7 @@ namespace lime {
 			case CURLOPT_PROGRESSFUNCTION:
 			{
 				AutoGCRoot* callback = new AutoGCRoot (parameter);
+				progressCallbacks[handle] = callback;
 				code = curl_easy_setopt (curl, type, progress_callback);
 				curl_easy_setopt (curl, CURLOPT_PROGRESSDATA, callback);
 				curl_easy_setopt (curl, CURLOPT_NOPROGRESS, false);
@@ -511,9 +598,9 @@ namespace lime {
 	}
 	
 	
-	value lime_curl_easy_unescape (double curl, HxString url, int inlength, int outlength) {
+	value lime_curl_easy_unescape (value curl, HxString url, int inlength, int outlength) {
 		
-		char* result = curl_easy_unescape ((CURL*)(uintptr_t)curl, url.__s, inlength, &outlength);
+		char* result = curl_easy_unescape ((CURL*)val_data(curl), url.__s, inlength, &outlength);
 		return result ? alloc_string (result) : alloc_null ();
 		
 	}

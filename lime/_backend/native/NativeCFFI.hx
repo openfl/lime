@@ -402,19 +402,19 @@ class NativeCFFI {
 	@:cffi private static function lime_curl_global_init (flags:Int):Int;
 	@:cffi private static function lime_curl_version ():Dynamic;
 	@:cffi private static function lime_curl_version_info (type:Int):Dynamic;
-	@:cffi private static function lime_curl_easy_cleanup (handle:Float):Void;
-	@:cffi private static function lime_curl_easy_duphandle (handle:Float):Float;
-	@:cffi private static function lime_curl_easy_escape (curl:Float, url:String, length:Int):Dynamic;
-	@:cffi private static function lime_curl_easy_getinfo (curl:Float, info:Int):Dynamic;
-	@:cffi private static function lime_curl_easy_init ():Float;
-	@:cffi private static function lime_curl_easy_pause (handle:Float, bitmask:Int):Int;
-	@:cffi private static function lime_curl_easy_perform (easy_handle:Float):Int;
-	@:cffi private static function lime_curl_easy_recv (curl:Float, buffer:Dynamic, buflen:Int, n:Int):Int;
-	@:cffi private static function lime_curl_easy_reset (curl:Float):Void;
-	@:cffi private static function lime_curl_easy_send (curl:Float, buffer:Dynamic, buflen:Int, n:Int):Int;
-	@:cffi private static function lime_curl_easy_setopt (handle:Float, option:Int, parameter:Dynamic):Int;
+	@:cffi private static function lime_curl_easy_cleanup (handle:CFFIPointer):Void;
+	@:cffi private static function lime_curl_easy_duphandle (handle:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_curl_easy_escape (curl:CFFIPointer, url:String, length:Int):Dynamic;
+	@:cffi private static function lime_curl_easy_getinfo (curl:CFFIPointer, info:Int):Dynamic;
+	@:cffi private static function lime_curl_easy_init ():CFFIPointer;
+	@:cffi private static function lime_curl_easy_pause (handle:CFFIPointer, bitmask:Int):Int;
+	@:cffi private static function lime_curl_easy_perform (easy_handle:CFFIPointer):Int;
+	@:cffi private static function lime_curl_easy_recv (curl:CFFIPointer, buffer:Dynamic, buflen:Int, n:Int):Int;
+	@:cffi private static function lime_curl_easy_reset (curl:CFFIPointer):Void;
+	@:cffi private static function lime_curl_easy_send (curl:CFFIPointer, buffer:Dynamic, buflen:Int, n:Int):Int;
+	@:cffi private static function lime_curl_easy_setopt (handle:CFFIPointer, option:Int, parameter:Dynamic):Int;
 	@:cffi private static function lime_curl_easy_strerror (errornum:Int):Dynamic;
-	@:cffi private static function lime_curl_easy_unescape (curl:Float, url:String, inlength:Int, outlength:Int):Dynamic;
+	@:cffi private static function lime_curl_easy_unescape (curl:CFFIPointer, url:String, inlength:Int, outlength:Int):Dynamic;
 	#end
 	
 	#if (lime_cffi && !macro && lime_opengl)

@@ -33,22 +33,34 @@ class NativeHTTPRequest {
 	private var curl:CURL;
 	private var parent:_IHTTPRequest;
 	private var promise:Promise<Bytes>;
+	private var readPosition:Int;
+	private var timeout:Timer;
 	
 	
 	public function new () {
 		
-		curl = 0;
-		promise = new Promise<Bytes> ();
+		curl = null;
 		
 	}
 	
 	
 	public function cancel ():Void {
 		
-		if (curl != 0) {
+		if (curl != null) {
 			
-			CURLEasy.reset (curl);
-			CURLEasy.perform (curl);
+			// This is probably run from a different thread if cURL is running
+			// TODO
+			
+			//CURLEasy.cleanup (curl);
+			//CURLEasy.reset (curl);
+			//CURLEasy.perform (curl);
+			
+		}
+		
+		if (timeout != null) {
+			
+			timeout.stop ();
+			timeout = null;
 			
 		}
 		
@@ -64,6 +76,8 @@ class NativeHTTPRequest {
 	
 	public function loadData (uri:String, binary:Bool = true):Future<Bytes> {
 		
+		this.promise = new Promise<Bytes> ();
+		
 		if (threadPool == null) {
 			
 			CURL.globalInit (CURL.GLOBAL_ALL);
@@ -77,9 +91,9 @@ class NativeHTTPRequest {
 		
 		if (parent.timeout > 0) {
 			
-			Timer.delay (function () {
+			timeout = Timer.delay (function () {
 				
-				if (bytesLoaded == 0 && bytesTotal == 0 && !promise.isComplete && !promise.isError) {
+				if (promise != null && bytesLoaded == 0 && bytesTotal == 0 && !promise.isComplete && !promise.isError) {
 					
 					//cancel ();
 					
@@ -172,8 +186,9 @@ class NativeHTTPRequest {
 		
 		bytesLoaded = 0;
 		bytesTotal = 0;
+		readPosition = 0;
 		
-		if (curl == 0) {
+		if (curl == null) {
 			
 			curl = CURLEasy.init ();
 			
@@ -259,18 +274,45 @@ class NativeHTTPRequest {
 		var headers = [];
 		headers.push ("Expect: ");
 		
-		var hasContentType = false;
+		var contentType = null;
 		
 		for (header in cast (parent.headers, Array<Dynamic>)) {
 			
-			if (header.name == "Content-Type") hasContentType = true;
-			headers.push ('${header.name}: ${header.value}');
+			if (header.name == "Content-Type") {
+				
+				contentType = header.value;
+				
+			} else {
+				
+				headers.push ('${header.name}: ${header.value}');
+				
+			}
 			
 		}
 		
-		if (!hasContentType) {
+		if (parent.contentType != null) {
 			
-			headers.push ("Content-Type: " + parent.contentType);
+			contentType = parent.contentType;
+			
+		}
+		
+		if (contentType == null) {
+			
+			if (parent.data != null) {
+				
+				contentType = "application/octet-stream";
+				
+			} else if (query != "") {
+				
+				contentType = "application/x-www-form-urlencoded";
+				
+			}
+			
+		}
+		
+		if (contentType != null) {
+			
+			headers.push ("Content-Type: " + contentType);
 			
 		}
 		
@@ -297,6 +339,15 @@ class NativeHTTPRequest {
 		var result = CURLEasy.perform (curl);
 		parent.responseStatus = CURLEasy.getinfo (curl, RESPONSE_CODE);
 		
+		CURLEasy.cleanup (curl);
+		
+		if (timeout != null) {
+			
+			timeout.stop ();
+			timeout = null;
+			
+		}
+		
 		if (result == CURLCode.OK) {
 			
 			threadPool.sendComplete ({ promise: promise, result: bytes });
@@ -306,6 +357,9 @@ class NativeHTTPRequest {
 			threadPool.sendError ({ promise: promise, error: result });
 			
 		}
+		
+		bytes = null;
+		promise = null;
 		
 	}
 	
@@ -348,7 +402,29 @@ class NativeHTTPRequest {
 	
 	private function curl_onRead (max:Int, input:Bytes):Bytes {
 		
-		return input;
+		if (readPosition == 0 && max >= input.length) {
+			
+			return input;
+			
+		} else if (readPosition >= input.length) {
+			
+			return Bytes.alloc (0);
+			
+		} else {
+			
+			var length = max;
+			
+			if (readPosition + length > input.length) {
+				
+				length = input.length - readPosition;
+				
+			}
+			
+			var data = input.sub (readPosition, length);
+			readPosition += length;
+			return data;
+			
+		}
 		
 	}
 	
