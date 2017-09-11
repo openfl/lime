@@ -46,12 +46,13 @@
 	
 	<section unless="display">
 		
-		<section unless="lime-console">
-			<ndll name="std" haxelib="hxcpp" if="cpp" unless="static_link" />
-			<ndll name="regexp" haxelib="hxcpp" if="cpp" unless="static_link" />
-			<ndll name="zlib" haxelib="hxcpp" if="cpp" unless="emscripten || ios || static_link || tvos" />
-			<ndll name="lime" if="cpp || neko || nodejs" />
+		<section if="cpp ${${haxe_ver} < 3.3}" unless="lime-console || static_link">
+			<ndll name="std" haxelib="hxcpp" />
+			<ndll name="regexp" haxelib="hxcpp" />
+			<ndll name="zlib" haxelib="hxcpp" unless="emscripten || ios || tvos" />
 		</section>
+		
+		<ndll name="lime" if="cpp || neko || nodejs" unless="lime-console" />
 		
 		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
 		<dependency path="dependencies/howler.min.js" if="html5 howlerjs" />
