@@ -13,28 +13,40 @@ namespace lime {
 	std::map<value, AutoGCRoot*> headerCallbacks;
 	std::map<value, AutoGCRoot*> progressCallbacks;
 	std::map<value, AutoGCRoot*> readCallbacks;
+	std::map<AutoGCRoot*, Bytes*> writeBytes;
+	std::map<AutoGCRoot*, AutoGCRoot*> writeBytesRoot;
 	std::map<value, AutoGCRoot*> writeCallbacks;
-	
-	
-	void lime_curl_easy_cleanup (value handle);
 	
 	
 	void gc_curl (value handle) {
 		
-		lime_curl_easy_cleanup (handle);
-		
-	}
-	
-	
-	void lime_curl_easy_cleanup (value handle) {
-		
 		if (!val_is_null (handle)) {
+			
+			if (curlValid.find (handle) != curlValid.end ()) {
+				
+				curlValid.erase (handle);
+				curl_easy_cleanup ((CURL*)val_data(handle));
+				
+			}
 			
 			AutoGCRoot* callback;
 			
 			if (headerCallbacks.find (handle) != headerCallbacks.end ()) {
 				
 				callback = headerCallbacks[handle];
+				
+				if (writeBytes.find (callback) != writeBytes.end ()) {
+					
+					Bytes* _writeBytes = writeBytes[callback];
+					delete _writeBytes;
+					writeBytes.erase (callback);
+					
+					AutoGCRoot* _writeBytesRoot = writeBytesRoot[callback];
+					delete _writeBytesRoot;
+					writeBytesRoot.erase (callback);
+					
+				}
+				
 				headerCallbacks.erase (handle);
 				delete callback;
 				
@@ -59,10 +71,35 @@ namespace lime {
 			if (writeCallbacks.find (handle) != writeCallbacks.end ()) {
 				
 				callback = writeCallbacks[handle];
+				
+				if (writeBytes.find (callback) != writeBytes.end ()) {
+					
+					Bytes* _writeBytes = writeBytes[callback];
+					delete _writeBytes;
+					writeBytes.erase (callback);
+					
+					AutoGCRoot* _writeBytesRoot = writeBytesRoot[callback];
+					delete _writeBytesRoot;
+					writeBytesRoot.erase (callback);
+					
+				}
+				
 				writeCallbacks.erase (handle);
 				delete callback;
 				
 			}
+			
+			val_gc (handle, 0);
+			//handle = alloc_null ();
+			
+		}
+		
+	}
+	
+	
+	void lime_curl_easy_cleanup (value handle) {
+		
+		if (!val_is_null (handle)) {
 			
 			if (curlValid.find (handle) != curlValid.end ()) {
 				
@@ -81,7 +118,14 @@ namespace lime {
 		value duphandle = CFFIPointer (curl_easy_duphandle ((CURL*)val_data(handle)), gc_curl);
 		curlValid[duphandle] = true;
 		
+		AutoGCRoot* callback;
+		Bytes* _writeBytes;
+		
 		if (headerCallbacks.find (handle) != headerCallbacks.end ()) {
+			callback = headerCallbacks[handle];
+			_writeBytes = new Bytes (1024);
+			writeBytes[callback] = _writeBytes;
+			writeBytesRoot[callback] = new AutoGCRoot (_writeBytes->Value ());
 			headerCallbacks[duphandle] = new AutoGCRoot (headerCallbacks[handle]->get());
 		}
 		
@@ -94,6 +138,10 @@ namespace lime {
 		}
 		
 		if (writeCallbacks.find (handle) != writeCallbacks.end ()) {
+			callback = writeCallbacks[handle];
+			_writeBytes = new Bytes (1024);
+			writeBytes[callback] = _writeBytes;
+			writeBytesRoot[callback] = new AutoGCRoot (_writeBytes->Value ());
 			writeCallbacks[duphandle] = new AutoGCRoot (writeCallbacks[handle]->get());
 		}
 		
@@ -202,6 +250,37 @@ namespace lime {
 	value lime_curl_easy_init () {
 		
 		value handle = CFFIPointer (curl_easy_init (), gc_curl);
+		
+		if (curlValid.find (handle) != curlValid.end ()) {
+			
+			printf ("Error: Duplicate cURL handle\n");
+			
+		}
+			
+		if (headerCallbacks.find (handle) != headerCallbacks.end ()) {
+			
+			printf ("Error: cURL handle already has header callback\n");
+			
+		}
+		
+		if (progressCallbacks.find (handle) != progressCallbacks.end ()) {
+			
+			printf ("Error: cURL handle already has progress callback\n");
+			
+		}
+		
+		if (readCallbacks.find (handle) != readCallbacks.end ()) {
+			
+			printf ("Error: cURL handle already has read callback\n");
+			
+		}
+		
+		if (writeCallbacks.find (handle) != writeCallbacks.end ()) {
+			
+			printf ("Error: cURL handle already has write callback\n");
+			
+		}
+		
 		curlValid[handle] = true;
 		return handle;
 		
@@ -250,6 +329,7 @@ namespace lime {
 	static size_t write_callback (void *ptr, size_t size, size_t nmemb, void *userp) {
 		
 		AutoGCRoot* callback = (AutoGCRoot*)userp;
+		value method = callback->get ();
 		
 		if (size * nmemb < 1) {
 			
@@ -257,10 +337,19 @@ namespace lime {
 			
 		}
 		
-		Bytes bytes = Bytes (size * nmemb);
-		memcpy (bytes.Data (), ptr, size * nmemb);
-		
-		return val_int (val_call3 (callback->get (), bytes.Value (), alloc_int (size), alloc_int (nmemb)));
+		if (method && !val_is_null (method)) {
+			
+			Bytes* _writeBytes = writeBytes[callback];
+			_writeBytes->Resize (size * nmemb);
+			memcpy (_writeBytes->Data (), ptr, size * nmemb);
+			
+			return val_int (val_call3 (callback->get (), _writeBytes->Value (), alloc_int (size), alloc_int (nmemb)));
+			
+		} else {
+			
+			return size * nmemb;
+			
+		}
 		
 	}
 	
@@ -268,14 +357,20 @@ namespace lime {
 	static size_t read_callback (void *buffer, size_t size, size_t nmemb, void *userp) {
 		
 		AutoGCRoot* callback = (AutoGCRoot*)userp;
+		value method = callback->get ();
 		
 		size_t length = size * nmemb;
-		Bytes bytes;
-		bytes.Set (val_call1 (callback->get (), alloc_int (length)));
 		
-		if (bytes.Length () <= length) length = bytes.Length ();
-		
-		memcpy (buffer, bytes.Data (), length);
+		if (method && !val_is_null (method)) {
+			
+			Bytes bytes;
+			bytes.Set (val_call1 (callback->get (), alloc_int (length)));
+			
+			if (bytes.Length () <= length) length = bytes.Length ();
+			
+			memcpy (buffer, bytes.Data (), length);
+			
+		}
 		
 		return length;
 		
@@ -285,20 +380,29 @@ namespace lime {
 	static size_t progress_callback (void *userp, double dltotal, double dlnow, double ultotal, double ulnow) {
 		
 		AutoGCRoot* callback = (AutoGCRoot*)userp;
+		value method = callback->get ();
 		
-		value vals[] = {
-			alloc_float (dltotal),
-			alloc_float (dlnow),
-			alloc_float (ultotal),
-			alloc_float (ulnow),
-		};
-		
-		return val_int (val_callN (callback->get (), vals, 4));
+		if (method && !val_is_null (method)) {
+			
+			value vals[] = {
+				alloc_float (dltotal),
+				alloc_float (dlnow),
+				alloc_float (ultotal),
+				alloc_float (ulnow),
+			};
+			
+			return val_int (val_callN (callback->get (), vals, 4));
+			
+		} else {
+			
+			return 0;
+			
+		}
 		
 	}
 	
 	
-	int lime_curl_easy_setopt (value handle, int option, value parameter) {
+	int lime_curl_easy_setopt (value handle, int option, value parameter, value bytes) {
 		
 		CURLcode code = CURLE_OK;
 		CURL* curl = (CURL*)val_data(handle);
@@ -542,6 +646,9 @@ namespace lime {
 			{
 				AutoGCRoot* callback = new AutoGCRoot (parameter);
 				writeCallbacks[handle] = callback;
+				Bytes* _writeBytes = new Bytes (bytes);
+				writeBytes[callback] = _writeBytes;
+				writeBytesRoot[callback] = new AutoGCRoot (bytes);
 				code = curl_easy_setopt (curl, type, write_callback);
 				curl_easy_setopt (curl, CURLOPT_WRITEDATA, callback);
 				break;
@@ -550,6 +657,9 @@ namespace lime {
 			{
 				AutoGCRoot* callback = new AutoGCRoot (parameter);
 				headerCallbacks[handle] = callback;
+				Bytes* _writeBytes = new Bytes (bytes);
+				writeBytes[callback] = _writeBytes;
+				writeBytesRoot[callback] = new AutoGCRoot (bytes);
 				code = curl_easy_setopt (curl, type, write_callback);
 				curl_easy_setopt (curl, CURLOPT_HEADERDATA, callback);
 				break;
@@ -685,7 +795,7 @@ namespace lime {
 	DEFINE_PRIME4 (lime_curl_easy_recv);
 	DEFINE_PRIME1v (lime_curl_easy_reset);
 	DEFINE_PRIME4 (lime_curl_easy_send);
-	DEFINE_PRIME3 (lime_curl_easy_setopt);
+	DEFINE_PRIME4 (lime_curl_easy_setopt);
 	DEFINE_PRIME1 (lime_curl_easy_strerror);
 	DEFINE_PRIME4 (lime_curl_easy_unescape);
 	DEFINE_PRIME2 (lime_curl_getdate);
