@@ -412,7 +412,7 @@ class NativeCFFI {
 	@:cffi private static function lime_curl_easy_recv (curl:CFFIPointer, buffer:Dynamic, buflen:Int, n:Int):Int;
 	@:cffi private static function lime_curl_easy_reset (curl:CFFIPointer):Void;
 	@:cffi private static function lime_curl_easy_send (curl:CFFIPointer, buffer:Dynamic, buflen:Int, n:Int):Int;
-	@:cffi private static function lime_curl_easy_setopt (handle:CFFIPointer, option:Int, parameter:Dynamic):Int;
+	@:cffi private static function lime_curl_easy_setopt (handle:CFFIPointer, option:Int, parameter:Dynamic, writeBytes:Dynamic):Int;
 	@:cffi private static function lime_curl_easy_strerror (errornum:Int):Dynamic;
 	@:cffi private static function lime_curl_easy_unescape (curl:CFFIPointer, url:String, inlength:Int, outlength:Int):Dynamic;
 	#end
