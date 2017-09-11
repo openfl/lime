@@ -32,8 +32,8 @@
       StartPage="index.html">
 
       <uap:VisualElements
-        DisplayName="HelloJS"
-        Description="HelloJS"
+        DisplayName="::APP_TITLE::"
+        Description="::APP_TITLE::"
         BackgroundColor="transparent"
         Square150x150Logo="images\Square150x150Logo.png"
         Square44x44Logo="images\Square44x44Logo.png">

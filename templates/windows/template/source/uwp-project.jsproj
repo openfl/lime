@@ -61,6 +61,7 @@
       <SubType>Designer</SubType>
     </AppxManifest>
     <Content Include="index.html" />
+    <Content Include="*.js" />
     <Content Include="images\**\*.*" />
     <Content Include="js\**\*.*" />
     <Content Include="fonts\**\*.*" />
