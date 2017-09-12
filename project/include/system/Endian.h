@@ -7,8 +7,8 @@ namespace lime {
 	
 	enum Endian {
 		
-		LITTLE_ENDIAN,
-		BIG_ENDIAN
+		LIME_LITTLE_ENDIAN,
+		LIME_BIG_ENDIAN
 		
 	};
 	

@@ -37,7 +37,7 @@ namespace lime {
 				
 				offset = row + (x * 4);
 				
-				pixel.ReadUInt8 (data, offset, format, premultiplied, BIG_ENDIAN);
+				pixel.ReadUInt8 (data, offset, format, premultiplied, LIME_BIG_ENDIAN);
 				pixel.Set (redTable[pixel.r], greenTable[pixel.g], blueTable[pixel.b], alphaTable[pixel.a]);
 				pixel.WriteUInt8 (data, offset, format, premultiplied);
 				
@@ -73,8 +73,8 @@ namespace lime {
 			
 			for (int x = 0; x < destView.width; x++) {
 				
-				srcPixel.ReadUInt8 (srcData, srcPosition, srcFormat, srcPremultiplied, BIG_ENDIAN);
-				destPixel.ReadUInt8 (destData, destPosition, destFormat, destPremultiplied, BIG_ENDIAN);
+				srcPixel.ReadUInt8 (srcData, srcPosition, srcFormat, srcPremultiplied, LIME_BIG_ENDIAN);
+				destPixel.ReadUInt8 (destData, destPosition, destFormat, destPremultiplied, LIME_BIG_ENDIAN);
 				
 				switch (srcChannel) {
 					
@@ -143,8 +143,8 @@ namespace lime {
 					
 					for (int x = 0; x < destView.width; x++) {
 						
-						sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied, BIG_ENDIAN);
-						destPixel.ReadUInt8 (destData, destPosition, destFormat, destPremultiplied, BIG_ENDIAN);
+						sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied, LIME_BIG_ENDIAN);
+						destPixel.ReadUInt8 (destData, destPosition, destFormat, destPremultiplied, LIME_BIG_ENDIAN);
 						
 						sourceAlpha = sourcePixel.a / 255.0;
 						destAlpha = destPixel.a / 255.0;
@@ -193,7 +193,7 @@ namespace lime {
 					
 					for (int x = 0; x < destView.width; x++) {
 						
-						sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied, BIG_ENDIAN);
+						sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied, LIME_BIG_ENDIAN);
 						sourcePixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
 						
 						sourcePosition += 4;
@@ -226,9 +226,9 @@ namespace lime {
 					
 					for (int x = 0; x < destView.width; x++) {
 						
-						sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied, BIG_ENDIAN);
-						destPixel.ReadUInt8 (destData, destPosition, destFormat, destPremultiplied, BIG_ENDIAN);
-						alphaPixel.ReadUInt8 (alphaData, alphaPosition, alphaFormat, false, BIG_ENDIAN);
+						sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied, LIME_BIG_ENDIAN);
+						destPixel.ReadUInt8 (destData, destPosition, destFormat, destPremultiplied, LIME_BIG_ENDIAN);
+						alphaPixel.ReadUInt8 (alphaData, alphaPosition, alphaFormat, false, LIME_BIG_ENDIAN);
 						
 						sourceAlpha = (alphaPixel.a / 255.0) * (sourcePixel.a / 255.0);
 						
@@ -265,8 +265,8 @@ namespace lime {
 					
 					for (int x = 0; x < destView.width; x++) {
 						
-						sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied, BIG_ENDIAN);
-						alphaPixel.ReadUInt8 (alphaData, alphaPosition, alphaFormat, false, BIG_ENDIAN);
+						sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied, LIME_BIG_ENDIAN);
+						alphaPixel.ReadUInt8 (alphaData, alphaPosition, alphaFormat, false, LIME_BIG_ENDIAN);
 						
 						sourcePixel.a = int (0.5 + (sourcePixel.a * (alphaPixel.a / 255.0)));
 						sourcePixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
@@ -336,7 +336,7 @@ namespace lime {
 		if (premultiplied) fillColor.MultiplyAlpha ();
 		
 		RGBA hitColor;
-		hitColor.ReadUInt8 (data, ((y + image->offsetY) * (image->buffer->width * 4)) + ((x + image->offsetX) * 4), format, premultiplied, BIG_ENDIAN);
+		hitColor.ReadUInt8 (data, ((y + image->offsetY) * (image->buffer->width * 4)) + ((x + image->offsetX) * 4), format, premultiplied, LIME_BIG_ENDIAN);
 		
 		if (!image->buffer->transparent) {
 			
@@ -379,7 +379,7 @@ namespace lime {
 				}
 				
 				nextPointOffset = (nextPointY * image->width + nextPointX) * 4;
-				readColor.ReadUInt8 (data, nextPointOffset, format, premultiplied, BIG_ENDIAN);
+				readColor.ReadUInt8 (data, nextPointOffset, format, premultiplied, LIME_BIG_ENDIAN);
 				
 				if (readColor == hitColor) {
 					
@@ -418,7 +418,7 @@ namespace lime {
 			
 			for (int x = 0; x < dataView.width; x++) {
 				
-				pixel.ReadUInt8 (data, position, sourceFormat, premultiplied, BIG_ENDIAN);
+				pixel.ReadUInt8 (data, position, sourceFormat, premultiplied, LIME_BIG_ENDIAN);
 				pixel.WriteUInt8 (destData, destPosition, format, false);
 				
 				position += 4;
@@ -454,8 +454,8 @@ namespace lime {
 			
 			for (int x = 0; x < destView.width; x++) {
 				
-				sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied, BIG_ENDIAN);
-				destPixel.ReadUInt8 (destData, destPosition, destFormat, destPremultiplied, BIG_ENDIAN);
+				sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied, LIME_BIG_ENDIAN);
+				destPixel.ReadUInt8 (destData, destPosition, destFormat, destPremultiplied, LIME_BIG_ENDIAN);
 				
 				destPixel.r = int (((sourcePixel.r * redMultiplier) + (destPixel.r * (256 - redMultiplier))) / 256);
 				destPixel.g = int (((sourcePixel.g * greenMultiplier) + (destPixel.g * (256 - greenMultiplier))) / 256);
@@ -483,7 +483,7 @@ namespace lime {
 		
 		for (int i = 0; i < length; i++) {
 			
-			pixel.ReadUInt8 (data, i * 4, format, false, BIG_ENDIAN);
+			pixel.ReadUInt8 (data, i * 4, format, false, LIME_BIG_ENDIAN);
 			pixel.WriteUInt8 (data, i * 4, format, true);
 			
 		}
@@ -750,7 +750,7 @@ namespace lime {
 			
 			for (int x = 0; x < destView.width; x++) {
 				
-				srcPixel.ReadUInt8 (srcData, srcPosition, srcFormat, srcPremultiplied, BIG_ENDIAN);
+				srcPixel.ReadUInt8 (srcData, srcPosition, srcFormat, srcPremultiplied, LIME_BIG_ENDIAN);
 				
 				pixelMask = srcPixel.Get () & mask;
 				
@@ -799,7 +799,7 @@ namespace lime {
 		
 		for (int i = 0; i < length; i++) {
 			
-			pixel.ReadUInt8 (data, i * 4, format, true, BIG_ENDIAN);
+			pixel.ReadUInt8 (data, i * 4, format, true, LIME_BIG_ENDIAN);
 			pixel.WriteUInt8 (data, i * 4, format, false);
 			
 		}

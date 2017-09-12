@@ -117,7 +117,7 @@ namespace lime {
 					
 					case BGRA32:
 						
-						if (endian == LITTLE_ENDIAN)
+						if (endian == LIME_LITTLE_ENDIAN)
 							Set (data[offset + 1], data[offset + 2], data[offset + 3], data[offset]);
 						else
 							Set (data[offset + 2], data[offset + 1], data[offset], data[offset + 3]);
@@ -125,7 +125,7 @@ namespace lime {
 					
 					case RGBA32:
 						
-						if (endian == LITTLE_ENDIAN)
+						if (endian == LIME_LITTLE_ENDIAN)
 							Set (data[offset + 3], data[offset + 2], data[offset + 1], data[offset]);
 						else
 							Set (data[offset], data[offset + 1], data[offset + 2], data[offset + 3]);
@@ -133,7 +133,7 @@ namespace lime {
 					
 					case ARGB32:
 						
-						if (endian == LITTLE_ENDIAN)
+						if (endian == LIME_LITTLE_ENDIAN)
 							Set (data[offset + 2], data[offset + 1], data[offset], data[offset + 3]);
 						else
 							Set (data[offset + 1], data[offset + 2], data[offset + 3], data[offset]);
