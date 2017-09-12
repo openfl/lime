@@ -215,7 +215,6 @@ namespace lime {
 			ImageDataView alphaView = ImageDataView (alphaImage, &alphaRect);
 			int alphaPosition;
 			RGBA alphaPixel;
-			int alphaOffsetY = alphaView.y - destView.y;
 			
 			if (blend) {
 				
@@ -223,7 +222,7 @@ namespace lime {
 					
 					sourcePosition = sourceView.Row (y);
 					destPosition = destView.Row (y);
-					alphaPosition = alphaView.Row (y + alphaOffsetY);
+					alphaPosition = alphaView.Row (y);
 					
 					for (int x = 0; x < destView.width; x++) {
 						
@@ -262,7 +261,7 @@ namespace lime {
 					
 					sourcePosition = sourceView.Row (y);
 					destPosition = destView.Row (y);
-					alphaPosition = alphaView.Row (y + alphaOffsetY);
+					alphaPosition = alphaView.Row (y);
 					
 					for (int x = 0; x < destView.width; x++) {
 						

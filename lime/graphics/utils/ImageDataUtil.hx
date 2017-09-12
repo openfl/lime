@@ -287,7 +287,6 @@ class ImageDataUtil {
 					
 					var alphaView = new ImageDataView (alphaImage, new Rectangle (alphaPoint.x, alphaPoint.y, destView.width, destView.height));
 					var alphaPosition, alphaPixel:RGBA;
-					var alphaOffsetY = alphaView.y - destView.y;
 					
 					if (blend) {
 						
@@ -295,7 +294,7 @@ class ImageDataUtil {
 							
 							sourcePosition = sourceView.row (y);
 							destPosition = destView.row (y);
-							alphaPosition = alphaView.row (y + alphaOffsetY);
+							alphaPosition = alphaView.row (y);
 							
 							for (x in 0...destView.width) {
 								
@@ -334,7 +333,7 @@ class ImageDataUtil {
 							
 							sourcePosition = sourceView.row (y);
 							destPosition = destView.row (y);
-							alphaPosition = alphaView.row (y + alphaOffsetY);
+							alphaPosition = alphaView.row (y);
 							
 							for (x in 0...destView.width) {
 								
