@@ -1,3 +1,23 @@
+5.5.0 (09/12/2017)
+------------------
+
+* Added an instance-based API for cURL (such as `new CURL ()`)
+* Added `<config:ios non-exempt-encryption="true" />` setting value
+* Added generation of source map when minifying HTML5 on debug
+* Deprecated `lime.net.curl.CURLEasy` in favor of `CURL`
+* Updated tinyfiledialogs to 2.9.3
+* Updated bundled Google Closure Compiler to v20170806
+* Improved the functionality of `System.endianness`
+* Improved Adobe AIR `deploy` command to generate a \*.bundle file
+* Improved the behavior of native HTTPRequest for better memory management
+* Fixed endianness issues in `image.setPixels`
+* Fixed support for `image.copyPixels` using alpha image and offset point
+* Fixed support for newer HXCPP, including dynamic libs only on Haxe 3.2.1
+* Fixed ability to exclude default architectures on builds
+* Fixed support for `<window fullscreen="false" />` on Android
+* Fixed minor issues caused by detecting some AWD files as text
+
+
 5.4.0 (08/25/2017)
 ------------------
 
