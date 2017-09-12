@@ -8,6 +8,7 @@
 #include <math/ColorMatrix.h>
 #include <math/Rectangle.h>
 #include <math/Vector2.h>
+#include <system/Endian.h>
 #include <system/System.h>
 #include <utils/Bytes.h>
 #include <stdint.h>
@@ -31,7 +32,7 @@ namespace lime {
 			static void MultiplyAlpha (Image* image);
 			static void Resize (Image* image, ImageBuffer* buffer, int width, int height);
 			static void SetFormat (Image* image, PixelFormat format);
-			static void SetPixels (Image* image, Rectangle* rect, Bytes* bytes, int offset, PixelFormat format);
+			static void SetPixels (Image* image, Rectangle* rect, Bytes* bytes, int offset, PixelFormat format, Endian endian);
 			static int Threshold (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, int operation, int32_t threshold, int32_t color, int32_t mask, bool copySource);
 			static void UnmultiplyAlpha (Image* image);
 		

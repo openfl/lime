@@ -23,6 +23,8 @@ import lime.math.Rectangle;
 import lime.math.Vector2;
 import lime.net.HTTPRequest;
 import lime.system.CFFI;
+import lime.system.Endian;
+import lime.system.System;
 import lime.utils.ArrayBuffer;
 import lime.utils.BytePointer;
 import lime.utils.Log;
@@ -1074,16 +1076,18 @@ class Image {
 	}
 	
 	
-	public function setPixels (rect:Rectangle, bytePointer:BytePointer, format:PixelFormat = null):Void {
+	public function setPixels (rect:Rectangle, bytePointer:BytePointer, format:PixelFormat = null, endian:Endian = null):Void {
 		
 		rect = __clipRect (rect);
 		if (buffer == null || rect == null) return;
+		//if (endian == null) endian = System.endianness; // TODO: System endian order
+		if (endian == null) endian = BIG_ENDIAN;
 		
 		switch (type) {
 			
 			case CANVAS:
 				
-				ImageCanvasUtil.setPixels (this, rect, bytePointer, format);
+				ImageCanvasUtil.setPixels (this, rect, bytePointer, format, endian);
 			
 			case DATA:
 				
@@ -1091,7 +1095,7 @@ class Image {
 				ImageCanvasUtil.convertToData (this);
 				#end
 				
-				ImageDataUtil.setPixels (this, rect, bytePointer, format);
+				ImageDataUtil.setPixels (this, rect, bytePointer, format, endian);
 			
 			case FLASH:
 				
