@@ -68,6 +68,7 @@ class HXProject {
 	public var windows:Array<WindowData>;
 	
 	private var defaultApp:ApplicationData;
+	private var defaultArchitectures:Array<Architecture>;
 	private var defaultMeta:MetaData;
 	private var defaultWindow:WindowData;
 	private var needRerun:Bool;
@@ -242,6 +243,8 @@ class HXProject {
 				defaultWindow.fullscreen = true;
 			
 		}
+		
+		defaultArchitectures = architectures.copy ();
 		
 		meta = ObjectHelper.copyFields (defaultMeta, {});
 		app = ObjectHelper.copyFields (defaultApp, {});
@@ -852,7 +855,30 @@ class HXProject {
 			
 			config.merge (project.config);
 			
-			architectures = ArrayHelper.concatUnique (architectures, project.architectures);
+			for (architecture in project.architectures) {
+				
+				if (defaultArchitectures.indexOf (architecture) == -1) {
+					
+					architectures.push (architecture);
+					
+				}
+				
+			}
+			
+			if (project.architectures.length > 0) {
+				
+				for (architecture in defaultArchitectures) {
+					
+					if (project.architectures.indexOf (architecture) == -1) {
+						
+						architectures.remove (architecture);
+						
+					}
+					
+				}
+				
+			}
+			
 			assets = ArrayHelper.concatUnique (assets, project.assets);
 			dependencies = ArrayHelper.concatUnique (dependencies, project.dependencies, true);
 			haxeflags = ArrayHelper.concatUnique (haxeflags, project.haxeflags);

@@ -238,9 +238,17 @@ class IOSPlatform extends PlatformTarget {
 		
 		var requiredCapabilities = [];
 		
-		if (!armv6) {
+		if (!armv6 && armv7) {
 			
-			requiredCapabilities.push( { name: "armv7", value: true } );
+			requiredCapabilities.push ({ name: "armv7", value: true });
+			
+		} else if (!armv6 && !armv7 && armv7s) {
+			
+			requiredCapabilities.push ({ name: "armv7s", value: true });
+			
+		} else if (!armv6 && !armv7 && !armv7s && arm64) {
+			
+			requiredCapabilities.push ({ name: "arm64", value: true });
 			
 		}
 		
