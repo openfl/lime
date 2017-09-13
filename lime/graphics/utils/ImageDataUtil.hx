@@ -284,20 +284,20 @@ class ImageDataUtil {
 					
 					var alphaData = alphaImage.buffer.data;
 					var alphaFormat = alphaImage.buffer.format;
+					var alphaPosition, alphaPixel:RGBA;
 					
 					var alphaView = new ImageDataView (alphaImage, new Rectangle (alphaPoint.x, alphaPoint.y, alphaImage.width, alphaImage.height));
-					var alphaPosition, alphaPixel:RGBA;
-					var alphaOffsetY = alphaView.y + sourceView.y;
+					alphaView.offset (sourceView.x, sourceView.y);
+					
+					destView.clip (Std.int (destPoint.x), Std.int (destPoint.y), alphaView.width, alphaView.height);
 					
 					if (blend) {
 						
 						for (y in 0...destView.height) {
 							
-							if (!alphaView.hasRow (y + alphaOffsetY)) continue;
-							
 							sourcePosition = sourceView.row (y);
 							destPosition = destView.row (y);
-							alphaPosition = alphaView.row (y + alphaOffsetY);
+							alphaPosition = alphaView.row (y);
 							
 							for (x in 0...destView.width) {
 								
@@ -334,11 +334,9 @@ class ImageDataUtil {
 						
 						for (y in 0...destView.height) {
 							
-							if (!alphaView.hasRow (y + alphaOffsetY)) continue;
-							
 							sourcePosition = sourceView.row (y);
 							destPosition = destView.row (y);
-							alphaPosition = alphaView.row (y + alphaOffsetY);
+							alphaPosition = alphaView.row (y);
 							
 							for (x in 0...destView.width) {
 								
@@ -1540,8 +1538,8 @@ private class ImageDataView {
 	public var height (default, null):Int;
 	public var width (default, null):Int;
 	
+	private var byteOffset:Int;
 	private var image:Image;
-	private var offset:Int;
 	private var rect:Rectangle;
 	private var stride:Int;
 	
@@ -1568,11 +1566,7 @@ private class ImageDataView {
 		
 		stride = image.buffer.stride;
 		
-		x = Math.ceil (this.rect.x);
-		y = Math.ceil (this.rect.y);
-		width = Math.floor (this.rect.width);
-		height = Math.floor (this.rect.height);
-		offset = (stride * (this.y + image.offsetY)) + ((this.x + image.offsetX) * 4);
+		__update ();
 		
 	}
 	
@@ -1580,12 +1574,7 @@ private class ImageDataView {
 	public function clip (x:Int, y:Int, width:Int, height:Int):Void {
 		
 		rect.__contract (x, y, width, height);
-		
-		this.x = Math.ceil (rect.x);
-		this.y = Math.ceil (rect.y);
-		this.width = Math.floor (rect.width);
-		this.height = Math.floor (rect.height);
-		offset = (stride * (this.y + image.offsetY)) + ((this.x + image.offsetX) * 4);
+		__update ();
 		
 	}
 	
@@ -1597,9 +1586,51 @@ private class ImageDataView {
 	}
 	
 	
+	public function offset (x:Int, y:Int):Void {
+		
+		if (x < 0) {
+			
+			rect.x += x;
+			if (rect.x < 0) rect.x = 0;
+			
+		} else {
+			
+			rect.x += x;
+			rect.width -= x;
+			
+		}
+		
+		if (y < 0) {
+			
+			rect.y += y;
+			if (rect.y < 0) rect.y = 0;
+			
+		} else {
+			
+			rect.y += y;
+			rect.height -= y;
+			
+		}
+		
+		__update ();
+		
+	}
+	
+	
 	public inline function row (y:Int):Int {
 		
-		return offset + stride * y;
+		return byteOffset + stride * y;
+		
+	}
+	
+	
+	private function __update ():Void {
+		
+		this.x = Math.ceil (rect.x);
+		this.y = Math.ceil (rect.y);
+		this.width = Math.floor (rect.width);
+		this.height = Math.floor (rect.height);
+		byteOffset = (stride * (this.y + image.offsetY)) + ((this.x + image.offsetX) * 4);
 		
 	}
 	

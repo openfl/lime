@@ -49,6 +49,7 @@ namespace lime {
 			
 			void Clip (int x, int y, int width, int height);
 			bool HasRow (int y);
+			void Offset (int x, int y);
 			int Row (int y);
 			
 			int x;
@@ -58,8 +59,10 @@ namespace lime {
 		
 		private:
 			
+			void __Update ();
+			
+			int byteOffset;
 			Image* image;
-			int offset;
 			Rectangle* rect;
 			int stride;
 		
