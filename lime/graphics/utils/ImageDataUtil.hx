@@ -285,16 +285,19 @@ class ImageDataUtil {
 					var alphaData = alphaImage.buffer.data;
 					var alphaFormat = alphaImage.buffer.format;
 					
-					var alphaView = new ImageDataView (alphaImage, new Rectangle (alphaPoint.x, alphaPoint.y, destView.width, destView.height));
+					var alphaView = new ImageDataView (alphaImage, new Rectangle (alphaPoint.x, alphaPoint.y, alphaImage.width, alphaImage.height));
 					var alphaPosition, alphaPixel:RGBA;
+					var alphaOffsetY = alphaView.y + sourceView.y;
 					
 					if (blend) {
 						
 						for (y in 0...destView.height) {
 							
+							if (!alphaView.hasRow (y + alphaOffsetY)) continue;
+							
 							sourcePosition = sourceView.row (y);
 							destPosition = destView.row (y);
-							alphaPosition = alphaView.row (y);
+							alphaPosition = alphaView.row (y + alphaOffsetY);
 							
 							for (x in 0...destView.width) {
 								
@@ -331,9 +334,11 @@ class ImageDataUtil {
 						
 						for (y in 0...destView.height) {
 							
+							if (!alphaView.hasRow (y + alphaOffsetY)) continue;
+							
 							sourcePosition = sourceView.row (y);
 							destPosition = destView.row (y);
-							alphaPosition = alphaView.row (y);
+							alphaPosition = alphaView.row (y + alphaOffsetY);
 							
 							for (x in 0...destView.width) {
 								
@@ -1581,6 +1586,13 @@ private class ImageDataView {
 		this.width = Math.floor (rect.width);
 		this.height = Math.floor (rect.height);
 		offset = (stride * (this.y + image.offsetY)) + ((this.x + image.offsetX) * 4);
+		
+	}
+	
+	
+	public inline function hasRow (y:Int):Bool {
+		
+		return (y >= 0 && y < height);
 		
 	}
 	

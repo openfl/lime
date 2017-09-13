@@ -211,18 +211,21 @@ namespace lime {
 			PixelFormat alphaFormat = alphaImage->buffer->format;
 			bool alphaPremultiplied = alphaImage->buffer->premultiplied;
 			
-			Rectangle alphaRect = Rectangle (alphaPoint->x, alphaPoint->y, destView.width, destView.height);
+			Rectangle alphaRect = Rectangle (alphaPoint->x, alphaPoint->y, alphaImage->width, alphaImage->height);
 			ImageDataView alphaView = ImageDataView (alphaImage, &alphaRect);
 			int alphaPosition;
 			RGBA alphaPixel;
+			int alphaOffsetY = alphaView.y + sourceView.y;
 			
 			if (blend) {
 				
 				for (int y = 0; y < destView.height; y++) {
 					
+					if (!alphaView.HasRow (y + alphaOffsetY)) continue;
+					
 					sourcePosition = sourceView.Row (y);
 					destPosition = destView.Row (y);
-					alphaPosition = alphaView.Row (y);
+					alphaPosition = alphaView.Row (y + alphaOffsetY);
 					
 					for (int x = 0; x < destView.width; x++) {
 						
@@ -259,9 +262,11 @@ namespace lime {
 				
 				for (int y = 0; y < destView.height; y++) {
 					
+					if (!alphaView.HasRow (y + alphaOffsetY)) continue;
+					
 					sourcePosition = sourceView.Row (y);
 					destPosition = destView.Row (y);
-					alphaPosition = alphaView.Row (y);
+					alphaPosition = alphaView.Row (y + alphaOffsetY);
 					
 					for (int x = 0; x < destView.width; x++) {
 						
@@ -841,6 +846,13 @@ namespace lime {
 		this->height = (int) floor (rect->height);
 		offset = (stride * (this->y + image->offsetY)) + ((this->x + image->offsetX) * 4);
 		
+		
+	}
+	
+	
+	inline bool ImageDataView::HasRow (int y) {
+		
+		return (y >= 0 && y < height);
 		
 	}
 	

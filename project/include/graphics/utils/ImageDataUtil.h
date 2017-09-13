@@ -48,6 +48,7 @@ namespace lime {
 			ImageDataView (Image* image, Rectangle* rect);
 			
 			void Clip (int x, int y, int width, int height);
+			bool HasRow (int y);
 			int Row (int y);
 			
 			int x;
