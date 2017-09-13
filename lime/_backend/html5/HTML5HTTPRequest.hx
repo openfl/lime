@@ -366,7 +366,7 @@ class HTML5HTTPRequest {
 			
 			if (request.readyState != 4) return;
 			
-			if (request.status != null && request.status >= 200 && request.status <= 400) {
+			if (request.status != null && ((request.status >= 200 && request.status <= 400) || request.status == 0)) {
 				
 				var bytes;
 				
@@ -457,7 +457,7 @@ class HTML5HTTPRequest {
 			
 			if (request.readyState != 4) return;
 			
-			if (request.status != null && request.status >= 200 && request.status <= 400) {
+			if (request.status != null && ((request.status >= 200 && request.status <= 400) || request.status == 0)) {
 				
 				processResponse ();
 				promise.complete (request.responseText);
