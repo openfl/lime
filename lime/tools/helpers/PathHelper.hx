@@ -80,6 +80,7 @@ class PathHelper {
 			
 			path = StringTools.replace (path, "^,", ",");
 			path = StringTools.replace (path, ",", "^,");
+			path = StringTools.replace (path, " ", "^ ");
 			
 		}
 		
