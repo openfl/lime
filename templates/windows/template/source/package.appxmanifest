@@ -14,7 +14,7 @@
 
   <Properties>
     <DisplayName>::APP_TITLE::</DisplayName>
-    <PublisherDisplayName>OpenFL</PublisherDisplayName>
+    <PublisherDisplayName>::APP_COMPANY::</PublisherDisplayName>
     <Logo>images\storelogo.png</Logo>
   </Properties>
 
@@ -33,7 +33,7 @@
 
       <uap:VisualElements
         DisplayName="::APP_TITLE::"
-        Description="::APP_TITLE::"
+        Description="::APP_DESCRIPTION::"
         BackgroundColor="transparent"
         Square150x150Logo="images\Square150x150Logo.png"
         Square44x44Logo="images\Square44x44Logo.png">
