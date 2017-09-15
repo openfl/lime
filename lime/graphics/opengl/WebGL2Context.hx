@@ -2388,9 +2388,9 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	}
 	
 	
-	public inline function renderbufferStorageMultisample (target:Int, samples:Int, internalFormat:Int, width:Int, height:Int):Void {
+	public inline function renderbufferStorageMultisample (target:Int, samples:Int, internalformat:Int, width:Int, height:Int):Void {
 		
-		this.renderbufferStorageMultisample (target, samples, internalFormat, width, height);
+		this.renderbufferStorageMultisample (target, samples, internalformat, width, height);
 		
 	}
 	

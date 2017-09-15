@@ -15,6 +15,7 @@ import lime.math.ColorMatrix;
 import lime.math.Rectangle;
 import lime.math.Vector2;
 import lime.system.CFFI;
+import lime.system.Endian;
 import lime.utils.BytePointer;
 import lime.utils.UInt8Array;
 
@@ -283,10 +284,12 @@ class ImageDataUtil {
 					
 					var alphaData = alphaImage.buffer.data;
 					var alphaFormat = alphaImage.buffer.format;
-					
-					var alphaView = new ImageDataView (alphaImage, new Rectangle (alphaPoint.x, alphaPoint.y, destView.width, destView.height));
 					var alphaPosition, alphaPixel:RGBA;
-					var alphaOffsetY = alphaView.y - destView.y;
+					
+					var alphaView = new ImageDataView (alphaImage, new Rectangle (alphaPoint.x, alphaPoint.y, alphaImage.width, alphaImage.height));
+					alphaView.offset (sourceView.x, sourceView.y);
+					
+					destView.clip (Std.int (destPoint.x), Std.int (destPoint.y), alphaView.width, alphaView.height);
 					
 					if (blend) {
 						
@@ -294,7 +297,7 @@ class ImageDataUtil {
 							
 							sourcePosition = sourceView.row (y);
 							destPosition = destView.row (y);
-							alphaPosition = alphaView.row (y + alphaOffsetY);
+							alphaPosition = alphaView.row (y);
 							
 							for (x in 0...destView.width) {
 								
@@ -333,7 +336,7 @@ class ImageDataUtil {
 							
 							sourcePosition = sourceView.row (y);
 							destPosition = destView.row (y);
-							alphaPosition = alphaView.row (y + alphaOffsetY);
+							alphaPosition = alphaView.row (y);
 							
 							for (x in 0...destView.width) {
 								
@@ -503,7 +506,7 @@ class ImageDataUtil {
 	}
 	
 	
-	public static function gaussianBlur (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, blurX:Float = 4, blurY:Float = 4, quality:Int = 1, strength:Int = 1):Image {
+	public static function gaussianBlur (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, blurX:Float = 4, blurY:Float = 4, quality:Int = 1, strength:Float = 1):Image {
 		
 		// TODO: Support sourceRect better, do not modify sourceImage, create C++ implementation for native
 		
@@ -1261,12 +1264,12 @@ class ImageDataUtil {
 	}
 	
 	
-	public static function setPixels (image:Image, rect:Rectangle, bytePointer:BytePointer, format:PixelFormat):Void {
+	public static function setPixels (image:Image, rect:Rectangle, bytePointer:BytePointer, format:PixelFormat, endian:Endian):Void {
 		
 		if (image.buffer.data == null) return;
 		
 		#if (lime_cffi && !disable_cffi && !macro)
-		if (CFFI.enabled) NativeCFFI.lime_image_data_util_set_pixels (image, rect, bytePointer.bytes, bytePointer.offset, format); else
+		if (CFFI.enabled) NativeCFFI.lime_image_data_util_set_pixels (image, rect, bytePointer.bytes, bytePointer.offset, format, endian == BIG_ENDIAN ? 1 : 0); else
 		#end
 		{
 			
@@ -1278,6 +1281,7 @@ class ImageDataUtil {
 			var transparent = image.transparent;
 			var bytes = bytePointer.bytes;
 			var dataPosition = bytePointer.offset;
+			var littleEndian = (endian != BIG_ENDIAN);
 			
 			for (y in 0...dataView.height) {
 				
@@ -1285,8 +1289,16 @@ class ImageDataUtil {
 				
 				for (x in 0...dataView.width) {
 					
-					//color = bytes.getInt32 (dataPosition);
-					color = bytes.get (dataPosition + 3) | (bytes.get (dataPosition + 2) << 8) | (bytes.get (dataPosition + 1) << 16) | (bytes.get (dataPosition) << 24);
+					if (littleEndian) {
+						
+						color = bytes.getInt32 (dataPosition); // can this be trusted on big endian systems?
+						
+					} else {
+						
+						color = bytes.get (dataPosition + 3) | (bytes.get (dataPosition + 2) << 8) | (bytes.get (dataPosition + 1) << 16) | (bytes.get (dataPosition) << 24);
+						
+					}
+					
 					dataPosition += 4;
 					
 					switch (format) {
@@ -1526,8 +1538,8 @@ private class ImageDataView {
 	public var height (default, null):Int;
 	public var width (default, null):Int;
 	
+	private var byteOffset:Int;
 	private var image:Image;
-	private var offset:Int;
 	private var rect:Rectangle;
 	private var stride:Int;
 	
@@ -1554,11 +1566,7 @@ private class ImageDataView {
 		
 		stride = image.buffer.stride;
 		
-		x = Math.ceil (this.rect.x);
-		y = Math.ceil (this.rect.y);
-		width = Math.floor (this.rect.width);
-		height = Math.floor (this.rect.height);
-		offset = (stride * (this.y + image.offsetY)) + ((this.x + image.offsetX) * 4);
+		__update ();
 		
 	}
 	
@@ -1566,19 +1574,63 @@ private class ImageDataView {
 	public function clip (x:Int, y:Int, width:Int, height:Int):Void {
 		
 		rect.__contract (x, y, width, height);
+		__update ();
 		
-		this.x = Math.ceil (rect.x);
-		this.y = Math.ceil (rect.y);
-		this.width = Math.floor (rect.width);
-		this.height = Math.floor (rect.height);
-		offset = (stride * (this.y + image.offsetY)) + ((this.x + image.offsetX) * 4);
+	}
+	
+	
+	public inline function hasRow (y:Int):Bool {
+		
+		return (y >= 0 && y < height);
+		
+	}
+	
+	
+	public function offset (x:Int, y:Int):Void {
+		
+		if (x < 0) {
+			
+			rect.x += x;
+			if (rect.x < 0) rect.x = 0;
+			
+		} else {
+			
+			rect.x += x;
+			rect.width -= x;
+			
+		}
+		
+		if (y < 0) {
+			
+			rect.y += y;
+			if (rect.y < 0) rect.y = 0;
+			
+		} else {
+			
+			rect.y += y;
+			rect.height -= y;
+			
+		}
+		
+		__update ();
 		
 	}
 	
 	
 	public inline function row (y:Int):Int {
 		
-		return offset + stride * y;
+		return byteOffset + stride * y;
+		
+	}
+	
+	
+	private function __update ():Void {
+		
+		this.x = Math.ceil (rect.x);
+		this.y = Math.ceil (rect.y);
+		this.width = Math.floor (rect.width);
+		this.height = Math.floor (rect.height);
+		byteOffset = (stride * (this.y + image.offsetY)) + ((this.x + image.offsetX) * 4);
 		
 	}
 	

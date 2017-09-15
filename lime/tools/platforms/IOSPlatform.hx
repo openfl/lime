@@ -38,7 +38,7 @@ class IOSPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
-		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("ios.output-directory", "ios/" + buildType));
+		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("ios.output-directory", "ios"));
 		
 	}
 	
@@ -238,9 +238,17 @@ class IOSPlatform extends PlatformTarget {
 		
 		var requiredCapabilities = [];
 		
-		if (!armv6) {
+		if (!armv6 && armv7) {
 			
-			requiredCapabilities.push( { name: "armv7", value: true } );
+			requiredCapabilities.push ({ name: "armv7", value: true });
+			
+		} else if (!armv6 && !armv7 && armv7s) {
+			
+			requiredCapabilities.push ({ name: "armv7s", value: true });
+			
+		} else if (!armv6 && !armv7 && !armv7s && arm64) {
+			
+			requiredCapabilities.push ({ name: "arm64", value: true });
 			
 		}
 		
@@ -276,6 +284,7 @@ class IOSPlatform extends PlatformTarget {
 		}
 		
 		context.IOS_LINKER_FLAGS = ["-stdlib=libc++"].concat (project.config.getArrayString ("ios.linker-flags"));
+		context.IOS_NON_EXEMPT_ENCRYPTION = project.config.getBool ("ios.non-exempt-encryption", true);
 		
 		switch (project.window.orientation) {
 			

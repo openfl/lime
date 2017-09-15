@@ -1607,9 +1607,9 @@ class GL {
 	}
 	
 	
-	public static inline function getInteger64i_v (pname:Int, params:DataPointer):Void {
+	public static inline function getInteger64i_v (pname:Int, index:Int, params:DataPointer):Void {
 		
-		return context.getInteger64i_v (pname, params);
+		return context.getInteger64i_v (pname, index, params);
 		
 	}
 	
@@ -1621,16 +1621,9 @@ class GL {
 	}
 	
 	
-	public static inline function getIntegeri (pname:Int):Int {
+	public static inline function getIntegeri_v (pname:Int, index:Int, params:DataPointer):Void {
 		
-		return context.getIntegeri (pname);
-		
-	}
-	
-	
-	public static inline function getIntegeri_v (pname:Int, params:DataPointer):Void {
-		
-		return context.getIntegeri_v (pname, params);
+		return context.getIntegeri_v (pname, index, params);
 		
 	}
 	
@@ -1649,9 +1642,9 @@ class GL {
 	}
 	
 	
-	public static inline function getInternalformativ (target:Int, internalformat:Int, pname:Int, params:DataPointer):Void {
+	public static inline function getInternalformativ (target:Int, internalformat:Int, pname:Int, bufSize:Int, params:DataPointer):Void {
 		
-		context.getInternalformativ (target, internalformat, pname, params);
+		context.getInternalformativ (target, internalformat, pname, bufSize, params);
 		
 	}
 	
@@ -1845,9 +1838,9 @@ class GL {
 	}
 	
 	
-	public static inline function getString (pname:Int):String {
+	public static inline function getString (name:Int):String {
 		
-		return context.getString (pname);
+		return context.getString (name);
 		
 	}
 	
@@ -2208,9 +2201,9 @@ class GL {
 	}
 	
 	
-	public static inline function mapBufferRange (target:Int, offset:DataPointer, length:Int, access:Int):Void {
+	public static inline function mapBufferRange (target:Int, offset:DataPointer, length:Int, access:Int):DataPointer {
 		
-		context.mapBufferRange (target, offset, length, access);
+		return context.mapBufferRange (target, offset, length, access);
 		
 	}
 	
@@ -2287,9 +2280,9 @@ class GL {
 	}
 	
 	
-	public static inline function renderbufferStorageMultisample (target:Int, samples:Int, internalFormat:Int, width:Int, height:Int):Void {
+	public static inline function renderbufferStorageMultisample (target:Int, samples:Int, internalformat:Int, width:Int, height:Int):Void {
 		
-		context.renderbufferStorageMultisample (target, samples, internalFormat, width, height);
+		context.renderbufferStorageMultisample (target, samples, internalformat, width, height);
 		
 	}
 	

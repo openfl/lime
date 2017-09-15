@@ -29,7 +29,7 @@ class EmscriptenPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
-		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("emscripten.output-directory", "emscripten/" + buildType));
+		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("emscripten.output-directory", "emscripten"));
 		outputFile = targetDirectory + "/bin/" + project.app.file + ".js";
 		
 	}

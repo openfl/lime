@@ -1,3 +1,42 @@
+5.5.0 (09/12/2017)
+------------------
+
+* Added an instance-based API for cURL (such as `new CURL ()`)
+* Added `<config:ios non-exempt-encryption="true" />` setting value
+* Added generation of source map when minifying HTML5 on debug
+* Deprecated `lime.net.curl.CURLEasy` in favor of `CURL`
+* Updated tinyfiledialogs to 2.9.3
+* Updated bundled Google Closure Compiler to v20170806
+* Improved the functionality of `System.endianness`
+* Improved Adobe AIR `deploy` command to generate a \*.bundle file
+* Improved the behavior of native HTTPRequest for better memory management
+* Fixed endianness issues in `image.setPixels`
+* Fixed support for `image.copyPixels` using alpha image and offset point
+* Fixed support for newer HXCPP, including dynamic libs only on Haxe 3.2.1
+* Fixed ability to exclude default architectures on builds
+* Fixed support for `<window fullscreen="false" />` on Android
+* Fixed minor issues caused by detecting some AWD files as text
+
+
+5.4.0 (08/25/2017)
+------------------
+
+* Added tooling for Adobe AIR (`lime test air`, `lime test windows -air`, etc)
+* Added externs for Adobe AIR classes and types
+* Added `<haxelib repository="" />` for choosing a custom haxelib repository path
+* Added OpenGL ES 3 API support (currently enabled on Linux and Emscripten)
+* Added support for setting `HAXELIB_PATH` environment variable in projects
+* Changed the output directory to not include the build type by default
+* Improved HTML5 to default images to canvas, not a typed array
+* Improved HXP to handle `-nocolor`, `-verbose` and other compile flags
+* Improved HXP to be able to update environment variables for build process
+* Fixed tvOS target to use `<config:tvos provisioning-profile="" />`
+* Fixed Android builds when using an Android SDK older than API 23
+* Fixed an issue when running command-line tools from a root directory
+* Fixed UTF-8 `charCodeAt` when index is out of range
+* Fixed the `strength` property of `ImageDataUtils.gaussianBlur`
+
+
 5.3.0 (07/31/2017)
 ------------------
 

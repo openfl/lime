@@ -52,7 +52,7 @@ class AssetHelper {
 				
 			};
 			
-			if (project.target == FLASH) {
+			if (project.target == FLASH || project.target == AIR) {
 				
 				if (asset.embed != false || asset.type == FONT) {
 					

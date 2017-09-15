@@ -23,6 +23,7 @@
 #include <system/CFFIPointer.h>
 #include <system/Clipboard.h>
 #include <system/ClipboardEvent.h>
+#include <system/Endian.h>
 #include <system/JNI.h>
 #include <system/Locale.h>
 #include <system/SensorEvent.h>
@@ -978,13 +979,14 @@ namespace lime {
 	}
 	
 	
-	void lime_image_data_util_set_pixels (value image, value rect, value bytes, int offset, int format) {
+	void lime_image_data_util_set_pixels (value image, value rect, value bytes, int offset, int format, int endian) {
 		
 		Image _image = Image (image);
 		Rectangle _rect = Rectangle (rect);
 		Bytes _bytes (bytes);
 		PixelFormat _format = (PixelFormat)format;
-		ImageDataUtil::SetPixels (&_image, &_rect, &_bytes, offset, _format);
+		Endian _endian = (Endian)endian;
+		ImageDataUtil::SetPixels (&_image, &_rect, &_bytes, offset, _format, _endian);
 		
 	}
 	
@@ -1847,7 +1849,7 @@ namespace lime {
 	DEFINE_PRIME1v (lime_image_data_util_multiply_alpha);
 	DEFINE_PRIME4v (lime_image_data_util_resize);
 	DEFINE_PRIME2v (lime_image_data_util_set_format);
-	DEFINE_PRIME5v (lime_image_data_util_set_pixels);
+	DEFINE_PRIME6v (lime_image_data_util_set_pixels);
 	DEFINE_PRIME12 (lime_image_data_util_threshold);
 	DEFINE_PRIME1v (lime_image_data_util_unmultiply_alpha);
 	DEFINE_PRIME4 (lime_image_encode);

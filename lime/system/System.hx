@@ -6,6 +6,9 @@ import lime._backend.native.NativeCFFI;
 import lime.app.Application;
 import lime.app.Config;
 import lime.math.Rectangle;
+import lime.utils.ArrayBuffer;
+import lime.utils.UInt8Array;
+import lime.utils.UInt16Array;
 
 #if flash
 import flash.net.URLRequest;
@@ -593,13 +596,23 @@ class System {
 	
 	private static function get_endianness ():Endian {
 		
-		// TODO: Make this smarter
+		if (endianness == null) {
+			
+			#if (ps3 || wiiu || flash)
+			return BIG_ENDIAN;
+			#else
+			var arrayBuffer = new ArrayBuffer (2);
+			var uint8Array = new UInt8Array (arrayBuffer);
+			var uint16array = new UInt16Array (arrayBuffer);
+			uint8Array[0] = 0xAA;
+			uint8Array[1] = 0xBB;
+			if (uint16array[0] == 0xAABB) endianness = BIG_ENDIAN;
+			else endianness = LITTLE_ENDIAN;
+			#end
+			
+		}
 		
-		#if (ps3 || wiiu || flash)
-		return BIG_ENDIAN;
-		#else
-		return LITTLE_ENDIAN;
-		#end
+		return endianness;
 		
 	}
 	

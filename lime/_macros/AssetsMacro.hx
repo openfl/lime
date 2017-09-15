@@ -163,13 +163,16 @@ class AssetsMacro {
 							
 							var path = filePath;
 							
+							if (path == "") return null;
+							if (path == null) return null;
+							
 							if (!FileSystem.exists (filePath)) {
 								
 								path = Context.resolvePath (filePath);
 								
 							}
 							
-							if (path == null || path == null || !FileSystem.exists (path) || FileSystem.isDirectory (path)) {
+							if (!FileSystem.exists (path) || FileSystem.isDirectory (path)) {
 								
 								return null;
 								

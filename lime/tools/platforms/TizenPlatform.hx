@@ -28,7 +28,7 @@ class TizenPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
-		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("tizen.output-directory", "tizen/" + buildType));
+		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("tizen.output-directory", "tizen"));
 		
 	}
 	

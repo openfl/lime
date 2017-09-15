@@ -1704,7 +1704,7 @@ class HTML5GLRenderContext {
 	}
 	
 	
-	public inline function getInteger64i_v (pname:Int, params:DataPointer):Void {
+	public inline function getInteger64i_v (pname:Int, index:Int, params:DataPointer):Void {
 		
 		
 	}
@@ -1723,7 +1723,7 @@ class HTML5GLRenderContext {
 	}
 	
 	
-	public inline function getIntegeri_v (pname:Int, params:DataPointer):Void {
+	public inline function getIntegeri_v (pname:Int, index:Int, params:DataPointer):Void {
 		
 		
 	}
@@ -1760,7 +1760,7 @@ class HTML5GLRenderContext {
 	}
 	
 	
-	public function getInternalformativ (target:Int, internalformat:Int, pname:Int, params:DataPointer):Void {
+	public function getInternalformativ (target:Int, internalformat:Int, pname:Int, bufSize:Int, params:DataPointer):Void {
 		
 		
 	}
@@ -2325,8 +2325,9 @@ class HTML5GLRenderContext {
 	}
 	
 	
-	public inline function mapBufferRange (target:Int, offset:DataPointer, length:Int, access:Int):Void {
+	public inline function mapBufferRange (target:Int, offset:DataPointer, length:Int, access:Int):DataPointer {
 		
+		return 0;
 		
 	}
 	

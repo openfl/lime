@@ -38,7 +38,7 @@ class TVOSPlatform extends PlatformTarget {
 		
 		super (command, _project, targetFlags);
 		
-		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("tvos.output-directory", "tvos/" + buildType));
+		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("tvos.output-directory", "tvos"));
 		
 	}
 	
@@ -231,6 +231,7 @@ class TVOSPlatform extends PlatformTarget {
 		}
 		
 		context.IOS_LINKER_FLAGS = ["-stdlib=libc++"].concat (project.config.getArrayString ("tvos.linker-flags"));
+		context.IOS_NON_EXEMPT_ENCRYPTION = project.config.getBool ("tvos.non-exempt-encryption", true);
 		
 		switch (project.window.orientation) {
 			

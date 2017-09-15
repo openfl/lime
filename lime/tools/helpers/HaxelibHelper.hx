@@ -81,9 +81,9 @@ class HaxelibHelper {
 	}
 	
 	
-	public static function getRepositoryPath ():String {
+	public static function getRepositoryPath (clearCache:Bool = false):String {
 		
-		if (repositoryPath == null) {
+		if (repositoryPath == null || clearCache) {
 			
 			var cache = LogHelper.verbose;
 			LogHelper.verbose = debug;

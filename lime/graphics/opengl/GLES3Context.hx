@@ -2109,9 +2109,9 @@ abstract GLES3Context(GLRenderContext) from GLRenderContext to GLRenderContext t
 	}
 	
 	
-	public inline function getInteger64i_v (pname:Int, params:DataPointer):Void {
+	public inline function getInteger64i_v (pname:Int, index:Int, params:DataPointer):Void {
 		
-		this.getInteger64i_v (pname, params);
+		this.getInteger64i_v (pname, index, params);
 		
 	}
 	
@@ -2123,16 +2123,9 @@ abstract GLES3Context(GLRenderContext) from GLRenderContext to GLRenderContext t
 	}
 	
 	
-	public inline function getIntegeri (pname:Int):Int {
+	public inline function getIntegeri_v (pname:Int, index:Int, params:DataPointer):Void {
 		
-		return this.getIntegeri (pname);
-		
-	}
-	
-	
-	public inline function getIntegeri_v (pname:Int, params:DataPointer):Void {
-		
-		this.getIntegeri_v (pname, params);
+		this.getIntegeri_v (pname, index, params);
 		
 	}
 	
@@ -2151,9 +2144,9 @@ abstract GLES3Context(GLRenderContext) from GLRenderContext to GLRenderContext t
 	}
 	
 	
-	public inline function getInternalformativ (target:Int, internalformat:Int, pname:Int, params:DataPointer):Void {
+	public inline function getInternalformativ (target:Int, internalformat:Int, pname:Int, bufSize, params:DataPointer):Void {
 		
-		return this.getInternalformativ (target, internalformat, pname, params);
+		return this.getInternalformativ (target, internalformat, pname, bufSize, params);
 		
 	}
 	
@@ -2592,9 +2585,9 @@ abstract GLES3Context(GLRenderContext) from GLRenderContext to GLRenderContext t
 	}
 	
 	
-	public inline function mapBufferRange (target:Int, offset:DataPointer, length:Int, access:Int):Void {
+	public inline function mapBufferRange (target:Int, offset:DataPointer, length:Int, access:Int):DataPointer {
 		
-		this.mapBufferRange (target, offset, length, access);
+		return this.mapBufferRange (target, offset, length, access);
 		
 	}
 	
@@ -2662,9 +2655,9 @@ abstract GLES3Context(GLRenderContext) from GLRenderContext to GLRenderContext t
 	}
 	
 	
-	public inline function renderbufferStorageMultisample (target:Int, samples:Int, internalFormat:Int, width:Int, height:Int):Void {
+	public inline function renderbufferStorageMultisample (target:Int, samples:Int, internalformat:Int, width:Int, height:Int):Void {
 		
-		this.renderbufferStorageMultisample (target, samples, internalFormat, width, height);
+		this.renderbufferStorageMultisample (target, samples, internalformat, width, height);
 		
 	}
 	

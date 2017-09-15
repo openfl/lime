@@ -54,7 +54,8 @@ abstract UTF8String(String) from String to String {
 	**/
 	public function charCodeAt (index:Int):Null<Int> {
 		
-		return Utf8.charCodeAt (this, index);
+		if (index < 0 || index >= Unifill.uLength (this)) return null;
+		return Unifill.uCharCodeAt (this, index);
 		
 	}
 	

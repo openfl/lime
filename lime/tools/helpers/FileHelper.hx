@@ -59,6 +59,7 @@ class FileHelper {
 			"swf" => BINARY,
 			"atf" => BINARY,
 			"psd" => BINARY,
+			"awd" => BINARY,
 			"txt" => TEXT,
 			"text" => TEXT,
 			"xml" => TEXT,

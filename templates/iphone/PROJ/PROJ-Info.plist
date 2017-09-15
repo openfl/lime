@@ -53,5 +53,6 @@
 		</dict>::end::::else::<key>NSAllowsArbitraryLoads</key>
 		<true/>::end::
 	</dict>
+	::if (IOS_NON_EXEMPT_ENCRYPTION != null)::<key>ITSAppUsesNonExemptEncryption</key><::IOS_NON_EXEMPT_ENCRYPTION:: />::end::
 </dict>
 </plist>

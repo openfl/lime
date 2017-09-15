@@ -191,6 +191,20 @@ class HTML5Helper {
 					
 				}
 				
+				if (project.debug || project.targetFlags.exists ("source-map")) {
+					
+					args.push ("--create_source_map");
+					args.push (tempFile + ".map");
+					
+					if (FileSystem.exists (sourceFile + ".map")) {
+						
+						args.push ("--source_map_input");
+						args.push (sourceFile + "|" + sourceFile + ".map");
+						
+					}
+				
+				}
+				
 				if (!LogHelper.verbose) {
 					
 					args.push ("--jscomp_off=uselessCode");
@@ -198,6 +212,13 @@ class HTML5Helper {
 				}
 				
 				ProcessHelper.runCommand ("", "java", args);
+				
+				if (project.debug || project.targetFlags.exists ("source-map")) {
+					
+					File.copy (tempFile + ".map", sourceFile + ".map");
+					FileSystem.deleteFile (tempFile + ".map");
+					
+				}
 				
 			}
 			

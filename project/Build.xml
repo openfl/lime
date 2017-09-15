@@ -261,6 +261,7 @@
 		<file name="src/system/Locale.cpp" unless="mac || ios" />
 		<file name="src/system/Locale.mm" if="mac || ios" />
 		<file name="src/system/SensorEvent.cpp" />
+		<file name="src/system/System.cpp" if="linux" />
 		<file name="src/system/System.mm" if="ios" />
 		<file name="src/ui/DropEvent.cpp" />
 		<file name="src/ui/GamepadEvent.cpp" />
@@ -346,7 +347,6 @@
 			
 			<section if="linux">
 				
-				<lib name="${HXCPP}/lib/${BINDIR}/liblinuxcompat.a" />
 				<lib name="-lpthread" />
 				<lib name="-lrt" />
 				

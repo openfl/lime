@@ -9,6 +9,7 @@ import lime.graphics.PixelFormat;
 import lime.math.ColorMatrix;
 import lime.math.Rectangle;
 import lime.math.Vector2;
+import lime.system.Endian;
 import lime.utils.BytePointer;
 import lime.utils.UInt8Array;
 
@@ -411,11 +412,11 @@ class ImageCanvasUtil {
 	}
 	
 	
-	public static function setPixels (image:Image, rect:Rectangle, bytePointer:BytePointer, format:PixelFormat):Void {
+	public static function setPixels (image:Image, rect:Rectangle, bytePointer:BytePointer, format:PixelFormat, endian:Endian):Void {
 		
 		convertToData (image);
 		
-		ImageDataUtil.setPixels (image, rect, bytePointer, format);
+		ImageDataUtil.setPixels (image, rect, bytePointer, format, endian);
 		
 	}
 	

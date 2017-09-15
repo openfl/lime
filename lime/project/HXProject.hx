@@ -68,9 +68,10 @@ class HXProject {
 	public var windows:Array<WindowData>;
 
 	private var defaultApp:ApplicationData;
+	private var defaultArchitectures:Array<Architecture>;
 	private var defaultMeta:MetaData;
 	private var defaultWindow:WindowData;
-
+	private var needRerun:Bool;
 	public static var _command:String;
 	public static var _debug:Bool;
 	public static var _environment:Map<String, String>;
@@ -102,7 +103,10 @@ class HXProject {
 		HXProject._templatePaths = inputData.templatePaths;
 		HXProject._userDefines = inputData.userDefines;
 		HXProject._environment = inputData.environment;
-
+		LogHelper.verbose = inputData.logVerbose;
+		LogHelper.enableColor = inputData.logEnableColor;
+		ProcessHelper.dryRun = inputData.processDryRun;
+		HaxelibHelper.debug = inputData.haxelibDebug;
 		initialize ();
 
 		var classRef = Type.resolveClass (inputData.name);
@@ -136,8 +140,22 @@ class HXProject {
 		architectures = [];
 
 		switch (target) {
+			
+			case AIR:
+				
+				if (targetFlags.exists ("ios") || targetFlags.exists ("android")) {
+					
+					platformType = PlatformType.MOBILE;
+					
+				} else {
+					
+					platformType = PlatformType.DESKTOP;
+					
+				}
+				
+				architectures = [];
 
-			case FLASH:
+      case FLASH:
 
 				platformType = PlatformType.WEB;
 				architectures = [];
@@ -233,6 +251,8 @@ class HXProject {
 
 		}
 
+    defaultArchitectures = architectures.copy ();
+		
 		meta = ObjectHelper.copyFields (defaultMeta, {});
 		app = ObjectHelper.copyFields (defaultApp, {});
 		window = ObjectHelper.copyFields (defaultWindow, {});
@@ -504,6 +524,9 @@ class HXProject {
 		
 		input.close ();
 		
+		var cacheDryRun = ProcessHelper.dryRun;
+		ProcessHelper.dryRun = false;
+		
 		ProcessHelper.runCommand ("", "haxe", args);
 		
 		var inputFile = PathHelper.combine (tempDirectory, "input.dat");
@@ -518,7 +541,11 @@ class HXProject {
 			targetFlags: HXProject._targetFlags,
 			templatePaths: HXProject._templatePaths,
 			userDefines: HXProject._userDefines,
-			environment: HXProject._environment
+			environment: HXProject._environment,
+			logVerbose: LogHelper.verbose,
+			logEnableColor: LogHelper.enableColor,
+			processDryRun: cacheDryRun,
+			haxelibDebug: HaxelibHelper.debug
 			
 		});
 		
@@ -534,6 +561,8 @@ class HXProject {
 			Sys.exit (1);
 			
 		}
+		
+		ProcessHelper.dryRun = cacheDryRun;
 		
 		var tPaths:Array<String> = [];
 		
@@ -564,6 +593,12 @@ class HXProject {
 		PathHelper.removeDirectory (tempDirectory);
 		
 		if (project != null) {
+			
+			for (key in project.environment.keys ()) {
+				
+				Sys.putEnv (key, project.environment[key]);
+				
+			}
 			
 			var defines = StringMapHelper.copy (userDefines);
 			StringMapHelper.copyKeys (project.defines, defines);
@@ -826,8 +861,31 @@ class HXProject {
 			StringMapHelper.copyUniqueKeys (project.targetHandlers, targetHandlers);
 
 			config.merge (project.config);
-
-			architectures = ArrayHelper.concatUnique (architectures, project.architectures);
+			
+			for (architecture in project.architectures) {
+				
+				if (defaultArchitectures.indexOf (architecture) == -1) {
+					
+					architectures.push (architecture);
+					
+				}
+				
+			}
+			
+			if (project.architectures.length > 0) {
+				
+				for (architecture in defaultArchitectures) {
+					
+					if (project.architectures.indexOf (architecture) == -1) {
+						
+						architectures.remove (architecture);
+						
+					}
+					
+				}
+				
+			}
+			
 			assets = ArrayHelper.concatUnique (assets, project.assets);
 			dependencies = ArrayHelper.concatUnique (dependencies, project.dependencies, true);
 			haxeflags = ArrayHelper.concatUnique (haxeflags, project.haxeflags);
@@ -945,9 +1003,48 @@ class HXProject {
 
 
 	public function setenv (name:String, value:String):Void {
-
-		Sys.putEnv (name, value);
-
+		
+		if (value == null) {
+			
+			environment.remove (name);
+			value = "";
+			
+		}
+		
+		if (name == "HAXELIB_PATH") {
+			
+			var currentPath = HaxelibHelper.getRepositoryPath ();
+			Sys.putEnv (name, value);
+			var newPath = HaxelibHelper.getRepositoryPath (true);
+			
+			if (currentPath != newPath) {
+				
+				var valid = try { (newPath != null && newPath != "" && FileSystem.exists (FileSystem.fullPath (newPath))); } catch (e:Dynamic) { false; }
+				
+				if (!valid) {
+					
+					LogHelper.error ("The specified haxelib repository path \"" + value + "\" does not exist");
+					
+				} else {
+					
+					needRerun = true;
+					
+				}
+				
+			}
+			
+		} else {
+			
+			Sys.putEnv (name, value);
+			
+		}
+		
+		if (value != "") {
+			
+			environment.set (name, value);
+			
+		}
+		
 	}
 
 
@@ -1080,9 +1177,9 @@ class HXProject {
 				embeddedAsset.sourcePath = PathHelper.standardize (asset.sourcePath);
 
 				if (asset.embed == null) {
-
-					embeddedAsset.embed = (platformType == PlatformType.WEB);
-
+					
+					embeddedAsset.embed = (platformType == PlatformType.WEB || target == AIR);
+					
 				}
 
 				embeddedAsset.type = Std.string (asset.type).toLowerCase ();
