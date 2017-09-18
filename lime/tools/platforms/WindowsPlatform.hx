@@ -7,8 +7,10 @@ import lime.project.Icon;
 import lime.tools.helpers.CPPHelper;
 import lime.tools.helpers.DeploymentHelper;
 import lime.tools.helpers.FileHelper;
+import lime.tools.helpers.HTML5Helper;
 import lime.tools.helpers.IconHelper;
 import lime.tools.helpers.LogHelper;
+import lime.tools.helpers.ModuleHelper;
 import lime.tools.helpers.CSHelper;
 import lime.tools.helpers.GUID;
 import lime.tools.helpers.NekoHelper;
@@ -27,6 +29,9 @@ import sys.io.File;
 import sys.FileSystem;
 
 
+
+
+
 class WindowsPlatform extends PlatformTarget {
 	
 	
@@ -34,6 +39,7 @@ class WindowsPlatform extends PlatformTarget {
 	private var executablePath:String;
 	private var is64:Bool;
 	private var targetType:String;
+	private var outputFile:String;
 	
 	
 	public function new (command:String, _project:HXProject, targetFlags:Map<String, String> ) {
@@ -49,39 +55,92 @@ class WindowsPlatform extends PlatformTarget {
 			}
 			
 		}
-		
-		if (project.targetFlags.exists ("neko") || project.target != PlatformHelper.hostPlatform) {
+
+		if (project.targetFlags.exists ("uwp")) {
+
+			targetType = "html5";
+
+		} else if (project.targetFlags.exists ("neko") || project.target != PlatformHelper.hostPlatform) {
 			
 			targetType = "neko";
-			
+
 		} else if (project.targetFlags.exists ("nodejs")) {
 			
 			targetType = "nodejs";
-			
+
 		} else if (project.targetFlags.exists ("cs")) {
 			
 			targetType = "cs";
-			
 		} else {
 			
 			targetType = "cpp";
 			
 		}
-		
-		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("windows.output-directory", targetType == "cpp" ? "windows" : targetType));
+
+    targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("windows.output-directory", targetType == "cpp" ? "windows" : targetType));
+
+		if (project.targetFlags.exists ("uwp")) {
+			//targetDirectory = PathHelper.combine (project.app.path, "windows" + (is64 ? "64" : "") + "/" + targetType + "/" + buildType);
+			outputFile = targetDirectory + "/source/js/" + project.app.file + ".js";
+
+		}
+
 		targetDirectory = StringTools.replace (targetDirectory, "arch64", is64 ? "64" : "");
+
 		applicationDirectory = targetDirectory + "/bin/";
 		executablePath = applicationDirectory + project.app.file + ".exe";
 		
-	}
-	
+	}	
 	
 	public override function build ():Void {
-		
+
 		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
 		
 		PathHelper.mkdir (targetDirectory);
+
+		var icons = project.icons;
+
+		if (icons.length == 0) {
+
+			icons = [ new Icon (PathHelper.findTemplate (project.templatePaths, "default/icon.svg")) ];
+
+		}
+
+		// universal windows platform
+		// for now build html5 	
+		if (project.targetFlags.exists ("uwp")) {
+			Sys.println ("Start UWP Build");
+			ModuleHelper.buildModules (project, targetDirectory, targetDirectory);
 		
+			if (project.app.main != null) {
+
+				ProcessHelper.runCommand ("", "haxe", [ hxml ] );
+				ProcessHelper.runCommand("","MSBuild",[ targetDirectory + "/source/uwp-project.jsproj",
+					"/p:Configuration=Release"]);
+
+				if (noOutput) return;
+				
+				if (project.targetFlags.exists ("webgl")) {
+					
+					FileHelper.copyFile (targetDirectory + "/source/ApplicationMain.js", outputFile);
+					
+				}
+				
+				if (project.modules.iterator ().hasNext ()) {
+					ModuleHelper.patchFile (outputFile);
+					
+				}
+				
+				if (project.targetFlags.exists ("minify") || buildType == "final") {
+					
+					HTML5Helper.minify (project, targetDirectory + outputFile);
+					
+				}
+				
+			}
+			return;
+		}
+
 		for (dependency in project.dependencies) {
 			
 			if (StringTools.endsWith (dependency.path, ".dll")) {
@@ -92,6 +151,7 @@ class WindowsPlatform extends PlatformTarget {
 			}
 			
 		}
+
 		
 		if (!project.targetFlags.exists ("static") || targetType != "cpp") {
 			
@@ -103,116 +163,109 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 		
-		var icons = project.icons;
-		
-		if (icons.length == 0) {
-			
-			icons = [ new Icon (PathHelper.findTemplate (project.templatePaths, "default/icon.svg")) ];
-			
-		}
-		
+
 		//IconHelper.createIcon (project.icons, 32, 32, PathHelper.combine (applicationDirectory, "icon.png"));
-		
+
 		if (targetType == "neko") {
-			
+
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
-			
+
 			if (noOutput) return;
-			
+
 			var iconPath = PathHelper.combine (applicationDirectory, "icon.ico");
-			
+
 			if (!IconHelper.createWindowsIcon (icons, iconPath)) {
-				
+
 				iconPath = null;
-				
+
 			}
-			
+
 			NekoHelper.createWindowsExecutable (project.templatePaths, targetDirectory + "/obj/ApplicationMain.n", executablePath, iconPath);
 			NekoHelper.copyLibraries (project.templatePaths, "windows" + (is64 ? "64" : ""), applicationDirectory);
-			
+
 		} else if (targetType == "nodejs") {
-			
+
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
-			
+
 			if (noOutput) return;
-			
+
 			//NekoHelper.createExecutable (project.templatePaths, "windows" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
 			NekoHelper.copyLibraries (project.templatePaths, "windows" + (is64 ? "64" : ""), applicationDirectory);
-			
+
 		} else if (targetType == "cs") {
-			
+
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
-			
+
 			if (noOutput) return;
-			
+
 			CSHelper.copySourceFiles (project.templatePaths, targetDirectory + "/obj/src");
 			var txtPath = targetDirectory + "/obj/hxcs_build.txt";
 			CSHelper.addSourceFiles (txtPath, CSHelper.ndllSourceFiles);
 			CSHelper.addGUID (txtPath, GUID.uuid ());
 			CSHelper.compile (project, targetDirectory + "/obj", applicationDirectory + project.app.file, "x86", "desktop");
-			
+
 		} else {
-			
+
 			var haxeArgs = [ hxml ];
 			var flags = [];
-			
+
 			if (is64) {
-				
+
 				haxeArgs.push ("-D");
 				haxeArgs.push ("HXCPP_M64");
 				flags.push ("-DHXCPP_M64");
-				
+
 			} else {
-				
+
 				flags.push ("-DHXCPP_M32");
-				
+
 			}
-			
+
 			if (!project.environment.exists ("SHOW_CONSOLE")) {
-				
+
 				haxeArgs.push ("-D");
 				haxeArgs.push ("no_console");
 				flags.push ("-Dno_console");
-				
+
 			}
-			
+
 			if (!project.targetFlags.exists ("static")) {
-				
+
 				ProcessHelper.runCommand ("", "haxe", haxeArgs);
-				
+
 				if (noOutput) return;
-				
+
 				CPPHelper.compile (project, targetDirectory + "/obj", flags);
-				
+
 				FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", executablePath);
-				
+
 			} else {
-				
+
 				ProcessHelper.runCommand ("", "haxe", haxeArgs.concat ([ "-D", "static_link" ]));
-				
+
 				if (noOutput) return;
-				
+
 				CPPHelper.compile (project, targetDirectory + "/obj", flags.concat ([ "-Dstatic_link" ]));
 				CPPHelper.compile (project, targetDirectory + "/obj", flags, "BuildMain.xml");
-				
+
 				FileHelper.copyFile (targetDirectory + "/obj/Main" + (project.debug ? "-debug" : "") + ".exe", executablePath);
-				
+
 			}
-			
+
 			var iconPath = PathHelper.combine (applicationDirectory, "icon.ico");
-			
+
 			if (IconHelper.createWindowsIcon (icons, iconPath) && PlatformHelper.hostPlatform == Platform.WINDOWS) {
-				
+
 				var templates = [ PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates" ].concat (project.templatePaths);
 				ProcessHelper.runCommand ("", PathHelper.findTemplate (templates, "bin/ReplaceVistaIcon.exe"), [ executablePath, iconPath, "1" ], true, true);
-				
+
 			}
-			
+
 		}
 		
 	}
-	
-	
+
+
 	public override function clean ():Void {
 		
 		if (FileSystem.exists (targetDirectory)) {
@@ -225,7 +278,7 @@ class WindowsPlatform extends PlatformTarget {
 	
 	
 	public override function deploy ():Void {
-		
+
 		DeploymentHelper.deploy (project, targetFlags, targetDirectory, "Windows" + (is64 ? "64" : ""));
 		
 	}
@@ -294,22 +347,312 @@ class WindowsPlatform extends PlatformTarget {
 			arguments.push ("-verbose");
 			
 		}
-		
 		if (targetType == "nodejs") {
-			
 			NodeJSHelper.run (project, targetDirectory + "/bin/ApplicationMain.js", arguments);
-			
+		} else if (project.targetFlags.exists ("uwp")) {
+			/*
+
+			The 'test' target is problematic for UWP applications.  UWP applications are bundled in appx packages and
+			require app certs to properly install.
+
+			There are two options to trigger an appx install from the command line.
+
+			A. Use the WinAppDeployCmd.exe utility to deploy to local and remote devices
+
+			B. Execute the Add-AppDevPackage.ps1 powershell script that is an
+			   artifact of the UWP msbuild
+
+			A: WinAppDeployCmd.exe
+			https://docs.microsoft.com/en-us/windows/uwp/packaging/install-universal-windows-apps-with-the-winappdeploycmd-tool
+			https://msdn.microsoft.com/en-us/windows/desktop/mt627714
+			Windows 10 SDK: https://developer.microsoft.com/windows/downloads/windows-10-sdk
+
+			I've never actually got this to work, but I feel like I was close.  The WinAppDeployCmd.exe is a part of the
+			Windows 10 SDK and not a part of the Visual Studio 2017 community edition.  It will appear magically if you
+			check enough boxes when installing various project templates for Visual Studio.  It appeared for me, and I
+			have no clue how it got there.
+
+			A developer must take a few steps in order for this command to work.
+			1. Install Visual Studio 2017 Community Edition
+			2. Install the Windows 10 SDK
+			3. Modify Windows 10 Settings to enable side loading and device discovery
+			3. Enabling device discovery generates a pin number that is displayed to the user
+			4. Open the "Developer Command Promp for VS 2017" from the Start menu
+			5. run:
+				> WinAppDeployCmd devices
+			6. Make sure your device shows up in the list (if it does not appear try step 3 again, toggling things on/off)
+			7. run: (replase file, ip and pin with your values)
+				> WinAppDeployCmd install -file "uwp-project_1.0.0.0_AnyCPU.appx" -ip 192.168.27.167 -pin 326185
+
+
+			B: Add-AppDevPackage.ps1 + PowerShell_Set_Unrestricted.reg
+			The UWP build generates a powershell script by default. This script is usually executed by the user
+			by right clicking the file and choosing "run with powershell". Executing this script directly from the cmd
+			prompt results in a security error: "Add-AppDevPackage.ps1 cannot be loaded because running scripts is
+			disabled on this system."
+
+			We must edit the registry if we want to run this script directly from a shell.
+			See lime/templates/windows/template/PowerShell_Set_Unrestricted.reg
+
+			1. run:
+				> regedit /s PowerShell_Set_Unrestricted.reg
+			2. run:
+	 			> powershell "& ""./Add-AppDevPackage.ps1"""
+
+	 		note: the nonsensical double quotes are required.
+
+	 		*/
+
+			// Using option B because obtaining the device pin programatically does not seem possible.
+			ProcessHelper.runCommand ("", "regedit", [ '/s', '"' + targetDirectory + '/bin/PowerShell_Set_Unrestricted.reg"' ] );
+			var test = '"& ""' + targetDirectory + '/bin/PowerShell_Set_Unrestricted.reg"""';
+			ProcessHelper.runCommand ("", "powershell", [ '& ""' + targetDirectory + '/bin/source/AppPackages/uwp-project_1.0.0.0_AnyCPU_Test/Add-AppDevPackage.ps1""' ] );
+
+			//source/AppPackages/uwp-project_1.0.0.0_AnyCPU_Test/Add-AppDevPackage.ps1
+
+			//HTML5Helper.launch (project, targetDirectory + "/bin");
 		} else if (project.target == PlatformHelper.hostPlatform) {
-			
+
 			arguments = arguments.concat ([ "-livereload" ]);
 			ProcessHelper.runCommand (applicationDirectory, Path.withoutDirectory (executablePath), arguments);
 			
 		}
 		
 	}
-	
-	
+
+	public function updateUwp ():Void {
+		
+		project = project.clone ();
+		
+		var destination = targetDirectory + "/source/";
+		PathHelper.mkdir (destination);
+		
+		var webfontDirectory = targetDirectory + "/obj/webfont";
+		var useWebfonts = true;
+		
+		for (haxelib in project.haxelibs) {
+			
+			if (haxelib.name == "openfl-html5-dom" || haxelib.name == "openfl-bitfive") {
+				
+				useWebfonts = false;
+				
+			}
+			
+		}
+		
+		var fontPath;
+		
+		for (asset in project.assets) {
+			
+			if (asset.type == AssetType.FONT) {
+				
+				if (useWebfonts) {
+					
+					fontPath = PathHelper.combine (webfontDirectory, Path.withoutDirectory (asset.targetPath));
+					
+					if (!FileSystem.exists (fontPath)) {
+						
+						PathHelper.mkdir (webfontDirectory);
+						FileHelper.copyFile (asset.sourcePath, fontPath);
+						
+						asset.sourcePath = fontPath;
+						
+						HTML5Helper.generateWebfonts (project, asset);
+						
+					}
+					
+					asset.sourcePath = fontPath;
+					asset.targetPath = Path.withoutExtension (asset.targetPath);
+					
+				} else {
+					
+					project.haxeflags.push (HTML5Helper.generateFontData (project, asset));
+					
+				}
+				
+			}
+			
+		}
+		
+		if (project.targetFlags.exists ("xml")) {
+			
+			project.haxeflags.push ("-xml " + targetDirectory + "/types.xml");
+			
+		}
+		
+		if (LogHelper.verbose) {
+			
+			project.haxedefs.set ("verbose", 1);
+			
+		}
+		
+		ModuleHelper.updateProject (project);
+		
+		var libraryNames = new Map<String, Bool> ();
+		
+		for (asset in project.assets) {
+			
+			if (asset.library != null && !libraryNames.exists (asset.library)) {
+				
+				libraryNames[asset.library] = true;
+				
+			}
+			
+		}
+		
+		//for (library in libraryNames.keys ()) {
+			//
+			//project.haxeflags.push ("-resource " + targetDirectory + "/obj/manifest/" + library + ".json@__ASSET_MANIFEST__" + library);
+			//
+		//}
+		
+		//project.haxeflags.push ("-resource " + targetDirectory + "/obj/manifest/default.json@__ASSET_MANIFEST__default");
+		
+		var context = project.templateContext;
+		
+		context.WIN_FLASHBACKGROUND = project.window.background != null ? StringTools.hex (project.window.background, 6) : "";
+		context.OUTPUT_DIR = targetDirectory;
+		context.OUTPUT_FILE = outputFile;
+		
+		if (project.targetFlags.exists ("webgl")) {
+			
+			context.CPP_DIR = targetDirectory;
+			
+		}
+		
+		context.favicons = [];
+		
+		var icons = project.icons;
+		
+		if (icons.length == 0) {
+			
+			icons = [ new Icon (PathHelper.findTemplate (project.templatePaths, "default/icon.svg")) ];
+			
+		}
+		
+		//if (IconHelper.createWindowsIcon (icons, PathHelper.combine (destination, "favicon.ico"))) {
+			//
+			//context.favicons.push ({ rel: "icon", type: "image/x-icon", href: "./favicon.ico" });
+			//
+		//}
+		
+		if (IconHelper.createIcon (icons, 192, 192, PathHelper.combine (destination, "favicon.png"))) {
+			
+			context.favicons.push ({ rel: "shortcut icon", type: "image/png", href: "./favicon.png" });
+			
+		}
+		
+		context.linkedLibraries = [];
+		
+		for (dependency in project.dependencies) {
+
+			Sys.println("found dependency: " + dependency.name + " path: " + dependency.path);
+
+			
+			if (StringTools.endsWith (dependency.name, ".js")) {
+				
+				context.linkedLibraries.push (dependency.name);
+				
+			} else if (StringTools.endsWith (dependency.path, ".js") && FileSystem.exists (dependency.path)) {
+				
+				var name = Path.withoutDirectory (dependency.path);
+				
+				context.linkedLibraries.push ("./js/lib/" + name);
+				FileHelper.copyIfNewer (dependency.path, PathHelper.combine (destination, PathHelper.combine ("js/lib", name)));
+
+			}
+			
+		}
+
+		var seed = "unknown";
+		if(project.defines.exists("APP_PACKAGE")) {
+			seed = project.defines.get("APP_PACKAGE");
+		} else if(project.defines.exists("APP_TITLE")) {
+			seed = project.defines.get("APP_TITLE");
+		}
+		var guid = GUID.seededUuid(seed);
+		context.APP_GUID = guid;
+		var guidNoBrackets = guid.split("{").join("").split("}").join("");
+		context.APP_GUID_NOBRACKETS = guidNoBrackets;
+		context.APP_DESCRIPTION =  project.defines.get("APP_DESCRIPTION") != null ?
+			project.defines.get("APP_DESCRIPTION") : project.defines.get("APP_TITLE");
+
+
+		for (asset in project.assets) {
+			
+			var path = PathHelper.combine (destination, asset.targetPath);
+			
+			if (asset.type != AssetType.TEMPLATE) {
+				
+				if (asset.type != AssetType.FONT) {
+					
+					PathHelper.mkdir (Path.directory (path));
+					FileHelper.copyAssetIfNewer (asset, path);
+					
+				} else if (useWebfonts) {
+					
+					PathHelper.mkdir (Path.directory (path));
+					var ext = "." + Path.extension (asset.sourcePath);
+					var source = Path.withoutExtension (asset.sourcePath);
+					
+					for (extension in [ ext, ".eot", ".woff", ".svg" ]) {
+						
+						if (FileSystem.exists (source + extension)) {
+							
+							FileHelper.copyIfNewer (source + extension, path + extension);
+							
+						} else {
+							
+							LogHelper.warn ("Could not find generated font file \"" + source + extension + "\"");
+							
+						}
+						
+					}
+					
+				}
+				
+			}
+			
+		}
+		
+		FileHelper.recursiveCopyTemplate (project.templatePaths, "windows/template", targetDirectory, context);
+
+		
+		if (project.app.main != null) {
+			
+			FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", targetDirectory + "/haxe", context);
+			FileHelper.recursiveCopyTemplate (project.templatePaths, "windows/haxe", targetDirectory + "/haxe", context, true, false);
+			FileHelper.recursiveCopyTemplate (project.templatePaths, "windows/hxml", targetDirectory + "/haxe", context);
+			
+			if (project.targetFlags.exists ("webgl")) {
+				
+				FileHelper.recursiveCopyTemplate (project.templatePaths, "webgl/hxml", targetDirectory + "/haxe", context, true, false);
+				
+			}
+			
+		}
+		
+		for (asset in project.assets) {
+			
+			var path = PathHelper.combine (destination, asset.targetPath);
+			
+			if (asset.type == AssetType.TEMPLATE) {
+				
+				PathHelper.mkdir (Path.directory (path));
+				FileHelper.copyAsset (asset, path, context);
+				
+			}
+			
+		}
+		
+	}
+
 	public override function update ():Void {
+
+		if(project.targetFlags.exists("uwp")) {
+			updateUwp();
+			return;
+		}
 		
 		project = project.clone ();
 		

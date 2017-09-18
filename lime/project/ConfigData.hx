@@ -243,11 +243,10 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 	public function getString (id:String, defaultValue:String = ""):String {
 		
 		if (exists (id)) {
-			
 			return Std.string (get (id));
 			
 		}
-		
+
 		return defaultValue;
 		
 	}
