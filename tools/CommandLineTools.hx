@@ -854,7 +854,7 @@ class CommandLineTools {
 			
 			LogHelper.println (File.getContent (Sys.getEnv ("LIME_CONFIG")));
 			
-		} else {
+		} else if (words.length == 1) {
 			
 			if (config.defines.exists (words[0])) {
 				
@@ -863,6 +863,143 @@ class CommandLineTools {
 			} else {
 				
 				LogHelper.error ("\"" + words[0] + "\" is undefined");
+				
+			}
+			
+		} else {
+			
+			// TODO: Cleanup
+			
+			var path = Sys.getEnv ("LIME_CONFIG");
+			
+			var name = words.shift ();
+			var value = words.join (" ");
+			
+			try {
+				
+				if (!FileSystem.exists (value) && FileSystem.exists (PathHelper.expand (value))) {
+					
+					value = PathHelper.expand (value);
+					
+				}
+				
+			} catch (e:Dynamic) {}
+			
+			if (FileSystem.exists (path)) {
+				
+				var doRemove = (name == "remove");
+				
+				if (doRemove) {
+					
+					name = value;
+					
+				}
+				
+				var configText = File.getContent (path);
+				var lines = configText.split ("\n");
+				
+				var findSet = "<set name=\"" + name + "\"";
+				var findSetenv = "<setenv name=\"" + name + "\"";
+				var findDefine = "<define name=\"" + name + "\"";
+				var line, i = 0, index = 0, found = false;
+				
+				while (i < lines.length) {
+					
+					line = lines[i];
+					
+					if ((index = line.indexOf (findSet)) > -1) {
+						
+						found = true;
+						
+						if (doRemove) {
+							
+							lines.splice (i, 1);
+							continue;
+							
+						}
+						
+						lines[i] = line.substr (0, index) + "<set name=\"" + name + "\" value=\"" + value + "\" />";
+						
+					}
+					
+					if ((index = line.indexOf (findSetenv)) > -1) {
+						
+						found = true;
+						
+						if (doRemove) {
+							
+							lines.splice (i, 1);
+							continue;
+							
+						}
+						
+						lines[i] = line.substr (0, index) + "<setenv name=\"" + name + "\" value=\"" + value + "\" />";
+						
+					}
+					
+					if ((index = line.indexOf (findDefine)) > -1) {
+						
+						found = true;
+						
+						if (doRemove) {
+							
+							lines.splice (i, 1);
+							continue;
+							
+						}
+						
+						lines[i] = line.substr (0, index) + "<define name=\"" + name + "\" value=\"" + value + "\" />";
+						
+					}
+					
+					i++;
+					
+				}
+				
+				if (!found && !doRemove && lines.length > 2) {
+					
+					var insertPoint = lines.length - 3;
+					
+					if (StringTools.trim (lines[lines.length - 1]) == "") {
+						
+						insertPoint--;
+						
+					}
+					
+					if (StringTools.trim (lines[insertPoint + 1]) != "") {
+						
+						lines.insert (insertPoint + 1, "\t");
+						
+					}
+					
+					lines.insert (insertPoint + 1, "\t<define name=\"" + name + "\" value=\"" + value + "\" />");
+					
+				}
+				
+				var content = lines.join ("\n");
+				File.saveContent (path, content);
+				
+				if (doRemove) {
+					
+					if (found) {
+						
+						LogHelper.info ("Removed define \"" + name + "\"");
+						
+					} else {
+						
+						LogHelper.info ("There is no define \"" + name + "\"");
+						
+					}
+					
+				} else {
+					
+					LogHelper.info ("Set \"" + name + "\" to \"" + value + "\"");
+					
+				}
+				
+			} else {
+				
+				LogHelper.error ("Cannot find \"" + path + "\"");
 				
 			}
 			
