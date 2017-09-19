@@ -112,6 +112,13 @@ class NativeHTTPRequest {
 	
 	private function doWork_loadURL (uri:String, binary:Bool):Void {
 		
+		if (uri == null) {
+			
+			threadPool.sendError ({ instance: this, promise: promise, error: "The URI must not be null" });
+			return;
+			
+		}
+		
 		bytes = Bytes.alloc (0);
 		
 		bytesLoaded = 0;
