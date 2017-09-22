@@ -905,7 +905,8 @@ class FlashHelper {
 		
 		if (assets.length > 0) {
 			
-			project.haxeflags.push ("-swf-lib " + targetDirectory + "/obj/assets.swf");
+			project.haxeflags.push ("-cp " + targetDirectory);
+			project.haxeflags.push ("-swf-lib obj/assets.swf");
 			project.haxedefs.set ("flash-use-stage", "");
 			
 			return true;

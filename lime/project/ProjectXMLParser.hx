@@ -1279,7 +1279,7 @@ class ProjectXMLParser extends HXProject {
 								
 								if (dir != "") {
 									
-									includeProject.sources.push (dir);
+									includeProject.sources.unshift (dir);
 									
 								}
 								
