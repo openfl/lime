@@ -563,6 +563,22 @@ namespace lime {
 			keyEvent.modifier = event->key.keysym.mod;
 			keyEvent.windowID = event->key.windowID;
 			
+			if (keyEvent.type == KEY_DOWN) {
+				
+				if (keyEvent.keyCode == SDLK_CAPSLOCK) keyEvent.modifier |= KMOD_CAPS;
+				if (keyEvent.keyCode == SDLK_LALT) keyEvent.modifier |= KMOD_LALT;
+				if (keyEvent.keyCode == SDLK_LCTRL) keyEvent.modifier |= KMOD_LCTRL;
+				if (keyEvent.keyCode == SDLK_LGUI) keyEvent.modifier |= KMOD_LGUI;
+				if (keyEvent.keyCode == SDLK_LSHIFT) keyEvent.modifier |= KMOD_LSHIFT;
+				if (keyEvent.keyCode == SDLK_MODE) keyEvent.modifier |= KMOD_MODE;
+				if (keyEvent.keyCode == SDLK_NUMLOCKCLEAR) keyEvent.modifier |= KMOD_NUM;
+				if (keyEvent.keyCode == SDLK_RALT) keyEvent.modifier |= KMOD_RALT;
+				if (keyEvent.keyCode == SDLK_RCTRL) keyEvent.modifier |= KMOD_RCTRL;
+				if (keyEvent.keyCode == SDLK_RGUI) keyEvent.modifier |= KMOD_RGUI;
+				if (keyEvent.keyCode == SDLK_RSHIFT) keyEvent.modifier |= KMOD_RSHIFT;
+				
+			}
+			
 			KeyEvent::Dispatch (&keyEvent);
 			
 		}

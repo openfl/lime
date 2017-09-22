@@ -402,8 +402,8 @@ class IconHelper {
 		return image;
 		
 	}
-   
-   
+	
+	
 	private static function packBits (data:Bytes, offset:Int, len:Int):Bytes {
 		
 		var out = new BytesOutput ();
