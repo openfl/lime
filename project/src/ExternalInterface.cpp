@@ -1439,6 +1439,17 @@ namespace lime {
 	}
 	
 	
+	int lime_system_get_windows_console_mode (int handleType) {
+		
+		#ifdef HX_WINDOWS
+		return System::GetWindowsConsoleMode (handleType);
+		#else
+		return 0;
+		#endif
+		
+	}
+	
+	
 	void lime_system_open_file (HxString path) {
 		
 		#ifdef IPHONE
@@ -1460,6 +1471,17 @@ namespace lime {
 	bool lime_system_set_allow_screen_timeout (bool allow) {
 		
 		return System::SetAllowScreenTimeout (allow);
+		
+	}
+	
+	
+	bool lime_system_set_windows_console_mode (int handleType, int mode) {
+		
+		#ifdef HX_WINDOWS
+		return System::SetWindowsConsoleMode (handleType, mode);
+		#else
+		return false;
+		#endif
 		
 	}
 	
@@ -1896,9 +1918,11 @@ namespace lime {
 	DEFINE_PRIME0 (lime_system_get_ios_tablet);
 	DEFINE_PRIME0 (lime_system_get_num_displays);
 	DEFINE_PRIME0 (lime_system_get_timer);
+	DEFINE_PRIME1 (lime_system_get_windows_console_mode);
 	DEFINE_PRIME1v (lime_system_open_file);
 	DEFINE_PRIME2v (lime_system_open_url);
 	DEFINE_PRIME1 (lime_system_set_allow_screen_timeout);
+	DEFINE_PRIME2 (lime_system_set_windows_console_mode);
 	DEFINE_PRIME2v (lime_text_event_manager_register);
 	DEFINE_PRIME3 (lime_text_layout_create);
 	DEFINE_PRIME5 (lime_text_layout_position);
