@@ -136,15 +136,36 @@ class LogHelper {
 					var DISABLE_NEWLINE_AUTO_RETURN = 0x0008;
 					
 					var outputMode = getConsoleMode (STD_OUTPUT_HANDLE);
-					outputMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING | DISABLE_NEWLINE_AUTO_RETURN;
-					
 					var errorMode = getConsoleMode (STD_ERROR_HANDLE);
-					errorMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING | DISABLE_NEWLINE_AUTO_RETURN;
 					
-					var success = setConsoleMode (STD_OUTPUT_HANDLE, outputMode);
-					success = success && setConsoleMode (STD_ERROR_HANDLE, errorMode);
+					if (outputMode & ENABLE_VIRTUAL_TERMINAL_PROCESSING != 0) {
+						
+						colorSupported = true; 
+						
+					} else {
+						
+						outputMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING | DISABLE_NEWLINE_AUTO_RETURN;
+						colorSupported = setConsoleMode (STD_OUTPUT_HANDLE, outputMode);
+						
+					}
 					
-					colorSupported = success;
+					if (colorSupported) {
+						
+						if (errorMode & ENABLE_VIRTUAL_TERMINAL_PROCESSING == 0) {
+							
+							errorMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING | DISABLE_NEWLINE_AUTO_RETURN;
+							colorSupported = setConsoleMode (STD_ERROR_HANDLE, errorMode);
+							
+						}
+						
+						if (colorSupported) {
+							
+							// Fake presence of ANSICON, so subsequent tools know they can use ANSI codes
+							Sys.putEnv ("ANSICON", "1");
+							
+						}
+						
+					}
 					
 				}
 				

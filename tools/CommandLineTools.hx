@@ -472,7 +472,7 @@ class CommandLineTools {
 		
 		for (arg in args) {
 			
-			if (arg == "-nocffi" || arg == "-rebuild") {
+			if (arg == "-nocffi") {
 				
 				CFFI.enabled = false;
 				
