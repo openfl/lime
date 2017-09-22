@@ -16,6 +16,8 @@ class ImageHelper {
 	public static function rasterizeSVG (path:String, width:Int, height:Int, backgroundColor:Int = null):Image {
 	//public static function rasterizeSVG (svg:Dynamic /*SVG*/, width:Int, height:Int, backgroundColor:Int = null):Image {
 		
+		if (path == null) return null;
+		
 		var temp = PathHelper.getTemporaryFile (".png");
 		
 		try {
@@ -123,6 +125,8 @@ class ImageHelper {
 	
 	
 	public static function resizeImage (image:Image, width:Int, height:Int):Image {
+		
+		if (image == null) return null;
 		
 		if (image.width == width && image.height == height) {
 			
