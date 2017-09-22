@@ -703,11 +703,7 @@ class CommandLineTools {
 				
 				case HTML5:
 					
-					if(targetFlags.exists ("uwp")) {
-						platform = new WindowsPlatform (command, project, targetFlags);
-					} else {
-						platform = new HTML5Platform (command, project, targetFlags);
-					}
+					platform = new HTML5Platform (command, project, targetFlags);
 				
 				case FIREFOX:
 					
@@ -1710,6 +1706,12 @@ class CommandLineTools {
 				
 				target = Platform.EMSCRIPTEN;
 				targetFlags.set ("webassembly", "");
+			
+			case "winjs", "uwp":
+				
+				target = Platform.WINDOWS;
+				targetFlags.set ("uwp", "");
+				targetFlags.set ("winjs", "");
 			
 			default:
 				

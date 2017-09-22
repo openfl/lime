@@ -120,10 +120,15 @@ class ProjectXMLParser extends HXProject {
 			defines.set ("targetType", "swf");
 			defines.set ("flash", "1");
 			
-		} else if (targetFlags.exists("uwp")) {
+		} else if (target == Platform.WINDOWS && (targetFlags.exists ("uwp") || targetFlags.exists ("winjs"))) {
+			
+			targetFlags.set ("uwp", "");
+			targetFlags.set ("winjs", "");
 			
 			defines.set ("targetType", "js");
 			defines.set ("html5", "1");
+			defines.set ("uwp", "1");
+			defines.set ("winjs", "1");
 			
 		} else if (platformType == DESKTOP && target != PlatformHelper.hostPlatform) {
 			

@@ -311,7 +311,7 @@ class System {
 		
 		if (path != null) {
 			
-			#if windows
+			#if (sys && windows)
 			
 			Sys.command ("start", [ path ]);
 			

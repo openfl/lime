@@ -215,23 +215,20 @@ class HXProject {
 				defaultWindow.fullscreen = true;
 				defaultWindow.requireShaders = true;
 			
-			case WINDOWS, MAC, LINUX:
+			case WINDOWS:
 				
 				platformType = PlatformType.DESKTOP;
 				
-				if (target == Platform.LINUX || target == Platform.MAC) {
+				if (targetFlags.exists ("uwp") || targetFlags.exists ("winjs")) {
 					
-					architectures = [ PlatformHelper.hostArchitecture ];
-					
-				} else if(targetFlags.exists ("uwp")) {
-					Sys.println("forcing platform to WEB");
-					target = Platform.HTML5;
-					platformType = PlatformType.WEB;
 					architectures = [];
+					
+					targetFlags.set ("uwp", "");
+					targetFlags.set ("winjs", "");
+					
 					defaultWindow.width = 0;
 					defaultWindow.height = 0;
 					defaultWindow.fps = 60;
-					defaultWindow.allowHighDPI = false;
 					
 				} else {
 					
@@ -241,9 +238,16 @@ class HXProject {
 				
 				defaultWindow.allowHighDPI = false;
 			
+			case MAC, LINUX:
+				
+				platformType = PlatformType.DESKTOP;
+				architectures = [ PlatformHelper.hostArchitecture ];
+				
+				defaultWindow.allowHighDPI = false;
+			
 			default:
 				
-				// TODO: Better handle platform type for pluggable targets
+				// TODO: Better handling of platform type for pluggable targets
 				
 				platformType = PlatformType.CONSOLE;
 				
