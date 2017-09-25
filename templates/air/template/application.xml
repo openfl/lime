@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <application xmlns="http://ns.adobe.com/air/application/25.0">
 	<id>::APP_PACKAGE::</id>
-	<versionNumber>::APP_VERSION::</versionNumber>
+	<versionLabel>::APP_VERSION::</versionLabel>
+	<versionNumber>::APP_BUILD_NUMBER_SPLIT::</versionNumber>
 	<filename>::APP_FILE::</filename>
 	<name>::APP_TITLE::</name>
 	<description>::APP_DESCRIPTION::</description>

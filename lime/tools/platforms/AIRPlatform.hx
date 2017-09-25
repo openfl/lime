@@ -199,6 +199,42 @@ class AIRPlatform extends FlashPlatform {
 		var context = generateContext ();
 		context.OUTPUT_DIR = targetDirectory;
 		
+		var buildNumber = Std.string (context.APP_BUILD_NUMBER);
+		
+		if (buildNumber.length <= 3) {
+			
+			context.APP_BUILD_NUMBER_SPLIT = buildNumber;
+			
+		} else {
+			
+			var major = null;
+			
+			var patch = buildNumber.substr (-3);
+			buildNumber = buildNumber.substr (0, -3);
+			
+			var minor = buildNumber.substr (-Std.int (Math.min (buildNumber.length, 3)));
+			buildNumber = buildNumber.substr (0, -minor.length);
+			
+			if (buildNumber.length > 0) {
+				
+				major = buildNumber.substr (-Std.int (Math.min (buildNumber.length, 3)));
+				buildNumber = buildNumber.substr (0, -major.length);
+				
+			}
+			
+			var buildNumberSplit = minor + "." + patch;
+			if (major != null) buildNumberSplit = major + "." + buildNumberSplit;
+			
+			context.APP_BUILD_NUMBER_SPLIT = buildNumberSplit;
+			
+			if (buildNumber.length > 0) {
+				
+				LogHelper.warn ("Application build number " + buildNumber + buildNumberSplit + " exceeds 9 digits");
+				
+			}
+			
+		}
+		
 		var iconSizes = [ 16, 32, 48, 128 ];
 		var icons = project.icons;
 		iconData = [];

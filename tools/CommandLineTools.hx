@@ -2277,6 +2277,7 @@ class CommandLineTools {
 						
 						if (field == "window-allow-high-dpi") property = "allowHighDPI";
 						if (field == "window-color-depth") property = "colorDepth";
+						if (field == "meta-build-number") property = "buildNumber";
 						
 						var fieldReference = Reflect.field (overrides, fieldName);
 						
@@ -2298,6 +2299,11 @@ class CommandLineTools {
 								
 							} else if (Std.is (propertyReference, String)) {
 								
+								Reflect.setField (fieldReference, property, argValue);
+								
+							} else {
+								
+								// TODO: Only certain properties?
 								Reflect.setField (fieldReference, property, argValue);
 								
 							}
