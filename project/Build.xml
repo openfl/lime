@@ -219,6 +219,8 @@
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/simplefilewatcher/include/" />
 			<compilerflag value="-DLIME_SIMPLEFILEWATCHER" />
 			
+			<file name="src/system/DirectoryWatcher.cpp" />
+			
 		</section>
 		
 		<section if="LIME_TINYFILEDIALOGS">

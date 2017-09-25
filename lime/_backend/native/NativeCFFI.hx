@@ -49,6 +49,10 @@ class NativeCFFI {
 	@:cffi private static function lime_data_pointer_offset (dataPointer:DataPointer, offset:Int):Float;
 	@:cffi private static function lime_deflate_compress (data:Dynamic, bytes:Dynamic):Dynamic;
 	@:cffi private static function lime_deflate_decompress (data:Dynamic, bytes:Dynamic):Dynamic;
+	@:cffi private static function lime_directory_watcher_create (callback:Dynamic):CFFIPointer;
+	@:cffi private static function lime_directory_watcher_add_watch (handle:CFFIPointer, path:Dynamic, recursive:Bool):Dynamic;
+	@:cffi private static function lime_directory_watcher_remove_watch (handle:CFFIPointer, watchID:Dynamic):Void;
+	@:cffi private static function lime_directory_watcher_update (handle:CFFIPointer):Void;
 	@:cffi private static function lime_drop_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_file_dialog_open_directory (title:String, filter:String, defaultPath:String):Dynamic;
 	@:cffi private static function lime_file_dialog_open_file (title:String, filter:String, defaultPath:String):Dynamic;

@@ -23,6 +23,7 @@
 #include <system/CFFIPointer.h>
 #include <system/Clipboard.h>
 #include <system/ClipboardEvent.h>
+#include <system/DirectoryWatcher.h>
 #include <system/Endian.h>
 #include <system/JNI.h>
 #include <system/Locale.h>
@@ -60,6 +61,14 @@ namespace lime {
 		
 		Application* application = (Application*)val_data (handle);
 		delete application;
+		
+	}
+	
+	
+	void gc_directory_watcher (value handle) {
+		
+		DirectoryWatcher* watcher = (DirectoryWatcher*)val_data (handle);
+		delete watcher;
 		
 	}
 	
@@ -344,6 +353,50 @@ namespace lime {
 		return result.Value ();
 		#else
 		return alloc_null ();
+		#endif
+		
+	}
+	
+	
+	value lime_directory_watcher_create (value callback) {
+		
+		#ifdef LIME_SIMPLEFILEWATCHER
+		DirectoryWatcher* watcher = new DirectoryWatcher (callback);
+		return CFFIPointer (watcher, gc_directory_watcher);
+		#else
+		return alloc_null ();
+		#endif
+		
+	}
+	
+	
+	value lime_directory_watcher_add_watch (value handle, value path, bool recursive) {
+		
+		#ifdef LIME_SIMPLEFILEWATCHER
+		DirectoryWatcher* watcher = (DirectoryWatcher*)val_data (handle);
+		return alloc_int (watcher->AddWatch (val_string (path), recursive));
+		#else
+		return alloc_int (0);
+		#endif
+		
+	}
+	
+	
+	void lime_directory_watcher_remove_watch (value handle, value watchID) {
+		
+		#ifdef LIME_SIMPLEFILEWATCHER
+		DirectoryWatcher* watcher = (DirectoryWatcher*)val_data (handle);
+		watcher->RemoveWatch (val_int (watchID));
+		#endif
+		
+	}
+	
+	
+	void lime_directory_watcher_update (value handle) {
+		
+		#ifdef LIME_SIMPLEFILEWATCHER
+		DirectoryWatcher* watcher = (DirectoryWatcher*)val_data (handle);
+		watcher->Update ();
 		#endif
 		
 	}
@@ -1833,6 +1886,10 @@ namespace lime {
 	DEFINE_PRIME2 (lime_data_pointer_offset);
 	DEFINE_PRIME2 (lime_deflate_compress);
 	DEFINE_PRIME2 (lime_deflate_decompress);
+	DEFINE_PRIME1 (lime_directory_watcher_create);
+	DEFINE_PRIME3 (lime_directory_watcher_add_watch);
+	DEFINE_PRIME2v (lime_directory_watcher_remove_watch);
+	DEFINE_PRIME1v (lime_directory_watcher_update);
 	DEFINE_PRIME2v (lime_drop_event_manager_register);
 	DEFINE_PRIME3 (lime_file_dialog_open_directory);
 	DEFINE_PRIME3 (lime_file_dialog_open_file);
