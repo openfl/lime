@@ -64,6 +64,7 @@
 		<dependency path="dependencies/angle/libglesv2.dll" if="windows angle" unless="static_link" />
 		
 		<define name="native-trace" if="flash" unless="haxe-trace || haxetrace" />
+		<define name="fdb" if="flash debug" unless="nofdb" />
 		<define name="MACOSX_DEPLOYMENT_TARGET" value="10.6" if="mac" unless="MACOSX_DEPLOYMENT_TARGET" />
 		
 		<architecture name="armv7" if="android" />
