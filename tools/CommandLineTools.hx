@@ -470,9 +470,12 @@ class CommandLineTools {
 			
 		}
 		
+		
 		for (arg in args) {
 			
-			if (arg == "-nocffi") {
+			// TODO: Allow -rebuild without locking native binary?
+			
+			if (arg == "-nocffi" || arg == "-rebuild") {
 				
 				CFFI.enabled = false;
 				
