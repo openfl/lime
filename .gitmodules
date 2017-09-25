@@ -43,6 +43,6 @@
 [submodule "project/lib/tinyfiledialogs"]
 	path = project/lib/tinyfiledialogs
 	url = https://github.com/native-toolkit/tinyfiledialogs
-[submodule "project\\lib\\simplefilewatcher"]
-	path = project\\lib\\simplefilewatcher
+[submodule "project/lib/simplefilewatcher"]
+	path = project/lib/simplefilewatcher
 	url = https://github.com/native-toolkit/simplefilewatcher
