@@ -67,8 +67,10 @@ namespace lime {
 	
 	void gc_directory_watcher (value handle) {
 		
+		#ifdef LIME_SIMPLEFILEWATCHER
 		DirectoryWatcher* watcher = (DirectoryWatcher*)val_data (handle);
 		delete watcher;
+		#endif
 		
 	}
 	
