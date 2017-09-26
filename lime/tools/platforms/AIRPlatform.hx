@@ -103,7 +103,7 @@ class AIRPlatform extends FlashPlatform {
 				
 			}
 			
-			AIRHelper.build (project, targetDirectory, targetPlatform, targetPath, "application.xml", files, "bin");
+			AIRHelper.build (project, targetDirectory, targetPlatform, "bin/" + project.app.file + ".air", "application.xml", files, "bin");
 			
 		}
 		
@@ -180,30 +180,9 @@ class AIRPlatform extends FlashPlatform {
 	}
 	
 	
-	public override function install ():Void {
-		
-		// TODO: Make separate install step
-		
-	}
-	
-	
 	public override function run ():Void {
 		
 		AIRHelper.run (project, targetDirectory, targetPlatform, "application.xml", "bin");
-		
-	}
-	
-	
-	public override function trace ():Void {
-		
-		AIRHelper.trace (project, targetDirectory, targetPlatform, "application.xml", "bin");
-		
-	}
-	
-	
-	public override function uninstall ():Void {
-		
-		AIRHelper.uninstall (project, targetDirectory, targetPlatform, "application.xml", "bin");
 		
 	}
 	
@@ -332,7 +311,10 @@ class AIRPlatform extends FlashPlatform {
 	}
 	
 	
+	@ignore public override function install ():Void {}
 	@ignore public override function rebuild ():Void {}
+	@ignore public override function trace ():Void {}
+	@ignore public override function uninstall ():Void {}
 	
 	
 }
