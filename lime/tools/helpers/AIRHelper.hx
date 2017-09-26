@@ -20,7 +20,7 @@ class AIRHelper {
 			
 			case MAC:
 				
-				extension = ".app";
+				// extension = ".app";
 			
 			case IOS:
 				
@@ -50,7 +50,7 @@ class AIRHelper {
 					
 				}
 				
-				extension = ".ipa";
+				// extension = ".ipa";
 			
 			case ANDROID:
 				
@@ -64,7 +64,7 @@ class AIRHelper {
 					
 				}
 				
-				extension = ".apk";
+				// extension = ".apk";
 			
 			default:
 			
@@ -187,8 +187,8 @@ class AIRHelper {
 		if (targetPlatform == ANDROID) {
 			
 			AndroidHelper.initialize (project);
-			AndroidHelper.install (project, FileSystem.fullPath (workingDirectory) + "/" + project.app.file + ".apk");
-			AndroidHelper.run ("air." + project.meta.packageName + "/.AppEntry");
+			AndroidHelper.install (project, FileSystem.fullPath (workingDirectory) + "/" + (rootDirectory != null ? rootDirectory + "/" : "") + project.app.file + ".apk");
+			AndroidHelper.run (project.meta.packageName + "/.AppEntry");
 			
 		} else if (targetPlatform == IOS) {
 			
@@ -206,7 +206,7 @@ class AIRHelper {
 			}
 			
 			ProcessHelper.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adt", [ "-uninstallApp" ].concat (args).concat ([ "-appid", project.meta.packageName ]));
-			ProcessHelper.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adt", [ "-installApp" ].concat (args).concat ([ "-package", FileSystem.fullPath (workingDirectory) + "/" + project.app.file + ".ipa" ]));
+			ProcessHelper.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adt", [ "-installApp" ].concat (args).concat ([ "-package", FileSystem.fullPath (workingDirectory) + "/" + (rootDirectory != null ? rootDirectory + "/" : "") + project.app.file + ".ipa" ]));
 			
 			if (project.targetFlags.exists ("simulator")) {
 				
@@ -233,6 +233,48 @@ class AIRHelper {
 			}
 			
 			ProcessHelper.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adl", args);
+			
+		}
+		
+	}
+	
+	
+	public static function trace (project:HXProject, workingDirectory:String, targetPlatform:Platform, applicationXML:String, rootDirectory:String = null) {
+		
+		if (targetPlatform == ANDROID) {
+			
+			AndroidHelper.initialize (project);
+			var deviceID = null;
+			var adbFilter = null;
+			
+			// if (!LogHelper.verbose) {
+				
+				if (project.debug) {
+					
+					adbFilter = project.meta.packageName + ":I ActivityManager:I *:S";
+					
+				} else {
+					
+					adbFilter = project.meta.packageName + ":I *:S";
+					
+				}
+				
+			// }
+			
+			AndroidHelper.trace (project, project.debug, deviceID, adbFilter);
+			
+		}
+		
+	}
+	
+	
+	public static function uninstall (project:HXProject, workingDirectory:String, targetPlatform:Platform, applicationXML:String, rootDirectory:String = null) {
+		
+		if (targetPlatform == ANDROID) {
+			
+			AndroidHelper.initialize (project);
+			var deviceID = null;
+			AndroidHelper.uninstall (project.meta.packageName, deviceID);
 			
 		}
 		
