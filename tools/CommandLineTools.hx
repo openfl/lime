@@ -2351,11 +2351,11 @@ class CommandLineTools {
 				
 			} else if (argument.substr (0, 1) == "-") {
 				
-				if (argument.substr (1, 1) == "-") {
+				if (argument == "-dce" || argument.substr (1, 1) == "-") {
 					
 					overrides.haxeflags.push (argument);
 					
-					if (argument == "--remap" || argument == "--connect") {
+					if (argument == "--remap" || argument == "--connect" || argument == "-dce") {
 						
 						catchHaxeFlag = true;
 						
