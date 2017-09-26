@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "5.5.0",
-	"releasenote": "Endianness and threading improvements, added GC to cURL API",
+	"version": "5.6.0",
+	"releasenote": "Added FileWatcher, better color output on Windows, additional improvements",
 	"contributors": [ "singmajesty" ]
 }
