@@ -13,13 +13,12 @@ import lime.app.Event;
 @:access(lime._backend.native.NativeCFFI)
 
 
-class DirectoryWatcher {
+class FileWatcher {
 	
 	
-	public var onChange = new Event<Void->Void> ();
-	public var onFileAdd = new Event<String->Void> ();
-	public var onFileModify = new Event<String->Void> ();
-	public var onFileRemove = new Event<String->Void> ();
+	public var onAdd = new Event<String->Void> ();
+	public var onModify = new Event<String->Void> ();
+	public var onRemove = new Event<String->Void> ();
 	
 	private var handle:CFFIPointer;
 	private var hasUpdate:Bool;
@@ -29,14 +28,14 @@ class DirectoryWatcher {
 	public function new () {
 		
 		#if (lime_cffi && !macro)
-		handle = NativeCFFI.lime_directory_watcher_create (this_onChange);
+		handle = NativeCFFI.lime_file_watcher_create (this_onChange);
 		ids = new Map ();
 		#end
 		
 	}
 	
 	
-	public function addPath (path:String, recursive:Bool = true):Void {
+	public function addDirectory (path:String, recursive:Bool = true):Void {
 		
 		#if (lime_cffi && !macro)
 		if (!hasUpdate) {
@@ -46,19 +45,19 @@ class DirectoryWatcher {
 			
 		}
 		
-		var id:Int = NativeCFFI.lime_directory_watcher_add_watch (handle, path, recursive);
+		var id:Int = NativeCFFI.lime_file_watcher_add_directory (handle, path, recursive);
 		ids[path] = id;
 		#end
 		
 	}
 	
 	
-	public function removePath (path:String):Void {
+	public function removeDirectory (path:String):Void {
 		
 		#if (lime_cffi && !macro)
 		if (ids.exists (path)) {
 			
-			NativeCFFI.lime_directory_watcher_remove_watch (handle, ids[path]);
+			NativeCFFI.lime_file_watcher_remove_directory (handle, ids[path]);
 			ids.remove (path);
 			
 			if (!ids.keys ().hasNext ()) {
@@ -99,18 +98,15 @@ class DirectoryWatcher {
 			
 			case 1:
 				
-				onFileAdd.dispatch (path);
-				onChange.dispatch ();
+				onAdd.dispatch (path);
 			
 			case 2:
 				
-				onFileRemove.dispatch (path);
-				onChange.dispatch ();
+				onRemove.dispatch (path);
 			
 			case 4:
 				
-				onFileModify.dispatch (path);
-				onChange.dispatch ();
+				onModify.dispatch (path);
 			
 		}
 		
@@ -120,7 +116,7 @@ class DirectoryWatcher {
 	private function this_onUpdate (_):Void {
 		
 		#if (lime_cffi && !macro)
-		NativeCFFI.lime_directory_watcher_update (handle);
+		NativeCFFI.lime_file_watcher_update (handle);
 		#end
 		
 	}

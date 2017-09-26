@@ -1,4 +1,4 @@
-#include <system/DirectoryWatcher.h>
+#include <system/FileWatcher.h>
 #include <FileWatcher/FileWatcher.h>
 
 
@@ -9,7 +9,7 @@ namespace lime {
 		
 		public:
 			
-			UpdateListener (DirectoryWatcher* _watcher) {
+			UpdateListener (FileWatcher* _watcher) {
 				
 				watcher = _watcher;
 				
@@ -22,13 +22,12 @@ namespace lime {
 				
 			}
 			
-			DirectoryWatcher* watcher;
-			
+			FileWatcher* watcher;
 		
 	};
 	
 	
-	DirectoryWatcher::DirectoryWatcher (value _callback) {
+	FileWatcher::FileWatcher (value _callback) {
 		
 		callback = new AutoGCRoot (_callback);
 		fileWatcher = new FW::FileWatcher ();
@@ -36,7 +35,7 @@ namespace lime {
 	}
 	
 	
-	DirectoryWatcher::~DirectoryWatcher () {
+	FileWatcher::~FileWatcher () {
 		
 		delete callback;
 		delete fileWatcher;
@@ -52,7 +51,7 @@ namespace lime {
 	}
 	
 	
-	unsigned long DirectoryWatcher::AddWatch (std::string directory, bool recursive) {
+	unsigned long FileWatcher::AddDirectory (std::string directory, bool recursive) {
 		
 		UpdateListener* listener = new UpdateListener (this);
 		FW::WatchID watchID = ((FW::FileWatcher*)fileWatcher)->addWatch (directory, listener, true);
@@ -62,7 +61,7 @@ namespace lime {
 	}
 	
 	
-	void DirectoryWatcher::RemoveWatch (unsigned long watchID) {
+	void FileWatcher::RemoveDirectory (unsigned long watchID) {
 		
 		((FW::FileWatcher*)fileWatcher)->removeWatch (watchID);
 		
@@ -76,7 +75,7 @@ namespace lime {
 	}
 	
 	
-	void DirectoryWatcher::Update () {
+	void FileWatcher::Update () {
 		
 		((FW::FileWatcher*)fileWatcher)->update ();
 		

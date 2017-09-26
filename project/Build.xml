@@ -219,7 +219,7 @@
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/simplefilewatcher/include/" />
 			<compilerflag value="-DLIME_SIMPLEFILEWATCHER" />
 			
-			<file name="src/system/DirectoryWatcher.cpp" />
+			<file name="src/system/FileWatcher.cpp" />
 			
 		</section>
 		
