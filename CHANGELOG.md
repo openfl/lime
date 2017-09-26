@@ -1,3 +1,25 @@
+5.6.0 (09/26/2017)
+------------------
+
+* Added `lime.system.FileWatcher` for notifications of file events
+* Added support for color output on the Windows 10 standard command prompt
+* Added support for `lime config NAME VALUE` to add/set config values
+* Added initial template support for `lime test winjs` for HTML5/UWP support
+* Updated haxe.io.Bytes to match current official version
+* Improved key events to always set the key modifier on alt/ctrl/shift key press
+* Improved support for Adobe AIR iOS and Android builds
+* Improved Android builds to minimize to background on back button and not exit
+* Improved Linux target to build without HXCPP liblinuxcompat.a
+* Improved support for setting `-dce` on the command-line
+* Fixed support for setting `--window-minimized`, maximized and hidden using CLI
+* Fixed escaping of spaces in Windows paths
+* Fixed the behavior of `image.copyPixels` using an alpha image
+* Fixed the class path order when embedding Flash assets in certain conditions
+* Fixed support for Tizen HTML5 applications
+* Fixed progress event update on HTML5 HTTPRequest uploads
+* Fixed `ImageHelper.resizeImage` to properly handle null parameters
+
+
 5.5.0 (09/12/2017)
 ------------------
 
