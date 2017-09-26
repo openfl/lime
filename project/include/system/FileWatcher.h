@@ -43,7 +43,7 @@ namespace lime {
 		private:
 			
 			AutoGCRoot* callback;
-			void* fileWatcher = 0;
+			void* fileWatcher;
 			Mutex* mutex;
 			std::vector<FileWatcherEvent> queue;
 			std::map<long, void*> listeners;
