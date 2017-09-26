@@ -1,11 +1,11 @@
 #include <system/FileWatcher.h>
-#include <FileWatcher/FileWatcher.h>
+#include <efsw/efsw.hpp>
 
 
 namespace lime {
 	
 	
-	class UpdateListener : public FW::FileWatchListener {
+	class UpdateListener : public efsw::FileWatchListener {
 		
 		public:
 			
@@ -15,10 +15,10 @@ namespace lime {
 				
 			}
 			
-			void handleFileAction (FW::WatchID watchid, const FW::String& dir, const FW::String& filename, FW::Action action) {
+			void handleFileAction (efsw::WatchID watchid, const std::string& dir, const std::string& filename, efsw::Action action, std::string oldFilename = "") {
 				
-				value callback = watcher->callback->get ();
-				val_call3 (callback, alloc_string (dir.c_str ()), alloc_string (filename.c_str ()), alloc_int (action));
+				FileWatcherEvent event = { watchid, std::string (dir.begin (), dir.end ()), std::string (filename.begin (), filename.end ()), action, oldFilename };
+				watcher->QueueEvent (event);
 				
 			}
 			
@@ -30,7 +30,7 @@ namespace lime {
 	FileWatcher::FileWatcher (value _callback) {
 		
 		callback = new AutoGCRoot (_callback);
-		fileWatcher = new FW::FileWatcher ();
+		fileWatcher = new efsw::FileWatcher ();
 		
 	}
 	
@@ -40,35 +40,58 @@ namespace lime {
 		delete callback;
 		delete fileWatcher;
 		
-		std::map<unsigned long, void*>::iterator it;
-		
-		for (it = watchListeners.begin (); it != watchListeners.end (); it++) {
+		if (mutex) {
 			
-			delete (UpdateListener*)watchListeners[it->first];
+			delete mutex;
+			
+		}
+		
+		std::map<long, void*>::iterator it;
+		
+		for (it = listeners.begin (); it != listeners.end (); it++) {
+			
+			delete (UpdateListener*)listeners[it->first];
 			
 		}
 		
 	}
 	
 	
-	unsigned long FileWatcher::AddDirectory (std::string directory, bool recursive) {
+	long FileWatcher::AddDirectory (std::string directory, bool recursive) {
 		
 		UpdateListener* listener = new UpdateListener (this);
-		FW::WatchID watchID = ((FW::FileWatcher*)fileWatcher)->addWatch (directory, listener, true);
-		watchListeners[watchID] = listener;
+		efsw::WatchID watchID = ((efsw::FileWatcher*)fileWatcher)->addWatch (directory, listener, true);
+		listeners[watchID] = listener;
+		
+		if (!mutex) {
+			
+			mutex = new Mutex ();
+			((efsw::FileWatcher*)fileWatcher)->watch ();
+			
+		}
+		
 		return watchID;
 		
 	}
 	
 	
-	void FileWatcher::RemoveDirectory (unsigned long watchID) {
+	void FileWatcher::QueueEvent (FileWatcherEvent event) {
 		
-		((FW::FileWatcher*)fileWatcher)->removeWatch (watchID);
+		mutex->Lock ();
+		queue.push_back (event);
+		mutex->Unlock ();
 		
-		if (watchListeners.find (watchID) != watchListeners.end ()) {
+	}
+	
+	
+	void FileWatcher::RemoveDirectory (long watchID) {
+		
+		((efsw::FileWatcher*)fileWatcher)->removeWatch (watchID);
+		
+		if (listeners.find (watchID) != listeners.end ()) {
 			
-			delete (UpdateListener*)watchListeners[watchID];
-			watchListeners.erase (watchID);
+			delete (UpdateListener*)listeners[watchID];
+			listeners.erase (watchID);
 			
 		}
 		
@@ -77,7 +100,28 @@ namespace lime {
 	
 	void FileWatcher::Update () {
 		
-		((FW::FileWatcher*)fileWatcher)->update ();
+		mutex->Lock ();
+		
+		int size = queue.size ();
+		
+		if (size > 0) {
+			
+			FileWatcherEvent event;
+			value _callback = callback->get ();
+			
+			for (int i = 0; i < size; i++) {
+				
+				event = queue[i];
+				value args[4] = { alloc_string (event.dir.c_str ()), alloc_string (event.file.c_str ()), alloc_int (event.action), alloc_string (event.oldFile.c_str ()) };
+				val_callN (_callback, args, 4);
+				
+			}
+			
+			queue.clear ();
+		
+		}
+		
+		mutex->Unlock ();
 		
 	}
 	

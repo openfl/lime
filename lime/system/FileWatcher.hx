@@ -17,8 +17,9 @@ class FileWatcher {
 	
 	
 	public var onAdd = new Event<String->Void> ();
+	public var onDelete = new Event<String->Void> ();
 	public var onModify = new Event<String->Void> ();
-	public var onRemove = new Event<String->Void> ();
+	public var onMove = new Event<String->String->Void> ();
 	
 	private var handle:CFFIPointer;
 	private var hasUpdate:Bool;
@@ -52,6 +53,31 @@ class FileWatcher {
 	}
 	
 	
+	private function combine (directory:String, file:String):String {
+		
+		var trailingSlash = (directory.substr (-1) == "/" || directory.substr (-1) == "\\");
+		var startingSlash = (file.substr (0, 1) == "/" || file.substr (0, 1) == "\\");
+		var path;
+		
+		if (trailingSlash && startingSlash) {
+			
+			path = directory + file.substr (1);
+			
+		} else if (!trailingSlash && !startingSlash) {
+			
+			path = directory + #if windows "\\" #else "/" #end + file;
+			
+		} else {
+			
+			path = directory + file;
+			
+		}
+		
+		return path;
+		
+	}
+	
+	
 	public function removeDirectory (path:String):Void {
 		
 		#if (lime_cffi && !macro)
@@ -74,25 +100,9 @@ class FileWatcher {
 	}
 	
 	
-	private function this_onChange (directory:String, file:String, action:Int):Void {
+	private function this_onChange (directory:String, file:String, action:Int, oldFile:String):Void {
 		
-		var trailingSlash = (directory.substr (-1) == "/" || directory.substr (-1) == "\\");
-		var startingSlash = (file.substr (0, 1) == "/" || file.substr (0, 1) == "\\");
-		var path;
-		
-		if (trailingSlash && startingSlash) {
-			
-			path = directory + file.substr (1);
-			
-		} else if (!trailingSlash && !startingSlash) {
-			
-			path = directory + #if windows "\\" #else "/" #end + file;
-			
-		} else {
-			
-			path = directory + file;
-			
-		}
+		var path = combine (directory, file);
 		
 		switch (action) {
 			
@@ -102,11 +112,15 @@ class FileWatcher {
 			
 			case 2:
 				
-				onRemove.dispatch (path);
+				onDelete.dispatch (path);
+			
+			case 3:
+				
+				onModify.dispatch (path);
 			
 			case 4:
 				
-				onModify.dispatch (path);
+				onMove.dispatch (combine (directory, oldFile), path);
 			
 		}
 		

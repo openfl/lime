@@ -10,6 +10,9 @@ This product bundles cairo 1.15.2, which is available under an
 This product bundles libcurl 7.37.1, which is available under an
 "MIT/X derivate" license. For details, see [project/lib/curl/](project/lib).
 
+This product bundles efsw, which is available under an
+"MIT" license. For details, see [project/lib/efsw/](project/lib).
+
 This product bundles freetype 2.7.1, which is available under an
 "FTL" (BSD-style) license. For details, see [project/lib/freetype/](project/lib).
 
@@ -39,9 +42,6 @@ This product bundles libpng 1.6.12, which is available under a
 
 This product bundles SDL dev (22a0b777d7cd), which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/sdl/](project/lib).
-
-This product bundles simplefilewatcher, which is available under a
-"MIT" license. For details, see [project/lib/simplefilewatcher/](project/lib).
 
 This product bundles tinyfiledialogs 2.9.3, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/tinyfiledialogs/](project/lib).

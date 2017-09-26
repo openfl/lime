@@ -67,7 +67,7 @@ namespace lime {
 	
 	void gc_file_watcher (value handle) {
 		
-		#ifdef LIME_SIMPLEFILEWATCHER
+		#ifdef LIME_EFSW
 		FileWatcher* watcher = (FileWatcher*)val_data (handle);
 		delete watcher;
 		#endif
@@ -504,7 +504,7 @@ namespace lime {
 	
 	value lime_file_watcher_create (value callback) {
 		
-		#ifdef LIME_SIMPLEFILEWATCHER
+		#ifdef LIME_EFSW
 		FileWatcher* watcher = new FileWatcher (callback);
 		return CFFIPointer (watcher, gc_file_watcher);
 		#else
@@ -516,7 +516,7 @@ namespace lime {
 	
 	value lime_file_watcher_add_directory (value handle, value path, bool recursive) {
 		
-		#ifdef LIME_SIMPLEFILEWATCHER
+		#ifdef LIME_EFSW
 		FileWatcher* watcher = (FileWatcher*)val_data (handle);
 		return alloc_int (watcher->AddDirectory (val_string (path), recursive));
 		#else
@@ -529,7 +529,7 @@ namespace lime {
 	
 	void lime_file_watcher_remove_directory (value handle, value watchID) {
 		
-		#ifdef LIME_SIMPLEFILEWATCHER
+		#ifdef LIME_EFSW
 		FileWatcher* watcher = (FileWatcher*)val_data (handle);
 		watcher->RemoveDirectory (val_int (watchID));
 		#endif
@@ -539,7 +539,7 @@ namespace lime {
 	
 	void lime_file_watcher_update (value handle) {
 		
-		#ifdef LIME_SIMPLEFILEWATCHER
+		#ifdef LIME_EFSW
 		FileWatcher* watcher = (FileWatcher*)val_data (handle);
 		watcher->Update ();
 		#endif

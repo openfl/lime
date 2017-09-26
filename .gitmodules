@@ -43,3 +43,6 @@
 [submodule "project/lib/tinyfiledialogs"]
 	path = project/lib/tinyfiledialogs
 	url = https://github.com/native-toolkit/tinyfiledialogs
+[submodule "project/lib/efsw"]
+	path = project/lib/efsw
+	url = https://github.com/native-toolkit/efsw
