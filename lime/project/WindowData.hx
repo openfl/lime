@@ -29,5 +29,8 @@ typedef WindowData = {
 	@:optional var element:js.html.Element;
 	#end
 	@:optional var colorDepth:Int;
+	@:optional var minimized:Bool;
+	@:optional var maximized:Bool;
+	@:optional var hidden:Bool;
 	
 }
