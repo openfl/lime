@@ -36,7 +36,7 @@ class FileWatcher {
 	}
 	
 	
-	public function addDirectory (path:String, recursive:Bool = true):Void {
+	public function addDirectory (path:String, recursive:Bool = true):Bool {
 		
 		#if (lime_cffi && !macro)
 		if (!hasUpdate) {
@@ -47,8 +47,25 @@ class FileWatcher {
 		}
 		
 		var id:Int = NativeCFFI.lime_file_watcher_add_directory (handle, path, recursive);
-		ids[path] = id;
+		
+		if (id >= 0) {
+			
+			ids[path] = id;
+			return true;
+			
+		} else {
+			
+			// throw error?
+			// FileNotFound	= -1,
+			// FileRepeated	= -2,
+			// FileOutOfScope	= -3,
+			// FileNotReadable	= -4,
+			// FileRemote		= -5, /** Directory in remote file system ( create a generic FileWatcher instance to watch this directory ). */
+			
+		}
 		#end
+		
+		return false;
 		
 	}
 	
@@ -78,7 +95,7 @@ class FileWatcher {
 	}
 	
 	
-	public function removeDirectory (path:String):Void {
+	public function removeDirectory (path:String):Bool {
 		
 		#if (lime_cffi && !macro)
 		if (ids.exists (path)) {
@@ -93,9 +110,12 @@ class FileWatcher {
 				
 			}
 			
+			return true;
 			
 		}
 		#end
+		
+		return false;
 		
 	}
 	

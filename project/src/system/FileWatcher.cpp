@@ -31,6 +31,7 @@ namespace lime {
 		
 		callback = new AutoGCRoot (_callback);
 		fileWatcher = new efsw::FileWatcher ();
+		mutex = 0;
 		
 	}
 	
@@ -38,7 +39,7 @@ namespace lime {
 	FileWatcher::~FileWatcher () {
 		
 		delete callback;
-		delete fileWatcher;
+		delete (efsw::FileWatcher*)fileWatcher;
 		
 		if (mutex) {
 			
@@ -61,12 +62,17 @@ namespace lime {
 		
 		UpdateListener* listener = new UpdateListener (this);
 		efsw::WatchID watchID = ((efsw::FileWatcher*)fileWatcher)->addWatch (directory, listener, true);
-		listeners[watchID] = listener;
 		
-		if (!mutex) {
+		if (watchID >= 0) {
 			
-			mutex = new Mutex ();
-			((efsw::FileWatcher*)fileWatcher)->watch ();
+			listeners[watchID] = listener;
+			
+			if (!mutex) {
+				
+				mutex = new Mutex ();
+				((efsw::FileWatcher*)fileWatcher)->watch ();
+				
+			}
 			
 		}
 		
@@ -100,28 +106,32 @@ namespace lime {
 	
 	void FileWatcher::Update () {
 		
-		mutex->Lock ();
-		
-		int size = queue.size ();
-		
-		if (size > 0) {
+		if (mutex) {
 			
-			FileWatcherEvent event;
-			value _callback = callback->get ();
+			mutex->Lock ();
 			
-			for (int i = 0; i < size; i++) {
+			int size = queue.size ();
+			
+			if (size > 0) {
 				
-				event = queue[i];
-				value args[4] = { alloc_string (event.dir.c_str ()), alloc_string (event.file.c_str ()), alloc_int (event.action), alloc_string (event.oldFile.c_str ()) };
-				val_callN (_callback, args, 4);
+				FileWatcherEvent event;
+				value _callback = callback->get ();
 				
+				for (int i = 0; i < size; i++) {
+					
+					event = queue[i];
+					value args[4] = { alloc_string (event.dir.c_str ()), alloc_string (event.file.c_str ()), alloc_int (event.action), alloc_string (event.oldFile.c_str ()) };
+					val_callN (_callback, args, 4);
+					
+				}
+				
+				queue.clear ();
+			
 			}
 			
-			queue.clear ();
-		
+			mutex->Unlock ();
+			
 		}
-		
-		mutex->Unlock ();
 		
 	}
 	
