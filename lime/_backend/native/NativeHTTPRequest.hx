@@ -20,6 +20,37 @@ import sys.FileSystem;
 @:noDebug
 #end
 
+class TimeoutTimer {
+
+	var _timer:Timer = null;
+	var _checkAgain:Bool = false;
+
+	public function new(delay:Float, handler:Void->Void) {
+		startTimer(delay, handler);
+	}
+
+	function startTimer(delay:Float, handler:Void->Void) {
+		_timer = Timer.delay(function() {
+			if (_checkAgain) {
+				startTimer(delay, handler);
+			} else if (handler != null) {
+				handler();
+			}
+		}, Std.int(delay));
+	}
+
+	public inline function reset() {
+		_checkAgain = true;
+	}
+
+	public function stop() {
+		if (_timer != null) _timer.stop();
+
+		_checkAgain = false;
+		_timer = null;
+	}
+}
+
 
 class NativeHTTPRequest {
 	
@@ -35,7 +66,7 @@ class NativeHTTPRequest {
 	private var promise:Promise<Bytes>;
 	private var readPosition:Int;
 	private var writePosition:Int;
-	private var timeout:Timer;
+	private var timeout:TimeoutTimer;
 	
 	
 	public function new () {
@@ -57,6 +88,10 @@ class NativeHTTPRequest {
 			//CURLEasy.cleanup (curl);
 			//CURLEasy.reset (curl);
 			//CURLEasy.perform (curl);
+
+			//curl.cleanup ();
+			//curl.reset ();
+			//curl = null;
 			
 		}
 		
@@ -115,17 +150,17 @@ class NativeHTTPRequest {
 
 		if (parent.timeout > 0) {
 			
-			timeout = Timer.delay (function () {
+			timeout = new TimeoutTimer (parent.timeout, function () {
 				
-				if (this.promise != null && bytesLoaded == 0 && bytesTotal == 0 && !this.promise.isComplete && !this.promise.isError) {
+				if (this.promise != null && !this.promise.isComplete && !this.promise.isError) {
 					
-					//cancel ();
-					
-					this.promise.error (CURL.strerror (CURLCode.OPERATION_TIMEDOUT));
+					cancel ();
+
+					threadPool.sendError ({ instance: this, promise: this.promise, error: CURL.strerror (CURLCode.OPERATION_TIMEDOUT) });
 					
 				}
 				
-			}, parent.timeout);
+			});
 			
 		}
 
@@ -396,6 +431,8 @@ class NativeHTTPRequest {
 	
 	private function curl_onHeader (output:Bytes, size:Int, nmemb:Int):Int {
 		
+		if (canceled) return size * nmemb;
+
 		parent.responseHeaders = [];
 		
 		var parts = Std.string (output).split (': ');
@@ -419,6 +456,8 @@ class NativeHTTPRequest {
 	
 	private function curl_onProgress (dltotal:Float, dlnow:Float, uptotal:Float, upnow:Float):Int {
 		
+		if (canceled) return 0;
+
 		if (upnow > bytesLoaded || dlnow > bytesLoaded || uptotal > bytesTotal || dltotal > bytesTotal) {
 			
 			if (upnow > bytesLoaded) bytesLoaded = Std.int (upnow);
@@ -426,6 +465,7 @@ class NativeHTTPRequest {
 			if (uptotal > bytesTotal) bytesTotal = Std.int (uptotal);
 			if (dltotal > bytesTotal) bytesTotal = Std.int (dltotal);
 			
+			if (timeout != null) timeout.reset();
 			promise.progress (bytesLoaded, bytesTotal);
 			
 		}
@@ -437,6 +477,8 @@ class NativeHTTPRequest {
 	
 	private function curl_onRead (max:Int, input:Bytes):Bytes {
 		
+		if (canceled) return Bytes.alloc (0);
+
 		if (readPosition == 0 && max >= input.length) {
 			
 			return input;
@@ -466,6 +508,8 @@ class NativeHTTPRequest {
 	
 	private function curl_onWrite (output:Bytes, size:Int, nmemb:Int):Int {
 		
+		if (canceled) return size * nmemb;
+
 		growBuffer (writePosition + output.length);
 		bytes.blit (writePosition, output, 0, output.length);
 
@@ -482,6 +526,8 @@ class NativeHTTPRequest {
 		var uri:String = state.uri;
 		var binary:Bool = state.binary;
 		
+		instance.doWork_startTimeout ();
+
 		if (uri.indexOf ("http://") == -1 && uri.indexOf ("https://") == -1) {
 			
 			instance.doWork_loadFile (uri);
@@ -491,17 +537,17 @@ class NativeHTTPRequest {
 			instance.doWork_loadURL (uri, binary);
 			
 		}
-
-		instance.doWork_startTimeout ();
 	}
 	
 	
 	private static function threadPool_onComplete (state:Dynamic):Void {
 		
+		var instance = state.instance;
+		
+		if (instance != null && instance.canceled) return;
+
 		var promise:Promise<Bytes> = state.promise;
 		promise.complete (state.result);
-		
-		var instance = state.instance;
 		
 		if (instance.timeout != null) {
 			
@@ -518,11 +564,11 @@ class NativeHTTPRequest {
 	
 	private static function threadPool_onError (state:Dynamic):Void {
 		
+		var instance = state.instance;
+
 		var promise:Promise<Bytes> = state.promise;
 		promise.error (state.error);
-		
-		var instance = state.instance;
-		
+
 		if (instance.timeout != null) {
 			
 			instance.timeout.stop ();

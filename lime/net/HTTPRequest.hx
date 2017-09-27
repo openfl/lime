@@ -125,7 +125,7 @@ class _HTTPRequest_Bytes<T> extends AbstractHTTPRequest<T> {
 			promise.complete (responseData);
 			
 		});
-		
+
 		return promise.future;
 		
 	}
