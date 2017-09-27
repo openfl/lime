@@ -308,32 +308,17 @@ class NativeHTTPRequest {
 			
 			CURL.globalInit (CURL.GLOBAL_ALL);
 			
-			threadPool = new ThreadPool (1, 1);
+			threadPool = new ThreadPool (1, 4);
 			threadPool.doWork.add (threadPool_doWork);
+			threadPool.onRun.add (threadPool_onRun);
+			threadPool.onProgress.add (threadPool_onProgress);
 			threadPool.onComplete.add (threadPool_onComplete);
 			threadPool.onError.add (threadPool_onError);
 			
 		}
 		
 		canceled = false;
-		
-		if (parent.timeout > 0) {
-			
-			timeout = Timer.delay (function () {
-				
-				if (this.promise != null && bytesLoaded == 0 && bytesTotal == 0 && !this.promise.isComplete && !this.promise.isError) {
-					
-					//cancel ();
-					
-					this.promise.error (CURL.strerror (CURLCode.OPERATION_TIMEDOUT));
-					
-				}
-				
-			}, parent.timeout);
-			
-		}
-		
-		threadPool.queue ({ instance: this, uri: uri, binary: binary });
+		threadPool.queue ({ instance: this, uri: uri, binary: binary, timeout: parent.timeout });
 		
 		return promise.future;
 		
@@ -394,7 +379,7 @@ class NativeHTTPRequest {
 			if (uptotal > bytesTotal) bytesTotal = Std.int (uptotal);
 			if (dltotal > bytesTotal) bytesTotal = Std.int (dltotal);
 			
-			promise.progress (bytesLoaded, bytesTotal);
+			threadPool.sendProgress ({ instance: this, promise: promise, bytesLoaded: bytesLoaded, bytesTotal: bytesTotal });
 			
 		}
 		
@@ -466,6 +451,7 @@ class NativeHTTPRequest {
 	private static function threadPool_onComplete (state:Dynamic):Void {
 		
 		var promise:Promise<Bytes> = state.promise;
+		if (promise.isError) return;
 		promise.complete (state.result);
 		
 		var instance = state.instance;
@@ -499,6 +485,36 @@ class NativeHTTPRequest {
 		
 		instance.bytes = null;
 		instance.promise = null;
+		
+	}
+	
+	
+	private static function threadPool_onProgress (state:Dynamic):Void {
+		
+		var promise:Promise<Bytes> = state.promise;
+		if (promise.isComplete || promise.isError) return;
+		promise.progress (state.bytesLoaded, state.bytesTotal);
+		
+	}
+	
+	
+	private static function threadPool_onRun (state:Dynamic):Void {
+		
+		if (state.timeout > 0) {
+			
+			state.instance.timeout = Timer.delay (function () {
+				
+				if (state.promise != null && state.instance.bytesLoaded == 0 && state.instance.bytesTotal == 0 && !state.promise.isComplete && !state.promise.isError) {
+					
+					//cancel ();
+					
+					state.promise.error (CURL.strerror (CURLCode.OPERATION_TIMEDOUT));
+					
+				}
+				
+			}, state.timeout);
+			
+		}
 		
 	}
 	
