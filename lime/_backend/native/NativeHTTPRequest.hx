@@ -34,6 +34,7 @@ class NativeHTTPRequest {
 	private var parent:_IHTTPRequest;
 	private var promise:Promise<Bytes>;
 	private var readPosition:Int;
+	private var writePosition:Int;
 	private var timeout:Timer;
 	
 	
@@ -124,6 +125,8 @@ class NativeHTTPRequest {
 		bytesLoaded = 0;
 		bytesTotal = 0;
 		readPosition = 0;
+		writePosition = 0;
+
 		
 		if (curl == null) {
 			
@@ -366,6 +369,18 @@ class NativeHTTPRequest {
 		
 	}
 	
+
+	private function growBuffer (length:Int) {
+
+		if (length > bytes.length) {
+
+			var cacheBytes = bytes;
+			bytes = Bytes.alloc (length);
+			bytes.blit (0, cacheBytes, 0, cacheBytes.length);
+		
+		}
+
+	}
 	
 	
 	
@@ -378,7 +393,19 @@ class NativeHTTPRequest {
 		
 		parent.responseHeaders = [];
 		
-		// TODO
+		var parts = Std.string (output).split (': ');
+
+		if (parts.length == 2) {
+
+			switch (parts[0]) {
+
+				case 'Content-Length': 
+					
+					growBuffer (Std.parseInt (parts[1]));
+			
+			}
+		
+		}
 		
 		return size * nmemb;
 		
@@ -434,11 +461,11 @@ class NativeHTTPRequest {
 	
 	private function curl_onWrite (output:Bytes, size:Int, nmemb:Int):Int {
 		
-		var cacheBytes = bytes;
-		bytes = Bytes.alloc (bytes.length + output.length);
-		bytes.blit (0, cacheBytes, 0, cacheBytes.length);
-		bytes.blit (cacheBytes.length, output, 0, output.length);
-		
+		growBuffer (writePosition + output.length);
+		bytes.blit (writePosition, output, 0, output.length);
+
+		writePosition += output.length;
+
 		return size * nmemb;
 		
 	}
