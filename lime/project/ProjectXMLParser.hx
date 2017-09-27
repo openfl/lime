@@ -7,11 +7,11 @@ import lime.tools.helpers.ArrayHelper;
 import lime.tools.helpers.CommandHelper;
 import lime.tools.helpers.HaxelibHelper;
 import lime.tools.helpers.LogHelper;
+import lime.tools.helpers.ModuleHelper;
 import lime.tools.helpers.ObjectHelper;
 import lime.tools.helpers.PathHelper;
 import lime.tools.helpers.PlatformHelper;
 import lime.tools.helpers.StringMapHelper;
-import lime.tools.helpers.ModuleHelper;
 import lime.project.Asset;
 import lime.project.AssetType;
 import lime.project.Dependency;
@@ -33,7 +33,7 @@ class ProjectXMLParser extends HXProject {
 	public function new (path:String = "", defines:Map<String, Dynamic> = null, includePaths:Array<String> = null, useExtensionPath:Bool = false) {
 		
 		super ();
-
+		
 		if (defines != null) {
 			
 			this.defines = StringMapHelper.copy (defines);
@@ -816,6 +816,53 @@ class ProjectXMLParser extends HXProject {
 	}
 	
 	
+	private function parseCommandElement (element:Fast, commandList:Array<CLICommand>):Void {
+		
+		var command:CLICommand = null;
+		
+		if (element.has.haxe) {
+			
+			command = CommandHelper.interpretHaxe (substitute (element.att.haxe));
+			
+		}
+		
+		if (element.has.open) {
+			
+			command = CommandHelper.openFile (substitute (element.att.open));
+			
+		}
+		
+		if (element.has.command) {
+			
+			command = CommandHelper.fromSingleString (substitute (element.att.command));
+			
+		}
+		
+		if (element.has.cmd) {
+			
+			command = CommandHelper.fromSingleString (substitute (element.att.cmd));
+			
+		}
+		
+		if (command != null) {
+			
+			for (arg in element.elements) {
+				
+				if (arg.name == "arg") {
+					
+					command.args.push (arg.innerData);
+					
+				}
+				
+			}
+			
+			commandList.push (command);
+			
+		}
+		
+	}
+	
+	
 	private function parseMetaElement (element:Fast):Void {
 		
 		for (attribute in element.x.attributes ()) {
@@ -888,25 +935,24 @@ class ProjectXMLParser extends HXProject {
 		switch (element.name) {
 			
 			case "module" | "source":
-
-				var sourceAttribute = element.name == "module" ? "source" : "path";
-
-				if (element.has.resolve(sourceAttribute)) {
+				
+				var sourceAttribute = (element.name == "module" ? "source" : "path");
+				
+				if (element.has.resolve (sourceAttribute)) {
 					
-					var source = PathHelper.combine (basePath, substitute (element.att.resolve(sourceAttribute)));
-
+					var source = PathHelper.combine (basePath, substitute (element.att.resolve (sourceAttribute)));
 					var packageName = "";
-
+					
 					if (element.has.resolve ("package")) {
-
+						
 						packageName = element.att.resolve ("package");
-
+						
 					}
-
+					
 					ModuleHelper.addModuleSource (source, moduleData, include.split ("|"), exclude.split ("|"), packageName);
 					
 				}
-
+			
 			case "class":
 				
 				if (element.has.remove) {
@@ -969,6 +1015,7 @@ class ProjectXMLParser extends HXProject {
 		
 	}
 	
+	
 	private function parseOutputElement (element:Fast, extensionPath:String):Void {
 		
 		if (element.has.name) {
@@ -986,53 +1033,6 @@ class ProjectXMLParser extends HXProject {
 		if (element.has.resolve ("swf-version")) {
 			
 			app.swfVersion = Std.parseFloat (substitute (element.att.resolve ("swf-version")));
-			
-		}
-		
-	}
-	
-	
-	private function parseCommandElement (element:Fast, commandList:Array<CLICommand>):Void {
-		
-		var command:CLICommand = null;
-		
-		if (element.has.haxe) {
-			
-			command = CommandHelper.interpretHaxe (substitute (element.att.haxe));
-			
-		}
-		
-		if (element.has.open) {
-			
-			command = CommandHelper.openFile (substitute (element.att.open));
-			
-		}
-		
-		if (element.has.command) {
-			
-			command = CommandHelper.fromSingleString (substitute (element.att.command));
-			
-		}
-		
-		if (element.has.cmd) {
-			
-			command = CommandHelper.fromSingleString (substitute (element.att.cmd));
-			
-		}
-		
-		if (command != null) {
-			
-			for (arg in element.elements) {
-				
-				if (arg.name == "arg") {
-					
-					command.args.push (arg.innerData);
-					
-				}
-				
-			}
-			
-			commandList.push (command);
 			
 		}
 		

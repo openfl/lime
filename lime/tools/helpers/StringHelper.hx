@@ -53,6 +53,63 @@ class StringHelper {
 	}
 	
 	
+	public static function filter (text:String, include:Array<String> = null, exclude:Array<String> = null):Bool {
+		
+		if (include == null) {
+			
+			include = [ "*" ];
+			
+		}
+		
+		if (exclude == null) {
+			
+			exclude = [];
+			
+		}
+		
+		for (filter in exclude) {
+			
+			if (filter != "") {
+				
+				filter = StringTools.replace (filter, ".", "\\.");
+				filter = StringTools.replace (filter, "*", ".*");
+				
+				var regexp = new EReg ("^" + filter + "$", "i");
+				
+				if (regexp.match (text)) {
+					
+					return false;
+					
+				}
+				
+			}
+			
+		}
+		
+		for (filter in include) {
+			
+			if (filter != "") {
+				
+				filter = StringTools.replace (filter, ".", "\\.");
+				filter = StringTools.replace (filter, "*", ".*");
+				
+				var regexp = new EReg ("^" + filter, "i");
+				
+				if (regexp.match (text)) {
+					
+					return true;
+					
+				}
+				
+			}
+			
+		}
+		
+		return false;
+		
+	}
+	
+	
 	public static function formatArray (array:Array<Dynamic>):String {
 		
 		var output = "[ ";
@@ -271,61 +328,6 @@ class StringHelper {
 		return string + "\n" + StringTools.lpad ("", character, string.length);
 		
 	}
-
-	public static function filter (text:String, include:Array<String> = null, exclude:Array<String> = null):Bool {
-
-		if (include == null) {
-
-			include = [ "*" ];
-
-		}
-
-		if (exclude == null) {
-
-			exclude = [];
-
-		}
-
-		for (filter in exclude) {
-
-			if (filter != "") {
-
-				filter = StringTools.replace (filter, ".", "\\.");
-				filter = StringTools.replace (filter, "*", ".*");
-
-				var regexp = new EReg ("^" + filter + "$", "i");
-
-				if (regexp.match (text)) {
-
-					return false;
-
-				}
-
-			}
-
-		}
-
-		for (filter in include) {
-
-			if (filter != "") {
-
-				filter = StringTools.replace (filter, ".", "\\.");
-				filter = StringTools.replace (filter, "*", ".*");
-
-				var regexp = new EReg ("^" + filter, "i");
-
-				if (regexp.match (text)) {
-
-					return true;
-
-				}
-
-			}
-
-		}
-
-		return false;
-
-	}
+	
 	
 }

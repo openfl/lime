@@ -13,6 +13,30 @@ import sys.FileSystem;
 class ModuleHelper {
 	
 	
+	public static function addModuleSource (source:String, moduleData:ModuleData, include:Array<String>, exclude:Array<String>, packageName:String = null) {
+		
+		if (!FileSystem.exists (source)) {
+			
+			LogHelper.error ("Could not find module source \"" + source + "\"");
+			return;
+			
+		}
+		
+		moduleData.haxeflags.push ("-cp " + source);
+		
+		var path = source;
+		
+		if (packageName != null && packageName.length > 0) {
+			
+			path = PathHelper.combine (source, StringTools.replace (packageName, ".", "/"));
+			
+		}
+		
+		parseModuleSource (source, moduleData, include, exclude, path);
+		
+	}
+	
+	
 	public static function buildModules (project:HXProject, tempDirectory:String, outputDirectory:String):Void {
 		
 		tempDirectory = PathHelper.combine (tempDirectory, "lib");
@@ -124,6 +148,44 @@ class ModuleHelper {
 	}
 	
 	
+	private static function parseModuleSource (source:String, moduleData:ModuleData, include:Array<String>, exclude:Array<String>, currentPath:String):Void {
+		
+		var files = FileSystem.readDirectory (currentPath);
+		var filePath:String, className:String;
+		
+		for (file in files) {
+			
+			filePath = PathHelper.combine (currentPath, file);
+			
+			if (FileSystem.isDirectory (filePath)) {
+				
+				parseModuleSource (source, moduleData, include, exclude, filePath);
+				
+			} else {
+				
+				if (Path.extension (file) != "hx") continue;
+				
+				className = StringTools.replace (filePath, source, "");
+				className = StringTools.replace (className, "\\", "/");
+				
+				while (StringTools.startsWith (className, "/")) className = className.substr (1);
+				
+				className = StringTools.replace (className, "/", ".");
+				className = StringTools.replace (className, ".hx", "");
+				
+				if (StringHelper.filter (className, include, exclude)) {
+					
+					moduleData.classNames.push (className);
+					
+				}
+				
+			}
+			
+		}
+		
+	}
+	
+	
 	public static function patchFile (outputPath:String):Void {
 		
 		if (FileSystem.exists (outputPath)) {
@@ -176,65 +238,8 @@ class ModuleHelper {
 		//}
 		
 	}
-
-	public static function addModuleSource(source:String, moduleData:ModuleData, include:Array<String>, exclude:Array<String>, packageName:String = null) {
-		if (!FileSystem.exists (source)) {
-
-			LogHelper.error ("Could not find module source \"" + source + "\"");
-			return;
-
-		}
-
-		moduleData.haxeflags.push("-cp " + source);
-
-		var path = source;
-
-		if (packageName != null && packageName.length > 0) {
-
-			path = PathHelper.combine (source, StringTools.replace (packageName, ".", "/"));
-
-		}
-
-		parseModuleSource(source, moduleData, include, exclude, path);
-	}
-
-	private static function parseModuleSource (source:String, moduleData:ModuleData, include:Array<String>, exclude:Array<String>, currentPath:String):Void {
-
-		var files = FileSystem.readDirectory (currentPath);
-		var filePath:String, className:String;
-
-		for (file in files) {
-
-			filePath = PathHelper.combine (currentPath, file);
-
-			if (FileSystem.isDirectory (filePath)) {
-
-				parseModuleSource (source, moduleData, include, exclude, filePath);
-
-			} else {
-
-				if (Path.extension (file) != "hx") continue;
-
-				className = StringTools.replace (filePath, source, "");
-				className = StringTools.replace (className, "\\", "/");
-
-				while (StringTools.startsWith (className, "/")) className = className.substr (1);
-
-				className = StringTools.replace (className, "/", ".");
-				className = StringTools.replace (className, ".hx", "");
-
-				if (StringHelper.filter (className, include, exclude)) {
-
-					moduleData.classNames.push (className);
-
-				}
-
-			}
-
-		}
-	}
-
-
+	
+	
 }
 
 
