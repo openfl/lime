@@ -332,7 +332,7 @@ class NativeHTTPRequest {
 			
 			CURL.globalInit (CURL.GLOBAL_ALL);
 			
-			threadPool = new ThreadPool (1, 1);
+			threadPool = new ThreadPool (1, 4);
 			threadPool.doWork.add (threadPool_doWork);
 			threadPool.onComplete.add (threadPool_onComplete);
 			threadPool.onError.add (threadPool_onError);
