@@ -57,6 +57,7 @@ class Asset {
 		if (type == null) {
 			
 			var extension = Path.extension (path);
+			if (extension != null) extension = extension.toLowerCase ();
 			
 			if (FileHelper.knownExtensions.exists (extension)) {
 				
@@ -64,7 +65,7 @@ class Asset {
 				
 			} else {
 				
-				switch (extension.toLowerCase ()) {
+				switch (extension) {
 					
 					case "bundle":
 						
