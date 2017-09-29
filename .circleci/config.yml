@@ -7,7 +7,6 @@ jobs:
     working_directory: /workspace/lime
     steps:
      - checkout
-     - run: docker -v
      - run:
          name: Update Git Submodules
          command: git submodule update --init
