@@ -38,7 +38,9 @@ RUN haxelib install munit
 COPY . /opt/lime/
 COPY templates/bin/lime.sh /usr/local/bin/lime
 RUN haxelib dev lime /opt/lime/
-RUN lime rebuild tools
 RUN lime rebuild linux
+RUN lime rebuild tools
+
+RUN rm -rf /opt/lime/project/obj
 
 CMD [ "lime" ]
