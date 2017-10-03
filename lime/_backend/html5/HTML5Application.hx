@@ -162,6 +162,20 @@ class HTML5Application {
 				};
 			}
 			
+			if ('performance' in window == false) {
+				window.performance = {};
+			}
+			
+			if ('now' in window.performance == false) {
+				var offset = Date.now();
+				if (performance.timing && performance.timing.navigationStart) {
+					offset = performance.timing.navigationStart
+				}
+				window.performance.now = function now() {
+					return Date.now() - offset;
+				}
+			}
+			
 			var lastTime = 0;
 			var vendors = ['ms', 'moz', 'webkit', 'o'];
 			for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
