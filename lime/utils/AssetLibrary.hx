@@ -720,6 +720,25 @@ class AssetLibrary {
 	}
 	
 	
+	private function __cacheBreak (path:String):String {
+		
+		#if web
+		if (path.indexOf ("?") > -1) {
+			
+			path += "&" + Assets.cache.version;
+			
+		} else {
+			
+			path += "?" + Assets.cache.version;
+			
+		}
+		#end
+		
+		return path;
+		
+	}
+	
+	
 	private function __fromManifest (manifest:AssetManifest):Void {
 		
 		var hasSize = (manifest.version >= 2);
@@ -736,7 +755,7 @@ class AssetLibrary {
 			
 			if (Reflect.hasField (asset, "path")) {
 				
-				paths.set (id, basePath + Reflect.field (asset, "path"));
+				paths.set (id, __cacheBreak (basePath + Reflect.field (asset, "path")));
 				
 			}
 			
@@ -746,7 +765,7 @@ class AssetLibrary {
 				
 				for (i in 0...pathGroup.length) {
 					
-					pathGroup[i] = basePath + pathGroup[i];
+					pathGroup[i] = __cacheBreak (basePath + pathGroup[i]);
 					
 				}
 				
