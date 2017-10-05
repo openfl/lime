@@ -2,7 +2,7 @@
 #define LIME_GRAPHICS_OPENGL_OPENGL_H
 
 
-#if defined (ANDROID)
+#if defined (ANDROID)  || defined (RASPBERRYPI)
 
 #define LIME_GLES
 //#include <GLES3/gl3.h>
@@ -10,7 +10,7 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
-#elif defined (EMSCRIPTEN) || defined (RASPBERRYPI)
+#elif defined (EMSCRIPTEN)
 
 #define LIME_GLES
 #define LIME_GLES3_API
