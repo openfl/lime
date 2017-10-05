@@ -510,9 +510,23 @@ class ImageDataUtil {
 		
 		// TODO: Support sourceRect better, do not modify sourceImage, create C++ implementation for native
 		
-		var fromPreMult = function (col:Float, alpha:Float):Int {
-			var col = Std.int (col / alpha * 255) ;
-			return col < 0 ? 0 : (col > 255 ? 255 : col);
+		// TODO: Better handling of premultiplied alpha
+		var fromPreMult;
+		
+		if (image.buffer.premultiplied || sourceImage.buffer.premultiplied) {
+			
+			fromPreMult = function (col:Float, alpha:Float):Int {
+				var col = Std.int (col);
+				return col < 0 ? 0 : (col > 255 ? 255 : col);
+			}
+			
+		} else {
+			
+			fromPreMult = function (col:Float, alpha:Float):Int {
+				var col = Std.int (col / alpha * 255) ;
+				return col < 0 ? 0 : (col > 255 ? 255 : col);
+			}
+			
 		}
 		
 		var boxesForGauss = function (sigma:Float, n:Int):Array<Float> {
