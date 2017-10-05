@@ -41,6 +41,7 @@ class NativeHTTPRequest {
 	public function new () {
 		
 		curl = null;
+		timeout = null;
 		
 	}
 	
