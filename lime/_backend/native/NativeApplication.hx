@@ -348,6 +348,14 @@ class NativeApplication {
 				
 			}
 			
+			#if rpi
+			if (keyCode == ESCAPE && modifier == KeyModifier.NONE && type == KEY_UP && !window.onKeyUp.canceled) {
+				
+				System.exit (0);
+				
+			}
+			#end
+			
 			#elseif mac
 			
 			if (keyCode == F) {
