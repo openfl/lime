@@ -5,6 +5,7 @@
 #include FT_FREETYPE_H
 #include <hb-ft.h>
 #include <hb.h>
+#include <vector>
 
 
 namespace lime {
@@ -42,10 +43,16 @@ namespace lime {
 			
 			mFont = font;
 			hb_font_destroy ((hb_font_t*)mHBFont);
+			font->SetSize (size);
 			mHBFont = hb_ft_font_create ((FT_Face)font->face, NULL);
+			// hb_ft_font_set_funcs ((hb_font_t*)mHBFont);
+			hb_ft_font_set_load_flags ((hb_font_t*)mHBFont, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_TARGET_LIGHT);
+			
+		} else {
+			
+			font->SetSize (size);
 			
 		}
-		font->SetSize (size);
 		
 		// reset buffer
 		hb_buffer_reset ((hb_buffer_t*)mBuffer);
@@ -55,6 +62,13 @@ namespace lime {
 		
 		// layout the text
 		hb_buffer_add_utf8 ((hb_buffer_t*)mBuffer, text, strlen (text), 0, -1);
+		
+		// const hb_tag_t kerningTag = HB_TAG('k', 'e', 'r', 'n');
+		// static hb_feature_t useKerning = { kerningTag, 1, 0, std::numeric_limits<unsigned int>::max() };
+		// std::vector<hb_feature_t> features;
+		// features.push_back (useKerning);
+		
+		// hb_shape ((hb_font_t*)mHBFont, (hb_buffer_t*)mBuffer, &features[0], features.size());
 		hb_shape ((hb_font_t*)mHBFont, (hb_buffer_t*)mBuffer, NULL, 0);
 		
 		uint32_t glyph_count;
@@ -79,6 +93,7 @@ namespace lime {
 		bytesPosition += 4;
 		
 		hb_glyph_position_t pos;
+		hb_position_t kern;
 		GlyphPosition *data;
 		
 		for (int i = 0; i < glyph_count; i++) {
@@ -92,6 +107,14 @@ namespace lime {
 			data->advanceY = (float)(pos.y_advance / (float)64);
 			data->offsetX = (float)(pos.x_offset / (float)(64));
 			data->offsetY = (float)(pos.y_offset / (float)64);
+			
+			// if (i < glyph_count - 1) {
+				
+				// Manually add kerning, hb_shape seems to ignore kern feature?
+				// kern = hb_font_get_glyph_h_kerning ((hb_font_t*)mHBFont, glyph_info[i].codepoint, glyph_info[i + 1].codepoint);
+				// data->advanceX += (float)(kern / (float)(64));
+				
+			// }
 			
 			bytesPosition += glyphSize;
 			

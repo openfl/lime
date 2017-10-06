@@ -36,7 +36,7 @@ class TextLayout {
 	@:noCompletion private var __script:TextScript;
 	
 	
-	public function new (text:String = "", font:Font = null, size:Int = 12, direction:TextDirection = LEFT_TO_RIGHT, script:TextScript = COMMON, language:String = "en") {
+	public function new (text:String = "", font:Font = null, size:Int = 12, direction:TextDirection = LEFT_TO_RIGHT, script:TextScript = LATIN, language:String = "en") {
 		
 		this.text = text;
 		this.font = font;
