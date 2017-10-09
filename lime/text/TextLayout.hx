@@ -64,7 +64,7 @@ class TextLayout {
 			
 			if (__buffer == null) {
 				
-				__buffer = Bytes.alloc (text.length);
+				__buffer = Bytes.alloc (text.length * 5);
 				//__buffer.endian = (System.endianness == BIG_ENDIAN ? "bigEndian" : "littleEndian");
 				
 			}
@@ -75,17 +75,28 @@ class TextLayout {
 			if (__buffer.length > 4) {
 				
 				var count = __buffer.getInt32 (position); position += 4;
-				var index, advanceX, advanceY, offsetX, offsetY;
+				var codepoint, index, advanceX, advanceY, offsetX, offsetY;
+				var lastIndex = -1;
 				
 				for (i in 0...count) {
 					
+					codepoint = __buffer.getInt32 (position); position += 4;
 					index = __buffer.getInt32 (position); position += 4;
 					advanceX = __buffer.getFloat (position); position += 4;
 					advanceY = __buffer.getFloat (position); position += 4;
 					offsetX = __buffer.getFloat (position); position += 4;
 					offsetY = __buffer.getFloat (position); position += 4;
 					
-					positions.push (new GlyphPosition (index, new Vector2 (advanceX, advanceY), new Vector2 (offsetX, offsetY)));
+					for (j in lastIndex + 1...index) {
+						
+						// TODO: Handle differently?
+						
+						positions.push (new GlyphPosition (0, new Vector2 (0, 0), new Vector2 (0, 0)));
+						
+					}
+					
+					positions.push (new GlyphPosition (codepoint, new Vector2 (advanceX, advanceY), new Vector2 (offsetX, offsetY)));
+					lastIndex = index;
 					
 				}
 				

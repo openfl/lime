@@ -11,6 +11,7 @@ namespace lime {
 	
 	typedef struct {
 		
+		uint32_t codepoint;
 		uint32_t index;
 		float advanceX;
 		float advanceY;

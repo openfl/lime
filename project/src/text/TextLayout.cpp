@@ -59,6 +59,7 @@ namespace lime {
 		hb_buffer_set_direction ((hb_buffer_t*)mBuffer, (hb_direction_t)mDirection);
 		hb_buffer_set_script ((hb_buffer_t*)mBuffer, (hb_script_t)mScript);
 		hb_buffer_set_language ((hb_buffer_t*)mBuffer, (hb_language_t)mLanguage);
+		hb_buffer_set_cluster_level ((hb_buffer_t*)mBuffer, HB_BUFFER_CLUSTER_LEVEL_CHARACTERS);
 		
 		// layout the text
 		hb_buffer_add_utf8 ((hb_buffer_t*)mBuffer, text, strlen (text), 0, -1);
@@ -79,7 +80,7 @@ namespace lime {
 		int posIndex = 0;
 		
 		int glyphSize = sizeof (GlyphPosition);
-		uint32_t dataSize = 4 + (glyph_count * glyphSize);
+		uint32_t dataSize = 5 + (glyph_count * glyphSize);
 		
 		if (bytes->Length () < dataSize) {
 			
@@ -102,7 +103,8 @@ namespace lime {
 			
 			data = (GlyphPosition*)(bytesPosition);
 			
-			data->index = glyph_info[i].codepoint;
+			data->codepoint = glyph_info[i].codepoint;
+			data->index = glyph_info[i].cluster;
 			data->advanceX = (float)(pos.x_advance / (float)(64));
 			data->advanceY = (float)(pos.y_advance / (float)64);
 			data->offsetX = (float)(pos.x_offset / (float)(64));
