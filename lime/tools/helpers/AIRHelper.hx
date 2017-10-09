@@ -140,7 +140,7 @@ class AIRHelper {
 		
 		if (targetPlatform == IOS) {
 			
-			var provisioningProfile = IOSHelper.getProvisioningFile ();
+			var provisioningProfile = IOSHelper.getProvisioningFile (project);
 			
 			if (provisioningProfile != "") {
 				
