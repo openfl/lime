@@ -1,3 +1,26 @@
+5.7.0 (10/10/2017)
+------------------
+
+* Updated Freetype to 2.7.1, compiled with Harfbuzz/PNG support enabled
+* Added initial Adobe AIR backend support for multiple windows, alerts, etc
+* Added `threadPool.onRun` to be notified when work is about to be run
+* Added `ModuleHelper.addModuleSource` to improve JS modules from HXP projects
+* Added initial Dockerfile script
+* Added a polyfill for `performance.now()` to restore iPhone 4 HTML5 support
+* Improved Raspberry Pi support by adding "Escape" as a default key to exit
+* Improved support for non-premultiplied alpha in `imageDataUtil.gaussianBlur`
+* Improved native `HTTPRequest` to size bytes initially based on Content-Length
+* Improved support for Xcode 9.1
+* Improved support for combined characters in `TextLayout`
+* Fixed setting of `MACOSX_DEPLOYMENT_TARGET` on macOS
+* Fixed support for resolving iOS provisioning profiles for AIR/iOS on Windows
+* Fixed the addition of the HTML5 default cache break string for assets
+* Fixed default asset type assignment for files with upper-case file extensions
+* Fixed support for Raspberry Pi
+* Fixed `threadPool.onProgress` to dispatch in the proper foreground thread
+* Fixed native `HTTPRequest` to calculate timeout from when requests run
+
+
 5.6.0 (09/26/2017)
 ------------------
 
