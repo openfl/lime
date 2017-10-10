@@ -2,16 +2,7 @@ package lime.app;
 
 
 import lime.graphics.Renderer;
-import lime.graphics.RenderContext;
 import lime.system.System;
-import lime.ui.Gamepad;
-import lime.ui.GamepadAxis;
-import lime.ui.GamepadButton;
-import lime.ui.Joystick;
-import lime.ui.JoystickHatPosition;
-import lime.ui.KeyCode;
-import lime.ui.KeyModifier;
-import lime.ui.Touch;
 import lime.ui.Window;
 
 #if !lime_debug
@@ -198,7 +189,7 @@ class Application extends Module {
 					var window = new Window (windowConfig);
 					createWindow (window);
 					
-					#if (flash || html5)
+					#if ((flash && !air) || html5)
 					break;
 					#end
 					
@@ -402,7 +393,9 @@ class Application extends Module {
 }
 
 
-#if flash
+#if air
+@:noCompletion private typedef ApplicationBackend = lime._backend.air.AIRApplication;
+#elseif flash
 @:noCompletion private typedef ApplicationBackend = lime._backend.flash.FlashApplication;
 #elseif (js && html5)
 @:noCompletion private typedef ApplicationBackend = lime._backend.html5.HTML5Application;

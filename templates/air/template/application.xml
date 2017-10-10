@@ -10,21 +10,26 @@
 	<initialWindow>
 		<title>::APP_TITLE::</title>
 		<content>::APP_FILE::.swf</content>
-		<systemChrome>standard</systemChrome>
+		<systemChrome>::if (WIN_BORDERLESS)::none::else::standard::end::</systemChrome>
 		<transparent>false</transparent>
-		<visible>true</visible>
+		<visible>::if (WIN_HIDDEN)::false::else::true::end::</visible>
 		<minimizable>true</minimizable>
-		<maximizable>false</maximizable>
+		<maximizable>true</maximizable>
 		<resizable>::WIN_RESIZABLE::</resizable>
-		<!-- <width>::WIN_WIDTH::</width>
-		<height>::WIN_HEIGHT::</height>
-		<minSize>320 240</minSize>
+		::if (WIN_WIDTH != 0)::<width>::WIN_WIDTH::</width>::end::
+		::if (WIN_HEIGHT != 0)::<height>::WIN_HEIGHT::</height>::end::
+		<!-- <minSize>320 240</minSize>
 		<maxSize>1280 960</maxSize> -->
-		<renderMode>direct</renderMode> 
-		<!-- <autoOrients>false</autoOrients>
-		<aspectRatio>landscape</aspectRatio>
-		<fullScreen>true</fullScreen> -->
-		<depthAndStencil>true</depthAndStencil>
+		<renderMode>::if (WIN_HARDWARE)::direct::else::cpu::end::</renderMode>
+		::if (WIN_ORIENTATION == "auto")::
+		<autoOrients>true</autoOrients>
+		<aspectRatio>any</aspectRatio>
+		::else::
+		<autoOrients>false</autoOrients>
+		<aspectRatio>::if (WIN_ORIENTATION == "portrait")::portrait::else::landscape::end::</aspectRatio>
+		::end::
+		<fullScreen>::WIN_FULLSCREEN::</fullScreen>
+		::if (WIN_HARDWARE)::<depthAndStencil>true</depthAndStencil>::end::
 	</initialWindow> 
 	<installFolder>::APP_COMPANY::/::APP_TITLE::</installFolder>
 	<programMenuFolder>::APP_TITLE::</programMenuFolder>

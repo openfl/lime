@@ -25,6 +25,9 @@ extern class Event {
 	static var CHANNEL_STATE(default,never) : String;
 	@:require(flash10) static var CLEAR(default,never) : String;
 	static var CLOSE(default,never) : String;
+	#if air
+	static var CLOSING(default,never) : String;
+	#end
 	static var COMPLETE(default,never) : String;
 	static var CONNECT(default,never) : String;
 	@:require(flash11) static var CONTEXT3D_CREATE(default,never) : String;

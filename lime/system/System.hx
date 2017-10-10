@@ -16,6 +16,10 @@ import flash.system.Capabilities;
 import flash.Lib;
 #end
 
+#if air
+import flash.desktop.NativeApplication;
+#end
+
 #if (js && html5)
 import js.html.Element;
 import js.Browser;
@@ -163,11 +167,8 @@ class System {
 	
 	public static function exit (code:Int):Void {
 		
-		#if (sys && !macro)
-		
+		#if ((sys || air) && !macro)
 		if (Application.current != null) {
-			
-			// TODO: Clean exit?
 			
 			Application.current.onExit.dispatch (code);
 			
@@ -178,9 +179,12 @@ class System {
 			}
 			
 		}
+		#end
 		
+		#if sys
 		Sys.exit (code);
-		
+		#elseif air
+		NativeApplication.nativeApplication.exit (code);
 		#end
 		
 	}
