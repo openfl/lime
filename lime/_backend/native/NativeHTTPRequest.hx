@@ -285,7 +285,7 @@ class NativeHTTPRequest {
 		
 		if (result == CURLCode.OK) {
 			
-			if ((parent.responseStatus >= 200 && parent.responseStatus <= 400) || parent.responseStatus == 0) {
+			if ((parent.responseStatus >= 200 && parent.responseStatus < 400) || parent.responseStatus == 0) {
 				
 				threadPool.sendComplete ({ instance: this, promise: promise, result: bytes });
 				
