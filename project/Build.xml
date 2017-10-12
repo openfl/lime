@@ -29,6 +29,8 @@
 	<set name="LIME_SDL_ANGLE" value="1" if="windows LIME_SDL_ANGLE" unless="static_link" />
 	<set name="LIME_TINYFILEDIALOGS" value="1" if="windows || mac || linux" />
 	<set name="LIME_VORBIS" value="1" />
+	<set name="LIME_VPX" value="1" if="windows" />
+	<set name="LIME_WEBM" value="1" if="windows" />
 	<set name="LIME_ZLIB" value="1" />
 	
 	<set name="OUTPUT_DIR" value="../ndll" unless="OUTPUT_DIR" />
@@ -304,6 +306,8 @@
 	<include name="lib/sdl/files.xml" />
 	<include name="lib/tinyfiledialogs/files.xml" />
 	<include name="lib/vorbis/files.xml" />
+	<include name="lib/vpx/files.xml" />
+	<include name="lib/webm/files.xml" />
 	<include name="lib/zlib/files.xml" />
 	
 	<set name="DEBUGEXTRA" value="-debug" if="fulldebug" />
@@ -331,6 +335,8 @@
 		<files id="native-toolkit-sdl" if="LIME_SDL" unless="emscripten" />
 		<files id="native-toolkit-tinyfiledialogs" if="LIME_TINYFILEDIALOGS" />
 		<files id="native-toolkit-vorbis" if="LIME_VORBIS" />
+		<files id="native-toolkit-vpx" if="LIME_VPX" />
+		<files id="native-toolkit-webm" if="LIME_WEBM" />
 		<files id="native-toolkit-zlib" if="LIME_ZLIB" />
 		
 		<section unless="static_link">

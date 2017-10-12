@@ -46,3 +46,9 @@
 [submodule "project/lib/efsw"]
 	path = project/lib/efsw
 	url = https://github.com/native-toolkit/efsw
+[submodule "project/lib/vpx"]
+	path = project/lib/vpx
+	url = https://github.com/native-toolkit/vpx
+[submodule "project/lib/webm"]
+	path = project/lib/webm
+	url = https://github.com/native-toolkit/webm
