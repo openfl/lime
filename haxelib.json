@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "5.7.0",
-	"releasenote": "Added proper Adobe AIR backend, native HTTPRequest improvements, better TextLayout",
+	"version": "5.7.1",
+	"releasenote": "Fixed HTTPRequest error code handling, macOS deployment fix",
 	"contributors": [ "singmajesty" ]
 }
