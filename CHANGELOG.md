@@ -1,3 +1,11 @@
+5.7.1 (10/12/2017)
+------------------
+
+* Updated default `MACOSX_DEPLOYMENT_TARGET` on macOS to 10.7
+* Improved native `HTTPRequest` to complete as error if response status is error
+* Fixed `HTTPRequest` to treat HTTP status code 400 as an error
+
+
 5.7.0 (10/10/2017)
 ------------------
 
