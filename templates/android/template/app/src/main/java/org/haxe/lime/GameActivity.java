@@ -310,12 +310,12 @@ public class GameActivity extends SDLActivity {
 	::end::
 	
 	
-	@Override public void onWindowFocusChanged(boolean hasFocus) {
-
-		super.onWindowFocusChanged(hasFocus);
-
+	@Override public void onWindowFocusChanged (boolean hasFocus) {
+		
+		super.onWindowFocusChanged (hasFocus);
+		
 		updateSystemUI ();
-
+		
 	}
 	
 	
