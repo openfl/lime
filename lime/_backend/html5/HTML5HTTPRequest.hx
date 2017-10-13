@@ -63,11 +63,17 @@ class HTML5HTTPRequest {
 	private function load (uri:String, progress:Dynamic, readyStateChange:Dynamic):Void {
 		
 		request = new XMLHttpRequest ();
-		if(parent.method == POST) {
+		
+		if (parent.method == POST) {
+			
 			request.upload.addEventListener ("progress", progress, false);
+			
 		} else {
+			
 			request.addEventListener ("progress", progress, false);
+			
 		}
+		
 		request.onreadystatechange = readyStateChange;
 		
 		var query = "";
@@ -152,6 +158,12 @@ class HTML5HTTPRequest {
 		if (contentType != null) {
 			
 			request.setRequestHeader ("Content-Type", contentType);
+			
+		}
+		
+		if (parent.withCredentials) {
+			
+			request.withCredentials = true;
 			
 		}
 		

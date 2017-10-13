@@ -127,7 +127,6 @@ class NativeHTTPRequest {
 		bytesTotal = 0;
 		readPosition = 0;
 		writePosition = 0;
-
 		
 		if (curl == null) {
 			
@@ -265,6 +264,14 @@ class NativeHTTPRequest {
 		if (parent.enableResponseHeaders) {
 			
 			curl.setOption (HEADERFUNCTION, curl_onHeader);
+			
+		}
+		
+		// TODO: Add support for cookies: https://curl.haxx.se/docs/http-cookies.html
+		
+		if (parent.withCredentials) {
+			
+			// TODO: Send cookies with request
 			
 		}
 		

@@ -40,6 +40,7 @@ private class AbstractHTTPRequest<T> implements _IHTTPRequest {
 	public var timeout:Int;
 	public var uri:String;
 	public var userAgent:String;
+	public var withCredentials:Bool;
 	
 	#if !display
 	private var backend:HTTPRequestBackend;
@@ -57,6 +58,7 @@ private class AbstractHTTPRequest<T> implements _IHTTPRequest {
 		headers = [];
 		method = GET;
 		timeout = 30000;
+		withCredentials = false;
 		
 		#if !display
 		backend = new HTTPRequestBackend ();
@@ -188,6 +190,7 @@ interface _IHTTPRequest {
 	public var timeout:Int;
 	public var uri:String;
 	public var userAgent:String;
+	public var withCredentials:Bool;
 	
 	public function cancel ():Void;
 	
