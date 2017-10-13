@@ -20,7 +20,11 @@ class Log {
 		
 		if (level >= LogLevel.DEBUG) {
 			
-			println ("[" + info.className + "] " + message);
+			#if js
+				untyped __js__("console").debug ("[" + info.className + "] " + message);
+			#else
+				println ("[" + info.className + "] " + message);
+			#end
 			
 		}
 		
@@ -39,7 +43,11 @@ class Log {
 				
 			} else {
 				
-				println (message);
+				#if js
+					untyped __js__("console").error (message);
+				#else
+					println (message);
+				#end
 				
 			}
 			
@@ -52,7 +60,11 @@ class Log {
 		
 		if (level >= LogLevel.INFO) {
 			
-			println ("[" + info.className + "] " + message);
+			#if js
+				untyped __js__("console").info ("[" + info.className + "] " + message);
+			#else
+				println ("[" + info.className + "] " + message);
+			#end
 			
 		}
 		
@@ -104,7 +116,11 @@ class Log {
 		
 		if (level >= LogLevel.WARN) {
 			
-			println ("[" + info.className + "] WARNING: " + message);
+			#if js
+				untyped __js__("console").warn ("[" + info.className + "] WARNING: " + message);
+			#else
+				println ("[" + info.className + "] WARNING: " + message);
+			#end
 			
 		}
 		
