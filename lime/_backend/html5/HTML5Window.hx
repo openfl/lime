@@ -583,10 +583,12 @@ class HTML5Window {
 			
 		}
 		
+		var touch, x, y, cacheX, cacheY;
+		
 		for (data in event.changedTouches) {
 			
-			var x = 0.0;
-			var y = 0.0;
+			x = 0.0;
+			y = 0.0;
 			
 			if (rect != null) {
 				
@@ -600,116 +602,102 @@ class HTML5Window {
 				
 			}
 			
-			switch (event.type) {
+			if (event.type == "touchstart") {
 				
-				case "touchstart":
-					
-					var touch = unusedTouchesPool.pop ();
-					
-					if (touch == null) {
-						
-						touch = new Touch (x / windowWidth, y / windowHeight, data.identifier, 0, 0, data.force, parent.id);
-						
-					} else {
-						
-						touch.x = x / windowWidth;
-						touch.y = y / windowHeight;
-						touch.id = data.identifier;
-						touch.dx = 0;
-						touch.dy = 0;
-						touch.pressure = data.force;
-						touch.device = parent.id;
-						
-					}
-					
-					currentTouches.set (data.identifier, touch);
-					
-					Touch.onStart.dispatch (touch);
-					
-					if (primaryTouch == null) {
-						
-						primaryTouch = touch;
-						
-					}
-					
-					if (touch == primaryTouch) {
-						
-						parent.onMouseDown.dispatch (x, y, 0);
-						
-					}
+				touch = unusedTouchesPool.pop ();
 				
-				case "touchend":
+				if (touch == null) {
 					
-					var touch = currentTouches.get (data.identifier);
+					touch = new Touch (x / windowWidth, y / windowHeight, data.identifier, 0, 0, data.force, parent.id);
 					
-					if (touch != null) {
+				} else {
+					
+					touch.x = x / windowWidth;
+					touch.y = y / windowHeight;
+					touch.id = data.identifier;
+					touch.dx = 0;
+					touch.dy = 0;
+					touch.pressure = data.force;
+					touch.device = parent.id;
+					
+				}
+				
+				currentTouches.set (data.identifier, touch);
+				
+				Touch.onStart.dispatch (touch);
+				
+				if (primaryTouch == null) {
+					
+					primaryTouch = touch;
+					
+				}
+				
+				if (touch == primaryTouch) {
+					
+					parent.onMouseDown.dispatch (x, y, 0);
+					
+				}
+				
+			} else {
+				
+				touch = currentTouches.get (data.identifier);
+				
+				if (touch != null) {
+					
+					cacheX = touch.x;
+					cacheY = touch.y;
+					
+					touch.x = x / windowWidth;
+					touch.y = y / windowHeight;
+					touch.dx = touch.x - cacheX;
+					touch.dy = touch.y - cacheY;
+					touch.pressure = data.force;
+					
+					switch (event.type) {
 						
-						var cacheX = touch.x;
-						var cacheY = touch.y;
-						
-						touch.x = x / windowWidth;
-						touch.y = y / windowHeight;
-						touch.dx = touch.x - cacheX;
-						touch.dy = touch.y - cacheY;
-						touch.pressure = data.force;
-						
-						Touch.onEnd.dispatch (touch);
-						
-						currentTouches.remove (data.identifier);
-						unusedTouchesPool.add (touch);
-						
-						if (touch == primaryTouch) {
+						case "touchmove":
 							
-							parent.onMouseUp.dispatch (x, y, 0);
-							primaryTouch = null;
+							Touch.onMove.dispatch (touch);
 							
-						}
+							if (touch == primaryTouch) {
+								
+								parent.onMouseMove.dispatch (x, y);
+								
+							}
+						
+						case "touchend":
+							
+							Touch.onEnd.dispatch (touch);
+							
+							currentTouches.remove (data.identifier);
+							unusedTouchesPool.add (touch);
+							
+							if (touch == primaryTouch) {
+								
+								parent.onMouseUp.dispatch (x, y, 0);
+								primaryTouch = null;
+								
+							}
+						
+						case "touchcancel":
+							
+							Touch.onCancel.dispatch (touch);
+							
+							currentTouches.remove (data.identifier);
+							unusedTouchesPool.add (touch);
+							
+							if (touch == primaryTouch) {
+								
+								//parent.onMouseUp.dispatch (x, y, 0);
+								primaryTouch = null;
+								
+							}
+						
+						default:
 						
 					}
-				
-				case "touchcancel":
 					
-					var touch = currentTouches.get (data.identifier);
-					
-					if (touch != null) {
-						
-						currentTouches.remove (data.identifier);
-						unusedTouchesPool.add (touch);
-						
-						if (touch == primaryTouch) {
-							
-							primaryTouch = null;
-							
-						}
-						
-					}
-				
-				case "touchmove":
-					
-					var touch = currentTouches.get (data.identifier);
-					
-					if (touch != null) {
-						
-						var cacheX = touch.x;
-						var cacheY = touch.y;
-						
-						touch.x = x / windowWidth;
-						touch.y = y / windowHeight;
-						touch.dx = touch.x - cacheX;
-						touch.dy = touch.y - cacheY;
-						touch.pressure = data.force;
-						
-						Touch.onMove.dispatch (touch);
-						
-						if (touch == primaryTouch) {
-							
-							parent.onMouseMove.dispatch (x, y);
-							
-						}
-						
-					}
-				
-				default:
+				}
 				
 			}
 			

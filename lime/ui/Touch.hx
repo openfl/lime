@@ -12,6 +12,7 @@ import lime.app.Event;
 class Touch {
 	
 	
+	public static var onCancel = new Event<Touch->Void> ();
 	public static var onEnd = new Event<Touch->Void> ();
 	public static var onMove = new Event<Touch->Void> ();
 	public static var onStart = new Event<Touch->Void> ();
