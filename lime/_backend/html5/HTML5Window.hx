@@ -226,6 +226,7 @@ class HTML5Window {
 			element.addEventListener ("touchstart", handleTouchEvent, true);
 			element.addEventListener ("touchmove", handleTouchEvent, true);
 			element.addEventListener ("touchend", handleTouchEvent, true);
+			element.addEventListener ("touchcancel", handleTouchEvent, true);
 			
 			element.addEventListener ("gamepadconnected", handleGamepadEvent, true);
 			element.addEventListener ("gamepaddisconnected", handleGamepadEvent, true);
@@ -665,6 +666,20 @@ class HTML5Window {
 						}
 						
 					}
+				
+				case "touchcancel":
+					
+					var touch;
+					
+					for (key in currentTouches.keys ()) {
+						
+						touch = currentTouches.get (key);
+						currentTouches.remove (key);
+						unusedTouchesPool.add (touch);
+						
+					}
+					
+					primaryTouch = null;
 				
 				case "touchmove":
 					
