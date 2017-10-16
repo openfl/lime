@@ -669,17 +669,20 @@ class HTML5Window {
 				
 				case "touchcancel":
 					
-					var touch;
+					var touch = currentTouches.get (data.identifier);
 					
-					for (key in currentTouches.keys ()) {
+					if (touch != null) {
 						
-						touch = currentTouches.get (key);
-						currentTouches.remove (key);
+						currentTouches.remove (data.identifier);
 						unusedTouchesPool.add (touch);
 						
+						if (touch == primaryTouch) {
+							
+							primaryTouch = null;
+							
+						}
+						
 					}
-					
-					primaryTouch = null;
 				
 				case "touchmove":
 					
