@@ -112,6 +112,7 @@ class Module implements IModule {
 		
 		Joystick.onConnect.add (__onJoystickConnect);
 		
+		Touch.onCancel.add (onTouchCancel);
 		Touch.onStart.add (onTouchStart);
 		Touch.onMove.add (onTouchMove);
 		Touch.onEnd.add (onTouchEnd);
@@ -173,6 +174,7 @@ class Module implements IModule {
 		
 		Gamepad.onConnect.remove (__onGamepadConnect);
 		Joystick.onConnect.remove (__onJoystickConnect);
+		Touch.onCancel.remove (onTouchCancel);
 		Touch.onStart.remove (onTouchStart);
 		Touch.onMove.remove (onTouchMove);
 		Touch.onEnd.remove (onTouchEnd);
@@ -397,6 +399,13 @@ class Module implements IModule {
 	 * @param	text	The current input text
 	 */
 	public function onTextInput (window:Window, text:String):Void { }
+	
+	
+	/**
+	 * Called when a touch cancel event is fired
+	 * @param	touch	The current touch object
+	 */
+	public function onTouchCancel (touch:Touch):Void { }
 	
 	
 	/**
