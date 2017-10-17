@@ -45,11 +45,11 @@ class AndroidHelper {
 		if (PlatformHelper.hostPlatform != Platform.WINDOWS) {
 			
 			ProcessHelper.runCommand ("", "chmod", [ "755", PathHelper.combine (projectDirectory, "gradlew") ]);
-			ProcessHelper.runCommand (projectDirectory, "./gradlew", [ task ]);
+			ProcessHelper.runCommand (projectDirectory, "./gradlew", task.split (" "));
 			
 		} else {
 			
-			ProcessHelper.runCommand (projectDirectory, "gradlew", [ task ]);
+			ProcessHelper.runCommand (projectDirectory, "gradlew", task.split (" "));
 			
 		}
 	}
