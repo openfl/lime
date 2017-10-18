@@ -306,7 +306,7 @@ class NativeHTTPRequest {
 				
 			} else {
 
-                threadPool.sendError ({ instance: this, promise: promise, error: bytes == null ? 'Status ${parent.responseStatus}' : Std.string(bytes)});
+				threadPool.sendError ({ instance: this, promise: promise, error: bytes == null ? 'Status ${parent.responseStatus}' : Std.string(bytes)});
 				
 			}
 			
