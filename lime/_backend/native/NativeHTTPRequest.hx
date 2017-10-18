@@ -174,6 +174,12 @@ class NativeHTTPRequest {
 				}
 				
 			}
+
+			else {
+
+				data = Bytes.alloc(0);
+
+			}
 		}
 		
 		curl.setOption (URL, uri);
