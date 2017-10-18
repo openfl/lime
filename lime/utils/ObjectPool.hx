@@ -1,13 +1,15 @@
 package lime.utils;
 
 
+import haxe.ds.ObjectMap;
+
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
 
 
-@:generic class ObjectPool<T:{}> {
+@:generic class ObjectPool<T> {
 	
 	
 	public var activeObjects (default, null):Int;
@@ -41,7 +43,7 @@ package lime.utils;
 			
 		}
 		
-		__pool = new Map ();
+		__pool = cast new ObjectMap ();
 		
 		activeObjects = 0;
 		inactiveObjects = 0;
@@ -75,7 +77,7 @@ package lime.utils;
 	
 	public function clear ():Void {
 		
-		__pool = new Map ();
+		__pool = cast new ObjectMap ();
 		
 		activeObjects = 0;
 		inactiveObjects = 0;
