@@ -8,6 +8,7 @@ import lime.app.Promise;
 import lime.net.curl.CURLCode;
 import lime.net.curl.CURL;
 import lime.net.HTTPRequest;
+import lime.net.HTTPRequestHeader;
 import lime.net.HTTPRequestMethod;
 import lime.system.ThreadPool;
 
@@ -262,7 +263,8 @@ class NativeHTTPRequest {
 		curl.setOption (WRITEFUNCTION, curl_onWrite);
 		
 		if (parent.enableResponseHeaders) {
-			
+
+            parent.responseHeaders = [];
 			curl.setOption (HEADERFUNCTION, curl_onHeader);
 			
 		}
@@ -391,12 +393,12 @@ class NativeHTTPRequest {
 	
 	
 	private function curl_onHeader (output:Bytes, size:Int, nmemb:Int):Int {
-		
-		parent.responseHeaders = [];
-		
+
 		var parts = Std.string (output).split (': ');
 
 		if (parts.length == 2) {
+
+            parent.responseHeaders.push (new HTTPRequestHeader (parts[0], parts[1]));
 
 			switch (parts[0]) {
 
