@@ -9,6 +9,7 @@ import lime.tools.helpers.DeploymentHelper;
 import lime.tools.helpers.FileHelper;
 import lime.tools.helpers.HTML5Helper;
 import lime.tools.helpers.IconHelper;
+import lime.tools.helpers.JavaHelper;
 import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.ModuleHelper;
 import lime.tools.helpers.CSHelper;
@@ -68,6 +69,10 @@ class WindowsPlatform extends PlatformTarget {
 		} else if (project.targetFlags.exists ("cs")) {
 			
 			targetType = "cs";
+			
+		} else if (project.targetFlags.exists ("java")) {
+			
+			targetType = "java";
 			
 		} else {
 			
@@ -202,6 +207,29 @@ class WindowsPlatform extends PlatformTarget {
 				CSHelper.addSourceFiles (txtPath, CSHelper.ndllSourceFiles);
 				CSHelper.addGUID (txtPath, GUID.uuid ());
 				CSHelper.compile (project, targetDirectory + "/obj", applicationDirectory + project.app.file, "x86", "desktop");
+				
+			} else if (targetType == "java") {
+				
+				//var libPath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "templates/java/lib/");
+				
+				//ProcessHelper.runCommand ("", "haxe", [ hxml, "-java-lib", libPath + "disruptor.jar", "-java-lib", libPath + "lwjgl.jar" ]);
+				ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+				
+				if (noOutput) return;
+				
+				var haxeVersion = project.environment.get ("haxe_ver");
+				var haxeVersionString = "3404";
+				
+				if (haxeVersion.length > 4) {
+					
+					haxeVersionString = haxeVersion.charAt (0) + haxeVersion.charAt (2) + (haxeVersion.length == 5 ? "0" + haxeVersion.charAt (4) : haxeVersion.charAt (4) + haxeVersion.charAt (5));
+					
+				}
+				
+				ProcessHelper.runCommand (targetDirectory + "/obj", "haxelib", [ "run", "hxjava", "hxjava_build.txt", "--haxe-version", haxeVersionString ]);
+				FileHelper.recursiveCopy (targetDirectory + "/obj/lib", PathHelper.combine (applicationDirectory, "lib"));
+				FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".jar", PathHelper.combine (applicationDirectory, project.app.file + ".jar"));
+				JavaHelper.copyLibraries (project.templatePaths, "Mac" + (is64 ? "64" : ""), applicationDirectory);
 				
 			} else {
 				
@@ -387,27 +415,27 @@ class WindowsPlatform extends PlatformTarget {
 		} else if (targetType == "winjs") {
 			
 			/*
-
+			
 			The 'test' target is problematic for UWP applications.  UWP applications are bundled in appx packages and
 			require app certs to properly install.
-
+			
 			There are two options to trigger an appx install from the command line.
-
+			
 			A. Use the WinAppDeployCmd.exe utility to deploy to local and remote devices
-
+			
 			B. Execute the Add-AppDevPackage.ps1 powershell script that is an
-			   artifact of the UWP msbuild
-
+				artifact of the UWP msbuild
+			
 			A: WinAppDeployCmd.exe
 			https://docs.microsoft.com/en-us/windows/uwp/packaging/install-universal-windows-apps-with-the-winappdeploycmd-tool
 			https://msdn.microsoft.com/en-us/windows/desktop/mt627714
 			Windows 10 SDK: https://developer.microsoft.com/windows/downloads/windows-10-sdk
-
+			
 			I've never actually got this to work, but I feel like I was close.  The WinAppDeployCmd.exe is a part of the
 			Windows 10 SDK and not a part of the Visual Studio 2017 community edition.  It will appear magically if you
 			check enough boxes when installing various project templates for Visual Studio.  It appeared for me, and I
 			have no clue how it got there.
-
+			
 			A developer must take a few steps in order for this command to work.
 			1. Install Visual Studio 2017 Community Edition
 			2. Install the Windows 10 SDK
@@ -419,14 +447,13 @@ class WindowsPlatform extends PlatformTarget {
 			6. Make sure your device shows up in the list (if it does not appear try step 3 again, toggling things on/off)
 			7. run: (replase file, ip and pin with your values)
 				> WinAppDeployCmd install -file "uwp-project_1.0.0.0_AnyCPU.appx" -ip 192.168.27.167 -pin 326185
-
-
+			
 			B: Add-AppDevPackage.ps1 + PowerShell_Set_Unrestricted.reg
 			The UWP build generates a powershell script by default. This script is usually executed by the user
 			by right clicking the file and choosing "run with powershell". Executing this script directly from the cmd
 			prompt results in a security error: "Add-AppDevPackage.ps1 cannot be loaded because running scripts is
 			disabled on this system."
-
+			
 			We must edit the registry if we want to run this script directly from a shell.
 			See lime/templates/windows/template/PowerShell_Set_Unrestricted.reg
 
@@ -434,11 +461,11 @@ class WindowsPlatform extends PlatformTarget {
 				> regedit /s PowerShell_Set_Unrestricted.reg
 			2. run:
 	 			> powershell "& ""./Add-AppDevPackage.ps1"""
-
+			
 	 		note: the nonsensical double quotes are required.
-
+			
 	 		*/
-
+			
 			// Using option B because obtaining the device pin programatically does not seem possible.
 			//ProcessHelper.runCommand ("", "regedit", [ '/s', '"' + targetDirectory + '/bin/PowerShell_Set_Unrestricted.reg"' ]);
 			//var test = '"& ""' + targetDirectory + '/bin/PowerShell_Set_Unrestricted.reg"""';
@@ -447,8 +474,12 @@ class WindowsPlatform extends PlatformTarget {
 			ProcessHelper.openFile (targetDirectory + "/source/AppPackages/" + project.app.file + "_" + version + "_AnyCPU_Test", project.app.file + "_" + version + "_AnyCPU.appx");
 			
 			//source/AppPackages/uwp-project_1.0.0.0_AnyCPU_Test/Add-AppDevPackage.ps1
-
+			
 			//HTML5Helper.launch (project, targetDirectory + "/bin");
+			
+		} else if (targetType == "java") {
+			
+			ProcessHelper.runCommand (applicationDirectory, "java", [ "-jar", project.app.file + ".jar" ].concat (arguments));
 			
 		} else if (project.target == PlatformHelper.hostPlatform) {
 			
