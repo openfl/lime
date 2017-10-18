@@ -173,13 +173,12 @@ class NativeHTTPRequest {
 					
 				}
 				
+			} else {
+				
+				data = Bytes.alloc (0);
+				
 			}
-
-			else {
-
-				data = Bytes.alloc(0);
-
-			}
+			
 		}
 		
 		curl.setOption (URL, uri);
@@ -269,11 +268,12 @@ class NativeHTTPRequest {
 		curl.setOption (WRITEFUNCTION, curl_onWrite);
 		
 		if (parent.enableResponseHeaders) {
-
+			
 			parent.responseHeaders = [];
-			curl.setOption (HEADERFUNCTION, curl_onHeader);
 			
 		}
+		
+		curl.setOption (HEADERFUNCTION, curl_onHeader);
 		
 		// TODO: Add support for cookies: https://curl.haxx.se/docs/http-cookies.html
 		
@@ -304,9 +304,13 @@ class NativeHTTPRequest {
 				
 				threadPool.sendComplete ({ instance: this, promise: promise, result: bytes });
 				
+			} else if (bytes != null) {
+				
+				threadPool.sendError ({ instance: this, promise: promise, error: bytes.getString (0, bytes.length) });
+				
 			} else {
-
-				threadPool.sendError ({ instance: this, promise: promise, error: bytes == null ? 'Status ${parent.responseStatus}' : Std.string(bytes)});
+				
+				threadPool.sendError ({ instance: this, promise: promise, error: 'Status ${parent.responseStatus}' });
 				
 			}
 			
@@ -399,21 +403,25 @@ class NativeHTTPRequest {
 	
 	
 	private function curl_onHeader (output:Bytes, size:Int, nmemb:Int):Int {
-
+		
 		var parts = Std.string (output).split (': ');
-
+		
 		if (parts.length == 2) {
-
-			parent.responseHeaders.push (new HTTPRequestHeader (parts[0], parts[1]));
-
+			
+			if (parent.enableResponseHeaders) {
+				
+				parent.responseHeaders.push (new HTTPRequestHeader (parts[0], parts[1]));
+				
+			}
+			
 			switch (parts[0]) {
-
+				
 				case 'Content-Length': 
 					
 					growBuffer (Std.parseInt (parts[1]));
-			
+				
 			}
-		
+			
 		}
 		
 		return size * nmemb;
