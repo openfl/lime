@@ -363,9 +363,10 @@ class HTML5HTTPRequest {
 		var protocol = __fixProtocol (a.protocol);
 		var port = __fixPort (a.port, protocol);
 		
-		var sameOrigin = (protocol != "file:") && hostname == originHostname && protocol == originProtocol && port == originPort;
+		var sameHost = (hostname == "" || (hostname == originHostname));
+		var samePort = (port == "" || (port == originPort));
 		
-		return sameOrigin;
+		return (protocol != "file:" && sameHost && samePort);
 		
 	}
 	
