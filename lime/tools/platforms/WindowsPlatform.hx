@@ -210,10 +210,10 @@ class WindowsPlatform extends PlatformTarget {
 				
 			} else if (targetType == "java") {
 				
-				//var libPath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "templates/java/lib/");
+				var libPath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "templates/java/lib/");
 				
-				//ProcessHelper.runCommand ("", "haxe", [ hxml, "-java-lib", libPath + "disruptor.jar", "-java-lib", libPath + "lwjgl.jar" ]);
-				ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+				ProcessHelper.runCommand ("", "haxe", [ hxml, "-java-lib", libPath + "disruptor.jar", "-java-lib", libPath + "lwjgl.jar" ]);
+				//ProcessHelper.runCommand ("", "haxe", [ hxml ]);
 				
 				if (noOutput) return;
 				
@@ -229,7 +229,7 @@ class WindowsPlatform extends PlatformTarget {
 				ProcessHelper.runCommand (targetDirectory + "/obj", "haxelib", [ "run", "hxjava", "hxjava_build.txt", "--haxe-version", haxeVersionString ]);
 				FileHelper.recursiveCopy (targetDirectory + "/obj/lib", PathHelper.combine (applicationDirectory, "lib"));
 				FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".jar", PathHelper.combine (applicationDirectory, project.app.file + ".jar"));
-				JavaHelper.copyLibraries (project.templatePaths, "Mac" + (is64 ? "64" : ""), applicationDirectory);
+				JavaHelper.copyLibraries (project.templatePaths, "Windows" + (is64 ? "64" : ""), applicationDirectory);
 				
 			} else {
 				
