@@ -264,7 +264,7 @@ class NativeHTTPRequest {
 		
 		if (parent.enableResponseHeaders) {
 
-            parent.responseHeaders = [];
+			parent.responseHeaders = [];
 			curl.setOption (HEADERFUNCTION, curl_onHeader);
 			
 		}
@@ -398,7 +398,7 @@ class NativeHTTPRequest {
 
 		if (parts.length == 2) {
 
-            parent.responseHeaders.push (new HTTPRequestHeader (parts[0], parts[1]));
+			parent.responseHeaders.push (new HTTPRequestHeader (parts[0], parts[1]));
 
 			switch (parts[0]) {
 
