@@ -174,6 +174,14 @@ class FlashPlatform extends PlatformTarget {
 	}
 	
 	
+	public override function trace ():Void {
+		
+		FlashHelper.enableLogging ();
+		FlashHelper.tailLog (logLength);
+		
+	}
+	
+	
 	public override function update ():Void {
 		
 		var destination = targetDirectory + "/bin/";
@@ -243,14 +251,6 @@ class FlashPlatform extends PlatformTarget {
 			}
 			
 		}
-		
-	}
-	
-	
-	public override function trace ():Void {
-		
-		FlashHelper.enableLogging ();
-		FlashHelper.tailLog (logLength);
 		
 	}
 	

@@ -979,7 +979,7 @@ class FlashHelper {
 			
 			var path = switch (PlatformHelper.hostPlatform) {
 				
-				case WINDOWS: PathHelper.escape (Sys.getEnv ("APPDATA") + "/Macromedia/Flash Player/Logs/flashlog.txt");
+				case WINDOWS: Sys.getEnv ("APPDATA") + "/Macromedia/Flash Player/Logs/flashlog.txt";
 				case MAC: Sys.getEnv ("HOME") + "/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt";
 				default: Sys.getEnv ("HOME") + "/.macromedia/Flash_Player/Logs/flashlog.txt";
 				
