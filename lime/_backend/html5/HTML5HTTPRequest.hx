@@ -2,12 +2,14 @@ package lime._backend.html5;
 
 
 import js.html.AnchorElement;
+import js.html.ErrorEvent;
 import js.html.Event;
 import js.html.Image in JSImage;
 import js.html.ProgressEvent;
 import js.html.XMLHttpRequest;
 import js.Browser;
 import haxe.io.Bytes;
+import js.html.XMLHttpRequestResponseType;
 import lime.app.Future;
 import lime.app.Promise;
 import lime.graphics.Image;
@@ -17,7 +19,7 @@ import lime.net.HTTPRequestHeader;
 import lime.utils.AssetType;
 
 @:access(lime.graphics.ImageBuffer)
-
+@:access(lime.graphics.Image)
 
 class HTML5HTTPRequest {
 	
@@ -423,42 +425,76 @@ class HTML5HTTPRequest {
 	private static function __loadImage (uri:String, promise:Promise<Image>):Void {
 		
 		var image = new JSImage ();
-		
-		if (!__isSameOrigin (uri)) {
+		if(uri.indexOf("data:") == 0){
+			image.addEventListener ("load", function (event) {
+				
+				var buffer = new ImageBuffer (null, image.width, image.height);
+				buffer.__srcImage = cast image;
+				
+				activeRequests--;
+				processQueue ();
+				
+				promise.complete (new Image (buffer));
+				
+			}, false);
 			
-			image.crossOrigin = "Anonymous";
+			image.addEventListener ("progress", function (event) {
+				
+				promise.progress (event.loaded, event.total);
+				
+			}, false);
 			
+			image.addEventListener ("error", function (event) {
+				
+				activeRequests--;
+				processQueue ();
+				
+				promise.error (event.detail);
+				
+			}, false);
+			
+			image.src = uri;
+		}else{
+			if (!__isSameOrigin (uri)) {
+				
+				image.crossOrigin = "Anonymous";
+				
+			}
+
+			var request = new XMLHttpRequest();
+
+			request.onload = function (_) {
+				
+				activeRequests--;
+				processQueue ();
+				
+				var img = new Image();
+				img.__fromBytes( Bytes.ofData(request.response), function(img){
+					promise.complete (img);
+				});
+				
+			}
+
+			request.onerror = function (e:ErrorEvent) {
+				
+				promise.error(e.message);
+				
+			}
+
+			request.onprogress = function(e:ProgressEvent) {
+				
+				if (e.lengthComputable) {
+					
+					promise.progress(e.loaded, e.total);
+					
+				}
+				
+			}
+			request.open("GET", uri, true);
+			request.responseType = XMLHttpRequestResponseType.ARRAYBUFFER;
+			request.overrideMimeType('text/plain; charset=x-user-defined'); 
+			request.send(null);
 		}
-		
-		image.addEventListener ("load", function (event) {
-			
-			var buffer = new ImageBuffer (null, image.width, image.height);
-			buffer.__srcImage = cast image;
-			
-			activeRequests--;
-			processQueue ();
-			
-			promise.complete (new Image (buffer));
-			
-		}, false);
-		
-		image.addEventListener ("progress", function (event) {
-			
-			promise.progress (event.loaded, event.total);
-			
-		}, false);
-		
-		image.addEventListener ("error", function (event) {
-			
-			activeRequests--;
-			processQueue ();
-			
-			promise.error (event.detail);
-			
-		}, false);
-		
-		image.src = uri;
-		
 	}
 	
 	
