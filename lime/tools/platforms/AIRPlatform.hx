@@ -256,7 +256,7 @@ class AIRPlatform extends FlashPlatform {
 			
 		}
 		
-		var iconSizes = [ 16, 32, 48, 128 ];
+		var iconSizes = [ 16, 29, 32, 36, 40, 48, 50, 57, 58, 60, 72, 75, 76, 80, 87, 96, 100, 114, 120, 128, 144, 152, 167, 180, 192, 512, 1024 ];
 		var icons = project.icons;
 		iconData = [];
 		
