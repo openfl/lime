@@ -72,40 +72,34 @@ class AIRHelper {
 		
 		var signingOptions = [];
 		
-		if (project.defines.exists ("KEY_STORE")) {
+		if (project.keystore != null) {
 			
-			var keystore = project.defines.get ("KEY_STORE");
-			var keystoreType = "pkcs12";
-			
-			if (project.defines.exists ("KEY_STORE_TYPE")) {
-				
-				keystoreType = project.defines.get ("KEY_STORE_TYPE");
-				
-			}
+			var keystore = PathHelper.tryFullPath (project.keystore.path);
+			var keystoreType = project.keystore.type != null ? project.keystore.type : "pkcs12";
 			
 			signingOptions.push ("-storetype");
 			signingOptions.push (keystoreType);
 			signingOptions.push ("-keystore");
 			signingOptions.push (keystore);
 			
-			if (project.defines.exists ("KEY_STORE_ALIAS")) {
+			if (project.keystore.alias != null) {
 				
 				signingOptions.push ("-alias");
-				signingOptions.push (project.defines.get ("KEY_STORE_ALIAS"));
+				signingOptions.push (project.keystore.alias);
 				
 			}
 			
-			if (project.defines.exists ("KEY_STORE_PASSWORD")) {
+			if (project.keystore.password != null) {
 				
 				signingOptions.push ("-storepass");
-				signingOptions.push (project.defines.get ("KEY_STORE_PASSWORD"));
+				signingOptions.push (project.keystore.password);
 				
 			}
 			
-			if (project.defines.exists ("KEY_STORE_ALIAS_PASSWORD")) {
+			if (project.keystore.aliasPassword != null) {
 				
 				signingOptions.push ("-keypass");
-				signingOptions.push (project.defines.get ("KEY_STORE_ALIAS_PASSWORD"));
+				signingOptions.push (project.keystore.aliasPassword);
 				
 			}
 			
