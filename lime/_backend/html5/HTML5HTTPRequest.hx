@@ -31,6 +31,7 @@ class HTML5HTTPRequest {
 	private static var originProtocol:String;
 	private static var requestLimit = 4;
 	private static var requestQueue = new List<QueueItem> ();
+	private static var supportsImageProgress:Null<Bool>;
 	
 	private var binary:Bool;
 	private var parent:_IHTTPRequest;
@@ -425,7 +426,21 @@ class HTML5HTTPRequest {
 	private static function __loadImage (uri:String, promise:Promise<Image>):Void {
 		
 		var image = new JSImage ();
-		if(uri.indexOf("data:") == 0){
+		
+		if (!__isSameOrigin (uri)) {
+			
+			image.crossOrigin = "Anonymous";
+			
+		}
+		
+		if (supportsImageProgress == null) {
+			
+			supportsImageProgress = untyped __js__ ("'onprogress' in image");
+			
+		}
+		
+		if (supportsImageProgress || StringTools.startsWith (uri, "data:")) {
+			
 			image.addEventListener ("load", function (event) {
 				
 				var buffer = new ImageBuffer (null, image.width, image.height);
@@ -454,47 +469,46 @@ class HTML5HTTPRequest {
 			}, false);
 			
 			image.src = uri;
-		}else{
-			if (!__isSameOrigin (uri)) {
-				
-				image.crossOrigin = "Anonymous";
-				
-			}
-
-			var request = new XMLHttpRequest();
-
+			
+		} else {
+			
+			var request = new XMLHttpRequest ();
+			
 			request.onload = function (_) {
 				
 				activeRequests--;
 				processQueue ();
 				
-				var img = new Image();
-				img.__fromBytes( Bytes.ofData(request.response), function(img){
+				var img = new Image ();
+				img.__fromBytes (Bytes.ofData (request.response), function (img) {
 					promise.complete (img);
 				});
 				
 			}
-
-			request.onerror = function (e:ErrorEvent) {
+			
+			request.onerror = function (event:ErrorEvent) {
 				
-				promise.error(e.message);
+				promise.error (event.message);
 				
 			}
-
-			request.onprogress = function(e:ProgressEvent) {
+			
+			request.onprogress = function (event:ProgressEvent) {
 				
-				if (e.lengthComputable) {
+				if (event.lengthComputable) {
 					
-					promise.progress(e.loaded, e.total);
+					promise.progress (event.loaded, event.total);
 					
 				}
 				
 			}
-			request.open("GET", uri, true);
+			
+			request.open ("GET", uri, true);
 			request.responseType = XMLHttpRequestResponseType.ARRAYBUFFER;
-			request.overrideMimeType('text/plain; charset=x-user-defined'); 
-			request.send(null);
+			request.overrideMimeType ('text/plain; charset=x-user-defined'); 
+			request.send (null);
+			
 		}
+		
 	}
 	
 	
