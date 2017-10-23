@@ -149,6 +149,9 @@ class HXProject {
 					
 					platformType = PlatformType.MOBILE;
 					
+					defaultWindow.width = 0;
+					defaultWindow.height = 0;
+					
 				} else {
 					
 					platformType = PlatformType.DESKTOP;
