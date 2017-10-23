@@ -177,7 +177,7 @@ class IOSHelper {
 		
 		if (project != null && project.config.exists ("ios.provisioning-profile")) {
 			
-			return project.config.getString ("ios.provisioning-profile");
+			return PathHelper.tryFullPath (project.config.getString ("ios.provisioning-profile"));
 			
 		} else if (PlatformHelper.hostPlatform == Platform.MAC) {
 			

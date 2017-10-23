@@ -147,7 +147,7 @@ class AIRHelper {
 		
 		args = args.concat ([ targetPath + extension, applicationXML ]);
 		
-		if (targetPlatform == IOS && PlatformHelper.hostPlatform == Platform.MAC) {
+		if (targetPlatform == IOS && PlatformHelper.hostPlatform == Platform.MAC && project.targetFlags.exists ("simulator")) {
 			
 			args.push ("-platformsdk");
 			args.push (IOSHelper.getSDKDirectory (project));
