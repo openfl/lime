@@ -64,4 +64,7 @@
 			]]> 
 		</manifestAdditions> 
 	</android>
+	<iphone>
+		<requestedDisplayResolution>::if WIN_ALLOW_HIGH_DPI::high::else::standard::end::</requestedDisplayResolution>
+	</iphone>
 </application>
