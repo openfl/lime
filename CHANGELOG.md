@@ -1,3 +1,24 @@
+5.8.0 (10/24/2017)
+------------------
+
+* Added `httpRequest.withCredentials` for sending cookies with web requests
+* Added initial support for `Touch.onCancel` events
+* Restored `false` as the default `httpRequest.enableResponseHeaders` value
+* Improved image loading to better support progress events on some browsers
+* Improved support for `HTTPRequest` headers on native platforms
+* Improved the handling of `lime.utils.Log` output on web browsers
+* Improved `lime.utils.ObjectPool` to allow abstract types
+* Improved AIR builds to support the `<certificate />` tag for signing
+* Improved the default window size for AIR output for mobile platforms
+* Improved AIR template to respect `<window allow-high-dpi="" />` for iOS
+* Improved AIR template to support additional icon sizes for mobile
+* Fixed the behavior of tailing the `trace` log on Windows/Flash target
+* Fixed HTML5 "same origin" calculation for CORS requests
+* Fixed return to Android fullscreen after losing window focus
+* Fixed support for `ANDROID_GRADLE_TASK` which command-line arguments
+* Fixed support for relative provisioning profile paths for AIR target
+
+
 5.7.1 (10/12/2017)
 ------------------
 
