@@ -15,7 +15,7 @@
 * Fixed the behavior of tailing the `trace` log on Windows/Flash target
 * Fixed HTML5 "same origin" calculation for CORS requests
 * Fixed return to Android fullscreen after losing window focus
-* Fixed support for `ANDROID_GRADLE_TASK` which command-line arguments
+* Fixed support for `ANDROID_GRADLE_TASK` with command-line arguments
 * Fixed support for relative provisioning profile paths for AIR target
 
 
