@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "5.7.1",
-	"releasenote": "Fixed HTTPRequest error code handling, macOS deployment fix",
+	"version": "5.8.0",
+	"releasenote": "Improvements to HTTPRequest, ObjectPool, AIR support, additional fixes",
 	"contributors": [ "singmajesty" ]
 }
