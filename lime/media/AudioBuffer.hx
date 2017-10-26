@@ -57,22 +57,21 @@ class AudioBuffer {
 	public function new () {
 
 
-
 	}
 
 
 	public function dispose ():Void {
 
 		#if (js && html5 && howlerjs)
-		
+
 		__srcHowl.unload ();
-		
+
 		#elseif lime_console
 		if (channels > 0) {
-			
+
 			src.release ();
 			channels = 0;
-			
+
 		}
 		#end
 
@@ -82,9 +81,9 @@ class AudioBuffer {
 	#if lime_console
 	@:void
 	private static function finalize (a:AudioBuffer):Void {
-		
+
 		a.dispose ();
-		
+
 	}
 	#end
 
@@ -117,7 +116,7 @@ class AudioBuffer {
 		#if (js && html5 && howlerjs)
 		// if base64String doesn't contain codec data, add it.
 		if (base64String.indexOf(",") == -1) {
-			base64String = "data:"+__getCodec(Base64.decode(base64String))+";base64,"+base64String;
+			base64String = "data:" + __getCodec (Base64.decode (base64String)) + ";base64," + base64String;
 		}
 
 		var	audioBuffer = new AudioBuffer ();
@@ -132,9 +131,9 @@ class AudioBuffer {
 		#if !cs
 
 		// if base64String contains codec data, strip it then decode it.
-		var base64StringSplit = base64String.split(",");
+		var base64StringSplit = base64String.split (",");
 		var base64StringNoEncoding = base64StringSplit[base64StringSplit.length - 1];
-		var bytes: Bytes = Base64.decode(base64StringNoEncoding);
+		var bytes: Bytes = Base64.decode (base64StringNoEncoding);
 		var audioBuffer = new AudioBuffer ();
 		audioBuffer.data = new UInt8Array (Bytes.alloc (0));
 
@@ -143,9 +142,9 @@ class AudioBuffer {
 		#else
 
 		// if base64String contains codec data, strip it then decode it.
-		var base64StringSplit = base64String.split(",");
+		var base64StringSplit = base64String.split (",");
 		var base64StringNoEncoding = base64StringSplit[base64StringSplit.length - 1];
-		var bytes: Bytes = Base64.decode(base64StringNoEncoding);
+		var bytes: Bytes = Base64.decode (base64StringNoEncoding);
 		var data:Dynamic = NativeCFFI.lime_audio_load (bytes, null);
 
 		if (data != null) {
@@ -173,37 +172,37 @@ class AudioBuffer {
 		#if (js && html5 && howlerjs)
 
 		var	audioBuffer = new AudioBuffer ();
-		audioBuffer.src = new Howl ({ src: ["data:"+__getCodec(bytes)+";base64,"+Base64.encode(bytes)], html5: true, preload: false });
+		audioBuffer.src = new Howl ({ src: ["data:" + __getCodec (bytes) + ";base64," + Base64.encode (bytes)], html5: true, preload: false });
 
 		return audioBuffer;
 
 		#elseif lime_console
-		
+
 		lime.Lib.notImplemented ("AudioBuffer.fromBytes");
-		
+
 		#elseif (lime_cffi && !macro)
 		#if !cs
-		
+
 		var audioBuffer = new AudioBuffer ();
 		audioBuffer.data = new UInt8Array (Bytes.alloc (0));
-		
+
 		return NativeCFFI.lime_audio_load (bytes, audioBuffer);
-		
+
 		#else
-		
+
 		var data:Dynamic = NativeCFFI.lime_audio_load (bytes, null);
-		
+
 		if (data != null) {
-			
+
 			var audioBuffer = new AudioBuffer ();
 			audioBuffer.bitsPerSample = data.bitsPerSample;
 			audioBuffer.channels = data.channels;
 			audioBuffer.data = new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b));
 			audioBuffer.sampleRate = data.sampleRate;
 			return audioBuffer;
-			
+
 		}
-		
+
 		#end
 		#end
 
@@ -217,31 +216,31 @@ class AudioBuffer {
 		if (path == null) return null;
 
 		#if (js && html5 && howlerjs)
-		
+
 		var audioBuffer = new AudioBuffer ();
 		audioBuffer.__srcHowl = new Howl ({ src: [ path ], preload: false });
 		return audioBuffer;
-		
+
 		#elseif flash
-		
+
 		switch (Path.extension (path)) {
-			
+
 			case "ogg", "wav": return null;
 			default:
-			
+
 		}
-		
+
 		var audioBuffer = new AudioBuffer ();
 		audioBuffer.__srcSound = new Sound (new URLRequest (path));
 		return audioBuffer;
-		
+
 		#elseif lime_console
-		
+
 		var mode = StringTools.endsWith(path, ".wav") ? FMODMode.LOOP_OFF : FMODMode.LOOP_NORMAL;
 		var sound:FMODSound = FMODSound.fromFile (path, mode);
-		
+
 		if (sound.valid) {
-			
+
 			// TODO(james4k): AudioBuffer needs sound info filled in
 			// TODO(james4k): probably move fmod.Sound creation to AudioSource,
 			// and keep AudioBuffer as raw data. not as efficient for typical
@@ -257,34 +256,34 @@ class AudioBuffer {
 			audioBuffer.__srcFMODSound = sound;
 			cpp.vm.Gc.setFinalizer (audioBuffer, cpp.Function.fromStaticFunction (finalize));
 			return audioBuffer;
-			
+
 		}
-		
+
 		#elseif (lime_cffi && !macro)
 		#if !cs
-		
+
 		var audioBuffer = new AudioBuffer ();
 		audioBuffer.data = new UInt8Array (Bytes.alloc (0));
-		
+
 		return NativeCFFI.lime_audio_load (path, audioBuffer);
-		
+
 		#else
-		
+
 		var data:Dynamic = NativeCFFI.lime_audio_load (path, null);
-		
+
 		if (data != null) {
-			
+
 			var audioBuffer = new AudioBuffer ();
 			audioBuffer.bitsPerSample = data.bitsPerSample;
 			audioBuffer.channels = data.channels;
 			audioBuffer.data = new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b));
 			audioBuffer.sampleRate = data.sampleRate;
 			return audioBuffer;
-			
+
 		}
-		
+
 		return null;
-		
+
 		#end
 		#else
 
@@ -298,11 +297,11 @@ class AudioBuffer {
 	public static function fromFiles (paths:Array<String>):AudioBuffer {
 
 		#if (js && html5 && howlerjs)
-		
+
 		var audioBuffer = new AudioBuffer ();
 		audioBuffer.__srcHowl = new Howl ({ src: paths, preload: false });
 		return audioBuffer;
-		
+
 		#else
 
 		var buffer = null;
@@ -322,23 +321,23 @@ class AudioBuffer {
 
 
 	#if lime_vorbis
-	
+
 	public static function fromVorbisFile (vorbisFile:VorbisFile):AudioBuffer {
-		
+
 		if (vorbisFile == null) return null;
-		
+
 		var info = vorbisFile.info ();
-		
+
 		var audioBuffer = new AudioBuffer ();
 		audioBuffer.channels = info.channels;
 		audioBuffer.sampleRate = info.rate;
 		audioBuffer.bitsPerSample = 16;
 		audioBuffer.__srcVorbisFile = vorbisFile;
-		
+
 		return audioBuffer;
-		
+
 	}
-	
+
 	#else
 
 	public static function fromVorbisFile (vorbisFile:Dynamic):AudioBuffer {
@@ -353,63 +352,63 @@ class AudioBuffer {
 	public static function loadFromFile (path:String):Future<AudioBuffer> {
 
 		#if (flash || (js && html5))
-		
+
 		var promise = new Promise<AudioBuffer> ();
-		
+
 		var audioBuffer = AudioBuffer.fromFile (path);
-		
+
 		if (audioBuffer != null) {
-			
+
 			#if flash
-			
+
 			audioBuffer.__srcSound.addEventListener (flash.events.Event.COMPLETE, function (event) {
-				
+
 				promise.complete (audioBuffer);
-				
+
 			});
-			
+
 			audioBuffer.__srcSound.addEventListener (flash.events.ProgressEvent.PROGRESS, function (event) {
-				
+
 				promise.progress (event.bytesLoaded, event.bytesTotal);
-				
+
 			});
-			
+
 			audioBuffer.__srcSound.addEventListener (flash.events.IOErrorEvent.IO_ERROR, promise.error);
-			
+
 			#elseif (js && html5 && howlerjs)
-			
+
 			if (audioBuffer != null) {
-				
-				audioBuffer.__srcHowl.on ("load", function () { 
-					
+
+				audioBuffer.__srcHowl.on ("load", function () {
+
 					promise.complete (audioBuffer);
-					
+
 				});
-				
+
 				audioBuffer.__srcHowl.on ("loaderror", function (id, msg) {
-					
+
 					promise.error (msg);
-					
+
 				});
-				
+
 				audioBuffer.__srcHowl.load ();
-				
+
 			}
-			
+
 			#else
-			
+
 			promise.complete (audioBuffer);
-			
+
 			#end
-			
+
 		} else {
-			
+
 			promise.error (null);
-			
+
 		}
-		
+
 		return promise.future;
-		
+
 		#else
 
 		// TODO: Streaming
@@ -439,31 +438,31 @@ class AudioBuffer {
 		var promise = new Promise<AudioBuffer> ();
 
 		#if (js && html5 && howlerjs)
-		
+
 		var audioBuffer = AudioBuffer.fromFiles (paths);
-		
+
 		if (audioBuffer != null) {
-			
-			audioBuffer.__srcHowl.on ("load", function () { 
-				
+
+			audioBuffer.__srcHowl.on ("load", function () {
+
 				promise.complete (audioBuffer);
-				
+
 			});
-			
+
 			audioBuffer.__srcHowl.on ("loaderror", function () {
-				
+
 				promise.error (null);
-				
+
 			});
-			
+
 			audioBuffer.__srcHowl.load ();
-			
+
 		} else {
-			
+
 			promise.error (null);
-			
+
 		}
-		
+
 		#else
 
 		promise.completeWith (new Future<AudioBuffer> (function () return fromFiles (paths), true));
@@ -475,37 +474,33 @@ class AudioBuffer {
 	}
 
 
-
-
 	// Get & Set Methods
-
-
 
 
 	private function get_src ():Dynamic {
 
 		#if (js && html5)
 		#if howlerjs
-		
+
 		return __srcHowl;
-		
+
 		#else
-		
+
 		return __srcAudio;
-		
+
 		#end
 		#elseif flash
-		
+
 		return __srcSound;
-		
+
 		#elseif lime_console
-		
+
 		return __srcFMODSound;
-		
+
 		#elseif lime_vorbis
-		
+
 		return __srcVorbisFile;
-		
+
 		#else
 
 		return __srcCustom;
@@ -519,26 +514,26 @@ class AudioBuffer {
 
 		#if (js && html5)
 		#if howlerjs
-		
+
 		return __srcHowl = value;
-		
+
 		#else
-		
+
 		return __srcAudio = value;
-		
+
 		#end
 		#elseif flash
-		
+
 		return __srcSound = value;
-		
+
 		#elseif lime_console
-		
+
 		return __srcFMODSound = value;
-		
+
 		#elseif lime_vorbis
-		
+
 		return __srcVorbisFile = value;
-		
+
 		#else
 
 		return __srcCustom = value;
