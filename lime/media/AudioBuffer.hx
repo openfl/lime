@@ -37,14 +37,14 @@ import lime.media.fmod.FMODSound;
 
 
 class AudioBuffer {
-	
-	
+
+
 	public var bitsPerSample:Int;
 	public var channels:Int;
 	public var data:UInt8Array;
 	public var sampleRate:Int;
 	public var src (get, set):Dynamic;
-	
+
 	@:noCompletion private var __srcAudio:#if (js && html5) Audio #else Dynamic #end;
 	@:noCompletion private var __srcBuffer:#if lime_cffi ALBuffer #else Dynamic #end;
 	@:noCompletion private var __srcCustom:Dynamic;
@@ -52,17 +52,17 @@ class AudioBuffer {
 	@:noCompletion private var __srcHowl:#if howlerjs Howl #else Dynamic #end;
 	@:noCompletion private var __srcSound:#if flash Sound #else Dynamic #end;
 	@:noCompletion private var __srcVorbisFile:#if lime_vorbis VorbisFile #else Dynamic #end;
-	
-	
+
+
 	public function new () {
-		
-		
-		
+
+
+
 	}
-	
-	
+
+
 	public function dispose ():Void {
-		
+
 		#if (js && html5 && howlerjs)
 		
 		__srcHowl.unload ();
@@ -75,10 +75,10 @@ class AudioBuffer {
 			
 		}
 		#end
-		
+
 	}
-	
-	
+
+
 	#if lime_console
 	@:void
 	private static function finalize (a:AudioBuffer):Void {
@@ -206,16 +206,16 @@ class AudioBuffer {
 		
 		#end
 		#end
-		
+
 		return null;
-		
+
 	}
-	
-	
+
+
 	public static function fromFile (path:String):AudioBuffer {
-		
+
 		if (path == null) return null;
-		
+
 		#if (js && html5 && howlerjs)
 		
 		var audioBuffer = new AudioBuffer ();
@@ -287,16 +287,16 @@ class AudioBuffer {
 		
 		#end
 		#else
-		
+
 		return null;
-		
+
 		#end
-		
+
 	}
-	
-	
+
+
 	public static function fromFiles (paths:Array<String>):AudioBuffer {
-		
+
 		#if (js && html5 && howlerjs)
 		
 		var audioBuffer = new AudioBuffer ();
@@ -304,23 +304,23 @@ class AudioBuffer {
 		return audioBuffer;
 		
 		#else
-		
+
 		var buffer = null;
-		
+
 		for (path in paths) {
-			
+
 			buffer = AudioBuffer.fromFile (path);
 			if (buffer != null) break;
-			
+
 		}
-		
+
 		return buffer;
-		
+
 		#end
-		
+
 	}
-	
-	
+
+
 	#if lime_vorbis
 	
 	public static function fromVorbisFile (vorbisFile:VorbisFile):AudioBuffer {
@@ -340,18 +340,18 @@ class AudioBuffer {
 	}
 	
 	#else
-	
+
 	public static function fromVorbisFile (vorbisFile:Dynamic):AudioBuffer {
-		
+
 		return null;
-		
+
 	}
-	
+
 	#end
-	
-	
+
+
 	public static function loadFromFile (path:String):Future<AudioBuffer> {
-		
+
 		#if (flash || (js && html5))
 		
 		var promise = new Promise<AudioBuffer> ();
@@ -411,33 +411,33 @@ class AudioBuffer {
 		return promise.future;
 		
 		#else
-		
+
 		// TODO: Streaming
-		
+
 		var request = new HTTPRequest<AudioBuffer> ();
 		return request.load (path).then (function (buffer) {
-			
+
 			if (buffer != null) {
-				
+
 				return Future.withValue (buffer);
-				
+
 			} else {
-				
+
 				return cast Future.withError ("");
-				
+
 			}
-			
+
 		});
-		
+
 		#end
-		
+
 	}
-	
-	
+
+
 	public static function loadFromFiles (paths:Array<String>):Future<AudioBuffer> {
-		
+
 		var promise = new Promise<AudioBuffer> ();
-		
+
 		#if (js && html5 && howlerjs)
 		
 		var audioBuffer = AudioBuffer.fromFiles (paths);
@@ -465,25 +465,25 @@ class AudioBuffer {
 		}
 		
 		#else
-		
+
 		promise.completeWith (new Future<AudioBuffer> (function () return fromFiles (paths), true));
-		
+
 		#end
-		
+
 		return promise.future;
-		
+
 	}
-	
-	
-	
-	
+
+
+
+
 	// Get & Set Methods
-	
-	
-	
-	
+
+
+
+
 	private function get_src ():Dynamic {
-		
+
 		#if (js && html5)
 		#if howlerjs
 		
@@ -507,16 +507,16 @@ class AudioBuffer {
 		return __srcVorbisFile;
 		
 		#else
-		
+
 		return __srcCustom;
-		
+
 		#end
-		
+
 	}
-	
-	
+
+
 	private function set_src (value:Dynamic):Dynamic {
-		
+
 		#if (js && html5)
 		#if howlerjs
 		
@@ -540,12 +540,12 @@ class AudioBuffer {
 		return __srcVorbisFile = value;
 		
 		#else
-		
+
 		return __srcCustom = value;
-		
+
 		#end
-		
+
 	}
-	
-	
+
+
 }
