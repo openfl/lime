@@ -3,6 +3,7 @@ package lime.media;
 
 import haxe.io.Bytes;
 import haxe.io.Path;
+import haxe.crypto.Base64;
 import lime._backend.native.NativeCFFI;
 import lime.app.Future;
 import lime.app.Promise;
@@ -11,6 +12,7 @@ import lime.media.openal.AL;
 import lime.media.openal.ALBuffer;
 import lime.net.HTTPRequest;
 import lime.utils.UInt8Array;
+import lime.utils.Log;
 
 #if howlerjs
 import lime.media.howlerjs.Howl;
@@ -85,13 +87,97 @@ class AudioBuffer {
 		
 	}
 	#end
-	
-	
+
+
+	#if (js && html5 && howlerjs)
+	private static function __getCodec (bytes:Bytes):String {
+
+		var signature = bytes.getString(0, 4);
+		switch (signature) {
+			case "OggS": return "audio/ogg";
+			case "fLaC": return "audio/flac";
+			case "RIFF" if (bytes.getString(8, 4) == "WAVE"): return "audio/wav";
+			default: if (bytes.getString(0, 3) == "ID3" || bytes.getString(0, 2) == "ÿû") {
+
+						return "audio/mp3";
+
+					}
+		}
+
+		Log.error("Unsupported sound format");
+		return null;
+	}
+	#end
+
+
+	public static function fromBase64 (base64String:String):AudioBuffer {
+
+		if (base64String == null) return null;
+
+		#if (js && html5 && howlerjs)
+		// if base64String doesn't contain codec data, add it.
+		if (base64String.indexOf(",") == -1) {
+			base64String = "data:"+__getCodec(Base64.decode(base64String))+";base64,"+base64String;
+		}
+
+		var	audioBuffer = new AudioBuffer ();
+		audioBuffer.src = new Howl ({ src: [base64String], html5: true, preload: false });
+		return audioBuffer;
+
+		#elseif lime_console
+
+		lime.Lib.notImplemented ("AudioBuffer.fromBase64");
+
+		#elseif (lime_cffi && !macro)
+		#if !cs
+
+		// if base64String contains codec data, strip it then decode it.
+		var base64StringSplit = base64String.split(",");
+		var base64StringNoEncoding = base64StringSplit[base64StringSplit.length - 1];
+		var bytes: Bytes = Base64.decode(base64StringNoEncoding);
+		var audioBuffer = new AudioBuffer ();
+		audioBuffer.data = new UInt8Array (Bytes.alloc (0));
+
+		return NativeCFFI.lime_audio_load (bytes, audioBuffer);
+
+		#else
+
+		// if base64String contains codec data, strip it then decode it.
+		var base64StringSplit = base64String.split(",");
+		var base64StringNoEncoding = base64StringSplit[base64StringSplit.length - 1];
+		var bytes: Bytes = Base64.decode(base64StringNoEncoding);
+		var data:Dynamic = NativeCFFI.lime_audio_load (bytes, null);
+
+		if (data != null) {
+
+			var audioBuffer = new AudioBuffer ();
+			audioBuffer.bitsPerSample = data.bitsPerSample;
+			audioBuffer.channels = data.channels;
+			audioBuffer.data = new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b));
+			audioBuffer.sampleRate = data.sampleRate;
+			return audioBuffer;
+
+		}
+
+		#end
+		#end
+
+		return null;
+
+	}
+
+
 	public static function fromBytes (bytes:Bytes):AudioBuffer {
-		
+
 		if (bytes == null) return null;
-		
-		#if lime_console
+		#if (js && html5 && howlerjs)
+
+		var	audioBuffer = new AudioBuffer ();
+		audioBuffer.src = new Howl ({ src: ["data:"+__getCodec(bytes)+";base64,"+Base64.encode(bytes)], html5: true, preload: false });
+
+		return audioBuffer;
+
+		#elseif lime_console
 		
 		lime.Lib.notImplemented ("AudioBuffer.fromBytes");
 		
