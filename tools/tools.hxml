@@ -7,3 +7,4 @@
 -lib format
 #-lib svg
 -D optional-cffi
+-D no-inline
