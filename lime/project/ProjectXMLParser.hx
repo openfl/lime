@@ -531,7 +531,21 @@ class ProjectXMLParser extends HXProject {
 			
 		} else if (element.has.type) {
 			
-			type = Reflect.field (AssetType, substitute (element.att.type).toUpperCase ());
+			var typeName = substitute (element.att.type);
+			
+			if (Reflect.hasField (AssetType, typeName.toUpperCase ())) {
+				
+				type = Reflect.field (AssetType, typeName.toUpperCase ());
+				
+			} else if (typeName == "bytes") {
+				
+				type = AssetType.BINARY;
+				
+			} else {
+				
+				LogHelper.warn ("Ignoring unknown asset type \"" + typeName + "\"");
+				
+			}
 			
 		}
 		
