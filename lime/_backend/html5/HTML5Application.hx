@@ -367,7 +367,17 @@ class HTML5Application {
 				
 				case "beforeunload":
 					
-					parent.window.onClose.dispatch ();
+					if (!event.defaultPrevented) {
+						
+						parent.window.onClose.dispatch ();
+						
+						if (parent.window.onClose.canceled) {
+							
+							event.preventDefault ();
+							
+						}
+						
+					}
 				
 			}
 			
