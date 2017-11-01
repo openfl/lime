@@ -1,13 +1,21 @@
 package lime.ui;
 
 
+import haxe.io.Bytes;
+import haxe.io.Path;
 import lime._backend.native.NativeCFFI;
 import lime.app.Event;
+import lime.graphics.Image;
 import lime.system.BackgroundWorker;
+import lime.utils.ArrayBuffer;
 import lime.utils.Resource;
 
 #if sys
 import sys.io.File;
+#end
+
+#if (js && html5)
+import js.html.Blob;
 #end
 
 #if !lime_debug
@@ -16,6 +24,7 @@ import sys.io.File;
 #end
 
 @:access(lime._backend.native.NativeCFFI)
+@:access(lime.graphics.Image)
 
 
 class FileDialog {
@@ -190,6 +199,13 @@ class FileDialog {
 	
 	public function save (data:Resource, filter:String = null, defaultPath:String = null, title:String = null):Bool {
 		
+		if (data == null) {
+			
+			onCancel.dispatch ();
+			return false;
+			
+		}
+		
 		#if desktop
 		
 		var worker = new BackgroundWorker ();
@@ -224,6 +240,42 @@ class FileDialog {
 		
 		worker.run ();
 		
+		return true;
+		
+		#elseif (js && html5)
+		
+		// TODO: Cleaner API for mimeType detection
+		
+		var type = "application/octet-stream";
+		var defaultExtension = "";
+		
+		if (Image.__isPNG (data)) {
+			
+			type = "image/png";
+			defaultExtension = ".png";
+			
+		} else if (Image.__isJPG (data)) {
+			
+			type = "image/jpeg";
+			defaultExtension = ".jpg";
+			
+		} else if (Image.__isGIF (data)) {
+			
+			type = "image/gif";
+			defaultExtension = ".gif";
+			
+		} else if (Image.__isWebP (data)) {
+			
+			type = "image/webp";
+			defaultExtension = ".webp";
+			
+		}
+		
+		var path = defaultPath != null ? Path.withoutDirectory (defaultPath) : "download" + defaultExtension;
+		var buffer = (data:Bytes).getData ();
+		
+		untyped window.saveAs (new Blob ([ buffer ], { type: type }), path, true);
+		onSave.dispatch (path);
 		return true;
 		
 		#else
