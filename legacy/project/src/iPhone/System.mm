@@ -119,7 +119,8 @@ std::string FileDialogSave( const std::string &title, const std::string &text, c
 int GetDeviceOrientation()
 {
 
-   return ( [UIDevice currentDevice].orientation );
+   //return ( [UIDevice currentDevice].orientation );
+   return ( [UIApplication sharedApplication].statusBarOrientation );
 }
 
 double CapabilitiesGetPixelAspectRatio()
