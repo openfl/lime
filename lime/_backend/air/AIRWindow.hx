@@ -122,22 +122,25 @@ class AIRWindow extends FlashWindow {
 			
 		}
 		
-		nativeWindow.addEventListener (Event.CLOSING, handleNativeWindowEvent);
-		nativeWindow.addEventListener (Event.CLOSE, handleNativeWindowEvent);
-		
-		nativeWindow.visible = !hidden;
-		//nativeWindow.activate ();
-		nativeWindow.alwaysInFront = alwaysOnTop;
-		nativeWindow.title = title;
-		
-		if (maximized) {
+		if (nativeWindow != null) {
 			
-			nativeWindow.maximize ();
-			
-		} else if (minimized) {
-			
-			nativeWindow.minimize ();
-			
+			nativeWindow.addEventListener (Event.CLOSING, handleNativeWindowEvent);
+			nativeWindow.addEventListener (Event.CLOSE, handleNativeWindowEvent);
+
+			nativeWindow.visible = !hidden;
+			//nativeWindow.activate ();
+			nativeWindow.alwaysInFront = alwaysOnTop;
+			nativeWindow.title = title;
+
+			if (maximized) {
+
+				nativeWindow.maximize ();
+
+			} else if (minimized) {
+
+				nativeWindow.minimize ();
+
+			}
 		}
 		
 		if (fullscreen) {
@@ -146,11 +149,15 @@ class AIRWindow extends FlashWindow {
 			
 		}
 		
-		parent.__width = Std.int (nativeWindow.width);
-		parent.__height = Std.int (nativeWindow.height);
-		parent.__x = Math.round (nativeWindow.x);
-		parent.__y = Math.round (nativeWindow.y);
-		parent.stage = nativeWindow.stage;
+		if (nativeWindow != null) {
+			
+			parent.__width = Std.int (nativeWindow.width);
+			parent.__height = Std.int (nativeWindow.height);
+			parent.__x = Math.round (nativeWindow.x);
+			parent.__y = Math.round (nativeWindow.y);
+			parent.stage = nativeWindow.stage;
+			
+		}
 		
 		super.create (application);
 		
