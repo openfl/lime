@@ -67,4 +67,7 @@
 	<iPhone>
 		<requestedDisplayResolution>::if WIN_ALLOW_HIGH_DPI::high::else::standard::end::</requestedDisplayResolution>
 	</iPhone>
+	::if (extensions != null)::<extensions>::foreach extensions::
+		<extensionID>::name::</extensionID>::end::
+	</extensions>::end::
 </application>

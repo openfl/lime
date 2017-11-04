@@ -1,6 +1,7 @@
 package lime.tools.helpers;
 
 
+import haxe.io.Path;
 import lime.project.HXProject;
 import lime.project.Platform;
 import sys.FileSystem;
@@ -162,6 +163,29 @@ class AIRHelper {
 		}
 		
 		args = args.concat (files);
+
+		var extDirs:Array<String> = [];
+
+		for (dependency in project.dependencies) {
+
+			if (StringTools.endsWith (dependency.path, ".ane") && extDirs.indexOf(dependency.path) == -1) {
+
+				extDirs.push(FileSystem.fullPath(Path.directory(dependency.path)));
+
+			}
+
+		}
+
+		if (extDirs.length > 0) {
+
+			args.push("-extdir");
+
+			for (extDir in extDirs) {
+
+				args.push(extDir);
+
+			}
+		}
 		
 		if (targetPlatform == ANDROID) {
 			
