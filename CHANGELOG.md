@@ -1,3 +1,15 @@
+5.8.1 (11/06/2017)
+------------------
+
+* Added support for `AudioBuffer.fromBytes` on HTML5
+* Added initial support for `fileDialog.save` on HTML5 (using FileSaver.js)
+* Added initial support for native extensions on the Adobe AIR target
+* Improved the behavior of missing webfonts to no longer crash a web application
+* Improved `window.onClose` to be cancelable on HTML5
+* Improved tools to print warning for unrecognized `<asset type="" />` values
+* Fixed support for Adobe AIR where `nativeWindow` is `null`
+
+
 5.8.0 (10/24/2017)
 ------------------
 
