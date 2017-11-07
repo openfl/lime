@@ -292,6 +292,10 @@ class NativeHTTPRequest {
 		
 		curl.setOption (TRANSFERTEXT, !binary);
 		
+		#if curl_verbose
+		curl.setOption (VERBOSE, true);
+		#end
+		
 		var result = curl.perform ();
 		parent.responseStatus = curl.getInfo (RESPONSE_CODE);
 		
