@@ -55,3 +55,6 @@
 [submodule "project/lib/axtls"]
 	path = project/lib/axtls
 	url = https://github.com/native-toolkit/axtls
+[submodule "project/lib/mbedtls"]
+	path = project/lib/mbedtls
+	url = https://github.com/native-toolkit/mbedtls

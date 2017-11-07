@@ -4,13 +4,13 @@ Notices
 ### Lime
 Copyright (c) 2013-2017 Joshua Granick and other Lime contributors
 
-This product bundles axTLS 1.4.9, which is available under a
+This product bundles axTLS 2.1.4, which is available under a
 "BSD" license. For details, see [project/lib/axtls/](project/lib).
 
 This product bundles cairo 1.15.2, which is available under an
 "MPL 1.1" license. For details, see [project/lib/cairo/](project/lib).
 
-This product bundles libcurl 7.37.1, which is available under an
+This product bundles libcurl 7.56.1, which is available under an
 "MIT/X derivate" license. For details, see [project/lib/curl/](project/lib).
 
 This product bundles efsw, which is available under an
@@ -30,6 +30,9 @@ This product bundles libogg 1.3.0, which is available under a
 
 This product bundles LZMA SDK 4.65, which is available under
 public domain. For details, see [project/lib/lzma/](project/lzma).
+
+This product bundles mbedTLS 2.6.0, which is available under an
+"Apache 2.0" license. For details, see [project/lib/mbedtls/](project/lib).
 
 This product bundles OpenAL-Soft 1.17.2, which is available under an
 "LGPLv3" license. For details, see [project/lib/openal/](project/lib).
