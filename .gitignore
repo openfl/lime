@@ -24,3 +24,4 @@ legacy/ndll/*/lime*
 legacy/ndll/*/liblime*
 legacy/project/all_objs
 legacy/project/obj
+.vscode/settings.json

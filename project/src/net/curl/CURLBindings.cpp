@@ -174,6 +174,7 @@ namespace lime {
 			case CURLINFO_LOCAL_IP:
 			case CURLINFO_FTP_ENTRY_PATH:
 			case CURLINFO_RTSP_SESSION_ID:
+			case CURLINFO_SCHEME:
 				
 				char stringValue;
 				code = curl_easy_getinfo (handle, type, &stringValue);
@@ -198,6 +199,15 @@ namespace lime {
 			case CURLINFO_RTSP_CLIENT_CSEQ:
 			case CURLINFO_RTSP_SERVER_CSEQ:
 			case CURLINFO_RTSP_CSEQ_RECV:
+			case CURLINFO_HTTP_VERSION:
+			case CURLINFO_PROXY_SSL_VERIFYRESULT:
+			case CURLINFO_PROTOCOL:
+			case CURLINFO_SIZE_UPLOAD_T: // TODO: These should be larger
+			case CURLINFO_SIZE_DOWNLOAD_T:
+			case CURLINFO_SPEED_DOWNLOAD_T:
+			case CURLINFO_SPEED_UPLOAD_T:
+			case CURLINFO_CONTENT_LENGTH_DOWNLOAD_T:
+			case CURLINFO_CONTENT_LENGTH_UPLOAD_T:
 				
 				long intValue;
 				code = curl_easy_getinfo (handle, type, &intValue);
@@ -227,6 +237,8 @@ namespace lime {
 			case CURLINFO_COOKIELIST:
 			case CURLINFO_CERTINFO:
 			case CURLINFO_TLS_SESSION:
+			case CURLINFO_TLS_SSL_PTR:
+			case CURLINFO_ACTIVESOCKET:
 				
 				// TODO
 				
@@ -450,6 +462,15 @@ namespace lime {
 			//case CURLOPT_SSL_ENABLE_NPN:
 			case CURLOPT_SSL_VERIFYPEER:
 			case CURLOPT_SSL_SESSIONID_CACHE:
+			case CURLOPT_TCP_FASTOPEN:
+			case CURLOPT_KEEP_SENDING_ON_ERROR:
+			case CURLOPT_PATH_AS_IS:
+			case CURLOPT_SSL_VERIFYSTATUS:
+			case CURLOPT_SSL_FALSESTART:
+			case CURLOPT_PIPEWAIT:
+			case CURLOPT_TFTP_NO_OPTIONS:
+			case CURLOPT_SUPPRESS_CONNECT_HEADERS:
+			case CURLOPT_SSH_COMPRESSION:
 				
 				code = curl_easy_setopt (curl, type, val_bool (parameter));
 				break;
@@ -510,6 +531,12 @@ namespace lime {
 			case CURLOPT_SSH_AUTH_TYPES:
 			case CURLOPT_NEW_FILE_PERMS:
 			case CURLOPT_NEW_DIRECTORY_PERMS:
+			case CURLOPT_STREAM_WEIGHT:
+			case CURLOPT_PROXY_SSL_VERIFYPEER:
+			case CURLOPT_PROXY_SSL_VERIFYHOST:
+			case CURLOPT_PROXY_SSLVERSION:
+			case CURLOPT_PROXY_SSL_OPTIONS:
+			case CURLOPT_SOCKS5_AUTH:
 				
 				code = curl_easy_setopt (curl, type, val_int (parameter));
 				break;
@@ -581,6 +608,27 @@ namespace lime {
 			case CURLOPT_SSH_PUBLIC_KEYFILE:
 			case CURLOPT_SSH_PRIVATE_KEYFILE:
 			case CURLOPT_SSH_KNOWNHOSTS:
+			case CURLOPT_PINNEDPUBLICKEY:
+			case CURLOPT_UNIX_SOCKET_PATH:
+			case CURLOPT_PROXY_SERVICE_NAME:
+			case CURLOPT_SERVICE_NAME:
+			case CURLOPT_DEFAULT_PROTOCOL:
+			case CURLOPT_PROXY_CAINFO:
+			case CURLOPT_PROXY_CAPATH:
+			case CURLOPT_PROXY_TLSAUTH_USERNAME:
+			case CURLOPT_PROXY_TLSAUTH_PASSWORD:
+			case CURLOPT_PROXY_TLSAUTH_TYPE:
+			case CURLOPT_PROXY_SSLCERT:
+			case CURLOPT_PROXY_SSLCERTTYPE:
+			case CURLOPT_PROXY_SSLKEY:
+			case CURLOPT_PROXY_SSLKEYTYPE:
+			case CURLOPT_PROXY_KEYPASSWD:
+			case CURLOPT_PROXY_SSL_CIPHER_LIST:
+			case CURLOPT_PROXY_CRLFILE:
+			case CURLOPT_PRE_PROXY:
+			case CURLOPT_PROXY_PINNEDPUBLICKEY:
+			case CURLOPT_ABSTRACT_UNIX_SOCKET:
+			case CURLOPT_REQUEST_TARGET:
 				
 				code = curl_easy_setopt (curl, type, val_string (parameter));
 				break;
@@ -625,6 +673,10 @@ namespace lime {
 			case CURLOPT_PRIVATE:
 			case CURLOPT_SHARE:
 			case CURLOPT_TELNETOPTIONS:
+			case CURLOPT_STREAM_DEPENDS:
+			case CURLOPT_STREAM_DEPENDS_E:
+			case CURLOPT_CONNECT_TO:
+			case CURLOPT_MIMEPOST:
 				
 				//todo
 				break;
