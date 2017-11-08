@@ -64,9 +64,12 @@ class HTML5Renderer {
 			
 			if (#if (canvas || munit) false #elseif webgl true #else !Reflect.hasField (parent.window.config, "hardware") || parent.window.config.hardware #end) {
 				
+				var transparentBackground = Reflect.hasField (parent.window.config, "background") && parent.window.config.background == null;
+				var colorDepth = Reflect.hasField (parent.window.config, "colorDepth") ? parent.window.config.colorDepth : 16;
+				
 				var options = {
 					
-					alpha: (Reflect.hasField (parent.window.config, "background") && parent.window.config.background == null) ? true : false,
+					alpha: (transparentBackground || colorDepth > 16) ? true : false,
 					antialias: Reflect.hasField (parent.window.config, "antialiasing") ? parent.window.config.antialiasing > 0 : false,
 					depth: Reflect.hasField (parent.window.config, "depthBuffer") ? parent.window.config.depthBuffer : true,
 					premultipliedAlpha: true,
