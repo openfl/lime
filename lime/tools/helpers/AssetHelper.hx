@@ -17,6 +17,9 @@ import sys.FileSystem;
 class AssetHelper {
 	
 	
+	private static var DEFAULT_LIBRARY_NAME = "default";
+	
+	
 	public static function createManifest (project:HXProject, library:String = null, targetPath:String = null):AssetManifest {
 		
 		var manifest = new AssetManifest ();
@@ -26,6 +29,8 @@ class AssetHelper {
 		
 		var libraries = new Map<String, Library> ();
 		
+		if (library == null) library = DEFAULT_LIBRARY_NAME;
+		
 		for (lib in project.libraries) {
 			
 			libraries[lib.name] = lib;
@@ -34,7 +39,8 @@ class AssetHelper {
 		
 		for (asset in project.assets) {
 			
-			if (asset.library != library || asset.type == TEMPLATE) continue;
+			if ((asset.library != null && asset.library != library) || asset.type == TEMPLATE) continue;
+			if (asset.library == null && library != DEFAULT_LIBRARY_NAME) continue;
 			
 			size = 100;
 			
@@ -160,7 +166,7 @@ class AssetHelper {
 		}
 		
 		var manifest = createManifest (project);
-		manifest.name = "default";
+		manifest.name = DEFAULT_LIBRARY_NAME;
 		var manifests = [ manifest ];
 		
 		for (library in libraryNames.keys ()) {
@@ -202,7 +208,7 @@ class AssetHelper {
 		
 		for (asset in project.assets) {
 			
-			if (asset.library != null && !libraryMap.exists (asset.library)) {
+			if (asset.library != null && asset.library != DEFAULT_LIBRARY_NAME && !libraryMap.exists (asset.library)) {
 				
 				library = new Library (null, asset.library);
 				project.libraries.push (library);
@@ -213,9 +219,9 @@ class AssetHelper {
 			
 		}
 		
-		if (!libraryMap.exists ("default")) {
+		if (!libraryMap.exists (DEFAULT_LIBRARY_NAME)) {
 			
-			library = new Library (null, "default");
+			library = new Library (null, DEFAULT_LIBRARY_NAME);
 			project.libraries.push (library);
 			
 		}
@@ -314,9 +320,9 @@ class AssetHelper {
 			
 			if (library.type == null) {
 				
-				manifest = createManifest (project, library.name != "default" ? library.name : null);
+				manifest = createManifest (project, library.name != DEFAULT_LIBRARY_NAME ? library.name : null);
 				
-				if (library.name == "default") {
+				if (library.name == DEFAULT_LIBRARY_NAME) {
 					
 					library.preload = true;
 					
