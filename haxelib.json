@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "5.8.1",
-	"releasenote": "File save support on HTML5, ANE support, other improvements",
+	"version": "5.8.2",
+	"releasenote": "Better SSL library, new cURL version, minor fixes",
 	"contributors": [ "singmajesty" ]
 }
