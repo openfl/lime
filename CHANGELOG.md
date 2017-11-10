@@ -1,3 +1,14 @@
+5.8.2 (11/10/2017)
+------------------
+
+* Updated cURL to 7.56.1 and changed SSL library from axTLS to mbedTLS
+* Updated howler.js to 2.0.5, FileSaver.js to 1.3.3
+* Added `-Dcurl-verbose` for additional cURL debug info in native `HTTPRequest`
+* Improved support for `<window color-depth="32" />` on HTML5 target
+* Improved `renderer.readPixels` on native platforms to allow transparency
+* Fixed the behavior of `<asset path="Assets" library="default" />`
+
+
 5.8.1 (11/06/2017)
 ------------------
 
