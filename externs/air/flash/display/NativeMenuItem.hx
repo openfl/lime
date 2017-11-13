@@ -1,12 +1,9 @@
 package flash.display;
 
 @:require(flash10_1) extern class NativeMenuItem extends flash.events.EventDispatcher {
-	#if air
 	var checked : Bool;
 	var data : Dynamic;
-	#end
 	var enabled : Bool;
-	#if air
 	var isSeparator(default,never) : Bool;
 	var keyEquivalent : flash.ui.Keyboard;
 	var keyEquivalentModifiers : Array<flash.ui.Keyboard>;
@@ -15,10 +12,7 @@ package flash.display;
 	var mnemonicIndex : Int;
 	var name : String;
 	var submenu : NativeMenu;
-	#end
-	function new(#if air ?label : String="", ?isSeparator : Bool=false #end) : Void;
-	#if air
+	function new(?label : String="", ?isSeparator : Bool=false) : Void;
 	function clone() : NativeMenuItem;
 	override function toString() : String;
-	#end
 }
