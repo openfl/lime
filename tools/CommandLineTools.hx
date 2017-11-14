@@ -1020,6 +1020,7 @@ class CommandLineTools {
 		LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + "\x1b[0m clean|update|build|run|test|display \x1b[3;37m<project>\x1b[0m (target) \x1b[3;37m[options]\x1b[0m");
 		LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + "\x1b[0m create <library> (template) \x1b[3;37m(directory)\x1b[0m");
 		LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + "\x1b[0m rebuild <library> (target)\x1b[3;37m,(target),...\x1b[0m");
+		LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + "\x1b[0m config (name) (value)\x1b[0m");
 		LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + "\x1b[0m install|remove|upgrade <library>");
 		LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + "\x1b[0m help");
 		LogHelper.println ("");
@@ -1034,6 +1035,7 @@ class CommandLineTools {
 		LogHelper.println ("  \x1b[1mdeploy\x1b[0m -- Archive and upload builds");
 		LogHelper.println ("  \x1b[1mcreate\x1b[0m -- Create a new project or extension using templates");
 		LogHelper.println ("  \x1b[1mrebuild\x1b[0m -- Recompile native binaries for libraries");
+		LogHelper.println ("  \x1b[1mconfig\x1b[0m -- Display or set Lime configuration values");
 		LogHelper.println ("  \x1b[1mdisplay\x1b[0m -- Display information for the specified project/target");
 		LogHelper.println ("  \x1b[1minstall\x1b[0m -- Install a library from haxelib, plus dependencies");
 		LogHelper.println ("  \x1b[1mremove\x1b[0m -- Remove a library from haxelib");
@@ -1042,6 +1044,7 @@ class CommandLineTools {
 		LogHelper.println ("");
 		LogHelper.println (" " + LogHelper.accentColor + "Targets:" + LogHelper.resetColor);
 		LogHelper.println ("");
+		LogHelper.println ("  \x1b[1mair\x1b[0m -- Create an AIR application");
 		LogHelper.println ("  \x1b[1mandroid\x1b[0m -- Create an Android application");
 		//LogHelper.println ("  \x1b[1mblackberry\x1b[0m -- Create a BlackBerry application");
 		LogHelper.println ("  \x1b[1memscripten\x1b[0m -- Create an Emscripten application");
@@ -1063,6 +1066,7 @@ class CommandLineTools {
 		LogHelper.println ("  \x1b[1m-verbose\x1b[0m -- Print additional information (when available)");
 		LogHelper.println ("  \x1b[1m-clean\x1b[0m -- Add a \"clean\" action before running the current command");
 		LogHelper.println ("  \x1b[1m-nocolor\x1b[0m -- Disable ANSI format codes in output");
+		LogHelper.println ("  \x1b[1m-notrace\x1b[0m -- Disable trace output during run or test command");
 		LogHelper.println ("  \x1b[1m-xml\x1b[0m -- Generate XML type information, useful for documentation");
 		LogHelper.println ("  \x1b[1m-args\x1b[0m ... -- Add additional arguments when using \"run\" or \"test\"");
 		LogHelper.println ("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-neko\x1b[0m -- Build with Neko instead of C++");
@@ -1072,9 +1076,13 @@ class CommandLineTools {
 		LogHelper.println ("  \x1b[3m(ios|tvos)\x1b[0m \x1b[1m-simulator\x1b[0m -- Target the device simulator");
 		LogHelper.println ("  \x1b[3m(ios)\x1b[0m \x1b[1m-simulator -ipad\x1b[0m -- Build/test for the iPad Simulator");
 		LogHelper.println ("  \x1b[3m(android)\x1b[0m \x1b[1m-emulator\x1b[0m -- Target the device emulator");
-		LogHelper.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-minify\x1b[0m -- Minify output using the Google Closure compiler");
-		LogHelper.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-minify -yui\x1b[0m -- Minify output using the YUI compressor");
-		LogHelper.println ("  \x1b[3m(flash)\x1b[0m \x1b[1m-web\x1b[0m -- Make html page with embeded swf using the SWFObject js library");
+		//LogHelper.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-minify\x1b[0m -- Minify output using the Google Closure compiler");
+		LogHelper.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-minify\x1b[0m -- Minify application file");
+		//LogHelper.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-minify -yui\x1b[0m -- Minify output using the YUI compressor");
+		LogHelper.println ("  \x1b[3m(flash)\x1b[0m \x1b[1m-web\x1b[0m -- Test Flash target using a web template");
+		LogHelper.println ("  \x1b[3m(windows|mac|ios|android)\x1b[0m \x1b[1m-air\x1b[0m -- Build with AIR instead of C++");
+		LogHelper.println ("  \x1b[3m(air)\x1b[0m \x1b[1m-ios\x1b[0m -- Target iOS instead of AIR desktop");
+		LogHelper.println ("  \x1b[3m(air)\x1b[0m \x1b[1m-android\x1b[0m -- Target Android instead of AIR desktop");
 		LogHelper.println ("");
 		LogHelper.println (" " + LogHelper.accentColor + "Project Overrides:" + LogHelper.resetColor);
 		LogHelper.println ("");
