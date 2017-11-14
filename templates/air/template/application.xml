@@ -31,7 +31,7 @@
 		<fullScreen>::WIN_FULLSCREEN::</fullScreen>
 		::if (WIN_HARDWARE)::<depthAndStencil>true</depthAndStencil>::end::
 	</initialWindow> 
-	<installFolder>::APP_COMPANY::/::APP_TITLE::</installFolder>
+	<installFolder>::if (APP_COMPANY != "")::::APP_COMPANY::/::APP_TITLE::::else::::APP_TITLE::::end::</installFolder>
 	<programMenuFolder>::APP_TITLE::</programMenuFolder>
 	::if (icons != null)::<icon>::foreach icons::
 		<image::size::x::size::>::path::</image::size::x::size::>::end:: 
