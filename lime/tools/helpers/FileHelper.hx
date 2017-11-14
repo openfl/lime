@@ -255,7 +255,7 @@ class FileHelper {
 	
 	
 	public static function copyIfNewer (source:String, destination:String) {
-      
+		
 		//allFiles.push (destination);
 		
 		if (!isNewer (source, destination)) {

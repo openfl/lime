@@ -676,6 +676,8 @@ class PathHelper {
 	
 	public static function standardize (path:String, trailingSlash:Bool = false):String {
 		
+		if (path == null) return null;
+		
 		path = StringTools.replace (path, "\\", "/");
 		path = StringTools.replace (path, "//", "/");
 		path = StringTools.replace (path, "//", "/");

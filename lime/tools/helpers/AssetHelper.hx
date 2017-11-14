@@ -227,6 +227,7 @@ class AssetHelper {
 		}
 		
 		var handlers = new Array<String> ();
+		var hasPak = false;
 		var type;
 		
 		for (library in project.libraries) {
@@ -249,6 +250,10 @@ class AssetHelper {
 					handlers.push (handler);
 					
 					library.type = type;
+					
+				} else if (type == "pak") {
+					
+					hasPak = true;
 					
 				}
 				
@@ -314,6 +319,12 @@ class AssetHelper {
 			
 		}
 		
+		if (hasPak) {
+			
+			processPakLibraries (project, targetDirectory);
+			
+		}
+		
 		var manifest, asset;
 		
 		for (library in project.libraries) {
@@ -360,6 +371,129 @@ class AssetHelper {
 				project.assets.push (asset);
 				
 			}
+			
+		}
+		
+	}
+	
+	
+	public static function processPakLibraries (project:HXProject, targetDirectory:String = null):Void {
+		
+		var asset, cacheAvailable, cacheDirectory, filename;
+		var output, manifest, position, assetData:Dynamic, input;
+		var embeddedPak = false;
+		
+		for (library in project.libraries) {
+			
+			if (library.type == "pak") {
+				
+				// TODO: Support library.embed=true by embedding all the assets instead of packing
+				
+				cacheAvailable = false;
+				cacheDirectory = null;
+				
+				if (targetDirectory != null) {
+					
+					manifest = new AssetManifest ();
+					
+					cacheDirectory = targetDirectory + "/obj/libraries/";
+					filename = library.name + ".pak";
+					
+					// TODO: Support caching
+					
+					PathHelper.mkdir (cacheDirectory);
+					
+					if (FileSystem.exists (cacheDirectory + filename)) {
+						
+						FileSystem.deleteFile (cacheDirectory + filename);
+						
+					}
+					
+					output = File.write (cacheDirectory + filename, true);
+					position = 0;
+					
+					try {
+						
+						for (asset in project.assets) {
+							
+							if (asset.library == library.name || (asset.library == null && library.name == DEFAULT_LIBRARY_NAME)) {
+								
+								assetData = {
+									
+									id: asset.id,
+									size: 0,
+									type: Std.string (asset.type),
+									position: position
+									
+								};
+								
+								if (asset.data != null) {
+									
+									output.writeBytes (asset.data, 0, asset.data.length);
+									
+								} else if (asset.sourcePath != null) {
+									
+									input = File.read (asset.sourcePath, true);
+									output.writeInput (input);
+									
+								}
+								
+								position = output.tell ();
+								trace (position);
+								assetData.length = position - assetData.position;
+								
+								manifest.assets.push (assetData);
+								
+								asset.library = library.name;
+								
+								// asset.sourcePath = "";
+								asset.targetPath = null;
+								asset.data = null;
+								
+							}
+							
+						}
+						
+					} catch (e:Dynamic) {
+						
+						output.close ();
+						FileSystem.deleteFile (cacheDirectory + filename);
+						
+						neko.Lib.rethrow (e);
+						
+					}
+					
+					output.close ();
+					
+					var libraryAsset = new Asset (cacheDirectory + filename, "lib/" + filename, AssetType.BINARY);
+					libraryAsset.library = library.name;
+					project.assets.push (libraryAsset);
+					
+					var data = new Asset ("", "manifest/" + library.name + ".json", AssetType.MANIFEST);
+					data.library = library.name;
+					manifest.libraryType = "lime.utils.AssetPakLibrary";
+					manifest.libraryArgs = [ "lib/" + filename ];
+					data.data = manifest.serialize ();
+					data.embed = true;
+					
+					project.assets.push (data);
+					embeddedPak = true;
+					
+				}
+				
+				if (library.name == DEFAULT_LIBRARY_NAME) {
+					
+					library.preload = true;
+					
+				}
+				
+			}
+			
+		}
+		
+		if (embeddedPak) {
+			
+			project.haxeflags.push ("lime.utils.AssetPakLibrary");
 			
 		}
 		
