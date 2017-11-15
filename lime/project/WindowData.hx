@@ -11,6 +11,7 @@ typedef WindowData = {
 	@:optional var parameters:String;
 	@:optional var fps:Int;
 	@:optional var hardware:Bool;
+	@:optional var httpReqTimeout:Int;
 	@:optional var display:Int;
 	@:optional var resizable:Bool;
 	@:optional var borderless:Bool;
