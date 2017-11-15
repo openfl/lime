@@ -9,6 +9,8 @@ import lime.media.AudioBuffer;
 import lime.graphics.Image;
 import lime.net.HTTPRequest;
 import lime.text.Font;
+import lime.utils.compress.Deflate;
+import lime.utils.compress.GZip;
 import lime.utils.AssetType;
 
 #if flash
@@ -29,13 +31,15 @@ class PackedAssetLibrary extends AssetLibrary {
 	private var lengths = new Map<String, Int> ();
 	private var packedData:Bytes;
 	private var positions = new Map<String, Int> ();
+	private var type:String;
 	
 	
-	public function new (id:String) {
+	public function new (id:String, type:String) {
 		
 		super ();
 		
 		this.id = id;
+		this.type = type;
 		
 	}
 	
@@ -72,6 +76,8 @@ class PackedAssetLibrary extends AssetLibrary {
 			// TODO: More efficient method
 			var bytes = Bytes.alloc (lengths[id]);
 			bytes.blit (0, packedData, positions[id], lengths[id]);
+			if (type == "gzip") bytes = GZip.decompress (bytes);
+			else if (type == "deflate") bytes = Deflate.decompress (bytes);
 			return AudioBuffer.fromBytes (bytes);
 			
 		}
@@ -95,6 +101,8 @@ class PackedAssetLibrary extends AssetLibrary {
 			
 			var bytes = Bytes.alloc (lengths[id]);
 			bytes.blit (0, packedData, positions[id], lengths[id]);
+			if (type == "gzip") bytes = GZip.decompress (bytes);
+			else if (type == "deflate") bytes = Deflate.decompress (bytes);
 			return bytes;
 			
 		}
@@ -119,6 +127,8 @@ class PackedAssetLibrary extends AssetLibrary {
 			// TODO: More efficient method
 			var bytes = Bytes.alloc (lengths[id]);
 			bytes.blit (0, packedData, positions[id], lengths[id]);
+			if (type == "gzip") bytes = GZip.decompress (bytes);
+			else if (type == "deflate") bytes = Deflate.decompress (bytes);
 			return Font.fromBytes (bytes);
 			
 		}
@@ -139,6 +149,8 @@ class PackedAssetLibrary extends AssetLibrary {
 			// TODO: More efficient method
 			var bytes = Bytes.alloc (lengths[id]);
 			bytes.blit (0, packedData, positions[id], lengths[id]);
+			if (type == "gzip") bytes = GZip.decompress (bytes);
+			else if (type == "deflate") bytes = Deflate.decompress (bytes);
 			return Image.fromBytes (bytes);
 			
 		}
@@ -151,6 +163,14 @@ class PackedAssetLibrary extends AssetLibrary {
 		if (cachedText.exists (id)) {
 			
 			return cachedText.get (id);
+			
+		} else if (type == "gzip" || type == "deflate") {
+			
+			var bytes = Bytes.alloc (lengths[id]);
+			bytes.blit (0, packedData, positions[id], lengths[id]);
+			if (type == "gzip") bytes = GZip.decompress (bytes);
+			else if (type == "deflate") bytes = Deflate.decompress (bytes);
+			return bytes.getString (0, bytes.length);
 			
 		} else {
 			
@@ -284,6 +304,8 @@ class PackedAssetLibrary extends AssetLibrary {
 			// TODO: More efficient method, use `loadFromBytes` method
 			var bytes = Bytes.alloc (lengths[id]);
 			bytes.blit (0, packedData, positions[id], lengths[id]);
+			if (type == "gzip") bytes = GZip.decompress (bytes);
+			else if (type == "deflate") bytes = Deflate.decompress (bytes);
 			return Future.withValue (AudioBuffer.fromBytes (bytes));
 			
 		}
@@ -302,6 +324,8 @@ class PackedAssetLibrary extends AssetLibrary {
 			// TODO: More efficient method
 			var bytes = Bytes.alloc (lengths[id]);
 			bytes.blit (0, packedData, positions[id], lengths[id]);
+			if (type == "gzip") bytes = GZip.decompress (bytes);
+			else if (type == "deflate") bytes = Deflate.decompress (bytes);
 			return Future.withValue (bytes);
 			
 		}
@@ -326,6 +350,8 @@ class PackedAssetLibrary extends AssetLibrary {
 			// TODO: More efficient method
 			var bytes = Bytes.alloc (lengths[id]);
 			bytes.blit (0, packedData, positions[id], lengths[id]);
+			if (type == "gzip") bytes = GZip.decompress (bytes);
+			else if (type == "deflate") bytes = Deflate.decompress (bytes);
 			return Font.loadFromBytes (bytes);
 			
 		}
@@ -382,6 +408,8 @@ class PackedAssetLibrary extends AssetLibrary {
 			// TODO: More efficient method
 			var bytes = Bytes.alloc (lengths[id]);
 			bytes.blit (0, packedData, positions[id], lengths[id]);
+			if (type == "gzip") bytes = GZip.decompress (bytes);
+			else if (type == "deflate") bytes = Deflate.decompress (bytes);
 			return Image.loadFromBytes (bytes);
 			
 		}
@@ -410,6 +438,14 @@ class PackedAssetLibrary extends AssetLibrary {
 				return Future.withValue (text);
 				
 			}
+			
+		} else if (type == "gzip" || type == "deflate") {
+			
+			var bytes = Bytes.alloc (lengths[id]);
+			bytes.blit (0, packedData, positions[id], lengths[id]);
+			if (type == "gzip") bytes = GZip.decompress (bytes);
+			else if (type == "deflate") bytes = Deflate.decompress (bytes);
+			return Future.withValue (bytes.getString (0, bytes.length));
 			
 		} else {
 			

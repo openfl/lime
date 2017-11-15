@@ -9,6 +9,8 @@ import lime.project.AssetType;
 import lime.project.Asset;
 import lime.project.HXProject;
 import lime.project.Library;
+import lime.utils.compress.Deflate;
+import lime.utils.compress.GZip;
 import lime.utils.AssetManifest;
 import sys.io.File;
 import sys.FileSystem;
@@ -194,6 +196,18 @@ class AssetHelper {
 	}
 	
 	
+	private static function isPackedType (type:String) {
+		
+		return switch (type) {
+			
+			case "pak", "pack", "gzip", "zip", "deflate": true;
+			default: false;
+			
+		}
+		
+	}
+	
+	
 	public static function processLibraries (project:HXProject, targetDirectory:String = null):Void {
 		
 		var libraryMap = new Map<String, Bool> ();
@@ -251,7 +265,7 @@ class AssetHelper {
 					
 					library.type = type;
 					
-				} else if (type == "pak" || type == "pack") {
+				} else if (isPackedType (library.type)) {
 					
 					hasPackedLibraries = true;
 					
@@ -379,13 +393,18 @@ class AssetHelper {
 	
 	public static function processPackedLibraries (project:HXProject, targetDirectory:String = null):Void {
 		
-		var asset, cacheAvailable, cacheDirectory, filename;
+		var type, asset, cacheAvailable, cacheDirectory, filename;
 		var output, manifest, position, assetData:Dynamic, input;
 		var embeddedLibrary = false;
+		var tempBytes;
 		
 		for (library in project.libraries) {
 			
-			if (library.type == "pak" || library.type == "pack") {
+			type = library.type;
+			
+			if (isPackedType (type)) {
+				
+				if (type == "zip") type = "deflate";
 				
 				// TODO: Support library.embed=true by embedding all the assets instead of packing
 				
@@ -427,15 +446,49 @@ class AssetHelper {
 									
 								};
 								
-								if (asset.data != null) {
+								switch (library.type) {
 									
-									output.writeBytes (asset.data, 0, asset.data.length);
+									case "deflate", "zip":
+										
+										if (asset.data != null) {
+											
+											output.writeBytes (Deflate.compress (asset.data), 0, asset.data.length);
+											
+										} else if (asset.sourcePath != null) {
+											
+											tempBytes = File.getBytes (asset.sourcePath);
+											tempBytes = Deflate.compress (tempBytes);
+											output.writeBytes (tempBytes, 0, tempBytes.length);
+											
+										}
 									
-								} else if (asset.sourcePath != null) {
+									case "gzip":
+										
+										if (asset.data != null) {
+											
+											output.writeBytes (GZip.compress (asset.data), 0, asset.data.length);
+											
+										} else if (asset.sourcePath != null) {
+											
+											tempBytes = File.getBytes (asset.sourcePath);
+											tempBytes = GZip.compress (tempBytes);
+											output.writeBytes (tempBytes, 0, tempBytes.length);
+											
+										}
 									
-									input = File.read (asset.sourcePath, true);
-									output.writeInput (input);
-									input.close ();
+									default:
+										
+										if (asset.data != null) {
+											
+											output.writeBytes (asset.data, 0, asset.data.length);
+											
+										} else if (asset.sourcePath != null) {
+											
+											input = File.read (asset.sourcePath, true);
+											output.writeInput (input);
+											input.close ();
+											
+										}
 									
 								}
 								
@@ -486,7 +539,7 @@ class AssetHelper {
 					var data = new Asset ("", "manifest/" + library.name + ".json", AssetType.MANIFEST);
 					data.library = library.name;
 					manifest.libraryType = "lime.utils.PackedAssetLibrary";
-					manifest.libraryArgs = [ "lib/" + filename ];
+					manifest.libraryArgs = [ "lib/" + filename, library.type ];
 					data.data = manifest.serialize ();
 					data.embed = true;
 					
