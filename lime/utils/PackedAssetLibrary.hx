@@ -22,12 +22,12 @@ import flash.media.Sound;
 #end
 
 
-class AssetPakLibrary extends AssetLibrary {
+class PackedAssetLibrary extends AssetLibrary {
 	
 	
 	private var id:String;
 	private var lengths = new Map<String, Int> ();
-	private var pakData:Bytes;
+	private var packedData:Bytes;
 	private var positions = new Map<String, Int> ();
 	
 	
@@ -40,21 +40,21 @@ class AssetPakLibrary extends AssetLibrary {
 	}
 	
 	
-	public static function fromBytes (bytes:Bytes, rootPath:String = null):AssetPakLibrary {
+	public static function fromBytes (bytes:Bytes, rootPath:String = null):PackedAssetLibrary {
 		
 		return cast fromManifest (AssetManifest.fromBytes (bytes, rootPath));
 		
 	}
 	
 	
-	public static function fromFile (path:String, rootPath:String = null):AssetPakLibrary {
+	public static function fromFile (path:String, rootPath:String = null):PackedAssetLibrary {
 		
 		return cast fromManifest (AssetManifest.fromFile (path, rootPath));
 		
 	}
 	
 	
-	public static function fromManifest (manifest:AssetManifest):AssetPakLibrary {
+	public static function fromManifest (manifest:AssetManifest):PackedAssetLibrary {
 		
 		return cast AssetLibrary.fromManifest (manifest);
 		
@@ -125,9 +125,7 @@ class AssetPakLibrary extends AssetLibrary {
 			
 			// TODO: More efficient method
 			var bytes = Bytes.alloc (lengths[id]);
-			trace (lengths[id]);
-			trace (positions[id]);
-			bytes.blit (0, pakData, positions[id], lengths[id]);
+			bytes.blit (0, packedData, positions[id], lengths[id]);
 			return Image.fromBytes (bytes);
 			
 		}
@@ -176,8 +174,7 @@ class AssetPakLibrary extends AssetLibrary {
 			var onComplete = function (data:Bytes) {
 				
 				cachedBytes.set (id, data);
-				pakData = data;
-				trace (pakData.length);
+				packedData = data;
 				
 				promise.complete (this);
 				
@@ -250,36 +247,36 @@ class AssetPakLibrary extends AssetLibrary {
 	}
 	
 	
-	public static function loadFromBytes (bytes:Bytes, rootPath:String = null):Future<AssetPakLibrary> {
+	public static function loadFromBytes (bytes:Bytes, rootPath:String = null):Future<PackedAssetLibrary> {
 		
 		return AssetLibrary.loadFromBytes (bytes, rootPath).then (function (library) {
 			
-			var pak:AssetPakLibrary = cast library;
-			return Future.withValue (pak);
+			var assetLibrary:PackedAssetLibrary = cast library;
+			return Future.withValue (assetLibrary);
 			
 		});
 		
 	}
 	
 	
-	public static function loadFromFile (path:String, rootPath:String = null):Future<AssetPakLibrary> {
+	public static function loadFromFile (path:String, rootPath:String = null):Future<PackedAssetLibrary> {
 		
 		return AssetLibrary.loadFromFile (path, rootPath).then (function (library) {
 			
-			var pak:AssetPakLibrary = cast library;
-			return Future.withValue (pak);
+			var assetLibrary:PackedAssetLibrary = cast library;
+			return Future.withValue (assetLibrary);
 			
 		});
 		
 	}
 	
 	
-	public static function loadFromManifest (manifest:AssetManifest):Future<AssetPakLibrary> {
+	public static function loadFromManifest (manifest:AssetManifest):Future<PackedAssetLibrary> {
 		
 		return AssetLibrary.loadFromManifest (manifest).then (function (library) {
 			
-			var pak:AssetPakLibrary = cast library;
-			return Future.withValue (pak);
+			var assetLibrary:PackedAssetLibrary = cast library;
+			return Future.withValue (assetLibrary);
 			
 		});
 		

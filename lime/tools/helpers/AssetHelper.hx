@@ -227,7 +227,7 @@ class AssetHelper {
 		}
 		
 		var handlers = new Array<String> ();
-		var hasPak = false;
+		var hasPackedLibraries = false;
 		var type;
 		
 		for (library in project.libraries) {
@@ -251,9 +251,9 @@ class AssetHelper {
 					
 					library.type = type;
 					
-				} else if (type == "pak") {
+				} else if (type == "pak" || type == "pack") {
 					
-					hasPak = true;
+					hasPackedLibraries = true;
 					
 				}
 				
@@ -319,9 +319,9 @@ class AssetHelper {
 			
 		}
 		
-		if (hasPak) {
+		if (hasPackedLibraries) {
 			
-			processPakLibraries (project, targetDirectory);
+			processPackedLibraries (project, targetDirectory);
 			
 		}
 		
@@ -377,15 +377,15 @@ class AssetHelper {
 	}
 	
 	
-	public static function processPakLibraries (project:HXProject, targetDirectory:String = null):Void {
+	public static function processPackedLibraries (project:HXProject, targetDirectory:String = null):Void {
 		
 		var asset, cacheAvailable, cacheDirectory, filename;
 		var output, manifest, position, assetData:Dynamic, input;
-		var embeddedPak = false;
+		var embeddedLibrary = false;
 		
 		for (library in project.libraries) {
 			
-			if (library.type == "pak") {
+			if (library.type == "pak" || library.type == "pack") {
 				
 				// TODO: Support library.embed=true by embedding all the assets instead of packing
 				
@@ -439,7 +439,6 @@ class AssetHelper {
 								}
 								
 								position = output.tell ();
-								trace (position);
 								assetData.length = position - assetData.position;
 								
 								manifest.assets.push (assetData);
@@ -471,13 +470,13 @@ class AssetHelper {
 					
 					var data = new Asset ("", "manifest/" + library.name + ".json", AssetType.MANIFEST);
 					data.library = library.name;
-					manifest.libraryType = "lime.utils.AssetPakLibrary";
+					manifest.libraryType = "lime.utils.PackedAssetLibrary";
 					manifest.libraryArgs = [ "lib/" + filename ];
 					data.data = manifest.serialize ();
 					data.embed = true;
 					
 					project.assets.push (data);
-					embeddedPak = true;
+					embeddedLibrary = true;
 					
 				}
 				
@@ -491,9 +490,9 @@ class AssetHelper {
 			
 		}
 		
-		if (embeddedPak) {
+		if (embeddedLibrary) {
 			
-			project.haxeflags.push ("lime.utils.AssetPakLibrary");
+			project.haxeflags.push ("lime.utils.PackedAssetLibrary");
 			
 		}
 		
