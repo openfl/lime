@@ -50,6 +50,7 @@ class Font {
 	public var underlineThickness (get, null):Int;
 	public var unitsPerEM (get, null):Int;
 	
+	@:noCompletion private var __fontID:String;
 	@:noCompletion private var __fontPath:String;
 	#if lime_cffi
 	@:noCompletion private var __fontPathWithoutDirectory:String;
@@ -64,7 +65,15 @@ class Font {
 			
 		}
 		
-		if (__fontPath != null) {
+		if (__fontID != null) {
+			
+			if (Assets.isLocal (__fontID)) {
+				
+				__fromBytes (Assets.getBytes (__fontID));
+				
+			}
+			
+		} else if (__fontPath != null) {
 			
 			__fromFile (__fontPath);
 			

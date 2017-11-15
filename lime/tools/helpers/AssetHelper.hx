@@ -435,6 +435,13 @@ class AssetHelper {
 									
 									input = File.read (asset.sourcePath, true);
 									output.writeInput (input);
+									input.close ();
+									
+								}
+								
+								if (project.target == HTML5 && (asset.type == IMAGE || asset.type == FONT)) {
+									
+									assetData.preload = true;
 									
 								}
 								
@@ -446,7 +453,13 @@ class AssetHelper {
 								asset.library = library.name;
 								
 								// asset.sourcePath = "";
-								asset.targetPath = null;
+								
+								if (project.target != HTML5 || asset.type != FONT) {
+									
+									asset.targetPath = null;
+									
+								}
+								
 								asset.data = null;
 								
 							}

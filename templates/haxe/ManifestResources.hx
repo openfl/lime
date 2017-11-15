@@ -86,7 +86,7 @@ import sys.FileSystem;
 ::elseif (type == "font")::@:font("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends lime.text.Font {}
 ::else::@:file("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends haxe.io.Bytes {}
 ::end::::end::::end::::end::
-::if (assets != null)::::foreach assets::::if (!embed)::::if (type == "font")::@:keep #if display private #end class __ASSET__::flatName:: extends lime.text.Font { public function new () { __fontPath = #if (ios || tvos) "assets/" + #end "::targetPath::"; name = "::fontName::"; super (); }}
+::if (assets != null)::::foreach assets::::if (!embed)::::if (type == "font")::@:keep #if display private #end class __ASSET__::flatName:: extends lime.text.Font { public function new () { ::if (targetPath != null)::__fontPath = #if (ios || tvos) "assets/" + #end "::targetPath::";::else::::if (library != null)::__fontID = "::library:::::id::";::else::__fontID = "::id::";::end::::end:: name = "::fontName::"; super (); }}
 ::end::::end::::end::::end::
 
 #else
@@ -98,7 +98,7 @@ import sys.FileSystem;
 
 #if (openfl && !flash)
 
-::if (assets != null)::::foreach assets::::if (type == "font")::@:keep @:expose('__ASSET__OPENFL__::flatName::') #if display private #end class __ASSET__OPENFL__::flatName:: extends openfl.text.Font { public function new () { ::if (embed)::var font = new __ASSET__::flatName:: (); src = font.src; name = font.name;::else::#if !html5 __fontPath = #if (ios || tvos) "assets/" + #end "::targetPath::"; #end name = "::fontName::";::end:: super (); }}
+::if (assets != null)::::foreach assets::::if (type == "font")::@:keep @:expose('__ASSET__OPENFL__::flatName::') #if display private #end class __ASSET__OPENFL__::flatName:: extends openfl.text.Font { public function new () { ::if (embed)::var font = new __ASSET__::flatName:: (); src = font.src; name = font.name;::else::#if !html5 ::if (targetPath != null)::__fontPath = #if (ios || tvos) "assets/" + #end "::targetPath::";::else::::if (library != null)::__fontID = "::library:::::id::";::else::__fontID = "::id::";::end::::end:: #end name = "::fontName::";::end:: super (); }}
 ::end::::end::::end::
 
 #end

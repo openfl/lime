@@ -104,6 +104,12 @@ class PackedAssetLibrary extends AssetLibrary {
 	
 	public override function getFont (id:String):Font {
 		
+		#if (js && html5)
+		
+		return super.getFont (id);
+		
+		#else
+		
 		if (cachedFonts.exists (id)) {
 			
 			return cachedFonts.get (id);
@@ -116,6 +122,8 @@ class PackedAssetLibrary extends AssetLibrary {
 			return Font.fromBytes (bytes);
 			
 		}
+		
+		#end
 		
 	}
 	
@@ -175,24 +183,86 @@ class PackedAssetLibrary extends AssetLibrary {
 			// TODO: Handle `preload` for individual assets
 			// TODO: Do not preload bytes on native, if we can read from it instead (all non-Android targets?)
 			
-			var onComplete = function (data:Bytes) {
+			var packedData_onComplete = function (data:Bytes) {
 				
 				cachedBytes.set (id, data);
 				packedData = data;
 				
-				promise.complete (this);
+				assetsLoaded = 0;
+				assetsTotal = 1;
+				
+				for (id in preload.keys ()) {
+					
+					if (!preload.get (id)) continue;
+					
+					Log.verbose ("Preloading asset: " + id + " [" + types.get (id) + "]");
+					
+					switch (types.get (id)) {
+						
+						case BINARY:
+							
+							assetsTotal++;
+							
+							var future = loadBytes (id);
+							//future.onProgress (load_onProgress.bind (id));
+							future.onError (load_onError.bind (id));
+							future.onComplete (loadBytes_onComplete.bind (id));
+						
+						case FONT:
+							
+							assetsTotal++;
+							
+							var future = loadFont (id);
+							//future.onProgress (load_onProgress.bind (id));
+							future.onError (load_onError.bind (id));
+							future.onComplete (loadFont_onComplete.bind (id));
+						
+						case IMAGE:
+							
+							assetsTotal++;
+							
+							var future = loadImage (id);
+							//future.onProgress (load_onProgress.bind (id));
+							future.onError (load_onError.bind (id));
+							future.onComplete (loadImage_onComplete.bind (id));
+						
+						case MUSIC, SOUND:
+							
+							assetsTotal++;
+							
+							var future = loadAudioBuffer (id);
+							//future.onProgress (load_onProgress.bind (id));
+							future.onError (load_onError.bind (id));
+							future.onComplete (loadAudioBuffer_onComplete.bind (id));
+						
+						case TEXT:
+							
+							assetsTotal++;
+							
+							var future = loadText (id);
+							//future.onProgress (load_onProgress.bind (id));
+							future.onError (load_onError.bind (id));
+							future.onComplete (loadText_onComplete.bind (id));
+						
+						default:
+						
+					}
+					
+				}
+				
+				__assetLoaded (null);
 				
 			};
 			
 			if (cachedBytes.exists (id)) {
 				
-				onComplete (cachedBytes.get (id));
+				packedData_onComplete (cachedBytes.get (id));
 				
 			} else {
 				
 				var path = paths.exists (id) ? paths.get (id) : id;
 				
-				Bytes.loadFromFile (path).onError (promise.error).onComplete (onComplete);
+				Bytes.loadFromFile (path).onError (promise.error).onComplete (packedData_onComplete);
 				
 			}
 			
@@ -241,6 +311,12 @@ class PackedAssetLibrary extends AssetLibrary {
 	
 	public override function loadFont (id:String):Future<Font> {
 		
+		#if (js && html5)
+		
+		return super.loadFont (id);
+		
+		#else
+		
 		if (cachedFonts.exists (id)) {
 			
 			return Future.withValue (cachedFonts.get (id));
@@ -253,6 +329,8 @@ class PackedAssetLibrary extends AssetLibrary {
 			return Font.loadFromBytes (bytes);
 			
 		}
+		
+		#end
 		
 	}
 	
@@ -366,6 +444,55 @@ class PackedAssetLibrary extends AssetLibrary {
 				lengths.set (asset.id, Reflect.field (asset, "length"));
 				
 			}
+			
+		}
+		
+	}
+	
+	
+	private override function __assetLoaded (id:String):Void {
+		
+		assetsLoaded++;
+		
+		if (id != null) {
+			
+			Log.verbose ("Loaded asset: " + id + " [" + types.get (id) + "] (" + (assetsLoaded - 1) + "/" + (assetsTotal - 1) + ")");
+			
+		}
+		
+		// if (id != null) {
+			
+		// 	var size = sizes.get (id);
+			
+		// 	if (!bytesLoadedCache.exists (id)) {
+				
+		// 		bytesLoaded += size;
+				
+		// 	} else {
+				
+		// 		var cache = bytesLoadedCache.get (id);
+				
+		// 		if (cache < size) {
+					
+		// 			bytesLoaded += (size - cache);
+					
+		// 		}
+				
+		// 	}
+			
+		// 	bytesLoadedCache.set (id, size);
+			
+		// }
+		
+		if (assetsLoaded < assetsTotal) {
+			
+			// promise.progress (bytesLoaded, bytesTotal);
+			
+		} else {
+			
+			loaded = true;
+			// promise.progress (bytesTotal, bytesTotal);
+			promise.complete (this);
 			
 		}
 		

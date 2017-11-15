@@ -153,7 +153,7 @@ class HTML5Platform extends PlatformTarget {
 		
 		for (asset in project.assets) {
 			
-			if (asset.type == AssetType.FONT) {
+			if (asset.type == AssetType.FONT && asset.targetPath != null) {
 				
 				if (useWebfonts) {
 					
