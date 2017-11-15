@@ -164,17 +164,7 @@ class AIRHelper {
 		
 		args = args.concat (files);
 
-		var extDirs:Array<String> = [];
-
-		for (dependency in project.dependencies) {
-
-			if (StringTools.endsWith (dependency.path, ".ane") && extDirs.indexOf(dependency.path) == -1) {
-
-				extDirs.push(FileSystem.fullPath(Path.directory(dependency.path)));
-
-			}
-
-		}
+		var extDirs:Array<String> = getExtDirs(project);
 
 		if (extDirs.length > 0) {
 
@@ -197,6 +187,27 @@ class AIRHelper {
 		
 		return targetPath + extension;
 		
+	}
+
+
+	public static function getExtDirs(project:HXProject):Array<String> {
+
+		var extDirs:Array<String> = [];
+
+		for (dependency in project.dependencies) {
+
+			var extDir:String = FileSystem.fullPath(Path.directory(dependency.path));
+
+			if (StringTools.endsWith (dependency.path, ".ane") && extDirs.indexOf(extDir) == -1) {
+
+				extDirs.push(extDir);
+
+			}
+
+		}
+
+		return extDirs;
+
 	}
 	
 	
@@ -233,13 +244,28 @@ class AIRHelper {
 			}
 			
 		} else {
+
+			var extDirs:Array<String> = getExtDirs(project);
+
+			var profile:String = extDirs.length > 0 ? "extendedDesktop" : "desktop";
 			
-			var args = [ "-profile", "desktop" ];
+			var args = [ "-profile", profile ];
 			
 			if (!project.debug) {
 				
 				args.push ("-nodebug");
 				
+			}
+
+			if (extDirs.length > 0) {
+
+				args.push("-extdir");
+
+				for (extDir in extDirs) {
+
+					args.push(extDir + "/adl");
+
+				}
 			}
 			
 			args.push (applicationXML);
