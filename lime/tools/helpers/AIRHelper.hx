@@ -263,6 +263,12 @@ class AIRHelper {
 
 				for (extDir in extDirs) {
 
+					if (!FileSystem.exists(extDir + "/adl")) {
+
+						LogHelper.error("Create " + extDir + "/adl directory, and extract your ANE files to .ane directories.");
+
+					}
+
 					args.push(extDir + "/adl");
 
 				}
