@@ -69,8 +69,10 @@ class PackedAssetLibrary extends AssetLibrary {
 			
 		} else {
 			
-			// TODO: Return based on position/length values for bytes
-			return null;
+			// TODO: More efficient method
+			var bytes = Bytes.alloc (lengths[id]);
+			bytes.blit (0, packedData, positions[id], lengths[id]);
+			return AudioBuffer.fromBytes (bytes);
 			
 		}
 		
@@ -91,8 +93,9 @@ class PackedAssetLibrary extends AssetLibrary {
 			
 		} else {
 			
-			// TODO: Return based on position/length values for bytes
-			return null;
+			var bytes = Bytes.alloc (lengths[id]);
+			bytes.blit (0, packedData, positions[id], lengths[id]);
+			return bytes;
 			
 		}
 		
@@ -107,8 +110,10 @@ class PackedAssetLibrary extends AssetLibrary {
 			
 		} else {
 			
-			// TODO: Return based on position/length values for bytes
-			return null;
+			// TODO: More efficient method
+			var bytes = Bytes.alloc (lengths[id]);
+			bytes.blit (0, packedData, positions[id], lengths[id]);
+			return Font.fromBytes (bytes);
 			
 		}
 		
@@ -141,8 +146,7 @@ class PackedAssetLibrary extends AssetLibrary {
 			
 		} else {
 			
-			// TODO: Return based on position/length values for bytes
-			return null;
+			return packedData.getString (positions[id], lengths[id]);
 			
 		}
 		
@@ -207,8 +211,10 @@ class PackedAssetLibrary extends AssetLibrary {
 			
 		} else {
 			
-			// TODO: Return based on position/length values for bytes
-			return Future.withValue (null);
+			// TODO: More efficient method, use `loadFromBytes` method
+			var bytes = Bytes.alloc (lengths[id]);
+			bytes.blit (0, packedData, positions[id], lengths[id]);
+			return Future.withValue (AudioBuffer.fromBytes (bytes));
 			
 		}
 		
@@ -223,8 +229,10 @@ class PackedAssetLibrary extends AssetLibrary {
 			
 		} else {
 			
-			// TODO: Return based on position/length values for bytes
-			return Future.withValue (null);
+			// TODO: More efficient method
+			var bytes = Bytes.alloc (lengths[id]);
+			bytes.blit (0, packedData, positions[id], lengths[id]);
+			return Future.withValue (bytes);
 			
 		}
 		
@@ -239,8 +247,10 @@ class PackedAssetLibrary extends AssetLibrary {
 			
 		} else {
 			
-			// TODO: Return based on position/length values for bytes
-			return Future.withValue (null);
+			// TODO: More efficient method
+			var bytes = Bytes.alloc (lengths[id]);
+			bytes.blit (0, packedData, positions[id], lengths[id]);
+			return Font.loadFromBytes (bytes);
 			
 		}
 		
@@ -291,10 +301,10 @@ class PackedAssetLibrary extends AssetLibrary {
 			
 		} else {
 			
-			trace ("SDLKFJDSLKFJ");
-			trace (id);
-			// TODO: Return based on position/length values for bytes
-			return Future.withValue (null);
+			// TODO: More efficient method
+			var bytes = Bytes.alloc (lengths[id]);
+			bytes.blit (0, packedData, positions[id], lengths[id]);
+			return Image.loadFromBytes (bytes);
 			
 		}
 		
@@ -325,8 +335,7 @@ class PackedAssetLibrary extends AssetLibrary {
 			
 		} else {
 			
-			// TODO: Return based on position/length values for bytes
-			return Future.withValue (null);
+			return Future.withValue (packedData.getString (positions[id], lengths[id]));
 			
 		}
 		
