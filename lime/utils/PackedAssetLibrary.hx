@@ -67,6 +67,12 @@ class PackedAssetLibrary extends AssetLibrary {
 	
 	public override function getAudioBuffer (id:String):AudioBuffer {
 		
+		#if (js && html5)
+		
+		return super.getAudioBuffer (id);
+		
+		#else
+		
 		if (cachedAudioBuffers.exists (id)) {
 			
 			return cachedAudioBuffers.get (id);
@@ -81,6 +87,8 @@ class PackedAssetLibrary extends AssetLibrary {
 			return AudioBuffer.fromBytes (bytes);
 			
 		}
+		
+		#end
 		
 	}
 	
@@ -281,6 +289,7 @@ class PackedAssetLibrary extends AssetLibrary {
 			} else {
 				
 				var path = paths.exists (id) ? paths.get (id) : id;
+				path = __cacheBreak (path);
 				
 				Bytes.loadFromFile (path).onError (promise.error).onComplete (packedData_onComplete);
 				
@@ -294,6 +303,12 @@ class PackedAssetLibrary extends AssetLibrary {
 	
 	
 	public override function loadAudioBuffer (id:String):Future<AudioBuffer> {
+		
+		#if (js && html5)
+		
+		return super.loadAudioBuffer (id);
+		
+		#else
 		
 		if (cachedAudioBuffers.exists (id)) {
 			
@@ -309,6 +324,8 @@ class PackedAssetLibrary extends AssetLibrary {
 			return Future.withValue (AudioBuffer.fromBytes (bytes));
 			
 		}
+		
+		#end
 		
 	}
 	

@@ -13,6 +13,7 @@ import lime.utils.compress.Deflate;
 import lime.utils.compress.GZip;
 import lime.utils.AssetManifest;
 import sys.io.File;
+import sys.io.FileOutput;
 import sys.FileSystem;
 
 
@@ -26,11 +27,8 @@ class AssetHelper {
 		
 		var manifest = new AssetManifest ();
 		var pathGroups = new Map<String, Array<String>> ();
-		var size, soundName;
-		var assetData:Dynamic;
 		
 		var libraries = new Map<String, Library> ();
-		
 		if (library == null) library = DEFAULT_LIBRARY_NAME;
 		
 		for (lib in project.libraries) {
@@ -39,105 +37,17 @@ class AssetHelper {
 			
 		}
 		
+		var assetData;
+		
 		for (asset in project.assets) {
 			
-			if ((asset.library != null && asset.library != library) || asset.type == TEMPLATE) continue;
-			if (asset.library == null && library != DEFAULT_LIBRARY_NAME) continue;
+			assetData = getAssetData (project, pathGroups, libraries, library, asset);
 			
-			size = 100;
-			
-			if (FileSystem.exists (asset.sourcePath)) {
+			if (assetData != null) {
 				
-				size = FileSystem.stat (asset.sourcePath).size;
+				manifest.assets.push (assetData);
 				
 			}
-			
-			assetData = {
-				
-				id: asset.id,
-				size: size,
-				type: Std.string (asset.type)
-				
-			};
-			
-			if (project.target == FLASH || project.target == AIR) {
-				
-				if (asset.embed != false || asset.type == FONT) {
-					
-					assetData.className = "__ASSET__" + asset.flatName;
-					
-				} else {
-					
-					assetData.path = asset.resourceName;
-					
-				}
-				
-				if (asset.embed == false && asset.library != null && libraries.exists (asset.library)) {
-					
-					assetData.preload = libraries[asset.library].preload;
-					
-				}
-				
-			} else if (project.target == HTML5) {
-				
-				if (asset.type == FONT) {
-					
-					assetData.className = "__ASSET__" + asset.flatName;
-					assetData.preload = true;
-					
-				} else {
-					
-					assetData.path = asset.resourceName;
-					
-					if (asset.embed != false || (asset.library != null && libraries.exists (asset.library) && libraries[asset.library].preload)) {
-						
-						assetData.preload = true;
-						
-					}
-					
-					if (asset.type == MUSIC || asset.type == SOUND) {
-						
-						soundName = Path.withoutExtension (assetData.path);
-						
-						if (!pathGroups.exists (soundName)) {
-							
-							pathGroups.set (soundName, [ assetData.path ]);
-							
-						} else {
-							
-							pathGroups[soundName].push (assetData.path);
-							Reflect.deleteField (assetData, "preload");
-							
-						}
-						
-						Reflect.deleteField (assetData, "path");
-						assetData.pathGroup = pathGroups[soundName];
-						
-					}
-					
-				}
-				
-			} else {
-				
-				if (project.target == EMSCRIPTEN && (asset.embed != false || (asset.library != null && libraries.exists (asset.library) && libraries[asset.library].preload))) {
-					
-					assetData.preload = true;
-					
-				}
-				
-				if (asset.embed == true || asset.type == FONT) {
-					
-					assetData.className = "__ASSET__" + asset.flatName;
-					
-				} else {
-					
-					assetData.path = asset.resourceName;
-					
-				}
-				
-			}
-			
-			manifest.assets.push (assetData);
 			
 		}
 		
@@ -192,6 +102,216 @@ class AssetHelper {
 		}
 		
 		return manifests;
+		
+	}
+	
+	
+	private static function getAssetData (project:HXProject, pathGroups:Map<String, Array<String>>, libraries:Map<String, Library>, library:String, asset:Asset):Dynamic {
+		
+		if ((asset.library != null && asset.library != library) || asset.type == TEMPLATE) return null;
+		if (asset.library == null && library != DEFAULT_LIBRARY_NAME) return null;
+		
+		var size = 100;
+		
+		if (FileSystem.exists (asset.sourcePath)) {
+			
+			size = FileSystem.stat (asset.sourcePath).size;
+			
+		}
+		
+		var assetData:Dynamic = {
+			
+			id: asset.id,
+			size: size,
+			type: Std.string (asset.type)
+			
+		};
+		
+		if (project.target == FLASH || project.target == AIR) {
+			
+			if (asset.embed != false || asset.type == FONT) {
+				
+				assetData.className = "__ASSET__" + asset.flatName;
+				
+			} else {
+				
+				assetData.path = asset.resourceName;
+				
+			}
+			
+			if (asset.embed == false && asset.library != null && libraries.exists (asset.library)) {
+				
+				assetData.preload = libraries[asset.library].preload;
+				
+			}
+			
+		} else if (project.target == HTML5) {
+			
+			if (asset.type == FONT) {
+				
+				assetData.className = "__ASSET__" + asset.flatName;
+				assetData.preload = true;
+				
+			} else {
+				
+				assetData.path = asset.resourceName;
+				
+				if (asset.embed != false || (asset.library != null && libraries.exists (asset.library) && libraries[asset.library].preload)) {
+					
+					assetData.preload = true;
+					
+				}
+				
+				if (asset.type == MUSIC || asset.type == SOUND) {
+					
+					var soundName = Path.withoutExtension (assetData.path);
+					
+					if (!pathGroups.exists (soundName)) {
+						
+						pathGroups.set (soundName, [ assetData.path ]);
+						
+					} else {
+						
+						pathGroups[soundName].push (assetData.path);
+						Reflect.deleteField (assetData, "preload");
+						
+					}
+					
+					Reflect.deleteField (assetData, "path");
+					assetData.pathGroup = pathGroups[soundName];
+					
+				}
+				
+			}
+			
+		} else {
+			
+			if (project.target == EMSCRIPTEN && (asset.embed != false || (asset.library != null && libraries.exists (asset.library) && libraries[asset.library].preload))) {
+				
+				assetData.preload = true;
+				
+			}
+			
+			if (asset.embed == true || asset.type == FONT) {
+				
+				assetData.className = "__ASSET__" + asset.flatName;
+				
+			} else {
+				
+				assetData.path = asset.resourceName;
+				
+			}
+			
+		}
+		
+		return assetData;
+		
+	}
+	
+	
+	private static function getPackedAssetData (project:HXProject, output:FileOutput, pathGroups:Map<String, Array<String>>, libraries:Map<String, Library>, library:Library, asset:Asset):Dynamic {
+		
+		if (project.target == HTML5 && (asset.type == MUSIC || asset.type == SOUND || asset.type == FONT)) {
+			
+			return getAssetData (project, pathGroups, libraries, library.name, asset);
+			
+		}
+		
+		if (asset.type == TEMPLATE) return null;
+		if (asset.library == library.name || (asset.library == null && library.name == DEFAULT_LIBRARY_NAME)) {
+			
+			var assetData:Dynamic = {
+				
+				id: asset.id,
+				size: 0,
+				type: Std.string (asset.type),
+				position: output.tell ()
+				
+			};
+			
+			if (project.target == HTML5 && asset.type == FONT) {
+				
+				assetData.className = "__ASSET__" + asset.flatName;
+				assetData.preload = true;
+				
+			} else {
+				
+				switch (library.type) {
+					
+					case "deflate", "zip":
+						
+						if (asset.data != null) {
+							
+							output.writeBytes (Deflate.compress (asset.data), 0, asset.data.length);
+							
+						} else if (asset.sourcePath != null) {
+							
+							var tempBytes = File.getBytes (asset.sourcePath);
+							tempBytes = Deflate.compress (tempBytes);
+							output.writeBytes (tempBytes, 0, tempBytes.length);
+							
+						}
+					
+					case "gzip":
+						
+						if (asset.data != null) {
+							
+							output.writeBytes (GZip.compress (asset.data), 0, asset.data.length);
+							
+						} else if (asset.sourcePath != null) {
+							
+							var tempBytes = File.getBytes (asset.sourcePath);
+							tempBytes = GZip.compress (tempBytes);
+							output.writeBytes (tempBytes, 0, tempBytes.length);
+							
+						}
+					
+					default:
+						
+						if (asset.data != null) {
+							
+							output.writeBytes (asset.data, 0, asset.data.length);
+							
+						} else if (asset.sourcePath != null) {
+							
+							var input = File.read (asset.sourcePath, true);
+							output.writeInput (input);
+							input.close ();
+							
+						}
+					
+				}
+				
+			}
+			
+			if (project.target == HTML5 && asset.type == IMAGE) {
+				
+				assetData.preload = true;
+				
+			}
+			
+			var position = output.tell ();
+			assetData.length = position - assetData.position;
+			
+			asset.library = library.name;
+			
+			// asset.sourcePath = "";
+			
+			if (project.target != HTML5 || asset.type != FONT) {
+				
+				asset.targetPath = null;
+				
+			}
+			
+			asset.data = null;
+			
+			return assetData;
+			
+		} else {
+			
+			return null;
+			
+		}
 		
 	}
 	
@@ -396,7 +516,14 @@ class AssetHelper {
 		var type, asset, cacheAvailable, cacheDirectory, filename;
 		var output, manifest, position, assetData:Dynamic, input;
 		var embeddedLibrary = false;
-		var tempBytes;
+		
+		var pathGroups = new Map<String, Array<String>> ();
+		var libraries = new Map<String, Library> ();
+		for (lib in project.libraries) {
+			
+			libraries[lib.name] = lib;
+			
+		}
 		
 		for (library in project.libraries) {
 			
@@ -433,96 +560,15 @@ class AssetHelper {
 					
 					try {
 						
+						var assetData;
+						
 						for (asset in project.assets) {
 							
-							if (asset.library == library.name || (asset.library == null && library.name == DEFAULT_LIBRARY_NAME)) {
-								
-								assetData = {
-									
-									id: asset.id,
-									size: 0,
-									type: Std.string (asset.type),
-									position: position
-									
-								};
-								
-								if (project.target == HTML5 && asset.type == FONT) {
-									
-									assetData.className = "__ASSET__" + asset.flatName;
-									assetData.preload = true;
-									
-								} else {
-									
-									switch (library.type) {
-										
-										case "deflate", "zip":
-											
-											if (asset.data != null) {
-												
-												output.writeBytes (Deflate.compress (asset.data), 0, asset.data.length);
-												
-											} else if (asset.sourcePath != null) {
-												
-												tempBytes = File.getBytes (asset.sourcePath);
-												tempBytes = Deflate.compress (tempBytes);
-												output.writeBytes (tempBytes, 0, tempBytes.length);
-												
-											}
-										
-										case "gzip":
-											
-											if (asset.data != null) {
-												
-												output.writeBytes (GZip.compress (asset.data), 0, asset.data.length);
-												
-											} else if (asset.sourcePath != null) {
-												
-												tempBytes = File.getBytes (asset.sourcePath);
-												tempBytes = GZip.compress (tempBytes);
-												output.writeBytes (tempBytes, 0, tempBytes.length);
-												
-											}
-										
-										default:
-											
-											if (asset.data != null) {
-												
-												output.writeBytes (asset.data, 0, asset.data.length);
-												
-											} else if (asset.sourcePath != null) {
-												
-												input = File.read (asset.sourcePath, true);
-												output.writeInput (input);
-												input.close ();
-												
-											}
-										
-									}
-									
-								}
-								
-								if (project.target == HTML5 && asset.type == IMAGE) {
-									
-									assetData.preload = true;
-									
-								}
-								
-								position = output.tell ();
-								assetData.length = position - assetData.position;
+							assetData = getPackedAssetData (project, output, pathGroups, libraries, library, asset);
+							
+							if (assetData != null) {
 								
 								manifest.assets.push (assetData);
-								
-								asset.library = library.name;
-								
-								// asset.sourcePath = "";
-								
-								if (project.target != HTML5 || asset.type != FONT) {
-									
-									asset.targetPath = null;
-									
-								}
-								
-								asset.data = null;
 								
 							}
 							
