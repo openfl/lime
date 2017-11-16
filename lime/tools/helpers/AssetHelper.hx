@@ -316,9 +316,11 @@ class AssetHelper {
 	}
 	
 	
-	private static function isPackedType (type:String) {
+	private static function isPackedLibrary (project:HXProject, library:Library) {
 		
-		return switch (type) {
+		if (project.target == FLASH && library.embed != false) return false;
+		
+		return switch (library.type) {
 			
 			case "pak", "pack", "gzip", "zip", "deflate": true;
 			default: false;
@@ -385,7 +387,7 @@ class AssetHelper {
 					
 					library.type = type;
 					
-				} else if (isPackedType (library.type)) {
+				} else if (isPackedLibrary (project, library)) {
 					
 					hasPackedLibraries = true;
 					
@@ -463,7 +465,7 @@ class AssetHelper {
 		
 		for (library in project.libraries) {
 			
-			if (library.type == null) {
+			if (library.type == null || !isPackedLibrary (project, library)) {
 				
 				manifest = createManifest (project, library.name != DEFAULT_LIBRARY_NAME ? library.name : null);
 				
@@ -529,7 +531,7 @@ class AssetHelper {
 			
 			type = library.type;
 			
-			if (isPackedType (type)) {
+			if (isPackedLibrary (project, library)) {
 				
 				if (type == "zip") type = "deflate";
 				
