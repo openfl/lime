@@ -446,53 +446,62 @@ class AssetHelper {
 									
 								};
 								
-								switch (library.type) {
+								if (project.target == HTML5 && asset.type == FONT) {
 									
-									case "deflate", "zip":
-										
-										if (asset.data != null) {
-											
-											output.writeBytes (Deflate.compress (asset.data), 0, asset.data.length);
-											
-										} else if (asset.sourcePath != null) {
-											
-											tempBytes = File.getBytes (asset.sourcePath);
-											tempBytes = Deflate.compress (tempBytes);
-											output.writeBytes (tempBytes, 0, tempBytes.length);
-											
-										}
+									assetData.className = "__ASSET__" + asset.flatName;
+									assetData.preload = true;
 									
-									case "gzip":
-										
-										if (asset.data != null) {
-											
-											output.writeBytes (GZip.compress (asset.data), 0, asset.data.length);
-											
-										} else if (asset.sourcePath != null) {
-											
-											tempBytes = File.getBytes (asset.sourcePath);
-											tempBytes = GZip.compress (tempBytes);
-											output.writeBytes (tempBytes, 0, tempBytes.length);
-											
-										}
+								} else {
 									
-									default:
+									switch (library.type) {
 										
-										if (asset.data != null) {
+										case "deflate", "zip":
 											
-											output.writeBytes (asset.data, 0, asset.data.length);
+											if (asset.data != null) {
+												
+												output.writeBytes (Deflate.compress (asset.data), 0, asset.data.length);
+												
+											} else if (asset.sourcePath != null) {
+												
+												tempBytes = File.getBytes (asset.sourcePath);
+												tempBytes = Deflate.compress (tempBytes);
+												output.writeBytes (tempBytes, 0, tempBytes.length);
+												
+											}
+										
+										case "gzip":
 											
-										} else if (asset.sourcePath != null) {
+											if (asset.data != null) {
+												
+												output.writeBytes (GZip.compress (asset.data), 0, asset.data.length);
+												
+											} else if (asset.sourcePath != null) {
+												
+												tempBytes = File.getBytes (asset.sourcePath);
+												tempBytes = GZip.compress (tempBytes);
+												output.writeBytes (tempBytes, 0, tempBytes.length);
+												
+											}
+										
+										default:
 											
-											input = File.read (asset.sourcePath, true);
-											output.writeInput (input);
-											input.close ();
-											
-										}
+											if (asset.data != null) {
+												
+												output.writeBytes (asset.data, 0, asset.data.length);
+												
+											} else if (asset.sourcePath != null) {
+												
+												input = File.read (asset.sourcePath, true);
+												output.writeInput (input);
+												input.close ();
+												
+											}
+										
+									}
 									
 								}
 								
-								if (project.target == HTML5 && (asset.type == IMAGE || asset.type == FONT)) {
+								if (project.target == HTML5 && asset.type == IMAGE) {
 									
 									assetData.preload = true;
 									
