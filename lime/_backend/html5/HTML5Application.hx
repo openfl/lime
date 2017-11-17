@@ -371,7 +371,7 @@ class HTML5Application {
 						
 						parent.window.onClose.dispatch ();
 						
-						if (parent.window.onClose.canceled) {
+						if (parent.window != null && parent.window.onClose.canceled) {
 							
 							event.preventDefault ();
 							
