@@ -954,6 +954,8 @@ class HTML5Window {
 	
 	private function updateSize ():Void {
 		
+		if (!parent.__resizable) return;
+		
 		var elementWidth, elementHeight;
 		
 		if (element != null) {
