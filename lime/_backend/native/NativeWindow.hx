@@ -8,6 +8,7 @@ import lime.graphics.ImageBuffer;
 import lime.math.Vector2;
 import lime.system.Display;
 import lime.system.DisplayMode;
+import lime.system.JNI;
 import lime.system.System;
 import lime.ui.Window;
 
@@ -281,6 +282,17 @@ class NativeWindow {
 			
 			#if !macro
 			NativeCFFI.lime_window_set_enable_text_events (handle, value);
+			#end
+			
+			#if android
+			if (!value) {
+				
+				var updateSystemUI = JNI.createStaticMethod ("org/haxe/lime/GameActivity", "updateSystemUI", "()V");
+				JNI.postUICallback (function () {
+					updateSystemUI ();
+				});
+				
+			}
 			#end
 			
 		}
