@@ -39,8 +39,8 @@ class ModuleHelper {
 	
 	public static function buildModules (project:HXProject, tempDirectory:String, outputDirectory:String):Void {
 		
-		tempDirectory = PathHelper.combine (tempDirectory, "lib");
-		outputDirectory = PathHelper.combine (outputDirectory, "lib");
+		tempDirectory = PathHelper.combine (tempDirectory, "lib-" + project.target);
+		outputDirectory = PathHelper.combine (outputDirectory, "lib-" + project.target);
 		
 		PathHelper.mkdir (tempDirectory);
 		PathHelper.mkdir (outputDirectory);
@@ -215,7 +215,7 @@ class ModuleHelper {
 		
 		for (module in project.modules) {
 			
-			project.dependencies.push (new Dependency ("./lib/" + module.name + suffix, null));
+			project.dependencies.push (new Dependency ("./lib-" + project.target + "/" + module.name + suffix, null));
 			
 			excludeTypes = ArrayHelper.concatUnique (excludeTypes, module.classNames);
 			excludeTypes = ArrayHelper.concatUnique (excludeTypes, module.excludeTypes);
