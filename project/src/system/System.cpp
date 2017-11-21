@@ -48,6 +48,8 @@ namespace lime {
 
 #ifdef HX_WINDOWS
 
+// TODO: Get solution that works without static linking
+
 extern "C" {
 	
 	_declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
