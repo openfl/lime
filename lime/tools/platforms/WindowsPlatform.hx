@@ -528,11 +528,11 @@ class WindowsPlatform extends PlatformTarget {
 			
 			var suffix = ".lib";
 			
-			if (Sys.getEnv ("VS140COMNTOOLS") != null) {
+			// if (Sys.getEnv ("VS140COMNTOOLS") != null) {
 				
-				suffix = "-19.lib";
+			// 	suffix = "-19.lib";
 				
-			}
+			// }
 			
 			for (i in 0...project.ndlls.length) {
 				
