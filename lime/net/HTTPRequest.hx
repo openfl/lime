@@ -58,7 +58,7 @@ private class AbstractHTTPRequest<T> implements _IHTTPRequest {
 		formData = new Map ();
 		headers = [];
 		method = GET;
-		timeout = #if lime_default_timeout Std.parseInt( Compiler.getDefine ("lime-default-timeout") ) #else 30000 #end;
+		timeout = #if lime_default_timeout Std.parseInt (Compiler.getDefine ("lime-default-timeout")) #else 30000 #end;
 		withCredentials = false;
 		
 		#if !display
