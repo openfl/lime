@@ -169,11 +169,13 @@ class JNI {
 	}
 	
 	
-	private static function onCallback (object:Dynamic, method:Dynamic, args:Dynamic):Dynamic {
+	private static function onCallback (object:Dynamic, method:String, args:Array<Dynamic>):Dynamic {
 		
 		var field = Reflect.field (object, method);
 		
 		if (field != null) {
+			
+			if (args == null) args = [];
 			
 			return Reflect.callMethod (object, field, args);
 			
