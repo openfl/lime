@@ -465,7 +465,7 @@ class AssetHelper {
 		
 		for (library in project.libraries) {
 			
-			if (library.type == null || !isPackedLibrary (project, library)) {
+			if (library.type == null || (project.target == FLASH && library.embed != false && ["pak", "pack", "gzip", "zip", "deflate"].indexOf (library.type) > -1)) {
 				
 				manifest = createManifest (project, library.name != DEFAULT_LIBRARY_NAME ? library.name : null);
 				
