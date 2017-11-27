@@ -240,6 +240,12 @@ class CreateTemplate {
 					
 				}
 				
+				project.meta.title = title;
+				project.meta.packageName = packageName;
+				project.meta.version = version;
+				project.meta.company = company;
+				project.app.file = file;
+				
 				context.title = title;
 				context.packageName = packageName;
 				context.version = version;
@@ -279,7 +285,7 @@ class CreateTemplate {
 				}*/
 				
 				PathHelper.mkdir (folder);
-				FileHelper.recursiveCopyTemplate (project.templatePaths, "project", folder, context);
+				FileHelper.recursiveSmartCopyTemplate (project, "project", folder, context);
 				
 				try {
 					
