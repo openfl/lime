@@ -106,7 +106,11 @@ class HXProject {
 		HXProject._environment = inputData.environment;
 		LogHelper.verbose = inputData.logVerbose;
 		LogHelper.enableColor = inputData.logEnableColor;
+		
+		#if lime
 		ProcessHelper.dryRun = inputData.processDryRun;
+		#end
+		
 		HaxelibHelper.debug = inputData.haxelibDebug;
 		
 		initialize ();
