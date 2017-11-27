@@ -53,7 +53,9 @@ class GLUtils {
 		
 		if (GL.getProgramParameter (program, GL.LINK_STATUS) == 0) {
 			
-			Log.error ("Unable to initialize the shader program");
+			var message = "Unable to initialize the shader program";
+			message += "\n" + GL.getProgramInfoLog (program);
+			Log.error (message);
 			
 		}
 		
