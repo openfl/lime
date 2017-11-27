@@ -3,6 +3,8 @@ package lime.tools.helpers;
 
 import haxe.crypto.BaseCode;
 import haxe.io.Bytes;
+import lime.project.Haxelib;
+import lime.project.HXProject;
 
 
 class StringHelper {
@@ -319,6 +321,101 @@ class StringHelper {
 	public static function getUniqueID ():String {
 		
 		return StringTools.hex (seedNumber++, 8);
+		
+	}
+	
+	
+	public static function replaceVariable (project:HXProject, string:String):String {
+		
+		if (string.substr (0, 8) == "haxelib:") {
+			
+			var path = HaxelibHelper.getPath (new Haxelib (string.substr (8)), true);
+			return PathHelper.standardize (path);
+			
+		} else if (project.defines.exists (string)) {
+			
+			return project.defines.get (string);
+			
+		} else if (project.environment != null && project.environment.exists (string)) {
+			
+			return project.environment.get (string);
+			
+		} else {
+			
+			var substring = StringTools.replace (string, " ", "");
+			var index, value;
+			
+			if (substring.indexOf ("==") > -1) {
+				
+				index = substring.indexOf ("==");
+				value = StringHelper.replaceVariable (project, substring.substr (0, index));
+				
+				return Std.string (value == substring.substr (index + 2));
+				
+			} else if (substring.indexOf ("!=") > -1) {
+				
+				index = substring.indexOf ("!=");
+				value = StringHelper.replaceVariable (project, substring.substr (0, index));
+				
+				return Std.string (value != substring.substr (index + 2));
+				
+			} else if (substring.indexOf ("<=") > -1) {
+				
+				index = substring.indexOf ("<=");
+				value = StringHelper.replaceVariable (project, substring.substr (0, index));
+				
+				return Std.string (value <= substring.substr (index + 2));
+				
+			} else if (substring.indexOf ("<") > -1) {
+				
+				index = substring.indexOf ("<");
+				value = StringHelper.replaceVariable (project, substring.substr (0, index));
+				
+				return Std.string (value < substring.substr (index + 1));
+				
+			} else if (substring.indexOf (">=") > -1) {
+				
+				index = substring.indexOf (">=");
+				value = StringHelper.replaceVariable (project, substring.substr (0, index));
+				
+				return Std.string (value >= substring.substr (index + 2));
+				
+			} else if (substring.indexOf (">") > -1) {
+				
+				index = substring.indexOf (">");
+				value = StringHelper.replaceVariable (project, substring.substr (0, index));
+				
+				return Std.string (value > substring.substr (index + 1));
+				
+			} else if (substring.indexOf (".") > -1) {
+				
+				var index = substring.indexOf (".");
+				var fieldName = substring.substr (0, index);
+				var subField = substring.substr (index + 1);
+				
+				if (Reflect.hasField (project, fieldName)) {
+					
+					var field = Reflect.field (project, fieldName);
+					
+					if (Reflect.hasField (field, subField)) {
+						
+						return Std.string (Reflect.field (field, subField));
+						
+					}
+					
+				}
+				
+			} else if (substring == "projectDirectory") {
+				
+				// TODO: Better handling if CWD has changed?
+				
+				return Std.string (Sys.getCwd ());
+				
+			}
+			
+		}
+		
+		return string;
 		
 	}
 	

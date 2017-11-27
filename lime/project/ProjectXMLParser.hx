@@ -12,6 +12,7 @@ import lime.tools.helpers.ObjectHelper;
 import lime.tools.helpers.PathHelper;
 import lime.tools.helpers.PlatformHelper;
 import lime.tools.helpers.StringMapHelper;
+import lime.tools.helpers.StringHelper;
 import lime.project.Asset;
 import lime.project.AssetType;
 import lime.project.Dependency;
@@ -2191,112 +2192,19 @@ class ProjectXMLParser extends HXProject {
 	}
 	
 	
-	private function replaceVariable (string:String):String {
-		
-		if (string.substr (0, 8) == "haxelib:") {
-			
-			var path = HaxelibHelper.getPath (new Haxelib (string.substr (8)), true);
-			return PathHelper.standardize (path);
-			
-		} else if (defines.exists (string)) {
-			
-			return defines.get (string);
-			
-		} else if (environment != null && environment.exists (string)) {
-			
-			return environment.get (string);
-			
-		} else {
-			
-			var substring = StringTools.replace (string, " ", "");
-			var index, value;
-			
-			if (substring.indexOf ("==") > -1) {
-				
-				index = substring.indexOf ("==");
-				value = replaceVariable (substring.substr (0, index));
-				
-				return Std.string (value == substring.substr (index + 2));
-				
-			} else if (substring.indexOf ("!=") > -1) {
-				
-				index = substring.indexOf ("!=");
-				value = replaceVariable (substring.substr (0, index));
-				
-				return Std.string (value != substring.substr (index + 2));
-				
-			} else if (substring.indexOf ("<=") > -1) {
-				
-				index = substring.indexOf ("<=");
-				value = replaceVariable (substring.substr (0, index));
-				
-				return Std.string (value <= substring.substr (index + 2));
-				
-			} else if (substring.indexOf ("<") > -1) {
-				
-				index = substring.indexOf ("<");
-				value = replaceVariable (substring.substr (0, index));
-				
-				return Std.string (value < substring.substr (index + 1));
-				
-			} else if (substring.indexOf (">=") > -1) {
-				
-				index = substring.indexOf (">=");
-				value = replaceVariable (substring.substr (0, index));
-				
-				return Std.string (value >= substring.substr (index + 2));
-				
-			} else if (substring.indexOf (">") > -1) {
-				
-				index = substring.indexOf (">");
-				value = replaceVariable (substring.substr (0, index));
-				
-				return Std.string (value > substring.substr (index + 1));
-				
-			} else if (substring.indexOf (".") > -1) {
-				
-				var index = substring.indexOf (".");
-				var fieldName = substring.substr (0, index);
-				var subField = substring.substr (index + 1);
-				
-				if (Reflect.hasField (this, fieldName)) {
-					
-					var field = Reflect.field (this, fieldName);
-					
-					if (Reflect.hasField (field, subField)) {
-						
-						return Std.string (Reflect.field (field, subField));
-						
-					}
-					
-				}
-				
-			} else if (substring == "projectDirectory") {
-				
-				return Std.string (Sys.getCwd ());
-				
-			}
-			
-		}
-		
-		return string;
-		
-	}
-	
-	
 	private function substitute (string:String):String {
 		
 		var newString = string;
 		
 		while (doubleVarMatch.match (newString)) {
 			
-			newString = doubleVarMatch.matchedLeft () + "${" + replaceVariable (doubleVarMatch.matched (1)) + "}" + doubleVarMatch.matchedRight ();
+			newString = doubleVarMatch.matchedLeft () + "${" + StringHelper.replaceVariable (this, doubleVarMatch.matched (1)) + "}" + doubleVarMatch.matchedRight ();
 			
 		}
 		
 		while (varMatch.match (newString)) {
 			
-			newString = varMatch.matchedLeft () + replaceVariable (varMatch.matched (1)) + varMatch.matchedRight ();
+			newString = varMatch.matchedLeft () + StringHelper.replaceVariable (this, varMatch.matched (1)) + varMatch.matchedRight ();
 			
 		}
 		

@@ -4,8 +4,10 @@ package lime.tools.helpers;
 import haxe.io.Path;
 import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.ProcessHelper;
+import lime.tools.helpers.StringHelper;
 import lime.project.Architecture;
 import lime.project.Haxelib;
+import lime.project.HXProject;
 import lime.project.NDLL;
 import lime.project.Platform;
 import sys.io.Process;
@@ -13,6 +15,10 @@ import sys.FileSystem;
 
 
 class PathHelper {
+	
+	
+	//private static var doubleVarMatch = new EReg ("\\$\\${(.*?)}", "");
+	private static var varMatch = new EReg ("{{(.*?)}}", "");
 	
 	
 	public static function combine (firstPath:String, secondPath:String):String {
@@ -699,6 +705,27 @@ class PathHelper {
 		}
 		
 		return path;
+		
+	}
+	
+	
+	public static function substitutePath (project:HXProject, path:String):String {
+		
+		var newString = path;
+		
+		// while (doubleVarMatch.match (newString)) {
+			
+		// 	newString = doubleVarMatch.matchedLeft () + "${" + StringHelper.replaceVariable (this, doubleVarMatch.matched (1)) + "}" + doubleVarMatch.matchedRight ();
+			
+		// }
+		
+		while (varMatch.match (newString)) {
+			
+			newString = varMatch.matchedLeft () + StringHelper.replaceVariable (project, varMatch.matched (1)) + varMatch.matchedRight ();
+			
+		}
+		
+		return newString;
 		
 	}
 	

@@ -472,15 +472,15 @@ class TVOSPlatform extends PlatformTarget {
 		PathHelper.mkdir (projectDirectory + "/resources");
 		PathHelper.mkdir (projectDirectory + "/haxe/build");
 		
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "tvos/resources", projectDirectory + "/resources", context, true, false);
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "tvos/PROJ/haxe", projectDirectory + "/haxe", context);
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", projectDirectory + "/haxe", context);
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "tvos/PROJ/Classes", projectDirectory + "/Classes", context);
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "tvos/PROJ/Images.xcassets", projectDirectory + "/Images.xcassets", context);
+		FileHelper.recursiveSmartCopyTemplate (project, "tvos/resources", projectDirectory + "/resources", context, true, false);
+		FileHelper.recursiveSmartCopyTemplate (project, "tvos/PROJ/haxe", projectDirectory + "/haxe", context);
+		FileHelper.recursiveSmartCopyTemplate (project, "haxe", projectDirectory + "/haxe", context);
+		FileHelper.recursiveSmartCopyTemplate (project, "tvos/PROJ/Classes", projectDirectory + "/Classes", context);
+		FileHelper.recursiveSmartCopyTemplate (project, "tvos/PROJ/Images.xcassets", projectDirectory + "/Images.xcassets", context);
 		FileHelper.copyFileTemplate (project.templatePaths, "tvos/PROJ/PROJ-Entitlements.plist", projectDirectory + "/" + project.app.file + "-Entitlements.plist", context);
 		FileHelper.copyFileTemplate (project.templatePaths, "tvos/PROJ/PROJ-Info.plist", projectDirectory + "/" + project.app.file + "-Info.plist", context);
 		FileHelper.copyFileTemplate (project.templatePaths, "tvos/PROJ/PROJ-Prefix.pch", projectDirectory + "/" + project.app.file + "-Prefix.pch", context);
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "tvos/PROJ.xcodeproj", targetDirectory + "/" + project.app.file + ".xcodeproj", context);
+		FileHelper.recursiveSmartCopyTemplate (project, "tvos/PROJ.xcodeproj", targetDirectory + "/" + project.app.file + ".xcodeproj", context);
 		
 		//SWFHelper.generateSWFClasses (project, projectDirectory + "/haxe");
 		

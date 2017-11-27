@@ -334,19 +334,19 @@ class BlackBerryPlatform extends PlatformTarget {
 		if (!project.targetFlags.exists ("html5")) {
 			
 			FileHelper.copyFileTemplate (project.templatePaths, "blackberry/template/bar-descriptor.xml", destination + "/bar-descriptor.xml", context);
-			FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", targetDirectory + "/haxe", context);
-			FileHelper.recursiveCopyTemplate (project.templatePaths, "blackberry/hxml", targetDirectory + "/haxe", context);
+			FileHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
+			FileHelper.recursiveSmartCopyTemplate (project, "blackberry/hxml", targetDirectory + "/haxe", context);
 			
 		} else {
 			
-			FileHelper.recursiveCopyTemplate (project.templatePaths, "html5/template", destination, context);
+			FileHelper.recursiveSmartCopyTemplate (project, "html5/template", destination, context);
 			FileHelper.copyFileTemplate (project.templatePaths, "blackberry/template/config.xml", destination + "/config.xml", context);
 			
 			if (project.app.main != null) {
 				
-				FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", targetDirectory + "/haxe", context);
-				FileHelper.recursiveCopyTemplate (project.templatePaths, "html5/haxe", targetDirectory + "/haxe", context);
-				FileHelper.recursiveCopyTemplate (project.templatePaths, "html5/hxml", targetDirectory + "/haxe", context);
+				FileHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
+				FileHelper.recursiveSmartCopyTemplate (project, "html5/haxe", targetDirectory + "/haxe", context);
+				FileHelper.recursiveSmartCopyTemplate (project, "html5/hxml", targetDirectory + "/haxe", context);
 				
 			}
 			

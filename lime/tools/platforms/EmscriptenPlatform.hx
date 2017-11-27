@@ -341,10 +341,10 @@ class EmscriptenPlatform extends PlatformTarget {
 			
 		}
 		
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "emscripten/template", destination, context);
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", targetDirectory + "/haxe", context);
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "emscripten/hxml", targetDirectory + "/haxe", context);
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "emscripten/cpp", targetDirectory + "/obj", context);
+		FileHelper.recursiveSmartCopyTemplate (project, "emscripten/template", destination, context);
+		FileHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
+		FileHelper.recursiveSmartCopyTemplate (project, "emscripten/hxml", targetDirectory + "/haxe", context);
+		FileHelper.recursiveSmartCopyTemplate (project, "emscripten/cpp", targetDirectory + "/obj", context);
 		
 		for (asset in project.assets) {
 			

@@ -555,12 +555,12 @@ class WindowsPlatform extends PlatformTarget {
 		
 		//SWFHelper.generateSWFClasses (project, targetDirectory + "/haxe");
 		
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", targetDirectory + "/haxe", context);
-		FileHelper.recursiveCopyTemplate (project.templatePaths, targetType + "/hxml", targetDirectory + "/haxe", context);
+		FileHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
+		FileHelper.recursiveSmartCopyTemplate (project, targetType + "/hxml", targetDirectory + "/haxe", context);
 		
 		if (targetType == "cpp" && project.targetFlags.exists ("static")) {
 			
-			FileHelper.recursiveCopyTemplate (project.templatePaths, "cpp/static", targetDirectory + "/obj", context);
+			FileHelper.recursiveSmartCopyTemplate (project, "cpp/static", targetDirectory + "/obj", context);
 			
 		}
 		
@@ -765,7 +765,7 @@ class WindowsPlatform extends PlatformTarget {
 			
 		}
 		
-		FileHelper.recursiveCopyTemplate (project.templatePaths, "winjs/template", targetDirectory, context);
+		FileHelper.recursiveSmartCopyTemplate (project, "winjs/template", targetDirectory, context);
 		
 		var renamePaths = [ "uwp-project.sln", "source/uwp-project.jsproj", "source/uwp-project_TemporaryKey.pfx" ];
 		var fullPath;
@@ -789,13 +789,13 @@ class WindowsPlatform extends PlatformTarget {
 		
 		if (project.app.main != null) {
 			
-			FileHelper.recursiveCopyTemplate (project.templatePaths, "haxe", targetDirectory + "/haxe", context);
-			FileHelper.recursiveCopyTemplate (project.templatePaths, "winjs/haxe", targetDirectory + "/haxe", context, true, false);
-			FileHelper.recursiveCopyTemplate (project.templatePaths, "winjs/hxml", targetDirectory + "/haxe", context);
+			FileHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
+			FileHelper.recursiveSmartCopyTemplate (project, "winjs/haxe", targetDirectory + "/haxe", context, true, false);
+			FileHelper.recursiveSmartCopyTemplate (project, "winjs/hxml", targetDirectory + "/haxe", context);
 			
 			if (project.targetFlags.exists ("webgl")) {
 				
-				FileHelper.recursiveCopyTemplate (project.templatePaths, "webgl/hxml", targetDirectory + "/haxe", context, true, false);
+				FileHelper.recursiveSmartCopyTemplate (project, "webgl/hxml", targetDirectory + "/haxe", context, true, false);
 				
 			}
 			
