@@ -303,7 +303,7 @@ class HTML5Platform extends PlatformTarget {
 					var source = Path.withoutExtension (asset.sourcePath);
 					
 					var hasFormat = [ false, false, false, false ];
-					var extensions = [ ext, ".eot", ".woff", ".svg" ];
+					var extensions = [ ext, ".eot", ".svg", ".woff" ];
 					var extension;
 					
 					for (i in 0...extensions.length) {
