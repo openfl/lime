@@ -241,9 +241,9 @@ class FileHelper {
 	}
 	
 	
-	public static function copyFileTemplate (templatePaths:Array<String>, source:String, destination:String, context:Dynamic = null, process:Bool = true) {
+	public static function copyFileTemplate (templatePaths:Array<String>, source:String, destination:String, context:Dynamic = null, process:Bool = true, warnIfNotFound:Bool = true) {
 		
-		var path = PathHelper.findTemplate (templatePaths, source);
+		var path = PathHelper.findTemplate (templatePaths, source, warnIfNotFound);
 		
 		if (path != null) {
 			
@@ -439,7 +439,7 @@ class FileHelper {
 	}
 	
 	
-	public static function recursiveCopyTemplate (templatePaths:Array<String>, source:String, destination:String, context:Dynamic = null, process:Bool = true, warnIfNotFound:Bool = true) {
+	public static function recursiveCopyTemplate (templatePaths:Array<String> = null, source:String, destination:String, context:Dynamic = null, process:Bool = true, warnIfNotFound:Bool = true) {
 		
 		var destinations = [];
 		var paths = PathHelper.findTemplateRecursive (templatePaths, source, warnIfNotFound, destinations);
@@ -447,11 +447,33 @@ class FileHelper {
 		if (paths != null) {
 			
 			PathHelper.mkdir (destination);
+			var itemDestination;
 			
 			for (i in 0...paths.length) {
 				
-				var itemDestination = PathHelper.combine (destination, destinations[i]);
+				itemDestination = PathHelper.combine (destination, destinations[i]);
+				copyFile (paths[i], itemDestination, context, process);
 				
+			}
+			
+		}
+		
+	}
+	
+	
+	public static function recursiveSmartCopyTemplate (project:HXProject, source:String, destination:String, context:Dynamic = null, process:Bool = true, warnIfNotFound:Bool = true) {
+		
+		var destinations = [];
+		var paths = PathHelper.findTemplateRecursive (project.templatePaths, source, warnIfNotFound, destinations);
+		
+		if (paths != null) {
+			
+			PathHelper.mkdir (destination);
+			var itemDestination;
+			
+			for (i in 0...paths.length) {
+				
+				itemDestination = PathHelper.combine (destination, PathHelper.substitutePath (project, destinations[i]));
 				copyFile (paths[i], itemDestination, context, process);
 				
 			}
