@@ -2397,6 +2397,15 @@ class CommandLineTools {
 					} else if (argument == "-v" || argument == "-verbose") {
 						
 						argument = "-verbose";
+						
+						if (command != "display") {
+							
+							LogHelper.verbose = true;
+							
+						}
+						
+					} else if (argument == "-force-verbose") {
+						
 						LogHelper.verbose = true;
 						
 					} else if (argument == "-dryrun") {
