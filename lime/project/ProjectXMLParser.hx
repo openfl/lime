@@ -121,6 +121,8 @@ class ProjectXMLParser extends HXProject {
 			
 			defines.set ("targetType", "swf");
 			defines.set ("flash", "1");
+			if (targetFlags.exists("ios")) defines.set ("ios", "1");
+			if (targetFlags.exists("android")) defines.set ("android", "1");
 			
 		} else if (target == Platform.WINDOWS && (targetFlags.exists ("uwp") || targetFlags.exists ("winjs"))) {
 			
@@ -1055,7 +1057,7 @@ class ProjectXMLParser extends HXProject {
 	
 	
 	private function parseXML (xml:Fast, section:String, extensionPath:String = ""):Void {
-		
+
 		for (element in xml.elements) {
 			
 			var isValid = isValidElement (element, section);
