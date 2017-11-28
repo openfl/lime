@@ -45,6 +45,14 @@ class TVOSHelper {
 			commands.push ("x86_64");
 			
 		}
+
+		if (project.targetFlags.exists("archive")) {
+			commands.push ("archive");
+			commands.push ("-scheme");
+			commands.push (project.app.file);
+			commands.push ("-archivePath");
+			commands.push (PathHelper.combine("build", PathHelper.combine(configuration + "-" + platformName, project.app.file)));
+		}
 		
 		if (additionalArguments != null) {
 			
