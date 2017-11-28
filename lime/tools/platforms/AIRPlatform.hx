@@ -153,11 +153,11 @@ class AIRPlatform extends FlashPlatform {
 				
 				case IOS:
 					
-					name += " (iOS)";
+					name += " (iOS).ipa";
 				
 				case ANDROID:
 					
-					name += " (Android)";
+					name += " (Android).apk";
 				
 				default:
 				
