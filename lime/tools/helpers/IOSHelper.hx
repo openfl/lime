@@ -21,7 +21,37 @@ class IOSHelper {
 
 		initialize (project);
 
+		var commands = getXCodeArgs(project);
+
+		if (project.targetFlags.exists("archive")) {
+
+			var configuration = project.environment.get ("CONFIGURATION");
+			var platformName = project.environment.get ("PLATFORM_NAME");
+
+			commands.push ("archive");
+			commands.push ("-scheme");
+			commands.push (project.app.file);
+			commands.push ("-archivePath");
+			commands.push (PathHelper.combine("build", PathHelper.combine(configuration + "-" + platformName, project.app.file)));
+		}
+		else {
+			commands.push("build");
+		}
+
+		if (additionalArguments != null) {
+
+			commands = commands.concat (additionalArguments);
+
+		}
+
+		ProcessHelper.runCommand (workingDirectory, "xcodebuild", commands);
+
+	}
+
+	private static function getXCodeArgs(project:HXProject):Array<String> {
 		var platformName = "iphoneos";
+
+		var iphoneVersion = project.environment.get ("IPHONE_VER");
 
 		if (project.targetFlags.exists ("simulator")) {
 
@@ -37,8 +67,11 @@ class IOSHelper {
 
 		}
 
-		var iphoneVersion = project.environment.get ("IPHONE_VER");
-		var commands = [ "build", "-configuration", configuration, "PLATFORM_NAME=" + platformName, "SDKROOT=" + platformName + iphoneVersion ];
+		project.setenv ("PLATFORM_NAME", platformName);
+		project.setenv ("CONFIGURATION", configuration);
+
+		// setting CONFIGURATION and PLATFORM_NAME in project.environment doesn't set them for xcodebuild so also pass via command line
+		var commands = [ "-configuration", configuration, "PLATFORM_NAME=" + platformName, "SDKROOT=" + platformName + iphoneVersion ];
 
 		if (project.targetFlags.exists ("simulator")) {
 
@@ -74,22 +107,7 @@ class IOSHelper {
 		commands.push ("-project");
 		commands.push (project.app.file + ".xcodeproj");
 
-		if (project.targetFlags.exists("archive")) {
-			commands.push ("archive");
-			commands.push ("-scheme");
-			commands.push (project.app.file);
-			commands.push ("-archivePath");
-			commands.push (PathHelper.combine("build", PathHelper.combine(configuration + "-" + platformName, project.app.file)));
-		}
-
-		if (additionalArguments != null) {
-
-			commands = commands.concat (additionalArguments);
-
-		}
-
-		ProcessHelper.runCommand (workingDirectory, "xcodebuild", commands);
-
+		return commands;
 	}
 
 
