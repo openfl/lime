@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+	<dict>
+		<key>method</key>
+		<string>ad-hoc</string>
+		::if (config.ios.adhoc.manifest != null)::<key>manifest</key>
+		<dict>
+			<key>appURL</key>
+			<string>::config.ios.adhoc.manifest.appURL::</string>
+			<key>displayImageURL</key>
+			<string>::config.ios.adhoc.manifest.displayImageURL::</string>
+			<key>fullSizeImageURL</key>
+			<string>::config.ios.adhoc.manifest.fullSizeImageURL::</string>
+		</dict>::end::
+	</dict>
+</plist>

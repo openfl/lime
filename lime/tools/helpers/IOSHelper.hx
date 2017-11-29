@@ -48,6 +48,44 @@ class IOSHelper {
 
 	}
 
+	public static function deploy (project:HXProject, workingDirectory:String):Void {
+		initialize(project);
+
+		var commands = getXCodeArgs(project);
+
+		var archiveCommands = commands.concat([]);
+
+		// generate xcarchive
+		var configuration = project.environment.get ("CONFIGURATION");
+		var platformName = project.environment.get ("PLATFORM_NAME");
+
+		archiveCommands.push ("archive");
+		archiveCommands.push ("-scheme");
+		archiveCommands.push (project.app.file);
+		archiveCommands.push ("-archivePath");
+		archiveCommands.push (PathHelper.combine("build", PathHelper.combine(configuration + "-" + platformName, project.app.file)));
+
+		ProcessHelper.runCommand (workingDirectory, "xcodebuild", archiveCommands);
+
+		// generate IPA from xcarchive
+		var exportCommands = commands.concat([]);
+
+		var exportMethod = project.targetFlags.exists("adhoc") ? "adhoc"
+			: project.targetFlags.exists("development") ? "development"
+			: project.targetFlags.exists("enterprise") ? "enterprise"
+			: "appstore";
+
+		exportCommands.push ("-exportArchive");
+		exportCommands.push ("-archivePath");
+		exportCommands.push (PathHelper.combine("build", PathHelper.combine(configuration + "-" + platformName, project.app.file + ".xcarchive")));
+		exportCommands.push ("-exportOptionsPlist");
+		exportCommands.push (PathHelper.combine(project.app.file, "exportOptions-" + exportMethod + ".plist"));
+		exportCommands.push ("-exportPath");
+		exportCommands.push (PathHelper.combine ("dist", exportMethod));
+
+		ProcessHelper.runCommand (workingDirectory, "xcodebuild", exportCommands);
+	}
+
 	private static function getXCodeArgs(project:HXProject):Array<String> {
 		var platformName = "iphoneos";
 
