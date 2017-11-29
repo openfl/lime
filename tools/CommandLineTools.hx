@@ -1811,6 +1811,13 @@ class CommandLineTools {
 			
 			var process = new Process ("haxe", [ "-version" ]);
 			var haxeVersion = StringTools.trim (process.stderr.readAll ().toString ());
+			
+			if (haxeVersion == "") {
+
+				haxeVersion = StringTools.trim (process.stdout.readAll ().toString ());
+
+			}
+			
 			process.close ();
 			
 			environment.set ("haxe", haxeVersion);
