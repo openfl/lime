@@ -5,6 +5,6 @@
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
 	"version": "5.9.0",
-	"releasenote": "",
+	"releasenote": "Added template file/folder name variables, packed asset libraries, additional improvements",
 	"contributors": [ "singmajesty" ]
 }
