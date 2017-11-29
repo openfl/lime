@@ -8,6 +8,8 @@
 * Added a prompt for keystore password on Android if no password is provided
 * Added a hint to request a discrete GPU on dual-GPU Windows systems
 * Added a general "ios/template" template path for copying additional files
+* Added ability to export iOS `-archive` on build
+* Added ability to `lime deploy ios` and output IPA for store or ad-hoc
 * Improved `-verbose` to be ignored by default on `lime display` for IDEs
 * Improved iOS launch image list to support iPhone X fullscreen resolution
 * Improved CSS font generation to skip formats that are not able to convert
@@ -22,6 +24,7 @@
 * Fixed return to Android fullscreen when dismissing an on-screen keyboard
 * Fixed a minor naming issue when using newer HXCPP and MSVC for static builds
 * Fixed setting of "ios" and "android" project values when using AIR iOS/Android
+* Fixed handling of Haxe version output with newer Haxe development build
 
 
 5.8.2 (11/10/2017)
