@@ -85,9 +85,11 @@
 			
 		</section>
 		
+		<set name="haxe-module-name" value="haxe" unless="haxe-module-name" />
+		<set name="lime-module-name" value="lime" unless="lime-module-name" />
 		<setenv name="HAXE_STD_PATH" value="${HAXE_STD_PATH}" if="modular HAXE_STD_PATH" />
 		
-		<module name="haxe" if="html5 modular">
+		<module name="${haxe-module-name}" if="html5 modular" unless="exclude-haxe-module">
 			
 			<!--<source path="${HAXE_STD_PATH}" package="js.html" />-->
 			<source path="${HAXE_STD_PATH}" package="haxe.ds" exclude="haxe.ds.StringMap" />
@@ -126,7 +128,7 @@
 			
 		</module>
 		
-		<module name="lime" if="html5 modular">
+		<module name="${lime-module-name}" if="html5 modular" unless="exclude-lime-module">
 			
 			<source path="" package="lime" exclude="lime._backend.*|lime.project.*|lime.tools.*|lime.net.*|lime.graphics.console.*|lime.text.harfbuzz.*" />
 			<source path="" package="lime" include="lime._backend.html5" />
