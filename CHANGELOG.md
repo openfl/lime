@@ -1,3 +1,9 @@
+5.9.1 (11/30/2017)
+------------------
+
+* Updated howler.js with minor fixes for IE11 and Firefox browsers
+
+
 5.9.0 (11/29/2017)
 ------------------
 
