@@ -24,7 +24,7 @@ class Lib {
 	#if macro
 	public static function extraParams ():Void {
 		
-		if (!Context.defined ("tools")) {
+		if (!Context.defined ("tools") && !Context.defined ("nocffi")) {
 			
 			if (!Context.defined ("flash") && (!Context.defined ("js") || Context.defined ("nodejs"))) {
 				
