@@ -46,6 +46,19 @@ class ImageBuffer {
 	@:noCompletion private var __srcImageData:#if (js && html5) ImageData #else Dynamic #end;
 	
 	
+	#if (js && html5 && es5get)
+	private static function __init__ () {
+		
+		var p = untyped ImageBuffer.prototype;
+		untyped Object.defineProperties (p, {
+			"src": { get: p.get_src, set: p.set_src },
+			"stride": { get: p.get_stride }
+		});
+		
+	}
+	#end
+	
+	
 	public function new (data:UInt8Array = null, width:Int = 0, height:Int = 0, bitsPerPixel:Int = 32, format:PixelFormat = null) {
 		
 		this.data = data;

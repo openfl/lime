@@ -83,6 +83,30 @@ class Window {
 	@:noCompletion private var __y:Int;
 	
 	
+	#if (js && html5 && es5get)
+	private static function __init__ () {
+		
+		var p = untyped Window.prototype;
+		untyped Object.defineProperties (p, {
+			"borderless": { get: p.get_borderless, set: p.set_borderless },
+			"display": { get: p.get_display },
+			"displayMode": { get: p.get_displayMode, set: p.set_displayMode },
+			"enableTextEvents": { get: p.get_enableTextEvents, set: p.set_enableTextEvents },
+			"fullscreen": { get: p.get_fullscreen, set: p.set_fullscreen },
+			"height": { get: p.get_height, set: p.set_height },
+			"maximized": { get: p.get_maximized, set: p.set_maximized },
+			"resizable": { get: p.get_resizable, set: p.set_resizable },
+			"scale": { get: p.get_scale },
+			"title": { get: p.get_title, set: p.set_title },
+			"width": { get: p.get_width, set: p.set_width },
+			"x": { get: p.get_x, set: p.set_y },
+			"y": { get: p.get_x, set: p.set_y }
+		});
+		
+	}
+	#end
+	
+	
 	public function new (config:WindowConfig = null) {
 		
 		this.config = config;
