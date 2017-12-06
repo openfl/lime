@@ -83,6 +83,9 @@ class Application extends Module {
 	private static function __init__ () {
 		
 		var init = ApplicationBackend;
+		#if (js && html5)
+		untyped Object.defineProperty (Application.prototype, "window", { get: Application.prototype.get_window });
+		#end
 		
 	}
 	
