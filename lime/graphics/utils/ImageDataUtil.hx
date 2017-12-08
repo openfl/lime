@@ -689,7 +689,7 @@ class ImageDataUtil {
 	}
 	
 	
-	public static function getColorBoundsRect (image:Image, mask:Int, color:Int, findColor:Bool = true, format:PixelFormat):Rectangle {
+	public static function getColorBoundsRect (image:Image, mask:Int, color:Int, findColor:Bool, format:PixelFormat):Rectangle {
 		
 		var left = image.width + 1;
 		var right = 0;
