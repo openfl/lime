@@ -16,10 +16,14 @@ namespace lime {
 		
 		#if defined(HX_WINDOWS)
 		
-		char locale[8];
-		int length = GetLocaleInfo (GetSystemDefaultUILanguage (), LOCALE_SISO639LANGNAME, locale, sizeof (locale));
-		std::string* result = new std::string (locale);
-		return result;
+		char language[5] = {0};
+		char country[5] = {0};
+		
+		GetLocaleInfoA (LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME, language, sizeof (language) / sizeof (char));
+		GetLocaleInfoA (LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, country, sizeof (country) / sizeof (char));
+		
+		std::string* locale = new std::string (std::string (language) + "_" + std::string (country));
+		return locale;
 		
 		#elif defined(HX_LINUX)
 		
