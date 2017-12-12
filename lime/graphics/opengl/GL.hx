@@ -665,8 +665,8 @@ class GL {
 	private static function __init__ () {
 		
 		untyped Object.defineProperties (GL, {
-			"type": { get: GL.get_type },
-			"version": { get: GL.get_version }
+			"type": { get: function () { return GL.get_type (); } },
+			"version": { get: function () { return GL.get_version (); } }
 		});
 		
 	}
