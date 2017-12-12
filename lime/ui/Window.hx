@@ -158,6 +158,7 @@ class Window {
 		
 		this.application = application;
 		
+		if (config == null) config = {};
 		backend.create (application);
 		
 		#if windows
