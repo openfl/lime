@@ -130,6 +130,22 @@ class TVOSHelper {
 		commands.push ("-project");
 		commands.push (project.app.file + ".xcodeproj");
 		
+		var xcodeVersions = getXcodeVersion()
+			.split(".")
+			.map(function (i:String) {
+				var ver = Std.parseInt(i);
+				return ver != null ? ver : 0;
+			});
+
+		if (xcodeVersions[0] >= 9) {
+			if (project.config.getBool('ios.allowProvisioningUpdates', true)) {
+				commands.push("-allowProvisioningUpdates");
+			}
+			if (project.config.getBool('ios.allowProvisioningDeviceRegistration', true)) {
+				commands.push("-allowProvisioningDeviceRegistration");
+			}
+		}
+
 		return commands;
 		
 	}
