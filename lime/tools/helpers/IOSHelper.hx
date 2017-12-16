@@ -158,10 +158,10 @@ class IOSHelper {
 			});
 
 		if (xcodeVersions[0] >= 9) {
-			if (project.config.getBool('ios.allowProvisioningUpdates', true)) {
+			if (project.config.getBool('ios.allow-provisioning-updates', true)) {
 				commands.push("-allowProvisioningUpdates");
 			}
-			if (project.config.getBool('ios.allowProvisioningDeviceRegistration', true)) {
+			if (project.config.getBool('ios.allow-provisioning-device-registration', true)) {
 				commands.push("-allowProvisioningDeviceRegistration");
 			}
 		}
