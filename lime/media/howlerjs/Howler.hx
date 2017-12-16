@@ -1,4 +1,4 @@
-package lime.media.howlerjs; #if (!js || !html5  || display)
+package lime.media.howlerjs; #if (!js || !html5 || display)
 
 
 class Howler {
@@ -70,7 +70,11 @@ import haxe.extern.EitherType;
 import js.html.audio.GainNode;
 import lime.media.WebAudioContext;
 
+#if commonjs
+@:jsRequire("howler")
+#else
 @:native("Howler")
+#end
 
 
 extern class Howler {
