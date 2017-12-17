@@ -180,6 +180,9 @@ class ImageCanvasUtil {
 		
 		if (sourceImage.buffer.src != null) {
 			
+			// Set default composition (just in case it is different)
+			image.buffer.__srcContext.globalCompositeOperation = "source-over";
+
 			image.buffer.__srcContext.drawImage (sourceImage.buffer.src, Std.int (sourceRect.x + sourceImage.offsetX), Std.int (sourceRect.y + sourceImage.offsetY), Std.int (sourceRect.width), Std.int (sourceRect.height), Std.int (destPoint.x + image.offsetX), Std.int (destPoint.y + image.offsetY), Std.int (sourceRect.width), Std.int (sourceRect.height));
 			
 		}
