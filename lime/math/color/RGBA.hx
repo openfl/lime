@@ -24,6 +24,11 @@ abstract RGBA(#if flash Int #else UInt #end) from Int to Int from UInt to UInt {
 	
 	private static function __init__ ():Void {
 		
+		__initColors();
+		
+	}
+
+	private static function __initColors() {
 		__alpha16 = new UInt32Array (256);
 		
 		for (i in 0...256) {
@@ -45,7 +50,6 @@ abstract RGBA(#if flash Int #else UInt #end) from Int to Int from UInt to UInt {
 			__clamp[i] = 0xFF;
 			
 		}
-		
 	}
 	
 	
