@@ -79,6 +79,32 @@ class AL {
 	public static inline var EXPONENT_DISTANCE:Int = 0xD005;
 	public static inline var EXPONENT_DISTANCE_CLAMPED:Int = 0xD006;
 	
+	public static inline var DIRECT_FILTER:Int = 0x20005;
+	
+	/* Lowpass filter parameters */
+	public static inline var  LOWPASS_GAIN:Int = 0x0001;
+	public static inline var  LOWPASS_GAINHF:Int = 0x0002;
+
+	/* Highpass filter parameters */
+	public static inline var  HIGHPASS_GAIN:Int = 0x0001;
+	public static inline var  HIGHPASS_GAINLF:Int = 0x0002;
+
+	/* Bandpass filter parameters */
+	public static inline var  BANDPASS_GAIN:Int = 0x0001;
+	public static inline var  BANDPASS_GAINLF:Int = 0x0002;
+	public static inline var  BANDPASS_GAINHF:Int = 0x0003;
+
+	/* Filter type */
+	public static inline var  FILTER_FIRST_PARAMETER:Int = 0x0000;
+	public static inline var  FILTER_LAST_PARAMETER:Int = 0x8000;
+	public static inline var  FILTER_TYPE:Int = 0x8001;
+
+	/* Filter types, used with the AL_FILTER_TYPE property */
+	public static inline var  FILTER_NULL:Int = 0x0000;
+	public static inline var  FILTER_LOWPASS:Int = 0x0001;
+	public static inline var  FILTER_HIGHPASS:Int = 0x0002;
+	public static inline var  FILTER_BANDPASS:Int = 0x0003;
+	
 	
 	public static function bufferData (buffer:ALBuffer, format:Int, data:ArrayBufferView, size:Int, freq:Int):Void {
 		
@@ -158,6 +184,15 @@ class AL {
 		
 		#if (lime_cffi && lime_openal && !macro)
 		return NativeCFFI.lime_al_gen_source ();
+		#else
+		return null;
+		#end
+		
+	}
+	
+	public static function createFilter():ALFilter {
+		#if (lime_cffi && lime_openal && !macro)
+		return NativeCFFI.lime_al_gen_filter ();
 		#else
 		return null;
 		#end
@@ -786,6 +821,19 @@ class AL {
 		
 	}
 	
+	public static function filteri(filter:ALFilter, param:Int, value:Dynamic):Void {
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_al_filteri (filter, param, value);
+		#end
+	}
+	
+	public static function filterf (filter:ALFilter, param:Int, value:Float):Void {
+		
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_al_filterf (filter, param, value);
+		#end
+		
+	}
 	
 	public static function sourceiv (source:ALSource, param:Int, values:Array<Int>):Void {
 		

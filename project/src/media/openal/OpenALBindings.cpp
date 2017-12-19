@@ -24,7 +24,7 @@ namespace lime {
 	
 	void lime_al_delete_buffer (value buffer);
 	void lime_al_delete_source (value source);
-	
+	void lime_al_delete_filter (value filter);
 	
 	void gc_al_buffer (value buffer) {
 		
@@ -37,6 +37,10 @@ namespace lime {
 		
 		lime_al_delete_source (source);
 		
+	}
+
+	void gc_al_filter(value filter) {
+		lime_al_delete_filter(filter);
 	}
 	
 	
@@ -193,6 +197,19 @@ namespace lime {
 		}
 		
 	}
+
+
+	void lime_al_delete_filter(value filter) {
+
+		if (!val_is_null(filter)) {
+
+			ALuint data = (ALuint)(uintptr_t)val_data(filter);
+			alDeleteFilters(1, &data);
+			val_gc(filter, 0);
+
+		}
+
+	}
 	
 	
 	void lime_al_delete_source (value source) {
@@ -230,6 +247,8 @@ namespace lime {
 		}
 		
 	}
+
+	
 	
 	
 	void lime_al_disable (int capability) {
@@ -264,6 +283,26 @@ namespace lime {
 		
 		alEnable (capability);
 		
+	}
+
+
+	void lime_al_filteri(value filter, int param, value val) {
+
+		ALuint id = (ALuint)(uintptr_t)val_data(filter);
+		ALuint data;
+
+		data = val_int(val);
+
+		alFilteri(id, param, data);
+
+	}
+
+
+	void lime_al_filterf(value filter, int param, float value) {
+
+		ALuint id = (ALuint)(uintptr_t)val_data(filter);
+		alFilterf(id, param, value);
+
 	}
 	
 	
@@ -301,6 +340,15 @@ namespace lime {
 		delete[] buffers;
 		return result;
 		
+	}
+
+
+	value lime_al_gen_filter() {
+
+		ALuint filter;
+		alGenFilters((ALuint)1, &filter);
+		return CFFIPointer((void*)(uintptr_t)filter, gc_al_filter);
+
 	}
 	
 	
@@ -1079,7 +1127,7 @@ namespace lime {
 		ALuint id = (ALuint)(uintptr_t)val_data (source);
 		ALuint data;
 		
-		if (param == AL_BUFFER) {
+		if (param == AL_BUFFER || param == AL_DIRECT_FILTER) {
 			
 			data = (ALuint)(uintptr_t)val_data (val);
 			
@@ -1092,7 +1140,7 @@ namespace lime {
 		alSourcei (id, param, data);
 		
 	}
-	
+
 	
 	void lime_al_sourceiv (value source, int param, value values) {
 		
@@ -1307,6 +1355,8 @@ namespace lime {
 		alcSuspendContext (alcContext);
 		
 	}
+
+
 	
 	
 	DEFINE_PRIME5v (lime_al_buffer_data);
@@ -1318,15 +1368,19 @@ namespace lime {
 	DEFINE_PRIME3v (lime_al_bufferiv);
 	DEFINE_PRIME1v (lime_al_delete_buffer);
 	DEFINE_PRIME2v (lime_al_delete_buffers);
+	DEFINE_PRIME1v(lime_al_delete_filter);
 	DEFINE_PRIME1v (lime_al_delete_source);
 	DEFINE_PRIME2v (lime_al_delete_sources);
 	DEFINE_PRIME1v (lime_al_disable);
 	DEFINE_PRIME1v (lime_al_distance_model);
 	DEFINE_PRIME1v (lime_al_doppler_factor);
 	DEFINE_PRIME1v (lime_al_doppler_velocity);
-	DEFINE_PRIME1v (lime_al_enable);
+	DEFINE_PRIME1v (lime_al_enable);	
+	DEFINE_PRIME3v (lime_al_filteri);
+	DEFINE_PRIME3v (lime_al_filterf);
 	DEFINE_PRIME0 (lime_al_gen_buffer);
 	DEFINE_PRIME1 (lime_al_gen_buffers);
+	DEFINE_PRIME0 (lime_al_gen_filter);
 	DEFINE_PRIME0 (lime_al_gen_source);
 	DEFINE_PRIME1 (lime_al_gen_sources);
 	DEFINE_PRIME1 (lime_al_get_boolean);
@@ -1400,7 +1454,6 @@ namespace lime {
 	DEFINE_PRIME1v (lime_alc_process_context);
 	DEFINE_PRIME1v (lime_alc_resume_device);
 	DEFINE_PRIME1v (lime_alc_suspend_context);
-	
 	
 }
 
