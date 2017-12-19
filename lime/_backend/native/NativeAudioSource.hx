@@ -135,6 +135,36 @@ class NativeAudioSource {
 	
 	public function play ():Void {
 		
+		/*var pitch:Float = AL.getSourcef (handle, AL.PITCH);
+		trace(pitch);
+		AL.sourcef (handle, AL.PITCH, pitch*0.9);
+		pitch = AL.getSourcef (handle, AL.PITCH);
+		trace(pitch);*/
+		
+		/*var pos = getPosition();
+		trace(AL.DISTANCE_MODEL);
+		AL.distanceModel(AL.INVERSE_DISTANCE);
+		trace(AL.DISTANCE_MODEL);
+		AL.sourcef(handle, AL.ROLLOFF_FACTOR, 5);
+		setPosition(new Vector4(10, 10, -100));
+		pos = getPosition();
+		trace(pos);*/
+		
+		/*var filter = AL.createFilter();
+		trace(AL.getErrorString());
+		
+		AL.filteri(filter, AL.FILTER_TYPE, AL.FILTER_LOWPASS);
+		trace(AL.getErrorString());
+		
+		AL.filterf(filter, AL.LOWPASS_GAIN, 0.5);
+		trace(AL.getErrorString());
+		
+		AL.filterf(filter, AL.LOWPASS_GAINHF, 0.5);
+		trace(AL.getErrorString());
+		
+		AL.sourcei(handle, AL.DIRECT_FILTER, filter);
+		trace(AL.getErrorString());*/
+		
 		if (playing || handle == null) {
 			
 			return;

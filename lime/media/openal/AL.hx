@@ -78,9 +78,17 @@ class AL {
 	public static inline var LINEAR_DISTANCE_CLAMPED:Int = 0xD004;
 	public static inline var EXPONENT_DISTANCE:Int = 0xD005;
 	public static inline var EXPONENT_DISTANCE_CLAMPED:Int = 0xD006;
-	
+		
+	/* Source properties. */
 	public static inline var DIRECT_FILTER:Int = 0x20005;
-	
+	public static inline var AUXILIARY_SEND_FILTER:Int = 0x20006;
+	public static inline var AIR_ABSORPTION_FACTOR:Int = 0x20007;
+	public static inline var ROOM_ROLLOFF_FACTOR:Int = 0x20008;
+	public static inline var CONE_OUTER_GAINHF:Int = 0x20009;
+	public static inline var DIRECT_FILTER_GAINHF_AUTO:Int = 0x2000A;
+	public static inline var AUXILIARY_SEND_FILTER_GAIN_AUTO:Int = 0x2000B;
+	public static inline var AUXILIARY_SEND_FILTER_GAINHF_AUTO:Int = 0x2000C;
+
 	/* Lowpass filter parameters */
 	public static inline var  LOWPASS_GAIN:Int = 0x0001;
 	public static inline var  LOWPASS_GAINHF:Int = 0x0002;
@@ -104,6 +112,83 @@ class AL {
 	public static inline var  FILTER_LOWPASS:Int = 0x0001;
 	public static inline var  FILTER_HIGHPASS:Int = 0x0002;
 	public static inline var  FILTER_BANDPASS:Int = 0x0003;
+	
+	/* Effect type */
+	public static inline var EFFECT_FIRST_PARAMETER:Int = 0x0000;
+	public static inline var EFFECT_LAST_PARAMETER:Int = 0x8000;
+	public static inline var EFFECT_TYPE:Int = 0x8001;
+
+	/* Effect types, used with the AL_EFFECT_TYPE property */
+	
+	public static inline var EFFECT_NULL:Int = 0x0000;
+	public static inline var EFFECT_EAXREVERB:Int = 0x8000;
+	public static inline var EFFECT_REVERB:Int = 0x0001;
+	public static inline var EFFECT_CHORUS:Int = 0x0002;
+	public static inline var EFFECT_DISTORTION:Int = 0x0003;
+	public static inline var EFFECT_ECHO:Int = 0x0004;
+	public static inline var EFFECT_FLANGER:Int = 0x0005;
+	public static inline var EFFECT_FREQUENCY_SHIFTER:Int = 0x0006;
+	public static inline var EFFECT_VOCAL_MORPHER:Int = 0x0007;
+	public static inline var EFFECT_PITCH_SHIFTER:Int = 0x0008;
+	public static inline var EFFECT_RING_MODULATOR:Int = 0x0009;
+	public static inline var FFECT_AUTOWAH:Int = 0x000A;
+	public static inline var EFFECT_COMPRESSOR:Int = 0x000B;
+	public static inline var EFFECT_EQUALIZER:Int = 0x000C;
+	
+	/* Reverb effect parameters */
+	public static inline var REVERB_DENSITY                        0x0001
+	public static inline var REVERB_DIFFUSION                      0x0002
+	public static inline var REVERB_GAIN                           0x0003
+	public static inline var REVERB_GAINHF                         0x0004
+	public static inline var REVERB_DECAY_TIME                     0x0005
+	public static inline var REVERB_DECAY_HFRATIO                  0x0006
+	public static inline var REVERB_REFLECTIONS_GAIN               0x0007
+	public static inline var REVERB_REFLECTIONS_DELAY              0x0008
+	public static inline var REVERB_LATE_REVERB_GAIN               0x0009
+	public static inline var REVERB_LATE_REVERB_DELAY              0x000A
+	public static inline var REVERB_AIR_ABSORPTION_GAINHF          0x000B
+	public static inline var REVERB_ROOM_ROLLOFF_FACTOR            0x000C
+	public static inline var REVERB_DECAY_HFLIMIT                  0x000D
+	
+	/* Auxiliary Effect Slot properties. */
+	public static inline var EFFECTSLOT_EFFECT                     0x0001
+	public static inline var EFFECTSLOT_GAIN                       0x0002
+	public static inline var EFFECTSLOT_AUXILIARY_SEND_AUTO        0x0003
+	
+	
+	
+	public static function removeDirectFilter(source:ALSource) {
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_al_remove_direct_filter (source);
+		#end
+	}
+	
+	private static function auxf(aux:CFFIPointer, param:Int, value:Float32):Void {
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_al_auxf (aux, param, value);
+		#end
+	}
+	
+	
+	private static function auxfv(aux:CFFIPointer, param:Int, values:Array<Float>):Void {
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_al_auxfv (aux, param, values);
+		#end
+	}
+	
+	
+	private static function auxi(aux:CFFIPointer, param:Int, value:Int):Void {
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_al_auxi (aux, param, value);
+		#end
+	}
+	
+	
+	private static function auxiv(aux:CFFIPointer, param:Int, values:Array<Int>):Void {
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_al_auxiv (aux, param, values);
+		#end
+	}
 	
 	
 	public static function bufferData (buffer:ALBuffer, format:Int, data:ArrayBufferView, size:Int, freq:Int):Void {
@@ -169,10 +254,37 @@ class AL {
 	}
 	
 	
+	public static function createAux():ALAuxiliaryEffectSlot {
+		#if (lime_cffi && lime_openal && !macro)
+		return NativeCFFI.lime_al_gen_aux ();
+		#else
+		return null;
+		#end
+	}
+	
+	
 	public static function createBuffer ():ALBuffer {
 		
 		#if (lime_cffi && lime_openal && !macro)
 		return NativeCFFI.lime_al_gen_buffer ();
+		#else
+		return null;
+		#end
+		
+	}
+	
+	public static function createEffect():ALEffect {
+		#if (lime_cffi && lime_openal && !macro)
+		return NativeCFFI.lime_al_gen_effect ();
+		#else
+		return null;
+		#end
+	}
+	
+	
+	public static function createFilter():ALFilter {
+		#if (lime_cffi && lime_openal && !macro)
+		return NativeCFFI.lime_al_gen_filter ();
 		#else
 		return null;
 		#end
@@ -184,15 +296,6 @@ class AL {
 		
 		#if (lime_cffi && lime_openal && !macro)
 		return NativeCFFI.lime_al_gen_source ();
-		#else
-		return null;
-		#end
-		
-	}
-	
-	public static function createFilter():ALFilter {
-		#if (lime_cffi && lime_openal && !macro)
-		return NativeCFFI.lime_al_gen_filter ();
 		#else
 		return null;
 		#end
@@ -269,6 +372,34 @@ class AL {
 		NativeCFFI.lime_al_doppler_velocity (value);
 		#end
 		
+	}
+	
+	
+	public static function effectf(effect:CFFIPointer, param:Int, value:Float32):Void {
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_al_effectf (aux, param, value);
+		#end
+	}
+	
+	
+	public static function effectfv(effect:CFFIPointer, param:Int, values:Array<Float>):Void {
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_al_effectfv (aux, param, values);
+		#end
+	}
+	
+	
+	public static function effecti(effect:CFFIPointer, param:Int, value:Int):Void {
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_al_effecti (aux, param, value);
+		#end
+	}
+	
+	
+	public static function effectiv(effect:CFFIPointer, param:Int, values:Array<Int>):Void {
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_al_effectiv (aux, param, values);
+		#end
 	}
 	
 	
@@ -808,7 +939,7 @@ class AL {
 		
 		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_al_sourcefv (source, param, values);
-		#end
+		#end	
 		
 	}
 	
