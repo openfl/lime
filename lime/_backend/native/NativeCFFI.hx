@@ -279,6 +279,10 @@ class NativeCFFI {
 	@:cffi private static function lime_alc_process_context (context:CFFIPointer):Void;
 	@:cffi private static function lime_alc_resume_device (device:CFFIPointer):Void;
 	@:cffi private static function lime_alc_suspend_context (context:CFFIPointer):Void;
+	
+	@:cffi private static function lime_al_gen_filter():CFFIPointer;
+	@:cffi private static function lime_al_filteri(filter:CFFIPointer, param:Int, value:Dynamic):Void;
+	@:cffi private static function lime_al_filterf(filter:CFFIPointer, param:Int, value:Float32):Void;
 	#end
 	
 	#if (lime_cffi && !macro && lime_cairo)
