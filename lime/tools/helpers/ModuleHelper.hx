@@ -119,10 +119,14 @@ class ModuleHelper {
 				
 				if (excludeTypes.length > 0) {
 					
+					// order by short filters first, so they match earlier
+					haxe.ds.ArraySort.sort(excludeTypes, shortFirst);
 					hxml += "\n--macro lime.tools.helpers.ModuleHelper.exclude(['" + excludeTypes.join ("','") + "'])";
 					
 				}
 				
+				// order by short filters first, so they match earlier
+				haxe.ds.ArraySort.sort(includeTypes, shortFirst);
 				hxml += "\n--macro lime.tools.helpers.ModuleHelper.expose(['" + includeTypes.join ("','") + "'])";
 				//hxml += "\n--macro lime.tools.helpers.ModuleHelper.generate()";
 				
@@ -227,6 +231,8 @@ class ModuleHelper {
 		
 		if (excludeTypes.length > 0) {
 			
+			// order by short filters first, so they match earlier
+			haxe.ds.ArraySort.sort(excludeTypes, shortFirst);
 			project.haxeflags.push ("--macro lime.tools.helpers.ModuleHelper.exclude(['" + excludeTypes.join ("','") + "'])");
 			
 		}
@@ -237,6 +243,13 @@ class ModuleHelper {
 			//
 		//}
 		
+	}
+
+
+	public static function shortFirst(a, b):Int {
+		if (a.length < b.length) return -1;
+		else if (a.length > b.length) return 1;
+		return 0;
 	}
 	
 	
