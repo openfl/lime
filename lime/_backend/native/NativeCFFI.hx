@@ -7,6 +7,7 @@ import lime.graphics.opengl.GLProgram;
 import lime.graphics.opengl.GLRenderbuffer;
 import lime.graphics.opengl.GLShader;
 import lime.graphics.opengl.GLTexture;
+import lime.media.openal.ALAuxiliaryEffectSlot;
 import lime.system.CFFIPointer;
 import lime.utils.DataPointer;
 
@@ -283,6 +284,19 @@ class NativeCFFI {
 	@:cffi private static function lime_al_gen_filter():CFFIPointer;
 	@:cffi private static function lime_al_filteri(filter:CFFIPointer, param:Int, value:Dynamic):Void;
 	@:cffi private static function lime_al_filterf(filter:CFFIPointer, param:Int, value:Float32):Void;
+	@:cffi private static function lime_al_remove_direct_filter(source:CFFIPointer):Void;
+	
+	@:cffi private static function lime_al_gen_effect():CFFIPointer;
+	@:cffi private static function lime_al_effectf(effect:CFFIPointer, param:Int, value:Float32):Void;  
+	@:cffi private static function lime_al_effectfv(effect:CFFIPointer, param:Int, values:Array<Float>):Void;
+	@:cffi private static function lime_al_effecti(effect:CFFIPointer, param:Int, value:Int):Void;
+	@:cffi private static function lime_al_effectiv(effect:CFFIPointer, param:Int, values:Array<Int>):Void;
+	
+	@:cffi private static function lime_al_gen_aux():CFFIPointer;
+	@:cffi private static function lime_al_auxf(aux:CFFIPointer, param:Int, value:Float32):Void;  
+	@:cffi private static function lime_al_auxfv(aux:CFFIPointer, param:Int, values:Array<Float>):Void;
+	@:cffi private static function lime_al_auxi(aux:CFFIPointer, param:Int, value:Int):Void;
+	@:cffi private static function lime_al_auxiv(aux:CFFIPointer, param:Int, values:Array<Int>):Void;
 	#end
 	
 	#if (lime_cffi && !macro && lime_cairo)
