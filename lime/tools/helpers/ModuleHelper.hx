@@ -155,7 +155,7 @@ class ModuleHelper {
 	private static function parseModuleSource (source:String, moduleData:ModuleData, include:Array<String>, exclude:Array<String>, currentPath:String):Void {
 		
 		var files = FileSystem.readDirectory (currentPath);
-		var filePath:String, className:String;
+		var filePath:String, className:String, packageName:String;
 		
 		for (file in files) {
 			
@@ -163,8 +163,19 @@ class ModuleHelper {
 			
 			if (FileSystem.isDirectory (filePath)) {
 				
-				parseModuleSource (source, moduleData, include, exclude, filePath);
+				packageName = StringTools.replace (filePath, source, "");
+				packageName = StringTools.replace (packageName, "\\", "/");
 				
+				while (StringTools.startsWith (packageName, "/")) packageName = packageName.substr (1);
+				
+				packageName = StringTools.replace (packageName, "/", ".");
+				
+				if (StringHelper.filter (packageName, include, exclude)) {
+					
+					parseModuleSource (source, moduleData, include, exclude, filePath);
+					
+				}
+
 			} else {
 				
 				if (Path.extension (file) != "hx") continue;
