@@ -341,19 +341,46 @@ class HaxelibHelper {
 				
 			}*/
 			
-			paths.set (name, result);
+			var standardizedPath = PathHelper.standardize (result, false);
+			var pathSplit = standardizedPath.split ("/");
+			var hasHaxelibJSON = false;
 			
-			if (haxelib.version != "" && haxelib.version != null) {
+			while (!hasHaxelibJSON && pathSplit.length > 0) {
 				
-				paths.set (haxelib.name, result);
-				var version = getPathVersion (result);
+				var path = pathSplit.join ("/");
+				var jsonPath = PathHelper.combine (path, "haxelib.json");
 				
-				versions.set (name, version);
-				versions.set (haxelib.name, version);
+				if (FileSystem.exists (jsonPath)) {
+					
+					paths.set (name, path);
+					
+					if (haxelib.version != "" && haxelib.version != null) {
+						
+						paths.set (haxelib.name, path);
+						var version = getPathVersion (path);
+						
+						versions.set (name, version);
+						versions.set (haxelib.name, version);
+						
+					} else {
+						
+						versions.set (name, getPathVersion (path));
+						
+					}
+					
+					hasHaxelibJSON = true;
+					
+				} else {
+					
+					pathSplit.pop ();
+					
+				}
 				
-			} else {
+			}
+			
+			if (!hasHaxelibJSON) {
 				
-				versions.set (name, getPathVersion (result));
+				paths.set (name, result);
 				
 			}
 			
