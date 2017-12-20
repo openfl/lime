@@ -89,9 +89,22 @@ namespace lime {
 
 	}
 
-	void lime_al_auxi(value aux, int param, int value) {
+	void lime_al_auxi(value aux, int param, value val) {
 		ALuint id = (ALuint)(uintptr_t)val_data(aux);
-		alAuxiliaryEffectSloti(id, param, value);
+		ALuint data;
+
+		if (param == AL_EFFECTSLOT_EFFECT) {
+
+			data = (ALuint)(uintptr_t)val_data(val);
+
+		}
+		else {
+
+			data = val_int(val);
+
+		}
+
+		alAuxiliaryEffectSloti(id, param, data);
 	}
 
 	void lime_al_auxiv(value aux, int param, value values) {
@@ -692,6 +705,16 @@ namespace lime {
 	}
 
 
+	int lime_al_get_filteri(value filter, int param) {
+
+		ALuint id = (ALuint)(uintptr_t)val_data(filter);
+		ALint data;
+		alGetFilteri(id, param, &data);
+		return data;
+
+	}
+
+
 	float lime_al_get_float(int param) {
 
 		return alGetFloat(param);
@@ -958,11 +981,23 @@ namespace lime {
 	}
 
 
+	bool lime_al_is_aux(value aux) {
+		ALuint id = (ALuint)(uintptr_t)val_data(aux);
+		return alIsAuxiliaryEffectSlot(id);
+	}
+
+
 	bool lime_al_is_buffer(value buffer) {
 
 		ALuint id = (ALuint)(uintptr_t)val_data(buffer);
 		return alIsBuffer(id);
 
+	}
+
+
+	bool lime_al_is_effect(value effect) {
+		ALuint id = (ALuint)(uintptr_t)val_data(effect);
+		return alIsEffect(id);
 	}
 
 
@@ -977,6 +1012,11 @@ namespace lime {
 
 		return alIsExtensionPresent(extname.__s);
 
+	}
+
+	bool lime_al_is_filter(value filter) {
+		ALuint id = (ALuint)(uintptr_t)val_data(filter);
+		return alIsSource(id);
 	}
 
 
@@ -1055,6 +1095,13 @@ namespace lime {
 
 		}
 
+	}
+
+
+	void lime_al_remove_send(value source, int index) {
+		ALuint id = (ALuint)(uintptr_t)val_data(source);
+
+		alSource3i(id, AL_AUXILIARY_SEND_FILTER, AL_EFFECTSLOT_NULL, index, NULL);
 	}
 
 
@@ -1240,10 +1287,22 @@ namespace lime {
 	}
 
 
-	void lime_al_source3i(value source, int param, int value1, int value2, int value3) {
+	void lime_al_source3i(value source, int param, value value1, int value2, int value3) {
 
 		ALuint id = (ALuint)(uintptr_t)val_data(source);
-		alSource3i(id, param, value1, value2, value3);
+		ALuint data1;
+
+		if (param == AL_AUXILIARY_SEND_FILTER) {
+
+			data1 = (ALuint)(uintptr_t)val_data(value1);
+
+		}
+		else {
+
+			data1 = val_int(value1);
+
+		}
+		alSource3i(id, param, data1, value2, value3);
 
 	}
 
@@ -1556,6 +1615,7 @@ namespace lime {
 	DEFINE_PRIME0(lime_al_gen_aux);
 	DEFINE_PRIME0(lime_al_gen_buffer);
 	DEFINE_PRIME1(lime_al_gen_buffers);
+	DEFINE_PRIME0(lime_al_gen_effect);
 	DEFINE_PRIME0(lime_al_gen_filter);
 	DEFINE_PRIME0(lime_al_gen_source);
 	DEFINE_PRIME1(lime_al_gen_sources);
@@ -1571,6 +1631,7 @@ namespace lime {
 	DEFINE_PRIME2(lime_al_get_doublev);
 	DEFINE_PRIME1(lime_al_get_enum_value);
 	DEFINE_PRIME0(lime_al_get_error);
+	DEFINE_PRIME2(lime_al_get_filteri);
 	DEFINE_PRIME1(lime_al_get_float);
 	DEFINE_PRIME2(lime_al_get_floatv);
 	DEFINE_PRIME1(lime_al_get_integer);
@@ -1589,9 +1650,12 @@ namespace lime {
 	DEFINE_PRIME2(lime_al_get_sourcei);
 	DEFINE_PRIME3(lime_al_get_sourceiv);
 	DEFINE_PRIME1(lime_al_get_string);
+	DEFINE_PRIME1(lime_al_is_aux);
 	DEFINE_PRIME1(lime_al_is_buffer);
+	DEFINE_PRIME1(lime_al_is_effect);
 	DEFINE_PRIME1(lime_al_is_enabled);
 	DEFINE_PRIME1(lime_al_is_extension_present);
+	DEFINE_PRIME1(lime_al_is_filter);
 	DEFINE_PRIME1(lime_al_is_source);
 	DEFINE_PRIME4v(lime_al_listener3f);
 	DEFINE_PRIME4v(lime_al_listener3i);
@@ -1600,6 +1664,7 @@ namespace lime {
 	DEFINE_PRIME2v(lime_al_listeneri);
 	DEFINE_PRIME2v(lime_al_listeneriv);
 	DEFINE_PRIME1v(lime_al_remove_direct_filter);
+	DEFINE_PRIME2v(lime_al_remove_send);
 	DEFINE_PRIME1v(lime_al_source_pause);
 	DEFINE_PRIME2v(lime_al_source_pausev);
 	DEFINE_PRIME1v(lime_al_source_play);
