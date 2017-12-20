@@ -54,7 +54,7 @@ class AudioBuffer {
 	@:noCompletion private var __srcVorbisFile:#if lime_vorbis VorbisFile #else Dynamic #end;
 	
 	
-	#if (js && html5 && es5get)
+	#if commonjs
 	private static function __init__ () {
 		
 		var p = untyped AudioBuffer.prototype;

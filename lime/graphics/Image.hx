@@ -110,7 +110,7 @@ class Image {
 	public var y:Float;
 	
 	
-	#if (js && html5 && es5get)
+	#if commonjs
 	private static function __init__ () {
 		
 		var p = untyped Image.prototype;

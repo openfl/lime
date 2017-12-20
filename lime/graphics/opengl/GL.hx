@@ -661,7 +661,7 @@ class GL {
 	private static var __currentProgram:GLProgram;
 	
 	
-	#if (js && html5 && es5get)
+	#if commonjs
 	private static function __init__ () {
 		
 		untyped Object.defineProperties (GL, {

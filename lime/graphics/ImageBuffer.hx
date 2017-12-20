@@ -46,7 +46,7 @@ class ImageBuffer {
 	@:noCompletion private var __srcImageData:#if (js && html5) ImageData #else Dynamic #end;
 	
 	
-	#if (js && html5 && es5get)
+	#if commonjs
 	private static function __init__ () {
 		
 		var p = untyped ImageBuffer.prototype;

@@ -83,7 +83,7 @@ class Application extends Module {
 	private static function __init__ () {
 		
 		var init = ApplicationBackend;
-		#if (js && html5 && es5get)
+		#if commonjs
 		var p = untyped Application.prototype;
 		untyped Object.defineProperties (p, {
 			"frameRate": { get: p.get_frameRate, set: p.set_frameRate },

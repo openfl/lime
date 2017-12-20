@@ -83,7 +83,7 @@ class Window {
 	@:noCompletion private var __y:Int;
 	
 	
-	#if (js && html5 && es5get)
+	#if commonjs
 	private static function __init__ () {
 		
 		var p = untyped Window.prototype;
