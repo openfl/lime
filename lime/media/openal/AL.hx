@@ -78,7 +78,10 @@ class AL {
 	public static inline var LINEAR_DISTANCE_CLAMPED:Int = 0xD004;
 	public static inline var EXPONENT_DISTANCE:Int = 0xD005;
 	public static inline var EXPONENT_DISTANCE_CLAMPED:Int = 0xD006;
-		
+	
+	/* Listener properties. */
+	public static inline var METERS_PER_UNIT:Int = 0x20004;
+	
 	/* Source properties. */
 	public static inline var DIRECT_FILTER:Int = 0x20005;
 	public static inline var AUXILIARY_SEND_FILTER:Int = 0x20006;
@@ -89,37 +92,129 @@ class AL {
 	public static inline var AUXILIARY_SEND_FILTER_GAIN_AUTO:Int = 0x2000B;
 	public static inline var AUXILIARY_SEND_FILTER_GAINHF_AUTO:Int = 0x2000C;
 
-	/* Lowpass filter parameters */
-	public static inline var  LOWPASS_GAIN:Int = 0x0001;
-	public static inline var  LOWPASS_GAINHF:Int = 0x0002;
+	
+	/* Effect properties. */
+	
+	
+	/* Reverb effect parameters */
+	public static inline var REVERB_DENSITY:Int = 0x0001;
+	public static inline var REVERB_DIFFUSION:Int = 0x0002;
+	public static inline var REVERB_GAIN:Int = 0x0003;
+	public static inline var REVERB_GAINHF:Int = 0x0004;
+	public static inline var REVERB_DECAY_TIME:Int = 0x0005;
+	public static inline var REVERB_DECAY_HFRATIO:Int = 0x0006;
+	public static inline var REVERB_REFLECTIONS_GAIN:Int =0x0007;
+	public static inline var REVERB_REFLECTIONS_DELAY:Int = 0x0008;
+	public static inline var REVERB_LATE_REVERB_GAIN:Int = 0x0009;
+	public static inline var REVERB_LATE_REVERB_DELAY:Int = 0x000A;
+	public static inline var REVERB_AIR_ABSORPTION_GAINHF:Int = 0x000B;
+	public static inline var REVERB_ROOM_ROLLOFF_FACTOR:Int = 0x000C;
+	public static inline var REVERB_DECAY_HFLIMIT:Int = 0x000D;
+	
+	/* EAX Reverb effect parameters */	//Windows only... ?
+	public static inline var EAXREVERB_DENSITY:Int = 0x0001;
+	public static inline var EAXREVERB_DIFFUSION:Int = 0x0002;
+	public static inline var EAXREVERB_GAIN:Int = 0x0003 ;
+	public static inline var EAXREVERB_GAINHF:Int = 0x0004 ;
+	public static inline var EAXREVERB_GAINLF:Int = 0x0005 ;
+	public static inline var EAXREVERB_DECAY_TIME:Int = 0x0006 ;
+	public static inline var EAXREVERB_DECAY_HFRATIO:Int = 0x0007;
+	public static inline var EAXREVERB_DECAY_LFRATIO:Int = 0x0008;
+	public static inline var EAXREVERB_REFLECTIONS_GAIN:Int = 0x0009 ;
+	public static inline var EAXREVERB_REFLECTIONS_DELAY:Int = 0x000A;
+	public static inline var EAXREVERB_REFLECTIONS_PAN:Int = 0x000B;
+	public static inline var EAXREVERB_LATE_REVERB_GAIN:Int = 0x000C ;
+	public static inline var EAXREVERB_LATE_REVERB_DELAY:Int = 0x000D;
+	public static inline var EAXREVERB_LATE_REVERB_PAN:Int = 0x000E;
+	public static inline var EAXREVERB_ECHO_TIME:Int = 0x000F;
+	public static inline var EAXREVERB_ECHO_DEPTH:Int = 0x0010 ;
+	public static inline var EAXREVERB_MODULATION_TIME:Int = 0x0011;
+	public static inline var EAXREVERB_MODULATION_DEPTH:Int = 0x0012 ;
+	public static inline var EAXREVERB_AIR_ABSORPTION_GAINHF:Int = 0x0013;
+	public static inline var EAXREVERB_HFREFERENCE:Int = 0x0014;
+	public static inline var EAXREVERB_LFREFERENCE:Int = 0x0015;
+	public static inline var EAXREVERB_ROOM_ROLLOFF_FACTOR:Int = 0x0016;
+	public static inline var EAXREVERB_DECAY_HFLIMIT:Int = 0x0017;
 
-	/* Highpass filter parameters */
-	public static inline var  HIGHPASS_GAIN:Int = 0x0001;
-	public static inline var  HIGHPASS_GAINLF:Int = 0x0002;
+	/* Chorus effect parameters */
+	public static inline var CHORUS_WAVEFORM:Int = 0x0001;
+	public static inline var CHORUS_PHASE:Int = 0x0002;
+	public static inline var CHORUS_RATE:Int = 0x0003;
+	public static inline var CHORUS_DEPTH:Int = 0x0004;
+	public static inline var CHORUS_FEEDBACK:Int = 0x0005;
+	public static inline var CHORUS_DELAY:Int = 0x0006;
 
-	/* Bandpass filter parameters */
-	public static inline var  BANDPASS_GAIN:Int = 0x0001;
-	public static inline var  BANDPASS_GAINLF:Int = 0x0002;
-	public static inline var  BANDPASS_GAINHF:Int = 0x0003;
+	/* Distortion effect parameters */
+	public static inline var DISTORTION_EDGE:Int = 0x0001;
+	public static inline var DISTORTION_GAIN:Int = 0x0002;
+	public static inline var DISTORTION_LOWPASS_CUTOFF:Int = 0x0003;
+	public static inline var DISTORTION_EQCENTER:Int = 0x0004;
+	public static inline var DISTORTION_EQBANDWIDTH:Int = 0x0005;
 
-	/* Filter type */
-	public static inline var  FILTER_FIRST_PARAMETER:Int = 0x0000;
-	public static inline var  FILTER_LAST_PARAMETER:Int = 0x8000;
-	public static inline var  FILTER_TYPE:Int = 0x8001;
+	/* Echo effect parameters */
+	public static inline var ECHO_DELAY:Int = 0x0001;
+	public static inline var ECHO_LRDELAY:Int = 0x0002;
+	public static inline var ECHO_DAMPING:Int = 0x0003;
+	public static inline var ECHO_FEEDBACK:Int = 0x0004;
+	public static inline var ECHO_SPREAD:Int = 0x0005;
 
-	/* Filter types, used with the AL_FILTER_TYPE property */
-	public static inline var  FILTER_NULL:Int = 0x0000;
-	public static inline var  FILTER_LOWPASS:Int = 0x0001;
-	public static inline var  FILTER_HIGHPASS:Int = 0x0002;
-	public static inline var  FILTER_BANDPASS:Int = 0x0003;
+	/* Flanger effect parameters */
+	public static inline var FLANGER_WAVEFORM:Int = 0x0001;
+	public static inline var FLANGER_PHASE:Int = 0x0002;
+	public static inline var FLANGER_RATE:Int = 0x0003;
+	public static inline var FLANGER_DEPTH:Int = 0x0004;
+	public static inline var FLANGER_FEEDBACK:Int = 0x0005;
+	public static inline var FLANGER_DELAY:Int = 0x0006;
+
+	/* Frequency shifter effect parameters */
+	public static inline var FREQUENCY_SHIFTER_FREQUENCY:Int = 0x0001;
+	public static inline var FREQUENCY_SHIFTER_LEFT_DIRECTION:Int = 0x0002;
+	public static inline var FREQUENCY_SHIFTER_RIGHT_DIRECTION:Int = 0x0003;
+
+	/* Vocal morpher effect parameters */
+	public static inline var VOCAL_MORPHER_PHONEMEA:Int = 0x0001;
+	public static inline var VOCAL_MORPHER_PHONEMEA_COARSE_TUNING:Int = 0x0002;
+	public static inline var VOCAL_MORPHER_PHONEMEB:Int = 0x0003;
+	public static inline var VOCAL_MORPHER_PHONEMEB_COARSE_TUNING:Int = 0x0004;
+	public static inline var VOCAL_MORPHER_WAVEFORM:Int = 0x0005;
+	public static inline var VOCAL_MORPHER_RATE:Int = 0x0006;
+
+	/* Pitchshifter effect parameters */
+	public static inline var PITCH_SHIFTER_COARSE_TUNE:Int = 0x0001;
+	public static inline var PITCH_SHIFTER_FINE_TUNE:Int = 0x0002;
+
+	/* Ringmodulator effect parameters */
+	public static inline var RING_MODULATOR_FREQUENCY:Int = 0x0001;
+	public static inline var RING_MODULATOR_HIGHPASS_CUTOFF:Int = 0x0002;
+	public static inline var RING_MODULATOR_WAVEFORM:Int = 0x0003;
+
+	/* Autowah effect parameters */
+	public static inline var AUTOWAH_ATTACK_TIME:Int = 0x0001;
+	public static inline var AUTOWAH_RELEASE_TIME:Int = 0x0002;
+	public static inline var AUTOWAH_RESONANCE:Int = 0x0003;
+	public static inline var AUTOWAH_PEAK_GAIN:Int = 0x0004;
+
+	/* Compressor effect parameters */
+	public static inline var COMPRESSOR_ONOFF:Int = 0x0001;
+
+	/* Equalizer effect parameters */
+	public static inline var EQUALIZER_LOW_GAIN:Int = 0x0001;
+	public static inline var EQUALIZER_LOW_CUTOFF:Int = 0x0002;
+	public static inline var EQUALIZER_MID1_GAIN:Int = 0x0003;
+	public static inline var EQUALIZER_MID1_CENTER:Int = 0x0004;
+	public static inline var EQUALIZER_MID1_WIDTH:Int = 0x0005;
+	public static inline var EQUALIZER_MID2_GAIN:Int = 0x0006;
+	public static inline var EQUALIZER_MID2_CENTER:Int = 0x0007;
+	public static inline var EQUALIZER_MID2_WIDTH:Int = 0x0008;
+	public static inline var EQUALIZER_HIGH_GAIN:Int = 0x0009;
+	public static inline var EQUALIZER_HIGH_CUTOFF:Int = 0x000A;
 	
 	/* Effect type */
 	public static inline var EFFECT_FIRST_PARAMETER:Int = 0x0000;
 	public static inline var EFFECT_LAST_PARAMETER:Int = 0x8000;
 	public static inline var EFFECT_TYPE:Int = 0x8001;
-
-	/* Effect types, used with the AL_EFFECT_TYPE property */
 	
+	/* Effect types, used with the AL_EFFECT_TYPE property */
 	public static inline var EFFECT_NULL:Int = 0x0000;
 	public static inline var EFFECT_EAXREVERB:Int = 0x8000;
 	public static inline var EFFECT_REVERB:Int = 0x0001;
@@ -135,25 +230,42 @@ class AL {
 	public static inline var EFFECT_COMPRESSOR:Int = 0x000B;
 	public static inline var EFFECT_EQUALIZER:Int = 0x000C;
 	
-	/* Reverb effect parameters */
-	public static inline var REVERB_DENSITY                        0x0001
-	public static inline var REVERB_DIFFUSION                      0x0002
-	public static inline var REVERB_GAIN                           0x0003
-	public static inline var REVERB_GAINHF                         0x0004
-	public static inline var REVERB_DECAY_TIME                     0x0005
-	public static inline var REVERB_DECAY_HFRATIO                  0x0006
-	public static inline var REVERB_REFLECTIONS_GAIN               0x0007
-	public static inline var REVERB_REFLECTIONS_DELAY              0x0008
-	public static inline var REVERB_LATE_REVERB_GAIN               0x0009
-	public static inline var REVERB_LATE_REVERB_DELAY              0x000A
-	public static inline var REVERB_AIR_ABSORPTION_GAINHF          0x000B
-	public static inline var REVERB_ROOM_ROLLOFF_FACTOR            0x000C
-	public static inline var REVERB_DECAY_HFLIMIT                  0x000D
-	
 	/* Auxiliary Effect Slot properties. */
-	public static inline var EFFECTSLOT_EFFECT                     0x0001
-	public static inline var EFFECTSLOT_GAIN                       0x0002
-	public static inline var EFFECTSLOT_AUXILIARY_SEND_AUTO        0x0003
+	public static inline var EFFECTSLOT_EFFECT:Int = 0x0001;
+	public static inline var EFFECTSLOT_GAIN:Int = 0x0002;
+	public static inline var EFFECTSLOT_AUXILIARY_SEND_AUTO:Int = 0x0003;
+	
+	/* NULL Auxiliary Slot ID to disable a source send. */
+	//public static inline var EFFECTSLOT_NULL:Int = 0x0000;		//Use removeSend instead
+	
+	
+	/* Filter properties. */
+
+	
+	/* Lowpass filter parameters */
+	public static inline var LOWPASS_GAIN:Int = 0x0001;				/*Not exactly a lowpass. Apparently it's a shelf*/
+	public static inline var LOWPASS_GAINHF:Int = 0x0002;
+
+	/* Highpass filter parameters */
+	public static inline var HIGHPASS_GAIN:Int = 0x0001;
+	public static inline var HIGHPASS_GAINLF:Int = 0x0002;
+
+	/* Bandpass filter parameters */
+	public static inline var BANDPASS_GAIN:Int = 0x0001;
+	public static inline var BANDPASS_GAINLF:Int = 0x0002;
+	public static inline var BANDPASS_GAINHF:Int = 0x0003;
+
+	/* Filter type */
+	public static inline var FILTER_FIRST_PARAMETER:Int = 0x0000;	/*This is not even in the documentation*/
+	public static inline var FILTER_LAST_PARAMETER:Int = 0x8000;	/*This one neither*/
+	public static inline var FILTER_TYPE:Int = 0x8001;
+
+	/* Filter types, used with the AL_FILTER_TYPE property */
+	public static inline var FILTER_NULL:Int = 0x0000;
+	public static inline var FILTER_LOWPASS:Int = 0x0001;
+	public static inline var FILTER_HIGHPASS:Int = 0x0002;
+	public static inline var FILTER_BANDPASS:Int = 0x0003;
+	
 	
 	
 	
@@ -163,28 +275,34 @@ class AL {
 		#end
 	}
 	
-	private static function auxf(aux:CFFIPointer, param:Int, value:Float32):Void {
+	public static function removeSend(source:ALSource, index:Int) {
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_al_remove_send (source, index);
+		#end
+	}
+	
+	public static function auxf(aux:CFFIPointer, param:Int, value:Float32):Void {
 		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_al_auxf (aux, param, value);
 		#end
 	}
 	
 	
-	private static function auxfv(aux:CFFIPointer, param:Int, values:Array<Float>):Void {
+	public static function auxfv(aux:CFFIPointer, param:Int, values:Array<Float>):Void {
 		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_al_auxfv (aux, param, values);
 		#end
 	}
 	
 	
-	private static function auxi(aux:CFFIPointer, param:Int, value:Int):Void {
+	public static function auxi(aux:CFFIPointer, param:Int, value:Dynamic):Void {
 		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_al_auxi (aux, param, value);
 		#end
 	}
 	
 	
-	private static function auxiv(aux:CFFIPointer, param:Int, values:Array<Int>):Void {
+	public static function auxiv(aux:CFFIPointer, param:Int, values:Array<Int>):Void {
 		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_al_auxiv (aux, param, values);
 		#end
@@ -377,28 +495,28 @@ class AL {
 	
 	public static function effectf(effect:CFFIPointer, param:Int, value:Float32):Void {
 		#if (lime_cffi && lime_openal && !macro)
-		NativeCFFI.lime_al_effectf (aux, param, value);
+		NativeCFFI.lime_al_effectf (effect, param, value);
 		#end
 	}
 	
 	
 	public static function effectfv(effect:CFFIPointer, param:Int, values:Array<Float>):Void {
 		#if (lime_cffi && lime_openal && !macro)
-		NativeCFFI.lime_al_effectfv (aux, param, values);
+		NativeCFFI.lime_al_effectfv (effect, param, values);
 		#end
 	}
 	
 	
 	public static function effecti(effect:CFFIPointer, param:Int, value:Int):Void {
 		#if (lime_cffi && lime_openal && !macro)
-		NativeCFFI.lime_al_effecti (aux, param, value);
+		NativeCFFI.lime_al_effecti (effect, param, value);
 		#end
 	}
 	
 	
 	public static function effectiv(effect:CFFIPointer, param:Int, values:Array<Int>):Void {
 		#if (lime_cffi && lime_openal && !macro)
-		NativeCFFI.lime_al_effectiv (aux, param, values);
+		NativeCFFI.lime_al_effectiv (effect, param, values);
 		#end
 	}
 	
@@ -601,6 +719,15 @@ class AL {
 			
 		}
 		
+	}
+	
+	
+	public static function getFilteri(filter:ALFilter, param:Int):Int {
+		#if (lime_cffi && lime_openal && !macro)
+		return NativeCFFI.lime_al_get_filteri (filter, param);
+		#else
+		return 0;
+		#end
 	}
 	
 	
@@ -836,6 +963,39 @@ class AL {
 		
 		#if (lime_cffi && lime_openal && !macro)
 		return NativeCFFI.lime_al_is_extension_present (extname);
+		#else
+		return false;
+		#end
+		
+	}
+	
+	
+	public static function isAux (aux:ALAuxiliaryEffectSlot):Bool {
+		
+		#if (lime_cffi && lime_openal && !macro)
+		return NativeCFFI.lime_al_is_aux (aux);
+		#else
+		return false;
+		#end
+		
+	}
+	
+	
+	public static function isEffect (effect:ALEffect):Bool {
+		
+		#if (lime_cffi && lime_openal && !macro)
+		return NativeCFFI.lime_al_is_effect (effect);
+		#else
+		return false;
+		#end
+		
+	}
+	
+	
+	public static function isFilter (filter:ALFilter):Bool {
+		
+		#if (lime_cffi && lime_openal && !macro)
+		return NativeCFFI.lime_al_is_filter (filter);
 		#else
 		return false;
 		#end
