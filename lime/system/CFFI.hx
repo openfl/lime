@@ -265,12 +265,12 @@ class CFFI {
 	private static function __loaderTrace (message:String) {
 		
 		#if (sys && !html5)
-		#if cpp
-		var get_env = cpp.Lib.load ("std", "get_env", 1);
-		var debug = (get_env ("OPENFL_LOAD_DEBUG") != null);
-		#else
+		// #if (haxe_ver < 3.4)
+		// var get_env = cpp.Lib.load ("std", "get_env", 1);
+		// var debug = (get_env ("OPENFL_LOAD_DEBUG") != null);
+		// #else
 		var debug = (Sys.getEnv ("OPENFL_LOAD_DEBUG") !=null);
-		#end
+		// #end
 		
 		if (debug) {
 			
