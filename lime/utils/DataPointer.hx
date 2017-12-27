@@ -248,6 +248,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 					
 				} else {
 					
+					if (length > data.bufferView.byteLength) length = data.bufferView.byteLength;
 					return new Float32Array (data.bufferView.buffer, data.bufferView.byteOffset + data.offset, Std.int (length / Float32Array.BYTES_PER_ELEMENT));
 					
 				}
