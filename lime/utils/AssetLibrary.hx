@@ -362,6 +362,10 @@ class AssetLibrary {
 				
 				cachedAudioBuffers.exists (id);
 			
+			case FONT:
+				
+				cachedFonts.exists (id);
+			
 			default:
 				
 				cachedBytes.exists (id) || cachedText.exists (id);
