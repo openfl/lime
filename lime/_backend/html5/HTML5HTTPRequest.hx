@@ -388,13 +388,17 @@ class HTML5HTTPRequest {
 			
 			if (request.status != null && ((request.status >= 200 && request.status < 400) || (validStatus0 && request.status == 0))) {
 				
-				var bytes;
+				var bytes = null;
 				
 				if (request.responseType == NONE) {
 					
-					bytes = Bytes.ofString (request.responseText);
+					if (request.responseText != null) {
+						
+						bytes = Bytes.ofString (request.responseText);
+						
+					}
 					
-				} else {
+				} else if (request.response != null) {
 					
 					bytes = Bytes.ofData (request.response);
 					
