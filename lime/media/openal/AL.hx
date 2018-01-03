@@ -281,7 +281,7 @@ class AL {
 		#end
 	}
 	
-	public static function auxf(aux:CFFIPointer, param:Int, value:Float32):Void {
+	public static function auxf(aux:CFFIPointer, param:Int, value:Float):Void {
 		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_al_auxf (aux, param, value);
 		#end
@@ -493,7 +493,7 @@ class AL {
 	}
 	
 	
-	public static function effectf(effect:CFFIPointer, param:Int, value:Float32):Void {
+	public static function effectf(effect:CFFIPointer, param:Int, value:Float):Void {
 		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_al_effectf (effect, param, value);
 		#end
