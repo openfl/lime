@@ -16,6 +16,7 @@ import js.Browser;
 import lime.app.Application;
 import lime.graphics.utils.ImageCanvasUtil;
 import lime.graphics.Image;
+import lime.graphics.RendererType;
 import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.System;
@@ -55,6 +56,7 @@ class HTML5Window {
 	private var isFullscreen:Bool;
 	private var parent:Window;
 	private var primaryTouch:Touch;
+	private var renderType:RendererType;
 	private var requestedFullscreen:Bool;
 	private var resizeElement:Bool;
 	private var scale = 1.0;
@@ -73,13 +75,23 @@ class HTML5Window {
 			
 		}
 		
-		#if !dom
-		if (parent.config != null && Reflect.hasField (parent.config, "allowHighDPI") && parent.config.allowHighDPI) {
+		if (parent.config != null && Reflect.hasField (parent.config, "renderer")) {
+			
+			renderType = Type.createEnum (RendererType, Std.string (parent.config.renderer).toUpperCase ());
+			
+		}
+		
+		#if dom
+		renderType = DOM;
+		#end
+		
+		trace (renderType);
+		
+		if (parent.config != null && Reflect.hasField (parent.config, "allowHighDPI") && parent.config.allowHighDPI && renderType != DOM) {
 			
 			scale = Browser.window.devicePixelRatio;
 			
 		}
-		#end
 		
 		parent.__scale = scale;
 		
@@ -120,11 +132,15 @@ class HTML5Window {
 			
 		} else {
 			
-			#if dom
-			div = cast Browser.document.createElement ("div");
-			#else
-			canvas = cast Browser.document.createElement ("canvas");
-			#end
+			if (renderType == DOM) {
+				
+				div = cast Browser.document.createElement ("div");
+				
+			} else {
+				
+				canvas = cast Browser.document.createElement ("canvas");
+				
+			}
 			
 		}
 		

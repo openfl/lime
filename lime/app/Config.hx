@@ -122,6 +122,7 @@ typedef WindowConfig = {
 	@:optional var maximized:Bool;
 	@:optional var minimized:Bool;
 	@:optional var parameters:Dynamic;
+	@:optional var renderer:String;
 	@:optional var resizable:Bool;
 	@:optional var stencilBuffer:Bool;
 	@:optional var title:String;
