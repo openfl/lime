@@ -13,6 +13,7 @@ import lime.graphics.Renderer;
 import lime.math.Rectangle;
 
 @:access(lime._backend.html5.HTML5GLRenderContext)
+@:access(lime._backend.html5.HTML5Window)
 @:access(lime.app.Application)
 @:access(lime.graphics.opengl.GL)
 @:access(lime.graphics.GLRenderContext)
@@ -62,7 +63,12 @@ class HTML5Renderer {
 			
 			var webgl:RenderingContext = null;
 			
-			if (#if (canvas || munit) false #elseif webgl true #else !Reflect.hasField (parent.window.config, "hardware") || parent.window.config.hardware #end) {
+			var renderType = parent.window.backend.renderType;
+			var forceCanvas = #if (canvas || munit) true #else (renderType == "canvas") #end;
+			var forceWebGL = #if webgl true #else (renderType == "opengl" || renderType == "webgl" || renderType == "webgl1" || renderType == "webgl2") #end;
+			var allowWebGL2 = #if webgl1 false #else (renderType != "webgl1") #end;
+			
+			if (forceWebGL || (!forceCanvas && (!Reflect.hasField (parent.window.config, "hardware") || parent.window.config.hardware))) {
 				
 				var transparentBackground = Reflect.hasField (parent.window.config, "background") && parent.window.config.background == null;
 				var colorDepth = Reflect.hasField (parent.window.config, "colorDepth") ? parent.window.config.colorDepth : 16;
@@ -78,7 +84,15 @@ class HTML5Renderer {
 					
 				};
 				
-				for (name in [ #if !webgl1 "webgl2", #end "webgl", "experimental-webgl" ]) {
+				var glContextType = [ "webgl", "experimental-webgl" ];
+				
+				if (allowWebGL2) {
+					
+					glContextType.unshift ("webgl2");
+					
+				}
+				
+				for (name in glContextType) {
 					
 					webgl = cast parent.window.backend.canvas.getContext (name, options);
 					if (webgl != null) break;
