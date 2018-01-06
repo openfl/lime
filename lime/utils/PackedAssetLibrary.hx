@@ -32,6 +32,7 @@ class PackedAssetLibrary extends AssetLibrary {
 	private var packedData:Bytes;
 	private var positions = new Map<String, Int> ();
 	private var type:String;
+	private var rootPath:String;
 	
 	
 	public function new (id:String, type:String) {
@@ -288,7 +289,11 @@ class PackedAssetLibrary extends AssetLibrary {
 				
 			} else {
 				
-				var path = paths.exists (id) ? paths.get (id) : id;
+				var basePath = rootPath;
+				if (basePath == null) basePath = "";
+				if (basePath != "") basePath += "/";
+
+				var path = basePath + (paths.exists (id) ? paths.get (id) : id);
 				path = __cacheBreak (path);
 				
 				Bytes.loadFromFile (path).onError (promise.error).onComplete (packedData_onComplete);
@@ -481,6 +486,7 @@ class PackedAssetLibrary extends AssetLibrary {
 	
 	
 	private override function __fromManifest (manifest:AssetManifest):Void {
+		rootPath = manifest.rootPath;
 		
 		super.__fromManifest (manifest);
 		
