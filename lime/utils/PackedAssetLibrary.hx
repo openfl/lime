@@ -24,7 +24,7 @@ import flash.media.Sound;
 #end
 
 
-class PackedAssetLibrary extends AssetLibrary {
+@:keep class PackedAssetLibrary extends AssetLibrary {
 	
 	
 	private var id:String;
