@@ -90,22 +90,27 @@ class JPEG {
 		#if java
 		
 		#elseif (sys && (!disable_cffi || !format) && !macro)
-			
-			#if !cs
-			return NativeCFFI.lime_image_encode (image.buffer, 1, quality, Bytes.alloc (0));
-			#else
-			var data:Dynamic = NativeCFFI.lime_image_encode (image.buffer, 1, quality, null);
-			return @:privateAccess new Bytes (data.length, data.b);
-			#end
-			
-		#elseif (js && html5)
 		
+		#if !cs
+		return NativeCFFI.lime_image_encode (image.buffer, 1, quality, Bytes.alloc (0));
+		#else
+		var data:Dynamic = NativeCFFI.lime_image_encode (image.buffer, 1, quality, null);
+		return @:privateAccess new Bytes (data.length, data.b);
+		#end
+		
+		#elseif js
+		
+		image.type = CANVAS;
 		ImageCanvasUtil.sync (image, false);
 		
 		if (image.buffer.__srcCanvas != null) {
 			
 			var data = image.buffer.__srcCanvas.toDataURL ("image/jpeg", quality / 100);
+			#if nodejs
+			var buffer = new js.node.Buffer ((data.split (";base64,")[1]:String), "base64").toString ("binary");
+			#else
 			var buffer = Browser.window.atob (data.split (";base64,")[1]);
+			#end
 			var bytes = Bytes.alloc (buffer.length);
 			
 			for (i in 0...buffer.length) {

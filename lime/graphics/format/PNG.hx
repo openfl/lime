@@ -110,7 +110,7 @@ class PNG {
 		}
 		#end
 		
-		#if (!html5 && format)
+		#if (!js && !html5 && format)
 		
 		else {
 			
@@ -146,14 +146,19 @@ class PNG {
 			
 		}
 		
-		#elseif (js && html5)
+		#elseif js
 		
+		image.type = CANVAS;
 		ImageCanvasUtil.sync (image, false);
 		
 		if (image.buffer.__srcCanvas != null) {
 			
 			var data = image.buffer.__srcCanvas.toDataURL ("image/png");
+			#if nodejs
+			var buffer = new js.node.Buffer ((data.split (";base64,")[1]:String), "base64").toString ("binary");
+			#else
 			var buffer = Browser.window.atob (data.split (";base64,")[1]);
+			#end
 			var bytes = Bytes.alloc (buffer.length);
 			
 			for (i in 0...buffer.length) {
