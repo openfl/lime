@@ -46,7 +46,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			#if !macro
+			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_alert (handle, message, title);
 			#end
 			
@@ -66,7 +66,7 @@ class NativeWindow {
 				
 				if (handle != null) {
 					
-					#if !macro
+					#if (!macro && lime_cffi)
 					NativeCFFI.lime_window_close (handle);
 					#end
 					handle = null;
@@ -132,7 +132,7 @@ class NativeWindow {
 			
 		}
 		
-		#if !macro
+		#if (!macro && lime_cffi)
 		handle = NativeCFFI.lime_window_create (application.backend.handle, parent.width, parent.height, flags, title);
 		
 		if (handle != null) {
@@ -153,7 +153,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			#if !macro
+			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_focus (handle);
 			#end
 			
@@ -166,7 +166,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			#if !macro
+			#if (!macro && lime_cffi)
 			var index = NativeCFFI.lime_window_get_display (handle);
 			
 			if (index > -1) {
@@ -187,7 +187,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			#if !macro
+			#if (!macro && lime_cffi)
 			var data:Dynamic = NativeCFFI.lime_window_get_display_mode (handle);
 			displayMode.width = data.width;
 			displayMode.height = data.height;
@@ -206,7 +206,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			#if !macro
+			#if (!macro && lime_cffi)
 			var data:Dynamic = NativeCFFI.lime_window_set_display_mode (handle, value);
 			displayMode.width = data.width;
 			displayMode.height = data.height;
@@ -225,7 +225,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			#if !macro
+			#if (!macro && lime_cffi)
 			return NativeCFFI.lime_window_get_enable_text_events (handle);
 			#end
 			
@@ -240,7 +240,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			#if !macro
+			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_move (handle, x, y);
 			#end
 			
@@ -253,7 +253,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			#if !macro
+			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_resize (handle, width, height);
 			#end
 			
@@ -266,7 +266,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			#if !macro
+			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_set_borderless (handle, value);
 			#end
 			
@@ -280,7 +280,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			#if !macro
+			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_set_enable_text_events (handle, value);
 			#end
 			
@@ -306,7 +306,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			#if !macro
+			#if (!macro && lime_cffi)
 			value = NativeCFFI.lime_window_set_fullscreen (handle, value);
 			
 			parent.__width = NativeCFFI.lime_window_get_width (handle);
@@ -332,7 +332,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			#if !macro
+			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_set_icon (handle, image.buffer);
 			#end
 			
@@ -345,7 +345,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			#if !macro
+			#if (!macro && lime_cffi)
 			return NativeCFFI.lime_window_set_maximized (handle, value);
 			#end
 			
@@ -360,7 +360,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			#if !macro
+			#if (!macro && lime_cffi)
 			return NativeCFFI.lime_window_set_minimized (handle, value);
 			#end
 			
@@ -375,7 +375,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			#if !macro
+			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_set_resizable (handle, value);
 			
 			// TODO: remove need for workaround
@@ -394,7 +394,7 @@ class NativeWindow {
 		
 		if (handle != null) {
 			
-			#if !macro
+			#if (!macro && lime_cffi)
 			return NativeCFFI.lime_window_set_title (handle, value);
 			#end
 			

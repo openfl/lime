@@ -220,9 +220,7 @@ class FileHelper {
 				
 				try {
 					
-					var fileOutput:FileOutput = File.write (destination, true);
-					fileOutput.writeString (result);
-					fileOutput.close ();
+					File.saveContent (destination, result);
 					
 				} catch (e:Dynamic) {
 					

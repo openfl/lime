@@ -7,7 +7,7 @@ import lime.app.Event;
 
 #if flash
 import flash.desktop.Clipboard in FlashClipboard;
-#elseif js
+#elseif (js && html5)
 import lime._backend.html5.HTML5Window;
 #end
 

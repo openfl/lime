@@ -1994,7 +1994,7 @@ abstract WebGL2Context(GLRenderContext) from GLRenderContext to GLRenderContext 
 	#if (!js || !html5 || display)
 	public inline function getBufferSubData (target:Int, srcByteOffset:DataPointer, dstData:ArrayBuffer, srcOffset:Int = 0, ?length:Int):Void {
 		
-		var size = (length != null) ? length : (dstData != null) ? dstData.length : 0;
+		var size = (length != null) ? length : (dstData != null) ? dstData.byteLength : 0;
 		this.getBufferSubData (target, srcByteOffset + srcOffset, size, dstData);
 		
 	}

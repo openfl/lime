@@ -52,7 +52,9 @@ class LogHelper {
 		
 		if (verbose && e != null) {
 			
-			#if !cs
+			#if js
+			throw e;
+			#elseif !cs
 			Lib.rethrow (e);
 			#end
 			

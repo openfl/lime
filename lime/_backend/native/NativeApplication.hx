@@ -103,7 +103,7 @@ class NativeApplication {
 	
 	public function create (config:Config):Void {
 		
-		#if !macro
+		#if (!macro && lime_cffi)
 		handle = NativeCFFI.lime_application_create ( { } );
 		#end
 		
@@ -114,6 +114,7 @@ class NativeApplication {
 		
 		#if !macro
 		
+		#if lime_cffi
 		NativeCFFI.lime_application_event_manager_register (handleApplicationEvent, applicationEventInfo);
 		NativeCFFI.lime_clipboard_event_manager_register (handleClipboardEvent, clipboardEventInfo);
 		NativeCFFI.lime_drop_event_manager_register (handleDropEvent, dropEventInfo);
@@ -125,12 +126,12 @@ class NativeApplication {
 		NativeCFFI.lime_text_event_manager_register (handleTextEvent, textEventInfo);
 		NativeCFFI.lime_touch_event_manager_register (handleTouchEvent, touchEventInfo);
 		NativeCFFI.lime_window_event_manager_register (handleWindowEvent, windowEventInfo);
-		
 		#if (ios || android || tvos)
 		NativeCFFI.lime_sensor_event_manager_register (handleSensorEvent, sensorEventInfo);
 		#end
+		#end
 		
-		#if nodejs
+		#if (nodejs && lime_cffi)
 		
 		NativeCFFI.lime_application_init (handle);
 		
@@ -176,7 +177,7 @@ class NativeApplication {
 		
 		AudioManager.shutdown ();
 		
-		#if !macro
+		#if (!macro && lime_cffi)
 		NativeCFFI.lime_application_quit (handle);
 		#end
 		
@@ -683,7 +684,7 @@ class NativeApplication {
 	
 	public function setFrameRate (value:Float):Float {
 		
-		#if !macro
+		#if (!macro && lime_cffi)
 		NativeCFFI.lime_application_set_frame_rate (handle, value);
 		#end
 		return frameRate = value;

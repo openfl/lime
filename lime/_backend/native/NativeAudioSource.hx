@@ -185,6 +185,8 @@ class NativeAudioSource {
 	
 	private function readVorbisFileBuffer (vorbisFile:VorbisFile, length:Int):UInt8Array {
 		
+		#if lime_vorbis
+		
 		var buffer = new UInt8Array (length);
 		var read = 0, total = 0, readMax;
 		
@@ -213,6 +215,12 @@ class NativeAudioSource {
 		}
 		
 		return buffer;
+		
+		#else
+		
+		return null;
+		
+		#end
 		
 	}
 	

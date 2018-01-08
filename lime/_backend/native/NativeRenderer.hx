@@ -53,7 +53,7 @@ class NativeRenderer {
 	
 	public function create ():Void {
 		
-		#if !macro
+		#if (!macro && lime_cffi)
 		handle = NativeCFFI.lime_renderer_create (parent.window.backend.handle);
 		
 		parent.window.__scale = NativeCFFI.lime_renderer_get_scale (handle);
@@ -111,7 +111,7 @@ class NativeRenderer {
 	
 	public function flip ():Void {
 		
-		#if !macro
+		#if (!macro && lime_cffi)
 		if (!useHardware) {
 			
 			#if lime_cairo
@@ -135,7 +135,7 @@ class NativeRenderer {
 		
 		var imageBuffer:ImageBuffer = null;
 		
-		#if !macro
+		#if (!macro && lime_cffi)
 		#if !cs
 		imageBuffer = NativeCFFI.lime_renderer_read_pixels (handle, rect, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
 		#else
@@ -160,7 +160,7 @@ class NativeRenderer {
 	
 	public function render ():Void {
 		
-		#if !macro
+		#if (!macro && lime_cffi)
 		NativeCFFI.lime_renderer_make_current (handle);
 		
 		if (!useHardware) {

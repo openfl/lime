@@ -295,7 +295,7 @@ class System {
 		
 		#if flash
 		return flash.Lib.getTimer ();
-		#elseif js
+		#elseif (js && !nodejs)
 		return Std.int (Browser.window.performance.now ());
 		#elseif (!disable_cffi && !macro)
 		return cast NativeCFFI.lime_system_get_timer ();
