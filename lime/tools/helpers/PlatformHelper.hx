@@ -38,6 +38,26 @@ class PlatformHelper {
 					
 				case LINUX, MAC:
 					
+					#if nodejs
+					
+					switch (js.Node.process.arch) {
+						
+						case "arm":
+							
+							_hostArchitecture = Architecture.ARMV7;
+						
+						case "x64":
+							
+							_hostArchitecture = Architecture.X64;
+						
+						default:
+							
+							_hostArchitecture = Architecture.X86;
+						
+					}
+					
+					#else
+					
 					var process = new Process ("uname", [ "-m" ]);
 					var output = process.stdout.readAll ().toString ();
 					var error = process.stderr.readAll ().toString ();
@@ -57,9 +77,12 @@ class PlatformHelper {
 						_hostArchitecture = Architecture.X64;
 						
 					} else {
+						
 						_hostArchitecture = Architecture.X86;
 						
 					}
+					
+					#end
 					
 				default:
 					

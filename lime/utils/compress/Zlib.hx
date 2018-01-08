@@ -31,7 +31,7 @@ class Zlib {
 		return @:privateAccess new Bytes (data.length, data.b);
 		#end
 		
-		#elseif (js && html5)
+		#elseif js
 		
 		#if commonjs
 		var data = untyped __js__ ("require (\"pako\").deflate") (bytes.getData ());
@@ -71,7 +71,7 @@ class Zlib {
 		return @:privateAccess new Bytes (data.length, data.b);
 		#end
 		
-		#elseif (js && html5)
+		#elseif js
 		
 		#if commonjs
 		var data = untyped __js__ ("require (\"pako\").inflate") (bytes.getData ());

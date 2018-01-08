@@ -31,7 +31,7 @@ class Deflate {
 		return @:privateAccess new Bytes (data.length, data.b);
 		#end
 		
-		#elseif (js && html5)
+		#elseif js
 		
 		#if commonjs
 		var data = untyped __js__ ("require (\"pako\").deflateRaw") (bytes.getData ());
@@ -71,7 +71,7 @@ class Deflate {
 		return @:privateAccess new Bytes (data.length, data.b);
 		#end
 		
-		#elseif (js && html5)
+		#elseif js
 		
 		#if commonjs
 		var data = untyped __js__ ("require (\"pako\").inflateRaw") (bytes.getData ());
