@@ -13,6 +13,14 @@ import lime.utils.UInt8Array;
 import js.Browser;
 #end
 
+#if format
+import format.jpg.Data;
+import format.jpg.Writer;
+import format.tools.Deflate;
+import haxe.io.Bytes;
+import haxe.io.BytesOutput;
+#end
+
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
@@ -91,12 +99,42 @@ class JPEG {
 		
 		#elseif (sys && (!disable_cffi || !format) && !macro)
 		
-		#if !cs
-		return NativeCFFI.lime_image_encode (image.buffer, 1, quality, Bytes.alloc (0));
-		#else
-		var data:Dynamic = NativeCFFI.lime_image_encode (image.buffer, 1, quality, null);
-		return @:privateAccess new Bytes (data.length, data.b);
+		if (CFFI.enabled) {
+			
+			#if !cs
+			return NativeCFFI.lime_image_encode (image.buffer, 1, quality, Bytes.alloc (0));
+			#else
+			var data:Dynamic = NativeCFFI.lime_image_encode (image.buffer, 1, quality, null);
+			return @:privateAccess new Bytes (data.length, data.b);
+			#end
+			
+		}
 		#end
+		
+		#if ((!js || !html5) && format)
+		
+		#if (sys && (!disable_cffi || !format) && !macro) else #end {
+			
+			try {
+				
+				var buffer = image.buffer.data.buffer;
+				
+				var data:Data = {
+					width: image.width,
+					height: image.height,
+					quality: quality,
+					pixels: #if js Bytes.ofData (buffer) #else buffer #end
+				};
+				
+				var output = new BytesOutput ();
+				var jpeg = new Writer (output);
+				jpeg.write (data);
+				
+				return output.getBytes ();
+				
+			} catch (e:Dynamic) { }
+			
+		}
 		
 		#elseif js
 		
