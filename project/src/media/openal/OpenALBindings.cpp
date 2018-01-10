@@ -1101,7 +1101,7 @@ namespace lime {
 	void lime_al_remove_send(value source, int index) {
 		ALuint id = (ALuint)(uintptr_t)val_data(source);
 
-		alSource3i(id, AL_AUXILIARY_SEND_FILTER, AL_EFFECTSLOT_NULL, index, NULL);
+		alSource3i(id, AL_AUXILIARY_SEND_FILTER, AL_EFFECTSLOT_NULL, index, 0);
 	}
 
 
