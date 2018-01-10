@@ -260,7 +260,7 @@ class NativeCFFI {
 	@:cffi private static function lime_al_source_stopv (n:Int, sources:Dynamic):Void;
 	@:cffi private static function lime_al_source_unqueue_buffers (source:CFFIPointer, nb:Int):Dynamic;
 	@:cffi private static function lime_al_source3f (source:CFFIPointer, param:Int, value1:Float32, value2:Float32, value3:Float32):Void;
-	@:cffi private static function lime_al_source3i (source:CFFIPointer, param:Int, value1:Int, value2:Int, value3:Int):Void;
+	@:cffi private static function lime_al_source3i (source:CFFIPointer, param:Int, value1:Dynamic, value2:Int, value3:Int):Void;
 	@:cffi private static function lime_al_sourcef (source:CFFIPointer, param:Int, value:Float32):Void;
 	@:cffi private static function lime_al_sourcefv (source:CFFIPointer, param:Int, values:Dynamic):Void;
 	@:cffi private static function lime_al_sourcei (source:CFFIPointer, param:Int, value:Dynamic):Void;
