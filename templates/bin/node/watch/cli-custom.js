@@ -81,16 +81,18 @@ for(i = 0; i < dirLen; i++) {
     }
     if(wait) return
 
-    try {
-      if(exitShell && shell != null) {
+    if(exitShell && shell != null) {
+      try {
         var isWin = /^win/.test(process.platform);
         if(!isWin) {
-            shell.kill ();
+            shell.kill('SIGKILL');
         } else {
             cp.exec('taskkill /PID ' + shell.pid + ' /T /F', function(error, stdout, stderr) {
             });
         }
-      }
+      } catch (e) {}
+    }
+    try {
       shell = execshell(command)
     } catch (e) {
       console.error (e);
