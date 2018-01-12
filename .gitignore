@@ -27,3 +27,4 @@ legacy/project/obj
 .vscode/settings.json
 package-lock.json
 node_modules
+!templates/**/node_modules
