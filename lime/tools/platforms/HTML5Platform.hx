@@ -402,6 +402,8 @@ class HTML5Platform extends PlatformTarget {
 	
 	public override function watch ():Void {
 		
+		// TODO: Use a custom live reload HTTP server for test/run instead
+		
 		var dirs = WatchHelper.processHXML (project, getDisplayHXML ());
 		var command = WatchHelper.getCurrentCommand ();
 		WatchHelper.watch (project, command, dirs);
