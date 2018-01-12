@@ -16,6 +16,7 @@ import lime.tools.helpers.PathHelper;
 import lime.tools.helpers.PlatformHelper;
 import lime.tools.helpers.ProcessHelper;
 import lime.tools.helpers.StringHelper;
+import lime.tools.helpers.WatchHelper;
 import lime.graphics.Image;
 import lime.project.Architecture;
 import lime.project.Asset;
@@ -87,16 +88,7 @@ class IOSPlatform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
-		var hxml = PathHelper.findTemplate (project.templatePaths, "iphone/PROJ/haxe/Build.hxml", false);
-		if (hxml == null) hxml = PathHelper.findTemplate (project.templatePaths, "iphone/template/{{app.file}}/Build.hxml", true);
-		var template = new Template (File.getContent (hxml));
-		
-		project = project.clone ();
-		var context = generateContext ();
-		context.OUTPUT_DIR = targetDirectory;
-		
-		Sys.println (template.execute (context));
-		Sys.println ("-D display");
+		Sys.println (getDisplayHXML ());
 		
 	}
 	
@@ -390,6 +382,21 @@ class IOSPlatform extends PlatformTarget {
 		}
 		
 		return context;
+		
+	}
+	
+	
+	private function getDisplayHXML ():String {
+		
+		var hxml = PathHelper.findTemplate (project.templatePaths, "iphone/PROJ/haxe/Build.hxml", false);
+		if (hxml == null) hxml = PathHelper.findTemplate (project.templatePaths, "iphone/template/{{app.file}}/Build.hxml", true);
+		var template = new Template (File.getContent (hxml));
+		
+		project = project.clone ();
+		var context = generateContext ();
+		context.OUTPUT_DIR = targetDirectory;
+		
+		return template.execute (context) + "\n-D display";
 		
 	}
 	
@@ -731,6 +738,15 @@ class IOSPlatform extends PlatformTarget {
 		context.HAS_LAUNCH_IMAGE = has_launch_image;
 		
 	}*/
+	
+	
+	public override function watch ():Void {
+		
+		var dirs = WatchHelper.processHXML (project, getDisplayHXML ());
+		var command = WatchHelper.getCurrentCommand ();
+		WatchHelper.watch (project, command, dirs);
+		
+	}
 	
 	
 	@ignore public override function install ():Void {}

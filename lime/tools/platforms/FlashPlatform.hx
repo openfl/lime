@@ -13,6 +13,7 @@ import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.PathHelper;
 import lime.tools.helpers.PlatformHelper;
 import lime.tools.helpers.ProcessHelper;
+import lime.tools.helpers.WatchHelper;
 import lime.project.AssetType;
 import lime.project.Haxelib;
 import lime.project.HXProject;
@@ -71,16 +72,7 @@ class FlashPlatform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
-		var hxml = PathHelper.findTemplate (project.templatePaths, "flash/hxml/" + buildType + ".hxml");
-		
-		var context = project.templateContext;
-		context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background, 6);
-		context.OUTPUT_DIR = targetDirectory;
-		
-		var template = new Template (File.getContent (hxml));
-		
-		Sys.println (template.execute (context));
-		Sys.println ("-D display");
+		Sys.println (getDisplayHXML ());
 		
 	}
 	
@@ -122,6 +114,21 @@ class FlashPlatform extends PlatformTarget {
 		}
 		
 		return context;
+		
+	}
+	
+	
+	private function getDisplayHXML ():String {
+		
+		var hxml = PathHelper.findTemplate (project.templatePaths, "flash/hxml/" + buildType + ".hxml");
+		
+		var context = project.templateContext;
+		context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background, 6);
+		context.OUTPUT_DIR = targetDirectory;
+		
+		var template = new Template (File.getContent (hxml));
+		
+		return template.execute (context) + "\n-D display";
 		
 	}
 	
@@ -270,6 +277,15 @@ class FlashPlatform extends PlatformTarget {
 		}
 		
 	}*/
+	
+	
+	public override function watch ():Void {
+		
+		var dirs = WatchHelper.processHXML (project, getDisplayHXML ());
+		var command = WatchHelper.getCurrentCommand ();
+		WatchHelper.watch (project, command, dirs);
+		
+	}
 	
 	
 	@ignore public override function install ():Void {}

@@ -12,6 +12,7 @@ import lime.tools.helpers.IconHelper;
 import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.PathHelper;
 import lime.tools.helpers.ProcessHelper;
+import lime.tools.helpers.WatchHelper;
 import lime.project.Architecture;
 import lime.project.AssetType;
 import lime.project.Haxelib;
@@ -167,6 +168,13 @@ class AndroidPlatform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
+		Sys.println (getDisplayHXML ());
+		
+	}
+	
+	
+	private function getDisplayHXML ():String {
+		
 		var hxml = PathHelper.findTemplate (project.templatePaths, "android/hxml/" + buildType + ".hxml");
 		
 		var context = project.templateContext;
@@ -175,8 +183,7 @@ class AndroidPlatform extends PlatformTarget {
 		
 		var template = new Template (File.getContent (hxml));
 		
-		Sys.println (template.execute (context));
-		Sys.println ("-D display");
+		return template.execute (context) + "\n-D display";
 		
 	}
 	
@@ -458,6 +465,15 @@ class AndroidPlatform extends PlatformTarget {
 			}
 			
 		}
+		
+	}
+	
+	
+	public override function watch ():Void {
+		
+		var dirs = WatchHelper.processHXML (project, getDisplayHXML ());
+		var command = WatchHelper.getCurrentCommand ();
+		WatchHelper.watch (project, command, dirs);
 		
 	}
 	

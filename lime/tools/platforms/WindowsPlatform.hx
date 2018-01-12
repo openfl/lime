@@ -19,6 +19,7 @@ import lime.tools.helpers.NodeJSHelper;
 import lime.tools.helpers.PathHelper;
 import lime.tools.helpers.PlatformHelper;
 import lime.tools.helpers.ProcessHelper;
+import lime.tools.helpers.WatchHelper;
 import lime.project.Architecture;
 import lime.project.Asset;
 import lime.project.AssetType;
@@ -315,14 +316,7 @@ class WindowsPlatform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
-		var hxml = PathHelper.findTemplate (project.templatePaths, targetType + "/hxml/" + buildType + ".hxml");
-		var template = new Template (File.getContent (hxml));
-		
-		var context = generateContext ();
-		context.OUTPUT_DIR = targetDirectory;
-		
-		Sys.println (template.execute (context));
-		Sys.println ("-D display");
+		Sys.println (getDisplayHXML ());
 		
 	}
 	
@@ -364,6 +358,19 @@ class WindowsPlatform extends PlatformTarget {
 		}
 		
 		return context;
+		
+	}
+	
+	
+	private function getDisplayHXML ():String {
+		
+		var hxml = PathHelper.findTemplate (project.templatePaths, targetType + "/hxml/" + buildType + ".hxml");
+		var template = new Template (File.getContent (hxml));
+		
+		var context = generateContext ();
+		context.OUTPUT_DIR = targetDirectory;
+		
+		return template.execute (context) + "\n-D display";
 		
 	}
 	
@@ -813,6 +820,15 @@ class WindowsPlatform extends PlatformTarget {
 			}
 			
 		}
+		
+	}
+	
+	
+	public override function watch ():Void {
+		
+		var dirs = WatchHelper.processHXML (project, getDisplayHXML ());
+		var command = WatchHelper.getCurrentCommand ();
+		WatchHelper.watch (project, command, dirs);
 		
 	}
 	

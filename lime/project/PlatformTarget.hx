@@ -62,6 +62,14 @@ class PlatformTarget {
 		this.additionalArguments = additionalArguments;
 		var metaFields = Meta.getFields (Type.getClass (this));
 		
+		if (/*!Reflect.hasField (metaFields.watch, "ignore") && */(project.targetFlags.exists ("watch"))) {
+			
+			LogHelper.info ("", "\n" + LogHelper.accentColor + "Running command: WATCH" + LogHelper.resetColor);
+			watch ();
+			return;
+			
+		}
+		
 		if (!Reflect.hasField (metaFields.display, "ignore") && (command == "display")) {
 			
 			display ();
@@ -163,6 +171,7 @@ class PlatformTarget {
 	@ignore public function trace ():Void {}
 	@ignore public function uninstall ():Void {}
 	@ignore public function update ():Void {}
+	@ignore public function watch ():Void {}
 	
 	
 }
