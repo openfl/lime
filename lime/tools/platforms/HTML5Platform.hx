@@ -11,6 +11,7 @@ import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.ModuleHelper;
 import lime.tools.helpers.PathHelper;
 import lime.tools.helpers.ProcessHelper;
+import lime.tools.helpers.WatchHelper;
 import lime.project.AssetType;
 import lime.project.HXProject;
 import lime.project.Icon;
@@ -100,6 +101,13 @@ class HTML5Platform extends PlatformTarget {
 	
 	public override function display ():Void {
 		
+		Sys.println (getDisplayHXML ());
+		
+	}
+	
+	
+	private function getDisplayHXML ():String {
+		
 		var hxml = PathHelper.findTemplate (project.templatePaths, "html5/hxml/" + buildType + ".hxml");
 		
 		var context = project.templateContext;
@@ -108,8 +116,7 @@ class HTML5Platform extends PlatformTarget {
 		
 		var template = new Template (File.getContent (hxml));
 		
-		Sys.println (template.execute (context));
-		Sys.println ("-D display");
+		return template.execute (context) + "\n-D display";
 		
 	}
 	
@@ -389,6 +396,15 @@ class HTML5Platform extends PlatformTarget {
 			}
 			
 		}
+		
+	}
+	
+	
+	public override function watch ():Void {
+		
+		var dirs = WatchHelper.processHXML (project, getDisplayHXML ());
+		var command = WatchHelper.getCurrentCommand ();
+		WatchHelper.watch (project, command, dirs);
 		
 	}
 	
