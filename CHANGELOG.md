@@ -1,3 +1,27 @@
+6.0.0 (01/15/2018)
+------------------
+
+* Added `-watch` for simple \*.hx file watching support on commands
+* Added support for OpenAL effects extension where available
+* Added support for forcing a WebGL 1 context at runtime
+* Added support for defining an HTML5 DOM renderer at runtime
+* Added support for automatic iOS device provisioning and registration
+* Added improved support for CommonJS output
+* Improved support for the `haxe-modular` library
+* Improved support for haxelibs that define `classPath` in haxelib.json
+* Improved performance of `image.copyPixels` on HTML5 when image is not a canvas
+* Improved use of external libraries when using CommonJS
+* Improved the quality of locale values returned on Windows
+* Improved handling of null responses in `HTTPRequest`
+* Improved `ObjectPool` to not use generics on HTML5 for better file size
+* Fixed issues preventing compilation of tools for Node.js
+* Fixed use of `rootPath` when loading packed asset libraries
+* Fixed launch image sizes for iPhone X
+* Fixed support for `-Dnocffi` when compiling CLI tools
+* Fixed a possible range error in `DataPointer`
+* Fixed a minor debug message when HXCPP "std" is statically linked
+
+
 5.9.1 (11/30/2017)
 ------------------
 
