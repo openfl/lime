@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "6.0.0",
-	"releasenote": "Improved CommonJS support, added simple -watch command, other improvements",
+	"version": "6.0.1",
+	"releasenote": "Minor installation fix",
 	"contributors": [ "singmajesty" ]
 }
