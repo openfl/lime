@@ -1654,7 +1654,11 @@ class PlatformSetup {
 	
 	public static function setupLime ():Void {
 		
-		setupHaxelib (new Haxelib ("lime"));
+		if (!targetFlags.exists ("cli")) {
+			
+			setupHaxelib (new Haxelib ("lime"));
+			
+		}
 		
 		var haxePath = Sys.getEnv ("HAXEPATH");
 		
@@ -1848,9 +1852,20 @@ class PlatformSetup {
 	
 	public static function setupOpenFL ():Void {
 		
-		setupHaxelib (new Haxelib ("openfl"));
+		if (!targetFlags.exists ("cli")) {
+			
+			setupHaxelib (new Haxelib ("openfl"));
+			
+		}
 		
 		var haxePath = Sys.getEnv ("HAXEPATH");
+		var project = null;
+		
+		try {
+			
+			project = HXProject.fromHaxelib (new Haxelib ("openfl"));
+			
+		} catch (e:Dynamic) {}
 		
 		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
 			
@@ -1862,8 +1877,13 @@ class PlatformSetup {
 			
 			try { File.copy (HaxelibHelper.getPath (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.exe", haxePath + "\\lime.exe"); } catch (e:Dynamic) {}
 			try { File.copy (HaxelibHelper.getPath (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.sh", haxePath + "\\lime"); } catch (e:Dynamic) {}
-			try { File.copy (HaxelibHelper.getPath (new Haxelib ("openfl")) + "\\templates\\\\bin\\openfl.exe", haxePath + "\\openfl.exe"); } catch (e:Dynamic) {}
-			try { File.copy (HaxelibHelper.getPath (new Haxelib ("openfl")) + "\\templates\\\\bin\\openfl.sh", haxePath + "\\openfl"); } catch (e:Dynamic) {}
+			
+			try {
+				
+				FileHelper.copyFileTemplate (project.templatePaths, "bin/openfl.exe", haxePath + "\\openfl.exe");
+				FileHelper.copyFileTemplate (project.templatePaths, "bin/openfl.sh", haxePath + "\\openfl");
+				
+			} catch (e:Dynamic) {}
 			
 		} else {
 			
@@ -1892,7 +1912,7 @@ class PlatformSetup {
 					
 					ProcessHelper.runCommand ("", "sudo", [ "cp", "-f", HaxelibHelper.getPath (new Haxelib ("lime")) + "/templates/bin/lime.sh", "/usr/local/bin/lime" ], false);
 					ProcessHelper.runCommand ("", "sudo", [ "chmod", "755", "/usr/local/bin/lime" ], false);
-					ProcessHelper.runCommand ("", "sudo", [ "cp", "-f", HaxelibHelper.getPath (new Haxelib ("openfl")) + "/templates/bin/openfl.sh", "/usr/local/bin/openfl" ], false);
+					ProcessHelper.runCommand ("", "sudo", [ "cp", "-f", PathHelper.findTemplate (project.templatePaths, "bin/openfl.sh"), "/usr/local/bin/openfl" ], false);
 					ProcessHelper.runCommand ("", "sudo", [ "chmod", "755", "/usr/local/bin/openfl" ], false);
 					installedCommand = true;
 					
@@ -1910,7 +1930,7 @@ class PlatformSetup {
 				Sys.println ("");
 				Sys.println ("sudo cp \"" + PathHelper.combine (HaxelibHelper.getPath (new Haxelib ("lime")), "templates/bin/lime.sh") + "\" /usr/local/bin/lime");
 				Sys.println ("sudo chmod 755 /usr/local/bin/lime");
-				Sys.println ("sudo cp \"" +  PathHelper.combine (HaxelibHelper.getPath (new Haxelib ("openfl")), "templates/bin/openfl.sh") + "\" /usr/local/bin/openfl");
+				Sys.println ("sudo cp \"" + PathHelper.findTemplate (project.templatePaths, "bin/openfl.sh") + "\" /usr/local/bin/openfl");
 				Sys.println ("sudo chmod 755 /usr/local/bin/openfl");
 				Sys.println ("");
 				
@@ -2137,7 +2157,7 @@ class PlatformSetup {
 			
 			if (FileSystem.exists (git)) {
 				
-				LogHelper.info ("\x1b[32;1mUpdating \"" + haxelib.name + "\"\x1b[0m");
+				LogHelper.info (LogHelper.accentColor + "Updating \"" + haxelib.name + "\"" + LogHelper.resetColor);
 				
 				if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
 					
