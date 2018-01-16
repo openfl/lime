@@ -40,15 +40,15 @@ import haxe.io.Path;
 class Font {
 	
 	
-	public var ascender (get, null):Int;
-	public var descender (get, null):Int;
+	@:isVar public var ascender (get, set):Null<Int>;		// no "= 0", cause asset sub-classes set properties before calling
+	@:isVar public var descender (get, set):Null<Int>;		// super(). better indicate a missing value with null anyway.
 	public var height (get, null):Int;
 	public var name (default, null):String;
 	public var numGlyphs (get, null):Int;
 	public var src:Dynamic;
 	public var underlinePosition (get, null):Int;
 	public var underlineThickness (get, null):Int;
-	public var unitsPerEM (get, null):Int;
+	@:isVar public var unitsPerEM (get, set):Null<Int>;
 	
 	@:noCompletion private var __fontID:String;
 	@:noCompletion private var __fontPath:String;
@@ -584,24 +584,38 @@ class Font {
 	
 	
 	
-	private function get_ascender ():Int {
+	private function get_ascender ():Null<Int> {
 		
 		#if (lime_cffi && !macro)
 		return NativeCFFI.lime_font_get_ascender (src);
 		#else
-		return 0;
+		return ascender;
 		#end
 		
 	}
 	
 	
-	private function get_descender ():Int {
+	private function set_ascender (value:Null<Int>):Null<Int> {
+		
+		return ascender = value;
+		
+	}
+	
+	
+	private function get_descender ():Null<Int> {
 		
 		#if (lime_cffi && !macro)
 		return NativeCFFI.lime_font_get_descender (src);
 		#else
-		return 0;
+		return descender;
 		#end
+		
+	}
+	
+	
+	private function set_descender (value:Null<Int>):Null<Int> {
+		
+		return descender = value;
 		
 	}
 	
@@ -650,13 +664,20 @@ class Font {
 	}
 	
 	
-	private function get_unitsPerEM ():Int {
+	private function get_unitsPerEM ():Null<Int> {
 		
 		#if (lime_cffi && !macro)
 		return NativeCFFI.lime_font_get_units_per_em (src);
 		#else
-		return 0;
+		return unitsPerEM;
 		#end
+		
+	}
+	
+	
+	private function set_unitsPerEM (value:Null<Int>):Null<Int> {
+		
+		return unitsPerEM = value;
 		
 	}
 	
