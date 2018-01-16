@@ -1654,7 +1654,7 @@ class PlatformSetup {
 	
 	public static function setupLime ():Void {
 		
-		if (!targetFlags.exists ("cli")) {
+		if (!targetFlags.exists ("alias") && !targetFlags.exists ("cli")) {
 			
 			setupHaxelib (new Haxelib ("lime"));
 			
@@ -1852,7 +1852,7 @@ class PlatformSetup {
 	
 	public static function setupOpenFL ():Void {
 		
-		if (!targetFlags.exists ("cli")) {
+		if (!targetFlags.exists ("alias") && !targetFlags.exists ("cli")) {
 			
 			setupHaxelib (new Haxelib ("openfl"));
 			
