@@ -1,3 +1,9 @@
+6.0.1 (01/16/2018)
+------------------
+
+* Minor fix for `haxelib run openfl setup` command-line alias installation
+
+
 6.0.0 (01/15/2018)
 ------------------
 
