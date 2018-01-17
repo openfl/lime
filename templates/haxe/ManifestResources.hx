@@ -91,14 +91,14 @@ import sys.FileSystem;
 
 #else
 
-::if (assets != null)::::foreach assets::::if (type == "font")::@:keep @:expose('__ASSET__::flatName::') #if display private #end class __ASSET__::flatName:: extends lime.text.Font { public function new () { #if !html5 __fontPath = "::targetPath::"; #end name = "::fontName::"; super (); }}
+::if (assets != null)::::foreach assets::::if (type == "font")::@:keep @:expose('__ASSET__::flatName::') #if display private #end class __ASSET__::flatName:: extends lime.text.Font { public function new () { #if !html5 __fontPath = "::targetPath::"; #else ascender = ::ascender::; descender = ::descender::; unitsPerEM = ::unitsPerEM::; #end name = "::fontName::"; super (); }}
 ::end::::end::::end::
 
 #end
 
 #if (openfl && !flash)
 
-::if (assets != null)::::foreach assets::::if (type == "font")::@:keep @:expose('__ASSET__OPENFL__::flatName::') #if display private #end class __ASSET__OPENFL__::flatName:: extends openfl.text.Font { public function new () { ::if (embed)::var font = new __ASSET__::flatName:: (); src = font.src; name = font.name;::else::#if !html5 ::if (targetPath != null)::__fontPath = #if (ios || tvos) "assets/" + #end "::targetPath::";::else::::if (library != null)::__fontID = "::library:::::id::";::else::__fontID = "::id::";::end::::end:: #end name = "::fontName::";::end:: super (); }}
+::if (assets != null)::::foreach assets::::if (type == "font")::@:keep @:expose('__ASSET__OPENFL__::flatName::') #if display private #end class __ASSET__OPENFL__::flatName:: extends openfl.text.Font { public function new () { ::if (embed)::__initFromLimeFont(new __ASSET__::flatName:: ());::else::#if !html5 ::if (targetPath != null)::__fontPath = #if (ios || tvos) "assets/" + #end "::targetPath::";::else::::if (library != null)::__fontID = "::library:::::id::";::else::__fontID = "::id::";::end::::end:: #end name = "::fontName::";::end:: super (); }}
 ::end::::end::::end::
 
 #end
