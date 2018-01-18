@@ -3807,6 +3807,7 @@ class NativeGLRenderContext {
 	}
 	
 	
+	#if (!js || !html5 || display)
 	private function __createObject (id:Int):GLObject {
 		
 		return new GLObject (id);
@@ -3819,6 +3820,7 @@ class NativeGLRenderContext {
 		return (object == null) ? 0 : object.id;
 		
 	}
+	#end
 	
 	
 	private function __initialize ():Void {
