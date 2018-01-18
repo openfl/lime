@@ -1508,7 +1508,7 @@ class Image {
 			}
 			#end
 			
-			#if format
+			#if (sys && format)
 			
 			else {
 				
