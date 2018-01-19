@@ -206,7 +206,10 @@ class HTML5AudioSource {
 		
 		#if howlerjs
 		
-		if (parent.buffer != null) {
+		// set howler volume only if we have an active id.
+		// Passing -1 might create issues in future play()'s.
+		
+		if (parent.buffer != null && id != -1) {
 			
 			parent.buffer.__srcHowl.volume (value, id);
 			
