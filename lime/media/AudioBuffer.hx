@@ -481,12 +481,13 @@ class AudioBuffer {
 			case "RIFF" if (bytes.getString (8, 4) == "WAVE"): return "audio/wav";
 			default:
 				
-				switch([bytes.get(0), bytes.get(1), bytes.get(2)]) {
-
+				switch ([bytes.get(0), bytes.get(1), bytes.get(2)]) {
+					
 					case [73, 68, 51] | [255, 251, _] | [255, 250, _]: return "audio/mp3";
-
+					default:
+					
 				}
-
+			
 		}
 		
 		Log.error ("Unsupported sound format");
