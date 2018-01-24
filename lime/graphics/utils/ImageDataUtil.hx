@@ -649,35 +649,30 @@ class ImageDataUtil {
 			bIndex += 2;
 		}
 		
-		var i:Int = 0;
-		var a:Int;
-		if (offset < 0) {
-			while (i < imgA.length) {
-				a = Std.int(imgB[ i + 3 ] * strength );
-				a = a < 0 ? 0 : (a > 255 ? 255 : a);
-				imgB[ i ] = fromPreMult( imgB[ i ], a );
-				imgB[ i + 1 ] = fromPreMult( imgB[ i + 1 ], a );
-				imgB[ i + 2 ] = fromPreMult( imgB[ i + 2 ], a );
-				imgB[ i + 3 ] = a;
-				i += 4;
+		var x: Int;
+		var y: Int;
+		if (offset <= 0) {
+			y = 0;
+			while (y < h) {
+				x = 0;
+				while (x < w) {
+					translatePixel(imgB, sourceImage.rect, image.rect, destPoint, x, y, strength, fromPreMult);
+					x += 1;
+				}
+				y += 1;
 			}
-			for (i in imgA.length - offset...imgA.length)
-				imgB[ i ] = 0;
 		} else {
-			i = imgA.length - 4;
-			while (i >= 0) {
-				a = Std.int(imgB[ i + 3 ] * strength );
-				a = a < 0 ? 0 : (a > 255 ? 255 : a);
-				imgB[ i ] = fromPreMult( imgB[ i ], a );
-				imgB[ i + 1 ] = fromPreMult( imgB[ i + 1 ], a );
-				imgB[ i + 2 ] = fromPreMult( imgB[ i + 2 ], a );
-				imgB[ i + 3 ] = a;
-				i -= 4;
+			y = h-1;
+			while (y >= 0 ) {
+				x = w-1;
+				while (x >= 0) {
+					translatePixel(imgB, sourceImage.rect, image.rect, destPoint, x, y, strength, fromPreMult);
+					x -= 1;
+				}
+				y -= 1;
 			}
-			for (i in 0...offset)
-				imgB[ i ] = 0;
 		}
-		
+
 		image.dirty = true;
 		image.version++;
 		sourceImage.dirty = true;
@@ -687,7 +682,33 @@ class ImageDataUtil {
 		return sourceImage;
 		
 	}
-	
+
+	/**
+	* Returns: the offset for translated coordinate in the source image or -1 if the source the coordinate out of the source or destination bounds
+	* Note: destX and destY should be valid coordinates
+	**/
+	inline private static function calculateSourceOffset(sourceRect:Rectangle, destPoint:Vector2,
+														 destX: Int, destY: Int): Int {
+		var sourceX: Int = destX - Std.int(destPoint.x);
+		var sourceY: Int = destY - Std.int(destPoint.y);
+		return
+			if (sourceX < 0 || sourceY < 0 || sourceX >= sourceRect.width || sourceY >= sourceRect.height) -1
+			else 4 * (sourceY * Std.int(sourceRect.width) + sourceX);
+	}
+
+	inline private static function translatePixel(imgB:UInt8Array, sourceRect:Rectangle, destRect:Rectangle,
+												  destPoint:Vector2, destX: Int, destY: Int,
+												  strength: Float,
+												  fromPreMult: Float -> Float -> Int) {
+		var d: Int = 4 * (destY * Std.int(destRect.width) + destX);
+		var s: Int = calculateSourceOffset(sourceRect, destPoint, destX, destY);
+		var a: Int = if (s >= 0) Std.int(imgB[ s + 3 ] * strength ) else 0;
+		a = a < 0 ? 0 : (a > 255 ? 255 : a);
+		imgB[ d ] = if (s >= 0) fromPreMult( imgB[ s ], a ) else 0;
+		imgB[ d + 1 ] = if (s >= 0) fromPreMult( imgB[ s + 1 ], a ) else 0;
+		imgB[ d + 2 ] = if (s >= 0) fromPreMult( imgB[ s + 2 ], a ) else 0;
+		imgB[ d + 3 ] = a;
+	}
 	
 	public static function getColorBoundsRect (image:Image, mask:Int, color:Int, findColor:Bool, format:PixelFormat):Rectangle {
 		
