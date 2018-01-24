@@ -668,10 +668,10 @@ class ImageDataUtil {
 			while (i >= 0) {
 				a = Std.int(imgB[ i + 3 ] * strength );
 				a = a < 0 ? 0 : (a > 255 ? 255 : a);
-				imgB[ i + offset] = fromPreMult( imgB[ i ], a );
-				imgB[ i + 1 + offset] = fromPreMult( imgB[ i + 1 ], a );
-				imgB[ i + 2 + offset] = fromPreMult( imgB[ i + 2 ], a );
-				imgB[ i + 3 + offset] = a;
+				imgB[ i ] = fromPreMult( imgB[ i ], a );
+				imgB[ i + 1 ] = fromPreMult( imgB[ i + 1 ], a );
+				imgB[ i + 2 ] = fromPreMult( imgB[ i + 2 ], a );
+				imgB[ i + 3 ] = a;
 				i -= 4;
 			}
 			for (i in 0...offset)
