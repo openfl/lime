@@ -200,7 +200,7 @@ namespace lime {
 				
 				return new std::wstring (L"/Library/Fonts");
 				
-				#elif defined (IPHONEOS)
+				#elif defined (IPHONE)
 				
 				return new std::wstring (L"/System/Library/Fonts");
 				

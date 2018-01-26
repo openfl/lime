@@ -69,7 +69,7 @@ namespace lime {
 					valid = true;
 					#endif
 					
-					#ifdef IPHONEOS
+					#ifdef IPHONE
 					glGetIntegerv (GL_FRAMEBUFFER_BINDING_OES, &OpenGLBindings::defaultFramebuffer);
 					#endif
 					
