@@ -85,86 +85,90 @@
 			
 		</section>
 		
-		<set name="haxe-module-name" value="haxe" unless="haxe-module-name" />
-		<set name="lime-module-name" value="lime" unless="lime-module-name" />
-		<setenv name="HAXE_STD_PATH" value="${HAXE_STD_PATH}" if="modular HAXE_STD_PATH" />
-		
-		<module name="${haxe-module-name}" if="html5 modular" unless="exclude-haxe-module">
+		<section if="lime-modular">
 			
-			<!--<source path="${HAXE_STD_PATH}" package="js.html" />-->
-			<source path="${HAXE_STD_PATH}" package="haxe.ds" exclude="haxe.ds.StringMap" />
-			<source path="${HAXE_STD_PATH}" package="haxe.io" />
+			<set name="haxe-module-name" value="haxe" unless="haxe-module-name" />
+			<set name="lime-module-name" value="lime" unless="lime-module-name" />
+			<setenv name="HAXE_STD_PATH" value="${HAXE_STD_PATH}" if="HAXE_STD_PATH" />
 			
-			<class name="haxe.CallStack" />
-			<class name="haxe.Log" />
-			<class name="haxe.Timer" />
-			<!-- <class name="js.Boot" /> -->
-			<class name="js.Browser" />
-			<class name="js.Cookie" />
-			<class name="js.Error" />
-			<!-- <class name="js.Lib" /> -->
-			<class name="js.Promise" />
-			<class name="js.RegExp" />
-			<class name="js.Selection" />
-			<class name="js.XMLSocket" />
-			<class name="EReg" />
-			<class name="HxOverrides" />
-			<class name="List" />
-			<class name="Math" />
-			<!-- <class name="Reflect" /> -->
-			<!-- <class name="Std" /> -->
-			<class name="StringBuf" />
-			<class name="StringTools" />
-			<!-- <class name="Type" /> -->
+			<module name="${haxe-module-name}" if="html5" unless="exclude-haxe-module">
+				
+				<!--<source path="${HAXE_STD_PATH}" package="js.html" />-->
+				<source path="${HAXE_STD_PATH}" package="haxe.ds" exclude="haxe.ds.StringMap" />
+				<source path="${HAXE_STD_PATH}" package="haxe.io" />
+				
+				<class name="haxe.CallStack" />
+				<class name="haxe.Log" />
+				<class name="haxe.Timer" />
+				<!-- <class name="js.Boot" /> -->
+				<class name="js.Browser" />
+				<class name="js.Cookie" />
+				<class name="js.Error" />
+				<!-- <class name="js.Lib" /> -->
+				<class name="js.Promise" />
+				<class name="js.RegExp" />
+				<class name="js.Selection" />
+				<class name="js.XMLSocket" />
+				<class name="EReg" />
+				<class name="HxOverrides" />
+				<class name="List" />
+				<class name="Math" />
+				<!-- <class name="Reflect" /> -->
+				<!-- <class name="Std" /> -->
+				<class name="StringBuf" />
+				<class name="StringTools" />
+				<!-- <class name="Type" /> -->
+				
+				<include type="haxe.ds._StringMap.StringMapIterator" />
+				<include type="haxe.ds.TreeNode" />
+				<!-- <include type="haxe.IMap" /> -->
+				<include type="haxe._Int64.___Int64" />
+				<include type="haxe.StackItem" />
+				<include type="js.html._CanvasElement.CanvasUtil" />
+				<!-- <include type="js._Boot.HaxeError" /> -->
+				<include type="_List.ListIterator" />
+				
+			</module>
 			
-			<include type="haxe.ds._StringMap.StringMapIterator" />
-			<include type="haxe.ds.TreeNode" />
-			<!-- <include type="haxe.IMap" /> -->
-			<include type="haxe._Int64.___Int64" />
-			<include type="haxe.StackItem" />
-			<include type="js.html._CanvasElement.CanvasUtil" />
-			<!-- <include type="js._Boot.HaxeError" /> -->
-			<include type="_List.ListIterator" />
+			<module name="${lime-module-name}" if="html5" unless="exclude-lime-module">
+				
+				<source path="" package="lime" exclude="lime._backend.*|lime.project.*|lime.tools.*|lime.net.*|lime.graphics.console.*|lime.text.harfbuzz.*" />
+				<source path="" package="lime" include="lime._backend.html5" />
+				
+				<class name="lime.net.HTTPRequest" />
+				
+				<include type="lime.app._Future.FutureWork" />
+				<include type="lime.graphics.utils._ImageDataUtil.ImageDataView" />
+				<include type="lime.system._ThreadPool.ThreadPoolMessageType" />
+				<include type="lime.AssetLibrary" />
+				
+				<!-- @:expose on enums do not work in Haxe 3.4.2 -->
+				<class remove="lime.graphics.opengl.GLContextType" />
+				<class remove="lime.graphics.ImageChannel" />
+				<class remove="lime.graphics.ImageType" />
+				<class remove="lime.graphics.RendererType" />
+				<class remove="lime.ui.FileDialogType" />
+				<class remove="lime.ui.MouseCursor" />
+				<class remove="lime.system.Endian" />
+				<class remove="lime.system.SensorType" />
+				
+				<exclude type="lime.graphics.console.IndexBuffer" />
+				<exclude type="lime.graphics.console.PointerUtil" />
+				<exclude type="lime.graphics.console.Primitive" />
+				<exclude type="lime.graphics.console.RenderState" />
+				<exclude type="lime.graphics.console.Shader" />
+				<exclude type="lime.graphics.console.Texture" />
+				<exclude type="lime.graphics.console.TextureAddressMode" />
+				<exclude type="lime.graphics.console.TextureData" />
+				<exclude type="lime.graphics.console.TextureFilter" />
+				<exclude type="lime.graphics.console.TextureFormat" />
+				<exclude type="lime.graphics.console.VertexBuffer" />
+				<exclude type="lime.graphics.console.VertexDecl" />
+				<exclude type="lime.graphics.console.VertexOutput" />
+				
+			</module>
 			
-		</module>
-		
-		<module name="${lime-module-name}" if="html5 modular" unless="exclude-lime-module">
-			
-			<source path="" package="lime" exclude="lime._backend.*|lime.project.*|lime.tools.*|lime.net.*|lime.graphics.console.*|lime.text.harfbuzz.*" />
-			<source path="" package="lime" include="lime._backend.html5" />
-			
-			<class name="lime.net.HTTPRequest" />
-			
-			<include type="lime.app._Future.FutureWork" />
-			<include type="lime.graphics.utils._ImageDataUtil.ImageDataView" />
-			<include type="lime.system._ThreadPool.ThreadPoolMessageType" />
-			<include type="lime.AssetLibrary" />
-			
-			<!-- @:expose on enums do not work in Haxe 3.4.2 -->
-			<class remove="lime.graphics.opengl.GLContextType" />
-			<class remove="lime.graphics.ImageChannel" />
-			<class remove="lime.graphics.ImageType" />
-			<class remove="lime.graphics.RendererType" />
-			<class remove="lime.ui.FileDialogType" />
-			<class remove="lime.ui.MouseCursor" />
-			<class remove="lime.system.Endian" />
-			<class remove="lime.system.SensorType" />
-			
-			<exclude type="lime.graphics.console.IndexBuffer" />
-			<exclude type="lime.graphics.console.PointerUtil" />
-			<exclude type="lime.graphics.console.Primitive" />
-			<exclude type="lime.graphics.console.RenderState" />
-			<exclude type="lime.graphics.console.Shader" />
-			<exclude type="lime.graphics.console.Texture" />
-			<exclude type="lime.graphics.console.TextureAddressMode" />
-			<exclude type="lime.graphics.console.TextureData" />
-			<exclude type="lime.graphics.console.TextureFilter" />
-			<exclude type="lime.graphics.console.TextureFormat" />
-			<exclude type="lime.graphics.console.VertexBuffer" />
-			<exclude type="lime.graphics.console.VertexDecl" />
-			<exclude type="lime.graphics.console.VertexOutput" />
-			
-		</module>
+		</section>
 		
 	</section>
 	
