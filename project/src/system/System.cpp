@@ -8,6 +8,27 @@
 namespace lime {
 	
 	
+	std::wstring* System::GetManufacturer () {
+		
+		return NULL;
+		
+	}
+	
+	
+	std::wstring* System::GetModel () {
+		
+		return NULL;
+		
+	}
+	
+	
+	std::wstring* System::GetVersion () {
+		
+		return NULL;
+		
+	}
+	
+	
 	#ifdef HX_WINDOWS
 	int System::GetWindowsConsoleMode (int handleType) {
 		

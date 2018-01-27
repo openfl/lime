@@ -1481,6 +1481,44 @@ namespace lime {
 	}
 	
 	
+	value lime_system_get_manufacturer () {
+		
+		std::wstring* manufacturer = System::GetManufacturer ();
+		
+		if (manufacturer) {
+			
+			value result = alloc_wstring (manufacturer->c_str ());
+			delete manufacturer;
+			return result;
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
+		
+	}
+	
+	
+	value lime_system_get_model () {
+		
+		std::wstring* model = System::GetModel ();
+		
+		if (model) {
+			
+			value result = alloc_wstring (model->c_str ());
+			delete model;
+			return result;
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
+		
+	}
+	
+	
 	int lime_system_get_num_displays () {
 		
 		return System::GetNumDisplays ();
@@ -1491,6 +1529,25 @@ namespace lime {
 	double lime_system_get_timer () {
 		
 		return System::GetTimer ();
+		
+	}
+	
+	
+	value lime_system_get_version () {
+		
+		std::wstring* version = System::GetVersion ();
+		
+		if (version) {
+			
+			value result = alloc_wstring (version->c_str ());
+			delete version;
+			return result;
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
 		
 	}
 	
@@ -1976,8 +2033,11 @@ namespace lime {
 	DEFINE_PRIME3 (lime_system_get_directory);
 	DEFINE_PRIME1 (lime_system_get_display);
 	DEFINE_PRIME0 (lime_system_get_ios_tablet);
+	DEFINE_PRIME0 (lime_system_get_manufacturer);
+	DEFINE_PRIME0 (lime_system_get_model);
 	DEFINE_PRIME0 (lime_system_get_num_displays);
 	DEFINE_PRIME0 (lime_system_get_timer);
+	DEFINE_PRIME0 (lime_system_get_version);	
 	DEFINE_PRIME1 (lime_system_get_windows_console_mode);
 	DEFINE_PRIME1v (lime_system_open_file);
 	DEFINE_PRIME2v (lime_system_open_url);

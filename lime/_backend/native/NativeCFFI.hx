@@ -136,8 +136,11 @@ class NativeCFFI {
 	@:cffi private static function lime_system_get_directory (type:Int, company:String, title:String):Dynamic;
 	@:cffi private static function lime_system_get_display (index:Int):Dynamic;
 	@:cffi private static function lime_system_get_ios_tablet ():Bool;
+	@:cffi private static function lime_system_get_manufacturer ():Dynamic;
+	@:cffi private static function lime_system_get_model ():Dynamic;
 	@:cffi private static function lime_system_get_num_displays ():Int;
 	@:cffi private static function lime_system_get_timer ():Float;
+	@:cffi private static function lime_system_get_version ():Dynamic;
 	@:cffi private static function lime_system_open_file (path:String):Void;
 	@:cffi private static function lime_system_open_url (url:String, target:String):Void;
 	@:cffi private static function lime_text_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;

@@ -2,6 +2,7 @@
 #import <UIKit/UIKit.h>
 #endif
 
+#import <sys/utsname.h>
 #include <system/System.h>
 
 
@@ -57,6 +58,41 @@ namespace lime {
 	bool System::GetIOSTablet () {
 		
 		return (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) ? 1 : 0;
+		
+	}
+	
+	
+	std::wstring* System::GetManufacturer () {
+		
+		return NULL;
+		
+	}
+	
+	
+	std::wstring* System::GetModel () {
+		
+		#ifdef IPHONE
+		struct utsname systemInfo;
+		uname (&systemInfo);
+		
+		std::string model = std::string (systemInfo.machine);
+		return new std::wstring (model.begin (), model.end ());
+		#else
+		return NULL;
+		#endif
+		
+	}
+	
+	
+	std::wstring* System::GetVersion () {
+		
+		#ifdef IPHONE
+		NSString *versionString = [[UIDevice currentDevice] systemVersion];
+		std::string result = std::string ([versionString UTF8String]);
+		return new std::wstring (result.begin (), result.end ());
+		#else
+		return NULL;
+		#endif
 		
 	}
 	

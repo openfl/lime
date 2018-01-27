@@ -25,6 +25,10 @@ import js.html.Element;
 import js.Browser;
 #end
 
+#if sys
+import sys.io.Process;
+#end
+
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
@@ -57,8 +61,11 @@ class System {
 	public static var documentsDirectory (get, null):String;
 	public static var endianness (get, null):Endian;
 	public static var fontsDirectory (get, null):String;
+	public static var manufacturer (get, null):String;
+	public static var model (get, null):String;
 	public static var numDisplays (get, null):Int;
 	public static var userDirectory (get, null):String;
+	public static var version (get, null):String;
 	
 	@:noCompletion private static var __applicationConfig:Map<String, Config>;
 	@:noCompletion private static var __applicationEntryPoint:Map<String, Function>;
@@ -514,6 +521,25 @@ class System {
 	}
 	
 	
+	private static function __runProcess (command:String, args:Array<String> = null):String {
+		
+		#if sys
+		try {
+			
+			if (args == null) args = [];
+			
+			var process = new Process (command, args);
+			var value = StringTools.trim (process.stdout.readLine ().toString ());
+			process.close ();
+			return value;
+			
+		} catch (e:Dynamic) {}
+		#end
+		return null;
+		
+	}
+	
+	
 	
 	
 	// Get & Set Methods
@@ -615,6 +641,72 @@ class System {
 		}
 		
 		return endianness;
+		
+	}
+	
+	
+	private static function get_manufacturer ():String {
+		
+		#if android
+		var manufacturer:String = JNI.createStaticField ("android/os/Build", "MANUFACTURER", "Ljava/lang/String;").get ();
+		if (manufacturer != null) {
+			return manufacturer.charAt (0).toUpperCase () + manufacturer.substr (1);
+		}
+		#elseif (ios || mac)
+		return "Apple";
+		#elseif linux
+		return __runProcess ("cat", [ "/sys/devices/virtual/dmi/id/product_name" ]);
+		#end
+		return null;
+		
+	}
+	
+	
+	private static function get_model ():String {
+		
+		#if android
+		var manufacturer:String = JNI.createStaticField ("android/os/Build", "MANUFACTURER", "Ljava/lang/String;").get ();
+		var model:String = JNI.createStaticField ("android/os/Build", "MODEL", "Ljava/lang/String;").get ();
+		if (manufacturer != null && model != null) {
+			if (StringTools.startsWith (model.toLowerCase (), manufacturer.toLowerCase ())) {
+				model = StringTools.trim (model.substr (manufacturer.length));
+				while (StringTools.startsWith (model, "-")) {
+					model = StringTools.trim (model.substr (1));
+				}
+			}
+			return model;
+		}
+		#elseif ios
+		return NativeCFFI.lime_system_get_model ();
+		#elseif mac
+		return __runProcess ("sysctl", [ "-n", "hw.model" ]);
+		#elseif linux
+		return __runProcess ("cat", [ "/sys/devices/virtual/dmi/id/sys_vendor" ]);
+		#end
+		return null;
+		
+	}
+	
+	
+	private static function get_version ():String {
+		
+		#if android
+		var release = JNI.createStaticField ("android/os/Build$VERSION", "RELEASE", "Ljava/lang/String;").get ();
+		var api = JNI.createStaticField ("android/os/Build$VERSION", "SDK_INT", "I").get ();
+		if (release != null && api != null) return "Android " + release + " (API " + api + ")";
+		#elseif ios
+		var name = "iOS";
+		var version:String = NativeCFFI.lime_system_get_version ();
+		if (name != null && version != null) return name + " " + version;
+		#elseif mac
+		//var name = __runProcess ("sw_vers", [ "-productName" ]);
+		var name = "macOS";
+		var version = __runProcess ("sw_vers", [ "-productVersion" ]);
+		if (name != null && version != null) return name + " " + version;
+		#elseif linux
+		return __runProcess ("lsb_release", [ "-ds" ]);
+		#end
+		return null;
 		
 	}
 	

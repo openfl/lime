@@ -32,6 +32,9 @@ namespace lime {
 			static std::wstring* GetIOSDirectory (SystemDirectory type);
 			static bool GetIOSTablet ();
 			#endif
+			static std::wstring* GetManufacturer ();
+			static std::wstring* GetModel ();
+			static std::wstring* GetVersion ();
 			#ifdef HX_WINDOWS
 			static int GetWindowsConsoleMode (int handleType);
 			#endif
