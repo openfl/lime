@@ -344,7 +344,7 @@ class IOSPlatform extends PlatformTarget {
 		}
 		
 		context.HXML_PATH = PathHelper.findTemplate (project.templatePaths, "iphone/PROJ/haxe/Build.hxml", false);
-		if (context.HXML_PATH == null) context.HXML_PATH = PathHelper.findTemplate (project.templatePaths, "iphone/template/{{app.file}}/haxe/Build.hxml");
+		if (context.HXML_PATH == null) context.HXML_PATH = PathHelper.findTemplate (project.templatePaths, "ios/template/{{app.file}}/haxe/Build.hxml");
 		context.PRERENDERED_ICON = project.config.getBool ("ios.prerenderedIcon", false);
 		
 		var allowInsecureHTTP = project.config.getString ("ios.allow-insecure-http", "*");
