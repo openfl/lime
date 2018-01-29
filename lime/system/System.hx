@@ -54,22 +54,32 @@ class System {
 	
 	
 	public static var allowScreenTimeout (get, set):Bool;
-	public static var applicationDirectory (get, null):String;
-	public static var applicationStorageDirectory (get, null):String;
-	public static var desktopDirectory (get, null):String;
+	public static var applicationDirectory (get, never):String;
+	public static var applicationStorageDirectory (get, never):String;
+	public static var desktopDirectory (get, never):String;
 	public static var disableCFFI:Bool;
-	public static var documentsDirectory (get, null):String;
-	public static var endianness (get, null):Endian;
-	public static var fontsDirectory (get, null):String;
-	public static var manufacturer (get, null):String;
-	public static var model (get, null):String;
-	public static var numDisplays (get, null):Int;
-	public static var userDirectory (get, null):String;
-	public static var version (get, null):String;
+	public static var documentsDirectory (get, never):String;
+	public static var endianness (get, never):Endian;
+	public static var fontsDirectory (get, never):String;
+	public static var manufacturer (get, never):String;
+	public static var model (get, never):String;
+	public static var numDisplays (get, never):Int;
+	public static var userDirectory (get, never):String;
+	public static var version (get, never):String;
 	
 	@:noCompletion private static var __applicationConfig:Map<String, Config>;
+	@:noCompletion private static var __applicationDirectory:String;
 	@:noCompletion private static var __applicationEntryPoint:Map<String, Function>;
+	@:noCompletion private static var __applicationStorageDirectory:String;
+	@:noCompletion private static var __desktopDirectory:String;
 	@:noCompletion private static var __directories = new Map<SystemDirectory, String> ();
+	@:noCompletion private static var __documentsDirectory:String;
+	@:noCompletion private static var __endianness:Endian;
+	@:noCompletion private static var __fontsDirectory:String;
+	@:noCompletion private static var __manufacturer:String;
+	@:noCompletion private static var __model:String;
+	@:noCompletion private static var __userDirectory:String;
+	@:noCompletion private static var __version:String;
 	
 	
 	#if (js && html5)
@@ -501,7 +511,7 @@ class System {
 	}
 	
 	
-	private static function __registerEntryPoint (projectName:String, entryPoint:Function, config:Config):Void {
+	@:noCompletion private static function __registerEntryPoint (projectName:String, entryPoint:Function, config:Config):Void {
 		
 		if (__applicationConfig == null) {
 			
@@ -521,7 +531,7 @@ class System {
 	}
 	
 	
-	private static function __runProcess (command:String, args:Array<String> = null):String {
+	@:noCompletion private static function __runProcess (command:String, args:Array<String> = null):String {
 		
 		#if sys
 		try {
@@ -571,35 +581,65 @@ class System {
 	
 	private static function get_applicationDirectory ():String {
 		
-		return __getDirectory (APPLICATION);
+		if (__applicationDirectory == null) {
+			
+			__applicationDirectory = __getDirectory (APPLICATION);
+			
+		}
+		
+		return __applicationDirectory;
 		
 	}
 	
 	
 	private static function get_applicationStorageDirectory ():String {
 		
-		return __getDirectory (APPLICATION_STORAGE);
+		if (__applicationStorageDirectory == null) {
+			
+			__applicationStorageDirectory = __getDirectory (APPLICATION_STORAGE);
+			
+		}
+		
+		return __applicationStorageDirectory;
 		
 	}
 	
 	
 	private static function get_desktopDirectory ():String {
 		
-		return __getDirectory (DESKTOP);
+		if (__desktopDirectory == null) {
+			
+			__desktopDirectory = __getDirectory (DESKTOP);
+			
+		}
+		
+		return __desktopDirectory;
 		
 	}
 	
 	
 	private static function get_documentsDirectory ():String {
 		
-		return __getDirectory (DOCUMENTS);
+		if (__documentsDirectory == null) {
+			
+			__documentsDirectory = __getDirectory (DOCUMENTS);
+			
+		}
+		
+		return __documentsDirectory;
 		
 	}
 	
 	
 	private static function get_fontsDirectory ():String {
 		
-		return __getDirectory (FONTS);
+		if (__fontsDirectory == null) {
+			
+			__fontsDirectory = __getDirectory (FONTS);
+			
+		}
+		
+		return __fontsDirectory;
 		
 	}
 	
@@ -617,101 +657,122 @@ class System {
 	
 	private static function get_userDirectory ():String {
 		
-		return __getDirectory (USER);
+		if (__userDirectory == null) {
+			
+			__userDirectory = __getDirectory (USER);
+			
+		}
+		
+		return __userDirectory;
 		
 	}
 	
 	
 	private static function get_endianness ():Endian {
 		
-		if (endianness == null) {
+		if (__endianness == null) {
 			
 			#if (ps3 || wiiu || flash)
-			return BIG_ENDIAN;
+			__endianness = BIG_ENDIAN;
 			#else
 			var arrayBuffer = new ArrayBuffer (2);
 			var uint8Array = new UInt8Array (arrayBuffer);
 			var uint16array = new UInt16Array (arrayBuffer);
 			uint8Array[0] = 0xAA;
 			uint8Array[1] = 0xBB;
-			if (uint16array[0] == 0xAABB) endianness = BIG_ENDIAN;
-			else endianness = LITTLE_ENDIAN;
+			if (uint16array[0] == 0xAABB) __endianness = BIG_ENDIAN;
+			else __endianness = LITTLE_ENDIAN;
 			#end
 			
 		}
 		
-		return endianness;
+		return __endianness;
 		
 	}
 	
 	
 	private static function get_manufacturer ():String {
 		
-		#if windows
-		return NativeCFFI.lime_system_get_manufacturer ();
-		#elseif android
-		var manufacturer:String = JNI.createStaticField ("android/os/Build", "MANUFACTURER", "Ljava/lang/String;").get ();
-		if (manufacturer != null) {
-			return manufacturer.charAt (0).toUpperCase () + manufacturer.substr (1);
+		if (__manufacturer == null) {
+			
+			#if windows
+			__manufacturer = NativeCFFI.lime_system_get_manufacturer ();
+			#elseif android
+			var manufacturer:String = JNI.createStaticField ("android/os/Build", "MANUFACTURER", "Ljava/lang/String;").get ();
+			if (manufacturer != null) {
+				__manufacturer = manufacturer.charAt (0).toUpperCase () + manufacturer.substr (1);
+			}
+			#elseif (ios || mac)
+			__manufacturer = "Apple";
+			#elseif linux
+			__manufacturer = __runProcess ("cat", [ "/sys/devices/virtual/dmi/id/product_name" ]);
+			#end
+			
 		}
-		#elseif (ios || mac)
-		return "Apple";
-		#elseif linux
-		return __runProcess ("cat", [ "/sys/devices/virtual/dmi/id/product_name" ]);
-		#end
-		return null;
+		
+		return __manufacturer;
 		
 	}
 	
 	
 	private static function get_model ():String {
 		
-		#if (windows || ios)
-		return NativeCFFI.lime_system_get_model ();
-		#elseif android
-		var manufacturer:String = JNI.createStaticField ("android/os/Build", "MANUFACTURER", "Ljava/lang/String;").get ();
-		var model:String = JNI.createStaticField ("android/os/Build", "MODEL", "Ljava/lang/String;").get ();
-		if (manufacturer != null && model != null) {
-			if (StringTools.startsWith (model.toLowerCase (), manufacturer.toLowerCase ())) {
-				model = StringTools.trim (model.substr (manufacturer.length));
-				while (StringTools.startsWith (model, "-")) {
-					model = StringTools.trim (model.substr (1));
+		if (__model == null) {
+			
+			#if (windows || ios)
+			__model = NativeCFFI.lime_system_get_model ();
+			#elseif android
+			var manufacturer:String = JNI.createStaticField ("android/os/Build", "MANUFACTURER", "Ljava/lang/String;").get ();
+			var model:String = JNI.createStaticField ("android/os/Build", "MODEL", "Ljava/lang/String;").get ();
+			if (manufacturer != null && model != null) {
+				if (StringTools.startsWith (model.toLowerCase (), manufacturer.toLowerCase ())) {
+					model = StringTools.trim (model.substr (manufacturer.length));
+					while (StringTools.startsWith (model, "-")) {
+						model = StringTools.trim (model.substr (1));
+					}
 				}
+				__model = model;
 			}
-			return model;
+			#elseif mac
+			__model = __runProcess ("sysctl", [ "-n", "hw.model" ]);
+			#elseif linux
+			__model = __runProcess ("cat", [ "/sys/devices/virtual/dmi/id/sys_vendor" ]);
+			#end
+			
 		}
-		#elseif mac
-		return __runProcess ("sysctl", [ "-n", "hw.model" ]);
-		#elseif linux
-		return __runProcess ("cat", [ "/sys/devices/virtual/dmi/id/sys_vendor" ]);
-		#end
-		return null;
+		
+		return __model;
 		
 	}
 	
 	
 	private static function get_version ():String {
 		
-		#if windows
-		var version:String = NativeCFFI.lime_system_get_version ();
-		if (version != null) return StringTools.trim (version);
-		#elseif android
-		var release = JNI.createStaticField ("android/os/Build$VERSION", "RELEASE", "Ljava/lang/String;").get ();
-		var api = JNI.createStaticField ("android/os/Build$VERSION", "SDK_INT", "I").get ();
-		if (release != null && api != null) return "Android " + release + " (API " + api + ")";
-		#elseif ios
-		var name = "iOS";
-		var version:String = NativeCFFI.lime_system_get_version ();
-		if (name != null && version != null) return name + " " + version;
-		#elseif mac
-		//var name = __runProcess ("sw_vers", [ "-productName" ]);
-		var name = "macOS";
-		var version = __runProcess ("sw_vers", [ "-productVersion" ]);
-		if (name != null && version != null) return name + " " + version;
-		#elseif linux
-		return __runProcess ("lsb_release", [ "-ds" ]);
-		#end
-		return null;
+		if (__version == null) {
+			
+			#if windows
+			var version:String = NativeCFFI.lime_system_get_version ();
+			if (version != null) __version = StringTools.trim (version);
+			#elseif android
+			var release = JNI.createStaticField ("android/os/Build$VERSION", "RELEASE", "Ljava/lang/String;").get ();
+			var api = JNI.createStaticField ("android/os/Build$VERSION", "SDK_INT", "I").get ();
+			if (release != null && api != null) __version = "Android " + release + " (API " + api + ")";
+			#elseif ios
+			var name = "iOS";
+			var version:String = NativeCFFI.lime_system_get_version ();
+			if (name != null && version != null) __version = name + " " + version;
+			#elseif mac
+			//var name = __runProcess ("sw_vers", [ "-productName" ]);
+			var name = "macOS";
+			var version = __runProcess ("sw_vers", [ "-productVersion" ]);
+			if (name != null && version != null) __version = name + " " + version;
+			#elseif linux
+			__version = __runProcess ("lsb_release", [ "-ds" ]);
+			#end
+			
+		}
+		
+		return __version;
 		
 	}
 	
