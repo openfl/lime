@@ -613,7 +613,7 @@ class System {
 		
 		if (__deviceModel == null) {
 			
-			#if (windows || ios)
+			#if (windows || ios || tvos)
 			__deviceModel = NativeCFFI.lime_system_get_device_model ();
 			#elseif android
 			var manufacturer:String = JNI.createStaticField ("android/os/Build", "MANUFACTURER", "Ljava/lang/String;").get ();
@@ -651,7 +651,7 @@ class System {
 			if (vendor != null) {
 				__deviceVendor = vendor.charAt (0).toUpperCase () + vendor.substr (1);
 			}
-			#elseif (ios || mac)
+			#elseif (ios || mac || tvos)
 			__deviceVendor = "Apple";
 			#elseif linux
 			__deviceVendor = __runProcess ("cat", [ "/sys/devices/virtual/dmi/id/product_name" ]);
@@ -750,6 +750,7 @@ class System {
 			var name = System.platformName;
 			var version = System.platformVersion;
 			if (name != null && version != null) __platformLabel = name + " " + version;
+			else if (name != null) __platformLabel = name;
 			#end
 			
 		}
@@ -765,14 +766,32 @@ class System {
 			
 			#if windows
 			__platformName = "Windows";
-			#elseif android
-			__platformName = "Android";
-			#elseif ios
-			__platformName = "iOS";
 			#elseif mac
 			__platformName = "macOS";
 			#elseif linux
 			__platformName = __runProcess ("lsb_release", [ "-is" ]);
+			#elseif ios
+			__platformName = "iOS";
+			#elseif android
+			__platformName = "Android";
+			#elseif air
+			__platform name = "AIR";
+			#elseif flash
+			__platformName = "Flash Player";
+			#elseif tvos
+			__platformName = "tvOS";
+			#elseif tizen
+			__platformName = "Tizen";
+			#elseif blackberry
+			__platformName = "BlackBerry";
+			#elseif firefox
+			__platformName = "Firefox";
+			#elseif webos
+			__platformName = "webOS";
+			#elseif nodejs
+			__platformName = "Node.js";
+			#elseif js
+			__platformName = "HTML5";
 			#end
 			
 		}
@@ -792,12 +811,14 @@ class System {
 			var release = JNI.createStaticField ("android/os/Build$VERSION", "RELEASE", "Ljava/lang/String;").get ();
 			var api = JNI.createStaticField ("android/os/Build$VERSION", "SDK_INT", "I").get ();
 			if (release != null && api != null) __platformVersion = release + " (API " + api + ")";
-			#elseif ios
+			#elseif (ios || tvos)
 			__platformVersion = NativeCFFI.lime_system_get_platform_version ();
 			#elseif mac
 			__platformVersion = __runProcess ("sw_vers", [ "-productVersion" ]);
 			#elseif linux
 			__platformVersion = __runProcess ("lsb_release", [ "-rs" ]);
+			#elseif flash
+			__platformVersion = Capabilities.version;
 			#end
 			
 		}
