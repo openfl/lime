@@ -62,14 +62,7 @@ namespace lime {
 	}
 	
 	
-	std::wstring* System::GetManufacturer () {
-		
-		return NULL;
-		
-	}
-	
-	
-	std::wstring* System::GetModel () {
+	std::wstring* System::GetDeviceModel () {
 		
 		#ifdef IPHONE
 		struct utsname systemInfo;
@@ -84,7 +77,28 @@ namespace lime {
 	}
 	
 	
-	std::wstring* System::GetVersion () {
+	std::wstring* System::GetDeviceVendor () {
+		
+		return NULL;
+		
+	}
+	
+	
+	std::wstring* System::GetPlatformLabel () {
+		
+		return NULL;
+		
+	}
+	
+	
+	std::wstring* System::GetPlatformName () {
+		
+		return NULL;
+		
+	}
+	
+	
+	std::wstring* System::GetPlatformVersion () {
 		
 		#ifdef IPHONE
 		NSString *versionString = [[UIDevice currentDevice] systemVersion];
