@@ -1444,6 +1444,44 @@ namespace lime {
 	}
 	
 	
+	value lime_system_get_device_model () {
+		
+		std::wstring* model = System::GetDeviceModel ();
+		
+		if (model) {
+			
+			value result = alloc_wstring (model->c_str ());
+			delete model;
+			return result;
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
+		
+	}
+	
+	
+	value lime_system_get_device_vendor () {
+		
+		std::wstring* vendor = System::GetDeviceVendor ();
+		
+		if (vendor) {
+			
+			value result = alloc_wstring (vendor->c_str ());
+			delete vendor;
+			return result;
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
+		
+	}
+	
+	
 	value lime_system_get_directory (int type, HxString company, HxString title) {
 		
 		std::wstring* path = System::GetDirectory ((SystemDirectory)type, company.c_str (), title.c_str ());
@@ -1481,44 +1519,6 @@ namespace lime {
 	}
 	
 	
-	value lime_system_get_manufacturer () {
-		
-		std::wstring* manufacturer = System::GetManufacturer ();
-		
-		if (manufacturer) {
-			
-			value result = alloc_wstring (manufacturer->c_str ());
-			delete manufacturer;
-			return result;
-			
-		} else {
-			
-			return alloc_null ();
-			
-		}
-		
-	}
-	
-	
-	value lime_system_get_model () {
-		
-		std::wstring* model = System::GetModel ();
-		
-		if (model) {
-			
-			value result = alloc_wstring (model->c_str ());
-			delete model;
-			return result;
-			
-		} else {
-			
-			return alloc_null ();
-			
-		}
-		
-	}
-	
-	
 	int lime_system_get_num_displays () {
 		
 		return System::GetNumDisplays ();
@@ -1526,16 +1526,47 @@ namespace lime {
 	}
 	
 	
-	double lime_system_get_timer () {
+	value lime_system_get_platform_label () {
 		
-		return System::GetTimer ();
+		std::wstring* label = System::GetPlatformLabel ();
+		
+		if (label) {
+			
+			value result = alloc_wstring (label->c_str ());
+			delete label;
+			return result;
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
 		
 	}
 	
 	
-	value lime_system_get_version () {
+	value lime_system_get_platform_name () {
 		
-		std::wstring* version = System::GetVersion ();
+		std::wstring* name = System::GetPlatformName ();
+		
+		if (name) {
+			
+			value result = alloc_wstring (name->c_str ());
+			delete name;
+			return result;
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
+		
+	}
+	
+	
+	value lime_system_get_platform_version () {
+		
+		std::wstring* version = System::GetPlatformVersion ();
 		
 		if (version) {
 			
@@ -1548,6 +1579,13 @@ namespace lime {
 			return alloc_null ();
 			
 		}
+		
+	}
+	
+	
+	double lime_system_get_timer () {
+		
+		return System::GetTimer ();
 		
 	}
 	
@@ -2030,14 +2068,16 @@ namespace lime {
 	DEFINE_PRIME2v (lime_render_event_manager_register);
 	DEFINE_PRIME2v (lime_sensor_event_manager_register);
 	DEFINE_PRIME0 (lime_system_get_allow_screen_timeout);
+	DEFINE_PRIME0 (lime_system_get_device_model);
+	DEFINE_PRIME0 (lime_system_get_device_vendor);
 	DEFINE_PRIME3 (lime_system_get_directory);
 	DEFINE_PRIME1 (lime_system_get_display);
 	DEFINE_PRIME0 (lime_system_get_ios_tablet);
-	DEFINE_PRIME0 (lime_system_get_manufacturer);
-	DEFINE_PRIME0 (lime_system_get_model);
 	DEFINE_PRIME0 (lime_system_get_num_displays);
+	DEFINE_PRIME0 (lime_system_get_platform_label);
+	DEFINE_PRIME0 (lime_system_get_platform_name);
+	DEFINE_PRIME0 (lime_system_get_platform_version);
 	DEFINE_PRIME0 (lime_system_get_timer);
-	DEFINE_PRIME0 (lime_system_get_version);	
 	DEFINE_PRIME1 (lime_system_get_windows_console_mode);
 	DEFINE_PRIME1v (lime_system_open_file);
 	DEFINE_PRIME2v (lime_system_open_url);

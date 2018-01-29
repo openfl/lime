@@ -108,18 +108,7 @@ namespace lime {
 	#endif
 	
 	
-	std::wstring* System::GetManufacturer () {
-		
-		#ifdef HX_WINDOWS
-		return GetWMIValue (bstr_t ("SELECT * FROM Win32_ComputerSystemProduct"), L"Vendor");
-		#endif
-		
-		return NULL;
-		
-	}
-	
-	
-	std::wstring* System::GetModel () {
+	std::wstring* System::GetDeviceModel () {
 		
 		#ifdef HX_WINDOWS
 		return GetWMIValue (bstr_t ("SELECT * FROM Win32_ComputerSystemProduct"), L"Version");
@@ -130,10 +119,39 @@ namespace lime {
 	}
 	
 	
-	std::wstring* System::GetVersion () {
+	std::wstring* System::GetDeviceVendor () {
+		
+		#ifdef HX_WINDOWS
+		return GetWMIValue (bstr_t ("SELECT * FROM Win32_ComputerSystemProduct"), L"Vendor");
+		#endif
+		
+		return NULL;
+		
+	}
+	
+	
+	std::wstring* System::GetPlatformLabel () {
 		
 		#ifdef HX_WINDOWS
 		return GetWMIValue (bstr_t ("SELECT * FROM Win32_OperatingSystem"), L"Caption");
+		#endif
+		
+		return NULL;
+		
+	}
+	
+	
+	std::wstring* System::GetPlatformName () {
+		
+		return NULL;
+		
+	}
+	
+	
+	std::wstring* System::GetPlatformVersion () {
+		
+		#ifdef HX_WINDOWS
+		return GetWMIValue (bstr_t ("SELECT * FROM Win32_OperatingSystem"), L"Version");
 		#endif
 		
 		return NULL;
