@@ -647,7 +647,9 @@ class System {
 	
 	private static function get_manufacturer ():String {
 		
-		#if android
+		#if windows
+		return NativeCFFI.lime_system_get_manufacturer ();
+		#elseif android
 		var manufacturer:String = JNI.createStaticField ("android/os/Build", "MANUFACTURER", "Ljava/lang/String;").get ();
 		if (manufacturer != null) {
 			return manufacturer.charAt (0).toUpperCase () + manufacturer.substr (1);
@@ -664,7 +666,9 @@ class System {
 	
 	private static function get_model ():String {
 		
-		#if android
+		#if (windows || ios)
+		return NativeCFFI.lime_system_get_model ();
+		#elseif android
 		var manufacturer:String = JNI.createStaticField ("android/os/Build", "MANUFACTURER", "Ljava/lang/String;").get ();
 		var model:String = JNI.createStaticField ("android/os/Build", "MODEL", "Ljava/lang/String;").get ();
 		if (manufacturer != null && model != null) {
@@ -676,8 +680,6 @@ class System {
 			}
 			return model;
 		}
-		#elseif ios
-		return NativeCFFI.lime_system_get_model ();
 		#elseif mac
 		return __runProcess ("sysctl", [ "-n", "hw.model" ]);
 		#elseif linux
@@ -690,7 +692,10 @@ class System {
 	
 	private static function get_version ():String {
 		
-		#if android
+		#if windows
+		var version:String = NativeCFFI.lime_system_get_version ();
+		if (version != null) return StringTools.trim (version);
+		#elseif android
 		var release = JNI.createStaticField ("android/os/Build$VERSION", "RELEASE", "Ljava/lang/String;").get ();
 		var api = JNI.createStaticField ("android/os/Build$VERSION", "SDK_INT", "I").get ();
 		if (release != null && api != null) return "Android " + release + " (API " + api + ")";
