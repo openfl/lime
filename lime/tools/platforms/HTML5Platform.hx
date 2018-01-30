@@ -23,6 +23,7 @@ import sys.FileSystem;
 class HTML5Platform extends PlatformTarget {
 	
 	
+	private var dependencyPath:String;
 	private var outputFile:String;
 	
 	
@@ -124,6 +125,7 @@ class HTML5Platform extends PlatformTarget {
 	private function initialize (command:String, project:HXProject):Void {
 		
 		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("html5.output-directory", "html5"));
+		dependencyPath = project.config.getString ("html5.dependency-path", "lib");
 		outputFile = targetDirectory + "/bin/" + project.app.file + ".js";
 		
 	}
@@ -285,8 +287,8 @@ class HTML5Platform extends PlatformTarget {
 				
 				var name = Path.withoutDirectory (dependency.path);
 				
-				context.linkedLibraries.push ("./lib/" + name);
-				FileHelper.copyIfNewer (dependency.path, PathHelper.combine (destination, PathHelper.combine ("lib", name)));
+				context.linkedLibraries.push ("./" + dependencyPath + "/" + name);
+				FileHelper.copyIfNewer (dependency.path, PathHelper.combine (destination, PathHelper.combine (dependencyPath, name)));
 				
 			}
 			
