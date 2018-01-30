@@ -202,7 +202,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0910;
+				LastUpgradeCheck = 0920;
 				TargetAttributes = {
 					1D6058900D05DD3D006BFB54 = {
 						::if DEVELOPMENT_TEAM_ID::DevelopmentTeam = ::DEVELOPMENT_TEAM_ID::;::end::
