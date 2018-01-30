@@ -99,16 +99,19 @@ namespace lime {
 	
 	void lime_curl_easy_cleanup (value handle) {
 		
-		if (!val_is_null (handle)) {
+		// Disabled due to collision with GC-based cleanup
+		// when GC occurs on a different thread
+		
+		// if (!val_is_null (handle)) {
 			
-			if (curlValid.find (handle) != curlValid.end ()) {
+		// 	if (curlValid.find (handle) != curlValid.end ()) {
 				
-				curlValid.erase (handle);
-				curl_easy_cleanup ((CURL*)val_data(handle));
+		// 		curlValid.erase (handle);
+		// 		curl_easy_cleanup ((CURL*)val_data(handle));
 				
-			}
+		// 	}
 			
-		}
+		// }
 		
 	}
 	
